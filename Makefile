@@ -38,7 +38,14 @@ test:
 	$(call heading,$(PURPLE)Test Arch:$(NC)Running Verilog to Routing tests)
 	@$(MAKE) ARCH=testarch -C tests $(result)
 
+
 .PHONY: test
+
+simtest:
+	$(call heading,Running simulation tests)
+	for ii in `find . -type d -name simtest -a ! -wholename "./.deps/*"`; do echo $$ii; $(MAKE) -C $$ii > /dev/null; [ `grep -c failure $$ii/results.xml` == 0 ]; done
+
+.PHONY: simtest
 
 clean:
 	@true

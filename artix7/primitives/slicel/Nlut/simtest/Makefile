@@ -10,10 +10,10 @@ endif
 
 ifeq ($(OS),Msys)
 WPWD=$(shell sh -c 'pwd -W')
-PYTHONPATH := $(WPWD)/../model;$(PYTHONPATH)
+PYTHONPATH := $(WPWD);$(PYTHONPATH)
 else
 WPWD=$(shell pwd)
-PYTHONPATH := $(WPWD)/../model:$(PYTHONPATH)
+PYTHONPATH := $(WPWD):$(PYTHONPATH)
 endif
 
 VERILOG_SOURCES = $(WPWD)/../alut.sim.v
