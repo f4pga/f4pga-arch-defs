@@ -126,4 +126,7 @@ module A7_SLICEL(
 	input CARRY_IN;
 	input CARRY_OUT;
 
+	// Internal routing configuration
+	
+
 endmodule
