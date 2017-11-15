@@ -1,6 +1,4 @@
-<!-- A diagram for the SLICEL is shown in;
-    7 Series FPGAs CLB User Guide UG474 (v1.8) September 27, 2016
-    Figure 2-4: Diagram of SLICEL
+<!-- A diagram for the iCE40 PLB "Logic Cell" is shown in;
   -->
 <pb_type name="PLB">
 
@@ -37,7 +35,7 @@
       <input  name="I1"    num_pins="1"/>
       <output name="FCOUT" num_pins="1"/>
     </pb_type>
-  
+
     <interconnect>
       <direct name="I0" input="CELL.I[0]"           output="LUT4.I[0]"/>
       <direct name="I1" input="CELL.I[1]"           output="{LUT4.I[1] CARRY.I1}"/>
