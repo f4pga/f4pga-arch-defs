@@ -1,0 +1,10 @@
+    <!-- CARRY -->
+    <pb_type name="CARRY" num_pb="1" blif_model=".subckt CARRY">
+     <input  name="I2"    num_pins="1"/>
+     <input  name="FCIN"  num_pins="1"/>
+     <input  name="I1"    num_pins="1"/>
+     <output name="FCOUT" num_pins="1"/>
+     <delay_constant max="10e-12" in_port="CARRY.FCIN" out_port="CARRY.FCOUT"/>
+     <delay_constant max="10e-12" in_port="CARRY.I2"   out_port="CARRY.FCOUT"/>
+     <delay_constant max="10e-12" in_port="CARRY.I1"   out_port="CARRY.FCOUT"/>
+    </pb_type>
