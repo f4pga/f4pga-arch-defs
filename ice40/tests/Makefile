@@ -1,6 +1,7 @@
 
 
-ARCH ?= ../ice4.xml
+ARCH ?= ../arch/ice4
+ARCH_FILE = $(ARCH)/merged.xml
 VPR ?= vpr
 YOSYS ?= yosys
 
@@ -8,9 +9,10 @@ YOSYS ?= yosys
 	#yosys -p "synth_ice40; write_blif $@" $<
 	$(YOSYS) -p "synth_ice40; ice40_opt -unlut; abc -lut 4; opt_clean; write_blif $@" $<
 
-disp: rot.blif
+disp: rot.blif $(ARCH_FILE)
+	cd $(ARCH); make merged.xml
 	#Find the minimum routable channel width of my_circuit on my_arch
-	$(VPR) $(ARCH) rot.blif --disp on
+	$(VPR) $(ARCH_FILE) lut.blif --disp on
 
 #	
 #	#Show interactive graphics
