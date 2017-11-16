@@ -1,0 +1,42 @@
+ <models>
+  <model name="SB_DFF">
+   <input_ports>
+    <port name="C" is_clock="1" />
+    <port name="D" clock="C" />
+   </input_ports>
+   <output_ports>
+    <port name="Q" clock="C" />
+   </output_ports>
+  </model>
+  <model name="SB_DFFSR">
+   <input_ports>
+    <port name="C" is_clock="1" />
+    <port name="R" clock="C" />
+    <port name="D" clock="C" />
+   </input_ports>
+   <output_ports>
+    <port name="Q" clock="C" />
+   </output_ports>
+  </model>
+  <model name="SB_DFFSS">
+   <input_ports>
+    <port name="C" is_clock="1" />
+    <port name="S" clock="C" />
+    <port name="D" clock="C" />
+   </input_ports>
+   <output_ports>
+    <port name="Q" clock="C" />
+   </output_ports>
+  </model>
+  <model name="SB_DFFESS">
+   <input_ports>
+    <port name="C" is_clock="1" />
+    <port name="S" clock="C" />
+    <port name="E" clock="C" />
+    <port name="D" clock="C" />
+   </input_ports>
+   <output_ports>
+    <port name="Q" clock="C" />
+   </output_ports>
+  </model>
+ </models>
