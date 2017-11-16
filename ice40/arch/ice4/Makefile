@@ -5,4 +5,6 @@ DEPS:
 .PHONY: DEPS
 
 merged.xml: arch.xml DEPS
-	xmllint --pretty 1 -xinclude arch.xml > merged.xml
+	XMLLINT_INDENT=' ' xmllint --pretty 1 --xinclude --nsclean --format arch.xml |  \
+		sed -e's/ *\(xml\|xmlns\):[^=]*="[^"]*" */ /g' \
+	> merged.xml
