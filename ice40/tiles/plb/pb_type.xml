@@ -67,15 +67,19 @@
      <mux      name="I3" input="PLB_CELL.I[3:3] PLB_CELL.FCIN" output="LUT.I[3:3]"/>
      <mux      name="O"  input="LUT.O SB_FF.Q"   output="PLB_CELL.O"/>
 
-     <direct   name="CK" input="PLB_CELL.CLK"    output="SB_FF.C"/>
-     <direct   name="EN" input="PLB_CELL.EN"     output="SB_FF.E"/>
-     <direct   name="SR" input="PLB_CELL.SR"     output="SB_FF.S"/>
+     <direct   name="FF_D"  input="LUT.O"        output="SB_FF.D">
+      <!--
+       <pack_pattern name="LUT2FF" in_port="LUT.O" out_port="SB_FF.D"/>
+      -->
+     </direct>
+     <direct   name="FF_CK" input="PLB_CELL.CLK" output="SB_FF.C"/>
+     <direct   name="FF_EN" input="PLB_CELL.EN"  output="SB_FF.E"/>
+     <direct   name="FF_SR" input="PLB_CELL.SR"  output="SB_FF.S"/>
 
      <direct name="FCIN"  input="PLB_CELL.FCIN"  output="CARRY.FCIN"/>
      <direct name="FCOUT" input="CARRY.FCOUT"    output="PLB_CELL.FCOUT"/>
 
      <!-- Find LUT+FF pairs in netlist -->
-     <pack_pattern name="PLB_CELL" in_port="LUT.O" out_port="SB_FF.D"/>
     </interconnect>
    </pb_type>
 

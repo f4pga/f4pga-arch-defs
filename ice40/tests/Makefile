@@ -12,7 +12,7 @@ YOSYS ?= yosys
 disp: rot.blif $(ARCH_FILE)
 	cd $(ARCH); make merged.xml
 	#Find the minimum routable channel width of my_circuit on my_arch
-	$(VPR) $(ARCH_FILE) lut.blif --disp on
+	$(VPR) $(ARCH_FILE) ff.blif --disp on
 
 #	
 #	#Show interactive graphics
