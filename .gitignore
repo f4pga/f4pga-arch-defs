@@ -1,0 +1,6 @@
+*.log
+*.net
+*.place
+*.route
+*.blif
+*.rpt
