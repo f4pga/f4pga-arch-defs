@@ -1,89 +1,9 @@
-<architecture>
+<architecture xmlns:xi="http://www.w3.org/2001/XInclude">
  <!-- ODIN-II model description for non-standard block type -->
  <models>
-  <model name="SB_LUT4">
-   <input_ports>
-    <port name="I0" combinational_sink_ports="O" />
-    <port name="I1" combinational_sink_ports="O" />
-    <port name="I2" combinational_sink_ports="O" />
-    <port name="I3" combinational_sink_ports="O" />
-   </input_ports>
-   <output_ports>
-    <port name="O" />
-   </output_ports>
-  </model>
-
-  <model name="SB_DFF">
-   <input_ports>
-    <port name="C" is_clock="1" />
-    <port name="D" clock="C" />
-   </input_ports>
-   <output_ports>
-    <port name="Q" clock="C" />
-   </output_ports>
-  </model>
-  <model name="SB_DFFSR">
-   <input_ports>
-    <port name="C" is_clock="1" />
-    <port name="R" clock="C" />
-    <port name="D" clock="C" />
-   </input_ports>
-   <output_ports>
-    <port name="Q" clock="C" />
-   </output_ports>
-  </model>
-  <model name="SB_DFFSS">
-   <input_ports>
-    <port name="C" is_clock="1" />
-    <port name="S" clock="C" />
-    <port name="D" clock="C" />
-   </input_ports>
-   <output_ports>
-    <port name="Q" clock="C" />
-   </output_ports>
-  </model>
-  <model name="SB_DFFESS">
-   <input_ports>
-    <port name="C" is_clock="1" />
-    <port name="S" clock="C" />
-    <port name="E" clock="C" />
-    <port name="D" clock="C" />
-   </input_ports>
-   <output_ports>
-    <port name="Q" clock="C" />
-   </output_ports>
-  </model>
-
-  <model name="CARRY">
-   <input_ports>
-    <port name="I1"   combinational_sink_ports="FCOUT" />
-    <port name="I2"   combinational_sink_ports="FCOUT" />
-    <port name="FCIN" combinational_sink_ports="FCOUT" />
-   </input_ports>
-   <output_ports>
-    <port name="FCOUT" />
-   </output_ports>
-  </model>
-<!--
-  <model name="MUX4">
-   <input_ports>
-    <port name="I" combinational_sink_ports="O" />
-    <port name="S" combinational_sink_ports="O" />
-   </input_ports>
-   <output_ports>
-    <port name="O" />
-   </output_ports>
-  </model>
-  <model name="MUX2">
-   <input_ports>
-    <port name="I" combinational_sink_ports="O" />
-    <port name="S"  combinational_sink_ports="O" />
-   </input_ports>
-   <output_ports>
-    <port name="O" />
-   </output_ports>
-  </model>
--->
+  <xi:include href="../../primatives/sb_lut/model.xml" />
+  <xi:include href="../../primatives/sb_ff/model.xml" xpointer="xpointer(models/*)" />
+  <xi:include href="../../primatives/sb_carry/model.xml"/>
  </models>
  <!-- Layout of the FPGA, we are using 4x4 -->
  <layout>

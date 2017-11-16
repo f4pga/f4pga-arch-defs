@@ -1,0 +1,10 @@
+  <model name="CARRY">
+   <input_ports>
+    <port name="I1"   combinational_sink_ports="FCOUT" />
+    <port name="I2"   combinational_sink_ports="FCOUT" />
+    <port name="FCIN" combinational_sink_ports="FCOUT" />
+   </input_ports>
+   <output_ports>
+    <port name="FCOUT" />
+   </output_ports>
+  </model>
