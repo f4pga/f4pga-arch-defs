@@ -1,14 +1,12 @@
 
 
-ARCH ?= ~/work/catx/vtr/ice40/ice4.xml
-VPR ?= ~/work/catx/vtr-verilog-to-routing/vpr/vpr
+ARCH ?= ../ice4.xml
+VPR ?= vpr
+YOSYS ?= yosys
 
 %.blif: %.v
 	#yosys -p "synth_ice40; write_blif $@" $<
-	yosys -p "synth_ice40; ice40_opt -unlut; abc -lut 4; opt_clean; write_blif $@" $<
-
-disp:
-	vpr
+	$(YOSYS) -p "synth_ice40; ice40_opt -unlut; abc -lut 4; opt_clean; write_blif $@" $<
 
 disp: rot.blif
 	#Find the minimum routable channel width of my_circuit on my_arch
