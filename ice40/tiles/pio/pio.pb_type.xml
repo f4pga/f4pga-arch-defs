@@ -1,3 +1,4 @@
+ <pb_type>
    <clock name="OUTPUT_CLK" num_pins="1"/>
    <clock name="INPUT_CLK"  num_pins="1"/>
    <input name="CLOCK_ENABLE" num_pins="1" equivalent="false"/>
@@ -159,4 +160,4 @@
    <fc default_in_type="frac" default_in_val="0.15" default_out_type="frac" default_out_val="0.10"/>
 
    <pinlocations pattern="spread"/>
-
+ </pb_type>
