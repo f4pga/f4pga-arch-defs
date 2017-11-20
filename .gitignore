@@ -4,5 +4,5 @@
 *.route
 *.blif
 *.rpt
-DEPS
 merged.xml
+*.deps.mk
