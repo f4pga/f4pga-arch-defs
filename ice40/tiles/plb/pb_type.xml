@@ -124,6 +124,6 @@
  -->
    </fc>
 
-   <pinlocations pattern="spread"/>
+   <pinlocations pattern="top"/>
   </pb_type>
   <!-- End PLB -->
