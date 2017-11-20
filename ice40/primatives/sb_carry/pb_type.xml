@@ -1,4 +1,4 @@
-    <!-- CARRY -->
+    <!-- Carry logic found in the ICE40 -->
     <pb_type name="CARRY" num_pb="1" blif_model=".subckt CARRY">
      <input  name="I2"    num_pins="1"/>
      <input  name="FCIN"  num_pins="1"/>
