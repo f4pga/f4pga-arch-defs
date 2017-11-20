@@ -1,9 +1,9 @@
 <architecture xmlns:xi="http://www.w3.org/2001/XInclude">
  <!-- ODIN-II model description for non-standard block type -->
  <models>
-  <xi:include href="../../primatives/sb_lut/model.xml" />
-  <xi:include href="../../primatives/sb_ff/model.xml" xpointer="xpointer(models/*)" />
-  <xi:include href="../../primatives/sb_carry/model.xml"/>
+  <xi:include href="../../primatives/sb_lut/model.xml"   xpointer="xpointer(models/*)" />
+  <xi:include href="../../primatives/sb_ff/model.xml" 	 xpointer="xpointer(models/*)" />
+  <xi:include href="../../primatives/sb_carry/model.xml" xpointer="xpointer(models/*)" />
  </models>
  <!-- Layout of the FPGA, we are using 4x4 -->
  <layout>
@@ -45,6 +45,10 @@
   <switch type="pass_gate" name="1" R="551" Cin=".77e-15" Cout="4e-15" Tdel="58e-12" mux_trans_size="2.630740" buf_size="27.645901"/>
  </switchlist>
  <segmentlist>
+  <!-- Neighbourhood tracks -->
+
+  <!-- Span 4 tracks -->
+
   <segment freq="1.000000" length="1" type="unidir" Rmetal="101" Cmetal="22.5e-15">
    <sb type="pattern">1 1</sb>
    <cb type="pattern">1</cb>
