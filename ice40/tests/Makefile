@@ -1,6 +1,6 @@
 
 
-ARCH ?= ../arch/ice4
+ARCH ?= ../arch/ice40-virt
 ARCH_FILE = $(ARCH)/merged.xml
 VPR ?= vpr
 YOSYS ?= yosys

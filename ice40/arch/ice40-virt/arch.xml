@@ -5,18 +5,25 @@
   <xi:include href="../../primatives/sb_ff/model.xml" 	 xpointer="xpointer(models/*)" />
   <xi:include href="../../primatives/sb_carry/model.xml" xpointer="xpointer(models/*)" />
  </models>
+
  <!-- Layout of the FPGA, we are using 4x4 -->
  <layout>
-  <!-- <fixed_layout name="string" width="10" height="10"> -->
-  <auto_layout aspect_ratio="1.0">
+  <fixed_layout name="HX1K" width="13" height="17">
    <!-- Create empty blocks at all corners -->
    <corners type="EMPTY" priority="20"/>
    <!-- Create io blocks around the device perimeter -->
    <perimeter type="PIO" priority="10"/>
    <!-- Remaining plbs -->
    <fill type="PLB" priority="1"/>
-   <!--  </fixed_layout> -->
-  </auto_layout>
+  </fixed_layout>
+  <fixed_layout name="HX8K" width="33" height="33">
+   <!-- Create empty blocks at all corners -->
+   <corners type="EMPTY" priority="20"/>
+   <!-- Create io blocks around the device perimeter -->
+   <perimeter type="PIO" priority="10"/>
+   <!-- Remaining plbs -->
+   <fill type="PLB" priority="1"/>
+  </fixed_layout>
  </layout>
 
  <!--
@@ -81,7 +88,7 @@
 
   <!-- Local tracks -->
   <segment name="local" length="1" freq="1.000000" type="unidir" Rmetal="101" Cmetal="22.5e-15">
-   <sb type="pattern">1 1</sb>
+   <sb type="pattern">0 1</sb>
    <cb type="pattern">1</cb>
    <mux name="0"/>
    <!--
