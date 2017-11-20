@@ -1,4 +1,4 @@
-    <!-- 4 input LUT -->
+    <!-- 4 input LUT found in the ICE40 -->
     <pb_type name="LUT" num_pb="1">
      <input  name="I" num_pins="4" />
      <output name="O"  num_pins="1" />
