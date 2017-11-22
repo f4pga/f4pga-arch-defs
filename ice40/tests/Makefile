@@ -9,6 +9,10 @@ YOSYS ?= yosys
 	#yosys -p "synth_ice40; write_blif $@" $<
 	$(YOSYS) -p "synth_ice40; ice40_opt -unlut; abc -lut 4; opt_clean; write_blif $@" $<
 
+rr_graph.xml: rot.blif $(ARCH_FILE)
+	cd $(ARCH); make merged.xml
+	$(VPR) $(ARCH_FILE) ff.blif --write_rr_graph rr_graph.xml
+
 disp: rot.blif $(ARCH_FILE)
 	cd $(ARCH); make merged.xml
 	#Find the minimum routable channel width of my_circuit on my_arch

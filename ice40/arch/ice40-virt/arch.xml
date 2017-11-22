@@ -8,21 +8,33 @@
 
  <!-- Layout of the FPGA, we are using 4x4 -->
  <layout>
-  <fixed_layout name="HX1K" width="13" height="17">
-   <!-- Create empty blocks at all corners -->
-   <corners type="EMPTY" priority="20"/>
+  <fixed_layout name="HX1K" width="16" height="30">
+   <region type="PLB" startx="2" endx="13" starty="2" endy="17" priority="4"/>
    <!-- Create io blocks around the device perimeter -->
-   <perimeter type="PIO" priority="10"/>
-   <!-- Remaining plbs -->
-   <fill type="PLB" priority="1"/>
-  </fixed_layout>
-  <fixed_layout name="HX8K" width="33" height="33">
+   <col     type="EMPTY" startx="0"  priority="30"/>
+   <col     type="PIO"   startx="1"  priority="10"/>
+   <col     type="PIO"   startx="14" priority="10"/>
+   <col     type="EMPTY" startx="15" priority="30"/>
+   <!-- -->
+   <row     type="EMPTY" starty="0"  priority="31"/>
+   <row     type="PIO"   starty="1"  priority="11"/>
+   <row     type="PIO"   starty="18" priority="11"/>
+   <row     type="EMPTY" starty="19" priority="31"/>
+   <row     type="EMPTY" starty="20" priority="31"/>
+   <row     type="EMPTY" starty="21" priority="31"/>
+   <row     type="EMPTY" starty="22" priority="31"/>
+   <row     type="EMPTY" starty="23" priority="31"/>
+   <row     type="EMPTY" starty="24" priority="31"/>
+   <row     type="EMPTY" starty="25" priority="31"/>
+   <row     type="EMPTY" starty="26" priority="31"/>
+   <row     type="EMPTY" starty="27" priority="31"/>
+   <row     type="EMPTY" starty="28" priority="31"/>
+   <row     type="EMPTY" starty="29" priority="31"/>
    <!-- Create empty blocks at all corners -->
-   <corners type="EMPTY" priority="20"/>
-   <!-- Create io blocks around the device perimeter -->
-   <perimeter type="PIO" priority="10"/>
-   <!-- Remaining plbs -->
-   <fill type="PLB" priority="1"/>
+   <single  type="EMPTY" x="1"  y="1"  priority="30"/>
+   <single  type="EMPTY" x="14" y="1"  priority="30"/>
+   <single  type="EMPTY" x="1"  y="18" priority="30"/>
+   <single  type="EMPTY" x="14" y="18" priority="30"/>
   </fixed_layout>
  </layout>
 
@@ -37,8 +49,8 @@
  <device>
     <sizing R_minW_nmos="6065.520020" R_minW_pmos="18138.500000" />
     <area grid_logic_tile_area="14813.392"/>
-    <connection_block input_switch_name="0"/>
-    <switch_block type="wilton" fs="3"/>
+    <connection_block input_switch_name="2"/>
+    <switch_block type="custom" fs="3"/>
     <chan_width_distr>
       <x distr="uniform" peak="1.000000"/>
       <y distr="uniform" peak="1.000000"/>
@@ -48,15 +60,16 @@
  <switchlist>
   <!-- name="buffer"  == name="0" -->
   <!-- name="routing" == name="1" -->
-  <switch type="mux"       name="0" R="551" Cin=".77e-15" Cout="4e-15" Tdel="58e-12" mux_trans_size="2.630740" buf_size="27.645901"/>
-  <switch type="pass_gate" name="1" R="551" Cin=".77e-15" Cout="4e-15" Tdel="58e-12" mux_trans_size="2.630740" buf_size="27.645901"/>
+  <switch type="mux" name="1" R="551" Cin=".77e-15" Cout="4e-15" Tdel="58e-12" mux_trans_size="2.630740" buf_size="27.645901"/>
+  <switch type="mux" name="2" R="551" Cin=".77e-15" Cout="4e-15" Tdel="58e-12" mux_trans_size="2.630740" buf_size="27.645901"/>
  </switchlist>
  <segmentlist>
   <!-- Global networks -->
-  <segment name="global" length="longline" freq="1.000000" type="unidir" Rmetal="101" Cmetal="22.5e-15">
+  <segment name="global" length="longline" freq="1.000000" type="bidir" Rmetal="101" Cmetal="22.5e-15">
    <sb type="pattern">1 1</sb>
    <cb type="pattern">0</cb>
-   <mux name="0"/>
+   <wire_switch name="1"/>
+   <opin_switch name="2"/>
   </segment>
 
   <!-- Span 12 vertical   tracks -->
@@ -64,7 +77,8 @@
   <segment name="span12" length="12" freq="1.000000" type="bidir" Rmetal="101" Cmetal="22.5e-15">
    <sb type="pattern">1 1 1 1 1 1 1 1 1 1 1 1 1</sb>
    <cb type="pattern">0 0 0 0 0 0 0 0 0 0 0 0</cb>
-   <mux name="0"/>
+   <wire_switch name="1"/>
+   <opin_switch name="2"/>
   </segment>
 
   <!-- Span 4 vertical   tracks -->
@@ -72,39 +86,101 @@
   <segment name="span4" length="4" freq="1.000000" type="bidir" Rmetal="101" Cmetal="22.5e-15">
    <sb type="pattern">1 1 1 1 1</sb>
    <cb type="pattern">0 0 0 0</cb>
-   <mux name="0"/>
+   <wire_switch name="1"/>
+   <opin_switch name="2"/>
   </segment>
 
-  <!-- Neighbourhood tracks -->
+  <!-- Neighbourhood tracks 
   <segment name="neigh" length="1" freq="1.000000" type="bidir" Rmetal="101" Cmetal="22.5e-15">
    <sb type="pattern">1 1</sb>
    <cb type="pattern">0</cb>
-   <mux name="0"/>
-   <!--
    <wire_switch name="1"/>
    <opin_switch name="0"/>
-   -->
   </segment>
+  -->
 
   <!-- Local tracks -->
-  <segment name="local" length="1" freq="1.000000" type="unidir" Rmetal="101" Cmetal="22.5e-15">
+  <segment name="local" length="1" freq="1.000000" type="bidir" Rmetal="101" Cmetal="22.5e-15">
    <sb type="pattern">0 1</sb>
    <cb type="pattern">1</cb>
-   <mux name="0"/>
-   <!--
-   <wire_switch name="1"/>
-   <opin_switch name="0"/>
-   -->
+   <wire_switch name="2"/>
+   <opin_switch name="2"/>
   </segment>
  </segmentlist>
 
  <switchblocklist>
   <switchblock name="xx2local" type="bidir">
    <switchblock_location type="EVERYWHERE"/>
-
-   <wireconn num_conns_type="to">
+   <switchfuncs>
+     <func type="lr" formula="t"/>
+     <func type="rt" formula="t"/>
+     <func type="lt" formula="t"/>
+     <func type="rb" formula="t"/>
+     <func type="lb" formula="t"/>
+     <!--
+     <func type="lb" formula="t"/>
+     <func type="rt" formula="W-t"/>
+     <func type="br" formula="t"/>
+     <func type="lr" formula="t"/>
+     <func type="bt" formula="t"/>
+     <func type="rl" formula="t"/>
+     <func type="tl" formula="t"/>
+     <func type="bl" formula="t"/>
+     <func type="tr" formula="t"/>
+     <func type="rb" formula="t"/>
+     <func type="tb" formula="t"/> -->
+   </switchfuncs>
+   <wireconn num_conns_type="max">
     <from type="span4"  switchpoint="0,1,2,3"/>
-    <from type="span12" switchpoint="0,1,2,3,4,5,6,7,8,9,10,11,12"/>
+    <from type="span12" switchpoint="0,1,2,3,4,5,6,7,8,9,10,11"/>
+    <to   type="local"  switchpoint="0"/>
+   </wireconn>
+  </switchblock>
+  <switchblock name="local2xx" type="bidir">
+   <switchblock_location type="EVERYWHERE"/>
+   <switchfuncs>
+     <func type="tb" formula="t"/>
+     <func type="lr" formula="t"/>
+     <func type="rt" formula="t"/>
+     <func type="lt" formula="t-W"/>
+     <func type="rb" formula="t"/>
+     <func type="lb" formula="t-W"/>
+     <!--
+     <func type="br" formula="t"/>
+     <func type="lr" formula="t"/>
+     <func type="bt" formula="t"/>
+     <func type="rl" formula="t"/>
+     <func type="tl" formula="t"/>
+     <func type="bl" formula="t"/>
+     <func type="tr" formula="t"/>
+     <func type="rb" formula="t"/>
+     <func type="tb" formula="t"/> -->
+   </switchfuncs>
+   <wireconn num_conns_type="max">
+    <from type="local"  switchpoint="0"/>
+    <to   type="span4"  switchpoint="0,1,2,3"/>
+    <to   type="span12" switchpoint="0,1,2,3,4,5,6,7,8,9,10,11"/>
+   </wireconn>
+  </switchblock>
+  <switchblock name="global2local" type="bidir">
+   <switchblock_location type="EVERYWHERE"/>
+   <switchfuncs>
+     <func type="lr" formula="t"/>
+     <func type="lt" formula="W-t"/>
+     <func type="lb" formula="t"/>
+     <func type="rt" formula="W-t"/>
+     <func type="br" formula="t"/>
+     <!--
+     <func type="bt" formula="t"/>
+     <func type="rl" formula="t"/>
+     <func type="tl" formula="t"/>
+     <func type="bl" formula="t"/>
+     <func type="tr" formula="t"/>
+     <func type="rb" formula="t"/>
+     <func type="tb" formula="t"/> -->
+   </switchfuncs>
+   <wireconn num_conns_type="max">
+    <from type="global" switchpoint="0"/>
     <to   type="local"  switchpoint="0"/>
    </wireconn>
   </switchblock>
@@ -141,16 +217,17 @@
      </direct>
     </interconnect>
    </mode>
-   <fc default_in_type="frac" default_in_val="1.0" default_out_type="frac" default_out_val="1.0"/>
+   <fc default_in_type="frac" default_in_val="0.0" default_out_type="frac" default_out_val="0.0">
+    <fc_override fc_type="abs" fc_val="2" port_name="outpad" segment_name="local"/>
+    <fc_override fc_type="abs" fc_val="2" port_name="inpad"  segment_name="local"/>
+   </fc>
+
    <!-- IOs go on the periphery of the FPGA, for consistency,
         make it physically equivalent on all sides so that only one definition of I/Os is needed.
         If I do not make a physically equivalent definition, then I need to define 4 different I/Os, one for each side of the FPGA
     -->
    <pinlocations pattern="custom">
-    <loc side="left">PIO.outpad PIO.inpad</loc>
-    <loc side="top">PIO.outpad PIO.inpad</loc>
     <loc side="right">PIO.outpad PIO.inpad</loc>
-    <loc side="bottom">PIO.outpad PIO.inpad</loc>
    </pinlocations>
   </pb_type>
   <!-- End PIO -->
