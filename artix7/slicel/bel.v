@@ -1,14 +1,3 @@
-module CARRY4(CO, O, CI, CYINIT, DI, S);
-	output wire [3:0] CO;
-	output wire [3:0] O;
-
-	input wire CI;      // Carry in from adjacent slice
-	input wire CYINIT;  // Carry in from logic fabric
-
-	input wire [3:0] DI;
-	input wire [3:0] S;
-endmodule
-
 // Flip-flop which can be configured only as a flip flop.
 module W5FF(D, CE, CK, Q, SR);
 	input  wire D;
@@ -64,6 +53,93 @@ module WFF(D, CE, CK, Q, SR);
 	parameter SRTYPE 	= "SYNC";
 endmodule
 
+// BEL
+module MUX(O, I, S);
+	parameter INPUTS = 2;
+
+	output wire O;
+	input wire [INPUTS:0] I;
+	input wire [$clog2(INPUTS):0] S;
+
+	always_comb begin
+		O = 'z;
+		for(int i = 0; i < INPUTS; i++) begin
+			if(onehot == (1 << i))
+				O = I[i];
+		end
+endmodule
+
+// FIXME: Rewrite these MUXes in terms of the MUX above
+// F7BMUX
+module F7BMUX(I0, I1, S0, OUT);
+	input wire I0;
+	input wire I1;
+	input wire I0;
+	output wire OUT;
+
+	assign OUT = S0 ? I1 : I0;
+endmodule
+
+// F7AMUX
+module F7AMUX(I0, I1, S0, OUT);
+	input wire I0;
+	input wire I1;
+	input wire I0;
+	output wire OUT;
+
+	assign OUT = S0 ? I1 : I0;
+endmodule
+
+// F8MUX
+module F8MUX(I0, I1, S0, OUT);
+	input wire I0;
+	input wire I1;
+	input wire I0;
+	output wire OUT;
+
+	assign OUT = S0 ? I1 : I0;
+endmodule
+
+// Carry logic
+module CARRY4(CO, O, CI, CYINIT, DI, S);
+	output wire [3:0] CO;
+	output wire [3:0] O;
+
+	input wire CI;      // Carry in from adjacent slice
+	input wire CYINIT;  // Carry in from logic fabric
+
+	input wire [3:0] DI;
+	input wire [3:0] S;
+
+	assign O = S ^ {CO[2:0], CI | CYINIT};
+	assign CO[0] = S[0] ? CI | CYINIT : DI[0];
+	assign CO[1] = S[1] ? CO[0] : DI[1];
+	assign CO[2] = S[2] ? CO[1] : DI[2];
+	assign CO[3] = S[3] ? CO[2] : DI[3];
+
+endmodule
+
+module CARRY4_WMUX(I0, I1, S0, OUT);
+	input wire I0;
+	input wire I1;
+	input wire S0;
+	output wire OUT;
+
+  	assign OUT = S0 ? I1 : I1;
+endmodule
+
+module CARRY4_WXOR(I0, I1, S0, OUT);
+	input wire I0;
+	input wire I1;
+	input wire S0;
+	output wire OUT;
+
+	// FIXME: What is S0 used for?
+  	assign OUT = I0 ^ I1;
+endmodule
+
+
+
 module A7_SLICEL(
 	DX, D, DMUX, Dout, DQ,	// D port
 	CX, C, CMUX, Cout, CQ,	// C port
@@ -74,7 +150,7 @@ module A7_SLICEL(
 );
 	// D port
 	input wire DX;
-	input wire D[6:0];
+	input wire [6:0] D;
 	output wire DMUX;
 	output wire Dout;
 	output wire DQ;
@@ -87,21 +163,21 @@ module A7_SLICEL(
 
 	// C port
 	input wire CX;
-	input wire C[6:0];
+	input wire [6:0] C;
 	output wire CMUX;
 	output wire Cout;
 	output wire CQ;
 
 	// B port
 	input wire BX;
-	input wire B[6:0];
+	input wire [6:0] B;
 	output wire BMUX;
 	output wire Bout;
 	output wire BQ;
 
 	// A port
 	input wire AX;
-	input wire A[6:0];
+	input wire [6:0] A;
 	output wire AMUX;
 	output wire Aout;
 	output wire AQ;
@@ -127,6 +203,5 @@ module A7_SLICEL(
 	input CARRY_OUT;
 
 	// Internal routing configuration
-	
 
 endmodule
