@@ -1,21 +1,17 @@
  <models>
-  <model name="SB_RAM">
+  <model name="SB_RAM256x16">
     <input_ports>
       <!-- Read port -->
-      <port name="raddr" clock="rclk" combinational_sink_ports="rdata"/>
-      <port name="re"    clock="rclk" combinational_sink_ports="rdata"/>
-      <port name="rclke" clock="rclk" combinational_sink_ports="rdata"/>
-      <port name="rclk"  is_clock="1"/>
+      <port name="ADDR1" clock="CLK1" combinational_sink_ports="DATAOUT1"/>
+      <port name="CLK1" is_clock="1"/>
       <!-- Write port -->
-      <port name="wdata" clock="wclk" combinational_sink_ports="rdata"/>
-      <port name="mask"  clock="wclk" combinational_sink_ports="rdata"/> <!-- Mask is only for write -->
-      <port name="waddr" clock="wclk" combinational_sink_ports="rdata"/>
-      <port name="we"    clock="wclk" combinational_sink_ports="rdata"/>
-      <port name="wclke" clock="wclk" combinational_sink_ports="rdata"/>
-      <port name="wclk"  is_clock="1"/>
+      <port name="DATAIN2" clock="CLK2" combinational_sink_ports="DATAOUT1"/>
+      <port name="ADDR2"   clock="CLK2" combinational_sink_ports="DATAOUT1"/>
+      <port name="WE2"     clock="CLK2" combinational_sink_ports="DATAOUT1"/>
+      <port name="CLK2" is_clock="1"/>
     </input_ports>
     <output_ports>
-      <port name="rdata" clock="rclk"/>
+      <port name="DATAOUT1" clock="CLK1"/>
     </output_ports>
   </model>
  </models>

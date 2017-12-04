@@ -9,28 +9,33 @@
 
  <!-- Layout of the FPGA, we are using 4x4 -->
  <layout>
-  <fixed_layout name="HX1K" width="15" height="17">
+  <fixed_layout name="HX1K" width="16" height="20">
+   <col     type="EMPTY" startx="0"  priority="30"/>
+   <col     type="PIO"   startx="1"  priority="10"/>
+   <region  type="PLB"   startx="2" endx="13" starty="2" endy="17" priority="4"/>
+   <col     type="PIO"   startx="14" priority="10"/>
+   <col     type="EMPTY" startx="15" priority="30"/>
+
+   <row     type="EMPTY" starty="0"  priority="31"/>
+   <row     type="PIO"   starty="1"  priority="11"/>
+   <!-- starty="2" endy="17" -->
+   <row     type="PIO"   starty="18"  priority="11"/>
+   <row     type="EMPTY" starty="19" priority="31"/>
+
    <!-- Logic blocks -->
-   <region type="PLB" startx="1" endx="12" starty="1" endy="16" priority="4"/>
    <!--Block RAM -->
-   <col     type="RAM"   startx="3"  starty="1" priority="5"/>
-   <col     type="RAM"   startx="10" starty="1" priority="5"/>
+   <col     type="RAM"   startx="4"  starty="3" priority="5"/>
+   <col     type="RAM"   startx="11" starty="3" priority="5"/>
    <!-- IO blocks (around the device perimeter) -->
-   <col     type="PIO"   startx="0"  priority="10"/>
-   <col     type="PIO"   startx="13" priority="10"/>
-   <row     type="PIO"   starty="0"  priority="10"/>
-   <row     type="PIO"   starty="17"  priority="10"/>
    <!-- Corners are empty -->
-   <single  type="EMPTY" x="0"  y="0"  priority="30"/>
-   <single  type="EMPTY" x="13" y="0"  priority="30"/>
-   <single  type="EMPTY" x="0"  y="17" priority="30"/>
-   <single  type="EMPTY" x="13" y="17" priority="30"/>
+   <single  type="EMPTY" x="1"  y="1"  priority="40"/>
+   <single  type="EMPTY" x="14" y="1"  priority="40"/>
+   <single  type="EMPTY" x="1"  y="18" priority="40"/>
+   <single  type="EMPTY" x="14" y="18" priority="40"/>
    <!--
     Due to the way channels work in VPR, we need to pad the top+right edge with
     extra empty tiles.
    -->
-   <col     type="EMPTY" startx="14" priority="31"/>
-   <row     type="EMPTY" starty="18" priority="31"/>
    <!-- Create empty blocks at all corners -->
   </fixed_layout>
  </layout>

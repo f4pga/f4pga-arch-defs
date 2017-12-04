@@ -2,88 +2,72 @@
     <pb_type name="SB_RAM" num_pb="1">
      <!-- Read port -->
      <output name="RDATA" num_pins="16" equivalent="false"/>
-     <input  name="RADDR" num_pins="8"  equivalent="false"/>
+     <input  name="RADDR" num_pins="11" equivalent="false"/>
      <input  name="RE"    num_pins="1"  equivalent="false"/>
      <input  name="RCLKE" num_pins="1"  equivalent="false"/>
      <clock  name="RCLK"  num_pins="1"  equivalent="false"/>
      <!-- Write port -->
      <input  name="WDATA" num_pins="16" equivalent="false"/>
      <input  name="MASK"  num_pins="16" equivalent="false"/>
-     <input  name="WADDR" num_pins="8"  equivalent="false"/>
+     <input  name="WADDR" num_pins="11" equivalent="false"/>
      <input  name="WE"    num_pins="1"  equivalent="false"/>
      <input  name="WCLKE" num_pins="1"  equivalent="false"/>
      <clock  name="WCLK"  num_pins="1"  equivalent="false"/>
      <mode name="SB_RAM256x16">
+<!--
       <pb_type name="SB_RAM256x16" blif_model=".subckt dual_port_ram" num_pb="1" class="memory">
-       <!-- Port 1: Read port -->
        <output name="DATAOUT1" num_pins="16" equivalent="false" port_class="data_out1" />
-       <!-- No data in
-       <input  name="DATAIN1"  num_pins="16" equivalent="false" port_class="data_in1"  />
-       <input  name="WE1"      num_pins="1"  equivalent="false" port_class="write_en1" /> -->
        <input  name="ADDR1"    num_pins="8"  equivalent="false" port_class="address1"  />
        <clock  name="CLK1"     num_pins="1"  equivalent="false" port_class="clock1"    />
-       <!-- Port 2: Write port -->
-       <!-- No data out
-       <output name="DATAOUT2" num_pins="16" equivalent="false" port_class="data_out2" /> -->
        <input  name="DATAIN2"  num_pins="16" equivalent="false" port_class="data_in2"  />
        <input  name="WE2"      num_pins="1"  equivalent="false" port_class="write_en2" />
        <input  name="ADDR2"    num_pins="8"  equivalent="false" port_class="address2"  />
        <clock  name="CLK2"     num_pins="1"  equivalent="false" port_class="clock2"    />
+-->
+      <pb_type name="SB_RAM256x16" blif_model=".subckt SB_RAM256x16" num_pb="1">
+       <output name="DATAOUT1" num_pins="16" equivalent="false"/>
+       <input  name="ADDR1"    num_pins="8"  equivalent="false"/>
+       <clock  name="CLK1"     num_pins="1"  equivalent="false"/>
 
-       <!-- Port 1: Read port -->
-       <T_setup value="50e-12" port="SBRAM256x16.DATAOUT1" clock="CLK1"/> -->
-       <!-- No data in
-       <T_setup value="50e-12" port="SBRAM256x16.DATAIN1"  clock="CLK1"/>
-       <T_setup value="50e-12" port="SBRAM256x16.WE1"      clock="CLK1"/> -->
-       <T_setup value="50e-12" port="SBRAM256x16.ADDR1"    clock="CLK1"/>
+       <input  name="DATAIN2"  num_pins="16" equivalent="false"/>
+       <input  name="WE2"      num_pins="1"  equivalent="false"/>
+       <input  name="ADDR2"    num_pins="8"  equivalent="false"/>
+       <clock  name="CLK2"     num_pins="1"  equivalent="false"/>
 
-       <!-- PORT1: Write port -->
-       <!-- No data out DATAOUT2
-       <T_setup value="50e-12" port="SBRAM256x16.DATAOUT2" clock="CLK2"/> -->
-       <T_setup value="50e-12" port="SBRAM256x16.DATAIN2"  clock="CLK2"/>
-       <T_setup value="50e-12" port="SBRAM256x16.WE2"      clock="CLK2"/>
-       <T_setup value="50e-12" port="SBRAM256x16.ADDR2"    clock="CLK2"/>
+       <T_setup value="50e-12" port="SB_RAM256x16.DATAOUT1" clock="CLK1"/>
+       <T_setup value="50e-12" port="SB_RAM256x16.ADDR1"    clock="CLK1"/>
 
-       <!-- ??? - Internal input register timing -->
-       <T_clock_to_Q max="200e-12" port="SBRAM256x16.DATAOUT1" clock="CLK1"/>
-       <!--
-       <T_clock_to_Q max="200e-12" port="SBRAM256x16.DATAIN1"  clock="CLK1"/>
-       <T_clock_to_Q max="200e-12" port="SBRAM256x16.WE1"      clock="CLK1"/> -->
-       <T_clock_to_Q max="200e-12" port="SBRAM256x16.ADDR1"    clock="CLK1"/>
+       <T_setup value="50e-12" port="SB_RAM256x16.DATAIN2"  clock="CLK2"/>
+       <T_setup value="50e-12" port="SB_RAM256x16.WE2"      clock="CLK2"/>
+       <T_setup value="50e-12" port="SB_RAM256x16.ADDR2"    clock="CLK2"/>
 
-       <!--
-       <T_clock_to_Q max="200e-12" port="SBRAM256x16.DATAOUT2" clock="CLK2"/> -->
-       <T_clock_to_Q max="200e-12" port="SBRAM256x16.DATAIN2"  clock="CLK2"/>
-       <T_clock_to_Q max="200e-12" port="SBRAM256x16.ADDR2"    clock="CLK2"/>
-       <T_clock_to_Q max="200e-12" port="SBRAM256x16.WE2"      clock="CLK2"/>
+       <T_clock_to_Q max="200e-12" port="SB_RAM256x16.DATAOUT1" clock="CLK1"/>
+       <T_clock_to_Q max="200e-12" port="SB_RAM256x16.ADDR1"    clock="CLK1"/>
 
-       <!-- ??? - Internal combinational delay -->
-       <!--
-       <delay_constant max="740e-12" in_port="SBRAM256x16.DATAIN1" out_port="DATAOUT1"/>
-       <delay_constant max="740e-12" in_port="SBRAM256x16.WE1"     out_port="DATAOUT1"/> -->
-       <delay_constant max="740e-12" in_port="SBRAM256x16.ADDR1"   out_port="DATAOUT1"/>
+       <T_clock_to_Q max="200e-12" port="SB_RAM256x16.DATAIN2"  clock="CLK2"/>
+       <T_clock_to_Q max="200e-12" port="SB_RAM256x16.ADDR2"    clock="CLK2"/>
+       <T_clock_to_Q max="200e-12" port="SB_RAM256x16.WE2"      clock="CLK2"/>
 
-       <delay_constant max="740e-12" in_port="SBRAM256x16.DATAIN2" out_port="DATAOUT1"/>
-       <delay_constant max="740e-12" in_port="SBRAM256x16.ADDR2"   out_port="DATAOUT1"/>
-       <delay_constant max="740e-12" in_port="SBRAM256x16.WE2"     out_port="DATAOUT1"/>
+       <delay_constant max="740e-12" in_port="SB_RAM256x16.ADDR1"   out_port="SB_RAM256x16.DATAOUT1"/>
 
-       <!-- ??? - Internal output register timing -->
-       <T_setup value="60e-12" port="SBRAM256x16.DATAOUT1" clock="CLK1"/>
+       <delay_constant max="740e-12" in_port="SB_RAM256x16.DATAIN2" out_port="SB_RAM256x16.DATAOUT1"/>
+       <delay_constant max="740e-12" in_port="SB_RAM256x16.ADDR2"   out_port="SB_RAM256x16.DATAOUT1"/>
+       <delay_constant max="740e-12" in_port="SB_RAM256x16.WE2"     out_port="SB_RAM256x16.DATAOUT1"/>
 
-       <!-- ??? - External output register timing -->
-       <T_clock_to_Q max="300e-12" port="SBRAM256x16.DATAOUT1" clock="CLK1"/>
+       <T_setup value="60e-12" port="SB_RAM256x16.DATAOUT1" clock="CLK1"/>
+       <T_clock_to_Q max="300e-12" port="SB_RAM256x16.DATAOUT1" clock="CLK1"/>
 
       </pb_type>
       <interconnect>
        <!-- Read port -->
-       <direct output="SB_RAM256x16.DATAOUT1[15:0]" input="SB_RAM.RDATA[15:0]" />
-       <direct input="SB_RAM.RADDR[7:0]" output="SB_RAM256x16.ADDR1[7:0]" />
-       <direct input="SB_RAM.RCLK"       output="SB_RAM256x16.CLK1" />
+       <direct name="RDATA" input="SB_RAM256x16.DATAOUT1[15:0]" output="SB_RAM.RDATA[15:0]" />
+       <direct name="RADDR" input="SB_RAM.RADDR[7:0]" output="SB_RAM256x16.ADDR1[7:0]" />
+       <direct name="RCLK"  input="SB_RAM.RCLK"       output="SB_RAM256x16.CLK1" />
        <!-- Write port -->
-       <direct input="SB_RAM.DATAIN[15:0]" output="SB_RAM256x16.DATAIN1[15:0]"/>
-       <direct input="SB_RAM.WADDR[7:0]"   output="SB_RAM256x16.WDDR1[7:0]" />
-       <direct input="SB_RAM.WCLK"         output="SB_RAM256x16.CLK1" />
-       <direct input="SB_RAM.WE"           output="SB_RAM256x16.WE" />
+       <direct name="WDATA" input="SB_RAM.WDATA[15:0]" output="SB_RAM256x16.DATAIN2[15:0]"/>
+       <direct name="WADDR" input="SB_RAM.WADDR[7:0]"  output="SB_RAM256x16.ADDR2[7:0]" />
+       <direct name="WCLK"  input="SB_RAM.WCLK"        output="SB_RAM256x16.CLK2" />
+       <direct name="WE"    input="SB_RAM.WE"          output="SB_RAM256x16.WE2" />
       </interconnect>
      </mode>
 
