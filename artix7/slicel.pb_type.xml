@@ -130,7 +130,7 @@
       <input name="S0" num_pins="1"/>
       <output name="OUT" num_pins="1"/>
     </pb_type>
-  
+
     <!-- CARRY4_DXOR, CARRY4_CXOR, CARRY4_BXOR, CARRY4_AXOR -->
     <pb_type name="CARRY4_WXOR" num_pb="4" blif_model=".subckt XORCY">
       <input name="I0" num_pins="1"/>
