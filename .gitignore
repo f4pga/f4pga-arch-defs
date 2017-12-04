@@ -4,5 +4,7 @@
 *.route
 *.blif
 *.rpt
-merged.xml
+merged*.xml
 *.deps.mk
+rr_graph*.xml
+*.pdf

@@ -1,6 +1,6 @@
 
 
-ARCH ?= ../arch/ice40-virt
+ARCH ?= ../arch/ice4
 ARCH_FILE = $(ARCH)/merged.xml
 VPR ?= vpr
 YOSYS ?= yosys
@@ -11,12 +11,26 @@ YOSYS ?= yosys
 
 rr_graph.xml: rot.blif $(ARCH_FILE)
 	cd $(ARCH); make merged.xml
-	$(VPR) $(ARCH_FILE) ff.blif --write_rr_graph rr_graph.xml
+	$(VPR) $(ARCH_FILE) ff.blif --write_rr_graph rr_graph.xml --route_chan_width 6
 
 disp: rot.blif $(ARCH_FILE)
 	cd $(ARCH); make merged.xml
 	#Find the minimum routable channel width of my_circuit on my_arch
 	$(VPR) $(ARCH_FILE) ff.blif --disp on
+
+disp2: ff.blif $(ARCH_FILE)
+	cd $(ARCH); make merged.xml
+	#Find the minimum routable channel width of my_circuit on my_arch
+	echo "-------------------------"
+	rm -rf temp1; mkdir -p temp1
+	cd temp1; $(VPR) --write_rr_graph rr_graph.xml \
+		--route_chan_width 6 --dump_rr_structs_file ../1.structs ../$(ARCH_FILE) ../ff.blif --echo_file on
+	echo "-------------------------"
+	echo "Dump --------------------"
+	rm -rf temp2; mkdir -p temp2
+	cd temp2; $(VPR) --read_rr_graph ../temp1/rr_graph.xml \
+		--route_chan_width 6 --dump_rr_structs_file ../2.structs ../$(ARCH_FILE) ../ff.blif --echo_file on --disp on
+	echo "-------------------------"
 
 #	
 #	#Show interactive graphics

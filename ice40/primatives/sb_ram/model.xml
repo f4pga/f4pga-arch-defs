@@ -1,0 +1,21 @@
+ <models>
+  <model name="SB_RAM">
+    <input_ports>
+      <!-- Read port -->
+      <port name="raddr" clock="rclk" combinational_sink_ports="rdata"/>
+      <port name="re"    clock="rclk" combinational_sink_ports="rdata"/>
+      <port name="rclke" clock="rclk" combinational_sink_ports="rdata"/>
+      <port name="rclk"  is_clock="1"/>
+      <!-- Write port -->
+      <port name="wdata" clock="wclk" combinational_sink_ports="rdata"/>
+      <port name="mask"  clock="wclk" combinational_sink_ports="rdata"/> <!-- Mask is only for write -->
+      <port name="waddr" clock="wclk" combinational_sink_ports="rdata"/>
+      <port name="we"    clock="wclk" combinational_sink_ports="rdata"/>
+      <port name="wclke" clock="wclk" combinational_sink_ports="rdata"/>
+      <port name="wclk"  is_clock="1"/>
+    </input_ports>
+    <output_ports>
+      <port name="rdata" clock="rclk"/>
+    </output_ports>
+  </model>
+ </models>

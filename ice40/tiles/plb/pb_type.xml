@@ -118,8 +118,8 @@
     <direct name="FCIN5" input="PLB_CELL[6:6].FCOUT" output="PLB_CELL[5:5].FCIN"/>
    </interconnect>
 
-			<fc default_in_type="frac" default_in_val="0.0" default_out_type="frac" default_out_val="0.0">
-				<!-- Connect all the ports to 2 local tracks -->
+   <fc default_in_type="frac" default_in_val="0.0" default_out_type="frac" default_out_val="0.0">
+    <!-- Connect all the ports to 2 local tracks -->
     <fc_override fc_type="abs" fc_val="2" port_name="I0" segment_name="local"/>
     <fc_override fc_type="abs" fc_val="2" port_name="I1" segment_name="local"/>
     <fc_override fc_type="abs" fc_val="2" port_name="I2" segment_name="local"/>
@@ -151,7 +151,8 @@
      PLB.I0 PLB.I1 PLB.I2 PLB.I3 PLB.I4 PLB.I5 PLB.I6 PLB.I7
      PLB.CLK PLB.EN PLB.SR
      PLB.O0 PLB.O1 PLB.O2 PLB.O3 PLB.O4 PLB.O5 PLB.O6 PLB.O7
-				</loc><!--
+    </loc>
+    <!--
 				<loc side="top" xoffset="0" yoffset="0">
      FCOUT
     </loc>

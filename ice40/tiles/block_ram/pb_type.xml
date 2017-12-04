@@ -1,0 +1,77 @@
+  <!-- set: ai sw=1 ts=1 sta et -->
+  <!-- A diagram for the iCE40 PLB "Block RAM" is shown in;
+        http://www.latticesemi.com/~/media/LatticeSemi/Documents/DataSheets/iCE/iCE40LPHXFamilyDataSheet.pdf
+    -->
+  <pb_type name="RAM" height="2" xmlns:xi="http://www.w3.org/2001/XInclude">
+   <!-- Read port -->
+   <output name="RDATA" num_pins="16" equivalent="false"/>
+   <input  name="RADDR" num_pins="8"  equivalent="false"/>
+   <input  name="RE"    num_pins="1"  equivalent="false"/>
+   <input  name="RCLKE" num_pins="1"  equivalent="false"/>
+   <clock  name="RCLK"  num_pins="1"  equivalent="false"/>
+   <!-- Write port -->
+   <input  name="WDATA" num_pins="16" equivalent="false"/>
+   <input  name="MASK"  num_pins="16" equivalent="false"/>
+   <input  name="WADDR" num_pins="8"  equivalent="false"/>
+   <input  name="WE"    num_pins="1"  equivalent="false"/>
+   <input  name="WCLKE" num_pins="1"  equivalent="false"/>
+   <clock  name="WCLK"  num_pins="1"  equivalent="false"/>
+
+   <xi:include href="../../primatives/sb_ram/pb_type.xml"/>
+
+   <interconnect>
+    <!-- Read port -->
+    <direct output="RAM.RDATA1[15:0]" input="SB_RAM.RDATA[15:0]" />
+    <direct  input="RAM.RADDR[7:0]"  output="SB_RAM.RADDR[7:0]" />
+    <direct  input="RAM.RE"          output="SB_RAM.RE" />
+    <direct  input="RAM.RCLKE"       output="SB_RAM.RCLKE" />
+    <direct  input="RAM.RCLK"        output="SB_RAM.RCLK" />
+    <!-- Write port -->
+    <direct  input="RAM.WDATA[15:0]" output="SB_RAM.WDATA1[15:0]"/>
+    <direct  input="RAM.MASK[15:0]"  output="SB_RAM.MASK[15:0]"/>
+    <direct  input="RAM.WADDR[7:0]"  output="SB_RAM.WADDR[7:0]" />
+    <direct  input="RAM.WE"          output="SB_RAM.WE" />
+    <direct  input="RAM.WCLKE"       output="SB_RAM.WCLKE" />
+    <direct  input="RAM.WCLK"        output="SB_RAM.WCLK" />
+   </interconnect>
+
+   <fc default_in_type="frac" default_in_val="0.0" default_out_type="frac" default_out_val="0.0">
+    <!-- Connect all the ports to 2 local tracks -->
+    <fc_override fc_type="abs" fc_val="2" port_name="RDATA" segment_name="local"/>
+    <fc_override fc_type="abs" fc_val="2" port_name="RADDR" segment_name="local"/>
+    <fc_override fc_type="abs" fc_val="2" port_name="RE"    segment_name="local"/>
+    <fc_override fc_type="abs" fc_val="2" port_name="RCLKE" segment_name="local"/>
+    <fc_override fc_type="abs" fc_val="2" port_name="RCLK"  segment_name="local"/>
+    <fc_override fc_type="abs" fc_val="2" port_name="WDATA" segment_name="local"/>
+    <fc_override fc_type="abs" fc_val="2" port_name="MASK"  segment_name="local"/>
+    <fc_override fc_type="abs" fc_val="2" port_name="WADDR" segment_name="local"/>
+    <fc_override fc_type="abs" fc_val="2" port_name="WE"    segment_name="local"/>
+    <fc_override fc_type="abs" fc_val="2" port_name="WCLKE" segment_name="local"/>
+    <fc_override fc_type="abs" fc_val="2" port_name="WCLK"  segment_name="local"/>
+   </fc>
+
+   <pinlocations pattern="custom">
+    <!-- RAMB Tile -->
+    <loc side="right" xoffset="0" yoffset="0">
+     RAM.RDATA[7:0]
+     RAM.WADDR[10:0]
+     RAM.MASK[7:0]
+     RAM.WDATA[7:0]
+     RAM.WCLKE
+     RAM.WCLK
+     RAM.WE
+    </loc>
+    <!-- RAMT Tile -->
+    <loc side="right" xoffset="0" yoffset="1">
+     RAM.RDATA[15:8]
+     RAM.RADDR[10:0]
+     RAM.MASK[7:0]
+     RAM.WDATA[15:8]
+     RAM.RCLKE
+     RAM.WCLK
+     RAM.RE
+    </loc>
+   </pinlocations>
+   <switchblock_locations pattern="external_full_internal_straight"/>
+  </pb_type>
+  <!-- End RAM -->
