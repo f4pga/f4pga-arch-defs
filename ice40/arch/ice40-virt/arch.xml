@@ -2,39 +2,36 @@
  <!-- ODIN-II model description for non-standard block type -->
  <models>
   <xi:include href="../../primatives/sb_lut/model.xml"   xpointer="xpointer(models/*)" />
-  <xi:include href="../../primatives/sb_ff/model.xml" 	 xpointer="xpointer(models/*)" />
+  <xi:include href="../../primatives/sb_ff/model.xml" 	  xpointer="xpointer(models/*)" />
   <xi:include href="../../primatives/sb_carry/model.xml" xpointer="xpointer(models/*)" />
+  <xi:include href="../../primatives/sb_ram/model.xml"   xpointer="xpointer(models/*)" />
  </models>
 
  <!-- Layout of the FPGA, we are using 4x4 -->
  <layout>
-  <fixed_layout name="HX1K" width="16" height="30">
-   <region type="PLB" startx="2" endx="13" starty="2" endy="17" priority="4"/>
-   <!-- Create io blocks around the device perimeter -->
-   <col     type="EMPTY" startx="0"  priority="30"/>
-   <col     type="PIO"   startx="1"  priority="10"/>
-   <col     type="PIO"   startx="14" priority="10"/>
-   <col     type="EMPTY" startx="15" priority="30"/>
-   <!-- -->
-   <row     type="EMPTY" starty="0"  priority="31"/>
-   <row     type="PIO"   starty="1"  priority="11"/>
-   <row     type="PIO"   starty="18" priority="11"/>
-   <row     type="EMPTY" starty="19" priority="31"/>
-   <row     type="EMPTY" starty="20" priority="31"/>
-   <row     type="EMPTY" starty="21" priority="31"/>
-   <row     type="EMPTY" starty="22" priority="31"/>
-   <row     type="EMPTY" starty="23" priority="31"/>
-   <row     type="EMPTY" starty="24" priority="31"/>
-   <row     type="EMPTY" starty="25" priority="31"/>
-   <row     type="EMPTY" starty="26" priority="31"/>
-   <row     type="EMPTY" starty="27" priority="31"/>
-   <row     type="EMPTY" starty="28" priority="31"/>
-   <row     type="EMPTY" starty="29" priority="31"/>
+  <fixed_layout name="HX1K" width="15" height="17">
+   <!-- Logic blocks -->
+   <region type="PLB" startx="1" endx="12" starty="1" endy="16" priority="4"/>
+   <!--Block RAM -->
+   <col     type="RAM"   startx="3"  starty="1" priority="5"/>
+   <col     type="RAM"   startx="10" starty="1" priority="5"/>
+   <!-- IO blocks (around the device perimeter) -->
+   <col     type="PIO"   startx="0"  priority="10"/>
+   <col     type="PIO"   startx="13" priority="10"/>
+   <row     type="PIO"   starty="0"  priority="10"/>
+   <row     type="PIO"   starty="17"  priority="10"/>
+   <!-- Corners are empty -->
+   <single  type="EMPTY" x="0"  y="0"  priority="30"/>
+   <single  type="EMPTY" x="13" y="0"  priority="30"/>
+   <single  type="EMPTY" x="0"  y="17" priority="30"/>
+   <single  type="EMPTY" x="13" y="17" priority="30"/>
+   <!--
+    Due to the way channels work in VPR, we need to pad the top+right edge with
+    extra empty tiles.
+   -->
+   <col     type="EMPTY" startx="14" priority="31"/>
+   <row     type="EMPTY" starty="18" priority="31"/>
    <!-- Create empty blocks at all corners -->
-   <single  type="EMPTY" x="1"  y="1"  priority="30"/>
-   <single  type="EMPTY" x="14" y="1"  priority="30"/>
-   <single  type="EMPTY" x="1"  y="18" priority="30"/>
-   <single  type="EMPTY" x="14" y="18" priority="30"/>
   </fixed_layout>
  </layout>
 
@@ -90,7 +87,7 @@
    <opin_switch name="2"/>
   </segment>
 
-  <!-- Neighbourhood tracks 
+  <!-- Neighbourhood tracks
   <segment name="neigh" length="1" freq="1.000000" type="bidir" Rmetal="101" Cmetal="22.5e-15">
    <sb type="pattern">1 1</sb>
    <cb type="pattern">0</cb>
@@ -191,6 +188,7 @@
  <complexblocklist>
 
   <xi:include href="../../tiles/plb/pb_type.xml"/>
+  <xi:include href="../../tiles/block_ram/pb_type.xml"/>
 
   <!-- A PIO Pair block found in the ICE40 -->
   <pb_type name="PIO" capacity="1">
