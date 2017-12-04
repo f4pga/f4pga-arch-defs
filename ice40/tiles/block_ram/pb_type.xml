@@ -5,14 +5,14 @@
   <pb_type name="RAM" height="2" xmlns:xi="http://www.w3.org/2001/XInclude">
    <!-- Read port -->
    <output name="RDATA" num_pins="16" equivalent="false"/>
-   <input  name="RADDR" num_pins="8"  equivalent="false"/>
+   <input  name="RADDR" num_pins="11" equivalent="false"/>
    <input  name="RE"    num_pins="1"  equivalent="false"/>
    <input  name="RCLKE" num_pins="1"  equivalent="false"/>
    <clock  name="RCLK"  num_pins="1"  equivalent="false"/>
    <!-- Write port -->
    <input  name="WDATA" num_pins="16" equivalent="false"/>
    <input  name="MASK"  num_pins="16" equivalent="false"/>
-   <input  name="WADDR" num_pins="8"  equivalent="false"/>
+   <input  name="WADDR" num_pins="11" equivalent="false"/>
    <input  name="WE"    num_pins="1"  equivalent="false"/>
    <input  name="WCLKE" num_pins="1"  equivalent="false"/>
    <clock  name="WCLK"  num_pins="1"  equivalent="false"/>
@@ -21,18 +21,18 @@
 
    <interconnect>
     <!-- Read port -->
-    <direct output="RAM.RDATA1[15:0]" input="SB_RAM.RDATA[15:0]" />
-    <direct  input="RAM.RADDR[7:0]"  output="SB_RAM.RADDR[7:0]" />
-    <direct  input="RAM.RE"          output="SB_RAM.RE" />
-    <direct  input="RAM.RCLKE"       output="SB_RAM.RCLKE" />
-    <direct  input="RAM.RCLK"        output="SB_RAM.RCLK" />
+    <direct name="RDATA" input="SB_RAM.RDATA[15:0]" output="RAM.RDATA[15:0]"/>
+    <direct name="RADDR" input="RAM.RADDR[7:0]"  output="SB_RAM.RADDR[7:0]" />
+    <direct name="RE"    input="RAM.RE"          output="SB_RAM.RE" />
+    <direct name="RCLKE" input="RAM.RCLKE"       output="SB_RAM.RCLKE" />
+    <direct name="RCLK"  input="RAM.RCLK"        output="SB_RAM.RCLK" />
     <!-- Write port -->
-    <direct  input="RAM.WDATA[15:0]" output="SB_RAM.WDATA1[15:0]"/>
-    <direct  input="RAM.MASK[15:0]"  output="SB_RAM.MASK[15:0]"/>
-    <direct  input="RAM.WADDR[7:0]"  output="SB_RAM.WADDR[7:0]" />
-    <direct  input="RAM.WE"          output="SB_RAM.WE" />
-    <direct  input="RAM.WCLKE"       output="SB_RAM.WCLKE" />
-    <direct  input="RAM.WCLK"        output="SB_RAM.WCLK" />
+    <direct name="WDATA" input="RAM.WDATA[15:0]" output="SB_RAM.WDATA[15:0]"/>
+    <direct name="MASK"  input="RAM.MASK[15:0]"  output="SB_RAM.MASK[15:0]"/>
+    <direct name="WADDR" input="RAM.WADDR[7:0]"  output="SB_RAM.WADDR[7:0]" />
+    <direct name="WE"    input="RAM.WE"          output="SB_RAM.WE" />
+    <direct name="WCLKE" input="RAM.WCLKE"       output="SB_RAM.WCLKE" />
+    <direct name="WCLK"  input="RAM.WCLK"        output="SB_RAM.WCLK" />
    </interconnect>
 
    <fc default_in_type="frac" default_in_val="0.0" default_out_type="frac" default_out_val="0.0">
@@ -65,10 +65,10 @@
     <loc side="right" xoffset="0" yoffset="1">
      RAM.RDATA[15:8]
      RAM.RADDR[10:0]
-     RAM.MASK[7:0]
+     RAM.MASK[15:8]
      RAM.WDATA[15:8]
      RAM.RCLKE
-     RAM.WCLK
+     RAM.RCLK
      RAM.RE
     </loc>
    </pinlocations>
