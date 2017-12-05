@@ -2,76 +2,147 @@
   <!-- A diagram for the iCE40 PLB "Block RAM" is shown in;
         http://www.latticesemi.com/~/media/LatticeSemi/Documents/DataSheets/iCE/iCE40LPHXFamilyDataSheet.pdf
     -->
-  <pb_type name="RAM" height="2" xmlns:xi="http://www.w3.org/2001/XInclude">
+  <pb_type name="RAM" height="1" xmlns:xi="http://www.w3.org/2001/XInclude">
    <!-- Read port -->
-   <output name="RDATA" num_pins="16" equivalent="false"/>
-   <input  name="RADDR" num_pins="11" equivalent="false"/>
-   <input  name="RE"    num_pins="1"  equivalent="false"/>
-   <input  name="RCLKE" num_pins="1"  equivalent="false"/>
-   <clock  name="RCLK"  num_pins="1"  equivalent="false"/>
+   <output name="RDATAT" num_pins="8"  equivalent="false"/>
+   <output name="RDATAB" num_pins="8"  equivalent="false"/>
+   <input  name="RADDR"  num_pins="11" equivalent="false"/>
+   <input  name="RE"     num_pins="1"  equivalent="false"/>
+   <input  name="RCLKE"  num_pins="1"  equivalent="false"/>
+   <clock  name="RCLK"   num_pins="1"  equivalent="false"/>
    <!-- Write port -->
-   <input  name="WDATA" num_pins="16" equivalent="false"/>
-   <input  name="MASK"  num_pins="16" equivalent="false"/>
-   <input  name="WADDR" num_pins="11" equivalent="false"/>
-   <input  name="WE"    num_pins="1"  equivalent="false"/>
-   <input  name="WCLKE" num_pins="1"  equivalent="false"/>
-   <clock  name="WCLK"  num_pins="1"  equivalent="false"/>
+   <input  name="WDATAT" num_pins="8"  equivalent="false"/>
+   <input  name="WDATAB" num_pins="8"  equivalent="false"/>
+   <input  name="MASKT"  num_pins="8"  equivalent="false"/>
+   <input  name="MASKB"  num_pins="8"  equivalent="false"/>
+   <input  name="WADDR"  num_pins="11" equivalent="false"/>
+   <input  name="WE"     num_pins="1"  equivalent="false"/>
+   <input  name="WCLKE"  num_pins="1"  equivalent="false"/>
+   <clock  name="WCLK"   num_pins="1"  equivalent="false"/>
 
    <xi:include href="../../primatives/sb_ram/pb_type.xml"/>
 
    <interconnect>
-    <!-- Read port -->
-    <direct name="RDATA" input="SB_RAM.RDATA[15:0]" output="RAM.RDATA[15:0]"/>
-    <direct name="RADDR" input="RAM.RADDR[7:0]"  output="SB_RAM.RADDR[7:0]" />
-    <direct name="RE"    input="RAM.RE"          output="SB_RAM.RE" />
-    <direct name="RCLKE" input="RAM.RCLKE"       output="SB_RAM.RCLKE" />
-    <direct name="RCLK"  input="RAM.RCLK"        output="SB_RAM.RCLK" />
-    <!-- Write port -->
-    <direct name="WDATA" input="RAM.WDATA[15:0]" output="SB_RAM.WDATA[15:0]"/>
-    <direct name="MASK"  input="RAM.MASK[15:0]"  output="SB_RAM.MASK[15:0]"/>
-    <direct name="WADDR" input="RAM.WADDR[7:0]"  output="SB_RAM.WADDR[7:0]" />
+    <direct name="RDATA00" input="SB_RAM.RDATA[0]"  output="RAM.RDATAT[0]"/>
+    <direct name="RDATA01" input="SB_RAM.RDATA[1]"  output="RAM.RDATAT[1]"/>
+    <direct name="RDATA02" input="SB_RAM.RDATA[2]"  output="RAM.RDATAT[2]"/>
+    <direct name="RDATA03" input="SB_RAM.RDATA[3]"  output="RAM.RDATAT[3]"/>
+    <direct name="RDATA04" input="SB_RAM.RDATA[4]"  output="RAM.RDATAT[4]"/>
+    <direct name="RDATA05" input="SB_RAM.RDATA[5]"  output="RAM.RDATAT[5]"/>
+    <direct name="RDATA06" input="SB_RAM.RDATA[6]"  output="RAM.RDATAT[6]"/>
+    <direct name="RDATA07" input="SB_RAM.RDATA[7]"  output="RAM.RDATAT[7]"/>
+
+    <direct name="RDATA08" input="SB_RAM.RDATA[8]"  output="RAM.RDATAB[0]"/>
+    <direct name="RDATA09" input="SB_RAM.RDATA[9]"  output="RAM.RDATAB[1]"/>
+    <direct name="RDATA10" input="SB_RAM.RDATA[10]" output="RAM.RDATAB[2]"/>
+    <direct name="RDATA11" input="SB_RAM.RDATA[11]" output="RAM.RDATAB[3]"/>
+    <direct name="RDATA12" input="SB_RAM.RDATA[12]" output="RAM.RDATAB[4]"/>
+    <direct name="RDATA13" input="SB_RAM.RDATA[13]" output="RAM.RDATAB[5]"/>
+    <direct name="RDATA14" input="SB_RAM.RDATA[14]" output="RAM.RDATAB[6]"/>
+    <direct name="RDATA15" input="SB_RAM.RDATA[15]" output="RAM.RDATAB[7]"/>
+
+    <direct name="RADDR00" input="RAM.RADDR[0]"  output="SB_RAM.RADDR[0]"/>
+    <direct name="RADDR01" input="RAM.RADDR[1]"  output="SB_RAM.RADDR[1]"/>
+    <direct name="RADDR02" input="RAM.RADDR[2]"  output="SB_RAM.RADDR[2]"/>
+    <direct name="RADDR03" input="RAM.RADDR[3]"  output="SB_RAM.RADDR[3]"/>
+    <direct name="RADDR04" input="RAM.RADDR[4]"  output="SB_RAM.RADDR[4]"/>
+    <direct name="RADDR05" input="RAM.RADDR[5]"  output="SB_RAM.RADDR[5]"/>
+    <direct name="RADDR06" input="RAM.RADDR[6]"  output="SB_RAM.RADDR[6]"/>
+    <direct name="RADDR07" input="RAM.RADDR[7]"  output="SB_RAM.RADDR[7]"/>
+
+    <direct name="RE"      input="RAM.RE"        output="SB_RAM.RE" />
+    <direct name="RCLKE"   input="RAM.RCLKE"     output="SB_RAM.RCLKE" />
+    <direct name="RCLK"    input="RAM.RCLK"      output="SB_RAM.RCLK" />
+
+    <direct name="WDATA00" input="RAM.WDATAT[0]" output="SB_RAM.WDATA[0]"/>
+    <direct name="WDATA01" input="RAM.WDATAT[1]" output="SB_RAM.WDATA[1]"/>
+    <direct name="WDATA02" input="RAM.WDATAT[2]" output="SB_RAM.WDATA[2]"/>
+    <direct name="WDATA03" input="RAM.WDATAT[3]" output="SB_RAM.WDATA[3]"/>
+    <direct name="WDATA04" input="RAM.WDATAT[4]" output="SB_RAM.WDATA[4]"/>
+    <direct name="WDATA05" input="RAM.WDATAT[5]" output="SB_RAM.WDATA[5]"/>
+    <direct name="WDATA06" input="RAM.WDATAT[6]" output="SB_RAM.WDATA[6]"/>
+    <direct name="WDATA07" input="RAM.WDATAT[7]" output="SB_RAM.WDATA[7]"/>
+
+    <direct name="WDATA08" input="RAM.WDATAB[0]" output="SB_RAM.WDATA[8]"/>
+    <direct name="WDATA09" input="RAM.WDATAB[1]" output="SB_RAM.WDATA[9]"/>
+    <direct name="WDATA10" input="RAM.WDATAB[2]" output="SB_RAM.WDATA[10]"/>
+    <direct name="WDATA11" input="RAM.WDATAB[3]" output="SB_RAM.WDATA[11]"/>
+    <direct name="WDATA12" input="RAM.WDATAB[4]" output="SB_RAM.WDATA[12]"/>
+    <direct name="WDATA13" input="RAM.WDATAB[5]" output="SB_RAM.WDATA[13]"/>
+    <direct name="WDATA14" input="RAM.WDATAB[6]" output="SB_RAM.WDATA[14]"/>
+    <direct name="WDATA15" input="RAM.WDATAB[7]" output="SB_RAM.WDATA[15]"/>
+
+    <direct name="MASK00" input="RAM.MASKT[0]" output="SB_RAM.MASK[0]"/>
+    <direct name="MASK01" input="RAM.MASKT[1]" output="SB_RAM.MASK[1]"/>
+    <direct name="MASK02" input="RAM.MASKT[2]" output="SB_RAM.MASK[2]"/>
+    <direct name="MASK03" input="RAM.MASKT[3]" output="SB_RAM.MASK[3]"/>
+    <direct name="MASK04" input="RAM.MASKT[4]" output="SB_RAM.MASK[4]"/>
+    <direct name="MASK05" input="RAM.MASKT[5]" output="SB_RAM.MASK[5]"/>
+    <direct name="MASK06" input="RAM.MASKT[6]" output="SB_RAM.MASK[6]"/>
+    <direct name="MASK07" input="RAM.MASKT[7]" output="SB_RAM.MASK[7]"/>
+
+    <direct name="MASK08" input="RAM.MASKB[0]" output="SB_RAM.MASK[8]"/>
+    <direct name="MASK09" input="RAM.MASKB[1]" output="SB_RAM.MASK[9]"/>
+    <direct name="MASK10" input="RAM.MASKB[2]" output="SB_RAM.MASK[10]"/>
+    <direct name="MASK11" input="RAM.MASKB[3]" output="SB_RAM.MASK[11]"/>
+    <direct name="MASK12" input="RAM.MASKB[4]" output="SB_RAM.MASK[12]"/>
+    <direct name="MASK13" input="RAM.MASKB[5]" output="SB_RAM.MASK[13]"/>
+    <direct name="MASK14" input="RAM.MASKB[6]" output="SB_RAM.MASK[14]"/>
+    <direct name="MASK15" input="RAM.MASKB[7]" output="SB_RAM.MASK[15]"/>
+
+    <direct name="WADDR00" input="RAM.WADDR[0]"  output="SB_RAM.WADDR[0]"/>
+    <direct name="WADDR01" input="RAM.WADDR[1]"  output="SB_RAM.WADDR[1]"/>
+    <direct name="WADDR02" input="RAM.WADDR[2]"  output="SB_RAM.WADDR[2]"/>
+    <direct name="WADDR03" input="RAM.WADDR[3]"  output="SB_RAM.WADDR[3]"/>
+    <direct name="WADDR04" input="RAM.WADDR[4]"  output="SB_RAM.WADDR[4]"/>
+    <direct name="WADDR05" input="RAM.WADDR[5]"  output="SB_RAM.WADDR[5]"/>
+    <direct name="WADDR06" input="RAM.WADDR[6]"  output="SB_RAM.WADDR[6]"/>
+    <direct name="WADDR07" input="RAM.WADDR[7]"  output="SB_RAM.WADDR[7]"/>
+
     <direct name="WE"    input="RAM.WE"          output="SB_RAM.WE" />
     <direct name="WCLKE" input="RAM.WCLKE"       output="SB_RAM.WCLKE" />
     <direct name="WCLK"  input="RAM.WCLK"        output="SB_RAM.WCLK" />
    </interconnect>
 
    <fc default_in_type="frac" default_in_val="0.0" default_out_type="frac" default_out_val="0.0">
-    <!-- Connect all the ports to 2 local tracks -->
-    <fc_override fc_type="abs" fc_val="2" port_name="RDATA" segment_name="local"/>
-    <fc_override fc_type="abs" fc_val="2" port_name="RADDR" segment_name="local"/>
-    <fc_override fc_type="abs" fc_val="2" port_name="RE"    segment_name="local"/>
-    <fc_override fc_type="abs" fc_val="2" port_name="RCLKE" segment_name="local"/>
-    <fc_override fc_type="abs" fc_val="2" port_name="RCLK"  segment_name="local"/>
-    <fc_override fc_type="abs" fc_val="2" port_name="WDATA" segment_name="local"/>
-    <fc_override fc_type="abs" fc_val="2" port_name="MASK"  segment_name="local"/>
-    <fc_override fc_type="abs" fc_val="2" port_name="WADDR" segment_name="local"/>
-    <fc_override fc_type="abs" fc_val="2" port_name="WE"    segment_name="local"/>
-    <fc_override fc_type="abs" fc_val="2" port_name="WCLKE" segment_name="local"/>
-    <fc_override fc_type="abs" fc_val="2" port_name="WCLK"  segment_name="local"/>
+    <fc_override fc_type="abs" fc_val="2" port_name="RDATAT" segment_name="local"/>
+    <fc_override fc_type="abs" fc_val="2" port_name="RDATAB" segment_name="local"/>
+    <fc_override fc_type="abs" fc_val="2" port_name="RADDR"  segment_name="local"/>
+    <fc_override fc_type="abs" fc_val="2" port_name="RE"     segment_name="local"/>
+    <fc_override fc_type="abs" fc_val="2" port_name="RCLKE"  segment_name="local"/>
+    <fc_override fc_type="abs" fc_val="2" port_name="RCLK"   segment_name="local"/>
+    <fc_override fc_type="abs" fc_val="2" port_name="WDATAT" segment_name="local"/>
+    <fc_override fc_type="abs" fc_val="2" port_name="WDATAB" segment_name="local"/>
+    <fc_override fc_type="abs" fc_val="2" port_name="MASKT"  segment_name="local"/>
+    <fc_override fc_type="abs" fc_val="2" port_name="MASKB"  segment_name="local"/>
+    <fc_override fc_type="abs" fc_val="2" port_name="WADDR"  segment_name="local"/>
+    <fc_override fc_type="abs" fc_val="2" port_name="WE"     segment_name="local"/>
+    <fc_override fc_type="abs" fc_val="2" port_name="WCLKE"  segment_name="local"/>
+    <fc_override fc_type="abs" fc_val="2" port_name="WCLK"   segment_name="local"/>
    </fc>
 
    <pinlocations pattern="custom">
     <!-- RAMB Tile -->
     <loc side="right" xoffset="0" yoffset="0">
-     RAM.RDATA[7:0]
-     RAM.WADDR[10:0]
-     RAM.MASK[7:0]
-     RAM.WDATA[7:0]
+     RAM.RDATAB
+     RAM.WADDR
+     RAM.MASKB
+     RAM.WDATAB
      RAM.WCLKE
      RAM.WCLK
      RAM.WE
-    </loc>
-    <!-- RAMT Tile -->
-    <loc side="right" xoffset="0" yoffset="1">
-     RAM.RDATA[15:8]
-     RAM.RADDR[10:0]
-     RAM.MASK[15:8]
-     RAM.WDATA[15:8]
+     RAM.RDATAT
+     RAM.RADDR
+     RAM.MASKT
+     RAM.WDATAT
      RAM.RCLKE
      RAM.RCLK
      RAM.RE
     </loc>
    </pinlocations>
+   <!--
+    </loc>
+    <loc side="right" xoffset="0" yoffset="1"> -->
    <switchblock_locations pattern="external_full_internal_straight"/>
   </pb_type>
   <!-- End RAM -->

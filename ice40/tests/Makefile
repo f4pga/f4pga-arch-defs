@@ -13,10 +13,10 @@ rr_graph.xml: rot.blif $(ARCH_FILE)
 	cd $(ARCH); make merged.xml
 	$(VPR) $(ARCH_FILE) ff.blif --write_rr_graph rr_graph.xml --route_chan_width 6
 
-disp: rot.blif $(ARCH_FILE)
+disp: ff.blif $(ARCH_FILE)
 	cd $(ARCH); make merged.xml
 	#Find the minimum routable channel width of my_circuit on my_arch
-	$(VPR) $(ARCH_FILE) ff.blif --disp on
+	$(VPR) $(ARCH_FILE) ff.blif --disp on --echo_file on
 
 disp2: ff.blif $(ARCH_FILE)
 	cd $(ARCH); make merged.xml
@@ -49,4 +49,4 @@ disp2: ff.blif $(ARCH_FILE)
 #	vpr my_arch.xml my_circuit.blif --write_rr_graph my_rr_graph.xml
 
 clean:
-	rm *.blif
+	rm -f *.echo chan_details.txt seg_details.txt

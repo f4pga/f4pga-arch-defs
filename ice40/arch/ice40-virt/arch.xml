@@ -23,9 +23,11 @@
    <row     type="EMPTY" starty="19" priority="31"/>
 
    <!-- Logic blocks -->
-   <!--Block RAM -->
-   <col     type="RAM"   startx="4"  starty="3" priority="5"/>
-   <col     type="RAM"   startx="11" starty="3" priority="5"/>
+   <!-- Block RAM -->
+   <col     type="RAM"   startx="4"  starty="2" priority="5"/>
+   <region  type="EMPTY" startx="4" endx="4" starty="2" endy="2" repeaty="2" priority="6"/>
+   <col     type="RAM"   startx="11" starty="2" priority="5"/>
+   <region  type="EMPTY" startx="11" endx="11" starty="2" endy="2" repeaty="2" priority="6"/>
    <!-- IO blocks (around the device perimeter) -->
    <!-- Corners are empty -->
    <single  type="EMPTY" x="1"  y="1"  priority="40"/>

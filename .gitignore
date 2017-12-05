@@ -8,3 +8,4 @@ merged*.xml
 *.deps.mk
 rr_graph*.xml
 *.pdf
+*.echo
