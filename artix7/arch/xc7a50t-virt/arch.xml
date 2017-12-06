@@ -1,0 +1,185 @@
+<!-- set: ai sw=1 ts=1 sta et -->
+<architecture xmlns:xi="http://www.w3.org/2001/XInclude">
+ <!-- ODIN-II model description for non-standard block type -->
+ <models>
+ </models>
+
+ <!-- Layout of the FPGA, we are using 4x4 -->
+ <layout>
+  <fixed_layout name="xc7a50t" width="115" height="157">
+
+   <!-- Fill with empty by default -->
+   <fill type="EMPTY" priority="1"/>
+
+   <!-- Columns -->
+
+   <col type="LIOB"       startx="0"   priority="10" />
+   <col type="LIO"        startx="1"   priority="10" />
+   <col type="BRK"        startx="2"   priority="10" />
+   <col type="IO_INT_L"   startx="3"   priority="10" />
+   <col type="INT_L"      startx="4"   priority="10" />
+   <col type="INT_R"      startx="5"   priority="10" />
+   <col type="XXXX_INT_R" startx="6"   priority="10" />
+   <!-- Empty             startx="7"   priority="10" -->
+   <!-- Empty             startx="8"   priority="10" -->
+   <col type="BRK"        startx="9"   priority="10" />
+
+   <col type="CLBLL_L"    startx="10"  priority="10" />
+   <col type="INT_L"      startx="11"  priority="10" />
+   <col type="INT_R"      startx="12"  priority="10" />
+   <col type="CLBLM_R"    startx="13"  priority="10" />
+
+   <col type="CLBLL_L"    startx="14"  priority="10" />
+   <col type="INT_L"      startx="15"  priority="10" />
+   <col type="INT_R"      startx="16"  priority="10" />
+   <col type="CLBLM_R"    startx="17"  priority="10" />
+
+   <col type="BRK"        startx="18"  priority="10" />
+   <col type="BRAM_L"     startx="19"  priority="10" />
+   <col type="BRAM_INT_L" startx="20"  priority="10" />
+   <col type="INT_L"      startx="21"  priority="10" />
+
+   <col type="INT_R"      startx="22"  priority="10" />
+   <col type="CLBLM_R"    startx="23"  priority="10" />
+   <col type="CLBLM_L"    startx="24"  priority="10" />
+   <col type="INT_L"      startx="25"  priority="10" />
+
+   <col type="INT_R"      startx="26"  priority="10" />
+   <col type="XXXX_INT_R" startx="27"  priority="10" />
+   <col type="DSP_R"      startx="28"  priority="10" />
+   <col type="BRK"        startx="29"  priority="10" />
+
+   <col type="CLBLM_L"    startx="30"  priority="10" />
+   <col type="INT_L"      startx="31"  priority="10" />
+   <col type="INT_R"      startx="32"  priority="10" />
+   <col type="CLBLM_R"    startx="33"  priority="10" />
+
+   <col type="BRK"        startx="34"  priority="10" />
+
+   <col type="CLBLL_L"    startx="35"  priority="10" />
+   <col type="INT_L"      startx="36"  priority="10" />
+   <col type="INT_R"      startx="37"  priority="10" />
+   <col type="CLBLM_R"    startx="38"  priority="10" />
+
+   <col type="CLBLL_L"    startx="39"  priority="10" />
+   <col type="INT_L"      startx="40"  priority="10" />
+   <col type="INT_R"      startx="41"  priority="10" />
+   <col type="CLBLM_R"    startx="42"  priority="10" />
+
+   <col type="CLBLL_L"    startx="43"  priority="10" />
+   <col type="INT_L"      startx="44"  priority="10" />
+   <col type="INT_R"      startx="45"  priority="10" />
+   <col type="CLBLM_R"    startx="46"  priority="10" />
+
+   <col type="BRK"        startx="47"  priority="10" />
+   <col type="XXXX_INT_L" startx="48"  priority="10" />
+   <col type="INT_L"      startx="49"  priority="10" />
+
+   <col type="INT_R"      startx="50"  priority="10" />
+   <col type="CLBLM_R"    startx="51"  priority="10" />
+   <col type="CLBLM_L"    startx="52"  priority="10" />
+   <col type="INT_L"      startx="53"  priority="10" />
+   <col type="INT_R"      startx="54"  priority="10" />
+   <col type="CLBLM_R"    startx="55"  priority="10" />
+   <col type="CLBLM_L"    startx="56"  priority="10" />
+   <col type="INT_L"      startx="57"  priority="10" />
+
+   <col type="INT_R"      startx="58"  priority="10" />
+   <col type="XXXX_INT_R" startx="59"  priority="10" />
+   <col type="CLK_FEED"   startx="60"  priority="10" />
+   <col type="BRK"        startx="61"  priority="10" />
+
+   <col type="CLBLL_L"    startx="62"  priority="10" />
+   <col type="INT_L"      startx="63"  priority="10" />
+   <col type="INT_R"      startx="64"  priority="10" />
+   <col type="CLBLM_R"    startx="65"  priority="10" />
+
+   <col type="BRK"        startx="66"  priority="10" />
+
+   <col type="CLBLL_L"    startx="67"  priority="10" />
+   <col type="INT_L"      startx="68"  priority="10" />
+   <col type="INT_R"      startx="69"  priority="10" />
+   <col type="CLBLM_R"    startx="70"  priority="10" />
+
+   <col type="CLBLL_L"    startx="71"  priority="10" />
+   <col type="INT_L"      startx="72"  priority="10" />
+   <col type="INT_R"      startx="73"  priority="10" />
+   <col type="CLBLM_R"    startx="74"  priority="10" />
+
+   <col type="BRAM_L"     startx="75"  priority="10" />
+   <col type="BRAM_INT_L" startx="76"  priority="10" />
+   <col type="INT_L"      startx="77"  priority="10" />
+
+   <col type="INT_R"      startx="78"  priority="10" />
+   <col type="CLBLM_R"    startx="79"  priority="10" />
+
+   <col type="BRK"        startx="80"  priority="10" />
+
+   <col type="CLBLM_L"    startx="81"  priority="10" />
+   <col type="INT_L"      startx="82"  priority="10" />
+   <col type="INT_R"      startx="83"  priority="10" />
+   <col type="CLBLM_R"    startx="84"  priority="10" />
+
+   <col type="BRK"        startx="85"  priority="10" />
+   <col type="DSP_L"      startx="86"  priority="10" />
+   <col type="XXXX_INT_L" startx="87"  priority="10" />
+   <col type="INT_L"      startx="88"  priority="10" />
+
+   <col type="INT_R"      startx="89"  priority="10" />
+   <col type="CLBLM_R"    startx="90"  priority="10" />
+   <col type="CLBLM_L"    startx="91"  priority="10" />
+   <col type="INT_L"      startx="92"  priority="10" />
+
+   <col type="INT_R"      startx="93"  priority="10" />
+   <col type="BRAM_INT_R" startx="94"  priority="10" />
+   <col type="BRAM_R"     startx="95"  priority="10" />
+   <col type="BRK"        startx="96"  priority="10" />
+
+   <col type="CLBLL_L"    startx="97"  priority="10" />
+   <col type="INT_L"      startx="98"  priority="10" />
+   <col type="INT_R"      startx="99"  priority="10" />
+   <col type="CLBLM_R"    startx="100" priority="10" />
+
+   <col type="CLBLL_L"    startx="101"  priority="10" />
+   <col type="INT_L"      startx="102"  priority="10" />
+   <col type="INT_R"      startx="103"  priority="10" />
+   <col type="CLBLM_R"    startx="104"  priority="10" />
+
+   <col type="BRK"        startx="105"  priority="10" />
+   <!-- Empty             startx="106"  priority="10" -->
+   <!-- Empty             startx="107"  priority="10" -->
+   <col type="XXXX_INT_L" startx="108"  priority="10" />
+   <col type="INT_L"      startx="109"  priority="10" />
+   <col type="INT_R"      startx="110"  priority="10" />
+   <col type="IO_INT_R"   startx="111"  priority="10" />
+   <col type="BRK"        startx="112"  priority="10" />
+   <col type="RIO"        startx="113"  priority="10" />
+   <col type="RIOB"       startx="114"  priority="10" />
+
+   <!-- Regions -->
+   <region type="INT_FEEDTHRU" startx="35" endx="45"  starty="53" endy="155" priority="20" />
+   <region type="EMPTY"        startx="97" endx="114" starty="0"  endy="51"  priority="20" />
+   <region type="PCIE"         startx="70" endx="76"  starty="27" endy="51"  priority="20" />
+
+   <!-- Rows -->
+   <row type="EMPTY" starty="0"   priority="30"/>
+   <row type="HCLK"  starty="26"  priority="30"/>
+   <row type="BRK"   starty="52"  priority="30"/>
+   <row type="HCLK"  starty="78"  priority="30"/>
+   <row type="BRK"   starty="104" priority="30"/>
+   <row type="HCLK"  starty="130" priority="30"/>
+   <row type="EMPTY" starty="156" priority="30"/>
+
+  </fixed_layout>
+ </layout>
+
+ <!--
+ <directlist>
+ -->
+  <!-- Carry chain from one PLB to the next PLB
+  <direct name="CARRY" from_pin="PLB.FCOUT" to_pin="PLB.FCIN" x_offset="0" y_offset="-1" z_offset="0"/>
+ </directlist>
+       -->
+
+
+</architecture>
