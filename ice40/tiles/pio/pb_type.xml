@@ -1,4 +1,4 @@
- <pb_type>
+ <pb_type name="PIO">
    <clock name="OUTPUT_CLK" num_pins="1"/>
    <clock name="INPUT_CLK"  num_pins="1"/>
    <input name="CLOCK_ENABLE" num_pins="1" equivalent="false"/>
