@@ -1,0 +1,29 @@
+<!-- set: ai sw=1 ts=1 sta et -->
+<pb_type name="IOB">
+ <input name="outpad" num_pins="1"/>
+ <output name="inpad" num_pins="1"/>
+ <mode name="inpad">
+   <pb_type name="inpad" blif_model=".input" num_pb="1">
+    <output name="inpad" num_pins="1"/>
+   </pb_type>
+   <interconnect>
+    <direct name="inpad" input="inpad.inpad" output="PIO.inpad">
+     <delay_constant max="4.243e-11" in_port="inpad.inpad" out_port="PIO.inpad"/>
+    </direct>
+   </interconnect>
+ </mode>
+ <mode name="outpad">
+  <pb_type name="outpad" blif_model=".output" num_pb="1">
+   <input name="outpad" num_pins="1"/>
+  </pb_type>
+  <interconnect>
+   <direct name="outpad" input="PIO.outpad" output="outpad.outpad">
+    <delay_constant max="1.394e-11" in_port="PIO.outpad" out_port="outpad.outpad"/>
+   </direct>
+  </interconnect>
+ </mode>
+ <pinlocations pattern="custom">
+  <loc side="right">PIO.outpad PIO.inpad</loc>
+  <loc side="left">PIO.outpad PIO.inpad</loc>
+ </pinlocations>
+</pb_type>
