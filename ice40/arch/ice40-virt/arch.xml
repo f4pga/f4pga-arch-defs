@@ -199,7 +199,7 @@
  <complexblocklist>
 
   <xi:include href="../../tiles/plb/pb_type.xml"/>
-  <xi:include href="../../tiles/block_ram/pb_type.xml"/>
+  <xi:include href="../../tiles/pio/pb_type.xml"/>
 
   <!-- A PIO Pair block found in the ICE40 -->
   <pb_type name="PIO" capacity="1">
