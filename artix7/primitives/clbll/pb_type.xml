@@ -2,43 +2,43 @@
     7 Series FPGAs CLB User Guide UG474 (v1.8) September 27, 2016
     Figure 2-4: Diagram of SLICEL
   -->
-<pb_type name="CLBLL">
+<pb_type name="CLBLL" num_pb="1">
 
   <input name="DX" num_pins="1" equivalent="false"/>
-  <input name="D" num_pins="6" equivalent="false"/>
+  <input name="D"  num_pins="6" equivalent="false"/>
 
   <input name="CX" num_pins="1" equivalent="false"/>
-  <input name="C" num_pins="6" equivalent="false"/>
+  <input name="C"  num_pins="6" equivalent="false"/>
 
   <input name="BX" num_pins="1" equivalent="false"/>
-  <input name="B" num_pins="6" equivalent="false"/>
+  <input name="B"  num_pins="6" equivalent="false"/>
 
   <input name="AX" num_pins="1" equivalent="false"/>
-  <input name="A" num_pins="6" equivalent="false"/>
+  <input name="A"  num_pins="6" equivalent="false"/>
 
   <input name="SR" num_pins="1" equivalent="false"/>
   <input name="CE" num_pins="1" equivalent="false"/>
 
-  <clock name="CLK"/>
+  <clock name="CLK" num_pins="1" equivalent="false"/>
 
-  <input name="CARRY_IN" num_pins="1" equivalent="false"/>
+  <input  name="CARRY_IN"  num_pins="1" equivalent="false"/>
   <output name="CARRY_OUT" num_pins="1" equivalent="false"/>
 
   <output name="DMUX" num_pins="1" equivalent="false"/>
   <output name="Dout" num_pins="1" equivalent="false"/>
-  <output name="DQ" num_pins="1" equivalent="false"/>
+  <output name="DQ"   num_pins="1" equivalent="false"/>
 
   <output name="CMUX" num_pins="1" equivalent="false"/>
   <output name="Cout" num_pins="1" equivalent="false"/>
-  <output name="CQ" num_pins="1" equivalent="false"/>
+  <output name="CQ"   num_pins="1" equivalent="false"/>
 
   <output name="BMUX" num_pins="1" equivalent="false"/>
   <output name="Bout" num_pins="1" equivalent="false"/>
-  <output name="BQ" num_pins="1" equivalent="false"/>
+  <output name="BQ"   num_pins="1" equivalent="false"/>
 
   <output name="AMUX" num_pins="1" equivalent="false"/>
   <output name="Aout" num_pins="1" equivalent="false"/>
-  <output name="AQ" num_pins="1" equivalent="false"/>
+  <output name="AQ"   num_pins="1" equivalent="false"/>
 
   <!-- D6LUT, C6LUT, B6LUT, A6LUT == W6LUT
        A fracturable 6 input LUT. Can either be;
@@ -46,50 +46,82 @@
         - 1 * 6 input, 1 output LUT
     -->
   <pb_type name="WLUT" num_pb="4">
-    <input name="A" num_pins="6" port_class="lut_in" />
-    <output name="O5" num_pins="1" port_class="lut_out" />
-    <output name="O6" num_pins="1" port_class="lut_out" />
+    <input name="A"   num_pins="6"/>
+    <output name="O5" num_pins="1"/>
+    <output name="O6" num_pins="1"/>
     <mode name="lut6">
       <pb_type name="W6LUT" num_pb="1" class="lut" blif_model=".names">
-        <input name="A" num_pins="6" port_class="lut_in" />
-        <output name="O" num_pins="1" port_class="lut_out" />
+        <input  name="A" num_pins="6" port_class="lut_in" />
+	<output name="O" num_pins="1" port_class="lut_out" />
       </pb_type>
+      <interconnect>
+        <direct name="WLUT_A6" input="WLUT.A[5]" output="W6LUT.A[5]"/>
+        <direct name="WLUT_A5" input="WLUT.A[4]" output="W6LUT.A[4]"/>
+        <direct name="WLUT_A4" input="WLUT.A[3]" output="W6LUT.A[3]"/>
+        <direct name="WLUT_A3" input="WLUT.A[2]" output="W6LUT.A[2]"/>
+        <direct name="WLUT_A2" input="WLUT.A[1]" output="W6LUT.A[1]"/>
+        <direct name="WLUT_A1" input="WLUT.A[0]" output="W6LUT.A[0]"/>
+        <direct name="O6"      input="W6LUT.O"   output="W6LUT.O6"/>
+      </interconnect>
     </mode>
     <mode name="lut5x2">
       <pb_type name="W5LUT" num_pb="2" class="lut" blif_model=".names">
-        <input name="A" num_pins="5" port_class="lut_in" />
+        <input  name="A" num_pins="5" port_class="lut_in" />
         <output name="O" num_pins="1" port_class="lut_out" />
       </pb_type>
-    </mode>
-    <interconnect>
-      <direct name="WLUT_A6" input="WLUT.A[5]" output="{W6LUT.A[5] W5LUT[0].A[4]}"/>
-      <direct name="WLUT_A5" input="WLUT.A[4]" output="{W6LUT.A[4] W5LUT[1].A[4]}"/>
-      <mux name="O6" input="W6LUT.O W5LUT[0].O" output="W6LUT.O6"/>
-      <direct name="O5" input="W5LUT[0].O" output="W5LUT.O5"/>
+      <interconnect>
+        <direct name="WLUT_A6" input="WLUT.A[5]" output="W5LUT[0].A[4]"/>
+        <direct name="WLUT_A5" input="WLUT.A[4]" output="W5LUT[1].A[4]"/>
 
-      <direct name="WLUT_A4" input="WLUT.A[3]" output="{W6LUT.A[3] W5LUT[0].A[3] W5LUT[1].A[3]}"/>
-      <direct name="WLUT_A3" input="WLUT.A[2]" output="{W6LUT.A[2] W5LUT[0].A[2] W5LUT[1].A[2]}"/>
-      <direct name="WLUT_A2" input="WLUT.A[1]" output="{W6LUT.A[1] W5LUT[0].A[1] W5LUT[1].A[1]}"/>
-      <direct name="WLUT_A1" input="WLUT.A[0]" output="{W6LUT.A[0] W5LUT[0].A[0] W5LUT[1].A[0]}"/>
-    </interconnect>
+        <direct name="WLUT_A4" input="WLUT.A[3]" output="{W5LUT[0].A[3] W5LUT[1].A[3]}"/>
+        <direct name="WLUT_A3" input="WLUT.A[2]" output="{W5LUT[0].A[2] W5LUT[1].A[2]}"/>
+        <direct name="WLUT_A2" input="WLUT.A[1]" output="{W5LUT[0].A[1] W5LUT[1].A[1]}"/>
+        <direct name="WLUT_A1" input="WLUT.A[0]" output="{W5LUT[0].A[0] W5LUT[1].A[0]}"/>
+
+        <direct name="O5" input="W5LUT[0].O" output="WLUT.O5"/>
+        <direct name="O6" input="W5LUT[1].O" output="WLUT.O6"/>
+      </interconnect>
+    </mode>
   </pb_type>
 
   <!-- D5FF, C5FF, B5FF, A5FF == W5FF -->
-  <pb_type name="W5FF" num_pb="4" class="flipflop" blif_model=".latch">
-    <input name="D" num_pins="1" port_class="D" />
+  <pb_type name="W5FF" num_pb="4">
+    <input name="D" num_pins="1"/>
     <input name="CE" num_pins="1"/>
-    <clock name="CK" num_pins="1" port_class="clock" />
+    <clock name="CK" num_pins="1"/>
     <input name="SR" num_pins="1"/>
-    <output name="Q" num_pins="1" port_class="Q" />
+    <output name="Q" num_pins="1"/>
+
+    <pb_type name="FF" num_pb="1" class="flipflop" blif_model=".latch">
+     <input  name="D" num_pins="1" port_class="D" />
+     <output name="Q" num_pins="1" port_class="Q" />
+     <clock  name="C" num_pins="1" port_class="clock" />
+    </pb_type>
+    <interconnect>
+      <direct name="D" input="W5FF.D" output="FF.D"/>
+      <direct name="Q" input="FF.Q" output="W5FF.Q"/>
+      <direct name="C" input="W5FF.C" output="FF.C"/>
+    </interconnect>
   </pb_type>
 
   <!-- DFF, CFF, BFF, AFF == WFF -->
-  <pb_type name="WFF" num_pb="4" class="flipflop" blif_model=".latch">
-    <input name="D" num_pins="1" port_class="D" />
+  <pb_type name="WFF" num_pb="4">
+    <input name="D" num_pins="1"/>
     <input name="CE" num_pins="1"/>
-    <clock name="CK" num_pins="1" port_class="clock" />
+    <clock name="CK" num_pins="1"/>
     <input name="SR" num_pins="1"/>
-    <output name="Q" num_pins="1" port_class="Q" />
+    <output name="Q" num_pins="1"/>
+
+    <pb_type name="FF" num_pb="1" class="flipflop" blif_model=".latch">
+     <input  name="D" num_pins="1" port_class="D" />
+     <output name="Q" num_pins="1" port_class="Q" />
+     <clock  name="C" num_pins="1" port_class="clock" />
+    </pb_type>
+    <interconnect>
+      <direct name="D" input="WFF.D" output="FF.D"/>
+      <direct name="Q" input="FF.Q" output="WFF.Q"/>
+      <direct name="C" input="WFF.C" output="FF.C"/>
+    </interconnect>
   </pb_type>
 
   <pb_type name="F7BMUX" num_pb="1" blif_model=".subckt MUXF7">
@@ -182,19 +214,19 @@
 
   <interconnect>
     <!-- COUT_USED -->
-    <direct name="COUT" input="CARRY4.CO3" output="A7_SLICEL.COUT" />
+    <direct name="COUT" input="CARRY4.CO3" output="CLBLL.COUT" />
 
     <!-- Repeat 4 times -->
-    <direct name="D" input="A7_SLICEL.D" output="W6LUT[3].A" />
-    <direct name="C" input="A7_SLICEL.C" output="W6LUT[2].A" />
-    <direct name="B" input="A7_SLICEL.B" output="W6LUT[1].A" />
-    <direct name="A" input="A7_SLICEL.A" output="W6LUT[0].A" />
+    <direct name="D" input="CLBLL.D" output="W6LUT[3].A" />
+    <direct name="C" input="CLBLL.C" output="W6LUT[2].A" />
+    <direct name="B" input="CLBLL.B" output="W6LUT[1].A" />
+    <direct name="A" input="CLBLL.A" output="W6LUT[0].A" />
 
     <!-- MUX for input to 5 flip-flop output. -->
     <mux
         name="D5FFMUX"
         input="
-            A7_SLICEL.DX
+            CLBLL.DX
             WLUT[3].O5
         "
         output="W5FF[3].D"
@@ -202,7 +234,7 @@
     <mux
         name="C5FFMUX"
         input="
-            A7_SLICEL.CX
+            CLBLL.CX
             WLUT[2].O5
         "
         output="W5FF[2].D"
@@ -210,7 +242,7 @@
     <mux
         name="B5FFMUX"
         input="
-            A7_SLICEL.BX
+            CLBLL.BX
             WLUT[1].O5
         "
         output="W5FF[1].D"
@@ -218,7 +250,7 @@
     <mux
         name="A5FFMUX"
         input="
-            A7_SLICEL.AX
+            CLBLL.AX
             WLUT[0].O5
         "
         output="W5FF[0].D"
@@ -228,7 +260,7 @@
     <mux
         name="DCYO"
         input="
-            A7_SLICEL.DX
+            CLBLL.DX
             WLUT[3].O5
         "
         output="CARRY4.DI3"
@@ -236,7 +268,7 @@
     <mux
         name="CCYO"
         input="
-            A7_SLICEL.CX
+            CLBLL.CX
             WLUT[2].O5
         "
         output="CARRY4.DI2"
@@ -244,7 +276,7 @@
     <mux
         name="BCYO"
         input="
-            A7_SLICEL.BX
+            CLBLL.BX
             WLUT[1].O5
         "
         output="CARRY4.DI1"
@@ -252,7 +284,7 @@
     <mux
         name="ACYO"
         input="
-            A7_SLICEL.AX
+            CLBLL.AX
             WLUT[0].O5
         "
         output="CARRY4.DI0"
@@ -268,7 +300,7 @@
             W5LUT[3].O5
             CARRY4.CO[3]
             "
-        output="A7_SLICEL.DMUX"
+        output="CLBLL.DMUX"
     />
     <mux
         name="COUTMUX"
@@ -280,7 +312,7 @@
             F7BMUX.O
             CARRY4.CO[2]
             "
-        output="A7_SLICEL.CMUX"
+        output="CLBLL.CMUX"
     />
     <mux
         name="BOUTMUX"
@@ -292,7 +324,7 @@
             F8MUX.O
             CARRY4.CO[1]
             "
-        output="A7_SLICEL.BMUX"
+        output="CLBLL.BMUX"
     />
     <mux
         name="AOUTMUX"
@@ -304,7 +336,7 @@
             F7BMUX.O
             CARRY4.CO[0]
             "
-        output="A7_SLICEL.AMUX"
+        output="CLBLL.AMUX"
     />
 
     <!-- Muxes for WFF input -->
@@ -314,20 +346,20 @@
             CARRY4.O[3]
             W5LUT[3].O6
             W5LUT[3].O5
-            A7_SLICEL.DX
+            CLBLL.DX
             CARRY4.CO[3]
             "
         output="WFF[3].D"
     />
     <mux
-        name="CFFMUX" 
+        name="CFFMUX"
         input="
             CARRY4.O[2]
             W5LUT[2].O6
             W5LUT[2].O5
             F7BMUX.O
             CARRY4.CO[2]
-            A7_SLICEL.CX
+            CLBLL.CX
             "
         output="WFF[2].D"
     />
@@ -339,7 +371,7 @@
             W5LUT[1].O5
             F8MUX.O
             CARRY4.CO[1]
-            A7_SLICEL.BX
+            CLBLL.BX
             "
         output="WFF[1].D"
     />
@@ -351,24 +383,24 @@
             W5LUT[3].O5
             F7AMUX.O
             CARRY4.CO[0]
-            A7_SLICEL.AX
+            CLBLL.AX
             "
         output="WFF[0].D"
     />
 
     <!-- LUT O6 output -->
-    <direct name="DLUT_O6" input="WLUT[3].O6" output="{F7BMUX.I0 CARRY4.S3 A7_SLICEL.Dout}" />
-    <direct name="CLUT_O6" input="WLUT[2].O6" output="{F7BMUX.I1 CARRY4.S2 A7_SLICEL.Cout}" />
-    <direct name="BLUT_O6" input="WLUT[1].O6" output="{F7AMUX.I0 CARRY4.S1 A7_SLICEL.Bout}" />
-    <direct name="ALUT_O6" input="WLUT[0].O6" output="{F7AMUX.I1 CARRY4.S0 A7_SLICEL.Aout}" />
+    <direct name="DLUT_O6" input="WLUT[3].O6" output="{F7BMUX.I0 CARRY4.S3 CLBLL.Dout}" />
+    <direct name="CLUT_O6" input="WLUT[2].O6" output="{F7BMUX.I1 CARRY4.S2 CLBLL.Cout}" />
+    <direct name="BLUT_O6" input="WLUT[1].O6" output="{F7AMUX.I0 CARRY4.S1 CLBLL.Bout}" />
+    <direct name="ALUT_O6" input="WLUT[0].O6" output="{F7AMUX.I1 CARRY4.S0 CLBLL.Aout}" />
 
     <!-- Select lines for F7 MUXes -->
-    <direct name="CX7" input="A7_SLICEL.CX" output="F7BMUX.S" />
-    <direct name="AX7" input="A7_SLICEL.AX" output="{F7AMUX.S CARRY4.CYINIT}" />
+    <direct name="CX7" input="CLBLL.CX" output="F7BMUX.S" />
+    <direct name="AX7" input="CLBLL.AX" output="{F7AMUX.S CARRY4.CYINIT}" />
     <!-- F8MUX -->
     <direct name="F8MUX_IN0" input="F7BMUX.O" output="F8MUX.I0" />
     <direct name="F8MUX_IN1" input="F7AMUX.O" output="F8MUX.I1" />
-    <direct name="F8MUX_S"   input="A7_SLICEL.BX" output="F8MUX.S" />
+    <direct name="F8MUX_S"   input="CLBLL.BX" output="F8MUX.S" />
     <direct name="F8MUX_O"   input="F8MUX.O" output="" />
 
     <!-- Carry -->
@@ -376,11 +408,11 @@
     <direct name="CARRY_OUT" input="CARRY4.CO3" output="A7_SLICE.CARRY_OUT" />
 
     <!-- Clock, Clock Enable and Reset -->
-    <complete name="CK" input="A7_SLICEL.CLK" output="{W5FF.CK WFF.CK}"/>
-    <!-- <mux name="CEUSED" input="VCC A7_SLICEL.CE" output="{}"/> -->
-    <complete name="CE" input="A7_SLICEL.CE"  output="{W5FF.CE WFF.CE}"/>
-    <!-- <mux name="SRUSED" input="GND A7_SLICEL.SR" output="{}"/> -->
-    <complete name="SR" input="A7_SLICEL.SR"  output="{W5FF.SR WFF.SR}"/>
+    <complete name="CK" input="CLBLL.CLK" output="{W5FF.CK WFF.CK}"/>
+    <!-- <mux name="CEUSED" input="VCC CLBLL.CE" output="{}"/> -->
+    <complete name="CE" input="CLBLL.CE"  output="{W5FF.CE WFF.CE}"/>
+    <!-- <mux name="SRUSED" input="GND CLBLL.SR" output="{}"/> -->
+    <complete name="SR" input="CLBLL.SR"  output="{W5FF.SR WFF.SR}"/>
 
   </interconnect>
 </pb_type>

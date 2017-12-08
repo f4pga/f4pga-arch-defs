@@ -2,6 +2,22 @@
 <architecture xmlns:xi="http://www.w3.org/2001/XInclude">
  <!-- ODIN-II model description for non-standard block type -->
  <models>
+  <model name="NOIMP_DSP">
+   <input_ports></input_ports>
+   <output_ports></output_ports>
+  </model>
+  <model name="NOIMP_BRAM">
+   <input_ports></input_ports>
+   <output_ports></output_ports>
+  </model>
+  <model name="NOIMP_INTL">
+   <input_ports></input_ports>
+   <output_ports></output_ports>
+  </model>
+  <model name="NOIMP_INTR">
+   <input_ports></input_ports>
+   <output_ports></output_ports>
+  </model>
  </models>
 
  <!-- Layout of the FPGA, we are using 4x4 -->
@@ -249,84 +265,106 @@
 
   <pb_type name="BRAM_INT_L">
    <xi:include href="../../primitives/int_l/pb_type.xml" />
+   <xi:include href="../../empty.xml" xpointer="xpointer(empty/*)" />
   </pb_type>
   <pb_type name="BRAM_INT_R">
    <xi:include href="../../primitives/int_r/pb_type.xml" />
+   <xi:include href="../../empty.xml" xpointer="xpointer(empty/*)" />
   </pb_type>
 
   <pb_type name="BRAM_L">
    <xi:include href="../../primitives/bram/pb_type.xml" />
+   <xi:include href="../../empty.xml" xpointer="xpointer(empty/*)" />
   </pb_type>
   <pb_type name="BRAM_R">
    <xi:include href="../../primitives/bram/pb_type.xml" />
+   <xi:include href="../../empty.xml" xpointer="xpointer(empty/*)" />
   </pb_type>
 
   <pb_type name="BRK">
+   <xi:include href="../../empty.xml" xpointer="xpointer(empty/*)" />
   </pb_type>
 
   <pb_type name="CLBLL_L">
    <xi:include href="../../primitives/clbll/pb_type.xml" />
+   <xi:include href="../../empty.xml" xpointer="xpointer(empty/*)" />
   </pb_type>
   <pb_type name="CLBLL_R">
    <xi:include href="../../primitives/clbll/pb_type.xml" />
+   <xi:include href="../../empty.xml" xpointer="xpointer(empty/*)" />
   </pb_type>
   <pb_type name="CLBLM_L">
    <xi:include href="../../primitives/clbll/pb_type.xml" />
+   <xi:include href="../../empty.xml" xpointer="xpointer(empty/*)" />
   </pb_type>
   <pb_type name="CLBLM_R">
    <xi:include href="../../primitives/clbll/pb_type.xml" />
+   <xi:include href="../../empty.xml" xpointer="xpointer(empty/*)" />
   </pb_type>
 
   <pb_type name="CLK_FEED">
+   <xi:include href="../../empty.xml" xpointer="xpointer(empty/*)" />
   </pb_type>
 
   <pb_type name="DSP_L">
-   <xi:include href="../../primitives/dsp/pb_type.xml" />
+   <xi:include href="../../empty.xml" xpointer="xpointer(empty/*)" />
   </pb_type>
   <pb_type name="DSP_R">
-   <xi:include href="../../primitives/dsp/pb_type.xml" />
+   <xi:include href="../../empty.xml" xpointer="xpointer(empty/*)" />
   </pb_type>
 
   <pb_type name="HCLK">
+   <xi:include href="../../empty.xml" xpointer="xpointer(empty/*)" />
   </pb_type>
 
   <pb_type name="INT_FEEDTHRU">
+   <xi:include href="../../empty.xml" xpointer="xpointer(empty/*)" />
   </pb_type>
 
   <pb_type name="INT_L">
    <xi:include href="../../primitives/int_l/pb_type.xml" />
+   <xi:include href="../../empty.xml" xpointer="xpointer(empty/*)" />
   </pb_type>
   <pb_type name="INT_R">
    <xi:include href="../../primitives/int_r/pb_type.xml" />
+   <xi:include href="../../empty.xml" xpointer="xpointer(empty/*)" />
   </pb_type>
 
   <pb_type name="IO_INT_L">
    <xi:include href="../../primitives/int_l/pb_type.xml" />
+   <xi:include href="../../empty.xml" xpointer="xpointer(empty/*)" />
   </pb_type>
   <pb_type name="IO_INT_R">
    <xi:include href="../../primitives/int_r/pb_type.xml" />
+   <xi:include href="../../empty.xml" xpointer="xpointer(empty/*)" />
   </pb_type>
 
   <pb_type name="LIO">
+   <xi:include href="../../empty.xml" xpointer="xpointer(empty/*)" />
   </pb_type>
   <pb_type name="LIOB">
-   <xi:include href="../../primitives/io/pb_type.xml" />
+   <xi:include href="../../empty.xml" xpointer="xpointer(empty/*)" />
   </pb_type>
 
   <pb_type name="PCIE">
+   <xi:include href="../../empty.xml" xpointer="xpointer(empty/*)" />
   </pb_type>
 
   <pb_type name="RIO">
+   <xi:include href="../../empty.xml" xpointer="xpointer(empty/*)" />
   </pb_type>
   <pb_type name="RIOB">
    <xi:include href="../../primitives/io/pb_type.xml" />
+   <xi:include href="../../empty.xml" xpointer="xpointer(empty/*)" />
   </pb_type>
 
   <pb_type name="XXXX_INT_L">
    <xi:include href="../../primitives/int_l/pb_type.xml" />
+   <xi:include href="../../empty.xml" xpointer="xpointer(empty/*)" />
   </pb_type>
   <pb_type name="XXXX_INT_R">
    <xi:include href="../../primitives/int_r/pb_type.xml" />
+   <xi:include href="../../empty.xml" xpointer="xpointer(empty/*)" />
   </pb_type>
  </complexblocklist>
 </architecture>

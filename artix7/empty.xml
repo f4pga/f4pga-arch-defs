@@ -1,0 +1,6 @@
+<empty>
+   <interconnect>
+   </interconnect>
+   <pinlocations pattern="spread_perimeter"/>
+   <fc default_in_type="frac" default_in_val="0.2" default_out_type="frac" default_out_val="0.2" />
+</empty>
