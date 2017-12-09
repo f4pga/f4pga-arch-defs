@@ -16,13 +16,13 @@ $(ARCH_FILE):
 %.rr_graph.xml: %.blif $(ARCH_FILE)
 	$(VPR) $(ARCH_FILE) $< --write_rr_graph $@
 
-%.disp: %.blif
+%.disp: %.blif $(ARCH_FILE)
 	$(VPR) $(ARCH_FILE) $< --disp on
 
-%.echo: %.blif
+%.echo: %.blif $(ARCH_FILE)
 	$(VPR) $(ARCH_FILE) $< --echo on
 
-%.gdb: %.blif
+%.gdb: %.blif $(ARCH_FILE)
 	gdb --args $(VPR) $(ARCH_FILE) $< --echo on --disp on
 
 help:
