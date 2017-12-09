@@ -25,5 +25,19 @@ $(ARCH_FILE):
 %.gdb: %.blif
 	gdb --args $(VPR) $(ARCH_FILE) $< --echo on --disp on
 
+help:
+	@echo ""
+	@echo "For each blif file in this directory you can:"
+	@echo " make xx.disp 		- Display the vpr process."
+	@echo " make xx.echo 		- Generate useful debugging echo files."
+	@echo " make xx.gdb  		- Run vpr process under gdb."
+	@echo " make xx.rr_graph.xml	- Generate rr_graph.xml file."
+	@echo ""
+	@echo "You can set the following"
+	@echo " ARCH=<directory containing merged.xml architecture definition>"
+	@echo " VPR=<path to vpr>"
+	@echo " YOSYS=<path to yosys>"
+	@echo ""
+
 clean:
 	rm -f *.echo chan_details.txt seg_details.txt *.place *.route *.net *.rpt *.echo.blif *.rr_graph.xml
