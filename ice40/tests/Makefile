@@ -41,3 +41,5 @@ help:
 
 clean:
 	rm -f *.echo chan_details.txt seg_details.txt *.place *.route *.net *.rpt *.echo.blif *.rr_graph.xml
+
+.PHONY: clean help %.gdb %.echo %.disp $(ARCH_FILE)
