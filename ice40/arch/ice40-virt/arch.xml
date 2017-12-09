@@ -1,25 +1,29 @@
+<!-- set: ai sw=1 ts=1 sta et -->
 <architecture xmlns:xi="http://www.w3.org/2001/XInclude">
  <!-- ODIN-II model description for non-standard block type -->
  <models>
   <xi:include href="../../primatives/sb_lut/model.xml"   xpointer="xpointer(models/*)" />
   <xi:include href="../../primatives/sb_ff/model.xml" 	  xpointer="xpointer(models/*)" />
   <xi:include href="../../primatives/sb_carry/model.xml" xpointer="xpointer(models/*)" />
-  <xi:include href="../../primatives/sb_ram/model.xml"   xpointer="xpointer(models/*)" />
+  <!--
+  <xi:include href="../../primatives/mux4/model.xml"     xpointer="xpointer(models/*)" />
+  <xi:include href="../../primatives/mux2/model.xml"     xpointer="xpointer(models/*)" />
+  -->
  </models>
 
  <!-- Layout of the FPGA, we are using 4x4 -->
  <layout>
   <fixed_layout name="HX1K" width="16" height="20">
    <col     type="EMPTY" startx="0"  priority="30"/>
-   <col     type="PIO"   startx="1"  priority="10"/>
+   <col     type="PAD"   startx="1"  priority="10"/>
    <region  type="PLB"   startx="2" endx="13" starty="2" endy="17" priority="4"/>
-   <col     type="PIO"   startx="14" priority="10"/>
+   <col     type="PAD"   startx="14" priority="10"/>
    <col     type="EMPTY" startx="15" priority="30"/>
 
    <row     type="EMPTY" starty="0"  priority="31"/>
-   <row     type="PIO"   starty="1"  priority="11"/>
+   <row     type="PAD"   starty="1"  priority="11"/>
    <!-- starty="2" endy="17" -->
-   <row     type="PIO"   starty="18"  priority="11"/>
+   <row     type="PAD"   starty="18"  priority="11"/>
    <row     type="EMPTY" starty="19" priority="31"/>
 
    <!-- Logic blocks -->
@@ -199,47 +203,10 @@
  <complexblocklist>
 
   <xi:include href="../../tiles/plb/pb_type.xml"/>
-  <xi:include href="../../tiles/pio/pb_type.xml"/>
 
-  <!-- A PIO Pair block found in the ICE40 -->
-  <pb_type name="PIO" capacity="1">
-   <input name="outpad" num_pins="1"/>
-   <output name="inpad" num_pins="1"/>
-   <!-- IOs can operate as either inputs or outputs -->
-   <mode name="inpad">
-     <pb_type name="inpad" blif_model=".input" num_pb="1">
-      <output name="inpad" num_pins="1"/>
-     </pb_type>
-     <interconnect>
-      <direct name="inpad" input="inpad.inpad" output="PIO.inpad">
-       <delay_constant max="4.243e-11" in_port="inpad.inpad" out_port="PIO.inpad"/>
-      </direct>
-     </interconnect>
-   </mode>
-   <mode name="outpad">
-    <pb_type name="outpad" blif_model=".output" num_pb="1">
-     <input name="outpad" num_pins="1"/>
-    </pb_type>
-    <interconnect>
-     <direct name="outpad" input="PIO.outpad" output="outpad.outpad">
-      <delay_constant max="1.394e-11" in_port="PIO.outpad" out_port="outpad.outpad"/>
-     </direct>
-    </interconnect>
-   </mode>
-   <fc default_in_type="frac" default_in_val="0.0" default_out_type="frac" default_out_val="0.0">
-    <fc_override fc_type="abs" fc_val="2" port_name="outpad" segment_name="local"/>
-    <fc_override fc_type="abs" fc_val="2" port_name="inpad"  segment_name="local"/>
-   </fc>
+  <xi:include href="../../../vpr/pad/pb_type.xml"/>
+  <!-- <xi:include href="../../tiles/pio/pb_type.xml"/> -->
 
-   <!-- IOs go on the periphery of the FPGA, for consistency,
-        make it physically equivalent on all sides so that only one definition of I/Os is needed.
-        If I do not make a physically equivalent definition, then I need to define 4 different I/Os, one for each side of the FPGA
-    -->
-   <pinlocations pattern="custom">
-    <loc side="right">PIO.outpad PIO.inpad</loc>
-   </pinlocations>
-  </pb_type>
-  <!-- End PIO -->
  </complexblocklist>
 
 </architecture>
