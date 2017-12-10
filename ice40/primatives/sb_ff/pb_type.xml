@@ -8,14 +8,14 @@
      <!-- Plain VPR flip flop -->
      <mode name="VPR_FF">
       <pb_type name="VPR_FF" num_pb="1" blif_model=".latch" class="flipflop">
-       <clock  name="clock" num_pins="1" port_class="clock" />
+       <clock  name="clk" num_pins="1" port_class="clock" />
        <input  name="D" num_pins="1" port_class="D" />
        <output name="Q" num_pins="1"  port_class="Q" />
-       <T_setup    value="10e-12" port="VPR_FF.D" clock="clock"/>
-       <T_clock_to_Q max="10e-12" port="VPR_FF.Q" clock="clock"/>
+       <T_setup    value="10e-12" port="VPR_FF.D" clock="clk"/>
+       <T_clock_to_Q max="10e-12" port="VPR_FF.Q" clock="clk"/>
       </pb_type>
       <interconnect>
-       <direct name="C" input="SB_FF.C"  output="VPR_FF.clock" />
+       <direct name="C" input="SB_FF.C"  output="VPR_FF.clk" />
        <direct name="D" input="SB_FF.D"  output="VPR_FF.D" />
        <direct name="Q" input="VPR_FF.Q" output="SB_FF.Q" />
       </interconnect>
