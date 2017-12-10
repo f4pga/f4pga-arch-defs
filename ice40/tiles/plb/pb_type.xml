@@ -31,10 +31,9 @@
    <input name="EN" num_pins="1" equivalent="false"/>
    <input name="SR" num_pins="1" equivalent="false"/>
 
-   <!-- Carry chain
+   <!-- Carry chain -->
    <input name="FCIN"  num_pins="1" equivalent="false"/>
    <output name="FCOUT" num_pins="1" equivalent="false"/>
-   -->
 
    <!-- A PLB contains the same 'cell' repeated 8 times. -->
    <pb_type name="PLB_CELL" num_pb="8">
@@ -109,13 +108,16 @@
     <complete name="SR" input="PLB.SR" output="PLB_CELL[7:0].SR" />
     <!-- <mux name="EN" input="VCC PLB.EN" output="PLB_CELL[7:0].EN" /> -->
     <complete name="EN" input="PLB.EN" output="PLB_CELL[7:0].EN" />
+
     <!-- Carry chain -->
-    <direct name="FCIN0" input="PLB_CELL[1:1].FCOUT" output="PLB_CELL[0:0].FCIN"/>
-    <direct name="FCIN1" input="PLB_CELL[2:2].FCOUT" output="PLB_CELL[1:1].FCIN"/>
-    <direct name="FCIN2" input="PLB_CELL[3:3].FCOUT" output="PLB_CELL[2:2].FCIN"/>
-    <direct name="FCIN3" input="PLB_CELL[4:4].FCOUT" output="PLB_CELL[3:3].FCIN"/>
-    <direct name="FCIN4" input="PLB_CELL[5:5].FCOUT" output="PLB_CELL[4:4].FCIN"/>
-    <direct name="FCIN5" input="PLB_CELL[6:6].FCOUT" output="PLB_CELL[5:5].FCIN"/>
+    <direct name="FCOUT" input="PLB_CELL[0:0].FCOUT" output="PLB.FCOUT"/>
+    <direct name="FCC0"  input="PLB_CELL[1:1].FCOUT" output="PLB_CELL[0:0].FCIN"/>
+    <direct name="FCC1"  input="PLB_CELL[2:2].FCOUT" output="PLB_CELL[1:1].FCIN"/>
+    <direct name="FCC2"  input="PLB_CELL[3:3].FCOUT" output="PLB_CELL[2:2].FCIN"/>
+    <direct name="FCC3"  input="PLB_CELL[4:4].FCOUT" output="PLB_CELL[3:3].FCIN"/>
+    <direct name="FCC4"  input="PLB_CELL[5:5].FCOUT" output="PLB_CELL[4:4].FCIN"/>
+    <direct name="FCC5"  input="PLB_CELL[6:6].FCOUT" output="PLB_CELL[5:5].FCIN"/>
+    <direct name="FCIN"  input="PLB.FCIN"            output="PLB_CELL[6:6].FCIN"/>
    </interconnect>
 
    <fc default_in_type="frac" default_in_val="0.0" default_out_type="frac" default_out_val="0.0">
@@ -140,10 +142,9 @@
     <fc_override fc_type="abs" fc_val="2" port_name="SR" segment_name="local"/>
     <fc_override fc_type="abs" fc_val="2" port_name="CLK" segment_name="local"/>
 
-    <!-- Carry chain doesn't connect to the interconnect
-    <fc_override fc_type="frac" fc_val="0" port_name="PLB.CIN"/>
-    <fc_override fc_type="frac" fc_val="0" port_name="PLB.COUT"/>
- -->
+    <!-- Carry chain doesn't connect to the interconnect -->
+    <fc_override fc_type="frac" fc_val="0" port_name="PLB.FCOUT"/>
+    <fc_override fc_type="frac" fc_val="0" port_name="PLB.FCIN"/>
    </fc>
 
    <pinlocations pattern="custom">
@@ -152,19 +153,13 @@
      PLB.CLK PLB.EN PLB.SR
      PLB.O0 PLB.O1 PLB.O2 PLB.O3 PLB.O4 PLB.O5 PLB.O6 PLB.O7
     </loc>
-    <!--
-				<loc side="top" xoffset="0" yoffset="0">
-     FCOUT
+    <loc side="top" xoffset="0" yoffset="0">
+     PLB.FCOUT
     </loc>
-				<loc side="bottom" xoffset="0" yoffset="0">
-     FCIN
-				</loc>-->
+    <loc side="bottom" xoffset="0" yoffset="0">
+     PLB.FCIN
+    </loc>
    </pinlocations>
    <switchblock_locations pattern="external_full_internal_straight"/>
-
-   <!-- Carry chain
-   <input name="FCIN"  num_pins="1" equivalent="false"/>
-   <output name="FCOUT" num_pins="1" equivalent="false"/>
-   -->
   </pb_type>
   <!-- End PLB -->
