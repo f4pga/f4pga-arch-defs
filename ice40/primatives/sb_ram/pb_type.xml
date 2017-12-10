@@ -2,121 +2,166 @@
     <pb_type name="SB_RAM" num_pb="1">
      <!-- Read port -->
      <output name="RDATA" num_pins="16" equivalent="false"/>
-     <input  name="RADDR" num_pins="11" equivalent="false"/>
-     <input  name="RE"    num_pins="1"  equivalent="false"/>
-     <input  name="RCLKE" num_pins="1"  equivalent="false"/>
      <clock  name="RCLK"  num_pins="1"  equivalent="false"/>
+     <input  name="RCLKE" num_pins="1"  equivalent="false"/>
+     <input  name="RE"    num_pins="1"  equivalent="false"/>
+     <input  name="RADDR" num_pins="11" equivalent="false"/>
      <!-- Write port -->
-     <input  name="WDATA" num_pins="16" equivalent="false"/>
-     <input  name="MASK"  num_pins="16" equivalent="false"/>
-     <input  name="WADDR" num_pins="11" equivalent="false"/>
-     <input  name="WE"    num_pins="1"  equivalent="false"/>
-     <input  name="WCLKE" num_pins="1"  equivalent="false"/>
      <clock  name="WCLK"  num_pins="1"  equivalent="false"/>
-     <mode name="SB_RAM256x16">
+     <input  name="WCLKE" num_pins="1"  equivalent="false"/>
+     <input  name="WE"    num_pins="1"  equivalent="false"/>
+     <input  name="WADDR" num_pins="11" equivalent="false"/>
+     <input  name="MASK"  num_pins="16" equivalent="false"/>
+     <input  name="WDATA" num_pins="16" equivalent="false"/>
+
+     <mode name="SB_RAM40_4K">
 <!--
-      <pb_type name="SB_RAM256x16" blif_model=".subckt dual_port_ram" num_pb="1" class="memory">
-       <output name="DATAOUT1" num_pins="16" equivalent="false" port_class="data_out1" />
-       <input  name="ADDR1"    num_pins="8"  equivalent="false" port_class="address1"  />
-       <clock  name="CLK1"     num_pins="1"  equivalent="false" port_class="clock1"    />
-       <input  name="DATAIN2"  num_pins="16" equivalent="false" port_class="data_in2"  />
-       <input  name="WE2"      num_pins="1"  equivalent="false" port_class="write_en2" />
-       <input  name="ADDR2"    num_pins="8"  equivalent="false" port_class="address2"  />
-       <clock  name="CLK2"     num_pins="1"  equivalent="false" port_class="clock2"    />
+     <pb_type name="SB_RAM256x16" blif_model=".subckt dual_port_ram" num_pb="1" class="memory">
+      <output name="RDATA" num_pins="16" equivalent="false" port_class="data_out1" />
+      <input  name="RADDR"    num_pins="8"  equivalent="false" port_class="address1"  />
+      <clock  name="CLK1"     num_pins="1"  equivalent="false" port_class="clock1"    />
+      <input  name="DATAIN2"  num_pins="16" equivalent="false" port_class="data_in2"  />
+      <input  name="WE2"      num_pins="1"  equivalent="false" port_class="write_en2" />
+      <input  name="WADDR"    num_pins="8"  equivalent="false" port_class="address2"  />
+      <clock  name="WCLK"     num_pins="1"  equivalent="false" port_class="clock2"    />
 -->
-      <pb_type name="SB_RAM256x16" blif_model=".subckt SB_RAM256x16" num_pb="1">
-       <output name="DATAOUT1" num_pins="16" equivalent="false"/>
-       <input  name="ADDR1"    num_pins="8"  equivalent="false"/>
-       <clock  name="CLK1"     num_pins="1"  equivalent="false"/>
+      <pb_type name="SB_RAM256x16" blif_model=".subckt SB_RAM40_4K" num_pb="1">
+       <!-- Read port -->
+       <output name="RDATA" num_pins="16" equivalent="false"/>
+       <clock  name="RCLK"  num_pins="1"  equivalent="false"/>
+       <input  name="RCLKE" num_pins="1"  equivalent="false"/>
+       <input  name="RE"    num_pins="1"  equivalent="false"/>
+       <input  name="RADDR" num_pins="11" equivalent="false"/>
 
-       <input  name="DATAIN2"  num_pins="16" equivalent="false"/>
-       <input  name="WE2"      num_pins="1"  equivalent="false"/>
-       <input  name="ADDR2"    num_pins="8"  equivalent="false"/>
-       <clock  name="CLK2"     num_pins="1"  equivalent="false"/>
+       <!-- Write port -->
+       <clock  name="WCLK"   num_pins="1"  equivalent="false"/>
+       <input  name="WCLKE"  num_pins="1"  equivalent="false"/>
+       <input  name="WE"     num_pins="1"  equivalent="false"/>
+       <input  name="WADDR"  num_pins="11" equivalent="false"/>
+       <input  name="MASK"   num_pins="16" equivalent="false"/>
+       <input  name="WDATA"  num_pins="16" equivalent="false"/>
 
-       <T_setup value="50e-12" port="SB_RAM256x16.DATAOUT1" clock="CLK1"/>
-       <T_setup value="50e-12" port="SB_RAM256x16.ADDR1"    clock="CLK1"/>
+       <!-- Read port timing -->
+       <T_setup value="50e-12" port="SB_RAM256x16.RDATA" clock="RCLK"/>
+       <T_setup value="50e-12" port="SB_RAM256x16.RCLKE" clock="RCLK"/>
+       <T_setup value="50e-12" port="SB_RAM256x16.RE"    clock="RCLK"/>
+       <T_setup value="50e-12" port="SB_RAM256x16.RADDR" clock="RCLK"/>
 
-       <T_setup value="50e-12" port="SB_RAM256x16.DATAIN2"  clock="CLK2"/>
-       <T_setup value="50e-12" port="SB_RAM256x16.WE2"      clock="CLK2"/>
-       <T_setup value="50e-12" port="SB_RAM256x16.ADDR2"    clock="CLK2"/>
+       <T_clock_to_Q max="200e-12" port="SB_RAM256x16.RDATA" clock="RCLK"/>
+       <T_clock_to_Q max="200e-12" port="SB_RAM256x16.RCLKE" clock="RCLK"/>
+       <T_clock_to_Q max="200e-12" port="SB_RAM256x16.RE"    clock="RCLK"/>
+       <T_clock_to_Q max="200e-12" port="SB_RAM256x16.RADDR" clock="RCLK"/>
 
-       <T_clock_to_Q max="200e-12" port="SB_RAM256x16.DATAOUT1" clock="CLK1"/>
-       <T_clock_to_Q max="200e-12" port="SB_RAM256x16.ADDR1"    clock="CLK1"/>
+       <delay_constant max="740e-12" in_port="SB_RAM256x16.RCLKE" out_port="SB_RAM256x16.RDATA"/>
+       <delay_constant max="740e-12" in_port="SB_RAM256x16.RE"    out_port="SB_RAM256x16.RDATA"/>
+       <delay_constant max="740e-12" in_port="SB_RAM256x16.RADDR" out_port="SB_RAM256x16.RDATA"/>
 
-       <T_clock_to_Q max="200e-12" port="SB_RAM256x16.DATAIN2"  clock="CLK2"/>
-       <T_clock_to_Q max="200e-12" port="SB_RAM256x16.ADDR2"    clock="CLK2"/>
-       <T_clock_to_Q max="200e-12" port="SB_RAM256x16.WE2"      clock="CLK2"/>
+       <!-- Write port timing -->
+       <T_setup value="50e-12" port="SB_RAM256x16.WCLKE" clock="WCLK"/>
+       <T_setup value="50e-12" port="SB_RAM256x16.WE"    clock="WCLK"/>
+       <T_setup value="50e-12" port="SB_RAM256x16.WADDR" clock="WCLK"/>
+       <T_setup value="50e-12" port="SB_RAM256x16.MASK"  clock="WCLK"/>
+       <T_setup value="50e-12" port="SB_RAM256x16.WDATA" clock="WCLK"/>
 
-       <delay_constant max="740e-12" in_port="SB_RAM256x16.ADDR1"   out_port="SB_RAM256x16.DATAOUT1"/>
+       <T_clock_to_Q max="200e-12" port="SB_RAM256x16.WCLKE" clock="WCLK"/>
+       <T_clock_to_Q max="200e-12" port="SB_RAM256x16.WE"    clock="WCLK"/>
+       <T_clock_to_Q max="200e-12" port="SB_RAM256x16.WADDR" clock="WCLK"/>
+       <T_clock_to_Q max="200e-12" port="SB_RAM256x16.MASK"  clock="WCLK"/>
+       <T_clock_to_Q max="200e-12" port="SB_RAM256x16.WDATA" clock="WCLK"/>
 
-       <delay_constant max="740e-12" in_port="SB_RAM256x16.DATAIN2" out_port="SB_RAM256x16.DATAOUT1"/>
-       <delay_constant max="740e-12" in_port="SB_RAM256x16.ADDR2"   out_port="SB_RAM256x16.DATAOUT1"/>
-       <delay_constant max="740e-12" in_port="SB_RAM256x16.WE2"     out_port="SB_RAM256x16.DATAOUT1"/>
-
-       <T_setup value="60e-12" port="SB_RAM256x16.DATAOUT1" clock="CLK1"/>
-       <T_clock_to_Q max="300e-12" port="SB_RAM256x16.DATAOUT1" clock="CLK1"/>
+       <delay_constant max="740e-12" in_port="SB_RAM256x16.WCLKE" out_port="SB_RAM256x16.RDATA"/>
+       <delay_constant max="740e-12" in_port="SB_RAM256x16.WE"    out_port="SB_RAM256x16.RDATA"/>
+       <delay_constant max="740e-12" in_port="SB_RAM256x16.WADDR" out_port="SB_RAM256x16.RDATA"/>
+       <delay_constant max="740e-12" in_port="SB_RAM256x16.MASK"  out_port="SB_RAM256x16.RDATA"/>
+       <delay_constant max="740e-12" in_port="SB_RAM256x16.WDATA" out_port="SB_RAM256x16.RDATA"/>
 
       </pb_type>
       <interconnect>
        <!-- Read port -->
-       <direct name="RDATA00" input="SB_RAM256x16.DATAOUT1[0]"  output="SB_RAM.RDATA[0]" />
-       <direct name="RDATA01" input="SB_RAM256x16.DATAOUT1[1]"  output="SB_RAM.RDATA[1]" />
-       <direct name="RDATA02" input="SB_RAM256x16.DATAOUT1[2]"  output="SB_RAM.RDATA[2]" />
-       <direct name="RDATA03" input="SB_RAM256x16.DATAOUT1[3]"  output="SB_RAM.RDATA[3]" />
-       <direct name="RDATA04" input="SB_RAM256x16.DATAOUT1[4]"  output="SB_RAM.RDATA[4]" />
-       <direct name="RDATA05" input="SB_RAM256x16.DATAOUT1[5]"  output="SB_RAM.RDATA[5]" />
-       <direct name="RDATA06" input="SB_RAM256x16.DATAOUT1[6]"  output="SB_RAM.RDATA[6]" />
-       <direct name="RDATA07" input="SB_RAM256x16.DATAOUT1[7]"  output="SB_RAM.RDATA[7]" />
-       <direct name="RDATA08" input="SB_RAM256x16.DATAOUT1[8]"  output="SB_RAM.RDATA[8]" />
-       <direct name="RDATA09" input="SB_RAM256x16.DATAOUT1[9]"  output="SB_RAM.RDATA[9]" />
-       <direct name="RDATA10" input="SB_RAM256x16.DATAOUT1[10]" output="SB_RAM.RDATA[10]" />
-       <direct name="RDATA11" input="SB_RAM256x16.DATAOUT1[11]" output="SB_RAM.RDATA[11]" />
-       <direct name="RDATA12" input="SB_RAM256x16.DATAOUT1[12]" output="SB_RAM.RDATA[12]" />
-       <direct name="RDATA13" input="SB_RAM256x16.DATAOUT1[13]" output="SB_RAM.RDATA[13]" />
-       <direct name="RDATA14" input="SB_RAM256x16.DATAOUT1[14]" output="SB_RAM.RDATA[14]" />
-       <direct name="RDATA15" input="SB_RAM256x16.DATAOUT1[15]" output="SB_RAM.RDATA[15]" />
+       <direct name="RDATA00" input="SB_RAM256x16.RDATA[0]"  output="SB_RAM.RDATA[0]" />
+       <direct name="RDATA01" input="SB_RAM256x16.RDATA[1]"  output="SB_RAM.RDATA[1]" />
+       <direct name="RDATA02" input="SB_RAM256x16.RDATA[2]"  output="SB_RAM.RDATA[2]" />
+       <direct name="RDATA03" input="SB_RAM256x16.RDATA[3]"  output="SB_RAM.RDATA[3]" />
+       <direct name="RDATA04" input="SB_RAM256x16.RDATA[4]"  output="SB_RAM.RDATA[4]" />
+       <direct name="RDATA05" input="SB_RAM256x16.RDATA[5]"  output="SB_RAM.RDATA[5]" />
+       <direct name="RDATA06" input="SB_RAM256x16.RDATA[6]"  output="SB_RAM.RDATA[6]" />
+       <direct name="RDATA07" input="SB_RAM256x16.RDATA[7]"  output="SB_RAM.RDATA[7]" />
+       <direct name="RDATA08" input="SB_RAM256x16.RDATA[8]"  output="SB_RAM.RDATA[8]" />
+       <direct name="RDATA09" input="SB_RAM256x16.RDATA[9]"  output="SB_RAM.RDATA[9]" />
+       <direct name="RDATA10" input="SB_RAM256x16.RDATA[10]" output="SB_RAM.RDATA[10]" />
+       <direct name="RDATA11" input="SB_RAM256x16.RDATA[11]" output="SB_RAM.RDATA[11]" />
+       <direct name="RDATA12" input="SB_RAM256x16.RDATA[12]" output="SB_RAM.RDATA[12]" />
+       <direct name="RDATA13" input="SB_RAM256x16.RDATA[13]" output="SB_RAM.RDATA[13]" />
+       <direct name="RDATA14" input="SB_RAM256x16.RDATA[14]" output="SB_RAM.RDATA[14]" />
+       <direct name="RDATA15" input="SB_RAM256x16.RDATA[15]" output="SB_RAM.RDATA[15]" />
 
-       <direct name="RADDR0" input="SB_RAM.RADDR[0]" output="SB_RAM256x16.ADDR1[0]" />
-       <direct name="RADDR1" input="SB_RAM.RADDR[1]" output="SB_RAM256x16.ADDR1[1]" />
-       <direct name="RADDR2" input="SB_RAM.RADDR[2]" output="SB_RAM256x16.ADDR1[2]" />
-       <direct name="RADDR3" input="SB_RAM.RADDR[3]" output="SB_RAM256x16.ADDR1[3]" />
-       <direct name="RADDR4" input="SB_RAM.RADDR[4]" output="SB_RAM256x16.ADDR1[4]" />
-       <direct name="RADDR5" input="SB_RAM.RADDR[5]" output="SB_RAM256x16.ADDR1[5]" />
-       <direct name="RADDR6" input="SB_RAM.RADDR[6]" output="SB_RAM256x16.ADDR1[6]" />
-       <direct name="RADDR7" input="SB_RAM.RADDR[7]" output="SB_RAM256x16.ADDR1[7]" />
+       <direct name="RCLK"  input="SB_RAM.RCLK"  output="SB_RAM256x16.RCLK" />
+       <direct name="RCLKE" input="SB_RAM.RCLKE" output="SB_RAM256x16.RCLKE" />
+       <direct name="RE"    input="SB_RAM.RE"    output="SB_RAM256x16.RE" />
 
-       <direct name="RCLK"  input="SB_RAM.RCLK"       output="SB_RAM256x16.CLK1" />
+       <direct name="RADDR00" input="SB_RAM.RADDR[0]"  output="SB_RAM256x16.RADDR[0]" />
+       <direct name="RADDR01" input="SB_RAM.RADDR[1]"  output="SB_RAM256x16.RADDR[1]" />
+       <direct name="RADDR02" input="SB_RAM.RADDR[2]"  output="SB_RAM256x16.RADDR[2]" />
+       <direct name="RADDR03" input="SB_RAM.RADDR[3]"  output="SB_RAM256x16.RADDR[3]" />
+       <direct name="RADDR04" input="SB_RAM.RADDR[4]"  output="SB_RAM256x16.RADDR[4]" />
+       <direct name="RADDR05" input="SB_RAM.RADDR[5]"  output="SB_RAM256x16.RADDR[5]" />
+       <direct name="RADDR06" input="SB_RAM.RADDR[6]"  output="SB_RAM256x16.RADDR[6]" />
+       <direct name="RADDR07" input="SB_RAM.RADDR[7]"  output="SB_RAM256x16.RADDR[7]" />
+       <direct name="RADDR08" input="SB_RAM.RADDR[8]"  output="SB_RAM256x16.RADDR[8]" />
+       <direct name="RADDR09" input="SB_RAM.RADDR[9]"  output="SB_RAM256x16.RADDR[9]" />
+       <direct name="RADDR10" input="SB_RAM.RADDR[10]" output="SB_RAM256x16.RADDR[10]" />
 
        <!-- Write port -->
-       <direct name="WDATA00" input="SB_RAM.WDATA[0]"  output="SB_RAM256x16.DATAIN2[0]" />
-       <direct name="WDATA01" input="SB_RAM.WDATA[1]"  output="SB_RAM256x16.DATAIN2[1]" />
-       <direct name="WDATA02" input="SB_RAM.WDATA[2]"  output="SB_RAM256x16.DATAIN2[2]" />
-       <direct name="WDATA03" input="SB_RAM.WDATA[3]"  output="SB_RAM256x16.DATAIN2[3]" />
-       <direct name="WDATA04" input="SB_RAM.WDATA[4]"  output="SB_RAM256x16.DATAIN2[4]" />
-       <direct name="WDATA05" input="SB_RAM.WDATA[5]"  output="SB_RAM256x16.DATAIN2[5]" />
-       <direct name="WDATA06" input="SB_RAM.WDATA[6]"  output="SB_RAM256x16.DATAIN2[6]" />
-       <direct name="WDATA07" input="SB_RAM.WDATA[7]"  output="SB_RAM256x16.DATAIN2[7]" />
-       <direct name="WDATA08" input="SB_RAM.WDATA[8]"  output="SB_RAM256x16.DATAIN2[8]" />
-       <direct name="WDATA09" input="SB_RAM.WDATA[9]"  output="SB_RAM256x16.DATAIN2[9]" />
-       <direct name="WDATA10" input="SB_RAM.WDATA[10]" output="SB_RAM256x16.DATAIN2[10]" />
-       <direct name="WDATA11" input="SB_RAM.WDATA[11]" output="SB_RAM256x16.DATAIN2[11]" />
-       <direct name="WDATA12" input="SB_RAM.WDATA[12]" output="SB_RAM256x16.DATAIN2[12]" />
-       <direct name="WDATA13" input="SB_RAM.WDATA[13]" output="SB_RAM256x16.DATAIN2[13]" />
-       <direct name="WDATA14" input="SB_RAM.WDATA[14]" output="SB_RAM256x16.DATAIN2[14]" />
-       <direct name="WDATA15" input="SB_RAM.WDATA[15]" output="SB_RAM256x16.DATAIN2[15]" />
+       <direct name="WCLK"  input="SB_RAM.WCLK"  output="SB_RAM256x16.WCLK" />
+       <direct name="WCLKE" input="SB_RAM.WCLKE" output="SB_RAM256x16.WCLKE" />
+       <direct name="WE"    input="SB_RAM.WE"    output="SB_RAM256x16.WE" />
 
-       <direct name="WADDR0" input="SB_RAM.WADDR[0]" output="SB_RAM256x16.ADDR2[0]" />
-       <direct name="WADDR1" input="SB_RAM.WADDR[1]" output="SB_RAM256x16.ADDR2[1]" />
-       <direct name="WADDR2" input="SB_RAM.WADDR[2]" output="SB_RAM256x16.ADDR2[2]" />
-       <direct name="WADDR3" input="SB_RAM.WADDR[3]" output="SB_RAM256x16.ADDR2[3]" />
-       <direct name="WADDR4" input="SB_RAM.WADDR[4]" output="SB_RAM256x16.ADDR2[4]" />
-       <direct name="WADDR5" input="SB_RAM.WADDR[5]" output="SB_RAM256x16.ADDR2[5]" />
-       <direct name="WADDR6" input="SB_RAM.WADDR[6]" output="SB_RAM256x16.ADDR2[6]" />
-       <direct name="WADDR7" input="SB_RAM.WADDR[7]" output="SB_RAM256x16.ADDR2[7]" />
+       <direct name="WADDR00" input="SB_RAM.WADDR[0]"  output="SB_RAM256x16.WADDR[0]" />
+       <direct name="WADDR01" input="SB_RAM.WADDR[1]"  output="SB_RAM256x16.WADDR[1]" />
+       <direct name="WADDR02" input="SB_RAM.WADDR[2]"  output="SB_RAM256x16.WADDR[2]" />
+       <direct name="WADDR03" input="SB_RAM.WADDR[3]"  output="SB_RAM256x16.WADDR[3]" />
+       <direct name="WADDR04" input="SB_RAM.WADDR[4]"  output="SB_RAM256x16.WADDR[4]" />
+       <direct name="WADDR05" input="SB_RAM.WADDR[5]"  output="SB_RAM256x16.WADDR[5]" />
+       <direct name="WADDR06" input="SB_RAM.WADDR[6]"  output="SB_RAM256x16.WADDR[6]" />
+       <direct name="WADDR07" input="SB_RAM.WADDR[7]"  output="SB_RAM256x16.WADDR[7]" />
+       <direct name="WADDR08" input="SB_RAM.WADDR[8]"  output="SB_RAM256x16.WADDR[8]" />
+       <direct name="WADDR09" input="SB_RAM.WADDR[9]"  output="SB_RAM256x16.WADDR[9]" />
+       <direct name="WADDR10" input="SB_RAM.WADDR[10]" output="SB_RAM256x16.WADDR[10]" />
 
-       <direct name="WCLK"   input="SB_RAM.WCLK"        output="SB_RAM256x16.CLK2" />
-       <direct name="WE"     input="SB_RAM.WE"          output="SB_RAM256x16.WE2" />
+       <direct name="MASK00"  input="SB_RAM.MASK[0]"   output="SB_RAM256x16.MASK[0]" />
+       <direct name="MASK01"  input="SB_RAM.MASK[1]"   output="SB_RAM256x16.MASK[1]" />
+       <direct name="MASK02"  input="SB_RAM.MASK[2]"   output="SB_RAM256x16.MASK[2]" />
+       <direct name="MASK03"  input="SB_RAM.MASK[3]"   output="SB_RAM256x16.MASK[3]" />
+       <direct name="MASK04"  input="SB_RAM.MASK[4]"   output="SB_RAM256x16.MASK[4]" />
+       <direct name="MASK05"  input="SB_RAM.MASK[5]"   output="SB_RAM256x16.MASK[5]" />
+       <direct name="MASK06"  input="SB_RAM.MASK[6]"   output="SB_RAM256x16.MASK[6]" />
+       <direct name="MASK07"  input="SB_RAM.MASK[7]"   output="SB_RAM256x16.MASK[7]" />
+       <direct name="MASK08"  input="SB_RAM.MASK[8]"   output="SB_RAM256x16.MASK[8]" />
+       <direct name="MASK09"  input="SB_RAM.MASK[9]"   output="SB_RAM256x16.MASK[9]" />
+       <direct name="MASK10"  input="SB_RAM.MASK[10]"  output="SB_RAM256x16.MASK[10]" />
+       <direct name="MASK11"  input="SB_RAM.MASK[11]"  output="SB_RAM256x16.MASK[11]" />
+       <direct name="MASK12"  input="SB_RAM.MASK[12]"  output="SB_RAM256x16.MASK[12]" />
+       <direct name="MASK13"  input="SB_RAM.MASK[13]"  output="SB_RAM256x16.MASK[13]" />
+       <direct name="MASK14"  input="SB_RAM.MASK[14]"  output="SB_RAM256x16.MASK[14]" />
+       <direct name="MASK15"  input="SB_RAM.MASK[15]"  output="SB_RAM256x16.MASK[15]" />
+
+       <direct name="WDATA00" input="SB_RAM.WDATA[0]"  output="SB_RAM256x16.WDATA[0]" />
+       <direct name="WDATA01" input="SB_RAM.WDATA[1]"  output="SB_RAM256x16.WDATA[1]" />
+       <direct name="WDATA02" input="SB_RAM.WDATA[2]"  output="SB_RAM256x16.WDATA[2]" />
+       <direct name="WDATA03" input="SB_RAM.WDATA[3]"  output="SB_RAM256x16.WDATA[3]" />
+       <direct name="WDATA04" input="SB_RAM.WDATA[4]"  output="SB_RAM256x16.WDATA[4]" />
+       <direct name="WDATA05" input="SB_RAM.WDATA[5]"  output="SB_RAM256x16.WDATA[5]" />
+       <direct name="WDATA06" input="SB_RAM.WDATA[6]"  output="SB_RAM256x16.WDATA[6]" />
+       <direct name="WDATA07" input="SB_RAM.WDATA[7]"  output="SB_RAM256x16.WDATA[7]" />
+       <direct name="WDATA08" input="SB_RAM.WDATA[8]"  output="SB_RAM256x16.WDATA[8]" />
+       <direct name="WDATA09" input="SB_RAM.WDATA[9]"  output="SB_RAM256x16.WDATA[9]" />
+       <direct name="WDATA10" input="SB_RAM.WDATA[10]" output="SB_RAM256x16.WDATA[10]" />
+       <direct name="WDATA11" input="SB_RAM.WDATA[11]" output="SB_RAM256x16.WDATA[11]" />
+       <direct name="WDATA12" input="SB_RAM.WDATA[12]" output="SB_RAM256x16.WDATA[12]" />
+       <direct name="WDATA13" input="SB_RAM.WDATA[13]" output="SB_RAM256x16.WDATA[13]" />
+       <direct name="WDATA14" input="SB_RAM.WDATA[14]" output="SB_RAM256x16.WDATA[14]" />
+       <direct name="WDATA15" input="SB_RAM.WDATA[15]" output="SB_RAM256x16.WDATA[15]" />
+
       </interconnect>
      </mode>
 
