@@ -9,3 +9,5 @@ merged*.xml
 rr_graph*.xml
 *.pdf
 *.echo
+sim.svg
+sim.json
