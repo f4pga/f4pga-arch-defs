@@ -11,3 +11,4 @@ rr_graph*.xml
 *.echo
 sim.svg
 sim.json
+sim.png
