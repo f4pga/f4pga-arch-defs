@@ -1,9 +1,11 @@
 
-
+DEVICE ?= HX8K
 ARCH ?= ../arch/ice4
 VPR ?= vpr
 YOSYS ?= yosys
 
+
+VPR_CMD = $(VPR) $(ARCH_FILE) --device $(DEVICE)
 
 %.blif: %.v
 	#yosys -p "synth_ice40; write_blif $@" $<
@@ -14,16 +16,16 @@ $(ARCH_FILE):
 	cd $(ARCH); make merged.xml
 
 %.rr_graph.xml: %.blif $(ARCH_FILE)
-	$(VPR) $(ARCH_FILE) $< --write_rr_graph $@
+	$(VPR_CMD) $< --write_rr_graph $@
 
 %.disp: %.blif $(ARCH_FILE)
-	$(VPR) $(ARCH_FILE) $< --disp on
+	$(VPR_CMD) $< --disp on
 
 %.echo: %.blif $(ARCH_FILE)
-	$(VPR) $(ARCH_FILE) $< --echo on
+	$(VPR_CMD) $< --echo_file on
 
 %.gdb: %.blif $(ARCH_FILE)
-	gdb --args $(VPR) $(ARCH_FILE) $< --echo on --disp on
+	gdb --args $(VPR_CMD) $< --echo_file on --disp on
 
 help:
 	@echo ""
