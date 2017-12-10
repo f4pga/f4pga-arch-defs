@@ -4,7 +4,7 @@
         Architecture iCE40 LP/HX Family Data Sheet
          * Figure 2-2. PLB Block Diagram
 
-       It is 8 x (CARRY + SB_LUT4 + FF)
+       It is 8 x (SB_CARRY + SB_LUT4 + FF)
     -->
   <pb_type name="PLB" xmlns:xi="http://www.w3.org/2001/XInclude">
    <!-- SB_LUT4 inputs -->
@@ -57,14 +57,14 @@
     <!-- D FlipFlop -->
     <xi:include href="../../primatives/sb_ff/pb_type.xml"/>
 
-    <!-- CARRY -->
+    <!-- SB_CARRY -->
     <xi:include href="../../primatives/sb_carry/pb_type.xml"/>
 
     <!-- Connect the PLB_CELL together -->
     <interconnect>
      <complete name="I0" input="PLB_CELL.I[0:0]" output="LUT.I[0:0]"/>
-     <complete name="I1" input="PLB_CELL.I[1:1]" output="LUT.I[1:1] CARRY.I1"/>
-     <complete name="I2" input="PLB_CELL.I[2:2]" output="LUT.I[2:2] CARRY.I2"/>
+     <complete name="I1" input="PLB_CELL.I[1:1]" output="LUT.I[1:1] SB_CARRY.I0"/>
+     <complete name="I2" input="PLB_CELL.I[2:2]" output="LUT.I[2:2] SB_CARRY.I1"/>
      <mux      name="I3" input="PLB_CELL.I[3:3] PLB_CELL.FCIN" output="LUT.I[3:3]"/>
      <mux      name="O"  input="LUT.O SB_FF.Q"   output="PLB_CELL.O"/>
 
@@ -77,8 +77,8 @@
      <direct name="FF_EN" input="PLB_CELL.EN"  output="SB_FF.E"/>
      <direct name="FF_SR" input="PLB_CELL.SR"  output="SB_FF.S"/>
 
-     <direct name="FCIN"  input="PLB_CELL.FCIN"  output="CARRY.FCIN"/>
-     <direct name="FCOUT" input="CARRY.FCOUT"    output="PLB_CELL.FCOUT"/>
+     <direct name="FCIN"  input="PLB_CELL.FCIN"  output="SB_CARRY.CI"/>
+     <direct name="FCOUT" input="SB_CARRY.CO"    output="PLB_CELL.FCOUT"/>
 
      <!-- Find LUT+FF pairs in netlist -->
     </interconnect>
