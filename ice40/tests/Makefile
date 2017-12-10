@@ -42,6 +42,6 @@ help:
 	@echo ""
 
 clean:
-	rm -f *.echo chan_details.txt seg_details.txt *.place *.route *.net *.rpt *.echo.blif *.rr_graph.xml
+	rm -f *.echo chan_details.txt seg_details.txt *.place *.route *.net *.rpt *.echo.blif *.rr_graph.xml vpr_stdout.log
 
 .PHONY: clean help %.gdb %.echo %.disp $(ARCH_FILE)
