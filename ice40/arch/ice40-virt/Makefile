@@ -8,7 +8,7 @@ arch.deps.mk: arch.xml
 
 merged.xml: arch.xml arch.deps.mk
 	rm -f $@
-	echo "<!-- Generated from arch.xml -- DO NOT EDIT! -->" > $@
+	echo "<!-- Generated from arch.xml - **DO NOT EDIT** -->" > $@
 	XMLLINT_INDENT=' ' xmllint --pretty 1 --xinclude --nsclean --format arch.xml |  \
 		sed -e's/ *\(xml\|xmlns\):[^=]*="[^"]*" */ /g' \
 	>> $@
