@@ -1,5 +1,7 @@
 
-XML_DEPS=../utils/xml_deps.sh
+SELF_DIR := $(dir $(lastword $(MAKEFILE_LIST)))
+
+XML_DEPS = $(shell realpath $(SELF_DIR)/../../utils/xml_deps.sh)
 
 arch.deps.mk: arch.xml
 	$(XML_DEPS) $@ $<
