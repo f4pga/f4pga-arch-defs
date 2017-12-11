@@ -1,0 +1,13 @@
+ <models>
+  <model name="SB_LUT4">
+   <input_ports>
+    <port name="I0" combinational_sink_ports="O" />
+    <port name="I1" combinational_sink_ports="O" />
+    <port name="I2" combinational_sink_ports="O" />
+    <port name="I3" combinational_sink_ports="O" />
+   </input_ports>
+   <output_ports>
+    <port name="O" />
+   </output_ports>
+  </model>
+ </models>

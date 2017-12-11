@@ -1,0 +1,234 @@
+<!-- set: ai sw=1 ts=1 sta et -->
+<architecture xmlns:xi="http://www.w3.org/2001/XInclude">
+ <!-- ODIN-II model description for non-standard block type -->
+ <models>
+  <xi:include href="../../primatives/sb_lut/model.xml"   xpointer="xpointer(models/*)" />
+  <xi:include href="../../primatives/sb_ff/model.xml" 	  xpointer="xpointer(models/*)" />
+  <xi:include href="../../primatives/sb_carry/model.xml" xpointer="xpointer(models/*)" />
+  <xi:include href="../../primatives/sb_ram/model.xml"   xpointer="xpointer(models/*)" />
+  <!--
+  <xi:include href="../../primatives/mux4/model.xml"     xpointer="xpointer(models/*)" />
+  <xi:include href="../../primatives/mux2/model.xml"     xpointer="xpointer(models/*)" />
+  -->
+ </models>
+
+ <!-- Layout of the FPGA, we are using 4x4 -->
+ <layout>
+  <fixed_layout name="HX1K" width="16" height="20">
+   <!--
+    Due to the way channels work in VPR, we need to pad the top+right edge with
+    extra empty tiles.
+   -->
+   <col     type="EMPTY" startx="0"  priority="30"/>
+   <col     type="PAD"   startx="1"  priority="10"/>
+   <region  type="PLB"   startx="2" endx="13" starty="2" endy="17" priority="4"/> <!-- Logic blocks 11x15 -->
+   <col     type="PAD"   startx="14" priority="10"/>
+   <col     type="EMPTY" startx="15" priority="30"/>
+
+   <row     type="EMPTY" starty="0"  priority="31"/>
+   <row     type="PAD"   starty="1"  priority="11"/>
+   <!-- starty="2" endy="17" -->
+   <row     type="PAD"   starty="18"  priority="11"/>
+   <row     type="EMPTY" starty="19" priority="31"/>
+
+   <!-- Block RAM -->
+   <col     type="RAM"   startx="4"  starty="2" priority="5"/>
+   <region  type="EMPTY" startx="4" endx="4" starty="2" endy="2" repeaty="2" priority="6"/>
+   <col     type="RAM"   startx="11" starty="2" priority="5"/>
+   <region  type="EMPTY" startx="11" endx="11" starty="2" endy="2" repeaty="2" priority="6"/>
+
+   <!-- Create empty blocks at all corners -->
+   <single  type="EMPTY" x="1"  y="1"  priority="40"/>
+   <single  type="EMPTY" x="14" y="1"  priority="40"/>
+   <single  type="EMPTY" x="1"  y="18" priority="40"/>
+   <single  type="EMPTY" x="14" y="18" priority="40"/>
+  </fixed_layout>
+  <fixed_layout name="HX8K" width="36" height="36">
+   <!--
+    Due to the way channels work in VPR, we need to pad the top+right edge with
+    extra empty tiles.
+   -->
+   <col     type="EMPTY" startx="0"  priority="30"/>
+   <col     type="PAD"   startx="1"  priority="10"/>
+   <region  type="PLB"   startx="2" endx="33" starty="2" endy="33" priority="4"/> <!-- Logic blocks 31x31 -->
+   <col     type="PAD"   startx="34" priority="10"/>
+   <col     type="EMPTY" startx="35" priority="30"/>
+
+   <row     type="EMPTY" starty="0"  priority="31"/>
+   <row     type="PAD"   starty="1"  priority="11"/>
+   <!-- starty="2" endy="33" -->
+   <row     type="PAD"   starty="34"  priority="11"/>
+   <row     type="EMPTY" starty="35" priority="31"/>
+
+   <!-- Block RAM -->
+   <col     type="RAM"   startx="9"  starty="2" priority="5"/>
+   <region  type="EMPTY" startx="9" endx="9" starty="2" endy="2" repeaty="2" priority="6"/>
+   <col     type="RAM"   startx="26" starty="2" priority="5"/>
+   <region  type="EMPTY" startx="26" endx="26" starty="2" endy="2" repeaty="2" priority="6"/>
+
+   <!-- Create empty blocks at all corners -->
+   <single  type="EMPTY" x="1"  y="1"  priority="40"/>
+   <single  type="EMPTY" x="34" y="1"  priority="40"/>
+   <single  type="EMPTY" x="1"  y="34" priority="40"/>
+   <single  type="EMPTY" x="34" y="34" priority="40"/>
+  </fixed_layout>
+ </layout>
+
+ <directlist>
+  <!-- Carry chain from one PLB to the next PLB -->
+  <direct name="CARRY" from_pin="PLB.FCOUT" to_pin="PLB.FCIN" x_offset="0" y_offset="1" z_offset="0"/>
+ </directlist>
+
+ <device>
+    <sizing R_minW_nmos="6065.520020" R_minW_pmos="18138.500000" />
+    <area grid_logic_tile_area="14813.392"/>
+    <connection_block input_switch_name="2"/>
+    <switch_block type="custom" fs="3"/>
+    <chan_width_distr>
+      <x distr="uniform" peak="1.000000"/>
+      <y distr="uniform" peak="1.000000"/>
+    </chan_width_distr>
+ </device>
+
+ <switchlist>
+  <!-- name="buffer"  == name="0" -->
+  <!-- name="routing" == name="1" -->
+  <switch type="mux" name="1" R="551" Cin=".77e-15" Cout="4e-15" Tdel="58e-12" mux_trans_size="2.630740" buf_size="27.645901"/>
+  <switch type="mux" name="2" R="551" Cin=".77e-15" Cout="4e-15" Tdel="58e-12" mux_trans_size="2.630740" buf_size="27.645901"/>
+ </switchlist>
+ <segmentlist>
+  <!-- Global networks -->
+  <segment name="global" length="longline" freq="1.000000" type="bidir" Rmetal="101" Cmetal="22.5e-15">
+   <sb type="pattern">1 1</sb>
+   <cb type="pattern">0</cb>
+   <wire_switch name="1"/>
+   <opin_switch name="2"/>
+  </segment>
+
+  <!-- Span 12 vertical   tracks -->
+  <!-- Span 12 horizontal tracks -->
+  <segment name="span12" length="12" freq="1.000000" type="bidir" Rmetal="101" Cmetal="22.5e-15">
+   <sb type="pattern">1 1 1 1 1 1 1 1 1 1 1 1 1</sb>
+   <cb type="pattern">0 0 0 0 0 0 0 0 0 0 0 0</cb>
+   <wire_switch name="1"/>
+   <opin_switch name="2"/>
+  </segment>
+
+  <!-- Span 4 vertical   tracks -->
+  <!-- Span 4 horizontal tracks -->
+  <segment name="span4" length="4" freq="1.000000" type="bidir" Rmetal="101" Cmetal="22.5e-15">
+   <sb type="pattern">1 1 1 1 1</sb>
+   <cb type="pattern">0 0 0 0</cb>
+   <wire_switch name="1"/>
+   <opin_switch name="2"/>
+  </segment>
+
+  <!-- Neighbourhood tracks
+  <segment name="neigh" length="1" freq="1.000000" type="bidir" Rmetal="101" Cmetal="22.5e-15">
+   <sb type="pattern">1 1</sb>
+   <cb type="pattern">0</cb>
+   <wire_switch name="1"/>
+   <opin_switch name="0"/>
+  </segment>
+  -->
+
+  <!-- Local tracks -->
+  <segment name="local" length="1" freq="1.000000" type="bidir" Rmetal="101" Cmetal="22.5e-15">
+   <sb type="pattern">0 1</sb>
+   <cb type="pattern">1</cb>
+   <wire_switch name="2"/>
+   <opin_switch name="2"/>
+  </segment>
+ </segmentlist>
+
+ <switchblocklist>
+  <switchblock name="xx2local" type="bidir">
+   <switchblock_location type="EVERYWHERE"/>
+   <switchfuncs>
+     <func type="lr" formula="t"/>
+     <func type="rt" formula="t"/>
+     <func type="lt" formula="t"/>
+     <func type="rb" formula="t"/>
+     <func type="lb" formula="t"/>
+     <!--
+     <func type="lb" formula="t"/>
+     <func type="rt" formula="W-t"/>
+     <func type="br" formula="t"/>
+     <func type="lr" formula="t"/>
+     <func type="bt" formula="t"/>
+     <func type="rl" formula="t"/>
+     <func type="tl" formula="t"/>
+     <func type="bl" formula="t"/>
+     <func type="tr" formula="t"/>
+     <func type="rb" formula="t"/>
+     <func type="tb" formula="t"/> -->
+   </switchfuncs>
+   <wireconn num_conns_type="max">
+    <from type="span4"  switchpoint="0,1,2,3"/>
+    <from type="span12" switchpoint="0,1,2,3,4,5,6,7,8,9,10,11"/>
+    <to   type="local"  switchpoint="0"/>
+   </wireconn>
+  </switchblock>
+  <switchblock name="local2xx" type="bidir">
+   <switchblock_location type="EVERYWHERE"/>
+   <switchfuncs>
+     <func type="tb" formula="t"/>
+     <func type="lr" formula="t"/>
+     <func type="rt" formula="t"/>
+     <func type="lt" formula="t-W"/>
+     <func type="rb" formula="t"/>
+     <func type="lb" formula="t-W"/>
+     <!--
+     <func type="br" formula="t"/>
+     <func type="lr" formula="t"/>
+     <func type="bt" formula="t"/>
+     <func type="rl" formula="t"/>
+     <func type="tl" formula="t"/>
+     <func type="bl" formula="t"/>
+     <func type="tr" formula="t"/>
+     <func type="rb" formula="t"/>
+     <func type="tb" formula="t"/> -->
+   </switchfuncs>
+   <wireconn num_conns_type="max">
+    <from type="local"  switchpoint="0"/>
+    <to   type="span4"  switchpoint="0,1,2,3"/>
+    <to   type="span12" switchpoint="0,1,2,3,4,5,6,7,8,9,10,11"/>
+   </wireconn>
+  </switchblock>
+  <switchblock name="global2local" type="bidir">
+   <switchblock_location type="EVERYWHERE"/>
+   <switchfuncs>
+     <func type="lr" formula="t"/>
+     <func type="lt" formula="W-t"/>
+     <func type="lb" formula="t"/>
+     <func type="rt" formula="W-t"/>
+     <func type="br" formula="t"/>
+     <!--
+     <func type="bt" formula="t"/>
+     <func type="rl" formula="t"/>
+     <func type="tl" formula="t"/>
+     <func type="bl" formula="t"/>
+     <func type="tr" formula="t"/>
+     <func type="rb" formula="t"/>
+     <func type="tb" formula="t"/> -->
+   </switchfuncs>
+   <wireconn num_conns_type="max">
+    <from type="global" switchpoint="0"/>
+    <to   type="local"  switchpoint="0"/>
+   </wireconn>
+  </switchblock>
+ </switchblocklist>
+
+
+ <!-- Description of the block tiles available in the iCE40 -->
+ <complexblocklist>
+
+  <xi:include href="../../tiles/plb/pb_type.xml"/>
+  <xi:include href="../../tiles/block_ram/pb_type.xml"/>
+
+  <xi:include href="../../../vpr/pad/pb_type.xml"/>
+  <!-- <xi:include href="../../tiles/pio/pb_type.xml"/> -->
+
+ </complexblocklist>
+
+</architecture>
