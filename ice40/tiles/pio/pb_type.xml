@@ -1,4 +1,5 @@
- <pb_type name="PIO">
+<!-- set: ai sw=1 ts=1 sta et -->
+ <pb_type name="PIO" capacity="1">
    <clock name="OUTPUT_CLK" num_pins="1"/>
    <clock name="INPUT_CLK"  num_pins="1"/>
    <input name="CLOCK_ENABLE" num_pins="1" equivalent="false"/>
@@ -23,6 +24,10 @@
     <input name="D_OUT_1" num_pins="1" equivalent="false"/>
     <input name="D_OUT_0" num_pins="1" equivalent="false"/>
     <input name="OUTPUT_ENABLE" num_pins="1" equivalent="false"/>
+
+    <input  name="PAD_I"  num_pins="1" equivalent="false"/>
+    <output name="PAD_O"  num_pins="1" equivalent="false"/>
+    <output name="PAD_EN" num_pins="1" equivalent="false"/>
 
     <!-- FlipFlops -->
     <pb_type name="IN_FF" num_pb="2" class="flipflop" blif_model=".latch">
@@ -68,17 +73,17 @@
      <input  name="I"  num_pins="2" />
      <output name="O"  num_pins="1" />
      <delay_constant max="10e-12" in_port="CLK_IN_MUX.I[1:0]" out_port="CLK_IN_MUX.O"/>
-     <delay_constant max="10e-12" in_port="CLK_IN_MUX.S"  out_port="CLK_IN_MUX.O"/>
+     <delay_constant max="10e-12" in_port="CLK_IN_MUX.S"      out_port="CLK_IN_MUX.O"/>
     </pb_type>
     <pb_type name="CLK_OUT_MUX" num_pb="1" blif_model=".subckt MUX2">
      <input  name="S"  num_pins="1" />
      <input  name="I"  num_pins="2" />
      <output name="O"  num_pins="1" />
      <delay_constant max="10e-12" in_port="CLK_OUT_MUX.I[1:0]" out_port="CLK_OUT_MUX.O"/>
-     <delay_constant max="10e-12" in_port="CLK_OUT_MUX.S"  out_port="CLK_OUT_MUX.O"/>
+     <delay_constant max="10e-12" in_port="CLK_OUT_MUX.S"      out_port="CLK_OUT_MUX.O"/>
     </pb_type>
 
-    <!-- Pads -->
+    <!-- Pads
     <pb_type name="PAD" num_pb="1">
      <input  name="EN_N" num_pins="1" />
      <output name="I"    num_pins="1" />
@@ -89,18 +94,23 @@
        <output  name="inpad" num_pins="1"/>
       </pb_type>
       <interconnect>
-       <direct name="IN"  input="inpad.inpad" output="PAD.I"   />
+       <direct name="IN"  input="inpad.inpad" output="PAD.I">
+	       <delay_constant max="1.394e-11" in_port="inpad.inpad" out_port="PAD.I"/>
+       </direct>
       </interconnect>
      </mode>
      <mode name="outpad">
-      <pb_type name="outpad" blif_model=".output" num_pb="1">
+      <pb_type name="outpad" blif_model=".output" num_pb="1" >
        <input name="outpad" num_pins="1"/>
       </pb_type>
       <interconnect>
-       <direct name="OUT" input="PAD.O" output="outpad.outpad" />
+       <direct name="OUT" input="PAD.O" output="outpad.outpad">
+	       <delay_constant max="1.394e-11" in_port="PAD.O" out_port="outpad.outpad"/>
+       </direct>
       </interconnect>
      </mode>
     </pb_type>
+     -->
 
     <interconnect>
      <!-- Clock enable -->
@@ -113,7 +123,7 @@
 
      <!-- Input flip flops -->
      <complete name="IN_FF_CLK"    input="CLK_IN_MUX.O"    output="IN_FF[1:0].clk" />
-     <complete name="PAD_INPUT_N0" input="PAD.I"           output="IN_FF[1:0].D INPUT_MUX.I[2:2]" />
+     <complete name="PAD_INPUT_N0" input="PAD_I"           output="IN_FF[1:0].D INPUT_MUX.I[2:2]" />
      <direct   name="PAD_INPUT_N1" input="IN_FF[1:1].Q"    output="IO.D_IN_1" />
      <direct   name="PAD_INPUT_N2" input="IN_FF[0:0].Q"    output="INPUT_MUX.I[3:3]" />
 
@@ -133,7 +143,7 @@
      <!--
      <mux name="OE_MUX" input="GND VCC IO.OUTPUT_ENABLE OE_FF.D" output="PAD.EN_N" />
      -->
-     <mux name="OE_MUX" input="IO.OUTPUT_ENABLE OE_FF.Q" output="PAD.EN_N" />
+     <mux name="OE_MUX" input="IO.OUTPUT_ENABLE OE_FF.Q" output="PAD_EN_N" />
 
      <!-- FIXME: Properly describe the output mux cascade... -->
 
@@ -141,6 +151,7 @@
      <complete name="OUT_FF_CLK" input="CLK_OUT_MUX.O" output="OUT_FF[1:0].clk OE_FF.clk" />
      <direct   name="D_OUT_0"    input="IO.D_OUT_0"    output="OUT_FF[0:0].D" />
      <direct   name="D_OUT_1"    input="IO.D_OUT_1"    output="OUT_FF[1:1].D" />
+
     </interconnect>
    </pb_type>
 
@@ -157,7 +168,26 @@
     <complete name="OUTPUT_ENABLE"    input="PIO.OUTPUT_ENABLE"      output="IO[1:0].OUTPUT_ENABLE" />
    </interconnect>
 
-   <fc default_in_type="frac" default_in_val="0.15" default_out_type="frac" default_out_val="0.10"/>
+   <fc default_in_type="frac" default_in_val="0.0" default_out_type="frac" default_out_val="0.0">
+    <fc_override fc_type="abs" fc_val="2" port_name="OUTPUT_CLK" segment_name="local"/>
+    <fc_override fc_type="abs" fc_val="2" port_name="INPUT_CLK" segment_name="local"/>
+    <fc_override fc_type="abs" fc_val="2" port_name="CLOCK_ENABLE" segment_name="local"/>
+    <fc_override fc_type="abs" fc_val="2" port_name="LATCH_INPUT_VALUE" segment_name="local"/>
+    <fc_override fc_type="abs" fc_val="2" port_name="D_IN_0" segment_name="local"/>
+    <fc_override fc_type="abs" fc_val="2" port_name="D_IN_1" segment_name="local"/>
+    <fc_override fc_type="abs" fc_val="2" port_name="D_OUT_0" segment_name="local"/>
+    <fc_override fc_type="abs" fc_val="2" port_name="D_OUT_1" segment_name="local"/>
+    <fc_override fc_type="abs" fc_val="2" port_name="OUTPUT_ENABLE" segment_name="local"/>
+   </fc>
 
-   <pinlocations pattern="spread"/>
+
+   <pinlocations pattern="custom">
+     <loc side="right" xoffset="0" yoffset="0">
+      PIO.OUTPUT_CLK PIO.INPUT_CLK PIO.CLOCK_ENABLE
+      PIO.LATCH_INPUT_VALUE
+      PIO.D_IN_0 PIO.D_IN_1
+      PIO.D_OUT_0 PIO.D_OUT_1
+      PIO.OUTPUT_ENABLE
+    </loc>
+   </pinlocations>
  </pb_type>
