@@ -30,6 +30,7 @@ INPUT_FILE=$2
 		FILE="$(realpath ${TO_VISIT[INDEX]})"
 		echo "${TO_VISIT[0]}: $FILE"
 		echo "$OUTPUT_FILE: $FILE"
+		echo "$FILE:"
 		echo ""
 		INDEX=$(( $INDEX + 1 ))
 	done
