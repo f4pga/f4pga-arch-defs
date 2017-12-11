@@ -14,25 +14,26 @@ The repo includes;
  * Verilog To Routing architecture definitions
  * Documentation for humans
 
-The documentation can be generated using sphinx.
+The documentation can be generated using Sphinx.
 
 # Structure
 
 ## Directories
 
- * [`arch/`](arch) - Full architecture definitions for
+ * `XXX/arch/` - Full architecture definitions for
    [Verilog To Routing](https://verilogtorouting.org/)
 
-   * [`arch/XXXX-virt'](arch/ice40-virt) - Verilog to Routing architecture
-     definition isn't able to generate /exactly/ model of many FPGA routing
-     interconnects, but this is a pretty close.
+   * `XXX/arch/YYYY-virt` - Verilog to Routing architecture definitions
+     generally are not able to able to generate the **exact** model of many
+     FPGA routing interconnects, but this is a pretty close.
 
- * [`primitives/`](primitives) - The primitives that make up the iCE40. These
+ * `XXX/arch/primitives/` - The primitives that make up the iCE40. These
    are generally used inside the tiles.
 
- * [`tiles/`](tiles) - The tiles found in the iCE40 architecture.
+ * `XXX/tiles/` - The tiles found in the architecture.
 
- * [`tests/`](tests) - Tests for making sure the architecture works with vpr.
+ * `XXX/tests/` - Tests for making sure the architecture specific features
+   works with VPR.
 
 ## Files
 
@@ -71,4 +72,40 @@ The documentation can be generated using sphinx.
 
  * DRY (Don't repeat yourself) - Uses
    [XML XIncludes](https://en.wikipedia.org/wiki/XInclude) to reuse stuff!
+
+# Tools
+
+ * [`third_party/yosys/`](third_party/yosys/)
+   Verilog parsing and synthesis.
+
+ * [`third_party/vtr/`](third_party/vtr/)
+   Place and route tool.
+
+ * [`third_party/xmllint`](third_party/xmllint)
+   Tool for parsing, formatting XML. Used to process the XML files before
+   giving them to VPR.
+
+ * [`third_party/sim/iverilog/`](third_party/sim/iverilog/)
+   Very correct FOSS Verilog Simulator
+
+ * [`third_party/sim/verilator/`](third_party/sim/verilator/)
+   Fast FOSS Verilog Simulator
+
+ * [`third_party/docgen/sphinx/`](third_party/docgen/sphinx/)
+   Tool for generating nice looking documentation.
+
+ * [`third_party/docgen/breathe/`](third_party/docgen/breathe)
+   Tool for allowing Doxygen and Sphinx integration.
+
+ * [`third_party/docgen/doxygen-verilog`](third_party/docgen/doxygen-verilog)
+   Allows using Doxygen style comments inside Verilog files.
+
+ * [`third_party/docgen/netlistsvg/`](third_party/docgen/netlistsvg)
+   Tool for generating nice logic diagrams from Verilog code.
+
+ * [`third_party/docgen/symbolator/`](third_party/docgen/symbolator)
+   Tool for generating symbol diagrams from Verilog (and VHDL) code.
+
+ * [`third_party/docgen/wavedrom/`](third_party/docgen/wavedrom/)
+   Tool for generating waveform / timing diagrams.
 
