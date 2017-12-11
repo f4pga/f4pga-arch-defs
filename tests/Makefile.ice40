@@ -1,0 +1,6 @@
+# Defaults for the iCE40 architecture.
+
+ARCH_DIR = ../ice40/arch/
+ARCH_TYPE ?= ice40-virt
+DEVICE ?= HX8K
+YOSYS_CMD ?= "synth_ice40; ice40_opt -unlut; abc -lut 4;"

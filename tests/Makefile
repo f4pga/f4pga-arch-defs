@@ -1,19 +1,34 @@
-
-DEVICE ?= HX8K
-ARCH ?= ../arch/ice4
 VPR ?= vpr
 YOSYS ?= yosys
 
+ifneq (,$(ARCH))
+include Makefile.$(ARCH)
+else
+$(warning "You probably want to define $$ARCH.")
+endif
 
-VPR_CMD = $(VPR) $(ARCH_FILE) --device $(DEVICE)
+ifeq (,$(ARCH_DIR))
+$(error "Please define $$ARCH_DIR to point to your architecture directory.")
+endif
+ifeq (,$(DEVICE))
+$(error "Please define $$DEVICE to a value in your architecture file.")
+endif
+ifeq (,$(YOSYS_CMD))
+$(error "Please define $$YOSYS_CMD to the commands needed for synthesis.")
+endif
 
-%.blif: %.v
-	#yosys -p "synth_ice40; write_blif $@" $<
-	$(YOSYS) -p "synth_ice40; ice40_opt -unlut; abc -lut 4; opt_clean; write_blif $@" $<
+ARCH_DIR_FULL = $(ARCH_DIR)/$(ARCH_TYPE)
 
-ARCH_FILE = $(ARCH)/merged.xml
+ARCH_FILE = $(ARCH_DIR_FULL)/merged.xml
 $(ARCH_FILE):
-	cd $(ARCH); make merged.xml
+	cd $(ARCH_DIR_FULL); make merged.xml
+
+# Yosys command
+%.blif: %.v
+	$(YOSYS) -p "$(YOSYS_CMD) opt_clean; write_blif $@" $<
+
+# VPR commands
+VPR_CMD = $(VPR) $(ARCH_FILE) --device $(DEVICE)
 
 %.rr_graph.xml: %.blif $(ARCH_FILE)
 	$(VPR_CMD) $< --write_rr_graph $@
