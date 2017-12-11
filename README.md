@@ -2,6 +2,7 @@ This repo contains documentation of various FPGA architectures, it is currently
 concentrating on;
 
  * Lattice iCE40
+ * Artix 7
 
 The aim is to include useful documentation (both human and machine readable) on
 the primitives and routing infrastructure for these architectures. We hope this
