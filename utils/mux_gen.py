@@ -211,9 +211,9 @@ if args.comment:
     xml_comment += "\n"
 
 # Create a makefile to regenerate files.
-makefile_file = os.path.join(outdir, "Makefile")
-output_files = ['model.xml', 'pb_type.xml', '.gitignore', 'Makefile']
-commit_files = ['.gitignore', 'Makefile']
+makefile_file = os.path.join(outdir, "Makefile.mux")
+output_files = ['model.xml', 'pb_type.xml', '.gitignore', 'Makefile.mux']
+commit_files = ['.gitignore', 'Makefile.mux']
 remove_files = [f for f in output_files if f not in commit_files]
 with open(makefile_file, "w") as f:
     f.write("""\
@@ -241,7 +241,7 @@ clean:
         f.write("%s: .mux_gen.stamp\n\n" % name)
 
 
-print("Makefile", "-"*75)
+print("Makefile.mux", "-"*75)
 print(open(makefile_file).read())
 print("-"*75)
 
@@ -249,9 +249,7 @@ print("-"*75)
 gitignore_file = os.path.join(outdir, ".gitignore")
 with open(gitignore_file, "w") as f:
     f.write(".mux_gen.stamp\n")
-    for name in output_files:
-        if name in ('.gitignore', 'Makefile'):
-            continue
+    for name in remove_files:
         f.write(name+'\n')
 
 print(".gitignore", "-"*75)
