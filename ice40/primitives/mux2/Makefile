@@ -10,6 +10,7 @@ all: model.xml pb_type.xml .gitignore Makefile
 .mux_gen.stamp: ../../../utils/mux_gen.py
 	../../../utils/mux_gen.py --outdir . --name-mux MUX2 --width 2
 	touch --reference $< $@
+
 model.xml: .mux_gen.stamp
 
 pb_type.xml: .mux_gen.stamp
