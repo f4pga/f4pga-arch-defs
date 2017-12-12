@@ -13,8 +13,8 @@ endif
 ifeq (,$(DEVICE))
 $(error "Please define $$DEVICE to a value in your architecture file.")
 endif
-ifeq (,$(YOSYS_CMD))
-$(error "Please define $$YOSYS_CMD to the commands needed for synthesis.")
+ifeq (,$(YOSYS_SCRIPT))
+$(error "Please define $$YOSYS_SCRIPT to the commands needed for synthesis.")
 endif
 
 ARCH_DIR_FULL = $(shell realpath $(ARCH_DIR)/$(ARCH_TYPE))
@@ -29,26 +29,28 @@ $(OUTPUT_DIR):
 	mkdir -p $@
 
 # Yosys command
-$(OUTPUT_DIR)/%.blif: %.v $(OUTPUT_DIR)
-	$(YOSYS) -p "$(YOSYS_CMD) opt_clean; write_blif $@" $<
+$(OUTPUT_DIR)/%.blif: %.v | $(OUTPUT_DIR)
+	$(YOSYS) -p "$(YOSYS_SCRIPT) opt_clean; write_blif $@" $<
 
-$(OUTPUT_DIR)/%.blif: %.blif $(OUTPUT_DIR)
+# We just have a BLIF file
+$(OUTPUT_DIR)/%.blif: %.blif | $(OUTPUT_DIR)
 	cp $< $@
 
 # VPR commands
 VPR_CMD = $(VPR) $(ARCH_FILE) --device $(DEVICE)
+VPR_FULL_CMD = cd $(OUTPUT_DIR); $(VPR_CMD)
 
 $(OUTPUT_DIR)/%.rr_graph.xml: $(OUTPUT_DIR)/%.blif $(ARCH_FILE)
-	$(VPR_CMD) $< --write_rr_graph $@
+	$(VPR_FULL_CMD) $(notdir $<) --write_rr_graph $(notdir $@)
 
 %.disp: $(OUTPUT_DIR)/%.blif $(ARCH_FILE)
-	$(VPR_CMD) $< --disp on
+	$(VPR_FULL_CMD) $(notdir $<) --disp on
 
 %.echo: $(OUTPUT_DIR)/%.blif $(ARCH_FILE)
-	$(VPR_CMD) $< --echo_file on
+	$(VPR_FULL_CMD) $(notdir $<) --echo_file on
 
 %.gdb: $(OUTPUT_DIR)/%.blif $(ARCH_FILE)
-	gdb --args $(VPR_CMD) $< --echo_file on --disp on
+	cd $(OUTPUT_DIR); gdb --args $(VPR_CMD) $(notdir $<) --echo_file on --disp on
 
 help:
 	@echo ""
@@ -65,7 +67,6 @@ help:
 	@echo ""
 
 clean:
-	rm -f *.echo chan_details.txt seg_details.txt *.place *.route *.net *.rpt *.echo.blif *.rr_graph.xml vpr_stdout.log
 	rm -rf build
 
 .PHONY: clean help %.gdb %.echo %.disp $(ARCH_FILE)
