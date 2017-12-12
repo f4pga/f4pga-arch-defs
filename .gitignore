@@ -1,14 +1,9 @@
-*.log
-*.net
-*.place
-*.route
-*.blif
-*.rpt
 merged*.xml
 *.deps.mk
 rr_graph*.xml
 *.pdf
-*.echo
 sim.svg
 sim.json
 sim.png
+tests/build
+push.sh
