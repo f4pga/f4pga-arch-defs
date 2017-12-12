@@ -1,0 +1,6 @@
+# Defaults for the iCE40 architecture.
+
+ARCH_DIR = ../artix7/arch/
+ARCH_TYPE ?= xc7a50t-virt
+DEVICE ?= xc7a50t
+YOSYS_CMD ?= synth_xilinx;
