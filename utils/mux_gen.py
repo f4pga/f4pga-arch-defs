@@ -179,14 +179,28 @@ for i, arg in enumerate(sys.argv):
 
 os.makedirs(outdir, exist_ok=True)
 
+# Generated headers
+generated_with = """
+Generated with mux_gen.py, run the following to regenerate in this directory;
+%s
+""" % " ".join(repo_args)
+
+# XML Files can't have "--" in them, so instead we use ~~
+generated_with_xml = """
+Generated with mux_gen.py, run the following to regenerate in this directory;
+%s
+""" % " ".join(a.replace("--", "~~") for a in repo_args)
+
 # Create a makefile to regenerate files.
-output_files = ['model.xml', 'pb_type.xml', 'Makefile']
+output_files = ['model.xml', 'pb_type.xml', '.gitignore', 'Makefile']
 with open(os.path.join(outdir, "Makefile"), "w") as f:
-    f.write("""
+    f.write("""\
+%s
+
 all: %s
 
 .PHONY: all
-""" % " ".join(output_files))
+""" % ("\n# ".join(generated_with.split("\n")), " ".join(output_files)))
     f.write("""
 .mux_gen.stamp: %s
 \t%s
@@ -200,16 +214,17 @@ print("Makefile", "-"*75)
 print(open("Makefile").read())
 print("-"*75)
 
-generated_with = """
-Generated with mux_gen.py, run the following to regenerate in this directory;
-%s
-""" % " ".join(repo_args)
+# .gitignore file for the generated file.
+with open(os.path.join(outdir, ".gitignore"), "w") as f:
+    f.write(".mux_gen.stamp\n")
+    for name in output_files:
+        if name in ('.gitignore', 'Makefile'):
+            continue
+        f.write(name+'\n')
 
-# XML Files can't have "--" in them, so instead we use ~~
-generated_with_xml = """
-Generated with mux_gen.py, run the following to regenerate in this directory;
-%s
-""" % " ".join(a.replace("--", "~~") for a in repo_args)
+print(".gitignore", "-"*75)
+print(open(".gitignore").read())
+print("-"*75)
 
 # Work out the port names
 port_names = []
