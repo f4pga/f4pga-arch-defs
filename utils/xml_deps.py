@@ -38,7 +38,7 @@ while index < len(deps):
                 dep_absfile = os.path.abspath(os.path.join(reldir, dep_file))
                 dep_absdir = os.path.dirname(dep_absfile)
 
-                if os.path.exists(os.path.join(dep_absdir, "Makefile")):
+                if os.path.exists(os.path.join(dep_absdir, "Makefile.mux")):
                     toadd = dep_absdir
                 else:
                     toadd = dep_absfile
@@ -66,11 +66,11 @@ with open(output_file, "w") as f:
 
     for dep in deps[1:]:
         if os.path.isdir(dep):
-            assert os.path.exists(os.path.join(dep, "Makefile"))
+            assert os.path.exists(os.path.join(dep, "Makefile.mux"))
             f.write("""\
 merged.xml: %(dep)s
 %(dep)s:
-\tmake -C %(dep)s
+\tmake -C %(dep)s -f Makefile.mux
 
 .PHONY: %(dep)s
 
