@@ -52,6 +52,11 @@ $(OUTPUT_DIR)/%.rr_graph.xml: $(OUTPUT_DIR)/%.blif $(ARCH_FILE)
 %.gdb: $(OUTPUT_DIR)/%.blif $(ARCH_FILE)
 	cd $(OUTPUT_DIR); gdb --args $(VPR_CMD) $(notdir $<) --echo_file on --disp on
 
+
+ALL_OUTPUT = $(patsubst %.v,$(OUTPUT_DIR)/%.rr_graph.xml,$(wildcard *.v)) $(patsubst %.blif,$(OUTPUT_DIR)/%.rr_graph.xml,$(wildcard *.blif))
+all: $(ALL_OUTPUT)
+	@echo $(ALL_OUTPUT)
+
 help:
 	@echo ""
 	@echo "For each blif file in this directory you can:"
@@ -69,4 +74,4 @@ help:
 clean:
 	rm -rf build
 
-.PHONY: clean help %.gdb %.echo %.disp $(ARCH_FILE)
+.PHONY: all clean help %.gdb %.echo %.disp $(ARCH_FILE)
