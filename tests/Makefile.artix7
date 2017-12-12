@@ -3,4 +3,4 @@
 ARCH_DIR = ../artix7/arch/
 ARCH_TYPE ?= xc7a50t-virt
 DEVICE ?= xc7a50t
-YOSYS_CMD ?= synth_xilinx;
+YOSYS_SCRIPT ?= synth_xilinx;
