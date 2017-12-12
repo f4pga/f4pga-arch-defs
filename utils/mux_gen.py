@@ -192,30 +192,43 @@ Generated with mux_gen.py, run the following to regenerate in this directory;
 """ % " ".join(a.replace("--", "~~") for a in repo_args)
 
 # Create a makefile to regenerate files.
+makefile_file = os.path.join(outdir, "Makefile")
 output_files = ['model.xml', 'pb_type.xml', '.gitignore', 'Makefile']
-with open(os.path.join(outdir, "Makefile"), "w") as f:
+commit_files = ['.gitignore', 'Makefile']
+remove_files = [f for f in output_files if f not in commit_files]
+with open(makefile_file, "w") as f:
     f.write("""\
 %s
 
 all: %s
 
-.PHONY: all
-""" % ("\n# ".join(generated_with.split("\n")), " ".join(output_files)))
-    f.write("""
+clean:
+\trm -f .mux_gen.stamp %s
+
 .mux_gen.stamp: %s
 \t%s
 \ttouch --reference $< $@
-""" % (repo_args[0], " ".join(repo_args)))
+
+.PHONY: all clean
+
+""" % ("\n# ".join(generated_with.split("\n")),
+       " ".join(output_files),
+       " ".join(remove_files),
+       repo_args[0],
+       " ".join(repo_args),
+    ))
 
     for name in output_files:
         f.write("%s: .mux_gen.stamp\n\n" % name)
 
+
 print("Makefile", "-"*75)
-print(open("Makefile").read())
+print(open(makefile_file).read())
 print("-"*75)
 
 # .gitignore file for the generated file.
-with open(os.path.join(outdir, ".gitignore"), "w") as f:
+gitignore_file = os.path.join(outdir, ".gitignore")
+with open(gitignore_file, "w") as f:
     f.write(".mux_gen.stamp\n")
     for name in output_files:
         if name in ('.gitignore', 'Makefile'):
@@ -223,7 +236,7 @@ with open(os.path.join(outdir, ".gitignore"), "w") as f:
         f.write(name+'\n')
 
 print(".gitignore", "-"*75)
-print(open(".gitignore").read())
+print(open(gitignore_file).read())
 print("-"*75)
 
 # Work out the port names
@@ -286,11 +299,12 @@ for type, name, width, index in port_names:
     )
 
 if args.type == 'logic':
-    pb_type = ET.SubElement(
-        pb_type_xml,
-        'pb_type',
-        {},
-    )
+    #pb_type = ET.SubElement(
+    #    pb_type_xml,
+    #    'pb_type',
+    #    {},
+    #)
+    pass
 
 interconnect = ET.SubElement(pb_type_xml, 'interconnect')
 if args.type == 'routing':
@@ -324,7 +338,7 @@ else:
             )
 
 pb_type_str = ET.tostring(pb_type_xml, pretty_print=True).decode('utf-8')
-print("p_type.xml", "-"*75)
+print("pb_type.xml", "-"*75)
 print(pb_type_str)
 print("-"*75)
 with open(os.path.join(outdir, "pb_type.xml"), "w") as f:
