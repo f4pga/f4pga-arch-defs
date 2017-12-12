@@ -1,0 +1,5 @@
+    <pb_type name="FF" num_pb="1" class="flipflop" blif_model=".latch">
+     <input  name="D"   num_pins="1" port_class="D" />
+     <output name="Q"   num_pins="1" port_class="Q" />
+     <clock  name="clk" num_pins="1" port_class="clock" />
+    </pb_type>

@@ -70,6 +70,18 @@ parser.add_argument(
     '--outdir', default=None,
     help="""Directory to output generated content too.""")
 
+parser.add_argument(
+    '--comment', default=None,
+    help="""Add some type of comment to the mux.""")
+
+parser.add_argument(
+    '--num_pb', default=1,
+    help="""Set the num_pb for the mux.""")
+
+parser.add_argument(
+    '--subckt', default=None,
+    help="""Override the subcircuit name.""")
+
 
 def clog2(x):
     """Ceiling log 2 of x.
@@ -144,6 +156,8 @@ call_args = list(sys.argv)
 
 args = parser.parse_args()
 args.width_bits = clog2(args.width)
+if not args.subckt:
+    args.subckt = args.name_mux
 
 mypath = __file__
 
@@ -174,7 +188,7 @@ for i, arg in enumerate(sys.argv):
             skip_next = True
             continue
 
-    repo_args.append(arg)
+    repo_args.append(repr(arg))
     assert "--" not in arg[2:], "Can't have -- in argument value or name %r" % arg
 
 os.makedirs(outdir, exist_ok=True)
@@ -184,17 +198,22 @@ generated_with = """
 Generated with mux_gen.py, run the following to regenerate in this directory;
 %s
 """ % " ".join(repo_args)
+if args.comment:
+    generated_with += args.comment
 
 # XML Files can't have "--" in them, so instead we use ~~
-generated_with_xml = """
-Generated with mux_gen.py, run the following to regenerate in this directory;
-%s
-""" % " ".join(a.replace("--", "~~") for a in repo_args)
+xml_comment = """
+Generated with %s
+""" % mypath
+if args.comment:
+    xml_comment += "\n"
+    xml_comment += args.comment.replace("--", "~~")
+    xml_comment += "\n"
 
 # Create a makefile to regenerate files.
-makefile_file = os.path.join(outdir, "Makefile")
-output_files = ['model.xml', 'pb_type.xml', '.gitignore', 'Makefile']
-commit_files = ['.gitignore', 'Makefile']
+makefile_file = os.path.join(outdir, "Makefile.mux")
+output_files = ['model.xml', 'pb_type.xml', '.gitignore', 'Makefile.mux']
+commit_files = ['.gitignore', 'Makefile.mux']
 remove_files = [f for f in output_files if f not in commit_files]
 with open(makefile_file, "w") as f:
     f.write("""\
@@ -222,7 +241,7 @@ clean:
         f.write("%s: .mux_gen.stamp\n\n" % name)
 
 
-print("Makefile", "-"*75)
+print("Makefile.mux", "-"*75)
 print(open(makefile_file).read())
 print("-"*75)
 
@@ -230,9 +249,7 @@ print("-"*75)
 gitignore_file = os.path.join(outdir, ".gitignore")
 with open(gitignore_file, "w") as f:
     f.write(".mux_gen.stamp\n")
-    for name in output_files:
-        if name in ('.gitignore', 'Makefile'):
-            continue
+    for name in remove_files:
         f.write(name+'\n')
 
 print(".gitignore", "-"*75)
@@ -257,9 +274,9 @@ for i in args.order:
 
 # Generate the Model XML form.
 models_xml = ET.Element('models')
-models_xml.append(ET.Comment(generated_with_xml))
+models_xml.append(ET.Comment(xml_comment))
 
-model_xml = ET.SubElement(models_xml, 'model', {'name': args.name_mux})
+model_xml = ET.SubElement(models_xml, 'model', {'name': args.subckt})
 
 input_ports = ET.SubElement(model_xml, 'input_ports')
 output_ports = ET.SubElement(model_xml, 'output_ports')
@@ -284,10 +301,10 @@ with open(os.path.join(outdir, "model.xml"), "w") as f:
 pb_type_xml = ET.Element(
     'pb_type', {
         'name': args.name_mux,
-        'num_pb': '1',
-        'blif_model': '.subckt %s' % args.name_mux,
+        'num_pb': str(args.num_pb),
+        'blif_model': '.subckt %s' % args.subckt,
     })
-pb_type_xml.append(ET.Comment(generated_with_xml))
+pb_type_xml.append(ET.Comment(xml_comment))
 
 for type, name, width, index in port_names:
     ET.SubElement(
@@ -299,43 +316,54 @@ for type, name, width, index in port_names:
     )
 
 if args.type == 'logic':
-    #pb_type = ET.SubElement(
-    #    pb_type_xml,
-    #    'pb_type',
-    #    {},
-    #)
-    pass
+    for itype, iname, iwidth, iindex in port_names:
+        if itype not in ('i', 's'):
+            continue
 
-interconnect = ET.SubElement(pb_type_xml, 'interconnect')
-if args.type == 'routing':
-    ET.SubElement(
-        interconnect,
-        'mux', {
-            'name': 'OUT',
-            'input': ' '.join(n for t, n, w, i in port_names if t in ('i',)),
-            'output': args.name_output,
-        },
-    )
-else:
-    for type, name, width, index in port_names:
-        if type in ('i', 's'):
+        for otype, oname, owidth, oindex in port_names:
+            if otype not in ('o',):
+                continue
+
             ET.SubElement(
-                interconnect,
-                'direct', {
-                    'name': name,
-                    'input': name,
-                    'output': "MUX.%s%s" % (type.upper(), index),
+                pb_type_xml,
+                'delay_constant', {
+                    'max': "10e-12",
+                    'in_port': iname,
+                    'out_port': oname,
                 },
             )
-        elif type in ('o',):
-            ET.SubElement(
-                interconnect,
-                'direct', {
-                    'name': name,
-                    'output': name,
-                    'input': "MUX.%s%s" % (type.upper(), index),
-                },
-            )
+
+if False:
+    interconnect = ET.SubElement(pb_type_xml, 'interconnect')
+    if args.type == 'routing':
+        ET.SubElement(
+            interconnect,
+            'mux', {
+                'name': 'OUT',
+                'input': ' '.join(n for t, n, w, i in port_names if t in ('i',)),
+                'output': args.name_output,
+            },
+        )
+    else:
+        for type, name, width, index in port_names:
+            if type in ('i', 's'):
+                ET.SubElement(
+                    interconnect,
+                    'direct', {
+                        'name': name,
+                        'input': name,
+                        'output': "MUX.%s%s" % (type.upper(), index),
+                    },
+                )
+            elif type in ('o',):
+                ET.SubElement(
+                    interconnect,
+                    'direct', {
+                        'name': name,
+                        'output': name,
+                        'input': "MUX.%s%s" % (type.upper(), index),
+                    },
+                )
 
 pb_type_str = ET.tostring(pb_type_xml, pretty_print=True).decode('utf-8')
 print("pb_type.xml", "-"*75)
