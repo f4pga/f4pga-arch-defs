@@ -205,6 +205,7 @@ all: %s
 .mux_gen.stamp: %s
 \t%s
 \ttouch --reference $< $@
+
 """ % (repo_args[0], " ".join(repo_args)))
 
     for name in output_files:
