@@ -1,9 +1,9 @@
 
 SELF_DIR := $(dir $(lastword $(MAKEFILE_LIST)))
 
-XML_DEPS = $(shell realpath $(SELF_DIR)/../../utils/xml_deps.sh)
+XML_DEPS = $(shell realpath $(SELF_DIR)/../../utils/xml_deps.py)
 
-arch.deps.mk: arch.xml
+arch.deps.mk: arch.xml $(XML_DEPS)
 	$(XML_DEPS) $@ $<
 
 -include arch.deps.mk
