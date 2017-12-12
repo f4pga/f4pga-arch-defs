@@ -27,22 +27,28 @@ while index < len(deps):
     checking_file = deps[index]
     reldir = os.path.dirname(checking_file)
 
-    # File missing is only allowed if a Makefile exists in it's directory.
-    if os.path.exists(checking_file):
+    if os.path.isdir(checking_file):
+        pass
+    elif os.path.exists(checking_file):
         for line in open(checking_file):
             if 'xi:include' not in line:
                 continue
 
             for dep_file in xi_include.findall(line):
                 dep_absfile = os.path.abspath(os.path.join(reldir, dep_file))
-                if dep_absfile not in deps:
+                dep_absdir = os.path.dirname(dep_absfile)
+
+                if os.path.exists(os.path.join(dep_absdir, "Makefile")):
+                    toadd = dep_absdir
+                else:
+                    toadd = dep_absfile
+
+                if toadd not in deps:
                     print("  (Adding)", end=" ")
-                    deps.append(dep_absfile)
+                    deps.append(toadd)
                 else:
                     print("(Skipping)", end=" ")
-                print("%s found in %s" % (curpath(dep_absfile), curpath(checking_file)))
-    elif os.path.exists(os.path.join(reldir, "Makefile")):
-        print("(Skipping) Missing %s (Allowed as Makefile exists in %s)" % (curpath(checking_file), curpath(reldir)))
+                print("%s found in %s" % (curpath(toadd), curpath(checking_file)))
     else:
         raise SystemError("Unable to find dependency %s" % checking_file)
 
@@ -59,15 +65,14 @@ with open(output_file, "w") as f:
 """ % locals())
 
     for dep in deps[1:]:
-        depdir = os.path.dirname(dep)
-
-        if os.path.exists(os.path.join(depdir, "Makefile")):
+        if os.path.isdir(dep):
+            assert os.path.exists(os.path.join(dep, "Makefile"))
             f.write("""\
-merged.xml: %(depdir)s
-%(depdir)s:
-\tmake -C %(depdir)s
+merged.xml: %(dep)s
+%(dep)s:
+\tmake -C %(dep)s
 
-.PHONY: %(depdir)s
+.PHONY: %(dep)s
 
 """ % locals())
 
