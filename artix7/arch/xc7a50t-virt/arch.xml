@@ -289,15 +289,19 @@
 
   <pb_type name="CLBLL_L">
    <xi:include href="../../primitives/clbll/pb_type.xml" />
+   <xi:include href="../../empty.xml" xpointer="xpointer(empty/*)" />
   </pb_type>
   <pb_type name="CLBLL_R">
    <xi:include href="../../primitives/clbll/pb_type.xml" />
+   <xi:include href="../../empty.xml" xpointer="xpointer(empty/*)" />
   </pb_type>
   <pb_type name="CLBLM_L">
    <xi:include href="../../primitives/clbll/pb_type.xml" />
+   <xi:include href="../../empty.xml" xpointer="xpointer(empty/*)" />
   </pb_type>
   <pb_type name="CLBLM_R">
    <xi:include href="../../primitives/clbll/pb_type.xml" />
+   <xi:include href="../../empty.xml" xpointer="xpointer(empty/*)" />
   </pb_type>
 
   <pb_type name="CLK_FEED">
@@ -305,9 +309,11 @@
   </pb_type>
 
   <pb_type name="DSP_L">
+   <xi:include href="../../primitives/dsp/pb_type.xml" />
    <xi:include href="../../empty.xml" xpointer="xpointer(empty/*)" />
   </pb_type>
   <pb_type name="DSP_R">
+   <xi:include href="../../primitives/dsp/pb_type.xml" />
    <xi:include href="../../empty.xml" xpointer="xpointer(empty/*)" />
   </pb_type>
 

@@ -1,5 +1,5 @@
 <!-- set: ai sw=1 ts=1 sta et -->
-<pb_type name="IOB">
+<pb_type name="IOB" num_pb="2">
  <input name="outpad" num_pins="1"/>
  <output name="inpad" num_pins="1"/>
  <mode name="inpad">
@@ -22,8 +22,4 @@
    </direct>
   </interconnect>
  </mode>
- <pinlocations pattern="custom">
-  <loc side="right">PIO.outpad PIO.inpad</loc>
-  <loc side="left">PIO.outpad PIO.inpad</loc>
- </pinlocations>
 </pb_type>
