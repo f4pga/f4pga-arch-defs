@@ -64,11 +64,11 @@
      <direct name="I0" input="PLB_CELL.I[0:0]" output="LUT.I[0:0]" />
      <direct name="I1" input="PLB_CELL.I[1:1]" output="LUT.I[1:1]" />
      <direct name="I2" input="PLB_CELL.I[2:2]" output="LUT.I[2:2]" />
-     <!--
      <direct name="I3" input="PLB_CELL.I[3:3]" output="LUT.I[3:3]" />
-       -->
+     <!--
      <mux    name="I3" input="PLB_CELL.I[3] PLB_CELL.FCIN" output="LUT.I[3]">
      </mux>
+       -->
 
      <direct name="FCIN"  input="PLB_CELL.FCIN"   output="SB_CARRY.CI"   ><pack_pattern name="CARRYCHAIN" in_port="PLB_CELL.FCIN"   out_port="SB_CARRY.CI"/></direct>
      <direct name="I12C"  input="PLB_CELL.I[1:1]" output="SB_CARRY.I0"   ><pack_pattern name="CARRYCHAIN" in_port="PLB_CELL.I[1:1]" out_port="SB_CARRY.I0"/></direct>
