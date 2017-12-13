@@ -110,7 +110,7 @@
     <direct name="WCLK"  input="RAM.WCLK"        output="SB_RAM.WCLK" />
    </interconnect>
 
-   <fc default_in_type="frac" default_in_val="0.0" default_out_type="frac" default_out_val="0.0">
+   <fc default_in_type="frac" default_in_val="0.5" default_out_type="frac" default_out_val="1.0">
     <fc_override fc_type="abs" fc_val="2" port_name="RDATAT" segment_name="local"/>
     <fc_override fc_type="abs" fc_val="2" port_name="RDATAB" segment_name="local"/>
     <fc_override fc_type="abs" fc_val="2" port_name="RADDR"  segment_name="local"/>
