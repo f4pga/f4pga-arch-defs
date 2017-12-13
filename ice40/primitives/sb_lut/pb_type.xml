@@ -22,6 +22,7 @@
        <direct name="O" input="LUT4.out" output="LUT.O"   />
       </interconnect>
      </mode>
+     <!--
      <mode name="SB_LUT4">
       <pb_type name="SB_LUT4" num_pb="1" blif_model=".subckt SB_LUT4">
        <input  name="I0" num_pins="1" />
@@ -42,4 +43,5 @@
        <direct name="O"  input="SB_LUT4.O"  output="LUT.O" />
       </interconnect>
      </mode>
+     -->
     </pb_type>

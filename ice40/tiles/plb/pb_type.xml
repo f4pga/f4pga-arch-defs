@@ -61,17 +61,22 @@
 
     <!-- Connect the PLB_CELL together -->
     <interconnect>
-     <complete name="I0" input="PLB_CELL.I[0:0]" output="LUT.I[0:0]"/>
-     <complete name="I1" input="PLB_CELL.I[1:1]" output="LUT.I[1:1] SB_CARRY.I0">
-     </complete>
-     <complete name="I2" input="PLB_CELL.I[2:2]" output="LUT.I[2:2] SB_CARRY.I1">
-     </complete>
-     <mux      name="I3" input="PLB_CELL.I[3:3] PLB_CELL.FCIN" output="LUT.I[3:3]">
-     </mux>
-     <mux      name="O"  input="LUT.O SB_FF.Q"   output="PLB_CELL.O">
+     <direct name="I0" input="PLB_CELL.I[0:0]" output="LUT.I[0:0]" />
+     <direct name="I1" input="PLB_CELL.I[1:1]" output="LUT.I[1:1]" />
+     <direct name="I2" input="PLB_CELL.I[2:2]" output="LUT.I[2:2]" />
+     <!--
+     <direct name="I3" input="PLB_CELL.I[3:3]" output="LUT.I[3:3]" />
+       -->
+     <mux    name="I3" input="PLB_CELL.I[3] PLB_CELL.FCIN" output="LUT.I[3]">
      </mux>
 
-     <direct   name="FF_D"  input="LUT.O"        output="SB_FF.D">
+     <direct name="FCIN"  input="PLB_CELL.FCIN"   output="SB_CARRY.CI"   ><pack_pattern name="CARRYCHAIN" in_port="PLB_CELL.FCIN"   out_port="SB_CARRY.CI"/></direct>
+     <direct name="I12C"  input="PLB_CELL.I[1:1]" output="SB_CARRY.I0"   ><pack_pattern name="CARRYCHAIN" in_port="PLB_CELL.I[1:1]" out_port="SB_CARRY.I0"/></direct>
+     <direct name="I22C"  input="PLB_CELL.I[2:2]" output="SB_CARRY.I1"   ><pack_pattern name="CARRYCHAIN" in_port="PLB_CELL.I[2:2]" out_port="SB_CARRY.I1"/></direct>
+     <direct name="FCOUT" input="SB_CARRY.CO"     output="PLB_CELL.FCOUT"><pack_pattern name="CARRYCHAIN" in_port="SB_CARRY.CO"     out_port="PLB_CELL.FCOUT"/></direct>
+
+     <direct name="FF_D"  input="LUT.O"        output="SB_FF.D">
+      <!-- Find LUT+FF pairs in netlist -->
       <!--
        <pack_pattern name="LUT2FF" in_port="LUT.O" out_port="SB_FF.D"/>
       -->
@@ -80,14 +85,9 @@
      <direct name="FF_EN" input="PLB_CELL.EN"  output="SB_FF.E"/>
      <direct name="FF_SR" input="PLB_CELL.SR"  output="SB_FF.S"/>
 
-     <direct name="FCIN"  input="PLB_CELL.FCIN"  output="SB_CARRY.CI">
-      <pack_pattern name="CARRYCHAIN" in_port="PLB_CELL.FCIN" out_port="SB_CARRY.CI"/>
-     </direct>
-     <direct name="FCOUT" input="SB_CARRY.CO"    output="PLB_CELL.FCOUT">
-      <pack_pattern name="CARRYCHAIN" in_port="SB_CARRY.CO" out_port="PLB_CELL.FCOUT"/>
-     </direct>
+     <mux    name="OUT"   input="LUT.O SB_FF.Q" output="PLB_CELL.O"></mux>
 
-     <!-- Find LUT+FF pairs in netlist -->
+
     </interconnect>
    </pb_type>
 
@@ -118,30 +118,14 @@
     <complete name="EN" input="PLB.EN" output="PLB_CELL[7:0].EN" />
 
     <!-- Carry chain -->
-    <direct name="FCOUT" input="PLB_CELL[0:0].FCOUT" output="PLB.FCOUT">
-      <pack_pattern name="CARRYCHAIN" in_port="PLB_CELL[0:0].FCOUT" out_port="PLB.FCOUT"/>
-    </direct>
-    <direct name="FCC0"  input="PLB_CELL[1:1].FCOUT" output="PLB_CELL[0:0].FCIN">
-      <pack_pattern name="CARRYCHAIN" in_port="PLB_CELL[1:1].FCOUT" out_port="PLB_CELL[0:0].FCIN"/>
-    </direct>
-    <direct name="FCC1"  input="PLB_CELL[2:2].FCOUT" output="PLB_CELL[1:1].FCIN">
-      <pack_pattern name="CARRYCHAIN" in_port="PLB_CELL[2:2].FCOUT" out_port="PLB_CELL[1:1].FCIN"/>
-    </direct>
-    <direct name="FCC2"  input="PLB_CELL[3:3].FCOUT" output="PLB_CELL[2:2].FCIN">
-      <pack_pattern name="CARRYCHAIN" in_port="PLB_CELL[3:3].FCOUT" out_port="PLB_CELL[2:2].FCIN"/>
-    </direct>
-    <direct name="FCC3"  input="PLB_CELL[4:4].FCOUT" output="PLB_CELL[3:3].FCIN">
-      <pack_pattern name="CARRYCHAIN" in_port="PLB_CELL[4:4].FCOUT" out_port="PLB_CELL[3:3].FCIN"/>
-    </direct>
-    <direct name="FCC4"  input="PLB_CELL[5:5].FCOUT" output="PLB_CELL[4:4].FCIN">
-      <pack_pattern name="CARRYCHAIN" in_port="PLB_CELL[5:5].FCOUT" out_port="PLB_CELL[4:4].FCIN"/>
-    </direct>
-    <direct name="FCC5"  input="PLB_CELL[6:6].FCOUT" output="PLB_CELL[5:5].FCIN">
-      <pack_pattern name="CARRYCHAIN" in_port="PLB_CELL[6:6].FCOUT" out_port="PLB_CELL[5:5].FCIN"/>
-    </direct>
-    <direct name="FCIN"  input="PLB.FCIN"            output="PLB_CELL[6:6].FCIN">
-      <pack_pattern name="CARRYCHAIN" in_port="PLB.FCIN"            out_port="PLB_CELL[6:6].FCIN"/>
-    </direct>
+    <direct name="FCOUT" input="PLB_CELL[0:0].FCOUT" output="PLB.FCOUT"         ><pack_pattern name="CARRYCHAIN" in_port="PLB_CELL[0:0].FCOUT" out_port="PLB.FCOUT"         /> </direct>
+    <direct name="FCC0"  input="PLB_CELL[1:1].FCOUT" output="PLB_CELL[0:0].FCIN"><pack_pattern name="CARRYCHAIN" in_port="PLB_CELL[1:1].FCOUT" out_port="PLB_CELL[0:0].FCIN"/></direct>
+    <direct name="FCC1"  input="PLB_CELL[2:2].FCOUT" output="PLB_CELL[1:1].FCIN"><pack_pattern name="CARRYCHAIN" in_port="PLB_CELL[2:2].FCOUT" out_port="PLB_CELL[1:1].FCIN"/></direct>
+    <direct name="FCC2"  input="PLB_CELL[3:3].FCOUT" output="PLB_CELL[2:2].FCIN"><pack_pattern name="CARRYCHAIN" in_port="PLB_CELL[3:3].FCOUT" out_port="PLB_CELL[2:2].FCIN"/></direct>
+    <direct name="FCC3"  input="PLB_CELL[4:4].FCOUT" output="PLB_CELL[3:3].FCIN"><pack_pattern name="CARRYCHAIN" in_port="PLB_CELL[4:4].FCOUT" out_port="PLB_CELL[3:3].FCIN"/></direct>
+    <direct name="FCC4"  input="PLB_CELL[5:5].FCOUT" output="PLB_CELL[4:4].FCIN"><pack_pattern name="CARRYCHAIN" in_port="PLB_CELL[5:5].FCOUT" out_port="PLB_CELL[4:4].FCIN"/></direct>
+    <direct name="FCC5"  input="PLB_CELL[6:6].FCOUT" output="PLB_CELL[5:5].FCIN"><pack_pattern name="CARRYCHAIN" in_port="PLB_CELL[6:6].FCOUT" out_port="PLB_CELL[5:5].FCIN"/></direct>
+    <direct name="FCIN"  input="PLB.FCIN"            output="PLB_CELL[6:6].FCIN"><pack_pattern name="CARRYCHAIN" in_port="PLB.FCIN"            out_port="PLB_CELL[6:6].FCIN"/></direct>
    </interconnect>
 
    <fc default_in_type="frac" default_in_val="0.0" default_out_type="frac" default_out_val="0.0">
