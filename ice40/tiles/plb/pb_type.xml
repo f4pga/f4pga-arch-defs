@@ -1,173 +1,894 @@
-  <!-- set: ai sw=1 ts=1 sta et -->
-  <!-- A diagram for the iCE40 PLB "Logic Cell" is shown in;
-        http://www.latticesemi.com/~/media/LatticeSemi/Documents/DataSheets/iCE/iCE40LPHXFamilyDataSheet.pdf
-        Architecture iCE40 LP/HX Family Data Sheet
-         * Figure 2-2. PLB Block Diagram
+<!-- set: ai sw=1 ts=1 sta et -->
+<pb_type name="LOGIC" xmlns:xi="http://www.w3.org/2001/XInclude">
+ <pb_type name="LOCAL" num_pb="1">
 
-       It is 8 x (SB_CARRY + SB_LUT4 + FF)
-    -->
-  <pb_type name="PLB" xmlns:xi="http://www.w3.org/2001/XInclude">
-   <!-- SB_LUT4 inputs -->
-   <input  name="I0" num_pins="4" equivalent="false"/>
-   <input  name="I1" num_pins="4" equivalent="false"/>
-   <input  name="I2" num_pins="4" equivalent="false"/>
-   <input  name="I3" num_pins="4" equivalent="false"/>
-   <input  name="I4" num_pins="4" equivalent="false"/>
-   <input  name="I5" num_pins="4" equivalent="false"/>
-   <input  name="I6" num_pins="4" equivalent="false"/>
-   <input  name="I7" num_pins="4" equivalent="false"/>
-   <!-- D Flipflop outputs -->
-   <output  name="O0" num_pins="1" equivalent="false"/>
-   <output  name="O1" num_pins="1" equivalent="false"/>
-   <output  name="O2" num_pins="1" equivalent="false"/>
-   <output  name="O3" num_pins="1" equivalent="false"/>
-   <output  name="O4" num_pins="1" equivalent="false"/>
-   <output  name="O5" num_pins="1" equivalent="false"/>
-   <output  name="O6" num_pins="1" equivalent="false"/>
-   <output  name="O7" num_pins="1" equivalent="false"/>
+  <pb_type name="lutff" num_pb="8">
+   <!-- ################################################################ -->
+   <!-- # The actual PLB logic cell with is a LUT+FF                   # -->
+   <!-- ################################################################ -->
 
-   <!-- D Flipflop controls -->
-   <clock  name="CLK" num_pins="1"/>
-   <input name="EN" num_pins="1" equivalent="false"/>
-   <input name="SR" num_pins="1" equivalent="false"/>
+   <input  name="cin"  num_pins="1" equivalent="false"/> <!-- Carry in -->
+   <output name="cout" num_pins="1" equivalent="false"/> <!-- Carry output -->
 
-   <!-- Carry chain -->
-   <input name="FCIN"  num_pins="1" equivalent="false"/>
-   <output name="FCOUT" num_pins="1" equivalent="false"/>
+   <input  name="in"   num_pins="4" equivalent="false"/> <!-- LUT inputs -->
+   <output name="lout" num_pins="1" equivalent="false"/> <!-- LUT output -->
 
-   <!-- A PLB contains the same 'cell' repeated 8 times. -->
-   <pb_type name="PLB_CELL" num_pb="8">
-    <!-- Data -->
-    <input  name="I" num_pins="4" equivalent="false"/>
-    <output name="O" num_pins="1" equivalent="false"/>
+   <output name="out"  num_pins="1" equivalent="false"/> <!-- FF output -->
+   <input  name="cen"  num_pins="1" equivalent="false"/> <!-- FF clock enable -->
+   <clock  name="clk"  num_pins="1" equivalent="false"/> <!-- FF clock -->
+   <input  name="s_r"  num_pins="1" equivalent="false"/> <!-- FF set/reset -->
 
-    <!-- Flipflop controls -->
-    <clock name="CLK" num_pins="1" />
-    <input name="EN"  num_pins="1" equivalent="false"/>
-    <input name="SR"  num_pins="1" equivalent="false"/>
+   <!-- SB_LUT - 4 input LUT -->
+   <xi:include href="../../primitives/sb_lut/pb_type.xml"/>
 
-    <!-- Fast carry -->
-    <input name="FCIN"  num_pins="1" equivalent="false"/>
-    <output name="FCOUT" num_pins="1" equivalent="false"/>
+   <!-- SB_FF - D FlipFlop -->
+   <xi:include href="../../primitives/sb_ff/pb_type.xml"/>
 
-    <!-- 4 input LUT -->
-    <xi:include href="../../primitives/sb_lut/pb_type.xml"/>
-
-    <!-- D FlipFlop -->
-    <xi:include href="../../primitives/sb_ff/pb_type.xml"/>
-
-    <!-- SB_CARRY -->
-    <xi:include href="../../primitives/sb_carry/pb_type.xml"/>
-
-    <!-- Connect the PLB_CELL together -->
-    <interconnect>
-     <direct name="I0" input="PLB_CELL.I[0:0]" output="LUT.I[0:0]" />
-     <direct name="I1" input="PLB_CELL.I[1:1]" output="LUT.I[1:1]" />
-     <direct name="I2" input="PLB_CELL.I[2:2]" output="LUT.I[2:2]" />
-     <direct name="I3" input="PLB_CELL.I[3:3]" output="LUT.I[3:3]" />
-     <!--
-     <mux    name="I3" input="PLB_CELL.I[3] PLB_CELL.FCIN" output="LUT.I[3]">
-     </mux>
-       -->
-
-     <direct name="FCIN"  input="PLB_CELL.FCIN"   output="SB_CARRY.CI"   ><pack_pattern name="CARRYCHAIN" in_port="PLB_CELL.FCIN"   out_port="SB_CARRY.CI"/></direct>
-     <direct name="I12C"  input="PLB_CELL.I[1:1]" output="SB_CARRY.I0"   ><pack_pattern name="CARRYCHAIN" in_port="PLB_CELL.I[1:1]" out_port="SB_CARRY.I0"/></direct>
-     <direct name="I22C"  input="PLB_CELL.I[2:2]" output="SB_CARRY.I1"   ><pack_pattern name="CARRYCHAIN" in_port="PLB_CELL.I[2:2]" out_port="SB_CARRY.I1"/></direct>
-     <direct name="FCOUT" input="SB_CARRY.CO"     output="PLB_CELL.FCOUT"><pack_pattern name="CARRYCHAIN" in_port="SB_CARRY.CO"     out_port="PLB_CELL.FCOUT"/></direct>
-
-     <direct name="FF_D"  input="LUT.O"        output="SB_FF.D">
-      <!-- Find LUT+FF pairs in netlist -->
-      <!--
-       <pack_pattern name="LUT2FF" in_port="LUT.O" out_port="SB_FF.D"/>
-      -->
-     </direct>
-     <direct name="FF_CK" input="PLB_CELL.CLK" output="SB_FF.C"/>
-     <direct name="FF_EN" input="PLB_CELL.EN"  output="SB_FF.E"/>
-     <direct name="FF_SR" input="PLB_CELL.SR"  output="SB_FF.S"/>
-
-     <mux    name="OUT"   input="LUT.O SB_FF.Q" output="PLB_CELL.O"></mux>
-
-
-    </interconnect>
-   </pb_type>
+   <!-- SB_CARRY -->
+   <xi:include href="../../primitives/sb_carry/pb_type.xml"/>
 
    <interconnect>
-    <!-- Inputs -->
-    <direct name="I0" input="PLB.I0" output="PLB_CELL[0:0].I" />
-    <direct name="I1" input="PLB.I1" output="PLB_CELL[1:1].I" />
-    <direct name="I2" input="PLB.I2" output="PLB_CELL[2:2].I" />
-    <direct name="I3" input="PLB.I3" output="PLB_CELL[3:3].I" />
-    <direct name="I4" input="PLB.I4" output="PLB_CELL[4:4].I" />
-    <direct name="I5" input="PLB.I5" output="PLB_CELL[5:5].I" />
-    <direct name="I6" input="PLB.I6" output="PLB_CELL[6:6].I" />
-    <direct name="I7" input="PLB.I7" output="PLB_CELL[7:7].I" />
-    <!-- Outputs -->
-    <direct name="O0" input="PLB_CELL[0:0].O" output="PLB.O0" />
-    <direct name="O1" input="PLB_CELL[1:1].O" output="PLB.O1" />
-    <direct name="O2" input="PLB_CELL[2:2].O" output="PLB.O2" />
-    <direct name="O3" input="PLB_CELL[3:3].O" output="PLB.O3" />
-    <direct name="O4" input="PLB_CELL[4:4].O" output="PLB.O4" />
-    <direct name="O5" input="PLB_CELL[5:5].O" output="PLB.O5" />
-    <direct name="O6" input="PLB_CELL[6:6].O" output="PLB.O6" />
-    <direct name="O7" input="PLB_CELL[7:7].O" output="PLB.O7" />
-    <!-- All flipflops inside a PLB share the CLK, SR & CE signal -->
-    <complete name="CLK" input="PLB.CLK" output="PLB_CELL[7:0].CLK" />
-    <!-- <mux name="SR" input="GND PLB.SR" output="PLB_CELL[7:0].SR" /> -->
-    <complete name="SR" input="PLB.SR" output="PLB_CELL[7:0].SR" />
-    <!-- <mux name="EN" input="VCC PLB.EN" output="PLB_CELL[7:0].EN" /> -->
-    <complete name="EN" input="PLB.EN" output="PLB_CELL[7:0].EN" />
+    <direct name="LUT.I[0]" input="lutff.in[0]"           output="LUT.I[0]" />
+    <direct name="LUT.I[1]" input="lutff.in[1]"           output="LUT.I[1]" />
+    <direct name="LUT.I[2]" input="lutff.in[2]"           output="LUT.I[2]" />
+    <mux    name="LUT.I[3]" input="lutff.in[3] lutff.cin" output="LUT.I[3]" />
+
+    <direct name="SB_CARRY.I0" input="lutff.in[1]" output="SB_CARRY.I0" />
+    <direct name="SB_CARRY.I1" input="lutff.in[2]" output="SB_CARRY.I1"  />
+
+    <direct name="lutff.cen" input="lutff.cen" output="SB_FF.E"/>
+    <direct name="lutff.clk" input="lutff.clk" output="SB_FF.C"/>
+    <direct name="lutff.s_r" input="lutff.s_r" output="SB_FF.S"/>
+    <direct name="LUT2FF"    input="LUT.O"     output="SB_FF.D"><!--
+     <pack_pattern name="LUT2FF" in_port="LUT.O" out_port="SB_FF.D" />
+    --></direct>
+
+    <direct name="lutff.lout" input="LUT.O"         output="lutff.lout" />
+    <mux    name="lutff.out"  input="LUT.O SB_FF.Q" output="lutff.out"  />
 
     <!-- Carry chain -->
-    <direct name="FCOUT" input="PLB_CELL[0:0].FCOUT" output="PLB.FCOUT"         ><pack_pattern name="CARRYCHAIN" in_port="PLB_CELL[0:0].FCOUT" out_port="PLB.FCOUT"         /> </direct>
-    <direct name="FCC0"  input="PLB_CELL[1:1].FCOUT" output="PLB_CELL[0:0].FCIN"><pack_pattern name="CARRYCHAIN" in_port="PLB_CELL[1:1].FCOUT" out_port="PLB_CELL[0:0].FCIN"/></direct>
-    <direct name="FCC1"  input="PLB_CELL[2:2].FCOUT" output="PLB_CELL[1:1].FCIN"><pack_pattern name="CARRYCHAIN" in_port="PLB_CELL[2:2].FCOUT" out_port="PLB_CELL[1:1].FCIN"/></direct>
-    <direct name="FCC2"  input="PLB_CELL[3:3].FCOUT" output="PLB_CELL[2:2].FCIN"><pack_pattern name="CARRYCHAIN" in_port="PLB_CELL[3:3].FCOUT" out_port="PLB_CELL[2:2].FCIN"/></direct>
-    <direct name="FCC3"  input="PLB_CELL[4:4].FCOUT" output="PLB_CELL[3:3].FCIN"><pack_pattern name="CARRYCHAIN" in_port="PLB_CELL[4:4].FCOUT" out_port="PLB_CELL[3:3].FCIN"/></direct>
-    <direct name="FCC4"  input="PLB_CELL[5:5].FCOUT" output="PLB_CELL[4:4].FCIN"><pack_pattern name="CARRYCHAIN" in_port="PLB_CELL[5:5].FCOUT" out_port="PLB_CELL[4:4].FCIN"/></direct>
-    <direct name="FCC5"  input="PLB_CELL[6:6].FCOUT" output="PLB_CELL[5:5].FCIN"><pack_pattern name="CARRYCHAIN" in_port="PLB_CELL[6:6].FCOUT" out_port="PLB_CELL[5:5].FCIN"/></direct>
-    <direct name="FCIN"  input="PLB.FCIN"            output="PLB_CELL[6:6].FCIN"><pack_pattern name="CARRYCHAIN" in_port="PLB.FCIN"            out_port="PLB_CELL[6:6].FCIN"/></direct>
+    <direct name="lutff.cin"  input="lutff.cin"   output="SB_CARRY.CI">
+     <pack_pattern name="CARRYCHAIN" in_port="lutff.cin" out_port="SB_CARRY.CI"/>
+    </direct>
+    <direct name="lutff.cout" input="SB_CARRY.CO" output="lutff.cout">
+     <pack_pattern name="CARRYCHAIN" in_port="SB_CARRY.CO" out_port="lutff.cout"/>
+    </direct>
+
    </interconnect>
-
-   <fc default_in_type="frac" default_in_val="0.0" default_out_type="frac" default_out_val="0.0">
-    <!-- Connect all the ports to 2 local tracks -->
-    <fc_override fc_type="abs" fc_val="2" port_name="I0"  segment_name="local" />
-    <fc_override fc_type="abs" fc_val="2" port_name="I1"  segment_name="local" />
-    <fc_override fc_type="abs" fc_val="2" port_name="I2"  segment_name="local" />
-    <fc_override fc_type="abs" fc_val="2" port_name="I3"  segment_name="local" />
-    <fc_override fc_type="abs" fc_val="2" port_name="I4"  segment_name="local" />
-    <fc_override fc_type="abs" fc_val="2" port_name="I5"  segment_name="local" />
-    <fc_override fc_type="abs" fc_val="2" port_name="I6"  segment_name="local" />
-    <fc_override fc_type="abs" fc_val="2" port_name="I7"  segment_name="local" />
-    <fc_override fc_type="abs" fc_val="2" port_name="O0"  segment_name="local" />
-    <fc_override fc_type="abs" fc_val="2" port_name="O1"  segment_name="local" />
-    <fc_override fc_type="abs" fc_val="2" port_name="O2"  segment_name="local" />
-    <fc_override fc_type="abs" fc_val="2" port_name="O3"  segment_name="local" />
-    <fc_override fc_type="abs" fc_val="2" port_name="O4"  segment_name="local" />
-    <fc_override fc_type="abs" fc_val="2" port_name="O5"  segment_name="local" />
-    <fc_override fc_type="abs" fc_val="2" port_name="O6"  segment_name="local" />
-    <fc_override fc_type="abs" fc_val="2" port_name="O7"  segment_name="local" />
-    <fc_override fc_type="abs" fc_val="2" port_name="EN"  segment_name="local" />
-    <fc_override fc_type="abs" fc_val="2" port_name="SR"  segment_name="local" />
-    <fc_override fc_type="abs" fc_val="2" port_name="CLK" segment_name="local" />
-
-    <!-- Carry chain doesn't connect to the interconnect -->
-    <fc_override fc_type="frac" fc_val="0" port_name="PLB.FCOUT"/>
-    <fc_override fc_type="frac" fc_val="0" port_name="PLB.FCIN"/>
-   </fc>
-
-   <pinlocations pattern="custom">
-    <loc side="right" xoffset="0" yoffset="0">
-     PLB.I0 PLB.I1 PLB.I2 PLB.I3 PLB.I4 PLB.I5 PLB.I6 PLB.I7
-     PLB.CLK PLB.EN PLB.SR
-     PLB.O0 PLB.O1 PLB.O2 PLB.O3 PLB.O4 PLB.O5 PLB.O6 PLB.O7
-    </loc>
-    <loc side="top" xoffset="0" yoffset="0">
-     PLB.FCOUT
-    </loc>
-    <loc side="bottom" xoffset="0" yoffset="0">
-     PLB.FCIN
-    </loc>
-   </pinlocations>
-   <switchblock_locations pattern="external_full_internal_straight"/>
   </pb_type>
-  <!-- End PLB -->
+
+  <pb_type name="global" num_pb="1">
+   <input name="i_cen" num_pins="1" equivalent="false" /><output name="o_cen" num_pins="1" equivalent="false" />
+   <!-- <clock name="i_clk" num_pins="1" equivalent="false" /><clock name="o_clk" num_pins="1" equivalent="false" /> -->
+   <input name="i_s_r" num_pins="1" equivalent="false" /><output name="o_s_r" num_pins="1" equivalent="false" />
+   <interconnect>
+    <direct name="cen" input="global.i_cen" output="global.o_cen"/>
+    <!-- <direct name="clk" input="global.i_clk" output="global.o_clk"/> -->
+    <direct name="s_r" input="global.i_s_r" output="global.o_s_r"/>
+   </interconnect>
+  </pb_type>
+
+  <!-- ################################################################ -->
+  <!-- # Local tracks onto logic                                      # -->
+  <!-- ################################################################ -->
+  <input  name="iglb2local" num_pins="4" equivalent="true"/>
+  <output name="oglb2local" num_pins="4" equivalent="true"/>
+
+  <input  name="ilocal_g0" num_pins="8" equivalent="true"/>
+  <output name="olocal_g0" num_pins="8" equivalent="true"/>
+
+  <input  name="ilocal_g1" num_pins="8" equivalent="true"/>
+  <output name="olocal_g1" num_pins="8" equivalent="true"/>
+
+  <input  name="ilocal_g2" num_pins="8" equivalent="true"/>
+  <output name="olocal_g2" num_pins="8" equivalent="true"/>
+
+  <input  name="ilocal_g3" num_pins="8" equivalent="true"/>
+  <output name="olocal_g3" num_pins="8" equivalent="true"/>
+
+  <input  name="glb_netwk" num_pins="8" equivalent="true"/>
+
+  <output name="lutff_out" num_pins="8" equivalent="false"/>
+
+  <input  name="carry_in_mux" num_pins="1" equivalent="false"/>
+  <output name="carry_out"    num_pins="1" equivalent="false"/>
+
+  <clock  name="clk" num_pins="1" equivalent="false"/>
+
+  <interconnect>
+   <!-- Connect the input and output pins together, as we don't have bidirectional pins -->
+   <direct name="local_g0"  input="LOCAL.ilocal_g0"  output="LOCAL.olocal_g0" />
+   <direct name="local_g1"  input="LOCAL.ilocal_g1"  output="LOCAL.olocal_g1" />
+   <direct name="local_g2"  input="LOCAL.ilocal_g2"  output="LOCAL.olocal_g2" />
+   <direct name="local_g3"  input="LOCAL.ilocal_g3"  output="LOCAL.olocal_g3" />
+   <direct name="glb2local" input="LOCAL.iglb2local" output="LOCAL.oglb2local" />
+
+   <!-- Direct connections -->
+   <direct name="lutff[0].out" input="lutff[0].out" output="LOCAL.lutff_out[0]" />
+   <direct name="lutff[1].out" input="lutff[1].out" output="LOCAL.lutff_out[1]" />
+   <direct name="lutff[2].out" input="lutff[2].out" output="LOCAL.lutff_out[2]" />
+   <direct name="lutff[3].out" input="lutff[3].out" output="LOCAL.lutff_out[3]" />
+   <direct name="lutff[4].out" input="lutff[4].out" output="LOCAL.lutff_out[4]" />
+   <direct name="lutff[5].out" input="lutff[5].out" output="LOCAL.lutff_out[5]" />
+   <direct name="lutff[6].out" input="lutff[6].out" output="LOCAL.lutff_out[6]" />
+   <direct name="lutff[7].out" input="lutff[7].out" output="LOCAL.lutff_out[7]" />
+
+   <!-- Carry chain -->
+   <direct name="carry[0]" input="LOCAL.carry_in_mux" output="lutff[0].cin"   ><pack_pattern name="CARRYCHAIN" in_port="LOCAL.carry_in_mux" out_port="lutff[0].cin"   /></direct>
+   <direct name="carry[1]" input="lutff[0].cout"      output="lutff[1].cin"   ><pack_pattern name="CARRYCHAIN" in_port="lutff[0].cout"      out_port="lutff[1].cin"   /></direct>
+   <direct name="carry[2]" input="lutff[1].cout"      output="lutff[2].cin"   ><pack_pattern name="CARRYCHAIN" in_port="lutff[1].cout"      out_port="lutff[2].cin"   /></direct>
+   <direct name="carry[3]" input="lutff[2].cout"      output="lutff[3].cin"   ><pack_pattern name="CARRYCHAIN" in_port="lutff[2].cout"      out_port="lutff[3].cin"   /></direct>
+   <direct name="carry[4]" input="lutff[3].cout"      output="lutff[4].cin"   ><pack_pattern name="CARRYCHAIN" in_port="lutff[3].cout"      out_port="lutff[4].cin"   /></direct>
+   <direct name="carry[5]" input="lutff[4].cout"      output="lutff[5].cin"   ><pack_pattern name="CARRYCHAIN" in_port="lutff[4].cout"      out_port="lutff[5].cin"   /></direct>
+   <direct name="carry[6]" input="lutff[5].cout"      output="lutff[6].cin"   ><pack_pattern name="CARRYCHAIN" in_port="lutff[5].cout"      out_port="lutff[6].cin"   /></direct>
+   <direct name="carry[7]" input="lutff[6].cout"      output="lutff[7].cin"   ><pack_pattern name="CARRYCHAIN" in_port="lutff[6].cout"      out_port="lutff[7].cin"   /></direct>
+   <direct name="carry[X]" input="lutff[7].cout"      output="LOCAL.carry_out"><pack_pattern name="CARRYCHAIN" in_port="lutff[7].cout"      out_port="LOCAL.carry_out"/></direct>
+
+   <!-- Logic Unit 0 -->
+   <mux name="lutff[0].in[0]" input="LOCAL.ilocal_g0[0] LOCAL.ilocal_g2[0] LOCAL.ilocal_g1[1] LOCAL.ilocal_g3[1] LOCAL.ilocal_g0[2] LOCAL.ilocal_g2[2] LOCAL.ilocal_g1[3] LOCAL.ilocal_g3[3] LOCAL.ilocal_g0[4] LOCAL.ilocal_g2[4] LOCAL.ilocal_g1[5] LOCAL.ilocal_g3[5] LOCAL.ilocal_g0[6] LOCAL.ilocal_g2[6] LOCAL.ilocal_g1[7] LOCAL.ilocal_g3[7]              " output="lutff[0].in[0]" />
+   <mux name="lutff[0].in[1]" input="LOCAL.ilocal_g0[1] LOCAL.ilocal_g0[3] LOCAL.ilocal_g0[5] LOCAL.ilocal_g0[7] LOCAL.ilocal_g2[1] LOCAL.ilocal_g2[3] LOCAL.ilocal_g2[5] LOCAL.ilocal_g2[7] LOCAL.ilocal_g1[0] LOCAL.ilocal_g1[2] LOCAL.ilocal_g1[4] LOCAL.ilocal_g1[6] LOCAL.ilocal_g3[0] LOCAL.ilocal_g3[2] LOCAL.ilocal_g3[4] LOCAL.ilocal_g3[6]              " output="lutff[0].in[1]" />
+   <mux name="lutff[0].in[2]" input="LOCAL.ilocal_g0[0] LOCAL.ilocal_g0[2] LOCAL.ilocal_g1[1] LOCAL.ilocal_g1[3] LOCAL.ilocal_g2[0] LOCAL.ilocal_g2[2] LOCAL.ilocal_g3[1] LOCAL.ilocal_g3[3] LOCAL.ilocal_g0[4] LOCAL.ilocal_g0[6] LOCAL.ilocal_g1[5] LOCAL.ilocal_g1[7] LOCAL.ilocal_g2[4] LOCAL.ilocal_g2[6] LOCAL.ilocal_g3[5] LOCAL.ilocal_g3[7]              " output="lutff[0].in[2]" />
+   <mux name="lutff[0].in[3]" input="LOCAL.carry_in_mux LOCAL.ilocal_g0[3] LOCAL.ilocal_g1[0] LOCAL.ilocal_g1[2] LOCAL.ilocal_g2[1] LOCAL.ilocal_g2[3] LOCAL.ilocal_g3[0] LOCAL.ilocal_g3[2] LOCAL.ilocal_g0[5] LOCAL.ilocal_g0[7] LOCAL.ilocal_g1[4] LOCAL.ilocal_g1[6] LOCAL.ilocal_g2[5] LOCAL.ilocal_g2[7] LOCAL.ilocal_g3[4] LOCAL.ilocal_g3[6]              " output="lutff[0].in[3]" />
+   <!-- Logic Unit 1 -->
+   <mux name="lutff[1].in[0]" input="LOCAL.ilocal_g0[1] LOCAL.ilocal_g2[1] LOCAL.ilocal_g1[0] LOCAL.ilocal_g3[0] LOCAL.ilocal_g0[3] LOCAL.ilocal_g2[3] LOCAL.ilocal_g1[2] LOCAL.ilocal_g3[2] LOCAL.ilocal_g0[5] LOCAL.ilocal_g2[5] LOCAL.ilocal_g1[4] LOCAL.ilocal_g3[4] LOCAL.ilocal_g0[7] LOCAL.ilocal_g2[7] LOCAL.ilocal_g1[6] LOCAL.ilocal_g3[6]              " output="lutff[1].in[0]" />
+   <mux name="lutff[1].in[1]" input="LOCAL.ilocal_g0[0] LOCAL.ilocal_g0[2] LOCAL.ilocal_g0[4] LOCAL.ilocal_g0[6] LOCAL.ilocal_g2[0] LOCAL.ilocal_g2[2] LOCAL.ilocal_g2[4] LOCAL.ilocal_g2[6] LOCAL.ilocal_g1[1] LOCAL.ilocal_g1[3] LOCAL.ilocal_g1[5] LOCAL.ilocal_g1[7] LOCAL.ilocal_g3[1] LOCAL.ilocal_g3[3] LOCAL.ilocal_g3[5] LOCAL.ilocal_g3[7]              " output="lutff[1].in[1]" />
+   <mux name="lutff[1].in[2]" input="LOCAL.ilocal_g0[1] LOCAL.ilocal_g0[3] LOCAL.ilocal_g1[0] LOCAL.ilocal_g1[2] LOCAL.ilocal_g2[1] LOCAL.ilocal_g2[3] LOCAL.ilocal_g3[0] LOCAL.ilocal_g3[2] LOCAL.ilocal_g0[5] LOCAL.ilocal_g0[7] LOCAL.ilocal_g1[4] LOCAL.ilocal_g1[6] LOCAL.ilocal_g2[5] LOCAL.ilocal_g2[7] LOCAL.ilocal_g3[4] LOCAL.ilocal_g3[6] lutff[0].lout" output="lutff[1].in[2]" />
+   <mux name="lutff[1].in[3]" input="lutff[0].cout      LOCAL.ilocal_g0[2] LOCAL.ilocal_g1[1] LOCAL.ilocal_g1[3] LOCAL.ilocal_g2[0] LOCAL.ilocal_g2[2] LOCAL.ilocal_g3[1] LOCAL.ilocal_g3[3] LOCAL.ilocal_g0[4] LOCAL.ilocal_g0[6] LOCAL.ilocal_g1[5] LOCAL.ilocal_g1[7] LOCAL.ilocal_g2[4] LOCAL.ilocal_g2[6] LOCAL.ilocal_g3[5] LOCAL.ilocal_g3[7]              " output="lutff[1].in[3]" />
+   <!-- Logic Unit 2 -->
+   <mux name="lutff[2].in[0]" input="LOCAL.ilocal_g0[0] LOCAL.ilocal_g2[0] LOCAL.ilocal_g1[1] LOCAL.ilocal_g3[1] LOCAL.ilocal_g0[2] LOCAL.ilocal_g2[2] LOCAL.ilocal_g1[3] LOCAL.ilocal_g3[3] LOCAL.ilocal_g0[4] LOCAL.ilocal_g2[4] LOCAL.ilocal_g1[5] LOCAL.ilocal_g3[5] LOCAL.ilocal_g0[6] LOCAL.ilocal_g2[6] LOCAL.ilocal_g1[7] LOCAL.ilocal_g3[7]              " output="lutff[2].in[0]" />
+   <mux name="lutff[2].in[1]" input="LOCAL.ilocal_g0[1] LOCAL.ilocal_g0[3] LOCAL.ilocal_g0[5] LOCAL.ilocal_g0[7] LOCAL.ilocal_g2[1] LOCAL.ilocal_g2[3] LOCAL.ilocal_g2[5] LOCAL.ilocal_g2[7] LOCAL.ilocal_g1[0] LOCAL.ilocal_g1[2] LOCAL.ilocal_g1[4] LOCAL.ilocal_g1[6] LOCAL.ilocal_g3[0] LOCAL.ilocal_g3[2] LOCAL.ilocal_g3[4] LOCAL.ilocal_g3[6]              " output="lutff[2].in[1]" />
+   <mux name="lutff[2].in[2]" input="LOCAL.ilocal_g0[0] LOCAL.ilocal_g0[2] LOCAL.ilocal_g1[1] LOCAL.ilocal_g1[3] LOCAL.ilocal_g2[0] LOCAL.ilocal_g2[2] LOCAL.ilocal_g3[1] LOCAL.ilocal_g3[3] LOCAL.ilocal_g0[4] LOCAL.ilocal_g0[6] LOCAL.ilocal_g1[5] LOCAL.ilocal_g1[7] LOCAL.ilocal_g2[4] LOCAL.ilocal_g2[6] LOCAL.ilocal_g3[5] LOCAL.ilocal_g3[7] lutff[1].lout" output="lutff[2].in[2]" />
+   <mux name="lutff[2].in[3]" input="lutff[1].cout      LOCAL.ilocal_g0[3] LOCAL.ilocal_g1[0] LOCAL.ilocal_g1[2] LOCAL.ilocal_g2[1] LOCAL.ilocal_g2[3] LOCAL.ilocal_g3[0] LOCAL.ilocal_g3[2] LOCAL.ilocal_g0[5] LOCAL.ilocal_g0[7] LOCAL.ilocal_g1[4] LOCAL.ilocal_g1[6] LOCAL.ilocal_g2[5] LOCAL.ilocal_g2[7] LOCAL.ilocal_g3[4] LOCAL.ilocal_g3[6]              " output="lutff[2].in[3]" />
+   <!-- Logic Unit 3 -->
+   <mux name="lutff[3].in[0]" input="LOCAL.ilocal_g0[1] LOCAL.ilocal_g2[1] LOCAL.ilocal_g1[0] LOCAL.ilocal_g3[0] LOCAL.ilocal_g0[3] LOCAL.ilocal_g2[3] LOCAL.ilocal_g1[2] LOCAL.ilocal_g3[2] LOCAL.ilocal_g0[5] LOCAL.ilocal_g2[5] LOCAL.ilocal_g1[4] LOCAL.ilocal_g3[4] LOCAL.ilocal_g0[7] LOCAL.ilocal_g2[7] LOCAL.ilocal_g1[6] LOCAL.ilocal_g3[6]              " output="lutff[3].in[0]" />
+   <mux name="lutff[3].in[1]" input="LOCAL.ilocal_g0[0] LOCAL.ilocal_g0[2] LOCAL.ilocal_g0[4] LOCAL.ilocal_g0[6] LOCAL.ilocal_g2[0] LOCAL.ilocal_g2[2] LOCAL.ilocal_g2[4] LOCAL.ilocal_g2[6] LOCAL.ilocal_g1[1] LOCAL.ilocal_g1[3] LOCAL.ilocal_g1[5] LOCAL.ilocal_g1[7] LOCAL.ilocal_g3[1] LOCAL.ilocal_g3[3] LOCAL.ilocal_g3[5] LOCAL.ilocal_g3[7]              " output="lutff[3].in[1]" />
+   <mux name="lutff[3].in[2]" input="LOCAL.ilocal_g0[1] LOCAL.ilocal_g0[3] LOCAL.ilocal_g1[0] LOCAL.ilocal_g1[2] LOCAL.ilocal_g2[1] LOCAL.ilocal_g2[3] LOCAL.ilocal_g3[0] LOCAL.ilocal_g3[2] LOCAL.ilocal_g0[5] LOCAL.ilocal_g0[7] LOCAL.ilocal_g1[4] LOCAL.ilocal_g1[6] LOCAL.ilocal_g2[5] LOCAL.ilocal_g2[7] LOCAL.ilocal_g3[4] LOCAL.ilocal_g3[6] lutff[2].lout" output="lutff[3].in[2]" />
+   <mux name="lutff[3].in[3]" input="lutff[2].cout      LOCAL.ilocal_g0[2] LOCAL.ilocal_g1[1] LOCAL.ilocal_g1[3] LOCAL.ilocal_g2[0] LOCAL.ilocal_g2[2] LOCAL.ilocal_g3[1] LOCAL.ilocal_g3[3] LOCAL.ilocal_g0[4] LOCAL.ilocal_g0[6] LOCAL.ilocal_g1[5] LOCAL.ilocal_g1[7] LOCAL.ilocal_g2[4] LOCAL.ilocal_g2[6] LOCAL.ilocal_g3[5] LOCAL.ilocal_g3[7]              " output="lutff[3].in[3]" />
+   <!-- Logic Unit 4 -->
+   <mux name="lutff[4].in[0]" input="LOCAL.ilocal_g0[0] LOCAL.ilocal_g2[0] LOCAL.ilocal_g1[1] LOCAL.ilocal_g3[1] LOCAL.ilocal_g0[2] LOCAL.ilocal_g2[2] LOCAL.ilocal_g1[3] LOCAL.ilocal_g3[3] LOCAL.ilocal_g0[4] LOCAL.ilocal_g2[4] LOCAL.ilocal_g1[5] LOCAL.ilocal_g3[5] LOCAL.ilocal_g0[6] LOCAL.ilocal_g2[6] LOCAL.ilocal_g1[7] LOCAL.ilocal_g3[7]              " output="lutff[4].in[0]" />
+   <mux name="lutff[4].in[1]" input="LOCAL.ilocal_g0[1] LOCAL.ilocal_g0[3] LOCAL.ilocal_g0[5] LOCAL.ilocal_g0[7] LOCAL.ilocal_g2[1] LOCAL.ilocal_g2[3] LOCAL.ilocal_g2[5] LOCAL.ilocal_g2[7] LOCAL.ilocal_g1[0] LOCAL.ilocal_g1[2] LOCAL.ilocal_g1[4] LOCAL.ilocal_g1[6] LOCAL.ilocal_g3[0] LOCAL.ilocal_g3[2] LOCAL.ilocal_g3[4] LOCAL.ilocal_g3[6]              " output="lutff[4].in[1]" />
+   <mux name="lutff[4].in[2]" input="LOCAL.ilocal_g0[0] LOCAL.ilocal_g0[2] LOCAL.ilocal_g1[1] LOCAL.ilocal_g1[3] LOCAL.ilocal_g2[0] LOCAL.ilocal_g2[2] LOCAL.ilocal_g3[1] LOCAL.ilocal_g3[3] LOCAL.ilocal_g0[4] LOCAL.ilocal_g0[6] LOCAL.ilocal_g1[5] LOCAL.ilocal_g1[7] LOCAL.ilocal_g2[4] LOCAL.ilocal_g2[6] LOCAL.ilocal_g3[5] LOCAL.ilocal_g3[7] lutff[3].lout" output="lutff[4].in[2]" />
+   <mux name="lutff[4].in[3]" input="lutff[3].cout      LOCAL.ilocal_g0[3] LOCAL.ilocal_g1[0] LOCAL.ilocal_g1[2] LOCAL.ilocal_g2[1] LOCAL.ilocal_g2[3] LOCAL.ilocal_g3[0] LOCAL.ilocal_g3[2] LOCAL.ilocal_g0[5] LOCAL.ilocal_g0[7] LOCAL.ilocal_g1[4] LOCAL.ilocal_g1[6] LOCAL.ilocal_g2[5] LOCAL.ilocal_g2[7] LOCAL.ilocal_g3[4] LOCAL.ilocal_g3[6]              " output="lutff[4].in[3]" />
+   <!-- Logic Unit 5 -->
+   <mux name="lutff[5].in[0]" input="LOCAL.ilocal_g0[1] LOCAL.ilocal_g2[1] LOCAL.ilocal_g1[0] LOCAL.ilocal_g3[0] LOCAL.ilocal_g0[3] LOCAL.ilocal_g2[3] LOCAL.ilocal_g1[2] LOCAL.ilocal_g3[2] LOCAL.ilocal_g0[5] LOCAL.ilocal_g2[5] LOCAL.ilocal_g1[4] LOCAL.ilocal_g3[4] LOCAL.ilocal_g0[7] LOCAL.ilocal_g2[7] LOCAL.ilocal_g1[6] LOCAL.ilocal_g3[6]              " output="lutff[5].in[0]" />
+   <mux name="lutff[5].in[1]" input="LOCAL.ilocal_g0[0] LOCAL.ilocal_g0[2] LOCAL.ilocal_g0[4] LOCAL.ilocal_g0[6] LOCAL.ilocal_g2[0] LOCAL.ilocal_g2[2] LOCAL.ilocal_g2[4] LOCAL.ilocal_g2[6] LOCAL.ilocal_g1[1] LOCAL.ilocal_g1[3] LOCAL.ilocal_g1[5] LOCAL.ilocal_g1[7] LOCAL.ilocal_g3[1] LOCAL.ilocal_g3[3] LOCAL.ilocal_g3[5] LOCAL.ilocal_g3[7]              " output="lutff[5].in[1]" />
+   <mux name="lutff[5].in[2]" input="LOCAL.ilocal_g0[1] LOCAL.ilocal_g0[3] LOCAL.ilocal_g1[0] LOCAL.ilocal_g1[2] LOCAL.ilocal_g2[1] LOCAL.ilocal_g2[3] LOCAL.ilocal_g3[0] LOCAL.ilocal_g3[2] LOCAL.ilocal_g0[5] LOCAL.ilocal_g0[7] LOCAL.ilocal_g1[4] LOCAL.ilocal_g1[6] LOCAL.ilocal_g2[5] LOCAL.ilocal_g2[7] LOCAL.ilocal_g3[4] LOCAL.ilocal_g3[6]              " output="lutff[5].in[2]" />
+   <mux name="lutff[5].in[3]" input="lutff[4].cout      LOCAL.ilocal_g0[2] LOCAL.ilocal_g1[1] LOCAL.ilocal_g1[3] LOCAL.ilocal_g2[0] LOCAL.ilocal_g2[2] LOCAL.ilocal_g3[1] LOCAL.ilocal_g3[3] LOCAL.ilocal_g0[4] LOCAL.ilocal_g0[6] LOCAL.ilocal_g1[5] LOCAL.ilocal_g1[7] LOCAL.ilocal_g2[4] LOCAL.ilocal_g2[6] LOCAL.ilocal_g3[5] LOCAL.ilocal_g3[7]              " output="lutff[5].in[3]" />
+   <!-- Logic Unit 6 -->
+   <mux name="lutff[6].in[0]" input="LOCAL.ilocal_g0[0] LOCAL.ilocal_g2[0] LOCAL.ilocal_g1[1] LOCAL.ilocal_g3[1] LOCAL.ilocal_g0[2] LOCAL.ilocal_g2[2] LOCAL.ilocal_g1[3] LOCAL.ilocal_g3[3] LOCAL.ilocal_g0[4] LOCAL.ilocal_g2[4] LOCAL.ilocal_g1[5] LOCAL.ilocal_g3[5] LOCAL.ilocal_g0[6] LOCAL.ilocal_g2[6] LOCAL.ilocal_g1[7] LOCAL.ilocal_g3[7]              " output="lutff[6].in[0]" />
+   <mux name="lutff[6].in[1]" input="LOCAL.ilocal_g0[1] LOCAL.ilocal_g0[3] LOCAL.ilocal_g0[5] LOCAL.ilocal_g0[7] LOCAL.ilocal_g2[1] LOCAL.ilocal_g2[3] LOCAL.ilocal_g2[5] LOCAL.ilocal_g2[7] LOCAL.ilocal_g1[0] LOCAL.ilocal_g1[2] LOCAL.ilocal_g1[4] LOCAL.ilocal_g1[6] LOCAL.ilocal_g3[0] LOCAL.ilocal_g3[2] LOCAL.ilocal_g3[4] LOCAL.ilocal_g3[6]              " output="lutff[6].in[1]" />
+   <mux name="lutff[6].in[2]" input="LOCAL.ilocal_g0[0] LOCAL.ilocal_g0[2] LOCAL.ilocal_g1[1] LOCAL.ilocal_g1[3] LOCAL.ilocal_g2[0] LOCAL.ilocal_g2[2] LOCAL.ilocal_g3[1] LOCAL.ilocal_g3[3] LOCAL.ilocal_g0[4] LOCAL.ilocal_g0[6] LOCAL.ilocal_g1[5] LOCAL.ilocal_g1[7] LOCAL.ilocal_g2[4] LOCAL.ilocal_g2[6] LOCAL.ilocal_g3[5] LOCAL.ilocal_g3[7] lutff[5].lout" output="lutff[6].in[2]" />
+   <mux name="lutff[6].in[3]" input="lutff[5].cout      LOCAL.ilocal_g0[3] LOCAL.ilocal_g1[0] LOCAL.ilocal_g1[2] LOCAL.ilocal_g2[1] LOCAL.ilocal_g2[3] LOCAL.ilocal_g3[0] LOCAL.ilocal_g3[2] LOCAL.ilocal_g0[5] LOCAL.ilocal_g0[7] LOCAL.ilocal_g1[4] LOCAL.ilocal_g1[6] LOCAL.ilocal_g2[5] LOCAL.ilocal_g2[7] LOCAL.ilocal_g3[4] LOCAL.ilocal_g3[6]              " output="lutff[6].in[3]" />
+   <!-- Logic Unit 7 -->
+   <mux name="lutff[7].in[0]" input="LOCAL.ilocal_g0[1] LOCAL.ilocal_g2[1] LOCAL.ilocal_g1[0] LOCAL.ilocal_g3[0] LOCAL.ilocal_g0[3] LOCAL.ilocal_g2[3] LOCAL.ilocal_g1[2] LOCAL.ilocal_g3[2] LOCAL.ilocal_g0[5] LOCAL.ilocal_g2[5] LOCAL.ilocal_g1[4] LOCAL.ilocal_g3[4] LOCAL.ilocal_g0[7] LOCAL.ilocal_g2[7] LOCAL.ilocal_g1[6] LOCAL.ilocal_g3[6]              " output="lutff[7].in[0]" />
+   <mux name="lutff[7].in[1]" input="LOCAL.ilocal_g0[0] LOCAL.ilocal_g0[2] LOCAL.ilocal_g0[4] LOCAL.ilocal_g0[6] LOCAL.ilocal_g2[0] LOCAL.ilocal_g2[2] LOCAL.ilocal_g2[4] LOCAL.ilocal_g2[6] LOCAL.ilocal_g1[1] LOCAL.ilocal_g1[3] LOCAL.ilocal_g1[5] LOCAL.ilocal_g1[7] LOCAL.ilocal_g3[1] LOCAL.ilocal_g3[3] LOCAL.ilocal_g3[5] LOCAL.ilocal_g3[7]              " output="lutff[7].in[1]" />
+   <mux name="lutff[7].in[2]" input="LOCAL.ilocal_g0[1] LOCAL.ilocal_g0[3] LOCAL.ilocal_g1[0] LOCAL.ilocal_g1[2] LOCAL.ilocal_g2[1] LOCAL.ilocal_g2[3] LOCAL.ilocal_g3[0] LOCAL.ilocal_g3[2] LOCAL.ilocal_g0[5] LOCAL.ilocal_g0[7] LOCAL.ilocal_g1[4] LOCAL.ilocal_g1[6] LOCAL.ilocal_g2[5] LOCAL.ilocal_g2[7] LOCAL.ilocal_g3[4] LOCAL.ilocal_g3[6] lutff[6].lout" output="lutff[7].in[2]" />
+   <mux name="lutff[7].in[3]" input="lutff[6].cout      LOCAL.ilocal_g0[2] LOCAL.ilocal_g1[1] LOCAL.ilocal_g1[3] LOCAL.ilocal_g2[0] LOCAL.ilocal_g2[2] LOCAL.ilocal_g3[1] LOCAL.ilocal_g3[3] LOCAL.ilocal_g0[4] LOCAL.ilocal_g0[6] LOCAL.ilocal_g1[5] LOCAL.ilocal_g1[7] LOCAL.ilocal_g2[4] LOCAL.ilocal_g2[6] LOCAL.ilocal_g3[5] LOCAL.ilocal_g3[7]              " output="lutff[7].in[3]" />
+   <!-- Logic Global -->
+   <mux name="lutff_global/i_cen" input="LOCAL.ilocal_g0[2] LOCAL.ilocal_g1[3] LOCAL.ilocal_g2[2] LOCAL.ilocal_g3[3] LOCAL.glb_netwk[1] LOCAL.glb_netwk[3] LOCAL.glb_netwk[5] LOCAL.glb_netwk[7]" output="global.i_cen" />
+   <mux name="lutff_global/i_s_r" input="LOCAL.ilocal_g0[4] LOCAL.ilocal_g1[5] LOCAL.ilocal_g2[4] LOCAL.ilocal_g3[5] LOCAL.glb_netwk[0] LOCAL.glb_netwk[2] LOCAL.glb_netwk[4] LOCAL.glb_netwk[6]" output="global.i_s_r" />
+   <!--
+   <mux name="lutff_global/i_clk" input="LOCAL.ilocal_g0[0] LOCAL.ilocal_g1[1] LOCAL.ilocal_g2[0] LOCAL.ilocal_g3[1] LOCAL.glb_netwk[0] LOCAL.glb_netwk[1] LOCAL.glb_netwk[2] LOCAL.glb_netwk[3]
+                                         LOCAL.glb_netwk[4] LOCAL.glb_netwk[5] LOCAL.glb_netwk[6] LOCAL.glb_netwk[7]"                                                                             output="global._clk" />
+   -->
+   <direct name="lutff_global->lutff[0].cen" input="global.o_cen" output="lutff[0].cen" />
+   <direct name="lutff_global->lutff[1].cen" input="global.o_cen" output="lutff[1].cen" />
+   <direct name="lutff_global->lutff[2].cen" input="global.o_cen" output="lutff[2].cen" />
+   <direct name="lutff_global->lutff[3].cen" input="global.o_cen" output="lutff[3].cen" />
+   <direct name="lutff_global->lutff[4].cen" input="global.o_cen" output="lutff[4].cen" />
+   <direct name="lutff_global->lutff[5].cen" input="global.o_cen" output="lutff[5].cen" />
+   <direct name="lutff_global->lutff[6].cen" input="global.o_cen" output="lutff[6].cen" />
+   <direct name="lutff_global->lutff[7].cen" input="global.o_cen" output="lutff[7].cen" />
+   <!--
+   <direct name="lutff_global->lutff[0].clk" input="global.i_clk" output="lutff[0].clk" />
+   <direct name="lutff_global->lutff[1].clk" input="global.i_clk" output="lutff[1].clk" />
+   <direct name="lutff_global->lutff[2].clk" input="global.i_clk" output="lutff[2].clk" />
+   <direct name="lutff_global->lutff[3].clk" input="global.i_clk" output="lutff[3].clk" />
+   <direct name="lutff_global->lutff[4].clk" input="global.i_clk" output="lutff[4].clk" />
+   <direct name="lutff_global->lutff[5].clk" input="global.i_clk" output="lutff[5].clk" />
+   <direct name="lutff_global->lutff[6].clk" input="global.i_clk" output="lutff[6].clk" />
+   <direct name="lutff_global->lutff[7].clk" input="global.i_clk" output="lutff[7].clk" />
+   -->
+   <direct name="lutff[0].clk" input="LOCAL.clk" output="lutff[0].clk" />
+   <direct name="lutff[1].clk" input="LOCAL.clk" output="lutff[1].clk" />
+   <direct name="lutff[2].clk" input="LOCAL.clk" output="lutff[2].clk" />
+   <direct name="lutff[3].clk" input="LOCAL.clk" output="lutff[3].clk" />
+   <direct name="lutff[4].clk" input="LOCAL.clk" output="lutff[4].clk" />
+   <direct name="lutff[5].clk" input="LOCAL.clk" output="lutff[5].clk" />
+   <direct name="lutff[6].clk" input="LOCAL.clk" output="lutff[6].clk" />
+   <direct name="lutff[7].clk" input="LOCAL.clk" output="lutff[7].clk" />
+
+   <direct name="lutff_global->lutff[0].s_r" input="global.o_s_r" output="lutff[0].s_r" />
+   <direct name="lutff_global->lutff[1].s_r" input="global.o_s_r" output="lutff[1].s_r" />
+   <direct name="lutff_global->lutff[2].s_r" input="global.o_s_r" output="lutff[2].s_r" />
+   <direct name="lutff_global->lutff[3].s_r" input="global.o_s_r" output="lutff[3].s_r" />
+   <direct name="lutff_global->lutff[4].s_r" input="global.o_s_r" output="lutff[4].s_r" />
+   <direct name="lutff_global->lutff[5].s_r" input="global.o_s_r" output="lutff[5].s_r" />
+   <direct name="lutff_global->lutff[6].s_r" input="global.o_s_r" output="lutff[6].s_r" />
+   <direct name="lutff_global->lutff[7].s_r" input="global.o_s_r" output="lutff[7].s_r" />
+
+  </interconnect>
+ </pb_type>
+
+ <!-- ################################################################ -->
+ <!-- # External wires onto the local tracks                         # -->
+ <!-- ################################################################ -->
+
+ <clock  name="clk"  num_pins="1" equivalent="false"/>
+
+ <!-- carry in / carry out -->
+ <output name="carry_out" num_pins="1" equivalent="false"/>
+ <input  name="carry_in"  num_pins="1" equivalent="false"/>
+
+ <!-- Local neighbourhood ############################################ -->
+ <input  name="o_neigh_op_top" num_pins="8" equivalent="true"/>
+ <input  name="o_neigh_op_tnr" num_pins="8" equivalent="true"/>
+ <input  name="o_neigh_op_rgt" num_pins="8" equivalent="true"/>
+ <input  name="o_neigh_op_bnr" num_pins="8" equivalent="true"/>
+ <input  name="o_neigh_op_bot" num_pins="8" equivalent="true"/>
+ <input  name="o_neigh_op_bnl" num_pins="8" equivalent="true"/>
+ <input  name="o_neigh_op_lft" num_pins="8" equivalent="true"/>
+ <input  name="o_neigh_op_tnl" num_pins="8" equivalent="true"/>
+
+ <input  name="i_neigh_op_top" num_pins="8" equivalent="true"/>
+ <input  name="i_neigh_op_tnr" num_pins="8" equivalent="true"/>
+ <input  name="i_neigh_op_rgt" num_pins="8" equivalent="true"/>
+ <input  name="i_neigh_op_bnr" num_pins="8" equivalent="true"/>
+ <input  name="i_neigh_op_bot" num_pins="8" equivalent="true"/>
+ <input  name="i_neigh_op_bnl" num_pins="8" equivalent="true"/>
+ <input  name="i_neigh_op_lft" num_pins="8" equivalent="true"/>
+ <input  name="i_neigh_op_tnl" num_pins="8" equivalent="true"/>
+
+ <!-- Vertical spans ################################################# -->
+ <!-- Span-4 Vertical -->
+ <input  name="i_sp4_v_t"   num_pins="48" equivalent="true"/>
+ <output name="o_sp4_v_t"   num_pins="48" equivalent="true"/>
+ <input  name="i_sp4_v_b"   num_pins="48" equivalent="true"/>
+ <output name="o_sp4_v_b"   num_pins="48" equivalent="true"/>
+
+ <!-- Span-4 Right Vertical -->
+ <input  name="i_sp4_r_v_b" num_pins="48" equivalent="true"/>
+ <output name="o_sp4_r_v_b" num_pins="48" equivalent="true"/>
+ <input  name="i_sp4_l_v_b" num_pins="48" equivalent="true"/>
+ <output name="o_sp4_l_v_b" num_pins="48" equivalent="true"/>
+
+ <!-- Span-12 Vertical -->
+ <input  name="i_sp12_v_t"  num_pins="24" equivalent="true"/>
+ <output name="o_sp12_v_t"  num_pins="24" equivalent="true"/>
+ <input  name="i_sp12_v_b"  num_pins="24" equivalent="true"/>
+ <output name="o_sp12_v_b"  num_pins="24" equivalent="true"/>
+
+ <!-- Horizontal spans ############################################### -->
+ <!-- Span-4 Horizontal -->
+ <input  name="i_sp4_h_r"   num_pins="48" equivalent="true"/>
+ <output name="o_sp4_h_r"   num_pins="48" equivalent="true"/>
+ <input  name="i_sp4_h_l"   num_pins="48" equivalent="true"/>
+ <output name="o_sp4_h_l"   num_pins="48" equivalent="true"/>
+
+ <!-- Span-12 Horizontal -->
+ <input  name="i_sp12_h_r"  num_pins="24" equivalent="true"/>
+ <output name="o_sp12_h_r"  num_pins="24" equivalent="true"/>
+ <input  name="i_sp12_h_l"  num_pins="24" equivalent="true"/>
+ <output name="o_sp12_h_l"  num_pins="24" equivalent="true"/>
+
+ <!-- Global wires ################################################### -->
+ <input  name="i_glb_netwk" num_pins="8" equivalent="true"/>
+ <output name="o_glb_netwk" num_pins="8" equivalent="true"/>
+
+ <!-- <pb_type name="LOGIC" num_pb="8"> - See above -->
+
+ <interconnect>
+  <direct name="clk" input="LOGIC.clk" output="LOCAL.clk" />
+  <!-- Carry chain -->
+  <mux    name="carry_in"  input="LOGIC.carry_in"  output="LOCAL.carry_in_mux" ><pack_pattern name="CARRYCHAIN" in_port="LOGIC.carry_in"  out_port="LOCAL.carry_in_mux" /></mux>
+  <direct name="carry_out" input="LOCAL.carry_out" output="LOGIC.carry_out"    ><pack_pattern name="CARRYCHAIN" in_port="LOCAL.carry_out" out_port="LOGIC.carry_out"    /></direct>
+
+  <!-- Global Networks -> Local Tracks -->
+  <mux name="glb2local[0]" input="LOGIC.i_glb_netwk[0] LOGIC.i_glb_netwk[1] LOGIC.i_glb_netwk[2] LOGIC.i_glb_netwk[3] LOGIC.i_glb_netwk[4] LOGIC.i_glb_netwk[5] LOGIC.i_glb_netwk[6] LOGIC.i_glb_netwk[7]" output="LOCAL.iglb2local[0]" />
+  <mux name="glb2local[1]" input="LOGIC.i_glb_netwk[0] LOGIC.i_glb_netwk[1] LOGIC.i_glb_netwk[2] LOGIC.i_glb_netwk[3] LOGIC.i_glb_netwk[4] LOGIC.i_glb_netwk[5] LOGIC.i_glb_netwk[6] LOGIC.i_glb_netwk[7]" output="LOCAL.iglb2local[1]" />
+  <mux name="glb2local[2]" input="LOGIC.i_glb_netwk[0] LOGIC.i_glb_netwk[1] LOGIC.i_glb_netwk[2] LOGIC.i_glb_netwk[3] LOGIC.i_glb_netwk[4] LOGIC.i_glb_netwk[5] LOGIC.i_glb_netwk[6] LOGIC.i_glb_netwk[7]" output="LOCAL.iglb2local[2]" />
+  <mux name="glb2local[3]" input="LOGIC.i_glb_netwk[0] LOGIC.i_glb_netwk[1] LOGIC.i_glb_netwk[2] LOGIC.i_glb_netwk[3] LOGIC.i_glb_netwk[4] LOGIC.i_glb_netwk[5] LOGIC.i_glb_netwk[6] LOGIC.i_glb_netwk[7]" output="LOCAL.iglb2local[3]" />
+
+  <!-- External networks -> Local Tracks -->
+  <mux name="local_g0[0]" input="LOGIC.i_sp4_r_v_b[24] LOGIC.i_sp12_h_r[8]   LOGIC.i_neigh_op_bot[0] LOGIC.i_sp4_v_b[16]     LOGIC.i_sp4_r_v_b[35] LOGIC.i_sp12_h_r[16] LOGIC.i_neigh_op_top[0] LOGIC.i_sp4_h_r[0]  LOCAL.lutff_out[0]      LOGIC.i_sp4_v_b[0]      LOGIC.i_neigh_op_lft[0] LOGIC.i_sp4_h_r[8]  LOGIC.i_neigh_op_bnr[0] LOGIC.i_sp4_v_b[8]  LOGIC.i_sp12_h_r[0] LOGIC.i_sp4_h_r[16]" output="LOCAL.ilocal_g0[0]" />
+  <mux name="local_g0[1]" input="LOGIC.i_sp4_r_v_b[25] LOGIC.i_sp4_r_v_b[34] LOCAL.lutff_out[1]      LOGIC.i_neigh_op_bnr[1] LOGIC.i_sp12_h_r[9]   LOGIC.i_sp12_h_r[17] LOGIC.i_sp4_v_b[1]      LOGIC.i_sp4_v_b[9]  LOGIC.i_neigh_op_bot[1] LOGIC.i_neigh_op_top[1] LOGIC.i_neigh_op_lft[1] LOGIC.i_sp12_h_r[1] LOGIC.i_sp4_v_b[17]     LOGIC.i_sp4_h_r[1]  LOGIC.i_sp4_h_r[9]  LOGIC.i_sp4_h_r[17]" output="LOCAL.ilocal_g0[1]" />
+  <mux name="local_g0[2]" input="LOGIC.i_sp4_r_v_b[26] LOGIC.i_sp4_r_v_b[33] LOGIC.i_neigh_op_bot[2] LOGIC.i_neigh_op_top[2] LOGIC.i_sp12_h_r[10]  LOGIC.i_sp12_h_r[18] LOGIC.i_sp4_v_b[18]     LOGIC.i_sp4_h_r[2]  LOCAL.lutff_out[2]      LOGIC.i_neigh_op_bnr[2] LOGIC.i_neigh_op_lft[2] LOGIC.i_sp12_h_r[2] LOGIC.i_sp4_v_b[2]      LOGIC.i_sp4_v_b[10] LOGIC.i_sp4_h_r[10] LOGIC.i_sp4_h_r[18]" output="LOCAL.ilocal_g0[2]" />
+  <mux name="local_g0[3]" input="LOGIC.i_sp4_r_v_b[27] LOGIC.i_sp4_r_v_b[32] LOGIC.i_neigh_op_bot[3] LOGIC.i_neigh_op_top[3] LOGIC.i_sp12_h_r[11]  LOGIC.i_sp12_h_r[19] LOGIC.i_sp4_v_b[19]     LOGIC.i_sp4_h_r[3]  LOCAL.lutff_out[3]      LOGIC.i_neigh_op_bnr[3] LOGIC.i_neigh_op_lft[3] LOGIC.i_sp12_h_r[3] LOGIC.i_sp4_v_b[3]      LOGIC.i_sp4_v_b[11] LOGIC.i_sp4_h_r[11] LOGIC.i_sp4_h_r[19]" output="LOCAL.ilocal_g0[3]" />
+  <mux name="local_g0[4]" input="LOCAL.oglb2local[0]   LOGIC.i_sp12_h_r[12]  LOGIC.i_neigh_op_bot[4] LOGIC.i_sp4_v_b[20]     LOGIC.i_sp4_r_v_b[28] LOGIC.i_sp12_h_r[20] LOGIC.i_neigh_op_top[4] LOGIC.i_sp4_h_r[4]  LOCAL.lutff_out[4]      LOGIC.i_sp4_v_b[4]      LOGIC.i_neigh_op_lft[4] LOGIC.i_sp4_h_r[12] LOGIC.i_neigh_op_bnr[4] LOGIC.i_sp4_v_b[12] LOGIC.i_sp12_h_r[4] LOGIC.i_sp4_h_r[20]" output="LOCAL.ilocal_g0[4]" />
+  <mux name="local_g0[5]" input="LOCAL.oglb2local[1]   LOGIC.i_sp4_r_v_b[29] LOCAL.lutff_out[5]      LOGIC.i_neigh_op_bnr[5] LOGIC.i_sp12_h_r[13]  LOGIC.i_sp12_h_r[21] LOGIC.i_sp4_v_b[5]      LOGIC.i_sp4_v_b[13] LOGIC.i_neigh_op_bot[5] LOGIC.i_neigh_op_top[5] LOGIC.i_neigh_op_lft[5] LOGIC.i_sp12_h_r[5] LOGIC.i_sp4_v_b[21]     LOGIC.i_sp4_h_r[5]  LOGIC.i_sp4_h_r[13] LOGIC.i_sp4_h_r[21]" output="LOCAL.ilocal_g0[5]" />
+  <mux name="local_g0[6]" input="LOCAL.oglb2local[2]   LOGIC.i_sp4_r_v_b[30] LOGIC.i_neigh_op_bot[6] LOGIC.i_neigh_op_top[6] LOGIC.i_sp12_h_r[14]  LOGIC.i_sp12_h_r[22] LOGIC.i_sp4_v_b[22]     LOGIC.i_sp4_h_r[6]  LOCAL.lutff_out[6]      LOGIC.i_neigh_op_bnr[6] LOGIC.i_neigh_op_lft[6] LOGIC.i_sp12_h_r[6] LOGIC.i_sp4_v_b[6]      LOGIC.i_sp4_v_b[14] LOGIC.i_sp4_h_r[14] LOGIC.i_sp4_h_r[22]" output="LOCAL.ilocal_g0[6]" />
+  <mux name="local_g0[7]" input="LOCAL.oglb2local[3]   LOGIC.i_sp4_r_v_b[31] LOGIC.i_neigh_op_bot[7] LOGIC.i_neigh_op_top[7] LOGIC.i_sp12_h_r[15]  LOGIC.i_sp12_h_r[23] LOGIC.i_sp4_v_b[23]     LOGIC.i_sp4_h_r[7]  LOCAL.lutff_out[7]      LOGIC.i_neigh_op_bnr[7] LOGIC.i_neigh_op_lft[7] LOGIC.i_sp12_h_r[7] LOGIC.i_sp4_v_b[7]      LOGIC.i_sp4_v_b[15] LOGIC.i_sp4_h_r[15] LOGIC.i_sp4_h_r[23]" output="LOCAL.ilocal_g0[7]" />
+  <mux name="local_g1[0]" input="LOGIC.i_sp4_r_v_b[0]  LOGIC.i_sp12_h_r[8]   LOGIC.i_neigh_op_bot[0] LOGIC.i_sp4_v_b[16]     LOGIC.i_sp4_r_v_b[24] LOGIC.i_sp12_h_r[16] LOGIC.i_neigh_op_top[0] LOGIC.i_sp4_h_r[0]  LOCAL.lutff_out[0]      LOGIC.i_sp4_v_b[0]      LOGIC.i_neigh_op_lft[0] LOGIC.i_sp4_h_r[8]  LOGIC.i_neigh_op_bnr[0] LOGIC.i_sp4_v_b[8]  LOGIC.i_sp12_h_r[0] LOGIC.i_sp4_h_r[16]" output="LOCAL.ilocal_g1[0]" />
+  <mux name="local_g1[1]" input="LOGIC.i_sp4_r_v_b[1]  LOGIC.i_sp4_r_v_b[25] LOCAL.lutff_out[1]      LOGIC.i_neigh_op_bnr[1] LOGIC.i_sp12_h_r[9]   LOGIC.i_sp12_h_r[17] LOGIC.i_sp4_v_b[1]      LOGIC.i_sp4_v_b[9]  LOGIC.i_neigh_op_bot[1] LOGIC.i_neigh_op_top[1] LOGIC.i_neigh_op_lft[1] LOGIC.i_sp12_h_r[1] LOGIC.i_sp4_v_b[17]     LOGIC.i_sp4_h_r[1]  LOGIC.i_sp4_h_r[9]  LOGIC.i_sp4_h_r[17]" output="LOCAL.ilocal_g1[1]" />
+  <mux name="local_g1[2]" input="LOGIC.i_sp4_r_v_b[2]  LOGIC.i_sp4_r_v_b[26] LOGIC.i_neigh_op_bot[2] LOGIC.i_neigh_op_top[2] LOGIC.i_sp12_h_r[10]  LOGIC.i_sp12_h_r[18] LOGIC.i_sp4_v_b[18]     LOGIC.i_sp4_h_r[2]  LOCAL.lutff_out[2]      LOGIC.i_neigh_op_bnr[2] LOGIC.i_neigh_op_lft[2] LOGIC.i_sp12_h_r[2] LOGIC.i_sp4_v_b[2]      LOGIC.i_sp4_v_b[10] LOGIC.i_sp4_h_r[10] LOGIC.i_sp4_h_r[18]" output="LOCAL.ilocal_g1[2]" />
+  <mux name="local_g1[3]" input="LOGIC.i_sp4_r_v_b[3]  LOGIC.i_sp4_r_v_b[27] LOGIC.i_neigh_op_bot[3] LOGIC.i_neigh_op_top[3] LOGIC.i_sp12_h_r[11]  LOGIC.i_sp12_h_r[19] LOGIC.i_sp4_v_b[19]     LOGIC.i_sp4_h_r[3]  LOCAL.lutff_out[3]      LOGIC.i_neigh_op_bnr[3] LOGIC.i_neigh_op_lft[3] LOGIC.i_sp12_h_r[3] LOGIC.i_sp4_v_b[3]      LOGIC.i_sp4_v_b[11] LOGIC.i_sp4_h_r[11] LOGIC.i_sp4_h_r[19]" output="LOCAL.ilocal_g1[3]" />
+  <mux name="local_g1[4]" input="LOGIC.i_sp4_r_v_b[4]  LOGIC.i_sp12_h_r[12]  LOGIC.i_neigh_op_bot[4] LOGIC.i_sp4_v_b[20]     LOGIC.i_sp4_r_v_b[28] LOGIC.i_sp12_h_r[20] LOGIC.i_neigh_op_top[4] LOGIC.i_sp4_h_r[4]  LOCAL.lutff_out[4]      LOGIC.i_sp4_v_b[4]      LOGIC.i_neigh_op_lft[4] LOGIC.i_sp4_h_r[12] LOGIC.i_neigh_op_bnr[4] LOGIC.i_sp4_v_b[12] LOGIC.i_sp12_h_r[4] LOGIC.i_sp4_h_r[20]" output="LOCAL.ilocal_g1[4]" />
+  <mux name="local_g1[5]" input="LOGIC.i_sp4_r_v_b[5]  LOGIC.i_sp4_r_v_b[29] LOCAL.lutff_out[5]      LOGIC.i_neigh_op_bnr[5] LOGIC.i_sp12_h_r[13]  LOGIC.i_sp12_h_r[21] LOGIC.i_sp4_v_b[5]      LOGIC.i_sp4_v_b[13] LOGIC.i_neigh_op_bot[5] LOGIC.i_neigh_op_top[5] LOGIC.i_neigh_op_lft[5] LOGIC.i_sp12_h_r[5] LOGIC.i_sp4_v_b[21]     LOGIC.i_sp4_h_r[5]  LOGIC.i_sp4_h_r[13] LOGIC.i_sp4_h_r[21]" output="LOCAL.ilocal_g1[5]" />
+  <mux name="local_g1[6]" input="LOGIC.i_sp4_r_v_b[6]  LOGIC.i_sp4_r_v_b[30] LOGIC.i_neigh_op_bot[6] LOGIC.i_neigh_op_top[6] LOGIC.i_sp12_h_r[14]  LOGIC.i_sp12_h_r[22] LOGIC.i_sp4_v_b[22]     LOGIC.i_sp4_h_r[6]  LOCAL.lutff_out[6]      LOGIC.i_neigh_op_bnr[6] LOGIC.i_neigh_op_lft[6] LOGIC.i_sp12_h_r[6] LOGIC.i_sp4_v_b[6]      LOGIC.i_sp4_v_b[14] LOGIC.i_sp4_h_r[14] LOGIC.i_sp4_h_r[22]" output="LOCAL.ilocal_g1[6]" />
+  <mux name="local_g1[7]" input="LOGIC.i_sp4_r_v_b[7]  LOGIC.i_sp4_r_v_b[31] LOGIC.i_neigh_op_bot[7] LOGIC.i_neigh_op_top[7] LOGIC.i_sp12_h_r[15]  LOGIC.i_sp12_h_r[23] LOGIC.i_sp4_v_b[23]     LOGIC.i_sp4_h_r[7]  LOCAL.lutff_out[7]      LOGIC.i_neigh_op_bnr[7] LOGIC.i_neigh_op_lft[7] LOGIC.i_sp12_h_r[7] LOGIC.i_sp4_v_b[7]      LOGIC.i_sp4_v_b[15] LOGIC.i_sp4_h_r[15] LOGIC.i_sp4_h_r[23]" output="LOCAL.ilocal_g1[7]" />
+  <mux name="local_g2[0]" input="LOGIC.i_sp4_r_v_b[8]  LOGIC.i_sp12_v_b[8]   LOGIC.i_neigh_op_tnr[0] LOGIC.i_sp4_v_b[40]     LOGIC.i_sp4_r_v_b[32] LOGIC.i_sp12_v_b[16] LOGIC.i_neigh_op_tnl[0] LOGIC.i_sp4_h_r[24] LOCAL.lutff_out[0]      LOGIC.i_sp4_v_b[24]     LOGIC.i_neigh_op_rgt[0] LOGIC.i_sp4_h_r[32] LOGIC.i_neigh_op_bnl[0] LOGIC.i_sp4_v_b[32] LOGIC.i_sp12_v_b[0] LOGIC.i_sp4_h_r[40]" output="LOCAL.ilocal_g2[0]" />
+  <mux name="local_g2[1]" input="LOGIC.i_sp4_r_v_b[9]  LOGIC.i_sp4_r_v_b[33] LOCAL.lutff_out[1]      LOGIC.i_neigh_op_bnl[1] LOGIC.i_sp12_v_b[9]   LOGIC.i_sp12_v_b[17] LOGIC.i_sp4_v_b[25]     LOGIC.i_sp4_v_b[33] LOGIC.i_neigh_op_tnr[1] LOGIC.i_neigh_op_tnl[1] LOGIC.i_neigh_op_rgt[1] LOGIC.i_sp12_v_b[1] LOGIC.i_sp4_v_b[41]     LOGIC.i_sp4_h_r[25] LOGIC.i_sp4_h_r[33] LOGIC.i_sp4_h_r[41]" output="LOCAL.ilocal_g2[1]" />
+  <mux name="local_g2[2]" input="LOGIC.i_sp4_r_v_b[10] LOGIC.i_sp4_r_v_b[34] LOGIC.i_neigh_op_tnr[2] LOGIC.i_neigh_op_tnl[2] LOGIC.i_sp12_v_b[10]  LOGIC.i_sp12_v_b[18] LOGIC.i_sp4_v_b[42]     LOGIC.i_sp4_h_r[26] LOCAL.lutff_out[2]      LOGIC.i_neigh_op_bnl[2] LOGIC.i_neigh_op_rgt[2] LOGIC.i_sp12_v_b[2] LOGIC.i_sp4_v_b[26]     LOGIC.i_sp4_v_b[34] LOGIC.i_sp4_h_r[34] LOGIC.i_sp4_h_r[42]" output="LOCAL.ilocal_g2[2]" />
+  <mux name="local_g2[3]" input="LOGIC.i_sp4_r_v_b[11] LOGIC.i_sp4_r_v_b[35] LOGIC.i_neigh_op_tnr[3] LOGIC.i_neigh_op_tnl[3] LOGIC.i_sp12_v_b[11]  LOGIC.i_sp12_v_b[19] LOGIC.i_sp4_v_b[43]     LOGIC.i_sp4_h_r[27] LOCAL.lutff_out[3]      LOGIC.i_neigh_op_bnl[3] LOGIC.i_neigh_op_rgt[3] LOGIC.i_sp12_v_b[3] LOGIC.i_sp4_v_b[27]     LOGIC.i_sp4_v_b[35] LOGIC.i_sp4_h_r[35] LOGIC.i_sp4_h_r[43]" output="LOCAL.ilocal_g2[3]" />
+  <mux name="local_g2[4]" input="LOGIC.i_sp4_r_v_b[12] LOGIC.i_sp12_v_b[12]  LOGIC.i_neigh_op_tnr[4] LOGIC.i_sp4_v_b[44]     LOGIC.i_sp4_r_v_b[36] LOGIC.i_sp12_v_b[20] LOGIC.i_neigh_op_tnl[4] LOGIC.i_sp4_h_r[28] LOCAL.lutff_out[4]      LOGIC.i_sp4_v_b[28]     LOGIC.i_neigh_op_rgt[4] LOGIC.i_sp4_h_r[36] LOGIC.i_neigh_op_bnl[4] LOGIC.i_sp4_v_b[36] LOGIC.i_sp12_v_b[4] LOGIC.i_sp4_h_r[44]" output="LOCAL.ilocal_g2[4]" />
+  <mux name="local_g2[5]" input="LOGIC.i_sp4_r_v_b[13] LOGIC.i_sp4_r_v_b[37] LOCAL.lutff_out[5]      LOGIC.i_neigh_op_bnl[5] LOGIC.i_sp12_v_b[13]  LOGIC.i_sp12_v_b[21] LOGIC.i_sp4_v_b[29]     LOGIC.i_sp4_v_b[37] LOGIC.i_neigh_op_tnr[5] LOGIC.i_neigh_op_tnl[5] LOGIC.i_neigh_op_rgt[5] LOGIC.i_sp12_v_b[5] LOGIC.i_sp4_v_b[45]     LOGIC.i_sp4_h_r[29] LOGIC.i_sp4_h_r[37] LOGIC.i_sp4_h_r[45]" output="LOCAL.ilocal_g2[5]" />
+  <mux name="local_g2[6]" input="LOGIC.i_sp4_r_v_b[14] LOGIC.i_sp4_r_v_b[38] LOGIC.i_neigh_op_tnr[6] LOGIC.i_neigh_op_tnl[6] LOGIC.i_sp12_v_b[14]  LOGIC.i_sp12_v_b[22] LOGIC.i_sp4_v_b[46]     LOGIC.i_sp4_h_r[30] LOCAL.lutff_out[6]      LOGIC.i_neigh_op_bnl[6] LOGIC.i_neigh_op_rgt[6] LOGIC.i_sp12_v_b[6] LOGIC.i_sp4_v_b[30]     LOGIC.i_sp4_v_b[38] LOGIC.i_sp4_h_r[38] LOGIC.i_sp4_h_r[46]" output="LOCAL.ilocal_g2[6]" />
+  <mux name="local_g2[7]" input="LOGIC.i_sp4_r_v_b[15] LOGIC.i_sp4_r_v_b[39] LOGIC.i_neigh_op_tnr[7] LOGIC.i_neigh_op_tnl[7] LOGIC.i_sp12_v_b[15]  LOGIC.i_sp12_v_b[23] LOGIC.i_sp4_v_b[47]     LOGIC.i_sp4_h_r[31] LOCAL.lutff_out[7]      LOGIC.i_neigh_op_bnl[7] LOGIC.i_neigh_op_rgt[7] LOGIC.i_sp12_v_b[7] LOGIC.i_sp4_v_b[31]     LOGIC.i_sp4_v_b[39] LOGIC.i_sp4_h_r[39] LOGIC.i_sp4_h_r[47]" output="LOCAL.ilocal_g2[7]" />
+  <mux name="local_g3[0]" input="LOGIC.i_sp4_r_v_b[16] LOGIC.i_sp12_v_b[8]   LOGIC.i_neigh_op_tnr[0] LOGIC.i_sp4_v_b[40]     LOGIC.i_sp4_r_v_b[40] LOGIC.i_sp12_v_b[16] LOGIC.i_neigh_op_tnl[0] LOGIC.i_sp4_h_r[24] LOCAL.lutff_out[0]      LOGIC.i_sp4_v_b[24]     LOGIC.i_neigh_op_rgt[0] LOGIC.i_sp4_h_r[32] LOGIC.i_neigh_op_bnl[0] LOGIC.i_sp4_v_b[32] LOGIC.i_sp12_v_b[0] LOGIC.i_sp4_h_r[40]" output="LOCAL.ilocal_g3[0]" />
+  <mux name="local_g3[1]" input="LOGIC.i_sp4_r_v_b[17] LOGIC.i_sp4_r_v_b[41] LOCAL.lutff_out[1]      LOGIC.i_neigh_op_bnl[1] LOGIC.i_sp12_v_b[9]   LOGIC.i_sp12_v_b[17] LOGIC.i_sp4_v_b[25]     LOGIC.i_sp4_v_b[33] LOGIC.i_neigh_op_tnr[1] LOGIC.i_neigh_op_tnl[1] LOGIC.i_neigh_op_rgt[1] LOGIC.i_sp12_v_b[1] LOGIC.i_sp4_v_b[41]     LOGIC.i_sp4_h_r[25] LOGIC.i_sp4_h_r[33] LOGIC.i_sp4_h_r[41]" output="LOCAL.ilocal_g3[1]" />
+  <mux name="local_g3[2]" input="LOGIC.i_sp4_r_v_b[18] LOGIC.i_sp4_r_v_b[42] LOGIC.i_neigh_op_tnr[2] LOGIC.i_neigh_op_tnl[2] LOGIC.i_sp12_v_b[10]  LOGIC.i_sp12_v_b[18] LOGIC.i_sp4_v_b[42]     LOGIC.i_sp4_h_r[26] LOCAL.lutff_out[2]      LOGIC.i_neigh_op_bnl[2] LOGIC.i_neigh_op_rgt[2] LOGIC.i_sp12_v_b[2] LOGIC.i_sp4_v_b[26]     LOGIC.i_sp4_v_b[34] LOGIC.i_sp4_h_r[34] LOGIC.i_sp4_h_r[42]" output="LOCAL.ilocal_g3[2]" />
+  <mux name="local_g3[3]" input="LOGIC.i_sp4_r_v_b[19] LOGIC.i_sp4_r_v_b[43] LOGIC.i_neigh_op_tnr[3] LOGIC.i_neigh_op_tnl[3] LOGIC.i_sp12_v_b[11]  LOGIC.i_sp12_v_b[19] LOGIC.i_sp4_v_b[43]     LOGIC.i_sp4_h_r[27] LOCAL.lutff_out[3]      LOGIC.i_neigh_op_bnl[3] LOGIC.i_neigh_op_rgt[3] LOGIC.i_sp12_v_b[3] LOGIC.i_sp4_v_b[27]     LOGIC.i_sp4_v_b[35] LOGIC.i_sp4_h_r[35] LOGIC.i_sp4_h_r[43]" output="LOCAL.ilocal_g3[3]" />
+  <mux name="local_g3[4]" input="LOGIC.i_sp4_r_v_b[20] LOGIC.i_sp12_v_b[12]  LOGIC.i_neigh_op_tnr[4] LOGIC.i_sp4_v_b[44]     LOGIC.i_sp4_r_v_b[44] LOGIC.i_sp12_v_b[20] LOGIC.i_neigh_op_tnl[4] LOGIC.i_sp4_h_r[28] LOCAL.lutff_out[4]      LOGIC.i_sp4_v_b[28]     LOGIC.i_neigh_op_rgt[4] LOGIC.i_sp4_h_r[36] LOGIC.i_neigh_op_bnl[4] LOGIC.i_sp4_v_b[36] LOGIC.i_sp12_v_b[4] LOGIC.i_sp4_h_r[44]" output="LOCAL.ilocal_g3[4]" />
+  <mux name="local_g3[5]" input="LOGIC.i_sp4_r_v_b[21] LOGIC.i_sp4_r_v_b[45] LOCAL.lutff_out[5]      LOGIC.i_neigh_op_bnl[5] LOGIC.i_sp12_v_b[13]  LOGIC.i_sp12_v_b[21] LOGIC.i_sp4_v_b[29]     LOGIC.i_sp4_v_b[37] LOGIC.i_neigh_op_tnr[5] LOGIC.i_neigh_op_tnl[5] LOGIC.i_neigh_op_rgt[5] LOGIC.i_sp12_v_b[5] LOGIC.i_sp4_v_b[45]     LOGIC.i_sp4_h_r[29] LOGIC.i_sp4_h_r[37] LOGIC.i_sp4_h_r[45]" output="LOCAL.ilocal_g3[5]" />
+  <mux name="local_g3[6]" input="LOGIC.i_sp4_r_v_b[22] LOGIC.i_sp4_r_v_b[46] LOGIC.i_neigh_op_tnr[6] LOGIC.i_neigh_op_tnl[6] LOGIC.i_sp12_v_b[14]  LOGIC.i_sp12_v_b[22] LOGIC.i_sp4_v_b[46]     LOGIC.i_sp4_h_r[30] LOCAL.lutff_out[6]      LOGIC.i_neigh_op_bnl[6] LOGIC.i_neigh_op_rgt[6] LOGIC.i_sp12_v_b[6] LOGIC.i_sp4_v_b[30]     LOGIC.i_sp4_v_b[38] LOGIC.i_sp4_h_r[38] LOGIC.i_sp4_h_r[46]" output="LOCAL.ilocal_g3[6]" />
+  <mux name="local_g3[7]" input="LOGIC.i_sp4_r_v_b[23] LOGIC.i_sp4_r_v_b[47] LOGIC.i_neigh_op_tnr[7] LOGIC.i_neigh_op_tnl[7] LOGIC.i_sp12_v_b[15]  LOGIC.i_sp12_v_b[23] LOGIC.i_sp4_v_b[47]     LOGIC.i_sp4_h_r[31] LOCAL.lutff_out[7]      LOGIC.i_neigh_op_bnl[7] LOGIC.i_neigh_op_rgt[7] LOGIC.i_sp12_v_b[7] LOGIC.i_sp4_v_b[31]     LOGIC.i_sp4_v_b[39] LOGIC.i_sp4_h_r[39] LOGIC.i_sp4_h_r[47]" output="LOCAL.ilocal_g3[7]" />
+
+  <!-- LUTFF.out to Span-4 Vertical -->
+  <mux name="lutff[0].out->sp4_v_b[0]"  input="LOCAL.lutff_out[0]" output="LOGIC.o_sp4_v_b[0]"  />
+  <mux name="lutff[0].out->sp4_v_b[16]" input="LOCAL.lutff_out[0]" output="LOGIC.o_sp4_v_b[16]" />
+  <mux name="lutff[0].out->sp4_v_b[32]" input="LOCAL.lutff_out[0]" output="LOGIC.o_sp4_v_b[32]" />
+  <mux name="lutff[1].out->sp4_v_b[18]" input="LOCAL.lutff_out[1]" output="LOGIC.o_sp4_v_b[18]" />
+  <mux name="lutff[1].out->sp4_v_b[2]"  input="LOCAL.lutff_out[1]" output="LOGIC.o_sp4_v_b[2]"  />
+  <mux name="lutff[1].out->sp4_v_b[34]" input="LOCAL.lutff_out[1]" output="LOGIC.o_sp4_v_b[34]" />
+  <mux name="lutff[2].out->sp4_v_b[20]" input="LOCAL.lutff_out[2]" output="LOGIC.o_sp4_v_b[20]" />
+  <mux name="lutff[2].out->sp4_v_b[36]" input="LOCAL.lutff_out[2]" output="LOGIC.o_sp4_v_b[36]" />
+  <mux name="lutff[2].out->sp4_v_b[4]"  input="LOCAL.lutff_out[2]" output="LOGIC.o_sp4_v_b[4]"  />
+  <mux name="lutff[3].out->sp4_v_b[22]" input="LOCAL.lutff_out[3]" output="LOGIC.o_sp4_v_b[22]" />
+  <mux name="lutff[3].out->sp4_v_b[38]" input="LOCAL.lutff_out[3]" output="LOGIC.o_sp4_v_b[38]" />
+  <mux name="lutff[3].out->sp4_v_b[6]"  input="LOCAL.lutff_out[3]" output="LOGIC.o_sp4_v_b[6]"  />
+  <mux name="lutff[4].out->sp4_v_b[24]" input="LOCAL.lutff_out[4]" output="LOGIC.o_sp4_v_b[24]" />
+  <mux name="lutff[4].out->sp4_v_b[40]" input="LOCAL.lutff_out[4]" output="LOGIC.o_sp4_v_b[40]" />
+  <mux name="lutff[4].out->sp4_v_b[8]"  input="LOCAL.lutff_out[4]" output="LOGIC.o_sp4_v_b[8]"  />
+  <mux name="lutff[5].out->sp4_v_b[10]" input="LOCAL.lutff_out[5]" output="LOGIC.o_sp4_v_b[10]" />
+  <mux name="lutff[5].out->sp4_v_b[26]" input="LOCAL.lutff_out[5]" output="LOGIC.o_sp4_v_b[26]" />
+  <mux name="lutff[5].out->sp4_v_b[42]" input="LOCAL.lutff_out[5]" output="LOGIC.o_sp4_v_b[42]" />
+  <mux name="lutff[6].out->sp4_v_b[12]" input="LOCAL.lutff_out[6]" output="LOGIC.o_sp4_v_b[12]" />
+  <mux name="lutff[6].out->sp4_v_b[28]" input="LOCAL.lutff_out[6]" output="LOGIC.o_sp4_v_b[28]" />
+  <mux name="lutff[6].out->sp4_v_b[44]" input="LOCAL.lutff_out[6]" output="LOGIC.o_sp4_v_b[44]" />
+  <mux name="lutff[7].out->sp4_v_b[14]" input="LOCAL.lutff_out[7]" output="LOGIC.o_sp4_v_b[14]" />
+  <mux name="lutff[7].out->sp4_v_b[30]" input="LOCAL.lutff_out[7]" output="LOGIC.o_sp4_v_b[30]" />
+  <mux name="lutff[7].out->sp4_v_b[46]" input="LOCAL.lutff_out[7]" output="LOGIC.o_sp4_v_b[46]" />
+
+  <!--
+  <mux name="mux_sp12_v_b[1]"  input="LOGIC.i_sp12_v_b[1]"  output="LOGIC.o_sp4_v_b[12]" />
+  <mux name="mux_sp12_v_b[11]" input="LOGIC.i_sp12_v_b[11]" output="LOGIC.o_sp4_v_b[17]" />
+  <mux name="mux_sp12_v_b[13]" input="LOGIC.i_sp12_v_b[13]" output="LOGIC.o_sp4_v_b[18]" />
+  <mux name="mux_sp12_v_b[15]" input="LOGIC.i_sp12_v_b[15]" output="LOGIC.o_sp4_v_b[19]" />
+  <mux name="mux_sp12_v_b[17]" input="LOGIC.i_sp12_v_b[17]" output="LOGIC.o_sp4_v_b[20]" />
+  <mux name="mux_sp12_v_b[19]" input="LOGIC.i_sp12_v_b[19]" output="LOGIC.o_sp4_v_b[21]" />
+  <mux name="mux_sp12_v_b[21]" input="LOGIC.i_sp12_v_b[21]" output="LOGIC.o_sp4_v_b[22]" />
+  <mux name="mux_sp12_v_b[23]" input="LOGIC.i_sp12_v_b[23]" output="LOGIC.o_sp4_v_b[23]" />
+  <mux name="mux_sp12_v_b[3]"  input="LOGIC.i_sp12_v_b[3]"  output="LOGIC.o_sp4_v_b[13]" />
+  <mux name="mux_sp12_v_b[5]"  input="LOGIC.i_sp12_v_b[5]"  output="LOGIC.o_sp4_v_b[14]" />
+  <mux name="mux_sp12_v_b[7]"  input="LOGIC.i_sp12_v_b[7]"  output="LOGIC.o_sp4_v_b[15]" />
+  <mux name="mux_sp12_v_b[9]"  input="LOGIC.i_sp12_v_b[9]"  output="LOGIC.o_sp4_v_b[16]" />
+  -->
+
+  <!-- LUTFF.out to Span-4 Right Vertical -->
+  <mux name="lutff[0].out->sp4_r_v_b[1]"  input="LOCAL.lutff_out[0]" output="LOGIC.o_sp4_r_v_b[1]"  />
+  <mux name="lutff[0].out->sp4_r_v_b[17]" input="LOCAL.lutff_out[0]" output="LOGIC.o_sp4_r_v_b[17]" />
+  <mux name="lutff[0].out->sp4_r_v_b[33]" input="LOCAL.lutff_out[0]" output="LOGIC.o_sp4_r_v_b[33]" />
+  <mux name="lutff[1].out->sp4_r_v_b[19]" input="LOCAL.lutff_out[1]" output="LOGIC.o_sp4_r_v_b[19]" />
+  <mux name="lutff[1].out->sp4_r_v_b[3]"  input="LOCAL.lutff_out[1]" output="LOGIC.o_sp4_r_v_b[3]"  />
+  <mux name="lutff[1].out->sp4_r_v_b[35]" input="LOCAL.lutff_out[1]" output="LOGIC.o_sp4_r_v_b[35]" />
+  <mux name="lutff[2].out->sp4_r_v_b[21]" input="LOCAL.lutff_out[2]" output="LOGIC.o_sp4_r_v_b[21]" />
+  <mux name="lutff[2].out->sp4_r_v_b[37]" input="LOCAL.lutff_out[2]" output="LOGIC.o_sp4_r_v_b[37]" />
+  <mux name="lutff[2].out->sp4_r_v_b[5] " input="LOCAL.lutff_out[2]" output="LOGIC.o_sp4_r_v_b[5] " />
+  <mux name="lutff[3].out->sp4_r_v_b[23]" input="LOCAL.lutff_out[3]" output="LOGIC.o_sp4_r_v_b[23]" />
+  <mux name="lutff[3].out->sp4_r_v_b[39]" input="LOCAL.lutff_out[3]" output="LOGIC.o_sp4_r_v_b[39]" />
+  <mux name="lutff[3].out->sp4_r_v_b[7] " input="LOCAL.lutff_out[3]" output="LOGIC.o_sp4_r_v_b[7] " />
+  <mux name="lutff[4].out->sp4_r_v_b[25]" input="LOCAL.lutff_out[4]" output="LOGIC.o_sp4_r_v_b[25]" />
+  <mux name="lutff[4].out->sp4_r_v_b[41]" input="LOCAL.lutff_out[4]" output="LOGIC.o_sp4_r_v_b[41]" />
+  <mux name="lutff[4].out->sp4_r_v_b[9]"  input="LOCAL.lutff_out[4]" output="LOGIC.o_sp4_r_v_b[9]"  />
+  <mux name="lutff[5].out->sp4_r_v_b[11]" input="LOCAL.lutff_out[5]" output="LOGIC.o_sp4_r_v_b[11]" />
+  <mux name="lutff[5].out->sp4_r_v_b[27]" input="LOCAL.lutff_out[5]" output="LOGIC.o_sp4_r_v_b[27]" />
+  <mux name="lutff[5].out->sp4_r_v_b[43]" input="LOCAL.lutff_out[5]" output="LOGIC.o_sp4_r_v_b[43]" />
+  <mux name="lutff[6].out->sp4_r_v_b[13]" input="LOCAL.lutff_out[6]" output="LOGIC.o_sp4_r_v_b[13]" />
+  <mux name="lutff[6].out->sp4_r_v_b[29]" input="LOCAL.lutff_out[6]" output="LOGIC.o_sp4_r_v_b[29]" />
+  <mux name="lutff[6].out->sp4_r_v_b[45]" input="LOCAL.lutff_out[6]" output="LOGIC.o_sp4_r_v_b[45]" />
+  <mux name="lutff[7].out->sp4_r_v_b[15]" input="LOCAL.lutff_out[7]" output="LOGIC.o_sp4_r_v_b[15]" />
+  <mux name="lutff[7].out->sp4_r_v_b[31]" input="LOCAL.lutff_out[7]" output="LOGIC.o_sp4_r_v_b[31]" />
+  <mux name="lutff[7].out->sp4_r_v_b[47]" input="LOCAL.lutff_out[7]" output="LOGIC.o_sp4_r_v_b[47]" />
+
+  <!-- LUTFF.out to Span-4 Horizontal -->
+  <mux name="lutff[0].out->sp4_h_r[0]"  input="LOCAL.lutff_out[0]" output="LOGIC.o_sp4_h_r[0]"  />
+  <mux name="lutff[0].out->sp4_h_r[16]" input="LOCAL.lutff_out[0]" output="LOGIC.o_sp4_h_r[16]" />
+  <mux name="lutff[0].out->sp4_h_r[32]" input="LOCAL.lutff_out[0]" output="LOGIC.o_sp4_h_r[32]" />
+  <mux name="lutff[1].out->sp4_h_r[18]" input="LOCAL.lutff_out[1]" output="LOGIC.o_sp4_h_r[18]" />
+  <mux name="lutff[1].out->sp4_h_r[2]"  input="LOCAL.lutff_out[1]" output="LOGIC.o_sp4_h_r[2]"  />
+  <mux name="lutff[1].out->sp4_h_r[34]" input="LOCAL.lutff_out[1]" output="LOGIC.o_sp4_h_r[34]" />
+  <mux name="lutff[2].out->sp4_h_r[20]" input="LOCAL.lutff_out[2]" output="LOGIC.o_sp4_h_r[20]" />
+  <mux name="lutff[2].out->sp4_h_r[36]" input="LOCAL.lutff_out[2]" output="LOGIC.o_sp4_h_r[36]" />
+  <mux name="lutff[2].out->sp4_h_r[4]"  input="LOCAL.lutff_out[2]" output="LOGIC.o_sp4_h_r[4]"  />
+  <mux name="lutff[3].out->sp4_h_r[22]" input="LOCAL.lutff_out[3]" output="LOGIC.o_sp4_h_r[22]" />
+  <mux name="lutff[3].out->sp4_h_r[38]" input="LOCAL.lutff_out[3]" output="LOGIC.o_sp4_h_r[38]" />
+  <mux name="lutff[3].out->sp4_h_r[6]"  input="LOCAL.lutff_out[3]" output="LOGIC.o_sp4_h_r[6]"  />
+  <mux name="lutff[4].out->sp4_h_r[24]" input="LOCAL.lutff_out[4]" output="LOGIC.o_sp4_h_r[24]" />
+  <mux name="lutff[4].out->sp4_h_r[40]" input="LOCAL.lutff_out[4]" output="LOGIC.o_sp4_h_r[40]" />
+  <mux name="lutff[4].out->sp4_h_r[8]"  input="LOCAL.lutff_out[4]" output="LOGIC.o_sp4_h_r[8]"  />
+  <mux name="lutff[5].out->sp4_h_r[10]" input="LOCAL.lutff_out[5]" output="LOGIC.o_sp4_h_r[10]" />
+  <mux name="lutff[5].out->sp4_h_r[26]" input="LOCAL.lutff_out[5]" output="LOGIC.o_sp4_h_r[26]" />
+  <mux name="lutff[5].out->sp4_h_r[42]" input="LOCAL.lutff_out[5]" output="LOGIC.o_sp4_h_r[42]" />
+  <mux name="lutff[6].out->sp4_h_r[12]" input="LOCAL.lutff_out[6]" output="LOGIC.o_sp4_h_r[12]" />
+  <mux name="lutff[6].out->sp4_h_r[28]" input="LOCAL.lutff_out[6]" output="LOGIC.o_sp4_h_r[28]" />
+  <mux name="lutff[6].out->sp4_h_r[44]" input="LOCAL.lutff_out[6]" output="LOGIC.o_sp4_h_r[44]" />
+  <mux name="lutff[7].out->sp4_h_r[14]" input="LOCAL.lutff_out[7]" output="LOGIC.o_sp4_h_r[14]" />
+  <mux name="lutff[7].out->sp4_h_r[30]" input="LOCAL.lutff_out[7]" output="LOGIC.o_sp4_h_r[30]" />
+  <mux name="lutff[7].out->sp4_h_r[46]" input="LOCAL.lutff_out[7]" output="LOGIC.o_sp4_h_r[46]" />
+
+  <!--
+  <mux name="mux_sp12_h_r[0]"  input="LOGIC.i_sp12_h_r[0]"  output="LOGIC.o_sp4_h_r[12]" />
+  <mux name="mux_sp12_h_r[10]" input="LOGIC.i_sp12_h_r[10]" output="LOGIC.o_sp4_h_r[17]" />
+  <mux name="mux_sp12_h_r[12]" input="LOGIC.i_sp12_h_r[12]" output="LOGIC.o_sp4_h_r[18]" />
+  <mux name="mux_sp12_h_r[14]" input="LOGIC.i_sp12_h_r[14]" output="LOGIC.o_sp4_h_r[19]" />
+  <mux name="mux_sp12_h_r[16]" input="LOGIC.i_sp12_h_r[16]" output="LOGIC.o_sp4_h_r[20]" />
+  <mux name="mux_sp12_h_r[18]" input="LOGIC.i_sp12_h_r[18]" output="LOGIC.o_sp4_h_r[21]" />
+  <mux name="mux_sp12_h_r[2]"  input="LOGIC.i_sp12_h_r[2]"  output="LOGIC.o_sp4_h_r[13]" />
+  <mux name="mux_sp12_h_r[20]" input="LOGIC.i_sp12_h_r[20]" output="LOGIC.o_sp4_h_r[22]" />
+  <mux name="mux_sp12_h_r[22]" input="LOGIC.i_sp12_h_r[22]" output="LOGIC.o_sp4_h_r[23]" />
+  <mux name="mux_sp12_h_r[4]"  input="LOGIC.i_sp12_h_r[4]"  output="LOGIC.o_sp4_h_r[14]" />
+  <mux name="mux_sp12_h_r[6]"  input="LOGIC.i_sp12_h_r[6]"  output="LOGIC.o_sp4_h_r[15]" />
+  <mux name="mux_sp12_h_r[8]"  input="LOGIC.i_sp12_h_r[8]"  output="LOGIC.o_sp4_h_r[16]" />
+  -->
+
+  <!-- LUTFF.out to Span-12 Vertical -->
+  <mux name="lutff[0].out->sp12_v_b[0]"  input="LOCAL.lutff_out[0]" output="LOGIC.o_sp12_v_b[0]"  />
+  <mux name="lutff[0].out->sp12_v_b[16]" input="LOCAL.lutff_out[0]" output="LOGIC.o_sp12_v_b[16]" />
+  <mux name="lutff[1].out->sp12_v_b[18]" input="LOCAL.lutff_out[1]" output="LOGIC.o_sp12_v_b[18]" />
+  <mux name="lutff[1].out->sp12_v_b[2]"  input="LOCAL.lutff_out[1]" output="LOGIC.o_sp12_v_b[2]"  />
+  <mux name="lutff[2].out->sp12_v_b[20]" input="LOCAL.lutff_out[2]" output="LOGIC.o_sp12_v_b[20]" />
+  <mux name="lutff[2].out->sp12_v_b[4]"  input="LOCAL.lutff_out[2]" output="LOGIC.o_sp12_v_b[4]"  />
+  <mux name="lutff[3].out->sp12_v_b[22]" input="LOCAL.lutff_out[3]" output="LOGIC.o_sp12_v_b[22]" />
+  <mux name="lutff[3].out->sp12_v_b[6]"  input="LOCAL.lutff_out[3]" output="LOGIC.o_sp12_v_b[6]"  />
+  <mux name="lutff[4].out->sp12_v_b[8]"  input="LOCAL.lutff_out[4]" output="LOGIC.o_sp12_v_b[8]"  />
+  <mux name="lutff[5].out->sp12_v_b[10]" input="LOCAL.lutff_out[5]" output="LOGIC.o_sp12_v_b[10]" />
+  <mux name="lutff[6].out->sp12_v_b[12]" input="LOCAL.lutff_out[6]" output="LOGIC.o_sp12_v_b[12]" />
+  <mux name="lutff[7].out->sp12_v_b[14]" input="LOCAL.lutff_out[7]" output="LOGIC.o_sp12_v_b[14]" />
+
+  <!-- LUTFF.out to Span-12 Horizontal -->
+  <mux name="lutff[0].out->sp12_h_r[8]"  input="LOCAL.lutff_out[0]" output="LOGIC.o_sp12_h_r[8]"  />
+  <mux name="lutff[1].out->sp12_h_r[10]" input="LOCAL.lutff_out[1]" output="LOGIC.o_sp12_h_r[10]" />
+  <mux name="lutff[2].out->sp12_h_r[12]" input="LOCAL.lutff_out[2]" output="LOGIC.o_sp12_h_r[12]" />
+  <mux name="lutff[3].out->sp12_h_r[14]" input="LOCAL.lutff_out[3]" output="LOGIC.o_sp12_h_r[14]" />
+  <mux name="lutff[4].out->sp12_h_r[0]"  input="LOCAL.lutff_out[4]" output="LOGIC.o_sp12_h_r[0]"  />
+  <mux name="lutff[4].out->sp12_h_r[16]" input="LOCAL.lutff_out[4]" output="LOGIC.o_sp12_h_r[16]" />
+  <mux name="lutff[5].out->sp12_h_r[18]" input="LOCAL.lutff_out[5]" output="LOGIC.o_sp12_h_r[18]" />
+  <mux name="lutff[5].out->sp12_h_r[2]"  input="LOCAL.lutff_out[5]" output="LOGIC.o_sp12_h_r[2]"  />
+  <mux name="lutff[6].out->sp12_h_r[20]" input="LOCAL.lutff_out[6]" output="LOGIC.o_sp12_h_r[20]" />
+  <mux name="lutff[6].out->sp12_h_r[4]"  input="LOCAL.lutff_out[6]" output="LOGIC.o_sp12_h_r[4]"  />
+  <mux name="lutff[7].out->sp12_h_r[22]" input="LOCAL.lutff_out[7]" output="LOGIC.o_sp12_h_r[22]" />
+  <mux name="lutff[7].out->sp12_h_r[6]"  input="LOCAL.lutff_out[7]" output="LOGIC.o_sp12_h_r[6]"  />
+
+  <!-- ################################################################ -->
+
+  <!-- Connect input and output nets together -->
+
+  <!-- Span-4 Vertical -->
+  <direct name="sp4_v_t" input="LOGIC.i_sp4_v_t" output="LOGIC.o_sp4_v_t" />
+  <direct name="sp4_v_b" input="LOGIC.i_sp4_v_b" output="LOGIC.o_sp4_v_b" />
+
+  <!-- Span-4 Right Vertical -->
+  <direct name="sp4_r_v_b" input="LOGIC.i_sp4_r_v_b" output="LOGIC.o_sp4_r_v_b" />
+  <direct name="sp4_l_v_b" input="LOGIC.i_sp4_l_v_b" output="LOGIC.o_sp4_l_v_b" />
+
+  <!-- Span-12 Vertical -->
+  <direct name="sp12_v_t" input="LOGIC.i_sp12_v_t" output="LOGIC.o_sp12_v_t" />
+  <direct name="sp12_v_b" input="LOGIC.i_sp12_v_b" output="LOGIC.o_sp12_v_b" />
+
+  <!-- ================================================================ -->
+
+  <!-- Span-4 Horizontal -->
+  <direct name="sp4_h_r" input="LOGIC.i_sp4_h_r" output="LOGIC.o_sp4_h_r" />
+  <direct name="sp4_h_l" input="LOGIC.i_sp4_h_l" output="LOGIC.o_sp4_h_l" />
+
+  <!-- Span-12 Horizontal -->
+  <direct name="sp12_h_r" input="LOGIC.i_sp12_h_r" output="LOGIC.o_sp12_h_r" />
+  <direct name="sp12_h_l" input="LOGIC.i_sp12_h_l" output="LOGIC.o_sp12_h_l" />
+
+  <!-- ################################################################ -->
+
+  <!-- Span-4 Vertical -->
+  <!-- ================================================================ -->
+  <!--
+  <direct name="sp4_v_b[0]"  input="LOGIC.i_sp4_v_t[  ]" output="LOGIC.o_sp4_v_b[0]"  />
+  <direct name="sp4_v_b[1]"  input="LOGIC.i_sp4_v_t[  ]" output="LOGIC.o_sp4_v_b[1]"  />
+  <direct name="sp4_v_b[2]"  input="LOGIC.i_sp4_v_t[  ]" output="LOGIC.o_sp4_v_b[2]"  />
+  <direct name="sp4_v_b[3]"  input="LOGIC.i_sp4_v_t[  ]" output="LOGIC.o_sp4_v_b[3]"  />
+  <direct name="sp4_v_b[4]"  input="LOGIC.i_sp4_v_t[  ]" output="LOGIC.o_sp4_v_b[4]"  />
+  <direct name="sp4_v_b[5]"  input="LOGIC.i_sp4_v_t[  ]" output="LOGIC.o_sp4_v_b[5]"  />
+  <direct name="sp4_v_b[6]"  input="LOGIC.i_sp4_v_t[  ]" output="LOGIC.o_sp4_v_b[6]"  />
+  <direct name="sp4_v_b[7]"  input="LOGIC.i_sp4_v_t[  ]" output="LOGIC.o_sp4_v_b[7]"  />
+  <direct name="sp4_v_b[8]"  input="LOGIC.i_sp4_v_t[  ]" output="LOGIC.o_sp4_v_b[8]"  />
+  <direct name="sp4_v_b[9]"  input="LOGIC.i_sp4_v_t[  ]" output="LOGIC.o_sp4_v_b[9]"  />
+  <direct name="sp4_v_b[10]" input="LOGIC.i_sp4_v_t[  ]" output="LOGIC.o_sp4_v_b[10]" />
+  <direct name="sp4_v_b[11]" input="LOGIC.i_sp4_v_t[  ]" output="LOGIC.o_sp4_v_b[11]" />
+   -->
+  <direct name="sp4_v_t[0]"  input="LOGIC.i_sp4_v_t[0]"  output="LOGIC.o_sp4_v_b[12]" />
+  <direct name="sp4_v_t[1]"  input="LOGIC.i_sp4_v_t[1]"  output="LOGIC.o_sp4_v_b[13]" />
+  <direct name="sp4_v_t[2]"  input="LOGIC.i_sp4_v_t[2]"  output="LOGIC.o_sp4_v_b[14]" />
+  <direct name="sp4_v_t[3]"  input="LOGIC.i_sp4_v_t[3]"  output="LOGIC.o_sp4_v_b[15]" />
+  <direct name="sp4_v_t[4]"  input="LOGIC.i_sp4_v_t[4]"  output="LOGIC.o_sp4_v_b[16]" />
+  <direct name="sp4_v_t[5]"  input="LOGIC.i_sp4_v_t[5]"  output="LOGIC.o_sp4_v_b[17]" />
+  <direct name="sp4_v_t[6]"  input="LOGIC.i_sp4_v_t[6]"  output="LOGIC.o_sp4_v_b[18]" />
+  <direct name="sp4_v_t[7]"  input="LOGIC.i_sp4_v_t[7]"  output="LOGIC.o_sp4_v_b[19]" />
+  <direct name="sp4_v_t[8]"  input="LOGIC.i_sp4_v_t[8]"  output="LOGIC.o_sp4_v_b[20]" />
+  <direct name="sp4_v_t[9]"  input="LOGIC.i_sp4_v_t[9]"  output="LOGIC.o_sp4_v_b[21]" />
+  <direct name="sp4_v_t[10]" input="LOGIC.i_sp4_v_t[10]" output="LOGIC.o_sp4_v_b[22]" />
+  <direct name="sp4_v_t[11]" input="LOGIC.i_sp4_v_t[11]" output="LOGIC.o_sp4_v_b[23]" />
+  <direct name="sp4_v_t[12]" input="LOGIC.i_sp4_v_t[12]" output="LOGIC.o_sp4_v_b[24]" />
+  <direct name="sp4_v_t[13]" input="LOGIC.i_sp4_v_t[13]" output="LOGIC.o_sp4_v_b[25]" />
+  <direct name="sp4_v_t[14]" input="LOGIC.i_sp4_v_t[14]" output="LOGIC.o_sp4_v_b[26]" />
+  <direct name="sp4_v_t[15]" input="LOGIC.i_sp4_v_t[15]" output="LOGIC.o_sp4_v_b[27]" />
+  <direct name="sp4_v_t[16]" input="LOGIC.i_sp4_v_t[16]" output="LOGIC.o_sp4_v_b[28]" />
+  <direct name="sp4_v_t[17]" input="LOGIC.i_sp4_v_t[17]" output="LOGIC.o_sp4_v_b[29]" />
+  <direct name="sp4_v_t[18]" input="LOGIC.i_sp4_v_t[18]" output="LOGIC.o_sp4_v_b[30]" />
+  <direct name="sp4_v_t[19]" input="LOGIC.i_sp4_v_t[19]" output="LOGIC.o_sp4_v_b[31]" />
+  <direct name="sp4_v_t[20]" input="LOGIC.i_sp4_v_t[20]" output="LOGIC.o_sp4_v_b[32]" />
+  <direct name="sp4_v_t[21]" input="LOGIC.i_sp4_v_t[21]" output="LOGIC.o_sp4_v_b[33]" />
+  <direct name="sp4_v_t[22]" input="LOGIC.i_sp4_v_t[22]" output="LOGIC.o_sp4_v_b[34]" />
+  <direct name="sp4_v_t[23]" input="LOGIC.i_sp4_v_t[23]" output="LOGIC.o_sp4_v_b[35]" />
+  <direct name="sp4_v_t[24]" input="LOGIC.i_sp4_v_t[24]" output="LOGIC.o_sp4_v_b[36]" />
+  <direct name="sp4_v_t[25]" input="LOGIC.i_sp4_v_t[25]" output="LOGIC.o_sp4_v_b[37]" />
+  <direct name="sp4_v_t[26]" input="LOGIC.i_sp4_v_t[26]" output="LOGIC.o_sp4_v_b[38]" />
+  <direct name="sp4_v_t[27]" input="LOGIC.i_sp4_v_t[27]" output="LOGIC.o_sp4_v_b[39]" />
+  <direct name="sp4_v_t[28]" input="LOGIC.i_sp4_v_t[28]" output="LOGIC.o_sp4_v_b[40]" />
+  <direct name="sp4_v_t[29]" input="LOGIC.i_sp4_v_t[29]" output="LOGIC.o_sp4_v_b[41]" />
+  <direct name="sp4_v_t[30]" input="LOGIC.i_sp4_v_t[30]" output="LOGIC.o_sp4_v_b[42]" />
+  <direct name="sp4_v_t[31]" input="LOGIC.i_sp4_v_t[31]" output="LOGIC.o_sp4_v_b[43]" />
+  <direct name="sp4_v_t[32]" input="LOGIC.i_sp4_v_t[32]" output="LOGIC.o_sp4_v_b[44]" />
+  <direct name="sp4_v_t[33]" input="LOGIC.i_sp4_v_t[33]" output="LOGIC.o_sp4_v_b[45]" />
+  <direct name="sp4_v_t[34]" input="LOGIC.i_sp4_v_t[34]" output="LOGIC.o_sp4_v_b[46]" />
+  <direct name="sp4_v_t[35]" input="LOGIC.i_sp4_v_t[35]" output="LOGIC.o_sp4_v_b[47]" />
+  <!--
+  <direct name="sp4_v_t[36]" input="LOGIC.i_sp4_v_t[36]" output="LOGIC.o_sp4_v_b[  ]" />
+  <direct name="sp4_v_t[37]" input="LOGIC.i_sp4_v_t[37]" output="LOGIC.o_sp4_v_b[  ]" />
+  <direct name="sp4_v_t[38]" input="LOGIC.i_sp4_v_t[38]" output="LOGIC.o_sp4_v_b[  ]" />
+  <direct name="sp4_v_t[39]" input="LOGIC.i_sp4_v_t[39]" output="LOGIC.o_sp4_v_b[  ]" />
+  <direct name="sp4_v_t[40]" input="LOGIC.i_sp4_v_t[40]" output="LOGIC.o_sp4_v_b[  ]" />
+  <direct name="sp4_v_t[41]" input="LOGIC.i_sp4_v_t[41]" output="LOGIC.o_sp4_v_b[  ]" />
+  <direct name="sp4_v_t[42]" input="LOGIC.i_sp4_v_t[42]" output="LOGIC.o_sp4_v_b[  ]" />
+  <direct name="sp4_v_t[43]" input="LOGIC.i_sp4_v_t[43]" output="LOGIC.o_sp4_v_b[  ]" />
+  <direct name="sp4_v_t[44]" input="LOGIC.i_sp4_v_t[44]" output="LOGIC.o_sp4_v_b[  ]" />
+  <direct name="sp4_v_t[45]" input="LOGIC.i_sp4_v_t[45]" output="LOGIC.o_sp4_v_b[  ]" />
+  <direct name="sp4_v_t[46]" input="LOGIC.i_sp4_v_t[46]" output="LOGIC.o_sp4_v_b[  ]" />
+  <direct name="sp4_v_t[47]" input="LOGIC.i_sp4_v_t[47]" output="LOGIC.o_sp4_v_b[  ]" />
+   -->
+
+  <direct name="sp4_l_v_b[0]"  input="LOGIC.i_sp4_l_v_b[0]"  output="LOGIC.o_sp4_v_b[0]"  />
+  <direct name="sp4_l_v_b[1]"  input="LOGIC.i_sp4_l_v_b[1]"  output="LOGIC.o_sp4_v_b[1]"  />
+  <direct name="sp4_l_v_b[2]"  input="LOGIC.i_sp4_l_v_b[2]"  output="LOGIC.o_sp4_v_b[2]"  />
+  <direct name="sp4_l_v_b[3]"  input="LOGIC.i_sp4_l_v_b[3]"  output="LOGIC.o_sp4_v_b[3]"  />
+  <direct name="sp4_l_v_b[4]"  input="LOGIC.i_sp4_l_v_b[4]"  output="LOGIC.o_sp4_v_b[4]"  />
+  <direct name="sp4_l_v_b[5]"  input="LOGIC.i_sp4_l_v_b[5]"  output="LOGIC.o_sp4_v_b[5]"  />
+  <direct name="sp4_l_v_b[6]"  input="LOGIC.i_sp4_l_v_b[6]"  output="LOGIC.o_sp4_v_b[6]"  />
+  <direct name="sp4_l_v_b[7]"  input="LOGIC.i_sp4_l_v_b[7]"  output="LOGIC.o_sp4_v_b[7]"  />
+  <direct name="sp4_l_v_b[8]"  input="LOGIC.i_sp4_l_v_b[8]"  output="LOGIC.o_sp4_v_b[8]"  />
+  <direct name="sp4_l_v_b[9]"  input="LOGIC.i_sp4_l_v_b[9]"  output="LOGIC.o_sp4_v_b[9]"  />
+  <direct name="sp4_l_v_b[10]" input="LOGIC.i_sp4_l_v_b[10]" output="LOGIC.o_sp4_v_b[10]" />
+  <direct name="sp4_l_v_b[11]" input="LOGIC.i_sp4_l_v_b[11]" output="LOGIC.o_sp4_v_b[11]" />
+  <direct name="sp4_l_v_b[12]" input="LOGIC.i_sp4_l_v_b[12]" output="LOGIC.o_sp4_v_b[12]" />
+  <direct name="sp4_l_v_b[13]" input="LOGIC.i_sp4_l_v_b[13]" output="LOGIC.o_sp4_v_b[13]" />
+  <direct name="sp4_l_v_b[14]" input="LOGIC.i_sp4_l_v_b[14]" output="LOGIC.o_sp4_v_b[14]" />
+  <direct name="sp4_l_v_b[15]" input="LOGIC.i_sp4_l_v_b[15]" output="LOGIC.o_sp4_v_b[15]" />
+  <direct name="sp4_l_v_b[16]" input="LOGIC.i_sp4_l_v_b[16]" output="LOGIC.o_sp4_v_b[16]" />
+  <direct name="sp4_l_v_b[17]" input="LOGIC.i_sp4_l_v_b[17]" output="LOGIC.o_sp4_v_b[17]" />
+  <direct name="sp4_l_v_b[18]" input="LOGIC.i_sp4_l_v_b[18]" output="LOGIC.o_sp4_v_b[18]" />
+  <direct name="sp4_l_v_b[19]" input="LOGIC.i_sp4_l_v_b[19]" output="LOGIC.o_sp4_v_b[19]" />
+  <direct name="sp4_l_v_b[20]" input="LOGIC.i_sp4_l_v_b[20]" output="LOGIC.o_sp4_v_b[20]" />
+  <direct name="sp4_l_v_b[21]" input="LOGIC.i_sp4_l_v_b[21]" output="LOGIC.o_sp4_v_b[21]" />
+  <direct name="sp4_l_v_b[22]" input="LOGIC.i_sp4_l_v_b[22]" output="LOGIC.o_sp4_v_b[22]" />
+  <direct name="sp4_l_v_b[23]" input="LOGIC.i_sp4_l_v_b[23]" output="LOGIC.o_sp4_v_b[23]" />
+  <direct name="sp4_l_v_b[24]" input="LOGIC.i_sp4_l_v_b[24]" output="LOGIC.o_sp4_v_b[24]" />
+  <direct name="sp4_l_v_b[25]" input="LOGIC.i_sp4_l_v_b[25]" output="LOGIC.o_sp4_v_b[25]" />
+  <direct name="sp4_l_v_b[26]" input="LOGIC.i_sp4_l_v_b[26]" output="LOGIC.o_sp4_v_b[26]" />
+  <direct name="sp4_l_v_b[27]" input="LOGIC.i_sp4_l_v_b[27]" output="LOGIC.o_sp4_v_b[27]" />
+  <direct name="sp4_l_v_b[28]" input="LOGIC.i_sp4_l_v_b[28]" output="LOGIC.o_sp4_v_b[28]" />
+  <direct name="sp4_l_v_b[29]" input="LOGIC.i_sp4_l_v_b[29]" output="LOGIC.o_sp4_v_b[29]" />
+  <direct name="sp4_l_v_b[30]" input="LOGIC.i_sp4_l_v_b[30]" output="LOGIC.o_sp4_v_b[30]" />
+  <direct name="sp4_l_v_b[31]" input="LOGIC.i_sp4_l_v_b[31]" output="LOGIC.o_sp4_v_b[31]" />
+  <direct name="sp4_l_v_b[32]" input="LOGIC.i_sp4_l_v_b[32]" output="LOGIC.o_sp4_v_b[32]" />
+  <direct name="sp4_l_v_b[33]" input="LOGIC.i_sp4_l_v_b[33]" output="LOGIC.o_sp4_v_b[33]" />
+  <direct name="sp4_l_v_b[34]" input="LOGIC.i_sp4_l_v_b[34]" output="LOGIC.o_sp4_v_b[34]" />
+  <direct name="sp4_l_v_b[35]" input="LOGIC.i_sp4_l_v_b[35]" output="LOGIC.o_sp4_v_b[35]" />
+  <direct name="sp4_l_v_b[36]" input="LOGIC.i_sp4_l_v_b[36]" output="LOGIC.o_sp4_v_b[36]" />
+  <direct name="sp4_l_v_b[37]" input="LOGIC.i_sp4_l_v_b[37]" output="LOGIC.o_sp4_v_b[37]" />
+  <direct name="sp4_l_v_b[38]" input="LOGIC.i_sp4_l_v_b[38]" output="LOGIC.o_sp4_v_b[38]" />
+  <direct name="sp4_l_v_b[39]" input="LOGIC.i_sp4_l_v_b[39]" output="LOGIC.o_sp4_v_b[39]" />
+  <direct name="sp4_l_v_b[40]" input="LOGIC.i_sp4_l_v_b[40]" output="LOGIC.o_sp4_v_b[40]" />
+  <direct name="sp4_l_v_b[41]" input="LOGIC.i_sp4_l_v_b[41]" output="LOGIC.o_sp4_v_b[41]" />
+  <direct name="sp4_l_v_b[42]" input="LOGIC.i_sp4_l_v_b[42]" output="LOGIC.o_sp4_v_b[42]" />
+  <direct name="sp4_l_v_b[43]" input="LOGIC.i_sp4_l_v_b[43]" output="LOGIC.o_sp4_v_b[43]" />
+  <direct name="sp4_l_v_b[44]" input="LOGIC.i_sp4_l_v_b[44]" output="LOGIC.o_sp4_v_b[44]" />
+  <direct name="sp4_l_v_b[45]" input="LOGIC.i_sp4_l_v_b[45]" output="LOGIC.o_sp4_v_b[45]" />
+  <direct name="sp4_l_v_b[46]" input="LOGIC.i_sp4_l_v_b[46]" output="LOGIC.o_sp4_v_b[46]" />
+  <direct name="sp4_l_v_b[47]" input="LOGIC.i_sp4_l_v_b[47]" output="LOGIC.o_sp4_v_b[47]" />
+
+  <!-- Span-12 Vertical -->
+  <!-- ================================================================ -->
+  <!--
+  <direct name="sp12_v_b[0]"  input="LOGIC.i_sp12_v_t[  ]" output="LOGIC.o_sp12_v_b[0]" />
+  <direct name="sp12_v_b[1]"  input="LOGIC.i_sp12_v_t[  ]" output="LOGIC.o_sp12_v_b[1]" />
+   -->
+  <direct name="sp12_v_t[0]"  input="LOGIC.i_sp12_v_t[0]"  output="LOGIC.o_sp12_v_b[2]"  />
+  <direct name="sp12_v_t[1]"  input="LOGIC.i_sp12_v_t[1]"  output="LOGIC.o_sp12_v_b[3]"  />
+  <direct name="sp12_v_t[2]"  input="LOGIC.i_sp12_v_t[2]"  output="LOGIC.o_sp12_v_b[4]"  />
+  <direct name="sp12_v_t[3]"  input="LOGIC.i_sp12_v_t[3]"  output="LOGIC.o_sp12_v_b[5]"  />
+  <direct name="sp12_v_t[4]"  input="LOGIC.i_sp12_v_t[4]"  output="LOGIC.o_sp12_v_b[6]"  />
+  <direct name="sp12_v_t[5]"  input="LOGIC.i_sp12_v_t[5]"  output="LOGIC.o_sp12_v_b[7]"  />
+  <direct name="sp12_v_t[6]"  input="LOGIC.i_sp12_v_t[6]"  output="LOGIC.o_sp12_v_b[8]"  />
+  <direct name="sp12_v_t[7]"  input="LOGIC.i_sp12_v_t[7]"  output="LOGIC.o_sp12_v_b[9]"  />
+  <direct name="sp12_v_t[8]"  input="LOGIC.i_sp12_v_t[8]"  output="LOGIC.o_sp12_v_b[10]" />
+  <direct name="sp12_v_t[9]"  input="LOGIC.i_sp12_v_t[9]"  output="LOGIC.o_sp12_v_b[11]" />
+  <direct name="sp12_v_t[10]" input="LOGIC.i_sp12_v_t[10]" output="LOGIC.o_sp12_v_b[12]" />
+  <direct name="sp12_v_t[11]" input="LOGIC.i_sp12_v_t[11]" output="LOGIC.o_sp12_v_b[13]" />
+  <direct name="sp12_v_t[12]" input="LOGIC.i_sp12_v_t[12]" output="LOGIC.o_sp12_v_b[14]" />
+  <direct name="sp12_v_t[13]" input="LOGIC.i_sp12_v_t[13]" output="LOGIC.o_sp12_v_b[15]" />
+  <direct name="sp12_v_t[14]" input="LOGIC.i_sp12_v_t[14]" output="LOGIC.o_sp12_v_b[16]" />
+  <direct name="sp12_v_t[15]" input="LOGIC.i_sp12_v_t[15]" output="LOGIC.o_sp12_v_b[17]" />
+  <direct name="sp12_v_t[16]" input="LOGIC.i_sp12_v_t[16]" output="LOGIC.o_sp12_v_b[18]" />
+  <direct name="sp12_v_t[17]" input="LOGIC.i_sp12_v_t[17]" output="LOGIC.o_sp12_v_b[19]" />
+  <direct name="sp12_v_t[18]" input="LOGIC.i_sp12_v_t[18]" output="LOGIC.o_sp12_v_b[20]" />
+  <direct name="sp12_v_t[19]" input="LOGIC.i_sp12_v_t[19]" output="LOGIC.o_sp12_v_b[21]" />
+  <direct name="sp12_v_t[20]" input="LOGIC.i_sp12_v_t[20]" output="LOGIC.o_sp12_v_b[22]" />
+  <direct name="sp12_v_t[21]" input="LOGIC.i_sp12_v_t[21]" output="LOGIC.o_sp12_v_b[23]" />
+  <!--
+  <direct name="sp12_v_t[22]" input="LOGIC.i_sp12_v_t[22]" output="LOGIC.o_sp12_v_b[  ]" />
+  <direct name="sp12_v_t[23]" input="LOGIC.i_sp12_v_t[23]" output="LOGIC.o_sp12_v_b[  ]" />
+   -->
+
+  <!-- ################################################################ -->
+
+  <!-- Span-4 Horizontal -->
+  <!-- ================================================================ -->
+  <!--
+  <direct name="sp4_h_r[0]"  input="LOGIC.i_sp4_h_l[  ]" output="LOGIC.o_sp4_h_r[0]"  />
+  <direct name="sp4_h_r[1]"  input="LOGIC.i_sp4_h_l[  ]" output="LOGIC.o_sp4_h_r[1]"  />
+  <direct name="sp4_h_r[2]"  input="LOGIC.i_sp4_h_l[  ]" output="LOGIC.o_sp4_h_r[2]"  />
+  <direct name="sp4_h_r[3]"  input="LOGIC.i_sp4_h_l[  ]" output="LOGIC.o_sp4_h_r[3]"  />
+  <direct name="sp4_h_r[4]"  input="LOGIC.i_sp4_h_l[  ]" output="LOGIC.o_sp4_h_r[4]"  />
+  <direct name="sp4_h_r[5]"  input="LOGIC.i_sp4_h_l[  ]" output="LOGIC.o_sp4_h_r[5]"  />
+  <direct name="sp4_h_r[6]"  input="LOGIC.i_sp4_h_l[  ]" output="LOGIC.o_sp4_h_r[6]"  />
+  <direct name="sp4_h_r[7]"  input="LOGIC.i_sp4_h_l[  ]" output="LOGIC.o_sp4_h_r[7]"  />
+  <direct name="sp4_h_r[8]"  input="LOGIC.i_sp4_h_l[  ]" output="LOGIC.o_sp4_h_r[8]"  />
+  <direct name="sp4_h_r[9]"  input="LOGIC.i_sp4_h_l[  ]" output="LOGIC.o_sp4_h_r[9]"  />
+  <direct name="sp4_h_r[10]" input="LOGIC.i_sp4_h_l[  ]" output="LOGIC.o_sp4_h_r[10]" />
+  <direct name="sp4_h_r[11]" input="LOGIC.i_sp4_h_l[  ]" output="LOGIC.o_sp4_h_r[11]" />
+   -->
+  <direct name="sp4_h_l[0]"  input="LOGIC.i_sp4_h_l[0]"  output="LOGIC.o_sp4_h_r[12]" />
+  <direct name="sp4_h_l[1]"  input="LOGIC.i_sp4_h_l[1]"  output="LOGIC.o_sp4_h_r[13]" />
+  <direct name="sp4_h_l[2]"  input="LOGIC.i_sp4_h_l[2]"  output="LOGIC.o_sp4_h_r[14]" />
+  <direct name="sp4_h_l[3]"  input="LOGIC.i_sp4_h_l[3]"  output="LOGIC.o_sp4_h_r[15]" />
+  <direct name="sp4_h_l[4]"  input="LOGIC.i_sp4_h_l[4]"  output="LOGIC.o_sp4_h_r[16]" />
+  <direct name="sp4_h_l[5]"  input="LOGIC.i_sp4_h_l[5]"  output="LOGIC.o_sp4_h_r[17]" />
+  <direct name="sp4_h_l[6]"  input="LOGIC.i_sp4_h_l[6]"  output="LOGIC.o_sp4_h_r[18]" />
+  <direct name="sp4_h_l[7]"  input="LOGIC.i_sp4_h_l[7]"  output="LOGIC.o_sp4_h_r[19]" />
+  <direct name="sp4_h_l[8]"  input="LOGIC.i_sp4_h_l[8]"  output="LOGIC.o_sp4_h_r[20]" />
+  <direct name="sp4_h_l[9]"  input="LOGIC.i_sp4_h_l[9]"  output="LOGIC.o_sp4_h_r[21]" />
+  <direct name="sp4_h_l[10]" input="LOGIC.i_sp4_h_l[10]" output="LOGIC.o_sp4_h_r[22]" />
+  <direct name="sp4_h_l[11]" input="LOGIC.i_sp4_h_l[11]" output="LOGIC.o_sp4_h_r[23]" />
+  <direct name="sp4_h_l[12]" input="LOGIC.i_sp4_h_l[12]" output="LOGIC.o_sp4_h_r[24]" />
+  <direct name="sp4_h_l[13]" input="LOGIC.i_sp4_h_l[13]" output="LOGIC.o_sp4_h_r[25]" />
+  <direct name="sp4_h_l[14]" input="LOGIC.i_sp4_h_l[14]" output="LOGIC.o_sp4_h_r[26]" />
+  <direct name="sp4_h_l[15]" input="LOGIC.i_sp4_h_l[15]" output="LOGIC.o_sp4_h_r[27]" />
+  <direct name="sp4_h_l[16]" input="LOGIC.i_sp4_h_l[16]" output="LOGIC.o_sp4_h_r[28]" />
+  <direct name="sp4_h_l[17]" input="LOGIC.i_sp4_h_l[17]" output="LOGIC.o_sp4_h_r[29]" />
+  <direct name="sp4_h_l[18]" input="LOGIC.i_sp4_h_l[18]" output="LOGIC.o_sp4_h_r[30]" />
+  <direct name="sp4_h_l[19]" input="LOGIC.i_sp4_h_l[19]" output="LOGIC.o_sp4_h_r[31]" />
+  <direct name="sp4_h_l[20]" input="LOGIC.i_sp4_h_l[20]" output="LOGIC.o_sp4_h_r[32]" />
+  <direct name="sp4_h_l[21]" input="LOGIC.i_sp4_h_l[21]" output="LOGIC.o_sp4_h_r[33]" />
+  <direct name="sp4_h_l[22]" input="LOGIC.i_sp4_h_l[22]" output="LOGIC.o_sp4_h_r[34]" />
+  <direct name="sp4_h_l[23]" input="LOGIC.i_sp4_h_l[23]" output="LOGIC.o_sp4_h_r[35]" />
+  <direct name="sp4_h_l[24]" input="LOGIC.i_sp4_h_l[24]" output="LOGIC.o_sp4_h_r[36]" />
+  <direct name="sp4_h_l[25]" input="LOGIC.i_sp4_h_l[25]" output="LOGIC.o_sp4_h_r[37]" />
+  <direct name="sp4_h_l[26]" input="LOGIC.i_sp4_h_l[26]" output="LOGIC.o_sp4_h_r[38]" />
+  <direct name="sp4_h_l[27]" input="LOGIC.i_sp4_h_l[27]" output="LOGIC.o_sp4_h_r[39]" />
+  <direct name="sp4_h_l[28]" input="LOGIC.i_sp4_h_l[28]" output="LOGIC.o_sp4_h_r[40]" />
+  <direct name="sp4_h_l[29]" input="LOGIC.i_sp4_h_l[29]" output="LOGIC.o_sp4_h_r[41]" />
+  <direct name="sp4_h_l[30]" input="LOGIC.i_sp4_h_l[30]" output="LOGIC.o_sp4_h_r[42]" />
+  <direct name="sp4_h_l[31]" input="LOGIC.i_sp4_h_l[31]" output="LOGIC.o_sp4_h_r[43]" />
+  <direct name="sp4_h_l[32]" input="LOGIC.i_sp4_h_l[32]" output="LOGIC.o_sp4_h_r[44]" />
+  <direct name="sp4_h_l[33]" input="LOGIC.i_sp4_h_l[33]" output="LOGIC.o_sp4_h_r[45]" />
+  <direct name="sp4_h_l[34]" input="LOGIC.i_sp4_h_l[34]" output="LOGIC.o_sp4_h_r[46]" />
+  <direct name="sp4_h_l[35]" input="LOGIC.i_sp4_h_l[35]" output="LOGIC.o_sp4_h_r[47]" />
+  <!--
+  <direct name="sp4_h_l[36]" input="LOGIC.i_sp4_h_l[36]" output="LOGIC.o_sp4_h_r[  ]" />
+  <direct name="sp4_h_l[37]" input="LOGIC.i_sp4_h_l[37]" output="LOGIC.o_sp4_h_r[  ]" />
+  <direct name="sp4_h_l[38]" input="LOGIC.i_sp4_h_l[38]" output="LOGIC.o_sp4_h_r[  ]" />
+  <direct name="sp4_h_l[39]" input="LOGIC.i_sp4_h_l[39]" output="LOGIC.o_sp4_h_r[  ]" />
+  <direct name="sp4_h_l[40]" input="LOGIC.i_sp4_h_l[40]" output="LOGIC.o_sp4_h_r[  ]" />
+  <direct name="sp4_h_l[41]" input="LOGIC.i_sp4_h_l[41]" output="LOGIC.o_sp4_h_r[  ]" />
+  <direct name="sp4_h_l[42]" input="LOGIC.i_sp4_h_l[42]" output="LOGIC.o_sp4_h_r[  ]" />
+  <direct name="sp4_h_l[43]" input="LOGIC.i_sp4_h_l[43]" output="LOGIC.o_sp4_h_r[  ]" />
+  <direct name="sp4_h_l[44]" input="LOGIC.i_sp4_h_l[44]" output="LOGIC.o_sp4_h_r[  ]" />
+  <direct name="sp4_h_l[45]" input="LOGIC.i_sp4_h_l[45]" output="LOGIC.o_sp4_h_r[  ]" />
+  <direct name="sp4_h_l[46]" input="LOGIC.i_sp4_h_l[46]" output="LOGIC.o_sp4_h_r[  ]" />
+  <direct name="sp4_h_l[47]" input="LOGIC.i_sp4_h_l[47]" output="LOGIC.o_sp4_h_r[  ]" />
+   -->
+
+  <!-- ################################################################ -->
+
+  <!-- Span-12 Horizontal -->
+  <!-- ================================================================ -->
+  <!--
+  <direct name="sp12_h_r[0]"  input="LOGIC.i_sp12_h_l[  ]" output="LOGIC.o_sp12_h_r[0]" />
+  <direct name="sp12_h_r[1]"  input="LOGIC.i_sp12_h_l[  ]" output="LOGIC.o_sp12_h_r[1]" />
+   -->
+  <direct name="sp12_h_l[0]"  input="LOGIC.i_sp12_h_l[0]"  output="LOGIC.o_sp12_h_r[2]"  />
+  <direct name="sp12_h_l[1]"  input="LOGIC.i_sp12_h_l[1]"  output="LOGIC.o_sp12_h_r[3]"  />
+  <direct name="sp12_h_l[2]"  input="LOGIC.i_sp12_h_l[2]"  output="LOGIC.o_sp12_h_r[4]"  />
+  <direct name="sp12_h_l[3]"  input="LOGIC.i_sp12_h_l[3]"  output="LOGIC.o_sp12_h_r[5]"  />
+  <direct name="sp12_h_l[4]"  input="LOGIC.i_sp12_h_l[4]"  output="LOGIC.o_sp12_h_r[6]"  />
+  <direct name="sp12_h_l[5]"  input="LOGIC.i_sp12_h_l[5]"  output="LOGIC.o_sp12_h_r[7]"  />
+  <direct name="sp12_h_l[6]"  input="LOGIC.i_sp12_h_l[6]"  output="LOGIC.o_sp12_h_r[8]"  />
+  <direct name="sp12_h_l[7]"  input="LOGIC.i_sp12_h_l[7]"  output="LOGIC.o_sp12_h_r[9]"  />
+  <direct name="sp12_h_l[8]"  input="LOGIC.i_sp12_h_l[8]"  output="LOGIC.o_sp12_h_r[10]" />
+  <direct name="sp12_h_l[9]"  input="LOGIC.i_sp12_h_l[9]"  output="LOGIC.o_sp12_h_r[11]" />
+  <direct name="sp12_h_l[10]" input="LOGIC.i_sp12_h_l[10]" output="LOGIC.o_sp12_h_r[12]" />
+  <direct name="sp12_h_l[11]" input="LOGIC.i_sp12_h_l[11]" output="LOGIC.o_sp12_h_r[13]" />
+  <direct name="sp12_h_l[12]" input="LOGIC.i_sp12_h_l[12]" output="LOGIC.o_sp12_h_r[14]" />
+  <direct name="sp12_h_l[13]" input="LOGIC.i_sp12_h_l[13]" output="LOGIC.o_sp12_h_r[15]" />
+  <direct name="sp12_h_l[14]" input="LOGIC.i_sp12_h_l[14]" output="LOGIC.o_sp12_h_r[16]" />
+  <direct name="sp12_h_l[15]" input="LOGIC.i_sp12_h_l[15]" output="LOGIC.o_sp12_h_r[17]" />
+  <direct name="sp12_h_l[16]" input="LOGIC.i_sp12_h_l[16]" output="LOGIC.o_sp12_h_r[18]" />
+  <direct name="sp12_h_l[17]" input="LOGIC.i_sp12_h_l[17]" output="LOGIC.o_sp12_h_r[19]" />
+  <direct name="sp12_h_l[18]" input="LOGIC.i_sp12_h_l[18]" output="LOGIC.o_sp12_h_r[20]" />
+  <direct name="sp12_h_l[19]" input="LOGIC.i_sp12_h_l[19]" output="LOGIC.o_sp12_h_r[21]" />
+  <direct name="sp12_h_l[20]" input="LOGIC.i_sp12_h_l[20]" output="LOGIC.o_sp12_h_r[22]" />
+  <direct name="sp12_h_l[21]" input="LOGIC.i_sp12_h_l[21]" output="LOGIC.o_sp12_h_r[23]" />
+  <!--
+  <direct name="sp12_h_l[22]" input="LOGIC.i_sp12_h_l[22]" output="LOGIC.o_sp12_h_r[  ]" />
+  <direct name="sp12_h_l[23]" input="LOGIC.i_sp12_h_l[23]" output="LOGIC.o_sp12_h_r[  ]" />
+   -->
+
+  <!-- ################################################################ -->
+ </interconnect>
+
+ <pinlocations pattern="custom">
+  <loc side="top" xoffset="0" yoffset="0">
+   LOGIC.clk
+
+   LOGIC.i_glb_netwk
+   LOGIC.o_glb_netwk
+
+   LOGIC.carry_out
+
+   LOGIC.o_neigh_op_tnr LOGIC.i_neigh_op_tnr
+   LOGIC.o_neigh_op_top LOGIC.i_neigh_op_top
+   LOGIC.o_neigh_op_tnl LOGIC.i_neigh_op_tnl
+
+   LOGIC.i_sp4_v_t
+   LOGIC.o_sp4_v_t
+   LOGIC.i_sp12_v_t
+   LOGIC.o_sp12_v_t
+  </loc>
+  <!-- ## -->
+  <loc side="right" xoffset="0" yoffset="0">
+   LOGIC.i_sp4_h_r
+   LOGIC.o_sp4_h_r
+   LOGIC.i_sp12_h_r
+   LOGIC.o_sp12_h_r
+
+   LOGIC.i_sp4_r_v_b    LOGIC.o_sp4_r_v_b
+   LOGIC.i_neigh_op_rgt LOGIC.o_neigh_op_rgt
+  </loc>
+  <!-- ## -->
+  <loc side="bottom" xoffset="0" yoffset="0">
+   LOGIC.carry_in
+
+   LOGIC.i_neigh_op_bnr LOGIC.o_neigh_op_bnr
+   LOGIC.i_neigh_op_bot LOGIC.o_neigh_op_bot
+   LOGIC.i_neigh_op_bnl LOGIC.o_neigh_op_bnl
+
+   LOGIC.i_sp4_v_b
+   LOGIC.o_sp4_v_b
+   LOGIC.i_sp12_v_b
+   LOGIC.o_sp12_v_b
+  </loc>
+  <!-- ## -->
+  <loc side="left" xoffset="0" yoffset="0">
+   LOGIC.i_sp4_h_l
+   LOGIC.o_sp4_h_l
+   LOGIC.i_sp12_h_l
+   LOGIC.o_sp12_h_l
+
+   LOGIC.i_sp4_l_v_b    LOGIC.o_sp4_l_v_b
+   LOGIC.o_neigh_op_lft LOGIC.i_neigh_op_lft
+  </loc>
+ </pinlocations>
+ <switchblock_locations pattern="external_full_internal_straight"/>
+
+ <fc default_in_type="frac" default_in_val="0.0" default_out_type="frac" default_out_val="0.0">
+
+  <fc_override fc_type="abs" fc_val="1" port_name="clk" segment_name="global" />
+
+  <!-- Vertical spans ################################################# -->
+  <!-- Span-4 Vertical -->
+  <fc_override fc_type="abs" fc_val="1" port_name="i_sp4_v_t"    segment_name="span4"  /><fc_override fc_type="abs" fc_val="1" port_name="o_sp4_v_t"    segment_name="span4"  />
+  <fc_override fc_type="abs" fc_val="1" port_name="i_sp4_v_b"    segment_name="span4"  /><fc_override fc_type="abs" fc_val="1" port_name="o_sp4_v_b"    segment_name="span4"  />
+
+  <!-- Span-12 Vertical -->
+  <fc_override fc_type="abs" fc_val="1" port_name="i_sp12_v_t"   segment_name="span12" /><fc_override fc_type="abs" fc_val="1" port_name="o_sp12_v_t"   segment_name="span12" />
+  <fc_override fc_type="abs" fc_val="1" port_name="i_sp12_v_b"   segment_name="span12" /><fc_override fc_type="abs" fc_val="1" port_name="o_sp12_v_b"   segment_name="span12" />
+
+  <!-- Horizontal spans ############################################### -->
+  <!-- Span-4 Horizontal -->
+  <fc_override fc_type="abs" fc_val="1" port_name="i_sp4_h_r"    segment_name="span4"  /><fc_override fc_type="abs" fc_val="1" port_name="o_sp4_h_r"    segment_name="span4"  />
+  <fc_override fc_type="abs" fc_val="1" port_name="i_sp4_h_l"    segment_name="span4"  /><fc_override fc_type="abs" fc_val="1" port_name="o_sp4_h_l"    segment_name="span4"  />
+
+  <!-- Span-12 Horizontal -->
+  <fc_override fc_type="abs" fc_val="1" port_name="i_sp12_h_r"   segment_name="span12" /><fc_override fc_type="abs" fc_val="1" port_name="o_sp12_h_r"   segment_name="span12" />
+  <fc_override fc_type="abs" fc_val="1" port_name="i_sp12_h_l"   segment_name="span12" /><fc_override fc_type="abs" fc_val="1" port_name="o_sp12_h_l"   segment_name="span12" />
+
+  <!-- Global wires ################################################### -->
+  <fc_override fc_type="abs" fc_val="8" port_name="i_glb_netwk"  segment_name="global" /><fc_override fc_type="abs" fc_val="8" port_name="o_glb_netwk"  segment_name="global" />
+
+  <!-- Carry chain doesn't connect to the interconnect -->
+  <fc_override fc_type="frac" fc_val="0.0" port_name="carry_out"     /><fc_override fc_type="frac" fc_val="0.0" port_name="carry_in"    />
+  <!-- Span-4 Right Vertical are directly connected -->
+  <fc_override fc_type="frac" fc_val="0.0" port_name="i_sp4_r_v_b"   /><fc_override fc_type="frac" fc_val="0.0" port_name="o_sp4_r_v_b" />
+  <fc_override fc_type="frac" fc_val="0.0" port_name="i_sp4_l_v_b"   /><fc_override fc_type="frac" fc_val="0.0" port_name="o_sp4_l_v_b" />
+  <!-- Local neighbourhood -->
+  <fc_override fc_type="frac" fc_val="0.0" port_name="i_neigh_op_top" /><fc_override fc_type="frac" fc_val="0.0" port_name="o_neigh_op_top" />
+  <fc_override fc_type="frac" fc_val="0.0" port_name="i_neigh_op_tnr" /><fc_override fc_type="frac" fc_val="0.0" port_name="o_neigh_op_tnr" />
+  <fc_override fc_type="frac" fc_val="0.0" port_name="i_neigh_op_rgt" /><fc_override fc_type="frac" fc_val="0.0" port_name="o_neigh_op_rgt" />
+  <fc_override fc_type="frac" fc_val="0.0" port_name="i_neigh_op_bnr" /><fc_override fc_type="frac" fc_val="0.0" port_name="o_neigh_op_bnr" />
+  <fc_override fc_type="frac" fc_val="0.0" port_name="i_neigh_op_bot" /><fc_override fc_type="frac" fc_val="0.0" port_name="o_neigh_op_bot" />
+  <fc_override fc_type="frac" fc_val="0.0" port_name="i_neigh_op_bnl" /><fc_override fc_type="frac" fc_val="0.0" port_name="o_neigh_op_bnl" />
+  <fc_override fc_type="frac" fc_val="0.0" port_name="i_neigh_op_lft" /><fc_override fc_type="frac" fc_val="0.0" port_name="o_neigh_op_lft" />
+  <fc_override fc_type="frac" fc_val="0.0" port_name="i_neigh_op_tnl" /><fc_override fc_type="frac" fc_val="0.0" port_name="o_neigh_op_tnl" />
+
+
+  <!-- All glb2local pins are connected to all the global long lines
+  <fc_override fc_type="abs" fc_val="8" port_name="iglb2local" segment_name="global" />
+  <fc_override fc_type="abs" fc_val="1" port_name="glb_netwk"  segment_name="global" />
+
+  Span 12 horizontal wires are connected to 1 wire in local_g0 and 1 wire in local_g1
+  <fc_override fc_type="abs" fc_val="1" port_name="ilocal_g0"  segment_name="span12" />
+  <fc_override fc_type="abs" fc_val="1" port_name="olocal_g0"  segment_name="span12" />
+  <fc_override fc_type="abs" fc_val="1" port_name="ilocal_g1"  segment_name="span12" />
+  <fc_override fc_type="abs" fc_val="1" port_name="olocal_g1"  segment_name="span12" />
+  <fc_override fc_type="abs" fc_val="1" port_name="ilocal_g2"  segment_name="span12" />
+  <fc_override fc_type="abs" fc_val="1" port_name="olocal_g2"  segment_name="span12" />
+  <fc_override fc_type="abs" fc_val="1" port_name="ilocal_g3"  segment_name="span12" />
+  <fc_override fc_type="abs" fc_val="1" port_name="olocal_g3"  segment_name="span12" />
+
+  Span 12 vertical wires are connected to 1 wire in local_g2 and 1 wire in local_g3
+  <fc_override fc_type="abs" fc_val="1" port_name="ilocal_g2"  segment_name="span12v" />
+  <fc_override fc_type="abs" fc_val="1" port_name="olocal_g2"  segment_name="span12v" />
+  <fc_override fc_type="abs" fc_val="1" port_name="ilocal_g3"  segment_name="span12v" />
+  <fc_override fc_type="abs" fc_val="1" port_name="olocal_g3"  segment_name="span12v" />
+
+  Span 4 vertical wires are connected to 2 wires in each local_gX group
+  Span 4 horizontal wires are connected to 2 wires in each local_gX group
+  <fc_override fc_type="abs" fc_val="2" port_name="ilocal_g0"  segment_name="span4" />
+  <fc_override fc_type="abs" fc_val="2" port_name="olocal_g0"  segment_name="span4" />
+  <fc_override fc_type="abs" fc_val="2" port_name="ilocal_g1"  segment_name="span4" />
+  <fc_override fc_type="abs" fc_val="2" port_name="olocal_g1"  segment_name="span4" />
+  <fc_override fc_type="abs" fc_val="2" port_name="ilocal_g2"  segment_name="span4" />
+  <fc_override fc_type="abs" fc_val="2" port_name="olocal_g2"  segment_name="span4" />
+  <fc_override fc_type="abs" fc_val="2" port_name="ilocal_g3"  segment_name="span4" />
+  <fc_override fc_type="abs" fc_val="2" port_name="olocal_g3"  segment_name="span4" />
+
+  Neighbour wires are connected to 2 wires in each local_gX group
+  <fc_override fc_type="abs" fc_val="2" port_name="ilocal_g0"  segment_name="neigh" />
+  <fc_override fc_type="abs" fc_val="2" port_name="olocal_g0"  segment_name="neigh" />
+  <fc_override fc_type="abs" fc_val="2" port_name="ilocal_g1"  segment_name="neigh" />
+  <fc_override fc_type="abs" fc_val="2" port_name="olocal_g1"  segment_name="neigh" />
+  <fc_override fc_type="abs" fc_val="2" port_name="ilocal_g2"  segment_name="neigh" />
+  <fc_override fc_type="abs" fc_val="2" port_name="olocal_g2"  segment_name="neigh" />
+  <fc_override fc_type="abs" fc_val="2" port_name="ilocal_g3"  segment_name="neigh" />
+  <fc_override fc_type="abs" fc_val="2" port_name="olocal_g3"  segment_name="neigh" />
+
+  lutff_X/out is connected to 3 span4v wires
+  <fc_override fc_type="abs" fc_val="3" port_name="lutff_out"  segment_name="span4v" />
+  lutff_X/out is connected to 3 span4h wires
+  <fc_override fc_type="abs" fc_val="3" port_name="lutff_out"  segment_name="span4h" />
+  lutff_X/out is connected to 3 span4 rv wires
+  lutff_X/out is connected to ~2 span12v wires
+  <fc_override fc_type="abs" fc_val="2" port_name="lutff_out"  segment_name="span12v" />
+  lutff_X/out is connected to ~2 span12h wires
+  <fc_override fc_type="abs" fc_val="2" port_name="lutff_out"  segment_name="span12h" />
+  -->
+ </fc>
+
+</pb_type>
