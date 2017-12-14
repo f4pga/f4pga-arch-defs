@@ -797,27 +797,27 @@
  </pinlocations>
  <switchblock_locations pattern="external_full_internal_straight"/>
 
- <fc default_in_type="frac" default_in_val="0.0" default_out_type="frac" default_out_val="0.0">
+ <fc default_in_type="frac" default_in_val="0.5" default_out_type="frac" default_out_val="1.0">
 
   <fc_override fc_type="abs" fc_val="1" port_name="clk" segment_name="global" />
 
   <!-- Vertical spans ################################################# -->
   <!-- Span-4 Vertical -->
-  <fc_override fc_type="abs" fc_val="1" port_name="i_sp4_v_t"    segment_name="span4"  /><fc_override fc_type="abs" fc_val="1" port_name="o_sp4_v_t"    segment_name="span4"  />
-  <fc_override fc_type="abs" fc_val="1" port_name="i_sp4_v_b"    segment_name="span4"  /><fc_override fc_type="abs" fc_val="1" port_name="o_sp4_v_b"    segment_name="span4"  />
+  <fc_override fc_type="frac" fc_val="0.5" port_name="i_sp4_v_t"    segment_name="span4"  /><fc_override fc_type="frac" fc_val="0.5" port_name="o_sp4_v_t"    segment_name="span4"  />
+  <fc_override fc_type="frac" fc_val="0.5" port_name="i_sp4_v_b"    segment_name="span4"  /><fc_override fc_type="frac" fc_val="0.5" port_name="o_sp4_v_b"    segment_name="span4"  />
 
   <!-- Span-12 Vertical -->
-  <fc_override fc_type="abs" fc_val="1" port_name="i_sp12_v_t"   segment_name="span12" /><fc_override fc_type="abs" fc_val="1" port_name="o_sp12_v_t"   segment_name="span12" />
-  <fc_override fc_type="abs" fc_val="1" port_name="i_sp12_v_b"   segment_name="span12" /><fc_override fc_type="abs" fc_val="1" port_name="o_sp12_v_b"   segment_name="span12" />
+  <fc_override fc_type="frac" fc_val="0.5" port_name="i_sp12_v_t"   segment_name="span12" /><fc_override fc_type="frac" fc_val="0.5" port_name="o_sp12_v_t"   segment_name="span12" />
+  <fc_override fc_type="frac" fc_val="0.5" port_name="i_sp12_v_b"   segment_name="span12" /><fc_override fc_type="frac" fc_val="0.5" port_name="o_sp12_v_b"   segment_name="span12" />
 
   <!-- Horizontal spans ############################################### -->
   <!-- Span-4 Horizontal -->
-  <fc_override fc_type="abs" fc_val="1" port_name="i_sp4_h_r"    segment_name="span4"  /><fc_override fc_type="abs" fc_val="1" port_name="o_sp4_h_r"    segment_name="span4"  />
-  <fc_override fc_type="abs" fc_val="1" port_name="i_sp4_h_l"    segment_name="span4"  /><fc_override fc_type="abs" fc_val="1" port_name="o_sp4_h_l"    segment_name="span4"  />
+  <fc_override fc_type="frac" fc_val="0.5" port_name="i_sp4_h_r"    segment_name="span4"  /><fc_override fc_type="frac" fc_val="0.5" port_name="o_sp4_h_r"    segment_name="span4"  />
+  <fc_override fc_type="frac" fc_val="0.5" port_name="i_sp4_h_l"    segment_name="span4"  /><fc_override fc_type="frac" fc_val="0.5" port_name="o_sp4_h_l"    segment_name="span4"  />
 
   <!-- Span-12 Horizontal -->
-  <fc_override fc_type="abs" fc_val="1" port_name="i_sp12_h_r"   segment_name="span12" /><fc_override fc_type="abs" fc_val="1" port_name="o_sp12_h_r"   segment_name="span12" />
-  <fc_override fc_type="abs" fc_val="1" port_name="i_sp12_h_l"   segment_name="span12" /><fc_override fc_type="abs" fc_val="1" port_name="o_sp12_h_l"   segment_name="span12" />
+  <fc_override fc_type="frac" fc_val="0.5" port_name="i_sp12_h_r"   segment_name="span12" /><fc_override fc_type="frac" fc_val="0.5" port_name="o_sp12_h_r"   segment_name="span12" />
+  <fc_override fc_type="frac" fc_val="0.5" port_name="i_sp12_h_l"   segment_name="span12" /><fc_override fc_type="frac" fc_val="0.5" port_name="o_sp12_h_l"   segment_name="span12" />
 
   <!-- Global wires ################################################### -->
   <fc_override fc_type="abs" fc_val="8" port_name="i_glb_netwk"  segment_name="global" /><fc_override fc_type="abs" fc_val="8" port_name="o_glb_netwk"  segment_name="global" />
