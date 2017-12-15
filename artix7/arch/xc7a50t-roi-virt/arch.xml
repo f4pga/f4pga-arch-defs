@@ -1,0 +1,247 @@
+<!-- set: ai sw=1 ts=1 sta et -->
+<architecture xmlns:xi="http://www.w3.org/2001/XInclude">
+ <!-- ODIN-II model description for non-standard block type -->
+ <models>
+  <model name="INT">
+   <input_ports>
+    <port name="I" combinational_sink_ports="O" />
+   </input_ports>
+   <output_ports>
+    <port name="O" />
+   </output_ports>
+  </model>
+
+  <xi:include href="../../primitives/clbll/model.xml" xpointer="xpointer(models/*)" />
+ </models>
+
+ <!-- Layout of the FPGA, we are using 4x4 -->
+ <layout>
+  <fixed_layout name="xc7a50t" width="12" height="10">
+
+   <col type="EMPTY"      startx="0"  priority="10" />
+   <col type="PAD"        startx="1"  priority="10" /><!-- <col type="LIOB"       startx="0"   priority="10" /> -->
+
+   <col type="CLBLL_L"    startx="2"  priority="10" />
+   <col type="INT_L"      startx="3"  priority="10" />
+   <col type="INT_R"      startx="4"  priority="10" />
+   <col type="CLBLM_R"    startx="5"  priority="10" />
+
+   <col type="CLBLL_L"    startx="6"  priority="10" />
+   <col type="INT_L"      startx="7"  priority="10" />
+   <col type="INT_R"      startx="8"  priority="10" />
+   <col type="CLBLM_R"    startx="9"  priority="10" />
+
+   <col type="PAD"        startx="10" priority="10" /><!-- <col type="RIOB"       startx="114"  priority="10" /> -->
+   <col type="EMPTY"      startx="11" priority="10" />
+
+  </fixed_layout>
+ </layout>
+
+ <device>
+    <sizing R_minW_nmos="6065.520020" R_minW_pmos="18138.500000" />
+    <area grid_logic_tile_area="14813.392"/>
+    <connection_block input_switch_name="2"/>
+    <switch_block type="wilton" fs="3"/>
+    <chan_width_distr>
+      <x distr="uniform" peak="1.000000"/>
+      <y distr="uniform" peak="1.000000"/>
+    </chan_width_distr>
+ </device>
+
+ <switchlist>
+  <!-- name="buffer"  == name="0" -->
+  <!-- name="routing" == name="1" -->
+  <switch type="mux" name="1" R="551" Cin=".77e-15" Cout="4e-15" Tdel="58e-12" mux_trans_size="2.630740" buf_size="27.645901"/>
+  <switch type="mux" name="2" R="551" Cin=".77e-15" Cout="4e-15" Tdel="58e-12" mux_trans_size="2.630740" buf_size="27.645901"/>
+ </switchlist>
+ <segmentlist>
+  <!-- Global networks -->
+  <segment name="global" length="longline" freq="0.010000" type="bidir" Rmetal="101" Cmetal="22.5e-15">
+   <sb type="pattern">1 1</sb>
+   <cb type="pattern">0</cb>
+   <wire_switch name="1"/>
+   <opin_switch name="2"/>
+  </segment>
+
+  <!-- Span 12 vertical   tracks -->
+  <!-- Span 12 horizontal tracks -->
+  <segment name="long-span" length="11" freq="0.250000" type="bidir" Rmetal="101" Cmetal="22.5e-15">
+   <sb type="pattern">1 1 1 1 1 1 1 1 1 1 1 1</sb>
+   <cb type="pattern">1 1 1 1 1 1 1 1 1 1 1</cb>
+   <wire_switch name="1"/>
+   <opin_switch name="2"/>
+  </segment>
+
+  <!-- Span 4 vertical   tracks -->
+  <!-- Span 4 horizontal tracks -->
+  <segment name="short-span" length="4" freq="0.750000" type="bidir" Rmetal="101" Cmetal="22.5e-15">
+   <sb type="pattern">1 1 1 1 1</sb>
+   <cb type="pattern">1 1 1 1</cb>
+   <wire_switch name="1"/>
+   <opin_switch name="2"/>
+  </segment>
+ </segmentlist>
+ <complexblocklist>
+
+  <xi:include href="../../../vpr/pad/pb_type.xml"/>
+
+  <pb_type name="CLBLL_L">
+   <input  name="IN"  num_pins="32" />
+   <input  name="GLB" num_pins="4"  />
+   <output name="OUT" num_pins="12" />
+   <xi:include href="../../primitives/clbll/pb_type.xml" />
+   <interconnect>
+    <complete
+      name="IN"
+      input="CLBLL_L.IN" output="CLBLL.DX CLBLL.D CLBLL.CX CLBLL.C CLBLL.BX CLBLL.B CLBLL.AX CLBLL.A" />
+    <complete
+      name="OUT"
+      input="CLBLL.DMUX CLBLL.Dout CLBLL.DQ CLBLL.CMUX CLBLL.Cout CLBLL.CQ CLBLL.BMUX CLBLL.Bout CLBLL.BQ CLBLL.AMUX CLBLL.Aout CLBLL.AQ"
+      output="CLBLL_L.OUT" />
+    <complete name="GLB"
+      input="CLBLL_L.GLB" output="CLBLL.SR CLBLL.CE CLBLL.CLK" />
+   </interconnect>
+
+   <pinlocations pattern="custom">
+    <loc side="top"   xoffset="0" yoffset="0">CLBLL_L.GLB</loc>
+    <loc side="left"  xoffset="0" yoffset="0">CLBLL_L.IN</loc>
+    <loc side="right" xoffset="0" yoffset="0">CLBLL_L.OUT</loc>
+   </pinlocations>
+   <fc default_in_type="frac" default_in_val="1.0" default_out_type="frac" default_out_val="1.0">
+     <fc_override fc_type="frac" fc_val="0.5" segment_name="long-span" />
+     <fc_override fc_type="frac" fc_val="0.1" segment_name="global" />
+   </fc>
+  </pb_type>
+
+  <pb_type name="CLBLL_R">
+   <input  name="IN"  num_pins="32" />
+   <input  name="GLB" num_pins="4"  />
+   <output name="OUT" num_pins="12" />
+   <xi:include href="../../primitives/clbll/pb_type.xml" />
+   <interconnect>
+    <complete
+      name="IN"
+      input="CLBLL_R.IN" output="CLBLL.DX CLBLL.D CLBLL.CX CLBLL.C CLBLL.BX CLBLL.B CLBLL.AX CLBLL.A" />
+    <complete
+      name="OUT"
+      input="CLBLL.DMUX CLBLL.Dout CLBLL.DQ CLBLL.CMUX CLBLL.Cout CLBLL.CQ CLBLL.BMUX CLBLL.Bout CLBLL.BQ CLBLL.AMUX CLBLL.Aout CLBLL.AQ"
+      output="CLBLL_R.OUT" />
+    <complete name="GLB"
+      input="CLBLL_R.GLB" output="CLBLL.SR CLBLL.CE CLBLL.CLK" />
+   </interconnect>
+
+   <pinlocations pattern="custom">
+    <loc side="top"   xoffset="0" yoffset="0">CLBLL_R.GLB</loc>
+    <loc side="right" xoffset="0" yoffset="0">CLBLL_R.IN</loc>
+    <loc side="left"  xoffset="0" yoffset="0">CLBLL_R.OUT</loc>
+   </pinlocations>
+   <fc default_in_type="frac" default_in_val="1.0" default_out_type="frac" default_out_val="1.0">
+     <fc_override fc_type="frac" fc_val="0.5" segment_name="long-span" />
+     <fc_override fc_type="frac" fc_val="0.1" segment_name="global" />
+   </fc>
+  </pb_type>
+
+  <pb_type name="CLBLM_L">
+   <input  name="IN"  num_pins="32" />
+   <input  name="GLB" num_pins="4"  />
+   <output name="OUT" num_pins="12" />
+   <xi:include href="../../primitives/clbll/pb_type.xml" />
+   <interconnect>
+    <complete
+      name="IN"
+      input="CLBLM_L.IN" output="CLBLL.DX CLBLL.D CLBLL.CX CLBLL.C CLBLL.BX CLBLL.B CLBLL.AX CLBLL.A" />
+    <complete
+      name="OUT"
+      input="CLBLL.DMUX CLBLL.Dout CLBLL.DQ CLBLL.CMUX CLBLL.Cout CLBLL.CQ CLBLL.BMUX CLBLL.Bout CLBLL.BQ CLBLL.AMUX CLBLL.Aout CLBLL.AQ"
+      output="CLBLM_L.OUT" />
+    <complete name="GLB"
+      input="CLBLM_L.GLB" output="CLBLL.SR CLBLL.CE CLBLL.CLK" />
+   </interconnect>
+
+   <pinlocations pattern="custom">
+    <loc side="top"   xoffset="0" yoffset="0">CLBLM_L.GLB</loc>
+    <loc side="left"  xoffset="0" yoffset="0">CLBLM_L.IN</loc>
+    <loc side="right" xoffset="0" yoffset="0">CLBLM_L.OUT</loc>
+   </pinlocations>
+   <fc default_in_type="frac" default_in_val="1.0" default_out_type="frac" default_out_val="1.0">
+     <fc_override fc_type="frac" fc_val="0.5" segment_name="long-span" />
+     <fc_override fc_type="frac" fc_val="0.1" segment_name="global" />
+   </fc>
+  </pb_type>
+
+  <pb_type name="CLBLM_R">
+   <input  name="IN"  num_pins="32" />
+   <input  name="GLB" num_pins="4"  />
+   <output name="OUT" num_pins="12" />
+   <input   name="CARRY_IN"  num_pins="1" />
+   <output  name="CARRY_OUT" num_pins="1" />
+   <xi:include href="../../primitives/clbll/pb_type.xml" />
+   <interconnect>
+    <direct name="CARRY_IN"  input="CLBLM_R.CARRY_IN" output="CLBLL.CARRY_IN"   />
+    <direct name="CARRY_OUT" input="CLBLL.CARRY_OUT"  output="CLBLM_R.CARRY_OUT" />
+    <complete
+      name="IN"
+      input="CLBLM_R.IN" output="CLBLL.DX CLBLL.D CLBLL.CX CLBLL.C CLBLL.BX CLBLL.B CLBLL.AX CLBLL.A" />
+    <complete
+      name="OUT"
+      input="CLBLL.DMUX CLBLL.Dout CLBLL.DQ CLBLL.CMUX CLBLL.Cout CLBLL.CQ CLBLL.BMUX CLBLL.Bout CLBLL.BQ CLBLL.AMUX CLBLL.Aout CLBLL.AQ"
+      output="CLBLM_R.OUT" />
+    <complete name="GLB"
+      input="CLBLM_R.GLB" output="CLBLL.SR CLBLL.CE CLBLL.CLK" />
+   </interconnect>
+
+   <pinlocations pattern="custom">
+    <loc side="top"    xoffset="0" yoffset="0">CLBLM_R.CARRY_IN CLBLM_R.GLB</loc>
+    <loc side="right"  xoffset="0" yoffset="0">CLBLM_R.IN</loc>
+    <loc side="left"   xoffset="0" yoffset="0">CLBLM_R.OUT</loc>
+    <loc side="bottom" xoffset="0" yoffset="0">CLBLM_R.CARRY_OUT</loc>
+   </pinlocations>
+   <fc default_in_type="frac" default_in_val="1.0" default_out_type="frac" default_out_val="1.0">
+     <fc_override fc_type="frac" fc_val="0.5" port_name="IN"  segment_name="long-span" />
+     <fc_override fc_type="frac" fc_val="0.1" port_name="IN"  segment_name="global" />
+     <fc_override fc_type="frac" fc_val="0.5" port_name="OUT" segment_name="global" />
+     <fc_override fc_type="abs" fc_val="0" port_name="CARRY_IN" />
+     <fc_override fc_type="abs" fc_val="0" port_name="CARRY_OUT" />
+   </fc>
+  </pb_type>
+
+  <pb_type name="INT_L">
+   <input  name="I" num_pins="1" equivalent="false"/>
+   <output name="O" num_pins="1" equivalent="false"/>
+   <pb_type name="INT" num_pb="1" blif_model=".subckt INT">
+    <input  name="I" num_pins="1" equivalent="false"/>
+    <output name="O" num_pins="1" equivalent="false"/>
+    <delay_constant in_port="INT.I" max="10e-12" out_port="INT.O"/>
+   </pb_type>
+   <interconnect>
+    <direct name="I" input="INT_L.I" output="INT.I" />
+    <direct name="O" input="INT.O" output="INT_L.O" />
+   </interconnect>
+   <fc default_in_type="frac" default_in_val="1.0" default_out_type="frac" default_out_val="1.0"/>
+   <pinlocations pattern="custom">
+    <loc side="right"  xoffset="0" yoffset="0">INT_L.I</loc>
+    <loc side="left"   xoffset="0" yoffset="0">INT_L.O</loc>
+   </pinlocations>
+  </pb_type>
+
+  <pb_type name="INT_R">
+   <input  name="I" num_pins="1" equivalent="false"/>
+   <output name="O" num_pins="1" equivalent="false"/>
+   <pb_type name="INT" num_pb="1" blif_model=".subckt INT">
+    <input  name="I" num_pins="1" equivalent="false"/>
+    <output name="O" num_pins="1" equivalent="false"/>
+    <delay_constant in_port="INT.I" max="10e-12" out_port="INT.O"/>
+   </pb_type>
+   <interconnect>
+    <direct name="I" input="INT_R.I" output="INT.I" />
+    <direct name="O" input="INT.O" output="INT_R.O" />
+   </interconnect>
+   <fc default_in_type="frac" default_in_val="1.0" default_out_type="frac" default_out_val="1.0"/>
+   <pinlocations pattern="custom">
+    <loc side="right"  xoffset="0" yoffset="0">INT_R.I</loc>
+    <loc side="left"   xoffset="0" yoffset="0">INT_R.O</loc>
+   </pinlocations>
+  </pb_type>
+
+ </complexblocklist>
+</architecture>

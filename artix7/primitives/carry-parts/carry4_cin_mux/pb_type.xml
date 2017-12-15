@@ -1,8 +1,10 @@
-<pb_type name="CARRY4_CIN_MUX" num_pb="1">
+<pb_type name="CARRY4_CIN_MUX" num_pb="1" blif_model=".subckt CARRY4_CIN_MUX">
   <input name="CIN" num_pins="1"/>
   <input name="CYINIT" num_pins="1"/>
   <output name="OUT" num_pins="1"/>
-  <interconnect>
+  <!--  <interconnect>
    <mux name="M" input="CARRY4_CIN_MUX.CYINIT CARRY4_CIN_MUX.CIN" output="CARRY4_CIN_MUX.OUT"/>
-  </interconnect>
+  </interconnect> -->
+  <delay_constant in_port="CARRY4_CIN_MUX.CIN"    max="10e-12" out_port="CARRY4_CIN_MUX.OUT"/>
+  <delay_constant in_port="CARRY4_CIN_MUX.CYINIT" max="10e-12" out_port="CARRY4_CIN_MUX.OUT"/>
 </pb_type>

@@ -53,6 +53,14 @@
       <pb_type name="W6LUT" num_pb="1" class="lut" blif_model=".names">
         <input  name="in"  num_pins="6" port_class="lut_in" />
 	<output name="out" num_pins="1" port_class="lut_out" />
+        <delay_matrix type="max" in_port="W6LUT.in" out_port="W6LUT.out">
+         0.068e-9
+         0.068e-9
+         0.068e-9
+         0.068e-9
+         0.068e-9
+         0.068e-9
+       </delay_matrix>
       </pb_type>
       <interconnect>
         <direct name="WLUT_A6" input="WLUT.A[5]" output="W6LUT.in[5]"/>
@@ -68,6 +76,13 @@
       <pb_type name="W5LUT" num_pb="2" class="lut" blif_model=".names">
         <input  name="in"  num_pins="5" port_class="lut_in" />
         <output name="out" num_pins="1" port_class="lut_out" />
+        <delay_matrix type="max" in_port="W5LUT.in" out_port="W5LUT.out">
+        	0.068e-9
+        	0.068e-9
+        	0.068e-9
+        	0.068e-9
+        	0.068e-9
+        </delay_matrix>
       </pb_type>
       <interconnect>
 	<!-- First LUT5 -->                                                 <!-- Second LUT5 -->
@@ -346,6 +361,11 @@
             "
         output="WFF[0].D"
     />
+
+    <direct name="WFF[3]" input="WFF[3].Q" output="CLBLL.AQ" />
+    <direct name="WFF[2]" input="WFF[2].Q" output="CLBLL.BQ" />
+    <direct name="WFF[1]" input="WFF[1].Q" output="CLBLL.CQ" />
+    <direct name="WFF[0]" input="WFF[0].Q" output="CLBLL.DQ" />
 
     <!-- LUT O6 output -->
     <direct name="F7BMUX_I0" input="WLUT[3].O6" output="F7BMUX.I0" /><direct name="CARRY_S3" input="WLUT[3].O6" output="CARRY.S[3]" /><direct name="CLBLL_Dout" input="WLUT[3].O6" output="CLBLL.Dout" />
