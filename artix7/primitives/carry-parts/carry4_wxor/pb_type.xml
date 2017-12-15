@@ -2,6 +2,6 @@
   <input name="CI" num_pins="1"/>
   <input name="LI" num_pins="1"/>
   <output name="O" num_pins="1"/>
-  <delay_constant in_port="CI" max="10e-12" out_port="O"/>
-  <delay_constant in_port="LI" max="10e-12" out_port="O"/>
+  <delay_constant in_port="CARRY4_WXOR.CI" max="10e-12" out_port="CARRY4_WXOR.O"/>
+  <delay_constant in_port="CARRY4_WXOR.LI" max="10e-12" out_port="CARRY4_WXOR.O"/>
 </pb_type>

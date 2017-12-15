@@ -7,8 +7,8 @@
     <output name="inpad" num_pins="1"/>
    </pb_type>
    <interconnect>
-    <direct name="inpad" input="inpad.inpad" output="PIO.inpad">
-     <delay_constant max="4.243e-11" in_port="inpad.inpad" out_port="PIO.inpad"/>
+    <direct name="inpad" input="inpad.inpad" output="IOB.inpad">
+     <delay_constant max="4.243e-11" in_port="inpad.inpad" out_port="IOB.inpad"/>
     </direct>
    </interconnect>
  </mode>
@@ -17,8 +17,8 @@
    <input name="outpad" num_pins="1"/>
   </pb_type>
   <interconnect>
-   <direct name="outpad" input="PIO.outpad" output="outpad.outpad">
-    <delay_constant max="1.394e-11" in_port="PIO.outpad" out_port="outpad.outpad"/>
+   <direct name="outpad" input="IOB.outpad" output="outpad.outpad">
+    <delay_constant max="1.394e-11" in_port="IOB.outpad" out_port="outpad.outpad"/>
    </direct>
   </interconnect>
  </mode>

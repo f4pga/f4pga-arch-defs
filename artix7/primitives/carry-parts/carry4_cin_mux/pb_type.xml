@@ -1,0 +1,8 @@
+<pb_type name="CARRY4_CIN_MUX" num_pb="1">
+  <input name="CIN" num_pins="1"/>
+  <input name="CYINIT" num_pins="1"/>
+  <output name="OUT" num_pins="1"/>
+  <interconnect>
+   <mux name="M" input="CARRY4_CIN_MUX.CYINIT CARRY4_CIN_MUX.CIN" output="CARRY4_CIN_MUX.OUT"/>
+  </interconnect>
+</pb_type>

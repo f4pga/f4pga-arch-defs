@@ -70,16 +70,13 @@
         <output name="out" num_pins="1" port_class="lut_out" />
       </pb_type>
       <interconnect>
-        <direct name="WLUT_A6" input="WLUT.A[5]" output="W5LUT[0].in[4]"/>
-        <direct name="WLUT_A5" input="WLUT.A[4]" output="W5LUT[1].in[4]"/>
-
-        <direct name="WLUT_A4" input="WLUT.A[3]" output="{W5LUT[0].in[3] W5LUT[1].in[3]}"/>
-        <direct name="WLUT_A3" input="WLUT.A[2]" output="{W5LUT[0].in[2] W5LUT[1].in[2]}"/>
-        <direct name="WLUT_A2" input="WLUT.A[1]" output="{W5LUT[0].in[1] W5LUT[1].in[1]}"/>
-        <direct name="WLUT_A1" input="WLUT.A[0]" output="{W5LUT[0].in[0] W5LUT[1].in[0]}"/>
-
-        <direct name="O5" input="W5LUT[0].out" output="WLUT.O5"/>
-        <direct name="O6" input="W5LUT[1].out" output="WLUT.O6"/>
+	<!-- First LUT5 -->                                                 <!-- Second LUT5 -->
+        <direct name="WLUT_A6"   input="WLUT.A[5]" output="W5LUT[0].in[4]"/><direct name="WLUT_A5"   input="WLUT.A[4]" output="W5LUT[1].in[4]"/>
+        <direct name="WLUT_A4_0" input="WLUT.A[3]" output="W5LUT[0].in[3]"/><direct name="WLUT_A4_1" input="WLUT.A[3]" output="W5LUT[1].in[3]"/>
+        <direct name="WLUT_A3_0" input="WLUT.A[2]" output="W5LUT[0].in[2]"/><direct name="WLUT_A3_1" input="WLUT.A[2]" output="W5LUT[1].in[2]"/>
+        <direct name="WLUT_A2_0" input="WLUT.A[1]" output="W5LUT[0].in[1]"/><direct name="WLUT_A2_1" input="WLUT.A[1]" output="W5LUT[1].in[1]"/>
+        <direct name="WLUT_A1_0" input="WLUT.A[0]" output="W5LUT[0].in[0]"/><direct name="WLUT_A1_1" input="WLUT.A[0]" output="W5LUT[1].in[0]"/>
+        <direct name="O5"        input="W5LUT[0].out" output="WLUT.O5"/>    <direct name="O6" input="W5LUT[1].out" output="WLUT.O6"/>
       </interconnect>
     </mode>
   </pb_type>
@@ -96,7 +93,7 @@
     <interconnect>
       <direct name="D" input="W5FF.D" output="FF.D"/>
       <direct name="Q" input="FF.Q" output="W5FF.Q"/>
-      <direct name="C" input="W5FF.C" output="FF.clk"/>
+      <direct name="C" input="W5FF.CK" output="FF.clk"/>
     </interconnect>
   </pb_type>
 
@@ -112,7 +109,7 @@
     <interconnect>
       <direct name="D" input="WFF.D" output="FF.D"/>
       <direct name="Q" input="FF.Q" output="WFF.Q"/>
-      <direct name="C" input="WFF.C" output="FF.clk"/>
+      <direct name="C" input="WFF.CK" output="FF.clk"/>
     </interconnect>
   </pb_type>
 
@@ -144,30 +141,21 @@
    <mode name="PARTS">
     <xi:include href="../carry-parts/carry4_wmux/pb_type.xml" />
     <xi:include href="../carry-parts/carry4_wxor/pb_type.xml" />
+    <xi:include href="../carry-parts/carry4_cin_mux/pb_type.xml" />
 
     <interconnect>
-     <direct name="S0" input="CARRY.S[0]" output="{CARRY_WMUX[0].S0 CARRY_XOR[0].I0}"/>
-     <direct name="S1" input="CARRY.S[1]" output="{CARRY_WMUX[1].S0 CARRY_XOR[1].I0}"/>
-     <direct name="S2" input="CARRY.S[2]" output="{CARRY_WMUX[2].S0 CARRY_XOR[2].I0}"/>
-     <direct name="S3" input="CARRY.S[3]" output="{CARRY_WMUX[3].S0 CARRY_XOR[3].I0}"/>
+     <direct name="CIN"    input="CARRY.CIN"    output="CARRY4_CIN_MUX.CIN"/>
+     <direct name="CYINIT" input="CARRY.CYINIT" output="CARRY4_CIN_MUX.CYINIT"/>
 
-     <direct name="DI3_MUX" input="CARRY.DI[3]" output="CARRY_WMUX[3].I0"/>
-     <direct name="DI2_MUX" input="CARRY.DI[2]" output="CARRY_WMUX[2].I0"/>
-     <direct name="DI1_MUX" input="CARRY.DI[1]" output="CARRY_WMUX[1].I0"/>
-     <direct name="DI0_MUX" input="CARRY.DI[0]" output="CARRY_WMUX[0].I0"/>
+     <direct name="MUX0_I0" input="CARRY.DI[0]" output="CARRY4_WMUX[0].I0"/><direct name="MUX0_I1" input="CARRY4_CIN_MUX.OUT" output="CARRY4_WMUX[0].I0"/><direct name="MUX0_S" input="CARRY.S[0]" output="CARRY4_WMUX[0].S"/><direct name="MUX0_O" input="CARRY4_WMUX[0].OUT" output="CARRY.CO[0]"/>
+     <direct name="MUX1_I0" input="CARRY.DI[1]" output="CARRY4_WMUX[1].I0"/><direct name="MUX1_I1" input="CARRY4_WMUX[0].OUT" output="CARRY4_WMUX[1].I1"/><direct name="MUX1_S" input="CARRY.S[1]" output="CARRY4_WMUX[1].S"/><direct name="MUX1_O" input="CARRY4_WMUX[1].OUT" output="CARRY.CO[1]"/>
+     <direct name="MUX2_I0" input="CARRY.DI[2]" output="CARRY4_WMUX[2].I0"/><direct name="MUX2_I1" input="CARRY4_WMUX[1].OUT" output="CARRY4_WMUX[2].I1"/><direct name="MUX2_S" input="CARRY.S[2]" output="CARRY4_WMUX[2].S"/><direct name="MUX2_O" input="CARRY4_WMUX[2].OUT" output="CARRY.CO[2]"/>
+     <direct name="MUX3_I0" input="CARRY.DI[3]" output="CARRY4_WMUX[3].I0"/><direct name="MUX3_I1" input="CARRY4_WMUX[2].OUT" output="CARRY4_WMUX[3].I1"/><direct name="MUX3_S" input="CARRY.S[3]" output="CARRY4_WMUX[3].S"/><direct name="MUX3_O" input="CARRY4_WMUX[3].OUT" output="CARRY.CO[3]"/>
 
-     <direct name="XOR_O3" input="CARRY_WXOR[3].O" output="CARRY.O[3]"/>
-     <direct name="XOR_O2" input="CARRY_WXOR[2].O" output="CARRY.O[2]"/>
-     <direct name="XOR_O1" input="CARRY_WXOR[1].O" output="CARRY.O[1]"/>
-     <direct name="XOR_O0" input="CARRY_WXOR[0].O" output="CARRY.O[0]"/>
-
-     <direct name="MUX_CO3" input="CARRY_WMUX[3].OUT" output="{CARRY.CO[3]}"/>
-     <direct name="MUX_CO2" input="CARRY_WMUX[2].OUT" output="{CARRY.CO[2] CARRY.WMUX[3].I1 CARRY.WXOR[1].I3}"/>
-     <direct name="MUX_CO1" input="CARRY_WMUX[1].OUT" output="{CARRY.CO[1] CARRY.WMUX[2].I1 CARRY.WXOR[1].I2}"/>
-     <direct name="MUX_CO0" input="CARRY_WMUX[0].OUT" output="{CARRY.CO[0] CARRY.WMUX[1].I1 CARRY.WXOR[1].I1}"/>
-
-     <!-- This is shown as a routing BEL outside CARRY object but is logically part of the CARRY as it selects between CIN and CYINIT -->
-     <mux name="CYINIT" input="VCC CARRY.CYINIT CARRY.CIN GND" output="{CARRY.WMUX[0].I1 CARRY.XOR[0].I1}"/>
+     <direct name="XOR0_LI" input="CARRY.S[0]" output="CARRY4_WXOR[0].LI"/><direct name="XOR0_CI" input="CARRY4_CIN_MUX.OUT" output="CARRY4_WXOR[0].CI"/><direct name="XOR0_O" input="CARRY4_WXOR[0].O" output="CARRY.O[0]"/>
+     <direct name="XOR1_LI" input="CARRY.S[1]" output="CARRY4_WXOR[1].LI"/><direct name="XOR1_CI" input="CARRY4_WMUX[0].OUT" output="CARRY4_WXOR[1].CI"/><direct name="XOR1_O" input="CARRY4_WXOR[1].O" output="CARRY.O[1]"/>
+     <direct name="XOR2_LI" input="CARRY.S[2]" output="CARRY4_WXOR[2].LI"/><direct name="XOR2_CI" input="CARRY4_WMUX[1].OUT" output="CARRY4_WXOR[2].CI"/><direct name="XOR2_O" input="CARRY4_WXOR[2].O" output="CARRY.O[2]"/>
+     <direct name="XOR3_LI" input="CARRY.S[3]" output="CARRY4_WXOR[3].LI"/><direct name="xOR3_CI" input="CARRY4_WMUX[2].OUT" output="CARRY4_WXOR[3].CI"/><direct name="XOR3_O" input="CARRY4_WXOR[3].O" output="CARRY.O[3]"/>
     </interconnect>
    </mode>
   </pb_type>
@@ -187,14 +175,11 @@
   -->
 
   <interconnect>
-    <!-- COUT_USED -->
-    <direct name="COUT" input="CARRY4.CO3" output="CLBLL.COUT" />
-
     <!-- Repeat 4 times -->
-    <direct name="D" input="CLBLL.D" output="W6LUT[3].A" />
-    <direct name="C" input="CLBLL.C" output="W6LUT[2].A" />
-    <direct name="B" input="CLBLL.B" output="W6LUT[1].A" />
-    <direct name="A" input="CLBLL.A" output="W6LUT[0].A" />
+    <direct name="D" input="CLBLL.D" output="WLUT[3].A" />
+    <direct name="C" input="CLBLL.C" output="WLUT[2].A" />
+    <direct name="B" input="CLBLL.B" output="WLUT[1].A" />
+    <direct name="A" input="CLBLL.A" output="WLUT[0].A" />
 
     <!-- MUX for input to 5 flip-flop output. -->
     <mux
@@ -237,7 +222,7 @@
             CLBLL.DX
             WLUT[3].O5
         "
-        output="CARRY4.DI3"
+        output="CARRY.DI[3]"
     />
     <mux
         name="CCYO"
@@ -245,7 +230,7 @@
             CLBLL.CX
             WLUT[2].O5
         "
-        output="CARRY4.DI2"
+        output="CARRY.DI[2]"
     />
     <mux
         name="BCYO"
@@ -253,7 +238,7 @@
             CLBLL.BX
             WLUT[1].O5
         "
-        output="CARRY4.DI1"
+        output="CARRY.DI[1]"
     />
     <mux
         name="ACYO"
@@ -261,7 +246,7 @@
             CLBLL.AX
             WLUT[0].O5
         "
-        output="CARRY4.DI0"
+        output="CARRY.DI[0]"
     />
 
     <!-- MUX for WMUX values. -->
@@ -269,10 +254,10 @@
         name="DOUTMUX"
         input="
             W5FF[3].Q
-            CARRY4.O[3]
-            W5LUT[3].O6
-            W5LUT[3].O5
-            CARRY4.CO[3]
+            CARRY.O[3]
+            WLUT[3].O6
+            WLUT[3].O5
+            CARRY.CO[3]
             "
         output="CLBLL.DMUX"
     />
@@ -280,11 +265,11 @@
         name="COUTMUX"
         input="
             W5FF[2].Q
-            CARRY4.O[2]
-            W5LUT[2].O6
-            W5LUT[2].O5
+            CARRY.O[2]
+            WLUT[2].O6
+            WLUT[2].O5
             F7BMUX.O
-            CARRY4.CO[2]
+            CARRY.CO[2]
             "
         output="CLBLL.CMUX"
     />
@@ -292,11 +277,11 @@
         name="BOUTMUX"
         input="
             W5FF[1].Q
-            CARRY4.O[1]
-            W5LUT[1].O6
-            W5LUT[1].O5
+            CARRY.O[1]
+            WLUT[1].O6
+            WLUT[1].O5
             F8MUX.O
-            CARRY4.CO[1]
+            CARRY.CO[1]
             "
         output="CLBLL.BMUX"
     />
@@ -304,11 +289,11 @@
         name="AOUTMUX"
         input="
             W5FF[0].Q
-            CARRY4.O[0]
-            W5LUT[0].O6
-            W5LUT[0].O5
+            CARRY.O[0]
+            WLUT[0].O6
+            WLUT[0].O5
             F7BMUX.O
-            CARRY4.CO[0]
+            CARRY.CO[0]
             "
         output="CLBLL.AMUX"
     />
@@ -317,22 +302,22 @@
     <mux
         name="DFFMUX"
         input="
-            CARRY4.O[3]
-            W5LUT[3].O6
-            W5LUT[3].O5
+            CARRY.O[3]
+            WLUT[3].O6
+            WLUT[3].O5
             CLBLL.DX
-            CARRY4.CO[3]
+            CARRY.CO[3]
             "
         output="WFF[3].D"
     />
     <mux
         name="CFFMUX"
         input="
-            CARRY4.O[2]
-            W5LUT[2].O6
-            W5LUT[2].O5
+            CARRY.O[2]
+            WLUT[2].O6
+            WLUT[2].O5
             F7BMUX.O
-            CARRY4.CO[2]
+            CARRY.CO[2]
             CLBLL.CX
             "
         output="WFF[2].D"
@@ -340,11 +325,11 @@
     <mux
         name="BFFMUX"
         input="
-            CARRY4.O[1]
-            W5LUT[1].O6
-            W5LUT[1].O5
+            CARRY.O[1]
+            WLUT[1].O6
+            WLUT[1].O5
             F8MUX.O
-            CARRY4.CO[1]
+            CARRY.CO[1]
             CLBLL.BX
             "
         output="WFF[1].D"
@@ -352,41 +337,54 @@
     <mux
         name="AFFMUX"
         input="
-            CARRY4.O[0]
-            W5LUT[3].O6
-            W5LUT[3].O5
+            CARRY.O[0]
+            WLUT[3].O6
+            WLUT[3].O5
             F7AMUX.O
-            CARRY4.CO[0]
+            CARRY.CO[0]
             CLBLL.AX
             "
         output="WFF[0].D"
     />
 
     <!-- LUT O6 output -->
-    <direct name="DLUT_O6" input="WLUT[3].O6" output="{F7BMUX.I0 CARRY4.S3 CLBLL.Dout}" />
-    <direct name="CLUT_O6" input="WLUT[2].O6" output="{F7BMUX.I1 CARRY4.S2 CLBLL.Cout}" />
-    <direct name="BLUT_O6" input="WLUT[1].O6" output="{F7AMUX.I0 CARRY4.S1 CLBLL.Bout}" />
-    <direct name="ALUT_O6" input="WLUT[0].O6" output="{F7AMUX.I1 CARRY4.S0 CLBLL.Aout}" />
+    <direct name="F7BMUX_I0" input="WLUT[3].O6" output="F7BMUX.I0" /><direct name="CARRY_S3" input="WLUT[3].O6" output="CARRY.S[3]" /><direct name="CLBLL_Dout" input="WLUT[3].O6" output="CLBLL.Dout" />
+    <direct name="F7BMUX_I1" input="WLUT[2].O6" output="F7BMUX.I1" /><direct name="CARRY_S2" input="WLUT[2].O6" output="CARRY.S[2]" /><direct name="CLBLL_Cout" input="WLUT[2].O6" output="CLBLL.Cout" />
+    <direct name="F7AMUX_I0" input="WLUT[1].O6" output="F7AMUX.I0" /><direct name="CARRY_S1" input="WLUT[1].O6" output="CARRY.S[1]" /><direct name="CLBLL_Bout" input="WLUT[1].O6" output="CLBLL.Bout" />
+    <direct name="F7AMUX_I1" input="WLUT[0].O6" output="F7AMUX.I1" /><direct name="CARRY_S0" input="WLUT[0].O6" output="CARRY.S[0]" /><direct name="CLBLL_Aout" input="WLUT[0].O6" output="CLBLL.Aout" />
 
     <!-- Select lines for F7 MUXes -->
-    <direct name="CX7" input="CLBLL.CX" output="F7BMUX.S" />
-    <direct name="AX7" input="CLBLL.AX" output="{F7AMUX.S CARRY4.CYINIT}" />
+    <direct name="CX7S" input="CLBLL.CX" output="F7BMUX.S" />
+    <direct name="AX7S" input="CLBLL.AX" output="F7AMUX.S" />
+
     <!-- F8MUX -->
     <direct name="F8MUX_IN0" input="F7BMUX.O" output="F8MUX.I0" />
     <direct name="F8MUX_IN1" input="F7AMUX.O" output="F8MUX.I1" />
     <direct name="F8MUX_S"   input="CLBLL.BX" output="F8MUX.S" />
-    <direct name="F8MUX_O"   input="F8MUX.O" output="" />
+    <!-- <direct name="F8MUX_O"   input="F8MUX.O" output="" /> -->
 
     <!-- Carry -->
-    <direct name="CARRY_IN"  input="A7_SLICE.CARRY_IN" output="CARRY4.CIN" />
-    <direct name="CARRY_OUT" input="CARRY4.CO3" output="A7_SLICE.CARRY_OUT" />
+    <direct name="CYINIT"    input="CLBLL.AX"  output="CARRY.CYINIT" />
+    <direct name="CARRY_IN"  input="CLBLL.CARRY_IN" output="CARRY.CIN" />
+    <direct name="CARRY_OUT" input="CARRY.CO[3]" output="CLBLL.CARRY_OUT" />
 
     <!-- Clock, Clock Enable and Reset -->
-    <complete name="CK" input="CLBLL.CLK" output="{W5FF.CK WFF.CK}"/>
+    <direct name="W5FF0_CK" input="CLBLL.CLK" output="W5FF[0].CK"/><direct name="WFF0_CK" input="CLBLL.CLK" output="WFF[0].CK"/>
+    <direct name="W5FF1_CK" input="CLBLL.CLK" output="W5FF[1].CK"/><direct name="WFF1_CK" input="CLBLL.CLK" output="WFF[1].CK"/>
+    <direct name="W5FF2_CK" input="CLBLL.CLK" output="W5FF[2].CK"/><direct name="WFF2_CK" input="CLBLL.CLK" output="WFF[2].CK"/>
+    <direct name="W5FF3_CK" input="CLBLL.CLK" output="W5FF[3].CK"/><direct name="WFF3_CK" input="CLBLL.CLK" output="WFF[3].CK"/>
+
     <!-- <mux name="CEUSED" input="VCC CLBLL.CE" output="{}"/> -->
-    <complete name="CE" input="CLBLL.CE"  output="{W5FF.CE WFF.CE}"/>
+    <direct name="W5FF0_CE" input="CLBLL.CE"  output="W5FF[0].CE"/><direct name="WFF0_CE" input="CLBLL.CE"  output="WFF[0].CE"/>
+    <direct name="W5FF1_CE" input="CLBLL.CE"  output="W5FF[1].CE"/><direct name="WFF1_CE" input="CLBLL.CE"  output="WFF[1].CE"/>
+    <direct name="W5FF2_CE" input="CLBLL.CE"  output="W5FF[2].CE"/><direct name="WFF2_CE" input="CLBLL.CE"  output="WFF[2].CE"/>
+    <direct name="W5FF3_CE" input="CLBLL.CE"  output="W5FF[3].CE"/><direct name="WFF3_CE" input="CLBLL.CE"  output="WFF[3].CE"/>
+
     <!-- <mux name="SRUSED" input="GND CLBLL.SR" output="{}"/> -->
-    <complete name="SR" input="CLBLL.SR"  output="{W5FF.SR WFF.SR}"/>
+    <direct name="W5FF0_SR" input="CLBLL.SR"  output="W5FF[0].SR"/><direct name="WFF0_SR" input="CLBLL.SR"  output="WFF[0].SR"/>
+    <direct name="W5FF1_SR" input="CLBLL.SR"  output="W5FF[1].SR"/><direct name="WFF1_SR" input="CLBLL.SR"  output="WFF[1].SR"/>
+    <direct name="W5FF2_SR" input="CLBLL.SR"  output="W5FF[2].SR"/><direct name="WFF2_SR" input="CLBLL.SR"  output="WFF[2].SR"/>
+    <direct name="W5FF3_SR" input="CLBLL.SR"  output="W5FF[3].SR"/><direct name="WFF3_SR" input="CLBLL.SR"  output="WFF[3].SR"/>
 
   </interconnect>
 </pb_type>

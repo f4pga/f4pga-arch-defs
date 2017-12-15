@@ -5,5 +5,6 @@ rr_graph*.xml
 sim.svg
 sim.json
 sim.png
+sim.*.png
 tests/build
 push.sh

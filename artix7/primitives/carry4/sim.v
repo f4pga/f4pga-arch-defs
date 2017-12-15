@@ -3,8 +3,8 @@ module CARRY4(CO, O, CI, CYINIT, DI, S);
 	output [3:0] O;
 	input wire CI;
 	input wire CYINIT;
-	input wire [3:0] DI;
-	input wire S;
+	input [3:0] DI;
+	input [3:0] S;
 
 	assign O = S ^ {CO[2:0], CI | CYINIT};
 	assign CO[0] = S[0] ? CI | CYINIT : DI[0];

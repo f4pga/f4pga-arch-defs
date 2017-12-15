@@ -87,27 +87,27 @@ def clog2(x):
     """Ceiling log 2 of x.
 
     >>> clog2(0), clog2(1), clog2(2), clog2(3), clog2(4)
-    (1, 1, 2, 2, 3)
+    (0, 0, 1, 2, 2)
     >>> clog2(5), clog2(6), clog2(7), clog2(8), clog2(9)
-    (3, 3, 3, 4, 4)
+    (3, 3, 3, 3, 4)
     >>> clog2(1 << 31)
-    32
+    31
     >>> clog2(1 << 63)
-    64
+    63
     >>> clog2(1 << 11)
-    12
+    11
     """
+    x -= 1
     i = 0
     while True:
-        x = x >> 1
-        i += 1
         if x <= 0:
             break
+        x = x >> 1
+        i += 1
     return i
 
 import doctest
 doctest.testmod()
-
 
 # Method for implementing the internals of the MUX.
 method = {
@@ -224,7 +224,7 @@ all: %s
 clean:
 \trm -f .mux_gen.stamp %s
 
-.mux_gen.stamp: %s
+.mux_gen.stamp: %s Makefile.mux
 \t%s
 \ttouch --reference $< $@
 
@@ -265,7 +265,7 @@ for i in args.order:
         else:
             port_names.append(('i', args.name_input, args.width, '[%i:0]' % args.width))
     elif i == 's' and args.type == 'logic':
-        if args.split_selects:
+        if args.split_selects and args.width_bits > 1:
             port_names.extend(('s', args.name_select+str(i), 1, '[%i]' % i) for i in range(args.width_bits))
         else:
             port_names.append(('s', args.name_select, args.width_bits, '[%i:0]' % args.width_bits))
@@ -328,8 +328,8 @@ if args.type == 'logic':
                 pb_type_xml,
                 'delay_constant', {
                     'max': "10e-12",
-                    'in_port': iname,
-                    'out_port': oname,
+                    'in_port': "%s.%s" % (args.name_mux, iname),
+                    'out_port': "%s.%s" % (args.name_mux, oname),
                 },
             )
 
