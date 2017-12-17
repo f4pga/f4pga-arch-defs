@@ -89,6 +89,13 @@ architectures, here are some tips;
  * DRY (Don't repeat yourself) - Uses
    [XML XIncludes](https://en.wikipedia.org/wiki/XInclude) to reuse stuff!
 
+# Getting Started
+
+FIXME: Add things here.
+
+`apt-get install libxml2-utils`
+
+
 # Tools
 
  * [`third_party/yosys/`](third_party/yosys/)
