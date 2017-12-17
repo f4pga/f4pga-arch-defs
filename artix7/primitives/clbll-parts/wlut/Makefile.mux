@@ -1,0 +1,4 @@
+pb_type.%.xml: wlut.sh
+	./wlut.sh $@
+
+all: pb_type.ALUT.xml pb_type.BLUT.xml pb_type.CLUT.xml pb_type.DLUT.xml
