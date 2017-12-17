@@ -10,29 +10,149 @@
     <port name="O" />
    </output_ports>
   </model>
+  <model name="HCLK">
+   <input_ports>
+    <port name="I" combinational_sink_ports="O" />
+   </input_ports>
+   <output_ports>
+    <port name="O" />
+   </output_ports>
+  </model>
 
   <xi:include href="../../primitives/clbll/model.xml" xpointer="xpointer(models/*)" />
  </models>
 
  <!-- Layout of the FPGA, we are using 4x4 -->
  <layout>
-  <fixed_layout name="xc7a50t" width="12" height="10">
+  <fixed_layout name="xc7a50t" width="26" height="57">
 
    <col type="EMPTY"      startx="0"  priority="10" />
-   <col type="PAD"        startx="1"  priority="10" /><!-- <col type="LIOB"       startx="0"   priority="10" /> -->
+   <!-- <col type="LIOB"       startx="0"   priority="10" /> --><col type="PAD"        startx="1"  priority="10" />
+   <col type="EMPTY"      startx="3"  priority="10" />
 
-   <col type="CLBLL_L"    startx="2"  priority="10" />
-   <col type="INT_L"      startx="3"  priority="10" />
-   <col type="INT_R"      startx="4"  priority="10" />
-   <col type="CLBLM_R"    startx="5"  priority="10" />
+   <!-- Start RIO -->
 
-   <col type="CLBLL_L"    startx="6"  priority="10" />
-   <col type="INT_L"      startx="7"  priority="10" />
-   <col type="INT_R"      startx="8"  priority="10" />
-   <col type="CLBLM_R"    startx="9"  priority="10" />
+   <!-- Columns first -->
 
-   <col type="PAD"        startx="10" priority="10" /><!-- <col type="RIOB"       startx="114"  priority="10" /> -->
-   <col type="EMPTY"      startx="11" priority="10" />
+   <!-- ===== -->
+
+   <!-- <col type="VBRK"       startx="4"  priority="10" /> --><col type="EMPTY"      startx="4"  priority="10" />
+	<!-- <single type="NULL"         x="4" y="0"  priority="20"/> --><single type="EMPTY" x="4" y="0"  priority="20"/>
+	<!-- <single type="HCLK_VBRK"    x="4" y="26" priority="20"/> --><single type="EMPTY" x="4" y="26" priority="20"/>
+	<!-- <single type="NULL"         x="4" y="56" priority="20"/> --><single type="EMPTY" x="4" y="56" priority="20"/>
+
+   <!-- ===== -->
+
+   <!-- X10YXXX -->
+   <col type="CLBLM_L"    startx="5"  priority="10" />
+	<!-- <single type="BRKH_CLB"     x="5" y="0"  priority="20"/> --><single type="EMPTY" x="5" y="0"  priority="20"/>
+	<!-- <single type="HCLK_CLB"     x="5" y="26" priority="20"/> --><single type="EMPTY" x="5" y="26" priority="20"/>
+	<!-- <single type="NULL"         x="5" y="56" priority="20"/> --><single type="EMPTY" x="5" y="56" priority="20"/>
+
+   <!-- X31YXXX -->
+   <col type="INT_L"      startx="6"  priority="10" />
+	<!-- <single type="BRKH_INT"     x="6" y="0"  priority="20"/> --><single type="EMPTY" x="6" y="0"  priority="20"/>
+	<!-- <single type="HCLK_L"       x="6" y="26" priority="20"/> --><single type="EMPTY" x="6" y="26" priority="20"/>
+	<!-- <single type="T_TINT"       x="6" y="56" priority="20"/> --><single type="EMPTY" x="6" y="56" priority="20"/>
+
+   <!-- X32YXXX -->
+   <col type="INT_R"      startx="7"  priority="10" />
+	<!-- <single type="BRKH_INT"     x="7" y="0"  priority="20"/> --><single type="EMPTY" x="7" y="0"  priority="20"/>
+	<!-- <single type="HCLK_R"       x="7" y="26" priority="20"/> --><single type="EMPTY" x="7" y="26" priority="20"/>
+	<!-- <single type="T_TINT"       x="7" y="56" priority="20"/> --><single type="EMPTY" x="7" y="56" priority="20"/>
+
+   <!-- X33YXXX -->
+   <col type="CLBLM_R"    startx="8"  priority="10" />
+	<!-- <single type="BRKH_CLB"     x="8" y="0"  priority="20"/> --><single type="EMPTY" x="8" y="0"  priority="20"/>
+	<!-- <single type="HCLK_CLB"     x="8" y="26" priority="20"/> --><single type="EMPTY" x="8" y="26" priority="20"/>
+	<!-- <single type="NULL"         x="8" y="56" priority="20"/> --><single type="EMPTY" x="8" y="56" priority="20"/>
+
+   <!-- ===== -->
+
+   <!-- X34YXXX -->
+   <!-- <col type="VBRK"       startx="9"  priority="10" /> --><col type="EMPTY"      startx="9"  priority="10" />
+	<!-- <single type="NULL"         x="9" y="0"  priority="20"/> --><single type="EMPTY" x="9" y="0"  priority="20"/>
+	<!-- <single type="HCLK_VBRK"    x="9" y="26" priority="20"/> --><single type="EMPTY" x="9" y="26" priority="20"/>
+	<!-- <single type="NULL"         x="9" y="56" priority="20"/> --><single type="EMPTY" x="9" y="56" priority="20"/>
+
+   <!-- ===== -->
+
+   <col type="CLBLL_L"    startx="10" priority="10" />
+	<!-- <single type="NULL"         x="10" y="0"  priority="20"/> --><single type="EMPTY" x="10" y="0"  priority="20"/>
+	<!-- <single type="HCLK_CLB"     x="10" y="26" priority="20"/> --><single type="EMPTY" x="10" y="26" priority="20"/>
+	<!-- <single type="NULL"         x="10" y="56" priority="20"/> --><single type="EMPTY" x="10" y="56" priority="20"/>
+
+   <col type="INT_L"      startx="11" priority="10" />
+	<!-- <single type="BRKH_B TINT"  x="11" y="0"  priority="20"/> --><single type="EMPTY" x="11" y="0"  priority="20"/>
+	<!-- <single type="HCLK_L"       x="11" y="26" priority="20"/> --><single type="EMPTY" x="11" y="26" priority="20"/>
+	<!-- <single type="T_TINT"       x="11" y="56" priority="20"/> --><single type="EMPTY" x="11" y="56" priority="20"/>
+
+   <col type="INT_R"      startx="12" priority="10" />
+	<!-- <single type="BRKH_B TINT"  x="12" y="0"  priority="20"/> --><single type="EMPTY" x="12" y="0"  priority="20"/>
+	<!-- <single type="HCLK_R"       x="12" y="26" priority="20"/> --><single type="EMPTY" x="12" y="26" priority="20"/>
+	<!-- <single type="T_TINT"       x="12" y="56" priority="20"/> --><single type="EMPTY" x="12" y="56" priority="20"/>
+
+   <col type="CLBLL_R"    startx="13"  priority="10" />
+	<!-- <single type="NULL"         x="13" y="0"  priority="20"/> --><single type="EMPTY" x="13" y="0"  priority="20"/>
+	<!-- <single type="HCLK_CLB"     x="13" y="26" priority="20"/> --><single type="EMPTY" x="13" y="26" priority="20"/>
+	<!-- <single type="NULL"         x="13" y="56" priority="20"/> --><single type="EMPTY" x="13" y="56" priority="20"/>
+
+   <!-- ===== -->
+
+   <col type="CLBLL_L"    startx="14" priority="10" />
+	<!-- <single type="NULL"         x="14" y="0"  priority="20"/> --><single type="EMPTY" x="14" y="0"  priority="20"/>
+	<!-- <single type="HCLK_CLB"     x="14" y="26" priority="20"/> --><single type="EMPTY" x="14" y="26" priority="20"/>
+	<!-- <single type="NULL"         x="14" y="56" priority="20"/> --><single type="EMPTY" x="14" y="56" priority="20"/>
+
+   <col type="INT_L"      startx="15" priority="10" />
+	<!-- <single type="BRKH_B TINT"  x="15" y="0"  priority="20"/> --><single type="EMPTY" x="15" y="0"  priority="20"/>
+	<!-- <single type="HCLK_L"       x="15" y="26" priority="20"/> --><single type="EMPTY" x="15" y="26" priority="20"/>
+	<!-- <single type="T_TINT"       x="15" y="56" priority="20"/> --><single type="EMPTY" x="15" y="56" priority="20"/>
+
+   <col type="INT_R"      startx="16" priority="10" />
+	<!-- <single type="BRKH_B TINT"  x="16" y="0"  priority="20"/> --><single type="EMPTY" x="16" y="0"  priority="20"/>
+	<!-- <single type="HCLK_R"       x="16" y="26" priority="20"/> --><single type="EMPTY" x="16" y="26" priority="20"/>
+	<!-- <single type="T_TINT"       x="16" y="56" priority="20"/> --><single type="EMPTY" x="16" y="56" priority="20"/>
+
+   <col type="CLBLL_R"    startx="17"  priority="10" />
+	<!-- <single type="NULL"         x="17" y="0"  priority="20"/> --><single type="EMPTY" x="17" y="0"  priority="20"/>
+	<!-- <single type="HCLK_CLB"     x="17" y="26" priority="20"/> --><single type="EMPTY" x="17" y="26" priority="20"/>
+	<!-- <single type="NULL"         x="17" y="56" priority="20"/> --><single type="EMPTY" x="17" y="56" priority="20"/>
+
+   <!-- ===== -->
+
+   <col type="CLBLL_L"    startx="18" priority="10" />
+	<!-- <single type="NULL"         x="18" y="0"  priority="20"/> --><single type="EMPTY" x="18" y="0"  priority="20"/>
+	<!-- <single type="HCLK_CLB"     x="18" y="26" priority="20"/> --><single type="EMPTY" x="18" y="26" priority="20"/>
+	<!-- <single type="NULL"         x="18" y="56" priority="20"/> --><single type="EMPTY" x="18" y="56" priority="20"/>
+
+   <col type="INT_L"      startx="19" priority="10" />
+	<!-- <single type="BRKH_TINT"    x="19" y="0"  priority="20"/> --><single type="EMPTY" x="19" y="0"  priority="20"/>
+	<!-- <single type="HCLK_L"       x="19" y="26" priority="20"/> --><single type="EMPTY" x="19" y="26" priority="20"/>
+	<!-- <single type="T_TINT"       x="19" y="56" priority="20"/> --><single type="EMPTY" x="19" y="56" priority="20"/>
+
+   <col type="INT_R"      startx="20" priority="10" />
+	<!-- <single type="BRKH_TINT"    x="20" y="0"  priority="20"/> --><single type="EMPTY" x="20" y="0"  priority="20"/>
+	<!-- <single type="HCLK_R"       x="20" y="26" priority="20"/> --><single type="EMPTY" x="20" y="26" priority="20"/>
+	<!-- <single type="T_TINT"       x="20" y="56" priority="20"/> --><single type="EMPTY" x="20" y="56" priority="20"/>
+
+   <col type="CLBLL_R"    startx="21"  priority="10" />
+	<!-- <single type="NULL"         x="21" y="0"  priority="20"/> --><single type="EMPTY" x="21" y="0"  priority="20"/>
+	<!-- <single type="HCLK_CLB"     x="21" y="26" priority="20"/> --><single type="EMPTY" x="21" y="26" priority="20"/>
+	<!-- <single type="NULL"         x="21" y="56" priority="20"/> --><single type="EMPTY" x="21" y="56" priority="20"/>
+
+   <!-- ===== -->
+
+   <!-- <col type="VFRAME"       startx="22"  priority="10" /> --><col type="EMPTY"      startx="22"  priority="10" />
+	<!-- <single type="NULL"        x="22" y="0"  priority="20"/> --><single type="EMPTY" x="22" y="0"  priority="20"/>
+	<!-- <single type="HCLK_VFRAME" x="22" y="26" priority="20"/> --><single type="EMPTY" x="22" y="26" priority="20"/>
+	<!-- <single type="NULL"        x="22" y="56" priority="20"/> --><single type="EMPTY" x="22" y="56" priority="20"/>
+
+   <!-- End RIO -->
+
+   <col type="EMPTY"      startx="23" priority="10" />
+   <!-- <col type="RIOB"       startx="24"  priority="10" /> --><col type="PAD"        startx="24" priority="10" />
+   <col type="EMPTY"      startx="25" priority="10" />
 
   </fixed_layout>
  </layout>
@@ -242,6 +362,45 @@
     <loc side="left"   xoffset="0" yoffset="0">INT_R.O</loc>
    </pinlocations>
   </pb_type>
+
+  <pb_type name="HCLK_L">
+   <input  name="I" num_pins="1" equivalent="false"/>
+   <output name="O" num_pins="1" equivalent="false"/>
+   <pb_type name="HCLK" num_pb="1" blif_model=".subckt HCLK">
+    <input  name="I" num_pins="1" equivalent="false"/>
+    <output name="O" num_pins="1" equivalent="false"/>
+    <delay_constant in_port="HCLK.I" max="10e-12" out_port="HCLK.O"/>
+   </pb_type>
+   <interconnect>
+    <direct name="I" input="HCLK_L.I" output="HCLK.I" />
+    <direct name="O" input="HCLK.O" output="HCLK_L.O" />
+   </interconnect>
+   <fc default_in_type="frac" default_in_val="1.0" default_out_type="frac" default_out_val="1.0"/>
+   <pinlocations pattern="custom">
+    <loc side="right"  xoffset="0" yoffset="0">HCLK_L.I</loc>
+    <loc side="left"   xoffset="0" yoffset="0">HCLK_L.O</loc>
+   </pinlocations>
+  </pb_type>
+
+  <pb_type name="HCLK_R">
+   <input  name="I" num_pins="1" equivalent="false"/>
+   <output name="O" num_pins="1" equivalent="false"/>
+   <pb_type name="HCLK" num_pb="1" blif_model=".subckt HCLK">
+    <input  name="I" num_pins="1" equivalent="false"/>
+    <output name="O" num_pins="1" equivalent="false"/>
+    <delay_constant in_port="HCLK.I" max="10e-12" out_port="HCLK.O"/>
+   </pb_type>
+   <interconnect>
+    <direct name="I" input="HCLK_R.I" output="HCLK.I" />
+    <direct name="O" input="HCLK.O" output="HCLK_R.O" />
+   </interconnect>
+   <fc default_in_type="frac" default_in_val="1.0" default_out_type="frac" default_out_val="1.0"/>
+   <pinlocations pattern="custom">
+    <loc side="right"  xoffset="0" yoffset="0">HCLK_R.I</loc>
+    <loc side="left"   xoffset="0" yoffset="0">HCLK_R.O</loc>
+   </pinlocations>
+  </pb_type>
+
 
  </complexblocklist>
 </architecture>
