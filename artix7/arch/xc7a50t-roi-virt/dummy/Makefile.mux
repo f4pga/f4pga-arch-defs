@@ -1,0 +1,4 @@
+%.xml: dummy.sh
+	./dummy.sh $@
+
+all: CLBLL_R.xml CLBLM_L.xml CLBLM_R.xml INT_L.xml INT_R.xml HCLK_L.xml HCLK_R.xml
