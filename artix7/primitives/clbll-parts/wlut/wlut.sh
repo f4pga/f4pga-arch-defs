@@ -8,7 +8,7 @@ cat > $1 <<EOF
       - 2 * 5 input, 1 output LUT
       - 1 * 6 input, 1 output LUT
   -->
-<pb_type name="${W}LUT" num_pb="1">
+<pb_type name="${W}LUT" num_pb="1" xmlns:xi="http://www.w3.org/2001/XInclude">
   <input name="A"   num_pins="6"/>
   <output name="O5" num_pins="1"/>
   <output name="O6" num_pins="1"/>

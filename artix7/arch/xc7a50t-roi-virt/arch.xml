@@ -206,7 +206,7 @@
    <input  name="CARRY_IN"  num_pins="1" />
    <output name="CARRY_OUT" num_pins="1" />
 
-   <xi:include href="../../primitives/clbll/pb_type.xml" />
+   <xi:include href="../../primitives/clbll-parts/pb_type.xml" />
    <interconnect>
     <direct name="CARRY_IN"  input="CLBLL_L.CARRY_IN" output="CLBLL.CARRY_IN"   />
     <direct name="CARRY_OUT" input="CLBLL.CARRY_OUT"  output="CLBLL_L.CARRY_OUT" />

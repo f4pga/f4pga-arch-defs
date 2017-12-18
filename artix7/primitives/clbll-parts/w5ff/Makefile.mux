@@ -1,0 +1,4 @@
+pb_type.%.xml: w5ff.sh
+	./w5ff.sh $@
+
+all: pb_type.A5FF.xml pb_type.B5FF.xml pb_type.C5FF.xml pb_type.D5FF.xml
