@@ -2,7 +2,7 @@
     7 Series FPGAs CLB User Guide UG474 (v1.8) September 27, 2016
     Figure 2-4: Diagram of SLICEL
   -->
-<pb_type name="CLBLL" num_pb="1" xmlns:xi="http://www.w3.org/2001/XInclude">
+<pb_type name="SLICE_L" num_pb="1" xmlns:xi="http://www.w3.org/2001/XInclude">
 
   <input name="DX" num_pins="1" equivalent="false"/>
   <input name="D"  num_pins="6" equivalent="false"/>
@@ -191,16 +191,16 @@
 
   <interconnect>
     <!-- Repeat 4 times -->
-    <direct name="D" input="CLBLL.D" output="WLUT[3].A" />
-    <direct name="C" input="CLBLL.C" output="WLUT[2].A" />
-    <direct name="B" input="CLBLL.B" output="WLUT[1].A" />
-    <direct name="A" input="CLBLL.A" output="WLUT[0].A" />
+    <direct name="D" input="SLICE_L.D" output="WLUT[3].A" />
+    <direct name="C" input="SLICE_L.C" output="WLUT[2].A" />
+    <direct name="B" input="SLICE_L.B" output="WLUT[1].A" />
+    <direct name="A" input="SLICE_L.A" output="WLUT[0].A" />
 
     <!-- MUX for input to 5 flip-flop output. -->
     <mux
         name="D5FFMUX"
         input="
-            CLBLL.DX
+            SLICE_L.DX
             WLUT[3].O5
         "
         output="W5FF[3].D"
@@ -208,7 +208,7 @@
     <mux
         name="C5FFMUX"
         input="
-            CLBLL.CX
+            SLICE_L.CX
             WLUT[2].O5
         "
         output="W5FF[2].D"
@@ -216,7 +216,7 @@
     <mux
         name="B5FFMUX"
         input="
-            CLBLL.BX
+            SLICE_L.BX
             WLUT[1].O5
         "
         output="W5FF[1].D"
@@ -224,7 +224,7 @@
     <mux
         name="A5FFMUX"
         input="
-            CLBLL.AX
+            SLICE_L.AX
             WLUT[0].O5
         "
         output="W5FF[0].D"
@@ -234,7 +234,7 @@
     <mux
         name="DCYO"
         input="
-            CLBLL.DX
+            SLICE_L.DX
             WLUT[3].O5
         "
         output="CARRY.DI[3]"
@@ -242,7 +242,7 @@
     <mux
         name="CCYO"
         input="
-            CLBLL.CX
+            SLICE_L.CX
             WLUT[2].O5
         "
         output="CARRY.DI[2]"
@@ -250,7 +250,7 @@
     <mux
         name="BCYO"
         input="
-            CLBLL.BX
+            SLICE_L.BX
             WLUT[1].O5
         "
         output="CARRY.DI[1]"
@@ -258,7 +258,7 @@
     <mux
         name="ACYO"
         input="
-            CLBLL.AX
+            SLICE_L.AX
             WLUT[0].O5
         "
         output="CARRY.DI[0]"
@@ -274,7 +274,7 @@
             WLUT[3].O5
             CARRY.CO[3]
             "
-        output="CLBLL.DMUX"
+        output="SLICE_L.DMUX"
     />
     <mux
         name="COUTMUX"
@@ -286,7 +286,7 @@
             F7BMUX.O
             CARRY.CO[2]
             "
-        output="CLBLL.CMUX"
+        output="SLICE_L.CMUX"
     />
     <mux
         name="BOUTMUX"
@@ -298,7 +298,7 @@
             F8MUX.O
             CARRY.CO[1]
             "
-        output="CLBLL.BMUX"
+        output="SLICE_L.BMUX"
     />
     <mux
         name="AOUTMUX"
@@ -310,7 +310,7 @@
             F7BMUX.O
             CARRY.CO[0]
             "
-        output="CLBLL.AMUX"
+        output="SLICE_L.AMUX"
     />
 
     <!-- Muxes for WFF input -->
@@ -320,7 +320,7 @@
             CARRY.O[3]
             WLUT[3].O6
             WLUT[3].O5
-            CLBLL.DX
+            SLICE_L.DX
             CARRY.CO[3]
             "
         output="WFF[3].D"
@@ -333,7 +333,7 @@
             WLUT[2].O5
             F7BMUX.O
             CARRY.CO[2]
-            CLBLL.CX
+            SLICE_L.CX
             "
         output="WFF[2].D"
     />
@@ -345,7 +345,7 @@
             WLUT[1].O5
             F8MUX.O
             CARRY.CO[1]
-            CLBLL.BX
+            SLICE_L.BX
             "
         output="WFF[1].D"
     />
@@ -357,54 +357,54 @@
             WLUT[3].O5
             F7AMUX.O
             CARRY.CO[0]
-            CLBLL.AX
+            SLICE_L.AX
             "
         output="WFF[0].D"
     />
 
-    <direct name="WFF[3]" input="WFF[3].Q" output="CLBLL.AQ" />
-    <direct name="WFF[2]" input="WFF[2].Q" output="CLBLL.BQ" />
-    <direct name="WFF[1]" input="WFF[1].Q" output="CLBLL.CQ" />
-    <direct name="WFF[0]" input="WFF[0].Q" output="CLBLL.DQ" />
+    <direct name="WFF[3]" input="WFF[3].Q" output="SLICE_L.AQ" />
+    <direct name="WFF[2]" input="WFF[2].Q" output="SLICE_L.BQ" />
+    <direct name="WFF[1]" input="WFF[1].Q" output="SLICE_L.CQ" />
+    <direct name="WFF[0]" input="WFF[0].Q" output="SLICE_L.DQ" />
 
     <!-- LUT O6 output -->
-    <direct name="F7BMUX_I0" input="WLUT[3].O6" output="F7BMUX.I0" /><direct name="CARRY_S3" input="WLUT[3].O6" output="CARRY.S[3]" /><direct name="CLBLL_Dout" input="WLUT[3].O6" output="CLBLL.Dout" />
-    <direct name="F7BMUX_I1" input="WLUT[2].O6" output="F7BMUX.I1" /><direct name="CARRY_S2" input="WLUT[2].O6" output="CARRY.S[2]" /><direct name="CLBLL_Cout" input="WLUT[2].O6" output="CLBLL.Cout" />
-    <direct name="F7AMUX_I0" input="WLUT[1].O6" output="F7AMUX.I0" /><direct name="CARRY_S1" input="WLUT[1].O6" output="CARRY.S[1]" /><direct name="CLBLL_Bout" input="WLUT[1].O6" output="CLBLL.Bout" />
-    <direct name="F7AMUX_I1" input="WLUT[0].O6" output="F7AMUX.I1" /><direct name="CARRY_S0" input="WLUT[0].O6" output="CARRY.S[0]" /><direct name="CLBLL_Aout" input="WLUT[0].O6" output="CLBLL.Aout" />
+    <direct name="F7BMUX_I0" input="WLUT[3].O6" output="F7BMUX.I0" /><direct name="CARRY_S3" input="WLUT[3].O6" output="CARRY.S[3]" /><direct name="SLICE_L_Dout" input="WLUT[3].O6" output="SLICE_L.Dout" />
+    <direct name="F7BMUX_I1" input="WLUT[2].O6" output="F7BMUX.I1" /><direct name="CARRY_S2" input="WLUT[2].O6" output="CARRY.S[2]" /><direct name="SLICE_L_Cout" input="WLUT[2].O6" output="SLICE_L.Cout" />
+    <direct name="F7AMUX_I0" input="WLUT[1].O6" output="F7AMUX.I0" /><direct name="CARRY_S1" input="WLUT[1].O6" output="CARRY.S[1]" /><direct name="SLICE_L_Bout" input="WLUT[1].O6" output="SLICE_L.Bout" />
+    <direct name="F7AMUX_I1" input="WLUT[0].O6" output="F7AMUX.I1" /><direct name="CARRY_S0" input="WLUT[0].O6" output="CARRY.S[0]" /><direct name="SLICE_L_Aout" input="WLUT[0].O6" output="SLICE_L.Aout" />
 
     <!-- Select lines for F7 MUXes -->
-    <direct name="CX7S" input="CLBLL.CX" output="F7BMUX.S" />
-    <direct name="AX7S" input="CLBLL.AX" output="F7AMUX.S" />
+    <direct name="CX7S" input="SLICE_L.CX" output="F7BMUX.S" />
+    <direct name="AX7S" input="SLICE_L.AX" output="F7AMUX.S" />
 
     <!-- F8MUX -->
     <direct name="F8MUX_IN0" input="F7BMUX.O" output="F8MUX.I0" />
     <direct name="F8MUX_IN1" input="F7AMUX.O" output="F8MUX.I1" />
-    <direct name="F8MUX_S"   input="CLBLL.BX" output="F8MUX.S" />
+    <direct name="F8MUX_S"   input="SLICE_L.BX" output="F8MUX.S" />
     <!-- <direct name="F8MUX_O"   input="F8MUX.O" output="" /> -->
 
     <!-- Carry -->
-    <direct name="CYINIT"    input="CLBLL.AX"  output="CARRY.CYINIT" />
-    <direct name="CARRY_IN"  input="CLBLL.CARRY_IN" output="CARRY.CIN" />
-    <direct name="CARRY_OUT" input="CARRY.CO[3]" output="CLBLL.CARRY_OUT" />
+    <direct name="CYINIT"    input="SLICE_L.AX"  output="CARRY.CYINIT" />
+    <direct name="CARRY_IN"  input="SLICE_L.CARRY_IN" output="CARRY.CIN" />
+    <direct name="CARRY_OUT" input="CARRY.CO[3]" output="SLICE_L.CARRY_OUT" />
 
     <!-- Clock, Clock Enable and Reset -->
-    <direct name="W5FF0_CK" input="CLBLL.CLK" output="W5FF[0].CK"/><direct name="WFF0_CK" input="CLBLL.CLK" output="WFF[0].CK"/>
-    <direct name="W5FF1_CK" input="CLBLL.CLK" output="W5FF[1].CK"/><direct name="WFF1_CK" input="CLBLL.CLK" output="WFF[1].CK"/>
-    <direct name="W5FF2_CK" input="CLBLL.CLK" output="W5FF[2].CK"/><direct name="WFF2_CK" input="CLBLL.CLK" output="WFF[2].CK"/>
-    <direct name="W5FF3_CK" input="CLBLL.CLK" output="W5FF[3].CK"/><direct name="WFF3_CK" input="CLBLL.CLK" output="WFF[3].CK"/>
+    <direct name="W5FF0_CK" input="SLICE_L.CLK" output="W5FF[0].CK"/><direct name="WFF0_CK" input="SLICE_L.CLK" output="WFF[0].CK"/>
+    <direct name="W5FF1_CK" input="SLICE_L.CLK" output="W5FF[1].CK"/><direct name="WFF1_CK" input="SLICE_L.CLK" output="WFF[1].CK"/>
+    <direct name="W5FF2_CK" input="SLICE_L.CLK" output="W5FF[2].CK"/><direct name="WFF2_CK" input="SLICE_L.CLK" output="WFF[2].CK"/>
+    <direct name="W5FF3_CK" input="SLICE_L.CLK" output="W5FF[3].CK"/><direct name="WFF3_CK" input="SLICE_L.CLK" output="WFF[3].CK"/>
 
-    <!-- <mux name="CEUSED" input="VCC CLBLL.CE" output="{}"/> -->
-    <direct name="W5FF0_CE" input="CLBLL.CE"  output="W5FF[0].CE"/><direct name="WFF0_CE" input="CLBLL.CE"  output="WFF[0].CE"/>
-    <direct name="W5FF1_CE" input="CLBLL.CE"  output="W5FF[1].CE"/><direct name="WFF1_CE" input="CLBLL.CE"  output="WFF[1].CE"/>
-    <direct name="W5FF2_CE" input="CLBLL.CE"  output="W5FF[2].CE"/><direct name="WFF2_CE" input="CLBLL.CE"  output="WFF[2].CE"/>
-    <direct name="W5FF3_CE" input="CLBLL.CE"  output="W5FF[3].CE"/><direct name="WFF3_CE" input="CLBLL.CE"  output="WFF[3].CE"/>
+    <!-- <mux name="CEUSED" input="VCC SLICE_L.CE" output="{}"/> -->
+    <direct name="W5FF0_CE" input="SLICE_L.CE"  output="W5FF[0].CE"/><direct name="WFF0_CE" input="SLICE_L.CE"  output="WFF[0].CE"/>
+    <direct name="W5FF1_CE" input="SLICE_L.CE"  output="W5FF[1].CE"/><direct name="WFF1_CE" input="SLICE_L.CE"  output="WFF[1].CE"/>
+    <direct name="W5FF2_CE" input="SLICE_L.CE"  output="W5FF[2].CE"/><direct name="WFF2_CE" input="SLICE_L.CE"  output="WFF[2].CE"/>
+    <direct name="W5FF3_CE" input="SLICE_L.CE"  output="W5FF[3].CE"/><direct name="WFF3_CE" input="SLICE_L.CE"  output="WFF[3].CE"/>
 
-    <!-- <mux name="SRUSED" input="GND CLBLL.SR" output="{}"/> -->
-    <direct name="W5FF0_SR" input="CLBLL.SR"  output="W5FF[0].SR"/><direct name="WFF0_SR" input="CLBLL.SR"  output="WFF[0].SR"/>
-    <direct name="W5FF1_SR" input="CLBLL.SR"  output="W5FF[1].SR"/><direct name="WFF1_SR" input="CLBLL.SR"  output="WFF[1].SR"/>
-    <direct name="W5FF2_SR" input="CLBLL.SR"  output="W5FF[2].SR"/><direct name="WFF2_SR" input="CLBLL.SR"  output="WFF[2].SR"/>
-    <direct name="W5FF3_SR" input="CLBLL.SR"  output="W5FF[3].SR"/><direct name="WFF3_SR" input="CLBLL.SR"  output="WFF[3].SR"/>
+    <!-- <mux name="SRUSED" input="GND SLICE_L.SR" output="{}"/> -->
+    <direct name="W5FF0_SR" input="SLICE_L.SR"  output="W5FF[0].SR"/><direct name="WFF0_SR" input="SLICE_L.SR"  output="WFF[0].SR"/>
+    <direct name="W5FF1_SR" input="SLICE_L.SR"  output="W5FF[1].SR"/><direct name="WFF1_SR" input="SLICE_L.SR"  output="WFF[1].SR"/>
+    <direct name="W5FF2_SR" input="SLICE_L.SR"  output="W5FF[2].SR"/><direct name="WFF2_SR" input="SLICE_L.SR"  output="WFF[2].SR"/>
+    <direct name="W5FF3_SR" input="SLICE_L.SR"  output="W5FF[3].SR"/><direct name="WFF3_SR" input="SLICE_L.SR"  output="WFF[3].SR"/>
 
   </interconnect>
 </pb_type>

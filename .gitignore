@@ -9,5 +9,5 @@ sim.*.png
 tests/build
 push.sh
 artix7/arch/xc7a50t-roi-virt/dummy/*.xml
-artix7/primitives/clbll-parts/*/pb_type.*.xml
-artix7/primitives/clbll-parts/*/sim.*.v
+artix7/primitives/slice-l/*/pb_type.*.xml
+artix7/primitives/slice-l/*/sim.*.v

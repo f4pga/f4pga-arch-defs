@@ -1,0 +1,9 @@
+<pb_type blif_model=".subckt MUXCY" name="CARRY4_WMUX" num_pb="4">
+  <input name="I0" num_pins="1"/>
+  <input name="I1" num_pins="1"/>
+  <input name="S" num_pins="1"/>
+  <output name="OUT" num_pins="1"/>
+  <delay_constant in_port="CARRY4_WMUX.I0" max="10e-12" out_port="CARRY4_WMUX.OUT"/>
+  <delay_constant in_port="CARRY4_WMUX.I1" max="10e-12" out_port="CARRY4_WMUX.OUT"/>
+  <delay_constant in_port="CARRY4_WMUX.S"  max="10e-12" out_port="CARRY4_WMUX.OUT"/>
+</pb_type>

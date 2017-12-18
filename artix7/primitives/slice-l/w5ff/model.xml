@@ -1,0 +1,14 @@
+ <models>
+  <!--  module W5FF (input D, CE, CK, output Q, input SR); -->
+  <model name="W5FF">
+   <input_ports>
+    <port name="CK" is_clock="1" />
+    <port name="CE" clock="CK" />
+    <port name="SR" clock="CK" />
+    <port name="D"  clock="CK" />
+   </input_ports>
+   <output_ports>
+    <port name="Q" clock="CK" />
+   </output_ports>
+  </model>
+ </models>

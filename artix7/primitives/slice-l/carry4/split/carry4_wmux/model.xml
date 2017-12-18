@@ -1,0 +1,12 @@
+<models>
+  <model name="MUXCY">
+    <input_ports>
+      <port combinational_sink_ports="OUT" name="I0"/>
+      <port combinational_sink_ports="OUT" name="I1"/>
+      <port combinational_sink_ports="OUT" name="S"/>
+    </input_ports>
+    <output_ports>
+      <port name="OUT"/>
+    </output_ports>
+  </model>
+</models>
