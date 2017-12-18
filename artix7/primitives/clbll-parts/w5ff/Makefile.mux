@@ -1,4 +1,5 @@
-pb_type.%.xml: w5ff.sh
-	./w5ff.sh $@
+NAMES := A B C D
+PB_TYPE_XML := $(foreach FF,$(NAMES),pb_type.$(FF)5FF.xml)
+SIM_V := $(foreach FF,$(NAMES),sim.$(FF)5FF.v)
 
-all: pb_type.A5FF.xml pb_type.B5FF.xml pb_type.C5FF.xml pb_type.D5FF.xml
+include ../../../../common/make/w.mk

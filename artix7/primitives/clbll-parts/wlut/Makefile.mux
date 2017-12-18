@@ -1,4 +1,5 @@
-pb_type.%.xml: wlut.sh
-	./wlut.sh $@
+NAMES := A B C D
+PB_TYPE_XML := $(foreach LUT,$(NAMES),pb_type.$(LUT)LUT.xml)
+SIM_V := $(foreach LUT,$(NAMES),sim.$(LUT)LUT.v)
 
-all: pb_type.ALUT.xml pb_type.BLUT.xml pb_type.CLUT.xml pb_type.DLUT.xml
+include ../../../../common/make/w.mk
