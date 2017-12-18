@@ -1,0 +1,14 @@
+// Xilinx Black Boxes / Primitives
+{% for modname, (params, ports) in modules|dictsort %}
+
+module {{modname}} ({{ ports|join(', ') }});
+
+{% for paramname, (paramtype, paramvalue) in params.items() %}	parameter {{paramtype}} {{paramname}} = {{paramvalue}};
+{% endfor %}
+
+{% for portname, (porttype, portdir) in ports.items() %}	{{portdir}} {{porttype}} {{portname}};
+{% endfor %}
+
+endmodule
+
+{% endfor %}
