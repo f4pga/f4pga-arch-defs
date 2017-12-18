@@ -4,7 +4,6 @@
     <port name="S"      combinational_sink_ports="CO O" />
     <port name="DI"     combinational_sink_ports="CO O" />
     <port name="CIN"    combinational_sink_ports="CO O" />
-    <port name="CYINIT" combinational_sink_ports="CO O" />
    </input_ports>
    <output_ports>
     <port name="CO" />

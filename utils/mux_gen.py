@@ -287,10 +287,12 @@ with open(sim_file, "w") as f:
             continue
         module_args.append(name)
 
+    mux_prefix = {'logic': '', 'routing': 'r'}[args.type]
+
     f.write("/* ")
     f.write("\n * ".join(generated_with.splitlines()))
     f.write("\n */\n\n")
-    f.write('`include "%s/sim.mux%i.v"\n' % (mux_dir, args.width))
+    f.write('`include "%s/%s/%smux%i/sim.v"\n' % (mux_dir, 'logic', '', args.width))
     f.write("\n")
     f.write("module %s(%s);\n" % (args.name_mux, ", ".join(module_args)))
     previous_type = None
@@ -377,11 +379,11 @@ if args.type == 'logic':
             ET.SubElement(output_ports, 'port', {'name': args.name_output})
 
     models_str = ET.tostring(models_xml, pretty_print=True).decode('utf-8')
-    output_block("model.xml", model_str)
+    output_block("model.xml", models_str)
     with open(os.path.join(outdir, "model.xml"), "w") as f:
         f.write(models_str)
 else:
-    output_block("models.xml", "No model.xml for routing elements.")
+    output_block("model.xml", "No model.xml for routing elements.")
 
 # ------------------------------------------------------------------------
 # Generate the pb_type XML form.
@@ -394,7 +396,7 @@ pb_type_xml = ET.Element(
         'num_pb': str(args.num_pb),
     })
 if args.type == 'logic':
-    pb_type_xml['blif_model'] = '.subckt %s' % args.subckt
+    pb_type_xml.attrib['blif_model'] = '.subckt %s' % args.subckt
 
 pb_type_xml.append(ET.Comment(xml_comment))
 

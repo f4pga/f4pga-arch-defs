@@ -1,5 +1,4 @@
 <models xmlns:xi="http://www.w3.org/2001/XInclude">
- <xi:include href="carry4_cin_mux/model.xml" xpointer="xpointer(models/*)" />
  <xi:include href="carry4_wmux/model.xml"    xpointer="xpointer(models/*)" />
  <xi:include href="carry4_wxor/model.xml"    xpointer="xpointer(models/*)" />
 </models>

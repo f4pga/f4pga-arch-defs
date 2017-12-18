@@ -9,34 +9,42 @@
  <input name="CYINIT" num_pins="1"/>
 
  <mode name="COMPLETE">
-  <xi:include href="complete/pb_type.xml"/>
+  <xi:include href="carry4_complete/pb_type.xml"/>
   <interconnect>
-   <direct name="S"   input="CARRY4.S"   output="CARRY.S"   />
-   <direct name="DI"  input="CARRY4.DI"  output="CARRY.DI"  />
-   <direct name="CO"  input="CARRY.CO"   output="CARRY4.CO" />
-   <direct name="O"   input="CARRY.O"    output="CARRY4.O"  />
-   <direct name="CIN" input="CARRY4.CIN" output="CARRY.CIN" />
-   <direct name="CYINIT" input="CARRY4.CYINIT" output="CARRY.CYINIT"/>
+   <direct name="S"   input="CARRY4.S"           output="CARRY4_COMPLETE.S"   />
+   <direct name="DI"  input="CARRY4.DI"          output="CARRY4_COMPLETE.DI"  />
+   <direct name="CO"  input="CARRY4_COMPLETE.CO" output="CARRY4.CO"           />
+   <direct name="O"   input="CARRY4_COMPLETE.O"  output="CARRY4.O"            />
+   <direct name="CIN" input="CARRY4.CIN"         output="CARRY4_COMPLETE.CIN" />
+   <direct name="CYINIT" input="CARRY4.CYINIT" output="CARRY4_COMPLETE.CYINIT"/>
   </interconnect>
  </mode>
  <mode name="SPLIT">
-  <xi:include href="split/carry4_wmux/pb_type.xml" />
-  <xi:include href="split/carry4_wxor/pb_type.xml" />
-  <xi:include href="split/carry4_cin_mux/pb_type.xml" />
+  <xi:include href="carry4_split/carry4_cin_mux/pb_type.xml" />
+
+  <xi:include href="carry4_split/carry4_wmux/pb_type.CARRY4_AMUX.xml" />
+  <xi:include href="carry4_split/carry4_wmux/pb_type.CARRY4_BMUX.xml" />
+  <xi:include href="carry4_split/carry4_wmux/pb_type.CARRY4_CMUX.xml" />
+  <xi:include href="carry4_split/carry4_wmux/pb_type.CARRY4_DMUX.xml" />
+
+  <xi:include href="carry4_split/carry4_wxor/pb_type.CARRY4_AXOR.xml" />
+  <xi:include href="carry4_split/carry4_wxor/pb_type.CARRY4_BXOR.xml" />
+  <xi:include href="carry4_split/carry4_wxor/pb_type.CARRY4_CXOR.xml" />
+  <xi:include href="carry4_split/carry4_wxor/pb_type.CARRY4_DXOR.xml" />
 
   <interconnect>
    <direct name="CIN"    input="CARRY4.CIN"    output="CARRY4_CIN_MUX.CIN"/>
    <direct name="CYINIT" input="CARRY4.CYINIT" output="CARRY4_CIN_MUX.CYINIT"/>
 
-   <direct name="MUX0_I0" input="CARRY4.DI[0]" output="CARRY4_WMUX[0].I0"/><direct name="MUX0_I1" input="CARRY4_CIN_MUX.OUT" output="CARRY4_WMUX[0].I0"/><direct name="MUX0_S" input="CARRY4.S[0]" output="CARRY4_WMUX[0].S"/><direct name="MUX0_O" input="CARRY4_WMUX[0].OUT" output="CARRY4.CO[0]"/>
-   <direct name="MUX1_I0" input="CARRY4.DI[1]" output="CARRY4_WMUX[1].I0"/><direct name="MUX1_I1" input="CARRY4_WMUX[0].OUT" output="CARRY4_WMUX[1].I1"/><direct name="MUX1_S" input="CARRY4.S[1]" output="CARRY4_WMUX[1].S"/><direct name="MUX1_O" input="CARRY4_WMUX[1].OUT" output="CARRY4.CO[1]"/>
-   <direct name="MUX2_I0" input="CARRY4.DI[2]" output="CARRY4_WMUX[2].I0"/><direct name="MUX2_I1" input="CARRY4_WMUX[1].OUT" output="CARRY4_WMUX[2].I1"/><direct name="MUX2_S" input="CARRY4.S[2]" output="CARRY4_WMUX[2].S"/><direct name="MUX2_O" input="CARRY4_WMUX[2].OUT" output="CARRY4.CO[2]"/>
-   <direct name="MUX3_I0" input="CARRY4.DI[3]" output="CARRY4_WMUX[3].I0"/><direct name="MUX3_I1" input="CARRY4_WMUX[2].OUT" output="CARRY4_WMUX[3].I1"/><direct name="MUX3_S" input="CARRY4.S[3]" output="CARRY4_WMUX[3].S"/><direct name="MUX3_O" input="CARRY4_WMUX[3].OUT" output="CARRY4.CO[3]"/>
+   <direct name="MUX0_I0" input="CARRY4.DI[0]" output="CARRY4_AMUX.I0"/><direct name="MUX0_I1" input="CARRY4_CIN_MUX.OUT" output="CARRY4_AMUX.I0"/><direct name="MUX0_S" input="CARRY4.S[0]" output="CARRY4_AMUX.S"/><direct name="MUX0_O" input="CARRY4_AMUX.OUT" output="CARRY4.CO[0]"/>
+   <direct name="MUX1_I0" input="CARRY4.DI[1]" output="CARRY4_BMUX.I0"/><direct name="MUX1_I1" input="CARRY4_AMUX.OUT"    output="CARRY4_BMUX.I1"/><direct name="MUX1_S" input="CARRY4.S[1]" output="CARRY4_BMUX.S"/><direct name="MUX1_O" input="CARRY4_BMUX.OUT" output="CARRY4.CO[1]"/>
+   <direct name="MUX2_I0" input="CARRY4.DI[2]" output="CARRY4_CMUX.I0"/><direct name="MUX2_I1" input="CARRY4_BMUX.OUT"    output="CARRY4_CMUX.I1"/><direct name="MUX2_S" input="CARRY4.S[2]" output="CARRY4_CMUX.S"/><direct name="MUX2_O" input="CARRY4_CMUX.OUT" output="CARRY4.CO[2]"/>
+   <direct name="MUX3_I0" input="CARRY4.DI[3]" output="CARRY4_DMUX.I0"/><direct name="MUX3_I1" input="CARRY4_CMUX.OUT"    output="CARRY4_DMUX.I1"/><direct name="MUX3_S" input="CARRY4.S[3]" output="CARRY4_DMUX.S"/><direct name="MUX3_O" input="CARRY4_DMUX.OUT" output="CARRY4.CO[3]"/>
 
-   <direct name="XOR0_LI" input="CARRY4.S[0]"  output="CARRY4_WXOR[0].LI"/><direct name="XOR0_CI" input="CARRY4_CIN_MUX.OUT" output="CARRY4_WXOR[0].CI"/><direct name="XOR0_O" input="CARRY4_WXOR[0].O" output="CARRY4.O[0]"/>
-   <direct name="XOR1_LI" input="CARRY4.S[1]"  output="CARRY4_WXOR[1].LI"/><direct name="XOR1_CI" input="CARRY4_WMUX[0].OUT" output="CARRY4_WXOR[1].CI"/><direct name="XOR1_O" input="CARRY4_WXOR[1].O" output="CARRY4.O[1]"/>
-   <direct name="XOR2_LI" input="CARRY4.S[2]"  output="CARRY4_WXOR[2].LI"/><direct name="XOR2_CI" input="CARRY4_WMUX[1].OUT" output="CARRY4_WXOR[2].CI"/><direct name="XOR2_O" input="CARRY4_WXOR[2].O" output="CARRY4.O[2]"/>
-   <direct name="XOR3_LI" input="CARRY4.S[3]"  output="CARRY4_WXOR[3].LI"/><direct name="xOR3_CI" input="CARRY4_WMUX[2].OUT" output="CARRY4_WXOR[3].CI"/><direct name="XOR3_O" input="CARRY4_WXOR[3].O" output="CARRY4.O[3]"/>
+   <direct name="XOR0_LI" input="CARRY4.S[0]"  output="CARRY4_AXOR.LI"/><direct name="XOR0_CI" input="CARRY4_CIN_MUX.OUT" output="CARRY4_AXOR.CI"/><direct name="XOR0_O" input="CARRY4_AXOR.O" output="CARRY4.O[0]"/>
+   <direct name="XOR1_LI" input="CARRY4.S[1]"  output="CARRY4_BXOR.LI"/><direct name="XOR1_CI" input="CARRY4_AMUX.OUT"    output="CARRY4_BXOR.CI"/><direct name="XOR1_O" input="CARRY4_BXOR.O" output="CARRY4.O[1]"/>
+   <direct name="XOR2_LI" input="CARRY4.S[2]"  output="CARRY4_CXOR.LI"/><direct name="XOR2_CI" input="CARRY4_BMUX.OUT"    output="CARRY4_CXOR.CI"/><direct name="XOR2_O" input="CARRY4_CXOR.O" output="CARRY4.O[2]"/>
+   <direct name="XOR3_LI" input="CARRY4.S[3]"  output="CARRY4_DXOR.LI"/><direct name="xOR3_CI" input="CARRY4_CMUX.OUT"    output="CARRY4_DXOR.CI"/><direct name="XOR3_O" input="CARRY4_DXOR.O" output="CARRY4.O[3]"/>
   </interconnect>
  </mode>
 </pb_type>

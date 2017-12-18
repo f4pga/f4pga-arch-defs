@@ -1,5 +1,0 @@
-NAMES := A B C D
-PB_TYPE_XML := $(foreach LUT,$(NAMES),pb_type.$(LUT)LUT.xml)
-SIM_V := $(foreach LUT,$(NAMES),sim.$(LUT)LUT.v)
-
-include ../../../../common/make/w.mk

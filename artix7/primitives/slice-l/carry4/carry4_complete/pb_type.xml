@@ -6,16 +6,13 @@
      <output name="O"  num_pins="4"/>
 
      <input name="CIN"    num_pins="1"/>
-     <input name="CYINIT" num_pins="1"/>
 
      <!-- CO output -->
      <delay_constant max="10e-12" in_port="CARRY.S"      out_port="CARRY.CO"/>
      <delay_constant max="10e-12" in_port="CARRY.DI"     out_port="CARRY.CO"/>
      <delay_constant max="10e-12" in_port="CARRY.CIN"    out_port="CARRY.CO"/>
-     <delay_constant max="10e-12" in_port="CARRY.CYINIT" out_port="CARRY.CO"/>
      <!-- O output -->
      <delay_constant max="10e-12" in_port="CARRY.S"      out_port="CARRY.O"/>
      <delay_constant max="10e-12" in_port="CARRY.DI"     out_port="CARRY.O"/>
      <delay_constant max="10e-12" in_port="CARRY.CIN"    out_port="CARRY.O"/>
-     <delay_constant max="10e-12" in_port="CARRY.CYINIT" out_port="CARRY.O"/>
     </pb_type>

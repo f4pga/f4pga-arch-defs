@@ -1,5 +1,0 @@
-NAMES := A B C D
-PB_TYPE_XML := $(foreach FF,$(NAMES),pb_type.$(FF)5FF.xml)
-SIM_V := $(foreach FF,$(NAMES),sim.$(FF)5FF.v)
-
-include ../../../../common/make/w.mk
