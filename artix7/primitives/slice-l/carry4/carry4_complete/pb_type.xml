@@ -1,4 +1,4 @@
-    <pb_type name="CARRY" num_pb="1" blif_model=".subckt CARRY4">
+    <pb_type name="CARRY4_COMPLETE" num_pb="1" blif_model=".subckt CARRY4">
      <input name="S"  num_pins="4"/>
      <input name="DI" num_pins="4"/>
 
@@ -8,11 +8,11 @@
      <input name="CIN"    num_pins="1"/>
 
      <!-- CO output -->
-     <delay_constant max="10e-12" in_port="CARRY.S"      out_port="CARRY.CO"/>
-     <delay_constant max="10e-12" in_port="CARRY.DI"     out_port="CARRY.CO"/>
-     <delay_constant max="10e-12" in_port="CARRY.CIN"    out_port="CARRY.CO"/>
+     <delay_constant max="10e-12" in_port="CARRY4_COMPLETE.S"   out_port="CARRY4_COMPLETE.CO"/>
+     <delay_constant max="10e-12" in_port="CARRY4_COMPLETE.DI"  out_port="CARRY4_COMPLETE.CO"/>
+     <delay_constant max="10e-12" in_port="CARRY4_COMPLETE.CIN" out_port="CARRY4_COMPLETE.CO"/>
      <!-- O output -->
-     <delay_constant max="10e-12" in_port="CARRY.S"      out_port="CARRY.O"/>
-     <delay_constant max="10e-12" in_port="CARRY.DI"     out_port="CARRY.O"/>
-     <delay_constant max="10e-12" in_port="CARRY.CIN"    out_port="CARRY.O"/>
+     <delay_constant max="10e-12" in_port="CARRY4_COMPLETE.S"   out_port="CARRY4_COMPLETE.O"/>
+     <delay_constant max="10e-12" in_port="CARRY4_COMPLETE.DI"  out_port="CARRY4_COMPLETE.O"/>
+     <delay_constant max="10e-12" in_port="CARRY4_COMPLETE.CIN" out_port="CARRY4_COMPLETE.O"/>
     </pb_type>

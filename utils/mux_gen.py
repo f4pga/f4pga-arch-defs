@@ -304,7 +304,7 @@ with open(sim_file, "w") as f:
             if width == 1:
                 f.write('\tparameter [0:0] %s = 0;\n' % (name))
             else:
-                f.write('\tparameter %s %s %s = 0;\n' % (index, name))
+                f.write('\tparameter %s %s = 0;\n' % (index, name))
             continue
 
         if width == 1:

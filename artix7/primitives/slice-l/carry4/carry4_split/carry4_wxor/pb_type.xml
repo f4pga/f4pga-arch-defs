@@ -1,4 +1,4 @@
-<pb_type blif_model=".subckt XORCY" name="CARRY4_{W}XOR" num_pb="4">
+<pb_type blif_model=".subckt XORCY" name="CARRY4_{W}XOR" num_pb="1">
   <input name="CI" num_pins="1"/>
   <input name="LI" num_pins="1"/>
   <output name="O" num_pins="1"/>

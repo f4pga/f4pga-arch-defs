@@ -1,6 +1,6 @@
 
 # Generated with mux_gen.py, run the following to regenerate in this directory;
-# ../../../../../utils/mux_gen.py --outdir . '--name-mux' 'PRECYINIT_RMUX' '--type' 'routing' '--width' '2' '--name-inputs' 'CI,CYINIT' '--name-output' 'OUT'
+# ../../../../../utils/mux_gen.py --outdir . '--type' 'routing' '--name-mux' 'COUTMUX' '--width' '6' '--name-inputs' 'C5Q,XOR,O6,O5,F7,CY'
 # 
 
 all: model.xml pb_type.xml .gitignore Makefile.mux sim.v
@@ -9,7 +9,7 @@ clean:
 	rm -f .mux_gen.stamp model.xml pb_type.xml sim.v
 
 .mux_gen.stamp: ../../../../../utils/mux_gen.py Makefile.mux
-	../../../../../utils/mux_gen.py --outdir . '--name-mux' 'PRECYINIT_RMUX' '--type' 'routing' '--width' '2' '--name-inputs' 'CI,CYINIT' '--name-output' 'OUT'
+	../../../../../utils/mux_gen.py --outdir . '--type' 'routing' '--name-mux' 'COUTMUX' '--width' '6' '--name-inputs' 'C5Q,XOR,O6,O5,F7,CY'
 	touch --reference $< $@
 
 .PHONY: all clean

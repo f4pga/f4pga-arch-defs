@@ -11,7 +11,7 @@
    </output_ports>
   </model>
 
-  <xi:include href="../../primitives/clbll/model.xml" xpointer="xpointer(models/*)" />
+  <xi:include href="../../primitives/slice-l/model.xml" xpointer="xpointer(models/*)" />
  </models>
 
  <!-- Layout of the FPGA, we are using 4x4 -->
@@ -206,21 +206,21 @@
    <input  name="CARRY_IN"  num_pins="1" />
    <output name="CARRY_OUT" num_pins="1" />
 
-   <xi:include href="../../primitives/clbll-parts/pb_type.xml" />
+   <xi:include href="../../primitives/slice-l/pb_type.xml" />
    <interconnect>
-    <direct name="CARRY_IN"  input="CLBLL_L.CARRY_IN" output="CLBLL.CARRY_IN"   />
-    <direct name="CARRY_OUT" input="CLBLL.CARRY_OUT"  output="CLBLL_L.CARRY_OUT" />
+    <direct name="CARRY_IN"  input="CLBLL_L.CARRY_IN" output="SLICE_L.CARRY_IN"   />
+    <direct name="CARRY_OUT" input="SLICE_L.CARRY_OUT"  output="CLBLL_L.CARRY_OUT" />
     <complete
       name="IN"
-      input="CLBLL_L.IN" output="CLBLL.DX CLBLL.D CLBLL.CX CLBLL.C CLBLL.BX CLBLL.B CLBLL.AX CLBLL.A" />
+      input="CLBLL_L.IN" output="SLICE_L.DX SLICE_L.D SLICE_L.CX SLICE_L.C SLICE_L.BX SLICE_L.B SLICE_L.AX SLICE_L.A" />
     <complete
       name="OUT"
-      input="CLBLL.DMUX CLBLL.Dout CLBLL.DQ CLBLL.CMUX CLBLL.Cout CLBLL.CQ CLBLL.BMUX CLBLL.Bout CLBLL.BQ CLBLL.AMUX CLBLL.Aout CLBLL.AQ"
+      input="SLICE_L.DMUX SLICE_L.DOUT SLICE_L.DQ SLICE_L.CMUX SLICE_L.COUT SLICE_L.CQ SLICE_L.BMUX SLICE_L.BOUT SLICE_L.BQ SLICE_L.AMUX SLICE_L.AOUT SLICE_L.AQ"
       output="CLBLL_L.OUT" />
     <complete name="GLB"
-      input="CLBLL_L.GLB" output="CLBLL.SR CLBLL.CE CLBLL.CLK" />
+      input="CLBLL_L.GLB" output="SLICE_L.SR SLICE_L.CE SLICE_L.CLK" />
     <complete name="CLK"
-      input="CLBLL_L.CLK" output="CLBLL.CLK" />
+      input="CLBLL_L.CLK" output="SLICE_L.CLK" />
    </interconnect>
 
    <pinlocations pattern="custom">

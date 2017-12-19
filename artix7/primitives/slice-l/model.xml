@@ -1,6 +1,6 @@
 <models xmlns:xi="http://www.w3.org/2001/XInclude">
- <xi:include href="carry4/model.xml" xpointer="xpointer(models/*)" />
- <!-- <xi:include href="w5ff/model.xml"   xpointer="xpointer(models/*)" /> -->
- <!-- <xi:include href="wff/model.xml"    xpointer="xpointer(models/*)" /> -->
- <!-- <xi:include href="wlut/model.xml"   xpointer="xpointer(models/*)" /> -->
+ <xi:include href="carry4/model.xml"       xpointer="xpointer(models/*)" />
+ <xi:include href="muxes/f8mux/model.xml"  xpointer="xpointer(models/*)" />
+ <xi:include href="muxes/f7amux/model.xml" xpointer="xpointer(models/*)" />
+ <xi:include href="muxes/f7bmux/model.xml" xpointer="xpointer(models/*)" />
 </models>
