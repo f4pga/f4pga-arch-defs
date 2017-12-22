@@ -8,7 +8,7 @@ INKSCAPE ?= inkscape
 SELF_DIR := $(dir $(lastword $(MAKEFILE_LIST)))
 
 NETLISTSVG = $(shell realpath $(SELF_DIR)/../../third_party/netlistsvg)
-NETLISTSVG_SKIN ?= $(NETLISTSVG)/skin.svg
+NETLISTSVG_SKIN ?= $(NETLISTSVG)/lib/default.svg
 NETLISTSVG_DPI  ?= 300
 
 YOSYSSVG_DPI  ?= 300
@@ -16,10 +16,10 @@ YOSYSSVG_DPI  ?= 300
 NAME := $(shell echo $(notdir $(shell realpath .)) | tr a-z A-Z)
 
 %.json: %.v Makefile $(SELF_DIR)/sim.mk
-	$(YOSYS) -p "proc; setattr -mod -set top 1 $(NAME); write_json $@" $<
+	$(YOSYS) -p "prep -top $(NAME); write_json $@" $<
 
 %.flat.json: %.v Makefile $(SELF_DIR)/sim.mk
-	$(YOSYS) -p "flatten; proc; hierarchy -top $(NAME) -purge_lib; write_json $@" $<
+	$(YOSYS) -p "prep -top $(NAME) -flatten; write_json $@" $<
 
 %.netlist.svg: %.json $(NETLISTSVG_SKIN)
 	$(NODE) $(NETLISTSVG)/bin/netlistsvg $< -o $@ --skin $(NETLISTSVG_SKIN)
