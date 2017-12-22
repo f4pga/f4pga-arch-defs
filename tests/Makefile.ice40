@@ -2,5 +2,5 @@
 
 ARCH_DIR = ../ice40/arch/
 ARCH_TYPE ?= ice40-virt
-DEVICE ?= HX8K
+DEVICE ?= HX0K
 YOSYS_SCRIPT ?= synth_ice40; ice40_opt -unlut; abc -lut 4;
