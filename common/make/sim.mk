@@ -54,6 +54,8 @@ view.flat: sim.flat.netlist.png
 
 clean:
 	rm -f sim.json sim.svg sim.png
+	rm -f sim.netlist.json sim.netlist.svg sim.netlist.png
+	rm -f sim.netlist.yosys.json sim.netlist.yosys.svg sim.netlist.yosys.png
 	rm -f sim.flat.json sim.flat.svg sim.flat.png
 
 .PHONY: view view.flat show
