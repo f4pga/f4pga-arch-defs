@@ -18,3 +18,6 @@ clean:
 	rm -f sim.*.v
 
 all: $(PB_TYPE_XML) $(SIM_V)
+
+.DEFAULT_GOAL := all
+.PHONY: all

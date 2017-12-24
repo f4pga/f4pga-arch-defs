@@ -5,16 +5,36 @@
 <pb_type name="SLICE_L" num_pb="1" xmlns:xi="http://www.w3.org/2001/XInclude">
 
   <input name="DX" num_pins="1" equivalent="false"/>
-  <input name="D"  num_pins="6" equivalent="false"/>
+  <input name="D1" num_pins="1" equivalent="false"/>
+  <input name="D2" num_pins="1" equivalent="false"/>
+  <input name="D3" num_pins="1" equivalent="false"/>
+  <input name="D4" num_pins="1" equivalent="false"/>
+  <input name="D5" num_pins="1" equivalent="false"/>
+  <input name="D6" num_pins="1" equivalent="false"/>
 
   <input name="CX" num_pins="1" equivalent="false"/>
-  <input name="C"  num_pins="6" equivalent="false"/>
+  <input name="C1" num_pins="1" equivalent="false"/>
+  <input name="C2" num_pins="1" equivalent="false"/>
+  <input name="C3" num_pins="1" equivalent="false"/>
+  <input name="C4" num_pins="1" equivalent="false"/>
+  <input name="C5" num_pins="1" equivalent="false"/>
+  <input name="C6" num_pins="1" equivalent="false"/>
 
   <input name="BX" num_pins="1" equivalent="false"/>
-  <input name="B"  num_pins="6" equivalent="false"/>
+  <input name="B1" num_pins="1" equivalent="false"/>
+  <input name="B2" num_pins="1" equivalent="false"/>
+  <input name="B3" num_pins="1" equivalent="false"/>
+  <input name="B4" num_pins="1" equivalent="false"/>
+  <input name="B5" num_pins="1" equivalent="false"/>
+  <input name="B6" num_pins="1" equivalent="false"/>
 
   <input name="AX" num_pins="1" equivalent="false"/>
-  <input name="A"  num_pins="6" equivalent="false"/>
+  <input name="A1" num_pins="1" equivalent="false"/>
+  <input name="A2" num_pins="1" equivalent="false"/>
+  <input name="A3" num_pins="1" equivalent="false"/>
+  <input name="A4" num_pins="1" equivalent="false"/>
+  <input name="A5" num_pins="1" equivalent="false"/>
+  <input name="A6" num_pins="1" equivalent="false"/>
 
   <input name="SR" num_pins="1" equivalent="false"/>
   <input name="CE" num_pins="1" equivalent="false"/>
@@ -25,19 +45,19 @@
   <output name="CARRY_OUT" num_pins="1" equivalent="false"/>
 
   <output name="DMUX" num_pins="1" equivalent="false"/>
-  <output name="DOUT" num_pins="1" equivalent="false"/>
+  <output name="D"    num_pins="1" equivalent="false"/>
   <output name="DQ"   num_pins="1" equivalent="false"/>
 
   <output name="CMUX" num_pins="1" equivalent="false"/>
-  <output name="COUT" num_pins="1" equivalent="false"/>
+  <output name="C"    num_pins="1" equivalent="false"/>
   <output name="CQ"   num_pins="1" equivalent="false"/>
 
   <output name="BMUX" num_pins="1" equivalent="false"/>
-  <output name="BOUT" num_pins="1" equivalent="false"/>
+  <output name="B"    num_pins="1" equivalent="false"/>
   <output name="BQ"   num_pins="1" equivalent="false"/>
 
   <output name="AMUX" num_pins="1" equivalent="false"/>
-  <output name="AOUT" num_pins="1" equivalent="false"/>
+  <output name="A"    num_pins="1" equivalent="false"/>
   <output name="AQ"   num_pins="1" equivalent="false"/>
 
   <!-- D6LUT, C6LUT, B6LUT, A6LUT == W6LUT
@@ -71,7 +91,7 @@
   <xi:include href="wff/pb_type.DFF.xml"/>
 
   <!-- CARRY4 logic -->
-  <xi:include href="routing/precyinit_rmux/pb_type.xml"/>
+  <xi:include href="routing/precyinit_mux/pb_type.xml"/>
   <xi:include href="routing/wcy0/pb_type.ACY0.xml"/>
   <xi:include href="routing/wcy0/pb_type.BCY0.xml"/>
   <xi:include href="routing/wcy0/pb_type.CCY0.xml"/>
@@ -199,10 +219,10 @@
     <direct name="AFF" input="AFF.Q" output="SLICE_L.DQ" />
 
     <!-- LUT O6 output -->
-    <direct name="F7BMUX_I0" input="DLUT.O6" output="F7BMUX.I0" /><direct name="CARRY_S3" input="DLUT.O6" output="CARRY4.S[3]" /><direct name="SLICE_L_DOUT" input="DLUT.O6" output="SLICE_L.DOUT" />
-    <direct name="F7BMUX_I1" input="CLUT.O6" output="F7BMUX.I1" /><direct name="CARRY_S2" input="CLUT.O6" output="CARRY4.S[2]" /><direct name="SLICE_L_COUT" input="CLUT.O6" output="SLICE_L.COUT" />
-    <direct name="F7AMUX_I0" input="BLUT.O6" output="F7AMUX.I0" /><direct name="CARRY_S1" input="BLUT.O6" output="CARRY4.S[1]" /><direct name="SLICE_L_BOUT" input="BLUT.O6" output="SLICE_L.BOUT" />
-    <direct name="F7AMUX_I1" input="ALUT.O6" output="F7AMUX.I1" /><direct name="CARRY_S0" input="ALUT.O6" output="CARRY4.S[0]" /><direct name="SLICE_L_AOUT" input="ALUT.O6" output="SLICE_L.AOUT" />
+    <direct name="F7BMUX_I0" input="DLUT.O6" output="F7BMUX.I0" /><direct name="CARRY_S3" input="DLUT.O6" output="CARRY4.S[3]" /><direct name="SLICE_L_DOUT" input="DLUT.O6" output="SLICE_L.D" />
+    <direct name="F7BMUX_I1" input="CLUT.O6" output="F7BMUX.I1" /><direct name="CARRY_S2" input="CLUT.O6" output="CARRY4.S[2]" /><direct name="SLICE_L_COUT" input="CLUT.O6" output="SLICE_L.C" />
+    <direct name="F7AMUX_I0" input="BLUT.O6" output="F7AMUX.I0" /><direct name="CARRY_S1" input="BLUT.O6" output="CARRY4.S[1]" /><direct name="SLICE_L_BOUT" input="BLUT.O6" output="SLICE_L.B" />
+    <direct name="F7AMUX_I1" input="ALUT.O6" output="F7AMUX.I1" /><direct name="CARRY_S0" input="ALUT.O6" output="CARRY4.S[0]" /><direct name="SLICE_L_AOUT" input="ALUT.O6" output="SLICE_L.A" />
 
     <!-- Select lines for F7 MUXes -->
     <direct name="CX7S" input="SLICE_L.CX" output="F7BMUX.S" />

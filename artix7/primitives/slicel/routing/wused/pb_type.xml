@@ -1,0 +1,7 @@
+<pb_type name="{W}USED" num_pb="1">
+  <input name="I0" num_pins="1"/>
+  <output name="O" num_pins="1"/>
+  <interconnect>
+    <mux input="{W}USED.I0" name="_{W}USED" output="{W}USED.O"/>
+  </interconnect>
+</pb_type>

@@ -4,7 +4,12 @@
       - 1 * 6 input, 1 output LUT
   -->
 <pb_type name="{W}LUT" num_pb="1" xmlns:xi="http://www.w3.org/2001/XInclude">
-  <input name="A"   num_pins="6"/>
+  <input name="A1"  num_pins="1"/>
+  <input name="A2"  num_pins="1"/>
+  <input name="A3"  num_pins="1"/>
+  <input name="A4"  num_pins="1"/>
+  <input name="A5"  num_pins="1"/>
+  <input name="A6"  num_pins="1"/>
   <output name="O5" num_pins="1"/>
   <output name="O6" num_pins="1"/>
   <mode name="lut6">
@@ -21,13 +26,13 @@
      </delay_matrix>
     </pb_type>
     <interconnect>
-      <direct name="{W}LUT_A6" input="{W}LUT.A[5]" output="{W}6LUT.in[5]"/>
-      <direct name="{W}LUT_A5" input="{W}LUT.A[4]" output="{W}6LUT.in[4]"/>
-      <direct name="{W}LUT_A4" input="{W}LUT.A[3]" output="{W}6LUT.in[3]"/>
-      <direct name="{W}LUT_A3" input="{W}LUT.A[2]" output="{W}6LUT.in[2]"/>
-      <direct name="{W}LUT_A2" input="{W}LUT.A[1]" output="{W}6LUT.in[1]"/>
-      <direct name="{W}LUT_A1" input="{W}LUT.A[0]" output="{W}6LUT.in[0]"/>
-      <direct name="O6"      input="{W}6LUT.out" output="{W}LUT.O6"/>
+      <direct name="{W}LUT_A6" input="{W}LUT.A6"   output="{W}6LUT.in[5]"/>
+      <direct name="{W}LUT_A5" input="{W}LUT.A5"   output="{W}6LUT.in[4]"/>
+      <direct name="{W}LUT_A4" input="{W}LUT.A4"   output="{W}6LUT.in[3]"/>
+      <direct name="{W}LUT_A3" input="{W}LUT.A3"   output="{W}6LUT.in[2]"/>
+      <direct name="{W}LUT_A2" input="{W}LUT.A2"   output="{W}6LUT.in[1]"/>
+      <direct name="{W}LUT_A1" input="{W}LUT.A1"   output="{W}6LUT.in[0]"/>
+      <direct name="O6"        input="{W}6LUT.out" output="{W}LUT.O6"/>
     </interconnect>
   </mode>
   <mode name="lut5x2">
@@ -44,12 +49,12 @@
     </pb_type>
     <interconnect>
       <!-- First LUT5 -->                                                 <!-- Second LUT5 -->
-      <direct name="{W}LUT_A6"   input="{W}LUT.A[5]" output="{W}5LUT[0].in[4]"/><direct name="{W}LUT_A5"   input="{W}LUT.A[4]" output="{W}5LUT[1].in[4]"/>
-      <direct name="{W}LUT_A4_0" input="{W}LUT.A[3]" output="{W}5LUT[0].in[3]"/><direct name="{W}LUT_A4_1" input="{W}LUT.A[3]" output="{W}5LUT[1].in[3]"/>
-      <direct name="{W}LUT_A3_0" input="{W}LUT.A[2]" output="{W}5LUT[0].in[2]"/><direct name="{W}LUT_A3_1" input="{W}LUT.A[2]" output="{W}5LUT[1].in[2]"/>
-      <direct name="{W}LUT_A2_0" input="{W}LUT.A[1]" output="{W}5LUT[0].in[1]"/><direct name="{W}LUT_A2_1" input="{W}LUT.A[1]" output="{W}5LUT[1].in[1]"/>
-      <direct name="{W}LUT_A1_0" input="{W}LUT.A[0]" output="{W}5LUT[0].in[0]"/><direct name="{W}LUT_A1_1" input="{W}LUT.A[0]" output="{W}5LUT[1].in[0]"/>
-      <direct name="O5"           input="{W}5LUT[0].out" output="{W}LUT.O5"/>    <direct name="O6"           input="{W}5LUT[1].out" output="{W}LUT.O6"/>
+      <direct name="{W}LUT_A6"   input="{W}LUT.A6"       output="{W}5LUT[0].in[4]"/><direct name="{W}LUT_A5"   input="{W}LUT.A5"      output="{W}5LUT[1].in[4]"/>
+      <direct name="{W}LUT_A4_0" input="{W}LUT.A4"       output="{W}5LUT[0].in[3]"/><direct name="{W}LUT_A4_1" input="{W}LUT.A4"      output="{W}5LUT[1].in[3]"/>
+      <direct name="{W}LUT_A3_0" input="{W}LUT.A3"       output="{W}5LUT[0].in[2]"/><direct name="{W}LUT_A3_1" input="{W}LUT.A3"      output="{W}5LUT[1].in[2]"/>
+      <direct name="{W}LUT_A2_0" input="{W}LUT.A2"       output="{W}5LUT[0].in[1]"/><direct name="{W}LUT_A2_1" input="{W}LUT.A2"      output="{W}5LUT[1].in[1]"/>
+      <direct name="{W}LUT_A1_0" input="{W}LUT.A1"       output="{W}5LUT[0].in[0]"/><direct name="{W}LUT_A1_1" input="{W}LUT.A1"      output="{W}5LUT[1].in[0]"/>
+      <direct name="O5"           input="{W}5LUT[0].out" output="{W}LUT.O5"/>    <direct name="O6"         input="{W}5LUT[1].out" output="{W}LUT.O6"/>
     </interconnect>
   </mode>
 </pb_type>

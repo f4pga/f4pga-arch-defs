@@ -24,7 +24,7 @@
 `include "routing/coutmux/sim.v"
 `include "routing/doutmux/sim.v"
 
-`include "routing/precyinit_rmux/sim.v"
+`include "routing/precyinit_mux/sim.v"
 `include "routing/coutused/sim.v"
 
 `include "routing/srusedmux/sim.v"
@@ -51,18 +51,23 @@
 `include "routing/clkinv/sim.v"
 
 module SLICEL(
-	DX, D, DMUX, DO, DQ,	// D port
-	CX, C, CMUX, CO, CQ,	// C port
-	BX, B, BMUX, BO, BQ,	// B port
-	AX, A, AMUX, AO, AQ,	// A port
+	DX, D1, D2, D3, D4, D5, D6, DMUX, D, DQ,	// D port
+	CX, C1, C2, C3, C4, C5, C6, CMUX, C, CQ,	// C port
+	BX, B1, B2, B3, B4, B5, B6, BMUX, B, BQ,	// B port
+	AX, A1, A2, A3, A4, A5, A6, AMUX, A, AQ,	// A port
 	SR, CE, CLK, 		// Flip flop signals
 	CIN, CYINIT, COUT,	// Carry to/from adjacent slices
 );
 	// D port
 	input wire DX;
-	input wire [6:1] D;
+	input wire D1;
+	input wire D2;
+	input wire D3;
+	input wire D4;
+	input wire D5;
+	input wire D6;
 	output wire DMUX;
-	output wire DO;
+	output wire D;
 	output wire DQ;
 
 	// D port flip-flop config
@@ -73,23 +78,38 @@ module SLICEL(
 
 	// C port
 	input wire CX;
-	input wire [6:1] C;
+	input wire C1;
+	input wire C2;
+	input wire C3;
+	input wire C4;
+	input wire C5;
+	input wire C6;
 	output wire CMUX;
-	output wire CO;
+	output wire C;
 	output wire CQ;
 
 	// B port
 	input wire BX;
-	input wire [6:1] B;
+	input wire B1;
+	input wire B2;
+	input wire B3;
+	input wire B4;
+	input wire B5;
+	input wire B6;
 	output wire BMUX;
-	output wire BO;
+	output wire B;
 	output wire BQ;
 
 	// A port
 	input wire AX;
-	input wire [6:1] A;
+	input wire A1;
+	input wire A2;
+	input wire A3;
+	input wire A4;
+	input wire A5;
+	input wire A6;
 	output wire AMUX;
-	output wire AO;
+	output wire A;
 	output wire AQ;
 
 	// Shared Flip flop signals
@@ -123,10 +143,10 @@ module SLICEL(
 	wire B6LUT_O6;
 	wire A6LUT_O6;
 
-	ALUT alut (.A(A), .O6(A6LUT_O6), .O5(A5LUT_O5));
-	BLUT blut (.A(B), .O6(B6LUT_O6), .O5(B5LUT_O5));
-	CLUT clut (.A(C), .O6(C6LUT_O6), .O5(C5LUT_O5));
-	DLUT dlut (.A(D), .O6(D6LUT_O6), .O5(D5LUT_O5));
+	ALUT alut (.A1(A1), .A2(A2), .A3(A3), .A4(A4), .A5(A5), .A6(A6), .O6(A6LUT_O6), .O5(A5LUT_O5));
+	BLUT blut (.A1(B1), .A2(B2), .A3(B3), .A4(B4), .A5(B5), .A6(B6), .O6(B6LUT_O6), .O5(B5LUT_O5));
+	CLUT clut (.A1(C1), .A2(C2), .A3(C3), .A4(C4), .A5(C5), .A6(C6), .O6(C6LUT_O6), .O5(C5LUT_O5));
+	DLUT dlut (.A1(D1), .A2(D2), .A3(D3), .A4(D4), .A5(D5), .A6(D6), .O6(D6LUT_O6), .O5(D5LUT_O5));
 
 	wire F7AMUX_OUT;
 	wire F8MUX_OUT;
@@ -159,7 +179,7 @@ module SLICEL(
 	F8MUX f8mux (.I0(F7BMUX_OUT), .I1(F7AMUX_OUT), .OUT(F8MUX_OUT), .S0(BX));
 
 	wire PRECYINIT_OUT;
-	PRECYINIT_RMUX precyinit_mux (/*.I0(0), .I1(1),*/ .CI(CIN), .CYINIT(CYINIT), .OUT(PRECYINIT_OUT));
+	PRECYINIT_MUX precyinit_mux (/*.I0(0), .I1(1),*/ .CI(CIN), .CYINIT(CYINIT), .OUT(PRECYINIT_OUT));
 
 	wire [3:0] CARRY4_CO;
 	wire [3:0] CARRY4_O;
@@ -225,10 +245,10 @@ module SLICEL(
 	C5FF cff  (.CE(CEUSEDMUX_OUT), .CK(CLKINV_OUT), .SR(SRUSEDMUX_OUT), .D(CFFMUX_OUT),  .Q(CQ));
 	D5FF dff  (.CE(CEUSEDMUX_OUT), .CK(CLKINV_OUT), .SR(SRUSEDMUX_OUT), .D(DFFMUX_OUT),  .Q(DQ));
 
-	AUSED aused (.I0(A6LUT_O6), .O(AO));
-	BUSED bused (.I0(B6LUT_O6), .O(BO));
-	CUSED cused (.I0(C6LUT_O6), .O(CO));
-	DUSED dused (.I0(D6LUT_O6), .O(DO));
+	AUSED aused (.I0(A6LUT_O6), .O(A));
+	BUSED bused (.I0(B6LUT_O6), .O(B));
+	CUSED cused (.I0(C6LUT_O6), .O(C));
+	DUSED dused (.I0(D6LUT_O6), .O(D));
 
 	CEUSEDMUX ceusedmux (.IN(CE), .OUT(CEUSEDMUX_OUT));
 	SRUSEDMUX srusedmux (.IN(SR), .OUT(SRUSEDMUX_OUT));

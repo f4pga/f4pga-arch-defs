@@ -1,0 +1,7 @@
+<pb_type name="CLKINV" num_pb="1">
+  <input name="CLK" num_pins="1"/>
+  <output name="OUT" num_pins="1"/>
+  <interconnect>
+    <mux input="CLKINV.CLK" name="_CLKINV" output="CLKINV.OUT"/>
+  </interconnect>
+</pb_type>

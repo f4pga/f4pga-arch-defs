@@ -11,7 +11,7 @@
    </output_ports>
   </model>
 
-  <xi:include href="../../primitives/slice-l/model.xml" xpointer="xpointer(models/*)" />
+  <xi:include href="../../tiles/clbll_l/model.xml" xpointer="xpointer(models/*)" />
  </models>
 
  <!-- Layout of the FPGA, we are using 4x4 -->
@@ -197,49 +197,7 @@
 
   <xi:include href="../../../vpr/pad/pb_type.xml"/>
 
-  <pb_type name="CLBLL_L">
-   <clock  name="CLK" num_pins="1" />
-   <input  name="IN"  num_pins="32" />
-   <input  name="GLB" num_pins="4"  />
-   <output name="OUT" num_pins="12" />
-
-   <input  name="CARRY_IN"  num_pins="1" />
-   <output name="CARRY_OUT" num_pins="1" />
-
-   <xi:include href="../../primitives/slice-l/pb_type.xml" />
-   <interconnect>
-    <direct name="CARRY_IN"  input="CLBLL_L.CARRY_IN" output="SLICE_L.CARRY_IN"   />
-    <direct name="CARRY_OUT" input="SLICE_L.CARRY_OUT"  output="CLBLL_L.CARRY_OUT" />
-    <complete
-      name="IN"
-      input="CLBLL_L.IN" output="SLICE_L.DX SLICE_L.D SLICE_L.CX SLICE_L.C SLICE_L.BX SLICE_L.B SLICE_L.AX SLICE_L.A" />
-    <complete
-      name="OUT"
-      input="SLICE_L.DMUX SLICE_L.DOUT SLICE_L.DQ SLICE_L.CMUX SLICE_L.COUT SLICE_L.CQ SLICE_L.BMUX SLICE_L.BOUT SLICE_L.BQ SLICE_L.AMUX SLICE_L.AOUT SLICE_L.AQ"
-      output="CLBLL_L.OUT" />
-    <complete name="GLB"
-      input="CLBLL_L.GLB" output="SLICE_L.SR SLICE_L.CE SLICE_L.CLK" />
-    <complete name="CLK"
-      input="CLBLL_L.CLK" output="SLICE_L.CLK" />
-   </interconnect>
-
-   <pinlocations pattern="custom">
-    <loc side="top"    xoffset="0" yoffset="0">CLBLL_L.CARRY_OUT CLBLL_L.CLK CLBLL_L.GLB</loc>
-    <loc side="left"   xoffset="0" yoffset="0">CLBLL_L.IN</loc>
-    <loc side="right"  xoffset="0" yoffset="0">CLBLL_L.OUT</loc>
-    <loc side="bottom" xoffset="0" yoffset="0">CLBLL_L.CARRY_IN</loc>
-   </pinlocations>
-   <fc default_in_type="frac" default_in_val="1.0" default_out_type="frac" default_out_val="1.0">
-    <!-- Global pins -->
-    <fc_override fc_type="frac" fc_val="1.0" port_name="CLBL_L.GLB" segment_name="global"     />
-    <fc_override fc_type="abs"  fc_val="0"   port_name="CLBL_L.GLB" segment_name="long-span"  />
-    <fc_override fc_type="abs"  fc_val="0"   port_name="CLBL_L.GLB" segment_name="short-span" />
-
-    <!-- Carry -->
-    <fc_override fc_type="abs" fc_val="0" port_name="CARRY_IN" />
-    <fc_override fc_type="abs" fc_val="0" port_name="CARRY_OUT" />
-   </fc>
-  </pb_type>
+  <xi:include href="../../tiles/clbll_l/pb_type.xml"/>
 
   <xi:include href="dummy/CLBLL_R.xml" />
 

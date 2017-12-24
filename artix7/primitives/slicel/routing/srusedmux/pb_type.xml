@@ -1,0 +1,15 @@
+<pb_type name="AFFMUX" num_pb="1">
+  <!--
+Generated with ../../../../../utils/mux_gen.py
+-->
+  <input name="XOR" num_pins="1"/>
+  <input name="O6" num_pins="1"/>
+  <input name="O5" num_pins="1"/>
+  <input name="F7" num_pins="1"/>
+  <input name="CY" num_pins="1"/>
+  <input name="AX" num_pins="1"/>
+  <output name="O" num_pins="1"/>
+  <interconnect>
+    <mux input="AFFMUX.XOR AFFMUX.O6 AFFMUX.O5 AFFMUX.F7 AFFMUX.CY AFFMUX.AX" name="_AFFMUX" output="AFFMUX.O"/>
+  </interconnect>
+</pb_type>

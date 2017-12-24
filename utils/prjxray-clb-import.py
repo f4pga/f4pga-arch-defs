@@ -12,7 +12,6 @@ import sys
 
 import lxml.etree as ET
 
-
 ##########################################################################
 # Work out valid arguments for Project X-Ray database                    #
 ##########################################################################
@@ -68,7 +67,11 @@ parser.add_argument(
     help="""CLB tile to generate for""")
 
 parser.add_argument(
-    '--output', nargs='?', type=argparse.FileType('w'), default=sys.stdout,
+    '--output-pb-type', nargs='?', type=argparse.FileType('w'), default=sys.stdout,
+    help="""File to write the output too.""")
+
+parser.add_argument(
+    '--output-model', nargs='?', type=argparse.FileType('w'), default=sys.stdout,
     help="""File to write the output too.""")
 
 args = parser.parse_args()
@@ -100,17 +103,23 @@ def process_wire(wire_name):
     elif wire_name.startswith("LL_"):
         wire_name = "CLBLL_LL."+wire_name[3:]
 
-    g = prefix_re.match(wire_name)
-    if not g:
-        # Have to special case the A, B, C, D out wires as they conflict wit the
-        # A/B/C/D LUT input names
-        if wire_name[-2:] in (".A", ".B", ".C", ".D"):
-            wire_name += "OUT"
-
-        prefix, num = wire_name, None
+    # Special case the LUT inputs as they look like a bus but we don't want to
+    # treat them like one.
+    for lutin in ('A1', 'A2', 'A3', 'A4', 'A5', 'A6',
+                  'B1', 'B2', 'B3', 'B4', 'B5', 'B6',
+                  'C1', 'C2', 'C3', 'C4', 'C5', 'C6',
+                  'D1', 'D2', 'D3', 'D4', 'D5', 'D6'):
+        if wire_name.endswith(lutin):
+            prefix, num = wire_name, None
+            break
     else:
-        prefix, num = g.groups()
-        num = int(num)
+        # Figure out if the wire is part of a bus?
+        g = prefix_re.match(wire_name)
+        if not g:
+            prefix, num = wire_name, None
+        else:
+            prefix, num = g.groups()
+            num = int(num)
 
     name = prefix
 
@@ -166,8 +175,52 @@ for name, pins in wires_internal.items():
         outputs.add(wire)
 
 ##########################################################################
+# Hard code some settings                                                #
+##########################################################################
+# CLBLL's have two slices internally.
+if tile_type.startswith('CLBLL'):
+    # CLBLL's have two SLICELs, one called CLBLL_L and one called CLBLL_LL
+    slice0_name = 'CLBLL_L'
+    slice0_type = 'SLICEL'
+    slice1_name = 'CLBLL_LL'
+    slice1_type = 'SLICEL'
+elif tile_type.startswith('CLBLM'):
+    # CLBLM's have one SLICELs called CLBLL_L and one SLICEM called CLBLL_M
+    slice0_name = 'CLBLL_M'
+    slice0_type = 'SLICEM'
+    slice1_name = 'CLBLL_L'
+    slice1_type = 'SLICEL'
+else:
+    assert False, tile_type
+
+slice_model = "../../primitives/%s/model.xml"
+slice_pbtype = "../../primitives/%s/pb_type.xml"
+
+xi_url = "http://www.w3.org/2001/XInclude"
+ET.register_namespace('xi', xi_url)
+xi_include = "{%s}include" % xi_url
+
+##########################################################################
+# Generate the model.xml file                                            #
+##########################################################################
+
+model_xml = ET.Element(
+    'models', nsmap = {'xi': xi_url},
+)
+
+ET.SubElement(model_xml, xi_include, {'href': slice_model % slice0_type.lower()})
+
+if slice1_type != slice0_type:
+    ET.SubElement(model_xml, xi_include, {'href': slice_model % slice1_type.lower()})
+
+model_str = ET.tostring(model_xml, pretty_print=True).decode('utf-8')
+args.output_model.write(model_str)
+args.output_model.close()
+
+##########################################################################
 # Generate the pb_type.xml file                                          #
 ##########################################################################
+
 def add_direct(xml, input, output):
     ET.SubElement(xml, 'direct', {'name': '%-30s' % output, 'input': '%-30s' % input, 'output': '%-30s' % output})
 
@@ -177,7 +230,9 @@ pb_type_xml = ET.Element(
     'pb_type', {
         'name': tile_name,
         'num_pb': str(1),
-    })
+    },
+    nsmap = {'xi': xi_url},
+)
 
 def fmt(wire, pin):
     if pin is None:
@@ -212,31 +267,15 @@ for name, pins in sorted(clbll_outputs):
 
 pb_type_xml.append(ET.Comment(" Internal Slices "))
 
-# CLBLL's have two slices internally.
-if tile_type.startswith('CLBLL'):
-    # CLBLL's have two SLICELs, one called CLBLL_L and one called CLBLL_LL
-    slice0_name = 'CLBLL_L'
-    slice0_type = 'SLICEL'
-    slice1_name = 'CLBLL_LL'
-    slice1_type = 'SLICEL'
-elif tile_type.startswith('CLBLM'):
-    # CLBLM's have one SLICELs called CLBLL_L and one SLICEM called CLBLL_M
-    slice0_name = 'CLBLL_M'
-    slice0_type = 'SLICEM'
-    slice1_name = 'CLBLL_L'
-    slice1_type = 'SLICEL'
-else:
-    assert False, tile_type
-
 # Internal pb_type definition for the first slice
 slice0_xml = ET.SubElement(pb_type_xml, 'pb_type', {'name': slice0_name, 'num_pbs': '1'})
-ET.SubElement(slice0_xml, 'xi-include', {'href': '%s.xml' % slice0_type.lower()})
+ET.SubElement(slice0_xml, xi_include, {'href': slice_pbtype % slice0_type.lower()})
 slice0_interconnect_xml = ET.SubElement(slice0_xml, 'interconnect')
 slice0_interconnect_xml.append(ET.Comment(" Slice->Cell "))
 
 # Internal pb_type definition for the second slice
 slice1_xml = ET.SubElement(pb_type_xml, 'pb_type', {'name': slice1_name, 'num_pbs': '1'})
-ET.SubElement(slice1_xml, 'xi-include', {'href': '%s.xml' % slice0_type.lower()})
+ET.SubElement(slice1_xml, xi_include, {'href': slice_pbtype % slice0_type.lower()})
 slice1_interconnect_xml = ET.SubElement(slice1_xml, 'interconnect')
 slice1_interconnect_xml.append(ET.Comment(" Slice->Cell "))
 
@@ -293,5 +332,5 @@ for name, pins in sorted(slice_outputs):
         add_direct(interconnect_xml, output_name, '%s.%s' % (tile_name, fmt(*connections[(name, p)])))
 
 pb_type_str = ET.tostring(pb_type_xml, pretty_print=True).decode('utf-8')
-args.output.write(pb_type_str)
-args.output.close()
+args.output_pb_type.write(pb_type_str)
+args.output_pb_type.close()

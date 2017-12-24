@@ -16,19 +16,19 @@ YOSYSSVG_DPI  ?= 300
 NAME := $(shell echo $(notdir $(shell realpath .)) | tr a-z A-Z)
 
 %.json: %.v Makefile $(SELF_DIR)/sim.mk
-	$(YOSYS) -p "prep -top $(NAME); write_json $@" $<
+	$(YOSYS) -p "prep -top $(NAME); $(YOSYS_EXTRA); write_json $@" $<
 
 %.flat.json: %.v Makefile $(SELF_DIR)/sim.mk
-	$(YOSYS) -p "prep -top $(NAME) -flatten; write_json $@" $<
+	$(YOSYS) -p "prep -top $(NAME) -flatten; $(YOSYS_EXTRA); write_json $@" $<
 
 %.netlist.svg: %.json $(NETLISTSVG_SKIN)
 	$(NODE) $(NETLISTSVG)/bin/netlistsvg $< -o $@ --skin $(NETLISTSVG_SKIN)
 
 %.yosys.svg: %.v
-	$(YOSYS) -p "proc; cd $(NAME); show -format svg -prefix $(basename $@)" $<
+	$(YOSYS) -p "prep -top $(NAME); $(YOSYS_EXTRA); show -format svg -prefix $(basename $@)" $<
 
 %.flat.yosys.svg: %.v
-	$(YOSYS) -p "proc; flatten; hierarchy -top $(NAME) -purge_lib; cd $(NAME); show -format svg -prefix $(basename $@)" $<
+	$(YOSYS) -p "prep -top $(NAME) -flatten; $(YOSYS_EXTRA); show -format svg -prefix $(basename $@)" $<
 
 %.png: %.svg
 	$(INKSCAPE) --export-png $@ --export-dpi $(NETLISTSVG_DPI) $<
@@ -59,3 +59,4 @@ clean:
 	rm -f sim.flat.json sim.flat.svg sim.flat.png
 
 .PHONY: view view.flat show
+.DEFAULT_GOAL := view

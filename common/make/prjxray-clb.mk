@@ -18,6 +18,15 @@ PRJXRAY_DB = $(TOP_DIR)/third_party/prjxray-db/$(PRJXRAY_PART)/
 CLB_IMPORT = $(TOP_DIR)/utils/prjxray-clb-import.py
 
 pb_type.xml: $(CLB_IMPORT) $(PRJXRAY_INFO) $(PRJXRAY_DB)/*$(PRJXRAY_LCLB)*.db
-	$(CLB_IMPORT) --part $(PRJXRAY_PART) --tile $(PRJXRAY_CLB) --output $@
+	$(CLB_IMPORT) --part $(PRJXRAY_PART) --tile $(PRJXRAY_CLB) --output-pb-type $@ --output-model /dev/null
 
-.DEFAULT_GOAL := pb_type.xml
+model.xml: $(CLB_IMPORT) $(PRJXRAY_INFO) $(PRJXRAY_DB)/*$(PRJXRAY_LCLB)*.db
+	$(CLB_IMPORT) --part $(PRJXRAY_PART) --tile $(PRJXRAY_CLB) --output-pb-type /dev/null --output-model $@
+
+all: pb_type.xml model.xml
+	@true
+
+clean:
+	rm pb_type.xml
+
+.DEFAULT_GOAL := all
