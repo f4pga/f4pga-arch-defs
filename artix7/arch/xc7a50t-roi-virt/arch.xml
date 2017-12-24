@@ -69,7 +69,7 @@
 
    <!-- ===== -->
 
-   <col type="CLBLL_L"    startx="10" priority="10" />
+   <col type="TILE_CLBLL_L"    startx="10" priority="10" />
 	<!-- <single type="NULL"         x="10" y="0"  priority="20"/> --><single type="EMPTY" x="10" y="0"  priority="20"/>
 	<!-- <single type="HCLK_CLB"     x="10" y="26" priority="20"/> --><single type="EMPTY" x="10" y="26" priority="20"/>
 	<!-- <single type="NULL"         x="10" y="56" priority="20"/> --><single type="EMPTY" x="10" y="56" priority="20"/>
@@ -91,7 +91,7 @@
 
    <!-- ===== -->
 
-   <col type="CLBLL_L"    startx="14" priority="10" />
+   <col type="TILE_CLBLL_L"    startx="14" priority="10" />
 	<!-- <single type="NULL"         x="14" y="0"  priority="20"/> --><single type="EMPTY" x="14" y="0"  priority="20"/>
 	<!-- <single type="HCLK_CLB"     x="14" y="26" priority="20"/> --><single type="EMPTY" x="14" y="26" priority="20"/>
 	<!-- <single type="NULL"         x="14" y="56" priority="20"/> --><single type="EMPTY" x="14" y="56" priority="20"/>
@@ -113,7 +113,7 @@
 
    <!-- ===== -->
 
-   <col type="CLBLL_L"    startx="18" priority="10" />
+   <col type="TILE_CLBLL_L"    startx="18" priority="10" />
 	<!-- <single type="NULL"         x="18" y="0"  priority="20"/> --><single type="EMPTY" x="18" y="0"  priority="20"/>
 	<!-- <single type="HCLK_CLB"     x="18" y="26" priority="20"/> --><single type="EMPTY" x="18" y="26" priority="20"/>
 	<!-- <single type="NULL"         x="18" y="56" priority="20"/> --><single type="EMPTY" x="18" y="56" priority="20"/>
@@ -212,7 +212,16 @@
  </complexblocklist>
 
  <directlist>
-  <direct name="CARRY" from_pin="CLBLL_L.CARRY_OUT" to_pin="CLBLL_L.CARRY_IN" x_offset="0" y_offset="1" z_offset="0"/>
+  <!-- CLBX_L -->
+  <direct name="TILE_CLBLL_L_L_CARRY"  from_pin="TILE_CLBLL_L.L_COUT_N"  to_pin="TILE_CLBLL_L.L_CIN_N"  x_offset="0" y_offset="1" z_offset="0"/>
+  <direct name="TILE_CLBLL_L_LL_CARRY" from_pin="TILE_CLBLL_L.LL_COUT_N" to_pin="TILE_CLBLL_L.LL_CIN_N" x_offset="0" y_offset="1" z_offset="0"/>
+  <direct name="TILE_CLBLM_L_M_CARRY"  from_pin="TILE_CLBLM_L.M_COUT_N"  to_pin="TILE_CLBLM_L.M_CIN_N"  x_offset="0" y_offset="1" z_offset="0"/>
+  <direct name="TILE_CLBLM_L_L_CARRY"  from_pin="TILE_CLBLM_L.L_COUT_N"  to_pin="TILE_CLBLM_L.L_CIN_N"  x_offset="0" y_offset="1" z_offset="0"/>
+  <!-- CLBX_R -->
+  <direct name="TILE_CLBLL_R_L_CARRY"  from_pin="TILE_CLBLL_R.L_COUT_N"  to_pin="TILE_CLBLL_R.L_CIN_N"  x_offset="0" y_offset="1" z_offset="0"/>
+  <direct name="TILE_CLBLL_R_LL_CARRY" from_pin="TILE_CLBLL_R.LL_COUT_N" to_pin="TILE_CLBLL_R.LL_CIN_N" x_offset="0" y_offset="1" z_offset="0"/>
+  <direct name="TILE_CLBLM_R_M_CARRY"  from_pin="TILE_CLBLM_R.L_COUT_N"  to_pin="TILE_CLBLM_R.L_CIN_N"  x_offset="0" y_offset="1" z_offset="0"/>
+  <direct name="TILE_CLBLM_R_L_CARRY"  from_pin="TILE_CLBLM_R.M_COUT_N"  to_pin="TILE_CLBLM_R.M_CIN_N"  x_offset="0" y_offset="1" z_offset="0"/>
  </directlist>
 
 </architecture>

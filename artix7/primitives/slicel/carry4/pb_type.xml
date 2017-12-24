@@ -29,10 +29,10 @@
   <xi:include href="carry4_split/carry4_wxor/pb_type.CARRY4_DXOR.xml" />
 
   <interconnect>
-   <direct name="MUX0_I0" input="CARRY4.DI[0]" output="CARRY4_AMUX.I0"/><direct name="MUX0_I1" input="CARRY4.CIN"    output="CARRY4_AMUX.I0"/><direct name="MUX0_S" input="CARRY4.S[0]" output="CARRY4_AMUX.S"/><direct name="MUX0_O" input="CARRY4_AMUX.O" output="CARRY4.CO[0]"/>
-   <direct name="MUX1_I0" input="CARRY4.DI[1]" output="CARRY4_BMUX.I0"/><direct name="MUX1_I1" input="CARRY4_AMUX.O" output="CARRY4_BMUX.I1"/><direct name="MUX1_S" input="CARRY4.S[1]" output="CARRY4_BMUX.S"/><direct name="MUX1_O" input="CARRY4_BMUX.O" output="CARRY4.CO[1]"/>
-   <direct name="MUX2_I0" input="CARRY4.DI[2]" output="CARRY4_CMUX.I0"/><direct name="MUX2_I1" input="CARRY4_BMUX.O" output="CARRY4_CMUX.I1"/><direct name="MUX2_S" input="CARRY4.S[2]" output="CARRY4_CMUX.S"/><direct name="MUX2_O" input="CARRY4_CMUX.O" output="CARRY4.CO[2]"/>
-   <direct name="MUX3_I0" input="CARRY4.DI[3]" output="CARRY4_DMUX.I0"/><direct name="MUX3_I1" input="CARRY4_CMUX.O" output="CARRY4_DMUX.I1"/><direct name="MUX3_S" input="CARRY4.S[3]" output="CARRY4_DMUX.S"/><direct name="MUX3_O" input="CARRY4_DMUX.O" output="CARRY4.CO[3]"/>
+   <direct name="MUX0_DI" input="CARRY4.DI[0]" output="CARRY4_AMUX.DI"/><direct name="MUX0_CI" input="CARRY4.CIN"    output="CARRY4_AMUX.CI"/><direct name="MUX0_S" input="CARRY4.S[0]" output="CARRY4_AMUX.S"/><direct name="MUX0_O" input="CARRY4_AMUX.O" output="CARRY4.CO[0]"/>
+   <direct name="MUX1_DI" input="CARRY4.DI[1]" output="CARRY4_BMUX.DI"/><direct name="MUX1_CI" input="CARRY4_AMUX.O" output="CARRY4_BMUX.CI"/><direct name="MUX1_S" input="CARRY4.S[1]" output="CARRY4_BMUX.S"/><direct name="MUX1_O" input="CARRY4_BMUX.O" output="CARRY4.CO[1]"/>
+   <direct name="MUX2_DI" input="CARRY4.DI[2]" output="CARRY4_CMUX.DI"/><direct name="MUX2_CI" input="CARRY4_BMUX.O" output="CARRY4_CMUX.CI"/><direct name="MUX2_S" input="CARRY4.S[2]" output="CARRY4_CMUX.S"/><direct name="MUX2_O" input="CARRY4_CMUX.O" output="CARRY4.CO[2]"/>
+   <direct name="MUX3_DI" input="CARRY4.DI[3]" output="CARRY4_DMUX.DI"/><direct name="MUX3_CI" input="CARRY4_CMUX.O" output="CARRY4_DMUX.CI"/><direct name="MUX3_S" input="CARRY4.S[3]" output="CARRY4_DMUX.S"/><direct name="MUX3_O" input="CARRY4_DMUX.O" output="CARRY4.CO[3]"/>
 
    <direct name="XOR0_LI" input="CARRY4.S[0]"  output="CARRY4_AXOR.LI"/><direct name="XOR0_CI" input="CARRY4.CIN"    output="CARRY4_AXOR.CI"/><direct name="XOR0_O" input="CARRY4_AXOR.O" output="CARRY4.O[0]"/>
    <direct name="XOR1_LI" input="CARRY4.S[1]"  output="CARRY4_BXOR.LI"/><direct name="XOR1_CI" input="CARRY4_AMUX.O" output="CARRY4_BXOR.CI"/><direct name="XOR1_O" input="CARRY4_BXOR.O" output="CARRY4.O[1]"/>

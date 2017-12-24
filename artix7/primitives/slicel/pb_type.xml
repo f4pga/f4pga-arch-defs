@@ -2,7 +2,7 @@
     7 Series FPGAs CLB User Guide UG474 (v1.8) September 27, 2016
     Figure 2-4: Diagram of SLICEL
   -->
-<pb_type name="SLICE_L" num_pb="1" xmlns:xi="http://www.w3.org/2001/XInclude">
+<pb_type name="SLICEL" num_pb="1" xmlns:xi="http://www.w3.org/2001/XInclude">
 
   <input name="DX" num_pins="1" equivalent="false"/>
   <input name="D1" num_pins="1" equivalent="false"/>
@@ -41,8 +41,8 @@
 
   <clock name="CLK" num_pins="1" equivalent="false"/>
 
-  <input  name="CARRY_IN"  num_pins="1" equivalent="false"/>
-  <output name="CARRY_OUT" num_pins="1" equivalent="false"/>
+  <input  name="CIN"  num_pins="1" equivalent="false"/>
+  <output name="COUT" num_pins="1" equivalent="false"/>
 
   <output name="DMUX" num_pins="1" equivalent="false"/>
   <output name="D"    num_pins="1" equivalent="false"/>
@@ -126,25 +126,47 @@
   -->
 
   <interconnect>
-    <!-- Repeat 4 times -->
-    <direct name="D" input="SLICE_L.D" output="DLUT.A" />
-    <direct name="C" input="SLICE_L.C" output="CLUT.A" />
-    <direct name="B" input="SLICE_L.B" output="BLUT.A" />
-    <direct name="A" input="SLICE_L.A" output="ALUT.A" />
+    <direct name="D1" input="SLICEL.D1" output="DLUT.A1" />
+    <direct name="D2" input="SLICEL.D2" output="DLUT.A2" />
+    <direct name="D3" input="SLICEL.D3" output="DLUT.A3" />
+    <direct name="D4" input="SLICEL.D4" output="DLUT.A4" />
+    <direct name="D5" input="SLICEL.D5" output="DLUT.A5" />
+    <direct name="D6" input="SLICEL.D6" output="DLUT.A6" />
 
-    <direct name="D5FFMUX_IN_B" input="SLICE_L.DX"  output="D5FFMUX.IN_B"/>
+    <direct name="C1" input="SLICEL.C1" output="CLUT.A1" />
+    <direct name="C2" input="SLICEL.C2" output="CLUT.A2" />
+    <direct name="C3" input="SLICEL.C3" output="CLUT.A3" />
+    <direct name="C4" input="SLICEL.C4" output="CLUT.A4" />
+    <direct name="C5" input="SLICEL.C5" output="CLUT.A5" />
+    <direct name="C6" input="SLICEL.C6" output="CLUT.A6" />
+
+    <direct name="B1" input="SLICEL.B1" output="BLUT.A1" />
+    <direct name="B2" input="SLICEL.B2" output="BLUT.A2" />
+    <direct name="B3" input="SLICEL.B3" output="BLUT.A3" />
+    <direct name="B4" input="SLICEL.B4" output="BLUT.A4" />
+    <direct name="B5" input="SLICEL.B5" output="BLUT.A5" />
+    <direct name="B6" input="SLICEL.B6" output="BLUT.A6" />
+
+    <direct name="A1" input="SLICEL.A1" output="ALUT.A1" />
+    <direct name="A2" input="SLICEL.A2" output="ALUT.A2" />
+    <direct name="A3" input="SLICEL.A3" output="ALUT.A3" />
+    <direct name="A4" input="SLICEL.A4" output="ALUT.A4" />
+    <direct name="A5" input="SLICEL.A5" output="ALUT.A5" />
+    <direct name="A6" input="SLICEL.A6" output="ALUT.A6" />
+
+    <direct name="D5FFMUX_IN_B" input="SLICEL.DX"   output="D5FFMUX.IN_B"/>
     <direct name="D5FFMUX_IN_A" input="DLUT.O5"     output="D5FFMUX.IN_A"/>
     <direct name="D5FFMUX_OUT"  input="D5FFMUX.O"   output="D5FF.D"      />
 
-    <direct name="C5FFMUX_IN_B" input="SLICE_L.CX"  output="C5FFMUX.IN_B"/>
+    <direct name="C5FFMUX_IN_B" input="SLICEL.CX"   output="C5FFMUX.IN_B"/>
     <direct name="C5FFMUX_IN_A" input="CLUT.O5"     output="C5FFMUX.IN_A"/>
     <direct name="C5FFMUX_OUT"  input="C5FFMUX.O"   output="C5FF.D"      />
 
-    <direct name="B5FFMUX_IN_B" input="SLICE_L.BX"  output="B5FFMUX.IN_B"/>
+    <direct name="B5FFMUX_IN_B" input="SLICEL.BX"   output="B5FFMUX.IN_B"/>
     <direct name="B5FFMUX_IN_A" input="BLUT.O5"     output="B5FFMUX.IN_A"/>
     <direct name="B5FFMUX_OUT"  input="B5FFMUX.O"   output="B5FF.D"      />
 
-    <direct name="A5FFMUX_IN_B" input="SLICE_L.AX"  output="A5FFMUX.IN_B"/>
+    <direct name="A5FFMUX_IN_B" input="SLICEL.AX"   output="A5FFMUX.IN_B"/>
     <direct name="A5FFMUX_IN_A" input="ALUT.O5"     output="A5FFMUX.IN_A"/>
     <direct name="A5FFMUX_OUT"  input="A5FFMUX.O"   output="A5FF.D"      />
 
@@ -154,127 +176,127 @@
     <direct name="DOUTMUX_IN_O6"  input="DLUT.O6"      output="DOUTMUX.O6"   />
     <direct name="DOUTMUX_IN_O5"  input="DLUT.O5"      output="DOUTMUX.O5"   />
     <direct name="DOUTMUX_IN_CY"  input="CARRY4.CO[3]" output="DOUTMUX.CY"   />
-    <direct name="DOUTMUX_OUT"    input="DOUTMUX.O"    output="SLICE_L.DMUX" />
+    <direct name="DOUTMUX_OUT"    input="DOUTMUX.OUT"  output="SLICEL.DMUX" />
 
     <direct name="COUTMUX_IN_C5Q" input="C5FF.Q"       output="COUTMUX.C5Q"  />
     <direct name="COUTMUX_IN_XOR" input="CARRY4.O[2]"  output="COUTMUX.XOR"  />
     <direct name="COUTMUX_IN_O6"  input="CLUT.O6"      output="COUTMUX.O6"   />
     <direct name="COUTMUX_IN_O5"  input="CLUT.O5"      output="COUTMUX.O5"   />
-    <direct name="COUTMUX_IN_F7"  input="F7BMUX.O"     output="COUTMUX.F7"   />
+    <direct name="COUTMUX_IN_F7"  input="F7BMUX.OUT"   output="COUTMUX.F7"   />
     <direct name="COUTMUX_IN_CY"  input="CARRY4.CO[2]" output="COUTMUX.CY"   />
-    <direct name="COUTMUX_OUT"    input="COUTMUX.O"    output="SLICE_L.CMUX" />
+    <direct name="COUTMUX_OUT"    input="COUTMUX.OUT"  output="SLICEL.CMUX" />
 
     <direct name="BOUTMUX_IN_B5Q" input="B5FF.Q"       output="BOUTMUX.B5Q"  />
     <direct name="BOUTMUX_IN_XOR" input="CARRY4.O[1]"  output="BOUTMUX.XOR"  />
     <direct name="BOUTMUX_IN_O6"  input="BLUT.O6"      output="BOUTMUX.O6"   />
     <direct name="BOUTMUX_IN_O5"  input="BLUT.O5"      output="BOUTMUX.O5"   />
-    <direct name="BOUTMUX_IN_F8"  input="F8MUX.O"      output="BOUTMUX.F8"   />
+    <direct name="BOUTMUX_IN_F8"  input="F8MUX.OUT"    output="BOUTMUX.F8"   />
     <direct name="BOUTMUX_IN_CY"  input="CARRY4.CO[1]" output="BOUTMUX.CY"   />
-    <direct name="BOUTMUX_OUT"    input="BOUTMUX.O"    output="SLICE_L.BMUX" />
+    <direct name="BOUTMUX_OUT"    input="BOUTMUX.OUT"  output="SLICEL.BMUX" />
 
     <direct name="AOUTMUX_IN_A5Q" input="A5FF.Q"       output="AOUTMUX.A5Q"  />
     <direct name="AOUTMUX_IN_XOR" input="CARRY4.O[0]"  output="AOUTMUX.XOR"  />
     <direct name="AOUTMUX_IN_O6"  input="ALUT.O6"      output="AOUTMUX.O6"   />
     <direct name="AOUTMUX_IN_O5"  input="ALUT.O5"      output="AOUTMUX.O5"   />
-    <direct name="AOUTMUX_IN_F7"  input="F7BMUX.O"     output="AOUTMUX.F7"   />
+    <direct name="AOUTMUX_IN_F7"  input="F7BMUX.OUT"   output="AOUTMUX.F7"   />
     <direct name="AOUTMUX_IN_CY"  input="CARRY4.CO[0]" output="AOUTMUX.CY"   />
-    <direct name="AOUTMUX_OUT"    input="AOUTMUX.O"    output="SLICE_L.AMUX" />
+    <direct name="AOUTMUX_OUT"    input="AOUTMUX.OUT"  output="SLICEL.AMUX" />
 
     <!-- WFFMUX -->
     <direct name="DFFMUX_IN_XOR" input="CARRY4.O[3]"  output="DFFMUX.XOR" />
     <direct name="DFFMUX_IN_O6"  input="DLUT.O6"      output="DFFMUX.O6"  />
     <direct name="DFFMUX_IN_O5"  input="DLUT.O5"      output="DFFMUX.O5"  />
-    <direct name="DFFMUX_IN_DX"  input="SLICE_L.DX"   output="DFFMUX.DX"  />
+    <direct name="DFFMUX_IN_DX"  input="SLICEL.DX"    output="DFFMUX.DX"  />
     <direct name="DFFMUX_IN_CY"  input="CARRY4.CO[3]" output="DFFMUX.CY"  />
-    <direct name="DFFMUX_OUT"    input="DFFMUX.O"     output="DFF.D"      />
+    <direct name="DFFMUX_OUT"    input="DFFMUX.OUT"   output="DFF.D"      />
 
     <direct name="CFFMUX_IN_XOR" input="CARRY4.O[2]"  output="CFFMUX.XOR" />
     <direct name="CFFMUX_IN_O6"  input="CLUT.O6"      output="CFFMUX.O6"  />
     <direct name="CFFMUX_IN_O5"  input="CLUT.O5"      output="CFFMUX.O5"  />
-    <direct name="CFFMUX_IN_F7"  input="F7BMUX.O"     output="CFFMUX.F7"  />
+    <direct name="CFFMUX_IN_F7"  input="F7BMUX.OUT"   output="CFFMUX.F7"  />
     <direct name="CFFMUX_IN_CY"  input="CARRY4.CO[2]" output="CFFMUX.CY"  />
-    <direct name="CFFMUX_IN_CX"  input="SLICE_L.CX"   output="CFFMUX.CX"  />
-    <direct name="CFFMUX_OUT"    input="CFFMUX.O"     output="CFF.D"      />
+    <direct name="CFFMUX_IN_CX"  input="SLICEL.CX"    output="CFFMUX.CX"  />
+    <direct name="CFFMUX_OUT"    input="CFFMUX.OUT"   output="CFF.D"      />
 
     <direct name="BFFMUX_IN_XOR" input="CARRY4.O[1]"  output="BFFMUX.XOR" />
     <direct name="BFFMUX_IN_O6"  input="BLUT.O6"      output="BFFMUX.O6"  />
     <direct name="BFFMUX_IN_O5"  input="BLUT.O5"      output="BFFMUX.O5"  />
-    <direct name="BFFMUX_IN_F8"  input="F8MUX.O"      output="BFFMUX.F8"  />
+    <direct name="BFFMUX_IN_F8"  input="F8MUX.OUT"    output="BFFMUX.F8"  />
     <direct name="BFFMUX_IN_CY"  input="CARRY4.CO[1]" output="BFFMUX.CY"  />
-    <direct name="BFFMUX_IN_BX"  input="SLICE_L.BX"   output="BFFMUX.BX"  />
-    <direct name="BFFMUX_OUT"    input="BFFMUX.O"     output="BFF.D"      />
+    <direct name="BFFMUX_IN_BX"  input="SLICEL.BX"    output="BFFMUX.BX"  />
+    <direct name="BFFMUX_OUT"    input="BFFMUX.OUT"   output="BFF.D"      />
 
     <direct name="AFFMUX_IN_XOR" input="CARRY4.O[0]"  output="AFFMUX.XOR" />
     <direct name="AFFMUX_IN_O6"  input="ALUT.O6"      output="AFFMUX.O6"  />
     <direct name="AFFMUX_IN_O5"  input="ALUT.O5"      output="AFFMUX.O5"  />
-    <direct name="AFFMUX_IN_F7"  input="F7AMUX.O"     output="AFFMUX.F7"  />
+    <direct name="AFFMUX_IN_F7"  input="F7AMUX.OUT"   output="AFFMUX.F7"  />
     <direct name="AFFMUX_IN_CY"  input="CARRY4.CO[0]" output="AFFMUX.CY"  />
-    <direct name="AFFMUX_IN_AX"  input="SLICE_L.AX"   output="AFFMUX.AX"  />
-    <direct name="AFFMUX_OUT"    input="AFFMUX.O"     output="AFF.D"      />
+    <direct name="AFFMUX_IN_AX"  input="SLICEL.AX"    output="AFFMUX.AX"  />
+    <direct name="AFFMUX_OUT"    input="AFFMUX.OUT"   output="AFF.D"      />
 
     <!-- AFF -->
-    <direct name="DFF" input="DFF.Q" output="SLICE_L.AQ" />
-    <direct name="CFF" input="CFF.Q" output="SLICE_L.BQ" />
-    <direct name="BFF" input="BFF.Q" output="SLICE_L.CQ" />
-    <direct name="AFF" input="AFF.Q" output="SLICE_L.DQ" />
+    <direct name="DFF" input="DFF.Q" output="SLICEL.AQ" />
+    <direct name="CFF" input="CFF.Q" output="SLICEL.BQ" />
+    <direct name="BFF" input="BFF.Q" output="SLICEL.CQ" />
+    <direct name="AFF" input="AFF.Q" output="SLICEL.DQ" />
 
     <!-- LUT O6 output -->
-    <direct name="F7BMUX_I0" input="DLUT.O6" output="F7BMUX.I0" /><direct name="CARRY_S3" input="DLUT.O6" output="CARRY4.S[3]" /><direct name="SLICE_L_DOUT" input="DLUT.O6" output="SLICE_L.D" />
-    <direct name="F7BMUX_I1" input="CLUT.O6" output="F7BMUX.I1" /><direct name="CARRY_S2" input="CLUT.O6" output="CARRY4.S[2]" /><direct name="SLICE_L_COUT" input="CLUT.O6" output="SLICE_L.C" />
-    <direct name="F7AMUX_I0" input="BLUT.O6" output="F7AMUX.I0" /><direct name="CARRY_S1" input="BLUT.O6" output="CARRY4.S[1]" /><direct name="SLICE_L_BOUT" input="BLUT.O6" output="SLICE_L.B" />
-    <direct name="F7AMUX_I1" input="ALUT.O6" output="F7AMUX.I1" /><direct name="CARRY_S0" input="ALUT.O6" output="CARRY4.S[0]" /><direct name="SLICE_L_AOUT" input="ALUT.O6" output="SLICE_L.A" />
+    <direct name="F7BMUX_I0" input="DLUT.O6" output="F7BMUX.I0" /><direct name="CARRY_S3" input="DLUT.O6" output="CARRY4.S[3]" /><direct name="SLICEL_DOUT" input="DLUT.O6" output="SLICEL.D" />
+    <direct name="F7BMUX_I1" input="CLUT.O6" output="F7BMUX.I1" /><direct name="CARRY_S2" input="CLUT.O6" output="CARRY4.S[2]" /><direct name="SLICEL_COUT" input="CLUT.O6" output="SLICEL.C" />
+    <direct name="F7AMUX_I0" input="BLUT.O6" output="F7AMUX.I0" /><direct name="CARRY_S1" input="BLUT.O6" output="CARRY4.S[1]" /><direct name="SLICEL_BOUT" input="BLUT.O6" output="SLICEL.B" />
+    <direct name="F7AMUX_I1" input="ALUT.O6" output="F7AMUX.I1" /><direct name="CARRY_S0" input="ALUT.O6" output="CARRY4.S[0]" /><direct name="SLICEL_AOUT" input="ALUT.O6" output="SLICEL.A" />
 
     <!-- Select lines for F7 MUXes -->
-    <direct name="CX7S" input="SLICE_L.CX" output="F7BMUX.S" />
-    <direct name="AX7S" input="SLICE_L.AX" output="F7AMUX.S" />
+    <direct name="CX7S" input="SLICEL.CX" output="F7BMUX.S0" />
+    <direct name="AX7S" input="SLICEL.AX" output="F7AMUX.S0" />
 
     <!-- F8MUX -->
-    <direct name="F8MUX_IN0" input="F7BMUX.O" output="F8MUX.I0" />
-    <direct name="F8MUX_IN1" input="F7AMUX.O" output="F8MUX.I1" />
-    <direct name="F8MUX_S"   input="SLICE_L.BX" output="F8MUX.S" />
+    <direct name="F8MUX_IN0" input="F7BMUX.OUT" output="F8MUX.I0" />
+    <direct name="F8MUX_IN1" input="F7AMUX.OUT" output="F8MUX.I1" />
+    <direct name="F8MUX_S"   input="SLICEL.BX"  output="F8MUX.S0" />
     <!-- <direct name="F8MUX_O"   input="F8MUX.O" output="" /> -->
 
     <!-- Carry -->
     <!-- FIXME! -->
-    <direct name="PRECYINIT_RMUX.CYINIT"    input="SLICE_L.AX"         output="PRECYINIT_RMUX.CYINIT" />
-    <direct name="PRECYINIT_RMUX.CARRY_IN"  input="SLICE_L.CARRY_IN"   output="PRECYINIT_RMUX.CI"     />
-    <direct name="PRECYINIT_RMUX.OUT"       input="PRECYINIT_RMUX.OUT" output="CARRY4.CIN"            />
+    <direct name="PRECYINIT_MUX.CYINIT"    input="SLICEL.AX"         output="PRECYINIT_MUX.CYINIT" />
+    <direct name="PRECYINIT_MUX.CI"        input="SLICEL.CIN"        output="PRECYINIT_MUX.CI"     />
+    <direct name="PRECYINIT_MUX.OUT"       input="PRECYINIT_MUX.OUT" output="CARRY4.CIN"            />
 
-    <direct name="DCY0_O5" input="DLUT.O5"    output="DCY0.O5"      />
-    <direct name="DCY0_DX" input="SLICE_L.DX" output="DCY0.DX"      />
-    <direct name="DCY0_O"  input="DCY0.O"     output="CARRY4.DI[3]" />
+    <direct name="DCY0_O5" input="DLUT.O5"   output="DCY0.O5"      />
+    <direct name="DCY0_DX" input="SLICEL.DX" output="DCY0.DX"      />
+    <direct name="DCY0_O"  input="DCY0.O"    output="CARRY4.DI[3]" />
 
-    <direct name="CCY0_O5" input="CLUT.O5"    output="CCY0.O5"      />
-    <direct name="CCY0_CX" input="SLICE_L.CX" output="CCY0.CX"      />
-    <direct name="CCY0_O"  input="CCY0.O"     output="CARRY4.DI[2]" />
+    <direct name="CCY0_O5" input="CLUT.O5"   output="CCY0.O5"      />
+    <direct name="CCY0_CX" input="SLICEL.CX" output="CCY0.CX"      />
+    <direct name="CCY0_O"  input="CCY0.O"    output="CARRY4.DI[2]" />
 
-    <direct name="BCY0_O5" input="BLUT.O5"    output="BCY0.O5"      />
-    <direct name="BCY0_BX" input="SLICE_L.BX" output="BCY0.BX"      />
-    <direct name="BCY0_O"  input="BCY0.O"     output="CARRY4.DI[1]" />
+    <direct name="BCY0_O5" input="BLUT.O5"   output="BCY0.O5"      />
+    <direct name="BCY0_BX" input="SLICEL.BX" output="BCY0.BX"      />
+    <direct name="BCY0_O"  input="BCY0.O"    output="CARRY4.DI[1]" />
 
-    <direct name="ACY0_O5" input="ALUT.O5"    output="ACY0.O5"      />
-    <direct name="ACY0_AX" input="SLICE_L.AX" output="ACY0.AX"      />
-    <direct name="ACY0_O"  input="ACY0.O"     output="CARRY4.DI[0]" />
+    <direct name="ACY0_O5" input="ALUT.O5"   output="ACY0.O5"      />
+    <direct name="ACY0_AX" input="SLICEL.AX" output="ACY0.AX"      />
+    <direct name="ACY0_O"  input="ACY0.O"    output="CARRY4.DI[0]" />
 
-    <direct name="CARRY_OUT" input="CARRY4.CO[3]"     output="SLICE_L.CARRY_OUT" />
+    <direct name="COUT" input="CARRY4.CO[3]" output="SLICEL.COUT" />
 
     <!-- Clock, Clock Enable and Reset -->
-    <direct name="A5FF_CK" input="SLICE_L.CLK" output="A5FF.CK"/><direct name="AFF_CK" input="SLICE_L.CLK" output="AFF.CK"/>
-    <direct name="B5FF_CK" input="SLICE_L.CLK" output="B5FF.CK"/><direct name="BFF_CK" input="SLICE_L.CLK" output="BFF.CK"/>
-    <direct name="C5FF_CK" input="SLICE_L.CLK" output="C5FF.CK"/><direct name="CFF_CK" input="SLICE_L.CLK" output="CFF.CK"/>
-    <direct name="D5FF_CK" input="SLICE_L.CLK" output="D5FF.CK"/><direct name="DFF_CK" input="SLICE_L.CLK" output="DFF.CK"/>
+    <direct name="A5FF_CK" input="SLICEL.CLK" output="A5FF.CK"/><direct name="AFF_CK" input="SLICEL.CLK" output="AFF.CK"/>
+    <direct name="B5FF_CK" input="SLICEL.CLK" output="B5FF.CK"/><direct name="BFF_CK" input="SLICEL.CLK" output="BFF.CK"/>
+    <direct name="C5FF_CK" input="SLICEL.CLK" output="C5FF.CK"/><direct name="CFF_CK" input="SLICEL.CLK" output="CFF.CK"/>
+    <direct name="D5FF_CK" input="SLICEL.CLK" output="D5FF.CK"/><direct name="DFF_CK" input="SLICEL.CLK" output="DFF.CK"/>
 
-    <!-- <mux name="CEUSED" input="VCC SLICE_L.CE" output="{}"/> -->
-    <direct name="A5FF_CE" input="SLICE_L.CE"  output="A5FF.CE"/><direct name="AFF_CE" input="SLICE_L.CE"  output="AFF.CE"/>
-    <direct name="B5FF_CE" input="SLICE_L.CE"  output="B5FF.CE"/><direct name="BFF_CE" input="SLICE_L.CE"  output="BFF.CE"/>
-    <direct name="C5FF_CE" input="SLICE_L.CE"  output="C5FF.CE"/><direct name="CFF_CE" input="SLICE_L.CE"  output="CFF.CE"/>
-    <direct name="D5FF_CE" input="SLICE_L.CE"  output="D5FF.CE"/><direct name="DFF_CE" input="SLICE_L.CE"  output="DFF.CE"/>
+    <!-- <mux name="CEUSED" input="VCC SLICEL.CE" output="{}"/> -->
+    <direct name="A5FF_CE" input="SLICEL.CE"  output="A5FF.CE"/><direct name="AFF_CE" input="SLICEL.CE"  output="AFF.CE"/>
+    <direct name="B5FF_CE" input="SLICEL.CE"  output="B5FF.CE"/><direct name="BFF_CE" input="SLICEL.CE"  output="BFF.CE"/>
+    <direct name="C5FF_CE" input="SLICEL.CE"  output="C5FF.CE"/><direct name="CFF_CE" input="SLICEL.CE"  output="CFF.CE"/>
+    <direct name="D5FF_CE" input="SLICEL.CE"  output="D5FF.CE"/><direct name="DFF_CE" input="SLICEL.CE"  output="DFF.CE"/>
 
-    <!-- <mux name="SRUSED" input="GND SLICE_L.SR" output="{}"/> -->
-    <direct name="A5FF_SR" input="SLICE_L.SR"  output="A5FF.SR"/><direct name="AFF_SR" input="SLICE_L.SR"  output="AFF.SR"/>
-    <direct name="B5FF_SR" input="SLICE_L.SR"  output="B5FF.SR"/><direct name="BFF_SR" input="SLICE_L.SR"  output="BFF.SR"/>
-    <direct name="C5FF_SR" input="SLICE_L.SR"  output="C5FF.SR"/><direct name="CFF_SR" input="SLICE_L.SR"  output="CFF.SR"/>
-    <direct name="D5FF_SR" input="SLICE_L.SR"  output="D5FF.SR"/><direct name="DFF_SR" input="SLICE_L.SR"  output="DFF.SR"/>
+    <!-- <mux name="SRUSED" input="GND SLICEL.SR" output="{}"/> -->
+    <direct name="A5FF_SR" input="SLICEL.SR"  output="A5FF.SR"/><direct name="AFF_SR" input="SLICEL.SR"  output="AFF.SR"/>
+    <direct name="B5FF_SR" input="SLICEL.SR"  output="B5FF.SR"/><direct name="BFF_SR" input="SLICEL.SR"  output="BFF.SR"/>
+    <direct name="C5FF_SR" input="SLICEL.SR"  output="C5FF.SR"/><direct name="CFF_SR" input="SLICEL.SR"  output="CFF.SR"/>
+    <direct name="D5FF_SR" input="SLICEL.SR"  output="D5FF.SR"/><direct name="DFF_SR" input="SLICEL.SR"  output="DFF.SR"/>
 
   </interconnect>
 </pb_type>

@@ -96,7 +96,10 @@ def process_wire(wire_name):
     assert wire_name.startswith(tile_type), wire_name
     wire_name = wire_name[len(tile_type+'_'):]
 
-    if wire_name.startswith("L_"):
+    # Wires which end in _N are from neighbours, so shouldn't prepended with slice name.
+    if wire_name.endswith("_N"):
+        pass
+    elif wire_name.startswith("L_"):
         wire_name = "CLBLL_L."+wire_name[2:]
     elif wire_name.startswith("M_"):
         wire_name = "CLBLL_M."+wire_name[2:]
@@ -108,7 +111,9 @@ def process_wire(wire_name):
     for lutin in ('A1', 'A2', 'A3', 'A4', 'A5', 'A6',
                   'B1', 'B2', 'B3', 'B4', 'B5', 'B6',
                   'C1', 'C2', 'C3', 'C4', 'C5', 'C6',
-                  'D1', 'D2', 'D3', 'D4', 'D5', 'D6'):
+                  'D1', 'D2', 'D3', 'D4', 'D5', 'D6',
+                  'FAN6', 'FAN7',
+                  ):
         if wire_name.endswith(lutin):
             prefix, num = wire_name, None
             break
@@ -131,8 +136,18 @@ def process_wire(wire_name):
 
 connections = {}
 
+def ppips():
+    for line in db_open('ppips').readlines():
+        yield line
+    if tile_type == "CLBLL":
+        yield "CLBLL_L.CLBLL_L_CIN.CLBLL_L_CIN_N always\n"
+        yield "CLBLL_L.CLBLL_LL_CIN.CLBLL_LL_CIN_N always\n"
+    elif tile_type == "CLBLM":
+        yield "CLBLL_M.CLBLL_M_CIN.CLBLL_M_CIN_N always\n"
+        yield "CLBLL_M.CLBLL_L_CIN.CLBLL_L_CIN_N always\n"
+
 # Read in all the Pseudo PIP definitions.
-for line in db_open('ppips').readlines():
+for line in ppips():
     assert line.startswith('%s_%s.' % (tile_type, tile_dir)), line
     name, bits = line.strip().split(' ', maxsplit=1)
     _, net_to, net_from = name.split('.')
@@ -153,7 +168,17 @@ slice_inputs = set()
 slice_outputs = set()
 clbll_outputs = set()
 
+# Add a connection for the carry out to make it an output
+#connections[('%s_%s.COUT_N' % (tile_type, tile_dir), None)] = ("CARRY_OUT", None)
+
+# CLBLL_L_COUT_N
+# CLBLL_LL_COUT_N
+# CLBLL_L_COUT->CLBLL_L_COUT_N
+
 for name, pins in wires_internal.items():
+    #if "COUT" in name:
+    #    continue
+
     if name.startswith("CLBLL_"):
         inputs = slice_outputs
         outputs = slice_inputs
@@ -204,14 +229,20 @@ xi_include = "{%s}include" % xi_url
 # Generate the model.xml file                                            #
 ##########################################################################
 
+
 model_xml = ET.Element(
     'models', nsmap = {'xi': xi_url},
 )
 
-ET.SubElement(model_xml, xi_include, {'href': slice_model % slice0_type.lower()})
+def add_model_include(name):
+    ET.SubElement(model_xml, xi_include, {
+        'href': slice_model % name.lower(),
+        'xpointer': "xpointer(models/*)"})
+
+add_model_include(slice0_type)
 
 if slice1_type != slice0_type:
-    ET.SubElement(model_xml, xi_include, {'href': slice_model % slice1_type.lower()})
+    add_model_include(slice1_type)
 
 model_str = ET.tostring(model_xml, pretty_print=True).decode('utf-8')
 args.output_model.write(model_str)
@@ -239,22 +270,25 @@ def fmt(wire, pin):
         return wire
     return '%s[%s]' % (wire, pin)
 
-interconnect_xml = ET.SubElement(pb_type_xml, 'interconnect')
+interconnect_xml = ET.Element('interconnect')
+
 
 pb_type_xml.append(ET.Comment(" Tile Inputs "))
 interconnect_xml.append(ET.Comment(" Tile->Slice "))
 for name, pins in sorted(clbll_inputs):
     # Input definitions for the TILE
+    input_type = 'input'
+    if 'CLK' in name:
+        input_type = 'clock'
     ET.SubElement(
         pb_type_xml,
-        'input',
+        input_type,
         {'name': '%-20s' % name, 'num_pins': str(len(pins))},
     )
 
     for p in pins:
         # Connections from the TILE to the CLBLL_XX
         add_direct(interconnect_xml, '%s.%s' % (tile_name, fmt(name, p)), fmt(*connections[(name, p)]))
-
 
 pb_type_xml.append(ET.Comment(" Tile Outputs "))
 for name, pins in sorted(clbll_outputs):
@@ -265,18 +299,51 @@ for name, pins in sorted(clbll_outputs):
         {'name': '%-20s' % name, 'num_pins': str(len(pins))},
     )
 
+# Add the pin locations on the right side of the tile to connect to the INT_X tile
+side_pinloc_string = []
+top_pinloc_string = []
+bot_pinloc_string = []
+for name, pins in sorted(clbll_inputs) + sorted(clbll_outputs):
+    if name.endswith("_N"):
+        if "IN" in name:
+            bot_pinloc_string.append("%s.%s" % (tile_name, name))
+        elif "OUT" in name:
+            top_pinloc_string.append("%s.%s" % (tile_name, name))
+        else:
+            assert False, "Unknown neighbour pin %r" % name
+        continue
+    side_pinloc_string.append("%s.%s" % (tile_name, name))
+
+pinloc = ET.SubElement(pb_type_xml, 'pinlocations', {'pattern': 'custom'})
+
+side_pinloc = ET.SubElement(pinloc, "loc", {"side": {"L": "left", "R": "right"}[tile_dir], "xoffset": "0", "yoffset": "0"})
+side_pinloc.text = " ".join(side_pinloc_string)
+
+top_pinloc = ET.SubElement(pinloc, "loc", {"side": "top", "xoffset": "0", "yoffset": "0"})
+top_pinloc.text = " ".join(top_pinloc_string)
+
+bot_pinloc = ET.SubElement(pinloc, "loc", {"side": "bottom", "xoffset": "0", "yoffset": "0"})
+bot_pinloc.text = " ".join(bot_pinloc_string)
+
+# CLBs don't connect directly to fabric
+fc = ET.SubElement(pb_type_xml, "fc", {
+    'default_in_type':  "abs", "default_in_val":  "0",
+    'default_out_type': "abs", "default_out_val": "0",
+})
+
+# Add the internal slices to this CLB
 pb_type_xml.append(ET.Comment(" Internal Slices "))
 
 # Internal pb_type definition for the first slice
-slice0_xml = ET.SubElement(pb_type_xml, 'pb_type', {'name': slice0_name, 'num_pbs': '1'})
+slice0_xml = ET.SubElement(pb_type_xml, 'pb_type', {'name': slice0_name, 'num_pb': '1'})
 ET.SubElement(slice0_xml, xi_include, {'href': slice_pbtype % slice0_type.lower()})
-slice0_interconnect_xml = ET.SubElement(slice0_xml, 'interconnect')
+slice0_interconnect_xml = ET.Element('interconnect')
 slice0_interconnect_xml.append(ET.Comment(" Slice->Cell "))
 
 # Internal pb_type definition for the second slice
-slice1_xml = ET.SubElement(pb_type_xml, 'pb_type', {'name': slice1_name, 'num_pbs': '1'})
+slice1_xml = ET.SubElement(pb_type_xml, 'pb_type', {'name': slice1_name, 'num_pb': '1'})
 ET.SubElement(slice1_xml, xi_include, {'href': slice_pbtype % slice0_type.lower()})
-slice1_interconnect_xml = ET.SubElement(slice1_xml, 'interconnect')
+slice1_interconnect_xml = ET.Element('interconnect')
 slice1_interconnect_xml.append(ET.Comment(" Slice->Cell "))
 
 for name, pins in sorted(slice_inputs):
@@ -292,9 +359,12 @@ for name, pins in sorted(slice_inputs):
         assert False, name
 
     # Input pins for the CLBLL_X
+    input_type = 'input'
+    if 'CLK' in name:
+        input_type = 'clock'
     ET.SubElement(
         slice_xml,
-        'input', {'name': ' %-20s' % name, 'num_pins': str(len(pins))},
+        input_type, {'name': ' %-6s' % name.split('.')[-1], 'num_pins': str(len(pins))},
     )
 
     # Connections from CLBLL_X type to the contained SLICEL/SLICEM
@@ -321,7 +391,7 @@ for name, pins in sorted(slice_outputs):
     # Output pins for the CLBLL_X
     ET.SubElement(
         slice_xml,
-        'output', {'name': '%-20s' % name, 'num_pins': str(len(pins))},
+        'output', {'name': '%-6s' % name.split('.')[-1], 'num_pins': str(len(pins))},
     )
 
     for p in pins:
@@ -330,6 +400,10 @@ for name, pins in sorted(slice_outputs):
         add_direct(slice_interconnect_xml, ('%s.%s' % (slice_type, output_name.split('.')[-1])), output_name)
         # Connections from the CLBLL_XX to the TILE
         add_direct(interconnect_xml, output_name, '%s.%s' % (tile_name, fmt(*connections[(name, p)])))
+
+slice0_xml.append(slice0_interconnect_xml)
+slice1_xml.append(slice1_interconnect_xml)
+pb_type_xml.append(interconnect_xml)
 
 pb_type_str = ET.tostring(pb_type_xml, pretty_print=True).decode('utf-8')
 args.output_pb_type.write(pb_type_str)
