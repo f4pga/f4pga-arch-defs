@@ -6,11 +6,12 @@ files.
 """
 
 import argparse
-
-import re
-prefix_re = re.compile("^(.*[^0-9])([0-9]+)$")
-
 import os
+import re
+import sys
+
+import lxml.etree as ET
+
 
 ##########################################################################
 # Work out valid arguments for Project X-Ray database                    #
@@ -60,13 +61,15 @@ parser = argparse.ArgumentParser(
 
 parser.add_argument(
     '--part', choices=db_types,
-    default='iso',
     help="""Project X-Ray database to use.""")
 
 parser.add_argument(
     '--tile', choices=clb_tiles,
-    default='iso',
     help="""CLB tile to generate for""")
+
+parser.add_argument(
+    '--output', nargs='?', type=argparse.FileType('w'), default=sys.stdout,
+    help="""File to write the output too.""")
 
 args = parser.parse_args()
 
@@ -81,6 +84,8 @@ def db_open(n):
     return open(os.path.join(prjxray_part_db, "%s_%s_%s.db" % (n, tile_type.lower(), tile_dir.lower())))
 
 wires_internal = {}
+
+prefix_re = re.compile("^(.*[^0-9])([0-9]+)$")
 
 def process_wire(wire_name):
     """Extract data from the wire name and added to global database."""
@@ -163,8 +168,6 @@ for name, pins in wires_internal.items():
 ##########################################################################
 # Generate the pb_type.xml file                                          #
 ##########################################################################
-import lxml.etree as ET
-
 def add_direct(xml, input, output):
     ET.SubElement(xml, 'direct', {'name': '%-30s' % output, 'input': '%-30s' % input, 'output': '%-30s' % output})
 
@@ -290,4 +293,5 @@ for name, pins in sorted(slice_outputs):
         add_direct(interconnect_xml, output_name, '%s.%s' % (tile_name, fmt(*connections[(name, p)])))
 
 pb_type_str = ET.tostring(pb_type_xml, pretty_print=True).decode('utf-8')
-print(pb_type_str)
+args.output.write(pb_type_str)
+args.output.close()
