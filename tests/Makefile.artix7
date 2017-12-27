@@ -2,5 +2,5 @@
 
 ARCH_DIR = ../artix7/arch/
 ARCH_TYPE ?= xc7a50t-roi-virt
-DEVICE ?= xc7a50t
+DEVICE ?= xc7a50t-test
 YOSYS_SCRIPT ?= synth_xilinx;

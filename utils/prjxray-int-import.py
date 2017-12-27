@@ -78,6 +78,7 @@ args = parser.parse_args()
 prjxray_part_db = os.path.join(prjxray_db, args.part)
 
 tile_type, tile_dir = args.tile.split('_')
+tile_name = "TILE_%s_%s" % (tile_type, tile_dir)
 
 ##########################################################################
 # Read in the Project X-Ray database and do some processing              #
@@ -175,9 +176,8 @@ class SpanWire(_SpanWire):
 
 prefix_re = re.compile("^(.*[^0-9])([0-9]+)(_[^0-9NESWRL]+|)$")
 
-net_names = set()
-
 wires_by_type = {
+    'all':      {},
     'clock':    {},
     'long':     {},
     'span':     {},
@@ -193,14 +193,17 @@ def add_wire(wire_type, wire, num):
     wires[wire].add(num)
     return (wire, num)
 
-connections = {}
+connections_map = {
+    'mux': {},
+    'direct': {},
+}
 
 def process_wire(wire_name):
-    net_names.add(wire_name)
-
     g = prefix_re.match(wire_name)
     if not g:
-        return (wire_name, -1)
+        print("Skipping!", wire_name)
+        return None
+        #return (wire_name, -1)
 
     prefix, num, extra = g.groups()
     bits = prefix.split("_")
@@ -212,29 +215,55 @@ def process_wire(wire_name):
 
     if "GFAN" in bits[0] or "GCLK" in bits[0]:
         if extra:
-            prefix = "%s--%s" % (prefix, extra)
+            return None
+            #prefix = "%s--%s" % (prefix, extra)
+        if "WEST" in wire_name:
+            return None
         return add_wire("clock", prefix, num)
     elif "LH" in bits[0] or "LV" in bits[0]:
         assert not extra, extra
-        return add_wire("long", prefix, num)
+        return None
+        #return add_wire("long", prefix, num)
     elif len(bits) == 1:
         assert not extra, extra
         return add_wire("span", SpanWire.parse(prefix), num)
-    elif bits[-1] in ("L", "BOUNCE", "ALT"):
+    elif bits[-1] in ("L","ALT"):
+        # FIXME: Temporary hack to work around bounce wires..
+        if prefix == "BYP_ALT":
+            prefix = "BYP_L"
+        if prefix == "FAN_ALT":
+            prefix = "FAN_L"
         assert not extra, extra
         return add_wire("local", prefix, num)
+    elif bits[-1] in ("BOUNCE", "ALT"):
+        assert not extra, extra
+        return None
+        #return add_wire("local", prefix, num)
     elif bits[-1] in ("", "N", "E", "S", "W"):
         if prefix.endswith("_"):
             prefix = prefix[:-1]
         assert not extra, extra
-        return add_wire("neigh", prefix, num)
+        return None
+        #return add_wire("neigh", prefix, num)
     else:
-        return add_wire("unknown", wire_name, 0)
+        return None
+        #return add_wire("unknown", wire_name, 0)
 
 
-def add_connection(net_from, net_to):
+def add_connection(conn_type, net_from, net_to):
     if not net_from or not net_to:
         return
+
+    if net_from == net_to:
+        print("WARNING: Trying to add connection from wire %s to itself" % (net_from,))
+
+    # FIXME: Disable the random bypass and similar wires...
+    if not isinstance(net_to[0], SpanWire) and not net_to[0].endswith("_L"):
+        return
+
+    assert conn_type in connections_map
+    connections = connections_map[conn_type]
+
     if net_to not in connections:
         connections[net_to] = []
 
@@ -243,26 +272,32 @@ def add_connection(net_from, net_to):
 
 
 for line in db_open('ppips').readlines():
-    assert line.startswith('INT_L.'), line
+    assert line.startswith("%s_%s." % (tile_type, tile_dir)), line
     name, bits = line.split(' ', maxsplit=1)
-    _, net_to, net_from = name.split('.')
+    _, net_to_name, net_from_name = name.split('.')
 
     if bits.strip() != "always":
         continue
 
-    net_to = process_wire(net_to)
-    net_from = process_wire(net_from)
+    net_to = process_wire(net_to_name)
+    net_from = process_wire(net_from_name)
+    print((net_from_name, net_from), (net_to_name, net_to))
+    if net_from and isinstance(net_from, str):
+        print(net_from, net_to)
 
-    add_connection(net_from, net_to)
+    add_connection("direct", net_from, net_to)
 
 
 for line in db_open('segbits').readlines():
-    assert line.startswith('INT_L.'), line
+    assert line.startswith("%s_%s." % (tile_type, tile_dir)), line
     name, bits = line.split(' ', maxsplit=1)
-    _, net_to, net_from = name.split('.')
+    _, net_to_name, net_from_name = name.split('.')
 
-    net_to = process_wire(net_to)
-    net_from = process_wire(net_from)
+    net_to = process_wire(net_to_name)
+    net_from = process_wire(net_from_name)
+
+    if not net_to:
+        continue
 
     if isinstance(net_from, SpanWire):
         assert net_from.ending == SpanWire.Ending.END, net_from
@@ -270,7 +305,7 @@ for line in db_open('segbits').readlines():
     if isinstance(net_to, SpanWire):
         assert net_from.ending == SpanWire.Ending.BEG, net_from
 
-    add_connection(net_from, net_to)
+    add_connection("mux", net_from, net_to)
 
 
 for wire_type in sorted(wires_by_type):
@@ -280,8 +315,14 @@ for wire_type in sorted(wires_by_type):
     print("-"*75)
     print("%s Wires" % wire_type.title())
     print("-"*75)
-    for wire in sorted(wires_by_type[wire_type]):
-        print(repr(wire))
+    for wire, pins in sorted(wires_by_type[wire_type].items()):
+        if len(pins) > 1:
+            while min(pins) > 0:
+                new_pin = min(pins) - 1
+                print("WARNING: Padding %s with extra pin %s" % (wire, new_pin))
+                pins.add(new_pin)
+                connections_map['mux'][(wire, new_pin)] = []
+        print(repr(wire), pins)
 
 print()
 print()
@@ -290,13 +331,28 @@ print()
 
 pb_type_xml = ET.Element(
     'pb_type', {
-        'name': 'INT_L',
+        'name': tile_name,
         'num_pb': str(1),
     })
 
 interconnect_xml = ET.Element('interconnect')
 
 pb_type_xml.append(ET.Comment(" Tile Interconnects "))
+
+# Add the pin locations on the right side of the tile to connect to the INT_X tile
+pinloc_clbside_string = []
+pinloc_fabside_string = []
+
+# INT connect directly to fabric on "fabside"
+# But only to the CLBLL on "side"
+fc_xml = ET.SubElement(pb_type_xml, "fc", {
+    'default_in_type':  "frac", "default_in_val":  "1.0",
+    'default_out_type': "frac", "default_out_val": "1.0",
+})
+
+
+mux_names = set()
+
 for span_wire, pins in sorted(wires_by_type['span'].items(), key=lambda i: (i[0].ending.name, i[0].direction.name, i[0].length)):
     ET.SubElement(
         pb_type_xml,
@@ -305,41 +361,71 @@ for span_wire, pins in sorted(wires_by_type['span'].items(), key=lambda i: (i[0]
         {'name': span_wire.name, 'num_pins': str(len(pins))},
     )
 
+    pinloc_fabside_string.append(span_wire.name)
+
     if span_wire.ending == SpanWire.Ending.BEG:
         interconnect_xml.append(ET.Comment(" Output muxes for %s " % (span_wire,)))
 
     for pin in pins:
         if span_wire.ending == SpanWire.Ending.BEG:
-            mux_name = "%s[%s]" % (span_wire.name, pin)
+            mux_name = "%s.%s[%s]" % (tile_name, span_wire.name, pin)
 
-            dest = connections[(span_wire, pin)]
+            assert mux_name not in mux_names
+            mux_names.add(mux_name)
 
+            dest = connections_map['mux'][(span_wire, pin)]
+            if not dest:
+                print("WARNING: No connections for %s" % mux_name)
+                continue
+            assert len(dest) > 1
             ET.SubElement(
                 interconnect_xml,
                 'mux', {
                     'name': mux_name,
-                    'input': " ".join("%s[%s]" % (w, i) for w, i in sorted(dest)),
+                    'input': " ".join("%s.%s[%s]" % (tile_name, w, i) for w, i in sorted(dest)),
                     'output': mux_name,
                 },
             )
         else:
-            assert (span_wire, pin) not in connections
+            assert (span_wire, pin) not in connections_map['mux'] or not connections_map['mux'][(span_wire, pin)]
+
+
+for clock_wire, pins in sorted(wires_by_type['clock'].items()):
+    ET.SubElement(
+        pb_type_xml,
+        'clock',
+        {'name': clock_wire, 'num_pins': str(len(pins))},
+    )
+    pinloc_fabside_string.append(clock_wire)
+
+    for pin in pins:
+        assert (clock_wire, pin) not in connections_map['mux'] or not connections_map['mux'][(clock_wire, pin)]
 
 
 pb_type_xml.append(ET.Comment(" Local Interconnects "))
 for local_wire, pins in sorted(wires_by_type['local'].items()):
 
-    found = True
+    if local_wire.endswith("_L"):
+        pinloc_clbside_string.append(local_wire)
+        # <fc_override fc_type="abs" fc_val="2" port_name="I0"  segment_name="local" />
+    else:
+        pinloc_fabside_string.append(local_wire)
+
+    # Local pins don't connect to fabric.
+    ET.SubElement(fc_xml, "fc_override", {"fc_type": "abs", "fc_val": "0", "port_name": local_wire})
+
+    found = False
     for pin in pins:
-        found = found and (local_wire, pin) in connections
+        has_mux    = (local_wire, pin) in connections_map['mux']
+        has_direct = (local_wire, pin) in connections_map['direct']
+        found = found or (has_mux or has_direct)
 
     if found:
-        wire_type = "input"
-    else:
         wire_type = "output"
-
-    if "CLK" in local_wire:
-        wire_type = "clock"
+    else:
+        wire_type = "input"
+        if "CLK" in local_wire:
+            wire_type = "clock"
 
     continous = (set(range(len(pins))) == pins)
 
@@ -353,18 +439,45 @@ for local_wire, pins in sorted(wires_by_type['local'].items()):
         interconnect_xml.append(ET.Comment(" Output muxes for %s " % (local_wire,)))
 
         for pin in pins:
+            has_mux    = (local_wire, pin) in connections_map['mux']
+            has_direct = (local_wire, pin) in connections_map['direct']
 
-            dest = connections[(local_wire, pin)]
-            mux_name = "%s[%s]" % (local_wire, pin)
+            mux_name = "%s.%s[%s]" % (tile_name, local_wire, pin)
+            assert mux_name not in mux_names
+            mux_names.add(mux_name)
 
-            ET.SubElement(
-                interconnect_xml,
-                'mux', {
-                    'name': mux_name,
-                    'input': " ".join("%s[%s]" % (w, i) for w, i in sorted(dest)),
-                    'output': mux_name,
-                },
-            )
+            if has_mux:
+                dest = connections_map['mux'][(local_wire, pin)]
+                ET.SubElement(
+                    interconnect_xml,
+                    'mux', {
+                        'name': mux_name,
+                        'input': " ".join("%s.%s[%s]" % (tile_name, w, i) for w, i in sorted(dest)),
+                        'output': mux_name,
+                    },
+                )
+            elif has_direct:
+                dest = connections_map['direct'][(local_wire, pin)]
+                ET.SubElement(
+                    interconnect_xml,
+                    'direct', {
+                        'name': mux_name,
+                        'input': " ".join("%s.%s[%s]" % (tile_name, w, i) for w, i in sorted(dest)),
+                        'output': mux_name,
+                    },
+                )
+            else:
+                print("WARNING: No connection for pin %s on wire %s" % (pin, local_wire))
+
+# Add the pin location information
+pin_clbside, pin_fabside = {"L": ("left","right"), "R": ("right","left")}[tile_dir]
+pinloc = ET.SubElement(pb_type_xml, 'pinlocations', {'pattern': 'custom'})
+
+pinloc_clbside_xml = ET.SubElement(pinloc, "loc", {"side": pin_clbside, "xoffset": "0", "yoffset": "0"})
+pinloc_clbside_xml.text = " ".join("%s.%s" % (tile_name, p) for p in pinloc_clbside_string)
+
+pinloc_fabside_xml = ET.SubElement(pinloc, "loc", {"side": pin_fabside, "xoffset": "0", "yoffset": "0"})
+pinloc_fabside_xml.text = " ".join("%s.%s" % (tile_name, p) for p in pinloc_fabside_string)
 
 pb_type_xml.append(interconnect_xml)
 
