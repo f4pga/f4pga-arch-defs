@@ -17,3 +17,4 @@ push.sh
 pb_type.*.xml
 sim.*.v
 third_party
+.gen.stamp
