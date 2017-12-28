@@ -18,10 +18,13 @@ NAME := $(shell echo $(notdir $(shell realpath .)) | tr a-z A-Z)
 %.json: %.v Makefile $(SELF_DIR)/sim.mk
 	$(YOSYS) -p "prep -top $(NAME); write_json $@" $<
 
+%.aig.json: %.v Makefile $(SELF_DIR)/sim.mk
+	$(YOSYS) -p "prep -top $(NAME) -flatten; aigmap; $(YOSYS_EXTRA); write_json $@" $<
+
 %.flat.json: %.v Makefile $(SELF_DIR)/sim.mk
 	$(YOSYS) -p "prep -top $(NAME) -flatten; write_json $@" $<
 
-%.netlist.svg: %.json $(NETLISTSVG_SKIN)
+%.svg: %.json $(NETLISTSVG_SKIN)
 	$(NODE) $(NETLISTSVG)/bin/netlistsvg $< -o $@ --skin $(NETLISTSVG_SKIN)
 
 %.yosys.svg: %.v
@@ -46,7 +49,7 @@ show.flat: sim.flat.yosys.png
 view: sim.netlist.png
 	eog $<
 
-view.%: %.png
+view.%: sim.%.png
 	eog $<
 
 view.flat: sim.flat.netlist.png
