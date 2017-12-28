@@ -49,6 +49,9 @@
     <direct name="RADDR05" input="RAM.RADDR[5]"  output="SB_RAM.RADDR[5]"/>
     <direct name="RADDR06" input="RAM.RADDR[6]"  output="SB_RAM.RADDR[6]"/>
     <direct name="RADDR07" input="RAM.RADDR[7]"  output="SB_RAM.RADDR[7]"/>
+    <direct name="RADDR08" input="RAM.RADDR[8]"  output="SB_RAM.RADDR[8]"/>
+    <direct name="RADDR09" input="RAM.RADDR[9]"  output="SB_RAM.RADDR[9]"/>
+    <direct name="RADDR10" input="RAM.RADDR[10]" output="SB_RAM.RADDR[10]"/>
 
     <direct name="RE"      input="RAM.RE"        output="SB_RAM.RE" />
     <direct name="RCLKE"   input="RAM.RCLKE"     output="SB_RAM.RCLKE" />
@@ -98,13 +101,16 @@
     <direct name="WADDR05" input="RAM.WADDR[5]"  output="SB_RAM.WADDR[5]"/>
     <direct name="WADDR06" input="RAM.WADDR[6]"  output="SB_RAM.WADDR[6]"/>
     <direct name="WADDR07" input="RAM.WADDR[7]"  output="SB_RAM.WADDR[7]"/>
+    <direct name="WADDR08" input="RAM.WADDR[8]"  output="SB_RAM.WADDR[8]"/>
+    <direct name="WADDR09" input="RAM.WADDR[9]"  output="SB_RAM.WADDR[9]"/>
+    <direct name="WADDR10" input="RAM.WADDR[10]" output="SB_RAM.WADDR[10]"/>
 
     <direct name="WE"    input="RAM.WE"          output="SB_RAM.WE" />
     <direct name="WCLKE" input="RAM.WCLKE"       output="SB_RAM.WCLKE" />
     <direct name="WCLK"  input="RAM.WCLK"        output="SB_RAM.WCLK" />
    </interconnect>
 
-   <fc default_in_type="frac" default_in_val="0.0" default_out_type="frac" default_out_val="0.0">
+   <fc default_in_type="frac" default_in_val="0.5" default_out_type="frac" default_out_val="1.0">
     <fc_override fc_type="abs" fc_val="2" port_name="RDATAT" segment_name="local"/>
     <fc_override fc_type="abs" fc_val="2" port_name="RDATAB" segment_name="local"/>
     <fc_override fc_type="abs" fc_val="2" port_name="RADDR"  segment_name="local"/>

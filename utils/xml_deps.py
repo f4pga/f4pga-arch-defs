@@ -84,7 +84,7 @@ merged.xml: %(dep)s/.gen.stamp
             if os.path.exists(os.path.join(depdir, "Makefile.gen")):
                 stamp = " " + os.path.join(depdir, ".gen.stamp")
             else:
-                stemp = ""
+                stamp = ""
 
             f.write("""\
 merged.xml: %(dep)s
