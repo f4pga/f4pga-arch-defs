@@ -8,6 +8,7 @@ INKSCAPE ?= inkscape
 SELF_DIR := $(dir $(lastword $(MAKEFILE_LIST)))
 
 NETLISTSVG = $(shell realpath $(SELF_DIR)/../../third_party/netlistsvg)
+NETLISTSVG_STAMP = $(shell realpath $(SELF_DIR)/../../third_party/.netlistsvg.stamp)
 NETLISTSVG_SKIN ?= $(NETLISTSVG)/lib/default.svg
 NETLISTSVG_DPI  ?= 300
 
@@ -21,8 +22,12 @@ NAME := $(shell echo $(notdir $(shell realpath .)) | tr a-z A-Z)
 %.flat.json: %.v Makefile $(SELF_DIR)/sim.mk
 	$(YOSYS) -p "prep -top $(NAME) -flatten; write_json $@" $<
 
-%.netlist.svg: %.json $(NETLISTSVG_SKIN)
+%.netlist.svg: %.json $(NETLISTSVG_SKIN) $(NETLISTSVG_STAMP)
 	$(NODE) $(NETLISTSVG)/bin/netlistsvg $< -o $@ --skin $(NETLISTSVG_SKIN)
+
+$(NETLISTSVG_STAMP):
+	cd $(NETLISTSVG) && npm install
+	touch $(NETLISTSVG_STAMP)
 
 %.yosys.svg: %.v
 	$(YOSYS) -p "proc; cd $(NAME); show -format svg -prefix $(basename $@)" $<
