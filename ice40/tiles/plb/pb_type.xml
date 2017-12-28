@@ -70,7 +70,7 @@
   <output name="o"  num_pins="8" equivalent="true"/>
 
   <interconnect>
-   <direct name="i to o" input="local_g.i" output="local_g.o" />
+   <direct name="i_to_o" input="local_g.i" output="local_g.o" />
   </interconnect>
  </pb_type>
 
@@ -78,7 +78,7 @@
   <input  name="i" num_pins="1" equivalent="true"/>
   <output name="o" num_pins="1" equivalent="true"/>
   <interconnect>
-   <direct name="i to o" input="glb2local.i" output="glb2local.o" />
+   <direct name="i_to_o" input="glb2local.i" output="glb2local.o" />
   </interconnect>
  </pb_type>
 
@@ -86,7 +86,7 @@
   <input  name="i" num_pins="1" equivalent="true"/>
   <output name="o" num_pins="1" equivalent="true"/>
   <interconnect>
-   <direct name="i to o" input="glb_netwk.i" output="glb_netwk.o" />
+   <direct name="i_to_o" input="glb_netwk.i" output="glb_netwk.o" />
   </interconnect>
  </pb_type>
 
@@ -94,7 +94,7 @@
   <input  name="i" num_pins="1" equivalent="true"/>
   <output name="o" num_pins="1" equivalent="true"/>
   <interconnect>
-   <mux name="i to o" input="carry_in_mux.i" output="carry_in_mux.o"><pack_pattern name="CARRYCHAIN" in_port="carry_in_mux.i" out_port="carry_in_mux.o" /></mux>
+   <mux name="i_to_o" input="carry_in_mux.i" output="carry_in_mux.o"><pack_pattern name="CARRYCHAIN" in_port="carry_in_mux.i" out_port="carry_in_mux.o" /></mux>
   </interconnect>
  </pb_type>
 
