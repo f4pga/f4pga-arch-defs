@@ -4,8 +4,9 @@ Generate a Makefile fragment for the xml includes.
 """
 
 import os
-import sys
 import re
+import subprocess
+import sys
 
 def curpath(path):
     return os.path.relpath(path, os.curdir)
@@ -28,7 +29,9 @@ while index < len(deps):
     reldir = os.path.dirname(checking_file)
 
     if os.path.isdir(checking_file):
-        pass
+        # Regenerate the files in this directory
+        assert os.path.join(checking_file, "Makefile.gen")
+        subprocess.check_call(["make", "-f", "Makefile.gen"], cwd=checking_file)
     elif os.path.exists(checking_file):
         for line in open(checking_file):
             if 'xi:include' not in line:
@@ -38,17 +41,19 @@ while index < len(deps):
                 dep_absfile = os.path.abspath(os.path.join(reldir, dep_file))
                 dep_absdir = os.path.dirname(dep_absfile)
 
-                if os.path.exists(os.path.join(dep_absdir, "Makefile.mux")):
-                    toadd = dep_absdir
-                else:
-                    toadd = dep_absfile
+                toadd = []
 
-                if toadd not in deps:
-                    print("  (Adding)", end=" ")
-                    deps.append(toadd)
-                else:
-                    print("(Skipping)", end=" ")
-                print("%s found in %s" % (curpath(toadd), curpath(checking_file)))
+                if os.path.exists(os.path.join(dep_absdir, "Makefile.gen")):
+                    toadd.append(dep_absdir)
+                toadd.append(dep_absfile)
+
+                for a in toadd:
+                    if a not in deps:
+                        print("  (Adding)", end=" ")
+                        deps.append(a)
+                    else:
+                        print("(Skipping)", end=" ")
+                    print("%s found in %s" % (curpath(a), curpath(checking_file)))
     else:
         raise SystemError("Unable to find dependency %s" % checking_file)
 
@@ -66,20 +71,24 @@ with open(output_file, "w") as f:
 
     for dep in deps[1:]:
         if os.path.isdir(dep):
-            assert os.path.exists(os.path.join(dep, "Makefile.mux"))
+            assert os.path.exists(os.path.join(dep, "Makefile.gen"))
             f.write("""\
-merged.xml: %(dep)s
-%(dep)s:
-\tmake -C %(dep)s -f Makefile.mux
-
-.PHONY: %(dep)s
+merged.xml: %(dep)s/.gen.stamp
+%(dep)s/.gen.stamp:
+\tmake -C %(dep)s -f Makefile.gen .gen.stamp
 
 """ % locals())
 
-        elif os.path.exists(dep):
+        elif os.path.isfile(dep):
+            depdir = os.path.dirname(dep)
+            if os.path.exists(os.path.join(depdir, "Makefile.gen")):
+                stamp = " " + os.path.join(depdir, ".gen.stamp")
+            else:
+                stamp = ""
+
             f.write("""\
 merged.xml: %(dep)s
-%(dep)s:
+%(dep)s:%(stamp)s
 
 """ % locals())
 
