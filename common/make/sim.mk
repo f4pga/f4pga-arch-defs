@@ -46,7 +46,7 @@ show: sim.yosys.png
 show.flat: sim.flat.yosys.png
 	eog $<
 
-view: sim.netlist.png
+view: sim.png
 	eog $<
 
 view.%: sim.%.png
