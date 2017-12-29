@@ -4,6 +4,7 @@
 YOSYS    ?= yosys
 NODE     ?= node
 INKSCAPE ?= inkscape
+NPM      ?= npm
 
 SELF_DIR := $(dir $(lastword $(MAKEFILE_LIST)))
 
@@ -16,6 +17,16 @@ YOSYSSVG_DPI  ?= 300
 
 NAME := $(shell echo $(notdir $(shell realpath .)) | tr a-z A-Z)
 
+$(NETLISTSVG_SKIN): $(NETLISTSVG_STAMP)
+	@true
+
+$(NETLISTSVG)/.git:
+	git submodule update --init $(NETLISTSVG)
+
+$(NETLISTSVG_STAMP): $(NETLISTSVG)/.git
+	cd $(NETLISTSVG) && $(NPM) install
+	touch $(NETLISTSVG_STAMP)
+
 %.json: %.v Makefile $(SELF_DIR)/sim.mk
 	$(YOSYS) -p "prep -top $(NAME); $(YOSYS_EXTRA); write_json $@" $<
 
@@ -27,10 +38,6 @@ NAME := $(shell echo $(notdir $(shell realpath .)) | tr a-z A-Z)
 
 %.svg: %.json $(NETLISTSVG_SKIN) $(NETLISTSVG_STAMP)
 	$(NODE) $(NETLISTSVG)/bin/netlistsvg $< -o $@ --skin $(NETLISTSVG_SKIN)
-
-$(NETLISTSVG_STAMP):
-	cd $(NETLISTSVG) && npm install
-	touch $(NETLISTSVG_STAMP)
 
 %.yosys.svg: %.v
 	$(YOSYS) -p "prep -top $(NAME); $(YOSYS_EXTRA); show -format svg -prefix $(basename $@)" $<
