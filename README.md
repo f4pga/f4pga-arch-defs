@@ -1,3 +1,11 @@
+# WARNING!
+
+This repo is currently a **work in progress** nothing is currently yet working!
+
+---
+
+# SymbiFlow Architecture Definitions
+
 This repo contains documentation of various FPGA architectures, it is currently
 concentrating on;
 
