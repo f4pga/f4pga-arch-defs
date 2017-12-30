@@ -100,11 +100,11 @@
   <direct name="sp4_r2l" from_pin="PLB.o_sp4_l_v_b" to_pin="PLB.i_sp4_r_v_b" x_offset="1"  y_offset="0" z_offset="0"/>
   <direct name="sp4_l2r" from_pin="PLB.o_sp4_r_v_b" to_pin="PLB.i_sp4_l_v_b" x_offset="-1" y_offset="0" z_offset="0"/>
   <!-- Neighbourhood wires -->
-  <direct name="neigh_op_ob2it" from_pin="PLB.o_neigh_bot" to_pin="PLB.i_neigh_top" x_offset="0"  y_offset="-1" z_offset="0"/>
-  <direct name="neigh_op_ot2ib" from_pin="PLB.o_neigh_top" to_pin="PLB.i_neigh_bot" x_offset="0"  y_offset= "1" z_offset="0"/>
+  <direct name="neigh_op_ob2it" from_pin="PLB.o_neigh_op_bot" to_pin="PLB.i_neigh_op_top" x_offset="0"  y_offset="-1" z_offset="0"/>
+  <direct name="neigh_op_ot2ib" from_pin="PLB.o_neigh_op_top" to_pin="PLB.i_neigh_op_bot" x_offset="0"  y_offset= "1" z_offset="0"/>
 
-  <direct name="neigh_op_or2il" from_pin="PLB.o_neigh_rgt" to_pin="PLB.i_neigh_lft" x_offset="-1" y_offset="0"  z_offset="0"/>
-  <direct name="neigh_op_ol2ir" from_pin="PLB.o_neigh_lft" to_pin="PLB.i_neigh_rgt" x_offset= "1" y_offset="0"  z_offset="0"/>
+  <direct name="neigh_op_or2il" from_pin="PLB.o_neigh_op_rgt" to_pin="PLB.i_neigh_op_lft" x_offset="-1" y_offset="0"  z_offset="0"/>
+  <direct name="neigh_op_ol2ir" from_pin="PLB.o_neigh_op_lft" to_pin="PLB.i_neigh_op_rgt" x_offset= "1" y_offset="0"  z_offset="0"/>
  </directlist>
 
  <device>
