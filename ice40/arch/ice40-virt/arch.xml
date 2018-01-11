@@ -6,24 +6,22 @@
   <xi:include href="../../primitives/sb_ff/model.xml" 	  xpointer="xpointer(models/*)" />
   <xi:include href="../../primitives/sb_carry/model.xml" xpointer="xpointer(models/*)" />
   <xi:include href="../../primitives/sb_ram/model.xml"   xpointer="xpointer(models/*)" />
-  <!--
   <xi:include href="../../primitives/mux4/model.xml"     xpointer="xpointer(models/*)" />
   <xi:include href="../../primitives/mux2/model.xml"     xpointer="xpointer(models/*)" />
-  -->
  </models>
 
  <layout>
 	 <fixed_layout name="HX0K" width="6" height="6">
    <col     type="EMPTY" startx="0" priority="30"/>
-   <col     type="PAD"   startx="1" priority="10"/>
+   <col     type="EMPTY"   startx="1" priority="10"/>
    <region  type="PLB"   startx="2" endx="3" starty="2" endy="3" priority="4"/> <!-- Logic blocks 2x2 -->
-   <col     type="PAD"   startx="4" priority="10"/>
+   <col     type="EMPTY"   startx="4" priority="10"/>
    <col     type="EMPTY" startx="5" priority="30"/>
 
    <row     type="EMPTY" starty="0" priority="31"/>
-   <row     type="PAD"   starty="1" priority="11"/>
+   <row     type="PIO"   starty="1" priority="11"/>
    <!-- starty="2" endy="3" -->
-   <row     type="PAD"   starty="4" priority="11"/>
+   <row     type="PIO"   starty="4" priority="11"/>
    <row     type="EMPTY" starty="5" priority="31"/>
 
    <!-- Create empty blocks at all corners -->
@@ -175,7 +173,8 @@
   <xi:include href="../../tiles/plb/pb_type.xml"/>
   <xi:include href="../../tiles/block_ram/pb_type.xml"/>
 
-  <xi:include href="../../../vpr/pad/pb_type.xml"/>
+  <xi:include href="../../tiles/pio-tb/pb_type.xml"/>
+  <!--<xi:include href="../../../vpr/pad/pb_type.xml"/>-->
 
  </complexblocklist>
 
