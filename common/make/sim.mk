@@ -30,6 +30,8 @@ $(NETLISTSVG_STAMP): $(NETLISTSVG)/.git
 %.json: %.v Makefile $(SELF_DIR)/sim.mk
 	$(YOSYS) -p "prep -top $(NAME); $(YOSYS_EXTRA); write_json $@" $<
 
+.PRECIOUS: %.json
+
 %.aig.json: %.v Makefile $(SELF_DIR)/sim.mk
 	$(YOSYS) -p "prep -top $(NAME) -flatten; aigmap; $(YOSYS_EXTRA); write_json $@" $<
 
@@ -39,6 +41,8 @@ $(NETLISTSVG_STAMP): $(NETLISTSVG)/.git
 %.svg: %.json $(NETLISTSVG_SKIN) $(NETLISTSVG_STAMP)
 	$(NODE) $(NETLISTSVG)/bin/netlistsvg $< -o $@ --skin $(NETLISTSVG_SKIN)
 
+.PRECIOUS: %.svg
+
 %.yosys.svg: %.v
 	$(YOSYS) -p "prep -top $(NAME); $(YOSYS_EXTRA); show -format svg -prefix $(basename $@)" $<
 
@@ -47,6 +51,8 @@ $(NETLISTSVG_STAMP): $(NETLISTSVG)/.git
 
 %.png: %.svg
 	$(INKSCAPE) --export-png $@ --export-dpi $(NETLISTSVG_DPI) $<
+
+.PRECIOUS: %.png
 
 %.yosys.ps: %.v
 	echo $(NAME)
