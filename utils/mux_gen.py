@@ -145,6 +145,7 @@ else:
     outdir = args.outdir
 
 mux_dir = os.path.relpath(os.path.abspath(os.path.join(mydir, '..', 'vpr', 'muxes')), outdir)
+buf_dir = os.path.relpath(os.path.abspath(os.path.join(mydir, '..', 'vpr', 'buf')), outdir)
 
 repo_args = []
 skip_next = False
@@ -389,12 +390,18 @@ else:
 # Generate the pb_type XML form.
 # ------------------------------------------------------------------------
 
+xi_url = "http://www.w3.org/2001/XInclude"
+ET.register_namespace('xi', xi_url)
+xi_include = "{%s}include" % xi_url
+
 mn = args.name_mux
 pb_type_xml = ET.Element(
     'pb_type', {
         'name': mn,
         'num_pb': str(args.num_pb),
-    })
+    },
+   nsmap = {'xi': xi_url})
+
 if args.type == 'logic':
     pb_type_xml.attrib['blif_model'] = '.subckt %s' % args.subckt
 
@@ -428,13 +435,25 @@ if args.type == 'logic':
                     'out_port': "%s.%s" % (args.name_mux, oname),
                 },
             )
-else:
+elif args.type == "routing":
+    buf_model = os.path.join(buf_dir, "model.xml")
+    buf_pbtype = os.path.join(buf_dir, "pb_type.xml")
+    ET.SubElement(pb_type_xml, xi_include, {'href': buf_pbtype})
+
     interconnect = ET.SubElement(pb_type_xml, 'interconnect')
     ET.SubElement(
         interconnect,
         'mux', {
-            'name': '_'+args.name_mux,
+            'name': '%s_IN' % (args.name_mux,),
             'input': ' '.join("%s.%s" % (mn,n) for t, n, _, _ in port_names if t in ('i',)),
+            'output': "BUF.I", #"%s.%s" % (mn,args.name_output),
+        },
+    )
+    ET.SubElement(
+        interconnect,
+        'direct', {
+            'name': '%s_OUT' % (args.name_mux,),
+            'input': "BUF.O",
             'output': "%s.%s" % (mn,args.name_output),
         },
     )
