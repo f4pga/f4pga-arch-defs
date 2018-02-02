@@ -75,6 +75,8 @@ parser.add_argument(
 
 args = parser.parse_args()
 
+buf_dir = os.path.relpath(os.path.abspath(os.path.join(mydir, '..', 'vpr', 'buf')), os.path.dirname(args.output_pb_type.name))
+
 prjxray_part_db = os.path.join(prjxray_db, args.part)
 
 tile_type, tile_dir = args.tile.split('_')
@@ -329,11 +331,17 @@ print()
 
 # FAN_BOUNCE_S3_6 is just FAN_BOUNCE6 from the tile above.
 
+xi_url = "http://www.w3.org/2001/XInclude"
+ET.register_namespace('xi', xi_url)
+xi_include = "{%s}include" % xi_url
+
 pb_type_xml = ET.Element(
     'pb_type', {
         'name': tile_name,
         'num_pb': str(1),
-    })
+    },
+    nsmap = {'xi': xi_url})
+
 
 interconnect_xml = ET.Element('interconnect')
 
@@ -355,6 +363,7 @@ for span_wire, pins in sorted(wires_by_type['span'].items(), key=lambda i: (i[0]
     for pin in pins:
         if span_wire.ending == SpanWire.Ending.BEG:
             mux_name = "%s.%s[%s]" % (tile_name, span_wire.name, pin)
+            buf_name = "%s_%s%s_BUF" % (tile_name, span_wire.name, pin)
 
             assert mux_name not in mux_names
             mux_names.add(mux_name)
@@ -369,6 +378,40 @@ for span_wire, pins in sorted(wires_by_type['span'].items(), key=lambda i: (i[0]
                 'mux', {
                     'name': mux_name,
                     'input': " ".join("%s.%s[%s]" % (tile_name, w, i) for w, i in sorted(dest)),
+                    'output': buf_name+".I",
+                },
+            )
+
+            buf_xml = ET.SubElement(
+                pb_type_xml,
+                'pb_type',
+                {'name': buf_name, 'num_pb': '1'})
+            ET.SubElement(buf_xml, "input", {'name': "I", 'num_pins': str(1)})
+            ET.SubElement(buf_xml, "output", {'name': "O", 'num_pins': str(1)})
+            ET.SubElement(buf_xml, xi_include, {'href': os.path.join(buf_dir, "pb_type.xml")})
+            buf_interconnect_xml = ET.SubElement(buf_xml, "interconnect")
+            ET.SubElement(
+                buf_interconnect_xml,
+                'direct', {
+                    'name': buf_name+"_I",
+                    'input': buf_name+".I",
+                    'output': "BUF.I",
+                },
+            )
+            ET.SubElement(
+                buf_interconnect_xml,
+                'direct', {
+                    'name': buf_name+"_O",
+                    'input': "BUF.O",
+                    'output': buf_name+".O",
+                },
+            )
+
+            ET.SubElement(
+                interconnect_xml,
+                'direct', {
+                    'name': mux_name+"_OUT",
+                    'input': buf_name+".O",
                     'output': mux_name,
                 },
             )
@@ -418,6 +461,7 @@ for local_wire, pins in sorted(wires_by_type['local'].items()):
             has_direct = (local_wire, pin) in connections_map['direct']
 
             mux_name = "%s.%s[%s]" % (tile_name, local_wire, pin)
+            buf_name = "%s_%s%s_BUF" % (tile_name, local_wire, pin)
             assert mux_name not in mux_names
             mux_names.add(mux_name)
 
@@ -428,7 +472,7 @@ for local_wire, pins in sorted(wires_by_type['local'].items()):
                     'mux', {
                         'name': mux_name,
                         'input': " ".join("%s.%s[%s]" % (tile_name, w, i) for w, i in sorted(dest)),
-                        'output': mux_name,
+                        'output': buf_name+".I",
                     },
                 )
             elif has_direct:
@@ -438,11 +482,46 @@ for local_wire, pins in sorted(wires_by_type['local'].items()):
                     'direct', {
                         'name': mux_name,
                         'input': " ".join("%s.%s[%s]" % (tile_name, w, i) for w, i in sorted(dest)),
-                        'output': mux_name,
+                        'output': buf_name+".I",
                     },
                 )
             else:
                 print("WARNING: No connection for pin %s on wire %s" % (pin, local_wire))
+                continue
+
+            buf_xml = ET.SubElement(
+                pb_type_xml,
+                'pb_type',
+                {'name': buf_name, 'num_pb': '1'})
+            ET.SubElement(buf_xml, "input", {'name': "I", 'num_pins': str(1)})
+            ET.SubElement(buf_xml, "output", {'name': "O", 'num_pins': str(1)})
+            ET.SubElement(buf_xml, xi_include, {'href': os.path.join(buf_dir, "pb_type.xml")})
+            buf_interconnect_xml = ET.SubElement(buf_xml, "interconnect")
+            ET.SubElement(
+                buf_interconnect_xml,
+                'direct', {
+                    'name': buf_name+"_I",
+                    'input': buf_name+".I",
+                    'output': "BUF.I",
+                },
+            )
+            ET.SubElement(
+                buf_interconnect_xml,
+                'direct', {
+                    'name': buf_name+"_O",
+                    'input': "BUF.O",
+                    'output': buf_name+".O",
+                },
+            )
+
+            ET.SubElement(
+                interconnect_xml,
+                'direct', {
+                    'name': mux_name+"_OUT",
+                    'input': buf_name+".O",
+                    'output': mux_name,
+                },
+            )
 
 pb_type_xml.append(interconnect_xml)
 
