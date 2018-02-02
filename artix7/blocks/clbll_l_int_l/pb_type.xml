@@ -1,0 +1,163 @@
+<pb_type name="BLOCK_CLBLL_L_INT_L" num_pb="1"  xmlns:xi="http://www.w3.org/2001/XInclude">
+  <!-- Tile Interconnects -->
+  <fc default_in_type="frac" default_in_val="0.5" default_out_type="frac" default_out_val="0.5">
+    <fc_override fc_type="abs" fc_val="0" port_name="CIN_N"/>
+    <fc_override fc_type="abs" fc_val="0" port_name="COUT_N"/>
+  </fc>
+  <output name="EE2BEG" num_pins="4"/>
+  <output name="EE4BEG" num_pins="4"/>
+  <output name="EL1BEG" num_pins="3"/>
+  <output name="ER1BEG" num_pins="4"/>
+  <output name="NE2BEG" num_pins="4"/>
+  <output name="NE6BEG" num_pins="4"/>
+  <output name="NL1BEG" num_pins="3"/>
+  <output name="NN2BEG" num_pins="4"/>
+  <output name="NN6BEG" num_pins="4"/>
+  <output name="NR1BEG" num_pins="4"/>
+  <output name="NW2BEG" num_pins="4"/>
+  <output name="NW6BEG" num_pins="4"/>
+  <output name="SE2BEG" num_pins="4"/>
+  <output name="SE6BEG" num_pins="4"/>
+  <output name="SL1BEG" num_pins="4"/>
+  <output name="SR1BEG" num_pins="4"/>
+  <output name="SS2BEG" num_pins="4"/>
+  <output name="SS6BEG" num_pins="4"/>
+  <output name="SW2BEG" num_pins="4"/>
+  <output name="SW6BEG" num_pins="4"/>
+  <output name="WL1BEG" num_pins="3"/>
+  <output name="WR1BEG" num_pins="4"/>
+  <output name="WW2BEG" num_pins="4"/>
+  <output name="WW4BEG" num_pins="4"/>
+  <input name="EE2END" num_pins="4"/>
+  <input name="EE4END" num_pins="4"/>
+  <input name="EL1END" num_pins="4"/>
+  <input name="ER1END" num_pins="4"/>
+  <input name="NE2END" num_pins="4"/>
+  <input name="NE6END" num_pins="4"/>
+  <input name="NL1END" num_pins="3"/>
+  <input name="NN2END" num_pins="4"/>
+  <input name="NN6END" num_pins="4"/>
+  <input name="NR1END" num_pins="4"/>
+  <input name="NW2END" num_pins="4"/>
+  <input name="NW6END" num_pins="4"/>
+  <input name="SE2END" num_pins="4"/>
+  <input name="SE6END" num_pins="4"/>
+  <input name="SL1END" num_pins="4"/>
+  <input name="SR1END" num_pins="4"/>
+  <input name="SS2END" num_pins="4"/>
+  <input name="SS6END" num_pins="4"/>
+  <input name="SW2END" num_pins="4"/>
+  <input name="SW6END" num_pins="4"/>
+  <input name="WL1END" num_pins="4"/>
+  <input name="WR1END" num_pins="4"/>
+  <input name="WW2END" num_pins="4"/>
+  <input name="WW4END" num_pins="4"/>
+
+  <clock name="GCLK_L_B" num_pins="12"/>
+  <clock name="GFAN" num_pins="2"/>
+
+<!--
+  <input name="BYP_L               " num_pins="8"/>
+  <clock name="CLK_L               " num_pins="2"/>
+  <input name="CTRL_L              " num_pins="2"/>
+  <input name="FAN_L               " num_pins="8"/>
+  <input name="IMUX_L              " num_pins="48"/>
+  <output name="LOGIC_OUTS_L       " num_pins="24"/>
+-->
+
+  <input name="CIN_N" num_pins="2"/>
+  <output name="COUT_N" num_pins="2"/>
+
+  <xi:include href="../tiles/clbll_l/pb_type.xml"/>
+  <xi:include href="../tiles/int_l/pb_type.xml"/>
+
+  <pinlocations pattern="custom">
+    <loc side="top" xoffset="0" yoffset="0">BLOCK_CLBLL_L_INT_L.COUT_N BLOCK_CLBLL_L_INT_L.COUT_N</loc>
+    <loc side="bottom" xoffset="0" yoffset="0">BLOCK_CLBLL_L_INT_L.CIN_N BLOCK_CLBLL_L_INT_L.CIN_N</loc>
+    <loc side="right" xoffset="0" yoffset="0">BLOCK_CLBLL_L_INT_L.EE2BEG BLOCK_CLBLL_L_INT_L.EE4BEG BLOCK_CLBLL_L_INT_L.EL1BEG BLOCK_CLBLL_L_INT_L.ER1BEG BLOCK_CLBLL_L_INT_L.NE2BEG BLOCK_CLBLL_L_INT_L.NE6BEG BLOCK_CLBLL_L_INT_L.NL1BEG BLOCK_CLBLL_L_INT_L.NN2BEG BLOCK_CLBLL_L_INT_L.NN6BEG BLOCK_CLBLL_L_INT_L.NR1BEG BLOCK_CLBLL_L_INT_L.NW2BEG BLOCK_CLBLL_L_INT_L.NW6BEG BLOCK_CLBLL_L_INT_L.SE2BEG BLOCK_CLBLL_L_INT_L.SE6BEG BLOCK_CLBLL_L_INT_L.SL1BEG BLOCK_CLBLL_L_INT_L.SR1BEG BLOCK_CLBLL_L_INT_L.SS2BEG BLOCK_CLBLL_L_INT_L.SS6BEG BLOCK_CLBLL_L_INT_L.SW2BEG BLOCK_CLBLL_L_INT_L.SW6BEG BLOCK_CLBLL_L_INT_L.WL1BEG BLOCK_CLBLL_L_INT_L.WR1BEG BLOCK_CLBLL_L_INT_L.WW2BEG BLOCK_CLBLL_L_INT_L.WW4BEG BLOCK_CLBLL_L_INT_L.EE2END BLOCK_CLBLL_L_INT_L.EE4END BLOCK_CLBLL_L_INT_L.EL1END BLOCK_CLBLL_L_INT_L.ER1END BLOCK_CLBLL_L_INT_L.NE2END BLOCK_CLBLL_L_INT_L.NE6END BLOCK_CLBLL_L_INT_L.NL1END BLOCK_CLBLL_L_INT_L.NN2END BLOCK_CLBLL_L_INT_L.NN6END BLOCK_CLBLL_L_INT_L.NR1END BLOCK_CLBLL_L_INT_L.NW2END BLOCK_CLBLL_L_INT_L.NW6END BLOCK_CLBLL_L_INT_L.SE2END BLOCK_CLBLL_L_INT_L.SE6END BLOCK_CLBLL_L_INT_L.SL1END BLOCK_CLBLL_L_INT_L.SR1END BLOCK_CLBLL_L_INT_L.SS2END BLOCK_CLBLL_L_INT_L.SS6END BLOCK_CLBLL_L_INT_L.SW2END BLOCK_CLBLL_L_INT_L.SW6END BLOCK_CLBLL_L_INT_L.WL1END BLOCK_CLBLL_L_INT_L.WR1END BLOCK_CLBLL_L_INT_L.WW2END BLOCK_CLBLL_L_INT_L.WW4END BLOCK_CLBLL_L_INT_L.GCLK_L_B BLOCK_CLBLL_L_INT_L.GFAN</loc>
+    <!--
+    <loc side="right"  xoffset="0" yoffset="0">BLOCK_CLBLL_L_INT_L.BYP_L BLOCK_CLBLL_L_INT_L.CLK_L BLOCK_CLBLL_L_INT_L.CTRL_L BLOCK_CLBLL_L_INT_L.FAN_L BLOCK_CLBLL_L_INT_L.IMUX_L BLOCK_CLBLL_L_INT_L.LOGIC_OUTS_L</loc>
+    -->
+
+  </pinlocations>
+
+  <interconnect>
+   <direct name="GCLK_L_B" input="BLOCK_CLBLL_L_INT_L.GCLK_L_B" output="TILE_INT_L.GCLK_L_B" />
+   <direct name="GFAN"     input="BLOCK_CLBLL_L_INT_L.GFAN"     output="TILE_INT_L.GFAN"     />
+
+   <direct name="EE2END" input="BLOCK_CLBLL_L_INT_L.EE2END" output="TILE_INT_L.EE2END" />
+   <direct name="EE4END" input="BLOCK_CLBLL_L_INT_L.EE4END" output="TILE_INT_L.EE4END" />
+   <direct name="EL1END" input="BLOCK_CLBLL_L_INT_L.EL1END" output="TILE_INT_L.EL1END" />
+   <direct name="ER1END" input="BLOCK_CLBLL_L_INT_L.ER1END" output="TILE_INT_L.ER1END" />
+   <direct name="NE2END" input="BLOCK_CLBLL_L_INT_L.NE2END" output="TILE_INT_L.NE2END" />
+   <direct name="NE6END" input="BLOCK_CLBLL_L_INT_L.NE6END" output="TILE_INT_L.NE6END" />
+   <direct name="NL1END" input="BLOCK_CLBLL_L_INT_L.NL1END" output="TILE_INT_L.NL1END" />
+   <direct name="NN2END" input="BLOCK_CLBLL_L_INT_L.NN2END" output="TILE_INT_L.NN2END" />
+   <direct name="NN6END" input="BLOCK_CLBLL_L_INT_L.NN6END" output="TILE_INT_L.NN6END" />
+   <direct name="NR1END" input="BLOCK_CLBLL_L_INT_L.NR1END" output="TILE_INT_L.NR1END" />
+   <direct name="NW2END" input="BLOCK_CLBLL_L_INT_L.NW2END" output="TILE_INT_L.NW2END" />
+   <direct name="NW6END" input="BLOCK_CLBLL_L_INT_L.NW6END" output="TILE_INT_L.NW6END" />
+   <direct name="SE2END" input="BLOCK_CLBLL_L_INT_L.SE2END" output="TILE_INT_L.SE2END" />
+   <direct name="SE6END" input="BLOCK_CLBLL_L_INT_L.SE6END" output="TILE_INT_L.SE6END" />
+   <direct name="SL1END" input="BLOCK_CLBLL_L_INT_L.SL1END" output="TILE_INT_L.SL1END" />
+   <direct name="SR1END" input="BLOCK_CLBLL_L_INT_L.SR1END" output="TILE_INT_L.SR1END" />
+   <direct name="SS2END" input="BLOCK_CLBLL_L_INT_L.SS2END" output="TILE_INT_L.SS2END" />
+   <direct name="SS6END" input="BLOCK_CLBLL_L_INT_L.SS6END" output="TILE_INT_L.SS6END" />
+   <direct name="SW2END" input="BLOCK_CLBLL_L_INT_L.SW2END" output="TILE_INT_L.SW2END" />
+   <direct name="SW6END" input="BLOCK_CLBLL_L_INT_L.SW6END" output="TILE_INT_L.SW6END" />
+   <direct name="WL1END" input="BLOCK_CLBLL_L_INT_L.WL1END" output="TILE_INT_L.WL1END" />
+   <direct name="WR1END" input="BLOCK_CLBLL_L_INT_L.WR1END" output="TILE_INT_L.WR1END" />
+   <direct name="WW2END" input="BLOCK_CLBLL_L_INT_L.WW2END" output="TILE_INT_L.WW2END" />
+   <direct name="WW4END" input="BLOCK_CLBLL_L_INT_L.WW4END" output="TILE_INT_L.WW4END" />
+
+   <direct name="EE2BEG" input="TILE_INT_L.EE2BEG" output="BLOCK_CLBLL_L_INT_L.EE2BEG" />
+   <direct name="EE4BEG" input="TILE_INT_L.EE4BEG" output="BLOCK_CLBLL_L_INT_L.EE4BEG" />
+   <direct name="EL1BEG" input="TILE_INT_L.EL1BEG" output="BLOCK_CLBLL_L_INT_L.EL1BEG" />
+   <direct name="ER1BEG" input="TILE_INT_L.ER1BEG" output="BLOCK_CLBLL_L_INT_L.ER1BEG" />
+   <direct name="NE2BEG" input="TILE_INT_L.NE2BEG" output="BLOCK_CLBLL_L_INT_L.NE2BEG" />
+   <direct name="NE6BEG" input="TILE_INT_L.NE6BEG" output="BLOCK_CLBLL_L_INT_L.NE6BEG" />
+   <direct name="NL1BEG" input="TILE_INT_L.NL1BEG" output="BLOCK_CLBLL_L_INT_L.NL1BEG" />
+   <direct name="NN2BEG" input="TILE_INT_L.NN2BEG" output="BLOCK_CLBLL_L_INT_L.NN2BEG" />
+   <direct name="NN6BEG" input="TILE_INT_L.NN6BEG" output="BLOCK_CLBLL_L_INT_L.NN6BEG" />
+   <direct name="NR1BEG" input="TILE_INT_L.NR1BEG" output="BLOCK_CLBLL_L_INT_L.NR1BEG" />
+   <direct name="NW2BEG" input="TILE_INT_L.NW2BEG" output="BLOCK_CLBLL_L_INT_L.NW2BEG" />
+   <direct name="NW6BEG" input="TILE_INT_L.NW6BEG" output="BLOCK_CLBLL_L_INT_L.NW6BEG" />
+   <direct name="SE2BEG" input="TILE_INT_L.SE2BEG" output="BLOCK_CLBLL_L_INT_L.SE2BEG" />
+   <direct name="SE6BEG" input="TILE_INT_L.SE6BEG" output="BLOCK_CLBLL_L_INT_L.SE6BEG" />
+   <direct name="SL1BEG" input="TILE_INT_L.SL1BEG" output="BLOCK_CLBLL_L_INT_L.SL1BEG" />
+   <direct name="SR1BEG" input="TILE_INT_L.SR1BEG" output="BLOCK_CLBLL_L_INT_L.SR1BEG" />
+   <direct name="SS2BEG" input="TILE_INT_L.SS2BEG" output="BLOCK_CLBLL_L_INT_L.SS2BEG" />
+   <direct name="SS6BEG" input="TILE_INT_L.SS6BEG" output="BLOCK_CLBLL_L_INT_L.SS6BEG" />
+   <direct name="SW2BEG" input="TILE_INT_L.SW2BEG" output="BLOCK_CLBLL_L_INT_L.SW2BEG" />
+   <direct name="SW6BEG" input="TILE_INT_L.SW6BEG" output="BLOCK_CLBLL_L_INT_L.SW6BEG" />
+   <direct name="WL1BEG" input="TILE_INT_L.WL1BEG" output="BLOCK_CLBLL_L_INT_L.WL1BEG" />
+   <direct name="WR1BEG" input="TILE_INT_L.WR1BEG" output="BLOCK_CLBLL_L_INT_L.WR1BEG" />
+   <direct name="WW2BEG" input="TILE_INT_L.WW2BEG" output="BLOCK_CLBLL_L_INT_L.WW2BEG" />
+   <direct name="WW4BEG" input="TILE_INT_L.WW4BEG" output="BLOCK_CLBLL_L_INT_L.WW4BEG" />
+<!--
+-->
+   <!-- Local Interconnects -->
+   <direct name="BYP_L"  input="TILE_INT_L.BYP_L"    output="TILE_CLBLL_L.BYP" />
+   <direct name="CLK_L"  input="TILE_INT_L.CLK_L"    output="TILE_CLBLL_L.CLK" />
+   <direct name="CTRL_L" input="TILE_INT_L.CTRL_L"   output="TILE_CLBLL_L.CTRL"/>
+   <direct name="FAN_6"  input="TILE_INT_L.FAN_L[6]" output="TILE_CLBLL_L.FAN6" />
+   <direct name="FAN_7"  input="TILE_INT_L.FAN_L[7]" output="TILE_CLBLL_L.FAN7" />
+   <direct name="IMUX_L" input="TILE_INT_L.IMUX_L"   output="TILE_CLBLL_L.IMUX"/>
+   <direct name="LOGIC_OUTS_L" input="TILE_CLBLL_L.LOGIC_OUTS" output="TILE_INT_L.LOGIC_OUTS_L" />
+   <!--
+   <direct name="BYP_L"  input="BLOCK_CLBLL_L_INT_L.BYP_L"    output="TILE_CLBLL_L.BYP" />
+   <direct name="CLK_L"  input="BLOCK_CLBLL_L_INT_L.CLK_L"    output="TILE_CLBLL_L.CLK" />
+   <direct name="CTRL_L" input="BLOCK_CLBLL_L_INT_L.CTRL_L"   output="TILE_CLBLL_L.CTRL"/>
+   <direct name="FAN_6"  input="BLOCK_CLBLL_L_INT_L.FAN_L[6]" output="TILE_CLBLL_L.FAN6" />
+   <direct name="FAN_7"  input="BLOCK_CLBLL_L_INT_L.FAN_L[7]" output="TILE_CLBLL_L.FAN7" />
+   <direct name="IMUX_L" input="BLOCK_CLBLL_L_INT_L.IMUX_L"   output="TILE_CLBLL_L.IMUX"/>
+   <direct name="LOGIC_OUTS_L" input="TILE_CLBLL_L.LOGIC_OUTS" output="BLOCK_CLBLL_L_INT_L.LOGIC_OUTS_L" />
+   -->
+
+   <!-- Carry chain -->
+   <direct name="L_CIN_N"  input="BLOCK_CLBLL_L_INT_L.CIN_N[0]" output="TILE_CLBLL_L.L_CIN_N"  ><!-- <pack_pattern name="carryl"  in_port="BLOCK_CLBLL_L_INT_L.CIN_N[0]" out_port="TILE_CLBLL_L.L_CIN_N"  /> --></direct>
+   <direct name="LL_CIN_N" input="BLOCK_CLBLL_L_INT_L.CIN_N[1]" output="TILE_CLBLL_L.LL_CIN_N" ><!-- <pack_pattern name="carryll" in_port="BLOCK_CLBLL_L_INT_L.CIN_N[1]" out_port="TILE_CLBLL_L.LL_CIN_N" /> --></direct>
+   <direct name="L_COUT_N"  input="TILE_CLBLL_L.L_COUT_N"  output="BLOCK_CLBLL_L_INT_L.COUT_N[0]"  />
+   <direct name="LL_COUT_N" input="TILE_CLBLL_L.LL_COUT_N" output="BLOCK_CLBLL_L_INT_L.COUT_N[1]" />
+  </interconnect>
+</pb_type>
