@@ -6,10 +6,34 @@
   <input name="SR" num_pins="1"/>
   <output name="Q" num_pins="1"/>
 
-  <xi:include href="../../../../vpr/ff/pb_type.xml"/>
-  <interconnect>
-    <direct name="D" input="{W}FF.D" output="FF.D"/>
-    <direct name="Q" input="FF.Q" output="{W}FF.Q"/>
+  <mode name="VPR_FF">
+   <xi:include href="../../../../vpr/ff/pb_type.xml"/>
+   <interconnect>
+    <direct name="D" input="{W}FF.D"  output="FF.D"/>
     <direct name="C" input="{W}FF.CK" output="FF.clk"/>
-  </interconnect>
+    <direct name="Q" input="FF.Q"     output="{W}FF.Q"/>
+   </interconnect>
+  </mode>
+
+  <mode name="FDRE">
+   <pb_type name="FDRE" num_pb="1" blif_model=".subckt FDRE">
+    <input  name="D" num_pins="1"/>
+    <input  name="CE" num_pins="1"/>
+    <clock  name="C" num_pins="1"/>
+    <input  name="R" num_pins="1"/>
+    <output name="Q" num_pins="1"/>
+    <T_setup    value="10e-12" port="FDRE.D" clock="C" />
+    <T_setup    value="10e-12" port="FDRE.CE" clock="C" />
+    <T_setup    value="10e-12" port="FDRE.R" clock="C" />
+    <T_clock_to_Q max="10e-12" port="FDRE.Q" clock="C" />
+   </pb_type>
+   <interconnect>
+    <direct name="D"  input="{W}FF.D"  output="FDRE.D"  />
+    <direct name="CE" input="{W}FF.CE" output="FDRE.CE" />
+    <direct name="C"  input="{W}FF.CK" output="FDRE.C"  />
+    <direct name="R"  input="{W}FF.SR" output="FDRE.R"  />
+    <direct name="Q"  input="FDRE.Q"   output="{W}FF.Q" />
+   </interconnect>
+  </mode>
+
 </pb_type>
