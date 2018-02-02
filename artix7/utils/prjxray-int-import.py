@@ -339,18 +339,6 @@ interconnect_xml = ET.Element('interconnect')
 
 pb_type_xml.append(ET.Comment(" Tile Interconnects "))
 
-# Add the pin locations on the right side of the tile to connect to the INT_X tile
-pinloc_clbside_string = []
-pinloc_fabside_string = []
-
-# INT connect directly to fabric on "fabside"
-# But only to the CLBLL on "side"
-fc_xml = ET.SubElement(pb_type_xml, "fc", {
-    'default_in_type':  "frac", "default_in_val":  "1.0",
-    'default_out_type': "frac", "default_out_val": "1.0",
-})
-
-
 mux_names = set()
 
 for span_wire, pins in sorted(wires_by_type['span'].items(), key=lambda i: (i[0].ending.name, i[0].direction.name, i[0].length)):
@@ -360,8 +348,6 @@ for span_wire, pins in sorted(wires_by_type['span'].items(), key=lambda i: (i[0]
          SpanWire.Ending.BEG: 'output'}[span_wire.ending],
         {'name': span_wire.name, 'num_pins': str(len(pins))},
     )
-
-    pinloc_fabside_string.append(span_wire.name)
 
     if span_wire.ending == SpanWire.Ending.BEG:
         interconnect_xml.append(ET.Comment(" Output muxes for %s " % (span_wire,)))
@@ -396,7 +382,6 @@ for clock_wire, pins in sorted(wires_by_type['clock'].items()):
         'clock',
         {'name': clock_wire, 'num_pins': str(len(pins))},
     )
-    pinloc_fabside_string.append(clock_wire)
 
     for pin in pins:
         assert (clock_wire, pin) not in connections_map['mux'] or not connections_map['mux'][(clock_wire, pin)]
@@ -404,16 +389,6 @@ for clock_wire, pins in sorted(wires_by_type['clock'].items()):
 
 pb_type_xml.append(ET.Comment(" Local Interconnects "))
 for local_wire, pins in sorted(wires_by_type['local'].items()):
-
-    if local_wire.endswith("_L"):
-        pinloc_clbside_string.append(local_wire)
-        # <fc_override fc_type="abs" fc_val="2" port_name="I0"  segment_name="local" />
-    else:
-        pinloc_fabside_string.append(local_wire)
-
-    # Local pins don't connect to fabric.
-    ET.SubElement(fc_xml, "fc_override", {"fc_type": "abs", "fc_val": "0", "port_name": local_wire})
-
     found = False
     for pin in pins:
         has_mux    = (local_wire, pin) in connections_map['mux']
@@ -468,16 +443,6 @@ for local_wire, pins in sorted(wires_by_type['local'].items()):
                 )
             else:
                 print("WARNING: No connection for pin %s on wire %s" % (pin, local_wire))
-
-# Add the pin location information
-pin_clbside, pin_fabside = {"L": ("left","right"), "R": ("right","left")}[tile_dir]
-pinloc = ET.SubElement(pb_type_xml, 'pinlocations', {'pattern': 'custom'})
-
-pinloc_clbside_xml = ET.SubElement(pinloc, "loc", {"side": pin_clbside, "xoffset": "0", "yoffset": "0"})
-pinloc_clbside_xml.text = " ".join("%s.%s" % (tile_name, p) for p in pinloc_clbside_string)
-
-pinloc_fabside_xml = ET.SubElement(pinloc, "loc", {"side": pin_fabside, "xoffset": "0", "yoffset": "0"})
-pinloc_fabside_xml.text = " ".join("%s.%s" % (tile_name, p) for p in pinloc_fabside_string)
 
 pb_type_xml.append(interconnect_xml)
 
