@@ -4,4 +4,5 @@
  <xi:include href="muxes/f8mux/model.xml"  xpointer="xpointer(models/*)" />
  <xi:include href="muxes/f7amux/model.xml" xpointer="xpointer(models/*)" />
  <xi:include href="muxes/f7bmux/model.xml" xpointer="xpointer(models/*)" />
+ <xi:include href="../../../vpr/buf/models.xml" xpointer="xpointer(models/*)" />
 </models>
