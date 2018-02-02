@@ -305,38 +305,6 @@ for name, pins in sorted(clbll_outputs):
         {'name': '%-20s' % name, 'num_pins': str(len(pins))},
     )
 
-# Add the pin locations on the right side of the tile to connect to the INT_X tile
-side_pinloc_string = []
-top_pinloc_string = []
-bot_pinloc_string = []
-for name, pins in sorted(clbll_inputs) + sorted(clbll_outputs):
-    if name.endswith("_N"):
-        if "IN" in name:
-            bot_pinloc_string.append("%s.%s" % (tile_name, name))
-        elif "OUT" in name:
-            top_pinloc_string.append("%s.%s" % (tile_name, name))
-        else:
-            assert False, "Unknown neighbour pin %r" % name
-        continue
-    side_pinloc_string.append("%s.%s" % (tile_name, name))
-
-pinloc = ET.SubElement(pb_type_xml, 'pinlocations', {'pattern': 'custom'})
-
-side_pinloc = ET.SubElement(pinloc, "loc", {"side": {"L": "right", "R": "left"}[tile_dir], "xoffset": "0", "yoffset": "0"})
-side_pinloc.text = " ".join(side_pinloc_string)
-
-top_pinloc = ET.SubElement(pinloc, "loc", {"side": "top", "xoffset": "0", "yoffset": "0"})
-top_pinloc.text = " ".join(top_pinloc_string)
-
-bot_pinloc = ET.SubElement(pinloc, "loc", {"side": "bottom", "xoffset": "0", "yoffset": "0"})
-bot_pinloc.text = " ".join(bot_pinloc_string)
-
-# CLBs don't connect directly to fabric
-fc = ET.SubElement(pb_type_xml, "fc", {
-    'default_in_type':  "abs", "default_in_val":  "1",
-    'default_out_type': "abs", "default_out_val": "1",
-})
-
 # Add the internal slices to this CLB
 pb_type_xml.append(ET.Comment(" Internal Slices "))
 
