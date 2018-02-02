@@ -17,7 +17,7 @@ ifeq (,$(YOSYS_SCRIPT))
 $(error "Please define $$YOSYS_SCRIPT to the commands needed for synthesis.")
 endif
 
-VPR_ARGS ?=
+##########################################################################
 
 ARCH_DIR_FULL = $(shell realpath $(ARCH_DIR)/$(ARCH_TYPE))
 
@@ -25,20 +25,35 @@ ARCH_FILE = $(ARCH_DIR_FULL)/merged.xml
 $(ARCH_FILE):
 	cd $(ARCH_DIR_FULL); make merged.xml
 
+##########################################################################
+
 OUTPUT_DIR ?= build/$(ARCH)/$(DEVICE)
 
 $(OUTPUT_DIR):
 	mkdir -p $@
 
+##########################################################################
+## Generate BLIF as start of vpr input.
+##########################################################################
+
 # Yosys command
 $(OUTPUT_DIR)/%.blif: %.v | $(OUTPUT_DIR)
 	$(YOSYS) -p "$(YOSYS_SCRIPT) opt_clean; write_blif $@" $<
+
+# Quick shortcut
+%.blif: $(OUTPUT_DIR)/%.blif | $(OUTPUT_DIR)
+	@true
+
+.PRECIOUS: $(OUTPUT_DIR)/%.blif
 
 # We just have a BLIF file
 $(OUTPUT_DIR)/%.blif: %.blif | $(OUTPUT_DIR)
 	cp $< $@
 
+##########################################################################
+
 # VPR commands
+VPR_ARGS ?=
 VPR_CMD = $(VPR) $(VPR_ARGS)  $(ARCH_FILE) --device $(DEVICE)
 VPR_FULL_CMD = cd $(OUTPUT_DIR); $(VPR_CMD)
 
