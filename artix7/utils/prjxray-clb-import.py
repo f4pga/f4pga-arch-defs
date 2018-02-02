@@ -210,9 +210,9 @@ if tile_type.startswith('CLBLL'):
     slice1_type = 'SLICEL'
 elif tile_type.startswith('CLBLM'):
     # CLBLM's have one SLICELs called CLBLL_L and one SLICEM called CLBLL_M
-    slice0_name = 'CLBLL_M'
+    slice0_name = 'CLBLM_M'
     slice0_type = 'SLICEM'
-    slice1_name = 'CLBLL_L'
+    slice1_name = 'CLBLM_L'
     slice1_type = 'SLICEL'
 else:
     assert False, tile_type
