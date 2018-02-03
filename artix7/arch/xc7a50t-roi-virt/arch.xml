@@ -42,7 +42,7 @@
 	<!-- <single type="NULL"         x="5" y="56" priority="20"/> --><single type="EMPTY" x="5" y="56" priority="20"/>
 
    <!-- X31YXXX -->
-   <col type="TILE_INT_L"      startx="6"  priority="10" />
+   <col type="INT_L"      startx="6"  priority="10" />
 	<!-- <single type="BRKH_INT"     x="6" y="0"  priority="20"/> --><single type="EMPTY" x="6" y="0"  priority="20"/>
 	<single type="HCLK_L"       x="6" y="26" priority="20"/>
 	<!-- <single type="T_TINT"       x="6" y="56" priority="20"/> --><single type="EMPTY" x="6" y="56" priority="20"/>
@@ -139,7 +139,8 @@
 
    <!-- Start RIO -->
 
-   <col type="BLOCK_CLBLL_L_INT_L"    startx="4" priority="10" /><!-- <col type="TILE_INT_L"      startx="3" priority="10" /> -->
+   <col type="BLOCK_CLBLL_L_INT_L"    startx="3" priority="10" />
+   <!--<col type="BLOCK_CLBLL_L_INT_L"    startx="4" priority="10" /> -->
 
    <!-- End RIO -->
 
@@ -208,6 +209,7 @@
   <xi:include href="dummy/CLBLM_L.xml" />
   <xi:include href="dummy/CLBLM_R.xml" />
 
+  <xi:include href="dummy/INT_L.xml" />
   <xi:include href="dummy/INT_R.xml" />
 
   <xi:include href="dummy/HCLK_L.xml" />
@@ -215,7 +217,8 @@
  </complexblocklist>
 
  <directlist>
-  <direct name="BLOCK_CLBLL_L_INT_L_CARRY" from_pin="TILE_INT_L.COUT_N"  to_pin="TILE_INT_L.CIN_N"  x_offset="0"  y_offset="1" z_offset="0"/>
+  <!-- CLBX_L -->
+  <direct name="BLOCK_CLBLL_L_INT_L_CARRY" from_pin="BLOCK_CLBLL_L_INT_L.COUT_N"  to_pin="BLOCK_CLBLL_L_INT_L.CIN_N"  x_offset="0"  y_offset="1" z_offset="0"/>
  </directlist>
 
 </architecture>
