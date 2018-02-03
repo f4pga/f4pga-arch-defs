@@ -56,29 +56,26 @@
   <clock name="GCLK_L_B" num_pins="12"/>
   <clock name="GFAN" num_pins="2"/>
 
-<!--
+  <!-- FIXME remove -->
   <input name="BYP_L               " num_pins="8"/>
   <clock name="CLK_L               " num_pins="2"/>
   <input name="CTRL_L              " num_pins="2"/>
   <input name="FAN_L               " num_pins="8"/>
   <input name="IMUX_L              " num_pins="48"/>
   <output name="LOGIC_OUTS_L       " num_pins="24"/>
--->
 
   <input name="CIN_N" num_pins="2"/>
   <output name="COUT_N" num_pins="2"/>
 
-  <xi:include href="../tiles/clbll_l/pb_type.xml"/>
-  <xi:include href="../tiles/int_l/pb_type.xml"/>
+  <xi:include href="../../tiles/clbll_l/pb_type.xml"/>
+  <xi:include href="../../tiles/int_l/pb_type.xml"/>
 
   <pinlocations pattern="custom">
     <loc side="top" xoffset="0" yoffset="0">BLOCK_CLBLL_L_INT_L.COUT_N BLOCK_CLBLL_L_INT_L.COUT_N</loc>
     <loc side="bottom" xoffset="0" yoffset="0">BLOCK_CLBLL_L_INT_L.CIN_N BLOCK_CLBLL_L_INT_L.CIN_N</loc>
     <loc side="right" xoffset="0" yoffset="0">BLOCK_CLBLL_L_INT_L.EE2BEG BLOCK_CLBLL_L_INT_L.EE4BEG BLOCK_CLBLL_L_INT_L.EL1BEG BLOCK_CLBLL_L_INT_L.ER1BEG BLOCK_CLBLL_L_INT_L.NE2BEG BLOCK_CLBLL_L_INT_L.NE6BEG BLOCK_CLBLL_L_INT_L.NL1BEG BLOCK_CLBLL_L_INT_L.NN2BEG BLOCK_CLBLL_L_INT_L.NN6BEG BLOCK_CLBLL_L_INT_L.NR1BEG BLOCK_CLBLL_L_INT_L.NW2BEG BLOCK_CLBLL_L_INT_L.NW6BEG BLOCK_CLBLL_L_INT_L.SE2BEG BLOCK_CLBLL_L_INT_L.SE6BEG BLOCK_CLBLL_L_INT_L.SL1BEG BLOCK_CLBLL_L_INT_L.SR1BEG BLOCK_CLBLL_L_INT_L.SS2BEG BLOCK_CLBLL_L_INT_L.SS6BEG BLOCK_CLBLL_L_INT_L.SW2BEG BLOCK_CLBLL_L_INT_L.SW6BEG BLOCK_CLBLL_L_INT_L.WL1BEG BLOCK_CLBLL_L_INT_L.WR1BEG BLOCK_CLBLL_L_INT_L.WW2BEG BLOCK_CLBLL_L_INT_L.WW4BEG BLOCK_CLBLL_L_INT_L.EE2END BLOCK_CLBLL_L_INT_L.EE4END BLOCK_CLBLL_L_INT_L.EL1END BLOCK_CLBLL_L_INT_L.ER1END BLOCK_CLBLL_L_INT_L.NE2END BLOCK_CLBLL_L_INT_L.NE6END BLOCK_CLBLL_L_INT_L.NL1END BLOCK_CLBLL_L_INT_L.NN2END BLOCK_CLBLL_L_INT_L.NN6END BLOCK_CLBLL_L_INT_L.NR1END BLOCK_CLBLL_L_INT_L.NW2END BLOCK_CLBLL_L_INT_L.NW6END BLOCK_CLBLL_L_INT_L.SE2END BLOCK_CLBLL_L_INT_L.SE6END BLOCK_CLBLL_L_INT_L.SL1END BLOCK_CLBLL_L_INT_L.SR1END BLOCK_CLBLL_L_INT_L.SS2END BLOCK_CLBLL_L_INT_L.SS6END BLOCK_CLBLL_L_INT_L.SW2END BLOCK_CLBLL_L_INT_L.SW6END BLOCK_CLBLL_L_INT_L.WL1END BLOCK_CLBLL_L_INT_L.WR1END BLOCK_CLBLL_L_INT_L.WW2END BLOCK_CLBLL_L_INT_L.WW4END BLOCK_CLBLL_L_INT_L.GCLK_L_B BLOCK_CLBLL_L_INT_L.GFAN</loc>
-    <!--
-    <loc side="right"  xoffset="0" yoffset="0">BLOCK_CLBLL_L_INT_L.BYP_L BLOCK_CLBLL_L_INT_L.CLK_L BLOCK_CLBLL_L_INT_L.CTRL_L BLOCK_CLBLL_L_INT_L.FAN_L BLOCK_CLBLL_L_INT_L.IMUX_L BLOCK_CLBLL_L_INT_L.LOGIC_OUTS_L</loc>
-    -->
-
+    <!-- FIXME remove -->
+    <loc side="left"  xoffset="0" yoffset="0">BLOCK_CLBLL_L_INT_L.BYP_L BLOCK_CLBLL_L_INT_L.CLK_L BLOCK_CLBLL_L_INT_L.CTRL_L BLOCK_CLBLL_L_INT_L.FAN_L BLOCK_CLBLL_L_INT_L.IMUX_L BLOCK_CLBLL_L_INT_L.LOGIC_OUTS_L</loc>
   </pinlocations>
 
   <interconnect>
@@ -134,26 +131,23 @@
    <direct name="WR1BEG" input="TILE_INT_L.WR1BEG" output="BLOCK_CLBLL_L_INT_L.WR1BEG" />
    <direct name="WW2BEG" input="TILE_INT_L.WW2BEG" output="BLOCK_CLBLL_L_INT_L.WW2BEG" />
    <direct name="WW4BEG" input="TILE_INT_L.WW4BEG" output="BLOCK_CLBLL_L_INT_L.WW4BEG" />
-<!--
--->
    <!-- Local Interconnects -->
    <direct name="BYP_L"  input="TILE_INT_L.BYP_L"    output="TILE_CLBLL_L.BYP" />
+   <!--
    <direct name="CLK_L"  input="TILE_INT_L.CLK_L"    output="TILE_CLBLL_L.CLK" />
+   -->
    <direct name="CTRL_L" input="TILE_INT_L.CTRL_L"   output="TILE_CLBLL_L.CTRL"/>
-   <direct name="FAN_6"  input="TILE_INT_L.FAN_L[6]" output="TILE_CLBLL_L.FAN6" />
-   <direct name="FAN_7"  input="TILE_INT_L.FAN_L[7]" output="TILE_CLBLL_L.FAN7" />
+   <direct name="FAN"    input="TILE_INT_L.FAN_L"    output="TILE_CLBLL_L.FAN" />
    <direct name="IMUX_L" input="TILE_INT_L.IMUX_L"   output="TILE_CLBLL_L.IMUX"/>
    <direct name="LOGIC_OUTS_L" input="TILE_CLBLL_L.LOGIC_OUTS" output="TILE_INT_L.LOGIC_OUTS_L" />
+   <direct name="TEST_CLK_L"  input="BLOCK_CLBLL_L_INT_L.CLK_L"    output="TILE_CLBLL_L.CLK" />
    <!--
-   <direct name="BYP_L"  input="BLOCK_CLBLL_L_INT_L.BYP_L"    output="TILE_CLBLL_L.BYP" />
-   <direct name="CLK_L"  input="BLOCK_CLBLL_L_INT_L.CLK_L"    output="TILE_CLBLL_L.CLK" />
-   <direct name="CTRL_L" input="BLOCK_CLBLL_L_INT_L.CTRL_L"   output="TILE_CLBLL_L.CTRL"/>
-   <direct name="FAN_6"  input="BLOCK_CLBLL_L_INT_L.FAN_L[6]" output="TILE_CLBLL_L.FAN6" />
-   <direct name="FAN_7"  input="BLOCK_CLBLL_L_INT_L.FAN_L[7]" output="TILE_CLBLL_L.FAN7" />
-   <direct name="IMUX_L" input="BLOCK_CLBLL_L_INT_L.IMUX_L"   output="TILE_CLBLL_L.IMUX"/>
-   <direct name="LOGIC_OUTS_L" input="TILE_CLBLL_L.LOGIC_OUTS" output="BLOCK_CLBLL_L_INT_L.LOGIC_OUTS_L" />
+   <direct name="TEST_BYP_L"  input="BLOCK_CLBLL_L_INT_L.BYP_L"    output="TILE_CLBLL_L.BYP" />
+   <direct name="TEST_CTRL_L" input="BLOCK_CLBLL_L_INT_L.CTRL_L"   output="TILE_CLBLL_L.CTRL"/>
+   <direct name="TEST_FAN"    input="BLOCK_CLBLL_L_INT_L.FAN_L"    output="TILE_CLBLL_L.FAN" />
+   <direct name="TEST_IMUX_L" input="BLOCK_CLBLL_L_INT_L.IMUX_L"   output="TILE_CLBLL_L.IMUX"/>
+   <direct name="TEST_LOGIC_OUTS_L" input="TILE_CLBLL_L.LOGIC_OUTS" output="BLOCK_CLBLL_L_INT_L.LOGIC_OUTS_L" />
    -->
-
    <!-- Carry chain -->
    <direct name="L_CIN_N"  input="BLOCK_CLBLL_L_INT_L.CIN_N[0]" output="TILE_CLBLL_L.L_CIN_N"  ><!-- <pack_pattern name="carryl"  in_port="BLOCK_CLBLL_L_INT_L.CIN_N[0]" out_port="TILE_CLBLL_L.L_CIN_N"  /> --></direct>
    <direct name="LL_CIN_N" input="BLOCK_CLBLL_L_INT_L.CIN_N[1]" output="TILE_CLBLL_L.LL_CIN_N" ><!-- <pack_pattern name="carryll" in_port="BLOCK_CLBLL_L_INT_L.CIN_N[1]" out_port="TILE_CLBLL_L.LL_CIN_N" /> --></direct>
