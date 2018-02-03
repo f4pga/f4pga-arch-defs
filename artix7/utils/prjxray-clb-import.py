@@ -100,11 +100,11 @@ def process_wire(wire_name):
     if wire_name.endswith("_N"):
         pass
     elif wire_name.startswith("L_"):
-        wire_name = "CLBLL_L."+wire_name[2:]
+        wire_name = tile_type+"_L."+wire_name[2:]
     elif wire_name.startswith("M_"):
-        wire_name = "CLBLL_M."+wire_name[2:]
+        wire_name = tile_type+"_M."+wire_name[2:]
     elif wire_name.startswith("LL_"):
-        wire_name = "CLBLL_LL."+wire_name[3:]
+        wire_name = tile_type+"_LL."+wire_name[3:]
 
     # Special case the LUT inputs as they look like a bus but we don't want to
     # treat them like one.
@@ -276,7 +276,7 @@ pb_type_xml.append(ET.Comment(" Tile Inputs "))
 interconnect_xml.append(ET.Comment(" Tile->Slice "))
 for name, pins in sorted(clbll_inputs):
     if name == "FAN":
-        assert pins == (6, 7)
+        assert pins in ((6, 7), (0, 2, 3, 4, 5, 6, 7)), "{}".format(pins)
         pins = tuple(range(8))
     assert pins == (None,) or pins == tuple(range(len(pins))), "Wrong pins for {} {} should be {}".format(name, pins, list(range(len(pins))))
 
@@ -362,7 +362,7 @@ for name, pins in sorted(slice_inputs):
         slice_xml = slice1_xml
         slice_interconnect_xml = slice1_interconnect_xml
     else:
-        assert False, name
+        assert False, (name, pins)
 
     # Input pins for the CLBLL_X
     input_type = 'input'
