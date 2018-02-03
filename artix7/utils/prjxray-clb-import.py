@@ -112,7 +112,6 @@ def process_wire(wire_name):
                   'B1', 'B2', 'B3', 'B4', 'B5', 'B6',
                   'C1', 'C2', 'C3', 'C4', 'C5', 'C6',
                   'D1', 'D2', 'D3', 'D4', 'D5', 'D6',
-                  'FAN6', 'FAN7',
                   ):
         if wire_name.endswith(lutin):
             prefix, num = wire_name, None
@@ -143,8 +142,9 @@ def ppips():
         yield "CLBLL_L.CLBLL_L_CIN.CLBLL_L_CIN_N always\n"
         yield "CLBLL_L.CLBLL_LL_CIN.CLBLL_LL_CIN_N always\n"
     elif tile_type == "CLBLM":
-        yield "CLBLL_M.CLBLL_M_CIN.CLBLL_M_CIN_N always\n"
-        yield "CLBLL_M.CLBLL_L_CIN.CLBLL_L_CIN_N always\n"
+        #yield "CLBLL_M.CLBLL_M_CIN.CLBLL_M_CIN_N always\n"
+        #yield "CLBLL_M.CLBLL_L_CIN.CLBLL_L_CIN_N always\n"
+        pass
 
 # Read in all the Pseudo PIP definitions.
 for line in ppips():
@@ -178,8 +178,7 @@ clbll_outputs = set()
 for name, pins in wires_internal.items():
     #if "COUT" in name:
     #    continue
-
-    if name.startswith("CLBLL_"):
+    if name.startswith("CLB"):
         inputs = slice_outputs
         outputs = slice_inputs
     else:
@@ -276,6 +275,11 @@ interconnect_xml = ET.Element('interconnect')
 pb_type_xml.append(ET.Comment(" Tile Inputs "))
 interconnect_xml.append(ET.Comment(" Tile->Slice "))
 for name, pins in sorted(clbll_inputs):
+    if name == "FAN":
+        assert pins == (6, 7)
+        pins = tuple(range(8))
+    assert pins == (None,) or pins == tuple(range(len(pins))), "Wrong pins for {} {} should be {}".format(name, pins, list(range(len(pins))))
+
     # Input definitions for the TILE
     input_type = 'input'
     if 'CLK' in name:
@@ -287,6 +291,8 @@ for name, pins in sorted(clbll_inputs):
     )
 
     for p in pins:
+        if (name, p) not in connections:
+            continue
         # Connections from the TILE to the CLBLL_XX
         add_direct(interconnect_xml, '%s.%s' % (tile_name, fmt(name, p)), fmt(*connections[(name, p)]))
 
