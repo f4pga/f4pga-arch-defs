@@ -60,6 +60,13 @@ VPR_FULL_CMD = cd $(OUTPUT_DIR); $(VPR_CMD)
 $(OUTPUT_DIR)/%.rr_graph.xml: $(OUTPUT_DIR)/%.blif $(ARCH_FILE)
 	$(VPR_FULL_CMD) $(notdir $<) --write_rr_graph $(notdir $@)
 
+# ------------------------------------------------------------------------
+%.rr_graph.xml: $(OUTPUT_DIR)/%.rr_graph.xml | $(OUTPUT_DIR)
+	@true
+
+.PRECIOUS: $(OUTPUT_DIR)/%.rr_graph.xml
+# ------------------------------------------------------------------------
+
 %.disp: $(OUTPUT_DIR)/%.blif $(ARCH_FILE)
 	$(VPR_FULL_CMD) $(notdir $<) --disp on
 
