@@ -69,12 +69,12 @@
 
    <!-- ===== -->
 
-   <col type="BLOCK_CLBLL_L_INT_L"    startx="10" priority="10" />
+   <col type="BLK_MB-CLBLL_L-INT_L"    startx="10" priority="10" />
 	<!-- <single type="NULL"         x="10" y="0"  priority="20"/> --><single type="EMPTY" x="10" y="0"  priority="20"/>
 	<!-- <single type="HCLK_CLB"     x="10" y="26" priority="20"/> --><single type="EMPTY" x="10" y="26" priority="20"/>
 	<!-- <single type="NULL"         x="10" y="56" priority="20"/> --><single type="EMPTY" x="10" y="56" priority="20"/>
 
-   <col type="BLOCK_CLBLL_L_INT_L"    startx="11" priority="10" /><!-- <col type="TILE_INT_L"      startx="11" priority="10" /> -->
+   <col type="BLK_MB-CLBLL_L-INT_L"    startx="11" priority="10" /><!-- <col type="TILE_INT_L"      startx="11" priority="10" /> -->
 	<!-- <single type="BRKH_B TINT"  x="11" y="0"  priority="20"/> --><single type="EMPTY" x="11" y="0"  priority="20"/>
 	<single type="HCLK_L"       x="11" y="26" priority="20"/>
 	<!-- <single type="T_TINT"       x="11" y="56" priority="20"/> --><single type="EMPTY" x="11" y="56" priority="20"/>
@@ -91,12 +91,12 @@
 
    <!-- ===== -->
 
-   <col type="BLK_TI-CLBLL_L"    startx="14" priority="10" />
+   <col type="BLK_MB-CLBLL_L-INT_L"    startx="14" priority="10" />
 	<!-- <single type="NULL"         x="14" y="0"  priority="20"/> --><single type="EMPTY" x="14" y="0"  priority="20"/>
 	<!-- <single type="HCLK_CLB"     x="14" y="26" priority="20"/> --><single type="EMPTY" x="14" y="26" priority="20"/>
 	<!-- <single type="NULL"         x="14" y="56" priority="20"/> --><single type="EMPTY" x="14" y="56" priority="20"/>
 
-   <col type="BLOCK_CLBLL_L_INT_L"    startx="15" priority="10" /><!-- <col type="TILE_INT_L"      startx="15" priority="10" /> -->
+   <col type="BLK_MB-CLBLL_L-INT_L"    startx="15" priority="10" /><!-- <col type="TILE_INT_L"      startx="15" priority="10" /> -->
 	<!-- <single type="BRKH_B TINT"  x="15" y="0"  priority="20"/> --><single type="EMPTY" x="15" y="0"  priority="20"/>
 	<single type="HCLK_L"       x="15" y="26" priority="20"/>
 	<!-- <single type="T_TINT"       x="15" y="56" priority="20"/> --><single type="EMPTY" x="15" y="56" priority="20"/>
@@ -113,12 +113,12 @@
 
    <!-- ===== -->
 
-   <col type="BLOCK_CLBLL_L_INT_L"    startx="18" priority="10" />
+   <col type="BLK_MB-CLBLL_L-INT_L"    startx="18" priority="10" />
 	<!-- <single type="NULL"         x="18" y="0"  priority="20"/> --><single type="EMPTY" x="18" y="0"  priority="20"/>
 	<!-- <single type="HCLK_CLB"     x="18" y="26" priority="20"/> --><single type="EMPTY" x="18" y="26" priority="20"/>
 	<!-- <single type="NULL"         x="18" y="56" priority="20"/> --><single type="EMPTY" x="18" y="56" priority="20"/>
 
-   <col type="BLOCK_CLBLL_L_INT_L"    startx="19" priority="10" /><!-- <col type="TILE_INT_L"      startx="19" priority="10" /> -->
+   <col type="BLK_MB-CLBLL_L-INT_L"    startx="19" priority="10" /><!-- <col type="TILE_INT_L"      startx="19" priority="10" /> -->
 	<!-- <single type="BRKH_TINT"    x="19" y="0"  priority="20"/> --><single type="EMPTY" x="19" y="0"  priority="20"/>
 	<single type="HCLK_L"       x="19" y="26" priority="20"/>
 	<!-- <single type="T_TINT"       x="19" y="56" priority="20"/> --><single type="EMPTY" x="19" y="56" priority="20"/>
@@ -131,25 +131,25 @@
 
   </fixed_layout>
 
-  <fixed_layout name="xc7a50t-test" width="16" height="16">
+  <fixed_layout name="xc7a50t-test" width="8" height="8">
 
    <col type="EMPTY"      startx="0"  priority="10" />
-   <!-- <col type="LIOB"       startx="0"   priority="10" /> --><col type="BLK_BB-VPR_PAD"        startx="1"  priority="10" />
+   <!-- <col type="LIOB"       startx="1"   priority="10" /> --><col type="BLK_BB-VPR_PAD"        startx="1"  priority="10" />
    <col type="EMPTY"      startx="2"  priority="10" />
 
    <!-- Start RIO -->
 
-   <col type="BLOCK_CLBLL_L_INT_L"    startx="3" priority="10" />
-   <!--<col type="BLOCK_CLBLL_L_INT_L"    startx="4" priority="10" /> -->
+   <col type="BLK_MB-CLBLL_L-INT_L"    startx="3" priority="10" />
+   <!--<col type="BLK_MB-CLBLL_L-INT_L"    startx="4" priority="10" /> -->
 
    <!-- End RIO -->
 
    <col type="EMPTY"      startx="5" priority="10" />
-   <!-- <col type="RIOB"       startx="24"  priority="10" /> --><col type="BLK_BB-VPR_PAD"        startx="6" priority="10" />
+   <!-- <col type="RIOB"       startx="6"  priority="10" /> --><col type="BLK_BB-VPR_PAD"        startx="6" priority="10" />
    <col type="EMPTY"      startx="7" priority="10" />
 
    <row type="EMPTY"           starty="0" priority="11" />
-   <row type="EMPTY"           starty="15" priority="11" />
+   <row type="EMPTY"           starty="7" priority="11" />
 
   </fixed_layout>
  </layout>
@@ -173,28 +173,24 @@
  </switchlist>
  <segmentlist>
   <!-- Global networks -->
-  <segment name="global" length="longline" freq="0.010000" type="bidir" Rmetal="101" Cmetal="22.5e-15">
-   <sb type="pattern">1 1</sb>
-   <cb type="pattern">1</cb>
-   <wire_switch name="1"/>
-   <opin_switch name="2"/>
-  </segment>
 
   <!-- Span 12 vertical   tracks -->
   <!-- Span 12 horizontal tracks -->
-  <segment name="long-span" length="11" freq="0.250000" type="bidir" Rmetal="101" Cmetal="22.5e-15">
+  <segment name="long-span" length="11" freq="0.250000" type="unidir" Rmetal="101" Cmetal="22.5e-15">
    <sb type="pattern">1 1 1 1 1 1 1 1 1 1 1 1</sb>
    <cb type="pattern">1 1 1 1 1 1 1 1 1 1 1</cb>
+   <mux name="1"/>
    <wire_switch name="1"/>
-   <opin_switch name="2"/>
+   <opin_switch name="1"/>
   </segment>
 
   <!-- Span 4 vertical   tracks -->
   <!-- Span 4 horizontal tracks -->
-  <segment name="short-span" length="4" freq="0.750000" type="bidir" Rmetal="101" Cmetal="22.5e-15">
+  <segment name="short-span" length="4" freq="0.750000" type="unidir" Rmetal="101" Cmetal="22.5e-15">
    <sb type="pattern">1 1 1 1 1</sb>
    <cb type="pattern">1 1 1 1</cb>
-   <wire_switch name="1"/>
+   <mux name="2"/>
+   <wire_switch name="2"/>
    <opin_switch name="2"/>
   </segment>
  </segmentlist>
@@ -218,7 +214,7 @@
 
  <directlist>
   <!-- CLBX_L -->
-  <direct name="BLOCK_CLBLL_L_INT_L_CARRY" from_pin="BLOCK_CLBLL_L_INT_L.COUT_N"  to_pin="BLOCK_CLBLL_L_INT_L.CIN_N"  x_offset="0"  y_offset="1" z_offset="0"/>
+  <direct name="BLK_MB-CLBLL_L-INT_L_CARRY" from_pin="BLK_MB-CLBLL_L-INT_L.COUT_N"  to_pin="BLK_MB-CLBLL_L-INT_L.CIN_N"  x_offset="0"  y_offset="1" z_offset="0"/>
  </directlist>
 
 </architecture>
