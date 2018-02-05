@@ -1,13 +1,7 @@
 <pb_type name="BUF" num_pb="1">
   <input  name="I" num_pins="1"/>
   <output name="O" num_pins="1"/>
-  <pb_type name="BUF_DUMMY" num_pb="1" blif_model=".subckt BUF_DUMMY">
-   <input  name="I" num_pins="1"/>
-   <output name="O" num_pins="1"/>
-   <delay_constant max="10e12" in_port="BUF_DUMMY.I" out_port="BUF_DUMMY.O"/>
-  </pb_type>
   <interconnect>
-   <direct name="A" input="BUF.I" output="BUF_DUMMY.I"/>
-   <mux name="BYPASS" input="BUF.I BUF_DUMMY.O" output="BUF.O"/>
+   <direct name="IO" input="BUF.I" output="BUF.O"/>
  </interconnect>
 </pb_type>
