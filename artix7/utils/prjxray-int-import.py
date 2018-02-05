@@ -15,10 +15,14 @@ from enum import Enum
 
 import lxml.etree as ET
 
+mydir = os.path.dirname(__file__)
+
+sys.path.insert(0, os.path.join(mydir, "..", "..", "utils"))
+from lib import mux as mux_lib
+
 ##########################################################################
 # Work out valid arguments for Project X-Ray database                    #
 ##########################################################################
-mydir = os.path.dirname(__file__)
 prjxray_db = os.path.abspath(os.path.join(mydir, "..", "..", "third_party", "prjxray-db"))
 
 db_types = set()
@@ -80,7 +84,7 @@ buf_dir = os.path.relpath(os.path.abspath(os.path.join(mydir, '..', 'vpr', 'buf'
 prjxray_part_db = os.path.join(prjxray_db, args.part)
 
 tile_type, tile_dir = args.tile.split('_')
-tile_name = "TILE_%s_%s" % (tile_type, tile_dir)
+tile_name = "BLK_BB-%s_%s" % (tile_type, tile_dir)
 
 ##########################################################################
 # Read in the Project X-Ray database and do some processing              #
@@ -349,6 +353,16 @@ pb_type_xml.append(ET.Comment(" Tile Interconnects "))
 
 mux_names = set()
 
+def add_direct(src, dst):
+    ET.SubElement(
+        interconnect_xml,
+        'direct', {
+            'name': "%-30s" % dst,
+            'input': "%-30s" % src,
+            'output': "%-30s" % dst,
+        },
+    )
+
 for span_wire, pins in sorted(wires_by_type['span'].items(), key=lambda i: (i[0].ending.name, i[0].direction.name, i[0].length)):
     ET.SubElement(
         pb_type_xml,
@@ -357,64 +371,40 @@ for span_wire, pins in sorted(wires_by_type['span'].items(), key=lambda i: (i[0]
         {'name': span_wire.name, 'num_pins': str(len(pins))},
     )
 
-    if span_wire.ending == SpanWire.Ending.BEG:
-        interconnect_xml.append(ET.Comment(" Output muxes for %s " % (span_wire,)))
-
     for pin in pins:
         if span_wire.ending == SpanWire.Ending.BEG:
-            mux_name = "%s.%s[%s]" % (tile_name, span_wire.name, pin)
-            buf_name = "%s_%s%s_BUF" % (tile_name, span_wire.name, pin)
+            interconnect_xml.append(ET.Comment(" Connections for for %s%s output mux " % (span_wire,pin)))
+
+            dst_wire_name = "%s.%s[%s]" % (tile_name, span_wire.name, pin)
+            mux_name  = "BEL_RX-%s%s"  % (span_wire.name, pin)
 
             assert mux_name not in mux_names
             mux_names.add(mux_name)
 
-            dest = connections_map['mux'][(span_wire, pin)]
-            if not dest:
-                print("WARNING: No connections for %s" % mux_name)
+            srcs = connections_map['mux'][(span_wire, pin)]
+            if not srcs:
+                warn = "WARNING: No connection for pin %s on span wire %s" % (pin, span_wire)
+                interconnect_xml.append(ET.Comment(" %s " % warn))
+                print(warn)
                 continue
-            assert len(dest) > 1
-            ET.SubElement(
-                interconnect_xml,
-                'mux', {
-                    'name': mux_name,
-                    'input': " ".join("%s.%s[%s]" % (tile_name, w, i) for w, i in sorted(dest)),
-                    'output': buf_name+".I",
-                },
-            )
+            assert len(srcs) > 1
 
-            buf_xml = ET.SubElement(
-                pb_type_xml,
-                'pb_type',
-                {'name': buf_name, 'num_pb': '1'})
-            ET.SubElement(buf_xml, "input", {'name': "I", 'num_pins': str(1)})
-            ET.SubElement(buf_xml, "output", {'name': "O", 'num_pins': str(1)})
-            ET.SubElement(buf_xml, xi_include, {'href': os.path.join(buf_dir, "pb_type.xml")})
-            buf_interconnect_xml = ET.SubElement(buf_xml, "interconnect")
-            ET.SubElement(
-                buf_interconnect_xml,
-                'direct', {
-                    'name': buf_name+"_I",
-                    'input': buf_name+".I",
-                    'output': "BUF.I",
-                },
-            )
-            ET.SubElement(
-                buf_interconnect_xml,
-                'direct', {
-                    'name': buf_name+"_O",
-                    'input': "BUF.O",
-                    'output': buf_name+".O",
-                },
-            )
+            port_names = [
+                (mux_lib.MuxPinType.OUTPUT, "OUT", 1, 0),
+            ]
+            for src_wire, index in sorted(srcs):
+                src_wire_name = "%s.%s[%s]" % (tile_name, src_wire, index)
+                mux_wire_name = "%s%s" % (src_wire, index)
 
-            ET.SubElement(
-                interconnect_xml,
-                'direct', {
-                    'name': mux_name+"_OUT",
-                    'input': buf_name+".O",
-                    'output': mux_name,
-                },
-            )
+                add_direct(src_wire_name, "%s.%s" % (mux_name, mux_wire_name))
+                port_names.append(
+                    (mux_lib.MuxPinType.INPUT, mux_wire_name, 1, 0),
+                )
+
+            pb_type_xml.append(mux_lib.pb_type_xml(
+                mux_lib.MuxType.ROUTING, mux_name, port_names))
+
+            add_direct("%s.OUT" % mux_name, dst_wire_name)
         else:
             assert (span_wire, pin) not in connections_map['mux'] or not connections_map['mux'][(span_wire, pin)]
 
@@ -454,74 +444,48 @@ for local_wire, pins in sorted(wires_by_type['local'].items()):
     )
 
     if found:
-        interconnect_xml.append(ET.Comment(" Output muxes for %s " % (local_wire,)))
-
         for pin in pins:
+            interconnect_xml.append(ET.Comment(" Connections for for %s%s local mux " % (local_wire,pin)))
             has_mux    = (local_wire, pin) in connections_map['mux']
             has_direct = (local_wire, pin) in connections_map['direct']
 
-            mux_name = "%s.%s[%s]" % (tile_name, local_wire, pin)
-            buf_name = "%s_%s%s_BUF" % (tile_name, local_wire, pin)
-            assert mux_name not in mux_names
-            mux_names.add(mux_name)
+            local_wire_name = "%s.%s[%s]" % (tile_name, local_wire, pin)
 
             if has_mux:
-                dest = connections_map['mux'][(local_wire, pin)]
-                ET.SubElement(
-                    interconnect_xml,
-                    'mux', {
-                        'name': mux_name,
-                        'input': " ".join("%s.%s[%s]" % (tile_name, w, i) for w, i in sorted(dest)),
-                        'output': buf_name+".I",
-                    },
-                )
+                mux_name = "BEL_RX-%s%s" % (local_wire, pin)
+                assert mux_name not in mux_names
+                mux_names.add(mux_name)
+
+                srcs = connections_map['mux'][(local_wire, pin)]
+                assert len(srcs) > 1
+
+                port_names = [
+                    (mux_lib.MuxPinType.OUTPUT, "OUT", 1, 0),
+                ]
+                for src_wire, index in sorted(srcs):
+                    src_wire_name = "%s.%s[%s]" % (tile_name, src_wire, index)
+                    mux_wire_name = "%s%s" % (src_wire, index)
+
+                    add_direct(src_wire_name, "%s.%s" % (mux_name, mux_wire_name))
+                    port_names.append(
+                        (mux_lib.MuxPinType.INPUT, mux_wire_name, 1, 0),
+                    )
+
+                pb_type_xml.append(mux_lib.pb_type_xml(
+                    mux_lib.MuxType.ROUTING, mux_name, port_names))
+
+                add_direct("%s.OUT" % mux_name, local_wire_name)
             elif has_direct:
-                dest = connections_map['direct'][(local_wire, pin)]
-                ET.SubElement(
-                    interconnect_xml,
-                    'direct', {
-                        'name': mux_name,
-                        'input': " ".join("%s.%s[%s]" % (tile_name, w, i) for w, i in sorted(dest)),
-                        'output': buf_name+".I",
-                    },
-                )
+                src = connections_map['direct'][(local_wire, pin)]
+                assert len(src) == 1
+                src = src[0]
+
+                add_direct("%s.%s[%s]" % (tile_name, src[0], src[1]), local_wire_name)
             else:
-                print("WARNING: No connection for pin %s on wire %s" % (pin, local_wire))
+                warn = "WARNING: No connection for pin %s on local wire %s" % (pin, local_wire)
+                interconnect_xml.append(ET.Comment(" %s " % warn))
+                print(warn)
                 continue
-
-            buf_xml = ET.SubElement(
-                pb_type_xml,
-                'pb_type',
-                {'name': buf_name, 'num_pb': '1'})
-            ET.SubElement(buf_xml, "input", {'name': "I", 'num_pins': str(1)})
-            ET.SubElement(buf_xml, "output", {'name': "O", 'num_pins': str(1)})
-            ET.SubElement(buf_xml, xi_include, {'href': os.path.join(buf_dir, "pb_type.xml")})
-            buf_interconnect_xml = ET.SubElement(buf_xml, "interconnect")
-            ET.SubElement(
-                buf_interconnect_xml,
-                'direct', {
-                    'name': buf_name+"_I",
-                    'input': buf_name+".I",
-                    'output': "BUF.I",
-                },
-            )
-            ET.SubElement(
-                buf_interconnect_xml,
-                'direct', {
-                    'name': buf_name+"_O",
-                    'input': "BUF.O",
-                    'output': buf_name+".O",
-                },
-            )
-
-            ET.SubElement(
-                interconnect_xml,
-                'direct', {
-                    'name': mux_name+"_OUT",
-                    'input': buf_name+".O",
-                    'output': mux_name,
-                },
-            )
 
 pb_type_xml.append(interconnect_xml)
 
