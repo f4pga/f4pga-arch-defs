@@ -1,0 +1,22 @@
+<pb_type name="BLK_IG-LUTFF" num_pb="1" xmlns:xi="http://www.w3.org/2001/XInclude">
+ <input  name="I" num_pins="4" equivalent="false"/> <!-- LUT inputs -->
+ <clock  name="C" num_pins="1" equivalent="false"/> <!-- FF clock -->
+ <output name="O" num_pins="1" equivalent="false"/> <!-- Output (from LUT or LUT+FF) -->
+
+ <!-- 4 input LUT -->
+ <xi:include href="../lut/pb_type.xml"/>
+
+ <!-- FlipFlop -->
+ <xi:include href="../ff/pb_type.xml"/>
+
+ <!-- Output Mux -->
+ <xi:include href="../omux/pb_type.xml"/>
+
+ <interconnect>
+  <direct input="BLK_IG-LUTFF.I" name="BEL_LT-LUT.in"  output="BEL_LT-LUT.in"  />
+  <direct input="BEL_LT-LUT.out" name="BEL_FF-FF.D"    output="BEL_FF-FF.D"    />
+  <direct input="BEL_LT-LUT.out" name="BEL_RX-OMUX.L"  output="BEL_RX-OMUX.L"  />
+  <direct input="BEL_FF-FF.Q"    name="BEL_RX-OMUX.F"  output="BEL_RX-OMUX.F"  />
+  <direct input="BEL_RX-OMUX.O"  name="BLK_IG-LUTFF.O" output="BLK_IG-LUTFF.O" />
+ </interconnect>
+</pb_type>

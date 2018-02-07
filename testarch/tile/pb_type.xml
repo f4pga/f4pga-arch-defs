@@ -1,0 +1,252 @@
+<pb_type xmlns:xi="http://www.w3.org/2001/XInclude" name="BLK_TI-TILE" num_pb="1">
+ <!-- Tile Inputs -->
+ <input name="IN   " num_pins="12" />
+ <clock name="CLK  " num_pins="4"  />
+ <!-- Tile Outputs -->
+ <output name="OUT " num_pins="3"  />
+ <!-- Internal Slices -->
+ <pb_type name="BLK_SI-LUTFF_A" num_pb="1">
+  <input  name="I" num_pins="4" equivalent="false"/>
+  <clock  name="C" num_pins="1" equivalent="false"/>
+  <output name="O" num_pins="1" equivalent="false"/>
+  <xi:include href="../primitives/lutff/pb_type.xml"/>
+  <interconnect>
+   <direct name="BLK_IG-LUTFF.I"   input="BLK_SI-LUTFF_A.I" output="BLK_IG-LUTFF.I"   />
+   <direct name="BLK_IG-LUTFF.C"   input="BLK_SI-LUTFF_A.C" output="BLK_IG-LUTFF.C"   />
+   <direct name="BLK_SI-LUTFF_A.O" input="BLK_IG-LUTFF.O"   output="BLK_SI-LUTFF_A.O" />
+  </interconnect>
+ </pb_type>
+ <pb_type name="BLK_SI-LUTFF_B" num_pb="1">
+  <input  name="I" num_pins="4" equivalent="false"/>
+  <clock  name="C" num_pins="1" equivalent="false"/>
+  <output name="O" num_pins="1" equivalent="false"/>
+  <xi:include href="../primitives/lutff/pb_type.xml"/>
+  <interconnect>
+   <direct name="BLK_IG-LUTFF.I"   input="BLK_SI-LUTFF_B.I" output="BLK_IG-LUTFF.I"   />
+   <direct name="BLK_IG-LUTFF.C"   input="BLK_SI-LUTFF_B.C" output="BLK_IG-LUTFF.C"   />
+   <direct name="BLK_SI-LUTFF_B.O" input="BLK_IG-LUTFF.O"   output="BLK_SI-LUTFF_B.O" />
+  </interconnect>
+ </pb_type>
+ <pb_type name="BLK_SI-LUTFF_C" num_pb="1">
+  <input  name="I" num_pins="4" equivalent="false"/>
+  <clock  name="C" num_pins="1" equivalent="false"/>
+  <output name="O" num_pins="1" equivalent="false"/>
+  <xi:include href="../primitives/lutff/pb_type.xml"/>
+  <interconnect>
+   <direct name="BLK_IG-LUTFF.I"   input="BLK_SI-LUTFF_C.I" output="BLK_IG-LUTFF.I"   />
+   <direct name="BLK_IG-LUTFF.C"   input="BLK_SI-LUTFF_C.C" output="BLK_IG-LUTFF.C"   />
+   <direct name="BLK_SI-LUTFF_C.O" input="BLK_IG-LUTFF.O"   output="BLK_SI-LUTFF_C.O" />
+  </interconnect>
+ </pb_type>
+ <!-- Buffers -->
+ <pb_type name="BLK_RX-IN0" num_pb="1">
+  <input  name="I" num_pins="3"/>
+  <output name="O" num_pins="1"/>
+  <interconnect>
+   <mux input="BLK_RX-IN0.I[0] BLK_RX-IN0.I[1] BLK_RX-IN0.I[2]" name="BLK_RX-IN0.O" output="BLK_RX-IN0.O" />
+  </interconnect>
+ </pb_type>
+ <pb_type name="BLK_RX-IN1" num_pb="1">
+  <input  name="I" num_pins="3"/>
+  <output name="O" num_pins="1"/>
+  <interconnect>
+   <mux input="BLK_RX-IN1.I[0] BLK_RX-IN1.I[1] BLK_RX-IN1.I[2]" name="BLK_RX-IN1.O" output="BLK_RX-IN1.O" />
+  </interconnect>
+ </pb_type>
+ <pb_type name="BLK_RX-IN2" num_pb="1">
+  <input  name="I" num_pins="3"/>
+  <output name="O" num_pins="1"/>
+  <interconnect>
+   <mux input="BLK_RX-IN2.I[0] BLK_RX-IN2.I[1] BLK_RX-IN2.I[2]" name="BLK_RX-IN2.O" output="BLK_RX-IN2.O" />
+  </interconnect>
+ </pb_type>
+ <pb_type name="BLK_RX-IN3" num_pb="1">
+  <input  name="I" num_pins="3"/>
+  <output name="O" num_pins="1"/>
+  <interconnect>
+   <mux input="BLK_RX-IN3.I[0] BLK_RX-IN3.I[1] BLK_RX-IN3.I[2]" name="BLK_RX-IN3.O" output="BLK_RX-IN3.O" />
+  </interconnect>
+ </pb_type>
+ <pb_type name="BLK_RX-IN4" num_pb="1">
+  <input  name="I" num_pins="3"/>
+  <output name="O" num_pins="1"/>
+  <interconnect>
+   <mux input="BLK_RX-IN4.I[0] BLK_RX-IN4.I[1] BLK_RX-IN4.I[2]" name="BLK_RX-IN4.O" output="BLK_RX-IN4.O" />
+  </interconnect>
+ </pb_type>
+ <pb_type name="BLK_RX-IN5" num_pb="1">
+  <input  name="I" num_pins="3"/>
+  <output name="O" num_pins="1"/>
+  <interconnect>
+   <mux input="BLK_RX-IN5.I[0] BLK_RX-IN5.I[1] BLK_RX-IN5.I[2]" name="BLK_RX-IN5.O" output="BLK_RX-IN5.O" />
+  </interconnect>
+ </pb_type>
+ <pb_type name="BLK_RX-IN6" num_pb="1">
+  <input  name="I" num_pins="3"/>
+  <output name="O" num_pins="1"/>
+  <interconnect>
+   <mux input="BLK_RX-IN6.I[0] BLK_RX-IN6.I[1] BLK_RX-IN6.I[2]" name="BLK_RX-IN6.O" output="BLK_RX-IN6.O" />
+  </interconnect>
+ </pb_type>
+ <pb_type name="BLK_RX-IN7" num_pb="1">
+  <input  name="I" num_pins="3"/>
+  <output name="O" num_pins="1"/>
+  <interconnect>
+   <mux input="BLK_RX-IN7.I[0] BLK_RX-IN7.I[1] BLK_RX-IN7.I[2]" name="BLK_RX-IN7.O" output="BLK_RX-IN7.O" />
+  </interconnect>
+ </pb_type>
+ <pb_type name="BLK_RX-IN8" num_pb="1">
+  <input  name="I" num_pins="3"/>
+  <output name="O" num_pins="1"/>
+  <interconnect>
+   <mux input="BLK_RX-IN8.I[0] BLK_RX-IN8.I[1] BLK_RX-IN8.I[2]" name="BLK_RX-IN8.O" output="BLK_RX-IN8.O" />
+  </interconnect>
+ </pb_type>
+ <pb_type name="BLK_RX-IN9" num_pb="1">
+  <input  name="I" num_pins="3"/>
+  <output name="O" num_pins="1"/>
+  <interconnect>
+   <mux input="BLK_RX-IN9.I[0] BLK_RX-IN9.I[1] BLK_RX-IN9.I[2]" name="BLK_RX-IN9.O" output="BLK_RX-IN9.O" />
+  </interconnect>
+ </pb_type>
+
+ <pb_type name="BLK_RX-CLK0" num_pb="1">
+  <input  name="I" num_pins="2"/>
+  <output name="O" num_pins="1"/>
+  <interconnect>
+   <mux input="BLK_RX-CLK0.I[0] BLK_RX-CLK0.I[1]" name="BLK_RX-CLK0.O" output="BLK_RX-CLK0.O" />
+  </interconnect>
+ </pb_type>
+ <pb_type name="BLK_RX-CLK1" num_pb="1">
+  <input  name="I" num_pins="2"/>
+  <output name="O" num_pins="1"/>
+  <interconnect>
+   <mux input="BLK_RX-CLK1.I[0] BLK_RX-CLK1.I[1]" name="BLK_RX-CLK1.O" output="BLK_RX-CLK1.O" />
+  </interconnect>
+ </pb_type>
+ <pb_type name="BLK_RX-CLK2" num_pb="1">
+  <input  name="I" num_pins="2"/>
+  <output name="O" num_pins="1"/>
+  <interconnect>
+   <mux input="BLK_RX-CLK2.I[0] BLK_RX-CLK2.I[1]" name="BLK_RX-CLK2.O" output="BLK_RX-CLK2.O" />
+  </interconnect>
+ </pb_type>
+
+ <pb_type name="BLK_RX-OUT0" num_pb="1">
+  <input  name="I" num_pins="7"/>
+  <output name="O" num_pins="1"/>
+  <interconnect>
+   <mux input="BLK_RX-OUT0.I[0] BLK_RX-OUT0.I[1] BLK_RX-OUT0.I[2] BLK_RX-OUT0.I[3] BLK_RX-OUT0.I[4] BLK_RX-OUT0.I[5] BLK_RX-OUT0.I[6]" name="BLK_RX-OUT0.O" output="BLK_RX-OUT0.O" />
+  </interconnect>
+ </pb_type>
+ <pb_type name="BLK_RX-OUT1" num_pb="1">
+  <input  name="I" num_pins="7"/>
+  <output name="O" num_pins="1"/>
+  <interconnect>
+   <mux input="BLK_RX-OUT1.I[0] BLK_RX-OUT1.I[1] BLK_RX-OUT1.I[2] BLK_RX-OUT1.I[3] BLK_RX-OUT1.I[4] BLK_RX-OUT1.I[5] BLK_RX-OUT1.I[6]" name="BLK_RX-OUT1.O" output="BLK_RX-OUT1.O" />
+  </interconnect>
+ </pb_type>
+ <pb_type name="BLK_RX-OUT2" num_pb="1">
+  <input  name="I" num_pins="7"/>
+  <output name="O" num_pins="1"/>
+  <interconnect>
+   <mux input="BLK_RX-OUT2.I[0] BLK_RX-OUT2.I[1] BLK_RX-OUT2.I[2] BLK_RX-OUT2.I[3] BLK_RX-OUT2.I[4] BLK_RX-OUT2.I[5] BLK_RX-OUT2.I[6]" name="BLK_RX-OUT2.O" output="BLK_RX-OUT2.O" />
+  </interconnect>
+ </pb_type>
+
+ <interconnect>
+
+  <direct input="BLK_TI-TILE.CLK[0]"  name="BLK_RX-CLK0.I[0]"  output="BLK_RX-CLK0.I[0]" />
+  <direct input="BLK_TI-TILE.CLK[1]"  name="BLK_RX-CLK0.I[1]"  output="BLK_RX-CLK0.I[1]" />
+  <direct input="BLK_RX-CLK0.O"       name="BLK_SI-LUTFF_A.C"  output="BLK_SI-LUTFF_A.C" />
+
+  <direct input="BLK_TI-TILE.CLK[1]"  name="BLK_RX-CLK1.I[0]"  output="BLK_RX-CLK1.I[0]" />
+  <direct input="BLK_TI-TILE.CLK[2]"  name="BLK_RX-CLK1.I[1]"  output="BLK_RX-CLK1.I[1]" />
+  <direct input="BLK_RX-CLK1.O"       name="BLK_SI-LUTFF_B.C"  output="BLK_SI-LUTFF_B.C" />
+
+  <direct input="BLK_TI-TILE.CLK[2]"  name="BLK_RX-CLK2.I[0]"  output="BLK_RX-CLK2.I[0]" />
+  <direct input="BLK_TI-TILE.CLK[3]"  name="BLK_RX-CLK2.I[1]"  output="BLK_RX-CLK2.I[1]" />
+  <direct input="BLK_RX-CLK2.O"       name="BLK_SI-LUTFF_C.C"  output="BLK_SI-LUTFF_C.C" />
+
+  <direct input="BLK_TI-TILE.IN[0]"  name="BLK_RX-IN0.I[0]"      output="BLK_RX-IN0.I[0]"     />
+  <direct input="BLK_TI-TILE.IN[1]"  name="BLK_RX-IN0.I[1]"      output="BLK_RX-IN0.I[1]"     />
+  <direct input="BLK_TI-TILE.IN[2]"  name="BLK_RX-IN0.I[2]"      output="BLK_RX-IN0.I[2]"     />
+  <direct input="BLK_RX-IN0.O"       name="BLK_SI-LUTFF_A.I[0]"  output="BLK_SI-LUTFF_A.I[0]" />
+
+  <direct input="BLK_TI-TILE.IN[1]"  name="BLK_RX-IN1.I[0]"  output="BLK_RX-IN1.I[0]" />
+  <direct input="BLK_TI-TILE.IN[2]"  name="BLK_RX-IN1.I[1]"  output="BLK_RX-IN1.I[1]" />
+  <direct input="BLK_TI-TILE.IN[3]"  name="BLK_RX-IN1.I[2]"  output="BLK_RX-IN1.I[2]" />
+  <direct input="BLK_RX-IN1.O"       name="BLK_SI-LUTFF_A.I[1]"  output="BLK_SI-LUTFF_A.I[1]" />
+
+  <direct input="BLK_TI-TILE.IN[2]"  name="BLK_RX-IN2.I[0]"  output="BLK_RX-IN2.I[0]" />
+  <direct input="BLK_TI-TILE.IN[3]"  name="BLK_RX-IN2.I[1]"  output="BLK_RX-IN2.I[1]" />
+  <direct input="BLK_TI-TILE.IN[4]"  name="BLK_RX-IN2.I[2]"  output="BLK_RX-IN2.I[2]" />
+  <direct input="BLK_RX-IN2.O"       name="BLK_SI-LUTFF_A.I[2]"  output="BLK_SI-LUTFF_A.I[2]" />
+
+  <direct input="BLK_TI-TILE.IN[3]"  name="BLK_RX-IN3.I[0]"  output="BLK_RX-IN3.I[0]" />
+  <direct input="BLK_TI-TILE.IN[4]"  name="BLK_RX-IN3.I[1]"  output="BLK_RX-IN3.I[1]" />
+  <direct input="BLK_TI-TILE.IN[5]"  name="BLK_RX-IN3.I[2]"  output="BLK_RX-IN3.I[2]" />
+  <direct input="BLK_RX-IN3.O"       name="BLK_SI-LUTFF_A.I[3]"  output="BLK_SI-LUTFF_A.I[3]" />
+  <direct input="BLK_RX-IN3.O"       name="BLK_SI-LUTFF_B.I[0]"  output="BLK_SI-LUTFF_B.I[0]" />
+
+  <direct input="BLK_TI-TILE.IN[4]"  name="BLK_RX-IN4.I[0]"  output="BLK_RX-IN4.I[0]" />
+  <direct input="BLK_TI-TILE.IN[5]"  name="BLK_RX-IN4.I[1]"  output="BLK_RX-IN4.I[1]" />
+  <direct input="BLK_TI-TILE.IN[6]"  name="BLK_RX-IN4.I[2]"  output="BLK_RX-IN4.I[2]" />
+  <direct input="BLK_RX-IN4.O"       name="BLK_SI-LUTFF_B.I[1]"  output="BLK_SI-LUTFF_B.I[1]" />
+
+  <direct input="BLK_TI-TILE.IN[5]"  name="BLK_RX-IN5.I[0]"  output="BLK_RX-IN5.I[0]" />
+  <direct input="BLK_TI-TILE.IN[6]"  name="BLK_RX-IN5.I[1]"  output="BLK_RX-IN5.I[1]" />
+  <direct input="BLK_TI-TILE.IN[7]"  name="BLK_RX-IN5.I[2]"  output="BLK_RX-IN5.I[2]" />
+  <direct input="BLK_RX-IN5.O"       name="BLK_SI-LUTFF_B.I[2]"  output="BLK_SI-LUTFF_B.I[2]" />
+
+  <direct input="BLK_TI-TILE.IN[6]"  name="BLK_RX-IN6.I[0]"  output="BLK_RX-IN6.I[0]" />
+  <direct input="BLK_TI-TILE.IN[7]"  name="BLK_RX-IN6.I[1]"  output="BLK_RX-IN6.I[1]" />
+  <direct input="BLK_TI-TILE.IN[8]"  name="BLK_RX-IN6.I[2]"  output="BLK_RX-IN6.I[2]" />
+  <direct input="BLK_RX-IN6.O"       name="BLK_SI-LUTFF_B.I[3]"  output="BLK_SI-LUTFF_B.I[3]" />
+  <direct input="BLK_RX-IN6.O"       name="BLK_SI-LUTFF_C.I[0]"  output="BLK_SI-LUTFF_C.I[0]" />
+
+  <direct input="BLK_TI-TILE.IN[7]"  name="BLK_RX-IN7.I[0]"  output="BLK_RX-IN7.I[0]" />
+  <direct input="BLK_TI-TILE.IN[8]"  name="BLK_RX-IN7.I[1]"  output="BLK_RX-IN7.I[1]" />
+  <direct input="BLK_TI-TILE.IN[9]"  name="BLK_RX-IN7.I[2]"  output="BLK_RX-IN7.I[2]" />
+  <direct input="BLK_RX-IN7.O"       name="BLK_SI-LUTFF_C.I[1]"  output="BLK_SI-LUTFF_C.I[1]" />
+
+  <direct input="BLK_TI-TILE.IN[8]"  name="BLK_RX-IN8.I[0]"  output="BLK_RX-IN8.I[0]" />
+  <direct input="BLK_TI-TILE.IN[9]"  name="BLK_RX-IN8.I[1]"  output="BLK_RX-IN8.I[1]" />
+  <direct input="BLK_TI-TILE.IN[10]" name="BLK_RX-IN8.I[2]"  output="BLK_RX-IN8.I[2]" />
+  <direct input="BLK_RX-IN8.O"       name="BLK_SI-LUTFF_C.I[2]"  output="BLK_SI-LUTFF_C.I[2]" />
+
+  <direct input="BLK_TI-TILE.IN[9]"  name="BLK_RX-IN9.I[0]"  output="BLK_RX-IN9.I[0]" />
+  <direct input="BLK_TI-TILE.IN[10]" name="BLK_RX-IN9.I[1]"  output="BLK_RX-IN9.I[1]" />
+  <direct input="BLK_TI-TILE.IN[11]" name="BLK_RX-IN9.I[2]"  output="BLK_RX-IN9.I[2]" />
+  <direct input="BLK_RX-IN9.O"       name="BLK_SI-LUTFF_C.I[3]"  output="BLK_SI-LUTFF_C.I[3]" />
+
+  <direct input="BLK_SI-LUTFF_A.O"   name="BLK_RX-OUT0.I[0]" output="BLK_RX-OUT0.I[0]"   />
+  <direct input="BLK_SI-LUTFF_B.O"   name="BLK_RX-OUT0.I[1]" output="BLK_RX-OUT0.I[1]"   />
+  <direct input="BLK_SI-LUTFF_C.O"   name="BLK_RX-OUT0.I[2]" output="BLK_RX-OUT0.I[2]"   />
+  <direct input="BLK_TI-TILE.IN[0]"  name="BLK_RX-OUT0.I[3]" output="BLK_RX-OUT0.I[3]"   />
+  <direct input="BLK_TI-TILE.IN[1]"  name="BLK_RX-OUT0.I[4]" output="BLK_RX-OUT0.I[4]"   />
+  <direct input="BLK_TI-TILE.IN[2]"  name="BLK_RX-OUT0.I[5]" output="BLK_RX-OUT0.I[5]"   />
+  <direct input="BLK_TI-TILE.IN[3]"  name="BLK_RX-OUT0.I[6]" output="BLK_RX-OUT0.I[6]"   />
+  <direct input="BLK_RX-OUT0.O"      name="BLK_TI-TILE.OUT0" output="BLK_TI-TILE.OUT[0]" />
+
+  <direct input="BLK_SI-LUTFF_A.O"   name="BLK_RX-OUT1.I[0]" output="BLK_RX-OUT1.I[0]"   />
+  <direct input="BLK_SI-LUTFF_B.O"   name="BLK_RX-OUT1.I[1]" output="BLK_RX-OUT1.I[1]"   />
+  <direct input="BLK_SI-LUTFF_C.O"   name="BLK_RX-OUT1.I[2]" output="BLK_RX-OUT1.I[2]"   />
+  <direct input="BLK_TI-TILE.IN[4]"  name="BLK_RX-OUT1.I[3]" output="BLK_RX-OUT1.I[3]"   />
+  <direct input="BLK_TI-TILE.IN[5]"  name="BLK_RX-OUT1.I[4]" output="BLK_RX-OUT1.I[4]"   />
+  <direct input="BLK_TI-TILE.IN[6]"  name="BLK_RX-OUT1.I[5]" output="BLK_RX-OUT1.I[5]"   />
+  <direct input="BLK_TI-TILE.IN[7]"  name="BLK_RX-OUT1.I[6]" output="BLK_RX-OUT1.I[6]"   />
+  <direct input="BLK_RX-OUT1.O"      name="BLK_TI-TILE.OUT1" output="BLK_TI-TILE.OUT[1]" />
+
+  <direct input="BLK_SI-LUTFF_A.O"   name="BLK_RX-OUT2.I[0]" output="BLK_RX-OUT2.I[0]"   />
+  <direct input="BLK_SI-LUTFF_B.O"   name="BLK_RX-OUT2.I[1]" output="BLK_RX-OUT2.I[1]"   />
+  <direct input="BLK_SI-LUTFF_C.O"   name="BLK_RX-OUT2.I[2]" output="BLK_RX-OUT2.I[2]"   />
+  <direct input="BLK_TI-TILE.IN[8]"  name="BLK_RX-OUT2.I[3]" output="BLK_RX-OUT2.I[3]"   />
+  <direct input="BLK_TI-TILE.IN[9]"  name="BLK_RX-OUT2.I[4]" output="BLK_RX-OUT2.I[4]"   />
+  <direct input="BLK_TI-TILE.IN[10]" name="BLK_RX-OUT2.I[5]" output="BLK_RX-OUT2.I[5]"   />
+  <direct input="BLK_TI-TILE.IN[11]" name="BLK_RX-OUT2.I[6]" output="BLK_RX-OUT2.I[6]"   />
+  <direct input="BLK_RX-OUT2.O"      name="BLK_TI-TILE.OUT2" output="BLK_TI-TILE.OUT[2]" />
+ </interconnect>
+ <pinlocations pattern="spread" />
+ <fc default_in_type="frac" default_in_val="1.0" default_out_type="frac" default_out_val="1.0" />
+</pb_type>
