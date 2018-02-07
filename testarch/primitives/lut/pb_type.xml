@@ -1,0 +1,10 @@
+<pb_type name="BEL_LT-LUT" num_pb="1" class="lut" blif_model=".names">
+ <input  name="in"  num_pins="4" port_class="lut_in" />
+ <output name="out" num_pins="1" port_class="lut_out" />
+ <delay_matrix type="max" in_port="BEL_LT-LUT.in" out_port="BEL_LT-LUT.out">
+  10e-12
+  10e-12
+  10e-12
+  10e-12
+ </delay_matrix>
+</pb_type>
