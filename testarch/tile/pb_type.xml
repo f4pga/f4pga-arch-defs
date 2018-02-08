@@ -278,7 +278,7 @@
   <loc side="left">  BLK_TI-TILE.IN[6] BLK_TI-TILE.IN[7]  BLK_TI-TILE.IN[8]   BLK_TI-TILE.OUT[2] BLK_TI-TILE.CLK[2]</loc>
   <loc side="bottom">BLK_TI-TILE.IN[9] BLK_TI-TILE.IN[10] BLK_TI-TILE.IN[11]  BLK_TI-TILE.OUT[3] BLK_TI-TILE.CLK[3] BLK_TI-TILE.DUMMY[0]</loc>
  </pinlocations>
- <fc default_in_type="frac" default_in_val="1.0" default_out_type="frac" default_out_val="1.0">
+ <fc default_in_type="frac" default_in_val="0.75" default_out_type="frac" default_out_val="0.25">
   <fc_override fc_type="frac" fc_val="1.0" port_name="DUMMY" />
   <fc_override fc_type="frac" fc_val="1.0" port_name="CLK"   />
  </fc>
