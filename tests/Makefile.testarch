@@ -1,0 +1,6 @@
+# Defaults for the iCE40 architecture.
+
+ARCH_DIR = ../testarch/arch/
+ARCH_TYPE ?= test1
+DEVICE ?= 2x4
+YOSYS_SCRIPT ?= synth;
