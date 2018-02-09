@@ -331,6 +331,13 @@ with open(sim_file, "w") as f:
 
 output_block("sim.v", open(sim_file).read())
 
+if args.type == 'logic':
+    subckt = args.subckt or args.name_mux
+    assert subckt
+elif args.type == 'routing':
+    assert args.subckt is None
+    subckt = None
+
 # ------------------------------------------------------------------------
 # Generate the Model XML form.
 # ------------------------------------------------------------------------
@@ -338,7 +345,7 @@ if args.type == 'logic':
     models_xml = ET.Element('models')
     models_xml.append(ET.Comment(xml_comment))
 
-    model_xml = ET.SubElement(models_xml, 'model', {'name': args.subckt or args.name_mux})
+    model_xml = ET.SubElement(models_xml, 'model', {'name': subckt})
 
     input_ports = ET.SubElement(model_xml, 'input_ports')
     output_ports = ET.SubElement(model_xml, 'output_ports')
@@ -367,7 +374,7 @@ pb_type_xml = mux_lib.pb_type_xml(
     mux_lib.MuxType[args.type.upper()],
     args.name_mux,
     port_names,
-    subckt=args.subckt,
+    subckt=subckt,
     num_pb=args.num_pb,
     comment=xml_comment)
 
