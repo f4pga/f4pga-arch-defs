@@ -1,5 +1,6 @@
 <pb_type xmlns:xi="http://www.w3.org/2001/XInclude" name="BLK_TI-TILE" num_pb="1">
- <input name="DUMMY" num_pins="1"  />
+ <input  name="DUMMYI" num_pins="1" />
+ <output name="DUMMYO" num_pins="1" />
  <!-- Tile Inputs -->
  <input name="IN   " num_pins="12" />
  <clock name="CLK  " num_pins="4"  />
@@ -275,11 +276,12 @@
  <pinlocations pattern="custom">
   <loc side="top">   BLK_TI-TILE.IN[0] BLK_TI-TILE.IN[1]  BLK_TI-TILE.IN[2]   BLK_TI-TILE.OUT[0] BLK_TI-TILE.CLK[0]</loc>
   <loc side="right"> BLK_TI-TILE.IN[3] BLK_TI-TILE.IN[4]  BLK_TI-TILE.IN[5]   BLK_TI-TILE.OUT[1] BLK_TI-TILE.CLK[1]</loc>
-  <loc side="left">  BLK_TI-TILE.IN[6] BLK_TI-TILE.IN[7]  BLK_TI-TILE.IN[8]   BLK_TI-TILE.OUT[2] BLK_TI-TILE.CLK[2]</loc>
-  <loc side="bottom">BLK_TI-TILE.IN[9] BLK_TI-TILE.IN[10] BLK_TI-TILE.IN[11]  BLK_TI-TILE.OUT[3] BLK_TI-TILE.CLK[3] BLK_TI-TILE.DUMMY[0]</loc>
+  <loc side="left">  BLK_TI-TILE.IN[6] BLK_TI-TILE.IN[7]  BLK_TI-TILE.IN[8]   BLK_TI-TILE.OUT[2] BLK_TI-TILE.CLK[2] BLK_TI-TILE.DUMMYI[0]</loc>
+  <loc side="bottom">BLK_TI-TILE.IN[9] BLK_TI-TILE.IN[10] BLK_TI-TILE.IN[11]  BLK_TI-TILE.OUT[3] BLK_TI-TILE.CLK[3] BLK_TI-TILE.DUMMYO[0]</loc>
  </pinlocations>
- <fc default_in_type="frac" default_in_val="0.75" default_out_type="frac" default_out_val="0.25">
-  <fc_override fc_type="frac" fc_val="1.0" port_name="DUMMY" />
+ <fc default_in_type="frac" default_in_val="0.0" default_out_type="frac" default_out_val="0.0">
+  <fc_override fc_type="frac" fc_val="1.0" port_name="DUMMYI" />
+  <fc_override fc_type="frac" fc_val="1.0" port_name="DUMMYO" />
   <fc_override fc_type="frac" fc_val="1.0" port_name="CLK"   />
  </fc>
 </pb_type>
