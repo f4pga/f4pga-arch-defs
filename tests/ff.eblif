@@ -2,4 +2,5 @@
 .inputs clk di
 .outputs D1
 .latch di D1 re clk 0
+.cname my_ff
 .end
