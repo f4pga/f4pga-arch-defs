@@ -507,6 +507,9 @@ def iceboxname_pin(tiletype, localname):
             return 'lutff_global/{}'.format(localname)
 """
 
+def pos_to_vpr(pos):
+    return [pos[0] + 1, pos[1] + 1]
+
 def add_pin(pos, localname, dir, idx):
     """Add an pin at index i to tile at pos."""
 
@@ -524,7 +527,8 @@ def add_pin(pos, localname, dir, idx):
     gname_pin = GlobalName(*gname, 'pin')
 
     add_globalname2localname(gname, pos, localname)
-
+    vpos = pos_to_vpr(pos)
+    
     if dir == "out":
         # Sink node
         attribs = {
@@ -532,8 +536,8 @@ def add_pin(pos, localname, dir, idx):
         }
         node = add_node(gname, attribs)
         ET.SubElement(node, 'loc', {
-            'xlow': str(pos[0]+1), 'ylow': str(pos[1]+1),
-            'xhigh': str(pos[0]+1), 'yhigh': str(pos[1]+1),
+            'xlow': str(vpos[0]), 'ylow': str(vpos[1]),
+            'xhigh': str(vpos[0]), 'yhigh': str(vpos[1]),
             'ptc': str(idx),
         })
         ET.SubElement(node, 'timing', {'R': str(0), 'C': str(0)})
@@ -544,8 +548,8 @@ def add_pin(pos, localname, dir, idx):
         }
         node = add_node(gname_pin, attribs)
         ET.SubElement(node, 'loc', {
-            'xlow': str(pos[0]+1), 'ylow': str(pos[1]+1),
-            'xhigh': str(pos[0]+1), 'yhigh': str(pos[1]+1),
+            'xlow': str(vpos[0]), 'ylow': str(vpos[1]),
+            'xhigh': str(vpos[0]), 'yhigh': str(vpos[1]),
             'ptc': str(idx),
             'side': 'TOP',
         })
@@ -561,8 +565,8 @@ def add_pin(pos, localname, dir, idx):
         }
         node = add_node(gname, attribs)
         ET.SubElement(node, 'loc', {
-            'xlow': str(pos[0]+1), 'ylow': str(pos[1]+1),
-            'xhigh': str(pos[0]+1), 'yhigh': str(pos[1]+1),
+            'xlow': str(vpos[0]), 'ylow': str(vpos[1]),
+            'xhigh': str(vpos[0]), 'yhigh': str(vpos[1]),
             'ptc': str(idx),
         })
         ET.SubElement(node, 'timing', {'R': str(0), 'C': str(0)})
@@ -573,8 +577,8 @@ def add_pin(pos, localname, dir, idx):
         }
         node = add_node(gname_pin, attribs)
         ET.SubElement(node, 'loc', {
-            'xlow': str(pos[0]+1), 'ylow': str(pos[1]+1),
-            'xhigh': str(pos[0]+1), 'yhigh': str(pos[1]+1),
+            'xlow': str(vpos[0]), 'ylow': str(vpos[1]),
+            'xhigh': str(vpos[0]), 'yhigh': str(vpos[1]),
             'ptc': str(idx),
             'side': 'TOP',
         })
