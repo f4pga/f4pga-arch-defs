@@ -37,22 +37,22 @@
     extra empty tiles.
    -->
    <col     type="EMPTY" startx="0"  priority="30"/>
-   <col     type="PAD"   startx="1"  priority="10"/>
+   <col     type="PIO"   startx="1"  priority="10"/>
    <region  type="PLB"   startx="2" endx="13" starty="2" endy="17" priority="4"/> <!-- Logic blocks 11x15 -->
-   <col     type="PAD"   startx="14" priority="10"/>
+   <col     type="PIO"   startx="14" priority="10"/>
    <col     type="EMPTY" startx="15" priority="30"/>
 
    <row     type="EMPTY" starty="0"  priority="31"/>
-   <row     type="PAD"   starty="1"  priority="11"/>
+   <row     type="PIO"   starty="1"  priority="11"/>
    <!-- starty="2" endy="17" -->
-   <row     type="PAD"   starty="18"  priority="11"/>
+   <row     type="PIO"   starty="18"  priority="11"/>
    <row     type="EMPTY" starty="19" priority="31"/>
 
    <!-- Block RAM -->
-   <col     type="RAM"   startx="4"  starty="2" priority="5"/>
-   <region  type="EMPTY" startx="4" endx="4" starty="2" endy="2" repeaty="2" priority="6"/>
-   <col     type="RAM"   startx="11" starty="2" priority="5"/>
-   <region  type="EMPTY" startx="11" endx="11" starty="2" endy="2" repeaty="2" priority="6"/>
+   <col     type="RAMB"   startx="4"  starty="2" priority="5"/>
+   <region  type="RAMT" startx="4" endx="4" starty="3" endy="3" repeaty="2" priority="6"/>
+   <col     type="RAMB"   startx="11" starty="2" priority="5"/>
+   <region  type="RAMT" startx="11" endx="11" starty="3" endy="3" repeaty="2" priority="6"/>
 
    <!-- Create empty blocks at all corners -->
    <single  type="EMPTY" x="1"  y="1"  priority="40"/>
@@ -78,9 +78,9 @@
    <row     type="EMPTY" starty="35" priority="31"/>
 
    <!-- Block RAM -->
-   <col     type="RAM"   startx="9"  starty="2" priority="5"/>
+   <col     type="RAMB"   startx="9"  starty="2" priority="5"/>
    <region  type="EMPTY" startx="9" endx="9" starty="2" endy="2" repeaty="2" priority="6"/>
-   <col     type="RAM"   startx="26" starty="2" priority="5"/>
+   <col     type="RAMB"   startx="26" starty="2" priority="5"/>
    <region  type="EMPTY" startx="26" endx="26" starty="2" endy="2" repeaty="2" priority="6"/>
 
    <!-- Create empty blocks at all corners -->
@@ -149,31 +149,34 @@
    <opin_switch name="2"/>
   </segment>
 
-  <!-- Neighbourhood tracks 
-  <segment name="neigh" length="2" freq="1.000000" type="bidir" Rmetal="101" Cmetal="22.5e-15">
-   <sb type="pattern">1 1 1</sb>
-   <cb type="pattern">1 1</cb>
-   <wire_switch name="1"/>
-   <opin_switch name="2"/>
-  </segment> -->
 
-  <!-- Local tracks
+
+  <!-- Local tracks -->
   <segment name="local" length="1" freq="1.000000" type="bidir" Rmetal="101" Cmetal="22.5e-15">
    <sb type="pattern">0 1</sb>
    <cb type="pattern">1</cb>
    <wire_switch name="2"/>
    <opin_switch name="2"/>
   </segment>
-       -->
+ 
+  <!-- Neighbourhood tracks-->
+  <segment name="direct" length="2" freq="1.000000" type="bidir" Rmetal="101" Cmetal="22.5e-15">
+   <sb type="pattern">1 1 1</sb>
+   <cb type="pattern">1 1</cb>
+   <wire_switch name="1"/>
+   <opin_switch name="2"/>
+  </segment> 
+ 
  </segmentlist>
 
  <!-- Description of the block tiles available in the iCE40 -->
  <complexblocklist>
-
-  <xi:include href="../../tiles/plb/pb_type.xml"/>
-  <xi:include href="../../tiles/block_ram/pb_type.xml"/>
-
+   
   <xi:include href="../../tiles/pio-tb/pb_type.xml"/>
+  <xi:include href="../../tiles/plb/pb_type.xml"/>
+  <xi:include href="../../tiles/ramb/pb_type.xml"/>
+  <xi:include href="../../tiles/ramt/pb_type.xml"/>
+
   <!--<xi:include href="../../../vpr/pad/pb_type.xml"/>-->
 
  </complexblocklist>
