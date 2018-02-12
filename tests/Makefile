@@ -37,17 +37,17 @@ $(OUTPUT_DIR):
 ##########################################################################
 
 # Yosys command
-$(OUTPUT_DIR)/%.blif: %.v | $(OUTPUT_DIR)
-	$(YOSYS) -p "$(YOSYS_SCRIPT) opt_clean; write_blif $@" $<
+$(OUTPUT_DIR)/%.eblif: %.v | $(OUTPUT_DIR)
+	$(YOSYS) -p "$(YOSYS_SCRIPT) opt_clean; write_eblif $@" $<
 
 # Quick shortcut
-%.blif: $(OUTPUT_DIR)/%.blif | $(OUTPUT_DIR)
+%.eblif: $(OUTPUT_DIR)/%.eblif | $(OUTPUT_DIR)
 	@true
 
-.PRECIOUS: $(OUTPUT_DIR)/%.blif
+.PRECIOUS: $(OUTPUT_DIR)/%.eblif
 
 # We just have a BLIF file
-$(OUTPUT_DIR)/%.blif: %.blif | $(OUTPUT_DIR)
+$(OUTPUT_DIR)/%.eblif: %.eblif | $(OUTPUT_DIR)
 	cp $< $@
 
 ##########################################################################
@@ -57,7 +57,7 @@ VPR_ARGS ?=
 VPR_CMD = $(VPR) $(VPR_ARGS)  $(ARCH_FILE) --device $(DEVICE)
 VPR_FULL_CMD = cd $(OUTPUT_DIR); $(VPR_CMD)
 
-$(OUTPUT_DIR)/%.rr_graph.xml: $(OUTPUT_DIR)/%.blif $(ARCH_FILE)
+$(OUTPUT_DIR)/%.rr_graph.xml: $(OUTPUT_DIR)/%.eblif $(ARCH_FILE)
 	$(VPR_FULL_CMD) $(notdir $<) --write_rr_graph $(notdir $@)
 
 # ------------------------------------------------------------------------
@@ -67,23 +67,26 @@ $(OUTPUT_DIR)/%.rr_graph.xml: $(OUTPUT_DIR)/%.blif $(ARCH_FILE)
 .PRECIOUS: $(OUTPUT_DIR)/%.rr_graph.xml
 # ------------------------------------------------------------------------
 
-%.disp: $(OUTPUT_DIR)/%.blif $(ARCH_FILE)
+%.disp: $(OUTPUT_DIR)/%.eblif $(ARCH_FILE)
 	$(VPR_FULL_CMD) $(notdir $<) --disp on
 
-%.echo: $(OUTPUT_DIR)/%.blif $(ARCH_FILE)
-	$(VPR_FULL_CMD) $(notdir $<) --echo_file on
+%.echo: $(OUTPUT_DIR)/%.eblif $(ARCH_FILE)
+	$(VPR_FULL_CMD) $(notdir $<) --echo_file on --full_stats on
 
-%.gdb: $(OUTPUT_DIR)/%.blif $(ARCH_FILE)
+%.verilog: $(OUTPUT_DIR)/%.eblif $(ARCH_FILE)
+	$(VPR_FULL_CMD) $(notdir $<) --gen_post_synthesis_netlist on
+
+%.gdb: $(OUTPUT_DIR)/%.eblif $(ARCH_FILE)
 	cd $(OUTPUT_DIR); gdb --args $(VPR_CMD) $(notdir $<) --echo_file on --disp on
 
 
-ALL_OUTPUT = $(patsubst %.v,$(OUTPUT_DIR)/%.rr_graph.xml,$(wildcard *.v)) $(patsubst %.blif,$(OUTPUT_DIR)/%.rr_graph.xml,$(wildcard *.blif))
+ALL_OUTPUT = $(patsubst %.v,$(OUTPUT_DIR)/%.rr_graph.xml,$(wildcard *.v)) $(patsubst %.eblif,$(OUTPUT_DIR)/%.rr_graph.xml,$(wildcard *.eblif))
 all: $(ALL_OUTPUT)
 	@echo $(ALL_OUTPUT)
 
 help:
 	@echo ""
-	@echo "For each blif file in this directory you can:"
+	@echo "For each eblif file in this directory you can:"
 	@echo " make xx.disp 		- Display the vpr process."
 	@echo " make xx.echo 		- Generate useful debugging echo files."
 	@echo " make xx.gdb  		- Run vpr process under gdb."
