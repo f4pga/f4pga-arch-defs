@@ -19,7 +19,7 @@
   <fixed_layout name="xc7a50t" width="26" height="57">
 
    <col type="EMPTY"      startx="0"  priority="10" />
-   <!-- <col type="LIOB"       startx="0"   priority="10" /> --><col type="PAD"        startx="1"  priority="10" />
+   <!-- <col type="LIOB"       startx="0"   priority="10" /> --><col type="BLK_BB-VPR_PAD"        startx="1"  priority="10" />
    <col type="EMPTY"      startx="3"  priority="10" />
 
    <!-- Start RIO -->
@@ -69,7 +69,7 @@
 
    <!-- ===== -->
 
-   <col type="TILE_CLBLL_L"    startx="10" priority="10" />
+   <col type="BLK_TI-CLBLL_L"    startx="10" priority="10" />
 	<!-- <single type="NULL"         x="10" y="0"  priority="20"/> --><single type="EMPTY" x="10" y="0"  priority="20"/>
 	<!-- <single type="HCLK_CLB"     x="10" y="26" priority="20"/> --><single type="EMPTY" x="10" y="26" priority="20"/>
 	<!-- <single type="NULL"         x="10" y="56" priority="20"/> --><single type="EMPTY" x="10" y="56" priority="20"/>
@@ -91,7 +91,7 @@
 
    <!-- ===== -->
 
-   <col type="TILE_CLBLL_L"    startx="14" priority="10" />
+   <col type="BLK_TI-CLBLL_L"    startx="14" priority="10" />
 	<!-- <single type="NULL"         x="14" y="0"  priority="20"/> --><single type="EMPTY" x="14" y="0"  priority="20"/>
 	<!-- <single type="HCLK_CLB"     x="14" y="26" priority="20"/> --><single type="EMPTY" x="14" y="26" priority="20"/>
 	<!-- <single type="NULL"         x="14" y="56" priority="20"/> --><single type="EMPTY" x="14" y="56" priority="20"/>
@@ -113,7 +113,7 @@
 
    <!-- ===== -->
 
-   <col type="TILE_CLBLL_L"    startx="18" priority="10" />
+   <col type="BLK_TI-CLBLL_L"    startx="18" priority="10" />
 	<!-- <single type="NULL"         x="18" y="0"  priority="20"/> --><single type="EMPTY" x="18" y="0"  priority="20"/>
 	<!-- <single type="HCLK_CLB"     x="18" y="26" priority="20"/> --><single type="EMPTY" x="18" y="26" priority="20"/>
 	<!-- <single type="NULL"         x="18" y="56" priority="20"/> --><single type="EMPTY" x="18" y="56" priority="20"/>
@@ -126,19 +126,19 @@
    <!-- End RIO -->
 
    <col type="EMPTY"      startx="23" priority="10" />
-   <!-- <col type="RIOB"       startx="24"  priority="10" /> --><col type="PAD"        startx="24" priority="10" />
+   <!-- <col type="RIOB"       startx="24"  priority="10" /> --><col type="BLK_BB-VPR_PAD"        startx="24" priority="10" />
    <col type="EMPTY"      startx="25" priority="10" />
 
   </fixed_layout>
   <fixed_layout name="xc7a50t-test" width="8" height="8">
 
    <col type="EMPTY"      startx="0"  priority="10" />
-   <!-- <col type="LIOB"       startx="0"   priority="10" /> --><col type="PAD"        startx="1"  priority="10" />
+   <!-- <col type="LIOB"       startx="0"   priority="10" /> --><col type="BLK_BB-VPR_PAD"        startx="1"  priority="10" />
    <col type="EMPTY"      startx="2"  priority="10" />
 
    <!-- Start RIO -->
 
-   <col type="TILE_CLBLL_L"    startx="3" priority="10" />
+   <col type="BLK_TI-CLBLL_L"    startx="3" priority="10" />
    <col type="TILE_INT_L"      startx="4" priority="10" />
 
    <!-- End RIO -->
@@ -146,7 +146,7 @@
    <row type="EMPTY"           starty="7" priority="11" />
 
    <col type="EMPTY"      startx="5" priority="10" />
-   <!-- <col type="RIOB"       startx="24"  priority="10" /> --><col type="PAD"        startx="6" priority="10" />
+   <!-- <col type="RIOB"       startx="24"  priority="10" /> --><col type="BLK_BB-VPR_PAD"        startx="6" priority="10" />
    <col type="EMPTY"      startx="7" priority="10" />
 
   </fixed_layout>
@@ -216,17 +216,17 @@
 
  <directlist>
   <!-- CLBX_L -->
-  <direct name="TILE_CLBLL_L_L_CARRY"  from_pin="TILE_CLBLL_L.L_COUT_N"  to_pin="TILE_CLBLL_L.L_CIN_N"  x_offset="0"  y_offset="1" z_offset="0"/>
-  <direct name="TILE_CLBLL_L_LL_CARRY" from_pin="TILE_CLBLL_L.LL_COUT_N" to_pin="TILE_CLBLL_L.LL_CIN_N" x_offset="0"  y_offset="1" z_offset="0"/>
+  <direct name="BLK_TI-CLBLL_L_L_CARRY"  from_pin="BLK_TI-CLBLL_L.L_COUT_N"  to_pin="BLK_TI-CLBLL_L.L_CIN_N"  x_offset="0"  y_offset="1" z_offset="0"/>
+  <direct name="BLK_TI-CLBLL_L_LL_CARRY" from_pin="BLK_TI-CLBLL_L.LL_COUT_N" to_pin="BLK_TI-CLBLL_L.LL_CIN_N" x_offset="0"  y_offset="1" z_offset="0"/>
   <!--
-  <direct name="TILE_CLBLM_L_M_CARRY"  from_pin="TILE_CLBLM_L.M_COUT_N"  to_pin="TILE_CLBLM_L.M_CIN_N"  x_offset="0"  y_offset="1" z_offset="0"/>
-  <direct name="TILE_CLBLM_L_L_CARRY"  from_pin="TILE_CLBLM_L.L_COUT_N"  to_pin="TILE_CLBLM_L.L_CIN_N"  x_offset="0"  y_offset="1" z_offset="0"/>
+  <direct name="BLK_TI-CLBLM_L_M_CARRY"  from_pin="BLK_TI-CLBLM_L.M_COUT_N"  to_pin="BLK_TI-CLBLM_L.M_CIN_N"  x_offset="0"  y_offset="1" z_offset="0"/>
+  <direct name="BLK_TI-CLBLM_L_L_CARRY"  from_pin="BLK_TI-CLBLM_L.L_COUT_N"  to_pin="BLK_TI-CLBLM_L.L_CIN_N"  x_offset="0"  y_offset="1" z_offset="0"/>
   -->
   <!-- CLBX_R
-  <direct name="TILE_CLBLL_R_L_CARRY"  from_pin="TILE_CLBLL_R.L_COUT_N"  to_pin="TILE_CLBLL_R.L_CIN_N"  x_offset="0"  y_offset="1" z_offset="0"/>
-  <direct name="TILE_CLBLL_R_LL_CARRY" from_pin="TILE_CLBLL_R.LL_COUT_N" to_pin="TILE_CLBLL_R.LL_CIN_N" x_offset="0"  y_offset="1" z_offset="0"/>
-  <direct name="TILE_CLBLM_R_M_CARRY"  from_pin="TILE_CLBLM_R.L_COUT_N"  to_pin="TILE_CLBLM_R.L_CIN_N"  x_offset="0"  y_offset="1" z_offset="0"/>
-  <direct name="TILE_CLBLM_R_L_CARRY"  from_pin="TILE_CLBLM_R.M_COUT_N"  to_pin="TILE_CLBLM_R.M_CIN_N"  x_offset="0"  y_offset="1" z_offset="0"/>
+  <direct name="BLK_TI-CLBLL_R_L_CARRY"  from_pin="BLK_TI-CLBLL_R.L_COUT_N"  to_pin="BLK_TI-CLBLL_R.L_CIN_N"  x_offset="0"  y_offset="1" z_offset="0"/>
+  <direct name="BLK_TI-CLBLL_R_LL_CARRY" from_pin="BLK_TI-CLBLL_R.LL_COUT_N" to_pin="BLK_TI-CLBLL_R.LL_CIN_N" x_offset="0"  y_offset="1" z_offset="0"/>
+  <direct name="BLK_TI-CLBLM_R_M_CARRY"  from_pin="BLK_TI-CLBLM_R.L_COUT_N"  to_pin="BLK_TI-CLBLM_R.L_CIN_N"  x_offset="0"  y_offset="1" z_offset="0"/>
+  <direct name="BLK_TI-CLBLM_R_L_CARRY"  from_pin="BLK_TI-CLBLM_R.M_COUT_N"  to_pin="BLK_TI-CLBLM_R.M_CIN_N"  x_offset="0"  y_offset="1" z_offset="0"/>
        -->
   <!--
 
@@ -262,13 +262,13 @@
   <output name="LL_COUT_N           " num_pins="1"/>
   <output name="L_COUT_N            " num_pins="1"/>
   -->
-  <direct name="INT_L to CLBLL_L BYP"        from_pin="TILE_INT_L.BYP_L"        to_pin="TILE_CLBLL_L.BYP"        x_offset="-1" y_offset="0" z_offset="0"/>
-  <direct name="INT_L to CLBLL_L CLK"        from_pin="TILE_INT_L.CLK_L"        to_pin="TILE_CLBLL_L.CLK"        x_offset="-1" y_offset="0" z_offset="0"/>
-  <direct name="INT_L to CLBLL_L CTRL"       from_pin="TILE_INT_L.CTRL_L"       to_pin="TILE_CLBLL_L.CTRL"       x_offset="-1" y_offset="0" z_offset="0"/>
-  <direct name="INT_L to CLBLL_L FAN6"       from_pin="TILE_INT_L.FAN_L[6:6]"   to_pin="TILE_CLBLL_L.FAN6"       x_offset="-1" y_offset="0" z_offset="0"/>
-  <direct name="INT_L to CLBLL_L FAN7"       from_pin="TILE_INT_L.FAN_L[7:7]"   to_pin="TILE_CLBLL_L.FAN7"       x_offset="-1" y_offset="0" z_offset="0"/>
-  <direct name="INT_L to CLBLL_L IMUX"       from_pin="TILE_INT_L.IMUX_L"       to_pin="TILE_CLBLL_L.IMUX"       x_offset="-1" y_offset="0" z_offset="0"/>
-  <direct name="CLBLL_L to INT_L LOGIC_OUTS" from_pin="TILE_CLBLL_L.LOGIC_OUTS" to_pin="TILE_INT_L.LOGIC_OUTS_L" x_offset= "1" y_offset="0" z_offset="0"/>
+  <direct name="INT_L to CLBLL_L BYP"        from_pin="TILE_INT_L.BYP_L"        to_pin="BLK_TI-CLBLL_L.BYP"        x_offset="-1" y_offset="0" z_offset="0"/>
+  <direct name="INT_L to CLBLL_L CLK"        from_pin="TILE_INT_L.CLK_L"        to_pin="BLK_TI-CLBLL_L.CLK"        x_offset="-1" y_offset="0" z_offset="0"/>
+  <direct name="INT_L to CLBLL_L CTRL"       from_pin="TILE_INT_L.CTRL_L"       to_pin="BLK_TI-CLBLL_L.CTRL"       x_offset="-1" y_offset="0" z_offset="0"/>
+  <direct name="INT_L to CLBLL_L FAN6"       from_pin="TILE_INT_L.FAN_L[6:6]"   to_pin="BLK_TI-CLBLL_L.FAN6"       x_offset="-1" y_offset="0" z_offset="0"/>
+  <direct name="INT_L to CLBLL_L FAN7"       from_pin="TILE_INT_L.FAN_L[7:7]"   to_pin="BLK_TI-CLBLL_L.FAN7"       x_offset="-1" y_offset="0" z_offset="0"/>
+  <direct name="INT_L to CLBLL_L IMUX"       from_pin="TILE_INT_L.IMUX_L"       to_pin="BLK_TI-CLBLL_L.IMUX"       x_offset="-1" y_offset="0" z_offset="0"/>
+  <direct name="CLBLL_L to INT_L LOGIC_OUTS" from_pin="BLK_TI-CLBLL_L.LOGIC_OUTS" to_pin="TILE_INT_L.LOGIC_OUTS_L" x_offset= "1" y_offset="0" z_offset="0"/>
  </directlist>
 
 </architecture>
