@@ -1,23 +1,19 @@
 <!-- set: ai sw=1 ts=1 sta et -->
-<pb_type name="IO" xmlns:xi="http://www.w3.org/2001/XInclude">
+<pb_type name="PIO" xmlns:xi="http://www.w3.org/2001/XInclude">
 
  <!-- Local neighbourhood ############################################ -->
  <input  name="o_neigh_op_top" num_pins="8" equivalent="true"/>
  <input  name="o_neigh_op_tnr" num_pins="8" equivalent="true"/>
- <input  name="o_neigh_op_rgt" num_pins="8" equivalent="true"/>
  <input  name="o_neigh_op_bnr" num_pins="8" equivalent="true"/>
  <input  name="o_neigh_op_bot" num_pins="8" equivalent="true"/>
  <input  name="o_neigh_op_bnl" num_pins="8" equivalent="true"/>
- <input  name="o_neigh_op_lft" num_pins="8" equivalent="true"/>
  <input  name="o_neigh_op_tnl" num_pins="8" equivalent="true"/>
 
  <input  name="i_neigh_op_top" num_pins="8" equivalent="true"/>
  <input  name="i_neigh_op_tnr" num_pins="8" equivalent="true"/>
- <input  name="i_neigh_op_rgt" num_pins="8" equivalent="true"/>
  <input  name="i_neigh_op_bnr" num_pins="8" equivalent="true"/>
  <input  name="i_neigh_op_bot" num_pins="8" equivalent="true"/>
  <input  name="i_neigh_op_bnl" num_pins="8" equivalent="true"/>
- <input  name="i_neigh_op_lft" num_pins="8" equivalent="true"/>
  <input  name="i_neigh_op_tnl" num_pins="8" equivalent="true"/>
 
  <!-- Vertical spans ################################################# -->
@@ -63,8 +59,11 @@
   <output name="carry_out"    num_pins="1" equivalent="false"/>
 
   <clock  name="clk" num_pins="1" equivalent="false"/>
-
-
+  <interconnect>
+    <!-- TODO -->
+  </interconnect>
+  </pb_type>
+  
    <clock name="OUTPUT_CLK" num_pins="1"/>
    <clock name="INPUT_CLK"  num_pins="1"/>
    <input name="CLOCK_ENABLE" num_pins="1" equivalent="false"/>
@@ -148,7 +147,6 @@
      <delay_constant max="10e-12" in_port="CLK_OUT_MUX.S"      out_port="CLK_OUT_MUX.O"/>
     </pb_type>
 
-    <!-- Pads
     <pb_type name="PAD" num_pb="1">
      <input  name="EN_N" num_pins="1" />
      <output name="I"    num_pins="1" />
@@ -175,7 +173,7 @@
       </interconnect>
      </mode>
     </pb_type>
-     -->
+    
 
     <interconnect>
      <!-- Clock enable -->
@@ -188,7 +186,7 @@
 
      <!-- Input flip flops -->
      <complete name="IN_FF_CLK"    input="CLK_IN_MUX.O"    output="IN_FF[1:0].clk" />
-     <complete name="PAD_INPUT_N0" input="PAD_I"           output="IN_FF[1:0].D INPUT_MUX.I[2:2]" />
+     <complete name="PAD_INPUT_N0" input="PAD.I"           output="IO.D_IN_0" />
      <direct   name="PAD_INPUT_N1" input="IN_FF[1:1].Q"    output="IO.D_IN_1" />
      <direct   name="PAD_INPUT_N2" input="IN_FF[0:0].Q"    output="INPUT_MUX.I[3:3]" />
 
@@ -202,16 +200,16 @@
      <!--      name="INPUT_MUX_I2" input="PAD.I"                output="INPUT_MUX.I[2:2]" -->
      <!--      name="INPUT_MUX_I3" input="IN_FF[0:0].Q"         output="INPUT_MUX.I[3:3]" -->
 
-     <complete name="INPUT_MUX_O"  input="INPUT_MUX.O" output="INPUT_MUX.I[1:0] IO.D_IN_0"/>
+     <!--<complete name="INPUT_MUX_O"  input="INPUT_MUX.O" output="INPUT_MUX.I[1:0] IO.D_IN_0"/>-->
 
      <!-- Output enable MUX -->
      <!--
      <mux name="OE_MUX" input="GND VCC IO.OUTPUT_ENABLE OE_FF.D" output="PAD.EN_N" />
      -->
-     <mux name="OE_MUX" input="IO.OUTPUT_ENABLE OE_FF.Q" output="PAD_EN_N" />
+     <mux name="OE_MUX" input="IO.OUTPUT_ENABLE OE_FF.Q" output="IO.PAD_EN" />
 
      <!-- FIXME: Properly describe the output mux cascade... -->
-
+     <complete name="PAD_OUTPUT_N0" input="IO.D_OUT_0" output="PAD.O" />
      <!-- Output flipflops -->
      <complete name="OUT_FF_CLK" input="CLK_OUT_MUX.O" output="OUT_FF[1:0].clk OE_FF.clk" />
      <direct   name="D_OUT_0"    input="IO.D_OUT_0"    output="OUT_FF[0:0].D" />
@@ -245,7 +243,6 @@
     <fc_override fc_type="abs" fc_val="2" port_name="OUTPUT_ENABLE" segment_name="local"/>
    </fc>
 
-
    <pinlocations pattern="custom">
      <loc side="right" xoffset="0" yoffset="0">
       PIO.OUTPUT_CLK PIO.INPUT_CLK PIO.CLOCK_ENABLE
@@ -253,6 +250,36 @@
       PIO.D_IN_0 PIO.D_IN_1
       PIO.D_OUT_0 PIO.D_OUT_1
       PIO.OUTPUT_ENABLE
+      
+      PIO.i_span4_horz
+      PIO.o_span4_horz
+      PIO.i_span12_horz
+      PIO.o_span12_horz
+    </loc>
+    <loc side="top" xoffset="0" yoffset="0">
+     PIO.i_glb_netwk
+     PIO.o_glb_netwk
+
+     PIO.o_neigh_op_tnr PIO.i_neigh_op_tnr
+     PIO.o_neigh_op_top PIO.i_neigh_op_top
+     PIO.o_neigh_op_tnl PIO.i_neigh_op_tnl
+     PIO.i_span4_vert_t
+     PIO.o_span4_vert_t
+    </loc>
+    
+    <loc side="bottom" xoffset="0" yoffset="0">
+
+     PIO.i_neigh_op_bnr PIO.o_neigh_op_bnr
+     PIO.i_neigh_op_bot PIO.o_neigh_op_bot
+     PIO.i_neigh_op_bnl PIO.o_neigh_op_bnl
+
+     PIO.i_span4_vert_b
+     PIO.o_span4_vert_b
     </loc>
    </pinlocations>
- </pb_type>
+   
+   
+    <xi:include href="../../primitives/mux2/pb_type.xml"/>
+    <xi:include href="../../primitives/mux4/pb_type.xml"/>
+
+</pb_type>
