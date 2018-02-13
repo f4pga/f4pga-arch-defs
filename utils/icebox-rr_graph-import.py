@@ -172,14 +172,24 @@ switches = ET.SubElement(rr_graph, 'switches')
 buffer_id = 0
 switch_buffer = ET.SubElement(
     switches, 'switch',
-    {'id': str(buffer_id), 'name': 'buffer', 'buffered': "1"},
+    {'id': str(buffer_id), 'name': 'buffer', 'buffered': "1", 'type': "mux"},
 )
 
-# Routing switch connects two nets together to form a longer wire.
+switch_buffer_sizing = ET.SubElement(
+    switch_buffer, 'sizing',
+    {'mux_trans_size': "2.32", 'buf_size': "23.54"},
+)
+
+# Routing switch connects two nets together to form a span12er wire.
 routing_id = 1
 switch_routing = ET.SubElement(
     switches, 'switch',
-    {'id': str(routing_id), 'name': 'routing', 'buffered': "0"},
+    {'id': str(routing_id), 'name': 'routing', 'buffered': "0", 'type': "mux"},
+)
+
+switch_routing_sizing = ET.SubElement(
+    switch_routing, 'sizing',
+    {'mux_trans_size': "2.32", 'buf_size': "23.54"},
 )
 
 # -----------------------------------------------------------------------
@@ -210,10 +220,10 @@ switch_routing = ET.SubElement(
 		<segment id="0" name="global">
 			<timing R_per_meter="101" C_per_meter="2.25000004521955232483776399022e-14"/>
 		</segment>
-		<segment id="1" name="span12"> <!-- long ->
+		<segment id="1" name="span12"> <!-- span12 ->
 			<timing R_per_meter="101" C_per_meter="2.25000004521955232483776399022e-14"/>
 		</segment>
-		<segment id="2" name="span4"> <!-- short -->
+		<segment id="2" name="span4"> <!-- span4 -->
 			<timing R_per_meter="101" C_per_meter="2.25000004521955232483776399022e-14"/>
 		</segment>
 		<segment id="3" name="local">
@@ -228,8 +238,8 @@ switch_routing = ET.SubElement(
 
 segment_types = OrderedDict([
     ('global',  {}),
-    ('long',    {}),
-    ('short',   {}),
+    ('span12',    {}),
+    ('span4',   {}),
     ('local',   {}),
     ('direct',  {}),
 ])
@@ -497,6 +507,9 @@ def iceboxname_pin(tiletype, localname):
             return 'lutff_global/{}'.format(localname)
 """
 
+def pos_to_vpr(pos):
+    return [pos[0] + 1, pos[1] + 1]
+
 def add_pin(pos, localname, dir, idx):
     """Add an pin at index i to tile at pos."""
 
@@ -514,7 +527,8 @@ def add_pin(pos, localname, dir, idx):
     gname_pin = GlobalName(*gname, 'pin')
 
     add_globalname2localname(gname, pos, localname)
-
+    vpos = pos_to_vpr(pos)
+    
     if dir == "out":
         # Sink node
         attribs = {
@@ -522,8 +536,8 @@ def add_pin(pos, localname, dir, idx):
         }
         node = add_node(gname, attribs)
         ET.SubElement(node, 'loc', {
-            'xlow': str(pos[0]), 'ylow': str(pos[1]),
-            'xhigh': str(pos[0]), 'yhigh': str(pos[1]),
+            'xlow': str(vpos[0]), 'ylow': str(vpos[1]),
+            'xhigh': str(vpos[0]), 'yhigh': str(vpos[1]),
             'ptc': str(idx),
         })
         ET.SubElement(node, 'timing', {'R': str(0), 'C': str(0)})
@@ -534,8 +548,8 @@ def add_pin(pos, localname, dir, idx):
         }
         node = add_node(gname_pin, attribs)
         ET.SubElement(node, 'loc', {
-            'xlow': str(pos[0]), 'ylow': str(pos[1]),
-            'xhigh': str(pos[0]), 'yhigh': str(pos[1]),
+            'xlow': str(vpos[0]), 'ylow': str(vpos[1]),
+            'xhigh': str(vpos[0]), 'yhigh': str(vpos[1]),
             'ptc': str(idx),
             'side': 'TOP',
         })
@@ -551,8 +565,8 @@ def add_pin(pos, localname, dir, idx):
         }
         node = add_node(gname, attribs)
         ET.SubElement(node, 'loc', {
-            'xlow': str(pos[0]), 'ylow': str(pos[1]),
-            'xhigh': str(pos[0]), 'yhigh': str(pos[1]),
+            'xlow': str(vpos[0]), 'ylow': str(vpos[1]),
+            'xhigh': str(vpos[0]), 'yhigh': str(vpos[1]),
             'ptc': str(idx),
         })
         ET.SubElement(node, 'timing', {'R': str(0), 'C': str(0)})
@@ -563,8 +577,8 @@ def add_pin(pos, localname, dir, idx):
         }
         node = add_node(gname_pin, attribs)
         ET.SubElement(node, 'loc', {
-            'xlow': str(pos[0]), 'ylow': str(pos[1]),
-            'xhigh': str(pos[0]), 'yhigh': str(pos[1]),
+            'xlow': str(vpos[0]), 'ylow': str(vpos[1]),
+            'xhigh': str(vpos[0]), 'yhigh': str(vpos[1]),
             'ptc': str(idx),
             'side': 'TOP',
         })
@@ -636,7 +650,7 @@ def add_track_local(pos, g, i):
     lname = localname_track_local(pos, g, i)
     gname = globalname_track_local(pos, g, i)
 
-    idx = g * (LOCAL_TRACKS_PER_GROUP+1) + i
+    idx = g * (LOCAL_TRACKS_PER_GROUP) + i
 
     #print("Adding local track {} on tile {}@{}".format(gname, pos, idx))
     add_channel(gname, 'CHANY', pos, pos, idx, 'local')
@@ -647,7 +661,7 @@ def add_track_gbl2local(pos, i):
     lname = localname_track_glb2local(pos, i)
     gname = globalname_track_glb2local(pos, i)
 
-    idx = LOCAL_TRACKS_MAX_GROUPS * (LOCAL_TRACKS_PER_GROUP+1) + i
+    idx = LOCAL_TRACKS_MAX_GROUPS * (LOCAL_TRACKS_PER_GROUP) + i
 
     #print("Adding glb2local {} track {} on tile {}@{}".format(i, gname, pos, idx))
     add_channel(gname, 'CHANY', pos, pos, idx, 'gbl2local')
@@ -670,10 +684,13 @@ for x in (0, ic.max_x):
     for y in (0, ic.max_y):
         corner_tiles.add((x, y))
 
+# Should we just use consistent names instead?
+tile_name_map = {"IO" : "PIO", "LOGIC" : "PLB", "RAMB" : "RAMB", "RAMT" : "RAMT"}
+
 # Add the tiles
 # ------------------------------
 tile_types = {
-    "IO": {
+    "PIO": {
         "id": 1,
         "pin_map": OrderedDict([
             ('outclk', ('in', 0)),
@@ -696,7 +713,7 @@ tile_types = {
         'size': (1, 1),
     },
 
-    "LOGIC": {
+    "PLB": {
         "id": 2,
         "pin_map": OrderedDict([
             ('lut[0].in[0]', ('in', 0)),
@@ -888,6 +905,30 @@ for tile_name, tile_desc in tile_types.items():
 
 # ------------------------------
 
+grid = ET.SubElement(rr_graph, 'grid')
+
+print()
+print("Generate grid")
+print("="*75)
+
+for x in range(ic.max_x+3):
+    for y in range(ic.max_y+3):
+        tx = x - 1
+        ty = y - 1
+        block_type_id = 0
+
+        if tx >= 0 and tx <= ic.max_x and ty >= 0 and ty <= ic.max_y and (tx,ty) not in corner_tiles:
+            block_type_id = tile_types[tile_name_map[ic.tile_type(tx, ty)]]["id"]
+            
+        grid_loc = ET.SubElement(
+            grid, 'grid_loc',
+            {'x': str(x), 
+             'y': str(y),
+             'block_type_id': str(block_type_id),
+             'width_offset':  "0",
+             'height_offset': "0",
+            })
+
 print()
 print("Generate tiles (with pins and local tracks)")
 print("="*75)
@@ -900,7 +941,7 @@ for x, y in all_tiles:
 
     pos = TilePos(x, y)
 
-    tile_type = tile_types[ic.tile_type(pos.x, pos.y)]
+    tile_type = tile_types[tile_name_map[ic.tile_type(pos.x, pos.y)]]
 
     tid = (pos, tile_type)
 
@@ -1017,7 +1058,7 @@ def _calculate_globalname_net(group):
             m = re.search("_([0-9]+)$", name)
 
             wire_type += ["channel", "stub", name]
-            wire_type += ["short"]
+            wire_type += ["span4"]
             wire_type += [(pos, int(m.group(1)), pos, 1)]
             return GlobalName(*wire_type)
 
@@ -1033,27 +1074,27 @@ def _calculate_globalname_net(group):
         for n in names:
             if n.startswith('span4_horz_'):
                 if wire_type and 'horizontal' not in wire_type:
-                    wire_type = ['channel', 'short', 'corner']
+                    wire_type = ['channel', 'span4', 'corner']
                     break
                 else:
-                    wire_type = ['channel', 'short', 'horizontal']
+                    wire_type = ['channel', 'span4', 'horizontal']
             if n.startswith('span4_vert_'):
                 if wire_type and 'vertical' not in wire_type:
-                    wire_type = ['channel', 'short', 'corner']
+                    wire_type = ['channel', 'span4', 'corner']
                     break
                 else:
-                    wire_type = ['channel', 'short', 'vertical']
+                    wire_type = ['channel', 'span4', 'vertical']
             if n.startswith('sp12_h_'):
-                wire_type = ['channel', 'long', 'horizontal']
+                wire_type = ['channel', 'span12', 'horizontal']
                 break
             if n.startswith('sp12_v_'):
-                wire_type = ['channel', 'long', 'vertical']
+                wire_type = ['channel', 'span12', 'vertical']
                 break
             if n.startswith('sp4_h_'):
-                wire_type = ['channel', 'short','horizontal']
+                wire_type = ['channel', 'span4','horizontal']
                 break
             if n.startswith('sp4_v_'):
-                wire_type = ['channel', 'short', 'vertical']
+                wire_type = ['channel', 'span4', 'vertical']
                 break
             if n.startswith('neigh_op'):
                 #wire_type = ['direct', 'neighbour']
@@ -1169,10 +1210,10 @@ def _calculate_globalname_net(group):
 
         assert n is not None
 
-        if "short" in wire_type:
+        if "span4" in wire_type:
             max_channels = SPAN4_MAX_TRACKS
             max_span = 4
-        elif "long" in wire_type:
+        elif "span12" in wire_type:
             max_channels = SPAN12_MAX_TRACKS
             max_span = 12
 
@@ -1225,7 +1266,7 @@ def add_net_global(i):
 for i in range(0, 8):
     add_net_global(i)
 
-add_channel(GlobalName('global', 'fabout'), 'CHANY', TilePos(0, 0), TilePos(0, 0), -1, 'global')
+add_channel(GlobalName('global', 'fabout'), 'CHANY', TilePos(0, 0), TilePos(0, 0), 0, 'global')
 
 # ------------------------------
 
@@ -1260,7 +1301,7 @@ print()
 print("Adding span channels")
 print("-"*75)
 
-x_channel_offset = LOCAL_TRACKS_MAX_GROUPS * (LOCAL_TRACKS_PER_GROUP+1) + GBL2LOCAL_MAX_TRACKS + 1
+x_channel_offset = LOCAL_TRACKS_MAX_GROUPS * (LOCAL_TRACKS_PER_GROUP) + GBL2LOCAL_MAX_TRACKS
 y_channel_offset = 0
 
 def add_track_span(globalname):
@@ -1283,11 +1324,11 @@ def add_track_span(globalname):
     else:
         return
 
-    if 'short' in globalname:
+    if 'span4' in globalname:
         segtype = 'span4'
-    elif 'long' in globalname:
+    elif 'span12' in globalname:
         segtype = 'span12'
-        idx += SPAN4_MAX_TRACKS + 1
+        idx += SPAN4_MAX_TRACKS #+ 1
     elif 'local' in globalname:
         segtype = 'local'
     else:
@@ -1325,7 +1366,33 @@ for channel in sorted(channels):
                 print(track, globalname2netnames[track])
             else:
                 print(track, None)
+print()
+print("Generate channels")
+print("="*75)
+# TODO check this
+chwm = LOCAL_TRACKS_MAX_GROUPS * (LOCAL_TRACKS_PER_GROUP+1) + GBL2LOCAL_MAX_TRACKS + SPAN4_MAX_TRACKS + SPAN12_MAX_TRACKS + GLOBAL_MAX_TRACKS
 
+chans = ET.SubElement(rr_graph, 'channels')
+chan = ET.SubElement(
+    chans, 'channel',
+    {'chan_width_max': str(chwm),
+    'x_min': str(0),
+    'x_max': str(chwm),
+    'y_min': str(0),
+    'y_max': str(chwm),
+    })
+
+for i in range(4):
+    x_list = ET.SubElement(
+        chans, 'x_list',
+        {'index': str(i),
+         'info': str(chwm)
+        })
+    y_list = ET.SubElement(
+       chans, 'y_list',
+       {'index': str(i),
+        'info': str(chwm)
+       })
 
 # Generating edges
 # ------------------------------
