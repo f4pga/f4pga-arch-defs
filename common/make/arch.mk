@@ -13,7 +13,7 @@ merged.xml: arch.xml arch.deps.mk $(SELF_DIR)/arch.mk
 	@echo '<?xml version="1.0"?>' > $@
 	@echo '<!-- Generated from arch.xml - **DO NOT EDIT** -->' >> $@
 	xmllint --xinclude --nsclean --noblanks --format arch.xml \
-	| sed -e's/\s*\(xml\|xmlns\):[^=]*="[^"]*"\s*/ /g' -e's/\s\+/ /g' -e's/\s\+"/"/g' -e's/="\s\+/="/g' \
+	| sed -e's/\s*\(xml\|xmlns\):[^=]*="[^"]*"\s*/ /g' -e's/\s\+/ /g' -e's/\s\+"/"/g' -e's/="\s\+/="/g' -e's/<xi:include[^>]*>//g' \
 	| XMLLINT_INDENT=' ' xmllint --pretty 1 - \
 	| tail -n+2 >> $@
 	@chmod u-w $@ # Make read only to prevent editing.
