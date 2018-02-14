@@ -86,7 +86,18 @@ def pb_type_xml(mux_type, mux_name, pins, subckt=None, num_pb=1, comment=""):
         pb_type.xml for requested mux
     """
 
-    assert mux_name, "No mux_name provided!"
+    if mux_type == MuxType.LOGIC:
+        if '-' not in mux_name:
+            mux_name = 'BEL_MX-'+mux_name
+        else:
+            assert mux_name.startswith('BEL_MX-'), "Provided mux name has type {} but not BEL_MX!".format(mux_name)
+    elif mux_type == MuxType.ROUTING:
+        if '-' not in mux_name:
+            mux_name = 'BEL_RX-'+mux_name
+        else:
+            assert mux_name.startswith('BEL_RX-'), "Provided mux name has type {} but not BEL_MX!".format(mux_name)
+    else:
+        assert False, "Unknown type {}".format(mux_type)
 
     pb_type_xml = ET.Element(
         'pb_type', {
