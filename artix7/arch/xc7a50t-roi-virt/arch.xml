@@ -140,7 +140,7 @@
    <!-- Start RIO -->
 
    <col type="BLK_MB-CLBLL_L-INT_L"    startx="3" priority="10" />
-   <!--<col type="BLK_MB-CLBLL_L-INT_L"    startx="4" priority="10" /> -->
+   <col type="BLK_MB-INT_R-CLBLL_R"    startx="4" priority="10" /> -->
 
    <!-- End RIO -->
 
@@ -198,9 +198,8 @@
 
   <xi:include href="../../../vpr/pad/pb_type.xml"/>
 
-  <xi:include href="../../blocks/clbll_l_int_l/pb_type.xml"/>
-
-  <xi:include href="dummy/CLBLL_R.xml" />
+  <xi:include href="../../blocks/clbll_l-int_l/pb_type.xml"/>
+  <xi:include href="../../blocks/int_r-clbll_r/pb_type.xml"/>
 
   <xi:include href="dummy/CLBLM_L.xml" />
   <xi:include href="dummy/CLBLM_R.xml" />
