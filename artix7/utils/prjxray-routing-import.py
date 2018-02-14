@@ -7,6 +7,26 @@ import pprint
 from enum import Enum
 from collections import namedtuple
 
+import argparse
+
+
+parser = argparse.ArgumentParser()
+parser.add_argument(
+        '--start_x', type=int, default=0,
+        help='starting x position')
+parser.add_argument(
+        '--start_y', type=int, default=0,
+        help='starting x position')
+parser.add_argument(
+        '--end_x', type=int, default=2**32,
+        help='starting x position')
+parser.add_argument(
+        '--end_y', type=int, default=2**32,
+        help='starting x position')
+
+args = parser.parse_args()
+
+
 class OrderedEnum(Enum):
     def __ge__(self, other):
         if self.__class__ is other.__class__:
@@ -466,8 +486,27 @@ def trace_wire(wire_name, coord):
 
 routing_nodes = open("routing.txt", "w")
 
+class WireDecoder:
+    SHORT_REGEX = re.compile("(..)([0-9])(BEG|END)([0-9])")
+    LONG_REGEX = re.compile("L(H|V)([0-9]*)")
+
+    LONG_DIRS = {
+        'H': 'Horizontal',
+        'V': 'Vertical',
+    }
+
+
+wires = []
 for y in range(grid_min[1], grid_max[1]+1):
+
+    if y < args.start_y or y > args.end_y:
+        continue
+
     for x in range(grid_min[0], grid_max[0]+1):
+
+        if x < args.start_x or x > args.end_x:
+            continue
+
         coord = (x, y)
 
         print("================================")
@@ -476,6 +515,8 @@ for y in range(grid_min[1], grid_max[1]+1):
             routing_nodes.write("No routing nodes starting in %s (%s)\n" % (coord, grid[coord]))
             routing_nodes.write("-"*75)
             routing_nodes.write("\n")
+            continue
+
         for w in sorted(wires_start_map[coord]):
             print("Starting to trace %s from %s" % (w, coord))
             try:
@@ -488,7 +529,9 @@ for y in range(grid_min[1], grid_max[1]+1):
             print("-"*75)
 
             s = ["Trace for %s from %s (%s)\n" % (w, coord, grid[coord])]
+            route = []
             for a in t:
+                route.append((a[-1], a[-2]))
                 # (31, 2), 'EL1BEG1', <CompassDir.EE: 'East'>, '-->', <CompassDir.WW: 'West'>, 'EL1END1', (32, 2)
                 # (32, 2), 'EL1END1', None, '[ ]', None, None, None
                 start = ''
@@ -496,10 +539,24 @@ for y in range(grid_min[1], grid_max[1]+1):
                 if a[0]:
                     start = grid[a[0]]
                 if a[-1]:
+                    end_pos = a[-1]
+                    if (end_pos[1] < args.start_y or end_pos[1] > args.end_y) or (end_pos[0] < args.start_x or end_pos[0] > args.end_x):
+                        # (32, 2), 'EL1END1', None, '[ ]', None, None, None
+                        a = (a[0], a[1], LEAVE_STR, '[ ]', '', '', a[-1])
                     end = grid[a[-1]]
+
                 s.append("%15s" % start)
                 s.append("%8s %30s %15s %s %-15s %-30s %-8s" % a)
                 s.append("%-15s\n" % end)
+
+                if a[2] == LEAVE_STR:
+                    route = None
+                    break
+
+                elif a[2] == END_STR:
+                    wires.append(route[:-1])
+                    break
+
 
             s.append("-"*75)
             s.append("\n")
@@ -507,6 +564,269 @@ for y in range(grid_min[1], grid_max[1]+1):
             print(s)
             routing_nodes.write(s)
 
+
+pprint.pprint(wires)
+
+
+"""
+class Blah:
+    def __init__(self, x_size, y_size):
+
+        for x in range(0, x_size):
+            for y in range(0, y_size):
+
+"""
+
+
+"""
+
+	<block_types>
+		<block_type id="0" name="EMPTY" width="1" height="1">
+		</block_type>
+		<block_type id="1" name="BLK_BB-VPR_PAD" width="1" height="1">
+			<pin_class type="INPUT">0 <!-- BLK_BB-VPR_PAD.outpad[0]--></pin_class>
+			<pin_class type="OUTPUT">1 <!-- BLK_BB-VPR_PAD.inpad[0]--></pin_class>
+		</block_type>
+		<block_type id="2" name="BLK_MB-CLBLL_L-INT_L" width="1" height="1">
+			<pin_class type="INPUT">0 <!-- BLK_MB-CLBLL_L-INT_L.EE2END[0]--></pin_class>
+			<pin_class type="INPUT">1 <!-- BLK_MB-CLBLL_L-INT_L.EE2END[1]--></pin_class>
+			<pin_class type="INPUT">2 <!-- BLK_MB-CLBLL_L-INT_L.EE2END[2]--></pin_class>
+			<pin_class type="INPUT">3 <!-- BLK_MB-CLBLL_L-INT_L.EE2END[3]--></pin_class>
+			<pin_class type="INPUT">4 <!-- BLK_MB-CLBLL_L-INT_L.EE4END[0]--></pin_class>
+			<pin_class type="INPUT">5 <!-- BLK_MB-CLBLL_L-INT_L.EE4END[1]--></pin_class>
+			<pin_class type="INPUT">6 <!-- BLK_MB-CLBLL_L-INT_L.EE4END[2]--></pin_class>
+			<pin_class type="INPUT">7 <!-- BLK_MB-CLBLL_L-INT_L.EE4END[3]--></pin_class>
+			<pin_class type="INPUT">8 <!-- BLK_MB-CLBLL_L-INT_L.EL1END[0]--></pin_class>
+			<pin_class type="INPUT">9 <!-- BLK_MB-CLBLL_L-INT_L.EL1END[1]--></pin_class>
+			<pin_class type="INPUT">10 <!-- BLK_MB-CLBLL_L-INT_L.EL1END[2]--></pin_class>
+			<pin_class type="INPUT">11 <!-- BLK_MB-CLBLL_L-INT_L.EL1END[3]--></pin_class>
+			<pin_class type="INPUT">12 <!-- BLK_MB-CLBLL_L-INT_L.ER1END[0]--></pin_class>
+			<pin_class type="INPUT">13 <!-- BLK_MB-CLBLL_L-INT_L.ER1END[1]--></pin_class>
+			<pin_class type="INPUT">14 <!-- BLK_MB-CLBLL_L-INT_L.ER1END[2]--></pin_class>
+			<pin_class type="INPUT">15 <!-- BLK_MB-CLBLL_L-INT_L.ER1END[3]--></pin_class>
+			<pin_class type="INPUT">16 <!-- BLK_MB-CLBLL_L-INT_L.NE2END[0]--></pin_class>
+			<pin_class type="INPUT">17 <!-- BLK_MB-CLBLL_L-INT_L.NE2END[1]--></pin_class>
+			<pin_class type="INPUT">18 <!-- BLK_MB-CLBLL_L-INT_L.NE2END[2]--></pin_class>
+			<pin_class type="INPUT">19 <!-- BLK_MB-CLBLL_L-INT_L.NE2END[3]--></pin_class>
+			<pin_class type="INPUT">20 <!-- BLK_MB-CLBLL_L-INT_L.NE6END[0]--></pin_class>
+			<pin_class type="INPUT">21 <!-- BLK_MB-CLBLL_L-INT_L.NE6END[1]--></pin_class>
+			<pin_class type="INPUT">22 <!-- BLK_MB-CLBLL_L-INT_L.NE6END[2]--></pin_class>
+			<pin_class type="INPUT">23 <!-- BLK_MB-CLBLL_L-INT_L.NE6END[3]--></pin_class>
+			<pin_class type="INPUT">24 <!-- BLK_MB-CLBLL_L-INT_L.NL1END[0]--></pin_class>
+			<pin_class type="INPUT">25 <!-- BLK_MB-CLBLL_L-INT_L.NL1END[1]--></pin_class>
+			<pin_class type="INPUT">26 <!-- BLK_MB-CLBLL_L-INT_L.NL1END[2]--></pin_class>
+			<pin_class type="INPUT">27 <!-- BLK_MB-CLBLL_L-INT_L.NN2END[0]--></pin_class>
+			<pin_class type="INPUT">28 <!-- BLK_MB-CLBLL_L-INT_L.NN2END[1]--></pin_class>
+			<pin_class type="INPUT">29 <!-- BLK_MB-CLBLL_L-INT_L.NN2END[2]--></pin_class>
+			<pin_class type="INPUT">30 <!-- BLK_MB-CLBLL_L-INT_L.NN2END[3]--></pin_class>
+			<pin_class type="INPUT">31 <!-- BLK_MB-CLBLL_L-INT_L.NN6END[0]--></pin_class>
+			<pin_class type="INPUT">32 <!-- BLK_MB-CLBLL_L-INT_L.NN6END[1]--></pin_class>
+			<pin_class type="INPUT">33 <!-- BLK_MB-CLBLL_L-INT_L.NN6END[2]--></pin_class>
+			<pin_class type="INPUT">34 <!-- BLK_MB-CLBLL_L-INT_L.NN6END[3]--></pin_class>
+			<pin_class type="INPUT">35 <!-- BLK_MB-CLBLL_L-INT_L.NR1END[0]--></pin_class>
+			<pin_class type="INPUT">36 <!-- BLK_MB-CLBLL_L-INT_L.NR1END[1]--></pin_class>
+			<pin_class type="INPUT">37 <!-- BLK_MB-CLBLL_L-INT_L.NR1END[2]--></pin_class>
+			<pin_class type="INPUT">38 <!-- BLK_MB-CLBLL_L-INT_L.NR1END[3]--></pin_class>
+			<pin_class type="INPUT">39 <!-- BLK_MB-CLBLL_L-INT_L.NW2END[0]--></pin_class>
+			<pin_class type="INPUT">40 <!-- BLK_MB-CLBLL_L-INT_L.NW2END[1]--></pin_class>
+			<pin_class type="INPUT">41 <!-- BLK_MB-CLBLL_L-INT_L.NW2END[2]--></pin_class>
+			<pin_class type="INPUT">42 <!-- BLK_MB-CLBLL_L-INT_L.NW2END[3]--></pin_class>
+			<pin_class type="INPUT">43 <!-- BLK_MB-CLBLL_L-INT_L.NW6END[0]--></pin_class>
+			<pin_class type="INPUT">44 <!-- BLK_MB-CLBLL_L-INT_L.NW6END[1]--></pin_class>
+			<pin_class type="INPUT">45 <!-- BLK_MB-CLBLL_L-INT_L.NW6END[2]--></pin_class>
+			<pin_class type="INPUT">46 <!-- BLK_MB-CLBLL_L-INT_L.NW6END[3]--></pin_class>
+			<pin_class type="INPUT">47 <!-- BLK_MB-CLBLL_L-INT_L.SE2END[0]--></pin_class>
+			<pin_class type="INPUT">48 <!-- BLK_MB-CLBLL_L-INT_L.SE2END[1]--></pin_class>
+			<pin_class type="INPUT">49 <!-- BLK_MB-CLBLL_L-INT_L.SE2END[2]--></pin_class>
+			<pin_class type="INPUT">50 <!-- BLK_MB-CLBLL_L-INT_L.SE2END[3]--></pin_class>
+			<pin_class type="INPUT">51 <!-- BLK_MB-CLBLL_L-INT_L.SE6END[0]--></pin_class>
+			<pin_class type="INPUT">52 <!-- BLK_MB-CLBLL_L-INT_L.SE6END[1]--></pin_class>
+			<pin_class type="INPUT">53 <!-- BLK_MB-CLBLL_L-INT_L.SE6END[2]--></pin_class>
+			<pin_class type="INPUT">54 <!-- BLK_MB-CLBLL_L-INT_L.SE6END[3]--></pin_class>
+			<pin_class type="INPUT">55 <!-- BLK_MB-CLBLL_L-INT_L.SL1END[0]--></pin_class>
+			<pin_class type="INPUT">56 <!-- BLK_MB-CLBLL_L-INT_L.SL1END[1]--></pin_class>
+			<pin_class type="INPUT">57 <!-- BLK_MB-CLBLL_L-INT_L.SL1END[2]--></pin_class>
+			<pin_class type="INPUT">58 <!-- BLK_MB-CLBLL_L-INT_L.SL1END[3]--></pin_class>
+			<pin_class type="INPUT">59 <!-- BLK_MB-CLBLL_L-INT_L.SR1END[0]--></pin_class>
+			<pin_class type="INPUT">60 <!-- BLK_MB-CLBLL_L-INT_L.SR1END[1]--></pin_class>
+			<pin_class type="INPUT">61 <!-- BLK_MB-CLBLL_L-INT_L.SR1END[2]--></pin_class>
+			<pin_class type="INPUT">62 <!-- BLK_MB-CLBLL_L-INT_L.SR1END[3]--></pin_class>
+			<pin_class type="INPUT">63 <!-- BLK_MB-CLBLL_L-INT_L.SS2END[0]--></pin_class>
+			<pin_class type="INPUT">64 <!-- BLK_MB-CLBLL_L-INT_L.SS2END[1]--></pin_class>
+			<pin_class type="INPUT">65 <!-- BLK_MB-CLBLL_L-INT_L.SS2END[2]--></pin_class>
+			<pin_class type="INPUT">66 <!-- BLK_MB-CLBLL_L-INT_L.SS2END[3]--></pin_class>
+			<pin_class type="INPUT">67 <!-- BLK_MB-CLBLL_L-INT_L.SS6END[0]--></pin_class>
+			<pin_class type="INPUT">68 <!-- BLK_MB-CLBLL_L-INT_L.SS6END[1]--></pin_class>
+			<pin_class type="INPUT">69 <!-- BLK_MB-CLBLL_L-INT_L.SS6END[2]--></pin_class>
+			<pin_class type="INPUT">70 <!-- BLK_MB-CLBLL_L-INT_L.SS6END[3]--></pin_class>
+			<pin_class type="INPUT">71 <!-- BLK_MB-CLBLL_L-INT_L.SW2END[0]--></pin_class>
+			<pin_class type="INPUT">72 <!-- BLK_MB-CLBLL_L-INT_L.SW2END[1]--></pin_class>
+			<pin_class type="INPUT">73 <!-- BLK_MB-CLBLL_L-INT_L.SW2END[2]--></pin_class>
+			<pin_class type="INPUT">74 <!-- BLK_MB-CLBLL_L-INT_L.SW2END[3]--></pin_class>
+			<pin_class type="INPUT">75 <!-- BLK_MB-CLBLL_L-INT_L.SW6END[0]--></pin_class>
+			<pin_class type="INPUT">76 <!-- BLK_MB-CLBLL_L-INT_L.SW6END[1]--></pin_class>
+			<pin_class type="INPUT">77 <!-- BLK_MB-CLBLL_L-INT_L.SW6END[2]--></pin_class>
+			<pin_class type="INPUT">78 <!-- BLK_MB-CLBLL_L-INT_L.SW6END[3]--></pin_class>
+			<pin_class type="INPUT">79 <!-- BLK_MB-CLBLL_L-INT_L.WL1END[0]--></pin_class>
+			<pin_class type="INPUT">80 <!-- BLK_MB-CLBLL_L-INT_L.WL1END[1]--></pin_class>
+			<pin_class type="INPUT">81 <!-- BLK_MB-CLBLL_L-INT_L.WL1END[2]--></pin_class>
+			<pin_class type="INPUT">82 <!-- BLK_MB-CLBLL_L-INT_L.WL1END[3]--></pin_class>
+			<pin_class type="INPUT">83 <!-- BLK_MB-CLBLL_L-INT_L.WR1END[0]--></pin_class>
+			<pin_class type="INPUT">84 <!-- BLK_MB-CLBLL_L-INT_L.WR1END[1]--></pin_class>
+			<pin_class type="INPUT">85 <!-- BLK_MB-CLBLL_L-INT_L.WR1END[2]--></pin_class>
+			<pin_class type="INPUT">86 <!-- BLK_MB-CLBLL_L-INT_L.WR1END[3]--></pin_class>
+			<pin_class type="INPUT">87 <!-- BLK_MB-CLBLL_L-INT_L.WW2END[0]--></pin_class>
+			<pin_class type="INPUT">88 <!-- BLK_MB-CLBLL_L-INT_L.WW2END[1]--></pin_class>
+			<pin_class type="INPUT">89 <!-- BLK_MB-CLBLL_L-INT_L.WW2END[2]--></pin_class>
+			<pin_class type="INPUT">90 <!-- BLK_MB-CLBLL_L-INT_L.WW2END[3]--></pin_class>
+			<pin_class type="INPUT">91 <!-- BLK_MB-CLBLL_L-INT_L.WW4END[0]--></pin_class>
+			<pin_class type="INPUT">92 <!-- BLK_MB-CLBLL_L-INT_L.WW4END[1]--></pin_class>
+			<pin_class type="INPUT">93 <!-- BLK_MB-CLBLL_L-INT_L.WW4END[2]--></pin_class>
+			<pin_class type="INPUT">94 <!-- BLK_MB-CLBLL_L-INT_L.WW4END[3]--></pin_class>
+			<pin_class type="INPUT">95 <!-- BLK_MB-CLBLL_L-INT_L.CIN_N[0]--></pin_class>
+			<pin_class type="INPUT">96 <!-- BLK_MB-CLBLL_L-INT_L.CIN_N[1]--></pin_class>
+			<pin_class type="OUTPUT">97 <!-- BLK_MB-CLBLL_L-INT_L.EE2BEG[0]--></pin_class>
+			<pin_class type="OUTPUT">98 <!-- BLK_MB-CLBLL_L-INT_L.EE2BEG[1]--></pin_class>
+			<pin_class type="OUTPUT">99 <!-- BLK_MB-CLBLL_L-INT_L.EE2BEG[2]--></pin_class>
+			<pin_class type="OUTPUT">100 <!-- BLK_MB-CLBLL_L-INT_L.EE2BEG[3]--></pin_class>
+			<pin_class type="OUTPUT">101 <!-- BLK_MB-CLBLL_L-INT_L.EE4BEG[0]--></pin_class>
+			<pin_class type="OUTPUT">102 <!-- BLK_MB-CLBLL_L-INT_L.EE4BEG[1]--></pin_class>
+			<pin_class type="OUTPUT">103 <!-- BLK_MB-CLBLL_L-INT_L.EE4BEG[2]--></pin_class>
+			<pin_class type="OUTPUT">104 <!-- BLK_MB-CLBLL_L-INT_L.EE4BEG[3]--></pin_class>
+			<pin_class type="OUTPUT">105 <!-- BLK_MB-CLBLL_L-INT_L.EL1BEG[0]--></pin_class>
+			<pin_class type="OUTPUT">106 <!-- BLK_MB-CLBLL_L-INT_L.EL1BEG[1]--></pin_class>
+			<pin_class type="OUTPUT">107 <!-- BLK_MB-CLBLL_L-INT_L.EL1BEG[2]--></pin_class>
+			<pin_class type="OUTPUT">108 <!-- BLK_MB-CLBLL_L-INT_L.ER1BEG[0]--></pin_class>
+			<pin_class type="OUTPUT">109 <!-- BLK_MB-CLBLL_L-INT_L.ER1BEG[1]--></pin_class>
+			<pin_class type="OUTPUT">110 <!-- BLK_MB-CLBLL_L-INT_L.ER1BEG[2]--></pin_class>
+			<pin_class type="OUTPUT">111 <!-- BLK_MB-CLBLL_L-INT_L.ER1BEG[3]--></pin_class>
+			<pin_class type="OUTPUT">112 <!-- BLK_MB-CLBLL_L-INT_L.NE2BEG[0]--></pin_class>
+			<pin_class type="OUTPUT">113 <!-- BLK_MB-CLBLL_L-INT_L.NE2BEG[1]--></pin_class>
+			<pin_class type="OUTPUT">114 <!-- BLK_MB-CLBLL_L-INT_L.NE2BEG[2]--></pin_class>
+			<pin_class type="OUTPUT">115 <!-- BLK_MB-CLBLL_L-INT_L.NE2BEG[3]--></pin_class>
+			<pin_class type="OUTPUT">116 <!-- BLK_MB-CLBLL_L-INT_L.NE6BEG[0]--></pin_class>
+			<pin_class type="OUTPUT">117 <!-- BLK_MB-CLBLL_L-INT_L.NE6BEG[1]--></pin_class>
+			<pin_class type="OUTPUT">118 <!-- BLK_MB-CLBLL_L-INT_L.NE6BEG[2]--></pin_class>
+			<pin_class type="OUTPUT">119 <!-- BLK_MB-CLBLL_L-INT_L.NE6BEG[3]--></pin_class>
+			<pin_class type="OUTPUT">120 <!-- BLK_MB-CLBLL_L-INT_L.NL1BEG[0]--></pin_class>
+			<pin_class type="OUTPUT">121 <!-- BLK_MB-CLBLL_L-INT_L.NL1BEG[1]--></pin_class>
+			<pin_class type="OUTPUT">122 <!-- BLK_MB-CLBLL_L-INT_L.NL1BEG[2]--></pin_class>
+			<pin_class type="OUTPUT">123 <!-- BLK_MB-CLBLL_L-INT_L.NN2BEG[0]--></pin_class>
+			<pin_class type="OUTPUT">124 <!-- BLK_MB-CLBLL_L-INT_L.NN2BEG[1]--></pin_class>
+			<pin_class type="OUTPUT">125 <!-- BLK_MB-CLBLL_L-INT_L.NN2BEG[2]--></pin_class>
+			<pin_class type="OUTPUT">126 <!-- BLK_MB-CLBLL_L-INT_L.NN2BEG[3]--></pin_class>
+			<pin_class type="OUTPUT">127 <!-- BLK_MB-CLBLL_L-INT_L.NN6BEG[0]--></pin_class>
+			<pin_class type="OUTPUT">128 <!-- BLK_MB-CLBLL_L-INT_L.NN6BEG[1]--></pin_class>
+			<pin_class type="OUTPUT">129 <!-- BLK_MB-CLBLL_L-INT_L.NN6BEG[2]--></pin_class>
+			<pin_class type="OUTPUT">130 <!-- BLK_MB-CLBLL_L-INT_L.NN6BEG[3]--></pin_class>
+			<pin_class type="OUTPUT">131 <!-- BLK_MB-CLBLL_L-INT_L.NR1BEG[0]--></pin_class>
+			<pin_class type="OUTPUT">132 <!-- BLK_MB-CLBLL_L-INT_L.NR1BEG[1]--></pin_class>
+			<pin_class type="OUTPUT">133 <!-- BLK_MB-CLBLL_L-INT_L.NR1BEG[2]--></pin_class>
+			<pin_class type="OUTPUT">134 <!-- BLK_MB-CLBLL_L-INT_L.NR1BEG[3]--></pin_class>
+			<pin_class type="OUTPUT">135 <!-- BLK_MB-CLBLL_L-INT_L.NW2BEG[0]--></pin_class>
+			<pin_class type="OUTPUT">136 <!-- BLK_MB-CLBLL_L-INT_L.NW2BEG[1]--></pin_class>
+			<pin_class type="OUTPUT">137 <!-- BLK_MB-CLBLL_L-INT_L.NW2BEG[2]--></pin_class>
+			<pin_class type="OUTPUT">138 <!-- BLK_MB-CLBLL_L-INT_L.NW2BEG[3]--></pin_class>
+			<pin_class type="OUTPUT">139 <!-- BLK_MB-CLBLL_L-INT_L.NW6BEG[0]--></pin_class>
+			<pin_class type="OUTPUT">140 <!-- BLK_MB-CLBLL_L-INT_L.NW6BEG[1]--></pin_class>
+			<pin_class type="OUTPUT">141 <!-- BLK_MB-CLBLL_L-INT_L.NW6BEG[2]--></pin_class>
+			<pin_class type="OUTPUT">142 <!-- BLK_MB-CLBLL_L-INT_L.NW6BEG[3]--></pin_class>
+			<pin_class type="OUTPUT">143 <!-- BLK_MB-CLBLL_L-INT_L.SE2BEG[0]--></pin_class>
+			<pin_class type="OUTPUT">144 <!-- BLK_MB-CLBLL_L-INT_L.SE2BEG[1]--></pin_class>
+			<pin_class type="OUTPUT">145 <!-- BLK_MB-CLBLL_L-INT_L.SE2BEG[2]--></pin_class>
+			<pin_class type="OUTPUT">146 <!-- BLK_MB-CLBLL_L-INT_L.SE2BEG[3]--></pin_class>
+			<pin_class type="OUTPUT">147 <!-- BLK_MB-CLBLL_L-INT_L.SE6BEG[0]--></pin_class>
+			<pin_class type="OUTPUT">148 <!-- BLK_MB-CLBLL_L-INT_L.SE6BEG[1]--></pin_class>
+			<pin_class type="OUTPUT">149 <!-- BLK_MB-CLBLL_L-INT_L.SE6BEG[2]--></pin_class>
+			<pin_class type="OUTPUT">150 <!-- BLK_MB-CLBLL_L-INT_L.SE6BEG[3]--></pin_class>
+			<pin_class type="OUTPUT">151 <!-- BLK_MB-CLBLL_L-INT_L.SL1BEG[0]--></pin_class>
+			<pin_class type="OUTPUT">152 <!-- BLK_MB-CLBLL_L-INT_L.SL1BEG[1]--></pin_class>
+			<pin_class type="OUTPUT">153 <!-- BLK_MB-CLBLL_L-INT_L.SL1BEG[2]--></pin_class>
+			<pin_class type="OUTPUT">154 <!-- BLK_MB-CLBLL_L-INT_L.SL1BEG[3]--></pin_class>
+			<pin_class type="OUTPUT">155 <!-- BLK_MB-CLBLL_L-INT_L.SR1BEG[0]--></pin_class>
+			<pin_class type="OUTPUT">156 <!-- BLK_MB-CLBLL_L-INT_L.SR1BEG[1]--></pin_class>
+			<pin_class type="OUTPUT">157 <!-- BLK_MB-CLBLL_L-INT_L.SR1BEG[2]--></pin_class>
+			<pin_class type="OUTPUT">158 <!-- BLK_MB-CLBLL_L-INT_L.SR1BEG[3]--></pin_class>
+			<pin_class type="OUTPUT">159 <!-- BLK_MB-CLBLL_L-INT_L.SS2BEG[0]--></pin_class>
+			<pin_class type="OUTPUT">160 <!-- BLK_MB-CLBLL_L-INT_L.SS2BEG[1]--></pin_class>
+			<pin_class type="OUTPUT">161 <!-- BLK_MB-CLBLL_L-INT_L.SS2BEG[2]--></pin_class>
+			<pin_class type="OUTPUT">162 <!-- BLK_MB-CLBLL_L-INT_L.SS2BEG[3]--></pin_class>
+			<pin_class type="OUTPUT">163 <!-- BLK_MB-CLBLL_L-INT_L.SS6BEG[0]--></pin_class>
+			<pin_class type="OUTPUT">164 <!-- BLK_MB-CLBLL_L-INT_L.SS6BEG[1]--></pin_class>
+			<pin_class type="OUTPUT">165 <!-- BLK_MB-CLBLL_L-INT_L.SS6BEG[2]--></pin_class>
+			<pin_class type="OUTPUT">166 <!-- BLK_MB-CLBLL_L-INT_L.SS6BEG[3]--></pin_class>
+			<pin_class type="OUTPUT">167 <!-- BLK_MB-CLBLL_L-INT_L.SW2BEG[0]--></pin_class>
+			<pin_class type="OUTPUT">168 <!-- BLK_MB-CLBLL_L-INT_L.SW2BEG[1]--></pin_class>
+			<pin_class type="OUTPUT">169 <!-- BLK_MB-CLBLL_L-INT_L.SW2BEG[2]--></pin_class>
+			<pin_class type="OUTPUT">170 <!-- BLK_MB-CLBLL_L-INT_L.SW2BEG[3]--></pin_class>
+			<pin_class type="OUTPUT">171 <!-- BLK_MB-CLBLL_L-INT_L.SW6BEG[0]--></pin_class>
+			<pin_class type="OUTPUT">172 <!-- BLK_MB-CLBLL_L-INT_L.SW6BEG[1]--></pin_class>
+			<pin_class type="OUTPUT">173 <!-- BLK_MB-CLBLL_L-INT_L.SW6BEG[2]--></pin_class>
+			<pin_class type="OUTPUT">174 <!-- BLK_MB-CLBLL_L-INT_L.SW6BEG[3]--></pin_class>
+			<pin_class type="OUTPUT">175 <!-- BLK_MB-CLBLL_L-INT_L.WL1BEG[0]--></pin_class>
+			<pin_class type="OUTPUT">176 <!-- BLK_MB-CLBLL_L-INT_L.WL1BEG[1]--></pin_class>
+			<pin_class type="OUTPUT">177 <!-- BLK_MB-CLBLL_L-INT_L.WL1BEG[2]--></pin_class>
+			<pin_class type="OUTPUT">178 <!-- BLK_MB-CLBLL_L-INT_L.WR1BEG[0]--></pin_class>
+			<pin_class type="OUTPUT">179 <!-- BLK_MB-CLBLL_L-INT_L.WR1BEG[1]--></pin_class>
+			<pin_class type="OUTPUT">180 <!-- BLK_MB-CLBLL_L-INT_L.WR1BEG[2]--></pin_class>
+			<pin_class type="OUTPUT">181 <!-- BLK_MB-CLBLL_L-INT_L.WR1BEG[3]--></pin_class>
+			<pin_class type="OUTPUT">182 <!-- BLK_MB-CLBLL_L-INT_L.WW2BEG[0]--></pin_class>
+			<pin_class type="OUTPUT">183 <!-- BLK_MB-CLBLL_L-INT_L.WW2BEG[1]--></pin_class>
+			<pin_class type="OUTPUT">184 <!-- BLK_MB-CLBLL_L-INT_L.WW2BEG[2]--></pin_class>
+			<pin_class type="OUTPUT">185 <!-- BLK_MB-CLBLL_L-INT_L.WW2BEG[3]--></pin_class>
+			<pin_class type="OUTPUT">186 <!-- BLK_MB-CLBLL_L-INT_L.WW4BEG[0]--></pin_class>
+			<pin_class type="OUTPUT">187 <!-- BLK_MB-CLBLL_L-INT_L.WW4BEG[1]--></pin_class>
+			<pin_class type="OUTPUT">188 <!-- BLK_MB-CLBLL_L-INT_L.WW4BEG[2]--></pin_class>
+			<pin_class type="OUTPUT">189 <!-- BLK_MB-CLBLL_L-INT_L.WW4BEG[3]--></pin_class>
+			<pin_class type="OUTPUT">190 <!-- BLK_MB-CLBLL_L-INT_L.COUT_N[0]--></pin_class>
+			<pin_class type="OUTPUT">191 <!-- BLK_MB-CLBLL_L-INT_L.COUT_N[1]--></pin_class>
+			<pin_class type="INPUT">192 <!-- BLK_MB-CLBLL_L-INT_L.GCLK_L_B[0]--></pin_class>
+			<pin_class type="INPUT">193 <!-- BLK_MB-CLBLL_L-INT_L.GCLK_L_B[1]--></pin_class>
+			<pin_class type="INPUT">194 <!-- BLK_MB-CLBLL_L-INT_L.GCLK_L_B[2]--></pin_class>
+			<pin_class type="INPUT">195 <!-- BLK_MB-CLBLL_L-INT_L.GCLK_L_B[3]--></pin_class>
+			<pin_class type="INPUT">196 <!-- BLK_MB-CLBLL_L-INT_L.GCLK_L_B[4]--></pin_class>
+			<pin_class type="INPUT">197 <!-- BLK_MB-CLBLL_L-INT_L.GCLK_L_B[5]--></pin_class>
+			<pin_class type="INPUT">198 <!-- BLK_MB-CLBLL_L-INT_L.GCLK_L_B[6]--></pin_class>
+			<pin_class type="INPUT">199 <!-- BLK_MB-CLBLL_L-INT_L.GCLK_L_B[7]--></pin_class>
+			<pin_class type="INPUT">200 <!-- BLK_MB-CLBLL_L-INT_L.GCLK_L_B[8]--></pin_class>
+			<pin_class type="INPUT">201 <!-- BLK_MB-CLBLL_L-INT_L.GCLK_L_B[9]--></pin_class>
+			<pin_class type="INPUT">202 <!-- BLK_MB-CLBLL_L-INT_L.GCLK_L_B[10]--></pin_class>
+			<pin_class type="INPUT">203 <!-- BLK_MB-CLBLL_L-INT_L.GCLK_L_B[11]--></pin_class>
+			<pin_class type="INPUT">204 <!-- BLK_MB-CLBLL_L-INT_L.GFAN[0]--></pin_class>
+			<pin_class type="INPUT">205 <!-- BLK_MB-CLBLL_L-INT_L.GFAN[1]--></pin_class>
+			<pin_class type="INPUT">206 <!-- BLK_MB-CLBLL_L-INT_L.CLK_L[0]--></pin_class>
+			<pin_class type="INPUT">207 <!-- BLK_MB-CLBLL_L-INT_L.CLK_L[1]--></pin_class>
+		</block_type>
+		<block_type id="3" name="CLBLL_R" width="1" height="1">
+			<pin_class type="INPUT">0 <!-- CLBLL_R.I[0]--></pin_class>
+			<pin_class type="OUTPUT">1 <!-- CLBLL_R.O[0]--></pin_class>
+		</block_type>
+		<block_type id="4" name="CLBLM_L" width="1" height="1">
+			<pin_class type="INPUT">0 <!-- CLBLM_L.I[0]--></pin_class>
+			<pin_class type="OUTPUT">1 <!-- CLBLM_L.O[0]--></pin_class>
+		</block_type>
+		<block_type id="5" name="CLBLM_R" width="1" height="1">
+			<pin_class type="INPUT">0 <!-- CLBLM_R.I[0]--></pin_class>
+			<pin_class type="OUTPUT">1 <!-- CLBLM_R.O[0]--></pin_class>
+		</block_type>
+		<block_type id="6" name="INT_L" width="1" height="1">
+			<pin_class type="INPUT">0 <!-- INT_L.I[0]--></pin_class>
+			<pin_class type="OUTPUT">1 <!-- INT_L.O[0]--></pin_class>
+		</block_type>
+		<block_type id="7" name="INT_R" width="1" height="1">
+			<pin_class type="INPUT">0 <!-- INT_R.I[0]--></pin_class>
+			<pin_class type="OUTPUT">1 <!-- INT_R.O[0]--></pin_class>
+		</block_type>
+		<block_type id="8" name="HCLK_L" width="1" height="1">
+			<pin_class type="INPUT">0 <!-- HCLK_L.I[0]--></pin_class>
+			<pin_class type="OUTPUT">1 <!-- HCLK_L.O[0]--></pin_class>
+		</block_type>
+		<block_type id="9" name="HCLK_R" width="1" height="1">
+			<pin_class type="INPUT">0 <!-- HCLK_R.I[0]--></pin_class>
+			<pin_class type="OUTPUT">1 <!-- HCLK_R.O[0]--></pin_class>
+		</block_type>
+	</block_types>
+"""
 
 #print()
 #for s in starting_groups:
