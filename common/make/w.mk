@@ -10,8 +10,12 @@ SIM_V := $(foreach N,$(NAMES),sim.$(N).v)
 pb_type.%.xml: pb_type.xml $(WPY)
 	$(WPY) $$(echo $@ | sed -e's/^.*$(NAME_PREFIX)\(.\)$(NAME_SUFFIX).*$$/\1/') $@
 
+.PRECIOUS: pb_type.%.xml
+
 sim.%.v: sim.v $(WPY)
 	$(WPY) $$(echo $@ | sed -e's/^.*$(NAME_PREFIX)\(.\)$(NAME_SUFFIX).*$$/\1/') $@
+
+.PRECIOUS: sim.%.v
 
 clean:
 	rm -f pb_type.*.xml
