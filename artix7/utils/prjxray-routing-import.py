@@ -18,11 +18,13 @@ parser.add_argument(
         '--start_y', type=int, default=0,
         help='starting x position')
 parser.add_argument(
-        '--end_x', type=int, default=2**32,
+        '--end_x', type=int, default=-1,
         help='starting x position')
 parser.add_argument(
-        '--end_y', type=int, default=2**32,
+        '--end_y', type=int, default=-1,
         help='starting x position')
+parser.add_argument(
+        '--verbose', action='store_const', const=True, default=False)
 
 args = parser.parse_args()
 
@@ -267,6 +269,12 @@ grid_max = (max(x for x,y in grid), max(y for x,y in grid))
 print()
 print(grid_min, "to", grid_max)
 print()
+
+
+if args.end_x == -1:
+    args.end_x = grid_max[0]
+if args.end_y == -1:
+    args.end_y = grid_max[1]
 
 
 def wire_type(a):
@@ -564,269 +572,216 @@ for y in range(grid_min[1], grid_max[1]+1):
             print(s)
             routing_nodes.write(s)
 
+print("\n"*4)
 
+print(len(wires), "routing nodes found")
 pprint.pprint(wires)
 
+# Work out how wide each channel is going to be...
+channel_count = {}
+for w in wires:
+    for p, __ in w:
+        channel_count[p] = channel_count.get(p,0) + 1
 
-"""
-class Blah:
-    def __init__(self, x_size, y_size):
-
-        for x in range(0, x_size):
-            for y in range(0, y_size):
-
-"""
+pprint.pprint(channel_count)
 
 
-"""
+import lxml.etree as ET
+rr_graph = ET.Element(
+    'rr_graph',
+    dict(tool_name="icebox", tool_version="???", tool_comment="Generated for {} device".format("Artix-7")),
+)
 
-	<block_types>
-		<block_type id="0" name="EMPTY" width="1" height="1">
-		</block_type>
-		<block_type id="1" name="BLK_BB-VPR_PAD" width="1" height="1">
-			<pin_class type="INPUT">0 <!-- BLK_BB-VPR_PAD.outpad[0]--></pin_class>
-			<pin_class type="OUTPUT">1 <!-- BLK_BB-VPR_PAD.inpad[0]--></pin_class>
-		</block_type>
-		<block_type id="2" name="BLK_MB-CLBLL_L-INT_L" width="1" height="1">
-			<pin_class type="INPUT">0 <!-- BLK_MB-CLBLL_L-INT_L.EE2END[0]--></pin_class>
-			<pin_class type="INPUT">1 <!-- BLK_MB-CLBLL_L-INT_L.EE2END[1]--></pin_class>
-			<pin_class type="INPUT">2 <!-- BLK_MB-CLBLL_L-INT_L.EE2END[2]--></pin_class>
-			<pin_class type="INPUT">3 <!-- BLK_MB-CLBLL_L-INT_L.EE2END[3]--></pin_class>
-			<pin_class type="INPUT">4 <!-- BLK_MB-CLBLL_L-INT_L.EE4END[0]--></pin_class>
-			<pin_class type="INPUT">5 <!-- BLK_MB-CLBLL_L-INT_L.EE4END[1]--></pin_class>
-			<pin_class type="INPUT">6 <!-- BLK_MB-CLBLL_L-INT_L.EE4END[2]--></pin_class>
-			<pin_class type="INPUT">7 <!-- BLK_MB-CLBLL_L-INT_L.EE4END[3]--></pin_class>
-			<pin_class type="INPUT">8 <!-- BLK_MB-CLBLL_L-INT_L.EL1END[0]--></pin_class>
-			<pin_class type="INPUT">9 <!-- BLK_MB-CLBLL_L-INT_L.EL1END[1]--></pin_class>
-			<pin_class type="INPUT">10 <!-- BLK_MB-CLBLL_L-INT_L.EL1END[2]--></pin_class>
-			<pin_class type="INPUT">11 <!-- BLK_MB-CLBLL_L-INT_L.EL1END[3]--></pin_class>
-			<pin_class type="INPUT">12 <!-- BLK_MB-CLBLL_L-INT_L.ER1END[0]--></pin_class>
-			<pin_class type="INPUT">13 <!-- BLK_MB-CLBLL_L-INT_L.ER1END[1]--></pin_class>
-			<pin_class type="INPUT">14 <!-- BLK_MB-CLBLL_L-INT_L.ER1END[2]--></pin_class>
-			<pin_class type="INPUT">15 <!-- BLK_MB-CLBLL_L-INT_L.ER1END[3]--></pin_class>
-			<pin_class type="INPUT">16 <!-- BLK_MB-CLBLL_L-INT_L.NE2END[0]--></pin_class>
-			<pin_class type="INPUT">17 <!-- BLK_MB-CLBLL_L-INT_L.NE2END[1]--></pin_class>
-			<pin_class type="INPUT">18 <!-- BLK_MB-CLBLL_L-INT_L.NE2END[2]--></pin_class>
-			<pin_class type="INPUT">19 <!-- BLK_MB-CLBLL_L-INT_L.NE2END[3]--></pin_class>
-			<pin_class type="INPUT">20 <!-- BLK_MB-CLBLL_L-INT_L.NE6END[0]--></pin_class>
-			<pin_class type="INPUT">21 <!-- BLK_MB-CLBLL_L-INT_L.NE6END[1]--></pin_class>
-			<pin_class type="INPUT">22 <!-- BLK_MB-CLBLL_L-INT_L.NE6END[2]--></pin_class>
-			<pin_class type="INPUT">23 <!-- BLK_MB-CLBLL_L-INT_L.NE6END[3]--></pin_class>
-			<pin_class type="INPUT">24 <!-- BLK_MB-CLBLL_L-INT_L.NL1END[0]--></pin_class>
-			<pin_class type="INPUT">25 <!-- BLK_MB-CLBLL_L-INT_L.NL1END[1]--></pin_class>
-			<pin_class type="INPUT">26 <!-- BLK_MB-CLBLL_L-INT_L.NL1END[2]--></pin_class>
-			<pin_class type="INPUT">27 <!-- BLK_MB-CLBLL_L-INT_L.NN2END[0]--></pin_class>
-			<pin_class type="INPUT">28 <!-- BLK_MB-CLBLL_L-INT_L.NN2END[1]--></pin_class>
-			<pin_class type="INPUT">29 <!-- BLK_MB-CLBLL_L-INT_L.NN2END[2]--></pin_class>
-			<pin_class type="INPUT">30 <!-- BLK_MB-CLBLL_L-INT_L.NN2END[3]--></pin_class>
-			<pin_class type="INPUT">31 <!-- BLK_MB-CLBLL_L-INT_L.NN6END[0]--></pin_class>
-			<pin_class type="INPUT">32 <!-- BLK_MB-CLBLL_L-INT_L.NN6END[1]--></pin_class>
-			<pin_class type="INPUT">33 <!-- BLK_MB-CLBLL_L-INT_L.NN6END[2]--></pin_class>
-			<pin_class type="INPUT">34 <!-- BLK_MB-CLBLL_L-INT_L.NN6END[3]--></pin_class>
-			<pin_class type="INPUT">35 <!-- BLK_MB-CLBLL_L-INT_L.NR1END[0]--></pin_class>
-			<pin_class type="INPUT">36 <!-- BLK_MB-CLBLL_L-INT_L.NR1END[1]--></pin_class>
-			<pin_class type="INPUT">37 <!-- BLK_MB-CLBLL_L-INT_L.NR1END[2]--></pin_class>
-			<pin_class type="INPUT">38 <!-- BLK_MB-CLBLL_L-INT_L.NR1END[3]--></pin_class>
-			<pin_class type="INPUT">39 <!-- BLK_MB-CLBLL_L-INT_L.NW2END[0]--></pin_class>
-			<pin_class type="INPUT">40 <!-- BLK_MB-CLBLL_L-INT_L.NW2END[1]--></pin_class>
-			<pin_class type="INPUT">41 <!-- BLK_MB-CLBLL_L-INT_L.NW2END[2]--></pin_class>
-			<pin_class type="INPUT">42 <!-- BLK_MB-CLBLL_L-INT_L.NW2END[3]--></pin_class>
-			<pin_class type="INPUT">43 <!-- BLK_MB-CLBLL_L-INT_L.NW6END[0]--></pin_class>
-			<pin_class type="INPUT">44 <!-- BLK_MB-CLBLL_L-INT_L.NW6END[1]--></pin_class>
-			<pin_class type="INPUT">45 <!-- BLK_MB-CLBLL_L-INT_L.NW6END[2]--></pin_class>
-			<pin_class type="INPUT">46 <!-- BLK_MB-CLBLL_L-INT_L.NW6END[3]--></pin_class>
-			<pin_class type="INPUT">47 <!-- BLK_MB-CLBLL_L-INT_L.SE2END[0]--></pin_class>
-			<pin_class type="INPUT">48 <!-- BLK_MB-CLBLL_L-INT_L.SE2END[1]--></pin_class>
-			<pin_class type="INPUT">49 <!-- BLK_MB-CLBLL_L-INT_L.SE2END[2]--></pin_class>
-			<pin_class type="INPUT">50 <!-- BLK_MB-CLBLL_L-INT_L.SE2END[3]--></pin_class>
-			<pin_class type="INPUT">51 <!-- BLK_MB-CLBLL_L-INT_L.SE6END[0]--></pin_class>
-			<pin_class type="INPUT">52 <!-- BLK_MB-CLBLL_L-INT_L.SE6END[1]--></pin_class>
-			<pin_class type="INPUT">53 <!-- BLK_MB-CLBLL_L-INT_L.SE6END[2]--></pin_class>
-			<pin_class type="INPUT">54 <!-- BLK_MB-CLBLL_L-INT_L.SE6END[3]--></pin_class>
-			<pin_class type="INPUT">55 <!-- BLK_MB-CLBLL_L-INT_L.SL1END[0]--></pin_class>
-			<pin_class type="INPUT">56 <!-- BLK_MB-CLBLL_L-INT_L.SL1END[1]--></pin_class>
-			<pin_class type="INPUT">57 <!-- BLK_MB-CLBLL_L-INT_L.SL1END[2]--></pin_class>
-			<pin_class type="INPUT">58 <!-- BLK_MB-CLBLL_L-INT_L.SL1END[3]--></pin_class>
-			<pin_class type="INPUT">59 <!-- BLK_MB-CLBLL_L-INT_L.SR1END[0]--></pin_class>
-			<pin_class type="INPUT">60 <!-- BLK_MB-CLBLL_L-INT_L.SR1END[1]--></pin_class>
-			<pin_class type="INPUT">61 <!-- BLK_MB-CLBLL_L-INT_L.SR1END[2]--></pin_class>
-			<pin_class type="INPUT">62 <!-- BLK_MB-CLBLL_L-INT_L.SR1END[3]--></pin_class>
-			<pin_class type="INPUT">63 <!-- BLK_MB-CLBLL_L-INT_L.SS2END[0]--></pin_class>
-			<pin_class type="INPUT">64 <!-- BLK_MB-CLBLL_L-INT_L.SS2END[1]--></pin_class>
-			<pin_class type="INPUT">65 <!-- BLK_MB-CLBLL_L-INT_L.SS2END[2]--></pin_class>
-			<pin_class type="INPUT">66 <!-- BLK_MB-CLBLL_L-INT_L.SS2END[3]--></pin_class>
-			<pin_class type="INPUT">67 <!-- BLK_MB-CLBLL_L-INT_L.SS6END[0]--></pin_class>
-			<pin_class type="INPUT">68 <!-- BLK_MB-CLBLL_L-INT_L.SS6END[1]--></pin_class>
-			<pin_class type="INPUT">69 <!-- BLK_MB-CLBLL_L-INT_L.SS6END[2]--></pin_class>
-			<pin_class type="INPUT">70 <!-- BLK_MB-CLBLL_L-INT_L.SS6END[3]--></pin_class>
-			<pin_class type="INPUT">71 <!-- BLK_MB-CLBLL_L-INT_L.SW2END[0]--></pin_class>
-			<pin_class type="INPUT">72 <!-- BLK_MB-CLBLL_L-INT_L.SW2END[1]--></pin_class>
-			<pin_class type="INPUT">73 <!-- BLK_MB-CLBLL_L-INT_L.SW2END[2]--></pin_class>
-			<pin_class type="INPUT">74 <!-- BLK_MB-CLBLL_L-INT_L.SW2END[3]--></pin_class>
-			<pin_class type="INPUT">75 <!-- BLK_MB-CLBLL_L-INT_L.SW6END[0]--></pin_class>
-			<pin_class type="INPUT">76 <!-- BLK_MB-CLBLL_L-INT_L.SW6END[1]--></pin_class>
-			<pin_class type="INPUT">77 <!-- BLK_MB-CLBLL_L-INT_L.SW6END[2]--></pin_class>
-			<pin_class type="INPUT">78 <!-- BLK_MB-CLBLL_L-INT_L.SW6END[3]--></pin_class>
-			<pin_class type="INPUT">79 <!-- BLK_MB-CLBLL_L-INT_L.WL1END[0]--></pin_class>
-			<pin_class type="INPUT">80 <!-- BLK_MB-CLBLL_L-INT_L.WL1END[1]--></pin_class>
-			<pin_class type="INPUT">81 <!-- BLK_MB-CLBLL_L-INT_L.WL1END[2]--></pin_class>
-			<pin_class type="INPUT">82 <!-- BLK_MB-CLBLL_L-INT_L.WL1END[3]--></pin_class>
-			<pin_class type="INPUT">83 <!-- BLK_MB-CLBLL_L-INT_L.WR1END[0]--></pin_class>
-			<pin_class type="INPUT">84 <!-- BLK_MB-CLBLL_L-INT_L.WR1END[1]--></pin_class>
-			<pin_class type="INPUT">85 <!-- BLK_MB-CLBLL_L-INT_L.WR1END[2]--></pin_class>
-			<pin_class type="INPUT">86 <!-- BLK_MB-CLBLL_L-INT_L.WR1END[3]--></pin_class>
-			<pin_class type="INPUT">87 <!-- BLK_MB-CLBLL_L-INT_L.WW2END[0]--></pin_class>
-			<pin_class type="INPUT">88 <!-- BLK_MB-CLBLL_L-INT_L.WW2END[1]--></pin_class>
-			<pin_class type="INPUT">89 <!-- BLK_MB-CLBLL_L-INT_L.WW2END[2]--></pin_class>
-			<pin_class type="INPUT">90 <!-- BLK_MB-CLBLL_L-INT_L.WW2END[3]--></pin_class>
-			<pin_class type="INPUT">91 <!-- BLK_MB-CLBLL_L-INT_L.WW4END[0]--></pin_class>
-			<pin_class type="INPUT">92 <!-- BLK_MB-CLBLL_L-INT_L.WW4END[1]--></pin_class>
-			<pin_class type="INPUT">93 <!-- BLK_MB-CLBLL_L-INT_L.WW4END[2]--></pin_class>
-			<pin_class type="INPUT">94 <!-- BLK_MB-CLBLL_L-INT_L.WW4END[3]--></pin_class>
-			<pin_class type="INPUT">95 <!-- BLK_MB-CLBLL_L-INT_L.CIN_N[0]--></pin_class>
-			<pin_class type="INPUT">96 <!-- BLK_MB-CLBLL_L-INT_L.CIN_N[1]--></pin_class>
-			<pin_class type="OUTPUT">97 <!-- BLK_MB-CLBLL_L-INT_L.EE2BEG[0]--></pin_class>
-			<pin_class type="OUTPUT">98 <!-- BLK_MB-CLBLL_L-INT_L.EE2BEG[1]--></pin_class>
-			<pin_class type="OUTPUT">99 <!-- BLK_MB-CLBLL_L-INT_L.EE2BEG[2]--></pin_class>
-			<pin_class type="OUTPUT">100 <!-- BLK_MB-CLBLL_L-INT_L.EE2BEG[3]--></pin_class>
-			<pin_class type="OUTPUT">101 <!-- BLK_MB-CLBLL_L-INT_L.EE4BEG[0]--></pin_class>
-			<pin_class type="OUTPUT">102 <!-- BLK_MB-CLBLL_L-INT_L.EE4BEG[1]--></pin_class>
-			<pin_class type="OUTPUT">103 <!-- BLK_MB-CLBLL_L-INT_L.EE4BEG[2]--></pin_class>
-			<pin_class type="OUTPUT">104 <!-- BLK_MB-CLBLL_L-INT_L.EE4BEG[3]--></pin_class>
-			<pin_class type="OUTPUT">105 <!-- BLK_MB-CLBLL_L-INT_L.EL1BEG[0]--></pin_class>
-			<pin_class type="OUTPUT">106 <!-- BLK_MB-CLBLL_L-INT_L.EL1BEG[1]--></pin_class>
-			<pin_class type="OUTPUT">107 <!-- BLK_MB-CLBLL_L-INT_L.EL1BEG[2]--></pin_class>
-			<pin_class type="OUTPUT">108 <!-- BLK_MB-CLBLL_L-INT_L.ER1BEG[0]--></pin_class>
-			<pin_class type="OUTPUT">109 <!-- BLK_MB-CLBLL_L-INT_L.ER1BEG[1]--></pin_class>
-			<pin_class type="OUTPUT">110 <!-- BLK_MB-CLBLL_L-INT_L.ER1BEG[2]--></pin_class>
-			<pin_class type="OUTPUT">111 <!-- BLK_MB-CLBLL_L-INT_L.ER1BEG[3]--></pin_class>
-			<pin_class type="OUTPUT">112 <!-- BLK_MB-CLBLL_L-INT_L.NE2BEG[0]--></pin_class>
-			<pin_class type="OUTPUT">113 <!-- BLK_MB-CLBLL_L-INT_L.NE2BEG[1]--></pin_class>
-			<pin_class type="OUTPUT">114 <!-- BLK_MB-CLBLL_L-INT_L.NE2BEG[2]--></pin_class>
-			<pin_class type="OUTPUT">115 <!-- BLK_MB-CLBLL_L-INT_L.NE2BEG[3]--></pin_class>
-			<pin_class type="OUTPUT">116 <!-- BLK_MB-CLBLL_L-INT_L.NE6BEG[0]--></pin_class>
-			<pin_class type="OUTPUT">117 <!-- BLK_MB-CLBLL_L-INT_L.NE6BEG[1]--></pin_class>
-			<pin_class type="OUTPUT">118 <!-- BLK_MB-CLBLL_L-INT_L.NE6BEG[2]--></pin_class>
-			<pin_class type="OUTPUT">119 <!-- BLK_MB-CLBLL_L-INT_L.NE6BEG[3]--></pin_class>
-			<pin_class type="OUTPUT">120 <!-- BLK_MB-CLBLL_L-INT_L.NL1BEG[0]--></pin_class>
-			<pin_class type="OUTPUT">121 <!-- BLK_MB-CLBLL_L-INT_L.NL1BEG[1]--></pin_class>
-			<pin_class type="OUTPUT">122 <!-- BLK_MB-CLBLL_L-INT_L.NL1BEG[2]--></pin_class>
-			<pin_class type="OUTPUT">123 <!-- BLK_MB-CLBLL_L-INT_L.NN2BEG[0]--></pin_class>
-			<pin_class type="OUTPUT">124 <!-- BLK_MB-CLBLL_L-INT_L.NN2BEG[1]--></pin_class>
-			<pin_class type="OUTPUT">125 <!-- BLK_MB-CLBLL_L-INT_L.NN2BEG[2]--></pin_class>
-			<pin_class type="OUTPUT">126 <!-- BLK_MB-CLBLL_L-INT_L.NN2BEG[3]--></pin_class>
-			<pin_class type="OUTPUT">127 <!-- BLK_MB-CLBLL_L-INT_L.NN6BEG[0]--></pin_class>
-			<pin_class type="OUTPUT">128 <!-- BLK_MB-CLBLL_L-INT_L.NN6BEG[1]--></pin_class>
-			<pin_class type="OUTPUT">129 <!-- BLK_MB-CLBLL_L-INT_L.NN6BEG[2]--></pin_class>
-			<pin_class type="OUTPUT">130 <!-- BLK_MB-CLBLL_L-INT_L.NN6BEG[3]--></pin_class>
-			<pin_class type="OUTPUT">131 <!-- BLK_MB-CLBLL_L-INT_L.NR1BEG[0]--></pin_class>
-			<pin_class type="OUTPUT">132 <!-- BLK_MB-CLBLL_L-INT_L.NR1BEG[1]--></pin_class>
-			<pin_class type="OUTPUT">133 <!-- BLK_MB-CLBLL_L-INT_L.NR1BEG[2]--></pin_class>
-			<pin_class type="OUTPUT">134 <!-- BLK_MB-CLBLL_L-INT_L.NR1BEG[3]--></pin_class>
-			<pin_class type="OUTPUT">135 <!-- BLK_MB-CLBLL_L-INT_L.NW2BEG[0]--></pin_class>
-			<pin_class type="OUTPUT">136 <!-- BLK_MB-CLBLL_L-INT_L.NW2BEG[1]--></pin_class>
-			<pin_class type="OUTPUT">137 <!-- BLK_MB-CLBLL_L-INT_L.NW2BEG[2]--></pin_class>
-			<pin_class type="OUTPUT">138 <!-- BLK_MB-CLBLL_L-INT_L.NW2BEG[3]--></pin_class>
-			<pin_class type="OUTPUT">139 <!-- BLK_MB-CLBLL_L-INT_L.NW6BEG[0]--></pin_class>
-			<pin_class type="OUTPUT">140 <!-- BLK_MB-CLBLL_L-INT_L.NW6BEG[1]--></pin_class>
-			<pin_class type="OUTPUT">141 <!-- BLK_MB-CLBLL_L-INT_L.NW6BEG[2]--></pin_class>
-			<pin_class type="OUTPUT">142 <!-- BLK_MB-CLBLL_L-INT_L.NW6BEG[3]--></pin_class>
-			<pin_class type="OUTPUT">143 <!-- BLK_MB-CLBLL_L-INT_L.SE2BEG[0]--></pin_class>
-			<pin_class type="OUTPUT">144 <!-- BLK_MB-CLBLL_L-INT_L.SE2BEG[1]--></pin_class>
-			<pin_class type="OUTPUT">145 <!-- BLK_MB-CLBLL_L-INT_L.SE2BEG[2]--></pin_class>
-			<pin_class type="OUTPUT">146 <!-- BLK_MB-CLBLL_L-INT_L.SE2BEG[3]--></pin_class>
-			<pin_class type="OUTPUT">147 <!-- BLK_MB-CLBLL_L-INT_L.SE6BEG[0]--></pin_class>
-			<pin_class type="OUTPUT">148 <!-- BLK_MB-CLBLL_L-INT_L.SE6BEG[1]--></pin_class>
-			<pin_class type="OUTPUT">149 <!-- BLK_MB-CLBLL_L-INT_L.SE6BEG[2]--></pin_class>
-			<pin_class type="OUTPUT">150 <!-- BLK_MB-CLBLL_L-INT_L.SE6BEG[3]--></pin_class>
-			<pin_class type="OUTPUT">151 <!-- BLK_MB-CLBLL_L-INT_L.SL1BEG[0]--></pin_class>
-			<pin_class type="OUTPUT">152 <!-- BLK_MB-CLBLL_L-INT_L.SL1BEG[1]--></pin_class>
-			<pin_class type="OUTPUT">153 <!-- BLK_MB-CLBLL_L-INT_L.SL1BEG[2]--></pin_class>
-			<pin_class type="OUTPUT">154 <!-- BLK_MB-CLBLL_L-INT_L.SL1BEG[3]--></pin_class>
-			<pin_class type="OUTPUT">155 <!-- BLK_MB-CLBLL_L-INT_L.SR1BEG[0]--></pin_class>
-			<pin_class type="OUTPUT">156 <!-- BLK_MB-CLBLL_L-INT_L.SR1BEG[1]--></pin_class>
-			<pin_class type="OUTPUT">157 <!-- BLK_MB-CLBLL_L-INT_L.SR1BEG[2]--></pin_class>
-			<pin_class type="OUTPUT">158 <!-- BLK_MB-CLBLL_L-INT_L.SR1BEG[3]--></pin_class>
-			<pin_class type="OUTPUT">159 <!-- BLK_MB-CLBLL_L-INT_L.SS2BEG[0]--></pin_class>
-			<pin_class type="OUTPUT">160 <!-- BLK_MB-CLBLL_L-INT_L.SS2BEG[1]--></pin_class>
-			<pin_class type="OUTPUT">161 <!-- BLK_MB-CLBLL_L-INT_L.SS2BEG[2]--></pin_class>
-			<pin_class type="OUTPUT">162 <!-- BLK_MB-CLBLL_L-INT_L.SS2BEG[3]--></pin_class>
-			<pin_class type="OUTPUT">163 <!-- BLK_MB-CLBLL_L-INT_L.SS6BEG[0]--></pin_class>
-			<pin_class type="OUTPUT">164 <!-- BLK_MB-CLBLL_L-INT_L.SS6BEG[1]--></pin_class>
-			<pin_class type="OUTPUT">165 <!-- BLK_MB-CLBLL_L-INT_L.SS6BEG[2]--></pin_class>
-			<pin_class type="OUTPUT">166 <!-- BLK_MB-CLBLL_L-INT_L.SS6BEG[3]--></pin_class>
-			<pin_class type="OUTPUT">167 <!-- BLK_MB-CLBLL_L-INT_L.SW2BEG[0]--></pin_class>
-			<pin_class type="OUTPUT">168 <!-- BLK_MB-CLBLL_L-INT_L.SW2BEG[1]--></pin_class>
-			<pin_class type="OUTPUT">169 <!-- BLK_MB-CLBLL_L-INT_L.SW2BEG[2]--></pin_class>
-			<pin_class type="OUTPUT">170 <!-- BLK_MB-CLBLL_L-INT_L.SW2BEG[3]--></pin_class>
-			<pin_class type="OUTPUT">171 <!-- BLK_MB-CLBLL_L-INT_L.SW6BEG[0]--></pin_class>
-			<pin_class type="OUTPUT">172 <!-- BLK_MB-CLBLL_L-INT_L.SW6BEG[1]--></pin_class>
-			<pin_class type="OUTPUT">173 <!-- BLK_MB-CLBLL_L-INT_L.SW6BEG[2]--></pin_class>
-			<pin_class type="OUTPUT">174 <!-- BLK_MB-CLBLL_L-INT_L.SW6BEG[3]--></pin_class>
-			<pin_class type="OUTPUT">175 <!-- BLK_MB-CLBLL_L-INT_L.WL1BEG[0]--></pin_class>
-			<pin_class type="OUTPUT">176 <!-- BLK_MB-CLBLL_L-INT_L.WL1BEG[1]--></pin_class>
-			<pin_class type="OUTPUT">177 <!-- BLK_MB-CLBLL_L-INT_L.WL1BEG[2]--></pin_class>
-			<pin_class type="OUTPUT">178 <!-- BLK_MB-CLBLL_L-INT_L.WR1BEG[0]--></pin_class>
-			<pin_class type="OUTPUT">179 <!-- BLK_MB-CLBLL_L-INT_L.WR1BEG[1]--></pin_class>
-			<pin_class type="OUTPUT">180 <!-- BLK_MB-CLBLL_L-INT_L.WR1BEG[2]--></pin_class>
-			<pin_class type="OUTPUT">181 <!-- BLK_MB-CLBLL_L-INT_L.WR1BEG[3]--></pin_class>
-			<pin_class type="OUTPUT">182 <!-- BLK_MB-CLBLL_L-INT_L.WW2BEG[0]--></pin_class>
-			<pin_class type="OUTPUT">183 <!-- BLK_MB-CLBLL_L-INT_L.WW2BEG[1]--></pin_class>
-			<pin_class type="OUTPUT">184 <!-- BLK_MB-CLBLL_L-INT_L.WW2BEG[2]--></pin_class>
-			<pin_class type="OUTPUT">185 <!-- BLK_MB-CLBLL_L-INT_L.WW2BEG[3]--></pin_class>
-			<pin_class type="OUTPUT">186 <!-- BLK_MB-CLBLL_L-INT_L.WW4BEG[0]--></pin_class>
-			<pin_class type="OUTPUT">187 <!-- BLK_MB-CLBLL_L-INT_L.WW4BEG[1]--></pin_class>
-			<pin_class type="OUTPUT">188 <!-- BLK_MB-CLBLL_L-INT_L.WW4BEG[2]--></pin_class>
-			<pin_class type="OUTPUT">189 <!-- BLK_MB-CLBLL_L-INT_L.WW4BEG[3]--></pin_class>
-			<pin_class type="OUTPUT">190 <!-- BLK_MB-CLBLL_L-INT_L.COUT_N[0]--></pin_class>
-			<pin_class type="OUTPUT">191 <!-- BLK_MB-CLBLL_L-INT_L.COUT_N[1]--></pin_class>
-			<pin_class type="INPUT">192 <!-- BLK_MB-CLBLL_L-INT_L.GCLK_L_B[0]--></pin_class>
-			<pin_class type="INPUT">193 <!-- BLK_MB-CLBLL_L-INT_L.GCLK_L_B[1]--></pin_class>
-			<pin_class type="INPUT">194 <!-- BLK_MB-CLBLL_L-INT_L.GCLK_L_B[2]--></pin_class>
-			<pin_class type="INPUT">195 <!-- BLK_MB-CLBLL_L-INT_L.GCLK_L_B[3]--></pin_class>
-			<pin_class type="INPUT">196 <!-- BLK_MB-CLBLL_L-INT_L.GCLK_L_B[4]--></pin_class>
-			<pin_class type="INPUT">197 <!-- BLK_MB-CLBLL_L-INT_L.GCLK_L_B[5]--></pin_class>
-			<pin_class type="INPUT">198 <!-- BLK_MB-CLBLL_L-INT_L.GCLK_L_B[6]--></pin_class>
-			<pin_class type="INPUT">199 <!-- BLK_MB-CLBLL_L-INT_L.GCLK_L_B[7]--></pin_class>
-			<pin_class type="INPUT">200 <!-- BLK_MB-CLBLL_L-INT_L.GCLK_L_B[8]--></pin_class>
-			<pin_class type="INPUT">201 <!-- BLK_MB-CLBLL_L-INT_L.GCLK_L_B[9]--></pin_class>
-			<pin_class type="INPUT">202 <!-- BLK_MB-CLBLL_L-INT_L.GCLK_L_B[10]--></pin_class>
-			<pin_class type="INPUT">203 <!-- BLK_MB-CLBLL_L-INT_L.GCLK_L_B[11]--></pin_class>
-			<pin_class type="INPUT">204 <!-- BLK_MB-CLBLL_L-INT_L.GFAN[0]--></pin_class>
-			<pin_class type="INPUT">205 <!-- BLK_MB-CLBLL_L-INT_L.GFAN[1]--></pin_class>
-			<pin_class type="INPUT">206 <!-- BLK_MB-CLBLL_L-INT_L.CLK_L[0]--></pin_class>
-			<pin_class type="INPUT">207 <!-- BLK_MB-CLBLL_L-INT_L.CLK_L[1]--></pin_class>
-		</block_type>
-		<block_type id="3" name="CLBLL_R" width="1" height="1">
-			<pin_class type="INPUT">0 <!-- CLBLL_R.I[0]--></pin_class>
-			<pin_class type="OUTPUT">1 <!-- CLBLL_R.O[0]--></pin_class>
-		</block_type>
-		<block_type id="4" name="CLBLM_L" width="1" height="1">
-			<pin_class type="INPUT">0 <!-- CLBLM_L.I[0]--></pin_class>
-			<pin_class type="OUTPUT">1 <!-- CLBLM_L.O[0]--></pin_class>
-		</block_type>
-		<block_type id="5" name="CLBLM_R" width="1" height="1">
-			<pin_class type="INPUT">0 <!-- CLBLM_R.I[0]--></pin_class>
-			<pin_class type="OUTPUT">1 <!-- CLBLM_R.O[0]--></pin_class>
-		</block_type>
-		<block_type id="6" name="INT_L" width="1" height="1">
-			<pin_class type="INPUT">0 <!-- INT_L.I[0]--></pin_class>
-			<pin_class type="OUTPUT">1 <!-- INT_L.O[0]--></pin_class>
-		</block_type>
-		<block_type id="7" name="INT_R" width="1" height="1">
-			<pin_class type="INPUT">0 <!-- INT_R.I[0]--></pin_class>
-			<pin_class type="OUTPUT">1 <!-- INT_R.O[0]--></pin_class>
-		</block_type>
-		<block_type id="8" name="HCLK_L" width="1" height="1">
-			<pin_class type="INPUT">0 <!-- HCLK_L.I[0]--></pin_class>
-			<pin_class type="OUTPUT">1 <!-- HCLK_L.O[0]--></pin_class>
-		</block_type>
-		<block_type id="9" name="HCLK_R" width="1" height="1">
-			<pin_class type="INPUT">0 <!-- HCLK_R.I[0]--></pin_class>
-			<pin_class type="OUTPUT">1 <!-- HCLK_R.O[0]--></pin_class>
-		</block_type>
-	</block_types>
-"""
+# Mapping dictionaries
+globalname2node = {}
+globalname2nodeid = {}
+
+
+nodes = ET.SubElement(rr_graph, 'rr_nodes')
+def add_node(globalname, attribs):
+    """Add node with globalname and attributes."""
+    # Add common attributes
+    attribs['capacity'] =  str(1)
+
+    # Work out the ID for this node and add to the mapping
+    attribs['id'] = str(len(globalname2node))
+
+    node = ET.SubElement(nodes, 'node', attribs)
+
+    # Stash in the mappings
+    assert globalname not in globalname2node
+    assert globalname not in globalname2nodeid
+    globalname2node[globalname] = node
+    globalname2nodeid[globalname] = attribs['id']
+
+    # Add some helpful comments
+    if args.verbose:
+        node.append(ET.Comment(" {} ".format(globalname)))
+
+    return node
+
+
+edges = ET.SubElement(rr_graph, 'rr_edges')
+def add_edge(src_globalname, dst_globalname, bidir=False):
+    src_node_id = globalname2nodeid[src_globalname]
+    dst_node_id = globalname2nodeid[dst_globalname]
+
+    attribs = {
+        'src_node': str(src_node_id),
+        'sink_node': str(dst_node_id),
+        'switch_id': str(0),
+    }
+    e = ET.SubElement(edges, 'edge', attribs)
+
+    # Add some helpful comments
+    if args.verbose:
+        e.append(ET.Comment(" {} -> {} ".format(src_globalname, dst_globalname)))
+        globalname2node[src_globalname].append(ET.Comment(" this -> {} ".format(dst_globalname)))
+        globalname2node[dst_globalname].append(ET.Comment(" {} -> this ".format(src_globalname)))
+
+
+def add_pin(pos, pinname, dir, idx):
+    """Add an pin at index i to tile at pos."""
+
+    """
+        <node id="0" type="SINK" capacity="1">
+                <loc xlow="0" ylow="1" xhigh="0" yhigh="1" ptc="0"/>
+                <timing R="0" C="0"/>
+        </node>
+        <node id="2" type="IPIN" capacity="1">
+                <loc xlow="0" ylow="1" xhigh="0" yhigh="1" side="TOP" ptc="0"/>
+                <timing R="0" C="0"/>
+        </node>
+    """
+    gname = "(%s,%s)-%s" % (pos, pinname)
+    gname_pin = "(%s,%s)-%s-pin" % (pos, pinname)
+
+    add_globalname2localname(gname, pos, localname)
+
+    if dir == "out":
+        # Sink node
+        attribs = {
+            'type': 'SINK',
+        }
+        node = add_node(gname, attribs)
+        ET.SubElement(node, 'loc', {
+            'xlow': str(pos[0]), 'ylow': str(pos[1]),
+            'xhigh': str(pos[0]), 'yhigh': str(pos[1]),
+            'ptc': str(idx),
+        })
+        ET.SubElement(node, 'timing', {'R': str(0), 'C': str(0)})
+
+        # Pin node
+        attribs = {
+            'type': 'IPIN',
+        }
+        node = add_node(gname_pin, attribs)
+        ET.SubElement(node, 'loc', {
+            'xlow': str(pos[0]), 'ylow': str(pos[1]),
+            'xhigh': str(pos[0]), 'yhigh': str(pos[1]),
+            'ptc': str(idx),
+            'side': 'TOP',
+        })
+        ET.SubElement(node, 'timing', {'R': str(0), 'C': str(0)})
+
+        # Edge between pin node
+        add_edge(gname, gname_pin)
+
+    elif dir == "in":
+        # Source node
+        attribs = {
+            'type': 'SOURCE',
+        }
+        node = add_node(gname, attribs)
+        ET.SubElement(node, 'loc', {
+            'xlow': str(pos[0]), 'ylow': str(pos[1]),
+            'xhigh': str(pos[0]), 'yhigh': str(pos[1]),
+            'ptc': str(idx),
+        })
+        ET.SubElement(node, 'timing', {'R': str(0), 'C': str(0)})
+
+        # Pin node
+        attribs = {
+            'type': 'OPIN',
+        }
+        node = add_node(gname_pin, attribs)
+        ET.SubElement(node, 'loc', {
+            'xlow': str(pos[0]), 'ylow': str(pos[1]),
+            'xhigh': str(pos[0]), 'yhigh': str(pos[1]),
+            'ptc': str(idx),
+            'side': 'TOP',
+        })
+        ET.SubElement(node, 'timing', {'R': str(0), 'C': str(0)})
+
+        # Edge between pin node
+        add_edge(gname_pin, gname)
+
+    else:
+        assert False, "Unknown dir of {} for {}".format(dir, gname)
+
+    print("Adding pin {} on tile {}@{}".format(gname, pos, idx))
+
+
+for x in range(args.start_x, args.end_x+1):
+    for y in range(args.start_y, args.end_y+1):
+        tile_type = grid[(x, y)]
+        print(x,y,tile_type)
+        # Create the pins here...
+        #add_pin(pos, pinname, dir, idx)
+
+
+def gname(pos, name):
+    return "GRID_X{}Y{}/{}/{}".format(pos[0], pos[1], grid[pos], name)
+
+
+for w in wires:
+    start = w[0]
+    name, x, index = re.match("^(..[0-9]*)(.*)([0-9]+)$", start[-1]).groups()
+    if name.startswith("L"):
+        assert x == ""
+        wire_type = "long"
+    else:
+        assert x == "BEG"
+        wire_type = "short"
+
+    # Name routing nodes after their starting node
+    #global_name = "(%s,%s)-%s[%s]" % (start[0][0], start[0][1], name, index)
+    names = []
+    for pos, name in w:
+        names.append(gname(pos, name))
+    wire_global_name = "->>".join(names)
+    print(wire_global_name)
+
+    start_pos = wire[0][0]
+    end_pos = wire[-1][0]
+
+    # Y channel as X is constant
+    if start_pos[0] == end_pos[0]:
+        channel_start = add_channel(
+            wire_global_name,
+            'CHANY', start_pos, end_pos, 'WIRE')
+        channel_end = channel_start
+
+    # X channel as Y is constant
+    elif start_pos[1] != end_pos[1]:
+        channel_start = add_channel(
+            wire_global_name,
+            'CHANX', start_pos, end_pos, 'WIRE')
+        channel_end = channel_start
+
+    # Going to need two channels to make this work..
+    else:
+        mid_pos = (start_pos[0], end_pos[1])
+        channel_start = add_channel(
+            wire_global_name+"_Y",
+            'CHANY', start_pos, mid_pos, 'WIRE')
+        channel_end = add_channel(
+            wire_global_name+"_X",
+            'CHANX', mid_pos, end_pos, 'WIRE')
+
+    add_edge(gname(start_pos, start[-1]), channel_start)
+    add_edge(channel_end, gname(end_pos, w[-1][-1]))
+
 
 #print()
 #for s in starting_groups:
