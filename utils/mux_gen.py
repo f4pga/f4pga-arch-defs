@@ -14,6 +14,8 @@ import math
 import os
 import sys
 
+from lib import mux as mux_lib
+
 def str2bool(v):
     if v.lower() in ('yes', 'true', 't', 'y', '1'):
         return True
@@ -99,39 +101,10 @@ def output_block(name, s):
         print()
     print('-'*75)
 
-
-def clog2(x):
-    """Ceiling log 2 of x.
-
-    >>> clog2(0), clog2(1), clog2(2), clog2(3), clog2(4)
-    (0, 0, 1, 2, 2)
-    >>> clog2(5), clog2(6), clog2(7), clog2(8), clog2(9)
-    (3, 3, 3, 3, 4)
-    >>> clog2(1 << 31)
-    31
-    >>> clog2(1 << 63)
-    63
-    >>> clog2(1 << 11)
-    11
-    """
-    x -= 1
-    i = 0
-    while True:
-        if x <= 0:
-            break
-        x = x >> 1
-        i += 1
-    return i
-
-import doctest
-doctest.testmod()
-
 call_args = list(sys.argv)
 
 args = parser.parse_args()
-args.width_bits = clog2(args.width)
-if not args.subckt:
-    args.subckt = args.name_mux
+args.width_bits = mux_lib.clog2(args.width)
 
 mypath = __file__
 mydir = os.path.dirname(mypath)
@@ -145,6 +118,7 @@ else:
     outdir = args.outdir
 
 mux_dir = os.path.relpath(os.path.abspath(os.path.join(mydir, '..', 'vpr', 'muxes')), outdir)
+buf_dir = os.path.relpath(os.path.abspath(os.path.join(mydir, '..', 'vpr', 'buf')), outdir)
 
 repo_args = []
 skip_next = False
@@ -262,16 +236,16 @@ port_names = []
 for i in args.order:
     if i == 'i':
         if args.split_inputs:
-            port_names.extend(('i', args.name_inputs[j], 1, '[%i]' % j) for j in range(args.width))
+            port_names.extend((mux_lib.MuxPinType.INPUT, args.name_inputs[j], 1, '[%i]' % j) for j in range(args.width))
         else:
-            port_names.append(('i', args.name_input, args.width, '[%i:0]' % args.width))
+            port_names.append((mux_lib.MuxPinType.INPUT, args.name_input, args.width, '[%i:0]' % args.width))
     elif i == 's':
         if args.split_selects and args.width_bits > 1:
-            port_names.extend(('s', args.name_selects[j], 1, '[%i]' % j) for j in range(args.width_bits))
+            port_names.extend((mux_lib.MuxPinType.SELECT, args.name_selects[j], 1, '[%i]' % j) for j in range(args.width_bits))
         else:
-            port_names.append(('s', args.name_select, args.width_bits, '[%i:0]' % args.width_bits))
+            port_names.append((mux_lib.MuxPinType.SELECT, args.name_select, args.width_bits, '[%i:0]' % args.width_bits))
     elif i == 'o':
-        port_names.append(('o', args.name_output, 1, ''))
+        port_names.append((mux_lib.MuxPinType.OUTPUT, args.name_output, 1, ''))
 
 # ------------------------------------------------------------------------
 # Generate the sim.v Verilog module
@@ -283,7 +257,7 @@ sim_file = os.path.join(outdir, "sim.v")
 with open(sim_file, "w") as f:
     module_args = []
     for type, name, _, _ in port_names:
-        if args.type == 'routing' and type == 's':
+        if args.type == 'routing' and type == mux_lib.MuxPinType.SELECT:
             continue
         module_args.append(name)
 
@@ -300,7 +274,7 @@ with open(sim_file, "w") as f:
         if previous_type != type:
             f.write("\n")
             previous_type = type
-        if args.type == 'routing' and type == 's':
+        if args.type == 'routing' and type == mux_lib.MuxPinType.SELECT:
             if width == 1:
                 f.write('\tparameter [0:0] %s = 0;\n' % (name))
             else:
@@ -308,16 +282,16 @@ with open(sim_file, "w") as f:
             continue
 
         if width == 1:
-            f.write('\t%s %s;\n' % (defs[type], name))
+            f.write('\t%s %s;\n' % (type.verilog(), name))
         else:
-            f.write('\t%s %s %s;\n' % (defs[type], index, name))
+            f.write('\t%s %s %s;\n' % (type.verilog(), index, name))
 
     f.write("\n")
     f.write('\tMUX%s mux (\n' % args.width)
     for i in range(0, args.width):
         j = 0
         for type, name, width, index in port_names:
-            if type != 'i':
+            if type != mux_lib.MuxPinType.INPUT:
                 continue
             if j+width <= i:
                 j += width
@@ -334,7 +308,7 @@ with open(sim_file, "w") as f:
     for i in range(0, args.width_bits):
         j = 0
         for type, name, width, index in port_names:
-            if type != 's':
+            if type != mux_lib.MuxPinType.SELECT:
                 continue
             if j+width < i:
                 j += width
@@ -347,7 +321,7 @@ with open(sim_file, "w") as f:
             f.write('\t\t.S%i(%s[%i]),\n' % (i, name, i-j))
 
     for type, name, width, index in port_names:
-        if type != 'o':
+        if type != mux_lib.MuxPinType.OUTPUT:
             continue
         break
     assert width == 1
@@ -357,6 +331,13 @@ with open(sim_file, "w") as f:
 
 output_block("sim.v", open(sim_file).read())
 
+if args.type == 'logic':
+    subckt = args.subckt or args.name_mux
+    assert subckt
+elif args.type == 'routing':
+    assert args.subckt is None
+    subckt = None
+
 # ------------------------------------------------------------------------
 # Generate the Model XML form.
 # ------------------------------------------------------------------------
@@ -364,18 +345,18 @@ if args.type == 'logic':
     models_xml = ET.Element('models')
     models_xml.append(ET.Comment(xml_comment))
 
-    model_xml = ET.SubElement(models_xml, 'model', {'name': args.subckt})
+    model_xml = ET.SubElement(models_xml, 'model', {'name': subckt})
 
     input_ports = ET.SubElement(model_xml, 'input_ports')
     output_ports = ET.SubElement(model_xml, 'output_ports')
     for type, name, width, index in port_names:
-        if type in ('i', 's'):
+        if type in (mux_lib.MuxPinType.INPUT, mux_lib.MuxPinType.SELECT):
             ET.SubElement(
                 input_ports, 'port', {
                     'name': name,
-                    'combinational_sink_ports': ','.join(n for t, n, w, i in port_names if t in ('o',)),
+                    'combinational_sink_ports': ','.join(n for t, n, w, i in port_names if t in (mux_lib.MuxPinType.OUTPUT,)),
                 })
-        elif type in ('o',):
+        elif type in (mux_lib.MuxPinType.OUTPUT,):
             ET.SubElement(output_ports, 'port', {'name': args.name_output})
 
     models_str = ET.tostring(models_xml, pretty_print=True).decode('utf-8')
@@ -389,55 +370,13 @@ else:
 # Generate the pb_type XML form.
 # ------------------------------------------------------------------------
 
-mn = args.name_mux
-pb_type_xml = ET.Element(
-    'pb_type', {
-        'name': mn,
-        'num_pb': str(args.num_pb),
-    })
-if args.type == 'logic':
-    pb_type_xml.attrib['blif_model'] = '.subckt %s' % args.subckt
-
-pb_type_xml.append(ET.Comment(xml_comment))
-
-for type, name, width, index in port_names:
-    if args.type == 'routing' and type == 's':
-        continue
-    ET.SubElement(
-        pb_type_xml,
-        {'i': 'input',
-         's': 'input',
-         'o': 'output'}[type],
-        {'name': name, 'num_pins': str(width)},
-    )
-
-if args.type == 'logic':
-    for itype, iname, iwidth, iindex in port_names:
-        if itype not in ('i', 's'):
-            continue
-
-        for otype, oname, owidth, oindex in port_names:
-            if otype not in ('o',):
-                continue
-
-            ET.SubElement(
-                pb_type_xml,
-                'delay_constant', {
-                    'max': "10e-12",
-                    'in_port': "%s.%s" % (args.name_mux, iname),
-                    'out_port': "%s.%s" % (args.name_mux, oname),
-                },
-            )
-else:
-    interconnect = ET.SubElement(pb_type_xml, 'interconnect')
-    ET.SubElement(
-        interconnect,
-        'mux', {
-            'name': '_'+args.name_mux,
-            'input': ' '.join("%s.%s" % (mn,n) for t, n, _, _ in port_names if t in ('i',)),
-            'output': "%s.%s" % (mn,args.name_output),
-        },
-    )
+pb_type_xml = mux_lib.pb_type_xml(
+    mux_lib.MuxType[args.type.upper()],
+    args.name_mux,
+    port_names,
+    subckt=subckt,
+    num_pb=args.num_pb,
+    comment=xml_comment)
 
 pb_type_str = ET.tostring(pb_type_xml, pretty_print=True).decode('utf-8')
 output_block("pb_type.xml", pb_type_str)

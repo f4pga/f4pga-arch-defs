@@ -1,0 +1,7 @@
+<pb_type name="BUF" num_pb="1">
+  <input  name="I" num_pins="1"/>
+  <output name="O" num_pins="1"/>
+  <interconnect>
+   <direct name="IO" input="BUF.I" output="BUF.O"/>
+ </interconnect>
+</pb_type>
