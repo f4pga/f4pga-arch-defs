@@ -139,16 +139,16 @@ def ppips():
     for line in db_open('ppips').readlines():
         yield line
     if tile_type == "CLBLL":
-        yield "{}_{}.CLBLL_L_CIN.CLBLL_L_CIN_N always\n".format(tile_type, tile_dir)
-        yield "{}_{}.CLBLL_LL_CIN.CLBLL_LL_CIN_N always\n".format(tile_type, tile_dir)
+        yield "%s_%s.CLBLL_L_CIN.CLBLL_L_CIN_N always\n" % (tile_type, tile_dir)
+        yield "%s_%s.CLBLL_LL_CIN.CLBLL_LL_CIN_N always\n" % (tile_type, tile_dir)
     elif tile_type == "CLBLM":
-        #yield "CLBLL_M.CLBLL_M_CIN.CLBLL_M_CIN_N always\n"
-        #yield "CLBLL_M.CLBLL_L_CIN.CLBLL_L_CIN_N always\n"
-        pass
+        yield "%s_%s.CLBLL_M_CIN.CLBLL_M_CIN_N always\n" % (tile_type, tile_dir)
+        yield "%s_%s.CLBLL_L_CIN.CLBLL_L_CIN_N always\n" % (tile_type, tile_dir)
+
 
 # Read in all the Pseudo PIP definitions.
 for line in ppips():
-    assert line.startswith('%s_%s.' % (tile_type, tile_dir)), line
+    assert line.startswith('%s_%s.' % (tile_type, tile_dir)), ((tile_type, tile_dir), line)
     name, bits = line.strip().split(' ', maxsplit=1)
     _, net_to, net_from = name.split('.')
 
