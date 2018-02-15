@@ -140,7 +140,7 @@
    <!-- Start RIO -->
 
    <col type="BLK_MB-CLBLL_L-INT_L"    startx="3" priority="10" />
-   <col type="BLK_MB-INT_R-CLBLL_R"    startx="4" priority="10" /> -->
+   <col type="BLK_MB-INT_R-CLBLL_R"    startx="4" priority="10" />
 
    <!-- End RIO -->
 
@@ -212,8 +212,8 @@
  </complexblocklist>
 
  <directlist>
-  <!-- CLBX_L -->
   <direct name="BLK_MB-CLBLL_L-INT_L_CARRY" from_pin="BLK_MB-CLBLL_L-INT_L.COUT_N"  to_pin="BLK_MB-CLBLL_L-INT_L.CIN_N"  x_offset="0"  y_offset="1" z_offset="0"/>
+  <direct name="BLK_MB-CLBLL_R-INT_R_CARRY" from_pin="BLK_MB-INT_R-CLBLL_R.COUT_N"  to_pin="BLK_MB-INT_R-CLBLL_R-INT_R.CIN_N"  x_offset="0"  y_offset="1" z_offset="0"/>
  </directlist>
 
 </architecture>

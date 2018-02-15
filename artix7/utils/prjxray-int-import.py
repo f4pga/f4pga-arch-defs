@@ -133,13 +133,10 @@ class SpanWire(_SpanWire):
         END = 'Ends'
 
     @classmethod
-    def parse(cls, name):
-        extra = None
-        if "_" in name:
-            name, extra = name.split("_")
+    def parse(cls, name, extra=None):
 
         if len(name) != len("SW2END"):
-            raise TypeError("Name %r is not correct length" % name)
+            raise TypeError("Name %r is not correct length (%r)" % (name, extra))
 
         direction, length, ending = name[:2], name[2], name[3:]
         length = int(length)
@@ -180,7 +177,7 @@ class SpanWire(_SpanWire):
         return str(self) >= str(other)
 
 
-prefix_re = re.compile("^(.*[^0-9])([0-9]+)(_[^0-9NESWRL]+|)$")
+prefix_re = re.compile("^(.*?[^0-9_])(_[NESWRL][0-9]+_|_[NS]|)([0-9]+)(_[^0-9]+|)$")
 
 wires_by_type = {
     'all':      {},
@@ -205,54 +202,64 @@ connections_map = {
 }
 
 def process_wire(wire_name):
+    """
+    >>>
+    """
+
+    #print(">>> {}".format(repr(wire_name)))
+
+    # FIXME: Horrible hack to work around INT_R's have FAN0 while INT_L's have
+    # FAN_L0 which collides with XXX_L names.
+    #wire_name = re.sub("(FAN|BYP|CLK|CTRL|IMUX)(_L)?([0-9])", "\\1_IN\\3", wire_name)
+    wire_name = re.sub("_L(.)", "\\1", wire_name)
+
     g = prefix_re.match(wire_name)
     if not g:
         print("Skipping!", wire_name)
         return None
         #return (wire_name, -1)
 
-    prefix, num, extra = g.groups()
+    prefix, extra_conn, num, extra_dir = g.groups()
     bits = prefix.split("_")
+
+    if extra_conn.endswith("_"):
+        assert extra_conn.endswith("_"), extra_conn
+        extra_conn = extra_conn[:-1]
 
     try:
         num = int(num)
     except ValueError:
         num = 0
 
-    if "GFAN" in bits[0] or "GCLK" in bits[0]:
-        if extra:
-            return None
-            #prefix = "%s--%s" % (prefix, extra)
-        if "WEST" in wire_name:
-            return None
+    if bits[0] in ("GCLK",):
+        if not extra_dir:
+            prefix += extra_dir
         return add_wire("clock", prefix, num)
-    elif "LH" in bits[0] or "LV" in bits[0]:
-        assert not extra, extra
+    elif bits[0] in ("BYP", "LOGIC"):
+        #if bits[0] in ("BYP",):
+        #    return None
+        #if bits[-1] in ("ALT",):
+        #    return None
+        assert not extra_dir, extra_dir
+        return add_wire("local", prefix, num)
+    elif bits[0] in ("FAN", "CLK", "CTRL", "IMUX"):
+        #if bits[-1] in ("ALT","BOUNCE"):
+        #    return None
+        assert not extra_dir, extra_dir
+        return add_wire("local", prefix, num)
+    elif bits[0] in ("LH", "LV", "LVB"):
+        assert not extra_dir, extra_dir
         return None
         #return add_wire("long", prefix, num)
-    elif len(bits) == 1:
-        assert not extra, extra
-        return add_wire("span", SpanWire.parse(prefix), num)
-    elif bits[-1] in ("L","ALT"):
-        # FIXME: Temporary hack to work around bounce wires..
-        if prefix == "BYP_ALT":
-            prefix = "BYP_L"
-        if prefix == "FAN_ALT":
-            prefix = "FAN_L"
-        assert not extra, extra
-        return add_wire("local", prefix, num)
-    elif bits[-1] in ("BOUNCE", "ALT"):
-        assert not extra, extra
+    elif bits[0] in ("GFAN",):
         return None
-        #return add_wire("local", prefix, num)
-    elif bits[-1] in ("", "N", "E", "S", "W"):
-        if prefix.endswith("_"):
-            prefix = prefix[:-1]
-        assert not extra, extra
-        return None
-        #return add_wire("neigh", prefix, num)
     else:
-        return None
+        assert len(bits) == 1, bits
+        assert not extra_dir, extra_dir
+        if extra_conn:
+            print("Skipping!", wire_name)
+            return None
+        return add_wire("span", SpanWire.parse(bits[0]), num)
         #return add_wire("unknown", wire_name, 0)
 
 
@@ -260,11 +267,18 @@ def add_connection(conn_type, net_from, net_to):
     if not net_from or not net_to:
         return
 
+    if isinstance(net_from[0], SpanWire):
+        if net_from[0].ending != SpanWire.Ending.END:
+            print("Starting wire not an ending!", net_from, "->", net_to)
+            return
+
+    if isinstance(net_to[0], SpanWire):
+        if net_to[0].ending != SpanWire.Ending.BEG:
+            print("Ending wire not a beginning!", net_from, "->", net_to)
+            return
+
     if net_from == net_to:
         print("WARNING: Trying to add connection from wire %s to itself" % (net_from,))
-
-    # FIXME: Disable the random bypass and similar wires...
-    if not isinstance(net_to[0], SpanWire) and not net_to[0].endswith("_L"):
         return
 
     assert conn_type in connections_map
@@ -287,7 +301,6 @@ for line in db_open('ppips').readlines():
 
     net_to = process_wire(net_to_name)
     net_from = process_wire(net_from_name)
-    print((net_from_name, net_from), (net_to_name, net_to))
     if net_from and isinstance(net_from, str):
         print(net_from, net_to)
 
@@ -304,12 +317,6 @@ for line in db_open('segbits').readlines():
 
     if not net_to:
         continue
-
-    if isinstance(net_from, SpanWire):
-        assert net_from.ending == SpanWire.Ending.END, net_from
-
-    if isinstance(net_to, SpanWire):
-        assert net_from.ending == SpanWire.Ending.BEG, net_from
 
     add_connection("mux", net_from, net_to)
 
@@ -352,6 +359,31 @@ interconnect_xml = ET.Element('interconnect')
 pb_type_xml.append(ET.Comment(" Tile Interconnects "))
 
 mux_names = set()
+net_dirs = {
+    'inputs': set(),
+    'outputs': set(),
+}
+
+# Figure out direction of span wires
+for span_wire in wires_by_type['span']:
+    if span_wire.ending == SpanWire.Ending.END:
+        net_dirs['inputs'].add(span_wire)
+    elif span_wire.ending == SpanWire.Ending.BEG:
+        net_dirs['outputs'].add(span_wire)
+    else:
+        assert False
+
+# Clocks always input
+for clock_wire in wires_by_type['clock']:
+    net_dirs['inputs'].add(clock_wire)
+
+# Local wires
+for local_wire, pins in wires_by_type['local'].items():
+    if "LOGIC_OUTS" in local_wire:
+        net_dirs['inputs'].add(local_wire)
+    else:
+        net_dirs['outputs'].add(local_wire)
+
 
 def add_direct(src, dst):
     ET.SubElement(
@@ -363,17 +395,26 @@ def add_direct(src, dst):
         },
     )
 
+
 for span_wire, pins in sorted(wires_by_type['span'].items(), key=lambda i: (i[0].ending.name, i[0].direction.name, i[0].length)):
+    if span_wire.ending == SpanWire.Ending.END:
+        assert span_wire in net_dirs['inputs']
+        wire_dir = 'input'
+    elif span_wire.ending == SpanWire.Ending.BEG:
+        assert span_wire in net_dirs['outputs']
+        wire_dir = 'output'
+    else:
+        assert False
+
     ET.SubElement(
         pb_type_xml,
-        {SpanWire.Ending.END: 'input',
-         SpanWire.Ending.BEG: 'output'}[span_wire.ending],
+        wire_dir,
         {'name': span_wire.name, 'num_pins': str(len(pins))},
     )
 
     for pin in pins:
-        if span_wire.ending == SpanWire.Ending.BEG:
-            interconnect_xml.append(ET.Comment(" Connections for for %s%s output mux " % (span_wire,pin)))
+        if span_wire in net_dirs['outputs']:
+            interconnect_xml.append(ET.Comment(" Connections for %s%s output mux " % (span_wire,pin)))
 
             dst_wire_name = "%s.%s[%s]" % (tile_name, span_wire.name, pin)
             mux_name  = "BEL_RX-%s%s"  % (span_wire.name, pin)
@@ -393,9 +434,13 @@ for span_wire, pins in sorted(wires_by_type['span'].items(), key=lambda i: (i[0]
                 (mux_lib.MuxPinType.OUTPUT, "OUT", 1, 0),
             ]
             for src_wire, index in sorted(srcs):
-                src_wire_name = "%s.%s[%s]" % (tile_name, src_wire, index)
-                mux_wire_name = "%s%s" % (src_wire, index)
+                if src_wire in net_dirs['inputs']:
+                    src_wire_name = "%s.%s[%s]" % (tile_name, src_wire, index)
+                else:
+                    assert src_wire in net_dirs['outputs']
+                    src_wire_name = "BEL_RX-%s%s.OUT" % (src_wire, index)
 
+                mux_wire_name = "%s%s" % (src_wire, index)
                 add_direct(src_wire_name, "%s.%s" % (mux_name, mux_wire_name))
                 port_names.append(
                     (mux_lib.MuxPinType.INPUT, mux_wire_name, 1, 0),
@@ -417,25 +462,20 @@ for clock_wire, pins in sorted(wires_by_type['clock'].items()):
     )
 
     for pin in pins:
-        assert (clock_wire, pin) not in connections_map['mux'] or not connections_map['mux'][(clock_wire, pin)]
+        assert (clock_wire, pin) not in connections_map['mux'] or not connections_map['mux'][(clock_wire, pin)], "{} found in {}".format((clock_wire, pin), connections_map['mux'][(clock_wire, pin)])
 
 
 pb_type_xml.append(ET.Comment(" Local Interconnects "))
 for local_wire, pins in sorted(wires_by_type['local'].items()):
-    found = False
-    for pin in pins:
-        has_mux    = (local_wire, pin) in connections_map['mux']
-        has_direct = (local_wire, pin) in connections_map['direct']
-        found = found or (has_mux or has_direct)
-
-    if found:
-        wire_type = "output"
-    else:
-        wire_type = "input"
-        if "CLK" in local_wire:
-            wire_type = "clock"
-
     continous = (set(range(len(pins))) == pins)
+
+    if local_wire in net_dirs['inputs']:
+        for pin in pins:
+            assert (local_wire, pin) not in connections_map['mux']
+            assert (local_wire, pin) not in connections_map['direct'], ((local_wire, pin), connections_map['direct'][(local_wire, pin)])
+        wire_type = "input"
+    else:
+        wire_type = "output"
 
     ET.SubElement(
         pb_type_xml,
@@ -443,49 +483,52 @@ for local_wire, pins in sorted(wires_by_type['local'].items()):
         {'name': local_wire, 'num_pins': str(len(pins))},
     )
 
-    if found:
-        for pin in pins:
-            interconnect_xml.append(ET.Comment(" Connections for for %s%s local mux " % (local_wire,pin)))
-            has_mux    = (local_wire, pin) in connections_map['mux']
-            has_direct = (local_wire, pin) in connections_map['direct']
+    if wire_type == "input":
+        continue
 
-            local_wire_name = "%s.%s[%s]" % (tile_name, local_wire, pin)
+    for pin in pins:
+        interconnect_xml.append(ET.Comment(" Connections for %s%s local " % (local_wire,pin)))
 
-            if has_mux:
-                mux_name = "BEL_RX-%s%s" % (local_wire, pin)
-                assert mux_name not in mux_names
-                mux_names.add(mux_name)
+        # Outputs should all have muxes...
+        use_mux = True
+        if (local_wire, pin) in connections_map['mux']:
+            srcs = connections_map['mux'][(local_wire, pin)]
+        elif (local_wire, pin) in connections_map['direct']:
+            srcs = connections_map['direct'][(local_wire, pin)]
+        else:
+            warn = "WARNING: No connection for pin %s on output local wire %s" % (pin, local_wire)
+            interconnect_xml.append(ET.Comment(" %s " % warn))
+            print(warn)
+            continue
 
-                srcs = connections_map['mux'][(local_wire, pin)]
-                assert len(srcs) > 1
+        local_wire_name = "%s.%s[%s]" % (tile_name, local_wire, pin)
 
-                port_names = [
-                    (mux_lib.MuxPinType.OUTPUT, "OUT", 1, 0),
-                ]
-                for src_wire, index in sorted(srcs):
-                    src_wire_name = "%s.%s[%s]" % (tile_name, src_wire, index)
-                    mux_wire_name = "%s%s" % (src_wire, index)
+        mux_name = "BEL_RX-%s%s" % (local_wire, pin)
+        assert mux_name not in mux_names
+        mux_names.add(mux_name)
 
-                    add_direct(src_wire_name, "%s.%s" % (mux_name, mux_wire_name))
-                    port_names.append(
-                        (mux_lib.MuxPinType.INPUT, mux_wire_name, 1, 0),
-                    )
+        if len(srcs) <= 1:
+            print("WARNING:", "Less then 1 src for %s%s: %r" % (local_wire,pin,srcs))
 
-                pb_type_xml.append(mux_lib.pb_type_xml(
-                    mux_lib.MuxType.ROUTING, mux_name, port_names))
-
-                add_direct("%s.OUT" % mux_name, local_wire_name)
-            elif has_direct:
-                src = connections_map['direct'][(local_wire, pin)]
-                assert len(src) == 1
-                src = src[0]
-
-                add_direct("%s.%s[%s]" % (tile_name, src[0], src[1]), local_wire_name)
+        port_names = [
+            (mux_lib.MuxPinType.OUTPUT, "OUT", 1, 0),
+        ]
+        for src_wire, index in sorted(srcs):
+            if src_wire in net_dirs["outputs"]:
+                src_wire_name = "BEL_RX-%s%s.OUT" % (src_wire, index)
             else:
-                warn = "WARNING: No connection for pin %s on local wire %s" % (pin, local_wire)
-                interconnect_xml.append(ET.Comment(" %s " % warn))
-                print(warn)
-                continue
+                src_wire_name = "%s.%s[%s]" % (tile_name, src_wire, index)
+            mux_wire_name = "%s%s" % (src_wire, index)
+
+            add_direct(src_wire_name, "%s.%s" % (mux_name, mux_wire_name))
+            port_names.append(
+                (mux_lib.MuxPinType.INPUT, mux_wire_name, 1, 0),
+            )
+
+        pb_type_xml.append(mux_lib.pb_type_xml(
+            mux_lib.MuxType.ROUTING, mux_name, port_names))
+
+        add_direct("%s.OUT" % mux_name, local_wire_name)
 
 pb_type_xml.append(interconnect_xml)
 
