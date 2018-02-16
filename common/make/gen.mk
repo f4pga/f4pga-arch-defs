@@ -1,3 +1,5 @@
+.SUFFIXES:
+
 # Regenerate files
 GEN_MAKEFILES := $(shell ls Makefile.* | grep -v .gen)
 

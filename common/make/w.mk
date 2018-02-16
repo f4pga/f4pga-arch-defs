@@ -1,3 +1,5 @@
+.SUFFIXES:
+
 SELF_DIR := $(dir $(lastword $(MAKEFILE_LIST)))
 
 WPY = $(realpath $(SELF_DIR)/../../utils/w.py)
