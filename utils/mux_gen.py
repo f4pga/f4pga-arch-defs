@@ -8,6 +8,7 @@ MUXes come in two types,
 """
 
 import argparse
+import io
 import itertools
 import lxml.etree as ET
 import math
@@ -15,14 +16,8 @@ import os
 import sys
 
 from lib import mux as mux_lib
-
-def str2bool(v):
-    if v.lower() in ('yes', 'true', 't', 'y', '1'):
-        return True
-    elif v.lower() in ('no', 'false', 'f', 'n', '0'):
-        return False
-    else:
-        raise argparse.ArgumentTypeError('Boolean value expected.')
+from lib.argparse_extra import ActionStoreBool
+from lib.asserts import assert_eq
 
 parser = argparse.ArgumentParser(
     description='Generate a MUX wrapper.',
@@ -40,11 +35,13 @@ parser.add_argument(
     help="Type of MUX.")
 
 parser.add_argument(
-    '--split-inputs', type=str2bool, nargs='?', const=True, default=False,
+    '--split-inputs', '--no-split-inputs',
+    action=ActionStoreBool, default=False,
     help="Split the inputs into separate signals")
 
 parser.add_argument(
-    '--split-selects', type=str2bool, nargs='?', const=True, default=False,
+    '--split-selects', '--no-split-selects',
+    type=ActionStoreBool, default=False,
     help="Split the selects into separate signals")
 
 parser.add_argument(
@@ -55,7 +52,7 @@ parser.add_argument(
     '--name-input', type=str, default='I',
     help="Name of the input values for the mux.")
 
-parser.add_argument(
+parser.name_inputs = parser.add_argument(
     '--name-inputs', type=str, default=None,
     help="Comma deliminator list for the name of each input to the mux (implies --split-inputs).")
 
@@ -67,7 +64,7 @@ parser.add_argument(
     '--name-select', type=str, default='S',
     help="Name of the select parameter for the mux.")
 
-parser.add_argument(
+parser.name_select = parser.add_argument(
     '--name-selects', type=str, default=None,
     help="Comma deliminator list for the name of each select to the mux (implies --split-selects).")
 
@@ -109,9 +106,6 @@ args.width_bits = mux_lib.clog2(args.width)
 mypath = __file__
 mydir = os.path.dirname(mypath)
 
-print(mypath)
-print(args)
-
 if not args.outdir:
     outdir = os.path.join(".", args.name_mux.lower())
 else:
@@ -119,36 +113,41 @@ else:
 
 mux_dir = os.path.relpath(os.path.abspath(os.path.join(mydir, '..', 'vpr', 'muxes')), outdir)
 buf_dir = os.path.relpath(os.path.abspath(os.path.join(mydir, '..', 'vpr', 'buf')), outdir)
+mux_mk = os.path.relpath(os.path.abspath(os.path.join(mydir, '..', 'common', 'make', 'mux.mk')), outdir)
 
-repo_args = []
-skip_next = False
-for i, arg in enumerate(sys.argv):
-    if skip_next:
-        skip_next = False
-        continue
+if args.name_inputs:
+    assert_eq(args.name_input, parser.get_default("name_input"))
+    args.name_input = None
+    args.split_inputs = True
 
-    if i == 0:
-        repo_args.append(os.path.relpath(mypath, outdir))
-        repo_args.append("--outdir")
-        repo_args.append(".")
-        continue
+    names = args.name_inputs.split(',')
+    assert len(names) == args.width, "%s input names, but %s needed." % (names, args.width)
+    args.name_inputs = names
+elif args.split_inputs:
+    args.name_inputs = [args.name_input+str(i) for i in range(args.width)]
+    parser.name_inputs.default = args.name_inputs
+    assert_eq(parser.get_default("name_inputs"), args.name_inputs)
 
-    # Outdir is special, ignore it.
-    if arg.startswith("--outdir"):
-        if "=" not in arg:
-            skip_next = True
-            continue
+if args.name_selects:
+    assert_eq(args.name_select, parser.get_default("name_select"))
+    args.name_select = None
+    args.split_selects = True
 
-    repo_args.append(repr(arg))
-    assert "--" not in arg[2:], "Can't have -- in argument value or name %r" % arg
+    names = args.name_selects.split(',')
+    assert len(names) == args.width, "%s select names, but %s needed." % (names, args.width_bits)
+    args.name_selects = names
+elif args.split_selects:
+    args.name_selects = [args.name_select+str(i) for i in range(args.width_bits)]
+    parser.name_selects.default = args.name_selects
+    assert_eq(parser.get_default("name_selects"), args.name_selects)
 
 os.makedirs(outdir, exist_ok=True)
 
 # Generated headers
 generated_with = """
-Generated with mux_gen.py, run the following to regenerate in this directory;
+Generated with mux_gen.py, run 'make' in the following to regenerate in this directory;
 %s
-""" % " ".join(repo_args)
+""".format(outdir)
 if args.comment:
     generated_with += args.comment
 
@@ -165,34 +164,58 @@ if args.comment:
 # Create a makefile to regenerate files.
 # ------------------------------------------------------------------------
 makefile_file = os.path.join(outdir, "Makefile.mux")
-output_files = ['model.xml', 'pb_type.xml', '.gitignore', 'Makefile.mux', 'sim.v']
-commit_files = ['.gitignore', 'Makefile.mux']
+output_files = ['model.xml', 'pb_type.xml', '.gitignore', 'sim.v', 'Makefile.mux']
+commit_files = ['.gitignore', "Makefile.mux"]
 remove_files = [f for f in output_files if f not in commit_files]
-with open(makefile_file, "w") as f:
-    f.write("""\
-%s
 
-all: %s
+new_makefile_contents = io.StringIO()
+if True:
+    f = new_makefile_contents
+    # Comment goes first so it is the first thing people see.
+    if args.comment:
+        print("MUX_COMMENT = {}".format(args.comment), file=f)
 
-clean:
-\trm -f .mux_gen.stamp %s
+    # Required values
+    print("MUX_TYPE = {}".format(args.type.lower()), file=f)
+    print("MUX_NAME = {}".format(args.name_mux), file=f)
+    print("MUX_WIDTH = {}".format(args.width), file=f)
 
-.mux_gen.stamp: %s Makefile.mux
-\t%s
-\ttouch --reference $< $@
+    # Optional values
+    if args.split_inputs:
+        print("MUX_SPLIT_INPUTS = 1", file=f)
+        if args.name_inputs != parser.get_default('name_inputs'):
+            print("MUX_INPUTS = {}".format(",".join(args.name_inputs)), file=f)
+    else:
+        if args.name_input != parser.get_default('name_input'):
+            print("MUX_INPUT = {}".format(args.name_input), file=f)
 
-.PHONY: all clean
+    if args.split_selects:
+        print("MUX_SPLIT_SELECTS = 1", file=f)
+        if args.name_selects != parser.get_default('name_selects'):
+            print("MUX_SELECTS = {}".format(args.name_selects), file=f)
+    else:
+        if args.name_select != parser.get_default('name_select'):
+            print("MUX_SELECT = {}".format(args.name_select), file=f)
 
-""" % ("\n# ".join(generated_with.split("\n")),
-       " ".join(output_files),
-       " ".join(remove_files),
-       repo_args[0],
-       " ".join(repo_args),
-    ))
+    if args.name_output != parser.get_default('name_output'):
+        print("MUX_OUTPUT = {}".format(args.name_output), file=f)
 
-    for name in output_files:
-        f.write("%s: .mux_gen.stamp\n\n" % name)
+    if args.order != parser.get_default('order'):
+        print("MUX_ORDER = {}".format(args.order), file=f)
 
+    if args.subckt != parser.get_default('subckt'):
+        print("MUX_SUBCKT = {}".format(args.subckt), file=f)
+
+    print("include {}".format(mux_mk), file=f)
+
+new_makefile_contents = new_makefile_contents.getvalue()
+if not os.path.exists(makefile_file):
+    current_makefile_contents = ""
+else:
+    current_makefile_contents = open(makefile_file, "r").read()
+
+if current_makefile_contents != new_makefile_contents:
+    open(makefile_file, "w").write(new_makefile_contents)
 
 output_block("Makefile.mux", open(makefile_file).read())
 
@@ -210,27 +233,6 @@ output_block(".gitignore", open(gitignore_file).read())
 # ------------------------------------------------------------------------
 # Work out the port and their names
 # ------------------------------------------------------------------------
-if args.name_inputs:
-    assert args.name_input == 'I'
-    args.name_input = None
-    args.split_inputs = True
-
-    names = args.name_inputs.split(',')
-    assert len(names) == args.width, "%s input names, but %s needed." % (names, args.width)
-    args.name_inputs = names
-elif args.split_inputs:
-    args.name_inputs = [args.name_input+str(i) for i in range(args.width)]
-
-if args.name_selects:
-    assert args.name_input == 'I'
-    args.name_input = None
-    args.split_selects = True
-
-    names = args.name_selects.split(',')
-    assert len(names) == args.width, "%s select names, but %s needed." % (names, args.width_bits)
-    args.name_selects = names
-elif args.split_selects:
-    args.name_selects = [args.name_select+str(i) for i in range(args.width_bits)]
 
 port_names = []
 for i in args.order:
@@ -298,8 +300,6 @@ with open(sim_file, "w") as f:
                 continue
             break
 
-        print(i, j, name)
-
         if width == 1:
             f.write('\t\t.I%i(%s),\n' % (i, name))
         else:
@@ -324,7 +324,7 @@ with open(sim_file, "w") as f:
         if type != mux_lib.MuxPinType.OUTPUT:
             continue
         break
-    assert width == 1
+    assert_eq(width ,  1)
     f.write('\t\t.O(%s)\n\t);\n' % name)
 
     f.write('endmodule\n')
