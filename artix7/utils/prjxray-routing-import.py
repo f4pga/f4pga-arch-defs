@@ -1,8 +1,9 @@
 #!/usr/bin/env python3
 
-import re
 import json
+import os
 import pprint
+import re
 
 from enum import Enum
 from collections import namedtuple
@@ -23,6 +24,13 @@ parser.add_argument(
 parser.add_argument(
         '--end_y', type=int, default=-1,
         help='starting x position')
+parser.add_argument(
+        '--database', help='Project X-Ray Database')
+parser.add_argument(
+        '--read_rr_graph', help='Input rr_graph file')
+parser.add_argument(
+        '--write_rr_graph', help='Output rr_graph file')
+
 parser.add_argument(
         '--verbose', action='store_const', const=True, default=False)
 
@@ -210,7 +218,12 @@ def add(tile_from, dir, tile_to, pairs):
         compass[tile_from][lookup] = pairs
 
 
-for conns in json.load(open("tileconn.json")):
+def db_open(n):
+    p = os.path.join(args.database, n)
+    return json.load(open(p))
+
+
+for conns in db_open("tileconn.json"):
     assert "grid_deltas" in conns and len(conns["grid_deltas"]) == 2
     assert "tile_types" in conns and len(conns["tile_types"]) == 2
     assert "wire_pairs" in conns
@@ -256,7 +269,7 @@ for tile_type_a in tile_types:
         has_conns_compass[tile_type_a][dir] = has_connections
 
 grid = {}
-for tile_name, tile_details in json.load(open("tilegrid.json"))["tiles"].items():
+for tile_name, tile_details in db_open("tilegrid.json")["tiles"].items():
     assert "grid_x" in tile_details, (tile_name, tile_details)
     assert "grid_y" in tile_details, (tile_name, tile_details)
     assert "type" in tile_details, (tile_name, tile_details)
@@ -577,40 +590,59 @@ print("\n"*4)
 print(len(wires), "routing nodes found")
 pprint.pprint(wires)
 
-# Work out how wide each channel is going to be...
-channel_count = {}
-for w in wires:
-    for p, __ in w:
-        channel_count[p] = channel_count.get(p,0) + 1
-
-pprint.pprint(channel_count)
-
 
 import lxml.etree as ET
-rr_graph = ET.Element(
-    'rr_graph',
-    dict(tool_name="icebox", tool_version="???", tool_comment="Generated for {} device".format("Artix-7")),
-)
+
+# Read in existing file
+rr_graph = ET.parse(args.read_rr_graph)
+
+# Delete the nodes and edges
+for nodes in rr_graph.iterfind("rr_nodes"):
+    for n in list(nodes):
+        nodes.remove(n)
+for edges in rr_graph.iterfind("rr_edges"):
+    for e in list(edges):
+        edges.remove(e)
+    edges.clear()
+
+# Create in the block_types information
+blocktype_pins = {}
+for block_type in rr_graph.iterfind("./block_types/block_type"):
+    block_id = int(block_type.attrib['id'])
+    block_name = block_type.attrib['name'].strip()
+
+    assert block_name not in blocktype_pins
+    blocktype_pins[block_name] = {}
+    for pin in block_type.iterfind("./pin_class/pin"):
+        pin_index = int(pin.attrib["index"])
+        pin_ptc = int(pin.attrib["ptc"])
+        pin_name = pin.text.strip()
+        blocktype_pins[block_name][pin_name] = (pin_ptc, pin.getparent().attrib["type"])
+
+pprint.pprint(blocktype_pins)
+
 
 # Mapping dictionaries
 globalname2node = {}
 globalname2nodeid = {}
 
 
-nodes = ET.SubElement(rr_graph, 'rr_nodes')
 def add_node(globalname, attribs):
     """Add node with globalname and attributes."""
     # Add common attributes
     attribs['capacity'] =  str(1)
 
     # Work out the ID for this node and add to the mapping
+    assert len(globalname2node) == len(globalname2nodeid)
+
     attribs['id'] = str(len(globalname2node))
 
     node = ET.SubElement(nodes, 'node', attribs)
 
     # Stash in the mappings
-    assert globalname not in globalname2node
-    assert globalname not in globalname2nodeid
+    assert globalname not in globalname2node, globalname
+    assert globalname not in globalname2nodeid, globalname
+
     globalname2node[globalname] = node
     globalname2nodeid[globalname] = attribs['id']
 
@@ -621,8 +653,11 @@ def add_node(globalname, attribs):
     return node
 
 
-edges = ET.SubElement(rr_graph, 'rr_edges')
-def add_edge(src_globalname, dst_globalname, bidir=False):
+def globalname(pos, name):
+    return "GRID_X{}Y{}/{}.{}".format(pos[0], pos[1], grid[pos], name)
+
+
+def add_edge(src_globalname, dst_globalname):
     src_node_id = globalname2nodeid[src_globalname]
     dst_node_id = globalname2nodeid[dst_globalname]
 
@@ -640,8 +675,10 @@ def add_edge(src_globalname, dst_globalname, bidir=False):
         globalname2node[dst_globalname].append(ET.Comment(" {} -> this ".format(src_globalname)))
 
 
-def add_pin(pos, pinname, dir, idx):
+def add_pin(pos, pin_globalname, pin_idx, pin_dir):
     """Add an pin at index i to tile at pos."""
+
+    pin_globalname_a = pin_globalname+"-"+pin_dir
 
     """
         <node id="0" type="SINK" capacity="1">
@@ -653,85 +690,205 @@ def add_pin(pos, pinname, dir, idx):
                 <timing R="0" C="0"/>
         </node>
     """
-    gname = "(%s,%s)-%s" % (pos, pinname)
-    gname_pin = "(%s,%s)-%s-pin" % (pos, pinname)
 
-    add_globalname2localname(gname, pos, localname)
+    low = list(pos)
+    high = list(pos)
 
-    if dir == "out":
-        # Sink node
-        attribs = {
-            'type': 'SINK',
-        }
-        node = add_node(gname, attribs)
-        ET.SubElement(node, 'loc', {
-            'xlow': str(pos[0]), 'ylow': str(pos[1]),
-            'xhigh': str(pos[0]), 'yhigh': str(pos[1]),
-            'ptc': str(idx),
-        })
-        ET.SubElement(node, 'timing', {'R': str(0), 'C': str(0)})
-
+    if pin_dir in ("INPUT", "CLOCK"):
         # Pin node
         attribs = {
             'type': 'IPIN',
         }
-        node = add_node(gname_pin, attribs)
+        node = add_node(pin_globalname, attribs)
         ET.SubElement(node, 'loc', {
-            'xlow': str(pos[0]), 'ylow': str(pos[1]),
-            'xhigh': str(pos[0]), 'yhigh': str(pos[1]),
-            'ptc': str(idx),
+            'xlow': str(low[0]), 'ylow': str(low[1]),
+            'xhigh': str(high[0]), 'yhigh': str(high[1]),
+            'ptc': str(pin_idx),
             'side': 'TOP',
         })
         ET.SubElement(node, 'timing', {'R': str(0), 'C': str(0)})
 
-        # Edge between pin node
-        add_edge(gname, gname_pin)
+        # Sink node
+        if "INT_R" in pin_globalname:
+            low[0]-=1
+        elif "INT_L" in pin_globalname:
+            high[0]+=1
 
-    elif dir == "in":
-        # Source node
         attribs = {
-            'type': 'SOURCE',
+            'type': 'SINK',
         }
-        node = add_node(gname, attribs)
+        node = add_node(pin_globalname_a, attribs)
         ET.SubElement(node, 'loc', {
-            'xlow': str(pos[0]), 'ylow': str(pos[1]),
-            'xhigh': str(pos[0]), 'yhigh': str(pos[1]),
-            'ptc': str(idx),
+            'xlow': str(low[0]), 'ylow': str(low[1]),
+            'xhigh': str(high[0]), 'yhigh': str(high[1]),
+            'ptc': str(pin_idx),
         })
         ET.SubElement(node, 'timing', {'R': str(0), 'C': str(0)})
 
+        # Edge PIN->SINK
+        add_edge(pin_globalname, pin_globalname_a)
+
+    elif pin_dir in ("OUTPUT",):
         # Pin node
         attribs = {
             'type': 'OPIN',
         }
-        node = add_node(gname_pin, attribs)
+        node = add_node(pin_globalname, attribs)
         ET.SubElement(node, 'loc', {
-            'xlow': str(pos[0]), 'ylow': str(pos[1]),
-            'xhigh': str(pos[0]), 'yhigh': str(pos[1]),
-            'ptc': str(idx),
+            'xlow': str(low[0]), 'ylow': str(low[1]),
+            'xhigh': str(high[0]), 'yhigh': str(high[1]),
+            'ptc': str(pin_idx),
             'side': 'TOP',
         })
         ET.SubElement(node, 'timing', {'R': str(0), 'C': str(0)})
 
-        # Edge between pin node
-        add_edge(gname_pin, gname)
+        # Source node
+        if "INT_R" in pin_globalname:
+            low[0]-=1
+        elif "INT_L" in pin_globalname:
+            high[0]+=1
+
+        attribs = {
+            'type': 'SOURCE',
+        }
+        node = add_node(pin_globalname_a, attribs)
+        ET.SubElement(node, 'loc', {
+            'xlow': str(low[0]), 'ylow': str(low[1]),
+            'xhigh': str(high[0]), 'yhigh': str(high[1]),
+            'ptc': str(pin_idx),
+        })
+        ET.SubElement(node, 'timing', {'R': str(0), 'C': str(0)})
+
+        # Edge SOURCE->PIN
+        add_edge(pin_globalname_a, pin_globalname)
 
     else:
-        assert False, "Unknown dir of {} for {}".format(dir, gname)
+        assert False, "Unknown dir of {} for {}".format(pin_dir, pin_globalname)
 
-    print("Adding pin {} on tile {}@{}".format(gname, pos, idx))
+    print("Adding pin {:55s} on tile ({:3d}, {:3d})@{:4d}".format(pin_globalname, pos[0], pos[1], pin_idx))
 
 
+def add_channel_filler(pos, chantype):
+    x,y = pos
+    current_len = len(channels[chantype][(x,y)])
+    fillername = "{}-{},{}+{}-filler".format(chantype,x,y,current_len)
+    add_channel(fillername, pos, pos, '0', _chantype=chantype)
+    new_len = len(channels[chantype][(x,y)])
+    assert current_len + 1 == new_len, new_len
+
+
+def add_channel(globalname, start, end, segtype, _chantype=None):
+    x_start, y_start = start
+    x_end, y_end = end
+
+    # Y channel as X is constant
+    if x_start == x_end and (_chantype is None or _chantype == "CHANY"):
+        assert x_start == x_end
+        assert _chantype is None or _chantype == "CHANY"
+        chantype = 'CHANY'
+        w_start, w_end = y_start, y_end
+
+    # X channel as Y is constant
+    elif y_start == y_end and (_chantype is None or _chantype == "CHANX"):
+        assert y_start == y_end
+        assert _chantype is None or _chantype == "CHANX"
+        chantype = 'CHANX'
+        w_start, w_end = x_start, x_end
+
+    # Going to need two channels to make this work..
+    else:
+        assert _chantype is None
+        start_channelname = add_channel(
+            globalname+"_Y", (x_start, y_start), (x_start, y_end), segtype)[0]
+        end_channelname = add_channel(
+            globalname+"_X", (x_start, y_end), (x_end, y_end), segtype)[-1]
+        add_edge(globalname+"_Y", globalname+"_X")
+        return start_channelname, end_channelname
+
+    assert _chantype is None or chantype == _chantype, (chantype, _chantype)
+
+    if w_start > w_end:
+        chandir = "DEC_DIR"
+    elif w_start < w_end:
+        chandir = "INC_DIR"
+    elif w_start == w_end and _chantype != None:
+        chandir = "INC_DIR"
+    else:
+        assert False, (globalname, start, end, segtype, _chantype)
+
+    attribs = {
+        'direction': chandir,
+        'type': chantype,
+    }
+    node = add_node(globalname, attribs)
+
+    # <loc xlow="int" ylow="int" xhigh="int" yhigh="int" side="{LEFT|RIGHT|TOP|BOTTOM}" ptc="int">
+    channels_for_type = channels[chantype]
+
+    idx = 0
+    for x in range(x_start, x_end+1):
+        for y in range(y_start, y_end+1):
+            idx = max(idx, len(channels_for_type[(x,y)]))
+
+    for x in range(x_start, x_end+1):
+        for y in range(y_start, y_end+1):
+            while len(channels_for_type[(x,y)]) < idx and _chantype == None:
+                add_channel_filler((x,y), chantype)
+            channels_for_type[(x,y)].append(globalname)
+
+    # xlow, xhigh, ylow, yhigh - Integer coordinates of the ends of this routing source.
+    # ptc - This is the pin, track, or class number that depends on the rr_node type.
+
+    # side - { LEFT | RIGHT | TOP | BOTTOM }
+    # For IPIN and OPIN nodes specifies the side of the grid tile on which the node
+    # is located. Purely cosmetic?
+    ET.SubElement(node, 'loc', {
+        'xlow': str(x_start), 'ylow': str(y_start),
+        'xhigh': str(x_end), 'yhigh': str(y_end),
+        'ptc': str(idx),
+    })
+    ET.SubElement(node, 'segment', {'segment_id': str(segtype)})
+
+    print("Adding channel {} from {} -> {} pos {}".format(globalname, start, end, idx))
+    return globalname, globalname
+
+
+vpr_type_map = {}
+vpr_type_map["INT_L"] = "BLK_MB-CLBLL_L-INT_L"
+vpr_type_map["INT_R"] = "BLK_MB-INT_R-CLBLL_R"
+
+
+def vpr_map_x(x):
+    return x-args.start_x+3
+
+def vpr_map_y(y):
+    return y-args.start_y+1
+
+def vpr_map_pos(pos):
+    return (vpr_map_x(pos[0]), vpr_map_y(pos[1]))
+
+channels = {'CHANX': {}, 'CHANY': {}}
 for x in range(args.start_x, args.end_x+1):
     for y in range(args.start_y, args.end_y+1):
-        tile_type = grid[(x, y)]
-        print(x,y,tile_type)
-        # Create the pins here...
-        #add_pin(pos, pinname, dir, idx)
+        vx, vy = vpr_map_pos((x,y))
+        channels['CHANX'][(vx,vy)] = []
+        channels['CHANY'][(vx,vy)] = []
 
 
-def gname(pos, name):
-    return "GRID_X{}Y{}/{}.{}".format(pos[0], pos[1], grid[pos], name)
+for i, x in enumerate(range(args.start_x, args.end_x+1)):
+    for j, y in enumerate(range(args.start_y, args.end_y+1)):
+        pos = (x,y)
+        tile_type = grid[pos]
+
+        if tile_type not in vpr_type_map:
+            continue
+
+        tile_type = vpr_type_map[tile_type]
+        for pin_vprname, (pin_idx, pin_dir) in sorted(blocktype_pins[tile_type].items(), key=lambda x: x[-1]):
+            pin_localname = pin_vprname.split(".")[-1].replace('[', '').replace(']', '')
+
+            pin_globalname = globalname(pos, pin_localname)
+            add_pin(vpr_map_pos(pos), pin_globalname, pin_idx, pin_dir)
 
 
 for w in wires:
@@ -748,296 +905,63 @@ for w in wires:
     #global_name = "(%s,%s)-%s[%s]" % (start[0][0], start[0][1], name, index)
     names = []
     for pos, name in w:
-        names.append(gname(pos, name))
+        names.append(globalname(pos, name))
+
     wire_global_name = "->>".join(names)
+    print()
     print(wire_global_name)
+    if "LV" in wire_global_name or "LH" in wire_global_name:
+        print("Skipping")
+        continue
 
     start_pos = w[0][0]
     end_pos = w[-1][0]
 
-    # Y channel as X is constant
-    if start_pos[0] == end_pos[0]:
-        channel_start = add_channel(
-            wire_global_name,
-            'CHANY', start_pos, end_pos, 'WIRE')
-        channel_end = channel_start
+    start_channelname, end_channelname = add_channel(wire_global_name, vpr_map_pos(start_pos), vpr_map_pos(end_pos), "1")
 
-    # X channel as Y is constant
-    elif start_pos[1] != end_pos[1]:
-        channel_start = add_channel(
-            wire_global_name,
-            'CHANX', start_pos, end_pos, 'WIRE')
-        channel_end = channel_start
-
-    # Going to need two channels to make this work..
-    else:
-        mid_pos = (start_pos[0], end_pos[1])
-        channel_start = add_channel(
-            wire_global_name+"_Y",
-            'CHANY', start_pos, mid_pos, 'WIRE')
-        channel_end = add_channel(
-            wire_global_name+"_X",
-            'CHANX', mid_pos, end_pos, 'WIRE')
-
-    add_edge(gname(start_pos, start[-1]), channel_start)
-    add_edge(channel_end, gname(end_pos, w[-1][-1]))
+    add_edge(globalname(start_pos, start[-1]), start_channelname)
+    add_edge(end_channelname, globalname(end_pos, w[-1][-1]))
 
 
-pins = {
-    'INT_L': {
-        "EE2END[0]": 0,
-        "EE2END[1]": 1,
-        "EE2END[2]": 2,
-        "EE2END[3]": 3,
-        "EE4END[0]": 4,
-        "EE4END[1]": 5,
-        "EE4END[2]": 6,
-        "EE4END[3]": 7,
-        "EL1END[0]": 8,
-        "EL1END[1]": 9,
-        "EL1END[2]": 10,
-        "EL1END[3]": 11,
-        "ER1END[0]": 12,
-        "ER1END[1]": 13,
-        "ER1END[2]": 14,
-        "ER1END[3]": 15,
-        "NE2END[0]": 16,
-        "NE2END[1]": 17,
-        "NE2END[2]": 18,
-        "NE2END[3]": 19,
-        "NE6END[0]": 20,
-        "NE6END[1]": 21,
-        "NE6END[2]": 22,
-        "NE6END[3]": 23,
-        "NL1END[0]": 24,
-        "NL1END[1]": 25,
-        "NL1END[2]": 26,
-        "NN2END[0]": 27,
-        "NN2END[1]": 28,
-        "NN2END[2]": 29,
-        "NN2END[3]": 30,
-        "NN6END[0]": 31,
-        "NN6END[1]": 32,
-        "NN6END[2]": 33,
-        "NN6END[3]": 34,
-        "NR1END[0]": 35,
-        "NR1END[1]": 36,
-        "NR1END[2]": 37,
-        "NR1END[3]": 38,
-        "NW2END[0]": 39,
-        "NW2END[1]": 40,
-        "NW2END[2]": 41,
-        "NW2END[3]": 42,
-        "NW6END[0]": 43,
-        "NW6END[1]": 44,
-        "NW6END[2]": 45,
-        "NW6END[3]": 46,
-        "SE2END[0]": 47,
-        "SE2END[1]": 48,
-        "SE2END[2]": 49,
-        "SE2END[3]": 50,
-        "SE6END[0]": 51,
-        "SE6END[1]": 52,
-        "SE6END[2]": 53,
-        "SE6END[3]": 54,
-        "SL1END[0]": 55,
-        "SL1END[1]": 56,
-        "SL1END[2]": 57,
-        "SL1END[3]": 58,
-        "SR1END[0]": 59,
-        "SR1END[1]": 60,
-        "SR1END[2]": 61,
-        "SR1END[3]": 62,
-        "SS2END[0]": 63,
-        "SS2END[1]": 64,
-        "SS2END[2]": 65,
-        "SS2END[3]": 66,
-        "SS6END[0]": 67,
-        "SS6END[1]": 68,
-        "SS6END[2]": 69,
-        "SS6END[3]": 70,
-        "SW2END[0]": 71,
-        "SW2END[1]": 72,
-        "SW2END[2]": 73,
-        "SW2END[3]": 74,
-        "SW6END[0]": 75,
-        "SW6END[1]": 76,
-        "SW6END[2]": 77,
-        "SW6END[3]": 78,
-        "WL1END[0]": 79,
-        "WL1END[1]": 80,
-        "WL1END[2]": 81,
-        "WL1END[3]": 82,
-        "WR1END[0]": 83,
-        "WR1END[1]": 84,
-        "WR1END[2]": 85,
-        "WR1END[3]": 86,
-        "WW2END[0]": 87,
-        "WW2END[1]": 88,
-        "WW2END[2]": 89,
-        "WW2END[3]": 90,
-        "WW4END[0]": 91,
-        "WW4END[1]": 92,
-        "WW4END[2]": 93,
-        "WW4END[3]": 94,
-        "CIN_N[0]": 95,
-        "CIN_N[1]": 96,
-        "EE2BEG[0]": 97,
-        "EE2BEG[1]": 98,
-        "EE2BEG[2]": 99,
-        "EE2BEG[3]": 100,
-        "EE4BEG[0]": 101,
-        "EE4BEG[1]": 102,
-        "EE4BEG[2]": 103,
-        "EE4BEG[3]": 104,
-        "EL1BEG[0]": 105,
-        "EL1BEG[1]": 106,
-        "EL1BEG[2]": 107,
-        "ER1BEG[0]": 108,
-        "ER1BEG[1]": 109,
-        "ER1BEG[2]": 110,
-        "ER1BEG[3]": 111,
-        "NE2BEG[0]": 112,
-        "NE2BEG[1]": 113,
-        "NE2BEG[2]": 114,
-        "NE2BEG[3]": 115,
-        "NE6BEG[0]": 116,
-        "NE6BEG[1]": 117,
-        "NE6BEG[2]": 118,
-        "NE6BEG[3]": 119,
-        "NL1BEG[0]": 120,
-        "NL1BEG[1]": 121,
-        "NL1BEG[2]": 122,
-        "NN2BEG[0]": 123,
-        "NN2BEG[1]": 124,
-        "NN2BEG[2]": 125,
-        "NN2BEG[3]": 126,
-        "NN6BEG[0]": 127,
-        "NN6BEG[1]": 128,
-        "NN6BEG[2]": 129,
-        "NN6BEG[3]": 130,
-        "NR1BEG[0]": 131,
-        "NR1BEG[1]": 132,
-        "NR1BEG[2]": 133,
-        "NR1BEG[3]": 134,
-        "NW2BEG[0]": 135,
-        "NW2BEG[1]": 136,
-        "NW2BEG[2]": 137,
-        "NW2BEG[3]": 138,
-        "NW6BEG[0]": 139,
-        "NW6BEG[1]": 140,
-        "NW6BEG[2]": 141,
-        "NW6BEG[3]": 142,
-        "SE2BEG[0]": 143,
-        "SE2BEG[1]": 144,
-        "SE2BEG[2]": 145,
-        "SE2BEG[3]": 146,
-        "SE6BEG[0]": 147,
-        "SE6BEG[1]": 148,
-        "SE6BEG[2]": 149,
-        "SE6BEG[3]": 150,
-        "SL1BEG[0]": 151,
-        "SL1BEG[1]": 152,
-        "SL1BEG[2]": 153,
-        "SL1BEG[3]": 154,
-        "SR1BEG[0]": 155,
-        "SR1BEG[1]": 156,
-        "SR1BEG[2]": 157,
-        "SR1BEG[3]": 158,
-        "SS2BEG[0]": 159,
-        "SS2BEG[1]": 160,
-        "SS2BEG[2]": 161,
-        "SS2BEG[3]": 162,
-        "SS6BEG[0]": 163,
-        "SS6BEG[1]": 164,
-        "SS6BEG[2]": 165,
-        "SS6BEG[3]": 166,
-        "SW2BEG[0]": 167,
-        "SW2BEG[1]": 168,
-        "SW2BEG[2]": 169,
-        "SW2BEG[3]": 170,
-        "SW6BEG[0]": 171,
-        "SW6BEG[1]": 172,
-        "SW6BEG[2]": 173,
-        "SW6BEG[3]": 174,
-        "WL1BEG[0]": 175,
-        "WL1BEG[1]": 176,
-        "WL1BEG[2]": 177,
-        "WR1BEG[0]": 178,
-        "WR1BEG[1]": 179,
-        "WR1BEG[2]": 180,
-        "WR1BEG[3]": 181,
-        "WW2BEG[0]": 182,
-        "WW2BEG[1]": 183,
-        "WW2BEG[2]": 184,
-        "WW2BEG[3]": 185,
-        "WW4BEG[0]": 186,
-        "WW4BEG[1]": 187,
-        "WW4BEG[2]": 188,
-        "WW4BEG[3]": 189,
-        "COUT_N[0]": 190,
-        "COUT_N[1]": 191,
-        "GCLK_L_B[0]": 192,
-        "GCLK_L_B[1]": 193,
-        "GCLK_L_B[2]": 194,
-        "GCLK_L_B[3]": 195,
-        "GCLK_L_B[4]": 196,
-        "GCLK_L_B[5]": 197,
-        "GCLK_L_B[6]": 198,
-        "GCLK_L_B[7]": 199,
-        "GCLK_L_B[8]": 200,
-        "GCLK_L_B[9]": 201,
-        "GCLK_L_B[10]": 202,
-        "GCLK_L_B[11]": 203,
-        "GFAN[0]": 204,
-        "GFAN[1]": 205,
-        "CLK_L[0]": 206,
-        "CLK_L[1]": 207,
-    }
-}
-
-"""
-    0: "CLBLL_R.I[0]",
-    1: "CLBLL_R.O[0]",
-
-    0: "CLBLM_L.I[0]",
-    1: "CLBLM_L.O[0]",
-
-    0: "CLBLM_R.I[0]",
-    1: "CLBLM_R.O[0]",
-
-    0: "INT_L.I[0]",
-    1: "INT_L.O[0]",
-
-    0: "INT_R.I[0]",
-    1: "INT_R.O[0]",
-
-    0: "HCLK_L.I[0]",
-    1: "HCLK_L.O[0]",
-
-    0: "HCLK_R.I[0]",
-    1: "HCLK_R.O[0]",
-
-'IO': {
-    "BLK_BB-VPR_PAD.outpad[0]": 0,
-    "BLK_BB-VPR_PAD.inpad[0]": 1,
-},
-"""
+# Work out how wide each channel is going to be...
+channel_count = {'CHANY': {}, 'CHANX': {}}
+channel_max_width = {'CHANY': 0, 'CHANX': 0}
+for i in 'CHANY', 'CHANX':
+    for x,y in sorted(channels[i]):
+        channel_count[i][(x,y)] = len(channels[i][(x,y)])
+        channel_max_width[i] = max(channel_max_width[i], channel_count[i][(x,y)])
 
 
-#print()
-#for s in starting_groups:
-#    print(s)
-#    for i in starting_groups[s]:
-#        print(i, end=" ")
-#        print(sorted(starting_groups[s][i]))
-#    print()
+print("Max channels")
+pprint.pprint(channel_count)
+print(channel_max_width)
+for i in ['CHANY', 'CHANX']:
+    for x,y in sorted(channels[i]):
+        while len(channels[i][(x,y)]) < channel_max_width[i]:
+            add_channel_filler((x,y), i)
+
+channel = rr_graph.findall('.//channel')[0]
+#assert "chan_width_max" in channel.attrib
+#assert "x_min" in channel.attrib
+#assert "y_min" in channel.attrib
+#assert "x_max" in channel.attrib
+#assert "y_max" in channel.attrib
+#channel_max_width_str = str(channel_max_width)
+#channel.attrib["chan_width_max"] = channel_max_width_str
+#channel.attrib["x_min"] = channel_max_width_str
+#channel.attrib["y_min"] = channel_max_width_str
+#channel.attrib["x_max"] = channel_max_width_str
+#channel.attrib["y_max"] = channel_max_width_str
 #
-#for y in range(grid_min[1], grid_max[1]+1):
-#    for x in range(grid_min[0], grid_max[0]+1):
-#        pass
-#for wire_end in tiles_wires:
+#for n in rr_graph.findall(".//x_list"):
+#    n.attrib["info"] = channel_max_width_str
 #
-#    current_wire = wire_end
-#    while "end" not in current_wire:
-#
+#for n in rr_graph.findall(".//y_list"):
+#    n.attrib["info"] = channel_max_width_str
+#    index = int(n.attrib["index"])
+#    if (index, -1) in channel_count:
+
+pprint.pprint(channels)
+
+with open(args.write_rr_graph, "wb") as f:
+    rr_graph.write(f, pretty_print=True)

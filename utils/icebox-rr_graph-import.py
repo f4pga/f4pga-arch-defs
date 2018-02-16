@@ -430,12 +430,20 @@ def add_channel(globalname, nodetype, start, end, idx, segtype):
     if nodetype == 'CHANY':
         assert x_start == x_end
         channel = (x_start, -1)
+        w_start, w_end = y_start, y_end
     elif nodetype == 'CHANX':
         assert y_start == y_end
         channel = (-1, y_start)
+        w_start, w_end = x_start, x_end
     else:
         assert False
+
     assert channel in channels, "{} not in {}".format(channel, channels)
+
+    if w_start < w_end:
+        chandir = "INC_DIR"
+    elif w_start > w_end:
+        chandir = "DEC_DIR"
 
     if idx not in channels[channel]:
         channels[channel][idx] = []
@@ -528,7 +536,7 @@ def add_pin(pos, localname, dir, idx):
 
     add_globalname2localname(gname, pos, localname)
     vpos = pos_to_vpr(pos)
-    
+
     if dir == "out":
         # Sink node
         attribs = {
