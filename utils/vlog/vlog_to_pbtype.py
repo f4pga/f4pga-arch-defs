@@ -1,29 +1,20 @@
-#!/usr/bin/python3
-import yosys_exec
-import lxml.etree as ET
-import argparse, re
-import os, tempfile
-from yosys_json import YosysJson
+#!/usr/bin/env python3
 
-"""
+"""\
 Convert a Verilog simulation model to a VPR `pb_type.xml`
 
-The following Verilog attributes are allowed on instances:
-    - (* PB_PATH="../path/to/pb_type.xml" *) : import the pb_type for a given instance
-        from an external XML file instead of including it inline.
+The following are allowed on a top level module:
     
-    - (* GENERATE_PB *) : generate (and overwrite if applicable) the above file, as well as including it
-        
-The following are allowed on both instances (except where PB_PATH is set but GENERATE_PB isn't), and
-the top level module.
+    - (* TYPE="bel|blackbox" *) : specify the type of the module
+    (either a Basic ELement or a blackbox named after the pb_type
     
-    - (* BLIF_MODEL=".latch" *) : specify the corresponding blif_model for a given instance
-    
-    - (* CLASS="flipflop" *) : specify the corresponding class for a given instance
+    - (* CLASS="lut|routing|flipflop|mem" *) : specify the class of an given
+    instance. Must be specified for BELs
 
-    - (* PB_NAME="name" *) : override the name of the pb_type (default: cell type)
+    - (* PB_NAME="name" *) : override the name of the pb_type
+    (default: name of module)
 
-The following are allowed on nets within modules:
+The following are allowed on nets within modules (TODO: use proper Verilog timing):
 
     - (* SETUP="clk 10e-12" *) : specify setup time for a given clock
     
@@ -34,13 +25,35 @@ The following are allowed on nets within modules:
     - (* PB_MUX=1 *) : if the signal is driven by a $mux cell, generate a pb_type <mux> element for it
 """
 
-parser = argparse.ArgumentParser(description='Convert a Verilog simulation model into a VPR pb_type.xml file')
-parser.add_argument('infiles', metavar='input.v', type=str, nargs='+',
-                    help='one or more Verilog input files')
-parser.add_argument('--top', help='top level module, not needed if only one module across all files')
-parser.add_argument('-o', help='output filename, default model.xml')
+import yosys.run
+import lxml.etree as ET
+import argparse, re
+import os, tempfile
+from yosys.json import YosysJson
+
+
+parser = argparse.ArgumentParser(description=__doc__.strip(), formatter_class=argparse.RawTextHelpFormatter)
+parser.add_argument(
+    'infiles',
+    metavar='input.v', type=str, nargs='+',
+    help="""\
+One or more Verilog input files, that will be passed to Yosys internally.
+They should be enough to generate a flattened representation of the model,
+so that paths through the model can be determined.
+""")
+parser.add_argument(
+    '--top',
+    help="""\
+Top level module, not needed if only one module exists across all input Verilog
+files, in which case that module will be used as the top level.
+""")
+parser.add_argument(
+    '-o',
+    help="""\
+Output filename, default 'model.xml'
+""")
 
 args = parser.parse_args()
 
-vjson = yosys_exec.vlog_to_json(args.infiles, False, False)
+vjson = yosys.run.vlog_to_json(args.infiles, False, False)
 yj = YosysJson(vjson)
