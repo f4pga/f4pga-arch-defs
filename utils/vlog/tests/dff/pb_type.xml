@@ -1,0 +1,7 @@
+<pb_type blif_model=".latch" class="flipflop" name="dff" num_pb="1">
+  <clock equivalent="false" name="clk" num_pins="1"/>
+  <input equivalent="false" name="rst" num_pins="1"/>
+  <input equivalent="false" name="d" num_pins="1"/>
+  <output equivalent="false" name="q" num_pins="1"/>
+  <interconnect/>
+</pb_type>

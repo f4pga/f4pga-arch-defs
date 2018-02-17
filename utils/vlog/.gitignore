@@ -1,6 +1,4 @@
-model.xml
 __pycache__
 *.pyc
 dump.json
-pb_type.xml
 merged.xml
