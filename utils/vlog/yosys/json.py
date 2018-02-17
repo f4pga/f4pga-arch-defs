@@ -13,7 +13,11 @@ class YosysModule:
     def __init__(self, name, module_data):
         self.name = name
         self.data = module_data
-        
+    
+    # Return the name of the module
+    def get_name(self):
+        return self.name
+    
     # Return a list of ports of a module (default: top), as a 3-tuple (name, width, dir)
     def get_ports(self):
         plist = []
@@ -22,25 +26,44 @@ class YosysModule:
         return plist        
 
     # Return a list of cells of a module, as a 2-tuple (name, type)
-    def get_cells(self, include_hidden = True):
+    def get_cells(self, include_internal = False):
         clist = []
         for cell, cdata in self.data["cells"].items():
-            if include_hidden or not cdata["hide_name"]:
-                clist.append((cell, cdata["type"]))
-        
+            if cell.startswith("$") and not include_internal:
+                continue
+            clist.append((cell, cdata["type"]))
+        return clist
     # Return the attributes of a module as a dictionary
     def get_module_attrs(self):
         return self.data["attributes"]
     
+    # Return the value of an attribute, or the default value if not set
+    def get_attr(self, attr, defval = None):
+        if attr in self.get_module_attrs():
+            return self.get_module_attrs()[attr]
+        else:
+            return defval
+            
     # Return the attributes of a cell instance as a dictionary
     def get_cell_attrs(self, cell):
         return self.data["cells"][cell]["attributes"]
+
+    # Return the value of an attribute of a cell, or the default value if not set
+    def get_cell_attr(self, cell, attr, defval = None):
+        if attr in self.get_cell_attrs(cell):
+            return self.get_cell_attrs(cell)[attr]
+        else:
+            return defval        
+            
+    # TODO: the below code is kind of ugly, but because module and cell IO
+    # specifications are inconsistent in how they are represented in the JSON,
+    # it's hard to make any nicer...
     
     # Return cell connections in a given direction as a 2-tuple (cell pin name, module net number)
     def get_cell_conns(self, cell, direction = "input"):
         cdata = self.data["cells"][cell]
         conns = []
-        for port, condata in cdata["connections"].iteritems():
+        for port, condata in cdata["connections"].items():
             if cdata["port_directions"][port] == direction:
                 N = len(condata)
                 if N == 1:
@@ -66,17 +89,19 @@ class YosysModule:
     
     # Returns any cell ports matching a direction and connected net number
     # Result is a list of tuples (cell, port)
-    def get_conn_ports(self, net, pdir):
+    def get_conn_ports(self, net, pdir, include_internal = False):
         conn_ports = []
         for cell in self.data["cells"]:
+            if cell.startswith("$") and not include_internal:
+                continue
             cdata = self.data["cells"][cell]
-            for port, condata in cdata["connections"].iteritems():
+            for port, condata in cdata["connections"].items():
                 if cdata["port_directions"][port] == pdir:
                     if net in condata:
                         if len(condata) == 1:
-                            conn_ports.append(port)
+                            conn_ports.append((cell, port))
                         else:
-                            conn_ports.append("%s[%d]" % (port, condata.index(net)))
+                            conn_ports.append((cell, "%s[%d]" % (port, condata.index(net))))
         return conn_ports
     
     # Return a list of drivers of a net (usually should only be one...) as a 2-tuple
