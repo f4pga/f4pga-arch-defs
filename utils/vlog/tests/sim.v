@@ -1,5 +1,5 @@
-`include "adder.v"
-`include "dff.v"
+`include "adder/sim.v"
+`include "dff/sim.v"
 
 module test_pb(input clk, rst, a, b, ci, output q, co);
 
