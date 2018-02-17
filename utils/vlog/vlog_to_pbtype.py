@@ -117,6 +117,18 @@ def make_pb_type(mod, xml_parent = None):
     # List of entries in format ((from_cell, from_pin), (to) 
     interconn = []
     
+    # Process IOs
+    clocks = yosys.run.list_clocks(args.infiles, mod.get_name())
+    for name, width, iodir in mod.get_ports():
+        ioattrs = {"name": name, "num_pins": str(width)}
+        if name in clocks:
+            ET.SubElement(pb_type_xml, "clock", ioattrs)
+        elif iodir == "input":
+            ET.SubElement(pb_type_xml, "input", ioattrs)
+        elif iodir == "output":
+            ET.SubElement(pb_type_xml, "output", ioattrs)
+        else:
+            assert False
     # Process cells
     for cname, i_of in mod.get_cells(False):
         pb_name = mod.get_cell_attr(cname, "PB_NAME", i_of)

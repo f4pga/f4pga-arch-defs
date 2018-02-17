@@ -1,3 +1,4 @@
+(* TYPE="bel" *) (* CLASS="flipflop" *)
 module dff(input clk, rst, d, output q);
 
 always @(posedge clk)
