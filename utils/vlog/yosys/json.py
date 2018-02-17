@@ -9,6 +9,90 @@ be used before outputting the JSON.
 import os, sys
 import json
 
+class YosysModule:
+    def __init__(self, name, module_data):
+        self.name = name
+        self.data = module_data
+        
+    # Return a list of ports of a module (default: top), as a 3-tuple (name, width, dir)
+    def get_ports(self):
+        plist = []
+        for port, pdata in self.data["ports"].items():
+            plist.append((port, len(pdata["bits"]), pdata["direction"]))
+        return plist        
+
+    # Return a list of cells of a module, as a 2-tuple (name, type)
+    def get_cells(self, include_hidden = True):
+        clist = []
+        for cell, cdata in self.data["cells"].items():
+            if include_hidden or not cdata["hide_name"]:
+                clist.append((cell, cdata["type"]))
+        
+    # Return the attributes of a module as a dictionary
+    def get_module_attrs(self):
+        return self.data["attributes"]
+    
+    # Return the attributes of a cell instance as a dictionary
+    def get_cell_attrs(self, cell):
+        return self.data["cells"][cell]["attributes"]
+    
+    # Return cell connections in a given direction as a 2-tuple (cell pin name, module net number)
+    def get_cell_conns(self, cell, direction = "input"):
+        cdata = self.data["cells"][cell]
+        conns = []
+        for port, condata in cdata["connections"].iteritems():
+            if cdata["port_directions"][port] == direction:
+                N = len(condata)
+                if N == 1:
+                    conns.append((port, condata[0]))
+                else:
+                    for i in range(N):
+                        conns.append(("%s[%d]" % (port, N), condata[i]))
+        return conns
+    
+    # Returns any top level IO matching a direction and connected net number
+    # Result is a list containing entries of the form A or A[15] for single bit 
+    # or bus ports respectively
+    def get_conn_io(self, net, iodir):
+        conn_io = []
+        for port, pdata in self.data["ports"].items():
+            if pdata["direction"] == iodir:
+                if net in pdata["bits"]:
+                    if len(pdata["bits"]) == 1:
+                        conn_io.append(port)
+                    else:
+                        conn_io.append("%s[%d]" % (port, pdata["bits"].index(net)))
+        return conn_io
+    
+    # Returns any cell ports matching a direction and connected net number
+    # Result is a list of tuples (cell, port)
+    def get_conn_ports(self, net, pdir):
+        conn_ports = []
+        for cell in self.data["cells"]:
+            cdata = self.data["cells"][cell]
+            for port, condata in cdata["connections"].iteritems():
+                if cdata["port_directions"][port] == pdir:
+                    if net in condata:
+                        if len(condata) == 1:
+                            conn_ports.append(port)
+                        else:
+                            conn_ports.append("%s[%d]" % (port, condata.index(net)))
+        return conn_ports
+    
+    # Return a list of drivers of a net (usually should only be one...) as a 2-tuple
+    # (cell, port). cell is set to the name of the module for top level IOs
+    def get_net_drivers(self, net):
+        # top level *inputs* and cell outputs are both drivers
+        io_drivers = [(self.name, _) for _ in self.get_conn_io(net, "input")]
+        cell_drivers = self.get_conn_ports(net, "output")
+        return io_drivers + cell_drivers
+    
+    # Return a list of sinks of a net, as a 2-tuple as above
+    def get_net_sinks(self, net):
+        # top level *outputs* and cell inputs are both drivers
+        io_drivers = [(self.name, _) for _ in self.get_conn_io(net, "output")]
+        cell_drivers = self.get_conn_ports(net, "input")
+        return io_drivers + cell_drivers
 class YosysJson:
     # Takes either a filename, or already parsed JSON as a dictionary
     # Also optionally pass the top level module
@@ -32,26 +116,13 @@ class YosysJson:
             assert(False)
         return self.top
     
-    # Return a list of ports of a module (default: top), as a 3-tuple (name, width, dir)
-    def get_ports(self, module = None):
-        if module is None:
-            if self.top is None:
-                print("no top module selected, can't get_ports")
-                assert(False)
-            module = self.top
-        plist = []
-        for port, pdata in self.data["modules"][module]["ports"].items():
-            plist.append((port, len(pdata["bits"]), pdata["direction"]))
-        return plist
+    def get_module(self, module):
+        return YosysModule(module, self.data["modules"][module])
+        
+    def get_top_module(self):
+        return self.get_module(self.get_top())
+
+    # Return true if a module exists
+    def has_module(self, module):
+        return module in self.data["modules"]
     
-    # Return a list of cells of a module, as a 2-tuple (name, type)
-    def get_cells(self, module = None, include_hidden = True):
-        if module is None:
-            if self.top is None:
-                print("no top module selected, can't get_cells")
-                assert(False)
-            module = self.top
-        clist = []
-        for cell, cdata in self.data["modules"][module]["cells"].items():
-            if include_hidden or not cdata["hide_name"]:
-                clist.append((cell, cdata["type"]))
