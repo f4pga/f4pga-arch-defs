@@ -1,14 +1,13 @@
-#!/usr/bin/python3
-
-import json
-import os, sys
-
+#!/usr/bin/env python3
 """
 This is intended to provide a range of helper functions around the output of 
 Yosys' `write_json`. Depending on the tasks, this may need to be flattened
 and/or in AIG format. In any case, at minimum `proc` and usually `prep` should
 be used before outputting the JSON.
 """
+
+import os, sys
+import json
 
 class YosysJson:
     # Takes either a filename, or already parsed JSON as a dictionary
