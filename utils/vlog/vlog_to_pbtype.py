@@ -4,10 +4,10 @@
 Convert a Verilog simulation model to a VPR `pb_type.xml`
 
 The following are allowed on a top level module:
-    
+
     - (* TYPE="bel|blackbox" *) : specify the type of the module
     (either a Basic ELement or a blackbox named after the pb_type
-    
+
     - (* CLASS="lut|routing|flipflop|mem" *) : specify the class of an given
     instance. Must be specified for BELs
 
@@ -17,12 +17,15 @@ The following are allowed on a top level module:
 The following are allowed on nets within modules (TODO: use proper Verilog timing):
     All are NYI at the moment!
     - (* SETUP="clk 10e-12" *) : specify setup time for a given clock
-    
+
     - (* HOLD="clk 10e-12" *) : specify hold time for a given clock
-    
+
     - (* CLK_TO_Q="clk 10e-12" *) : specify clock-to-output time for a given clock
-    
+
     - (* PB_MUX=1 *) : if the signal is driven by a $mux cell, generate a pb_type <mux> element for it
+
+The following are allowed on instances within modules:
+    - (* MODE="mode" *) : specify pb_type is only valid within a given mode
 """
 
 import yosys.run
@@ -74,12 +77,23 @@ def make_pb_type(mod, xml_parent = None):
         if cname != mod.get_name():
             cname = cname_to_pb_name[cname]
         return ("%s.%s" % (cname, cellpin))
-    
+
+    def make_direct_conn(ic_xml, source, dest):
+        source_pin = get_full_pin_name(source)
+        dest_pin = get_full_pin_name(dest)
+        # TODO: should we use this, or determine a net name from the Verilog?
+        ic_name = source_pin.replace(".","_") + "_to_" + dest_pin.replace(".","_")
+        dir_xml = ET.SubElement(ic_xml, 'direct', {
+            'name': ic_name,
+            'input': source_pin,
+            'output': dest_pin
+        })
+
     attrs = mod.get_module_attrs()
     pb_xml_attrs = dict()
-    
+
     pb_xml_attrs["name"] = mod.get_attr("PB_NAME", mod.get_name())
-    
+
     # Process type and class of module
     mod_type = mod.get_attr("TYPE", "blackbox") #TODO: is blackbox a good default?
     mod_cls = mod.get_attr("CLASS")
@@ -105,18 +119,20 @@ def make_pb_type(mod, xml_parent = None):
                 assert False
     else:
         assert False
-    
+
     #TODO: might not always be the case? should be use Verilog `generate`s to detect this?
     pb_xml_attrs["num_pb"] = "1"
-    
+
     if xml_parent is None:
         pb_type_xml = ET.Element("pb_type", pb_xml_attrs)
     else:
         pb_type_xml = ET.SubElement(xml_parent, "pb_type", pb_xml_attrs)
-    
-    # List of entries in format ((from_cell, from_pin), (to) 
+
+    # List of entries in format ((from_cell, from_pin), (to_cell, to_pin))
     interconn = []
-    
+    # List of interconnect to ignore, because it was generated inside a <mode>
+    ignore_interconn = []
+
     # Process IOs
     clocks = yosys.run.list_clocks(args.infiles, mod.get_name())
     for name, width, iodir in mod.get_ports():
@@ -129,15 +145,26 @@ def make_pb_type(mod, xml_parent = None):
             ET.SubElement(pb_type_xml, "output", ioattrs)
         else:
             assert False
-    # Process cells
+    # Process cells. First build the list of cnames.
+    for cname, i_of in mod.get_cells(False):
+        cname_to_pb_name[cname] = mod.get_cell_attr(cname, "PB_NAME", i_of)
+
     for cname, i_of in mod.get_cells(False):
         pb_name = mod.get_cell_attr(cname, "PB_NAME", i_of)
-        pb_type_path = "./%s/pb_type.xml" % pb_name # TODO: might want to override path for complex hierarchies?
-        ET.SubElement(pb_type_xml, "{http://www.w3.org/2001/XInclude}include", {'href': pb_type_path})
-        cname_to_pb_name[cname] = pb_name
+        module_path = os.path.dirname(yj.get_module_file(i_of))
+        pb_type_path = "%s/pb_type.xml" % module_path
+        pb_mode = mod.get_cell_attr(cname, "MODE", "")
+        # If MODE is used, need to wrap cell pb_type and interconnect in "mode"
+        is_modal = (pb_mode != "")
+        if is_modal:
+            mode_xml = ET.SubElement(pb_type_xml, "mode", {'name': pb_mode})
+            ET.SubElement(mode_xml, "{http://www.w3.org/2001/XInclude}include", {'href': pb_type_path})
+            mode_ic = ET.SubElement(mode_xml, "interconn")
+        else:
+            ET.SubElement(pb_type_xml, "{http://www.w3.org/2001/XInclude}include", {'href': pb_type_path})
         # In order to avoid overspecifying interconnect, there are two directions we currently
         # consider. All interconnect going INTO a cell, and interconnect going out of a cell
-        # into a top level output
+        # into a top level output - or all outputs if "mode" is used.
         inp_cons = mod.get_cell_conns(cname, "input")
         for pin, net in inp_cons:
             drvs = mod.get_net_drivers(net)
@@ -146,28 +173,28 @@ def make_pb_type(mod, xml_parent = None):
             elif len(drvs) > 1:
                 print("WARNING: pin %s.%s has multiple drivers, interconnect will be overspecified" % (pb_name, pin))
             for drv_cell, drv_pin in drvs:
-                interconn.append(((drv_cell, drv_pin), (cname, pin)))
-        
+                 # When mode is used, interconnect goes directly in the <mode>
+                if is_modal:
+                    make_direct_conn(mode_ic, (drv_cell, drv_pin), (cname, pin))
+                    ignore_interconn.append(((drv_cell, drv_pin), (cname, pin)))
+                else:
+                    interconn.append(((drv_cell, drv_pin), (cname, pin)))
+
         out_cons = mod.get_cell_conns(cname, "output")
         for pin, net in out_cons:
             sinks = mod.get_net_sinks(net)
             for sink_cell, sink_pin in sinks:
-                if sink_cell == mod.get_name():
+                if is_modal: # When mode is used, interconnect goes directly in the <mode>. Also, all sinks are considered
+                    make_direct_conn(mode_ic, (cname, pin), (sink_cell, sink_pin))
+                    ignore_interconn.append(((cname, pin), (sink_cell, sink_pin)))
+                elif sink_cell == mod.get_name():
                     interconn.append(((cname, pin), (sink_cell, sink_pin)))
-    
+
     ic_xml = ET.SubElement(pb_type_xml, "interconnect")
     # Process interconnect
     for source, dest in interconn:
-        source_pin = get_full_pin_name(source)
-        dest_pin = get_full_pin_name(dest)
-        # TODO: should we use this, or determine a net name from the Verilog?
-        ic_name = source_pin.replace(".","_") + "_to_" + dest_pin.replace(".","_")
-        dir_xml = ET.SubElement(ic_xml, 'direct', {
-            'name': ic_name,
-            'input': source_pin,
-            'output': dest_pin
-        })
-        
+        if (source, dest) not in ignore_interconn:
+            make_direct_conn(ic_xml, source, dest)
     # TODO: timing
     # TODO: muxes
     return pb_type_xml
@@ -177,7 +204,7 @@ pb_type_xml = make_pb_type(tmod, None)
 outfile = "pb_type.xml"
 if "o" in args and args.o is not None:
     outfile = args.o
-    
+
 f = open(outfile, 'w')
 f.write(ET.tostring(pb_type_xml, pretty_print=True).decode('utf-8'))
 f.close()

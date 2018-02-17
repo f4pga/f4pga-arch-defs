@@ -37,7 +37,7 @@ aig_json = yosys.run.vlog_to_json(args.infiles, True, True)
 if "top" in args:
     yj = YosysJson(aig_json, args.top)
 else:
-    yj = YosysJson(aig_json)    
+    yj = YosysJson(aig_json)
 
 top = yj.get_top()
 tmod = yj.get_top_module()
@@ -73,7 +73,7 @@ for name, width, iodir in ports:
 outfile = "model.xml"
 if "o" in args and args.o is not None:
     outfile = args.o
-    
+
 f = open(outfile, 'w')
 f.write(ET.tostring(models_xml, pretty_print=True).decode('utf-8'))
 f.close()

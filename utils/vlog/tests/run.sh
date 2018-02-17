@@ -1,5 +1,5 @@
 #!/bin/bash
-INPUT_DIRS="adder dff ."
+INPUT_DIRS="adder dff lut2 ."
 THIS_TOP="test_pb"
 
 for dir in $INPUT_DIRS; do

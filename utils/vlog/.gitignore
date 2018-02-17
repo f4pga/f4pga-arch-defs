@@ -2,3 +2,5 @@ __pycache__
 *.pyc
 dump.json
 merged.xml
+/pb_type.xml
+/model.xml
