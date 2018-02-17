@@ -1,0 +1,12 @@
+<models>
+  <model name="lut2">
+    <input_ports>
+      <port combinational_sink_ports="y" name="a"/>
+      <port combinational_sink_ports="y" name="b"/>
+    </input_ports>
+    <output_ports>
+      <port name="y"/>
+      <port name="co"/>
+    </output_ports>
+  </model>
+</models>

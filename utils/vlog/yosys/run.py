@@ -60,7 +60,7 @@ def do_select(infiles, module, expr):
                     pins.append(pin)
     os.remove(outfile)
     return pins
-    
+
 def get_combinational_sinks(infiles, module, innet):
     return do_select(infiles, module, "%s %%coe* o:* %%i %s %%d" % (innet, innet))
 

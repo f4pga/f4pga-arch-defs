@@ -6,15 +6,28 @@
   <input equivalent="false" name="ci" num_pins="1"/>
   <output equivalent="false" name="q" num_pins="1"/>
   <output equivalent="false" name="co" num_pins="1"/>
-  <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="./adder/pb_type.xml"/>
-  <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="./dff/pb_type.xml"/>
+  <mode name="ADD">
+    <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="adder/pb_type.xml"/>
+    <interconn>
+      <direct input="test_pb.a" name="test_pb_a_to_adder_a" output="adder.a"/>
+      <direct input="test_pb.b" name="test_pb_b_to_adder_b" output="adder.b"/>
+      <direct input="test_pb.ci" name="test_pb_ci_to_adder_ci" output="adder.ci"/>
+      <direct input="adder.co" name="adder_co_to_test_pb_co" output="test_pb.co"/>
+      <direct input="adder.y" name="adder_y_to_dff_d" output="dff.d"/>
+    </interconn>
+  </mode>
+  <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="dff/pb_type.xml"/>
+  <mode name="LUT">
+    <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="lut2/pb_type.xml"/>
+    <interconn>
+      <direct input="test_pb.a" name="test_pb_a_to_lut2_a" output="lut2.a"/>
+      <direct input="test_pb.b" name="test_pb_b_to_lut2_b" output="lut2.b"/>
+      <direct input="lut2.co" name="lut2_co_to_test_pb_co" output="test_pb.co"/>
+      <direct input="lut2.y" name="lut2_y_to_dff_d" output="dff.d"/>
+    </interconn>
+  </mode>
   <interconnect>
-    <direct input="test_pb.a" name="test_pb_a_to_adder_a" output="adder.a"/>
-    <direct input="test_pb.b" name="test_pb_b_to_adder_b" output="adder.b"/>
-    <direct input="test_pb.ci" name="test_pb_ci_to_adder_ci" output="adder.ci"/>
-    <direct input="adder.co" name="adder_co_to_test_pb_co" output="test_pb.co"/>
     <direct input="test_pb.clk" name="test_pb_clk_to_dff_clk" output="dff.clk"/>
-    <direct input="adder.y" name="adder_y_to_dff_d" output="dff.d"/>
     <direct input="test_pb.rst" name="test_pb_rst_to_dff_rst" output="dff.rst"/>
     <direct input="dff.q" name="dff_q_to_test_pb_q" output="test_pb.q"/>
   </interconnect>
