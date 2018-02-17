@@ -1,0 +1,13 @@
+<models>
+  <model name="adder">
+    <input_ports>
+      <port combinational_sink_ports="co y" name="a"/>
+      <port combinational_sink_ports="co y" name="b"/>
+      <port combinational_sink_ports="co y" name="ci"/>
+    </input_ports>
+    <output_ports>
+      <port name="y"/>
+      <port name="co"/>
+    </output_ports>
+  </model>
+</models>

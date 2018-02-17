@@ -120,7 +120,7 @@ def make_pb_type(mod, xml_parent = None):
     # Process IOs
     clocks = yosys.run.list_clocks(args.infiles, mod.get_name())
     for name, width, iodir in mod.get_ports():
-        ioattrs = {"name": name, "num_pins": str(width)}
+        ioattrs = {"name": name, "num_pins": str(width), "equivalent": "false"}
         if name in clocks:
             ET.SubElement(pb_type_xml, "clock", ioattrs)
         elif iodir == "input":

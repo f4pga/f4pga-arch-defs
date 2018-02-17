@@ -1,0 +1,15 @@
+<models>
+  <model name="test_pb">
+    <input_ports>
+      <port is_clock="1" name="clk"/>
+      <port clock="clk" name="rst"/>
+      <port clock="clk" combinational_sink_ports="co" name="a"/>
+      <port clock="clk" combinational_sink_ports="co" name="b"/>
+      <port clock="clk" combinational_sink_ports="co" name="ci"/>
+    </input_ports>
+    <output_ports>
+      <port clock="clk" name="q"/>
+      <port clock="clk" name="co"/>
+    </output_ports>
+  </model>
+</models>

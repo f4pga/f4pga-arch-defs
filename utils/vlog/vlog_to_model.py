@@ -56,7 +56,7 @@ for clk in clocks:
 for name, width, iodir in ports:
     attrs = dict(name=name)
     sinks = yosys.run.get_combinational_sinks(args.infiles, top, name)
-    if len(sinks) > 0:
+    if len(sinks) > 0 and iodir == "input":
         attrs["combinational_sink_ports"] = " ".join(sinks)
     if name in clocks:
         attrs["is_clock"] = "1"
