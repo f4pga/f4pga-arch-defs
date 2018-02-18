@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
-import os, subprocess, sys, json
-import yosys.utils, tempfile, re
+import os, subprocess, sys, re
+import tempfile, json
+import yosys.utils
 
 def get_yosys():
     return os.getenv('YOSYS', "yosys")
