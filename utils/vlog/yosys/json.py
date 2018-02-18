@@ -82,6 +82,14 @@ class YosysModule:
         else:
             return defval
 
+    def net_attr(self, netname, attr, defval = None):
+        """Get an attribute of a given net (specified by name), or defval is not set"""
+        pnet = None
+        if attr in self.data["netnames"][netname]["attributes"]:
+            return self.data["netnames"][netname]["attributes"][attr]
+        else:
+            return defval
+
     # TODO: the below code is kind of ugly, but because module and cell IO
     # specifications are inconsistent in how they are represented in the JSON,
     # it's hard to make any nicer...
