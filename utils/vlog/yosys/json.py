@@ -82,11 +82,15 @@ class YosysModule:
         else:
             return defval
 
+    def net_attrs(self, netname):
+        """Get all attributes of a given net as a dictionary"""
+        return self.data["netnames"][netname]["attributes"]
+
     def net_attr(self, netname, attr, defval = None):
         """Get an attribute of a given net (specified by name), or defval is not set"""
         pnet = None
-        if attr in self.data["netnames"][netname]["attributes"]:
-            return self.data["netnames"][netname]["attributes"][attr]
+        if attr in self.net_attrs(netname):
+            return self.net_attrs(netname)[attr]
         else:
             return defval
 

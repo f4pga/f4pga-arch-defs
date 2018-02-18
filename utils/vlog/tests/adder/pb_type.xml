@@ -5,4 +5,10 @@
   <output equivalent="false" name="y" num_pins="1"/>
   <output equivalent="false" name="co" num_pins="1"/>
   <interconnect/>
+  <delay_constant in_port="adder.a" max="20e-12" out_port="adder.y"/>
+  <delay_constant in_port="adder.b" max="20e-12" out_port="adder.y"/>
+  <delay_constant in_port="adder.ci" max="10e-12" out_port="adder.y"/>
+  <delay_constant in_port="adder.a" max="10e-12" out_port="adder.co"/>
+  <delay_constant in_port="adder.b" max="10e-12" out_port="adder.co"/>
+  <delay_constant in_port="adder.ci" max="7e-12" out_port="adder.co"/>
 </pb_type>

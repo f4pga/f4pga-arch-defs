@@ -28,8 +28,8 @@
       <direct input="lut2.y" name="dff_d" output="dff.d"/>
       <direct input="test_lut.rst" name="dff_rst" output="dff.rst"/>
       <direct input="dff.q" name="test_lut_q" output="test_lut.q"/>
-      <direct input="test_lut.a" name="lut2_a" output="lut2.a"/>
-      <direct input="test_lut.b" name="lut2_b" output="lut2.b"/>
+      <direct input="test_lut.a" name="lut2_in[2]" output="lut2.in[2]"/>
+      <direct input="test_lut.b" name="lut2_in[2]" output="lut2.in[2]"/>
       <direct input="lut2.co" name="test_lut_co" output="test_lut.co"/>
     </interconnect>
   </mode>

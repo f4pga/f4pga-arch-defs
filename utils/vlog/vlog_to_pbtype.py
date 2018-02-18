@@ -16,15 +16,17 @@ The following are allowed on a top level module:
     must be visible at the time of pb_type generation.
 
 The following are allowed on nets within modules (TODO: use proper Verilog timing):
-    All are NYI at the moment!
     - `(* SETUP="clk 10e-12" *)` : specify setup time for a given clock
 
     - `(* HOLD="clk 10e-12" *)` : specify hold time for a given clock
 
     - `(* CLK_TO_Q="clk 10e-12" *)` : specify clock-to-output time for a given clock
 
-    - `(* PB_MUX=1 *)` : if the signal is driven by a $mux cell, generate a
-    pb_type <mux> element for it
+    - `(* DELAY_CONST_{input}="30e-12" *)` : specify a constant max delay from an input (applied to the output)
+
+    - `(* DELAY_MATRIX_{input}="30e-12 35e-12; 20e-12 25e-12; ..." *)` : specify a VPR
+        delay matrix (semicolons indicate rows). In this format columns specify
+        inputs bits and rows specify output bits. This should be applied to the output.
 
 The following are allowed on ports:
     - `(* CLOCK *)` : force a given port to be a clock
@@ -154,12 +156,38 @@ def make_pb_content(mod, xml_parent):
     # Process timing
     for name, width, iodir in mod.ports:
         port = "%s.%s" % (mod.name, name)
+        # Clocked timing
         Tsetup = mod.net_attr(name, "SETUP")
         Thold = mod.net_attr(name, "HOLD")
         Tctoq = mod.net_attr(name, "CLK_TO_Q")
         process_clocked_tmg(Tsetup, port, "T_setup", xml_parent)
         process_clocked_tmg(Thold, port, "T_hold", xml_parent)
         process_clocked_tmg(Tctoq, port, "T_clock_to_Q", xml_parent)
+
+        # Combinational delays
+        dly_prefix = "DELAY_CONST_"
+        dly_mat_prefix = "DELAY_MATRIX_"
+        for attr, atvalue in mod.net_attrs(name).items():
+            if attr.startswith(dly_prefix):
+                # Single, constant delays
+                inp = attr[len(dly_prefix):]
+                inport = "%s.%s" % (mod.name, inp)
+                ET.SubElement(xml_parent, "delay_constant", {
+                    "in_port": inport,
+                    "out_port": port,
+                    "max": str(atvalue)
+                })
+            elif attr.startswith(dly_mat_prefix):
+                # Constant delay matrices
+                inp = attr[len(dly_mat_prefix):]
+                inport = "%s.%s" % (mod.name, inp)
+                mat = "\n" + atvalue.replace(";", "\n") + "\n"
+                xml_mat = ET.SubElement(xml_parent, "delay_matrix", {
+                    "in_port": inport,
+                    "out_port": port,
+                    "type": "max"
+                })
+                xml_mat.text = mat
 
 def make_pb_type(mod):
     """Build the pb_type for a given module. mod is the YosysModule object to
@@ -224,7 +252,6 @@ def make_pb_type(mod):
     else:
         make_pb_content(mod, pb_type_xml)
 
-    # TODO: timing
     return pb_type_xml
 
 pb_type_xml = make_pb_type(tmod)
