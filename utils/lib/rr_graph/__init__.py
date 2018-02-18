@@ -25,7 +25,8 @@ Position = namedtuple("P", ("x", "y"))
 Pos = Position # Shorter Alias
 P = Position   # Even shorter alias
 
-class Size(Position):
+_Size = namedtuple("Size", ("x", "y"))
+class Size(_Size):
     def __new__(cls, x, y):
         assert x > 0
         assert y > 0
@@ -44,3 +45,6 @@ class Size(Position):
             for y in self.y:
                 yield Position(x, y)
 
+
+class Offset(Size):
+    pass
