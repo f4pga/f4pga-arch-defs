@@ -5,17 +5,17 @@ import yosys.utils, tempfile, re
 def get_yosys():
     return os.getenv('YOSYS', "yosys")
 
-def yosys_get_output(params):
+def get_output(params):
     cmd = [get_yosys()] + params
     return subprocess.check_output(cmd).decode("utf-8")
 
-def yosys_commands(commands, infiles = []):
+def commands(commands, infiles = []):
     params = ["-q", "-p", commands] + infiles
-    return yosys_get_output(params)
+    return get_output(params)
 
-def yosys_script(script, infiles = []):
+def script(script, infiles = []):
     params = ["-q", "-s", script] + infiles
-    return yosys_get_output(params)
+    return get_output(params)
 
 def vlog_to_json(infiles, flatten = False, aig = False):
     """
@@ -30,7 +30,7 @@ def vlog_to_json(infiles, flatten = False, aig = False):
     prep_opts = "-flatten" if flatten else ""
     json_opts = "-aig" if aig else ""
     cmds = "prep %s; write_json %s" % (prep_opts, json_opts)
-    j = yosys.utils.strip_yosys_json(yosys_commands(cmds, infiles))
+    j = yosys.utils.strip_yosys_json(commands(cmds, infiles))
     """with open('dump.json', 'w') as dbg:
         print(j,file=dbg)"""
     return json.loads(j)
@@ -61,7 +61,7 @@ def do_select(infiles, module, expr):
 
     outfile = tempfile.mktemp()
     sel_cmd = "prep -top %s -flatten; cd %s; select -write %s %s" % (module, module, outfile, expr)
-    yosys_commands(sel_cmd, infiles)
+    commands(sel_cmd, infiles)
     pins = []
     with open(outfile, 'r') as f:
         for net in f:

@@ -2,7 +2,6 @@
   <model name="test_pb">
     <input_ports>
       <port name="clk"/>
-      <port name="rst"/>
       <port name="a"/>
       <port name="b"/>
       <port name="ci"/>
