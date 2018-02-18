@@ -5,11 +5,13 @@ Convert a Verilog simulation model to a VPR `pb_type.xml`
 
 The following are allowed on a top level module:
 
-    - `(* TYPE="bel|blackbox" *)` : specify the type of the module
-    (either a Basic ELement or a blackbox named after the pb_type
+    - `(* blackbox *)` : specify that the module has no interconnect or child
+    pb_types (but if modes are used then its modes are allowed to have these).
+    This will also set the BLIF model to be `.subckt <name>` unless CLASS is
+    also specified.
 
     - `(* CLASS="lut|routing|flipflop|mem" *)` : specify the class of an given
-    instance. Must be specified for BELs
+    instance.
 
     - `(* ALTERNATIVE_TO="module" *)` : specify the module is one of several
     modes of another module (i.e. a <mode> in the pb_type). Note that all modes
@@ -36,12 +38,13 @@ The following are allowed on ports:
     - `(* PORT_CLASS="clock" *)` : specify the VPR "port_class"
 """
 
-import yosys.run
-import lxml.etree as ET
-import argparse, re
 import os, tempfile, sys
-from yosys.json import YosysJson
+import argparse, re
 
+import lxml.etree as ET
+
+import yosys.run
+from yosys.json import YosysJson
 
 parser = argparse.ArgumentParser(description=__doc__.strip(), formatter_class=argparse.RawTextHelpFormatter)
 parser.add_argument(

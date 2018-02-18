@@ -7,10 +7,12 @@ The following Verilog attributes are considered on ports:
 
     - `(* ASSOC_CLOCK="RDCLK" *)` : force a port's associated clock to a given value
 """
-import yosys.run
-import lxml.etree as ET
 import argparse, re
 import os, tempfile, sys
+
+import lxml.etree as ET
+
+import yosys.run
 from yosys.json import YosysJson
 
 
