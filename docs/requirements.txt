@@ -1,0 +1,29 @@
+sphinx
+sphinx-autobuild
+
+sphinx_rtd_theme
+recommonmark
+breathe
+napoleon
+
+sphinxcontrib-ansi
+sphinxcontrib-argdoc
+# sphinxcontrib-autoprogram
+sphinxcontrib-cheader
+sphinxcontrib-cheeseshop
+sphinxcontrib-cmakedomain
+sphinxcontrib-documentedlist
+sphinxcontrib-examplecode
+sphinxcontrib-makedomain
+sphinxcontrib-manpage
+sphinxcontrib-spelling
+
+sphinxcontrib-trio
+sphinx-git
+sphinx-autodoc-napoleon-typehints
+# sphinxcontrib-inlinesyntaxhighlight
+
+
+symbolator
+sphinxcontrib-wavedrom
+# sphinxcontrib-gtkwave
