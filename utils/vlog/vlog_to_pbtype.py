@@ -5,32 +5,37 @@ Convert a Verilog simulation model to a VPR `pb_type.xml`
 
 The following are allowed on a top level module:
 
-    - (* TYPE="bel|blackbox" *) : specify the type of the module
+    - `(* TYPE="bel|blackbox" *)` : specify the type of the module
     (either a Basic ELement or a blackbox named after the pb_type
 
-    - (* CLASS="lut|routing|flipflop|mem" *) : specify the class of an given
+    - `(* CLASS="lut|routing|flipflop|mem" *)` : specify the class of an given
     instance. Must be specified for BELs
 
-    - (* ALTERNATIVE_TO="module" *) : specify the module is one of several
+    - `(* ALTERNATIVE_TO="module" *)` : specify the module is one of several
     modes of another module (i.e. a <mode> in the pb_type). Note that all modes
     must be visible at the time of pb_type generation.
 
 The following are allowed on nets within modules (TODO: use proper Verilog timing):
     All are NYI at the moment!
-    - (* SETUP="clk 10e-12" *) : specify setup time for a given clock
+    - `(* SETUP="clk 10e-12" *)` : specify setup time for a given clock
 
-    - (* HOLD="clk 10e-12" *) : specify hold time for a given clock
+    - `(* HOLD="clk 10e-12" *)` : specify hold time for a given clock
 
-    - (* CLK_TO_Q="clk 10e-12" *) : specify clock-to-output time for a given clock
+    - `(* CLK_TO_Q="clk 10e-12" *)` : specify clock-to-output time for a given clock
 
-    - (* PB_MUX=1 *) : if the signal is driven by a $mux cell, generate a
+    - `(* PB_MUX=1 *)` : if the signal is driven by a $mux cell, generate a
     pb_type <mux> element for it
+
+The following are allowed on ports:
+    - `(* CLOCK *)` : force a given port to be a clock
+
+    - `(* ASSOC_CLOCK="RDCLK" *)` : force a port's associated clock to a given value
 """
 
 import yosys.run
 import lxml.etree as ET
 import argparse, re
-import os, tempfile
+import os, tempfile, sys
 from yosys.json import YosysJson
 
 
@@ -71,6 +76,11 @@ if args.top is not None:
     top = args.top
 else:
     top = yj.top
+
+if top is None:
+    print("ERROR: more than one module in design, cannot detect top level. Manually specify the top level module using --top")
+    sys.exit(1)
+
 tmod = yj.module(top)
 
 def make_pb_content(mod, xml_parent):
@@ -129,6 +139,27 @@ def make_pb_content(mod, xml_parent):
     for source, dest in interconn:
         make_direct_conn(ic_xml, source, dest)
 
+    def process_clocked_tmg(tmgspec, port, xmltype, xml_parent):
+        """Add a suitable timing spec if necessary to the pb_type"""
+        if tmgspec is not None:
+            splitspec = tmgspec.split(" ")
+            assert len(splitspec) == 2
+            attrs = {"port": port, "clock": splitspec[0]}
+            if xmltype == "T_clock_to_Q":
+                attrs["max"] = splitspec[1]
+            else:
+                attrs["value"] = splitspec[1]
+            ET.SubElement(xml_parent, xmltype, attrs)
+
+    # Process timing
+    for name, width, iodir in mod.ports:
+        port = "%s.%s" % (mod.name, name)
+        Tsetup = mod.net_attr(name, "SETUP")
+        Thold = mod.net_attr(name, "HOLD")
+        Tctoq = mod.net_attr(name, "CLK_TO_Q")
+        process_clocked_tmg(Tsetup, port, "T_setup", xml_parent)
+        process_clocked_tmg(Thold, port, "T_hold", xml_parent)
+        process_clocked_tmg(Tctoq, port, "T_clock_to_Q", xml_parent)
 
 def make_pb_type(mod):
     """Build the pb_type for a given module. mod is the YosysModule object to

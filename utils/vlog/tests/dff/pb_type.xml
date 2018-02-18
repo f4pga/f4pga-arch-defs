@@ -4,4 +4,7 @@
   <input equivalent="false" name="d" num_pins="1"/>
   <output equivalent="false" name="q" num_pins="1"/>
   <interconnect/>
+  <T_setup clock="clk" port="dff.d" value="200e-12"/>
+  <T_hold clock="clk" port="dff.d" value="50e-12"/>
+  <T_clock_to_Q clock="clk" max="400e-12" port="dff.q"/>
 </pb_type>

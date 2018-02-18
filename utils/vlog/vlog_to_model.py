@@ -1,11 +1,16 @@
 #!/usr/bin/env python3
 """
 Convert a Verilog simulation model to a VPR `model.xml`
+
+The following Verilog attributes are considered on ports:
+    - `(* CLOCK *)` : force a given port to be a clock
+
+    - `(* ASSOC_CLOCK="RDCLK" *)` : force a port's associated clock to a given value
 """
 import yosys.run
 import lxml.etree as ET
 import argparse, re
-import os, tempfile
+import os, tempfile, sys
 from yosys.json import YosysJson
 
 
@@ -40,6 +45,10 @@ else:
     yj = YosysJson(aig_json)
 
 top = yj.top
+if top is None:
+    print("ERROR: more than one module in design, cannot detect top level. Manually specify the top level module using --top")
+    sys.exit(1)
+
 tmod = yj.top_module
 models_xml = ET.Element("models")
 model_xml = ET.SubElement(models_xml, "model", {'name': top})

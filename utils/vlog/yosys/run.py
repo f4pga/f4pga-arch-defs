@@ -80,8 +80,8 @@ def get_combinational_sinks(infiles, module, innet):
 
 def list_clocks(infiles, module):
     """Return a list of clocks in the module"""
-    return do_select(infiles, module, "c:* %x:+[CLK] c:* %d")
+    return do_select(infiles, module, "c:* %x:+[CLK] a:CLOCK=1 %u c:* %d")
 
 def get_clock_assoc_signals(infiles, module, clk):
     """Return the list of signals associated with a given clock."""
-    return do_select(infiles, module, "select -list %s %%x* i:* o:* %%u %%i %s %%d" % (clk, clk))
+    return do_select(infiles, module, "select -list %s %%x* i:* o:* %%u %%i a:ASSOC_CLOCK=%s %%u %s %%d" % (clk, clk, clk))
