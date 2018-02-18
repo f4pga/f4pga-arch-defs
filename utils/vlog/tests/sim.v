@@ -2,13 +2,25 @@
 `include "dff/sim.v"
 `include "lut2/sim.v"
 
+
+(* blackbox *)
 module test_pb(input clk, rst, a, b, ci, output q, co);
+endmodule
+
+(* ALTERNATIVE_TO="test_pb" *)
+module test_add(input clk, rst, a, b, ci, output q, co);
 
 wire d;
+adder adder_i(.a(a), .b(b), .ci(ci), .y(d), .co(co));
+dff dff_i(.clk(clk), .rst(rst), .d(d), .q(q));
 
-(* MODE="ADD" *) adder adder_i(.a(a), .b(b), .ci(ci), .y(d), .co(co));
-(* MODE="LUT" *) lut2 lut2_i(.a(a), .b(b), .y(d), .co(co));
+endmodule
 
+(* ALTERNATIVE_TO="test_pb" *)
+module test_lut(input clk, rst, a, b, ci, output q, co);
+
+wire d;
+lut2 lut2_i(.a(a), .b(b), .y(d), .co(co));
 dff dff_i(.clk(clk), .rst(rst), .d(d), .q(q));
 
 endmodule

@@ -14,44 +14,71 @@ class YosysModule:
         self.name = name
         self.data = module_data
 
-    # Return the name of the module
-    def get_name(self):
-        return self.name
+    @property
+    def ports(self):
+        """List of ports on a module.
 
-    # Return a list of ports of a module (default: top), as a 3-tuple (name, width, dir)
-    def get_ports(self):
+        Returns a list of tuples:
+        -------
+        name : str
+        width : int
+            The width in bits
+        dir : str
+            The direction, should be either `input` or `output`
+        """
         plist = []
         for port, pdata in self.data["ports"].items():
             plist.append((port, len(pdata["bits"]), pdata["direction"]))
         return plist
 
-    # Return a list of cells of a module, as a 2-tuple (name, type)
-    def get_cells(self, include_internal = False):
+    @property
+    def cells(self):
+        """List of cells of a module, excluding Yosys-internal cells
+        beginning with $.
+
+        Returns a list of tuples:
+        -------
+        name : str
+        type: str
+        """
         clist = []
         for cell, cdata in self.data["cells"].items():
-            if cell.startswith("$") and not include_internal:
+            if cell.startswith("$"):
                 continue
             clist.append((cell, cdata["type"]))
         return clist
-    # Return the attributes of a module as a dictionary
-    def get_module_attrs(self):
+
+    def cell_type(self, cell):
+        """Return the type of a given cell"""
+        for cname, cdata in self.data["cells"].items():
+            if cname == cell:
+                return cdata["type"]
+        return None
+
+    @property
+    def module_attrs(self):
+        """All attributes of a module as a dictionary"""
         return self.data["attributes"]
 
-    # Return the value of an attribute, or the default value if not set
-    def get_attr(self, attr, defval = None):
-        if attr in self.get_module_attrs():
-            return self.get_module_attrs()[attr]
+    def attr(self, attr, defval = None):
+        """Get an attribute, or defval is not set"""
+        if attr in self.module_attrs:
+            return self.module_attrs[attr]
         else:
             return defval
 
-    # Return the attributes of a cell instance as a dictionary
-    def get_cell_attrs(self, cell):
+    def has_attr(self, attr):
+        """Return true if an attribute exists"""
+        return attr in self.module_attrs
+
+    def cell_attrs(self, cell):
+        """All attributes of a given cell as a dictionary"""
         return self.data["cells"][cell]["attributes"]
 
-    # Return the value of an attribute of a cell, or the default value if not set
-    def get_cell_attr(self, cell, attr, defval = None):
-        if attr in self.get_cell_attrs(cell):
-            return self.get_cell_attrs(cell)[attr]
+    def cell_attr(self, cell, attr, defval = None):
+        """Get an attribute of a given cell, or defval is not set"""
+        if attr in self.cell_attrs(cell):
+            return self.cell_attrs(cell)[attr]
         else:
             return defval
 
@@ -59,8 +86,14 @@ class YosysModule:
     # specifications are inconsistent in how they are represented in the JSON,
     # it's hard to make any nicer...
 
-    # Return cell connections in a given direction as a 2-tuple (cell pin name, module net number)
-    def get_cell_conns(self, cell, direction = "input"):
+    def cell_conns(self, cell, direction = "input"):
+        """The connections of a cell in a given direction as a 2-tuple
+
+        Returns a list of tuples:
+        -------
+        port : str
+        net : int
+        """
         cdata = self.data["cells"][cell]
         conns = []
         for port, condata in cdata["connections"].items():
@@ -73,10 +106,13 @@ class YosysModule:
                         conns.append(("%s[%d]" % (port, N), condata[i]))
         return conns
 
-    # Returns any top level IO matching a direction and connected net number
-    # Result is a list containing entries of the form A or A[15] for single bit
-    # or bus ports respectively
-    def get_conn_io(self, net, iodir):
+    def conn_io(self, net, iodir):
+        """Returns a list of top level IO matching a direction and connected net number
+
+        Returns a list:
+        -------
+        port : str
+        """
         conn_io = []
         for port, pdata in self.data["ports"].items():
             if pdata["direction"] == iodir:
@@ -87,12 +123,17 @@ class YosysModule:
                         conn_io.append("%s[%d]" % (port, pdata["bits"].index(net)))
         return conn_io
 
-    # Returns any cell ports matching a direction and connected net number
-    # Result is a list of tuples (cell, port)
-    def get_conn_ports(self, net, pdir, include_internal = False):
+    def conn_ports(self, net, pdir):
+        """Returns any cell ports matching a direction and connected net number
+
+        Returns a list of tuples:
+        -------
+        cell : str
+        port : str
+        """
         conn_ports = []
         for cell in self.data["cells"]:
-            if cell.startswith("$") and not include_internal:
+            if cell.startswith("$"):
                 continue
             cdata = self.data["cells"][cell]
             for port, condata in cdata["connections"].items():
@@ -104,24 +145,43 @@ class YosysModule:
                             conn_ports.append((cell, "%s[%d]" % (port, condata.index(net))))
         return conn_ports
 
-    # Return a list of drivers of a net (usually should only be one...) as a 2-tuple
-    # (cell, port). cell is set to the name of the module for top level IOs
-    def get_net_drivers(self, net):
+
+    def net_drivers(self, net):
+        """Returns a list of drivers of a given net, both top level inputs.
+        and cell outputs. "cell" is set to the name of the module for top level
+        IO.
+
+        Returns a list of tuples:
+        -------
+        cell : str
+        port : str
+        """
         # top level *inputs* and cell outputs are both drivers
-        io_drivers = [(self.name, _) for _ in self.get_conn_io(net, "input")]
-        cell_drivers = self.get_conn_ports(net, "output")
+        io_drivers = [(self.name, _) for _ in self.conn_io(net, "input")]
+        cell_drivers = self.conn_ports(net, "output")
         return io_drivers + cell_drivers
 
-    # Return a list of sinks of a net, as a 2-tuple as above
-    def get_net_sinks(self, net):
+    def net_sinks(self, net):
+        """Returns a list of sinks of a given net, both top level outputs.
+        and cell inputs. "cell" is set to the name of the module for top level
+        IO.
+
+        Returns a list of tuples:
+        -------
+        cell : str
+        port : str
+        """
         # top level *outputs* and cell inputs are both drivers
-        io_drivers = [(self.name, _) for _ in self.get_conn_io(net, "output")]
-        cell_drivers = self.get_conn_ports(net, "input")
+        io_drivers = [(self.name, _) for _ in self.conn_io(net, "output")]
+        cell_drivers = self.conn_ports(net, "input")
         return io_drivers + cell_drivers
+
 class YosysJson:
-    # Takes either a filename, or already parsed JSON as a dictionary
-    # Also optionally pass the top level module
+
     def __init__(self, j, top = None):
+        """Takes either the filename to a JSON file, or already parsed JSON
+        data as a dictionary. Optionally the top level module can be specified
+        too."""
         if(isinstance(j, str)):
             with open(j, 'r') as f:
                 self.data = json.load(f)
@@ -135,27 +195,30 @@ class YosysJson:
         else:
             self.top = top
 
-    # Get the name of the top level module
-    def get_top(self):
-        if self.top is None:
-            print("no top module selected")
-            assert(False)
-        return self.top
-
-    # Get a given module (by name) as a YosysModule
-    def get_module(self, module):
+    def module(self, module):
+        """Get a given module (by name) as a `YosysModule`"""
         return YosysModule(module, self.data["modules"][module])
 
-    # Get the top module (by name) as a YosysModule
-    def get_top_module(self):
-        return self.get_module(self.get_top())
+    def modules_with_attr(self, attr_name, attr_value):
+        """Return a list of `YosysModule`s, selecting based on a given attribute"""
+        mods = []
+        for mod in self.data["modules"]:
+            ymod = self.module(mod)
+            if ymod.has_attr(attr_name) and ymod.attr(attr_name) == attr_value:
+                mods.append(ymod)
+        return mods
 
-    # Return true if a module exists
+    @property
+    def top_module(self):
+        """Get a given module (by name) as a `YosysModule`"""
+        return self.module(self.top)
+
     def has_module(self, module):
+        """Return true if a module exists"""
         return module in self.data["modules"]
 
-    # Return the filename in which a given module lives
     def get_module_file(self, module):
-        src = self.get_module(module).get_attr("src")
+        """Return the filename in which a given module lives"""
+        src = self.module(module).attr("src")
         cpos = src.rfind(":")
         return src[0:cpos]

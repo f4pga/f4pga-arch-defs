@@ -1,4 +1,4 @@
-<pb_type blif_model=".latch" class="flipflop" name="dff" num_pb="1">
+<pb_type xmlns:xi="http://www.w3.org/2001/XInclude" blif_model=".latch" class="flipflop" name="dff" num_pb="1">
   <clock equivalent="false" name="clk" num_pins="1"/>
   <input equivalent="false" name="rst" num_pins="1"/>
   <input equivalent="false" name="d" num_pins="1"/>
