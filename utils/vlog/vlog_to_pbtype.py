@@ -90,13 +90,39 @@ if top is None:
 
 tmod = yj.module(top)
 
-def make_pb_content(mod, xml_parent):
+def mod_pb_name(mod):
+    """Convert a Verilog module to a pb_type name in the format documented here:
+    https://github.com/SymbiFlow/symbiflow-arch-defs/#names"""
+    is_blackbox = (mod.attr("blackbox", 0) == 1)
+    modes = yj.modules_with_attr("ALTERNATIVE_TO", mod.name)
+    has_modes = len(modes) > 0
+    # Process type and class of module
+    mod_cls = mod.CLASS
+    if mod_cls == "routing":
+        return "BLK_RX-" + mod.name
+    elif mod_cls == "mux":
+        return "BLK_MX-" + mod.name
+    elif mod_cls == "flipflop":
+        return "BLK_FF-" + mod.name
+    elif mod_cls == "lut":
+        return "BLK_LT-" + mod.name
+    elif is_blackbox and not has_modes:
+        return "BLK_BB-" + mod.name
+    else:
+        #TODO: other types
+        return "BLK_IG-" + mod.name
+
+def make_pb_content(mod, xml_parent, mod_pname):
     """Build the pb_type content - child pb_types, timing and direct interconnect,
     but not IO. This may be put directly inside <pb_type>, or inside <mode>."""
+
     def get_full_pin_name(pin):
         cname, cellpin = pin
         if cname != mod.name:
             cname = mod.cell_type(cname)
+            cname = mod_pb_name(yj.module(cname))
+        else:
+            cname = mod_pname
         return ("%s.%s" % (cname, cellpin))
 
     def make_direct_conn(ic_xml, source, dest):
@@ -108,6 +134,8 @@ def make_pb_content(mod, xml_parent):
             'input': source_pin,
             'output': dest_pin
         })
+
+
     # Find out whether or not the module we are generating content for is a blackbox
     is_blackbox = (mod.attr("blackbox", 0) == 1)
 
@@ -165,7 +193,7 @@ def make_pb_content(mod, xml_parent):
 
     # Process timing
     for name, width, iodir in mod.ports:
-        port = "%s.%s" % (mod.name, name)
+        port = "%s.%s" % (mod_pname, name)
         # Clocked timing
         Tsetup = mod.net_attr(name, "SETUP")
         Thold = mod.net_attr(name, "HOLD")
@@ -181,7 +209,7 @@ def make_pb_content(mod, xml_parent):
             if attr.startswith(dly_prefix):
                 # Single, constant delays
                 inp = attr[len(dly_prefix):]
-                inport = "%s.%s" % (mod.name, inp)
+                inport = "%s.%s" % (mod_pname, inp)
                 ET.SubElement(xml_parent, "delay_constant", {
                     "in_port": inport,
                     "out_port": port,
@@ -190,7 +218,7 @@ def make_pb_content(mod, xml_parent):
             elif attr.startswith(dly_mat_prefix):
                 # Constant delay matrices
                 inp = attr[len(dly_mat_prefix):]
-                inport = "%s.%s" % (mod.name, inp)
+                inport = "%s.%s" % (mod_pname, inp)
                 mat = "\n" + atvalue.replace(";", "\n") + "\n"
                 xml_mat = ET.SubElement(xml_parent, "delay_matrix", {
                     "in_port": inport,
@@ -205,9 +233,10 @@ def make_pb_type(mod):
 
     attrs = mod.module_attrs
     modes = yj.modules_with_attr("ALTERNATIVE_TO", mod.name)
+    mod_pname = mod_pb_name(mod)
 
     pb_xml_attrs = dict()
-    pb_xml_attrs["name"] = mod.name
+    pb_xml_attrs["name"] = mod_pname
     # If we are a blackbox with no modes, then generate a blif_model
     is_blackbox = (mod.attr("blackbox", 0) == 1)
     has_modes = len(modes) > 0
@@ -219,6 +248,9 @@ def make_pb_type(mod):
             pb_xml_attrs["class"] = "lut"
         elif mod_cls == "routing":
             # TODO: pb_xml_attrs["class"] = "routing"
+            pass
+        elif mod_cls == "mux":
+            # TODO: ?
             pass
         elif mod_cls == "flipflop":
             pb_xml_attrs["blif_model"] = ".latch"
@@ -251,9 +283,9 @@ def make_pb_type(mod):
     if len(modes) > 0:
         for mode_mod in modes:
             mode_xml = ET.SubElement(pb_type_xml, "mode", {"name" : mode_mod.name})
-            make_pb_content(mode_mod, mode_xml)
+            make_pb_content(mode_mod, mode_xml, mod.name)
     else:
-        make_pb_content(mod, pb_type_xml)
+        make_pb_content(mod, pb_type_xml, mod_pname)
 
     return pb_type_xml
 
