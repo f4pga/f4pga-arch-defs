@@ -32,6 +32,8 @@ The following are allowed on ports:
     - `(* CLOCK *)` : force a given port to be a clock
 
     - `(* ASSOC_CLOCK="RDCLK" *)` : force a port's associated clock to a given value
+
+    - `(* PORT_CLASS="clock" *)` : specify the VPR "port_class"
 """
 
 import yosys.run
@@ -234,6 +236,9 @@ def make_pb_type(mod):
     clocks = yosys.run.list_clocks(args.infiles, mod.name)
     for name, width, iodir in mod.ports:
         ioattrs = {"name": name, "num_pins": str(width), "equivalent": "false"}
+        pclass = mod.net_attr(name, "PORT_CLASS")
+        if pclass is not None:
+            ioattrs["port_class"] = pclass
         if name in clocks:
             ET.SubElement(pb_type_xml, "clock", ioattrs)
         elif iodir == "input":
