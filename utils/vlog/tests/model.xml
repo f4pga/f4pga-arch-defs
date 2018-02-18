@@ -1,14 +1,14 @@
 <models>
   <model name="test_pb">
     <input_ports>
-      <port is_clock="1" name="clk"/>
-      <port clock="clk" name="rst"/>
-      <port clock="clk" name="a"/>
-      <port clock="clk" name="b"/>
-      <port clock="clk" name="ci"/>
+      <port name="clk"/>
+      <port name="rst"/>
+      <port name="a"/>
+      <port name="b"/>
+      <port name="ci"/>
     </input_ports>
     <output_ports>
-      <port clock="clk" name="q"/>
+      <port name="q"/>
       <port name="co"/>
     </output_ports>
   </model>

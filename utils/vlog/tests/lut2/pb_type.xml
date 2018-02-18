@@ -1,4 +1,4 @@
-<pb_type blif_model=".subckt lut2" name="lut2" num_pb="1">
+<pb_type xmlns:xi="http://www.w3.org/2001/XInclude" name="lut2" num_pb="1">
   <input equivalent="false" name="a" num_pins="1"/>
   <input equivalent="false" name="b" num_pins="1"/>
   <output equivalent="false" name="y" num_pins="1"/>

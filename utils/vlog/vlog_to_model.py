@@ -39,11 +39,11 @@ if "top" in args:
 else:
     yj = YosysJson(aig_json)
 
-top = yj.get_top()
-tmod = yj.get_top_module()
+top = yj.top
+tmod = yj.top_module
 models_xml = ET.Element("models")
 model_xml = ET.SubElement(models_xml, "model", {'name': top})
-ports = tmod.get_ports()
+ports = tmod.ports
 
 inports_xml = ET.SubElement(model_xml, "input_ports")
 outports_xml = ET.SubElement(model_xml, "output_ports")
