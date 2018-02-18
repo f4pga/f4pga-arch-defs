@@ -1,3 +1,4 @@
+(* blackbox *)
 module adder(
 	input a,
 	input b,

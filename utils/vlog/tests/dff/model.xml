@@ -2,7 +2,6 @@
   <model name="dff">
     <input_ports>
       <port is_clock="1" name="clk"/>
-      <port clock="clk" name="rst"/>
       <port clock="clk" name="d"/>
     </input_ports>
     <output_ports>

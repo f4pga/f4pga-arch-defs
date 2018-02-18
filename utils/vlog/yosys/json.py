@@ -67,6 +67,9 @@ class YosysModule:
         else:
             return defval
 
+    def __getattr__(self, attr):
+        return self.attr(attr)
+
     def has_attr(self, attr):
         """Return true if an attribute exists"""
         return attr in self.module_attrs
@@ -115,7 +118,7 @@ class YosysModule:
                     conns.append((port, condata[0]))
                 else:
                     for i in range(N):
-                        conns.append(("%s[%d]" % (port, N), condata[i]))
+                        conns.append(("%s[%d]" % (port, i), condata[i]))
         return conns
 
     def conn_io(self, net, iodir):

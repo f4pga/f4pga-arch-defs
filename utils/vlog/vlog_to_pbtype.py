@@ -99,49 +99,54 @@ def make_pb_content(mod, xml_parent):
     def make_direct_conn(ic_xml, source, dest):
         source_pin = get_full_pin_name(source)
         dest_pin = get_full_pin_name(dest)
-        ic_name = dest_pin.replace(".","_")
+        ic_name = dest_pin.replace(".","_").replace("[","_").replace("]","")
         dir_xml = ET.SubElement(ic_xml, 'direct', {
             'name': ic_name,
             'input': source_pin,
             'output': dest_pin
         })
+    # Find out whether or not the module we are generating content for is a blackbox
+    is_blackbox = (mod.attr("blackbox", 0) == 1)
+
     # List of entries in format ((from_cell, from_pin), (to_cell, to_pin))
     interconn = []
 
-    # Process cells. First build the list of cnames.
-    for cname, i_of in mod.cells:
-        pb_name = i_of
-        module_path = os.path.dirname(yj.get_module_file(i_of))
-        pb_type_path = "%s/pb_type.xml" % module_path
-        include_xml(xml_parent, pb_type_path)
-        # In order to avoid overspecifying interconnect, there are two directions we currently
-        # consider. All interconnect going INTO a cell, and interconnect going out of a cell
-        # into a top level output - or all outputs if "mode" is used.
-        inp_cons = mod.cell_conns(cname, "input")
-        for pin, net in inp_cons:
-            drvs = mod.net_drivers(net)
-            if len(drvs) == 0:
-                print("ERROR: pin %s.%s has no driver, interconnect will be missing" % (pb_name, pin))
-                assert False
-            elif len(drvs) > 1:
-                print("ERROR: pin %s.%s has multiple drivers, interconnect will be overspecified" % (pb_name, pin))
-                assert False
-            for drv_cell, drv_pin in drvs:
-                interconn.append(((drv_cell, drv_pin), (cname, pin)))
+    # Blackbox modules don't have inner cells or interconnect (but do still have timing)
+    if not is_blackbox:
+        # Process cells. First build the list of cnames.
+        for cname, i_of in mod.cells:
+            pb_name = i_of
+            module_path = os.path.dirname(yj.get_module_file(i_of))
+            pb_type_path = "%s/pb_type.xml" % module_path
+            include_xml(xml_parent, pb_type_path)
+            # In order to avoid overspecifying interconnect, there are two directions we currently
+            # consider. All interconnect going INTO a cell, and interconnect going out of a cell
+            # into a top level output - or all outputs if "mode" is used.
+            inp_cons = mod.cell_conns(cname, "input")
+            for pin, net in inp_cons:
+                drvs = mod.net_drivers(net)
+                if len(drvs) == 0:
+                    print("ERROR: pin %s.%s has no driver, interconnect will be missing" % (pb_name, pin))
+                    assert False
+                elif len(drvs) > 1:
+                    print("ERROR: pin %s.%s has multiple drivers, interconnect will be overspecified" % (pb_name, pin))
+                    assert False
+                for drv_cell, drv_pin in drvs:
+                    interconn.append(((drv_cell, drv_pin), (cname, pin)))
 
-        out_cons = mod.cell_conns(cname, "output")
-        for pin, net in out_cons:
-            sinks = mod.net_sinks(net)
-            for sink_cell, sink_pin in sinks:
-                if sink_cell == mod.name:
-                     #Only consider outputs from cell to top level IO. Inputs to other cells will be dealt with
-                     #in those cells.
-                    interconn.append(((cname, pin), (sink_cell, sink_pin)))
+            out_cons = mod.cell_conns(cname, "output")
+            for pin, net in out_cons:
+                sinks = mod.net_sinks(net)
+                for sink_cell, sink_pin in sinks:
+                    if sink_cell == mod.name:
+                         #Only consider outputs from cell to top level IO. Inputs to other cells will be dealt with
+                         #in those cells.
+                        interconn.append(((cname, pin), (sink_cell, sink_pin)))
 
-    ic_xml = ET.SubElement(xml_parent, "interconnect")
-    # Process interconnect
-    for source, dest in interconn:
-        make_direct_conn(ic_xml, source, dest)
+        ic_xml = ET.SubElement(xml_parent, "interconnect")
+        # Process interconnect
+        for source, dest in interconn:
+            make_direct_conn(ic_xml, source, dest)
 
     def process_clocked_tmg(tmgspec, port, xmltype, xml_parent):
         """Add a suitable timing spec if necessary to the pb_type"""
@@ -196,15 +201,16 @@ def make_pb_type(mod):
     generate."""
 
     attrs = mod.module_attrs
+    modes = yj.modules_with_attr("ALTERNATIVE_TO", mod.name)
+
     pb_xml_attrs = dict()
-
     pb_xml_attrs["name"] = mod.name
-
+    # If we are a blackbox with no modes, then generate a blif_model
+    is_blackbox = (mod.attr("blackbox", 0) == 1)
+    has_modes = len(modes) > 0
     # Process type and class of module
-    mod_type = mod.attr("TYPE")
-    mod_cls = mod.attr("CLASS")
-    if mod_type == "bel":
-        assert mod_cls is not None
+    mod_cls = mod.CLASS
+    if mod_cls is not None:
         if mod_cls == "lut":
             pb_xml_attrs["blif_model"] = ".names"
             pb_xml_attrs["class"] = "lut"
@@ -216,17 +222,8 @@ def make_pb_type(mod):
             pb_xml_attrs["class"] = "flipflop"
         else:
             assert False
-    elif mod_type == "blackbox":
+    elif is_blackbox and not has_modes:
         pb_xml_attrs["blif_model"] = ".subckt " + mod.name
-        if mod_cls is not None:
-            if mod_cls == "mem":
-                pb_xml_attrs["class"] = "memory"
-            else:
-                assert False
-    elif mod_type is None:
-        pass
-    else:
-        assert False
 
     #TODO: might not always be the case? should be use Verilog `generate`s to detect this?
     pb_xml_attrs["num_pb"] = "1"
@@ -247,8 +244,6 @@ def make_pb_type(mod):
             ET.SubElement(pb_type_xml, "output", ioattrs)
         else:
             assert False
-
-    modes = yj.modules_with_attr("ALTERNATIVE_TO", mod.name)
 
     if len(modes) > 0:
         for mode_mod in modes:

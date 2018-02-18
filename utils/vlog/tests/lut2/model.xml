@@ -5,7 +5,6 @@
     </input_ports>
     <output_ports>
       <port name="y"/>
-      <port name="co"/>
     </output_ports>
   </model>
 </models>
