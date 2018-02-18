@@ -20,7 +20,7 @@ endmodule
 module test_lut(input clk, rst, a, b, ci, output q, co);
 
 wire d;
-lut2 lut2_i(.a(a), .b(b), .y(d), .co(co));
+lut2 lut2_i(.in({b, a}), .y(d), .co(co));
 dff dff_i(.clk(clk), .rst(rst), .d(d), .q(q));
 
 endmodule
