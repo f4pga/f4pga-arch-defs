@@ -1,6 +1,6 @@
 
 SELF_DIR := $(dir $(lastword $(MAKEFILE_LIST)))
-TOP_DIR := $(shell realpath $(SELF_DIR)/../../)
+TOP_DIR := $(realpath $(SELF_DIR)/../../)
 
 .SUFFIXES:
 
