@@ -6,6 +6,12 @@ The following Verilog attributes are considered on ports:
     - `(* CLOCK *)` : force a given port to be a clock
 
     - `(* ASSOC_CLOCK="RDCLK" *)` : force a port's associated clock to a given value
+
+The following Verilog attributes are considered on modules:
+    - `(* MODEL_NAME="model" *)` : override the name used for <model> and for
+    ".subckt name" in the BLIF model. Mostly intended for use with w.py, when several
+    different pb_types implement the same model.
+
 """
 import argparse, re
 import os, tempfile, sys
@@ -53,7 +59,10 @@ if top is None:
 
 tmod = yj.top_module
 models_xml = ET.Element("models")
-model_xml = ET.SubElement(models_xml, "model", {'name': top})
+
+topname = tmod.attr("MODEL_NAME", top)
+
+model_xml = ET.SubElement(models_xml, "model", {'name': topname})
 ports = tmod.ports
 
 inports_xml = ET.SubElement(model_xml, "input_ports")
