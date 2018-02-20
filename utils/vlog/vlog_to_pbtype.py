@@ -40,6 +40,8 @@ The following are allowed on ports:
     - `(* ASSOC_CLOCK="RDCLK" *)` : force a port's associated clock to a given value
 
     - `(* PORT_CLASS="clock" *)` : specify the VPR "port_class"
+
+The Verilog define "PB_TYPE" is set during generation.
 """
 
 import os, tempfile, sys
@@ -73,6 +75,7 @@ Output filename, default 'model.xml'
 
 args = parser.parse_args()
 
+yosys.run.add_define("PB_TYPE")
 vjson = yosys.run.vlog_to_json(args.infiles, False, False)
 yj = YosysJson(vjson)
 
