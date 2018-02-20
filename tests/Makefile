@@ -59,8 +59,10 @@ VPR_ARGS ?=
 VPR_CMD = $(VPR) $(VPR_ARGS)  $(ARCH_FILE) --device $(DEVICE)
 VPR_FULL_CMD = cd $(OUTPUT_DIR); $(VPR_CMD)
 
+ROUTE_CHAN_WIDTH ?= 6
+
 $(OUTPUT_DIR)/%.rr_graph.xml: $(OUTPUT_DIR)/%.eblif $(ARCH_FILE)
-	$(VPR_FULL_CMD) $(notdir $<) --route_chan_width 60 --write_rr_graph $(notdir $@)
+	$(VPR_FULL_CMD) $(notdir $<) --route_chan_width $(ROUTE_CHAN_WIDTH) --write_rr_graph $(notdir $@)
 
 $(OUTPUT_DIR)/%.patched.rr_graph.xml: $(OUTPUT_DIR)/%.rr_graph.xml $(RR_PATCH_TOOL)
 	cd $(OUTPUT_DIR); $(RR_PATCH_CMD) --read_rr_graph $(notdir $<) --write_rr_graph $(notdir $@)
@@ -69,7 +71,7 @@ $(OUTPUT_DIR)/%.rr_graph.pretty.xml: $(OUTPUT_DIR)/%.rr_graph.xml
 	cd $(OUTPUT_DIR); xmlsort $(notdir $<) > $(notdir $@)
 
 %.patched: $(OUTPUT_DIR)/%.eblif $(OUTPUT_DIR)/%.patched.rr_graph.pretty.xml
-	cd $(OUTPUT_DIR); gdb --args $(VPR_CMD) $(notdir $<) --route_chan_width 60 --read_rr_graph $@.rr_graph.pretty.xml
+	cd $(OUTPUT_DIR); gdb --args $(VPR_CMD) $(notdir $<) --route_chan_width $(ROUTE_CHAN_WIDTH) --read_rr_graph $@.rr_graph.pretty.xml
 
 # ------------------------------------------------------------------------
 %.rr_graph.xml: $(OUTPUT_DIR)/%.rr_graph.xml | $(OUTPUT_DIR)

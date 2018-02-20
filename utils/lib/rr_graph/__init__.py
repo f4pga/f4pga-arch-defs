@@ -28,8 +28,8 @@ P = Position   # Even shorter alias
 _Size = namedtuple("Size", ("x", "y"))
 class Size(_Size):
     def __new__(cls, x, y):
-        assert x > 0
-        assert y > 0
+        assert x >= 0
+        assert y >= 0
         return Position.__new__(cls, x, y)
 
     @static_property

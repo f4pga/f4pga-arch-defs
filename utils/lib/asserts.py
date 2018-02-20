@@ -1,7 +1,7 @@
 def assert_eq(a, b):
     assert a == b, "{} ({}) != {} ({})".format(a, repr(a), b, repr(b))
 
-def assert_type(obj, cls, msg="{obj} ({obj!} should be a {cls}, not {objcls}"):
+def assert_type(obj, cls, msg="{obj} ({obj!r} should be a {cls}, not {objcls}"):
     """Raise a type error if obj is not an instance of cls."""
     if not isinstance(obj, cls):
         raise TypeError(msg.format(obj=obj, objcls=type(obj), cls=cls))
