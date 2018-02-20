@@ -1,0 +1,35 @@
+# Exclude special directories
+docs
+tests
+third_party
+make
+common
+library
+
+# Exclude anything in a special "unused" directories
+*unused*
+
+# Exclude the .git directory
+.git
+
+# Exclude the dependency files
+*.d
+*.dmk
+
+# Exclude Python cache files
+__pycache__
+*.pyc
+*.pyo
+
+# Exclude anything which starts with a dot
+.*
+
+# Exclude docs
+*.md
+*.pdf
+
+# Exclude merged output
+*.merged.xml
+
+# Exclude meson stuff
+meson
