@@ -1,9 +1,13 @@
 #!/usr/bin/env python3
 
-import re
 import enum
+import io
+import pprint
+import re
 
 from collections import namedtuple
+from collections import OrderedDict
+from types import MappingProxyType
 
 import lxml.etree as ET
 
@@ -13,7 +17,95 @@ from . import Offset
 from .channel import Channels
 
 from ..asserts import assert_eq
+from ..asserts import assert_is
 from ..asserts import assert_type
+
+def assert_type_or_none(obj, classes):
+    if obj is not None:
+        assert_type(obj, classes)
+
+
+def frozendict(*args, **kwargs):
+  return MappingProxyType(dict(*args, **kwargs))
+
+
+class MostlyReadOnly:
+    """
+
+    >>> class MyRO(MostlyReadOnly):
+    ...     __slots__ = ["_str", "_list", "_set", "_dict"]
+    >>> a = MyRO()
+    >>> a
+    MyRO(str=None, list=None, set=None, dict=None)
+    >>> a._str = 't'
+    >>> a.str
+    't'
+    >>> a._list = [1,2,3]
+    >>> a.list
+    (1, 2, 3)
+    >>> a._set = {1, 2, 3}
+    >>> a.set
+    frozenset({1, 2, 3})
+    >>> a._dict = {'a': 1, 'b': 2, 'c': 3}
+    >>> b = a.dict
+    >>> b['d'] = 4
+    Traceback (most recent call last):
+        ...
+        b['d'] = 4
+    TypeError: 'mappingproxy' object does not support item assignment
+    >>> sorted(b.items())
+    [('a', 1), ('b', 2), ('c', 3)]
+    >>> a._dict['d'] = 4
+    >>> sorted(a._dict.items())
+    [('a', 1), ('b', 2), ('c', 3), ('d', 4)]
+    >>> sorted(b.items())
+    [('a', 1), ('b', 2), ('c', 3)]
+    >>> a
+    MyRO(str='t', list=[1, 2, 3], set={1, 2, 3}, dict={'a': 1, 'b': 2, 'c': 3, 'd': 4})
+    >>> a.random
+    Traceback (most recent call last):
+        ...
+    AttributeError: random not found
+    >>> a.random = 1
+    >>> a.random
+    >>> 
+    """
+
+    def __getattr__(self, key):
+        if "_"+key not in self.__class__.__slots__:
+            raise AttributeError("{} not found".format(key))
+
+        value = getattr(self, "_"+key, None)
+        if isinstance(value, (tuple, int, bytes, str, type(None), MostlyReadOnly)):
+            return value
+        elif isinstance(value, list):
+            return tuple(value)
+        elif isinstance(value, set):
+            return frozenset(value)
+        elif isinstance(value, dict):
+            return frozendict(value)
+        else:
+            raise AttributeError(
+                "Unable to return {}, don't now how to make type {} (from {!r}) read only.".format(
+                    key, type(value), value))
+
+    def __repr__(self):
+        attribs = []
+        for attr in self.__slots__:
+            value = getattr(self, attr, None)
+            if isinstance(value, MostlyReadOnly):
+                rvalue = "{}()".format(value.__class__.__name__)
+            elif isinstance(value, (dict, set)):
+                s = io.StringIO()
+                pprint.pprint(value, stream=s, width=sys.maxsize)
+                rvalue = s.getvalue().strip()
+            else:
+                rvalue = repr(value)
+            if attr.startswith("_"):
+                attr = attr[1:]
+            attribs.append("{}={!s}".format(attr, rvalue))
+        return "{}({})".format(self.__class__.__name__, ", ".join(attribs))
+
 
 
 def parse_net(s, _r=re.compile("^(.*\\.)?([^.\\[]+)(\\[([0-9]+|[0-9]+:[0-9]+)]|)$")):
@@ -75,366 +167,408 @@ def parse_net(s, _r=re.compile("^(.*\\.)?([^.\\[]+)(\\[([0-9]+|[0-9]+:[0-9]+)]|)
     return block_name, port_name, pins
 
 
-
-class IdMapMixIn:
-    _id_map = {}
-
-    @classmethod
-    def get_id_map(cls):
-        return cls._id_map.setdefault(cls, {})
-
-    def _set_id(self, value):
-        if value is None:
-            return
-        assert self._id is None
-        id_map = self.get_id_map()
-        assert value not in id_map
-        self._id = value
-        id_map[value] = self
-
-
-class UniqueFactoryMixIn:
-
-    """
-    Use the UniqueFactoryMixIn as follows.
-
-    >>> _MySingleton = namedtuple("MySingleton", ("arg1", "arg2"))
-    >>> class MySingleton(_MySingleton, UniqueFactoryMixIn):
-    ...     _mutable = (
-    ...         ("change_me", str),
-    ...     )
-    ...     def __new__(cls, arg1, arg2):
-    ...         return cls._singleton__new__(_MySingleton.__new__, (arg1, arg2))
-    >>> a = MySingleton("a", 2)
-    >>> a
-    MySingleton(arg1='a', arg2=2)
-    >>> b = MySingleton("a", 2)
-    >>> b
-    MySingleton(arg1='a', arg2=2)
-    >>> a is b
-    True
-    >>> c = MySingleton("b", 2)
-    >>> c
-    MySingleton(arg1='b', arg2=2)
-    >>> a is c
-    False
-    >>> d = MySingleton(arg1='a', arg2=2)
-    >>> d.change_me
-    Traceback (most recent call last):
-        ...
-    NotImplementedError: Value 'change_me' not available yet!
-    >>> d.change_me = "hello"
-    >>> d.change_me
-    'hello'
-    >>> a.change_me
-    'hello'
-
+class Pin(MostlyReadOnly):
     """
 
-    _singleton_cache = {}
-    _mutable = None
-    @classmethod
-    def _singleton__new__(cls, new, args, mutable=None, create=True):
-        assert cls != UniqueFactoryMixIn, cls
-        if mutable is None:
-            mutable = {}
+    A Pin turns into on IPIN/OPIN node for each block.
+    """
 
-        assert hasattr(cls, "_singleton_cache")
-        assert hasattr(cls, "_mutable")
-        if cls._mutable is None:
-            raise NotImplementedError(
-                "Subclass {} needs to set cls._mutable value.".format(cls))
-        if not isinstance(cls._mutable, tuple):
-            raise NotImplementedError(
-                "Subclass {} needs cls._mutable value to be a tuple. Currently: {}".format(
-                    cls, cls._mutable))
+    __slots__ = [
+        "_pin_class", "_pin_class_index",
+        "_port_name", "_port_index",
+        "_block_type_name", "_block_type_index",
+    ]
 
-        cache_key = args
-        lcache = cls._singleton_cache.setdefault(cls, {})
-        if cache_key in lcache:
-            obj = lcache[cache_key]
-        elif create:
-            obj = new(cls, *args)
-            for attrib_name, attrib_type in cls._mutable:
-                setattr(obj, "_"+attrib_name, None)
-            lcache[cache_key] = obj
-        else:
-            raise KeyError("{} with key {} not found.".format(cls, cache_key))
-
-        # Check mutable attributes first
-        found = {}
-        for name, value in mutable.items():
-            assert_type(value, cls._type_mutable(name))
-            found[name] = value
-
-        # Check they didn't provide extra mutable attributes
-        remaining = set(mutable.keys()) - set(found.keys())
-        if remaining:
-            raise TypeError("Provided unsupported mutable items {}".format(remaining))
-
-        # Set mutable attributes
-        for name, value in found.items():
-            obj._set_mutable(name, value)
-
-        return obj
-
-    @classmethod
-    def _type_mutable(cls, name):
-        for mutable_name, mutable_type in cls._mutable:
-            if name != mutable_name:
-                continue
-            return mutable_type
-        raise NotImplementedError("{} is not a mutable value.".format(name))
-
-    def _has_mutable(self, name):
-        for mutable_name, mutable_type in self._mutable:
-            if name == mutable_name:
-                return True
-        return False
-
-    def _get_mutable(self, name):
-        return getattr(self, "_"+name, None)
-
-    def _set_mutable(self, name, value=None):
-        if value is not None:
-            assert_type(value, self._type_mutable(name))
-        current_value = self._get_mutable(name)
-        if current_value is None:
-            if hasattr(self, "_set_"+name):
-                getattr(self, "_set_"+name)(value)
-            else:
-                setattr(self, "_"+name, value)
-        else:
-            assert_eq(curret_value, value)
-
-    def __getattr__(self, name):
-        if self._has_mutable(name):
-            value = self._get_mutable(name)
-            if value is None:
-                raise NotImplementedError("Value {!r} not available yet!".format(name))
-            return value
-        raise AttributeError("{} not found on {}.".format(name, self))
-
-
-_Pin = namedtuple("Pin", ("port", "num"))
-class Pin(_Pin, UniqueFactoryMixIn):
-    _mutable = (
-        ("ptc", int),
-    )
-
-    def __new__(cls, port, num, ptc=None):
-        assert_type(port, Port)
-        assert_type(num, int)
-
-        # Check the num is inside the port_width
-        if port.width is not None:
-            assert num < port.width, "{} < {}".format(num, port.width)
-
-        return UniqueFactoryMixIn._singleton__new__(
-            cls,
-            _Pin.__new__,
-            args=(port, num),
-            mutable={"ptc": ptc},
-        )
-
-    def __str__(self):
-        return "{!s}[{!d}]".format(self.port, self.num)
+    @property
+    def ptc(self):
+        return self.block_type_index
 
     @property
     def direction(self):
-        return self.port.direction
+        return self.pin_class.direction
+
+    def __init__(
+            self,
+            pin_class=None, pin_class_index=None,
+            port_name=None, port_index=None,
+            block_type_name=None, block_type_index=None):
+
+        assert_type_or_none(pin_class, PinClass)
+        assert_type_or_none(pin_class_index, int)
+
+        assert_type_or_none(port_name, str)
+        assert_type_or_none(port_index, int)
+
+        assert_type_or_none(block_type_name, str)
+        assert_type_or_none(block_type_index, int)
+
+        self._pin_class = pin_class
+        self._pin_class_index = pin_class_index
+        self._port_name = port_name
+        self._port_index = port_index
+        self._block_type_name = block_type_name
+        self._block_type_index = block_type_index
+
+        if pin_class is not None:
+            pin_class._add_pin(self)
+
+    def __str__(self):
+        return "{}.{}[{}]".format(self.block_type_name, self.port_name, self.port_index)
+
+    @classmethod
+    def from_xml(cls, pin_class, pin_node):
+        """
+
+        >>> pc = PinClass(BlockType(name="bt"), direction=PinClassDirection.INPUT)
+        >>> xml_string = '<pin index="0" ptc="1">bt.outpad[2]</pin>'
+        >>> pin = Pin.from_xml(pc, ET.fromstring(xml_string))
+        >>> pin
+        Pin(pin_class=PinClass(), pin_class_index=0, port_name='outpad', port_index=2, block_type_name='bt', block_type_index=1)
+        >>> str(pin)
+        'bt.outpad[2]'
+        """
+        pin_class_index = int(pin_node.attrib["index"])
+        block_type_index = int(pin_node.attrib["ptc"])
+
+        block_type_name, port_name, pins = parse_net(pin_node.text.strip())
+
+        assert block_type_name is not None
+        assert port_name is not None
+
+        assert_eq(len(pins), 1)
+        port_index = pins[0]
+
+        #assert_eq(pin_block_name, pin_class.block_type.name)
+
+        return cls(
+            pin_class, pin_class_index,
+            port_name, port_index,
+            block_type_name, block_type_index,
+        )
 
 
-class PortDirection:
+class PinClassDirection(enum.Enum):
     INPUT = "input"
     OUTPUT = "output"
     CLOCK = "clock"
     UNKNOWN = "unknown"
 
-
-class BlockTypeEdge(enum.Enum):
-    TOP = "TOP"
-    LEFT = "LEFT"
-    RIGHT = "RIGHT"
-    BOTTOM = "BOTTOM"
-    BOT = BOTTOM
-
-    NORTH = TOP
-    EAST = RIGHT
-    SOUTH = BOTTOM
-    WEST = LEFT
+    def __repr__(self):
+        return repr(self.value)
 
 
-_Port = namedtuple("Port", ("block_type", "name"))
-class Port(_Port, UniqueFactoryMixIn):
-    _mutable = (
-        ("direction", PortDirection),
-        ("width", int),
-        ("edge", BlockTypeEdge),
-    )
+class PinClass(MostlyReadOnly):
+    """All pins inside a pin class are equivalent.
 
-    def __new__(cls, block_type, port_name, port_dir=None, port_width=None, port_edge=None):
-        assert "[" not in port_name, port_name
-        assert "]" not in port_name, port_name
-        assert "." not in port_name, port_name
+    A PinClass turns into one SOURCE (when direction==OUTPUT) or SINK (when
+    direction in (INPUT, CLOCK)) per each block.
 
-        assert_type(block_type, BlockType)
+    """
 
-        obj = cls._singleton__new__(
-            cls,
-            args=(block_type, port_name),
-            mutable={
-                "direction": port_dir,
-                "width": port_width,
-                "edge": port_edge,
-            },
-        )
-        obj.create_pins()
-        return obj
-
-    def _create_pin(self, num):
-        pin = Pin(self, num)
-        self.pins.add(pin)
-        return pin
-
-    def create_pins(self, port_width=None):
-        if obj.width is not None:
-            assert_eq(obj.width, port_width)
-
-        if self.width is None:
-            self.width = port_width
-
-        assert self.width is not None
-
-        for num in range(0, port_width):
-            self._create_pin(num)
-        assert_eq(len(self.pins), self.width)
-
-        return pin
-
-    @classmethod
-    def parse(cls, s, block_type=None):
-        r = parse_net(s)
-        assert_eq(len(r), 3)
-        block_type_name, port_name, pins = r
-
-        if block_type_name is not None:
-            block_type_from_name = BlockType(block_type_name)
-            if block_type is not None:
-                assert_eq(block_type, block_type_from_name)
-
-        if port_name is None:
-            raise TypeError("Did not get a port name! {!r} ({})".format(s, r))
-
-        port = cls(block_type, port_name)
-
-        if pins is None:
-            return port
-
-        pin_objs = []
-        for num in pins:
-            pin_objs.append(port._create_pin(num))
-
-        return pin_objs
-
-    def __str__(self):
-        return "{!s}.{!s}[{!d}:0]".format(self.block, self.name, self.width)
-
-
-_BlockEdges = namedtuple("BlockEdges", ("block", "top", "right", "bottom", "left"))
-class BlockEdges:
-    def __new__(cls, block):
-        if block.edges is not None:
-            return block.edges
-
-        edges = _BlockEdges.__new__(cls, block, {}, {}, {}, {})
-        block.edges = edges
-        return edges
-
-    def __getitem__(self, key):
-        if isinstance(key, BlockTypeEdge):
-            return self.__getitem__[key.value()]
-
-
-_BlockType = namedtuple("BlockType", ("name"))
-class BlockType(_BlockType, UniqueFactoryMixIn, IdMapMixIn):
-
-    _mutable = (
-        ("id", int),
-        ("ports", set),
-    )
-
-    def __new__(cls, block_name, block_id=None):
-        assert_type(block_name, str)
-        if block_id is not None:
-            assert_type(block_id, int)
-
-        # Singleton cache
-        obj = cls._singleton__new__(
-            _BlockType.__new__,
-            args=(block_name,),
-            mutable={
-                "id": block_id,
-            },
-        )
-
-        if obj._ports is None:
-            obj._ports = set()
-
-        return obj
-
-    def create_port(self, *args, **kw):
-        port = Port(self, *args, **kw)
-        self.ports.add(port)
-        return port
-
-    def get_pin(self, pin_ptc):
-        for port in self.ports:
-            for pin in port.pins:
-                if pin.ptc == pin_ptc:
-                    return pin
-        return None
-
-    @classmethod
-    def by_id(cls, block_id):
-        return cls.get_id_map()[block_id]
-
-
-_Block = namedtuple("Block", ("id", "offset"))
-class Block(_Block, UniqueFactoryMixIn, IdMapMixIn):
-    _mutable = (
-        ("block_type", BlockType),
-    )
-
-    @classmethod
-    def get_pos_map(cls):
-        return cls.get_id_map()
+    __slots__ = ["_block_type", "_direction", "_pins"]
 
     @property
-    def pos(self):
-        return self.id
+    def port_name(self):
+        port_name = self._pins[0].port_name
+        for pin in self._pins[1:]:
+            assert_eq(port_name, pin.port_name)
+        return port_name
+
+    @property
+    def block_type_name(self):
+        if self.block_type is None:
+            return "??"
+        return self.block_type.name
+
+    def __init__(self, block_type=None, direction=None, pins=None):
+        assert_type_or_none(block_type, BlockType)
+        assert_type_or_none(direction, PinClassDirection)
+
+        self._block_type = block_type
+        self._direction = direction
+        self._pins = {}
+
+        if block_type is not None:
+            block_type._add_pin_class(self)
+
+        if pins is not None:
+            for i, p in sorted(enumerate(pins)):
+                assert i == p.pin_class_index
+                self._add_pin(p)
 
     @classmethod
-    def grid_size(cls):
-        x_max = max(p.x for p in cls.get_pos_map())
-        y_max = max(p.y for p in cls.get_pos_map())
+    def from_xml(cls, block_type, pin_class_node):
+        """
+
+        >>> bt = BlockType(name="bt")
+        >>> xml_string = '''
+        ... <pin_class type="INPUT">
+	...   <pin index="0" ptc="0">bt.outpad[0]</pin>
+	... </pin_class>
+        ... '''
+        >>> pc = PinClass.from_xml(bt, ET.fromstring(xml_string))
+        >>> pc # doctest: +ELLIPSIS
+        PinClass(block_type=BlockType(), direction='input', pins={0: ...})
+        >>> 
+        """
+        assert_eq(pin_class_node.tag, "pin_class")
+        assert "type" in pin_class_node.attrib
+        class_direction = getattr(PinClassDirection, pin_class_node.attrib["type"])
+        assert_type(class_direction, PinClassDirection)
+
+        pc_obj = cls(block_type, class_direction)
+        for pin_node in pin_class_node.iterfind("./pin"):
+            pc_obj._add_pin(Pin.from_xml(pc_obj, pin_node))
+        return pc_obj
+
+    def __str__(self):
+        return "{}.PinClass({}, [{}])".format(
+            self.block_type_name,
+            self.direction,
+            ", ".join(str(i) for i in sorted(self.pins.items())),
+        )
+
+    def _add_pin(self, pin):
+        assert_type(pin, Pin)
+        if self.block_type is not None:
+            assert_eq(pin.block_type_name, self.block_type.name)
+            self.block_type._add_pin(pin)
+        self._pins[pin.pin_class_index] = pin
+
+
+
+class BlockType(MostlyReadOnly):
+
+    __slots__ = ["_graph", "_id", "_name", "_size", "_pin_classes", "_pin_index"]
+
+    def __init__(self, graph=None, id=-1, name="", size=Size(1,1), pin_classes=None):
+        assert_type_or_none(graph, BlockGraph)
+        assert_type_or_none(id, int)
+        assert_type_or_none(name, str)
+        assert_type_or_none(size, Size)
+
+        self._graph = graph
+        self._id = id
+        self._name = name
+        self._size = size
+
+        self._pin_classes = []
+        self._pin_index = {}
+        if pin_classes is not None:
+            for pc in pin_classes:
+                self._add_pin_class(pc)
+
+    @classmethod
+    def from_xml(cls, graph, block_type_node):
+        """
+
+        >>> g = None
+        >>> xml_string = '''
+        ... <block_type id="1" name="BLK_BB-VPR_PAD" width="2" height="3">
+        ...   <pin_class type="OUTPUT">
+	...     <pin index="0" ptc="0">BLK_BB-VPR_PAD.outpad[0]</pin>
+	...   </pin_class>
+        ...   <pin_class type="OUTPUT">
+	...     <pin index="0" ptc="1">BLK_BB-VPR_PAD.outpad[1]</pin>
+	...   </pin_class>
+        ...   <pin_class type="INPUT">
+	...     <pin index="0" ptc="2">BLK_BB-VPR_PAD.inpad[0]</pin>
+	...   </pin_class>
+        ... </block_type>
+        ... '''
+        >>> bt = BlockType.from_xml(g, ET.fromstring(xml_string))
+        >>> bt # doctest: +ELLIPSIS
+        BlockType(graph=None, id=1, name='BLK_BB-VPR_PAD', size=Size(x=2, y=3), pin_classes=[...], pin_index={...})
+        >>> 
+
+        """
+        block_type_id = int(block_type_node.attrib['id'])
+        block_type_name = block_type_node.attrib['name'].strip()
+        block_type_width = int(block_type_node.attrib['width'])
+        block_type_height = int(block_type_node.attrib['height'])
+
+        bt = cls(graph, block_type_id, block_type_name, Size(block_type_width, block_type_height))
+        for pin_class_node in block_type_node.iterfind("./pin_class"):
+            bt._add_pin_class(PinClass.from_xml(bt, pin_class_node))
+        return bt
+
+    def _could_add_pin(self, pin):
+        if pin.block_type_index in self._pin_index:
+            assert_is(pin, self._pin_index[pin.block_type_index])
+
+    def _add_pin(self, pin):
+        assert_type(pin, Pin)
+        self._could_add_pin(pin)
+        self._pin_index[pin.block_type_index] = pin
+
+    def _add_pin_class(self, pin_class):
+        assert_type(pin_class, PinClass)
+        assert self is pin_class.block_type
+
+        for p in pin_class.pins.values():
+            self._could_add_pin(p)
+
+        for p in pin_class.pins.values():
+            self._add_pin(p)
+
+        self._pin_classes.append(pin_class)
+
+
+class Block(MostlyReadOnly):
+
+    __slots__ = ["_graph", "_block_type", "_position", "_offset"]
+
+    def __init__(self, graph=None, block_type_id=None, block_type=None, position=None, offset=Offset(0,0)):
+        assert_type_or_none(graph, BlockGraph)
+        assert_type_or_none(block_type_id, int)
+        assert_type_or_none(block_type, BlockType)
+        assert_type_or_none(position, Position)
+        assert_type_or_none(offset, Offset)
+
+        if block_type_id is not None:
+            if graph is not None:
+                assert block_type is None
+                assert graph.block_types is not None
+                block_type = graph.block_types[block_type_id]
+            else:
+                raise TypeError("Must provide graph with numeric block_type")
+
+        self._graph = graph
+        self._block_type = block_type
+        self._position = position
+        self._offset = offset
+
+        if graph is not None:
+            graph.add_block(self)
+
+    @classmethod
+    def from_xml(cls, graph, grid_loc_node):
+        """
+        >>> g = BlockGraph()
+        >>> g.add_block_type(BlockType(id=0, name="bt"))
+        >>> xml_string = '''
+	... <grid_loc x="0" y="0" block_type_id="0" width_offset="0" height_offset="0"/>
+        ... '''
+        >>> bl = Block.from_xml(g, ET.fromstring(xml_string))
+        """
+        block_type_id = int(grid_loc_node.attrib["block_type_id"])
+        pos = Position(int(grid_loc_node.attrib["x"]), int(grid_loc_node.attrib["y"]))
+        offset = Offset(
+            int(grid_loc_node.attrib["width_offset"]),
+            int(grid_loc_node.attrib["height_offset"]))
+        return Block(graph=graph, block_type_id=block_type_id, position=pos, offset=offset)
+
+
+class BlockGraph:
+
+    def __init__(self):
+        self.block_grid = {}
+        self.block_types = {}
+
+    def add_block_type(self, block_type):
+        assert_type_or_none(block_type, BlockType)
+        bid = block_type.id
+        assert (
+            bid not in self.block_types or
+            self.block_types[bid] is None or
+            self.block_types[bid] is block_type)
+        self.block_types[bid] = block_type
+
+    def block_type_num(self):
+        return len(self.block_types)
+
+    def add_block(self, block):
+        assert_type_or_none(block, Block)
+        pos = block.position
+        assert (
+            pos not in self.block_grid or
+            self.block_grid[pos] is None or
+            self.block_grid[pos] is block)
+        self.block_grid[pos] = block
+
+    def block_grid_size(cls):
+        x_max = max(p.x for p in cls.block_grid)
+        y_max = max(p.y for p in cls.block_grid)
         return Size(x_max+1, y_max+1)
 
-    def __new__(cls, block_pos, block_offset, block_type=None):
-        assert_type(block_pos, Position)
-        assert_type(block_offset, Offset)
 
-        # Singleton cache
-        obj = cls._singleton__new__(
-            _Block.__new__,
-            args=(block_pos, block_offset),
-            mutable={
-                "block_type": block_type,
-            },
-        )
-        obj._id = None
-        obj._set_id(block_pos)
-        return obj
+class RRNode:
+    class Type(enum.Enum):
+        input_class     = "SINK"
+        output_class    = "SOURCE"
+        input_pin       = "IPIN"
+        output_pin      = "OPIN"
+        channel_x       = "CHANX"
+        channel_y       = "CHANY"
+
+    """
+        <node id="0" type="SINK" capacity="1">
+                <loc xlow="1" ylow="1" xhigh="1" yhigh="1" ptc="0"/>
+                <timing R="0" C="0"/>
+        </node>
+    """
+
+    def __init__(self, low, high, ptc, capacity=1, timing=None):
+        if high is None:
+            high = low
+
+        assert_type(low, Position)
+        assert_type(high, Position)
+        assert_type(ptc, int)
+        assert_type(capacity, int)
+
+        self.low = low
+        self.high = high
+        self.ptc = ptc
+        self.capacity = capacity
+        self.timing = timing
+
+
+class RRNodeSS(RRNode):
+    """Created from `class PinClass` and `class Block`"""
+    def __init__(self, block, pin_class, timing=None):
+        assert_type(block, Block)
+        assert_type(pin_class, PinClass)
+        assert_type(pin_class.block_type, BlockType)
+
+        low = block.position
+        high = block.position + pin_class.block_type.size
+
+        RRNode.__init__(self, low, high, 0, timing=timing)
+        self.pin_class = pin_class
+
+
+class RRNodePin(RRNode):
+    """Created from `class Pin` and `class Block`"""
+
+    def __init__(self, block, pin, timing=None):
+        assert_type(block, Block)
+        assert_type(pin, Pin)
+        assert_type(pin.pin_class, PinClass)
+        assert_type(pin.pin_class.block_type, BlockType)
+
+        low = pin_class.block_type.position
+        high = low
+
+
+class RROutputClass(RRNodeSS):
+    """Created from `class Pin(direction=OUTPUT)` and `class Block`"""
+    TYPE=RRNode.Type.output_class
+
+
+class RRInputClass(RRNodeSS):
+    """Created from `class Pin(direction=INPUT|CLOCK)` and `class Block`"""
+    TYPE=RRNode.Type.input_class
+
+
+class RROutputPin(RRNodeSS):
+    """Created from `class PinClass(direction=OUTPUT)` and `class Block`"""
+    TYPE=RRNode.Type.output_pin
+
+
+class RRInputClass(RRNodeSS):
+    """Created from `class PinClass(direction=INPUT|CLOCK)` and `class Block`"""
+    TYPE=RRNode.Type.input_pin
 
 
 class NodesIdsMap:
@@ -497,8 +631,21 @@ class NodesIdsMap:
             assert obj in list(parent_xml)
 
         self.id2node[node_type][node_id] = obj
-        self.globalname2id[globalname] = node_id
+        self.globalname3id[globalname] = node_id
         parent_xml.append(obj)
+
+
+class BlockTypeEdge(enum.Enum):
+    TOP = "TOP"
+    LEFT = "LEFT"
+    RIGHT = "RIGHT"
+    BOTTOM = "BOTTOM"
+    BOT = BOTTOM
+
+    NORTH = TOP
+    EAST = RIGHT
+    SOUTH = BOTTOM
+    WEST = LEFT
 
 
 class Graph:
@@ -530,7 +677,7 @@ class Graph:
             block_id = int(block_type.attrib['id'])
             block_name = block_type.attrib['name'].strip()
 
-            bt = BlockType(block_name, block_id)
+            bt = BlockType(name=block_name, id=block_id)
             continue
             for pin in block_type.iterfind("./pin_class/pin"):
                 pin_index = int(pin.attrib["index"])
@@ -794,3 +941,94 @@ if __name__ == "__main__":
         pprint.pprint(BlockType.get_id_map())
         pprint.pprint(Block.get_id_map())
         print(Block.grid_size())
+
+
+_Port = namedtuple("Port", ("block_type", "name"))
+class Port(_Port):
+    _mutable = (
+        ("direction", PinClassDirection),
+        ("width", int),
+        ("edge", BlockTypeEdge),
+    )
+
+    def __new__(cls, block_type, port_name, port_dir=None, port_width=None, port_edge=None):
+        assert "[" not in port_name, port_name
+        assert "]" not in port_name, port_name
+        assert "." not in port_name, port_name
+
+        assert_type(block_type, BlockType)
+
+        obj = cls._singleton__new__(
+            cls,
+            args=(block_type, port_name),
+            mutable={
+                "direction": port_dir,
+                "width": port_width,
+                "edge": port_edge,
+            },
+        )
+        obj.create_pins()
+        return obj
+
+    def _create_pin(self, num):
+        pin = Pin(self, num)
+        self.pins.add(pin)
+        return pin
+
+    def create_pins(self, port_width=None):
+        if obj.width is not None:
+            assert_eq(obj.width, port_width)
+
+        if self.width is None:
+            self.width = port_width
+
+        assert self.width is not None
+
+        for num in range(0, port_width):
+            self._create_pin(num)
+        assert_eq(len(self.pins), self.width)
+
+        return pin
+
+    @classmethod
+    def parse(cls, s, block_type=None):
+        r = parse_net(s)
+        assert_eq(len(r), 3)
+        block_type_name, port_name, pins = r
+
+        if block_type_name is not None:
+            block_type_from_name = BlockType(name=block_type_name)
+            if block_type is not None:
+                assert_eq(block_type, block_type_from_name)
+
+        if port_name is None:
+            raise TypeError("Did not get a port name! {!r} ({})".format(s, r))
+
+        port = cls(block_type, port_name)
+
+        if pins is None:
+            return port
+
+        pin_objs = []
+        for num in pins:
+            pin_objs.append(port._create_pin(num))
+
+        return pin_objs
+
+    def __str__(self):
+        return "{!s}.{!s}[{!d}:0]".format(self.block, self.name, self.width)
+
+
+_BlockEdges = namedtuple("BlockEdges", ("block", "top", "right", "bottom", "left"))
+class BlockEdges:
+    def __new__(cls, block):
+        if block.edges is not None:
+            return block.edges
+
+        edges = _BlockEdges.__new__(cls, block, {}, {}, {}, {})
+        block.edges = edges
+        return edges
+
+    def __getitem__(self, key):
+        if isinstance(key, BlockTypeEdge):
+            return self.__getitem__[key.value()]
