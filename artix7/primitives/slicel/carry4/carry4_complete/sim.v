@@ -1,6 +1,17 @@
+(* blackbox *)
+(* MODEL_NAME="CARRY4" *)
+(* ALTERNATIVE_TO="CARRY4" *)
 module CARRY4_COMPLETE(CO, O, CIN, DI, S);
+	(* DELAY_CONST_CIN = "10e-12" *)
+	(* DELAY_CONST_DI = "10e-12" *)
+	(* DELAY_CONST_S = "10e-12" *)
 	output [3:0] CO;
+
+	(* DELAY_CONST_CIN = "10e-12" *)
+	(* DELAY_CONST_DI = "10e-12" *)
+	(* DELAY_CONST_S = "10e-12" *)
 	output [3:0] O;
+
 	input wire CIN;
 	input [3:0] DI;
 	input [3:0] S;

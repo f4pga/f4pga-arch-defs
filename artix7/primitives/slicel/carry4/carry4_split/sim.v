@@ -9,6 +9,7 @@
 `include "carry4_wxor/sim.CARRY4_CXOR.v"
 `include "carry4_wxor/sim.CARRY4_DXOR.v"
 
+(* ALTERNATIVE_TO="CARRY4" *)
 module CARRY4_SPLIT(CO, O, CIN, DI, S);
 
 	output wire [3:0] CO;

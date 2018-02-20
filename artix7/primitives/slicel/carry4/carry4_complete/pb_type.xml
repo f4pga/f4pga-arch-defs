@@ -1,18 +1,13 @@
-    <pb_type name="BEL_BB-CARRY4" num_pb="1" blif_model=".subckt CARRY4">
-     <input name="S"  num_pins="4"/>
-     <input name="DI" num_pins="4"/>
-
-     <output name="CO" num_pins="4"/>
-     <output name="O"  num_pins="4"/>
-
-     <input name="CIN"    num_pins="1"/>
-
-     <!-- CO output -->
-     <delay_constant max="10e-12" in_port="BEL_BB-CARRY4.S"   out_port="BEL_BB-CARRY4.CO"/>
-     <delay_constant max="10e-12" in_port="BEL_BB-CARRY4.DI"  out_port="BEL_BB-CARRY4.CO"/>
-     <delay_constant max="10e-12" in_port="BEL_BB-CARRY4.CIN" out_port="BEL_BB-CARRY4.CO"/>
-     <!-- O output -->
-     <delay_constant max="10e-12" in_port="BEL_BB-CARRY4.S"   out_port="BEL_BB-CARRY4.O"/>
-     <delay_constant max="10e-12" in_port="BEL_BB-CARRY4.DI"  out_port="BEL_BB-CARRY4.O"/>
-     <delay_constant max="10e-12" in_port="BEL_BB-CARRY4.CIN" out_port="BEL_BB-CARRY4.O"/>
-    </pb_type>
+<pb_type xmlns:xi="http://www.w3.org/2001/XInclude" blif_model=".subckt CARRY4" name="BEL_BB-CARRY4_COMPLETE" num_pb="1">
+  <output equivalent="false" name="CO" num_pins="4"/>
+  <output equivalent="false" name="O" num_pins="4"/>
+  <input equivalent="false" name="CIN" num_pins="1"/>
+  <input equivalent="false" name="DI" num_pins="4"/>
+  <input equivalent="false" name="S" num_pins="4"/>
+  <delay_constant in_port="BEL_BB-CARRY4_COMPLETE.CIN" max="10e-12" out_port="BEL_BB-CARRY4_COMPLETE.CO"/>
+  <delay_constant in_port="BEL_BB-CARRY4_COMPLETE.DI" max="10e-12" out_port="BEL_BB-CARRY4_COMPLETE.CO"/>
+  <delay_constant in_port="BEL_BB-CARRY4_COMPLETE.S" max="10e-12" out_port="BEL_BB-CARRY4_COMPLETE.CO"/>
+  <delay_constant in_port="BEL_BB-CARRY4_COMPLETE.CIN" max="10e-12" out_port="BEL_BB-CARRY4_COMPLETE.O"/>
+  <delay_constant in_port="BEL_BB-CARRY4_COMPLETE.DI" max="10e-12" out_port="BEL_BB-CARRY4_COMPLETE.O"/>
+  <delay_constant in_port="BEL_BB-CARRY4_COMPLETE.S" max="10e-12" out_port="BEL_BB-CARRY4_COMPLETE.O"/>
+</pb_type>
