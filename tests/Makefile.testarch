@@ -1,5 +1,6 @@
 # Defaults for the iCE40 architecture.
 
-ARCH_DIR = ../testarch/arch/
+SUBARCH ?= ff1
+ARCH_DIR = ../testarch/arch/$(SUBARCH)/
 DEVICE ?= 2x4
 YOSYS_SCRIPT ?= synth;
