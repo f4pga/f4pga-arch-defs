@@ -1,6 +1,6 @@
 SELF_DIR := $(dir $(lastword $(MAKEFILE_LIST)))
 
-WPY = $(shell realpath $(SELF_DIR)/../../utils/w.py)
+WPY = $(realpath $(SELF_DIR)/../../utils/w.py)
 
 NAMES := $(foreach W,A B C D,$(NAME_PREFIX)$(W)$(NAME_SUFFIX))
 

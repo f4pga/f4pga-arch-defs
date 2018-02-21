@@ -8,14 +8,14 @@ NPM      ?= npm
 
 SELF_DIR := $(dir $(lastword $(MAKEFILE_LIST)))
 
-NETLISTSVG = $(shell realpath $(SELF_DIR)/../../third_party/netlistsvg)
-NETLISTSVG_STAMP = $(shell realpath $(SELF_DIR)/../../third_party/.netlistsvg.stamp)
+NETLISTSVG = $(realpath $(SELF_DIR)/../../third_party/netlistsvg)
+NETLISTSVG_STAMP = $(realpath $(SELF_DIR)/../../third_party/.netlistsvg.stamp)
 NETLISTSVG_SKIN ?= $(NETLISTSVG)/lib/default.svg
 NETLISTSVG_DPI  ?= 300
 
 YOSYSSVG_DPI  ?= 300
 
-NAME := $(shell echo $(notdir $(shell realpath .)) | tr a-z A-Z)
+NAME := $(shell echo $(notdir $(realpath .)) | tr a-z A-Z)
 
 $(NETLISTSVG_SKIN): $(NETLISTSVG_STAMP)
 	@true
