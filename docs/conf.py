@@ -52,7 +52,7 @@ extensions = [
     'sphinx.ext.todo',
     'sphinx.ext.viewcode',
     'breathe',
-#    'exhale',
+    'exhale',
     # Sphinx Contrib Packages
     #'sphinxcontrib.ansi',               # .. ansi-block::
     #'sphinxcontrib.argdoc',             # Automatic docs from argparse (maybe 'sphinxcontrib.autoprogram' instead?)
@@ -215,11 +215,37 @@ texinfo_documents = [
 ]
 
 
-breathe_projects = { "verilog": "_doxyxml" }
+breathe_projects = { "verilog": "_doxygen/xml" }
 breathe_default_project = "verilog"
+breathe_domain_by_extension = {
+    "v" : "verilog",
+    "sv" : "verilog",
+}
+breathe_implementation_filename_extensions = [ '.v', '.sv' ]
+
+# MonkeyPatch minidom.parse to deal with broken XML "Doxygen for Verilog"
+# occasionally produced.
+import logging
+from lxml import etree as ET
+from lxml import html
+from xml.dom import minidom
+from xml.parsers import expat
+_minidom_parse = minidom.parse
+def minidom_parse_with_fixup(inFilename, *args, **kw):
+    try:
+        return _minidom_parse(inFilename, *args, **kw)
+    except expat.ExpatError as e:
+        logging.warn("Fixing up XML in {}".format(inFilename), exc_info=e)
+        fixxml = ET.parse(inFilename, ET.XMLParser(recover=True))
+        fixstr = ET.tostring(fixxml, method="xml")
+        return minidom.parseString(fixstr, *args, **kw)
+minidom.parse = minidom_parse_with_fixup
 
 # Setup the exhale extension
+import textwrap
 exhale_args = {
+    'verboseBuild': True,
+
     # These arguments are required
     "containmentFolder":     "./verilog",
     "rootFileName":          "verilog_root.rst",
@@ -229,8 +255,9 @@ exhale_args = {
     "createTreeView":        True,
     # TIP: if using the sphinx-bootstrap-theme, you need
     # "treeViewIsBootstrap": True,
-    "exhaleExecutesDoxygen": False,
-    "exhaleDoxygenStdin":    "INPUT = ../include"
+    "exhaleExecutesDoxygen": True,
+    "exhaleUseDoxyfile":     True,
+    "exhaleOutputLanguage":  "verilog",
 }
 
 

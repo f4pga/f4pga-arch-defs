@@ -10,9 +10,10 @@ Welcome to SymbiFlow Architecture Definitions documentation!
    :maxdepth: 2
    :caption: Contents:
 
+   verilog/verilog_root
    tools/utils
    tools/utils.lib
-   tools/utils/modules
+   tools/modules
 
 
 Indices and tables

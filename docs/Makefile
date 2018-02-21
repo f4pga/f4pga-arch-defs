@@ -40,9 +40,13 @@ distclean:
 	mkdir -p _build
 	mkdir -p $(VENV_ROOT)
 
+clean:
+	rm -rf _doxygen verilog
+	@$(ACTIVATE); $(SPHINXRUN) -M clean "$(SOURCEDIR)" "$(BUILDDIR)" $(SPHINXOPTS) $(O)
+
 SPHINXRUN = $(ACTIVATE); $(VENV_ROOT)/bin/python3 $(VENV_ROOT)/bin/sphinx-build
 
-.PHONY: distclean
+.PHONY: distclean clean
 
 # Generate targets for all the other sphinx commands.
 #-------------------------------------------
@@ -50,6 +54,7 @@ SPHINXCMD = $(SPHINXRUN) -M $@ "$(SOURCEDIR)" "$(BUILDDIR)" $(SPHINXOPTS) $(O)
 SPHINXSUBCMD = $(SPHINXRUN) -M $$@ "$(SOURCEDIR)" "$(BUILDDIR)" $(SPHINXOPTS) $(O)
 
 .Makefile.d: $(SPHINXBUILD) Makefile
+	mkdir -p _doxygen
 	$(SPHINXRUN) -M help "$(SOURCEDIR)" "$(BUILDDIR)" $(SPHINXOPTS) $(O) \
 		| grep "^ " \
 		| sed -e's/^ \+//' -e's|^\([^ ]*\) \+.*$$|\1: $(SPHINXBUILD)\n\t$(SPHINXSUBCMD)\n\n.PHONY: \1\n\n|' \
