@@ -103,17 +103,26 @@ call_args = list(sys.argv)
 args = parser.parse_args()
 args.width_bits = mux_lib.clog2(args.width)
 
-mypath = __file__
-mydir = os.path.dirname(mypath)
+def normpath(p, to=None):
+    p = os.path.realpath(os.path.abspath(p))
+    if to is None:
+        return p
+    return os.path.relpath(p, normpath(to))
+
+mypath = normpath(__file__)
 
 if not args.outdir:
     outdir = os.path.join(".", args.name_mux.lower())
 else:
     outdir = args.outdir
 
-mux_dir = os.path.relpath(os.path.abspath(os.path.join(mydir, '..', 'vpr', 'muxes')), outdir)
-buf_dir = os.path.relpath(os.path.abspath(os.path.join(mydir, '..', 'vpr', 'buf')), outdir)
-mux_mk = os.path.relpath(os.path.abspath(os.path.join(mydir, '..', 'common', 'make', 'mux.mk')), outdir)
+outdir = normpath(outdir)
+
+mydir = normpath(os.path.dirname(mypath), to=outdir)
+mypath = normpath(mypath, to=outdir)
+mux_dir = normpath(os.path.join(mydir, '..', 'vpr', 'muxes'), to=outdir)
+buf_dir = normpath(os.path.join(mydir, '..', 'vpr', 'buf'), to=outdir)
+mux_mk = normpath(os.path.join(mydir, '..', 'common', 'make', 'mux.mk'), to=outdir)
 
 if args.name_inputs:
     assert_eq(args.name_input, parser.get_default("name_input"))
@@ -145,20 +154,14 @@ os.makedirs(outdir, exist_ok=True)
 
 # Generated headers
 generated_with = """
-Generated with mux_gen.py, run 'make' in the following to regenerate in this directory;
-%s
-""".format(outdir)
-if args.comment:
-    generated_with += args.comment
-
-# XML Files can't have "--" in them, so instead we use ~~
-xml_comment = """
 Generated with %s
+Run 'make -f Makefile.mux' in this directory to regenerate.
 """ % mypath
 if args.comment:
-    xml_comment += "\n"
-    xml_comment += args.comment.replace("--", "~~")
-    xml_comment += "\n"
+    generated_with = "\n".join([args.comment, generated_with])
+
+# XML Files can't have "--" in them, so instead we use ~~
+xml_comment = generated_with.replace("--", "~~")
 
 # ------------------------------------------------------------------------
 # Create a makefile to regenerate files.
@@ -341,9 +344,13 @@ elif args.type == 'routing':
 # ------------------------------------------------------------------------
 # Generate the Model XML form.
 # ------------------------------------------------------------------------
+def xml_comment_indent(n, s):
+    return ET.Comment(("\n"+" "*n).join(s.splitlines()+[""]))
+
+
 if args.type == 'logic':
     models_xml = ET.Element('models')
-    models_xml.append(ET.Comment(xml_comment))
+    models_xml.append(xml_comment_indent(4, xml_comment))
 
     model_xml = ET.SubElement(models_xml, 'model', {'name': subckt})
 
@@ -376,7 +383,8 @@ pb_type_xml = mux_lib.pb_type_xml(
     port_names,
     subckt=subckt,
     num_pb=args.num_pb,
-    comment=xml_comment)
+    comment=xml_comment_indent(4, xml_comment),
+)
 
 pb_type_str = ET.tostring(pb_type_xml, pretty_print=True).decode('utf-8')
 output_block("pb_type.xml", pb_type_str)
