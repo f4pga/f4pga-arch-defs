@@ -52,13 +52,13 @@ extensions = [
     'sphinx.ext.todo',
     'sphinx.ext.viewcode',
     'breathe',
-    'exhale',
+#    'exhale',
     # Sphinx Contrib Packages
-    'sphinxcontrib.ansi',               # .. ansi-block::
-    'sphinxcontrib.argdoc',             # Automatic docs from argparse (maybe 'sphinxcontrib.autoprogram' instead?)
-    'sphinxcontrib.cheader',            # .. c:header:: <libfoobar.h>
-    'sphinxcontrib.cheeseshop',         # :pypi:`Sphinx`
-    'sphinxcontrib.cmakedomain',
+    #'sphinxcontrib.ansi',               # .. ansi-block::
+    #'sphinxcontrib.argdoc',             # Automatic docs from argparse (maybe 'sphinxcontrib.autoprogram' instead?)
+    #'sphinxcontrib.cheader',            # .. c:header:: <libfoobar.h> - No module named 'sphinx.util.compat'
+    #'sphinxcontrib.cheeseshop',         # :pypi:`Sphinx`
+    #'sphinxcontrib.cmakedomain',
     'sphinxcontrib.documentedlist',     # .. documentedlist::
     'sphinxcontrib.examplecode',
     'sphinxcontrib.makedomain',         # https://bitbucket.org/klorenz/sphinxcontrib-makedomain
@@ -215,13 +215,30 @@ texinfo_documents = [
 ]
 
 
+breathe_projects = { "verilog": "_doxyxml" }
+breathe_default_project = "verilog"
+
+# Setup the exhale extension
+exhale_args = {
+    # These arguments are required
+    "containmentFolder":     "./verilog",
+    "rootFileName":          "verilog_root.rst",
+    "rootFileTitle":         "Verilog",
+    "doxygenStripFromPath":  "..",
+    # Suggested optional arguments
+    "createTreeView":        True,
+    # TIP: if using the sphinx-bootstrap-theme, you need
+    # "treeViewIsBootstrap": True,
+    "exhaleExecutesDoxygen": False,
+    "exhaleDoxygenStdin":    "INPUT = ../include"
+}
 
 
 # Example configuration for intersphinx: refer to the Python standard library.
 intersphinx_mapping = {
-    'python' : ('https://docs.python.org/', (None, 'python-inv.txt')),
-    'vtr'    : ('http://docs.verilogtorouting.org/', (None, 'vtr-inv.txt')),
-    'prjxray' : ('http://prjxray.rtfd.io/', (None, 'vtr-inv.txt')),
+    'python' : ('https://docs.python.org/3/', (None, '_build/intersphinx/python.inv')),
+    'vtr'    : ('https://docs.verilogtorouting.org/en/latest/', (None, '_build/intersphinx/vtr.inv')),
+    'prjxray' : ('https://prjxray.readthedocs.io/en/latest/', (None, '_build/intersphinx/prjxray.inv')),
 }
 
 
@@ -234,3 +251,7 @@ def linkcode_resolve(domain, info):
         return None
     filename = info['module'].replace('.', '/')
     return "http://somesite/sourcerepo/%s.py" % filename
+
+import sys
+sys.path.append("..")
+sys.path.append("../utils")
