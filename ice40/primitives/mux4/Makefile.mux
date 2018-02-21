@@ -1,26 +1,4 @@
-
-# Generated with mux_gen.py, run the following to regenerate in this directory;
-# ../../../utils/mux_gen.py --outdir . '--name-mux' 'MUX4' '--width' '4'
-# 
-
-all: model.xml pb_type.xml .gitignore Makefile.mux sim.v
-
-clean:
-	rm -f .mux_gen.stamp model.xml pb_type.xml sim.v
-
-.mux_gen.stamp: ../../../utils/mux_gen.py Makefile.mux
-	../../../utils/mux_gen.py --outdir . '--name-mux' 'MUX4' '--width' '4'
-	touch --reference $< $@
-
-.PHONY: all clean
-
-model.xml: .mux_gen.stamp
-
-pb_type.xml: .mux_gen.stamp
-
-.gitignore: .mux_gen.stamp
-
-Makefile.mux: .mux_gen.stamp
-
-sim.v: .mux_gen.stamp
-
+MUX_TYPE = logic
+MUX_NAME = MUX4
+MUX_WIDTH = 4
+include ../../../common/make/mux.mk
