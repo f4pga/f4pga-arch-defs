@@ -1,6 +1,6 @@
 /* 
- * Generated with mux_gen.py, run the following to regenerate in this directory;
- * ../../../../../../utils/mux_gen.py --outdir . '--name-mux' 'CARRY4_{W}MUX' '--width' '2' '--split-inputs' '--subckt' 'MUXCY' '--name-inputs' 'CI,DI'
+ * Generated with mux_gen.py, run 'make' in the following to regenerate in this directory;
+ * %s
  */
 
 `include "../../../../../../vpr/muxes/logic/mux2/sim.v"
