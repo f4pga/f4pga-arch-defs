@@ -3,5 +3,5 @@
   <output equivalent="false" name="Q" num_pins="1" port_class="Q"/>
   <clock equivalent="false" name="clk" num_pins="1" port_class="clock"/>
   <T_setup clock="clk" port="BEL_FF-VPR_FF.D" value="0.301e-9"/>
-  <T_clock_to_Q clock="clk" max="0.301e-9" port="BEL_FF-VPR_FF.D"/>
+  <T_clock_to_Q clock="clk" max="0.301e-9" port="BEL_FF-VPR_FF.Q"/>
 </pb_type>
