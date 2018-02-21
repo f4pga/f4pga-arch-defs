@@ -1,4 +1,3 @@
 TOP_MODULE=CARRY4_COMPLETE
-GEN_MODEL=y
 
 include ../../../../../common/make/xml.mk
