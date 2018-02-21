@@ -1,0 +1,147 @@
+<pb_type name="BLK_MB-CLBLL_L-INT_L" num_pb="1" width="2" xmlns:xi="http://www.w3.org/2001/XInclude">
+  <!-- Tile Interconnects -->
+  <fc default_in_type="frac" default_in_val="0.5" default_out_type="frac" default_out_val="0.5">
+    <fc_override fc_type="abs" fc_val="0" port_name="CIN_N"/>
+    <fc_override fc_type="abs" fc_val="0" port_name="COUT_N"/>
+  </fc>
+  <output name="EE2BEG" num_pins="4"/>
+  <output name="EE4BEG" num_pins="4"/>
+  <output name="EL1BEG" num_pins="4"/>
+  <output name="ER1BEG" num_pins="4"/>
+  <output name="NE2BEG" num_pins="4"/>
+  <output name="NE6BEG" num_pins="4"/>
+  <output name="NL1BEG" num_pins="4"/>
+  <output name="NN2BEG" num_pins="4"/>
+  <output name="NN6BEG" num_pins="4"/>
+  <output name="NR1BEG" num_pins="4"/>
+  <output name="NW2BEG" num_pins="4"/>
+  <output name="NW6BEG" num_pins="4"/>
+  <output name="SE2BEG" num_pins="4"/>
+  <output name="SE6BEG" num_pins="4"/>
+  <output name="SL1BEG" num_pins="4"/>
+  <output name="SR1BEG" num_pins="4"/>
+  <output name="SS2BEG" num_pins="4"/>
+  <output name="SS6BEG" num_pins="4"/>
+  <output name="SW2BEG" num_pins="4"/>
+  <output name="SW6BEG" num_pins="4"/>
+  <output name="WL1BEG" num_pins="4"/>
+  <output name="WR1BEG" num_pins="4"/>
+  <output name="WW2BEG" num_pins="4"/>
+  <output name="WW4BEG" num_pins="4"/>
+  <input name="EE2END" num_pins="4"/>
+  <input name="EE4END" num_pins="4"/>
+  <input name="EL1END" num_pins="4"/>
+  <input name="ER1END" num_pins="4"/>
+  <input name="NE2END" num_pins="4"/>
+  <input name="NE6END" num_pins="4"/>
+  <input name="NL1END" num_pins="4"/>
+  <input name="NN2END" num_pins="4"/>
+  <input name="NN6END" num_pins="4"/>
+  <input name="NR1END" num_pins="4"/>
+  <input name="NW2END" num_pins="4"/>
+  <input name="NW6END" num_pins="4"/>
+  <input name="SE2END" num_pins="4"/>
+  <input name="SE6END" num_pins="4"/>
+  <input name="SL1END" num_pins="4"/>
+  <input name="SR1END" num_pins="4"/>
+  <input name="SS2END" num_pins="4"/>
+  <input name="SS6END" num_pins="4"/>
+  <input name="SW2END" num_pins="4"/>
+  <input name="SW6END" num_pins="4"/>
+  <input name="WL1END" num_pins="4"/>
+  <input name="WR1END" num_pins="4"/>
+  <input name="WW2END" num_pins="4"/>
+  <input name="WW4END" num_pins="4"/>
+
+  <clock name="GCLK_B" num_pins="12"/>
+  <!-- <clock name="GFAN" num_pins="2"/> -->
+
+  <!-- FIXME remove -->
+  <clock name="CLK" num_pins="2"/>
+
+  <input name="CIN_N" num_pins="2"/>
+  <output name="COUT_N" num_pins="2"/>
+
+  <xi:include href="../../tiles/clbll_l/pb_type.xml"/>
+  <xi:include href="../../tiles/int_l/pb_type.xml"/>
+
+  <pinlocations pattern="custom">
+    <loc side="top" xoffset="0" yoffset="0">BLK_MB-CLBLL_L-INT_L.COUT_N BLK_MB-CLBLL_L-INT_L.COUT_N</loc>
+    <loc side="top" xoffset="1" yoffset="0">BLK_MB-CLBLL_L-INT_L.EE2BEG BLK_MB-CLBLL_L-INT_L.EE4BEG BLK_MB-CLBLL_L-INT_L.EL1BEG BLK_MB-CLBLL_L-INT_L.ER1BEG BLK_MB-CLBLL_L-INT_L.NE2BEG BLK_MB-CLBLL_L-INT_L.NE6BEG BLK_MB-CLBLL_L-INT_L.NL1BEG BLK_MB-CLBLL_L-INT_L.NN2BEG BLK_MB-CLBLL_L-INT_L.NN6BEG BLK_MB-CLBLL_L-INT_L.NR1BEG BLK_MB-CLBLL_L-INT_L.NW2BEG BLK_MB-CLBLL_L-INT_L.NW6BEG BLK_MB-CLBLL_L-INT_L.SE2BEG BLK_MB-CLBLL_L-INT_L.SE6BEG BLK_MB-CLBLL_L-INT_L.SL1BEG BLK_MB-CLBLL_L-INT_L.SR1BEG BLK_MB-CLBLL_L-INT_L.SS2BEG BLK_MB-CLBLL_L-INT_L.SS6BEG BLK_MB-CLBLL_L-INT_L.SW2BEG BLK_MB-CLBLL_L-INT_L.SW6BEG BLK_MB-CLBLL_L-INT_L.WL1BEG BLK_MB-CLBLL_L-INT_L.WR1BEG BLK_MB-CLBLL_L-INT_L.WW2BEG BLK_MB-CLBLL_L-INT_L.WW4BEG BLK_MB-CLBLL_L-INT_L.EE2END BLK_MB-CLBLL_L-INT_L.EE4END BLK_MB-CLBLL_L-INT_L.EL1END BLK_MB-CLBLL_L-INT_L.ER1END BLK_MB-CLBLL_L-INT_L.NE2END BLK_MB-CLBLL_L-INT_L.NE6END BLK_MB-CLBLL_L-INT_L.NL1END BLK_MB-CLBLL_L-INT_L.NN2END BLK_MB-CLBLL_L-INT_L.NN6END BLK_MB-CLBLL_L-INT_L.NR1END BLK_MB-CLBLL_L-INT_L.NW2END BLK_MB-CLBLL_L-INT_L.NW6END BLK_MB-CLBLL_L-INT_L.SE2END BLK_MB-CLBLL_L-INT_L.SE6END BLK_MB-CLBLL_L-INT_L.SL1END BLK_MB-CLBLL_L-INT_L.SR1END BLK_MB-CLBLL_L-INT_L.SS2END BLK_MB-CLBLL_L-INT_L.SS6END BLK_MB-CLBLL_L-INT_L.SW2END BLK_MB-CLBLL_L-INT_L.SW6END BLK_MB-CLBLL_L-INT_L.WL1END BLK_MB-CLBLL_L-INT_L.WR1END BLK_MB-CLBLL_L-INT_L.WW2END BLK_MB-CLBLL_L-INT_L.WW4END BLK_MB-CLBLL_L-INT_L.GCLK_B</loc>
+    <loc side="bottom" xoffset="0" yoffset="0">BLK_MB-CLBLL_L-INT_L.CIN_N BLK_MB-CLBLL_L-INT_L.CIN_N</loc>
+    <!-- FIXME remove -->
+    <loc side="left"  xoffset="0" yoffset="0">BLK_MB-CLBLL_L-INT_L.CLK</loc>
+  </pinlocations>
+
+  <interconnect>
+   <direct name="GCLK_B" input="BLK_MB-CLBLL_L-INT_L.GCLK_B" output="BLK_BB-INT_L.GCLK_B" />
+   <!-- <direct name="GFAN"   input="BLK_MB-CLBLL_L-INT_L.GFAN"   output="BLK_BB-INT_L.GFAN"   /> -->
+
+   <direct name="EE2END" input="BLK_MB-CLBLL_L-INT_L.EE2END" output="BLK_BB-INT_L.EE2END" />
+   <direct name="EE4END" input="BLK_MB-CLBLL_L-INT_L.EE4END" output="BLK_BB-INT_L.EE4END" />
+   <direct name="EL1END" input="BLK_MB-CLBLL_L-INT_L.EL1END" output="BLK_BB-INT_L.EL1END" />
+   <direct name="ER1END" input="BLK_MB-CLBLL_L-INT_L.ER1END" output="BLK_BB-INT_L.ER1END" />
+   <direct name="NE2END" input="BLK_MB-CLBLL_L-INT_L.NE2END" output="BLK_BB-INT_L.NE2END" />
+   <direct name="NE6END" input="BLK_MB-CLBLL_L-INT_L.NE6END" output="BLK_BB-INT_L.NE6END" />
+   <direct name="NL1END" input="BLK_MB-CLBLL_L-INT_L.NL1END" output="BLK_BB-INT_L.NL1END" />
+   <direct name="NN2END" input="BLK_MB-CLBLL_L-INT_L.NN2END" output="BLK_BB-INT_L.NN2END" />
+   <direct name="NN6END" input="BLK_MB-CLBLL_L-INT_L.NN6END" output="BLK_BB-INT_L.NN6END" />
+   <direct name="NR1END" input="BLK_MB-CLBLL_L-INT_L.NR1END" output="BLK_BB-INT_L.NR1END" />
+   <direct name="NW2END" input="BLK_MB-CLBLL_L-INT_L.NW2END" output="BLK_BB-INT_L.NW2END" />
+   <direct name="NW6END" input="BLK_MB-CLBLL_L-INT_L.NW6END" output="BLK_BB-INT_L.NW6END" />
+   <direct name="SE2END" input="BLK_MB-CLBLL_L-INT_L.SE2END" output="BLK_BB-INT_L.SE2END" />
+   <direct name="SE6END" input="BLK_MB-CLBLL_L-INT_L.SE6END" output="BLK_BB-INT_L.SE6END" />
+   <direct name="SL1END" input="BLK_MB-CLBLL_L-INT_L.SL1END" output="BLK_BB-INT_L.SL1END" />
+   <direct name="SR1END" input="BLK_MB-CLBLL_L-INT_L.SR1END" output="BLK_BB-INT_L.SR1END" />
+   <direct name="SS2END" input="BLK_MB-CLBLL_L-INT_L.SS2END" output="BLK_BB-INT_L.SS2END" />
+   <direct name="SS6END" input="BLK_MB-CLBLL_L-INT_L.SS6END" output="BLK_BB-INT_L.SS6END" />
+   <direct name="SW2END" input="BLK_MB-CLBLL_L-INT_L.SW2END" output="BLK_BB-INT_L.SW2END" />
+   <direct name="SW6END" input="BLK_MB-CLBLL_L-INT_L.SW6END" output="BLK_BB-INT_L.SW6END" />
+   <direct name="WL1END" input="BLK_MB-CLBLL_L-INT_L.WL1END" output="BLK_BB-INT_L.WL1END" />
+   <direct name="WR1END" input="BLK_MB-CLBLL_L-INT_L.WR1END" output="BLK_BB-INT_L.WR1END" />
+   <direct name="WW2END" input="BLK_MB-CLBLL_L-INT_L.WW2END" output="BLK_BB-INT_L.WW2END" />
+   <direct name="WW4END" input="BLK_MB-CLBLL_L-INT_L.WW4END" output="BLK_BB-INT_L.WW4END" />
+
+   <direct name="EE2BEG" input="BLK_BB-INT_L.EE2BEG" output="BLK_MB-CLBLL_L-INT_L.EE2BEG" />
+   <direct name="EE4BEG" input="BLK_BB-INT_L.EE4BEG" output="BLK_MB-CLBLL_L-INT_L.EE4BEG" />
+   <direct name="EL1BEG" input="BLK_BB-INT_L.EL1BEG" output="BLK_MB-CLBLL_L-INT_L.EL1BEG" />
+   <direct name="ER1BEG" input="BLK_BB-INT_L.ER1BEG" output="BLK_MB-CLBLL_L-INT_L.ER1BEG" />
+   <direct name="NE2BEG" input="BLK_BB-INT_L.NE2BEG" output="BLK_MB-CLBLL_L-INT_L.NE2BEG" />
+   <direct name="NE6BEG" input="BLK_BB-INT_L.NE6BEG" output="BLK_MB-CLBLL_L-INT_L.NE6BEG" />
+   <direct name="NL1BEG" input="BLK_BB-INT_L.NL1BEG" output="BLK_MB-CLBLL_L-INT_L.NL1BEG" />
+   <direct name="NN2BEG" input="BLK_BB-INT_L.NN2BEG" output="BLK_MB-CLBLL_L-INT_L.NN2BEG" />
+   <direct name="NN6BEG" input="BLK_BB-INT_L.NN6BEG" output="BLK_MB-CLBLL_L-INT_L.NN6BEG" />
+   <direct name="NR1BEG" input="BLK_BB-INT_L.NR1BEG" output="BLK_MB-CLBLL_L-INT_L.NR1BEG" />
+   <direct name="NW2BEG" input="BLK_BB-INT_L.NW2BEG" output="BLK_MB-CLBLL_L-INT_L.NW2BEG" />
+   <direct name="NW6BEG" input="BLK_BB-INT_L.NW6BEG" output="BLK_MB-CLBLL_L-INT_L.NW6BEG" />
+   <direct name="SE2BEG" input="BLK_BB-INT_L.SE2BEG" output="BLK_MB-CLBLL_L-INT_L.SE2BEG" />
+   <direct name="SE6BEG" input="BLK_BB-INT_L.SE6BEG" output="BLK_MB-CLBLL_L-INT_L.SE6BEG" />
+   <direct name="SL1BEG" input="BLK_BB-INT_L.SL1BEG" output="BLK_MB-CLBLL_L-INT_L.SL1BEG" />
+   <direct name="SR1BEG" input="BLK_BB-INT_L.SR1BEG" output="BLK_MB-CLBLL_L-INT_L.SR1BEG" />
+   <direct name="SS2BEG" input="BLK_BB-INT_L.SS2BEG" output="BLK_MB-CLBLL_L-INT_L.SS2BEG" />
+   <direct name="SS6BEG" input="BLK_BB-INT_L.SS6BEG" output="BLK_MB-CLBLL_L-INT_L.SS6BEG" />
+   <direct name="SW2BEG" input="BLK_BB-INT_L.SW2BEG" output="BLK_MB-CLBLL_L-INT_L.SW2BEG" />
+   <direct name="SW6BEG" input="BLK_BB-INT_L.SW6BEG" output="BLK_MB-CLBLL_L-INT_L.SW6BEG" />
+   <direct name="WL1BEG" input="BLK_BB-INT_L.WL1BEG" output="BLK_MB-CLBLL_L-INT_L.WL1BEG" />
+   <direct name="WR1BEG" input="BLK_BB-INT_L.WR1BEG" output="BLK_MB-CLBLL_L-INT_L.WR1BEG" />
+   <direct name="WW2BEG" input="BLK_BB-INT_L.WW2BEG" output="BLK_MB-CLBLL_L-INT_L.WW2BEG" />
+   <direct name="WW4BEG" input="BLK_BB-INT_L.WW4BEG" output="BLK_MB-CLBLL_L-INT_L.WW4BEG" />
+   <!-- Local Interconnects -->
+   <direct name="BYP"    input="BLK_BB-INT_L.BYP"      output="BLK_TI-CLBLL_L.BYP" />
+   <!--
+   <direct name="CLK"    input="BLK_BB-INT_L.CLK"      output="BLK_TI-CLBLL_L.CLK" />
+   -->
+   <direct name="CTRL"   input="BLK_BB-INT_L.CTRL"     output="BLK_TI-CLBLL_L.CTRL"/>
+   <direct name="FAN"    input="BLK_BB-INT_L.FAN"      output="BLK_TI-CLBLL_L.FAN" />
+   <direct name="IMUX"   input="BLK_BB-INT_L.IMUX"     output="BLK_TI-CLBLL_L.IMUX"/>
+   <direct name="LOGIC_OUTS"   input="BLK_TI-CLBLL_L.LOGIC_OUTS" output="BLK_BB-INT_L.LOGIC_OUTS"   />
+   <!-- Carry chain -->
+   <direct name="L_CIN_N"  input="BLK_MB-CLBLL_L-INT_L.CIN_N[0]" output="BLK_TI-CLBLL_L.L_CIN_N"  ><!-- <pack_pattern name="carryl"  in_port="BLK_MB-CLBLL_L-INT_L.CIN_N[0]" out_port="BLK_TI-CLBLL_L.L_CIN_N"  /> --></direct>
+   <direct name="LL_CIN_N" input="BLK_MB-CLBLL_L-INT_L.CIN_N[1]" output="BLK_TI-CLBLL_L.LL_CIN_N" ><!-- <pack_pattern name="carryll" in_port="BLK_MB-CLBLL_L-INT_L.CIN_N[1]" out_port="BLK_TI-CLBLL_L.LL_CIN_N" /> --></direct>
+   <direct name="L_COUT_N"  input="BLK_TI-CLBLL_L.L_COUT_N"  output="BLK_MB-CLBLL_L-INT_L.COUT_N[0]"  />
+   <direct name="LL_COUT_N" input="BLK_TI-CLBLL_L.LL_COUT_N" output="BLK_MB-CLBLL_L-INT_L.COUT_N[1]" />
+
+   <!-- FIXME: Temporary work around for packing failing due to the CLK connection above -->
+   <direct name="FIXME_CLK"    input="BLK_MB-CLBLL_L-INT_L.CLK"      output="BLK_TI-CLBLL_L.CLK" />
+  </interconnect>
+</pb_type>

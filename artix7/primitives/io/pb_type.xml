@@ -1,7 +1,9 @@
 <!-- set: ai sw=1 ts=1 sta et -->
-<pb_type name="IOB" num_pb="2">
+<pb_type name="BLK_BB-IOB" num_pb="2">
  <input name="outpad" num_pins="1"/>
  <output name="inpad" num_pins="1"/>
+
+ <!-- IO operating as an input -->
  <mode name="inpad">
    <pb_type name="inpad" blif_model=".input" num_pb="1">
     <output name="inpad" num_pins="1"/>
@@ -12,6 +14,8 @@
     </direct>
    </interconnect>
  </mode>
+
+ <!-- IO operating as an output -->
  <mode name="outpad">
   <pb_type name="outpad" blif_model=".output" num_pb="1">
    <input name="outpad" num_pins="1"/>
