@@ -188,6 +188,14 @@ class Pin(MostlyReadOnly):
     def direction(self):
         return self.pin_class.direction
 
+    @property
+    def block_type_name(self):
+        if self._block_type_name is None:
+            if self.pin_class is None:
+                return "??"
+            return self.pin_class.block_type_name
+        return self._block_type_name
+
     def __init__(
             self,
             pin_class=None, pin_class_index=None,
@@ -228,6 +236,8 @@ class Pin(MostlyReadOnly):
         >>> str(pin)
         'bt.outpad[2]'
         """
+
+        assert pin_node.tag == "pin"
         pin_class_index = int(pin_node.attrib["index"])
         block_type_index = int(pin_node.attrib["ptc"])
 
@@ -304,8 +314,8 @@ class PinClass(MostlyReadOnly):
         >>> bt = BlockType(name="bt")
         >>> xml_string = '''
         ... <pin_class type="INPUT">
-	...   <pin index="0" ptc="0">bt.outpad[0]</pin>
-	... </pin_class>
+        ...   <pin index="0" ptc="0">bt.outpad[0]</pin>
+        ... </pin_class>
         ... '''
         >>> pc = PinClass.from_xml(bt, ET.fromstring(xml_string))
         >>> pc # doctest: +ELLIPSIS
@@ -331,11 +341,10 @@ class PinClass(MostlyReadOnly):
 
     def _add_pin(self, pin):
         assert_type(pin, Pin)
-        if self.block_type is not None:
+        if self.block_type is not None and pin.block_type_name is not None:
             assert_eq(pin.block_type_name, self.block_type.name)
             self.block_type._add_pin(pin)
         self._pins[pin.pin_class_index] = pin
-
 
 
 class BlockType(MostlyReadOnly):
@@ -383,6 +392,7 @@ class BlockType(MostlyReadOnly):
         >>> 
 
         """
+        assert block_type_node.tag == "block_type", block_type_node
         block_type_id = int(block_type_node.attrib['id'])
         block_type_name = block_type_node.attrib['name'].strip()
         block_type_width = int(block_type_node.attrib['width'])
@@ -400,6 +410,10 @@ class BlockType(MostlyReadOnly):
     def _add_pin(self, pin):
         assert_type(pin, Pin)
         self._could_add_pin(pin)
+        if pin.block_type_name is None:
+            pin.block_type_name = self.name
+        else:
+            assert_eq(pin.block_type_name, self.name)
         self._pin_index[pin.block_type_index] = pin
 
     def _add_pin_class(self, pin_class):
@@ -452,6 +466,8 @@ class Block(MostlyReadOnly):
         ... '''
         >>> bl = Block.from_xml(g, ET.fromstring(xml_string))
         """
+        assert grid_loc_node.tag == "grid_loc"
+
         block_type_id = int(grid_loc_node.attrib["block_type_id"])
         pos = Position(int(grid_loc_node.attrib["x"]), int(grid_loc_node.attrib["y"]))
         offset = Offset(
@@ -502,32 +518,38 @@ class RRNode:
         channel_x       = "CHANX"
         channel_y       = "CHANY"
 
-    """
-        <node id="0" type="SINK" capacity="1">
-                <loc xlow="1" ylow="1" xhigh="1" yhigh="1" ptc="0"/>
-                <timing R="0" C="0"/>
-        </node>
-    """
-
-    def __init__(self, low, high, ptc, capacity=1, timing=None):
+    def __init__(self, id, low, high, ptc, capacity=1, timing=None, graph=None):
         if high is None:
             high = low
 
+        assert_type_or_node(id, int)
         assert_type(low, Position)
         assert_type(high, Position)
         assert_type(ptc, int)
         assert_type(capacity, int)
 
+        self.id = id
         self.low = low
         self.high = high
         self.ptc = ptc
         self.capacity = capacity
         self.timing = timing
 
+    @classmethod
+    def from_pin(cls, block, pin):
+        """ Creates an IPIN/OPIN from `class Pin` object. """
 
-class RRNodeSS(RRNode):
-    """Created from `class PinClass` and `class Block`"""
-    def __init__(self, block, pin_class, timing=None):
+        assert_type(block, Block)
+        assert_type(pin, Pin)
+        assert_type(pin.pin_class, PinClass)
+        assert_type(pin.pin_class.block_type, BlockType)
+
+        low = pin_class.block_type.position
+        RRNode.__init__(self, id, low, low, pin)
+
+    @classmethod
+    def from_pin_class(cls, block, pin_class):
+        """ Creates a SOURCE or SINK node from a `class PinClass` object. """
         assert_type(block, Block)
         assert_type(pin_class, PinClass)
         assert_type(pin_class.block_type, BlockType)
@@ -538,18 +560,106 @@ class RRNodeSS(RRNode):
         RRNode.__init__(self, low, high, 0, timing=timing)
         self.pin_class = pin_class
 
+    @classmethod
+    def from_block(cls, block):
+        """
+        Creates the SOURCE/SINK nodes for each pin class
+        Creates the IPIN/OPIN nodes for each pin inside a pin class.
+        """
+        for pc in block.block_type.pin_classes:
+            cls.from_pin_class(block, pc)
+            for p in pc.pins:
+               cls.from_pin(block, p)
+        # FIXME
+
+    @classmethod
+    def from_xml(cls, block_graph, node_node):
+        """
+
+        >>> g = None
+        >>> xml_string1 = '''
+        ... <node id="0" type="SINK" capacity="1">
+        ...   <loc xlow="1" ylow="1" xhigh="1" yhigh="1" ptc="0"/>
+        ...   <timing R="0" C="0"/>
+        ... </node>
+        ... '''
+        >>> n1 = RRNode.from_xml(g, ET.fromstring(xml_string1))
+        >>> xml_string2 = '''
+        ... <node id="1" type="SOURCE" capacity="1">
+        ...   <loc xlow="1" ylow="1" xhigh="1" yhigh="1" ptc="1"/>
+        ...   <timing R="0" C="0"/>
+        ... </node>
+        ... '''
+        >>> n2 = RRNode.from_xml(g, ET.fromstring(xml_string2))
+        >>> xml_string3 = '''
+        ... <node id="2" type="IPIN" capacity="1">
+        ...   <loc xlow="1" ylow="1" xhigh="1" yhigh="1" side="TOP" ptc="0"/>
+        ...   <timing R="0" C="0"/>
+        ... </node>
+        ... '''
+        >>> n3 = RRNode.from_xml(g, ET.fromstring(xml_string3))
+        >>> xml_string4 = '''
+        ... <node id="6" type="OPIN" capacity="1">
+        ...   <loc xlow="1" ylow="1" xhigh="1" yhigh="1" side="TOP" ptc="1"/>
+        ...   <timing R="0" C="0"/>
+        ... </node>
+        ... '''
+        >>> n4 = RRNode.from_xml(g, ET.fromstring(xml_string4))
+        """
+        assert node_node.tag == "node", node_node
+
+        kw = {}
+
+        kw['id'] = int(node_node.attrib["id"])
+        kw['capacity'] = int(node_node.attrib["capacity"])
+
+        low = None
+        high = None
+        for loc_node in node_node.iterfind("./loc"):
+            low = Position(int(loc_node.attrib["xlow"]), int(loc_node.attrib["ylow"]))
+            high = Position(int(loc_node.attrib["xhigh"]), int(loc_node.attrib["yhigh"]))
+        assert_type(low, Position)
+        assert_type(high, Position)
+
+        if block_graph is not None:
+            start_block = block_graph.block_grid[low]
+            end_block = block_graph.block_grid[high]
+
+        node_type = RRNode.Type(node_node.attrib["type"])
+
+    @staticmethod
+    def get_name(block, element):
+        """
+
+        >>> bt = BlockType(name="bt")
+        >>> pc = PinClass(block_type=bt, direction=PinClassDirection.INPUT)
+        >>> p = Pin(pin_class=pc, pin_class_index=0, port_name="port", port_index=2)
+        >>> pc._add_pin(p); bt._add_pin_class(pc)
+        >>> b = Block(position=Position(2,3), block_type=bt)
+        >>> RRNode.get_name(b, p)
+        'GRID_X002Y003/bt.port[2]'
+        """
+        return "GRID_X{:03d}Y{:03d}/{}".format(
+            block.position.x, block.position.y, element)
+
+
+
+class RRNodeSS(RRNode):
+    """Created from `class PinClass` and `class Block`"""
+    def __init__(self, block, pin_class, timing=None):
+
 
 class RRNodePin(RRNode):
     """Created from `class Pin` and `class Block`"""
 
-    def __init__(self, block, pin, timing=None):
+    def __init__(self, id, block, pin, timing=None):
         assert_type(block, Block)
         assert_type(pin, Pin)
         assert_type(pin.pin_class, PinClass)
         assert_type(pin.pin_class.block_type, BlockType)
 
         low = pin_class.block_type.position
-        high = low
+        RRNode.__init__(self, id, low, low, pin)
 
 
 class RROutputClass(RRNodeSS):
@@ -573,11 +683,6 @@ class RRInputClass(RRNodeSS):
 
 
 class NodesIdsMap:
-    class Name(str):
-        def __new__(cls, pos, block_typename, name):
-            str.__new__(cls, "GRID_X{}Y{}/{}.{}".format(
-                pos.x, pos.y, block_typename, name))
-
     def __init__(self, rr_graph):
         # Mapping dictionaries
         self.globalnames2id  = {}
