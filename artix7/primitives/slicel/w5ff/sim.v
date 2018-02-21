@@ -26,7 +26,7 @@ module {W}5FF(D, CE, CK, Q, SR);
 	parameter SRTYPE 	= "SYNC";
 
 `ifdef PB_TYPE
-	vpr_ff ff_i(.D(D), .Q(Q), .clk(CK));
+	VPR_FF ff_i(.D(D), .Q(Q), .clk(CK));
 `else
 
 	generate

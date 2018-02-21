@@ -9,7 +9,7 @@ input wire D;
 (* PORT_CLASS = "Q" *)
 output reg Q;
 
-(* PORT_CLASS = "clk" *)
+(* PORT_CLASS = "clock" *)
 input wire clk;
 
 always @ ( posedge clk ) begin

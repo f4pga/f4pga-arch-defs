@@ -119,7 +119,7 @@ def mod_pb_name(mod):
         #TODO: other types
         return "BLK_IG-" + mod.name
 
-def make_pb_content(mod, xml_parent, mod_pname):
+def make_pb_content(mod, xml_parent, mod_pname, is_submode = False):
     """Build the pb_type content - child pb_types, timing and direct interconnect,
     but not IO. This may be put directly inside <pb_type>, or inside <mode>."""
 
@@ -150,7 +150,7 @@ def make_pb_content(mod, xml_parent, mod_pname):
     interconn = []
 
     # Blackbox modules don't have inner cells or interconnect (but do still have timing)
-    if not is_blackbox:
+    if (not is_blackbox) or is_submode:
         # Process cells. First build the list of cnames.
         for cname, i_of in mod.cells:
             pb_name = i_of
@@ -297,7 +297,7 @@ def make_pb_type(mod):
     if len(modes) > 0:
         for mode_mod in modes:
             mode_xml = ET.SubElement(pb_type_xml, "mode", {"name" : mode_mod.name})
-            make_pb_content(mode_mod, mode_xml, mod.name)
+            make_pb_content(mode_mod, mode_xml, mod_pname, True)
     else:
         make_pb_content(mod, pb_type_xml, mod_pname)
 
