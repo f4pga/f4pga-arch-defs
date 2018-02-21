@@ -68,6 +68,7 @@ class MostlyReadOnly:
     AttributeError: random not found
     >>> a.random = 1
     >>> a.random
+    1
     >>> 
     """
 
@@ -378,7 +379,7 @@ class BlockType(MostlyReadOnly):
         ... '''
         >>> bt = BlockType.from_xml(g, ET.fromstring(xml_string))
         >>> bt # doctest: +ELLIPSIS
-        BlockType(graph=None, id=1, name='BLK_BB-VPR_PAD', size=Size(x=2, y=3), pin_classes=[...], pin_index={...})
+        BlockType(graph=None, id=1, name='BLK_BB-VPR_PAD', size=Size(w=2, h=3), pin_classes=[...], pin_index={...})
         >>> 
 
         """
