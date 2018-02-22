@@ -1,6 +1,6 @@
 /* 
- * Generated with mux_gen.py, run 'make' in the following to regenerate in this directory;
- * %s
+ * Generated with ../../../../../../utils/mux_gen.py
+ * Run 'make -f Makefile.mux' in this directory to regenerate.
  */
 
 `include "../../../../../../vpr/muxes/logic/mux2/sim.v"
