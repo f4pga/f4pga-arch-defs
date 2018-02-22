@@ -19,3 +19,4 @@ sim.*.v
 third_party
 .gen.stamp
 artix7/arch/xc7a50t-roi-virt/dummy/*.xml
+sim_clean.v
