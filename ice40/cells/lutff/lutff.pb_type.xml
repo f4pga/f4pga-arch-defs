@@ -15,13 +15,13 @@
  <input  name="s_r"  num_pins="1" equivalent="false"/> <!-- FF set/reset -->
 
  <!-- SB_LUT - 4 input LUT -->
- <xi:include href="../../primitives/sb_lut/pb_type.xml"/>
+ <xi:include href="../../primitives/sb_lut/sb_lut.pb_type.xml"/>
 
  <!-- SB_FF - D FlipFlop -->
- <xi:include href="../../primitives/sb_ff/pb_type.xml"/>
+ <xi:include href="../../primitives/sb_ff/sb_ff.pb_type.xml"/>
 
  <!-- SB_CARRY -->
- <xi:include href="../../primitives/sb_carry/pb_type.xml"/>
+ <xi:include href="../../primitives/sb_carry/sb_carry.pb_type.xml"/>
 
  <interconnect>
   <direct name="LUT.I[0]" input="lutff.in[0]"           output="LUT.I[0]" />

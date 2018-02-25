@@ -11,7 +11,7 @@
   <input  name="I" num_pins="4" equivalent="false"/>
   <clock  name="C" num_pins="1" equivalent="false"/>
   <output name="O" num_pins="1" equivalent="false"/>
-  <xi:include href="../../primitives/lutff/pb_type.xml"/>
+  <xi:include href="../../primitives/lutff/lutff.pb_type.xml"/>
   <interconnect>
    <direct name="BLK_IG-LUTFF.I"   input="BLK_SI-LUTFF_A.I" output="BLK_IG-LUTFF.I"   />
    <direct name="BLK_IG-LUTFF.C"   input="BLK_SI-LUTFF_A.C" output="BLK_IG-LUTFF.C"   />
@@ -22,7 +22,7 @@
   <input  name="I" num_pins="4" equivalent="false"/>
   <clock  name="C" num_pins="1" equivalent="false"/>
   <output name="O" num_pins="1" equivalent="false"/>
-  <xi:include href="../../primitives/lutff/pb_type.xml"/>
+  <xi:include href="../../primitives/lutff/lutff.pb_type.xml"/>
   <interconnect>
    <direct name="BLK_IG-LUTFF.I"   input="BLK_SI-LUTFF_B.I" output="BLK_IG-LUTFF.I"   />
    <direct name="BLK_IG-LUTFF.C"   input="BLK_SI-LUTFF_B.C" output="BLK_IG-LUTFF.C"   />
@@ -33,7 +33,7 @@
   <input  name="I" num_pins="4" equivalent="false"/>
   <clock  name="C" num_pins="1" equivalent="false"/>
   <output name="O" num_pins="1" equivalent="false"/>
-  <xi:include href="../../primitives/lutff/pb_type.xml"/>
+  <xi:include href="../../primitives/lutff/lutff.pb_type.xml"/>
   <interconnect>
    <direct name="BLK_IG-LUTFF.I"   input="BLK_SI-LUTFF_C.I" output="BLK_IG-LUTFF.I"   />
    <direct name="BLK_IG-LUTFF.C"   input="BLK_SI-LUTFF_C.C" output="BLK_IG-LUTFF.C"   />
