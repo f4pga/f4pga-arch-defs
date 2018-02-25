@@ -9,9 +9,9 @@
   <mode name="VPR_FF">
    <xi:include href="../../../../vpr/ff/pb_type.xml"/>
    <interconnect>
-    <direct name="D" input="BLK_BB-{W}FF.D"  output="BEL_FF-VPR.D"/>
-    <direct name="C" input="BLK_BB-{W}FF.CK" output="BEL_FF-VPR.clk"/>
-    <direct name="Q" input="BEL_FF-VPR.Q"   output="BLK_BB-{W}FF.Q"/>
+    <direct name="D" input="BLK_BB-{W}FF.D"  output="BEL_FF-VPR_FF.D"/>
+    <direct name="C" input="BLK_BB-{W}FF.CK" output="BEL_FF-VPR_FF.clk"/>
+    <direct name="Q" input="BEL_FF-VPR_FF.Q"   output="BLK_BB-{W}FF.Q"/>
    </interconnect>
   </mode>
 

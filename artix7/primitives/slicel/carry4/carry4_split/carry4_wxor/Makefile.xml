@@ -1,0 +1,5 @@
+GEN_MODEL=y
+USE_W=y
+TOP_MODULE=CARRY4_WXOR
+
+include ../../../../../../common/make/xml.mk

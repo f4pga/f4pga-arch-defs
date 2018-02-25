@@ -156,83 +156,83 @@
 
     <direct name="D5FFMUX_IN_B" input="BLK_IG-SLICEL.DX" output="BEL_RX-D5FFMUX.IN_B" />
     <direct name="D5FFMUX_IN_A" input="BLK_IG-DLUT.O5"   output="BEL_RX-D5FFMUX.IN_A" />
-    <direct name="D5FFMUX_OUT"  input="BEL_RX-D5FFMUX.O" output="BLK_BB-D5FF.D"       />
+    <direct name="D5FFMUX_OUT"  input="BEL_RX-D5FFMUX.O" output="BLK_IG-D5FF.D"       />
 
     <direct name="C5FFMUX_IN_B" input="BLK_IG-SLICEL.CX" output="BEL_RX-C5FFMUX.IN_B" />
     <direct name="C5FFMUX_IN_A" input="BLK_IG-CLUT.O5"   output="BEL_RX-C5FFMUX.IN_A" />
-    <direct name="C5FFMUX_OUT"  input="BEL_RX-C5FFMUX.O" output="BLK_BB-C5FF.D"       />
+    <direct name="C5FFMUX_OUT"  input="BEL_RX-C5FFMUX.O" output="BLK_IG-C5FF.D"       />
 
     <direct name="B5FFMUX_IN_B" input="BLK_IG-SLICEL.BX" output="BEL_RX-B5FFMUX.IN_B" />
     <direct name="B5FFMUX_IN_A" input="BLK_IG-BLUT.O5"   output="BEL_RX-B5FFMUX.IN_A" />
-    <direct name="B5FFMUX_OUT"  input="BEL_RX-B5FFMUX.O" output="BLK_BB-B5FF.D"       />
+    <direct name="B5FFMUX_OUT"  input="BEL_RX-B5FFMUX.O" output="BLK_IG-B5FF.D"       />
 
     <direct name="A5FFMUX_IN_B" input="BLK_IG-SLICEL.AX" output="BEL_RX-A5FFMUX.IN_B" />
     <direct name="A5FFMUX_IN_A" input="BLK_IG-ALUT.O5"   output="BEL_RX-A5FFMUX.IN_A" />
-    <direct name="A5FFMUX_OUT"  input="BEL_RX-A5FFMUX.O" output="BLK_BB-A5FF.D"       />
+    <direct name="A5FFMUX_OUT"  input="BEL_RX-A5FFMUX.O" output="BLK_IG-A5FF.D"       />
 
     <!-- WOUTMUX -->
-    <direct name="DOUTMUX_IN_D5Q" input="BLK_BB-D5FF.Q"       output="BEL_RX-DOUTMUX.D5Q" />
-    <direct name="DOUTMUX_IN_XOR" input="BLK_IG-CARRY4.O[3]"  output="BEL_RX-DOUTMUX.XOR" />
+    <direct name="DOUTMUX_IN_D5Q" input="BLK_IG-D5FF.Q"       output="BEL_RX-DOUTMUX.D5Q" />
+    <direct name="DOUTMUX_IN_XOR" input="BLK_IG-CARRY4_TOP.O[3]"  output="BEL_RX-DOUTMUX.XOR" />
     <direct name="DOUTMUX_IN_O6"  input="BLK_IG-DLUT.O6"      output="BEL_RX-DOUTMUX.O6"  />
     <direct name="DOUTMUX_IN_O5"  input="BLK_IG-DLUT.O5"      output="BEL_RX-DOUTMUX.O5"  />
-    <direct name="DOUTMUX_IN_CY"  input="BLK_IG-CARRY4.CO[3]" output="BEL_RX-DOUTMUX.CY"  />
-    <direct name="DOUTMUX_OUT"    input="BEL_RX-DOUTMUX.O"    output="BLK_IG-SLICEL.DMUX" />
+    <direct name="DOUTMUX_IN_CY"  input="BLK_IG-CARRY4_TOP.CO[3]" output="BEL_RX-DOUTMUX.CY"  />
+    <direct name="DOUTMUX_OUT"    input="BEL_RX-DOUTMUX.O"  output="BLK_IG-SLICEL.DMUX" />
 
-    <direct name="COUTMUX_IN_C5Q" input="BLK_BB-C5FF.Q"       output="BEL_RX-COUTMUX.C5Q" />
-    <direct name="COUTMUX_IN_XOR" input="BLK_IG-CARRY4.O[2]"  output="BEL_RX-COUTMUX.XOR" />
+    <direct name="COUTMUX_IN_C5Q" input="BLK_IG-C5FF.Q"       output="BEL_RX-COUTMUX.C5Q" />
+    <direct name="COUTMUX_IN_XOR" input="BLK_IG-CARRY4_TOP.O[2]"  output="BEL_RX-COUTMUX.XOR" />
     <direct name="COUTMUX_IN_O6"  input="BLK_IG-CLUT.O6"      output="BEL_RX-COUTMUX.O6"  />
     <direct name="COUTMUX_IN_O5"  input="BLK_IG-CLUT.O5"      output="BEL_RX-COUTMUX.O5"  />
-    <direct name="COUTMUX_IN_F7"  input="BEL_MX-F7BMUX.O"     output="BEL_RX-COUTMUX.F7"  />
-    <direct name="COUTMUX_IN_CY"  input="BLK_IG-CARRY4.CO[2]" output="BEL_RX-COUTMUX.CY"  />
-    <direct name="COUTMUX_OUT"    input="BEL_RX-COUTMUX.O"    output="BLK_IG-SLICEL.CMUX" />
+    <direct name="COUTMUX_IN_F7"  input="BEL_MX-F7BMUX.O"   output="BEL_RX-COUTMUX.F7"  />
+    <direct name="COUTMUX_IN_CY"  input="BLK_IG-CARRY4_TOP.CO[2]" output="BEL_RX-COUTMUX.CY"  />
+    <direct name="COUTMUX_OUT"    input="BEL_RX-COUTMUX.O"  output="BLK_IG-SLICEL.CMUX" />
 
-    <direct name="BOUTMUX_IN_B5Q" input="BLK_BB-B5FF.Q"       output="BEL_RX-BOUTMUX.B5Q" />
-    <direct name="BOUTMUX_IN_XOR" input="BLK_IG-CARRY4.O[1]"  output="BEL_RX-BOUTMUX.XOR" />
+    <direct name="BOUTMUX_IN_B5Q" input="BLK_IG-B5FF.Q"       output="BEL_RX-BOUTMUX.B5Q" />
+    <direct name="BOUTMUX_IN_XOR" input="BLK_IG-CARRY4_TOP.O[1]"  output="BEL_RX-BOUTMUX.XOR" />
     <direct name="BOUTMUX_IN_O6"  input="BLK_IG-BLUT.O6"      output="BEL_RX-BOUTMUX.O6"  />
     <direct name="BOUTMUX_IN_O5"  input="BLK_IG-BLUT.O5"      output="BEL_RX-BOUTMUX.O5"  />
-    <direct name="BOUTMUX_IN_F8"  input="BEL_MX-F8MUX.O"      output="BEL_RX-BOUTMUX.F8"  />
-    <direct name="BOUTMUX_IN_CY"  input="BLK_IG-CARRY4.CO[1]" output="BEL_RX-BOUTMUX.CY"  />
-    <direct name="BOUTMUX_OUT"    input="BEL_RX-BOUTMUX.O"    output="BLK_IG-SLICEL.BMUX" />
+    <direct name="BOUTMUX_IN_F8"  input="BEL_MX-F8MUX.O"    output="BEL_RX-BOUTMUX.F8"  />
+    <direct name="BOUTMUX_IN_CY"  input="BLK_IG-CARRY4_TOP.CO[1]" output="BEL_RX-BOUTMUX.CY"  />
+    <direct name="BOUTMUX_OUT"    input="BEL_RX-BOUTMUX.O"  output="BLK_IG-SLICEL.BMUX" />
 
-    <direct name="AOUTMUX_IN_A5Q" input="BLK_BB-A5FF.Q"       output="BEL_RX-AOUTMUX.A5Q" />
-    <direct name="AOUTMUX_IN_XOR" input="BLK_IG-CARRY4.O[0]"  output="BEL_RX-AOUTMUX.XOR" />
+    <direct name="AOUTMUX_IN_A5Q" input="BLK_IG-A5FF.Q"       output="BEL_RX-AOUTMUX.A5Q" />
+    <direct name="AOUTMUX_IN_XOR" input="BLK_IG-CARRY4_TOP.O[0]"  output="BEL_RX-AOUTMUX.XOR" />
     <direct name="AOUTMUX_IN_O6"  input="BLK_IG-ALUT.O6"      output="BEL_RX-AOUTMUX.O6"  />
     <direct name="AOUTMUX_IN_O5"  input="BLK_IG-ALUT.O5"      output="BEL_RX-AOUTMUX.O5"  />
-    <direct name="AOUTMUX_IN_F7"  input="BEL_MX-F7BMUX.O"     output="BEL_RX-AOUTMUX.F7"  />
-    <direct name="AOUTMUX_IN_CY"  input="BLK_IG-CARRY4.CO[0]" output="BEL_RX-AOUTMUX.CY"  />
-    <direct name="AOUTMUX_OUT"    input="BEL_RX-AOUTMUX.O"    output="BLK_IG-SLICEL.AMUX" />
+    <direct name="AOUTMUX_IN_F7"  input="BEL_MX-F7BMUX.O"   output="BEL_RX-AOUTMUX.F7"  />
+    <direct name="AOUTMUX_IN_CY"  input="BLK_IG-CARRY4_TOP.CO[0]" output="BEL_RX-AOUTMUX.CY"  />
+    <direct name="AOUTMUX_OUT"    input="BEL_RX-AOUTMUX.O"  output="BLK_IG-SLICEL.AMUX" />
 
     <!-- WFFMUX -->
-    <direct name="DFFMUX_IN_XOR" input="BLK_IG-CARRY4.O[3]"  output="BEL_RX-DFFMUX.XOR" />
+    <direct name="DFFMUX_IN_XOR" input="BLK_IG-CARRY4_TOP.O[3]"  output="BEL_RX-DFFMUX.XOR" />
     <direct name="DFFMUX_IN_O6"  input="BLK_IG-DLUT.O6"      output="BEL_RX-DFFMUX.O6"  />
     <direct name="DFFMUX_IN_O5"  input="BLK_IG-DLUT.O5"      output="BEL_RX-DFFMUX.O5"  />
     <direct name="DFFMUX_IN_DX"  input="BLK_IG-SLICEL.DX"    output="BEL_RX-DFFMUX.DX"  />
-    <direct name="DFFMUX_IN_CY"  input="BLK_IG-CARRY4.CO[3]" output="BEL_RX-DFFMUX.CY"  />
-    <direct name="DFFMUX_OUT"    input="BEL_RX-DFFMUX.O"     output="BLK_BB-DFF.D"      />
+    <direct name="DFFMUX_IN_CY"  input="BLK_IG-CARRY4_TOP.CO[3]" output="BEL_RX-DFFMUX.CY"  />
+    <direct name="DFFMUX_OUT"    input="BEL_RX-DFFMUX.O"   output="BLK_BB-DFF.D"      />
 
-    <direct name="CFFMUX_IN_XOR" input="BLK_IG-CARRY4.O[2]"  output="BEL_RX-CFFMUX.XOR" />
+    <direct name="CFFMUX_IN_XOR" input="BLK_IG-CARRY4_TOP.O[2]"  output="BEL_RX-CFFMUX.XOR" />
     <direct name="CFFMUX_IN_O6"  input="BLK_IG-CLUT.O6"      output="BEL_RX-CFFMUX.O6"  />
     <direct name="CFFMUX_IN_O5"  input="BLK_IG-CLUT.O5"      output="BEL_RX-CFFMUX.O5"  />
-    <direct name="CFFMUX_IN_F7"  input="BEL_MX-F7BMUX.O"     output="BEL_RX-CFFMUX.F7"  />
-    <direct name="CFFMUX_IN_CY"  input="BLK_IG-CARRY4.CO[2]" output="BEL_RX-CFFMUX.CY"  />
+    <direct name="CFFMUX_IN_F7"  input="BEL_MX-F7BMUX.O"   output="BEL_RX-CFFMUX.F7"  />
+    <direct name="CFFMUX_IN_CY"  input="BLK_IG-CARRY4_TOP.CO[2]" output="BEL_RX-CFFMUX.CY"  />
     <direct name="CFFMUX_IN_CX"  input="BLK_IG-SLICEL.CX"    output="BEL_RX-CFFMUX.CX"  />
-    <direct name="CFFMUX_OUT"    input="BEL_RX-CFFMUX.O"     output="BLK_BB-CFF.D"      />
+    <direct name="CFFMUX_OUT"    input="BEL_RX-CFFMUX.O"   output="BLK_BB-CFF.D"      />
 
-    <direct name="BFFMUX_IN_XOR" input="BLK_IG-CARRY4.O[1]"  output="BEL_RX-BFFMUX.XOR" />
+    <direct name="BFFMUX_IN_XOR" input="BLK_IG-CARRY4_TOP.O[1]"  output="BEL_RX-BFFMUX.XOR" />
     <direct name="BFFMUX_IN_O6"  input="BLK_IG-BLUT.O6"      output="BEL_RX-BFFMUX.O6"  />
     <direct name="BFFMUX_IN_O5"  input="BLK_IG-BLUT.O5"      output="BEL_RX-BFFMUX.O5"  />
-    <direct name="BFFMUX_IN_F8"  input="BEL_MX-F8MUX.O"      output="BEL_RX-BFFMUX.F8"  />
-    <direct name="BFFMUX_IN_CY"  input="BLK_IG-CARRY4.CO[1]" output="BEL_RX-BFFMUX.CY"  />
+    <direct name="BFFMUX_IN_F8"  input="BEL_MX-F8MUX.O"    output="BEL_RX-BFFMUX.F8"  />
+    <direct name="BFFMUX_IN_CY"  input="BLK_IG-CARRY4_TOP.CO[1]" output="BEL_RX-BFFMUX.CY"  />
     <direct name="BFFMUX_IN_BX"  input="BLK_IG-SLICEL.BX"    output="BEL_RX-BFFMUX.BX"  />
-    <direct name="BFFMUX_OUT"    input="BEL_RX-BFFMUX.O"     output="BLK_BB-BFF.D"      />
+    <direct name="BFFMUX_OUT"    input="BEL_RX-BFFMUX.O"   output="BLK_BB-BFF.D"      />
 
-    <direct name="AFFMUX_IN_XOR" input="BLK_IG-CARRY4.O[0]"  output="BEL_RX-AFFMUX.XOR" />
+    <direct name="AFFMUX_IN_XOR" input="BLK_IG-CARRY4_TOP.O[0]"  output="BEL_RX-AFFMUX.XOR" />
     <direct name="AFFMUX_IN_O6"  input="BLK_IG-ALUT.O6"      output="BEL_RX-AFFMUX.O6"  />
     <direct name="AFFMUX_IN_O5"  input="BLK_IG-ALUT.O5"      output="BEL_RX-AFFMUX.O5"  />
-    <direct name="AFFMUX_IN_F7"  input="BEL_MX-F7AMUX.O"     output="BEL_RX-AFFMUX.F7"  />
-    <direct name="AFFMUX_IN_CY"  input="BLK_IG-CARRY4.CO[0]" output="BEL_RX-AFFMUX.CY"  />
+    <direct name="AFFMUX_IN_F7"  input="BEL_MX-F7AMUX.O"   output="BEL_RX-AFFMUX.F7"  />
+    <direct name="AFFMUX_IN_CY"  input="BLK_IG-CARRY4_TOP.CO[0]" output="BEL_RX-AFFMUX.CY"  />
     <direct name="AFFMUX_IN_AX"  input="BLK_IG-SLICEL.AX"    output="BEL_RX-AFFMUX.AX"  />
-    <direct name="AFFMUX_OUT"    input="BEL_RX-AFFMUX.O"     output="BLK_BB-AFF.D"      />
+    <direct name="AFFMUX_OUT"    input="BEL_RX-AFFMUX.O"   output="BLK_BB-AFF.D"      />
 
     <!-- AFF -->
     <direct name="DFF" input="BLK_BB-DFF.Q" output="BLK_IG-SLICEL.AQ" />
@@ -241,18 +241,18 @@
     <direct name="AFF" input="BLK_BB-AFF.Q" output="BLK_IG-SLICEL.DQ" />
 
     <!-- LUT O6 output -->
-    <direct name="F7BMUX_I0" input="BLK_IG-DLUT.O6" output="BEL_MX-F7BMUX.I0" /><direct name="CARRY_S3" input="BLK_IG-DLUT.O6" output="BLK_IG-CARRY4.S[3]" /><direct name="BLK_IG-SLICEL_DOUT" input="BLK_IG-DLUT.O6" output="BLK_IG-SLICEL.D" />
-    <direct name="F7BMUX_I1" input="BLK_IG-CLUT.O6" output="BEL_MX-F7BMUX.I1" /><direct name="CARRY_S2" input="BLK_IG-CLUT.O6" output="BLK_IG-CARRY4.S[2]" /><direct name="BLK_IG-SLICEL_COUT" input="BLK_IG-CLUT.O6" output="BLK_IG-SLICEL.C" />
-    <direct name="F7AMUX_I0" input="BLK_IG-BLUT.O6" output="BEL_MX-F7AMUX.I0" /><direct name="CARRY_S1" input="BLK_IG-BLUT.O6" output="BLK_IG-CARRY4.S[1]" /><direct name="BLK_IG-SLICEL_BOUT" input="BLK_IG-BLUT.O6" output="BLK_IG-SLICEL.B" />
-    <direct name="F7AMUX_I1" input="BLK_IG-ALUT.O6" output="BEL_MX-F7AMUX.I1" /><direct name="CARRY_S0" input="BLK_IG-ALUT.O6" output="BLK_IG-CARRY4.S[0]" /><direct name="BLK_IG-SLICEL_AOUT" input="BLK_IG-ALUT.O6" output="BLK_IG-SLICEL.A" />
+    <direct name="F7BMUX_I0" input="BLK_IG-DLUT.O6" output="BEL_MX-F7BMUX.I0" /><direct name="CARRY_S3" input="BLK_IG-DLUT.O6" output="BLK_IG-CARRY4_TOP.S[3]" /><direct name="BLK_IG-SLICEL_DOUT" input="BLK_IG-DLUT.O6" output="BLK_IG-SLICEL.D" />
+    <direct name="F7BMUX_I1" input="BLK_IG-CLUT.O6" output="BEL_MX-F7BMUX.I1" /><direct name="CARRY_S2" input="BLK_IG-CLUT.O6" output="BLK_IG-CARRY4_TOP.S[2]" /><direct name="BLK_IG-SLICEL_COUT" input="BLK_IG-CLUT.O6" output="BLK_IG-SLICEL.C" />
+    <direct name="F7AMUX_I0" input="BLK_IG-BLUT.O6" output="BEL_MX-F7AMUX.I0" /><direct name="CARRY_S1" input="BLK_IG-BLUT.O6" output="BLK_IG-CARRY4_TOP.S[1]" /><direct name="BLK_IG-SLICEL_BOUT" input="BLK_IG-BLUT.O6" output="BLK_IG-SLICEL.B" />
+    <direct name="F7AMUX_I1" input="BLK_IG-ALUT.O6" output="BEL_MX-F7AMUX.I1" /><direct name="CARRY_S0" input="BLK_IG-ALUT.O6" output="BLK_IG-CARRY4_TOP.S[0]" /><direct name="BLK_IG-SLICEL_AOUT" input="BLK_IG-ALUT.O6" output="BLK_IG-SLICEL.A" />
 
     <!-- Select lines for F7 MUXes -->
     <direct name="CX7S" input="BLK_IG-SLICEL.CX" output="BEL_MX-F7BMUX.S0" />
     <direct name="AX7S" input="BLK_IG-SLICEL.AX" output="BEL_MX-F7AMUX.S0" />
 
     <!-- F8MUX -->
-    <direct name="F8MUX_IN0" input="BEL_MX-F7BMUX.O"   output="BEL_MX-F8MUX.I0" />
-    <direct name="F8MUX_IN1" input="BEL_MX-F7AMUX.O"   output="BEL_MX-F8MUX.I1" />
+    <direct name="F8MUX_IN0" input="BEL_MX-F7BMUX.O" output="BEL_MX-F8MUX.I0" />
+    <direct name="F8MUX_IN1" input="BEL_MX-F7AMUX.O" output="BEL_MX-F8MUX.I1" />
     <direct name="F8MUX_S"   input="BLK_IG-SLICEL.BX"  output="BEL_MX-F8MUX.S0" />
     <!-- <direct name="F8MUX_O"   input="BEL_MX-F8MUX.O" output="" /> -->
 
@@ -260,43 +260,43 @@
     <!-- FIXME! -->
     <direct name="PRECYINIT_MUX.CYINIT" input="BLK_IG-SLICEL.AX"         output="BEL_RX-PRECYINIT_MUX.CYINIT" />
     <direct name="PRECYINIT_MUX.CI"     input="BLK_IG-SLICEL.CIN"        output="BEL_RX-PRECYINIT_MUX.CI"     />
-    <direct name="PRECYINIT_MUX.O"      input="BEL_RX-PRECYINIT_MUX.O"   output="BLK_IG-CARRY4.CIN"           />
+    <direct name="PRECYINIT_MUX.O"    input="BEL_RX-PRECYINIT_MUX.O" output="BLK_IG-CARRY4_TOP.CIN"           />
 
     <direct name="DCY0_O5" input="BLK_IG-DLUT.O5"   output="BEL_RX-DCY0.O5"      />
     <direct name="DCY0_DX" input="BLK_IG-SLICEL.DX" output="BEL_RX-DCY0.DX"      />
-    <direct name="DCY0_O"  input="BEL_RX-DCY0.O"    output="BLK_IG-CARRY4.DI[3]" />
+    <direct name="DCY0_O"  input="BEL_RX-DCY0.O"    output="BLK_IG-CARRY4_TOP.DI[3]" />
 
     <direct name="CCY0_O5" input="BLK_IG-CLUT.O5"   output="BEL_RX-CCY0.O5"      />
     <direct name="CCY0_CX" input="BLK_IG-SLICEL.CX" output="BEL_RX-CCY0.CX"      />
-    <direct name="CCY0_O"  input="BEL_RX-CCY0.O"    output="BLK_IG-CARRY4.DI[2]" />
+    <direct name="CCY0_O"  input="BEL_RX-CCY0.O"    output="BLK_IG-CARRY4_TOP.DI[2]" />
 
     <direct name="BCY0_O5" input="BLK_IG-BLUT.O5"   output="BEL_RX-BCY0.O5"      />
     <direct name="BCY0_BX" input="BLK_IG-SLICEL.BX" output="BEL_RX-BCY0.BX"      />
-    <direct name="BCY0_O"  input="BEL_RX-BCY0.O"    output="BLK_IG-CARRY4.DI[1]" />
+    <direct name="BCY0_O"  input="BEL_RX-BCY0.O"    output="BLK_IG-CARRY4_TOP.DI[1]" />
 
     <direct name="ACY0_O5" input="BLK_IG-ALUT.O5"   output="BEL_RX-ACY0.O5"      />
     <direct name="ACY0_AX" input="BLK_IG-SLICEL.AX" output="BEL_RX-ACY0.AX"      />
-    <direct name="ACY0_O"  input="BEL_RX-ACY0.O"    output="BLK_IG-CARRY4.DI[0]" />
+    <direct name="ACY0_O"  input="BEL_RX-ACY0.O"    output="BLK_IG-CARRY4_TOP.DI[0]" />
 
-    <direct name="COUT" input="BLK_IG-CARRY4.CO[3]" output="BLK_IG-SLICEL.COUT"  />
+    <direct name="COUT" input="BLK_IG-CARRY4_TOP.CO[3]" output="BLK_IG-SLICEL.COUT"  />
 
     <!-- Clock, Clock Enable and Reset -->
-    <direct name="A5FF_CK" input="BLK_IG-SLICEL.CLK" output="BLK_BB-A5FF.CK"/><direct name="AFF_CK" input="BLK_IG-SLICEL.CLK" output="BLK_BB-AFF.CK"/>
-    <direct name="B5FF_CK" input="BLK_IG-SLICEL.CLK" output="BLK_BB-B5FF.CK"/><direct name="BFF_CK" input="BLK_IG-SLICEL.CLK" output="BLK_BB-BFF.CK"/>
-    <direct name="C5FF_CK" input="BLK_IG-SLICEL.CLK" output="BLK_BB-C5FF.CK"/><direct name="CFF_CK" input="BLK_IG-SLICEL.CLK" output="BLK_BB-CFF.CK"/>
-    <direct name="D5FF_CK" input="BLK_IG-SLICEL.CLK" output="BLK_BB-D5FF.CK"/><direct name="DFF_CK" input="BLK_IG-SLICEL.CLK" output="BLK_BB-DFF.CK"/>
+    <direct name="A5FF_CK" input="BLK_IG-SLICEL.CLK" output="BLK_IG-A5FF.CK"/><direct name="AFF_CK" input="BLK_IG-SLICEL.CLK" output="BLK_BB-AFF.CK"/>
+    <direct name="B5FF_CK" input="BLK_IG-SLICEL.CLK" output="BLK_IG-B5FF.CK"/><direct name="BFF_CK" input="BLK_IG-SLICEL.CLK" output="BLK_BB-BFF.CK"/>
+    <direct name="C5FF_CK" input="BLK_IG-SLICEL.CLK" output="BLK_IG-C5FF.CK"/><direct name="CFF_CK" input="BLK_IG-SLICEL.CLK" output="BLK_BB-CFF.CK"/>
+    <direct name="D5FF_CK" input="BLK_IG-SLICEL.CLK" output="BLK_IG-D5FF.CK"/><direct name="DFF_CK" input="BLK_IG-SLICEL.CLK" output="BLK_BB-DFF.CK"/>
 
     <!-- <mux name="CEUSED" input="VCC BLK_IG-SLICEL.CE" output="{}"/> -->
-    <direct name="A5FF_CE" input="BLK_IG-SLICEL.CE"  output="BLK_BB-A5FF.CE"/><direct name="AFF_CE" input="BLK_IG-SLICEL.CE"  output="BLK_BB-AFF.CE"/>
-    <direct name="B5FF_CE" input="BLK_IG-SLICEL.CE"  output="BLK_BB-B5FF.CE"/><direct name="BFF_CE" input="BLK_IG-SLICEL.CE"  output="BLK_BB-BFF.CE"/>
-    <direct name="C5FF_CE" input="BLK_IG-SLICEL.CE"  output="BLK_BB-C5FF.CE"/><direct name="CFF_CE" input="BLK_IG-SLICEL.CE"  output="BLK_BB-CFF.CE"/>
-    <direct name="D5FF_CE" input="BLK_IG-SLICEL.CE"  output="BLK_BB-D5FF.CE"/><direct name="DFF_CE" input="BLK_IG-SLICEL.CE"  output="BLK_BB-DFF.CE"/>
+    <direct name="A5FF_CE" input="BLK_IG-SLICEL.CE"  output="BLK_IG-A5FF.CE"/><direct name="AFF_CE" input="BLK_IG-SLICEL.CE"  output="BLK_BB-AFF.CE"/>
+    <direct name="B5FF_CE" input="BLK_IG-SLICEL.CE"  output="BLK_IG-B5FF.CE"/><direct name="BFF_CE" input="BLK_IG-SLICEL.CE"  output="BLK_BB-BFF.CE"/>
+    <direct name="C5FF_CE" input="BLK_IG-SLICEL.CE"  output="BLK_IG-C5FF.CE"/><direct name="CFF_CE" input="BLK_IG-SLICEL.CE"  output="BLK_BB-CFF.CE"/>
+    <direct name="D5FF_CE" input="BLK_IG-SLICEL.CE"  output="BLK_IG-D5FF.CE"/><direct name="DFF_CE" input="BLK_IG-SLICEL.CE"  output="BLK_BB-DFF.CE"/>
 
     <!-- <mux name="SRUSED" input="GND BLK_IG-SLICEL.SR" output="{}"/> -->
-    <direct name="A5FF_SR" input="BLK_IG-SLICEL.SR"  output="BLK_BB-A5FF.SR"/><direct name="AFF_SR" input="BLK_IG-SLICEL.SR"  output="BLK_BB-AFF.SR"/>
-    <direct name="B5FF_SR" input="BLK_IG-SLICEL.SR"  output="BLK_BB-B5FF.SR"/><direct name="BFF_SR" input="BLK_IG-SLICEL.SR"  output="BLK_BB-BFF.SR"/>
-    <direct name="C5FF_SR" input="BLK_IG-SLICEL.SR"  output="BLK_BB-C5FF.SR"/><direct name="CFF_SR" input="BLK_IG-SLICEL.SR"  output="BLK_BB-CFF.SR"/>
-    <direct name="D5FF_SR" input="BLK_IG-SLICEL.SR"  output="BLK_BB-D5FF.SR"/><direct name="DFF_SR" input="BLK_IG-SLICEL.SR"  output="BLK_BB-DFF.SR"/>
+    <direct name="A5FF_SR" input="BLK_IG-SLICEL.SR"  output="BLK_IG-A5FF.SR"/><direct name="AFF_SR" input="BLK_IG-SLICEL.SR"  output="BLK_BB-AFF.SR"/>
+    <direct name="B5FF_SR" input="BLK_IG-SLICEL.SR"  output="BLK_IG-B5FF.SR"/><direct name="BFF_SR" input="BLK_IG-SLICEL.SR"  output="BLK_BB-BFF.SR"/>
+    <direct name="C5FF_SR" input="BLK_IG-SLICEL.SR"  output="BLK_IG-C5FF.SR"/><direct name="CFF_SR" input="BLK_IG-SLICEL.SR"  output="BLK_BB-CFF.SR"/>
+    <direct name="D5FF_SR" input="BLK_IG-SLICEL.SR"  output="BLK_IG-D5FF.SR"/><direct name="DFF_SR" input="BLK_IG-SLICEL.SR"  output="BLK_BB-DFF.SR"/>
 
   </interconnect>
 </pb_type>

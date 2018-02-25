@@ -10,8 +10,17 @@ def get_output(params):
     cmd = [get_yosys()] + params
     return subprocess.check_output(cmd).decode("utf-8")
 
+defines = []
+
+def add_define(defname):
+    defines.append(defname)
+
+def get_defines():
+    return " ".join(["-D" + _ for _ in defines])
+
 def commands(commands, infiles = []):
-    params = ["-q", "-p", commands] + infiles
+    commands = "read_verilog %s %s; " % (get_defines(), " ".join(infiles)) + commands
+    params = ["-q", "-p", commands]
     return get_output(params)
 
 def script(script, infiles = []):

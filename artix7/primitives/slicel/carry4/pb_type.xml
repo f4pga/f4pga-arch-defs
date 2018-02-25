@@ -1,43 +1,69 @@
-<pb_type name="BLK_IG-CARRY4" num_pb="1" xmlns:xi="http://www.w3.org/2001/XInclude">
- <input name="S"  num_pins="4"/>
- <input name="DI" num_pins="4"/>
-
- <output name="CO" num_pins="4"/>
- <output name="O"  num_pins="4"/>
-
- <input name="CIN"    num_pins="1"/>
-
- <mode name="COMPLETE">
-  <xi:include href="carry4_complete/pb_type.xml"/>
-  <interconnect>
-   <direct name="S"   input="BLK_IG-CARRY4.S"   output="BEL_BB-CARRY4.S"   />
-   <direct name="DI"  input="BLK_IG-CARRY4.DI"  output="BEL_BB-CARRY4.DI"  />
-   <direct name="CO"  input="BEL_BB-CARRY4.CO"  output="BLK_IG-CARRY4.CO"  />
-   <direct name="O"   input="BEL_BB-CARRY4.O"   output="BLK_IG-CARRY4.O"   />
-   <direct name="CIN" input="BLK_IG-CARRY4.CIN" output="BEL_BB-CARRY4.CIN" />
-  </interconnect>
- </mode>
- <mode name="SPLIT">
-  <xi:include href="carry4_split/carry4_wmux/pb_type.CARRY4_AMUX.xml" />
-  <xi:include href="carry4_split/carry4_wmux/pb_type.CARRY4_BMUX.xml" />
-  <xi:include href="carry4_split/carry4_wmux/pb_type.CARRY4_CMUX.xml" />
-  <xi:include href="carry4_split/carry4_wmux/pb_type.CARRY4_DMUX.xml" />
-
-  <xi:include href="carry4_split/carry4_wxor/pb_type.CARRY4_AXOR.xml" />
-  <xi:include href="carry4_split/carry4_wxor/pb_type.CARRY4_BXOR.xml" />
-  <xi:include href="carry4_split/carry4_wxor/pb_type.CARRY4_CXOR.xml" />
-  <xi:include href="carry4_split/carry4_wxor/pb_type.CARRY4_DXOR.xml" />
-
-  <interconnect>
-   <direct name="MUX0_DI" input="BLK_IG-CARRY4.DI[0]" output="BEL_MX-CARRY4_AMUX.DI"/><direct name="MUX0_CI" input="BLK_IG-CARRY4.CIN"    output="BEL_MX-CARRY4_AMUX.CI"/><direct name="MUX0_S" input="BLK_IG-CARRY4.S[0]" output="BEL_MX-CARRY4_AMUX.S"/><direct name="MUX0_O" input="BEL_MX-CARRY4_AMUX.O" output="BLK_IG-CARRY4.CO[0]"/>
-   <direct name="MUX1_DI" input="BLK_IG-CARRY4.DI[1]" output="BEL_MX-CARRY4_BMUX.DI"/><direct name="MUX1_CI" input="BEL_MX-CARRY4_AMUX.O" output="BEL_MX-CARRY4_BMUX.CI"/><direct name="MUX1_S" input="BLK_IG-CARRY4.S[1]" output="BEL_MX-CARRY4_BMUX.S"/><direct name="MUX1_O" input="BEL_MX-CARRY4_BMUX.O" output="BLK_IG-CARRY4.CO[1]"/>
-   <direct name="MUX2_DI" input="BLK_IG-CARRY4.DI[2]" output="BEL_MX-CARRY4_CMUX.DI"/><direct name="MUX2_CI" input="BEL_MX-CARRY4_BMUX.O" output="BEL_MX-CARRY4_CMUX.CI"/><direct name="MUX2_S" input="BLK_IG-CARRY4.S[2]" output="BEL_MX-CARRY4_CMUX.S"/><direct name="MUX2_O" input="BEL_MX-CARRY4_CMUX.O" output="BLK_IG-CARRY4.CO[2]"/>
-   <direct name="MUX3_DI" input="BLK_IG-CARRY4.DI[3]" output="BEL_MX-CARRY4_DMUX.DI"/><direct name="MUX3_CI" input="BEL_MX-CARRY4_CMUX.O" output="BEL_MX-CARRY4_DMUX.CI"/><direct name="MUX3_S" input="BLK_IG-CARRY4.S[3]" output="BEL_MX-CARRY4_DMUX.S"/><direct name="MUX3_O" input="BEL_MX-CARRY4_DMUX.O" output="BLK_IG-CARRY4.CO[3]"/>
-
-   <direct name="XOR0_LI" input="BLK_IG-CARRY4.S[0]"  output="BEL_BB-CARRY4_AXOR.LI"/><direct name="XOR0_CI" input="BLK_IG-CARRY4.CIN"    output="BEL_BB-CARRY4_AXOR.CI"/><direct name="XOR0_O" input="BEL_BB-CARRY4_AXOR.O" output="BLK_IG-CARRY4.O[0]"/>
-   <direct name="XOR1_LI" input="BLK_IG-CARRY4.S[1]"  output="BEL_BB-CARRY4_BXOR.LI"/><direct name="XOR1_CI" input="BEL_MX-CARRY4_AMUX.O" output="BEL_BB-CARRY4_BXOR.CI"/><direct name="XOR1_O" input="BEL_BB-CARRY4_BXOR.O" output="BLK_IG-CARRY4.O[1]"/>
-   <direct name="XOR2_LI" input="BLK_IG-CARRY4.S[2]"  output="BEL_BB-CARRY4_CXOR.LI"/><direct name="XOR2_CI" input="BEL_MX-CARRY4_BMUX.O" output="BEL_BB-CARRY4_CXOR.CI"/><direct name="XOR2_O" input="BEL_BB-CARRY4_CXOR.O" output="BLK_IG-CARRY4.O[2]"/>
-   <direct name="XOR3_LI" input="BLK_IG-CARRY4.S[3]"  output="BEL_BB-CARRY4_DXOR.LI"/><direct name="xOR3_CI" input="BEL_MX-CARRY4_CMUX.O" output="BEL_BB-CARRY4_DXOR.CI"/><direct name="XOR3_O" input="BEL_BB-CARRY4_DXOR.O" output="BLK_IG-CARRY4.O[3]"/>
-  </interconnect>
- </mode>
+<pb_type xmlns:xi="http://www.w3.org/2001/XInclude" name="BLK_IG-CARRY4_TOP" num_pb="1">
+  <output equivalent="false" name="CO" num_pins="4"/>
+  <output equivalent="false" name="O" num_pins="4"/>
+  <input equivalent="false" name="CIN" num_pins="1"/>
+  <input equivalent="false" name="DI" num_pins="4"/>
+  <input equivalent="false" name="S" num_pins="4"/>
+  <mode name="CARRY4_COMPLETE">
+    <xi:include href="carry4_complete/carry4/pb_type.xml"/>
+    <interconnect>
+      <direct input="BLK_IG-CARRY4_TOP.CIN" name="BEL_BB-CARRY4_CIN" output="BEL_BB-CARRY4.CIN"/>
+      <direct input="BLK_IG-CARRY4_TOP.DI[0]" name="BEL_BB-CARRY4_DI_0" output="BEL_BB-CARRY4.DI[0]"/>
+      <direct input="BLK_IG-CARRY4_TOP.DI[1]" name="BEL_BB-CARRY4_DI_1" output="BEL_BB-CARRY4.DI[1]"/>
+      <direct input="BLK_IG-CARRY4_TOP.DI[2]" name="BEL_BB-CARRY4_DI_2" output="BEL_BB-CARRY4.DI[2]"/>
+      <direct input="BLK_IG-CARRY4_TOP.DI[3]" name="BEL_BB-CARRY4_DI_3" output="BEL_BB-CARRY4.DI[3]"/>
+      <direct input="BLK_IG-CARRY4_TOP.S[0]" name="BEL_BB-CARRY4_S_0" output="BEL_BB-CARRY4.S[0]"/>
+      <direct input="BLK_IG-CARRY4_TOP.S[1]" name="BEL_BB-CARRY4_S_1" output="BEL_BB-CARRY4.S[1]"/>
+      <direct input="BLK_IG-CARRY4_TOP.S[2]" name="BEL_BB-CARRY4_S_2" output="BEL_BB-CARRY4.S[2]"/>
+      <direct input="BLK_IG-CARRY4_TOP.S[3]" name="BEL_BB-CARRY4_S_3" output="BEL_BB-CARRY4.S[3]"/>
+      <direct input="BEL_BB-CARRY4.CO[0]" name="BLK_IG-CARRY4_TOP_CO_0" output="BLK_IG-CARRY4_TOP.CO[0]"/>
+      <direct input="BEL_BB-CARRY4.CO[1]" name="BLK_IG-CARRY4_TOP_CO_1" output="BLK_IG-CARRY4_TOP.CO[1]"/>
+      <direct input="BEL_BB-CARRY4.CO[2]" name="BLK_IG-CARRY4_TOP_CO_2" output="BLK_IG-CARRY4_TOP.CO[2]"/>
+      <direct input="BEL_BB-CARRY4.CO[3]" name="BLK_IG-CARRY4_TOP_CO_3" output="BLK_IG-CARRY4_TOP.CO[3]"/>
+      <direct input="BEL_BB-CARRY4.O[0]" name="BLK_IG-CARRY4_TOP_O_0" output="BLK_IG-CARRY4_TOP.O[0]"/>
+      <direct input="BEL_BB-CARRY4.O[1]" name="BLK_IG-CARRY4_TOP_O_1" output="BLK_IG-CARRY4_TOP.O[1]"/>
+      <direct input="BEL_BB-CARRY4.O[2]" name="BLK_IG-CARRY4_TOP_O_2" output="BLK_IG-CARRY4_TOP.O[2]"/>
+      <direct input="BEL_BB-CARRY4.O[3]" name="BLK_IG-CARRY4_TOP_O_3" output="BLK_IG-CARRY4_TOP.O[3]"/>
+    </interconnect>
+  </mode>
+  <mode name="CARRY4_SPLIT">
+    <xi:include href="carry4_split/carry4_wmux/pb_type.CARRY4_AMUX.xml"/>
+    <xi:include href="carry4_split/carry4_wmux/pb_type.CARRY4_BMUX.xml"/>
+    <xi:include href="carry4_split/carry4_wmux/pb_type.CARRY4_CMUX.xml"/>
+    <xi:include href="carry4_split/carry4_wmux/pb_type.CARRY4_DMUX.xml"/>
+    <xi:include href="carry4_split/carry4_wxor/pb_type.CARRY4_AXOR.xml"/>
+    <xi:include href="carry4_split/carry4_wxor/pb_type.CARRY4_BXOR.xml"/>
+    <xi:include href="carry4_split/carry4_wxor/pb_type.CARRY4_CXOR.xml"/>
+    <xi:include href="carry4_split/carry4_wxor/pb_type.CARRY4_DXOR.xml"/>
+    <interconnect>
+      <direct input="BLK_IG-CARRY4_TOP.CIN" name="BEL_MX-CARRY4_AMUX_CI" output="BEL_MX-CARRY4_AMUX.CI"/>
+      <direct input="BLK_IG-CARRY4_TOP.DI[0]" name="BEL_MX-CARRY4_AMUX_DI" output="BEL_MX-CARRY4_AMUX.DI"/>
+      <direct input="BLK_IG-CARRY4_TOP.S[0]" name="BEL_MX-CARRY4_AMUX_S" output="BEL_MX-CARRY4_AMUX.S"/>
+      <direct input="BEL_MX-CARRY4_AMUX.O" name="BLK_IG-CARRY4_TOP_CO_0" output="BLK_IG-CARRY4_TOP.CO[0]"/>
+      <direct input="BEL_MX-CARRY4_AMUX.O" name="BEL_MX-CARRY4_BMUX_CI" output="BEL_MX-CARRY4_BMUX.CI"/>
+      <direct input="BLK_IG-CARRY4_TOP.DI[1]" name="BEL_MX-CARRY4_BMUX_DI" output="BEL_MX-CARRY4_BMUX.DI"/>
+      <direct input="BLK_IG-CARRY4_TOP.S[1]" name="BEL_MX-CARRY4_BMUX_S" output="BEL_MX-CARRY4_BMUX.S"/>
+      <direct input="BEL_MX-CARRY4_BMUX.O" name="BLK_IG-CARRY4_TOP_CO_1" output="BLK_IG-CARRY4_TOP.CO[1]"/>
+      <direct input="BEL_MX-CARRY4_BMUX.O" name="BEL_MX-CARRY4_CMUX_CI" output="BEL_MX-CARRY4_CMUX.CI"/>
+      <direct input="BLK_IG-CARRY4_TOP.DI[2]" name="BEL_MX-CARRY4_CMUX_DI" output="BEL_MX-CARRY4_CMUX.DI"/>
+      <direct input="BLK_IG-CARRY4_TOP.S[2]" name="BEL_MX-CARRY4_CMUX_S" output="BEL_MX-CARRY4_CMUX.S"/>
+      <direct input="BEL_MX-CARRY4_CMUX.O" name="BLK_IG-CARRY4_TOP_CO_2" output="BLK_IG-CARRY4_TOP.CO[2]"/>
+      <direct input="BEL_MX-CARRY4_CMUX.O" name="BEL_MX-CARRY4_DMUX_CI" output="BEL_MX-CARRY4_DMUX.CI"/>
+      <direct input="BLK_IG-CARRY4_TOP.DI[3]" name="BEL_MX-CARRY4_DMUX_DI" output="BEL_MX-CARRY4_DMUX.DI"/>
+      <direct input="BLK_IG-CARRY4_TOP.S[3]" name="BEL_MX-CARRY4_DMUX_S" output="BEL_MX-CARRY4_DMUX.S"/>
+      <direct input="BEL_MX-CARRY4_DMUX.O" name="BLK_IG-CARRY4_TOP_CO_3" output="BLK_IG-CARRY4_TOP.CO[3]"/>
+      <direct input="BLK_IG-CARRY4_TOP.CIN" name="BEL_BB-CARRY4_AXOR_CI" output="BEL_BB-CARRY4_AXOR.CI"/>
+      <direct input="BLK_IG-CARRY4_TOP.S[0]" name="BEL_BB-CARRY4_AXOR_LI" output="BEL_BB-CARRY4_AXOR.LI"/>
+      <direct input="BEL_BB-CARRY4_AXOR.O" name="BLK_IG-CARRY4_TOP_O_0" output="BLK_IG-CARRY4_TOP.O[0]"/>
+      <direct input="BEL_MX-CARRY4_AMUX.O" name="BEL_BB-CARRY4_BXOR_CI" output="BEL_BB-CARRY4_BXOR.CI"/>
+      <direct input="BLK_IG-CARRY4_TOP.S[1]" name="BEL_BB-CARRY4_BXOR_LI" output="BEL_BB-CARRY4_BXOR.LI"/>
+      <direct input="BEL_BB-CARRY4_BXOR.O" name="BLK_IG-CARRY4_TOP_O_1" output="BLK_IG-CARRY4_TOP.O[1]"/>
+      <direct input="BEL_MX-CARRY4_BMUX.O" name="BEL_BB-CARRY4_CXOR_CI" output="BEL_BB-CARRY4_CXOR.CI"/>
+      <direct input="BLK_IG-CARRY4_TOP.S[2]" name="BEL_BB-CARRY4_CXOR_LI" output="BEL_BB-CARRY4_CXOR.LI"/>
+      <direct input="BEL_BB-CARRY4_CXOR.O" name="BLK_IG-CARRY4_TOP_O_2" output="BLK_IG-CARRY4_TOP.O[2]"/>
+      <direct input="BEL_MX-CARRY4_CMUX.O" name="BEL_BB-CARRY4_DXOR_CI" output="BEL_BB-CARRY4_DXOR.CI"/>
+      <direct input="BLK_IG-CARRY4_TOP.S[3]" name="BEL_BB-CARRY4_DXOR_LI" output="BEL_BB-CARRY4_DXOR.LI"/>
+      <direct input="BEL_BB-CARRY4_DXOR.O" name="BLK_IG-CARRY4_TOP_O_3" output="BLK_IG-CARRY4_TOP.O[3]"/>
+    </interconnect>
+  </mode>
 </pb_type>
