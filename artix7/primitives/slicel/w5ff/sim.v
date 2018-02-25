@@ -1,5 +1,7 @@
+`include "../../../../vpr/ff/sim.v"
 // D5FF, C5FF, B5FF, A5FF == W5FF
 // Flip-flop which can be configured only as a flip flop.
+(* MODEL_NAME = "W5FF" *)
 module {W}5FF(D, CE, CK, Q, SR);
 	input  wire D;
 	output wire Q;
@@ -23,5 +25,29 @@ module {W}5FF(D, CE, CK, Q, SR);
 	// * Async -- Reset occurs when ever
 	parameter SRTYPE 	= "SYNC";
 
-	always @(posedge CK) if (SR == 1'b1) Q <= 1'b1; else if (CE) Q <= D;
+`ifdef PB_TYPE
+	VPR_FF ff_i(.D(D), .Q(Q), .clk(CK));
+`else
+
+	generate
+		if(SRTYPE == "SYNC") begin
+			always @(posedge CK)
+				if (SR == 1'b1)
+					Q <= INIT;
+				else if (CE)
+					Q <= D;
+		end else if(SRTYPE == "ASYNC") begin
+			always @(posedge CK or posedge SR)
+				if (SR == 1'b1)
+					Q <= INIT;
+				else if (CE)
+					Q <= D;
+		end else begin
+			always @(posedge CK)
+				if (CE)
+					Q <= D;
+		end
+	endgenerate
+`endif
+
 endmodule

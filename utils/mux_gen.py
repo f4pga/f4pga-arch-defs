@@ -267,12 +267,14 @@ with open(sim_file, "w") as f:
         module_args.append(name)
 
     mux_prefix = {'logic': '', 'routing': 'r'}[args.type]
+    mux_class = {'logic': 'mux', 'routing': 'routing'}[args.type]
 
     f.write("/* ")
     f.write("\n * ".join(generated_with.splitlines()))
     f.write("\n */\n\n")
     f.write('`include "%s/%s/%smux%i/sim.v"\n' % (mux_dir, 'logic', '', args.width))
     f.write("\n")
+    f.write('(* blackbox *) (* CLASS="%s" *)\n' % mux_class)
     f.write("module %s(%s);\n" % (args.name_mux, ", ".join(module_args)))
     previous_type = None
     for type, name, width, index in port_names:
