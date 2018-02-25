@@ -62,11 +62,29 @@ $(DEP_FILES): $(call DEPS,%): $(call ONLY,%) | $(DEPDIR)
 # ------------------------------------------
 
 clean:
-	for D in $$(find . -mindepth 1 -maxdepth 1 -type d -not \( -prune -name .\* \)); do \
+	@for D in $$(find . -mindepth 1 -maxdepth 1 -type d -not \( -prune -name .\* \)); do \
 		$(MAKE) -C $$D clean; \
 	done
 	rm -rf $(DEPDIR)
 
+.PHONY: clean
+
+test:
+	@for D in $$(find . -mindepth 1 -maxdepth 1 -type d -not \( -prune -name .\* \)); do \
+		if [[ -e $$D/Makefile ]]; then $(MAKE) -C $$D test || exit 1; fi; \
+	done
+
+
+.PHONY: test
+
+all:
+	@for D in $$(find . -mindepth 1 -maxdepth 1 -type d -not \( -prune -name .\* -o -name \*test\* \)); do \
+		if [ "$$D" != "tests" -a -e "$$D/Makefile" ]; then $(MAKE) -C $$D all || exit 1; fi; \
+	done
+
+
+.PHONY: all
+.DEFAULT: all
 
 # ------------------------------------------
 
@@ -175,6 +193,3 @@ clean_merged:
 	rm -rf .merged
 
 # ------------------------------------------
-
-all:
-	@true
