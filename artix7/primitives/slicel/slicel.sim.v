@@ -10,25 +10,25 @@
 `include "wff/sim.BFF.v"
 `include "wff/sim.CFF.v"
 `include "wff/sim.DFF.v"
-`include "muxes/f7amux/sim.v"
-`include "muxes/f7bmux/sim.v"
-`include "muxes/f8mux/sim.v"
+`include "muxes/f7amux/f7amux.sim.v"
+`include "muxes/f7bmux/f7bmux.sim.v"
+`include "muxes/f8mux/f8mux.sim.v"
 
-`include "routing/affmux/sim.v"
-`include "routing/bffmux/sim.v"
-`include "routing/cffmux/sim.v"
-`include "routing/dffmux/sim.v"
+`include "routing/affmux/affmux.sim.v"
+`include "routing/bffmux/bffmux.sim.v"
+`include "routing/cffmux/cffmux.sim.v"
+`include "routing/dffmux/dffmux.sim.v"
 
-`include "routing/aoutmux/sim.v"
-`include "routing/boutmux/sim.v"
-`include "routing/coutmux/sim.v"
-`include "routing/doutmux/sim.v"
+`include "routing/aoutmux/aoutmux.sim.v"
+`include "routing/boutmux/boutmux.sim.v"
+`include "routing/coutmux/coutmux.sim.v"
+`include "routing/doutmux/doutmux.sim.v"
 
-`include "routing/precyinit_mux/sim.v"
-`include "routing/coutused/sim.v"
+`include "routing/precyinit_mux/precyinit_mux.sim.v"
+`include "routing/coutused/coutused.sim.v"
 
-`include "routing/srusedmux/sim.v"
-`include "routing/ceusedmux/sim.v"
+`include "routing/srusedmux/srusedmux.sim.v"
+`include "routing/ceusedmux/ceusedmux.sim.v"
 
 `include "routing/w5ffmux/sim.A5FFMUX.v"
 `include "routing/w5ffmux/sim.B5FFMUX.v"
@@ -45,10 +45,10 @@
 `include "routing/wused/sim.CUSED.v"
 `include "routing/wused/sim.DUSED.v"
 
-`include "carry4/carry4_split/sim.v"
-`include "carry4/carry4_complete/sim.v"
+`include "carry4/carry4_split/carry4_split.sim.v"
+`include "carry4/carry4_complete/carry4_complete.sim.v"
 
-`include "routing/clkinv/sim.v"
+`include "routing/clkinv/clkinv.sim.v"
 
 module SLICEL(
 	DX, D1, D2, D3, D4, D5, D6, DMUX, D, DQ,	// D port
