@@ -1,4 +1,7 @@
-.mux_gen.stamp
-model.xml
-pb_type.xml
-sim.v
+ntemplate.carry4_Nmux.model.xml
+ntemplate.carry4_Nmux.pb_type.xml
+ntemplate.carry4_Nmux.sim.v
+carry4_*mux.model.xml
+carry4_*mux.pb_type.xml
+carry4_*mux.sim.v
+.gitignore.mk

@@ -1,4 +1,3 @@
-.mux_gen.stamp
-model.xml
-pb_type.xml
-sim.v
+omux.model.xml
+omux.pb_type.xml
+omux.sim.v

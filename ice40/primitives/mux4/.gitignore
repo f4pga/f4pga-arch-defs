@@ -1,4 +1,4 @@
-.mux_gen.stamp
-model.xml
-pb_type.xml
-sim.v
+.Makefile.mux.d
+MUX4.model.xml
+MUX4.pb_type.xml
+MUX4.sim.v

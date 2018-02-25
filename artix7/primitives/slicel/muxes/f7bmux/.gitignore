@@ -1,4 +1,4 @@
-.mux_gen.stamp
-model.xml
-pb_type.xml
-sim.v
+f7bmux.model.xml
+f7bmux.pb_type.xml
+f7bmux.sim.v
+.gitignore.mk

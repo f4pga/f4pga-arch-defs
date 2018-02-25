@@ -1,4 +1,2 @@
-.mux_gen.stamp
-model.xml
-pb_type.xml
-sim.v
+*outmux.*
+.gitignore.mk
