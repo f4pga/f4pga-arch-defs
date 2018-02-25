@@ -60,43 +60,43 @@
   <output name="A"    num_pins="1" equivalent="false"/>
   <output name="AQ"   num_pins="1" equivalent="false"/>
 
-  <!-- D6LUT, C6LUT, B6LUT, A6LUT == W6LUT
+  <!-- d6lut, c6lut, b6lut, a6lut == N6lut
        A fracturable 6 input LUT. Can either be;
         - 2 * 5 input, 1 output LUT
         - 1 * 6 input, 1 output LUT
     -->
-  <xi:include href="wlut/pb_type.ALUT.xml"/>
-  <xi:include href="wlut/pb_type.BLUT.xml"/>
+  <xi:include href="Nlut/alut.pb_type.xml"/>
+  <xi:include href="Nlut/blut.pb_type.xml"/>
   <xi:include href="muxes/f7amux/f7amux.pb_type.xml"/>
-  <xi:include href="wlut/pb_type.CLUT.xml"/>
-  <xi:include href="wlut/pb_type.DLUT.xml"/>
+  <xi:include href="Nlut/clut.pb_type.xml"/>
+  <xi:include href="Nlut/dlut.pb_type.xml"/>
   <xi:include href="muxes/f7bmux/f7bmux.pb_type.xml"/>
   <xi:include href="muxes/f8mux/f8mux.pb_type.xml"/>
 
   <!-- D5FF, C5FF, B5FF, A5FF == W5FF -->
-  <xi:include href="routing/w5ffmux/pb_type.A5FFMUX.xml"/>
-  <xi:include href="routing/w5ffmux/pb_type.B5FFMUX.xml"/>
-  <xi:include href="routing/w5ffmux/pb_type.C5FFMUX.xml"/>
-  <xi:include href="routing/w5ffmux/pb_type.D5FFMUX.xml"/>
+  <xi:include href="routing/N5ffmux/a5ffmux.pb_type.xml"/>
+  <xi:include href="routing/N5ffmux/b5ffmux.pb_type.xml"/>
+  <xi:include href="routing/N5ffmux/c5ffmux.pb_type.xml"/>
+  <xi:include href="routing/N5ffmux/d5ffmux.pb_type.xml"/>
 
-  <xi:include href="w5ff/pb_type.A5FF.xml"/>
-  <xi:include href="w5ff/pb_type.B5FF.xml"/>
-  <xi:include href="w5ff/pb_type.C5FF.xml"/>
-  <xi:include href="w5ff/pb_type.D5FF.xml"/>
+  <xi:include href="N5ff/a5ff.pb_type.xml"/>
+  <xi:include href="N5ff/b5ff.pb_type.xml"/>
+  <xi:include href="N5ff/c5ff.pb_type.xml"/>
+  <xi:include href="N5ff/d5ff.pb_type.xml"/>
 
   <!-- DFF, CFF, BFF, AFF == WFF -->
-  <xi:include href="wff/pb_type.AFF.xml"/>
-  <xi:include href="wff/pb_type.BFF.xml"/>
-  <xi:include href="wff/pb_type.CFF.xml"/>
-  <xi:include href="wff/pb_type.DFF.xml"/>
+  <xi:include href="Nff/aff.pb_type.xml"/>
+  <xi:include href="Nff/bff.pb_type.xml"/>
+  <xi:include href="Nff/cff.pb_type.xml"/>
+  <xi:include href="Nff/dff.pb_type.xml"/>
 
   <!-- CARRY4 logic -->
   <xi:include href="routing/precyinit_mux/precyinit_mux.pb_type.xml"/>
-  <xi:include href="routing/wcy0/pb_type.ACY0.xml"/>
-  <xi:include href="routing/wcy0/pb_type.BCY0.xml"/>
-  <xi:include href="routing/wcy0/pb_type.CCY0.xml"/>
-  <xi:include href="routing/wcy0/pb_type.DCY0.xml"/>
-  <xi:include href="carry4/pb_type.xml"/>
+  <xi:include href="routing/Ncy0/acy0.pb_type.xml"/>
+  <xi:include href="routing/Ncy0/bcy0.pb_type.xml"/>
+  <xi:include href="routing/Ncy0/ccy0.pb_type.xml"/>
+  <xi:include href="routing/Ncy0/dcy0.pb_type.xml"/>
+  <xi:include href="carry4/carry4.pb_type.xml"/>
 
   <!-- WOUTMUX -->
   <xi:include href="routing/aoutmux/aoutmux.pb_type.xml"/>
