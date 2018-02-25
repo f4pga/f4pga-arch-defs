@@ -85,6 +85,7 @@ def pb_type_xml(mux_type, mux_name, pins, subckt=None, num_pb=1, comment=""):
     xml.etree.ElementTree
         pb_type.xml for requested mux
     """
+    assert isinstance(comment, str), "{} {}".format(type(comment), repr(comment))
 
     if mux_type == MuxType.LOGIC:
         if '-' not in mux_name:
@@ -110,7 +111,7 @@ def pb_type_xml(mux_type, mux_name, pins, subckt=None, num_pb=1, comment=""):
     else:
         assert not subckt, "Provided subckt={} for non-logic mux!".format(subckt)
 
-    if comment:
+    if comment is not None:
         pb_type_xml.append(ET.Comment(comment))
 
     for pin_type, pin_name, pin_width, pin_index in pins:

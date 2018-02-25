@@ -1,14 +1,6 @@
-
-# Disable Makefile's inbuilt implicit rules which are useless.
-.SUFFIXES:
-
-# Work out our location on the file system
-SELF_FILE := $(shell realpath $(lastword $(MAKEFILE_LIST)))
-SELF_DIR := $(shell realpath $(dir $(lastword $(MAKEFILE_LIST))))
-INC_MAKEFILE := $(shell realpath $(word $(shell echo $(words $(MAKEFILE_LIST))-1 | bc),$(MAKEFILE_LIST)))
-
-#$(warning "mux.mk is in $(SELF_FILE)")
-#$(warning "Including file is $(INC_MAKEFILE)")
+ifneq (1,$(MUX_GEN))
+$(error "Please define $$MUX_GEN=1 in your including Makefile.")
+endif
 
 # Check the MUX required configuration
 # ------------------------------------------------------------------------
@@ -79,13 +71,16 @@ endif
 
 # Work out the mux_gen command line
 # ------------------------------------------------------------------------
-MUX_GEN_CMD = $(shell realpath $(SELF_DIR)/../../utils/mux_gen.py)
-MUX_GEN_LIB = $(shell realpath $(SELF_DIR)/../../utils/lib)
+MUX_GEN_CMD = $(realpath $(SELF_DIR)/../../utils/mux_gen.py)
+MUX_GEN_LIB = $(realpath $(SELF_DIR)/../../utils/lib)
 MUX_GEN_FILES = $(MUX_GEN_LIB)/*.py
-MUX_GEN_OUTPUT = model.xml pb_type.xml sim.v
+MUX_GEN_OUTPUTS = $(MUX_OUTFILE).model.xml $(MUX_OUTFILE).pb_type.xml $(MUX_OUTFILE).sim.v
 
 MUX_GEN_ARGS =
-MUX_GEN_ARGS +=		--outdir 	$(PWD)
+MUX_GEN_ARGS +=		--outdir 	$(dir $(INC_MAKEFILE))
+ifneq (,$(MUX_OUTFILE))
+MUX_GEN_ARGS +=		--outfilename 	$(MUX_OUTFILE)
+endif
 MUX_GEN_ARGS +=		--type 		$(MUX_TYPE)
 MUX_GEN_ARGS +=		--width 	$(MUX_WIDTH)
 MUX_GEN_ARGS +=		--name-mux 	$(MUX_NAME)
@@ -132,24 +127,26 @@ MUX_GEN_FULL_CMD = $(MUX_GEN_CMD) $(MUX_GEN_ARGS)
 
 # Actual make targets
 # ------------------------------------------------------------------------
-# Depend on this file
-.mux_gen.stamp: $(SELF_DIR)
-# Depend on the config makefile
-.mux_gen.stamp: $(INC_MAKEFILE)
-# Depend on the mux generator command
-.mux_gen.stamp: $(MUX_GEN_CMD)
+
 # Depend on the libraries that mux generator command uses
-.mux_gen.stamp: $(MUX_GEN_LIB)/*.py
+#$(MUX_DEPS): $(MUX_GEN_LIB)/*.py
 
-.mux_gen.stamp:
+$(MUX_GEN_OUTPUTS): $(SELF_DIR)/deps.mk
+$(MUX_GEN_OUTPUTS): $(SELF_DIR)/mux.mk
+
+# Depend on the config makefile
+$(MUX_GEN_OUTPUTS): $(call ALL,$(INC_MAKEFILE))
+
+# Depend on the mux generator command
+$(MUX_GEN_OUTPUTS): $(MUX_GEN_CMD)
+
+$(MUX_GEN_OUTPUTS):
 	$(MUX_GEN_FULL_CMD)
-	touch $@
 
-$(MUX_GEN_OUTPUT): .mux_gen.stamp
+clean: mux_clean
+mux_clean:
+	rm -f $(MUX_GEN_OUTPUTS) $(MUX_DEPS)
 
-all: .mux_gen.stamp
+all: $(MUX_GEN_OUTPUTS)
 
-clean:
-	rm -f $(MUX_GEN_OUTPUT) .mux_gen.stamp
-
-.PHONY: all clean
+.PHONY: clean
