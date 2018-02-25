@@ -1,6 +1,6 @@
 MUX_TYPE = routing
+MUX_OUTFILE = boutmux
 MUX_NAME = BOUTMUX
 MUX_WIDTH = 6
 MUX_SPLIT_INPUTS = 1
 MUX_INPUTS = B5Q,XOR,O6,O5,F8,CY
-include ../../../../../common/make/mux.mk

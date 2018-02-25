@@ -1,6 +1,6 @@
 MUX_TYPE = routing
+MUX_OUTFILE = cffmux
 MUX_NAME = CFFMUX
 MUX_WIDTH = 6
 MUX_SPLIT_INPUTS = 1
 MUX_INPUTS = XOR,O6,O5,F7,CY,CX
-include ../../../../../common/make/mux.mk
