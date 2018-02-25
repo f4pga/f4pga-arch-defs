@@ -3,7 +3,7 @@
 // A fracturable 6 input LUT. Can either be;
 //  - 2 * 5 input, 1 output LUT
 //  - 1 * 6 input, 1 output LUT
-module {W}LUT(A1, A2, A3, A4, A5, A6, O6, O5);
+module {N}LUT(A1, A2, A3, A4, A5, A6, O6, O5);
 
 	input wire A1;
 	input wire A2;

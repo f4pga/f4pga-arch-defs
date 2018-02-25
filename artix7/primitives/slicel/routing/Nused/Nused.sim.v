@@ -1,4 +1,4 @@
-module {W}USED(I0, O);
+module {N}USED(I0, O);
 
 	input wire I0;
 

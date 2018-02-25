@@ -1,6 +1,6 @@
 // DFF, CFF, BFF, AFF == WFF
 // Flip-flop which can be configured as a flip flop or latch.
-module {W}FF(D, CE, CK, Q, SR);
+module {N}FF(D, CE, CK, Q, SR);
 	// The mode this unit operates in, can be;
 	// "FLIPFLOP" 	- Operate as a flip-flop (D->Q on clock low->high)
 	// "LATCH" 	- Operate as a latch	 (D->Q while CLK low)
