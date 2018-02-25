@@ -9,7 +9,7 @@
   <input  name="I" num_pins="1" equivalent="false"/>
   <clock  name="C" num_pins="1" equivalent="false"/>
   <output name="O" num_pins="1" equivalent="false"/>
-  <xi:include href="../../primitives/ff/pb_type.xml"/>
+  <xi:include href="../../primitives/ff/ff.pb_type.xml"/>
   <interconnect>
    <direct name="BEL_FF-FF.D"   input="BLK_SI-FF_LARGE.I" output="BEL_FF-FF.D"   />
    <direct name="BEL_FF-FF.clk" input="BLK_SI-FF_LARGE.C" output="BEL_FF-FF.clk" />

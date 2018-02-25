@@ -67,11 +67,11 @@
     -->
   <xi:include href="wlut/pb_type.ALUT.xml"/>
   <xi:include href="wlut/pb_type.BLUT.xml"/>
-  <xi:include href="muxes/f7amux/pb_type.xml"/>
+  <xi:include href="muxes/f7amux/f7amux.pb_type.xml"/>
   <xi:include href="wlut/pb_type.CLUT.xml"/>
   <xi:include href="wlut/pb_type.DLUT.xml"/>
-  <xi:include href="muxes/f7bmux/pb_type.xml"/>
-  <xi:include href="muxes/f8mux/pb_type.xml"/>
+  <xi:include href="muxes/f7bmux/f7bmux.pb_type.xml"/>
+  <xi:include href="muxes/f8mux/f8mux.pb_type.xml"/>
 
   <!-- D5FF, C5FF, B5FF, A5FF == W5FF -->
   <xi:include href="routing/w5ffmux/pb_type.A5FFMUX.xml"/>
@@ -91,7 +91,7 @@
   <xi:include href="wff/pb_type.DFF.xml"/>
 
   <!-- CARRY4 logic -->
-  <xi:include href="routing/precyinit_mux/pb_type.xml"/>
+  <xi:include href="routing/precyinit_mux/precyinit_mux.pb_type.xml"/>
   <xi:include href="routing/wcy0/pb_type.ACY0.xml"/>
   <xi:include href="routing/wcy0/pb_type.BCY0.xml"/>
   <xi:include href="routing/wcy0/pb_type.CCY0.xml"/>
@@ -99,16 +99,16 @@
   <xi:include href="carry4/pb_type.xml"/>
 
   <!-- WOUTMUX -->
-  <xi:include href="routing/aoutmux/pb_type.xml"/>
-  <xi:include href="routing/boutmux/pb_type.xml"/>
-  <xi:include href="routing/coutmux/pb_type.xml"/>
-  <xi:include href="routing/doutmux/pb_type.xml"/>
+  <xi:include href="routing/aoutmux/aoutmux.pb_type.xml"/>
+  <xi:include href="routing/boutmux/boutmux.pb_type.xml"/>
+  <xi:include href="routing/coutmux/coutmux.pb_type.xml"/>
+  <xi:include href="routing/doutmux/doutmux.pb_type.xml"/>
 
   <!-- WFFMUX -->
-  <xi:include href="routing/affmux/pb_type.xml"/>
-  <xi:include href="routing/bffmux/pb_type.xml"/>
-  <xi:include href="routing/cffmux/pb_type.xml"/>
-  <xi:include href="routing/dffmux/pb_type.xml"/>
+  <xi:include href="routing/affmux/affmux.pb_type.xml"/>
+  <xi:include href="routing/bffmux/bffmux.pb_type.xml"/>
+  <xi:include href="routing/cffmux/cffmux.pb_type.xml"/>
+  <xi:include href="routing/dffmux/dffmux.pb_type.xml"/>
 
 
   <!--

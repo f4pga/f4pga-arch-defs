@@ -4,13 +4,13 @@
  <output name="O" num_pins="1" equivalent="false"/> <!-- Output (from LUT or LUT+FF) -->
 
  <!-- 4 input LUT -->
- <xi:include href="../lut/pb_type.xml"/>
+ <xi:include href="../lut/lut.pb_type.xml"/>
 
  <!-- FlipFlop -->
- <xi:include href="../ff/pb_type.xml"/>
+ <xi:include href="../ff/ff.pb_type.xml"/>
 
  <!-- Output Mux -->
- <xi:include href="../omux/pb_type.xml"/>
+ <xi:include href="../omux/omux.pb_type.xml"/>
 
  <interconnect>
   <direct input="BLK_IG-LUTFF.I" name="BEL_LT-LUT.in"  output="BEL_LT-LUT.in"  />

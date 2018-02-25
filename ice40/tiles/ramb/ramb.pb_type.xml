@@ -20,7 +20,7 @@
    <input  name="WCLKE"  num_pins="1"  equivalent="false"/>
    <clock  name="WCLK"   num_pins="1"  equivalent="false"/>
 
-   <xi:include href="../../primitives/sb_ram/pb_type.xml"/>
+   <xi:include href="../../primitives/sb_ram/sb_ram.pb_type.xml"/>
 
    <interconnect>
     <direct name="RDATA00" input="SB_RAM.RDATA[0]"  output="RAMB.RDATAT[0]"/>

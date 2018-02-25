@@ -279,7 +279,7 @@
    </pinlocations>
    
    
-    <xi:include href="../../primitives/mux2/pb_type.xml"/>
-    <xi:include href="../../primitives/mux4/pb_type.xml"/>
+    <xi:include href="../../primitives/mux2/mux2.pb_type.xml"/>
+    <xi:include href="../../primitives/mux4/mux4.pb_type.xml"/>
 
 </pb_type>

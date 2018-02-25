@@ -4,7 +4,7 @@
   <input equivalent="false" name="CIN" num_pins="1"/>
   <input equivalent="false" name="DI" num_pins="4"/>
   <input equivalent="false" name="S" num_pins="4"/>
-  <xi:include href="carry4/pb_type.xml"/>
+  <xi:include href="carry4/carry4.pb_type.xml"/>
   <interconnect>
     <direct input="BLK_IG-CARRY4_COMPLETE.CIN" name="BEL_BB-CARRY4_CIN" output="BEL_BB-CARRY4.CIN"/>
     <direct input="BLK_IG-CARRY4_COMPLETE.DI[0]" name="BEL_BB-CARRY4_DI_0" output="BEL_BB-CARRY4.DI[0]"/>

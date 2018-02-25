@@ -60,13 +60,13 @@
     <output name="FCOUT" num_pins="1" equivalent="false"/>
 
     <!-- 4 input LUT -->
-    <xi:include href="../../primitives/sb_lut/pb_type.xml"/>
+    <xi:include href="../../primitives/sb_lut/sb_lut.pb_type.xml"/>
 
     <!-- D FlipFlop -->
-    <xi:include href="../../primitives/sb_ff/pb_type.xml"/>
+    <xi:include href="../../primitives/sb_ff/sb_ff.pb_type.xml"/>
 
     <!-- SB_CARRY -->
-    <xi:include href="../../primitives/sb_carry/pb_type.xml"/>
+    <xi:include href="../../primitives/sb_carry/sb_carry.pb_type.xml"/>
 
     <!-- Connect the PLB_CELL together -->
     <interconnect>
