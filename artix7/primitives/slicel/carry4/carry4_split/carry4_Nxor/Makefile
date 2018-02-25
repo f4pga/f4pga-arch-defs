@@ -1,1 +1,3 @@
-include ../../../../../../common/make/sim.mk
+NTEMPLATE_VALUES=a b c d
+
+include ../../../../../../common/make/deps.mk

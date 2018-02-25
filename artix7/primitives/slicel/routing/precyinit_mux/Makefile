@@ -1,1 +1,1 @@
-include ../../../../../../common/make/sim.mk
+include ../../../../../common/make/deps.mk
