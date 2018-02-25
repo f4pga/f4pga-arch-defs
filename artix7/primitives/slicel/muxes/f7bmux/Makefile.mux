@@ -1,6 +1,6 @@
 MUX_TYPE = logic
+MUX_OUTFILE = f7bmux
 MUX_NAME = F7BMUX
 MUX_WIDTH = 2
 MUX_SPLIT_INPUTS = 1
 MUX_SELECT = S0
-include ../../../../../common/make/mux.mk

@@ -1,7 +1,7 @@
 MUX_COMMENT = F7AMUX is used to create a LUT7 from two LUT6s.
 MUX_TYPE = logic
+MUX_OUTFILE = f7amux
 MUX_NAME = F7AMUX
 MUX_WIDTH = 2
 MUX_SPLIT_INPUTS = 1
 MUX_SELECT = S0
-include ../../../../../common/make/mux.mk
