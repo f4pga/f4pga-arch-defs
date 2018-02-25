@@ -1,3 +1,0 @@
-TOP_MODULE=CARRY4_TOP
-
-include ../../../../common/make/xml.mk
