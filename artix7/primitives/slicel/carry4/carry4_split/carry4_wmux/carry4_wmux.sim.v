@@ -3,7 +3,7 @@
  * Run 'make -f Makefile.mux' in this directory to regenerate.
  */
 
-`include "../../../../../../vpr/muxes/logic/mux2/sim.v"
+`include "../../../../../../vpr/muxes/logic/mux2/mux2.sim.v"
 
 (* blackbox *) (* CLASS="mux" *)
 module CARRY4_{W}MUX(CI, DI, S, O);

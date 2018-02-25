@@ -1,4 +1,4 @@
-`include "../../../../../vpr/muxes/logic/mux2/sim.v"
+`include "../../../../../vpr/muxes/logic/mux2/mux2.sim.v"
 
 module SRUSEDMUX(IN, OUT);
 	input wire IN;

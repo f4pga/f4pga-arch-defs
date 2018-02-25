@@ -1,7 +1,7 @@
 `ifndef VPR_MUXES_LOGIC_MUX5
 `define VPR_MUXES_LOGIC_MUX5
 
-`include "../mux2/sim.v"
+`include "../mux2/mux2.sim.v"
 
 module MUX5(I0, I1, I2, I3, I4, S0, S1, S2, O);
 	input wire I0;
