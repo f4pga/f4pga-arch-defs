@@ -1,4 +1,0 @@
-NAME_PREFIX=CARRY4_
-NAME_SUFFIX=MUX
-
-include ../../../../../../common/make/N.mk
