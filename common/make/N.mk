@@ -1,29 +1,40 @@
-.SUFFIXES:
+# common/make/N.mk - Create other files from templates based on replacing N
+# with another value.
 
-SELF_DIR := $(dir $(lastword $(MAKEFILE_LIST)))
+ifeq (,$(NTEMPLATE_VALUES))
+$(error "You have NTEMPLATES $(NTEMPLATES_INPUTS), you must provide $$NTEMPLATE_VALUES")
+endif
 
-WPY = $(realpath $(SELF_DIR)/../../utils/w.py)
+NTEMPLATE_TOOL := $(realpath $(SELF_DIR)/../../utils/n.py)
 
-NAMES := $(foreach W,A B C D,$(NAME_PREFIX)$(W)$(NAME_SUFFIX))
+$(call DEPMK,$(NTEMPLATE_PREFIX)s): | $(DEP_DIR)
+	@echo "Generating deps for ntemplates into '$(TARGET)' using '$(SELF_FILE)'"
+	@echo "" > $(TARGET)
+	@for I in $(NTEMPLATES); do \
+		for V in $(NTEMPLATE_VALUES); do \
+			export O=$$(echo $$I | sed -e"s/N/$$V/g" -e's#$(NTEMPLATE_PREFIX)\.##'); \
+			printf "$$O: $$I\n" 						>> $(TARGET); \
+			printf "\t$(NTEMPLATE_TOOL) \$$(PREREQ_FIRST) \$$(TARGET)\n" 	>> $(TARGET); \
+			printf "\n"		 					>> $(TARGET); \
+			printf "NTEMPLATES_OUTPUTS += $$O\n"				>> $(TARGET); \
+			printf "\n"		 					>> $(TARGET); \
+		done; \
+	done
+	@echo "clean_ntemplates:" 							>> $(TARGET)
+	@for I in $(NTEMPLATES); do \
+		for V in $(NTEMPLATE_VALUES); do \
+			export O=$$(echo $$I | sed -e"s/N/$$V/g" -e's#$(NTEMPLATE_PREFIX)\.##'); \
+			printf "\trm -f $$O\n" 						>> $(TARGET); \
+		done; \
+	done
+	@echo "" 									>> $(TARGET)
+	@echo "clean: clean_ntemplates" 						>> $(TARGET)
+	@echo "" 									>> $(TARGET)
+	@echo "Created: $(TARGET)"
 
-PB_TYPE_XML := $(foreach N,$(NAMES),pb_type.$(N).xml)
-SIM_V := $(foreach N,$(NAMES),sim.$(N).v)
+$(call DEPMK,$(NTEMPLATE_PREFIX)s): $(NTEMPLATES)
+$(call DEPMK,$(NTEMPLATE_PREFIX)s): $(call ALL,$(INC_MAKEFILE))
 
-pb_type.%.xml: pb_type.xml $(WPY)
-	$(WPY) $$(echo $@ | sed -e's/^.*$(NAME_PREFIX)\(.\)$(NAME_SUFFIX).*$$/\1/') $@
+all: $(NTEMPLATE_OUTPUTS)
 
-.PRECIOUS: pb_type.%.xml
-
-sim.%.v: sim.v $(WPY)
-	$(WPY) $$(echo $@ | sed -e's/^.*$(NAME_PREFIX)\(.\)$(NAME_SUFFIX).*$$/\1/') $@
-
-.PRECIOUS: sim.%.v
-
-clean:
-	rm -f pb_type.*.xml
-	rm -f sim.*.v
-
-all: $(PB_TYPE_XML) $(SIM_V)
-
-.DEFAULT_GOAL := all
-.PHONY: all
+include $(call DEPMK,$(NTEMPLATE_PREFIX)s)
