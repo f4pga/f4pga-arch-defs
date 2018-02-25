@@ -78,6 +78,10 @@ parser.add_argument(
     help="""Directory to output generated content too.""")
 
 parser.add_argument(
+    '--outfilename', default=None,
+    help="""Filename to output generated content too.""")
+
+parser.add_argument(
     '--comment', default=None,
     help="""Add some type of comment to the mux.""")
 
@@ -155,7 +159,6 @@ os.makedirs(outdir, exist_ok=True)
 # Generated headers
 generated_with = """
 Generated with %s
-Run 'make -f Makefile.mux' in this directory to regenerate.
 """ % mypath
 if args.comment:
     generated_with = "\n".join([args.comment, generated_with])
@@ -167,7 +170,15 @@ xml_comment = generated_with.replace("--", "~~")
 # Create a makefile to regenerate files.
 # ------------------------------------------------------------------------
 makefile_file = os.path.join(outdir, "Makefile.mux")
-output_files = ['model.xml', 'pb_type.xml', '.gitignore', 'sim.v', 'Makefile.mux']
+
+if not args.outfilename:
+    args.outfilename = args.name_mux.lower()
+
+model_xml_filename = '%s.model.xml' % args.outfilename
+pbtype_xml_filename = '%s.pb_type.xml' % args.outfilename
+sim_filename = '%s.sim.v' % args.outfilename
+
+output_files = [model_xml_filename, pbtype_xml_filename, sim_filename, '.gitignore', 'Makefile.mux']
 commit_files = ['.gitignore', "Makefile.mux"]
 remove_files = [f for f in output_files if f not in commit_files]
 
@@ -180,6 +191,7 @@ if True:
 
     # Required values
     print("MUX_TYPE = {}".format(args.type.lower()), file=f)
+    print("MUX_OUTFILE = {}".format(args.outfilename), file=f)
     print("MUX_NAME = {}".format(args.name_mux), file=f)
     print("MUX_WIDTH = {}".format(args.width), file=f)
 
@@ -209,8 +221,6 @@ if True:
     if args.subckt != parser.get_default('subckt'):
         print("MUX_SUBCKT = {}".format(args.subckt), file=f)
 
-    print("include {}".format(mux_mk), file=f)
-
 new_makefile_contents = new_makefile_contents.getvalue()
 if not os.path.exists(makefile_file):
     current_makefile_contents = ""
@@ -225,13 +235,12 @@ output_block("Makefile.mux", open(makefile_file).read())
 # ------------------------------------------------------------------------
 # Create .gitignore file for the generated files.
 # ------------------------------------------------------------------------
-gitignore_file = os.path.join(outdir, ".gitignore")
+gitignore_file = os.path.join(outdir, ".gitignore.mk")
 with open(gitignore_file, "w") as f:
-    f.write(".mux_gen.stamp\n")
     for name in remove_files:
         f.write(name+'\n')
 
-output_block(".gitignore", open(gitignore_file).read())
+output_block(".gitignore.mk", open(gitignore_file).read())
 
 # ------------------------------------------------------------------------
 # Work out the port and their names
@@ -258,8 +267,8 @@ for i in args.order:
 
 defs = {'i': 'input wire', 's': 'input wire', 'o': 'output wire'}
 
-sim_file = os.path.join(outdir, "sim.v")
-with open(sim_file, "w") as f:
+sim_pathname = os.path.join(outdir, sim_filename)
+with open(sim_pathname, "w") as f:
     module_args = []
     for type, name, _, _ in port_names:
         if args.type == 'routing' and type == mux_lib.MuxPinType.SELECT:
@@ -272,7 +281,11 @@ with open(sim_file, "w") as f:
     f.write("/* ")
     f.write("\n * ".join(generated_with.splitlines()))
     f.write("\n */\n\n")
-    f.write('`include "%s/%s/%smux%i/sim.v"\n' % (mux_dir, 'logic', '', args.width))
+    f.write('`include "%s/%s/%smux%i/%smux%i.sim.v"\n' % (
+        mux_dir, 'logic',
+        '', args.width,
+        '', args.width,
+    ))
     f.write("\n")
     f.write('(* blackbox *) (* CLASS="%s" *)\n' % mux_class)
     f.write("module %s(%s);\n" % (args.name_mux, ", ".join(module_args)))
@@ -334,7 +347,7 @@ with open(sim_file, "w") as f:
 
     f.write('endmodule\n')
 
-output_block("sim.v", open(sim_file).read())
+output_block("sim.v", open(sim_pathname).read())
 
 if args.type == 'logic':
     subckt = args.subckt or args.name_mux
@@ -347,12 +360,12 @@ elif args.type == 'routing':
 # Generate the Model XML form.
 # ------------------------------------------------------------------------
 def xml_comment_indent(n, s):
-    return ET.Comment(("\n"+" "*n).join(s.splitlines()+[""]))
+    return ("\n"+" "*n).join(s.splitlines()+[""])
 
 
 if args.type == 'logic':
     models_xml = ET.Element('models')
-    models_xml.append(xml_comment_indent(4, xml_comment))
+    models_xml.append(ET.Comment(xml_comment_indent(4, xml_comment)))
 
     model_xml = ET.SubElement(models_xml, 'model', {'name': subckt})
 
@@ -369,11 +382,12 @@ if args.type == 'logic':
             ET.SubElement(output_ports, 'port', {'name': args.name_output})
 
     models_str = ET.tostring(models_xml, pretty_print=True).decode('utf-8')
-    output_block("model.xml", models_str)
-    with open(os.path.join(outdir, "model.xml"), "w") as f:
-        f.write(models_str)
 else:
-    output_block("model.xml", "No model.xml for routing elements.")
+    models_str = "<models><!-- No models for routing elements.--></models>"
+
+output_block(model_xml_filename, models_str)
+with open(os.path.join(outdir, model_xml_filename), "w") as f:
+    f.write(models_str)
 
 # ------------------------------------------------------------------------
 # Generate the pb_type XML form.
@@ -389,6 +403,6 @@ pb_type_xml = mux_lib.pb_type_xml(
 )
 
 pb_type_str = ET.tostring(pb_type_xml, pretty_print=True).decode('utf-8')
-output_block("pb_type.xml", pb_type_str)
-with open(os.path.join(outdir, "pb_type.xml"), "w") as f:
+output_block(pbtype_xml_filename, pb_type_str)
+with open(os.path.join(outdir, pbtype_xml_filename), "w") as f:
     f.write(pb_type_str)
