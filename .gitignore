@@ -1,22 +1,23 @@
-merged*.xml
-*.deps.mk
+# Makefile generated dependency information.
+.d
+.merged
+
 rr_graph*.xml
 *.pdf
-sim.*.dot
-sim.*.json
-sim.*.png
-sim.*.ps
-sim.*.svg
+*.log
+
+tests/build
+
+third_party
+
+unused
+
+# Simulation output
 sim.dot
 sim.json
 sim.png
 sim.ps
 sim.svg
-tests/build
-push.sh
-pb_type.*.xml
-sim.*.v
-third_party
-.gen.stamp
+
 artix7/arch/xc7a50t-roi-virt/dummy/*.xml
 sim_clean.v

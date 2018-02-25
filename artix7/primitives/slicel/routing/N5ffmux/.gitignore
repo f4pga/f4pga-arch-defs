@@ -1,4 +1,5 @@
-.mux_gen.stamp
-model.xml
-pb_type.xml
-sim.v
+*5ffmux.model.xml
+*5ffmux.pb_type.xml
+*5ffmux.sim.v
+.gitignore.mk
+ntemplate.*
