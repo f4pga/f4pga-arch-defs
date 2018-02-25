@@ -1,7 +1,7 @@
-`include "../../../../vpr/ff/ff.sim.v"
+`include "../../../../vpr/ff/sim.v"
 // D5FF, C5FF, B5FF, A5FF == W5FF
 // Flip-flop which can be configured only as a flip flop.
-(* MODEL_NAME = "W5FF" *)
+(* MODEL_NAME = "{N}5FF" *)
 module {N}5FF(D, CE, CK, Q, SR);
 	input  wire D;
 	output wire Q;

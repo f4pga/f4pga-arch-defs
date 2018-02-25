@@ -1,5 +1,5 @@
 <models>
-  <model name="W5FF">
+  <model name="{N}5FF">
     <input_ports>
       <port clock="CK" name="D"/>
       <port clock="CK" name="CE"/>
