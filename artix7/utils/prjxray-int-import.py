@@ -19,7 +19,7 @@ import lxml.etree as ET
 # Work out valid arguments for Project X-Ray database                    #
 ##########################################################################
 mydir = os.path.dirname(__file__)
-prjxray_db = os.path.abspath(os.path.join(mydir, "..", "third_party", "prjxray-db"))
+prjxray_db = os.path.abspath(os.path.join(mydir, "..", "..", "third_party", "prjxray-db"))
 
 db_types = set()
 int_tiles = set()
