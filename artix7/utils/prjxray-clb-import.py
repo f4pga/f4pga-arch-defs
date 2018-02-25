@@ -16,7 +16,7 @@ import lxml.etree as ET
 # Work out valid arguments for Project X-Ray database                    #
 ##########################################################################
 mydir = os.path.dirname(__file__)
-prjxray_db = os.path.abspath(os.path.join(mydir, "..", "third_party", "prjxray-db"))
+prjxray_db = os.path.abspath(os.path.join(mydir, "..", "..", "third_party", "prjxray-db"))
 
 db_types = set()
 clb_tiles = set()
@@ -100,11 +100,11 @@ def process_wire(wire_name):
     if wire_name.endswith("_N"):
         pass
     elif wire_name.startswith("L_"):
-        wire_name = "CLBLL_L."+wire_name[2:]
+        wire_name = tile_type+"_L."+wire_name[2:]
     elif wire_name.startswith("M_"):
-        wire_name = "CLBLL_M."+wire_name[2:]
+        wire_name = tile_type+"_M."+wire_name[2:]
     elif wire_name.startswith("LL_"):
-        wire_name = "CLBLL_LL."+wire_name[3:]
+        wire_name = tile_type+"_LL."+wire_name[3:]
 
     # Special case the LUT inputs as they look like a bus but we don't want to
     # treat them like one.
@@ -112,7 +112,6 @@ def process_wire(wire_name):
                   'B1', 'B2', 'B3', 'B4', 'B5', 'B6',
                   'C1', 'C2', 'C3', 'C4', 'C5', 'C6',
                   'D1', 'D2', 'D3', 'D4', 'D5', 'D6',
-                  'FAN6', 'FAN7',
                   ):
         if wire_name.endswith(lutin):
             prefix, num = wire_name, None
@@ -143,8 +142,9 @@ def ppips():
         yield "CLBLL_L.CLBLL_L_CIN.CLBLL_L_CIN_N always\n"
         yield "CLBLL_L.CLBLL_LL_CIN.CLBLL_LL_CIN_N always\n"
     elif tile_type == "CLBLM":
-        yield "CLBLL_M.CLBLL_M_CIN.CLBLL_M_CIN_N always\n"
-        yield "CLBLL_M.CLBLL_L_CIN.CLBLL_L_CIN_N always\n"
+        #yield "CLBLL_M.CLBLL_M_CIN.CLBLL_M_CIN_N always\n"
+        #yield "CLBLL_M.CLBLL_L_CIN.CLBLL_L_CIN_N always\n"
+        pass
 
 # Read in all the Pseudo PIP definitions.
 for line in ppips():
@@ -178,8 +178,7 @@ clbll_outputs = set()
 for name, pins in wires_internal.items():
     #if "COUT" in name:
     #    continue
-
-    if name.startswith("CLBLL_"):
+    if name.startswith("CLB"):
         inputs = slice_outputs
         outputs = slice_inputs
     else:
@@ -211,9 +210,9 @@ if tile_type.startswith('CLBLL'):
     slice1_type = 'SLICEL'
 elif tile_type.startswith('CLBLM'):
     # CLBLM's have one SLICELs called CLBLL_L and one SLICEM called CLBLL_M
-    slice0_name = 'CLBLL_M'
+    slice0_name = 'CLBLM_M'
     slice0_type = 'SLICEM'
-    slice1_name = 'CLBLL_L'
+    slice1_name = 'CLBLM_L'
     slice1_type = 'SLICEL'
 else:
     assert False, tile_type
@@ -276,6 +275,11 @@ interconnect_xml = ET.Element('interconnect')
 pb_type_xml.append(ET.Comment(" Tile Inputs "))
 interconnect_xml.append(ET.Comment(" Tile->Slice "))
 for name, pins in sorted(clbll_inputs):
+    if name == "FAN":
+        assert pins in ((6, 7), (0, 2, 3, 4, 5, 6, 7)), "{}".format(pins)
+        pins = tuple(range(8))
+    assert pins == (None,) or pins == tuple(range(len(pins))), "Wrong pins for {} {} should be {}".format(name, pins, list(range(len(pins))))
+
     # Input definitions for the TILE
     input_type = 'input'
     if 'CLK' in name:
@@ -287,6 +291,8 @@ for name, pins in sorted(clbll_inputs):
     )
 
     for p in pins:
+        if (name, p) not in connections:
+            continue
         # Connections from the TILE to the CLBLL_XX
         add_direct(interconnect_xml, '%s.%s' % (tile_name, fmt(name, p)), fmt(*connections[(name, p)]))
 
@@ -356,7 +362,7 @@ for name, pins in sorted(slice_inputs):
         slice_xml = slice1_xml
         slice_interconnect_xml = slice1_interconnect_xml
     else:
-        assert False, name
+        assert False, (name, pins)
 
     # Input pins for the CLBLL_X
     input_type = 'input'
