@@ -1,5 +1,5 @@
 <models>
-  <model name="XORCY">
+  <model name="CARRY4_NXOR">
     <input_ports>
       <port combinational_sink_ports="O" name="CI"/>
       <port combinational_sink_ports="O" name="LI"/>
