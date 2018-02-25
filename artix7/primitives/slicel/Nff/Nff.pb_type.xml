@@ -1,5 +1,5 @@
 <!-- DFF, CFF, BFF, AFF == WFF -->
-<pb_type name="BLK_BB-{W}FF" num_pb="1" xmlns:xi="http://www.w3.org/2001/XInclude">
+<pb_type name="BLK_BB-{N}FF" num_pb="1" xmlns:xi="http://www.w3.org/2001/XInclude">
   <input name="D" num_pins="1"/>
   <input name="CE" num_pins="1"/>
   <clock name="CK" num_pins="1"/>
@@ -9,9 +9,9 @@
   <mode name="VPR_FF">
    <xi:include href="../../../../vpr/ff/ff.pb_type.xml"/>
    <interconnect>
-    <direct name="D" input="BLK_BB-{W}FF.D"  output="BEL_FF-VPR_FF.D"/>
-    <direct name="C" input="BLK_BB-{W}FF.CK" output="BEL_FF-VPR_FF.clk"/>
-    <direct name="Q" input="BEL_FF-VPR_FF.Q"   output="BLK_BB-{W}FF.Q"/>
+    <direct name="D" input="BLK_BB-{N}FF.D"  output="BEL_FF-VPR_FF.D"/>
+    <direct name="C" input="BLK_BB-{N}FF.CK" output="BEL_FF-VPR_FF.clk"/>
+    <direct name="Q" input="BEL_FF-VPR_FF.Q"   output="BLK_BB-{N}FF.Q"/>
    </interconnect>
   </mode>
 
@@ -28,11 +28,11 @@
     <T_clock_to_Q max="10e-12" port="BEL_FF-FDRE.Q" clock="C" />
    </pb_type>
    <interconnect>
-    <direct name="D"  input="BLK_BB-{W}FF.D"  output="BEL_FF-FDRE.D"  />
-    <direct name="CE" input="BLK_BB-{W}FF.CE" output="BEL_FF-FDRE.CE" />
-    <direct name="C"  input="BLK_BB-{W}FF.CK" output="BEL_FF-FDRE.C"  />
-    <direct name="R"  input="BLK_BB-{W}FF.SR" output="BEL_FF-FDRE.R"  />
-    <direct name="Q"  input="BEL_FF-FDRE.Q"   output="BLK_BB-{W}FF.Q" />
+    <direct name="D"  input="BLK_BB-{N}FF.D"  output="BEL_FF-FDRE.D"  />
+    <direct name="CE" input="BLK_BB-{N}FF.CE" output="BEL_FF-FDRE.CE" />
+    <direct name="C"  input="BLK_BB-{N}FF.CK" output="BEL_FF-FDRE.C"  />
+    <direct name="R"  input="BLK_BB-{N}FF.SR" output="BEL_FF-FDRE.R"  />
+    <direct name="Q"  input="BEL_FF-FDRE.Q"   output="BLK_BB-{N}FF.Q" />
    </interconnect>
   </mode>
 

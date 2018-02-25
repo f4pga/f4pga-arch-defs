@@ -2,7 +2,7 @@
 // D5FF, C5FF, B5FF, A5FF == W5FF
 // Flip-flop which can be configured only as a flip flop.
 (* MODEL_NAME = "W5FF" *)
-module {W}5FF(D, CE, CK, Q, SR);
+module {N}5FF(D, CE, CK, Q, SR);
 	input  wire D;
 	output wire Q;
 
