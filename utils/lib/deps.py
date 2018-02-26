@@ -125,7 +125,7 @@ def write_deps(inputfile_name, data):
     deps_filename = deps_mk(inputfile_name)
     with open(deps_filename, "w") as f:
         f.write(data.getvalue())
-    print("Created:", os.path.abspath(deps_filename))
+    print("Generated dependency info", deps_filename)
 
 
 if __name__ == "__main__":

@@ -9,6 +9,7 @@ import sys
 
 from io import StringIO
 
+from lib.argparse_extra import ActionStoreBool
 from lib.asserts import assert_eq
 from lib.deps import deps_file
 from lib.deps import write_deps
@@ -16,11 +17,13 @@ from lib.deps import write_deps
 
 parser = argparse.ArgumentParser()
 parser.add_argument(
+    '--verbose', '--no-verbose',
+    action=ActionStoreBool, default=os.environ.get('V', '')==1,
+    help="Print lots of information about the generation.")
+parser.add_argument(
     "inputfile",
     type=argparse.FileType('r'),
-    help="""\
-Input Makefile
-""")
+    help="Input Makefile")
 
 
 my_path = os.path.abspath(__file__)
@@ -49,7 +52,8 @@ def main(argv):
 
             includefile_path = includefile_path.replace("$(SELF_DIR)", reldir)
             if "$" in includefile_path:
-                print("Skipping {}".format(includefile_path))
+                if args.verbose:
+                    print("Skipping {}".format(includefile_path))
                 continue
 
             includefile_fullpath = os.path.realpath(includefile_path)

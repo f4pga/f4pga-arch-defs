@@ -21,7 +21,7 @@ The file to set the modtime on.
 """)
 parser.add_argument(
     "--verbose",
-    action=argparse_extra.ActionStoreBool, default=False,
+    action=argparse_extra.ActionStoreBool, default=os.environ.get('V', '')==1,
     help="""\
 Files to get the input time from.
 """)
@@ -45,8 +45,7 @@ def main(argv):
     newest = None
     for filepath in args.files:
         if not os.path.exists(filepath):
-            if args.verbose:
-                print("Did not find {}, skipping!".format(filepath), file=sys.stderr)
+            print("Did not find {}, skipping!".format(filepath), file=sys.stderr)
             continue
         assert os.path.isfile(filepath), filepath
 
@@ -58,8 +57,7 @@ def main(argv):
             t = mtime
 
     if not newest:
-        if args.verbose:
-            print("Did not find any files, using current time!", file=sys.stderr)
+        print("Did not find any files, using current time!", file=sys.stderr)
         t = time.time()
 
     if not os.path.exists(args.outfile):
@@ -69,7 +67,9 @@ def main(argv):
     assert os.path.exists(args.outfile), args.outfile
     assert os.path.isfile(args.outfile), args.outfile
     if os.path.getmtime(args.outfile) == t:
-        print("modtime of {} already {} (from {})".format(args.outfile, t, newest))
+        if args.verbose:
+            print("modtime of {} already {} (from {})".format(args.outfile, t, newest))
+            t += 1
     if args.verbose:
         print("Setting modtime of {} to {} (from {})".format(args.outfile, t, newest))
     os.utime(args.outfile, times=(time.time(), t))
