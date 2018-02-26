@@ -56,7 +56,7 @@ DEP_FILES = $(foreach F,$(call FILES,*),$(call DEPS,$(F)))
 $(DEP_FILES): $(call DEPS,%): $(call ONLY,%) | $(DEPDIR)
 	@echo "Making .DEPS file for $(TARGET)"
 	touch $(TARGET)
-	#$(NEWEST_TOOL) --output $(TARGET) $(PREREQ_ALL)
+	$(NEWEST_TOOL) --output $(TARGET) $(PREREQ_ALL)
 
 
 # ------------------------------------------
@@ -115,7 +115,7 @@ DEPS_MAKEFILE_OUTPUTS = $(call DEPMK,Makefile)
 $(call DEPMK,Makefile): $(call ONLY,Makefile) | $(DEPDIR)
 	@echo "Generating deps for '$(PREREQ_FIRST)' into '$(TARGET)' using '$(DEPS_MAKEFILE_TOOL)'"
 	$(DEPS_MAKEFILE_TOOL) $(PREREQ_FIRST)
-	#$(NEWEST_TOOL) --output $(TARGET) $(PREREQ_ALL)
+	$(NEWEST_TOOL) --output $(TARGET) $(PREREQ_ALL)
 
 # Depend on the MAKEFILE dependency generation tool
 $(call DEPMK,Makefile): $(DEPS_MAKEFILE_TOOL_FILES)
@@ -135,7 +135,7 @@ DEPS_XML_OUTPUTS = $(foreach F,$(DEPS_XML_INPUTS),$(call DEPMK,$(F)))
 $(DEPS_XML_OUTPUTS): $(call DEPMK,%.xml): $(call ONLY,%.xml) | $(DEPDIR)
 	@echo "Generating deps for '$(PREREQ_FIRST)' into '$(TARGET)' using '$(DEPS_XML_TOOL)'"
 	$(DEPS_XML_TOOL) $(PREREQ_FIRST)
-	#$(NEWEST_TOOL) --output $(TARGET) $(PREREQ_ALL)
+	$(NEWEST_TOOL) --output $(TARGET) $(PREREQ_ALL)
 
 # Depend on the XML dependency generation tool
 $(DEPS_XML_OUTPUTS): $(call DEPMK,%.xml): $(DEPS_XML_TOOL_FILES)
@@ -156,7 +156,7 @@ DEPS_VERILOG_OUTPUTS = $(call F,$(DEPS_VERILOG_INPUTS),$(call DEPMK,$(F)))
 $(DEPS_VERILOG_OUTPUTS): $(call DEPMK,%.mk): $(call ONLY,%.v) | $(DEPDIR)
 	@echo "Generate deps for '$(PREREQ_FILST)' into '$(TARGET)' using '$(DEPS_VERILOG_TOOL)'"
 	$(DEPS_VERILOG) $(PREREQ_FIRST)
-	#$(NEWEST_TOOL) --output $(TARGET) $(PREREQ_ALL)
+	$(NEWEST_TOOL) --output $(TARGET) $(PREREQ_ALL)
 
 # Depend on the Verilog dependency generation tool
 $(DEPS_VERILOG_OUTPUTS): $(call DEPMK,%.v): $(DEPS_VERILOG_TOOL_FILES)
