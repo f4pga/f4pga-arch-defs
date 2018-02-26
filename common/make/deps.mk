@@ -55,7 +55,6 @@ DEP_FILES = $(foreach F,$(call FILES,*),$(call DEPS,$(F)))
 
 $(DEP_FILES): $(call DEPS,%): $(call ONLY,%) | $(DEPDIR)
 	@echo "Making .DEPS file for $(TARGET)"
-	touch $(TARGET)
 	$(NEWEST_TOOL) --output $(TARGET) $(PREREQ_ALL)
 
 
