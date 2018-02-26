@@ -11,7 +11,7 @@
    </output_ports>
   </model>
 
-  <xi:include href="../../tiles/clbll_l/model.xml" xpointer="xpointer(models/*)" />
+  <xi:include href="../../tiles/clbll_l/clbll_l.model.xml" xpointer="xpointer(models/*)" />
  </models>
 
  <!-- Layout of the FPGA, we are using 4x4 -->
@@ -198,10 +198,10 @@
  </segmentlist>
  <complexblocklist>
 
-  <xi:include href="../../../vpr/pad/pb_type.xml"/>
+  <xi:include href="../../../vpr/pad/pad.pb_type.xml"/>
 
-  <xi:include href="../../tiles/clbll_l/pb_type.xml"/>
-  <xi:include href="../../tiles/int_l/pb_type.xml"/>
+  <xi:include href="../../tiles/clbll_l/clbll_l.pb_type.xml"/>
+  <xi:include href="../../tiles/int_l/int_l.pb_type.xml"/>
 
   <xi:include href="dummy/CLBLL_R.xml" />
 
