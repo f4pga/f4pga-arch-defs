@@ -126,7 +126,6 @@ def write_deps(inputfile_name, data):
     with open(deps_filename, "w") as f:
         f.write(data.getvalue())
     print("Created:", os.path.abspath(deps_filename))
-    print(data.getvalue())
 
 
 if __name__ == "__main__":
