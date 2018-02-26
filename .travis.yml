@@ -46,6 +46,7 @@ addons:
 
 script:
  - make all
+ - make all # FIXME: There should be no dependency regen here...
 # - make test
  - find | grep -v .git | sort
  - make clean
