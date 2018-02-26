@@ -93,13 +93,29 @@ all:
 
 # ------------------------------------------
 
+# Project X-Ray CLB
+ifneq (,$(wildcard Makefile.clb))
+-include Makefile.clb
+include $(SELF_DIR)/../../artix7/make/prjxray-clb.mk
+GENERATED_OUTPUTS += $(CLB_OUTPUTS)
+endif
+
+# Project X-Ray INT
+ifneq (,$(wildcard Makefile.int))
+-include Makefile.int
+include $(SELF_DIR)/../../artix7/make/prjxray-int.mk
+GENERATED_OUTPUTS += $(INT_OUTPUTS)
+endif
+
+# ------------------------------------------
+
 # mux_gen.py
 ifneq (,$(wildcard Makefile.mux))
 MUX_GEN=1
 -include Makefile.mux
 include $(SELF_DIR)/mux.mk
+GENERATED_OUTPUTS += $(MUX_GEN_OUTPUTS)
 endif
-
 
 # ------------------------------------------
 
@@ -107,6 +123,7 @@ NTEMPLATE_PREFIX := ntemplate
 NTEMPLATES := $(call FILES,$(NTEMPLATE_PREFIX).*)
 ifneq (,$(NTEMPLATES))
 include $(SELF_DIR)/N.mk
+GENERATED_OUTPUTS += $(NTEMPLATES_OUTPUTS)
 endif
 
 # ------------------------------------------

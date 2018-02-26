@@ -1,3 +1,2 @@
 PRJXRAY_PART = artix7
 PRJXRAY_CLB = CLBLL_L
-include ../../make/prjxray-clb.mk
