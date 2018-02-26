@@ -32,7 +32,7 @@ NEWEST_TOOL := $(UTILS_DIR)/newest.py
 # should have a `| $(DEPDIR)` in their prerequisites.
 DEPDIR := .d
 $(DEPDIR):
-	mkdir -p $(DEPDIR)
+	@mkdir -p $(DEPDIR)
 
 # To allow a target to depend on just the file, the file and it dependencies,
 # or only a files dependencies the following targets are automatically created
@@ -170,7 +170,7 @@ $(DEPS_VERILOG_OUTPUTS): $(call DEPMK,%.v): $(call ALL,$(INC_MAKEFILE))
 # XML merging
 MERGE_XML_DIR := .merged
 $(MERGE_XML_DIR):
-	mkdir -p $(MERGE_XML_DIR)
+	@mkdir -p $(MERGE_XML_DIR)
 
 MERGE_XML_INPUTS  = $(call FILES,*.xml)
 MERGE_XML_OUTPUTS = $(addprefix $(MERGE_XML_DIR)/,$(MERGE_XML_INPUTS))
