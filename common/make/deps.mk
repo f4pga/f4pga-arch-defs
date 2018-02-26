@@ -4,6 +4,8 @@
 # Work out our location on the file system
 SELF_FILE := $(realpath $(lastword $(MAKEFILE_LIST)))
 SELF_DIR := $(realpath $(dir $(lastword $(MAKEFILE_LIST))))
+TOP_DIR := $(realpath $(SELF_DIR)/../../)
+
 INC_MAKEFILE := $(word $(shell echo $(words $(MAKEFILE_LIST))-1 | bc),$(MAKEFILE_LIST))
 INC_MAKEDIR := $(dir $(INC_MAKEFILE))
 
@@ -53,8 +55,7 @@ DEPMK = $(subst ./,,$(dir $(1)))$(DEPDIR)/$(notdir $(1)).mk
 
 FILES = $(sort \
 		$(wildcard $(1)) \
-		$(filter $(subst *,%,$(1)),$(MUX_GEN_OUTPUTS)) \
-		$(filter $(subst *,%,$(1)),$(NTEMPLATES_OUTPUTS)) \
+		$(filter $(subst *,%,$(1)),$(GENERATED_OUTPUTS)) \
 	)
 
 DEP_FILES = $(foreach F,$(call FILES,*),$(call DEPS,$(F)))
@@ -96,15 +97,21 @@ all:
 # Project X-Ray CLB
 ifneq (,$(wildcard Makefile.clb))
 -include Makefile.clb
-include $(SELF_DIR)/../../artix7/make/prjxray-clb.mk
+include $(TOP_DIR)/artix7/make/prjxray-clb.mk
 GENERATED_OUTPUTS += $(CLB_OUTPUTS)
 endif
 
 # Project X-Ray INT
 ifneq (,$(wildcard Makefile.int))
 -include Makefile.int
-include $(SELF_DIR)/../../artix7/make/prjxray-int.mk
+include $(TOP_DIR)/artix7/make/prjxray-int.mk
 GENERATED_OUTPUTS += $(INT_OUTPUTS)
+endif
+
+# Project X-Ray Dummy
+ifneq (,$(wildcard Makefile.dummy))
+-include Makefile.dummy
+GENERATED_OUTPUTS += $(DUMMY_OUTPUTS)
 endif
 
 # ------------------------------------------
