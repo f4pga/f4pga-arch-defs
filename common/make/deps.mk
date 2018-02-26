@@ -63,7 +63,7 @@ $(DEP_FILES): $(call DEPS,%): $(call ONLY,%) | $(DEPDIR)
 
 clean:
 	@for D in $$(find . -mindepth 1 -maxdepth 1 -type d -not \( -prune -name .\* \)); do \
-		$(MAKE) -C $$D clean; \
+		if [ -e $$D/Makefile ]; then $(MAKE) -C $$D clean; fi; \
 	done
 	rm -rf $(DEPDIR)
 
@@ -71,7 +71,7 @@ clean:
 
 test:
 	@for D in $$(find . -mindepth 1 -maxdepth 1 -type d -not \( -prune -name .\* \)); do \
-		if [[ -e $$D/Makefile ]]; then $(MAKE) -C $$D test || exit 1; fi; \
+		if [ -e $$D/Makefile ]; then $(MAKE) -C $$D test || exit 1; fi; \
 	done
 
 

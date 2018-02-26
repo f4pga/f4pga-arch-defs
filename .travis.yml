@@ -47,3 +47,4 @@ addons:
 script:
  - make all
 # - make test
+ - make clean
