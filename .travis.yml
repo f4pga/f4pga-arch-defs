@@ -47,5 +47,5 @@ addons:
 script:
  - make all
 # - make test
- - find | sort
+ - find | grep -v .git | sort
  - make clean
