@@ -26,6 +26,11 @@ parser = argparse.ArgumentParser(
 )
 
 parser.add_argument(
+    '--verbose', '--no-verbose',
+    action=ActionStoreBool, default=False,
+    help="Print lots of information about the generation.")
+
+parser.add_argument(
     '--width', type=int, default=8,
     help="Width of the MUX.")
 
@@ -94,17 +99,19 @@ parser.add_argument(
     help="""Override the subcircuit name.""")
 
 
-def output_block(name, s):
-    print()
-    print(name, '-'*(75-(len(name)+1)))
-    print(s, end="")
-    if s[-1] != '\n':
-        print()
-    print('-'*75)
-
 call_args = list(sys.argv)
 
 args = parser.parse_args()
+
+def output_block(name, s):
+    if args.verbose:
+        print()
+        print(name, '-'*(75-(len(name)+1)))
+        print(s, end="")
+        if s[-1] != '\n':
+            print()
+        print('-'*75)
+
 args.width_bits = mux_lib.clog2(args.width)
 
 def normpath(p, to=None):
