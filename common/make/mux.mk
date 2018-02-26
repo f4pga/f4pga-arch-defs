@@ -141,7 +141,8 @@ $(MUX_GEN_OUTPUTS): $(call ALL,$(INC_MAKEFILE))
 $(MUX_GEN_OUTPUTS): $(MUX_GEN_CMD)
 
 $(MUX_GEN_OUTPUTS):
-	$(MUX_GEN_FULL_CMD)
+	@echo "Generating $(MUX_TYPE) MUX $(MUX_NAME)"
+	@$(MUX_GEN_FULL_CMD)
 
 clean: mux_clean
 mux_clean:

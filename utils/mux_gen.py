@@ -27,7 +27,7 @@ parser = argparse.ArgumentParser(
 
 parser.add_argument(
     '--verbose', '--no-verbose',
-    action=ActionStoreBool, default=False,
+    action=ActionStoreBool, default=os.environ.get('V', '')==1,
     help="Print lots of information about the generation.")
 
 parser.add_argument(
