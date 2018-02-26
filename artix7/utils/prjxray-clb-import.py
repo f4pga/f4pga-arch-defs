@@ -217,8 +217,8 @@ elif tile_type.startswith('CLBLM'):
 else:
     assert False, tile_type
 
-slice_model = "../../primitives/%s/model.xml"
-slice_pbtype = "../../primitives/%s/pb_type.xml"
+slice_model = "../../primitives/%s/slicel.model.xml"
+slice_pbtype = "../../primitives/%s/slicel.pb_type.xml"
 
 xi_url = "http://www.w3.org/2001/XInclude"
 ET.register_namespace('xi', xi_url)
