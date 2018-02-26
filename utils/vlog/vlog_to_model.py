@@ -34,8 +34,8 @@ so that paths through the model can be determined.
 parser.add_argument(
     '--top',
     help="""\
-Top level module, not needed if only one module exists across all input Verilog
-files, in which case that module will be used as the top level.
+Top level module, will usually be automatically determined from the file name
+%.sim.v
 """)
 parser.add_argument(
     '-o',
@@ -47,12 +47,18 @@ args = parser.parse_args()
 
 aig_json = yosys.run.vlog_to_json(args.infiles, True, True)
 
-if "top" in args:
+if args.top is not None:
     yj = YosysJson(aig_json, args.top)
+    top = yj.top
 else:
-    yj = YosysJson(aig_json)
+    wm = re.match(r"([A-Za-z0-9_]+)\.sim\.v", args.infiles[0])
+    if wm:
+        top = wm.group(1).upper()
+    else:
+        print("ERROR file name not of format %.sim.v, cannot detect top level. Manually specify the top level module using --top")
+        sys.exit(1)
+    yj = YosysJson(aig_json, top)
 
-top = yj.top
 if top is None:
     print("ERROR: more than one module in design, cannot detect top level. Manually specify the top level module using --top")
     sys.exit(1)
