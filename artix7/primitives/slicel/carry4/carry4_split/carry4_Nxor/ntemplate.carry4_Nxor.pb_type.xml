@@ -1,7 +1,7 @@
-<pb_type blif_model=".subckt XORCY" name="CARRY4_NXOR" num_pb="1">
+<pb_type blif_model=".subckt XORCY" name="CARRY4_{N}XOR" num_pb="1">
   <input name="CI" num_pins="1"/>
   <input name="LI" num_pins="1"/>
   <output name="O" num_pins="1"/>
-  <delay_constant in_port="CARRY4_NXOR.CI" max="10e-12" out_port="CARRY4_NXOR.O"/>
-  <delay_constant in_port="CARRY4_NXOR.LI" max="10e-12" out_port="CARRY4_NXOR.O"/>
+  <delay_constant in_port="CARRY4_{N}XOR.CI" max="10e-12" out_port="CARRY4_{N}XOR.O"/>
+  <delay_constant in_port="CARRY4_{N}XOR.LI" max="10e-12" out_port="CARRY4_{N}XOR.O"/>
 </pb_type>
