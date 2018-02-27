@@ -3,8 +3,5 @@
  <xi:include href="carry4_Nmux/carry4_bmux.model.xml" xpointer="xpointer(models/*)" />
  <xi:include href="carry4_Nmux/carry4_cmux.model.xml" xpointer="xpointer(models/*)" />
  <xi:include href="carry4_Nmux/carry4_dmux.model.xml" xpointer="xpointer(models/*)" />
- <xi:include href="carry4_Nxor/carry4_axor.model.xml" xpointer="xpointer(models/*)" />
- <xi:include href="carry4_Nxor/carry4_bxor.model.xml" xpointer="xpointer(models/*)" />
- <xi:include href="carry4_Nxor/carry4_cxor.model.xml" xpointer="xpointer(models/*)" />
- <xi:include href="carry4_Nxor/carry4_dxor.model.xml" xpointer="xpointer(models/*)" />
+ <xi:include href="carry4_Nxor/carry4_Nxor.model.xml" xpointer="xpointer(models/*)" />
 </models>
