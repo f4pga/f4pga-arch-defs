@@ -3,4 +3,10 @@
  <xi:include href="muxes/f8mux/f8mux.model.xml"   xpointer="xpointer(models/*)" />
  <xi:include href="muxes/f7amux/f7amux.model.xml" xpointer="xpointer(models/*)" />
  <xi:include href="muxes/f7bmux/f7bmux.model.xml" xpointer="xpointer(models/*)" />
+ <xi:include href="Nff/Nff.model.xml"             xpointer="xpointer(models/*)" />
+ <xi:include href="N5ff/a5ff.model.xml"           xpointer="xpointer(models/*)" />
+ <xi:include href="N5ff/b5ff.model.xml"           xpointer="xpointer(models/*)" />
+ <xi:include href="N5ff/c5ff.model.xml"           xpointer="xpointer(models/*)" />
+ <xi:include href="N5ff/d5ff.model.xml"           xpointer="xpointer(models/*)" />
+ <!-- <xi:include href="Nlut/Nlut.model.xml"           xpointer="xpointer(models/*)" /> -->
 </models>
