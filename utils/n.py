@@ -42,8 +42,9 @@ def main(args):
 
         assert_eq(replacement, o)
 
-    template = open(infile, "r").read()
-    open(outfile, "w").write(template.format(N=replacement.upper()))
+    template = open(inpath, "r").read()
+    open(outpath, "w").write(template.format(N=replacement.upper()))
+    print("Generated {} from {}".format(os.path.relpath(outpath), infile))
 
 
 if __name__ == "__main__":

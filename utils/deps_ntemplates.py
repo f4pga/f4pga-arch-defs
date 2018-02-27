@@ -1,37 +1,30 @@
 #!/usr/bin/env python3
 """
-Generate a Makefile .d fragment for the XML includes.
+Generate a Makefile .d fragment for the ntemplate generation.
 """
 
 import argparse
 import os
-import re
 import sys
 
+from io import StringIO
+
+from lib.argparse_extra import ActionStoreBool
 from lib.asserts import assert_eq
-from lib.path import curpath
-from lib.path import normpath
-from lib.path import depsfile
-from lib.path import makefile
+from lib.deps import deps_file
+from lib.deps import write_deps
+
 
 parser = argparse.ArgumentParser()
 parser.add_argument(
-    "depsfile",
+    '--verbose', '--no-verbose',
+    action=ActionStoreBool, default=os.environ.get('V', '')==1,
+    help="Print lots of information about the generation.")
+parser.add_argument(
+    "inputfile",
     type=argparse.FileType('r'),
-    help="""\
-Input XML file
-""")
+    help="The template file.")
 
-"""
-carry4_%xor.model.xml: ntemplate.carry4_Nxor.model.xml
-        /usr/local/google/home/tansell/work/catx/vtr/utils/n.py $(TARGET) $(PREREQ_FIRST)
-
-carry4_%xor.pb_type.xml: ntemplate.carry4_Nxor.pb_type.xml
-        /usr/local/google/home/tansell/work/catx/vtr/utils/n.py $(TARGET) $(PREREQ_FIRST)
-
-carry4_%xor.sim.v: ntemplate.carry4_Nxor.sim.xml
-        /usr/local/google/home/tansell/work/catx/vtr/utils/n.py $(TARGET) $(PREREQ_FIRST)
-"""
 
 my_path = os.path.abspath(__file__)
 my_dir = os.path.dirname(my_path)
@@ -41,35 +34,30 @@ topdir = os.path.abspath(os.path.join(my_dir, ".."))
 def main(argv):
     args = parser.parse_args(argv[1:])
 
-    xml_filename = args.xmlfile.name
-    deps_filename = depsfile(xml_filename)
+    template = args.inputfile.name
+    template_dir = os.path.dirname(template)
+    assert os.path.exists(template), template
 
-    depsf = open(deps_filename, "w")
+    n_values = os.environ.get('NTEMPLATE_VALUES').strip().split()
+    data = StringIO()
+    for n in n_values:
+        filename = os.path.basename(template).replace('N', n).replace('ntemplate.','')
+        filepath = os.path.join(template_dir, filename)
+        data.write(u"""\
 
-    for line in args.xmlfile:
-        line = line.strip()
-        if 'xi:include' not in line:
-            continue
+{filepath}: {template}
+\tcd {template_dir} && $(UTILS_DIR)/n.py {template} {filepath}
 
-        for include_filepath in xi_include.findall(line):
-            depsf.write("""\
-
-$(call DEPS,{xml_filename}): {include_filepath}
-
-#{include_filepath}:
-#\tmake -C $(dir $@) $(notdir $@)
-#
-#{include_depsfile}:
-#\tmake -C $(dir $@) $(notdir $@)
+{file_deps}: {template}
 
 """.format(
-    xml_filename=xml_filename,
-    include_filepath=include_filepath,
-    include_depsfile=depsfile(include_filepath),
+    filepath=filepath,
+    template=template,
+    template_dir=template_dir,
+    file_deps=deps_file(filepath),
 ))
 
-    print("Created:", depsf.name)
-    depsf.close()
+    write_deps(template, data)
 
 
 if __name__ == "__main__":

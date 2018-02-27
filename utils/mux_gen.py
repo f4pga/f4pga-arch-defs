@@ -27,7 +27,7 @@ parser = argparse.ArgumentParser(
 
 parser.add_argument(
     '--verbose', '--no-verbose',
-    action=ActionStoreBool, default=os.environ.get('V', '')==1,
+    action=ActionStoreBool, default=os.environ.get('V', '')=='1',
     help="Print lots of information about the generation.")
 
 parser.add_argument(
@@ -354,7 +354,7 @@ with open(sim_pathname, "w") as f:
 
     f.write('endmodule\n')
 
-output_block("sim.v", open(sim_pathname).read())
+output_block(sim_filename, open(sim_pathname).read())
 
 if args.type == 'logic':
     subckt = args.subckt or args.name_mux
@@ -413,3 +413,5 @@ pb_type_str = ET.tostring(pb_type_xml, pretty_print=True).decode('utf-8')
 output_block(pbtype_xml_filename, pb_type_str)
 with open(os.path.join(outdir, pbtype_xml_filename), "w") as f:
     f.write(pb_type_str)
+
+print("Generated mux {} in {}".format(args.name_mux, outdir))

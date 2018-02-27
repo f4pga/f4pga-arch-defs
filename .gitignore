@@ -1,7 +1,8 @@
 # Makefile generated dependency information.
-.d
-.merged
+*.d
+.gitignore.mk
 
+*.merged.xml
 rr_graph*.xml
 *.pdf
 *.log

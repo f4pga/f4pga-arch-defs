@@ -1,4 +1,6 @@
 MUX_TYPE = logic
+MUX_OUTFILE = omux
 MUX_NAME = MUX2
 MUX_WIDTH = 2
-include ../../../common/make/mux.mk
+MUX_SPLIT_INPUTS = 1
+MUX_INPUTS = LT,FF

@@ -1,0 +1,1 @@
+NTEMPLATE_VALUES=a b c d
