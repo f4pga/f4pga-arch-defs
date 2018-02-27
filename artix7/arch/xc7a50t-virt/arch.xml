@@ -19,7 +19,7 @@
    <output_ports></output_ports>
   </model>
 
-  <xi:include href="../../primitives/clbll/model.xml" xpointer="xpointer(models/*)" />
+  <xi:include href="../../tiles/clbll_l/clbll_l.model.xml" xpointer="xpointer(models/*)" />
  </models>
 
  <!-- Layout of the FPGA, we are using 4x4 -->
@@ -266,20 +266,20 @@
  <complexblocklist>
 
   <pb_type name="BRAM_INT_L">
-   <xi:include href="../../primitives/int_l/pb_type.xml" />
+   <xi:include href="../../tiles/int_l/int_l.pb_type.xml" />
    <xi:include href="../../empty.xml" xpointer="xpointer(empty/*)" />
   </pb_type>
   <pb_type name="BRAM_INT_R">
-   <xi:include href="../../primitives/int_r/pb_type.xml" />
+   <xi:include href="../../tiles/int_r/int_r.pb_type.xml" />
    <xi:include href="../../empty.xml" xpointer="xpointer(empty/*)" />
   </pb_type>
 
   <pb_type name="BRAM_L">
-   <xi:include href="../../primitives/bram/pb_type.xml" />
+   <xi:include href="../../primitives/bram/bram.pb_type.xml" />
    <xi:include href="../../empty.xml" xpointer="xpointer(empty/*)" />
   </pb_type>
   <pb_type name="BRAM_R">
-   <xi:include href="../../primitives/bram/pb_type.xml" />
+   <xi:include href="../../primitives/bram/bram.pb_type.xml" />
    <xi:include href="../../empty.xml" xpointer="xpointer(empty/*)" />
   </pb_type>
 
@@ -291,7 +291,7 @@
    <input  name="IN"  num_pins="32" />
    <input  name="GLB" num_pins="4"  />
    <output name="OUT" num_pins="12" />
-   <xi:include href="../../primitives/clbll/pb_type.xml" />
+   <xi:include href="../../tiles/clbll_l/clbll_l.pb_type.xml" />
    <interconnect>
     <complete
       name="IN"
@@ -319,7 +319,7 @@
    <input  name="IN"  num_pins="32" />
    <input  name="GLB" num_pins="4"  />
    <output name="OUT" num_pins="12" />
-   <xi:include href="../../primitives/clbll/pb_type.xml" />
+   <xi:include href="../../tiles/clbll_l/clbll_l.pb_type.xml" />
    <interconnect>
     <complete
       name="IN"
@@ -347,7 +347,7 @@
    <input  name="IN"  num_pins="32" />
    <input  name="GLB" num_pins="4"  />
    <output name="OUT" num_pins="12" />
-   <xi:include href="../../primitives/clbll/pb_type.xml" />
+   <xi:include href="../../tiles/clblm_l/clblm_l.pb_type.xml" />
    <interconnect>
     <complete
       name="IN"
@@ -377,7 +377,7 @@
    <output name="OUT" num_pins="12" />
    <input   name="CARRY_IN"  num_pins="1" />
    <output  name="CARRY_OUT" num_pins="1" />
-   <xi:include href="../../primitives/clbll/pb_type.xml" />
+   <xi:include href="../../tiles/clblm_r/clblm_r.pb_type.xml" />
    <interconnect>
     <direct name="CARRY_IN"  input="CLBLM_R.CARRY_IN" output="CLBLL.CARRY_IN"   />
     <direct name="CARRY_OUT" input="CLBLL.CARRY_OUT"  output="CLBLM_R.CARRY_OUT" />
@@ -412,11 +412,11 @@
   </pb_type>
 
   <pb_type name="DSP_L">
-   <xi:include href="../../primitives/dsp/pb_type.xml" />
+   <xi:include href="../../primitives/dsp/dsp.pb_type.xml" />
    <xi:include href="../../empty.xml" xpointer="xpointer(empty/*)" />
   </pb_type>
   <pb_type name="DSP_R">
-   <xi:include href="../../primitives/dsp/pb_type.xml" />
+   <xi:include href="../../primitives/dsp/dsp.pb_type.xml" />
    <xi:include href="../../empty.xml" xpointer="xpointer(empty/*)" />
   </pb_type>
 
@@ -429,20 +429,20 @@
   </pb_type>
 
   <pb_type name="INT_L">
-   <xi:include href="../../primitives/int_l/pb_type.xml" />
+   <xi:include href="../../tiles/int_l/int_l.pb_type.xml" />
    <xi:include href="../../empty.xml" xpointer="xpointer(empty/*)" />
   </pb_type>
   <pb_type name="INT_R">
-   <xi:include href="../../primitives/int_r/pb_type.xml" />
+   <xi:include href="../../tiles/int_r/int_r.pb_type.xml" />
    <xi:include href="../../empty.xml" xpointer="xpointer(empty/*)" />
   </pb_type>
 
   <pb_type name="IO_INT_L">
-   <xi:include href="../../primitives/int_l/pb_type.xml" />
+   <xi:include href="../../tiles/int_l/int_l.pb_type.xml" />
    <xi:include href="../../empty.xml" xpointer="xpointer(empty/*)" />
   </pb_type>
   <pb_type name="IO_INT_R">
-   <xi:include href="../../primitives/int_r/pb_type.xml" />
+   <xi:include href="../../tiles/int_r/int_r.pb_type.xml" />
    <xi:include href="../../empty.xml" xpointer="xpointer(empty/*)" />
   </pb_type>
 
@@ -468,14 +468,14 @@
    <xi:include href="../../empty.xml" xpointer="xpointer(empty/*)" />
   </pb_type>
   -->
-  <xi:include href="../../../vpr/pad/pb_type.xml"/>
+  <xi:include href="../../../vpr/pad/pad.pb_type.xml"/>
 
   <pb_type name="XXXX_INT_L">
-   <xi:include href="../../primitives/int_l/pb_type.xml" />
+   <xi:include href="../../tiles/int_l/int_l.pb_type.xml" />
    <xi:include href="../../empty.xml" xpointer="xpointer(empty/*)" />
   </pb_type>
   <pb_type name="XXXX_INT_R">
-   <xi:include href="../../primitives/int_r/pb_type.xml" />
+   <xi:include href="../../tiles/int_r/int_r.pb_type.xml" />
    <xi:include href="../../empty.xml" xpointer="xpointer(empty/*)" />
   </pb_type>
  </complexblocklist>

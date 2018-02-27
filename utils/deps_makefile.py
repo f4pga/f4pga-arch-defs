@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+t#!/usr/bin/env python3
 """
 Generate a Makefile .d fragment for the Makefile includes.
 """
@@ -23,12 +23,7 @@ parser.add_argument(
 parser.add_argument(
     "inputfile",
     type=argparse.FileType('r'),
-    help="Input Makefile")
-
-
-my_path = os.path.abspath(__file__)
-my_dir = os.path.dirname(my_path)
-topdir = os.path.abspath(os.path.join(my_dir, ".."))
+    help="The Makefile.")
 
 
 def main(argv):
@@ -36,12 +31,14 @@ def main(argv):
 
     data = StringIO()
 
-    to_check = set([args.inputfile.name])
+    inputpath = os.path.abspath(args.inputfile.name)
+
+    to_check = set([inputpath])
     checked = []
     while to_check:
         makefile = to_check.pop()
         checked.append(makefile)
-        reldir = os.path.realpath(os.path.dirname(makefile))
+        reldir = os.path.abspath(os.path.dirname(makefile))
 
         for line in open(makefile):
             line = line.strip()
@@ -56,7 +53,7 @@ def main(argv):
                     print("Skipping {}".format(includefile_path))
                 continue
 
-            includefile_fullpath = os.path.realpath(includefile_path)
+            includefile_fullpath = os.path.abspath(includefile_path)
             if includefile_fullpath in checked:
                 continue
 

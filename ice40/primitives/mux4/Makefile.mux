@@ -1,4 +1,4 @@
 MUX_TYPE = logic
+MUX_OUTFILE = mux4
 MUX_NAME = MUX4
 MUX_WIDTH = 4
-include ../../../common/make/mux.mk

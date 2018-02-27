@@ -5,7 +5,7 @@ ifeq ($(PRJXRAY_INT),)
 $(error "Please set PRJXRAY_INT")
 endif
 
-PRJXRAY_LINT := $(shell echo $(PRJXRAY_INT) | tr A-Z a-z)
+PRJXRAY_LINT := $(call lc,$(PRJXRAY_INT))
 
 PRJXRAY_INFO = $(TOP_DIR)/third_party/prjxray-db/Info.md
 PRJXRAY_DB = $(TOP_DIR)/third_party/prjxray-db/$(PRJXRAY_PART)/

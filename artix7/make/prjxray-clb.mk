@@ -5,7 +5,7 @@ ifeq ($(PRJXRAY_CLB),)
 $(error "Please set PRJXRAY_CLB")
 endif
 
-PRJXRAY_LCLB := $(shell echo $(PRJXRAY_CLB) | tr A-Z a-z)
+PRJXRAY_LCLB := $(call lc,$(PRJXRAY_CLB))
 
 PRJXRAY_INFO = $(TOP_DIR)/third_party/prjxray-db/Info.md
 PRJXRAY_DB = $(TOP_DIR)/third_party/prjxray-db/$(PRJXRAY_PART)/
