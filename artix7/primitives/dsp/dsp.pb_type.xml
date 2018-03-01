@@ -1,3 +1,0 @@
-<!-- set: ai sw=1 ts=1 sta et -->
-<pb_type name="DSP" num_pb="1" blif_model=".subckt NOIMP_DSP">
-</pb_type>
