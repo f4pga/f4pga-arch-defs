@@ -37,7 +37,7 @@ define _include_type
 
 INC_TYPE := $(1)
 INC_FILE := $(2)
-INC_DIR  := $$(dir $(2))
+INC_DIR  := $$(realpath $$(dir $(2)))
 
 include $$(INC_FILE)
 include $(TOP_DIR)/make/types/$$(INC_TYPE).mk
@@ -50,6 +50,38 @@ endef
 
 # $(call include_types,file1 file2,mux)
 include_types = $(foreach FILE,$(1),$(eval $(call _include_type,$(2),$(FILE))))
+
+define _include_type_all
+
+INC_ALL_TYPE := $(1)
+
+MAKEFILES_INC := $$(call find_files,*/Makefile.$$(INC_ALL_TYPE))
+
+OUTPUTS :=
+TEMPLATES :=
+$$(call include_types,$$(MAKEFILES_INC),$(1))
+
+TEMPLATES := $$(sort $$(abspath $$(TEMPLATES)))
+OUTPUTS   := $$(sort $$(abspath $$(OUTPUTS)))
+
+ifeq (1,$(V))
+$$(info $$(INC_ALL_TYPE) TEMPLATES: $$(TEMPLATES))
+$$(info $$(INC_ALL_TYPE)   OUTPUTS: $$(OUTPUTS))
+endif
+
+FILES_TEMPLATES := $$(sort $$(abspath $$(FILES_TEMPLATES) $$(TEMPLATES)))
+FILES_OUTPUTS   := $$(sort $$(abspath $$(FILES_OUTPUTS) $$(OUTPUTS)))
+
+undefine TEMPLATES
+undefine OUTPUTS
+
+undefine MAKEFILES_INC
+undefine INC_ALL_TYPE
+
+endef
+
+# $(call include_types,file1 file2,mux)
+include_type_all = $(eval $(call _include_type_all,$(1)))
 
 # -------------------------------
 

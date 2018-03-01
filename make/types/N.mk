@@ -25,7 +25,7 @@ $(foreach N,$($(INC_DIR)_N_VALUES), \
   $(foreach T,$($(INC_DIR)_FILES_INPUT_N), \
     $(eval $(call n_template,$T,$(dir $T)$(subst ntemplate.,,$(subst N,$N,$(notdir $T)))))))
 
-FILES_INPUT_N  += $($(INC_DIR)_FILES_INPUT_N)
-FILES_OUTPUT_N += $($(INC_DIR)_FILES_OUTPUT_N)
+TEMPLATES := $($(INC_DIR)_FILES_INPUT_N)
+OUTPUTS   := $($(INC_DIR)_FILES_OUTPUT_N)
 
 undefine NTEMPLATE_VALUES
