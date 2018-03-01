@@ -1,0 +1,65 @@
+<!-- A diagram for the DSP48E1 is shown in;
+     7 Series DSP48E1 User Guide UG479 (v1.9) September 27, 2016
+    Figure 2-1: 7 Series FPGA DSP48E1 Slice
+  -->
+<pb_type name="DSP48E1" num_pb="1" xmlns:xi="http://www.w3.org/2001/XInclude">
+  <input name="A" num_pins="30" equivalent="false"/>
+  <input name="B" num_pins="18" equivalent="false"/>
+  <input name="C" num_pins="48" equivalent="false"/>
+  <input name="D" num_pins="25" equivalent="false"/>
+
+  <input name="OPMODE" num_pins="7" equivalent="false"/>
+  <input name="ALUMODE" num_pins="4" equivalent="false"/>
+  <input name="CARRYIN" num_pins="1" equivalent="false"/>
+  <input name="CARRYINSEL" num_pins="3" equivalent="false"/>
+
+  <input name="INMODE" num_pins="5" equivalent="false"/>
+  <INPUT NAME="CEA1" NUM_PINS="1" EQUIVALENT="FALSE"/>
+  <input name="CEA2" num_pins="1" equivalent="false"/>
+  <input name="CEB1" num_pins="1" equivalent="false"/>
+  <input name="CEB2" num_pins="1" equivalent="false"/>
+  <input name="CEC" num_pins="1" equivalent="false"/>
+  <input name="CED" num_pins="1" equivalent="false"/>
+  <input name="CEM" num_pins="1" equivalent="false"/>
+  <input name="CEP" num_pins="1" equivalent="false"/>
+  <input name="CEAD" num_pins="1" equivalent="false"/>
+  <input name="CEALUMODE" num_pins="1" equivalent="false"/>
+  <input name="CECTRL" num_pins="1" equivalent="false"/>
+  <input name="CECARRYIN" num_pins="1" equivalent="false"/>
+  <input name="CEINMODE" num_pins="1" equivalent="false"/>
+
+  <input name="RSTA" num_pins="1" equivalent="false"/>
+  <input name="RSTB" num_pins="1" equivalent="false"/>
+  <input name="RSTC" num_pins="1" equivalent="false"/>
+  <input name="RSTD" num_pins="1" equivalent="false"/>
+  <input name="RSTM" num_pins="1" equivalent="false"/>
+  <input name="RSTP" num_pins="1" equivalent="false"/>
+  <input name="RSTCTRL" num_pins="1" equivalent="false"/>
+  <input name="RSTALLCARRYIN" num_pins="1" equivalent="false"/>
+  <input name="RSTALUMODE" num_pins="1" equivalent="false"/>
+  <input name="RSTINMODE" num_pins="1" equivalent="false"/>
+
+  <clock name="CLK" num_pins="1" />
+
+  <input name="ACIN" num_pins="30" equivalent="false"/>
+  <input name="BCIN" num_pins="18" equivalent="false"/>
+  <input name="PCIN" num_pins="48" equivalent="false"/>
+
+  <input name="CARRYCASCIN" num_pins="1" equivalent="false"/>
+  <input name="MULTSIGNIN" num_pins="1" equivalent="false"/>
+
+  <output name="ACOUT" num_pins="30" equivalent="false"/>
+  <output name="BCOUT" num_pins="18" equivalent="false"/>
+  <output name="PCOUT" num_pins="48" equivalent="false"/>
+  <output name="P" num_pins="48" equivalent="false"/>
+
+  <output name="CARRYOUT" num_pins="4" equivalent="false"/>
+  <output name="CARRYCASCOUT" num_pins="1" equivalent="false"/>
+  <output name="MULTSIGNOUT" num_pins="1" equivalent="false"/>
+  <output name="PATTERNDETECT" num_pins="1" equivalent="false"/>
+  <output name="PATTERNBDETECT" num_pins="1" equivalent="false"/>
+
+  <output name="OVERFLOW" num_pins="1" equivalent="false"/>
+  <output name="UNDERFLOW" num_pins="1" equivalent="false"/>
+
+</pb_type>
