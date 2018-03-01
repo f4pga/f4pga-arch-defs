@@ -1,51 +1,37 @@
 # Automatic conversion of Verilog to XML
+include $(TOP_DIR)/make/inc/files.mk
 
-.SUFFIXES:
-
-SELF_FILE := $(shell realpath $(lastword $(MAKEFILE_LIST)))
-SELF_DIR := $(shell realpath $(dir $(lastword $(MAKEFILE_LIST))))
-INC_MAKEFILE := $(shell realpath $(word $(shell echo $(words $(MAKEFILE_LIST))-1 | bc),$(MAKEFILE_LIST)))
-INC_MAKEFILE_DIR := $(dir INC_MAKEFILE)
-
-PB_TYPE_GEN_CMD = $(shell realpath $(SELF_DIR)/../../utils/vlog/vlog_to_pbtype.py)
-MODEL_GEN_CMD = $(shell realpath $(SELF_DIR)/../../utils/vlog/vlog_to_model.py)
-
-SIM_VERILOG := $(sort $(wildcard *.v))
-PB_TYPE_XML := $(patsubst sim%.v,pb_type%.xml,$(SIM_VERILOG))
-
-ifeq ($(USE_W), y)
-PB_TYPE_XML := $(filter-out pb_type.xml, $(PB_TYPE_XML))
-MODEL_SRC = sim_clean.v
-else
-MODEL_SRC = sim.v
-endif
-
-ifeq ($(GEN_MODEL), y)
-MODEL_XML=model.xml
-PB_TYPE_XML := $(filter-out pb_type_clean.xml, $(PB_TYPE_XML))
-else
-MODEL_XML=
-endif
+PB_TYPE_GEN_CMD := $(UTILS_DIR)/vlog/vlog_to_pbtype.py
+MODEL_GEN_CMD   := $(UTILS_DIR)/vlog/vlog_to_model.py
 
 # Default top level module is directory name, a reasonable assumption for non-W
-# modules. Can be overriden if needed
-TOP_MODULE ?= $(notdir $(patsubst %/,%,$(INC_MAKEFILE_DIR)))
+# modules. Can be overridden if needed
+ifeq (,$(TOP_MODULE))
+$(INC_DIR)_TOP_MODULE := $(notdir $(INC_DIR))
+else
+$(INC_DIR)_TOP_MODULE := $(TOP_MODULE)
+endif
 
-pb_type.%.xml: sim.%.v
-	$(PB_TYPE_GEN_CMD) --top $* -o $@ $<
+$(INC_DIR)_INPUTS  := $(call find_files,$(INC_DIR)/%.v)
+$(info $(INC_DIR))
+$(info $($(INC_DIR)_INPUTS))
+ifeq (,$($(INC_DIR)_INPUTS))
+$(error "$(INC_DIR)/Makefile.v2x: Unable to find any inputs!")
+endif
+$(INC_DIR)_OUTPUTS := $(foreach F,$($(INC_DIR)_INPUTS),$(patsubst %.sim.v,%.pb_type.xml,$(F)) $(patsubst %.sim.v,%.pb_type.xml,$(F)))
 
-pb_type.xml: sim.v
+$(INC_DIR)/%.pb_type.xml: TOP_MODULE=$($(INC_DIR)_TOP_MODULE)
+$(INC_DIR)/%.pb_type.xml: $(PB_TYPE_GEN_CMD)
+$(INC_DIR)/%.pb_type.xml: $(INC_FILE)
+
+$(INC_DIR)/%.pb_type.xml: %.sim.v
 	$(PB_TYPE_GEN_CMD) --top $(TOP_MODULE) -o $@ $<
 
-sim_clean.v: sim.v
-	sed 's/{W}/W/' $< > sim_clean.v
+$(INC_DIR)/%.model.xml: TOP_MODULE=$($(INC_DIR)_TOP_MODULE)
+$(INC_DIR)/%.model.xml: $(MODEL_GEN_CMD)
+$(INC_DIR)/%.model.xml: $(INC_FILE)
 
-model.xml: $(MODEL_SRC)
+$(INC_DIR)/%.model.xml: %.sim.v
 	$(MODEL_GEN_CMD) --top $(TOP_MODULE) -o $@ $<
 
-clean:
-	rm -f $(PB_TYPE_XML) $(MODEL_XML) sim_clean.v
-
-all: $(PB_TYPE_XML) $(MODEL_XML)
-
-.DEFAULT_GOAL := all
+OUTPUTS += $($(INC_DIR)_OUTPUTS)
