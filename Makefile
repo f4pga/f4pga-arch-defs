@@ -17,10 +17,16 @@ MERGE_XML_ARGS    := --nomkdir --nonet --xinclude
 $(MERGE_XML_OUTPUTS): %.merged.xml: $(call depend_on_all,%.xml)
 	xsltproc $(MERGE_XML_ARGS) --output $(TARGET) $(MERGE_XML_XSL) $(PREREQ_FIRST)
 
-# Make sure the directory already exists
+# Depend on the XSL script.
 $(MERGE_XML_OUTPUTS): %.merged.xml: $(MERGE_XML_XSL)
 # Depend on this Makefile (and it's deps)
 #$(MERGE_XML_OUTPUTS): %.merged.xml: $(call ALL,$(INC_MAKEFILE))
+
+# ------------------------------------------
+
+.PHONY: print_vars
+print_vars:
+	@$(foreach V,$(DEFINED_VARIABLES),$(info $V=$($V) ($(value $V))))
 
 # ------------------------------------------
 
@@ -34,6 +40,7 @@ all: $(MERGE_XML_OUTPUTS)
 
 clean:
 	@rm -vf $(FILES_GENERATED)
-	@find -name *.d -delete -print
+	@find -name '*.d' -delete -print || true
+	@find -name '*.dmk' -delete -print || true
 
 .PHONY: clean

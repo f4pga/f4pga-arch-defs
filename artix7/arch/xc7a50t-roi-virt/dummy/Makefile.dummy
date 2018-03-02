@@ -1,9 +1,11 @@
-%.xml: dummy.sh
-	./dummy.sh $@
+DUMMY_FILES := CLBLL_R.xml CLBLM_L.xml CLBLM_R.xml INT_L.xml INT_R.xml HCLK_L.xml HCLK_R.xml
+DUMMY_OUTPUTS := $(foreach O,$(DUMMY_FILES),$(INC_DIR)/$(O))
 
-DUMMY_OUTPUTS=CLBLL_R.xml CLBLM_L.xml CLBLM_R.xml INT_L.xml INT_R.xml HCLK_L.xml HCLK_R.xml
+$(DUMMY_OUTPUTS): $(INC_DIR)/dummy.sh
 
-clean_dummy:
-	rm -f $(DUMMY_OUTPUTS)
+$(DUMMY_OUTPUTS): INC_DIR := $(INC_DIR)
 
-clean: clean_dummy
+$(DUMMY_OUTPUTS):
+	@$(INC_DIR)/dummy.sh $(TARGET)
+
+OUTPUTS += $(DUMMY_OUTPUTS)

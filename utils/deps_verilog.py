@@ -10,8 +10,7 @@ import sys
 from io import StringIO
 
 from lib.asserts import assert_eq
-from lib.deps import deps_all
-from lib.deps import deps_file
+from lib.deps import add_dependency
 from lib.deps import write_deps
 
 
@@ -41,10 +40,7 @@ def main(argv):
 
         includefile_path = os.path.abspath(os.path.join(inputdir, includefile))
 
-        data.write("{inputfile_deps}: {includefile_all}\n".format(
-            inputfile_deps=deps_file(inputpath),
-            includefile_all=deps_all(includefile_path),
-        ))
+        add_dependency(data, inputpath, includefile_path)
 
     write_deps(args.inputfile.name, data)
 

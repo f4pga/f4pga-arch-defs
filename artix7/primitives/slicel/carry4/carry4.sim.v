@@ -1,5 +1,5 @@
-`include "carry4_complete/sim.v"
-`include "carry4_split/sim.v"
+`include "carry4_complete/carry4_complete.sim.v"
+`include "carry4_split/carry4_split.sim.v"
 
 (* blackbox *)
 module CARRY4_TOP(CO, O, CIN, DI, S);

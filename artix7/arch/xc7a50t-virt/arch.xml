@@ -464,7 +464,7 @@
   </pb_type>
   <!--
   <pb_type name="RIOB">
-   <xi:include href="../../primitives/io/pb_type.xml" />
+   <xi:include href="../../primitives/io/io.pb_type.xml" />
    <xi:include href="../../empty.xml" xpointer="xpointer(empty/*)" />
   </pb_type>
   -->

@@ -1,4 +1,13 @@
-<models xmlns:xi="http://www.w3.org/2001/XInclude">
- <xi:include href="carry4_complete/carry4_complete.model.xml" xpointer="xpointer(models/*)" />
- <xi:include href="carry4_split/carry4_split.model.xml" xpointer="xpointer(models/*)" />
+<models>
+  <model name="CARRY4_TOP">
+    <input_ports>
+      <port name="S"/>
+      <port name="DI"/>
+      <port name="CIN"/>
+    </input_ports>
+    <output_ports>
+      <port name="O"/>
+      <port name="CO"/>
+    </output_ports>
+  </model>
 </models>

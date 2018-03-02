@@ -1,37 +1,56 @@
 # Automatic conversion of Verilog to XML
+include $(TOP_DIR)/make/inc/common.mk
 include $(TOP_DIR)/make/inc/files.mk
 
 PB_TYPE_GEN_CMD := $(UTILS_DIR)/vlog/vlog_to_pbtype.py
 MODEL_GEN_CMD   := $(UTILS_DIR)/vlog/vlog_to_model.py
+CMD_LIB = $(wildcard $(UTILS_DIR)/vlog/lib/*.py)
 
 # Default top level module is directory name, a reasonable assumption for non-W
 # modules. Can be overridden if needed
 ifeq (,$(TOP_MODULE))
-$(INC_DIR)_TOP_MODULE := $(notdir $(INC_DIR))
+V2X_TOP_MODULE := $(notdir $(INC_DIR))
 else
-$(INC_DIR)_TOP_MODULE := $(TOP_MODULE)
+V2X_TOP_MODULE := $(TOP_MODULE)
 endif
 
-$(INC_DIR)_INPUTS  := $(call find_files,$(INC_DIR)/%.v)
-$(info $(INC_DIR))
-$(info $($(INC_DIR)_INPUTS))
-ifeq (,$($(INC_DIR)_INPUTS))
-$(error "$(INC_DIR)/Makefile.v2x: Unable to find any inputs!")
+V2X_INPUTS := $(call find_nontemplate_files,$(INC_DIR)/%.v)
+ifeq (,$(V2X_INPUTS))
+$(error $(INC_DIR)/Makefile.v2x: Unable to find any inputs!)
 endif
-$(INC_DIR)_OUTPUTS := $(foreach F,$($(INC_DIR)_INPUTS),$(patsubst %.sim.v,%.pb_type.xml,$(F)) $(patsubst %.sim.v,%.pb_type.xml,$(F)))
 
-$(INC_DIR)/%.pb_type.xml: TOP_MODULE=$($(INC_DIR)_TOP_MODULE)
-$(INC_DIR)/%.pb_type.xml: $(PB_TYPE_GEN_CMD)
-$(INC_DIR)/%.pb_type.xml: $(INC_FILE)
+# xxx.pb_type.xml ----
 
-$(INC_DIR)/%.pb_type.xml: %.sim.v
-	$(PB_TYPE_GEN_CMD) --top $(TOP_MODULE) -o $@ $<
+PB_TYPE_OUTPUTS := $(foreach F,$(V2X_INPUTS),$(patsubst %.sim.v,%.pb_type.xml,$(F)))
 
-$(INC_DIR)/%.model.xml: TOP_MODULE=$($(INC_DIR)_TOP_MODULE)
-$(INC_DIR)/%.model.xml: $(MODEL_GEN_CMD)
-$(INC_DIR)/%.model.xml: $(INC_FILE)
+# Deps
+$(PB_TYPE_OUTPUTS): $(PB_TYPE_GEN_CMD)
+$(PB_TYPE_OUTPUTS): $(CMD_LIB)
+$(PB_TYPE_OUTPUTS): $(INC_FILE)
 
-$(INC_DIR)/%.model.xml: %.sim.v
-	$(MODEL_GEN_CMD) --top $(TOP_MODULE) -o $@ $<
+# Settings
+$(PB_TYPE_OUTPUTS): TOP_MODULE := $(V2X_TOP_MODULE)
+$(PB_TYPE_OUTPUTS): PB_TYPE_GEN_CMD := $(PB_TYPE_GEN_CMD)
 
-OUTPUTS += $($(INC_DIR)_OUTPUTS)
+$(PB_TYPE_OUTPUTS): %.pb_type.xml: %.sim.v
+	$(PB_TYPE_GEN_CMD) --top $(TOP_MODULE) -o $(TARGET) $(PREREQ_FIRST)
+
+OUTPUTS += $(PB_TYPE_OUTPUTS)
+
+# xxx.model.xml ------
+
+MODEL_OUTPUTS := $(foreach F,$(V2X_INPUTS),$(patsubst %.sim.v,%.model.xml,$(F)))
+
+# Deps
+$(MODEL_OUTPUTS): $(MODEL_GEN_CMD)
+$(MODEL_OUTPUTS): $(CMD_LIB)
+$(MODEL_OUTPUTS): $(INC_FILE)
+
+# Settings
+$(MODEL_OUTPUTS): TOP_MODULE := $(V2X_TOP_MODULE)
+$(MODEL_OUTPUTS): MODEL_GEN_CMD := $(MODEL_GEN_CMD)
+
+$(MODEL_OUTPUTS): %.model.xml: %.sim.v
+	$(MODEL_GEN_CMD) --top $(TOP_MODULE) -o $(TARGET) $(PREREQ_FIRST)
+
+OUTPUTS += $(MODEL_OUTPUTS)
