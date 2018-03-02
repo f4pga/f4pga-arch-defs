@@ -63,7 +63,7 @@
     <!-- TODO -->
   </interconnect>
   </pb_type>
-  
+
    <clock name="OUTPUT_CLK" num_pins="1"/>
    <clock name="INPUT_CLK"  num_pins="1"/>
    <input name="CLOCK_ENABLE" num_pins="1" equivalent="false"/>
@@ -250,7 +250,7 @@
       PIO.D_IN_0 PIO.D_IN_1
       PIO.D_OUT_0 PIO.D_OUT_1
       PIO.OUTPUT_ENABLE
-      
+
       PIO.i_span4_horz
       PIO.o_span4_horz
       PIO.i_span12_horz
@@ -266,9 +266,8 @@
      PIO.i_span4_vert_t
      PIO.o_span4_vert_t
     </loc>
-    
-    <loc side="bottom" xoffset="0" yoffset="0">
 
+    <loc side="bottom" xoffset="0" yoffset="0">
      PIO.i_neigh_op_bnr PIO.o_neigh_op_bnr
      PIO.i_neigh_op_bot PIO.o_neigh_op_bot
      PIO.i_neigh_op_bnl PIO.o_neigh_op_bnl
@@ -277,9 +276,8 @@
      PIO.o_span4_vert_b
     </loc>
    </pinlocations>
-   
-   
-    <xi:include href="../../primitives/mux2/mux2.pb_type.xml"/>
+
+    <xi:include href="../../primitives/mux2/omux.pb_type.xml"/>
     <xi:include href="../../primitives/mux4/mux4.pb_type.xml"/>
 
 </pb_type>

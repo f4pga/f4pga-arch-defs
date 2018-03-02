@@ -139,8 +139,8 @@ def ppips():
     for line in db_open('ppips').readlines():
         yield line
     if tile_type == "CLBLL":
-        yield "CLBLL_L.CLBLL_L_CIN.CLBLL_L_CIN_N always\n"
-        yield "CLBLL_L.CLBLL_LL_CIN.CLBLL_LL_CIN_N always\n"
+        yield "{}_{}.CLBLL_L_CIN.CLBLL_L_CIN_N always\n".format(tile_type, tile_dir)
+        yield "{}_{}.CLBLL_LL_CIN.CLBLL_LL_CIN_N always\n".format(tile_type, tile_dir)
     elif tile_type == "CLBLM":
         #yield "CLBLL_M.CLBLL_M_CIN.CLBLL_M_CIN_N always\n"
         #yield "CLBLL_M.CLBLL_L_CIN.CLBLL_L_CIN_N always\n"
@@ -217,8 +217,8 @@ elif tile_type.startswith('CLBLM'):
 else:
     assert False, tile_type
 
-slice_model = "../../primitives/%s/slicel.model.xml"
-slice_pbtype = "../../primitives/%s/slicel.pb_type.xml"
+slice_model = "../../primitives/{0}/{0}.model.xml"
+slice_pbtype = "../../primitives/{0}/{0}.pb_type.xml"
 
 xi_url = "http://www.w3.org/2001/XInclude"
 ET.register_namespace('xi', xi_url)
@@ -235,7 +235,7 @@ model_xml = ET.Element(
 
 def add_model_include(name):
     ET.SubElement(model_xml, xi_include, {
-        'href': slice_model % name.lower(),
+        'href': slice_model.format(name.lower()),
         'xpointer': "xpointer(models/*)"})
 
 add_model_include(slice0_type)
@@ -342,13 +342,13 @@ pb_type_xml.append(ET.Comment(" Internal Slices "))
 
 # Internal pb_type definition for the first slice
 slice0_xml = ET.SubElement(pb_type_xml, 'pb_type', {'name': slice0_name, 'num_pb': '1'})
-ET.SubElement(slice0_xml, xi_include, {'href': slice_pbtype % slice0_type.lower()})
+ET.SubElement(slice0_xml, xi_include, {'href': slice_pbtype.format(slice0_type.lower())})
 slice0_interconnect_xml = ET.Element('interconnect')
 slice0_interconnect_xml.append(ET.Comment(" Slice->Cell "))
 
 # Internal pb_type definition for the second slice
 slice1_xml = ET.SubElement(pb_type_xml, 'pb_type', {'name': slice1_name, 'num_pb': '1'})
-ET.SubElement(slice1_xml, xi_include, {'href': slice_pbtype % slice0_type.lower()})
+ET.SubElement(slice1_xml, xi_include, {'href': slice_pbtype.format(slice1_type.lower())})
 slice1_interconnect_xml = ET.Element('interconnect')
 slice1_interconnect_xml.append(ET.Comment(" Slice->Cell "))
 

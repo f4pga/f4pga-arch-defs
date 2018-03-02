@@ -1,8 +1,9 @@
 #!/bin/bash
 
 NAME=$(basename $1 .xml)
+OUTPUT=$(dirname $1)/$NAME.xml
 
-cat > $1 <<EOF
+cat > $OUTPUT <<EOF
  <pb_type name="$NAME">
    <input  name="I" num_pins="1" equivalent="false"/>
    <output name="O" num_pins="1" equivalent="false"/>
@@ -24,3 +25,5 @@ cat > $1 <<EOF
    </pinlocations>
   </pb_type>
 EOF
+
+echo "Generated dummy $OUTPUT"

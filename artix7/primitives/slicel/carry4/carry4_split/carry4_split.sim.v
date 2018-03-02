@@ -1,13 +1,13 @@
 
-`include "carry4_wmux/sim.CARRY4_AMUX.v"
-`include "carry4_wmux/sim.CARRY4_BMUX.v"
-`include "carry4_wmux/sim.CARRY4_CMUX.v"
-`include "carry4_wmux/sim.CARRY4_DMUX.v"
+`include "carry4_Nmux/carry4_amux.sim.v"
+`include "carry4_Nmux/carry4_bmux.sim.v"
+`include "carry4_Nmux/carry4_cmux.sim.v"
+`include "carry4_Nmux/carry4_dmux.sim.v"
 
-`include "carry4_wxor/sim.CARRY4_AXOR.v"
-`include "carry4_wxor/sim.CARRY4_BXOR.v"
-`include "carry4_wxor/sim.CARRY4_CXOR.v"
-`include "carry4_wxor/sim.CARRY4_DXOR.v"
+`include "carry4_Nxor/carry4_axor.sim.v"
+`include "carry4_Nxor/carry4_bxor.sim.v"
+`include "carry4_Nxor/carry4_cxor.sim.v"
+`include "carry4_Nxor/carry4_dxor.sim.v"
 
 (* ALTERNATIVE_TO="CARRY4_TOP" *)
 module CARRY4_SPLIT(CO, O, CIN, DI, S);

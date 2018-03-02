@@ -1,4 +1,4 @@
-`include "carry4/sim.v"
+`include "carry4/carry4.sim.v"
 // A wrapper is needed for the mode, so that we have sub pb-type with the
 // correct name (CARRY4) inside the mode.
 
