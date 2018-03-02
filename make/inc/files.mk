@@ -43,7 +43,7 @@ glob2regex = $(subst [^/]*[^/]*,.*,$(subst *,[^/]*,$(subst .,\.,$(1))))$$
 
 # Find files in a list.
 #find_files_in = $(sort $(strip $(file >.files)$(foreach O,$(2),$(file >>.files,$(O)))$(shell rgrep '$(call glob2regex,$(1))' .files)))
-find_files_in = $(sort $(shell ( $(foreach O,$(2),printf $(O);) ) | rgrep '$(call glob2regex,$(1))' .files))
+find_files_in = $(sort $(shell ( $(foreach O,$(2),printf $(O);) ) | grep -r '$(call glob2regex,$(1))' .files))
 
 # Tools which generate files should append their files to this variable.
 FILES_GENERATED :=
