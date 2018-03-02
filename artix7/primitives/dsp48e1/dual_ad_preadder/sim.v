@@ -1,3 +1,7 @@
+// DSP48E1
+// [1] 7 Series DSP48E1 User Guide UG479 (v1.9) September 27, 2016
+
+// Figure 2-7 shows details
 module DUALAD_PREADDER
   (
    A, ACIN, D,
@@ -14,3 +18,4 @@ module DUALAD_PREADDER
 
 endmodule // DUALAD_PREADDER
 
+// Table 2-5 defines behavior
