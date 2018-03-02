@@ -56,9 +56,13 @@ define _include_type_all
 
 INC_ALL_TYPE := $(1)
 
-MAKEFILES_INC := $$(call find_files,*/Makefile.$$(INC_ALL_TYPE))
+MAKEFILES_INC := $$(call find_files,**/Makefile.$$(INC_ALL_TYPE))
+
 ifeq (0,$$(words $$(MAKEFILES_INC)))
 $$(error No configs found for $$(INC_ALL_TYPE))
+endif
+ifeq (1,$(V))
+$$(info Found $$(INC_ALL_TYPE) configs: $$(MAKEFILES_INC))
 endif
 
 OUTPUTS   :=

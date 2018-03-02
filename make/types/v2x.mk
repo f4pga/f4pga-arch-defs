@@ -8,13 +8,11 @@ CMD_LIB = $(wildcard $(UTILS_DIR)/vlog/lib/*.py)
 
 # Default top level module is directory name, a reasonable assumption for non-W
 # modules. Can be overridden if needed
-ifeq (,$(TOP_MODULE))
-V2X_TOP_MODULE := $(notdir $(INC_DIR))
-else
-V2X_TOP_MODULE := $(TOP_MODULE)
+ifneq (,$(TOP_MODULE))
+TOP_ARG := --top $(TOP_MODULE)
 endif
 
-V2X_INPUTS := $(call find_nontemplate_files,$(INC_DIR)/%.v)
+V2X_INPUTS := $(call find_nontemplate_files,$(INC_DIR)/*.sim.v)
 ifeq (,$(V2X_INPUTS))
 $(error $(INC_DIR)/Makefile.v2x: Unable to find any inputs!)
 endif
@@ -29,11 +27,11 @@ $(PB_TYPE_OUTPUTS): $(CMD_LIB)
 $(PB_TYPE_OUTPUTS): $(INC_FILE)
 
 # Settings
-$(PB_TYPE_OUTPUTS): TOP_MODULE := $(V2X_TOP_MODULE)
+$(PB_TYPE_OUTPUTS): TOP_ARG := $(TOP_ARG)
 $(PB_TYPE_OUTPUTS): PB_TYPE_GEN_CMD := $(PB_TYPE_GEN_CMD)
 
 $(PB_TYPE_OUTPUTS): %.pb_type.xml: %.sim.v
-	$(PB_TYPE_GEN_CMD) --top $(TOP_MODULE) -o $(TARGET) $(PREREQ_FIRST)
+	@$(PB_TYPE_GEN_CMD) $(TOP_ARG) -o $(TARGET) $(PREREQ_FIRST)
 
 OUTPUTS += $(PB_TYPE_OUTPUTS)
 
@@ -47,10 +45,10 @@ $(MODEL_OUTPUTS): $(CMD_LIB)
 $(MODEL_OUTPUTS): $(INC_FILE)
 
 # Settings
-$(MODEL_OUTPUTS): TOP_MODULE := $(V2X_TOP_MODULE)
+$(MODEL_OUTPUTS): TOP_ARG := $(TOP_ARG)
 $(MODEL_OUTPUTS): MODEL_GEN_CMD := $(MODEL_GEN_CMD)
 
 $(MODEL_OUTPUTS): %.model.xml: %.sim.v
-	$(MODEL_GEN_CMD) --top $(TOP_MODULE) -o $(TARGET) $(PREREQ_FIRST)
+	@$(MODEL_GEN_CMD) $(TOP_ARG) -o $(TARGET) $(PREREQ_FIRST)
 
 OUTPUTS += $(MODEL_OUTPUTS)

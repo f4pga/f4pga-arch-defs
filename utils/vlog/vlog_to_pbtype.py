@@ -74,6 +74,7 @@ Output filename, default 'model.xml'
 """)
 
 args = parser.parse_args()
+iname = os.path.basename(args.infiles[0])
 
 yosys.run.add_define("PB_TYPE")
 vjson = yosys.run.vlog_to_json(args.infiles, False, False)
@@ -89,11 +90,11 @@ def include_xml(parent, href):
 if args.top is not None:
     top = args.top
 else:
-    wm = re.match(r"([A-Za-z0-9_]+)\.sim\.v", args.infiles[0])
+    wm = re.match(r"([A-Za-z0-9_]+)\.sim\.v", iname)
     if wm:
         top = wm.group(1).upper()
     else:
-        print("ERROR file name not of format %.sim.v, cannot detect top level. Manually specify the top level module using --top")
+        print("ERROR file name not of format %.sim.v ({}), cannot detect top level. Manually specify the top level module using --top".format(iname))
         sys.exit(1)
 
 
@@ -314,3 +315,4 @@ if "o" in args and args.o is not None:
 f = open(outfile, 'w')
 f.write(ET.tostring(pb_type_xml, pretty_print=True).decode('utf-8'))
 f.close()
+print("Generated {} from {}".format(outfile, iname))

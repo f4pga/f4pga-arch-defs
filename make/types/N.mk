@@ -5,7 +5,7 @@ ifeq (,$(NTEMPLATE_VALUES))
 $(error $(INC_DIR)/Makefile.N: Unable to find NTEMPLATE_VALUES setting!)
 endif
 
-$(INC_DIR)_FILES_INPUT_N  := $(call find_files,$(INC_DIR)/ntemplate.*,$(FILES_POSSIBLE))
+$(INC_DIR)_FILES_INPUT_N  := $(call find_files,$(INC_DIR)/ntemplate.*)
 
 ifeq (,$($(INC_DIR)_FILES_INPUT_N))
 $(error $(INC_DIR)/Makefile.N: Unable to find any inputs!)
