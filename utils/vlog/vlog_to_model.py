@@ -44,6 +44,7 @@ Output filename, default 'model.xml'
 """)
 
 args = parser.parse_args()
+iname = os.path.basename(args.infiles[0])
 
 aig_json = yosys.run.vlog_to_json(args.infiles, True, True)
 
@@ -51,11 +52,11 @@ if args.top is not None:
     yj = YosysJson(aig_json, args.top)
     top = yj.top
 else:
-    wm = re.match(r"([A-Za-z0-9_]+)\.sim\.v", args.infiles[0])
+    wm = re.match(r"([A-Za-z0-9_]+)\.sim\.v", iname)
     if wm:
         top = wm.group(1).upper()
     else:
-        print("ERROR file name not of format %.sim.v, cannot detect top level. Manually specify the top level module using --top")
+        print("ERROR file name not of format %.sim.v ({}), cannot detect top level. Manually specify the top level module using --top").format(iname)
         sys.exit(1)
     yj = YosysJson(aig_json, top)
 
@@ -103,3 +104,4 @@ if "o" in args and args.o is not None:
 f = open(outfile, 'w')
 f.write(ET.tostring(models_xml, pretty_print=True).decode('utf-8'))
 f.close()
+print("Generated {} from {}".format(outfile, iname))

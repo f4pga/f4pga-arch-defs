@@ -30,7 +30,7 @@ print_vars:
 
 # ------------------------------------------
 
-all: $(MERGE_XML_OUTPUTS)
+all: .gitignore $(MERGE_XML_OUTPUTS)
 	@echo "----"
 	@echo " MERGE_XML_OUTPUT output files"
 	@echo "$(MERGE_XML_OUTPUTS)" | sed -e's/ /\n/g'
@@ -42,5 +42,7 @@ clean:
 	@rm -vf $(FILES_GENERATED)
 	@find -name '*.d' -delete -print || true
 	@find -name '*.dmk' -delete -print || true
+	@find -name '*.merged.xml' -delete -print || true
+	@rm .gitignore .gitignore.gen
 
 .PHONY: clean

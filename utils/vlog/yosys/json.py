@@ -212,6 +212,9 @@ class YosysJson:
 
     def module(self, module):
         """Get a given module (by name) as a `YosysModule`"""
+        if module not in self.data["modules"]:
+            raise KeyError("No yosys module named {} (only have {})".format(
+                module, self.data["modules"].keys()))
         return YosysModule(module, self.data["modules"][module])
 
     def modules_with_attr(self, attr_name, attr_value):
