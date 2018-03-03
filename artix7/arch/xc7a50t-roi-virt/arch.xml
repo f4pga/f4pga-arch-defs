@@ -11,7 +11,7 @@
    </output_ports>
   </model>
 
-  <xi:include href="../../tiles/clbll_l/clbll_l.model.xml" xpointer="xpointer(models/*)" />
+  <xi:include href="../../tiles/clbll_l/clbll_l.model.xml" xpointer="xpointer(models/child::node())" />
  </models>
 
  <!-- Layout of the FPGA, we are using 4x4 -->

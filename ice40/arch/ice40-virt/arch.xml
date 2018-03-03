@@ -2,12 +2,12 @@
 <architecture xmlns:xi="http://www.w3.org/2001/XInclude">
  <!-- ODIN-II model description for non-standard block type -->
  <models>
-  <xi:include href="../../primitives/sb_lut/sb_lut.model.xml"     xpointer="xpointer(models/*)" />
-  <xi:include href="../../primitives/sb_ff/sb_ff.model.xml" 	  xpointer="xpointer(models/*)" />
-  <xi:include href="../../primitives/sb_carry/sb_carry.model.xml" xpointer="xpointer(models/*)" />
-  <xi:include href="../../primitives/sb_ram/sb_ram.model.xml"     xpointer="xpointer(models/*)" />
-  <xi:include href="../../primitives/mux4/mux4.model.xml"         xpointer="xpointer(models/*)" />
-  <xi:include href="../../primitives/mux2/omux.model.xml"         xpointer="xpointer(models/*)" />
+  <xi:include href="../../primitives/sb_lut/sb_lut.model.xml"     xpointer="xpointer(models/child::node())" />
+  <xi:include href="../../primitives/sb_ff/sb_ff.model.xml" 	  xpointer="xpointer(models/child::node())" />
+  <xi:include href="../../primitives/sb_carry/sb_carry.model.xml" xpointer="xpointer(models/child::node())" />
+  <xi:include href="../../primitives/sb_ram/sb_ram.model.xml"     xpointer="xpointer(models/child::node())" />
+  <xi:include href="../../primitives/mux4/mux4.model.xml"         xpointer="xpointer(models/child::node())" />
+  <xi:include href="../../primitives/mux2/omux.model.xml"         xpointer="xpointer(models/child::node())" />
  </models>
 
  <layout>
