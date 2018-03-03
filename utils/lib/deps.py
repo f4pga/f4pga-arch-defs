@@ -5,7 +5,10 @@ This file needs to be kept in sync with ../../make/deps.mk
 import os
 import os.path
 
+MY_DIR = os.path.dirname(os.path.abspath(__file__))
+TOP_DIR = os.path.abspath(os.path.join(MY_DIR, "..", ".."))
 
+DEPS_DIR=".deps"
 DEPS_EXT=".d"
 DEPMK_EXT=".dmk"
 
@@ -55,10 +58,18 @@ def depend_on_deps(filepath):
     >>> deps_file("blah")
     'blah.d'
     """
-    return "{dir}{notdir}{ext}".format(
+    return deps_dir("{dir}{notdir}{ext}".format(
         dir=makefile_dir(filepath),
         notdir=makefile_notdir(filepath),
         ext=DEPS_EXT,
+    ))
+
+
+def deps_dir(filepath):
+    return "{top_dir}/{deps_dir}/{filepath_notop}".format(
+        top_dir=TOP_DIR,
+        deps_dir=DEPS_DIR,
+        filepath_notop=filepath.replace(TOP_DIR,''),
     )
 
 
@@ -71,11 +82,11 @@ def deps_makefile(filepath):
     >>> deps_file("blah")
     'blah.dmk'
     """
-    return "{dir}{notdir}{ext}".format(
+    return deps_dir("{dir}{notdir}{ext}".format(
         dir=makefile_dir(filepath),
         notdir=makefile_notdir(filepath),
         ext=DEPMK_EXT,
-    )
+    ))
 
 
 def depend_on_all(filepath):
