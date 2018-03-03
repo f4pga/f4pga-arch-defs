@@ -16,6 +16,12 @@ define _undefine_me
 undefine $(1)
 endef
 
+
+# -------------------------------
+# Functions for generating rules, these replace implicit rule creation which is
+# broken is you are not using "%.x: %.y".
+# -------------------------------
+
 # -------------------------------
 # $(call include_types,file1 file2,mux)
 # -------------------------------

@@ -9,16 +9,19 @@ include make/deps.mk
 # ------------------------------------------
 
 # XML merging
+merged_xml_name = $(dir $(F))$(basename $(notdir $(1))).merged.xml
 MERGE_XML_INPUTS  = $(call find_nontemplate_files,*.xml)
-MERGE_XML_OUTPUTS = $(foreach F,$(MERGE_XML_INPUTS),$(dir $(F))$(basename $(notdir $(F))).merged.xml)
+MERGE_XML_OUTPUTS = $(foreach F,$(MERGE_XML_INPUTS),$(call merged_xml_name,$(F)))
 MERGE_XML_XSL     := $(abspath $(TOP_DIR)/common/xml/xmlsort.xsl)
 MERGE_XML_ARGS    := --nomkdir --nonet --xinclude
 
-$(MERGE_XML_OUTPUTS): %.merged.xml: $(call depend_on_all,%.xml)
+$(foreach F,$(MERGE_XML_INPUTS),$(eval $(call _deps_expand_rule,$(call merged_xml_name,$(F)),$(call depend_on_all,$(F)))))
+
+$(MERGE_XML_OUTPUTS):
 	xsltproc $(MERGE_XML_ARGS) --output $(TARGET) $(MERGE_XML_XSL) $(PREREQ_FIRST)
 
 # Depend on the XSL script.
-$(MERGE_XML_OUTPUTS): %.merged.xml: $(MERGE_XML_XSL)
+$(MERGE_XML_OUTPUTS): $(MERGE_XML_XSL)
 # Depend on this Makefile (and it's deps)
 #$(MERGE_XML_OUTPUTS): %.merged.xml: $(call ALL,$(INC_MAKEFILE))
 
@@ -39,6 +42,7 @@ all: .gitignore $(MERGE_XML_OUTPUTS)
 .DEFAULT_GOAL := all
 
 clean:
+	@rm -vf .deps
 	@rm -vf $(FILES_GENERATED)
 	@find -name '*.d' -delete -print || true
 	@find -name '*.dmk' -delete -print || true
