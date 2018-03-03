@@ -1,3 +1,5 @@
+include ../make/inc/common.mk
+
 VPR ?= vpr
 YOSYS ?= yosys
 
@@ -21,9 +23,9 @@ endif
 
 ARCH_DIR_FULL = $(shell realpath $(ARCH_DIR)/$(ARCH_TYPE))
 
-ARCH_FILE = $(ARCH_DIR_FULL)/.merged/arch.xml
+ARCH_FILE = $(ARCH_DIR_FULL)/arch.merged.xml
 $(ARCH_FILE):
-	cd $(ARCH_DIR_FULL); make .merged/arch.xml
+	cd $(TOP_DIR); make $(TARGET)
 
 ##########################################################################
 
