@@ -236,7 +236,7 @@ model_xml = ET.Element(
 def add_model_include(name):
     ET.SubElement(model_xml, xi_include, {
         'href': slice_model.format(name.lower()),
-        'xpointer': "xpointer(models/*)"})
+        'xpointer': "xpointer(models/child::node())"})
 
 add_model_include(slice0_type)
 
