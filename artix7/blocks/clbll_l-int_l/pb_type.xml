@@ -62,8 +62,8 @@
   <input name="CIN_N" num_pins="2"/>
   <output name="COUT_N" num_pins="2"/>
 
-  <xi:include href="../../tiles/clbll_l/pb_type.xml"/>
-  <xi:include href="../../tiles/int_l/pb_type.xml"/>
+  <xi:include href="../../tiles/clbll_l/clbll_l.pb_type.xml"/>
+  <xi:include href="../../tiles/int_l/int_l.pb_type.xml"/>
 
   <pinlocations pattern="custom">
     <loc side="top" xoffset="0" yoffset="0">BLK_MB-CLBLL_L-INT_L.COUT_N BLK_MB-CLBLL_L-INT_L.COUT_N</loc>
