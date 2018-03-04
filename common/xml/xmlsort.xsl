@@ -4,7 +4,6 @@
   <xsl:output method="xml" indent="yes"/>
   <xsl:strip-space elements="*"/>
 
-
   <xsl:template match="/">
     <xsl:apply-templates/>
   </xsl:template>
@@ -14,7 +13,7 @@
       <!-- Sort the attributes by name and remove the xml:base attribute -->
       <xsl:for-each select="@*[name()!='xml:base']">
         <xsl:sort select="name( . )"/>
-        <xsl:copy/>
+        <xsl:attribute name="{local-name()}"><xsl:value-of select="normalize-space(.)"/></xsl:attribute>
       </xsl:for-each>
       <xsl:apply-templates/>
     </xsl:copy>
