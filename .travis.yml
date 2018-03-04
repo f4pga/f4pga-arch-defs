@@ -44,6 +44,10 @@ addons:
 #     # Docker
 #     - docker-ce
 
+install:
+ - make --version
+ - make env
+
 script:
  - make all
  - make all # FIXME: There should be no dependency regen here...

@@ -33,3 +33,6 @@ __pycache__
 
 # Exclude meson stuff
 meson
+
+# Exclude the environment
+env
