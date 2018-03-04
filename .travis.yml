@@ -15,7 +15,6 @@ addons:
      - python3-lxml
      - libxml2-utils
      - xsltproc
-     - yosys # might be too old, trying for now
 #     # Verilog To Routing deps
 #     - build-essential
 #     - automake
