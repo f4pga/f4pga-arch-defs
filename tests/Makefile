@@ -27,6 +27,8 @@ ARCH_FILE = $(ARCH_DIR_FULL)/arch.merged.xml
 $(ARCH_FILE):
 	cd $(TOP_DIR); make $(TARGET)
 
+.PHONY: $(ARCH_FILE)
+
 ##########################################################################
 
 OUTPUT_DIR ?= build/$(ARCH)/$(DEVICE)
