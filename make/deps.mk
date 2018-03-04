@@ -22,13 +22,7 @@ deps_makefile  = $(call deps_dir,$(subst ./,,$(dir $(1)))$(notdir $(1))$(DEPMK_E
 
 # Add a dependency from X onto Y
 define _deps_rule
-
-ifeq (2,$$(V))
-$$(info Adding dep $(value 1): $(value 2))
-endif
-
 $(1): $(2)
-
 endef
 
 define _deps_expand_rule
@@ -36,13 +30,6 @@ define _deps_expand_rule
 # Force expansion of arguments right now
 DEPS_EXPANDED_ONTO := $(1)
 DEPS_EXPANDED_FROM := $(2)
-
-ifneq (simple,$$(flavor DEPS_EXPANDED_ONTO))
-$$(error Failure expanding $(1) $$(flavor DEPS_EXPANDED_ONTO) ($$(value DEPS_EXPANDED_ONTO)))
-endif
-ifneq (simple,$$(flavor DEPS_EXPANDED_FROM))
-$$(error Failure expanding $(1) $$(flavor DEPS_EXPANDED_FROM) ($$(value DEPS_EXPANDED_FROM)))
-endif
 
 $$(eval $$(call _deps_rule,$$(DEPS_EXPANDED_ONTO),$$(DEPS_EXPANDED_FROM)))
 

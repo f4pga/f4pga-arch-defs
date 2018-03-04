@@ -1,43 +1,7 @@
 ifeq (,$(INC_FILES_MK))
 INC_FILES_MK := 1
 
-# FIXME: Include this exclude from a file or something.
-#-------------------------
-EXCLUDE :=
-
-# Exclude special directories
-EXCLUDE += docs tests third_party
-
-# Exclude anything in a special "unused" directories
-EXCLUDE += unused
-
-# Exclude the .git directory
-EXCLUDE += .git
-
-# Exclude anything in a special directories
-EXCLUDE += make common library
-
-# Exclude the dependency files
-EXCLUDE += \.d$$
-EXCLUDE += \.dmk
-
-# Exclude Python cache files
-EXCLUDE += __pycache__ \.pyc \.pyo
-
-# Exclude the .git directory
-EXCLUDE += /\.
-
-# Exclude merged output
-EXCLUDE += \.merged.xml
-
-#-------------------------
-
-EXCLUDE_FILTER := grep -v "$$(echo '\($(strip $(EXCLUDE))\)' | sed -e's- -\\|-g')"
-ifeq (1,$(V))
-$(info EXCLUDE_FILTER: $(EXCLUDE_FILTER))
-endif
-
-FILES_EXISTING := $(sort $(abspath $(shell find $(TOP_DIR) -type f | $(EXCLUDE_FILTER))))
+FILES_EXISTING := $(sort $(abspath $(shell $(TOP_DIR)/utils/listfiles.py)))
 
 glob2regex = $(subst [^/]*[^/]*,.*,$(subst *,[^/]*,$(subst .,\.,$(1))))$$
 
@@ -73,5 +37,12 @@ endif
 ifeq (0,$(words $(FILES_EXISTING)))
 $(error Found no files! Check the exclude patterns!)
 endif
+
+files:
+	@$(foreach O,$(sort $(subst $(TOP_DIR)/,,$(FILES_POSSIBLE))),$(info $(O)))
+	@true
+
+
+.PHONY: files
 
 endif
