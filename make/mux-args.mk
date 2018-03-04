@@ -86,7 +86,7 @@ MUX_GEN_ARGS +=		--name-out	$(MUX_OUT)
 endif
 
 ifeq (1,$(MUX_SPLIT_INPUTS))
-MUX_GEN_ARGS +=		--split-inputs
+MUX_GEN_ARGS +=		--split-inputs 	1
 endif
 
 ifneq (,$(MUX_INPUTS))
@@ -98,7 +98,7 @@ MUX_GEN_ARGS +=		--name-input	$(MUX_INPUT)
 endif
 
 ifeq (1,$(MUX_SPLIT_SELECTS))
-MUX_GEN_ARGS +=		--split-selects
+MUX_GEN_ARGS +=		--split-selects 1
 endif
 
 ifneq (,$(MUX_SELECTS))
