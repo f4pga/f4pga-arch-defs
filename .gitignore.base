@@ -14,6 +14,8 @@ third_party
 
 unused
 
+env
+
 # Simulation output
 sim.dot
 sim.json
