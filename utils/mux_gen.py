@@ -40,13 +40,13 @@ parser.add_argument(
     help="Type of MUX.")
 
 parser.add_argument(
-    '--split-inputs', '--no-split-inputs',
+    '--split-inputs',
     action=ActionStoreBool, default=False,
     help="Split the inputs into separate signals")
 
 parser.add_argument(
-    '--split-selects', '--no-split-selects',
-    type=ActionStoreBool, default=False,
+    '--split-selects',
+    action=ActionStoreBool, default=False,
     help="Split the selects into separate signals")
 
 parser.add_argument(
@@ -69,7 +69,7 @@ parser.add_argument(
     '--name-select', type=str, default='S',
     help="Name of the select parameter for the mux.")
 
-parser.name_select = parser.add_argument(
+parser.name_selects = parser.add_argument(
     '--name-selects', type=str, default=None,
     help="Comma deliminator list for the name of each select to the mux (implies --split-selects).")
 
@@ -154,7 +154,7 @@ if args.name_selects:
     args.split_selects = True
 
     names = args.name_selects.split(',')
-    assert len(names) == args.width, "%s select names, but %s needed." % (names, args.width_bits)
+    assert len(names) == args.width_bits, "%s select names, but %s needed." % (names, args.width_bits)
     args.name_selects = names
 elif args.split_selects:
     args.name_selects = [args.name_select+str(i) for i in range(args.width_bits)]
@@ -214,7 +214,7 @@ if True:
     if args.split_selects:
         print("MUX_SPLIT_SELECTS = 1", file=f)
         if args.name_selects != parser.get_default('name_selects'):
-            print("MUX_SELECTS = {}".format(args.name_selects), file=f)
+            print("MUX_SELECTS = {}".format(",".join(args.name_selects)), file=f)
     else:
         if args.name_select != parser.get_default('name_select'):
             print("MUX_SELECT = {}".format(args.name_select), file=f)
@@ -261,9 +261,10 @@ for i in args.order:
         else:
             port_names.append((mux_lib.MuxPinType.INPUT, args.name_input, args.width, '[%i:0]' % args.width))
     elif i == 's':
-        if args.split_selects and args.width_bits > 1:
+        if args.split_selects:
             port_names.extend((mux_lib.MuxPinType.SELECT, args.name_selects[j], 1, '[%i]' % j) for j in range(args.width_bits))
         else:
+            assert args.name_select is not None
             port_names.append((mux_lib.MuxPinType.SELECT, args.name_select, args.width_bits, '[%i:0]' % args.width_bits))
     elif i == 'o':
         port_names.append((mux_lib.MuxPinType.OUTPUT, args.name_output, 1, ''))
