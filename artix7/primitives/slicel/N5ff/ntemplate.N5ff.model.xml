@@ -1,4 +1,5 @@
 <models>
+  <!-- No model currently...
   <model name="{N}5FF">
     <input_ports>
       <port clock="CK" name="D"/>
@@ -10,4 +11,5 @@
       <port clock="CK" name="Q"/>
     </output_ports>
   </model>
+  -->
 </models>
