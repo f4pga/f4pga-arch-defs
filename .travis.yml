@@ -10,50 +10,18 @@ python:
 addons:
   apt:
     packages:
-#     - python3-virtualenv
      - make
-     - python3-pip
-     - python3-lxml
      - libxml2-utils
      - xsltproc
-#     # Verilog To Routing deps
-#     - build-essential
-#     - automake
-#     - bison
-#     - clang
-#     - cmake
-#     - ctags
-#     - curl
-#     - doxygen
-#     - flex
-#     - fontconfig
-#     - gdb
-#     - git
-#     - libcairo2-dev
-#     - libevent-dev
-#     - libfontconfig1-dev
-#     - libncurses5-dev
-#     - libx11-dev
-#     - libxft-dev
-#     - libxml++2.6-dev
-#     - perl
-#     - liblist-moreutils-perl
-#     - python
-#     - time
-#     - valgrind
-#     - zip
-#     # Docker
-#     - docker-ce
 
 install:
  - make -f make/env.mk make
  - export PATH=$PWD/env/conda/bin:$PATH
- - make env
- - make --version
+ - make -f make/env.mk env
 
 script:
  - make all
  - make all # FIXME: There should be no dependency regen here...
-# - make test
- - find | grep -v .git | sort
+ - make test
+ - ./utils/listfiles.py
  - make clean
