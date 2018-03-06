@@ -1,0 +1,13 @@
+<models>
+  <model name="CARRY4">
+    <input_ports>
+      <port combinational_sink_ports="CO O" name="S"/>
+      <port combinational_sink_ports="CO O" name="DI"/>
+      <port combinational_sink_ports="CO O" name="CIN"/>
+    </input_ports>
+    <output_ports>
+      <port name="CO"/>
+      <port name="O"/>
+    </output_ports>
+  </model>
+</models>
