@@ -1,11 +1,6 @@
 language: python
 python:
-# - "3.5"
  - "3.6"
-
-#sudo: required
-#services:
-#  - docker
 
 addons:
   apt:
@@ -14,14 +9,17 @@ addons:
      - libxml2-utils
      - xsltproc
 
+before_install:
+ - source ./.travis/common.sh
+
 install:
- - make -f make/env.mk make
- - export PATH=$PWD/env/conda/bin:$PATH
- - make -f make/env.mk env
+ - ./.travis/install.sh
 
 script:
- - make all
- - make all # FIXME: There should be no dependency regen here...
- - make test
- - ./utils/listfiles.py
- - make clean
+ - ./.travis/script.sh
+
+after_success:
+ - ./.travis/after_success.sh
+
+after_failure:
+ - ./.travis/after_failure.sh
