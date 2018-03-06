@@ -28,6 +28,7 @@ env/conda/pkgs: $(CONDA)
 # the TimVideos packages.
 env/conda/.timvideos.channel: $(CONDA) env/conda/envs env/conda/pkgs
 	$(CONDA) config --add channels timvideos
+	$(CONDA) config --add channels conda-forge
 
 CONDA_SETUP := $(CONDA) env/conda/envs env/conda/pkgs env/conda/.timvideos.channel
 
