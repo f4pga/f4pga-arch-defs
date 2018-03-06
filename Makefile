@@ -44,12 +44,16 @@ all: .gitignore $(MERGE_XML_OUTPUTS)
 .PHONY: all
 .DEFAULT_GOAL := all
 
+test:
+	@true
+
 clean:
 	@rm -rvf .deps
 	@rm -vf $(FILES_GENERATED)
-	@find -name '*.d' -delete -print || true
-	@find -name '*.dmk' -delete -print || true
 	@find -name '*.merged.xml' -delete -print || true
 	@rm -vf .gitignore .gitignore.gen
+
+dist-clean: clean clean-env
+	@true
 
 .PHONY: clean

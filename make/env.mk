@@ -1,15 +1,9 @@
+should_not_include = 1
 include make/inc/common.mk
+include make/inc/env.mk
 
 MINICONDA_FILE := Miniconda3-latest-Linux-x86_64.sh
 MINICONDA_URL  := https://repo.continuum.io/miniconda/$(MINICONDA_FILE)
-
-ENV_DIR     := $(abspath ./env)
-CONDA_DIR   := $(ENV_DIR)/conda
-
-CONDA_BIN   := $(CONDA_DIR)/bin/conda
-CONDA_YOSYS := $(CONDA_DIR)/bin/yosys
-CONDA_VPR   := $(CONDA_DIR)/bin/vpr
-CONDA_MAKE  := $(CONDA_DIR)/bin/make
 
 $(ENV_DIR)/$(MINICONDA_FILE):
 	mkdir -p $(ENV_DIR)
@@ -45,7 +39,6 @@ CONDA_SETUP := \
   $(CONDA_DIR)/.timvideos.channel \
   $(CONDA_DIR)/.conda-forge.channel \
 
-
 $(CONDA_YOSYS): | $(CONDA_SETUP)
 	$(CONDA_BIN) install yosys
 
@@ -55,17 +48,17 @@ $(CONDA_VPR): | $(CONDA_SETUP)
 $(CONDA_MAKE): | $(CONDA_SETUP)
 	$(CONDA_BIN) install make
 
-make: $(CONDA_MAKE)
-	@true
+make:
+	make -C $(TOP_DIR) -f $(TOP_DIR)/make/env.mk $(CONDA_MAKE)
 
 .PHONY: make
 
-env: $(CONDA_YOSYS) $(CONDA_VPR) $(CONDA_DIR)/lib/python3.6/site-packages/lxml
-	@echo $(PREREQ_ALL)
+env:
+	make -C $(TOP_DIR) -f $(TOP_DIR)/make/env.mk $(CONDA_YOSYS) $(CONDA_VPR) $(CONDA_DIR)/lib/python3.6/site-packages/lxml
 
 .PHONY: env
 
-# If the environment exists, put it into the path.
-ifneq (,$(wildcard $(abspath env)))
-PATH := $(CONDA_DIR)/bin:$(PATH)
-endif
+clean-env:
+	@rm -rf $(ENV_DIR)
+
+.PHONY: clean-env
