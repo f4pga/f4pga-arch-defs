@@ -4,14 +4,14 @@
   <output equivalent="false" name="CO" num_pins="4"/>
   <input equivalent="false" name="DI" num_pins="4"/>
   <output equivalent="false" name="O" num_pins="4"/>
-  <xi:include href="/usr/local/google/home/tansell/work/catx/vtr/artix7/primitives/slicel/carry4/carry4_split/carry4_Nmux/carry4_dmux.pb_type.xml"/>
-  <xi:include href="/usr/local/google/home/tansell/work/catx/vtr/artix7/primitives/slicel/carry4/carry4_split/carry4_Nmux/carry4_amux.pb_type.xml"/>
-  <xi:include href="/usr/local/google/home/tansell/work/catx/vtr/artix7/primitives/slicel/carry4/carry4_split/carry4_Nxor/carry4_dxor.pb_type.xml"/>
-  <xi:include href="/usr/local/google/home/tansell/work/catx/vtr/artix7/primitives/slicel/carry4/carry4_split/carry4_Nxor/carry4_bxor.pb_type.xml"/>
-  <xi:include href="/usr/local/google/home/tansell/work/catx/vtr/artix7/primitives/slicel/carry4/carry4_split/carry4_Nmux/carry4_cmux.pb_type.xml"/>
-  <xi:include href="/usr/local/google/home/tansell/work/catx/vtr/artix7/primitives/slicel/carry4/carry4_split/carry4_Nxor/carry4_cxor.pb_type.xml"/>
-  <xi:include href="/usr/local/google/home/tansell/work/catx/vtr/artix7/primitives/slicel/carry4/carry4_split/carry4_Nmux/carry4_bmux.pb_type.xml"/>
-  <xi:include href="/usr/local/google/home/tansell/work/catx/vtr/artix7/primitives/slicel/carry4/carry4_split/carry4_Nxor/carry4_axor.pb_type.xml"/>
+  <xi:include href="carry4_Nmux/carry4_dmux.pb_type.xml"/>
+  <xi:include href="carry4_Nmux/carry4_amux.pb_type.xml"/>
+  <xi:include href="carry4_Nxor/carry4_dxor.pb_type.xml"/>
+  <xi:include href="carry4_Nxor/carry4_bxor.pb_type.xml"/>
+  <xi:include href="carry4_Nmux/carry4_cmux.pb_type.xml"/>
+  <xi:include href="carry4_Nxor/carry4_cxor.pb_type.xml"/>
+  <xi:include href="carry4_Nmux/carry4_bmux.pb_type.xml"/>
+  <xi:include href="carry4_Nxor/carry4_axor.pb_type.xml"/>
   <interconnect>
     <direct input="BLK_IG-CARRY4_SPLIT.S[3]" name="BEL_MX-CARRY4_DMUX_S" output="BEL_MX-CARRY4_DMUX.S"/>
     <direct input="BLK_IG-CARRY4_SPLIT.DI[3]" name="BEL_MX-CARRY4_DMUX_DI" output="BEL_MX-CARRY4_DMUX.DI"/>
