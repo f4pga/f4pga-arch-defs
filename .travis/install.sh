@@ -13,8 +13,13 @@ start_section "environment.conda" "Setting up basic ${YELLOW}conda environment${
 # Getting a newer make, as Travis' make is too old.
 make -f make/env.mk make
 
+# Check we have the new make
+ls -l $PWD/env/conda/bin/make
+hash -r
+which make
+
 # Get the rest of the environment
-make -f make/env.mk env
+make env
 
 end_section "environment.conda"
 

@@ -34,3 +34,5 @@ ECHO = @echo
 endif
 
 endif
+
+include $(TOP_DIR)/make/inc/env.mk

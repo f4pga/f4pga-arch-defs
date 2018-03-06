@@ -5,6 +5,15 @@ INC_FUNC_MK := 1
 lc = $(shell echo "$1" | tr A-Z a-z)
 
 # -------------------------------
+# Include functions
+# -------------------------------
+
+# Targets which shouldn't cause the inclusion of other make files.
+NO_INCLUDES := clean dist-clean env clean-env make
+
+should_not_include := $(findstring $(MAKECMDGOALS),$(NO_INCLUDES))
+
+# -------------------------------
 #  Functions for getting variables
 # -------------------------------
 
@@ -15,7 +24,6 @@ DEFINED_VARIABLES = $(foreach V,$(sort $(.VARIABLES)), \
 define _undefine_me
 undefine $(1)
 endef
-
 
 # -------------------------------
 # Functions for generating rules, these replace implicit rule creation which is
@@ -52,7 +60,11 @@ undefine INC_TYPE
 
 endef
 
+ifeq (,$(call should_not_include))
 include_types = $(foreach FILE,$(1),$(eval $(call _include_type,$(2),$(FILE))))
+else
+include_types =
+endif
 
 # -------------------------------
 # $(call include_types,file1 file2,mux)
@@ -99,7 +111,11 @@ undefine INC_ALL_TYPE
 
 endef
 
+ifeq (,$(call should_not_include))
 include_type_all = $(eval $(call _include_type_all,$(1)))
+else
+include_type_all =
+endif
 
 # -------------------------------
 endif

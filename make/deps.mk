@@ -78,6 +78,8 @@ MKDIR_TARGET = @mkdir -p $(dir $(TARGET))
 # a.d: b b.d
 add_dependency = $(foreach DEP,$(2),$(eval $(call _add_dependency,$(1),$(DEP))))
 
+ifeq (,$(call should_not_include))
+
 ifeq (2,$(V))
 $(info ==========================================================================)
 $(info Setting up .d files.)
@@ -125,9 +127,7 @@ DEPS_XML_TOOL := $(UTILS_DIR)/deps_xml.py
 DEPS_XML_TOOL_FILES := $(DEPS_XML_TOOL) $(UTILS_DIR)/lib/deps.py
 $(DEPS_XML_OUTPUTS): $(DEPS_XML_TOOL_FILES)
 
-ifneq ($(MAKECMDGOALS),clean)
 -include $(DEPS_XML_OUTPUTS)
-endif
 
 ifeq (2,$(V))
 $(info)
@@ -158,12 +158,12 @@ DEPS_VERILOG_TOOL_FILES := $(DEPS_VERILOG_TOOL) $(UTILS_DIR)/lib/deps.py
 
 $(DEPS_VERILOG_OUTPUTS): $(DEPS_VERILOG_TOOL_FILES)
 
-ifneq ($(MAKECMDGOALS),clean)
 -include $(DEPS_VERILOG_OUTPUTS)
-endif
 
 ifeq (2,$(V))
 $(info)
 $(info Finished setting up .dmk generation for Verilog files.)
 $(info --------------------------------------------------------------------------)
+endif
+
 endif

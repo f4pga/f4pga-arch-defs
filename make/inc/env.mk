@@ -1,0 +1,17 @@
+ifeq (,$(INC_ENV_MK))
+INC_ENV_MK := 1
+
+ENV_DIR     := $(abspath $(TOP_DIR)/env)
+CONDA_DIR   := $(ENV_DIR)/conda
+
+CONDA_BIN   := $(CONDA_DIR)/bin/conda
+CONDA_YOSYS := $(CONDA_DIR)/bin/yosys
+CONDA_VPR   := $(CONDA_DIR)/bin/vpr
+CONDA_MAKE  := $(CONDA_DIR)/bin/make
+
+# If the environment exists, put it into the path.
+ifneq (,$(wildcard $(abspath $(ENV_DIR))))
+PATH := $(CONDA_DIR)/bin:$(PATH)
+endif
+
+endif
