@@ -11,6 +11,7 @@ addons:
   apt:
     packages:
 #     - python3-virtualenv
+     - make
      - python3-pip
      - python3-lxml
      - libxml2-utils
@@ -45,8 +46,10 @@ addons:
 #     - docker-ce
 
 install:
- - make --version
+ - make -f make/env.mk make
+ - export PATH=$PWD/env/conda/bin:$PATH
  - make env
+ - make --version
 
 script:
  - make all
