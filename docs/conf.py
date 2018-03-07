@@ -74,7 +74,7 @@ extensions = [
 ]
 
 extlinks = {'issue': (
-    'https://github.com/SymbiFlow//issues/%s', 'issue ')}
+    'https://github.com/SymbiFlow/symbiflow-arch-defs/issues/%s', 'issue ')}
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']
@@ -214,14 +214,17 @@ texinfo_documents = [
      'Miscellaneous'),
 ]
 
+# -- Monkey patch things to make things safer -----------------------------
 
-breathe_projects = { "verilog": "_doxygen/xml" }
-breathe_default_project = "verilog"
-breathe_domain_by_extension = {
-    "v" : "verilog",
-    "sv" : "verilog",
-}
-breathe_implementation_filename_extensions = [ '.v', '.sv' ]
+# Monkey patch codecs.open to default to errors='replace' when errors isn't
+# specified.
+import codecs
+_codecs_open = codecs.open
+def codecs_open_replace_errors(*args, **kw):
+    if "errors" not in kw:
+        kw['errors'] = 'replace'
+    return _codecs_open(*args, **kw)
+codecs.open = codecs_open_replace_errors
 
 # MonkeyPatch minidom.parse to deal with broken XML "Doxygen for Verilog"
 # occasionally produced.
@@ -240,6 +243,17 @@ def minidom_parse_with_fixup(inFilename, *args, **kw):
         fixstr = ET.tostring(fixxml, method="xml")
         return minidom.parseString(fixstr, *args, **kw)
 minidom.parse = minidom_parse_with_fixup
+
+# -- Breathe + Exhale config for C++ API Documentation --------------------
+
+breathe_projects = { "verilog": "_doxygen/xml" }
+breathe_default_project = "verilog"
+breathe_domain_by_extension = {
+    "v" : "verilog",
+    "sv" : "verilog",
+}
+breathe_implementation_filename_extensions = [ '.v', '.sv' ]
+
 
 # Setup the exhale extension
 import textwrap
