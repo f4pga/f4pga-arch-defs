@@ -13,9 +13,9 @@ start_section "symbiflow.render" "Running ${GREEN}make render-each${NC}"
 make render-each
 end_section "symbiflow.render"
 
-start_section "symbiflow.gitignore" "Running ${GREEN}make gitignore-each${NC}"
-make .gitignore
-end_section "symbiflow.gitignore"
+start_section "symbiflow.gitexclude" "Running ${GREEN}make .git/info/exclude${NC}"
+make .git/info/exclude
+end_section "symbiflow.gitexclude"
 
 $SPACER
 
@@ -29,8 +29,8 @@ start_section "symbiflow.info.1" "Info on ${YELLOW}listfiles${NC}"
 utils/listfiles.py | sed -e"s@^$PWD/@@"
 end_section "symbiflow.info.1"
 
-start_section "symbiflow.info.2" "Info on ${YELLOW}.gitignore${NC}"
-cat .gitignore
+start_section "symbiflow.info.2" "Info on ${YELLOW}.git/info/exclude${NC}"
+cat .git/info/exclude
 end_section "symbiflow.info.2"
 
 start_section "symbiflow.info.3" "Info on ${YELLOW}git status${NC}"
