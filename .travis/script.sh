@@ -9,9 +9,8 @@ start_section "symbiflow.merged" "Running ${GREEN}make merged${NC}"
 make merged
 end_section "symbiflow.merged"
 
-start_section "symbiflow.render" "Running second ${GREEN}make render${NC}"
-# TODO(mithro): Make this not fail
-make -k render || true
+start_section "symbiflow.render" "Running ${GREEN}make render-each${NC}"
+make render-each
 end_section "symbiflow.render"
 
 $SPACER
