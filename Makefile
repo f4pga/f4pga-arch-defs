@@ -9,6 +9,7 @@ include make/deps.mk
 include make/env.mk
 # Rules for converting XXX.sim.v files into images
 include make/sim.mk
+include make/third_party.mk
 
 # ------------------------------------------
 
@@ -48,7 +49,7 @@ print_vars:
 
 # ------------------------------------------
 
-all:
+all: | redir
 	@true
 
 .PHONY: all
