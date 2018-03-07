@@ -3,7 +3,6 @@ include make/inc/files.mk
 include make/inc/env.mk
 include make/inc/func.mk
 
-SIM_NETLISTSVG_SKIN ?= $(NETLISTSVG)/lib/default.svg
 SIM_NETLISTSVG_DPI  ?= 300
 
 YOSYSSVG_DPI  ?= 300
@@ -14,7 +13,7 @@ SIM_DEPS := $(TOP_DIR)/make/sim.mk
 SIM_PREFIX= $(subst .sim.v,,$(notdir $(PREREQ_FIRST)))
 SIM_TOP   = $(call uc,$(SIM_PREFIX))
 
-SIM_SVG_DEPS := $(SIM_NETLISTSVG_SKIN) $(NETLISTSVG_STAMP)
+SIM_SVG_DEPS := $(NETLISTSVG_SKIN) $(NETLISTSVG_STAMP)
 
 JSON_ENDINGS := %.bb.json %.aig.json %.flat.json
 
@@ -35,7 +34,7 @@ PNG_FILES  := $(patsubst %.svg,%.png,$(SVG_FILES))
 .PRECIOUS: $(JSON_ENDINGS)
 
 %.svg: %.json $(SIM_SVG_DEPS)
-	$(call quiet_cmd,$(NODE) $(NETLISTSVG)/bin/netlistsvg $(PREREQ_FIRST) -o $(TARGET) --skin $(SIM_NETLISTSVG_SKIN),$(GENERATED_FROM))
+	$(call quiet_cmd,$(NODE) $(NETLISTSVG)/bin/netlistsvg $(PREREQ_FIRST) -o $(TARGET) --skin $(NETLISTSVG_SKIN),$(GENERATED_FROM))
 
 %.bb.yosys.svg: %.sim.v
 	$(call quiet_cmd,$(YOSYS) -p "prep -top $(SIM_TOP); $(YOSYS_EXTRA); cd $(SIM_TOP); show -format svg -prefix $(subst .svg,,$(TARGET))" $(PREREQ_FIRST),$(GENERATED_FROM))
