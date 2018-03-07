@@ -24,6 +24,6 @@ endef
 	$(foreach O,$(call find_generated_files,*),$(file >>$(TARGET),$(subst $(abspath $(PWD))/,,$O)))
 
 .gitignore: .gitignore.base .gitignore.gen
-	cat $(PREREQ_ALL) > $(TARGET)
+	@cat $(PREREQ_ALL) > $(TARGET)
 
 .PHONY: .gitignore.gen

@@ -97,8 +97,10 @@ $(OUTPUT_DIR)/%.rr_graph.pretty.xml: $(OUTPUT_DIR)/%.rr_graph.xml
 
 
 ALL_OUTPUT = $(patsubst %.v,$(OUTPUT_DIR)/%.rr_graph.xml,$(wildcard *.v)) $(patsubst %.eblif,$(OUTPUT_DIR)/%.rr_graph.xml,$(wildcard *.eblif))
-all: $(ALL_OUTPUT)
-	@echo $(ALL_OUTPUT)
+#all: $(ALL_OUTPUT)
+#	@echo $(ALL_OUTPUT)
+all:
+	@true
 
 help:
 	@echo ""

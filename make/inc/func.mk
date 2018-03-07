@@ -5,6 +5,25 @@ INC_FUNC_MK := 1
 lc = $(shell echo "$1" | tr A-Z a-z)
 
 # -------------------------------
+# Colors
+# -------------------------------
+
+# echo -e "Hello ${YELLOW}yellow${NC}"
+GRAY   := \033[0;30m
+RED    := \033[0;31m
+GREEN  := \033[0;32m
+YELLOW := \033[0;33m
+PURPLE := \033[0;35m
+NC     := \033[0m # No Color
+
+heading = @echo -e "\n$(PURPLE)SymbiFlow Arch Defs$(NC)- $(1)\n$(GRAY)------------------------------------------------$(NC)"
+
+success := echo -e "["$$_"] - $(GREEN)Success!$(NC)" && exit 0
+failure := echo -e "["$$_"] - $(RED)Failure!$(NC)" && exit 1
+
+result = && $(success) || $(failure)
+
+# -------------------------------
 # Include functions
 # -------------------------------
 
