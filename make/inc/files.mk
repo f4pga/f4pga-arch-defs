@@ -42,7 +42,6 @@ files:
 	@$(foreach O,$(sort $(subst $(TOP_DIR)/,,$(FILES_POSSIBLE))),$(info $(O)))
 	@true
 
-
 .PHONY: files
 
 endif
