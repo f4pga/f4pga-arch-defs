@@ -18,7 +18,7 @@ SIM_SVG_DEPS := $(NETLISTSVG_SKIN) $(NETLISTSVG_STAMP)
 JSON_ENDINGS := %.bb.json %.aig.json %.flat.json
 
 JSON_FILES := $(foreach JF,$(VERILOG_FILES),$(foreach JE,$(JSON_ENDINGS),$(subst .sim.v,,$(JF))$(subst %,,$(JE))))
-SVG_FILES  := $(patsubst %.json,%.svg,$(JSON_FILES)) $(patsubst %.sim.v,%.bb.yosys.svg,$(VERILOG_FILES)) $(patsubst %.sim.v,%.flat.yosys.svg,$(VERILOG_FILES))
+SVG_FILES  := $(sort $(patsubst %.json,%.svg,$(JSON_FILES)) $(patsubst %.sim.v,%.bb.yosys.svg,$(VERILOG_FILES)) $(patsubst %.sim.v,%.flat.yosys.svg,$(VERILOG_FILES)))
 PNG_FILES  := $(patsubst %.svg,%.png,$(SVG_FILES))
 
 # Basic black box version
@@ -67,6 +67,9 @@ render-clean$(1):
 	@find $(CURRENT_DIR) -name '*$(1).json' -delete -print || true
 
 render-clean: render-clean$(1)
+
+render-each: render$(1)
+
 endif
 
 view$(1): render$(1)
@@ -75,7 +78,11 @@ view$(1): render$(1)
 endef
 
 $(eval $(call render_and_view_cmds,,))
-$(foreach X,.bb .aig .flat .bb.yosys .flat.yosys,$(eval $(call render_and_view_cmds,$(X))))
+#$(foreach X,.bb .aig .flat .bb.yosys .flat.yosys,$(eval $(call render_and_view_cmds,$(X))))
+$(foreach X,.bb .aig .flat,$(eval $(call render_and_view_cmds,$(X))))
+
+render-each:
+	@true
 
 render-clean:
 	@true
