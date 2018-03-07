@@ -6,11 +6,11 @@
   </fc>
   <output name="EE2BEG" num_pins="4"/>
   <output name="EE4BEG" num_pins="4"/>
-  <output name="EL1BEG" num_pins="3"/>
+  <output name="EL1BEG" num_pins="4"/>
   <output name="ER1BEG" num_pins="4"/>
   <output name="NE2BEG" num_pins="4"/>
   <output name="NE6BEG" num_pins="4"/>
-  <output name="NL1BEG" num_pins="3"/>
+  <output name="NL1BEG" num_pins="4"/>
   <output name="NN2BEG" num_pins="4"/>
   <output name="NN6BEG" num_pins="4"/>
   <output name="NR1BEG" num_pins="4"/>
@@ -24,7 +24,7 @@
   <output name="SS6BEG" num_pins="4"/>
   <output name="SW2BEG" num_pins="4"/>
   <output name="SW6BEG" num_pins="4"/>
-  <output name="WL1BEG" num_pins="3"/>
+  <output name="WL1BEG" num_pins="4"/>
   <output name="WR1BEG" num_pins="4"/>
   <output name="WW2BEG" num_pins="4"/>
   <output name="WW4BEG" num_pins="4"/>
@@ -34,7 +34,7 @@
   <input name="ER1END" num_pins="4"/>
   <input name="NE2END" num_pins="4"/>
   <input name="NE6END" num_pins="4"/>
-  <input name="NL1END" num_pins="3"/>
+  <input name="NL1END" num_pins="4"/>
   <input name="NN2END" num_pins="4"/>
   <input name="NN6END" num_pins="4"/>
   <input name="NR1END" num_pins="4"/>
