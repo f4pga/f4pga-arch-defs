@@ -1,3 +1,5 @@
+`include "../../../../../vpr/muxes/logic/mux2/mux2.sim.v"
+
 module {N}USED(I0, O);
 
 	input wire I0;
