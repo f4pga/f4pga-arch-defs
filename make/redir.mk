@@ -22,6 +22,9 @@ phony:
 %:: phony
 	$(MAKE) -C $(TOP_DIR) $(abspath $@)
 
+all: phony
+	$(MAKE) -C $(TOP_DIR) CURRENT_DIR=$(REDIR_LINK_DIR) all
+
 merged: phony
 	$(MAKE) -C $(TOP_DIR) CURRENT_DIR=$(REDIR_LINK_DIR) merged
 
@@ -39,3 +42,5 @@ view.%: phony
 
 clean: phony
 	$(MAKE) -C $(TOP_DIR) CURRENT_DIR=$(REDIR_LINK_DIR) clean
+
+.DEFAULT_GOAL := all
