@@ -27,6 +27,6 @@ $(INT_OUTPUTS): PRJXRAY_PART := $(PRJXRAY_PART)
 
 # Actual build rule
 $(INT_OUTPUTS):
-	$(INT_IMPORT) --part $(PRJXRAY_PART) --tile $(PRJXRAY_INT) --output-pb-type $(TARGET)
+	$(call quiet_cmd,$(INT_IMPORT) --part $(PRJXRAY_PART) --tile $(PRJXRAY_INT) --output-pb-type $(TARGET),$(GENERATED_FROM))
 
 OUTPUTS += $(INT_OUTPUTS)
