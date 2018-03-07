@@ -1,3 +1,5 @@
+`ifndef VPR_FF
+`define VPR_FF
 (* blackbox *) (* CLASS="flipflop" *)
 module VPR_FF (D, Q, clk);
 
@@ -17,3 +19,4 @@ always @ ( posedge clk ) begin
 end
 
 endmodule
+`endif
