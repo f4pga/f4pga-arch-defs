@@ -8,8 +8,8 @@ include make/deps.mk
 # Conda environment
 include make/env.mk
 # Rules for converting XXX.sim.v files into images
-include make/sim.mk
 include make/third_party.mk
+include make/sim.mk
 
 # ------------------------------------------
 
