@@ -16,46 +16,46 @@ gen-clean:
 clean: gen-clean
 
 redir:
-	@rm -f .gitignore.redir
 	@for DIR in $$($(UTILS_DIR)/listdirs.py); do \
 	  if [ ! -e $$DIR/Makefile ]; then \
 	    ln -sf $(abspath $(TOP_DIR)/make/redir.mk) $$DIR/Makefile; \
+	    export NEW_MAKEFILE=$$(echo $$DIR/Makefile | sed -e's@^$(TOP_DIR)/@@'); \
+	    echo "Creating redirect makefile '$$NEW_MAKEFILE'"; \
 	  fi; \
 	done
 
-.gitignore.redir: | redir
-	@rm -f $(TARGET)
+# Generate a .git/info/exclude
+define gitexclude_comment
+
+# $(1) files
+#-------------------------------
+endef
+
+.git/info/exclude.redir: $(TOP_DIR)/make/gen.mk | redir
+	$(file >$(TARGET),$(call gitexclude_comment,Makefile redirect))
 	@for DIR in $$($(UTILS_DIR)/listdirs.py); do \
 	  if [ $$(python -c"import os.path; print(os.path.realpath('$$DIR/Makefile'))") = $(abspath $(TOP_DIR)/make/redir.mk) ]; then \
 	    export NEW_MAKEFILE=$$(echo $$DIR/Makefile | sed -e's@^$(TOP_DIR)/@@'); \
-	    echo "Redirect makefile '$$NEW_MAKEFILE'"; \
 	    echo  "$$NEW_MAKEFILE" >> $(TARGET); \
 	  fi; \
 	done
 
-# Generate a .gitignore
-define gitignore_comment
+.git/info/exclude.base:
+	@touch $(TARGET)
 
-# Generated files
-#-------------------------------
-.gitignore
-.gitignore.gen
-.gitignore.redir
-endef
-
-.gitignore.gen:
-	$(file >$(TARGET),$(gitignore_comment))
+.git/info/exclude.gen: $(TOP_DIR)/make/gen.mk
+	$(file >$(TARGET),$(call gitexclude_comment,Generated))
 	$(foreach O,$(call find_generated_files,*),$(file >>$(TARGET),$(subst $(abspath $(PWD))/,,$O)))
 
-.gitignore: .gitignore.base .gitignore.gen .gitignore.redir
+.git/info/exclude: .git/info/exclude.base .git/info/exclude.gen .git/info/exclude.redir
 	@cat $(PREREQ_ALL) > $(TARGET)
 
-gitignore-clean:
-	@rm -vf .gitignore .gitignore.gen
+gitexclude-clean:
+	@rm -vf .git/info/exclude .git/info/exclude.gen .git/info/exclude.redir
 
-.PHONY: .gitignore.gen
+.PHONY: .git/info/exclude.gen
 
 ifeq (,$(CURRENT_DIR))
-all: .gitignore
-clean: gitignore-clean
+all: .git/info/exclude
+clean: gitexclude-clean
 endif
