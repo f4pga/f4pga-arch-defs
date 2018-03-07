@@ -6,8 +6,8 @@
   <xi:include href="../../primitives/sb_ff/sb_ff.model.xml" 	  xpointer="xpointer(models/child::node())" />
   <xi:include href="../../primitives/sb_carry/sb_carry.model.xml" xpointer="xpointer(models/child::node())" />
   <xi:include href="../../primitives/sb_ram/sb_ram.model.xml"     xpointer="xpointer(models/child::node())" />
-  <xi:include href="../../primitives/mux4/mux4.model.xml"         xpointer="xpointer(models/child::node())" />
-  <xi:include href="../../primitives/mux2/omux.model.xml"         xpointer="xpointer(models/child::node())" />
+  <xi:include href="../../primitives/mux4/ice_mux4.model.xml"         xpointer="xpointer(models/child::node())" />
+  <xi:include href="../../primitives/mux2/ice_mux2.model.xml"         xpointer="xpointer(models/child::node())" />
  </models>
 
  <layout>
