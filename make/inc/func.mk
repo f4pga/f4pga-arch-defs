@@ -33,7 +33,7 @@ endef
 else
 
 define quiet_cmd
-@export T=$$(tempfile); \
+@export T=$$(mktemp); \
 $(1) > $$T 2>&1; R=$$?; \
 if [ $$R -eq 0 ]; then \
   echo -e "$(2)"; \
