@@ -10,6 +10,7 @@ addons:
      - xsltproc
      - inkscape
      - nodejs
+     - graphviz
 
 before_install:
  - source ./.travis/common.sh
