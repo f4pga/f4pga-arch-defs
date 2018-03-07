@@ -37,15 +37,17 @@ print_vars:
 # ------------------------------------------
 
 all: .gitignore $(MERGE_XML_OUTPUTS)
-	@echo "----"
-	@echo " MERGE_XML_OUTPUT output files"
-	@echo "$(MERGE_XML_OUTPUTS)" | sed -e's/ /\n/g'
+	$(call heading,Merged output XML files)
+	@echo "$(MERGE_XML_OUTPUTS)" | sed -e's/ /\n/g' -e's@$(PWD)/@@g'
 
 .PHONY: all
 .DEFAULT_GOAL := all
 
 test:
-	@true
+	$(call heading,Running Python utils tests)
+	@$(MAKE) -C utils all $(result)
+	#$(call heading,Running Verilog to Routing tests)
+	#@$(MAKE) -C tests all $(result)
 
 clean:
 	@rm -rvf .deps
