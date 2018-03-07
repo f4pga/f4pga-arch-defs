@@ -10,6 +10,20 @@ $(call include_type_all,v2x)	# Then Verilog -> XML
 $(call include_type_all,xray)
 $(call include_type_all,dummy)
 
+redir:
+	@rm -f .gitignore.redir
+	@for DIR in $$($(UTILS_DIR)/listdirs.py); do \
+	  if [ ! -e $$DIR/Makefile ]; then \
+	    ln -sf $(abspath $(TOP_DIR)/make/redir.mk) $$DIR/Makefile; \
+	  fi; \
+	  if [ $$(python -c"import os.path; print(os.path.realpath('$$DIR/Makefile'))") = $(abspath $(TOP_DIR)/make/redir.mk) ]; then \
+	    export NEW_MAKEFILE=$$(echo $$DIR/Makefile | sed -e's@^$(TOP_DIR)/@@'); \
+	    echo "Redirect makefile '$$NEW_MAKEFILE'"; \
+	    echo  "$$NEW_MAKEFILE" >> .gitignore.redir; \
+	  fi; \
+	done
+	@$(MAKE) .gitignore
+
 # Generate a .gitignore
 define gitignore_comment
 
@@ -23,7 +37,7 @@ endef
 	$(file >$(TARGET),$(gitignore_comment))
 	$(foreach O,$(call find_generated_files,*),$(file >>$(TARGET),$(subst $(abspath $(PWD))/,,$O)))
 
-.gitignore: .gitignore.base .gitignore.gen
+.gitignore: .gitignore.base .gitignore.gen .gitignore.redir
 	@cat $(PREREQ_ALL) > $(TARGET)
 
 gitignore-clean:
