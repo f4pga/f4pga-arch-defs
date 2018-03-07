@@ -13,7 +13,7 @@ MERGE_XML_ARGS    := --nomkdir --nonet --xinclude
 $(foreach F,$(MERGE_XML_INPUTS),$(eval $(call _deps_expand_rule,$(call merged_xml_name,$(F)),$(call depend_on_all,$(F)))))
 
 $(MERGE_XML_OUTPUTS):
-	xsltproc $(MERGE_XML_ARGS) --output $(TARGET) $(MERGE_XML_XSL) $(PREREQ_FIRST)
+	$(call quiet_cmd,xsltproc $(MERGE_XML_ARGS) --output $(TARGET) $(MERGE_XML_XSL) $(PREREQ_FIRST),$(GENERATED_FROM))
 
 # Depend on the XSL script.
 $(MERGE_XML_OUTPUTS): $(MERGE_XML_XSL)
