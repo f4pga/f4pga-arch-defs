@@ -1,4 +1,4 @@
-MUX_COMMENT = F7AMUX is used to create a LUT7 from two LUT6s.
+MUX_COMMENT = MUX on inputs to N5FF inputs.
 MUX_TYPE = routing
 MUX_OUTFILE = ntemplate.N5ffmux
 MUX_NAME = {N}5FFMUX
