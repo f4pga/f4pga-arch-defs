@@ -1,4 +1,4 @@
-`include "../../../../vpr/ff/ff.sim.v"
+`include "../../../../vpr/ff/vpr_ff.sim.v"
 // D5FF, C5FF, B5FF, A5FF == W5FF
 // Flip-flop which can be configured only as a flip flop.
 (* MODEL_NAME = "{N}5FF" *)
