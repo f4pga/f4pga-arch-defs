@@ -111,7 +111,7 @@ class OrderedEnum(Enum):
         return NotImplemented
 
 
-_SpanWire = namedtuple("SpanWire", ("direction", "length", "ending", "extra"))
+_SpanWire = namedtuple("SpanWire", ("direction", "length", "ending"))
 
 class SpanWire(_SpanWire):
     class Dir(OrderedEnum):
@@ -133,7 +133,7 @@ class SpanWire(_SpanWire):
         END = 'Ends'
 
     @classmethod
-    def parse(cls, name, extra=None):
+    def parse(cls, name, extra=""):
 
         if len(name) != len("SW2END"):
             raise TypeError("Name %r is not correct length (%r)" % (name, extra))
@@ -148,18 +148,17 @@ class SpanWire(_SpanWire):
         direction = cls.Direction(cls.Dir[direction[0]], cls.Dir[direction[1]])
         ending = cls.Ending[ending]
 
-        return cls(direction, length, ending, extra)
+        o = cls(direction, length, ending)
+        # FIXME: Hrm...
+        o.extra = ""
+        return o
 
     @property
     def name(self):
-        if self.extra:
-            extra = "_"+self.extra
-        else:
-            extra = ""
-        return "%s%i%s%s" % (self.direction.name, self.length, self.ending.name, extra)
+        return "%s%i%s" % (self.direction.name, self.length, self.ending.name)
 
     def __repr__(self):
-        return "<SW: %s>" % (self.name)
+        return "<SW: %s%s>" % (self.name, self.extra)
 
     def __str__(self):
         return self.name
@@ -201,7 +200,7 @@ connections_map = {
     'direct': {},
 }
 
-def process_wire(wire_name):
+def process_wire(orig_wire_name):
     """
     >>>
     """
@@ -211,11 +210,11 @@ def process_wire(wire_name):
     # FIXME: Horrible hack to work around INT_R's have FAN0 while INT_L's have
     # FAN_L0 which collides with XXX_L names.
     #wire_name = re.sub("(FAN|BYP|CLK|CTRL|IMUX)(_L)?([0-9])", "\\1_IN\\3", wire_name)
-    wire_name = re.sub("_L(.)", "\\1", wire_name)
+    wire_name = re.sub("_L(.)", "\\1", orig_wire_name)
 
     g = prefix_re.match(wire_name)
     if not g:
-        print("Skipping!", wire_name)
+        print("Skipping!", orig_wire_name)
         return None
         #return (wire_name, -1)
 
@@ -256,10 +255,7 @@ def process_wire(wire_name):
     else:
         assert len(bits) == 1, bits
         assert not extra_dir, extra_dir
-        if extra_conn:
-            print("Skipping!", wire_name)
-            return None
-        return add_wire("span", SpanWire.parse(bits[0]), num)
+        return add_wire("span", SpanWire.parse(bits[0], extra_conn), num)
         #return add_wire("unknown", wire_name, 0)
 
 
@@ -329,13 +325,22 @@ for wire_type in sorted(wires_by_type):
     print("%s Wires" % wire_type.title())
     print("-"*75)
     for wire, pins in sorted(wires_by_type[wire_type].items()):
-        if len(pins) > 1:
-            while min(pins) > 0:
-                new_pin = min(pins) - 1
-                print("WARNING: Padding %s with extra pin %s" % (wire, new_pin))
-                pins.add(new_pin)
-                connections_map['mux'][(wire, new_pin)] = []
+        mpin = max(pins)+1
+        if wire_type == 'span':
+            assert mpin <= 4
+            mpin = 4
+
         print(repr(wire), pins)
+        pins_should = list(range(0, mpin))
+        if pins_should == pins:
+            continue
+
+        for p in pins_should:
+            if p in pins:
+                continue
+
+            print("WARNING: Padding %s with extra pin %s" % (wire, p))
+            pins.add(p)
 
 print()
 print()
@@ -507,8 +512,10 @@ for local_wire, pins in sorted(wires_by_type['local'].items()):
         assert mux_name not in mux_names
         mux_names.add(mux_name)
 
-        if len(srcs) <= 1:
-            print("WARNING:", "Less then 1 src for %s%s: %r" % (local_wire,pin,srcs))
+        if len(srcs) == 1:
+            print("INFO:", "Only 1 source for %s%s: %r" % (local_wire,pin,srcs))
+        if len(srcs) == 0:
+            print("WARNING:", "No sources for %s%s: %r" % (local_wire,pin,srcs))
 
         port_names = [
             (mux_lib.MuxPinType.OUTPUT, "OUT", 1, 0),
