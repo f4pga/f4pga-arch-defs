@@ -13,6 +13,10 @@ start_section "symbiflow.render" "Running ${GREEN}make render-each${NC}"
 make render-each
 end_section "symbiflow.render"
 
+start_section "symbiflow.gitignore" "Running ${GREEN}make gitignore-each${NC}"
+make .gitignore
+end_section "symbiflow.gitignore"
+
 $SPACER
 
 start_section "symbiflow.test" "Running ${GREEN}make test${NC}"
