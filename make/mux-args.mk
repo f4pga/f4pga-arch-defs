@@ -81,8 +81,8 @@ ifneq (,$(MUX_COMMENT))
 MUX_GEN_ARGS +=		--comment	"$(MUX_COMMENT)"
 endif
 
-ifneq (,$(MUX_OUT))
-MUX_GEN_ARGS +=		--name-out	$(MUX_OUT)
+ifneq (,$(MUX_OUTPUT))
+MUX_GEN_ARGS +=		--name-out	$(MUX_OUTPUT)
 endif
 
 ifeq (1,$(MUX_SPLIT_INPUTS))
@@ -123,7 +123,7 @@ undefine MUX_WIDTH
 undefine MUX_NAME
 
 undefine MUX_COMMENT
-undefine MUX_OUT
+undefine MUX_OUTPUT
 
 undefine MUX_SPLIT_INPUTS
 undefine MUX_INPUTS
