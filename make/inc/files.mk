@@ -6,8 +6,15 @@ FILES_EXISTING := $(sort $(abspath $(shell $(TOP_DIR)/utils/listfiles.py)))
 glob2regex = $(subst [^/]*[^/]*,.*,$(subst *,[^/]*,$(subst .,\.,$(1))))$$
 
 # Find files in a list.
-#find_files_in = $(sort $(strip $(file >.files)$(foreach O,$(2),$(file >>.files,$(O)))$(shell rgrep '$(call glob2regex,$(1))' .files)))
-find_files_in = $(sort $(shell ( $(foreach O,$(2),printf "%s\n" $(O);) ) | grep -r '$(call glob2regex,$(1))' -))
+define _find_files_in
+$(file >$(3))$(foreach O,$(2),$(file >>$(3),$(O)))
+$(shell grep -r '$(call glob2regex,$(1))' $(3))
+$(shell rm $(3))
+endef
+
+find_files_in = $(sort $(strip $(call _find_files_in,$(1),$(2),$(shell mktemp))))
+#$(file >.files)$(foreach O,$(2),$(file >>.files,$(O)))$(shell grep -r '$(call glob2regex,$(1))' .files)))
+#find_files_in = $(sort $(shell ( $(foreach O,$(2),printf "%s\n" $(O);) ) | grep -r '$(call glob2regex,$(1))' -))
 
 # Tools which generate files should append their files to this variable.
 FILES_GENERATED :=
@@ -39,7 +46,7 @@ $(error Found no files! Check the exclude patterns!)
 endif
 
 files:
-	@$(foreach O,$(sort $(subst $(TOP_DIR)/,,$(FILES_POSSIBLE))),$(info $(O)))
+	@$(foreach O,$(call find_files,$(FILTER_BELOW)),$(info $(subst $(FILTER_STRIP),,$(O))))
 	@true
 
 .PHONY: files
