@@ -10,6 +10,9 @@ TOP_DIR   := $(realpath $(COMMON_MK_DIR)/..)
 %::
 	$(MAKE) -C $(TOP_DIR) $(abspath $@)
 
+merged:
+	$(MAKE) -C $(TOP_DIR) CURRENT_DIR=$(abspath .) merged
+
 render:
 	$(MAKE) -C $(TOP_DIR) CURRENT_DIR=$(abspath .) render
 

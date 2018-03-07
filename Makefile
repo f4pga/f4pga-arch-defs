@@ -29,6 +29,16 @@ $(MERGE_XML_OUTPUTS): $(MERGE_XML_XSL)
 # Depend on this Makefile (and it's deps)
 #$(MERGE_XML_OUTPUTS): %.merged.xml: $(call ALL,$(INC_MAKEFILE))
 
+merged: $(filter $(CURRENT_DIR)%,$(MERGE_XML_OUTPUTS))
+	$(call heading,Merged output XML files)
+	@echo "$(PREREQ_ALL)" | sed -e's/ /\n/g' -e's@$(PWD)/@@g'
+
+merged-clean:
+	@find $(CURRENT_DIR) -name '*.merged.xml' -delete -print || true
+
+all: merged
+clean: merged-clean
+
 # ------------------------------------------
 
 print_vars:
@@ -38,9 +48,8 @@ print_vars:
 
 # ------------------------------------------
 
-all: .gitignore $(MERGE_XML_OUTPUTS)
-	$(call heading,Merged output XML files)
-	@echo "$(MERGE_XML_OUTPUTS)" | sed -e's/ /\n/g' -e's@$(PWD)/@@g'
+all:
+	@true
 
 .PHONY: all
 .DEFAULT_GOAL := all
@@ -51,30 +60,12 @@ test:
 	#$(call heading,Running Verilog to Routing tests)
 	#@$(MAKE) -C tests all $(result)
 
-ifeq (,$(CLEAN_DIR))
+.PHONY: test
 
-deps-clean:
-	@rm -rvf .deps
-
-gitignore-clean:
-	@rm -vf .gitignore .gitignore.gen
-
-else
-
-deps-clean:
+clean:
 	@true
 
-gitignore-clean:
+dist-clean:
 	@true
 
-endif
-
-#	echo rm -vf $(call find_generated_files,$(CLEAN_DIR)*)
-
-clean: deps-clean gitignore-clean
-	@find $(CURRENT_DIR) -name '*.merged.xml' -delete -print || true
-
-dist-clean: clean clean-env
-	@true
-
-.PHONY: clean
+.PHONY: clean dist-clean
