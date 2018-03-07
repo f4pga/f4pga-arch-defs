@@ -6,7 +6,7 @@
   <input name="SR" num_pins="1"/>
   <output name="Q" num_pins="1"/>
 
-  <xi:include href="../../../../vpr/ff/ff.pb_type.xml"/>
+  <xi:include href="../../../../vpr/ff/vpr_ff.pb_type.xml"/>
   <interconnect>
     <direct name="D" input="BLK_IG-{N}5FF.D"  output="BEL_FF-VPR_FF.D"   />
     <direct name="Q" input="BEL_FF-VPR_FF.Q"  output="BLK_IG-{N}5FF.Q"          />
