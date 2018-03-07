@@ -78,8 +78,7 @@ view$(1): render$(1)
 endef
 
 $(eval $(call render_and_view_cmds,,))
-#$(foreach X,.bb .aig .flat .bb.yosys .flat.yosys,$(eval $(call render_and_view_cmds,$(X))))
-$(foreach X,.bb .aig .flat,$(eval $(call render_and_view_cmds,$(X))))
+$(foreach X,.bb .aig .flat .bb.yosys .flat.yosys,$(eval $(call render_and_view_cmds,$(X))))
 
 render-each:
 	@true
