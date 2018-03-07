@@ -131,7 +131,7 @@
 
   </fixed_layout>
 
-  <fixed_layout name="xc7a50t-test" width="8" height="8">
+  <fixed_layout name="xc7a50t-test" width="10" height="10">
 
    <col type="EMPTY"      startx="0"  priority="10" />
    <!-- <col type="LIOB"       startx="1"   priority="10" /> --><col type="BLK_BB-VPR_PAD"        startx="1"  priority="10" />
@@ -140,16 +140,18 @@
    <!-- Start RIO -->
 
    <col type="BLK_MB-CLBLL_L-INT_L"    startx="3" priority="10" />
-   <col type="BLK_MB-INT_R-CLBLL_R"    startx="4" priority="10" />
+   <!-- INT_L -->
+   <col type="BLK_MB-INT_R-CLBLL_R"    startx="5" priority="10" />
+   <!-- CLBLL_R -->
 
    <!-- End RIO -->
 
-   <col type="EMPTY"      startx="5" priority="10" />
-   <!-- <col type="RIOB"       startx="6"  priority="10" /> --><col type="BLK_BB-VPR_PAD"        startx="6" priority="10" />
    <col type="EMPTY"      startx="7" priority="10" />
+   <!-- <col type="RIOB"       startx="6"  priority="10" /> --><col type="BLK_BB-VPR_PAD"        startx="8" priority="10" />
+   <col type="EMPTY"      startx="9" priority="10" />
 
    <row type="EMPTY"           starty="0" priority="11" />
-   <row type="EMPTY"           starty="7" priority="11" />
+   <row type="EMPTY"           starty="9" priority="11" />
 
   </fixed_layout>
  </layout>
@@ -213,7 +215,7 @@
 
  <directlist>
   <direct name="BLK_MB-CLBLL_L-INT_L_CARRY" from_pin="BLK_MB-CLBLL_L-INT_L.COUT_N"  to_pin="BLK_MB-CLBLL_L-INT_L.CIN_N"  x_offset="0"  y_offset="1" z_offset="0"/>
-  <direct name="BLK_MB-CLBLL_R-INT_R_CARRY" from_pin="BLK_MB-INT_R-CLBLL_R.COUT_N"  to_pin="BLK_MB-INT_R-CLBLL_R-INT_R.CIN_N"  x_offset="0"  y_offset="1" z_offset="0"/>
+  <direct name="BLK_MB-CLBLL_R-INT_R_CARRY" from_pin="BLK_MB-INT_R-CLBLL_R.COUT_N"  to_pin="BLK_MB-INT_R-CLBLL_R.CIN_N"  x_offset="0"  y_offset="1" z_offset="0"/>
  </directlist>
 
 </architecture>
