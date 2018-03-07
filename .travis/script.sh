@@ -44,3 +44,16 @@ make clean
 end_section "symbiflow.clean"
 
 $SPACER
+
+start_section "symbiflow.redir.1" "Running ${GREEN}make redir${NC}"
+make redir
+end_section "symbiflow.redir.1"
+
+start_section "symbiflow.redir.1" "Running ${GREEN}make${NC} in ${YELLOW}vpr${NC}"
+(
+	cd vpr
+	make || exit $?
+)
+end_section "symbiflow.redir.1"
+
+$SPACER
