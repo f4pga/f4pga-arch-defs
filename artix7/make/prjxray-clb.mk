@@ -29,6 +29,6 @@ $(CLB_OUTPUTS): PRJXRAY_PART := $(PRJXRAY_PART)
 
 # Actual target which will run
 $(CLB_OUTPUTS):
-	$(CLB_IMPORT) --part $(PRJXRAY_PART) --tile $(PRJXRAY_CLB) --output-pb-type $(INC_DIR)/$(PRJXRAY_LCLB).pb_type.xml --output-model $(INC_DIR)/$(PRJXRAY_LCLB).model.xml
+	$(call quiet_cmd,$(CLB_IMPORT) --part $(PRJXRAY_PART) --tile $(PRJXRAY_CLB) --output-pb-type $(INC_DIR)/$(PRJXRAY_LCLB).pb_type.xml --output-model $(INC_DIR)/$(PRJXRAY_LCLB).model.xml,$(GENERATED_FROM))
 
 OUTPUTS += $(CLB_OUTPUTS)
