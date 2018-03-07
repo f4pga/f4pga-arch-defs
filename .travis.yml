@@ -8,6 +8,8 @@ addons:
      - make
      - libxml2-utils
      - xsltproc
+     - inkscape
+     - nodejs
 
 before_install:
  - source ./.travis/common.sh

@@ -58,7 +58,9 @@ env:
 
 .PHONY: env
 
-clean-env:
+env-clean:
 	@rm -rf $(ENV_DIR)
 
-.PHONY: clean-env
+dist-clean: env-clean
+
+.PHONY: env-clean

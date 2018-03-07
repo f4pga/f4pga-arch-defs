@@ -26,4 +26,12 @@ endef
 .gitignore: .gitignore.base .gitignore.gen
 	@cat $(PREREQ_ALL) > $(TARGET)
 
+gitignore-clean:
+	@rm -vf .gitignore .gitignore.gen
+
 .PHONY: .gitignore.gen
+
+ifeq (,$(CURRENT_DIR))
+all: .gitignore
+clean: gitignore-clean
+endif

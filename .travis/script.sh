@@ -5,13 +5,13 @@ set -e
 
 $SPACER
 
-start_section "symbiflow.all.1" "Running ${GREEN}make all${NC}"
-make all
-end_section "symbiflow.all.1"
+start_section "symbiflow.merged" "Running ${GREEN}make merged${NC}"
+make merged
+end_section "symbiflow.merged"
 
-start_section "symbiflow.all.2" "Running second ${GREEN}make all${NC}"
-make all
-end_section "symbiflow.all.2"
+start_section "symbiflow.render" "Running second ${GREEN}make render${NC}"
+make render
+end_section "symbiflow.render"
 
 $SPACER
 

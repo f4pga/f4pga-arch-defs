@@ -55,14 +55,18 @@ PNG_FILES  := $(patsubst %.svg,%.png,$(SVG_FILES))
 #	$(YOSYS) -p "proc; hierarchy -top $(SIM_TOP) -purge_lib; show -format ps -prefix $(basename $(TARGET))" $(PREREQ_FIRST)
 
 render: $(filter $(CURRENT_DIR)%,$(PNG_FILES))
-	@true
+	$(call heading,Rendered output from XXX.sim.v files)
+	@echo "$(PREREQ_ALL)" | sed -e's/ /\n/g' -e's@$(PWD)/@@g'
 
 view: render
 	eog $(filter $(CURRENT_DIR)%,$(PNG_FILES))
 
-sim-clean:
+render-clean:
 	@find $(CURRENT_DIR) -name '*.png'  -delete -print || true
 	@find $(CURRENT_DIR) -name '*.svg'  -delete -print || true
 	@find $(CURRENT_DIR) -name '*.json' -delete -print || true
 
-clean: sim-clean
+
+# Add to the global targets
+all: render
+clean: render-clean

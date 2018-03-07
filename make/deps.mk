@@ -167,3 +167,13 @@ $(info -------------------------------------------------------------------------
 endif
 
 endif
+
+#deps-clean:
+#	echo rm -vf $(call find_generated_files,$(CLEAN_DIR)*)
+
+deps-all-clean:
+	@rm -rvf .deps
+
+ifeq (,$(CURRENT_DIR))
+clean: deps-all-clean
+endif
