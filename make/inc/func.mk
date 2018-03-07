@@ -34,7 +34,7 @@ else
 
 define quiet_cmd
 @export T=$$(mktemp); \
-$(1) > $$T 2>&1; R=$$?; \
+($(1); exit $$?) > $$T 2>&1; R=$$?; \
 if [ $$R -eq 0 ]; then \
   echo -e "$(2)"; \
 else \
