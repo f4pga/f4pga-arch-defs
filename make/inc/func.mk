@@ -3,6 +3,7 @@ INC_FUNC_MK := 1
 
 # Lowercase a string
 lc = $(shell echo "$1" | tr A-Z a-z)
+uc = $(shell echo "$1" | tr a-z A-Z)
 
 # -------------------------------
 # Colors

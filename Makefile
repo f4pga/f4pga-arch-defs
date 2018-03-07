@@ -7,6 +7,8 @@ include make/gen.mk
 include make/deps.mk
 # Conda environment
 include make/env.mk
+# Rules for converting XXX.sim.v files into images
+include make/sim.mk
 
 # ------------------------------------------
 
@@ -49,11 +51,28 @@ test:
 	#$(call heading,Running Verilog to Routing tests)
 	#@$(MAKE) -C tests all $(result)
 
-clean:
+ifeq (,$(CLEAN_DIR))
+
+deps-clean:
 	@rm -rvf .deps
-	@rm -vf $(FILES_GENERATED)
-	@find -name '*.merged.xml' -delete -print || true
+
+gitignore-clean:
 	@rm -vf .gitignore .gitignore.gen
+
+else
+
+deps-clean:
+	@true
+
+gitignore-clean:
+	@true
+
+endif
+
+#	echo rm -vf $(call find_generated_files,$(CLEAN_DIR)*)
+
+clean: deps-clean gitignore-clean
+	@find $(CURRENT_DIR) -name '*.merged.xml' -delete -print || true
 
 dist-clean: clean clean-env
 	@true

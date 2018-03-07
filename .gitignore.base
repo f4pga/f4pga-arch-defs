@@ -17,11 +17,9 @@ unused
 env
 
 # Simulation output
-sim.dot
-sim.json
-sim.png
-sim.ps
-sim.svg
+*.aig.*
+*.bb.*
+*.flat.*
 
 artix7/arch/xc7a50t-roi-virt/dummy/*.xml
 sim_clean.v

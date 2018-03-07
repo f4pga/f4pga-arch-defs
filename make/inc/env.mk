@@ -9,9 +9,22 @@ CONDA_YOSYS := $(CONDA_DIR)/bin/yosys
 CONDA_VPR   := $(CONDA_DIR)/bin/vpr
 CONDA_MAKE  := $(CONDA_DIR)/bin/make
 
-# If the environment exists, put it into the path.
+# If the environment exists, put it into the path and use it.
 ifneq (,$(wildcard $(abspath $(ENV_DIR))))
-PATH := $(CONDA_DIR)/bin:$(PATH)
+PATH   := $(CONDA_DIR)/bin:$(PATH)
+YOSYS  ?= $(CONDA_YOSYS)
+VPR    ?= $(CONDA_VPR)
+else
+YOSYS  ?= yosys
+VPR    ?= vpr
 endif
+
+# Tools in third_party
+NETLISTSVG = $(TOP_DIR)/third_party/netlistsvg
+
+# Tools not part of the environment yet.
+NODE     ?= node
+INKSCAPE ?= inkscape
+NPM      ?= npm
 
 endif
