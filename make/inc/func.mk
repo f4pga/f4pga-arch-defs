@@ -24,6 +24,33 @@ failure := echo -e "["$$_"] - $(RED)Failure!$(NC)" && exit 1
 
 result = && $(success) || $(failure)
 
+ifeq (1,$(V))
+
+define quiet_cmd
+$(1)
+endef
+
+else
+
+define quiet_cmd
+@export T=$$(tempfile); \
+$(1) > $$T 2>&1; R=$$?; \
+if [ $$R -eq 0 ]; then \
+  echo -e "$(2)"; \
+else \
+  echo '$(1)'; \
+  echo -e "-- $(RED)Failed!$(NC)"; \
+  cat $$T; \
+  echo -e "-- $(RED)Failed!$(NC)"; \
+  exit $$R ; \
+fi; rm $$T
+
+endef
+
+endif
+
+GENERATED_FROM = Generated $(GREEN)$(subst $(PWD)/,,$(TARGET))$(NC)from $(YELLOW)$(notdir $(PREREQ_FIRST))$(NC)
+
 # -------------------------------
 # Include functions
 # -------------------------------
@@ -80,11 +107,7 @@ undefine INC_TYPE
 
 endef
 
-ifeq (,$(call should_not_include))
 include_types = $(foreach FILE,$(1),$(eval $(call _include_type,$(2),$(FILE))))
-else
-include_types =
-endif
 
 # -------------------------------
 # $(call include_types,file1 file2,mux)
@@ -131,11 +154,7 @@ undefine INC_ALL_TYPE
 
 endef
 
-ifeq (,$(call should_not_include))
 include_type_all = $(eval $(call _include_type_all,$(1)))
-else
-include_type_all =
-endif
 
 # -------------------------------
 endif

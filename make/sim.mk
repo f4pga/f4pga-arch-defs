@@ -1,6 +1,7 @@
 include make/inc/common.mk
 include make/inc/files.mk
 include make/inc/env.mk
+include make/inc/func.mk
 
 SIM_NETLISTSVG_SKIN ?= $(NETLISTSVG)/lib/default.svg
 SIM_NETLISTSVG_DPI  ?= 300
@@ -13,40 +14,13 @@ SIM_DEPS := $(TOP_DIR)/make/sim.mk
 SIM_PREFIX= $(subst .sim.v,,$(notdir $(PREREQ_FIRST)))
 SIM_TOP   = $(call uc,$(SIM_PREFIX))
 
-SIM_SVG_DEPS := $(SIM_NETLISTSVG_SKIN) $(SIM_NETLISTSVG_STAMP)
+SIM_SVG_DEPS := $(SIM_NETLISTSVG_SKIN) $(NETLISTSVG_STAMP)
 
 JSON_ENDINGS := %.bb.json %.aig.json %.flat.json
 
 JSON_FILES := $(foreach JF,$(VERILOG_FILES),$(foreach JE,$(JSON_ENDINGS),$(subst .sim.v,,$(JF))$(subst %,,$(JE))))
 SVG_FILES  := $(patsubst %.json,%.svg,$(JSON_FILES)) $(patsubst %.sim.v,%.bb.yosys.svg,$(VERILOG_FILES)) $(patsubst %.sim.v,%.flat.yosys.svg,$(VERILOG_FILES))
 PNG_FILES  := $(patsubst %.svg,%.png,$(SVG_FILES))
-
-ifeq (1,$(V))
-
-define quiet_cmd
-$(1)
-endef
-
-else
-
-define quiet_cmd
-@export T=$$(tempfile); \
-$(1) > $$T 2>&1; R=$$?; \
-if [ $$R == 0 ]; then \
-  echo -e "$(2)"; \
-else \
-  echo '$(1)'; \
-  echo -e "-- $(RED)Failed!$(NC)"; \
-  cat $$T; \
-  echo -e "-- $(RED)Failed!$(NC)"; \
-  exit $$R ; \
-fi; rm $$T
-
-endef
-
-endif
-
-GENERATED_FROM = Generated $(GREEN)$(subst $(PWD)/,,$(TARGET))$(NC)from $(YELLOW)$(notdir $(PREREQ_FIRST))$(NC)
 
 # Basic black box version
 %.bb.json: %.sim.v $(SIM_DEPS)
@@ -86,6 +60,16 @@ render$(1): $$(filter $$(CURRENT_DIR)%,$$(filter %$(1).png,$$(PNG_FILES)))
 	$$(call heading,Rendered $(1).png output from XXX.sim.v files)
 	@echo "$$(PREREQ_ALL)" | sed -e's/ /\n/g' -e's@$$(PWD)/@@g'
 
+ifneq (,$(1))
+render-clean$(1):
+	@find $(CURRENT_DIR) -name '*$(1).png'  -delete -print || true
+	@find $(CURRENT_DIR) -name '*$(1).svg'  -delete -print || true
+	@find $(CURRENT_DIR) -name '*$(1).dot' -delete -print || true
+	@find $(CURRENT_DIR) -name '*$(1).json' -delete -print || true
+
+render-clean: render-clean$(1)
+endif
+
 view$(1): render$(1)
 	@eog $$(filter $$(CURRENT_DIR)%,$$(filter %$(1).png,$$(PNG_FILES)))
 
@@ -94,12 +78,8 @@ endef
 $(eval $(call render_and_view_cmds,,))
 $(foreach X,.bb .aig .flat .bb.yosys .flat.yosys,$(eval $(call render_and_view_cmds,$(X))))
 
-
 render-clean:
-	@find $(CURRENT_DIR) -name '*.png'  -delete -print || true
-	@find $(CURRENT_DIR) -name '*.svg'  -delete -print || true
-	@find $(CURRENT_DIR) -name '*.json' -delete -print || true
-	@find $(CURRENT_DIR) -name '*.dot' -delete -print || true
+	@true
 
 # Add to the global targets
 all: render

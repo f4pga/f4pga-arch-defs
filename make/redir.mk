@@ -2,6 +2,8 @@
 .SUFFIXES:
 MAKEFLAGS += --no-builtin-rules
 
+SHELL := /bin/bash
+
 REDIR_LINK := $(abspath $(lastword $(MAKEFILE_LIST)))
 REDIR_LINK_DIR := $(dir $(REDIR_LINK))
 REDIR_MK_FILE := $(realpath $(REDIR_LINK))

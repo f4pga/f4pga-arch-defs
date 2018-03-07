@@ -1,5 +1,5 @@
-include $(COMMON_MK_DIR)/files.mk
-include $(COMMON_MK_DIR)/func.mk
+include make/inc/files.mk
+include make/inc/func.mk
 
 # Generate files
 $(call include_type_all,mux) 	# Run Muxgen first
@@ -9,6 +9,11 @@ $(call include_type_all,v2x)	# Then Verilog -> XML
 # Artix-7 specific
 $(call include_type_all,xray)
 $(call include_type_all,dummy)
+
+gen-clean:
+	@rm -f $(call find_generated_files,$(CURRENT_DIR)*)
+
+clean: gen-clean
 
 redir:
 	@rm -f .gitignore.redir

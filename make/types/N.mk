@@ -19,7 +19,7 @@ $($(INC_DIR)_FILES_OUTPUT_N): $(THIS_FILE)
 $(INC_DIR)_FILES_OUTPUT_N :=
 define n_template =
 $(2): $(1)
-	@$(UTILS_DIR)/n.py $(1) $(2)
+	$$(call quiet_cmd,$(UTILS_DIR)/n.py $(1) $(2),$$(GENERATED_FROM))
 
 $(INC_DIR)_FILES_OUTPUT_N += $(2)
 endef
