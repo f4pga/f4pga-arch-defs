@@ -42,7 +42,7 @@ PNG_FILES  := $(patsubst %.svg,%.png,$(SVG_FILES))
 %.flat.yosys.svg: %.sim.v %.flat.json
 	$(call quiet_cmd,$(YOSYS) -p "prep -top $(SIM_TOP) -flatten; $(YOSYS_EXTRA); show -format svg -prefix $(subst .svg,,$(TARGET))" $(PREREQ_FIRST) || cp $(TOP_DIR)/common/empty.svg $(TARGET),$(GENERATED_FROM))
 
-.PRECIOUS: %.svg
+.PRECIOUS: %.svg %.bb.yosys.svg %.flat.yosys.svg
 
 %.png: %.svg
 	$(call quiet_cmd,$(INKSCAPE) --export-png $(TARGET) --export-dpi $(SIM_NETLISTSVG_DPI) $(PREREQ_FIRST),$(GENERATED_FROM))
