@@ -36,11 +36,11 @@ PNG_FILES  := $(patsubst %.svg,%.png,$(SVG_FILES))
 %.svg: %.json $(SIM_SVG_DEPS)
 	$(call quiet_cmd,$(NODE) $(NETLISTSVG)/bin/netlistsvg $(PREREQ_FIRST) -o $(TARGET) --skin $(NETLISTSVG_SKIN),$(GENERATED_FROM))
 
-%.bb.yosys.svg: %.sim.v
-	$(call quiet_cmd,$(YOSYS) -p "prep -top $(SIM_TOP); $(YOSYS_EXTRA); cd $(SIM_TOP); show -format svg -prefix $(subst .svg,,$(TARGET))" $(PREREQ_FIRST),$(GENERATED_FROM))
+%.bb.yosys.svg: %.sim.v %.bb.json
+	$(call quiet_cmd,$(YOSYS) -p "prep -top $(SIM_TOP); $(YOSYS_EXTRA); cd $(SIM_TOP); show -format svg -prefix $(subst .svg,,$(TARGET))" $(PREREQ_FIRST) || cp $(TOP_DIR)/common/empty.svg $(TARGET),$(GENERATED_FROM))
 
-%.flat.yosys.svg: %.sim.v
-	$(call quiet_cmd,$(YOSYS) -p "prep -top $(SIM_TOP) -flatten; $(YOSYS_EXTRA); show -format svg -prefix $(subst .svg,,$(TARGET))" $(PREREQ_FIRST),$(GENERATED_FROM))
+%.flat.yosys.svg: %.sim.v %.flat.json
+	$(call quiet_cmd,$(YOSYS) -p "prep -top $(SIM_TOP) -flatten; $(YOSYS_EXTRA); show -format svg -prefix $(subst .svg,,$(TARGET))" $(PREREQ_FIRST) || cp $(TOP_DIR)/common/empty.svg $(TARGET),$(GENERATED_FROM))
 
 .PRECIOUS: %.svg
 
