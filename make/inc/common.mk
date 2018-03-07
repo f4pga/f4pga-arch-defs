@@ -35,4 +35,15 @@ endif
 
 endif
 
+ifeq (,$(CURRENT_DIR))
+FILTER_PATH := $(TOP_DIR)
+else
+override CURRENT_DIR := $(realpath $(CURRENT_DIR))
+FILTER_PATH := $(realpath $(CURRENT_DIR))
+endif
+
+FILTER_IN    := $(FILTER_PATH)/*
+FILTER_BELOW := $(FILTER_PATH)/**
+FILTER_STRIP := $(FILTER_PATH)/
+
 include $(TOP_DIR)/make/inc/env.mk

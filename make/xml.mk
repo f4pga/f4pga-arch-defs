@@ -20,12 +20,12 @@ $(MERGE_XML_OUTPUTS): $(MERGE_XML_XSL)
 # Depend on this Makefile (and it's deps)
 #$(MERGE_XML_OUTPUTS): %.merged.xml: $(call ALL,$(INC_MAKEFILE))
 
-merged: $(filter $(CURRENT_DIR)%,$(MERGE_XML_OUTPUTS))
+merged: $(filter $(FILTER_PATH)%,$(MERGE_XML_OUTPUTS))
 	$(call heading,Merged output XML files)
 	@echo "$(PREREQ_ALL)" | sed -e's/ /\n/g' -e's@$(PWD)/@@g'
 
 merged-clean:
-	@find $(CURRENT_DIR) -name '*.merged.xml' -delete -print || true
+	@find $(FILTER_PATH) -name '*.merged.xml' -delete -print || true
 
 all: merged
 clean: merged-clean

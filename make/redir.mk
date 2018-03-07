@@ -28,6 +28,9 @@ all: phony
 merged: phony
 	$(MAKE) -C $(TOP_DIR) CURRENT_DIR=$(REDIR_LINK_DIR) merged
 
+files: phony
+	$(MAKE) -C $(TOP_DIR) CURRENT_DIR=$(REDIR_LINK_DIR) files
+
 render: phony
 	$(MAKE) -C $(TOP_DIR) CURRENT_DIR=$(REDIR_LINK_DIR) render
 

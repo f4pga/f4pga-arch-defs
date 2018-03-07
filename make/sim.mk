@@ -55,16 +55,16 @@ PNG_FILES  := $(patsubst %.svg,%.png,$(SVG_FILES))
 
 define render_and_view_cmds
 
-render$(1): $$(filter $$(CURRENT_DIR)%,$$(filter %$(1).png,$$(PNG_FILES)))
+render$(1): $$(filter $$(FILTER_PATH)%,$$(filter %$(1).png,$$(PNG_FILES)))
 	$$(call heading,Rendered $(1).png output from XXX.sim.v files)
 	@echo "$$(PREREQ_ALL)" | sed -e's/ /\n/g' -e's@$$(PWD)/@@g'
 
 ifneq (,$(1))
 render-clean$(1):
-	@find $(CURRENT_DIR) -name '*$(1).png'  -delete -print || true
-	@find $(CURRENT_DIR) -name '*$(1).svg'  -delete -print || true
-	@find $(CURRENT_DIR) -name '*$(1).dot' -delete -print || true
-	@find $(CURRENT_DIR) -name '*$(1).json' -delete -print || true
+	@find $(FILTER_PATH) -name '*$(1).png'  -delete -print || true
+	@find $(FILTER_PATH) -name '*$(1).svg'  -delete -print || true
+	@find $(FILTER_PATH) -name '*$(1).dot' -delete -print || true
+	@find $(FILTER_PATH) -name '*$(1).json' -delete -print || true
 
 render-clean: render-clean$(1)
 
@@ -73,7 +73,7 @@ render-each: render$(1)
 endif
 
 view$(1): render$(1)
-	@eog $$(filter $$(CURRENT_DIR)%,$$(filter %$(1).png,$$(PNG_FILES)))
+	@eog $$(filter $$(FILTER_PATH)%,$$(filter %$(1).png,$$(PNG_FILES)))
 
 endef
 
