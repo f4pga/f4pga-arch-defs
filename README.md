@@ -6,62 +6,67 @@ This repo is currently a **work in progress** nothing is currently yet working!
 
 # SymbiFlow Architecture Definitions
 
-This repo contains documentation of various FPGA architectures, it is currently
-concentrating on;
+This repo contains executable documentation of various FPGA architectures. The
+aim is to include useful documentation (both human and machine readable) on the
+primitives and routing infrastructure for real FPGA architectures.
 
+We hope this enables growth in the open source FPGA tools space.
+
+The architectures under development are currently;
  * Lattice iCE40
  * Artix 7
 
-The aim is to include useful documentation (both human and machine readable) on
-the primitives and routing infrastructure for these architectures. We hope this
-enables growth in the open source FPGA tools space.
-
 The repo includes;
 
- * Black box part definitions
- * Verilog simulations
- * Verilog To Routing architecture definitions
- * Documentation for humans
+ * Human readable documentation generated
+   [with Sphinx](https://sphinx-doc.org).
 
-The documentation can be generated using Sphinx.
+ * Verilog models of the real hardware found in these FPGA architectures
+   including both behaviour and timing.
 
-# Verilog To Routing Notes
+ * Simulations and test benches for checking the correctness of these models
+   and programmatically explaining their behaviour. (Think along the lines of
+   [Python doctests](https://docs.python.org/3/library/doctest.html).)
 
-We have to do some kind of weird things to make VPR work for real
-architectures, here are some tips;
+ * Verilog "marco libraries" to provide compatibility with designs created for
+   usage with vendor tools.
 
- * VPR doesn't have channels right or above tiles on the right most / left most
-   edge. To get these channels, pad the left most / right most edges with EMPTY
-   tiles.
-
- * Generally we use the [`vpr/pad`](vpr/pad) object for the **actual** `.input`
-   and `.output` BLIF definitions. These are then connected to the tile which
-   has internal IO logic.
+ * [Verilog To Routing Architecture Definitions](https://docs.verilogtorouting.org/en/latest/arch/)
+   to enable [place and route of designs](https://en.wikipedia.org/wiki/Place_and_route).
 
 # Structure
 
 ## Directories
 
- * `XXX/device/` - Full architecture definitions of a given device for
-   [Verilog To Routing](https://verilogtorouting.org/)
+ * `<arch name>` - Everything unique to a particular architecture. Current architectures are;
 
-   * `XXX/device/YYYY-virt` - Verilog to Routing architecture definitions
-     generally are not able to able to generate the **exact** model of many
-     FPGA routing interconnects, but this is a pretty close.
+   * [`artix7`](artix7) - Xilinx Artix 7
+   * [`ice40`](ice40) - Lattice iCE40
+   * [`testarch`](testarch) - Demonstration architecture for testing features.
 
- * `XXX/primitives/` - The primitives that make up the architecture. These
-   are generally used inside the tiles.
+ * `<arch name>/devices/` - Top level description for an actual device.
 
- * `XXX/tiles/` - The tiles found in the architecture.
+   * `<arch name>/devices/<device name>-virt` - Frequently for testing we want
+     something close to an actual device that isn't the real thing.
 
- * `XXX/tests/` - Tests for making sure the architecture specific features
-   works with VPR.
+ * `<arch name>/primitives/` - The primitives that make up the architecture. What
+   exactly is a "primitive" is a bit fuzzy, use your best judgment.
+
+ * `<arch name>/tiles/` - The tiles found in the architecture.
+
+ * [`tests/`](tests/) - Tests for making sure architectures works with VPR.
+
+ * [`utils/`](utils/) - Python utilities for working with and generating
+   different features.
+
+   * [`mux_gen.py`](utils/mux_gen.py) - Utility for generating muxes found
+     inside most FPGA architectures.
 
  * [`vpr`](vpr) - Common defines used by multiple architectures.
 
 ## Files
 
- * `pb_type.xml` - The Verilog to Routing
+ * `XXX.pb_type.xml` - The Verilog to Routing
     [Complex Block](https://docs.verilogtorouting.org/en/latest/arch/reference/#complex-blocks)
     defintinition.
       * Inside `primitives` directory they should be intermediate or primitive
@@ -71,25 +76,30 @@ architectures, here are some tips;
          - `capacity` (if a pin type),
 	 - `width` & `height` (and maybe `area`)
 
- * `model.xml` - The Verilog to Routing
+ * `XXX.model.xml` - The Verilog to Routing
     [Recognized BLIF Models](https://docs.verilogtorouting.org/en/latest/arch/reference/#recognized-blif-models-models)
     defintinition.
 
- * `sim.v` - A Verilog definition of the object. It should;
+ * `XXX.sim.v` - A Verilog definition of the object. It should;
     - [ ] Match the definition in `model.xml` (should be one `module` in
           `sim.v` for every `model` in `model.xml`)
 
     - [ ] Include a `ifndef BLACKBOX` section which actually defines how the
           Verilog works.
 
- * `macro.v` - A Verilog definition of the object which a user might
-   instantiate in their own code when specifying a primitive. This should match
-   the definition provided by a manufacturer. Examples would be the definitions
-   in;
-    - [Lattice iCE Technology Library](http://www.latticesemi.com/~/media/LatticeSemi/Documents/TechnicalBriefs/SBTICETechnologyLibrary201504.pdf)
-    - [UG953: Vivado Design Suite 7 Series FPGA and Zynq-7000 All Programmable SoC Libraries Guide](https://www.xilinx.com/support/documentation/sw_manuals/xilinx2017_3/ug953-vivado-7series-libraries.pdf)
-
 ## Names
+
+Names are of the form `XXX_YY-aaaaaa` where;
+ * `XXX` is the high level type of the block. It should be one of;
+    - `BLK`, for composite blocks,
+    - `BEL`, for primitives which can not be decomposed, or
+    - `PAD`, for special input/output blocks.
+
+ * `YY` is the subtype of the block. It is dependent on the high level block
+   type.
+
+ * `aaaaa` is the name of the block. The name should generally match both the
+   file and directory that the files are found in.
 
  * `BLK_MB-block_1_name-block_2_name` - `BLOCK` which is a "**m**ega **b**lock". A "mega block" is a top level block which is made up of other blocks.
  * `BLK_XX-name`       - `BLOCK` which is the hierarchy. Maps to `BLK_SI` -> `SITE` and `BLK_TI` -> `TILE` in Xilinx terminology.
@@ -157,39 +167,44 @@ See some example vpr commands (while still in tests):
 make V=1
 ```
 
+## Debian
+
+```shell
+apt-get install xsltproc nodejs make inkscape graphviz coreutils
+```
+
 # Tools
 
- * [`third_party/yosys/`](third_party/yosys/)
-   Verilog parsing and synthesis.
+## Toolchain
 
- * [`third_party/vtr/`](third_party/vtr/)
-   Place and route tool.
+### [Yosys](http://www.clifford.at/yosys/)
 
- * [`third_party/xmllint`](third_party/xmllint)
-   Tool for parsing, formatting XML. Used to process the XML files before
-   giving them to VPR.
+Tool for Verilog parsing and synthesis. Used in for generation of logic
+diagrams and Verilog to Routing architecture definitions from simulation files.
 
- * [`third_party/sim/iverilog/`](third_party/sim/iverilog/)
-   Very correct FOSS Verilog Simulator
+### [Verilog To Routing](https://verilogtorouting.org)
 
- * [`third_party/sim/verilator/`](third_party/sim/verilator/)
-   Fast FOSS Verilog Simulator
+Place and route tool.
 
- * [`third_party/docgen/sphinx/`](third_party/docgen/sphinx/)
-   Tool for generating nice looking documentation.
+### Simulation
 
- * [`third_party/docgen/breathe/`](third_party/docgen/breathe)
-   Tool for allowing Doxygen and Sphinx integration.
+ * [Verilator](https://www.veripool.org/wiki/verilator)
+ * [Icarus Verilog](http://iverilog.icarus.com/)
 
- * [`third_party/docgen/doxygen-verilog`](third_party/docgen/doxygen-verilog)
-   Allows using Doxygen style comments inside Verilog files.
+## Documentation
 
- * [`third_party/docgen/netlistsvg/`](third_party/docgen/netlistsvg)
-   Tool for generating nice logic diagrams from Verilog code.
+ * [Sphinx](http://www.sphinx-doc.org/en/master/) - Python Documentation Generator
 
- * [`third_party/docgen/symbolator/`](third_party/docgen/symbolator)
-   Tool for generating symbol diagrams from Verilog (and VHDL) code.
+ * [Breathe](http://www.sphinx-doc.org/en/master/),
+   [Exhale](http://exhale.readthedocs.io/en/latest/) and
+   [DoxygenVerilog](https://github.com/avelure/doxygen-verilog) extensions.
 
- * [`third_party/docgen/wavedrom/`](third_party/docgen/wavedrom/)
-   Tool for generating waveform / timing diagrams.
+ * [Symbolator](https://kevinpt.github.io/symbolator/) (will be) used for
+   generating component diagrams.
 
+ * [Wavedrom](http://wavedrom.com/) (will be) used for timing and waveform
+   diagrams.
+
+ * [netlistsvg](https://github.com/nturley/netlistsvg),
+   [Graphviz](https://www.graphviz.org/) and
+   [Inkscape](https://inkscape.org/en/) are used for logic diagrams.
