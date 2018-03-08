@@ -31,14 +31,20 @@ define gitexclude_comment
 #-------------------------------
 endef
 
-.git/info/exclude.redir: $(TOP_DIR)/make/gen.mk | redir
-	$(file >$(TARGET),$(call gitexclude_comment,Makefile redirect))
+REDIR_EXCLUDE:=$(TOP_DIR)/.git/info/exclude.redir.mk
+
+$(REDIR_EXCLUDE): $(TOP_DIR)/make/gen.mk | redir
+	@echo  "REDIR_MAKEFILES=\\" > $(TARGET)
 	@for DIR in $$($(UTILS_DIR)/listdirs.py); do \
 	  if [ $$(python -c"import os.path; print(os.path.realpath('$$DIR/Makefile'))") = $(abspath $(TOP_DIR)/make/redir.mk) ]; then \
 	    export NEW_MAKEFILE=$$(echo $$DIR/Makefile | sed -e's@^$(TOP_DIR)/@@'); \
-	    echo  "$$NEW_MAKEFILE" >> $(TARGET); \
+	    echo  "  $$NEW_MAKEFILE \\" >> $(TARGET); \
 	  fi; \
 	done
+	@echo  "" >> $(TARGET)
+	@echo  '$$(call add_generated_files,$$(REDIR_MAKEFILES))' >> $(TARGET)
+
+-include $(REDIR_EXCLUDE)
 
 .git/info/exclude.base:
 	@touch $(TARGET)
@@ -47,11 +53,11 @@ endef
 	$(file >$(TARGET),$(call gitexclude_comment,Generated))
 	$(foreach O,$(call find_generated_files,*),$(file >>$(TARGET),$(subst $(abspath $(PWD))/,,$O)))
 
-.git/info/exclude: .git/info/exclude.base .git/info/exclude.gen .git/info/exclude.redir
+.git/info/exclude: .git/info/exclude.base .git/info/exclude.gen | $(REDIR_EXCLUDE)
 	@cat $(PREREQ_ALL) > $(TARGET)
 
 gitexclude-clean:
-	@rm -vf .git/info/exclude .git/info/exclude.gen .git/info/exclude.redir
+	@rm -vf .git/info/exclude .git/info/exclude.gen $(REDIR_EXCLUDE)
 
 .PHONY: .git/info/exclude.gen
 

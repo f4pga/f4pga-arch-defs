@@ -142,9 +142,8 @@ ifeq (0,$$(words $$(OUTPUTS)))
 $$(error No outputs generated for $$(INC_ALL_TYPE))
 endif
 
-
-FILES_TEMPLATES := $$(sort $$(abspath $$(FILES_TEMPLATES) $$(TEMPLATES)))
-FILES_GENERATED := $$(sort $$(abspath $$(FILES_GENERATED) $$(OUTPUTS)))
+$$(call add_generated_files,$$(OUTPUTS))
+$$(call add_template_files,$$(TEMPLATES))
 
 undefine TEMPLATES
 undefine OUTPUTS
