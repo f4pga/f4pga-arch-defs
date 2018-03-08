@@ -6,6 +6,7 @@ addons:
   apt:
     packages:
      - colordiff
+     - coreutils
      - graphviz
      - inkscape
      - libxml2-utils
@@ -17,13 +18,13 @@ before_install:
  - source ./.travis/common.sh
 
 install:
- - ./.travis/install.sh
+ - stdbuf -i0 -o0 -e0 ./.travis/install.sh
 
 script:
- - ./.travis/script.sh
+ - stdbuf -i0 -o0 -e0 ./.travis/script.sh
 
 after_success:
- - ./.travis/after_success.sh
+ - stdbuf -i0 -o0 -e0 ./.travis/after_success.sh
 
 after_failure:
- - ./.travis/after_failure.sh
+ - stdbuf -i0 -o0 -e0 ./.travis/after_failure.sh
