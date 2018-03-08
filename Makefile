@@ -29,8 +29,14 @@ test:
 	$(call heading,Running Python utils tests)
 	@$(MAKE) -C utils all $(result)
 
-#$(call heading,Running Verilog to Routing tests)
-#@$(MAKE) -C tests all $(result)
+	$(call heading,$(PURPLE)Aritx 7:$(NC)Running Verilog to Routing tests)
+	@$(MAKE) ARCH=artix7 -C tests $(result)
+
+	$(call heading,$(PURPLE)iCE40:$(NC)Running Verilog to Routing tests)
+	@$(MAKE) ARCH=ice40 -C tests $(result)
+
+	$(call heading,$(PURPLE)Test Arch:$(NC)Running Verilog to Routing tests)
+	@$(MAKE) ARCH=testarch -C tests $(result)
 
 .PHONY: test
 
