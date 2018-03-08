@@ -1,3 +1,11 @@
+# Make stderr and stdout line buffered.
+# stdbuf -i0 -oL -eL
+
+# Close STDERR FD
+exec 2<&-
+# Redirect STDERR to STDOUT
+exec 2>&1
+
 # Some colors, use it like following;
 # echo -e "Hello ${YELLOW}yellow${NC}"
 GRAY='\033[0;30m'
