@@ -15,7 +15,7 @@ $(call add_generated_files,$(MERGE_XML_OUTPUTS))
 $(foreach F,$(MERGE_XML_INPUTS),$(eval $(call _deps_expand_rule,$(call merged_xml_name,$(F)),$(call depend_on_all,$(F)))))
 
 $(MERGE_XML_OUTPUTS):
-	$(call quiet_cmd,xsltproc $(MERGE_XML_ARGS) --output $(TARGET) $(MERGE_XML_XSL) $(PREREQ_FIRST),$(GENERATED_FROM))
+	$(call quiet_cmd,$(XSLT) $(MERGE_XML_ARGS) --output $(TARGET) $(MERGE_XML_XSL) $(PREREQ_FIRST),$(GENERATED_FROM))
 
 # Depend on the XSL script.
 $(MERGE_XML_OUTPUTS): $(MERGE_XML_XSL)
