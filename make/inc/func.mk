@@ -56,7 +56,7 @@ GENERATED_FROM = Generated $(GREEN)$(subst $(PWD)/,,$(TARGET))$(NC)from $(YELLOW
 # -------------------------------
 
 # Targets which shouldn't cause the inclusion of other make files.
-NO_INCLUDES := clean dist-clean env clean-env make
+NO_INCLUDES := clean dist-clean env clean-env make files
 
 should_not_include := $(findstring $(MAKECMDGOALS),$(NO_INCLUDES))
 
