@@ -16,8 +16,7 @@ echo -e "Files which *could* exist" > $POSSIBLE_FILES
 echo "-------------------" >> $POSSIBLE_FILES
 make files | $SORT >> $POSSIBLE_FILES
 
-diff \
-	--color=always \
+colordiff \
 	--side-by-side \
 	\
 	$CURRENT_FILES $POSSIBLE_FILES
