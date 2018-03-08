@@ -39,9 +39,9 @@ start_section "symbiflow.test" "Running ${GREEN}make test${NC}"
 make test
 end_section "symbiflow.test"
 
-start_section "symbiflow.files.3" "Info on ${YELLOW}files${NC} after testing"
-./.travis/compare-files.sh
-end_section "symbiflow.files.3"
+#start_section "symbiflow.files.3" "Info on ${YELLOW}files${NC} after testing"
+#./.travis/compare-files.sh
+#end_section "symbiflow.files.3"
 
 $SPACER
 
