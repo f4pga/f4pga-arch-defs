@@ -18,6 +18,7 @@ make files | $SORT >> $POSSIBLE_FILES
 
 colordiff \
 	--side-by-side \
+	-W 200 \
 	\
 	$CURRENT_FILES $POSSIBLE_FILES
 
