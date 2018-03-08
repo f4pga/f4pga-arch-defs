@@ -28,8 +28,9 @@ all: | redir
 test:
 	$(call heading,Running Python utils tests)
 	@$(MAKE) -C utils all $(result)
-	#$(call heading,Running Verilog to Routing tests)
-	#@$(MAKE) -C tests all $(result)
+
+#$(call heading,Running Verilog to Routing tests)
+#@$(MAKE) -C tests all $(result)
 
 .PHONY: test
 
