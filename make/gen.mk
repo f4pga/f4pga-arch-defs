@@ -23,6 +23,7 @@ redir:
 	    echo "Creating redirect makefile '$$NEW_MAKEFILE'"; \
 	  fi; \
 	done
+	@rm -f $(REDIR_EXCLUDE)
 
 # Generate a .git/info/exclude
 define gitexclude_comment
@@ -33,7 +34,7 @@ endef
 
 REDIR_EXCLUDE:=$(TOP_DIR)/.git/info/exclude.redir.mk
 
-$(REDIR_EXCLUDE): $(TOP_DIR)/make/gen.mk | redir
+$(REDIR_EXCLUDE): $(TOP_DIR)/make/gen.mk
 	@echo  "REDIR_MAKEFILES=\\" > $(TARGET)
 	@for DIR in $$($(UTILS_DIR)/listdirs.py); do \
 	  if [ $$(python -c"import os.path; print(os.path.realpath('$$DIR/Makefile'))") = $(abspath $(TOP_DIR)/make/redir.mk) ]; then \
