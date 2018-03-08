@@ -1,26 +1,21 @@
-# Makefile generated dependency information.
-*.d
-*.dmk
-.gitignore.gen
-.gitignore.redir
+# Most generated files are ignored by running
+# `make .git/info/exclude`
 
-*.merged.xml
-rr_graph*.xml
-*.pdf
-*.log
-
-tests/build
-
-third_party
-
-unused
-
-env
-
-# Simulation output
+# Simulation rendering output.
 *.aig.*
 *.bb.*
 *.flat.*
 
-artix7/arch/xc7a50t-roi-virt/dummy/*.xml
-sim_clean.v
+# Python files
+__pycache__/
+*.py[cod]
+
+# Conda environment
+env
+
+# Makefile generated dependency information.
+.deps
+.*.stamp
+
+# Unused stuff
+*unused*
