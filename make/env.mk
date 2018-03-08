@@ -48,6 +48,9 @@ $(CONDA_VPR): | $(CONDA_SETUP)
 $(CONDA_MAKE): | $(CONDA_SETUP)
 	$(CONDA_BIN) install make
 
+$(CONDA_XSLTPROC): | $(CONDA_SETUP)
+	$(CONDA_BIN) install libxslt
+
 make:
 	make -C $(TOP_DIR) -f $(TOP_DIR)/make/env.mk $(CONDA_MAKE)
 
