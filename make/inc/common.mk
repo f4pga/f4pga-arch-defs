@@ -5,6 +5,10 @@ INC_COMMON_MK := 1
 .SUFFIXES:
 MAKEFLAGS += --no-builtin-rules
 
+# Make Python dictionary order deterministic.
+PYTHONHASHSEED := 0
+export PYTHONHASHSEED
+
 # Location information.
 COMMON_MK_FILE := $(realpath $(lastword $(MAKEFILE_LIST)))
 COMMON_MK_DIR  := $(realpath $(dir $(lastword $(MAKEFILE_LIST))))
