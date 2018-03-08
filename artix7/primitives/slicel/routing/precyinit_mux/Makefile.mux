@@ -1,6 +1,7 @@
 MUX_TYPE = routing
+MUX_OUTFILE = precyinit_mux
 MUX_NAME = PRECYINIT_MUX
 MUX_WIDTH = 2
 MUX_SPLIT_INPUTS = 1
 MUX_INPUTS = CI,CYINIT
-include ../../../../../common/make/mux.mk
+MUX_OUTPUT = OUT

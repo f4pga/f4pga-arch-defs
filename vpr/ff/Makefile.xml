@@ -1,3 +1,0 @@
-TOP_MODULE=VPR_FF
-
-include ../../common/make/xml.mk

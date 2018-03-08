@@ -1,0 +1,7 @@
+MUX_COMMENT = MUX on inputs to N5FF inputs.
+MUX_TYPE = routing
+MUX_OUTFILE = ntemplate.N5ffmux
+MUX_NAME = {N}5FFMUX
+MUX_WIDTH = 2
+MUX_SPLIT_INPUTS = 1
+MUX_INPUTS = IN_B,IN_A

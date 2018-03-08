@@ -1,0 +1,30 @@
+<pb_type name="BLK_IG-CARRY4" num_pb="1" xmlns:xi="http://www.w3.org/2001/XInclude">
+ <input name="S"  num_pins="4"/>
+ <input name="DI" num_pins="4"/>
+
+ <output name="CO" num_pins="4"/>
+ <output name="O"  num_pins="4"/>
+
+ <input name="CIN"    num_pins="1"/>
+
+ <mode name="COMPLETE">
+  <xi:include href="carry4_complete/carry4_complete.pb_type.xml"/>
+  <interconnect>
+   <direct name="S"   input="BLK_IG-CARRY4.S"           output="BLK_IG-CARRY4_COMPLETE.S"   />
+   <direct name="DI"  input="BLK_IG-CARRY4.DI"          output="BLK_IG-CARRY4_COMPLETE.DI"  />
+   <direct name="CO"  input="BLK_IG-CARRY4_COMPLETE.CO" output="BLK_IG-CARRY4.CO"           />
+   <direct name="O"   input="BLK_IG-CARRY4_COMPLETE.O"  output="BLK_IG-CARRY4.O"            />
+   <direct name="CIN" input="BLK_IG-CARRY4.CIN"         output="BLK_IG-CARRY4_COMPLETE.CIN" />
+  </interconnect>
+ </mode>
+ <mode name="SPLIT">
+  <xi:include href="carry4_split/carry4_split.pb_type.xml"/>
+  <interconnect>
+   <direct name="S"   input="BLK_IG-CARRY4.S"        output="BLK_IG-CARRY4_SPLIT.S"   />
+   <direct name="DI"  input="BLK_IG-CARRY4.DI"       output="BLK_IG-CARRY4_SPLIT.DI"  />
+   <direct name="CO"  input="BLK_IG-CARRY4_SPLIT.CO" output="BLK_IG-CARRY4.CO"           />
+   <direct name="O"   input="BLK_IG-CARRY4_SPLIT.O"  output="BLK_IG-CARRY4.O"            />
+   <direct name="CIN" input="BLK_IG-CARRY4.CIN"      output="BLK_IG-CARRY4_SPLIT.CIN" />
+  </interconnect>
+ </mode>
+</pb_type>

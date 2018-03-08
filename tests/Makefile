@@ -1,3 +1,5 @@
+include ../make/inc/common.mk
+
 VPR ?= vpr
 YOSYS ?= yosys
 
@@ -21,9 +23,11 @@ endif
 
 ARCH_DIR_FULL = $(shell realpath $(ARCH_DIR)/$(ARCH_TYPE))
 
-ARCH_FILE = $(ARCH_DIR_FULL)/merged.xml
+ARCH_FILE = $(ARCH_DIR_FULL)/arch.merged.xml
 $(ARCH_FILE):
-	cd $(ARCH_DIR_FULL); make merged.xml
+	cd $(TOP_DIR); make $(TARGET)
+
+.PHONY: $(ARCH_FILE)
 
 ##########################################################################
 
@@ -41,8 +45,8 @@ $(OUTPUT_DIR)/%.eblif: %.v | $(OUTPUT_DIR)
 	$(YOSYS) -p "$(YOSYS_SCRIPT) opt_clean; write_eblif $@" $<
 
 # Quick shortcut
-%.eblif: $(OUTPUT_DIR)/%.eblif | $(OUTPUT_DIR)
-	@true
+#%.eblif: $(OUTPUT_DIR)/%.eblif | $(OUTPUT_DIR)
+#	@true
 
 .PRECIOUS: $(OUTPUT_DIR)/%.eblif
 
@@ -57,14 +61,26 @@ VPR_ARGS ?=
 VPR_CMD = $(VPR) $(VPR_ARGS)  $(ARCH_FILE) --device $(DEVICE)
 VPR_FULL_CMD = cd $(OUTPUT_DIR); $(VPR_CMD)
 
+ROUTE_CHAN_WIDTH ?= 6
+
 $(OUTPUT_DIR)/%.rr_graph.xml: $(OUTPUT_DIR)/%.eblif $(ARCH_FILE)
-	$(VPR_FULL_CMD) $(notdir $<) --write_rr_graph $(notdir $@)
+	$(VPR_FULL_CMD) $(notdir $<) --route_chan_width $(ROUTE_CHAN_WIDTH) --write_rr_graph $(notdir $@)
+
+$(OUTPUT_DIR)/%.patched.rr_graph.xml: $(OUTPUT_DIR)/%.rr_graph.xml $(RR_PATCH_TOOL)
+	cd $(OUTPUT_DIR); $(RR_PATCH_CMD) --read_rr_graph $(notdir $<) --write_rr_graph $(notdir $@)
+
+$(OUTPUT_DIR)/%.rr_graph.pretty.xml: $(OUTPUT_DIR)/%.rr_graph.xml
+	cd $(OUTPUT_DIR); xmlsort $(notdir $<) > $(notdir $@)
+
+%.patched: $(OUTPUT_DIR)/%.eblif $(OUTPUT_DIR)/%.patched.rr_graph.pretty.xml
+	cd $(OUTPUT_DIR); gdb --args $(VPR_CMD) $(notdir $<) --route_chan_width $(ROUTE_CHAN_WIDTH) --read_rr_graph $@.rr_graph.pretty.xml
 
 # ------------------------------------------------------------------------
 %.rr_graph.xml: $(OUTPUT_DIR)/%.rr_graph.xml | $(OUTPUT_DIR)
 	@true
 
 .PRECIOUS: $(OUTPUT_DIR)/%.rr_graph.xml
+.PRECIOUS: $(OUTPUT_DIR)/%.rr_graph.pretty.xml
 # ------------------------------------------------------------------------
 
 %.disp: $(OUTPUT_DIR)/%.eblif $(ARCH_FILE)
@@ -77,12 +93,14 @@ $(OUTPUT_DIR)/%.rr_graph.xml: $(OUTPUT_DIR)/%.eblif $(ARCH_FILE)
 	$(VPR_FULL_CMD) $(notdir $<) --gen_post_synthesis_netlist on
 
 %.gdb: $(OUTPUT_DIR)/%.eblif $(ARCH_FILE)
-	cd $(OUTPUT_DIR); gdb --args $(VPR_CMD) $(notdir $<) --echo_file on --disp on
+	cd $(OUTPUT_DIR); gdb --args $(VPR_CMD) $(notdir $<) --echo_file on --gen_post_synthesis_netlist on
 
 
 ALL_OUTPUT = $(patsubst %.v,$(OUTPUT_DIR)/%.rr_graph.xml,$(wildcard *.v)) $(patsubst %.eblif,$(OUTPUT_DIR)/%.rr_graph.xml,$(wildcard *.eblif))
-all: $(ALL_OUTPUT)
-	@echo $(ALL_OUTPUT)
+#all: $(ALL_OUTPUT)
+#	@echo $(ALL_OUTPUT)
+all:
+	@true
 
 help:
 	@echo ""
@@ -101,4 +119,4 @@ help:
 clean:
 	rm -rf build
 
-.PHONY: all clean help %.gdb %.echo %.disp $(ARCH_FILE)
+.PHONY: all clean help %.gdb %.echo %.disp

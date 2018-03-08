@@ -1,0 +1,30 @@
+language: python
+python:
+ - "3.6"
+
+addons:
+  apt:
+    packages:
+     - colordiff
+     - coreutils
+     - graphviz
+     - inkscape
+     - libxml2-utils
+     - make
+     - nodejs
+     - xsltproc
+
+before_install:
+ - source ./.travis/common.sh
+
+install:
+ - stdbuf -i0 -o0 -e0 ./.travis/install.sh
+
+script:
+ - stdbuf -i0 -o0 -e0 ./.travis/script.sh
+
+after_success:
+ - stdbuf -i0 -o0 -e0 ./.travis/after_success.sh
+
+after_failure:
+ - stdbuf -i0 -o0 -e0 ./.travis/after_failure.sh

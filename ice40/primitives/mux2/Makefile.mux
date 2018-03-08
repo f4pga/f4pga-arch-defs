@@ -1,4 +1,6 @@
 MUX_TYPE = logic
-MUX_NAME = MUX2
+MUX_OUTFILE = ice_mux2
+MUX_NAME = ICE_MUX2
 MUX_WIDTH = 2
-include ../../../common/make/mux.mk
+MUX_SPLIT_INPUTS = 1
+MUX_INPUTS = LT,FF

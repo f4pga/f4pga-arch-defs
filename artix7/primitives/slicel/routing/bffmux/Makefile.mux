@@ -1,6 +1,7 @@
 MUX_TYPE = routing
+MUX_OUTFILE = bffmux
 MUX_NAME = BFFMUX
 MUX_WIDTH = 6
 MUX_SPLIT_INPUTS = 1
 MUX_INPUTS = XOR,O6,O5,F8,CY,BX
-include ../../../../../common/make/mux.mk
+MUX_OUTPUT = OUT

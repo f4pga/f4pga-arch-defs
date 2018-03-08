@@ -1,0 +1,54 @@
+<!-- ################################################################ -->
+<!-- # The lutff pair found 8 times inside the PLB logic cell       # -->
+<!-- ################################################################ -->
+<pb_type name="lutff" num_pb="8" xmlns:xi="http://www.w3.org/2001/XInclude">
+
+ <input  name="cin"  num_pins="1" equivalent="false"/> <!-- Carry in -->
+ <output name="cout" num_pins="1" equivalent="false"/> <!-- Carry output -->
+
+ <input  name="in"   num_pins="4" equivalent="false"/> <!-- LUT inputs -->
+ <output name="lout" num_pins="1" equivalent="false"/> <!-- LUT output -->
+
+ <output name="out"  num_pins="1" equivalent="false"/> <!-- FF output -->
+ <input  name="cen"  num_pins="1" equivalent="false"/> <!-- FF clock enable -->
+ <clock  name="clk"  num_pins="1" equivalent="false"/> <!-- FF clock -->
+ <input  name="s_r"  num_pins="1" equivalent="false"/> <!-- FF set/reset -->
+
+ <!-- SB_LUT - 4 input LUT -->
+ <xi:include href="../../primitives/sb_lut/sb_lut.pb_type.xml"/>
+
+ <!-- SB_FF - D FlipFlop -->
+ <xi:include href="../../primitives/sb_ff/sb_ff.pb_type.xml"/>
+
+ <!-- SB_CARRY -->
+ <xi:include href="../../primitives/sb_carry/sb_carry.pb_type.xml"/>
+
+ <interconnect>
+  <direct name="LUT.I[0]" input="lutff.in[0]"           output="LUT.I[0]" />
+  <direct name="LUT.I[1]" input="lutff.in[1]"           output="LUT.I[1]" />
+  <direct name="LUT.I[2]" input="lutff.in[2]"           output="LUT.I[2]" />
+  <mux    name="LUT.I[3]" input="lutff.in[3] lutff.cin" output="LUT.I[3]" />
+
+  <direct name="SB_CARRY.I0" input="lutff.in[1]" output="SB_CARRY.I0" />
+  <direct name="SB_CARRY.I1" input="lutff.in[2]" output="SB_CARRY.I1"  />
+
+  <direct name="lutff.cen" input="lutff.cen" output="SB_FF.E"/>
+  <direct name="lutff.clk" input="lutff.clk" output="SB_FF.C"/>
+  <direct name="lutff.s_r" input="lutff.s_r" output="SB_FF.S"/>
+  <direct name="LUT2FF"    input="LUT.O"     output="SB_FF.D"><!--
+   <pack_pattern name="LUT2FF" in_port="LUT.O" out_port="SB_FF.D" />
+  --></direct>
+
+  <direct name="lutff.lout" input="LUT.O"         output="lutff.lout" />
+  <mux    name="lutff.out"  input="LUT.O SB_FF.Q" output="lutff.out"  />
+
+  <!-- Carry chain -->
+  <direct name="lutff.cin"  input="lutff.cin"   output="SB_CARRY.CI">
+   <pack_pattern name="CARRYCHAIN" in_port="lutff.cin" out_port="SB_CARRY.CI"/>
+  </direct>
+  <direct name="lutff.cout" input="SB_CARRY.CO" output="lutff.cout">
+   <pack_pattern name="CARRYCHAIN" in_port="SB_CARRY.CO" out_port="lutff.cout"/>
+  </direct>
+
+ </interconnect>
+</pb_type>

@@ -1,6 +1,7 @@
 MUX_TYPE = routing
+MUX_OUTFILE = aoutmux
 MUX_NAME = AOUTMUX
 MUX_WIDTH = 6
 MUX_SPLIT_INPUTS = 1
 MUX_INPUTS = A5Q,XOR,O6,O5,F7,CY
-include ../../../../../common/make/mux.mk
+MUX_OUTPUT = OUT
