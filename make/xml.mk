@@ -5,7 +5,7 @@ include make/inc/files.mk
 # XML merging
 # ------------------------------------------------------------------------
 merged_xml_name = $(dir $(F))$(basename $(notdir $(1))).merged.xml
-MERGE_XML_INPUTS  = $(call find_nontemplate_files,*.xml)
+MERGE_XML_INPUTS  = $(filter-out %.merged.xml,$(call find_nontemplate_files,*.xml))
 MERGE_XML_OUTPUTS = $(foreach F,$(MERGE_XML_INPUTS),$(call merged_xml_name,$(F)))
 MERGE_XML_XSL     := $(abspath $(TOP_DIR)/common/xml/xmlsort.xsl)
 MERGE_XML_ARGS    := --nomkdir --nonet --xinclude
