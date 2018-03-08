@@ -27,6 +27,8 @@ start_section "symbiflow.info.1" "Info on ${YELLOW}.git/info/exclude${NC}"
 cat .git/info/exclude
 end_section "symbiflow.info.1"
 
+$SPACER
+
 start_section "symbiflow.files.2" "Info on ${YELLOW}files${NC} after running"
 ./.travis/compare-files.sh
 end_section "symbiflow.files.2"
@@ -57,7 +59,7 @@ start_section "symbiflow.redir.1" "Running ${GREEN}make redir${NC}"
 make redir
 end_section "symbiflow.redir.1"
 
-start_section "symbiflow.redir.2" "Running ${GREEN}make${NC} in ${PURPLE}vpr${NC}"
+start_section "symbiflow.redir.2" "Running ${GREEN}make${NC} inside ${PURPLE}vpr${NC} directory"
 (
 	cd vpr
 	make || exit $?

@@ -28,9 +28,6 @@ __pycache__
 *.md
 *.pdf
 
-# Exclude merged output
-*.merged.xml
-
 # Exclude meson stuff
 meson
 
