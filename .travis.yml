@@ -5,12 +5,13 @@ python:
 addons:
   apt:
     packages:
-     - make
-     - libxml2-utils
-     - xsltproc
-     - inkscape
-     - nodejs
+     - colordiff
      - graphviz
+     - inkscape
+     - libxml2-utils
+     - make
+     - nodejs
+     - xsltproc
 
 before_install:
  - source ./.travis/common.sh
