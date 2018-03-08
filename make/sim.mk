@@ -21,6 +21,10 @@ JSON_FILES := $(foreach JF,$(VERILOG_FILES),$(foreach JE,$(JSON_ENDINGS),$(subst
 SVG_FILES  := $(sort $(patsubst %.json,%.svg,$(JSON_FILES)) $(patsubst %.sim.v,%.bb.yosys.svg,$(VERILOG_FILES)) $(patsubst %.sim.v,%.flat.yosys.svg,$(VERILOG_FILES)))
 PNG_FILES  := $(patsubst %.svg,%.png,$(SVG_FILES))
 
+$(call add_generated_files,$(JSON_FILES))
+$(call add_generated_files,$(SVG_FILES))
+$(call add_generated_files,$(PNG_FILES))
+
 # Basic black box version
 %.bb.json: %.sim.v $(SIM_DEPS)
 	$(call quiet_cmd,$(YOSYS) -p "prep -top $(SIM_TOP); $(YOSYS_EXTRA); write_json $(TARGET)" $(PREREQ_FIRST),$(GENERATED_FROM))
@@ -61,10 +65,10 @@ render$(1): $$(filter $$(FILTER_PATH)%,$$(filter %$(1).png,$$(PNG_FILES)))
 
 ifneq (,$(1))
 render-clean$(1):
-	@find $(FILTER_PATH) -name '*$(1).png'  -delete -print || true
-	@find $(FILTER_PATH) -name '*$(1).svg'  -delete -print || true
-	@find $(FILTER_PATH) -name '*$(1).dot' -delete -print || true
-	@find $(FILTER_PATH) -name '*$(1).json' -delete -print || true
+	@find $(FILTER_PATH) -name '*$(1).png'  -print -delete || true
+	@find $(FILTER_PATH) -name '*$(1).svg'  -print -delete || true
+	@find $(FILTER_PATH) -name '*$(1).dot'  -print -delete || true
+	@find $(FILTER_PATH) -name '*$(1).json' -print -delete || true
 
 render-clean: render-clean$(1)
 

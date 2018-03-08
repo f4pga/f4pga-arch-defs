@@ -10,6 +10,8 @@ MERGE_XML_OUTPUTS = $(foreach F,$(MERGE_XML_INPUTS),$(call merged_xml_name,$(F))
 MERGE_XML_XSL     := $(abspath $(TOP_DIR)/common/xml/xmlsort.xsl)
 MERGE_XML_ARGS    := --nomkdir --nonet --xinclude
 
+$(call add_generated_files,$(MERGE_XML_OUTPUTS))
+
 $(foreach F,$(MERGE_XML_INPUTS),$(eval $(call _deps_expand_rule,$(call merged_xml_name,$(F)),$(call depend_on_all,$(F)))))
 
 $(MERGE_XML_OUTPUTS):
