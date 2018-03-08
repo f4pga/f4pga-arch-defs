@@ -186,8 +186,8 @@ Generated with %s
     pbtype_xml_filename = '%s.pb_type.xml' % args.outfilename
     sim_filename = '%s.sim.v' % args.outfilename
 
-    output_files = [model_xml_filename, pbtype_xml_filename, sim_filename, '.gitignore', 'Makefile.mux']
-    commit_files = ['.gitignore', "Makefile.mux"]
+    output_files = [model_xml_filename, pbtype_xml_filename, sim_filename, 'Makefile.mux']
+    commit_files = ["Makefile.mux"]
     remove_files = [f for f in output_files if f not in commit_files]
 
     new_makefile_contents = io.StringIO()
@@ -239,16 +239,6 @@ Generated with %s
         open(makefile_file, "w").write(new_makefile_contents)
 
     output_block("Makefile.mux", open(makefile_file).read())
-
-    # ------------------------------------------------------------------------
-    # Create .gitignore file for the generated files.
-    # ------------------------------------------------------------------------
-    gitignore_file = os.path.join(outdir, ".gitignore.mk")
-    with open(gitignore_file, "w") as f:
-        for name in remove_files:
-            f.write(name+'\n')
-
-    output_block(".gitignore.mk", open(gitignore_file).read())
 
     # ------------------------------------------------------------------------
     # Work out the port and their names
