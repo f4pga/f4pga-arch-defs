@@ -57,11 +57,11 @@ start_section "symbiflow.redir.1" "Running ${GREEN}make redir${NC}"
 make redir
 end_section "symbiflow.redir.1"
 
-start_section "symbiflow.redir.1" "Running ${GREEN}make${NC} in ${YELLOW}vpr${NC}"
+start_section "symbiflow.redir.2" "Running ${GREEN}make${NC} in ${PURPLE}vpr${NC}"
 (
 	cd vpr
 	make || exit $?
 )
-end_section "symbiflow.redir.1"
+end_section "symbiflow.redir.2"
 
 $SPACER
