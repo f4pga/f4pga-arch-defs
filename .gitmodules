@@ -7,3 +7,6 @@
 [submodule "third_party/icestorm"]
 	path = third_party/icestorm
 	url = https://github.com/cliffordwolf/icestorm.git
+[submodule "third_party/sphinx-contrib-mithro"]
+	path = third_party/sphinx-contrib-mithro
+	url = https://github.com/mithro/sphinx-contrib-mithro
