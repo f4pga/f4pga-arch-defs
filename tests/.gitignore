@@ -1,0 +1,5 @@
+# Ignore the build output dir
+build
+
+# Ignore build log files
+*.log
