@@ -1,6 +1,0 @@
-MUX_TYPE = routing
-MUX_NAME = {W}CY0
-MUX_WIDTH = 2
-MUX_SPLIT_INPUTS = 1
-MUX_INPUTS = O5,{W}X
-include ../../../../../common/make/mux.mk

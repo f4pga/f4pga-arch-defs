@@ -1,7 +1,0 @@
-MUX_TYPE = logic
-MUX_NAME = CARRY4_{W}MUX
-MUX_WIDTH = 2
-MUX_SPLIT_INPUTS = 1
-MUX_INPUTS = CI,DI
-MUX_SUBCKT = MUXCY
-include ../../../../../../common/make/mux.mk

@@ -1,22 +1,21 @@
-merged*.xml
-*.deps.mk
-rr_graph*.xml
-*.pdf
-sim.*.dot
-sim.*.json
-sim.*.png
-sim.*.ps
-sim.*.svg
-sim.dot
-sim.json
-sim.png
-sim.ps
-sim.svg
-tests/build
-push.sh
-pb_type.*.xml
-sim.*.v
-third_party
-.gen.stamp
-artix7/arch/xc7a50t-roi-virt/dummy/*.xml
-sim_clean.v
+# Most generated files are ignored by running
+# `make .git/info/exclude`
+
+# Simulation rendering output.
+*.aig.*
+*.bb.*
+*.flat.*
+
+# Python files
+__pycache__/
+*.py[cod]
+
+# Conda environment
+env
+
+# Makefile generated dependency information.
+.deps
+.*.stamp
+
+# Unused stuff
+*unused*

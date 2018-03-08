@@ -12,3 +12,6 @@ $(PDF):
 
 cells_xtra.v: process.py $(PDF)
 	python process.py $(PDF)
+
+all:
+	@true

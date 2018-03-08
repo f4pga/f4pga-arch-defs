@@ -2,7 +2,7 @@
 <architecture xmlns:xi="http://www.w3.org/2001/XInclude">
  <!-- ODIN-II model description for non-standard block type -->
  <models>
-  <xi:include href="../../tile/ff1/model.xml" xpointer="xpointer(models/*)" />
+  <xi:include href="../../tile/ff1/ff1.model.xml" xpointer="xpointer(models/child::node())" />
  </models>
 
  <!-- Layout of the FPGA, we are using 4x4 -->
@@ -57,8 +57,8 @@
   </segment>
  </segmentlist>
  <complexblocklist>
-  <xi:include href="../../../vpr/pad/pb_type.xml"/>
-  <xi:include href="../../tile/ff1/pb_type.xml"/>
+  <xi:include href="../../../vpr/pad/pad.pb_type.xml"/>
+  <xi:include href="../../tile/ff1/ff1.pb_type.xml"/>
  </complexblocklist>
 
 </architecture>

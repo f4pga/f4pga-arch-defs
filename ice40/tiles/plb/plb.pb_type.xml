@@ -1,0 +1,730 @@
+<!-- set: ai sw=1 ts=1 sta et -->
+<pb_type name="PLB" xmlns:xi="http://www.w3.org/2001/XInclude">
+
+ <clock  name="clk"  num_pins="1" equivalent="false"/>
+
+ <!-- carry in / carry out -->
+ <output name="carry_out" num_pins="1" equivalent="false"/>
+ <input  name="carry_in"  num_pins="1" equivalent="false"/>
+
+ <!-- Local neighbourhood ############################################ -->
+ <input  name="o_neigh_op_top" num_pins="8" equivalent="true"/>
+ <input  name="o_neigh_op_tnr" num_pins="8" equivalent="true"/>
+ <input  name="o_neigh_op_rgt" num_pins="8" equivalent="true"/>
+ <input  name="o_neigh_op_bnr" num_pins="8" equivalent="true"/>
+ <input  name="o_neigh_op_bot" num_pins="8" equivalent="true"/>
+ <input  name="o_neigh_op_bnl" num_pins="8" equivalent="true"/>
+ <input  name="o_neigh_op_lft" num_pins="8" equivalent="true"/>
+ <input  name="o_neigh_op_tnl" num_pins="8" equivalent="true"/>
+
+ <input  name="i_neigh_op_top" num_pins="8" equivalent="true"/>
+ <input  name="i_neigh_op_tnr" num_pins="8" equivalent="true"/>
+ <input  name="i_neigh_op_rgt" num_pins="8" equivalent="true"/>
+ <input  name="i_neigh_op_bnr" num_pins="8" equivalent="true"/>
+ <input  name="i_neigh_op_bot" num_pins="8" equivalent="true"/>
+ <input  name="i_neigh_op_bnl" num_pins="8" equivalent="true"/>
+ <input  name="i_neigh_op_lft" num_pins="8" equivalent="true"/>
+ <input  name="i_neigh_op_tnl" num_pins="8" equivalent="true"/>
+
+ <!-- Vertical spans ################################################# -->
+ <!-- Span-4 Vertical -->
+ <input  name="i_sp4_v_t"   num_pins="48" equivalent="true"/>
+ <output name="o_sp4_v_t"   num_pins="48" equivalent="true"/>
+ <input  name="i_sp4_v_b"   num_pins="48" equivalent="true"/>
+ <output name="o_sp4_v_b"   num_pins="48" equivalent="true"/>
+
+ <!-- Span-4 Right Vertical -->
+ <input  name="i_sp4_r_v_b" num_pins="48" equivalent="true"/>
+ <output name="o_sp4_r_v_b" num_pins="48" equivalent="true"/>
+ <input  name="i_sp4_l_v_b" num_pins="48" equivalent="true"/>
+ <output name="o_sp4_l_v_b" num_pins="48" equivalent="true"/>
+
+ <!-- Span-12 Vertical -->
+ <input  name="i_sp12_v_t"  num_pins="24" equivalent="true"/>
+ <output name="o_sp12_v_t"  num_pins="24" equivalent="true"/>
+ <input  name="i_sp12_v_b"  num_pins="24" equivalent="true"/>
+ <output name="o_sp12_v_b"  num_pins="24" equivalent="true"/>
+
+ <!-- Horizontal spans ############################################### -->
+ <!-- Span-4 Horizontal -->
+ <input  name="i_sp4_h_r"   num_pins="48" equivalent="true"/>
+ <output name="o_sp4_h_r"   num_pins="48" equivalent="true"/>
+ <input  name="i_sp4_h_l"   num_pins="48" equivalent="true"/>
+ <output name="o_sp4_h_l"   num_pins="48" equivalent="true"/>
+
+ <!-- Span-12 Horizontal -->
+ <input  name="i_sp12_h_r"  num_pins="24" equivalent="true"/>
+ <output name="o_sp12_h_r"  num_pins="24" equivalent="true"/>
+ <input  name="i_sp12_h_l"  num_pins="24" equivalent="true"/>
+ <output name="o_sp12_h_l"  num_pins="24" equivalent="true"/>
+
+ <!-- Global wires ################################################### -->
+ <input  name="i_glb_netwk" num_pins="8" equivalent="true"/>
+ <output name="o_glb_netwk" num_pins="8" equivalent="true"/>
+
+ <!-- ################################################################ -->
+ <!-- # Local tracks                                                 # -->
+ <!-- ################################################################ -->
+ <pb_type name="local_g" num_pb="4">
+  <input  name="i"  num_pins="8" equivalent="true"/>
+  <output name="o"  num_pins="8" equivalent="true"/>
+
+  <interconnect>
+   <direct name="i_to_o" input="local_g.i" output="local_g.o" />
+  </interconnect>
+ </pb_type>
+
+ <pb_type name="glb2local" num_pb="4">
+  <input  name="i" num_pins="1" equivalent="true"/>
+  <output name="o" num_pins="1" equivalent="true"/>
+  <interconnect>
+   <direct name="i_to_o" input="glb2local.i" output="glb2local.o" />
+  </interconnect>
+ </pb_type>
+
+ <pb_type name="glb_netwk" num_pb="8">
+  <input  name="i" num_pins="1" equivalent="true"/>
+  <output name="o" num_pins="1" equivalent="true"/>
+  <interconnect>
+   <direct name="i_to_o" input="glb_netwk.i" output="glb_netwk.o" />
+  </interconnect>
+ </pb_type>
+
+ <pb_type name="carry_in_mux" num_pb="1">
+  <input  name="i" num_pins="1" equivalent="true"/>
+  <output name="o" num_pins="1" equivalent="true"/>
+  <interconnect>
+   <mux name="i_to_o" input="carry_in_mux.i" output="carry_in_mux.o"><pack_pattern name="CARRYCHAIN" in_port="carry_in_mux.i" out_port="carry_in_mux.o" /></mux>
+  </interconnect>
+ </pb_type>
+
+ <!-- ################################################################ -->
+ <!-- # Logic units                                                  # -->
+ <!-- ################################################################ -->
+
+ <pb_type name="lutff_global" num_pb="1">
+  <input name="i_cen" num_pins="1" equivalent="false" /><output name="o_cen" num_pins="1" equivalent="false" />
+  <clock name="i_clk" num_pins="1" equivalent="false" /><output name="o_clk" num_pins="1" equivalent="false" />
+  <input name="i_s_r" num_pins="1" equivalent="false" /><output name="o_s_r" num_pins="1" equivalent="false" />
+  <interconnect>
+   <direct name="cen" input="lutff_global.i_cen" output="lutff_global.o_cen"/>
+   <direct name="clk" input="lutff_global.i_clk" output="lutff_global.o_clk"/>
+   <direct name="s_r" input="lutff_global.i_s_r" output="lutff_global.o_s_r"/>
+  </interconnect>
+ </pb_type>
+
+ <xi:include href="../../cells/lutff/lutff.pb_type.xml"/>
+
+ <interconnect>
+  <!-- ################################################################ -->
+  <!-- # Connect input and output nets together                       # -->
+  <!-- ################################################################ -->
+
+  <!-- Span-4 Vertical -->
+  <direct name="sp4_v_t"   input="PLB.i_sp4_v_t"   output="PLB.o_sp4_v_t" />
+  <direct name="sp4_v_b"   input="PLB.i_sp4_v_b"   output="PLB.o_sp4_v_b" />
+
+  <!-- Span-4 Right Vertical -->
+  <direct name="sp4_r_v_b" input="PLB.i_sp4_r_v_b" output="PLB.o_sp4_r_v_b" />
+  <direct name="sp4_l_v_b" input="PLB.i_sp4_l_v_b" output="PLB.o_sp4_l_v_b" />
+
+  <!-- Span-12 Vertical -->
+  <direct name="sp12_v_t"  input="PLB.i_sp12_v_t"  output="PLB.o_sp12_v_t" />
+  <direct name="sp12_v_b"  input="PLB.i_sp12_v_b"  output="PLB.o_sp12_v_b" />
+
+  <!-- ================================================================ -->
+
+  <!-- Span-4 Horizontal -->
+  <direct name="sp4_h_r"   input="PLB.i_sp4_h_r"   output="PLB.o_sp4_h_r" />
+  <direct name="sp4_h_l"   input="PLB.i_sp4_h_l"   output="PLB.o_sp4_h_l" />
+
+  <!-- Span-12 Horizontal -->
+  <direct name="sp12_h_r"  input="PLB.i_sp12_h_r"  output="PLB.o_sp12_h_r" />
+  <direct name="sp12_h_l"  input="PLB.i_sp12_h_l"  output="PLB.o_sp12_h_l" />
+
+  <!-- ================================================================ -->
+
+  <direct name="sp4_l_v_b io sp4_v_b" input="PLB.i_sp4_l_v_b" output="PLB.o_sp4_v_b" />
+  <direct name="sp4_l_v_b oi sp4_v_b" input="PLB.i_sp4_v_b" output="PLB.o_sp4_l_v_b" />
+
+  <!-- ################################################################ -->
+  <!-- # External wires onto the local tracks                         # -->
+  <!-- ################################################################ -->
+
+  <!-- Global Networks -> glb2Local Tracks -->
+  <mux name="glb2local[0]" input="PLB.i_glb_netwk[0] PLB.i_glb_netwk[1] PLB.i_glb_netwk[2] PLB.i_glb_netwk[3] PLB.i_glb_netwk[4] PLB.i_glb_netwk[5] PLB.i_glb_netwk[6] PLB.i_glb_netwk[7]" output="glb2local[0].i" />
+  <mux name="glb2local[1]" input="PLB.i_glb_netwk[0] PLB.i_glb_netwk[1] PLB.i_glb_netwk[2] PLB.i_glb_netwk[3] PLB.i_glb_netwk[4] PLB.i_glb_netwk[5] PLB.i_glb_netwk[6] PLB.i_glb_netwk[7]" output="glb2local[1].i" />
+  <mux name="glb2local[2]" input="PLB.i_glb_netwk[0] PLB.i_glb_netwk[1] PLB.i_glb_netwk[2] PLB.i_glb_netwk[3] PLB.i_glb_netwk[4] PLB.i_glb_netwk[5] PLB.i_glb_netwk[6] PLB.i_glb_netwk[7]" output="glb2local[2].i" />
+  <mux name="glb2local[3]" input="PLB.i_glb_netwk[0] PLB.i_glb_netwk[1] PLB.i_glb_netwk[2] PLB.i_glb_netwk[3] PLB.i_glb_netwk[4] PLB.i_glb_netwk[5] PLB.i_glb_netwk[6] PLB.i_glb_netwk[7]" output="glb2local[3].i" />
+
+  <!-- XXXX -> Local Tracks -->
+  <mux name="local_g0[0]" input="PLB.i_sp4_r_v_b[24] PLB.i_sp12_h_r[8]   PLB.i_neigh_op_bot[0] PLB.i_sp4_v_b[16]     PLB.i_sp4_r_v_b[35] PLB.i_sp12_h_r[16] PLB.i_neigh_op_top[0] PLB.i_sp4_h_r[0]  lutff[0].out          PLB.i_sp4_v_b[0]      PLB.i_neigh_op_lft[0] PLB.i_sp4_h_r[8]  PLB.i_neigh_op_bnr[0] PLB.i_sp4_v_b[8]  PLB.i_sp12_h_r[0] PLB.i_sp4_h_r[16]" output="local_g[0].i[0]" />
+  <mux name="local_g0[1]" input="PLB.i_sp4_r_v_b[25] PLB.i_sp4_r_v_b[34] lutff[1].out          PLB.i_neigh_op_bnr[1] PLB.i_sp12_h_r[9]   PLB.i_sp12_h_r[17] PLB.i_sp4_v_b[1]      PLB.i_sp4_v_b[9]  PLB.i_neigh_op_bot[1] PLB.i_neigh_op_top[1] PLB.i_neigh_op_lft[1] PLB.i_sp12_h_r[1] PLB.i_sp4_v_b[17]     PLB.i_sp4_h_r[1]  PLB.i_sp4_h_r[9]  PLB.i_sp4_h_r[17]" output="local_g[0].i[1]" />
+  <mux name="local_g0[2]" input="PLB.i_sp4_r_v_b[26] PLB.i_sp4_r_v_b[33] PLB.i_neigh_op_bot[2] PLB.i_neigh_op_top[2] PLB.i_sp12_h_r[10]  PLB.i_sp12_h_r[18] PLB.i_sp4_v_b[18]     PLB.i_sp4_h_r[2]  lutff[2].out          PLB.i_neigh_op_bnr[2] PLB.i_neigh_op_lft[2] PLB.i_sp12_h_r[2] PLB.i_sp4_v_b[2]      PLB.i_sp4_v_b[10] PLB.i_sp4_h_r[10] PLB.i_sp4_h_r[18]" output="local_g[0].i[2]" />
+  <mux name="local_g0[3]" input="PLB.i_sp4_r_v_b[27] PLB.i_sp4_r_v_b[32] PLB.i_neigh_op_bot[3] PLB.i_neigh_op_top[3] PLB.i_sp12_h_r[11]  PLB.i_sp12_h_r[19] PLB.i_sp4_v_b[19]     PLB.i_sp4_h_r[3]  lutff[3].out          PLB.i_neigh_op_bnr[3] PLB.i_neigh_op_lft[3] PLB.i_sp12_h_r[3] PLB.i_sp4_v_b[3]      PLB.i_sp4_v_b[11] PLB.i_sp4_h_r[11] PLB.i_sp4_h_r[19]" output="local_g[0].i[3]" />
+  <mux name="local_g0[4]" input="glb2local[0].o      PLB.i_sp12_h_r[12]  PLB.i_neigh_op_bot[4] PLB.i_sp4_v_b[20]     PLB.i_sp4_r_v_b[28] PLB.i_sp12_h_r[20] PLB.i_neigh_op_top[4] PLB.i_sp4_h_r[4]  lutff[4].out          PLB.i_sp4_v_b[4]      PLB.i_neigh_op_lft[4] PLB.i_sp4_h_r[12] PLB.i_neigh_op_bnr[4] PLB.i_sp4_v_b[12] PLB.i_sp12_h_r[4] PLB.i_sp4_h_r[20]" output="local_g[0].i[4]" />
+  <mux name="local_g0[5]" input="glb2local[1].o      PLB.i_sp4_r_v_b[29] lutff[5].out          PLB.i_neigh_op_bnr[5] PLB.i_sp12_h_r[13]  PLB.i_sp12_h_r[21] PLB.i_sp4_v_b[5]      PLB.i_sp4_v_b[13] PLB.i_neigh_op_bot[5] PLB.i_neigh_op_top[5] PLB.i_neigh_op_lft[5] PLB.i_sp12_h_r[5] PLB.i_sp4_v_b[21]     PLB.i_sp4_h_r[5]  PLB.i_sp4_h_r[13] PLB.i_sp4_h_r[21]" output="local_g[0].i[5]" />
+  <mux name="local_g0[6]" input="glb2local[2].o      PLB.i_sp4_r_v_b[30] PLB.i_neigh_op_bot[6] PLB.i_neigh_op_top[6] PLB.i_sp12_h_r[14]  PLB.i_sp12_h_r[22] PLB.i_sp4_v_b[22]     PLB.i_sp4_h_r[6]  lutff[6].out          PLB.i_neigh_op_bnr[6] PLB.i_neigh_op_lft[6] PLB.i_sp12_h_r[6] PLB.i_sp4_v_b[6]      PLB.i_sp4_v_b[14] PLB.i_sp4_h_r[14] PLB.i_sp4_h_r[22]" output="local_g[0].i[6]" />
+  <mux name="local_g0[7]" input="glb2local[3].o      PLB.i_sp4_r_v_b[31] PLB.i_neigh_op_bot[7] PLB.i_neigh_op_top[7] PLB.i_sp12_h_r[15]  PLB.i_sp12_h_r[23] PLB.i_sp4_v_b[23]     PLB.i_sp4_h_r[7]  lutff[7].out          PLB.i_neigh_op_bnr[7] PLB.i_neigh_op_lft[7] PLB.i_sp12_h_r[7] PLB.i_sp4_v_b[7]      PLB.i_sp4_v_b[15] PLB.i_sp4_h_r[15] PLB.i_sp4_h_r[23]" output="local_g[0].i[7]" />
+
+  <mux name="local_g1[0]" input="PLB.i_sp4_r_v_b[0]  PLB.i_sp12_h_r[8]   PLB.i_neigh_op_bot[0] PLB.i_sp4_v_b[16]     PLB.i_sp4_r_v_b[24] PLB.i_sp12_h_r[16] PLB.i_neigh_op_top[0] PLB.i_sp4_h_r[0]  lutff[0].out          PLB.i_sp4_v_b[0]      PLB.i_neigh_op_lft[0] PLB.i_sp4_h_r[8]  PLB.i_neigh_op_bnr[0] PLB.i_sp4_v_b[8]  PLB.i_sp12_h_r[0] PLB.i_sp4_h_r[16]" output="local_g[1].i[0]" />
+  <mux name="local_g1[1]" input="PLB.i_sp4_r_v_b[1]  PLB.i_sp4_r_v_b[25] lutff[1].out          PLB.i_neigh_op_bnr[1] PLB.i_sp12_h_r[9]   PLB.i_sp12_h_r[17] PLB.i_sp4_v_b[1]      PLB.i_sp4_v_b[9]  PLB.i_neigh_op_bot[1] PLB.i_neigh_op_top[1] PLB.i_neigh_op_lft[1] PLB.i_sp12_h_r[1] PLB.i_sp4_v_b[17]     PLB.i_sp4_h_r[1]  PLB.i_sp4_h_r[9]  PLB.i_sp4_h_r[17]" output="local_g[1].i[1]" />
+  <mux name="local_g1[2]" input="PLB.i_sp4_r_v_b[2]  PLB.i_sp4_r_v_b[26] PLB.i_neigh_op_bot[2] PLB.i_neigh_op_top[2] PLB.i_sp12_h_r[10]  PLB.i_sp12_h_r[18] PLB.i_sp4_v_b[18]     PLB.i_sp4_h_r[2]  lutff[2].out          PLB.i_neigh_op_bnr[2] PLB.i_neigh_op_lft[2] PLB.i_sp12_h_r[2] PLB.i_sp4_v_b[2]      PLB.i_sp4_v_b[10] PLB.i_sp4_h_r[10] PLB.i_sp4_h_r[18]" output="local_g[1].i[2]" />
+  <mux name="local_g1[3]" input="PLB.i_sp4_r_v_b[3]  PLB.i_sp4_r_v_b[27] PLB.i_neigh_op_bot[3] PLB.i_neigh_op_top[3] PLB.i_sp12_h_r[11]  PLB.i_sp12_h_r[19] PLB.i_sp4_v_b[19]     PLB.i_sp4_h_r[3]  lutff[3].out          PLB.i_neigh_op_bnr[3] PLB.i_neigh_op_lft[3] PLB.i_sp12_h_r[3] PLB.i_sp4_v_b[3]      PLB.i_sp4_v_b[11] PLB.i_sp4_h_r[11] PLB.i_sp4_h_r[19]" output="local_g[1].i[3]" />
+  <mux name="local_g1[4]" input="PLB.i_sp4_r_v_b[4]  PLB.i_sp12_h_r[12]  PLB.i_neigh_op_bot[4] PLB.i_sp4_v_b[20]     PLB.i_sp4_r_v_b[28] PLB.i_sp12_h_r[20] PLB.i_neigh_op_top[4] PLB.i_sp4_h_r[4]  lutff[4].out          PLB.i_sp4_v_b[4]      PLB.i_neigh_op_lft[4] PLB.i_sp4_h_r[12] PLB.i_neigh_op_bnr[4] PLB.i_sp4_v_b[12] PLB.i_sp12_h_r[4] PLB.i_sp4_h_r[20]" output="local_g[1].i[4]" />
+  <mux name="local_g1[5]" input="PLB.i_sp4_r_v_b[5]  PLB.i_sp4_r_v_b[29] lutff[5].out          PLB.i_neigh_op_bnr[5] PLB.i_sp12_h_r[13]  PLB.i_sp12_h_r[21] PLB.i_sp4_v_b[5]      PLB.i_sp4_v_b[13] PLB.i_neigh_op_bot[5] PLB.i_neigh_op_top[5] PLB.i_neigh_op_lft[5] PLB.i_sp12_h_r[5] PLB.i_sp4_v_b[21]     PLB.i_sp4_h_r[5]  PLB.i_sp4_h_r[13] PLB.i_sp4_h_r[21]" output="local_g[1].i[5]" />
+  <mux name="local_g1[6]" input="PLB.i_sp4_r_v_b[6]  PLB.i_sp4_r_v_b[30] PLB.i_neigh_op_bot[6] PLB.i_neigh_op_top[6] PLB.i_sp12_h_r[14]  PLB.i_sp12_h_r[22] PLB.i_sp4_v_b[22]     PLB.i_sp4_h_r[6]  lutff[6].out          PLB.i_neigh_op_bnr[6] PLB.i_neigh_op_lft[6] PLB.i_sp12_h_r[6] PLB.i_sp4_v_b[6]      PLB.i_sp4_v_b[14] PLB.i_sp4_h_r[14] PLB.i_sp4_h_r[22]" output="local_g[1].i[6]" />
+  <mux name="local_g1[7]" input="PLB.i_sp4_r_v_b[7]  PLB.i_sp4_r_v_b[31] PLB.i_neigh_op_bot[7] PLB.i_neigh_op_top[7] PLB.i_sp12_h_r[15]  PLB.i_sp12_h_r[23] PLB.i_sp4_v_b[23]     PLB.i_sp4_h_r[7]  lutff[7].out          PLB.i_neigh_op_bnr[7] PLB.i_neigh_op_lft[7] PLB.i_sp12_h_r[7] PLB.i_sp4_v_b[7]      PLB.i_sp4_v_b[15] PLB.i_sp4_h_r[15] PLB.i_sp4_h_r[23]" output="local_g[1].i[7]" />
+
+  <mux name="local_g2[0]" input="PLB.i_sp4_r_v_b[8]  PLB.i_sp12_v_b[8]   PLB.i_neigh_op_tnr[0] PLB.i_sp4_v_b[40]     PLB.i_sp4_r_v_b[32] PLB.i_sp12_v_b[16] PLB.i_neigh_op_tnl[0] PLB.i_sp4_h_r[24] lutff[0].out          PLB.i_sp4_v_b[24]     PLB.i_neigh_op_rgt[0] PLB.i_sp4_h_r[32] PLB.i_neigh_op_bnl[0] PLB.i_sp4_v_b[32] PLB.i_sp12_v_b[0] PLB.i_sp4_h_r[40]" output="local_g[2].i[0]" />
+  <mux name="local_g2[1]" input="PLB.i_sp4_r_v_b[9]  PLB.i_sp4_r_v_b[33] lutff[1].out          PLB.i_neigh_op_bnl[1] PLB.i_sp12_v_b[9]   PLB.i_sp12_v_b[17] PLB.i_sp4_v_b[25]     PLB.i_sp4_v_b[33] PLB.i_neigh_op_tnr[1] PLB.i_neigh_op_tnl[1] PLB.i_neigh_op_rgt[1] PLB.i_sp12_v_b[1] PLB.i_sp4_v_b[41]     PLB.i_sp4_h_r[25] PLB.i_sp4_h_r[33] PLB.i_sp4_h_r[41]" output="local_g[2].i[1]" />
+  <mux name="local_g2[2]" input="PLB.i_sp4_r_v_b[10] PLB.i_sp4_r_v_b[34] PLB.i_neigh_op_tnr[2] PLB.i_neigh_op_tnl[2] PLB.i_sp12_v_b[10]  PLB.i_sp12_v_b[18] PLB.i_sp4_v_b[42]     PLB.i_sp4_h_r[26] lutff[2].out          PLB.i_neigh_op_bnl[2] PLB.i_neigh_op_rgt[2] PLB.i_sp12_v_b[2] PLB.i_sp4_v_b[26]     PLB.i_sp4_v_b[34] PLB.i_sp4_h_r[34] PLB.i_sp4_h_r[42]" output="local_g[2].i[2]" />
+  <mux name="local_g2[3]" input="PLB.i_sp4_r_v_b[11] PLB.i_sp4_r_v_b[35] PLB.i_neigh_op_tnr[3] PLB.i_neigh_op_tnl[3] PLB.i_sp12_v_b[11]  PLB.i_sp12_v_b[19] PLB.i_sp4_v_b[43]     PLB.i_sp4_h_r[27] lutff[3].out          PLB.i_neigh_op_bnl[3] PLB.i_neigh_op_rgt[3] PLB.i_sp12_v_b[3] PLB.i_sp4_v_b[27]     PLB.i_sp4_v_b[35] PLB.i_sp4_h_r[35] PLB.i_sp4_h_r[43]" output="local_g[2].i[3]" />
+  <mux name="local_g2[4]" input="PLB.i_sp4_r_v_b[12] PLB.i_sp12_v_b[12]  PLB.i_neigh_op_tnr[4] PLB.i_sp4_v_b[44]     PLB.i_sp4_r_v_b[36] PLB.i_sp12_v_b[20] PLB.i_neigh_op_tnl[4] PLB.i_sp4_h_r[28] lutff[4].out          PLB.i_sp4_v_b[28]     PLB.i_neigh_op_rgt[4] PLB.i_sp4_h_r[36] PLB.i_neigh_op_bnl[4] PLB.i_sp4_v_b[36] PLB.i_sp12_v_b[4] PLB.i_sp4_h_r[44]" output="local_g[2].i[4]" />
+  <mux name="local_g2[5]" input="PLB.i_sp4_r_v_b[13] PLB.i_sp4_r_v_b[37] lutff[5].out          PLB.i_neigh_op_bnl[5] PLB.i_sp12_v_b[13]  PLB.i_sp12_v_b[21] PLB.i_sp4_v_b[29]     PLB.i_sp4_v_b[37] PLB.i_neigh_op_tnr[5] PLB.i_neigh_op_tnl[5] PLB.i_neigh_op_rgt[5] PLB.i_sp12_v_b[5] PLB.i_sp4_v_b[45]     PLB.i_sp4_h_r[29] PLB.i_sp4_h_r[37] PLB.i_sp4_h_r[45]" output="local_g[2].i[5]" />
+  <mux name="local_g2[6]" input="PLB.i_sp4_r_v_b[14] PLB.i_sp4_r_v_b[38] PLB.i_neigh_op_tnr[6] PLB.i_neigh_op_tnl[6] PLB.i_sp12_v_b[14]  PLB.i_sp12_v_b[22] PLB.i_sp4_v_b[46]     PLB.i_sp4_h_r[30] lutff[6].out          PLB.i_neigh_op_bnl[6] PLB.i_neigh_op_rgt[6] PLB.i_sp12_v_b[6] PLB.i_sp4_v_b[30]     PLB.i_sp4_v_b[38] PLB.i_sp4_h_r[38] PLB.i_sp4_h_r[46]" output="local_g[2].i[6]" />
+  <mux name="local_g2[7]" input="PLB.i_sp4_r_v_b[15] PLB.i_sp4_r_v_b[39] PLB.i_neigh_op_tnr[7] PLB.i_neigh_op_tnl[7] PLB.i_sp12_v_b[15]  PLB.i_sp12_v_b[23] PLB.i_sp4_v_b[47]     PLB.i_sp4_h_r[31] lutff[7].out          PLB.i_neigh_op_bnl[7] PLB.i_neigh_op_rgt[7] PLB.i_sp12_v_b[7] PLB.i_sp4_v_b[31]     PLB.i_sp4_v_b[39] PLB.i_sp4_h_r[39] PLB.i_sp4_h_r[47]" output="local_g[2].i[7]" />
+
+  <mux name="local_g3[0]" input="PLB.i_sp4_r_v_b[16] PLB.i_sp12_v_b[8]   PLB.i_neigh_op_tnr[0] PLB.i_sp4_v_b[40]     PLB.i_sp4_r_v_b[40] PLB.i_sp12_v_b[16] PLB.i_neigh_op_tnl[0] PLB.i_sp4_h_r[24] lutff[0].out          PLB.i_sp4_v_b[24]     PLB.i_neigh_op_rgt[0] PLB.i_sp4_h_r[32] PLB.i_neigh_op_bnl[0] PLB.i_sp4_v_b[32] PLB.i_sp12_v_b[0] PLB.i_sp4_h_r[40]" output="local_g[3].i[0]" />
+  <mux name="local_g3[1]" input="PLB.i_sp4_r_v_b[17] PLB.i_sp4_r_v_b[41] lutff[1].out          PLB.i_neigh_op_bnl[1] PLB.i_sp12_v_b[9]   PLB.i_sp12_v_b[17] PLB.i_sp4_v_b[25]     PLB.i_sp4_v_b[33] PLB.i_neigh_op_tnr[1] PLB.i_neigh_op_tnl[1] PLB.i_neigh_op_rgt[1] PLB.i_sp12_v_b[1] PLB.i_sp4_v_b[41]     PLB.i_sp4_h_r[25] PLB.i_sp4_h_r[33] PLB.i_sp4_h_r[41]" output="local_g[3].i[1]" />
+  <mux name="local_g3[2]" input="PLB.i_sp4_r_v_b[18] PLB.i_sp4_r_v_b[42] PLB.i_neigh_op_tnr[2] PLB.i_neigh_op_tnl[2] PLB.i_sp12_v_b[10]  PLB.i_sp12_v_b[18] PLB.i_sp4_v_b[42]     PLB.i_sp4_h_r[26] lutff[2].out          PLB.i_neigh_op_bnl[2] PLB.i_neigh_op_rgt[2] PLB.i_sp12_v_b[2] PLB.i_sp4_v_b[26]     PLB.i_sp4_v_b[34] PLB.i_sp4_h_r[34] PLB.i_sp4_h_r[42]" output="local_g[3].i[2]" />
+  <mux name="local_g3[3]" input="PLB.i_sp4_r_v_b[19] PLB.i_sp4_r_v_b[43] PLB.i_neigh_op_tnr[3] PLB.i_neigh_op_tnl[3] PLB.i_sp12_v_b[11]  PLB.i_sp12_v_b[19] PLB.i_sp4_v_b[43]     PLB.i_sp4_h_r[27] lutff[3].out          PLB.i_neigh_op_bnl[3] PLB.i_neigh_op_rgt[3] PLB.i_sp12_v_b[3] PLB.i_sp4_v_b[27]     PLB.i_sp4_v_b[35] PLB.i_sp4_h_r[35] PLB.i_sp4_h_r[43]" output="local_g[3].i[3]" />
+  <mux name="local_g3[4]" input="PLB.i_sp4_r_v_b[20] PLB.i_sp12_v_b[12]  PLB.i_neigh_op_tnr[4] PLB.i_sp4_v_b[44]     PLB.i_sp4_r_v_b[44] PLB.i_sp12_v_b[20] PLB.i_neigh_op_tnl[4] PLB.i_sp4_h_r[28] lutff[4].out          PLB.i_sp4_v_b[28]     PLB.i_neigh_op_rgt[4] PLB.i_sp4_h_r[36] PLB.i_neigh_op_bnl[4] PLB.i_sp4_v_b[36] PLB.i_sp12_v_b[4] PLB.i_sp4_h_r[44]" output="local_g[3].i[4]" />
+  <mux name="local_g3[5]" input="PLB.i_sp4_r_v_b[21] PLB.i_sp4_r_v_b[45] lutff[5].out          PLB.i_neigh_op_bnl[5] PLB.i_sp12_v_b[13]  PLB.i_sp12_v_b[21] PLB.i_sp4_v_b[29]     PLB.i_sp4_v_b[37] PLB.i_neigh_op_tnr[5] PLB.i_neigh_op_tnl[5] PLB.i_neigh_op_rgt[5] PLB.i_sp12_v_b[5] PLB.i_sp4_v_b[45]     PLB.i_sp4_h_r[29] PLB.i_sp4_h_r[37] PLB.i_sp4_h_r[45]" output="local_g[3].i[5]" />
+  <mux name="local_g3[6]" input="PLB.i_sp4_r_v_b[22] PLB.i_sp4_r_v_b[46] PLB.i_neigh_op_tnr[6] PLB.i_neigh_op_tnl[6] PLB.i_sp12_v_b[14]  PLB.i_sp12_v_b[22] PLB.i_sp4_v_b[46]     PLB.i_sp4_h_r[30] lutff[6].out          PLB.i_neigh_op_bnl[6] PLB.i_neigh_op_rgt[6] PLB.i_sp12_v_b[6] PLB.i_sp4_v_b[30]     PLB.i_sp4_v_b[38] PLB.i_sp4_h_r[38] PLB.i_sp4_h_r[46]" output="local_g[3].i[6]" />
+  <mux name="local_g3[7]" input="PLB.i_sp4_r_v_b[23] PLB.i_sp4_r_v_b[47] PLB.i_neigh_op_tnr[7] PLB.i_neigh_op_tnl[7] PLB.i_sp12_v_b[15]  PLB.i_sp12_v_b[23] PLB.i_sp4_v_b[47]     PLB.i_sp4_h_r[31] lutff[7].out          PLB.i_neigh_op_bnl[7] PLB.i_neigh_op_rgt[7] PLB.i_sp12_v_b[7] PLB.i_sp4_v_b[31]     PLB.i_sp4_v_b[39] PLB.i_sp4_h_r[39] PLB.i_sp4_h_r[47]" output="local_g[3].i[7]" />
+
+  <!-- LUTFF.out to Span-4 Vertical -->
+  <mux name="lutff[0].out->sp4_v_b[0]"  input="lutff[0].out" output="PLB.o_sp4_v_b[0]"  />
+  <mux name="lutff[0].out->sp4_v_b[16]" input="lutff[0].out" output="PLB.o_sp4_v_b[16]" />
+  <mux name="lutff[0].out->sp4_v_b[32]" input="lutff[0].out" output="PLB.o_sp4_v_b[32]" />
+  <mux name="lutff[1].out->sp4_v_b[18]" input="lutff[1].out" output="PLB.o_sp4_v_b[18]" />
+  <mux name="lutff[1].out->sp4_v_b[2]"  input="lutff[1].out" output="PLB.o_sp4_v_b[2]"  />
+  <mux name="lutff[1].out->sp4_v_b[34]" input="lutff[1].out" output="PLB.o_sp4_v_b[34]" />
+  <mux name="lutff[2].out->sp4_v_b[20]" input="lutff[2].out" output="PLB.o_sp4_v_b[20]" />
+  <mux name="lutff[2].out->sp4_v_b[36]" input="lutff[2].out" output="PLB.o_sp4_v_b[36]" />
+  <mux name="lutff[2].out->sp4_v_b[4]"  input="lutff[2].out" output="PLB.o_sp4_v_b[4]"  />
+  <mux name="lutff[3].out->sp4_v_b[22]" input="lutff[3].out" output="PLB.o_sp4_v_b[22]" />
+  <mux name="lutff[3].out->sp4_v_b[38]" input="lutff[3].out" output="PLB.o_sp4_v_b[38]" />
+  <mux name="lutff[3].out->sp4_v_b[6]"  input="lutff[3].out" output="PLB.o_sp4_v_b[6]"  />
+  <mux name="lutff[4].out->sp4_v_b[24]" input="lutff[4].out" output="PLB.o_sp4_v_b[24]" />
+  <mux name="lutff[4].out->sp4_v_b[40]" input="lutff[4].out" output="PLB.o_sp4_v_b[40]" />
+  <mux name="lutff[4].out->sp4_v_b[8]"  input="lutff[4].out" output="PLB.o_sp4_v_b[8]"  />
+  <mux name="lutff[5].out->sp4_v_b[10]" input="lutff[5].out" output="PLB.o_sp4_v_b[10]" />
+  <mux name="lutff[5].out->sp4_v_b[26]" input="lutff[5].out" output="PLB.o_sp4_v_b[26]" />
+  <mux name="lutff[5].out->sp4_v_b[42]" input="lutff[5].out" output="PLB.o_sp4_v_b[42]" />
+  <mux name="lutff[6].out->sp4_v_b[12]" input="lutff[6].out" output="PLB.o_sp4_v_b[12]" />
+  <mux name="lutff[6].out->sp4_v_b[28]" input="lutff[6].out" output="PLB.o_sp4_v_b[28]" />
+  <mux name="lutff[6].out->sp4_v_b[44]" input="lutff[6].out" output="PLB.o_sp4_v_b[44]" />
+  <mux name="lutff[7].out->sp4_v_b[14]" input="lutff[7].out" output="PLB.o_sp4_v_b[14]" />
+  <mux name="lutff[7].out->sp4_v_b[30]" input="lutff[7].out" output="PLB.o_sp4_v_b[30]" />
+  <mux name="lutff[7].out->sp4_v_b[46]" input="lutff[7].out" output="PLB.o_sp4_v_b[46]" />
+
+  <!--
+  <mux name="mux_sp12_v_b[1]"  input="PLB.i_sp12_v_b[1]"  output="PLB.o_sp4_v_b[12]" />
+  <mux name="mux_sp12_v_b[11]" input="PLB.i_sp12_v_b[11]" output="PLB.o_sp4_v_b[17]" />
+  <mux name="mux_sp12_v_b[13]" input="PLB.i_sp12_v_b[13]" output="PLB.o_sp4_v_b[18]" />
+  <mux name="mux_sp12_v_b[15]" input="PLB.i_sp12_v_b[15]" output="PLB.o_sp4_v_b[19]" />
+  <mux name="mux_sp12_v_b[17]" input="PLB.i_sp12_v_b[17]" output="PLB.o_sp4_v_b[20]" />
+  <mux name="mux_sp12_v_b[19]" input="PLB.i_sp12_v_b[19]" output="PLB.o_sp4_v_b[21]" />
+  <mux name="mux_sp12_v_b[21]" input="PLB.i_sp12_v_b[21]" output="PLB.o_sp4_v_b[22]" />
+  <mux name="mux_sp12_v_b[23]" input="PLB.i_sp12_v_b[23]" output="PLB.o_sp4_v_b[23]" />
+  <mux name="mux_sp12_v_b[3]"  input="PLB.i_sp12_v_b[3]"  output="PLB.o_sp4_v_b[13]" />
+  <mux name="mux_sp12_v_b[5]"  input="PLB.i_sp12_v_b[5]"  output="PLB.o_sp4_v_b[14]" />
+  <mux name="mux_sp12_v_b[7]"  input="PLB.i_sp12_v_b[7]"  output="PLB.o_sp4_v_b[15]" />
+  <mux name="mux_sp12_v_b[9]"  input="PLB.i_sp12_v_b[9]"  output="PLB.o_sp4_v_b[16]" />
+  -->
+
+  <!-- LUTFF.out to Span-4 Right Vertical -->
+  <mux name="lutff[0].out->sp4_r_v_b[1]"  input="lutff[0].out" output="PLB.o_sp4_r_v_b[1]"  />
+  <mux name="lutff[0].out->sp4_r_v_b[17]" input="lutff[0].out" output="PLB.o_sp4_r_v_b[17]" />
+  <mux name="lutff[0].out->sp4_r_v_b[33]" input="lutff[0].out" output="PLB.o_sp4_r_v_b[33]" />
+  <mux name="lutff[1].out->sp4_r_v_b[19]" input="lutff[1].out" output="PLB.o_sp4_r_v_b[19]" />
+  <mux name="lutff[1].out->sp4_r_v_b[3]"  input="lutff[1].out" output="PLB.o_sp4_r_v_b[3]"  />
+  <mux name="lutff[1].out->sp4_r_v_b[35]" input="lutff[1].out" output="PLB.o_sp4_r_v_b[35]" />
+  <mux name="lutff[2].out->sp4_r_v_b[21]" input="lutff[2].out" output="PLB.o_sp4_r_v_b[21]" />
+  <mux name="lutff[2].out->sp4_r_v_b[37]" input="lutff[2].out" output="PLB.o_sp4_r_v_b[37]" />
+  <mux name="lutff[2].out->sp4_r_v_b[5] " input="lutff[2].out" output="PLB.o_sp4_r_v_b[5] " />
+  <mux name="lutff[3].out->sp4_r_v_b[23]" input="lutff[3].out" output="PLB.o_sp4_r_v_b[23]" />
+  <mux name="lutff[3].out->sp4_r_v_b[39]" input="lutff[3].out" output="PLB.o_sp4_r_v_b[39]" />
+  <mux name="lutff[3].out->sp4_r_v_b[7] " input="lutff[3].out" output="PLB.o_sp4_r_v_b[7] " />
+  <mux name="lutff[4].out->sp4_r_v_b[25]" input="lutff[4].out" output="PLB.o_sp4_r_v_b[25]" />
+  <mux name="lutff[4].out->sp4_r_v_b[41]" input="lutff[4].out" output="PLB.o_sp4_r_v_b[41]" />
+  <mux name="lutff[4].out->sp4_r_v_b[9]"  input="lutff[4].out" output="PLB.o_sp4_r_v_b[9]"  />
+  <mux name="lutff[5].out->sp4_r_v_b[11]" input="lutff[5].out" output="PLB.o_sp4_r_v_b[11]" />
+  <mux name="lutff[5].out->sp4_r_v_b[27]" input="lutff[5].out" output="PLB.o_sp4_r_v_b[27]" />
+  <mux name="lutff[5].out->sp4_r_v_b[43]" input="lutff[5].out" output="PLB.o_sp4_r_v_b[43]" />
+  <mux name="lutff[6].out->sp4_r_v_b[13]" input="lutff[6].out" output="PLB.o_sp4_r_v_b[13]" />
+  <mux name="lutff[6].out->sp4_r_v_b[29]" input="lutff[6].out" output="PLB.o_sp4_r_v_b[29]" />
+  <mux name="lutff[6].out->sp4_r_v_b[45]" input="lutff[6].out" output="PLB.o_sp4_r_v_b[45]" />
+  <mux name="lutff[7].out->sp4_r_v_b[15]" input="lutff[7].out" output="PLB.o_sp4_r_v_b[15]" />
+  <mux name="lutff[7].out->sp4_r_v_b[31]" input="lutff[7].out" output="PLB.o_sp4_r_v_b[31]" />
+  <mux name="lutff[7].out->sp4_r_v_b[47]" input="lutff[7].out" output="PLB.o_sp4_r_v_b[47]" />
+
+  <!-- LUTFF.out to Span-4 Horizontal -->
+  <mux name="lutff[0].out->sp4_h_r[0]"  input="lutff[0].out" output="PLB.o_sp4_h_r[0]"  />
+  <mux name="lutff[0].out->sp4_h_r[16]" input="lutff[0].out" output="PLB.o_sp4_h_r[16]" />
+  <mux name="lutff[0].out->sp4_h_r[32]" input="lutff[0].out" output="PLB.o_sp4_h_r[32]" />
+  <mux name="lutff[1].out->sp4_h_r[18]" input="lutff[1].out" output="PLB.o_sp4_h_r[18]" />
+  <mux name="lutff[1].out->sp4_h_r[2]"  input="lutff[1].out" output="PLB.o_sp4_h_r[2]"  />
+  <mux name="lutff[1].out->sp4_h_r[34]" input="lutff[1].out" output="PLB.o_sp4_h_r[34]" />
+  <mux name="lutff[2].out->sp4_h_r[20]" input="lutff[2].out" output="PLB.o_sp4_h_r[20]" />
+  <mux name="lutff[2].out->sp4_h_r[36]" input="lutff[2].out" output="PLB.o_sp4_h_r[36]" />
+  <mux name="lutff[2].out->sp4_h_r[4]"  input="lutff[2].out" output="PLB.o_sp4_h_r[4]"  />
+  <mux name="lutff[3].out->sp4_h_r[22]" input="lutff[3].out" output="PLB.o_sp4_h_r[22]" />
+  <mux name="lutff[3].out->sp4_h_r[38]" input="lutff[3].out" output="PLB.o_sp4_h_r[38]" />
+  <mux name="lutff[3].out->sp4_h_r[6]"  input="lutff[3].out" output="PLB.o_sp4_h_r[6]"  />
+  <mux name="lutff[4].out->sp4_h_r[24]" input="lutff[4].out" output="PLB.o_sp4_h_r[24]" />
+  <mux name="lutff[4].out->sp4_h_r[40]" input="lutff[4].out" output="PLB.o_sp4_h_r[40]" />
+  <mux name="lutff[4].out->sp4_h_r[8]"  input="lutff[4].out" output="PLB.o_sp4_h_r[8]"  />
+  <mux name="lutff[5].out->sp4_h_r[10]" input="lutff[5].out" output="PLB.o_sp4_h_r[10]" />
+  <mux name="lutff[5].out->sp4_h_r[26]" input="lutff[5].out" output="PLB.o_sp4_h_r[26]" />
+  <mux name="lutff[5].out->sp4_h_r[42]" input="lutff[5].out" output="PLB.o_sp4_h_r[42]" />
+  <mux name="lutff[6].out->sp4_h_r[12]" input="lutff[6].out" output="PLB.o_sp4_h_r[12]" />
+  <mux name="lutff[6].out->sp4_h_r[28]" input="lutff[6].out" output="PLB.o_sp4_h_r[28]" />
+  <mux name="lutff[6].out->sp4_h_r[44]" input="lutff[6].out" output="PLB.o_sp4_h_r[44]" />
+  <mux name="lutff[7].out->sp4_h_r[14]" input="lutff[7].out" output="PLB.o_sp4_h_r[14]" />
+  <mux name="lutff[7].out->sp4_h_r[30]" input="lutff[7].out" output="PLB.o_sp4_h_r[30]" />
+  <mux name="lutff[7].out->sp4_h_r[46]" input="lutff[7].out" output="PLB.o_sp4_h_r[46]" />
+
+  <!--
+  <mux name="mux_sp12_h_r[0]"  input="PLB.i_sp12_h_r[0]"  output="PLB.o_sp4_h_r[12]" />
+  <mux name="mux_sp12_h_r[10]" input="PLB.i_sp12_h_r[10]" output="PLB.o_sp4_h_r[17]" />
+  <mux name="mux_sp12_h_r[12]" input="PLB.i_sp12_h_r[12]" output="PLB.o_sp4_h_r[18]" />
+  <mux name="mux_sp12_h_r[14]" input="PLB.i_sp12_h_r[14]" output="PLB.o_sp4_h_r[19]" />
+  <mux name="mux_sp12_h_r[16]" input="PLB.i_sp12_h_r[16]" output="PLB.o_sp4_h_r[20]" />
+  <mux name="mux_sp12_h_r[18]" input="PLB.i_sp12_h_r[18]" output="PLB.o_sp4_h_r[21]" />
+  <mux name="mux_sp12_h_r[2]"  input="PLB.i_sp12_h_r[2]"  output="PLB.o_sp4_h_r[13]" />
+  <mux name="mux_sp12_h_r[20]" input="PLB.i_sp12_h_r[20]" output="PLB.o_sp4_h_r[22]" />
+  <mux name="mux_sp12_h_r[22]" input="PLB.i_sp12_h_r[22]" output="PLB.o_sp4_h_r[23]" />
+  <mux name="mux_sp12_h_r[4]"  input="PLB.i_sp12_h_r[4]"  output="PLB.o_sp4_h_r[14]" />
+  <mux name="mux_sp12_h_r[6]"  input="PLB.i_sp12_h_r[6]"  output="PLB.o_sp4_h_r[15]" />
+  <mux name="mux_sp12_h_r[8]"  input="PLB.i_sp12_h_r[8]"  output="PLB.o_sp4_h_r[16]" />
+  -->
+
+  <!-- LUTFF.out to Span-12 Vertical -->
+  <mux name="lutff[0].out->sp12_v_b[0]"  input="lutff[0].out" output="PLB.o_sp12_v_b[0]"  />
+  <mux name="lutff[0].out->sp12_v_b[16]" input="lutff[0].out" output="PLB.o_sp12_v_b[16]" />
+  <mux name="lutff[1].out->sp12_v_b[18]" input="lutff[1].out" output="PLB.o_sp12_v_b[18]" />
+  <mux name="lutff[1].out->sp12_v_b[2]"  input="lutff[1].out" output="PLB.o_sp12_v_b[2]"  />
+  <mux name="lutff[2].out->sp12_v_b[20]" input="lutff[2].out" output="PLB.o_sp12_v_b[20]" />
+  <mux name="lutff[2].out->sp12_v_b[4]"  input="lutff[2].out" output="PLB.o_sp12_v_b[4]"  />
+  <mux name="lutff[3].out->sp12_v_b[22]" input="lutff[3].out" output="PLB.o_sp12_v_b[22]" />
+  <mux name="lutff[3].out->sp12_v_b[6]"  input="lutff[3].out" output="PLB.o_sp12_v_b[6]"  />
+  <mux name="lutff[4].out->sp12_v_b[8]"  input="lutff[4].out" output="PLB.o_sp12_v_b[8]"  />
+  <mux name="lutff[5].out->sp12_v_b[10]" input="lutff[5].out" output="PLB.o_sp12_v_b[10]" />
+  <mux name="lutff[6].out->sp12_v_b[12]" input="lutff[6].out" output="PLB.o_sp12_v_b[12]" />
+  <mux name="lutff[7].out->sp12_v_b[14]" input="lutff[7].out" output="PLB.o_sp12_v_b[14]" />
+
+  <!-- LUTFF.out to Span-12 Horizontal -->
+  <mux name="lutff[0].out->sp12_h_r[8]"  input="lutff[0].out" output="PLB.o_sp12_h_r[8]"  />
+  <mux name="lutff[1].out->sp12_h_r[10]" input="lutff[1].out" output="PLB.o_sp12_h_r[10]" />
+  <mux name="lutff[2].out->sp12_h_r[12]" input="lutff[2].out" output="PLB.o_sp12_h_r[12]" />
+  <mux name="lutff[3].out->sp12_h_r[14]" input="lutff[3].out" output="PLB.o_sp12_h_r[14]" />
+  <mux name="lutff[4].out->sp12_h_r[0]"  input="lutff[4].out" output="PLB.o_sp12_h_r[0]"  />
+  <mux name="lutff[4].out->sp12_h_r[16]" input="lutff[4].out" output="PLB.o_sp12_h_r[16]" />
+  <mux name="lutff[5].out->sp12_h_r[18]" input="lutff[5].out" output="PLB.o_sp12_h_r[18]" />
+  <mux name="lutff[5].out->sp12_h_r[2]"  input="lutff[5].out" output="PLB.o_sp12_h_r[2]"  />
+  <mux name="lutff[6].out->sp12_h_r[20]" input="lutff[6].out" output="PLB.o_sp12_h_r[20]" />
+  <mux name="lutff[6].out->sp12_h_r[4]"  input="lutff[6].out" output="PLB.o_sp12_h_r[4]"  />
+  <mux name="lutff[7].out->sp12_h_r[22]" input="lutff[7].out" output="PLB.o_sp12_h_r[22]" />
+  <mux name="lutff[7].out->sp12_h_r[6]"  input="lutff[7].out" output="PLB.o_sp12_h_r[6]"  />
+
+  <!-- Span-4 Vertical -->
+  <!-- ================================================================ -->
+  <!--
+  <direct name="sp4_v_b[0]"  input="PLB.i_sp4_v_t[  ]" output="PLB.o_sp4_v_b[1]"  />
+  <direct name="sp4_v_b[1]"  input="PLB.i_sp4_v_t[  ]" output="PLB.o_sp4_v_b[0]"  />
+  <direct name="sp4_v_b[2]"  input="PLB.i_sp4_v_t[  ]" output="PLB.o_sp4_v_b[3]"  />
+  <direct name="sp4_v_b[3]"  input="PLB.i_sp4_v_t[  ]" output="PLB.o_sp4_v_b[2]"  />
+  <direct name="sp4_v_b[4]"  input="PLB.i_sp4_v_t[  ]" output="PLB.o_sp4_v_b[5]"  />
+  <direct name="sp4_v_b[5]"  input="PLB.i_sp4_v_t[  ]" output="PLB.o_sp4_v_b[4]"  />
+  <direct name="sp4_v_b[6]"  input="PLB.i_sp4_v_t[  ]" output="PLB.o_sp4_v_b[7]"  />
+  <direct name="sp4_v_b[7]"  input="PLB.i_sp4_v_t[  ]" output="PLB.o_sp4_v_b[6]"  />
+  <direct name="sp4_v_b[8]"  input="PLB.i_sp4_v_t[  ]" output="PLB.o_sp4_v_b[9]"  />
+  <direct name="sp4_v_b[9]"  input="PLB.i_sp4_v_t[  ]" output="PLB.o_sp4_v_b[8]"  />
+  <direct name="sp4_v_b[10]" input="PLB.i_sp4_v_t[  ]" output="PLB.o_sp4_v_b[11]" />
+  <direct name="sp4_v_b[11]" input="PLB.i_sp4_v_t[  ]" output="PLB.o_sp4_v_b[10]" />
+   -->
+  <direct name="sp4_v_t[0]"  input="PLB.i_sp4_v_t[0]"  output="PLB.o_sp4_v_b[13]" />
+  <direct name="sp4_v_t[1]"  input="PLB.i_sp4_v_t[1]"  output="PLB.o_sp4_v_b[12]" />
+  <direct name="sp4_v_t[2]"  input="PLB.i_sp4_v_t[2]"  output="PLB.o_sp4_v_b[15]" />
+  <direct name="sp4_v_t[3]"  input="PLB.i_sp4_v_t[3]"  output="PLB.o_sp4_v_b[14]" />
+  <direct name="sp4_v_t[4]"  input="PLB.i_sp4_v_t[4]"  output="PLB.o_sp4_v_b[17]" />
+  <direct name="sp4_v_t[5]"  input="PLB.i_sp4_v_t[5]"  output="PLB.o_sp4_v_b[16]" />
+  <direct name="sp4_v_t[6]"  input="PLB.i_sp4_v_t[6]"  output="PLB.o_sp4_v_b[19]" />
+  <direct name="sp4_v_t[7]"  input="PLB.i_sp4_v_t[7]"  output="PLB.o_sp4_v_b[18]" />
+  <direct name="sp4_v_t[8]"  input="PLB.i_sp4_v_t[8]"  output="PLB.o_sp4_v_b[21]" />
+  <direct name="sp4_v_t[9]"  input="PLB.i_sp4_v_t[9]"  output="PLB.o_sp4_v_b[20]" />
+  <direct name="sp4_v_t[10]" input="PLB.i_sp4_v_t[10]" output="PLB.o_sp4_v_b[23]" />
+  <direct name="sp4_v_t[11]" input="PLB.i_sp4_v_t[11]" output="PLB.o_sp4_v_b[22]" />
+  <direct name="sp4_v_t[12]" input="PLB.i_sp4_v_t[12]" output="PLB.o_sp4_v_b[25]" />
+  <direct name="sp4_v_t[13]" input="PLB.i_sp4_v_t[13]" output="PLB.o_sp4_v_b[24]" />
+  <direct name="sp4_v_t[14]" input="PLB.i_sp4_v_t[14]" output="PLB.o_sp4_v_b[27]" />
+  <direct name="sp4_v_t[15]" input="PLB.i_sp4_v_t[15]" output="PLB.o_sp4_v_b[26]" />
+  <direct name="sp4_v_t[16]" input="PLB.i_sp4_v_t[16]" output="PLB.o_sp4_v_b[29]" />
+  <direct name="sp4_v_t[17]" input="PLB.i_sp4_v_t[17]" output="PLB.o_sp4_v_b[28]" />
+  <direct name="sp4_v_t[18]" input="PLB.i_sp4_v_t[18]" output="PLB.o_sp4_v_b[31]" />
+  <direct name="sp4_v_t[19]" input="PLB.i_sp4_v_t[19]" output="PLB.o_sp4_v_b[30]" />
+  <direct name="sp4_v_t[20]" input="PLB.i_sp4_v_t[20]" output="PLB.o_sp4_v_b[33]" />
+  <direct name="sp4_v_t[21]" input="PLB.i_sp4_v_t[21]" output="PLB.o_sp4_v_b[32]" />
+  <direct name="sp4_v_t[22]" input="PLB.i_sp4_v_t[22]" output="PLB.o_sp4_v_b[35]" />
+  <direct name="sp4_v_t[23]" input="PLB.i_sp4_v_t[23]" output="PLB.o_sp4_v_b[34]" />
+  <direct name="sp4_v_t[24]" input="PLB.i_sp4_v_t[24]" output="PLB.o_sp4_v_b[37]" />
+  <direct name="sp4_v_t[25]" input="PLB.i_sp4_v_t[25]" output="PLB.o_sp4_v_b[36]" />
+  <direct name="sp4_v_t[26]" input="PLB.i_sp4_v_t[26]" output="PLB.o_sp4_v_b[39]" />
+  <direct name="sp4_v_t[27]" input="PLB.i_sp4_v_t[27]" output="PLB.o_sp4_v_b[38]" />
+  <direct name="sp4_v_t[28]" input="PLB.i_sp4_v_t[28]" output="PLB.o_sp4_v_b[41]" />
+  <direct name="sp4_v_t[29]" input="PLB.i_sp4_v_t[29]" output="PLB.o_sp4_v_b[40]" />
+  <direct name="sp4_v_t[30]" input="PLB.i_sp4_v_t[30]" output="PLB.o_sp4_v_b[43]" />
+  <direct name="sp4_v_t[31]" input="PLB.i_sp4_v_t[31]" output="PLB.o_sp4_v_b[42]" />
+  <direct name="sp4_v_t[32]" input="PLB.i_sp4_v_t[32]" output="PLB.o_sp4_v_b[45]" />
+  <direct name="sp4_v_t[33]" input="PLB.i_sp4_v_t[33]" output="PLB.o_sp4_v_b[44]" />
+  <direct name="sp4_v_t[34]" input="PLB.i_sp4_v_t[34]" output="PLB.o_sp4_v_b[47]" />
+  <direct name="sp4_v_t[35]" input="PLB.i_sp4_v_t[35]" output="PLB.o_sp4_v_b[46]" />
+  <!--
+  <direct name="sp4_v_t[36]" input="PLB.i_sp4_v_t[36]" output="PLB.o_sp4_v_b[  ]" />
+  <direct name="sp4_v_t[37]" input="PLB.i_sp4_v_t[37]" output="PLB.o_sp4_v_b[  ]" />
+  <direct name="sp4_v_t[38]" input="PLB.i_sp4_v_t[38]" output="PLB.o_sp4_v_b[  ]" />
+  <direct name="sp4_v_t[39]" input="PLB.i_sp4_v_t[39]" output="PLB.o_sp4_v_b[  ]" />
+  <direct name="sp4_v_t[40]" input="PLB.i_sp4_v_t[40]" output="PLB.o_sp4_v_b[  ]" />
+  <direct name="sp4_v_t[41]" input="PLB.i_sp4_v_t[41]" output="PLB.o_sp4_v_b[  ]" />
+  <direct name="sp4_v_t[42]" input="PLB.i_sp4_v_t[42]" output="PLB.o_sp4_v_b[  ]" />
+  <direct name="sp4_v_t[43]" input="PLB.i_sp4_v_t[43]" output="PLB.o_sp4_v_b[  ]" />
+  <direct name="sp4_v_t[44]" input="PLB.i_sp4_v_t[44]" output="PLB.o_sp4_v_b[  ]" />
+  <direct name="sp4_v_t[45]" input="PLB.i_sp4_v_t[45]" output="PLB.o_sp4_v_b[  ]" />
+  <direct name="sp4_v_t[46]" input="PLB.i_sp4_v_t[46]" output="PLB.o_sp4_v_b[  ]" />
+  <direct name="sp4_v_t[47]" input="PLB.i_sp4_v_t[47]" output="PLB.o_sp4_v_b[  ]" />
+   -->
+
+  <!-- Span-12 Vertical -->
+  <!-- ================================================================ -->
+  <!--
+  <direct name="sp12_v_b[0]"  input="PLB.i_sp12_v_t[  ]" output="PLB.o_sp12_v_b[1]"  />
+  <direct name="sp12_v_b[1]"  input="PLB.i_sp12_v_t[  ]" output="PLB.o_sp12_v_b[0]"  />
+   -->
+  <direct name="sp12_v_t[0]"  input="PLB.i_sp12_v_t[0]"  output="PLB.o_sp12_v_b[3]"  />
+  <direct name="sp12_v_t[1]"  input="PLB.i_sp12_v_t[1]"  output="PLB.o_sp12_v_b[2]"  />
+  <direct name="sp12_v_t[2]"  input="PLB.i_sp12_v_t[2]"  output="PLB.o_sp12_v_b[5]"  />
+  <direct name="sp12_v_t[3]"  input="PLB.i_sp12_v_t[3]"  output="PLB.o_sp12_v_b[4]"  />
+  <direct name="sp12_v_t[4]"  input="PLB.i_sp12_v_t[4]"  output="PLB.o_sp12_v_b[7]"  />
+  <direct name="sp12_v_t[5]"  input="PLB.i_sp12_v_t[5]"  output="PLB.o_sp12_v_b[6]"  />
+  <direct name="sp12_v_t[6]"  input="PLB.i_sp12_v_t[6]"  output="PLB.o_sp12_v_b[9]"  />
+  <direct name="sp12_v_t[7]"  input="PLB.i_sp12_v_t[7]"  output="PLB.o_sp12_v_b[8]"  />
+  <direct name="sp12_v_t[8]"  input="PLB.i_sp12_v_t[8]"  output="PLB.o_sp12_v_b[11]" />
+  <direct name="sp12_v_t[9]"  input="PLB.i_sp12_v_t[9]"  output="PLB.o_sp12_v_b[10]" />
+  <direct name="sp12_v_t[10]" input="PLB.i_sp12_v_t[10]" output="PLB.o_sp12_v_b[13]" />
+  <direct name="sp12_v_t[11]" input="PLB.i_sp12_v_t[11]" output="PLB.o_sp12_v_b[12]" />
+  <direct name="sp12_v_t[12]" input="PLB.i_sp12_v_t[12]" output="PLB.o_sp12_v_b[15]" />
+  <direct name="sp12_v_t[13]" input="PLB.i_sp12_v_t[13]" output="PLB.o_sp12_v_b[14]" />
+  <direct name="sp12_v_t[14]" input="PLB.i_sp12_v_t[14]" output="PLB.o_sp12_v_b[17]" />
+  <direct name="sp12_v_t[15]" input="PLB.i_sp12_v_t[15]" output="PLB.o_sp12_v_b[16]" />
+  <direct name="sp12_v_t[16]" input="PLB.i_sp12_v_t[16]" output="PLB.o_sp12_v_b[19]" />
+  <direct name="sp12_v_t[17]" input="PLB.i_sp12_v_t[17]" output="PLB.o_sp12_v_b[18]" />
+  <direct name="sp12_v_t[18]" input="PLB.i_sp12_v_t[18]" output="PLB.o_sp12_v_b[21]" />
+  <direct name="sp12_v_t[19]" input="PLB.i_sp12_v_t[19]" output="PLB.o_sp12_v_b[20]" />
+  <direct name="sp12_v_t[20]" input="PLB.i_sp12_v_t[20]" output="PLB.o_sp12_v_b[23]" />
+  <direct name="sp12_v_t[21]" input="PLB.i_sp12_v_t[21]" output="PLB.o_sp12_v_b[22]" />
+  <!--
+  <direct name="sp12_v_t[22]" input="PLB.i_sp12_v_t[22]" output="PLB.o_sp12_v_b[  ]" />
+  <direct name="sp12_v_t[23]" input="PLB.i_sp12_v_t[23]" output="PLB.o_sp12_v_b[  ]" />
+   -->
+
+  <!-- ################################################################ -->
+
+  <!-- Span-4 Horizontal -->
+  <!-- ================================================================ -->
+  <!--
+  <direct name="sp4_h_r[0]"  input="PLB.i_sp4_h_l[  ]" output="PLB.o_sp4_h_r[1]"  />
+  <direct name="sp4_h_r[1]"  input="PLB.i_sp4_h_l[  ]" output="PLB.o_sp4_h_r[0]"  />
+  <direct name="sp4_h_r[2]"  input="PLB.i_sp4_h_l[  ]" output="PLB.o_sp4_h_r[3]"  />
+  <direct name="sp4_h_r[3]"  input="PLB.i_sp4_h_l[  ]" output="PLB.o_sp4_h_r[2]"  />
+  <direct name="sp4_h_r[4]"  input="PLB.i_sp4_h_l[  ]" output="PLB.o_sp4_h_r[5]"  />
+  <direct name="sp4_h_r[5]"  input="PLB.i_sp4_h_l[  ]" output="PLB.o_sp4_h_r[4]"  />
+  <direct name="sp4_h_r[6]"  input="PLB.i_sp4_h_l[  ]" output="PLB.o_sp4_h_r[7]"  />
+  <direct name="sp4_h_r[7]"  input="PLB.i_sp4_h_l[  ]" output="PLB.o_sp4_h_r[6]"  />
+  <direct name="sp4_h_r[8]"  input="PLB.i_sp4_h_l[  ]" output="PLB.o_sp4_h_r[9]"  />
+  <direct name="sp4_h_r[9]"  input="PLB.i_sp4_h_l[  ]" output="PLB.o_sp4_h_r[8]"  />
+  <direct name="sp4_h_r[10]" input="PLB.i_sp4_h_l[  ]" output="PLB.o_sp4_h_r[11]" />
+  <direct name="sp4_h_r[11]" input="PLB.i_sp4_h_l[  ]" output="PLB.o_sp4_h_r[10]" />
+   -->
+  <direct name="sp4_h_l[0]"  input="PLB.i_sp4_h_l[0]"  output="PLB.o_sp4_h_r[13]" />
+  <direct name="sp4_h_l[1]"  input="PLB.i_sp4_h_l[1]"  output="PLB.o_sp4_h_r[12]" />
+  <direct name="sp4_h_l[2]"  input="PLB.i_sp4_h_l[2]"  output="PLB.o_sp4_h_r[15]" />
+  <direct name="sp4_h_l[3]"  input="PLB.i_sp4_h_l[3]"  output="PLB.o_sp4_h_r[14]" />
+  <direct name="sp4_h_l[4]"  input="PLB.i_sp4_h_l[4]"  output="PLB.o_sp4_h_r[17]" />
+  <direct name="sp4_h_l[5]"  input="PLB.i_sp4_h_l[5]"  output="PLB.o_sp4_h_r[16]" />
+  <direct name="sp4_h_l[6]"  input="PLB.i_sp4_h_l[6]"  output="PLB.o_sp4_h_r[19]" />
+  <direct name="sp4_h_l[7]"  input="PLB.i_sp4_h_l[7]"  output="PLB.o_sp4_h_r[18]" />
+  <direct name="sp4_h_l[8]"  input="PLB.i_sp4_h_l[8]"  output="PLB.o_sp4_h_r[21]" />
+  <direct name="sp4_h_l[9]"  input="PLB.i_sp4_h_l[9]"  output="PLB.o_sp4_h_r[20]" />
+  <direct name="sp4_h_l[10]" input="PLB.i_sp4_h_l[10]" output="PLB.o_sp4_h_r[23]" />
+  <direct name="sp4_h_l[11]" input="PLB.i_sp4_h_l[11]" output="PLB.o_sp4_h_r[22]" />
+  <direct name="sp4_h_l[12]" input="PLB.i_sp4_h_l[12]" output="PLB.o_sp4_h_r[25]" />
+  <direct name="sp4_h_l[13]" input="PLB.i_sp4_h_l[13]" output="PLB.o_sp4_h_r[24]" />
+  <direct name="sp4_h_l[14]" input="PLB.i_sp4_h_l[14]" output="PLB.o_sp4_h_r[27]" />
+  <direct name="sp4_h_l[15]" input="PLB.i_sp4_h_l[15]" output="PLB.o_sp4_h_r[26]" />
+  <direct name="sp4_h_l[16]" input="PLB.i_sp4_h_l[16]" output="PLB.o_sp4_h_r[29]" />
+  <direct name="sp4_h_l[17]" input="PLB.i_sp4_h_l[17]" output="PLB.o_sp4_h_r[28]" />
+  <direct name="sp4_h_l[18]" input="PLB.i_sp4_h_l[18]" output="PLB.o_sp4_h_r[31]" />
+  <direct name="sp4_h_l[19]" input="PLB.i_sp4_h_l[19]" output="PLB.o_sp4_h_r[30]" />
+  <direct name="sp4_h_l[20]" input="PLB.i_sp4_h_l[20]" output="PLB.o_sp4_h_r[33]" />
+  <direct name="sp4_h_l[21]" input="PLB.i_sp4_h_l[21]" output="PLB.o_sp4_h_r[32]" />
+  <direct name="sp4_h_l[22]" input="PLB.i_sp4_h_l[22]" output="PLB.o_sp4_h_r[35]" />
+  <direct name="sp4_h_l[23]" input="PLB.i_sp4_h_l[23]" output="PLB.o_sp4_h_r[34]" />
+  <direct name="sp4_h_l[24]" input="PLB.i_sp4_h_l[24]" output="PLB.o_sp4_h_r[37]" />
+  <direct name="sp4_h_l[25]" input="PLB.i_sp4_h_l[25]" output="PLB.o_sp4_h_r[36]" />
+  <direct name="sp4_h_l[26]" input="PLB.i_sp4_h_l[26]" output="PLB.o_sp4_h_r[39]" />
+  <direct name="sp4_h_l[27]" input="PLB.i_sp4_h_l[27]" output="PLB.o_sp4_h_r[38]" />
+  <direct name="sp4_h_l[28]" input="PLB.i_sp4_h_l[28]" output="PLB.o_sp4_h_r[41]" />
+  <direct name="sp4_h_l[29]" input="PLB.i_sp4_h_l[29]" output="PLB.o_sp4_h_r[40]" />
+  <direct name="sp4_h_l[30]" input="PLB.i_sp4_h_l[30]" output="PLB.o_sp4_h_r[43]" />
+  <direct name="sp4_h_l[31]" input="PLB.i_sp4_h_l[31]" output="PLB.o_sp4_h_r[42]" />
+  <direct name="sp4_h_l[32]" input="PLB.i_sp4_h_l[32]" output="PLB.o_sp4_h_r[45]" />
+  <direct name="sp4_h_l[33]" input="PLB.i_sp4_h_l[33]" output="PLB.o_sp4_h_r[44]" />
+  <direct name="sp4_h_l[34]" input="PLB.i_sp4_h_l[34]" output="PLB.o_sp4_h_r[47]" />
+  <direct name="sp4_h_l[35]" input="PLB.i_sp4_h_l[35]" output="PLB.o_sp4_h_r[46]" />
+  <!--
+  <direct name="sp4_h_l[36]" input="PLB.i_sp4_h_l[36]" output="PLB.o_sp4_h_r[  ]" />
+  <direct name="sp4_h_l[37]" input="PLB.i_sp4_h_l[37]" output="PLB.o_sp4_h_r[  ]" />
+  <direct name="sp4_h_l[38]" input="PLB.i_sp4_h_l[38]" output="PLB.o_sp4_h_r[  ]" />
+  <direct name="sp4_h_l[39]" input="PLB.i_sp4_h_l[39]" output="PLB.o_sp4_h_r[  ]" />
+  <direct name="sp4_h_l[40]" input="PLB.i_sp4_h_l[40]" output="PLB.o_sp4_h_r[  ]" />
+  <direct name="sp4_h_l[41]" input="PLB.i_sp4_h_l[41]" output="PLB.o_sp4_h_r[  ]" />
+  <direct name="sp4_h_l[42]" input="PLB.i_sp4_h_l[42]" output="PLB.o_sp4_h_r[  ]" />
+  <direct name="sp4_h_l[43]" input="PLB.i_sp4_h_l[43]" output="PLB.o_sp4_h_r[  ]" />
+  <direct name="sp4_h_l[44]" input="PLB.i_sp4_h_l[44]" output="PLB.o_sp4_h_r[  ]" />
+  <direct name="sp4_h_l[45]" input="PLB.i_sp4_h_l[45]" output="PLB.o_sp4_h_r[  ]" />
+  <direct name="sp4_h_l[46]" input="PLB.i_sp4_h_l[46]" output="PLB.o_sp4_h_r[  ]" />
+  <direct name="sp4_h_l[47]" input="PLB.i_sp4_h_l[47]" output="PLB.o_sp4_h_r[  ]" />
+   -->
+
+  <!-- ################################################################ -->
+
+  <!-- Span-12 Horizontal -->
+  <!-- ================================================================ -->
+  <!--
+  <direct name="sp12_h_r[0]"  input="PLB.i_sp12_h_l[  ]" output="PLB.o_sp12_h_r[1]"  />
+  <direct name="sp12_h_r[1]"  input="PLB.i_sp12_h_l[  ]" output="PLB.o_sp12_h_r[0]"  />
+   -->
+  <direct name="sp12_h_l[0]"  input="PLB.i_sp12_h_l[0]"  output="PLB.o_sp12_h_r[3]"  />
+  <direct name="sp12_h_l[1]"  input="PLB.i_sp12_h_l[1]"  output="PLB.o_sp12_h_r[2]"  />
+  <direct name="sp12_h_l[2]"  input="PLB.i_sp12_h_l[2]"  output="PLB.o_sp12_h_r[5]"  />
+  <direct name="sp12_h_l[3]"  input="PLB.i_sp12_h_l[3]"  output="PLB.o_sp12_h_r[4]"  />
+  <direct name="sp12_h_l[4]"  input="PLB.i_sp12_h_l[4]"  output="PLB.o_sp12_h_r[7]"  />
+  <direct name="sp12_h_l[5]"  input="PLB.i_sp12_h_l[5]"  output="PLB.o_sp12_h_r[6]"  />
+  <direct name="sp12_h_l[6]"  input="PLB.i_sp12_h_l[6]"  output="PLB.o_sp12_h_r[9]"  />
+  <direct name="sp12_h_l[7]"  input="PLB.i_sp12_h_l[7]"  output="PLB.o_sp12_h_r[8]"  />
+  <direct name="sp12_h_l[8]"  input="PLB.i_sp12_h_l[8]"  output="PLB.o_sp12_h_r[11]" />
+  <direct name="sp12_h_l[9]"  input="PLB.i_sp12_h_l[9]"  output="PLB.o_sp12_h_r[10]" />
+  <direct name="sp12_h_l[10]" input="PLB.i_sp12_h_l[10]" output="PLB.o_sp12_h_r[13]" />
+  <direct name="sp12_h_l[11]" input="PLB.i_sp12_h_l[11]" output="PLB.o_sp12_h_r[12]" />
+  <direct name="sp12_h_l[12]" input="PLB.i_sp12_h_l[12]" output="PLB.o_sp12_h_r[15]" />
+  <direct name="sp12_h_l[13]" input="PLB.i_sp12_h_l[13]" output="PLB.o_sp12_h_r[14]" />
+  <direct name="sp12_h_l[14]" input="PLB.i_sp12_h_l[14]" output="PLB.o_sp12_h_r[17]" />
+  <direct name="sp12_h_l[15]" input="PLB.i_sp12_h_l[15]" output="PLB.o_sp12_h_r[16]" />
+  <direct name="sp12_h_l[16]" input="PLB.i_sp12_h_l[16]" output="PLB.o_sp12_h_r[19]" />
+  <direct name="sp12_h_l[17]" input="PLB.i_sp12_h_l[17]" output="PLB.o_sp12_h_r[18]" />
+  <direct name="sp12_h_l[18]" input="PLB.i_sp12_h_l[18]" output="PLB.o_sp12_h_r[21]" />
+  <direct name="sp12_h_l[19]" input="PLB.i_sp12_h_l[19]" output="PLB.o_sp12_h_r[20]" />
+  <direct name="sp12_h_l[20]" input="PLB.i_sp12_h_l[20]" output="PLB.o_sp12_h_r[23]" />
+  <direct name="sp12_h_l[21]" input="PLB.i_sp12_h_l[21]" output="PLB.o_sp12_h_r[22]" />
+  <!--
+  <direct name="sp12_h_l[22]" input="PLB.i_sp12_h_l[22]" output="PLB.o_sp12_h_r[  ]" />
+  <direct name="sp12_h_l[23]" input="PLB.i_sp12_h_l[23]" output="PLB.o_sp12_h_r[  ]" />
+   -->
+
+  <!-- ################################################################ -->
+  <!-- # Internal Logic tracks                                        # -->
+  <!-- ################################################################ -->
+  <!-- Carry chain -->
+  <direct name="carry_in" input="PLB.carry_in"   output="carry_in_mux.i"><pack_pattern name="CARRYCHAIN" in_port="PLB.carry_in"   out_port="carry_in_mux.i" /></direct>
+  <direct name="carry[0]" input="carry_in_mux.o" output="lutff[0].cin"  ><pack_pattern name="CARRYCHAIN" in_port="carry_in_mux.o" out_port="lutff[0].cin"   /></direct>
+  <direct name="carry[1]" input="lutff[0].cout"  output="lutff[1].cin"  ><pack_pattern name="CARRYCHAIN" in_port="lutff[0].cout"  out_port="lutff[1].cin"   /></direct>
+  <direct name="carry[2]" input="lutff[1].cout"  output="lutff[2].cin"  ><pack_pattern name="CARRYCHAIN" in_port="lutff[1].cout"  out_port="lutff[2].cin"   /></direct>
+  <direct name="carry[3]" input="lutff[2].cout"  output="lutff[3].cin"  ><pack_pattern name="CARRYCHAIN" in_port="lutff[2].cout"  out_port="lutff[3].cin"   /></direct>
+  <direct name="carry[4]" input="lutff[3].cout"  output="lutff[4].cin"  ><pack_pattern name="CARRYCHAIN" in_port="lutff[3].cout"  out_port="lutff[4].cin"   /></direct>
+  <direct name="carry[5]" input="lutff[4].cout"  output="lutff[5].cin"  ><pack_pattern name="CARRYCHAIN" in_port="lutff[4].cout"  out_port="lutff[5].cin"   /></direct>
+  <direct name="carry[6]" input="lutff[5].cout"  output="lutff[6].cin"  ><pack_pattern name="CARRYCHAIN" in_port="lutff[5].cout"  out_port="lutff[6].cin"   /></direct>
+  <direct name="carry[7]" input="lutff[6].cout"  output="lutff[7].cin"  ><pack_pattern name="CARRYCHAIN" in_port="lutff[6].cout"  out_port="lutff[7].cin"   /></direct>
+  <direct name="carry[X]" input="lutff[7].cout"  output="PLB.carry_out" ><pack_pattern name="CARRYCHAIN" in_port="lutff[7].cout"  out_port="PLB.carry_out"  /></direct>
+
+  <!-- Logic Unit 0 inputs -->
+  <mux name="lutff[0].in[0]"     input="local_g[0].o[0] local_g[2].o[0] local_g[1].o[1] local_g[3].o[1] local_g[0].o[2] local_g[2].o[2] local_g[1].o[3] local_g[3].o[3] local_g[0].o[4] local_g[2].o[4] local_g[1].o[5] local_g[3].o[5] local_g[0].o[6] local_g[2].o[6] local_g[1].o[7] local_g[3].o[7]              " output="lutff[0].in[0]" />
+  <mux name="lutff[0].in[1]"     input="local_g[0].o[1] local_g[0].o[3] local_g[0].o[5] local_g[0].o[7] local_g[2].o[1] local_g[2].o[3] local_g[2].o[5] local_g[2].o[7] local_g[1].o[0] local_g[1].o[2] local_g[1].o[4] local_g[1].o[6] local_g[3].o[0] local_g[3].o[2] local_g[3].o[4] local_g[3].o[6]              " output="lutff[0].in[1]" />
+  <mux name="lutff[0].in[2]"     input="local_g[0].o[0] local_g[0].o[2] local_g[1].o[1] local_g[1].o[3] local_g[2].o[0] local_g[2].o[2] local_g[3].o[1] local_g[3].o[3] local_g[0].o[4] local_g[0].o[6] local_g[1].o[5] local_g[1].o[7] local_g[2].o[4] local_g[2].o[6] local_g[3].o[5] local_g[3].o[7]              " output="lutff[0].in[2]" />
+  <mux name="lutff[0].in[3]"     input="carry_in_mux.o  local_g[0].o[3] local_g[1].o[0] local_g[1].o[2] local_g[2].o[1] local_g[2].o[3] local_g[3].o[0] local_g[3].o[2] local_g[0].o[5] local_g[0].o[7] local_g[1].o[4] local_g[1].o[6] local_g[2].o[5] local_g[2].o[7] local_g[3].o[4] local_g[3].o[6]              " output="lutff[0].in[3]" />
+  <!-- Logic Unit 1 inputs -->
+  <mux name="lutff[1].in[0]"     input="local_g[0].o[1] local_g[2].o[1] local_g[1].o[0] local_g[3].o[0] local_g[0].o[3] local_g[2].o[3] local_g[1].o[2] local_g[3].o[2] local_g[0].o[5] local_g[2].o[5] local_g[1].o[4] local_g[3].o[4] local_g[0].o[7] local_g[2].o[7] local_g[1].o[6] local_g[3].o[6]              " output="lutff[1].in[0]" />
+  <mux name="lutff[1].in[1]"     input="local_g[0].o[0] local_g[0].o[2] local_g[0].o[4] local_g[0].o[6] local_g[2].o[0] local_g[2].o[2] local_g[2].o[4] local_g[2].o[6] local_g[1].o[1] local_g[1].o[3] local_g[1].o[5] local_g[1].o[7] local_g[3].o[1] local_g[3].o[3] local_g[3].o[5] local_g[3].o[7]              " output="lutff[1].in[1]" />
+  <mux name="lutff[1].in[2]"     input="local_g[0].o[1] local_g[0].o[3] local_g[1].o[0] local_g[1].o[2] local_g[2].o[1] local_g[2].o[3] local_g[3].o[0] local_g[3].o[2] local_g[0].o[5] local_g[0].o[7] local_g[1].o[4] local_g[1].o[6] local_g[2].o[5] local_g[2].o[7] local_g[3].o[4] local_g[3].o[6] lutff[0].lout" output="lutff[1].in[2]" />
+  <mux name="lutff[1].in[3]"     input="lutff[0].cout   local_g[0].o[2] local_g[1].o[1] local_g[1].o[3] local_g[2].o[0] local_g[2].o[2] local_g[3].o[1] local_g[3].o[3] local_g[0].o[4] local_g[0].o[6] local_g[1].o[5] local_g[1].o[7] local_g[2].o[4] local_g[2].o[6] local_g[3].o[5] local_g[3].o[7]              " output="lutff[1].in[3]" />
+  <!-- Logic Unit 2 inputs -->
+  <mux name="lutff[2].in[0]"     input="local_g[0].o[0] local_g[2].o[0] local_g[1].o[1] local_g[3].o[1] local_g[0].o[2] local_g[2].o[2] local_g[1].o[3] local_g[3].o[3] local_g[0].o[4] local_g[2].o[4] local_g[1].o[5] local_g[3].o[5] local_g[0].o[6] local_g[2].o[6] local_g[1].o[7] local_g[3].o[7]              " output="lutff[2].in[0]" />
+  <mux name="lutff[2].in[1]"     input="local_g[0].o[1] local_g[0].o[3] local_g[0].o[5] local_g[0].o[7] local_g[2].o[1] local_g[2].o[3] local_g[2].o[5] local_g[2].o[7] local_g[1].o[0] local_g[1].o[2] local_g[1].o[4] local_g[1].o[6] local_g[3].o[0] local_g[3].o[2] local_g[3].o[4] local_g[3].o[6]              " output="lutff[2].in[1]" />
+  <mux name="lutff[2].in[2]"     input="local_g[0].o[0] local_g[0].o[2] local_g[1].o[1] local_g[1].o[3] local_g[2].o[0] local_g[2].o[2] local_g[3].o[1] local_g[3].o[3] local_g[0].o[4] local_g[0].o[6] local_g[1].o[5] local_g[1].o[7] local_g[2].o[4] local_g[2].o[6] local_g[3].o[5] local_g[3].o[7] lutff[1].lout" output="lutff[2].in[2]" />
+  <mux name="lutff[2].in[3]"     input="lutff[1].cout   local_g[0].o[3] local_g[1].o[0] local_g[1].o[2] local_g[2].o[1] local_g[2].o[3] local_g[3].o[0] local_g[3].o[2] local_g[0].o[5] local_g[0].o[7] local_g[1].o[4] local_g[1].o[6] local_g[2].o[5] local_g[2].o[7] local_g[3].o[4] local_g[3].o[6]              " output="lutff[2].in[3]" />
+  <!-- Logic Unit 3 inputs -->
+  <mux name="lutff[3].in[0]"     input="local_g[0].o[1] local_g[2].o[1] local_g[1].o[0] local_g[3].o[0] local_g[0].o[3] local_g[2].o[3] local_g[1].o[2] local_g[3].o[2] local_g[0].o[5] local_g[2].o[5] local_g[1].o[4] local_g[3].o[4] local_g[0].o[7] local_g[2].o[7] local_g[1].o[6] local_g[3].o[6]              " output="lutff[3].in[0]" />
+  <mux name="lutff[3].in[1]"     input="local_g[0].o[0] local_g[0].o[2] local_g[0].o[4] local_g[0].o[6] local_g[2].o[0] local_g[2].o[2] local_g[2].o[4] local_g[2].o[6] local_g[1].o[1] local_g[1].o[3] local_g[1].o[5] local_g[1].o[7] local_g[3].o[1] local_g[3].o[3] local_g[3].o[5] local_g[3].o[7]              " output="lutff[3].in[1]" />
+  <mux name="lutff[3].in[2]"     input="local_g[0].o[1] local_g[0].o[3] local_g[1].o[0] local_g[1].o[2] local_g[2].o[1] local_g[2].o[3] local_g[3].o[0] local_g[3].o[2] local_g[0].o[5] local_g[0].o[7] local_g[1].o[4] local_g[1].o[6] local_g[2].o[5] local_g[2].o[7] local_g[3].o[4] local_g[3].o[6] lutff[2].lout" output="lutff[3].in[2]" />
+  <mux name="lutff[3].in[3]"     input="lutff[2].cout   local_g[0].o[2] local_g[1].o[1] local_g[1].o[3] local_g[2].o[0] local_g[2].o[2] local_g[3].o[1] local_g[3].o[3] local_g[0].o[4] local_g[0].o[6] local_g[1].o[5] local_g[1].o[7] local_g[2].o[4] local_g[2].o[6] local_g[3].o[5] local_g[3].o[7]              " output="lutff[3].in[3]" />
+  <!-- Logic Unit 4 inputs -->
+  <mux name="lutff[4].in[0]"     input="local_g[0].o[0] local_g[2].o[0] local_g[1].o[1] local_g[3].o[1] local_g[0].o[2] local_g[2].o[2] local_g[1].o[3] local_g[3].o[3] local_g[0].o[4] local_g[2].o[4] local_g[1].o[5] local_g[3].o[5] local_g[0].o[6] local_g[2].o[6] local_g[1].o[7] local_g[3].o[7]              " output="lutff[4].in[0]" />
+  <mux name="lutff[4].in[1]"     input="local_g[0].o[1] local_g[0].o[3] local_g[0].o[5] local_g[0].o[7] local_g[2].o[1] local_g[2].o[3] local_g[2].o[5] local_g[2].o[7] local_g[1].o[0] local_g[1].o[2] local_g[1].o[4] local_g[1].o[6] local_g[3].o[0] local_g[3].o[2] local_g[3].o[4] local_g[3].o[6]              " output="lutff[4].in[1]" />
+  <mux name="lutff[4].in[2]"     input="local_g[0].o[0] local_g[0].o[2] local_g[1].o[1] local_g[1].o[3] local_g[2].o[0] local_g[2].o[2] local_g[3].o[1] local_g[3].o[3] local_g[0].o[4] local_g[0].o[6] local_g[1].o[5] local_g[1].o[7] local_g[2].o[4] local_g[2].o[6] local_g[3].o[5] local_g[3].o[7] lutff[3].lout" output="lutff[4].in[2]" />
+  <mux name="lutff[4].in[3]"     input="lutff[3].cout   local_g[0].o[3] local_g[1].o[0] local_g[1].o[2] local_g[2].o[1] local_g[2].o[3] local_g[3].o[0] local_g[3].o[2] local_g[0].o[5] local_g[0].o[7] local_g[1].o[4] local_g[1].o[6] local_g[2].o[5] local_g[2].o[7] local_g[3].o[4] local_g[3].o[6]              " output="lutff[4].in[3]" />
+  <!-- Logic Unit 5 inputs -->
+  <mux name="lutff[5].in[0]"     input="local_g[0].o[1] local_g[2].o[1] local_g[1].o[0] local_g[3].o[0] local_g[0].o[3] local_g[2].o[3] local_g[1].o[2] local_g[3].o[2] local_g[0].o[5] local_g[2].o[5] local_g[1].o[4] local_g[3].o[4] local_g[0].o[7] local_g[2].o[7] local_g[1].o[6] local_g[3].o[6]              " output="lutff[5].in[0]" />
+  <mux name="lutff[5].in[1]"     input="local_g[0].o[0] local_g[0].o[2] local_g[0].o[4] local_g[0].o[6] local_g[2].o[0] local_g[2].o[2] local_g[2].o[4] local_g[2].o[6] local_g[1].o[1] local_g[1].o[3] local_g[1].o[5] local_g[1].o[7] local_g[3].o[1] local_g[3].o[3] local_g[3].o[5] local_g[3].o[7]              " output="lutff[5].in[1]" />
+  <mux name="lutff[5].in[2]"     input="local_g[0].o[1] local_g[0].o[3] local_g[1].o[0] local_g[1].o[2] local_g[2].o[1] local_g[2].o[3] local_g[3].o[0] local_g[3].o[2] local_g[0].o[5] local_g[0].o[7] local_g[1].o[4] local_g[1].o[6] local_g[2].o[5] local_g[2].o[7] local_g[3].o[4] local_g[3].o[6]              " output="lutff[5].in[2]" />
+  <mux name="lutff[5].in[3]"     input="lutff[4].cout   local_g[0].o[2] local_g[1].o[1] local_g[1].o[3] local_g[2].o[0] local_g[2].o[2] local_g[3].o[1] local_g[3].o[3] local_g[0].o[4] local_g[0].o[6] local_g[1].o[5] local_g[1].o[7] local_g[2].o[4] local_g[2].o[6] local_g[3].o[5] local_g[3].o[7]              " output="lutff[5].in[3]" />
+  <!-- Logic Unit 6 inputs -->
+  <mux name="lutff[6].in[0]"     input="local_g[0].o[0] local_g[2].o[0] local_g[1].o[1] local_g[3].o[1] local_g[0].o[2] local_g[2].o[2] local_g[1].o[3] local_g[3].o[3] local_g[0].o[4] local_g[2].o[4] local_g[1].o[5] local_g[3].o[5] local_g[0].o[6] local_g[2].o[6] local_g[1].o[7] local_g[3].o[7]              " output="lutff[6].in[0]" />
+  <mux name="lutff[6].in[1]"     input="local_g[0].o[1] local_g[0].o[3] local_g[0].o[5] local_g[0].o[7] local_g[2].o[1] local_g[2].o[3] local_g[2].o[5] local_g[2].o[7] local_g[1].o[0] local_g[1].o[2] local_g[1].o[4] local_g[1].o[6] local_g[3].o[0] local_g[3].o[2] local_g[3].o[4] local_g[3].o[6]              " output="lutff[6].in[1]" />
+  <mux name="lutff[6].in[2]"     input="local_g[0].o[0] local_g[0].o[2] local_g[1].o[1] local_g[1].o[3] local_g[2].o[0] local_g[2].o[2] local_g[3].o[1] local_g[3].o[3] local_g[0].o[4] local_g[0].o[6] local_g[1].o[5] local_g[1].o[7] local_g[2].o[4] local_g[2].o[6] local_g[3].o[5] local_g[3].o[7] lutff[5].lout" output="lutff[6].in[2]" />
+  <mux name="lutff[6].in[3]"     input="lutff[5].cout   local_g[0].o[3] local_g[1].o[0] local_g[1].o[2] local_g[2].o[1] local_g[2].o[3] local_g[3].o[0] local_g[3].o[2] local_g[0].o[5] local_g[0].o[7] local_g[1].o[4] local_g[1].o[6] local_g[2].o[5] local_g[2].o[7] local_g[3].o[4] local_g[3].o[6]              " output="lutff[6].in[3]" />
+  <!-- Logic Unit 7 inputs -->
+  <mux name="lutff[7].in[0]"     input="local_g[0].o[1] local_g[2].o[1] local_g[1].o[0] local_g[3].o[0] local_g[0].o[3] local_g[2].o[3] local_g[1].o[2] local_g[3].o[2] local_g[0].o[5] local_g[2].o[5] local_g[1].o[4] local_g[3].o[4] local_g[0].o[7] local_g[2].o[7] local_g[1].o[6] local_g[3].o[6]              " output="lutff[7].in[0]" />
+  <mux name="lutff[7].in[1]"     input="local_g[0].o[0] local_g[0].o[2] local_g[0].o[4] local_g[0].o[6] local_g[2].o[0] local_g[2].o[2] local_g[2].o[4] local_g[2].o[6] local_g[1].o[1] local_g[1].o[3] local_g[1].o[5] local_g[1].o[7] local_g[3].o[1] local_g[3].o[3] local_g[3].o[5] local_g[3].o[7]              " output="lutff[7].in[1]" />
+  <mux name="lutff[7].in[2]"     input="local_g[0].o[1] local_g[0].o[3] local_g[1].o[0] local_g[1].o[2] local_g[2].o[1] local_g[2].o[3] local_g[3].o[0] local_g[3].o[2] local_g[0].o[5] local_g[0].o[7] local_g[1].o[4] local_g[1].o[6] local_g[2].o[5] local_g[2].o[7] local_g[3].o[4] local_g[3].o[6] lutff[6].lout" output="lutff[7].in[2]" />
+  <mux name="lutff[7].in[3]"     input="lutff[6].cout   local_g[0].o[2] local_g[1].o[1] local_g[1].o[3] local_g[2].o[0] local_g[2].o[2] local_g[3].o[1] local_g[3].o[3] local_g[0].o[4] local_g[0].o[6] local_g[1].o[5] local_g[1].o[7] local_g[2].o[4] local_g[2].o[6] local_g[3].o[5] local_g[3].o[7]              " output="lutff[7].in[3]" />
+  <!-- Logic Global -->
+  <mux name="lutff_global/i_cen" input="local_g[0].o[2] local_g[1].o[3] local_g[2].o[2] local_g[3].o[3] glb_netwk[1].o glb_netwk[3].o glb_netwk[5].o glb_netwk[7].o" output="lutff_global.i_cen" />
+  <mux name="lutff_global/i_s_r" input="local_g[0].o[4] local_g[1].o[5] local_g[2].o[4] local_g[3].o[5] glb_netwk[0].o glb_netwk[2].o glb_netwk[4].o glb_netwk[6].o" output="lutff_global.i_s_r" />
+  <!--
+  <mux name="lutff_global/i_clk" input="local_g[0].o[0] local_g[1].o[1] local_g[2].o[0] local_g[3].o[1] glb_netwk[0].o glb_netwk[1].o glb_netwk[2].o glb_netwk[3].o glb_netwk[4].o glb_netwk[5].o glb_netwk[6].o glb_netwk[7].o"                                                                             output="lutff_global._clk" />
+  -->
+  <direct name="lutff_global->lutff[0].cen" input="lutff_global.o_cen" output="lutff[0].cen" />
+  <direct name="lutff_global->lutff[1].cen" input="lutff_global.o_cen" output="lutff[1].cen" />
+  <direct name="lutff_global->lutff[2].cen" input="lutff_global.o_cen" output="lutff[2].cen" />
+  <direct name="lutff_global->lutff[3].cen" input="lutff_global.o_cen" output="lutff[3].cen" />
+  <direct name="lutff_global->lutff[4].cen" input="lutff_global.o_cen" output="lutff[4].cen" />
+  <direct name="lutff_global->lutff[5].cen" input="lutff_global.o_cen" output="lutff[5].cen" />
+  <direct name="lutff_global->lutff[6].cen" input="lutff_global.o_cen" output="lutff[6].cen" />
+  <direct name="lutff_global->lutff[7].cen" input="lutff_global.o_cen" output="lutff[7].cen" />
+  <!--
+  <direct name="lutff_global->lutff[0].clk" input="lutff_global.o_clk" output="lutff[0].clk" />
+  <direct name="lutff_global->lutff[1].clk" input="lutff_global.o_clk" output="lutff[1].clk" />
+  <direct name="lutff_global->lutff[2].clk" input="lutff_global.o_clk" output="lutff[2].clk" />
+  <direct name="lutff_global->lutff[3].clk" input="lutff_global.o_clk" output="lutff[3].clk" />
+  <direct name="lutff_global->lutff[4].clk" input="lutff_global.o_clk" output="lutff[4].clk" />
+  <direct name="lutff_global->lutff[5].clk" input="lutff_global.o_clk" output="lutff[5].clk" />
+  <direct name="lutff_global->lutff[6].clk" input="lutff_global.o_clk" output="lutff[6].clk" />
+  <direct name="lutff_global->lutff[7].clk" input="lutff_global.o_clk" output="lutff[7].clk" />
+  -->
+  <direct name="lutff_global->lutff[0].clk" input="PLB.clk" output="lutff[0].clk" />
+  <direct name="lutff_global->lutff[1].clk" input="PLB.clk" output="lutff[1].clk" />
+  <direct name="lutff_global->lutff[2].clk" input="PLB.clk" output="lutff[2].clk" />
+  <direct name="lutff_global->lutff[3].clk" input="PLB.clk" output="lutff[3].clk" />
+  <direct name="lutff_global->lutff[4].clk" input="PLB.clk" output="lutff[4].clk" />
+  <direct name="lutff_global->lutff[5].clk" input="PLB.clk" output="lutff[5].clk" />
+  <direct name="lutff_global->lutff[6].clk" input="PLB.clk" output="lutff[6].clk" />
+  <direct name="lutff_global->lutff[7].clk" input="PLB.clk" output="lutff[7].clk" />
+
+  <direct name="lutff_global->lutff[0].s_r" input="lutff_global.o_s_r" output="lutff[0].s_r" />
+  <direct name="lutff_global->lutff[1].s_r" input="lutff_global.o_s_r" output="lutff[1].s_r" />
+  <direct name="lutff_global->lutff[2].s_r" input="lutff_global.o_s_r" output="lutff[2].s_r" />
+  <direct name="lutff_global->lutff[3].s_r" input="lutff_global.o_s_r" output="lutff[3].s_r" />
+  <direct name="lutff_global->lutff[4].s_r" input="lutff_global.o_s_r" output="lutff[4].s_r" />
+  <direct name="lutff_global->lutff[5].s_r" input="lutff_global.o_s_r" output="lutff[5].s_r" />
+  <direct name="lutff_global->lutff[6].s_r" input="lutff_global.o_s_r" output="lutff[6].s_r" />
+  <direct name="lutff_global->lutff[7].s_r" input="lutff_global.o_s_r" output="lutff[7].s_r" />
+ </interconnect>
+
+ <pinlocations pattern="custom">
+  <loc side="top" xoffset="0" yoffset="0">
+   PLB.clk
+
+   PLB.i_glb_netwk
+   PLB.o_glb_netwk
+
+   PLB.carry_out
+
+   PLB.o_neigh_op_tnr PLB.i_neigh_op_tnr
+   PLB.o_neigh_op_top PLB.i_neigh_op_top
+   PLB.o_neigh_op_tnl PLB.i_neigh_op_tnl
+
+   PLB.i_sp4_v_t
+   PLB.o_sp4_v_t
+   PLB.i_sp12_v_t
+   PLB.o_sp12_v_t
+  </loc>
+  <!-- ## -->
+  <loc side="right" xoffset="0" yoffset="0">
+   PLB.i_sp4_h_r
+   PLB.o_sp4_h_r
+   PLB.i_sp12_h_r
+   PLB.o_sp12_h_r
+
+   PLB.i_sp4_r_v_b    PLB.o_sp4_r_v_b
+   PLB.i_neigh_op_rgt PLB.o_neigh_op_rgt
+  </loc>
+  <!-- ## -->
+  <loc side="bottom" xoffset="0" yoffset="0">
+   PLB.carry_in
+
+   PLB.i_neigh_op_bnr PLB.o_neigh_op_bnr
+   PLB.i_neigh_op_bot PLB.o_neigh_op_bot
+   PLB.i_neigh_op_bnl PLB.o_neigh_op_bnl
+
+   PLB.i_sp4_v_b
+   PLB.o_sp4_v_b
+   PLB.i_sp12_v_b
+   PLB.o_sp12_v_b
+  </loc>
+  <!-- ## -->
+  <loc side="left" xoffset="0" yoffset="0">
+   PLB.i_sp4_h_l
+   PLB.o_sp4_h_l
+   PLB.i_sp12_h_l
+   PLB.o_sp12_h_l
+
+   PLB.i_sp4_l_v_b    PLB.o_sp4_l_v_b
+   PLB.o_neigh_op_lft PLB.i_neigh_op_lft
+  </loc>
+ </pinlocations>
+ <switchblock_locations pattern="external_full_internal_straight"/>
+
+ <fc default_in_type="frac" default_in_val="0.5" default_out_type="frac" default_out_val="1.0">
+
+  <fc_override fc_type="frac" fc_val="1.0" port_name="clk" segment_name="global" />
+
+  <!-- Vertical spans ################################################# -->
+  <!-- Span-4 Vertical -->
+  <fc_override fc_type="frac" fc_val="0.5" port_name="i_sp4_v_t"    segment_name="span4"  /><fc_override fc_type="frac" fc_val="0.5" port_name="o_sp4_v_t"   segment_name="span4"  />
+  <fc_override fc_type="frac" fc_val="0.5" port_name="i_sp4_v_b"    segment_name="span4"  /><fc_override fc_type="frac" fc_val="0.5" port_name="o_sp4_v_b"   segment_name="span4"  />
+
+  <!-- Span-12 Vertical -->
+  <fc_override fc_type="frac" fc_val="0.5" port_name="i_sp12_v_t"   segment_name="span12" /><fc_override fc_type="frac" fc_val="0.5" port_name="o_sp12_v_t"  segment_name="span12" />
+  <fc_override fc_type="frac" fc_val="0.5" port_name="i_sp12_v_b"   segment_name="span12" /><fc_override fc_type="frac" fc_val="0.5" port_name="o_sp12_v_b"  segment_name="span12" />
+
+  <!-- Horizontal spans ############################################### -->
+  <!-- Span-4 Horizontal -->
+  <fc_override fc_type="frac" fc_val="0.5" port_name="i_sp4_h_r"    segment_name="span4"  /><fc_override fc_type="frac" fc_val="0.5" port_name="o_sp4_h_r"   segment_name="span4"  />
+  <fc_override fc_type="frac" fc_val="0.5" port_name="i_sp4_h_l"    segment_name="span4"  /><fc_override fc_type="frac" fc_val="0.5" port_name="o_sp4_h_l"   segment_name="span4"  />
+
+  <!-- Span-12 Horizontal -->
+  <fc_override fc_type="frac" fc_val="0.5" port_name="i_sp12_h_r"   segment_name="span12" /><fc_override fc_type="frac" fc_val="0.5" port_name="o_sp12_h_r"  segment_name="span12" />
+  <fc_override fc_type="frac" fc_val="0.5" port_name="i_sp12_h_l"   segment_name="span12" /><fc_override fc_type="frac" fc_val="0.5" port_name="o_sp12_h_l"  segment_name="span12" />
+
+  <!-- Global wires ################################################### -->
+  <fc_override fc_type="frac" fc_val="1.0" port_name="i_glb_netwk"  segment_name="global" /><fc_override fc_type="frac" fc_val="1.0" port_name="o_glb_netwk" segment_name="global" />
+
+  <!-- Carry chain doesn't connect to the interconnect -->
+  <fc_override fc_type="frac" fc_val="0.0" port_name="carry_out"     /><fc_override fc_type="frac" fc_val="0.0" port_name="carry_in"    />
+  <!-- Span-4 Right Vertical are directly connected -->
+  <fc_override fc_type="frac" fc_val="0.0" port_name="i_sp4_r_v_b"   /><fc_override fc_type="frac" fc_val="0.0" port_name="o_sp4_r_v_b" />
+  <fc_override fc_type="frac" fc_val="0.0" port_name="i_sp4_l_v_b"   /><fc_override fc_type="frac" fc_val="0.0" port_name="o_sp4_l_v_b" />
+  <!-- Local neighbourhood -->
+  <fc_override fc_type="frac" fc_val="0.0" port_name="i_neigh_op_top" /><fc_override fc_type="frac" fc_val="0.0" port_name="o_neigh_op_top" />
+  <fc_override fc_type="frac" fc_val="0.0" port_name="i_neigh_op_tnr" /><fc_override fc_type="frac" fc_val="0.0" port_name="o_neigh_op_tnr" />
+  <fc_override fc_type="frac" fc_val="0.0" port_name="i_neigh_op_rgt" /><fc_override fc_type="frac" fc_val="0.0" port_name="o_neigh_op_rgt" />
+  <fc_override fc_type="frac" fc_val="0.0" port_name="i_neigh_op_bnr" /><fc_override fc_type="frac" fc_val="0.0" port_name="o_neigh_op_bnr" />
+  <fc_override fc_type="frac" fc_val="0.0" port_name="i_neigh_op_bot" /><fc_override fc_type="frac" fc_val="0.0" port_name="o_neigh_op_bot" />
+  <fc_override fc_type="frac" fc_val="0.0" port_name="i_neigh_op_bnl" /><fc_override fc_type="frac" fc_val="0.0" port_name="o_neigh_op_bnl" />
+  <fc_override fc_type="frac" fc_val="0.0" port_name="i_neigh_op_lft" /><fc_override fc_type="frac" fc_val="0.0" port_name="o_neigh_op_lft" />
+  <fc_override fc_type="frac" fc_val="0.0" port_name="i_neigh_op_tnl" /><fc_override fc_type="frac" fc_val="0.0" port_name="o_neigh_op_tnl" />
+ </fc>
+
+</pb_type>

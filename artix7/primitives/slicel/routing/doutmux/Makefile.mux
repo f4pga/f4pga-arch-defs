@@ -1,6 +1,7 @@
 MUX_TYPE = routing
+MUX_OUTFILE = doutmux
 MUX_NAME = DOUTMUX
 MUX_WIDTH = 5
 MUX_SPLIT_INPUTS = 1
 MUX_INPUTS = D5Q,XOR,O6,O5,CY
-include ../../../../../common/make/mux.mk
+MUX_OUTPUT = OUT

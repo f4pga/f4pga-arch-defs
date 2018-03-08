@@ -1,5 +1,0 @@
-GEN_MODEL=y
-USE_W=y
-TOP_MODULE=W5FF
-
-include ../../../../common/make/xml.mk

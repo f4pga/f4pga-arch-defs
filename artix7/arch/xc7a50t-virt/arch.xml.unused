@@ -1,0 +1,482 @@
+<!-- set: ai sw=1 ts=1 sta et -->
+<architecture xmlns:xi="http://www.w3.org/2001/XInclude">
+ <!-- ODIN-II model description for non-standard block type -->
+ <models>
+  <model name="NOIMP_DSP">
+   <input_ports></input_ports>
+   <output_ports></output_ports>
+  </model>
+  <model name="NOIMP_BRAM">
+   <input_ports></input_ports>
+   <output_ports></output_ports>
+  </model>
+  <model name="NOIMP_INTL">
+   <input_ports></input_ports>
+   <output_ports></output_ports>
+  </model>
+  <model name="NOIMP_INTR">
+   <input_ports></input_ports>
+   <output_ports></output_ports>
+  </model>
+
+  <xi:include href="../../tiles/clbll_l/clbll_l.model.xml" xpointer="xpointer(models/*)" />
+ </models>
+
+ <!-- Layout of the FPGA, we are using 4x4 -->
+ <layout>
+  <fixed_layout name="xc7a50t" width="115" height="157">
+
+   <!-- Fill with empty by default -->
+   <fill type="EMPTY" priority="1"/>
+
+   <!-- Columns -->
+
+   <col type="PAD"        startx="0"   priority="10" /><!-- <col type="LIOB"       startx="0"   priority="10" /> -->
+   <col type="LIO"        startx="1"   priority="10" />
+   <col type="BRK"        startx="2"   priority="10" />
+   <col type="IO_INT_L"   startx="3"   priority="10" />
+   <col type="INT_L"      startx="4"   priority="10" />
+   <col type="INT_R"      startx="5"   priority="10" />
+   <col type="XXXX_INT_R" startx="6"   priority="10" />
+   <!-- Empty             startx="7"   priority="10" -->
+   <!-- Empty             startx="8"   priority="10" -->
+   <col type="BRK"        startx="9"   priority="10" />
+
+   <col type="CLBLL_L"    startx="10"  priority="10" />
+   <col type="INT_L"      startx="11"  priority="10" />
+   <col type="INT_R"      startx="12"  priority="10" />
+   <col type="CLBLM_R"    startx="13"  priority="10" />
+
+   <col type="CLBLL_L"    startx="14"  priority="10" />
+   <col type="INT_L"      startx="15"  priority="10" />
+   <col type="INT_R"      startx="16"  priority="10" />
+   <col type="CLBLM_R"    startx="17"  priority="10" />
+
+   <col type="BRK"        startx="18"  priority="10" />
+   <col type="BRAM_L"     startx="19"  priority="10" />
+   <col type="BRAM_INT_L" startx="20"  priority="10" />
+   <col type="INT_L"      startx="21"  priority="10" />
+
+   <col type="INT_R"      startx="22"  priority="10" />
+   <col type="CLBLM_R"    startx="23"  priority="10" />
+   <col type="CLBLM_L"    startx="24"  priority="10" />
+   <col type="INT_L"      startx="25"  priority="10" />
+
+   <col type="INT_R"      startx="26"  priority="10" />
+   <col type="XXXX_INT_R" startx="27"  priority="10" />
+   <col type="DSP_R"      startx="28"  priority="10" />
+   <col type="BRK"        startx="29"  priority="10" />
+
+   <col type="CLBLM_L"    startx="30"  priority="10" />
+   <col type="INT_L"      startx="31"  priority="10" />
+   <col type="INT_R"      startx="32"  priority="10" />
+   <col type="CLBLM_R"    startx="33"  priority="10" />
+
+   <col type="BRK"        startx="34"  priority="10" />
+
+   <col type="CLBLL_L"    startx="35"  priority="10" />
+   <col type="INT_L"      startx="36"  priority="10" />
+   <col type="INT_R"      startx="37"  priority="10" />
+   <col type="CLBLL_R"    startx="38"  priority="10" />
+
+   <col type="CLBLL_L"    startx="39"  priority="10" />
+   <col type="INT_L"      startx="40"  priority="10" />
+   <col type="INT_R"      startx="41"  priority="10" />
+   <col type="CLBLL_R"    startx="42"  priority="10" />
+
+   <col type="CLBLL_L"    startx="43"  priority="10" />
+   <col type="INT_L"      startx="44"  priority="10" />
+   <col type="INT_R"      startx="45"  priority="10" />
+   <col type="CLBLL_R"    startx="46"  priority="10" />
+
+   <col type="BRK"        startx="47"  priority="10" />
+   <col type="XXXX_INT_L" startx="48"  priority="10" />
+   <col type="INT_L"      startx="49"  priority="10" />
+
+   <col type="INT_R"      startx="50"  priority="10" />
+   <col type="CLBLM_R"    startx="51"  priority="10" />
+   <col type="CLBLM_L"    startx="52"  priority="10" />
+   <col type="INT_L"      startx="53"  priority="10" />
+   <col type="INT_R"      startx="54"  priority="10" />
+   <col type="CLBLM_R"    startx="55"  priority="10" />
+   <col type="CLBLM_L"    startx="56"  priority="10" />
+   <col type="INT_L"      startx="57"  priority="10" />
+
+   <col type="INT_R"      startx="58"  priority="10" />
+   <col type="XXXX_INT_R" startx="59"  priority="10" />
+   <col type="CLK_FEED"   startx="60"  priority="10" />
+   <col type="BRK"        startx="61"  priority="10" />
+
+   <col type="CLBLL_L"    startx="62"  priority="10" />
+   <col type="INT_L"      startx="63"  priority="10" />
+   <col type="INT_R"      startx="64"  priority="10" />
+   <col type="CLBLM_R"    startx="65"  priority="10" />
+
+   <col type="BRK"        startx="66"  priority="10" />
+
+   <col type="CLBLL_L"    startx="67"  priority="10" />
+   <col type="INT_L"      startx="68"  priority="10" />
+   <col type="INT_R"      startx="69"  priority="10" />
+   <col type="CLBLM_R"    startx="70"  priority="10" />
+
+   <col type="CLBLL_L"    startx="71"  priority="10" />
+   <col type="INT_L"      startx="72"  priority="10" />
+   <col type="INT_R"      startx="73"  priority="10" />
+   <col type="CLBLM_R"    startx="74"  priority="10" />
+
+   <col type="BRAM_L"     startx="75"  priority="10" />
+   <col type="BRAM_INT_L" startx="76"  priority="10" />
+   <col type="INT_L"      startx="77"  priority="10" />
+
+   <col type="INT_R"      startx="78"  priority="10" />
+   <col type="CLBLM_R"    startx="79"  priority="10" />
+
+   <col type="BRK"        startx="80"  priority="10" />
+
+   <col type="CLBLM_L"    startx="81"  priority="10" />
+   <col type="INT_L"      startx="82"  priority="10" />
+   <col type="INT_R"      startx="83"  priority="10" />
+   <col type="CLBLM_R"    startx="84"  priority="10" />
+
+   <col type="BRK"        startx="85"  priority="10" />
+   <col type="DSP_L"      startx="86"  priority="10" />
+   <col type="XXXX_INT_L" startx="87"  priority="10" />
+   <col type="INT_L"      startx="88"  priority="10" />
+
+   <col type="INT_R"      startx="89"  priority="10" />
+   <col type="CLBLM_R"    startx="90"  priority="10" />
+   <col type="CLBLM_L"    startx="91"  priority="10" />
+   <col type="INT_L"      startx="92"  priority="10" />
+
+   <col type="INT_R"      startx="93"  priority="10" />
+   <col type="BRAM_INT_R" startx="94"  priority="10" />
+   <col type="BRAM_R"     startx="95"  priority="10" />
+   <col type="BRK"        startx="96"  priority="10" />
+
+   <col type="CLBLL_L"    startx="97"  priority="10" />
+   <col type="INT_L"      startx="98"  priority="10" />
+   <col type="INT_R"      startx="99"  priority="10" />
+   <col type="CLBLM_R"    startx="100" priority="10" />
+
+   <col type="CLBLL_L"    startx="101"  priority="10" />
+   <col type="INT_L"      startx="102"  priority="10" />
+   <col type="INT_R"      startx="103"  priority="10" />
+   <col type="CLBLM_R"    startx="104"  priority="10" />
+
+   <col type="BRK"        startx="105"  priority="10" />
+   <!-- Empty             startx="106"  priority="10" -->
+   <!-- Empty             startx="107"  priority="10" -->
+   <col type="XXXX_INT_L" startx="108"  priority="10" />
+   <col type="INT_L"      startx="109"  priority="10" />
+   <col type="INT_R"      startx="110"  priority="10" />
+   <col type="IO_INT_R"   startx="111"  priority="10" />
+   <col type="BRK"        startx="112"  priority="10" />
+   <col type="RIO"        startx="113"  priority="10" />
+   <col type="PAD"        startx="114"  priority="10" /><!-- <col type="RIOB"       startx="114"  priority="10" /> -->
+
+   <!-- Regions -->
+   <region type="INT_FEEDTHRU" startx="35" endx="45"  starty="53" endy="155" priority="20" />
+   <region type="EMPTY"        startx="97" endx="114" starty="0"  endy="51"  priority="20" />
+   <region type="PCIE"         startx="70" endx="76"  starty="27" endy="51"  priority="20" />
+
+   <!-- Rows -->
+   <row type="EMPTY" starty="0"   priority="30"/>
+   <row type="HCLK"  starty="26"  priority="30"/>
+   <row type="BRK"   starty="52"  priority="30"/>
+   <row type="HCLK"  starty="78"  priority="30"/>
+   <row type="BRK"   starty="104" priority="30"/>
+   <row type="HCLK"  starty="130" priority="30"/>
+   <row type="EMPTY" starty="156" priority="30"/>
+
+  </fixed_layout>
+ </layout>
+
+ <device>
+    <sizing R_minW_nmos="6065.520020" R_minW_pmos="18138.500000" />
+    <area grid_logic_tile_area="14813.392"/>
+    <connection_block input_switch_name="2"/>
+    <switch_block type="wilton" fs="3"/>
+    <chan_width_distr>
+      <x distr="uniform" peak="1.000000"/>
+      <y distr="uniform" peak="1.000000"/>
+    </chan_width_distr>
+ </device>
+
+ <switchlist>
+  <!-- name="buffer"  == name="0" -->
+  <!-- name="routing" == name="1" -->
+  <switch type="mux" name="1" R="551" Cin=".77e-15" Cout="4e-15" Tdel="58e-12" mux_trans_size="2.630740" buf_size="27.645901"/>
+  <switch type="mux" name="2" R="551" Cin=".77e-15" Cout="4e-15" Tdel="58e-12" mux_trans_size="2.630740" buf_size="27.645901"/>
+ </switchlist>
+ <segmentlist>
+  <!-- Global networks -->
+  <segment name="global" length="longline" freq="0.010000" type="bidir" Rmetal="101" Cmetal="22.5e-15">
+   <sb type="pattern">1 1</sb>
+   <cb type="pattern">0</cb>
+   <wire_switch name="1"/>
+   <opin_switch name="2"/>
+  </segment>
+
+  <!-- Span 12 vertical   tracks -->
+  <!-- Span 12 horizontal tracks -->
+  <segment name="long-span" length="11" freq="0.250000" type="bidir" Rmetal="101" Cmetal="22.5e-15">
+   <sb type="pattern">1 1 1 1 1 1 1 1 1 1 1 1</sb>
+   <cb type="pattern">1 1 1 1 1 1 1 1 1 1 1</cb>
+   <wire_switch name="1"/>
+   <opin_switch name="2"/>
+  </segment>
+
+  <!-- Span 4 vertical   tracks -->
+  <!-- Span 4 horizontal tracks -->
+  <segment name="short-span" length="4" freq="0.750000" type="bidir" Rmetal="101" Cmetal="22.5e-15">
+   <sb type="pattern">1 1 1 1 1</sb>
+   <cb type="pattern">1 1 1 1</cb>
+   <wire_switch name="1"/>
+   <opin_switch name="2"/>
+  </segment>
+ </segmentlist>
+
+ <!-- Description of the block tiles available in the Artix-7
+  BRAM_INT_L
+  BRAM_INT_R
+  BRAM_L
+  BRAM_R
+  BRK
+  CLBLL_L
+  CLBLL_R
+  CLBLM_L
+  CLBLM_R
+  CLK_FEED
+  DSP_L
+  DSP_R
+  HCLK
+  INT_FEEDTHRU
+  INT_L
+  INT_R
+  IO_INT_L
+  IO_INT_R
+  LIO
+  LIOB
+  PCIE
+  RIO
+  RIOB
+  XXXX_INT_L
+  XXXX_INT_R
+   -->
+ <complexblocklist>
+
+  <pb_type name="BRAM_INT_L">
+   <xi:include href="../../tiles/int_l/int_l.pb_type.xml" />
+   <xi:include href="../../empty.xml" xpointer="xpointer(empty/*)" />
+  </pb_type>
+  <pb_type name="BRAM_INT_R">
+   <xi:include href="../../tiles/int_r/int_r.pb_type.xml" />
+   <xi:include href="../../empty.xml" xpointer="xpointer(empty/*)" />
+  </pb_type>
+
+  <pb_type name="BRAM_L">
+   <xi:include href="../../primitives/bram/bram.pb_type.xml" />
+   <xi:include href="../../empty.xml" xpointer="xpointer(empty/*)" />
+  </pb_type>
+  <pb_type name="BRAM_R">
+   <xi:include href="../../primitives/bram/bram.pb_type.xml" />
+   <xi:include href="../../empty.xml" xpointer="xpointer(empty/*)" />
+  </pb_type>
+
+  <pb_type name="BRK">
+   <xi:include href="../../empty.xml" xpointer="xpointer(empty/*)" />
+  </pb_type>
+
+  <pb_type name="CLBLL_L">
+   <input  name="IN"  num_pins="32" />
+   <input  name="GLB" num_pins="4"  />
+   <output name="OUT" num_pins="12" />
+   <xi:include href="../../tiles/clbll_l/clbll_l.pb_type.xml" />
+   <interconnect>
+    <complete
+      name="IN"
+      input="CLBLL_L.IN" output="CLBLL.DX CLBLL.D CLBLL.CX CLBLL.C CLBLL.BX CLBLL.B CLBLL.AX CLBLL.A" />
+    <complete
+      name="OUT"
+      input="CLBLL.DMUX CLBLL.Dout CLBLL.DQ CLBLL.CMUX CLBLL.Cout CLBLL.CQ CLBLL.BMUX CLBLL.Bout CLBLL.BQ CLBLL.AMUX CLBLL.Aout CLBLL.AQ"
+      output="CLBLL_L.OUT" />
+    <complete name="GLB"
+      input="CLBLL_L.GLB" output="CLBLL.SR CLBLL.CE CLBLL.CLK" />
+   </interconnect>
+
+   <pinlocations pattern="custom">
+    <loc side="top"   xoffset="0" yoffset="0">CLBLL_L.GLB</loc>
+    <loc side="left"  xoffset="0" yoffset="0">CLBLL_L.IN</loc>
+    <loc side="right" xoffset="0" yoffset="0">CLBLL_L.OUT</loc>
+   </pinlocations>
+   <fc default_in_type="frac" default_in_val="1.0" default_out_type="frac" default_out_val="1.0">
+     <fc_override fc_type="frac" fc_val="0.5" segment_name="long-span" />
+     <fc_override fc_type="frac" fc_val="0.1" segment_name="global" />
+   </fc>
+  </pb_type>
+
+  <pb_type name="CLBLL_R">
+   <input  name="IN"  num_pins="32" />
+   <input  name="GLB" num_pins="4"  />
+   <output name="OUT" num_pins="12" />
+   <xi:include href="../../tiles/clbll_l/clbll_l.pb_type.xml" />
+   <interconnect>
+    <complete
+      name="IN"
+      input="CLBLL_R.IN" output="CLBLL.DX CLBLL.D CLBLL.CX CLBLL.C CLBLL.BX CLBLL.B CLBLL.AX CLBLL.A" />
+    <complete
+      name="OUT"
+      input="CLBLL.DMUX CLBLL.Dout CLBLL.DQ CLBLL.CMUX CLBLL.Cout CLBLL.CQ CLBLL.BMUX CLBLL.Bout CLBLL.BQ CLBLL.AMUX CLBLL.Aout CLBLL.AQ"
+      output="CLBLL_R.OUT" />
+    <complete name="GLB"
+      input="CLBLL_R.GLB" output="CLBLL.SR CLBLL.CE CLBLL.CLK" />
+   </interconnect>
+
+   <pinlocations pattern="custom">
+    <loc side="top"   xoffset="0" yoffset="0">CLBLL_R.GLB</loc>
+    <loc side="right" xoffset="0" yoffset="0">CLBLL_R.IN</loc>
+    <loc side="left"  xoffset="0" yoffset="0">CLBLL_R.OUT</loc>
+   </pinlocations>
+   <fc default_in_type="frac" default_in_val="1.0" default_out_type="frac" default_out_val="1.0">
+     <fc_override fc_type="frac" fc_val="0.5" segment_name="long-span" />
+     <fc_override fc_type="frac" fc_val="0.1" segment_name="global" />
+   </fc>
+  </pb_type>
+
+  <pb_type name="CLBLM_L">
+   <input  name="IN"  num_pins="32" />
+   <input  name="GLB" num_pins="4"  />
+   <output name="OUT" num_pins="12" />
+   <xi:include href="../../tiles/clblm_l/clblm_l.pb_type.xml" />
+   <interconnect>
+    <complete
+      name="IN"
+      input="CLBLM_L.IN" output="CLBLL.DX CLBLL.D CLBLL.CX CLBLL.C CLBLL.BX CLBLL.B CLBLL.AX CLBLL.A" />
+    <complete
+      name="OUT"
+      input="CLBLL.DMUX CLBLL.Dout CLBLL.DQ CLBLL.CMUX CLBLL.Cout CLBLL.CQ CLBLL.BMUX CLBLL.Bout CLBLL.BQ CLBLL.AMUX CLBLL.Aout CLBLL.AQ"
+      output="CLBLM_L.OUT" />
+    <complete name="GLB"
+      input="CLBLM_L.GLB" output="CLBLL.SR CLBLL.CE CLBLL.CLK" />
+   </interconnect>
+
+   <pinlocations pattern="custom">
+    <loc side="top"   xoffset="0" yoffset="0">CLBLM_L.GLB</loc>
+    <loc side="left"  xoffset="0" yoffset="0">CLBLM_L.IN</loc>
+    <loc side="right" xoffset="0" yoffset="0">CLBLM_L.OUT</loc>
+   </pinlocations>
+   <fc default_in_type="frac" default_in_val="1.0" default_out_type="frac" default_out_val="1.0">
+     <fc_override fc_type="frac" fc_val="0.5" segment_name="long-span" />
+     <fc_override fc_type="frac" fc_val="0.1" segment_name="global" />
+   </fc>
+  </pb_type>
+
+  <pb_type name="CLBLM_R">
+   <input  name="IN"  num_pins="32" />
+   <input  name="GLB" num_pins="4"  />
+   <output name="OUT" num_pins="12" />
+   <input   name="CARRY_IN"  num_pins="1" />
+   <output  name="CARRY_OUT" num_pins="1" />
+   <xi:include href="../../tiles/clblm_r/clblm_r.pb_type.xml" />
+   <interconnect>
+    <direct name="CARRY_IN"  input="CLBLM_R.CARRY_IN" output="CLBLL.CARRY_IN"   />
+    <direct name="CARRY_OUT" input="CLBLL.CARRY_OUT"  output="CLBLM_R.CARRY_OUT" />
+    <complete
+      name="IN"
+      input="CLBLM_R.IN" output="CLBLL.DX CLBLL.D CLBLL.CX CLBLL.C CLBLL.BX CLBLL.B CLBLL.AX CLBLL.A" />
+    <complete
+      name="OUT"
+      input="CLBLL.DMUX CLBLL.Dout CLBLL.DQ CLBLL.CMUX CLBLL.Cout CLBLL.CQ CLBLL.BMUX CLBLL.Bout CLBLL.BQ CLBLL.AMUX CLBLL.Aout CLBLL.AQ"
+      output="CLBLM_R.OUT" />
+    <complete name="GLB"
+      input="CLBLM_R.GLB" output="CLBLL.SR CLBLL.CE CLBLL.CLK" />
+   </interconnect>
+
+   <pinlocations pattern="custom">
+    <loc side="top"    xoffset="0" yoffset="0">CLBLM_R.CARRY_IN CLBLM_R.GLB</loc>
+    <loc side="right"  xoffset="0" yoffset="0">CLBLM_R.IN</loc>
+    <loc side="left"   xoffset="0" yoffset="0">CLBLM_R.OUT</loc>
+    <loc side="bottom" xoffset="0" yoffset="0">CLBLM_R.CARRY_OUT</loc>
+   </pinlocations>
+   <fc default_in_type="frac" default_in_val="1.0" default_out_type="frac" default_out_val="1.0">
+     <fc_override fc_type="frac" fc_val="0.5" port_name="IN"  segment_name="long-span" />
+     <fc_override fc_type="frac" fc_val="0.1" port_name="IN"  segment_name="global" />
+     <fc_override fc_type="frac" fc_val="0.5" port_name="OUT" segment_name="global" />
+     <fc_override fc_type="abs" fc_val="0" port_name="CARRY_IN" />
+     <fc_override fc_type="abs" fc_val="0" port_name="CARRY_OUT" />
+   </fc>
+  </pb_type>
+
+  <pb_type name="CLK_FEED">
+   <xi:include href="../../empty.xml" xpointer="xpointer(empty/*)" />
+  </pb_type>
+
+  <pb_type name="DSP_L">
+   <xi:include href="../../primitives/dsp/dsp.pb_type.xml" />
+   <xi:include href="../../empty.xml" xpointer="xpointer(empty/*)" />
+  </pb_type>
+  <pb_type name="DSP_R">
+   <xi:include href="../../primitives/dsp/dsp.pb_type.xml" />
+   <xi:include href="../../empty.xml" xpointer="xpointer(empty/*)" />
+  </pb_type>
+
+  <pb_type name="HCLK">
+   <xi:include href="../../empty.xml" xpointer="xpointer(empty/*)" />
+  </pb_type>
+
+  <pb_type name="INT_FEEDTHRU">
+   <xi:include href="../../empty.xml" xpointer="xpointer(empty/*)" />
+  </pb_type>
+
+  <pb_type name="INT_L">
+   <xi:include href="../../tiles/int_l/int_l.pb_type.xml" />
+   <xi:include href="../../empty.xml" xpointer="xpointer(empty/*)" />
+  </pb_type>
+  <pb_type name="INT_R">
+   <xi:include href="../../tiles/int_r/int_r.pb_type.xml" />
+   <xi:include href="../../empty.xml" xpointer="xpointer(empty/*)" />
+  </pb_type>
+
+  <pb_type name="IO_INT_L">
+   <xi:include href="../../tiles/int_l/int_l.pb_type.xml" />
+   <xi:include href="../../empty.xml" xpointer="xpointer(empty/*)" />
+  </pb_type>
+  <pb_type name="IO_INT_R">
+   <xi:include href="../../tiles/int_r/int_r.pb_type.xml" />
+   <xi:include href="../../empty.xml" xpointer="xpointer(empty/*)" />
+  </pb_type>
+
+  <pb_type name="LIO">
+   <xi:include href="../../empty.xml" xpointer="xpointer(empty/*)" />
+  </pb_type>
+  <!--
+  <pb_type name="LIOB">
+   <xi:include href="../../empty.xml" xpointer="xpointer(empty/*)" />
+  </pb_type>
+  -->
+
+  <pb_type name="PCIE">
+   <xi:include href="../../empty.xml" xpointer="xpointer(empty/*)" />
+  </pb_type>
+
+  <pb_type name="RIO">
+   <xi:include href="../../empty.xml" xpointer="xpointer(empty/*)" />
+  </pb_type>
+  <!--
+  <pb_type name="RIOB">
+   <xi:include href="../../primitives/io/io.pb_type.xml" />
+   <xi:include href="../../empty.xml" xpointer="xpointer(empty/*)" />
+  </pb_type>
+  -->
+  <xi:include href="../../../vpr/pad/pad.pb_type.xml"/>
+
+  <pb_type name="XXXX_INT_L">
+   <xi:include href="../../tiles/int_l/int_l.pb_type.xml" />
+   <xi:include href="../../empty.xml" xpointer="xpointer(empty/*)" />
+  </pb_type>
+  <pb_type name="XXXX_INT_R">
+   <xi:include href="../../tiles/int_r/int_r.pb_type.xml" />
+   <xi:include href="../../empty.xml" xpointer="xpointer(empty/*)" />
+  </pb_type>
+ </complexblocklist>
+</architecture>
