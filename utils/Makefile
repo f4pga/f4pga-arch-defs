@@ -7,7 +7,7 @@ include $(TOP_DIR)/make/env.mk
 list: | $(PYTEST)
 	$(PYTEST) --collect-only
 
-test: | $(PYTEST)
+tests: | $(PYTEST)
 	$(PYTEST)
 
 .PHONY: list
