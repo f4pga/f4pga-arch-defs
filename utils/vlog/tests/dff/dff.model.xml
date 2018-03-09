@@ -1,4 +1,4 @@
-<models>
+<models xmlns:xi="http://www.w3.org/2001/XInclude">
   <model name="dff">
     <input_ports>
       <port is_clock="1" name="clk"/>

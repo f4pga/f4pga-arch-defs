@@ -226,6 +226,10 @@ class YosysJson:
                 mods.append(ymod)
         return mods
 
+    def all_modules(self):
+        """Return a list of the names of all modules in the design, sorted alphabetically"""
+        return sorted(self.data["modules"].keys())
+
     @property
     def top_module(self):
         """Get a given module (by name) as a `YosysModule`"""

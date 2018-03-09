@@ -1,14 +1,5 @@
-<models>
-  <model name="tests">
-    <input_ports>
-      <port name="a"/>
-      <port name="b"/>
-      <port name="ci"/>
-      <port name="clk"/>
-    </input_ports>
-    <output_ports>
-      <port name="co"/>
-      <port name="q"/>
-    </output_ports>
-  </model>
+<models xmlns:xi="http://www.w3.org/2001/XInclude">
+  <xi:include href="adder/adder.model.xml" xpointer="xpointer(models/child::node())"/>
+  <xi:include href="dff/dff.model.xml" xpointer="xpointer(models/child::node())"/>
+  <xi:include href="lut2/lut2.model.xml" xpointer="xpointer(models/child::node())"/>
 </models>
