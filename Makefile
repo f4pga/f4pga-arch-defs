@@ -27,7 +27,7 @@ all: | redir
 
 test:
 	$(call heading,Running Python utils tests)
-	@$(MAKE) -C utils all $(result)
+	@$(MAKE) -C utils tests $(result)
 
 	$(call heading,$(PURPLE)Aritx 7:$(NC)Running Verilog to Routing tests)
 	@$(MAKE) ARCH=artix7 -C tests $(result)

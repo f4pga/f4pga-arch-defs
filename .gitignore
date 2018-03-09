@@ -10,6 +10,10 @@
 __pycache__/
 *.py[cod]
 
+# pytest files
+.cache
+.pytest_cache
+
 # Conda environment
 env
 
