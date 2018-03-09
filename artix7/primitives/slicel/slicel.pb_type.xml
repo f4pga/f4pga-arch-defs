@@ -96,7 +96,7 @@
   <xi:include href="routing/Ncy0/bcy0.pb_type.xml"/>
   <xi:include href="routing/Ncy0/ccy0.pb_type.xml"/>
   <xi:include href="routing/Ncy0/dcy0.pb_type.xml"/>
-  <xi:include href="carry4/carry4.pb_type.xml"/>
+  <xi:include href="carry4_top/carry4_top.pb_type.xml"/>
 
   <!-- WOUTMUX -->
   <xi:include href="routing/aoutmux/aoutmux.pb_type.xml"/>
