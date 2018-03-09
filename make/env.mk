@@ -1,4 +1,5 @@
 should_not_include = 1
+TOP_DIR ?= $(realpath $(dir $(lastword $(MAKEFILE_LIST)))/..)
 include $(TOP_DIR)/make/inc/common.mk
 include $(TOP_DIR)/make/inc/env.mk
 
