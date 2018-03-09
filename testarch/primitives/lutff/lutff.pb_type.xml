@@ -14,6 +14,7 @@
 
  <interconnect>
   <direct input="BLK_IG-LUTFF.I" name="BEL_LT-LUT.in"  output="BEL_LT-LUT.in"  />
+  <direct input="BLK_IG-LUTFF.C" name="BEL_FF-FF.C"    output="BEL_FF-FF.clk"  />
   <direct input="BEL_LT-LUT.out" name="BEL_FF-FF.D"    output="BEL_FF-FF.D"    />
   <direct input="BEL_LT-LUT.out" name="BEL_RX-OMUX.LT" output="BEL_RX-OMUX.LT" />
   <direct input="BEL_FF-FF.Q"    name="BEL_RX-OMUX.FF" output="BEL_RX-OMUX.FF" />
