@@ -8,13 +8,13 @@
  <input name="CIN"    num_pins="1"/>
 
  <mode name="COMPLETE">
-  <xi:include href="carry4_complete/carry4_complete.pb_type.xml"/>
+  <xi:include href="carry4/carry4.pb_type.xml"/>
   <interconnect>
-   <direct name="S"   input="BLK_IG-CARRY4.S"           output="BLK_IG-CARRY4_COMPLETE.S"   />
-   <direct name="DI"  input="BLK_IG-CARRY4.DI"          output="BLK_IG-CARRY4_COMPLETE.DI"  />
-   <direct name="CO"  input="BLK_IG-CARRY4_COMPLETE.CO" output="BLK_IG-CARRY4.CO"           />
-   <direct name="O"   input="BLK_IG-CARRY4_COMPLETE.O"  output="BLK_IG-CARRY4.O"            />
-   <direct name="CIN" input="BLK_IG-CARRY4.CIN"         output="BLK_IG-CARRY4_COMPLETE.CIN" />
+   <direct name="S"   input="BLK_IG-CARRY4.S"           output="BEL_BB-CARRY4.S"   />
+   <direct name="DI"  input="BLK_IG-CARRY4.DI"          output="BEL_BB-CARRY4.DI"  />
+   <direct name="CO"  input="BEL_BB-CARRY4.CO" output="BLK_IG-CARRY4.CO"           />
+   <direct name="O"   input="BEL_BB-CARRY4.O"  output="BLK_IG-CARRY4.O"            />
+   <direct name="CIN" input="BLK_IG-CARRY4.CIN"         output="BEL_BB-CARRY4.CIN" />
   </interconnect>
  </mode>
  <mode name="SPLIT">
