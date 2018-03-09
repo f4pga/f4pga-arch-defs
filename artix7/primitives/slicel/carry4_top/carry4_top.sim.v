@@ -1,7 +1,6 @@
 `include "carry4/carry4.sim.v"
 `include "carry4_split/carry4_split.sim.v"
 
-(* blackbox *)
 (* MODES = "SPLIT, COMPLETE" *)
 module CARRY4_TOP(CO, O, CIN, DI, S);
 
@@ -10,7 +9,7 @@ module CARRY4_TOP(CO, O, CIN, DI, S);
 	input CIN;
 	input [3:0] DI;
 	input [3:0] S;
-	parameter MODE = "SPLIT";
+	parameter [1023:0] MODE = "SPLIT";
 
 	generate
 		if(MODE == "SPLIT") begin
