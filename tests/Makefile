@@ -1,4 +1,5 @@
 include ../make/inc/common.mk
+include ../make/inc/func.mk
 
 VPR ?= vpr
 YOSYS ?= yosys
@@ -9,11 +10,11 @@ else
 $(warning "You probably want to define $$ARCH.")
 endif
 
-ifeq (,$(ARCH_DIR))
-$(error "Please define $$ARCH_DIR to point to your architecture directory.")
+ifeq (,$(DEVICE_DIR))
+$(error "Please define $$DEVICE_DIR to point to your device directory.")
 endif
 ifeq (,$(DEVICE))
-$(error "Please define $$DEVICE to a value in your architecture file.")
+$(error "Please define $$DEVICE to a value in your device file.")
 endif
 ifeq (,$(YOSYS_SCRIPT))
 $(error "Please define $$YOSYS_SCRIPT to the commands needed for synthesis.")
@@ -21,13 +22,13 @@ endif
 
 ##########################################################################
 
-ARCH_DIR_FULL = $(shell realpath $(ARCH_DIR)/$(ARCH_TYPE))
+DEVICE_DIR_FULL = $(realpath $(DEVICE_DIR)/$(DEVICE_TYPE))
 
-ARCH_FILE = $(ARCH_DIR_FULL)/arch.merged.xml
-$(ARCH_FILE):
+DEVICE_FILE = $(DEVICE_DIR_FULL)/arch.merged.xml
+$(DEVICE_FILE):
 	cd $(TOP_DIR); make $(TARGET)
 
-.PHONY: $(ARCH_FILE)
+.PHONY: $(DEVICE_FILE)
 
 ##########################################################################
 
@@ -58,12 +59,12 @@ $(OUTPUT_DIR)/%.eblif: %.eblif | $(OUTPUT_DIR)
 
 # VPR commands
 VPR_ARGS ?=
-VPR_CMD = $(VPR) $(VPR_ARGS)  $(ARCH_FILE) --device $(DEVICE)
+VPR_CMD = $(VPR) $(VPR_ARGS)  $(DEVICE_FILE) --device $(DEVICE)
 VPR_FULL_CMD = cd $(OUTPUT_DIR); $(VPR_CMD)
 
 ROUTE_CHAN_WIDTH ?= 6
 
-$(OUTPUT_DIR)/%.rr_graph.xml: $(OUTPUT_DIR)/%.eblif $(ARCH_FILE)
+$(OUTPUT_DIR)/%.rr_graph.xml: $(OUTPUT_DIR)/%.eblif $(DEVICE_FILE)
 	$(VPR_FULL_CMD) $(notdir $<) --route_chan_width $(ROUTE_CHAN_WIDTH) --write_rr_graph $(notdir $@)
 
 $(OUTPUT_DIR)/%.patched.rr_graph.xml: $(OUTPUT_DIR)/%.rr_graph.xml $(RR_PATCH_TOOL)
@@ -83,24 +84,31 @@ $(OUTPUT_DIR)/%.rr_graph.pretty.xml: $(OUTPUT_DIR)/%.rr_graph.xml
 .PRECIOUS: $(OUTPUT_DIR)/%.rr_graph.pretty.xml
 # ------------------------------------------------------------------------
 
-%.disp: $(OUTPUT_DIR)/%.eblif $(ARCH_FILE)
+%.disp: $(OUTPUT_DIR)/%.eblif $(DEVICE_FILE)
 	$(VPR_FULL_CMD) $(notdir $<) --disp on
 
-%.echo: $(OUTPUT_DIR)/%.eblif $(ARCH_FILE)
+%.echo: $(OUTPUT_DIR)/%.eblif $(DEVICE_FILE)
 	$(VPR_FULL_CMD) $(notdir $<) --echo_file on --full_stats on
 
-%.verilog: $(OUTPUT_DIR)/%.eblif $(ARCH_FILE)
+%.verilog: $(OUTPUT_DIR)/%.eblif $(DEVICE_FILE)
 	$(VPR_FULL_CMD) $(notdir $<) --gen_post_synthesis_netlist on
 
-%.gdb: $(OUTPUT_DIR)/%.eblif $(ARCH_FILE)
+%.gdb: $(OUTPUT_DIR)/%.eblif $(DEVICE_FILE)
 	cd $(OUTPUT_DIR); gdb --args $(VPR_CMD) $(notdir $<) --echo_file on --gen_post_synthesis_netlist on
 
 
 ALL_OUTPUT = $(patsubst %.v,$(OUTPUT_DIR)/%.rr_graph.xml,$(wildcard *.v)) $(patsubst %.eblif,$(OUTPUT_DIR)/%.rr_graph.xml,$(wildcard *.eblif))
-#all: $(ALL_OUTPUT)
-#	@echo $(ALL_OUTPUT)
+
 all:
-	@true
+	@echo -e "Running all tests for $(PURPLE)$(DEVICE)$(NC)in $(YELLOW)$(ARCH)$(NC)"
+	$(call quiet_cmd,make const.echo,Ran $(GREEN)const$(NC)test)
+	$(call quiet_cmd,make wire.echo,Ran $(GREEN)wire$(NC)test)
+	$(call quiet_cmd,make ff.echo,Ran $(GREEN)ff$(NC)test)
+	$(call quiet_cmd,make lut.echo,Ran $(GREEN)lut$(NC)test)
+	$(call quiet_cmd,make mlut.echo,Ran $(GREEN)mlut$(NC)test)
+
+.PHONY: all
+.DEFAULT_GOAL := all
 
 help:
 	@echo ""
