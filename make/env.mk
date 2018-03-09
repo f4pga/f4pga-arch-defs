@@ -1,6 +1,7 @@
 should_not_include = 1
-include make/inc/common.mk
-include make/inc/env.mk
+TOP_DIR ?= $(realpath $(dir $(lastword $(MAKEFILE_LIST)))/..)
+include $(TOP_DIR)/make/inc/common.mk
+include $(TOP_DIR)/make/inc/env.mk
 
 MINICONDA_FILE := Miniconda3-latest-Linux-x86_64.sh
 MINICONDA_URL  := https://repo.continuum.io/miniconda/$(MINICONDA_FILE)
@@ -50,6 +51,9 @@ $(CONDA_MAKE): | $(CONDA_SETUP)
 
 $(CONDA_XSLTPROC): | $(CONDA_SETUP)
 	$(CONDA_BIN) install libxslt
+
+$(CONDA_PYTEST): | $(CONDA_SETUP)
+	$(CONDA_BIN) install pytest
 
 make:
 	make -C $(TOP_DIR) -f $(TOP_DIR)/make/env.mk $(CONDA_MAKE)
