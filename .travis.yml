@@ -5,6 +5,7 @@ python:
 addons:
   apt:
     packages:
+     - bash
      - colordiff
      - coreutils
      - graphviz
