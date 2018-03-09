@@ -1,6 +1,6 @@
-# Defaults for the iCE40 architecture.
+# Defaults for the fake testarch architecture.
 
-DEVICE_SUBARCH ?= lutff3
+DEVICE_SUBARCH ?= lutff
 DEVICE_DIR = ../testarch/devices/$(DEVICE_SUBARCH)/
 DEVICE ?= 2x4
 YOSYS_SCRIPT ?= synth;
