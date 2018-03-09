@@ -11,10 +11,10 @@ $(warning "You probably want to define $$ARCH.")
 endif
 
 ifeq (,$(DEVICE_DIR))
-$(error "Please define $$DEVICE_DIR to point to your architecture directory.")
+$(error "Please define $$DEVICE_DIR to point to your device directory.")
 endif
 ifeq (,$(DEVICE))
-$(error "Please define $$DEVICE to a value in your architecture file.")
+$(error "Please define $$DEVICE to a value in your device file.")
 endif
 ifeq (,$(YOSYS_SCRIPT))
 $(error "Please define $$YOSYS_SCRIPT to the commands needed for synthesis.")
@@ -100,6 +100,7 @@ $(OUTPUT_DIR)/%.rr_graph.pretty.xml: $(OUTPUT_DIR)/%.rr_graph.xml
 ALL_OUTPUT = $(patsubst %.v,$(OUTPUT_DIR)/%.rr_graph.xml,$(wildcard *.v)) $(patsubst %.eblif,$(OUTPUT_DIR)/%.rr_graph.xml,$(wildcard *.eblif))
 
 all:
+	@echo -e "Running all tests for $(PURPLE)$(DEVICE)$(NC)in $(YELLOW)$(ARCH)$(NC)"
 	$(call quiet_cmd,make const.echo,Ran $(GREEN)const$(NC)test)
 	$(call quiet_cmd,make wire.echo,Ran $(GREEN)wire$(NC)test)
 	$(call quiet_cmd,make ff.echo,Ran $(GREEN)ff$(NC)test)
