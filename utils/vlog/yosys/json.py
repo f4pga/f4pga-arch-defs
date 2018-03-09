@@ -27,7 +27,7 @@ class YosysModule:
             The direction, should be either `input` or `output`
         """
         plist = []
-        for port, pdata in self.data["ports"].items():
+        for port, pdata in sorted(self.data["ports"].items()):
             plist.append((port, len(pdata["bits"]), pdata["direction"]))
         return plist
 
@@ -42,7 +42,7 @@ class YosysModule:
         type: str
         """
         clist = []
-        for cell, cdata in self.data["cells"].items():
+        for cell, cdata in sorted(self.data["cells"].items()):
             if cell.startswith("$"):
                 continue
             clist.append((cell, cdata["type"]))
@@ -111,7 +111,7 @@ class YosysModule:
         """
         cdata = self.data["cells"][cell]
         conns = []
-        for port, condata in cdata["connections"].items():
+        for port, condata in sorted(cdata["connections"].items()):
             if cdata["port_directions"][port] == direction:
                 N = len(condata)
                 if N == 1:
@@ -129,7 +129,7 @@ class YosysModule:
         port : str
         """
         conn_io = []
-        for port, pdata in self.data["ports"].items():
+        for port, pdata in sorted(self.data["ports"].items()):
             if pdata["direction"] == iodir:
                 if net in pdata["bits"]:
                     if len(pdata["bits"]) == 1:
@@ -147,11 +147,11 @@ class YosysModule:
         port : str
         """
         conn_ports = []
-        for cell in self.data["cells"]:
+        for cell in sorted(self.data["cells"].keys()):
             if cell.startswith("$"):
                 continue
             cdata = self.data["cells"][cell]
-            for port, condata in cdata["connections"].items():
+            for port, condata in sorted(cdata["connections"].items()):
                 if cdata["port_directions"][port] == pdir:
                     if net in condata:
                         if len(condata) == 1:
