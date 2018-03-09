@@ -6,8 +6,10 @@
   <xi:include href="../../primitives/sb_ff/sb_ff.model.xml" 	  xpointer="xpointer(models/child::node())" />
   <xi:include href="../../primitives/sb_carry/sb_carry.model.xml" xpointer="xpointer(models/child::node())" />
   <xi:include href="../../primitives/sb_ram/sb_ram.model.xml"     xpointer="xpointer(models/child::node())" />
-  <xi:include href="../../primitives/mux4/ice_mux4.model.xml"         xpointer="xpointer(models/child::node())" />
-  <xi:include href="../../primitives/mux2/ice_mux2.model.xml"         xpointer="xpointer(models/child::node())" />
+  <!--
+  <xi:include href="../../primitives/mux4/ice_mux4.model.xml"     xpointer="xpointer(models/child::node())" />
+  <xi:include href="../../primitives/mux2/ice_mux2.model.xml"     xpointer="xpointer(models/child::node())" />
+  -->
  </models>
 
  <layout>
@@ -19,9 +21,9 @@
    <col     type="EMPTY" startx="5" priority="30"/>
 
    <row     type="EMPTY" starty="0" priority="31"/>
-   <row     type="PIO"   starty="1" priority="11"/>
+   <row     type="BLK_BB-VPR_PAD"   starty="1" priority="11"/>
    <!-- starty="2" endy="3" -->
-   <row     type="PIO"   starty="4" priority="11"/>
+   <row     type="BLK_BB-VPR_PAD"   starty="4" priority="11"/>
    <row     type="EMPTY" starty="5" priority="31"/>
 
    <!-- Create empty blocks at all corners -->
@@ -37,15 +39,15 @@
     extra empty tiles.
    -->
    <col     type="EMPTY" startx="0"  priority="30"/>
-   <col     type="PIO"   startx="1"  priority="10"/>
+   <col     type="BLK_BB-VPR_PAD"   startx="1"  priority="10"/>
    <region  type="PLB"   startx="2" endx="13" starty="2" endy="17" priority="4"/> <!-- Logic blocks 11x15 -->
-   <col     type="PIO"   startx="14" priority="10"/>
+   <col     type="BLK_BB-VPR_PAD"   startx="14" priority="10"/>
    <col     type="EMPTY" startx="15" priority="30"/>
 
    <row     type="EMPTY" starty="0"  priority="31"/>
-   <row     type="PIO"   starty="1"  priority="11"/>
+   <row     type="BLK_BB-VPR_PAD"   starty="1"  priority="11"/>
    <!-- starty="2" endy="17" -->
-   <row     type="PIO"   starty="18"  priority="11"/>
+   <row     type="BLK_BB-VPR_PAD"   starty="18"  priority="11"/>
    <row     type="EMPTY" starty="19" priority="31"/>
 
    <!-- Block RAM -->
@@ -93,7 +95,7 @@
 
  <directlist>
   <!-- Carry chain from one PLB to the next PLB -->
-  <direct name="CARRY" from_pin="PLB.carry_out" to_pin="PLB.carry_in"      x_offset="0"  y_offset="1" z_offset="0"/>
+  <direct name="CARRY"   from_pin="PLB.carry_out"   to_pin="PLB.carry_in"    x_offset="0"  y_offset="1" z_offset="0"/>
   <!-- Vertical wires from neighbours -->
   <direct name="sp4_r2l" from_pin="PLB.o_sp4_l_v_b" to_pin="PLB.i_sp4_r_v_b" x_offset="1"  y_offset="0" z_offset="0"/>
   <direct name="sp4_l2r" from_pin="PLB.o_sp4_r_v_b" to_pin="PLB.i_sp4_l_v_b" x_offset="-1" y_offset="0" z_offset="0"/>
@@ -170,12 +172,11 @@
  <!-- Description of the block tiles available in the iCE40 -->
  <complexblocklist>
 
-  <xi:include href="../../tiles/pio-tb/pio-tb.pb_type.xml"/>
+  <!-- <xi:include href="../../tiles/pio-tb/pio-tb.pb_type.xml"/> -->
   <xi:include href="../../tiles/plb/plb.pb_type.xml"/>
   <xi:include href="../../tiles/ramb/ramb.pb_type.xml"/>
   <xi:include href="../../tiles/ramt/ramt.pb_type.xml"/>
-
-  <!--<xi:include href="../../../vpr/pad/pad.pb_type.xml"/>-->
+  <xi:include href="../../../vpr/pad/pad.pb_type.xml"/>
 
  </complexblocklist>
 

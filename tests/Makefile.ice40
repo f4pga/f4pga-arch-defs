@@ -1,6 +1,6 @@
 # Defaults for the iCE40 architecture.
 
-ARCH_DIR = ../ice40/arch/
-ARCH_TYPE ?= ice40-virt
-DEVICE ?= HX0K
+DEVICE_DIR = ../ice40/devices/
+DEVICE_TYPE ?= ice4
+DEVICE ?= auto
 YOSYS_SCRIPT ?= synth_ice40; ice40_opt -unlut; abc -lut 4;

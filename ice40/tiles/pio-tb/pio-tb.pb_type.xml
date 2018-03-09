@@ -117,14 +117,14 @@
     </pb_type>
 
     <!-- MUX -->
-    <pb_type name="INPUT_MUX" num_pb="1" blif_model=".subckt MUX4">
+    <pb_type name="INPUT_MUX" num_pb="1" blif_model=".subckt INPUT_MUX">
      <input  name="S"  num_pins="2" />
      <input  name="I"  num_pins="4" />
      <output name="O"  num_pins="1" />
      <delay_constant max="10e-12" in_port="INPUT_MUX.I" out_port="INPUT_MUX.O"/>
      <delay_constant max="10e-12" in_port="INPUT_MUX.S" out_port="INPUT_MUX.O"/>
     </pb_type>
-    <pb_type name="OUTPUT_MUX" num_pb="1" blif_model=".subckt MUX4">
+    <pb_type name="OUTPUT_MUX" num_pb="1" blif_model=".subckt OUTPUT_MUX">
      <input  name="S"  num_pins="2" />
      <input  name="I"  num_pins="4" />
      <output name="O"  num_pins="1" />
@@ -132,14 +132,14 @@
      <delay_constant max="10e-12" in_port="OUTPUT_MUX.S[1:0]" out_port="OUTPUT_MUX.O"/>
     </pb_type>
 
-    <pb_type name="CLK_IN_MUX" num_pb="1" blif_model=".subckt MUX2">
+    <pb_type name="CLK_IN_MUX" num_pb="1" blif_model=".subckt CLK_INPUT_MUX">
      <input  name="S"  num_pins="1" />
      <input  name="I"  num_pins="2" />
      <output name="O"  num_pins="1" />
      <delay_constant max="10e-12" in_port="CLK_IN_MUX.I[1:0]" out_port="CLK_IN_MUX.O"/>
      <delay_constant max="10e-12" in_port="CLK_IN_MUX.S"      out_port="CLK_IN_MUX.O"/>
     </pb_type>
-    <pb_type name="CLK_OUT_MUX" num_pb="1" blif_model=".subckt MUX2">
+    <pb_type name="CLK_OUT_MUX" num_pb="1" blif_model=".subckt CLK_OUTPUT_MUX">
      <input  name="S"  num_pins="1" />
      <input  name="I"  num_pins="2" />
      <output name="O"  num_pins="1" />
@@ -173,7 +173,6 @@
       </interconnect>
      </mode>
     </pb_type>
-    
 
     <interconnect>
      <!-- Clock enable -->
