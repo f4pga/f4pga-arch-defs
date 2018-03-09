@@ -8,15 +8,18 @@ CONDA_BIN   := $(CONDA_DIR)/bin/conda
 CONDA_YOSYS := $(CONDA_DIR)/bin/yosys
 CONDA_VPR   := $(CONDA_DIR)/bin/vpr
 CONDA_MAKE  := $(CONDA_DIR)/bin/make
+CONDA_XSLT  := $(CONDA_DIR)/bin/xsltproc
 
 # If the environment exists, put it into the path and use it.
 ifneq (,$(wildcard $(abspath $(ENV_DIR))))
 PATH   := $(CONDA_DIR)/bin:$(PATH)
 YOSYS  ?= $(CONDA_YOSYS)
 VPR    ?= $(CONDA_VPR)
+XSLT   ?= $(CONDA_XSLT)
 else
 YOSYS  ?= yosys
 VPR    ?= vpr
+XSLT   ?= xsltproc
 endif
 
 # Tools in third_party
