@@ -1,5 +1,17 @@
 include ../make/inc/common.mk
 
+# Need the environment for the Python code
+include $(TOP_DIR)/make/inc/env.mk
+include $(TOP_DIR)/make/env.mk
+
+list: | $(PYTEST)
+	$(PYTEST) --collect-only
+
+test: | $(PYTEST)
+	$(PYTEST)
+
+.PHONY: list
+
 all:
 	@true
 
