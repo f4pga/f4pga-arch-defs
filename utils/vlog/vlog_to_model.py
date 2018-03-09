@@ -64,38 +64,64 @@ if top is None:
     print("ERROR: more than one module in design, cannot detect top level. Manually specify the top level module using --top")
     sys.exit(1)
 
+xi_url = "http://www.w3.org/2001/XInclude"
+ET.register_namespace('xi', xi_url)
+xi_include = "{%s}include" % xi_url
+
+def include_xml(parent, href, xptr):
+    return ET.SubElement(parent, xi_include, {'href': href, 'xpointer': xptr})
+
 tmod = yj.top_module
-models_xml = ET.Element("models")
+models_xml = ET.Element("models", nsmap = {'xi': xi_url})
 
-topname = tmod.attr("MODEL_NAME", top)
+deps_files = set()
+for mod in yj.all_modules():
+    if mod != top:
+        modfile = yj.get_module_file(mod)
+        deps_files.add(modfile)
 
-model_xml = ET.SubElement(models_xml, "model", {'name': topname})
-ports = tmod.ports
+if len(deps_files) > 0:
+    # Has dependencies, not a leaf model
+    for df in sorted(deps_files):
+        module_path = os.path.dirname(df)
+        module_basename = os.path.basename(df)
+        wm = re.match(r"([A-Za-z0-9_]+)\.sim\.v", module_basename)
+        if wm:
+            model_path = "%s/%s.model.xml" % (module_path, wm.group(1).lower())
+        else:
+            assert False
+        include_xml(models_xml, model_path, "xpointer(models/child::node())")
+else:
+    # Is a leaf model
+    topname = tmod.attr("MODEL_NAME", top)
 
-inports_xml = ET.SubElement(model_xml, "input_ports")
-outports_xml = ET.SubElement(model_xml, "output_ports")
+    model_xml = ET.SubElement(models_xml, "model", {'name': topname})
+    ports = tmod.ports
 
-clocks = yosys.run.list_clocks(args.infiles, top)
-clk_sigs = dict()
-for clk in clocks:
-    clk_sigs[clk] = yosys.run.get_clock_assoc_signals(args.infiles, top, clk)
+    inports_xml = ET.SubElement(model_xml, "input_ports")
+    outports_xml = ET.SubElement(model_xml, "output_ports")
 
-for name, width, iodir in ports:
-    attrs = dict(name=name)
-    sinks = yosys.run.get_combinational_sinks(args.infiles, top, name)
-    if len(sinks) > 0 and iodir == "input":
-        attrs["combinational_sink_ports"] = " ".join(sinks)
-    if name in clocks:
-        attrs["is_clock"] = "1"
+    clocks = yosys.run.list_clocks(args.infiles, top)
+    clk_sigs = dict()
     for clk in clocks:
-        if name in clk_sigs[clk]:
-            attrs["clock"] = clk
-    if iodir == "input":
-        ET.SubElement(inports_xml, "port", attrs)
-    elif iodir == "output":
-        ET.SubElement(outports_xml, "port", attrs)
-    else:
-        assert(False) #how does VPR specify inout (only applicable for PACKAGEPIN of an IO primitive)
+        clk_sigs[clk] = yosys.run.get_clock_assoc_signals(args.infiles, top, clk)
+
+    for name, width, iodir in ports:
+        attrs = dict(name=name)
+        sinks = yosys.run.get_combinational_sinks(args.infiles, top, name)
+        if len(sinks) > 0 and iodir == "input":
+            attrs["combinational_sink_ports"] = " ".join(sinks)
+        if name in clocks:
+            attrs["is_clock"] = "1"
+        for clk in clocks:
+            if name in clk_sigs[clk]:
+                attrs["clock"] = clk
+        if iodir == "input":
+            ET.SubElement(inports_xml, "port", attrs)
+        elif iodir == "output":
+            ET.SubElement(outports_xml, "port", attrs)
+        else:
+            assert(False) #how does VPR specify inout (only applicable for PACKAGEPIN of an IO primitive)
 
 outfile = "model.xml"
 if "o" in args and args.o is not None:

@@ -1,4 +1,4 @@
-<models>
+<models xmlns:xi="http://www.w3.org/2001/XInclude">
   <model name="lut2">
     <input_ports>
       <port combinational_sink_ports="y" name="in"/>
