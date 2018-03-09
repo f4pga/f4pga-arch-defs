@@ -9,10 +9,8 @@ addons:
      - coreutils
      - graphviz
      - inkscape
-     - libxml2-utils
      - make
      - nodejs
-     - xsltproc
 
 before_install:
  - source ./.travis/common.sh
