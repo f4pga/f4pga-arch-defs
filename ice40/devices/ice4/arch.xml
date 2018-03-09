@@ -19,13 +19,10 @@
   </auto_layout>
  </layout>
 
- <!--
  <directlist>
- -->
-  <!-- Carry chain from one PLB to the next PLB
-  <direct name="CARRY" from_pin="PLB.FCOUT" to_pin="PLB.FCIN" x_offset="0" y_offset="-1" z_offset="0"/>
+  <!-- Carry chain from one PLB to the next PLB -->
+  <direct name="CARRY" from_pin="PLB.carry_out" to_pin="PLB.carry_in" x_offset="0" y_offset="-1" z_offset="0"/>
  </directlist>
-       -->
 
  <device>
     <sizing R_minW_nmos="6065.520020" R_minW_pmos="18138.500000" />
