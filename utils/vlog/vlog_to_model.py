@@ -74,11 +74,16 @@ def include_xml(parent, href, xptr):
 tmod = yj.top_module
 models_xml = ET.Element("models", nsmap = {'xi': xi_url})
 
+inc_re = re.compile(r'^\s*`include\s+"([^"]+)"')
+
 deps_files = set()
-for mod in yj.all_modules():
-    if mod != top:
-        modfile = yj.get_module_file(mod)
-        deps_files.add(modfile)
+# XML dependencies need to correspond 1:1 with Verilog includes, so we have
+# to do this manually rather than using Yosys
+with open(args.infiles[0], 'r') as f:
+    for line in f:
+        im = inc_re.match(line)
+        if im:
+            deps_files.add(im.group(1))
 
 if len(deps_files) > 0:
     # Has dependencies, not a leaf model

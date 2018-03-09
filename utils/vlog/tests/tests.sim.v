@@ -3,7 +3,7 @@
 `include "lut2/lut2.sim.v"
 
 
-(* MODES="ADD,LUT" *)
+(* MODES="ADD, LUT" *)
 module tests(input clk, a, b, ci, output q, co);
   parameter MODE = "ADD";
   wire d;
