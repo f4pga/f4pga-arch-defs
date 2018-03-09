@@ -52,7 +52,7 @@ $(REDIR_EXCLUDE): $(TOP_DIR)/make/gen.mk
 
 .git/info/exclude.gen: $(TOP_DIR)/make/gen.mk
 	$(file >$(TARGET),$(call gitexclude_comment,Generated))
-	$(foreach O,$(call find_generated_files,*),$(file >>$(TARGET),$(subst $(abspath $(PWD))/,,$O)))
+	$(foreach O,$(call find_generated_files,*),$(file >>$(TARGET),$(subst $(abspath $(TOP_DIR))/,,$O)))
 
 .git/info/exclude: .git/info/exclude.base .git/info/exclude.gen | $(REDIR_EXCLUDE)
 	@cat $(PREREQ_ALL) > $(TARGET)
