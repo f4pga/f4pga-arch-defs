@@ -1,4 +1,4 @@
 <models xmlns:xi="http://www.w3.org/2001/XInclude">
- <xi:include href="carry4_split/carry4_split.model.xml" xpointer="xpointer(models/*)" />
- <xi:include href="carry4/carry4.model.xml" xpointer="xpointer(models/*)" />
+  <xi:include href="carry4/carry4.model.xml" xpointer="xpointer(models/child::node())"/>
+  <xi:include href="carry4_split/carry4_split.model.xml" xpointer="xpointer(models/child::node())"/>
 </models>
