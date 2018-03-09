@@ -1,11 +1,11 @@
 // DSP48E1 - 7 Series DSP48E1 User Guide UG479 (v1.9) September 27, 2016
 
-`include "dual_ad_preadder/sim.v"
-`include "dual_b_reg/sim.v"
-`include "mult25x18/sim.v"
-`include "nmux4/sim.v"
-`include "nmux7/sim.v"
-`include "alu/sim.v"
+`include "dual_ad_preadder/dual_ad_preadder.sim.v"
+`include "dual_b_reg/dual_b_reg.sim.v"
+`include "mult25x18/mult25x18.sim.v"
+`include "nmux4/nmux4.sim.v"
+`include "nmux7/nmux7.sim.v"
+`include "alu/alu.sim.v"
 
 // Figure 2-1: 7 Series FPGA DSP48E1 Slice
 module DSP48E1(
@@ -91,8 +91,8 @@ module DSP48E1(
    wire [17:0] 	      BMULT;
 
    // input register blocks for A, B, D
-   DUALAD_PREADDER dualad_preadder (.A(A), .ACIN(ACIN), .D(D), .ACOUT(ACOUT), .XMUX(XMUX_A_CAT), .AMULT(AMULT));
-   DUALB_REG dualb_reg (.B(B), .BCIN(BCIN), .BCOUT(BCOUT), .XMUX(XMUX_B_CAT), .BMULT(BMULT));
+   DUAL_AD_PREADDER dual_ad_preadder (.A(A), .ACIN(ACIN), .D(D), .ACOUT(ACOUT), .XMUX(XMUX_A_CAT), .AMULT(AMULT));
+   DUAL_B_REG dualb_reg (.B(B), .BCIN(BCIN), .BCOUT(BCOUT), .XMUX(XMUX_B_CAT), .BMULT(BMULT));
 
    // concatenate for XMUX
    assign XMUX_CAT = {XMUX_A_CAT, XMUX_B_CAT};

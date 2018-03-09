@@ -2,7 +2,7 @@
 // [1] 7 Series DSP48E1 User Guide UG479 (v1.9) September 27, 2016
 
 // Figure 2-7 shows details
-module DUALAD_PREADDER
+module DUAL_AD_PREADDER
   (
    A, ACIN, D,
    ACOUT, XMUX, AMULT
@@ -16,6 +16,6 @@ module DUALAD_PREADDER
    output wire [29:0] XMUX;
    output wire [24:0] AMULT;
 
-endmodule // DUALAD_PREADDER
+endmodule // DUAL_AD_PREADDER
 
 // Table 2-5 defines behavior

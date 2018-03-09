@@ -2,7 +2,7 @@
 // [1] 7 Series DSP48E1 User Guide UG479 (v1.9) September 27, 2016
 
 // Figure 2-8 and Table 2-6 shows details
-module DUALB_REG
+module DUAL_B_REG
   (
    B, BCIN,
    BCOUT, XMUX, BMULT
