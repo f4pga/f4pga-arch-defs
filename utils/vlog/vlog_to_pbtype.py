@@ -222,7 +222,7 @@ def make_pb_content(mod, xml_parent, mod_pname, is_submode = False):
         # Combinational delays
         dly_prefix = "DELAY_CONST_"
         dly_mat_prefix = "DELAY_MATRIX_"
-        for attr, atvalue in mod.net_attrs(name).items():
+        for attr, atvalue in sorted(mod.net_attrs(name).items()):
             if attr.startswith(dly_prefix):
                 # Single, constant delays
                 inp = attr[len(dly_prefix):]
