@@ -11,7 +11,6 @@ addons:
      - graphviz
      - inkscape
      - make
-     - nodejs
 
 before_install:
  - source ./.travis/common.sh
