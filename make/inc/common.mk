@@ -9,6 +9,8 @@ MAKEFLAGS += --no-builtin-rules
 PYTHONHASHSEED := 0
 export PYTHONHASHSEED
 
+SHELL := /bin/bash
+
 # Location information.
 COMMON_MK_FILE := $(realpath $(lastword $(MAKEFILE_LIST)))
 COMMON_MK_DIR  := $(realpath $(dir $(lastword $(MAKEFILE_LIST))))
