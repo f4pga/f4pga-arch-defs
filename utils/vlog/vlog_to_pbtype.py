@@ -302,9 +302,10 @@ def make_pb_type(mod):
 
     if has_modes:
         for mode in modes:
-            mode_xml = ET.SubElement(pb_type_xml, "mode", {"name" : mode})
+            smode = mode.strip()
+            mode_xml = ET.SubElement(pb_type_xml, "mode", {"name" : smode})
             # Rerun Yosys with mode parameter
-            mode_yj = YosysJson(yosys.run.vlog_to_json(args.infiles, False, False, mode, mod.name))
+            mode_yj = YosysJson(yosys.run.vlog_to_json(args.infiles, False, False, smode, mod.name))
             mode_mod = mode_yj.module(mod.name)
             make_pb_content(mode_mod, mode_xml, mod_pname, True)
     else:
