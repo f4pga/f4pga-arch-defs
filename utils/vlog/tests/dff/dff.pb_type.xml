@@ -1,0 +1,8 @@
+<pb_type xmlns:xi="http://www.w3.org/2001/XInclude" blif_model=".latch" class="flipflop" name="BEL_FF-dff" num_pb="1">
+  <clock equivalent="false" name="clk" num_pins="1" port_class="clock"/>
+  <input equivalent="false" name="d" num_pins="1" port_class="D"/>
+  <output equivalent="false" name="q" num_pins="1" port_class="Q"/>
+  <T_setup clock="clk" port="BEL_FF-dff.d" value="200e-12"/>
+  <T_hold clock="clk" port="BEL_FF-dff.d" value="50e-12"/>
+  <T_clock_to_Q clock="clk" max="400e-12" port="BEL_FF-dff.q"/>
+</pb_type>

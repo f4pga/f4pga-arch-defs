@@ -1,0 +1,32 @@
+<pb_type xmlns:xi="http://www.w3.org/2001/XInclude" name="BLK_IG-tests" num_pb="1">
+  <input equivalent="false" name="a" num_pins="1"/>
+  <input equivalent="false" name="b" num_pins="1"/>
+  <input equivalent="false" name="ci" num_pins="1"/>
+  <input equivalent="false" name="clk" num_pins="1"/>
+  <output equivalent="false" name="co" num_pins="1"/>
+  <output equivalent="false" name="q" num_pins="1"/>
+  <mode name="ADD">
+    <xi:include href="adder/adder.pb_type.xml"/>
+    <xi:include href="dff/dff.pb_type.xml"/>
+    <interconnect>
+      <direct input="BLK_IG-tests.a" name="BEL_BB-adder_a" output="BEL_BB-adder.a"/>
+      <direct input="BLK_IG-tests.b" name="BEL_BB-adder_b" output="BEL_BB-adder.b"/>
+      <direct input="BLK_IG-tests.ci" name="BEL_BB-adder_ci" output="BEL_BB-adder.ci"/>
+      <direct input="BEL_BB-adder.co" name="BLK_IG-tests_co" output="BLK_IG-tests.co"/>
+      <direct input="BLK_IG-tests.clk" name="BEL_FF-dff_clk" output="BEL_FF-dff.clk"/>
+      <direct input="BEL_BB-adder.y" name="BEL_FF-dff_d" output="BEL_FF-dff.d"/>
+      <direct input="BEL_FF-dff.q" name="BLK_IG-tests_q" output="BLK_IG-tests.q"/>
+    </interconnect>
+  </mode>
+  <mode name="LUT">
+    <xi:include href="dff/dff.pb_type.xml"/>
+    <xi:include href="lut2/lut2.pb_type.xml"/>
+    <interconnect>
+      <direct input="BLK_IG-tests.clk" name="BEL_FF-dff_clk" output="BEL_FF-dff.clk"/>
+      <direct input="BEL_BB-lut2.y" name="BEL_FF-dff_d" output="BEL_FF-dff.d"/>
+      <direct input="BEL_FF-dff.q" name="BLK_IG-tests_q" output="BLK_IG-tests.q"/>
+      <direct input="BLK_IG-tests.a" name="BEL_BB-lut2_in_0" output="BEL_BB-lut2.in[0]"/>
+      <direct input="BLK_IG-tests.b" name="BEL_BB-lut2_in_1" output="BEL_BB-lut2.in[1]"/>
+    </interconnect>
+  </mode>
+</pb_type>

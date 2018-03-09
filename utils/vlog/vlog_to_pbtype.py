@@ -13,9 +13,10 @@ The following are allowed on a top level module:
     - `(* CLASS="lut|routing|mux|flipflop|mem" *)` : specify the class of an given
     instance.
 
-    - `(* ALTERNATIVE_TO="module" *)` : specify the module is one of several
-    modes of another module (i.e. a <mode> in the pb_type). Note that all modes
-    must be visible at the time of pb_type generation.
+    - `(* MODES="mode1;mode2;..." *)` : specify that the module has more than one functional
+    mode, each with a given name. The module will be evaluated n times, each time setting
+    the MODE parameter to the nth value in the list of mode names. Each evaluation will be
+    put in a pb_type `<mode>` section named accordingly.
 
     - `(* MODEL_NAME="model" *)` : override the name used for <model> and for
     ".subckt name" in the BLIF model. Mostly intended for use with w.py, when several
@@ -104,8 +105,8 @@ def mod_pb_name(mod):
     """Convert a Verilog module to a pb_type name in the format documented here:
     https://github.com/SymbiFlow/symbiflow-arch-defs/#names"""
     is_blackbox = (mod.attr("blackbox", 0) == 1)
-    modes = yj.modules_with_attr("ALTERNATIVE_TO", mod.name)
-    has_modes = len(modes) > 0
+    modes = mod.attr("MODES", None)
+    has_modes = modes is not None
     # Process type and class of module
     mod_cls = mod.CLASS
     if mod_cls == "routing":
@@ -249,14 +250,16 @@ def make_pb_type(mod):
     generate."""
 
     attrs = mod.module_attrs
-    modes = yj.modules_with_attr("ALTERNATIVE_TO", mod.name)
+    modes = mod.attr("MODES", None)
+    if modes is not None:
+        modes = modes.split(",")
     mod_pname = mod_pb_name(mod)
 
     pb_xml_attrs = dict()
     pb_xml_attrs["name"] = mod_pname
     # If we are a blackbox with no modes, then generate a blif_model
     is_blackbox = (mod.attr("blackbox", 0) == 1)
-    has_modes = len(modes) > 0
+    has_modes = modes is not None
     # Process type and class of module
     mod_cls = mod.CLASS
     if mod_cls is not None:
@@ -297,9 +300,12 @@ def make_pb_type(mod):
         else:
             assert False
 
-    if len(modes) > 0:
-        for mode_mod in modes:
-            mode_xml = ET.SubElement(pb_type_xml, "mode", {"name" : mode_mod.name})
+    if has_modes:
+        for mode in modes:
+            mode_xml = ET.SubElement(pb_type_xml, "mode", {"name" : mode})
+            # Rerun Yosys with mode parameter
+            mode_yj = YosysJson(yosys.run.vlog_to_json(args.infiles, False, False, mode, mod.name))
+            mode_mod = mode_yj.module(mod.name)
             make_pb_content(mode_mod, mode_xml, mod_pname, True)
     else:
         make_pb_content(mod, pb_type_xml, mod_pname)

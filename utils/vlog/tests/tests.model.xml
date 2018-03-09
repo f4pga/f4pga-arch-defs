@@ -1,14 +1,14 @@
 <models>
-  <model name="test_pb">
+  <model name="tests">
     <input_ports>
-      <port name="clk"/>
       <port name="a"/>
       <port name="b"/>
       <port name="ci"/>
+      <port name="clk"/>
     </input_ports>
     <output_ports>
-      <port name="q"/>
       <port name="co"/>
+      <port name="q"/>
     </output_ports>
   </model>
 </models>
