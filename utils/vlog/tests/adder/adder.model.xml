@@ -6,8 +6,8 @@
       <port combinational_sink_ports="co y" name="ci"/>
     </input_ports>
     <output_ports>
-      <port name="y"/>
       <port name="co"/>
+      <port name="y"/>
     </output_ports>
   </model>
 </models>

@@ -27,7 +27,7 @@ def script(script, infiles = []):
     params = ["-q", "-s", script] + infiles
     return get_output(params)
 
-def vlog_to_json(infiles, flatten = False, aig = False):
+def vlog_to_json(infiles, flatten = False, aig = False, mode = None, mode_mod = None):
     """
     Convert Verilog to a JSON representation using Yosys
 
@@ -36,10 +36,16 @@ def vlog_to_json(infiles, flatten = False, aig = False):
     infiles : list of input files
     flatten : set to flatten output hierarchy
     aig : generate And-Inverter-Graph modules for gates
+    mode : set to a value other than None to use `chparam` to set the value of the MODE parameter
+    mode_mod : the name of the module to apply `mode` to
     """
     prep_opts = "-flatten" if flatten else ""
     json_opts = "-aig" if aig else ""
-    cmds = "prep %s; write_json %s" % (prep_opts, json_opts)
+    if mode is not None:
+        mode_str = "chparam -set MODE \"%s\" %s; " % (mode, mode_mod)
+    else:
+        mode_str = ""
+    cmds = "%sprep %s; write_json %s" % (mode_str, prep_opts, json_opts)
     j = yosys.utils.strip_yosys_json(commands(cmds, infiles))
     """with open('dump.json', 'w') as dbg:
         print(j,file=dbg)"""
