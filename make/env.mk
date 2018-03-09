@@ -55,6 +55,12 @@ $(CONDA_XSLTPROC): | $(CONDA_SETUP)
 $(CONDA_PYTEST): | $(CONDA_SETUP)
 	$(CONDA_BIN) install pytest
 
+$(CONDA_NODE): | $(CONDA_SETUP)
+	$(CONDA_BIN) install nodejs
+
+$(CONDA_NPM): | $(CONDA_SETUP)
+	$(CONDA_BIN) install nodejs
+
 make:
 	make -C $(TOP_DIR) -f $(TOP_DIR)/make/env.mk $(CONDA_MAKE)
 
