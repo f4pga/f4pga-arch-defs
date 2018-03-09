@@ -104,7 +104,7 @@ all:
 	$(call quiet_cmd,make wire.echo,Ran $(GREEN)wire$(NC)test)
 	$(call quiet_cmd,make ff.echo,Ran $(GREEN)ff$(NC)test)
 	$(call quiet_cmd,make lut.echo,Ran $(GREEN)lut$(NC)test)
-	$(call quiet_cmd,make mlut.echo,Ran $(GREEN)lut$(NC)test)
+	$(call quiet_cmd,make mlut.echo,Ran $(GREEN)mlut$(NC)test)
 
 .PHONY: all
 .DEFAULT_GOAL := all
