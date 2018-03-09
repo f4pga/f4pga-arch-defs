@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 """
 This file needs to be kept in sync with ../../make/deps.mk
 """
@@ -14,95 +15,98 @@ DEPMK_EXT=".dmk"
 
 
 def makefile_dir(filepath):
-    """
+    """Get the directory part of a path in the same way make does.
+
+    Python version of the makefile `$(dir xxx)` function.
+
     >>> makefile_dir("blah1")
     ''
     >>> makefile_dir("a/blah2")
     'a/'
     >>> makefile_dir("../b/blah3")
     '../b/'
-    >>> makefile_dir("./blah1")
+    >>> makefile_dir("./blah4")
     ''
+    >>> makefile_dir("/abc/blah6")
+    '/abc/'
+    >>> makefile_dir("/blah5")
+    '/'
     """
-    dirname=os.path.dirname(filepath)
-    if not dirname:
+    dirname=os.path.dirname(os.path.normpath(filepath))
+    if not dirname or dirname == '.':
         return ''
-    return dirname+'/'
+    if dirname[-1] != '/':
+        dirname += '/'
+    return dirname
 
 
 def makefile_notdir(filepath):
-    """
+    """Get the non-directory part of a path in the same way make does.
+
+    Python version of the makefile `$(nodir xxxx)` function.
+
     >>> makefile_notdir("blah1")
     'blah1'
     >>> makefile_notdir("a/blah2")
     'blah2'
     >>> makefile_notdir("../b/blah3")
     'blah3'
+    >>> makefile_notdir("blah4/")
+    ''
+    >>> makefile_notdir("/blah5")
+    'blah5'
+    >>> makefile_notdir("/abc/blah6")
+    'blah6'
     """
     return os.path.basename(filepath)
 
 
-def depend_on_only(filepath):
+def deps_dir(filepath, *, top_dir=TOP_DIR):
+    """Get the directory to put dependencies files into.
+
+    >>> td = os.path.abspath(os.curdir)
+    >>> deps_dir("./a/blah", top_dir=td)
+    '.deps/a/blah'
+    >>> deps_dir("blah", top_dir=td)
+    '.deps/blah'
+    >>> deps_dir("blah.abc", top_dir=td)
+    '.deps/blah.abc'
+    >>> deps_dir("/abc3/blah", top_dir='/abc3')
+    '.deps/blah'
+    >>> deps_dir("/abc3/blah", top_dir='/abc4')
+    Traceback (most recent call last):
+        ...
+    OSError: /abc3/blah is not inside top /abc4
     """
-    Python version of `$(call depend_on_only,{})`
-    """
-    return filepath
-
-
-def depend_on_deps(filepath):
-    """
-    Python version of `$(call depend_on_deps,{})`
-
-    >>> deps_file("./a/blah")
-    'a/blah.d'
-    >>> deps_file("blah")
-    'blah.d'
-    """
-    return deps_dir("{dir}{notdir}{ext}".format(
-        dir=makefile_dir(filepath),
-        notdir=makefile_notdir(filepath),
-        ext=DEPS_EXT,
-    ))
-
-
-def deps_dir(filepath):
-    return "{top_dir}/{deps_dir}/{filepath_notop}".format(
-        top_dir=TOP_DIR,
+    filepath = os.path.normpath(filepath)
+    if filepath[0] != '/':
+        filepath = os.path.abspath(filepath)
+    filepath_notop = filepath.replace(top_dir+'/', '')
+    if filepath_notop == filepath:
+        raise IOError("{} is not inside top {}".format(filepath, top_dir))
+    return "{deps_dir}/{dir}{notdir}".format(
         deps_dir=DEPS_DIR,
-        filepath_notop=filepath.replace(TOP_DIR,''),
+        dir=makefile_dir(filepath_notop),
+        notdir=makefile_notdir(filepath_notop),
     )
 
 
-def deps_makefile(filepath):
-    """
-    Python version of `$(call deps_makefile,{})`
+def deps_makefile(filepath, *, top_dir=TOP_DIR):
+    """Get deps makefile name.
 
-    >>> deps_file("./a/blah")
-    'a/blah.dmk'
-    >>> deps_file("blah")
-    'blah.dmk'
+    Python version of `$(call deps_makefile,{})` in make/deps.mk
+
+    >>> td = os.path.abspath(os.curdir)
+    >>> deps_makefile("./a/blah", top_dir=td)
+    '.deps/a/blah.dmk'
+    >>> deps_makefile("blah", top_dir=td)
+    '.deps/blah.dmk'
     """
     return deps_dir("{dir}{notdir}{ext}".format(
         dir=makefile_dir(filepath),
         notdir=makefile_notdir(filepath),
         ext=DEPMK_EXT,
-    ))
-
-
-def depend_on_all(filepath):
-    """
-    Python version of `$call depend_on_all,{})`
-
-    >>> deps_all("./a/blah")
-    'a/blah a/blah.d'
-    >>> deps_all("blah")
-    'blah blah.d'
-
-    """
-    return "{only} {deps}".format(
-        only=deps_only(filepath),
-        deps=deps_file(filepath),
-    )
+    ), top_dir=top_dir)
 
 
 def add_dependency(f, from_file, on_file):
