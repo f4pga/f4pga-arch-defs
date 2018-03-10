@@ -9,12 +9,12 @@ module CARRY4_TOP(CO, O, CIN, DI, S);
 	input CIN;
 	input [3:0] DI;
 	input [3:0] S;
-	parameter [1023:0] MODE = "SPLIT";
+	parameter MODE = "SPLIT";
 
 	generate
-		if(MODE == "SPLIT") begin
+		if (MODE == "SPLIT") begin
 			CARRY4_SPLIT split_i(.CO(CO), .O(O), .CIN(CIN), .DI(DI), .S(S));
-		end else if(MODE == "COMPLETE") begin
+		end else if (MODE == "COMPLETE") begin
 			CARRY4 complete_i(.CO(CO), .O(O), .CIN(CIN), .DI(DI), .S(S));
 		end
 	endgenerate
