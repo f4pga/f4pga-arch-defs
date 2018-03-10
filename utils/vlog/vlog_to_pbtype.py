@@ -13,7 +13,7 @@ The following are allowed on a top level module:
     - `(* CLASS="lut|routing|mux|flipflop|mem" *)` : specify the class of an given
     instance.
 
-    - `(* MODES="mode1;mode2;..." *)` : specify that the module has more than one functional
+    - `(* MODES="mode1, mode2, ..." *)` : specify that the module has more than one functional
     mode, each with a given name. The module will be evaluated n times, each time setting
     the MODE parameter to the nth value in the list of mode names. Each evaluation will be
     put in a pb_type `<mode>` section named accordingly.
@@ -51,7 +51,7 @@ import argparse, re
 import lxml.etree as ET
 
 import yosys.run
-from yosys.json import YosysJson
+from yosys.json import YosysJSON
 
 parser = argparse.ArgumentParser(description=__doc__.strip(), formatter_class=argparse.RawTextHelpFormatter)
 parser.add_argument(
@@ -79,7 +79,7 @@ iname = os.path.basename(args.infiles[0])
 
 yosys.run.add_define("PB_TYPE")
 vjson = yosys.run.vlog_to_json(args.infiles, False, False)
-yj = YosysJson(vjson)
+yj = YosysJSON(vjson)
 
 xi_url = "http://www.w3.org/2001/XInclude"
 ET.register_namespace('xi', xi_url)
@@ -305,7 +305,7 @@ def make_pb_type(mod):
             smode = mode.strip()
             mode_xml = ET.SubElement(pb_type_xml, "mode", {"name" : smode})
             # Rerun Yosys with mode parameter
-            mode_yj = YosysJson(yosys.run.vlog_to_json(args.infiles, False, False, smode, mod.name))
+            mode_yj = YosysJSON(yosys.run.vlog_to_json(args.infiles, False, False, smode, mod.name))
             mode_mod = mode_yj.module(mod.name)
             make_pb_content(mode_mod, mode_xml, mod_pname, True)
     else:

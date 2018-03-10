@@ -19,7 +19,7 @@ import os, tempfile, sys
 import lxml.etree as ET
 
 import yosys.run
-from yosys.json import YosysJson
+from yosys.json import YosysJSON
 
 
 parser = argparse.ArgumentParser(description=__doc__.strip())
@@ -49,7 +49,7 @@ iname = os.path.basename(args.infiles[0])
 aig_json = yosys.run.vlog_to_json(args.infiles, True, True)
 
 if args.top is not None:
-    yj = YosysJson(aig_json, args.top)
+    yj = YosysJSON(aig_json, args.top)
     top = yj.top
 else:
     wm = re.match(r"([A-Za-z0-9_]+)\.sim\.v", iname)
@@ -58,7 +58,7 @@ else:
     else:
         print("ERROR file name not of format %.sim.v ({}), cannot detect top level. Manually specify the top level module using --top").format(iname)
         sys.exit(1)
-    yj = YosysJson(aig_json, top)
+    yj = YosysJSON(aig_json, top)
 
 if top is None:
     print("ERROR: more than one module in design, cannot detect top level. Manually specify the top level module using --top")
