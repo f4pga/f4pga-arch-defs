@@ -84,8 +84,9 @@ deps_files = set()
 with open(args.infiles[0], 'r') as f:
     for line in f:
         im = inc_re.match(line)
-        if im:
-            deps_files.add(im.group(1))
+        if not im:
+            continue
+        deps_files.add(im.group(1))
 
 if len(deps_files) > 0:
     # Has dependencies, not a leaf model
@@ -98,7 +99,7 @@ if len(deps_files) > 0:
         if wm:
             model_path = "%s/%s.model.xml" % (module_path, wm.group(1).lower())
         else:
-            assert False
+            assert False, "included Verilog file name %s does not follow pattern %%.sim.v" % module_basename
         xmlinc.include_xml(models_xml, model_path, outfile, "xpointer(models/child::node())")
 else:
     # Is a leaf model
@@ -131,7 +132,7 @@ else:
             elif iodir == "output":
                 ET.SubElement(outports_xml, "port", attrs)
             else:
-                assert(False) #how does VPR specify inout (only applicable for PACKAGEPIN of an IO primitive)
+                assert False, "bidirectional ports not permitted in VPR models"
 
 
 if len(models_xml) == 0:

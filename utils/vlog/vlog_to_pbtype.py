@@ -201,7 +201,7 @@ def make_pb_content(mod, xml_parent, mod_pname, is_submode = False):
         """Add a suitable timing spec if necessary to the pb_type"""
         if tmgspec is not None:
             splitspec = tmgspec.split(" ")
-            assert len(splitspec) == 2
+            assert len(splitspec) == 2, 'bad timing specification "%s", must be of format "clock value"' % tmgspec
             attrs = {"port": port, "clock": splitspec[0]}
             if xmltype == "T_clock_to_Q":
                 attrs["max"] = splitspec[1]
@@ -276,7 +276,7 @@ def make_pb_type(mod):
             pb_xml_attrs["blif_model"] = ".latch"
             pb_xml_attrs["class"] = "flipflop"
         else:
-            assert False
+            assert False, "unknown class %s" % mod_cls
     elif is_blackbox and not has_modes:
         pb_xml_attrs["blif_model"] = ".subckt " + mod.attr("MODEL_NAME", mod.name)
 
@@ -298,7 +298,7 @@ def make_pb_type(mod):
         elif iodir == "output":
             ET.SubElement(pb_type_xml, "output", ioattrs)
         else:
-            assert False
+            assert False, "bidirectional ports not supported in VPR pb_types"
 
     if has_modes:
         for mode in modes:
