@@ -23,7 +23,7 @@ import lxml.etree as ET
 
 import yosys.run
 from yosys.json import YosysJSON
-
+import xmlinc
 
 parser = argparse.ArgumentParser(description=__doc__.strip())
 parser.add_argument(
@@ -49,6 +49,10 @@ Output filename, default 'model.xml'
 args = parser.parse_args()
 iname = os.path.basename(args.infiles[0])
 
+outfile = "model.xml"
+if "o" in args and args.o is not None:
+    outfile = args.o
+
 aig_json = yosys.run.vlog_to_json(args.infiles, True, True)
 
 if args.top is not None:
@@ -67,15 +71,10 @@ if top is None:
     print("ERROR: more than one module in design, cannot detect top level. Manually specify the top level module using --top")
     sys.exit(1)
 
-xi_url = "http://www.w3.org/2001/XInclude"
-ET.register_namespace('xi', xi_url)
-xi_include = "{%s}include" % xi_url
-
-def include_xml(parent, href, xptr):
-    return ET.SubElement(parent, xi_include, {'href': href, 'xpointer': xptr})
+ET.register_namespace('xi', xmlinc.xi_url)
 
 tmod = yj.top_module
-models_xml = ET.Element("models", nsmap = {'xi': xi_url})
+models_xml = ET.Element("models", nsmap = {'xi': xmlinc.xi_url})
 
 inc_re = re.compile(r'^\s*`include\s+"([^"]+)"')
 
@@ -98,7 +97,7 @@ if len(deps_files) > 0:
             model_path = "%s/%s.model.xml" % (module_path, wm.group(1).lower())
         else:
             assert False
-        include_xml(models_xml, model_path, "xpointer(models/child::node())")
+        xmlinc.include_xml(models_xml, model_path, outfile, "xpointer(models/child::node())")
 else:
     # Is a leaf model
     topname = tmod.attr("MODEL_NAME", top)
@@ -132,9 +131,6 @@ else:
             else:
                 assert(False) #how does VPR specify inout (only applicable for PACKAGEPIN of an IO primitive)
 
-outfile = "model.xml"
-if "o" in args and args.o is not None:
-    outfile = args.o
 
 f = open(outfile, 'w')
 f.write(ET.tostring(models_xml, pretty_print=True).decode('utf-8'))

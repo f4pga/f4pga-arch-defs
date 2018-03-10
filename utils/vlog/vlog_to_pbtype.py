@@ -52,6 +52,7 @@ import lxml.etree as ET
 
 import yosys.run
 from yosys.json import YosysJSON
+import xmlinc
 
 parser = argparse.ArgumentParser(description=__doc__.strip(), formatter_class=argparse.RawTextHelpFormatter)
 parser.add_argument(
@@ -77,16 +78,15 @@ Output filename, default 'model.xml'
 args = parser.parse_args()
 iname = os.path.basename(args.infiles[0])
 
+outfile = "pb_type.xml"
+if "o" in args and args.o is not None:
+    outfile = args.o
+
 yosys.run.add_define("PB_TYPE")
 vjson = yosys.run.vlog_to_json(args.infiles, False, False)
 yj = YosysJSON(vjson)
 
-xi_url = "http://www.w3.org/2001/XInclude"
-ET.register_namespace('xi', xi_url)
-xi_include = "{%s}include" % xi_url
-
-def include_xml(parent, href):
-    return ET.SubElement(parent, xi_include, {'href': href})
+ET.register_namespace('xi', xmlinc.xi_url)
 
 if args.top is not None:
     top = args.top
@@ -167,7 +167,7 @@ def make_pb_content(mod, xml_parent, mod_pname, is_submode = False):
                 pb_type_path = "%s/%s.pb_type.xml" % (module_path, wm.group(1).lower())
             else:
                 pb_type_path = "%s/pb_type.xml" % module_path
-            include_xml(xml_parent, pb_type_path)
+            xmlinc.include_xml(xml_parent, pb_type_path, outfile)
             # In order to avoid overspecifying interconnect, there are two directions we currently
             # consider. All interconnect going INTO a cell, and interconnect going out of a cell
             # into a top level output - or all outputs if "mode" is used.
@@ -282,7 +282,7 @@ def make_pb_type(mod):
 
     #TODO: might not always be the case? should be use Verilog `generate`s to detect this?
     pb_xml_attrs["num_pb"] = "1"
-    pb_type_xml = ET.Element("pb_type", pb_xml_attrs, nsmap = {'xi': xi_url})
+    pb_type_xml = ET.Element("pb_type", pb_xml_attrs, nsmap = {'xi': xmlinc.xi_url})
 
     # Process IOs
     clocks = yosys.run.list_clocks(args.infiles, mod.name)
@@ -315,9 +315,6 @@ def make_pb_type(mod):
 
 pb_type_xml = make_pb_type(tmod)
 
-outfile = "pb_type.xml"
-if "o" in args and args.o is not None:
-    outfile = args.o
 
 f = open(outfile, 'w')
 f.write(ET.tostring(pb_type_xml, pretty_print=True).decode('utf-8'))
