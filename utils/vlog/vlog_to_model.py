@@ -12,6 +12,9 @@ The following Verilog attributes are considered on modules:
     ".subckt name" in the BLIF model. Mostly intended for use with w.py, when several
     different pb_types implement the same model.
 
+    - `(* CLASS="lut|routing|mux|flipflop|mem" *)` : specify the class of an given
+    instance. A model will not be generated for the `lut`, `routing` or `flipflop`
+    class.
 """
 import argparse, re
 import os, tempfile, sys
@@ -99,34 +102,35 @@ if len(deps_files) > 0:
 else:
     # Is a leaf model
     topname = tmod.attr("MODEL_NAME", top)
+    modclass = tmod.attr("CLASS", "")
+    if modclass not in ("lut", "routing", "flipflop"):
+        model_xml = ET.SubElement(models_xml, "model", {'name': topname})
+        ports = tmod.ports
 
-    model_xml = ET.SubElement(models_xml, "model", {'name': topname})
-    ports = tmod.ports
+        inports_xml = ET.SubElement(model_xml, "input_ports")
+        outports_xml = ET.SubElement(model_xml, "output_ports")
 
-    inports_xml = ET.SubElement(model_xml, "input_ports")
-    outports_xml = ET.SubElement(model_xml, "output_ports")
-
-    clocks = yosys.run.list_clocks(args.infiles, top)
-    clk_sigs = dict()
-    for clk in clocks:
-        clk_sigs[clk] = yosys.run.get_clock_assoc_signals(args.infiles, top, clk)
-
-    for name, width, iodir in ports:
-        attrs = dict(name=name)
-        sinks = yosys.run.get_combinational_sinks(args.infiles, top, name)
-        if len(sinks) > 0 and iodir == "input":
-            attrs["combinational_sink_ports"] = " ".join(sinks)
-        if name in clocks:
-            attrs["is_clock"] = "1"
+        clocks = yosys.run.list_clocks(args.infiles, top)
+        clk_sigs = dict()
         for clk in clocks:
-            if name in clk_sigs[clk]:
-                attrs["clock"] = clk
-        if iodir == "input":
-            ET.SubElement(inports_xml, "port", attrs)
-        elif iodir == "output":
-            ET.SubElement(outports_xml, "port", attrs)
-        else:
-            assert(False) #how does VPR specify inout (only applicable for PACKAGEPIN of an IO primitive)
+            clk_sigs[clk] = yosys.run.get_clock_assoc_signals(args.infiles, top, clk)
+
+        for name, width, iodir in ports:
+            attrs = dict(name=name)
+            sinks = yosys.run.get_combinational_sinks(args.infiles, top, name)
+            if len(sinks) > 0 and iodir == "input":
+                attrs["combinational_sink_ports"] = " ".join(sinks)
+            if name in clocks:
+                attrs["is_clock"] = "1"
+            for clk in clocks:
+                if name in clk_sigs[clk]:
+                    attrs["clock"] = clk
+            if iodir == "input":
+                ET.SubElement(inports_xml, "port", attrs)
+            elif iodir == "output":
+                ET.SubElement(outports_xml, "port", attrs)
+            else:
+                assert(False) #how does VPR specify inout (only applicable for PACKAGEPIN of an IO primitive)
 
 outfile = "model.xml"
 if "o" in args and args.o is not None:
