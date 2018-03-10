@@ -191,7 +191,7 @@ class YosysModule:
         cell_drivers = self.conn_ports(net, "input")
         return io_drivers + cell_drivers
 
-class YosysJson:
+class YosysJSON:
 
     def __init__(self, j, top = None):
         """Takes either the filename to a JSON file, or already parsed JSON
