@@ -1,8 +1,0 @@
-<pb_type xmlns:xi="http://www.w3.org/2001/XInclude" blif_model=".subckt lut2" name="BEL_BB-lut2" num_pb="1">
-  <input equivalent="false" name="in" num_pins="2"/>
-  <output equivalent="false" name="y" num_pins="1"/>
-  <delay_matrix in_port="BEL_BB-lut2.in" out_port="BEL_BB-lut2.y" type="max">
-10e-12
- 10e-12
-</delay_matrix>
-</pb_type>
