@@ -82,5 +82,11 @@ class Size(_Size):
         return NotImplemented
 
 
+S = Size
+
+
 class Offset(Size):
     pass
+
+
+O = Offset
