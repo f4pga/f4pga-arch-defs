@@ -31,7 +31,7 @@ def frozendict(*args, **kwargs):
 
 
 class MostlyReadOnly:
-    """
+    """Object which is **mostly** read only.
 
     >>> class MyRO(MostlyReadOnly):
     ...     __slots__ = ["_str", "_list", "_set", "_dict"]
@@ -68,10 +68,21 @@ class MostlyReadOnly:
         ...
     AttributeError: random not found
     >>> a.random = 1
+    Traceback (most recent call last):
+        ...
+    AttributeError: random not found
     >>> a.random
-    1
+    Traceback (most recent call last):
+        ...
+    AttributeError: random not found
     >>> 
     """
+
+    def __setattr__(self, key, value=None):
+        if key.startswith("_"):
+            return super().__setattr__(key, value)
+        if "_"+key not in self.__class__.__slots__:
+            raise AttributeError("{} not found".format(key))
 
     def __getattr__(self, key):
         if "_"+key not in self.__class__.__slots__:
