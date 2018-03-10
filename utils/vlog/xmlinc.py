@@ -5,6 +5,11 @@ xi_url = "http://www.w3.org/2001/XInclude"
 
 xi_include = "{%s}include" % xi_url
 
+def make_relhref(outfile, href):
+    outpath = os.path.dirname(os.path.abspath(outfile))
+    relpath = os.path.relpath(os.path.dirname(os.path.abspath(href)), outpath)
+    return os.path.join(relpath, os.path.basename(href))
+
 def include_xml(parent, href, outfile, xptr = None):
     """
     Generate an XML include, using a relative path.
@@ -16,9 +21,7 @@ def include_xml(parent, href, outfile, xptr = None):
     outfile : path to output file, for relative path generation
     xptr : optional value for xpointer attribute
     """
-    outpath = os.path.dirname(outfile)
-    relhref = os.path.relpath(href, outpath)
-    xattrs = {'href': relhref}
+    xattrs = {'href': make_relhref(outfile, href)}
     if xptr is not None:
         xattrs["xpointer"] = xptr
     return ET.SubElement(parent, xi_include, xattrs)

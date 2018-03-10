@@ -90,8 +90,10 @@ with open(args.infiles[0], 'r') as f:
 if len(deps_files) > 0:
     # Has dependencies, not a leaf model
     for df in sorted(deps_files):
-        module_path = os.path.dirname(df)
-        module_basename = os.path.basename(df)
+        abs_base = os.path.dirname(os.path.abspath(args.infiles[0]))
+        abs_dep = os.path.normpath(os.path.join(abs_base, df))
+        module_path = os.path.dirname(abs_dep)
+        module_basename = os.path.basename(abs_dep)
         wm = re.match(r"([A-Za-z0-9_]+)\.sim\.v", module_basename)
         if wm:
             model_path = "%s/%s.model.xml" % (module_path, wm.group(1).lower())
@@ -131,6 +133,9 @@ else:
             else:
                 assert(False) #how does VPR specify inout (only applicable for PACKAGEPIN of an IO primitive)
 
+
+if len(models_xml) == 0:
+    models_xml.insert(0, ET.Comment("this file is intentionally left blank"))
 
 f = open(outfile, 'w')
 f.write(ET.tostring(models_xml, pretty_print=True).decode('utf-8'))
