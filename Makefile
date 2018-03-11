@@ -43,7 +43,7 @@ test:
 clean:
 	@true
 
-dist-clean:
+dist-clean: clean
 	@true
 
 .PHONY: clean dist-clean
