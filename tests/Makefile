@@ -80,6 +80,9 @@ $(OUTPUT_DIR)/%.rr_graph.pretty.xml: $(OUTPUT_DIR)/%.rr_graph.xml
 %.rr_graph.xml: $(OUTPUT_DIR)/%.rr_graph.xml | $(OUTPUT_DIR)
 	@true
 
+%.rr_graph.pretty.xml: $(OUTPUT_DIR)/%.rr_graph.pretty.xml | $(OUTPUT_DIR)
+	@true
+
 .PRECIOUS: $(OUTPUT_DIR)/%.rr_graph.xml
 .PRECIOUS: $(OUTPUT_DIR)/%.rr_graph.pretty.xml
 # ------------------------------------------------------------------------

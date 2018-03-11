@@ -63,18 +63,18 @@ class MostlyReadOnly:
     [('a', 1), ('b', 2), ('c', 3)]
     >>> a
     MyRO(str='t', list=[1, 2, 3], set={1, 2, 3}, dict={'a': 1, 'b': 2, 'c': 3, 'd': 4})
-    >>> a.random
+    >>> a.missing
     Traceback (most recent call last):
         ...
-    AttributeError: random not found
-    >>> a.random = 1
+    AttributeError: missing not found
+    >>> a.missing = 1
     Traceback (most recent call last):
         ...
-    AttributeError: random not found
-    >>> a.random
+    AttributeError: missing not found
+    >>> a.missing
     Traceback (most recent call last):
         ...
-    AttributeError: random not found
+    AttributeError: missing not found
     >>> 
     """
 
@@ -97,6 +97,8 @@ class MostlyReadOnly:
             return frozenset(value)
         elif isinstance(value, dict):
             return frozendict(value)
+        elif isinstance(value, enum.Enum):
+            return value
         else:
             raise AttributeError(
                 "Unable to return {}, don't now how to make type {} (from {!r}) read only.".format(
@@ -247,8 +249,9 @@ class Pin(MostlyReadOnly):
         Pin(pin_class=PinClass(), pin_class_index=0, port_name='outpad', port_index=2, block_type_name='bt', block_type_index=1)
         >>> str(pin)
         'bt.outpad[2]'
+        >>> pin.ptc
+        1
         """
-
         assert pin_node.tag == "pin"
         pin_class_index = int(pin_node.attrib["index"])
         block_type_index = int(pin_node.attrib["ptc"])
@@ -324,15 +327,23 @@ class PinClass(MostlyReadOnly):
         """
 
         >>> bt = BlockType(name="bt")
-        >>> xml_string = '''
+        >>> xml_string1 = '''
         ... <pin_class type="INPUT">
         ...   <pin index="0" ptc="0">bt.outpad[0]</pin>
         ... </pin_class>
         ... '''
-        >>> pc = PinClass.from_xml(bt, ET.fromstring(xml_string))
+        >>> pc = PinClass.from_xml(bt, ET.fromstring(xml_string1))
         >>> pc # doctest: +ELLIPSIS
         PinClass(block_type=BlockType(), direction='input', pins={0: ...})
-        >>> 
+        >>> pc.pins[0]
+        Pin(pin_class=PinClass(), pin_class_index=0, port_name='outpad', port_index=0, block_type_name='bt', block_type_index=0)
+        >>> xml_string2 = '''
+        ... <pin_class type="INPUT">0 </pin_class>
+        ... '''
+        >>> pc = PinClass.from_xml(bt, ET.fromstring(xml_string2))
+        >>> pc # doctest: +ELLIPSIS
+        PinClass(block_type=BlockType(), direction='input', pins={0: ...})
+        >>> pc.pins[0]
         """
         assert_eq(pin_class_node.tag, "pin_class")
         assert "type" in pin_class_node.attrib
@@ -380,11 +391,13 @@ class BlockType(MostlyReadOnly):
             for pc in pin_classes:
                 self._add_pin_class(pc)
 
+        if graph is not None:
+            graph.add_block_type(self)
+
     @classmethod
     def from_xml(cls, graph, block_type_node):
         """
 
-        >>> g = None
         >>> xml_string = '''
         ... <block_type id="1" name="BLK_BB-VPR_PAD" width="2" height="3">
         ...   <pin_class type="OUTPUT">
@@ -398,11 +411,47 @@ class BlockType(MostlyReadOnly):
 	...   </pin_class>
         ... </block_type>
         ... '''
-        >>> bt = BlockType.from_xml(g, ET.fromstring(xml_string))
+        >>> bt = BlockType.from_xml(None, ET.fromstring(xml_string))
         >>> bt # doctest: +ELLIPSIS
         BlockType(graph=None, id=1, name='BLK_BB-VPR_PAD', size=Size(w=2, h=3), pin_classes=[...], pin_index={...})
-        >>> 
+        >>> bt.pin_classes[0].direction
+        'output'
+        >>> bt.pin_classes[0] # doctest: +ELLIPSIS
+        PinClass(block_type=BlockType(), direction='output', pins={...})
+        >>> bt.pin_classes[0].pins[0]
+        Pin(pin_class=PinClass(), pin_class_index=0, port_name='outpad', port_index=0, block_type_name='BLK_BB-VPR_PAD', block_type_index=0)
+        >>> bt.pin_classes[1].direction
+        'output'
+        >>> bt.pin_classes[1].pins[0]
+        Pin(pin_class=PinClass(), pin_class_index=0, port_name='outpad', port_index=1, block_type_name='BLK_BB-VPR_PAD', block_type_index=1)
+        >>> bt.pin_classes[2].direction
+        'input'
+        >>> bt.pin_classes[2].pins[0]
+        Pin(pin_class=PinClass(), pin_class_index=0, port_name='inpad', port_index=0, block_type_name='BLK_BB-VPR_PAD', block_type_index=2)
 
+        >>> xml_string = '''
+        ... <block_type id="1" name="BLK_BB-VPR_PAD" width="2" height="3">
+        ...   <pin_class type="OUTPUT">
+	...     <pin index="0" ptc="0">BLK_BB-VPR_PAD.outpad[0]</pin>
+	...     <pin index="1" ptc="1">BLK_BB-VPR_PAD.outpad[1]</pin>
+	...   </pin_class>
+        ...   <pin_class type="INPUT">
+	...     <pin index="0" ptc="2">BLK_BB-VPR_PAD.inpad[0]</pin>
+	...   </pin_class>
+        ... </block_type>
+        ... '''
+        >>> bt = BlockType.from_xml(None, ET.fromstring(xml_string))
+        >>> bt # doctest: +ELLIPSIS
+        BlockType(graph=None, id=1, name='BLK_BB-VPR_PAD', size=Size(w=2, h=3), pin_classes=[...], pin_index={...})
+        >>> bt.pin_classes[0] # doctest: +ELLIPSIS
+        PinClass(block_type=BlockType(), direction='output', pins={...})
+        >>> bt.pin_classes[0].pins[0]
+        Pin(pin_class=PinClass(), pin_class_index=0, port_name='outpad', port_index=0, block_type_name='BLK_BB-VPR_PAD', block_type_index=0)
+        >>> bt.pin_classes[1].pins[0]
+        Pin(pin_class=PinClass(), pin_class_index=1, port_name='outpad', port_index=1, block_type_name='BLK_BB-VPR_PAD', block_type_index=1)
+        >>> bt.pin_classes[2].pins[0]
+        Pin(pin_class=PinClass(), pin_class_index=0, port_name='inpad', port_index=0, block_type_name='BLK_BB-VPR_PAD', block_type_index=2)
+        >>> 
         """
         assert block_type_node.tag == "block_type", block_type_node
         block_type_id = int(block_type_node.attrib['id'])
@@ -420,6 +469,15 @@ class BlockType(MostlyReadOnly):
             assert_is(pin, self._pin_index[pin.block_type_index])
 
     def _add_pin(self, pin):
+        """
+
+        >>> pc = PinClass(direction=PinClassDirection.INPUT)
+        >>> pc._add_pin(Pin())
+        >>> pc.pins
+        
+        >>> bt = BlockType()
+
+        """
         assert_type(pin, Pin)
         self._could_add_pin(pin)
         if pin.block_type_name is None:
@@ -476,7 +534,16 @@ class Block(MostlyReadOnly):
         >>> xml_string = '''
 	... <grid_loc x="0" y="0" block_type_id="0" width_offset="0" height_offset="0"/>
         ... '''
-        >>> bl = Block.from_xml(g, ET.fromstring(xml_string))
+        >>> bl1 = Block.from_xml(g, ET.fromstring(xml_string))
+        >>> bl1 # doctest: +ELLIPSIS
+        Block(graph=<...>, block_type=BlockType(), position=P(x=0, y=0), offset=Offset(w=0, h=0))
+        >>> 
+        >>> xml_string = '''
+	... <grid_loc x="2" y="5" block_type_id="0" width_offset="1" height_offset="2"/>
+        ... '''
+        >>> bl2 = Block.from_xml(g, ET.fromstring(xml_string))
+        >>> bl2 # doctest: +ELLIPSIS
+        Block(graph=<...>, block_type=BlockType(), position=P(x=2, y=5), offset=Offset(w=1, h=2))
         """
         assert grid_loc_node.tag == "grid_loc"
 
@@ -770,6 +837,7 @@ class Graph:
     def __init__(self, rr_graph_file=None):
         # Read in existing file
         if rr_graph_file:
+            self.block_graph = BlockGraph()
             self._xml_graph = ET.parse(rr_graph_file)
             self.import_block_types()
             self.import_grid()
@@ -788,23 +856,13 @@ class Graph:
         self._xml_nodes.clear()
         self._xml_edges.clear()
 
-
     def import_block_types(self):
         # Create in the block_types information
         for block_type in self._xml_graph.iterfind("./block_types/block_type"):
             block_id = int(block_type.attrib['id'])
             block_name = block_type.attrib['name'].strip()
 
-            bt = BlockType(name=block_name, id=block_id)
-            continue
-            for pin in block_type.iterfind("./pin_class/pin"):
-                pin_index = int(pin.attrib["index"])
-                pin_ptc = int(pin.attrib["ptc"])
-                pin_block_name, pin_port_name, pins = parse_net(pin.text.strip())
-                assert_eq(pin_block_name, block_name)
-                assert_eq(len(pins), 1)
-                assert Pin.Types(pin.getparent().attrib["type"])
-                blocktype_pins[block_name][pin_name] = (pin_ptc, pin_type)
+            BlockType(self.block_graph, name=block_name, id=block_id)
 
     def import_grid(self):
         self.grid = {}
@@ -820,10 +878,10 @@ class Graph:
 
             assert offset == (0,0), "Non-zero offsets ({!r}) not supported yet.".format(offset)
 
-            block_type = BlockType.by_id(int(loc.attrib["block_type_id"]))
+            block_type = self.block_graph.block_types[int(loc.attrib["block_type_id"])]
             assert block_type is not None
 
-            Block(pos, offset, block_type)
+            Block(graph=self.block_graph, position=pos, offset=offset, block_type=block_type)
 
 
     def add_pin(self, pos, pin_name, ptc=None, edge=BlockTypeEdge.TOP):
@@ -1054,99 +1112,7 @@ if __name__ == "__main__":
         import doctest
         doctest.testmod()
     else:
-        Graph(rr_graph_file=sys.argv[-1])
+        rr_graph = Graph(rr_graph_file=sys.argv[-1])
         import pprint
-        pprint.pprint(BlockType.get_id_map())
-        pprint.pprint(Block.get_id_map())
-        print(Block.grid_size())
-
-
-_Port = namedtuple("Port", ("block_type", "name"))
-class Port(_Port):
-    _mutable = (
-        ("direction", PinClassDirection),
-        ("width", int),
-        ("edge", BlockTypeEdge),
-    )
-
-    def __new__(cls, block_type, port_name, port_dir=None, port_width=None, port_edge=None):
-        assert "[" not in port_name, port_name
-        assert "]" not in port_name, port_name
-        assert "." not in port_name, port_name
-
-        assert_type(block_type, BlockType)
-
-        obj = cls._singleton__new__(
-            cls,
-            args=(block_type, port_name),
-            mutable={
-                "direction": port_dir,
-                "width": port_width,
-                "edge": port_edge,
-            },
-        )
-        obj.create_pins()
-        return obj
-
-    def _create_pin(self, num):
-        pin = Pin(self, num)
-        self.pins.add(pin)
-        return pin
-
-    def create_pins(self, port_width=None):
-        if obj.width is not None:
-            assert_eq(obj.width, port_width)
-
-        if self.width is None:
-            self.width = port_width
-
-        assert self.width is not None
-
-        for num in range(0, port_width):
-            self._create_pin(num)
-        assert_eq(len(self.pins), self.width)
-
-        return pin
-
-    @classmethod
-    def parse(cls, s, block_type=None):
-        r = parse_net(s)
-        assert_eq(len(r), 3)
-        block_type_name, port_name, pins = r
-
-        if block_type_name is not None:
-            block_type_from_name = BlockType(name=block_type_name)
-            if block_type is not None:
-                assert_eq(block_type, block_type_from_name)
-
-        if port_name is None:
-            raise TypeError("Did not get a port name! {!r} ({})".format(s, r))
-
-        port = cls(block_type, port_name)
-
-        if pins is None:
-            return port
-
-        pin_objs = []
-        for num in pins:
-            pin_objs.append(port._create_pin(num))
-
-        return pin_objs
-
-    def __str__(self):
-        return "{!s}.{!s}[{!d}:0]".format(self.block, self.name, self.width)
-
-
-_BlockEdges = namedtuple("BlockEdges", ("block", "top", "right", "bottom", "left"))
-class BlockEdges:
-    def __new__(cls, block):
-        if block.edges is not None:
-            return block.edges
-
-        edges = _BlockEdges.__new__(cls, block, {}, {}, {}, {})
-        block.edges = edges
-        return edges
-
-    def __getitem__(self, key):
-        if isinstance(key, BlockTypeEdge):
-            return self.__getitem__[key.value()]
+        pprint.pprint(rr_graph.block_graph.block_types)
+        pprint.pprint(rr_graph.block_graph.block_grid)
