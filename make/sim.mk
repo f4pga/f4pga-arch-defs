@@ -13,7 +13,7 @@ SIM_DEPS := $(TOP_DIR)/make/sim.mk
 SIM_PREFIX= $(subst .sim.v,,$(notdir $(PREREQ_FIRST)))
 SIM_TOP   = $(call uc,$(SIM_PREFIX))
 
-SIM_SVG_DEPS := $(NETLISTSVG_SKIN) $(NETLISTSVG_STAMP)
+SIM_SVG_DEPS := $(NETLISTSVG_SKIN) $(NETLISTSVG_LOCK)
 
 JSON_ENDINGS := %.bb.json %.aig.json %.flat.json
 
@@ -37,8 +37,8 @@ $(call add_generated_files,$(PNG_FILES))
 
 .PRECIOUS: $(JSON_ENDINGS)
 
-%.svg: %.json $(SIM_SVG_DEPS)
-	$(call quiet_cmd,$(NODE) $(NETLISTSVG)/bin/netlistsvg $(PREREQ_FIRST) -o $(TARGET) --skin $(NETLISTSVG_SKIN),$(GENERATED_FROM))
+%.svg: %.json $(SIM_SVG_DEPS) $(NODE)
+	$(call quiet_cmd,$(NODE) $(NETLISTSVG_BIN) $(PREREQ_FIRST) -o $(TARGET) --skin $(NETLISTSVG_SKIN),$(GENERATED_FROM))
 
 %.bb.yosys.svg: %.sim.v %.bb.json
 	$(call quiet_cmd,$(YOSYS) -p "prep -top $(SIM_TOP); $(YOSYS_EXTRA); cd $(SIM_TOP); show -format svg -prefix $(subst .svg,,$(TARGET))" $(PREREQ_FIRST) || cp $(TOP_DIR)/common/empty.svg $(TARGET),$(GENERATED_FROM))
