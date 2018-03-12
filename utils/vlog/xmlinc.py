@@ -5,6 +5,8 @@ xi_url = "http://www.w3.org/2001/XInclude"
 
 xi_include = "{%s}include" % xi_url
 
+ET.register_namespace('xi', xi_url)
+
 def make_relhref(outfile, href):
     outpath = os.path.dirname(os.path.abspath(outfile))
     relpath = os.path.relpath(os.path.dirname(os.path.abspath(href)), outpath)

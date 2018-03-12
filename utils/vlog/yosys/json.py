@@ -118,7 +118,7 @@ class YosysModule:
                     conns.append((port, condata[0]))
                 else:
                     for i in range(N):
-                        conns.append(("%s[%d]" % (port, i), condata[i]))
+                        conns.append(("{}[{}]".format(port, i), condata[i]))
         return conns
 
     def conn_io(self, net, iodir):
@@ -135,7 +135,7 @@ class YosysModule:
                     if len(pdata["bits"]) == 1:
                         conn_io.append(port)
                     else:
-                        conn_io.append("%s[%d]" % (port, pdata["bits"].index(net)))
+                        conn_io.append("{}[{}]".format(port, pdata["bits"].index(net)))
         return conn_io
 
     def conn_ports(self, net, pdir):
@@ -157,7 +157,7 @@ class YosysModule:
                         if len(condata) == 1:
                             conn_ports.append((cell, port))
                         else:
-                            conn_ports.append((cell, "%s[%d]" % (port, condata.index(net))))
+                            conn_ports.append((cell, "{}[{}]".format(port, condata.index(net))))
         return conn_ports
 
 
