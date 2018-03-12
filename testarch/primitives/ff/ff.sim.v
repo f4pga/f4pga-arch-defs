@@ -2,13 +2,13 @@
 module FF(clk, D, Q);
 
 	(* PORT_CLASS = "clock" *)
-	input wire clk;
+	input clk;
 
 	(* PORT_CLASS = "D" *) (* SETUP = "clk 10e-12" *)
-	input wire D;
+	input D;
 
 	(* PORT_CLASS = "Q" *) (* CLK_TO_Q = "clk 10e-12" *)
-	output wire Q;
+	output reg Q;
 
 	always @(posedge clk)
 		Q <= D;
