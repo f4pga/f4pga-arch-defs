@@ -2,14 +2,15 @@
 `include "../lut/lut.sim.v"
 `include "../omux/omux.sim.v"
 
-module LUTFF (I, C, O);
+module LUTFF (C, I, O);
 	parameter [0:0] OSEL = 1'b0;
 	parameter [15:0] LUT_INIT = 1'b0;
 
-	input [3:0] I;
-
 	(* CLOCK *)
 	input C;
+
+	input [3:0] I;
+
 	output O;
 
 	wire lut_out, ff_out;
