@@ -56,7 +56,7 @@ def vlog_to_json(infiles, flatten = False, aig = False, mode = None, module_with
     flatten : set to flatten output hierarchy
     aig : generate And-Inverter-Graph modules for gates
     mode : set to a value other than None to use `chparam` to set the value of the MODE parameter
-    mode_mod : the name of the module to apply `mode` to
+    module_with_mode : the name of the module to apply `mode` to
     """
     prep_opts = "-flatten" if flatten else ""
     json_opts = "-aig" if aig else ""

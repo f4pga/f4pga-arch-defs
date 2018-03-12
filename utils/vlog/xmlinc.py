@@ -3,7 +3,7 @@ import os
 
 xi_url = "http://www.w3.org/2001/XInclude"
 
-xi_include = "{%s}include" % xi_url
+xi_include = "{{{}}}include".format(xi_url)
 
 ET.register_namespace('xi', xi_url)
 

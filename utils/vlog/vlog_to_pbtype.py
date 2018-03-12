@@ -133,7 +133,7 @@ def make_pb_content(mod, xml_parent, mod_pname, is_submode = False):
             cname = mod_pb_name(yj.module(cname))
         else:
             cname = mod_pname
-        return ("%s.%s" % (cname, cellpin))
+        return ("{}.{}".format(cname, cellpin))
 
     def make_direct_conn(ic_xml, source, dest):
         source_pin = get_full_pin_name(source)
@@ -166,7 +166,7 @@ def make_pb_content(mod, xml_parent, mod_pname, is_submode = False):
                 pb_type_path = "{}/{}.pb_type.xml".format(module_path, wm.group(1).lower())
             else:
                 pb_type_path = "{}/pb_type.xml".format(module_path)
-            xmlinc.include_xml(xml_parent, pb_type_path, outfile)
+            xmlinc.include_xml(parent=xml_parent, href=pb_type_path, outfile=outfile)
             # In order to avoid overspecifying interconnect, there are two directions we currently
             # consider. All interconnect going INTO a cell, and interconnect going out of a cell
             # into a top level output - or all outputs if "mode" is used.
@@ -200,7 +200,7 @@ def make_pb_content(mod, xml_parent, mod_pname, is_submode = False):
         """Add a suitable timing spec if necessary to the pb_type"""
         if tmgspec is not None:
             splitspec = tmgspec.split(" ")
-            assert len(splitspec) == 2, 'bad timing specification "%s", must be of format "clock value"' % tmgspec
+            assert len(splitspec) == 2, 'bad timing specification "{}", must be of format "clock value"'.format(tmgspec)
             attrs = {"port": port, "clock": splitspec[0]}
             if xmltype == "T_clock_to_Q":
                 attrs["max"] = splitspec[1]

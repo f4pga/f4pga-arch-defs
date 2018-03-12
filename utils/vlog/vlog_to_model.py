@@ -98,7 +98,7 @@ if len(deps_files) > 0:
             model_path = "{}/{}.model.xml" .format(module_path, wm.group(1).lower())
         else:
             assert False, "included Verilog file name {} does not follow pattern %%.sim.v".format(module_basename)
-        xmlinc.include_xml(models_xml, model_path, outfile, "xpointer(models/child::node())")
+        xmlinc.include_xml(parent=models_xml, href=model_path, outfile=outfile, xptr="xpointer(models/child::node())")
 else:
     # Is a leaf model
     topname = tmod.attr("MODEL_NAME", top)
