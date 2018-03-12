@@ -53,7 +53,7 @@ outfile = "model.xml"
 if "o" in args and args.o is not None:
     outfile = args.o
 
-aig_json = yosys.run.vlog_to_json(args.infiles, True, True)
+aig_json = yosys.run.vlog_to_json(args.infiles, flatten=True, aig=True)
 
 if args.top is not None:
     yj = YosysJSON(aig_json, args.top)
@@ -70,8 +70,6 @@ else:
 if top is None:
     print("ERROR: more than one module in design, cannot detect top level. Manually specify the top level module using --top")
     sys.exit(1)
-
-ET.register_namespace('xi', xmlinc.xi_url)
 
 tmod = yj.top_module
 models_xml = ET.Element("models", nsmap = {'xi': xmlinc.xi_url})
@@ -97,9 +95,9 @@ if len(deps_files) > 0:
         module_basename = os.path.basename(abs_dep)
         wm = re.match(r"([A-Za-z0-9_]+)\.sim\.v", module_basename)
         if wm:
-            model_path = "%s/%s.model.xml" % (module_path, wm.group(1).lower())
+            model_path = "{}/{}.model.xml" .format(module_path, wm.group(1).lower())
         else:
-            assert False, "included Verilog file name %s does not follow pattern %%.sim.v" % module_basename
+            assert False, "included Verilog file name {} does not follow pattern %%.sim.v".format(module_basename)
         xmlinc.include_xml(models_xml, model_path, outfile, "xpointer(models/child::node())")
 else:
     # Is a leaf model

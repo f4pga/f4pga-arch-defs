@@ -31,7 +31,7 @@ def commands(commands, infiles = []):
     commands : string of Yosys commands to run
     infiles : list of input files
     """
-    commands = "read_verilog %s %s; " % (get_defines(), " ".join(infiles)) + commands
+    commands = "read_verilog {} {}; ".format(get_defines(), " ".join(infiles)) + commands
     params = ["-q", "-p", commands]
     return get_output(params)
 
@@ -46,7 +46,7 @@ def script(script, infiles = []):
     params = ["-q", "-s", script] + infiles
     return get_output(params)
 
-def vlog_to_json(infiles, flatten = False, aig = False, mode = None, mode_mod = None):
+def vlog_to_json(infiles, flatten = False, aig = False, mode = None, module_with_mode = None):
     """
     Convert Verilog to a JSON representation using Yosys
 
@@ -61,10 +61,10 @@ def vlog_to_json(infiles, flatten = False, aig = False, mode = None, mode_mod = 
     prep_opts = "-flatten" if flatten else ""
     json_opts = "-aig" if aig else ""
     if mode is not None:
-        mode_str = 'chparam -set MODE "%s" %s; ' % (mode, mode_mod)
+        mode_str = 'chparam -set MODE "{}" {}; '.format(mode, module_with_mode)
     else:
         mode_str = ""
-    cmds = "%sprep %s; write_json %s" % (mode_str, prep_opts, json_opts)
+    cmds = "{}prep {}; write_json {}".format(mode_str, prep_opts, json_opts)
     j = yosys.utils.strip_yosys_json(commands(cmds, infiles))
     """with open('dump.json', 'w') as dbg:
         print(j,file=dbg)"""
@@ -108,7 +108,7 @@ def do_select(infiles, module, expr):
 
 
     outfile = tempfile.mktemp()
-    sel_cmd = "prep -top %s -flatten; cd %s; select -write %s %s" % (module, module, outfile, expr)
+    sel_cmd = "prep -top {} -flatten; cd {}; select -write {} {}" .format(module, module, outfile, expr)
     commands(sel_cmd, infiles)
     pins = []
     with open(outfile, 'r') as f:
@@ -131,7 +131,7 @@ def get_combinational_sinks(infiles, module, innet):
     module: Name of module to run command on
     innet: Name of input net to find sinks of
     """
-    return do_select(infiles, module, "%s %%coe* o:* %%i %s %%d" % (innet, innet))
+    return do_select(infiles, module, "{} %coe* o:* %i {} %d".format(innet, innet))
 
 def list_clocks(infiles, module):
     """Return a list of clocks in the module
@@ -152,4 +152,4 @@ def get_clock_assoc_signals(infiles, module, clk):
     module: Name of module to run command on
     clk: Name of clock to find associated signals
     """
-    return do_select(infiles, module, "select -list %s %%x* i:* o:* %%u %%i a:ASSOC_CLOCK=%s %%u %s %%d" % (clk, clk, clk))
+    return do_select(infiles, module, "select -list {} %x* i:* o:* %u %i a:ASSOC_CLOCK={} %u {} %d".format(clk, clk, clk))

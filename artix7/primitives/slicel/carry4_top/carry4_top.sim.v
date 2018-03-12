@@ -1,7 +1,7 @@
 `include "carry4/carry4.sim.v"
 `include "carry4_split/carry4_split.sim.v"
 
-(* MODES = "SPLIT, COMPLETE" *)
+(* MODES = "SPLIT; COMPLETE" *)
 module CARRY4_TOP(CO, O, CIN, DI, S);
 
 	output wire [3:0] CO;
