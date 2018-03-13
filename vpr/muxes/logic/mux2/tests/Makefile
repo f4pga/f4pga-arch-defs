@@ -1,6 +1,9 @@
 
 TOPLEVEL_LANG ?= verilog
 
+COCOTB ?= ../../../../../third_party/cocotb
+ICARUS_BIN_DIR ?= ../../../../../env/conda/bin
+
 ifeq ($(origin COCOTB), undefined)
 $(error "COCOTB must be defined")
 endif
