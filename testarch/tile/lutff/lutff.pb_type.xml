@@ -94,7 +94,7 @@
   <loc side="right"></loc>
   <loc side="left"></loc>
  </pinlocations>
- <fc default_in_type="frac" default_in_val="0.1" default_out_type="frac" default_out_val="1.0">
+ <fc in_type="frac" in_val="0.1" out_type="frac" out_val="1.0">
   <fc_override fc_type="frac" fc_val="1.0" port_name="CLK"   />
  </fc>
 </pb_type>
