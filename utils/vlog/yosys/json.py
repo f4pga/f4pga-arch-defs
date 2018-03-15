@@ -27,7 +27,7 @@ class YosysModule:
             The direction, should be either `input` or `output`
         """
         plist = []
-        for port, pdata in self.data["ports"].items():
+        for port, pdata in sorted(self.data["ports"].items()):
             plist.append((port, len(pdata["bits"]), pdata["direction"]))
         return plist
 
@@ -42,7 +42,7 @@ class YosysModule:
         type: str
         """
         clist = []
-        for cell, cdata in self.data["cells"].items():
+        for cell, cdata in sorted(self.data["cells"].items()):
             if cell.startswith("$"):
                 continue
             clist.append((cell, cdata["type"]))
@@ -111,14 +111,14 @@ class YosysModule:
         """
         cdata = self.data["cells"][cell]
         conns = []
-        for port, condata in cdata["connections"].items():
+        for port, condata in sorted(cdata["connections"].items()):
             if cdata["port_directions"][port] == direction:
                 N = len(condata)
                 if N == 1:
                     conns.append((port, condata[0]))
                 else:
                     for i in range(N):
-                        conns.append(("%s[%d]" % (port, i), condata[i]))
+                        conns.append(("{}[{}]".format(port, i), condata[i]))
         return conns
 
     def conn_io(self, net, iodir):
@@ -129,13 +129,13 @@ class YosysModule:
         port : str
         """
         conn_io = []
-        for port, pdata in self.data["ports"].items():
+        for port, pdata in sorted(self.data["ports"].items()):
             if pdata["direction"] == iodir:
                 if net in pdata["bits"]:
                     if len(pdata["bits"]) == 1:
                         conn_io.append(port)
                     else:
-                        conn_io.append("%s[%d]" % (port, pdata["bits"].index(net)))
+                        conn_io.append("{}[{}]".format(port, pdata["bits"].index(net)))
         return conn_io
 
     def conn_ports(self, net, pdir):
@@ -147,17 +147,17 @@ class YosysModule:
         port : str
         """
         conn_ports = []
-        for cell in self.data["cells"]:
+        for cell in sorted(self.data["cells"].keys()):
             if cell.startswith("$"):
                 continue
             cdata = self.data["cells"][cell]
-            for port, condata in cdata["connections"].items():
+            for port, condata in sorted(cdata["connections"].items()):
                 if cdata["port_directions"][port] == pdir:
                     if net in condata:
                         if len(condata) == 1:
                             conn_ports.append((cell, port))
                         else:
-                            conn_ports.append((cell, "%s[%d]" % (port, condata.index(net))))
+                            conn_ports.append((cell, "{}[{}]".format(port, condata.index(net))))
         return conn_ports
 
 
@@ -191,7 +191,7 @@ class YosysModule:
         cell_drivers = self.conn_ports(net, "input")
         return io_drivers + cell_drivers
 
-class YosysJson:
+class YosysJSON:
 
     def __init__(self, j, top = None):
         """Takes either the filename to a JSON file, or already parsed JSON
@@ -225,6 +225,10 @@ class YosysJson:
             if ymod.has_attr(attr_name) and ymod.attr(attr_name) == attr_value:
                 mods.append(ymod)
         return mods
+
+    def all_modules(self):
+        """Return a list of the names of all modules in the design, sorted alphabetically"""
+        return sorted(self.data["modules"].keys())
 
     @property
     def top_module(self):

@@ -1,7 +1,0 @@
-<pb_type name="BEL_FF-FF" num_pb="1" blif_model=".latch" class="flipflop">
- <clock  name="clk" num_pins="1" port_class="clock" />
- <input  name="D"   num_pins="1" port_class="D" />
- <output name="Q"   num_pins="1" port_class="Q" />
- <T_setup    value="10e-12" port="BEL_FF-FF.D" clock="clk"/>
- <T_clock_to_Q max="10e-12" port="BEL_FF-FF.Q" clock="clk"/>
-</pb_type>

@@ -45,8 +45,7 @@
 `include "routing/Nused/cused.sim.v"
 `include "routing/Nused/dused.sim.v"
 
-`include "carry4/carry4_split/carry4_split.sim.v"
-`include "carry4/carry4_complete/carry4_complete.sim.v"
+`include "carry4_modes/carry4_modes.sim.v"
 
 `include "routing/clkinv/clkinv.sim.v"
 
@@ -184,7 +183,7 @@ module SLICEL(
 	wire [3:0] CARRY4_CO;
 	wire [3:0] CARRY4_O;
 
-	CARRY4_SPLIT carry4 (
+	CARRY4_MODES carry4 (
 		.CO(CARRY4_CO),
 		.O(CARRY4_O),
 		.DI({ACY0_OUT, BCY0_OUT, CCY0_OUT, DCY0_OUT}),
