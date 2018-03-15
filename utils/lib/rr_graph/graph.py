@@ -291,7 +291,47 @@ class Pin(MostlyReadOnly):
             pin_class._add_pin(self)
 
     def __str__(self):
-        return "{}.{}[{}]".format(self.block_type_name, self.port_name, self.port_index)
+        return "{}({})->{}[{}]".format(self.block_type_name, self.block_type_index, self.port_name, self.port_index)
+
+    @classmethod
+    def from_text(cls, pin_class, text, pin_class_index=None, block_type_index=None):
+        """
+        >>> pin = Pin.from_text(None, '0')
+        >>> pin
+        Pin(pin_class=None, pin_class_index=None, port_name=None, port_index=None, block_type_name=None, block_type_index=0)
+        >>> str(pin)
+        'None(0)->None[None]'
+
+        >>> pin = Pin.from_text(None, '10')
+        >>> pin
+        Pin(pin_class=None, pin_class_index=None, port_name=None, port_index=None, block_type_name=None, block_type_index=10)
+        >>> str(pin)
+        'None(10)->None[None]'
+
+        >>> pin = Pin.from_text(None, 'bt.outpad[2]')
+        >>> pin
+        Pin(pin_class=None, pin_class_index=None, port_name='outpad', port_index=2, block_type_name='bt', block_type_index=None)
+        >>> str(pin)
+        'bt(None)->outpad[2]'
+
+        """
+        assert_type(text, str)
+        block_type_name, port_name, pins = parse_net(text.strip())
+        assert pins is not None, pins
+
+        assert_eq(len(pins), 1)
+        if block_type_index is None and port_name is None:
+            block_type_index = pins[0]
+            port_index = None
+        else:
+            port_index = pins[0]
+
+        return cls(
+            pin_class, pin_class_index,
+            port_name, port_index,
+            block_type_name, block_type_index,
+        )
+
 
     @classmethod
     def from_xml(cls, pin_class, pin_node):
@@ -311,21 +351,7 @@ class Pin(MostlyReadOnly):
         pin_class_index = int(pin_node.attrib["index"])
         block_type_index = int(pin_node.attrib["ptc"])
 
-        block_type_name, port_name, pins = parse_net(pin_node.text.strip())
-
-        assert block_type_name is not None
-        assert port_name is not None
-
-        assert_eq(len(pins), 1)
-        port_index = pins[0]
-
-        #assert_eq(pin_block_name, pin_class.block_type.name)
-
-        return cls(
-            pin_class, pin_class_index,
-            port_name, port_index,
-            block_type_name, block_type_index,
-        )
+        return cls.from_text(pin_class, pin_node.text.strip(), pin_class_index=pin_class_index, block_type_index=block_type_index)
 
 
 class PinClassDirection(enum.Enum):
@@ -373,8 +399,7 @@ class PinClass(MostlyReadOnly):
             block_type._add_pin_class(self)
 
         if pins is not None:
-            for i, p in sorted(enumerate(pins)):
-                assert i == p.pin_class_index
+            for p in pins:
                 self._add_pin(p)
 
     @classmethod
@@ -384,21 +409,45 @@ class PinClass(MostlyReadOnly):
         >>> bt = BlockType(name="bt")
         >>> xml_string1 = '''
         ... <pin_class type="INPUT">
-        ...   <pin index="0" ptc="0">bt.outpad[0]</pin>
+        ...   <pin index="1" ptc="2">bt.outpad[3]</pin>
         ... </pin_class>
         ... '''
         >>> pc = PinClass.from_xml(bt, ET.fromstring(xml_string1))
         >>> pc # doctest: +ELLIPSIS
         PinClass(block_type=BlockType(), direction='input', pins={0: ...})
+        >>> len(pc.pins)
+        1
         >>> pc.pins[0]
         Pin(pin_class=PinClass(), pin_class_index=0, port_name='outpad', port_index=0, block_type_name='bt', block_type_index=0)
+
+
         >>> xml_string2 = '''
-        ... <pin_class type="INPUT">0 </pin_class>
+        ... <pin_class type="INPUT">0</pin_class>
         ... '''
-        >>> pc = PinClass.from_xml(bt, ET.fromstring(xml_string2))
+        >>> pc = PinClass.from_xml(None, ET.fromstring(xml_string2))
         >>> pc # doctest: +ELLIPSIS
-        PinClass(block_type=BlockType(), direction='input', pins={0: ...})
+        PinClass(block_type=None, direction='input', pins={0: ...})
+        >>> len(pc.pins)
+        1
         >>> pc.pins[0]
+        Pin(pin_class=PinClass(), pin_class_index=0, port_name=None, port_index=0, block_type_name=None, block_type_index=0)
+
+
+        >>> xml_string3 = '''
+        ... <pin_class type="OUTPUT">2 3 4</pin_class>
+        ... '''
+        >>> pc = PinClass.from_xml(None, ET.fromstring(xml_string3))
+        >>> pc # doctest: +ELLIPSIS
+        PinClass(block_type=None, direction='output', pins={0: ...})
+        >>> len(pc.pins)
+        3
+        >>> pc.pins[0]
+        Pin(pin_class=PinClass(), pin_class_index=0, port_name=None, port_index=None, block_type_name=None, block_type_index=2)
+        >>> pc.pins[1]
+        Pin(pin_class=PinClass(), pin_class_index=1, port_name=None, port_index=None, block_type_name=None, block_type_index=3)
+        >>> pc.pins[2]
+        Pin(pin_class=PinClass(), pin_class_index=2, port_name=None, port_index=None, block_type_name=None, block_type_index=4)
+
         """
         assert_eq(pin_class_node.tag, "pin_class")
         assert "type" in pin_class_node.attrib
@@ -406,8 +455,14 @@ class PinClass(MostlyReadOnly):
         assert_type(class_direction, PinClassDirection)
 
         pc_obj = cls(block_type, class_direction)
-        for pin_node in pin_class_node.iterfind("./pin"):
-            pc_obj._add_pin(Pin.from_xml(pc_obj, pin_node))
+
+        pin_nodes = list(pin_class_node.iterfind("./pin"))
+        if len(pin_nodes) == 0:
+            for n in pin_class_node.text.split():
+                pc_obj._add_pin(Pin.from_text(pc_obj, n))
+        else:
+            for pin_node in pin_nodes:
+                pc_obj._add_pin(Pin.from_xml(pc_obj, pin_node))
         return pc_obj
 
     def __str__(self):
@@ -419,10 +474,23 @@ class PinClass(MostlyReadOnly):
 
     def _add_pin(self, pin):
         assert_type(pin, Pin)
-        if self.block_type is not None and pin.block_type_name is not None:
-            assert_eq(pin.block_type_name, self.block_type.name)
+
+        # If the pin doesn't have a hard coded class index, set it to the next
+        # index available.
+        if pin.pin_class_index is None:
+            pin.pin_class_index = max([-1]+list(self._pins.keys()))+1
+
+        assert pin.pin_class_index is not None, pin.pin_class_index
+
+        if pin.pin_class_index not in self._pins:
+            self._pins[pin.pin_class_index] = pin
+        assert self._pins[pin.pin_class_index] is pin, "When adding {}, found {} already at index {}".format(pin, self._pins[pin.pin_class_index], pin.pin_class_index)
+
+        pin._pin_class = self
+
+        if self.block_type is not None:
             self.block_type._add_pin(pin)
-        self._pins[pin.pin_class_index] = pin
+
 
 
 class BlockType(MostlyReadOnly):
@@ -456,19 +524,21 @@ class BlockType(MostlyReadOnly):
         >>> xml_string = '''
         ... <block_type id="1" name="BLK_BB-VPR_PAD" width="2" height="3">
         ...   <pin_class type="OUTPUT">
-	...     <pin index="0" ptc="0">BLK_BB-VPR_PAD.outpad[0]</pin>
-	...   </pin_class>
+        ...     <pin index="0" ptc="0">BLK_BB-VPR_PAD.outpad[0]</pin>
+        ...   </pin_class>
         ...   <pin_class type="OUTPUT">
-	...     <pin index="0" ptc="1">BLK_BB-VPR_PAD.outpad[1]</pin>
-	...   </pin_class>
+        ...     <pin index="0" ptc="1">BLK_BB-VPR_PAD.outpad[1]</pin>
+        ...   </pin_class>
         ...   <pin_class type="INPUT">
-	...     <pin index="0" ptc="2">BLK_BB-VPR_PAD.inpad[0]</pin>
-	...   </pin_class>
+        ...     <pin index="0" ptc="2">BLK_BB-VPR_PAD.inpad[0]</pin>
+        ...   </pin_class>
         ... </block_type>
         ... '''
         >>> bt = BlockType.from_xml(None, ET.fromstring(xml_string))
         >>> bt # doctest: +ELLIPSIS
         BlockType(graph=None, id=1, name='BLK_BB-VPR_PAD', size=Size(w=2, h=3), pin_classes=[...], pin_index={...})
+        >>> len(bt.pin_classes)
+        3
         >>> bt.pin_classes[0].direction
         'output'
         >>> bt.pin_classes[0] # doctest: +ELLIPSIS
@@ -487,12 +557,12 @@ class BlockType(MostlyReadOnly):
         >>> xml_string = '''
         ... <block_type id="1" name="BLK_BB-VPR_PAD" width="2" height="3">
         ...   <pin_class type="OUTPUT">
-	...     <pin index="0" ptc="0">BLK_BB-VPR_PAD.outpad[0]</pin>
-	...     <pin index="1" ptc="1">BLK_BB-VPR_PAD.outpad[1]</pin>
-	...   </pin_class>
+        ...     <pin index="0" ptc="0">BLK_BB-VPR_PAD.outpad[0]</pin>
+        ...     <pin index="1" ptc="1">BLK_BB-VPR_PAD.outpad[1]</pin>
+        ...   </pin_class>
         ...   <pin_class type="INPUT">
-	...     <pin index="0" ptc="2">BLK_BB-VPR_PAD.inpad[0]</pin>
-	...   </pin_class>
+        ...     <pin index="0" ptc="2">BLK_BB-VPR_PAD.inpad[0]</pin>
+        ...   </pin_class>
         ... </block_type>
         ... '''
         >>> bt = BlockType.from_xml(None, ET.fromstring(xml_string))
@@ -500,11 +570,19 @@ class BlockType(MostlyReadOnly):
         BlockType(graph=None, id=1, name='BLK_BB-VPR_PAD', size=Size(w=2, h=3), pin_classes=[...], pin_index={...})
         >>> bt.pin_classes[0] # doctest: +ELLIPSIS
         PinClass(block_type=BlockType(), direction='output', pins={...})
+        >>> len(bt.pin_index)
+        3
+        >>> len(bt.pin_classes)
+        2
+        >>> len(bt.pin_classes[0].pins)
+        2
+        >>> len(bt.pin_classes[1].pins)
+        1
         >>> bt.pin_classes[0].pins[0]
         Pin(pin_class=PinClass(), pin_class_index=0, port_name='outpad', port_index=0, block_type_name='BLK_BB-VPR_PAD', block_type_index=0)
-        >>> bt.pin_classes[1].pins[0]
+        >>> bt.pin_classes[0].pins[1]
         Pin(pin_class=PinClass(), pin_class_index=1, port_name='outpad', port_index=1, block_type_name='BLK_BB-VPR_PAD', block_type_index=1)
-        >>> bt.pin_classes[2].pins[0]
+        >>> bt.pin_classes[1].pins[0]
         Pin(pin_class=PinClass(), pin_class_index=0, port_name='inpad', port_index=0, block_type_name='BLK_BB-VPR_PAD', block_type_index=2)
         >>> 
         """
@@ -520,26 +598,41 @@ class BlockType(MostlyReadOnly):
         return bt
 
     def _could_add_pin(self, pin):
-        if pin.block_type_index in self._pin_index:
-            assert_is(pin, self._pin_index[pin.block_type_index])
+        if pin.block_type_index != None:
+            if pin.block_type_index in self._pin_index:
+                assert_is(pin, self._pin_index[pin.block_type_index])
 
     def _add_pin(self, pin):
         """
 
         >>> pc = PinClass(direction=PinClassDirection.INPUT)
+        >>> len(pc.pins)
+        0
         >>> pc._add_pin(Pin())
-        >>> pc.pins
-        
+        >>> len(pc.pins)
+        1
         >>> bt = BlockType()
+        >>> len(bt.pins)
+        0
+        >>> bt._add_pin_class(pc)
+        >>> len(bt.pins)
+        1
 
         """
         assert_type(pin, Pin)
         self._could_add_pin(pin)
+
         if pin.block_type_name is None:
             pin.block_type_name = self.name
-        else:
-            assert_eq(pin.block_type_name, self.name)
-        self._pin_index[pin.block_type_index] = pin
+        assert_eq(pin.block_type_name, self.name)
+
+        if pin.block_type_index is None:
+            pin.block_type_index = max([-1]+list(self._pin_index.keys()))+1
+
+        if pin.block_type_index not in self._pin_index:
+            self._pin_index[pin.block_type_index] = pin
+
+        assert_eq(self._pin_index[pin.block_type_index], pin)
 
     def _add_pin_class(self, pin_class):
         assert_type(pin_class, PinClass)
@@ -551,7 +644,8 @@ class BlockType(MostlyReadOnly):
         for p in pin_class.pins.values():
             self._add_pin(p)
 
-        self._pin_classes.append(pin_class)
+        if pin_class not in self._pin_classes:
+            self._pin_classes.append(pin_class)
 
 
 class Block(MostlyReadOnly):
@@ -587,14 +681,14 @@ class Block(MostlyReadOnly):
         >>> g = BlockGraph()
         >>> g.add_block_type(BlockType(id=0, name="bt"))
         >>> xml_string = '''
-	... <grid_loc x="0" y="0" block_type_id="0" width_offset="0" height_offset="0"/>
+        ... <grid_loc x="0" y="0" block_type_id="0" width_offset="0" height_offset="0"/>
         ... '''
         >>> bl1 = Block.from_xml(g, ET.fromstring(xml_string))
         >>> bl1 # doctest: +ELLIPSIS
         Block(graph=<...>, block_type=BlockType(), position=P(x=0, y=0), offset=Offset(w=0, h=0))
         >>> 
         >>> xml_string = '''
-	... <grid_loc x="2" y="5" block_type_id="0" width_offset="1" height_offset="2"/>
+        ... <grid_loc x="2" y="5" block_type_id="0" width_offset="1" height_offset="2"/>
         ... '''
         >>> bl2 = Block.from_xml(g, ET.fromstring(xml_string))
         >>> bl2 # doctest: +ELLIPSIS
@@ -1163,7 +1257,8 @@ class Graph:
 
 if __name__ == "__main__":
     import sys
-    if len(sys.argv) == 1:
+    import os
+    if len(sys.argv) == 1 or not os.path.exists(sys.argv[-1]):
         import doctest
         doctest.testmod()
     else:
