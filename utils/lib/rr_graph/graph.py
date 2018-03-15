@@ -20,10 +20,7 @@ from .channel import Channels
 from ..asserts import assert_eq
 from ..asserts import assert_is
 from ..asserts import assert_type
-
-def assert_type_or_none(obj, classes):
-    if obj is not None:
-        assert_type(obj, classes)
+from ..asserts import assert_type_or_none
 
 
 def frozendict(*args, **kwargs):
@@ -75,7 +72,6 @@ class MostlyReadOnly:
     Traceback (most recent call last):
         ...
     AttributeError: missing not found
-    >>> 
     """
 
     def __setattr__(self, key, new_value=None):
@@ -878,6 +874,7 @@ class RRNodeSS(RRNode):
     """Created from `class PinClass` and `class Block`"""
     def __init__(self, block, pin_class, timing=None):
         pass
+
 
 class RRNodePin(RRNode):
     """Created from `class Pin` and `class Block`"""
