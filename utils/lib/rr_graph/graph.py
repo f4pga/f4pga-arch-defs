@@ -343,7 +343,7 @@ class Pin(MostlyReadOnly):
         >>> pin
         Pin(pin_class=PinClass(), pin_class_index=0, port_name='outpad', port_index=2, block_type_name='bt', block_type_index=1)
         >>> str(pin)
-        'bt.outpad[2]'
+        'bt(1)->outpad[2]'
         >>> pin.ptc
         1
         """
@@ -414,11 +414,11 @@ class PinClass(MostlyReadOnly):
         ... '''
         >>> pc = PinClass.from_xml(bt, ET.fromstring(xml_string1))
         >>> pc # doctest: +ELLIPSIS
-        PinClass(block_type=BlockType(), direction='input', pins={0: ...})
+        PinClass(block_type=BlockType(), direction='input', pins={1: ...})
         >>> len(pc.pins)
         1
-        >>> pc.pins[0]
-        Pin(pin_class=PinClass(), pin_class_index=0, port_name='outpad', port_index=0, block_type_name='bt', block_type_index=0)
+        >>> pc.pins[1]
+        Pin(pin_class=PinClass(), pin_class_index=1, port_name='outpad', port_index=3, block_type_name='bt', block_type_index=2)
 
 
         >>> xml_string2 = '''
@@ -430,7 +430,7 @@ class PinClass(MostlyReadOnly):
         >>> len(pc.pins)
         1
         >>> pc.pins[0]
-        Pin(pin_class=PinClass(), pin_class_index=0, port_name=None, port_index=0, block_type_name=None, block_type_index=0)
+        Pin(pin_class=PinClass(), pin_class_index=0, port_name=None, port_index=None, block_type_name=None, block_type_index=0)
 
 
         >>> xml_string3 = '''
@@ -612,10 +612,10 @@ class BlockType(MostlyReadOnly):
         >>> len(pc.pins)
         1
         >>> bt = BlockType()
-        >>> len(bt.pins)
+        >>> len(bt.pin_index)
         0
         >>> bt._add_pin_class(pc)
-        >>> len(bt.pins)
+        >>> len(bt.pin_index)
         1
 
         """
@@ -636,10 +636,12 @@ class BlockType(MostlyReadOnly):
 
     def _add_pin_class(self, pin_class):
         assert_type(pin_class, PinClass)
-        assert self is pin_class.block_type
-
         for p in pin_class.pins.values():
             self._could_add_pin(p)
+
+        if pin_class.block_type is None:
+            pin_class.block_type = self
+        assert self is pin_class.block_type
 
         for p in pin_class.pins.values():
             self._add_pin(p)
@@ -865,7 +867,7 @@ class RRNode:
         >>> pc._add_pin(p); bt._add_pin_class(pc)
         >>> b = Block(position=Position(2,3), block_type=bt)
         >>> RRNode.get_name(b, p)
-        'GRID_X002Y003/bt.port[2]'
+        'GRID_X002Y003/bt(0)->port[2]'
         """
         return "GRID_X{:03d}Y{:03d}/{}".format(
             block.position.x, block.position.y, element)
