@@ -78,11 +78,19 @@ class MostlyReadOnly:
     >>> 
     """
 
-    def __setattr__(self, key, value=None):
+    def __setattr__(self, key, new_value=None):
         if key.startswith("_"):
-            return super().__setattr__(key, value)
+            current_value = getattr(self, key[1:])
+            if new_value == current_value:
+                return
+            elif current_value != None:
+                raise AttributeError("{} is already set to {}, can't be changed".format(key, current_value))
+            return super().__setattr__(key, new_value)
+
         if "_"+key not in self.__class__.__slots__:
             raise AttributeError("{} not found".format(key))
+
+        self.__setattr__("_"+key, new_value)
 
     def __getattr__(self, key):
         if "_"+key not in self.__class__.__slots__:
