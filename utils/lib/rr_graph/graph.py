@@ -131,25 +131,66 @@ class MostlyReadOnly:
 
 
 
-def parse_net(s, _r=re.compile("^(.*\\.)?([^.\\[]+)(\\[([0-9]+|[0-9]+:[0-9]+)]|)$")):
+def parse_net(s, _r=re.compile("^(.*\\.)?([^.\\[]*[^0-9\\[.]+[^.\\[]*)?(\\[([0-9]+|[0-9]+:[0-9]+)]|[0-9]+|)$")):
     """
+    Returns:
+        - tuple (block_name, port_name, list of pin numbers)
 
+
+    Fully specified
+    >>> parse_net('a.b[0]')
+    ('a', 'b', [0])
+    >>> parse_net('c.d[1]')
+    ('c', 'd', [1])
+    >>> parse_net('c.d[40]')
+    ('c', 'd', [40])
     >>> parse_net('BLK_BB-VPR_PAD.outpad[0]')
     ('BLK_BB-VPR_PAD', 'outpad', [0])
+
+    Fully specified with more complex block names
+    >>> parse_net('a.b.c[0]')
+    ('a.b', 'c', [0])
+    >>> parse_net('c-d.e[11]')
+    ('c-d', 'e', [11])
+
+    Fully specified with block names that include square brackets
+    >>> parse_net('a.b[2].c[0]')
+    ('a.b[2]', 'c', [0])
+    >>> parse_net('c-d[3].e[11]')
+    ('c-d[3]', 'e', [11])
+
+    Fully specified range of pins
+    >>> parse_net('a.b[11:8]')
+    ('a', 'b', [8, 9, 10, 11])
+    >>> parse_net('c.d[8:11]')
+    ('c', 'd', [8, 9, 10, 11])
+
+    Net with no pin index.
     >>> parse_net('BLK_BB-VPR_PAD.outpad')
     ('BLK_BB-VPR_PAD', 'outpad', None)
+
+    Net with no block
     >>> parse_net('outpad[10]')
     (None, 'outpad', [10])
-    >>> parse_net('outpad')
-    (None, 'outpad', None)
     >>> parse_net('outpad[10:12]')
     (None, 'outpad', [10, 11, 12])
+    >>> parse_net('outpad[12:10]')
+    (None, 'outpad', [10, 11, 12])
+
+    No block or pin index
     >>> parse_net('outpad')
     (None, 'outpad', None)
-    >>> parse_net('wire[2:0]')
-    (None, 'wire', [0, 1, 2])
-    >>> parse_net('a.b.c[11:8]')
-    ('a.b', 'c', [8, 9, 10, 11])
+    >>> parse_net('outpad0')
+    (None, 'outpad0', None)
+    >>> parse_net('0outpad')
+    (None, '0outpad', None)
+
+    >>> parse_net('0')
+    (None, None, [0])
+
+    # FIXME: ???
+    #>>> parse_net('0 1 2')
+    #(None, None, [0, 1, 2])
 
     """
 
@@ -164,11 +205,15 @@ def parse_net(s, _r=re.compile("^(.*\\.)?([^.\\[]+)(\\[([0-9]+|[0-9]+:[0-9]+)]|)
         assert block_name[-1] == ".", block_name
         block_name = block_name[:-1]
 
-    assert "." not in port_name
-
-    if not pin_idx:
-        pins = None
+    if not port_name:
+        port_name = None
     else:
+        assert "." not in port_name, port_name
+
+    if not pin_full:
+        start, end = None, None
+        pins = None
+    elif pin_idx:
         assert_eq(pin_full[0], '[')
         assert_eq(pin_full[-1], ']')
         assert_eq(len(pin_full), len(pin_idx)+2)
@@ -179,10 +224,12 @@ def parse_net(s, _r=re.compile("^(.*\\.)?([^.\\[]+)(\\[([0-9]+|[0-9]+:[0-9]+)]|)
         else:
             start = int(pin_idx)
             end = start
+    else:
+        start, end = int(pin_full), int(pin_full)
 
+    if start is not None and end is not None:
         if start > end:
             end, start = start, end
-
         end += 1
 
         pins = list(range(start, end))
