@@ -328,7 +328,6 @@ class Pin(MostlyReadOnly):
             block_type_name, block_type_index,
         )
 
-
     @classmethod
     def from_xml(cls, pin_class, pin_node):
         """
@@ -488,7 +487,6 @@ class PinClass(MostlyReadOnly):
             self.block_type._add_pin(pin)
 
 
-
 class BlockType(MostlyReadOnly):
 
     __slots__ = ["_graph", "_id", "_name", "_size", "_pin_classes", "_pin_index"]
@@ -512,6 +510,13 @@ class BlockType(MostlyReadOnly):
 
         if graph is not None:
             graph.add_block_type(self)
+
+    def to_string(self, extra=False):
+        if not extra:
+            return "BlockType({name})".format(name=self.name)
+        else:
+            return "in 0x{graph_id:x} (pin_classes=[{pin_class_num} classes] pin_index=[{pin_index_num} pins])".format(
+                graph_id=id(self._graph), pin_class_num=len(self.pin_classes), pin_index_num=len(self.pin_index))
 
     @classmethod
     def from_xml(cls, graph, block_type_node):
@@ -708,6 +713,9 @@ class BlockGraph:
         self.block_grid = {}
         self.block_types = {}
 
+    def __repr__(self):
+        return "BG(0x{:x})".format(id(self))
+
     def add_block_type(self, block_type):
         assert_type_or_none(block_type, BlockType)
         bid = block_type.id
@@ -729,10 +737,23 @@ class BlockGraph:
             self.block_grid[pos] is block)
         self.block_grid[pos] = block
 
-    def block_grid_size(cls):
-        x_max = max(p.x for p in cls.block_grid)
-        y_max = max(p.y for p in cls.block_grid)
+    def block_grid_size(self):
+        x_max = max(p.x for p in self.block_grid)
+        y_max = max(p.y for p in self.block_grid)
         return Size(x_max+1, y_max+1)
+
+    def block_types_for(self, col=None, row=None):
+        ss = []
+        for pos in sorted(self.block_grid):
+            if col is not None:
+                if pos.x != col:
+                    continue
+            if row is not None:
+                if pos.y != row:
+                    continue
+
+            ss.append(self.block_grid[pos].block_type)
+        return ss
 
 
 class RRNode:
@@ -1007,30 +1028,12 @@ class Graph:
     def import_block_types(self):
         # Create in the block_types information
         for block_type in self._xml_graph.iterfind("./block_types/block_type"):
-            block_id = int(block_type.attrib['id'])
-            block_name = block_type.attrib['name'].strip()
-
-            BlockType(self.block_graph, name=block_name, id=block_id)
+            BlockType.from_xml(self.block_graph, block_type)
 
     def import_grid(self):
         self.grid = {}
-        for loc in self._xml_graph.iterfind("./grid/grid_loc"):
-            assert "x" in loc.attrib
-            assert "y" in loc.attrib
-            assert "block_type_id" in loc.attrib
-            assert "width_offset" in loc.attrib
-            assert "height_offset" in loc.attrib
-
-            pos = Position(int(loc.attrib['x']), int(loc.attrib['y']))
-            offset = Offset(int(loc.attrib["width_offset"]), int(loc.attrib["height_offset"]))
-
-            assert offset == (0,0), "Non-zero offsets ({!r}) not supported yet.".format(offset)
-
-            block_type = self.block_graph.block_types[int(loc.attrib["block_type_id"])]
-            assert block_type is not None
-
-            Block(graph=self.block_graph, position=pos, offset=offset, block_type=block_type)
-
+        for block_xml in self._xml_graph.iterfind("./grid/grid_loc"):
+            Block.from_xml(self.block_graph, block_xml)
 
     def add_pin(self, pos, pin_name, ptc=None, edge=BlockTypeEdge.TOP):
         """Add an pin at index i to tile at pos."""
@@ -1263,5 +1266,35 @@ if __name__ == "__main__":
     else:
         rr_graph = Graph(rr_graph_file=sys.argv[-1])
         import pprint
-        pprint.pprint(rr_graph.block_graph.block_types)
-        pprint.pprint(rr_graph.block_graph.block_grid)
+
+
+        bg = rr_graph.block_graph
+
+        print()
+        for type_id, bt in bg.block_types.items():
+            print("{:4}  ".format(type_id), "{:40s}".format(bt.to_string()), bt.to_string(extra=True))
+        print()
+
+        grid = bg.block_grid_size()
+
+        col_widths = []
+        for x in range(0, grid.width):
+            col_widths.append(max(len(bt.name) for bt in bg.block_types_for(col=x)))
+
+        print("    ", end=" ")
+        for x in range(0, grid.width):
+            print("{: ^{width}d}".format(x, width=col_widths[x]), end="   ")
+        print()
+
+        print("   /", end="-")
+        for x in range(0, grid.width):
+            print("-"*col_widths[x], end="-+-")
+        print()
+
+        for y in reversed(range(0, grid.height)):
+            print("{: 2d} |".format(y, width=col_widths[0]), end=" ")
+            for x, bt in enumerate(bg.block_types_for(row=y)):
+                assert x < len(col_widths), (x, bt)
+                print("{: ^{width}}".format(bt.name, width=col_widths[x]), end=" | ")
+            print()
+        print()
