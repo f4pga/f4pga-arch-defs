@@ -895,9 +895,15 @@ class GraphIdsMap:
                 xml_node.tag, ", ".join(self.id2node.keys())))
         return xml_node.tag
 
-    def add_node(self, xml_node):
+    def add_node(self, xml_node, verbose=False):
+        if 'capacity' not in xml_node.attrib:
+            xml_node.attrib['capacity'] =  str(1)
+
         name = self.node_name(xml_node)
         self[name] = xml_node
+
+        if verbose:
+            xml_node.append(ET.Comment(" {} ".format(name)))
 
     def __getitem__(self, globalname):
         xml_group, node_id = self.globalnames2id[globalname]
@@ -1073,45 +1079,103 @@ class GraphIdsMap:
 
         return "{}->>-{}".format(self.node_name(id2node[src_node_id]), self.node_name(id2node[snk_node_id]))
 
+    def add_nodes_for_pin(self, block, pin):
+        """ Creates an IPIN/OPIN node from `class Pin` object. """
+        assert_type(block, Block)
+        assert_type(pin, Pin)
+        assert_type(pin.pin_class, PinClass)
+        assert_type(pin.pin_class.block_type, BlockType)
 
-## class RRNode:
-##     @classmethod
-##     def from_pin(cls, block, pin):
-##         """ Creates an IPIN/OPIN from `class Pin` object. """
-## 
-##         assert_type(block, Block)
-##         assert_type(pin, Pin)
-##         assert_type(pin.pin_class, PinClass)
-##         assert_type(pin.pin_class.block_type, BlockType)
-## 
-##         low = pin_class.block_type.position
-##         return RRNode(id, low, low, pin)
-## 
-##     @classmethod
-##     def from_pin_class(cls, block, pin_class):
-##         """ Creates a SOURCE or SINK node from a `class PinClass` object. """
-##         assert_type(block, Block)
-##         assert_type(pin_class, PinClass)
-##         assert_type(pin_class.block_type, BlockType)
-## 
-##         low = block.position
-##         high = block.position + pin_class.block_type.size
-## 
-##         obj = RRNode(self, low, high, 0, timing=timing)
-##         return obj
-## 
-##     @classmethod
-##     def from_block(cls, block):
-##         """
-##         Creates the SOURCE/SINK nodes for each pin class
-##         Creates the IPIN/OPIN nodes for each pin inside a pin class.
-##         """
-##         nodes = []
-##         for pc in block.block_type.pin_classes:
-##             nodes.append(cls.from_pin_class(block, pc))
-##             for p in pc.pins:
-##                nodes.append(cls.from_pin(block, p))
-##         return nodes
+        pc = pin.pin_class
+        low = block.position
+        high = block_type.position
+
+        pin_node = None
+        if pc.direction in (PinClassDirection.INPUT, PinClassDirection.CLOCK):
+            pin_node = ET.SubElement(nodes, 'node', {'type': 'IPIN'})
+            ET.SubElement(pin_node, 'loc', {
+                'xlow': str(low.x), 'ylow': str(low.y),
+                'xhigh': str(high.x), 'yhigh': str(high.y),
+                'ptc': str(pin_idx),
+                # FIXME: This should probably be settable..
+                'side': 'TOP',
+            })
+            ET.SubElement(pin_node, 'timing', {'R': str(0), 'C': str(0)})
+
+        elif pin.pin_class.direction in (PinClassDirection.OUTPUT,):
+            pin_node = ET.SubElement(nodes, 'node', {'type': 'OPIN'})
+            ET.SubElement(pin_node, 'loc', {
+                'xlow': str(low.x), 'ylow': str(low.y),
+                'xhigh': str(high.x), 'yhigh': str(high.y),
+                'ptc': str(pin_idx),
+                # FIXME: This should probably be settable..
+                'side': 'TOP',
+            })
+            ET.SubElement(pin_node, 'timing', {'R': str(0), 'C': str(0)})
+
+        else:
+            assert False, "Unknown dir of {}.{}".format(pin, pin_class)
+
+        assert pin_node, pin_node
+
+        print("Adding pin {:55s} on tile ({:3d}, {:3d})@{:4d}".format(pin_globalname, pos[0], pos[1], pin_idx))
+        return pin_node
+
+    def add_nodes_for_pin_class(self, block, pin_class):
+        """ Creates a SOURCE or SINK node from a `class PinClass` object. """
+        assert_type(block, Block)
+        assert_type(block.block_type, BlockType)
+        assert_type(pin_class, PinClass)
+        assert_type(pin_class.block_type, BlockType)
+
+        assert_eq(block.block_type, pin_class.block_type)
+        # FIXME: Assert pin_class in block_type
+
+        low = block.position
+        high = block.position + pin_class.block_type.size
+
+        if pin_class.direction in (PinClassDirection.INPUT, PinClassDirection.CLOCK):
+            # Sink node
+            sink_node = ET.SubElement(nodes, 'node', {'type': 'SINK'})
+            ET.SubElement(sink_node, 'loc', {
+                'xlow': str(low.x), 'ylow': str(low.y),
+                'xhigh': str(high.x), 'yhigh': str(high.y),
+                'ptc': str(pin_idx),
+            })
+            ET.SubElement(sink_node, 'timing', {'R': str(0), 'C': str(0)})
+
+            for p in pins:
+                pin_node = self.add_pin()
+
+                # Edge PIN->SINK
+                self.add_edge(pin_node, sink_node)
+
+        elif pin_dir in (PinClassDirection.OUTPUT,):
+            # Source node
+            src_node = ET.SubElement(nodes, 'node', {'type': 'SOURCE'})
+            ET.SubElement(src_node, 'loc', {
+                'xlow': str(low.x), 'ylow': str(low.y),
+                'xhigh': str(high.x), 'yhigh': str(high.y),
+                'ptc': str(pin_idx),
+            })
+            ET.SubElement(src_node, 'timing', {'R': str(0), 'C': str(0)})
+
+            for p in pins:
+                pin_node = self.add_pin()
+
+                # Edge SOURCE->PIN
+                self.add_edge(src_node, pin_node)
+
+        else:
+            assert False, "Unknown dir of {} for {}".format(pin_dir, pin_globalname)
+
+    def add_nodes_for_block(self, block):
+        """
+        Creates the SOURCE/SINK nodes for each pin class
+        Creates the IPIN/OPIN nodes for each pin inside a pin class.
+        """
+        for pc in block.block_type.pin_classes:
+            self.add_nodes_for_pin_class(block, pc)
 
 
 class Graph:
@@ -1146,152 +1210,6 @@ class Graph:
         self.grid = {}
         for block_xml in self._xml_graph.iterfind("./grid/grid_loc"):
             Block.from_xml(self.block_graph, block_xml)
-
-    def add_pin(self, pos, pin_name, ptc=None, edge=BlockTypeEdge.TOP):
-        """Add an pin at index i to tile at pos."""
-
-        pin_globalname_a = pin_globalname+"-"+pin_dir
-
-        """
-            <node id="0" type="SINK" capacity="1">
-                    <loc xlow="0" ylow="1" xhigh="0" yhigh="1" ptc="0"/>
-                    <timing R="0" C="0"/>
-            </node>
-            <node id="2" type="IPIN" capacity="1">
-                    <loc xlow="0" ylow="1" xhigh="0" yhigh="1" side="TOP" ptc="0"/>
-                    <timing R="0" C="0"/>
-            </node>
-        """
-
-        low = list(pos)
-        high = list(pos)
-
-        if pin_dir in ("INPUT", "CLOCK"):
-            # Pin node
-            attribs = {
-                'type': 'IPIN',
-            }
-            node = self._add_node(pin_globalname, attribs)
-            ET.SubElement(node, 'loc', {
-                'xlow': str(low[0]), 'ylow': str(low[1]),
-                'xhigh': str(high[0]), 'yhigh': str(high[1]),
-                'ptc': str(pin_idx),
-                'side': 'TOP',
-            })
-            ET.SubElement(node, 'timing', {'R': str(0), 'C': str(0)})
-
-            # Sink node
-            if "INT_R" in pin_globalname:
-                low[0]-=1
-            elif "INT_L" in pin_globalname:
-                high[0]+=1
-
-            attribs = {
-                'type': 'SINK',
-            }
-            node = self._add_node(pin_globalname_a, attribs)
-            ET.SubElement(node, 'loc', {
-                'xlow': str(low[0]), 'ylow': str(low[1]),
-                'xhigh': str(high[0]), 'yhigh': str(high[1]),
-                'ptc': str(pin_idx),
-            })
-            ET.SubElement(node, 'timing', {'R': str(0), 'C': str(0)})
-
-            # Edge PIN->SINK
-            add_edge(pin_globalname, pin_globalname_a)
-
-        elif pin_dir in ("OUTPUT",):
-            # Pin node
-            attribs = {
-                'type': 'OPIN',
-            }
-            node = self._add_node(pin_globalname, attribs)
-            ET.SubElement(node, 'loc', {
-                'xlow': str(low[0]), 'ylow': str(low[1]),
-                'xhigh': str(high[0]), 'yhigh': str(high[1]),
-                'ptc': str(pin_idx),
-                'side': 'TOP',
-            })
-            ET.SubElement(node, 'timing', {'R': str(0), 'C': str(0)})
-
-            # Source node
-            if "INT_R" in pin_globalname:
-                low[0]-=1
-            elif "INT_L" in pin_globalname:
-                high[0]+=1
-
-            attribs = {
-                'type': 'SOURCE',
-            }
-            node = self._add_node(pin_globalname_a, attribs)
-            ET.SubElement(node, 'loc', {
-                'xlow': str(low[0]), 'ylow': str(low[1]),
-                'xhigh': str(high[0]), 'yhigh': str(high[1]),
-                'ptc': str(pin_idx),
-            })
-            ET.SubElement(node, 'timing', {'R': str(0), 'C': str(0)})
-
-            # Edge SOURCE->PIN
-            add_edge(pin_globalname_a, pin_globalname)
-
-        else:
-            assert False, "Unknown dir of {} for {}".format(pin_dir, pin_globalname)
-
-        print("Adding pin {:55s} on tile ({:3d}, {:3d})@{:4d}".format(pin_globalname, pos[0], pos[1], pin_idx))
-
-
-
-    def _add_node(self, globalname, attribs):
-        """Add node with globalname and attributes."""
-        # Add common attributes
-        attribs['capacity'] =  str(1)
-
-
-        attribs['id'] = str(len(globalname2node))
-
-        node = ET.SubElement(nodes, 'node', attribs)
-
-        # Stash in the mappings
-        assert globalname not in globalname2node, globalname
-        assert globalname not in globalname2nodeid, globalname
-
-        globalname2node[globalname] = node
-        globalname2nodeid[globalname] = attribs['id']
-
-        # Add some helpful comments
-        if args.verbose:
-            node.append(ET.Comment(" {} ".format(globalname)))
-
-        return node
-
-
-    def add_edge(src_globalname, dst_globalname):
-        """Add an edge between two nodes."""
-        src_node_id = self.globalname2nodeid[src_globalname]
-        dst_node_id = self.globalname2nodeid[dst_globalname]
-
-        attribs = {
-            'src_node': str(src_node_id),
-            'sink_node': str(dst_node_id),
-            'switch_id': str(0),
-        }
-        e = ET.SubElement(edges, 'edge', attribs)
-
-        # Add some helpful comments
-        if args.verbose:
-            e.append(ET.Comment(" {} -> {} ".format(src_globalname, dst_globalname)))
-            self.globalname2node[src_globalname].append(ET.Comment(" this -> {} ".format(dst_globalname)))
-            self.globalname2node[dst_globalname].append(ET.Comment(" {} -> this ".format(src_globalname)))
-
-
-    def add_channel_filler(self, pos, chantype):
-        x,y = pos
-        current_len = len(channels[chantype][(x,y)])
-        fillername = "{}-{},{}+{}-filler".format(chantype,x,y,current_len)
-        add_channel(fillername, pos, pos, '0', _chantype=chantype)
-        new_len = len(channels[chantype][(x,y)])
-        assert current_len + 1 == new_len, new_len
-
 
     def add_channel(self, globalname, start, end, segtype, _chantype=None):
         x_start, y_start = start
