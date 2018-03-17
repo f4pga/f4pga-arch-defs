@@ -678,6 +678,14 @@ class Block(MostlyReadOnly):
         if graph is not None:
             graph.add_block(self)
 
+    @property
+    def x(self):
+        return self.position.x
+
+    @property
+    def y(self):
+        return self.position.y
+
     @classmethod
     def from_xml(cls, graph, grid_loc_node):
         """
@@ -927,7 +935,7 @@ class GraphIdsMap:
         ... </node>
         ... '''
         >>> m.node_name(ET.fromstring(xml_string1))
-        'GRID_X000Y003/INBLOCK/IDX[00]/NODE/<-'
+        'INBLOCK_X000Y003/IDX[00]/NODE/<-'
         >>> xml_string2 = '''
         ... <node id="1" type="SOURCE" capacity="1">
         ...   <loc xlow="1" ylow="2" xhigh="1" yhigh="2" ptc="1"/>
@@ -935,7 +943,7 @@ class GraphIdsMap:
         ... </node>
         ... '''
         >>> m.node_name(ET.fromstring(xml_string2))
-        'GRID_X001Y002/DUALBLK/IDX[01]/NODE/->'
+        'DUALBLK_X001Y002/IDX[01]/NODE/->'
         >>> xml_string3 = '''
         ... <node id="2" type="IPIN" capacity="1">
         ...   <loc xlow="2" ylow="1" xhigh="2" yhigh="1" side="TOP" ptc="0"/>
@@ -943,7 +951,7 @@ class GraphIdsMap:
         ... </node>
         ... '''
         >>> m.node_name(ET.fromstring(xml_string3))
-        'GRID_X002Y001/DUALBLK/IDX[00]/IPIN/T<'
+        'DUALBLK_X002Y001/IDX[00]/IPIN/T<'
         >>> xml_string4 = '''
         ... <node id="6" type="OPIN" capacity="1">
         ...   <loc xlow="3" ylow="0" xhigh="3" yhigh="0" side="RIGHT" ptc="1"/>
@@ -951,38 +959,44 @@ class GraphIdsMap:
         ... </node>
         ... '''
         >>> m.node_name(ET.fromstring(xml_string4))
-        'GRID_X003Y000/OUTBLOK/IDX[01]/OPIN/R>'
-        >>> xml_string4 = '''
+        'OUTBLOK_X003Y000/IDX[01]/OPIN/R>'
+        >>> xml_string5 = '''
         ... <node capacity="1" direction="INC_DIR" id="372" type="CHANX">
         ...   <loc ptc="4" xhigh="3" xlow="3" yhigh="0" ylow="0"/>
         ...   <timing C="2.72700004e-14" R="101"/>
         ...   <segment segment_id="1"/>
         ... </node>
         ... '''
-        >>> m.node_name(ET.fromstring(xml_string4))
-        'GRID_X003Y000/OUTBLOK/IDX[01]/OPIN/R>'
-        >>> xml_string4 = '''
-        ... <node capacity="1" direction="DEC_DIR" id="373" type="CHANX">
+        >>> m.node_name(ET.fromstring(xml_string5))
+        'OUTBLOK_X003Y000--[04]->X003Y000_OUTBLOK'
+        >>> xml_string6 = '''
+        ... <node capacity="1" direction="DEC_DIR" id="373" type="CHANY">
         ...   <loc ptc="5" xhigh="3" xlow="3" yhigh="0" ylow="0"/>
         ...   <timing C="2.72700004e-14" R="101"/>
         ...   <segment segment_id="1"/>
         ... </node>
         ... '''
-        >>> m.node_name(ET.fromstring(xml_string4))
-        'GRID_X003Y000/OUTBLOK/IDX[01]/OPIN/R>'
+        >>> m.node_name(ET.fromstring(xml_string6))
+        'OUTBLOK_X003Y000<|[05]||X003Y000_OUTBLOK'
 
 
 
-        'GRID_X002Y003/BT/IDX[000]/IPIN/T<'
-        'GRID_X002Y003/BT/IDX[000]/IPIN/L<'
-        'GRID_X002Y003/BT/IDX[000]/IPIN/R<'
-        'GRID_X002Y003/BT/IDX[000]/IPIN/B<'
-        'GRID_X002Y003/BT/IDX[000]/NODE/<-'
-        'GRID_X002Y003/BT/IDX[000]/NODE/->'
-        'GRID_X002Y003/BT/IDX[000]/OPIN/T>'
-        'GRID_X002Y003/BT/IDX[000]/OPIN/L>'
-        'GRID_X002Y003/BT/IDX[000]/OPIN/R>'
-        'GRID_X002Y003/BT/IDX[000]/OPIN/B>'
+        'BT_X002Y003/IDX[000]/IPIN/T<'
+        'BT_X002Y003/IDX[000]/IPIN/L<'
+        'BT_X002Y003/IDX[000]/IPIN/R<'
+        'BT_X002Y003/IDX[000]/IPIN/B<'
+        'BT_X002Y003/IDX[000]/NODE/<-'
+        'BT_X002Y003/IDX[000]/NODE/->'
+        'BT_X002Y003/IDX[000]/OPIN/T>'
+        'BT_X002Y003/IDX[000]/OPIN/L>'
+        'BT_X002Y003/IDX[000]/OPIN/R>'
+        'BT_X002Y003/IDX[000]/OPIN/B>'
+
+        'BT_X003Y000--[05]->X003Y000_BT'
+        'BT_X003Y000<-[05]--X003Y000_BT'
+
+        'BT_X003Y000||[05]|>X003Y000_BT'
+        'BT_X003Y000<|[05]||X003Y000_BT'
         """
 
         loc_node = list(xml_node.iterfind("./loc"))[0]
@@ -995,8 +1009,21 @@ class GraphIdsMap:
         node_type = RRNodeType.from_xml(xml_node)
         if False:
             pass
+        elif node_type in (RRNodeType.channel_x, RRNodeType.channel_y):
+            direction = {
+                'INC_DIR': '{f}{f}[{ptc:02d}]{f}>',
+                'DEC_DIR': '<{f}[{ptc:02d}]{f}{f}',
+            }[xml_node.attrib.get("direction")]
+
+            block_from = self._block_graph[low]
+            block_to   = self._block_graph[high]
+            return "{}_X{:03d}Y{:03d}{}X{:03d}Y{:03d}_{}".format(
+                block_from.block_type.name, block_from.x, block_from.y,
+                direction.format(f={RRNodeType.channel_x: '-', RRNodeType.channel_y: '|'}[node_type], ptc=ptc),
+                block_to.x, block_to.y, block_to.block_type.name)
         elif node_type is RRNodeType.input_class:
             type_str = "NODE/<-"
+            # FIXME: Check high == block.position + block.block_type.size
         elif node_type is RRNodeType.output_class:
             type_str = "NODE/->"
             # FIXME: Check high == block.position + block.block_type.size
@@ -1012,8 +1039,8 @@ class GraphIdsMap:
 
         block = self._block_graph[low]
 
-        return "GRID_X{:03d}Y{:03d}/{}/IDX[{:02d}]/{}".format(
-            block.position.x, block.position.y, block.block_type.name, ptc, type_str)
+        return "{}_X{:03d}Y{:03d}/IDX[{:02d}]/{}".format(
+            block.block_type.name, block.position.x, block.position.y, ptc, type_str)
 
     def edge_name(self, xml_node):
         """
