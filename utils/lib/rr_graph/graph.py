@@ -787,7 +787,6 @@ class BlockGraph:
         return self.block_grid[pos]
 
 
-
 def simple_test_graph():
     bg = BlockGraph()
 
@@ -928,55 +927,49 @@ class GraphIdsMap:
         >>> bg = simple_test_graph()
         >>> m = GraphIdsMap(block_graph=bg)
         >>> 
-        >>> xml_string1 = '''
+        >>> m.node_name(ET.fromstring('''
         ... <node id="0" type="SINK" capacity="1">
         ...   <loc xlow="0" ylow="3" xhigh="0" yhigh="3" ptc="0"/>
         ...   <timing R="0" C="0"/>
         ... </node>
-        ... '''
-        >>> m.node_name(ET.fromstring(xml_string1))
+        ... '''))
         'INBLOCK_X000Y003/IDX[00]/NODE/<-'
-        >>> xml_string2 = '''
+        >>> m.node_name(ET.fromstring('''
         ... <node id="1" type="SOURCE" capacity="1">
         ...   <loc xlow="1" ylow="2" xhigh="1" yhigh="2" ptc="1"/>
         ...   <timing R="0" C="0"/>
         ... </node>
-        ... '''
-        >>> m.node_name(ET.fromstring(xml_string2))
+        ... '''))
         'DUALBLK_X001Y002/IDX[01]/NODE/->'
-        >>> xml_string3 = '''
+        >>> m.node_name(ET.fromstring('''
         ... <node id="2" type="IPIN" capacity="1">
         ...   <loc xlow="2" ylow="1" xhigh="2" yhigh="1" side="TOP" ptc="0"/>
         ...   <timing R="0" C="0"/>
         ... </node>
-        ... '''
-        >>> m.node_name(ET.fromstring(xml_string3))
+        ... '''))
         'DUALBLK_X002Y001/IDX[00]/IPIN/T<'
-        >>> xml_string4 = '''
+        >>> m.node_name(ET.fromstring('''
         ... <node id="6" type="OPIN" capacity="1">
         ...   <loc xlow="3" ylow="0" xhigh="3" yhigh="0" side="RIGHT" ptc="1"/>
         ...   <timing R="0" C="0"/>
         ... </node>
-        ... '''
-        >>> m.node_name(ET.fromstring(xml_string4))
+        ... '''))
         'OUTBLOK_X003Y000/IDX[01]/OPIN/R>'
-        >>> xml_string5 = '''
+        >>> m.node_name(ET.fromstring('''
         ... <node capacity="1" direction="INC_DIR" id="372" type="CHANX">
         ...   <loc ptc="4" xhigh="3" xlow="3" yhigh="0" ylow="0"/>
         ...   <timing C="2.72700004e-14" R="101"/>
         ...   <segment segment_id="1"/>
         ... </node>
-        ... '''
-        >>> m.node_name(ET.fromstring(xml_string5))
+        ... '''))
         'OUTBLOK_X003Y000--[04]->X003Y000_OUTBLOK'
-        >>> xml_string6 = '''
+        >>> m.node_name(ET.fromstring('''
         ... <node capacity="1" direction="DEC_DIR" id="373" type="CHANY">
         ...   <loc ptc="5" xhigh="3" xlow="3" yhigh="0" ylow="0"/>
         ...   <timing C="2.72700004e-14" R="101"/>
         ...   <segment segment_id="1"/>
         ... </node>
-        ... '''
-        >>> m.node_name(ET.fromstring(xml_string6))
+        ... '''))
         'OUTBLOK_X003Y000<|[05]||X003Y000_OUTBLOK'
 
         'BT_X002Y003[000]-T-PIN<'
