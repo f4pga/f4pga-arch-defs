@@ -881,13 +881,13 @@ class GraphIdsMap:
     @property
     def _xml_nodes(self):
         nodes = list(self._xml_graph.iterfind("rr_nodes"))
-        assert len(nodes) == 1
+        assert len(nodes) == 1, nodes
         return nodes[0]
 
     @property
     def _xml_edges(self):
         edges = list(self._xml_graph.iterfind("rr_edges"))
-        assert len(edges) == 1
+        assert len(edges) == 1, edges
         return edges[0]
 
     def _xml_group(self, xml_node):
@@ -897,7 +897,7 @@ class GraphIdsMap:
         return xml_node.tag
 
     def add_node(self, xml_node):
-        name = self.name(xml_node)
+        name = self.node_name(xml_node)
         self[name] = xml_node
 
     def __getitem__(self, globalname):
@@ -979,18 +979,16 @@ class GraphIdsMap:
         >>> m.node_name(ET.fromstring(xml_string6))
         'OUTBLOK_X003Y000<|[05]||X003Y000_OUTBLOK'
 
-
-
-        'BT_X002Y003/IDX[000]/IPIN/T<'
-        'BT_X002Y003/IDX[000]/IPIN/L<'
-        'BT_X002Y003/IDX[000]/IPIN/R<'
-        'BT_X002Y003/IDX[000]/IPIN/B<'
-        'BT_X002Y003/IDX[000]/NODE/<-'
-        'BT_X002Y003/IDX[000]/NODE/->'
-        'BT_X002Y003/IDX[000]/OPIN/T>'
-        'BT_X002Y003/IDX[000]/OPIN/L>'
-        'BT_X002Y003/IDX[000]/OPIN/R>'
-        'BT_X002Y003/IDX[000]/OPIN/B>'
+        'BT_X002Y003[000]-T-PIN<'
+        'BT_X002Y003[000]-L-PIN<'
+        'BT_X002Y003[000]-R-PIN<'
+        'BT_X002Y003[000]-B-PIN<'
+        'BT_X002Y003[000]-SINK-<'
+        'BT_X002Y003[000]-SRC-->'
+        'BT_X002Y003[000]-T-PIN>'
+        'BT_X002Y003[000]-L-PIN>'
+        'BT_X002Y003[000]-R-PIN>'
+        'BT_X002Y003[000]-B-PIN>'
 
         'BT_X003Y000--[05]->X003Y000_BT'
         'BT_X003Y000<-[05]--X003Y000_BT'
@@ -1044,15 +1042,39 @@ class GraphIdsMap:
 
     def edge_name(self, xml_node):
         """
-            <edge sink_node="6" src_node="1" switch_id="1"/>
-            <edge sink_node="7" src_node="1" switch_id="1"/>
-            <edge sink_node="8" src_node="1" switch_id="1"/>
-            <edge sink_node="9" src_node="1" switch_id="1"/>
-            <edge sink_node="0" src_node="2" switch_id="1"/>
-            <edge sink_node="0" src_node="3" switch_id="1"/>
-            <edge sink_node="0" src_node="4" switch_id="1"/>
+        >>> bg = simple_test_graph()
+        >>> xml_string1 = '''
+        ... <rr_graph>
+        ...  <rr_nodes>
+        ...   <node id="0" type="SINK" capacity="1">
+        ...     <loc xlow="0" ylow="3" xhigh="0" yhigh="3" ptc="0"/>
+        ...     <timing R="0" C="0"/>
+        ...   </node>
+        ...   <node capacity="1" direction="DEC_DIR" id="1" type="CHANY">
+        ...     <loc ptc="5" xhigh="3" xlow="3" yhigh="0" ylow="0"/>
+        ...     <timing C="2.72700004e-14" R="101"/>
+        ...     <segment segment_id="1"/>
+        ...   </node>
+        ...  </rr_nodes>
+        ... </rr_graph>
+        ... '''
+        >>> m = GraphIdsMap(block_graph=bg, xml_graph=ET.fromstring(xml_string1))
+        >>> m.edge_name(ET.fromstring('''
+        ... <edge sink_node="0" src_node="1" switch_id="1"/>
+        ... '''))
+        'OUTBLOK_X003Y000<|[05]||X003Y000_OUTBLOK->>-INBLOCK_X000Y003/IDX[00]/NODE/<-'
         """
-        pass
+        assert xml_node.tag == 'edge'
+
+        id2node = self.id2node['node']
+
+        snk_node_id = xml_node.attrib.get("sink_node")
+        src_node_id = xml_node.attrib.get("src_node")
+
+        assert snk_node_id in id2node, snk_node_id
+        assert src_node_id in id2node, src_node_id
+
+        return "{}->>-{}".format(self.node_name(id2node[src_node_id]), self.node_name(id2node[snk_node_id]))
 
 
 ## class RRNode:
