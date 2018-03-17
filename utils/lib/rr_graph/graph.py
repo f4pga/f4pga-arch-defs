@@ -922,7 +922,8 @@ class GraphIdsMap:
         self.globalname2id[globalname] = node_id
 
     def node_name(self, xml_node):
-        """
+        """Get a globally unique name for an `node` in the rr_nodes.
+
         >>> 
         >>> bg = simple_test_graph()
         >>> m = GraphIdsMap(block_graph=bg)
@@ -1034,7 +1035,10 @@ class GraphIdsMap:
             block.block_type.name, block.position.x, block.position.y, ptc, type_str)
 
     def edge_name(self, xml_node):
-        """
+        """Get a globally unique name for an `edge` in the rr_edges.
+
+        An edge goes between two `node` objects.
+
         >>> bg = simple_test_graph()
         >>> xml_string1 = '''
         ... <rr_graph>
