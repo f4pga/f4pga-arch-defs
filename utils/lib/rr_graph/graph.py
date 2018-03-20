@@ -856,7 +856,7 @@ class GraphIdsMap:
         assert_type(block_graph, BlockGraph)
 
         # Mapping dictionaries
-        self.globalname2id  = {}
+        self.name2id  = {}
         self.id2node = {'node': {}, 'edge': {}}
 
         self._block_graph = block_graph
@@ -870,12 +870,20 @@ class GraphIdsMap:
         for node in self._xml_nodes:
             self.add_node(node)
 
+    def clear_graph(self):
+        """Delete the existing nodes and edges."""
+        self._xml_nodes.clear()
+        self._xml_edges.clear()
+
+        self.name2id  = {}
+        self.id2node = {'node': {}, 'edge': {}}
+
     def _next_id(self, xml_group):
         return len(self.id2node[xml_group])
 
     def check(self):
         # Make sure all the global names mappings are same size.
-        assert len(self.globalname2ids) == sum(len(v) for v in self.id2node.values())
+        assert len(self.name2ids) == sum(len(v) for v in self.id2node.values())
 
     @property
     def _xml_nodes(self):
@@ -905,11 +913,11 @@ class GraphIdsMap:
         if verbose:
             xml_node.append(ET.Comment(" {} ".format(name)))
 
-    def __getitem__(self, globalname):
-        xml_group, node_id = self.globalnames2id[globalname]
+    def __getitem__(self, name):
+        xml_group, node_id = self.names2id[name]
         return self.id2node[xml_group][node_id]
 
-    def __setitem__(self, globalname, xml_node):
+    def __setitem__(self, name, xml_node):
         xml_group = self._xml_group(xml_node)
 
         node_id = xml_node.get('id', None)
@@ -920,12 +928,12 @@ class GraphIdsMap:
         #assert obj in list(parent_xml)
         #parent_xml.append(obj)
 
-        if globalname in self.globalname2id:
-            assert_eq(self.globalname2id[globalname], node_id)
+        if name in self.name2id:
+            assert_eq(self.name2id[name], node_id)
             assert obj is self.id2node[node_id]
 
         self.id2node[xml_group][node_id] = xml_node
-        self.globalname2id[globalname] = node_id
+        self.name2id[name] = node_id
 
     def node_name(self, xml_node):
         """Get a globally unique name for an `node` in the rr_nodes.
@@ -940,28 +948,28 @@ class GraphIdsMap:
         ...   <timing R="0" C="0"/>
         ... </node>
         ... '''))
-        'INBLOCK_X000Y003/IDX[00]/NODE/<-'
+        'X000Y003_INBLOCK[00].SINK-<'
         >>> m.node_name(ET.fromstring('''
         ... <node id="1" type="SOURCE" capacity="1">
         ...   <loc xlow="1" ylow="2" xhigh="1" yhigh="2" ptc="1"/>
         ...   <timing R="0" C="0"/>
         ... </node>
         ... '''))
-        'DUALBLK_X001Y002/IDX[01]/NODE/->'
+        'X001Y002_DUALBLK[01].SRC-->'
         >>> m.node_name(ET.fromstring('''
         ... <node id="2" type="IPIN" capacity="1">
         ...   <loc xlow="2" ylow="1" xhigh="2" yhigh="1" side="TOP" ptc="0"/>
         ...   <timing R="0" C="0"/>
         ... </node>
         ... '''))
-        'DUALBLK_X002Y001/IDX[00]/IPIN/T<'
+        'X002Y001_DUALBLK[00].T-PIN<'
         >>> m.node_name(ET.fromstring('''
         ... <node id="6" type="OPIN" capacity="1">
         ...   <loc xlow="3" ylow="0" xhigh="3" yhigh="0" side="RIGHT" ptc="1"/>
         ...   <timing R="0" C="0"/>
         ... </node>
         ... '''))
-        'OUTBLOK_X003Y000/IDX[01]/OPIN/R>'
+        'X003Y000_OUTBLOK[01].R-PIN>'
         >>> m.node_name(ET.fromstring('''
         ... <node capacity="1" direction="INC_DIR" id="372" type="CHANX">
         ...   <loc ptc="4" xhigh="3" xlow="3" yhigh="0" ylow="0"/>
@@ -969,7 +977,7 @@ class GraphIdsMap:
         ...   <segment segment_id="1"/>
         ... </node>
         ... '''))
-        'OUTBLOK_X003Y000--[04]->X003Y000_OUTBLOK'
+        'X003Y000--04->X003Y000'
         >>> m.node_name(ET.fromstring('''
         ... <node capacity="1" direction="DEC_DIR" id="373" type="CHANY">
         ...   <loc ptc="5" xhigh="3" xlow="3" yhigh="0" ylow="0"/>
@@ -977,24 +985,24 @@ class GraphIdsMap:
         ...   <segment segment_id="1"/>
         ... </node>
         ... '''))
-        'OUTBLOK_X003Y000<|[05]||X003Y000_OUTBLOK'
+        'X003Y000<|05||X003Y000'
 
-        'BT_X002Y003[000]-T-PIN<'
-        'BT_X002Y003[000]-L-PIN<'
-        'BT_X002Y003[000]-R-PIN<'
-        'BT_X002Y003[000]-B-PIN<'
-        'BT_X002Y003[000]-SINK-<'
-        'BT_X002Y003[000]-SRC-->'
-        'BT_X002Y003[000]-T-PIN>'
-        'BT_X002Y003[000]-L-PIN>'
-        'BT_X002Y003[000]-R-PIN>'
-        'BT_X002Y003[000]-B-PIN>'
+        'X002Y003_BT[00].T-PIN<'
+        'X002Y003_BT[00].L-PIN<'
+        'X002Y003_BT[00].R-PIN<'
+        'X002Y003_BT[00].B-PIN<'
+        'X002Y003_BT[00].SINK<'
+        'X002Y003_BT[00].SRC>'
+        'X002Y003_BT[00].T-PIN>'
+        'X002Y003_BT[00].L-PIN>'
+        'X002Y003_BT[00].R-PIN>'
+        'X002Y003_BT[00].B-PIN>'
 
-        'BT_X003Y000--[05]->X003Y000_BT'
-        'BT_X003Y000<-[05]--X003Y000_BT'
+        'X003Y000--05->X003Y000'
+        'X003Y000<-05--X003Y000'
 
-        'BT_X003Y000||[05]|>X003Y000_BT'
-        'BT_X003Y000<|[05]||X003Y000_BT'
+        'X003Y000||05|>X003Y000'
+        'X003Y000<|05||X003Y000'
         """
 
         loc_node = list(xml_node.iterfind("./loc"))[0]
@@ -1009,38 +1017,51 @@ class GraphIdsMap:
             pass
         elif node_type in (RRNodeType.channel_x, RRNodeType.channel_y):
             direction = {
-                'INC_DIR': '{f}{f}[{ptc:02d}]{f}>',
-                'DEC_DIR': '<{f}[{ptc:02d}]{f}{f}',
+                'INC_DIR': '{f}{f}{ptc:02d}{f}>',
+                'DEC_DIR': '<{f}{ptc:02d}{f}{f}',
             }[xml_node.attrib.get("direction")]
 
             block_from = self._block_graph[low]
             block_to   = self._block_graph[high]
-            return "{}_X{:03d}Y{:03d}{}X{:03d}Y{:03d}_{}".format(
-                block_from.block_type.name, block_from.x, block_from.y,
+            return "X{:03d}Y{:03d}{}X{:03d}Y{:03d}".format(
+                block_from.x, block_from.y,
                 direction.format(f={RRNodeType.channel_x: '-', RRNodeType.channel_y: '|'}[node_type], ptc=ptc),
-                block_to.x, block_to.y, block_to.block_type.name)
+                block_to.x, block_to.y)
         elif node_type is RRNodeType.input_class:
-            type_str = "NODE/<-"
+            type_str = "SINK-<"
             # FIXME: Check high == block.position + block.block_type.size
         elif node_type is RRNodeType.output_class:
-            type_str = "NODE/->"
+            type_str = "SRC-->"
             # FIXME: Check high == block.position + block.block_type.size
         elif node_type is RRNodeType.input_pin:
             assert edge in "TLRB", edge
-            type_str = "IPIN/{}<".format(edge)
+            type_str = "{}-PIN<".format(edge)
         elif node_type is RRNodeType.output_pin:
             assert edge in "TLRB", edge
-            type_str = "OPIN/{}>".format(edge)
+            type_str = "{}-PIN>".format(edge)
         else:
             assert False, "Unknown node_type {}".format(node_type)
         assert type_str
 
         block = self._block_graph[low]
 
-        return "{}_X{:03d}Y{:03d}/IDX[{:02d}]/{}".format(
-            block.block_type.name, block.position.x, block.position.y, ptc, type_str)
+        return "X{x:03d}Y{y:03d}_{t}[{i:02d}].{s}".format(
+            t=block.block_type.name, x=block.position.x, y=block.position.y,
+            i=ptc, s=type_str)
 
-    def edge_name(self, xml_node):
+    def nodes_for_edge(self, xml_node):
+        assert xml_node.tag == 'edge'
+        snk_node_id = xml_node.attrib.get("sink_node")
+        src_node_id = xml_node.attrib.get("src_node")
+
+        # FIXME: Check that the two nodes are in similar grid positions?
+
+        id2node = self.id2node['node']
+        assert snk_node_id in id2node, snk_node_id
+        assert src_node_id in id2node, src_node_id
+        return id2node[src_node_id], id2node[snk_node_id]
+
+    def edge_name(self, xml_node, flip=False):
         """Get a globally unique name for an `edge` in the rr_edges.
 
         An edge goes between two `node` objects.
@@ -1049,12 +1070,12 @@ class GraphIdsMap:
         >>> xml_string1 = '''
         ... <rr_graph>
         ...  <rr_nodes>
-        ...   <node id="0" type="SINK" capacity="1">
+        ...   <node id="0" type="SOURCE" capacity="1">
         ...     <loc xlow="0" ylow="3" xhigh="0" yhigh="3" ptc="0"/>
         ...     <timing R="0" C="0"/>
         ...   </node>
-        ...   <node capacity="1" direction="DEC_DIR" id="1" type="CHANY">
-        ...     <loc ptc="5" xhigh="3" xlow="3" yhigh="0" ylow="0"/>
+        ...   <node capacity="1" direction="INC_DIR" id="1" type="CHANY">
+        ...     <loc ptc="5" xhigh="3" xlow="0" yhigh="0" ylow="3"/>
         ...     <timing C="2.72700004e-14" R="101"/>
         ...     <segment segment_id="1"/>
         ...   </node>
@@ -1063,21 +1084,34 @@ class GraphIdsMap:
         ... '''
         >>> m = GraphIdsMap(block_graph=bg, xml_graph=ET.fromstring(xml_string1))
         >>> m.edge_name(ET.fromstring('''
-        ... <edge sink_node="0" src_node="1" switch_id="1"/>
+        ... <edge sink_node="1" src_node="0" switch_id="1"/>
         ... '''))
-        'OUTBLOK_X003Y000<|[05]||X003Y000_OUTBLOK->>-INBLOCK_X000Y003/IDX[00]/NODE/<-'
+        'X000Y003_INBLOCK[00].SRC--> ->>- X000Y003||05|>X003Y000'
         """
-        assert xml_node.tag == 'edge'
+        src_node, snk_node = self.nodes_for_edge(xml_node)
 
-        id2node = self.id2node['node']
+        if flip:
+            return "{} -<<- {}".format(self.node_name(snk_node), self.node_name(src_node))
+        else:
+            return "{} ->>- {}".format(self.node_name(src_node), self.node_name(snk_node))
 
-        snk_node_id = xml_node.attrib.get("sink_node")
-        src_node_id = xml_node.attrib.get("src_node")
+    def edges_for_node(self, xml_node):
+        node_id = xml_node.attrib.get('id', None)
+        assert node_id is not None, ET.tostring(xml_node)
 
-        assert snk_node_id in id2node, snk_node_id
-        assert src_node_id in id2node, src_node_id
+        edges = []
+        for edge_node in self._xml_edges:
+            src_node, snk_node = self.nodes_for_edge(edge_node)
 
-        return "{}->>-{}".format(self.node_name(id2node[src_node_id]), self.node_name(id2node[snk_node_id]))
+            src_id = src_node.get('id', None)
+            assert src_id is not None, ET.tostring(src_node)
+            snk_id = snk_node.get('id', None)
+            assert snk_id is not None, ET.tostring(snk_node)
+
+            if src_id == node_id or snk_id == node_id:
+                edges.append(edge_node)
+
+        return edges
 
     def add_nodes_for_pin(self, block, pin):
         """ Creates an IPIN/OPIN node from `class Pin` object. """
@@ -1191,15 +1225,10 @@ class Graph:
             ET.SubElement(self._xml_graph, "rr_nodes")
             ET.SubElement(self._xml_graph, "rr_edges")
 
-        self.ids = GraphIdsMap(self)
+        self.ids = GraphIdsMap(self.block_graph, self._xml_graph)
 
         #self.grid = {}
         #self.channels = Channels()
-
-    def clear_graph(self):
-        """Delete the existing nodes and edges."""
-        self._xml_nodes.clear()
-        self._xml_edges.clear()
 
     def import_block_types(self):
         # Create in the block_types information
@@ -1327,4 +1356,29 @@ if __name__ == "__main__":
                 assert x < len(col_widths), (x, bt)
                 print("{: ^{width}}".format(bt.name, width=col_widths[x]), end=" | ")
             print()
+        print()
+
+        ids = rr_graph.ids
+        for node in ids._xml_nodes:
+            print()
+            print(ids.node_name(node))
+            srcs = []
+            snks = []
+            for e in ids.edges_for_node(node):
+                src, snk = ids.nodes_for_edge(e)
+                if src == node:
+                    srcs.append(e)
+                elif snk == node:
+                    snks.append(e)
+                else:
+                    print("!?@", ids.edge_name(e))
+
+            print("  Sources:")
+            for e in srcs:
+                print("   ", ids.edge_name(e))
+
+            print("  Sink:")
+            for e in srcs:
+                print("   ", ids.edge_name(e, flip=True))
+
         print()
