@@ -92,7 +92,7 @@ module DSP48E1(
 
    // input register blocks for A, B, D
    DUAL_AD_PREADDER dual_ad_preadder (.A(A), .ACIN(ACIN), .D(D), .ACOUT(ACOUT), .XMUX(XMUX_A_CAT), .AMULT(AMULT));
-   DUAL_B_REG dualb_reg (.B(B), .BCIN(BCIN), .BCOUT(BCOUT), .XMUX(XMUX_B_CAT), .BMULT(BMULT));
+   DUAL_B_REG dualb_reg (.B(B), .BCIN(BCIN), .INMODE(INMODE), .BCOUT(BCOUT), .XMUX(XMUX_B_CAT), .BMULT(BMULT));
 
    // concatenate for XMUX
    assign XMUX_CAT = {XMUX_A_CAT, XMUX_B_CAT};
