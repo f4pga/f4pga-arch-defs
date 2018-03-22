@@ -10,14 +10,14 @@
   <fixed_layout name="2x4" width="8" height="8">
 
    <col type="EMPTY"          startx="0" priority="10" />
-   <col type="BLK_BB-VPR_PAD" startx="1" priority="10" />
+   <col type="BLK_IG-IBUF"    startx="1" priority="10" />
    <col type="EMPTY"          startx="2" priority="10" />
 
    <col type="BLK_TI-LUTFF"   startx="3" priority="10" />
    <col type="BLK_TI-LUTFF"   startx="4" priority="10" />
 
    <col type="EMPTY"          startx="5" priority="10" />
-   <col type="BLK_BB-VPR_PAD" startx="6" priority="10" />
+   <col type="BLK_IG-OBUF"    startx="6" priority="10" />
    <col type="EMPTY"          startx="7" priority="10" />
 
    <row type="EMPTY"          starty="0" priority="11" />
@@ -57,7 +57,8 @@
   </segment>
  </segmentlist>
  <complexblocklist>
-  <xi:include href="../../../vpr/pad/pad.pb_type.xml"/>
+  <xi:include href="../../../vpr/ibuf/ibuf.pb_type.xml"/>
+  <xi:include href="../../../vpr/obuf/obuf.pb_type.xml"/>
   <xi:include href="../../tile/lutff/lutff.pb_type.xml"/>
  </complexblocklist>
 
