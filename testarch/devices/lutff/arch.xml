@@ -20,6 +20,7 @@
    <col priority="10" startx="5" type="EMPTY"/>
    <col priority="10" startx="6" type="BLK_IG-OBUF"/>
    <col priority="10" startx="7" type="EMPTY"/>
+
    <row priority="11" starty="0" type="EMPTY"/>
    <row priority="11" starty="2" type="EMPTY"/>
   </fixed_layout>
@@ -43,6 +44,7 @@
    <row priority="10" starty="5" type="EMPTY"/>
    <row priority="10" starty="6" type="BLK_IG-OBUF"/>
    <row priority="10" starty="7" type="EMPTY"/>
+
    <col priority="11" startx="0" type="EMPTY"/>
    <col priority="11" startx="2" type="EMPTY"/>
   </fixed_layout>
@@ -64,6 +66,7 @@
    <col priority="10" startx="5" type="EMPTY"/>
    <col priority="10" startx="6" type="BLK_IG-OBUF"/>
    <col priority="10" startx="7" type="EMPTY"/>
+
    <row priority="11" starty="0" type="EMPTY"/>
    <row priority="11" starty="5" type="EMPTY"/>
   </fixed_layout>
