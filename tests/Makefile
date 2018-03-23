@@ -59,7 +59,7 @@ $(OUTPUT_DIR)/%.eblif: %.eblif | $(OUTPUT_DIR)
 
 # VPR commands
 VPR_ARGS ?=
-VPR_CMD = $(VPR) $(VPR_ARGS)  $(DEVICE_FILE) --device $(DEVICE)
+VPR_CMD = $(VPR) $(VPR_ARGS)  $(DEVICE_FILE) --device $(DEVICE) --timing_analysis off
 VPR_FULL_CMD = cd $(OUTPUT_DIR); $(VPR_CMD)
 
 ROUTE_CHAN_WIDTH ?= 6
