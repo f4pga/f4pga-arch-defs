@@ -102,9 +102,9 @@ $(OUTPUT_DIR)/%.rr_graph.pretty.xml: $(OUTPUT_DIR)/%.rr_graph.xml
 
 ALL_OUTPUT = $(patsubst %.v,$(OUTPUT_DIR)/%.rr_graph.xml,$(wildcard *.v)) $(patsubst %.eblif,$(OUTPUT_DIR)/%.rr_graph.xml,$(wildcard *.eblif))
 
+#	$(call quiet_cmd,make const.echo,Ran $(GREEN)const$(NC)test)
 all:
 	@echo -e "Running all tests for $(PURPLE)$(DEVICE)$(NC)in $(YELLOW)$(ARCH)$(NC)"
-	$(call quiet_cmd,make const.echo,Ran $(GREEN)const$(NC)test)
 	$(call quiet_cmd,make wire.echo,Ran $(GREEN)wire$(NC)test)
 	$(call quiet_cmd,make ff.echo,Ran $(GREEN)ff$(NC)test)
 	$(call quiet_cmd,make lut.echo,Ran $(GREEN)lut$(NC)test)
