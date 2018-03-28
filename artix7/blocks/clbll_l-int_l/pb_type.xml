@@ -1,6 +1,6 @@
 <pb_type name="BLK_MB-CLBLL_L-INT_L" num_pb="1" width="2" xmlns:xi="http://www.w3.org/2001/XInclude">
   <!-- Tile Interconnects -->
-  <fc default_in_type="frac" default_in_val="0.5" default_out_type="frac" default_out_val="0.5">
+  <fc in_type="frac" in_val="0.5" out_type="frac" out_val="0.5">
     <fc_override fc_type="abs" fc_val="0" port_name="CIN_N"/>
     <fc_override fc_type="abs" fc_val="0" port_name="COUT_N"/>
   </fc>
