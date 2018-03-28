@@ -297,7 +297,7 @@ routing	span4_vert[19]  	span4_horz_r[3]
    -->
  </interconnect>
 
- <fc default_in_type="frac" default_in_val="0.5" default_out_type="frac" default_out_val="1.0">
+ <fc in_type="frac" in_val="0.5" out_type="frac" out_val="1.0">
   <fc_override fc_type="frac" fc_val="0" port_name="OUTPUT_CLK" />
  </fc>
 

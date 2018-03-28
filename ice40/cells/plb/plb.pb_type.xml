@@ -163,7 +163,7 @@
    </interconnect>
 
    <!--
-   <fc default_in_type="frac" default_in_val="0.0" default_out_type="frac" default_out_val="0.0">
+   <fc in_type="frac" in_val="0.0" out_type="frac" out_val="0.0">
     Connect all the ports to 2 local tracks
     <fc_override fc_type="abs" fc_val="2" port_name="I0"  segment_name="local" />
     <fc_override fc_type="abs" fc_val="2" port_name="I1"  segment_name="local" />

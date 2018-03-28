@@ -55,7 +55,7 @@
   <loc side="left"></loc>
   <loc side="bottom"></loc>
  </pinlocations>
- <fc default_in_type="abs" default_in_val="1" default_out_type="abs" default_out_val="1">
+ <fc in_type="abs" in_val="1" out_type="abs" out_val="1">
   <fc_override fc_type="frac" fc_val="0.25" port_name="CLK"   />
  </fc>
 </pb_type>

@@ -30,7 +30,7 @@
  <!-- FIXME - Should have a IO operating as bi-directional -->
 
  <!-- IO pins are never connected to the fabric, they are connected to a platform specific IO tile -->
- <fc default_in_type="frac" default_in_val="1" default_out_type="frac" default_out_val="1"/>
+ <fc in_type="frac" in_val="1" out_type="frac" out_val="1"/>
 
  <!--
   IOs go on the periphery of the FPGA/
