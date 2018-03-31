@@ -7,7 +7,7 @@ module MUX2(I0, I1, S0, O);
 	input wire S0;
 	output wire O;
 
-	assign O = S0 ? I0 : I1;
+	assign O = S0 ? I1 : I0;
 endmodule
 
 `endif

@@ -250,13 +250,15 @@ Generated with %s
             if args.split_inputs:
                 port_names.extend((mux_lib.MuxPinType.INPUT, args.name_inputs[j], 1, '[%i]' % j) for j in range(args.width))
             else:
-                port_names.append((mux_lib.MuxPinType.INPUT, args.name_input, args.width, '[%i:0]' % args.width))
+                # verilog range bounds are inclusive and convention is [<width-1>:0]
+                port_names.append((mux_lib.MuxPinType.INPUT, args.name_input, args.width, '[%i:0]' % (args.width - 1)))
         elif i == 's':
             if args.split_selects:
                 port_names.extend((mux_lib.MuxPinType.SELECT, args.name_selects[j], 1, '[%i]' % j) for j in range(args.width_bits))
             else:
                 assert args.name_select is not None
-                port_names.append((mux_lib.MuxPinType.SELECT, args.name_select, args.width_bits, '[%i:0]' % args.width_bits))
+                # verilog array range bounds are inclusive and convention is [<width-1>:0]
+                port_names.append((mux_lib.MuxPinType.SELECT, args.name_select, args.width_bits, '[%i:0]' % (args.width_bits - 1)))
         elif i == 'o':
             port_names.append((mux_lib.MuxPinType.OUTPUT, args.name_output, 1, ''))
 
