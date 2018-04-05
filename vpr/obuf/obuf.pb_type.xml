@@ -1,0 +1,17 @@
+<!-- An IO pin found on an FPGA -->
+<pb_type name="BLK_IG-OBUF" capacity="1">
+ <input name="O" num_pins="1"/>
+ <pb_type name="BLK_BB-OBUF" blif_model=".output" num_pb="1">
+  <input name="outpad" num_pins="1"/>
+ </pb_type>
+ <interconnect>
+  <direct name="OBUF" input="BLK_IG-OBUF.O" output="BLK_BB-OBUF.outpad" />
+ </interconnect>
+ <fc default_in_type="abs" default_in_val="2" default_out_type="abs" default_out_val="2"/>
+ <pinlocations pattern="custom">
+  <loc side="left">BLK_IG-OBUF.O</loc>
+  <loc side="top">BLK_IG-OBUF.O</loc>
+  <loc side="right">BLK_IG-OBUF.O</loc>
+  <loc side="bottom">BLK_IG-OBUF.O</loc>
+ </pinlocations>
+</pb_type>
