@@ -7,7 +7,7 @@
  <interconnect>
   <direct name="IBUF" input="BLK_BB-IBUF.inpad" output="BLK_IG-IBUF.I" />
  </interconnect>
- <fc default_in_type="abs" default_in_val="2" default_out_type="abs" default_out_val="2"/>
+ <fc in_type="abs" in_val="2" out_type="abs" out_val="2"/>
  <pinlocations pattern="custom">
   <loc side="left">BLK_IG-IBUF.I</loc>
   <loc side="top">BLK_IG-IBUF.I</loc>
