@@ -19,7 +19,7 @@ print_vars:
 
 # ------------------------------------------
 
-all: | redir
+all: | redir .git/info/exclude
 	@true
 
 .PHONY: all
