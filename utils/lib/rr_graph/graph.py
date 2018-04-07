@@ -1315,6 +1315,80 @@ class Graph:
         print("Adding channel {} from {} -> {} pos {}".format(globalname, start, end, idx))
         return globalname, globalname
 
+'''
+Debug / test
+'''
+
+def print_block_types(rr_graph):
+    '''Sequentially list block types'''
+    bg = rr_graph.block_graph
+
+    for type_id, bt in bg.block_types.items():
+        print("{:4}  ".format(type_id), "{:40s}".format(bt.to_string()), bt.to_string(extra=True))
+
+def print_grid(rr_graph):
+    '''ASCII diagram displaying XY layout'''
+    bg = rr_graph.block_graph
+    grid = bg.block_grid_size()
+
+    col_widths = []
+    for x in range(0, grid.width):
+        col_widths.append(max(len(bt.name) for bt in bg.block_types_for(col=x)))
+
+    print("    ", end=" ")
+    for x in range(0, grid.width):
+        print("{: ^{width}d}".format(x, width=col_widths[x]), end="   ")
+    print()
+
+    print("   /", end="-")
+    for x in range(0, grid.width):
+        print("-"*col_widths[x], end="-+-")
+    print()
+
+    for y in reversed(range(0, grid.height)):
+        print("{: 2d} |".format(y, width=col_widths[0]), end=" ")
+        for x, bt in enumerate(bg.block_types_for(row=y)):
+            assert x < len(col_widths), (x, bt)
+            print("{: ^{width}}".format(bt.name, width=col_widths[x]), end=" | ")
+        print()
+
+def print_objects(rr_graph):
+    '''Display source/sinks on all XML nodes'''
+    ids = rr_graph.ids
+    for node in ids._xml_nodes:
+        print()
+        print(ids.node_name(node))
+        srcs = []
+        snks = []
+        for e in ids.edges_for_node(node):
+            src, snk = ids.nodes_for_edge(e)
+            if src == node:
+                srcs.append(e)
+            elif snk == node:
+                snks.append(e)
+            else:
+                print("!?@", ids.edge_name(e))
+
+        print("  Sources:")
+        for e in srcs:
+            print("   ", ids.edge_name(e))
+        if not srcs:
+            print("   ", None)
+
+        print("  Sink:")
+        for e in snks:
+            print("   ", ids.edge_name(e, flip=True))
+        if not snks:
+            print("   ", None)
+
+def print_graph(rr_graph):
+    print()
+    print_block_types(rr_graph)
+    print()
+    print_grid(rr_graph)
+    print()
+    print_objects(rr_graph)
+    print()
 
 if __name__ == "__main__":
     import sys
@@ -1323,66 +1397,4 @@ if __name__ == "__main__":
         import doctest
         doctest.testmod()
     else:
-        rr_graph = Graph(rr_graph_file=sys.argv[-1])
-        import pprint
-
-
-        bg = rr_graph.block_graph
-
-        print()
-        for type_id, bt in bg.block_types.items():
-            print("{:4}  ".format(type_id), "{:40s}".format(bt.to_string()), bt.to_string(extra=True))
-        print()
-
-        grid = bg.block_grid_size()
-
-        col_widths = []
-        for x in range(0, grid.width):
-            col_widths.append(max(len(bt.name) for bt in bg.block_types_for(col=x)))
-
-        print("    ", end=" ")
-        for x in range(0, grid.width):
-            print("{: ^{width}d}".format(x, width=col_widths[x]), end="   ")
-        print()
-
-        print("   /", end="-")
-        for x in range(0, grid.width):
-            print("-"*col_widths[x], end="-+-")
-        print()
-
-        for y in reversed(range(0, grid.height)):
-            print("{: 2d} |".format(y, width=col_widths[0]), end=" ")
-            for x, bt in enumerate(bg.block_types_for(row=y)):
-                assert x < len(col_widths), (x, bt)
-                print("{: ^{width}}".format(bt.name, width=col_widths[x]), end=" | ")
-            print()
-        print()
-
-        ids = rr_graph.ids
-        for node in ids._xml_nodes:
-            print()
-            print(ids.node_name(node))
-            srcs = []
-            snks = []
-            for e in ids.edges_for_node(node):
-                src, snk = ids.nodes_for_edge(e)
-                if src == node:
-                    srcs.append(e)
-                elif snk == node:
-                    snks.append(e)
-                else:
-                    print("!?@", ids.edge_name(e))
-
-            print("  Sources:")
-            for e in srcs:
-                print("   ", ids.edge_name(e))
-            if not srcs:
-                print("   ", None)
-
-            print("  Sink:")
-            for e in snks:
-                print("   ", ids.edge_name(e, flip=True))
-            if not snks:
-                print("   ", None)
-
-        print()
+        print_graph(Graph(rr_graph_file=sys.argv[-1]))
