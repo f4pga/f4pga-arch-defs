@@ -37,7 +37,7 @@ $(call add_generated_files,$(PNG_FILES))
 
 .PRECIOUS: $(JSON_ENDINGS)
 
-%.svg: %.json $(SIM_SVG_DEPS) $(NODE)
+%.svg: %.json $(SIM_SVG_DEPS) | $(NODE)
 	$(call quiet_cmd,$(NODE) $(NETLISTSVG_BIN) $(PREREQ_FIRST) -o $(TARGET) --skin $(NETLISTSVG_SKIN),$(GENERATED_FROM))
 
 %.bb.yosys.svg: %.sim.v %.bb.json

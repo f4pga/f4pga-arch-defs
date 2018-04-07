@@ -43,7 +43,7 @@ define _add_dependency
 ADD_DEP_ONTO := $(1)
 ADD_DEP_FROM := $(2)
 
-ifneq (,$$(call find_files,$$(FROM)))
+ifneq (,$$(call find_files,$$(ADD_DEP_FROM)))
 
 $$(eval $$(call _deps_expand_rule,$$(call depend_on_deps,$$(ADD_DEP_ONTO)),$$(call depend_on_all,$$(ADD_DEP_FROM))))
 
