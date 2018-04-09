@@ -42,14 +42,14 @@ architectures, here are some tips;
 
 ## Directories
 
- * `XXX/arch/` - Full architecture definitions for
+ * `XXX/device/` - Full architecture definitions of a given device for
    [Verilog To Routing](https://verilogtorouting.org/)
 
-   * `XXX/arch/YYYY-virt` - Verilog to Routing architecture definitions
+   * `XXX/device/YYYY-virt` - Verilog to Routing architecture definitions
      generally are not able to able to generate the **exact** model of many
      FPGA routing interconnects, but this is a pretty close.
 
- * `XXX/arch/primitives/` - The primitives that make up the architecture. These
+ * `XXX/primitives/` - The primitives that make up the architecture. These
    are generally used inside the tiles.
 
  * `XXX/tiles/` - The tiles found in the architecture.
