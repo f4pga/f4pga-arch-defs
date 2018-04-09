@@ -3,7 +3,7 @@
  <!-- ODIN-II model description for non-standard block type -->
  <models>
   <xi:include href="../../primitives/sb_lut/sb_lut.model.xml"     xpointer="xpointer(models/child::node())" />
-  <xi:include href="../../primitives/sb_ff/sb_ff.model.xml" 	  xpointer="xpointer(models/child::node())" />
+  <xi:include href="../../primitives/sb_ff/sb_ff.model.xml"       xpointer="xpointer(models/child::node())" />
   <xi:include href="../../primitives/sb_carry/sb_carry.model.xml" xpointer="xpointer(models/child::node())" />
   <xi:include href="../../primitives/sb_ram/sb_ram.model.xml"     xpointer="xpointer(models/child::node())" />
   <!--
@@ -13,7 +13,7 @@
  </models>
 
  <layout>
-	 <fixed_layout name="HX0K" width="6" height="6">
+  <fixed_layout name="HX0K" width="6" height="6">
    <col     type="EMPTY" startx="0" priority="30"/>
    <col     type="EMPTY"   startx="1" priority="10"/>
    <region  type="PLB"   startx="2" endx="3" starty="2" endy="3" priority="4"/> <!-- Logic blocks 2x2 -->
