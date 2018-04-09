@@ -68,15 +68,15 @@
     extra empty tiles.
    -->
    <col     type="EMPTY" startx="0"  priority="30"/>
-   <col     type="PAD"   startx="1"  priority="10"/>
+   <col     type="BLK_BB-VPR_PAD"   startx="1"  priority="10"/>
    <region  type="PLB"   startx="2" endx="33" starty="2" endy="33" priority="4"/> <!-- Logic blocks 31x31 -->
-   <col     type="PAD"   startx="34" priority="10"/>
+   <col     type="BLK_BB-VPR_PAD"   startx="34" priority="10"/>
    <col     type="EMPTY" startx="35" priority="30"/>
 
    <row     type="EMPTY" starty="0"  priority="31"/>
-   <row     type="PAD"   starty="1"  priority="11"/>
+   <row     type="BLK_BB-VPR_PAD"   starty="1"  priority="11"/>
    <!-- starty="2" endy="33" -->
-   <row     type="PAD"   starty="34"  priority="11"/>
+   <row     type="BLK_BB-VPR_PAD"   starty="34"  priority="11"/>
    <row     type="EMPTY" starty="35" priority="31"/>
 
    <!-- Block RAM -->
