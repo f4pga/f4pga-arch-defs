@@ -49,7 +49,7 @@ architectures, here are some tips;
      generally are not able to able to generate the **exact** model of many
      FPGA routing interconnects, but this is a pretty close.
 
- * `XXX/arch/primitives/` - The primitives that make up the iCE40. These
+ * `XXX/arch/primitives/` - The primitives that make up the architecture. These
    are generally used inside the tiles.
 
  * `XXX/tiles/` - The tiles found in the architecture.
