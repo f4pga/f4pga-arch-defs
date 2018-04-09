@@ -4,3 +4,6 @@ DEVICE_DIR = ../ice40/devices/
 DEVICE_TYPE ?= ice4
 DEVICE ?= auto
 YOSYS_SCRIPT ?= synth_ice40; ice40_opt -unlut; abc -lut 4;
+RR_PATCH_TOOL ?= $(PWD)/../ice40/utils/icebox-routing-import.py
+RR_PATCH_CMD ?= \
+	$(RR_PATCH_TOOL)
