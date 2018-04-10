@@ -272,28 +272,28 @@ routing	span4_vert[19]  	span4_horz_r[3]
   <!-- IO Span-4 Horizontal -->
   <!-- ================================================================ -->
   <!--
-  <direct name="span4_horz_r[0]"  input="LOGIC.i_span4_horz_l[  ]" output="LOGIC.o_span4_horz_r[0]" />
-  <direct name="span4_horz_r[1]"  input="LOGIC.i_span4_horz_l[  ]" output="LOGIC.o_span4_horz_r[1]" />
-  <direct name="span4_horz_r[2]"  input="LOGIC.i_span4_horz_l[  ]" output="LOGIC.o_span4_horz_r[2]" />
-  <direct name="span4_horz_r[3]"  input="LOGIC.i_span4_horz_l[  ]" output="LOGIC.o_span4_horz_r[3]" />
+  <direct name="span4_horz_r[0]"  input="PLB.i_span4_horz_l[  ]" output="PLB.o_span4_horz_r[0]" />
+  <direct name="span4_horz_r[1]"  input="PLB.i_span4_horz_l[  ]" output="PLB.o_span4_horz_r[1]" />
+  <direct name="span4_horz_r[2]"  input="PLB.i_span4_horz_l[  ]" output="PLB.o_span4_horz_r[2]" />
+  <direct name="span4_horz_r[3]"  input="PLB.i_span4_horz_l[  ]" output="PLB.o_span4_horz_r[3]" />
    -->
-  <direct name="span4_horz_l[0]"  input="LOGIC.i_span4_horz_l[0]"  output="LOGIC.o_span4_horz_r[4]"  />
-  <direct name="span4_horz_l[1]"  input="LOGIC.i_span4_horz_l[1]"  output="LOGIC.o_span4_horz_r[5]"  />
-  <direct name="span4_horz_l[2]"  input="LOGIC.i_span4_horz_l[2]"  output="LOGIC.o_span4_horz_r[6]"  />
-  <direct name="span4_horz_l[3]"  input="LOGIC.i_span4_horz_l[3]"  output="LOGIC.o_span4_horz_r[7]"  />
-  <direct name="span4_horz_l[4]"  input="LOGIC.i_span4_horz_l[4]"  output="LOGIC.o_span4_horz_r[8]"  />
-  <direct name="span4_horz_l[5]"  input="LOGIC.i_span4_horz_l[5]"  output="LOGIC.o_span4_horz_r[9]"  />
-  <direct name="span4_horz_l[6]"  input="LOGIC.i_span4_horz_l[6]"  output="LOGIC.o_span4_horz_r[10]" />
-  <direct name="span4_horz_l[7]"  input="LOGIC.i_span4_horz_l[7]"  output="LOGIC.o_span4_horz_r[11]" />
-  <direct name="span4_horz_l[8]"  input="LOGIC.i_span4_horz_l[8]"  output="LOGIC.o_span4_horz_r[12]" />
-  <direct name="span4_horz_l[9]"  input="LOGIC.i_span4_horz_l[9]"  output="LOGIC.o_span4_horz_r[13]" />
-  <direct name="span4_horz_l[10]" input="LOGIC.i_span4_horz_l[10]" output="LOGIC.o_span4_horz_r[14]" />
-  <direct name="span4_horz_l[11]" input="LOGIC.i_span4_horz_l[11]" output="LOGIC.o_span4_horz_r[15]" />
+  <direct name="span4_horz_l[0]"  input="PLB.i_span4_horz_l[0]"  output="PLB.o_span4_horz_r[4]"  />
+  <direct name="span4_horz_l[1]"  input="PLB.i_span4_horz_l[1]"  output="PLB.o_span4_horz_r[5]"  />
+  <direct name="span4_horz_l[2]"  input="PLB.i_span4_horz_l[2]"  output="PLB.o_span4_horz_r[6]"  />
+  <direct name="span4_horz_l[3]"  input="PLB.i_span4_horz_l[3]"  output="PLB.o_span4_horz_r[7]"  />
+  <direct name="span4_horz_l[4]"  input="PLB.i_span4_horz_l[4]"  output="PLB.o_span4_horz_r[8]"  />
+  <direct name="span4_horz_l[5]"  input="PLB.i_span4_horz_l[5]"  output="PLB.o_span4_horz_r[9]"  />
+  <direct name="span4_horz_l[6]"  input="PLB.i_span4_horz_l[6]"  output="PLB.o_span4_horz_r[10]" />
+  <direct name="span4_horz_l[7]"  input="PLB.i_span4_horz_l[7]"  output="PLB.o_span4_horz_r[11]" />
+  <direct name="span4_horz_l[8]"  input="PLB.i_span4_horz_l[8]"  output="PLB.o_span4_horz_r[12]" />
+  <direct name="span4_horz_l[9]"  input="PLB.i_span4_horz_l[9]"  output="PLB.o_span4_horz_r[13]" />
+  <direct name="span4_horz_l[10]" input="PLB.i_span4_horz_l[10]" output="PLB.o_span4_horz_r[14]" />
+  <direct name="span4_horz_l[11]" input="PLB.i_span4_horz_l[11]" output="PLB.o_span4_horz_r[15]" />
   <!--
-  <direct name="span4_horz_l[12]" input="LOGIC.i_span4_horz_l[12]" output="LOGIC.o_span4_horz_r[  ]" />
-  <direct name="span4_horz_l[13]" input="LOGIC.i_span4_horz_l[13]" output="LOGIC.o_span4_horz_r[  ]" />
-  <direct name="span4_horz_l[14]" input="LOGIC.i_span4_horz_l[14]" output="LOGIC.o_span4_horz_r[  ]" />
-  <direct name="span4_horz_l[15]" input="LOGIC.i_span4_horz_l[15]" output="LOGIC.o_span4_horz_r[  ]" />
+  <direct name="span4_horz_l[12]" input="PLB.i_span4_horz_l[12]" output="PLB.o_span4_horz_r[  ]" />
+  <direct name="span4_horz_l[13]" input="PLB.i_span4_horz_l[13]" output="PLB.o_span4_horz_r[  ]" />
+  <direct name="span4_horz_l[14]" input="PLB.i_span4_horz_l[14]" output="PLB.o_span4_horz_r[  ]" />
+  <direct name="span4_horz_l[15]" input="PLB.i_span4_horz_l[15]" output="PLB.o_span4_horz_r[  ]" />
    -->
  </interconnect>
 
