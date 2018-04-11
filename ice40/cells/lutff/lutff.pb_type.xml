@@ -39,9 +39,7 @@
   <direct name="BLK_IG-LUTFF.EN"  input="BLK_IG-LUTFF.EN"  output="SB_FF.E" />
   <direct name="BLK_IG-LUTFF.CLK" input="BLK_IG-LUTFF.CLK" output="SB_FF.C" />
   <direct name="BLK_IG-LUTFF.SR"  input="BLK_IG-LUTFF.SR"  output="SB_FF.S" />
-  <direct name="LUT2FF"    input="LUT.O"     output="SB_FF.D"><!--
-   <pack_pattern name="LUT2FF" in_port="LUT.O" out_port="SB_FF.D" />
-  --></direct>
+  <direct name="LUT2FF"    input="LUT.O"     output="SB_FF.D" />
 
   <mux    name="BLK_IG-LUTFF.O"  input="LUT.O SB_FF.Q" output="BLK_IG-LUTFF.O"/>
   <direct name="BLK_IG-LUTFF.LO" input="LUT.O"         output="BLK_IG-LUTFF.LO"/>
