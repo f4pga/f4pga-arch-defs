@@ -1019,6 +1019,7 @@ class GraphIdsMap:
             direction = {
                 'INC_DIR': '{f}{f}{ptc:02d}{f}>',
                 'DEC_DIR': '<{f}{ptc:02d}{f}{f}',
+                'BI_DIR': '<{f}{ptc:02d}{f}{f}>',
             }[xml_node.attrib.get("direction")]
 
             block_from = self._block_graph[low]
@@ -1331,6 +1332,7 @@ def print_grid(rr_graph):
     bg = rr_graph.block_graph
     grid = bg.block_grid_size()
 
+    print('Grid %dw x %dh' % (grid.width, grid.height))
     col_widths = []
     for x in range(0, grid.width):
         col_widths.append(max(len(bt.name) for bt in bg.block_types_for(col=x)))
@@ -1395,6 +1397,8 @@ if __name__ == "__main__":
     import os
     if len(sys.argv) == 1 or not os.path.exists(sys.argv[-1]):
         import doctest
+        print('Doctest begin')
         doctest.testmod()
+        print('Doctest end')
     else:
         print_graph(Graph(rr_graph_file=sys.argv[-1]))
