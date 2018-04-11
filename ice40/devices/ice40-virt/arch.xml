@@ -15,9 +15,9 @@
  <layout>
   <fixed_layout name="HX0K" width="6" height="6">
    <col     type="EMPTY" startx="0" priority="30"/>
-   <col     type="EMPTY"   startx="1" priority="10"/>
+   <col     type="BLK_BB-VPR_PAD"   startx="1" priority="10"/>
    <region  type="PLB"   startx="2" endx="3" starty="2" endy="3" priority="4"/> <!-- Logic blocks 2x2 -->
-   <col     type="EMPTY"   startx="4" priority="10"/>
+   <col     type="BLK_BB-VPR_PAD"   startx="4" priority="10"/>
    <col     type="EMPTY" startx="5" priority="30"/>
 
    <row     type="EMPTY" starty="0" priority="31"/>
