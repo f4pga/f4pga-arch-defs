@@ -26,6 +26,11 @@ def assert_type(obj, cls, msg="{obj} ({obj!r}) should be a {cls}, not {objcls}")
     if not isinstance(obj, cls):
         raise TypeError(msg.format(obj=obj, objcls=type(obj), cls=cls))
 
+def assert_type_or_none(obj, classes):
+    """Raise a type error if obj is not an instance of cls or None."""
+    if obj is not None:
+        assert_type(obj, classes)
+
 def assert_len_eq(l):
     """Check all lists in a list are equal length"""
     # Sanity check
