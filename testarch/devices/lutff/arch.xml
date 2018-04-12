@@ -4,26 +4,70 @@
  <models>
   <xi:include href="../../tile/lutff/lutff.model.xml" xpointer="xpointer(models/child::node())" />
  </models>
-
- <!-- Layout of the FPGA, we are using 4x4 -->
  <layout>
-  <fixed_layout name="2x4" width="8" height="8">
-
-   <col type="EMPTY"          startx="0" priority="10" />
-   <col type="BLK_IG-IBUF"    startx="1" priority="10" />
-   <col type="EMPTY"          startx="2" priority="10" />
-
-   <col type="BLK_TI-LUTFF"   startx="3" priority="10" />
-   <col type="BLK_TI-LUTFF"   startx="4" priority="10" />
-
-   <col type="EMPTY"          startx="5" priority="10" />
-   <col type="BLK_IG-OBUF"    startx="6" priority="10" />
-   <col type="EMPTY"          startx="7" priority="10" />
-
-   <row type="EMPTY"          starty="0" priority="11" />
-   <row type="EMPTY"          starty="7" priority="11" />
-
+   <fixed_layout name="2x1" width="8" height="3">
+   <!--
+       01234567
+     2 ........
+     1 .I.XX.O.
+     0 ........
+     -->
+   <col priority="10" startx="0" type="EMPTY"/>
+   <col priority="10" startx="1" type="BLK_IG-IBUF"/>
+   <col priority="10" startx="2" type="EMPTY"/>
+   <col priority="10" startx="3" type="BLK_TI-LUTFF"/>
+   <col priority="10" startx="4" type="BLK_TI-LUTFF"/>
+   <col priority="10" startx="5" type="EMPTY"/>
+   <col priority="10" startx="6" type="BLK_IG-OBUF"/>
+   <col priority="10" startx="7" type="EMPTY"/>
+   <row priority="11" starty="0" type="EMPTY"/>
+   <row priority="11" starty="2" type="EMPTY"/>
   </fixed_layout>
+  <fixed_layout name="1x2" width="3" height="8">
+   <!--
+       012
+     7 ...
+     6 .I.
+     5 ...
+     4 .X.
+     3 .X.
+     2 ...
+     1 .O.
+     0 ...
+     -->
+   <row priority="10" starty="0" type="EMPTY"/>
+   <row priority="10" starty="1" type="BLK_IG-IBUF"/>
+   <row priority="10" starty="2" type="EMPTY"/>
+   <row priority="10" starty="3" type="BLK_TI-LUTFF"/>
+   <row priority="10" starty="4" type="BLK_TI-LUTFF"/>
+   <row priority="10" starty="5" type="EMPTY"/>
+   <row priority="10" starty="6" type="BLK_IG-OBUF"/>
+   <row priority="10" starty="7" type="EMPTY"/>
+   <col priority="11" startx="0" type="EMPTY"/>
+   <col priority="11" startx="2" type="EMPTY"/>
+  </fixed_layout>
+  <fixed_layout name="2x4" width="8" height="6">
+   <!--
+       01234567
+     5 ........
+     4 .I.XX.O.
+     3 .I.XX.O.
+     2 .I.XX.O.
+     1 .I.XX.O.
+     0 ........
+     -->
+   <col priority="10" startx="0" type="EMPTY"/>
+   <col priority="10" startx="1" type="BLK_IG-IBUF"/>
+   <col priority="10" startx="2" type="EMPTY"/>
+   <col priority="10" startx="3" type="BLK_TI-LUTFF"/>
+   <col priority="10" startx="4" type="BLK_TI-LUTFF"/>
+   <col priority="10" startx="5" type="EMPTY"/>
+   <col priority="10" startx="6" type="BLK_IG-OBUF"/>
+   <col priority="10" startx="7" type="EMPTY"/>
+   <row priority="11" starty="0" type="EMPTY"/>
+   <row priority="11" starty="5" type="EMPTY"/>
+  </fixed_layout>
+
  </layout>
 
  <device>
