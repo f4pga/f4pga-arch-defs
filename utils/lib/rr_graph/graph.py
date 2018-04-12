@@ -986,6 +986,14 @@ class GraphIdsMap:
         ... </node>
         ... '''))
         'X003Y000<|05||X003Y000'
+        >>> m.node_name(ET.fromstring('''
+        ... <node capacity="1" direction="BI_DIR" id="374" type="CHANX">
+        ...   <loc ptc="5" xhigh="3" xlow="3" yhigh="0" ylow="0"/>
+        ...   <timing C="2.72700004e-14" R="101"/>
+        ...   <segment segment_id="1"/>
+        ... </node>
+        ... '''))
+        'X003Y000<-05->X003Y000'
 
         'X002Y003_BT[00].T-PIN<'
         'X002Y003_BT[00].L-PIN<'
@@ -1019,7 +1027,7 @@ class GraphIdsMap:
             direction = {
                 'INC_DIR': '{f}{f}{ptc:02d}{f}>',
                 'DEC_DIR': '<{f}{ptc:02d}{f}{f}',
-                'BI_DIR': '<{f}{ptc:02d}{f}{f}>',
+                'BI_DIR': '<{f}{ptc:02d}{f}>',
             }[xml_node.attrib.get("direction")]
 
             block_from = self._block_graph[low]
@@ -1332,7 +1340,7 @@ def print_grid(rr_graph):
     bg = rr_graph.block_graph
     grid = bg.block_grid_size()
 
-    print('Grid %dw x %dh' % (grid.width, grid.height))
+    #print('Grid %dw x %dh' % (grid.width, grid.height))
     col_widths = []
     for x in range(0, grid.width):
         col_widths.append(max(len(bt.name) for bt in bg.block_types_for(col=x)))
@@ -1348,7 +1356,7 @@ def print_grid(rr_graph):
     print()
 
     for y in reversed(range(0, grid.height)):
-        print("{: 2d} |".format(y, width=col_widths[0]), end=" ")
+        print("{: 3d} |".format(y, width=col_widths[0]), end=" ")
         for x, bt in enumerate(bg.block_types_for(row=y)):
             assert x < len(col_widths), (x, bt)
             print("{: ^{width}}".format(bt.name, width=col_widths[x]), end=" | ")
