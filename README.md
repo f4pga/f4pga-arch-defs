@@ -114,10 +114,41 @@ architectures, here are some tips;
 
 # Getting Started
 
-FIXME: Add things here.
+Run the full suite:
 
-`apt-get install libxml2-utils`
+```
+# doesn't work yet
+# export ARCH=artix7
+export ARCH=testarch
+make env
+make .git/info/exclude
+make redir
+make
 
+```
+Test the rr_graph library:
+```
+PATH=$PWD/env/conda/bin/:$PATH
+PYTHONPATH=$PWD/utils:$PYTHONPATH
+python3 -m lib.rr_graph.graph
+```
+
+Parse an rr_graph.xml using rr_graph library:
+
+```
+cd tests
+make wire.rr_graph.xml
+stat build/testarch/2x4/wire.rr_graph.xml
+# Run test suite
+# Dump an rr_graph file
+python3 -m lib.rr_graph.graph build/testarch/2x4/wire.rr_graph.xml
+```
+
+See some example vpr commands (while still in tests):
+
+```
+make V=1
+```
 
 # Tools
 
