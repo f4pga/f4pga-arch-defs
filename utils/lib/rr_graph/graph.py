@@ -26,7 +26,7 @@ from ..asserts import assert_type_or_none
 
 
 def frozendict(*args, **kwargs):
-  return MappingProxyType(dict(*args, **kwargs))
+    return MappingProxyType(dict(*args, **kwargs))
 
 
 class MostlyReadOnly:
@@ -1161,7 +1161,7 @@ class GraphIdsMap:
                 'xhigh': str(high.x), 'yhigh': str(high.y),
                 'ptc': str(pin.ptc),
                 # FIXME: This should probably be settable..
-                'side': 'TOP',
+                'side': 'RIGHT',
             })
             ET.SubElement(pin_node, 'timing', {'R': str(0), 'C': str(0)})
 
@@ -1172,7 +1172,7 @@ class GraphIdsMap:
                 'xhigh': str(high.x), 'yhigh': str(high.y),
                 'ptc': str(pin.ptc),
                 # FIXME: This should probably be settable..
-                'side': 'TOP',
+                'side': 'RIGHT',
             })
             ET.SubElement(pin_node, 'timing', {'R': str(0), 'C': str(0)})
 
@@ -1199,6 +1199,9 @@ class GraphIdsMap:
 
         nodes = self._xml_nodes
 
+        # Assuming only one pin per class for now
+        # see [0] references
+        assert len(pin_class.pins) == 0, pin_class.pins
         if pin_class.direction in (PinClassDirection.INPUT, PinClassDirection.CLOCK):
             # Sink node
             sink_node = ET.SubElement(nodes, 'node', {'type': 'SINK'})
@@ -1392,12 +1395,16 @@ def print_grid(rr_graph):
             print("{: ^{width}}".format(bt.name, width=col_widths[x]), end=" | ")
         print()
 
-def print_objects(rr_graph):
+def print_objects(rr_graph, lim=None):
     '''Display source/sinks on all XML nodes'''
     ids = rr_graph.ids
-    print('Objects: %d' % len(ids._xml_nodes))
-    for node in ids._xml_nodes:
+    print('Objects: %d, lim %s' % (len(ids._xml_nodes), lim))
+    for nodei, node in enumerate(ids._xml_nodes):
         print()
+        if lim and nodei >= lim:
+            print('...')
+            break
+        print(nodei)
         ET.dump(node)
         print(ids.node_name(node))
         srcs = []
@@ -1423,13 +1430,13 @@ def print_objects(rr_graph):
         if not snks:
             print("   ", None)
 
-def print_graph(rr_graph):
+def print_graph(rr_graph, lim=10):
     print()
     print_block_types(rr_graph)
     print()
     print_grid(rr_graph)
     print()
-    print_objects(rr_graph)
+    print_objects(rr_graph, lim=lim)
     print()
 
 if __name__ == "__main__":
@@ -1443,7 +1450,8 @@ if __name__ == "__main__":
     else:
         g = Graph(rr_graph_file=sys.argv[-1])
         print_graph(g)
-        assert 0
+        #assert 0
+        # Remove existing rr_graph
         g.ids.clear_graph()
         print_graph(g)
 
