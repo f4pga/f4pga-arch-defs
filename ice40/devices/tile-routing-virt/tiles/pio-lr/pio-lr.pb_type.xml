@@ -30,7 +30,6 @@
  <input  name="i_neigh_op_xxx" num_pins="8"  equivalent="true"/>
  <output name="o_neigh_op_xxx" num_pins="8"  equivalent="true"/>
 
-
  <!-- Global wires ################################################### -->
  <input  name="i_glb_netwk" num_pins="8" equivalent="true"/>
  <output name="o_glb_netwk" num_pins="8" equivalent="true"/>
