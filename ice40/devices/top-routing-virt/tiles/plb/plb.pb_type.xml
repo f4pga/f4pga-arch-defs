@@ -1,0 +1,112 @@
+  <!-- set: ai sw=1 ts=1 sta et -->
+  <!-- A diagram for the iCE40 PLB "Logic Cell" is shown in;
+        http://www.latticesemi.com/~/media/LatticeSemi/Documents/DataSheets/iCE/iCE40LPHXFamilyDataSheet.pdf
+        Architecture iCE40 LP/HX Family Data Sheet
+         * Figure 2-2. PLB Block Diagram
+
+       It is 8 x (SB_CARRY + SB_LUT4 + FF)
+    -->
+  <pb_type name="PLB" num_pb="1" xmlns:xi="http://www.w3.org/2001/XInclude">
+   <!-- SB_LUT4 inputs -->
+   <input  name="I0" num_pins="4" equivalent="false"/>
+   <input  name="I1" num_pins="4" equivalent="false"/>
+   <input  name="I2" num_pins="4" equivalent="false"/>
+   <input  name="I3" num_pins="4" equivalent="false"/>
+   <input  name="I4" num_pins="4" equivalent="false"/>
+   <input  name="I5" num_pins="4" equivalent="false"/>
+   <input  name="I6" num_pins="4" equivalent="false"/>
+   <input  name="I7" num_pins="4" equivalent="false"/>
+   <!-- D Flipflop outputs -->
+   <output  name="O0" num_pins="1" equivalent="false"/>
+   <output  name="O1" num_pins="1" equivalent="false"/>
+   <output  name="O2" num_pins="1" equivalent="false"/>
+   <output  name="O3" num_pins="1" equivalent="false"/>
+   <output  name="O4" num_pins="1" equivalent="false"/>
+   <output  name="O5" num_pins="1" equivalent="false"/>
+   <output  name="O6" num_pins="1" equivalent="false"/>
+   <output  name="O7" num_pins="1" equivalent="false"/>
+
+   <output  name="FCOUT0" num_pins="1" equivalent="false"/>
+   <output  name="FCOUT1" num_pins="1" equivalent="false"/>
+   <output  name="FCOUT2" num_pins="1" equivalent="false"/>
+   <output  name="FCOUT3" num_pins="1" equivalent="false"/>
+   <output  name="FCOUT4" num_pins="1" equivalent="false"/>
+   <output  name="FCOUT5" num_pins="1" equivalent="false"/>
+   <output  name="FCOUT6" num_pins="1" equivalent="false"/>
+   <output  name="FCOUT7" num_pins="1" equivalent="false"/>
+
+   <!-- D Flipflop controls -->
+   <clock  name="CLK" num_pins="1"/>
+   <input name="EN" num_pins="1" equivalent="false"/>
+   <input name="SR" num_pins="1" equivalent="false"/>
+
+   <!-- Carry chain -->
+   <input name="FCIN"  num_pins="1" equivalent="false"/>
+   <output name="FCOUT" num_pins="1" equivalent="false"/>
+
+   <!-- A PLB contains the same 'cell' repeated 8 times. -->
+   <xi:include href="../../../../cells/lutff/lutff.pb_type.xml"/>
+
+   <interconnect>
+    <!-- Inputs -->
+    <direct name="I0" input="PLB.I0" output="PLB_CELL[0:0].I" />
+    <direct name="I1" input="PLB.I1" output="PLB_CELL[1:1].I" />
+    <direct name="I2" input="PLB.I2" output="PLB_CELL[2:2].I" />
+    <direct name="I3" input="PLB.I3" output="PLB_CELL[3:3].I" />
+    <direct name="I4" input="PLB.I4" output="PLB_CELL[4:4].I" />
+    <direct name="I5" input="PLB.I5" output="PLB_CELL[5:5].I" />
+    <direct name="I6" input="PLB.I6" output="PLB_CELL[6:6].I" />
+    <direct name="I7" input="PLB.I7" output="PLB_CELL[7:7].I" />
+    <!-- Outputs -->
+    <direct name="O0" input="PLB_CELL[0:0].O" output="PLB.O0" />
+    <direct name="O1" input="PLB_CELL[1:1].O" output="PLB.O1" />
+    <direct name="O2" input="PLB_CELL[2:2].O" output="PLB.O2" />
+    <direct name="O3" input="PLB_CELL[3:3].O" output="PLB.O3" />
+    <direct name="O4" input="PLB_CELL[4:4].O" output="PLB.O4" />
+    <direct name="O5" input="PLB_CELL[5:5].O" output="PLB.O5" />
+    <direct name="O6" input="PLB_CELL[6:6].O" output="PLB.O6" />
+    <direct name="O7" input="PLB_CELL[7:7].O" output="PLB.O7" />
+    <!-- All flipflops inside a PLB share the CLK, SR & CE signal -->
+    <complete name="CLK" input="PLB.CLK" output="PLB_CELL[7:0].CLK" />
+    <!-- <mux name="SR" input="GND PLB.SR" output="PLB_CELL[7:0].SR" /> -->
+    <complete name="SR" input="PLB.SR" output="PLB_CELL[7:0].SR" />
+    <!-- <mux name="EN" input="VCC PLB.EN" output="PLB_CELL[7:0].EN" /> -->
+    <complete name="EN" input="PLB.EN" output="PLB_CELL[7:0].EN" />
+
+    <direct name="FCOUT0" input="PLB_CELL[0:0].FCOUT" output="PLB.FCOUT0" />
+    <direct name="FCOUT1" input="PLB_CELL[1:1].FCOUT" output="PLB.FCOUT1" />
+    <direct name="FCOUT2" input="PLB_CELL[2:2].FCOUT" output="PLB.FCOUT2" />
+    <direct name="FCOUT3" input="PLB_CELL[3:3].FCOUT" output="PLB.FCOUT3" />
+    <direct name="FCOUT4" input="PLB_CELL[4:4].FCOUT" output="PLB.FCOUT4" />
+    <direct name="FCOUT5" input="PLB_CELL[5:5].FCOUT" output="PLB.FCOUT5" />
+    <direct name="FCOUT6" input="PLB_CELL[6:6].FCOUT" output="PLB.FCOUT6" />
+    <direct name="FCOUT7" input="PLB_CELL[7:7].FCOUT" output="PLB.FCOUT7" />
+
+    <!-- Carry chain -->
+    <direct name="FCOUT" input="PLB_CELL[0:0].FCOUT" output="PLB.FCOUT">
+      <pack_pattern name="CARRYCHAIN" in_port="PLB_CELL[0:0].FCOUT" out_port="PLB.FCOUT"/>
+    </direct>
+    <direct name="FCC0"  input="PLB_CELL[1:1].FCOUT" output="PLB_CELL[0:0].FCIN">
+      <pack_pattern name="CARRYCHAIN" in_port="PLB_CELL[1:1].FCOUT" out_port="PLB_CELL[0:0].FCIN"/>
+    </direct>
+    <direct name="FCC1"  input="PLB_CELL[2:2].FCOUT" output="PLB_CELL[1:1].FCIN">
+      <pack_pattern name="CARRYCHAIN" in_port="PLB_CELL[2:2].FCOUT" out_port="PLB_CELL[1:1].FCIN"/>
+    </direct>
+    <direct name="FCC2"  input="PLB_CELL[3:3].FCOUT" output="PLB_CELL[2:2].FCIN">
+      <pack_pattern name="CARRYCHAIN" in_port="PLB_CELL[3:3].FCOUT" out_port="PLB_CELL[2:2].FCIN"/>
+    </direct>
+    <direct name="FCC3"  input="PLB_CELL[4:4].FCOUT" output="PLB_CELL[3:3].FCIN">
+      <pack_pattern name="CARRYCHAIN" in_port="PLB_CELL[4:4].FCOUT" out_port="PLB_CELL[3:3].FCIN"/>
+    </direct>
+    <direct name="FCC4"  input="PLB_CELL[5:5].FCOUT" output="PLB_CELL[4:4].FCIN">
+      <pack_pattern name="CARRYCHAIN" in_port="PLB_CELL[5:5].FCOUT" out_port="PLB_CELL[4:4].FCIN"/>
+    </direct>
+    <direct name="FCC5"  input="PLB_CELL[6:6].FCOUT" output="PLB_CELL[5:5].FCIN">
+      <pack_pattern name="CARRYCHAIN" in_port="PLB_CELL[6:6].FCOUT" out_port="PLB_CELL[5:5].FCIN"/>
+    </direct>
+    <direct name="FCIN"  input="PLB.FCIN"            output="PLB_CELL[6:6].FCIN">
+      <pack_pattern name="CARRYCHAIN" in_port="PLB.FCIN"            out_port="PLB_CELL[6:6].FCIN"/>
+    </direct>
+   </interconnect>
+  </pb_type>
+  <!-- End PLB -->

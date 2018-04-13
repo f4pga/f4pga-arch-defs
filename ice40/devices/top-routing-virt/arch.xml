@@ -1,0 +1,107 @@
+<!-- set: ai sw=1 ts=1 sta et -->
+<architecture xmlns:xi="http://www.w3.org/2001/XInclude">
+ <!-- ODIN-II model description for non-standard block type -->
+ <models>
+  <xi:include href="../../primitives/sb_lut/sb_lut.model.xml"     xpointer="xpointer(models/child::node())" />
+  <xi:include href="../../primitives/sb_ff/sb_ff.model.xml"       xpointer="xpointer(models/child::node())" />
+  <xi:include href="../../primitives/sb_carry/sb_carry.model.xml" xpointer="xpointer(models/child::node())" />
+  <xi:include href="../../primitives/sb_ram/sb_ram.model.xml"     xpointer="xpointer(models/child::node())" />
+  <!--
+  <xi:include href="../../primitives/mux4/ice_mux4.model.xml"     xpointer="xpointer(models/child::node())" />
+  <xi:include href="../../primitives/mux2/ice_mux2.model.xml"     xpointer="xpointer(models/child::node())" />
+  -->
+ </models>
+
+ <!-- Description of the block tiles available in the iCE40 -->
+ <complexblocklist>
+  <xi:include href="tiles/plb/plb.pb_type.xml"/>
+  <xi:include href="tiles/ramb/ramb.pb_type.xml"/>
+  <xi:include href="tiles/ramt/ramt.pb_type.xml"/>
+  <xi:include href="../../../vpr/pad/pad.pb_type.xml"/>
+ </complexblocklist>
+
+ <!-- Description of the tile layouts available in the iCE40 family -->
+ <layout>
+  <xi:include href="../layouts/test4/test4.fixed_layout.xml"/>
+  <xi:include href="../layouts/N384/lp384.fixed_layout.xml"/>
+  <xi:include href="../layouts/N384/hx384.fixed_layout.xml"/>
+  <xi:include href="../layouts/N1k/lp1k.fixed_layout.xml"/>
+  <xi:include href="../layouts/N1k/hx1k.fixed_layout.xml"/>
+  <xi:include href="../layouts/N4k/lp4k.fixed_layout.xml"/>
+  <xi:include href="../layouts/N4k/hx4k.fixed_layout.xml"/>
+  <xi:include href="../layouts/N8k/lp8k.fixed_layout.xml"/>
+  <xi:include href="../layouts/N8k/hx8k.fixed_layout.xml"/>
+ </layout>
+
+ <directlist>
+  <!-- Carry chain from one PLB to the next PLB -->
+  <direct name="CARRY"   from_pin="PLB.carry_out"   to_pin="PLB.carry_in"    x_offset="0"  y_offset="1" z_offset="0"/>
+ </directlist>
+
+ <device>
+    <sizing R_minW_nmos="6065.520020" R_minW_pmos="18138.500000" />
+    <area grid_logic_tile_area="14813.392"/>
+    <connection_block input_switch_name="2"/>
+    <switch_block type="wilton" fs="3"/>
+    <chan_width_distr>
+      <x distr="uniform" peak="1.000000"/>
+      <y distr="uniform" peak="1.000000"/>
+    </chan_width_distr>
+ </device>
+
+ <switchlist>
+  <!-- name="buffer"  == name="0" -->
+  <!-- name="routing" == name="1" -->
+  <switch type="mux" name="1" R="551" Cin=".77e-15" Cout="4e-15" Tdel="58e-12" mux_trans_size="2.630740" buf_size="27.645901"/>
+  <switch type="mux" name="2" R="551" Cin=".77e-15" Cout="4e-15" Tdel="58e-12" mux_trans_size="2.630740" buf_size="27.645901"/>
+ </switchlist>
+
+ <segmentlist>
+  <!-- Global networks -->
+  <segment name="global" length="longline" freq="1.000000" type="bidir" Rmetal="101" Cmetal="22.5e-15">
+   <sb type="pattern">1 1</sb>
+   <cb type="pattern">0</cb>
+   <wire_switch name="1"/>
+   <opin_switch name="2"/>
+  </segment>
+
+  <!-- Span 12 vertical   tracks -->
+  <!-- Span 12 horizontal tracks -->
+  <segment name="span12" length="12" freq="1.000000" type="bidir" Rmetal="101" Cmetal="22.5e-15">
+   <sb type="pattern">1 1 1 1 1 1 1 1 1 1 1 1 1</sb>
+   <cb type="pattern">0 0 0 0 0 0 0 0 0 0 0 0</cb>
+   <wire_switch name="1"/>
+   <opin_switch name="2"/>
+  </segment>
+
+  <!-- Span 4 vertical   tracks -->
+  <!-- Span 4 horizontal tracks -->
+  <segment name="span4" length="4" freq="1.000000" type="bidir" Rmetal="101" Cmetal="22.5e-15">
+   <sb type="pattern">1 1 1 1 1</sb>
+   <cb type="pattern">0 0 0 0</cb>
+   <wire_switch name="1"/>
+   <opin_switch name="2"/>
+  </segment>
+
+  <!-- Local tracks -->
+  <segment name="local" length="1" freq="1.000000" type="bidir" Rmetal="101" Cmetal="22.5e-15">
+   <sb type="pattern">0 1</sb>
+   <cb type="pattern">1</cb>
+   <wire_switch name="2"/>
+   <opin_switch name="2"/>
+  </segment>
+
+  <!--
+    Neighbourhood tracks
+     * 
+    -->
+  <segment name="direct" length="2" freq="1.000000" type="bidir" Rmetal="101" Cmetal="22.5e-15">
+   <sb type="pattern">0 0 0</sb>
+   <cb type="pattern">1 1</cb>
+   <wire_switch name="1"/>
+   <opin_switch name="2"/>
+  </segment>
+
+ </segmentlist>
+
+</architecture>
