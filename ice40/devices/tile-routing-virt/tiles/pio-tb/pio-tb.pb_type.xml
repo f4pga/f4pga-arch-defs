@@ -276,7 +276,7 @@
     </loc>
    </pinlocations>
 
-    <xi:include href="../../primitives/mux2/ice_mux2.pb_type.xml"/>
-    <xi:include href="../../primitives/mux4/ice_mux4.pb_type.xml"/>
+   <xi:include href="../../../../primitives/mux2/ice_mux2.pb_type.xml"/>
+   <xi:include href="../../../../primitives/mux4/ice_mux4.pb_type.xml"/>
 
 </pb_type>
