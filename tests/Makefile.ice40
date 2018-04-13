@@ -2,5 +2,5 @@
 
 DEVICE_DIR = ../ice40/devices/
 DEVICE_TYPE ?= tile-routing-virt
-DEVICE ?= test4
+DEVICE ?= LP384
 YOSYS_SCRIPT ?= synth_ice40; ice40_opt -unlut; abc -lut 4;
