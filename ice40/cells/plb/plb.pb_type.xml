@@ -45,7 +45,7 @@
    <output name="FCOUT" num_pins="1" equivalent="false"/>
 
    <!-- A PLB contains the same 'cell' repeated 8 times. -->
-   <xi:include href="../lutff/lutff.pb_type.xml">
+   <xi:include href="../lutff/lutff.pb_type.xml" />
 
    <interconnect>
     <!-- Inputs -->

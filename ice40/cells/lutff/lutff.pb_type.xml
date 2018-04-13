@@ -42,7 +42,6 @@
    <pack_pattern name="LUT2FF" in_port="LUT.O" out_port="SB_FF.D" />
   --></direct>
 
-  <direct name="BLK_IG-LUTFF.O" input="LUT.O"         output="BLK_IG-LUTFF.O" />
   <mux    name="BLK_IG-LUTFF.O" input="LUT.O SB_FF.Q" output="BLK_IG-LUTFF.O" />
 
   <!-- Carry chain -->
