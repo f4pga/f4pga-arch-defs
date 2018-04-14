@@ -42,9 +42,6 @@
   different pin definitions (one for each side of the FPGA).
  -->
  <pinlocations pattern="custom">
-  <loc side="left">BLK_BB-VPR_PAD.outpad BLK_BB-VPR_PAD.inpad</loc>
-  <loc side="top">BLK_BB-VPR_PAD.outpad BLK_BB-VPR_PAD.inpad</loc>
   <loc side="right">BLK_BB-VPR_PAD.outpad BLK_BB-VPR_PAD.inpad</loc>
-  <loc side="bottom">BLK_BB-VPR_PAD.outpad BLK_BB-VPR_PAD.inpad</loc>
  </pinlocations>
 </pb_type>
