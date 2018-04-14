@@ -35,7 +35,7 @@
 
  <directlist>
   <!-- Carry chain from one PLB to the next PLB -->
-  <direct name="CARRY"   from_pin="BLK_TL-PLB.carry_out"   to_pin="BLK_TL-PLB.carry_in"    x_offset="0"  y_offset="1" z_offset="0"/>
+  <direct name="CARRY"   from_pin="BLK_TL-PLB.FCOUT" to_pin="BLK_TL-PLB.FCIN" x_offset="0" y_offset="-1" z_offset="0"/>
   <!-- Vertical wires from neighbours -->
   <direct name="sp4_r2l" from_pin="BLK_TL-PLB.o_sp4_l_v_b" to_pin="BLK_TL-PLB.i_sp4_r_v_b" x_offset="-1" y_offset="0" z_offset="0"/>
   <direct name="sp4_l2r" from_pin="BLK_TL-PLB.o_sp4_r_v_b" to_pin="BLK_TL-PLB.i_sp4_l_v_b" x_offset="1"  y_offset="0" z_offset="0"/>
