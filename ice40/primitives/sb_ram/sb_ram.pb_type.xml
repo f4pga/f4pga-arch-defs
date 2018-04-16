@@ -1,3 +1,4 @@
+<!-- set: ai sw=1 ts=1 sta et -->
     <!-- Block ram  found inside the iCE40 -->
     <pb_type name="SB_RAM" num_pb="1">
      <!-- Read port -->

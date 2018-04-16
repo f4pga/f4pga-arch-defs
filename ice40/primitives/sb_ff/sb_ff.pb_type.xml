@@ -1,3 +1,4 @@
+<!-- set: ai sw=1 ts=1 sta et -->
     <!-- Flip flop found inside the iCE40 -->
     <pb_type name="SB_FF" num_pb="1">
      <clock  name="C" num_pins="1"/>

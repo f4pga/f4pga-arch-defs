@@ -1,3 +1,4 @@
+<!-- set: ai sw=1 ts=1 sta et -->
     <!-- 4 input LUT found in the ICE40 -->
     <pb_type name="LUT" num_pb="1">
      <input  name="I" num_pins="4" />
