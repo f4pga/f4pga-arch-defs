@@ -43,7 +43,7 @@ $(OUTPUT_DIR):
 
 # Yosys command
 $(OUTPUT_DIR)/%.eblif: %.v | $(OUTPUT_DIR)
-	$(YOSYS) -p "$(YOSYS_SCRIPT) opt_clean; write_blif -attr -cname -conn -impltf -param $@" $<
+	$(YOSYS) -p "$(YOSYS_SCRIPT) opt_clean; write_blif -attr -cname -conn -param $@" $<
 
 # Quick shortcut
 #%.eblif: $(OUTPUT_DIR)/%.eblif | $(OUTPUT_DIR)
