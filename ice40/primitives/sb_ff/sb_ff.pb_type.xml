@@ -199,4 +199,26 @@
        <direct name="D" input="SB_FF.D" output="SB_DFFESS.D" />
       </interconnect>
      </mode>
+
+     <!-- module SB_DFFES (output Q, input C, E, R, D); -->
+     <mode name="SB_DFFES">
+      <pb_type name="SB_DFFES" num_pb="1" blif_model=".subckt SB_DFFES">
+       <output name="Q" num_pins="1"/>
+       <clock  name="C" num_pins="1"/>
+       <input  name="E" num_pins="1"/>
+       <input  name="R" num_pins="1"/>
+       <input  name="D" num_pins="1"/>
+       <T_clock_to_Q max="10e-12" port="SB_DFFES.Q" clock="C"/>
+       <T_setup    value="10e-12" port="SB_DFFES.E" clock="C"/>
+       <T_setup    value="10e-12" port="SB_DFFES.R" clock="C"/>
+       <T_setup    value="10e-12" port="SB_DFFES.D" clock="C"/>
+      </pb_type>
+      <interconnect>
+       <direct name="Q" input="SB_DFFES.Q" output="SB_FF.Q" />
+       <direct name="C" input="SB_FF.C" output="SB_DFFES.C" />
+       <direct name="E" input="SB_FF.E" output="SB_DFFES.E" />
+       <direct name="S" input="SB_FF.S" output="SB_DFFES.R" />
+       <direct name="D" input="SB_FF.D" output="SB_DFFES.D" />
+      </interconnect>
+     </mode>
     </pb_type>
