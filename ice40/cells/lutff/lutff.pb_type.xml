@@ -4,19 +4,8 @@
 <!-- ################################################################ -->
 <pb_type name="BLK_IG-LUTFF" num_pb="8" xmlns:xi="http://www.w3.org/2001/XInclude">
 
- <!-- Data -->
- <input  name="I"  num_pins="4" equivalent="false"/> <!-- LUT inputs -->
- <output name="LO" num_pins="1" equivalent="false"/> <!-- LUT output -->
- <output name="O"  num_pins="1" equivalent="false"/> <!-- FF output -->
-
- <!-- Flipflop controls -->
- <clock name="CLK" num_pins="1" />                    <!-- FF clock        -->
- <input name="EN"  num_pins="1" equivalent="false"/>  <!-- FF clock enable -->
- <input name="SR"  num_pins="1" equivalent="false"/>  <!-- FF set/reset    -->
-
- <!-- Fast carry -->
- <input name="FCIN"  num_pins="1" equivalent="false"/>   <!-- Carry in     -->
- <output name="FCOUT" num_pins="1" equivalent="false"/>  <!-- Carry output -->
+ <!-- Ports -->
+ <xi:include href="lutff.ports.xml" xpointer="xpointer(ports/child::node())"/>
 
  <!-- SB_LUT - 4 input LUT -->
  <xi:include href="../../primitives/sb_lut/sb_lut.pb_type.xml"/>
