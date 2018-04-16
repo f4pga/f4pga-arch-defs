@@ -1,3 +1,4 @@
+<!-- set: ai sw=1 ts=1 sta et -->
  <models>
   <!--  module SB_DFF (output Q, input C, D); -->
   <model name="SB_DFF">

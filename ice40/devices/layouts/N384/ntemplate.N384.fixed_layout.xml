@@ -1,3 +1,4 @@
+<!-- set: ai sw=1 ts=1 sta et -->
 <fixed_layout name="{N}384" width="12" height="12">
  <col    type="EMPTY"            startx="0"  priority="30"/>
  <col    type="BLK_BB-VPR_PAD"   startx="1"  priority="10"/>

@@ -1,3 +1,4 @@
+<!-- set: ai sw=1 ts=1 sta et -->
  <models>
   <model name="SB_LUT4">
    <input_ports>

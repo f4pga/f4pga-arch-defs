@@ -1,3 +1,4 @@
+<!-- set: ai sw=1 ts=1 sta et -->
     <!-- Carry logic found in the ICE40 -->
     <pb_type name="SB_CARRY" num_pb="1" blif_model=".subckt SB_CARRY">
      <input  name="I1" num_pins="1"/>
