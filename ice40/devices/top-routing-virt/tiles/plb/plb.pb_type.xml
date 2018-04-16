@@ -8,23 +8,24 @@
   -->
 <pb_type name="BLK_TL-PLB" xmlns:xi="http://www.w3.org/2001/XInclude">
  <!-- SB_LUT4 inputs -->
- <input  name="I0" num_pins="4" equivalent="false"/>
- <input  name="I1" num_pins="4" equivalent="false"/>
- <input  name="I2" num_pins="4" equivalent="false"/>
- <input  name="I3" num_pins="4" equivalent="false"/>
- <input  name="I4" num_pins="4" equivalent="false"/>
- <input  name="I5" num_pins="4" equivalent="false"/>
- <input  name="I6" num_pins="4" equivalent="false"/>
- <input  name="I7" num_pins="4" equivalent="false"/>
- <!-- D Flipflop outputs -->
- <output name="O0" num_pins="1" equivalent="false"/>
- <output name="O1" num_pins="1" equivalent="false"/>
- <output name="O2" num_pins="1" equivalent="false"/>
- <output name="O3" num_pins="1" equivalent="false"/>
- <output name="O4" num_pins="1" equivalent="false"/>
- <output name="O5" num_pins="1" equivalent="false"/>
- <output name="O6" num_pins="1" equivalent="false"/>
- <output name="O7" num_pins="1" equivalent="false"/>
+ <input  name="I0"     num_pins="4" equivalent="false"/>
+ <input  name="I1"     num_pins="4" equivalent="false"/>
+ <input  name="I2"     num_pins="4" equivalent="false"/>
+ <input  name="I3"     num_pins="4" equivalent="false"/>
+ <input  name="I4"     num_pins="4" equivalent="false"/>
+ <input  name="I5"     num_pins="4" equivalent="false"/>
+ <input  name="I6"     num_pins="4" equivalent="false"/>
+ <input  name="I7"     num_pins="4" equivalent="false"/>
+
+ <!-- D flip-flop outputs -->
+ <output name="O0"     num_pins="1" equivalent="false"/>
+ <output name="O1"     num_pins="1" equivalent="false"/>
+ <output name="O2"     num_pins="1" equivalent="false"/>
+ <output name="O3"     num_pins="1" equivalent="false"/>
+ <output name="O4"     num_pins="1" equivalent="false"/>
+ <output name="O5"     num_pins="1" equivalent="false"/>
+ <output name="O6"     num_pins="1" equivalent="false"/>
+ <output name="O7"     num_pins="1" equivalent="false"/>
 
  <output name="FCOUT0" num_pins="1" equivalent="false"/>
  <output name="FCOUT1" num_pins="1" equivalent="false"/>
@@ -35,14 +36,14 @@
  <output name="FCOUT6" num_pins="1" equivalent="false"/>
  <output name="FCOUT7" num_pins="1" equivalent="false"/>
 
- <!-- D Flipflop controls -->
- <clock  name="CLK" num_pins="1" equivalent="false"/>
- <input  name="EN"  num_pins="1" equivalent="false"/>
- <input  name="SR"  num_pins="1" equivalent="false"/>
+ <!-- D flip-flop controls -->
+ <clock  name="CLK"    num_pins="1" equivalent="false"/>
+ <input  name="EN"     num_pins="1" equivalent="false"/>
+ <input  name="SR"     num_pins="1" equivalent="false"/>
 
  <!-- Carry chain -->
- <input  name="FCIN"  num_pins="1" equivalent="false"/>
- <output name="FCOUT" num_pins="1" equivalent="false"/>
+ <input  name="FCIN"   num_pins="1" equivalent="false"/>
+ <output name="FCOUT"  num_pins="1" equivalent="false"/>
 
  <!-- A BLK_TL-PLB contains the same 'cell' repeated 8 times. -->
  <xi:include href="../../../../cells/lutff/lutff.pb_type.xml"/>
