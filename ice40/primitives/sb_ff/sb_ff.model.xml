@@ -109,4 +109,18 @@
     <port name="Q" clock="C" />
    </output_ports>
   </model>
+
+  <!--  module SB_DFFES (output Q, input C, E, R, D); -->
+  <model name="SB_DFFES">
+   <input_ports>
+    <port name="C" is_clock="1" />
+    <port name="E" clock="C" />
+    <port name="R" clock="C" />
+    <port name="D" clock="C" />
+   </input_ports>
+   <output_ports>
+    <port name="Q" clock="C" />
+   </output_ports>
+ </model>
+
  </models>
