@@ -5,11 +5,11 @@
 <pb_type name="BLK_IG-LUTFF" num_pb="8" xmlns:xi="http://www.w3.org/2001/XInclude">
 
  <!-- Data -->
- <input  name="I" num_pins="4" equivalent="false"/> <!-- LUT inputs -->
- <output name="O" num_pins="1" equivalent="false"/> <!-- LUT output -->
+ <input  name="I"  num_pins="4" equivalent="false"/> <!-- LUT inputs -->
+ <output name="LO" num_pins="1" equivalent="false"/> <!-- LUT output -->
+ <output name="O"  num_pins="1" equivalent="false"/> <!-- FF output -->
 
  <!-- Flipflop controls -->
-                                                      <!-- ??? FF output   -->
  <clock name="CLK" num_pins="1" />                    <!-- FF clock        -->
  <input name="EN"  num_pins="1" equivalent="false"/>  <!-- FF clock enable -->
  <input name="SR"  num_pins="1" equivalent="false"/>  <!-- FF set/reset    -->
@@ -43,7 +43,8 @@
    <pack_pattern name="LUT2FF" in_port="LUT.O" out_port="SB_FF.D" />
   --></direct>
 
-  <mux    name="BLK_IG-LUTFF.O" input="LUT.O SB_FF.Q" output="BLK_IG-LUTFF.O" />
+  <mux    name="BLK_IG-LUTFF.O"  input="LUT.O SB_FF.Q" output="BLK_IG-LUTFF.O"/>
+  <direct name="BLK_IG-LUTFF.LO" input="LUT.O"         output="BLK_IG-LUTFF.LO"/>
 
   <!-- Carry chain -->
   <direct name="BLK_IG-LUTFF.FCIN"  input="BLK_IG-LUTFF.FCIN"   output="SB_CARRY.CI">
