@@ -1,13 +1,13 @@
 <!-- set: ai sw=1 ts=1 sta et -->
- <models>
-  <model name="SB_CARRY">
-   <input_ports>
-    <port name="I0" combinational_sink_ports="CO" /> <!-- I1 -->
-    <port name="I1" combinational_sink_ports="CO" /> <!-- I2 -->
-    <port name="CI" combinational_sink_ports="CO" /> <!-- FCIN -->
-   </input_ports>
-   <output_ports>
-    <port name="CO" /> <!-- FCOUT -->
-   </output_ports>
-  </model>
- </models>
+<models>
+ <model name="SB_CARRY">
+  <input_ports>
+   <port name="I0" combinational_sink_ports="CO" /> <!-- I1 -->
+   <port name="I1" combinational_sink_ports="CO" /> <!-- I2 -->
+   <port name="CI" combinational_sink_ports="CO" /> <!-- FCIN -->
+  </input_ports>
+  <output_ports>
+   <port name="CO" /> <!-- FCOUT -->
+  </output_ports>
+ </model>
+</models>
