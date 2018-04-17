@@ -932,6 +932,18 @@ class GraphIdsMap:
         if verbose:
             xml_node.append(ET.Comment(" {} ".format(name)))
 
+    def add_edge(self, xml_edge, verbose=False):
+        # what is this? needed?
+        #if 'capacity' not in xml_node.attrib:
+        #    xml_node.attrib['capacity'] =  str(1)
+
+        name = self.node_name(xml_edge)
+        self[name] = xml_edge
+
+        # invalid chars in comment
+        #if verbose:
+        #    xml_edge.append(ET.Comment(" {} ".format(name)))
+
     def __getitem__(self, name):
         xml_group, node_id = self.names2id[name]
         return self.id2node[xml_group][node_id]
@@ -1159,7 +1171,7 @@ class GraphIdsMap:
 
         pin_node = None
         if pc.direction in (PinClassDirection.INPUT, PinClassDirection.CLOCK):
-            pin_node = ET.SubElement(nodes, 'node', {'type': 'IPIN'})
+            pin_node = ET.SubElement(nodes, 'node', {'id': str(self._next_id('node')), 'type': 'IPIN'})
             ET.SubElement(pin_node, 'loc', {
                 'xlow': str(low.x), 'ylow': str(low.y),
                 'xhigh': str(high.x), 'yhigh': str(high.y),
@@ -1170,7 +1182,7 @@ class GraphIdsMap:
             ET.SubElement(pin_node, 'timing', {'R': str(0), 'C': str(0)})
 
         elif pin.pin_class.direction in (PinClassDirection.OUTPUT,):
-            pin_node = ET.SubElement(nodes, 'node', {'type': 'OPIN'})
+            pin_node = ET.SubElement(nodes, 'node', {'id': str(self._next_id('node')), 'type': 'OPIN'})
             ET.SubElement(pin_node, 'loc', {
                 'xlow': str(low.x), 'ylow': str(low.y),
                 'xhigh': str(high.x), 'yhigh': str(high.y),
@@ -1208,7 +1220,7 @@ class GraphIdsMap:
         assert len(pin_class.pins) == 1, 'Expect one pin per pin class, got %s' % (pin_class.pins,)
         if pin_class.direction in (PinClassDirection.INPUT, PinClassDirection.CLOCK):
             # Sink node
-            sink_node = ET.SubElement(nodes, 'node', {'type': 'SINK'})
+            sink_node = ET.SubElement(nodes, 'node', {'id': str(self._next_id('node')), 'type': 'SINK'})
             ET.SubElement(sink_node, 'loc', {
                 'xlow': str(low.x), 'ylow': str(low.y),
                 'xhigh': str(high.x), 'yhigh': str(high.y),
@@ -1224,7 +1236,7 @@ class GraphIdsMap:
 
         elif pin_class.direction in (PinClassDirection.OUTPUT,):
             # Source node
-            src_node = ET.SubElement(nodes, 'node', {'type': 'SOURCE'})
+            src_node = ET.SubElement(nodes, 'node', {'id': str(self._next_id('node')), 'type': 'SOURCE'})
             ET.SubElement(src_node, 'loc', {
                 'xlow': str(low.x), 'ylow': str(low.y),
                 'xhigh': str(high.x), 'yhigh': str(high.y),
