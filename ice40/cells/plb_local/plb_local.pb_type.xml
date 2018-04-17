@@ -45,11 +45,47 @@
  <input  name="FCIN"   num_pins="1" equivalent="false"/>
  <output name="FCOUT"  num_pins="1" equivalent="false"/>
 
- <mode name="ff">
+ <mode name="dff">
   <pb_type name="BLK_IG-LUTFF" num_pb="8">
    <xi:include href="../lutff/lutff.ports.xml" xpointer="xpointer(ports/child::node())"/>
    <xi:include href="../../primitives/sb_lut/sb_lut.pb_type.xml"/>
-   <xi:include href="../../primitives/sb_ff/sb_ff.pb_type.xml"/>
+   <xi:include href="../../primitives/sb_ff/dff.pb_type.xml"/>
+   <xi:include href="../../primitives/sb_carry/sb_carry.pb_type.xml"/>
+   <xi:include href="../lutff/lutff.interconnect.xml"/>
+  </pb_type>
+
+  <xi:include href="plb_local.interconnect.xml"/>
+ </mode>
+
+ <mode name="dffe">
+  <pb_type name="BLK_IG-LUTFF" num_pb="8">
+   <xi:include href="../lutff/lutff.ports.xml" xpointer="xpointer(ports/child::node())"/>
+   <xi:include href="../../primitives/sb_lut/sb_lut.pb_type.xml"/>
+   <xi:include href="../../primitives/sb_ff/dffe.pb_type.xml"/>
+   <xi:include href="../../primitives/sb_carry/sb_carry.pb_type.xml"/>
+   <xi:include href="../lutff/lutff.interconnect.xml"/>
+  </pb_type>
+
+  <xi:include href="plb_local.interconnect.xml"/>
+ </mode>
+
+ <mode name="dffs">
+  <pb_type name="BLK_IG-LUTFF" num_pb="8">
+   <xi:include href="../lutff/lutff.ports.xml" xpointer="xpointer(ports/child::node())"/>
+   <xi:include href="../../primitives/sb_lut/sb_lut.pb_type.xml"/>
+   <xi:include href="../../primitives/sb_ff/dffs.pb_type.xml"/>
+   <xi:include href="../../primitives/sb_carry/sb_carry.pb_type.xml"/>
+   <xi:include href="../lutff/lutff.interconnect.xml"/>
+  </pb_type>
+
+  <xi:include href="plb_local.interconnect.xml"/>
+ </mode>
+
+ <mode name="dffes">
+  <pb_type name="BLK_IG-LUTFF" num_pb="8">
+   <xi:include href="../lutff/lutff.ports.xml" xpointer="xpointer(ports/child::node())"/>
+   <xi:include href="../../primitives/sb_lut/sb_lut.pb_type.xml"/>
+   <xi:include href="../../primitives/sb_ff/dffes.pb_type.xml"/>
    <xi:include href="../../primitives/sb_carry/sb_carry.pb_type.xml"/>
    <xi:include href="../lutff/lutff.interconnect.xml"/>
   </pb_type>

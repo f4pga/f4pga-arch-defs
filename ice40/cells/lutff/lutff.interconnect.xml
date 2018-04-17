@@ -11,13 +11,13 @@
  <direct name="SB_CARRY.I0" input="BLK_IG-LUTFF.I[1]" output="SB_CARRY.I0" />
  <direct name="SB_CARRY.I1" input="BLK_IG-LUTFF.I[2]" output="SB_CARRY.I1" />
 
- <direct name="BLK_IG-LUTFF.EN"  input="BLK_IG-LUTFF.EN"  output="SB_FF.E" />
- <direct name="BLK_IG-LUTFF.CLK" input="BLK_IG-LUTFF.CLK" output="SB_FF.C" />
- <direct name="BLK_IG-LUTFF.SR"  input="BLK_IG-LUTFF.SR"  output="SB_FF.S" />
- <direct name="LUT2FF"    input="LUT.O"     output="SB_FF.D" />
+ <direct name="BLK_IG-LUTFF.EN"  input="BLK_IG-LUTFF.EN"  output="DFF.E" />
+ <direct name="BLK_IG-LUTFF.CLK" input="BLK_IG-LUTFF.CLK" output="DFF.C" />
+ <direct name="BLK_IG-LUTFF.SR"  input="BLK_IG-LUTFF.SR"  output="DFF.S" />
+ <direct name="LUT2FF"           input="LUT.O"            output="DFF.D" />
 
- <mux    name="BLK_IG-LUTFF.O"  input="LUT.O SB_FF.Q" output="BLK_IG-LUTFF.O"/>
- <direct name="BLK_IG-LUTFF.LO" input="LUT.O"         output="BLK_IG-LUTFF.LO"/>
+ <mux    name="BLK_IG-LUTFF.O"  input="LUT.O DFF.Q" output="BLK_IG-LUTFF.O"/>
+ <direct name="BLK_IG-LUTFF.LO" input="LUT.O"       output="BLK_IG-LUTFF.LO"/>
 
  <!-- Carry chain -->
  <direct name="BLK_IG-LUTFF.FCIN"  input="BLK_IG-LUTFF.FCIN"   output="SB_CARRY.CI">
