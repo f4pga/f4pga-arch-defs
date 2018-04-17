@@ -18,9 +18,9 @@ def __safe_error(msg, a, b):
     )
 
 
-def assert_eq(a, b):
+def assert_eq(a, b, msg=None):
     """Assert equal with better error message."""
-    assert a == b, __safe_error("!=", a, b)
+    assert a == b, msg or __safe_error("!=", a, b)
 
 
 def assert_is(a, b):
