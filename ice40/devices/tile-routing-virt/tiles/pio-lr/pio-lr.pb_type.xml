@@ -3,58 +3,58 @@
 
  <!-- Horizontal spans to other IO tiles ############################# -->
  <!-- Span-4 Vertical -->
- <input  name="i_span4_horz_l" num_pins="16" equivalent="true"/>
- <output name="o_span4_horz_l" num_pins="16" equivalent="true"/>
- <input  name="i_span4_horz_r" num_pins="16" equivalent="true"/>
- <output name="o_span4_horz_r" num_pins="16" equivalent="true"/>
+ <input  name="i_span4_horz_l" num_pins="16" equivalent="false"/>
+ <output name="o_span4_horz_l" num_pins="16" equivalent="false"/>
+ <input  name="i_span4_horz_r" num_pins="16" equivalent="false"/>
+ <output name="o_span4_horz_r" num_pins="16" equivalent="false"/>
 
  <!-- Vertical spans into Fabric ##################################### -->
  <!-- Span-4 Horizontal -->
- <input  name="i_span4_vert"   num_pins="48" equivalent="true"/>
- <output name="o_span4_vert"   num_pins="48" equivalent="true"/>
+ <input  name="i_span4_vert"   num_pins="48" equivalent="false"/>
+ <output name="o_span4_vert"   num_pins="48" equivalent="false"/>
 
  <!-- Span-12 Horizontal -->
- <input  name="i_span12_vert"  num_pins="24" equivalent="true"/>
- <output name="o_span12_vert"  num_pins="24" equivalent="true"/>
+ <input  name="i_span12_vert"  num_pins="24" equivalent="false"/>
+ <output name="o_span12_vert"  num_pins="24" equivalent="false"/>
 
  <!-- Neighbourhood -->
- <input  name="i_neigh_op_rgt" num_pins="8"  equivalent="true"/>
- <output name="o_neigh_op_rgt" num_pins="8"  equivalent="true"/>
- <input  name="i_neigh_op_lft" num_pins="8"  equivalent="true"/>
- <output name="o_neigh_op_lft" num_pins="8"  equivalent="true"/>
+ <input  name="i_neigh_op_rgt" num_pins="8"  equivalent="false"/>
+ <output name="o_neigh_op_rgt" num_pins="8"  equivalent="false"/>
+ <input  name="i_neigh_op_lft" num_pins="8"  equivalent="false"/>
+ <output name="o_neigh_op_lft" num_pins="8"  equivalent="false"/>
 
- <input  name="i_neigh_op_xnr" num_pins="8"  equivalent="true"/>
- <output name="o_neigh_op_xnr" num_pins="8"  equivalent="true"/>
- <input  name="i_neigh_op_xnl" num_pins="8"  equivalent="true"/>
- <output name="o_neigh_op_xnl" num_pins="8"  equivalent="true"/>
- <input  name="i_neigh_op_xxx" num_pins="8"  equivalent="true"/>
- <output name="o_neigh_op_xxx" num_pins="8"  equivalent="true"/>
+ <input  name="i_neigh_op_xnr" num_pins="8"  equivalent="false"/>
+ <output name="o_neigh_op_xnr" num_pins="8"  equivalent="false"/>
+ <input  name="i_neigh_op_xnl" num_pins="8"  equivalent="false"/>
+ <output name="o_neigh_op_xnl" num_pins="8"  equivalent="false"/>
+ <input  name="i_neigh_op_xxx" num_pins="8"  equivalent="false"/>
+ <output name="o_neigh_op_xxx" num_pins="8"  equivalent="false"/>
 
  <!-- Global wires ################################################### -->
- <input  name="i_glb_netwk" num_pins="8" equivalent="true"/>
- <output name="o_glb_netwk" num_pins="8" equivalent="true"/>
+ <input  name="i_glb_netwk" num_pins="8" equivalent="false"/>
+ <output name="o_glb_netwk" num_pins="8" equivalent="false"/>
 
  <pb_type name="LOCAL" num_pb="1">
   <!-- ################################################################ -->
   <!-- # Local tracks onto logic                                      # -->
   <!-- ################################################################ -->
-  <input  name="glb_netwk" num_pins="8" equivalent="true"/>
+  <input  name="glb_netwk" num_pins="8" equivalent="false"/>
 
-  <input  name="i_g0" num_pins="8" equivalent="true"/>
-  <output name="o_g0" num_pins="8" equivalent="true"/>
+  <input  name="i_g0" num_pins="8" equivalent="false"/>
+  <output name="o_g0" num_pins="8" equivalent="false"/>
 
-  <input  name="i_g1" num_pins="8" equivalent="true"/>
-  <output name="o_g1" num_pins="8" equivalent="true"/>
+  <input  name="i_g1" num_pins="8" equivalent="false"/>
+  <output name="o_g1" num_pins="8" equivalent="false"/>
 
   <!-- logic_op_bnl_{0,1,2,3,4,5,6,7} -->
-  <input  name="ilogic_op_lft" num_pins="8"  equivalent="true"/>
-  <output name="ologic_op_lft" num_pins="8"  equivalent="true"/>
+  <input  name="ilogic_op_lft" num_pins="8"  equivalent="false"/>
+  <output name="ologic_op_lft" num_pins="8"  equivalent="false"/>
   <!-- logic_op_bnr_{0,1,2,3,4,5,6,7} -->
-  <input  name="ilogic_op_rgt" num_pins="8"  equivalent="true"/>
-  <output name="ologic_op_rgt" num_pins="8"  equivalent="true"/>
+  <input  name="ilogic_op_rgt" num_pins="8"  equivalent="false"/>
+  <output name="ologic_op_rgt" num_pins="8"  equivalent="false"/>
   <!-- logic_op_bot_{0,1,2,3,4,5,6,7} or logic_op_top_{0,1,2,3,4,5,6,7}-->
-  <input  name="ilogic_op_tb"  num_pins="8"  equivalent="true"/>
-  <output name="ologic_op_tb"  num_pins="8"  equivalent="true"/>
+  <input  name="ilogic_op_tb"  num_pins="8"  equivalent="false"/>
+  <output name="ologic_op_tb"  num_pins="8"  equivalent="false"/>
 
  </pb_type>
 
