@@ -91,7 +91,7 @@
  <pinlocations pattern="custom">
   <loc side="right">BLK_TI-LUTFF.CLK[0] BLK_TI-LUTFF.CLK[1] BLK_TI-LUTFF.IN[0] BLK_TI-LUTFF.IN[1] BLK_TI-LUTFF.IN[2] BLK_TI-LUTFF.IN[3] BLK_TI-LUTFF.IN[4] BLK_TI-LUTFF.IN[5] BLK_TI-LUTFF.OUT[0] BLK_TI-LUTFF.OUT[1]</loc>
  </pinlocations>
- <fc in_type="frac" in_val="0.1" out_type="frac" out_val="1.0">
+ <fc in_type="abs" in_val="1" out_type="abs" out_val="1">
   <fc_override fc_type="frac" fc_val="1.0" port_name="CLK"   />
  </fc>
 </pb_type>
