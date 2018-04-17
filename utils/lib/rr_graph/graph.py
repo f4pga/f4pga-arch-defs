@@ -348,6 +348,8 @@ class Pin(MostlyReadOnly):
         1
         """
         assert pin_node.tag == "pin"
+        print()
+        ET.dump(pin_node)
         pin_class_index = int(pin_node.attrib["index"])
         block_type_index = int(pin_node.attrib["ptc"])
 
@@ -405,6 +407,8 @@ class PinClass(MostlyReadOnly):
     @classmethod
     def from_xml(cls, block_type, pin_class_node):
         """
+        block_type: block this belongs to
+        pin_class_node: XML object to parse
 
         >>> bt = BlockType(name="bt")
         >>> xml_string1 = '''
@@ -634,7 +638,7 @@ class BlockType(MostlyReadOnly):
 
         if pin.block_type_name is None:
             pin.block_type_name = self.name
-        assert_eq(pin.block_type_name, self.name)
+        assert_eq(self.name, pin.block_type_name, "Expect block type name '%s' match pin prefix '%s'" % (self.name, pin.block_type_name))
 
         if pin.block_type_index is None:
             pin.block_type_index = max([-1]+list(self._pin_index.keys()))+1
@@ -1179,9 +1183,9 @@ class GraphIdsMap:
         else:
             assert False, "Unknown dir of {}.{}".format(pin, pin.pin_class)
 
-        assert pin_node, pin_node
+        assert pin_node != None, pin_node
 
-        print("Adding pin {:55s} on tile ({:3d}, {:3d})@{:4d}".format(str(pin), low, high, pin.ptc))
+        print("Adding pin {:55s} on tile ({:12s}, {:12s})@{:4d}".format(str(pin), str(low), str(high), pin.ptc))
         return pin_node
 
     def add_nodes_for_pin_class(self, block, pin_class):
@@ -1201,7 +1205,7 @@ class GraphIdsMap:
 
         # Assuming only one pin per class for now
         # see [0] references
-        assert len(pin_class.pins) == 0, pin_class.pins
+        assert len(pin_class.pins) == 1, 'Expect one pin per pin class, got %s' % (pin_class.pins,)
         if pin_class.direction in (PinClassDirection.INPUT, PinClassDirection.CLOCK):
             # Sink node
             sink_node = ET.SubElement(nodes, 'node', {'type': 'SINK'})
@@ -1212,7 +1216,7 @@ class GraphIdsMap:
             })
             ET.SubElement(sink_node, 'timing', {'R': str(0), 'C': str(0)})
 
-            for p in pin_class.pins:
+            for p in pin_class.pins.values():
                 pin_node = self.add_nodes_for_pin(block, p)
 
                 # Edge PIN->SINK
@@ -1228,7 +1232,7 @@ class GraphIdsMap:
             })
             ET.SubElement(src_node, 'timing', {'R': str(0), 'C': str(0)})
 
-            for p in pin_class.pins:
+            for p in pin_class.pins.values():
                 pin_node = self.add_nodes_for_pin(block, p)
 
                 # Edge SOURCE->PIN
@@ -1430,7 +1434,10 @@ def print_objects(rr_graph, lim=None):
         if not snks:
             print("   ", None)
 
-def print_graph(rr_graph, lim=10):
+def print_graph(rr_graph, verbose=False, lim=10):
+    if verbose:
+        lim=0
+
     print()
     print_block_types(rr_graph)
     print()
@@ -1439,9 +1446,51 @@ def print_graph(rr_graph, lim=10):
     print_objects(rr_graph, lim=lim)
     print()
 
-if __name__ == "__main__":
-    import sys
+def rebuild_graph(fn):
+    '''
+    Recreate the original test device rr_graph using our API
+    '''
+    print('Rebuild: parsing original')
+    g = Graph(rr_graph_file=fn)
+    print_graph(g, verbose=False)
+
+    print('Rebuild: clearing')
+    #assert 0
+    # Remove existing rr_graph
+    g.ids.clear_graph()
+    print_graph(g)
+
+    print('Rebuild: adding nodes')
+    '''
+    <node id="0" type="SOURCE" capacity="1">
+            <loc xlow="1" ylow="1" xhigh="1" yhigh="1" ptc="0"/>
+            <timing R="0" C="0"/>
+    </node>
+    '''
+    for block in g.block_graph:
+        print(block)
+        g.ids.add_nodes_for_block(block)
+    print
+    print_graph(g)
+
+def main():
     import os
+
+    if 1:
+        if 1:
+            rebuild_graph(sys.argv[-1])
+        if 0:
+            bt = BlockType(name="BLK_IG-IBUF")
+            xml_string1 = '''
+                <pin_class type="OUTPUT">
+                    <pin index="0" ptc="0">BLK_IG-IBUF.I[0]</pin>
+                </pin_class>
+                '''
+            pc = PinClass.from_xml(bt, ET.fromstring(xml_string1))
+
+        print('Exiting')
+        sys.exit(0)
+
     if len(sys.argv) == 1 or not os.path.exists(sys.argv[-1]):
         import doctest
         print('Doctest begin')
@@ -1449,21 +1498,8 @@ if __name__ == "__main__":
         print('Doctest end')
     else:
         g = Graph(rr_graph_file=sys.argv[-1])
-        print_graph(g)
-        #assert 0
-        # Remove existing rr_graph
-        g.ids.clear_graph()
-        print_graph(g)
+        print_graph(g, verbose=True)
 
-        '''
-        <node id="0" type="SOURCE" capacity="1">
-                <loc xlow="1" ylow="1" xhigh="1" yhigh="1" ptc="0"/>
-                <timing R="0" C="0"/>
-        </node>
-        '''
-        for block in g.block_graph:
-            print(block)
-            g.ids.add_nodes_for_block(block)
-        print
-        print_graph(g)
+if __name__ == "__main__":
+    main()
 
