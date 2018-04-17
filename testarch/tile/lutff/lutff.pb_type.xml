@@ -1,4 +1,4 @@
-<pb_type xmlns:xi="http://www.w3.org/2001/XInclude" name="BLK_TI-LUTFF" num_pb="1">
+<pb_type xmlns:xi="http://www.w3.org/2001/XInclude" name="BLK_TI-LUTFF">
  <!-- Tile Inputs -->
  <clock name="CLK  " num_pins="2"  />
  <input name="IN   " num_pins="6" />
