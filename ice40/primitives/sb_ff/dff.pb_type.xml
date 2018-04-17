@@ -1,0 +1,41 @@
+<!-- set: ai sw=1 ts=1 sta et -->
+<!-- Flip flop found inside the iCE40 -->
+<pb_type name="DFF" num_pb="1">
+ <clock  name="C" num_pins="1"/>
+ <input  name="E" num_pins="1"/>
+ <input  name="S" num_pins="1"/>
+ <input  name="D" num_pins="1"/>
+ <output name="Q" num_pins="1"/>
+
+ <!-- Plain VPR flip flop -->
+ <mode name="VPR_FF">
+  <pb_type name="VPR_FF" num_pb="1" blif_model=".latch" class="flipflop">
+   <clock  name="clk" num_pins="1" port_class="clock" />
+   <input  name="D" num_pins="1" port_class="D" />
+   <output name="Q" num_pins="1"  port_class="Q" />
+   <T_setup    value="10e-12" port="VPR_FF.D" clock="clk"/>
+   <T_clock_to_Q max="10e-12" port="VPR_FF.Q" clock="clk"/>
+  </pb_type>
+  <interconnect>
+   <direct name="C" input="DFF.C"    output="VPR_FF.clk" />
+   <direct name="D" input="DFF.D"    output="VPR_FF.D" />
+   <direct name="Q" input="VPR_FF.Q" output="DFF.Q" />
+  </interconnect>
+ </mode>
+
+ <!-- module SB_DFF (output Q, input C, D); -->
+ <mode name="SB_DFF">
+  <pb_type name="SB_DFF" num_pb="1" blif_model=".subckt SB_DFF">
+   <output name="Q" num_pins="1"/>
+   <clock  name="C" num_pins="1"/>
+   <input  name="D" num_pins="1"/>
+   <T_clock_to_Q max="10e-12" port="SB_DFF.Q" clock="C"/>
+   <T_setup    value="10e-12" port="SB_DFF.D" clock="C"/>
+  </pb_type>
+  <interconnect>
+   <direct name="Q" input="SB_DFF.Q" output="DFF.Q" />
+   <direct name="C" input="DFF.C"    output="SB_DFF.C" />
+   <direct name="D" input="DFF.D"    output="SB_DFF.D" />
+  </interconnect>
+ </mode>
+</pb_type>
