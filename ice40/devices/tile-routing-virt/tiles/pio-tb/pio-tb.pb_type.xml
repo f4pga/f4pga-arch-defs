@@ -2,39 +2,39 @@
 <pb_type name="PIO" xmlns:xi="http://www.w3.org/2001/XInclude">
 
  <!-- Local neighbourhood ############################################ -->
- <input  name="o_neigh_op_top" num_pins="8" equivalent="true"/>
- <input  name="o_neigh_op_tnr" num_pins="8" equivalent="true"/>
- <input  name="o_neigh_op_bnr" num_pins="8" equivalent="true"/>
- <input  name="o_neigh_op_bot" num_pins="8" equivalent="true"/>
- <input  name="o_neigh_op_bnl" num_pins="8" equivalent="true"/>
- <input  name="o_neigh_op_tnl" num_pins="8" equivalent="true"/>
+ <input  name="o_neigh_op_top" num_pins="8" equivalent="false"/>
+ <input  name="o_neigh_op_tnr" num_pins="8" equivalent="false"/>
+ <input  name="o_neigh_op_bnr" num_pins="8" equivalent="false"/>
+ <input  name="o_neigh_op_bot" num_pins="8" equivalent="false"/>
+ <input  name="o_neigh_op_bnl" num_pins="8" equivalent="false"/>
+ <input  name="o_neigh_op_tnl" num_pins="8" equivalent="false"/>
 
- <input  name="i_neigh_op_top" num_pins="8" equivalent="true"/>
- <input  name="i_neigh_op_tnr" num_pins="8" equivalent="true"/>
- <input  name="i_neigh_op_bnr" num_pins="8" equivalent="true"/>
- <input  name="i_neigh_op_bot" num_pins="8" equivalent="true"/>
- <input  name="i_neigh_op_bnl" num_pins="8" equivalent="true"/>
- <input  name="i_neigh_op_tnl" num_pins="8" equivalent="true"/>
+ <input  name="i_neigh_op_top" num_pins="8" equivalent="false"/>
+ <input  name="i_neigh_op_tnr" num_pins="8" equivalent="false"/>
+ <input  name="i_neigh_op_bnr" num_pins="8" equivalent="false"/>
+ <input  name="i_neigh_op_bot" num_pins="8" equivalent="false"/>
+ <input  name="i_neigh_op_bnl" num_pins="8" equivalent="false"/>
+ <input  name="i_neigh_op_tnl" num_pins="8" equivalent="false"/>
 
  <!-- Vertical spans ################################################# -->
  <!-- Span-4 Vertical -->
- <input  name="i_span4_vert_t" num_pins="16" equivalent="true"/>
- <output name="o_span4_vert_t" num_pins="16" equivalent="true"/>
- <input  name="i_span4_vert_b" num_pins="16" equivalent="true"/>
- <output name="o_span4_vert_b" num_pins="16" equivalent="true"/>
+ <input  name="i_span4_vert_t" num_pins="16" equivalent="false"/>
+ <output name="o_span4_vert_t" num_pins="16" equivalent="false"/>
+ <input  name="i_span4_vert_b" num_pins="16" equivalent="false"/>
+ <output name="o_span4_vert_b" num_pins="16" equivalent="false"/>
 
  <!-- Horizontal spans ############################################### -->
  <!-- Span-4 Horizontal -->
- <input  name="i_span4_horz"   num_pins="48" equivalent="true"/>
- <output name="o_span4_horz"   num_pins="48" equivalent="true"/>
+ <input  name="i_span4_horz"   num_pins="48" equivalent="false"/>
+ <output name="o_span4_horz"   num_pins="48" equivalent="false"/>
 
  <!-- Span-12 Horizontal -->
- <input  name="i_span12_horz"  num_pins="24" equivalent="true"/>
- <output name="o_span12_horz"  num_pins="24" equivalent="true"/>
+ <input  name="i_span12_horz"  num_pins="24" equivalent="false"/>
+ <output name="o_span12_horz"  num_pins="24" equivalent="false"/>
 
  <!-- Global wires ################################################### -->
- <input  name="i_glb_netwk" num_pins="8" equivalent="true"/>
- <output name="o_glb_netwk" num_pins="8" equivalent="true"/>
+ <input  name="i_glb_netwk" num_pins="8" equivalent="false"/>
+ <output name="o_glb_netwk" num_pins="8" equivalent="false"/>
 
  <!-- <pb_type name="LOGIC" num_pb="8"> - See above -->
 
@@ -44,13 +44,13 @@
   <!-- ################################################################ -->
   <!-- # Local tracks onto logic                                      # -->
   <!-- ################################################################ -->
-  <input  name="glb_netwk" num_pins="8" equivalent="true"/>
+  <input  name="glb_netwk" num_pins="8" equivalent="false"/>
 
-  <input  name="ilocal_g0" num_pins="8" equivalent="true"/>
-  <output name="olocal_g0" num_pins="8" equivalent="true"/>
+  <input  name="ilocal_g0" num_pins="8" equivalent="false"/>
+  <output name="olocal_g0" num_pins="8" equivalent="false"/>
 
-  <input  name="ilocal_g1" num_pins="8" equivalent="true"/>
-  <output name="olocal_g1" num_pins="8" equivalent="true"/>
+  <input  name="ilocal_g1" num_pins="8" equivalent="false"/>
+  <output name="olocal_g1" num_pins="8" equivalent="false"/>
 
 
   <output name="lutff_out" num_pins="8" equivalent="false"/>
