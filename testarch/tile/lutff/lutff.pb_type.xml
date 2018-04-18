@@ -89,10 +89,7 @@
   <direct input="BLK_SI-LUTFF.O" name="BLK_TI-LUTFF.OUT1" output="BLK_TI-LUTFF.OUT[1]" />
  </interconnect>
  <pinlocations pattern="custom">
-  <loc side="top">   BLK_TI-LUTFF.IN[0] BLK_TI-LUTFF.IN[1] BLK_TI-LUTFF.IN[2]  BLK_TI-LUTFF.OUT[0]  BLK_TI-LUTFF.CLK[0]</loc>
-  <loc side="bottom">BLK_TI-LUTFF.IN[3] BLK_TI-LUTFF.IN[4] BLK_TI-LUTFF.IN[5]  BLK_TI-LUTFF.OUT[1]  BLK_TI-LUTFF.CLK[1]</loc>
-  <loc side="right"></loc>
-  <loc side="left"></loc>
+  <loc side="right">BLK_TI-LUTFF.CLK[0] BLK_TI-LUTFF.CLK[1] BLK_TI-LUTFF.IN[0] BLK_TI-LUTFF.IN[1] BLK_TI-LUTFF.IN[2] BLK_TI-LUTFF.IN[3] BLK_TI-LUTFF.IN[4] BLK_TI-LUTFF.IN[5] BLK_TI-LUTFF.OUT[0] BLK_TI-LUTFF.OUT[1]</loc>
  </pinlocations>
  <fc in_type="frac" in_val="0.1" out_type="frac" out_val="1.0">
   <fc_override fc_type="frac" fc_val="1.0" port_name="CLK"   />
