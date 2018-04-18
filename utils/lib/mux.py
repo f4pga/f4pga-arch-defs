@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 import lxml.etree as ET
 from enum import Enum
 

@@ -1,0 +1,332 @@
+<!-- set: ai sw=1 ts=1 sta et -->
+<pb_type name="PIO_LR" xmlns:xi="http://www.w3.org/2001/XInclude">
+
+ <!-- Horizontal spans to other IO tiles ############################# -->
+ <!-- Span-4 Vertical -->
+ <input  name="i_span4_horz_l" num_pins="16" equivalent="false"/>
+ <output name="o_span4_horz_l" num_pins="16" equivalent="false"/>
+ <input  name="i_span4_horz_r" num_pins="16" equivalent="false"/>
+ <output name="o_span4_horz_r" num_pins="16" equivalent="false"/>
+
+ <!-- Vertical spans into Fabric ##################################### -->
+ <!-- Span-4 Horizontal -->
+ <input  name="i_span4_vert"   num_pins="48" equivalent="false"/>
+ <output name="o_span4_vert"   num_pins="48" equivalent="false"/>
+
+ <!-- Span-12 Horizontal -->
+ <input  name="i_span12_vert"  num_pins="24" equivalent="false"/>
+ <output name="o_span12_vert"  num_pins="24" equivalent="false"/>
+
+ <!-- Neighbourhood -->
+ <input  name="i_neigh_op_rgt" num_pins="8"  equivalent="false"/>
+ <output name="o_neigh_op_rgt" num_pins="8"  equivalent="false"/>
+ <input  name="i_neigh_op_lft" num_pins="8"  equivalent="false"/>
+ <output name="o_neigh_op_lft" num_pins="8"  equivalent="false"/>
+
+ <input  name="i_neigh_op_xnr" num_pins="8"  equivalent="false"/>
+ <output name="o_neigh_op_xnr" num_pins="8"  equivalent="false"/>
+ <input  name="i_neigh_op_xnl" num_pins="8"  equivalent="false"/>
+ <output name="o_neigh_op_xnl" num_pins="8"  equivalent="false"/>
+ <input  name="i_neigh_op_xxx" num_pins="8"  equivalent="false"/>
+ <output name="o_neigh_op_xxx" num_pins="8"  equivalent="false"/>
+
+ <!-- Global wires ################################################### -->
+ <input  name="i_glb_netwk" num_pins="8" equivalent="false"/>
+ <output name="o_glb_netwk" num_pins="8" equivalent="false"/>
+
+ <pb_type name="LOCAL" num_pb="1">
+  <!-- ################################################################ -->
+  <!-- # Local tracks onto logic                                      # -->
+  <!-- ################################################################ -->
+  <input  name="glb_netwk" num_pins="8" equivalent="false"/>
+
+  <input  name="i_g0" num_pins="8" equivalent="false"/>
+  <output name="o_g0" num_pins="8" equivalent="false"/>
+
+  <input  name="i_g1" num_pins="8" equivalent="false"/>
+  <output name="o_g1" num_pins="8" equivalent="false"/>
+
+  <!-- logic_op_bnl_{0,1,2,3,4,5,6,7} -->
+  <input  name="ilogic_op_lft" num_pins="8"  equivalent="false"/>
+  <output name="ologic_op_lft" num_pins="8"  equivalent="false"/>
+  <!-- logic_op_bnr_{0,1,2,3,4,5,6,7} -->
+  <input  name="ilogic_op_rgt" num_pins="8"  equivalent="false"/>
+  <output name="ologic_op_rgt" num_pins="8"  equivalent="false"/>
+  <!-- logic_op_bot_{0,1,2,3,4,5,6,7} or logic_op_top_{0,1,2,3,4,5,6,7}-->
+  <input  name="ilogic_op_tb"  num_pins="8"  equivalent="false"/>
+  <output name="ologic_op_tb"  num_pins="8"  equivalent="false"/>
+
+ </pb_type>
+
+ <interconnect>
+  <!-- ################################################################ -->
+  <mux name="fabout"          input="LOCAL.o_g0[1] LOCAL.o_g0[5] LOCAL.o_g1[0] LOCAL.o_g1[4] LOCAL.o_g0[3] LOCAL.o_g0[7] LOCAL.o_g1[2] LOCAL.o_g1[6]" output="fabout" />
+
+  <mux name="io[0]/D_OUT_0"   input="LOCAL.o_g0[0] LOCAL.o_g0[2] LOCAL.o_g0[4] LOCAL.o_g0[6] LOCAL.o_g1[1] LOCAL.o_g1[3] LOCAL.o_g1[5] LOCAL.o_g1[7]" output="io[0].D_OUT_0" />
+  <mux name="io[0]/D_OUT_1"   input="LOCAL.o_g0[1] LOCAL.o_g0[3] LOCAL.o_g1[0] LOCAL.o_g1[2] LOCAL.o_g0[5] LOCAL.o_g0[7] LOCAL.o_g1[4] LOCAL.o_g1[6]" output="io[0].D_OUT_1" />
+  <mux name="io[0]/OUT_ENB"   input="LOCAL.o_g0[1] LOCAL.o_g0[3] LOCAL.o_g1[0] LOCAL.o_g1[2] LOCAL.o_g0[5] LOCAL.o_g0[7] LOCAL.o_g1[4] LOCAL.o_g1[6]" output="io[0].OUT_ENB" />
+
+  <mux name="io[1]/D_OUT_0"   input="LOCAL.o_g0[1] LOCAL.o_g0[3] LOCAL.o_g0[5] LOCAL.o_g0[7] LOCAL.o_g1[0] LOCAL.o_g1[2] LOCAL.o_g1[4] LOCAL.o_g1[6]" output="io[1].D_OUT_0" />
+  <mux name="io[1]/D_OUT_1"   input="LOCAL.o_g0[0] LOCAL.o_g0[2] LOCAL.o_g1[1] LOCAL.o_g1[3] LOCAL.o_g0[4] LOCAL.o_g0[6] LOCAL.o_g1[5] LOCAL.o_g1[7]" output="io[1].D_OUT_1" />
+  <mux name="io[1]/OUT_ENB"   input="LOCAL.o_g0[0] LOCAL.o_g0[2] LOCAL.o_g1[1] LOCAL.o_g1[3] LOCAL.o_g0[4] LOCAL.o_g0[6] LOCAL.o_g1[5] LOCAL.o_g1[7]" output="io[1].OUT_ENB" />
+
+  <mux name="io_global/cen"    input="LOCAL.o_g0[2]  LOCAL.o_g1[2]  LOCAL.o_g0[5]  LOCAL.o_g1[5]"                                                                                                      output="io_global.cen" />
+  <mux name="io_global/inclk"  input="glb_netwk[0] glb_netwk[1] glb_netwk[4] glb_netwk[5] LOCAL.o_g0[0] LOCAL.o_g0[3] glb_netwk[2] glb_netwk[3] glb_netwk[6] glb_netwk[7] LOCAL.o_g1[0] LOCAL.o_g1[3]" output="io_global.inclk" />
+  <mux name="io_global/outclk" input="glb_netwk[0] glb_netwk[1] glb_netwk[4] glb_netwk[5] LOCAL.o_g0[1] LOCAL.o_g0[4] glb_netwk[2] glb_netwk[3] glb_netwk[6] glb_netwk[7] LOCAL.o_g1[1] LOCAL.o_g1[4]" output="io_global.outclk"/>
+
+  <mux name="LOCAL.i_g0[0]" input="span12_vert[8]  logic_op_xnr[0] span4_vert[16]  span12_vert[16] span4_horz_r[0] span4_vert[24] logic_op_xnl[0] span4_vert[0]   span4_horz_r[8]  span4_vert[32] logic_op_xxx[0] span4_vert[8]  span12_vert[0] span4_vert[40]" output="LOCAL.i_g0[0]" />
+  <mux name="LOCAL.i_g0[1]" input="logic_op_xnl[1] logic_op_xxx[1] span12_vert[9]  span12_vert[17] span4_vert[1]   span4_vert[9]  logic_op_xnr[1] span4_horz_r[1] span4_horz_r[9]  span12_vert[1] span4_vert[17]  span4_vert[25] span4_vert[33] span4_vert[41]" output="LOCAL.i_g0[1]" />
+  <mux name="LOCAL.i_g0[2]" input="span12_vert[10] logic_op_xnr[2] span4_vert[18]  span12_vert[18] span4_horz_r[2] span4_vert[26] logic_op_xnl[2] span4_vert[2]   span4_horz_r[10] span4_vert[34] logic_op_xxx[2] span4_vert[10] span12_vert[2] span4_vert[42]" output="LOCAL.i_g0[2]" />
+  <mux name="LOCAL.i_g0[3]" input="logic_op_xnl[3] logic_op_xxx[3] span12_vert[11] span12_vert[19] span4_vert[3]   span4_vert[11] logic_op_xnr[3] span4_horz_r[3] span4_horz_r[11] span12_vert[3] span4_vert[19]  span4_vert[27] span4_vert[35] span4_vert[43]" output="LOCAL.i_g0[3]" />
+  <mux name="LOCAL.i_g0[4]" input="span12_vert[12] logic_op_xnr[4] span4_vert[20]  span12_vert[20] span4_horz_r[4] span4_vert[28] logic_op_xnl[4] span4_vert[4]   span4_horz_r[12] span4_vert[36] logic_op_xxx[4] span4_vert[12] span12_vert[4] span4_vert[44]" output="LOCAL.i_g0[4]" />
+  <mux name="LOCAL.i_g0[5]" input="logic_op_xnl[5] logic_op_xxx[5] span12_vert[13] span12_vert[21] span4_vert[5]   span4_vert[13] logic_op_xnr[5] span4_horz_r[5] span4_horz_r[13] span12_vert[5] span4_vert[21]  span4_vert[29] span4_vert[37] span4_vert[45]" output="LOCAL.i_g0[5]" />
+  <mux name="LOCAL.i_g0[6]" input="span12_vert[14] logic_op_xnr[6] span4_vert[22]  span12_vert[22] span4_horz_r[6] span4_vert[30] logic_op_xnl[6] span4_vert[6]   span4_horz_r[14] span4_vert[38] logic_op_xxx[6] span4_vert[14] span12_vert[6] span4_vert[46]" output="LOCAL.i_g0[6]" />
+  <mux name="LOCAL.i_g0[7]" input="logic_op_xnl[7] logic_op_xxx[7] span12_vert[15] span12_vert[23] span4_vert[7]   span4_vert[15] logic_op_xnr[7] span4_horz_r[7] span4_horz_r[15] span12_vert[7] span4_vert[23]  span4_vert[31] span4_vert[39] span4_vert[47]" output="LOCAL.i_g0[7]" />
+
+  <mux name="LOCAL.i_g1[0]" input="span12_vert[8]  logic_op_xnr[0] span4_vert[16]  span12_vert[16] span4_horz_r[0] span4_vert[24] logic_op_xnl[0] span4_vert[0]   span4_horz_r[8]  span4_vert[32] logic_op_xxx[0] span4_vert[8]  span12_vert[0] span4_vert[40]" output="LOCAL.i_g1[0]" />
+  <mux name="LOCAL.i_g1[1]" input="logic_op_xnl[1] logic_op_xxx[1] span12_vert[9]  span12_vert[17] span4_vert[1]   span4_vert[9]  logic_op_xnr[1] span4_horz_r[1] span4_horz_r[9]  span12_vert[1] span4_vert[17]  span4_vert[25] span4_vert[33] span4_vert[41]" output="LOCAL.i_g1[1]" />
+  <mux name="LOCAL.i_g1[2]" input="span12_vert[10] logic_op_xnr[2] span4_vert[18]  span12_vert[18] span4_horz_r[2] span4_vert[26] logic_op_xnl[2] span4_vert[2]   span4_horz_r[10] span4_vert[34] logic_op_xxx[2] span4_vert[10] span12_vert[2] span4_vert[42]" output="LOCAL.i_g1[2]" />
+  <mux name="LOCAL.i_g1[3]" input="logic_op_xnl[3] logic_op_xxx[3] span12_vert[11] span12_vert[19] span4_vert[3]   span4_vert[11] logic_op_xnr[3] span4_horz_r[3] span4_horz_r[11] span12_vert[3] span4_vert[19]  span4_vert[27] span4_vert[35] span4_vert[43]" output="LOCAL.i_g1[3]" />
+  <mux name="LOCAL.i_g1[4]" input="span12_vert[12] logic_op_xnr[4] span4_vert[20]  span12_vert[20] span4_horz_r[4] span4_vert[28] logic_op_xnl[4] span4_vert[4]   span4_horz_r[12] span4_vert[36] logic_op_xxx[4] span4_vert[12] span12_vert[4] span4_vert[44]" output="LOCAL.i_g1[4]" />
+  <mux name="LOCAL.i_g1[5]" input="logic_op_xnl[5] logic_op_xxx[5] span12_vert[13] span12_vert[21] span4_vert[5]   span4_vert[13] logic_op_xnr[5] span4_horz_r[5] span4_horz_r[13] span12_vert[5] span4_vert[21]  span4_vert[29] span4_vert[37] span4_vert[45]" output="LOCAL.i_g1[5]" />
+  <mux name="LOCAL.i_g1[6]" input="span12_vert[14] logic_op_xnr[6] span4_vert[22]  span12_vert[22] span4_horz_r[6] span4_vert[30] logic_op_xnl[6] span4_vert[6]   span4_horz_r[14] span4_vert[38] logic_op_xxx[6] span4_vert[14] span12_vert[6] span4_vert[46]" output="LOCAL.i_g1[6]" />
+  <mux name="LOCAL.i_g1[7]" input="logic_op_xnl[7] logic_op_xxx[7] span12_vert[15] span12_vert[23] span4_vert[7]   span4_vert[15] logic_op_xnr[7] span4_horz_r[7] span4_horz_r[15] span12_vert[7] span4_vert[23]  span4_vert[31] span4_vert[39] span4_vert[47]" output="LOCAL.i_g1[7]" />
+
+  <!--
+Function	Net	Net
+routing	span4_horz_l[12]	span4_vert[1]
+routing	span4_vert[25]  	span4_vert[1]
+routing	span4_horz_r[0]	span4_vert[1]
+
+Function	Net	Net
+routing	span4_horz_l[14]	span4_vert[13]
+routing	span4_vert[37]  	span4_vert[13]
+routing	span4_horz_r[2]	span4_vert[13]
+
+Function	Net	Net
+routing	span4_horz_l[15]	span4_vert[19]
+routing	span4_vert[43]  	span4_vert[19]
+routing	span4_horz_r[3]	span4_vert[19]
+
+Function	Net	Net
+routing	span4_horz_r[0]	span4_vert[25]
+routing	span4_horz_l[12]	span4_vert[25]
+routing	span4_vert[1]	span4_vert[25]
+
+Function	Net	Net
+routing	span4_horz_r[1]	span4_vert[31]
+routing	span4_horz_l[13]	span4_vert[31]
+routing	span4_vert[7]	span4_vert[31]
+
+Function	Net	Net
+routing	span4_horz_r[2]	span4_vert[37]
+routing	span4_horz_l[14]	span4_vert[37]
+routing	span4_vert[13]  	span4_vert[37]
+
+Function	Net	Net
+routing	span4_horz_r[3]	span4_vert[43]
+routing	span4_horz_l[15]	span4_vert[43]
+routing	span4_vert[19]  	span4_vert[43]
+
+Function	Net	Net
+routing	span4_horz_l[13]	span4_vert[7]
+routing	span4_vert[31]  	span4_vert[7]
+routing	span4_horz_r[1]	span4_vert[7]
+
+
+
+
+Function	Net	Net
+routing	span4_vert[25]  	span4_horz_l[12]
+routing	span4_horz_r[0]	span4_horz_l[12]
+routing	span4_vert[1]	span4_horz_l[12]
+
+Function	Net	Net
+routing	span4_vert[31]  	span4_horz_l[13]
+routing	span4_horz_r[1]	span4_horz_l[13]
+routing	span4_vert[7]	span4_horz_l[13]
+
+Function	Net	Net
+routing	span4_vert[37]  	span4_horz_l[14]
+routing	span4_horz_r[2]	span4_horz_l[14]
+routing	span4_vert[13]  	span4_horz_l[14]
+
+Function	Net	Net
+routing	span4_vert[43]  	span4_horz_l[15]
+routing	span4_horz_r[3]	span4_horz_l[15]
+routing	span4_vert[19]  	span4_horz_l[15]
+
+Function	Net	Net
+routing	span4_horz_l[12]	span4_horz_r[0]
+routing	span4_vert[25]  	span4_horz_r[0]
+routing	span4_vert[1]	span4_horz_r[0]
+
+Function	Net	Net
+routing	span4_horz_l[13]	span4_horz_r[1]
+routing	span4_vert[31]  	span4_horz_r[1]
+routing	span4_vert[7]	span4_horz_r[1]
+
+Function	Net	Net
+routing	span4_horz_l[14]	span4_horz_r[2]
+routing	span4_vert[37]  	span4_horz_r[2]
+routing	span4_vert[13]  	span4_horz_r[2]
+
+Function	Net	Net
+routing	span4_horz_l[15]	span4_horz_r[3]
+routing	span4_vert[43]  	span4_horz_r[3]
+routing	span4_vert[19]  	span4_horz_r[3]
+  -->
+
+
+  <!--"Configuration Stamps" - ??? -->
+
+  <!-- io           -> span4_horz_r -->
+  <!-- io[0]        -> span4_horz_r -->
+  <!-- io[0].D_IN_0 -> span4_horz_r -->
+  <mux name="io[0].D_IN_0->span4_horz_r[0]"  input="io[0].D_IN_0" output="PIO_LR.i_span4_horz_r[0]"  />
+  <mux name="io[0].D_IN_0->span4_horz_r[4]"  input="io[0].D_IN_0" output="PIO_LR.i_span4_horz_r[4]"  />
+  <mux name="io[0].D_IN_0->span4_horz_r[8]"  input="io[0].D_IN_0" output="PIO_LR.i_span4_horz_r[8]"  />
+  <mux name="io[0].D_IN_0->span4_horz_r[12]" input="io[0].D_IN_0" output="PIO_LR.i_span4_horz_r[12]" />
+  <!-- io[0].D_IN_1 -> span4_horz_r -->
+  <mux name="io[0].D_IN_1->span4_horz_r[1]"  input="io[0].D_IN_1" output="PIO_LR.i_span4_horz_r[1]"  />
+  <mux name="io[0].D_IN_1->span4_horz_r[5]"  input="io[0].D_IN_1" output="PIO_LR.i_span4_horz_r[5]"  />
+  <mux name="io[0].D_IN_1->span4_horz_r[9]"  input="io[0].D_IN_1" output="PIO_LR.i_span4_horz_r[9]"  />
+  <mux name="io[0].D_IN_1->span4_horz_r[13]" input="io[0].D_IN_1" output="PIO_LR.i_span4_horz_r[13]" />
+  <!-- io[1]        -> span4_horz_r -->
+  <!-- io[1].D_IN_0 -> span4_horz_r -->
+  <mux name="io[1].D_IN_0->span4_horz_r[2]"  input="io[1].D_IN_0" output="PIO_LR.i_span4_horz_r[2]"  />
+  <mux name="io[1].D_IN_0->span4_horz_r[6]"  input="io[1].D_IN_0" output="PIO_LR.i_span4_horz_r[6]"  />
+  <mux name="io[1].D_IN_0->span4_horz_r[10]" input="io[1].D_IN_0" output="PIO_LR.i_span4_horz_r[10]" />
+  <mux name="io[1].D_IN_0->span4_horz_r[14]" input="io[1].D_IN_0" output="PIO_LR.i_span4_horz_r[14]" />
+  <!-- io[1].D_IN_1 -> span4_horz_r -->
+  <mux name="io[1].D_IN_1->span4_horz_r[3]"  input="io[1].D_IN_1" output="PIO_LR.i_span4_horz_r[3]"  />
+  <mux name="io[1].D_IN_1->span4_horz_r[7]"  input="io[1].D_IN_1" output="PIO_LR.i_span4_horz_r[7]"  />
+  <mux name="io[1].D_IN_1->span4_horz_r[11]" input="io[1].D_IN_1" output="PIO_LR.i_span4_horz_r[11]" />
+  <mux name="io[1].D_IN_1->span4_horz_r[15]" input="io[1].D_IN_1" output="PIO_LR.i_span4_horz_r[15]" />
+
+  <!-- io           -> span4_vert -->
+  <!-- io[0]        -> span4_vert -->
+  <!-- io[0].D_IN_0 -> span4_vert -->
+  <mux name="io[0].D_IN_0->span4_vert[0]"    input="io[0].D_IN_0" output="PIO_LR.i_span4_vert[0]"    />
+  <mux name="io[0].D_IN_0->span4_vert[8]"    input="io[0].D_IN_0" output="PIO_LR.i_span4_vert[8]"    />
+  <mux name="io[0].D_IN_0->span4_vert[16]"   input="io[0].D_IN_0" output="PIO_LR.i_span4_vert[16]"   />
+  <mux name="io[0].D_IN_0->span4_vert[24]"   input="io[0].D_IN_0" output="PIO_LR.i_span4_vert[24]"   />
+  <mux name="io[0].D_IN_0->span4_vert[32]"   input="io[0].D_IN_0" output="PIO_LR.i_span4_vert[32]"   />
+  <mux name="io[0].D_IN_0->span4_vert[40]"   input="io[0].D_IN_0" output="PIO_LR.i_span4_vert[40]"   />
+  <!-- io[0].D_IN_1 -> span4_vert -->
+  <mux name="io[0].D_IN_1->span4_vert[2]"    input="io[0].D_IN_1" output="PIO_LR.i_span4_vert[2]"    />
+  <mux name="io[0].D_IN_1->span4_vert[10]"   input="io[0].D_IN_1" output="PIO_LR.i_span4_vert[10]"   />
+  <mux name="io[0].D_IN_1->span4_vert[18]"   input="io[0].D_IN_1" output="PIO_LR.i_span4_vert[18]"   />
+  <mux name="io[0].D_IN_1->span4_vert[26]"   input="io[0].D_IN_1" output="PIO_LR.i_span4_vert[26]"   />
+  <mux name="io[0].D_IN_1->span4_vert[34]"   input="io[0].D_IN_1" output="PIO_LR.i_span4_vert[34]"   />
+  <mux name="io[0].D_IN_1->span4_vert[42]"   input="io[0].D_IN_1" output="PIO_LR.i_span4_vert[42]"   />
+  <!-- io[1]        -> span4_vert -->
+  <!-- io[1].D_IN_0 -> span4_vert -->
+  <mux name="io[1].D_IN_0->span4_vert[4]"    input="io[1].D_IN_0" output="PIO_LR.i_span4_vert[4]"    />
+  <mux name="io[1].D_IN_0->span4_vert[12]"   input="io[1].D_IN_0" output="PIO_LR.i_span4_vert[12]"   />
+  <mux name="io[1].D_IN_0->span4_vert[20]"   input="io[1].D_IN_0" output="PIO_LR.i_span4_vert[20]"   />
+  <mux name="io[1].D_IN_0->span4_vert[28]"   input="io[1].D_IN_0" output="PIO_LR.i_span4_vert[28]"   />
+  <mux name="io[1].D_IN_0->span4_vert[36]"   input="io[1].D_IN_0" output="PIO_LR.i_span4_vert[36]"   />
+  <mux name="io[1].D_IN_0->span4_vert[44]"   input="io[1].D_IN_0" output="PIO_LR.i_span4_vert[44]"   />
+  <!-- io[1].D_IN_1 -> span4_vert -->
+  <mux name="io[1].D_IN_1->span4_vert[6]"    input="io[1].D_IN_1" output="PIO_LR.i_span4_vert[6]"    />
+  <mux name="io[1].D_IN_1->span4_vert[14]"   input="io[1].D_IN_1" output="PIO_LR.i_span4_vert[14]"   />
+  <mux name="io[1].D_IN_1->span4_vert[22]"   input="io[1].D_IN_1" output="PIO_LR.i_span4_vert[22]"   />
+  <mux name="io[1].D_IN_1->span4_vert[30]"   input="io[1].D_IN_1" output="PIO_LR.i_span4_vert[30]"   />
+  <mux name="io[1].D_IN_1->span4_vert[38]"   input="io[1].D_IN_1" output="PIO_LR.i_span4_vert[38]"   />
+  <mux name="io[1].D_IN_1->span4_vert[46]"   input="io[1].D_IN_1" output="PIO_LR.i_span4_vert[46]"   />
+
+  <!-- io           -> span12_vert -->
+  <!-- io[0]        -> span12_vert -->
+  <!-- io[0].D_IN_0 -> span12_vert -->
+  <mux name="io[0].D_IN_0->span12_vert[0]"   input="io[0].D_IN_0" output="PIO_LR.i_span12_vert[0]"   />
+  <mux name="io[0].D_IN_0->span12_vert[8]"   input="io[0].D_IN_0" output="PIO_LR.i_span12_vert[8]"   />
+  <mux name="io[0].D_IN_0->span12_vert[16]"  input="io[0].D_IN_0" output="PIO_LR.i_span12_vert[16]"  />
+  <!-- io[0].D_IN_1 -> span12_vert -->
+  <mux name="io[0].D_IN_1->span12_vert[2]"   input="io[0].D_IN_1" output="PIO_LR.i_span12_vert[2]"   />
+  <mux name="io[0].D_IN_1->span12_vert[10]"  input="io[0].D_IN_1" output="PIO_LR.i_span12_vert[10]"  />
+  <mux name="io[0].D_IN_1->span12_vert[18]"  input="io[0].D_IN_1" output="PIO_LR.i_span12_vert[18]"  />
+  <!-- io[1]        -> span12_vert -->
+  <!-- io[1].D_IN_0 -> span12_vert -->
+  <mux name="io[1].D_IN_0->span12_vert[4]"   input="io[1].D_IN_0" output="PIO_LR.i_span12_vert[4]"   />
+  <mux name="io[1].D_IN_0->span12_vert[12]"  input="io[1].D_IN_0" output="PIO_LR.i_span12_vert[12]"  />
+  <mux name="io[1].D_IN_0->span12_vert[20]"  input="io[1].D_IN_0" output="PIO_LR.i_span12_vert[20]"  />
+  <!-- io[1].D_IN_1 -> span12_vert -->
+  <mux name="io[1].D_IN_1->span12_vert[6]"   input="io[1].D_IN_1" output="PIO_LR.i_span12_vert[6]"   />
+  <mux name="io[1].D_IN_1->span12_vert[14]"  input="io[1].D_IN_1" output="PIO_LR.i_span12_vert[14]"  />
+  <mux name="io[1].D_IN_1->span12_vert[22]"  input="io[1].D_IN_1" output="PIO_LR.i_span12_vert[22]"  />
+
+  <!-- Connect input and output nets together -->
+
+  <!-- Fabric Span wires -->
+  <direct name="span4_vert"  input="PIO_LR.i_span4_vert"  output="PIO_LR.o_span4_vert" />
+  <direct name="span12_vert" input="PIO_LR.i_span12_vert" output="PIO_LR.o_span12_vert" />
+
+  <!-- IO Span wires -->
+  <direct name="span4_horz_l" input="PIO_LR.i_span4_horz_l" output="PIO_LR.o_span4_horz_l" />
+  <direct name="span4_horz_r" input="PIO_LR.i_span4_horz_r" output="PIO_LR.o_span4_horz_r" />
+
+  <!-- ================================================================ -->
+
+  <!-- IO Span-4 Horizontal -->
+  <!-- ================================================================ -->
+  <!--
+  <direct name="span4_horz_r[0]"  input="PLB.i_span4_horz_l[  ]" output="PLB.o_span4_horz_r[0]" />
+  <direct name="span4_horz_r[1]"  input="PLB.i_span4_horz_l[  ]" output="PLB.o_span4_horz_r[1]" />
+  <direct name="span4_horz_r[2]"  input="PLB.i_span4_horz_l[  ]" output="PLB.o_span4_horz_r[2]" />
+  <direct name="span4_horz_r[3]"  input="PLB.i_span4_horz_l[  ]" output="PLB.o_span4_horz_r[3]" />
+   -->
+  <direct name="span4_horz_l[0]"  input="PLB.i_span4_horz_l[0]"  output="PLB.o_span4_horz_r[4]"  />
+  <direct name="span4_horz_l[1]"  input="PLB.i_span4_horz_l[1]"  output="PLB.o_span4_horz_r[5]"  />
+  <direct name="span4_horz_l[2]"  input="PLB.i_span4_horz_l[2]"  output="PLB.o_span4_horz_r[6]"  />
+  <direct name="span4_horz_l[3]"  input="PLB.i_span4_horz_l[3]"  output="PLB.o_span4_horz_r[7]"  />
+  <direct name="span4_horz_l[4]"  input="PLB.i_span4_horz_l[4]"  output="PLB.o_span4_horz_r[8]"  />
+  <direct name="span4_horz_l[5]"  input="PLB.i_span4_horz_l[5]"  output="PLB.o_span4_horz_r[9]"  />
+  <direct name="span4_horz_l[6]"  input="PLB.i_span4_horz_l[6]"  output="PLB.o_span4_horz_r[10]" />
+  <direct name="span4_horz_l[7]"  input="PLB.i_span4_horz_l[7]"  output="PLB.o_span4_horz_r[11]" />
+  <direct name="span4_horz_l[8]"  input="PLB.i_span4_horz_l[8]"  output="PLB.o_span4_horz_r[12]" />
+  <direct name="span4_horz_l[9]"  input="PLB.i_span4_horz_l[9]"  output="PLB.o_span4_horz_r[13]" />
+  <direct name="span4_horz_l[10]" input="PLB.i_span4_horz_l[10]" output="PLB.o_span4_horz_r[14]" />
+  <direct name="span4_horz_l[11]" input="PLB.i_span4_horz_l[11]" output="PLB.o_span4_horz_r[15]" />
+  <!--
+  <direct name="span4_horz_l[12]" input="PLB.i_span4_horz_l[12]" output="PLB.o_span4_horz_r[  ]" />
+  <direct name="span4_horz_l[13]" input="PLB.i_span4_horz_l[13]" output="PLB.o_span4_horz_r[  ]" />
+  <direct name="span4_horz_l[14]" input="PLB.i_span4_horz_l[14]" output="PLB.o_span4_horz_r[  ]" />
+  <direct name="span4_horz_l[15]" input="PLB.i_span4_horz_l[15]" output="PLB.o_span4_horz_r[  ]" />
+   -->
+ </interconnect>
+
+ <fc in_type="frac" in_val="0.5" out_type="frac" out_val="1.0">
+  <fc_override fc_type="frac" fc_val="0" port_name="OUTPUT_CLK" />
+ </fc>
+
+ <pinlocations pattern="custom">
+  <!-- We put span4_vert and span12_vert on both top/bottom so we can reuse the
+       same tile type at top and bottom of the FPGA -->
+
+  <!-- Fabric or nothing on the top -->
+  <loc side="top" xoffset="0" yoffset="0">
+   PIO_LR.i_span4_vert   PIO_LR.o_span4_vert
+   PIO_LR.i_span12_vert  PIO_LR.o_span12_vert
+   PIO_LR.i_logic_op_tb  PIO_LR.o_logic_op_tb
+   PIO_LR.i_logic_op_lft PIO_LR.o_logic_op_lft
+   PIO_LR.i_logic_op_rgt PIO_LR.o_logic_op_rgt
+  </loc>
+  <!-- IO tile on the right -->
+  <loc side="right" xoffset="0" yoffset="0">
+   PIO_LR.i_span4_horz_r PIO_LR.o_span4_horz_r
+  </loc>
+  <!-- Fabric or nothing on the bottom -->
+  <loc side="bottom" xoffset="0" yoffset="0">
+   PIO_LR.i_span4_vert   PIO_LR.o_span4_vert
+   PIO_LR.i_span12_vert  PIO_LR.o_span12_vert
+   PIO_LR.i_logic_op_tb  PIO_LR.o_logic_op_tb
+   PIO_LR.i_logic_op_lft PIO_LR.o_logic_op_lft
+   PIO_LR.i_logic_op_rgt PIO_LR.o_logic_op_rgt
+  </loc>
+  <!-- IO tile on the left -->
+  <loc side="left" xoffset="0" yoffset="0">
+   PIO_LR.i_span4_horz_l PIO_LR.o_span4_horz_l
+  </loc>
+ </pinlocations>
+</pb_type>

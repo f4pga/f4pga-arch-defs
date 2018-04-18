@@ -1,19 +1,20 @@
 # Lattice / SiliconBlue iCE40 FPGAs
 
- * [`arch`](arch) - iCE40 FPGA architectures, both fake and real.
+ * [`devices`](devices) - iCE40 FPGA devices. The devices architecture
+   descriptions have approximations of the real fabric, to get real fabric you
+   have to override the `rr_graph.xml` file.
 
-   * [`arch/ice4`](arch/ice4) - A 4 x 4 tile version FPGA using iCE40 tiles.
-     Useful for testing simple test cases.
+   * [`devices/layouts`](devices/layouts) - Tile layout descriptions for devices.
 
-   * [`arch/ice40-virt`](arch/ice40-virt) - Real iCE40 layout and tiles but
-     using make up interconnects. Verilog to Routing architecture definition
-     isn't able to generate /exactly/ model the iCE40 routing interconnects,
-     but this is pretty close.
+   * [`devices/tile-routing-virt`](devices/tile-routing-virt) - Version of
+     architecture which uses;
+      * Local tracks inside a tile.
+      * Fake fabric which "approximates" the real fabric inside the iCE40.
 
-   * [`arch/ice40`](arch/ice40) - Real iCE40 layout and tiles and real
-     interconnects generated from
-     [Clifford Wolf's Project IceStorm](https://github.com/cliffordwolf/icestorm)
-     information.
+   * [`devices/top-routing-virt`](devices/top-routing-virt) - Version of
+     architecture which uses;
+      * Local tracks at rr_graph level.
+      * Fake fabric which "approximates" the real fabric inside the iCE40.
 
  * [`primitives/`](primitives) - The primitives that make up the iCE40. These
    are generally used inside the tiles.

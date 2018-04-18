@@ -43,7 +43,7 @@ $(OUTPUT_DIR):
 
 # Yosys command
 $(OUTPUT_DIR)/%.eblif: %.v | $(OUTPUT_DIR)
-	$(YOSYS) -p "$(YOSYS_SCRIPT) opt_clean; write_eblif $@" $<
+	$(YOSYS) -p "$(YOSYS_SCRIPT) opt_clean; write_blif -attr -cname -conn -param $@" $<
 
 # Quick shortcut
 #%.eblif: $(OUTPUT_DIR)/%.eblif | $(OUTPUT_DIR)
@@ -105,10 +105,17 @@ ALL_OUTPUT = $(patsubst %.v,$(OUTPUT_DIR)/%.rr_graph.xml,$(wildcard *.v)) $(pats
 #	$(call quiet_cmd,make const.echo,Ran $(GREEN)const$(NC)test)
 all:
 	@echo -e "Running all tests for $(PURPLE)$(DEVICE)$(NC)in $(YELLOW)$(ARCH)$(NC)"
-	$(call quiet_cmd,make wire.echo,Ran $(GREEN)wire$(NC)test)
-	$(call quiet_cmd,make ff.echo,Ran $(GREEN)ff$(NC)test)
-	$(call quiet_cmd,make lut.echo,Ran $(GREEN)lut$(NC)test)
+	$(call quiet_cmd,make wire.echo,Ran $(PURPLE)  eBLIF $(GREEN)wire$(NC)test)
+	$(call quiet_cmd,make vwire.echo,Ran $(PURPLE)Verilog $(GREEN)wire$(NC)test)
+	@echo
+	$(call quiet_cmd,make ff.echo,Ran $(PURPLE)  eBLIF $(GREEN)ff$(NC)test)
+	$(call quiet_cmd,make vff.echo,Ran $(PURPLE)Verilog $(GREEN)ff$(NC)test)
+	@echo
+	$(call quiet_cmd,make lut.echo,Ran $(PURPLE)  eBLIF $(GREEN)lut$(NC)test)
+	$(call quiet_cmd,make vlut.echo,Ran $(PURPLE)Verilog $(GREEN)lut$(NC)test)
+	@echo
 	$(call quiet_cmd,make mlut.echo,Ran $(GREEN)mlut$(NC)test)
+	@echo
 
 .PHONY: all
 .DEFAULT_GOAL := all

@@ -18,15 +18,15 @@ $($(INC_DIR)_FILES_OUTPUT_N): $(THIS_FILE)
 # $(2) == $(OUTPUT)
 $(INC_DIR)_FILES_OUTPUT_N :=
 define n_template =
-$(2): $(1)
-	$$(call quiet_cmd,$(UTILS_DIR)/n.py $(1) $(2),$$(GENERATED_FROM))
+$(3): $(2)
+	$$(call quiet_cmd,$(UTILS_DIR)/n.py $(1) $(2) $(3),$$(GENERATED_FROM))
 
-$(INC_DIR)_FILES_OUTPUT_N += $(2)
+$(INC_DIR)_FILES_OUTPUT_N += $(3)
 endef
 
 $(foreach N,$($(INC_DIR)_N_VALUES), \
   $(foreach T,$($(INC_DIR)_FILES_INPUT_N), \
-    $(eval $(call n_template,$T,$(dir $T)$(subst ntemplate.,,$(subst N,$N,$(notdir $T)))))))
+    $(eval $(call n_template,$N,$T,$(dir $T)$(subst ntemplate.,,$(subst N,$N,$(notdir $T)))))))
 
 TEMPLATES += $($(INC_DIR)_FILES_INPUT_N)
 OUTPUTS   += $($(INC_DIR)_FILES_OUTPUT_N)
