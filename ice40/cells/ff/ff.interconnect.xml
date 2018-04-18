@@ -1,0 +1,8 @@
+<!-- set: ai sw=1 ts=1 sta et -->
+<interconnect>
+ <direct name="D"   input="BLK_IG-FF.D"   output="DFF.D"/>
+ <direct name="Q"   input="DFF.Q"         output="BLK_IG-FF.Q"/>
+ <direct name="EN"  input="BLK_IG-FF.EN"  output="DFF.E"/>
+ <direct name="CLK" input="BLK_IG-FF.CLK" output="DFF.C"/>
+ <direct name="SR"  input="BLK_IG-FF.SR"  output="DFF.S"/>
+</interconnect>
