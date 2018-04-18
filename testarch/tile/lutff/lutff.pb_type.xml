@@ -23,13 +23,13 @@
 
  <interconnect>
   <!-- Clock input mux -->
-  <mux input="BLK_TI-LUTFF.CLK[0] BLK_TI-LUTFF.CLK[1]" name="BLK_RX-CLK0.I[0]"  output="BLK_SI-LUTFF.C"  />
+  <mux input="BLK_TI-LUTFF.CLK[0] BLK_TI-LUTFF.CLK[1]" name="BEL_RX-CLK0.I[0]"  output="BLK_SI-LUTFF.C"  />
 
   <!-- Logic input muxes -->
-  <mux input="BLK_TI-LUTFF.CIN   BLK_TI-LUTFF.IN[0] BLK_TI-LUTFF.IN[1]" name="BLK_RX-IN0.I[0]"   output="BLK_SI-LUTFF.I[0]"   />
-  <mux input="BLK_TI-LUTFF.IN[0] BLK_TI-LUTFF.IN[1] BLK_TI-LUTFF.IN[3]" name="BLK_RX-IN1.I[1]"   output="BLK_SI-LUTFF.I[1]"   />
-  <mux input="BLK_TI-LUTFF.IN[1] BLK_TI-LUTFF.IN[2] BLK_TI-LUTFF.IN[4]" name="BLK_RX-IN2.I[2]"   output="BLK_SI-LUTFF.I[2]"   />
-  <mux input="BLK_TI-LUTFF.IN[2] BLK_TI-LUTFF.IN[3] BLK_TI-LUTFF.IN[5]" name="BLK_RX-IN3.I[3]"   output="BLK_SI-LUTFF.I[3]"   />
+  <mux input="BLK_TI-LUTFF.CIN   BLK_TI-LUTFF.IN[0] BLK_TI-LUTFF.IN[1]" name="BEL_RX-IN0.I[0]"   output="BLK_SI-LUTFF.I[0]"   />
+  <mux input="BLK_TI-LUTFF.IN[0] BLK_TI-LUTFF.IN[1] BLK_TI-LUTFF.IN[3]" name="BEL_RX-IN1.I[1]"   output="BLK_SI-LUTFF.I[1]"   />
+  <mux input="BLK_TI-LUTFF.IN[1] BLK_TI-LUTFF.IN[2] BLK_TI-LUTFF.IN[4]" name="BEL_RX-IN2.I[2]"   output="BLK_SI-LUTFF.I[2]"   />
+  <mux input="BLK_TI-LUTFF.IN[2] BLK_TI-LUTFF.IN[3] BLK_TI-LUTFF.IN[5]" name="BEL_RX-IN3.I[3]"   output="BLK_SI-LUTFF.I[3]"   />
 
   <!-- Output -->
   <direct input="BLK_SI-LUTFF.O" name="BLK_TI-LUTFF.OUT0" output="BLK_TI-LUTFF.OUT[0]" />
