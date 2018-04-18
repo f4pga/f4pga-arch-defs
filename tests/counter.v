@@ -1,13 +1,9 @@
 module top (
 	input  clk,
-	output LED
+	output o
 );
-
 	reg [2:0] counter = 0;
-
-	always @(posedge clk) begin
+	always @(posedge clk)
 		counter <= counter + 1;
-	end
-
-	assign LED = counter[2];
+	assign o = counter[2];
 endmodule
