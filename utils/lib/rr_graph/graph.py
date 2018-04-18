@@ -30,7 +30,7 @@ def frozendict(*args, **kwargs):
 
 
 class MostlyReadOnly:
-    """Object which is **mostly** read only.
+    """Object which is **mostly** read only. Can set if not already set
 
     >>> class MyRO(MostlyReadOnly):
     ...     __slots__ = ["_str", "_list", "_set", "_dict"]
@@ -348,8 +348,6 @@ class Pin(MostlyReadOnly):
         1
         """
         assert pin_node.tag == "pin"
-        print()
-        ET.dump(pin_node)
         pin_class_index = int(pin_node.attrib["index"])
         block_type_index = int(pin_node.attrib["ptc"])
 
@@ -869,7 +867,8 @@ class RRNodeType(enum.Enum):
         assert xml_node.tag == "node", xml_node
         return RRNodeType(xml_node.attrib["type"])
 
-
+# in rr_graph each node has ID
+# maps between the human and those incrementing numbers
 class GraphIdsMap:
     def __init__(self, block_graph, xml_graph=None):
         assert_type(block_graph, BlockGraph)
@@ -961,7 +960,7 @@ class GraphIdsMap:
 
         if name in self.name2id:
             assert_eq(self.name2id[name], node_id)
-            assert obj is self.id2node[node_id]
+            #assert obj is self.id2node[node_id]
 
         self.id2node[xml_group][node_id] = xml_node
         self.name2id[name] = node_id
@@ -1262,6 +1261,7 @@ class GraphIdsMap:
             self.add_nodes_for_pin_class(block, pc)
 
 
+# Top level representation, holds the XML root
 class Graph:
     def __init__(self, rr_graph_file=None):
         # Read in existing file
@@ -1279,6 +1279,8 @@ class Graph:
 
         #self.grid = {}
         #self.channels = Channels()
+
+    # Following takes info from existing rr_graph file
 
     def import_block_types(self):
         # Create in the block_types information
@@ -1411,18 +1413,18 @@ def print_grid(rr_graph):
             print("{: ^{width}}".format(bt.name, width=col_widths[x]), end=" | ")
         print()
 
-def print_objects(rr_graph, lim=None):
-    '''Display source/sinks on all XML nodes'''
+def print_nodes(rr_graph, lim=None):
+    '''Display source/sink edges on all XML nodes'''
     ids = rr_graph.ids
-    print('Objects: %d, lim %s' % (len(ids._xml_nodes), lim))
+    print('Nodes: {}, edges {}'.format(len(ids._xml_nodes), len(ids._xml_edges)))
     for nodei, node in enumerate(ids._xml_nodes):
         print()
         if lim and nodei >= lim:
             print('...')
             break
-        print(nodei)
-        ET.dump(node)
-        print(ids.node_name(node))
+        #print(nodei)
+        #ET.dump(node)
+        print('{} ({})'.format(ids.node_name(node), node.get("id")))
         srcs = []
         snks = []
         for e in ids.edges_for_node(node):
@@ -1455,54 +1457,11 @@ def print_graph(rr_graph, verbose=False, lim=10):
     print()
     print_grid(rr_graph)
     print()
-    print_objects(rr_graph, lim=lim)
+    print_nodes(rr_graph, lim=lim)
     print()
-
-def rebuild_graph(fn):
-    '''
-    Recreate the original test device rr_graph using our API
-    '''
-    print('Rebuild: parsing original')
-    g = Graph(rr_graph_file=fn)
-    print_graph(g, verbose=False)
-
-    print('Rebuild: clearing')
-    #assert 0
-    # Remove existing rr_graph
-    g.ids.clear_graph()
-    print_graph(g)
-
-    print('Rebuild: adding nodes')
-    '''
-    <node id="0" type="SOURCE" capacity="1">
-            <loc xlow="1" ylow="1" xhigh="1" yhigh="1" ptc="0"/>
-            <timing R="0" C="0"/>
-    </node>
-    '''
-    for block in g.block_graph:
-        print(block)
-        g.ids.add_nodes_for_block(block)
-    print
-    print_graph(g)
 
 def main():
     import os
-
-    if 1:
-        if 1:
-            rebuild_graph(sys.argv[-1])
-        if 0:
-            bt = BlockType(name="BLK_IG-IBUF")
-            xml_string1 = '''
-                <pin_class type="OUTPUT">
-                    <pin index="0" ptc="0">BLK_IG-IBUF.I[0]</pin>
-                </pin_class>
-                '''
-            pc = PinClass.from_xml(bt, ET.fromstring(xml_string1))
-
-        print('Exiting')
-        sys.exit(0)
-
     if len(sys.argv) == 1 or not os.path.exists(sys.argv[-1]):
         import doctest
         print('Doctest begin')
