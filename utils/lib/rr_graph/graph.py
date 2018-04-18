@@ -1298,7 +1298,7 @@ class Graph:
         root.set("tool_comment", comment)
 
     # Tim: maybe delete most of this and use channel.py instead
-    def add_channel(self, globalname, start, end, segtype, _chantype=None):
+    def add_track(self, globalname, start, end, segtype, _chantype=None):
         x_start, y_start = start
         x_end, y_end = end
 
@@ -1323,9 +1323,9 @@ class Graph:
         # Going to need two channels to make this work..
         else:
             assert _chantype is None
-            start_channelname = add_channel(
+            start_channelname = add_track(
                 globalname+"_Y", (x_start, y_start), (x_start, y_end), segtype)[0]
-            end_channelname = add_channel(
+            end_channelname = add_track(
                 globalname+"_X", (x_start, y_end), (x_end, y_end), segtype)[-1]
             add_edge(globalname+"_Y", globalname+"_X")
             return start_channelname, end_channelname

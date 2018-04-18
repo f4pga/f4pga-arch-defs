@@ -20,10 +20,10 @@ class ChannelNotStraight(TypeError):
     pass
 
 
-_Channel = namedtuple("Channel", ("start", "end", "idx"))
-class Channel(_Channel):
+_Track = namedtuple("Track", ("start", "end", "idx"))
+class Track(_Track):
     '''
-    Represents a single ChanX or ChanY (track)
+    Represents a single ChanX or ChanY (track) within a channel
     Rename?
     '''
 
@@ -32,14 +32,14 @@ class Channel(_Channel):
         Y = 'CHANY'
 
         def __repr__(self):
-            return 'Channel.Type.'+self.name
+            return 'Track.Type.'+self.name
 
     class Direction(enum.Enum):
         INC = 'INC_DIR'
         DEC = 'DEC_DIR'
 
         def __repr__(self):
-            return 'Channel.Direction.'+self.name
+            return 'Track.Direction.'+self.name
 
     def __new__(cls, start, end, idx=None, id_override=None):
         if not isinstance(start, Pos):
@@ -49,12 +49,12 @@ class Channel(_Channel):
 
         if start.x != end.x and start.y != end.y:
             raise ChannelNotStraight(
-                "Channel not straight! {}->{}".format(start, end))
+                "Track not straight! {}->{}".format(start, end))
 
         if idx is not None:
             assert_type(idx, int)
 
-        obj = _Channel.__new__(cls, start, end, idx)
+        obj = _Track.__new__(cls, start, end, idx)
         obj.id_override = id_override
         return obj
 
@@ -62,19 +62,19 @@ class Channel(_Channel):
     def type(self):
         """Type of the channel.
 
-        Returns: Channel.Type
+        Returns: Track.Type
 
-        >>> Channel((0, 0), (10, 0)).type
-        Channel.Type.Y
-        >>> Channel((0, 0), (0, 10)).type
-        Channel.Type.X
-        >>> Channel((1, 1), (1, 1)).type
-        Channel.Type.X
+        >>> Track((0, 0), (10, 0)).type
+        Track.Type.Y
+        >>> Track((0, 0), (0, 10)).type
+        Track.Type.X
+        >>> Track((1, 1), (1, 1)).type
+        Track.Type.X
         """
         if self.start.x == self.end.x:
-            return Channel.Type.X
+            return Track.Type.X
         elif self.start.y == self.end.y:
-            return Channel.Type.Y
+            return Track.Type.Y
         else:
             assert False
 
@@ -82,20 +82,20 @@ class Channel(_Channel):
     def start0(self):
         """The non-constant start coordinate.
 
-        >>> Channel((0, 0), (10, 0)).start0
+        >>> Track((0, 0), (10, 0)).start0
         0
-        >>> Channel((0, 0), (0, 10)).start0
+        >>> Track((0, 0), (0, 10)).start0
         0
-        >>> Channel((1, 1), (1, 1)).start0
+        >>> Track((1, 1), (1, 1)).start0
         1
-        >>> Channel((10, 0), (0, 0)).start0
+        >>> Track((10, 0), (0, 0)).start0
         10
-        >>> Channel((0, 10), (0, 0)).start0
+        >>> Track((0, 10), (0, 0)).start0
         10
         """
-        if self.type == Channel.Type.Y:
+        if self.type == Track.Type.Y:
             return self.start.x
-        elif self.type == Channel.Type.X:
+        elif self.type == Track.Type.X:
             return self.start.y
         else:
             assert False
@@ -104,20 +104,20 @@ class Channel(_Channel):
     def end0(self):
         """The non-constant end coordinate.
 
-        >>> Channel((0, 0), (10, 0)).end0
+        >>> Track((0, 0), (10, 0)).end0
         10
-        >>> Channel((0, 0), (0, 10)).end0
+        >>> Track((0, 0), (0, 10)).end0
         0
-        >>> Channel((1, 1), (1, 1)).end0
+        >>> Track((1, 1), (1, 1)).end0
         1
-        >>> Channel((10, 0), (0, 0)).end0
+        >>> Track((10, 0), (0, 0)).end0
         0
-        >>> Channel((0, 10), (0, 0)).end0
+        >>> Track((0, 10), (0, 0)).end0
         0
         """
-        if self.type == Channel.Type.Y:
+        if self.type == Track.Type.Y:
             return self.end.x
-        elif self.type == Channel.Type.X:
+        elif self.type == Track.Type.X:
             return self.end.y
         else:
             assert False
@@ -126,23 +126,23 @@ class Channel(_Channel):
     def common(self):
         """The common coordinate value.
 
-        >>> Channel((0, 0), (10, 0)).common
+        >>> Track((0, 0), (10, 0)).common
         0
-        >>> Channel((0, 0), (0, 10)).common
+        >>> Track((0, 0), (0, 10)).common
         0
-        >>> Channel((1, 1), (1, 1)).common
+        >>> Track((1, 1), (1, 1)).common
         1
-        >>> Channel((10, 0), (0, 0)).common
+        >>> Track((10, 0), (0, 0)).common
         0
-        >>> Channel((0, 10), (0, 0)).common
+        >>> Track((0, 10), (0, 0)).common
         0
-        >>> Channel((4, 10), (4, 0)).common
+        >>> Track((4, 10), (4, 0)).common
         4
         """
-        if self.type == Channel.Type.Y:
+        if self.type == Track.Type.Y:
             assert self.start.y == self.end.y
             return self.start.y
-        elif self.type == Channel.Type.X:
+        elif self.type == Track.Type.X:
             assert self.start.x == self.end.x
             return self.start.x
         else:
@@ -152,37 +152,37 @@ class Channel(_Channel):
     def direction(self):
         """Direction the channel runs.
 
-        Returns: Channel.Direction
+        Returns: Track.Direction
 
-        >>> Channel((0, 0), (10, 0)).direction
-        Channel.Direction.INC
-        >>> Channel((0, 0), (0, 10)).direction
-        Channel.Direction.INC
-        >>> Channel((1, 1), (1, 1)).direction
-        Channel.Direction.INC
-        >>> Channel((10, 0), (0, 0)).direction
-        Channel.Direction.DEC
-        >>> Channel((0, 10), (0, 0)).direction
-        Channel.Direction.DEC
+        >>> Track((0, 0), (10, 0)).direction
+        Track.Direction.INC
+        >>> Track((0, 0), (0, 10)).direction
+        Track.Direction.INC
+        >>> Track((1, 1), (1, 1)).direction
+        Track.Direction.INC
+        >>> Track((10, 0), (0, 0)).direction
+        Track.Direction.DEC
+        >>> Track((0, 10), (0, 0)).direction
+        Track.Direction.DEC
         """
         if self.end0 < self.start0:
-            return Channel.Direction.DEC
+            return Track.Direction.DEC
         else:
-            return Channel.Direction.INC
+            return Track.Direction.INC
 
     @static_property
     def length(self):
-        """Length of the channel.
+        """Length of the track.
 
-        >>> Channel((0, 0), (10, 0)).length
+        >>> Track((0, 0), (10, 0)).length
         10
-        >>> Channel((0, 0), (0, 10)).length
+        >>> Track((0, 0), (0, 10)).length
         10
-        >>> Channel((1, 1), (1, 1)).length
+        >>> Track((1, 1), (1, 1)).length
         0
-        >>> Channel((10, 0), (0, 0)).length
+        >>> Track((10, 0), (0, 0)).length
         10
-        >>> Channel((0, 10), (0, 0)).length
+        >>> Track((0, 10), (0, 0)).length
         10
         """
         return abs(self.end0 - self.start0)
@@ -192,7 +192,7 @@ class Channel(_Channel):
 
         >>> s = (1, 4)
         >>> e = (1, 8)
-        >>> c1 = Channel(s, e, 0)
+        >>> c1 = Track(s, e, 0)
         >>> c2 = c1.update_idx(2)
         >>> assert c1.start == c2.start
         >>> assert c1.end == c2.end
@@ -206,41 +206,41 @@ class Channel(_Channel):
     def __repr__(self):
         """
 
-        >>> repr(Channel((0, 0), (10, 0)))
-        'C((0,0), (10,0))'
-        >>> repr(Channel((0, 0), (0, 10)))
-        'C((0,0), (0,10))'
-        >>> repr(Channel((1, 2), (3, 2), 5))
-        'C((1,2), (3,2), 5)'
-        >>> repr(Channel((1, 2), (3, 2), None, "ABC"))
-        'C(ABC)'
-        >>> repr(Channel((1, 2), (3, 2), 5, "ABC"))
-        'C(ABC,5)'
+        >>> repr(Track((0, 0), (10, 0)))
+        'T((0,0), (10,0))'
+        >>> repr(Track((0, 0), (0, 10)))
+        'T((0,0), (0,10))'
+        >>> repr(Track((1, 2), (3, 2), 5))
+        'T((1,2), (3,2), 5)'
+        >>> repr(Track((1, 2), (3, 2), None, "ABC"))
+        'T(ABC)'
+        >>> repr(Track((1, 2), (3, 2), 5, "ABC"))
+        'T(ABC,5)'
         """
         if self.id_override:
             idx_str = ""
             if self.idx != None:
                 idx_str = ",{}".format(self.idx)
-            return "C({}{})".format(self.id_override, idx_str)
+            return "T({}{})".format(self.id_override, idx_str)
 
         idx_str = ""
         if self.idx != None:
             idx_str = ", {}".format(self.idx)
-        return "C(({},{}), ({},{}){})".format(
+        return "T(({},{}), ({},{}){})".format(
             self.start.x, self.start.y, self.end.x, self.end.y, idx_str)
 
     def __str__(self):
         """
 
-        >>> str(Channel((0, 0), (10, 0)))
+        >>> str(Track((0, 0), (10, 0)))
         'CHANY 0,0->10,0'
-        >>> str(Channel((0, 0), (0, 10)))
+        >>> str(Track((0, 0), (0, 10)))
         'CHANX 0,0->0,10'
-        >>> str(Channel((1, 2), (3, 2), 5))
+        >>> str(Track((1, 2), (3, 2), 5))
         'CHANY 1,2->3,2 @5'
-        >>> str(Channel((1, 2), (3, 2), None, "ABC"))
+        >>> str(Track((1, 2), (3, 2), None, "ABC"))
         'ABC'
-        >>> str(Channel((1, 2), (3, 2), 5, "ABC"))
+        >>> str(Track((1, 2), (3, 2), 5, "ABC"))
         'ABC@5'
         """
         idx_str = ""
@@ -253,7 +253,7 @@ class Channel(_Channel):
 
 
 # Nice short alias..
-C = Channel
+T = Track
 
 
 class ChannelGrid(dict):
@@ -296,90 +296,90 @@ class ChannelGrid(dict):
             row.append(self[Pos(x, y)])
         return row
 
-    def add_channel(self, ch):
+    def add_track(self, ch):
         """
         Channel allocator
         Finds an optimal place to put the channel, increasing the channel width if necessary
 
-        >>> g = ChannelGrid((10, 10), Channel.Type.Y)
+        >>> g = ChannelGrid((10, 10), Track.Type.Y)
         >>> # Adding the first channel
-        >>> g.add_channel(Channel((0, 5), (3, 5), None, "A"))
-        C(A,0)
+        >>> g.add_track(Track((0, 5), (3, 5), None, "A"))
+        T(A,0)
         >>> g[(0,5)]
-        [C(A,0)]
+        [T(A,0)]
         >>> g[(1,5)]
-        [C(A,0)]
+        [T(A,0)]
         >>> g[(3,5)]
-        [C(A,0)]
+        [T(A,0)]
         >>> g[(4,5)]
         [None]
         >>> # Adding second non-overlapping second channel
-        >>> g.add_channel(Channel((4, 5), (6, 5), None, "B"))
-        C(B,0)
+        >>> g.add_track(Track((4, 5), (6, 5), None, "B"))
+        T(B,0)
         >>> g[(3,5)]
-        [C(A,0)]
+        [T(A,0)]
         >>> g[(4,5)]
-        [C(B,0)]
+        [T(B,0)]
         >>> g[(6,5)]
-        [C(B,0)]
+        [T(B,0)]
         >>> g[(7,5)]
         [None]
         >>> # Adding third channel which overlaps with second channel
-        >>> g.add_channel(Channel((4, 5), (6, 5), None, "C"))
-        C(C,1)
+        >>> g.add_track(Track((4, 5), (6, 5), None, "T"))
+        T(T,1)
         >>> g[(3,5)]
-        [C(A,0), None]
+        [T(A,0), None]
         >>> g[(4,5)]
-        [C(B,0), C(C,1)]
+        [T(B,0), T(T,1)]
         >>> g[(6,5)]
-        [C(B,0), C(C,1)]
+        [T(B,0), T(T,1)]
         >>> # Adding a channel which overlaps, but is a row over
-        >>> g.add_channel(Channel((4, 6), (6, 6), None, "D"))
-        C(D,0)
+        >>> g.add_track(Track((4, 6), (6, 6), None, "D"))
+        T(D,0)
         >>> g[(4,5)]
-        [C(B,0), C(C,1)]
+        [T(B,0), T(T,1)]
         >>> g[(4,6)]
-        [C(D,0)]
+        [T(D,0)]
         >>> # Adding fourth channel which overlaps both the first
         >>> # and second+third channel
-        >>> g.add_channel(Channel((2, 5), (5, 5), None, "E"))
-        C(E,2)
+        >>> g.add_track(Track((2, 5), (5, 5), None, "E"))
+        T(E,2)
         >>> g[(1,5)]
-        [C(A,0), None, None]
+        [T(A,0), None, None]
         >>> g[(2,5)]
-        [C(A,0), None, C(E,2)]
+        [T(A,0), None, T(E,2)]
         >>> g[(5,5)]
-        [C(B,0), C(C,1), C(E,2)]
+        [T(B,0), T(T,1), T(E,2)]
         >>> g[(6,5)]
-        [C(B,0), C(C,1), None]
+        [T(B,0), T(T,1), None]
         >>> # This channel fits in the hole left by the last one.
-        >>> g.add_channel(Channel((0, 5), (2, 5), None, "F"))
-        C(F,1)
+        >>> g.add_track(Track((0, 5), (2, 5), None, "F"))
+        T(F,1)
         >>> g[(0,5)]
-        [C(A,0), C(F,1), None]
+        [T(A,0), T(F,1), None]
         >>> g[(1,5)]
-        [C(A,0), C(F,1), None]
+        [T(A,0), T(F,1), None]
         >>> g[(2,5)]
-        [C(A,0), C(F,1), C(E,2)]
+        [T(A,0), T(F,1), T(E,2)]
         >>> g[(3,5)]
-        [C(A,0), None, C(E,2)]
+        [T(A,0), None, T(E,2)]
         >>> # Add another channel which causes a hole
-        >>> g.add_channel(Channel((0, 5), (6, 5), None, "G"))
-        C(G,3)
+        >>> g.add_track(Track((0, 5), (6, 5), None, "G"))
+        T(G,3)
         >>> g[(0,5)]
-        [C(A,0), C(F,1), None, C(G,3)]
+        [T(A,0), T(F,1), None, T(G,3)]
         >>> g[(1,5)]
-        [C(A,0), C(F,1), None, C(G,3)]
+        [T(A,0), T(F,1), None, T(G,3)]
         >>> g[(2,5)]
-        [C(A,0), C(F,1), C(E,2), C(G,3)]
+        [T(A,0), T(F,1), T(E,2), T(G,3)]
         >>> g[(3,5)]
-        [C(A,0), None, C(E,2), C(G,3)]
+        [T(A,0), None, T(E,2), T(G,3)]
         >>> g[(4,5)]
-        [C(B,0), C(C,1), C(E,2), C(G,3)]
+        [T(B,0), T(T,1), T(E,2), T(G,3)]
         >>> g[(5,5)]
-        [C(B,0), C(C,1), C(E,2), C(G,3)]
+        [T(B,0), T(T,1), T(E,2), T(G,3)]
         >>> g[(6,5)]
-        [C(B,0), C(C,1), None, C(G,3)]
+        [T(B,0), T(T,1), None, T(G,3)]
         >>> g[(7,5)]
         [None, None, None, None]
         """
@@ -393,9 +393,9 @@ class ChannelGrid(dict):
             else:
                 ch.type = self.chan_type
 
-        if ch.type == Channel.Type.X:
+        if ch.type == Track.Type.X:
             l = self.column(ch.common)
-        elif ch.type == Channel.Type.Y:
+        elif ch.type == Track.Type.Y:
             l = self.row(ch.common)
         else:
             assert False
@@ -404,7 +404,7 @@ class ChannelGrid(dict):
 
         s = ch.start0
         e = ch.end0
-        if ch.direction == Channel.Direction.DEC:
+        if ch.direction == Track.Direction.DEC:
             e, s = s, e
 
         assert e >= s
@@ -439,21 +439,21 @@ class ChannelGrid(dict):
 
     def pretty_print(self):
         """
-        If type == Channel.Type.X
+        If type == Track.Type.X
 
-          A--AC-C
+          A--AC-T
           B-----B
 
           D--DE-E
           F-----F
 
-        If type == Channel.Type.Y
+        If type == Track.Type.Y
 
           AB  DF
           ||  ||
           ||  ||
           A|  D|
-          C|  E|
+          T|  E|
           ||  ||
           CB  EF
 
@@ -477,11 +477,11 @@ class ChannelGrid(dict):
 
         assert s_maxlen > 0, s_maxlen
         s_maxlen += 3
-        if self.chan_type == Channel.Type.Y:
+        if self.chan_type == Track.Type.Y:
             beg_fmt  = "{:>%i}>" % (s_maxlen-1)
             end_fmt = "->{:<%i}" % (s_maxlen-2)
             mid_fmt = "-"*s_maxlen
-        elif self.chan_type == Channel.Type.X:
+        elif self.chan_type == Track.Type.X:
             beg_fmt = "{:^%i}" % s_maxlen
             end_fmt = beg_fmt
             mid_fmt = beg_fmt.format("|")
@@ -533,6 +533,7 @@ class ChannelGrid(dict):
 
 
 class Channels:
+    '''Holds all channels for the whole grid (X + Y)'''
     def __init__(self, size):
         self.size = size
         self.x = ChannelGrid(size, Channels.Type.X)
@@ -544,23 +545,23 @@ class Channels:
                 "Can only add channels of type {} which {} ({}) is not.".format(
                     self.chan_type, ch, ch.type))
         try:
-            ch = Channel(start, end)
+            ch = Track(start, end)
         except ChannelNotStraight as e:
             corner = (start.x, end.y)
             ch_a = self.create_channel(start, corner)[0]
             ch_b = self.create_channel(corner, end)[0]
             return (ch_a, ch_b)
 
-        if ch.type == Channel.Type.X:
-            self.x.add_channel(ch)
-        elif ch.type == Channel.Type.Y:
-            self.y.add_channel(ch)
+        if ch.type == Track.Type.X:
+            self.x.add_track(ch)
+        elif ch.type == Track.Type.Y:
+            self.y.add_track(ch)
         else:
             assert False
 
-        if ch.type == Channel.Type.X:
+        if ch.type == Track.Type.X:
             l = self.column(ch.common)
-        elif ch.type == Channel.Type.Y:
+        elif ch.type == Track.Type.Y:
             l = self.row(ch.common)
         else:
             assert False
@@ -570,15 +571,15 @@ if __name__ == "__main__":
     import doctest
     doctest.testmod()
 
-    g = ChannelGrid((5,2), Channel.Type.Y)
-    g.add_channel(C((0,0), (4,0), None, "AA"))
-    g.add_channel(C((0,0), (2,0), None, "BB"))
-    g.add_channel(C((1,0), (4,0), None, "CC"))
-    g.add_channel(C((0,0), (0,0), None, "DD"))
+    g = ChannelGrid((5,2), Track.Type.Y)
+    g.add_track(T((0,0), (4,0), None, "AA"))
+    g.add_track(T((0,0), (2,0), None, "BB"))
+    g.add_track(T((1,0), (4,0), None, "CC"))
+    g.add_track(T((0,0), (0,0), None, "DD"))
 
-    g.add_channel(C((0,1), (2,1), None, "aa"))
-    g.add_channel(C((3,1), (4,1), None, "bb"))
-    g.add_channel(C((0,1), (4,1), None, "cc"))
+    g.add_track(T((0,1), (2,1), None, "aa"))
+    g.add_track(T((3,1), (4,1), None, "bb"))
+    g.add_track(T((0,1), (4,1), None, "cc"))
 
     print()
     print(g.pretty_print())
