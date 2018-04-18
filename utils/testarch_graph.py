@@ -30,6 +30,12 @@ def rebuild_graph(fn):
     print
     graph.print_graph(g)
 
+    # Add channels
+
+
+    # Add edges
+
+
 def main():
     import argparse
     parser = argparse.ArgumentParser()
