@@ -68,16 +68,16 @@ class Track(_Track):
         Returns: Track.Type
 
         >>> Track((0, 0), (10, 0)).type
-        Track.Type.Y
+        Track.Type.X
         >>> Track((0, 0), (0, 10)).type
-        Track.Type.X
+        Track.Type.Y
         >>> Track((1, 1), (1, 1)).type
-        Track.Type.X
+        Track.Type.Y
         """
         if self.start.x == self.end.x:
-            return Track.Type.X
-        elif self.start.y == self.end.y:
             return Track.Type.Y
+        elif self.start.y == self.end.y:
+            return Track.Type.X
         else:
             assert False
 
@@ -96,9 +96,9 @@ class Track(_Track):
         >>> Track((0, 10), (0, 0)).start0
         10
         """
-        if self.type == Track.Type.Y:
+        if self.type == Track.Type.X:
             return self.start.x
-        elif self.type == Track.Type.X:
+        elif self.type == Track.Type.Y:
             return self.start.y
         else:
             assert False
@@ -118,9 +118,9 @@ class Track(_Track):
         >>> Track((0, 10), (0, 0)).end0
         0
         """
-        if self.type == Track.Type.Y:
+        if self.type == Track.Type.X:
             return self.end.x
-        elif self.type == Track.Type.X:
+        elif self.type == Track.Type.Y:
             return self.end.y
         else:
             assert False
@@ -142,10 +142,10 @@ class Track(_Track):
         >>> Track((4, 10), (4, 0)).common
         4
         """
-        if self.type == Track.Type.Y:
+        if self.type == Track.Type.X:
             assert self.start.y == self.end.y
             return self.start.y
-        elif self.type == Track.Type.X:
+        elif self.type == Track.Type.Y:
             assert self.start.x == self.end.x
             return self.start.x
         else:
@@ -236,11 +236,11 @@ class Track(_Track):
         """
 
         >>> str(Track((0, 0), (10, 0)))
-        'CHANY 0,0->10,0'
+        'CHANX 0,0->10,0'
         >>> str(Track((0, 0), (0, 10)))
-        'CHANX 0,0->0,10'
+        'CHANY 0,0->0,10'
         >>> str(Track((1, 2), (3, 2), 5))
-        'CHANY 1,2->3,2 @5'
+        'CHANX 1,2->3,2 @5'
         >>> str(Track((1, 2), (3, 2), None, "ABC"))
         'ABC'
         >>> str(Track((1, 2), (3, 2), 5, "ABC"))
@@ -319,8 +319,8 @@ class ChannelGrid(dict):
     def track_slice(self, t):
         '''Get the row or column the track runs along'''
         return {
-            Track.Type.X: self.column,
-            Track.Type.Y: self.row
+            Track.Type.X: self.row,
+            Track.Type.Y: self.column
         }[t.type](t.common)
 
     def add_track(self, t):
@@ -328,7 +328,7 @@ class ChannelGrid(dict):
         Channel allocator
         Finds an optimal place to put the channel, increasing the channel width if necessary
 
-        >>> g = ChannelGrid((10, 10), Track.Type.Y)
+        >>> g = ChannelGrid((10, 10), Track.Type.X)
         >>> # Adding the first channel
         >>> g.add_track(Track((0, 5), (3, 5), None, "A"))
         T(A,0)
@@ -499,13 +499,13 @@ class ChannelGrid(dict):
         assert s_maxlen > 0, s_maxlen
         s_maxlen += 3
         if self.chan_type == Track.Type.Y:
-            beg_fmt  = "{:>%i}>" % (s_maxlen-1)
-            end_fmt = "->{:<%i}" % (s_maxlen-2)
-            mid_fmt = "-"*s_maxlen
-        elif self.chan_type == Track.Type.X:
             beg_fmt = "{:^%i}" % s_maxlen
             end_fmt = beg_fmt
             mid_fmt = beg_fmt.format("|")
+        elif self.chan_type == Track.Type.X:
+            beg_fmt  = "{:>%i}>" % (s_maxlen-1)
+            end_fmt = "->{:<%i}" % (s_maxlen-2)
+            mid_fmt = "-"*s_maxlen
         else:
             assert False
         non_fmt = " "*s_maxlen
@@ -537,7 +537,6 @@ class ChannelGrid(dict):
                 cols.append(channels)
             rows.append(cols)
 
-
         f = io.StringIO()
         def p(*args, **kw):
             print(*args, file=f, **kw)
@@ -567,10 +566,9 @@ class Channels:
         except ChannelNotStraight as e:
             corner = (start.x, end.y)
             # Recursive call to create + add
-            _ch_a = self.create_track(start, corner)[0]
-            _ch_b = self.create_track(corner, end)[0]
-            #return (ch_a, ch_b)
-            return
+            ta = self.create_track(start, corner)[0]
+            tb = self.create_track(corner, end)[0]
+            return (ta, tb)
 
         # Add the track to associated channel list
         {
@@ -579,10 +577,14 @@ class Channels:
         }[t.type](t)
 
         # debug print?
+        '''
+        #l = self.track_slice(t)
         l = {
-            Track.Type.X: self.column,
-            Track.Type.Y: self.row
+            Track.Type.X: self.x.row,
+            Track.Type.Y: self.y.column
         }[t.type](t.common)
+        '''
+        return (t,)
 
 if __name__ == "__main__":
     import doctest
@@ -590,7 +592,7 @@ if __name__ == "__main__":
     doctest.testmod()
     print('doctest: end')
 
-    g = ChannelGrid((5,2), Track.Type.Y)
+    g = ChannelGrid((5,2), Track.Type.X)
     g.add_track(T((0,0), (4,0), None, "AA"))
     g.add_track(T((0,0), (2,0), None, "BB"))
     g.add_track(T((1,0), (4,0), None, "CC"))
