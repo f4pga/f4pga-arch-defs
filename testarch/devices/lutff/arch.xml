@@ -130,14 +130,8 @@
  <switchlist>
   <switch type="mux" name="1" R="551" Cin=".77e-15" Cout="4e-15" Tdel="58e-12" mux_trans_size="2.630740" buf_size="27.645901"/>
  </switchlist>
+
  <segmentlist>
-  <segment name="global" length="longline" freq="0.250000" type="bidir" Rmetal="101" Cmetal="22.5e-15">
-   <sb type="pattern">0 0</sb>
-   <cb type="pattern">1</cb>
-   <mux name="1"/>
-   <wire_switch name="1"/>
-   <opin_switch name="1"/>
-  </segment>
   <segment name="span" length="4" freq="0.250000" type="unidir" Rmetal="101" Cmetal="22.5e-15">
    <sb type="pattern">1 1 1 1 1</sb>
    <cb type="pattern">1 1 1 1</cb>
@@ -153,6 +147,11 @@
    <opin_switch name="1"/>
   </segment>
  </segmentlist>
+
+ <directlist>
+  <direct name="carry" from_pin="BLK_TI-LUTFF.COUT" to_pin="BLK_TI-LUTFF.CIN" x_offset="0" y_offset="1" z_offset="0"/>
+ </directlist>
+
  <complexblocklist>
   <xi:include href="../../../vpr/ibuf/ibuf.pb_type.xml"/>
   <xi:include href="../../../vpr/obuf/obuf.pb_type.xml"/>
