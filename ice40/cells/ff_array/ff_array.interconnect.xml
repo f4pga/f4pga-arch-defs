@@ -1,0 +1,8 @@
+<!-- set: ai sw=1 ts=1 sta et -->
+<interconnect>
+ <direct name="D" input="BLK_IG-FF_ARRAY.D[7:0]" output="BLK_IG-FF[7:0].D" />
+ <direct name="Q" input="BLK_IG-FF[7:0].Q" output="BLK_IG-FF_ARRAY.Q[7:0]" />
+ <complete name="CLK" input="BLK_IG-FF_ARRAY.CLK" output="BLK_IG-FF[7:0].CLK" />
+ <complete name="SR" input="BLK_IG-FF_ARRAY.SR" output="BLK_IG-FF[7:0].SR" />
+ <complete name="EN" input="BLK_IG-FF_ARRAY.EN" output="BLK_IG-FF[7:0].EN" />
+</interconnect>
