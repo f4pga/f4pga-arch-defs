@@ -1297,11 +1297,15 @@ class Graph:
         root.set("tool_version", version)
         root.set("tool_comment", comment)
 
-    '''
+    # Tim: maybe delete most of this and use channel.py instead
     def add_channel(self, globalname, start, end, segtype, _chantype=None):
         x_start, y_start = start
         x_end, y_end = end
 
+
+
+        # tim delete begin
+        # finding end0() / begin0() is in class now
         # Y channel as X is constant
         if x_start == x_end and (_chantype is None or _chantype == "CHANY"):
             assert x_start == x_end
@@ -1325,6 +1329,9 @@ class Graph:
                 globalname+"_X", (x_start, y_end), (x_end, y_end), segtype)[-1]
             add_edge(globalname+"_Y", globalname+"_X")
             return start_channelname, end_channelname
+        # tim delete end
+
+
 
         assert _chantype is None or chantype == _chantype, (chantype, _chantype)
 
@@ -1346,6 +1353,10 @@ class Graph:
         # <loc xlow="int" ylow="int" xhigh="int" yhigh="int" side="{LEFT|RIGHT|TOP|BOTTOM}" ptc="int">
         channels_for_type = channels[chantype]
 
+
+
+        # tim delete begin
+        # finds ptc value (idx), chan allocator wil ldo that
         idx = 0
         for x in range(x_start, x_end+1):
             for y in range(y_start, y_end+1):
@@ -1356,6 +1367,9 @@ class Graph:
                 while len(channels_for_type[(x,y)]) < idx and _chantype == None:
                     add_channel_filler((x,y), chantype)
                 channels_for_type[(x,y)].append(globalname)
+        # tim delete end
+
+
 
         # xlow, xhigh, ylow, yhigh - Integer coordinates of the ends of this routing source.
         # ptc - This is the pin, track, or class number that depends on the rr_node type.
@@ -1372,7 +1386,6 @@ class Graph:
 
         print("Adding channel {} from {} -> {} pos {}".format(globalname, start, end, idx))
         return globalname, globalname
-    '''
 
 '''
 Debug / test

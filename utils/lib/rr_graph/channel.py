@@ -1,4 +1,9 @@
 #!/usr/bin/env python3
+
+'''
+This file mainly deals with packing tracks into channels
+'''
+
 import enum
 import io
 
@@ -17,6 +22,11 @@ class ChannelNotStraight(TypeError):
 
 _Channel = namedtuple("Channel", ("start", "end", "idx"))
 class Channel(_Channel):
+    '''
+    Represents a single ChanX or ChanY (track)
+    Rename?
+    '''
+
     class Type(enum.Enum):
         X = 'CHANX'
         Y = 'CHANY'
@@ -92,7 +102,7 @@ class Channel(_Channel):
 
     @static_property
     def end0(self):
-        """The non-constant start coordinate.
+        """The non-constant end coordinate.
 
         >>> Channel((0, 0), (10, 0)).end0
         10
@@ -247,36 +257,50 @@ C = Channel
 
 
 class ChannelGrid(dict):
+    '''
+    Functionality:
+    -Manages single type of track (either chanx or chany)
+    -Channel width along grid
+    -Manages track allocation within channels
+    -A track allocator
+    '''
     def __init__(self, size, chan_type):
+        '''
+        size: Size representing tile grid width/height
+        chan_type: of Channels.Type
+        '''
         self.chan_type = chan_type
         self.size = Size(*size)
 
-        for x in range(0, self.x):
-            for y in range(0, self.y):
+        for x in range(0, self.width):
+            for y in range(0, self.height):
                 self[Pos(x,y)] = []
 
     @property
-    def x(self):
-        return self.size.x
+    def width(self):
+        return self.size.width
 
     @property
-    def y(self):
-        return self.size.y
+    def height(self):
+        return self.size.height
 
     def column(self, x):
         column = []
-        for y in range(0, self.y):
+        for y in range(0, self.height):
             column.append(self[Pos(x, y)])
         return column
 
     def row(self, y):
         row = []
-        for x in range(0, self.x):
+        for x in range(0, self.width):
             row.append(self[Pos(x, y)])
         return row
 
     def add_channel(self, ch):
         """
+        Channel allocator
+        Finds an optimal place to put the channel, increasing the channel width if necessary
+
         >>> g = ChannelGrid((10, 10), Channel.Type.Y)
         >>> # Adding the first channel
         >>> g.add_channel(Channel((0, 5), (3, 5), None, "A"))
@@ -446,8 +470,8 @@ class ChannelGrid(dict):
 
         # Work out how many characters the largest label takes up.
         s_maxlen = 1
-        for row in range(0, self.y):
-            for col in range(0, self.x):
+        for row in range(0, self.height):
+            for col in range(0, self.width):
                 for ch in self[(col,row)]:
                     s_maxlen = max(s_maxlen, len(get_str(ch)))
 
@@ -466,9 +490,9 @@ class ChannelGrid(dict):
         non_fmt = " "*s_maxlen
 
         rows = []
-        for y in range(0, self.y):
+        for y in range(0, self.height):
             cols = []
-            for x in range(0, self.x):
+            for x in range(0, self.width):
                 channels = [("|{: ^%i}" % (s_maxlen-1)).format(x)]
                 for ch in self[(x,y)]:
                     if not ch:
