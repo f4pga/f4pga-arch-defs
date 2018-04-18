@@ -1277,7 +1277,7 @@ class Graph:
         self.ids = GraphIdsMap(self.block_graph, self._xml_graph)
 
         #self.grid = {}
-        #self.channels = Channels()
+        self.channels = Channels()
 
     # Following takes info from existing rr_graph file
 
