@@ -1205,25 +1205,24 @@ class GraphIdsMap:
         assert_type(block.block_type, BlockType)
         assert_type(pin_class, PinClass)
         assert_type(pin_class.block_type, BlockType)
-
         assert_eq(block.block_type, pin_class.block_type)
-        # FIXME: Assert pin_class in block_type
 
-        low = block.position
-        high = block.position + pin_class.block_type.size
+        pos_low = block.position
+        pos_high = block.position + pin_class.block_type.size
 
         nodes = self._xml_nodes
 
         # Assuming only one pin per class for now
         # see [0] references
         assert len(pin_class.pins) == 1, 'Expect one pin per pin class, got %s' % (pin_class.pins,)
+        pin = pin_class.pins[0]
         if pin_class.direction in (PinClassDirection.INPUT, PinClassDirection.CLOCK):
             # Sink node
             sink_node = ET.SubElement(nodes, 'node', {'id': str(self._next_id('node')), 'type': 'SINK'})
             ET.SubElement(sink_node, 'loc', {
-                'xlow': str(low.x), 'ylow': str(low.y),
-                'xhigh': str(high.x), 'yhigh': str(high.y),
-                'ptc': str(pin_class.pins[0].ptc),
+                'xlow': str(pos_low.x), 'ylow': str(pos_low.y),
+                'xhigh': str(pos_high.x), 'yhigh': str(pos_high.y),
+                'ptc': str(pin.ptc),
             })
             ET.SubElement(sink_node, 'timing', {'R': str(0), 'C': str(0)})
 
@@ -1237,9 +1236,9 @@ class GraphIdsMap:
             # Source node
             src_node = ET.SubElement(nodes, 'node', {'id': str(self._next_id('node')), 'type': 'SOURCE'})
             ET.SubElement(src_node, 'loc', {
-                'xlow': str(low.x), 'ylow': str(low.y),
-                'xhigh': str(high.x), 'yhigh': str(high.y),
-                'ptc': str(pin_class.pins[0].ptc),
+                'xlow': str(pos_low.x), 'ylow': str(pos_low.y),
+                'xhigh': str(pos_high.x), 'yhigh': str(pos_high.y),
+                'ptc': str(pin.ptc),
             })
             ET.SubElement(src_node, 'timing', {'R': str(0), 'C': str(0)})
 
