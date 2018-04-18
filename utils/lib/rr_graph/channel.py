@@ -24,11 +24,12 @@ _Track = namedtuple("Track", ("start", "end", "idx"))
 class Track(_Track):
     '''
     Represents a single ChanX or ChanY (track) within a channel
-    Rename?
     '''
 
     class Type(enum.Enum):
+        # Horizontal routing
         X = 'CHANX'
+        # Vertical routing
         Y = 'CHANY'
 
         def __repr__(self):
@@ -42,6 +43,8 @@ class Track(_Track):
             return 'Track.Direction.'+self.name
 
     def __new__(cls, start, end, idx=None, id_override=None):
+        '''Make most but not all attributes immutable'''
+
         if not isinstance(start, Pos):
             start = Pos(*start)
         if not isinstance(end, Pos):
@@ -263,6 +266,9 @@ class ChannelGrid(dict):
     -Channel width along grid
     -Manages track allocation within channels
     -A track allocator
+
+    dict is indexed by Pos() objects
+    This returns a list indicaitng all the tracks at that position
     '''
     def __init__(self, size, chan_type):
         '''
@@ -278,25 +284,46 @@ class ChannelGrid(dict):
 
     @property
     def width(self):
+        """Grid width
+
+        >>> g = ChannelGrid((6, 7), Track.Type.Y)
+        >>> g.width
+        6
+        """
         return self.size.width
 
     @property
     def height(self):
+        """Grid height
+
+        >>> g = ChannelGrid((6, 7), Track.Type.Y)
+        >>> g.height
+        7
+        """
         return self.size.height
 
     def column(self, x):
+        '''Get a y coordinate indexed list giving tracks at that x + y position'''
         column = []
         for y in range(0, self.height):
             column.append(self[Pos(x, y)])
         return column
 
     def row(self, y):
+        '''Get an x coordinate indexed list giving tracks at that x + y position'''
         row = []
         for x in range(0, self.width):
             row.append(self[Pos(x, y)])
         return row
 
-    def add_track(self, ch):
+    def track_slice(self, t):
+        '''Get the row or column the track runs along'''
+        return {
+            Track.Type.X: self.column,
+            Track.Type.Y: self.row
+        }[t.type](t.common)
+
+    def add_track(self, t):
         """
         Channel allocator
         Finds an optimal place to put the channel, increasing the channel width if necessary
@@ -383,28 +410,22 @@ class ChannelGrid(dict):
         >>> g[(7,5)]
         [None, None, None, None]
         """
-        assert ch.idx == None
+        assert t.idx == None
 
-        if ch.type != self.chan_type:
-            if ch.length != 0:
+        if t.type != self.chan_type:
+            if t.length != 0:
                 raise TypeError(
                     "Can only add channels of type {} which {} ({}) is not.".format(
-                        self.chan_type, ch, ch.type))
+                        self.chan_type, t, t.type))
             else:
-                ch.type = self.chan_type
+                t.type = self.chan_type
 
-        if ch.type == Track.Type.X:
-            l = self.column(ch.common)
-        elif ch.type == Track.Type.Y:
-            l = self.row(ch.common)
-        else:
-            assert False
-
+        l = self.track_slice(t)
         assert_len_eq(l)
 
-        s = ch.start0
-        e = ch.end0
-        if ch.direction == Track.Direction.DEC:
+        s = t.start0
+        e = t.end0
+        if t.direction == Track.Direction.DEC:
             e, s = s, e
 
         assert e >= s
@@ -431,11 +452,11 @@ class ChannelGrid(dict):
 
         assert_len_eq(l)
 
-        ch = ch.update_idx(max_idx)
-        assert ch.idx == max_idx
+        t = t.update_idx(max_idx)
+        assert t.idx == max_idx
         for p in l[s:e+1]:
-            p[ch.idx] = ch
-        return ch
+            p[t.idx] = t
+        return t
 
     def pretty_print(self):
         """
@@ -459,21 +480,21 @@ class ChannelGrid(dict):
 
         """
 
-        def get_str(ch):
-            if not ch:
+        def get_str(t):
+            if not t:
                 s = ""
-            elif ch.id_override:
-                s = ch.id_override
+            elif t.id_override:
+                s = t.id_override
             else:
-                s = str(ch)
+                s = str(t)
             return s
 
         # Work out how many characters the largest label takes up.
         s_maxlen = 1
         for row in range(0, self.height):
             for col in range(0, self.width):
-                for ch in self[(col,row)]:
-                    s_maxlen = max(s_maxlen, len(get_str(ch)))
+                for t in self[(col,row)]:
+                    s_maxlen = max(s_maxlen, len(get_str(t)))
 
         assert s_maxlen > 0, s_maxlen
         s_maxlen += 3
@@ -494,25 +515,25 @@ class ChannelGrid(dict):
             cols = []
             for x in range(0, self.width):
                 channels = [("|{: ^%i}" % (s_maxlen-1)).format(x)]
-                for ch in self[(x,y)]:
-                    if not ch:
+                for t in self[(x,y)]:
+                    if not t:
                         fmt = non_fmt
-                    elif ch.start == ch.end:
-                        s = get_str(ch)
+                    elif t.start == t.end:
+                        s = get_str(t)
                         channels.append("{} ".format("".join([
                                 beg_fmt.format(s),
                                 mid_fmt.format(s),
                                 end_fmt.format(s),
                             ])[:s_maxlen-1]))
                         continue
-                    elif ch.start == (x,y):
+                    elif t.start == (x,y):
                         fmt = beg_fmt
-                    elif ch.end == (x,y):
+                    elif t.end == (x,y):
                         fmt = end_fmt
                     else:
                         fmt = mid_fmt
 
-                    channels.append(fmt.format(get_str(ch)))
+                    channels.append(fmt.format(get_str(t)))
                 cols.append(channels)
             rows.append(cols)
 
@@ -536,40 +557,38 @@ class Channels:
     '''Holds all channels for the whole grid (X + Y)'''
     def __init__(self, size):
         self.size = size
-        self.x = ChannelGrid(size, Channels.Type.X)
-        self.y = ChannelGrid(size, Channels.Type.Y)
+        self.x = ChannelGrid(size, Track.Type.X)
+        self.y = ChannelGrid(size, Track.Type.Y)
 
-    def create_channel(self, start, end):
-        if ch.type != self.chan_type:
-            raise TypeError(
-                "Can only add channels of type {} which {} ({}) is not.".format(
-                    self.chan_type, ch, ch.type))
+    def create_track(self, start, end):
+        # Create track(s)
         try:
-            ch = Track(start, end)
+            t = Track(start, end)
         except ChannelNotStraight as e:
             corner = (start.x, end.y)
-            ch_a = self.create_channel(start, corner)[0]
-            ch_b = self.create_channel(corner, end)[0]
-            return (ch_a, ch_b)
+            # Recursive call to create + add
+            _ch_a = self.create_track(start, corner)[0]
+            _ch_b = self.create_track(corner, end)[0]
+            #return (ch_a, ch_b)
+            return
 
-        if ch.type == Track.Type.X:
-            self.x.add_track(ch)
-        elif ch.type == Track.Type.Y:
-            self.y.add_track(ch)
-        else:
-            assert False
+        # Add the track to associated channel list
+        {
+            Track.Type.X: self.x.add_track,
+            Track.Type.Y: self.y.add_track
+        }[t.type](t)
 
-        if ch.type == Track.Type.X:
-            l = self.column(ch.common)
-        elif ch.type == Track.Type.Y:
-            l = self.row(ch.common)
-        else:
-            assert False
-
+        # debug print?
+        l = {
+            Track.Type.X: self.column,
+            Track.Type.Y: self.row
+        }[t.type](t.common)
 
 if __name__ == "__main__":
     import doctest
+    print('doctest: begin')
     doctest.testmod()
+    print('doctest: end')
 
     g = ChannelGrid((5,2), Track.Type.Y)
     g.add_track(T((0,0), (4,0), None, "AA"))
