@@ -1,0 +1,30 @@
+<!-- set: ai sw=1 ts=1 sta et -->
+<fixed_layout name="{N}1K" width="16" height="20">
+ <!--
+  Due to the way channels work in VPR, we need to pad the top+right edge with
+  extra empty tiles.
+ -->
+ <col     type="EMPTY"          startx="0"  priority="30"/>
+ <col     type="BLK_BB-VPR_PAD" startx="1"  priority="10"/>
+ <region  type="BLK_TL-PLB"     startx="2" endx="13" starty="2" endy="17" priority="4"/> <!-- Logic blocks 11x15 -->
+ <col     type="BLK_BB-VPR_PAD" startx="14" priority="10"/>
+ <col     type="EMPTY"          startx="15" priority="30"/>
+
+ <row     type="EMPTY"          starty="0"  priority="31"/>
+ <row     type="BLK_BB-VPR_PAD" starty="1"  priority="11"/>
+ <!--                           starty="2" endy="17" -->
+ <row     type="BLK_BB-VPR_PAD" starty="18" priority="11"/>
+ <row     type="EMPTY"          starty="19" priority="31"/>
+
+ <!-- Block RAM -->
+ <col     type="BLK_TL-RAMB"    startx="4"            starty="2"                      priority="5"/>
+ <region  type="BLK_TL-RAMT"    startx="4"  endx="4"  starty="3" endy="3" repeaty="2" priority="6"/>
+ <col     type="BLK_TL-RAMB"    startx="11"           starty="2"                      priority="5"/>
+ <region  type="BLK_TL-RAMT"    startx="11" endx="11" starty="3" endy="3" repeaty="2" priority="6"/>
+
+ <!-- Create empty blocks at all corners -->
+ <single  type="EMPTY" x="1"  y="1"  priority="40"/>
+ <single  type="EMPTY" x="14" y="1"  priority="40"/>
+ <single  type="EMPTY" x="1"  y="18" priority="40"/>
+ <single  type="EMPTY" x="14" y="18" priority="40"/>
+</fixed_layout>

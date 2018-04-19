@@ -1,0 +1,28 @@
+<!-- set: ai sw=1 ts=1 sta et -->
+<!-- Flip flop found inside the iCE40 -->
+<pb_type name="DFF" num_pb="1">
+ <clock  name="C" num_pins="1"/>
+ <input  name="E" num_pins="1"/>
+ <input  name="S" num_pins="1"/>
+ <input  name="D" num_pins="1"/>
+ <output name="Q" num_pins="1"/>
+
+ <!-- module SB_DFFE (output Q, input C, E, D); -->
+ <mode name="SB_DFFE">
+  <pb_type name="SB_DFFE" num_pb="1" blif_model=".subckt SB_DFFE">
+   <output name="Q" num_pins="1"/>
+   <clock  name="C" num_pins="1"/>
+   <input  name="E" num_pins="1"/>
+   <input  name="D" num_pins="1"/>
+   <T_clock_to_Q max="10e-12" port="SB_DFFE.Q" clock="C"/>
+   <T_setup    value="10e-12" port="SB_DFFE.E" clock="C"/>
+   <T_setup    value="10e-12" port="SB_DFFE.D" clock="C"/>
+  </pb_type>
+  <interconnect>
+   <direct name="Q" input="SB_DFFE.Q" output="DFF.Q" />
+   <direct name="C" input="DFF.C"     output="SB_DFFE.C" />
+   <direct name="E" input="DFF.E"     output="SB_DFFE.E" />
+   <direct name="D" input="DFF.D"     output="SB_DFFE.D" />
+  </interconnect>
+ </mode>
+</pb_type>
