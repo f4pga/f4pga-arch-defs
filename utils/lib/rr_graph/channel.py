@@ -19,11 +19,15 @@ from ..asserts import assert_len_eq
 class ChannelNotStraight(TypeError):
     pass
 
-
 _Track = namedtuple("Track", ("start", "end", "idx"))
 class Track(_Track):
     '''
     Represents a single ChanX or ChanY (track) within a channel
+    ie the tracks of an a x_list or y_list entry in <channels>
+
+    start: start Pos
+    end: end Pos
+    idx: XML index integer
     '''
 
     class Type(enum.Enum):

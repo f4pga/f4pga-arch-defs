@@ -1,11 +1,35 @@
 import lib.rr_graph.graph as graph
+from lib.rr_graph import Position
+
 import sys
-import lxml.etree as ET
+mport lxml.etree as ET
 import os
 
 def rebuild_graph(fn):
     '''
-    Recreate the original test device rr_graph using our API
+    Add N tracks to each X and Y
+    Connect all of those to all the adjacent pins
+    Fully connect tracks at intersections
+    For intersections this means we actually have two edges per intersection
+    since source and sink must be specified
+
+     ___ I  | | |
+    |   |-<-*-*-*
+    |   |O  | | |
+    |___|->-*-*-*
+            | | |
+            | | |
+    --------*-*-*---
+            | | |
+    --------*-*-*---
+            | | |
+    --------*-*-*---
+            | | |
+     ___ I  | | |
+    |   |-<-*-*-*
+    |   |O  | | |
+    |___|->-*-*-*
+            | | |
     '''
     print('Rebuild: parsing original')
     g = graph.Graph(rr_graph_file=fn)
@@ -30,11 +54,45 @@ def rebuild_graph(fn):
     print
     graph.print_graph(g)
 
-    # Add channels
+    # ala --route_chan_width
+    rcw = 4
 
 
-    # Add edges
+    # Create a single switch type to use for all connections
+    switch = g.ids.add_switch(buffered=1)
 
+    def connect_block_to_track(block, track):
+        '''Connect all block pins to given track'''
+        for pin in block.pins():
+            g.connect_pin_to_track(block, pin, track, switch)
+
+    node_index = self.index_node_objects()
+
+    grid = g.block_graph.block_grid_size()
+    # chanx going entire width
+    for y in range(grid.height):
+        for _tracki in range(rcw):
+            track = grid.add_track((0, y), (grid.width - 1, y))
+            # Now bind to all adjacent pins
+            for block in g.block_graph.block_types_for(col=y):
+                connect_block_to_track(block, track, node_index=node_index)
+    # chany going entire height
+    for x in range(grid.width):
+        for _tracki in range(rcw):
+            track = grid.add_track((x, 0), (x, grid.height - 1))
+            # Now bind to all adjacent pins
+            for block in g.block_graph.block_types_for(row=x):
+                connect_block_to_track(block, track, node_index=node_index)
+
+    # Now connect tracks together
+    for y in range(grid.height):
+        for x in range(grid.width):
+            xtracks = g.channels.x[Position(x, y)]
+            ytracks = g.channels.y[Position(x, y)]
+            # Add bi-directional links between all permutations
+            for xtrack in xtracks:
+                for ytrack in ytracks:
+                    g.connect_track_to_track(xtrack, ytrack, switch, node_index=node_index)
 
 def main():
     import argparse
