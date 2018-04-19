@@ -103,6 +103,8 @@ $(OUTPUT_DIR)/%.rr_graph.pretty.xml: $(OUTPUT_DIR)/%.rr_graph.xml
 ALL_OUTPUT = $(patsubst %.v,$(OUTPUT_DIR)/%.rr_graph.xml,$(wildcard *.v)) $(patsubst %.eblif,$(OUTPUT_DIR)/%.rr_graph.xml,$(wildcard *.eblif))
 
 #	$(call quiet_cmd,make const.echo,Ran $(GREEN)const$(NC)test)
+# Re-enable when https://github.com/YosysHQ/yosys/pull/537 landed.
+#	$(call quiet_cmd,make vlut.echo,Ran $(PURPLE)Verilog $(GREEN)lut$(NC)test)
 all:
 	@echo -e "Running all tests for $(PURPLE)$(DEVICE)$(NC)in $(YELLOW)$(ARCH)$(NC)"
 	$(call quiet_cmd,make wire.echo,Ran $(PURPLE)  eBLIF $(GREEN)wire$(NC)test)
@@ -112,7 +114,6 @@ all:
 	$(call quiet_cmd,make vff.echo,Ran $(PURPLE)Verilog $(GREEN)ff$(NC)test)
 	@echo
 	$(call quiet_cmd,make lut.echo,Ran $(PURPLE)  eBLIF $(GREEN)lut$(NC)test)
-	$(call quiet_cmd,make vlut.echo,Ran $(PURPLE)Verilog $(GREEN)lut$(NC)test)
 	@echo
 	$(call quiet_cmd,make mlut.echo,Ran $(GREEN)mlut$(NC)test)
 	@echo
