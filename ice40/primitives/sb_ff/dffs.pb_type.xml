@@ -1,0 +1,85 @@
+<!-- set: ai sw=1 ts=1 sta et -->
+<!-- Flip flop found inside the iCE40 -->
+<pb_type name="DFF" num_pb="1">
+ <clock  name="C" num_pins="1"/>
+ <input  name="E" num_pins="1"/>
+ <input  name="S" num_pins="1"/>
+ <input  name="D" num_pins="1"/>
+ <output name="Q" num_pins="1"/>
+
+ <!-- module SB_DFFSR (output Q, input C, R, D); -->
+ <mode name="SB_DFFSR">
+  <pb_type name="SB_DFFSR" num_pb="1" blif_model=".subckt SB_DFFSR">
+   <output name="Q" num_pins="1"/>
+   <clock  name="C" num_pins="1"/>
+   <input  name="R" num_pins="1"/>
+   <input  name="D" num_pins="1"/>
+   <T_clock_to_Q max="10e-12" port="SB_DFFSR.Q" clock="C"/>
+   <T_setup    value="10e-12" port="SB_DFFSR.R" clock="C"/>
+   <T_setup    value="10e-12" port="SB_DFFSR.D" clock="C"/>
+  </pb_type>
+  <interconnect>
+   <direct name="Q" input="SB_DFFSR.Q" output="DFF.Q" />
+   <direct name="C" input="DFF.C"      output="SB_DFFSR.C" />
+   <direct name="S" input="DFF.S"      output="SB_DFFSR.R" />
+   <direct name="D" input="DFF.D"      output="SB_DFFSR.D" />
+  </interconnect>
+ </mode>
+
+ <!-- module SB_DFFR (output Q, input C, R, D); -->
+ <mode name="SB_DFFR">
+  <pb_type name="SB_DFFR" num_pb="1" blif_model=".subckt SB_DFFR">
+   <output name="Q" num_pins="1"/>
+   <clock  name="C" num_pins="1"/>
+   <input  name="R" num_pins="1"/>
+   <input  name="D" num_pins="1"/>
+   <T_clock_to_Q max="10e-12" port="SB_DFFR.Q" clock="C"/>
+   <T_setup    value="10e-12" port="SB_DFFR.R" clock="C"/>
+   <T_setup    value="10e-12" port="SB_DFFR.D" clock="C"/>
+  </pb_type>
+  <interconnect>
+   <direct name="Q" input="SB_DFFR.Q" output="DFF.Q" />
+   <direct name="C" input="DFF.C"     output="SB_DFFR.C" />
+   <direct name="S" input="DFF.S"     output="SB_DFFR.R" />
+   <direct name="D" input="DFF.D"     output="SB_DFFR.D" />
+  </interconnect>
+ </mode>
+
+ <!-- module SB_DFFSS (output Q, input C, S, D); -->
+ <mode name="SB_DFFSS">
+  <pb_type name="SB_DFFSS" num_pb="1" blif_model=".subckt SB_DFFSS">
+   <output name="Q" num_pins="1"/>
+   <clock  name="C" num_pins="1"/>
+   <input  name="S" num_pins="1"/>
+   <input  name="D" num_pins="1"/>
+   <T_clock_to_Q max="10e-12" port="SB_DFFSS.Q" clock="C"/>
+   <T_setup    value="10e-12" port="SB_DFFSS.S" clock="C"/>
+   <T_setup    value="10e-12" port="SB_DFFSS.D" clock="C"/>
+  </pb_type>
+  <interconnect>
+   <direct name="Q" input="SB_DFFSS.Q" output="DFF.Q" />
+   <direct name="C" input="DFF.C"      output="SB_DFFSS.C" />
+   <direct name="S" input="DFF.S"      output="SB_DFFSS.S" />
+   <direct name="D" input="DFF.D"      output="SB_DFFSS.D" />
+  </interconnect>
+ </mode>
+
+ <!-- module SB_DFFS (output Q, input C, S, D); -->
+ <mode name="SB_DFFS">
+  <pb_type name="SB_DFFS" num_pb="1" blif_model=".subckt SB_DFFS">
+   <output name="Q" num_pins="1"/>
+   <clock  name="C" num_pins="1"/>
+   <input  name="S" num_pins="1"/>
+   <input  name="D" num_pins="1"/>
+   <T_clock_to_Q max="10e-12" port="SB_DFFS.Q" clock="C"/>
+   <T_setup    value="10e-12" port="SB_DFFS.S" clock="C"/>
+   <T_setup    value="10e-12" port="SB_DFFS.D" clock="C"/>
+  </pb_type>
+  <interconnect>
+   <direct name="Q" input="SB_DFFS.Q" output="DFF.Q" />
+   <direct name="C" input="DFF.C"     output="SB_DFFS.C" />
+   <direct name="S" input="DFF.S"     output="SB_DFFS.S" />
+   <direct name="D" input="DFF.D"     output="SB_DFFS.D" />
+  </interconnect>
+ </mode>
+</pb_type>
