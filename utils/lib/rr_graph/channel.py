@@ -458,6 +458,18 @@ class ChannelGrid(dict):
             p[t.idx] = t
         return t
 
+    def check(self):
+        '''Self integrity check
+        Verify uniform track length'''
+        if self.chan_type == Track.Type.X:
+            for y in range(self.height):
+                assert_len_eq(self.row(y))
+        elif self.chan_type == Track.Type.Y:
+            for x in range(self.width):
+                assert_len_eq(self.column(x))
+        else:
+            assert False
+
     def pretty_print(self):
         """
         If type == Track.Type.X
@@ -501,7 +513,7 @@ class ChannelGrid(dict):
         if self.chan_type == Track.Type.Y:
             beg_fmt = "{:^%i}" % s_maxlen
             end_fmt = beg_fmt
-            mid_fmt = beg_fmt.format("|")
+            mid_fmt = beg_fmt.format("||")
         elif self.chan_type == Track.Type.X:
             beg_fmt  = "{:>%i}>" % (s_maxlen-1)
             end_fmt = "->{:<%i}" % (s_maxlen-2)
@@ -510,11 +522,21 @@ class ChannelGrid(dict):
             assert False
         non_fmt = " "*s_maxlen
 
+        '''
+        rows[row][col][c]
+        row: global row location
+        col: column of output
+        c: character showing occupation along a track
+        Channel width may vary across tiles, but all columns within that region should have the same length
+        '''
         rows = []
         for y in range(0, self.height):
             cols = []
             for x in range(0, self.width):
-                channels = [("|{: ^%i}" % (s_maxlen-1)).format(x)]
+                # Header
+                hdri = {Track.Type.X: x, Track.Type.Y: y}[self.chan_type]
+                channels = [("|{: ^%i}" % (s_maxlen-1)).format(hdri)]
+
                 for t in self[(x,y)]:
                     if not t:
                         fmt = non_fmt
@@ -537,18 +559,40 @@ class ChannelGrid(dict):
                 cols.append(channels)
             rows.append(cols)
 
+        # Dump the track state as a string
         f = io.StringIO()
         def p(*args, **kw):
             print(*args, file=f, **kw)
-        for r in range(0, len(rows)):
-            assert_len_eq(rows[r])
-            for i in range(0, len(rows[r][0])):
+        if self.chan_type == Track.Type.X:
+            for r in range(0, len(rows)):
+                assert_len_eq(rows[r])
+                # tracks + 1 for header
+                track_rows = len(rows[r][0])
+                for tracki in range(0, track_rows):
+                    for c in range(0, len(rows[r])):
+                        p(rows[r][c][tracki], end="")
+                    # Close header
+                    if tracki == 0:
+                        p("|", end="")
+                    p()
+                p("\n")
+        elif self.chan_type == Track.Type.Y:
+            for r in range(0, len(rows)):
+                # tracks + 1 for header
                 for c in range(0, len(rows[r])):
-                    p(rows[r][c][i], end="")
-                if i == 0:
-                    p("|", end="")
-                p()
-            p("\n")
+                    track_cols = len(rows[r][c])
+                    p("|*", end="")
+                    for tracki in range(0, track_cols):
+                        p(rows[r][c][tracki], end="")
+                        # Close header
+                        if tracki == 0:
+                            p("|", end="")
+                    p("  ", end="")
+                p("")
+                #p("|*|")
+        else:
+            assert False
+
         return f.getvalue()
 
 
@@ -560,6 +604,10 @@ class Channels:
         self.y = ChannelGrid(size, Track.Type.Y)
 
     def create_track(self, start, end):
+        # Actually these can be tuple as well
+        #assert_type(start, Pos)
+        #assert_type(end, Pos)
+
         # Create track(s)
         try:
             t = Track(start, end)
@@ -592,15 +640,51 @@ if __name__ == "__main__":
     doctest.testmod()
     print('doctest: end')
 
-    g = ChannelGrid((5,2), Track.Type.X)
-    g.add_track(T((0,0), (4,0), None, "AA"))
-    g.add_track(T((0,0), (2,0), None, "BB"))
-    g.add_track(T((1,0), (4,0), None, "CC"))
-    g.add_track(T((0,0), (0,0), None, "DD"))
+    if 1:
+        g = ChannelGrid((5,2), Track.Type.X)
+        g.add_track(T((0,0), (4,0), None, "AA"))
+        g.add_track(T((0,0), (2,0), None, "BB"))
+        g.add_track(T((1,0), (4,0), None, "CC"))
+        g.add_track(T((0,0), (0,0), None, "DD"))
 
-    g.add_track(T((0,1), (2,1), None, "aa"))
-    g.add_track(T((3,1), (4,1), None, "bb"))
-    g.add_track(T((0,1), (4,1), None, "cc"))
+        g.add_track(T((0,1), (2,1), None, "aa"))
+        g.add_track(T((3,1), (4,1), None, "bb"))
+        g.add_track(T((0,1), (4,1), None, "cc"))
 
-    print()
-    print(g.pretty_print())
+        print()
+        g.check()
+        print(g.pretty_print())
+
+    if 1:
+        print()
+        print()
+
+        g = ChannelGrid((2,5), Track.Type.Y)
+        g.add_track(T((0,0), (0,4), None, "AA"))
+        g.add_track(T((0,0), (0,2), None, "BB"))
+        g.add_track(T((0,1), (0,4), None, "CC"))
+        g.add_track(T((0,0), (0,0), None, "DD"))
+
+        g.add_track(T((1,0), (1,2), None, "aa"))
+        g.add_track(T((1,3), (1,4), None, "bb"))
+        g.add_track(T((1,0), (1,4), None, "cc"))
+
+        print()
+        g.check()
+        print(g.pretty_print())
+
+    if 1:
+        print()
+        print()
+
+        c = Channels(Pos(5,3))
+        c.create_track(Pos(0,0), Pos(3,0))
+        c.create_track(Pos(0,0), Pos(1,0))
+        c.create_track(Pos(0,0), Pos(0,2))
+        #c.create_track(Pos(0,0), Pos(4,1))
+        print("X")
+        print(c.x.pretty_print())
+        print()
+        print("Y")
+        print(c.y.pretty_print())
+        print()
