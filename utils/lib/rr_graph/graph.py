@@ -36,6 +36,8 @@ class BlockTypeEdge(enum.Enum):
     lightweight enum type
 class PinClassDirection(enum.Enum):
     lightweight enum type
+
+TODO: parse comments
 '''
 
 import enum
@@ -359,7 +361,7 @@ class Pin(MostlyReadOnly):
         """
         assert_type(text, str)
         block_type_name, port_name, pins = parse_net(text.strip())
-        assert pins is not None, pins
+        assert pins is not None, text.strip()
 
         assert_eq(len(pins), 1)
         if block_type_index is None and port_name is None:
@@ -890,6 +892,10 @@ class GraphIdsMap:
     '''
 
     def __init__(self, block_graph, xml_graph=None):
+        '''
+        >>> g = simple_test_graph()
+        '''
+
         assert_type(block_graph, BlockGrid)
 
         # Mapping dictionaries
@@ -1099,17 +1105,19 @@ class GraphIdsMap:
         if False:
             pass
         elif node_type in (RRNodeType.channel_x, RRNodeType.channel_y):
-            direction = {
+            direction = xml_node.attrib.get("direction")
+            direction_fmt = {
                 'INC_DIR': '{f}{f}{ptc:02d}{f}>',
                 'DEC_DIR': '<{f}{ptc:02d}{f}{f}',
                 'BI_DIR': '<{f}{ptc:02d}{f}>',
-            }[xml_node.attrib.get("direction")]
+            }.get(direction, None)
+            assert direction_fmt, "Bad direction %s" % direction
 
             block_from = self._block_graph[low]
             block_to   = self._block_graph[high]
             return "X{:03d}Y{:03d}{}X{:03d}Y{:03d}".format(
                 block_from.x, block_from.y,
-                direction.format(f={RRNodeType.channel_x: '-', RRNodeType.channel_y: '|'}[node_type], ptc=ptc),
+                direction_fmt.format(f={RRNodeType.channel_x: '-', RRNodeType.channel_y: '|'}[node_type], ptc=ptc),
                 block_to.x, block_to.y)
         elif node_type is RRNodeType.input_class:
             type_str = "SINK-<"
@@ -1221,9 +1229,13 @@ class GraphIdsMap:
 
     def add_edge(self, src_node, sink_node, switch_id):
         # <edge src_node="34" sink_node="44" switch_id="1"/>
-        assert src_node in self.id2node['node']
-        assert sink_node in self.id2node['node']
-        assert switch_id in self.id2node['switch']
+        assert type(src_node) is int, type(src_node)
+        assert type(sink_node) is int, type(sink_node)
+        assert type(switch_id) is int, type(switch_id)
+
+        assert str(src_node) in self.id2node['node'], src_node
+        assert str(sink_node) in self.id2node['node'], sink_node
+        assert str(switch_id) in self.id2node['switch'], switch_id
         return ET.SubElement(self._xml_edges, 'edge', {
                 'src_node': str(src_node), 'sink_node': str(sink_node), 'switch_id': str(switch_id)})
 
@@ -1259,9 +1271,9 @@ class GraphIdsMap:
 
         pin_node = None
         if pc.direction in (PinClassDirection.INPUT, PinClassDirection.CLOCK):
-            self.add_node(low, high, pin.ptc, 'IPIN')
+            pin_node = self.add_node(low, high, pin.ptc, 'IPIN')
         elif pin.pin_class.direction in (PinClassDirection.OUTPUT,):
-            self.add_node(low, high, pin.ptc, 'OPIN')
+            pin_node = self.add_node(low, high, pin.ptc, 'OPIN')
         else:
             assert False, "Unknown dir of {}.{}".format(pin, pin.pin_class)
 
@@ -1270,7 +1282,7 @@ class GraphIdsMap:
         print("Adding pin {:55s} on tile ({:12s}, {:12s})@{:4d}".format(str(pin), str(low), str(high), pin.ptc))
         return pin_node
 
-    def add_nodes_for_pin_class(self, block, pin_class):
+    def add_nodes_for_pin_class(self, block, pin_class, switch_id):
         """ Creates a SOURCE or SINK node from a `class PinClass` object. """
         assert_type(block, Block)
         assert_type(block.block_type, BlockType)
@@ -1280,8 +1292,6 @@ class GraphIdsMap:
 
         pos_low = block.position
         pos_high = block.position + pin_class.block_type.size
-
-        nodes = self._xml_nodes
 
         # Assuming only one pin per class for now
         # see [0] references
@@ -1295,7 +1305,7 @@ class GraphIdsMap:
                 pin_node = self.add_nodes_for_pin(block, p)
 
                 # Edge PIN->SINK
-                self.add_edge(pin_node, sink_node)
+                self.add_edge(int(pin_node.get("id")), int(sink_node.get("id")), switch_id)
 
         elif pin_class.direction in (PinClassDirection.OUTPUT,):
             # Source node
@@ -1305,27 +1315,32 @@ class GraphIdsMap:
                 pin_node = self.add_nodes_for_pin(block, p)
 
                 # Edge SOURCE->PIN
-                self.add_edge(src_node, pin_node)
+                self.add_edge(int(src_node.get("id")), int(pin_node.get("id")), switch_id)
 
         else:
             assert False, "Unknown dir of {} for {}".format(pin_class.direction, str(pin_class))
 
         #return pin_node
 
-    def add_nodes_for_block(self, block):
+    def add_nodes_for_block(self, block, switch_id):
         """
         Creates the SOURCE/SINK nodes for each pin class
         Creates the IPIN/OPIN nodes for each pin inside a pin class.
 
         >>> test_add_nodes_for_block()
+        Adding pin MYIN(0)->DATIN[0]                                       on tile (P(x=0, y=0) , P(x=0, y=0) )@   0
+        Adding pin MYIN(1)->DATIN[1]                                       on tile (P(x=0, y=0) , P(x=0, y=0) )@   1
+        Adding pin MYOUT(0)->IN[0]                                         on tile (P(x=1, y=0) , P(x=1, y=0) )@   0
         """
         for pc in block.block_type.pin_classes:
-            self.add_nodes_for_pin_class(block, pc)
+            self.add_nodes_for_pin_class(block, pc, switch_id)
 
 def test_add_nodes_for_block():
     g = simple_test_graph()
+    g.ids.clear_graph()
+    switch = g.ids.add_switch(buffered=1)
     for block in g.block_graph:
-        g.add_nodes_for_block(block)
+        g.ids.add_nodes_for_block(block, int(switch.get("id")))
 
 class Graph:
     '''
@@ -1436,7 +1451,7 @@ class Graph:
             'output':  (pin_node, track_node),
             }[pin.pin_class.direction]
 
-        self.ids.add_edge(src_node, sink_node, int(switch.get("id")))
+        self.ids.add_edge(int(src_node.get("id")), int(sink_node.get("id")), int(switch.get("id")))
 
     def connect_track_to_track(self, xtrack, ytrack, switch, node_index=None):
         _pin2node, track2nodes = node_index if node_index else self.index_node_objects()
@@ -1447,8 +1462,9 @@ class Graph:
         ytrack_node = track2nodes[ytrack][pos]
 
         # Make bi directional
-        self.ids.add_edge(xtrack_node, ytrack_node, int(switch.get("id")))
-        self.ids.add_edge(ytrack_node, xtrack_node, int(switch.get("id")))
+
+        self.ids.add_edge(int(xtrack_node.get("id")), int(ytrack_node.get("id")), int(switch.get("id")))
+        self.ids.add_edge(int(ytrack_node.get("id")), int(xtrack_node.get("id")), int(switch.get("id")))
 
     def index_node_objects(self):
         # index pin and pin class associates
@@ -1458,6 +1474,8 @@ class Graph:
         track2nodes = {}
 
         for node in self.ids._xml_nodes:
+            if node.tag == ET.Comment:
+                continue
             type = node.get('type')
             loc = list(node.iterfind("loc"))[0]
 
@@ -1570,15 +1588,15 @@ def simple_test_graph():
                 <block_types>
                     <block_type id="0" name="MYIN" width="1" height="1">
                         <pin_class type="INPUT">
-                            <pin index="0" ptc="0">DATIN0</pin>
+                            <pin index="0" ptc="0">DATIN[0]</pin>
                         </pin_class>
                         <pin_class type="INPUT">
-                            <pin index="0" ptc="1">DATIN1</pin>
+                            <pin index="0" ptc="1">DATIN[1]</pin>
                         </pin_class>
                     </block_type>
                     <block_type id="1" name="MYOUT" width="1" height="1">
                         <pin_class type="OUTPUT">
-                            <pin index="0" ptc="0">IN</pin>
+                            <pin index="0" ptc="0">IN[0]</pin>
                         </pin_class>
                     </block_type>
                 </block_types>
@@ -1587,7 +1605,6 @@ def simple_test_graph():
                     <grid_loc x="1" y="0" block_type_id="1" width_offset="0" height_offset="0"/>
                 </grid>
                 <rr_nodes>
-                    <!-- Nodes for input block -->
                     <node id="0" type="SOURCE" capacity="1">
                         <loc xlow="0" ylow="0" xhigh="0" yhigh="0" ptc="0"/>
                         <timing R="0" C="0"/>
@@ -1601,38 +1618,29 @@ def simple_test_graph():
                     <node id="3" type="OPIN" capacity="1">
                         <loc xlow="0" ylow="0" xhigh="0" yhigh="0" ptc="1" side="RIGHT"/>
                     </node>
-                    <!-- Nodes for output block -->
                     <node id="4" type="SINK" capacity="1">
                         <loc xlow="1" ylow="0" xhigh="1" yhigh="0" ptc="0"/>
                     </node>
                     <node id="5" type="IPIN" capacity="1">
                         <loc xlow="1" ylow="0" xhigh="1" yhigh="0" ptc="0" side="LEFT"/>
                     </node>
-                    <!--
-                    Some nodes for connectivity between them
-                    vtr requires channels to be allocated in pairs
-                    -->
-                    <node id="6" type="CHANY" direction="INC" capacity="1">
+                    <node id="6" type="CHANY" direction="INC_DIR" capacity="1">
                         <loc xlow="0" ylow="0" xhigh="0" yhigh="0" ptc="0"/>
                         <timing R="100" C="12e-12"/>
                         <segment segment_id="0"/>
                     </node>
-                    <node id="7" type="CHANY" direction="DEC" capacity="1">
+                    <node id="7" type="CHANY" direction="DEC_DIR" capacity="1">
                         <loc xlow="0" ylow="0" xhigh="0" yhigh="0" ptc="0"/>
                         <segment segment_id="0"/>
                     </node>
                 </rr_nodes>
                 <rr_edges>
-                    <!-- Connect pins to nets -->
                     <edge src_node="0" sink_node="1" switch_id="0"/>
                     <edge src_node="2" sink_node="3" switch_id="0"/>
                     <edge src_node="4" sink_node="5" switch_id="0"/>
-                    <!-- First input pin can connect to either track -->
                     <edge src_node="1" sink_node="6" switch_id="0"/>
                     <edge src_node="3" sink_node="7" switch_id="0"/>
-                    <!-- Second input pin can only connect to first -->
                     <edge src_node="0" sink_node="6" switch_id="0"/>
-                    <!-- Output can connect to either -->
                     <edge src_node="6" sink_node="5" switch_id="0"/>
                     <edge src_node="7" sink_node="5" switch_id="0"/>
                 </rr_edges>
