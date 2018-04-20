@@ -41,6 +41,9 @@ def rebuild_graph(fn):
     g.ids.clear_graph()
     graph.print_graph(g)
 
+    # Create a single switch type to use for all connections
+    switch = g.ids.add_switch(buffered=1)
+
     print('Rebuild: adding nodes')
     '''
     <node id="0" type="SOURCE" capacity="1">
@@ -50,16 +53,13 @@ def rebuild_graph(fn):
     '''
     for block in g.block_graph:
         print(block)
-        g.ids.add_nodes_for_block(block)
+        g.ids.add_nodes_for_block(block, switch)
     print
     graph.print_graph(g)
 
     # ala --route_chan_width
     rcw = 4
 
-
-    # Create a single switch type to use for all connections
-    switch = g.ids.add_switch(buffered=1)
 
     def connect_block_to_track(block, track):
         '''Connect all block pins to given track'''
