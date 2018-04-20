@@ -2,7 +2,7 @@ import lib.rr_graph.graph as graph
 from lib.rr_graph import Position
 
 import sys
-mport lxml.etree as ET
+import lxml.etree as ET
 import os
 
 def rebuild_graph(fn):
@@ -23,7 +23,7 @@ def rebuild_graph(fn):
             | | |
     --------*-*-*---
             | | |
-    --------*-*-*---
+    --------*-*-----
             | | |
      ___ I  | | |
     |   |-<-*-*-*
@@ -63,10 +63,12 @@ def rebuild_graph(fn):
 
     def connect_block_to_track(block, track):
         '''Connect all block pins to given track'''
-        for pin in block.pins():
+        for pin in block.pins():    
             g.connect_pin_to_track(block, pin, track, switch)
 
-    node_index = self.index_node_objects()
+    # currently finding the nodes associated with a pin or pin_class requires exhausive search
+    # use this to speed up association
+    node_index = g.index_node_objects()
 
     grid = g.block_graph.block_grid_size()
     # chanx going entire width

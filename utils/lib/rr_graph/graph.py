@@ -958,6 +958,7 @@ class GraphIdsMap:
             xml_graph = ET.Element("rr_graph")
             ET.SubElement(xml_graph, "rr_nodes")
             ET.SubElement(xml_graph, "rr_edges")
+            ET.SubElement(xml_graph, "switches")
         self._xml_graph = xml_graph
 
         # Index existing XML entries
@@ -1045,7 +1046,10 @@ class GraphIdsMap:
         if node_id is None:
             node_id = len(self.id2node[xml_group])
 
-        parent_xml = getattr(self, "_xml_{}s".format(xml_group))
+        # FIXME: ugly hack
+        attr = "_xml_{}s".format(xml_group)
+        attr = attr.replace("switchs", "switches")
+        parent_xml = getattr(self, attr)
         #assert obj in list(parent_xml)
         #parent_xml.append(obj)
 
@@ -1180,6 +1184,7 @@ class GraphIdsMap:
             i=ptc, s=type_str)
 
     def nodes_for_edge(self, xml_node):
+        '''Return all node XML objects associated with given edge XML object'''
         assert xml_node.tag == 'edge'
         snk_node_id = xml_node.attrib.get("sink_node")
         src_node_id = xml_node.attrib.get("src_node")
@@ -1210,6 +1215,8 @@ class GraphIdsMap:
         ...     <segment segment_id="1"/>
         ...   </node>
         ...  </rr_nodes>
+        ... <rr_edges />
+        ... <switches />
         ... </rr_graph>
         ... '''
         >>> m = GraphIdsMap(block_graph=bg, xml_graph=ET.fromstring(xml_string1))
@@ -1383,8 +1390,7 @@ class Graph:
 
         self.ids = GraphIdsMap(self.block_graph, self._xml_graph)
 
-        #self.grid = {}
-        self.channels = Channels()
+        self.channels = Channels(self.block_graph.block_grid_size())
 
     # Following takes info from existing rr_graph file
 
