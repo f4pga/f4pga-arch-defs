@@ -868,56 +868,6 @@ class BlockGrid:
         for pos in sorted(self.block_grid):
             yield self.block_grid[pos]
 
-def simple_test_graph():
-    bg = BlockGrid()
-
-    # Create a block type with one input and one output pin
-    bt = BlockType(graph=bg, id=0, name="DUALBLK")
-    pci = PinClass(block_type=bt, direction=PinClassDirection.INPUT)
-    pi = Pin(pin_class=pci, pin_class_index=0)
-    pco = PinClass(block_type=bt, direction=PinClassDirection.OUTPUT)
-    po = Pin(pin_class=pco, pin_class_index=0)
-
-    # Create a block type with one input class with 4 pins
-    bt = BlockType(graph=bg, id=1, name="INBLOCK")
-    pci = PinClass(block_type=bt, direction=PinClassDirection.INPUT)
-    Pin(pin_class=pci, pin_class_index=0)
-    Pin(pin_class=pci, pin_class_index=1)
-    Pin(pin_class=pci, pin_class_index=2)
-    Pin(pin_class=pci, pin_class_index=3)
-
-    # Create a block type with out input class with 2 pins
-    bt = BlockType(graph=bg, id=2, name="OUTBLOK")
-    pci = PinClass(block_type=bt, direction=PinClassDirection.OUTPUT)
-    Pin(pin_class=pci, pin_class_index=0)
-    Pin(pin_class=pci, pin_class_index=1)
-    Pin(pin_class=pci, pin_class_index=2)
-    Pin(pin_class=pci, pin_class_index=3)
-
-    # Add some blocks
-    bg.add_block(Block(graph=bg, block_type_id=1, position=Position(0,0)))
-    bg.add_block(Block(graph=bg, block_type_id=1, position=Position(0,1)))
-    bg.add_block(Block(graph=bg, block_type_id=1, position=Position(0,2)))
-    bg.add_block(Block(graph=bg, block_type_id=1, position=Position(0,3)))
-
-    bg.add_block(Block(graph=bg, block_type_id=0, position=Position(1,0)))
-    bg.add_block(Block(graph=bg, block_type_id=0, position=Position(1,1)))
-    bg.add_block(Block(graph=bg, block_type_id=0, position=Position(1,2)))
-    bg.add_block(Block(graph=bg, block_type_id=0, position=Position(1,3)))
-
-    bg.add_block(Block(graph=bg, block_type_id=0, position=Position(2,0)))
-    bg.add_block(Block(graph=bg, block_type_id=0, position=Position(2,1)))
-    bg.add_block(Block(graph=bg, block_type_id=0, position=Position(2,2)))
-    bg.add_block(Block(graph=bg, block_type_id=0, position=Position(2,3)))
-
-    bg.add_block(Block(graph=bg, block_type_id=2, position=Position(3,0)))
-    bg.add_block(Block(graph=bg, block_type_id=2, position=Position(3,1)))
-    bg.add_block(Block(graph=bg, block_type_id=2, position=Position(3,2)))
-    bg.add_block(Block(graph=bg, block_type_id=2, position=Position(3,3)))
-
-    return bg
-
-
 class RRNodeType(enum.Enum):
     input_class     = "SINK"
     output_class    = "SOURCE"
@@ -1064,7 +1014,7 @@ class GraphIdsMap:
         """Get a globally unique name for an `node` in the rr_nodes.
 
         >>>
-        >>> bg = simple_test_graph()
+        >>> bg = simple_test_block_grid()
         >>> m = GraphIdsMap(block_graph=bg)
         >>>
         >>> m.node_name(ET.fromstring('''
@@ -1201,7 +1151,7 @@ class GraphIdsMap:
 
         An edge goes between two `node` objects.
 
-        >>> bg = simple_test_graph()
+        >>> bg = simple_test_block_grid()
         >>> xml_string1 = '''
         ... <rr_graph>
         ...  <rr_nodes>
@@ -1366,9 +1316,16 @@ class GraphIdsMap:
         """
         Creates the SOURCE/SINK nodes for each pin class
         Creates the IPIN/OPIN nodes for each pin inside a pin class.
+
+        >>> test_add_nodes_for_block()
         """
         for pc in block.block_type.pin_classes:
             self.add_nodes_for_pin_class(block, pc)
+
+def test_add_nodes_for_block():
+    g = simple_test_graph()
+    for block in g.block_graph:
+        g.add_nodes_for_block(block)
 
 class Graph:
     '''
@@ -1536,6 +1493,152 @@ class Graph:
 '''
 Debug / test
 '''
+
+def simple_test_block_grid():
+    bg = BlockGrid()
+
+    # Create a block type with one input and one output pin
+    bt = BlockType(graph=bg, id=0, name="DUALBLK")
+    pci = PinClass(block_type=bt, direction=PinClassDirection.INPUT)
+    pi = Pin(pin_class=pci, pin_class_index=0)
+    pco = PinClass(block_type=bt, direction=PinClassDirection.OUTPUT)
+    po = Pin(pin_class=pco, pin_class_index=0)
+
+    # Create a block type with one input class with 4 pins
+    bt = BlockType(graph=bg, id=1, name="INBLOCK")
+    pci = PinClass(block_type=bt, direction=PinClassDirection.INPUT)
+    Pin(pin_class=pci, pin_class_index=0)
+    Pin(pin_class=pci, pin_class_index=1)
+    Pin(pin_class=pci, pin_class_index=2)
+    Pin(pin_class=pci, pin_class_index=3)
+
+    # Create a block type with out input class with 2 pins
+    bt = BlockType(graph=bg, id=2, name="OUTBLOK")
+    pci = PinClass(block_type=bt, direction=PinClassDirection.OUTPUT)
+    Pin(pin_class=pci, pin_class_index=0)
+    Pin(pin_class=pci, pin_class_index=1)
+    Pin(pin_class=pci, pin_class_index=2)
+    Pin(pin_class=pci, pin_class_index=3)
+
+    # Add some blocks
+    bg.add_block(Block(graph=bg, block_type_id=1, position=Position(0,0)))
+    bg.add_block(Block(graph=bg, block_type_id=1, position=Position(0,1)))
+    bg.add_block(Block(graph=bg, block_type_id=1, position=Position(0,2)))
+    bg.add_block(Block(graph=bg, block_type_id=1, position=Position(0,3)))
+
+    bg.add_block(Block(graph=bg, block_type_id=0, position=Position(1,0)))
+    bg.add_block(Block(graph=bg, block_type_id=0, position=Position(1,1)))
+    bg.add_block(Block(graph=bg, block_type_id=0, position=Position(1,2)))
+    bg.add_block(Block(graph=bg, block_type_id=0, position=Position(1,3)))
+
+    bg.add_block(Block(graph=bg, block_type_id=0, position=Position(2,0)))
+    bg.add_block(Block(graph=bg, block_type_id=0, position=Position(2,1)))
+    bg.add_block(Block(graph=bg, block_type_id=0, position=Position(2,2)))
+    bg.add_block(Block(graph=bg, block_type_id=0, position=Position(2,3)))
+
+    bg.add_block(Block(graph=bg, block_type_id=2, position=Position(3,0)))
+    bg.add_block(Block(graph=bg, block_type_id=2, position=Position(3,1)))
+    bg.add_block(Block(graph=bg, block_type_id=2, position=Position(3,2)))
+    bg.add_block(Block(graph=bg, block_type_id=2, position=Position(3,3)))
+
+    return bg
+
+def simple_test_graph():
+    '''
+    Simple block containing one input block, one output block, with some routing between them
+    Can be used to implmenet a 2:1 mux
+    '''
+    xml_str = '''
+            <rr_graph tool_name="vpr" tool_version="82a3c72" tool_comment="Based on my_arch.xml">
+                <channels>
+                    <channel chan_width_max="2" x_min="0" y_min="0" x_max="1" y_max="0"/>
+                    <x_list index="1" info="2"/>
+                    <x_list index="2" info="2"/>
+                    <y_list index="1" info="2"/>
+                </channels>
+                <switches>
+                    <switch id="0" name="my_switch" buffered="1">
+                        <timing R="100" Cin="1233-12" Cout="123e-12" Tdel="1e-9"/>
+                        <sizing mux_trans_size="2.32" buf_size="23.54"/>
+                    </switch>
+                </switches>
+                <segments>
+                    <segment id="0" name="L4">
+                        <timing R_per_meter="201.7" C_per_meter="18.110e-15"/>
+                    </segment>
+                </segments>
+                <block_types>
+                    <block_type id="0" name="MYIN" width="1" height="1">
+                        <pin_class type="INPUT">
+                            <pin index="0" ptc="0">DATIN0</pin>
+                        </pin_class>
+                        <pin_class type="INPUT">
+                            <pin index="0" ptc="1">DATIN1</pin>
+                        </pin_class>
+                    </block_type>
+                    <block_type id="1" name="MYOUT" width="1" height="1">
+                        <pin_class type="OUTPUT">
+                            <pin index="0" ptc="0">IN</pin>
+                        </pin_class>
+                    </block_type>
+                </block_types>
+                <grid>
+                    <grid_loc x="0" y="0" block_type_id="0" width_offset="0" height_offset="0"/>
+                    <grid_loc x="1" y="0" block_type_id="1" width_offset="0" height_offset="0"/>
+                </grid>
+                <rr_nodes>
+                    <!-- Nodes for input block -->
+                    <node id="0" type="SOURCE" capacity="1">
+                        <loc xlow="0" ylow="0" xhigh="0" yhigh="0" ptc="0"/>
+                        <timing R="0" C="0"/>
+                    </node>
+                    <node id="1" type="OPIN" capacity="1">
+                        <loc xlow="0" ylow="0" xhigh="0" yhigh="0" ptc="0" side="RIGHT"/>
+                    </node>
+                    <node id="2" type="SOURCE" capacity="1">
+                        <loc xlow="0" ylow="0" xhigh="0" yhigh="0" ptc="1"/>
+                    </node>
+                    <node id="3" type="OPIN" capacity="1">
+                        <loc xlow="0" ylow="0" xhigh="0" yhigh="0" ptc="1" side="RIGHT"/>
+                    </node>
+                    <!-- Nodes for output block -->
+                    <node id="4" type="SINK" capacity="1">
+                        <loc xlow="1" ylow="0" xhigh="1" yhigh="0" ptc="0"/>
+                    </node>
+                    <node id="5" type="IPIN" capacity="1">
+                        <loc xlow="1" ylow="0" xhigh="1" yhigh="0" ptc="0" side="LEFT"/>
+                    </node>
+                    <!--
+                    Some nodes for connectivity between them
+                    vtr requires channels to be allocated in pairs
+                    -->
+                    <node id="6" type="CHANY" direction="INC" capacity="1">
+                        <loc xlow="0" ylow="0" xhigh="0" yhigh="0" ptc="0"/>
+                        <timing R="100" C="12e-12"/>
+                        <segment segment_id="0"/>
+                    </node>
+                    <node id="7" type="CHANY" direction="DEC" capacity="1">
+                        <loc xlow="0" ylow="0" xhigh="0" yhigh="0" ptc="0"/>
+                        <segment segment_id="0"/>
+                    </node>
+                </rr_nodes>
+                <rr_edges>
+                    <!-- Connect pins to nets -->
+                    <edge src_node="0" sink_node="1" switch_id="0"/>
+                    <edge src_node="2" sink_node="3" switch_id="0"/>
+                    <edge src_node="4" sink_node="5" switch_id="0"/>
+                    <!-- First input pin can connect to either track -->
+                    <edge src_node="1" sink_node="6" switch_id="0"/>
+                    <edge src_node="3" sink_node="7" switch_id="0"/>
+                    <!-- Second input pin can only connect to first -->
+                    <edge src_node="0" sink_node="6" switch_id="0"/>
+                    <!-- Output can connect to either -->
+                    <edge src_node="6" sink_node="5" switch_id="0"/>
+                    <edge src_node="7" sink_node="5" switch_id="0"/>
+                </rr_edges>
+            </rr_graph>
+            '''
+    return Graph(io.StringIO(xml_str))
 
 def print_block_types(rr_graph):
     '''Sequentially list block types'''
