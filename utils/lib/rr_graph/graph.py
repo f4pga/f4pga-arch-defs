@@ -709,15 +709,6 @@ class BlockType(MostlyReadOnly):
         if pin_class not in self._pin_classes:
             self._pin_classes.append(pin_class)
 
-    def ptc2pin(self, ptc):
-        # TODO: consider indexing
-        for pin_class in self.block_type.pin_classes:
-            for pin in pin_class.pins.values():
-                if pin.block_type_index == ptc:
-                    return pin
-        else:
-            raise KeyError("ptc %d not found" % ptc)
-
 class Block(MostlyReadOnly):
     '''For <grid_loc> nodes'''
 
@@ -787,6 +778,15 @@ class Block(MostlyReadOnly):
         for pin_class in self.block_type.pin_classes:
             for pin in pin_class.pins.values():
                 yield pin
+
+    def ptc2pin(self, ptc):
+        # TODO: consider indexing
+        for pin_class in self.block_type.pin_classes:
+            for pin in pin_class.pins.values():
+                if pin.block_type_index == ptc:
+                    return pin
+        else:
+            raise KeyError("ptc %d not found" % ptc)
 
 class BlockTypeEdge(enum.Enum):
     TOP = "TOP"
@@ -891,11 +891,11 @@ class GraphIdsMap:
     <switch> is also currently in here, but maybe shouldn't be
     '''
 
-    def __init__(self, block_graph, xml_graph=None):
+    def __init__(self, block_graph, xml_graph=None, verbose=True):
         '''
         >>> g = simple_test_graph()
         '''
-
+        self.verbose = verbose
         assert_type(block_graph, BlockGrid)
 
         # Mapping dictionaries
@@ -1142,7 +1142,10 @@ class GraphIdsMap:
             i=ptc, s=type_str)
 
     def nodes_for_edge(self, xml_node):
-        '''Return all node XML objects associated with given edge XML object'''
+        '''Return all node XML objects associated with given edge XML object
+
+        >>> test_nodes_for_edges()
+        '''
         assert xml_node.tag == 'edge'
         snk_node_id = xml_node.attrib.get("sink_node")
         src_node_id = xml_node.attrib.get("src_node")
@@ -1279,7 +1282,8 @@ class GraphIdsMap:
 
         assert pin_node != None, pin_node
 
-        print("Adding pin {:55s} on tile ({:12s}, {:12s})@{:4d}".format(str(pin), str(low), str(high), pin.ptc))
+        if self.verbose:
+            print("Adding pin {:55s} on tile ({:12s}, {:12s})@{:4d}".format(str(pin), str(low), str(high), pin.ptc))
         return pin_node
 
     def add_nodes_for_pin_class(self, block, pin_class, switch_id):
@@ -1328,19 +1332,9 @@ class GraphIdsMap:
         Creates the IPIN/OPIN nodes for each pin inside a pin class.
 
         >>> test_add_nodes_for_block()
-        Adding pin MYIN(0)->DATIN[0]                                       on tile (P(x=0, y=0) , P(x=0, y=0) )@   0
-        Adding pin MYIN(1)->DATIN[1]                                       on tile (P(x=0, y=0) , P(x=0, y=0) )@   1
-        Adding pin MYOUT(0)->IN[0]                                         on tile (P(x=1, y=0) , P(x=1, y=0) )@   0
         """
         for pc in block.block_type.pin_classes:
             self.add_nodes_for_pin_class(block, pc, switch_id)
-
-def test_add_nodes_for_block():
-    g = simple_test_graph()
-    g.ids.clear_graph()
-    switch = g.ids.add_switch(buffered=1)
-    for block in g.block_graph:
-        g.ids.add_nodes_for_block(block, int(switch.get("id")))
 
 class Graph:
     '''
@@ -1348,7 +1342,8 @@ class Graph:
     For <rr_graph> node
     '''
 
-    def __init__(self, rr_graph_file=None):
+    def __init__(self, rr_graph_file=None, verbose=True):
+        self.verbose = verbose
         # Read in existing file
         if rr_graph_file:
             self.block_graph = BlockGrid()
@@ -1360,7 +1355,7 @@ class Graph:
             ET.SubElement(self._xml_graph, "rr_nodes")
             ET.SubElement(self._xml_graph, "rr_edges")
 
-        self.ids = GraphIdsMap(self.block_graph, self._xml_graph)
+        self.ids = GraphIdsMap(self.block_graph, self._xml_graph, verbose=verbose)
 
         self.channels = Channels(self.block_graph.block_grid_size())
 
@@ -1467,6 +1462,9 @@ class Graph:
         self.ids.add_edge(int(ytrack_node.get("id")), int(xtrack_node.get("id")), int(switch.get("id")))
 
     def index_node_objects(self):
+        '''
+        >>> test_index_node_objects()
+        '''
         # index pin and pin class associates
         # 'IPIN', 'OPIN', 'SINK', 'SOURCE', 'CHANX', 'CHANY'
         #pinclass2nodes = {}
@@ -1482,10 +1480,10 @@ class Graph:
             # this may not be true for large tiles we'll have in the future
             pos = Position(int(loc.get('xlow')), int(loc.get('ylow')))
             pos2 = Position(int(loc.get('xhigh')), int(loc.get('yhigh')))
-            assert pos == pos2
 
             ptc = int(loc.get('ptc'))
             if type in ('IPIN', 'OPIN'):
+                assert pos == pos2, (pos, pos2)
                 # Lookup Block/<grid_loc>
                 # ptc is the associated pin ptc value of the block_type
                 block = self.block_graph[pos]
@@ -1561,7 +1559,7 @@ def simple_test_block_grid():
 
     return bg
 
-def simple_test_graph():
+def simple_test_graph(**kwargs):
     '''
     Simple block containing one input block, one output block, with some routing between them
     Can be used to implmenet a 2:1 mux
@@ -1569,9 +1567,9 @@ def simple_test_graph():
     xml_str = '''
             <rr_graph tool_name="vpr" tool_version="82a3c72" tool_comment="Based on my_arch.xml">
                 <channels>
-                    <channel chan_width_max="2" x_min="0" y_min="0" x_max="1" y_max="0"/>
-                    <x_list index="1" info="2"/>
-                    <x_list index="2" info="2"/>
+                    <channel chan_width_max="2" x_min="0" y_min="0" x_max="0" y_max="1"/>
+                    <x_list index="0" info="1"/>
+                    <y_list index="0" info="2"/>
                     <y_list index="1" info="2"/>
                 </channels>
                 <switches>
@@ -1646,7 +1644,55 @@ def simple_test_graph():
                 </rr_edges>
             </rr_graph>
             '''
-    return Graph(io.StringIO(xml_str))
+    return Graph(io.StringIO(xml_str), **kwargs)
+
+def test_add_nodes_for_block(ret=False):
+    g = simple_test_graph(verbose=False)
+    g.ids.clear_graph()
+    switch = g.ids.add_switch(buffered=1)
+    for block in g.block_graph:
+        g.ids.add_nodes_for_block(block, int(switch.get("id")))
+    '''
+    2 input pins, 1 output pin
+    Should have added 3 edges to connect edge to pin
+    Ande one PIN node + one NET node
+    '''
+    assert len(g.ids._xml_edges) == 3
+    assert len(g.ids._xml_nodes) == 6
+    if ret:
+        return g
+
+'''
+mcmaster: strongly dislike doctest
+Preparing this for a port to unittest
+'''
+
+def test_nodes_for_edges():
+    g = test_add_nodes_for_block(True)
+    # Each edge should connect a net to a pin
+    for edge in g.ids._xml_edges:
+        assert len(g.ids.nodes_for_edge(edge)) == 2
+
+def node_ptc(node):
+    locs = list(node.iterfind("loc"))
+    assert len(locs) == 1, locs
+    loc = locs[0]
+    return int(loc.get('ptc'))
+
+def test_index_node_objects():
+    g = test_add_nodes_for_block(True)
+    pin2node, track2nodes = g.index_node_objects()
+
+    # 3 pins in this design
+    assert len(pin2node) == 3
+    for pin, node in pin2node.items():
+        assert pin.ptc == node_ptc(node)
+
+    # 1 x + 2 y tracks
+    assert len(track2nodes) == 3, len(track2nodes)
+    for track, node in track2nodes.items():
+        #assert track.ptc == node_ptc(node)
+        pass
 
 def print_block_types(rr_graph):
     '''Sequentially list block types'''
