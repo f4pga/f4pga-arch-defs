@@ -43,8 +43,10 @@ def rebuild_graph(fn):
 
     # Create a single switch type to use for all connections
     switch = g.ids.add_switch(buffered=1)
+    #switch_id = int(switch.get("id"))
 
     print('Rebuild: adding nodes')
+    g.index_node_objects()
     '''
     <node id="0" type="SOURCE" capacity="1">
             <loc xlow="1" ylow="1" xhigh="1" yhigh="1" ptc="0"/>
@@ -54,8 +56,10 @@ def rebuild_graph(fn):
     for block in g.block_graph:
         print(block)
         g.ids.add_nodes_for_block(block, switch)
+        g.index_node_objects()
     print
     graph.print_graph(g)
+    g.index_node_objects()
 
     # ala --route_chan_width
     rcw = 4
@@ -65,6 +69,7 @@ def rebuild_graph(fn):
         '''Connect all block pins to given track'''
         for pin in block.pins():    
             g.connect_pin_to_track(block, pin, track, switch)
+            g.index_node_objects()
 
     # currently finding the nodes associated with a pin or pin_class requires exhausive search
     # use this to speed up association
