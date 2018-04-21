@@ -1391,20 +1391,26 @@ class Graph:
         # they don't necessarily line up
         channels = list(self._xml_graph.iterfind("channels"))
         assert len(channels) == 1, channels
-        self.channels = Channels.from_xml(channels[0])
+        #self.channels = Channels.from_xml(channels[0])
+        self.channels = Channels(self.block_graph.block_grid_size())
+
         # For any graphs we are handling now this should be true
         assert self.channels.size == self.block_graph.block_grid_size(), (self.channels.size, self.block_graph.block_grid_size())
 
         for node_xml in self.ids._xml_nodes:
-            if node_xml.get('type') not in ('CHANX', 'CHANY'):
+            ntype = node_xml.get('type')
+            if ntype not in ('CHANX', 'CHANY'):
                 continue
+            ntype_e =  Track.Type(ntype)
 
             loc = node_loc(node_xml)
             idx = int(loc.get('ptc'))
-
             pos_low, pos_high = node_pos(node_xml)
+            print('Importing %s @ %s:%s :: %d' % (ntype, pos_low, pos_high, idx))
+
             # idx will get assinged when adding to track
-            self.channels.create_track(pos_low, pos_high, idx=idx)
+            track = self.channels.create_xy_track(pos_low, pos_high, idx=idx, type=ntype_e)
+            assert track.type == ntype_e, (track.type.value, ntype_e)
 
     def set_tooling(self, name, version, comment):
         root = self._xml_graph.getroot()
