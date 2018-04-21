@@ -1336,6 +1336,16 @@ class GraphIdsMap:
         for pc in block.block_type.pin_classes:
             self.add_nodes_for_pin_class(block, pc, switch_id)
 
+def node_loc(node):
+    return list(node.iterfind("loc"))[0]
+
+def node_pos(node):
+    # node as node_xml
+    loc = node_loc(node)
+    pos_low = Position(int(loc.get('xlow')), int(loc.get('ylow')))
+    pos_high = Position(int(loc.get('xhigh')), int(loc.get('yhigh')))
+    return pos_low, pos_high
+
 class Graph:
     '''
     Top level representation, holds the XML root
@@ -1344,6 +1354,7 @@ class Graph:
 
     def __init__(self, rr_graph_file=None, verbose=True):
         self.verbose = verbose
+
         # Read in existing file
         if rr_graph_file:
             self.block_graph = BlockGrid()
@@ -1357,7 +1368,11 @@ class Graph:
 
         self.ids = GraphIdsMap(self.block_graph, self._xml_graph, verbose=verbose)
 
-        self.channels = Channels(self.block_graph.block_grid_size())
+        # Channels import requires rr_nodes
+        if rr_graph_file:
+            self.import_channels()
+        else:
+            self.channels = Channels(self.block_graph.block_grid_size())
 
     # Following takes info from existing rr_graph file
 
@@ -1371,6 +1386,26 @@ class Graph:
         for block_xml in self._xml_graph.iterfind("./grid/grid_loc"):
             Block.from_xml(self.block_graph, block_xml)
 
+    def import_channels(self):
+        # XXX: we should validate channels reported width against grid width
+        # they don't necessarily line up
+        channels = list(self._xml_graph.iterfind("channels"))
+        assert len(channels) == 1, channels
+        self.channels = Channels.from_xml(channels[0])
+        # For any graphs we are handling now this should be true
+        assert self.channels.size == self.block_graph.block_grid_size(), (self.channels.size, self.block_graph.block_grid_size())
+
+        for node_xml in self.ids._xml_nodes:
+            if node_xml.get('type') not in ('CHANX', 'CHANY'):
+                continue
+
+            loc = node_loc(node_xml)
+            idx = int(loc.get('ptc'))
+
+            pos_low, pos_high = node_pos(node_xml)
+            # idx will get assinged when adding to track
+            self.channels.create_track(pos_low, pos_high, idx=idx)
+
     def set_tooling(self, name, version, comment):
         root = self._xml_graph.getroot()
         root.set("tool_name", name)
@@ -1379,15 +1414,15 @@ class Graph:
 
     """
     # Tim: maybe delete most of this and use channel.py instead
-    def add_track(self, globalname, start, end):
+    def create_track(self, globalname, start, end):
         t = Track(start, end)
 
         # Going to need two channels to make this work..
         '''
             assert _chantype is None
-            start_channelname = add_track(
+            start_channelname = create_track(
                 globalname+"_Y", (x_start, y_start), (x_start, y_end), segtype)[0]
-            end_channelname = add_track(
+            end_channelname = create_track(
                 globalname+"_X", (x_start, y_end), (x_end, y_end), segtype)[-1]
             add_edge(globalname+"_Y", globalname+"_X")
             return start_channelname, end_channelname
@@ -1463,6 +1498,11 @@ class Graph:
 
     def index_node_objects(self):
         '''
+        return pin2node, track2nodes
+        pin2node: pin XML object to node XML object
+        track2nodes: Channel.Track to locdict
+            locdict: keys are positions, values are a list of nodes at that location
+
         >>> test_index_node_objects()
         '''
         # index pin and pin class associates
@@ -1474,16 +1514,16 @@ class Graph:
         for node in self.ids._xml_nodes:
             if node.tag == ET.Comment:
                 continue
+
             type = node.get('type')
-            loc = list(node.iterfind("loc"))[0]
-
-            # this may not be true for large tiles we'll have in the future
-            pos = Position(int(loc.get('xlow')), int(loc.get('ylow')))
-            pos2 = Position(int(loc.get('xhigh')), int(loc.get('yhigh')))
-
+            loc = node_loc(node)
+            pos_low, pos_high = node_pos(node)
             ptc = int(loc.get('ptc'))
+
             if type in ('IPIN', 'OPIN'):
-                assert pos == pos2, (pos, pos2)
+                assert pos_low == pos_high, (pos_low, pos_high)
+                pos = pos_low
+
                 # Lookup Block/<grid_loc>
                 # ptc is the associated pin ptc value of the block_type
                 block = self.block_graph[pos]
@@ -1498,9 +1538,13 @@ class Graph:
                 # why is INC_DIR and segment needed?
                 # can't those be looked up?
                 grid = {'CHANX': self.channels.x, 'CHANY': self.channels.y}[type]
-                segment_id = list(node.iterfind("segment"))[0].get('segment_id')
-                track = grid[pos][ptc]
-                track2nodes.append
+                #segment_id = list(node.iterfind("segment"))[0].get('segment_id')
+                try:
+                    track = grid[pos_low][ptc]
+                except IndexError:
+                    raise IndexError("%s node pos %s ptc %d not found" % (type, pos, ptc))
+                loc_nodes = track2nodes.setdefault(track, [])
+                loc_nodes.append(node)
             else:
                 assert False, type
 
@@ -1567,7 +1611,7 @@ def simple_test_graph(**kwargs):
     xml_str = '''
             <rr_graph tool_name="vpr" tool_version="82a3c72" tool_comment="Based on my_arch.xml">
                 <channels>
-                    <channel chan_width_max="2" x_min="0" y_min="0" x_max="0" y_max="1"/>
+                    <channel chan_width_max="2" x_min="0" y_min="0" x_max="1" y_max="0"/>
                     <x_list index="0" info="1"/>
                     <y_list index="0" info="2"/>
                     <y_list index="1" info="2"/>
@@ -1628,7 +1672,7 @@ def simple_test_graph(**kwargs):
                         <segment segment_id="0"/>
                     </node>
                     <node id="7" type="CHANY" direction="DEC_DIR" capacity="1">
-                        <loc xlow="0" ylow="0" xhigh="0" yhigh="0" ptc="0"/>
+                        <loc xlow="0" ylow="0" xhigh="0" yhigh="0" ptc="1"/>
                         <segment segment_id="0"/>
                     </node>
                 </rr_nodes>
@@ -1680,7 +1724,8 @@ def node_ptc(node):
     return int(loc.get('ptc'))
 
 def test_index_node_objects():
-    g = test_add_nodes_for_block(True)
+    g = simple_test_graph(verbose=False)
+
     pin2node, track2nodes = g.index_node_objects()
 
     # 3 pins in this design
@@ -1688,11 +1733,11 @@ def test_index_node_objects():
     for pin, node in pin2node.items():
         assert pin.ptc == node_ptc(node)
 
-    # 1 x + 2 y tracks
-    assert len(track2nodes) == 3, len(track2nodes)
-    for track, node in track2nodes.items():
-        #assert track.ptc == node_ptc(node)
-        pass
+    # 2 y tracks, no x tracks
+    assert len(track2nodes) == 2, len(track2nodes)
+    for track, nodes in track2nodes.items():
+        for node in nodes:
+            assert track.idx == node_ptc(node)
 
 def print_block_types(rr_graph):
     '''Sequentially list block types'''
