@@ -19,7 +19,9 @@ from ..asserts import assert_len_eq
 class ChannelNotStraight(TypeError):
     pass
 
-_Track = namedtuple("Track", ("start", "end", "idx"))
+# TODO: clean up type
+# real graphs have length 1 tracks, which confuses auto detection
+_Track = namedtuple("Track", ("start", "end", "idx", "type_hint"))
 class Track(_Track):
     '''
     Represents a single ChanX or ChanY (track) within a channel
@@ -36,6 +38,9 @@ class Track(_Track):
         # Vertical routing
         Y = 'CHANY'
 
+        #def __str__(self):
+        #    return self.name
+
         def __repr__(self):
             return 'Track.Type.'+self.name
 
@@ -46,7 +51,7 @@ class Track(_Track):
         def __repr__(self):
             return 'Track.Direction.'+self.name
 
-    def __new__(cls, start, end, idx=None, id_override=None):
+    def __new__(cls, start, end, idx=None, id_override=None, type=None):
         '''Make most but not all attributes immutable'''
 
         if not isinstance(start, Pos):
@@ -61,7 +66,7 @@ class Track(_Track):
         if idx is not None:
             assert_type(idx, int)
 
-        obj = _Track.__new__(cls, start, end, idx)
+        obj = _Track.__new__(cls, start, end, idx, type)
         obj.id_override = id_override
         return obj
 
@@ -79,6 +84,8 @@ class Track(_Track):
         >>> Track((1, 1), (1, 1)).type
         Track.Type.Y
         """
+        if self.type_hint is not None:
+            return self.type_hint
         if self.start.x == self.end.x:
             return Track.Type.Y
         elif self.start.y == self.end.y:
@@ -617,28 +624,37 @@ class Channels:
         self.x = ChannelGrid(size, Track.Type.X)
         self.y = ChannelGrid(size, Track.Type.Y)
 
-    def create_track(self, start, end, idx=None):
+    def create_diag_track(self, start, end, idx=None):
         # Actually these can be tuple as well
         #assert_type(start, Pos)
         #assert_type(end, Pos)
 
         # Create track(s)
         try:
-            t = Track(start, end)
+            return (self.create_xy_track(start, end, idx=idx),)
         except ChannelNotStraight as e:
             assert idx is None, idx
             corner = (start.x, end.y)
             # Recursive call to create + add
-            ta = self.create_track(start, corner)[0]
-            tb = self.create_track(corner, end)[0]
+            ta = self.create_xy_track(start, corner)[0]
+            tb = self.create_xy_track(corner, end)[0]
             return (ta, tb)
+
+    def create_xy_track(self, start, end, idx=None, type=None):
+        # Actually these can be tuple as well
+        #assert_type(start, Pos)
+        #assert_type(end, Pos)
+
+        # Create track(s)
+        # Will throw exception if not straight
+        t = Track(start, end, type=type)
 
         # Add the track to associated channel list
         {
             Track.Type.X: self.x.create_track,
             Track.Type.Y: self.y.create_track
         }[t.type](t, idx=idx)
-        #print('create %s %s to %s idx %s' % (t.type, start, end, idx))
+        print('create %s %s to %s idx %s' % (t.type, start, end, idx))
 
         # debug print?
         '''
@@ -648,8 +664,9 @@ class Channels:
             Track.Type.Y: self.y.column
         }[t.type](t.common)
         '''
-        return (t,)
+        return t
 
+    '''
     @classmethod
     def from_xml(cls, channels_xml):
         # <channel chan_width_max="2" x_min="0" y_min="0" x_max="0" y_max="1"/>
@@ -662,12 +679,15 @@ class Channels:
         x_max = int(channel_header.get("x_max"))
         y_max = int(channel_header.get("y_max"))
         # Everything currently assumes 0,0 origin
-        assert x_min == 0, x_min
-        assert y_min == 0, y_min
+        # no this means minimum width
+        # the docs aren't very clear
+        #assert x_min == 0, x_min
+        #assert y_min == 0, y_min
 
         channels = Channels(Size(x_max + 1, y_max + 1))
 
         return channels
+    '''
 
     def pretty_print(self):
         s = ''
