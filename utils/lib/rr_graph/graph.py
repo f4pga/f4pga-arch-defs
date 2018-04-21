@@ -1286,7 +1286,7 @@ class GraphIdsMap:
             print("Adding pin {:55s} on tile ({:12s}, {:12s})@{:4d}".format(str(pin), str(low), str(high), pin.ptc))
         return pin_node
 
-    def add_nodes_for_pin_class(self, block, pin_class, switch_id):
+    def add_nodes_for_pin_class(self, block, pin_class, switch):
         """ Creates a SOURCE or SINK node from a `class PinClass` object. """
         assert_type(block, Block)
         assert_type(block.block_type, BlockType)
@@ -1309,7 +1309,7 @@ class GraphIdsMap:
                 pin_node = self.add_nodes_for_pin(block, p)
 
                 # Edge PIN->SINK
-                self.add_edge(int(pin_node.get("id")), int(sink_node.get("id")), switch_id)
+                self.add_edge(int(pin_node.get("id")), int(sink_node.get("id")), int(switch.get("id")))
 
         elif pin_class.direction in (PinClassDirection.OUTPUT,):
             # Source node
@@ -1319,14 +1319,14 @@ class GraphIdsMap:
                 pin_node = self.add_nodes_for_pin(block, p)
 
                 # Edge SOURCE->PIN
-                self.add_edge(int(src_node.get("id")), int(pin_node.get("id")), switch_id)
+                self.add_edge(int(src_node.get("id")), int(pin_node.get("id")), int(switch.get("id")))
 
         else:
             assert False, "Unknown dir of {} for {}".format(pin_class.direction, str(pin_class))
 
         #return pin_node
 
-    def add_nodes_for_block(self, block, switch_id):
+    def add_nodes_for_block(self, block, switch):
         """
         Creates the SOURCE/SINK nodes for each pin class
         Creates the IPIN/OPIN nodes for each pin inside a pin class.
@@ -1334,7 +1334,7 @@ class GraphIdsMap:
         >>> test_add_nodes_for_block()
         """
         for pc in block.block_type.pin_classes:
-            self.add_nodes_for_pin_class(block, pc, switch_id)
+            self.add_nodes_for_pin_class(block, pc, switch)
 
 def node_loc(node):
     return list(node.iterfind("loc"))[0]
@@ -1503,6 +1503,9 @@ class Graph:
         self.ids.add_edge(int(ytrack_node.get("id")), int(xtrack_node.get("id")), int(switch.get("id")))
 
     def index_node_objects(self):
+FIXME: bad assumption about pin uniqueness
+they aren't global but rather per block
+
         '''
         return pin2node, track2nodes
         pin2node: pin XML object to node XML object
@@ -1701,7 +1704,7 @@ def test_add_nodes_for_block(ret=False):
     g.ids.clear_graph()
     switch = g.ids.add_switch(buffered=1)
     for block in g.block_graph:
-        g.ids.add_nodes_for_block(block, int(switch.get("id")))
+        g.ids.add_nodes_for_block(block, switch)
     '''
     2 input pins, 1 output pin
     Should have added 3 edges to connect edge to pin
