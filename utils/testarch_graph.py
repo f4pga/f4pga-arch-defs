@@ -74,14 +74,14 @@ def rebuild_graph(fn):
     # chanx going entire width
     for y in range(grid.height):
         for _tracki in range(rcw):
-            track = grid.add_track((0, y), (grid.width - 1, y))
+            track = grid.create_track((0, y), (grid.width - 1, y))
             # Now bind to all adjacent pins
             for block in g.block_graph.block_types_for(col=y):
                 connect_block_to_track(block, track, node_index=node_index)
     # chany going entire height
     for x in range(grid.width):
         for _tracki in range(rcw):
-            track = grid.add_track((x, 0), (x, grid.height - 1))
+            track = grid.create_track((x, 0), (x, grid.height - 1))
             # Now bind to all adjacent pins
             for block in g.block_graph.block_types_for(row=x):
                 connect_block_to_track(block, track, node_index=node_index)
