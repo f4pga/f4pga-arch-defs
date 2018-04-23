@@ -864,6 +864,19 @@ class BlockGrid:
             ss.append(self.block_grid[pos].block_type)
         return ss
 
+    def blocks_for(self, col=None, row=None):
+        ss = []
+        for pos in sorted(self.block_grid):
+            if col is not None:
+                if pos.x != col:
+                    continue
+            if row is not None:
+                if pos.y != row:
+                    continue
+
+            ss.append(self.block_grid[pos])
+        return ss
+
     def __getitem__(self, pos):
         return self.block_grid[pos]
 
@@ -1469,7 +1482,7 @@ class Graph:
         assert_type(block, Block)
         assert_type(pin, Pin)
         assert_type(track, Track)
-        assert_type(switch, ET._element)
+        assert_type(switch, ET._Element)
 
         # Create a node for the track connection as given position
         bpin2node, track2nodes = node_index if node_index else self.index_node_objects()

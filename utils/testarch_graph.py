@@ -65,35 +65,42 @@ def rebuild_graph(fn):
     rcw = 4
 
 
-    def connect_block_to_track(block, track):
+    def connect_block_to_track(block, track, node_index=None):
         '''Connect all block pins to given track'''
+        assert type(block) is graph.Block, type(block)
+        print("Block to track: %s <=> %s" % (block.position, track))
         for pin in block.pins():    
-            g.connect_pin_to_track(block, pin, track, switch)
+            g.connect_pin_to_track(block, pin, track, switch, node_index=None)
             g.index_node_objects()
 
     # currently finding the nodes associated with a pin or pin_class requires exhausive search
     # use this to speed up association
     node_index = g.index_node_objects()
 
-    grid = g.block_graph.block_grid_size()
+    grid_sz = g.block_graph.block_grid_size()
+    print("Grid size: %s" % (grid_sz,))
     # chanx going entire width
-    for y in range(grid.height):
+    for y in range(grid_sz.height):
+        print()
         for _tracki in range(rcw):
-            track = grid.create_track((0, y), (grid.width - 1, y))
+            track = g.channels.create_xy_track((0, y), (grid_sz.width - 1, y))
+            print("Create track %s:%i" % (track, _tracki))
+            node_index = g.index_node_objects()
             # Now bind to all adjacent pins
-            for block in g.block_graph.block_types_for(col=y):
+            for block in g.block_graph.blocks_for(row=y):
                 connect_block_to_track(block, track, node_index=node_index)
     # chany going entire height
-    for x in range(grid.width):
+    for x in range(grid_sz.width):
         for _tracki in range(rcw):
-            track = grid.create_track((x, 0), (x, grid.height - 1))
+            track = g.channels .create_xy_track((x, 0), (x, grid_sz.height - 1))
+            node_index = g.index_node_objects()
             # Now bind to all adjacent pins
-            for block in g.block_graph.block_types_for(row=x):
+            for block in g.block_graph.blocks_for(col=x):
                 connect_block_to_track(block, track, node_index=node_index)
 
     # Now connect tracks together
-    for y in range(grid.height):
-        for x in range(grid.width):
+    for y in range(grid_sz.height):
+        for x in range(grid_sz.width):
             xtracks = g.channels.x[Position(x, y)]
             ytracks = g.channels.y[Position(x, y)]
             # Add bi-directional links between all permutations
