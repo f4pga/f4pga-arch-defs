@@ -780,6 +780,7 @@ class Block(MostlyReadOnly):
                 yield pin
 
     def ptc2pin(self, ptc):
+        '''Return Pin for the given ptc (Pin.block_type_index)'''
         # TODO: consider indexing
         for pin_class in self.block_type.pin_classes:
             for pin in pin_class.pins.values():
@@ -1406,7 +1407,7 @@ class Graph:
             loc = node_loc(node_xml)
             idx = int(loc.get('ptc'))
             pos_low, pos_high = node_pos(node_xml)
-            print('Importing %s @ %s:%s :: %d' % (ntype, pos_low, pos_high, idx))
+            #print('Importing %s @ %s:%s :: %d' % (ntype, pos_low, pos_high, idx))
 
             # idx will get assinged when adding to track
             track = self.channels.create_xy_track(pos_low, pos_high, idx=idx, type=ntype_e)
@@ -1465,13 +1466,14 @@ class Graph:
         '''
         Create an edge from given pin in block to given track with switching properties of switch
         '''
+        assert_type(block, Block)
         assert_type(pin, Pin)
         assert_type(track, Track)
         assert_type(switch, ET._element)
 
         # Create a node for the track connection as given position
-        pin2node, track2nodes = node_index if node_index else self.index_node_objects()
-        pin_node = pin2node[pin]
+        bpin2node, track2nodes = node_index if node_index else self.index_node_objects()
+        pin_node = bpin2node[(block, pin)]
         pos = block.position
 
         # See if there is a node at the track at the given position
@@ -1490,7 +1492,7 @@ class Graph:
         self.ids.add_edge(int(src_node.get("id")), int(sink_node.get("id")), int(switch.get("id")))
 
     def connect_track_to_track(self, xtrack, ytrack, switch, node_index=None):
-        _pin2node, track2nodes = node_index if node_index else self.index_node_objects()
+        _bpin2node, track2nodes = node_index if node_index else self.index_node_objects()
         pos = Position(ytrack.common, xtrack.position)
 
         # FIXME: assume for now there are already nodes there from previous step
@@ -1498,17 +1500,13 @@ class Graph:
         ytrack_node = track2nodes[ytrack][pos]
 
         # Make bi directional
-
         self.ids.add_edge(int(xtrack_node.get("id")), int(ytrack_node.get("id")), int(switch.get("id")))
         self.ids.add_edge(int(ytrack_node.get("id")), int(xtrack_node.get("id")), int(switch.get("id")))
 
     def index_node_objects(self):
-FIXME: bad assumption about pin uniqueness
-they aren't global but rather per block
-
         '''
         return pin2node, track2nodes
-        pin2node: pin XML object to node XML object
+        pin2node: bpin2node[(Block instance, Pin instance)] => node ET
         track2nodes: Channel.Track to locdict
             locdict: keys are positions, values are a list of nodes at that location
 
@@ -1517,7 +1515,7 @@ they aren't global but rather per block
         # index pin and pin class associates
         # 'IPIN', 'OPIN', 'SINK', 'SOURCE', 'CHANX', 'CHANY'
         #pinclass2nodes = {}
-        pin2node = {}
+        bpin2node = {}
         track2nodes = {}
 
         for node in self.ids._xml_nodes:
@@ -1537,8 +1535,9 @@ they aren't global but rather per block
                 # ptc is the associated pin ptc value of the block_type
                 block = self.block_graph[pos]
                 pin = block.ptc2pin(ptc)
-                assert pin not in pin2node
-                pin2node[pin] = node
+                kbp = (block, pin)
+                assert kbp not in bpin2node
+                bpin2node[kbp] = node
             elif type in ('SINK', 'SOURCE'):
                 #pinclass2nodes
                 pass
@@ -1557,7 +1556,7 @@ they aren't global but rather per block
             else:
                 assert False, type
 
-        return pin2node, track2nodes
+        return bpin2node, track2nodes
 
 '''
 Debug / test
@@ -1735,12 +1734,16 @@ def node_ptc(node):
 def test_index_node_objects():
     g = simple_test_graph(verbose=False)
 
-    pin2node, track2nodes = g.index_node_objects()
+    bpin2node, track2nodes = g.index_node_objects()
 
     # 3 pins in this design
-    assert len(pin2node) == 3
-    for pin, node in pin2node.items():
+    assert len(bpin2node) == 3
+    for (block, pin), node in bpin2node.items():
         assert pin.ptc == node_ptc(node)
+
+        bpos_lo, bpos_hi = node_pos(node)
+        assert bpos_lo == bpos_hi
+        assert bpos_lo == block.position, (bpos_lo, block.position)
 
     # 2 y tracks, no x tracks
     assert len(track2nodes) == 2, len(track2nodes)
