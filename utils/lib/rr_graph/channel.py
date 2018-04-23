@@ -654,7 +654,7 @@ class Channels:
             Track.Type.X: self.x.create_track,
             Track.Type.Y: self.y.create_track
         }[t.type](t, idx=idx)
-        print('create %s %s to %s idx %s' % (t.type, start, end, idx))
+        #print('create %s %s to %s idx %s' % (t.type, start, end, idx))
 
         # debug print?
         '''
@@ -764,9 +764,9 @@ if __name__ == "__main__":
         print()
 
         c = Channels(Pos(5,3))
-        c.create_track(Pos(0,0), Pos(3,0))
-        c.create_track(Pos(0,0), Pos(1,0))
-        c.create_track(Pos(0,0), Pos(0,2))
+        c.create_xy_track(Pos(0,0), Pos(3,0))
+        c.create_xy_track(Pos(0,0), Pos(1,0))
+        c.create_xy_track(Pos(0,0), Pos(0,2))
         #c.create_track(Pos(0,0), Pos(4,1))
         print("X")
         print(c.x.pretty_print())
