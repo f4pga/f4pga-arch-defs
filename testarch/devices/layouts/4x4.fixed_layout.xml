@@ -1,0 +1,45 @@
+<!-- set: ai sw=1 ts=1 sta et -->
+<layout>
+ <fixed_layout name="4x4" width="10" height="10">
+  <!--
+      0123456789
+    9 ..........
+    8 ...OOOO...
+    7 ..........
+    6 .I.XXXX.O.
+    5 .I.XXXX.O.
+    4 .I.XXXX.O.
+    3 .I.XXXX.O.
+    2 ..........
+    1 ...IIII...
+    0 ..........
+    -->
+  <col priority="12" startx="0" type="EMPTY"       />
+  <col priority="10" startx="1" type="BLK_IG-IBUF" />
+  <col priority="12" startx="2" type="EMPTY"       />
+  <col priority="10" startx="3" type="BLK_TI-TILE" />
+  <col priority="10" startx="4" type="BLK_TI-TILE" />
+  <col priority="10" startx="5" type="BLK_TI-TILE" />
+  <col priority="10" startx="6" type="BLK_TI-TILE" />
+  <col priority="12" startx="7" type="EMPTY"       />
+  <col priority="10" startx="8" type="BLK_IG-OBUF" />
+  <col priority="12" startx="9" type="EMPTY"       />
+
+  <row priority="11" starty="9" type="EMPTY"       />
+  <row priority="10" starty="8" type="BLK_IG-OBUF" />
+  <row priority="11" starty="7" type="EMPTY"       />
+  <!--               starty="6"                   -->
+  <!--               starty="5"                   -->
+  <!--               starty="4"                   -->
+  <!--               starty="3"                   -->
+  <row priority="11" starty="2" type="EMPTY"       />
+  <row priority="10" starty="1" type="BLK_IG-IBUF" />
+  <row priority="11" starty="0" type="EMPTY"       />
+
+  <!-- Corners -->
+  <single priority="13" x="1" y="1" type="EMPTY"   />
+  <single priority="13" x="1" y="8" type="EMPTY"   />
+  <single priority="13" x="8" y="8" type="EMPTY"   />
+  <single priority="13" x="8" y="1" type="EMPTY"   />
+ </fixed_layout>
+</layout>
