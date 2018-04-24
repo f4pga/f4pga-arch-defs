@@ -87,19 +87,16 @@ def rebuild_graph(fn):
         for _tracki in range(rcw):
             track, _track_node = g.create_xy_track((0, y), (grid_sz.width - 1, y))
             print("Create track %s:%i" % (track, _tracki))
+    g.channels.x.assert_full()
     # chany going entire height
     for x in range(grid_sz.width):
         print()
         for _tracki in range(rcw):
             track, _track_node = g.create_xy_track((x, 0), (x, grid_sz.height - 1))
             print("Create track %s:%i" % (track, _tracki))
+    g.channels.y.assert_full()
 
     print()
-
-    # XXX: seems like this will probably fail
-    # figure out why
-    g.channels.x.assert_full()
-    g.channels.y.assert_full()
 
     node_index = g.index_node_objects()
     print("Connecting blocks to tracks")
