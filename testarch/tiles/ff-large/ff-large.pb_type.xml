@@ -18,31 +18,31 @@
  </pb_type>
 
  <!-- Buffers -->
- <pb_type name="BLK_RX-IN0" num_pb="1">
+ <pb_type name="BEL_RX-IN0" num_pb="1">
   <input  name="I" num_pins="2"/>
   <output name="O" num_pins="1"/>
   <interconnect>
-   <mux input="BLK_RX-IN0.I[0] BLK_RX-IN0.I[1]" name="BLK_RX-IN0.O" output="BLK_RX-IN0.O" />
+   <mux input="BEL_RX-IN0.I[0] BEL_RX-IN0.I[1]" name="BEL_RX-IN0.O" output="BEL_RX-IN0.O" />
   </interconnect>
  </pb_type>
- <pb_type name="BLK_RX-CLK0" num_pb="1">
+ <pb_type name="BEL_RX-CLK0" num_pb="1">
   <input  name="I" num_pins="2"/>
   <output name="O" num_pins="1"/>
   <interconnect>
-   <mux input="BLK_RX-CLK0.I[0] BLK_RX-CLK0.I[1]" name="BLK_RX-CLK0.O" output="BLK_RX-CLK0.O" />
+   <mux input="BEL_RX-CLK0.I[0] BEL_RX-CLK0.I[1]" name="BEL_RX-CLK0.O" output="BEL_RX-CLK0.O" />
   </interconnect>
  </pb_type>
 
  <interconnect>
   <!-- Clock input muxes -->
-  <direct input="BLK_TI-FF_LARGE.CLK[0]" name="BLK_RX-CLK0.I[0]" output="BLK_RX-CLK0.I[0]" />
-  <direct input="BLK_TI-FF_LARGE.CLK[1]" name="BLK_RX-CLK0.I[1]" output="BLK_RX-CLK0.I[1]" />
-  <direct input="BLK_RX-CLK0.O"     name="BLK_SI-FF_LARGE.C"     output="BLK_SI-FF_LARGE.C"     />
+  <direct input="BLK_TI-FF_LARGE.CLK[0]" name="BEL_RX-CLK0.I[0]" output="BEL_RX-CLK0.I[0]" />
+  <direct input="BLK_TI-FF_LARGE.CLK[1]" name="BEL_RX-CLK0.I[1]" output="BEL_RX-CLK0.I[1]" />
+  <direct input="BEL_RX-CLK0.O"     name="BLK_SI-FF_LARGE.C"     output="BLK_SI-FF_LARGE.C"     />
 
   <!-- Logic input muxes -->
-  <direct input="BLK_TI-FF_LARGE.IN[0]"  name="BLK_RX-IN0.I[0]"   output="BLK_RX-IN0.I[0]" />
-  <direct input="BLK_TI-FF_LARGE.IN[1]"  name="BLK_RX-IN0.I[1]"   output="BLK_RX-IN0.I[1]" />
-  <direct input="BLK_RX-IN0.O"      name="BLK_SI-FF_LARGE.I[0]"   output="BLK_SI-FF_LARGE.I[0]" />
+  <direct input="BLK_TI-FF_LARGE.IN[0]"  name="BEL_RX-IN0.I[0]"   output="BEL_RX-IN0.I[0]" />
+  <direct input="BLK_TI-FF_LARGE.IN[1]"  name="BEL_RX-IN0.I[1]"   output="BEL_RX-IN0.I[1]" />
+  <direct input="BEL_RX-IN0.O"      name="BLK_SI-FF_LARGE.I[0]"   output="BLK_SI-FF_LARGE.I[0]" />
 
   <!-- Output muxes -->
   <direct input="BLK_SI-FF_LARGE.O"      name="BLK_TI-FF_LARGE.OUT[0]" output="BLK_TI-FF_LARGE.OUT[0]" />
