@@ -68,7 +68,7 @@ def rebuild_graph(fn):
     def connect_block_to_track(block, track, node_index=None):
         '''Connect all block pins to given track'''
         assert type(block) is graph.Block, type(block)
-        print("Block to track: %s <=> %s" % (block.position, track))
+        #print("Block to track: %s <=> %s" % (block.position, track))
         for pin in block.pins():    
             g.connect_pin_to_track(block, pin, track, switch, node_index=None)
             g.index_node_objects()
@@ -83,7 +83,7 @@ def rebuild_graph(fn):
     for y in range(grid_sz.height):
         print()
         for _tracki in range(rcw):
-            track = g.channels.create_xy_track((0, y), (grid_sz.width - 1, y))
+            track, _track_node = g.create_xy_track((0, y), (grid_sz.width - 1, y))
             print("Create track %s:%i" % (track, _tracki))
             node_index = g.index_node_objects()
             # Now bind to all adjacent pins
@@ -91,12 +91,15 @@ def rebuild_graph(fn):
                 connect_block_to_track(block, track, node_index=node_index)
     # chany going entire height
     for x in range(grid_sz.width):
+        print()
         for _tracki in range(rcw):
-            track = g.channels .create_xy_track((x, 0), (x, grid_sz.height - 1))
+            track, _track_node = g.create_xy_track((x, 0), (x, grid_sz.height - 1))
+            print("Create track %s:%i" % (track, _tracki))
             node_index = g.index_node_objects()
             # Now bind to all adjacent pins
             for block in g.block_graph.blocks_for(col=x):
                 connect_block_to_track(block, track, node_index=node_index)
+    print()
 
     # Now connect tracks together
     for y in range(grid_sz.height):

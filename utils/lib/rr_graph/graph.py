@@ -1229,9 +1229,13 @@ class GraphIdsMap:
 
         return edges
 
-    def add_node(self, low, high, ptc, type):
+    def add_node(self, low, high, ptc, type, direction=None):
         assert type in ('IPIN', 'OPIN', 'SINK', 'SOURCE', 'CHANX', 'CHANY')
-        pin_node = ET.SubElement(self._xml_nodes, 'node', {'id': str(self._next_id('node')), 'type': type})
+        attrs = {'id': str(self._next_id('node')), 'type': type}
+        if type in ('CHANX', 'CHANY'):
+            assert direction != None
+            attrs['direction'] = direction.value
+        pin_node = ET.SubElement(self._xml_nodes, 'node', attrs)
         ET.SubElement(pin_node, 'loc', {
             'xlow': str(low.x), 'ylow': str(low.y),
             'xhigh': str(high.x), 'yhigh': str(high.y),
@@ -1272,7 +1276,7 @@ class GraphIdsMap:
         self.add_switch_xml(switch_node)
         return switch_node
 
-    def add_nodes_for_pin(self, block, pin):
+    def add_node_for_pin(self, block, pin):
         """ Creates an IPIN/OPIN node from `class Pin` object. """
         assert_type(block, Block)
         assert_type(pin, Pin)
@@ -1320,7 +1324,7 @@ class GraphIdsMap:
             sink_node = self.add_node(pos_low, pos_high, pin.ptc, 'SINK')
 
             for p in pin_class.pins.values():
-                pin_node = self.add_nodes_for_pin(block, p)
+                pin_node = self.add_node_for_pin(block, p)
 
                 # Edge PIN->SINK
                 self.add_edge(int(pin_node.get("id")), int(sink_node.get("id")), int(switch.get("id")))
@@ -1330,7 +1334,7 @@ class GraphIdsMap:
             src_node = self.add_node(pos_low, pos_high, pin.ptc, 'SOURCE')
 
             for p in pin_class.pins.values():
-                pin_node = self.add_nodes_for_pin(block, p)
+                pin_node = self.add_node_for_pin(block, p)
 
                 # Edge SOURCE->PIN
                 self.add_edge(int(src_node.get("id")), int(pin_node.get("id")), int(switch.get("id")))
@@ -1349,6 +1353,12 @@ class GraphIdsMap:
         """
         for pc in block.block_type.pin_classes:
             self.add_nodes_for_pin_class(block, pc, switch)
+
+    def add_node_for_track(self, track):
+        assert_type(track, Track)
+        assert track.idx != None
+
+        return self.add_node(track.start, track.end, track.idx, track.type.value, direction=track.direction)
 
 def node_loc(node):
     return list(node.iterfind("loc"))[0]
@@ -1384,7 +1394,7 @@ class Graph:
 
         # Channels import requires rr_nodes
         if rr_graph_file:
-            self.import_channels()
+            self.import_xml_channels()
         else:
             self.channels = Channels(self.block_graph.block_grid_size())
 
@@ -1400,7 +1410,7 @@ class Graph:
         for block_xml in self._xml_graph.iterfind("./grid/grid_loc"):
             Block.from_xml(self.block_graph, block_xml)
 
-    def import_channels(self):
+    def import_xml_channels(self):
         # XXX: we should validate channels reported width against grid width
         # they don't necessarily line up
         channels = list(self._xml_graph.iterfind("channels"))
@@ -1423,8 +1433,7 @@ class Graph:
             #print('Importing %s @ %s:%s :: %d' % (ntype, pos_low, pos_high, idx))
 
             # idx will get assinged when adding to track
-            track = self.channels.create_xy_track(pos_low, pos_high, idx=idx, type=ntype_e)
-            assert track.type == ntype_e, (track.type.value, ntype_e)
+            _track = self.channels.create_xy_track(pos_low, pos_high, idx=idx, type=ntype_e)
 
     def set_tooling(self, name, version, comment):
         root = self._xml_graph.getroot()
@@ -1485,14 +1494,13 @@ class Graph:
         assert_type(switch, ET._Element)
 
         # Create a node for the track connection as given position
-        bpin2node, track2nodes = node_index if node_index else self.index_node_objects()
+        bpin2node, track2node = node_index if node_index else self.index_node_objects()
         pin_node = bpin2node[(block, pin)]
         pos = block.position
 
         # See if there is a node at the track at the given position
         # if not, add one
-        track_nodes = track2nodes[track]
-        track_node = track_nodes.get(pos, None)
+        track_node = track2node[track]
         if track_node is None:
             track_node = self.add_node(pos, pos, track.idx, track.type)
 
@@ -1500,7 +1508,7 @@ class Graph:
         src_node, sink_node = {
             'input':  (track_node, pin_node),
             'output':  (pin_node, track_node),
-            }[pin.pin_class.direction]
+            }[pin.pin_class.direction.value]
 
         self.ids.add_edge(int(src_node.get("id")), int(sink_node.get("id")), int(switch.get("id")))
 
@@ -1516,12 +1524,17 @@ class Graph:
         self.ids.add_edge(int(xtrack_node.get("id")), int(ytrack_node.get("id")), int(switch.get("id")))
         self.ids.add_edge(int(ytrack_node.get("id")), int(xtrack_node.get("id")), int(switch.get("id")))
 
+    def create_xy_track(self, start, end, idx=None, type=None):
+        '''Create track object and corresponding nodes'''
+        track = self.channels.create_xy_track(start, end, idx=idx, type=type)
+        track_node = self.ids.add_node_for_track(track)
+        return track, track_node
+
     def index_node_objects(self):
         '''
-        return pin2node, track2nodes
+        return pin2node, track2node
         pin2node: bpin2node[(Block instance, Pin instance)] => node ET
-        track2nodes: Channel.Track to locdict
-            locdict: keys are positions, values are a list of nodes at that location
+        track2node: Channel.Track to node
 
         >>> test_index_node_objects()
         '''
@@ -1529,7 +1542,7 @@ class Graph:
         # 'IPIN', 'OPIN', 'SINK', 'SOURCE', 'CHANX', 'CHANY'
         #pinclass2nodes = {}
         bpin2node = {}
-        track2nodes = {}
+        track2node = {}
 
         for node in self.ids._xml_nodes:
             if node.tag == ET.Comment:
@@ -1564,12 +1577,12 @@ class Graph:
                     track = grid[pos_low][ptc]
                 except IndexError:
                     raise IndexError("%s node pos %s ptc %d not found" % (type, pos, ptc))
-                loc_nodes = track2nodes.setdefault(track, [])
-                loc_nodes.append(node)
+                assert track not in track2node
+                track2node[track] = node
             else:
                 assert False, type
 
-        return bpin2node, track2nodes
+        return bpin2node, track2node
 
 '''
 Debug / test
@@ -1747,7 +1760,7 @@ def node_ptc(node):
 def test_index_node_objects():
     g = simple_test_graph(verbose=False)
 
-    bpin2node, track2nodes = g.index_node_objects()
+    bpin2node, track2node= g.index_node_objects()
 
     # 3 pins in this design
     assert len(bpin2node) == 3
@@ -1759,10 +1772,9 @@ def test_index_node_objects():
         assert bpos_lo == block.position, (bpos_lo, block.position)
 
     # 2 y tracks, no x tracks
-    assert len(track2nodes) == 2, len(track2nodes)
-    for track, nodes in track2nodes.items():
-        for node in nodes:
-            assert track.idx == node_ptc(node)
+    assert len(track2node) == 2, len(track2node)
+    for track, node in track2node.items():
+        assert track.idx == node_ptc(node)
 
 def print_block_types(rr_graph):
     '''Sequentially list block types'''
