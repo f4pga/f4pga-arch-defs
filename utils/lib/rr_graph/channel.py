@@ -216,7 +216,7 @@ class Track(_Track):
         >>> c2.idx
         2
         """
-        return self.__class__(self.start, self.end, idx, id_override=self.id_override)
+        return self.__class__(self.start, self.end, idx, id_override=self.id_override, type=self.type)
 
     def __repr__(self):
         """
@@ -641,6 +641,9 @@ class Channels:
             return (ta, tb)
 
     def create_xy_track(self, start, end, idx=None, type=None):
+        '''
+        idx: None to automatically allocate 
+        '''
         # Actually these can be tuple as well
         #assert_type(start, Pos)
         #assert_type(end, Pos)
@@ -650,20 +653,16 @@ class Channels:
         t = Track(start, end, type=type)
 
         # Add the track to associated channel list
-        {
+        # Get the track now with the index assigned
+        t = {
             Track.Type.X: self.x.create_track,
             Track.Type.Y: self.y.create_track
         }[t.type](t, idx=idx)
         #print('create %s %s to %s idx %s' % (t.type, start, end, idx))
 
-        # debug print?
-        '''
-        #l = self.track_slice(t)
-        l = {
-            Track.Type.X: self.x.row,
-            Track.Type.Y: self.y.column
-        }[t.type](t.common)
-        '''
+        assert t.idx != None
+        if type:
+            assert t.type == type, (t.type.value, type)
         return t
 
     '''
