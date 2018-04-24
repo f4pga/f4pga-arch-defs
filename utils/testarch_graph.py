@@ -70,37 +70,61 @@ def rebuild_graph(fn):
         assert type(block) is graph.Block, type(block)
         #print("Block to track: %s <=> %s" % (block.position, track))
         for pin in block.pins():    
-            g.connect_pin_to_track(block, pin, track, switch, node_index=None)
+            g.connect_pin_to_track(block, pin, track, switch, node_index=node_index)
             g.index_node_objects()
 
     # currently finding the nodes associated with a pin or pin_class requires exhausive search
     # use this to speed up association
-    node_index = g.index_node_objects()
+    g.index_node_objects()
 
     grid_sz = g.block_graph.block_grid_size()
     print("Grid size: %s" % (grid_sz,))
+    print("")
+    print("Creating tracks")
     # chanx going entire width
     for y in range(grid_sz.height):
         print()
         for _tracki in range(rcw):
             track, _track_node = g.create_xy_track((0, y), (grid_sz.width - 1, y))
             print("Create track %s:%i" % (track, _tracki))
-            node_index = g.index_node_objects()
-            # Now bind to all adjacent pins
-            for block in g.block_graph.blocks_for(row=y):
-                connect_block_to_track(block, track, node_index=node_index)
     # chany going entire height
     for x in range(grid_sz.width):
         print()
         for _tracki in range(rcw):
             track, _track_node = g.create_xy_track((x, 0), (x, grid_sz.height - 1))
             print("Create track %s:%i" % (track, _tracki))
-            node_index = g.index_node_objects()
+
+    print()
+
+    # XXX: seems like this will probably fail
+    # figure out why
+    g.channels.x.assert_full()
+    g.channels.y.assert_full()
+
+    node_index = g.index_node_objects()
+    print("Connecting blocks to tracks")
+    for y in range(grid_sz.height):
+        print()
+        print("CHANX Y=%d" % y)
+        for tracki in range(rcw):
+            # channel should run the entire length
+            track = g.channels.x.row(y)[0][tracki]
+            # Now bind to all adjacent pins
+            for block in g.block_graph.blocks_for(row=y):
+                connect_block_to_track(block, track, node_index=node_index)
+    # chany going entire height
+    for x in range(grid_sz.width):
+        for _tracki in range(rcw):
+            # channel should run the entire length
+            track = g.channels.y.column(x)[0][tracki]
             # Now bind to all adjacent pins
             for block in g.block_graph.blocks_for(col=x):
                 connect_block_to_track(block, track, node_index=node_index)
+
     print()
 
+    node_index = g.index_node_objects()
+    print("Connecting tracks to tracks")
     # Now connect tracks together
     for y in range(grid_sz.height):
         for x in range(grid_sz.width):

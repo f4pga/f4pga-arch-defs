@@ -616,6 +616,9 @@ class ChannelGrid(dict):
 
         return f.getvalue()
 
+    def assert_full(self):
+        '''Assert all allocated channels are fully occupied'''
+        assert 0, 'fixme'
 
 class Channels:
     '''Holds all channels for the whole grid (X + Y)'''
