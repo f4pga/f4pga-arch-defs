@@ -92,7 +92,7 @@
      0 ..........
      -->
    <col priority="12" startx="0" type="EMPTY"/>
-   <col priority="10" startx="1" type="BLK_IG-OBUF"/>
+   <col priority="10" startx="1" type="BLK_IG-IBUF"/>
    <col priority="12" startx="2" type="EMPTY"/>
    <col priority="10" startx="3" type="BLK_TI-LUTFF"/>
    <col priority="10" startx="4" type="BLK_TI-LUTFF"/>
