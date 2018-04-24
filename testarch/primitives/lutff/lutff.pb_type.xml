@@ -1,0 +1,20 @@
+<pb_type xmlns:xi="http://www.w3.org/2001/XInclude" name="BLK_IG-LUTFF" num_pb="1">
+  <clock  equivalent="false" name="C"  num_pins="1"/>
+  <input  equivalent="false" name="I"  num_pins="4"/>
+  <output equivalent="false" name="O"  num_pins="1"/>
+  <output equivalent="false" name="LO" num_pins="1"/>
+  <xi:include href="../ff/ff.pb_type.xml"/>
+  <xi:include href="../lut/lut.pb_type.xml"/>
+  <interconnect>
+    <direct name="BEL_FF-FF_D"      input="BEL_LT-LUT.out"    output="BEL_FF-FF.D">
+      <pack_pattern name="LUT2FF" in_port="BEL_LT-LUT.out" out_port="BEL_FF-FF.D"/>
+    </direct>
+    <direct name="BEL_FF-FF_clk"    input="BLK_IG-LUTFF.C"    output="BEL_FF-FF.clk"   />
+    <direct name="BEL_LT-LUT.in[0]" input="BLK_IG-LUTFF.I[0]" output="BEL_LT-LUT.in[0]"/>
+    <direct name="BEL_LT-LUT.in[1]" input="BLK_IG-LUTFF.I[1]" output="BEL_LT-LUT.in[1]"/>
+    <direct name="BEL_LT-LUT.in[2]" input="BLK_IG-LUTFF.I[2]" output="BEL_LT-LUT.in[2]"/>
+    <direct name="BEL_LT-LUT.in[3]" input="BLK_IG-LUTFF.I[3]" output="BEL_LT-LUT.in[3]"/>
+    <mux    name="BLK_IG-LUTFF.O"   input="BEL_LT-LUT.out BEL_FF-FF.Q" output="BLK_IG-LUTFF.O" />
+    <direct name="BLK_IG-LUTFF.LO"  input="BEL_LT-LUT.out"    output="BLK_IG-LUTFF.LO" />
+  </interconnect>
+</pb_type>

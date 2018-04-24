@@ -3,4 +3,4 @@
 DEVICE_SUBARCH ?= lutff
 DEVICE_DIR = ../testarch/devices/$(DEVICE_SUBARCH)/
 DEVICE ?= 2x4
-YOSYS_SCRIPT ?= synth;
+YOSYS_SCRIPT ?= synth; abc -lut 4;

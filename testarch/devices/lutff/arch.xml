@@ -2,7 +2,7 @@
 <architecture xmlns:xi="http://www.w3.org/2001/XInclude">
  <!-- ODIN-II model description for non-standard block type -->
  <models>
-  <xi:include href="../../tile/lutff/lutff.model.xml" xpointer="xpointer(models/child::node())" />
+  <xi:include href="../../tiles/lutff/lutff.model.xml" xpointer="xpointer(models/child::node())" />
  </models>
  <layout>
    <fixed_layout name="2x1" width="8" height="3">
@@ -130,6 +130,7 @@
  <switchlist>
   <switch type="mux" name="1" R="551" Cin=".77e-15" Cout="4e-15" Tdel="58e-12" mux_trans_size="2.630740" buf_size="27.645901"/>
  </switchlist>
+
  <segmentlist>
   <segment name="span" length="4" freq="0.250000" type="unidir" Rmetal="101" Cmetal="22.5e-15">
    <sb type="pattern">1 1 1 1 1</sb>
@@ -146,10 +147,15 @@
    <opin_switch name="1"/>
   </segment>
  </segmentlist>
+
+ <directlist>
+  <direct name="carry" from_pin="BLK_TI-LUTFF.COUT" to_pin="BLK_TI-LUTFF.CIN" x_offset="0" y_offset="1" z_offset="0"/>
+ </directlist>
+
  <complexblocklist>
   <xi:include href="../../../vpr/ibuf/ibuf.pb_type.xml"/>
   <xi:include href="../../../vpr/obuf/obuf.pb_type.xml"/>
-  <xi:include href="../../tile/lutff/lutff.pb_type.xml"/>
+  <xi:include href="../../tiles/lutff/lutff.pb_type.xml"/>
  </complexblocklist>
 
 </architecture>

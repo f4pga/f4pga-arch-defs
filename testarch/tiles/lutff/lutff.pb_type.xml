@@ -1,0 +1,70 @@
+<pb_type xmlns:xi="http://www.w3.org/2001/XInclude" name="BLK_TI-LUTFF">
+ <!-- Tile Inputs -->
+ <clock  name="CLK  " num_pins="2" />
+ <input  name="IN   " num_pins="6" />
+ <!-- Tile Outputs -->
+ <output name="OUT " num_pins="2"  />
+ <!-- Carry pins -->
+ <input  name="CIN  " num_pins="1" />
+ <output name="COUT " num_pins="1" />
+
+ <pb_type name="BLK_BB-CARRY" num_pb="1" blif_model=".subckt CARRY">
+  <input  name="CIN"  num_pins="1" equivalent="false"/>
+  <input  name="LIN"  num_pins="1" equivalent="false"/>
+  <output name="COUT" num_pins="1" equivalent="false"/>
+  <delay_constant max="0.068e-9" min="0.068e-9" in_port="BLK_BB-CARRY.CIN" out_port="BLK_BB-CARRY.COUT"/>
+  <delay_constant max="0.068e-9" min="0.068e-9" in_port="BLK_BB-CARRY.LIN" out_port="BLK_BB-CARRY.COUT"/>
+ </pb_type>
+
+ <!-- Internal LUTFF -->
+ <pb_type name="BLK_SI-LUTFF" num_pb="1">
+  <input  name="I"  num_pins="4" equivalent="false"/>
+  <clock  name="C"  num_pins="1" equivalent="false"/>
+  <output name="O"  num_pins="1" equivalent="false"/>
+  <output name="LO" num_pins="1" equivalent="false"/>
+  <xi:include href="../../primitives/lutff/lutff.pb_type.xml"/>
+  <interconnect>
+   <direct name="BLK_IG-LUTFF.I[0]" input="BLK_SI-LUTFF.I[0]" output="BLK_IG-LUTFF.I[0]" />
+   <direct name="BLK_IG-LUTFF.I[1]" input="BLK_SI-LUTFF.I[1]" output="BLK_IG-LUTFF.I[1]" />
+   <direct name="BLK_IG-LUTFF.I[2]" input="BLK_SI-LUTFF.I[2]" output="BLK_IG-LUTFF.I[2]" />
+   <direct name="BLK_IG-LUTFF.I[3]" input="BLK_SI-LUTFF.I[3]" output="BLK_IG-LUTFF.I[3]" />
+   <direct name="BLK_IG-LUTFF.C"    input="BLK_SI-LUTFF.C"    output="BLK_IG-LUTFF.C"    />
+   <direct name="BLK_SI-LUTFF.O"    input="BLK_IG-LUTFF.O"    output="BLK_SI-LUTFF.O"    />
+   <direct name="BLK_SI-LUTFF.LO"   input="BLK_IG-LUTFF.LO"   output="BLK_SI-LUTFF.LO"   />
+  </interconnect>
+ </pb_type>
+
+ <interconnect>
+  <!-- Clock input mux -->
+  <mux name="BEL_RX-CLK0.I[0]" input="BLK_TI-LUTFF.CLK[0] BLK_TI-LUTFF.CLK[1]" output="BLK_SI-LUTFF.C" />
+
+  <!-- Logic input muxes -->
+  <mux name="BEL_RX-IN0.I[0]" input="BLK_TI-LUTFF.IN[0] BLK_TI-LUTFF.IN[1] BLK_TI-LUTFF.CIN  " output="BLK_SI-LUTFF.I[0]" />
+  <mux name="BEL_RX-IN1.I[1]" input="BLK_TI-LUTFF.IN[1] BLK_TI-LUTFF.IN[2] BLK_TI-LUTFF.IN[3]" output="BLK_SI-LUTFF.I[1]" />
+  <mux name="BEL_RX-IN2.I[2]" input="BLK_TI-LUTFF.IN[2] BLK_TI-LUTFF.IN[3] BLK_TI-LUTFF.IN[4]" output="BLK_SI-LUTFF.I[2]" />
+  <mux name="BEL_RX-IN3.I[3]" input="BLK_TI-LUTFF.IN[3] BLK_TI-LUTFF.IN[4] BLK_TI-LUTFF.IN[5]" output="BLK_SI-LUTFF.I[3]" />
+
+  <!-- Output -->
+  <direct name="BLK_TI-LUTFF.OUT[0]" input="BLK_SI-LUTFF.O"    output="BLK_TI-LUTFF.OUT[0]" />
+  <direct name="BLK_TI-LUTFF.OUT[1]" input="BLK_SI-LUTFF.O"    output="BLK_TI-LUTFF.OUT[1]" />
+
+  <direct name="BLK_TI-LUTFF.CIN"    input="BLK_TI-LUTFF.CIN"  output="BLK_BB-CARRY.CIN">
+    <pack_pattern name="LUTFF.CARRY" in_port="BLK_TI-LUTFF.CIN" out_port="BLK_BB-CARRY.CIN"  />
+  </direct>
+  <direct name="BLK_TI-LUTFF.LIN"    input="BLK_SI-LUTFF.LO"   output="BLK_BB-CARRY.LIN"    />
+  <direct name="BLK_TI-LUTFF.COUT"   input="BLK_BB-CARRY.COUT" output="BLK_TI-LUTFF.COUT">
+    <pack_pattern name="LUTFF.CARRY" in_port="BLK_BB-CARRY.COUT" out_port="BLK_TI-LUTFF.COUT" />
+  </direct>
+ </interconnect>
+ <pinlocations pattern="custom">
+  <loc side="top">BLK_TI-LUTFF.COUT</loc>
+  <loc side="right">BLK_TI-LUTFF.CLK[0] BLK_TI-LUTFF.CLK[1] BLK_TI-LUTFF.IN[0] BLK_TI-LUTFF.IN[1] BLK_TI-LUTFF.IN[2] BLK_TI-LUTFF.IN[3] BLK_TI-LUTFF.IN[4] BLK_TI-LUTFF.IN[5] BLK_TI-LUTFF.OUT[0] BLK_TI-LUTFF.OUT[1]</loc>
+  <loc side="bottom">BLK_TI-LUTFF.CIN</loc>
+ </pinlocations>
+ <fc in_type="abs" in_val="0" out_type="abs" out_val="0">
+  <fc_override fc_type="abs" fc_val="2" segment_name="span"  />
+  <fc_override fc_type="abs" fc_val="2" segment_name="local" />
+  <fc_override fc_type="abs" fc_val="0" port_name="CIN"  />
+  <fc_override fc_type="abs" fc_val="0" port_name="COUT" />
+ </fc>
+</pb_type>
