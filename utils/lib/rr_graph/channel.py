@@ -479,18 +479,6 @@ class ChannelGrid(dict):
             p[t.idx] = t
         return t
 
-    def check(self):
-        '''Self integrity check
-        Verify uniform track length'''
-        if self.chan_type == Track.Type.X:
-            for y in range(self.height):
-                assert_len_eq(self.row(y))
-        elif self.chan_type == Track.Type.Y:
-            for x in range(self.width):
-                assert_len_eq(self.column(x))
-        else:
-            assert False
-
     def pretty_print(self):
         """
         If type == Track.Type.X
@@ -616,9 +604,26 @@ class ChannelGrid(dict):
 
         return f.getvalue()
 
+    def check(self):
+        '''Self integrity check
+        Verify uniform track length'''
+        if self.chan_type == Track.Type.X:
+            for y in range(self.height):
+                assert_len_eq(self.row(y))
+        elif self.chan_type == Track.Type.Y:
+            for x in range(self.width):
+                assert_len_eq(self.column(x))
+        else:
+            assert False
+
     def assert_full(self):
         '''Assert all allocated channels are fully occupied'''
-        assert 0, 'fixme'
+        self.check()
+        for x in range(0, self.width):
+            for y in range(0, self.height):
+                tracks = self[Pos(x,y)]
+                for tracki, track in enumerate(tracks): 
+                    assert track is not None, 'x%d y%d i%d None' % (x, y, tracki)
 
 class Channels:
     '''Holds all channels for the whole grid (X + Y)'''
