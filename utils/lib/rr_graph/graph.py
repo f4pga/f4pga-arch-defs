@@ -1,4 +1,6 @@
 #!/usr/bin/env python3
+# rr_graph docs: http://docs.verilogtorouting.org/en/latest/vpr/file_formats/
+# etree docs: http://lxml.de/api/lxml.etree-module.html
 
 import enum
 import io
@@ -245,6 +247,9 @@ class Pin(MostlyReadOnly):
         "_block_type_name", "_block_type_index",
     ]
 
+    # Index within a specific BlockType
+    # BlockType has multiple pin classes
+    # PinClass has multiple pins, usually 1
     @property
     def ptc(self):
         return self.block_type_index
@@ -469,6 +474,10 @@ class PinClass(MostlyReadOnly):
 
     def _add_pin(self, pin):
         assert_type(pin, Pin)
+        # FIXME: need to investigate pins, pin classes, how indexes related
+        # http://docs.verilogtorouting.org/en/latest/vpr/file_formats/#tag-nodes-loc
+        # See ptc attribute
+        #assert len(self._pins) == 0, (self._pins, pin)
 
         # If the pin doesn't have a hard coded class index, set it to the next
         # index available.
@@ -585,7 +594,7 @@ class BlockType(MostlyReadOnly):
         Pin(pin_class=PinClass(), pin_class_index=1, port_name='outpad', port_index=1, block_type_name='BLK_BB-VPR_PAD', block_type_index=1)
         >>> bt.pin_classes[1].pins[0]
         Pin(pin_class=PinClass(), pin_class_index=0, port_name='inpad', port_index=0, block_type_name='BLK_BB-VPR_PAD', block_type_index=2)
-        >>> 
+        >>>
         """
         assert block_type_node.tag == "block_type", block_type_node
         block_type_id = int(block_type_node.attrib['id'])
@@ -697,7 +706,7 @@ class Block(MostlyReadOnly):
         >>> bl1 = Block.from_xml(g, ET.fromstring(xml_string))
         >>> bl1 # doctest: +ELLIPSIS
         Block(graph=BG(0x...), block_type=BlockType(), position=P(x=0, y=0), offset=Offset(w=0, h=0))
-        >>> 
+        >>>
         >>> xml_string = '''
         ... <grid_loc x="2" y="5" block_type_id="0" width_offset="1" height_offset="2"/>
         ... '''
@@ -727,7 +736,10 @@ class BlockTypeEdge(enum.Enum):
     SOUTH = BOTTOM
     WEST = LEFT
 
-
+# Stores blocks (tiles)
+# TODO: maybe rename TileGraph? or TileGrid
+# Stores grid + type
+# Does not have routing
 class BlockGraph:
 
     def __init__(self):
@@ -786,6 +798,9 @@ class BlockGraph:
     def __getitem__(self, pos):
         return self.block_grid[pos]
 
+    def __iter__(self):
+        for pos in sorted(self.block_grid):
+            yield self.block_grid[pos]
 
 def simple_test_graph():
     bg = BlockGraph()
@@ -938,10 +953,10 @@ class GraphIdsMap:
     def node_name(self, xml_node):
         """Get a globally unique name for an `node` in the rr_nodes.
 
-        >>> 
+        >>>
         >>> bg = simple_test_graph()
         >>> m = GraphIdsMap(block_graph=bg)
-        >>> 
+        >>>
         >>> m.node_name(ET.fromstring('''
         ... <node id="0" type="SINK" capacity="1">
         ...   <loc xlow="0" ylow="3" xhigh="0" yhigh="3" ptc="0"/>
@@ -1130,8 +1145,13 @@ class GraphIdsMap:
         assert_type(pin.pin_class.block_type, BlockType)
 
         pc = pin.pin_class
+        # Connection within the same tile
         low = block.position
-        high = block_type.position
+        # FIXME: look into multiple tile blocks
+        assert block.offset == (0, 0), block.offset
+        high = block.position
+
+        nodes = self._xml_nodes
 
         pin_node = None
         if pc.direction in (PinClassDirection.INPUT, PinClassDirection.CLOCK):
@@ -1139,7 +1159,7 @@ class GraphIdsMap:
             ET.SubElement(pin_node, 'loc', {
                 'xlow': str(low.x), 'ylow': str(low.y),
                 'xhigh': str(high.x), 'yhigh': str(high.y),
-                'ptc': str(pin_idx),
+                'ptc': str(pin.ptc),
                 # FIXME: This should probably be settable..
                 'side': 'TOP',
             })
@@ -1150,18 +1170,18 @@ class GraphIdsMap:
             ET.SubElement(pin_node, 'loc', {
                 'xlow': str(low.x), 'ylow': str(low.y),
                 'xhigh': str(high.x), 'yhigh': str(high.y),
-                'ptc': str(pin_idx),
+                'ptc': str(pin.ptc),
                 # FIXME: This should probably be settable..
                 'side': 'TOP',
             })
             ET.SubElement(pin_node, 'timing', {'R': str(0), 'C': str(0)})
 
         else:
-            assert False, "Unknown dir of {}.{}".format(pin, pin_class)
+            assert False, "Unknown dir of {}.{}".format(pin, pin.pin_class)
 
         assert pin_node, pin_node
 
-        print("Adding pin {:55s} on tile ({:3d}, {:3d})@{:4d}".format(pin_globalname, pos[0], pos[1], pin_idx))
+        print("Adding pin {:55s} on tile ({:3d}, {:3d})@{:4d}".format(str(pin), low, high, pin.ptc))
         return pin_node
 
     def add_nodes_for_pin_class(self, block, pin_class):
@@ -1177,40 +1197,42 @@ class GraphIdsMap:
         low = block.position
         high = block.position + pin_class.block_type.size
 
+        nodes = self._xml_nodes
+
         if pin_class.direction in (PinClassDirection.INPUT, PinClassDirection.CLOCK):
             # Sink node
             sink_node = ET.SubElement(nodes, 'node', {'type': 'SINK'})
             ET.SubElement(sink_node, 'loc', {
                 'xlow': str(low.x), 'ylow': str(low.y),
                 'xhigh': str(high.x), 'yhigh': str(high.y),
-                'ptc': str(pin_idx),
+                'ptc': str(pin_class.pins[0].ptc),
             })
             ET.SubElement(sink_node, 'timing', {'R': str(0), 'C': str(0)})
 
-            for p in pins:
-                pin_node = self.add_pin()
+            for p in pin_class.pins:
+                pin_node = self.add_nodes_for_pin(block, p)
 
                 # Edge PIN->SINK
                 self.add_edge(pin_node, sink_node)
 
-        elif pin_dir in (PinClassDirection.OUTPUT,):
+        elif pin_class.direction in (PinClassDirection.OUTPUT,):
             # Source node
             src_node = ET.SubElement(nodes, 'node', {'type': 'SOURCE'})
             ET.SubElement(src_node, 'loc', {
                 'xlow': str(low.x), 'ylow': str(low.y),
                 'xhigh': str(high.x), 'yhigh': str(high.y),
-                'ptc': str(pin_idx),
+                'ptc': str(pin_class.pins[0].ptc),
             })
             ET.SubElement(src_node, 'timing', {'R': str(0), 'C': str(0)})
 
-            for p in pins:
-                pin_node = self.add_pin()
+            for p in pin_class.pins:
+                pin_node = self.add_nodes_for_pin(block, p)
 
                 # Edge SOURCE->PIN
                 self.add_edge(src_node, pin_node)
 
         else:
-            assert False, "Unknown dir of {} for {}".format(pin_dir, pin_globalname)
+            assert False, "Unknown dir of {} for {}".format(pin_class.direction, str(pin_class))
 
     def add_nodes_for_block(self, block):
         """
@@ -1249,6 +1271,13 @@ class Graph:
         for block_xml in self._xml_graph.iterfind("./grid/grid_loc"):
             Block.from_xml(self.block_graph, block_xml)
 
+    def set_tooling(self, name, version, comment):
+        root = self._xml_graph.getroot()
+        root.set("tool_name", name)
+        root.set("tool_version", version)
+        root.set("tool_comment", comment)
+
+    '''
     def add_channel(self, globalname, start, end, segtype, _chantype=None):
         x_start, y_start = start
         x_end, y_end = end
@@ -1323,6 +1352,7 @@ class Graph:
 
         print("Adding channel {} from {} -> {} pos {}".format(globalname, start, end, idx))
         return globalname, globalname
+    '''
 
 '''
 Debug / test
@@ -1365,8 +1395,10 @@ def print_grid(rr_graph):
 def print_objects(rr_graph):
     '''Display source/sinks on all XML nodes'''
     ids = rr_graph.ids
+    print('Objects: %d' % len(ids._xml_nodes))
     for node in ids._xml_nodes:
         print()
+        ET.dump(node)
         print(ids.node_name(node))
         srcs = []
         snks = []
@@ -1409,4 +1441,21 @@ if __name__ == "__main__":
         doctest.testmod()
         print('Doctest end')
     else:
-        print_graph(Graph(rr_graph_file=sys.argv[-1]))
+        g = Graph(rr_graph_file=sys.argv[-1])
+        print_graph(g)
+        assert 0
+        g.ids.clear_graph()
+        print_graph(g)
+
+        '''
+        <node id="0" type="SOURCE" capacity="1">
+                <loc xlow="1" ylow="1" xhigh="1" yhigh="1" ptc="0"/>
+                <timing R="0" C="0"/>
+        </node>
+        '''
+        for block in g.block_graph:
+            print(block)
+            g.ids.add_nodes_for_block(block)
+        print
+        print_graph(g)
+
