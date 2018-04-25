@@ -280,7 +280,7 @@ class ChannelGrid(dict):
     -A track allocator
 
     dict is indexed by Pos() objects
-    This returns a list indicaitng all the tracks at that position
+    This returns a list indicating all the tracks at that position
     '''
     def __init__(self, size, chan_type):
         '''
@@ -290,9 +290,7 @@ class ChannelGrid(dict):
         self.chan_type = chan_type
         self.size = Size(*size)
 
-        for x in range(0, self.width):
-            for y in range(0, self.height):
-                self[Pos(x,y)] = []
+        self.clear()
 
     @property
     def width(self):
@@ -604,6 +602,11 @@ class ChannelGrid(dict):
 
         return f.getvalue()
 
+    def clear(self):
+        for x in range(0, self.width):
+            for y in range(0, self.height):
+                self[Pos(x,y)] = []
+
     def check(self):
         '''Self integrity check
         Verify uniform track length'''
@@ -616,14 +619,35 @@ class ChannelGrid(dict):
         else:
             assert False
 
-    def assert_full(self):
-        '''Assert all allocated channels are fully occupied'''
-        self.check()
+    def density(self):
+        occupied = 0
+        net = 0
         for x in range(0, self.width):
             for y in range(0, self.height):
                 tracks = self[Pos(x,y)]
-                for tracki, track in enumerate(tracks): 
-                    assert track is not None, 'x%d y%d i%d None' % (x, y, tracki)
+                for tracki, track in enumerate(tracks):
+                    net += 1
+                    if track is not None:
+                        occupied += 1
+        return occupied, net
+
+    def assert_width(self, width):
+        '''Assert all channels have specified --route_chan_width'''
+        for x in range(0, self.width):
+            for y in range(0, self.height):
+                tracks = self[Pos(x,y)]
+                assert len(tracks) == width, 'Bad width Pos(x=%d, y=%d): expect %d, got %d' % (x, y, width, len(tracks))
+
+    def assert_full(self):
+        '''Assert all allocated channels are fully occupied'''
+        self.check()
+        occupied, net = self.density()
+        print("Occupied %d / %d" % (occupied, net))
+        for x in range(0, self.width):
+            for y in range(0, self.height):
+                tracks = self[Pos(x,y)]
+                for tracki, track in enumerate(tracks):
+                    assert track is not None, 'Unoccupied Pos(x=%d, y=%d) track=%d' % (x, y, tracki)
 
 class Channels:
     '''Holds all channels for the whole grid (X + Y)'''
@@ -650,7 +674,7 @@ class Channels:
 
     def create_xy_track(self, start, end, idx=None, type=None):
         '''
-        idx: None to automatically allocate 
+        idx: None to automatically allocate
         '''
         # Actually these can be tuple as well
         #assert_type(start, Pos)
@@ -704,6 +728,10 @@ class Channels:
         s += self.y.pretty_print()
         return s
 
+    def clear(self):
+        '''Remove all channels'''
+        self.x.clear()
+        self.y.clear()
 
 if __name__ == "__main__":
     import doctest
