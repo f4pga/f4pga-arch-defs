@@ -30,6 +30,9 @@ def create_tracks(g, grid_sz, rcw):
     g.channels.y.assert_full()
 
 def connect_blocks_to_tracks(g, grid_sz, rcw, switch):
+    # FIXME: performance issue here (takes a couple seconds on my machine)
+    # Will likely run into issues on real devices
+
     def connect_block_to_track(block, track, node_index=None):
         '''Connect all block pins to given track'''
         assert type(block) is graph.Block, type(block)
@@ -38,8 +41,9 @@ def connect_blocks_to_tracks(g, grid_sz, rcw, switch):
             g.connect_pin_to_track(block, pin, track, switch, node_index=node_index)
             g.index_node_objects()
 
+    print("Indexing")
     node_index = g.index_node_objects()
-    print("Connecting blocks to tracks")
+    print("Connecting blocks to CHANX")
     for y in range(grid_sz.height):
         #print()
         #print("CHANX Y=%d" % y)
@@ -49,7 +53,7 @@ def connect_blocks_to_tracks(g, grid_sz, rcw, switch):
             # Now bind to all adjacent pins
             for block in g.block_graph.blocks_for(row=y):
                 connect_block_to_track(block, track, node_index=node_index)
-    # chany going entire height
+    print("Connecting blocks to CHANY")
     for x in range(grid_sz.width):
         for _tracki in range(rcw):
             # channel should run the entire length
@@ -71,7 +75,7 @@ def connect_tracks_to_tracks(g, grid_sz, switch):
                 for ytrack in ytracks:
                     g.connect_track_to_track(xtrack, ytrack, switch, node_index=node_index)
 
-def rebuild_graph(fn):
+def rebuild_graph(fn, fn_out):
     '''
     Add N tracks to each X and Y
     Connect all of those to all the adjacent pins
@@ -128,7 +132,12 @@ def rebuild_graph(fn):
     print()
     connect_tracks_to_tracks(g, grid_sz, switch)
 
-    print(ET.tostring(g.to_xml()))
+    print("Printing")
+
+    if fn_out:
+        open(fn_out, 'w').write(ET.tostring(g.to_xml()).decode('ascii'))
+    else:
+        print(ET.tostring(g.to_xml()))
 
     return g
 
@@ -144,13 +153,15 @@ def redump_graph(fn):
 def main():
     import argparse
     parser = argparse.ArgumentParser()
-    parser.add_argument("rr_graph")
+    parser.add_argument("rr_graph_in")
+    parser.add_argument("rr_graph_out", nargs='?')
     args = parser.parse_args()
 
-    fn = args.rr_graph
+    fn = args.rr_graph_in
+    fn_out = args.rr_graph_out
 
     if 1:
-        rebuild_graph(fn)
+        rebuild_graph(fn, fn_out)
     if 0:
         redump_graph(fn)
 
