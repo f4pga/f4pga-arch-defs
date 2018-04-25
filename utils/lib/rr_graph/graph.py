@@ -1381,7 +1381,7 @@ class Graph:
         # Read in existing file
         if rr_graph_file:
             self.block_graph = BlockGrid()
-            self._xml_graph = ET.parse(rr_graph_file)
+            self._xml_graph = ET.parse(rr_graph_file, ET.XMLParser(remove_blank_text=True))
             self.import_block_types()
             self.import_grid()
         else:

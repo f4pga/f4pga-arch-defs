@@ -102,7 +102,7 @@ def rebuild_graph(fn, fn_out):
             | | |
     '''
     # ala --route_chan_width
-    rcw = 4
+    rcw = 6
 
     print('Rebuild: parsing original')
     g = graph.Graph(rr_graph_file=fn)
@@ -135,9 +135,9 @@ def rebuild_graph(fn, fn_out):
     print("Printing")
 
     if fn_out:
-        open(fn_out, 'w').write(ET.tostring(g.to_xml()).decode('ascii'))
+        open(fn_out, 'w').write(ET.tostring(g.to_xml(), pretty_print=True).decode('ascii'))
     else:
-        print(ET.tostring(g.to_xml()))
+        print(ET.tostring(g.to_xml(), pretty_print=True).decode('ascii'))
 
     return g
 
