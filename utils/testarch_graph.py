@@ -116,7 +116,7 @@ def rebuild_graph(fn, fn_out):
     graph.print_graph(g)
 
     # Create a single switch type to use for all connections
-    switch = g.ids.add_switch(buffered=1)
+    switch = g.ids.add_switch('switchblade', buffered=1)
 
     print('Rebuild: adding nodes')
     g.add_nodes_for_blocks(switch)
