@@ -1441,48 +1441,9 @@ class Graph:
         root.set("tool_version", version)
         root.set("tool_comment", comment)
 
-    """
-    # Tim: maybe delete most of this and use channel.py instead
-    def create_track(self, globalname, start, end):
-        t = Track(start, end)
-
-        # Going to need two channels to make this work..
-        '''
-            assert _chantype is None
-            start_channelname = create_track(
-                globalname+"_Y", (x_start, y_start), (x_start, y_end), segtype)[0]
-            end_channelname = create_track(
-                globalname+"_X", (x_start, y_end), (x_end, y_end), segtype)[-1]
-            add_edge(globalname+"_Y", globalname+"_X")
-            return start_channelname, end_channelname
-        '''
-
-        attribs = {
-            'direction': chandir,
-            'type': chantype,
-        }
-        node = self.ids.add_node(low, high, ptc, type)
-
-        # <loc xlow="int" ylow="int" xhigh="int" yhigh="int" side="{LEFT|RIGHT|TOP|BOTTOM}" ptc="int">
-        channels_for_type = channels[chantype]
-
-
-        # xlow, xhigh, ylow, yhigh - Integer coordinates of the ends of this routing source.
-        # ptc - This is the pin, track, or class number that depends on the rr_node type.
-
-        # side - { LEFT | RIGHT | TOP | BOTTOM }
-        # For IPIN and OPIN nodes specifies the side of the grid tile on which the node
-        # is located. Purely cosmetic?
-        ET.SubElement(node, 'loc', {
-            'xlow': str(x_start), 'ylow': str(y_start),
-            'xhigh': str(x_end), 'yhigh': str(y_end),
-            'ptc': str(idx),
-        })
-        ET.SubElement(node, 'segment', {'segment_id': str(segtype)})
-
-        print("Adding track {} from {} -> {} pos {}".format(globalname, start, end, idx))
-        return globalname, globalname
-        """
+    def add_nodes_for_blocks(self, switch):
+        for block in self.block_graph:
+            self.ids.add_nodes_for_block(block, switch)
 
     def connect_pin_to_track(self, block, pin, track, switch, node_index=None):
         '''
@@ -1513,12 +1474,12 @@ class Graph:
         self.ids.add_edge(int(src_node.get("id")), int(sink_node.get("id")), int(switch.get("id")))
 
     def connect_track_to_track(self, xtrack, ytrack, switch, node_index=None):
-        _bpin2node, track2nodes = node_index if node_index else self.index_node_objects()
-        pos = Position(ytrack.common, xtrack.position)
+        _bpin2node, track2node = node_index if node_index else self.index_node_objects()
+        #pos = Position(ytrack.common, xtrack.common)
 
         # FIXME: assume for now there are already nodes there from previous step
-        xtrack_node = track2nodes[xtrack][pos]
-        ytrack_node = track2nodes[ytrack][pos]
+        xtrack_node = track2node[xtrack]
+        ytrack_node = track2node[ytrack]
 
         # Make bi directional
         self.ids.add_edge(int(xtrack_node.get("id")), int(ytrack_node.get("id")), int(switch.get("id")))
@@ -1532,6 +1493,10 @@ class Graph:
 
     def index_node_objects(self):
         '''
+        TODO: mithro suggests using node names instead of this. Look into making this happen
+        That is, make it so that something like node_xml_str(pin_node) == node_obj_str(block, pin)
+        Then lookup nodes using self.ids[node_obj_str(block, pin)]
+
         return pin2node, track2node
         pin2node: bpin2node[(Block instance, Pin instance)] => node ET
         track2node: Channel.Track to node
