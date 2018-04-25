@@ -1549,6 +1549,22 @@ class Graph:
 
         return bpin2node, track2node
 
+    def to_xml(self):
+        '''Return an ET object representing this rr_graph'''
+        #et = ET.fromstring('<rr_graph tool_name="graph.py" tool_version="dev" tool_comment="Generated from black magic" />')
+        #return et
+        self.set_tooling("graph.py", "dev", "Generated from black magic")
+
+        # <rr_nodes>, <rr_edges>, and <switches> should be good as is
+        # note <rr_nodes> includes channel tracks, but not width definitions
+
+        # FIXME: regenerate <block_types>
+        # FIXME: regenerate <grid>
+
+        self.channels.to_xml(self._xml_graph)
+
+        return self._xml_graph
+
 '''
 Debug / test
 '''
