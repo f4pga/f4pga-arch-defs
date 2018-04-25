@@ -1229,6 +1229,8 @@ class GraphIdsMap:
         if ntype in ('CHANX', 'CHANY'):
             assert direction != None
             attrs['direction'] = direction.value
+        if ntype in ('SOURCE'):
+            assert low == high, (low, high)
         node = ET.SubElement(self._xml_nodes, 'node', attrs)
         ET.SubElement(node, 'loc', {
             'xlow': str(low.x), 'ylow': str(low.y),
@@ -1258,7 +1260,11 @@ class GraphIdsMap:
         return ET.SubElement(self._xml_edges, 'edge', {
                 'src_node': str(src_node), 'sink_node': str(sink_node), 'switch_id': str(switch_id)})
 
-    def add_switch(self, buffered=1):
+    def add_switch(self, name, stype='mux', buffered=1, configurable=None, timing=None, sizing=None):
+        '''
+        timing: dict of attributes
+        sizing: dict of attributes
+        '''
         # <switch id="0" name="my_switch" buffered="1" configurable="1"/>
         '''
         name='my_switch'
@@ -1269,8 +1275,23 @@ class GraphIdsMap:
         '''
         # just one dummy switch for now
         # assert len(self._xml_switches) == 0
-        switch_node = ET.SubElement(self._xml_switches, 'switch', {
-                'id': str(self._next_id('switch')), 'buffered': str(buffered)})
+        assert stype in 'mux|tristate|pass_gate|short|buffer'.split('|'), stype
+        attrs = {'id': str(self._next_id('switch')), 'name': name, 'type': stype, 'buffered': str(buffered)}
+        if configurable is not None:
+            attrs['confiturable'] = str(int(bool(configurable)))
+        switch_node = ET.SubElement(self._xml_switches, 'switch', attrs)
+        if timing:
+            assert False, 'fixme: float conversion'
+            ET.SubElement(switch_node, 'timing', timing)
+
+        # FIXME: this attribute is required
+        # https://github.com/verilog-to-routing/vtr-verilog-to-routing/issues/333
+        if sizing:
+            assert False, 'fixme: float conversion'
+            ET.SubElement(switch_node, 'sizing', sizing)
+        else:
+            ET.SubElement(switch_node, 'sizing', {'mux_trans_size':"0", "buf_size":"0"})
+
         self.add_switch_xml(switch_node)
         return switch_node
 
@@ -1311,7 +1332,7 @@ class GraphIdsMap:
         assert_eq(block.block_type, pin_class.block_type)
 
         pos_low = block.position
-        pos_high = block.position + pin_class.block_type.size
+        pos_high = block.position + pin_class.block_type.size - Size(1, 1)
 
         # Assuming only one pin per class for now
         # see [0] references
@@ -1713,7 +1734,7 @@ def simple_test_graph(**kwargs):
 def test_add_nodes_for_block(ret=False):
     g = simple_test_graph(verbose=False)
     g.ids.clear_graph()
-    switch = g.ids.add_switch(buffered=1)
+    switch = g.ids.add_switch('SPST', buffered=1)
     for block in g.block_graph:
         g.ids.add_nodes_for_block(block, switch)
     '''
