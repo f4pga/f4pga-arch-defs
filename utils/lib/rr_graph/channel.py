@@ -6,8 +6,8 @@ This file mainly deals with packing tracks into channels
 
 import enum
 import io
-
 from collections import namedtuple
+import lxml.etree as ET
 
 from . import Pos
 from . import Size
@@ -16,8 +16,21 @@ from ..asserts import assert_type
 from ..asserts import assert_len_eq
 
 
+def single_element(parent, name):
+    elements = list(parent.iterfind(name))
+    assert len(elements) == 1, elements
+    return elements[0]
+
+
 class ChannelNotStraight(TypeError):
     pass
+
+
+# FIXME: need to properly support
+class Segment:
+    def to_xml(self, segments_xml):
+        return ET.SubElement(segments_xml, 'segment', {'id': '0', 'name': 'myseg'})
+
 
 # TODO: clean up type
 # real graphs have length 1 tracks, which confuses auto detection
@@ -326,11 +339,23 @@ class ChannelGrid(dict):
             row.append(self[Pos(x, y)])
         return row
 
+    def slicen(self):
+        return {
+            Track.Type.X: self.height,
+            Track.Type.Y: self.width,
+        }[self.chan_type]
+
+    def slice(self, i):
+        return {
+            Track.Type.X: self.row,
+            Track.Type.Y: self.column,
+        }[self.chan_type](i)
+
     def track_slice(self, t):
         '''Get the row or column the track runs along'''
         return {
             Track.Type.X: self.row,
-            Track.Type.Y: self.column
+            Track.Type.Y: self.column,
         }[t.type](t.common)
 
     def create_track(self, t, idx=None):
@@ -631,6 +656,20 @@ class ChannelGrid(dict):
                         occupied += 1
         return occupied, net
 
+    def channel_widths(self):
+        '''Return (min channel width, max channel width, row/col widths)'''
+        cwmin = float('+inf')
+        cwmax = float('-inf')
+        xy_list = []
+        for i in range(self.slicen()):
+            # track width should be consistent along a slice
+            # just take the first element
+            loc = self.slice(i)[0]
+            cwmin = min(cwmin, len(loc))
+            cwmax = max(cwmax, len(loc))
+            xy_list.append(len(loc))
+        return (cwmin, cwmax, xy_list)
+
     def assert_width(self, width):
         '''Assert all channels have specified --route_chan_width'''
         for x in range(0, self.width):
@@ -732,6 +771,30 @@ class Channels:
         '''Remove all channels'''
         self.x.clear()
         self.y.clear()
+
+    def to_xml(self, xml_graph):
+        pass
+        # FIXME: regenerate <channels>
+        channels_xml = single_element(xml_graph, 'channels')
+        channels_xml.clear()
+        cw_xmin, cw_xmax, x_lists = self.x.channel_widths()
+        cw_ymin, cw_ymax, y_lists = self.y.channel_widths()
+        cw_max = max(cw_xmax, cw_ymax)
+        ET.SubElement(channels_xml, 'channel', {'chan_width_max': str(cw_max),
+                                                'x_min': str(cw_xmin), 'x_max': str(cw_xmax),
+                                                'y_min': str(cw_ymin), 'y_max': str(cw_ymax),
+                                                })
+        for i, info in enumerate(x_lists):
+            ET.SubElement(channels_xml, 'x_list', {'index': str(i), 'info': str(info)})
+        for i, info in enumerate(y_lists):
+            ET.SubElement(channels_xml, 'y_list', {'index': str(i), 'info': str(info)})
+
+        # FIXME: hack. Get proper segment support
+        # for now add a summy segment for which all nodes are associated
+        segments_xml = single_element(xml_graph, 'segments')
+        segments_xml.clear()
+        segment = Segment()
+        segment.to_xml(segments_xml)
 
 if __name__ == "__main__":
     import doctest

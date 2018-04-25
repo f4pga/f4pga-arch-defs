@@ -126,6 +126,19 @@ def rebuild_graph(fn):
     print()
     connect_tracks_to_tracks(g, grid_sz, switch)
 
+    print(ET.tostring(g.to_xml()))
+
+    return g
+
+def redump_graph(fn):
+    print('Loading graph')
+    g = graph.Graph(rr_graph_file=fn)
+    print('Converting to XML')
+    e = g.to_xml()
+    print('Dumping')
+    print(ET.tostring(e, pretty_print=True).decode('ascii'))
+    #print(ET.tostring(e, pretty_print=True, encoding='utf-8'))
+
 def main():
     import argparse
     parser = argparse.ArgumentParser()
@@ -134,8 +147,11 @@ def main():
 
     fn = args.rr_graph
 
-    if 1:
+    if 0:
         rebuild_graph(fn)
+    if 1:
+        redump_graph(fn)
+
     if 0:
         bt = graph.BlockType(name="BLK_IG-IBUF")
         xml_string1 = '''
