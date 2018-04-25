@@ -6,7 +6,7 @@ This file mainly deals with packing tracks into channels
 
 import enum
 import io
-from collections import namedtuple
+from collections import namedtuple, OrderedDict
 import lxml.etree as ET
 
 from . import Pos
@@ -26,15 +26,45 @@ class ChannelNotStraight(TypeError):
     pass
 
 
-# FIXME: need to properly support
 class Segment:
-    def to_xml(self, segments_xml):
-        return ET.SubElement(segments_xml, 'segment', {'id': '0', 'name': 'myseg'})
+    def __init__(self, id, name, timing_r=None, timing_c=None):
+        self.id = id
+        self.name = name
+        # TODO: consider wrapping so these are only set as a pair
+        self.timing_r = timing_r
+        self.timing_c = timing_c
 
+    @classmethod
+    def from_xml(cls, segment_xml):
+        '''
+        <segment id="0" name="span">
+            <timing R_per_meter="101" C_per_meter="2.25000005e-14"/>
+        </segment>
+        '''
+        assert_type(segment_xml, ET._Element)
+        id = int(segment_xml.get('id'))
+        name = segment_xml.get('name')
+
+        timing_r = None
+        timing_c = None
+        timings = list(segment_xml.iterfind('timing'))
+        if len(timings) == 1:
+            timing = timings[0]
+            timing_r = float(timing.get('R_per_meter'))
+            timing_c = float(timing.get('C_per_meter'))
+        else:
+            assert len(timings) == 0
+        return Segment(id, name, timing_r, timing_c)
+
+    def to_xml(self, segments_xml):
+        timing_xml = ET.SubElement(segments_xml, 'segment', {'id': str(self.id), 'name': self.name})
+        if self.timing_r:
+            # XXX: should use a particular format string for these?
+            ET.SubElement(timing_xml, "timing", {'R_per_meter': str(self.timing_r), 'C_per_meter': str(self.timing_c)})
 
 # TODO: clean up type
 # real graphs have length 1 tracks, which confuses auto detection
-_Track = namedtuple("Track", ("start", "end", "idx", "type_hint"))
+_Track = namedtuple("Track", ("start", "end", "idx", "type_hint", "segment"))
 class Track(_Track):
     '''
     Represents a single ChanX or ChanY (track) within a channel
@@ -64,7 +94,7 @@ class Track(_Track):
         def __repr__(self):
             return 'Track.Direction.'+self.name
 
-    def __new__(cls, start, end, idx=None, id_override=None, type=None):
+    def __new__(cls, start, end, idx=None, id_override=None, type=None, segment=None):
         '''Make most but not all attributes immutable'''
 
         if not isinstance(start, Pos):
@@ -79,7 +109,7 @@ class Track(_Track):
         if idx is not None:
             assert_type(idx, int)
 
-        obj = _Track.__new__(cls, start, end, idx, type)
+        obj = _Track.__new__(cls, start, end, idx, type, segment)
         obj.id_override = id_override
         return obj
 
@@ -229,7 +259,7 @@ class Track(_Track):
         >>> c2.idx
         2
         """
-        return self.__class__(self.start, self.end, idx, id_override=self.id_override, type=self.type)
+        return self.__class__(self.start, self.end, idx, id_override=self.id_override, type=self.type, segment=self.segment)
 
     def __repr__(self):
         """
@@ -694,24 +724,25 @@ class Channels:
         self.size = size
         self.x = ChannelGrid(size, Track.Type.X)
         self.y = ChannelGrid(size, Track.Type.Y)
+        # id to segment dict
+        self.segments = {}
 
-    def create_diag_track(self, start, end, idx=None):
+    def create_diag_track(self, start, end, segment, idx=None):
         # Actually these can be tuple as well
         #assert_type(start, Pos)
         #assert_type(end, Pos)
 
         # Create track(s)
         try:
-            return (self.create_xy_track(start, end, idx=idx),)
+            return (self.create_xy_track(start, end, segment, idx=idx),)
         except ChannelNotStraight as e:
             assert idx is None, idx
             corner = (start.x, end.y)
-            # Recursive call to create + add
-            ta = self.create_xy_track(start, corner)[0]
-            tb = self.create_xy_track(corner, end)[0]
+            ta = self.create_xy_track(start, corner, segment)[0]
+            tb = self.create_xy_track(corner, end, segment)[0]
             return (ta, tb)
 
-    def create_xy_track(self, start, end, idx=None, type=None):
+    def create_xy_track(self, start, end, segment, idx=None, type=None):
         '''
         idx: None to automatically allocate
         '''
@@ -721,7 +752,7 @@ class Channels:
 
         # Create track(s)
         # Will throw exception if not straight
-        t = Track(start, end, type=type)
+        t = Track(start, end, segment=segment, type=type)
 
         # Add the track to associated channel list
         # Get the track now with the index assigned
@@ -772,11 +803,15 @@ class Channels:
         self.x.clear()
         self.y.clear()
 
-    def to_xml(self, xml_graph):
-        pass
-        # FIXME: regenerate <channels>
-        channels_xml = single_element(xml_graph, 'channels')
+    def from_xml_segments(self, segments_xml):
+        for segment_xml in segments_xml.iterfind('segment'):
+            segment = Segment.from_xml(segment_xml)
+            self.segments[segment.id] = segment
+
+    def to_xml_channels(self, channels_xml):
         channels_xml.clear()
+
+        # channel entry
         cw_xmin, cw_xmax, x_lists = self.x.channel_widths()
         cw_ymin, cw_ymax, y_lists = self.y.channel_widths()
         cw_max = max(cw_xmax, cw_ymax)
@@ -784,17 +819,22 @@ class Channels:
                                                 'x_min': str(cw_xmin), 'x_max': str(cw_xmax),
                                                 'y_min': str(cw_ymin), 'y_max': str(cw_ymax),
                                                 })
+        # x_list / y_list tries
         for i, info in enumerate(x_lists):
             ET.SubElement(channels_xml, 'x_list', {'index': str(i), 'info': str(info)})
         for i, info in enumerate(y_lists):
             ET.SubElement(channels_xml, 'y_list', {'index': str(i), 'info': str(info)})
 
+    def to_xml_segments(self, segments_xml):
         # FIXME: hack. Get proper segment support
         # for now add a summy segment for which all nodes are associated
-        segments_xml = single_element(xml_graph, 'segments')
         segments_xml.clear()
-        segment = Segment()
-        segment.to_xml(segments_xml)
+        for _i, segment in sorted(self.segments.items()):
+            segment.to_xml(segments_xml)
+
+    def to_xml(self, xml_graph):
+        self.to_xml_channels(single_element(xml_graph, 'channels'))
+        self.to_xml_segments(single_element(xml_graph, 'segments'))
 
 if __name__ == "__main__":
     import doctest
