@@ -1,4 +1,5 @@
 import lib.rr_graph.graph as graph
+import lib.rr_graph.channel as channel
 from lib.rr_graph import Position
 
 import sys
@@ -7,12 +8,13 @@ import os
 
 def create_tracks(g, grid_sz, rcw):
     print("Creating tracks, channel width: %d" % rcw)
+    segment = channel.Segment(0, 'awesomesauce', timing_r=420, timing_c='3.e-14')
     # FIXME: should alternate INC/DEC
     # chanx going entire width
     for y in range(grid_sz.height):
         print()
         for tracki in range(rcw):
-            track, _track_node = g.create_xy_track((0, y), (grid_sz.width - 1, y))
+            track, _track_node = g.create_xy_track((0, y), (grid_sz.width - 1, y), segment)
             assert tracki == track.idx, 'Expect index %s, got %s' % (tracki, track.idx)
             print("Create track %s" % (track,))
     g.channels.x.assert_width(rcw)
@@ -21,7 +23,7 @@ def create_tracks(g, grid_sz, rcw):
     for x in range(grid_sz.width):
         print()
         for tracki in range(rcw):
-            track, _track_node = g.create_xy_track((x, 0), (x, grid_sz.height - 1))
+            track, _track_node = g.create_xy_track((x, 0), (x, grid_sz.height - 1), segment)
             assert tracki == track.idx, 'Expect index %s, got %s' % (tracki, track.idx)
             print("Create track %s" % (track,))
     g.channels.y.assert_width(rcw)
@@ -147,9 +149,9 @@ def main():
 
     fn = args.rr_graph
 
-    if 0:
-        rebuild_graph(fn)
     if 1:
+        rebuild_graph(fn)
+    if 0:
         redump_graph(fn)
 
     if 0:

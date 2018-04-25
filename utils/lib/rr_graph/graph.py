@@ -55,7 +55,7 @@ import lxml.etree as ET
 from . import Position
 from . import Size
 from . import Offset
-from .channel import Channels, Track
+from .channel import Channels, Track, single_element, Segment
 
 from ..asserts import assert_eq
 from ..asserts import assert_is
@@ -957,21 +957,15 @@ class GraphIdsMap:
 
     @property
     def _xml_nodes(self):
-        nodes = list(self._xml_graph.iterfind("rr_nodes"))
-        assert len(nodes) == 1, nodes
-        return nodes[0]
+        return single_element(self._xml_graph, 'rr_nodes')
 
     @property
     def _xml_edges(self):
-        edges = list(self._xml_graph.iterfind("rr_edges"))
-        assert len(edges) == 1, edges
-        return edges[0]
+        return single_element(self._xml_graph, 'rr_edges')
 
     @property
     def _xml_switches(self):
-        switches = list(self._xml_graph.iterfind("switches"))
-        assert len(switches) == 1, switches
-        return switches[0]
+        return single_element(self._xml_graph, 'switches')
 
     def _xml_group(self, xml_node):
         assert xml_node.tag in self.id2node, (
@@ -1229,24 +1223,28 @@ class GraphIdsMap:
 
         return edges
 
-    def add_node(self, low, high, ptc, type, direction=None):
-        assert type in ('IPIN', 'OPIN', 'SINK', 'SOURCE', 'CHANX', 'CHANY')
-        attrs = {'id': str(self._next_id('node')), 'type': type}
-        if type in ('CHANX', 'CHANY'):
+    def add_node(self, low, high, ptc, ntype, direction=None, segment_id=None):
+        assert ntype in ('IPIN', 'OPIN', 'SINK', 'SOURCE', 'CHANX', 'CHANY')
+        attrs = {'id': str(self._next_id('node')), 'type': ntype}
+        if ntype in ('CHANX', 'CHANY'):
             assert direction != None
             attrs['direction'] = direction.value
-        pin_node = ET.SubElement(self._xml_nodes, 'node', attrs)
-        ET.SubElement(pin_node, 'loc', {
+        node = ET.SubElement(self._xml_nodes, 'node', attrs)
+        ET.SubElement(node, 'loc', {
             'xlow': str(low.x), 'ylow': str(low.y),
             'xhigh': str(high.x), 'yhigh': str(high.y),
             'ptc': str(ptc),
             # FIXME: This should probably be settable..
             'side': 'RIGHT',
         })
-        ET.SubElement(pin_node, 'timing', {'R': str(0), 'C': str(0)})
+        ET.SubElement(node, 'timing', {'R': str(0), 'C': str(0)})
+        if ntype in ('CHANX', 'CHANY'):
+            assert segment_id != None
+            assert type(segment_id) is int
+            ET.SubElement(node, 'segment', {'segment_id': str(segment_id)})
 
-        self.add_node_xml(pin_node)
-        return pin_node
+        self.add_node_xml(node)
+        return node
 
     def add_edge(self, src_node, sink_node, switch_id):
         # <edge src_node="34" sink_node="44" switch_id="1"/>
@@ -1358,7 +1356,8 @@ class GraphIdsMap:
         assert_type(track, Track)
         assert track.idx != None
 
-        return self.add_node(track.start, track.end, track.idx, track.type.value, direction=track.direction)
+        return self.add_node(track.start, track.end, track.idx, track.type.value,
+                             direction=track.direction, segment_id=track.segment.id)
 
 def node_loc(node):
     return list(node.iterfind("loc"))[0]
@@ -1421,6 +1420,8 @@ class Graph:
         # For any graphs we are handling now this should be true
         assert self.channels.size == self.block_graph.block_grid_size(), (self.channels.size, self.block_graph.block_grid_size())
 
+        self.channels.from_xml_segments(single_element(self._xml_graph, 'segments'))
+
         for node_xml in self.ids._xml_nodes:
             ntype = node_xml.get('type')
             if ntype not in ('CHANX', 'CHANY'):
@@ -1432,8 +1433,12 @@ class Graph:
             pos_low, pos_high = node_pos(node_xml)
             #print('Importing %s @ %s:%s :: %d' % (ntype, pos_low, pos_high, idx))
 
+            segment_xml = single_element(node_xml, 'segment')
+            segment_id = int(segment_xml.get('segment_id'))
+            segment = self.channels.segments[segment_id]
+
             # idx will get assinged when adding to track
-            _track = self.channels.create_xy_track(pos_low, pos_high, idx=idx, type=ntype_e)
+            _track = self.channels.create_xy_track(pos_low, pos_high, segment, idx=idx, type=ntype_e)
 
     def set_tooling(self, name, version, comment):
         root = self._xml_graph.getroot()
@@ -1485,9 +1490,9 @@ class Graph:
         self.ids.add_edge(int(xtrack_node.get("id")), int(ytrack_node.get("id")), int(switch.get("id")))
         self.ids.add_edge(int(ytrack_node.get("id")), int(xtrack_node.get("id")), int(switch.get("id")))
 
-    def create_xy_track(self, start, end, idx=None, type=None):
+    def create_xy_track(self, start, end, segment, idx=None, type=None):
         '''Create track object and corresponding nodes'''
-        track = self.channels.create_xy_track(start, end, idx=idx, type=type)
+        track = self.channels.create_xy_track(start, end, segment, idx=idx, type=type)
         track_node = self.ids.add_node_for_track(track)
         return track, track_node
 
