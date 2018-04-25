@@ -82,6 +82,19 @@ class Size(_Size):
             return o.__class__(o.x+self.x, o.y+self.y)
         return NotImplemented
 
+    def __sub__(self, o):
+        if isinstance(o, Position):
+            return o.__class__(o.x-self.x, o.y-self.y)
+        elif isinstance(o, Size):
+            return o.__class__(o.x-self.x, o.y-self.y)
+        return NotImplemented
+
+    def __rsub__(self, o):
+        if isinstance(o, Position):
+            return o.__class__(o.x-self.x, o.y-self.y)
+        elif isinstance(o, Size):
+            return o.__class__(o.x-self.x, o.y-self.y)
+        return NotImplemented
 
 S = Size
 
