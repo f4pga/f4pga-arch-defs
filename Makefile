@@ -25,7 +25,7 @@ all: | redir .git/info/exclude
 .PHONY: all
 .DEFAULT_GOAL := all
 
-test:
+test: simtest
 	$(call heading,Running Python utils tests)
 	@$(MAKE) -C utils tests $(result)
 
@@ -43,7 +43,7 @@ test:
 
 simtest:
 	$(call heading,Running simulation tests)
-	for ii in `find . -type d -name simtest -a ! -wholename "./.deps/*"`; do echo $$ii; $(MAKE) -C $$ii > /dev/null; [ `grep -c failure $$ii/results.xml` == 0 ]; done
+	@for ii in `find . -type d -name simtest -a ! -wholename "./.deps/*"`; do echo $$ii; $(MAKE) -C $$ii > /dev/null; [ `grep -c failure $$ii/results.xml` == 0 ]; done
 
 .PHONY: simtest
 
