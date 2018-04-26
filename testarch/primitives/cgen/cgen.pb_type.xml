@@ -1,0 +1,17 @@
+<pb_type xmlns:xi="http://www.w3.org/2001/XInclude" name="BLK_IG-CGEN" num_pb="1">
+  <input  equivalent="false" name="I" num_pins="1"/>
+  <output equivalent="false" name="O" num_pins="1"/>
+  <mode name="WIRE">
+   <xi:include href="../../../vpr/wire/wire.pb_type.xml"/>
+   <interconnect>
+    <direct name="BLK_IG-CGEN.I" input="BLK_IG-CGEN.I" output="BLK_IG-WIRE.I"/>
+    <direct name="BLK_IG-CGEN.O" input="BLK_IG-WIRE.I" output="BLK_IG-CGEN.O"/>
+   </interconnect>
+  </mode>
+  <mode name="CONST">
+   <xi:include href="../../../vpr/const/const.pb_type.xml"/>
+   <interconnect>
+    <direct name="BLK_IG-CGEN.O" input="BEL_01-CONST.out" output="BLK_IG-CGEN.O"/>
+   </interconnect>
+  </mode>
+</pb_type>
