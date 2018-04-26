@@ -55,7 +55,7 @@ import lxml.etree as ET
 from . import Position
 from . import Size
 from . import Offset
-from .channel import Channels, Track, single_element, Segment
+from .channel import Channels, Track, single_element, node_loc, node_pos
 
 from ..asserts import assert_eq
 from ..asserts import assert_is
@@ -843,7 +843,7 @@ class BlockGrid:
             self.block_grid[pos] is block)
         self.block_grid[pos] = block
 
-    def block_grid_size(self):
+    def size(self):
         x_max = max(p.x for p in self.block_grid)
         y_max = max(p.y for p in self.block_grid)
         return Size(x_max+1, y_max+1)
@@ -1032,7 +1032,7 @@ class GraphIdsMap:
 
         >>>
         >>> bg = simple_test_block_grid()
-        >>> m = GraphIdsMap(block_graph=bg)
+        >>> m = GraphIdsMap(block_grid=bg)
         >>>
         >>> m.node_name(ET.fromstring('''
         ... <node id="0" type="SINK" capacity="1">
@@ -1191,7 +1191,7 @@ class GraphIdsMap:
         ... <switches />
         ... </rr_graph>
         ... '''
-        >>> m = GraphIdsMap(block_graph=bg, xml_graph=ET.fromstring(xml_string1))
+        >>> m = GraphIdsMap(block_grid=bg, xml_graph=ET.fromstring(xml_string1))
         >>> m.edge_name(ET.fromstring('''
         ... <edge sink_node="1" src_node="0" switch_id="1"/>
         ... '''))
@@ -1385,16 +1385,6 @@ class GraphIdsMap:
         return self.add_node(track.start, track.end, track.idx, track.type.value,
                              direction=track.direction, segment_id=track.segment.id)
 
-def node_loc(node):
-    return list(node.iterfind("loc"))[0]
-
-def node_pos(node):
-    # node as node_xml
-    loc = node_loc(node)
-    pos_low = Position(int(loc.get('xlow')), int(loc.get('ylow')))
-    pos_high = Position(int(loc.get('xhigh')), int(loc.get('yhigh')))
-    return pos_low, pos_high
-
 class Graph:
     '''
     Top level representation, holds the XML root
@@ -1406,7 +1396,7 @@ class Graph:
 
         # Read in existing file
         if rr_graph_file:
-            self.block_graph = BlockGrid()
+            self.block_grid = BlockGrid()
             self._xml_graph = ET.parse(rr_graph_file, ET.XMLParser(remove_blank_text=True))
             self.import_block_types()
             self.import_grid()
@@ -1415,56 +1405,39 @@ class Graph:
             ET.SubElement(self._xml_graph, "rr_nodes")
             ET.SubElement(self._xml_graph, "rr_edges")
 
-        self.ids = GraphIdsMap(self.block_graph, self._xml_graph, verbose=verbose)
+        self.ids = GraphIdsMap(self.block_grid, self._xml_graph, verbose=verbose)
 
         # Channels import requires rr_nodes
         if rr_graph_file:
             self.import_xml_channels()
         else:
-            self.channels = Channels(self.block_graph.block_grid_size())
+            # First and last row/col cannot be occupied, see channel.py
+            self.channels = Channels(self.block_grid.size() - Position(1, 1))
 
     # Following takes info from existing rr_graph file
 
     def import_block_types(self):
         # Create in the block_types information
         for block_type in self._xml_graph.iterfind("./block_types/block_type"):
-            BlockType.from_xml(self.block_graph, block_type)
+            BlockType.from_xml(self.block_grid, block_type)
 
     def import_grid(self):
-        self.grid = {}
         for block_xml in self._xml_graph.iterfind("./grid/grid_loc"):
-            Block.from_xml(self.block_graph, block_xml)
+            Block.from_xml(self.block_grid, block_xml)
+        size = self.block_grid.size()
+        assert size.x > 0
+        assert size.y > 0
 
     def import_xml_channels(self):
-        # XXX: we should validate channels reported width against grid width
-        # they don't necessarily line up
-        channels = list(self._xml_graph.iterfind("channels"))
-        assert len(channels) == 1, channels
-        #self.channels = Channels.from_xml(channels[0])
-        self.channels = Channels(self.block_graph.block_grid_size())
-
-        # For any graphs we are handling now this should be true
-        assert self.channels.size == self.block_graph.block_grid_size(), (self.channels.size, self.block_graph.block_grid_size())
-
+        bgs = self.block_grid.size()
+        print(bgs)
+        cs = bgs - Size(1, 1)
+        print(cs)
+        self.channels = Channels(cs)
+        # Add segments
         self.channels.from_xml_segments(single_element(self._xml_graph, 'segments'))
-
-        for node_xml in self.ids._xml_nodes:
-            ntype = node_xml.get('type')
-            if ntype not in ('CHANX', 'CHANY'):
-                continue
-            ntype_e =  Track.Type(ntype)
-
-            loc = node_loc(node_xml)
-            idx = int(loc.get('ptc'))
-            pos_low, pos_high = node_pos(node_xml)
-            #print('Importing %s @ %s:%s :: %d' % (ntype, pos_low, pos_high, idx))
-
-            segment_xml = single_element(node_xml, 'segment')
-            segment_id = int(segment_xml.get('segment_id'))
-            segment = self.channels.segments[segment_id]
-
-            # idx will get assinged when adding to track
-            _track = self.channels.create_xy_track(pos_low, pos_high, segment, idx=idx, type=ntype_e)
+        # Add channels
+        self.channels.from_xml_nodes(self.ids._xml_nodes)
 
     def set_tooling(self, name, version, comment):
         root = self._xml_graph.getroot()
@@ -1473,7 +1446,7 @@ class Graph:
         root.set("tool_comment", comment)
 
     def add_nodes_for_blocks(self, switch):
-        for block in self.block_graph:
+        for block in self.block_grid:
             self.ids.add_nodes_for_block(block, switch)
 
     def connect_pin_to_track(self, block, pin, track, switch, node_index=None):
@@ -1555,7 +1528,7 @@ class Graph:
 
                 # Lookup Block/<grid_loc>
                 # ptc is the associated pin ptc value of the block_type
-                block = self.block_graph[pos]
+                block = self.block_grid[pos]
                 pin = block.ptc2pin(ptc)
                 kbp = (block, pin)
                 assert kbp not in bpin2node
@@ -1740,7 +1713,7 @@ def test_add_nodes_for_block(ret=False):
     g = simple_test_graph(verbose=False)
     g.ids.clear_graph()
     switch = g.ids.add_switch('SPST', buffered=1)
-    for block in g.block_graph:
+    for block in g.block_grid:
         g.ids.add_nodes_for_block(block, switch)
     '''
     2 input pins, 1 output pin
@@ -1790,15 +1763,15 @@ def test_index_node_objects():
 
 def print_block_types(rr_graph):
     '''Sequentially list block types'''
-    bg = rr_graph.block_graph
+    bg = rr_graph.block_grid
 
     for type_id, bt in bg.block_types.items():
         print("{:4}  ".format(type_id), "{:40s}".format(bt.to_string()), bt.to_string(extra=True))
 
 def print_grid(rr_graph):
     '''ASCII diagram displaying XY layout'''
-    bg = rr_graph.block_graph
-    grid = bg.block_grid_size()
+    bg = rr_graph.block_grid
+    grid = bg.size()
 
     #print('Grid %dw x %dh' % (grid.width, grid.height))
     col_widths = []
