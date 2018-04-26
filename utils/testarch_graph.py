@@ -55,7 +55,7 @@ def connect_blocks_to_tracks(g, grid_sz, rcw, switch):
                 connect_block_to_track(block, track, node_index=node_index)
     print("Connecting blocks to CHANY")
     for x in range(grid_sz.width):
-        for _tracki in range(rcw):
+        for tracki in range(rcw):
             # channel should run the entire length
             track = g.channels.y.column(x)[0][tracki]
             # Now bind to all adjacent pins
@@ -135,8 +135,8 @@ def rebuild_graph(fn, fn_out):
     print("Printing")
     print("Edges: %d (index: %d)" % (len(g.ids._xml_edges), len(g.ids.id2node['edge'])))
     print("Nodes: %d (index: %d)" % (len(g.ids._xml_nodes), len(g.ids.id2node['node'])))
-    for id, node in g.ids.id2node['edge'].items():
-        print("edge %d: %s" % (id, ET.tostring(node)))
+    #for id, node in g.ids.id2node['edge'].items():
+    #    print("edge %d: %s" % (id, ET.tostring(node)))
 
     if fn_out:
         open(fn_out, 'w').write(ET.tostring(g.to_xml(), pretty_print=True).decode('ascii'))
