@@ -1010,15 +1010,18 @@ class GraphIdsMap:
         if node_id is None:
             node_id = len(self.id2node[xml_group])
 
-        # FIXME: ugly hack
-        attr = "_xml_{}s".format(xml_group)
-        attr = attr.replace("switchs", "switches")
-        parent_xml = getattr(self, attr)
+        '''
+        parent_xml = {
+            'node': self._xml_nodes,
+            'edge': self._xml_edges,
+            'switch': self._xml_switches,
+            }[xml_group]
         #assert obj in list(parent_xml)
         #parent_xml.append(obj)
+        '''
 
         if name in self.name2id:
-            assert_eq(self.name2id[name], node_id)
+            assert_eq(self.name2id[name], node_id, "%s inconsistent node ID with old %s, new %s" % (name, self.name2id[name], node_id))
             #assert obj is self.id2node[node_id]
 
         self.id2node[xml_group][node_id] = xml_node
@@ -1257,8 +1260,10 @@ class GraphIdsMap:
         assert str(src_node) in self.id2node['node'], src_node
         assert str(sink_node) in self.id2node['node'], sink_node
         assert str(switch_id) in self.id2node['switch'], switch_id
-        return ET.SubElement(self._xml_edges, 'edge', {
+        edge = ET.SubElement(self._xml_edges, 'edge', {
                 'src_node': str(src_node), 'sink_node': str(sink_node), 'switch_id': str(switch_id)})
+        self.add_edge_xml(edge)
+        return edge
 
     def add_switch(self, name, stype='mux', buffered=1, configurable=None, timing=None, sizing=None):
         '''

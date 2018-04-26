@@ -133,6 +133,10 @@ def rebuild_graph(fn, fn_out):
     connect_tracks_to_tracks(g, grid_sz, switch)
 
     print("Printing")
+    print("Edges: %d (index: %d)" % (len(g.ids._xml_edges), len(g.ids.id2node['edge'])))
+    print("Nodes: %d (index: %d)" % (len(g.ids._xml_nodes), len(g.ids.id2node['node'])))
+    for id, node in g.ids.id2node['edge'].items():
+        print("edge %d: %s" % (id, ET.tostring(node)))
 
     if fn_out:
         open(fn_out, 'w').write(ET.tostring(g.to_xml(), pretty_print=True).decode('ascii'))
