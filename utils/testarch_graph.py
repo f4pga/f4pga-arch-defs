@@ -8,22 +8,24 @@ import os
 
 def create_tracks(g, grid_sz, rcw):
     print("Creating tracks, channel width: %d" % rcw)
+    print("Block grid size: %s" % (g.block_grid.size,))
+    print("Channel grid size: %s" % (g.channels.size,))
     segment = channel.Segment(0, 'awesomesauce', timing_r=420, timing_c='3.e-14')
     # FIXME: should alternate INC/DEC
     # chanx going entire width
-    for y in range(grid_sz.height):
+    for y in range(1, grid_sz.height - 1):
         print()
         for tracki in range(rcw):
-            track, _track_node = g.create_xy_track((0, y), (grid_sz.width - 1, y), segment)
+            track, _track_node = g.create_xy_track((1, y), (grid_sz.width - 2, y), segment)
             assert tracki == track.idx, 'Expect index %s, got %s' % (tracki, track.idx)
             print("Create track %s" % (track,))
     g.channels.x.assert_width(rcw)
     g.channels.x.assert_full()
     # chany going entire height
-    for x in range(grid_sz.width):
+    for x in range(1, grid_sz.width - 1):
         print()
         for tracki in range(rcw):
-            track, _track_node = g.create_xy_track((x, 0), (x, grid_sz.height - 1), segment)
+            track, _track_node = g.create_xy_track((x, 1), (x, grid_sz.height - 2), segment)
             assert tracki == track.idx, 'Expect index %s, got %s' % (tracki, track.idx)
             print("Create track %s" % (track,))
     g.channels.y.assert_width(rcw)
@@ -44,30 +46,32 @@ def connect_blocks_to_tracks(g, grid_sz, rcw, switch):
     print("Indexing")
     node_index = g.index_node_objects()
     print("Connecting blocks to CHANX")
-    for y in range(grid_sz.height):
+    for y in range(1, grid_sz.height - 2):
         #print()
         #print("CHANX Y=%d" % y)
         for tracki in range(rcw):
             # channel should run the entire length
-            track = g.channels.x.row(y)[0][tracki]
+            track = g.channels.x.row(y)[1][tracki]
+            assert track is not None
             # Now bind to all adjacent pins
-            for block in g.block_graph.blocks_for(row=y):
+            for block in g.block_grid.blocks_for(row=y):
                 connect_block_to_track(block, track, node_index=node_index)
     print("Connecting blocks to CHANY")
-    for x in range(grid_sz.width):
+    for x in range(1, grid_sz.width - 2):
         for tracki in range(rcw):
             # channel should run the entire length
-            track = g.channels.y.column(x)[0][tracki]
+            track = g.channels.y.column(x)[1][tracki]
+            assert track is not None
             # Now bind to all adjacent pins
-            for block in g.block_graph.blocks_for(col=x):
+            for block in g.block_grid.blocks_for(col=x):
                 connect_block_to_track(block, track, node_index=node_index)
 
 def connect_tracks_to_tracks(g, grid_sz, switch):
     node_index = g.index_node_objects()
     print("Connecting tracks to tracks")
     # Now connect tracks together
-    for y in range(grid_sz.height):
-        for x in range(grid_sz.width):
+    for y in range(grid_sz.height - 1):
+        for x in range(grid_sz.width - 1):
             xtracks = g.channels.x[Position(x, y)]
             ytracks = g.channels.y[Position(x, y)]
             # Add bi-directional links between all permutations
@@ -123,7 +127,7 @@ def rebuild_graph(fn, fn_out):
     print
     graph.print_graph(g)
 
-    grid_sz = g.block_graph.block_grid_size()
+    grid_sz = g.block_grid.size()
     print("Grid size: %s" % (grid_sz,))
     print()
     create_tracks(g, grid_sz, rcw)
