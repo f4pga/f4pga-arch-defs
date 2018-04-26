@@ -1,0 +1,19 @@
+<!-- set: ai sw=1 ts=1 sta et -->
+<layout>
+ <fixed_layout name="1x1.min" width="4" height="3">
+  <!--
+      0123
+    2 ....
+    1 IXO.
+    0 ....
+    -->
+  <col priority="10" startx="0" type="BLK_IG-IBUF" />
+  <col priority="10" startx="1" type="BLK_TI-TILE" />
+  <col priority="10" startx="2" type="BLK_IG-OBUF" />
+  <col priority="10" startx="3" type="EMPTY"       />
+
+  <row priority="11" starty="2" type="EMPTY"       />
+  <!--               starty="1"                   -->
+  <row priority="11" starty="0" type="EMPTY"       />
+ </fixed_layout>
+</layout>

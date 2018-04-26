@@ -1,7 +1,9 @@
 <!-- set: ai sw=1 ts=1 sta et -->
 <layout xmlns:xi="http://www.w3.org/2001/XInclude">
+ <xi:include href="1x1.fixed_layout.xml" xpointer="xpointer(layout/child::node())" />
  <xi:include href="1x2.fixed_layout.xml" xpointer="xpointer(layout/child::node())" />
  <xi:include href="2x1.fixed_layout.xml" xpointer="xpointer(layout/child::node())" />
  <xi:include href="2x4.fixed_layout.xml" xpointer="xpointer(layout/child::node())" />
  <xi:include href="4x4.fixed_layout.xml" xpointer="xpointer(layout/child::node())" />
+ <xi:include href="1x1.min.fixed_layout.xml" xpointer="xpointer(layout/child::node())" />
 </layout>
