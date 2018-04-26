@@ -1,0 +1,28 @@
+<!-- set: ai sw=1 ts=1 sta et -->
+<layout>
+ <fixed_layout name="1x2" width="3" height="8">
+  <!--
+      012
+    7 ...
+    6 .I.
+    5 ...
+    4 .X.
+    3 .X.
+    2 ...
+    1 .O.
+    0 ...
+    -->
+  <col priority="11" startx="0" type="EMPTY"       />
+  <!--               startx="1"                   -->
+  <col priority="11" startx="2" type="EMPTY"       />
+
+  <row priority="10" starty="7" type="EMPTY"       />
+  <row priority="10" starty="6" type="BLK_IG-OBUF" />
+  <row priority="10" starty="5" type="EMPTY"       />
+  <row priority="10" starty="4" type="BLK_TI-TILE" />
+  <row priority="10" starty="3" type="BLK_TI-TILE" />
+  <row priority="10" starty="2" type="EMPTY"       />
+  <row priority="10" starty="1" type="BLK_IG-IBUF" />
+  <row priority="10" starty="0" type="EMPTY"       />
+ </fixed_layout>
+</layout>
