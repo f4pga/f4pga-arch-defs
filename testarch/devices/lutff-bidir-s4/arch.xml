@@ -1,0 +1,16 @@
+<!-- set: ai sw=1 ts=1 sta et -->
+<architecture xmlns:xi="http://www.w3.org/2001/XInclude">
+ <models>
+  <xi:include href="../../tiles/lutff/lutff.model.xml" xpointer="xpointer(models/child::node())" />
+ </models>
+ <layout>
+   <xi:include href="../layouts/all.xml" xpointer="xpointer(layout/child::node())" />
+ </layout>
+ <complexblocklist>
+  <xi:include href="../../../vpr/ibuf/ibuf.pb_type.xml"/>
+  <xi:include href="../../../vpr/obuf/obuf.pb_type.xml"/>
+  <xi:include href="../../tiles/lutff/lutff.pb_type.xml"/>
+ </complexblocklist>
+
+ <xi:include href="../routing/bidir-s4.xml" xpointer="xpointer(architecture/child::node())" />
+</architecture>
