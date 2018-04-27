@@ -6,14 +6,15 @@ import sys
 import lxml.etree as ET
 import os
 
-def create_tracks(g, grid_sz, rcw):
+# all tracks go in one direction
+def create_tracks_uni(g, grid_sz, rcw):
     print("Creating tracks, channel width: %d" % rcw)
     print("Block grid size: %s" % (g.block_grid.size,))
     print("Channel grid size: %s" % (g.channels.size,))
     segment = channel.Segment(0, 'awesomesauce', timing_r=420, timing_c='3.e-14')
     # FIXME: should alternate INC/DEC
     # chanx going entire width
-    for y in range(1, grid_sz.height - 1):
+    for y in range(0, grid_sz.height - 1):
         print()
         for tracki in range(rcw):
             track, _track_node = g.create_xy_track((1, y), (grid_sz.width - 2, y), segment)
@@ -22,10 +23,47 @@ def create_tracks(g, grid_sz, rcw):
     g.channels.x.assert_width(rcw)
     g.channels.x.assert_full()
     # chany going entire height
-    for x in range(1, grid_sz.width - 1):
+    for x in range(0, grid_sz.width - 1):
         print()
         for tracki in range(rcw):
             track, _track_node = g.create_xy_track((x, 1), (x, grid_sz.height - 2), segment)
+            assert tracki == track.idx, 'Expect index %s, got %s' % (tracki, track.idx)
+            print("Create track %s" % (track,))
+    g.channels.y.assert_width(rcw)
+    g.channels.y.assert_full()
+
+# bi-directional channels
+def create_tracks(g, grid_sz, rcw):
+    print("Creating tracks, channel width: %d" % rcw)
+    print("Block grid size: %s" % (g.block_grid.size,))
+    print("Channel grid size: %s" % (g.channels.size,))
+    assert rcw % 2 == 0
+
+    segment = channel.Segment(0, 'awesomesauce', timing_r=420, timing_c='3.e-14')
+    def alt_pos(begin, end, swap):
+        if swap:
+            return end, begin, channel.Track.Direction.DEC
+        else:
+            return begin, end, channel.Track.Direction.INC
+    # FIXME: should alternate INC/DEC
+    # chanx going entire width
+    for y in range(0, grid_sz.height - 1):
+        print()
+        for tracki in range(rcw):
+            begin, end, direction = alt_pos((1, y), (grid_sz.width - 2, y), tracki % 2 == 1)
+            track, _track_node = g.create_xy_track(begin, end, segment,
+                                                   type=channel.Track.Type.X, direction=direction)
+            assert tracki == track.idx, 'Expect index %s, got %s' % (tracki, track.idx)
+            print("Create track %s" % (track,))
+    g.channels.x.assert_width(rcw)
+    g.channels.x.assert_full()
+    # chany going entire height
+    for x in range(0, grid_sz.width - 1):
+        print()
+        for tracki in range(rcw):
+            begin, end, direction = alt_pos((x, 1), (x, grid_sz.height - 2), tracki % 2 == 1)
+            track, _track_node = g.create_xy_track(begin, end, segment,
+                                                   type=channel.Track.Type.Y, direction=direction)
             assert tracki == track.idx, 'Expect index %s, got %s' % (tracki, track.idx)
             print("Create track %s" % (track,))
     g.channels.y.assert_width(rcw)
@@ -67,17 +105,25 @@ def connect_blocks_to_tracks(g, grid_sz, rcw, switch):
                 connect_block_to_track(block, track, node_index=node_index)
 
 def connect_tracks_to_tracks(g, grid_sz, switch):
-    node_index = g.index_node_objects()
     print("Connecting tracks to tracks")
-    # Now connect tracks together
-    for y in range(grid_sz.height - 1):
-        for x in range(grid_sz.width - 1):
-            xtracks = g.channels.x[Position(x, y)]
-            ytracks = g.channels.y[Position(x, y)]
-            # Add bi-directional links between all permutations
-            for xtrack in xtracks:
-                for ytrack in ytracks:
-                    g.connect_track_to_track(xtrack, ytrack, switch, node_index=node_index)
+    node_index = g.index_node_objects()
+    if 0:
+        # Now connect tracks together
+        for y in range(1, grid_sz.height - 1):
+            for x in range(1, grid_sz.width - 1):
+                xtracks = g.channels.x[Position(x, y)]
+                ytracks = g.channels.y[Position(x, y)]
+                # Add bi-directional links between all permutations
+                for xtrack in xtracks:
+                    for ytrack in ytracks:
+                        g.connect_track_to_track(xtrack, ytrack, switch, node_index=node_index)
+    # make lower right connection only
+    # chan y at (x=0, y=1) to chanx at (x=1, y=0)
+    if 1:
+        xtrack = g.channels.x[Position(1, 0)][0]
+        ytrack = g.channels.y[Position(0, 1)][0]
+        g.connect_track_to_track(xtrack, ytrack, switch, node_index=node_index)
+
 
 def rebuild_graph(fn, fn_out, rcw=6):
     '''
@@ -130,7 +176,7 @@ def rebuild_graph(fn, fn_out, rcw=6):
     print()
     create_tracks(g, grid_sz, rcw)
     print()
-    connect_blocks_to_tracks(g, grid_sz, rcw, switch)
+    #connect_blocks_to_tracks(g, grid_sz, rcw, switch)
     print()
     connect_tracks_to_tracks(g, grid_sz, switch)
 
