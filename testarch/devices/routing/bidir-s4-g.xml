@@ -9,21 +9,18 @@
 
  <segmentlist>
   <segment name="global" length="longline" freq="0.100000" type="bidir" Rmetal="101" Cmetal="22.5e-15">
-   <mux name="1"/>
    <wire_switch name="1"/>
    <opin_switch name="1"/>
   </segment>
   <segment name="span" length="4" freq="0.200000" type="bidir" Rmetal="101" Cmetal="22.5e-15">
    <sb type="pattern">1 1 1 1 1</sb>
    <cb type="pattern">1 1 1 1</cb>
-   <mux name="1"/>
    <wire_switch name="1"/>
    <opin_switch name="1"/>
   </segment>
   <segment name="local" length="1" freq="0.700000" type="bidir" Rmetal="101" Cmetal="22.5e-15">
    <sb type="pattern">1 1</sb>
    <cb type="pattern">1</cb>
-   <mux name="1"/>
    <wire_switch name="1"/>
    <opin_switch name="1"/>
   </segment>
