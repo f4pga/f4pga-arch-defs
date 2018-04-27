@@ -73,6 +73,9 @@ def connect_blocks_to_tracks(g, grid_sz, rcw, switch):
     # FIXME: performance issue here (takes a couple seconds on my machine)
     # Will likely run into issues on real devices
 
+    # FIXME: something wrong
+    return
+
     def connect_block_to_track(block, track, node_index=None):
         '''Connect all block pins to given track'''
         assert type(block) is graph.Block, type(block)
@@ -107,22 +110,35 @@ def connect_blocks_to_tracks(g, grid_sz, rcw, switch):
 def connect_tracks_to_tracks(g, grid_sz, switch):
     print("Connecting tracks to tracks")
     node_index = g.index_node_objects()
-    if 0:
-        # Now connect tracks together
-        for y in range(1, grid_sz.height - 1):
-            for x in range(1, grid_sz.width - 1):
-                xtracks = g.channels.x[Position(x, y)]
-                ytracks = g.channels.y[Position(x, y)]
-                # Add bi-directional links between all permutations
-                for xtrack in xtracks:
-                    for ytrack in ytracks:
-                        g.connect_track_to_track(xtrack, ytrack, switch, node_index=node_index)
+
+    # a few manual connections
     # make lower right connection only
     # chan y at (x=0, y=1) to chanx at (x=1, y=0)
-    if 1:
-        xtrack = g.channels.x[Position(1, 0)][0]
+    if 0:
+        rcw = 2
+        for trackix in range(rcw):
+            for trackiy in range(rcw):
+                xtrack = g.channels.x[Position(1, 0)][trackix]
+                ytrack = g.channels.y[Position(0, 1)][trackiy]
+                g.connect_track_to_track_bidir(xtrack, ytrack, switch, node_index=node_index)
+
+        for trackix in range(rcw):
+            for trackiy in range(rcw):
+                xtrack = g.channels.x[Position(2, 0)][trackix]
+                ytrack = g.channels.y[Position(1, 1)][trackiy]
+                g.connect_track_to_track_bidir(xtrack, ytrack, switch, node_index=node_index)
+
+
+        xtrack = g.channels.x[Position(1, 1)][0]
         ytrack = g.channels.y[Position(0, 1)][0]
-        g.connect_track_to_track(xtrack, ytrack, switch, node_index=node_index)
+        g.connect_track_to_track_bidir(xtrack, ytrack, switch, node_index=node_index)
+
+    if 1:
+        # Iterate over all valid x channels and connect to all valid y channels and vice versa as direction implies
+        for xtrack in g.channels.x.tracks():
+            for ytrack in g.channels.y.tracks():
+                g.connect_track_to_track_bidir(xtrack, ytrack, switch, node_index=node_index)
+                print("Connect %s to %s" % (xtrack, ytrack))
 
 
 def rebuild_graph(fn, fn_out, rcw=6):
@@ -176,7 +192,7 @@ def rebuild_graph(fn, fn_out, rcw=6):
     print()
     create_tracks(g, grid_sz, rcw)
     print()
-    #connect_blocks_to_tracks(g, grid_sz, rcw, switch)
+    connect_blocks_to_tracks(g, grid_sz, rcw, switch)
     print()
     connect_tracks_to_tracks(g, grid_sz, switch)
 
