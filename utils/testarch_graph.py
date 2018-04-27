@@ -73,39 +73,55 @@ def connect_blocks_to_tracks(g, grid_sz, rcw, switch):
     # FIXME: performance issue here (takes a couple seconds on my machine)
     # Will likely run into issues on real devices
 
-    # FIXME: something wrong
-    return
-
-    def connect_block_to_track(block, track, node_index=None):
+    def connect_block_to_track(block, trackl, trackr, node_index=None):
         '''Connect all block pins to given track'''
         assert type(block) is graph.Block, type(block)
         #print("Block to track: %s <=> %s" % (block.position, track))
         for pin in block.pins():
-            g.connect_pin_to_track(block, pin, track, switch, node_index=node_index)
-            g.index_node_objects()
+            bpin2node, _track2node = node_index
+            pin_node_xml = bpin2node[(block, pin)]
+            pin_side = channel.node_loc(pin_node_xml).get('side')
+
+            if pin_side == 'LEFT':
+                print('left')
+                g.connect_pin_to_track(block, pin, trackl, switch, node_index=node_index)
+            elif pin_side == 'RIGHT':
+                print('right')
+                g.connect_pin_to_track(block, pin, trackr, switch, node_index=node_index)
+            else:
+                assert False, pin_side
+            #g.index_node_objects()
 
     print("Indexing")
     node_index = g.index_node_objects()
+    '''
     print("Connecting blocks to CHANX")
-    for y in range(1, grid_sz.height - 2):
+    for y in range(0, grid_sz.height - 2):
         #print()
         #print("CHANX Y=%d" % y)
         for tracki in range(rcw):
             # channel should run the entire length
-            track = g.channels.x.row(y)[1][tracki]
+            track = g.channels.x.row(y)[0][tracki]
             assert track is not None
             # Now bind to all adjacent pins
             for block in g.block_grid.blocks_for(row=y):
                 connect_block_to_track(block, track, node_index=node_index)
+    '''
+    # All the pins are either on the right
     print("Connecting blocks to CHANY")
-    for x in range(1, grid_sz.width - 2):
+    for x in range(0, grid_sz.width - 2):
         for tracki in range(rcw):
+            #print(x, tracki)
             # channel should run the entire length
-            track = g.channels.y.column(x)[1][tracki]
-            assert track is not None
+            trackl = None
+            if x:
+                trackl = g.channels.y.column(x - 1)[1][tracki]
+            trackr = g.channels.y.column(x)[1][tracki]
+            assert trackr is not None
             # Now bind to all adjacent pins
             for block in g.block_grid.blocks_for(col=x):
-                connect_block_to_track(block, track, node_index=node_index)
+                print("Connecting block %s to track %s "% (block, trackr))
+                connect_block_to_track(block, trackl, trackr, node_index=node_index)
 
 def connect_tracks_to_tracks(g, grid_sz, switch):
     print("Connecting tracks to tracks")
@@ -133,12 +149,31 @@ def connect_tracks_to_tracks(g, grid_sz, switch):
         ytrack = g.channels.y[Position(0, 1)][0]
         g.connect_track_to_track_bidir(xtrack, ytrack, switch, node_index=node_index)
 
-    if 1:
+    # github issue config
+    # https://github.com/verilog-to-routing/vtr-verilog-to-routing/issues/335
+    if 0:
         # Iterate over all valid x channels and connect to all valid y channels and vice versa as direction implies
         for xtrack in g.channels.x.tracks():
             for ytrack in g.channels.y.tracks():
+                if not (xtrack.common == 1 and xtrack.idx == 1):
+                    continue
+                if not (ytrack.common == 1 and ytrack.idx == 1):
+                    continue
                 g.connect_track_to_track_bidir(xtrack, ytrack, switch, node_index=node_index)
                 print("Connect %s to %s" % (xtrack, ytrack))
+
+    # Iterate over all valid x channels and connect to all valid y channels and vice versa as direction implies
+    for xtrack in g.channels.x.tracks():
+        for ytrack in g.channels.y.tracks():
+            def try_connect(atrack, btrack):
+                # One of the nodes should be going in and the other should be going out
+                # Filter out grossly non-sensical connections that confuse the VPR GUI
+                if (btrack.direction == channel.Track.Direction.INC and btrack.start0 <= atrack.common
+                        or btrack.direction == channel.Track.Direction.DEC and btrack.start0 > atrack.common):
+                    g.connect_track_to_track(btrack, atrack, switch, node_index=node_index)
+                    print("Connect %s to %s" % (btrack, atrack))
+            try_connect(xtrack, ytrack)
+            try_connect(ytrack, xtrack)
 
 
 def rebuild_graph(fn, fn_out, rcw=6):

@@ -1226,22 +1226,30 @@ class GraphIdsMap:
 
         return edges
 
-    def add_node(self, low, high, ptc, ntype, direction=None, segment_id=None):
+    def add_node(self, low, high, ptc, ntype, direction=None, segment_id=None, side=None):
         assert ntype in ('IPIN', 'OPIN', 'SINK', 'SOURCE', 'CHANX', 'CHANY')
         attrs = {'id': str(self._next_id('node')), 'type': ntype}
         if ntype in ('CHANX', 'CHANY'):
             assert direction != None
             attrs['direction'] = direction.value
-        if ntype in ('SOURCE'):
+        if ntype in ('SOURCE', 'SINK', 'IPIN', 'OPIN'):
             assert low == high, (low, high)
+
+        if ntype in ('IPIN', 'OPIN'):
+            assert side is not None
+        else:
+            assert side is None
+
         node = ET.SubElement(self._xml_nodes, 'node', attrs)
-        ET.SubElement(node, 'loc', {
+        attrs = {
             'xlow': str(low.x), 'ylow': str(low.y),
             'xhigh': str(high.x), 'yhigh': str(high.y),
             'ptc': str(ptc),
-            # FIXME: This should probably be settable..
-            'side': 'RIGHT',
-        })
+        }
+        if side is not None:
+            attrs['side'] = side
+
+        ET.SubElement(node, 'loc', attrs)
         ET.SubElement(node, 'timing', {'R': str(0), 'C': str(0)})
         if ntype in ('CHANX', 'CHANY'):
             assert segment_id != None
@@ -1316,9 +1324,9 @@ class GraphIdsMap:
 
         pin_node = None
         if pc.direction in (PinClassDirection.INPUT, PinClassDirection.CLOCK):
-            pin_node = self.add_node(low, high, pin.ptc, 'IPIN')
+            pin_node = self.add_node(low, high, pin.ptc, 'IPIN', side='RIGHT')
         elif pin.pin_class.direction in (PinClassDirection.OUTPUT,):
-            pin_node = self.add_node(low, high, pin.ptc, 'OPIN')
+            pin_node = self.add_node(low, high, pin.ptc, 'OPIN', side='LEFT')
         else:
             assert False, "Unknown dir of {}.{}".format(pin, pin.pin_class)
 
@@ -1475,23 +1483,19 @@ class Graph:
             'output':  (pin_node, track_node),
             }[pin.pin_class.direction.value]
 
+        #if pin.pin_class.direction.value == 'output':
+        #    return
         self.ids.add_edge(int(src_node.get("id")), int(sink_node.get("id")), int(switch.get("id")))
 
     def connect_track_to_track(self, src_track, dst_track, switch, node_index=None):
         _bpin2node, track2node = node_index if node_index else self.index_node_objects()
-        assert 0, 'FIXME'
+        src_node = track2node[src_track]
+        dst_node = track2node[dst_track]
+        self.ids.add_edge(int(src_node.get("id")), int(dst_node.get("id")), int(switch.get("id")))
 
     def connect_track_to_track_bidir(self, xtrack, ytrack, switch, node_index=None):
-        _bpin2node, track2node = node_index if node_index else self.index_node_objects()
-        #pos = Position(ytrack.common, xtrack.common)
-
-        # FIXME: assume for now there are already nodes there from previous step
-        xtrack_node = track2node[xtrack]
-        ytrack_node = track2node[ytrack]
-
-        # Make bi directional
-        self.ids.add_edge(int(xtrack_node.get("id")), int(ytrack_node.get("id")), int(switch.get("id")))
-        self.ids.add_edge(int(ytrack_node.get("id")), int(xtrack_node.get("id")), int(switch.get("id")))
+        self.connect_track_to_track(xtrack, ytrack, switch, node_index=node_index)
+        self.connect_track_to_track(ytrack, xtrack, switch, node_index=node_index)
 
     def create_xy_track(self, start, end, segment, idx=None, type=None, direction=None):
         '''Create track object and corresponding nodes'''
