@@ -87,7 +87,7 @@ class Segment:
 
 # TODO: clean up type
 # real graphs have length 1 tracks, which confuses auto detection
-_Track = namedtuple("Track", ("start", "end", "idx", "type_hint", "segment"))
+_Track = namedtuple("Track", ("start", "end", "idx", "type_hint", "direction_hint", "segment"))
 class Track(_Track):
     '''
     Represents a single ChanX or ChanY (track) within a channel
@@ -117,7 +117,7 @@ class Track(_Track):
         def __repr__(self):
             return 'Track.Direction.'+self.name
 
-    def __new__(cls, start, end, idx=None, id_override=None, type=None, segment=None):
+    def __new__(cls, start, end, idx=None, id_override=None, type_hint=None, direction_hint=None, segment=None):
         '''Make most but not all attributes immutable'''
 
         if not isinstance(start, Position):
@@ -132,8 +132,16 @@ class Track(_Track):
         if idx is not None:
             assert_type(idx, int)
 
-        obj = _Track.__new__(cls, start, end, idx, type, segment)
+        obj = _Track.__new__(cls, start, end, idx, type_hint, direction_hint, segment)
         obj.id_override = id_override
+
+        # Verify not ambiguous
+        obj.type
+        obj.direction
+        # And check for consistency if its not ambiguous
+        assert obj.type_guess is None or obj.type_guess == obj.type
+        assert obj.direction_guess is None or obj.direction_guess == obj.direction, "Guess: %s, got: %s" % (obj.direction_guess, obj.direction)
+
         return obj
 
     @static_property
@@ -150,9 +158,18 @@ class Track(_Track):
         >>> Track((1, 1), (1, 1)).type
         Track.Type.Y
         """
-        if self.type_hint is not None:
-            return self.type_hint
-        if self.start.x == self.end.x:
+        if self.type_hint:
+            return self.type_hint 
+        guess = self.type_guess
+        if guess is None:
+            return ValueError("Ambiguous type")
+        return guess
+
+    @static_property
+    def type_guess(self):
+        if self.start.x == self.end.x and self.start.y == self.end.y:
+            return None
+        elif self.start.x == self.end.x:
             return Track.Type.Y
         elif self.start.y == self.end.y:
             return Track.Type.X
@@ -201,7 +218,7 @@ class Track(_Track):
         elif self.type == Track.Type.Y:
             return self.end.y
         else:
-            assert False
+            assert False, self.type
 
     @static_property
     def common(self):
@@ -246,7 +263,18 @@ class Track(_Track):
         >>> Track((0, 10), (0, 0)).direction
         Track.Direction.DEC
         """
-        if self.end0 < self.start0:
+        if self.direction_hint:
+            return self.direction_hint
+        guess = self.direction_guess
+        if guess is None:
+            raise ValueError("Ambiguous direction")
+        return guess
+
+    @static_property
+    def direction_guess(self):
+        if self.end0 == self.start0:
+            return None
+        elif self.end0 < self.start0:
             return Track.Direction.DEC
         else:
             return Track.Direction.INC
@@ -282,7 +310,8 @@ class Track(_Track):
         >>> c2.idx
         2
         """
-        return self.__class__(self.start, self.end, idx, id_override=self.id_override, type=self.type, segment=self.segment)
+        return self.__class__(self.start, self.end, idx, id_override=self.id_override,
+                              type_hint=self.type_hint, direction_hint=self.direction_hint, segment=self.segment)
 
     def __repr__(self):
         """
@@ -453,14 +482,16 @@ class ChannelGrid(dict):
         Channels are upper right of tile
         Therefore, the first position in a channel cannot have a track because there is no proceeding switchbox
         '''
+        if msg:
+            msg = msg + ': '
         # Gross error out of grid
         if pos.x < 0 or pos.y < 0 or pos.x >= self.width or pos.y >= self.height:
-            raise ValueError("Grid %s, point %s out of grid size coordinate%s" % (self.size, pos, msg))
+            raise ValueError("%sGrid %s, point %s out of grid size coordinate" % (msg, self.size, pos))
 
         if self.chan_type == Track.Type.X and pos.x == 0:
-            raise ValueError("Invalid CHANX x=0 point%s " % (pos, msg))
+            raise ValueError("%sInvalid CHANX x=0 point " % (msg, pos))
         if self.chan_type == Track.Type.Y and pos.y == 0:
-            raise ValueError("Invalid CHANY y=0 point%s " % (pos, msg))
+            raise ValueError("%sInvalid CHANY y=0 point " % (msg, pos))
 
     def create_track(self, t, idx=None):
         """
@@ -812,7 +843,7 @@ class Channels:
             tb = self.create_xy_track(corner, end, segment)[0]
             return (ta, tb)
 
-    def create_xy_track(self, start, end, segment, idx=None, type=None):
+    def create_xy_track(self, start, end, segment, idx=None, type=None, direction=None):
         '''
         idx: None to automatically allocate
         '''
@@ -822,7 +853,7 @@ class Channels:
 
         # Create track(s)
         # Will throw exception if not straight
-        t = Track(start, end, segment=segment, type=type)
+        t = Track(start, end, segment=segment, type_hint=type, direction_hint=direction)
 
         # Add the track to associated channel list
         # Get the track now with the index assigned
@@ -887,6 +918,8 @@ class Channels:
                 continue
             ntype_e =  Track.Type(ntype)
 
+            direction = Track.Direction(node_xml.get('direction'))
+
             loc = node_loc(node_xml)
             idx = int(loc.get('ptc'))
             pos_low, pos_high = node_pos(node_xml)
@@ -898,7 +931,7 @@ class Channels:
 
             # idx will get assinged when adding to track
             try:
-                _track = self.create_xy_track(pos_low, pos_high, segment, idx=idx, type=ntype_e)
+                _track = self.create_xy_track(pos_low, pos_high, segment, idx=idx, type=ntype_e, direction=direction)
             except ValueError:
                 print("Bad XML: %s" % (ET.tostring(node_xml)))
                 raise
