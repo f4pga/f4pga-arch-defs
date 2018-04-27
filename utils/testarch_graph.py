@@ -94,6 +94,7 @@ def connect_blocks_to_tracks(g, grid_sz, rcw, switch):
 
     print("Indexing")
     node_index = g.index_node_objects()
+    # only top/bottom in this design
     '''
     print("Connecting blocks to CHANX")
     for y in range(0, grid_sz.height - 2):
@@ -128,41 +129,6 @@ def connect_blocks_to_tracks(g, grid_sz, rcw, switch):
 def connect_tracks_to_tracks(g, grid_sz, switch):
     print("Connecting tracks to tracks")
     node_index = g.index_node_objects()
-
-    # a few manual connections
-    # make lower right connection only
-    # chan y at (x=0, y=1) to chanx at (x=1, y=0)
-    if 0:
-        rcw = 2
-        for trackix in range(rcw):
-            for trackiy in range(rcw):
-                xtrack = g.channels.x[Position(1, 0)][trackix]
-                ytrack = g.channels.y[Position(0, 1)][trackiy]
-                g.connect_track_to_track_bidir(xtrack, ytrack, switch, node_index=node_index)
-
-        for trackix in range(rcw):
-            for trackiy in range(rcw):
-                xtrack = g.channels.x[Position(2, 0)][trackix]
-                ytrack = g.channels.y[Position(1, 1)][trackiy]
-                g.connect_track_to_track_bidir(xtrack, ytrack, switch, node_index=node_index)
-
-
-        xtrack = g.channels.x[Position(1, 1)][0]
-        ytrack = g.channels.y[Position(0, 1)][0]
-        g.connect_track_to_track_bidir(xtrack, ytrack, switch, node_index=node_index)
-
-    # github issue config
-    # https://github.com/verilog-to-routing/vtr-verilog-to-routing/issues/335
-    if 0:
-        # Iterate over all valid x channels and connect to all valid y channels and vice versa as direction implies
-        for xtrack in g.channels.x.tracks():
-            for ytrack in g.channels.y.tracks():
-                if not (xtrack.common == 1 and xtrack.idx == 1):
-                    continue
-                if not (ytrack.common == 1 and ytrack.idx == 1):
-                    continue
-                g.connect_track_to_track_bidir(xtrack, ytrack, switch, node_index=node_index)
-                print("Connect %s to %s" % (xtrack, ytrack))
 
     # Iterate over all valid x channels and connect to all valid y channels and vice versa as direction implies
     for xtrack in g.channels.x.tracks():
