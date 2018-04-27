@@ -445,8 +445,13 @@ class ChannelGrid(dict):
 
     def gen_valid_pos(self):
         '''Generate all valid placement positions (exclude border)'''
-        for row in range(1, self.height):
-            for col in range(1, self.width):
+        xmin, ymin = {
+            Track.Type.X: (1, 0),
+            Track.Type.Y: (0, 1),
+        }[self.chan_type]
+
+        for row in range(ymin, self.height):
+            for col in range(xmin, self.width):
                 yield Position(col, row)
 
     def gen_valid_track(self):
@@ -475,6 +480,13 @@ class ChannelGrid(dict):
             Track.Type.X: self.row,
             Track.Type.Y: self.column,
         }[t.type](t.common)
+
+    def tracks(self):
+        '''Get all channels in a set'''
+        ret = set()
+        for _pos, _ti, t in self.gen_valid_track():
+            ret.add(t)
+        return ret
 
     def validate_pos(self, pos, msg=''):
         '''

@@ -1477,7 +1477,11 @@ class Graph:
 
         self.ids.add_edge(int(src_node.get("id")), int(sink_node.get("id")), int(switch.get("id")))
 
-    def connect_track_to_track(self, xtrack, ytrack, switch, node_index=None):
+    def connect_track_to_track(self, src_track, dst_track, switch, node_index=None):
+        _bpin2node, track2node = node_index if node_index else self.index_node_objects()
+        assert 0, 'FIXME'
+
+    def connect_track_to_track_bidir(self, xtrack, ytrack, switch, node_index=None):
         _bpin2node, track2node = node_index if node_index else self.index_node_objects()
         #pos = Position(ytrack.common, xtrack.common)
 
