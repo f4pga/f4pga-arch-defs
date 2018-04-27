@@ -67,7 +67,7 @@ def create_tracks(g, grid_sz, rcw):
             assert tracki == track.idx, 'Expect index %s, got %s' % (tracki, track.idx)
             print("Create track %s" % (track,))
     g.channels.y.assert_width(rcw)
-    g.channels.y.assert_full()
+    #g.channels.y.assert_full()
 
 def connect_blocks_to_tracks(g, grid_sz, rcw, switch):
     # FIXME: performance issue here (takes a couple seconds on my machine)
@@ -109,15 +109,17 @@ def connect_blocks_to_tracks(g, grid_sz, rcw, switch):
     '''
     # All the pins are either on the right
     print("Connecting blocks to CHANY")
-    for x in range(0, grid_sz.width - 2):
+    for x in range(0, grid_sz.width - 0):
         for tracki in range(rcw):
             #print(x, tracki)
             # channel should run the entire length
             trackl = None
-            if x:
+            trackr = None
+            if x != 0:
                 trackl = g.channels.y.column(x - 1)[1][tracki]
-            trackr = g.channels.y.column(x)[1][tracki]
-            assert trackr is not None
+            if x != grid_sz.width - 1:
+                trackr = g.channels.y.column(x)[1][tracki]
+            #assert trackr is not None
             # Now bind to all adjacent pins
             for block in g.block_grid.blocks_for(col=x):
                 print("Connecting block %s to track %s "% (block, trackr))
