@@ -897,6 +897,7 @@ class RRNodeType(enum.Enum):
         assert xml_node.tag == "node", xml_node
         return RRNodeType(xml_node.attrib["type"])
 
+# FIXME: review docstrings
 class GraphIdsMap:
     '''
     in rr_graph each node has ID
