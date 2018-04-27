@@ -1282,15 +1282,6 @@ class GraphIdsMap:
         sizing: dict of attributes
         '''
         # <switch id="0" name="my_switch" buffered="1" configurable="1"/>
-        '''
-        name='my_switch'
-        configurable=1
-        buffered="1"
-        return ET.SubElement(self._xml_switches, 'switch', {
-                'id': str(self._next_id('switch')), 'name': name, 'buffered': str(buffered), 'configurable': str(configurable)})
-        '''
-        # just one dummy switch for now
-        # assert len(self._xml_switches) == 0
         assert stype in 'mux|tristate|pass_gate|short|buffer'.split('|'), stype
         attrs = {'id': str(self._next_id('switch')), 'name': name, 'type': stype, 'buffered': str(buffered)}
         if configurable is not None:
