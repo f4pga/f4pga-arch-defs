@@ -1227,34 +1227,45 @@ class GraphIdsMap:
 
         return edges
 
-    def add_node(self, low, high, ptc, ntype, direction=None, segment_id=None, side=None):
+    def add_node(self, low, high, ptc, ntype, direction=None, segment_id=None, side=None,
+                 timing=None):
         assert ntype in ('IPIN', 'OPIN', 'SINK', 'SOURCE', 'CHANX', 'CHANY')
+
+        # <node>
         attrs = {'id': str(self._next_id('node')), 'type': ntype}
         if ntype in ('CHANX', 'CHANY'):
             assert direction != None
             attrs['direction'] = direction.value
         if ntype in ('SOURCE', 'SINK', 'IPIN', 'OPIN'):
             assert low == high, (low, high)
-
-        if ntype in ('IPIN', 'OPIN'):
-            assert side is not None
-        else:
-            assert side is None
-
         node = ET.SubElement(self._xml_nodes, 'node', attrs)
+
+        # <loc>
         attrs = {
             'xlow': str(low.x), 'ylow': str(low.y),
             'xhigh': str(high.x), 'yhigh': str(high.y),
             'ptc': str(ptc),
         }
+        if ntype in ('IPIN', 'OPIN'):
+            assert side is not None
+        else:
+            assert side is None
         if side is not None:
             attrs['side'] = side
-
         ET.SubElement(node, 'loc', attrs)
-        if ntype in ('CHANX', 'CHANY'):
-            ET.SubElement(node, 'timing', {'R': str(1), 'C': str(1)})
-        else:
-            ET.SubElement(node, 'timing', {'R': str(0), 'C': str(0)})
+
+        # <timing>
+        if timing is None:
+            if ntype in ('CHANX', 'CHANY'):
+                # Seems to confuse VPR when 0
+                # XXX: consider requiring the user to give instead of defaulting
+                timing = {'R': 1, 'C': 1}
+            else:
+                timing = {'R': 0, 'C': 0}
+        assert len(timing) == 2 and 'R' in timing and 'C' in timing
+        ET.SubElement(node, 'timing', {k: str(v) for k, v in timing.items()})
+
+        # <segment>
         if ntype in ('CHANX', 'CHANY'):
             assert segment_id != None
             assert type(segment_id) is int
