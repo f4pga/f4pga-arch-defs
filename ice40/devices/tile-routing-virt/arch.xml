@@ -12,6 +12,14 @@
   -->
  </models>
 
+ <!-- Description of the block tiles available in the iCE40 -->
+ <complexblocklist>
+  <xi:include href="tiles/plb/plb.pb_type.xml"/>
+  <xi:include href="tiles/ramb/ramb.pb_type.xml"/>
+  <xi:include href="tiles/ramt/ramt.pb_type.xml"/>
+  <xi:include href="../../../vpr/pad/pad.pb_type.xml"/>
+ </complexblocklist>
+
  <!-- Description of the tile layouts available in the iCE40 family -->
  <layout>
   <xi:include href="../layouts/test4/test4.fixed_layout.xml"/>
@@ -98,14 +106,7 @@
    <wire_switch name="1"/>
    <opin_switch name="2"/>
   </segment>
- </segmentlist>
 
- <!-- Description of the block tiles available in the iCE40 -->
- <complexblocklist>
-  <xi:include href="tiles/plb/plb.pb_type.xml"/>
-  <xi:include href="tiles/ramb/ramb.pb_type.xml"/>
-  <xi:include href="tiles/ramt/ramt.pb_type.xml"/>
-  <xi:include href="../../../vpr/pad/pad.pb_type.xml"/>
- </complexblocklist>
+ </segmentlist>
 
 </architecture>

@@ -36,9 +36,6 @@
  <directlist>
   <!-- Carry chain from one PLB to the next PLB -->
   <direct name="CARRY"   from_pin="BLK_TL-PLB.FCOUT" to_pin="BLK_TL-PLB.FCIN" x_offset="0" y_offset="-1" z_offset="0"/>
-  <!-- Vertical wires from neighbours -->
-  <direct name="sp4_r2l" from_pin="BLK_TL-PLB.o_sp4_l_v_b" to_pin="BLK_TL-PLB.i_sp4_r_v_b" x_offset="-1" y_offset="0" z_offset="0"/>
-  <direct name="sp4_l2r" from_pin="BLK_TL-PLB.o_sp4_r_v_b" to_pin="BLK_TL-PLB.i_sp4_l_v_b" x_offset="1"  y_offset="0" z_offset="0"/>
  </directlist>
 
  <device>
@@ -60,36 +57,41 @@
  </switchlist>
 
  <segmentlist>
-  <!-- Global networks -->
-  <segment name="global" length="longline" freq="1.000000" type="bidir" Rmetal="101" Cmetal="22.5e-15">
+  <!-- Global networks 
+  <segment name="global" length="longline" freq="1.000000" type="unidir" Rmetal="101" Cmetal="22.5e-15">
    <sb type="pattern">1 1</sb>
    <cb type="pattern">0</cb>
+   <mux name="1"/>
    <wire_switch name="1"/>
    <opin_switch name="2"/>
   </segment>
+  -->
 
   <!-- Span 12 vertical   tracks -->
   <!-- Span 12 horizontal tracks -->
-  <segment name="span12" length="12" freq="1.000000" type="bidir" Rmetal="101" Cmetal="22.5e-15">
+  <segment name="span12" length="12" freq="1.000000" type="unidir" Rmetal="101" Cmetal="22.5e-15">
    <sb type="pattern">1 1 1 1 1 1 1 1 1 1 1 1 1</sb>
    <cb type="pattern">0 0 0 0 0 0 0 0 0 0 0 0</cb>
+   <mux name="1"/>
    <wire_switch name="1"/>
    <opin_switch name="2"/>
   </segment>
 
   <!-- Span 4 vertical   tracks -->
   <!-- Span 4 horizontal tracks -->
-  <segment name="span4" length="4" freq="1.000000" type="bidir" Rmetal="101" Cmetal="22.5e-15">
+  <segment name="span4" length="4" freq="1.000000" type="unidir" Rmetal="101" Cmetal="22.5e-15">
    <sb type="pattern">1 1 1 1 1</sb>
    <cb type="pattern">0 0 0 0</cb>
+   <mux name="1"/>
    <wire_switch name="1"/>
    <opin_switch name="2"/>
   </segment>
 
   <!-- Local tracks -->
-  <segment name="local" length="1" freq="1.000000" type="bidir" Rmetal="101" Cmetal="22.5e-15">
+  <segment name="local" length="1" freq="1.000000" type="unidir" Rmetal="101" Cmetal="22.5e-15">
    <sb type="pattern">0 1</sb>
    <cb type="pattern">1</cb>
+   <mux name="1"/>
    <wire_switch name="2"/>
    <opin_switch name="2"/>
   </segment>
@@ -98,9 +100,10 @@
     Neighbourhood tracks
      * 
     -->
-  <segment name="direct" length="2" freq="1.000000" type="bidir" Rmetal="101" Cmetal="22.5e-15">
+  <segment name="direct" length="2" freq="1.000000" type="unidir" Rmetal="101" Cmetal="22.5e-15">
    <sb type="pattern">0 0 0</sb>
    <cb type="pattern">1 1</cb>
+   <mux name="1"/>
    <wire_switch name="1"/>
    <opin_switch name="2"/>
   </segment>
