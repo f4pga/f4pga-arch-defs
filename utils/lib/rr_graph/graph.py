@@ -1303,13 +1303,12 @@ class GraphIdsMap:
             assert False, 'fixme: float conversion'
             ET.SubElement(switch_node, 'timing', timing)
 
-        # FIXME: this attribute is required
+        # vtr FIXME: this attribute is required
         # https://github.com/verilog-to-routing/vtr-verilog-to-routing/issues/333
-        if sizing:
-            assert False, 'fixme: float conversion'
-            ET.SubElement(switch_node, 'sizing', sizing)
-        else:
-            ET.SubElement(switch_node, 'sizing', {'mux_trans_size':"0", "buf_size":"0"})
+        if sizing is None:
+            sizing = {'mux_trans_size': 0, "buf_size": 0}
+        assert len(sizing) == 2 and 'mux_trans_size' in sizing and 'buf_size' in sizing
+        ET.SubElement(switch_node, 'sizing', {k: str(v) for k, v in sizing.items()})
 
         self.add_switch_xml(switch_node)
         return switch_node
