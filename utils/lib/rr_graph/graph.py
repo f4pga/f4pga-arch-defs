@@ -1313,7 +1313,7 @@ class GraphIdsMap:
         self.add_switch_xml(switch_node)
         return switch_node
 
-    def add_node_for_pin(self, block, pin):
+    def add_node_for_pin(self, block, pin, side):
         """ Creates an IPIN/OPIN node from `class Pin` object. """
         assert_type(block, Block)
         assert_type(pin, Pin)
@@ -1329,9 +1329,9 @@ class GraphIdsMap:
 
         pin_node = None
         if pc.direction in (PinClassDirection.INPUT, PinClassDirection.CLOCK):
-            pin_node = self.add_node(low, high, pin.ptc, 'IPIN', side='RIGHT')
+            pin_node = self.add_node(low, high, pin.ptc, 'IPIN', side=side)
         elif pin.pin_class.direction in (PinClassDirection.OUTPUT,):
-            pin_node = self.add_node(low, high, pin.ptc, 'OPIN', side='LEFT')
+            pin_node = self.add_node(low, high, pin.ptc, 'OPIN', side=side)
         else:
             assert False, "Unknown dir of {}.{}".format(pin, pin.pin_class)
 
@@ -1341,7 +1341,7 @@ class GraphIdsMap:
             print("Adding pin {:55s} on tile ({:12s}, {:12s})@{:4d}".format(str(pin), str(low), str(high), pin.ptc))
         return pin_node
 
-    def add_nodes_for_pin_class(self, block, pin_class, switch):
+    def add_nodes_for_pin_class(self, block, pin_class, switch, sides):
         """ Creates a SOURCE or SINK node from a `class PinClass` object. """
         assert_type(block, Block)
         assert_type(block.block_type, BlockType)
@@ -1361,7 +1361,7 @@ class GraphIdsMap:
             sink_node = self.add_node(pos_low, pos_high, pin.ptc, 'SINK')
 
             for p in pin_class.pins.values():
-                pin_node = self.add_node_for_pin(block, p)
+                pin_node = self.add_node_for_pin(block, p, sides(block, p))
 
                 # Edge PIN->SINK
                 self.add_edge(int(pin_node.get("id")), int(sink_node.get("id")), int(switch.get("id")))
@@ -1371,7 +1371,7 @@ class GraphIdsMap:
             src_node = self.add_node(pos_low, pos_high, pin.ptc, 'SOURCE')
 
             for p in pin_class.pins.values():
-                pin_node = self.add_node_for_pin(block, p)
+                pin_node = self.add_node_for_pin(block, p, sides(block, p))
 
                 # Edge SOURCE->PIN
                 self.add_edge(int(src_node.get("id")), int(pin_node.get("id")), int(switch.get("id")))
@@ -1381,7 +1381,7 @@ class GraphIdsMap:
 
         #return pin_node
 
-    def add_nodes_for_block(self, block, switch):
+    def add_nodes_for_block(self, block, switch, sides):
         """
         Creates the SOURCE/SINK nodes for each pin class
         Creates the IPIN/OPIN nodes for each pin inside a pin class.
@@ -1389,7 +1389,7 @@ class GraphIdsMap:
         >>> test_add_nodes_for_block()
         """
         for pc in block.block_type.pin_classes:
-            self.add_nodes_for_pin_class(block, pc, switch)
+            self.add_nodes_for_pin_class(block, pc, switch, sides)
 
     def add_node_for_track(self, track):
         assert_type(track, Track)
@@ -1458,9 +1458,13 @@ class Graph:
         root.set("tool_version", version)
         root.set("tool_comment", comment)
 
-    def add_nodes_for_blocks(self, switch):
+    def pin_sides(self):
+        '''Export pin placement to import when rebuilding pin nodes'''
+        assert 0, 'FIXME'
+
+    def add_nodes_for_blocks(self, switch, sides):
         for block in self.block_grid:
-            self.ids.add_nodes_for_block(block, switch)
+            self.ids.add_nodes_for_block(block, switch, sides)
 
     def connect_pin_to_track(self, block, pin, track, switch, node_index=None):
         '''
