@@ -1250,7 +1250,10 @@ class GraphIdsMap:
             attrs['side'] = side
 
         ET.SubElement(node, 'loc', attrs)
-        ET.SubElement(node, 'timing', {'R': str(0), 'C': str(0)})
+        if ntype in ('CHANX', 'CHANY'):
+            ET.SubElement(node, 'timing', {'R': str(1), 'C': str(1)})
+        else:
+            ET.SubElement(node, 'timing', {'R': str(0), 'C': str(0)})
         if ntype in ('CHANX', 'CHANY'):
             assert segment_id != None
             assert type(segment_id) is int
