@@ -1489,9 +1489,9 @@ class Graph:
         self.ids.add_edge(int(xtrack_node.get("id")), int(ytrack_node.get("id")), int(switch.get("id")))
         self.ids.add_edge(int(ytrack_node.get("id")), int(xtrack_node.get("id")), int(switch.get("id")))
 
-    def create_xy_track(self, start, end, segment, idx=None, type=None):
+    def create_xy_track(self, start, end, segment, idx=None, type=None, direction=None):
         '''Create track object and corresponding nodes'''
-        track = self.channels.create_xy_track(start, end, segment, idx=idx, type=type)
+        track = self.channels.create_xy_track(start, end, segment, idx=idx, type=type, direction=direction)
         track_node = self.ids.add_node_for_track(track)
         return track, track_node
 
