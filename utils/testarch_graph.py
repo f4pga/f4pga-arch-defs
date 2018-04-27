@@ -79,7 +79,7 @@ def connect_tracks_to_tracks(g, grid_sz, switch):
                 for ytrack in ytracks:
                     g.connect_track_to_track(xtrack, ytrack, switch, node_index=node_index)
 
-def rebuild_graph(fn, fn_out):
+def rebuild_graph(fn, fn_out, rcw=6):
     '''
     Add N tracks to each X and Y
     Connect all of those to all the adjacent pins
@@ -105,8 +105,6 @@ def rebuild_graph(fn, fn_out):
     |___|->-*-*-*
             | | |
     '''
-    # ala --route_chan_width
-    rcw = 6
 
     print('Rebuild: parsing original')
     g = graph.Graph(rr_graph_file=fn)
@@ -161,6 +159,7 @@ def redump_graph(fn):
 def main():
     import argparse
     parser = argparse.ArgumentParser()
+    parser.add_argument("--route_chan_width", type=int, default=6)
     parser.add_argument("rr_graph_in")
     parser.add_argument("rr_graph_out", nargs='?')
     args = parser.parse_args()
@@ -169,7 +168,7 @@ def main():
     fn_out = args.rr_graph_out
 
     if 1:
-        rebuild_graph(fn, fn_out)
+        rebuild_graph(fn, fn_out, rcw=args.route_chan_width)
     if 0:
         redump_graph(fn)
 
