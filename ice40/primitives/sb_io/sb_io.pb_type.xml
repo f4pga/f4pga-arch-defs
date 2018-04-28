@@ -10,21 +10,33 @@
 
  <!-- IO operating as an input -->
  <mode name="PAD_IS_INPUT">
-   <pb_type name="PAD_IN-INPUT" blif_model=".input" num_pb="1">
+  <pb_type name="PAD_IN-INPUT" num_pb="1">
+   <output name="D_IN" num_pins="2" equivalent="false"/>
+   <pb_type name="input" blif_model=".input" num_pb="1">
     <output name="inpad" num_pins="1"/>
    </pb_type>
    <interconnect>
-    <direct name="INPUT" input="PAD_IN-INPUT.inpad" output="BLK_IG-IO.D_IN[0]"/>
+    <direct name="INPUT" input="input.inpad" output="PAD_IN-INPUT.D_IN[0]"/>
    </interconnect>
+  </pb_type>
+  <interconnect>
+   <direct name="INPUT" input="PAD_IN-INPUT.D_IN" output="BLK_IG-IO.D_IN"/>
+  </interconnect>
  </mode>
 
  <!-- IO operating as an output -->
  <mode name="PAD_IS_OUTPUT">
-  <pb_type name="PAD_OT-OUTPUT" blif_model=".output" num_pb="1">
-   <input name="outpad" num_pins="1"/>
+  <pb_type name="PAD_IN-OUTPUT" num_pb="1">
+   <input name="D_OUT" num_pins="2" equivalent="false"/>
+   <pb_type name="output" blif_model=".output" num_pb="1">
+    <input name="outpad" num_pins="1"/>
+   </pb_type>
+   <interconnect>
+    <direct name="OUTPUT" input="PAD_IN-OUTPUT.D_OUT[0]" output="output.outpad"/>
+   </interconnect>
   </pb_type>
   <interconnect>
-   <direct name="OUTPUT" input="BLK_IG-IO.D_OUT[0]" output="PAD_OT-OUTPUT.outpad"/>
+   <direct name="OUTPUT" input="BLK_IG-IO.D_OUT" output="PAD_IN-OUTPUT.D_OUT"/>
   </interconnect>
  </mode>
 
