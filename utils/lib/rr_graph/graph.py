@@ -1459,8 +1459,24 @@ class Graph:
         root.set("tool_comment", comment)
 
     def pin_sides(self):
-        '''Export pin placement to import when rebuilding pin nodes'''
-        assert 0, 'FIXME'
+        '''Export pin placement as ret[(block, pin)] to import when rebuilding pin nodes'''
+        bpin2node, _track2node = self.index_node_objects()
+        ret = {}
+        for block in self.block_grid:
+            for pin_class in block.block_type.pin_classes:
+                for pin in pin_class.pins.values():
+                    node = bpin2node[(block, pin)]
+                    side = node_loc(node).get('side')
+                    assert side is not None, ET.tostring(node)
+                    ret[(block, pin)] = side
+        return ret
+
+    def pin_sidesf(self):
+        '''Return a function that can be passed to add_nodes_for_pin_class() to lookup pin side'''
+        raw = self.pin_sides()
+        def sides(block, pin):
+            return raw[block, pin]
+        return sides
 
     def add_nodes_for_blocks(self, switch, sides):
         for block in self.block_grid:

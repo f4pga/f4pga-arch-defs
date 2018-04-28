@@ -176,7 +176,7 @@ def rebuild_graph(fn, fn_out, rcw=6):
     graph.print_graph(g, verbose=False)
 
     print('Exporting pin placement')
-    # sides = graph.pin_sides()
+    sides = g.pin_sidesf()
 
     print('Rebuild: clearing')
     #assert 0
@@ -187,13 +187,6 @@ def rebuild_graph(fn, fn_out, rcw=6):
 
     # Create a single switch type to use for all connections
     switch = g.ids.add_switch('switchblade', buffered=1)
-
-    def sides(block, pin):
-        # FIXME: import original mapping
-        return {
-            graph.PinClassDirection.OUTPUT: 'LEFT',
-            graph.PinClassDirection.INPUT: 'RIGHT',
-            }[pin.direction]
 
     print('Rebuild: adding nodes')
     g.add_nodes_for_blocks(switch, sides)
