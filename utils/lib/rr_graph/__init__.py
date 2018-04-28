@@ -25,7 +25,6 @@ class static_property(object):
 
 
 Position = namedtuple("P", ("x", "y"))
-Pos = Position  # Shorter Alias
 P = Position  # Even shorter alias
 
 _Size = namedtuple("Size", ("w", "h"))
@@ -110,3 +109,19 @@ class Offset(Size):
 
 
 O = Offset
+
+
+def single_element(parent, name):
+    '''Return given single XML child entry in parent'''
+    elements = list(parent.iterfind(name))
+    assert len(elements) == 1, elements
+    return elements[0]
+
+
+
+def node_pos(node):
+    # node as node_xml
+    loc = single_element(node, 'loc')
+    pos_low = Position(int(loc.get('xlow')), int(loc.get('ylow')))
+    pos_high = Position(int(loc.get('xhigh')), int(loc.get('yhigh')))
+    return pos_low, pos_high

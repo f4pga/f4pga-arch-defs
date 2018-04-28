@@ -69,10 +69,7 @@ def print_nodes(rr_graph, lim=None):
         if not snks:
             print("   ", None)
 
-def print_graph(rr_graph, verbose=False, lim=10):
-    if verbose:
-        lim = 0
-
+def print_graph(rr_graph, lim=0):
     print()
     print_block_types(rr_graph)
     print()
@@ -85,12 +82,12 @@ def main():
     import argparse
 
     parser = argparse.ArgumentParser("Print rr_graph.xml file")
-    parser.add_argument("--verbose", action='store_true')
+    parser.add_argument("--lim", type=int, default=0)
     parser.add_argument("rr_graph")
     args = parser.parse_args()
 
     g = graph.Graph(args.rr_graph)
-    print_graph(g, verbose=args.verbose)
+    print_graph(g, lim=args.lim)
 
 if __name__ == "__main__":
     main()

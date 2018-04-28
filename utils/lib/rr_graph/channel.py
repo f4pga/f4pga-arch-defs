@@ -24,26 +24,11 @@ import lxml.etree as ET
 from . import Position
 from . import Size
 from . import static_property
+from . import node_pos, single_element
 from ..asserts import assert_type
 from ..asserts import assert_len_eq
 
 
-def single_element(parent, name):
-    elements = list(parent.iterfind(name))
-    assert len(elements) == 1, elements
-    return elements[0]
-
-
-def node_loc(node):
-    return list(node.iterfind("loc"))[0]
-
-
-def node_pos(node):
-    # node as node_xml
-    loc = node_loc(node)
-    pos_low = Position(int(loc.get('xlow')), int(loc.get('ylow')))
-    pos_high = Position(int(loc.get('xhigh')), int(loc.get('yhigh')))
-    return pos_low, pos_high
 
 
 class ChannelNotStraight(TypeError):
@@ -532,9 +517,9 @@ class ChannelGrid(dict):
                 (msg, self.size, pos))
 
         if self.chan_type == Track.Type.X and pos.x == 0:
-            raise ValueError("%sInvalid CHANX x=0 point " % (msg, pos))
+            raise ValueError("%sInvalid CHANX x=0 point %s" % (msg, pos))
         if self.chan_type == Track.Type.Y and pos.y == 0:
-            raise ValueError("%sInvalid CHANY y=0 point " % (msg, pos))
+            raise ValueError("%sInvalid CHANY y=0 point %s" % (msg, pos))
 
     def create_track(self, t, idx=None):
         """
@@ -862,7 +847,7 @@ class ChannelGrid(dict):
     def assert_full(self):
         '''Assert all allocated channels are fully occupied'''
         self.check()
-        occupied, net = self.density()
+        #occupied, net = self.density()
         #print("Occupied %d / %d" % (occupied, net))
         for pos, ti, t in self.gen_valid_track():
             assert t is not None, 'Unoccupied Position(x=%d, y=%d) track=%d' % (
@@ -887,7 +872,7 @@ class Channels:
         # Create track(s)
         try:
             return (self.create_xy_track(start, end, segment, idx=idx), )
-        except ChannelNotStraight as e:
+        except ChannelNotStraight as _e:
             assert idx is None, idx
             corner = (start.x, end.y)
             ta = self.create_xy_track(start, corner, segment)[0]
@@ -983,7 +968,7 @@ class Channels:
 
             direction = Track.Direction(node_xml.get('direction'))
 
-            loc = node_loc(node_xml)
+            loc = single_element(node_xml, 'loc')
             idx = int(loc.get('ptc'))
             pos_low, pos_high = node_pos(node_xml)
             #print('Importing %s @ %s:%s :: %d' % (ntype, pos_low, pos_high, idx))

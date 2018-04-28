@@ -37,7 +37,7 @@ class BlockTypeEdge(enum.Enum):
 class PinClassDirection(enum.Enum):
     lightweight enum type
 
-TODO: parse comments
+XXX: parse comments? Maybe can do a pass removing them
 '''
 
 import enum
@@ -55,7 +55,8 @@ import lxml.etree as ET
 from . import Position
 from . import Size
 from . import Offset
-from .channel import Channels, Track, single_element, node_loc, node_pos
+from . import node_pos, single_element
+from .channel import Channels, Track
 
 from ..asserts import assert_eq
 from ..asserts import assert_is
@@ -419,9 +420,6 @@ class Pin(MostlyReadOnly):
             pin_node.text.strip(),
             pin_class_index=pin_class_index,
             block_type_index=block_type_index)
-
-    #def pos(self):
-    #    return self.pin_class.
 
 
 class PinClassDirection(enum.Enum):
@@ -842,6 +840,10 @@ class Block(MostlyReadOnly):
             raise KeyError("ptc %d not found" % ptc)
 
 
+'''
+XXX: this class is unused. Delete?
+Maybe use for Pin side
+'''
 class BlockTypeEdge(enum.Enum):
     TOP = "TOP"
     LEFT = "LEFT"
@@ -1571,7 +1573,7 @@ class Graph:
             for pin_class in block.block_type.pin_classes:
                 for pin in pin_class.pins.values():
                     node = bpin2node[(block, pin)]
-                    side = node_loc(node).get('side')
+                    side = single_element(node, 'loc')
                     assert side is not None, ET.tostring(node)
                     ret[(block, pin)] = side
         return ret
@@ -1681,7 +1683,7 @@ class Graph:
                 continue
 
             type = node.get('type')
-            loc = node_loc(node)
+            loc = single_element(node, 'loc')
             pos_low, pos_high = node_pos(node)
             ptc = int(loc.get('ptc'))
 
