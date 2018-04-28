@@ -28,7 +28,9 @@ import xmlinc
 parser = argparse.ArgumentParser(description=__doc__.strip())
 parser.add_argument(
     'infiles',
-    metavar='input.v', type=str, nargs='+',
+    metavar='input.v',
+    type=str,
+    nargs='+',
     help="""\
 One or more Verilog input files, that will be passed to Yosys internally.
 They should be enough to generate a flattened representation of the model,
@@ -40,9 +42,7 @@ parser.add_argument(
 Top level module, will usually be automatically determined from the file name
 %.sim.v
 """)
-parser.add_argument(
-    '-o',
-    help="""\
+parser.add_argument('-o', help="""\
 Output filename, default 'model.xml'
 """)
 
@@ -63,16 +63,20 @@ else:
     if wm:
         top = wm.group(1).upper()
     else:
-        print("ERROR file name not of format %.sim.v ({}), cannot detect top level. Manually specify the top level module using --top").format(iname)
+        print(
+            "ERROR file name not of format %.sim.v ({}), cannot detect top level. Manually specify the top level module using --top"
+        ).format(iname)
         sys.exit(1)
     yj = YosysJSON(aig_json, top)
 
 if top is None:
-    print("ERROR: more than one module in design, cannot detect top level. Manually specify the top level module using --top")
+    print(
+        "ERROR: more than one module in design, cannot detect top level. Manually specify the top level module using --top"
+    )
     sys.exit(1)
 
 tmod = yj.top_module
-models_xml = ET.Element("models", nsmap = {'xi': xmlinc.xi_url})
+models_xml = ET.Element("models", nsmap={'xi': xmlinc.xi_url})
 
 inc_re = re.compile(r'^\s*`include\s+"([^"]+)"')
 
@@ -95,10 +99,16 @@ if len(deps_files) > 0:
         module_basename = os.path.basename(abs_dep)
         wm = re.match(r"([A-Za-z0-9_]+)\.sim\.v", module_basename)
         if wm:
-            model_path = "{}/{}.model.xml" .format(module_path, wm.group(1).lower())
+            model_path = "{}/{}.model.xml".format(module_path,
+                                                  wm.group(1).lower())
         else:
-            assert False, "included Verilog file name {} does not follow pattern %%.sim.v".format(module_basename)
-        xmlinc.include_xml(parent=models_xml, href=model_path, outfile=outfile, xptr="xpointer(models/child::node())")
+            assert False, "included Verilog file name {} does not follow pattern %%.sim.v".format(
+                module_basename)
+        xmlinc.include_xml(
+            parent=models_xml,
+            href=model_path,
+            outfile=outfile,
+            xptr="xpointer(models/child::node())")
 else:
     # Is a leaf model
     topname = tmod.attr("MODEL_NAME", top)
@@ -113,7 +123,8 @@ else:
         clocks = yosys.run.list_clocks(args.infiles, top)
         clk_sigs = dict()
         for clk in clocks:
-            clk_sigs[clk] = yosys.run.get_clock_assoc_signals(args.infiles, top, clk)
+            clk_sigs[clk] = yosys.run.get_clock_assoc_signals(
+                args.infiles, top, clk)
 
         for name, width, iodir in ports:
             attrs = dict(name=name)
@@ -131,7 +142,6 @@ else:
                 ET.SubElement(outports_xml, "port", attrs)
             else:
                 assert False, "bidirectional ports not permitted in VPR models"
-
 
 if len(models_xml) == 0:
     models_xml.insert(0, ET.Comment("this file is intentionally left blank"))

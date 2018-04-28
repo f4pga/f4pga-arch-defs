@@ -1,5 +1,6 @@
 import argparse
 
+
 class ActionStoreBool(argparse.Action):
     """Convert a string argument into a boolean.
 
@@ -51,17 +52,32 @@ class ActionStoreBool(argparse.Action):
         * f
         * 0
     """
-    def __init__(self, option_strings, dest, default=None, required=False, help=None, metavar=None):
+
+    def __init__(self,
+                 option_strings,
+                 dest,
+                 default=None,
+                 required=False,
+                 help=None,
+                 metavar=None):
         self.orig_option_strings = option_strings
         new_option_strings = []
         for s in option_strings:
             assert s.startswith("--"), s
             new_option_strings.append(s)
-            new_option_strings.append("--no-"+s[2:])
+            new_option_strings.append("--no-" + s[2:])
         argparse.Action.__init__(
-            self, new_option_strings, dest=dest, nargs='?', const=[True],
-            default=default, type=self.value, choices=None, required=required,
-            help=help, metavar=metavar)
+            self,
+            new_option_strings,
+            dest=dest,
+            nargs='?',
+            const=[True],
+            default=default,
+            type=self.value,
+            choices=None,
+            required=required,
+            help=help,
+            metavar=metavar)
 
     def value(self, s):
         if not s:
@@ -82,7 +98,8 @@ class ActionStoreBool(argparse.Action):
         setattr(namespace, self.dest, values[0])
 
     def __repr__(self):
-        return "ActionStoreBool({}, {})".format(self.orig_option_strings, self.default)
+        return "ActionStoreBool({}, {})".format(self.orig_option_strings,
+                                                self.default)
 
 
 if __name__ == "__main__":
