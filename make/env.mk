@@ -55,6 +55,9 @@ $(CONDA_XSLTPROC): | $(CONDA_SETUP)
 $(CONDA_PYTEST): | $(CONDA_SETUP)
 	$(CONDA_BIN) install pytest
 
+$(CONDA_YAPF): | $(CONDA_SETUP)
+	$(CONDA_BIN) install yapf
+
 $(CONDA_NODE): | $(CONDA_SETUP)
 	$(CONDA_BIN) install nodejs
 

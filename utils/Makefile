@@ -10,6 +10,9 @@ list: | $(PYTEST)
 tests: | $(PYTEST)
 	$(PYTEST)
 
+format: | $(YAPF)
+	find . -name \*.py -exec $(YAPF) -p -i -vv {} \;
+
 .PHONY: list
 
 all:
