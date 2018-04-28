@@ -168,6 +168,7 @@ def rebuild_graph(fn, fn_out, rcw=6, verbose=False):
 
 def main():
     import argparse
+
     parser = argparse.ArgumentParser()
     parser.add_argument("--verbose", action='store_true')
     parser.add_argument("--route_chan_width", type=int, default=6)
