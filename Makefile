@@ -43,7 +43,7 @@ test: simtest
 
 simtest:
 	$(call heading,Running simulation tests)
-	@for ii in `find . -type d -name simtest -a ! -wholename "./.deps/*"`; do echo $$ii; $(MAKE) -C $$ii > /dev/null; [ `grep -c failure $$ii/results.xml` == 0 ]; done
+	@for ii in `find . -type d -name simtest -a ! -wholename "./.deps/*"`; do echo $$ii; $(MAKE) -C $$ii TOP_DIR=$(TOP_DIR) > /dev/null; [ `grep -c failure $$ii/results.xml` == 0 ]; done
 
 .PHONY: simtest
 
