@@ -67,6 +67,9 @@ $(CONDA_NPM): | $(CONDA_SETUP)
 $(CONDA_IVERILOG): | $(CONDA_SETUP)
 	$(CONDA_BIN) install iverilog
 
+$(CONDA_COCOTB): | $(CONDA_SETUP)
+	$(CONDA_PIP) install cocotb
+
 make:
 	make -C $(TOP_DIR) -f $(TOP_DIR)/make/env.mk $(CONDA_MAKE)
 
