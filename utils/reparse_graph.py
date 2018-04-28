@@ -6,6 +6,7 @@ import sys
 import lxml.etree as ET
 import os
 
+
 def main():
     import argparse
     parser = argparse.ArgumentParser()
@@ -26,6 +27,6 @@ def main():
 
     print('Exiting')
 
+
 if __name__ == "__main__":
     main()
-
