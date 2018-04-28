@@ -1,10 +1,12 @@
 #!/usr/bin/env python3
 from collections import namedtuple
 
+
 class static_property(object):
     """
     Descriptor (non-data) for building an attribute on-demand on first use.
     """
+
     def __init__(self, factory):
         """
         <factory> is called such: factory(instance) to build the attribute.
@@ -23,10 +25,12 @@ class static_property(object):
 
 
 Position = namedtuple("P", ("x", "y"))
-Pos = Position # Shorter Alias
-P = Position   # Even shorter alias
+Pos = Position  # Shorter Alias
+P = Position  # Even shorter alias
 
 _Size = namedtuple("Size", ("w", "h"))
+
+
 class Size(_Size):
     """
     >>> s = Size(2, 3)
@@ -42,6 +46,7 @@ class Size(_Size):
        ...
     TypeError: unsupported operand type(s) for +: 'Size' and 'int'
     """
+
     def __new__(cls, w, h):
         assert w >= 0
         assert h >= 0
@@ -70,31 +75,32 @@ class Size(_Size):
 
     def __add__(self, o):
         if isinstance(o, Position):
-            return o.__class__(o.x+self.x, o.y+self.y)
+            return o.__class__(o.x + self.x, o.y + self.y)
         elif isinstance(o, Size):
-            return o.__class__(o.x+self.x, o.y+self.y)
+            return o.__class__(o.x + self.x, o.y + self.y)
         return NotImplemented
 
     def __radd__(self, o):
         if isinstance(o, Position):
-            return o.__class__(o.x+self.x, o.y+self.y)
+            return o.__class__(o.x + self.x, o.y + self.y)
         elif isinstance(o, Size):
-            return o.__class__(o.x+self.x, o.y+self.y)
+            return o.__class__(o.x + self.x, o.y + self.y)
         return NotImplemented
 
     def __sub__(self, o):
         if isinstance(o, Position):
-            return o.__class__(self.x-o.x, self.y-o.y)
+            return o.__class__(self.x - o.x, self.y - o.y)
         elif isinstance(o, Size):
-            return o.__class__(self.x-o.x, self.y-o.y)
+            return o.__class__(self.x - o.x, self.y - o.y)
         return NotImplemented
 
     def __rsub__(self, o):
         if isinstance(o, Position):
-            return o.__class__(o.x-self.x, o.y-self.y)
+            return o.__class__(o.x - self.x, o.y - self.y)
         elif isinstance(o, Size):
-            return o.__class__(o.x-self.x, o.y-self.y)
+            return o.__class__(o.x - self.x, o.y - self.y)
         return NotImplemented
+
 
 S = Size
 

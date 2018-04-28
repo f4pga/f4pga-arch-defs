@@ -120,20 +120,23 @@ class MostlyReadOnly:
             if new_value == current_value:
                 return
             elif current_value != None:
-                raise AttributeError("{} is already set to {}, can't be changed".format(key, current_value))
+                raise AttributeError(
+                    "{} is already set to {}, can't be changed".format(
+                        key, current_value))
             return super().__setattr__(key, new_value)
 
-        if "_"+key not in self.__class__.__slots__:
+        if "_" + key not in self.__class__.__slots__:
             raise AttributeError("{} not found".format(key))
 
-        self.__setattr__("_"+key, new_value)
+        self.__setattr__("_" + key, new_value)
 
     def __getattr__(self, key):
-        if "_"+key not in self.__class__.__slots__:
+        if "_" + key not in self.__class__.__slots__:
             raise AttributeError("{} not found".format(key))
 
-        value = getattr(self, "_"+key, None)
-        if isinstance(value, (tuple, int, bytes, str, type(None), MostlyReadOnly)):
+        value = getattr(self, "_" + key, None)
+        if isinstance(value,
+                      (tuple, int, bytes, str, type(None), MostlyReadOnly)):
             return value
         elif isinstance(value, list):
             return tuple(value)
@@ -145,8 +148,8 @@ class MostlyReadOnly:
             return value
         else:
             raise AttributeError(
-                "Unable to return {}, don't now how to make type {} (from {!r}) read only.".format(
-                    key, type(value), value))
+                "Unable to return {}, don't now how to make type {} (from {!r}) read only.".
+                format(key, type(value), value))
 
     def __repr__(self):
         attribs = []
@@ -166,8 +169,11 @@ class MostlyReadOnly:
         return "{}({})".format(self.__class__.__name__, ", ".join(attribs))
 
 
-
-def parse_net(s, _r=re.compile("^(.*\\.)?([^.\\[]*[^0-9\\[.]+[^.\\[]*)?(\\[([0-9]+|[0-9]+:[0-9]+)]|[0-9]+|)$")):
+def parse_net(
+        s,
+        _r=re.compile(
+            "^(.*\\.)?([^.\\[]*[^0-9\\[.]+[^.\\[]*)?(\\[([0-9]+|[0-9]+:[0-9]+)]|[0-9]+|)$"
+        )):
     """
     Returns:
         - tuple (block_name, port_name, list of pin numbers)
@@ -252,7 +258,7 @@ def parse_net(s, _r=re.compile("^(.*\\.)?([^.\\[]*[^0-9\\[.]+[^.\\[]*)?(\\[([0-9
     elif pin_idx:
         assert_eq(pin_full[0], '[')
         assert_eq(pin_full[-1], ']')
-        assert_eq(len(pin_full), len(pin_idx)+2)
+        assert_eq(len(pin_full), len(pin_idx) + 2)
 
         if ":" in pin_idx:
             assert_eq(pin_idx.count(':'), 1)
@@ -285,9 +291,12 @@ class Pin(MostlyReadOnly):
     """
 
     __slots__ = [
-        "_pin_class", "_pin_class_index",
-        "_port_name", "_port_index",
-        "_block_type_name", "_block_type_index",
+        "_pin_class",
+        "_pin_class_index",
+        "_port_name",
+        "_port_index",
+        "_block_type_name",
+        "_block_type_index",
     ]
 
     # Index within a specific BlockType
@@ -309,11 +318,13 @@ class Pin(MostlyReadOnly):
             return self.pin_class.block_type_name
         return self._block_type_name
 
-    def __init__(
-            self,
-            pin_class=None, pin_class_index=None,
-            port_name=None, port_index=None,
-            block_type_name=None, block_type_index=None):
+    def __init__(self,
+                 pin_class=None,
+                 pin_class_index=None,
+                 port_name=None,
+                 port_index=None,
+                 block_type_name=None,
+                 block_type_index=None):
 
         assert_type_or_none(pin_class, PinClass)
         assert_type_or_none(pin_class_index, int)
@@ -335,10 +346,16 @@ class Pin(MostlyReadOnly):
             pin_class._add_pin(self)
 
     def __str__(self):
-        return "{}({})->{}[{}]".format(self.block_type_name, self.block_type_index, self.port_name, self.port_index)
+        return "{}({})->{}[{}]".format(self.block_type_name,
+                                       self.block_type_index, self.port_name,
+                                       self.port_index)
 
     @classmethod
-    def from_text(cls, pin_class, text, pin_class_index=None, block_type_index=None):
+    def from_text(cls,
+                  pin_class,
+                  text,
+                  pin_class_index=None,
+                  block_type_index=None):
         """
         >>> pin = Pin.from_text(None, '0')
         >>> pin
@@ -371,9 +388,12 @@ class Pin(MostlyReadOnly):
             port_index = pins[0]
 
         return cls(
-            pin_class, pin_class_index,
-            port_name, port_index,
-            block_type_name, block_type_index,
+            pin_class,
+            pin_class_index,
+            port_name,
+            port_index,
+            block_type_name,
+            block_type_index,
         )
 
     @classmethod
@@ -394,10 +414,15 @@ class Pin(MostlyReadOnly):
         pin_class_index = int(pin_node.attrib["index"])
         block_type_index = int(pin_node.attrib["ptc"])
 
-        return cls.from_text(pin_class, pin_node.text.strip(), pin_class_index=pin_class_index, block_type_index=block_type_index)
+        return cls.from_text(
+            pin_class,
+            pin_node.text.strip(),
+            pin_class_index=pin_class_index,
+            block_type_index=block_type_index)
 
     #def pos(self):
     #    return self.pin_class.
+
 
 class PinClassDirection(enum.Enum):
     INPUT = "input"
@@ -500,7 +525,8 @@ class PinClass(MostlyReadOnly):
         """
         assert_eq(pin_class_node.tag, "pin_class")
         assert "type" in pin_class_node.attrib
-        class_direction = getattr(PinClassDirection, pin_class_node.attrib["type"])
+        class_direction = getattr(PinClassDirection,
+                                  pin_class_node.attrib["type"])
         assert_type(class_direction, PinClassDirection)
 
         pc_obj = cls(block_type, class_direction)
@@ -531,13 +557,16 @@ class PinClass(MostlyReadOnly):
         # If the pin doesn't have a hard coded class index, set it to the next
         # index available.
         if pin.pin_class_index is None:
-            pin.pin_class_index = max([-1]+list(self._pins.keys()))+1
+            pin.pin_class_index = max([-1] + list(self._pins.keys())) + 1
 
         assert pin.pin_class_index is not None, pin.pin_class_index
 
         if pin.pin_class_index not in self._pins:
             self._pins[pin.pin_class_index] = pin
-        assert self._pins[pin.pin_class_index] is pin, "When adding {}, found {} already at index {}".format(pin, self._pins[pin.pin_class_index], pin.pin_class_index)
+        assert self._pins[pin.
+                          pin_class_index] is pin, "When adding {}, found {} already at index {}".format(
+                              pin, self._pins[pin.pin_class_index],
+                              pin.pin_class_index)
 
         pin._pin_class = self
 
@@ -548,9 +577,16 @@ class PinClass(MostlyReadOnly):
 class BlockType(MostlyReadOnly):
     '''For <block_type> nodes'''
 
-    __slots__ = ["_graph", "_id", "_name", "_size", "_pin_classes", "_pin_index"]
+    __slots__ = [
+        "_graph", "_id", "_name", "_size", "_pin_classes", "_pin_index"
+    ]
 
-    def __init__(self, graph=None, id=-1, name="", size=Size(1,1), pin_classes=None):
+    def __init__(self,
+                 graph=None,
+                 id=-1,
+                 name="",
+                 size=Size(1, 1),
+                 pin_classes=None):
         assert_type_or_none(graph, BlockGrid)
         assert_type_or_none(id, int)
         assert_type_or_none(name, str)
@@ -575,7 +611,9 @@ class BlockType(MostlyReadOnly):
             return "BlockType({name})".format(name=self.name)
         else:
             return "in 0x{graph_id:x} (pin_classes=[{pin_class_num} classes] pin_index=[{pin_index_num} pins])".format(
-                graph_id=id(self._graph), pin_class_num=len(self.pin_classes), pin_index_num=len(self.pin_index))
+                graph_id=id(self._graph),
+                pin_class_num=len(self.pin_classes),
+                pin_index_num=len(self.pin_index))
 
     @classmethod
     def from_xml(cls, graph, block_type_node):
@@ -652,7 +690,8 @@ class BlockType(MostlyReadOnly):
         block_type_width = int(block_type_node.attrib['width'])
         block_type_height = int(block_type_node.attrib['height'])
 
-        bt = cls(graph, block_type_id, block_type_name, Size(block_type_width, block_type_height))
+        bt = cls(graph, block_type_id, block_type_name,
+                 Size(block_type_width, block_type_height))
         for pin_class_node in block_type_node.iterfind("./pin_class"):
             bt._add_pin_class(PinClass.from_xml(bt, pin_class_node))
         return bt
@@ -684,10 +723,12 @@ class BlockType(MostlyReadOnly):
 
         if pin.block_type_name is None:
             pin.block_type_name = self.name
-        assert_eq(self.name, pin.block_type_name, "Expect block type name '%s' match pin prefix '%s'" % (self.name, pin.block_type_name))
+        assert_eq(self.name, pin.block_type_name,
+                  "Expect block type name '%s' match pin prefix '%s'" %
+                  (self.name, pin.block_type_name))
 
         if pin.block_type_index is None:
-            pin.block_type_index = max([-1]+list(self._pin_index.keys()))+1
+            pin.block_type_index = max([-1] + list(self._pin_index.keys())) + 1
 
         if pin.block_type_index not in self._pin_index:
             self._pin_index[pin.block_type_index] = pin
@@ -709,12 +750,18 @@ class BlockType(MostlyReadOnly):
         if pin_class not in self._pin_classes:
             self._pin_classes.append(pin_class)
 
+
 class Block(MostlyReadOnly):
     '''For <grid_loc> nodes'''
 
     __slots__ = ["_graph", "_block_type", "_position", "_offset"]
 
-    def __init__(self, graph=None, block_type_id=None, block_type=None, position=None, offset=Offset(0,0)):
+    def __init__(self,
+                 graph=None,
+                 block_type_id=None,
+                 block_type=None,
+                 position=None,
+                 offset=Offset(0, 0)):
         assert_type_or_none(graph, BlockGrid)
         assert_type_or_none(block_type_id, int)
         assert_type_or_none(block_type, BlockType)
@@ -767,11 +814,16 @@ class Block(MostlyReadOnly):
         assert grid_loc_node.tag == "grid_loc"
 
         block_type_id = int(grid_loc_node.attrib["block_type_id"])
-        pos = Position(int(grid_loc_node.attrib["x"]), int(grid_loc_node.attrib["y"]))
+        pos = Position(
+            int(grid_loc_node.attrib["x"]), int(grid_loc_node.attrib["y"]))
         offset = Offset(
             int(grid_loc_node.attrib["width_offset"]),
             int(grid_loc_node.attrib["height_offset"]))
-        return Block(graph=graph, block_type_id=block_type_id, position=pos, offset=offset)
+        return Block(
+            graph=graph,
+            block_type_id=block_type_id,
+            position=pos,
+            offset=offset)
 
     def pins(self):
         '''Convenience function to get all pins'''
@@ -802,6 +854,7 @@ class BlockTypeEdge(enum.Enum):
     SOUTH = BOTTOM
     WEST = LEFT
 
+
 class BlockGrid:
     '''
     For <grid>
@@ -829,25 +882,21 @@ class BlockGrid:
             block_type.id = self._next_block_type_id()
 
         bid = block_type.id
-        assert (
-            bid not in self.block_types or
-            self.block_types[bid] is None or
-            self.block_types[bid] is block_type)
+        assert (bid not in self.block_types or self.block_types[bid] is None
+                or self.block_types[bid] is block_type)
         self.block_types[bid] = block_type
 
     def add_block(self, block):
         assert_type_or_none(block, Block)
         pos = block.position
-        assert (
-            pos not in self.block_grid or
-            self.block_grid[pos] is None or
-            self.block_grid[pos] is block)
+        assert (pos not in self.block_grid or self.block_grid[pos] is None
+                or self.block_grid[pos] is block)
         self.block_grid[pos] = block
 
     def size(self):
         x_max = max(p.x for p in self.block_grid)
         y_max = max(p.y for p in self.block_grid)
-        return Size(x_max+1, y_max+1)
+        return Size(x_max + 1, y_max + 1)
 
     def blocks(self, positions):
         return [self.block_grid[pos] for pos in positions]
@@ -885,18 +934,20 @@ class BlockGrid:
         for pos in sorted(self.block_grid):
             yield self.block_grid[pos]
 
+
 class RRNodeType(enum.Enum):
-    input_class     = "SINK"
-    output_class    = "SOURCE"
-    input_pin       = "IPIN"
-    output_pin      = "OPIN"
-    channel_x       = "CHANX"
-    channel_y       = "CHANY"
+    input_class = "SINK"
+    output_class = "SOURCE"
+    input_pin = "IPIN"
+    output_pin = "OPIN"
+    channel_x = "CHANX"
+    channel_y = "CHANY"
 
     @classmethod
     def from_xml(cls, xml_node):
         assert xml_node.tag == "node", xml_node
         return RRNodeType(xml_node.attrib["type"])
+
 
 # FIXME: review docstrings
 class GraphIdsMap:
@@ -915,7 +966,7 @@ class GraphIdsMap:
         assert_type(block_graph, BlockGrid)
 
         # Mapping dictionaries
-        self.name2id  = {}
+        self.name2id = {}
         # lookup XML node for given object ID
         self.id2node = {'node': {}, 'edge': {}, 'switch': {}}
         # nodes associated with pins
@@ -947,7 +998,7 @@ class GraphIdsMap:
         self._xml_edges.clear()
         self._xml_switches.clear()
 
-        self.name2id  = {}
+        self.name2id = {}
         self.id2node = {'node': {}, 'edge': {}, 'switch': {}}
 
     def _next_id(self, xml_group):
@@ -977,7 +1028,7 @@ class GraphIdsMap:
 
     def add_node_xml(self, xml_node, verbose=False):
         if 'capacity' not in xml_node.attrib:
-            xml_node.attrib['capacity'] =  str(1)
+            xml_node.attrib['capacity'] = str(1)
 
         name = self.node_name(xml_node)
         self[name] = xml_node
@@ -1011,7 +1062,6 @@ class GraphIdsMap:
         node_id = xml_node.get('id', None)
         if node_id is None:
             node_id = len(self.id2node[xml_group])
-
         '''
         parent_xml = {
             'node': self._xml_nodes,
@@ -1023,7 +1073,9 @@ class GraphIdsMap:
         '''
 
         if name in self.name2id:
-            assert_eq(self.name2id[name], node_id, "%s inconsistent node ID with old %s, new %s" % (name, self.name2id[name], node_id))
+            assert_eq(self.name2id[name], node_id,
+                      "%s inconsistent node ID with old %s, new %s" %
+                      (name, self.name2id[name], node_id))
             #assert obj is self.id2node[node_id]
 
         self.id2node[xml_group][node_id] = xml_node
@@ -1108,8 +1160,10 @@ class GraphIdsMap:
         """
 
         loc_node = list(xml_node.iterfind("./loc"))[0]
-        low = Position(int(loc_node.attrib["xlow"]), int(loc_node.attrib["ylow"]))
-        high = Position(int(loc_node.attrib["xhigh"]), int(loc_node.attrib["yhigh"]))
+        low = Position(
+            int(loc_node.attrib["xlow"]), int(loc_node.attrib["ylow"]))
+        high = Position(
+            int(loc_node.attrib["xhigh"]), int(loc_node.attrib["yhigh"]))
         ptc = int(loc_node.attrib["ptc"])
         edge = loc_node.attrib.get("side", " ")[0]
 
@@ -1127,11 +1181,13 @@ class GraphIdsMap:
             assert direction_fmt, "Bad direction %s" % direction
 
             block_from = self._block_graph[low]
-            block_to   = self._block_graph[high]
+            block_to = self._block_graph[high]
             return "X{:03d}Y{:03d}{}X{:03d}Y{:03d}".format(
                 block_from.x, block_from.y,
-                direction_fmt.format(f={RRNodeType.channel_x: '-', RRNodeType.channel_y: '|'}[node_type], ptc=ptc),
-                block_to.x, block_to.y)
+                direction_fmt.format(
+                    f={RRNodeType.channel_x: '-',
+                       RRNodeType.channel_y: '|'}[node_type],
+                    ptc=ptc), block_to.x, block_to.y)
         elif node_type is RRNodeType.input_class:
             type_str = "SINK-<"
             # FIXME: Check high == block.position + block.block_type.size
@@ -1151,8 +1207,11 @@ class GraphIdsMap:
         block = self._block_graph[low]
 
         return "X{x:03d}Y{y:03d}_{t}[{i:02d}].{s}".format(
-            t=block.block_type.name, x=block.position.x, y=block.position.y,
-            i=ptc, s=type_str)
+            t=block.block_type.name,
+            x=block.position.x,
+            y=block.position.y,
+            i=ptc,
+            s=type_str)
 
     def nodes_for_edge(self, xml_node):
         '''Return all node XML objects associated with given edge XML object
@@ -1202,9 +1261,11 @@ class GraphIdsMap:
         src_node, snk_node = self.nodes_for_edge(xml_node)
 
         if flip:
-            return "{} -<<- {}".format(self.node_name(snk_node), self.node_name(src_node))
+            return "{} -<<- {}".format(
+                self.node_name(snk_node), self.node_name(src_node))
         else:
-            return "{} ->>- {}".format(self.node_name(src_node), self.node_name(snk_node))
+            return "{} ->>- {}".format(
+                self.node_name(src_node), self.node_name(snk_node))
 
     def switch_name(self, xml_switch):
         # FIXME: better name
@@ -1228,7 +1289,14 @@ class GraphIdsMap:
 
         return edges
 
-    def add_node(self, low, high, ptc, ntype, direction=None, segment_id=None, side=None,
+    def add_node(self,
+                 low,
+                 high,
+                 ptc,
+                 ntype,
+                 direction=None,
+                 segment_id=None,
+                 side=None,
                  timing=None):
         assert ntype in ('IPIN', 'OPIN', 'SINK', 'SOURCE', 'CHANX', 'CHANY')
 
@@ -1243,8 +1311,10 @@ class GraphIdsMap:
 
         # <loc>
         attrs = {
-            'xlow': str(low.x), 'ylow': str(low.y),
-            'xhigh': str(high.x), 'yhigh': str(high.y),
+            'xlow': str(low.x),
+            'ylow': str(low.y),
+            'xhigh': str(high.x),
+            'yhigh': str(high.y),
             'ptc': str(ptc),
         }
         if ntype in ('IPIN', 'OPIN'):
@@ -1284,19 +1354,34 @@ class GraphIdsMap:
         assert str(src_node) in self.id2node['node'], src_node
         assert str(sink_node) in self.id2node['node'], sink_node
         assert str(switch_id) in self.id2node['switch'], switch_id
-        edge = ET.SubElement(self._xml_edges, 'edge', {
-                'src_node': str(src_node), 'sink_node': str(sink_node), 'switch_id': str(switch_id)})
+        edge = ET.SubElement(
+            self._xml_edges, 'edge', {
+                'src_node': str(src_node),
+                'sink_node': str(sink_node),
+                'switch_id': str(switch_id)
+            })
         self.add_edge_xml(edge)
         return edge
 
-    def add_switch(self, name, stype='mux', buffered=1, configurable=None, timing=None, sizing=None):
+    def add_switch(self,
+                   name,
+                   stype='mux',
+                   buffered=1,
+                   configurable=None,
+                   timing=None,
+                   sizing=None):
         '''
         timing: dict of attributes
         sizing: dict of attributes
         '''
         # <switch id="0" name="my_switch" buffered="1" configurable="1"/>
         assert stype in 'mux|tristate|pass_gate|short|buffer'.split('|'), stype
-        attrs = {'id': str(self._next_id('switch')), 'name': name, 'type': stype, 'buffered': str(buffered)}
+        attrs = {
+            'id': str(self._next_id('switch')),
+            'name': name,
+            'type': stype,
+            'buffered': str(buffered)
+        }
         if configurable is not None:
             attrs['confiturable'] = str(int(bool(configurable)))
         switch_node = ET.SubElement(self._xml_switches, 'switch', attrs)
@@ -1308,8 +1393,11 @@ class GraphIdsMap:
         # https://github.com/verilog-to-routing/vtr-verilog-to-routing/issues/333
         if sizing is None:
             sizing = {'mux_trans_size': 0, "buf_size": 0}
-        assert len(sizing) == 2 and 'mux_trans_size' in sizing and 'buf_size' in sizing
-        ET.SubElement(switch_node, 'sizing', {k: str(v) for k, v in sizing.items()})
+        assert len(
+            sizing) == 2 and 'mux_trans_size' in sizing and 'buf_size' in sizing
+        ET.SubElement(switch_node, 'sizing',
+                      {k: str(v)
+                       for k, v in sizing.items()})
 
         self.add_switch_xml(switch_node)
         return switch_node
@@ -1331,7 +1419,7 @@ class GraphIdsMap:
         pin_node = None
         if pc.direction in (PinClassDirection.INPUT, PinClassDirection.CLOCK):
             pin_node = self.add_node(low, high, pin.ptc, 'IPIN', side=side)
-        elif pin.pin_class.direction in (PinClassDirection.OUTPUT,):
+        elif pin.pin_class.direction in (PinClassDirection.OUTPUT, ):
             pin_node = self.add_node(low, high, pin.ptc, 'OPIN', side=side)
         else:
             assert False, "Unknown dir of {}.{}".format(pin, pin.pin_class)
@@ -1339,7 +1427,8 @@ class GraphIdsMap:
         assert pin_node != None, pin_node
 
         if self.verbose:
-            print("Adding pin {:55s} on tile ({:12s}, {:12s})@{:4d}".format(str(pin), str(low), str(high), pin.ptc))
+            print("Adding pin {:55s} on tile ({:12s}, {:12s})@{:4d}".format(
+                str(pin), str(low), str(high), pin.ptc))
         return pin_node
 
     def add_nodes_for_pin_class(self, block, pin_class, switch, sides):
@@ -1355,9 +1444,12 @@ class GraphIdsMap:
 
         # Assuming only one pin per class for now
         # see [0] references
-        assert len(pin_class.pins) == 1, 'Expect one pin per pin class, got %s' % (pin_class.pins,)
+        assert len(
+            pin_class.pins) == 1, 'Expect one pin per pin class, got %s' % (
+                pin_class.pins, )
         pin = pin_class.pins[0]
-        if pin_class.direction in (PinClassDirection.INPUT, PinClassDirection.CLOCK):
+        if pin_class.direction in (PinClassDirection.INPUT,
+                                   PinClassDirection.CLOCK):
             # Sink node
             sink_node = self.add_node(pos_low, pos_high, pin.ptc, 'SINK')
 
@@ -1365,9 +1457,11 @@ class GraphIdsMap:
                 pin_node = self.add_node_for_pin(block, p, sides(block, p))
 
                 # Edge PIN->SINK
-                self.add_edge(int(pin_node.get("id")), int(sink_node.get("id")), int(switch.get("id")))
+                self.add_edge(
+                    int(pin_node.get("id")), int(sink_node.get("id")),
+                    int(switch.get("id")))
 
-        elif pin_class.direction in (PinClassDirection.OUTPUT,):
+        elif pin_class.direction in (PinClassDirection.OUTPUT, ):
             # Source node
             src_node = self.add_node(pos_low, pos_high, pin.ptc, 'SOURCE')
 
@@ -1375,10 +1469,13 @@ class GraphIdsMap:
                 pin_node = self.add_node_for_pin(block, p, sides(block, p))
 
                 # Edge SOURCE->PIN
-                self.add_edge(int(src_node.get("id")), int(pin_node.get("id")), int(switch.get("id")))
+                self.add_edge(
+                    int(src_node.get("id")), int(pin_node.get("id")),
+                    int(switch.get("id")))
 
         else:
-            assert False, "Unknown dir of {} for {}".format(pin_class.direction, str(pin_class))
+            assert False, "Unknown dir of {} for {}".format(
+                pin_class.direction, str(pin_class))
 
         #return pin_node
 
@@ -1396,8 +1493,14 @@ class GraphIdsMap:
         assert_type(track, Track)
         assert track.idx != None
 
-        return self.add_node(track.start, track.end, track.idx, track.type.value,
-                             direction=track.direction, segment_id=track.segment.id)
+        return self.add_node(
+            track.start,
+            track.end,
+            track.idx,
+            track.type.value,
+            direction=track.direction,
+            segment_id=track.segment.id)
+
 
 class Graph:
     '''
@@ -1411,7 +1514,8 @@ class Graph:
         # Read in existing file
         if rr_graph_file:
             self.block_grid = BlockGrid()
-            self._xml_graph = ET.parse(rr_graph_file, ET.XMLParser(remove_blank_text=True))
+            self._xml_graph = ET.parse(
+                rr_graph_file, ET.XMLParser(remove_blank_text=True))
             self.import_block_types()
             self.import_grid()
         else:
@@ -1419,7 +1523,8 @@ class Graph:
             ET.SubElement(self._xml_graph, "rr_nodes")
             ET.SubElement(self._xml_graph, "rr_edges")
 
-        self.ids = GraphIdsMap(self.block_grid, self._xml_graph, verbose=verbose)
+        self.ids = GraphIdsMap(
+            self.block_grid, self._xml_graph, verbose=verbose)
 
         # Channels import requires rr_nodes
         if rr_graph_file:
@@ -1447,7 +1552,8 @@ class Graph:
         cs = bgs - Size(1, 1)
         self.channels = Channels(cs)
         # Add segments
-        self.channels.from_xml_segments(single_element(self._xml_graph, 'segments'))
+        self.channels.from_xml_segments(
+            single_element(self._xml_graph, 'segments'))
         # Add channels
         self.channels.from_xml_nodes(self.ids._xml_nodes)
 
@@ -1473,8 +1579,10 @@ class Graph:
     def pin_sidesf(self):
         '''Return a function that can be passed to add_nodes_for_pin_class() to lookup pin side'''
         raw = self.pin_sides()
+
         def sides(block, pin):
             return raw[block, pin]
+
         return sides
 
     def add_nodes_for_blocks(self, switch, sides):
@@ -1491,7 +1599,8 @@ class Graph:
         assert_type(switch, ET._Element)
 
         # Create a node for the track connection as given position
-        bpin2node, track2node = node_index if node_index else self.index_node_objects()
+        bpin2node, track2node = node_index if node_index else self.index_node_objects(
+        )
         pin_node = bpin2node[(block, pin)]
         pos = block.position
 
@@ -1503,27 +1612,49 @@ class Graph:
 
         # It wants directionality...although bidir can exist too?
         src_node, sink_node = {
-            'input':  (track_node, pin_node),
-            'output':  (pin_node, track_node),
-            }[pin.pin_class.direction.value]
+            'input': (track_node, pin_node),
+            'output': (pin_node, track_node),
+        }[pin.pin_class.direction.value]
 
         #if pin.pin_class.direction.value == 'output':
         #    return
-        self.ids.add_edge(int(src_node.get("id")), int(sink_node.get("id")), int(switch.get("id")))
+        self.ids.add_edge(
+            int(src_node.get("id")), int(sink_node.get("id")),
+            int(switch.get("id")))
 
-    def connect_track_to_track(self, src_track, dst_track, switch, node_index=None):
-        _bpin2node, track2node = node_index if node_index else self.index_node_objects()
+    def connect_track_to_track(self,
+                               src_track,
+                               dst_track,
+                               switch,
+                               node_index=None):
+        _bpin2node, track2node = node_index if node_index else self.index_node_objects(
+        )
         src_node = track2node[src_track]
         dst_node = track2node[dst_track]
-        self.ids.add_edge(int(src_node.get("id")), int(dst_node.get("id")), int(switch.get("id")))
+        self.ids.add_edge(
+            int(src_node.get("id")), int(dst_node.get("id")),
+            int(switch.get("id")))
 
-    def connect_track_to_track_bidir(self, xtrack, ytrack, switch, node_index=None):
-        self.connect_track_to_track(xtrack, ytrack, switch, node_index=node_index)
-        self.connect_track_to_track(ytrack, xtrack, switch, node_index=node_index)
+    def connect_track_to_track_bidir(self,
+                                     xtrack,
+                                     ytrack,
+                                     switch,
+                                     node_index=None):
+        self.connect_track_to_track(
+            xtrack, ytrack, switch, node_index=node_index)
+        self.connect_track_to_track(
+            ytrack, xtrack, switch, node_index=node_index)
 
-    def create_xy_track(self, start, end, segment, idx=None, type=None, direction=None):
+    def create_xy_track(self,
+                        start,
+                        end,
+                        segment,
+                        idx=None,
+                        type=None,
+                        direction=None):
         '''Create track object and corresponding nodes'''
-        track = self.channels.create_xy_track(start, end, segment, idx=idx, type=type, direction=direction)
+        track = self.channels.create_xy_track(
+            start, end, segment, idx=idx, type=type, direction=direction)
         track_node = self.ids.add_node_for_track(track)
         return track, track_node
 
@@ -1572,12 +1703,16 @@ class Graph:
                 # ptc is the index of the track in the channels at that location
                 # why is INC_DIR and segment needed?
                 # can't those be looked up?
-                grid = {'CHANX': self.channels.x, 'CHANY': self.channels.y}[type]
+                grid = {
+                    'CHANX': self.channels.x,
+                    'CHANY': self.channels.y
+                }[type]
                 #segment_id = list(node.iterfind("segment"))[0].get('segment_id')
                 try:
                     track = grid[pos_low][ptc]
                 except IndexError:
-                    raise IndexError("%s node pos %s ptc %d not found" % (type, pos, ptc))
+                    raise IndexError("%s node pos %s ptc %d not found" %
+                                     (type, pos, ptc))
                 assert track not in track2node
                 track2node[track] = node
             else:
@@ -1601,9 +1736,11 @@ class Graph:
 
         return self._xml_graph
 
+
 '''
 Debug / test
 '''
+
 
 def simple_test_block_grid():
     bg = BlockGrid()
@@ -1632,27 +1769,28 @@ def simple_test_block_grid():
     Pin(pin_class=pci, pin_class_index=3)
 
     # Add some blocks
-    bg.add_block(Block(graph=bg, block_type_id=1, position=Position(0,0)))
-    bg.add_block(Block(graph=bg, block_type_id=1, position=Position(0,1)))
-    bg.add_block(Block(graph=bg, block_type_id=1, position=Position(0,2)))
-    bg.add_block(Block(graph=bg, block_type_id=1, position=Position(0,3)))
+    bg.add_block(Block(graph=bg, block_type_id=1, position=Position(0, 0)))
+    bg.add_block(Block(graph=bg, block_type_id=1, position=Position(0, 1)))
+    bg.add_block(Block(graph=bg, block_type_id=1, position=Position(0, 2)))
+    bg.add_block(Block(graph=bg, block_type_id=1, position=Position(0, 3)))
 
-    bg.add_block(Block(graph=bg, block_type_id=0, position=Position(1,0)))
-    bg.add_block(Block(graph=bg, block_type_id=0, position=Position(1,1)))
-    bg.add_block(Block(graph=bg, block_type_id=0, position=Position(1,2)))
-    bg.add_block(Block(graph=bg, block_type_id=0, position=Position(1,3)))
+    bg.add_block(Block(graph=bg, block_type_id=0, position=Position(1, 0)))
+    bg.add_block(Block(graph=bg, block_type_id=0, position=Position(1, 1)))
+    bg.add_block(Block(graph=bg, block_type_id=0, position=Position(1, 2)))
+    bg.add_block(Block(graph=bg, block_type_id=0, position=Position(1, 3)))
 
-    bg.add_block(Block(graph=bg, block_type_id=0, position=Position(2,0)))
-    bg.add_block(Block(graph=bg, block_type_id=0, position=Position(2,1)))
-    bg.add_block(Block(graph=bg, block_type_id=0, position=Position(2,2)))
-    bg.add_block(Block(graph=bg, block_type_id=0, position=Position(2,3)))
+    bg.add_block(Block(graph=bg, block_type_id=0, position=Position(2, 0)))
+    bg.add_block(Block(graph=bg, block_type_id=0, position=Position(2, 1)))
+    bg.add_block(Block(graph=bg, block_type_id=0, position=Position(2, 2)))
+    bg.add_block(Block(graph=bg, block_type_id=0, position=Position(2, 3)))
 
-    bg.add_block(Block(graph=bg, block_type_id=2, position=Position(3,0)))
-    bg.add_block(Block(graph=bg, block_type_id=2, position=Position(3,1)))
-    bg.add_block(Block(graph=bg, block_type_id=2, position=Position(3,2)))
-    bg.add_block(Block(graph=bg, block_type_id=2, position=Position(3,3)))
+    bg.add_block(Block(graph=bg, block_type_id=2, position=Position(3, 0)))
+    bg.add_block(Block(graph=bg, block_type_id=2, position=Position(3, 1)))
+    bg.add_block(Block(graph=bg, block_type_id=2, position=Position(3, 2)))
+    bg.add_block(Block(graph=bg, block_type_id=2, position=Position(3, 3)))
 
     return bg
+
 
 def simple_test_graph(**kwargs):
     '''
@@ -1741,6 +1879,7 @@ def simple_test_graph(**kwargs):
             '''
     return Graph(io.StringIO(xml_str), **kwargs)
 
+
 def test_add_nodes_for_block(ret=False):
     g = simple_test_graph(verbose=False)
     g.ids.clear_graph()
@@ -1757,10 +1896,12 @@ def test_add_nodes_for_block(ret=False):
     if ret:
         return g
 
+
 '''
 mcmaster: strongly dislike doctest
 Preparing this for a port to unittest
 '''
+
 
 def test_nodes_for_edges():
     g = test_add_nodes_for_block(True)
@@ -1768,16 +1909,18 @@ def test_nodes_for_edges():
     for edge in g.ids._xml_edges:
         assert len(g.ids.nodes_for_edge(edge)) == 2
 
+
 def node_ptc(node):
     locs = list(node.iterfind("loc"))
     assert len(locs) == 1, locs
     loc = locs[0]
     return int(loc.get('ptc'))
 
+
 def test_index_node_objects():
     g = simple_test_graph(verbose=False)
 
-    bpin2node, track2node= g.index_node_objects()
+    bpin2node, track2node = g.index_node_objects()
 
     # 3 pins in this design
     assert len(bpin2node) == 3
@@ -1793,12 +1936,14 @@ def test_index_node_objects():
     for track, node in track2node.items():
         assert track.idx == node_ptc(node)
 
+
 def main():
     import doctest
 
     print('Doctest begin')
     doctest.testmod()
     print('Doctest end')
+
 
 if __name__ == "__main__":
     main()
