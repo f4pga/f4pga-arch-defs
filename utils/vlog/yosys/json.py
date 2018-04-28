@@ -9,6 +9,7 @@ be used before outputting the JSON.
 import os, sys
 import json
 
+
 class YosysModule:
     def __init__(self, name, module_data):
         self.name = name
@@ -60,7 +61,7 @@ class YosysModule:
         """All attributes of a module as a dictionary"""
         return self.data["attributes"]
 
-    def attr(self, attr, defval = None):
+    def attr(self, attr, defval=None):
         """Get an attribute, or defval is not set"""
         if attr in self.module_attrs:
             return self.module_attrs[attr]
@@ -78,7 +79,7 @@ class YosysModule:
         """All attributes of a given cell as a dictionary"""
         return self.data["cells"][cell]["attributes"]
 
-    def cell_attr(self, cell, attr, defval = None):
+    def cell_attr(self, cell, attr, defval=None):
         """Get an attribute of a given cell, or defval is not set"""
         if attr in self.cell_attrs(cell):
             return self.cell_attrs(cell)[attr]
@@ -89,7 +90,7 @@ class YosysModule:
         """Get all attributes of a given net as a dictionary"""
         return self.data["netnames"][netname]["attributes"]
 
-    def net_attr(self, netname, attr, defval = None):
+    def net_attr(self, netname, attr, defval=None):
         """Get an attribute of a given net (specified by name), or defval is not set"""
         pnet = None
         if attr in self.net_attrs(netname):
@@ -101,7 +102,7 @@ class YosysModule:
     # specifications are inconsistent in how they are represented in the JSON,
     # it's hard to make any nicer...
 
-    def cell_conns(self, cell, direction = "input"):
+    def cell_conns(self, cell, direction="input"):
         """The connections of a cell in a given direction as a 2-tuple
 
         Returns a list of tuples:
@@ -135,7 +136,8 @@ class YosysModule:
                     if len(pdata["bits"]) == 1:
                         conn_io.append(port)
                     else:
-                        conn_io.append("{}[{}]".format(port, pdata["bits"].index(net)))
+                        conn_io.append("{}[{}]".format(
+                            port, pdata["bits"].index(net)))
         return conn_io
 
     def conn_ports(self, net, pdir):
@@ -157,9 +159,9 @@ class YosysModule:
                         if len(condata) == 1:
                             conn_ports.append((cell, port))
                         else:
-                            conn_ports.append((cell, "{}[{}]".format(port, condata.index(net))))
+                            conn_ports.append((cell, "{}[{}]".format(
+                                port, condata.index(net))))
         return conn_ports
-
 
     def net_drivers(self, net):
         """Returns a list of drivers of a given net, both top level inputs.
@@ -191,13 +193,13 @@ class YosysModule:
         cell_drivers = self.conn_ports(net, "input")
         return io_drivers + cell_drivers
 
-class YosysJSON:
 
-    def __init__(self, j, top = None):
+class YosysJSON:
+    def __init__(self, j, top=None):
         """Takes either the filename to a JSON file, or already parsed JSON
         data as a dictionary. Optionally the top level module can be specified
         too."""
-        if(isinstance(j, str)):
+        if (isinstance(j, str)):
             with open(j, 'r') as f:
                 self.data = json.load(f)
         else:
