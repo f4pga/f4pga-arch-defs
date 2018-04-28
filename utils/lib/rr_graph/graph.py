@@ -1404,7 +1404,7 @@ class Graph:
     For <rr_graph> node
     '''
 
-    def __init__(self, rr_graph_file=None, verbose=True):
+    def __init__(self, rr_graph_file=None, verbose=False):
         self.verbose = verbose
 
         # Read in existing file
@@ -1443,9 +1443,7 @@ class Graph:
 
     def import_xml_channels(self):
         bgs = self.block_grid.size()
-        print(bgs)
         cs = bgs - Size(1, 1)
-        print(cs)
         self.channels = Channels(cs)
         # Add segments
         self.channels.from_xml_segments(single_element(self._xml_graph, 'segments'))
