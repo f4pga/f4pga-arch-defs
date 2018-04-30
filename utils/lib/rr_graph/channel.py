@@ -851,7 +851,7 @@ class Channels:
         self.x = ChannelGrid(size, Track.Type.X)
         self.y = ChannelGrid(size, Track.Type.Y)
         # id to segment dict
-        self.segments = {}
+        self.segment_i2seg = {}
 
     def create_diag_track(self, start, end, segment, idx=None):
         # Actually these can be tuple as well
@@ -917,12 +917,16 @@ class Channels:
         '''Remove all channels'''
         self.x.clear()
         self.y.clear()
+        self.segment_i2seg.clear()
 
     def from_xml_segments(self, segments_xml):
         '''Add segments from <segments>'''
         for segment_xml in segments_xml.iterfind('segment'):
-            segment = Segment.from_xml(segment_xml)
-            self.segments[segment.id] = segment
+            self.add_segment(Segment.from_xml(segment_xml))
+
+    def add_segment(self, segment):
+        self.segment_i2seg[segment.id] = segment
+        self.segment_s2seg[segment.name] = segment
 
     def from_xml_nodes(self, nodes_xml):
         '''Add channels from <nodes> CHANX/CHANY'''
@@ -941,7 +945,7 @@ class Channels:
 
             segment_xml = single_element(node_xml, 'segment')
             segment_id = int(segment_xml.get('segment_id'))
-            segment = self.segments[segment_id]
+            segment = self.segment_i2seg[segment_id]
 
             # idx will get assinged when adding to track
             try:
@@ -989,6 +993,11 @@ class Channels:
         segments_xml.clear()
         for _i, segment in sorted(self.segments.items()):
             segment.to_xml(segments_xml)
+
+    def create_segment(self, name, timing=None):
+        segment = Segment(len(self.segments), name, timing=timing)
+        self.add_segment(segment)
+        return segment
 
     def to_xml(self, xml_graph):
         self.to_xml_channels(single_element(xml_graph, 'channels'))
