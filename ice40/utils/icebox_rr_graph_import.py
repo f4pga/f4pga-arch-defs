@@ -125,6 +125,8 @@ def create_switches(graph):
     # Create the switch types
     # ------------------------------
     print('Creating switches')
+    #_switch_delayless = graph.ids.add_delayless_switch()
+    _switch_delayless = graph.ids.add_switch('delayless', buffered=1, configurable=0, stype='mux')
     # Buffer switch drives an output net from a possible list of input nets.
     _switch_buffer = graph.ids.add_switch('buffer', buffered=1, stype='mux')
     # Routing switch connects two nets together to form a span12er wire.
@@ -212,6 +214,11 @@ def run(mode):
     print()
     create_switches(graph)
     create_segments(graph)
+    print()
+    print('Rebuilding block I/O nodes')
+    delayless_switch = graph.ids['SW-delayless']
+    graph.add_nodes_for_blocks(delayless_switch, sides)
+    print_nodes_edges(graph)
     print()
     print('Exiting')
     sys.exit(0)
