@@ -16,6 +16,7 @@ CONDA_NPM      := $(CONDA_DIR)/bin/npm
 CONDA_IVERILOG := $(CONDA_DIR)/bin/iverilog
 CONDA_PYTHON3  := $(CONDA_DIR)/bin/python3
 CONDA_PIP      := $(CONDA_DIR)/bin/pip
+CONDA_COCOTB   = $(PYTHON_SITEPACKAGES)/cocotb
 
 # If the environment exists, put it into the path and use it.
 ifneq (,$(wildcard $(abspath $(ENV_DIR))))
@@ -48,8 +49,9 @@ NETLISTSVG = $(TOP_DIR)/third_party/netlistsvg
 INKSCAPE ?= inkscape
 
 # TODO: Should this live somewhere else
+PYTHON_SITEPACKAGES = $(shell $(PYTHON) -c "import site; print(site.getsitepackages()[0])")
 TOPLEVEL_LANG ?= verilog
-COCOTB ?= $(shell $(PYTHON) -c "import site; print(site.getsitepackages()[0])")
+COCOTB = $(dir $(CONDA_COCOTB))
 ICARUS_BIN_DIR ?= $(dir $(shell which $(IVERILOG)))
 
 endif
