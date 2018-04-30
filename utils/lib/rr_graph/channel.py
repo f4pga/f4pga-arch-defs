@@ -100,6 +100,7 @@ class Track(_Track):
     class Direction(enum.Enum):
         INC = 'INC_DIR'
         DEC = 'DEC_DIR'
+        BI = 'BI_DIR'
 
         def __repr__(self):
             return 'Track.Direction.' + self.name
@@ -135,8 +136,9 @@ class Track(_Track):
         obj.direction
         # And check for consistency if its not ambiguous
         assert obj.type_guess is None or obj.type_guess == obj.type
-        assert obj.direction_guess is None or obj.direction_guess == obj.direction, "Guess: %s, got: %s" % (
-            obj.direction_guess, obj.direction)
+        if direction_hint != Track.Direction.BI:
+            assert obj.direction_guess is None or obj.direction_guess == obj.direction, "Guess: %s, got: %s" % (
+                obj.direction_guess, obj.direction)
 
         return obj
 
@@ -615,7 +617,9 @@ class ChannelGrid(dict):
         assert_len_eq(l)
 
         # Find start and end
+        # TODO: BI should maybe sort
         s, e = {
+            Track.Direction.BI: (t.start0, t.end0),
             Track.Direction.INC: (t.start0, t.end0),
             Track.Direction.DEC: (t.end0, t.start0),
         }[t.direction]
@@ -957,7 +961,7 @@ class Channels:
                     idx=idx,
                     type=ntype_e,
                     direction=direction)
-            except ValueError:
+            except:
                 print("Bad XML: %s" % (ET.tostring(node_xml)))
                 raise
 
@@ -992,11 +996,11 @@ class Channels:
         # FIXME: hack. Get proper segment support
         # for now add a summy segment for which all nodes are associated
         segments_xml.clear()
-        for _i, segment in sorted(self.segments.items()):
+        for _i, segment in sorted(self.segment_i2seg().items()):
             segment.to_xml(segments_xml)
 
     def create_segment(self, name, timing=None):
-        segment = Segment(len(self.segments), name, timing=timing)
+        segment = Segment(len(self.segment_i2seg), name, timing=timing)
         self.add_segment(segment)
         return segment
 
