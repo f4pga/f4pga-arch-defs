@@ -117,49 +117,16 @@ def init(mode):
     # (basically omit rr_nodes)
     graph = lib.rr_graph.graph.Graph(ref_rr_fn)
     graph.set_tooling(name="icebox", version="dev", comment="Generated for iCE40 {} device".format(device_name))
-    graph.ids.clear_graph()
     return graph
 
 def create_switches(graph):
-    # -----------------------------------------------------------------------
-    # -----------------------------------------------------------------------
-    # -----------------------------------------------------------------------
-
     # Create the switch types
     # ------------------------------
-    """
-        <switches>
-                <switch id="0" name="my_switch" buffered="1"/>
-                    <timing R="100" Cin="1233-12" Cout="123e-12" Tdel="1e-9"/>
-                    <sizing mux_trans_size="2.32" buf_size="23.54"/>
-                </switch>
-        </switches>
-    """
-    switches = graph.create_switches()
-
+    print('Creating switches')
     # Buffer switch drives an output net from a possible list of input nets.
-    buffer_id = 0
-    switch_buffer = ET.SubElement(
-        switches, 'switch',
-        {'id': str(buffer_id), 'name': 'buffer', 'buffered': "1", 'type': "mux"},
-    )
-
-    switch_buffer_sizing = ET.SubElement(
-        switch_buffer, 'sizing',
-        {'mux_trans_size': "2.32", 'buf_size': "23.54"},
-    )
-
+    _switch_buffer = graph.ids.add_switch('buffer', buffered=1, stype='mux')
     # Routing switch connects two nets together to form a span12er wire.
-    routing_id = 1
-    switch_routing = ET.SubElement(
-        switches, 'switch',
-        {'id': str(routing_id), 'name': 'routing', 'buffered': "0", 'type': "mux"},
-    )
-
-    switch_routing_sizing = ET.SubElement(
-        switch_routing, 'sizing',
-        {'mux_trans_size': "2.32", 'buf_size': "23.54"},
-    )
+    _switch_routing = graph.ids.add_switch('routing', buffered=0, stype='mux')
 
 # -----------------------------------------------------------------------
 # -----------------------------------------------------------------------
@@ -205,25 +172,47 @@ def create_segments(graph):
         </segments>
     """
 
+    segment_names = (
+            'global',
+            'span12',
+            'span4',
+            'local',
+            'direct',
+            )
+    for segment_name in segment_names:
+        _segment = graph.channels.create_segment(segment_name)
 
-    segment_types = OrderedDict([
-        ('global',  {}),
-        ('span12',    {}),
-        ('span4',   {}),
-        ('local',   {}),
-        ('direct',  {}),
-    ])
-
-    segments = graph.create_segments()
-    for sid, (name, attrib) in enumerate(segment_types.items()):
-        seg = ET.SubElement(segments, 'segment', {'id':str(sid), 'name':name})
-        segment_types[name] = sid
-        ET.SubElement(seg, 'timing', {'R_per_meter': "101", 'C_per_meter':"1.10e-14"})
+def print_nodes_edges(graph):
+    print("Edges: %d (index: %d)" % (len(graph.ids._xml_edges),
+                                     len(graph.ids.id2node['edge'])))
+    print("Nodes: %d (index: %d)" % (len(graph.ids._xml_nodes),
+                                     len(graph.ids.id2node['node'])))
 
 def run(mode):
+    print('Importing input graph')
     graph = init(mode)
+    grid_sz = graph.block_grid.size()
+    print("Grid size: %s" % (grid_sz, ))
+    print('Exporting pin placement')
+    sides = graph.pin_sidesf()
+
+    print()
+
+    print('Clearing nodes and edges')
+    graph.ids.clear_graph()
+    print('Clearing channels')
+    graph.channels.clear()
+    print('Cleared original graph')
+    print_nodes_edges(graph)
+
+    print()
+
     create_switches(graph)
-    create_segments(graph)
+    print()
+    #create_segments(graph)
+
+    print('Exiting')
+    sys.exit(0)
 
 if __name__ == '__main__':
     import argparse
