@@ -16,8 +16,8 @@ def create_tracks(g, grid_sz, rcw, verbose=False):
     # Not strictly required, but VPR wants this I think?
     assert rcw % 2 == 0
 
-    segment = channel.Segment(
-        0, 'awesomesauce', timing_r=420, timing_c='3.e-14')
+    seg_timing = {'R_per_meter':420, 'C_per_meter':3.e-14}
+    segment = g.channels.create_segment('awesomesauce', timing=seg_timing)
 
     def alt_pos(begin, end, swap):
         if swap:
@@ -76,7 +76,7 @@ def connect_blocks_to_tracks(g, grid_sz, rcw, switch, verbose=False):
         for pin in block.pins():
             bpin2node, _track2node = node_index
             pin_node_xml = bpin2node[(block, pin)]
-            pin_side = channel.node_loc(pin_node_xml).get('side')
+            pin_side = graph.single_element(pin_node_xml, 'loc').get('side')
 
             track = tracks[pin_side]
             if verbose:
