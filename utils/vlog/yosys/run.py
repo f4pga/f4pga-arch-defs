@@ -3,27 +3,33 @@ import os, subprocess, sys, re
 import tempfile, json
 import yosys.utils
 
+
 def get_yosys():
     """Return how to execute Yosys: the value of $YOSYS if set, otherwise just
     `yosys`."""
     return os.getenv("YOSYS", "yosys")
+
 
 def get_output(params):
     """Run Yosys with given command line parameters, and return stdout as a string"""
     cmd = [get_yosys()] + params
     return subprocess.check_output(cmd).decode("utf-8")
 
+
 defines = []
+
 
 def add_define(defname):
     """Add a Verilog define to the list of defines to set in Yosys"""
     defines.append(defname)
 
+
 def get_defines():
     """Return a list of set Verilog defines, as a list of arguments to pass to Yosys `read_verilog`"""
     return " ".join(["-D" + _ for _ in defines])
 
-def commands(commands, infiles = []):
+
+def commands(commands, infiles=[]):
     """Run a given string containing Yosys commands
 
     Inputs
@@ -31,11 +37,13 @@ def commands(commands, infiles = []):
     commands : string of Yosys commands to run
     infiles : list of input files
     """
-    commands = "read_verilog {} {}; ".format(get_defines(), " ".join(infiles)) + commands
+    commands = "read_verilog {} {}; ".format(get_defines(),
+                                             " ".join(infiles)) + commands
     params = ["-q", "-p", commands]
     return get_output(params)
 
-def script(script, infiles = []):
+
+def script(script, infiles=[]):
     """Run a Yosys script given a path to the script
 
     Inputs
@@ -46,7 +54,12 @@ def script(script, infiles = []):
     params = ["-q", "-s", script] + infiles
     return get_output(params)
 
-def vlog_to_json(infiles, flatten = False, aig = False, mode = None, module_with_mode = None):
+
+def vlog_to_json(infiles,
+                 flatten=False,
+                 aig=False,
+                 mode=None,
+                 module_with_mode=None):
     """
     Convert Verilog to a JSON representation using Yosys
 
@@ -89,7 +102,6 @@ def extract_pin(module, pstr, _regex=re.compile(r"([^/]+)/([^/]+)")):
         return None
 
 
-
 def do_select(infiles, module, expr):
     """
     Run a Yosys select command (given the expression and input files) on a module
@@ -101,25 +113,25 @@ def do_select(infiles, module, expr):
     module: Name of module to run command on
     expr: Yosys selector expression for select command
     """
-
     """TODO: All of these functions involve a fairly large number of calls to Yosys
     Although performance here is unlikely to be a major priority any time soon,
     it might be worth investigating better options?"""
 
-
     outfile = tempfile.mktemp()
-    sel_cmd = "prep -top {} -flatten; cd {}; select -write {} {}" .format(module, module, outfile, expr)
+    sel_cmd = "prep -top {} -flatten; cd {}; select -write {} {}".format(
+        module, module, outfile, expr)
     commands(sel_cmd, infiles)
     pins = []
     with open(outfile, 'r') as f:
         for net in f:
             snet = net.strip()
-            if(len(snet) > 0):
+            if (len(snet) > 0):
                 pin = extract_pin(module, snet)
                 if pin is not None:
                     pins.append(pin)
     os.remove(outfile)
     return pins
+
 
 def get_combinational_sinks(infiles, module, innet):
     """Return a list of output ports which are combinational sinks of a given
@@ -131,7 +143,9 @@ def get_combinational_sinks(infiles, module, innet):
     module: Name of module to run command on
     innet: Name of input net to find sinks of
     """
-    return do_select(infiles, module, "{} %coe* o:* %i {} %d".format(innet, innet))
+    return do_select(infiles, module, "{} %coe* o:* %i {} %d".format(
+        innet, innet))
+
 
 def list_clocks(infiles, module):
     """Return a list of clocks in the module
@@ -143,6 +157,7 @@ def list_clocks(infiles, module):
     """
     return do_select(infiles, module, "c:* %x:+[CLK] a:CLOCK=1 %u c:* %d")
 
+
 def get_clock_assoc_signals(infiles, module, clk):
     """Return the list of signals associated with a given clock.
 
@@ -152,4 +167,7 @@ def get_clock_assoc_signals(infiles, module, clk):
     module: Name of module to run command on
     clk: Name of clock to find associated signals
     """
-    return do_select(infiles, module, "select -list {} %x* i:* o:* %u %i a:ASSOC_CLOCK={} %u {} %d".format(clk, clk, clk))
+    return do_select(
+        infiles, module,
+        "select -list {} %x* i:* o:* %u %i a:ASSOC_CLOCK={} %u {} %d".format(
+            clk, clk, clk))

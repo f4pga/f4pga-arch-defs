@@ -13,13 +13,9 @@ from io import StringIO
 from lib.deps import add_dependency
 from lib.deps import write_deps
 
-
 parser = argparse.ArgumentParser()
 parser.add_argument(
-    "inputfile",
-    type=argparse.FileType('r'),
-    help="Input XML file")
-
+    "inputfile", type=argparse.FileType('r'), help="Input XML file")
 
 xi_include = re.compile('<xi:include[^>]*href="([^"]*)"', re.IGNORECASE)
 
@@ -37,7 +33,8 @@ def main(argv):
             continue
 
         for includefile in xi_include.findall(line):
-            includefile_path = os.path.abspath(os.path.join(inputdir, includefile))
+            includefile_path = os.path.abspath(
+                os.path.join(inputdir, includefile))
 
             add_dependency(data, inputpath, includefile_path)
 

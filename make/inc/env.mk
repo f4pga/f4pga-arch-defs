@@ -10,6 +10,7 @@ CONDA_VPR   := $(CONDA_DIR)/bin/vpr
 CONDA_MAKE  := $(CONDA_DIR)/bin/make
 CONDA_XSLT  := $(CONDA_DIR)/bin/xsltproc
 CONDA_PYTEST:= $(CONDA_DIR)/bin/pytest
+CONDA_YAPF  := $(CONDA_DIR)/bin/yapf
 CONDA_NODE  := $(CONDA_DIR)/bin/node
 CONDA_NPM   := $(CONDA_DIR)/bin/npm
 
@@ -20,6 +21,7 @@ YOSYS  ?= $(CONDA_YOSYS)
 VPR    ?= $(CONDA_VPR)
 XSLT   ?= $(CONDA_XSLT)
 PYTEST ?= $(CONDA_PYTEST)
+YAPF   ?= $(CONDA_YAPF)
 NODE   ?= $(CONDA_NODE)
 NPM    ?= $(CONDA_NPM)
 else
@@ -27,6 +29,7 @@ YOSYS  ?= yosys
 VPR    ?= vpr
 XSLT   ?= xsltproc
 PYTEST ?= pytest-3
+YAPF   ?= yapf
 NODE   ?= node
 NPM    ?= npm
 endif

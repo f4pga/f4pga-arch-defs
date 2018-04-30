@@ -27,7 +27,7 @@ def clog2(x):
 
 
 class MuxType(Enum):
-    LOGIC   = 'BEL_MX'
+    LOGIC = 'BEL_MX'
     ROUTING = 'BEL_RX'
 
 
@@ -42,7 +42,8 @@ class MuxPinType(Enum):
         elif self == self.OUTPUT:
             return "output wire"
         else:
-            raise TypeError("Can't convert {} into verilog definition.".format(self))
+            raise TypeError(
+                "Can't convert {} into verilog definition.".format(self))
 
     def direction(self):
         if self in (self.INPUT, self.SELECT):
@@ -50,7 +51,8 @@ class MuxPinType(Enum):
         elif self == self.OUTPUT:
             return "output"
         else:
-            raise TypeError("Can't convert {} into verilog definition.".format(self))
+            raise TypeError(
+                "Can't convert {} into verilog definition.".format(self))
 
     def __str__(self):
         return self.value
@@ -85,31 +87,36 @@ def pb_type_xml(mux_type, mux_name, pins, subckt=None, num_pb=1, comment=""):
     xml.etree.ElementTree
         pb_type.xml for requested mux
     """
-    assert isinstance(comment, str), "{} {}".format(type(comment), repr(comment))
+    assert isinstance(comment, str), "{} {}".format(
+        type(comment), repr(comment))
 
     if mux_type == MuxType.LOGIC:
         if '-' not in mux_name:
-            mux_name = 'BEL_MX-'+mux_name
+            mux_name = 'BEL_MX-' + mux_name
         else:
-            assert mux_name.startswith('BEL_MX-'), "Provided mux name has type {} but not BEL_MX!".format(mux_name)
+            assert mux_name.startswith(
+                'BEL_MX-'
+            ), "Provided mux name has type {} but not BEL_MX!".format(mux_name)
     elif mux_type == MuxType.ROUTING:
         if '-' not in mux_name:
-            mux_name = 'BEL_RX-'+mux_name
+            mux_name = 'BEL_RX-' + mux_name
         else:
-            assert mux_name.startswith('BEL_RX-'), "Provided mux name has type {} but not BEL_MX!".format(mux_name)
+            assert mux_name.startswith(
+                'BEL_RX-'
+            ), "Provided mux name has type {} but not BEL_MX!".format(mux_name)
     else:
         assert False, "Unknown type {}".format(mux_type)
 
-    pb_type_xml = ET.Element(
-        'pb_type', {
-            'name': mux_name,
-            'num_pb': str(num_pb),
-        })
+    pb_type_xml = ET.Element('pb_type', {
+        'name': mux_name,
+        'num_pb': str(num_pb),
+    })
 
     if mux_type == MuxType.LOGIC:
         pb_type_xml.attrib['blif_model'] = '.subckt %s' % subckt
     else:
-        assert not subckt, "Provided subckt={} for non-logic mux!".format(subckt)
+        assert not subckt, "Provided subckt={} for non-logic mux!".format(
+            subckt)
 
     if comment is not None:
         pb_type_xml.append(ET.Comment(comment))
@@ -122,7 +129,10 @@ def pb_type_xml(mux_type, mux_name, pins, subckt=None, num_pb=1, comment=""):
         ET.SubElement(
             pb_type_xml,
             pin_type.direction(),
-            {'name': pin_name, 'num_pins': str(pin_width)},
+            {
+                'name': pin_name,
+                'num_pins': str(pin_width)
+            },
         )
 
     if mux_type == MuxType.LOGIC:
@@ -131,12 +141,13 @@ def pb_type_xml(mux_type, mux_name, pins, subckt=None, num_pb=1, comment=""):
                 continue
 
             for opin_type, opin_name, opin_width, opin_index in pins:
-                if opin_type not in (MuxPinType.OUTPUT,):
+                if opin_type not in (MuxPinType.OUTPUT, ):
                     continue
 
                 ET.SubElement(
                     pb_type_xml,
-                    'delay_constant', {
+                    'delay_constant',
+                    {
                         'max': "10e-12",
                         'in_port': "%s.%s" % (mux_name, ipin_name),
                         'out_port': "%s.%s" % (mux_name, opin_name),
@@ -145,14 +156,21 @@ def pb_type_xml(mux_type, mux_name, pins, subckt=None, num_pb=1, comment=""):
     elif mux_type == MuxType.ROUTING:
         interconnect = ET.SubElement(pb_type_xml, 'interconnect')
 
-        inputs  = ["{}.{}".format(mux_name, n) for t, n, _, _ in pins if t in (MuxPinType.INPUT,)]
-        outputs = ["{}.{}".format(mux_name, n) for t, n, _, _ in pins if t in (MuxPinType.OUTPUT,)]
+        inputs = [
+            "{}.{}".format(mux_name, n) for t, n, _, _ in pins
+            if t in (MuxPinType.INPUT, )
+        ]
+        outputs = [
+            "{}.{}".format(mux_name, n) for t, n, _, _ in pins
+            if t in (MuxPinType.OUTPUT, )
+        ]
         assert len(outputs) == 1
 
         ET.SubElement(
             interconnect,
-            'mux', {
-                'name': '%s' % (mux_name,),
+            'mux',
+            {
+                'name': '%s' % (mux_name, ),
                 'input': " ".join(inputs),
                 'output': outputs[0],
             },

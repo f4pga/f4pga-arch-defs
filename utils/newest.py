@@ -11,27 +11,29 @@ import time
 from lib import argparse_extra
 from lib.asserts import assert_eq
 
-
 parser = argparse.ArgumentParser()
 parser.add_argument(
-    "--outfile", "--output", "-o",
+    "--outfile",
+    "--output",
+    "-o",
     type=str,
     help="""\
 The file to set the modtime on.
 """)
 parser.add_argument(
     "--verbose",
-    action=argparse_extra.ActionStoreBool, default=os.environ.get('V', '')==1,
+    action=argparse_extra.ActionStoreBool,
+    default=os.environ.get('V', '') == 1,
     help="""\
 Files to get the input time from.
 """)
 parser.add_argument(
     "files",
-    type=str, nargs="+",
+    type=str,
+    nargs="+",
     help="""\
 Files to get the input time from.
 """)
-
 
 my_path = os.path.abspath(__file__)
 my_dir = os.path.dirname(my_path)
@@ -45,7 +47,8 @@ def main(argv):
     newest = None
     for filepath in args.files:
         if not os.path.exists(filepath):
-            print("Did not find {}, skipping!".format(filepath), file=sys.stderr)
+            print(
+                "Did not find {}, skipping!".format(filepath), file=sys.stderr)
             continue
         assert os.path.isfile(filepath), filepath
 
@@ -68,10 +71,12 @@ def main(argv):
     assert os.path.isfile(args.outfile), args.outfile
     if os.path.getmtime(args.outfile) == t:
         if args.verbose:
-            print("modtime of {} already {} (from {})".format(args.outfile, t, newest))
+            print("modtime of {} already {} (from {})".format(
+                args.outfile, t, newest))
             t += 1
     if args.verbose:
-        print("Setting modtime of {} to {} (from {})".format(args.outfile, t, newest))
+        print("Setting modtime of {} to {} (from {})".format(
+            args.outfile, t, newest))
     os.utime(args.outfile, times=(time.time(), t))
 
 

@@ -9,9 +9,9 @@ import os.path
 MY_DIR = os.path.dirname(os.path.abspath(__file__))
 TOP_DIR = os.path.abspath(os.path.join(MY_DIR, "..", ".."))
 
-DEPS_DIR=".deps"
-DEPS_EXT=".d"
-DEPMK_EXT=".dmk"
+DEPS_DIR = ".deps"
+DEPS_EXT = ".d"
+DEPMK_EXT = ".dmk"
 
 
 def makefile_dir(filepath):
@@ -32,7 +32,7 @@ def makefile_dir(filepath):
     >>> makefile_dir("/blah5")
     '/'
     """
-    dirname=os.path.dirname(os.path.normpath(filepath))
+    dirname = os.path.dirname(os.path.normpath(filepath))
     if not dirname or dirname == '.':
         return ''
     if dirname[-1] != '/':
@@ -81,7 +81,7 @@ def deps_dir(filepath, *, top_dir=TOP_DIR):
     filepath = os.path.normpath(filepath)
     if filepath[0] != '/':
         filepath = os.path.abspath(filepath)
-    filepath_notop = filepath.replace(top_dir+'/', '')
+    filepath_notop = filepath.replace(top_dir + '/', '')
     if filepath_notop == filepath:
         raise IOError("{} is not inside top {}".format(filepath, top_dir))
     return "{deps_dir}/{dir}{notdir}".format(
@@ -102,11 +102,13 @@ def deps_makefile(filepath, *, top_dir=TOP_DIR):
     >>> deps_makefile("blah", top_dir=td)
     '.deps/blah.dmk'
     """
-    return deps_dir("{dir}{notdir}{ext}".format(
-        dir=makefile_dir(filepath),
-        notdir=makefile_notdir(filepath),
-        ext=DEPMK_EXT,
-    ), top_dir=top_dir)
+    return deps_dir(
+        "{dir}{notdir}{ext}".format(
+            dir=makefile_dir(filepath),
+            notdir=makefile_notdir(filepath),
+            ext=DEPMK_EXT,
+        ),
+        top_dir=top_dir)
 
 
 def add_dependency(f, from_file, on_file):
@@ -114,9 +116,9 @@ def add_dependency(f, from_file, on_file):
     f.write("""
 $(call add_dependency,{from_file},{on_file})
 """.format(
-    from_file=from_file,
-    on_file=on_file,
-))
+        from_file=from_file,
+        on_file=on_file,
+    ))
 
 
 def write_deps(inputfile_name, data):
