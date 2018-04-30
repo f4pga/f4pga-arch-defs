@@ -172,6 +172,7 @@ def create_segments(graph):
         </segments>
     """
 
+    print('Creating segments')
     segment_names = (
             'global',
             'span12',
@@ -204,13 +205,10 @@ def run(mode):
     graph.channels.clear()
     print('Cleared original graph')
     print_nodes_edges(graph)
-
     print()
-
     create_switches(graph)
+    create_segments(graph)
     print()
-    #create_segments(graph)
-
     print('Exiting')
     sys.exit(0)
 
