@@ -831,13 +831,7 @@ class Block(MostlyReadOnly):
 
     def ptc2pin(self, ptc):
         '''Return Pin for the given ptc (Pin.block_type_index)'''
-        # TODO: consider indexing
-        for pin_class in self.block_type.pin_classes:
-            for pin in pin_class.pins.values():
-                if pin.block_type_index == ptc:
-                    return pin
-        else:
-            raise KeyError("ptc %d not found" % ptc)
+        return self.block_type.pin_index[ptc]
 
 
 '''
@@ -960,7 +954,7 @@ class GraphIdsMap:
     <switch> is also currently in here, but maybe shouldn't be
     '''
 
-    def __init__(self, block_graph, xml_graph=None, verbose=True):
+    def __init__(self, block_graph, xml_graph=None, verbose=True, clear_fabric=False):
         '''
         >>> g = simple_test_graph()
         '''
@@ -986,22 +980,55 @@ class GraphIdsMap:
             ET.SubElement(xml_graph, "switches")
         self._xml_graph = xml_graph
 
-        # Index existing XML entries
-        for node in self._xml_nodes:
-            self.add_node_xml(node)
-        for edge in self._xml_edges:
-            self.add_edge_xml(edge)
-        for switch in self._xml_switches:
-            self.add_switch_xml(switch)
+        '''
+        Index existing XML entries
+        See Graph note about clear_fabric issue
+        FIXME: reshuffle pin nodes, maintaining their direction
+        They appear first in the rr_graph file, so this may be straightforward
+        '''
+        if clear_fabric:
+            print('clear fabric')
+            # keep nodes for now to get block positions
+            self.clear_graph(keep_nodes=True)
+            keeps = 0
+            deletes = 0
+            for node in self._xml_nodes:
+                # only IPIN/OPIN is needed for placement
+                #if node.get('type') in ('IPIN', 'OPIN', 'SINK', 'SOURCE'):
+                if node.get('type') in ('IPIN', 'OPIN'):
+                    self.add_node_xml(node)
+                    keeps += 1
+                else:
+                    # removing from xml_nodes is enough to not get indexed later
+                    #del self.id2node['node'][int(node.get('id'))]
+                    self._xml_nodes.remove(node)
+                    deletes += 1
+            print('keeps: %d, deletes: %d' % (keeps, deletes))
+        else:
+            for node in self._xml_nodes:
+                self.add_node_xml(node)
+            for edge in self._xml_edges:
+                self.add_edge_xml(edge)
+            for switch in self._xml_switches:
+                self.add_switch_xml(switch)
 
-    def clear_graph(self):
+    def clear_graph(self, keep_nodes=False):
         """Delete the existing nodes and edges."""
-        self._xml_nodes.clear()
-        self._xml_edges.clear()
-        self._xml_switches.clear()
+        if keep_nodes:
+            self._xml_edges.clear()
+            self._xml_switches.clear()
 
-        self.name2id = {}
-        self.id2node = {'node': {}, 'edge': {}, 'switch': {}}
+            # NOTE: self.name2id not properly cleared
+            # NOTE: self.id2node['node'] not properly cleared
+            self.id2node['edge'] = {}
+            self.id2node['switch'] = {}
+        else:
+            self._xml_nodes.clear()
+            self._xml_edges.clear()
+            self._xml_switches.clear()
+
+            self.name2id = {}
+            self.id2node = {'node': {}, 'edge': {}, 'switch': {}}
 
     def _next_id(self, xml_group):
         return len(self.id2node[xml_group])
@@ -1510,7 +1537,13 @@ class Graph:
     For <rr_graph> node
     '''
 
-    def __init__(self, rr_graph_file=None, verbose=False):
+    def __init__(self, rr_graph_file=None, verbose=False,
+             clear_fabric=False):
+        '''
+        clear_fabric: remove channels, all nodes, and all edges
+        FIXME: need pin nodes to get placement, so not clearing any nodes for now
+        Long term we need to reshuffle these instead of deleting and re-adding
+        '''
         self.verbose = verbose
 
         # Read in existing file
@@ -1526,10 +1559,10 @@ class Graph:
             ET.SubElement(self._xml_graph, "rr_edges")
 
         self.ids = GraphIdsMap(
-            self.block_grid, self._xml_graph, verbose=verbose)
+            self.block_grid, self._xml_graph, verbose=verbose, clear_fabric=clear_fabric)
 
         # Channels import requires rr_nodes
-        if rr_graph_file:
+        if rr_graph_file and not clear_fabric:
             self.import_xml_channels()
         else:
             # First and last row/col cannot be occupied, see channel.py

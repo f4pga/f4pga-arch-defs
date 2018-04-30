@@ -115,7 +115,9 @@ def init(mode):
 
     # Load graph stuff we care about
     # (basically omit rr_nodes)
-    graph = lib.rr_graph.graph.Graph(ref_rr_fn)
+    # clear_fabric reduces load time from about 11.1 => 2.8 sec on my machine
+    # seems to be mostly from the edges?
+    graph = lib.rr_graph.graph.Graph(ref_rr_fn, clear_fabric=True)
     graph.set_tooling(name="icebox", version="dev", comment="Generated for iCE40 {} device".format(device_name))
     return graph
 
@@ -192,6 +194,8 @@ def print_nodes_edges(graph):
 def run(mode):
     print('Importing input graph')
     graph = init(mode)
+    print('Source graph loaded')
+    print_nodes_edges(graph)
     grid_sz = graph.block_grid.size()
     print("Grid size: %s" % (grid_sz, ))
     print('Exporting pin placement')
