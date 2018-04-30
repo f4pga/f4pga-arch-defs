@@ -120,32 +120,6 @@ def init(mode):
     graph.ids.clear_graph()
     return graph
 
-if __name__ == '__main__':
-    import argparse
-
-    parser = argparse.ArgumentParser()
-    parser.add_argument('--dev-384', '-3', action='store_true', help='create chipdb for 384 device')
-    parser.add_argument('--dev-1k', '-1', action='store_true', help='create chipdb for 1k device')
-    parser.add_argument('--dev-5k', '-5', action='store_true', help='create chipdb for 5k device')
-    parser.add_argument('--dev-8k', '-8', action='store_true', help='create chipdb for 8k device')
-    parser.add_argument('--verbose', '-v', action='store_true', help='verbose output')
-    args = parser.parse_args()
-
-    VERBOSE = args.verbose
-
-    if args.dev_8k:
-        mode = '8k'
-    elif args.dev_5k:
-        mode = '5k'
-    elif args.dev_1k:
-        mode = '1k'
-    elif args.dev_384:
-        mode = '384'
-    else:
-        assert 0, "Must specifiy device"
-
-    graph = init(mode)
-
 def create_switches(graph):
     # -----------------------------------------------------------------------
     # -----------------------------------------------------------------------
@@ -186,7 +160,6 @@ def create_switches(graph):
         switch_routing, 'sizing',
         {'mux_trans_size': "2.32", 'buf_size': "23.54"},
     )
-create_switches(graph)
 
 # -----------------------------------------------------------------------
 # -----------------------------------------------------------------------
@@ -246,7 +219,40 @@ def create_segments(graph):
         seg = ET.SubElement(segments, 'segment', {'id':str(sid), 'name':name})
         segment_types[name] = sid
         ET.SubElement(seg, 'timing', {'R_per_meter': "101", 'C_per_meter':"1.10e-14"})
-create_segments(graph)
+
+def run(mode):
+    graph = init(mode)
+    create_switches(graph)
+    create_segments(graph)
+
+if __name__ == '__main__':
+    import argparse
+
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--dev-384', '-3', action='store_true', help='create chipdb for 384 device')
+    parser.add_argument('--dev-1k', '-1', action='store_true', help='create chipdb for 1k device')
+    parser.add_argument('--dev-5k', '-5', action='store_true', help='create chipdb for 5k device')
+    parser.add_argument('--dev-8k', '-8', action='store_true', help='create chipdb for 8k device')
+    parser.add_argument('--verbose', '-v', action='store_true', help='verbose output')
+    args = parser.parse_args()
+
+    VERBOSE = args.verbose
+
+    if args.dev_8k:
+        mode = '8k'
+    elif args.dev_5k:
+        mode = '5k'
+    elif args.dev_1k:
+        mode = '1k'
+    elif args.dev_384:
+        mode = '384'
+    else:
+        assert 0, "Must specifiy device"
+    run(mode)
+
+
+
+
 
 # -----------------------------------------------------------------------
 # -----------------------------------------------------------------------
