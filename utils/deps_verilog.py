@@ -13,12 +13,9 @@ from lib.asserts import assert_eq
 from lib.deps import add_dependency
 from lib.deps import write_deps
 
-
 parser = argparse.ArgumentParser()
 parser.add_argument(
-    "inputfile",
-    type=argparse.FileType('r'),
-    help="Input Verilog file")
+    "inputfile", type=argparse.FileType('r'), help="Input Verilog file")
 
 
 def main(argv):
