@@ -53,16 +53,16 @@ class Segment:
         sid = int(segment_xml.get('id'))
         name = segment_xml.get('name')
 
-        timing_r = None
-        timing_c = None
+        timing = None
         timings = list(segment_xml.iterfind('timing'))
         if len(timings) == 1:
             timing = timings[0]
             timing_r = float(timing.get('R_per_meter'))
             timing_c = float(timing.get('C_per_meter'))
+            timing = {'R_per_meter':timing_r, 'C_per_meter':timing_c}
         else:
             assert len(timings) == 0
-        return Segment(sid, name, timing_r, timing_c)
+        return Segment(sid, name, timing)
 
     def to_xml(self, segments_xml):
         timing_xml = ET.SubElement(segments_xml, 'segment', {
