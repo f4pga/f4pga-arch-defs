@@ -852,6 +852,7 @@ class Channels:
         self.y = ChannelGrid(size, Track.Type.Y)
         # id to segment dict
         self.segment_i2seg = {}
+        self.segment_s2seg = {}
 
     def create_diag_track(self, start, end, segment, idx=None):
         # Actually these can be tuple as well
