@@ -92,11 +92,10 @@ class GlobalName(tuple):
     def __init__(self, *args, **kw):
         pass
 
-ref_rr_fn = None
+graph = None
 def init(mode):
     global ic
     global device_name
-    global ref_rr_fn
 
     ic = icebox.iceconfig()
     {
@@ -113,6 +112,13 @@ def init(mode):
         '384': 'LP384',
     }[mode]
     ref_rr_fn = '../../tests/build/ice40/{}/wire.rr_graph.xml'.format(fn_dir)
+
+    # Load graph stuff we care about
+    # (basically omit rr_nodes)
+    graph = lib.rr_graph.graph.Graph(ref_rr_fn)
+    graph.set_tooling(name="icebox", version="dev", comment="Generated for iCE40 {} device".format(device_name))
+    graph.ids.clear_graph()
+    return graph
 
 if __name__ == '__main__':
     import argparse
@@ -138,13 +144,7 @@ if __name__ == '__main__':
     else:
         assert 0, "Must specifiy device"
 
-    init(mode)
-
-# Load graph stuff we care about
-# (basically omit rr_nodes)
-graph = lib.rr_graph.graph.Graph(ref_rr_fn)
-graph.set_tooling(name="icebox", version="???", comment="Generated for iCE40 {} device".format(device_name))
-graph.ids.clear_graph()
+    graph = init(mode)
 
 def create_switches(graph):
     # -----------------------------------------------------------------------
