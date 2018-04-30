@@ -987,7 +987,6 @@ class GraphIdsMap:
         They appear first in the rr_graph file, so this may be straightforward
         '''
         if clear_fabric:
-            print('clear fabric')
             # keep nodes for now to get block positions
             self.clear_graph(keep_nodes=True)
             keeps = 0
@@ -1082,7 +1081,7 @@ class GraphIdsMap:
         self[name] = xml_switch
 
     def __getitem__(self, name):
-        xml_group, node_id = self.names2id[name]
+        xml_group, node_id = self.name2id[name]
         return self.id2node[xml_group][node_id]
 
     def __setitem__(self, name, xml_node):
@@ -1108,7 +1107,7 @@ class GraphIdsMap:
             #assert obj is self.id2node[node_id]
 
         self.id2node[xml_group][node_id] = xml_node
-        self.name2id[name] = node_id
+        self.name2id[name] = (xml_group, node_id)
 
     def node_name(self, xml_node):
         """Get a globally unique name for an `node` in the rr_nodes.
@@ -1298,7 +1297,8 @@ class GraphIdsMap:
 
     def switch_name(self, xml_switch):
         # FIXME: better name
-        return "SW%s" % xml_switch.attrib["id"]
+        #return "SW%s" % xml_switch.attrib["id"]
+        return "SW-%s" % xml_switch.attrib["name"]
 
     def edges_for_node(self, xml_node):
         node_id = xml_node.attrib.get('id', None)
@@ -1351,6 +1351,7 @@ class GraphIdsMap:
         else:
             assert side is None
         if side is not None:
+            assert side in {'LEFT', 'RIGHT', 'TOP', 'BOTTOM'}, side
             attrs['side'] = side
         ET.SubElement(node, 'loc', attrs)
 
@@ -1391,6 +1392,12 @@ class GraphIdsMap:
             })
         self.add_edge_xml(edge)
         return edge
+
+    def add_delayless_switch(self):
+        '''For stuff like connecting pins to sources'''
+        # VPR calls this __vpr_delayless_switch__
+        # Should we match?
+        return self.add_switch('delayless', buffered=1, configurable=0, stype='mux')
 
     def add_switch(self,
                    name,
@@ -1606,7 +1613,7 @@ class Graph:
             for pin_class in block.block_type.pin_classes:
                 for pin in pin_class.pins.values():
                     node = bpin2node[(block, pin)]
-                    side = single_element(node, 'loc')
+                    side = single_element(node, 'loc').get('side')
                     assert side is not None, ET.tostring(node)
                     ret[(block, pin)] = side
         return ret
