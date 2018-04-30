@@ -1799,6 +1799,7 @@ def simple_test_graph(**kwargs):
     Simple block containing one input block, one output block, with some routing between them
     Can be used to implmenet a 2:1 mux
     '''
+    assert 0, 'FIXME: adjust grid'
     xml_str = '''
             <rr_graph tool_name="vpr" tool_version="82a3c72" tool_comment="Based on my_arch.xml">
                 <channels>
