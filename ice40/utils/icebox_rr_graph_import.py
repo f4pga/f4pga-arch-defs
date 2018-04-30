@@ -54,62 +54,17 @@ For each wire, we work out the "edges" (IE connection to other wires / pins).
 from os.path import commonprefix
 
 import icebox
-import getopt, sys, re
+import lib.rr_graph.graph
+import os.path, re, sys
 
 import operator
 from collections import namedtuple, OrderedDict
 from functools import reduce
 import lxml.etree as ET
 
-mode_384 = False
-mode_5k = False
-mode_8k = False
-
-def usage():
-    print("""
-Usage: icebox_chipdb [options] [bitmap.asc]
-
-    -3
-        create chipdb for 384 device
-
-    -5
-        create chipdb for 5k device
-
-    -8
-        create chipdb for 8k device
-""")
-    sys.exit(0)
 
 VERBOSE=True
-
-try:
-    opts, args = getopt.getopt(sys.argv[1:], "358")
-except:
-    usage()
-
-device_name = '1k'
-for o, a in opts:
-    if o == "-8":
-        mode_8k = True
-        device_name = '8k'
-    elif o == "-5":
-        mode_5k = True
-        device_name = '5k'
-    elif o == "-3":
-        mode_384 = True
-        device_name = '384'
-    else:
-        usage()
-
-ic = icebox.iceconfig()
-if mode_8k:
-    ic.setup_empty_8k()
-elif mode_5k:
-    ic.setup_empty_5k()
-elif mode_384:
-    ic.setup_empty_384()
-else:
-    ic.setup_empty_1k()
+device_name = None
 
 # -----------------------------------------------------------------------
 # -----------------------------------------------------------------------
@@ -137,123 +92,167 @@ class GlobalName(tuple):
     def __init__(self, *args, **kw):
         pass
 
+ref_rr_fn = None
+def init(mode):
+    global ic
+    global device_name
+    global ref_rr_fn
+
+    ic = icebox.iceconfig()
+    {
+        '8k':  ic.setup_empty_8k,
+        '5k':  ic.setup_empty_5k,
+        '1k':  ic.setup_empty_1k,
+        '384': ic.setup_empty_384,
+    }[mode]()
+    device_name = mode
+    fn_dir =     {
+        '8k':  'HX8K',
+        '5k':  'HX5K',
+        '1k':  'HX1K',
+        '384': 'LP384',
+    }[mode]
+    ref_rr_fn = '../../tests/build/ice40/{}/wire.rr_graph.xml'.format(fn_dir)
+
+if __name__ == '__main__':
+    import argparse
+
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--dev-384', '-3', action='store_true', help='create chipdb for 384 device')
+    parser.add_argument('--dev-1k', '-1', action='store_true', help='create chipdb for 1k device')
+    parser.add_argument('--dev-5k', '-5', action='store_true', help='create chipdb for 5k device')
+    parser.add_argument('--dev-8k', '-8', action='store_true', help='create chipdb for 8k device')
+    parser.add_argument('--verbose', '-v', action='store_true', help='verbose output')
+    args = parser.parse_args()
+
+    VERBOSE = args.verbose
+
+    if args.dev_8k:
+        mode = '8k'
+    elif args.dev_5k:
+        mode = '5k'
+    elif args.dev_1k:
+        mode = '1k'
+    elif args.dev_384:
+        mode = '384'
+    else:
+        assert 0, "Must specifiy device"
+
+    init(mode)
+
+# Load graph stuff we care about
+# (basically omit rr_nodes)
+graph = lib.rr_graph.graph.Graph(ref_rr_fn)
+graph.set_tooling(name="icebox", version="???", comment="Generated for iCE40 {} device".format(device_name))
+graph.ids.clear_graph()
+
+def create_switches(graph):
+    # -----------------------------------------------------------------------
+    # -----------------------------------------------------------------------
+    # -----------------------------------------------------------------------
+
+    # Create the switch types
+    # ------------------------------
+    """
+        <switches>
+                <switch id="0" name="my_switch" buffered="1"/>
+                    <timing R="100" Cin="1233-12" Cout="123e-12" Tdel="1e-9"/>
+                    <sizing mux_trans_size="2.32" buf_size="23.54"/>
+                </switch>
+        </switches>
+    """
+    switches = graph.create_switches()
+
+    # Buffer switch drives an output net from a possible list of input nets.
+    buffer_id = 0
+    switch_buffer = ET.SubElement(
+        switches, 'switch',
+        {'id': str(buffer_id), 'name': 'buffer', 'buffered': "1", 'type': "mux"},
+    )
+
+    switch_buffer_sizing = ET.SubElement(
+        switch_buffer, 'sizing',
+        {'mux_trans_size': "2.32", 'buf_size': "23.54"},
+    )
+
+    # Routing switch connects two nets together to form a span12er wire.
+    routing_id = 1
+    switch_routing = ET.SubElement(
+        switches, 'switch',
+        {'id': str(routing_id), 'name': 'routing', 'buffered': "0", 'type': "mux"},
+    )
+
+    switch_routing_sizing = ET.SubElement(
+        switch_routing, 'sizing',
+        {'mux_trans_size': "2.32", 'buf_size': "23.54"},
+    )
+create_switches(graph)
 
 # -----------------------------------------------------------------------
 # -----------------------------------------------------------------------
 # -----------------------------------------------------------------------
 
-# Root of XML
-# ------------------------------
-"""
-<rr_graph tool_name="" tool_version="" tool_comment="">
-"""
-rr_graph = ET.Element(
-    'rr_graph',
-    dict(tool_name="icebox", tool_version="???", tool_comment="Generated for iCE40 {} device".format(device_name)),
-)
+def create_segments(graph):
+    # Build the segment list
+    # ------------------------------
+    """fpga_arch
+    <segment name="unique_name" length="int" type="{bidir|unidir}" freq="float" Rmetal="float" Cmetal="float">
+        content
+    </segment>
+
+    <!-- The sb/cb pattern does not actually match the iCE40 you need to manually generate rr_graph -->
+
+    <!-- Span 4 wires which go A -> A+5 (IE Span 4 tiles) -->
+    <segment name="span4" length="5" type="bidir" freq="float" Rmetal="float" Cmetal="float">
+        <sb type="pattern">1 1 1 1 1</sb>
+        <cb type="pattern">1 1 1 1</cb>
+    </segment>
+
+    <segment name="span12" length="13" type="bidir" freq="float" Rmetal="float" Cmetal="float">
+        <sb type="pattern">1 1 1 1 1 1 1 1 1 1 1 1 1</sb>
+        <cb type="pattern">1 1 1 1 1 1 1 1 1 1 1 1</cb>
+    </segment>
+
+        <segments>
+            <segment id="0" name="global">
+                <timing R_per_meter="101" C_per_meter="2.25000004521955232483776399022e-14"/>
+            </segment>
+            <segment id="1" name="span12"> <!-- span12 ->
+                <timing R_per_meter="101" C_per_meter="2.25000004521955232483776399022e-14"/>
+            </segment>
+            <segment id="2" name="span4"> <!-- span4 -->
+                <timing R_per_meter="101" C_per_meter="2.25000004521955232483776399022e-14"/>
+            </segment>
+            <segment id="3" name="local">
+                <timing R_per_meter="101" C_per_meter="2.25000004521955232483776399022e-14"/>
+            </segment>
+            <segment id="4" name="neighbour">
+                <timing R_per_meter="101" C_per_meter="2.25000004521955232483776399022e-14"/>
+            </segment>
+        </segments>
+    """
+
+
+    segment_types = OrderedDict([
+        ('global',  {}),
+        ('span12',    {}),
+        ('span4',   {}),
+        ('local',   {}),
+        ('direct',  {}),
+    ])
+
+    segments = graph.create_segments()
+    for sid, (name, attrib) in enumerate(segment_types.items()):
+        seg = ET.SubElement(segments, 'segment', {'id':str(sid), 'name':name})
+        segment_types[name] = sid
+        ET.SubElement(seg, 'timing', {'R_per_meter': "101", 'C_per_meter':"1.10e-14"})
+create_segments(graph)
 
 # -----------------------------------------------------------------------
 # -----------------------------------------------------------------------
 # -----------------------------------------------------------------------
 
-# Create the switch types
-# ------------------------------
-"""
-    <switches>
-            <switch id="0" name="my_switch" buffered="1"/>
-                <timing R="100" Cin="1233-12" Cout="123e-12" Tdel="1e-9"/>
-                <sizing mux_trans_size="2.32" buf_size="23.54"/>
-            </switch>
-    </switches>
-"""
-switches = ET.SubElement(rr_graph, 'switches')
-
-# Buffer switch drives an output net from a possible list of input nets.
-buffer_id = 0
-switch_buffer = ET.SubElement(
-    switches, 'switch',
-    {'id': str(buffer_id), 'name': 'buffer', 'buffered': "1", 'type': "mux"},
-)
-
-switch_buffer_sizing = ET.SubElement(
-    switch_buffer, 'sizing',
-    {'mux_trans_size': "2.32", 'buf_size': "23.54"},
-)
-
-# Routing switch connects two nets together to form a span12er wire.
-routing_id = 1
-switch_routing = ET.SubElement(
-    switches, 'switch',
-    {'id': str(routing_id), 'name': 'routing', 'buffered': "0", 'type': "mux"},
-)
-
-switch_routing_sizing = ET.SubElement(
-    switch_routing, 'sizing',
-    {'mux_trans_size': "2.32", 'buf_size': "23.54"},
-)
-
-# -----------------------------------------------------------------------
-# -----------------------------------------------------------------------
-# -----------------------------------------------------------------------
-
-# Build the segment list
-# ------------------------------
-"""fpga_arch
-<segment name="unique_name" length="int" type="{bidir|unidir}" freq="float" Rmetal="float" Cmetal="float">
-    content
-</segment>
-
-<!-- The sb/cb pattern does not actually match the iCE40 you need to manually generate rr_graph -->
-
-<!-- Span 4 wires which go A -> A+5 (IE Span 4 tiles) -->
-<segment name="span4" length="5" type="bidir" freq="float" Rmetal="float" Cmetal="float">
-    <sb type="pattern">1 1 1 1 1</sb>
-    <cb type="pattern">1 1 1 1</cb>
-</segment>
-
-<segment name="span12" length="13" type="bidir" freq="float" Rmetal="float" Cmetal="float">
-    <sb type="pattern">1 1 1 1 1 1 1 1 1 1 1 1 1</sb>
-    <cb type="pattern">1 1 1 1 1 1 1 1 1 1 1 1</cb>
-</segment>
-
-	<segments>
-		<segment id="0" name="global">
-			<timing R_per_meter="101" C_per_meter="2.25000004521955232483776399022e-14"/>
-		</segment>
-		<segment id="1" name="span12"> <!-- span12 ->
-			<timing R_per_meter="101" C_per_meter="2.25000004521955232483776399022e-14"/>
-		</segment>
-		<segment id="2" name="span4"> <!-- span4 -->
-			<timing R_per_meter="101" C_per_meter="2.25000004521955232483776399022e-14"/>
-		</segment>
-		<segment id="3" name="local">
-			<timing R_per_meter="101" C_per_meter="2.25000004521955232483776399022e-14"/>
-		</segment>
-		<segment id="4" name="neighbour">
-			<timing R_per_meter="101" C_per_meter="2.25000004521955232483776399022e-14"/>
-		</segment>
-	</segments>
-"""
-
-
-segment_types = OrderedDict([
-    ('global',  {}),
-    ('span12',    {}),
-    ('span4',   {}),
-    ('local',   {}),
-    ('direct',  {}),
-])
-
-segments = ET.SubElement(rr_graph, 'segments')
-for sid, (name, attrib) in enumerate(segment_types.items()):
-    seg = ET.SubElement(segments, 'segment', {'id':str(sid), 'name':name})
-    segment_types[name] = sid
-    ET.SubElement(seg, 'timing', {'R_per_meter': "101", 'C_per_meter':"1.10e-14"})
-
-# -----------------------------------------------------------------------
-# -----------------------------------------------------------------------
-# -----------------------------------------------------------------------
-
+'''
 # Mapping dictionaries
 globalname2netnames = {}
 globalname2node = {}
@@ -265,7 +264,7 @@ def add_globalname2localname(globalname, pos, localname):
     global globalname2netnames
 
     assert isinstance(globalname, GlobalName), "{!r} must be a GlobalName".format(globalname)
-    assert isinstance(pos, TilePos), "{!r} must be a TilePos".format(tilepos)
+    assert isinstance(pos, TilePos), "{!r} must be a TilePos".format(pos)
 
     nid = (pos, localname)
 
@@ -288,9 +287,10 @@ def add_globalname2localname(globalname, pos, localname):
 
 def localname2globalname(pos, localname, default=None):
     """Convert from a local name to a globally unique name."""
-    assert isinstance(pos, TilePos), "{!r} must be a TilePos".format(tilepos)
+    assert isinstance(pos, TilePos), "{!r} must be a TilePos".format(pos)
     nid = (pos, localname)
     return netname2globalname.get(nid, default)
+'''
 
 
 # -----------------------------------------------------------------------
@@ -348,7 +348,8 @@ def localname2globalname(pos, localname, default=None):
 		</node>
 """
 
-nodes = ET.SubElement(rr_graph, 'rr_nodes')
+'''
+nodes = graph.create_nodes()
 def add_node(globalname, attribs):
     """Add node with globalname and attributes."""
     assert isinstance(globalname, GlobalName), "{!r} should be a GlobalName".format(globalname)
@@ -372,11 +373,12 @@ def add_node(globalname, attribs):
         node.append(ET.Comment(" {} ".format(globalname)))
 
     return node
-
+'''
 
 # Edges -----------------------------------------------------------------
 
-edges = ET.SubElement(rr_graph, 'rr_edges')
+'''
+edges = graph.create_edges()
 def add_edge(src_globalname, dst_globalname, bidir=False):
     if bidir:
         add_edge(src_globalname, dst_globalname)
@@ -401,6 +403,8 @@ def add_edge(src_globalname, dst_globalname, bidir=False):
         e.append(ET.Comment(" {} -> {} ".format(src_globalname, dst_globalname)))
         globalname2node[src_globalname].append(ET.Comment(" this -> {} ".format(dst_globalname)))
         globalname2node[dst_globalname].append(ET.Comment(" {} -> this ".format(src_globalname)))
+'''
+
 
 # -----------------------------------------------------------------------
 # -----------------------------------------------------------------------
@@ -408,13 +412,14 @@ def add_edge(src_globalname, dst_globalname, bidir=False):
 
 # Channels (node) ----------------------------------------------------
 
+'''
 channels = {}
 for y in range(ic.max_y+1):
     channels[(-1,y)] = {}
 
 for x in range(ic.max_x+1):
     channels[(x,-1)] = {}
-
+'''
 
 def add_channel(globalname, nodetype, start, end, idx, segtype):
     assert isinstance(globalname, GlobalName), "{!r} should be a GlobalName".format(globalname)
@@ -478,128 +483,130 @@ def add_channel(globalname, nodetype, start, end, idx, segtype):
 
 # Pins
 # ------------------------------
-def globalname_pin(pos, localname):
-    return GlobalName("pin", TilePos(*pos), localname)
+
+def add_pins(graph):
+    def globalname_pin(pos, localname):
+        return GlobalName("pin", TilePos(*pos), localname)
 
 
-"""
-def iceboxname_pin(tiletype, localname):
-    if tiletype == 'IO':
-        prefix = 'io['
-        if localname.startswith(prefix):
-            return 'io_{}/{}'.format(
-                localname[len(prefix):len(prefix)+1],
-                localname[localname.split('.')[-1]],
-            )
-        else:
-            return 'io_global/{}'.format(localname)
-    elif tiletype == "LOGIC":
-        prefix = 'lut['
-        if localname.startswith(prefix):
-
-            a, b = localname.split('.')
-
-            prefix2 = 'in['
-            if b.startswith(prefix2):
-                return 'lutff_{}/{}'.format(
+    """
+    def iceboxname_pin(tiletype, localname):
+        if tiletype == 'IO':
+            prefix = 'io['
+            if localname.startswith(prefix):
+                return 'io_{}/{}'.format(
                     localname[len(prefix):len(prefix)+1],
-                    b
+                    localname[localname.split('.')[-1]],
                 )
-
             else:
-                return 'lutff_{}/{}'.format(
-                    localname[len(prefix):len(prefix)+1],
-                    b
-                )
+                return 'io_global/{}'.format(localname)
+        elif tiletype == "LOGIC":
+            prefix = 'lut['
+            if localname.startswith(prefix):
+
+                a, b = localname.split('.')
+
+                prefix2 = 'in['
+                if b.startswith(prefix2):
+                    return 'lutff_{}/{}'.format(
+                        localname[len(prefix):len(prefix)+1],
+                        b
+                    )
+
+                else:
+                    return 'lutff_{}/{}'.format(
+                        localname[len(prefix):len(prefix)+1],
+                        b
+                    )
+            else:
+                return 'lutff_global/{}'.format(localname)
+    """
+
+    def pos_to_vpr(pos):
+        return [pos[0] + 1, pos[1] + 1]
+
+    def add_pin(pos, localname, dir, idx):
+        """Add an pin at index i to tile at pos."""
+
+        """
+            <node id="0" type="SINK" capacity="1">
+                    <loc xlow="0" ylow="1" xhigh="0" yhigh="1" ptc="0"/>
+                    <timing R="0" C="0"/>
+            </node>
+            <node id="2" type="IPIN" capacity="1">
+                    <loc xlow="0" ylow="1" xhigh="0" yhigh="1" side="TOP" ptc="0"/>
+                    <timing R="0" C="0"/>
+            </node>
+        """
+        gname = globalname_pin(pos, localname)
+        gname_pin = GlobalName(*gname, 'pin')
+
+        add_globalname2localname(gname, pos, localname)
+        vpos = pos_to_vpr(pos)
+
+        if dir == "out":
+            # Sink node
+            attribs = {
+                'type': 'SINK',
+            }
+            node = add_node(gname, attribs)
+            ET.SubElement(node, 'loc', {
+                'xlow': str(vpos[0]), 'ylow': str(vpos[1]),
+                'xhigh': str(vpos[0]), 'yhigh': str(vpos[1]),
+                'ptc': str(idx),
+            })
+            ET.SubElement(node, 'timing', {'R': str(0), 'C': str(0)})
+
+            # Pin node
+            attribs = {
+                'type': 'IPIN',
+            }
+            node = add_node(gname_pin, attribs)
+            ET.SubElement(node, 'loc', {
+                'xlow': str(vpos[0]), 'ylow': str(vpos[1]),
+                'xhigh': str(vpos[0]), 'yhigh': str(vpos[1]),
+                'ptc': str(idx),
+                'side': 'TOP',
+            })
+            ET.SubElement(node, 'timing', {'R': str(0), 'C': str(0)})
+
+            # Edge between pin node
+            add_edge(gname, gname_pin)
+
+        elif dir == "in":
+            # Source node
+            attribs = {
+                'type': 'SOURCE',
+            }
+            node = add_node(gname, attribs)
+            ET.SubElement(node, 'loc', {
+                'xlow': str(vpos[0]), 'ylow': str(vpos[1]),
+                'xhigh': str(vpos[0]), 'yhigh': str(vpos[1]),
+                'ptc': str(idx),
+            })
+            ET.SubElement(node, 'timing', {'R': str(0), 'C': str(0)})
+
+            # Pin node
+            attribs = {
+                'type': 'OPIN',
+            }
+            node = add_node(gname_pin, attribs)
+            ET.SubElement(node, 'loc', {
+                'xlow': str(vpos[0]), 'ylow': str(vpos[1]),
+                'xhigh': str(vpos[0]), 'yhigh': str(vpos[1]),
+                'ptc': str(idx),
+                'side': 'TOP',
+            })
+            ET.SubElement(node, 'timing', {'R': str(0), 'C': str(0)})
+
+            # Edge between pin node
+            add_edge(gname_pin, gname)
+
         else:
-            return 'lutff_global/{}'.format(localname)
-"""
+            assert False, "Unknown dir of {} for {}".format(dir, gname)
 
-def pos_to_vpr(pos):
-    return [pos[0] + 1, pos[1] + 1]
-
-def add_pin(pos, localname, dir, idx):
-    """Add an pin at index i to tile at pos."""
-
-    """
-        <node id="0" type="SINK" capacity="1">
-                <loc xlow="0" ylow="1" xhigh="0" yhigh="1" ptc="0"/>
-                <timing R="0" C="0"/>
-        </node>
-        <node id="2" type="IPIN" capacity="1">
-                <loc xlow="0" ylow="1" xhigh="0" yhigh="1" side="TOP" ptc="0"/>
-                <timing R="0" C="0"/>
-        </node>
-    """
-    gname = globalname_pin(pos, localname)
-    gname_pin = GlobalName(*gname, 'pin')
-
-    add_globalname2localname(gname, pos, localname)
-    vpos = pos_to_vpr(pos)
-
-    if dir == "out":
-        # Sink node
-        attribs = {
-            'type': 'SINK',
-        }
-        node = add_node(gname, attribs)
-        ET.SubElement(node, 'loc', {
-            'xlow': str(vpos[0]), 'ylow': str(vpos[1]),
-            'xhigh': str(vpos[0]), 'yhigh': str(vpos[1]),
-            'ptc': str(idx),
-        })
-        ET.SubElement(node, 'timing', {'R': str(0), 'C': str(0)})
-
-        # Pin node
-        attribs = {
-            'type': 'IPIN',
-        }
-        node = add_node(gname_pin, attribs)
-        ET.SubElement(node, 'loc', {
-            'xlow': str(vpos[0]), 'ylow': str(vpos[1]),
-            'xhigh': str(vpos[0]), 'yhigh': str(vpos[1]),
-            'ptc': str(idx),
-            'side': 'TOP',
-        })
-        ET.SubElement(node, 'timing', {'R': str(0), 'C': str(0)})
-
-        # Edge between pin node
-        add_edge(gname, gname_pin)
-
-    elif dir == "in":
-        # Source node
-        attribs = {
-            'type': 'SOURCE',
-        }
-        node = add_node(gname, attribs)
-        ET.SubElement(node, 'loc', {
-            'xlow': str(vpos[0]), 'ylow': str(vpos[1]),
-            'xhigh': str(vpos[0]), 'yhigh': str(vpos[1]),
-            'ptc': str(idx),
-        })
-        ET.SubElement(node, 'timing', {'R': str(0), 'C': str(0)})
-
-        # Pin node
-        attribs = {
-            'type': 'OPIN',
-        }
-        node = add_node(gname_pin, attribs)
-        ET.SubElement(node, 'loc', {
-            'xlow': str(vpos[0]), 'ylow': str(vpos[1]),
-            'xhigh': str(vpos[0]), 'yhigh': str(vpos[1]),
-            'ptc': str(idx),
-            'side': 'TOP',
-        })
-        ET.SubElement(node, 'timing', {'R': str(0), 'C': str(0)})
-
-        # Edge between pin node
-        add_edge(gname_pin, gname)
-
-    else:
-        assert False, "Unknown dir of {} for {}".format(dir, gname)
-
-    print("Adding pin {} on tile {}@{}".format(gname, pos, idx))
-
+        print("Adding pin {} on tile {}@{}".format(gname, pos, idx))
+add_pins(graph)
 
 # -----------------------------------------------------------------------
 # -----------------------------------------------------------------------
@@ -608,6 +615,7 @@ def add_pin(pos, localname, dir, idx):
 # Local Tracks
 # ------------------------------
 
+'''
 def globalname_track_local(pos, g, i):
     return GlobalName("local", TilePos(*pos), (g, i))
 
@@ -642,6 +650,7 @@ def _add_local(globalname, pos, ptc):
 
     ET.SubElement(node, 'segment', {'segment_id': str('local')})
 """
+'''
 
 LOCAL_TRACKS_PER_GROUP  = 8
 LOCAL_TRACKS_MAX_GROUPS = 4
@@ -680,239 +689,252 @@ def add_track_gbl2local(pos, i):
 # -----------------------------------------------------------------------
 # -----------------------------------------------------------------------
 
-def tiles(ic):
-    for x in range(ic.max_x+1):
-        for y in range(ic.max_y+1):
-            yield TilePos(x, y)
+# tim: probably delete
+'''
+def add_tiles(graph):
+    def tiles(ic):
+        for x in range(ic.max_x+1):
+            for y in range(ic.max_y+1):
+                yield TilePos(x, y)
 
-all_tiles = list(tiles(ic))
+    all_tiles = list(tiles(ic))
 
-corner_tiles = set()
-for x in (0, ic.max_x):
-    for y in (0, ic.max_y):
-        corner_tiles.add((x, y))
+    corner_tiles = set()
+    for x in (0, ic.max_x):
+        for y in (0, ic.max_y):
+            corner_tiles.add((x, y))
 
-# Should we just use consistent names instead?
-tile_name_map = {"IO" : "PIO", "LOGIC" : "PLB", "RAMB" : "RAMB", "RAMT" : "RAMT"}
+    # Should we just use consistent names instead?
+    tile_name_map = {
+      "IO" : "BLK_BB-VPR_PAD",
+      "LOGIC" : "PLB",
+      "RAMB" : "RAMB",
+      "RAMT" : "RAMT"
+    }
 
-# Add the tiles
+    # Add the tiles
+    # ------------------------------
+    tile_types = {
+        "BLK_BB-VPR_PAD": {
+            "id": 1,
+            "pin_map": OrderedDict([
+                ('outclk', ('in', 0)),
+                ('inclk',  ('in', 1)),
+                ('cen',    ('in', 2)),
+                ('latch',  ('in', 3)),
+
+                ('io[0].d_in_0',  ('out', 4)),
+                ('io[0].d_in_1',  ('out', 5)),
+                ('io[0].d_out_0', ('in',  6)),
+                ('io[0].d_out_1', ('in',  7)),
+                ('io[0].out_enb', ('in',  8)),
+
+                ('io[1].d_in_0',  ('out', 10)),
+                ('io[1].d_in_1',  ('out', 11)),
+                ('io[1].d_out_0', ('in',  12)),
+                ('io[1].d_out_1', ('in',  13)),
+                ('io[1].out_enb', ('in',  14)),
+            ]),
+            'size': (1, 1),
+        },
+
+        "PLB": {
+            "id": 2,
+            "pin_map": OrderedDict([
+                ('lut[0].in[0]', ('in', 0)),
+                ('lut[0].in[1]', ('in', 1)),
+                ('lut[0].in[2]', ('in', 2)),
+                ('lut[0].in[3]', ('in', 3)),
+
+                ('lut[1].in[0]', ('in', 4)),
+                ('lut[1].in[1]', ('in', 5)),
+                ('lut[1].in[2]', ('in', 6)),
+                ('lut[1].in[3]', ('in', 7)),
+
+                ('lut[2].in[0]', ('in', 8)),
+                ('lut[2].in[1]', ('in', 9)),
+                ('lut[2].in[2]', ('in', 10)),
+                ('lut[2].in[3]', ('in', 11)),
+
+                ('lut[3].in[0]', ('in', 12)),
+                ('lut[3].in[1]', ('in', 13)),
+                ('lut[3].in[2]', ('in', 14)),
+                ('lut[3].in[3]', ('in', 15)),
+
+                ('lut[4].in[0]', ('in', 16)),
+                ('lut[4].in[1]', ('in', 17)),
+                ('lut[4].in[2]', ('in', 18)),
+                ('lut[4].in[3]', ('in', 19)),
+
+                ('lut[5].in[0]', ('in', 20)),
+                ('lut[5].in[1]', ('in', 21)),
+                ('lut[5].in[2]', ('in', 22)),
+                ('lut[5].in[3]', ('in', 23)),
+
+                ('lut[6].in[0]', ('in', 24)),
+                ('lut[6].in[1]', ('in', 25)),
+                ('lut[6].in[2]', ('in', 26)),
+                ('lut[6].in[3]', ('in', 27)),
+
+                ('lut[7].in[0]', ('in', 28)),
+                ('lut[7].in[1]', ('in', 29)),
+                ('lut[7].in[2]', ('in', 30)),
+                ('lut[7].in[3]', ('in', 31)),
+
+                ('cen', ('in', 32)),
+                ('s_r', ('in', 33)),
+
+                ('lut[0].out', ('out', 34)),
+                ('lut[1].out', ('out', 35)),
+                ('lut[2].out', ('out', 36)),
+                ('lut[3].out', ('out', 37)),
+                ('lut[4].out', ('out', 38)),
+                ('lut[5].out', ('out', 39)),
+                ('lut[6].out', ('out', 40)),
+                ('lut[7].out', ('out', 41)),
+
+                ('clk', ('in', 32)),
+            ]),
+            'size': (1, 1),
+        },
+
+        "RAMB": {
+            "id": 3,
+            "pin_map": OrderedDict([
+                ('rdata[0]', ('out', 0)),
+                ('rdata[1]', ('out', 0)),
+                ('rdata[2]', ('out', 0)),
+                ('rdata[3]', ('out', 0)),
+                ('rdata[4]', ('out', 0)),
+                ('rdata[5]', ('out', 0)),
+                ('rdata[6]', ('out', 0)),
+                ('rdata[7]', ('out', 0)),
+
+                ('waddr[0]',  ('in', 0)),
+                ('waddr[1]',  ('in', 0)),
+                ('waddr[2]',  ('in', 0)),
+                ('waddr[3]',  ('in', 0)),
+                ('waddr[4]',  ('in', 0)),
+                ('waddr[5]',  ('in', 0)),
+                ('waddr[6]',  ('in', 0)),
+                ('waddr[7]',  ('in', 0)),
+                ('waddr[8]',  ('in', 0)),
+                ('waddr[9]',  ('in', 0)),
+                ('waddr[10]', ('in', 0)),
+
+                ('mask[0]', ('in', 0)),
+                ('mask[1]', ('in', 0)),
+                ('mask[2]', ('in', 0)),
+                ('mask[3]', ('in', 0)),
+                ('mask[4]', ('in', 0)),
+                ('mask[5]', ('in', 0)),
+                ('mask[6]', ('in', 0)),
+                ('mask[7]', ('in', 0)),
+
+                ('wdata[0]', ('in', 0)),
+                ('wdata[1]', ('in', 0)),
+                ('wdata[2]', ('in', 0)),
+                ('wdata[3]', ('in', 0)),
+                ('wdata[4]', ('in', 0)),
+                ('wdata[5]', ('in', 0)),
+                ('wdata[6]', ('in', 0)),
+                ('wdata[7]', ('in', 0)),
+
+                ('we',    ('in', 0)),
+                ('wclk',  ('in', 0)),
+                ('wclke', ('in', 0)),
+            ]),
+            'size': (1, 1),
+        },
+
+        "RAMT": {
+            "id": 4,
+            "pin_map": OrderedDict([
+                ('rdata[8]',  ('out', 0)),
+                ('rdata[9]',  ('out', 0)),
+                ('rdata[10]', ('out', 0)),
+                ('rdata[11]', ('out', 0)),
+                ('rdata[12]', ('out', 0)),
+                ('rdata[13]', ('out', 0)),
+                ('rdata[14]', ('out', 0)),
+                ('rdata[15]', ('out', 0)),
+
+                ('raddr[0]',  ('in', 0)),
+                ('raddr[1]',  ('in', 0)),
+                ('raddr[2]',  ('in', 0)),
+                ('raddr[3]',  ('in', 0)),
+                ('raddr[4]',  ('in', 0)),
+                ('raddr[5]',  ('in', 0)),
+                ('raddr[6]',  ('in', 0)),
+                ('raddr[7]',  ('in', 0)),
+                ('raddr[8]',  ('in', 0)),
+                ('raddr[9]',  ('in', 0)),
+                ('raddr[10]', ('in', 0)),
+
+                ('mask[8]',  ('in', 0)),
+                ('mask[9]',  ('in', 0)),
+                ('mask[10]', ('in', 0)),
+                ('mask[11]', ('in', 0)),
+                ('mask[12]', ('in', 0)),
+                ('mask[13]', ('in', 0)),
+                ('mask[14]', ('in', 0)),
+                ('mask[15]', ('in', 0)),
+
+                ('wdata[8]',  ('in', 0)),
+                ('wdata[9]',  ('in', 0)),
+                ('wdata[10]', ('in', 0)),
+                ('wdata[11]', ('in', 0)),
+                ('wdata[12]', ('in', 0)),
+                ('wdata[13]', ('in', 0)),
+                ('wdata[14]', ('in', 0)),
+                ('wdata[15]', ('in', 0)),
+
+                ('re',    ('in', 0)),
+                ('rclk',  ('in', 0)),
+                ('rclke', ('in', 0)),
+            ]),
+            'size': (1, 1),
+        },
+    }
+
+    print()
+    print("Generate tiles types")
+    print("="*75)
+
+    """
+        <block_types>
+                <block_type id="0" name="io" width="1" height="1">
+                    <pin_class type="input">
+                        0 1 2 3
+                    </pin_class>
+                    <pin_class type="output">
+                        4 5 6 7
+                    </pin_class>
+                </block_type>
+        </block_types>
+    """
+    tt = ET.SubElement(rr_graph, 'block_types')
+
+    for tile_name, tile_desc in tile_types.items():
+        print("{}".format(tile_name))
+        tile = ET.SubElement(
+            tt, 'block_type',
+            {'id': str(tile_desc['id']),
+             'name':   tile_name,
+             'width':  str(tile_desc["size"][0]),
+             'height': str(tile_desc["size"][1]),
+            })
+
+        #pins_in  = ET.SubElement(tile, 'pin_class', {'type': 'input'})
+        #pins_out = ET.SubElement(tile, 'pin_class', {'type': 'output'})
+add_tiles(graph)
+'''
+
 # ------------------------------
-tile_types = {
-    "PIO": {
-        "id": 1,
-        "pin_map": OrderedDict([
-            ('outclk', ('in', 0)),
-            ('inclk',  ('in', 1)),
-            ('cen',    ('in', 2)),
-            ('latch',  ('in', 3)),
 
-            ('io[0].d_in_0',  ('out', 4)),
-            ('io[0].d_in_1',  ('out', 5)),
-            ('io[0].d_out_0', ('in',  6)),
-            ('io[0].d_out_1', ('in',  7)),
-            ('io[0].out_enb', ('in',  8)),
-
-            ('io[1].d_in_0',  ('out', 10)),
-            ('io[1].d_in_1',  ('out', 11)),
-            ('io[1].d_out_0', ('in',  12)),
-            ('io[1].d_out_1', ('in',  13)),
-            ('io[1].out_enb', ('in',  14)),
-        ]),
-        'size': (1, 1),
-    },
-
-    "PLB": {
-        "id": 2,
-        "pin_map": OrderedDict([
-            ('lut[0].in[0]', ('in', 0)),
-            ('lut[0].in[1]', ('in', 1)),
-            ('lut[0].in[2]', ('in', 2)),
-            ('lut[0].in[3]', ('in', 3)),
-
-            ('lut[1].in[0]', ('in', 4)),
-            ('lut[1].in[1]', ('in', 5)),
-            ('lut[1].in[2]', ('in', 6)),
-            ('lut[1].in[3]', ('in', 7)),
-
-            ('lut[2].in[0]', ('in', 8)),
-            ('lut[2].in[1]', ('in', 9)),
-            ('lut[2].in[2]', ('in', 10)),
-            ('lut[2].in[3]', ('in', 11)),
-
-            ('lut[3].in[0]', ('in', 12)),
-            ('lut[3].in[1]', ('in', 13)),
-            ('lut[3].in[2]', ('in', 14)),
-            ('lut[3].in[3]', ('in', 15)),
-
-            ('lut[4].in[0]', ('in', 16)),
-            ('lut[4].in[1]', ('in', 17)),
-            ('lut[4].in[2]', ('in', 18)),
-            ('lut[4].in[3]', ('in', 19)),
-
-            ('lut[5].in[0]', ('in', 20)),
-            ('lut[5].in[1]', ('in', 21)),
-            ('lut[5].in[2]', ('in', 22)),
-            ('lut[5].in[3]', ('in', 23)),
-
-            ('lut[6].in[0]', ('in', 24)),
-            ('lut[6].in[1]', ('in', 25)),
-            ('lut[6].in[2]', ('in', 26)),
-            ('lut[6].in[3]', ('in', 27)),
-
-            ('lut[7].in[0]', ('in', 28)),
-            ('lut[7].in[1]', ('in', 29)),
-            ('lut[7].in[2]', ('in', 30)),
-            ('lut[7].in[3]', ('in', 31)),
-
-            ('cen', ('in', 32)),
-            ('s_r', ('in', 33)),
-
-            ('lut[0].out', ('out', 34)),
-            ('lut[1].out', ('out', 35)),
-            ('lut[2].out', ('out', 36)),
-            ('lut[3].out', ('out', 37)),
-            ('lut[4].out', ('out', 38)),
-            ('lut[5].out', ('out', 39)),
-            ('lut[6].out', ('out', 40)),
-            ('lut[7].out', ('out', 41)),
-
-            ('clk', ('in', 32)),
-        ]),
-        'size': (1, 1),
-    },
-
-    "RAMB": {
-        "id": 3,
-        "pin_map": OrderedDict([
-            ('rdata[0]', ('out', 0)),
-            ('rdata[1]', ('out', 0)),
-            ('rdata[2]', ('out', 0)),
-            ('rdata[3]', ('out', 0)),
-            ('rdata[4]', ('out', 0)),
-            ('rdata[5]', ('out', 0)),
-            ('rdata[6]', ('out', 0)),
-            ('rdata[7]', ('out', 0)),
-
-            ('waddr[0]',  ('in', 0)),
-            ('waddr[1]',  ('in', 0)),
-            ('waddr[2]',  ('in', 0)),
-            ('waddr[3]',  ('in', 0)),
-            ('waddr[4]',  ('in', 0)),
-            ('waddr[5]',  ('in', 0)),
-            ('waddr[6]',  ('in', 0)),
-            ('waddr[7]',  ('in', 0)),
-            ('waddr[8]',  ('in', 0)),
-            ('waddr[9]',  ('in', 0)),
-            ('waddr[10]', ('in', 0)),
-
-            ('mask[0]', ('in', 0)),
-            ('mask[1]', ('in', 0)),
-            ('mask[2]', ('in', 0)),
-            ('mask[3]', ('in', 0)),
-            ('mask[4]', ('in', 0)),
-            ('mask[5]', ('in', 0)),
-            ('mask[6]', ('in', 0)),
-            ('mask[7]', ('in', 0)),
-
-            ('wdata[0]', ('in', 0)),
-            ('wdata[1]', ('in', 0)),
-            ('wdata[2]', ('in', 0)),
-            ('wdata[3]', ('in', 0)),
-            ('wdata[4]', ('in', 0)),
-            ('wdata[5]', ('in', 0)),
-            ('wdata[6]', ('in', 0)),
-            ('wdata[7]', ('in', 0)),
-
-            ('we',    ('in', 0)),
-            ('wclk',  ('in', 0)),
-            ('wclke', ('in', 0)),
-        ]),
-        'size': (1, 1),
-    },
-
-    "RAMT": {
-        "id": 4,
-        "pin_map": OrderedDict([
-            ('rdata[8]',  ('out', 0)),
-            ('rdata[9]',  ('out', 0)),
-            ('rdata[10]', ('out', 0)),
-            ('rdata[11]', ('out', 0)),
-            ('rdata[12]', ('out', 0)),
-            ('rdata[13]', ('out', 0)),
-            ('rdata[14]', ('out', 0)),
-            ('rdata[15]', ('out', 0)),
-
-            ('raddr[0]',  ('in', 0)),
-            ('raddr[1]',  ('in', 0)),
-            ('raddr[2]',  ('in', 0)),
-            ('raddr[3]',  ('in', 0)),
-            ('raddr[4]',  ('in', 0)),
-            ('raddr[5]',  ('in', 0)),
-            ('raddr[6]',  ('in', 0)),
-            ('raddr[7]',  ('in', 0)),
-            ('raddr[8]',  ('in', 0)),
-            ('raddr[9]',  ('in', 0)),
-            ('raddr[10]', ('in', 0)),
-
-            ('mask[8]',  ('in', 0)),
-            ('mask[9]',  ('in', 0)),
-            ('mask[10]', ('in', 0)),
-            ('mask[11]', ('in', 0)),
-            ('mask[12]', ('in', 0)),
-            ('mask[13]', ('in', 0)),
-            ('mask[14]', ('in', 0)),
-            ('mask[15]', ('in', 0)),
-
-            ('wdata[8]',  ('in', 0)),
-            ('wdata[9]',  ('in', 0)),
-            ('wdata[10]', ('in', 0)),
-            ('wdata[11]', ('in', 0)),
-            ('wdata[12]', ('in', 0)),
-            ('wdata[13]', ('in', 0)),
-            ('wdata[14]', ('in', 0)),
-            ('wdata[15]', ('in', 0)),
-
-            ('re',    ('in', 0)),
-            ('rclk',  ('in', 0)),
-            ('rclke', ('in', 0)),
-        ]),
-        'size': (1, 1),
-    },
-}
-
-print()
-print("Generate tiles types")
-print("="*75)
-
-"""
-    <block_types>
-            <block_type id="0" name="io" width="1" height="1">
-                <pin_class type="input">
-                    0 1 2 3
-                </pin_class>
-                <pin_class type="output">
-                    4 5 6 7
-                </pin_class>
-            </block_type>
-    </block_types>
-"""
-tt = ET.SubElement(rr_graph, 'block_types')
-
-for tile_name, tile_desc in tile_types.items():
-    print("{}".format(tile_name))
-    tile = ET.SubElement(
-        tt, 'block_type',
-        {'id': str(tile_desc['id']), 
-         'name':   tile_name, 
-         'width':  str(tile_desc["size"][0]),
-         'height': str(tile_desc["size"][1]),
-        })
-
-    #pins_in  = ET.SubElement(tile, 'pin_class', {'type': 'input'})
-    #pins_out = ET.SubElement(tile, 'pin_class', {'type': 'output'})
-
-# ------------------------------
-
+# tim: building a mapping between icebox IDs and VPR IDs
+# maybe overriding IDs in output
+'''
 grid = ET.SubElement(rr_graph, 'grid')
 
 print()
@@ -927,15 +949,16 @@ for x in range(ic.max_x+3):
 
         if tx >= 0 and tx <= ic.max_x and ty >= 0 and ty <= ic.max_y and (tx,ty) not in corner_tiles:
             block_type_id = tile_types[tile_name_map[ic.tile_type(tx, ty)]]["id"]
-            
+
         grid_loc = ET.SubElement(
             grid, 'grid_loc',
-            {'x': str(x), 
+            {'x': str(x),
              'y': str(y),
              'block_type_id': str(block_type_id),
              'width_offset':  "0",
              'height_offset': "0",
             })
+'''
 
 print()
 print("Generate tiles (with pins and local tracks)")
@@ -992,9 +1015,10 @@ for x, y in all_tiles:
 # Nets
 # ------------------------------
 
+'''
 def globalname_net(pos, name):
     return netname2globalname[(pos, name)]
-
+'''
 
 def _calculate_globalname_net(group):
     tiles = set()
@@ -1469,10 +1493,11 @@ for x, y in all_tiles:
 # -----------------------------------------------------------------------
 # -----------------------------------------------------------------------
 
-
-f = open('rr_graph.xml', 'w')
-f.write(ET.tostring(rr_graph, pretty_print=True).decode('utf-8'))
-f.close()
+def write_graph(graph):
+    f = open('rr_graph.xml', 'w')
+    f.write(ET.tostring(rr_graph, pretty_print=True).decode('utf-8'))
+    f.close()
+write_graph(graph)
 
 # -----------------------------------------------------------------------
 # -----------------------------------------------------------------------
