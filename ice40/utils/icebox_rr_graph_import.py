@@ -54,7 +54,8 @@ For each wire, we work out the "edges" (IE connection to other wires / pins).
 from os.path import commonprefix
 
 import icebox
-import lib.rr_graph.graph
+import lib.rr_graph.graph as graph
+import lib.rr_graph.channel as channel
 import os.path, re, sys
 
 import operator
@@ -66,24 +67,15 @@ import lxml.etree as ET
 VERBOSE=True
 device_name = None
 
-# -----------------------------------------------------------------------
-# -----------------------------------------------------------------------
-# -----------------------------------------------------------------------
+LOCAL_TRACKS_PER_GROUP  = 8
+LOCAL_TRACKS_MAX_GROUPS = 4
 
-_TilePos = namedtuple('T', ['x', 'y'])
-class TilePos(_TilePos):
-    _sentinal = []
-    def __new__(cls, x, y=_sentinal, *args):
-        if y is cls._sentinal:
-            if len(x) == 2:
-                x, y = x
-            else:
-                raise TypeError("TilePos takes 2 positional arguments not {}".format(x))
+GBL2LOCAL_MAX_TRACKS    = 4
 
-        assert isinstance(x, int), "x must be an int not {!r}".format(x)
-        assert isinstance(y, int), "y must be an int not {!r}".format(y)
-        return _TilePos.__new__(cls, x=x, y=y)
+SPAN4_MAX_TRACKS  = 48
+SPAN12_MAX_TRACKS = 24
 
+GLOBAL_MAX_TRACKS = 8
 
 class GlobalName(tuple):
     def __new__(cls, *args, **kw):
@@ -92,13 +84,14 @@ class GlobalName(tuple):
     def __init__(self, *args, **kw):
         pass
 
-graph = None
+g = None
 def init(mode):
     global ic
     global device_name
 
     ic = icebox.iceconfig()
     {
+        't4':  ic.setup_empty_t4,
         '8k':  ic.setup_empty_8k,
         '5k':  ic.setup_empty_5k,
         '1k':  ic.setup_empty_1k,
@@ -106,6 +99,7 @@ def init(mode):
     }[mode]()
     device_name = mode
     fn_dir =     {
+        't4':  'test4',
         '8k':  'HX8K',
         '5k':  'HX5K',
         '1k':  'HX1K',
@@ -113,30 +107,30 @@ def init(mode):
     }[mode]
     ref_rr_fn = '../../tests/build/ice40/{}/wire.rr_graph.xml'.format(fn_dir)
 
-    # Load graph stuff we care about
+    # Load g stuff we care about
     # (basically omit rr_nodes)
     # clear_fabric reduces load time from about 11.1 => 2.8 sec on my machine
     # seems to be mostly from the edges?
-    graph = lib.rr_graph.graph.Graph(ref_rr_fn, clear_fabric=True)
-    graph.set_tooling(name="icebox", version="dev", comment="Generated for iCE40 {} device".format(device_name))
-    return graph
+    g = graph.Graph(ref_rr_fn, clear_fabric=True)
+    g.set_tooling(name="icebox", version="dev", comment="Generated for iCE40 {} device".format(device_name))
+    return g
 
-def create_switches(graph):
+def create_switches(g):
     # Create the switch types
     # ------------------------------
     print('Creating switches')
-    #_switch_delayless = graph.ids.add_delayless_switch()
-    _switch_delayless = graph.ids.add_switch('delayless', buffered=1, configurable=0, stype='mux')
+    #_switch_delayless = g.ids.add_delayless_switch()
+    _switch_delayless = g.ids.add_switch('delayless', buffered=1, configurable=0, stype='mux')
     # Buffer switch drives an output net from a possible list of input nets.
-    _switch_buffer = graph.ids.add_switch('buffer', buffered=1, stype='mux')
+    _switch_buffer = g.ids.add_switch('buffer', buffered=1, stype='mux')
     # Routing switch connects two nets together to form a span12er wire.
-    _switch_routing = graph.ids.add_switch('routing', buffered=0, stype='mux')
+    _switch_routing = g.ids.add_switch('routing', buffered=0, stype='mux')
 
 # -----------------------------------------------------------------------
 # -----------------------------------------------------------------------
 # -----------------------------------------------------------------------
 
-def create_segments(graph):
+def create_segments(g):
     # Build the segment list
     # ------------------------------
     """fpga_arch
@@ -185,40 +179,135 @@ def create_segments(graph):
             'direct',
             )
     for segment_name in segment_names:
-        _segment = graph.channels.create_segment(segment_name)
+        _segment = g.channels.create_segment(segment_name)
 
-def print_nodes_edges(graph):
-    print("Edges: %d (index: %d)" % (len(graph.ids._xml_edges),
-                                     len(graph.ids.id2node['edge'])))
-    print("Nodes: %d (index: %d)" % (len(graph.ids._xml_nodes),
-                                     len(graph.ids.id2node['node'])))
+'''
+print()
+print("Generate tiles (with pins and local tracks)")
+print("="*75)
+
+for x, y in all_tiles:
+
+    # Corner tile == Empty
+    if (x,y) in corner_tiles:
+        continue
+
+    pos = TilePos(x, y)
+
+    tile_type = tile_types[tile_name_map[ic.tile_type(pos.x, pos.y)]]
+
+    tid = (pos, tile_type)
+
+    attribs = {
+        'x': str(pos.x), 'y': str(pos.y),
+        'block_type_id': tile_type["id"],
+        'width_offset': str(tile_type["size"][0]-1), 'height_offset': str(tile_type["size"][1]-1),
+    }
+
+    # Add pins for the tile
+    print()
+    print("{}: Adding pins".format(tid))
+    print("-"*75)
+    for idx, (name, (dir, _)) in enumerate(tile_type["pin_map"].items()):
+        add_pin(pos, name, dir, idx)
+
+    # Add the local tracks
+    if tile_type == "IO":
+        groups_local = (2, LOCAL_TRACKS_PER_GROUP)
+        groups_glb2local = 0
+    else:
+        groups_local = (LOCAL_TRACKS_MAX_GROUPS, LOCAL_TRACKS_PER_GROUP)
+        groups_glb2local = GBL2LOCAL_MAX_TRACKS
+
+    print()
+    print("{}: Adding local tracks".format(tid))
+    print("-"*75)
+    for g in range(0, groups_local[0]):
+        for i in range(0, groups_local[1]):
+            add_track_local(pos, g, i)
+
+    if groups_glb2local:
+        print()
+        print("{}: Adding glb2local tracks".format(tid))
+        print("-"*75)
+        for i in range(0, groups_glb2local):
+            add_track_gbl2local(pos, i)
+'''
+
+def add_local_tracks(g):
+    local_segment = g.channels.segment_s2seg['local']
+    # FIXME: is global the right intention here?
+    # maybe these should both be local
+    global_segment = g.channels.segment_s2seg['global']
+
+    for block in g.block_grid.blocks_for():
+        if block.block_type.name == 'EMPTY':
+            continue
+        print('Block %s, %s' % (block, block.block_type.name))
+
+        if block.block_type.name == 'BLK_BB-VPR_PAD':
+            groups_local = (2, LOCAL_TRACKS_PER_GROUP)
+            groups_glb2local = 0
+        elif block.block_type.name == 'BLK_TL-PLB':
+            groups_local = (LOCAL_TRACKS_MAX_GROUPS, LOCAL_TRACKS_PER_GROUP)
+            groups_glb2local = GBL2LOCAL_MAX_TRACKS
+        else:
+            assert 0, block.block_type.name
+
+        # Local tracks
+        for _g in range(0, groups_local[0]):
+            for _i in range(0, groups_local[1]):
+                # lname = localname_track_local(pos, g, i)
+                # gname = globalname_track_local(pos, g, i)
+                #print("Adding local track {} on tile {}@{}".format(gname, pos, idx))
+                g.create_xy_track(block.position, block.position, local_segment,
+                       type=channel.Track.Type.Y, direction=channel.Track.Direction.BI)
+
+        # Global to local
+        if groups_glb2local:
+            for _i in range(0, groups_glb2local):
+                #lname = localname_track_glb2local(pos, i)
+                #gname = globalname_track_glb2local(pos, i)
+                #print("Adding glb2local {} track {} on tile {}@{}".format(i, gname, pos, idx))
+                g.create_xy_track(block.position, block.position, global_segment,
+                       type=channel.Track.Type.Y, direction=channel.Track.Direction.BI)
+
+
+def print_nodes_edges(g):
+    print("Edges: %d (index: %d)" % (len(g.ids._xml_edges),
+                                     len(g.ids.id2node['edge'])))
+    print("Nodes: %d (index: %d)" % (len(g.ids._xml_nodes),
+                                     len(g.ids.id2node['node'])))
 
 def run(mode):
-    print('Importing input graph')
-    graph = init(mode)
-    print('Source graph loaded')
-    print_nodes_edges(graph)
-    grid_sz = graph.block_grid.size()
+    print('Importing input g')
+    g = init(mode)
+    print('Source g loaded')
+    print_nodes_edges(g)
+    grid_sz = g.block_grid.size()
     print("Grid size: %s" % (grid_sz, ))
     print('Exporting pin placement')
-    sides = graph.pin_sidesf()
+    sides = g.pin_sidesf()
 
     print()
 
     print('Clearing nodes and edges')
-    graph.ids.clear_graph()
+    g.ids.clear_graph()
     print('Clearing channels')
-    graph.channels.clear()
-    print('Cleared original graph')
-    print_nodes_edges(graph)
+    g.channels.clear()
+    print('Cleared original g')
+    print_nodes_edges(g)
     print()
-    create_switches(graph)
-    create_segments(graph)
+    create_switches(g)
+    create_segments(g)
     print()
     print('Rebuilding block I/O nodes')
-    delayless_switch = graph.ids['SW-delayless']
-    graph.add_nodes_for_blocks(delayless_switch, sides)
-    print_nodes_edges(graph)
+    delayless_switch = g.ids['SW-delayless']
+    g.add_nodes_for_blocks(delayless_switch, sides)
+    print_nodes_edges(g)
+    print()
+    add_local_tracks(g)
+    print_nodes_edges(g)
     print()
     print('Exiting')
     sys.exit(0)
@@ -227,6 +316,7 @@ if __name__ == '__main__':
     import argparse
 
     parser = argparse.ArgumentParser()
+    parser.add_argument('--dev-t4', '-4', action='store_true', help='create chipdb for test4 device')
     parser.add_argument('--dev-384', '-3', action='store_true', help='create chipdb for 384 device')
     parser.add_argument('--dev-1k', '-1', action='store_true', help='create chipdb for 1k device')
     parser.add_argument('--dev-5k', '-5', action='store_true', help='create chipdb for 5k device')
@@ -236,7 +326,9 @@ if __name__ == '__main__':
 
     VERBOSE = args.verbose
 
-    if args.dev_8k:
+    if args.dev_t4:
+        mode = 't4'
+    elif args.dev_8k:
         mode = '8k'
     elif args.dev_5k:
         mode = '5k'
@@ -255,6 +347,23 @@ if __name__ == '__main__':
 # -----------------------------------------------------------------------
 # -----------------------------------------------------------------------
 # -----------------------------------------------------------------------
+
+
+'''
+_TilePos = namedtuple('T', ['x', 'y'])
+class TilePos(_TilePos):
+    _sentinal = []
+    def __new__(cls, x, y=_sentinal, *args):
+        if y is cls._sentinal:
+            if len(x) == 2:
+                x, y = x
+            else:
+                raise TypeError("TilePos takes 2 positional arguments not {}".format(x))
+
+        assert isinstance(x, int), "x must be an int not {!r}".format(x)
+        assert isinstance(y, int), "y must be an int not {!r}".format(y)
+        return _TilePos.__new__(cls, x=x, y=y)
+'''
 
 '''
 # Mapping dictionaries
@@ -304,7 +413,7 @@ def localname2globalname(pos, localname, default=None):
 # Nodes
 # --------------------------------
 # The rr_nodes tag stores information about each node for the routing resource
-# graph. These nodes describe each wire and each logic block pin as represented
+# g. These nodes describe each wire and each logic block pin as represented
 # by nodes.
 
 # type - Indicates whether the node is a wire or a logic block.
@@ -353,7 +462,7 @@ def localname2globalname(pos, localname, default=None):
 """
 
 '''
-nodes = graph.create_nodes()
+nodes = g.create_nodes()
 def add_node(globalname, attribs):
     """Add node with globalname and attributes."""
     assert isinstance(globalname, GlobalName), "{!r} should be a GlobalName".format(globalname)
@@ -382,7 +491,7 @@ def add_node(globalname, attribs):
 # Edges -----------------------------------------------------------------
 
 '''
-edges = graph.create_edges()
+edges = g.create_edges()
 def add_edge(src_globalname, dst_globalname, bidir=False):
     if bidir:
         add_edge(src_globalname, dst_globalname)
@@ -425,6 +534,7 @@ for x in range(ic.max_x+1):
     channels[(x,-1)] = {}
 '''
 
+'''
 def add_channel(globalname, nodetype, start, end, idx, segtype):
     assert isinstance(globalname, GlobalName), "{!r} should be a GlobalName".format(globalname)
     assert isinstance(start, TilePos), "{!r} must be a TilePos".format(start)
@@ -480,6 +590,7 @@ def add_channel(globalname, nodetype, start, end, idx, segtype):
     ET.SubElement(node, 'segment', {'segment_id': str(segtype)})
 
     print("Adding channel {} from {} -> {} pos {}".format(globalname, start, end, idx))
+'''
 
 # -----------------------------------------------------------------------
 # -----------------------------------------------------------------------
@@ -488,7 +599,8 @@ def add_channel(globalname, nodetype, start, end, idx, segtype):
 # Pins
 # ------------------------------
 
-def add_pins(graph):
+'''
+def add_pins(g):
     def globalname_pin(pos, localname):
         return GlobalName("pin", TilePos(*pos), localname)
 
@@ -610,7 +722,9 @@ def add_pins(graph):
             assert False, "Unknown dir of {} for {}".format(dir, gname)
 
         print("Adding pin {} on tile {}@{}".format(gname, pos, idx))
-add_pins(graph)
+add_pins(g)
+'''
+
 
 # -----------------------------------------------------------------------
 # -----------------------------------------------------------------------
@@ -656,37 +770,8 @@ def _add_local(globalname, pos, ptc):
 """
 '''
 
-LOCAL_TRACKS_PER_GROUP  = 8
-LOCAL_TRACKS_MAX_GROUPS = 4
-
-GBL2LOCAL_MAX_TRACKS    = 4
-
-SPAN4_MAX_TRACKS  = 48
-SPAN12_MAX_TRACKS = 24
-
-GLOBAL_MAX_TRACKS = 8
 
 
-def add_track_local(pos, g, i):
-    lname = localname_track_local(pos, g, i)
-    gname = globalname_track_local(pos, g, i)
-
-    idx = g * (LOCAL_TRACKS_PER_GROUP) + i
-
-    #print("Adding local track {} on tile {}@{}".format(gname, pos, idx))
-    add_channel(gname, 'CHANY', pos, pos, idx, 'local')
-    add_globalname2localname(gname, pos, lname)
-
-
-def add_track_gbl2local(pos, i):
-    lname = localname_track_glb2local(pos, i)
-    gname = globalname_track_glb2local(pos, i)
-
-    idx = LOCAL_TRACKS_MAX_GROUPS * (LOCAL_TRACKS_PER_GROUP) + i
-
-    #print("Adding glb2local {} track {} on tile {}@{}".format(i, gname, pos, idx))
-    add_channel(gname, 'CHANY', pos, pos, idx, 'gbl2local')
-    add_globalname2localname(gname, pos, lname)
 
 
 # -----------------------------------------------------------------------
@@ -695,7 +780,7 @@ def add_track_gbl2local(pos, i):
 
 # tim: probably delete
 '''
-def add_tiles(graph):
+def add_tiles(g):
     def tiles(ic):
         for x in range(ic.max_x+1):
             for y in range(ic.max_y+1):
@@ -931,7 +1016,7 @@ def add_tiles(graph):
 
         #pins_in  = ET.SubElement(tile, 'pin_class', {'type': 'input'})
         #pins_out = ET.SubElement(tile, 'pin_class', {'type': 'output'})
-add_tiles(graph)
+add_tiles(g)
 '''
 
 # ------------------------------
@@ -964,56 +1049,7 @@ for x in range(ic.max_x+3):
             })
 '''
 
-print()
-print("Generate tiles (with pins and local tracks)")
-print("="*75)
 
-for x, y in all_tiles:
-
-    # Corner tile == Empty
-    if (x,y) in corner_tiles:
-        continue
-
-    pos = TilePos(x, y)
-
-    tile_type = tile_types[tile_name_map[ic.tile_type(pos.x, pos.y)]]
-
-    tid = (pos, tile_type)
-
-    attribs = {
-        'x': str(pos.x), 'y': str(pos.y),
-        'block_type_id': tile_type["id"],
-        'width_offset': str(tile_type["size"][0]-1), 'height_offset': str(tile_type["size"][1]-1),
-    }
-
-    # Add pins for the tile
-    print()
-    print("{}: Adding pins".format(tid))
-    print("-"*75)
-    for idx, (name, (dir, _)) in enumerate(tile_type["pin_map"].items()):
-        add_pin(pos, name, dir, idx)
-
-    # Add the local tracks
-    if tile_type == "IO":
-        groups_local = (2, LOCAL_TRACKS_PER_GROUP)
-        groups_glb2local = 0
-    else:
-        groups_local = (LOCAL_TRACKS_MAX_GROUPS, LOCAL_TRACKS_PER_GROUP)
-        groups_glb2local = GBL2LOCAL_MAX_TRACKS
-
-    print()
-    print("{}: Adding local tracks".format(tid))
-    print("-"*75)
-    for g in range(0, groups_local[0]):
-        for i in range(0, groups_local[1]):
-            add_track_local(pos, g, i)
-
-    if groups_glb2local:
-        print()
-        print("{}: Adding glb2local tracks".format(tid))
-        print("-"*75)
-        for i in range(0, groups_glb2local):
-            add_track_gbl2local(pos, i)
 
 
 # Nets
@@ -1438,7 +1474,7 @@ for i in range(4):
 # rr_edges tag that encloses information about all the edges between nodes.
 # Each rr_edges tag contains multiple subtags:
 #   <edge src_node="int" sink_node="int" switch_id="int"/>
-# This subtag repeats every edge that connects nodes together in the graph.
+# This subtag repeats every edge that connects nodes together in the g.
 # Required Attributes:
 #  * src_node, sink_node
 #    The index for the source and sink node that this edge connects to.
@@ -1497,11 +1533,11 @@ for x, y in all_tiles:
 # -----------------------------------------------------------------------
 # -----------------------------------------------------------------------
 
-def write_graph(graph):
+def write_graph(g):
     f = open('rr_graph.xml', 'w')
     f.write(ET.tostring(rr_graph, pretty_print=True).decode('utf-8'))
     f.close()
-write_graph(graph)
+write_graph(g)
 
 # -----------------------------------------------------------------------
 # -----------------------------------------------------------------------
