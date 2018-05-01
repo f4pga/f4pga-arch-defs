@@ -126,50 +126,7 @@ def create_switches(g):
     # Routing switch connects two nets together to form a span12er wire.
     _switch_routing = g.ids.add_switch('routing', buffered=0, stype='mux')
 
-# -----------------------------------------------------------------------
-# -----------------------------------------------------------------------
-# -----------------------------------------------------------------------
-
 def create_segments(g):
-    # Build the segment list
-    # ------------------------------
-    """fpga_arch
-    <segment name="unique_name" length="int" type="{bidir|unidir}" freq="float" Rmetal="float" Cmetal="float">
-        content
-    </segment>
-
-    <!-- The sb/cb pattern does not actually match the iCE40 you need to manually generate rr_graph -->
-
-    <!-- Span 4 wires which go A -> A+5 (IE Span 4 tiles) -->
-    <segment name="span4" length="5" type="bidir" freq="float" Rmetal="float" Cmetal="float">
-        <sb type="pattern">1 1 1 1 1</sb>
-        <cb type="pattern">1 1 1 1</cb>
-    </segment>
-
-    <segment name="span12" length="13" type="bidir" freq="float" Rmetal="float" Cmetal="float">
-        <sb type="pattern">1 1 1 1 1 1 1 1 1 1 1 1 1</sb>
-        <cb type="pattern">1 1 1 1 1 1 1 1 1 1 1 1</cb>
-    </segment>
-
-        <segments>
-            <segment id="0" name="global">
-                <timing R_per_meter="101" C_per_meter="2.25000004521955232483776399022e-14"/>
-            </segment>
-            <segment id="1" name="span12"> <!-- span12 ->
-                <timing R_per_meter="101" C_per_meter="2.25000004521955232483776399022e-14"/>
-            </segment>
-            <segment id="2" name="span4"> <!-- span4 -->
-                <timing R_per_meter="101" C_per_meter="2.25000004521955232483776399022e-14"/>
-            </segment>
-            <segment id="3" name="local">
-                <timing R_per_meter="101" C_per_meter="2.25000004521955232483776399022e-14"/>
-            </segment>
-            <segment id="4" name="neighbour">
-                <timing R_per_meter="101" C_per_meter="2.25000004521955232483776399022e-14"/>
-            </segment>
-        </segments>
-    """
-
     print('Creating segments')
     segment_names = (
             'global',
@@ -180,59 +137,6 @@ def create_segments(g):
             )
     for segment_name in segment_names:
         _segment = g.channels.create_segment(segment_name)
-
-'''
-print()
-print("Generate tiles (with pins and local tracks)")
-print("="*75)
-
-for x, y in all_tiles:
-
-    # Corner tile == Empty
-    if (x,y) in corner_tiles:
-        continue
-
-    pos = TilePos(x, y)
-
-    tile_type = tile_types[tile_name_map[ic.tile_type(pos.x, pos.y)]]
-
-    tid = (pos, tile_type)
-
-    attribs = {
-        'x': str(pos.x), 'y': str(pos.y),
-        'block_type_id': tile_type["id"],
-        'width_offset': str(tile_type["size"][0]-1), 'height_offset': str(tile_type["size"][1]-1),
-    }
-
-    # Add pins for the tile
-    print()
-    print("{}: Adding pins".format(tid))
-    print("-"*75)
-    for idx, (name, (dir, _)) in enumerate(tile_type["pin_map"].items()):
-        add_pin(pos, name, dir, idx)
-
-    # Add the local tracks
-    if tile_type == "IO":
-        groups_local = (2, LOCAL_TRACKS_PER_GROUP)
-        groups_glb2local = 0
-    else:
-        groups_local = (LOCAL_TRACKS_MAX_GROUPS, LOCAL_TRACKS_PER_GROUP)
-        groups_glb2local = GBL2LOCAL_MAX_TRACKS
-
-    print()
-    print("{}: Adding local tracks".format(tid))
-    print("-"*75)
-    for g in range(0, groups_local[0]):
-        for i in range(0, groups_local[1]):
-            add_track_local(pos, g, i)
-
-    if groups_glb2local:
-        print()
-        print("{}: Adding glb2local tracks".format(tid))
-        print("-"*75)
-        for i in range(0, groups_glb2local):
-            add_track_gbl2local(pos, i)
-'''
 
 def add_local_tracks(g):
     local_segment = g.channels.segment_s2seg['local']
@@ -271,7 +175,6 @@ def add_local_tracks(g):
                 #print("Adding glb2local {} track {} on tile {}@{}".format(i, gname, pos, idx))
                 g.create_xy_track(block.position, block.position, global_segment,
                        type=channel.Track.Type.Y, direction=channel.Track.Direction.BI)
-
 
 def print_nodes_edges(g):
     print("Edges: %d (index: %d)" % (len(g.ids._xml_edges),
@@ -342,29 +245,13 @@ if __name__ == '__main__':
 
 
 
+# ************************************************************************************
+# FUTURE USE / UNUSED CODE
+# ************************************************************************************
 
 
-# -----------------------------------------------------------------------
-# -----------------------------------------------------------------------
-# -----------------------------------------------------------------------
 
-
-'''
-_TilePos = namedtuple('T', ['x', 'y'])
-class TilePos(_TilePos):
-    _sentinal = []
-    def __new__(cls, x, y=_sentinal, *args):
-        if y is cls._sentinal:
-            if len(x) == 2:
-                x, y = x
-            else:
-                raise TypeError("TilePos takes 2 positional arguments not {}".format(x))
-
-        assert isinstance(x, int), "x must be an int not {!r}".format(x)
-        assert isinstance(y, int), "y must be an int not {!r}".format(y)
-        return _TilePos.__new__(cls, x=x, y=y)
-'''
-
+# mcmaster: might still need these and/or add custom channel naming
 '''
 # Mapping dictionaries
 globalname2netnames = {}
@@ -405,88 +292,6 @@ def localname2globalname(pos, localname, default=None):
     return netname2globalname.get(nid, default)
 '''
 
-
-# -----------------------------------------------------------------------
-# -----------------------------------------------------------------------
-# -----------------------------------------------------------------------
-
-# Nodes
-# --------------------------------
-# The rr_nodes tag stores information about each node for the routing resource
-# g. These nodes describe each wire and each logic block pin as represented
-# by nodes.
-
-# type - Indicates whether the node is a wire or a logic block.
-#  * CHANX and CHANY describe a horizontal and vertical channel.
-#  * SOURCE and SINK describes where nets begin and end.
-#  * OPIN represents an output pin.
-#  * IPIN represents an input pin.
-
-# direction
-#  If the node represents a track (CHANX or CHANY), this field represents its
-#  direction as {INC_DIR | DEC_DIR | BI_DIR}.
-#  In other cases this attribute should not be specified.
-# -- All channels are BI_DIR in the iCE40
-
-"""
-        <node id="1536" type="CHANX" direction="BI_DIR" capacity="1">
-                <loc xlow="1" ylow="0" xhigh="4" yhigh="0" ptc="0"/>
-                <timing R="404" C="1.25850014003753285507514192432e-13"/>
-                <segment segment_id="0"/>
-        </node>
-        <node id="1658" type="CHANY" direction="BI_DIR" capacity="1">
-                <loc xlow="4" ylow="1" xhigh="4" yhigh="4" ptc="0"/>
-                <timing R="404" C="1.01850006293396910805881816486e-13"/>
-                <segment segment_id="0"/>
-        </node>
-
-        <edge src_node="1536" sink_node="1609" switch_id="1"/>
-        <edge src_node="1536" sink_node="1618" switch_id="0"/>
-        <edge src_node="1536" sink_node="1623" switch_id="1"/>
-        <edge src_node="1536" sink_node="1632" switch_id="0"/>
-        <edge src_node="1536" sink_node="1637" switch_id="1"/>
-        <edge src_node="1536" sink_node="1645" switch_id="0"/>
-        <edge src_node="1536" sink_node="1650" switch_id="1"/>
-        <edge src_node="1536" sink_node="1658" switch_id="0"/>
-
-		<node id="1658" type="CHANY" direction="BI_DIR" capacity="1">
-			<loc xlow="4" ylow="1" xhigh="4" yhigh="4" ptc="0"/>
-			<timing R="404" C="1.01850006293396910805881816486e-13"/>
-			<segment segment_id="0"/>
-		</node>
-		<node id="1659" type="CHANY" direction="BI_DIR" capacity="1">
-			<loc xlow="4" ylow="1" xhigh="4" yhigh="1" ptc="1"/>
-			<timing R="101" C="6.0040006007264917764487677232e-14"/>
-			<segment segment_id="0"/>
-		</node>
-"""
-
-'''
-nodes = g.create_nodes()
-def add_node(globalname, attribs):
-    """Add node with globalname and attributes."""
-    assert isinstance(globalname, GlobalName), "{!r} should be a GlobalName".format(globalname)
-
-    # Add common attributes
-    attribs['capacity'] =  str(1)
-
-    # Work out the ID for this node and add to the mapping
-    attribs['id'] = str(len(globalname2node))
-
-    node = ET.SubElement(nodes, 'node', attribs)
-
-    # Stash in the mappings
-    assert globalname not in globalname2node
-    assert globalname not in globalname2nodeid
-    globalname2node[globalname] = node
-    globalname2nodeid[globalname] = attribs['id']
-
-    # Add some helpful comments
-    if VERBOSE:
-        node.append(ET.Comment(" {} ".format(globalname)))
-
-    return node
-'''
 
 # Edges -----------------------------------------------------------------
 
