@@ -1,4 +1,4 @@
-import lib.rr_graph.graph as graph
+import lib.rr_graph.graph as g
 import lib.rr_graph.channel as channel
 from lib.rr_graph import Position
 
@@ -72,11 +72,11 @@ def connect_blocks_to_tracks(g, grid_sz, rcw, switch, verbose=False):
 
     def connect_block_to_track(block, tracks, node_index):
         '''Connect all block pins to given track'''
-        assert type(block) is graph.Block, type(block)
+        assert type(block) is g.Block, type(block)
         for pin in block.pins():
             bpin2node, _track2node = node_index
             pin_node_xml = bpin2node[(block, pin)]
-            pin_side = graph.single_element(pin_node_xml, 'loc').get('side')
+            pin_side = g.single_element(pin_node_xml, 'loc').get('side')
 
             track = tracks[pin_side]
             if verbose:
@@ -144,10 +144,10 @@ def rebuild_graph(fn, fn_out, rcw=6, verbose=False):
     since source and sink must be specified
     '''
 
-    print('Importing input graph')
-    g = graph.Graph(rr_graph_file=fn, verbose=verbose)
-    # graph.print_graph(g, verbose=False)
-    print('Source graph loaded')
+    print('Importing input g')
+    g = g.Graph(rr_graph_file=fn, verbose=verbose)
+    # g.print_graph(g, verbose=False)
+    print('Source g loaded')
     print_nodes_edges(g)
     grid_sz = g.block_grid.size()
     print("Grid size: %s" % (grid_sz, ))
@@ -161,7 +161,7 @@ def rebuild_graph(fn, fn_out, rcw=6, verbose=False):
     g.ids.clear_graph()
     print('Clearing channels')
     g.channels.clear()
-    print('Cleared original graph')
+    print('Cleared original g')
     print_nodes_edges(g)
 
     print()
