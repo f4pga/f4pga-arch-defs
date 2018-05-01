@@ -17,7 +17,10 @@
   <xi:include href="tiles/plb/plb.pb_type.xml"/>
   <xi:include href="tiles/ramb/ramb.pb_type.xml"/>
   <xi:include href="tiles/ramt/ramt.pb_type.xml"/>
-  <xi:include href="../../../vpr/pad/pad.pb_type.xml"/>
+  <xi:include href="tiles/pio-l/pio-l.pb_type.xml"/>
+  <xi:include href="tiles/pio-t/pio-t.pb_type.xml"/>
+  <xi:include href="tiles/pio-r/pio-r.pb_type.xml"/>
+  <xi:include href="tiles/pio-b/pio-b.pb_type.xml"/>
  </complexblocklist>
 
  <!-- Description of the tile layouts available in the iCE40 family -->
