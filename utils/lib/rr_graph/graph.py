@@ -580,17 +580,17 @@ class BlockType(MostlyReadOnly):
     ]
 
     def __init__(self,
-                 graph=None,
+                 g=None,
                  id=-1,
                  name="",
                  size=Size(1, 1),
                  pin_classes=None):
-        assert_type_or_none(graph, BlockGrid)
+        assert_type_or_none(g, BlockGrid)
         assert_type_or_none(id, int)
         assert_type_or_none(name, str)
         assert_type_or_none(size, Size)
 
-        self._graph = graph
+        self._graph = g
         self._id = id
         self._name = name
         self._size = size
@@ -601,8 +601,8 @@ class BlockType(MostlyReadOnly):
             for pc in pin_classes:
                 self._add_pin_class(pc)
 
-        if graph is not None:
-            graph.add_block_type(self)
+        if g is not None:
+            g.add_block_type(self)
 
     def to_string(self, extra=False):
         if not extra:
@@ -614,7 +614,7 @@ class BlockType(MostlyReadOnly):
                 pin_index_num=len(self.pin_index))
 
     @classmethod
-    def from_xml(cls, graph, block_type_node):
+    def from_xml(cls, g, block_type_node):
         """
 
         >>> xml_string = '''
@@ -632,7 +632,7 @@ class BlockType(MostlyReadOnly):
         ... '''
         >>> bt = BlockType.from_xml(None, ET.fromstring(xml_string))
         >>> bt # doctest: +ELLIPSIS
-        BlockType(graph=None, id=1, name='BLK_BB-VPR_PAD', size=Size(w=2, h=3), pin_classes=[...], pin_index={...})
+        BlockType(g=None, id=1, name='BLK_BB-VPR_PAD', size=Size(w=2, h=3), pin_classes=[...], pin_index={...})
         >>> len(bt.pin_classes)
         3
         >>> bt.pin_classes[0].direction
@@ -663,7 +663,7 @@ class BlockType(MostlyReadOnly):
         ... '''
         >>> bt = BlockType.from_xml(None, ET.fromstring(xml_string))
         >>> bt # doctest: +ELLIPSIS
-        BlockType(graph=None, id=1, name='BLK_BB-VPR_PAD', size=Size(w=2, h=3), pin_classes=[...], pin_index={...})
+        BlockType(g=None, id=1, name='BLK_BB-VPR_PAD', size=Size(w=2, h=3), pin_classes=[...], pin_index={...})
         >>> bt.pin_classes[0] # doctest: +ELLIPSIS
         PinClass(block_type=BlockType(), direction='output', pins={...})
         >>> len(bt.pin_index)
@@ -688,7 +688,7 @@ class BlockType(MostlyReadOnly):
         block_type_width = int(block_type_node.attrib['width'])
         block_type_height = int(block_type_node.attrib['height'])
 
-        bt = cls(graph, block_type_id, block_type_name,
+        bt = cls(g, block_type_id, block_type_name,
                  Size(block_type_width, block_type_height))
         for pin_class_node in block_type_node.iterfind("./pin_class"):
             bt._add_pin_class(PinClass.from_xml(bt, pin_class_node))
@@ -755,32 +755,32 @@ class Block(MostlyReadOnly):
     __slots__ = ["_graph", "_block_type", "_position", "_offset"]
 
     def __init__(self,
-                 graph=None,
+                 g=None,
                  block_type_id=None,
                  block_type=None,
                  position=None,
                  offset=Offset(0, 0)):
-        assert_type_or_none(graph, BlockGrid)
+        assert_type_or_none(g, BlockGrid)
         assert_type_or_none(block_type_id, int)
         assert_type_or_none(block_type, BlockType)
         assert_type_or_none(position, Position)
         assert_type_or_none(offset, Offset)
 
         if block_type_id is not None:
-            if graph is not None:
+            if g is not None:
                 assert block_type is None
-                assert graph.block_types is not None
-                block_type = graph.block_types[block_type_id]
+                assert g.block_types is not None
+                block_type = g.block_types[block_type_id]
             else:
-                raise TypeError("Must provide graph with numeric block_type")
+                raise TypeError("Must provide g with numeric block_type")
 
-        self._graph = graph
+        self._graph = g
         self._block_type = block_type
         self._position = position
         self._offset = offset
 
-        if graph is not None:
-            graph.add_block(self)
+        if g is not None:
+            g.add_block(self)
 
     @property
     def x(self):
@@ -791,7 +791,7 @@ class Block(MostlyReadOnly):
         return self.position.y
 
     @classmethod
-    def from_xml(cls, graph, grid_loc_node):
+    def from_xml(cls, g, grid_loc_node):
         """
         >>> g = BlockGrid()
         >>> g.add_block_type(BlockType(id=0, name="bt"))
@@ -800,14 +800,14 @@ class Block(MostlyReadOnly):
         ... '''
         >>> bl1 = Block.from_xml(g, ET.fromstring(xml_string))
         >>> bl1 # doctest: +ELLIPSIS
-        Block(graph=BG(0x...), block_type=BlockType(), position=P(x=0, y=0), offset=Offset(w=0, h=0))
+        Block(g=BG(0x...), block_type=BlockType(), position=P(x=0, y=0), offset=Offset(w=0, h=0))
         >>>
         >>> xml_string = '''
         ... <grid_loc x="2" y="5" block_type_id="0" width_offset="1" height_offset="2"/>
         ... '''
         >>> bl2 = Block.from_xml(g, ET.fromstring(xml_string))
         >>> bl2 # doctest: +ELLIPSIS
-        Block(graph=BG(0x...), block_type=BlockType(), position=P(x=2, y=5), offset=Offset(w=1, h=2))
+        Block(g=BG(0x...), block_type=BlockType(), position=P(x=2, y=5), offset=Offset(w=1, h=2))
         """
         assert grid_loc_node.tag == "grid_loc"
 
@@ -818,7 +818,7 @@ class Block(MostlyReadOnly):
             int(grid_loc_node.attrib["width_offset"]),
             int(grid_loc_node.attrib["height_offset"]))
         return Block(
-            graph=graph,
+            g=g,
             block_type_id=block_type_id,
             position=pos,
             offset=offset)
@@ -966,7 +966,7 @@ class GraphIdsMap:
         # lookup XML node for given object ID
         self.id2node = {'node': {}, 'edge': {}, 'switch': {}}
         # nodes associated with pins
-        # these are slow to find manually as it involves going through entire graph
+        # these are slow to find manually as it involves going through entire g
         # FIXME: index these for quicker lookup
         #self.pinclass2nodes = {}
         #self.pin2nodes = {}
@@ -1764,9 +1764,9 @@ class Graph:
 
     def to_xml(self):
         '''Return an ET object representing this rr_graph'''
-        #et = ET.fromstring('<rr_graph tool_name="graph.py" tool_version="dev" tool_comment="Generated from black magic" />')
+        #et = ET.fromstring('<rr_graph tool_name="g.py" tool_version="dev" tool_comment="Generated from black magic" />')
         #return et
-        self.set_tooling("graph.py", "dev", "Generated from black magic")
+        self.set_tooling("g.py", "dev", "Generated from black magic")
 
         # <rr_nodes>, <rr_edges>, and <switches> should be good as is
         # note <rr_nodes> includes channel tracks, but not width definitions
@@ -1788,14 +1788,14 @@ def simple_test_block_grid():
     bg = BlockGrid()
 
     # Create a block type with one input and one output pin
-    bt = BlockType(graph=bg, id=0, name="DUALBLK")
+    bt = BlockType(g=bg, id=0, name="DUALBLK")
     pci = PinClass(block_type=bt, direction=PinClassDirection.INPUT)
     pi = Pin(pin_class=pci, pin_class_index=0)
     pco = PinClass(block_type=bt, direction=PinClassDirection.OUTPUT)
     po = Pin(pin_class=pco, pin_class_index=0)
 
     # Create a block type with one input class with 4 pins
-    bt = BlockType(graph=bg, id=1, name="INBLOCK")
+    bt = BlockType(g=bg, id=1, name="INBLOCK")
     pci = PinClass(block_type=bt, direction=PinClassDirection.INPUT)
     Pin(pin_class=pci, pin_class_index=0)
     Pin(pin_class=pci, pin_class_index=1)
@@ -1803,7 +1803,7 @@ def simple_test_block_grid():
     Pin(pin_class=pci, pin_class_index=3)
 
     # Create a block type with out input class with 2 pins
-    bt = BlockType(graph=bg, id=2, name="OUTBLOK")
+    bt = BlockType(g=bg, id=2, name="OUTBLOK")
     pci = PinClass(block_type=bt, direction=PinClassDirection.OUTPUT)
     Pin(pin_class=pci, pin_class_index=0)
     Pin(pin_class=pci, pin_class_index=1)
@@ -1811,25 +1811,25 @@ def simple_test_block_grid():
     Pin(pin_class=pci, pin_class_index=3)
 
     # Add some blocks
-    bg.add_block(Block(graph=bg, block_type_id=1, position=Position(0, 0)))
-    bg.add_block(Block(graph=bg, block_type_id=1, position=Position(0, 1)))
-    bg.add_block(Block(graph=bg, block_type_id=1, position=Position(0, 2)))
-    bg.add_block(Block(graph=bg, block_type_id=1, position=Position(0, 3)))
+    bg.add_block(Block(g=bg, block_type_id=1, position=Position(0, 0)))
+    bg.add_block(Block(g=bg, block_type_id=1, position=Position(0, 1)))
+    bg.add_block(Block(g=bg, block_type_id=1, position=Position(0, 2)))
+    bg.add_block(Block(g=bg, block_type_id=1, position=Position(0, 3)))
 
-    bg.add_block(Block(graph=bg, block_type_id=0, position=Position(1, 0)))
-    bg.add_block(Block(graph=bg, block_type_id=0, position=Position(1, 1)))
-    bg.add_block(Block(graph=bg, block_type_id=0, position=Position(1, 2)))
-    bg.add_block(Block(graph=bg, block_type_id=0, position=Position(1, 3)))
+    bg.add_block(Block(g=bg, block_type_id=0, position=Position(1, 0)))
+    bg.add_block(Block(g=bg, block_type_id=0, position=Position(1, 1)))
+    bg.add_block(Block(g=bg, block_type_id=0, position=Position(1, 2)))
+    bg.add_block(Block(g=bg, block_type_id=0, position=Position(1, 3)))
 
-    bg.add_block(Block(graph=bg, block_type_id=0, position=Position(2, 0)))
-    bg.add_block(Block(graph=bg, block_type_id=0, position=Position(2, 1)))
-    bg.add_block(Block(graph=bg, block_type_id=0, position=Position(2, 2)))
-    bg.add_block(Block(graph=bg, block_type_id=0, position=Position(2, 3)))
+    bg.add_block(Block(g=bg, block_type_id=0, position=Position(2, 0)))
+    bg.add_block(Block(g=bg, block_type_id=0, position=Position(2, 1)))
+    bg.add_block(Block(g=bg, block_type_id=0, position=Position(2, 2)))
+    bg.add_block(Block(g=bg, block_type_id=0, position=Position(2, 3)))
 
-    bg.add_block(Block(graph=bg, block_type_id=2, position=Position(3, 0)))
-    bg.add_block(Block(graph=bg, block_type_id=2, position=Position(3, 1)))
-    bg.add_block(Block(graph=bg, block_type_id=2, position=Position(3, 2)))
-    bg.add_block(Block(graph=bg, block_type_id=2, position=Position(3, 3)))
+    bg.add_block(Block(g=bg, block_type_id=2, position=Position(3, 0)))
+    bg.add_block(Block(g=bg, block_type_id=2, position=Position(3, 1)))
+    bg.add_block(Block(g=bg, block_type_id=2, position=Position(3, 2)))
+    bg.add_block(Block(g=bg, block_type_id=2, position=Position(3, 3)))
 
     return bg
 
