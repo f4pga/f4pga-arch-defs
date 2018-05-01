@@ -114,6 +114,13 @@ architectures, here are some tips;
 
 # Getting Started
 
+Make sure git submodules are cloned:
+
+```
+git submodule init
+git submodule update
+```
+
 Run the full suite:
 
 ```
@@ -128,8 +135,8 @@ make
 ```
 Test the rr_graph library:
 ```
-PATH=$PWD/env/conda/bin/:$PATH
-PYTHONPATH=$PWD/utils:$PYTHONPATH
+export PATH=$PWD/env/conda/bin/:$PATH
+export PYTHONPATH=$PWD/utils:$PYTHONPATH
 python3 -m lib.rr_graph.graph
 ```
 
