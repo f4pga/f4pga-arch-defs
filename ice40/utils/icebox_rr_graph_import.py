@@ -49,6 +49,24 @@ We use the Y channels for the Local + Neighbour track because we have cells
 which are multiple tiles wide in the Y direction.
 
 For each wire, we work out the "edges" (IE connection to other wires / pins).
+
+Naming (ie track names)
+http://www.clifford.at/icestorm/logic_tile.html
+"Note: the Lattice tools use a different normalization scheme for this wire names."
+This doc: https://docs.google.com/document/d/1kTehDgse8GA2af5HoQ9Ntr41uNL_NJ43CjA32DofK8E/edit#
+I think is based on CW's naming but has some divergences
+
+Some terminology clarification:
+-A VPR "track" is a specific net that can be connected to in the global fabric
+-Icestorm docs primarily talk about "wires" which generally refer to a concept how how these nets are used per tile
+That is, we take the Icestorm tile wire pattern and convert it to VPR tracks
+
+Other resources:
+http://hedmen.org/icestorm-doc/icestorm.html
+
+
+mithro MVP proposal: spans and locals only
+Then add globals, then neighbourhood
 """
 
 from os.path import commonprefix
@@ -83,6 +101,62 @@ class GlobalName(tuple):
 
     def __init__(self, *args, **kw):
         pass
+
+# Tracks -----------------------------------------------------------------
+
+'''
+def globalname_track_local(pos, g, i):
+    return GlobalName("local", TilePos(*pos), (g, i))
+
+def localname_track_local(pos, g, i):
+    return 'local_g{}_{}'.format(g, i)
+
+#def iceboxname_track_local(pos, g, i):
+#    return 'local_g{}_{}'.format(g, i)
+
+def globalname_track_glb2local(pos, i):
+    return GlobalName("glb2local", TilePos(*pos), i)
+
+def localname_track_glb2local(pos, i):
+    return 'glb2local_{}'.format(i)
+
+#def iceboxname_track_glb2local(pos, i):
+#    return 'gbl2local_{}'.format(i)
+'''
+
+'''
+https://docs.google.com/document/d/1kTehDgse8GA2af5HoQ9Ntr41uNL_NJ43CjA32DofK8E/edit#heading=h.b5gijh3mhpx9
+Local wires are given global names by giving a prefix of WA/B_ where;
+    W == Letter code for tile type
+        I == IO tile
+        L == Logic Tile
+        R == Block RAM Tile
+    A == X tile coordinate
+    B == Y tile coordinate
+'''
+def globalname_track_local(block, g, i):
+    assert type(block) is graph.Block
+    pos = block.position
+    assert type(g) is int
+    assert type(i) is int
+
+    tile_type_short = {
+        'BLK_BB-VPR_PAD':   'I',
+        'BLK_TL-PLB':       'L',
+        'FIXME_BRAM':       'R',
+        }[block.block_type.name]
+    return '{}{}/{}_local_g{}_{}'.format(tile_type_short, pos.x, pos.y, g, i)
+
+def globalname_track_glb2local(block, i):
+    assert type(block) is graph.Block
+    pos = block.position
+
+    tile_type_short = {
+        'BLK_BB-VPR_PAD':   'I',
+        'BLK_TL-PLB':       'L',
+        'FIXME_BRAM':       'R',
+        }[block.block_type.name]
+    return '{}{}/{}_glb2local_{}'.format(tile_type_short, pos.x, pos.y, i)
 
 g = None
 def init(mode):
@@ -138,11 +212,13 @@ def create_segments(g):
     for segment_name in segment_names:
         _segment = g.channels.create_segment(segment_name)
 
+# TODO: add id_override to match documented names
 def add_local_tracks(g):
+    print('Adding local tracks')
+
+    # TODO: review segments based on timing requirements
     local_segment = g.channels.segment_s2seg['local']
-    # FIXME: is global the right intention here?
-    # maybe these should both be local
-    global_segment = g.channels.segment_s2seg['global']
+    #global_segment = g.channels.segment_s2seg['global']
 
     for block in g.block_grid.blocks_for():
         if block.block_type.name == 'EMPTY':
@@ -159,22 +235,78 @@ def add_local_tracks(g):
             assert 0, block.block_type.name
 
         # Local tracks
-        for _g in range(0, groups_local[0]):
-            for _i in range(0, groups_local[1]):
-                # lname = localname_track_local(pos, g, i)
-                # gname = globalname_track_local(pos, g, i)
-                #print("Adding local track {} on tile {}@{}".format(gname, pos, idx))
+        for groupi in range(0, groups_local[0]):
+            for i in range(0, groups_local[1]):
+                gname = globalname_track_local(block, groupi, i)
+                print("Block {}: add local track {}".format(block, gname))
                 g.create_xy_track(block.position, block.position, local_segment,
-                       type=channel.Track.Type.Y, direction=channel.Track.Direction.BI)
+                       type=channel.Track.Type.Y, direction=channel.Track.Direction.BI,
+                       id_override=gname)
 
+        '''
+        FIXME: enable after MVP
         # Global to local
         if groups_glb2local:
             for _i in range(0, groups_glb2local):
-                #lname = localname_track_glb2local(pos, i)
-                #gname = globalname_track_glb2local(pos, i)
-                #print("Adding glb2local {} track {} on tile {}@{}".format(i, gname, pos, idx))
+                gname = globalname_track_glb2local(block, i)
+                print("Block {}: add glb2local track {}".format(block, gname))
                 g.create_xy_track(block.position, block.position, global_segment,
-                       type=channel.Track.Type.Y, direction=channel.Track.Direction.BI)
+                       type=channel.Track.Type.Y, direction=channel.Track.Direction.BI,
+                       id_override=gname)
+        '''
+
+def add_span_tracks(g):
+    print('Adding span tracks')
+
+    '''
+    x_channel_offset = LOCAL_TRACKS_MAX_GROUPS * (LOCAL_TRACKS_PER_GROUP) + GBL2LOCAL_MAX_TRACKS
+    y_channel_offset = 0
+
+    def add_track_span(globalname):
+        start, idx, end, delta = globalname[-1]
+
+        x_start = start[0]
+        y_start = start[1]
+
+        x_end = end[0]
+        y_end = end[1]
+
+        if x_start == x_end:
+            nodetype = 'CHANY'
+            assert "vertical" in globalname or "stub" in globalname
+            idx += x_channel_offset
+        elif y_start == y_end:
+            nodetype = 'CHANX'
+            assert "horizontal" in globalname or "stub" in globalname
+            idx += y_channel_offset
+        else:
+            return
+
+        if 'span4' in globalname:
+            segtype = 'span4'
+        elif 'span12' in globalname:
+            segtype = 'span12'
+            idx += SPAN4_MAX_TRACKS #+ 1
+        elif 'local' in globalname:
+            segtype = 'local'
+        else:
+            assert False, globalname
+
+        add_channel(globalname, nodetype, start, end, idx, segtype)
+
+
+    for globalname in sorted(globalname2netnames.keys()):
+        if globalname[0] != "channel":
+            continue
+        add_track_span(globalname)
+    '''
+
+    print('Ran')
+
+
+# TODO check this
+chan_width_max = LOCAL_TRACKS_MAX_GROUPS * (LOCAL_TRACKS_PER_GROUP+1) + GBL2LOCAL_MAX_TRACKS + SPAN4_MAX_TRACKS + SPAN12_MAX_TRACKS + GLOBAL_MAX_TRACKS
+
 
 def print_nodes_edges(g):
     print("Edges: %d (index: %d)" % (len(g.ids._xml_edges),
@@ -182,9 +314,35 @@ def print_nodes_edges(g):
     print("Nodes: %d (index: %d)" % (len(g.ids._xml_nodes),
                                      len(g.ids.id2node['node'])))
 
+def my_test(g):
+    print('my_test()')
+    _TilePos = namedtuple('T', ['x', 'y'])
+    class TilePos(_TilePos):
+        _sentinal = []
+        def __new__(cls, x, y=_sentinal, *args):
+            if y is cls._sentinal:
+                if len(x) == 2:
+                    x, y = x
+                else:
+                    raise TypeError("TilePos takes 2 positional arguments not {}".format(x))
+
+            assert isinstance(x, int), "x must be an int not {!r}".format(x)
+            assert isinstance(y, int), "y must be an int not {!r}".format(y)
+            return _TilePos.__new__(cls, x=x, y=y)
+
+    def tiles(ic):
+        for x in range(ic.max_x+1):
+            for y in range(ic.max_y+1):
+                yield TilePos(x, y)
+    all_tiles = list(tiles(ic))
+    all_group_segments = ic.group_segments(all_tiles, connect_gb=False)
+    print('exiting')
+    sys.exit(1)
+
 def run(mode):
     print('Importing input g')
     g = init(mode)
+    my_test(g)
     print('Source g loaded')
     print_nodes_edges(g)
     grid_sz = g.block_grid.size()
@@ -210,6 +368,9 @@ def run(mode):
     print_nodes_edges(g)
     print()
     add_local_tracks(g)
+    print_nodes_edges(g)
+    print()
+    add_span_tracks(g)
     print_nodes_edges(g)
     print()
     print('Exiting')
@@ -251,47 +412,6 @@ if __name__ == '__main__':
 
 
 
-# mcmaster: might still need these and/or add custom channel naming
-'''
-# Mapping dictionaries
-globalname2netnames = {}
-globalname2node = {}
-globalname2nodeid = {}
-
-netname2globalname = {}
-
-def add_globalname2localname(globalname, pos, localname):
-    global globalname2netnames
-
-    assert isinstance(globalname, GlobalName), "{!r} must be a GlobalName".format(globalname)
-    assert isinstance(pos, TilePos), "{!r} must be a TilePos".format(pos)
-
-    nid = (pos, localname)
-
-    if nid in netname2globalname:
-        assert globalname == netname2globalname[nid], (
-            "While adding global name {} found existing global name {} for {}".format(
-                globalname, netname2globalname[nid], nid))
-        return
-
-    netname2globalname[nid] = globalname
-    if globalname not in globalname2netnames:
-        globalname2netnames[globalname] = set()
-
-    if nid not in globalname2netnames[globalname]:
-        globalname2netnames[globalname].add(nid)
-        print("Adding alias for {} is tile {} - {}".format(globalname, pos, localname))
-    else:
-        print("Existing alias for {} is tile {} - {}".format(globalname, pos, localname))
-
-
-def localname2globalname(pos, localname, default=None):
-    """Convert from a local name to a globally unique name."""
-    assert isinstance(pos, TilePos), "{!r} must be a TilePos".format(pos)
-    nid = (pos, localname)
-    return netname2globalname.get(nid, default)
-'''
-
 
 # Edges -----------------------------------------------------------------
 
@@ -324,517 +444,10 @@ def add_edge(src_globalname, dst_globalname, bidir=False):
 '''
 
 
-# -----------------------------------------------------------------------
-# -----------------------------------------------------------------------
-# -----------------------------------------------------------------------
-
-# Channels (node) ----------------------------------------------------
-
-'''
-channels = {}
-for y in range(ic.max_y+1):
-    channels[(-1,y)] = {}
-
-for x in range(ic.max_x+1):
-    channels[(x,-1)] = {}
-'''
-
-'''
-def add_channel(globalname, nodetype, start, end, idx, segtype):
-    assert isinstance(globalname, GlobalName), "{!r} should be a GlobalName".format(globalname)
-    assert isinstance(start, TilePos), "{!r} must be a TilePos".format(start)
-    assert isinstance(end, TilePos), "{!r} must be a TilePos".format(end)
-
-    x_start = start[0]
-    y_start = start[1]
-
-    x_end = end[0]
-    y_end = end[1]
-
-    if nodetype == 'CHANY':
-        assert x_start == x_end
-        channel = (x_start, -1)
-        w_start, w_end = y_start, y_end
-    elif nodetype == 'CHANX':
-        assert y_start == y_end
-        channel = (-1, y_start)
-        w_start, w_end = x_start, x_end
-    else:
-        assert False
-
-    assert channel in channels, "{} not in {}".format(channel, channels)
-
-    if w_start < w_end:
-        chandir = "INC_DIR"
-    elif w_start > w_end:
-        chandir = "DEC_DIR"
-
-    if idx not in channels[channel]:
-        channels[channel][idx] = []
-    channels[channel][idx].append(globalname)
-
-    attribs = {
-        'direction': 'BI_DIR',
-        'type': nodetype,
-    }
-    node = add_node(globalname, attribs)
-
-    # <loc xlow="int" ylow="int" xhigh="int" yhigh="int" side="{LEFT|RIGHT|TOP|BOTTOM}" ptc="int">
-
-    # xlow, xhigh, ylow, yhigh - Integer coordinates of the ends of this routing source.
-    # ptc - This is the pin, track, or class number that depends on the rr_node type.
-
-    # side - { LEFT | RIGHT | TOP | BOTTOM }
-    # For IPIN and OPIN nodes specifies the side of the grid tile on which the node
-    # is located. Purely cosmetic?
-    ET.SubElement(node, 'loc', {
-        'xlow': str(x_start), 'ylow': str(y_start),
-        'xhigh': str(x_end), 'yhigh': str(y_end),
-        'ptc': str(idx),
-    })
-    ET.SubElement(node, 'segment', {'segment_id': str(segtype)})
-
-    print("Adding channel {} from {} -> {} pos {}".format(globalname, start, end, idx))
-'''
-
-# -----------------------------------------------------------------------
-# -----------------------------------------------------------------------
-# -----------------------------------------------------------------------
-
-# Pins
-# ------------------------------
-
-'''
-def add_pins(g):
-    def globalname_pin(pos, localname):
-        return GlobalName("pin", TilePos(*pos), localname)
-
-
-    """
-    def iceboxname_pin(tiletype, localname):
-        if tiletype == 'IO':
-            prefix = 'io['
-            if localname.startswith(prefix):
-                return 'io_{}/{}'.format(
-                    localname[len(prefix):len(prefix)+1],
-                    localname[localname.split('.')[-1]],
-                )
-            else:
-                return 'io_global/{}'.format(localname)
-        elif tiletype == "LOGIC":
-            prefix = 'lut['
-            if localname.startswith(prefix):
-
-                a, b = localname.split('.')
-
-                prefix2 = 'in['
-                if b.startswith(prefix2):
-                    return 'lutff_{}/{}'.format(
-                        localname[len(prefix):len(prefix)+1],
-                        b
-                    )
-
-                else:
-                    return 'lutff_{}/{}'.format(
-                        localname[len(prefix):len(prefix)+1],
-                        b
-                    )
-            else:
-                return 'lutff_global/{}'.format(localname)
-    """
-
-    def pos_to_vpr(pos):
-        return [pos[0] + 1, pos[1] + 1]
-
-    def add_pin(pos, localname, dir, idx):
-        """Add an pin at index i to tile at pos."""
-
-        """
-            <node id="0" type="SINK" capacity="1">
-                    <loc xlow="0" ylow="1" xhigh="0" yhigh="1" ptc="0"/>
-                    <timing R="0" C="0"/>
-            </node>
-            <node id="2" type="IPIN" capacity="1">
-                    <loc xlow="0" ylow="1" xhigh="0" yhigh="1" side="TOP" ptc="0"/>
-                    <timing R="0" C="0"/>
-            </node>
-        """
-        gname = globalname_pin(pos, localname)
-        gname_pin = GlobalName(*gname, 'pin')
-
-        add_globalname2localname(gname, pos, localname)
-        vpos = pos_to_vpr(pos)
-
-        if dir == "out":
-            # Sink node
-            attribs = {
-                'type': 'SINK',
-            }
-            node = add_node(gname, attribs)
-            ET.SubElement(node, 'loc', {
-                'xlow': str(vpos[0]), 'ylow': str(vpos[1]),
-                'xhigh': str(vpos[0]), 'yhigh': str(vpos[1]),
-                'ptc': str(idx),
-            })
-            ET.SubElement(node, 'timing', {'R': str(0), 'C': str(0)})
-
-            # Pin node
-            attribs = {
-                'type': 'IPIN',
-            }
-            node = add_node(gname_pin, attribs)
-            ET.SubElement(node, 'loc', {
-                'xlow': str(vpos[0]), 'ylow': str(vpos[1]),
-                'xhigh': str(vpos[0]), 'yhigh': str(vpos[1]),
-                'ptc': str(idx),
-                'side': 'TOP',
-            })
-            ET.SubElement(node, 'timing', {'R': str(0), 'C': str(0)})
-
-            # Edge between pin node
-            add_edge(gname, gname_pin)
-
-        elif dir == "in":
-            # Source node
-            attribs = {
-                'type': 'SOURCE',
-            }
-            node = add_node(gname, attribs)
-            ET.SubElement(node, 'loc', {
-                'xlow': str(vpos[0]), 'ylow': str(vpos[1]),
-                'xhigh': str(vpos[0]), 'yhigh': str(vpos[1]),
-                'ptc': str(idx),
-            })
-            ET.SubElement(node, 'timing', {'R': str(0), 'C': str(0)})
-
-            # Pin node
-            attribs = {
-                'type': 'OPIN',
-            }
-            node = add_node(gname_pin, attribs)
-            ET.SubElement(node, 'loc', {
-                'xlow': str(vpos[0]), 'ylow': str(vpos[1]),
-                'xhigh': str(vpos[0]), 'yhigh': str(vpos[1]),
-                'ptc': str(idx),
-                'side': 'TOP',
-            })
-            ET.SubElement(node, 'timing', {'R': str(0), 'C': str(0)})
-
-            # Edge between pin node
-            add_edge(gname_pin, gname)
-
-        else:
-            assert False, "Unknown dir of {} for {}".format(dir, gname)
-
-        print("Adding pin {} on tile {}@{}".format(gname, pos, idx))
-add_pins(g)
-'''
-
-
-# -----------------------------------------------------------------------
-# -----------------------------------------------------------------------
-# -----------------------------------------------------------------------
-
-# Local Tracks
-# ------------------------------
-
-'''
-def globalname_track_local(pos, g, i):
-    return GlobalName("local", TilePos(*pos), (g, i))
-
-def localname_track_local(pos, g, i):
-    return 'local_g{}_{}'.format(g, i)
-
-#def iceboxname_track_local(pos, g, i):
-#    return 'local_g{}_{}'.format(g, i)
-
-def globalname_track_glb2local(pos, i):
-    return GlobalName("glb2local", TilePos(*pos), i)
-
-def localname_track_glb2local(pos, i):
-    return 'glb2local_{}'.format(i)
-
-#def iceboxname_track_glb2local(pos, i):
-#    return 'gbl2local_{}'.format(i)
-
-"""
-def _add_local(globalname, pos, ptc):
-    attribs = {
-        'direction': 'BI_DIR',
-        'type': 'CHANX',
-    }
-    node = add_node(globalname, attribs)
-
-    ET.SubElement(node, 'loc', {
-        'xlow':  str(pos.x), 'ylow':  str(pos.y),
-        'xhigh': str(pos.x), 'yhigh': str(pos.y),
-        'ptc': str(ptc),
-    })
-
-    ET.SubElement(node, 'segment', {'segment_id': str('local')})
-"""
-'''
-
-
-
-
-
-# -----------------------------------------------------------------------
-# -----------------------------------------------------------------------
-# -----------------------------------------------------------------------
-
-# tim: probably delete
-'''
-def add_tiles(g):
-    def tiles(ic):
-        for x in range(ic.max_x+1):
-            for y in range(ic.max_y+1):
-                yield TilePos(x, y)
-
-    all_tiles = list(tiles(ic))
-
-    corner_tiles = set()
-    for x in (0, ic.max_x):
-        for y in (0, ic.max_y):
-            corner_tiles.add((x, y))
-
-    # Should we just use consistent names instead?
-    tile_name_map = {
-      "IO" : "BLK_BB-VPR_PAD",
-      "LOGIC" : "PLB",
-      "RAMB" : "RAMB",
-      "RAMT" : "RAMT"
-    }
-
-    # Add the tiles
-    # ------------------------------
-    tile_types = {
-        "BLK_BB-VPR_PAD": {
-            "id": 1,
-            "pin_map": OrderedDict([
-                ('outclk', ('in', 0)),
-                ('inclk',  ('in', 1)),
-                ('cen',    ('in', 2)),
-                ('latch',  ('in', 3)),
-
-                ('io[0].d_in_0',  ('out', 4)),
-                ('io[0].d_in_1',  ('out', 5)),
-                ('io[0].d_out_0', ('in',  6)),
-                ('io[0].d_out_1', ('in',  7)),
-                ('io[0].out_enb', ('in',  8)),
-
-                ('io[1].d_in_0',  ('out', 10)),
-                ('io[1].d_in_1',  ('out', 11)),
-                ('io[1].d_out_0', ('in',  12)),
-                ('io[1].d_out_1', ('in',  13)),
-                ('io[1].out_enb', ('in',  14)),
-            ]),
-            'size': (1, 1),
-        },
-
-        "PLB": {
-            "id": 2,
-            "pin_map": OrderedDict([
-                ('lut[0].in[0]', ('in', 0)),
-                ('lut[0].in[1]', ('in', 1)),
-                ('lut[0].in[2]', ('in', 2)),
-                ('lut[0].in[3]', ('in', 3)),
-
-                ('lut[1].in[0]', ('in', 4)),
-                ('lut[1].in[1]', ('in', 5)),
-                ('lut[1].in[2]', ('in', 6)),
-                ('lut[1].in[3]', ('in', 7)),
-
-                ('lut[2].in[0]', ('in', 8)),
-                ('lut[2].in[1]', ('in', 9)),
-                ('lut[2].in[2]', ('in', 10)),
-                ('lut[2].in[3]', ('in', 11)),
-
-                ('lut[3].in[0]', ('in', 12)),
-                ('lut[3].in[1]', ('in', 13)),
-                ('lut[3].in[2]', ('in', 14)),
-                ('lut[3].in[3]', ('in', 15)),
-
-                ('lut[4].in[0]', ('in', 16)),
-                ('lut[4].in[1]', ('in', 17)),
-                ('lut[4].in[2]', ('in', 18)),
-                ('lut[4].in[3]', ('in', 19)),
-
-                ('lut[5].in[0]', ('in', 20)),
-                ('lut[5].in[1]', ('in', 21)),
-                ('lut[5].in[2]', ('in', 22)),
-                ('lut[5].in[3]', ('in', 23)),
-
-                ('lut[6].in[0]', ('in', 24)),
-                ('lut[6].in[1]', ('in', 25)),
-                ('lut[6].in[2]', ('in', 26)),
-                ('lut[6].in[3]', ('in', 27)),
-
-                ('lut[7].in[0]', ('in', 28)),
-                ('lut[7].in[1]', ('in', 29)),
-                ('lut[7].in[2]', ('in', 30)),
-                ('lut[7].in[3]', ('in', 31)),
-
-                ('cen', ('in', 32)),
-                ('s_r', ('in', 33)),
-
-                ('lut[0].out', ('out', 34)),
-                ('lut[1].out', ('out', 35)),
-                ('lut[2].out', ('out', 36)),
-                ('lut[3].out', ('out', 37)),
-                ('lut[4].out', ('out', 38)),
-                ('lut[5].out', ('out', 39)),
-                ('lut[6].out', ('out', 40)),
-                ('lut[7].out', ('out', 41)),
-
-                ('clk', ('in', 32)),
-            ]),
-            'size': (1, 1),
-        },
-
-        "RAMB": {
-            "id": 3,
-            "pin_map": OrderedDict([
-                ('rdata[0]', ('out', 0)),
-                ('rdata[1]', ('out', 0)),
-                ('rdata[2]', ('out', 0)),
-                ('rdata[3]', ('out', 0)),
-                ('rdata[4]', ('out', 0)),
-                ('rdata[5]', ('out', 0)),
-                ('rdata[6]', ('out', 0)),
-                ('rdata[7]', ('out', 0)),
-
-                ('waddr[0]',  ('in', 0)),
-                ('waddr[1]',  ('in', 0)),
-                ('waddr[2]',  ('in', 0)),
-                ('waddr[3]',  ('in', 0)),
-                ('waddr[4]',  ('in', 0)),
-                ('waddr[5]',  ('in', 0)),
-                ('waddr[6]',  ('in', 0)),
-                ('waddr[7]',  ('in', 0)),
-                ('waddr[8]',  ('in', 0)),
-                ('waddr[9]',  ('in', 0)),
-                ('waddr[10]', ('in', 0)),
-
-                ('mask[0]', ('in', 0)),
-                ('mask[1]', ('in', 0)),
-                ('mask[2]', ('in', 0)),
-                ('mask[3]', ('in', 0)),
-                ('mask[4]', ('in', 0)),
-                ('mask[5]', ('in', 0)),
-                ('mask[6]', ('in', 0)),
-                ('mask[7]', ('in', 0)),
-
-                ('wdata[0]', ('in', 0)),
-                ('wdata[1]', ('in', 0)),
-                ('wdata[2]', ('in', 0)),
-                ('wdata[3]', ('in', 0)),
-                ('wdata[4]', ('in', 0)),
-                ('wdata[5]', ('in', 0)),
-                ('wdata[6]', ('in', 0)),
-                ('wdata[7]', ('in', 0)),
-
-                ('we',    ('in', 0)),
-                ('wclk',  ('in', 0)),
-                ('wclke', ('in', 0)),
-            ]),
-            'size': (1, 1),
-        },
-
-        "RAMT": {
-            "id": 4,
-            "pin_map": OrderedDict([
-                ('rdata[8]',  ('out', 0)),
-                ('rdata[9]',  ('out', 0)),
-                ('rdata[10]', ('out', 0)),
-                ('rdata[11]', ('out', 0)),
-                ('rdata[12]', ('out', 0)),
-                ('rdata[13]', ('out', 0)),
-                ('rdata[14]', ('out', 0)),
-                ('rdata[15]', ('out', 0)),
-
-                ('raddr[0]',  ('in', 0)),
-                ('raddr[1]',  ('in', 0)),
-                ('raddr[2]',  ('in', 0)),
-                ('raddr[3]',  ('in', 0)),
-                ('raddr[4]',  ('in', 0)),
-                ('raddr[5]',  ('in', 0)),
-                ('raddr[6]',  ('in', 0)),
-                ('raddr[7]',  ('in', 0)),
-                ('raddr[8]',  ('in', 0)),
-                ('raddr[9]',  ('in', 0)),
-                ('raddr[10]', ('in', 0)),
-
-                ('mask[8]',  ('in', 0)),
-                ('mask[9]',  ('in', 0)),
-                ('mask[10]', ('in', 0)),
-                ('mask[11]', ('in', 0)),
-                ('mask[12]', ('in', 0)),
-                ('mask[13]', ('in', 0)),
-                ('mask[14]', ('in', 0)),
-                ('mask[15]', ('in', 0)),
-
-                ('wdata[8]',  ('in', 0)),
-                ('wdata[9]',  ('in', 0)),
-                ('wdata[10]', ('in', 0)),
-                ('wdata[11]', ('in', 0)),
-                ('wdata[12]', ('in', 0)),
-                ('wdata[13]', ('in', 0)),
-                ('wdata[14]', ('in', 0)),
-                ('wdata[15]', ('in', 0)),
-
-                ('re',    ('in', 0)),
-                ('rclk',  ('in', 0)),
-                ('rclke', ('in', 0)),
-            ]),
-            'size': (1, 1),
-        },
-    }
-
-    print()
-    print("Generate tiles types")
-    print("="*75)
-
-    """
-        <block_types>
-                <block_type id="0" name="io" width="1" height="1">
-                    <pin_class type="input">
-                        0 1 2 3
-                    </pin_class>
-                    <pin_class type="output">
-                        4 5 6 7
-                    </pin_class>
-                </block_type>
-        </block_types>
-    """
-    tt = ET.SubElement(rr_graph, 'block_types')
-
-    for tile_name, tile_desc in tile_types.items():
-        print("{}".format(tile_name))
-        tile = ET.SubElement(
-            tt, 'block_type',
-            {'id': str(tile_desc['id']),
-             'name':   tile_name,
-             'width':  str(tile_desc["size"][0]),
-             'height': str(tile_desc["size"][1]),
-            })
-
-        #pins_in  = ET.SubElement(tile, 'pin_class', {'type': 'input'})
-        #pins_out = ET.SubElement(tile, 'pin_class', {'type': 'output'})
-add_tiles(g)
-'''
-
-# ------------------------------
 
 # tim: building a mapping between icebox IDs and VPR IDs
 # maybe overriding IDs in output
 '''
-grid = ET.SubElement(rr_graph, 'grid')
-
-print()
-print("Generate grid")
-print("="*75)
-
 for x in range(ic.max_x+3):
     for y in range(ic.max_y+3):
         tx = x - 1
@@ -1172,104 +785,8 @@ for group in sorted(all_group_segments):
         add_globalname2localname(gname, TilePos(x, y), netname)
 
 
-# Create the channels
-# -------------------
-print()
-print("Adding span channels")
-print("-"*75)
-
-x_channel_offset = LOCAL_TRACKS_MAX_GROUPS * (LOCAL_TRACKS_PER_GROUP) + GBL2LOCAL_MAX_TRACKS
-y_channel_offset = 0
-
-def add_track_span(globalname):
-    start, idx, end, delta = globalname[-1]
-
-    x_start = start[0]
-    y_start = start[1]
-
-    x_end = end[0]
-    y_end = end[1]
-
-    if x_start == x_end:
-        nodetype = 'CHANY'
-        assert "vertical" in globalname or "stub" in globalname
-        idx += x_channel_offset
-    elif y_start == y_end:
-        nodetype = 'CHANX'
-        assert "horizontal" in globalname or "stub" in globalname
-        idx += y_channel_offset
-    else:
-        return
-
-    if 'span4' in globalname:
-        segtype = 'span4'
-    elif 'span12' in globalname:
-        segtype = 'span12'
-        idx += SPAN4_MAX_TRACKS #+ 1
-    elif 'local' in globalname:
-        segtype = 'local'
-    else:
-        assert False, globalname
-
-    add_channel(globalname, nodetype, start, end, idx, segtype)
 
 
-for globalname in sorted(globalname2netnames.keys()):
-    if globalname[0] != "channel":
-        continue
-    add_track_span(globalname)
-
-
-print()
-print()
-print()
-print("Channel summary")
-print("="*75)
-for channel in sorted(channels):
-    print()
-    print(channel)
-    print("-"*75)
-
-    m = max(channels[channel])
-
-    for idx in range(0, m+1):
-        print()
-        print(idx)
-        if idx not in channels[channel]:
-            print("-"*5)
-            continue
-        for track in channels[channel][idx]:
-            if track in globalname2netnames:
-                print(track, globalname2netnames[track])
-            else:
-                print(track, None)
-print()
-print("Generate channels")
-print("="*75)
-# TODO check this
-chwm = LOCAL_TRACKS_MAX_GROUPS * (LOCAL_TRACKS_PER_GROUP+1) + GBL2LOCAL_MAX_TRACKS + SPAN4_MAX_TRACKS + SPAN12_MAX_TRACKS + GLOBAL_MAX_TRACKS
-
-chans = ET.SubElement(rr_graph, 'channels')
-chan = ET.SubElement(
-    chans, 'channel',
-    {'chan_width_max': str(chwm),
-    'x_min': str(0),
-    'x_max': str(chwm),
-    'y_min': str(0),
-    'y_max': str(chwm),
-    })
-
-for i in range(4):
-    x_list = ET.SubElement(
-        chans, 'x_list',
-        {'index': str(i),
-         'info': str(chwm)
-        })
-    y_list = ET.SubElement(
-       chans, 'y_list',
-       {'index': str(i),
-        'info': str(chwm)
-       })
 
 # Generating edges
 # ------------------------------
@@ -1334,15 +851,7 @@ for x, y in all_tiles:
         else:
             add_edge(src_globalname, dst_globalname, switch_type == "routing")
 
-# -----------------------------------------------------------------------
-# -----------------------------------------------------------------------
-# -----------------------------------------------------------------------
 
-def write_graph(g):
-    f = open('rr_graph.xml', 'w')
-    f.write(ET.tostring(rr_graph, pretty_print=True).decode('utf-8'))
-    f.close()
-write_graph(g)
 
 # -----------------------------------------------------------------------
 # -----------------------------------------------------------------------
