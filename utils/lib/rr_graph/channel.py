@@ -874,12 +874,9 @@ class Channels:
             return (ta, tb)
 
     def create_xy_track(self,
-                        start,
-                        end,
-                        segment,
-                        idx=None,
-                        type=None,
-                        direction=None):
+                        start, end, segment,
+                        idx=None, id_override=None,
+                        type=None, direction=None):
         '''
         idx: None to automatically allocate
         '''
@@ -890,11 +887,9 @@ class Channels:
         # Create track(s)
         # Will throw exception if not straight
         t = Track(
-            start,
-            end,
-            segment=segment,
-            type_hint=type,
-            direction_hint=direction)
+            start, end,
+            segment=segment, id_override=id_override,
+            type_hint=type, direction_hint=direction)
 
         # Add the track to associated channel list
         # Get the track now with the index assigned
@@ -959,6 +954,8 @@ class Channels:
                     pos_high,
                     segment,
                     idx=idx,
+                    # XML has no name concept. Should it?
+                    id_override=None,
                     type=ntype_e,
                     direction=direction)
             except:

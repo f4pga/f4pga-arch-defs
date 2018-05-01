@@ -833,7 +833,8 @@ class Block(MostlyReadOnly):
         '''Return Pin for the given ptc (Pin.block_type_index)'''
         return self.block_type.pin_index[ptc]
 
-
+    def __str__(self):
+        return '%s@%s' % (self.block_type.name, self.position)
 '''
 XXX: this class is unused. Delete?
 Maybe use for Pin side
@@ -1688,15 +1689,14 @@ class Graph:
             ytrack, xtrack, switch, node_index=node_index)
 
     def create_xy_track(self,
-                        start,
-                        end,
-                        segment,
-                        idx=None,
-                        type=None,
-                        direction=None):
+                        start, end, segment,
+                        idx=None, id_override=None,
+                        type=None, direction=None):
         '''Create track object and corresponding nodes'''
         track = self.channels.create_xy_track(
-            start, end, segment, idx=idx, type=type, direction=direction)
+            start, end, segment,
+            idx=idx, id_override=id_override,
+            type=type, direction=direction)
         track_node = self.ids.add_node_for_track(track)
         return track, track_node
 
