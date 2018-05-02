@@ -95,6 +95,17 @@ SPAN12_MAX_TRACKS = 24
 
 GLOBAL_MAX_TRACKS = 8
 
+
+
+
+
+
+
+
+
+
+TilePos = graph.Position
+
 class GlobalName(tuple):
     def __new__(cls, *args, **kw):
         return super(GlobalName, cls).__new__(cls, args, **kw)
@@ -104,25 +115,409 @@ class GlobalName(tuple):
 
 # Tracks -----------------------------------------------------------------
 
-'''
-def globalname_track_local(pos, g, i):
-    return GlobalName("local", TilePos(*pos), (g, i))
 
-def localname_track_local(pos, g, i):
-    return 'local_g{}_{}'.format(g, i)
 
-#def iceboxname_track_local(pos, g, i):
-#    return 'local_g{}_{}'.format(g, i)
+def tiles(ic):
+    for x in range(ic.max_x+1):
+        for y in range(ic.max_y+1):
+            yield TilePos(x, y)
 
-def globalname_track_glb2local(pos, i):
-    return GlobalName("glb2local", TilePos(*pos), i)
+def get_corner_tiles(ic):
+    corner_tiles = set()
+    for x in (0, ic.max_x):
+        for y in (0, ic.max_y):
+            corner_tiles.add((x, y))
+    return corner_tiles
 
-def localname_track_glb2local(pos, i):
-    return 'glb2local_{}'.format(i)
+class NetNames:
+    def __init__(self, ic):
+        self.ic = ic
+        self.index_names()
 
-#def iceboxname_track_glb2local(pos, i):
-#    return 'gbl2local_{}'.format(i)
-'''
+    def index_names(self):
+        self.globalname2netnames = {}
+        self.globalname2node = {}
+        self.globalname2nodeid = {}
+
+        self.netname2globalname = {}
+
+        self.all_tiles = list(tiles(self.ic))
+        self.corner_tiles = get_corner_tiles(self.ic)
+
+        all_group_segments = self.ic.group_segments(self.all_tiles, connect_gb=False)
+        for group in sorted(all_group_segments):
+            fgroup = NetNames.filter_localnames(self.ic, group)
+            if not fgroup:
+                continue
+
+            print()
+            gname = NetNames._calculate_globalname_net(self.ic, tuple(fgroup))
+            if not gname:
+                print('Could not calculate global name for', group)
+                continue
+
+            if gname[0] == "pin":
+                #alias_type = "pin"
+                # FIXME: revisit later
+                continue
+                assert gname in self.globalname2netnames, gname
+            else:
+                #alias_type = "net"
+                if gname not in self.globalname2netnames:
+                    print("Adding net {}".format(gname))
+
+            #print(x, y, gname, group)
+            for x, y, netname in fgroup:
+                self.add_globalname2localname(gname, TilePos(x, y), netname)
+
+    def add_globalname2localname(self, globalname, pos, localname):
+        assert isinstance(globalname, GlobalName), "{!r} must be a GlobalName".format(globalname)
+        assert isinstance(pos, TilePos), "{!r} must be a TilePos".format(pos)
+
+        nid = (pos, localname)
+
+        if nid in self.netname2globalname:
+            assert globalname == self.netname2globalname[nid], (
+                "While adding global name {} found existing global name {} for {}".format(
+                    globalname, self.netname2globalname[nid], nid))
+            return
+
+        self.netname2globalname[nid] = globalname
+        if globalname not in self.globalname2netnames:
+            self.globalname2netnames[globalname] = set()
+
+        if nid not in self.globalname2netnames[globalname]:
+            self.globalname2netnames[globalname].add(nid)
+            print("Adding alias for {} is tile {}, {}".format(globalname, pos, localname))
+        else:
+            print("Existing alias for {} is tile {}, {}".format(globalname, pos, localname))
+
+    @staticmethod
+    def filter_name(localname):
+        if localname.endswith('cout') or localname.endswith('lout'):
+            return True
+
+        if localname.startswith('padout_') or localname.startswith('padin_'):
+            return True
+
+        if localname in ("fabout","carry_in","carry_in_mux"):
+            return True
+        return False
+
+    @staticmethod
+    def filter_localnames(ic, group):
+        fgroup = []
+        for x,y,name in group:
+            if not ic.tile_has_entry(x, y, name):
+                print("Skipping {} on {},{}".format(name, x,y))
+                continue
+
+            if NetNames.filter_name(name):
+                continue
+
+            fgroup.append((x, y, name))
+        return fgroup
+
+    @staticmethod
+    def globalname_track_local(pos, g, i):
+        return GlobalName("local", TilePos(*pos), (g, i))
+
+    @staticmethod
+    def localname_track_local(pos, g, i):
+        return 'local_g{}_{}'.format(g, i)
+
+    #def iceboxname_track_local(pos, g, i):
+    #    return 'local_g{}_{}'.format(g, i)
+
+    @staticmethod
+    def globalname_track_glb2local(pos, i):
+        return GlobalName("glb2local", TilePos(*pos), i)
+
+    @staticmethod
+    def localname_track_glb2local(pos, i):
+        return 'glb2local_{}'.format(i)
+
+    #def iceboxname_track_glb2local(pos, i):
+    #    return 'gbl2local_{}'.format(i)
+
+    @staticmethod
+    def _calculate_globalname_net(ic, segments):
+        '''
+        Take a net segments list from ic.group_segments() and decode what it is
+        icebox segment: a bit of a net on a specific tile
+        Each icebox segment is a (tile x, tile y, local net name) tuple
+        icebox groups are segments aggregated into larger nets
+        It may be either a VPR pin or a VPR track
+
+        This function is stateless
+        '''
+
+        tiles = set()
+        names = set()
+
+        assert segments
+
+        for x, y, name in segments:
+            if name.startswith('lutff_'): # Actually a pin
+                lut_idx, pin = name.split('/')
+
+                if lut_idx == "lutff_global":
+                    return GlobalName("pin", TilePos(x, y), pin)
+                else:
+                    if '_' in pin:
+                        pin, pin_idx = pin.split('_')
+                        return GlobalName("pin", TilePos(x, y), "lut[{}].{}[{}]".format(lut_idx[len("lutff_"):], pin, pin_idx).lower())
+                    else:
+                        return GlobalName("pin", TilePos(x, y), "lut[{}].{}".format(lut_idx[len("lutff_"):], pin).lower())
+
+            elif name.startswith('io_'): # Actually a pin
+                io_idx, pin = name.split('/')
+
+                if io_idx == "io_global":
+                    return GlobalName("pin", TilePos(x, y), pin)
+                else:
+                    return GlobalName("pin", TilePos(x, y), "io[{}].{}".format(io_idx[len("io_"):], pin).lower())
+
+            elif name.startswith('ram/'): # Actually a pin
+                name = name[len('ram/'):]
+                if '_' in name:
+                    pin, pin_idx = name.split('_')
+                    return GlobalName("pin", TilePos(x, y), "{}[{}]".format(pin, pin_idx).lower())
+                else:
+                    return GlobalName("pin", TilePos(x, y), name.lower())
+
+            if not name.startswith('sp4_r_v_'):
+                tiles.add(TilePos(x, y))
+            names.add(name)
+
+        if not tiles:
+            tiles.add(TilePos(x, y))
+        assert names, "No names for {}".format(names)
+
+        wire_type = []
+        if len(tiles) == 1:
+            pos = tiles.pop()
+
+            name = names.pop().lower()
+            if name.startswith('local_'):
+                m = re.match("local_g([0-3])_([0-7])", name)
+                assert m, "{!r} didn't match local regex".format(name)
+                g = int(m.group(1))
+                i = int(m.group(2))
+
+                assert name == NetNames.localname_track_local(pos, g, i)
+                return NetNames.globalname_track_local(pos, g, i)
+            elif name.startswith('glb2local_'):
+                m = re.match("glb2local_([0-3])", name)
+                assert m, "{!r} didn't match glb2local regex".format(name)
+                i = int(m.group(1))
+
+                assert name == NetNames.localname_track_glb2local(pos, i), "{!r} != {!r}".format(
+                    name, NetNames.localname_track_glb2local(pos, i))
+                return NetNames.globalname_track_glb2local(pos, i)
+
+            # Special case when no logic to the right....
+            elif name.startswith('sp4_r_v_') or name.startswith('neigh_op_'):
+                m = re.search("_([0-9]+)$", name)
+
+                wire_type += ["channel", "stub", name]
+                wire_type += ["span4"]
+                wire_type += [(pos, int(m.group(1)), pos, 1)]
+                return GlobalName(*wire_type)
+
+            print("Unknown only local net {}".format(name))
+            return None
+
+        # Global wire, as only has one name?
+        elif len(names) == 1:
+            wire_type = ['global', '{}_tiles'.format(len(tiles)), names.pop().lower()]
+
+        # Work out the type of wire
+        if not wire_type:
+            for n in names:
+                if n.startswith('span4_horz_'):
+                    if wire_type and 'horizontal' not in wire_type:
+                        wire_type = ['channel', 'span4', 'corner']
+                        break
+                    else:
+                        wire_type = ['channel', 'span4', 'horizontal']
+                if n.startswith('span4_vert_'):
+                    if wire_type and 'vertical' not in wire_type:
+                        wire_type = ['channel', 'span4', 'corner']
+                        break
+                    else:
+                        wire_type = ['channel', 'span4', 'vertical']
+                if n.startswith('sp12_h_'):
+                    wire_type = ['channel', 'span12', 'horizontal']
+                    break
+                if n.startswith('sp12_v_'):
+                    wire_type = ['channel', 'span12', 'vertical']
+                    break
+                if n.startswith('sp4_h_'):
+                    wire_type = ['channel', 'span4','horizontal']
+                    break
+                if n.startswith('sp4_v_'):
+                    wire_type = ['channel', 'span4', 'vertical']
+                    break
+                if n.startswith('neigh_op'):
+                    #wire_type = ['direct', 'neighbour']
+                    break
+                if n == 'carry_in':
+                    wire_type = ['direct', 'carrychain',]
+                    break
+
+        if not wire_type:
+            return None
+
+        if 'channel' in wire_type:
+            xs = set()
+            ys = set()
+            es = set()
+            for x, y in tiles:
+                xs.add(x)
+                ys.add(y)
+                es.add(ic.tile_pos(x, y))
+
+            if 'horizontal' in wire_type:
+                # Check for constant y value
+                assert len(ys) == 1, repr((ys, names))
+                y = ys.pop()
+
+                start = TilePos(min(xs), y)
+                end   = TilePos(max(xs), y)
+
+                offset = min(xs)
+                delta = end[0] - start[0]
+
+            elif 'vertical' in wire_type:
+                # Check for constant x value
+                assert len(xs) in (1, 2), repr((xs, names))
+                x = xs.pop()
+
+                start = TilePos(x, min(ys))
+                end   = TilePos(x, max(ys))
+
+                offset = min(ys)
+                delta = end[1] - start[1]
+
+            elif 'corner' in wire_type:
+                assert len(es) == 2, (es, segments)
+
+                if 't' in es:
+                    if 'l' in es:
+                        # +--
+                        # |
+                        assert min(xs) == 0
+                        #assert (0,max(ys)) in tiles, tiles
+                        start = TilePos(0,min(ys))
+                        end   = TilePos(max(xs), max(ys))
+                        delta = max(ys)-min(ys)+min(xs)
+                    elif 'r' in es:
+                        # --+
+                        #   |
+                        #assert (max(xs), max(ys)) in tiles, tiles
+                        start = TilePos(min(xs), max(ys))
+                        end   = TilePos(max(xs), min(ys))
+                        delta = max(xs)-min(xs) + max(ys)-min(ys)
+                    else:
+                        assert False
+                elif 'b' in es:
+                    if 'l' in es:
+                        # |
+                        # +--
+                        assert min(xs) == 0
+                        assert min(ys) == 0
+                        #assert (0,0) in tiles, tiles
+                        start = TilePos(0,max(ys))
+                        end   = TilePos(max(xs), 0)
+                        delta = max(xs) + max(ys)-min(ys)
+                    elif 'r' in es:
+                        #   |
+                        # --+
+                        assert min(ys) == 0
+                        #assert (max(xs), 0) in tiles, tiles
+                        start = TilePos(min(xs), 0)
+                        end   = TilePos(max(xs), max(ys))
+                        delta = max(xs)-min(xs) + max(ys)
+                    else:
+                        assert False
+                else:
+                    assert False, 'Unknown span corner wire {}'.format((es, segments))
+
+                offset = 0 # FIXME: ????
+
+            elif 'neighbour' in wire_type:
+                x = list(sorted(xs))[int(len(xs)/2)+1]
+                y = list(sorted(ys))[int(len(ys)/2)+1]
+                return None
+
+            elif 'carrychain' in wire_type:
+                assert len(xs) == 1
+                assert len(ys) == 2
+                start = TilePos(min(xs), min(ys))
+                end   = TilePos(min(xs), max(ys))
+                delta = 1
+
+                return None
+            else:
+                assert False, 'Unknown span wire {}'.format((wire_type, segments))
+
+            assert start in tiles
+            assert end in tiles
+
+            n = None
+            for x, y, name in segments:
+                if x == start[0] and y == start[1]:
+                    n = int(name.split("_")[-1])
+                    break
+
+            assert n is not None
+
+            if "span4" in wire_type:
+                max_channels = SPAN4_MAX_TRACKS
+                max_span = 4
+            elif "span12" in wire_type:
+                max_channels = SPAN12_MAX_TRACKS
+                max_span = 12
+
+            finish_per_offset = int(max_channels / max_span)
+            filled = (max_channels - ((offset * finish_per_offset) % max_channels))
+            idx = (filled + n) % max_channels
+
+            #wire_type.append('{:02}-{:02}x{:02}-{:02}x{:02}'.format(delta, start[0], start[1], end[0], end[1]))
+            wire_type.append((start, idx, end, delta))
+
+        return GlobalName(*wire_type)
+
+
+def add_track_local(graph, nn, block, group, i, segment):
+    pos = block.position
+    lname = NetNames.localname_track_local(pos, group, i)
+    gname = NetNames.globalname_track_local(pos, group, i)
+
+    print("Adding local track {} on tile {}".format(gname, pos))
+    graph.create_xy_track(block.position, block.position, segment,
+           type=channel.Track.Type.Y, direction=channel.Track.Direction.BI,
+           id_override=gname)
+    nn.add_globalname2localname(gname, pos, lname)
+
+
+def add_track_gbl2local(graph, nn, block, i, segment):
+    pos = block.position
+    lname = NetNames.localname_track_glb2local(pos, i)
+    gname = NetNames.globalname_track_glb2local(pos, i)
+
+    print("Adding glb2local {} track {} on tile {}".format(i, gname, pos))
+    graph.create_xy_track(block.position, block.position, segment,
+           type=channel.Track.Type.Y, direction=channel.Track.Direction.BI,
+           id_override=gname)
+    nn.add_globalname2localname(gname, pos, lname)
+
+
+
+
+
+
 
 '''
 https://docs.google.com/document/d/1kTehDgse8GA2af5HoQ9Ntr41uNL_NJ43CjA32DofK8E/edit#heading=h.b5gijh3mhpx9
@@ -134,7 +529,8 @@ Local wires are given global names by giving a prefix of WA/B_ where;
     A == X tile coordinate
     B == Y tile coordinate
 '''
-def globalname_track_local(block, g, i):
+'''
+def local_track_gname(block, g, i):
     assert type(block) is graph.Block
     pos = block.position
     assert type(g) is int
@@ -147,7 +543,7 @@ def globalname_track_local(block, g, i):
         }[block.block_type.name]
     return '{}{}/{}_local_g{}_{}'.format(tile_type_short, pos.x, pos.y, g, i)
 
-def globalname_track_glb2local(block, i):
+def glb2local_track_gname(block, i):
     assert type(block) is graph.Block
     pos = block.position
 
@@ -157,12 +553,30 @@ def globalname_track_glb2local(block, i):
         'FIXME_BRAM':       'R',
         }[block.block_type.name]
     return '{}{}/{}_glb2local_{}'.format(tile_type_short, pos.x, pos.y, i)
+'''
+
+'''
+def setup_empty_t4(self):
+    self.clear()
+    self.device = "T4"
+    self.max_x = 3
+    self.max_y = 3
+
+    for x in range(1, self.max_x):
+        for y in range(1, self.max_y):
+            self.logic_tiles[(x, y)] = ["0" * 54 for i in range(16)]
+
+    for x in range(1, self.max_x):
+        self.io_tiles[(x, 0)] = ["0" * 18 for i in range(16)]
+        self.io_tiles[(x, self.max_y)] = ["0" * 18 for i in range(16)]
+
+    for y in range(1, self.max_y):
+        self.io_tiles[(0, y)] = ["0" * 18 for i in range(16)]
+        self.io_tiles[(self.max_x, y)] = ["0" * 18 for i in range(16)]
+'''
 
 g = None
-def init(mode):
-    global ic
-    global device_name
-
+def init(device_name):
     ic = icebox.iceconfig()
     {
         't4':  ic.setup_empty_t4,
@@ -170,31 +584,36 @@ def init(mode):
         '5k':  ic.setup_empty_5k,
         '1k':  ic.setup_empty_1k,
         '384': ic.setup_empty_384,
-    }[mode]()
-    device_name = mode
+    }[device_name]()
     fn_dir =     {
         't4':  'test4',
         '8k':  'HX8K',
         '5k':  'HX5K',
         '1k':  'HX1K',
         '384': 'LP384',
-    }[mode]
+    }[device_name]
     ref_rr_fn = '../../tests/build/ice40/{}/wire.rr_graph.xml'.format(fn_dir)
 
     # Load g stuff we care about
     # (basically omit rr_nodes)
     # clear_fabric reduces load time from about 11.1 => 2.8 sec on my machine
     # seems to be mostly from the edges?
+    print('Loading rr_graph')
     g = graph.Graph(ref_rr_fn, clear_fabric=True)
     g.set_tooling(name="icebox", version="dev", comment="Generated for iCE40 {} device".format(device_name))
-    return g
+
+    print('Indexing icebox net names')
+    nn = NetNames(ic)
+
+    return ic, g, nn
 
 def create_switches(g):
     # Create the switch types
     # ------------------------------
     print('Creating switches')
     #_switch_delayless = g.ids.add_delayless_switch()
-    _switch_delayless = g.ids.add_switch('delayless', buffered=1, configurable=0, stype='mux')
+    _switch_delayless = g.ids.add_switch('__vpr_delayless_switch__', buffered=1, configurable=0, stype='mux')
+
     # Buffer switch drives an output net from a possible list of input nets.
     _switch_buffer = g.ids.add_switch('buffer', buffered=1, stype='mux')
     # Routing switch connects two nets together to form a span12er wire.
@@ -206,19 +625,19 @@ def create_segments(g):
             'global',
             'span12',
             'span4',
+            'gbl2local',
             'local',
             'direct',
             )
     for segment_name in segment_names:
         _segment = g.channels.create_segment(segment_name)
 
-# TODO: add id_override to match documented names
-def add_local_tracks(g):
+def add_local_tracks(g, nn):
     print('Adding local tracks')
 
     # TODO: review segments based on timing requirements
     local_segment = g.channels.segment_s2seg['local']
-    #global_segment = g.channels.segment_s2seg['global']
+    gbl2local_segment = g.channels.segment_s2seg['gbl2local']
 
     for block in g.block_grid.blocks_for():
         if block.block_type.name == 'EMPTY':
@@ -237,23 +656,12 @@ def add_local_tracks(g):
         # Local tracks
         for groupi in range(0, groups_local[0]):
             for i in range(0, groups_local[1]):
-                gname = globalname_track_local(block, groupi, i)
-                print("Block {}: add local track {}".format(block, gname))
-                g.create_xy_track(block.position, block.position, local_segment,
-                       type=channel.Track.Type.Y, direction=channel.Track.Direction.BI,
-                       id_override=gname)
+                add_track_local(g, nn, block, groupi, i, local_segment)
 
-        '''
-        FIXME: enable after MVP
         # Global to local
         if groups_glb2local:
             for _i in range(0, groups_glb2local):
-                gname = globalname_track_glb2local(block, i)
-                print("Block {}: add glb2local track {}".format(block, gname))
-                g.create_xy_track(block.position, block.position, global_segment,
-                       type=channel.Track.Type.Y, direction=channel.Track.Direction.BI,
-                       id_override=gname)
-        '''
+                add_track_gbl2local(g, nn, block, i, gbl2local_segment)
 
 def add_span_tracks(g):
     print('Adding span tracks')
@@ -314,35 +722,54 @@ def print_nodes_edges(g):
     print("Nodes: %d (index: %d)" % (len(g.ids._xml_nodes),
                                      len(g.ids.id2node['node'])))
 
-def my_test(g):
+def my_test(ic, g):
     print('my_test()')
-    _TilePos = namedtuple('T', ['x', 'y'])
-    class TilePos(_TilePos):
-        _sentinal = []
-        def __new__(cls, x, y=_sentinal, *args):
-            if y is cls._sentinal:
-                if len(x) == 2:
-                    x, y = x
-                else:
-                    raise TypeError("TilePos takes 2 positional arguments not {}".format(x))
-
-            assert isinstance(x, int), "x must be an int not {!r}".format(x)
-            assert isinstance(y, int), "y must be an int not {!r}".format(y)
-            return _TilePos.__new__(cls, x=x, y=y)
 
     def tiles(ic):
         for x in range(ic.max_x+1):
             for y in range(ic.max_y+1):
                 yield TilePos(x, y)
     all_tiles = list(tiles(ic))
+    # gives tile + local wire names at that tile
     all_group_segments = ic.group_segments(all_tiles, connect_gb=False)
+
+    # loop over all segments and print some basic info
+    if 0:
+        for segment in all_group_segments:
+            print('Segment')
+            for (tilex, tiley, name) in segment:
+                print('  %sX%sY has %s' % (tilex, tiley, name))
+
+    if 1:
+        for segments in all_group_segments:
+            print('Group')
+            gn = NetNames._calculate_globalname_net(ic, segments)
+            print('  Segments: ', segments)
+            if gn is None:
+                continue
+            print('  GlobalName: ', gn)
+
+            gntype = gn[0]
+            if gntype == 'local':
+                print('  Routing, local')
+            elif gntype == 'channel':
+                print('  Routing, span')
+            elif gntype == 'glb2local':
+                print('  Routing, glb2local')
+            elif gntype == 'pin':
+                pass
+            else:
+                assert 0, gntype
+
     print('exiting')
     sys.exit(1)
 
-def run(mode):
+def run(part):
+    global ic
+
     print('Importing input g')
-    g = init(mode)
-    my_test(g)
+    ic, g, nn = init(part)
+    # my_test(ic, g)
     print('Source g loaded')
     print_nodes_edges(g)
     grid_sz = g.block_grid.size()
@@ -363,15 +790,16 @@ def run(mode):
     create_segments(g)
     print()
     print('Rebuilding block I/O nodes')
-    delayless_switch = g.ids['SW-delayless']
+    delayless_switch = g.ids.switch('__vpr_delayless_switch__')
     g.add_nodes_for_blocks(delayless_switch, sides)
     print_nodes_edges(g)
     print()
-    add_local_tracks(g)
+    add_local_tracks(g, nn)
     print_nodes_edges(g)
-    print()
-    add_span_tracks(g)
-    print_nodes_edges(g)
+    if 0:
+        print()
+        add_span_tracks(g)
+        print_nodes_edges(g)
     print()
     print('Exiting')
     sys.exit(0)
@@ -478,243 +906,7 @@ def globalname_net(pos, name):
     return netname2globalname[(pos, name)]
 '''
 
-def _calculate_globalname_net(group):
-    tiles = set()
-    names = set()
 
-    assert group
-
-    for x, y, name in group:
-        if name.startswith('lutff_'): # Actually a pin
-            lut_idx, pin = name.split('/')
-
-            if lut_idx == "lutff_global":
-                return GlobalName("pin", TilePos(x, y), pin)
-            else:
-                if '_' in pin:
-                    pin, pin_idx = pin.split('_')
-                    return GlobalName("pin", TilePos(x, y), "lut[{}].{}[{}]".format(lut_idx[len("lutff_"):], pin, pin_idx).lower())
-                else:
-                    return GlobalName("pin", TilePos(x, y), "lut[{}].{}".format(lut_idx[len("lutff_"):], pin).lower())
-
-        elif name.startswith('io_'): # Actually a pin
-            io_idx, pin = name.split('/')
-
-            if io_idx == "io_global":
-                return GlobalName("pin", TilePos(x, y), pin)
-            else:
-                return GlobalName("pin", TilePos(x, y), "io[{}].{}".format(io_idx[len("io_"):], pin).lower())
-
-        elif name.startswith('ram/'): # Actually a pin
-            name = name[len('ram/'):]
-            if '_' in name:
-                pin, pin_idx = name.split('_')
-                return GlobalName("pin", TilePos(x, y), "{}[{}]".format(pin, pin_idx).lower())
-            else:
-                return GlobalName("pin", TilePos(x, y), name.lower())
-
-        if not name.startswith('sp4_r_v_'):
-            tiles.add(TilePos(x, y))
-        names.add(name)
-
-    if not tiles:
-        tiles.add(TilePos(x, y))
-    assert names, "No names for {}".format(names)
-
-    wire_type = []
-    if len(tiles) == 1:
-        pos = tiles.pop()
-
-        name = names.pop().lower()
-        if name.startswith('local_'):
-            m = re.match("local_g([0-3])_([0-7])", name)
-            assert m, "{!r} didn't match local regex".format(name)
-            g = int(m.group(1))
-            i = int(m.group(2))
-
-            assert name == localname_track_local(pos, g, i)
-            return globalname_track_local(pos, g, i)
-        elif name.startswith('glb2local_'):
-            m = re.match("glb2local_([0-3])", name)
-            assert m, "{!r} didn't match glb2local regex".format(name)
-            i = int(m.group(1))
-
-            assert name == localname_track_glb2local(pos, i), "{!r} != {!r}".format(
-                name, localname_track_glb2local(pos, i))
-            return globalname_track_glb2local(pos, i)
-
-        # Special case when no logic to the right....
-        elif name.startswith('sp4_r_v_') or name.startswith('neigh_op_'):
-            m = re.search("_([0-9]+)$", name)
-
-            wire_type += ["channel", "stub", name]
-            wire_type += ["span4"]
-            wire_type += [(pos, int(m.group(1)), pos, 1)]
-            return GlobalName(*wire_type)
-
-        print("Unknown only local net {}".format(name))
-        return None
-
-    # Global wire, as only has one name?
-    elif len(names) == 1:
-        wire_type = ['global', '{}_tiles'.format(len(tiles)), names.pop().lower()]
-
-    # Work out the type of wire
-    if not wire_type:
-        for n in names:
-            if n.startswith('span4_horz_'):
-                if wire_type and 'horizontal' not in wire_type:
-                    wire_type = ['channel', 'span4', 'corner']
-                    break
-                else:
-                    wire_type = ['channel', 'span4', 'horizontal']
-            if n.startswith('span4_vert_'):
-                if wire_type and 'vertical' not in wire_type:
-                    wire_type = ['channel', 'span4', 'corner']
-                    break
-                else:
-                    wire_type = ['channel', 'span4', 'vertical']
-            if n.startswith('sp12_h_'):
-                wire_type = ['channel', 'span12', 'horizontal']
-                break
-            if n.startswith('sp12_v_'):
-                wire_type = ['channel', 'span12', 'vertical']
-                break
-            if n.startswith('sp4_h_'):
-                wire_type = ['channel', 'span4','horizontal']
-                break
-            if n.startswith('sp4_v_'):
-                wire_type = ['channel', 'span4', 'vertical']
-                break
-            if n.startswith('neigh_op'):
-                #wire_type = ['direct', 'neighbour']
-                break
-            if n == 'carry_in':
-                wire_type = ['direct', 'carrychain',]
-                break
-
-    if not wire_type:
-        return None
-
-    if 'channel' in wire_type:
-        xs = set()
-        ys = set()
-        es = set()
-        for x, y in tiles:
-            xs.add(x)
-            ys.add(y)
-            es.add(ic.tile_pos(x, y))
-
-        if 'horizontal' in wire_type:
-            # Check for constant y value
-            assert len(ys) == 1, repr((ys, names))
-            y = ys.pop()
-
-            start = TilePos(min(xs), y)
-            end   = TilePos(max(xs), y)
-
-            offset = min(xs)
-            delta = end[0] - start[0]
-
-        elif 'vertical' in wire_type:
-            # Check for constant x value
-            assert len(xs) in (1, 2), repr((xs, names))
-            x = xs.pop()
-
-            start = TilePos(x, min(ys))
-            end   = TilePos(x, max(ys))
-
-            offset = min(ys)
-            delta = end[1] - start[1]
-
-        elif 'corner' in wire_type:
-            assert len(es) == 2, (es, group)
-
-            if 't' in es:
-                if 'l' in es:
-                    # +--
-                    # |
-                    assert min(xs) == 0
-                    #assert (0,max(ys)) in tiles, tiles
-                    start = TilePos(0,min(ys))
-                    end   = TilePos(max(xs), max(ys))
-                    delta = max(ys)-min(ys)+min(xs)
-                elif 'r' in es:
-                    # --+
-                    #   |
-                    #assert (max(xs), max(ys)) in tiles, tiles
-                    start = TilePos(min(xs), max(ys))
-                    end   = TilePos(max(xs), min(ys))
-                    delta = max(xs)-min(xs) + max(ys)-min(ys)
-                else:
-                    assert False
-            elif 'b' in es:
-                if 'l' in es:
-                    # |
-                    # +--
-                    assert min(xs) == 0
-                    assert min(ys) == 0
-                    #assert (0,0) in tiles, tiles
-                    start = TilePos(0,max(ys))
-                    end   = TilePos(max(xs), 0)
-                    delta = max(xs) + max(ys)-min(ys)
-                elif 'r' in es:
-                    #   |
-                    # --+
-                    assert min(ys) == 0
-                    #assert (max(xs), 0) in tiles, tiles
-                    start = TilePos(min(xs), 0)
-                    end   = TilePos(max(xs), max(ys))
-                    delta = max(xs)-min(xs) + max(ys)
-                else:
-                    assert False
-            else:
-                assert False, 'Unknown span corner wire {}'.format((es, group))
-
-            offset = 0 # FIXME: ????
-
-        elif 'neighbour' in wire_type:
-            x = list(sorted(xs))[int(len(xs)/2)+1]
-            y = list(sorted(ys))[int(len(ys)/2)+1]
-            return None
-
-        elif 'carrychain' in wire_type:
-            assert len(xs) == 1
-            assert len(ys) == 2
-            start = TilePos(min(xs), min(ys))
-            end   = TilePos(min(xs), max(ys))
-            delta = 1
-
-            return None
-        else:
-            assert False, 'Unknown span wire {}'.format((wire_type, group))
-
-        assert start in tiles
-        assert end in tiles
-
-        n = None
-        for x, y, name in group:
-            if x == start[0] and y == start[1]:
-                n = int(name.split("_")[-1])
-                break
-
-        assert n is not None
-
-        if "span4" in wire_type:
-            max_channels = SPAN4_MAX_TRACKS
-            max_span = 4
-        elif "span12" in wire_type:
-            max_channels = SPAN12_MAX_TRACKS
-            max_span = 12
-
-        finish_per_offset = int(max_channels / max_span)
-        filled = (max_channels - ((offset * finish_per_offset) % max_channels))
-        idx = (filled + n) % max_channels
-
-        #wire_type.append('{:02}-{:02}x{:02}-{:02}x{:02}'.format(delta, start[0], start[1], end[0], end[1]))
-        wire_type.append((start, idx, end, delta))
-
-    return GlobalName(*wire_type)
 
 # ------------------------------
 
@@ -722,30 +914,6 @@ print()
 print("Calculating nets")
 print("="*75)
 
-def filter_name(localname):
-    if localname.endswith('cout') or localname.endswith('lout'):
-        return True
-
-    if localname.startswith('padout_') or localname.startswith('padin_'):
-        return True
-
-    if localname in ("fabout","carry_in","carry_in_mux"):
-        return True
-    return False
-
-
-def filter_localnames(group):
-    fgroup = []
-    for x,y,name in group:
-        if not ic.tile_has_entry(x, y, name):
-            print("Skipping {} on {},{}".format(name, x,y))
-            continue
-
-        if filter_name(name):
-            continue
-
-        fgroup.append((x, y, name))
-    return fgroup
 
 
 def add_net_global(i):
@@ -758,31 +926,6 @@ for i in range(0, 8):
 
 add_channel(GlobalName('global', 'fabout'), 'CHANY', TilePos(0, 0), TilePos(0, 0), 0, 'global')
 
-# ------------------------------
-
-all_group_segments = ic.group_segments(all_tiles, connect_gb=False)
-for group in sorted(all_group_segments):
-    fgroup = filter_localnames(group)
-    if not fgroup:
-        continue
-
-    print()
-    gname = _calculate_globalname_net(tuple(fgroup))
-    if not gname:
-        print('Could not calculate global name for', group)
-        continue
-
-    if gname[0] == "pin":
-        alias_type = "pin"
-        assert gname in globalname2netnames, gname
-    else:
-        alias_type = "net"
-        if gname not in globalname2netnames:
-            print("Adding net {}".format(gname))
-
-    print(x, y, gname, group)
-    for x, y, netname in fgroup:
-        add_globalname2localname(gname, TilePos(x, y), netname)
 
 
 
