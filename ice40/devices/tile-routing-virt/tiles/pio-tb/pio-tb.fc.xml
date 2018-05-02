@@ -1,0 +1,19 @@
+<!-- set: ai sw=1 ts=1 sta et -->
+<fc>
+ <!-- Horizontal spans ############################################### -->
+ <!-- Span-4 Horizontal -->
+ <fc_override fc_type="frac" fc_val="0.5" port_name="i_span4_horz"    segment_name="span4"  /><fc_override fc_type="frac" fc_val="0.5" port_name="o_span4_horz"   segment_name="span4"  />
+
+ <!-- Span-12 Horizontal -->
+ <fc_override fc_type="frac" fc_val="0.5" port_name="i_span12_horz"   segment_name="span12" /><fc_override fc_type="frac" fc_val="0.5" port_name="o_span12_horz"  segment_name="span12" />
+
+ <!-- Vertical spans ################################################# -->
+ <!-- Span-4 Vertical -->
+ <fc_override fc_type="frac" fc_val="0.5" port_name="i_span4_vert_l"    segment_name="span4"  /><fc_override fc_type="frac" fc_val="0.5" port_name="o_span4_vert_l"   segment_name="span4"  />
+ <fc_override fc_type="frac" fc_val="0.5" port_name="i_span4_vert_r"    segment_name="span4"  /><fc_override fc_type="frac" fc_val="0.5" port_name="o_span4_vert_r"   segment_name="span4"  />
+
+ <!-- Span-12 Vertical -->
+ <fc_override fc_type="frac" fc_val="0.5" port_name="i_span12_vert_l"   segment_name="span12" /><fc_override fc_type="frac" fc_val="0.5" port_name="o_span12_vert_l"  segment_name="span12" />
+ <fc_override fc_type="frac" fc_val="0.5" port_name="i_span12_vert_r"   segment_name="span12" /><fc_override fc_type="frac" fc_val="0.5" port_name="o_span12_vert_r"  segment_name="span12" />
+
+</fc>

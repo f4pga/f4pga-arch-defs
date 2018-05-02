@@ -1,0 +1,121 @@
+<!-- set: ai sw=1 ts=1 sta et -->
+<interconnect xmlns:xi="http://www.w3.org/2001/XInclude">
+ <!-- ################################################################ -->
+ <!-- # Connect input and output nets together                       # -->
+ <!-- ################################################################ -->
+
+ <!-- Fabric Span wires -->
+ <direct name="span4_horz"  input="BLK_TL-PLR_LR.i_span4_horz"  output="BLK_TL-PLR_LR.o_span4_horz" />
+ <direct name="span12_horz" input="BLK_TL-PLR_LR.i_span12_horz" output="BLK_TL-PLR_LR.o_span12_horz" />
+
+ <!-- IO Span wires -->
+ <direct name="span4_vert_l" input="BLK_TL-PLR_LR.i_span4_vert_l" output="BLK_TL-PLR_LR.o_span4_vert_l" />
+ <direct name="span4_vert_r" input="BLK_TL-PLR_LR.i_span4_vert_r" output="BLK_TL-PLR_LR.o_span4_vert_r" />
+ <!--"Configuration Stamps" - ??? -->
+
+ <!-- io           -> span4_vert_r -->
+ <!-- io[0]        -> span4_vert_r -->
+ <!-- io[0].D_IN_0 -> span4_vert_r -->
+ <mux name="io[0].D_IN_0->span4_vert_r[0]"  input="BLK_IG-IO_LOCAL.io_0_D_IN_0" output="BLK_TL-PLR_LR.i_span4_vert_r[0]"  />
+ <mux name="io[0].D_IN_0->span4_vert_r[4]"  input="BLK_IG-IO_LOCAL.io_0_D_IN_0" output="BLK_TL-PLR_LR.i_span4_vert_r[4]"  />
+ <mux name="io[0].D_IN_0->span4_vert_r[8]"  input="BLK_IG-IO_LOCAL.io_0_D_IN_0" output="BLK_TL-PLR_LR.i_span4_vert_r[8]"  />
+ <mux name="io[0].D_IN_0->span4_vert_r[12]" input="BLK_IG-IO_LOCAL.io_0_D_IN_0" output="BLK_TL-PLR_LR.i_span4_vert_r[12]" />
+ <!-- io[0].D_IN_1 -> span4_vert_r -->
+ <mux name="io[0].D_IN_1->span4_vert_r[1]"  input="BLK_IG-IO_LOCAL.io_0_D_IN_1" output="BLK_TL-PLR_LR.i_span4_vert_r[1]"  />
+ <mux name="io[0].D_IN_1->span4_vert_r[5]"  input="BLK_IG-IO_LOCAL.io_0_D_IN_1" output="BLK_TL-PLR_LR.i_span4_vert_r[5]"  />
+ <mux name="io[0].D_IN_1->span4_vert_r[9]"  input="BLK_IG-IO_LOCAL.io_0_D_IN_1" output="BLK_TL-PLR_LR.i_span4_vert_r[9]"  />
+ <mux name="io[0].D_IN_1->span4_vert_r[13]" input="BLK_IG-IO_LOCAL.io_0_D_IN_1" output="BLK_TL-PLR_LR.i_span4_vert_r[13]" />
+ <!-- io[1]        -> span4_vert_r -->
+ <!-- io[1].D_IN_0 -> span4_vert_r -->
+ <mux name="io[1].D_IN_0->span4_vert_r[2]"  input="BLK_IG-IO_LOCAL.io_1_D_IN_0" output="BLK_TL-PLR_LR.i_span4_vert_r[2]"  />
+ <mux name="io[1].D_IN_0->span4_vert_r[6]"  input="BLK_IG-IO_LOCAL.io_1_D_IN_0" output="BLK_TL-PLR_LR.i_span4_vert_r[6]"  />
+ <mux name="io[1].D_IN_0->span4_vert_r[10]" input="BLK_IG-IO_LOCAL.io_1_D_IN_0" output="BLK_TL-PLR_LR.i_span4_vert_r[10]" />
+ <mux name="io[1].D_IN_0->span4_vert_r[14]" input="BLK_IG-IO_LOCAL.io_1_D_IN_0" output="BLK_TL-PLR_LR.i_span4_vert_r[14]" />
+ <!-- io[1].D_IN_1 -> span4_vert_r -->
+ <mux name="io[1].D_IN_1->span4_vert_r[3]"  input="BLK_IG-IO_LOCAL.io_1_D_IN_1" output="BLK_TL-PLR_LR.i_span4_vert_r[3]"  />
+ <mux name="io[1].D_IN_1->span4_vert_r[7]"  input="BLK_IG-IO_LOCAL.io_1_D_IN_1" output="BLK_TL-PLR_LR.i_span4_vert_r[7]"  />
+ <mux name="io[1].D_IN_1->span4_vert_r[11]" input="BLK_IG-IO_LOCAL.io_1_D_IN_1" output="BLK_TL-PLR_LR.i_span4_vert_r[11]" />
+ <mux name="io[1].D_IN_1->span4_vert_r[15]" input="BLK_IG-IO_LOCAL.io_1_D_IN_1" output="BLK_TL-PLR_LR.i_span4_vert_r[15]" />
+
+ <!-- io           -> span4_horz -->
+ <!-- io[0]        -> span4_horz -->
+ <!-- io[0].D_IN_0 -> span4_horz -->
+ <mux name="io[0].D_IN_0->span4_horz[0]"    input="BLK_IG-IO_LOCAL.io_0_D_IN_0" output="BLK_TL-PLR_LR.i_span4_horz[0]"    />
+ <mux name="io[0].D_IN_0->span4_horz[8]"    input="BLK_IG-IO_LOCAL.io_0_D_IN_0" output="BLK_TL-PLR_LR.i_span4_horz[8]"    />
+ <mux name="io[0].D_IN_0->span4_horz[16]"   input="BLK_IG-IO_LOCAL.io_0_D_IN_0" output="BLK_TL-PLR_LR.i_span4_horz[16]"   />
+ <mux name="io[0].D_IN_0->span4_horz[24]"   input="BLK_IG-IO_LOCAL.io_0_D_IN_0" output="BLK_TL-PLR_LR.i_span4_horz[24]"   />
+ <mux name="io[0].D_IN_0->span4_horz[32]"   input="BLK_IG-IO_LOCAL.io_0_D_IN_0" output="BLK_TL-PLR_LR.i_span4_horz[32]"   />
+ <mux name="io[0].D_IN_0->span4_horz[40]"   input="BLK_IG-IO_LOCAL.io_0_D_IN_0" output="BLK_TL-PLR_LR.i_span4_horz[40]"   />
+ <!-- io[0].D_IN_1 -> span4_horz -->
+ <mux name="io[0].D_IN_1->span4_horz[2]"    input="BLK_IG-IO_LOCAL.io_0_D_IN_1" output="BLK_TL-PLR_LR.i_span4_horz[2]"    />
+ <mux name="io[0].D_IN_1->span4_horz[10]"   input="BLK_IG-IO_LOCAL.io_0_D_IN_1" output="BLK_TL-PLR_LR.i_span4_horz[10]"   />
+ <mux name="io[0].D_IN_1->span4_horz[18]"   input="BLK_IG-IO_LOCAL.io_0_D_IN_1" output="BLK_TL-PLR_LR.i_span4_horz[18]"   />
+ <mux name="io[0].D_IN_1->span4_horz[26]"   input="BLK_IG-IO_LOCAL.io_0_D_IN_1" output="BLK_TL-PLR_LR.i_span4_horz[26]"   />
+ <mux name="io[0].D_IN_1->span4_horz[34]"   input="BLK_IG-IO_LOCAL.io_0_D_IN_1" output="BLK_TL-PLR_LR.i_span4_horz[34]"   />
+ <mux name="io[0].D_IN_1->span4_horz[42]"   input="BLK_IG-IO_LOCAL.io_0_D_IN_1" output="BLK_TL-PLR_LR.i_span4_horz[42]"   />
+ <!-- io[1]        -> span4_horz -->
+ <!-- io[1].D_IN_0 -> span4_horz -->
+ <mux name="io[1].D_IN_0->span4_horz[4]"    input="BLK_IG-IO_LOCAL.io_1_D_IN_0" output="BLK_TL-PLR_LR.i_span4_horz[4]"    />
+ <mux name="io[1].D_IN_0->span4_horz[12]"   input="BLK_IG-IO_LOCAL.io_1_D_IN_0" output="BLK_TL-PLR_LR.i_span4_horz[12]"   />
+ <mux name="io[1].D_IN_0->span4_horz[20]"   input="BLK_IG-IO_LOCAL.io_1_D_IN_0" output="BLK_TL-PLR_LR.i_span4_horz[20]"   />
+ <mux name="io[1].D_IN_0->span4_horz[28]"   input="BLK_IG-IO_LOCAL.io_1_D_IN_0" output="BLK_TL-PLR_LR.i_span4_horz[28]"   />
+ <mux name="io[1].D_IN_0->span4_horz[36]"   input="BLK_IG-IO_LOCAL.io_1_D_IN_0" output="BLK_TL-PLR_LR.i_span4_horz[36]"   />
+ <mux name="io[1].D_IN_0->span4_horz[44]"   input="BLK_IG-IO_LOCAL.io_1_D_IN_0" output="BLK_TL-PLR_LR.i_span4_horz[44]"   />
+ <!-- io[1].D_IN_1 -> span4_horz -->
+ <mux name="io[1].D_IN_1->span4_horz[6]"    input="BLK_IG-IO_LOCAL.io_1_D_IN_1" output="BLK_TL-PLR_LR.i_span4_horz[6]"    />
+ <mux name="io[1].D_IN_1->span4_horz[14]"   input="BLK_IG-IO_LOCAL.io_1_D_IN_1" output="BLK_TL-PLR_LR.i_span4_horz[14]"   />
+ <mux name="io[1].D_IN_1->span4_horz[22]"   input="BLK_IG-IO_LOCAL.io_1_D_IN_1" output="BLK_TL-PLR_LR.i_span4_horz[22]"   />
+ <mux name="io[1].D_IN_1->span4_horz[30]"   input="BLK_IG-IO_LOCAL.io_1_D_IN_1" output="BLK_TL-PLR_LR.i_span4_horz[30]"   />
+ <mux name="io[1].D_IN_1->span4_horz[38]"   input="BLK_IG-IO_LOCAL.io_1_D_IN_1" output="BLK_TL-PLR_LR.i_span4_horz[38]"   />
+ <mux name="io[1].D_IN_1->span4_horz[46]"   input="BLK_IG-IO_LOCAL.io_1_D_IN_1" output="BLK_TL-PLR_LR.i_span4_horz[46]"   />
+
+ <!-- io           -> span12_horz -->
+ <!-- io[0]        -> span12_horz -->
+ <!-- io[0].D_IN_0 -> span12_horz -->
+ <mux name="io[0].D_IN_0->span12_horz[0]"   input="BLK_IG-IO_LOCAL.io_0_D_IN_0" output="BLK_TL-PLR_LR.i_span12_horz[0]"   />
+ <mux name="io[0].D_IN_0->span12_horz[8]"   input="BLK_IG-IO_LOCAL.io_0_D_IN_0" output="BLK_TL-PLR_LR.i_span12_horz[8]"   />
+ <mux name="io[0].D_IN_0->span12_horz[16]"  input="BLK_IG-IO_LOCAL.io_0_D_IN_0" output="BLK_TL-PLR_LR.i_span12_horz[16]"  />
+ <!-- io[0].D_IN_1 -> span12_horz -->
+ <mux name="io[0].D_IN_1->span12_horz[2]"   input="BLK_IG-IO_LOCAL.io_0_D_IN_1" output="BLK_TL-PLR_LR.i_span12_horz[2]"   />
+ <mux name="io[0].D_IN_1->span12_horz[10]"  input="BLK_IG-IO_LOCAL.io_0_D_IN_1" output="BLK_TL-PLR_LR.i_span12_horz[10]"  />
+ <mux name="io[0].D_IN_1->span12_horz[18]"  input="BLK_IG-IO_LOCAL.io_0_D_IN_1" output="BLK_TL-PLR_LR.i_span12_horz[18]"  />
+ <!-- io[1]        -> span12_horz -->
+ <!-- io[1].D_IN_0 -> span12_horz -->
+ <mux name="io[1].D_IN_0->span12_horz[4]"   input="BLK_IG-IO_LOCAL.io_1_D_IN_0" output="BLK_TL-PLR_LR.i_span12_horz[4]"   />
+ <mux name="io[1].D_IN_0->span12_horz[12]"  input="BLK_IG-IO_LOCAL.io_1_D_IN_0" output="BLK_TL-PLR_LR.i_span12_horz[12]"  />
+ <mux name="io[1].D_IN_0->span12_horz[20]"  input="BLK_IG-IO_LOCAL.io_1_D_IN_0" output="BLK_TL-PLR_LR.i_span12_horz[20]"  />
+ <!-- io[1].D_IN_1 -> span12_horz -->
+ <mux name="io[1].D_IN_1->span12_horz[6]"   input="BLK_IG-IO_LOCAL.io_1_D_IN_1" output="BLK_TL-PLR_LR.i_span12_horz[6]"   />
+ <mux name="io[1].D_IN_1->span12_horz[14]"  input="BLK_IG-IO_LOCAL.io_1_D_IN_1" output="BLK_TL-PLR_LR.i_span12_horz[14]"  />
+ <mux name="io[1].D_IN_1->span12_horz[22]"  input="BLK_IG-IO_LOCAL.io_1_D_IN_1" output="BLK_TL-PLR_LR.i_span12_horz[22]"  />
+
+
+ <!-- ================================================================ -->
+
+ <!-- IO Span-4 Horizontal -->
+ <!-- ================================================================ -->
+ <!--
+ <direct name="span4_vert_r[0]"  input="PLB.i_span4_vert_l[  ]" output="PLB.o_span4_vert_r[0]" />
+ <direct name="span4_vert_r[1]"  input="PLB.i_span4_vert_l[  ]" output="PLB.o_span4_vert_r[1]" />
+ <direct name="span4_vert_r[2]"  input="PLB.i_span4_vert_l[  ]" output="PLB.o_span4_vert_r[2]" />
+ <direct name="span4_vert_r[3]"  input="PLB.i_span4_vert_l[  ]" output="PLB.o_span4_vert_r[3]" />
+  -->
+ <direct name="span4_vert_l[0]"  input="PLB.i_span4_vert_l[0]"  output="PLB.o_span4_vert_r[4]"  />
+ <direct name="span4_vert_l[1]"  input="PLB.i_span4_vert_l[1]"  output="PLB.o_span4_vert_r[5]"  />
+ <direct name="span4_vert_l[2]"  input="PLB.i_span4_vert_l[2]"  output="PLB.o_span4_vert_r[6]"  />
+ <direct name="span4_vert_l[3]"  input="PLB.i_span4_vert_l[3]"  output="PLB.o_span4_vert_r[7]"  />
+ <direct name="span4_vert_l[4]"  input="PLB.i_span4_vert_l[4]"  output="PLB.o_span4_vert_r[8]"  />
+ <direct name="span4_vert_l[5]"  input="PLB.i_span4_vert_l[5]"  output="PLB.o_span4_vert_r[9]"  />
+ <direct name="span4_vert_l[6]"  input="PLB.i_span4_vert_l[6]"  output="PLB.o_span4_vert_r[10]" />
+ <direct name="span4_vert_l[7]"  input="PLB.i_span4_vert_l[7]"  output="PLB.o_span4_vert_r[11]" />
+ <direct name="span4_vert_l[8]"  input="PLB.i_span4_vert_l[8]"  output="PLB.o_span4_vert_r[12]" />
+ <direct name="span4_vert_l[9]"  input="PLB.i_span4_vert_l[9]"  output="PLB.o_span4_vert_r[13]" />
+ <direct name="span4_vert_l[10]" input="PLB.i_span4_vert_l[10]" output="PLB.o_span4_vert_r[14]" />
+ <direct name="span4_vert_l[11]" input="PLB.i_span4_vert_l[11]" output="PLB.o_span4_vert_r[15]" />
+ <!--
+ <direct name="span4_vert_l[12]" input="PLB.i_span4_vert_l[12]" output="PLB.o_span4_vert_r[  ]" />
+ <direct name="span4_vert_l[13]" input="PLB.i_span4_vert_l[13]" output="PLB.o_span4_vert_r[  ]" />
+ <direct name="span4_vert_l[14]" input="PLB.i_span4_vert_l[14]" output="PLB.o_span4_vert_r[  ]" />
+ <direct name="span4_vert_l[15]" input="PLB.i_span4_vert_l[15]" output="PLB.o_span4_vert_r[  ]" />
+  -->
+</interconnect>
