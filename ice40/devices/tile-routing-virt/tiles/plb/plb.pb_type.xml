@@ -658,7 +658,7 @@
  </pinlocations>
  <switchblock_locations pattern="external_full_internal_straight"/>
 
- <fc in_type="frac" in_val="0.5" out_type="frac" out_val="1.0">
+ <fc in_type="abs" in_val="2" out_type="abs" out_val="2">
 
   <fc_override fc_type="frac" fc_val="1.0" port_name="CLK" segment_name="global" />
 
