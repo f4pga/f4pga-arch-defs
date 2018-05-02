@@ -683,13 +683,13 @@
   <!-- Global wires ################################################### -->
   <fc_override fc_type="frac" fc_val="1.0" port_name="i_glb_netwk"  segment_name="global" /><fc_override fc_type="frac" fc_val="1.0" port_name="o_glb_netwk" segment_name="global" />
 
+  <!-- Direct connection wires don't connect to fabric ################ -->
   <!-- Carry chain doesn't connect to the interconnect -->
   <fc_override fc_type="frac" fc_val="0.0" port_name="carry_out"     /><fc_override fc_type="frac" fc_val="0.0" port_name="carry_in"    />
-  <!-- Span-4 Right Vertical are directly connected
+  <!-- Span-4 Right Vertical are directly connected -->
   <fc_override fc_type="frac" fc_val="0.0" port_name="i_sp4_r_v_b"   /><fc_override fc_type="frac" fc_val="0.0" port_name="o_sp4_r_v_b" />
   <fc_override fc_type="frac" fc_val="0.0" port_name="i_sp4_l_v_b"   /><fc_override fc_type="frac" fc_val="0.0" port_name="o_sp4_l_v_b" />
-       -->
-  <!-- Local neighbourhood
+  <!-- Local neighbourhood -->
   <fc_override fc_type="frac" fc_val="0.0" port_name="i_neigh_op_top" /><fc_override fc_type="frac" fc_val="0.0" port_name="o_neigh_op_top" />
   <fc_override fc_type="frac" fc_val="0.0" port_name="i_neigh_op_tnr" /><fc_override fc_type="frac" fc_val="0.0" port_name="o_neigh_op_tnr" />
   <fc_override fc_type="frac" fc_val="0.0" port_name="i_neigh_op_rgt" /><fc_override fc_type="frac" fc_val="0.0" port_name="o_neigh_op_rgt" />
@@ -698,7 +698,6 @@
   <fc_override fc_type="frac" fc_val="0.0" port_name="i_neigh_op_bnl" /><fc_override fc_type="frac" fc_val="0.0" port_name="o_neigh_op_bnl" />
   <fc_override fc_type="frac" fc_val="0.0" port_name="i_neigh_op_lft" /><fc_override fc_type="frac" fc_val="0.0" port_name="o_neigh_op_lft" />
   <fc_override fc_type="frac" fc_val="0.0" port_name="i_neigh_op_tnl" /><fc_override fc_type="frac" fc_val="0.0" port_name="o_neigh_op_tnl" />
-       -->
  </fc>
 
 </pb_type>
