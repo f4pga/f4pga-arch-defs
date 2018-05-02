@@ -2,6 +2,7 @@
 <pb_type name="BLK_IG-LUT_CARRY" num_pb="1" xmlns:xi="http://www.w3.org/2001/XInclude">
  <input  name="I" num_pins="4" equivalent="false"/>
  <output name="O" num_pins="1" equivalent="false"/>
+ <output name="LO" num_pins="1" equivalent="false"/>
  <input name="FCIN"  num_pins="1" equivalent="false"/>
  <output name="FCOUT" num_pins="1" equivalent="false"/>
 
@@ -9,14 +10,15 @@
  <xi:include href="../../primitives/sb_carry/sb_carry.pb_type.xml"/>
 
  <interconnect>
-  <direct name="LUT.I[0]" input="BLK_IG-LUT_CARRY.I[0]"                       output="BLK_IG-LUT.I[0]" />
-  <direct name="LUT.I[1]" input="BLK_IG-LUT_CARRY.I[1]"                       output="BLK_IG-LUT.I[1]" />
-  <direct name="LUT.I[2]" input="BLK_IG-LUT_CARRY.I[2]"                       output="BLK_IG-LUT.I[2]" />
+  <direct name="LUT.I[0]" input="BLK_IG-LUT_CARRY.I[0]"                       output="BEL_LT-LUT.in[0]" />
+  <direct name="LUT.I[1]" input="BLK_IG-LUT_CARRY.I[1]"                       output="BEL_LT-LUT.in[1]" />
+  <direct name="LUT.I[2]" input="BLK_IG-LUT_CARRY.I[2]"                       output="BEL_LT-LUT.in[2]" />
   <!-- Disable FCIN->I3 mux until https://github.com/verilog-to-routing/vtr-verilog-to-routing/issues/325 is fixed.
-  <mux    name="LUT.I[3]" input="BLK_IG-LUT_CARRY.I[3] BLK_IG-LUT_CARRY.FCIN" output="BLK_IG-LUT.I[3]" /> -->
-  <direct name="LUT.I[3]" input="BLK_IG-LUT_CARRY.I[3]"                       output="BLK_IG-LUT.I[3]" />
+  <mux    name="LUT.I[3]" input="BLK_IG-LUT_CARRY.I[3] BLK_IG-LUT_CARRY.FCIN" output="BEL_LT-LUT.in[3]" /> -->
+  <direct name="LUT.I[3]" input="BLK_IG-LUT_CARRY.I[3]"                       output="BEL_LT-LUT.in[3]" />
 
-  <direct name="LUT.O" input="BLK_IG-LUT.O" output="BLK_IG-LUT_CARRY.O" />
+  <direct name="LUT.O" input="BEL_LT-LUT.out" output="BLK_IG-LUT_CARRY.O" />
+  <direct name="LUT.LO" input="BEL_LT-LUT.lout" output="BLK_IG-LUT_CARRY.LO" />
 
   <direct name="SB_CARRY.I0" input="BLK_IG-LUT_CARRY.I[1]" output="SB_CARRY.I0" />
   <direct name="SB_CARRY.I1" input="BLK_IG-LUT_CARRY.I[2]" output="SB_CARRY.I1" />

@@ -1,0 +1,40 @@
+<!-- set: ai sw=1 ts=1 sta et -->
+<pb_type name="BLK_IG-IO_LOCAL" num_pb="1" xmlns:xi="http://www.w3.org/2001/XInclude">
+ <!-- SB_IO inputs -->
+ <output name="io_0_D_IN" num_pins="2" equivalent="false"/>
+ <output name="io_1_D_IN" num_pins="2" equivalent="false"/>
+
+ <!-- SB_IO outputs -->
+ <input name="io_0_D_OUT" num_pins="2" equivalent="false"/>
+ <input name="io_1_D_OUT" num_pins="2" equivalent="false"/>
+
+ <!-- Control signals -->
+ <input name="io_0_OUT_ENB" num_pins="1" equivalent="false"/>
+ <input name="io_1_OUT_ENB" num_pins="1" equivalent="false"/>
+
+ <input name="CEN"    num_pins="1" equivalent="false"/>
+ <clock name="INCLK"  num_pins="1" equivalent="false"/>
+ <clock name="OUTCLK" num_pins="1" equivalent="false"/>
+ <input name="LATCH"  num_pins="1" equivalent="false"/>
+ 
+ <pb_type name="BLK_IG-IO" num_pb="2">
+  <xi:include href="../../primitives/sb_io/sb_io.pb_type.xml" xpointer="xpointer(pb_type/child::node())"/>
+ </pb_type>
+
+ <interconnect>
+  <direct name="io_0_D_IN" input="BLK_IG-IO[0].D_IN" output="BLK_IG-IO_LOCAL.io_0_D_IN"/>
+  <direct name="io_1_D_IN" input="BLK_IG-IO[1].D_IN" output="BLK_IG-IO_LOCAL.io_1_D_IN"/>
+
+  <direct name="io_0_D_OUT" input="BLK_IG-IO_LOCAL.io_0_D_OUT" output="BLK_IG-IO[0].D_OUT"/>
+  <direct name="io_1_D_OUT" input="BLK_IG-IO_LOCAL.io_1_D_OUT" output="BLK_IG-IO[1].D_OUT"/>
+
+  <direct name="io_0_OUT_ENB" input="BLK_IG-IO_LOCAL.io_0_OUT_ENB" output="BLK_IG-IO[0].OUT_ENB"/>
+  <direct name="io_1_OUT_ENB" input="BLK_IG-IO_LOCAL.io_1_OUT_ENB" output="BLK_IG-IO[1].OUT_ENB"/>
+
+  <complete name="CEN"    input="BLK_IG-IO_LOCAL.CEN"    output="BLK_IG-IO.CEN"/>
+  <complete name="INCLK"  input="BLK_IG-IO_LOCAL.INCLK"  output="BLK_IG-IO.INCLK"/>
+  <complete name="OUTCLK" input="BLK_IG-IO_LOCAL.OUTCLK" output="BLK_IG-IO.OUTCLK"/>
+  <complete name="LATCH"  input="BLK_IG-IO_LOCAL.LATCH"  output="BLK_IG-IO.LATCH"/>
+ </interconnect>
+ 
+</pb_type>

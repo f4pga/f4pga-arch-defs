@@ -1,0 +1,11 @@
+<!-- set: ai sw=1 ts=1 sta et -->
+<interconnect xmlns:xi="http://www.w3.org/2001/XInclude">
+ <!-- Fabric Span wires -->
+ <direct name="span4_vert"  input="BLK_TL-PLR_LR.i_span4_vert"  output="BLK_TL-PLR_LR.o_span4_vert" />
+ <direct name="span12_vert" input="BLK_TL-PLR_LR.i_span12_vert" output="BLK_TL-PLR_LR.o_span12_vert" />
+
+ <!-- IO Span wires -->
+ <direct name="span4_horz_l" input="BLK_TL-PLR_LR.i_span4_horz_l" output="BLK_TL-PLR_LR.o_span4_horz_l" />
+ <direct name="span4_horz_r" input="BLK_TL-PLR_LR.i_span4_horz_r" output="BLK_TL-PLR_LR.o_span4_horz_r" />
+
+</interconnect>
