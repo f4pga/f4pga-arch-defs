@@ -1085,6 +1085,10 @@ class GraphIdsMap:
         xml_group, node_id = self.name2id[name]
         return self.id2node[xml_group][node_id]
 
+    def switch(self, name):
+        xml_group, node_id = self.name2id['SW-' + name]
+        return self.id2node['switch'][node_id]
+
     def __setitem__(self, name, xml_node):
         xml_group = self._xml_group(xml_node)
 
@@ -1297,9 +1301,7 @@ class GraphIdsMap:
                 self.node_name(src_node), self.node_name(snk_node))
 
     def switch_name(self, xml_switch):
-        # FIXME: better name
-        #return "SW%s" % xml_switch.attrib["id"]
-        return "SW-%s" % xml_switch.attrib["name"]
+        return 'SW-' + xml_switch.attrib["name"]
 
     def edges_for_node(self, xml_node):
         node_id = xml_node.attrib.get('id', None)
@@ -1400,6 +1402,7 @@ class GraphIdsMap:
         # Should we match?
         return self.add_switch('delayless', buffered=1, configurable=0, stype='mux')
 
+    # FIXME: revisit switch naming
     def add_switch(self,
                    name,
                    stype='mux',
