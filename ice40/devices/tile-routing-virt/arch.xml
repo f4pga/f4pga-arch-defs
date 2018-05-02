@@ -70,32 +70,29 @@
   <switch type="mux" name="2" R="551" Cin=".77e-15" Cout="4e-15" Tdel="58e-12" mux_trans_size="2.630740" buf_size="27.645901"/>
  </switchlist>
  <segmentlist>
-  <!-- Global networks
+  <!-- Global networks -->
   <segment name="global" length="longline" freq="1.000000" type="bidir" Rmetal="101" Cmetal="22.5e-15">
    <wire_switch name="1"/>
    <opin_switch name="2"/>
   </segment>
-    -->
 
   <!-- Span 12 vertical   tracks -->
-  <!-- Span 12 horizontal tracks
+  <!-- Span 12 horizontal tracks -->
   <segment name="span12" length="12" freq="1.000000" type="bidir" Rmetal="101" Cmetal="22.5e-15">
    <sb type="pattern">1 1 1 1 1 1 1 1 1 1 1 1 1</sb>
    <cb type="pattern">1 1 1 1 1 1 1 1 1 1 1 1</cb>
    <wire_switch name="1"/>
    <opin_switch name="2"/>
   </segment>
-    -->
 
   <!-- Span 4 vertical   tracks -->
-  <!-- Span 4 horizontal tracks
+  <!-- Span 4 horizontal tracks -->
   <segment name="span4" length="4" freq="1.000000" type="bidir" Rmetal="101" Cmetal="22.5e-15">
    <sb type="pattern">1 1 1 1 1</sb>
    <cb type="pattern">1 1 1 1</cb>
    <wire_switch name="1"/>
    <opin_switch name="2"/>
   </segment>
-    -->
 
   <!-- Local tracks
   <segment name="local" length="1" freq="1.000000" type="bidir" Rmetal="101" Cmetal="22.5e-15">
@@ -115,12 +112,13 @@
   </segment>
     -->
 
-  <!-- Dummy tracks -->
+  <!-- Dummy tracks
   <segment name="dummy" length="1" freq="1.000000" type="unidir" Rmetal="101" Cmetal="22.5e-15">
    <sb type="pattern">1 1</sb>
    <cb type="pattern">1</cb>
    <mux name="1"/>
   </segment>
+       -->
 
  </segmentlist>
 
