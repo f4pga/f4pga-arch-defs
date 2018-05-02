@@ -57,7 +57,7 @@
  </switchlist>
 
  <segmentlist>
-  <!-- Global networks 
+  <!-- Global networks
   <segment name="global" length="longline" freq="1.000000" type="unidir" Rmetal="101" Cmetal="22.5e-15">
    <sb type="pattern">1 1</sb>
    <cb type="pattern">0</cb>
@@ -68,7 +68,7 @@
   -->
 
   <!-- Span 12 vertical   tracks -->
-  <!-- Span 12 horizontal tracks -->
+  <!-- Span 12 horizontal tracks
   <segment name="span12" length="12" freq="1.000000" type="unidir" Rmetal="101" Cmetal="22.5e-15">
    <sb type="pattern">1 1 1 1 1 1 1 1 1 1 1 1 1</sb>
    <cb type="pattern">0 0 0 0 0 0 0 0 0 0 0 0</cb>
@@ -76,9 +76,10 @@
    <wire_switch name="1"/>
    <opin_switch name="2"/>
   </segment>
+       -->
 
   <!-- Span 4 vertical   tracks -->
-  <!-- Span 4 horizontal tracks -->
+  <!-- Span 4 horizontal tracks
   <segment name="span4" length="4" freq="1.000000" type="unidir" Rmetal="101" Cmetal="22.5e-15">
    <sb type="pattern">1 1 1 1 1</sb>
    <cb type="pattern">0 0 0 0</cb>
@@ -86,8 +87,9 @@
    <wire_switch name="1"/>
    <opin_switch name="2"/>
   </segment>
+       -->
 
-  <!-- Local tracks -->
+  <!-- Local tracks
   <segment name="local" length="1" freq="1.000000" type="unidir" Rmetal="101" Cmetal="22.5e-15">
    <sb type="pattern">0 1</sb>
    <cb type="pattern">1</cb>
@@ -95,17 +97,24 @@
    <wire_switch name="2"/>
    <opin_switch name="2"/>
   </segment>
+       -->
 
   <!--
     Neighbourhood tracks
-     * 
-    -->
   <segment name="direct" length="2" freq="1.000000" type="unidir" Rmetal="101" Cmetal="22.5e-15">
    <sb type="pattern">0 0 0</sb>
    <cb type="pattern">1 1</cb>
    <mux name="1"/>
    <wire_switch name="1"/>
    <opin_switch name="2"/>
+  </segment>
+    -->
+
+  <!-- Dummy tracks -->
+  <segment name="dummy" length="1" freq="1.000000" type="unidir" Rmetal="101" Cmetal="22.5e-15">
+   <sb type="pattern">1 1</sb>
+   <cb type="pattern">1</cb>
+   <mux name="1"/>
   </segment>
 
  </segmentlist>
