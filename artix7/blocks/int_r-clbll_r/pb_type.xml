@@ -1,4 +1,4 @@
-<pb_type name="BLK_MB-INT_R-CLBLL_R" num_pb="1" width="2" xmlns:xi="http://www.w3.org/2001/XInclude">
+<pb_type name="BLK_MB-INT_R-CLBLL_R" width="2" xmlns:xi="http://www.w3.org/2001/XInclude">
   <!-- Tile Interconnects -->
   <fc in_type="frac" in_val="0.5" out_type="frac" out_val="0.5">
     <fc_override fc_type="abs" fc_val="0" port_name="CIN_N"/>
