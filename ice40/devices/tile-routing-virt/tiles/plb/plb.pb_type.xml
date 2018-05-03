@@ -106,14 +106,14 @@
  <!-- # Logic units                                                  # -->
  <!-- ################################################################ -->
 
- <pb_type name="BLK_XX-lutff_global" num_pb="1">
+ <pb_type name="BEL_BB-lutff_global" num_pb="1">
   <input name="i_EN"  num_pins="1" equivalent="false" /><output name="o_EN"  num_pins="1" equivalent="false" />
   <clock name="i_CLK" num_pins="1" equivalent="false" /><output name="o_CLK" num_pins="1" equivalent="false" />
   <input name="i_SR"  num_pins="1" equivalent="false" /><output name="o_SR"  num_pins="1" equivalent="false" />
   <interconnect>
-   <direct name="EN"  input="BLK_XX-lutff_global.i_EN"  output="BLK_XX-lutff_global.o_EN"/>
-   <direct name="CLK" input="BLK_XX-lutff_global.i_CLK" output="BLK_XX-lutff_global.o_CLK"/>
-   <direct name="SR"  input="BLK_XX-lutff_global.i_SR"  output="BLK_XX-lutff_global.o_SR"/>
+   <direct name="EN"  input="BEL_BB-lutff_global.i_EN"  output="BEL_BB-lutff_global.o_EN"/>
+   <direct name="CLK" input="BEL_BB-lutff_global.i_CLK" output="BEL_BB-lutff_global.o_CLK"/>
+   <direct name="SR"  input="BEL_BB-lutff_global.i_SR"  output="BEL_BB-lutff_global.o_SR"/>
   </interconnect>
  </pb_type>
 
@@ -633,18 +633,18 @@
   <mux name="BLK_IG-PLB_LOCAL.I7[2]" input="BLK_XX-local_g[0].o[1] BLK_XX-local_g[0].o[3] BLK_XX-local_g[1].o[0] BLK_XX-local_g[1].o[2] BLK_XX-local_g[2].o[1] BLK_XX-local_g[2].o[3] BLK_XX-local_g[3].o[0] BLK_XX-local_g[3].o[2] BLK_XX-local_g[0].o[5] BLK_XX-local_g[0].o[7] BLK_XX-local_g[1].o[4] BLK_XX-local_g[1].o[6] BLK_XX-local_g[2].o[5] BLK_XX-local_g[2].o[7] BLK_XX-local_g[3].o[4] BLK_XX-local_g[3].o[6]                        " output="BLK_IG-PLB_LOCAL.I7[2]" />
   <mux name="BLK_IG-PLB_LOCAL.I7[3]" input="BLK_XX-local_g[0].o[2] BLK_XX-local_g[1].o[1] BLK_XX-local_g[1].o[3] BLK_XX-local_g[2].o[0] BLK_XX-local_g[2].o[2] BLK_XX-local_g[3].o[1] BLK_XX-local_g[3].o[3] BLK_XX-local_g[0].o[4] BLK_XX-local_g[0].o[6] BLK_XX-local_g[1].o[5] BLK_XX-local_g[1].o[7] BLK_XX-local_g[2].o[4] BLK_XX-local_g[2].o[6] BLK_XX-local_g[3].o[5] BLK_XX-local_g[3].o[7]                        BLK_IG-PLB_LOCAL.FCOUT6" output="BLK_IG-PLB_LOCAL.I7[3]" />
   <!-- Logic Global -->
-  <mux name="lutff_global/i_EN"  input="BLK_XX-local_g[0].o[2] BLK_XX-local_g[1].o[3] BLK_XX-local_g[2].o[2] BLK_XX-local_g[3].o[3] BLK_XX-glb_netwk[1].o BLK_XX-glb_netwk[3].o BLK_XX-glb_netwk[5].o BLK_XX-glb_netwk[7].o" output="BLK_XX-lutff_global.i_EN" />
-  <mux name="lutff_global/i_SR"  input="BLK_XX-local_g[0].o[4] BLK_XX-local_g[1].o[5] BLK_XX-local_g[2].o[4] BLK_XX-local_g[3].o[5] BLK_XX-glb_netwk[0].o BLK_XX-glb_netwk[2].o BLK_XX-glb_netwk[4].o BLK_XX-glb_netwk[6].o" output="BLK_XX-lutff_global.i_SR" />
+  <mux name="lutff_global/i_EN"  input="BLK_XX-local_g[0].o[2] BLK_XX-local_g[1].o[3] BLK_XX-local_g[2].o[2] BLK_XX-local_g[3].o[3] BLK_XX-glb_netwk[1].o BLK_XX-glb_netwk[3].o BLK_XX-glb_netwk[5].o BLK_XX-glb_netwk[7].o" output="BEL_BB-lutff_global.i_EN" />
+  <mux name="lutff_global/i_SR"  input="BLK_XX-local_g[0].o[4] BLK_XX-local_g[1].o[5] BLK_XX-local_g[2].o[4] BLK_XX-local_g[3].o[5] BLK_XX-glb_netwk[0].o BLK_XX-glb_netwk[2].o BLK_XX-glb_netwk[4].o BLK_XX-glb_netwk[6].o" output="BEL_BB-lutff_global.i_SR" />
   <!--
-  <mux name="lutff_global/i_CLK" input="local_g[0].o[0] local_g[1].o[1] local_g[2].o[0] local_g[3].o[1] glb_netwk[0].o glb_netwk[1].o glb_netwk[2].o glb_netwk[3].o glb_netwk[4].o glb_netwk[5].o glb_netwk[6].o glb_netwk[7].o" output="BLK_XX-lutff_global._CLK" />
+  <mux name="lutff_global/i_CLK" input="local_g[0].o[0] local_g[1].o[1] local_g[2].o[0] local_g[3].o[1] glb_netwk[0].o glb_netwk[1].o glb_netwk[2].o glb_netwk[3].o glb_netwk[4].o glb_netwk[5].o glb_netwk[6].o glb_netwk[7].o" output="BEL_BB-lutff_global._CLK" />
   -->
-  <mux name="lutff_global/i_CLK" input="BLK_TL-PLB.CLK" output="BLK_XX-lutff_global.i_CLK" />
-  <direct name="BLK_XX-lutff_global->BLK_IG-PLB_LOCAL.EN" input="BLK_XX-lutff_global.o_EN" output="BLK_IG-PLB_LOCAL.EN" />
+  <mux name="lutff_global/i_CLK" input="BLK_TL-PLB.CLK" output="BEL_BB-lutff_global.i_CLK" />
+  <direct name="BEL_BB-lutff_global->BLK_IG-PLB_LOCAL.EN" input="BEL_BB-lutff_global.o_EN" output="BLK_IG-PLB_LOCAL.EN" />
   <!--
-  <direct name="BLK_XX-lutff_global->BLK_IG-PLB_LOCAL.CLK" input="BLK_XX-lutff_global.o_CLK" output="BLK_IG-PLB_LOCAL.CLK" />
+  <direct name="BEL_BB-lutff_global->BLK_IG-PLB_LOCAL.CLK" input="BEL_BB-lutff_global.o_CLK" output="BLK_IG-PLB_LOCAL.CLK" />
   -->
-  <direct name="BLK_XX-lutff_global->BLK_IG-PLB_LOCAL.CLK" input="BLK_XX-lutff_global.o_CLK" output="BLK_IG-PLB_LOCAL.CLK" />
-  <direct name="BLK_XX-lutff_global->BLK_IG-PLB_LOCAL.SR" input="BLK_XX-lutff_global.o_SR" output="BLK_IG-PLB_LOCAL.SR" />
+  <direct name="BEL_BB-lutff_global->BLK_IG-PLB_LOCAL.CLK" input="BEL_BB-lutff_global.o_CLK" output="BLK_IG-PLB_LOCAL.CLK" />
+  <direct name="BEL_BB-lutff_global->BLK_IG-PLB_LOCAL.SR" input="BEL_BB-lutff_global.o_SR" output="BLK_IG-PLB_LOCAL.SR" />
  </interconnect>
 
  <pinlocations pattern="custom">
