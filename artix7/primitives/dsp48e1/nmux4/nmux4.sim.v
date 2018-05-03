@@ -21,7 +21,7 @@ module NMUX4
    genvar 		 ii;
 
    for(ii=0; ii<NBITS; ii++) begin: bitmux
-      MUX4 mux (I0[ii], I1[ii], I2[ii], I3[ii], S, O[ii]);
+      MUX4 mux (I0[ii], I1[ii], I2[ii], I3[ii], S[1], S[0], O[ii]);
    end
 
 endmodule // NMUX4
