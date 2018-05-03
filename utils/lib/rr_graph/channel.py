@@ -993,7 +993,7 @@ class Channels:
         # FIXME: hack. Get proper segment support
         # for now add a summy segment for which all nodes are associated
         segments_xml.clear()
-        for _i, segment in sorted(self.segment_i2seg().items()):
+        for _i, segment in sorted(self.segment_i2seg.items()):
             segment.to_xml(segments_xml)
 
     def create_segment(self, name, timing=None):
