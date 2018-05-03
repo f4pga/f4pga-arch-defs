@@ -7,7 +7,7 @@
  <output name="carry_out" num_pins="1" equivalent="false"/>
  <input  name="carry_in"  num_pins="1" equivalent="false"/>
 
- <!-- Local neighbourhood ############################################ -->
+ <!-- Local neighbourhood ############################################
  <input  name="o_neigh_op_top" num_pins="8" equivalent="false"/>
  <input  name="o_neigh_op_tnr" num_pins="8" equivalent="false"/>
  <input  name="o_neigh_op_rgt" num_pins="8" equivalent="false"/>
@@ -25,6 +25,7 @@
  <input  name="i_neigh_op_bnl" num_pins="8" equivalent="false"/>
  <input  name="i_neigh_op_lft" num_pins="8" equivalent="false"/>
  <input  name="i_neigh_op_tnl" num_pins="8" equivalent="false"/>
+      -->
 
  <!-- Vertical spans ################################################# -->
  <!-- Span-4 Vertical -->
@@ -33,11 +34,12 @@
  <input  name="i_sp4_v_b"   num_pins="48" equivalent="false"/>
  <output name="o_sp4_v_b"   num_pins="48" equivalent="false"/>
 
- <!-- Span-4 Right Vertical -->
+ <!-- Span-4 Right Vertical
  <input  name="i_sp4_r_v_b" num_pins="48" equivalent="false"/>
  <output name="o_sp4_r_v_b" num_pins="48" equivalent="false"/>
  <input  name="i_sp4_l_v_b" num_pins="48" equivalent="false"/>
  <output name="o_sp4_l_v_b" num_pins="48" equivalent="false"/>
+      -->
 
  <!-- Span-12 Vertical -->
  <input  name="i_sp12_v_t"  num_pins="24" equivalent="false"/>
@@ -126,9 +128,10 @@
   <direct name="sp4_v_t"   input="BLK_TL-PLB.i_sp4_v_t"   output="BLK_TL-PLB.o_sp4_v_t" />
   <direct name="sp4_v_b"   input="BLK_TL-PLB.i_sp4_v_b"   output="BLK_TL-PLB.o_sp4_v_b" />
 
-  <!-- Span-4 Right Vertical -->
+  <!-- Span-4 Right Vertical
   <direct name="sp4_r_v_b" input="BLK_TL-PLB.i_sp4_r_v_b" output="BLK_TL-PLB.o_sp4_r_v_b" />
   <direct name="sp4_l_v_b" input="BLK_TL-PLB.i_sp4_l_v_b" output="BLK_TL-PLB.o_sp4_l_v_b" />
+       -->
 
   <!-- Span-12 Vertical -->
   <direct name="sp12_v_t"  input="BLK_TL-PLB.i_sp12_v_t"  output="BLK_TL-PLB.o_sp12_v_t" />
@@ -146,8 +149,10 @@
 
   <!-- ================================================================ -->
 
+  <!-- Span-4 Right Vertical
   <direct name="sp4_l_v_b io sp4_v_b" input="BLK_TL-PLB.i_sp4_l_v_b" output="BLK_TL-PLB.o_sp4_v_b"   />
   <direct name="sp4_l_v_b oi sp4_v_b" input="BLK_TL-PLB.i_sp4_v_b"   output="BLK_TL-PLB.o_sp4_l_v_b" />
+       -->
 
   <!-- ################################################################ -->
   <!-- # External wires onto the local tracks                         # -->
@@ -159,42 +164,78 @@
   <mux name="BLK_XX-glb2local[2]" input="BLK_TL-PLB.i_glb_netwk[0] BLK_TL-PLB.i_glb_netwk[1] BLK_TL-PLB.i_glb_netwk[2] BLK_TL-PLB.i_glb_netwk[3] BLK_TL-PLB.i_glb_netwk[4] BLK_TL-PLB.i_glb_netwk[5] BLK_TL-PLB.i_glb_netwk[6] BLK_TL-PLB.i_glb_netwk[7]" output="BLK_XX-glb2local[2].i" />
   <mux name="BLK_XX-glb2local[3]" input="BLK_TL-PLB.i_glb_netwk[0] BLK_TL-PLB.i_glb_netwk[1] BLK_TL-PLB.i_glb_netwk[2] BLK_TL-PLB.i_glb_netwk[3] BLK_TL-PLB.i_glb_netwk[4] BLK_TL-PLB.i_glb_netwk[5] BLK_TL-PLB.i_glb_netwk[6] BLK_TL-PLB.i_glb_netwk[7]" output="BLK_XX-glb2local[3].i" />
 
-  <!-- XXXX -> Local Tracks -->
-  <mux name="local_g0[0]" input="BLK_TL-PLB.i_sp4_r_v_b[24] BLK_TL-PLB.i_sp4_r_v_b[35]   BLK_TL-PLB.i_neigh_op_bot[0] BLK_TL-PLB.i_neigh_op_bnr[0] BLK_TL-PLB.i_neigh_op_top[0] BLK_TL-PLB.i_neigh_op_lft[0]   BLK_IG-PLB_LOCAL.O0   BLK_TL-PLB.i_sp4_v_b[0]  BLK_TL-PLB.i_sp4_v_b[8]  BLK_TL-PLB.i_sp4_v_b[16]                                                     BLK_TL-PLB.i_sp4_h_r[0]  BLK_TL-PLB.i_sp4_h_r[8]  BLK_TL-PLB.i_sp4_h_r[16]                                                     BLK_TL-PLB.i_sp12_h_r[0] BLK_TL-PLB.i_sp12_h_r[8]  BLK_TL-PLB.i_sp12_h_r[16]" output="BLK_XX-local_g[0].i[0]" />
-  <mux name="local_g0[1]" input="BLK_TL-PLB.i_sp4_r_v_b[25] BLK_TL-PLB.i_sp4_r_v_b[34]   BLK_TL-PLB.i_neigh_op_bot[1] BLK_TL-PLB.i_neigh_op_bnr[1] BLK_TL-PLB.i_neigh_op_top[1] BLK_TL-PLB.i_neigh_op_lft[1]   BLK_IG-PLB_LOCAL.O1   BLK_TL-PLB.i_sp4_v_b[1]  BLK_TL-PLB.i_sp4_v_b[9]  BLK_TL-PLB.i_sp4_v_b[17]                                                     BLK_TL-PLB.i_sp4_h_r[1]  BLK_TL-PLB.i_sp4_h_r[9]  BLK_TL-PLB.i_sp4_h_r[17]                                                     BLK_TL-PLB.i_sp12_h_r[1] BLK_TL-PLB.i_sp12_h_r[9]  BLK_TL-PLB.i_sp12_h_r[17]" output="BLK_XX-local_g[0].i[1]" />
-  <mux name="local_g0[2]" input="BLK_TL-PLB.i_sp4_r_v_b[26] BLK_TL-PLB.i_sp4_r_v_b[33]   BLK_TL-PLB.i_neigh_op_bot[2] BLK_TL-PLB.i_neigh_op_bnr[2] BLK_TL-PLB.i_neigh_op_top[2] BLK_TL-PLB.i_neigh_op_lft[2]   BLK_IG-PLB_LOCAL.O2   BLK_TL-PLB.i_sp4_v_b[2]  BLK_TL-PLB.i_sp4_v_b[10] BLK_TL-PLB.i_sp4_v_b[18]                                                     BLK_TL-PLB.i_sp4_h_r[2]  BLK_TL-PLB.i_sp4_h_r[10] BLK_TL-PLB.i_sp4_h_r[18]                                                     BLK_TL-PLB.i_sp12_h_r[2] BLK_TL-PLB.i_sp12_h_r[10] BLK_TL-PLB.i_sp12_h_r[18]" output="BLK_XX-local_g[0].i[2]" />
-  <mux name="local_g0[3]" input="BLK_TL-PLB.i_sp4_r_v_b[27] BLK_TL-PLB.i_sp4_r_v_b[32]   BLK_TL-PLB.i_neigh_op_bot[3] BLK_TL-PLB.i_neigh_op_bnr[3] BLK_TL-PLB.i_neigh_op_top[3] BLK_TL-PLB.i_neigh_op_lft[3]   BLK_IG-PLB_LOCAL.O3   BLK_TL-PLB.i_sp4_v_b[3]  BLK_TL-PLB.i_sp4_v_b[11] BLK_TL-PLB.i_sp4_v_b[19]                                                     BLK_TL-PLB.i_sp4_h_r[3]  BLK_TL-PLB.i_sp4_h_r[11] BLK_TL-PLB.i_sp4_h_r[19]                                                     BLK_TL-PLB.i_sp12_h_r[3] BLK_TL-PLB.i_sp12_h_r[11] BLK_TL-PLB.i_sp12_h_r[19]" output="BLK_XX-local_g[0].i[3]" />
-  <mux name="local_g0[4]" input="BLK_XX-glb2local[0].o      BLK_TL-PLB.i_sp4_r_v_b[28]   BLK_TL-PLB.i_neigh_op_bot[4] BLK_TL-PLB.i_neigh_op_bnr[4] BLK_TL-PLB.i_neigh_op_top[4] BLK_TL-PLB.i_neigh_op_lft[4]   BLK_IG-PLB_LOCAL.O4   BLK_TL-PLB.i_sp4_v_b[4]  BLK_TL-PLB.i_sp4_v_b[12] BLK_TL-PLB.i_sp4_v_b[20]                                                     BLK_TL-PLB.i_sp4_h_r[4]  BLK_TL-PLB.i_sp4_h_r[12] BLK_TL-PLB.i_sp4_h_r[20]                                                     BLK_TL-PLB.i_sp12_h_r[4] BLK_TL-PLB.i_sp12_h_r[12] BLK_TL-PLB.i_sp12_h_r[20]" output="BLK_XX-local_g[0].i[4]" />
-  <mux name="local_g0[5]" input="BLK_XX-glb2local[1].o      BLK_TL-PLB.i_sp4_r_v_b[29]   BLK_TL-PLB.i_neigh_op_bot[5] BLK_TL-PLB.i_neigh_op_bnr[5] BLK_TL-PLB.i_neigh_op_top[5] BLK_TL-PLB.i_neigh_op_lft[5]   BLK_IG-PLB_LOCAL.O5   BLK_TL-PLB.i_sp4_v_b[5]  BLK_TL-PLB.i_sp4_v_b[13] BLK_TL-PLB.i_sp4_v_b[21]                                                     BLK_TL-PLB.i_sp4_h_r[5]  BLK_TL-PLB.i_sp4_h_r[13] BLK_TL-PLB.i_sp4_h_r[21]                                                     BLK_TL-PLB.i_sp12_h_r[5] BLK_TL-PLB.i_sp12_h_r[13] BLK_TL-PLB.i_sp12_h_r[21]" output="BLK_XX-local_g[0].i[5]" />
-  <mux name="local_g0[6]" input="BLK_XX-glb2local[2].o      BLK_TL-PLB.i_sp4_r_v_b[30]   BLK_TL-PLB.i_neigh_op_bot[6] BLK_TL-PLB.i_neigh_op_bnr[6] BLK_TL-PLB.i_neigh_op_top[6] BLK_TL-PLB.i_neigh_op_lft[6]   BLK_IG-PLB_LOCAL.O6   BLK_TL-PLB.i_sp4_v_b[6]  BLK_TL-PLB.i_sp4_v_b[14] BLK_TL-PLB.i_sp4_v_b[22]                                                     BLK_TL-PLB.i_sp4_h_r[6]  BLK_TL-PLB.i_sp4_h_r[14] BLK_TL-PLB.i_sp4_h_r[22]                                                     BLK_TL-PLB.i_sp12_h_r[6] BLK_TL-PLB.i_sp12_h_r[14] BLK_TL-PLB.i_sp12_h_r[22]" output="BLK_XX-local_g[0].i[6]" />
-  <mux name="local_g0[7]" input="BLK_XX-glb2local[3].o      BLK_TL-PLB.i_sp4_r_v_b[31]   BLK_TL-PLB.i_neigh_op_bot[7] BLK_TL-PLB.i_neigh_op_bnr[7] BLK_TL-PLB.i_neigh_op_top[7] BLK_TL-PLB.i_neigh_op_lft[7]   BLK_IG-PLB_LOCAL.O7   BLK_TL-PLB.i_sp4_v_b[7]  BLK_TL-PLB.i_sp4_v_b[15] BLK_TL-PLB.i_sp4_v_b[23]                                                     BLK_TL-PLB.i_sp4_h_r[7]  BLK_TL-PLB.i_sp4_h_r[15] BLK_TL-PLB.i_sp4_h_r[23]                                                     BLK_TL-PLB.i_sp12_h_r[7] BLK_TL-PLB.i_sp12_h_r[15] BLK_TL-PLB.i_sp12_h_r[23]" output="BLK_XX-local_g[0].i[7]" />
+  <!-- XXXX -> Local Tracks
+    BLK_TL-PLB.i_sp4_r_v_b[24] BLK_TL-PLB.i_sp4_r_v_b[35]  BLK_TL-PLB.i_neigh_op_bot[0] BLK_TL-PLB.i_neigh_op_bnr[0] BLK_TL-PLB.i_neigh_op_top[0] BLK_TL-PLB.i_neigh_op_lft[0]
+    BLK_TL-PLB.i_sp4_r_v_b[25] BLK_TL-PLB.i_sp4_r_v_b[34]  BLK_TL-PLB.i_neigh_op_bot[1] BLK_TL-PLB.i_neigh_op_bnr[1] BLK_TL-PLB.i_neigh_op_top[1] BLK_TL-PLB.i_neigh_op_lft[1]
+    BLK_TL-PLB.i_sp4_r_v_b[26] BLK_TL-PLB.i_sp4_r_v_b[33]  BLK_TL-PLB.i_neigh_op_bot[2] BLK_TL-PLB.i_neigh_op_bnr[2] BLK_TL-PLB.i_neigh_op_top[2] BLK_TL-PLB.i_neigh_op_lft[2]
+    BLK_TL-PLB.i_sp4_r_v_b[27] BLK_TL-PLB.i_sp4_r_v_b[32]  BLK_TL-PLB.i_neigh_op_bot[3] BLK_TL-PLB.i_neigh_op_bnr[3] BLK_TL-PLB.i_neigh_op_top[3] BLK_TL-PLB.i_neigh_op_lft[3]
+    glb2local[0].o             BLK_TL-PLB.i_sp4_r_v_b[28]  BLK_TL-PLB.i_neigh_op_bot[4] BLK_TL-PLB.i_neigh_op_bnr[4] BLK_TL-PLB.i_neigh_op_top[4] BLK_TL-PLB.i_neigh_op_lft[4]
+    glb2local[1].o             BLK_TL-PLB.i_sp4_r_v_b[29]  BLK_TL-PLB.i_neigh_op_bot[5] BLK_TL-PLB.i_neigh_op_bnr[5] BLK_TL-PLB.i_neigh_op_top[5] BLK_TL-PLB.i_neigh_op_lft[5]
+    glb2local[2].o             BLK_TL-PLB.i_sp4_r_v_b[30]  BLK_TL-PLB.i_neigh_op_bot[6] BLK_TL-PLB.i_neigh_op_bnr[6] BLK_TL-PLB.i_neigh_op_top[6] BLK_TL-PLB.i_neigh_op_lft[6]
+    glb2local[3].o             BLK_TL-PLB.i_sp4_r_v_b[31]  BLK_TL-PLB.i_neigh_op_bot[7] BLK_TL-PLB.i_neigh_op_bnr[7] BLK_TL-PLB.i_neigh_op_top[7] BLK_TL-PLB.i_neigh_op_lft[7]
 
-  <mux name="local_g1[0]" input="BLK_TL-PLB.i_sp4_r_v_b[0]  BLK_TL-PLB.i_sp4_r_v_b[24]   BLK_TL-PLB.i_neigh_op_bot[0] BLK_TL-PLB.i_neigh_op_bnr[0] BLK_TL-PLB.i_neigh_op_top[0] BLK_TL-PLB.i_neigh_op_lft[0]   BLK_IG-PLB_LOCAL.O0   BLK_TL-PLB.i_sp4_v_b[0]  BLK_TL-PLB.i_sp4_v_b[8]  BLK_TL-PLB.i_sp4_v_b[16]                                                     BLK_TL-PLB.i_sp4_h_r[0]  BLK_TL-PLB.i_sp4_h_r[8]  BLK_TL-PLB.i_sp4_h_r[16]                                                     BLK_TL-PLB.i_sp12_h_r[0] BLK_TL-PLB.i_sp12_h_r[8]  BLK_TL-PLB.i_sp12_h_r[16]" output="BLK_XX-local_g[1].i[0]" />
-  <mux name="local_g1[1]" input="BLK_TL-PLB.i_sp4_r_v_b[1]  BLK_TL-PLB.i_sp4_r_v_b[25]   BLK_TL-PLB.i_neigh_op_bot[1] BLK_TL-PLB.i_neigh_op_bnr[1] BLK_TL-PLB.i_neigh_op_top[1] BLK_TL-PLB.i_neigh_op_lft[1]   BLK_IG-PLB_LOCAL.O1   BLK_TL-PLB.i_sp4_v_b[1]  BLK_TL-PLB.i_sp4_v_b[9]  BLK_TL-PLB.i_sp4_v_b[17]                                                     BLK_TL-PLB.i_sp4_h_r[1]  BLK_TL-PLB.i_sp4_h_r[9]  BLK_TL-PLB.i_sp4_h_r[17]                                                     BLK_TL-PLB.i_sp12_h_r[1] BLK_TL-PLB.i_sp12_h_r[9]  BLK_TL-PLB.i_sp12_h_r[17]" output="BLK_XX-local_g[1].i[1]" />
-  <mux name="local_g1[2]" input="BLK_TL-PLB.i_sp4_r_v_b[2]  BLK_TL-PLB.i_sp4_r_v_b[26]   BLK_TL-PLB.i_neigh_op_bot[2] BLK_TL-PLB.i_neigh_op_bnr[2] BLK_TL-PLB.i_neigh_op_top[2] BLK_TL-PLB.i_neigh_op_lft[2]   BLK_IG-PLB_LOCAL.O2   BLK_TL-PLB.i_sp4_v_b[2]  BLK_TL-PLB.i_sp4_v_b[10] BLK_TL-PLB.i_sp4_v_b[18]                                                     BLK_TL-PLB.i_sp4_h_r[2]  BLK_TL-PLB.i_sp4_h_r[10] BLK_TL-PLB.i_sp4_h_r[18]                                                     BLK_TL-PLB.i_sp12_h_r[2] BLK_TL-PLB.i_sp12_h_r[10] BLK_TL-PLB.i_sp12_h_r[18]" output="BLK_XX-local_g[1].i[2]" />
-  <mux name="local_g1[3]" input="BLK_TL-PLB.i_sp4_r_v_b[3]  BLK_TL-PLB.i_sp4_r_v_b[27]   BLK_TL-PLB.i_neigh_op_bot[3] BLK_TL-PLB.i_neigh_op_bnr[3] BLK_TL-PLB.i_neigh_op_top[3] BLK_TL-PLB.i_neigh_op_lft[3]   BLK_IG-PLB_LOCAL.O3   BLK_TL-PLB.i_sp4_v_b[3]  BLK_TL-PLB.i_sp4_v_b[11] BLK_TL-PLB.i_sp4_v_b[19]                                                     BLK_TL-PLB.i_sp4_h_r[3]  BLK_TL-PLB.i_sp4_h_r[11] BLK_TL-PLB.i_sp4_h_r[19]                                                     BLK_TL-PLB.i_sp12_h_r[3] BLK_TL-PLB.i_sp12_h_r[11] BLK_TL-PLB.i_sp12_h_r[19]" output="BLK_XX-local_g[1].i[3]" />
-  <mux name="local_g1[4]" input="BLK_TL-PLB.i_sp4_r_v_b[4]  BLK_TL-PLB.i_sp4_r_v_b[28]   BLK_TL-PLB.i_neigh_op_bot[4] BLK_TL-PLB.i_neigh_op_bnr[4] BLK_TL-PLB.i_neigh_op_top[4] BLK_TL-PLB.i_neigh_op_lft[4]   BLK_IG-PLB_LOCAL.O4   BLK_TL-PLB.i_sp4_v_b[4]  BLK_TL-PLB.i_sp4_v_b[12] BLK_TL-PLB.i_sp4_v_b[20]                                                     BLK_TL-PLB.i_sp4_h_r[4]  BLK_TL-PLB.i_sp4_h_r[12] BLK_TL-PLB.i_sp4_h_r[20]                                                     BLK_TL-PLB.i_sp12_h_r[4] BLK_TL-PLB.i_sp12_h_r[12] BLK_TL-PLB.i_sp12_h_r[20]" output="BLK_XX-local_g[1].i[4]" />
-  <mux name="local_g1[5]" input="BLK_TL-PLB.i_sp4_r_v_b[5]  BLK_TL-PLB.i_sp4_r_v_b[29]   BLK_TL-PLB.i_neigh_op_bot[5] BLK_TL-PLB.i_neigh_op_bnr[5] BLK_TL-PLB.i_neigh_op_top[5] BLK_TL-PLB.i_neigh_op_lft[5]   BLK_IG-PLB_LOCAL.O5   BLK_TL-PLB.i_sp4_v_b[5]  BLK_TL-PLB.i_sp4_v_b[21] BLK_TL-PLB.i_sp4_v_b[13]                                                     BLK_TL-PLB.i_sp4_h_r[5]  BLK_TL-PLB.i_sp4_h_r[13] BLK_TL-PLB.i_sp4_h_r[21]                                                     BLK_TL-PLB.i_sp12_h_r[5] BLK_TL-PLB.i_sp12_h_r[13] BLK_TL-PLB.i_sp12_h_r[21]" output="BLK_XX-local_g[1].i[5]" />
-  <mux name="local_g1[6]" input="BLK_TL-PLB.i_sp4_r_v_b[6]  BLK_TL-PLB.i_sp4_r_v_b[30]   BLK_TL-PLB.i_neigh_op_bot[6] BLK_TL-PLB.i_neigh_op_bnr[6] BLK_TL-PLB.i_neigh_op_top[6] BLK_TL-PLB.i_neigh_op_lft[6]   BLK_IG-PLB_LOCAL.O6   BLK_TL-PLB.i_sp4_v_b[6]  BLK_TL-PLB.i_sp4_v_b[14] BLK_TL-PLB.i_sp4_v_b[22]                                                     BLK_TL-PLB.i_sp4_h_r[6]  BLK_TL-PLB.i_sp4_h_r[14] BLK_TL-PLB.i_sp4_h_r[22]                                                     BLK_TL-PLB.i_sp12_h_r[6] BLK_TL-PLB.i_sp12_h_r[14] BLK_TL-PLB.i_sp12_h_r[22]" output="BLK_XX-local_g[1].i[6]" />
-  <mux name="local_g1[7]" input="BLK_TL-PLB.i_sp4_r_v_b[7]  BLK_TL-PLB.i_sp4_r_v_b[31]   BLK_TL-PLB.i_neigh_op_bot[7] BLK_TL-PLB.i_neigh_op_bnr[7] BLK_TL-PLB.i_neigh_op_top[7] BLK_TL-PLB.i_neigh_op_lft[7]   BLK_IG-PLB_LOCAL.O7   BLK_TL-PLB.i_sp4_v_b[7]  BLK_TL-PLB.i_sp4_v_b[15] BLK_TL-PLB.i_sp4_v_b[23]                                                     BLK_TL-PLB.i_sp4_h_r[7]  BLK_TL-PLB.i_sp4_h_r[15] BLK_TL-PLB.i_sp4_h_r[23]                                                     BLK_TL-PLB.i_sp12_h_r[7] BLK_TL-PLB.i_sp12_h_r[15] BLK_TL-PLB.i_sp12_h_r[23]" output="BLK_XX-local_g[1].i[7]" />
+    BLK_TL-PLB.i_sp4_r_v_b[0]  BLK_TL-PLB.i_sp4_r_v_b[24]  BLK_TL-PLB.i_neigh_op_bot[0] BLK_TL-PLB.i_neigh_op_bnr[0] BLK_TL-PLB.i_neigh_op_top[0] BLK_TL-PLB.i_neigh_op_lft[0]
+    BLK_TL-PLB.i_sp4_r_v_b[1]  BLK_TL-PLB.i_sp4_r_v_b[25]  BLK_TL-PLB.i_neigh_op_bot[1] BLK_TL-PLB.i_neigh_op_bnr[1] BLK_TL-PLB.i_neigh_op_top[1] BLK_TL-PLB.i_neigh_op_lft[1]
+    BLK_TL-PLB.i_sp4_r_v_b[2]  BLK_TL-PLB.i_sp4_r_v_b[26]  BLK_TL-PLB.i_neigh_op_bot[2] BLK_TL-PLB.i_neigh_op_bnr[2] BLK_TL-PLB.i_neigh_op_top[2] BLK_TL-PLB.i_neigh_op_lft[2]
+    BLK_TL-PLB.i_sp4_r_v_b[3]  BLK_TL-PLB.i_sp4_r_v_b[27]  BLK_TL-PLB.i_neigh_op_bot[3] BLK_TL-PLB.i_neigh_op_bnr[3] BLK_TL-PLB.i_neigh_op_top[3] BLK_TL-PLB.i_neigh_op_lft[3]
+    BLK_TL-PLB.i_sp4_r_v_b[4]  BLK_TL-PLB.i_sp4_r_v_b[28]  BLK_TL-PLB.i_neigh_op_bot[4] BLK_TL-PLB.i_neigh_op_bnr[4] BLK_TL-PLB.i_neigh_op_top[4] BLK_TL-PLB.i_neigh_op_lft[4]
+    BLK_TL-PLB.i_sp4_r_v_b[5]  BLK_TL-PLB.i_sp4_r_v_b[29]  BLK_TL-PLB.i_neigh_op_bot[5] BLK_TL-PLB.i_neigh_op_bnr[5] BLK_TL-PLB.i_neigh_op_top[5] BLK_TL-PLB.i_neigh_op_lft[5]
+    BLK_TL-PLB.i_sp4_r_v_b[6]  BLK_TL-PLB.i_sp4_r_v_b[30]  BLK_TL-PLB.i_neigh_op_bot[6] BLK_TL-PLB.i_neigh_op_bnr[6] BLK_TL-PLB.i_neigh_op_top[6] BLK_TL-PLB.i_neigh_op_lft[6]
+    BLK_TL-PLB.i_sp4_r_v_b[7]  BLK_TL-PLB.i_sp4_r_v_b[31]  BLK_TL-PLB.i_neigh_op_bot[7] BLK_TL-PLB.i_neigh_op_bnr[7] BLK_TL-PLB.i_neigh_op_top[7] BLK_TL-PLB.i_neigh_op_lft[7]
 
-  <mux name="local_g2[0]" input="BLK_TL-PLB.i_sp4_r_v_b[8]  BLK_TL-PLB.i_sp4_r_v_b[32]   BLK_TL-PLB.i_neigh_op_tnr[0] BLK_TL-PLB.i_neigh_op_tnl[0] BLK_TL-PLB.i_neigh_op_bnl[0] BLK_TL-PLB.i_neigh_op_rgt[0]   BLK_IG-PLB_LOCAL.O0                                                     BLK_TL-PLB.i_sp4_v_b[24] BLK_TL-PLB.i_sp4_v_b[32] BLK_TL-PLB.i_sp4_v_b[40]                                                     BLK_TL-PLB.i_sp4_h_r[24] BLK_TL-PLB.i_sp4_h_r[32] BLK_TL-PLB.i_sp4_h_r[40]   BLK_TL-PLB.i_sp12_v_b[0] BLK_TL-PLB.i_sp12_v_b[8]  BLK_TL-PLB.i_sp12_v_b[16]" output="BLK_XX-local_g[2].i[0]" />
-  <mux name="local_g2[1]" input="BLK_TL-PLB.i_sp4_r_v_b[9]  BLK_TL-PLB.i_sp4_r_v_b[33]   BLK_TL-PLB.i_neigh_op_tnr[1] BLK_TL-PLB.i_neigh_op_tnl[1] BLK_TL-PLB.i_neigh_op_bnl[1] BLK_TL-PLB.i_neigh_op_rgt[1]   BLK_IG-PLB_LOCAL.O1                                                     BLK_TL-PLB.i_sp4_v_b[25] BLK_TL-PLB.i_sp4_v_b[33] BLK_TL-PLB.i_sp4_v_b[41]                                                     BLK_TL-PLB.i_sp4_h_r[25] BLK_TL-PLB.i_sp4_h_r[33] BLK_TL-PLB.i_sp4_h_r[41]   BLK_TL-PLB.i_sp12_v_b[1] BLK_TL-PLB.i_sp12_v_b[9]  BLK_TL-PLB.i_sp12_v_b[17]" output="BLK_XX-local_g[2].i[1]" />
-  <mux name="local_g2[2]" input="BLK_TL-PLB.i_sp4_r_v_b[10] BLK_TL-PLB.i_sp4_r_v_b[34]   BLK_TL-PLB.i_neigh_op_tnr[2] BLK_TL-PLB.i_neigh_op_tnl[2] BLK_TL-PLB.i_neigh_op_bnl[2] BLK_TL-PLB.i_neigh_op_rgt[2]   BLK_IG-PLB_LOCAL.O2                                                     BLK_TL-PLB.i_sp4_v_b[26] BLK_TL-PLB.i_sp4_v_b[34] BLK_TL-PLB.i_sp4_v_b[42]                                                     BLK_TL-PLB.i_sp4_h_r[26] BLK_TL-PLB.i_sp4_h_r[34] BLK_TL-PLB.i_sp4_h_r[42]   BLK_TL-PLB.i_sp12_v_b[2] BLK_TL-PLB.i_sp12_v_b[10] BLK_TL-PLB.i_sp12_v_b[18]" output="BLK_XX-local_g[2].i[2]" />
-  <mux name="local_g2[3]" input="BLK_TL-PLB.i_sp4_r_v_b[11] BLK_TL-PLB.i_sp4_r_v_b[35]   BLK_TL-PLB.i_neigh_op_tnr[3] BLK_TL-PLB.i_neigh_op_tnl[3] BLK_TL-PLB.i_neigh_op_bnl[3] BLK_TL-PLB.i_neigh_op_rgt[3]   BLK_IG-PLB_LOCAL.O3                                                     BLK_TL-PLB.i_sp4_v_b[27] BLK_TL-PLB.i_sp4_v_b[35] BLK_TL-PLB.i_sp4_v_b[43]                                                     BLK_TL-PLB.i_sp4_h_r[27] BLK_TL-PLB.i_sp4_h_r[35] BLK_TL-PLB.i_sp4_h_r[43]   BLK_TL-PLB.i_sp12_v_b[3] BLK_TL-PLB.i_sp12_v_b[11] BLK_TL-PLB.i_sp12_v_b[19]" output="BLK_XX-local_g[2].i[3]" />
-  <mux name="local_g2[4]" input="BLK_TL-PLB.i_sp4_r_v_b[12] BLK_TL-PLB.i_sp4_r_v_b[36]   BLK_TL-PLB.i_neigh_op_tnr[4] BLK_TL-PLB.i_neigh_op_tnl[4] BLK_TL-PLB.i_neigh_op_bnl[4] BLK_TL-PLB.i_neigh_op_rgt[4]   BLK_IG-PLB_LOCAL.O4                                                     BLK_TL-PLB.i_sp4_v_b[28] BLK_TL-PLB.i_sp4_v_b[36] BLK_TL-PLB.i_sp4_v_b[44]                                                     BLK_TL-PLB.i_sp4_h_r[28] BLK_TL-PLB.i_sp4_h_r[36] BLK_TL-PLB.i_sp4_h_r[44]   BLK_TL-PLB.i_sp12_v_b[4] BLK_TL-PLB.i_sp12_v_b[12] BLK_TL-PLB.i_sp12_v_b[20]" output="BLK_XX-local_g[2].i[4]" />
-  <mux name="local_g2[5]" input="BLK_TL-PLB.i_sp4_r_v_b[13] BLK_TL-PLB.i_sp4_r_v_b[37]   BLK_TL-PLB.i_neigh_op_tnr[5] BLK_TL-PLB.i_neigh_op_tnl[5] BLK_TL-PLB.i_neigh_op_bnl[5] BLK_TL-PLB.i_neigh_op_rgt[5]   BLK_IG-PLB_LOCAL.O5                                                     BLK_TL-PLB.i_sp4_v_b[29] BLK_TL-PLB.i_sp4_v_b[37] BLK_TL-PLB.i_sp4_v_b[45]                                                     BLK_TL-PLB.i_sp4_h_r[29] BLK_TL-PLB.i_sp4_h_r[37] BLK_TL-PLB.i_sp4_h_r[45]   BLK_TL-PLB.i_sp12_v_b[5] BLK_TL-PLB.i_sp12_v_b[13] BLK_TL-PLB.i_sp12_v_b[21]" output="BLK_XX-local_g[2].i[5]" />
-  <mux name="local_g2[6]" input="BLK_TL-PLB.i_sp4_r_v_b[14] BLK_TL-PLB.i_sp4_r_v_b[38]   BLK_TL-PLB.i_neigh_op_tnr[6] BLK_TL-PLB.i_neigh_op_tnl[6] BLK_TL-PLB.i_neigh_op_bnl[6] BLK_TL-PLB.i_neigh_op_rgt[6]   BLK_IG-PLB_LOCAL.O6                                                     BLK_TL-PLB.i_sp4_v_b[30] BLK_TL-PLB.i_sp4_v_b[38] BLK_TL-PLB.i_sp4_v_b[46]                                                     BLK_TL-PLB.i_sp4_h_r[30] BLK_TL-PLB.i_sp4_h_r[38] BLK_TL-PLB.i_sp4_h_r[46]   BLK_TL-PLB.i_sp12_v_b[6] BLK_TL-PLB.i_sp12_v_b[14] BLK_TL-PLB.i_sp12_v_b[22]" output="BLK_XX-local_g[2].i[6]" />
-  <mux name="local_g2[7]" input="BLK_TL-PLB.i_sp4_r_v_b[15] BLK_TL-PLB.i_sp4_r_v_b[39]   BLK_TL-PLB.i_neigh_op_tnr[7] BLK_TL-PLB.i_neigh_op_tnl[7] BLK_TL-PLB.i_neigh_op_bnl[7] BLK_TL-PLB.i_neigh_op_rgt[7]   BLK_IG-PLB_LOCAL.O7                                                     BLK_TL-PLB.i_sp4_v_b[31] BLK_TL-PLB.i_sp4_v_b[39] BLK_TL-PLB.i_sp4_v_b[47]                                                     BLK_TL-PLB.i_sp4_h_r[31] BLK_TL-PLB.i_sp4_h_r[39] BLK_TL-PLB.i_sp4_h_r[47]   BLK_TL-PLB.i_sp12_v_b[7] BLK_TL-PLB.i_sp12_v_b[15] BLK_TL-PLB.i_sp12_v_b[23]" output="BLK_XX-local_g[2].i[7]" />
+    BLK_TL-PLB.i_sp4_r_v_b[8]  BLK_TL-PLB.i_sp4_r_v_b[32]  BLK_TL-PLB.i_neigh_op_tnr[0] BLK_TL-PLB.i_neigh_op_tnl[0] BLK_TL-PLB.i_neigh_op_bnl[0] BLK_TL-PLB.i_neigh_op_rgt[0]
+    BLK_TL-PLB.i_sp4_r_v_b[9]  BLK_TL-PLB.i_sp4_r_v_b[33]  BLK_TL-PLB.i_neigh_op_tnr[1] BLK_TL-PLB.i_neigh_op_tnl[1] BLK_TL-PLB.i_neigh_op_bnl[1] BLK_TL-PLB.i_neigh_op_rgt[1]
+    BLK_TL-PLB.i_sp4_r_v_b[10] BLK_TL-PLB.i_sp4_r_v_b[34]  BLK_TL-PLB.i_neigh_op_tnr[2] BLK_TL-PLB.i_neigh_op_tnl[2] BLK_TL-PLB.i_neigh_op_bnl[2] BLK_TL-PLB.i_neigh_op_rgt[2]
+    BLK_TL-PLB.i_sp4_r_v_b[11] BLK_TL-PLB.i_sp4_r_v_b[35]  BLK_TL-PLB.i_neigh_op_tnr[3] BLK_TL-PLB.i_neigh_op_tnl[3] BLK_TL-PLB.i_neigh_op_bnl[3] BLK_TL-PLB.i_neigh_op_rgt[3]
+    BLK_TL-PLB.i_sp4_r_v_b[12] BLK_TL-PLB.i_sp4_r_v_b[36]  BLK_TL-PLB.i_neigh_op_tnr[4] BLK_TL-PLB.i_neigh_op_tnl[4] BLK_TL-PLB.i_neigh_op_bnl[4] BLK_TL-PLB.i_neigh_op_rgt[4]
+    BLK_TL-PLB.i_sp4_r_v_b[13] BLK_TL-PLB.i_sp4_r_v_b[37]  BLK_TL-PLB.i_neigh_op_tnr[5] BLK_TL-PLB.i_neigh_op_tnl[5] BLK_TL-PLB.i_neigh_op_bnl[5] BLK_TL-PLB.i_neigh_op_rgt[5]
+    BLK_TL-PLB.i_sp4_r_v_b[14] BLK_TL-PLB.i_sp4_r_v_b[38]  BLK_TL-PLB.i_neigh_op_tnr[6] BLK_TL-PLB.i_neigh_op_tnl[6] BLK_TL-PLB.i_neigh_op_bnl[6] BLK_TL-PLB.i_neigh_op_rgt[6]
+    BLK_TL-PLB.i_sp4_r_v_b[15] BLK_TL-PLB.i_sp4_r_v_b[39]  BLK_TL-PLB.i_neigh_op_tnr[7] BLK_TL-PLB.i_neigh_op_tnl[7] BLK_TL-PLB.i_neigh_op_bnl[7] BLK_TL-PLB.i_neigh_op_rgt[7]
 
-  <mux name="local_g3[0]" input="BLK_TL-PLB.i_sp4_r_v_b[16] BLK_TL-PLB.i_sp4_r_v_b[40]   BLK_TL-PLB.i_neigh_op_tnr[0] BLK_TL-PLB.i_neigh_op_tnl[0] BLK_TL-PLB.i_neigh_op_bnl[0] BLK_TL-PLB.i_neigh_op_rgt[0]   BLK_IG-PLB_LOCAL.O0                                                     BLK_TL-PLB.i_sp4_v_b[24] BLK_TL-PLB.i_sp4_v_b[32] BLK_TL-PLB.i_sp4_v_b[40]                                                     BLK_TL-PLB.i_sp4_h_r[24] BLK_TL-PLB.i_sp4_h_r[32] BLK_TL-PLB.i_sp4_h_r[40]   BLK_TL-PLB.i_sp12_v_b[0] BLK_TL-PLB.i_sp12_v_b[8]  BLK_TL-PLB.i_sp12_v_b[16]" output="BLK_XX-local_g[3].i[0]" />
-  <mux name="local_g3[1]" input="BLK_TL-PLB.i_sp4_r_v_b[17] BLK_TL-PLB.i_sp4_r_v_b[41]   BLK_TL-PLB.i_neigh_op_tnr[1] BLK_TL-PLB.i_neigh_op_tnl[1] BLK_TL-PLB.i_neigh_op_bnl[1] BLK_TL-PLB.i_neigh_op_rgt[1]   BLK_IG-PLB_LOCAL.O1                                                     BLK_TL-PLB.i_sp4_v_b[25] BLK_TL-PLB.i_sp4_v_b[33] BLK_TL-PLB.i_sp4_v_b[41]                                                     BLK_TL-PLB.i_sp4_h_r[25] BLK_TL-PLB.i_sp4_h_r[33] BLK_TL-PLB.i_sp4_h_r[41]   BLK_TL-PLB.i_sp12_v_b[1] BLK_TL-PLB.i_sp12_v_b[9]  BLK_TL-PLB.i_sp12_v_b[17]" output="BLK_XX-local_g[3].i[1]" />
-  <mux name="local_g3[2]" input="BLK_TL-PLB.i_sp4_r_v_b[18] BLK_TL-PLB.i_sp4_r_v_b[42]   BLK_TL-PLB.i_neigh_op_tnr[2] BLK_TL-PLB.i_neigh_op_tnl[2] BLK_TL-PLB.i_neigh_op_bnl[2] BLK_TL-PLB.i_neigh_op_rgt[2]   BLK_IG-PLB_LOCAL.O2                                                     BLK_TL-PLB.i_sp4_v_b[26] BLK_TL-PLB.i_sp4_v_b[34] BLK_TL-PLB.i_sp4_v_b[42]                                                     BLK_TL-PLB.i_sp4_h_r[26] BLK_TL-PLB.i_sp4_h_r[34] BLK_TL-PLB.i_sp4_h_r[42]   BLK_TL-PLB.i_sp12_v_b[2] BLK_TL-PLB.i_sp12_v_b[10] BLK_TL-PLB.i_sp12_v_b[18]" output="BLK_XX-local_g[3].i[2]" />
-  <mux name="local_g3[3]" input="BLK_TL-PLB.i_sp4_r_v_b[19] BLK_TL-PLB.i_sp4_r_v_b[43]   BLK_TL-PLB.i_neigh_op_tnr[3] BLK_TL-PLB.i_neigh_op_tnl[3] BLK_TL-PLB.i_neigh_op_bnl[3] BLK_TL-PLB.i_neigh_op_rgt[3]   BLK_IG-PLB_LOCAL.O3                                                     BLK_TL-PLB.i_sp4_v_b[27] BLK_TL-PLB.i_sp4_v_b[35] BLK_TL-PLB.i_sp4_v_b[43]                                                     BLK_TL-PLB.i_sp4_h_r[27] BLK_TL-PLB.i_sp4_h_r[35] BLK_TL-PLB.i_sp4_h_r[43]   BLK_TL-PLB.i_sp12_v_b[3] BLK_TL-PLB.i_sp12_v_b[11] BLK_TL-PLB.i_sp12_v_b[19]" output="BLK_XX-local_g[3].i[3]" />
-  <mux name="local_g3[4]" input="BLK_TL-PLB.i_sp4_r_v_b[20] BLK_TL-PLB.i_sp4_r_v_b[44]   BLK_TL-PLB.i_neigh_op_tnr[4] BLK_TL-PLB.i_neigh_op_tnl[4] BLK_TL-PLB.i_neigh_op_bnl[4] BLK_TL-PLB.i_neigh_op_rgt[4]   BLK_IG-PLB_LOCAL.O4                                                     BLK_TL-PLB.i_sp4_v_b[28] BLK_TL-PLB.i_sp4_v_b[36] BLK_TL-PLB.i_sp4_v_b[44]                                                     BLK_TL-PLB.i_sp4_h_r[28] BLK_TL-PLB.i_sp4_h_r[36] BLK_TL-PLB.i_sp4_h_r[44]   BLK_TL-PLB.i_sp12_v_b[4] BLK_TL-PLB.i_sp12_v_b[12] BLK_TL-PLB.i_sp12_v_b[20]" output="BLK_XX-local_g[3].i[4]" />
-  <mux name="local_g3[5]" input="BLK_TL-PLB.i_sp4_r_v_b[21] BLK_TL-PLB.i_sp4_r_v_b[45]   BLK_TL-PLB.i_neigh_op_tnr[5] BLK_TL-PLB.i_neigh_op_tnl[5] BLK_TL-PLB.i_neigh_op_bnl[5] BLK_TL-PLB.i_neigh_op_rgt[5]   BLK_IG-PLB_LOCAL.O5                                                     BLK_TL-PLB.i_sp4_v_b[29] BLK_TL-PLB.i_sp4_v_b[37] BLK_TL-PLB.i_sp4_v_b[45]                                                     BLK_TL-PLB.i_sp4_h_r[29] BLK_TL-PLB.i_sp4_h_r[37] BLK_TL-PLB.i_sp4_h_r[45]   BLK_TL-PLB.i_sp12_v_b[5] BLK_TL-PLB.i_sp12_v_b[13] BLK_TL-PLB.i_sp12_v_b[21]" output="BLK_XX-local_g[3].i[5]" />
-  <mux name="local_g3[6]" input="BLK_TL-PLB.i_sp4_r_v_b[22] BLK_TL-PLB.i_sp4_r_v_b[46]   BLK_TL-PLB.i_neigh_op_tnr[6] BLK_TL-PLB.i_neigh_op_tnl[6] BLK_TL-PLB.i_neigh_op_bnl[6] BLK_TL-PLB.i_neigh_op_rgt[6]   BLK_IG-PLB_LOCAL.O6                                                     BLK_TL-PLB.i_sp4_v_b[30] BLK_TL-PLB.i_sp4_v_b[38] BLK_TL-PLB.i_sp4_v_b[46]                                                     BLK_TL-PLB.i_sp4_h_r[30] BLK_TL-PLB.i_sp4_h_r[38] BLK_TL-PLB.i_sp4_h_r[46]   BLK_TL-PLB.i_sp12_v_b[6] BLK_TL-PLB.i_sp12_v_b[14] BLK_TL-PLB.i_sp12_v_b[22]" output="BLK_XX-local_g[3].i[6]" />
-  <mux name="local_g3[7]" input="BLK_TL-PLB.i_sp4_r_v_b[23] BLK_TL-PLB.i_sp4_r_v_b[47]   BLK_TL-PLB.i_neigh_op_tnr[7] BLK_TL-PLB.i_neigh_op_tnl[7] BLK_TL-PLB.i_neigh_op_bnl[7] BLK_TL-PLB.i_neigh_op_rgt[7]   BLK_IG-PLB_LOCAL.O7                                                     BLK_TL-PLB.i_sp4_v_b[31] BLK_TL-PLB.i_sp4_v_b[39] BLK_TL-PLB.i_sp4_v_b[47]                                                     BLK_TL-PLB.i_sp4_h_r[31] BLK_TL-PLB.i_sp4_h_r[39] BLK_TL-PLB.i_sp4_h_r[47]   BLK_TL-PLB.i_sp12_v_b[7] BLK_TL-PLB.i_sp12_v_b[15] BLK_TL-PLB.i_sp12_v_b[23]" output="BLK_XX-local_g[3].i[7]" />
+    BLK_TL-PLB.i_sp4_r_v_b[16] BLK_TL-PLB.i_sp4_r_v_b[40]  BLK_TL-PLB.i_neigh_op_tnr[0] BLK_TL-PLB.i_neigh_op_tnl[0] BLK_TL-PLB.i_neigh_op_bnl[0] BLK_TL-PLB.i_neigh_op_rgt[0]
+    BLK_TL-PLB.i_sp4_r_v_b[17] BLK_TL-PLB.i_sp4_r_v_b[41]  BLK_TL-PLB.i_neigh_op_tnr[1] BLK_TL-PLB.i_neigh_op_tnl[1] BLK_TL-PLB.i_neigh_op_bnl[1] BLK_TL-PLB.i_neigh_op_rgt[1]
+    BLK_TL-PLB.i_sp4_r_v_b[18] BLK_TL-PLB.i_sp4_r_v_b[42]  BLK_TL-PLB.i_neigh_op_tnr[2] BLK_TL-PLB.i_neigh_op_tnl[2] BLK_TL-PLB.i_neigh_op_bnl[2] BLK_TL-PLB.i_neigh_op_rgt[2]
+    BLK_TL-PLB.i_sp4_r_v_b[19] BLK_TL-PLB.i_sp4_r_v_b[43]  BLK_TL-PLB.i_neigh_op_tnr[3] BLK_TL-PLB.i_neigh_op_tnl[3] BLK_TL-PLB.i_neigh_op_bnl[3] BLK_TL-PLB.i_neigh_op_rgt[3]
+    BLK_TL-PLB.i_sp4_r_v_b[20] BLK_TL-PLB.i_sp4_r_v_b[44]  BLK_TL-PLB.i_neigh_op_tnr[4] BLK_TL-PLB.i_neigh_op_tnl[4] BLK_TL-PLB.i_neigh_op_bnl[4] BLK_TL-PLB.i_neigh_op_rgt[4]
+    BLK_TL-PLB.i_sp4_r_v_b[21] BLK_TL-PLB.i_sp4_r_v_b[45]  BLK_TL-PLB.i_neigh_op_tnr[5] BLK_TL-PLB.i_neigh_op_tnl[5] BLK_TL-PLB.i_neigh_op_bnl[5] BLK_TL-PLB.i_neigh_op_rgt[5]
+    BLK_TL-PLB.i_sp4_r_v_b[22] BLK_TL-PLB.i_sp4_r_v_b[46]  BLK_TL-PLB.i_neigh_op_tnr[6] BLK_TL-PLB.i_neigh_op_tnl[6] BLK_TL-PLB.i_neigh_op_bnl[6] BLK_TL-PLB.i_neigh_op_rgt[6]
+    BLK_TL-PLB.i_sp4_r_v_b[23] BLK_TL-PLB.i_sp4_r_v_b[47]  BLK_TL-PLB.i_neigh_op_tnr[7] BLK_TL-PLB.i_neigh_op_tnl[7] BLK_TL-PLB.i_neigh_op_bnl[7] BLK_TL-PLB.i_neigh_op_rgt[7]
+       -->
+  <mux name="local_g0[0]" input="                       BLK_IG-PLB_LOCAL.O0   BLK_TL-PLB.i_sp4_v_b[0]  BLK_TL-PLB.i_sp4_v_b[8]  BLK_TL-PLB.i_sp4_v_b[16]                                                     BLK_TL-PLB.i_sp4_h_r[0]  BLK_TL-PLB.i_sp4_h_r[8]  BLK_TL-PLB.i_sp4_h_r[16]                                                     BLK_TL-PLB.i_sp12_h_r[0] BLK_TL-PLB.i_sp12_h_r[8]  BLK_TL-PLB.i_sp12_h_r[16]" output="BLK_XX-local_g[0].i[0]" />
+  <mux name="local_g0[1]" input="                       BLK_IG-PLB_LOCAL.O1   BLK_TL-PLB.i_sp4_v_b[1]  BLK_TL-PLB.i_sp4_v_b[9]  BLK_TL-PLB.i_sp4_v_b[17]                                                     BLK_TL-PLB.i_sp4_h_r[1]  BLK_TL-PLB.i_sp4_h_r[9]  BLK_TL-PLB.i_sp4_h_r[17]                                                     BLK_TL-PLB.i_sp12_h_r[1] BLK_TL-PLB.i_sp12_h_r[9]  BLK_TL-PLB.i_sp12_h_r[17]" output="BLK_XX-local_g[0].i[1]" />
+  <mux name="local_g0[2]" input="                       BLK_IG-PLB_LOCAL.O2   BLK_TL-PLB.i_sp4_v_b[2]  BLK_TL-PLB.i_sp4_v_b[10] BLK_TL-PLB.i_sp4_v_b[18]                                                     BLK_TL-PLB.i_sp4_h_r[2]  BLK_TL-PLB.i_sp4_h_r[10] BLK_TL-PLB.i_sp4_h_r[18]                                                     BLK_TL-PLB.i_sp12_h_r[2] BLK_TL-PLB.i_sp12_h_r[10] BLK_TL-PLB.i_sp12_h_r[18]" output="BLK_XX-local_g[0].i[2]" />
+  <mux name="local_g0[3]" input="                       BLK_IG-PLB_LOCAL.O3   BLK_TL-PLB.i_sp4_v_b[3]  BLK_TL-PLB.i_sp4_v_b[11] BLK_TL-PLB.i_sp4_v_b[19]                                                     BLK_TL-PLB.i_sp4_h_r[3]  BLK_TL-PLB.i_sp4_h_r[11] BLK_TL-PLB.i_sp4_h_r[19]                                                     BLK_TL-PLB.i_sp12_h_r[3] BLK_TL-PLB.i_sp12_h_r[11] BLK_TL-PLB.i_sp12_h_r[19]" output="BLK_XX-local_g[0].i[3]" />
+  <mux name="local_g0[4]" input="BLK_XX-glb2local[0].o  BLK_IG-PLB_LOCAL.O4   BLK_TL-PLB.i_sp4_v_b[4]  BLK_TL-PLB.i_sp4_v_b[12] BLK_TL-PLB.i_sp4_v_b[20]                                                     BLK_TL-PLB.i_sp4_h_r[4]  BLK_TL-PLB.i_sp4_h_r[12] BLK_TL-PLB.i_sp4_h_r[20]                                                     BLK_TL-PLB.i_sp12_h_r[4] BLK_TL-PLB.i_sp12_h_r[12] BLK_TL-PLB.i_sp12_h_r[20]" output="BLK_XX-local_g[0].i[4]" />
+  <mux name="local_g0[5]" input="BLK_XX-glb2local[1].o  BLK_IG-PLB_LOCAL.O5   BLK_TL-PLB.i_sp4_v_b[5]  BLK_TL-PLB.i_sp4_v_b[13] BLK_TL-PLB.i_sp4_v_b[21]                                                     BLK_TL-PLB.i_sp4_h_r[5]  BLK_TL-PLB.i_sp4_h_r[13] BLK_TL-PLB.i_sp4_h_r[21]                                                     BLK_TL-PLB.i_sp12_h_r[5] BLK_TL-PLB.i_sp12_h_r[13] BLK_TL-PLB.i_sp12_h_r[21]" output="BLK_XX-local_g[0].i[5]" />
+  <mux name="local_g0[6]" input="BLK_XX-glb2local[2].o  BLK_IG-PLB_LOCAL.O6   BLK_TL-PLB.i_sp4_v_b[6]  BLK_TL-PLB.i_sp4_v_b[14] BLK_TL-PLB.i_sp4_v_b[22]                                                     BLK_TL-PLB.i_sp4_h_r[6]  BLK_TL-PLB.i_sp4_h_r[14] BLK_TL-PLB.i_sp4_h_r[22]                                                     BLK_TL-PLB.i_sp12_h_r[6] BLK_TL-PLB.i_sp12_h_r[14] BLK_TL-PLB.i_sp12_h_r[22]" output="BLK_XX-local_g[0].i[6]" />
+  <mux name="local_g0[7]" input="BLK_XX-glb2local[3].o  BLK_IG-PLB_LOCAL.O7   BLK_TL-PLB.i_sp4_v_b[7]  BLK_TL-PLB.i_sp4_v_b[15] BLK_TL-PLB.i_sp4_v_b[23]                                                     BLK_TL-PLB.i_sp4_h_r[7]  BLK_TL-PLB.i_sp4_h_r[15] BLK_TL-PLB.i_sp4_h_r[23]                                                     BLK_TL-PLB.i_sp12_h_r[7] BLK_TL-PLB.i_sp12_h_r[15] BLK_TL-PLB.i_sp12_h_r[23]" output="BLK_XX-local_g[0].i[7]" />
+
+  <mux name="local_g1[0]" input="                       BLK_IG-PLB_LOCAL.O0   BLK_TL-PLB.i_sp4_v_b[0]  BLK_TL-PLB.i_sp4_v_b[8]  BLK_TL-PLB.i_sp4_v_b[16]                                                     BLK_TL-PLB.i_sp4_h_r[0]  BLK_TL-PLB.i_sp4_h_r[8]  BLK_TL-PLB.i_sp4_h_r[16]                                                     BLK_TL-PLB.i_sp12_h_r[0] BLK_TL-PLB.i_sp12_h_r[8]  BLK_TL-PLB.i_sp12_h_r[16]" output="BLK_XX-local_g[1].i[0]" />
+  <mux name="local_g1[1]" input="                       BLK_IG-PLB_LOCAL.O1   BLK_TL-PLB.i_sp4_v_b[1]  BLK_TL-PLB.i_sp4_v_b[9]  BLK_TL-PLB.i_sp4_v_b[17]                                                     BLK_TL-PLB.i_sp4_h_r[1]  BLK_TL-PLB.i_sp4_h_r[9]  BLK_TL-PLB.i_sp4_h_r[17]                                                     BLK_TL-PLB.i_sp12_h_r[1] BLK_TL-PLB.i_sp12_h_r[9]  BLK_TL-PLB.i_sp12_h_r[17]" output="BLK_XX-local_g[1].i[1]" />
+  <mux name="local_g1[2]" input="                       BLK_IG-PLB_LOCAL.O2   BLK_TL-PLB.i_sp4_v_b[2]  BLK_TL-PLB.i_sp4_v_b[10] BLK_TL-PLB.i_sp4_v_b[18]                                                     BLK_TL-PLB.i_sp4_h_r[2]  BLK_TL-PLB.i_sp4_h_r[10] BLK_TL-PLB.i_sp4_h_r[18]                                                     BLK_TL-PLB.i_sp12_h_r[2] BLK_TL-PLB.i_sp12_h_r[10] BLK_TL-PLB.i_sp12_h_r[18]" output="BLK_XX-local_g[1].i[2]" />
+  <mux name="local_g1[3]" input="                       BLK_IG-PLB_LOCAL.O3   BLK_TL-PLB.i_sp4_v_b[3]  BLK_TL-PLB.i_sp4_v_b[11] BLK_TL-PLB.i_sp4_v_b[19]                                                     BLK_TL-PLB.i_sp4_h_r[3]  BLK_TL-PLB.i_sp4_h_r[11] BLK_TL-PLB.i_sp4_h_r[19]                                                     BLK_TL-PLB.i_sp12_h_r[3] BLK_TL-PLB.i_sp12_h_r[11] BLK_TL-PLB.i_sp12_h_r[19]" output="BLK_XX-local_g[1].i[3]" />
+  <mux name="local_g1[4]" input="                       BLK_IG-PLB_LOCAL.O4   BLK_TL-PLB.i_sp4_v_b[4]  BLK_TL-PLB.i_sp4_v_b[12] BLK_TL-PLB.i_sp4_v_b[20]                                                     BLK_TL-PLB.i_sp4_h_r[4]  BLK_TL-PLB.i_sp4_h_r[12] BLK_TL-PLB.i_sp4_h_r[20]                                                     BLK_TL-PLB.i_sp12_h_r[4] BLK_TL-PLB.i_sp12_h_r[12] BLK_TL-PLB.i_sp12_h_r[20]" output="BLK_XX-local_g[1].i[4]" />
+  <mux name="local_g1[5]" input="                       BLK_IG-PLB_LOCAL.O5   BLK_TL-PLB.i_sp4_v_b[5]  BLK_TL-PLB.i_sp4_v_b[21] BLK_TL-PLB.i_sp4_v_b[13]                                                     BLK_TL-PLB.i_sp4_h_r[5]  BLK_TL-PLB.i_sp4_h_r[13] BLK_TL-PLB.i_sp4_h_r[21]                                                     BLK_TL-PLB.i_sp12_h_r[5] BLK_TL-PLB.i_sp12_h_r[13] BLK_TL-PLB.i_sp12_h_r[21]" output="BLK_XX-local_g[1].i[5]" />
+  <mux name="local_g1[6]" input="                       BLK_IG-PLB_LOCAL.O6   BLK_TL-PLB.i_sp4_v_b[6]  BLK_TL-PLB.i_sp4_v_b[14] BLK_TL-PLB.i_sp4_v_b[22]                                                     BLK_TL-PLB.i_sp4_h_r[6]  BLK_TL-PLB.i_sp4_h_r[14] BLK_TL-PLB.i_sp4_h_r[22]                                                     BLK_TL-PLB.i_sp12_h_r[6] BLK_TL-PLB.i_sp12_h_r[14] BLK_TL-PLB.i_sp12_h_r[22]" output="BLK_XX-local_g[1].i[6]" />
+  <mux name="local_g1[7]" input="                       BLK_IG-PLB_LOCAL.O7   BLK_TL-PLB.i_sp4_v_b[7]  BLK_TL-PLB.i_sp4_v_b[15] BLK_TL-PLB.i_sp4_v_b[23]                                                     BLK_TL-PLB.i_sp4_h_r[7]  BLK_TL-PLB.i_sp4_h_r[15] BLK_TL-PLB.i_sp4_h_r[23]                                                     BLK_TL-PLB.i_sp12_h_r[7] BLK_TL-PLB.i_sp12_h_r[15] BLK_TL-PLB.i_sp12_h_r[23]" output="BLK_XX-local_g[1].i[7]" />
+
+  <mux name="local_g2[0]" input="                       BLK_IG-PLB_LOCAL.O0                                                     BLK_TL-PLB.i_sp4_v_b[24] BLK_TL-PLB.i_sp4_v_b[32] BLK_TL-PLB.i_sp4_v_b[40]                                                     BLK_TL-PLB.i_sp4_h_r[24] BLK_TL-PLB.i_sp4_h_r[32] BLK_TL-PLB.i_sp4_h_r[40]   BLK_TL-PLB.i_sp12_v_b[0] BLK_TL-PLB.i_sp12_v_b[8]  BLK_TL-PLB.i_sp12_v_b[16]" output="BLK_XX-local_g[2].i[0]" />
+  <mux name="local_g2[1]" input="                       BLK_IG-PLB_LOCAL.O1                                                     BLK_TL-PLB.i_sp4_v_b[25] BLK_TL-PLB.i_sp4_v_b[33] BLK_TL-PLB.i_sp4_v_b[41]                                                     BLK_TL-PLB.i_sp4_h_r[25] BLK_TL-PLB.i_sp4_h_r[33] BLK_TL-PLB.i_sp4_h_r[41]   BLK_TL-PLB.i_sp12_v_b[1] BLK_TL-PLB.i_sp12_v_b[9]  BLK_TL-PLB.i_sp12_v_b[17]" output="BLK_XX-local_g[2].i[1]" />
+  <mux name="local_g2[2]" input="                       BLK_IG-PLB_LOCAL.O2                                                     BLK_TL-PLB.i_sp4_v_b[26] BLK_TL-PLB.i_sp4_v_b[34] BLK_TL-PLB.i_sp4_v_b[42]                                                     BLK_TL-PLB.i_sp4_h_r[26] BLK_TL-PLB.i_sp4_h_r[34] BLK_TL-PLB.i_sp4_h_r[42]   BLK_TL-PLB.i_sp12_v_b[2] BLK_TL-PLB.i_sp12_v_b[10] BLK_TL-PLB.i_sp12_v_b[18]" output="BLK_XX-local_g[2].i[2]" />
+  <mux name="local_g2[3]" input="                       BLK_IG-PLB_LOCAL.O3                                                     BLK_TL-PLB.i_sp4_v_b[27] BLK_TL-PLB.i_sp4_v_b[35] BLK_TL-PLB.i_sp4_v_b[43]                                                     BLK_TL-PLB.i_sp4_h_r[27] BLK_TL-PLB.i_sp4_h_r[35] BLK_TL-PLB.i_sp4_h_r[43]   BLK_TL-PLB.i_sp12_v_b[3] BLK_TL-PLB.i_sp12_v_b[11] BLK_TL-PLB.i_sp12_v_b[19]" output="BLK_XX-local_g[2].i[3]" />
+  <mux name="local_g2[4]" input="                       BLK_IG-PLB_LOCAL.O4                                                     BLK_TL-PLB.i_sp4_v_b[28] BLK_TL-PLB.i_sp4_v_b[36] BLK_TL-PLB.i_sp4_v_b[44]                                                     BLK_TL-PLB.i_sp4_h_r[28] BLK_TL-PLB.i_sp4_h_r[36] BLK_TL-PLB.i_sp4_h_r[44]   BLK_TL-PLB.i_sp12_v_b[4] BLK_TL-PLB.i_sp12_v_b[12] BLK_TL-PLB.i_sp12_v_b[20]" output="BLK_XX-local_g[2].i[4]" />
+  <mux name="local_g2[5]" input="                       BLK_IG-PLB_LOCAL.O5                                                     BLK_TL-PLB.i_sp4_v_b[29] BLK_TL-PLB.i_sp4_v_b[37] BLK_TL-PLB.i_sp4_v_b[45]                                                     BLK_TL-PLB.i_sp4_h_r[29] BLK_TL-PLB.i_sp4_h_r[37] BLK_TL-PLB.i_sp4_h_r[45]   BLK_TL-PLB.i_sp12_v_b[5] BLK_TL-PLB.i_sp12_v_b[13] BLK_TL-PLB.i_sp12_v_b[21]" output="BLK_XX-local_g[2].i[5]" />
+  <mux name="local_g2[6]" input="                       BLK_IG-PLB_LOCAL.O6                                                     BLK_TL-PLB.i_sp4_v_b[30] BLK_TL-PLB.i_sp4_v_b[38] BLK_TL-PLB.i_sp4_v_b[46]                                                     BLK_TL-PLB.i_sp4_h_r[30] BLK_TL-PLB.i_sp4_h_r[38] BLK_TL-PLB.i_sp4_h_r[46]   BLK_TL-PLB.i_sp12_v_b[6] BLK_TL-PLB.i_sp12_v_b[14] BLK_TL-PLB.i_sp12_v_b[22]" output="BLK_XX-local_g[2].i[6]" />
+  <mux name="local_g2[7]" input="                       BLK_IG-PLB_LOCAL.O7                                                     BLK_TL-PLB.i_sp4_v_b[31] BLK_TL-PLB.i_sp4_v_b[39] BLK_TL-PLB.i_sp4_v_b[47]                                                     BLK_TL-PLB.i_sp4_h_r[31] BLK_TL-PLB.i_sp4_h_r[39] BLK_TL-PLB.i_sp4_h_r[47]   BLK_TL-PLB.i_sp12_v_b[7] BLK_TL-PLB.i_sp12_v_b[15] BLK_TL-PLB.i_sp12_v_b[23]" output="BLK_XX-local_g[2].i[7]" />
+
+  <mux name="local_g3[0]" input="                       BLK_IG-PLB_LOCAL.O0                                                     BLK_TL-PLB.i_sp4_v_b[24] BLK_TL-PLB.i_sp4_v_b[32] BLK_TL-PLB.i_sp4_v_b[40]                                                     BLK_TL-PLB.i_sp4_h_r[24] BLK_TL-PLB.i_sp4_h_r[32] BLK_TL-PLB.i_sp4_h_r[40]   BLK_TL-PLB.i_sp12_v_b[0] BLK_TL-PLB.i_sp12_v_b[8]  BLK_TL-PLB.i_sp12_v_b[16]" output="BLK_XX-local_g[3].i[0]" />
+  <mux name="local_g3[1]" input="                       BLK_IG-PLB_LOCAL.O1                                                     BLK_TL-PLB.i_sp4_v_b[25] BLK_TL-PLB.i_sp4_v_b[33] BLK_TL-PLB.i_sp4_v_b[41]                                                     BLK_TL-PLB.i_sp4_h_r[25] BLK_TL-PLB.i_sp4_h_r[33] BLK_TL-PLB.i_sp4_h_r[41]   BLK_TL-PLB.i_sp12_v_b[1] BLK_TL-PLB.i_sp12_v_b[9]  BLK_TL-PLB.i_sp12_v_b[17]" output="BLK_XX-local_g[3].i[1]" />
+  <mux name="local_g3[2]" input="                       BLK_IG-PLB_LOCAL.O2                                                     BLK_TL-PLB.i_sp4_v_b[26] BLK_TL-PLB.i_sp4_v_b[34] BLK_TL-PLB.i_sp4_v_b[42]                                                     BLK_TL-PLB.i_sp4_h_r[26] BLK_TL-PLB.i_sp4_h_r[34] BLK_TL-PLB.i_sp4_h_r[42]   BLK_TL-PLB.i_sp12_v_b[2] BLK_TL-PLB.i_sp12_v_b[10] BLK_TL-PLB.i_sp12_v_b[18]" output="BLK_XX-local_g[3].i[2]" />
+  <mux name="local_g3[3]" input="                       BLK_IG-PLB_LOCAL.O3                                                     BLK_TL-PLB.i_sp4_v_b[27] BLK_TL-PLB.i_sp4_v_b[35] BLK_TL-PLB.i_sp4_v_b[43]                                                     BLK_TL-PLB.i_sp4_h_r[27] BLK_TL-PLB.i_sp4_h_r[35] BLK_TL-PLB.i_sp4_h_r[43]   BLK_TL-PLB.i_sp12_v_b[3] BLK_TL-PLB.i_sp12_v_b[11] BLK_TL-PLB.i_sp12_v_b[19]" output="BLK_XX-local_g[3].i[3]" />
+  <mux name="local_g3[4]" input="                       BLK_IG-PLB_LOCAL.O4                                                     BLK_TL-PLB.i_sp4_v_b[28] BLK_TL-PLB.i_sp4_v_b[36] BLK_TL-PLB.i_sp4_v_b[44]                                                     BLK_TL-PLB.i_sp4_h_r[28] BLK_TL-PLB.i_sp4_h_r[36] BLK_TL-PLB.i_sp4_h_r[44]   BLK_TL-PLB.i_sp12_v_b[4] BLK_TL-PLB.i_sp12_v_b[12] BLK_TL-PLB.i_sp12_v_b[20]" output="BLK_XX-local_g[3].i[4]" />
+  <mux name="local_g3[5]" input="                       BLK_IG-PLB_LOCAL.O5                                                     BLK_TL-PLB.i_sp4_v_b[29] BLK_TL-PLB.i_sp4_v_b[37] BLK_TL-PLB.i_sp4_v_b[45]                                                     BLK_TL-PLB.i_sp4_h_r[29] BLK_TL-PLB.i_sp4_h_r[37] BLK_TL-PLB.i_sp4_h_r[45]   BLK_TL-PLB.i_sp12_v_b[5] BLK_TL-PLB.i_sp12_v_b[13] BLK_TL-PLB.i_sp12_v_b[21]" output="BLK_XX-local_g[3].i[5]" />
+  <mux name="local_g3[6]" input="                       BLK_IG-PLB_LOCAL.O6                                                     BLK_TL-PLB.i_sp4_v_b[30] BLK_TL-PLB.i_sp4_v_b[38] BLK_TL-PLB.i_sp4_v_b[46]                                                     BLK_TL-PLB.i_sp4_h_r[30] BLK_TL-PLB.i_sp4_h_r[38] BLK_TL-PLB.i_sp4_h_r[46]   BLK_TL-PLB.i_sp12_v_b[6] BLK_TL-PLB.i_sp12_v_b[14] BLK_TL-PLB.i_sp12_v_b[22]" output="BLK_XX-local_g[3].i[6]" />
+  <mux name="local_g3[7]" input="                       BLK_IG-PLB_LOCAL.O7                                                     BLK_TL-PLB.i_sp4_v_b[31] BLK_TL-PLB.i_sp4_v_b[39] BLK_TL-PLB.i_sp4_v_b[47]                                                     BLK_TL-PLB.i_sp4_h_r[31] BLK_TL-PLB.i_sp4_h_r[39] BLK_TL-PLB.i_sp4_h_r[47]   BLK_TL-PLB.i_sp12_v_b[7] BLK_TL-PLB.i_sp12_v_b[15] BLK_TL-PLB.i_sp12_v_b[23]" output="BLK_XX-local_g[3].i[7]" />
 
   <!-- LUTFF.O   to Span-4 Vertical -->
   <mux name="BLK_IG-PLB_LOCAL.O0->sp4_v_b[0]"  input="BLK_IG-PLB_LOCAL.O0" output="BLK_TL-PLB.o_sp4_v_b[0]"  />
@@ -237,7 +278,7 @@
   <mux name="mux_sp12_v_b[9]"  input="BLK_TL-PLB.i_sp12_v_b[9]"  output="BLK_TL-PLB.o_sp4_v_b[16]" />
   -->
 
-  <!-- LUTFF.O   to Span-4 Right Vertical -->
+  <!-- LUTFF.O   to Span-4 Right Vertical
   <mux name="BLK_IG-PLB_LOCAL.O0->sp4_r_v_b[1]"  input="BLK_IG-PLB_LOCAL.O0" output="BLK_TL-PLB.o_sp4_r_v_b[1]"  />
   <mux name="BLK_IG-PLB_LOCAL.O0->sp4_r_v_b[17]" input="BLK_IG-PLB_LOCAL.O0" output="BLK_TL-PLB.o_sp4_r_v_b[17]" />
   <mux name="BLK_IG-PLB_LOCAL.O0->sp4_r_v_b[33]" input="BLK_IG-PLB_LOCAL.O0" output="BLK_TL-PLB.o_sp4_r_v_b[33]" />
@@ -262,6 +303,7 @@
   <mux name="BLK_IG-PLB_LOCAL.O7->sp4_r_v_b[15]" input="BLK_IG-PLB_LOCAL.O7" output="BLK_TL-PLB.o_sp4_r_v_b[15]" />
   <mux name="BLK_IG-PLB_LOCAL.O7->sp4_r_v_b[31]" input="BLK_IG-PLB_LOCAL.O7" output="BLK_TL-PLB.o_sp4_r_v_b[31]" />
   <mux name="BLK_IG-PLB_LOCAL.O7->sp4_r_v_b[47]" input="BLK_IG-PLB_LOCAL.O7" output="BLK_TL-PLB.o_sp4_r_v_b[47]" />
+       -->
 
   <!-- LUTFF.O   to Span-4 Horizontal -->
   <mux name="BLK_IG-PLB_LOCAL.O0->sp4_h_r[0]"  input="BLK_IG-PLB_LOCAL.O0" output="BLK_TL-PLB.o_sp4_h_r[0]"  />
@@ -605,6 +647,11 @@
  </interconnect>
 
  <pinlocations pattern="custom">
+  <!-- ##
+   BLK_TL-PLB.o_neigh_op_tnr BLK_TL-PLB.i_neigh_op_tnr
+   BLK_TL-PLB.o_neigh_op_top BLK_TL-PLB.i_neigh_op_top
+   BLK_TL-PLB.o_neigh_op_tnl BLK_TL-PLB.i_neigh_op_tnl
+       -->
   <loc side="top" xoffset="0" yoffset="0">
    BLK_TL-PLB.CLK
 
@@ -613,76 +660,73 @@
 
    BLK_TL-PLB.carry_out
 
-   BLK_TL-PLB.o_neigh_op_tnr BLK_TL-PLB.i_neigh_op_tnr
-   BLK_TL-PLB.o_neigh_op_top BLK_TL-PLB.i_neigh_op_top
-   BLK_TL-PLB.o_neigh_op_tnl BLK_TL-PLB.i_neigh_op_tnl
-
    BLK_TL-PLB.i_sp4_v_t
    BLK_TL-PLB.o_sp4_v_t
    BLK_TL-PLB.i_sp12_v_t
    BLK_TL-PLB.o_sp12_v_t
   </loc>
-  <!-- ## -->
+  <!-- ##
+   BLK_TL-PLB.i_sp4_r_v_b    BLK_TL-PLB.o_sp4_r_v_b
+   BLK_TL-PLB.i_neigh_op_rgt BLK_TL-PLB.o_neigh_op_rgt
+       -->
   <loc side="right" xoffset="0" yoffset="0">
    BLK_TL-PLB.i_sp4_h_r
    BLK_TL-PLB.o_sp4_h_r
    BLK_TL-PLB.i_sp12_h_r
    BLK_TL-PLB.o_sp12_h_r
-
-   BLK_TL-PLB.i_sp4_r_v_b    BLK_TL-PLB.o_sp4_r_v_b
-   BLK_TL-PLB.i_neigh_op_rgt BLK_TL-PLB.o_neigh_op_rgt
   </loc>
-  <!-- ## -->
-  <loc side="bottom" xoffset="0" yoffset="0">
-   BLK_TL-PLB.carry_in
-
+  <!-- ##
    BLK_TL-PLB.i_neigh_op_bnr BLK_TL-PLB.o_neigh_op_bnr
    BLK_TL-PLB.i_neigh_op_bot BLK_TL-PLB.o_neigh_op_bot
    BLK_TL-PLB.i_neigh_op_bnl BLK_TL-PLB.o_neigh_op_bnl
+       -->
+  <loc side="bottom" xoffset="0" yoffset="0">
+   BLK_TL-PLB.carry_in
 
    BLK_TL-PLB.i_sp4_v_b
    BLK_TL-PLB.o_sp4_v_b
    BLK_TL-PLB.i_sp12_v_b
    BLK_TL-PLB.o_sp12_v_b
   </loc>
-  <!-- ## -->
+  <!-- ##
+   BLK_TL-PLB.i_sp4_l_v_b    BLK_TL-PLB.o_sp4_l_v_b
+   BLK_TL-PLB.o_neigh_op_lft BLK_TL-PLB.i_neigh_op_lft
+       -->
   <loc side="left" xoffset="0" yoffset="0">
    BLK_TL-PLB.i_sp4_h_l
    BLK_TL-PLB.o_sp4_h_l
    BLK_TL-PLB.i_sp12_h_l
    BLK_TL-PLB.o_sp12_h_l
-
-   BLK_TL-PLB.i_sp4_l_v_b    BLK_TL-PLB.o_sp4_l_v_b
-   BLK_TL-PLB.o_neigh_op_lft BLK_TL-PLB.i_neigh_op_lft
   </loc>
  </pinlocations>
  <switchblock_locations pattern="external_full_internal_straight"/>
 
- <fc in_type="frac" in_val="0.5" out_type="frac" out_val="1.0">
+ <fc in_type="abs" in_val="2" out_type="abs" out_val="2">
 
   <fc_override fc_type="frac" fc_val="1.0" port_name="CLK" segment_name="global" />
 
   <!-- Vertical spans ################################################# -->
   <!-- Span-4 Vertical -->
-  <fc_override fc_type="frac" fc_val="0.5" port_name="i_sp4_v_t"    segment_name="span4"  /><fc_override fc_type="frac" fc_val="0.5" port_name="o_sp4_v_t"   segment_name="span4"  />
-  <fc_override fc_type="frac" fc_val="0.5" port_name="i_sp4_v_b"    segment_name="span4"  /><fc_override fc_type="frac" fc_val="0.5" port_name="o_sp4_v_b"   segment_name="span4"  />
+  <fc_override fc_type="abs" fc_val="1" port_name="i_sp4_v_t"    segment_name="span4"  /><fc_override fc_type="abs" fc_val="1" port_name="o_sp4_v_t"   segment_name="span4"  />
+  <fc_override fc_type="abs" fc_val="1" port_name="i_sp4_v_b"    segment_name="span4"  /><fc_override fc_type="abs" fc_val="1" port_name="o_sp4_v_b"   segment_name="span4"  />
 
   <!-- Span-12 Vertical -->
-  <fc_override fc_type="frac" fc_val="0.5" port_name="i_sp12_v_t"   segment_name="span12" /><fc_override fc_type="frac" fc_val="0.5" port_name="o_sp12_v_t"  segment_name="span12" />
-  <fc_override fc_type="frac" fc_val="0.5" port_name="i_sp12_v_b"   segment_name="span12" /><fc_override fc_type="frac" fc_val="0.5" port_name="o_sp12_v_b"  segment_name="span12" />
+  <fc_override fc_type="abs" fc_val="1" port_name="i_sp12_v_t"   segment_name="span12" /><fc_override fc_type="abs" fc_val="1" port_name="o_sp12_v_t"  segment_name="span12" />
+  <fc_override fc_type="abs" fc_val="1" port_name="i_sp12_v_b"   segment_name="span12" /><fc_override fc_type="abs" fc_val="1" port_name="o_sp12_v_b"  segment_name="span12" />
 
   <!-- Horizontal spans ############################################### -->
   <!-- Span-4 Horizontal -->
-  <fc_override fc_type="frac" fc_val="0.5" port_name="i_sp4_h_r"    segment_name="span4"  /><fc_override fc_type="frac" fc_val="0.5" port_name="o_sp4_h_r"   segment_name="span4"  />
-  <fc_override fc_type="frac" fc_val="0.5" port_name="i_sp4_h_l"    segment_name="span4"  /><fc_override fc_type="frac" fc_val="0.5" port_name="o_sp4_h_l"   segment_name="span4"  />
+  <fc_override fc_type="abs" fc_val="1" port_name="i_sp4_h_r"    segment_name="span4"  /><fc_override fc_type="abs" fc_val="1" port_name="o_sp4_h_r"   segment_name="span4"  />
+  <fc_override fc_type="abs" fc_val="1" port_name="i_sp4_h_l"    segment_name="span4"  /><fc_override fc_type="abs" fc_val="1" port_name="o_sp4_h_l"   segment_name="span4"  />
 
   <!-- Span-12 Horizontal -->
-  <fc_override fc_type="frac" fc_val="0.5" port_name="i_sp12_h_r"   segment_name="span12" /><fc_override fc_type="frac" fc_val="0.5" port_name="o_sp12_h_r"  segment_name="span12" />
-  <fc_override fc_type="frac" fc_val="0.5" port_name="i_sp12_h_l"   segment_name="span12" /><fc_override fc_type="frac" fc_val="0.5" port_name="o_sp12_h_l"  segment_name="span12" />
+  <fc_override fc_type="abs" fc_val="1" port_name="i_sp12_h_r"   segment_name="span12" /><fc_override fc_type="abs" fc_val="1" port_name="o_sp12_h_r"  segment_name="span12" />
+  <fc_override fc_type="abs" fc_val="1" port_name="i_sp12_h_l"   segment_name="span12" /><fc_override fc_type="abs" fc_val="1" port_name="o_sp12_h_l"  segment_name="span12" />
 
   <!-- Global wires ################################################### -->
   <fc_override fc_type="frac" fc_val="1.0" port_name="i_glb_netwk"  segment_name="global" /><fc_override fc_type="frac" fc_val="1.0" port_name="o_glb_netwk" segment_name="global" />
 
+  <!-- Direct connection wires don't connect to fabric ################ -->
   <!-- Carry chain doesn't connect to the interconnect -->
   <fc_override fc_type="frac" fc_val="0.0" port_name="carry_out"     /><fc_override fc_type="frac" fc_val="0.0" port_name="carry_in"    />
   <!-- Span-4 Right Vertical are directly connected

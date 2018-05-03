@@ -39,15 +39,17 @@
  <directlist>
   <!-- Carry chain from one PLB to the next PLB -->
   <direct name="CARRY"   from_pin="BLK_TL-PLB.carry_out"   to_pin="BLK_TL-PLB.carry_in"    x_offset="0"  y_offset="1" z_offset="0"/>
-  <!-- Vertical wires from neighbours -->
-  <direct name="sp4_r2l" from_pin="BLK_TL-PLB.o_sp4_l_v_b" to_pin="BLK_TL-PLB.i_sp4_r_v_b" x_offset="1"  y_offset="0" z_offset="0"/>
-  <direct name="sp4_l2r" from_pin="BLK_TL-PLB.o_sp4_r_v_b" to_pin="BLK_TL-PLB.i_sp4_l_v_b" x_offset="-1" y_offset="0" z_offset="0"/>
-  <!-- Neighbourhood wires -->
+  <!-- Vertical wires from neighbours
+  <direct name="sp4_r2l" from_pin="BLK_TL-PLB.o_sp4_l_v_b" to_pin="BLK_TL-PLB.i_sp4_r_v_b" x_offset="-1" y_offset="0" z_offset="0"/>
+  <direct name="sp4_l2r" from_pin="BLK_TL-PLB.o_sp4_r_v_b" to_pin="BLK_TL-PLB.i_sp4_l_v_b" x_offset= "1" y_offset="0" z_offset="0"/>
+       -->
+  <!-- Neighbourhood wires
   <direct name="neigh_op_ob2it" from_pin="BLK_TL-PLB.o_neigh_op_bot" to_pin="BLK_TL-PLB.i_neigh_op_top" x_offset="0"  y_offset="-1" z_offset="0"/>
   <direct name="neigh_op_ot2ib" from_pin="BLK_TL-PLB.o_neigh_op_top" to_pin="BLK_TL-PLB.i_neigh_op_bot" x_offset="0"  y_offset= "1" z_offset="0"/>
 
-  <direct name="neigh_op_or2il" from_pin="BLK_TL-PLB.o_neigh_op_rgt" to_pin="BLK_TL-PLB.i_neigh_op_lft" x_offset="-1" y_offset="0"  z_offset="0"/>
-  <direct name="neigh_op_ol2ir" from_pin="BLK_TL-PLB.o_neigh_op_lft" to_pin="BLK_TL-PLB.i_neigh_op_rgt" x_offset= "1" y_offset="0"  z_offset="0"/>
+  <direct name="neigh_op_or2il" from_pin="BLK_TL-PLB.o_neigh_op_rgt" to_pin="BLK_TL-PLB.i_neigh_op_lft" x_offset= "1" y_offset="0"  z_offset="0"/>
+  <direct name="neigh_op_ol2ir" from_pin="BLK_TL-PLB.o_neigh_op_lft" to_pin="BLK_TL-PLB.i_neigh_op_rgt" x_offset="-1" y_offset="0"  z_offset="0"/>
+       -->
  </directlist>
 
  <device>
@@ -70,8 +72,6 @@
  <segmentlist>
   <!-- Global networks -->
   <segment name="global" length="longline" freq="1.000000" type="bidir" Rmetal="101" Cmetal="22.5e-15">
-   <sb type="pattern">1 1</sb>
-   <cb type="pattern">1</cb>
    <wire_switch name="1"/>
    <opin_switch name="2"/>
   </segment>
@@ -94,21 +94,31 @@
    <opin_switch name="2"/>
   </segment>
 
-  <!-- Local tracks -->
+  <!-- Local tracks
   <segment name="local" length="1" freq="1.000000" type="bidir" Rmetal="101" Cmetal="22.5e-15">
    <sb type="pattern">0 1</sb>
    <cb type="pattern">1</cb>
    <wire_switch name="2"/>
    <opin_switch name="2"/>
   </segment>
+    -->
 
-  <!-- Neighbourhood tracks-->
+  <!-- Neighbourhood tracks
   <segment name="direct" length="2" freq="1.000000" type="bidir" Rmetal="101" Cmetal="22.5e-15">
    <sb type="pattern">1 1 1</sb>
    <cb type="pattern">1 1</cb>
    <wire_switch name="1"/>
    <opin_switch name="2"/>
   </segment>
+    -->
+
+  <!-- Dummy tracks
+  <segment name="dummy" length="1" freq="1.000000" type="unidir" Rmetal="101" Cmetal="22.5e-15">
+   <sb type="pattern">1 1</sb>
+   <cb type="pattern">1</cb>
+   <mux name="1"/>
+  </segment>
+       -->
 
  </segmentlist>
 
