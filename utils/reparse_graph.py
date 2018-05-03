@@ -1,4 +1,4 @@
-import lib.rr_graph.graph as g
+import lib.rr_graph.graph as graph
 import lib.rr_graph.channel as channel
 from lib.rr_graph import Position
 
@@ -18,8 +18,8 @@ def main():
     fn_out = args.rr_graph_out
     assert fn != fn_out
 
-    print('Loading g')
-    g = g.Graph(rr_graph_file=fn)
+    print('Loading graph')
+    g = graph.Graph(rr_graph_file=fn)
     print('Converting to XML')
     e = g.to_xml()
     print('Dumping')

@@ -663,10 +663,9 @@ def add_local_tracks(g, nn):
             for _i in range(0, groups_glb2local):
                 add_track_gbl2local(g, nn, block, i, gbl2local_segment)
 
-def add_span_tracks(g):
+def add_span_tracks(g, nn):
     print('Adding span tracks')
 
-    '''
     x_channel_offset = LOCAL_TRACKS_MAX_GROUPS * (LOCAL_TRACKS_PER_GROUP) + GBL2LOCAL_MAX_TRACKS
     y_channel_offset = 0
 
@@ -680,14 +679,15 @@ def add_span_tracks(g):
         y_end = end[1]
 
         if x_start == x_end:
-            nodetype = 'CHANY'
+            nodetype = channel.Track.Type.Y
             assert "vertical" in globalname or "stub" in globalname
             idx += x_channel_offset
         elif y_start == y_end:
-            nodetype = 'CHANX'
+            nodetype = channel.Track.Type.X
             assert "horizontal" in globalname or "stub" in globalname
             idx += y_channel_offset
         else:
+            # XXX: removing non-span I guess?
             return
 
         if 'span4' in globalname:
@@ -697,17 +697,19 @@ def add_span_tracks(g):
             idx += SPAN4_MAX_TRACKS #+ 1
         elif 'local' in globalname:
             segtype = 'local'
+            # FIXME: weren't these already added?
+            return
         else:
             assert False, globalname
 
-        add_channel(globalname, nodetype, start, end, idx, segtype)
+        # add_channel(globalname, nodetype, start, end, idx, segtype)
+        segment = g.channels.segment_s2seg[segtype]
 
 
-    for globalname in sorted(globalname2netnames.keys()):
+    for globalname in sorted(nn.globalname2netnames.keys()):
         if globalname[0] != "channel":
             continue
         add_track_span(globalname)
-    '''
 
     print('Ran')
 
@@ -796,10 +798,9 @@ def run(part):
     print()
     add_local_tracks(g, nn)
     print_nodes_edges(g)
-    if 0:
-        print()
-        add_span_tracks(g)
-        print_nodes_edges(g)
+    print()
+    add_span_tracks(g)
+    print_nodes_edges(g)
     print()
     print('Exiting')
     sys.exit(0)
