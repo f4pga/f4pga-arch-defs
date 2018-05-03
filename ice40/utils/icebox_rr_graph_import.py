@@ -106,6 +106,13 @@ GLOBAL_MAX_TRACKS = 8
 
 TilePos = graph.Position
 
+class Posinfo(tuple):
+    def __new__(cls, *args, **kw):
+        return super(Posinfo, cls).__new__(cls, args, **kw)
+
+    def __init__(self, start, idx, end, delta):
+        pass
+
 '''
 Name of a segment group type
 Basically represents a wire running along one or more tiles
@@ -123,20 +130,11 @@ class GlobalName(tuple):
         return super(GlobalName, cls).__new__(cls, args, **kw)
 
     def __init__(self, *args, **kw):
-        assert len(kw) == 0
-        t = args[0]
-        assert type(t) is str, type(t)
-
-        if t == 'channel':
-            print(args)
-            pos1, _u1, pos2, _u2 = args[3]
-            assert type(pos1) is TilePos, type(pos1)
-            assert type(pos2) is TilePos, type(pos2)
-        if t in ('glb2local', 'local'):
-            pos = args[1]
-            assert type(pos) is TilePos, type(pos)
+        pass
 
     def __str__(self):
+        # FIXME: don't worry about specifics for now
+        return str(tuple(self))
         t = self[0]
 
         # TODO: confirm these are good names
@@ -171,7 +169,7 @@ class GlobalName(tuple):
         return pos, localname
 
     @staticmethod
-    def make_pin(self, pos, localname):
+    def make_pin(pos, localname):
         assert type(pos) is TilePos
         assert type(localname) is str
         return GlobalName('pin', pos, localname)
@@ -179,18 +177,19 @@ class GlobalName(tuple):
     @staticmethod
     def make_local(pos, g, i):
         assert type(pos) is TilePos
-        assert type(g) is int
-        assert type(i) is int
+        assert type(g) is int, (g, type(g))
+        assert type(i) is int, (i, type(i))
         return GlobalName("local", pos, (g, i))
 
     @staticmethod
     def make_glb2local(pos, i):
         assert type(pos) is TilePos
-        assert type(i) is int
+        assert type(i) is int, (i, type(i))
         return GlobalName("glb2local", pos, i)
 
     @staticmethod
     def check_posinfo(posinfo):
+        assert type(posinfo) is Posinfo
         (pos1, field2, pos2, field4) = posinfo
         assert type(pos1) is TilePos
         assert type(pos2) is TilePos
@@ -209,6 +208,7 @@ class GlobalName(tuple):
         # ('channel', 'span12', 'horizontal', (P(x=0, y=1), 0, P(x=7, y=1), 7))
         assert chanspan in ("span4", "span12")
         GlobalName.check_posinfo(posinfo)
+        assert chandir in ('vertical', 'horizontal', 'corner'), chandir
         return GlobalName("channel", chanspan, chandir, posinfo)
 
     @staticmethod
@@ -411,7 +411,7 @@ class NetNames:
             for x, y, name in segments:
                 pin_gn = check_pin(x, y, name)
                 if pin_gn:
-                    return pin_gn
+                    return pin_gn, None
                 '''
                 ???
                 "Local name in logic tile (A,B) for Logic Span 4 wires from tile to the right - (A+1,B)."
@@ -493,11 +493,10 @@ class NetNames:
 
         def make_channel_stub(name, pos):
             '''sp4_r_v_ + neigh_op_'''
-            # TODO: put some examples of what we are trying to parse 
+            # TODO: put some examples of what we are trying to parse
             m = re.search("_([0-9]+)$", name)
             # TODO: what are the numbers here?
-            posinfo = (pos, int(m.group(1)), pos, 1)
-            return GlobalName.make_channel_stub(name, "span4", posinfo)
+            return GlobalName.make_channel_stub(name, "span4", Posinfo(pos, int(m.group(1)), pos, 1))
 
         def make_1_tile_channel(name, pos):
             '''Routing that we want to fit into a 0 length channel / occupies one tile'''
@@ -614,8 +613,8 @@ class NetNames:
         def make_span(wire_type, tiles):
             chanstr, chantype, chandir = wire_type
             assert chanstr == 'channel'
-            assert chantype in ('span4', 'span12')
-            assert chandir in ('vertical', 'horizontal')
+            assert chantype in ('span4', 'span12'), chantype
+            assert chandir in ('vertical', 'horizontal', 'corner'), chandir
 
             res = get_sedo(wire_type)
             if res is None:
@@ -645,8 +644,7 @@ class NetNames:
             #wire_type.append('{:02}-{:02}x{:02}-{:02}x{:02}'.format(delta, start[0], start[1], end[0], end[1]))
             # wire_type.append((start, idx, end, delta))
             # return GlobalName(*wire_type)
-            posinfo = (start, idx, end, delta)
-            return GlobalName.make_span(chantype, chandir, posinfo)
+            return GlobalName.make_span(chantype, chandir, Posinfo(start, idx, end, delta))
 
         pin_gn, tilesnames = get_tiles(segments)
         if pin_gn:
@@ -680,7 +678,7 @@ def add_track_local(graph, nn, block, group, i, segment):
     pos = block.position
     lname = NetNames.localname_track_local(pos, group, i)
     # gname = NetNames.globalname_track_local(pos, group, i)
-    gname = GlobalName.make_local(TilePos(*pos), g, i)
+    gname = GlobalName.make_local(pos, group, i)
 
     print("Adding local track {} on tile {}".format(gname, pos))
     graph.create_xy_track(block.position, block.position, segment,
@@ -693,7 +691,7 @@ def add_track_gbl2local(graph, nn, block, i, segment):
     pos = block.position
     lname = NetNames.localname_track_glb2local(pos, i)
     # gname = NetNames.globalname_track_glb2local(pos, i)
-    gname = GlobalName.make_glb2local(TilePos(*pos), i)
+    gname = GlobalName.make_glb2local(pos, i)
 
     print("Adding glb2local {} track {} on tile {}".format(i, gname, pos))
     graph.create_xy_track(block.position, block.position, segment,
@@ -763,7 +761,6 @@ def setup_empty_t4(self):
         self.io_tiles[(self.max_x, y)] = ["0" * 18 for i in range(16)]
 '''
 
-g = None
 def init(device_name):
     ic = icebox.iceconfig()
     {
@@ -858,7 +855,10 @@ def add_span_tracks(g, nn):
     y_channel_offset = 0
 
     def add_track_span(globalname):
-        start, idx, end, delta = globalname[-1]
+        #start, idx, end, delta = globalname[-1]
+        posinfo = globalname[-1]
+        assert type(posinfo) is Posinfo
+        start, idx, end, delta = posinfo
 
         x_start = start[0]
         y_start = start[1]
@@ -894,7 +894,7 @@ def add_span_tracks(g, nn):
         # add_channel(globalname, nodetype, start, end, idx, segtype)
         segment = g.channels.segment_s2seg[segtype]
         # add_channel()
-        print("Adding {} track {} on tile {}".format(segtype, globalname, pos))
+        print("Adding {} track {} on tile {}".format(segtype, globalname, start))
         g.create_xy_track(start, end, segment,
                type=chantype, direction=channel.Track.Direction.BI,
                id_override=str(globalname))
@@ -993,7 +993,7 @@ def run(part):
     add_local_tracks(g, nn)
     print_nodes_edges(g)
     print()
-    add_span_tracks(g)
+    add_span_tracks(g, nn)
     print_nodes_edges(g)
     print()
     print('Exiting')
