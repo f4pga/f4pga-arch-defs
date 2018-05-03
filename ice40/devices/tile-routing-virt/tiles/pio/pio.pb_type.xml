@@ -33,15 +33,15 @@
  <!-- ################################################################ -->
 
  <pb_type name="BLK_XX-io_global" num_pb="1">
-  <input name="i_EN" num_pins="1" equivalent="false" /><output name="o_EN" num_pins="1" equivalent="false" />
-  <clock name="i_ICLK" num_pins="1" equivalent="false" /><output name="o_ICLK" num_pins="1" equivalent="false" />
-  <clock name="i_OCLK" num_pins="1" equivalent="false" /><output name="o_OCLK" num_pins="1" equivalent="false" />
-  <input name="i_LATCH" num_pins="1" equivalent="false" /><output name="o_LATCH" num_pins="1" equivalent="false" />
+  <input name="i_cen" num_pins="1" equivalent="false" /><output name="o_cen" num_pins="1" equivalent="false" />
+  <clock name="i_inclk" num_pins="1" equivalent="false" /><output name="o_inclk" num_pins="1" equivalent="false" />
+  <clock name="i_outclk" num_pins="1" equivalent="false" /><output name="o_outclk" num_pins="1" equivalent="false" />
+  <input name="i_latch" num_pins="1" equivalent="false" /><output name="o_latch" num_pins="1" equivalent="false" />
   <interconnect>
-   <direct name="EN" input="BLK_XX-io_global.i_EN" output="BLK_XX-io_global.o_EN"/>
-   <direct name="ICLK" input="BLK_XX-io_global.i_ICLK" output="BLK_XX-io_global.o_ICLK"/>
-   <direct name="OCLK" input="BLK_XX-io_global.i_OCLK" output="BLK_XX-io_global.o_OCLK"/>
-   <direct name="LATCH" input="BLK_XX-io_global.i_LATCH" output="BLK_XX-io_global.o_LATCH"/>
+   <direct name="EN" input="BLK_XX-io_global.i_cen" output="BLK_XX-io_global.o_cen"/>
+   <direct name="ICLK" input="BLK_XX-io_global.i_inclk" output="BLK_XX-io_global.o_inclk"/>
+   <direct name="OCLK" input="BLK_XX-io_global.i_outclk" output="BLK_XX-io_global.o_outclk"/>
+   <direct name="LATCH" input="BLK_XX-io_global.i_latch" output="BLK_XX-io_global.o_latch"/>
   </interconnect>
  </pb_type>
 
