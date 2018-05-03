@@ -116,8 +116,6 @@ type=local
 type=glb2local
     attributes: i
 
-('channel', 'span12', 'horizontal', (P(x=0, y=1), 0, P(x=7, y=1), 7))
-('channel', 'stub', 'neigh_op_bnl_0', 'span4', (P(x=1, y=1), 0, P(x=1, y=1), 1))
 '''
 # FIXME: bind channel type to Channel object
 class GlobalName(tuple):
@@ -162,6 +160,70 @@ class GlobalName(tuple):
         else:
             return '%s_fixme_%s' % (t, self[1:])
 
+    def type(self):
+        return self[0]
+
+    def pin(self):
+        t, pos, localname = self
+        assert t == 'pin'
+        assert type(pos) is TilePos
+        assert type(localname) is str
+        return pos, localname
+
+    @staticmethod
+    def make_pin(self, pos, localname):
+        assert type(pos) is TilePos
+        assert type(localname) is str
+        return GlobalName('pin', pos, localname)
+
+    @staticmethod
+    def make_local(pos, g, i):
+        assert type(pos) is TilePos
+        assert type(g) is int
+        assert type(i) is int
+        return GlobalName("local", pos, (g, i))
+
+    @staticmethod
+    def make_glb2local(pos, i):
+        assert type(pos) is TilePos
+        assert type(i) is int
+        return GlobalName("glb2local", pos, i)
+
+    @staticmethod
+    def check_posinfo(posinfo):
+        (pos1, field2, pos2, field4) = posinfo
+        assert type(pos1) is TilePos
+        assert type(pos2) is TilePos
+        assert type(field2) is int
+        assert type(field4) is int
+
+    @staticmethod
+    def make_channel_stub(localname, chanspan, posinfo):
+        # ('channel', 'stub', 'neigh_op_bnl_0', 'span4', (P(x=1, y=1), 0, P(x=1, y=1), 1))
+        assert chanspan in ("span4",)
+        GlobalName.check_posinfo(posinfo)
+        return GlobalName("channel", "stub", localname, chanspan, posinfo)
+
+    @staticmethod
+    def make_span(chanspan, chandir, posinfo):
+        # ('channel', 'span12', 'horizontal', (P(x=0, y=1), 0, P(x=7, y=1), 7))
+        assert chanspan in ("span4", "span12")
+        GlobalName.check_posinfo(posinfo)
+        return GlobalName("channel", chanspan, chandir, posinfo)
+
+    @staticmethod
+    def make_global(ntiles_str, globalname):
+        assert type(ntiles_str) is str
+        assert type(globalname) is str
+        return GlobalName("global", ntiles_str, globalname)
+
+    # FIXME: this looks wrong
+    # there should be some position info here
+    # but these are low priority right now
+    @staticmethod
+    def make_direct(flavor):
+        assert flavor in ('neighbour', 'carrychain')
+        return GlobalName('direct', flavor)
 
 # Tracks -----------------------------------------------------------------
 
@@ -269,19 +331,11 @@ class NetNames:
         return fgroup
 
     @staticmethod
-    def globalname_track_local(pos, g, i):
-        return GlobalName("local", TilePos(*pos), (g, i))
-
-    @staticmethod
     def localname_track_local(pos, g, i):
         return 'local_g{}_{}'.format(g, i)
 
     #def iceboxname_track_local(pos, g, i):
     #    return 'local_g{}_{}'.format(g, i)
-
-    @staticmethod
-    def globalname_track_glb2local(pos, i):
-        return GlobalName("glb2local", TilePos(*pos), i)
 
     @staticmethod
     def localname_track_glb2local(pos, i):
@@ -307,6 +361,9 @@ class NetNames:
         Otherwise a tuple with the first element as the type
         Possible values:
         ('pin', Position, localname)
+        channel:
+            prefix: guess_wire_type()
+            suffix:
         '''
 
         def get_tiles(segments):
@@ -326,29 +383,29 @@ class NetNames:
                     lut_idx, pin = name.split('/')
 
                     if lut_idx == "lutff_global":
-                        return GlobalName("pin", TilePos(x, y), pin)
+                        return GlobalName.make_pin(TilePos(x, y), pin)
                     else:
                         if '_' in pin:
                             pin, pin_idx = pin.split('_')
-                            return GlobalName("pin", TilePos(x, y), "lut[{}].{}[{}]".format(lut_idx[len("lutff_"):], pin, pin_idx).lower())
+                            return GlobalName.make_pin(TilePos(x, y), "lut[{}].{}[{}]".format(lut_idx[len("lutff_"):], pin, pin_idx).lower())
                         else:
-                            return GlobalName("pin", TilePos(x, y), "lut[{}].{}".format(lut_idx[len("lutff_"):], pin).lower())
+                            return GlobalName.make_pin(TilePos(x, y), "lut[{}].{}".format(lut_idx[len("lutff_"):], pin).lower())
 
                 elif name.startswith('io_'): # Actually a pin
                     io_idx, pin = name.split('/')
 
                     if io_idx == "io_global":
-                        return GlobalName("pin", TilePos(x, y), pin)
+                        return GlobalName.make_pin(TilePos(x, y), pin)
                     else:
-                        return GlobalName("pin", TilePos(x, y), "io[{}].{}".format(io_idx[len("io_"):], pin).lower())
+                        return GlobalName.make_pin(TilePos(x, y), "io[{}].{}".format(io_idx[len("io_"):], pin).lower())
 
                 elif name.startswith('ram/'): # Actually a pin
                     name = name[len('ram/'):]
                     if '_' in name:
                         pin, pin_idx = name.split('_')
-                        return GlobalName("pin", TilePos(x, y), "{}[{}]".format(pin, pin_idx).lower())
+                        return GlobalName.make_pin(TilePos(x, y), "{}[{}]".format(pin, pin_idx).lower())
                     else:
-                        return GlobalName("pin", TilePos(x, y), name.lower())
+                        return GlobalName.make_pin(TilePos(x, y), name.lower())
                 return None
 
             for x, y, name in segments:
@@ -380,7 +437,7 @@ class NetNames:
             return None, (tiles, names)
 
         def guess_wire_type(names):
-            wire_type = None
+            wire_type = []
             for n in names:
                 if n.startswith('span4_horz_'):
                     if wire_type and 'horizontal' not in wire_type:
@@ -421,7 +478,8 @@ class NetNames:
             i = int(m.group(2))
 
             assert name == NetNames.localname_track_local(pos, g, i)
-            return NetNames.globalname_track_local(pos, g, i)
+            # return NetNames.globalname_track_local(pos, g, i)
+            return GlobalName.make_local(pos, g, i)
 
         def make_glb2local(name, pos):
             m = re.match("glb2local_([0-3])", name)
@@ -430,25 +488,26 @@ class NetNames:
 
             assert name == NetNames.localname_track_glb2local(pos, i), "{!r} != {!r}".format(
                 name, NetNames.localname_track_glb2local(pos, i))
-            return NetNames.globalname_track_glb2local(pos, i)
+            # return NetNames.globalname_track_glb2local(pos, i)
+            return GlobalName.make_glb2local(pos, i)
 
-        # also handles neigh_op
-        def make_sp4_r_v(name, pos):
+        def make_channel_stub(name, pos):
+            '''sp4_r_v_ + neigh_op_'''
+            # TODO: put some examples of what we are trying to parse 
             m = re.search("_([0-9]+)$", name)
+            # TODO: what are the numbers here?
+            posinfo = (pos, int(m.group(1)), pos, 1)
+            return GlobalName.make_channel_stub(name, "span4", posinfo)
 
-            wire_type += ["channel", "stub", name]
-            wire_type += ["span4"]
-            wire_type += [(pos, int(m.group(1)), pos, 1)]
-            return GlobalName(*wire_type)
-
-        def make_1_tile(name, pos):
+        def make_1_tile_channel(name, pos):
+            '''Routing that we want to fit into a 0 length channel / occupies one tile'''
             if name.startswith('local_'):
                 return make_local(name, pos)
             elif name.startswith('glb2local_'):
                 return make_glb2local(name, pos)
             # Special case when no logic to the right....
             elif name.startswith('sp4_r_v_') or name.startswith('neigh_op_'):
-                return make_sp4_r_v(name, pos)
+                return make_channel_stub(name, pos)
 
             print("Unknown only local net {}".format(name))
             return None
@@ -552,7 +611,12 @@ class NetNames:
                 assert False, 'Unknown span wire {}'.format((wire_type, segments))
             return start, end, delta, offset
 
-        def make_channel(wire_type, tiles):
+        def make_span(wire_type, tiles):
+            chanstr, chantype, chandir = wire_type
+            assert chanstr == 'channel'
+            assert chantype in ('span4', 'span12')
+            assert chandir in ('vertical', 'horizontal')
+
             res = get_sedo(wire_type)
             if res is None:
                 return None
@@ -565,7 +629,6 @@ class NetNames:
                 if x == start[0] and y == start[1]:
                     n = int(name.split("_")[-1])
                     break
-
             assert n is not None
 
             if "span4" in wire_type:
@@ -580,41 +643,44 @@ class NetNames:
             idx = (filled + n) % max_channels
 
             #wire_type.append('{:02}-{:02}x{:02}-{:02}x{:02}'.format(delta, start[0], start[1], end[0], end[1]))
-            wire_type.append((start, idx, end, delta))
-
-            return GlobalName(*wire_type)
+            # wire_type.append((start, idx, end, delta))
+            # return GlobalName(*wire_type)
+            posinfo = (start, idx, end, delta)
+            return GlobalName.make_span(chantype, chandir, posinfo)
 
         pin_gn, tilesnames = get_tiles(segments)
         if pin_gn:
             return pin_gn
         tiles, names = tilesnames
 
-        wire_type = []
         # glb2local, neighborhood, and local
         if len(tiles) == 1:
             # See guarantee in get_tiles() for these always matching
             pos = tiles.pop()
             name = names.pop().lower()
-            return make_1_tile(name, pos)
+            return make_1_tile_channel(name, pos)
         # Global wire, as only has one name?
         elif len(names) == 1:
-            wire_type = ['global', '{}_tiles'.format(len(tiles)), names.pop().lower()]
+            return GlobalName.make_global('{}_tiles'.format(len(tiles)), names.pop().lower())
 
         # Work out the type of wire
-        if not wire_type:
-            wire_type = guess_wire_type(names)
+        wire_type = guess_wire_type(names)
         if not wire_type:
             return None
 
-        if 'channel' in wire_type:
-            return make_channel(wire_type, tiles)
-        return GlobalName(*wire_type)
-
+        if wire_type[0] == 'channel':
+            return make_span(wire_type, tiles)
+        elif wire_type[0] == 'direct':
+            assert len(wire_type) == 2
+            return GlobalName.make_direct(wire_type[1])
+        else:
+            assert 0, 'Unhandled wire type {}'.format(str(wire_type))
 
 def add_track_local(graph, nn, block, group, i, segment):
     pos = block.position
     lname = NetNames.localname_track_local(pos, group, i)
-    gname = NetNames.globalname_track_local(pos, group, i)
+    # gname = NetNames.globalname_track_local(pos, group, i)
+    gname = GlobalName.make_local(TilePos(*pos), g, i)
 
     print("Adding local track {} on tile {}".format(gname, pos))
     graph.create_xy_track(block.position, block.position, segment,
@@ -626,7 +692,8 @@ def add_track_local(graph, nn, block, group, i, segment):
 def add_track_gbl2local(graph, nn, block, i, segment):
     pos = block.position
     lname = NetNames.localname_track_glb2local(pos, i)
-    gname = NetNames.globalname_track_glb2local(pos, i)
+    # gname = NetNames.globalname_track_glb2local(pos, i)
+    gname = GlobalName.make_glb2local(TilePos(*pos), i)
 
     print("Adding glb2local {} track {} on tile {}".format(i, gname, pos))
     graph.create_xy_track(block.position, block.position, segment,
