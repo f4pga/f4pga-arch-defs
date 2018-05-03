@@ -638,11 +638,12 @@
   <!--
   <mux name="lutff_global/i_CLK" input="local_g[0].o[0] local_g[1].o[1] local_g[2].o[0] local_g[3].o[1] glb_netwk[0].o glb_netwk[1].o glb_netwk[2].o glb_netwk[3].o glb_netwk[4].o glb_netwk[5].o glb_netwk[6].o glb_netwk[7].o" output="BLK_XX-lutff_global._CLK" />
   -->
+  <mux name="lutff_global/i_CLK" input="BLK_TL-PLB.CLK" output="BLK_XX-lutff_global.i_CLK" />
   <direct name="BLK_XX-lutff_global->BLK_IG-PLB_LOCAL.EN" input="BLK_XX-lutff_global.o_EN" output="BLK_IG-PLB_LOCAL.EN" />
   <!--
   <direct name="BLK_XX-lutff_global->BLK_IG-PLB_LOCAL.CLK" input="BLK_XX-lutff_global.o_CLK" output="BLK_IG-PLB_LOCAL.CLK" />
   -->
-  <direct name="BLK_XX-lutff_global->BLK_IG-PLB_LOCAL.CLK" input="BLK_TL-PLB.CLK" output="BLK_IG-PLB_LOCAL.CLK" />
+  <direct name="BLK_XX-lutff_global->BLK_IG-PLB_LOCAL.CLK" input="BLK_XX-lutff_global.o_CLK" output="BLK_IG-PLB_LOCAL.CLK" />
   <direct name="BLK_XX-lutff_global->BLK_IG-PLB_LOCAL.SR" input="BLK_XX-lutff_global.o_SR" output="BLK_IG-PLB_LOCAL.SR" />
  </interconnect>
 
