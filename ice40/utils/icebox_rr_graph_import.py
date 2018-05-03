@@ -299,17 +299,33 @@ class NetNames:
         icebox groups are segments aggregated into larger nets
         It may be either a VPR pin or a VPR track
 
-        This function is stateless
+        This function does not have any side effects
+        and neither ic nor segments is modified
+
+        Return value:
+        None if its something we don't care about
+        Otherwise a tuple with the first element as the type
+        Possible values:
+        ('pin', Position, localname)
         '''
 
-        def init_stuff():
+        def get_tiles(segments):
+            '''Index tiles and return a pin GlobalName if this is a pin'''
+
+            # These lists are not necessarily equal if its a neighborhood connection
+            # List of positions
             tiles = set()
+            # List of localnames
+            # when len(names) != len(tiles) the last position is garaunteed to be for the last name
             names = set()
-               assert segments
-               for x, y, name in segments:
+
+            assert segments
+
+            def check_pin(x, y, name):
                 if name.startswith('lutff_'): # Actually a pin
                     lut_idx, pin = name.split('/')
-                       if lut_idx == "lutff_global":
+
+                    if lut_idx == "lutff_global":
                         return GlobalName("pin", TilePos(x, y), pin)
                     else:
                         if '_' in pin:
@@ -317,26 +333,51 @@ class NetNames:
                             return GlobalName("pin", TilePos(x, y), "lut[{}].{}[{}]".format(lut_idx[len("lutff_"):], pin, pin_idx).lower())
                         else:
                             return GlobalName("pin", TilePos(x, y), "lut[{}].{}".format(lut_idx[len("lutff_"):], pin).lower())
-                   elif name.startswith('io_'): # Actually a pin
+
+                elif name.startswith('io_'): # Actually a pin
                     io_idx, pin = name.split('/')
-                       if io_idx == "io_global":
+
+                    if io_idx == "io_global":
                         return GlobalName("pin", TilePos(x, y), pin)
                     else:
                         return GlobalName("pin", TilePos(x, y), "io[{}].{}".format(io_idx[len("io_"):], pin).lower())
-                   elif name.startswith('ram/'): # Actually a pin
+
+                elif name.startswith('ram/'): # Actually a pin
                     name = name[len('ram/'):]
                     if '_' in name:
                         pin, pin_idx = name.split('_')
                         return GlobalName("pin", TilePos(x, y), "{}[{}]".format(pin, pin_idx).lower())
                     else:
                         return GlobalName("pin", TilePos(x, y), name.lower())
-                   if not name.startswith('sp4_r_v_'):
+                return None
+
+            for x, y, name in segments:
+                pin_gn = check_pin(x, y, name)
+                if pin_gn:
+                    return pin_gn
+                '''
+                ???
+                "Local name in logic tile (A,B) for Logic Span 4 wires from tile to the right - (A+1,B)."
+                LA/B_sp4_r_v_bB2
+                LA/B_sp4_r_v_tT1_tB1
+                A neighbour connection
+
+                I think what this is doing is if its a neighborhood wire, add the last location only
+                ie create a 0 length channel to the common tile rather than spreading out over (up to) 9 tiles
+                This I'm guessing will generate 9 names and 1 tile
+                '''
+                if not name.startswith('sp4_r_v_'):
                     tiles.add(TilePos(x, y))
                 names.add(name)
-               if not tiles:
+
+            # see note above
+            if not tiles:
                 tiles.add(TilePos(x, y))
+
             assert names, "No names for {}".format(names)
-            return tiles, names
+            # Usually these are equal but not always (neighbours in particular)
+            # If they aren't equal, how can you use these to form globalnames?
+            return None, (tiles, names)
 
         def guess_wire_type(names):
             wire_type = None
@@ -412,25 +453,14 @@ class NetNames:
             print("Unknown only local net {}".format(name))
             return None
 
-        tiles, names = init_stuff()
-        wire_type = []
-        if len(tiles) == 1:
-            pos = tiles.pop()
-            name = names.pop().lower()
-            return make_1_tile(name, pos)
-        # Global wire, as only has one name?
-        elif len(names) == 1:
-            wire_type = ['global', '{}_tiles'.format(len(tiles)), names.pop().lower()]
-
-        # Work out the type of wire
-        if not wire_type:
-            wire_type = guess_wire_type(names)
-        if not wire_type:
-            return None
-
-        if 'channel' in wire_type:
+        def get_sedo(wire_type):
+            '''return start, end, delta, offset'''
             xs = set()
             ys = set()
+            '''
+            Corner type
+            ex: tl => top left
+            '''
             es = set()
             for x, y in tiles:
                 xs.add(x)
@@ -520,7 +550,13 @@ class NetNames:
                 return None
             else:
                 assert False, 'Unknown span wire {}'.format((wire_type, segments))
+            return start, end, delta, offset
 
+        def make_channel(wire_type, tiles):
+            res = get_sedo(wire_type)
+            if res is None:
+                return None
+            start, end, delta, offset = res
             assert start in tiles
             assert end in tiles
 
@@ -546,6 +582,32 @@ class NetNames:
             #wire_type.append('{:02}-{:02}x{:02}-{:02}x{:02}'.format(delta, start[0], start[1], end[0], end[1]))
             wire_type.append((start, idx, end, delta))
 
+            return GlobalName(*wire_type)
+
+        pin_gn, tilesnames = get_tiles(segments)
+        if pin_gn:
+            return pin_gn
+        tiles, names = tilesnames
+
+        wire_type = []
+        # glb2local, neighborhood, and local
+        if len(tiles) == 1:
+            # See guarantee in get_tiles() for these always matching
+            pos = tiles.pop()
+            name = names.pop().lower()
+            return make_1_tile(name, pos)
+        # Global wire, as only has one name?
+        elif len(names) == 1:
+            wire_type = ['global', '{}_tiles'.format(len(tiles)), names.pop().lower()]
+
+        # Work out the type of wire
+        if not wire_type:
+            wire_type = guess_wire_type(names)
+        if not wire_type:
+            return None
+
+        if 'channel' in wire_type:
+            return make_channel(wire_type, tiles)
         return GlobalName(*wire_type)
 
 
