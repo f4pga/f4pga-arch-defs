@@ -106,12 +106,62 @@ GLOBAL_MAX_TRACKS = 8
 
 TilePos = graph.Position
 
+'''
+Name of a segment group type
+Basically represents a wire running along one or more tiles
+
+GlobalName(type, position, attributes)
+type=local
+    attributes: (g, i)
+type=glb2local
+    attributes: i
+
+('channel', 'span12', 'horizontal', (P(x=0, y=1), 0, P(x=7, y=1), 7))
+('channel', 'stub', 'neigh_op_bnl_0', 'span4', (P(x=1, y=1), 0, P(x=1, y=1), 1))
+'''
+# FIXME: bind channel type to Channel object
 class GlobalName(tuple):
     def __new__(cls, *args, **kw):
         return super(GlobalName, cls).__new__(cls, args, **kw)
 
     def __init__(self, *args, **kw):
-        pass
+        assert len(kw) == 0
+        t = args[0]
+        assert type(t) is str, type(t)
+
+        if t == 'channel':
+            print(args)
+            pos1, _u1, pos2, _u2 = args[3]
+            assert type(pos1) is TilePos, type(pos1)
+            assert type(pos2) is TilePos, type(pos2)
+        if t in ('glb2local', 'local'):
+            pos = args[1]
+            assert type(pos) is TilePos, type(pos)
+
+    def __str__(self):
+        t = self[0]
+
+        # TODO: confirm these are good names
+        if t == 'global':
+            which = self[2]
+            return '%s_%s' % (t, which)
+        elif t == 'glb2local':
+            i = self[2]
+            pos = self[1]
+            return '%s%s/%s_%s' % (t, pos.x, pos.y, NetNames.localname_track_glb2local(pos, i))
+        elif t == 'channel':
+            # ('channel', 'span12', 'horizontal', (P(x=0, y=1), 0, P(x=7, y=1), 7))
+            t, subtype, direction, posstuff = self
+            start, dy, end, dx = posstuff
+            return '%s_%s_%s_(%s_%s_%s_%s)' % (t, subtype, direction, start, dy, end, dx)
+        elif t == 'local':
+            pos = self[1]
+            g, i = self[2]
+            return '%s%s/%s_%s' % (t, pos.x, pos.y, NetNames.localname_track_local(pos, g, i))
+        # GlobalName("pin", TilePos(x, y), pin)
+        else:
+            return '%s_fixme_%s' % (t, self[1:])
+
 
 # Tracks -----------------------------------------------------------------
 
@@ -252,88 +302,44 @@ class NetNames:
         This function is stateless
         '''
 
-        tiles = set()
-        names = set()
-
-        assert segments
-
-        for x, y, name in segments:
-            if name.startswith('lutff_'): # Actually a pin
-                lut_idx, pin = name.split('/')
-
-                if lut_idx == "lutff_global":
-                    return GlobalName("pin", TilePos(x, y), pin)
-                else:
-                    if '_' in pin:
-                        pin, pin_idx = pin.split('_')
-                        return GlobalName("pin", TilePos(x, y), "lut[{}].{}[{}]".format(lut_idx[len("lutff_"):], pin, pin_idx).lower())
+        def init_stuff():
+            tiles = set()
+            names = set()
+               assert segments
+               for x, y, name in segments:
+                if name.startswith('lutff_'): # Actually a pin
+                    lut_idx, pin = name.split('/')
+                       if lut_idx == "lutff_global":
+                        return GlobalName("pin", TilePos(x, y), pin)
                     else:
-                        return GlobalName("pin", TilePos(x, y), "lut[{}].{}".format(lut_idx[len("lutff_"):], pin).lower())
-
-            elif name.startswith('io_'): # Actually a pin
-                io_idx, pin = name.split('/')
-
-                if io_idx == "io_global":
-                    return GlobalName("pin", TilePos(x, y), pin)
-                else:
-                    return GlobalName("pin", TilePos(x, y), "io[{}].{}".format(io_idx[len("io_"):], pin).lower())
-
-            elif name.startswith('ram/'): # Actually a pin
-                name = name[len('ram/'):]
-                if '_' in name:
-                    pin, pin_idx = name.split('_')
-                    return GlobalName("pin", TilePos(x, y), "{}[{}]".format(pin, pin_idx).lower())
-                else:
-                    return GlobalName("pin", TilePos(x, y), name.lower())
-
-            if not name.startswith('sp4_r_v_'):
+                        if '_' in pin:
+                            pin, pin_idx = pin.split('_')
+                            return GlobalName("pin", TilePos(x, y), "lut[{}].{}[{}]".format(lut_idx[len("lutff_"):], pin, pin_idx).lower())
+                        else:
+                            return GlobalName("pin", TilePos(x, y), "lut[{}].{}".format(lut_idx[len("lutff_"):], pin).lower())
+                   elif name.startswith('io_'): # Actually a pin
+                    io_idx, pin = name.split('/')
+                       if io_idx == "io_global":
+                        return GlobalName("pin", TilePos(x, y), pin)
+                    else:
+                        return GlobalName("pin", TilePos(x, y), "io[{}].{}".format(io_idx[len("io_"):], pin).lower())
+                   elif name.startswith('ram/'): # Actually a pin
+                    name = name[len('ram/'):]
+                    if '_' in name:
+                        pin, pin_idx = name.split('_')
+                        return GlobalName("pin", TilePos(x, y), "{}[{}]".format(pin, pin_idx).lower())
+                    else:
+                        return GlobalName("pin", TilePos(x, y), name.lower())
+                   if not name.startswith('sp4_r_v_'):
+                    tiles.add(TilePos(x, y))
+                names.add(name)
+               if not tiles:
                 tiles.add(TilePos(x, y))
-            names.add(name)
+            assert names, "No names for {}".format(names)
+            return tiles, names
 
-        if not tiles:
-            tiles.add(TilePos(x, y))
-        assert names, "No names for {}".format(names)
-
-        wire_type = []
-        if len(tiles) == 1:
-            pos = tiles.pop()
-
-            name = names.pop().lower()
-            if name.startswith('local_'):
-                m = re.match("local_g([0-3])_([0-7])", name)
-                assert m, "{!r} didn't match local regex".format(name)
-                g = int(m.group(1))
-                i = int(m.group(2))
-
-                assert name == NetNames.localname_track_local(pos, g, i)
-                return NetNames.globalname_track_local(pos, g, i)
-            elif name.startswith('glb2local_'):
-                m = re.match("glb2local_([0-3])", name)
-                assert m, "{!r} didn't match glb2local regex".format(name)
-                i = int(m.group(1))
-
-                assert name == NetNames.localname_track_glb2local(pos, i), "{!r} != {!r}".format(
-                    name, NetNames.localname_track_glb2local(pos, i))
-                return NetNames.globalname_track_glb2local(pos, i)
-
-            # Special case when no logic to the right....
-            elif name.startswith('sp4_r_v_') or name.startswith('neigh_op_'):
-                m = re.search("_([0-9]+)$", name)
-
-                wire_type += ["channel", "stub", name]
-                wire_type += ["span4"]
-                wire_type += [(pos, int(m.group(1)), pos, 1)]
-                return GlobalName(*wire_type)
-
-            print("Unknown only local net {}".format(name))
-            return None
-
-        # Global wire, as only has one name?
-        elif len(names) == 1:
-            wire_type = ['global', '{}_tiles'.format(len(tiles)), names.pop().lower()]
-
-        # Work out the type of wire
-        if not wire_type:
+        def guess_wire_type(names):
+            wire_type = None
             for n in names:
                 if n.startswith('span4_horz_'):
                     if wire_type and 'horizontal' not in wire_type:
@@ -365,7 +371,60 @@ class NetNames:
                 if n == 'carry_in':
                     wire_type = ['direct', 'carrychain',]
                     break
+            return wire_type
 
+        def make_local(name, pos):
+            m = re.match("local_g([0-3])_([0-7])", name)
+            assert m, "{!r} didn't match local regex".format(name)
+            g = int(m.group(1))
+            i = int(m.group(2))
+
+            assert name == NetNames.localname_track_local(pos, g, i)
+            return NetNames.globalname_track_local(pos, g, i)
+
+        def make_glb2local(name, pos):
+            m = re.match("glb2local_([0-3])", name)
+            assert m, "{!r} didn't match glb2local regex".format(name)
+            i = int(m.group(1))
+
+            assert name == NetNames.localname_track_glb2local(pos, i), "{!r} != {!r}".format(
+                name, NetNames.localname_track_glb2local(pos, i))
+            return NetNames.globalname_track_glb2local(pos, i)
+
+        # also handles neigh_op
+        def make_sp4_r_v(name, pos):
+            m = re.search("_([0-9]+)$", name)
+
+            wire_type += ["channel", "stub", name]
+            wire_type += ["span4"]
+            wire_type += [(pos, int(m.group(1)), pos, 1)]
+            return GlobalName(*wire_type)
+
+        def make_1_tile(name, pos):
+            if name.startswith('local_'):
+                return make_local(name, pos)
+            elif name.startswith('glb2local_'):
+                return make_glb2local(name, pos)
+            # Special case when no logic to the right....
+            elif name.startswith('sp4_r_v_') or name.startswith('neigh_op_'):
+                return make_sp4_r_v(name, pos)
+
+            print("Unknown only local net {}".format(name))
+            return None
+
+        tiles, names = init_stuff()
+        wire_type = []
+        if len(tiles) == 1:
+            pos = tiles.pop()
+            name = names.pop().lower()
+            return make_1_tile(name, pos)
+        # Global wire, as only has one name?
+        elif len(names) == 1:
+            wire_type = ['global', '{}_tiles'.format(len(tiles)), names.pop().lower()]
+
+        # Work out the type of wire
+        if not wire_type:
+            wire_type = guess_wire_type(names)
         if not wire_type:
             return None
 
@@ -679,17 +738,18 @@ def add_span_tracks(g, nn):
         y_end = end[1]
 
         if x_start == x_end:
-            nodetype = channel.Track.Type.Y
+            chantype = channel.Track.Type.Y
             assert "vertical" in globalname or "stub" in globalname
             idx += x_channel_offset
         elif y_start == y_end:
-            nodetype = channel.Track.Type.X
+            chantype = channel.Track.Type.X
             assert "horizontal" in globalname or "stub" in globalname
             idx += y_channel_offset
         else:
-            # XXX: removing non-span I guess?
+            # XXX: diagonol? removing non-span I guess?
             return
 
+        # should be globalname[0]?
         if 'span4' in globalname:
             segtype = 'span4'
         elif 'span12' in globalname:
@@ -704,12 +764,17 @@ def add_span_tracks(g, nn):
 
         # add_channel(globalname, nodetype, start, end, idx, segtype)
         segment = g.channels.segment_s2seg[segtype]
-
+        # add_channel()
+        print("Adding {} track {} on tile {}".format(segtype, globalname, pos))
+        g.create_xy_track(start, end, segment,
+               type=chantype, direction=channel.Track.Direction.BI,
+               id_override=str(globalname))
 
     for globalname in sorted(nn.globalname2netnames.keys()):
         if globalname[0] != "channel":
             continue
         add_track_span(globalname)
+
 
     print('Ran')
 
