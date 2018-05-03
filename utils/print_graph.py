@@ -1,4 +1,4 @@
-import lib.rr_graph.graph as g
+import lib.rr_graph.graph as graph
 
 def print_block_types(rr_graph):
     '''Sequentially list block types'''
@@ -86,7 +86,7 @@ def main():
     parser.add_argument("rr_graph")
     args = parser.parse_args()
 
-    g = g.Graph(args.rr_graph)
+    g = graph.Graph(args.rr_graph)
     print_graph(g, lim=args.lim)
 
 if __name__ == "__main__":
