@@ -182,8 +182,6 @@
    <sb type="pattern">1 1 1 1 1 1 1 1 1 1 1 1</sb>
    <cb type="pattern">1 1 1 1 1 1 1 1 1 1 1</cb>
    <mux name="1"/>
-   <wire_switch name="1"/>
-   <opin_switch name="1"/>
   </segment>
 
   <!-- Span 4 vertical   tracks -->
@@ -192,8 +190,6 @@
    <sb type="pattern">1 1 1 1 1</sb>
    <cb type="pattern">1 1 1 1</cb>
    <mux name="2"/>
-   <wire_switch name="2"/>
-   <opin_switch name="2"/>
   </segment>
  </segmentlist>
  <complexblocklist>
