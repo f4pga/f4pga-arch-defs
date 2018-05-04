@@ -37,6 +37,7 @@ class Segment:
     def __init__(self, id, name, timing=None):
         self.id = id
         self.name = name
+        self.timing = None
         if timing:
             assert len(timing) == 2 and 'R_per_meter' in timing and 'C_per_meter' in timing
             self.timing = timing
@@ -876,7 +877,7 @@ class Channels:
     def create_xy_track(self,
                         start, end, segment,
                         idx=None, id_override=None,
-                        type=None, direction=None):
+                        typeh=None, direction=None):
         '''
         idx: None to automatically allocate
         '''
@@ -889,7 +890,7 @@ class Channels:
         t = Track(
             start, end,
             segment=segment, id_override=id_override,
-            type_hint=type, direction_hint=direction)
+            type_hint=typeh, direction_hint=direction)
 
         # Add the track to associated channel list
         # Get the track now with the index assigned
@@ -901,8 +902,8 @@ class Channels:
         #print('create %s %s to %s idx %s' % (t.type, start, end, idx))
 
         assert t.idx != None
-        if type:
-            assert t.type == type, (t.type.value, type)
+        if typeh:
+            assert t.type == typeh, (t.type.value, typeh)
         return t
 
     def pretty_print(self):
@@ -956,7 +957,7 @@ class Channels:
                     idx=idx,
                     # XML has no name concept. Should it?
                     id_override=None,
-                    type=ntype_e,
+                    typeh=ntype_e,
                     direction=direction)
             except:
                 print("Bad XML: %s" % (ET.tostring(node_xml)))

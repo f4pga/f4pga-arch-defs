@@ -23,7 +23,7 @@ class static_property(object):
 
         return attr
 
-
+# FIXME: define operators
 Position = namedtuple("P", ("x", "y"))
 P = Position  # Even shorter alias
 

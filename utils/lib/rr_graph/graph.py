@@ -1694,12 +1694,14 @@ class Graph:
     def create_xy_track(self,
                         start, end, segment,
                         idx=None, id_override=None,
-                        type=None, direction=None):
+                        typeh=None, direction=None):
         '''Create track object and corresponding nodes'''
+        assert type(start) is Position, type(start)
+        assert type(end) is Position, type(end)
         track = self.channels.create_xy_track(
             start, end, segment,
             idx=idx, id_override=id_override,
-            type=type, direction=direction)
+            typeh=typeh, direction=direction)
         track_node = self.ids.add_node_for_track(track)
         return track, track_node
 
