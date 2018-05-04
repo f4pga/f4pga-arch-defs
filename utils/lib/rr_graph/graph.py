@@ -1578,6 +1578,8 @@ class Graph:
         else:
             # First and last row/col cannot be occupied, see channel.py
             self.channels = Channels(self.block_grid.size() - Position(1, 1))
+            self.channels.from_xml_segments(
+                single_element(self._xml_graph, 'segments'))
 
     # Following takes info from existing rr_graph file
 
@@ -1727,12 +1729,12 @@ class Graph:
             if node.tag == ET.Comment:
                 continue
 
-            type = node.get('type')
+            ntype = node.get('type')
             loc = single_element(node, 'loc')
             pos_low, pos_high = node_pos(node)
             ptc = int(loc.get('ptc'))
 
-            if type in ('IPIN', 'OPIN'):
+            if ntype in ('IPIN', 'OPIN'):
                 assert pos_low == pos_high, (pos_low, pos_high)
                 pos = pos_low
 
@@ -1743,27 +1745,27 @@ class Graph:
                 kbp = (block, pin)
                 assert kbp not in bpin2node
                 bpin2node[kbp] = node
-            elif type in ('SINK', 'SOURCE'):
+            elif ntype in ('SINK', 'SOURCE'):
                 #pinclass2nodes
                 pass
-            elif type in ('CHANX', 'CHANY'):
+            elif ntype in ('CHANX', 'CHANY'):
                 # ptc is the index of the track in the channels at that location
                 # why is INC_DIR and segment needed?
                 # can't those be looked up?
                 grid = {
                     'CHANX': self.channels.x,
                     'CHANY': self.channels.y
-                }[type]
+                }[ntype]
                 #segment_id = list(node.iterfind("segment"))[0].get('segment_id')
                 try:
                     track = grid[pos_low][ptc]
                 except IndexError:
                     raise IndexError("%s node pos %s ptc %d not found" %
-                                     (type, pos, ptc))
+                                     (ntype, pos, ptc))
                 assert track not in track2node
                 track2node[track] = node
             else:
-                assert False, type
+                assert False, ntype
 
         return bpin2node, track2node
 

@@ -32,15 +32,16 @@ class ChannelNotStraight(TypeError):
     pass
 
 
-class Segment:
+_Segment = namedtuple(
+    "Segment", ("id", "name", "timing"))
+
+class Segment(_Segment):    
     '''An rr_graph <segment>'''
-    def __init__(self, id, name, timing=None):
-        self.id = id
-        self.name = name
-        self.timing = None
+    def __new__(cls, id, name, timing=None):
         if timing:
             assert len(timing) == 2 and 'R_per_meter' in timing and 'C_per_meter' in timing
-            self.timing = timing
+        obj = _Segment.__new__(cls, id, name, tuple(timing.items()))
+        return obj
 
     @classmethod
     def from_xml(cls, segment_xml):
@@ -918,12 +919,15 @@ class Channels:
         '''Remove all channels'''
         self.x.clear()
         self.y.clear()
-        self.segment_i2seg.clear()
+        # self.segment_i2seg.clear()
+        # self.segment_s2seg.clear()
 
     def from_xml_segments(self, segments_xml):
         '''Add segments from <segments>'''
         for segment_xml in segments_xml.iterfind('segment'):
-            self.add_segment(Segment.from_xml(segment_xml))
+            s = Segment.from_xml(segment_xml)
+            self.add_segment(s)
+        #segments_xml.clear()
 
     def add_segment(self, segment):
         self.segment_i2seg[segment.id] = segment
@@ -948,7 +952,7 @@ class Channels:
             segment_id = int(segment_xml.get('segment_id'))
             segment = self.segment_i2seg[segment_id]
 
-            # idx will get assinged when adding to track
+            # idx will get assigned when adding to track
             try:
                 _track = self.create_xy_track(
                     pos_low,
@@ -990,21 +994,29 @@ class Channels:
                 'info': str(info)
             })
 
+    '''
     def to_xml_segments(self, segments_xml):
         # FIXME: hack. Get proper segment support
         # for now add a summy segment for which all nodes are associated
-        segments_xml.clear()
+        #segments_xml.clear()
         for _i, segment in sorted(self.segment_i2seg.items()):
             segment.to_xml(segments_xml)
+    '''
 
+    '''
     def create_segment(self, name, timing=None):
         segment = Segment(len(self.segment_i2seg), name, timing=timing)
         self.add_segment(segment)
         return segment
+    '''
+
+    def get_segment(self, id=None):
+        if id is not None:
+            return self.segment_i2seg[id]
 
     def to_xml(self, xml_graph):
         self.to_xml_channels(single_element(xml_graph, 'channels'))
-        self.to_xml_segments(single_element(xml_graph, 'segments'))
+        #self.to_xml_segments(single_element(xml_graph, 'segments'))
 
 
 def TX(start,
