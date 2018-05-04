@@ -1003,7 +1003,7 @@ class GraphIdsMap:
                     #del self.id2node['node'][int(node.get('id'))]
                     self._xml_nodes.remove(node)
                     deletes += 1
-            print('keeps: %d, deletes: %d' % (keeps, deletes))
+            print('Node keeps: %d, deletes: %d' % (keeps, deletes))
         else:
             for node in self._xml_nodes:
                 self.add_node_xml(node)
