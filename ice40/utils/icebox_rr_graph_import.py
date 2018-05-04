@@ -781,6 +781,7 @@ def create_switches(g):
     # Routing switch connects two nets together to form a span12er wire.
     _switch_routing = g.ids.add_switch('routing', buffered=0, stype='mux')
 
+'''
 def create_segments(g):
     print('Creating segments')
     segment_names = (
@@ -793,7 +794,9 @@ def create_segments(g):
             )
     for segment_name in segment_names:
         _segment = g.channels.create_segment(segment_name)
+'''
 
+'''
 def add_local_tracks(g, nn):
     print('Adding local tracks')
 
@@ -824,7 +827,8 @@ def add_local_tracks(g, nn):
 
     # TODO: review segments based on timing requirements
     local_segment = g.channels.segment_s2seg['local']
-    gbl2local_segment = g.channels.segment_s2seg['gbl2local']
+    # FIXME: this isn't in arch.xml
+    gbl2local_segment = g.channels.segment_s2seg['local']
 
     for block in g.block_grid.blocks_for():
         if block.block_type.name == 'EMPTY':
@@ -849,6 +853,7 @@ def add_local_tracks(g, nn):
         if groups_glb2local:
             for _i in range(0, groups_glb2local):
                 add_track_gbl2local(g, nn, block, i, gbl2local_segment)
+'''
 
 def add_span_tracks(g, nn):
     print('Adding span tracks')
@@ -967,6 +972,7 @@ def run(part):
 
     print('Importing input g')
     ic, g, nn = init(part)
+
     # my_test(ic, g)
     print('Source g loaded')
     print_nodes_edges(g)
@@ -985,17 +991,19 @@ def run(part):
     print_nodes_edges(g)
     print()
     create_switches(g)
-    create_segments(g)
+    #create_segments(g)
     print()
     print('Rebuilding block I/O nodes')
     delayless_switch = g.ids.switch('__vpr_delayless_switch__')
     g.add_nodes_for_blocks(delayless_switch, sides)
     print_nodes_edges(g)
     # think these will get added as part of below
+    '''
     if 0:
         print()
         add_local_tracks(g, nn)
         print_nodes_edges(g)
+    '''
     print()
     add_span_tracks(g, nn)
     print_nodes_edges(g)
