@@ -99,10 +99,12 @@ GLOBAL_MAX_TRACKS = 8
 
 
 
-
-
-
-
+def P1(pos):
+    '''Convert icebox to VTR coordinate system by adding 1 for dummy blocks'''
+    assert type(pos) is graph.Position
+    # evidently doens't have operator defined...
+    # return pos + graph.Position(1, 1)
+    return graph.Position(pos.x + 1, pos.y + 1)
 
 TilePos = graph.Position
 
@@ -674,31 +676,6 @@ class NetNames:
         else:
             assert 0, 'Unhandled wire type {}'.format(str(wire_type))
 
-def add_track_local(graph, nn, block, group, i, segment):
-    pos = block.position
-    lname = NetNames.localname_track_local(pos, group, i)
-    # gname = NetNames.globalname_track_local(pos, group, i)
-    gname = GlobalName.make_local(pos, group, i)
-
-    print("Adding local track {} on tile {}".format(gname, pos))
-    graph.create_xy_track(block.position, block.position, segment,
-           type=channel.Track.Type.Y, direction=channel.Track.Direction.BI,
-           id_override=gname)
-    nn.add_globalname2localname(gname, pos, lname)
-
-
-def add_track_gbl2local(graph, nn, block, i, segment):
-    pos = block.position
-    lname = NetNames.localname_track_glb2local(pos, i)
-    # gname = NetNames.globalname_track_glb2local(pos, i)
-    gname = GlobalName.make_glb2local(pos, i)
-
-    print("Adding glb2local {} track {} on tile {}".format(i, gname, pos))
-    graph.create_xy_track(block.position, block.position, segment,
-           type=channel.Track.Type.Y, direction=channel.Track.Direction.BI,
-           id_override=gname)
-    nn.add_globalname2localname(gname, pos, lname)
-
 
 
 
@@ -820,6 +797,31 @@ def create_segments(g):
 def add_local_tracks(g, nn):
     print('Adding local tracks')
 
+    def add_track_local(graph, nn, block, group, i, segment):
+        pos = block.position
+        lname = NetNames.localname_track_local(pos, group, i)
+        # gname = NetNames.globalname_track_local(pos, group, i)
+        gname = GlobalName.make_local(pos, group, i)
+
+        print("Adding local track {} on tile {}".format(gname, pos))
+        graph.create_xy_track(block.position, block.position, segment,
+               typeh=channel.Track.Type.Y, direction=channel.Track.Direction.BI,
+               id_override=gname)
+        nn.add_globalname2localname(gname, pos, lname)
+
+
+    def add_track_gbl2local(graph, nn, block, i, segment):
+        pos = block.position
+        lname = NetNames.localname_track_glb2local(pos, i)
+        # gname = NetNames.globalname_track_glb2local(pos, i)
+        gname = GlobalName.make_glb2local(pos, i)
+
+        print("Adding glb2local {} track {} on tile {}".format(i, gname, pos))
+        graph.create_xy_track(block.position, block.position, segment,
+               typeh=channel.Track.Type.Y, direction=channel.Track.Direction.BI,
+               id_override=gname)
+        nn.add_globalname2localname(gname, pos, lname)
+
     # TODO: review segments based on timing requirements
     local_segment = g.channels.segment_s2seg['local']
     gbl2local_segment = g.channels.segment_s2seg['gbl2local']
@@ -895,8 +897,8 @@ def add_span_tracks(g, nn):
         segment = g.channels.segment_s2seg[segtype]
         # add_channel()
         print("Adding {} track {} on tile {}".format(segtype, globalname, start))
-        g.create_xy_track(start, end, segment,
-               type=chantype, direction=channel.Track.Direction.BI,
+        g.create_xy_track(P1(start), P1(end), segment,
+               typeh=chantype, direction=channel.Track.Direction.BI,
                id_override=str(globalname))
 
     for globalname in sorted(nn.globalname2netnames.keys()):
@@ -989,12 +991,18 @@ def run(part):
     delayless_switch = g.ids.switch('__vpr_delayless_switch__')
     g.add_nodes_for_blocks(delayless_switch, sides)
     print_nodes_edges(g)
-    print()
-    add_local_tracks(g, nn)
-    print_nodes_edges(g)
+    # think these will get added as part of below
+    if 0:
+        print()
+        add_local_tracks(g, nn)
+        print_nodes_edges(g)
     print()
     add_span_tracks(g, nn)
     print_nodes_edges(g)
+    print()
+    print('Saving')
+    open('rr_out.xml', 'w').write(
+        ET.tostring(g.to_xml(), pretty_print=True).decode('ascii'))
     print()
     print('Exiting')
     sys.exit(0)
@@ -1105,21 +1113,22 @@ def globalname_net(pos, name):
 
 # ------------------------------
 
-print()
-print("Calculating nets")
-print("="*75)
+def nets():
+    print()
+    print("Calculating nets")
+    print("="*75)
 
 
 
-def add_net_global(i):
-    lname = 'glb_netwk_{}'.format(i)
-    gname = GlobalName('global', '248_tiles', lname)
-    add_channel(gname, 'CHANY', TilePos(0, 0), TilePos(0, 0), i, 'global')
+    def add_net_global(i):
+        lname = 'glb_netwk_{}'.format(i)
+        gname = GlobalName('global', '248_tiles', lname)
+        add_channel(gname, 'CHANY', TilePos(0, 0), TilePos(0, 0), i, 'global')
 
-for i in range(0, 8):
-    add_net_global(i)
+    for i in range(0, 8):
+        add_net_global(i)
 
-add_channel(GlobalName('global', 'fabout'), 'CHANY', TilePos(0, 0), TilePos(0, 0), 0, 'global')
+    add_channel(GlobalName('global', 'fabout'), 'CHANY', TilePos(0, 0), TilePos(0, 0), 0, 'global')
 
 
 
@@ -1148,46 +1157,47 @@ add_channel(GlobalName('global', 'fabout'), 'CHANY', TilePos(0, 0), TilePos(0, 0
     </rr_edges>
 """
 
-print()
-print("Generating edges")
-print("="*75)
-
-for x, y in all_tiles:
-    pos = TilePos(x, y)
-    if pos in corner_tiles:
-        continue
-
+def edges():
     print()
-    print(x, y)
-    print("-"*75)
-    for entry in ic.tile_db(x, y):
-        if not ic.tile_has_entry(x, y, entry):
+    print("Generating edges")
+    print("="*75)
+
+    for x, y in all_tiles:
+        pos = TilePos(x, y)
+        if pos in corner_tiles:
             continue
 
-        switch_type = entry[1]
-        if switch_type not in ("routing", "buffer"):
-            continue
+        print()
+        print(x, y)
+        print("-"*75)
+        for entry in ic.tile_db(x, y):
+            if not ic.tile_has_entry(x, y, entry):
+                continue
 
-        rtype = entry[1]
-        src_localname = entry[2]
-        dst_localname = entry[3]
+            switch_type = entry[1]
+            if switch_type not in ("routing", "buffer"):
+                continue
 
-        if filter_name(src_localname) or filter_name(dst_localname):
-            continue
+            rtype = entry[1]
+            src_localname = entry[2]
+            dst_localname = entry[3]
 
-        src_globalname = localname2globalname(pos, src_localname, default='???')
-        dst_globalname = localname2globalname(pos, dst_localname, default='???')
+            if filter_name(src_localname) or filter_name(dst_localname):
+                continue
 
-        src_nodeid = globalname2nodeid.get(src_globalname, None)
-        dst_nodeid = globalname2nodeid.get(dst_globalname, None)
+            src_globalname = localname2globalname(pos, src_localname, default='???')
+            dst_globalname = localname2globalname(pos, dst_localname, default='???')
 
-        if src_nodeid is None or dst_nodeid is None:
-            print("Skipping {} ({}, {}) -> {} ({}, {})".format(
-                (pos, src_localname), src_globalname, src_nodeid,
-                (pos, dst_localname), dst_globalname, dst_nodeid,
-                ))
-        else:
-            add_edge(src_globalname, dst_globalname, switch_type == "routing")
+            src_nodeid = globalname2nodeid.get(src_globalname, None)
+            dst_nodeid = globalname2nodeid.get(dst_globalname, None)
+
+            if src_nodeid is None or dst_nodeid is None:
+                print("Skipping {} ({}, {}) -> {} ({}, {})".format(
+                    (pos, src_localname), src_globalname, src_nodeid,
+                    (pos, dst_localname), dst_globalname, dst_nodeid,
+                    ))
+            else:
+                add_edge(src_globalname, dst_globalname, switch_type == "routing")
 
 
 
