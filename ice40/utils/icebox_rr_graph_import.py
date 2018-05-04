@@ -743,7 +743,7 @@ def setup_empty_t4(self):
         self.io_tiles[(self.max_x, y)] = ["0" * 18 for i in range(16)]
 '''
 
-def init(device_name):
+def init(device_name, read_rr_graph):
     ic = icebox.iceconfig()
     {
         't4':  ic.setup_empty_t4,
@@ -759,7 +759,10 @@ def init(device_name):
         '1k':  'HX1K',
         '384': 'LP384',
     }[device_name]
-    ref_rr_fn = '../../tests/build/ice40/{}/wire.rr_graph.xml'.format(fn_dir)
+    if read_rr_graph:
+        ref_rr_fn = read_rr_graph
+    else:
+        ref_rr_fn = '../../tests/build/ice40/{}/wire.rr_graph.xml'.format(fn_dir)
 
     # Load g stuff we care about
     # (basically omit rr_nodes)
@@ -973,11 +976,11 @@ def my_test(ic, g):
     print('exiting')
     sys.exit(1)
 
-def run(part):
+def run(part, read_rr_graph, write_rr_graph):
     global ic
 
     print('Importing input g')
-    ic, g, nn = init(part)
+    ic, g, nn = init(part, read_rr_graph)
 
     # my_test(ic, g)
     print('Source g loaded')
@@ -1015,7 +1018,7 @@ def run(part):
     print_nodes_edges(g)
     print()
     print('Saving')
-    open('rr_out.xml', 'w').write(
+    open(write_rr_graph, 'w').write(
         ET.tostring(g.to_xml(), pretty_print=True).decode('ascii'))
     print()
     print('Exiting')
@@ -1031,6 +1034,9 @@ if __name__ == '__main__':
     parser.add_argument('--dev-5k', '-5', action='store_true', help='create chipdb for 5k device')
     parser.add_argument('--dev-8k', '-8', action='store_true', help='create chipdb for 8k device')
     parser.add_argument('--verbose', '-v', action='store_true', help='verbose output')
+    parser.add_argument('--read_rr_graph', help='')
+    parser.add_argument('--write_rr_graph', default='out.xml', help='')
+
     args = parser.parse_args()
 
     VERBOSE = args.verbose
@@ -1046,8 +1052,9 @@ if __name__ == '__main__':
     elif args.dev_384:
         mode = '384'
     else:
-        assert 0, "Must specifiy device"
-    run(mode)
+        #assert 0, "Must specifiy device"
+        mode = '384'
+    run(mode, args.read_rr_graph, args.write_rr_graph)
 
 
 
