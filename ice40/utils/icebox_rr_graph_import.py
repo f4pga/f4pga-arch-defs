@@ -246,6 +246,7 @@ def get_corner_tiles(ic):
 class NetNames:
     def __init__(self, ic):
         self.ic = ic
+        self.verbose = False
         self.index_names()
 
     def index_names(self):
@@ -264,10 +265,12 @@ class NetNames:
             if not fgroup:
                 continue
 
-            print()
+            if self.verbose:
+                print()
             gname = NetNames._calculate_globalname_net(self.ic, tuple(fgroup))
             if not gname:
-                print('Could not calculate global name for', group)
+                if self.verbose:
+                    print('Could not calculate global name for', group)
                 continue
 
             if gname[0] == "pin":
@@ -277,7 +280,7 @@ class NetNames:
                 assert gname in self.globalname2netnames, gname
             else:
                 #alias_type = "net"
-                if gname not in self.globalname2netnames:
+                if gname not in self.globalname2netnames and self.verbose:
                     print("Adding net {}".format(gname))
 
             #print(x, y, gname, group)
@@ -302,9 +305,11 @@ class NetNames:
 
         if nid not in self.globalname2netnames[globalname]:
             self.globalname2netnames[globalname].add(nid)
-            print("Adding alias for {} is tile {}, {}".format(globalname, pos, localname))
+            if self.verbose:
+                print("Adding alias for {} is tile {}, {}".format(globalname, pos, localname))
         else:
-            print("Existing alias for {} is tile {}, {}".format(globalname, pos, localname))
+            if self.verbose:
+                print("Existing alias for {} is tile {}, {}".format(globalname, pos, localname))
 
     @staticmethod
     def filter_name(localname):
@@ -855,7 +860,7 @@ def add_local_tracks(g, nn):
                 add_track_gbl2local(g, nn, block, i, gbl2local_segment)
 '''
 
-def add_span_tracks(g, nn):
+def add_span_tracks(g, nn, verbose=False):
     print('Adding span tracks')
 
     x_channel_offset = LOCAL_TRACKS_MAX_GROUPS * (LOCAL_TRACKS_PER_GROUP) + GBL2LOCAL_MAX_TRACKS
@@ -901,7 +906,8 @@ def add_span_tracks(g, nn):
         # add_channel(globalname, nodetype, start, end, idx, segtype)
         segment = g.channels.segment_s2seg[segtype]
         # add_channel()
-        print("Adding {} track {} on tile {}".format(segtype, globalname, start))
+        if verbose:
+            print("Adding {} track {} on tile {}".format(segtype, globalname, start))
         g.create_xy_track(P1(start), P1(end), segment,
                typeh=chantype, direction=channel.Track.Direction.BI,
                id_override=str(globalname))
