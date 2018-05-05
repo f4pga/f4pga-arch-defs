@@ -863,6 +863,11 @@ def add_local_tracks(g, nn):
                 add_track_gbl2local(g, nn, block, i, gbl2local_segment)
 '''
 
+def segfreq(g):
+    print('Segment frequencies')
+    for k, v in g.channels.segfreq.items():
+        print('  %s: %s' % (k.name, v))
+
 def add_span_tracks(g, nn, verbose=True):
     print('Adding span tracks')
 
@@ -900,11 +905,7 @@ def add_span_tracks(g, nn, verbose=True):
         elif 'span12' in globalname:
             segtype = 'span12'
             #idx += SPAN4_MAX_TRACKS #+ 1
-            return
-        elif 'local' in globalname:
-            segtype = 'local'
-            # FIXME: weren't these already added?
-            return
+            #return
         else:
             assert False, globalname
 
@@ -917,16 +918,22 @@ def add_span_tracks(g, nn, verbose=True):
                typeh=chantype, direction=channel.Track.Direction.BI,
                id_override=str(globalname))
 
+    def add_track_local(globalname):
+        _gtype, pos, (_g, _i) = globalname
+        segment = g.channels.segment_s2seg['local']
+        return g.create_xy_track(P1(pos), P1(pos), segment,
+                       typeh=channel.Track.Type.Y, direction=channel.Track.Direction.BI,
+                       id_override=str(globalname))
+
     cnt = 0
     for globalname in sorted(nn.globalname2netnames.keys()):
-        print('looping, start cnt=%d' % cnt)
-        if globalname[0] != "channel":
-            continue
-        if add_track_span(globalname):
-            cnt += 1
-        if cnt >= 389:
-            break
+        #print('looping, start cnt=%d' % cnt)
+        if globalname[0] == "channel":
+            add_track_span(globalname)
+        elif globalname[0] == "local":
+            add_track_local(globalname)
 
+    segfreq(g)
 
     print('Ran')
 
