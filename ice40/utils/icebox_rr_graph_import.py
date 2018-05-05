@@ -863,7 +863,7 @@ def add_local_tracks(g, nn):
                 add_track_gbl2local(g, nn, block, i, gbl2local_segment)
 '''
 
-def add_span_tracks(g, nn, verbose=False):
+def add_span_tracks(g, nn, verbose=True):
     print('Adding span tracks')
 
     x_channel_offset = LOCAL_TRACKS_MAX_GROUPS * (LOCAL_TRACKS_PER_GROUP) + GBL2LOCAL_MAX_TRACKS
@@ -884,11 +884,11 @@ def add_span_tracks(g, nn, verbose=False):
         if x_start == x_end:
             chantype = channel.Track.Type.Y
             assert "vertical" in globalname or "stub" in globalname
-            idx += x_channel_offset
+            #idx += x_channel_offset
         elif y_start == y_end:
             chantype = channel.Track.Type.X
             assert "horizontal" in globalname or "stub" in globalname
-            idx += y_channel_offset
+            #idx += y_channel_offset
         else:
             # XXX: diagonol? removing non-span I guess?
             return
@@ -896,9 +896,11 @@ def add_span_tracks(g, nn, verbose=False):
         # should be globalname[0]?
         if 'span4' in globalname:
             segtype = 'span4'
+            #return
         elif 'span12' in globalname:
             segtype = 'span12'
-            idx += SPAN4_MAX_TRACKS #+ 1
+            #idx += SPAN4_MAX_TRACKS #+ 1
+            return
         elif 'local' in globalname:
             segtype = 'local'
             # FIXME: weren't these already added?
@@ -911,14 +913,19 @@ def add_span_tracks(g, nn, verbose=False):
         # add_channel()
         if verbose:
             print("Adding {} track {} on tile {}".format(segtype, globalname, start))
-        g.create_xy_track(P1(start), P1(end), segment,
+        return g.create_xy_track(P1(start), P1(end), segment,
                typeh=chantype, direction=channel.Track.Direction.BI,
                id_override=str(globalname))
 
+    cnt = 0
     for globalname in sorted(nn.globalname2netnames.keys()):
+        print('looping, start cnt=%d' % cnt)
         if globalname[0] != "channel":
             continue
-        add_track_span(globalname)
+        if add_track_span(globalname):
+            cnt += 1
+        if cnt >= 389:
+            break
 
 
     print('Ran')
@@ -1016,6 +1023,10 @@ def run(part, read_rr_graph, write_rr_graph):
     print()
     add_span_tracks(g, nn)
     print_nodes_edges(g)
+    print()
+    print('Padding channels')
+    pad_segment = g.channels.segment_s2seg['span4']
+    g.pad_channels(pad_segment)
     print()
     print('Saving')
     open(write_rr_graph, 'w').write(
