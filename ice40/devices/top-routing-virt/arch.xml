@@ -82,6 +82,13 @@
    <opin_switch name="2"/>
   </segment>
 
+  <segment name="glb2local" length="1" freq="1.000000" type="bidir" Rmetal="101" Cmetal="22.5e-15">
+   <sb type="pattern">0 1</sb>
+   <cb type="pattern">1</cb>
+   <wire_switch name="2"/>
+   <opin_switch name="2"/>
+  </segment>
+
   <!-- Local tracks -->
   <segment name="local" length="1" freq="1.000000" type="bidir" Rmetal="101" Cmetal="22.5e-15">
    <sb type="pattern">0 1</sb>
