@@ -175,6 +175,15 @@ class Track(_Track):
         else:
             assert False
 
+    def positions(self):
+        '''Generate all positions this track occupies'''
+        startx, endx = sorted([self.start.x, self.end.x])
+        starty, endy = sorted([self.start.y, self.end.y])
+
+        for x in range(startx, endx + 1):
+            for y in range(starty, endy + 1):
+                yield Position(x, y)
+
     @static_property
     def start0(self):
         """The non-constant start coordinate.

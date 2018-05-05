@@ -1378,6 +1378,14 @@ class GraphIdsMap:
         self.add_node_xml(node)
         return node
 
+    def add_edge_bidir(self, src_node, sink_node, switch_id, bidir=True):
+        if bidir:
+            return (self.add_edge(src_node, sink_node, switch_id),
+                    self.add_edge(sink_node, src_node, switch_id))
+        else:
+            return (self.add_edge(src_node, sink_node, switch_id),
+                    )
+
     def add_edge(self, src_node, sink_node, switch_id):
         # <edge src_node="34" sink_node="44" switch_id="1"/>
         assert type(src_node) is int, type(src_node)
