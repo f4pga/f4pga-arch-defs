@@ -858,6 +858,8 @@ class Channels:
         # id to segment dict
         self.segment_i2seg = {}
         self.segment_s2seg = {}
+        # debug
+        self.segfreq = {}
 
     def create_diag_track(self, start, end, segment, idx=None):
         # Actually these can be tuple as well
@@ -904,6 +906,7 @@ class Channels:
         assert t.idx != None
         if typeh:
             assert t.type == typeh, (t.type.value, typeh)
+        self.segfreq[segment] = self.segfreq.get(segment, 0) + 1
         return t
 
     def pad_channels(self, segment):
