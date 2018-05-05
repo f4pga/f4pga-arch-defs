@@ -2,7 +2,7 @@
 <fixed_layout name="{N}384" width="10" height="12">
  <col    type="EMPTY"            startx="0"  priority="30"/>
  <col    type="BLK_TL-PIO_L"     startx="1"  priority="10"/>
- <region type="BLK_TL-PLB"       startx="2" endx="7" starty="2" endy="9" priority="4"/> <!-- Logic blocks 6x8 -->
+ <region type="BLK_TL-PLB"       startx="2" endx="7" starty="2" endy="9" priority="4"/> <!-- Logic blocks 8x10 -->
  <col    type="BLK_TL-PIO_R"     startx="8"  priority="10"/>
  <col    type="EMPTY"            startx="9"  priority="30"/>
 
