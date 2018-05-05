@@ -1707,6 +1707,11 @@ class Graph:
         track_node = self.ids.add_node_for_track(track)
         return track, track_node
 
+    def pad_channels(self, segment):
+        '''Workaround for https://github.com/verilog-to-routing/vtr-verilog-to-routing/issues/339'''
+        for track in self.channels.pad_channels(segment):
+            self.ids.add_node_for_track(track)
+
     def index_node_objects(self):
         '''
         TODO: mithro suggests using node names instead of this. Look into making this happen
