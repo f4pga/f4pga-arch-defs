@@ -99,14 +99,17 @@ GLOBAL_MAX_TRACKS = 8
 chan_width_max = LOCAL_TRACKS_MAX_GROUPS * (LOCAL_TRACKS_PER_GROUP+1) + GBL2LOCAL_MAX_TRACKS + SPAN4_MAX_TRACKS + SPAN12_MAX_TRACKS + GLOBAL_MAX_TRACKS
 
 
-
-
 def P1(pos):
     '''Convert icebox to VTR coordinate system by adding 1 for dummy blocks'''
     assert type(pos) is graph.Position
     # evidently doens't have operator defined...
     # return pos + graph.Position(1, 1)
     return graph.Position(pos.x + 1, pos.y + 1)
+
+def PN1(pos):
+    '''Convert VTR to icebox coordinate system by subtracting 1 for dummy blocks'''
+    assert type(pos) is graph.Position
+    return graph.Position(pos.x - 1, pos.y - 1)
 
 TilePos = graph.Position
 
@@ -249,17 +252,18 @@ class NetNames:
     def __init__(self, ic):
         self.ic = ic
         self.verbose = False
-        self.index_names()
-
-    def index_names(self):
-        self.globalname2netnames = {}
-        self.globalname2node = {}
-        self.globalname2nodeid = {}
-
-        self.netname2globalname = {}
-
         self.all_tiles = list(tiles(self.ic))
         self.corner_tiles = get_corner_tiles(self.ic)
+        self.index_names()
+        # (Position, local name) to node ID
+        # For channels multiple keys may map to one node ID
+        # NOTE: these are in IC coordinate space
+        self.poslname2nodeid = {}
+
+    def index_names(self):
+        # FIXME: are these populated?
+        self.globalname2netnames = {}
+        self.netname2globalname = {}
 
         all_group_segments = self.ic.group_segments(self.all_tiles, connect_gb=False)
         for group in sorted(all_group_segments):
@@ -289,6 +293,18 @@ class NetNames:
             for x, y, netname in fgroup:
                 self.add_globalname2localname(gname, TilePos(x, y), netname)
 
+    def index_pin_node_ids(self, g):
+        '''Build a list of icebox global pin names to Graph node IDs'''
+        bpin2node, _track2node = g.index_node_objects()
+        for (block, pin), node in bpin2node.items():
+            localname = pin.port_name
+            node_id = int(node.get('id'))
+            self.poslname2nodeid[(PN1(block.position), localname)] = node_id
+
+    def index_track(self, trackid, nids):
+        for pos, localname in nids:
+            self.poslname2nodeid[PN1(pos), localname] = trackid
+
     def add_globalname2localname(self, globalname, pos, localname):
         assert isinstance(globalname, GlobalName), "{!r} must be a GlobalName".format(globalname)
         assert isinstance(pos, TilePos), "{!r} must be a TilePos".format(pos)
@@ -313,6 +329,12 @@ class NetNames:
             if self.verbose:
                 print("Existing alias for {} is tile {}, {}".format(globalname, pos, localname))
 
+    def localname2globalname(self, pos, localname, default=None):
+        """Convert from a local name to a globally unique name."""
+        assert isinstance(pos, TilePos), "{!r} must be a TilePos".format(pos)
+        nid = (pos, localname)
+        return self.netname2globalname.get(nid, default)
+
     @staticmethod
     def filter_name(localname):
         if localname.endswith('cout') or localname.endswith('lout'):
@@ -330,7 +352,7 @@ class NetNames:
         fgroup = []
         for x,y,name in group:
             if not ic.tile_has_entry(x, y, name):
-                print("Skipping {} on {},{}".format(name, x,y))
+                # print("Skipping {} on {},{}".format(name, x,y))
                 continue
 
             if NetNames.filter_name(name):
@@ -750,13 +772,24 @@ def add_global_nets(g, nn):
     add_channel(GlobalName('global', 'fabout'), 'CHANY', TilePos(0, 0), TilePos(0, 0), 0, 'global')
     '''
 
+def create_xy_track(g, nn, nids,
+                    start, end, segment,
+                    idx=None, id_override=None,
+                    typeh=None, direction=None):
+    # VPR tiles have padding vs icebox coordinate system
+    track, track_node = g.create_xy_track(P1(start), P1(end), segment,
+               idx=idx, id_override=id_override,
+               typeh=typeh, direction=direction)
+    nn.index_track(int(track_node.get('id')), nids)
+    return track
+
 def add_span_tracks(g, nn, verbose=True):
     print('Adding span tracks')
 
     #x_channel_offset = LOCAL_TRACKS_MAX_GROUPS * (LOCAL_TRACKS_PER_GROUP) + GBL2LOCAL_MAX_TRACKS
     #y_channel_offset = 0
 
-    def add_track_channel(globalname):
+    def add_track_channel(globalname, nids):
         #start, idx, end, delta = globalname[-1]
         posinfo = globalname[-1]
         assert type(posinfo) is Posinfo
@@ -797,74 +830,48 @@ def add_span_tracks(g, nn, verbose=True):
         # add_channel()
         if verbose:
             print("Adding {} track {} on tile {}".format(segtype, globalname, start))
-        return g.create_xy_track(P1(start), P1(end), segment,
+        return create_xy_track(g, nn, nids,
+               start, end, segment,
                typeh=chantype, direction=channel.Track.Direction.BI,
                id_override=str(globalname))
 
-    def add_track_local(globalname):
+    def add_track_local(globalname, nids):
         _gtype, pos, (_g, _i) = globalname
         segment = g.channels.segment_s2seg['local']
-        return g.create_xy_track(P1(pos), P1(pos), segment,
-                       typeh=channel.Track.Type.Y, direction=channel.Track.Direction.BI,
-                       id_override=str(globalname))
+        return create_xy_track(g, nn, nids,
+               pos, pos, segment,
+               typeh=channel.Track.Type.Y, direction=channel.Track.Direction.BI,
+               id_override=str(globalname))
 
-    def add_track_glb2local(globalname):
+    def add_track_glb2local(globalname, nids):
         _gtype, pos, _i = globalname
         segment = g.channels.segment_s2seg['glb2local']
-        return g.create_xy_track(P1(pos), P1(pos), segment,
-                       typeh=channel.Track.Type.Y, direction=channel.Track.Direction.BI,
-                       id_override=str(globalname))
+        return create_xy_track(g, nn, nids,
+               pos, pos, segment,
+               typeh=channel.Track.Type.Y, direction=channel.Track.Direction.BI,
+               id_override=str(globalname))
 
-    def add_track_default(globalname):
+    def add_track_default(globalname, nids):
         gtype = globalname.type()
         print("WARNING: skipping track %s" % gtype)
 
-    for globalname in sorted(nn.globalname2netnames.keys()):
+    for globalname, nids in sorted(nn.globalname2netnames.items()):
         {
             "channel": add_track_channel,
-            "local": add_track_local,
+            # NOTE: review creation before adding
+            # "direct": add_track_direct,
             "glb2local": add_track_glb2local,
-        }.get(globalname[0], add_track_default)(globalname)
+            "local": add_track_local,
+        }.get(globalname[0], add_track_default)(globalname, nids)
 
     segfreq(g)
 
     print('Ran')
 
-'''
-def add_edge(src_globalname, dst_globalname, bidir=False):
-    if bidir:
-        add_edge(src_globalname, dst_globalname)
-        add_edge(dst_globalname, src_globalname)
-        return
-
-    assert isinstance(src_globalname, GlobalName), "src {!r} should be a GlobalName".format(src_globalname)
-    assert isinstance(dst_globalname, GlobalName), "dst {!r} should be a GlobalName".format(dst_globalname)
-
-    src_node_id = globalname2nodeid[src_globalname]
-    dst_node_id = globalname2nodeid[dst_globalname]
-
-    attribs = {
-        'src_node': str(src_node_id),
-        'sink_node': str(dst_node_id),
-        'switch_id': str(0),
-    }
-    e = ET.SubElement(edges, 'edge', attribs)
-
-    # Add some helpful comments
-    if VERBOSE:
-        e.append(ET.Comment(" {} -> {} ".format(src_globalname, dst_globalname)))
-        globalname2node[src_globalname].append(ET.Comment(" this -> {} ".format(dst_globalname)))
-        globalname2node[dst_globalname].append(ET.Comment(" {} -> this ".format(src_globalname)))
-
-
-def edges():
-    print()
-    print("Generating edges")
-    print("="*75)
-
-    for x, y in all_tiles:
+def add_edges(g, nn):
+    for x, y in nn.all_tiles:
         pos = TilePos(x, y)
-        if pos in corner_tiles:
+        if pos in nn.corner_tiles:
             continue
 
         print()
@@ -878,28 +885,30 @@ def edges():
             if switch_type not in ("routing", "buffer"):
                 continue
 
-            rtype = entry[1]
+            # routing type?
+            _rtype = entry[1]
             src_localname = entry[2]
             dst_localname = entry[3]
 
-            if filter_name(src_localname) or filter_name(dst_localname):
+            if nn.filter_name(src_localname) or nn.filter_name(dst_localname):
                 continue
 
-            src_globalname = localname2globalname(pos, src_localname, default='???')
-            dst_globalname = localname2globalname(pos, dst_localname, default='???')
-
-            src_nodeid = globalname2nodeid.get(src_globalname, None)
-            dst_nodeid = globalname2nodeid.get(dst_globalname, None)
-
-            if src_nodeid is None or dst_nodeid is None:
-                print("Skipping {} ({}, {}) -> {} ({}, {})".format(
-                    (pos, src_localname), src_globalname, src_nodeid,
-                    (pos, dst_localname), dst_globalname, dst_nodeid,
-                    ))
+            src_node_id = nn.poslname2nodeid.get((pos, src_localname), None)
+            dst_node_id = nn.poslname2nodeid.get((pos, dst_localname), None)
+            if src_node_id is None or dst_node_id is None:
+                if 0:
+                    print("Skipping edge {}:{} => {}:{}".format(
+                        pos, src_localname,
+                        pos, dst_localname,
+                        ))
             else:
-                add_edge(src_globalname, dst_globalname, switch_type == "routing")
-'''
-
+                print("Adding edge {}:{} => {}:{}".format(
+                    pos, src_localname,
+                    pos, dst_localname,
+                    ))
+                bidir = switch_type == "routing"
+                # FIXME: proper switch ID
+                g.ids.add_edge_bidir(src_node_id, dst_node_id, switch_id=0, bidir=bidir)
 
 def print_nodes_edges(g):
     print("Edges: %d (index: %d)" % (len(g.ids._xml_edges),
@@ -979,8 +988,14 @@ def run(part, read_rr_graph, write_rr_graph):
     delayless_switch = g.ids.switch('__vpr_delayless_switch__')
     g.add_nodes_for_blocks(delayless_switch, sides)
     print_nodes_edges(g)
-    # think these will get added as part of below
+
+    print
+    print('Indexing pin node names')
+    nn.index_pin_node_ids(g)
+    print
+
     '''
+    # think these will get added as part of below
     if 0:
         print()
         add_local_tracks(g, nn)
@@ -990,6 +1005,8 @@ def run(part, read_rr_graph, write_rr_graph):
     print()
     add_span_tracks(g, nn)
     print_nodes_edges(g)
+    print()
+    add_edges(g, nn)
     print()
     print('Padding channels')
     dummy_segment = g.channels.segment_s2seg['dummy']
