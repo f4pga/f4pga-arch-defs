@@ -95,6 +95,8 @@ SPAN12_MAX_TRACKS = 24
 
 GLOBAL_MAX_TRACKS = 8
 
+# TODO check this
+chan_width_max = LOCAL_TRACKS_MAX_GROUPS * (LOCAL_TRACKS_PER_GROUP+1) + GBL2LOCAL_MAX_TRACKS + SPAN4_MAX_TRACKS + SPAN12_MAX_TRACKS + GLOBAL_MAX_TRACKS
 
 
 
@@ -681,68 +683,6 @@ class NetNames:
         else:
             assert 0, 'Unhandled wire type {}'.format(str(wire_type))
 
-
-
-
-
-
-
-'''
-https://docs.google.com/document/d/1kTehDgse8GA2af5HoQ9Ntr41uNL_NJ43CjA32DofK8E/edit#heading=h.b5gijh3mhpx9
-Local wires are given global names by giving a prefix of WA/B_ where;
-    W == Letter code for tile type
-        I == IO tile
-        L == Logic Tile
-        R == Block RAM Tile
-    A == X tile coordinate
-    B == Y tile coordinate
-'''
-'''
-def local_track_gname(block, g, i):
-    assert type(block) is graph.Block
-    pos = block.position
-    assert type(g) is int
-    assert type(i) is int
-
-    tile_type_short = {
-        'BLK_BB-VPR_PAD':   'I',
-        'BLK_TL-PLB':       'L',
-        'FIXME_BRAM':       'R',
-        }[block.block_type.name]
-    return '{}{}/{}_local_g{}_{}'.format(tile_type_short, pos.x, pos.y, g, i)
-
-def glb2local_track_gname(block, i):
-    assert type(block) is graph.Block
-    pos = block.position
-
-    tile_type_short = {
-        'BLK_BB-VPR_PAD':   'I',
-        'BLK_TL-PLB':       'L',
-        'FIXME_BRAM':       'R',
-        }[block.block_type.name]
-    return '{}{}/{}_glb2local_{}'.format(tile_type_short, pos.x, pos.y, i)
-'''
-
-'''
-def setup_empty_t4(self):
-    self.clear()
-    self.device = "T4"
-    self.max_x = 3
-    self.max_y = 3
-
-    for x in range(1, self.max_x):
-        for y in range(1, self.max_y):
-            self.logic_tiles[(x, y)] = ["0" * 54 for i in range(16)]
-
-    for x in range(1, self.max_x):
-        self.io_tiles[(x, 0)] = ["0" * 18 for i in range(16)]
-        self.io_tiles[(x, self.max_y)] = ["0" * 18 for i in range(16)]
-
-    for y in range(1, self.max_y):
-        self.io_tiles[(0, y)] = ["0" * 18 for i in range(16)]
-        self.io_tiles[(self.max_x, y)] = ["0" * 18 for i in range(16)]
-'''
-
 def init(device_name, read_rr_graph):
     ic = icebox.iceconfig()
     {
@@ -789,84 +729,26 @@ def create_switches(g):
     # Routing switch connects two nets together to form a span12er wire.
     _switch_routing = g.ids.add_switch('routing', buffered=0, stype='mux')
 
-'''
-def create_segments(g):
-    print('Creating segments')
-    segment_names = (
-            'global',
-            'span12',
-            'span4',
-            'gbl2local',
-            'local',
-            'direct',
-            )
-    for segment_name in segment_names:
-        _segment = g.channels.create_segment(segment_name)
-'''
-
-'''
-def add_local_tracks(g, nn):
-    print('Adding local tracks')
-
-    def add_track_local(graph, nn, block, group, i, segment):
-        pos = block.position
-        lname = NetNames.localname_track_local(pos, group, i)
-        # gname = NetNames.globalname_track_local(pos, group, i)
-        gname = GlobalName.make_local(pos, group, i)
-
-        print("Adding local track {} on tile {}".format(gname, pos))
-        graph.create_xy_track(block.position, block.position, segment,
-               typeh=channel.Track.Type.Y, direction=channel.Track.Direction.BI,
-               id_override=gname)
-        nn.add_globalname2localname(gname, pos, lname)
-
-
-    def add_track_gbl2local(graph, nn, block, i, segment):
-        pos = block.position
-        lname = NetNames.localname_track_glb2local(pos, i)
-        # gname = NetNames.globalname_track_glb2local(pos, i)
-        gname = GlobalName.make_glb2local(pos, i)
-
-        print("Adding glb2local {} track {} on tile {}".format(i, gname, pos))
-        graph.create_xy_track(block.position, block.position, segment,
-               typeh=channel.Track.Type.Y, direction=channel.Track.Direction.BI,
-               id_override=gname)
-        nn.add_globalname2localname(gname, pos, lname)
-
-    # TODO: review segments based on timing requirements
-    local_segment = g.channels.segment_s2seg['local']
-    # FIXME: this isn't in arch.xml
-    gbl2local_segment = g.channels.segment_s2seg['local']
-
-    for block in g.block_grid.blocks_for():
-        if block.block_type.name == 'EMPTY':
-            continue
-        print('Block %s, %s' % (block, block.block_type.name))
-
-        if block.block_type.name == 'BLK_BB-VPR_PAD':
-            groups_local = (2, LOCAL_TRACKS_PER_GROUP)
-            groups_glb2local = 0
-        elif block.block_type.name == 'BLK_TL-PLB':
-            groups_local = (LOCAL_TRACKS_MAX_GROUPS, LOCAL_TRACKS_PER_GROUP)
-            groups_glb2local = GBL2LOCAL_MAX_TRACKS
-        else:
-            assert 0, block.block_type.name
-
-        # Local tracks
-        for groupi in range(0, groups_local[0]):
-            for i in range(0, groups_local[1]):
-                add_track_local(g, nn, block, groupi, i, local_segment)
-
-        # Global to local
-        if groups_glb2local:
-            for _i in range(0, groups_glb2local):
-                add_track_gbl2local(g, nn, block, i, gbl2local_segment)
-'''
-
 def segfreq(g):
     print('Segment frequencies')
     for k, v in g.channels.segfreq.items():
         print('  %s: %s' % (k.name, v))
+
+# TODO: look into adding these
+def add_global_nets(g, nn):
+    assert 0, 'FIXME: old code'
+
+    '''
+    def add_net_global(i):
+        lname = 'glb_netwk_{}'.format(i)
+        gname = GlobalName('global', '248_tiles', lname)
+        add_channel(gname, 'CHANY', TilePos(0, 0), TilePos(0, 0), i, 'global')
+
+    for i in range(0, 8):
+        add_net_global(i)
+
+    add_channel(GlobalName('global', 'fabout'), 'CHANY', TilePos(0, 0), TilePos(0, 0), 0, 'global')
+    '''
 
 def add_span_tracks(g, nn, verbose=True):
     print('Adding span tracks')
@@ -948,9 +830,75 @@ def add_span_tracks(g, nn, verbose=True):
 
     print('Ran')
 
+'''
+def add_edge(src_globalname, dst_globalname, bidir=False):
+    if bidir:
+        add_edge(src_globalname, dst_globalname)
+        add_edge(dst_globalname, src_globalname)
+        return
 
-# TODO check this
-chan_width_max = LOCAL_TRACKS_MAX_GROUPS * (LOCAL_TRACKS_PER_GROUP+1) + GBL2LOCAL_MAX_TRACKS + SPAN4_MAX_TRACKS + SPAN12_MAX_TRACKS + GLOBAL_MAX_TRACKS
+    assert isinstance(src_globalname, GlobalName), "src {!r} should be a GlobalName".format(src_globalname)
+    assert isinstance(dst_globalname, GlobalName), "dst {!r} should be a GlobalName".format(dst_globalname)
+
+    src_node_id = globalname2nodeid[src_globalname]
+    dst_node_id = globalname2nodeid[dst_globalname]
+
+    attribs = {
+        'src_node': str(src_node_id),
+        'sink_node': str(dst_node_id),
+        'switch_id': str(0),
+    }
+    e = ET.SubElement(edges, 'edge', attribs)
+
+    # Add some helpful comments
+    if VERBOSE:
+        e.append(ET.Comment(" {} -> {} ".format(src_globalname, dst_globalname)))
+        globalname2node[src_globalname].append(ET.Comment(" this -> {} ".format(dst_globalname)))
+        globalname2node[dst_globalname].append(ET.Comment(" {} -> this ".format(src_globalname)))
+
+
+def edges():
+    print()
+    print("Generating edges")
+    print("="*75)
+
+    for x, y in all_tiles:
+        pos = TilePos(x, y)
+        if pos in corner_tiles:
+            continue
+
+        print()
+        print(x, y)
+        print("-"*75)
+        for entry in ic.tile_db(x, y):
+            if not ic.tile_has_entry(x, y, entry):
+                continue
+
+            switch_type = entry[1]
+            if switch_type not in ("routing", "buffer"):
+                continue
+
+            rtype = entry[1]
+            src_localname = entry[2]
+            dst_localname = entry[3]
+
+            if filter_name(src_localname) or filter_name(dst_localname):
+                continue
+
+            src_globalname = localname2globalname(pos, src_localname, default='???')
+            dst_globalname = localname2globalname(pos, dst_localname, default='???')
+
+            src_nodeid = globalname2nodeid.get(src_globalname, None)
+            dst_nodeid = globalname2nodeid.get(dst_globalname, None)
+
+            if src_nodeid is None or dst_nodeid is None:
+                print("Skipping {} ({}, {}) -> {} ({}, {})".format(
+                    (pos, src_localname), src_globalname, src_nodeid,
+                    (pos, dst_localname), dst_globalname, dst_nodeid,
+                    ))
+            else:
+                add_edge(src_globalname, dst_globalname, switch_type == "routing")
+'''
 
 
 def print_nodes_edges(g):
@@ -1038,6 +986,7 @@ def run(part, read_rr_graph, write_rr_graph):
         add_local_tracks(g, nn)
         print_nodes_edges(g)
     '''
+    #add_global_nets(g, nn)
     print()
     add_span_tracks(g, nn)
     print_nodes_edges(g)
@@ -1084,254 +1033,3 @@ if __name__ == '__main__':
         #assert 0, "Must specifiy device"
         mode = '384'
     run(mode, args.read_rr_graph, args.write_rr_graph)
-
-
-
-# ************************************************************************************
-# FUTURE USE / UNUSED CODE
-# ************************************************************************************
-
-
-
-
-# Edges -----------------------------------------------------------------
-
-'''
-edges = g.create_edges()
-def add_edge(src_globalname, dst_globalname, bidir=False):
-    if bidir:
-        add_edge(src_globalname, dst_globalname)
-        add_edge(dst_globalname, src_globalname)
-        return
-
-    assert isinstance(src_globalname, GlobalName), "src {!r} should be a GlobalName".format(src_globalname)
-    assert isinstance(dst_globalname, GlobalName), "dst {!r} should be a GlobalName".format(dst_globalname)
-
-    src_node_id = globalname2nodeid[src_globalname]
-    dst_node_id = globalname2nodeid[dst_globalname]
-
-    attribs = {
-        'src_node': str(src_node_id),
-        'sink_node': str(dst_node_id),
-        'switch_id': str(0),
-    }
-    e = ET.SubElement(edges, 'edge', attribs)
-
-    # Add some helpful comments
-    if VERBOSE:
-        e.append(ET.Comment(" {} -> {} ".format(src_globalname, dst_globalname)))
-        globalname2node[src_globalname].append(ET.Comment(" this -> {} ".format(dst_globalname)))
-        globalname2node[dst_globalname].append(ET.Comment(" {} -> this ".format(src_globalname)))
-'''
-
-
-
-# tim: building a mapping between icebox IDs and VPR IDs
-# maybe overriding IDs in output
-'''
-for x in range(ic.max_x+3):
-    for y in range(ic.max_y+3):
-        tx = x - 1
-        ty = y - 1
-        block_type_id = 0
-
-        if tx >= 0 and tx <= ic.max_x and ty >= 0 and ty <= ic.max_y and (tx,ty) not in corner_tiles:
-            block_type_id = tile_types[tile_name_map[ic.tile_type(tx, ty)]]["id"]
-
-        grid_loc = ET.SubElement(
-            grid, 'grid_loc',
-            {'x': str(x),
-             'y': str(y),
-             'block_type_id': str(block_type_id),
-             'width_offset':  "0",
-             'height_offset': "0",
-            })
-'''
-
-
-
-
-# Nets
-# ------------------------------
-
-'''
-def globalname_net(pos, name):
-    return netname2globalname[(pos, name)]
-'''
-
-
-
-# ------------------------------
-
-def nets():
-    print()
-    print("Calculating nets")
-    print("="*75)
-
-
-
-    def add_net_global(i):
-        lname = 'glb_netwk_{}'.format(i)
-        gname = GlobalName('global', '248_tiles', lname)
-        add_channel(gname, 'CHANY', TilePos(0, 0), TilePos(0, 0), i, 'global')
-
-    for i in range(0, 8):
-        add_net_global(i)
-
-    add_channel(GlobalName('global', 'fabout'), 'CHANY', TilePos(0, 0), TilePos(0, 0), 0, 'global')
-
-
-
-
-
-
-# Generating edges
-# ------------------------------
-# These need to match the architecture definition given to vpr.
-
-# rr_edges
-# rr_edges tag that encloses information about all the edges between nodes.
-# Each rr_edges tag contains multiple subtags:
-#   <edge src_node="int" sink_node="int" switch_id="int"/>
-# This subtag repeats every edge that connects nodes together in the g.
-# Required Attributes:
-#  * src_node, sink_node
-#    The index for the source and sink node that this edge connects to.
-#  * switch_id
-#    The type of switch that connects the two nodes.
-
-"""
-    <rr_edges>
-            <edge src_node="0" sink_node="1" switch_id="0"/>
-            <edge src_node="1" sink_node="2" switch_id="0"/>
-    </rr_edges>
-"""
-
-def edges():
-    print()
-    print("Generating edges")
-    print("="*75)
-
-    for x, y in all_tiles:
-        pos = TilePos(x, y)
-        if pos in corner_tiles:
-            continue
-
-        print()
-        print(x, y)
-        print("-"*75)
-        for entry in ic.tile_db(x, y):
-            if not ic.tile_has_entry(x, y, entry):
-                continue
-
-            switch_type = entry[1]
-            if switch_type not in ("routing", "buffer"):
-                continue
-
-            rtype = entry[1]
-            src_localname = entry[2]
-            dst_localname = entry[3]
-
-            if filter_name(src_localname) or filter_name(dst_localname):
-                continue
-
-            src_globalname = localname2globalname(pos, src_localname, default='???')
-            dst_globalname = localname2globalname(pos, dst_localname, default='???')
-
-            src_nodeid = globalname2nodeid.get(src_globalname, None)
-            dst_nodeid = globalname2nodeid.get(dst_globalname, None)
-
-            if src_nodeid is None or dst_nodeid is None:
-                print("Skipping {} ({}, {}) -> {} ({}, {})".format(
-                    (pos, src_localname), src_globalname, src_nodeid,
-                    (pos, dst_localname), dst_globalname, dst_nodeid,
-                    ))
-            else:
-                add_edge(src_globalname, dst_globalname, switch_type == "routing")
-
-
-
-# -----------------------------------------------------------------------
-# -----------------------------------------------------------------------
-# -----------------------------------------------------------------------
-
-# 'local_'
-
-# 'neigh_'
-# ((11, 10, 'neigh_op_tnr_0'),
-#  (11, 11, 'neigh_op_rgt_0'),
-#  (11, 12, 'neigh_op_bnr_0'),
-#
-#  (12, 10, 'neigh_op_top_0'),
-#  (12, 11, 'lutff_0/out'),
-#  (12, 12, 'neigh_op_bot_0'),
-#
-#  (13, 10, 'logic_op_tnl_0'),
-#  (13, 11, 'logic_op_lft_0'),
-#  (13, 12, 'logic_op_bnl_0'))
-
-# (11,12) | (12,12) | (13,12)
-# --------+---------+--------
-# (11,11) | (12,11) | (13,11)
-# --------+---------+--------
-# (11,10) | (12,10) | (13,10)
-
-#     bnr |   bot   | l bnl
-# --------+---------+--------
-#     rgt |lutff/out| l lft
-# --------+---------+--------
-#     tnr |   top   | l tnl
-
-
-# channel, multiple tiles
-# 'sp12_'
-# 'sp4_'
-
-# pin, one tile
-# 'lutff_'
-
-
-# sp4_v
-# (11, 12, 'sp4_r_v_b_10'), (12, 12, 'sp4_v_b_10'),
-# (11, 11, 'sp4_r_v_b_23'), (12, 11, 'sp4_v_b_23'),
-# (11, 10, 'sp4_r_v_b_34'), (12, 10, 'sp4_v_b_34'),
-# (11,  9, 'sp4_r_v_b_47'), (12,  9, 'sp4_v_b_47'),
-#                           (12,  8, 'sp4_v_t_47'),
-
-
-# sp4_h
-# ((5, 9, 'sp4_h_r_9'),
-#  (6, 9, 'sp4_h_r_20'),
-#  (7, 9, 'sp4_h_r_33'),
-#  (8, 9, 'sp4_h_r_44'),
-#  (9, 9, 'sp4_h_l_44'))
-
-
-# ((0,  1, 'glb_netwk_2'),
-#  (0,  2, 'glb_netwk_2'),
-#  (0,  3, 'glb_netwk_2'),
-#  ...
-
-# ((0,  1, 'io_global/latch'),
-#  (0,  2, 'io_global/latch'),
-#  (0,  3, 'io_global/latch'),
-#  (0,  4, 'io_global/latch'),
-#  (0,  5, 'io_global/latch'),
-#  (0,  6, 'io_global/latch'),
-#  (0,  7, 'fabout'),
-#  (0,  7, 'io_global/latch'),
-#  (0,  8, 'io_global/latch'),
-#  (0,  9, 'io_global/latch'),
-#  (0, 10, 'io_global/latch'),
-#  (0, 11, 'io_global/latch'),
-#  (0, 12, 'io_global/latch'),
-#  (0, 13, 'io_global/latch'),
-#  (0, 14, 'io_global/latch'),
-#  (0, 15, 'io_global/latch'),
-#  (0, 16, 'io_global/latch'))
-
-# .buffer X Y DST_NET_INDEX CONFIG_BITS_NAMES
-# CONFIG_BITS_VALUES_1 SRC_NET_INDEX_1
-
-# .routing X Y DST_NET_INDEX CONFIG_BITS_NAMES
-# CONFIG_BITS_VALUES_1 SRC_NET_INDEX_1
