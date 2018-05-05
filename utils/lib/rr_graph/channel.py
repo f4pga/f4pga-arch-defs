@@ -848,7 +848,6 @@ class ChannelGrid(dict):
             assert t is not None, 'Unoccupied Position(x=%d, y=%d) track=%d' % (
                 pos.x, pos.y, ti)
 
-
 class Channels:
     '''Holds all channels for the whole grid (X + Y)'''
 
@@ -906,6 +905,21 @@ class Channels:
         if typeh:
             assert t.type == typeh, (t.type.value, typeh)
         return t
+
+    def pad_channels(self, segment):
+        tracks = []
+
+        def pad_xy(xy, track_type):
+            for pos, ti, t in xy.gen_valid_track():
+                if t is None:
+                    t = Track(
+                        pos, pos,
+                        segment=segment, id_override=None,
+                        type_hint=track_type, direction_hint=Track.Direction.BI)
+                    tracks.append(xy.create_track(t, idx=ti))
+        pad_xy(self.x, Track.Type.X)
+        pad_xy(self.y, Track.Type.Y)
+        return tracks
 
     def pretty_print(self):
         s = ''
