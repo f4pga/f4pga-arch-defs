@@ -181,13 +181,13 @@ class GlobalName(tuple):
         assert type(pos) is TilePos
         assert type(g) is int, (g, type(g))
         assert type(i) is int, (i, type(i))
-        return GlobalName("local", pos, (g, i))
+        return GlobalName('local', pos, (g, i))
 
     @staticmethod
     def make_glb2local(pos, i):
         assert type(pos) is TilePos
         assert type(i) is int, (i, type(i))
-        return GlobalName("glb2local", pos, i)
+        return GlobalName('glb2local', pos, i)
 
     @staticmethod
     def check_posinfo(posinfo):
@@ -203,21 +203,21 @@ class GlobalName(tuple):
         # ('channel', 'stub', 'neigh_op_bnl_0', 'span4', (P(x=1, y=1), 0, P(x=1, y=1), 1))
         assert chanspan in ("span4",)
         GlobalName.check_posinfo(posinfo)
-        return GlobalName("channel", "stub", localname, chanspan, posinfo)
+        return GlobalName('channel', 'stub', localname, chanspan, posinfo)
 
     @staticmethod
     def make_span(chanspan, chandir, posinfo):
         # ('channel', 'span12', 'horizontal', (P(x=0, y=1), 0, P(x=7, y=1), 7))
-        assert chanspan in ("span4", "span12")
+        assert chanspan in ('span4', 'span12')
         GlobalName.check_posinfo(posinfo)
         assert chandir in ('vertical', 'horizontal', 'corner'), chandir
-        return GlobalName("channel", chanspan, chandir, posinfo)
+        return GlobalName('channel', chanspan, chandir, posinfo)
 
     @staticmethod
     def make_global(ntiles_str, globalname):
         assert type(ntiles_str) is str
         assert type(globalname) is str
-        return GlobalName("global", ntiles_str, globalname)
+        return GlobalName('global', ntiles_str, globalname)
 
     # FIXME: this looks wrong
     # there should be some position info here
@@ -871,10 +871,10 @@ def segfreq(g):
 def add_span_tracks(g, nn, verbose=True):
     print('Adding span tracks')
 
-    x_channel_offset = LOCAL_TRACKS_MAX_GROUPS * (LOCAL_TRACKS_PER_GROUP) + GBL2LOCAL_MAX_TRACKS
-    y_channel_offset = 0
+    #x_channel_offset = LOCAL_TRACKS_MAX_GROUPS * (LOCAL_TRACKS_PER_GROUP) + GBL2LOCAL_MAX_TRACKS
+    #y_channel_offset = 0
 
-    def add_track_span(globalname):
+    def add_track_channel(globalname):
         #start, idx, end, delta = globalname[-1]
         posinfo = globalname[-1]
         assert type(posinfo) is Posinfo
@@ -896,6 +896,7 @@ def add_span_tracks(g, nn, verbose=True):
             #idx += y_channel_offset
         else:
             # XXX: diagonol? removing non-span I guess?
+            # XXX: stubs omitted here?
             return
 
         # should be globalname[0]?
@@ -925,13 +926,23 @@ def add_span_tracks(g, nn, verbose=True):
                        typeh=channel.Track.Type.Y, direction=channel.Track.Direction.BI,
                        id_override=str(globalname))
 
-    cnt = 0
+    def add_track_glb2local(globalname):
+        _gtype, pos, _i = globalname
+        segment = g.channels.segment_s2seg['glb2local']
+        return g.create_xy_track(P1(pos), P1(pos), segment,
+                       typeh=channel.Track.Type.Y, direction=channel.Track.Direction.BI,
+                       id_override=str(globalname))
+
+    def add_track_default(globalname):
+        gtype = globalname.type()
+        print("WARNING: skipping track %s" % gtype)
+
     for globalname in sorted(nn.globalname2netnames.keys()):
-        #print('looping, start cnt=%d' % cnt)
-        if globalname[0] == "channel":
-            add_track_span(globalname)
-        elif globalname[0] == "local":
-            add_track_local(globalname)
+        {
+            "channel": add_track_channel,
+            "local": add_track_local,
+            "glb2local": add_track_glb2local,
+        }.get(globalname[0], add_track_default)(globalname)
 
     segfreq(g)
 
@@ -1032,8 +1043,8 @@ def run(part, read_rr_graph, write_rr_graph):
     print_nodes_edges(g)
     print()
     print('Padding channels')
-    pad_segment = g.channels.segment_s2seg['span4']
-    g.pad_channels(pad_segment)
+    dummy_segment = g.channels.segment_s2seg['dummy']
+    g.pad_channels(dummy_segment)
     print()
     print('Saving')
     open(write_rr_graph, 'w').write(
