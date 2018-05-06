@@ -877,6 +877,7 @@ def add_edges(g, nn):
         print()
         print(x, y)
         print("-"*75)
+        edgei = 0
         for entry in ic.tile_db(x, y):
             if not ic.tile_has_entry(x, y, entry):
                 continue
@@ -902,13 +903,16 @@ def add_edges(g, nn):
                         pos, dst_localname,
                         ))
             else:
-                print("Adding edge {}:{} => {}:{}".format(
+                print("Adding edge {}  {}:{} => {}:{}".format(edgei,
                     pos, src_localname,
                     pos, dst_localname,
                     ))
                 bidir = switch_type == "routing"
                 # FIXME: proper switch ID
                 g.ids.add_edge_bidir(src_node_id, dst_node_id, switch_id=0, bidir=bidir)
+                edgei += 1
+                if 0 and edgei > 380:
+                    break
 
 def print_nodes_edges(g):
     print("Edges: %d (index: %d)" % (len(g.ids._xml_edges),
