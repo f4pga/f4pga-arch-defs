@@ -914,6 +914,8 @@ def add_edges(g, nn, verbose=0):
         pos_ic = TilePos(xic, yic)
         if pos_ic in nn.corner_tiles:
             continue
+        #if pos_ic != (1, 1):
+        #    continue
 
         if verbose:
             print()
@@ -921,10 +923,12 @@ def add_edges(g, nn, verbose=0):
             print("-"*75)
         edgei = 0
         switch_types = set()
+        adds = set()
         for entry in ic.tile_db(xic, yic):
+            verbose = 0
             if not ic.tile_has_entry(xic, yic, entry):
                 continue
-            # FIXME:
+            # TODO: review
             if entry[1] != 'buffer':
                 continue
 
@@ -945,7 +949,17 @@ def add_edges(g, nn, verbose=0):
                 continue
 
             src_node_id = nn.poslname2nodeid.get((pos_ic, src_localname), None)
+            '''
+            if src_node_id != 323:
+                continue
+            else:
+                print('Got name %s => %s' % (src_localname, dst_localname))
+                verbose = 1
+            '''
             dst_node_id = nn.poslname2nodeid.get((pos_ic, dst_localname), None)
+            # May have duplicate entries
+            if (src_node_id, dst_node_id) in adds:
+                continue
             if src_node_id is None or dst_node_id is None:
                 verbose and print("WARNING: skipping edge {}:{} node {} => {}:{} node {}".format(
                     pos_ic, src_localname, src_node_id,
@@ -953,7 +967,6 @@ def add_edges(g, nn, verbose=0):
                     ))
                 continue
             bidir = switch_type == "routing"
-            bidir = False
             verbose and print("Adding {} {} edge {}  {}:{} ({}) => {}:{} ({})".format(
                 switch_type, 'bidir' if bidir else 'unidir', len(g.ids.id2node['edge']),
                 pos_ic, src_localname, src_node_id,
@@ -966,9 +979,11 @@ def add_edges(g, nn, verbose=0):
                 return '%s => %s' % (edge.get('src_node'), edge.get('sink_node'))
             assert edgea is not None
             verbose and print('  Add edge A %s' % edgestr(edgea))
+            adds.add((src_node_id, dst_node_id))
             if bidir:
                 assert edgeb is not None
                 verbose and print('  Add edge B %s' % edgestr(edgeb))
+                adds.add((dst_node_id, src_node_id))
             edgei += 1
             if 0 and edgei > 380:
                 break
