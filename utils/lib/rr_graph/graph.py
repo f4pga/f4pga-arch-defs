@@ -350,6 +350,11 @@ class Pin(MostlyReadOnly):
         return "{}({})->{}[{}]".format(self.block_type_name,
                                        self.block_type_index, self.port_name,
                                        self.port_index)
+    def xml_name(self):
+        '''Give name as originally in the XML'''
+        return "{}.{}[{}]".format(self.block_type_name,
+                                       self.port_name,
+                                       self.port_index)
 
     @classmethod
     def from_text(cls,
