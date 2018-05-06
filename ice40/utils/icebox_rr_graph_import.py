@@ -882,12 +882,11 @@ def add_edges(g, nn):
             if not ic.tile_has_entry(x, y, entry):
                 continue
 
+            # [['B2[3]', 'B3[3]'], 'routing', 'sp12_h_r_0', 'sp12_h_l_23']
             switch_type = entry[1]
             if switch_type not in ("routing", "buffer"):
                 continue
 
-            # routing type?
-            _rtype = entry[1]
             src_localname = entry[2]
             dst_localname = entry[3]
 
@@ -903,13 +902,23 @@ def add_edges(g, nn):
                         pos, dst_localname,
                         ))
             else:
-                print("Adding edge {}  {}:{} => {}:{}".format(edgei,
-                    pos, src_localname,
-                    pos, dst_localname,
-                    ))
                 bidir = switch_type == "routing"
+                bidir = False
+                print("Adding {} {} edge {}  {}:{} ({}) => {}:{} ({})".format(
+                    switch_type, 'bidir' if bidir else 'unidir', len(g.ids.id2node['edge']),
+                    pos, src_localname, src_node_id,
+                    pos, dst_localname, dst_node_id,
+                    ))
+                print('  ', entry)
                 # FIXME: proper switch ID
-                g.ids.add_edge_bidir(src_node_id, dst_node_id, switch_id=0, bidir=bidir)
+                edgea, edgeb = g.ids.add_edge_bidir(src_node_id, dst_node_id, switch_id=0, bidir=bidir)
+                def edgestr(edge):
+                    return '%s => %s' % (edge.get('src_node'), edge.get('sink_node'))
+                assert edgea is not None
+                print('  Add edge A %s' % edgestr(edgea))
+                if bidir:
+                    assert edgeb is not None
+                    print('  Add edge B %s' % edgestr(edgeb))
                 edgei += 1
                 if 0 and edgei > 380:
                     break
