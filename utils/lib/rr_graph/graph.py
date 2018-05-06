@@ -1095,6 +1095,8 @@ class GraphIdsMap:
         node_id = xml_node.get('id', None)
         if node_id is None:
             node_id = len(self.id2node[xml_group])
+            xml_node.attrib['id'] = str(node_id)
+
         '''
         parent_xml = {
             'node': self._xml_nodes,
@@ -1106,9 +1108,9 @@ class GraphIdsMap:
         '''
 
         if name in self.name2id:
-            assert_eq(self.name2id[name], node_id,
+            assert_eq(self.name2id[name], (xml_group, node_id),
                       "%s inconsistent node ID with old %s, new %s" %
-                      (name, self.name2id[name], node_id))
+                      (name, self.name2id[name], (xml_group, node_id)))
             #assert obj is self.id2node[node_id]
 
         self.id2node[xml_group][node_id] = xml_node
@@ -1431,7 +1433,7 @@ class GraphIdsMap:
             'buffered': str(buffered)
         }
         if configurable is not None:
-            attrs['confiturable'] = str(int(bool(configurable)))
+            attrs['configurable'] = str(int(bool(configurable)))
         switch_node = ET.SubElement(self._xml_switches, 'switch', attrs)
         if timing:
             assert False, 'fixme: float conversion'
