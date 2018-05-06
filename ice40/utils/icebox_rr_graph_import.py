@@ -69,12 +69,17 @@ mithro MVP proposal: spans and locals only
 Then add globals, then neighbourhood
 """
 
+import sys
+import os.path
+MYDIR = os.path.dirname(__file__)
+sys.path.insert(0, os.path.join(MYDIR, "..", "..", "utils"))
+
 from os.path import commonprefix
 
 import icebox
 import lib.rr_graph.graph as graph
 import lib.rr_graph.channel as channel
-import os.path, re, sys
+import re
 
 import operator
 from collections import namedtuple, OrderedDict
@@ -749,7 +754,7 @@ class NetNames:
 def init(device_name, read_rr_graph):
     ic = icebox.iceconfig()
     {
-        't4':  ic.setup_empty_t4,
+        #'t4':  ic.setup_empty_t4,
         '8k':  ic.setup_empty_8k,
         '5k':  ic.setup_empty_5k,
         '1k':  ic.setup_empty_1k,
