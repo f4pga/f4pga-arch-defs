@@ -295,9 +295,47 @@ class NetNames:
 
     def index_pin_node_ids(self, g):
         '''Build a list of icebox global pin names to Graph node IDs'''
+        name_rr2local = {
+            }
+
+        # FIXME: quick attempt, not thorougly checked
+        # BLK_TL-PLB
+        # http://www.clifford.at/icestorm/logic_tile.html
+        # http://www.clifford.at/icestorm/bitdocs-1k/tile_1_1.html
+        name_rr2local['BLK_TL-PLB.SR[0]'] = 'lutff_global/s_r'
+        name_rr2local['BLK_TL-PLB.CLK[0]'] = 'lutff_global/clk'
+        name_rr2local['BLK_TL-PLB.EN[0]'] = 'lutff_global/cen'
+        # FIXME: these two are wrong I think, but don't worry about carry for now
+        name_rr2local['BLK_TL-PLB.FCIN[0]'] = 'lutff_0/cin'
+        name_rr2local['BLK_TL-PLB.FCOUT[0]'] = 'lutff_7/cout'
+        for luti in range(8):
+            name_rr2local['BLK_TL-PLB.O{}[0]'.format(luti)] = 'lutff_{}/out'.format(luti)
+            name_rr2local['BLK_TL-PLB.FCOUT{}[0]'.format(luti)] = 'lutff_{}/fcout'.format(luti)
+            for lut_input in range(4):
+                name_rr2local['BLK_TL-PLB.I{}[{}]'.format(luti, lut_input)] = 'lutff_{}/in_{}'.format(luti, lut_input)
+
+        # BLK_TL-PIO
+        # http://www.clifford.at/icestorm/io_tile.html
+        for orientation in 'LRBT':
+            # FIXME: filter out orientations that don't exist?
+            name_rr2local['BLK_TL-PIO_{}.LATCH[0]'.format(orientation)] = 'io_global/latch'
+            name_rr2local['BLK_TL-PIO_{}.OUTCLK[0]'.format(orientation)] = 'io_global/outclk'
+            name_rr2local['BLK_TL-PIO_{}.CEN[0]'.format(orientation)] = 'io_global/cen'
+            name_rr2local['BLK_TL-PIO_{}.INCLK[0]'.format(orientation)] = 'io_global/inclk'
+            for blocki in range(2):
+                name_rr2local['BLK_TL-PIO_{}.io_{}_D_IN[0]'.format(orientation, blocki)] = 'io_{}/D_IN_0'.format(blocki)
+                name_rr2local['BLK_TL-PIO_{}.io_{}_D_IN[1]'.format(orientation, blocki)] = 'io_{}/D_IN_1'.format(blocki)
+                name_rr2local['BLK_TL-PIO_{}.io_{}_D_OUT[0]'.format(orientation, blocki)] = 'io_{}/D_OUT_0'.format(blocki)
+                name_rr2local['BLK_TL-PIO_{}.io_{}_D_OUT[1]'.format(orientation, blocki)] = 'io_{}/D_OUT_1'.format(blocki)
+                name_rr2local['BLK_TL-PIO_{}.io_{}_OUT_ENB[0]'.format(orientation, blocki)] = 'io_{}/OUT_ENB'.format(blocki)
+
         bpin2node, _track2node = g.index_node_objects()
         for (block, pin), node in bpin2node.items():
-            localname = pin.port_name
+            rr_name = pin.xml_name()
+            try:
+                localname = name_rr2local[rr_name]
+            except KeyError:
+                raise KeyError("rr_name {} doesn't have a translation".format(rr_name))
             node_id = int(node.get('id'))
             self.poslname2nodeid[(PN1(block.position), localname)] = node_id
 
@@ -878,50 +916,55 @@ def add_edges(g, nn):
         print(x, y)
         print("-"*75)
         edgei = 0
+        switch_types = set()
         for entry in ic.tile_db(x, y):
             if not ic.tile_has_entry(x, y, entry):
                 continue
 
+            0 and print('ic_raw', entry)
             # [['B2[3]', 'B3[3]'], 'routing', 'sp12_h_r_0', 'sp12_h_l_23']
             switch_type = entry[1]
+            switch_types.add(switch_type)
             if switch_type not in ("routing", "buffer"):
+                0 and print('WARNING: skip switch type %s' % switch_type)
                 continue
 
             src_localname = entry[2]
             dst_localname = entry[3]
-
+            0 and print('Got name %s => %s' % (src_localname, dst_localname))
             if nn.filter_name(src_localname) or nn.filter_name(dst_localname):
+                0 and print('Filter name %s => %s' % (src_localname, dst_localname))
                 continue
 
             src_node_id = nn.poslname2nodeid.get((pos, src_localname), None)
             dst_node_id = nn.poslname2nodeid.get((pos, dst_localname), None)
             if src_node_id is None or dst_node_id is None:
-                if 0:
-                    print("Skipping edge {}:{} => {}:{}".format(
-                        pos, src_localname,
-                        pos, dst_localname,
-                        ))
-            else:
-                bidir = switch_type == "routing"
-                bidir = False
-                print("Adding {} {} edge {}  {}:{} ({}) => {}:{} ({})".format(
-                    switch_type, 'bidir' if bidir else 'unidir', len(g.ids.id2node['edge']),
+                0 and print("WARNING: skipping edge {}:{} node {} => {}:{} node {}".format(
                     pos, src_localname, src_node_id,
                     pos, dst_localname, dst_node_id,
                     ))
-                print('  ', entry)
-                # FIXME: proper switch ID
-                edgea, edgeb = g.ids.add_edge_bidir(src_node_id, dst_node_id, switch_id=0, bidir=bidir)
-                def edgestr(edge):
-                    return '%s => %s' % (edge.get('src_node'), edge.get('sink_node'))
-                assert edgea is not None
-                print('  Add edge A %s' % edgestr(edgea))
-                if bidir:
-                    assert edgeb is not None
-                    print('  Add edge B %s' % edgestr(edgeb))
-                edgei += 1
-                if 0 and edgei > 380:
-                    break
+                continue
+            bidir = switch_type == "routing"
+            bidir = False
+            0 and print("Adding {} {} edge {}  {}:{} ({}) => {}:{} ({})".format(
+                switch_type, 'bidir' if bidir else 'unidir', len(g.ids.id2node['edge']),
+                pos, src_localname, src_node_id,
+                pos, dst_localname, dst_node_id,
+                ))
+            0 and print('  ', entry)
+            # FIXME: proper switch ID
+            edgea, edgeb = g.ids.add_edge_bidir(src_node_id, dst_node_id, switch_id=0, bidir=bidir)
+            def edgestr(edge):
+                return '%s => %s' % (edge.get('src_node'), edge.get('sink_node'))
+            assert edgea is not None
+            0 and print('  Add edge A %s' % edgestr(edgea))
+            if bidir:
+                assert edgeb is not None
+                0 and print('  Add edge B %s' % edgestr(edgeb))
+            edgei += 1
+            if 0 and edgei > 380:
+                break
+    print(switch_types)
 
 def print_nodes_edges(g):
     print("Edges: %d (index: %d)" % (len(g.ids._xml_edges),
@@ -1003,9 +1046,16 @@ def run(part, read_rr_graph, write_rr_graph):
     print_nodes_edges(g)
 
     print
-    print('Indexing pin node names')
+    print('Indexing pin node names w/ %d index entries' % len(nn.poslname2nodeid))
     nn.index_pin_node_ids(g)
-    print
+    # 'lutff_4/out'
+    # self.poslname2nodeid[(PN1(block.position), localname)]
+    print('Indexed pin node names w/ %d index entries' % len(nn.poslname2nodeid))
+    if 0:
+        import pprint
+        pprint.pprint(nn.poslname2nodeid)
+        print
+        sys.exit(1)
 
     '''
     # think these will get added as part of below
