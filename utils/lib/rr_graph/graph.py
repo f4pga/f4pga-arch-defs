@@ -1386,7 +1386,7 @@ class GraphIdsMap:
                     self.add_edge(sink_node, src_node, switch_id))
         else:
             return (self.add_edge(src_node, sink_node, switch_id),
-                    )
+                    None)
 
     def add_edge(self, src_node, sink_node, switch_id):
         # <edge src_node="34" sink_node="44" switch_id="1"/>
