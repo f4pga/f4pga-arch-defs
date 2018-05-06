@@ -248,11 +248,14 @@ def get_corner_tiles(ic):
             corner_tiles.add((x, y))
     return corner_tiles
 
+# Everything in this class is in IC coordinates
 class NetNames:
     def __init__(self, ic):
         self.ic = ic
         self.verbose = False
+        # IC coordinate space
         self.all_tiles = list(tiles(self.ic))
+        # IC coordinate space
         self.corner_tiles = get_corner_tiles(self.ic)
         self.index_names()
         # (Position, local name) to node ID
@@ -261,7 +264,7 @@ class NetNames:
         self.poslname2nodeid = {}
 
     def index_names(self):
-        # FIXME: are these populated?
+        # in IC coordinates
         self.globalname2netnames = {}
         self.netname2globalname = {}
 
@@ -341,7 +344,7 @@ class NetNames:
 
     def index_track(self, trackid, nids):
         for pos, localname in nids:
-            self.poslname2nodeid[PN1(pos), localname] = trackid
+            self.poslname2nodeid[pos, localname] = trackid
 
     def add_globalname2localname(self, globalname, pos, localname):
         assert isinstance(globalname, GlobalName), "{!r} must be a GlobalName".format(globalname)
@@ -811,11 +814,11 @@ def add_global_nets(g, nn):
     '''
 
 def create_xy_track(g, nn, nids,
-                    start, end, segment,
+                    start_ic, end_ic, segment,
                     idx=None, id_override=None,
                     typeh=None, direction=None):
     # VPR tiles have padding vs icebox coordinate system
-    track, track_node = g.create_xy_track(P1(start), P1(end), segment,
+    track, track_node = g.create_xy_track(P1(start_ic), P1(end_ic), segment,
                idx=idx, id_override=id_override,
                typeh=typeh, direction=direction)
     nn.index_track(int(track_node.get('id')), nids)
@@ -906,61 +909,66 @@ def add_span_tracks(g, nn, verbose=True):
 
     print('Ran')
 
-def add_edges(g, nn):
-    for x, y in nn.all_tiles:
-        pos = TilePos(x, y)
-        if pos in nn.corner_tiles:
+def add_edges(g, nn, verbose=0):
+    for xic, yic in nn.all_tiles:
+        pos_ic = TilePos(xic, yic)
+        if pos_ic in nn.corner_tiles:
             continue
 
-        print()
-        print(x, y)
-        print("-"*75)
+        if verbose:
+            print()
+            print(xic, yic)
+            print("-"*75)
         edgei = 0
         switch_types = set()
-        for entry in ic.tile_db(x, y):
-            if not ic.tile_has_entry(x, y, entry):
+        for entry in ic.tile_db(xic, yic):
+            if not ic.tile_has_entry(xic, yic, entry):
+                continue
+            # FIXME:
+            if entry[1] != 'buffer':
                 continue
 
-            0 and print('ic_raw', entry)
+            verbose and print('')
+            verbose and print('ic_raw', entry)
             # [['B2[3]', 'B3[3]'], 'routing', 'sp12_h_r_0', 'sp12_h_l_23']
             switch_type = entry[1]
             switch_types.add(switch_type)
             if switch_type not in ("routing", "buffer"):
-                0 and print('WARNING: skip switch type %s' % switch_type)
+                verbose and print('WARNING: skip switch type %s' % switch_type)
                 continue
 
             src_localname = entry[2]
             dst_localname = entry[3]
-            0 and print('Got name %s => %s' % (src_localname, dst_localname))
+            verbose and print('Got name %s => %s' % (src_localname, dst_localname))
             if nn.filter_name(src_localname) or nn.filter_name(dst_localname):
-                0 and print('Filter name %s => %s' % (src_localname, dst_localname))
+                verbose and print('Filter name %s => %s' % (src_localname, dst_localname))
                 continue
 
-            src_node_id = nn.poslname2nodeid.get((pos, src_localname), None)
-            dst_node_id = nn.poslname2nodeid.get((pos, dst_localname), None)
+            src_node_id = nn.poslname2nodeid.get((pos_ic, src_localname), None)
+            dst_node_id = nn.poslname2nodeid.get((pos_ic, dst_localname), None)
             if src_node_id is None or dst_node_id is None:
-                0 and print("WARNING: skipping edge {}:{} node {} => {}:{} node {}".format(
-                    pos, src_localname, src_node_id,
-                    pos, dst_localname, dst_node_id,
+                verbose and print("WARNING: skipping edge {}:{} node {} => {}:{} node {}".format(
+                    pos_ic, src_localname, src_node_id,
+                    pos_ic, dst_localname, dst_node_id,
                     ))
                 continue
             bidir = switch_type == "routing"
             bidir = False
-            0 and print("Adding {} {} edge {}  {}:{} ({}) => {}:{} ({})".format(
+            verbose and print("Adding {} {} edge {}  {}:{} ({}) => {}:{} ({})".format(
                 switch_type, 'bidir' if bidir else 'unidir', len(g.ids.id2node['edge']),
-                pos, src_localname, src_node_id,
-                pos, dst_localname, dst_node_id,
+                pos_ic, src_localname, src_node_id,
+                pos_ic, dst_localname, dst_node_id,
                 ))
-            0 and print('  ', entry)
+            verbose and print('  ', entry)
             # FIXME: proper switch ID
             edgea, edgeb = g.ids.add_edge_bidir(src_node_id, dst_node_id, switch_id=0, bidir=bidir)
             def edgestr(edge):
                 return '%s => %s' % (edge.get('src_node'), edge.get('sink_node'))
             assert edgea is not None
-            0 and print('  Add edge A %s' % edgestr(edgea))
+            verbose and print('  Add edge A %s' % edgestr(edgea))
             if bidir:
                 assert edgeb is not None
-                0 and print('  Add edge B %s' % edgestr(edgeb))
+                verbose and print('  Add edge B %s' % edgestr(edgeb))
             edgei += 1
             if 0 and edgei > 380:
                 break
