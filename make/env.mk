@@ -64,13 +64,19 @@ $(CONDA_NODE): | $(CONDA_SETUP)
 $(CONDA_NPM): | $(CONDA_SETUP)
 	$(CONDA_BIN) install nodejs
 
+$(CONDA_IVERILOG): | $(CONDA_SETUP)
+	$(CONDA_BIN) install iverilog
+
+$(CONDA_COCOTB): | $(CONDA_SETUP)
+	$(CONDA_PIP) install cocotb
+
 make:
 	make -C $(TOP_DIR) -f $(TOP_DIR)/make/env.mk $(CONDA_MAKE)
 
 .PHONY: make
 
 env:
-	make -C $(TOP_DIR) -f $(TOP_DIR)/make/env.mk $(CONDA_YOSYS) $(CONDA_VPR) $(CONDA_DIR)/lib/python3.6/site-packages/lxml
+	make -C $(TOP_DIR) -f $(TOP_DIR)/make/env.mk $(CONDA_YOSYS) $(CONDA_VPR) $(CONDA_IVERILOG) $(CONDA_DIR)/lib/python3.6/site-packages/lxml
 
 .PHONY: env
 

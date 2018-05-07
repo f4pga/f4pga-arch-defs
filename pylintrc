@@ -1,0 +1,6 @@
+[MESSAGES CONTROL]
+enable=bad-indentation,eval-used,invalid-name,missing-docstring,old-style-class,protected-access,unused-import
+
+[REPORTS]
+output-format=colorized
+reports=no

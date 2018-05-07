@@ -1,0 +1,12 @@
+include $(TOP_DIR)/make/inc/env.mk
+
+VERILOG_SOURCES = $(CURDIR)/../alut.sim.v
+TOPLEVEL := ALUT
+MODULE   := test_alut
+COMPILE_ARGS += -PALUT.INIT=64\'b0101010101010101010101010101010101010101010101010101010101010101
+
+include $(COCOTB)/makefiles/Makefile.inc
+
+PYTHONPATH := $(CURDIR):$(PYTHONPATH):$(PYTHON_DYNLIBDIR)
+
+include $(COCOTB)/makefiles/Makefile.sim
