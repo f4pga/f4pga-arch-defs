@@ -1009,31 +1009,36 @@ class GraphIdsMap:
                     self._xml_nodes.remove(node)
                     deletes += 1
             print('Node keeps: %d, deletes: %d' % (keeps, deletes))
+            for switch in self._xml_switches:
+                print('switch', ET.tostring(switch))
+                self.add_switch_xml(switch)
         else:
             for node in self._xml_nodes:
                 self.add_node_xml(node)
             for edge in self._xml_edges:
                 self.add_edge_xml(edge)
-            for switch in self._xml_switches:
-                self.add_switch_xml(switch)
 
     def clear_graph(self, keep_nodes=False):
         """Delete the existing nodes and edges."""
         if keep_nodes:
             self._xml_edges.clear()
-            self._xml_switches.clear()
+            #self._xml_switches.clear()
 
             # NOTE: self.name2id not properly cleared
             # NOTE: self.id2node['node'] not properly cleared
             self.id2node['edge'] = {}
-            self.id2node['switch'] = {}
+            #self.id2node['switch'] = {}
         else:
             self._xml_nodes.clear()
             self._xml_edges.clear()
-            self._xml_switches.clear()
+            #self._xml_switches.clear()
 
             self.name2id = {}
             self.id2node = {'node': {}, 'edge': {}, 'switch': {}}
+
+            for switch in self._xml_switches:
+                print('switch', ET.tostring(switch))
+                self.add_switch_xml(switch)
 
     def _next_id(self, xml_group):
         return len(self.id2node[xml_group])
@@ -1092,6 +1097,7 @@ class GraphIdsMap:
 
     def switch(self, name):
         xml_group, node_id = self.name2id['SW-' + name]
+        assert xml_group == 'switch'
         return self.id2node['switch'][node_id]
 
     def __setitem__(self, name, xml_node):
