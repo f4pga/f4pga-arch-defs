@@ -1,4 +1,44 @@
 #!/usr/bin/env python3
+'''
+rr_graph docs: http://docs.verilogtorouting.org/en/latest/vpr/file_formats/
+etree docs: http://lxml.de/api/lxml.etree-module.html
+
+general philosiphy
+Data structures should generally be conceptual objects rather than direct XML manipulation
+Generally one class per XML node type
+However, GraphIdsMap is special cased, operating on XML directly and holding
+
+Class list
+class Pin(MostlyReadOnly):
+    xml: can import but doesn't keep track of a node
+class PinClass(MostlyReadOnly):
+    xml: can import but doesn't keep track of a node
+class BlockType(MostlyReadOnly):
+    xml: can import but doesn't keep track of a node
+class Block(MostlyReadOnly):
+    for <grid_loc>
+class BlockGrid:
+    Was: BlockGraph
+    xml: nothing, handled by intneral Block objects though
+class GraphIdsMap:
+    holds pins + edges
+    xml: updated as pins are added
+        inconsistent with the rest of the project
+    However, outside generally only add pins through objects
+    so they don't see the XML directly
+    except print does iterate directly over the XML
+class Graph:
+    Top level class holding everything together
+    has
+
+enums
+class BlockTypeEdge(enum.Enum):
+    lightweight enum type
+class PinClassDirection(enum.Enum):
+    lightweight enum type
+
+XXX: parse comments? Maybe can do a pass removing them
+'''
 
 import enum
 import io
@@ -15,7 +55,8 @@ import lxml.etree as ET
 from . import Position
 from . import Size
 from . import Offset
-from .channel import Channels
+from . import node_pos, single_element
+from .channel import Channels, Track
 
 from ..asserts import assert_eq
 from ..asserts import assert_is
@@ -24,11 +65,11 @@ from ..asserts import assert_type_or_none
 
 
 def frozendict(*args, **kwargs):
-  return MappingProxyType(dict(*args, **kwargs))
+    return MappingProxyType(dict(*args, **kwargs))
 
 
 class MostlyReadOnly:
-    """Object which is **mostly** read only.
+    """Object which is **mostly** read only. Can set if not already set
 
     >>> class MyRO(MostlyReadOnly):
     ...     __slots__ = ["_str", "_list", "_set", "_dict"]
@@ -80,20 +121,23 @@ class MostlyReadOnly:
             if new_value == current_value:
                 return
             elif current_value != None:
-                raise AttributeError("{} is already set to {}, can't be changed".format(key, current_value))
+                raise AttributeError(
+                    "{} is already set to {}, can't be changed".format(
+                        key, current_value))
             return super().__setattr__(key, new_value)
 
-        if "_"+key not in self.__class__.__slots__:
+        if "_" + key not in self.__class__.__slots__:
             raise AttributeError("{} not found".format(key))
 
-        self.__setattr__("_"+key, new_value)
+        self.__setattr__("_" + key, new_value)
 
     def __getattr__(self, key):
-        if "_"+key not in self.__class__.__slots__:
+        if "_" + key not in self.__class__.__slots__:
             raise AttributeError("{} not found".format(key))
 
-        value = getattr(self, "_"+key, None)
-        if isinstance(value, (tuple, int, bytes, str, type(None), MostlyReadOnly)):
+        value = getattr(self, "_" + key, None)
+        if isinstance(value,
+                      (tuple, int, bytes, str, type(None), MostlyReadOnly)):
             return value
         elif isinstance(value, list):
             return tuple(value)
@@ -105,8 +149,8 @@ class MostlyReadOnly:
             return value
         else:
             raise AttributeError(
-                "Unable to return {}, don't now how to make type {} (from {!r}) read only.".format(
-                    key, type(value), value))
+                "Unable to return {}, don't now how to make type {} (from {!r}) read only.".
+                format(key, type(value), value))
 
     def __repr__(self):
         attribs = []
@@ -126,8 +170,11 @@ class MostlyReadOnly:
         return "{}({})".format(self.__class__.__name__, ", ".join(attribs))
 
 
-
-def parse_net(s, _r=re.compile("^(.*\\.)?([^.\\[]*[^0-9\\[.]+[^.\\[]*)?(\\[([0-9]+|[0-9]+:[0-9]+)]|[0-9]+|)$")):
+def parse_net(
+        s,
+        _r=re.compile(
+            "^(.*\\.)?([^.\\[]*[^0-9\\[.]+[^.\\[]*)?(\\[([0-9]+|[0-9]+:[0-9]+)]|[0-9]+|)$"
+        )):
     """
     Returns:
         - tuple (block_name, port_name, list of pin numbers)
@@ -212,7 +259,7 @@ def parse_net(s, _r=re.compile("^(.*\\.)?([^.\\[]*[^0-9\\[.]+[^.\\[]*)?(\\[([0-9
     elif pin_idx:
         assert_eq(pin_full[0], '[')
         assert_eq(pin_full[-1], ']')
-        assert_eq(len(pin_full), len(pin_idx)+2)
+        assert_eq(len(pin_full), len(pin_idx) + 2)
 
         if ":" in pin_idx:
             assert_eq(pin_idx.count(':'), 1)
@@ -235,16 +282,27 @@ def parse_net(s, _r=re.compile("^(.*\\.)?([^.\\[]*[^0-9\\[.]+[^.\\[]*)?(\\[([0-9
 
 class Pin(MostlyReadOnly):
     """
-
     A Pin turns into on IPIN/OPIN node for each block.
+    For <pin> nodes
+
+    pin_class_index: = XML index
+        starts at 0 within a pin_class and increments for each pin
+    block_type_index: = XML ptc
+        starts at 0 within a block and increments for each pin
     """
 
     __slots__ = [
-        "_pin_class", "_pin_class_index",
-        "_port_name", "_port_index",
-        "_block_type_name", "_block_type_index",
+        "_pin_class",
+        "_pin_class_index",
+        "_port_name",
+        "_port_index",
+        "_block_type_name",
+        "_block_type_index",
     ]
 
+    # Index within a specific BlockType
+    # BlockType has multiple pin classes
+    # PinClass has multiple pins, usually 1
     @property
     def ptc(self):
         return self.block_type_index
@@ -261,11 +319,13 @@ class Pin(MostlyReadOnly):
             return self.pin_class.block_type_name
         return self._block_type_name
 
-    def __init__(
-            self,
-            pin_class=None, pin_class_index=None,
-            port_name=None, port_index=None,
-            block_type_name=None, block_type_index=None):
+    def __init__(self,
+                 pin_class=None,
+                 pin_class_index=None,
+                 port_name=None,
+                 port_index=None,
+                 block_type_name=None,
+                 block_type_index=None):
 
         assert_type_or_none(pin_class, PinClass)
         assert_type_or_none(pin_class_index, int)
@@ -287,10 +347,21 @@ class Pin(MostlyReadOnly):
             pin_class._add_pin(self)
 
     def __str__(self):
-        return "{}({})->{}[{}]".format(self.block_type_name, self.block_type_index, self.port_name, self.port_index)
+        return "{}({})->{}[{}]".format(self.block_type_name,
+                                       self.block_type_index, self.port_name,
+                                       self.port_index)
+    def xml_name(self):
+        '''Give name as originally in the XML'''
+        return "{}.{}[{}]".format(self.block_type_name,
+                                       self.port_name,
+                                       self.port_index)
 
     @classmethod
-    def from_text(cls, pin_class, text, pin_class_index=None, block_type_index=None):
+    def from_text(cls,
+                  pin_class,
+                  text,
+                  pin_class_index=None,
+                  block_type_index=None):
         """
         >>> pin = Pin.from_text(None, '0')
         >>> pin
@@ -313,7 +384,7 @@ class Pin(MostlyReadOnly):
         """
         assert_type(text, str)
         block_type_name, port_name, pins = parse_net(text.strip())
-        assert pins is not None, pins
+        assert pins is not None, text.strip()
 
         assert_eq(len(pins), 1)
         if block_type_index is None and port_name is None:
@@ -323,9 +394,12 @@ class Pin(MostlyReadOnly):
             port_index = pins[0]
 
         return cls(
-            pin_class, pin_class_index,
-            port_name, port_index,
-            block_type_name, block_type_index,
+            pin_class,
+            pin_class_index,
+            port_name,
+            port_index,
+            block_type_name,
+            block_type_index,
         )
 
     @classmethod
@@ -346,7 +420,11 @@ class Pin(MostlyReadOnly):
         pin_class_index = int(pin_node.attrib["index"])
         block_type_index = int(pin_node.attrib["ptc"])
 
-        return cls.from_text(pin_class, pin_node.text.strip(), pin_class_index=pin_class_index, block_type_index=block_type_index)
+        return cls.from_text(
+            pin_class,
+            pin_node.text.strip(),
+            pin_class_index=pin_class_index,
+            block_type_index=block_type_index)
 
 
 class PinClassDirection(enum.Enum):
@@ -361,10 +439,11 @@ class PinClassDirection(enum.Enum):
 
 class PinClass(MostlyReadOnly):
     """All pins inside a pin class are equivalent.
+    ie same net. Would a LUT with swappable inputs count?
+    For <pin_class> nodes
 
     A PinClass turns into one SOURCE (when direction==OUTPUT) or SINK (when
     direction in (INPUT, CLOCK)) per each block.
-
     """
 
     __slots__ = ["_block_type", "_direction", "_pins"]
@@ -388,6 +467,7 @@ class PinClass(MostlyReadOnly):
 
         self._block_type = block_type
         self._direction = direction
+        # pin index to Pin object
         self._pins = {}
 
         if block_type is not None:
@@ -400,6 +480,8 @@ class PinClass(MostlyReadOnly):
     @classmethod
     def from_xml(cls, block_type, pin_class_node):
         """
+        block_type: block this belongs to
+        pin_class_node: XML object to parse
 
         >>> bt = BlockType(name="bt")
         >>> xml_string1 = '''
@@ -446,7 +528,8 @@ class PinClass(MostlyReadOnly):
         """
         assert_eq(pin_class_node.tag, "pin_class")
         assert "type" in pin_class_node.attrib
-        class_direction = getattr(PinClassDirection, pin_class_node.attrib["type"])
+        class_direction = getattr(PinClassDirection,
+                                  pin_class_node.attrib["type"])
         assert_type(class_direction, PinClassDirection)
 
         pc_obj = cls(block_type, class_direction)
@@ -469,17 +552,24 @@ class PinClass(MostlyReadOnly):
 
     def _add_pin(self, pin):
         assert_type(pin, Pin)
+        # FIXME: need to investigate pins, pin classes, how indexes related
+        # http://docs.verilogtorouting.org/en/latest/vpr/file_formats/#tag-nodes-loc
+        # See ptc attribute
+        #assert len(self._pins) == 0, (self._pins, pin)
 
         # If the pin doesn't have a hard coded class index, set it to the next
         # index available.
         if pin.pin_class_index is None:
-            pin.pin_class_index = max([-1]+list(self._pins.keys()))+1
+            pin.pin_class_index = max([-1] + list(self._pins.keys())) + 1
 
         assert pin.pin_class_index is not None, pin.pin_class_index
 
         if pin.pin_class_index not in self._pins:
             self._pins[pin.pin_class_index] = pin
-        assert self._pins[pin.pin_class_index] is pin, "When adding {}, found {} already at index {}".format(pin, self._pins[pin.pin_class_index], pin.pin_class_index)
+        assert self._pins[pin.
+                          pin_class_index] is pin, "When adding {}, found {} already at index {}".format(
+                              pin, self._pins[pin.pin_class_index],
+                              pin.pin_class_index)
 
         pin._pin_class = self
 
@@ -488,16 +578,24 @@ class PinClass(MostlyReadOnly):
 
 
 class BlockType(MostlyReadOnly):
+    '''For <block_type> nodes'''
 
-    __slots__ = ["_graph", "_id", "_name", "_size", "_pin_classes", "_pin_index"]
+    __slots__ = [
+        "_graph", "_id", "_name", "_size", "_pin_classes", "_pin_index"
+    ]
 
-    def __init__(self, graph=None, id=-1, name="", size=Size(1,1), pin_classes=None):
-        assert_type_or_none(graph, BlockGraph)
+    def __init__(self,
+                 g=None,
+                 id=-1,
+                 name="",
+                 size=Size(1, 1),
+                 pin_classes=None):
+        assert_type_or_none(g, BlockGrid)
         assert_type_or_none(id, int)
         assert_type_or_none(name, str)
         assert_type_or_none(size, Size)
 
-        self._graph = graph
+        self._graph = g
         self._id = id
         self._name = name
         self._size = size
@@ -508,18 +606,20 @@ class BlockType(MostlyReadOnly):
             for pc in pin_classes:
                 self._add_pin_class(pc)
 
-        if graph is not None:
-            graph.add_block_type(self)
+        if g is not None:
+            g.add_block_type(self)
 
     def to_string(self, extra=False):
         if not extra:
             return "BlockType({name})".format(name=self.name)
         else:
             return "in 0x{graph_id:x} (pin_classes=[{pin_class_num} classes] pin_index=[{pin_index_num} pins])".format(
-                graph_id=id(self._graph), pin_class_num=len(self.pin_classes), pin_index_num=len(self.pin_index))
+                graph_id=id(self._graph),
+                pin_class_num=len(self.pin_classes),
+                pin_index_num=len(self.pin_index))
 
     @classmethod
-    def from_xml(cls, graph, block_type_node):
+    def from_xml(cls, g, block_type_node):
         """
 
         >>> xml_string = '''
@@ -537,7 +637,7 @@ class BlockType(MostlyReadOnly):
         ... '''
         >>> bt = BlockType.from_xml(None, ET.fromstring(xml_string))
         >>> bt # doctest: +ELLIPSIS
-        BlockType(graph=None, id=1, name='BLK_BB-VPR_PAD', size=Size(w=2, h=3), pin_classes=[...], pin_index={...})
+        BlockType(g=None, id=1, name='BLK_BB-VPR_PAD', size=Size(w=2, h=3), pin_classes=[...], pin_index={...})
         >>> len(bt.pin_classes)
         3
         >>> bt.pin_classes[0].direction
@@ -568,7 +668,7 @@ class BlockType(MostlyReadOnly):
         ... '''
         >>> bt = BlockType.from_xml(None, ET.fromstring(xml_string))
         >>> bt # doctest: +ELLIPSIS
-        BlockType(graph=None, id=1, name='BLK_BB-VPR_PAD', size=Size(w=2, h=3), pin_classes=[...], pin_index={...})
+        BlockType(g=None, id=1, name='BLK_BB-VPR_PAD', size=Size(w=2, h=3), pin_classes=[...], pin_index={...})
         >>> bt.pin_classes[0] # doctest: +ELLIPSIS
         PinClass(block_type=BlockType(), direction='output', pins={...})
         >>> len(bt.pin_index)
@@ -585,7 +685,7 @@ class BlockType(MostlyReadOnly):
         Pin(pin_class=PinClass(), pin_class_index=1, port_name='outpad', port_index=1, block_type_name='BLK_BB-VPR_PAD', block_type_index=1)
         >>> bt.pin_classes[1].pins[0]
         Pin(pin_class=PinClass(), pin_class_index=0, port_name='inpad', port_index=0, block_type_name='BLK_BB-VPR_PAD', block_type_index=2)
-        >>> 
+        >>>
         """
         assert block_type_node.tag == "block_type", block_type_node
         block_type_id = int(block_type_node.attrib['id'])
@@ -593,7 +693,8 @@ class BlockType(MostlyReadOnly):
         block_type_width = int(block_type_node.attrib['width'])
         block_type_height = int(block_type_node.attrib['height'])
 
-        bt = cls(graph, block_type_id, block_type_name, Size(block_type_width, block_type_height))
+        bt = cls(g, block_type_id, block_type_name,
+                 Size(block_type_width, block_type_height))
         for pin_class_node in block_type_node.iterfind("./pin_class"):
             bt._add_pin_class(PinClass.from_xml(bt, pin_class_node))
         return bt
@@ -625,10 +726,12 @@ class BlockType(MostlyReadOnly):
 
         if pin.block_type_name is None:
             pin.block_type_name = self.name
-        assert_eq(pin.block_type_name, self.name)
+        assert_eq(self.name, pin.block_type_name,
+                  "Expect block type name '%s' match pin prefix '%s'" %
+                  (self.name, pin.block_type_name))
 
         if pin.block_type_index is None:
-            pin.block_type_index = max([-1]+list(self._pin_index.keys()))+1
+            pin.block_type_index = max([-1] + list(self._pin_index.keys())) + 1
 
         if pin.block_type_index not in self._pin_index:
             self._pin_index[pin.block_type_index] = pin
@@ -652,31 +755,37 @@ class BlockType(MostlyReadOnly):
 
 
 class Block(MostlyReadOnly):
+    '''For <grid_loc> nodes'''
 
     __slots__ = ["_graph", "_block_type", "_position", "_offset"]
 
-    def __init__(self, graph=None, block_type_id=None, block_type=None, position=None, offset=Offset(0,0)):
-        assert_type_or_none(graph, BlockGraph)
+    def __init__(self,
+                 g=None,
+                 block_type_id=None,
+                 block_type=None,
+                 position=None,
+                 offset=Offset(0, 0)):
+        assert_type_or_none(g, BlockGrid)
         assert_type_or_none(block_type_id, int)
         assert_type_or_none(block_type, BlockType)
         assert_type_or_none(position, Position)
         assert_type_or_none(offset, Offset)
 
         if block_type_id is not None:
-            if graph is not None:
+            if g is not None:
                 assert block_type is None
-                assert graph.block_types is not None
-                block_type = graph.block_types[block_type_id]
+                assert g.block_types is not None
+                block_type = g.block_types[block_type_id]
             else:
-                raise TypeError("Must provide graph with numeric block_type")
+                raise TypeError("Must provide g with numeric block_type")
 
-        self._graph = graph
+        self._graph = g
         self._block_type = block_type
         self._position = position
         self._offset = offset
 
-        if graph is not None:
-            graph.add_block(self)
+        if g is not None:
+            g.add_block(self)
 
     @property
     def x(self):
@@ -687,34 +796,54 @@ class Block(MostlyReadOnly):
         return self.position.y
 
     @classmethod
-    def from_xml(cls, graph, grid_loc_node):
+    def from_xml(cls, g, grid_loc_node):
         """
-        >>> g = BlockGraph()
+        >>> g = BlockGrid()
         >>> g.add_block_type(BlockType(id=0, name="bt"))
         >>> xml_string = '''
         ... <grid_loc x="0" y="0" block_type_id="0" width_offset="0" height_offset="0"/>
         ... '''
         >>> bl1 = Block.from_xml(g, ET.fromstring(xml_string))
         >>> bl1 # doctest: +ELLIPSIS
-        Block(graph=BG(0x...), block_type=BlockType(), position=P(x=0, y=0), offset=Offset(w=0, h=0))
-        >>> 
+        Block(g=BG(0x...), block_type=BlockType(), position=P(x=0, y=0), offset=Offset(w=0, h=0))
+        >>>
         >>> xml_string = '''
         ... <grid_loc x="2" y="5" block_type_id="0" width_offset="1" height_offset="2"/>
         ... '''
         >>> bl2 = Block.from_xml(g, ET.fromstring(xml_string))
         >>> bl2 # doctest: +ELLIPSIS
-        Block(graph=BG(0x...), block_type=BlockType(), position=P(x=2, y=5), offset=Offset(w=1, h=2))
+        Block(g=BG(0x...), block_type=BlockType(), position=P(x=2, y=5), offset=Offset(w=1, h=2))
         """
         assert grid_loc_node.tag == "grid_loc"
 
         block_type_id = int(grid_loc_node.attrib["block_type_id"])
-        pos = Position(int(grid_loc_node.attrib["x"]), int(grid_loc_node.attrib["y"]))
+        pos = Position(
+            int(grid_loc_node.attrib["x"]), int(grid_loc_node.attrib["y"]))
         offset = Offset(
             int(grid_loc_node.attrib["width_offset"]),
             int(grid_loc_node.attrib["height_offset"]))
-        return Block(graph=graph, block_type_id=block_type_id, position=pos, offset=offset)
+        return Block(
+            g=g,
+            block_type_id=block_type_id,
+            position=pos,
+            offset=offset)
 
+    def pins(self):
+        '''Convenience function to get all pins'''
+        for pin_class in self.block_type.pin_classes:
+            for pin in pin_class.pins.values():
+                yield pin
 
+    def ptc2pin(self, ptc):
+        '''Return Pin for the given ptc (Pin.block_type_index)'''
+        return self.block_type.pin_index[ptc]
+
+    def __str__(self):
+        return '%s@%s' % (self.block_type.name, self.position)
+'''
+XXX: this class is unused. Delete?
+Maybe use for Pin side
+'''
 class BlockTypeEdge(enum.Enum):
     TOP = "TOP"
     LEFT = "LEFT"
@@ -728,10 +857,18 @@ class BlockTypeEdge(enum.Enum):
     WEST = LEFT
 
 
-class BlockGraph:
+class BlockGrid:
+    '''
+    For <grid>
+    Stores blocks (tiles)
+    Stores grid + type
+    Does not have routing
+    '''
 
     def __init__(self):
+        # block Pos to BlockType
         self.block_grid = {}
+        # block id to BlockType
         self.block_types = {}
 
     def __repr__(self):
@@ -747,25 +884,21 @@ class BlockGraph:
             block_type.id = self._next_block_type_id()
 
         bid = block_type.id
-        assert (
-            bid not in self.block_types or
-            self.block_types[bid] is None or
-            self.block_types[bid] is block_type)
+        assert (bid not in self.block_types or self.block_types[bid] is None
+                or self.block_types[bid] is block_type)
         self.block_types[bid] = block_type
 
     def add_block(self, block):
         assert_type_or_none(block, Block)
         pos = block.position
-        assert (
-            pos not in self.block_grid or
-            self.block_grid[pos] is None or
-            self.block_grid[pos] is block)
+        assert (pos not in self.block_grid or self.block_grid[pos] is None
+                or self.block_grid[pos] is block)
         self.block_grid[pos] = block
 
-    def block_grid_size(self):
+    def size(self):
         x_max = max(p.x for p in self.block_grid)
         y_max = max(p.y for p in self.block_grid)
-        return Size(x_max+1, y_max+1)
+        return Size(x_max + 1, y_max + 1)
 
     def blocks(self, positions):
         return [self.block_grid[pos] for pos in positions]
@@ -783,67 +916,34 @@ class BlockGraph:
             ss.append(self.block_grid[pos].block_type)
         return ss
 
+    def blocks_for(self, col=None, row=None):
+        ss = []
+        for pos in sorted(self.block_grid):
+            if col is not None:
+                if pos.x != col:
+                    continue
+            if row is not None:
+                if pos.y != row:
+                    continue
+
+            ss.append(self.block_grid[pos])
+        return ss
+
     def __getitem__(self, pos):
         return self.block_grid[pos]
 
-
-def simple_test_graph():
-    bg = BlockGraph()
-
-    # Create a block type with one input and one output pin
-    bt = BlockType(graph=bg, id=0, name="DUALBLK")
-    pci = PinClass(block_type=bt, direction=PinClassDirection.INPUT)
-    pi = Pin(pin_class=pci, pin_class_index=0)
-    pco = PinClass(block_type=bt, direction=PinClassDirection.OUTPUT)
-    po = Pin(pin_class=pco, pin_class_index=0)
-
-    # Create a block type with one input class with 4 pins
-    bt = BlockType(graph=bg, id=1, name="INBLOCK")
-    pci = PinClass(block_type=bt, direction=PinClassDirection.INPUT)
-    Pin(pin_class=pci, pin_class_index=0)
-    Pin(pin_class=pci, pin_class_index=1)
-    Pin(pin_class=pci, pin_class_index=2)
-    Pin(pin_class=pci, pin_class_index=3)
-
-    # Create a block type with out input class with 2 pins
-    bt = BlockType(graph=bg, id=2, name="OUTBLOK")
-    pci = PinClass(block_type=bt, direction=PinClassDirection.OUTPUT)
-    Pin(pin_class=pci, pin_class_index=0)
-    Pin(pin_class=pci, pin_class_index=1)
-    Pin(pin_class=pci, pin_class_index=2)
-    Pin(pin_class=pci, pin_class_index=3)
-
-    # Add some blocks
-    bg.add_block(Block(graph=bg, block_type_id=1, position=Position(0,0)))
-    bg.add_block(Block(graph=bg, block_type_id=1, position=Position(0,1)))
-    bg.add_block(Block(graph=bg, block_type_id=1, position=Position(0,2)))
-    bg.add_block(Block(graph=bg, block_type_id=1, position=Position(0,3)))
-
-    bg.add_block(Block(graph=bg, block_type_id=0, position=Position(1,0)))
-    bg.add_block(Block(graph=bg, block_type_id=0, position=Position(1,1)))
-    bg.add_block(Block(graph=bg, block_type_id=0, position=Position(1,2)))
-    bg.add_block(Block(graph=bg, block_type_id=0, position=Position(1,3)))
-
-    bg.add_block(Block(graph=bg, block_type_id=0, position=Position(2,0)))
-    bg.add_block(Block(graph=bg, block_type_id=0, position=Position(2,1)))
-    bg.add_block(Block(graph=bg, block_type_id=0, position=Position(2,2)))
-    bg.add_block(Block(graph=bg, block_type_id=0, position=Position(2,3)))
-
-    bg.add_block(Block(graph=bg, block_type_id=2, position=Position(3,0)))
-    bg.add_block(Block(graph=bg, block_type_id=2, position=Position(3,1)))
-    bg.add_block(Block(graph=bg, block_type_id=2, position=Position(3,2)))
-    bg.add_block(Block(graph=bg, block_type_id=2, position=Position(3,3)))
-
-    return bg
+    def __iter__(self):
+        for pos in sorted(self.block_grid):
+            yield self.block_grid[pos]
 
 
 class RRNodeType(enum.Enum):
-    input_class     = "SINK"
-    output_class    = "SOURCE"
-    input_pin       = "IPIN"
-    output_pin      = "OPIN"
-    channel_x       = "CHANX"
-    channel_y       = "CHANY"
+    input_class = "SINK"
+    output_class = "SOURCE"
+    input_pin = "IPIN"
+    output_pin = "OPIN"
+    channel_x = "CHANX"
+    channel_y = "CHANY"
 
     @classmethod
     def from_xml(cls, xml_node):
@@ -851,13 +951,31 @@ class RRNodeType(enum.Enum):
         return RRNodeType(xml_node.attrib["type"])
 
 
+# FIXME: review docstrings
 class GraphIdsMap:
-    def __init__(self, block_graph, xml_graph=None):
-        assert_type(block_graph, BlockGraph)
+    '''
+    in rr_graph each node has ID
+    maps between the human and those incrementing numbers
+    for <node>, <edge> objects
+    <switch> is also currently in here, but maybe shouldn't be
+    '''
+
+    def __init__(self, block_graph, xml_graph=None, verbose=True, clear_fabric=False):
+        '''
+        >>> g = simple_test_graph()
+        '''
+        self.verbose = verbose
+        assert_type(block_graph, BlockGrid)
 
         # Mapping dictionaries
-        self.name2id  = {}
-        self.id2node = {'node': {}, 'edge': {}}
+        self.name2id = {}
+        # lookup XML node for given object ID
+        self.id2node = {'node': {}, 'edge': {}, 'switch': {}}
+        # nodes associated with pins
+        # these are slow to find manually as it involves going through entire g
+        # FIXME: index these for quicker lookup
+        #self.pinclass2nodes = {}
+        #self.pin2nodes = {}
 
         self._block_graph = block_graph
 
@@ -865,18 +983,62 @@ class GraphIdsMap:
             xml_graph = ET.Element("rr_graph")
             ET.SubElement(xml_graph, "rr_nodes")
             ET.SubElement(xml_graph, "rr_edges")
+            ET.SubElement(xml_graph, "switches")
         self._xml_graph = xml_graph
 
-        for node in self._xml_nodes:
-            self.add_node(node)
+        '''
+        Index existing XML entries
+        See Graph note about clear_fabric issue
+        FIXME: reshuffle pin nodes, maintaining their direction
+        They appear first in the rr_graph file, so this may be straightforward
+        '''
+        if clear_fabric:
+            # keep nodes for now to get block positions
+            self.clear_graph(keep_nodes=True)
+            keeps = 0
+            deletes = 0
+            for node in self._xml_nodes:
+                # only IPIN/OPIN is needed for placement
+                #if node.get('type') in ('IPIN', 'OPIN', 'SINK', 'SOURCE'):
+                if node.get('type') in ('IPIN', 'OPIN'):
+                    self.add_node_xml(node)
+                    keeps += 1
+                else:
+                    # removing from xml_nodes is enough to not get indexed later
+                    #del self.id2node['node'][int(node.get('id'))]
+                    self._xml_nodes.remove(node)
+                    deletes += 1
+            print('Node keeps: %d, deletes: %d' % (keeps, deletes))
+            for switch in self._xml_switches:
+                print('switch', ET.tostring(switch))
+                self.add_switch_xml(switch)
+        else:
+            for node in self._xml_nodes:
+                self.add_node_xml(node)
+            for edge in self._xml_edges:
+                self.add_edge_xml(edge)
 
-    def clear_graph(self):
+    def clear_graph(self, keep_nodes=False):
         """Delete the existing nodes and edges."""
-        self._xml_nodes.clear()
-        self._xml_edges.clear()
+        if keep_nodes:
+            self._xml_edges.clear()
+            #self._xml_switches.clear()
 
-        self.name2id  = {}
-        self.id2node = {'node': {}, 'edge': {}}
+            # NOTE: self.name2id not properly cleared
+            # NOTE: self.id2node['node'] not properly cleared
+            self.id2node['edge'] = {}
+            #self.id2node['switch'] = {}
+        else:
+            self._xml_nodes.clear()
+            self._xml_edges.clear()
+            #self._xml_switches.clear()
+
+            self.name2id = {}
+            self.id2node = {'node': {}, 'edge': {}, 'switch': {}}
+
+            for switch in self._xml_switches:
+                print('switch', ET.tostring(switch))
+                self.add_switch_xml(switch)
 
     def _next_id(self, xml_group):
         return len(self.id2node[xml_group])
@@ -887,15 +1049,15 @@ class GraphIdsMap:
 
     @property
     def _xml_nodes(self):
-        nodes = list(self._xml_graph.iterfind("rr_nodes"))
-        assert len(nodes) == 1, nodes
-        return nodes[0]
+        return single_element(self._xml_graph, 'rr_nodes')
 
     @property
     def _xml_edges(self):
-        edges = list(self._xml_graph.iterfind("rr_edges"))
-        assert len(edges) == 1, edges
-        return edges[0]
+        return single_element(self._xml_graph, 'rr_edges')
+
+    @property
+    def _xml_switches(self):
+        return single_element(self._xml_graph, 'switches')
 
     def _xml_group(self, xml_node):
         assert xml_node.tag in self.id2node, (
@@ -903,9 +1065,9 @@ class GraphIdsMap:
                 xml_node.tag, ", ".join(self.id2node.keys())))
         return xml_node.tag
 
-    def add_node(self, xml_node, verbose=False):
+    def add_node_xml(self, xml_node, verbose=False):
         if 'capacity' not in xml_node.attrib:
-            xml_node.attrib['capacity'] =  str(1)
+            xml_node.attrib['capacity'] = str(1)
 
         name = self.node_name(xml_node)
         self[name] = xml_node
@@ -913,9 +1075,30 @@ class GraphIdsMap:
         if verbose:
             xml_node.append(ET.Comment(" {} ".format(name)))
 
+    def add_edge_xml(self, xml_edge, verbose=False):
+        # what is this? needed?
+        #if 'capacity' not in xml_node.attrib:
+        #    xml_node.attrib['capacity'] =  str(1)
+
+        name = self.edge_name(xml_edge)
+        self[name] = xml_edge
+
+        # invalid chars in comment
+        #if verbose:
+        #    xml_edge.append(ET.Comment(" {} ".format(name)))
+
+    def add_switch_xml(self, xml_switch, verbose=False):
+        name = self.switch_name(xml_switch)
+        self[name] = xml_switch
+
     def __getitem__(self, name):
-        xml_group, node_id = self.names2id[name]
+        xml_group, node_id = self.name2id[name]
         return self.id2node[xml_group][node_id]
+
+    def switch(self, name):
+        xml_group, node_id = self.name2id['SW-' + name]
+        assert xml_group == 'switch'
+        return self.id2node['switch'][node_id]
 
     def __setitem__(self, name, xml_node):
         xml_group = self._xml_group(xml_node)
@@ -923,25 +1106,34 @@ class GraphIdsMap:
         node_id = xml_node.get('id', None)
         if node_id is None:
             node_id = len(self.id2node[xml_group])
+            xml_node.attrib['id'] = str(node_id)
 
-        parent_xml = getattr(self, "_xml_{}s".format(xml_group))
+        '''
+        parent_xml = {
+            'node': self._xml_nodes,
+            'edge': self._xml_edges,
+            'switch': self._xml_switches,
+            }[xml_group]
         #assert obj in list(parent_xml)
         #parent_xml.append(obj)
+        '''
 
         if name in self.name2id:
-            assert_eq(self.name2id[name], node_id)
-            assert obj is self.id2node[node_id]
+            assert_eq(self.name2id[name], (xml_group, node_id),
+                      "%s inconsistent node ID with old %s, new %s" %
+                      (name, self.name2id[name], (xml_group, node_id)))
+            #assert obj is self.id2node[node_id]
 
         self.id2node[xml_group][node_id] = xml_node
-        self.name2id[name] = node_id
+        self.name2id[name] = (xml_group, node_id)
 
     def node_name(self, xml_node):
         """Get a globally unique name for an `node` in the rr_nodes.
 
-        >>> 
-        >>> bg = simple_test_graph()
-        >>> m = GraphIdsMap(block_graph=bg)
-        >>> 
+        >>>
+        >>> bg = simple_test_block_grid()
+        >>> m = GraphIdsMap(block_grid=bg)
+        >>>
         >>> m.node_name(ET.fromstring('''
         ... <node id="0" type="SINK" capacity="1">
         ...   <loc xlow="0" ylow="3" xhigh="0" yhigh="3" ptc="0"/>
@@ -986,6 +1178,14 @@ class GraphIdsMap:
         ... </node>
         ... '''))
         'X003Y000<|05||X003Y000'
+        >>> m.node_name(ET.fromstring('''
+        ... <node capacity="1" direction="BI_DIR" id="374" type="CHANX">
+        ...   <loc ptc="5" xhigh="3" xlow="3" yhigh="0" ylow="0"/>
+        ...   <timing C="2.72700004e-14" R="101"/>
+        ...   <segment segment_id="1"/>
+        ... </node>
+        ... '''))
+        'X003Y000<-05->X003Y000'
 
         'X002Y003_BT[00].T-PIN<'
         'X002Y003_BT[00].L-PIN<'
@@ -1006,8 +1206,10 @@ class GraphIdsMap:
         """
 
         loc_node = list(xml_node.iterfind("./loc"))[0]
-        low = Position(int(loc_node.attrib["xlow"]), int(loc_node.attrib["ylow"]))
-        high = Position(int(loc_node.attrib["xhigh"]), int(loc_node.attrib["yhigh"]))
+        low = Position(
+            int(loc_node.attrib["xlow"]), int(loc_node.attrib["ylow"]))
+        high = Position(
+            int(loc_node.attrib["xhigh"]), int(loc_node.attrib["yhigh"]))
         ptc = int(loc_node.attrib["ptc"])
         edge = loc_node.attrib.get("side", " ")[0]
 
@@ -1016,17 +1218,22 @@ class GraphIdsMap:
         if False:
             pass
         elif node_type in (RRNodeType.channel_x, RRNodeType.channel_y):
-            direction = {
+            direction = xml_node.attrib.get("direction")
+            direction_fmt = {
                 'INC_DIR': '{f}{f}{ptc:02d}{f}>',
                 'DEC_DIR': '<{f}{ptc:02d}{f}{f}',
-            }[xml_node.attrib.get("direction")]
+                'BI_DIR': '<{f}{ptc:02d}{f}>',
+            }.get(direction, None)
+            assert direction_fmt, "Bad direction %s" % direction
 
             block_from = self._block_graph[low]
-            block_to   = self._block_graph[high]
+            block_to = self._block_graph[high]
             return "X{:03d}Y{:03d}{}X{:03d}Y{:03d}".format(
                 block_from.x, block_from.y,
-                direction.format(f={RRNodeType.channel_x: '-', RRNodeType.channel_y: '|'}[node_type], ptc=ptc),
-                block_to.x, block_to.y)
+                direction_fmt.format(
+                    f={RRNodeType.channel_x: '-',
+                       RRNodeType.channel_y: '|'}[node_type],
+                    ptc=ptc), block_to.x, block_to.y)
         elif node_type is RRNodeType.input_class:
             type_str = "SINK-<"
             # FIXME: Check high == block.position + block.block_type.size
@@ -1046,15 +1253,22 @@ class GraphIdsMap:
         block = self._block_graph[low]
 
         return "X{x:03d}Y{y:03d}_{t}[{i:02d}].{s}".format(
-            t=block.block_type.name, x=block.position.x, y=block.position.y,
-            i=ptc, s=type_str)
+            t=block.block_type.name,
+            x=block.position.x,
+            y=block.position.y,
+            i=ptc,
+            s=type_str)
 
     def nodes_for_edge(self, xml_node):
+        '''Return all node XML objects associated with given edge XML object
+
+        >>> test_nodes_for_edges()
+        '''
         assert xml_node.tag == 'edge'
         snk_node_id = xml_node.attrib.get("sink_node")
         src_node_id = xml_node.attrib.get("src_node")
 
-        # FIXME: Check that the two nodes are in similar grid positions?
+        # XXX: check that the two nodes are in similar grid positions?
 
         id2node = self.id2node['node']
         assert snk_node_id in id2node, snk_node_id
@@ -1066,7 +1280,7 @@ class GraphIdsMap:
 
         An edge goes between two `node` objects.
 
-        >>> bg = simple_test_graph()
+        >>> bg = simple_test_block_grid()
         >>> xml_string1 = '''
         ... <rr_graph>
         ...  <rr_nodes>
@@ -1080,9 +1294,11 @@ class GraphIdsMap:
         ...     <segment segment_id="1"/>
         ...   </node>
         ...  </rr_nodes>
+        ... <rr_edges />
+        ... <switches />
         ... </rr_graph>
         ... '''
-        >>> m = GraphIdsMap(block_graph=bg, xml_graph=ET.fromstring(xml_string1))
+        >>> m = GraphIdsMap(block_grid=bg, xml_graph=ET.fromstring(xml_string1))
         >>> m.edge_name(ET.fromstring('''
         ... <edge sink_node="1" src_node="0" switch_id="1"/>
         ... '''))
@@ -1091,9 +1307,14 @@ class GraphIdsMap:
         src_node, snk_node = self.nodes_for_edge(xml_node)
 
         if flip:
-            return "{} -<<- {}".format(self.node_name(snk_node), self.node_name(src_node))
+            return "{} -<<- {}".format(
+                self.node_name(snk_node), self.node_name(src_node))
         else:
-            return "{} ->>- {}".format(self.node_name(src_node), self.node_name(snk_node))
+            return "{} ->>- {}".format(
+                self.node_name(src_node), self.node_name(snk_node))
+
+    def switch_name(self, xml_switch):
+        return 'SW-' + xml_switch.attrib["name"]
 
     def edges_for_node(self, xml_node):
         node_id = xml_node.attrib.get('id', None)
@@ -1113,7 +1334,136 @@ class GraphIdsMap:
 
         return edges
 
-    def add_nodes_for_pin(self, block, pin):
+    def add_node(self,
+                 low,
+                 high,
+                 ptc,
+                 ntype,
+                 direction=None,
+                 segment_id=None,
+                 side=None,
+                 timing=None):
+        assert ntype in ('IPIN', 'OPIN', 'SINK', 'SOURCE', 'CHANX', 'CHANY')
+
+        # <node>
+        attrs = {'id': str(self._next_id('node')), 'type': ntype}
+        if ntype in ('CHANX', 'CHANY'):
+            assert direction != None
+            attrs['direction'] = direction.value
+        if ntype in ('SOURCE', 'SINK', 'IPIN', 'OPIN'):
+            assert low == high, (low, high)
+        node = ET.SubElement(self._xml_nodes, 'node', attrs)
+
+        # <loc>
+        attrs = {
+            'xlow': str(low.x),
+            'ylow': str(low.y),
+            'xhigh': str(high.x),
+            'yhigh': str(high.y),
+            'ptc': str(ptc),
+        }
+        if ntype in ('IPIN', 'OPIN'):
+            assert side is not None
+        else:
+            assert side is None
+        if side is not None:
+            assert side in {'LEFT', 'RIGHT', 'TOP', 'BOTTOM'}, side
+            attrs['side'] = side
+        ET.SubElement(node, 'loc', attrs)
+
+        # <timing>
+        if timing is None:
+            if ntype in ('CHANX', 'CHANY'):
+                # Seems to confuse VPR when 0
+                # XXX: consider requiring the user to give instead of defaulting
+                timing = {'R': 1, 'C': 1}
+            else:
+                timing = {'R': 0, 'C': 0}
+        assert len(timing) == 2 and 'R' in timing and 'C' in timing
+        ET.SubElement(node, 'timing', {k: str(v) for k, v in timing.items()})
+
+        # <segment>
+        if ntype in ('CHANX', 'CHANY'):
+            assert segment_id != None
+            assert type(segment_id) is int
+            ET.SubElement(node, 'segment', {'segment_id': str(segment_id)})
+
+        self.add_node_xml(node)
+        return node
+
+    def add_edge_bidir(self, src_node, sink_node, switch_id, bidir=True):
+        if bidir:
+            return (self.add_edge(src_node, sink_node, switch_id),
+                    self.add_edge(sink_node, src_node, switch_id))
+        else:
+            return (self.add_edge(src_node, sink_node, switch_id),
+                    None)
+
+    def add_edge(self, src_node, sink_node, switch_id):
+        # <edge src_node="34" sink_node="44" switch_id="1"/>
+        assert type(src_node) is int, type(src_node)
+        assert type(sink_node) is int, type(sink_node)
+        assert type(switch_id) is int, type(switch_id)
+
+        assert str(src_node) in self.id2node['node'], src_node
+        assert str(sink_node) in self.id2node['node'], sink_node
+        assert str(switch_id) in self.id2node['switch'], switch_id
+        edge = ET.SubElement(
+            self._xml_edges, 'edge', {
+                'src_node': str(src_node),
+                'sink_node': str(sink_node),
+                'switch_id': str(switch_id)
+            })
+        self.add_edge_xml(edge)
+        return edge
+
+    def add_delayless_switch(self):
+        '''For stuff like connecting pins to sources'''
+        # VPR calls this __vpr_delayless_switch__
+        # Should we match?
+        return self.add_switch('delayless', buffered=1, configurable=0, stype='mux')
+
+    # FIXME: revisit switch naming
+    def add_switch(self,
+                   name,
+                   stype='mux',
+                   buffered=1,
+                   configurable=None,
+                   timing=None,
+                   sizing=None):
+        '''
+        timing: dict of attributes
+        sizing: dict of attributes
+        '''
+        # <switch id="0" name="my_switch" buffered="1" configurable="1"/>
+        assert stype in 'mux|tristate|pass_gate|short|buffer'.split('|'), stype
+        attrs = {
+            'id': str(self._next_id('switch')),
+            'name': name,
+            'type': stype,
+            'buffered': str(buffered)
+        }
+        if configurable is not None:
+            attrs['configurable'] = str(int(bool(configurable)))
+        switch_node = ET.SubElement(self._xml_switches, 'switch', attrs)
+        if timing:
+            assert False, 'fixme: float conversion'
+            ET.SubElement(switch_node, 'timing', timing)
+
+        # vtr FIXME: this attribute is required
+        # https://github.com/verilog-to-routing/vtr-verilog-to-routing/issues/333
+        if sizing is None:
+            sizing = {'mux_trans_size': 0, "buf_size": 0}
+        assert len(
+            sizing) == 2 and 'mux_trans_size' in sizing and 'buf_size' in sizing
+        ET.SubElement(switch_node, 'sizing',
+                      {k: str(v)
+                       for k, v in sizing.items()})
+
+        self.add_switch_xml(switch_node)
+        return switch_node
+
+    def add_node_for_pin(self, block, pin, side):
         """ Creates an IPIN/OPIN node from `class Pin` object. """
         assert_type(block, Block)
         assert_type(pin, Pin)
@@ -1121,103 +1471,118 @@ class GraphIdsMap:
         assert_type(pin.pin_class.block_type, BlockType)
 
         pc = pin.pin_class
+        # Connection within the same tile
         low = block.position
-        high = block_type.position
+        # FIXME: look into multiple tile blocks
+        assert block.offset == (0, 0), block.offset
+        high = block.position
 
         pin_node = None
         if pc.direction in (PinClassDirection.INPUT, PinClassDirection.CLOCK):
-            pin_node = ET.SubElement(nodes, 'node', {'type': 'IPIN'})
-            ET.SubElement(pin_node, 'loc', {
-                'xlow': str(low.x), 'ylow': str(low.y),
-                'xhigh': str(high.x), 'yhigh': str(high.y),
-                'ptc': str(pin_idx),
-                # FIXME: This should probably be settable..
-                'side': 'TOP',
-            })
-            ET.SubElement(pin_node, 'timing', {'R': str(0), 'C': str(0)})
-
-        elif pin.pin_class.direction in (PinClassDirection.OUTPUT,):
-            pin_node = ET.SubElement(nodes, 'node', {'type': 'OPIN'})
-            ET.SubElement(pin_node, 'loc', {
-                'xlow': str(low.x), 'ylow': str(low.y),
-                'xhigh': str(high.x), 'yhigh': str(high.y),
-                'ptc': str(pin_idx),
-                # FIXME: This should probably be settable..
-                'side': 'TOP',
-            })
-            ET.SubElement(pin_node, 'timing', {'R': str(0), 'C': str(0)})
-
+            pin_node = self.add_node(low, high, pin.ptc, 'IPIN', side=side)
+        elif pin.pin_class.direction in (PinClassDirection.OUTPUT, ):
+            pin_node = self.add_node(low, high, pin.ptc, 'OPIN', side=side)
         else:
-            assert False, "Unknown dir of {}.{}".format(pin, pin_class)
+            assert False, "Unknown dir of {}.{}".format(pin, pin.pin_class)
 
-        assert pin_node, pin_node
+        assert pin_node != None, pin_node
 
-        print("Adding pin {:55s} on tile ({:3d}, {:3d})@{:4d}".format(pin_globalname, pos[0], pos[1], pin_idx))
+        if self.verbose:
+            print("Adding pin {:55s} on tile ({:12s}, {:12s})@{:4d}".format(
+                str(pin), str(low), str(high), pin.ptc))
         return pin_node
 
-    def add_nodes_for_pin_class(self, block, pin_class):
+    def add_nodes_for_pin_class(self, block, pin_class, switch, sides):
         """ Creates a SOURCE or SINK node from a `class PinClass` object. """
         assert_type(block, Block)
         assert_type(block.block_type, BlockType)
         assert_type(pin_class, PinClass)
         assert_type(pin_class.block_type, BlockType)
-
         assert_eq(block.block_type, pin_class.block_type)
-        # FIXME: Assert pin_class in block_type
 
-        low = block.position
-        high = block.position + pin_class.block_type.size
+        pos_low = block.position
+        pos_high = block.position + pin_class.block_type.size - Size(1, 1)
 
-        if pin_class.direction in (PinClassDirection.INPUT, PinClassDirection.CLOCK):
+        # Assuming only one pin per class for now
+        # see [0] references
+        assert len(
+            pin_class.pins) == 1, 'Expect one pin per pin class, got %s' % (
+                pin_class.pins, )
+        pin = pin_class.pins[0]
+        if pin_class.direction in (PinClassDirection.INPUT,
+                                   PinClassDirection.CLOCK):
             # Sink node
-            sink_node = ET.SubElement(nodes, 'node', {'type': 'SINK'})
-            ET.SubElement(sink_node, 'loc', {
-                'xlow': str(low.x), 'ylow': str(low.y),
-                'xhigh': str(high.x), 'yhigh': str(high.y),
-                'ptc': str(pin_idx),
-            })
-            ET.SubElement(sink_node, 'timing', {'R': str(0), 'C': str(0)})
+            sink_node = self.add_node(pos_low, pos_high, pin.ptc, 'SINK')
 
-            for p in pins:
-                pin_node = self.add_pin()
+            for p in pin_class.pins.values():
+                pin_node = self.add_node_for_pin(block, p, sides(block, p))
 
                 # Edge PIN->SINK
-                self.add_edge(pin_node, sink_node)
+                self.add_edge(
+                    int(pin_node.get("id")), int(sink_node.get("id")),
+                    int(switch.get("id")))
 
-        elif pin_dir in (PinClassDirection.OUTPUT,):
+        elif pin_class.direction in (PinClassDirection.OUTPUT, ):
             # Source node
-            src_node = ET.SubElement(nodes, 'node', {'type': 'SOURCE'})
-            ET.SubElement(src_node, 'loc', {
-                'xlow': str(low.x), 'ylow': str(low.y),
-                'xhigh': str(high.x), 'yhigh': str(high.y),
-                'ptc': str(pin_idx),
-            })
-            ET.SubElement(src_node, 'timing', {'R': str(0), 'C': str(0)})
+            src_node = self.add_node(pos_low, pos_high, pin.ptc, 'SOURCE')
 
-            for p in pins:
-                pin_node = self.add_pin()
+            for p in pin_class.pins.values():
+                pin_node = self.add_node_for_pin(block, p, sides(block, p))
 
                 # Edge SOURCE->PIN
-                self.add_edge(src_node, pin_node)
+                self.add_edge(
+                    int(src_node.get("id")), int(pin_node.get("id")),
+                    int(switch.get("id")))
 
         else:
-            assert False, "Unknown dir of {} for {}".format(pin_dir, pin_globalname)
+            assert False, "Unknown dir of {} for {}".format(
+                pin_class.direction, str(pin_class))
 
-    def add_nodes_for_block(self, block):
+        #return pin_node
+
+    def add_nodes_for_block(self, block, switch, sides):
         """
         Creates the SOURCE/SINK nodes for each pin class
         Creates the IPIN/OPIN nodes for each pin inside a pin class.
+
+        >>> test_add_nodes_for_block()
         """
         for pc in block.block_type.pin_classes:
-            self.add_nodes_for_pin_class(block, pc)
+            self.add_nodes_for_pin_class(block, pc, switch, sides)
+
+    def add_node_for_track(self, track):
+        assert_type(track, Track)
+        assert track.idx != None
+
+        return self.add_node(
+            track.start,
+            track.end,
+            track.idx,
+            track.type.value,
+            direction=track.direction,
+            segment_id=track.segment.id)
 
 
 class Graph:
-    def __init__(self, rr_graph_file=None):
+    '''
+    Top level representation, holds the XML root
+    For <rr_graph> node
+    '''
+
+    def __init__(self, rr_graph_file=None, verbose=False,
+             clear_fabric=False):
+        '''
+        clear_fabric: remove channels, all nodes, and all edges
+        FIXME: need pin nodes to get placement, so not clearing any nodes for now
+        Long term we need to reshuffle these instead of deleting and re-adding
+        '''
+        self.verbose = verbose
+
         # Read in existing file
         if rr_graph_file:
-            self.block_graph = BlockGraph()
-            self._xml_graph = ET.parse(rr_graph_file)
+            self.block_grid = BlockGrid()
+            self._xml_graph = ET.parse(
+                rr_graph_file, ET.XMLParser(remove_blank_text=True))
             self.import_block_types()
             self.import_grid()
         else:
@@ -1225,176 +1590,436 @@ class Graph:
             ET.SubElement(self._xml_graph, "rr_nodes")
             ET.SubElement(self._xml_graph, "rr_edges")
 
-        self.ids = GraphIdsMap(self.block_graph, self._xml_graph)
+        self.ids = GraphIdsMap(
+            self.block_grid, self._xml_graph, verbose=verbose, clear_fabric=clear_fabric)
 
-        #self.grid = {}
-        #self.channels = Channels()
+        # Channels import requires rr_nodes
+        if rr_graph_file and not clear_fabric:
+            self.import_xml_channels()
+        else:
+            # First and last row/col cannot be occupied, see channel.py
+            self.channels = Channels(self.block_grid.size() - Position(1, 1))
+            self.channels.from_xml_segments(
+                single_element(self._xml_graph, 'segments'))
+
+    # Following takes info from existing rr_graph file
 
     def import_block_types(self):
         # Create in the block_types information
         for block_type in self._xml_graph.iterfind("./block_types/block_type"):
-            BlockType.from_xml(self.block_graph, block_type)
+            BlockType.from_xml(self.block_grid, block_type)
 
     def import_grid(self):
-        self.grid = {}
         for block_xml in self._xml_graph.iterfind("./grid/grid_loc"):
-            Block.from_xml(self.block_graph, block_xml)
+            Block.from_xml(self.block_grid, block_xml)
+        size = self.block_grid.size()
+        assert size.x > 0
+        assert size.y > 0
 
-    def add_channel(self, globalname, start, end, segtype, _chantype=None):
-        x_start, y_start = start
-        x_end, y_end = end
+    def import_xml_channels(self):
+        bgs = self.block_grid.size()
+        cs = bgs - Size(1, 1)
+        self.channels = Channels(cs)
+        # Add segments
+        self.channels.from_xml_segments(
+            single_element(self._xml_graph, 'segments'))
+        # Add channels
+        self.channels.from_xml_nodes(self.ids._xml_nodes)
 
-        # Y channel as X is constant
-        if x_start == x_end and (_chantype is None or _chantype == "CHANY"):
-            assert x_start == x_end
-            assert _chantype is None or _chantype == "CHANY"
-            chantype = 'CHANY'
-            w_start, w_end = y_start, y_end
+    def set_tooling(self, name, version, comment):
+        root = self._xml_graph.getroot()
+        root.set("tool_name", name)
+        root.set("tool_version", version)
+        root.set("tool_comment", comment)
 
-        # X channel as Y is constant
-        elif y_start == y_end and (_chantype is None or _chantype == "CHANX"):
-            assert y_start == y_end
-            assert _chantype is None or _chantype == "CHANX"
-            chantype = 'CHANX'
-            w_start, w_end = x_start, x_end
+    def pin_sides(self):
+        '''Export pin placement as ret[(block, pin)] to import when rebuilding pin nodes'''
+        bpin2node, _track2node = self.index_node_objects()
+        ret = {}
+        for block in self.block_grid:
+            for pin_class in block.block_type.pin_classes:
+                for pin in pin_class.pins.values():
+                    node = bpin2node[(block, pin)]
+                    side = single_element(node, 'loc').get('side')
+                    assert side is not None, ET.tostring(node)
+                    ret[(block, pin)] = side
+        return ret
 
-        # Going to need two channels to make this work..
-        else:
-            assert _chantype is None
-            start_channelname = add_channel(
-                globalname+"_Y", (x_start, y_start), (x_start, y_end), segtype)[0]
-            end_channelname = add_channel(
-                globalname+"_X", (x_start, y_end), (x_end, y_end), segtype)[-1]
-            add_edge(globalname+"_Y", globalname+"_X")
-            return start_channelname, end_channelname
+    def pin_sidesf(self):
+        '''Return a function that can be passed to add_nodes_for_pin_class() to lookup pin side'''
+        raw = self.pin_sides()
 
-        assert _chantype is None or chantype == _chantype, (chantype, _chantype)
+        def sides(block, pin):
+            return raw[block, pin]
 
-        if w_start > w_end:
-            chandir = "DEC_DIR"
-        elif w_start < w_end:
-            chandir = "INC_DIR"
-        elif w_start == w_end and _chantype != None:
-            chandir = "INC_DIR"
-        else:
-            assert False, (globalname, start, end, segtype, _chantype)
+        return sides
 
-        attribs = {
-            'direction': chandir,
-            'type': chantype,
-        }
-        node = _add_node(globalname, attribs)
+    def add_nodes_for_blocks(self, switch, sides):
+        for block in self.block_grid:
+            self.ids.add_nodes_for_block(block, switch, sides)
 
-        # <loc xlow="int" ylow="int" xhigh="int" yhigh="int" side="{LEFT|RIGHT|TOP|BOTTOM}" ptc="int">
-        channels_for_type = channels[chantype]
+    def connect_pin_to_track(self, block, pin, track, switch, node_index=None):
+        '''
+        Create an edge from given pin in block to given track with switching properties of switch
+        '''
+        assert_type(block, Block)
+        assert_type(pin, Pin)
+        assert_type(track, Track)
+        assert_type(switch, ET._Element)
 
-        idx = 0
-        for x in range(x_start, x_end+1):
-            for y in range(y_start, y_end+1):
-                idx = max(idx, len(channels_for_type[(x,y)]))
+        # Create a node for the track connection as given position
+        bpin2node, track2node = node_index if node_index else self.index_node_objects(
+        )
+        pin_node = bpin2node[(block, pin)]
+        pos = block.position
 
-        for x in range(x_start, x_end+1):
-            for y in range(y_start, y_end+1):
-                while len(channels_for_type[(x,y)]) < idx and _chantype == None:
-                    add_channel_filler((x,y), chantype)
-                channels_for_type[(x,y)].append(globalname)
+        # See if there is a node at the track at the given position
+        # if not, add one
+        track_node = track2node[track]
+        if track_node is None:
+            track_node = self.add_node(pos, pos, track.idx, track.type)
 
-        # xlow, xhigh, ylow, yhigh - Integer coordinates of the ends of this routing source.
-        # ptc - This is the pin, track, or class number that depends on the rr_node type.
+        # It wants directionality...although bidir can exist too?
+        src_node, sink_node = {
+            'input': (track_node, pin_node),
+            'output': (pin_node, track_node),
+        }[pin.pin_class.direction.value]
 
-        # side - { LEFT | RIGHT | TOP | BOTTOM }
-        # For IPIN and OPIN nodes specifies the side of the grid tile on which the node
-        # is located. Purely cosmetic?
-        ET.SubElement(node, 'loc', {
-            'xlow': str(x_start), 'ylow': str(y_start),
-            'xhigh': str(x_end), 'yhigh': str(y_end),
-            'ptc': str(idx),
-        })
-        ET.SubElement(node, 'segment', {'segment_id': str(segtype)})
+        #if pin.pin_class.direction.value == 'output':
+        #    return
+        self.ids.add_edge(
+            int(src_node.get("id")), int(sink_node.get("id")),
+            int(switch.get("id")))
 
-        print("Adding channel {} from {} -> {} pos {}".format(globalname, start, end, idx))
-        return globalname, globalname
+    def connect_track_to_track(self,
+                               src_track,
+                               dst_track,
+                               switch,
+                               node_index=None):
+        _bpin2node, track2node = node_index if node_index else self.index_node_objects(
+        )
+        src_node = track2node[src_track]
+        dst_node = track2node[dst_track]
+        self.ids.add_edge(
+            int(src_node.get("id")), int(dst_node.get("id")),
+            int(switch.get("id")))
+
+    def connect_track_to_track_bidir(self,
+                                     xtrack,
+                                     ytrack,
+                                     switch,
+                                     node_index=None):
+        self.connect_track_to_track(
+            xtrack, ytrack, switch, node_index=node_index)
+        self.connect_track_to_track(
+            ytrack, xtrack, switch, node_index=node_index)
+
+    def create_xy_track(self,
+                        start, end, segment,
+                        idx=None, id_override=None,
+                        typeh=None, direction=None):
+        '''Create track object and corresponding nodes'''
+        assert type(start) is Position, type(start)
+        assert type(end) is Position, type(end)
+        track = self.channels.create_xy_track(
+            start, end, segment,
+            idx=idx, id_override=id_override,
+            typeh=typeh, direction=direction)
+        track_node = self.ids.add_node_for_track(track)
+        return track, track_node
+
+    def pad_channels(self, segment):
+        '''Workaround for https://github.com/verilog-to-routing/vtr-verilog-to-routing/issues/339'''
+        for track in self.channels.pad_channels(segment):
+            self.ids.add_node_for_track(track)
+
+    def index_node_objects(self):
+        '''
+        TODO: mithro suggests using node names instead of this. Look into making this happen
+        That is, make it so that something like node_xml_str(pin_node) == node_obj_str(block, pin)
+        Then lookup nodes using self.ids[node_obj_str(block, pin)]
+
+        return pin2node, track2node
+        pin2node: bpin2node[(Block instance, Pin instance)] => node ET
+        track2node: Channel.Track to node
+
+        >>> test_index_node_objects()
+        '''
+        # index pin and pin class associates
+        # 'IPIN', 'OPIN', 'SINK', 'SOURCE', 'CHANX', 'CHANY'
+        #pinclass2nodes = {}
+        bpin2node = {}
+        track2node = {}
+
+        for node in self.ids._xml_nodes:
+            if node.tag == ET.Comment:
+                continue
+
+            ntype = node.get('type')
+            loc = single_element(node, 'loc')
+            pos_low, pos_high = node_pos(node)
+            ptc = int(loc.get('ptc'))
+
+            if ntype in ('IPIN', 'OPIN'):
+                assert pos_low == pos_high, (pos_low, pos_high)
+                pos = pos_low
+
+                # Lookup Block/<grid_loc>
+                # ptc is the associated pin ptc value of the block_type
+                block = self.block_grid[pos]
+                pin = block.ptc2pin(ptc)
+                kbp = (block, pin)
+                assert kbp not in bpin2node
+                bpin2node[kbp] = node
+            elif ntype in ('SINK', 'SOURCE'):
+                #pinclass2nodes
+                pass
+            elif ntype in ('CHANX', 'CHANY'):
+                # ptc is the index of the track in the channels at that location
+                # why is INC_DIR and segment needed?
+                # can't those be looked up?
+                grid = {
+                    'CHANX': self.channels.x,
+                    'CHANY': self.channels.y
+                }[ntype]
+                #segment_id = list(node.iterfind("segment"))[0].get('segment_id')
+                try:
+                    track = grid[pos_low][ptc]
+                except IndexError:
+                    raise IndexError("%s node pos %s ptc %d not found" %
+                                     (ntype, pos, ptc))
+                assert track not in track2node
+                track2node[track] = node
+            else:
+                assert False, ntype
+
+        return bpin2node, track2node
+
+    def to_xml(self):
+        '''Return an ET object representing this rr_graph'''
+        #et = ET.fromstring('<rr_graph tool_name="g.py" tool_version="dev" tool_comment="Generated from black magic" />')
+        #return et
+        self.set_tooling("g.py", "dev", "Generated from black magic")
+
+        # <rr_nodes>, <rr_edges>, and <switches> should be good as is
+        # note <rr_nodes> includes channel tracks, but not width definitions
+
+        # FIXME: regenerate <block_types>
+        # FIXME: regenerate <grid>
+
+        self.channels.to_xml(self._xml_graph)
+
+        return self._xml_graph
+
 
 '''
 Debug / test
 '''
 
-def print_block_types(rr_graph):
-    '''Sequentially list block types'''
-    bg = rr_graph.block_graph
 
-    for type_id, bt in bg.block_types.items():
-        print("{:4}  ".format(type_id), "{:40s}".format(bt.to_string()), bt.to_string(extra=True))
+def simple_test_block_grid():
+    bg = BlockGrid()
 
-def print_grid(rr_graph):
-    '''ASCII diagram displaying XY layout'''
-    bg = rr_graph.block_graph
-    grid = bg.block_grid_size()
+    # Create a block type with one input and one output pin
+    bt = BlockType(g=bg, id=0, name="DUALBLK")
+    pci = PinClass(block_type=bt, direction=PinClassDirection.INPUT)
+    pi = Pin(pin_class=pci, pin_class_index=0)
+    pco = PinClass(block_type=bt, direction=PinClassDirection.OUTPUT)
+    po = Pin(pin_class=pco, pin_class_index=0)
 
-    col_widths = []
-    for x in range(0, grid.width):
-        col_widths.append(max(len(bt.name) for bt in bg.block_types_for(col=x)))
+    # Create a block type with one input class with 4 pins
+    bt = BlockType(g=bg, id=1, name="INBLOCK")
+    pci = PinClass(block_type=bt, direction=PinClassDirection.INPUT)
+    Pin(pin_class=pci, pin_class_index=0)
+    Pin(pin_class=pci, pin_class_index=1)
+    Pin(pin_class=pci, pin_class_index=2)
+    Pin(pin_class=pci, pin_class_index=3)
 
-    print("    ", end=" ")
-    for x in range(0, grid.width):
-        print("{: ^{width}d}".format(x, width=col_widths[x]), end="   ")
-    print()
+    # Create a block type with out input class with 2 pins
+    bt = BlockType(g=bg, id=2, name="OUTBLOK")
+    pci = PinClass(block_type=bt, direction=PinClassDirection.OUTPUT)
+    Pin(pin_class=pci, pin_class_index=0)
+    Pin(pin_class=pci, pin_class_index=1)
+    Pin(pin_class=pci, pin_class_index=2)
+    Pin(pin_class=pci, pin_class_index=3)
 
-    print("   /", end="-")
-    for x in range(0, grid.width):
-        print("-"*col_widths[x], end="-+-")
-    print()
+    # Add some blocks
+    bg.add_block(Block(g=bg, block_type_id=1, position=Position(0, 0)))
+    bg.add_block(Block(g=bg, block_type_id=1, position=Position(0, 1)))
+    bg.add_block(Block(g=bg, block_type_id=1, position=Position(0, 2)))
+    bg.add_block(Block(g=bg, block_type_id=1, position=Position(0, 3)))
 
-    for y in reversed(range(0, grid.height)):
-        print("{: 2d} |".format(y, width=col_widths[0]), end=" ")
-        for x, bt in enumerate(bg.block_types_for(row=y)):
-            assert x < len(col_widths), (x, bt)
-            print("{: ^{width}}".format(bt.name, width=col_widths[x]), end=" | ")
-        print()
+    bg.add_block(Block(g=bg, block_type_id=0, position=Position(1, 0)))
+    bg.add_block(Block(g=bg, block_type_id=0, position=Position(1, 1)))
+    bg.add_block(Block(g=bg, block_type_id=0, position=Position(1, 2)))
+    bg.add_block(Block(g=bg, block_type_id=0, position=Position(1, 3)))
 
-def print_objects(rr_graph):
-    '''Display source/sinks on all XML nodes'''
-    ids = rr_graph.ids
-    for node in ids._xml_nodes:
-        print()
-        print(ids.node_name(node))
-        srcs = []
-        snks = []
-        for e in ids.edges_for_node(node):
-            src, snk = ids.nodes_for_edge(e)
-            if src == node:
-                srcs.append(e)
-            elif snk == node:
-                snks.append(e)
-            else:
-                print("!?@", ids.edge_name(e))
+    bg.add_block(Block(g=bg, block_type_id=0, position=Position(2, 0)))
+    bg.add_block(Block(g=bg, block_type_id=0, position=Position(2, 1)))
+    bg.add_block(Block(g=bg, block_type_id=0, position=Position(2, 2)))
+    bg.add_block(Block(g=bg, block_type_id=0, position=Position(2, 3)))
 
-        print("  Sources:")
-        for e in srcs:
-            print("   ", ids.edge_name(e))
-        if not srcs:
-            print("   ", None)
+    bg.add_block(Block(g=bg, block_type_id=2, position=Position(3, 0)))
+    bg.add_block(Block(g=bg, block_type_id=2, position=Position(3, 1)))
+    bg.add_block(Block(g=bg, block_type_id=2, position=Position(3, 2)))
+    bg.add_block(Block(g=bg, block_type_id=2, position=Position(3, 3)))
 
-        print("  Sink:")
-        for e in snks:
-            print("   ", ids.edge_name(e, flip=True))
-        if not snks:
-            print("   ", None)
+    return bg
 
-def print_graph(rr_graph):
-    print()
-    print_block_types(rr_graph)
-    print()
-    print_grid(rr_graph)
-    print()
-    print_objects(rr_graph)
-    print()
+
+def simple_test_graph(**kwargs):
+    '''
+    Simple block containing one input block, one output block, with some routing between them
+    Can be used to implmenet a 2:1 mux
+    '''
+    assert 0, 'FIXME: adjust grid'
+    xml_str = '''
+            <rr_graph tool_name="vpr" tool_version="82a3c72" tool_comment="Based on my_arch.xml">
+                <channels>
+                    <channel chan_width_max="2" x_min="0" y_min="0" x_max="1" y_max="0"/>
+                    <x_list index="0" info="1"/>
+                    <y_list index="0" info="2"/>
+                    <y_list index="1" info="2"/>
+                </channels>
+                <switches>
+                    <switch id="0" name="my_switch" buffered="1">
+                        <timing R="100" Cin="1233-12" Cout="123e-12" Tdel="1e-9"/>
+                        <sizing mux_trans_size="2.32" buf_size="23.54"/>
+                    </switch>
+                </switches>
+                <segments>
+                    <segment id="0" name="L4">
+                        <timing R_per_meter="201.7" C_per_meter="18.110e-15"/>
+                    </segment>
+                </segments>
+                <block_types>
+                    <block_type id="0" name="MYIN" width="1" height="1">
+                        <pin_class type="INPUT">
+                            <pin index="0" ptc="0">DATIN[0]</pin>
+                        </pin_class>
+                        <pin_class type="INPUT">
+                            <pin index="0" ptc="1">DATIN[1]</pin>
+                        </pin_class>
+                    </block_type>
+                    <block_type id="1" name="MYOUT" width="1" height="1">
+                        <pin_class type="OUTPUT">
+                            <pin index="0" ptc="0">IN[0]</pin>
+                        </pin_class>
+                    </block_type>
+                </block_types>
+                <grid>
+                    <grid_loc x="0" y="0" block_type_id="0" width_offset="0" height_offset="0"/>
+                    <grid_loc x="1" y="0" block_type_id="1" width_offset="0" height_offset="0"/>
+                </grid>
+                <rr_nodes>
+                    <node id="0" type="SOURCE" capacity="1">
+                        <loc xlow="0" ylow="0" xhigh="0" yhigh="0" ptc="0"/>
+                        <timing R="0" C="0"/>
+                    </node>
+                    <node id="1" type="OPIN" capacity="1">
+                        <loc xlow="0" ylow="0" xhigh="0" yhigh="0" ptc="0" side="RIGHT"/>
+                    </node>
+                    <node id="2" type="SOURCE" capacity="1">
+                        <loc xlow="0" ylow="0" xhigh="0" yhigh="0" ptc="1"/>
+                    </node>
+                    <node id="3" type="OPIN" capacity="1">
+                        <loc xlow="0" ylow="0" xhigh="0" yhigh="0" ptc="1" side="RIGHT"/>
+                    </node>
+                    <node id="4" type="SINK" capacity="1">
+                        <loc xlow="1" ylow="0" xhigh="1" yhigh="0" ptc="0"/>
+                    </node>
+                    <node id="5" type="IPIN" capacity="1">
+                        <loc xlow="1" ylow="0" xhigh="1" yhigh="0" ptc="0" side="LEFT"/>
+                    </node>
+                    <node id="6" type="CHANY" direction="INC_DIR" capacity="1">
+                        <loc xlow="0" ylow="0" xhigh="0" yhigh="0" ptc="0"/>
+                        <timing R="100" C="12e-12"/>
+                        <segment segment_id="0"/>
+                    </node>
+                    <node id="7" type="CHANY" direction="DEC_DIR" capacity="1">
+                        <loc xlow="0" ylow="0" xhigh="0" yhigh="0" ptc="1"/>
+                        <segment segment_id="0"/>
+                    </node>
+                </rr_nodes>
+                <rr_edges>
+                    <edge src_node="0" sink_node="1" switch_id="0"/>
+                    <edge src_node="2" sink_node="3" switch_id="0"/>
+                    <edge src_node="4" sink_node="5" switch_id="0"/>
+                    <edge src_node="1" sink_node="6" switch_id="0"/>
+                    <edge src_node="3" sink_node="7" switch_id="0"/>
+                    <edge src_node="0" sink_node="6" switch_id="0"/>
+                    <edge src_node="6" sink_node="5" switch_id="0"/>
+                    <edge src_node="7" sink_node="5" switch_id="0"/>
+                </rr_edges>
+            </rr_graph>
+            '''
+    return Graph(io.StringIO(xml_str), **kwargs)
+
+
+def test_add_nodes_for_block(ret=False):
+    g = simple_test_graph(verbose=False)
+    g.ids.clear_graph()
+    switch = g.ids.add_switch('SPST', buffered=1)
+    for block in g.block_grid:
+        g.ids.add_nodes_for_block(block, switch)
+    '''
+    2 input pins, 1 output pin
+    Should have added 3 edges to connect edge to pin
+    Ande one PIN node + one NET node
+    '''
+    assert len(g.ids._xml_edges) == 3
+    assert len(g.ids._xml_nodes) == 6
+    if ret:
+        return g
+
+
+'''
+mcmaster: strongly dislike doctest
+Preparing this for a port to unittest
+'''
+
+
+def test_nodes_for_edges():
+    g = test_add_nodes_for_block(True)
+    # Each edge should connect a net to a pin
+    for edge in g.ids._xml_edges:
+        assert len(g.ids.nodes_for_edge(edge)) == 2
+
+
+def node_ptc(node):
+    locs = list(node.iterfind("loc"))
+    assert len(locs) == 1, locs
+    loc = locs[0]
+    return int(loc.get('ptc'))
+
+
+def test_index_node_objects():
+    g = simple_test_graph(verbose=False)
+
+    bpin2node, track2node = g.index_node_objects()
+
+    # 3 pins in this design
+    assert len(bpin2node) == 3
+    for (block, pin), node in bpin2node.items():
+        assert pin.ptc == node_ptc(node)
+
+        bpos_lo, bpos_hi = node_pos(node)
+        assert bpos_lo == bpos_hi
+        assert bpos_lo == block.position, (bpos_lo, block.position)
+
+    # 2 y tracks, no x tracks
+    assert len(track2node) == 2, len(track2node)
+    for track, node in track2node.items():
+        assert track.idx == node_ptc(node)
+
+
+def main():
+    import doctest
+
+    print('Doctest begin')
+    doctest.testmod()
+    print('Doctest end')
+
 
 if __name__ == "__main__":
-    import sys
-    import os
-    if len(sys.argv) == 1 or not os.path.exists(sys.argv[-1]):
-        import doctest
-        doctest.testmod()
-    else:
-        print_graph(Graph(rr_graph_file=sys.argv[-1]))
+    main()

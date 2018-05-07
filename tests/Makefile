@@ -62,29 +62,33 @@ VPR_ARGS ?=
 VPR_CMD = $(VPR) $(VPR_ARGS)  $(DEVICE_FILE) --device $(DEVICE) --timing_analysis off --min_route_chan_width_hint 10
 VPR_FULL_CMD = cd $(OUTPUT_DIR); $(VPR_CMD)
 
-ROUTE_CHAN_WIDTH ?= 6
+ROUTE_CHAN_WIDTH ?= 100
 
 $(OUTPUT_DIR)/%.rr_graph.xml: $(OUTPUT_DIR)/%.eblif $(DEVICE_FILE)
 	$(VPR_FULL_CMD) $(notdir $<) --route_chan_width $(ROUTE_CHAN_WIDTH) --write_rr_graph $(notdir $@)
 
+$(OUTPUT_DIR)/%.pretty.rr_graph.xml: $(OUTPUT_DIR)/%.rr_graph.xml
+	cd $(OUTPUT_DIR); xmlsort $(notdir $<) > $(notdir $@)
+
 $(OUTPUT_DIR)/%.patched.rr_graph.xml: $(OUTPUT_DIR)/%.rr_graph.xml $(RR_PATCH_TOOL)
 	cd $(OUTPUT_DIR); $(RR_PATCH_CMD) --read_rr_graph $(notdir $<) --write_rr_graph $(notdir $@)
 
-$(OUTPUT_DIR)/%.rr_graph.pretty.xml: $(OUTPUT_DIR)/%.rr_graph.xml
-	cd $(OUTPUT_DIR); xmlsort $(notdir $<) > $(notdir $@)
-
-%.patched: $(OUTPUT_DIR)/%.eblif $(OUTPUT_DIR)/%.patched.rr_graph.pretty.xml
-	cd $(OUTPUT_DIR); gdb --args $(VPR_CMD) $(notdir $<) --route_chan_width $(ROUTE_CHAN_WIDTH) --read_rr_graph $@.rr_graph.pretty.xml
+#%.patched: $(OUTPUT_DIR)/%.eblif $(OUTPUT_DIR)/%.patched.rr_graph.pretty.xml
+#	cd $(OUTPUT_DIR); gdb --args $(VPR_CMD) $(notdir $<) --route_chan_width $(ROUTE_CHAN_WIDTH) --read_rr_graph $*.rr_graph.pretty.xml
 
 # ------------------------------------------------------------------------
+%.patched.disp: $(OUTPUT_DIR)/%.eblif $(OUTPUT_DIR)/%.patched.rr_graph.xml $(DEVICE_FILE)
+	$(VPR_FULL_CMD) $(notdir $<) --route_chan_width $(ROUTE_CHAN_WIDTH) --read_rr_graph $*.patched.rr_graph.xml --disp on
+
 %.rr_graph.xml: $(OUTPUT_DIR)/%.rr_graph.xml | $(OUTPUT_DIR)
 	@true
 
-%.rr_graph.pretty.xml: $(OUTPUT_DIR)/%.rr_graph.pretty.xml | $(OUTPUT_DIR)
+%.pretty.rr_graph.xml: $(OUTPUT_DIR)/%.pretty.rr_graph.xml | $(OUTPUT_DIR)
 	@true
 
 .PRECIOUS: $(OUTPUT_DIR)/%.rr_graph.xml
-.PRECIOUS: $(OUTPUT_DIR)/%.rr_graph.pretty.xml
+.PRECIOUS: $(OUTPUT_DIR)/%.patched.rr_graph.xml
+.PRECIOUS: $(OUTPUT_DIR)/%.pretty.rr_graph.pretty.xml
 # ------------------------------------------------------------------------
 
 %.disp: $(OUTPUT_DIR)/%.eblif $(DEVICE_FILE)

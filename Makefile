@@ -38,6 +38,9 @@ test:
 	$(call heading,$(PURPLE)Test Arch:$(NC)Running Verilog to Routing tests)
 	@$(MAKE) ARCH=testarch -C tests $(result)
 
+format:
+	find . -name \*.py -and -not -path './third_party/*' -and -not -path './env/*' -and -not -path './.git/*' -exec yapf -p -i {} \;
+
 .PHONY: test
 
 clean:
