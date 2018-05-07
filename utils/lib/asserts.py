@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 def __safe_call(f, a):
     """Call a function and capture all exceptions."""
     try:
