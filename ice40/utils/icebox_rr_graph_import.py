@@ -789,13 +789,13 @@ def create_switches(g):
     # Create the switch types
     # ------------------------------
     print('Creating switches')
-    #_switch_delayless = g.ids.add_delayless_switch()
-    _switch_delayless = g.ids.add_switch('__vpr_delayless_switch__', buffered=1, configurable=0, stype='mux')
-
     # Buffer switch drives an output net from a possible list of input nets.
     _switch_buffer = g.ids.add_switch('buffer', buffered=1, stype='mux')
     # Routing switch connects two nets together to form a span12er wire.
     _switch_routing = g.ids.add_switch('routing', buffered=0, stype='mux')
+
+    #_switch_delayless = g.ids.add_delayless_switch()
+    _switch_delayless = g.ids.add_switch('__vpr_delayless_switch__', buffered=1, configurable=0, stype='mux')
 
 def segfreq(g):
     print('Segment frequencies')
@@ -1065,7 +1065,7 @@ def run(part, read_rr_graph, write_rr_graph):
     print('Cleared original g')
     print_nodes_edges(g)
     print()
-    create_switches(g)
+    #create_switches(g)
     #create_segments(g)
     print()
     print('Rebuilding block I/O nodes')
