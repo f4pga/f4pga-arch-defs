@@ -3,9 +3,9 @@
 <!-- # The ports of the lutff pair                           # -->
 <!-- ################################################################ -->
 <ports>
- <input  name="D"  num_pins="1" equivalent="false"/>
- <output name="Q"  num_pins="1" equivalent="false"/>
- <clock name="CLK" num_pins="1" />
- <input name="EN"  num_pins="1" equivalent="false"/>
- <input name="SR"  num_pins="1" equivalent="false"/>
+ <input  name="in"  num_pins="1" equivalent="false"/>
+ <output name="out" num_pins="1" equivalent="false"/>
+ <clock  name="clk" num_pins="1" />
+ <input  name="cen" num_pins="1" equivalent="false"/>
+ <input  name="s_r" num_pins="1" equivalent="false"/>
 </ports>
