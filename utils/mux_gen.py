@@ -34,6 +34,9 @@ parser.add_argument(
 parser.add_argument('--width', type=int, default=8, help="Width of the MUX.")
 
 parser.add_argument(
+    '--data-width', type=int, default=1, help="data width of the MUX.")
+
+parser.add_argument(
     '--type',
     choices=['logic', 'routing'],
     default='logic',
@@ -155,6 +158,10 @@ def main(argv):
     mux_mk = normpath(
         os.path.join(mydir, '..', 'common', 'make', 'mux.mk'), to=outdir)
 
+    if args.data_width > 1 and not args.split_inputs:
+        assert False, "data_width(%d) > 1 requires using split_inputs" % (
+            args.data_width)
+
     if args.name_inputs:
         assert_eq(args.name_input, parser.get_default("name_input"))
         args.name_input = None
@@ -242,6 +249,9 @@ Generated with %s
             if args.name_input != parser.get_default('name_input'):
                 print("MUX_INPUT = {}".format(args.name_input), file=f)
 
+        if args.data_width > 1:
+            print("MUX_DATA_WIDTH = {}".format(args.data_width), file=f)
+
         if args.split_selects:
             print("MUX_SPLIT_SELECTS = 1", file=f)
             if args.name_selects != parser.get_default('name_selects'):
@@ -280,27 +290,34 @@ Generated with %s
     for i in args.order:
         if i == 'i':
             if args.split_inputs:
-                port_names.extend((mux_lib.MuxPinType.INPUT,
-                                   args.name_inputs[j], 1, '[%i]' % j)
-                                  for j in range(args.width))
+                port_names.extend(
+                    mux_lib.ModulePort(mux_lib.MuxPinType.INPUT,
+                                       args.name_inputs[
+                                           j], 1, '[%i]' % j, args.data_width)
+                    for j in range(args.width))
             else:
                 # verilog range bounds are inclusive and convention is [<width-1>:0]
-                port_names.append((mux_lib.MuxPinType.INPUT, args.name_input,
-                                   args.width, '[%i:0]' % (args.width - 1)))
+                port_names.append(
+                    mux_lib.ModulePort(mux_lib.MuxPinType.INPUT,
+                                       args.name_input, args.width,
+                                       '[%i:0]' % (args.width - 1)))
         elif i == 's':
             if args.split_selects:
-                port_names.extend((mux_lib.MuxPinType.SELECT,
-                                   args.name_selects[j], 1, '[%i]' % j)
-                                  for j in range(args.width_bits))
+                port_names.extend(
+                    mux_lib.ModulePort(mux_lib.MuxPinType.SELECT,
+                                       args.name_selects[j], 1, '[%i]' % j)
+                    for j in range(args.width_bits))
             else:
+                # verilog range bounds are inclusive and convention is [<width-1>:0]
                 assert args.name_select is not None
-                # verilog array range bounds are inclusive and convention is [<width-1>:0]
                 port_names.append(
-                    (mux_lib.MuxPinType.SELECT, args.name_select,
-                     args.width_bits, '[%i:0]' % (args.width_bits - 1)))
+                    mux_lib.ModulePort(mux_lib.MuxPinType.SELECT,
+                                       args.name_select, args.width_bits,
+                                       '[%i:0]' % (args.width_bits - 1)))
         elif i == 'o':
-            port_names.append((mux_lib.MuxPinType.OUTPUT, args.name_output, 1,
-                               ''))
+            port_names.append(
+                mux_lib.ModulePort(mux_lib.MuxPinType.OUTPUT, args.name_output,
+                                   1, '', args.data_width))
 
     # ------------------------------------------------------------------------
     # Generate the sim.v Verilog module
@@ -311,10 +328,10 @@ Generated with %s
     sim_pathname = os.path.join(outdir, sim_filename)
     with open(sim_pathname, "w") as f:
         module_args = []
-        for type, name, _, _ in port_names:
-            if args.type == 'routing' and type == mux_lib.MuxPinType.SELECT:
+        for port in port_names:
+            if args.type == 'routing' and port.pin_type == mux_lib.MuxPinType.SELECT:
                 continue
-            module_args.append(name)
+            module_args.append(port.name)
 
         mux_prefix = {'logic': '', 'routing': 'r'}[args.type]
         mux_class = {'logic': 'mux', 'routing': 'routing'}[args.type]
@@ -334,60 +351,68 @@ Generated with %s
         f.write('(* blackbox *) (* CLASS="%s" *)\n' % mux_class)
         f.write("module %s(%s);\n" % (args.name_mux, ", ".join(module_args)))
         previous_type = None
-        for type, name, width, index in port_names:
-            if previous_type != type:
+        for port in port_names:
+            if previous_type != port.pin_type:
                 f.write("\n")
-                previous_type = type
-            if args.type == 'routing' and type == mux_lib.MuxPinType.SELECT:
-                if width == 1:
-                    f.write('\tparameter [0:0] %s = 0;\n' % (name))
-                else:
-                    f.write('\tparameter %s %s = 0;\n' % (index, name))
+                previous_type = port.pin_type
+            if args.type == 'routing' and port.pin_type == mux_lib.MuxPinType.SELECT:
+                f.write(port.getParameterString())
                 continue
-
-            if width == 1:
-                f.write('\t%s %s;\n' % (type.verilog(), name))
             else:
-                f.write('\t%s %s %s;\n' % (type.verilog(), index, name))
+                f.write(port.getDefinition())
 
         f.write("\n")
+        if args.data_width > 1:
+            f.write('\tgenvar\tii;\n')
+            f.write('\tfor(ii=0; ii<%d; ii++) begin: bitmux\n' %
+                    (args.data_width))
+
         f.write('\tMUX%s mux (\n' % args.width)
         for i in range(0, args.width):
             j = 0
-            for type, name, width, index in port_names:
-                if type != mux_lib.MuxPinType.INPUT:
+            for port in port_names:
+                if port.pin_type != mux_lib.MuxPinType.INPUT:
                     continue
-                if j + width <= i:
-                    j += width
+                if j + port.width <= i:
+                    j += port.width
                     continue
                 break
 
-            if width == 1:
-                f.write('\t\t.I%i(%s),\n' % (i, name))
+            if port.width == 1:
+                if args.data_width > 1:
+                    f.write('\t\t.I%i(%s[ii]),\n' % (i, port.name))
+                else:
+                    f.write('\t\t.I%i(%s),\n' % (i, port.name))
             else:
-                f.write('\t\t.I%i(%s[%i]),\n' % (i, name, i - j))
+                f.write('\t\t.I%i(%s[%i]),\n' % (i, port.name, i - j))
 
         for i in range(0, args.width_bits):
             j = 0
-            for type, name, width, index in port_names:
-                if type != mux_lib.MuxPinType.SELECT:
+            for port in port_names:
+                if port.pin_type != mux_lib.MuxPinType.SELECT:
                     continue
-                if j + width < i:
-                    j += width
+                if j + port.width < i:
+                    j += port.width
                     continue
                 break
 
-            if width == 1:
-                f.write('\t\t.S%i(%s),\n' % (i, name))
+            if port.width == 1:
+                f.write('\t\t.S%i(%s),\n' % (i, port.name))
             else:
-                f.write('\t\t.S%i(%s[%i]),\n' % (i, name, i - j))
+                f.write('\t\t.S%i(%s[%i]),\n' % (i, port.name, i - j))
 
-        for type, name, width, index in port_names:
-            if type != mux_lib.MuxPinType.OUTPUT:
+        for port in port_names:
+            if port.pin_type != mux_lib.MuxPinType.OUTPUT:
                 continue
             break
-        assert_eq(width, 1)
-        f.write('\t\t.O(%s)\n\t);\n' % name)
+        assert_eq(port.width, 1)
+        if args.data_width > 1:
+            f.write('\t\t.O(%s[ii])\n\t);\n' % port.name)
+        else:
+            f.write('\t\t.O(%s)\n\t);\n' % port.name)
+
+        if args.data_width > 1:
+            f.write('end\n')
 
         f.write('endmodule\n')
 
@@ -414,17 +439,19 @@ Generated with %s
 
         input_ports = ET.SubElement(model_xml, 'input_ports')
         output_ports = ET.SubElement(model_xml, 'output_ports')
-        for type, name, width, index in port_names:
-            if type in (mux_lib.MuxPinType.INPUT, mux_lib.MuxPinType.SELECT):
+        for port in port_names:
+            if port.pin_type in (mux_lib.MuxPinType.INPUT,
+                                 mux_lib.MuxPinType.SELECT):
                 ET.SubElement(
                     input_ports, 'port', {
                         'name':
-                        name,
+                        port.name,
                         'combinational_sink_ports':
-                        ','.join(n for t, n, w, i in port_names
-                                 if t in (mux_lib.MuxPinType.OUTPUT, )),
+                        ','.join(
+                            port.name for port in port_names
+                            if port.pin_type in (mux_lib.MuxPinType.OUTPUT, )),
                     })
-            elif type in (mux_lib.MuxPinType.OUTPUT, ):
+            elif port.pin_type in (mux_lib.MuxPinType.OUTPUT, ):
                 ET.SubElement(output_ports, 'port', {'name': args.name_output})
 
         models_str = ET.tostring(models_xml, pretty_print=True).decode('utf-8')

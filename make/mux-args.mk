@@ -113,6 +113,10 @@ ifneq (,$(MUX_SUBCKT))
 MUX_GEN_ARGS +=		--subckt	$(MUX_SUBCKT)
 endif
 
+ifneq (,$(MUX_DATA_WIDTH))
+MUX_GEN_ARGS +=		--data-width	$(MUX_DATA_WIDTH)
+endif
+
 # ========================================================================
 # Clean up the used arguments
 # ------------------------------------------------------------------------
@@ -128,6 +132,7 @@ undefine MUX_OUTPUT
 undefine MUX_SPLIT_INPUTS
 undefine MUX_INPUTS
 undefine MUX_INPUT
+undefine MUX_DATA_WIDTH
 
 undefine MUX_SPLIT_SELECTS
 undefine MUX_SELECTS
