@@ -1,20 +1,25 @@
 #!/usr/bin/env python3
-'''
-This file mainly deals with packing tracks into channels
-It does not manage channel XML nodes
+"""
+This file for packing tracks into channels.
 
-Note channels go between switchboxes
-Switchboxes cannot be at the last grid coordinate
-Therefore, you need a grid size of at least 3 rows or cols to allow a channel
-This channel would be of length 0, connecting the switchbox at 0 to the switchbox at 1
+It does *not* manage channel XML nodes.
 
-With above in mind, objects here entirely omit the last row/col
-and placing a channel in the first is illegal
+Note channels go between switchboxes. Switchboxes cannot be at the last grid
+coordinate.
+
+Therefore, you need a grid size of at least 3 rows or cols to allow any
+channels to exist. With a 3 width configuration you would get a channel of
+length 0, connecting the switchbox at 0 to the switchbox at 1.
+
+With above in mind, objects here entirely omit the last row/col and placing a
+channel in the first is illegal.
+
 Specifically:
--CHANX: X=0 is invalid, X=grid.width-1 is invalid
--CHANY: Y=0 is invalid, Y=grid.height-1 is invalid
-'''
+ * For CHANX: X=0 is invalid, X=grid.width-1 is invalid
+ * For CHANY: Y=0 is invalid, Y=grid.height-1 is invalid
+"""
 
+import pprint
 import enum
 import io
 from collections import namedtuple, OrderedDict
@@ -32,63 +37,20 @@ class ChannelNotStraight(TypeError):
     pass
 
 
-_Segment = namedtuple(
-    "Segment", ("id", "name", "timing"))
-
-class Segment(_Segment):    
-    '''An rr_graph <segment>'''
-    def __new__(cls, id, name, timing=None):
-        if timing:
-            assert len(timing) == 2 and 'R_per_meter' in timing and 'C_per_meter' in timing
-        obj = _Segment.__new__(cls, id, name, tuple(timing.items()))
-        return obj
-
-    @classmethod
-    def from_xml(cls, segment_xml):
-        '''
-        Example:
-        <segment id="0" name="span">
-            <timing R_per_meter="101" C_per_meter="2.25000005e-14"/>
-        </segment>
-        '''
-        assert_type(segment_xml, ET._Element)
-        sid = int(segment_xml.get('id'))
-        name = segment_xml.get('name')
-
-        timing = None
-        timings = list(segment_xml.iterfind('timing'))
-        if len(timings) == 1:
-            timing = timings[0]
-            timing_r = float(timing.get('R_per_meter'))
-            timing_c = float(timing.get('C_per_meter'))
-            timing = {'R_per_meter':timing_r, 'C_per_meter':timing_c}
-        else:
-            assert len(timings) == 0
-        return Segment(sid, name, timing)
-
-    def to_xml(self, segments_xml):
-        timing_xml = ET.SubElement(segments_xml, 'segment', {
-            'id': str(self.id),
-            'name': self.name
-        })
-        if self.timing:
-            ET.SubElement(
-                timing_xml, "timing", {k: str(v) for k, v in self.timing.items()})
-
-
 _Track = namedtuple(
-    "Track", ("start", "end", "idx", "type_hint", "direction_hint", "segment"))
+    "Track", ("start", "end", "idx", "type_hint", "direction_hint", "segment_id"))
 
 
 class Track(_Track):
-    '''
-    Represents a single ChanX or ChanY (track) within a channel
-    ie the tracks of an a x_list or y_list entry in <channels>
+    """
+    Represents a single CHANX or CHANY (track) within a channel.
+
+    IE The tracks of a x_list or y_list entry in <channels> element.
 
     start: start Pos
     end: end Pos
     idx: XML index integer
-    '''
+    """
 
     class Type(enum.Enum):
         # Horizontal routing
@@ -111,11 +73,11 @@ class Track(_Track):
                 start,
                 end,
                 idx=None,
-                id_override=None,
+                name=None,
                 type_hint=None,
                 direction_hint=None,
-                segment=None):
-        '''Make most but not all attributes immutable'''
+                segment_id=None):
+        """Make most but not all attributes immutable"""
 
         if not isinstance(start, Position):
             start = Position(*start)
@@ -130,8 +92,8 @@ class Track(_Track):
             assert_type(idx, int)
 
         obj = _Track.__new__(cls, start, end, idx, type_hint, direction_hint,
-                             segment)
-        obj.id_override = id_override
+                             segment_id)
+        obj.name = name
 
         # Verify not ambiguous
         obj.type
@@ -176,7 +138,7 @@ class Track(_Track):
             assert False
 
     def positions(self):
-        '''Generate all positions this track occupies'''
+        """Generate all positions this track occupies"""
         startx, endx = sorted([self.start.x, self.end.x])
         starty, endy = sorted([self.start.y, self.end.y])
 
@@ -304,13 +266,13 @@ class Track(_Track):
         """
         return abs(self.end0 - self.start0)
 
-    def update_idx(self, idx):
+    def new_idx(self, idx):
         """Create a new channel with the same start/end but new index value.
 
         >>> s = (1, 4)
         >>> e = (1, 8)
         >>> c1 = Track(s, e, 0)
-        >>> c2 = c1.update_idx(2)
+        >>> c2 = c1.new_idx(2)
         >>> assert c1.start == c2.start
         >>> assert c1.end == c2.end
         >>> c1.idx
@@ -322,10 +284,10 @@ class Track(_Track):
             self.start,
             self.end,
             idx,
-            id_override=self.id_override,
+            name=self.name,
             type_hint=self.type_hint,
             direction_hint=self.direction_hint,
-            segment=self.segment)
+            segment_id=self.segment_id)
 
     def __repr__(self):
         """
@@ -341,11 +303,11 @@ class Track(_Track):
         >>> repr(Track((1, 2), (3, 2), 5, "ABC"))
         'T(ABC,5)'
         """
-        if self.id_override:
+        if self.name:
             idx_str = ""
             if self.idx != None:
                 idx_str = ",{}".format(self.idx)
-            return "T({}{})".format(self.id_override, idx_str)
+            return "T({}{})".format(self.name, idx_str)
 
         idx_str = ""
         if self.idx != None:
@@ -370,8 +332,8 @@ class Track(_Track):
         idx_str = ""
         if self.idx != None:
             idx_str = " @{}".format(self.idx)
-        if self.id_override:
-            return "{}{}".format(self.id_override, idx_str[1:])
+        if self.name:
+            return "{}{}".format(self.name, idx_str[1:])
         return "{} {},{}->{},{}{}".format(self.type.value, self.start.x,
                                           self.start.y, self.end.x, self.end.y,
                                           idx_str)
@@ -382,22 +344,21 @@ T = Track
 
 
 class ChannelGrid(dict):
-    '''
+    """
     Functionality:
-    -Manages single type of track (either chanx or chany)
-    -Channel width along grid
-    -Manages track allocation within channels
-    -A track allocator
+     * Manages single type of track (either `CHANX` or `CHANY`).
+     * Manages channel width along grid.
+     * Allocates tracks within channels.
 
-    dict is indexed by Position() objects
-    This returns a list indicating all the tracks at that position
-    '''
+    The `ChannelGrid` is indexed by `Position` and returns a sequence width all
+    the `Track`s at that position.
+    """
 
     def __init__(self, size, chan_type):
-        '''
+        """
         size: Size representing tile grid width/height
         chan_type: of Channels.Type
-        '''
+        """
         self.chan_type = chan_type
         self.size = Size(*size)
 
@@ -424,40 +385,40 @@ class ChannelGrid(dict):
         return self.size.height
 
     def column(self, x):
-        '''Get a y coordinate indexed list giving tracks at that x + y position'''
+        """Get a y coordinate indexed list giving tracks at that x + y position"""
         column = []
         for y in range(0, self.height):
             column.append(self[Position(x, y)])
         return column
 
     def row(self, y):
-        '''Get an x coordinate indexed list giving tracks at that x + y position'''
+        """Get an x coordinate indexed list giving tracks at that x + y position"""
         row = []
         for x in range(0, self.width):
             row.append(self[Position(x, y)])
         return row
 
-    '''
+    """
     dim_*: CHANX/CHANY abstraction functions
     These can be used to write code that is not aware of specifics related to CHANX vs CHANY
-    '''
+    """
 
     def dim_rc(self):
-        '''Get dimension a, the number of row/col positions'''
+        """Get dimension a, the number of row/col positions"""
         return {
             Track.Type.X: self.height,
             Track.Type.Y: self.width,
         }[self.chan_type]
 
     def dim_chanl(self):
-        '''Get dimension b, the number of valid track positions within a specific channel'''
+        """Get dimension b, the number of valid track positions within a specific channel"""
         return {
             Track.Type.X: self.width,
             Track.Type.Y: self.height,
         }[self.chan_type]
 
-    def gen_valid_pos(self):
-        '''Generate all valid placement positions (exclude border)'''
+    def foreach_position(self):
+        """Generate all valid placement positions (exclude border)"""
         xmin, ymin = {
             Track.Type.X: (1, 0),
             Track.Type.Y: (0, 1),
@@ -467,46 +428,46 @@ class ChannelGrid(dict):
             for col in range(xmin, self.width):
                 yield Position(col, row)
 
-    def gen_valid_track(self):
-        '''Generate all current legal channel positions (exclude border)'''
-        for pos in self.gen_valid_pos():
+    def foreach_track(self):
+        """Generate all current legal channel positions (exclude border)"""
+        for pos in self.foreach_position():
             for ti, t in enumerate(self[pos]):
                 yield (pos, ti, t)
 
     def slicen(self):
-        '''Get grid width or height corresponding to chanx/chany type'''
+        """Get grid width or height corresponding to chanx/chany type"""
         return {
             Track.Type.X: self.height,
             Track.Type.Y: self.width,
         }[self.chan_type]
 
     def slice(self, i):
-        '''Get row or col corresponding to chanx/chany type'''
+        """Get row or col corresponding to chanx/chany type"""
         return {
             Track.Type.X: self.row,
             Track.Type.Y: self.column,
         }[self.chan_type](i)
 
     def track_slice(self, t):
-        '''Get the row or column the track runs along'''
+        """Get the row or column the track runs along"""
         return {
             Track.Type.X: self.row,
             Track.Type.Y: self.column,
         }[t.type](t.common)
 
     def tracks(self):
-        '''Get all channels in a set'''
+        """Get all channels in a set"""
         ret = set()
-        for _pos, _ti, t in self.gen_valid_track():
+        for _pos, _ti, t in self.foreach_track():
             ret.add(t)
         return ret
 
     def validate_pos(self, pos, msg=''):
-        '''
+        """
         A channel must go between switchboxes (where channels can cross)
         Channels are upper right of tile
         Therefore, the first position in a channel cannot have a track because there is no proceeding switchbox
-        '''
+        """
         if msg:
             msg = msg + ': '
         # Gross error out of grid
@@ -629,12 +590,14 @@ class ChannelGrid(dict):
 
         # Find start and end
         # TODO: BI should maybe sort
-        s, e = {
-            Track.Direction.BI: (t.start0, t.end0),
-            Track.Direction.INC: (t.start0, t.end0),
-            Track.Direction.DEC: (t.end0, t.start0),
-        }[t.direction]
-        assert e >= s
+        if t.direction == Track.Direction.BI:
+            s, e = min(t.start0, t.end0), max(t.start0, t.end0)
+        elif t.direction == Track.Direction.INC:
+            s, e = (t.start0, t.end0)
+        elif t.direction == Track.Direction.DEC:
+            s, e = (t.end0, t.start0)
+
+        assert e >= s, (e, '>=', s)
         assert s < len(l), (s, '<', len(l), l)
         assert e < len(l), (e + 1, '<', len(l), l)
 
@@ -665,7 +628,7 @@ class ChannelGrid(dict):
                 p.append(None)
         assert_len_eq(l)
 
-        t = t.update_idx(max_idx)
+        t = t.new_idx(max_idx)
         assert t.idx == max_idx
         for p in l[s:e + 1]:
             p[t.idx] = t
@@ -675,7 +638,7 @@ class ChannelGrid(dict):
         """
         If type == Track.Type.X
 
-          A--AC-T
+          A--AC-C
           B-----B
 
           D--DE-E
@@ -687,7 +650,7 @@ class ChannelGrid(dict):
           ||  ||
           ||  ||
           A|  D|
-          T|  E|
+          C|  E|
           ||  ||
           CB  EF
 
@@ -696,8 +659,8 @@ class ChannelGrid(dict):
         def get_str(t):
             if not t:
                 s = ""
-            elif t.id_override:
-                s = t.id_override
+            elif t.name:
+                s = t.name
             else:
                 s = str(t)
             return s
@@ -722,13 +685,13 @@ class ChannelGrid(dict):
         else:
             assert False
         non_fmt = " " * s_maxlen
-        '''
+        """
         rows[row][col][c]
         row: global row location
         col: column of output
         c: character showing occupation along a track
         Channel width may vary across tiles, but all columns within that region should have the same length
-        '''
+        """
         rows = []
         for y in range(0, self.height):
             cols = []
@@ -798,13 +761,13 @@ class ChannelGrid(dict):
         return f.getvalue()
 
     def clear(self):
-        '''Remove tracks from all currently occupied positions, making channel width 0'''
+        """Remove tracks from all currently occupied positions, making channel width 0"""
         for x in range(0, self.width):
             for y in range(0, self.height):
                 self[Position(x, y)] = []
 
     def check(self):
-        '''Self integrity check'''
+        """Self integrity check"""
         # Verify uniform track length
         if self.chan_type == Track.Type.X:
             for y in range(self.height):
@@ -816,17 +779,29 @@ class ChannelGrid(dict):
             assert False
 
     def density(self):
-        '''Return (number occupied positions, total number positions)''' 
+        """Return (number occupied positions, total number positions)"""
         occupied = 0
         net = 0
-        for _pos, _ti, t in self.gen_valid_track():
+        for _pos, _ti, t in self.foreach_track():
             net += 1
             if t is not None:
                 occupied += 1
         return occupied, net
 
+    def fill_empty(self, segment_id, name=None):
+        tracks = []
+        for pos, ti, t in self.foreach_track():
+            if t is None:
+                tracks.append(self.create_track(
+                    Track(
+                        pos, pos,
+                        segment_id=segment_id, name=name,
+                        type_hint=self.chan_type, direction_hint=Track.Direction.BI),
+                    idx=ti))
+        return tracks
+
     def channel_widths(self):
-        '''Return (min channel width, max channel width, row/col widths)'''
+        """Return (min channel width, max channel width, row/col widths)"""
         cwmin = float('+inf')
         cwmax = float('-inf')
         xy_list = []
@@ -840,8 +815,8 @@ class ChannelGrid(dict):
         return (cwmin, cwmax, xy_list)
 
     def assert_width(self, width):
-        '''Assert all channels have specified --route_chan_width'''
-        for pos in self.gen_valid_pos():
+        """Assert all channels have specified --route_chan_width"""
+        for pos in self.foreach_position():
             tracks = self[pos]
             assert len(
                 tracks
@@ -849,49 +824,44 @@ class ChannelGrid(dict):
                 pos.x, pos.y, width, len(tracks))
 
     def assert_full(self):
-        '''Assert all allocated channels are fully occupied'''
+        """Assert all allocated channels are fully occupied"""
         self.check()
         #occupied, net = self.density()
         #print("Occupied %d / %d" % (occupied, net))
-        for pos, ti, t in self.gen_valid_track():
+        for pos, ti, t in self.foreach_track():
             assert t is not None, 'Unoccupied Position(x=%d, y=%d) track=%d' % (
                 pos.x, pos.y, ti)
 
 class Channels:
-    '''Holds all channels for the whole grid (X + Y)'''
+    """Holds all channels for the whole grid (X + Y)"""
 
     def __init__(self, size):
         self.size = size
         self.x = ChannelGrid(size, Track.Type.X)
         self.y = ChannelGrid(size, Track.Type.Y)
-        # id to segment dict
-        self.segment_i2seg = {}
-        self.segment_s2seg = {}
-        # debug
-        self.segfreq = {}
 
-    def create_diag_track(self, start, end, segment, idx=None):
+    def create_diag_track(self, start, end, segment_id, idx=None):
         # Actually these can be tuple as well
         #assert_type(start, Pos)
         #assert_type(end, Pos)
 
         # Create track(s)
         try:
-            return (self.create_xy_track(start, end, segment, idx=idx), )
+            return (self.create_xy_track(start, end, segment_id, idx=idx), )
         except ChannelNotStraight as _e:
             assert idx is None, idx
             corner = (start.x, end.y)
-            ta = self.create_xy_track(start, corner, segment)[0]
-            tb = self.create_xy_track(corner, end, segment)[0]
+            ta = self.create_xy_track(start, corner, segment_id)[0]
+            tb = self.create_xy_track(corner, end, segment_id)[0]
             return (ta, tb)
 
     def create_xy_track(self,
-                        start, end, segment,
-                        idx=None, id_override=None,
+                        start, end, segment_id,
+                        idx=None, name=None,
                         typeh=None, direction=None):
-        '''
+        """
         idx: None to automatically allocate
-        '''
+        """
         # Actually these can be tuple as well
         #assert_type(start, Pos)
         #assert_type(end, Pos)
@@ -900,7 +870,7 @@ class Channels:
         # Will throw exception if not straight
         t = Track(
             start, end,
-            segment=segment, id_override=id_override,
+            segment_id=segment_id, name=name,
             type_hint=typeh, direction_hint=direction)
 
         # Add the track to associated channel list
@@ -915,22 +885,12 @@ class Channels:
         assert t.idx != None
         if typeh:
             assert t.type == typeh, (t.type.value, typeh)
-        self.segfreq[segment] = self.segfreq.get(segment, 0) + 1
         return t
 
-    def pad_channels(self, segment):
+    def pad_channels(self, segment_id):
         tracks = []
-
-        def pad_xy(xy, track_type):
-            for pos, ti, t in xy.gen_valid_track():
-                if t is None:
-                    t = Track(
-                        pos, pos,
-                        segment=segment, id_override=None,
-                        type_hint=track_type, direction_hint=Track.Direction.BI)
-                    tracks.append(xy.create_track(t, idx=ti))
-        pad_xy(self.x, Track.Type.X)
-        pad_xy(self.y, Track.Type.Y)
+        tracks.extend(self.x.fill_empty(segment_id))
+        tracks.extend(self.y.fill_empty(segment_id))
         return tracks
 
     def pretty_print(self):
@@ -942,25 +902,12 @@ class Channels:
         return s
 
     def clear(self):
-        '''Remove all channels'''
+        """Remove all channels"""
         self.x.clear()
         self.y.clear()
-        # self.segment_i2seg.clear()
-        # self.segment_s2seg.clear()
-
-    def from_xml_segments(self, segments_xml):
-        '''Add segments from <segments>'''
-        for segment_xml in segments_xml.iterfind('segment'):
-            s = Segment.from_xml(segment_xml)
-            self.add_segment(s)
-        #segments_xml.clear()
-
-    def add_segment(self, segment):
-        self.segment_i2seg[segment.id] = segment
-        self.segment_s2seg[segment.name] = segment
 
     def from_xml_nodes(self, nodes_xml):
-        '''Add channels from <nodes> CHANX/CHANY'''
+        """Add channels from <nodes> CHANX/CHANY"""
         for node_xml in nodes_xml:
             ntype = node_xml.get('type')
             if ntype not in ('CHANX', 'CHANY'):
@@ -976,17 +923,16 @@ class Channels:
 
             segment_xml = single_element(node_xml, 'segment')
             segment_id = int(segment_xml.get('segment_id'))
-            segment = self.segment_i2seg[segment_id]
 
             # idx will get assigned when adding to track
             try:
                 _track = self.create_xy_track(
                     pos_low,
                     pos_high,
-                    segment,
+                    segment_id,
                     idx=idx,
                     # XML has no name concept. Should it?
-                    id_override=None,
+                    name=None,
                     typeh=ntype_e,
                     direction=direction)
             except:
@@ -1020,62 +966,45 @@ class Channels:
                 'info': str(info)
             })
 
-    '''
-    def to_xml_segments(self, segments_xml):
-        # FIXME: hack. Get proper segment support
-        # for now add a summy segment for which all nodes are associated
-        #segments_xml.clear()
-        for _i, segment in sorted(self.segment_i2seg.items()):
-            segment.to_xml(segments_xml)
-    '''
-
-    '''
-    def create_segment(self, name, timing=None):
-        segment = Segment(len(self.segment_i2seg), name, timing=timing)
-        self.add_segment(segment)
-        return segment
-    '''
-
-    def get_segment(self, id=None):
-        if id is not None:
-            return self.segment_i2seg[id]
-
     def to_xml(self, xml_graph):
         self.to_xml_channels(single_element(xml_graph, 'channels'))
-        #self.to_xml_segments(single_element(xml_graph, 'segments'))
 
 
 def TX(start,
         end,
         idx=None,
-        id_override=None,
+        name=None,
         direction_hint=None,
-        segment=None):
+        segment_id=None):
     if start == end and direction_hint is None:
         direction_hint = Track.Direction.INC
     return T(start, end, idx=idx,
-             id_override=id_override,
+             name=name,
              type_hint=Track.Type.X,
              direction_hint=direction_hint,
-             segment=segment)
+             segment_id=segment_id)
 
 
 def TY(start,
         end,
         idx=None,
-        id_override=None,
+        name=None,
         direction_hint=None,
-        segment=None):
+        segment_id=None):
     if start == end and direction_hint is None:
         direction_hint = Track.Direction.INC
     return T(start, end, idx=idx,
-             id_override=id_override,
+             name=name,
              type_hint=Track.Type.Y,
              direction_hint=direction_hint,
-             segment=segment)
+             segment_id=segment_id)
 
 
-def test_x_auto():
+def docprint(x):
+    pprint.pprint(x.splitlines())
+
+
+def create_test_channel_grid():
     g = ChannelGrid((6, 3), Track.Type.X)
     g.create_track(TX((1, 0), (5, 0), None, "AA"))
     g.create_track(TX((1, 0), (3, 0), None, "BB"))
@@ -1086,11 +1015,75 @@ def test_x_auto():
     g.create_track(TX((4, 1), (5, 1), None, "bb"))
     g.create_track(TX((1, 1), (5, 1), None, "cc"))
 
-    print()
     g.check()
-    print(g.pretty_print())
+    return g
+
+
+def test_x_auto():
+    """
+    >>> docprint(test_x_auto())
+    ['| 0  | 1  | 2  | 3  | 4  | 5  |',
+     '       AA>---------------->AA ',
+     '       BB>------>BB           ',
+     '       DD   CC>----------->CC ',
+     '',
+     '',
+     '| 0  | 1  | 2  | 3  | 4  | 5  |',
+     '       aa>------>aa   bb>->bb ',
+     '       cc>---------------->cc ',
+     '',
+     '',
+     '| 0  | 1  | 2  | 3  | 4  | 5  |',
+     '',
+     '']
+    """
+    g = create_test_channel_grid()
+    return g.pretty_print()
+
+
+def test_pad():
+    """
+    >>> docprint(test_pad())
+    ['| 0  | 1  | 2  | 3  | 4  | 5  |',
+     '       AA>---------------->AA ',
+     '       BB>------>BB   XX   XX ',
+     '       DD   CC>----------->CC ',
+     '',
+     '',
+     '| 0  | 1  | 2  | 3  | 4  | 5  |',
+     '       aa>------>aa   bb>->bb ',
+     '       cc>---------------->cc ',
+     '',
+     '',
+     '| 0  | 1  | 2  | 3  | 4  | 5  |',
+     '',
+     '']
+    """
+    g = create_test_channel_grid()
+    g.fill_empty(0, name='XX')
+    g.check()
+    return g.pretty_print()
+
+
 
 def test_x_manual():
+    """
+    >>> pprint.pprint(test_x_manual().splitlines())
+    ['| 0  | 1  | 2  | 3  | 4  | 5  |',
+     '       AA>---------------->AA ',
+     '       BB>------>BB           ',
+     '       DD   CC>----------->CC ',
+     '',
+     '',
+     '| 0  | 1  | 2  | 3  | 4  | 5  |',
+     '       aa>------>aa   bb>->bb ',
+     '       cc>---------------->cc ',
+     '',
+     '',
+     '| 0  | 1  | 2  | 3  | 4  | 5  |',
+     '',
+     '']
+    """
     g = ChannelGrid((6, 3), Track.Type.X)
     g.create_track(TX((1, 0), (5, 0), None, "AA"), idx=0)
     g.create_track(TX((1, 0), (3, 0), None, "BB"), idx=1)
@@ -1107,11 +1100,20 @@ def test_x_manual():
     except IndexError:
         pass
 
-    print()
     g.check()
-    print(g.pretty_print())
+    return g.pretty_print()
+
 
 def test_y_auto():
+    """
+    >>> docprint(test_y_auto())
+    ['|*| 0  |                 |*| 0  |            |*| 0  |  ',
+     '|*| 1  | AA   BB   DD    |*| 1  | aa   cc    |*| 1  |  ',
+     '|*| 2  | ||   ||   CC    |*| 2  | ||   ||    |*| 2  |  ',
+     '|*| 3  | ||   BB   ||    |*| 3  | aa   ||    |*| 3  |  ',
+     '|*| 4  | ||        ||    |*| 4  | bb   ||    |*| 4  |  ',
+     '|*| 5  | AA        CC    |*| 5  | bb   cc    |*| 5  |  ']
+    """
     g = ChannelGrid((3, 6), Track.Type.Y)
     g.create_track(TY((0, 1), (0, 5), None, "AA"))
     g.create_track(TY((0, 1), (0, 3), None, "BB"))
@@ -1122,33 +1124,12 @@ def test_y_auto():
     g.create_track(TY((1, 4), (1, 5), None, "bb"))
     g.create_track(TY((1, 1), (1, 5), None, "cc"))
 
-    print()
     g.check()
-    print(g.pretty_print())
+    return g.pretty_print()
 
-def test_segment():
-    segment = Segment(0, 'awesomesauce', timing={'R_per_meter':420, 'C_per_meter':3.e-14})
-    c = Channels(Position(6, 4))
-    c.create_xy_track(Position(1, 0), Position(4, 0), segment)
-    c.create_xy_track(Position(1, 0), Position(2, 0), segment)
-    c.create_xy_track(Position(0, 1), Position(0, 3), segment)
-    print("X")
-    print(c.x.pretty_print())
-    print()
-    print("Y")
-    print(c.y.pretty_print())
 
 if __name__ == "__main__":
     import doctest
     print('doctest: begin')
     doctest.testmod()
     print('doctest: end')
-
-    test_x_auto()
-    test_x_manual()
-    print()
-    print()
-    test_y_auto()
-    print()
-    print()
-    test_segment()
