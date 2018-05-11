@@ -4,6 +4,7 @@ DEVICE_DIR = ../ice40/devices/
 DEVICE_TYPE ?= tile-routing-virt
 DEVICE ?= LP384
 YOSYS_SCRIPT ?= synth_ice40 -nodffe -nocarry; ice40_opt -unlut; abc -lut 4;
-RR_PATCH_TOOL ?= $(PWD)/../ice40/utils/icebox_rr_graph_import.py
+#RR_PATCH_TOOL ?= $(PWD)/../ice40/utils/ice40_patch_routing.py
+RR_PATCH_TOOL ?= $(PWD)/../ice40/utils/ice40_patch_routing_from_icebox.py
 RR_PATCH_CMD ?= \
 	$(RR_PATCH_TOOL)

@@ -57,12 +57,14 @@ $(OUTPUT_DIR)/%.eblif: %.eblif | $(OUTPUT_DIR)
 
 ##########################################################################
 
+ROUTE_CHAN_WIDTH ?= 100
+MIN_ROUTE_CHAN_WIDTH_HINT ?= $(ROUTE_CHAN_WIDTH)
+
 # VPR commands
 VPR_ARGS ?=
-VPR_CMD = $(VPR) $(VPR_ARGS)  $(DEVICE_FILE) --device $(DEVICE) --timing_analysis off --min_route_chan_width_hint 10
+VPR_CMD = $(VPR) $(VPR_ARGS)  $(DEVICE_FILE) --device $(DEVICE) --timing_analysis off --min_route_chan_width_hint $(MIN_ROUTE_CHAN_WIDTH_HINT)
 VPR_FULL_CMD = cd $(OUTPUT_DIR); $(VPR_CMD)
 
-ROUTE_CHAN_WIDTH ?= 100
 
 $(OUTPUT_DIR)/%.rr_graph.xml: $(OUTPUT_DIR)/%.eblif $(DEVICE_FILE)
 	$(VPR_FULL_CMD) $(notdir $<) --route_chan_width $(ROUTE_CHAN_WIDTH) --write_rr_graph $(notdir $@)
