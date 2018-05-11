@@ -1,6 +1,5 @@
 <!-- set: ai sw=1 ts=1 sta et -->
 <architecture xmlns:xi="http://www.w3.org/2001/XInclude">
- <!-- ODIN-II model description for non-standard block type -->
  <models>
   <xi:include href="../../tiles/lutff3/lutff3.model.xml" xpointer="xpointer(models/child::node())" />
  </models>
