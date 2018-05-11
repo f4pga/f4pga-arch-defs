@@ -16,7 +16,7 @@ def create_tracks(g, grid_sz, rcw, verbose=False):
     # Not strictly required, but VPR wants this I think?
     assert rcw % 2 == 0
 
-    seg_timing = {'R_per_meter':420, 'C_per_meter':3.e-14}
+    seg_timing = {'R_per_meter': 420, 'C_per_meter': 3.e-14}
     segment = g.channels.create_segment('awesomesauce', timing=seg_timing)
 
     def alt_pos(begin, end, swap):

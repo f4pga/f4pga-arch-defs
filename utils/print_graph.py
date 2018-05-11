@@ -1,11 +1,16 @@
 import lib.rr_graph.graph as graph
 
+
 def print_block_types(rr_graph):
     '''Sequentially list block types'''
     bg = rr_graph.block_grid
 
     for type_id, bt in bg.block_types.items():
-        print("{:4}  ".format(type_id), "{:40s}".format(bt.to_string()), bt.to_string(extra=True))
+        print(
+            "{:4}  ".format(type_id),
+            "{:40s}".format(bt.to_string()),
+            bt.to_string(extra=True))
+
 
 def print_grid(rr_graph):
     '''ASCII diagram displaying XY layout'''
@@ -15,7 +20,8 @@ def print_grid(rr_graph):
     #print('Grid %dw x %dh' % (grid.width, grid.height))
     col_widths = []
     for x in range(0, grid.width):
-        col_widths.append(max(len(bt.name) for bt in bg.block_types_for(col=x)))
+        col_widths.append(
+            max(len(bt.name) for bt in bg.block_types_for(col=x)))
 
     print("    ", end=" ")
     for x in range(0, grid.width):
@@ -24,20 +30,23 @@ def print_grid(rr_graph):
 
     print("   /", end="-")
     for x in range(0, grid.width):
-        print("-"*col_widths[x], end="-+-")
+        print("-" * col_widths[x], end="-+-")
     print()
 
     for y in reversed(range(0, grid.height)):
         print("{: 3d} |".format(y, width=col_widths[0]), end=" ")
         for x, bt in enumerate(bg.block_types_for(row=y)):
             assert x < len(col_widths), (x, bt)
-            print("{: ^{width}}".format(bt.name, width=col_widths[x]), end=" | ")
+            print(
+                "{: ^{width}}".format(bt.name, width=col_widths[x]), end=" | ")
         print()
+
 
 def print_nodes(rr_graph, lim=None):
     '''Display source/sink edges on all XML nodes'''
     ids = rr_graph.ids
-    print('Nodes: {}, edges {}'.format(len(ids._xml_nodes), len(ids._xml_edges)))
+    print('Nodes: {}, edges {}'.format(
+        len(ids._xml_nodes), len(ids._xml_edges)))
     for nodei, node in enumerate(ids._xml_nodes):
         print()
         if lim and nodei >= lim:
@@ -69,6 +78,7 @@ def print_nodes(rr_graph, lim=None):
         if not snks:
             print("   ", None)
 
+
 def print_graph(rr_graph, lim=0):
     print()
     print_block_types(rr_graph)
@@ -77,6 +87,7 @@ def print_graph(rr_graph, lim=0):
     print()
     print_nodes(rr_graph, lim=lim)
     print()
+
 
 def main():
     import argparse
@@ -88,6 +99,7 @@ def main():
 
     g = graph.Graph(args.rr_graph)
     print_graph(g, lim=args.lim)
+
 
 if __name__ == "__main__":
     main()

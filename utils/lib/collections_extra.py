@@ -122,18 +122,21 @@ class OrderedEnum(enum.Enum):
         if hasattr(other.__class__, "name"):
             return self.name >= other.name
         return NotImplemented
+
     def __gt__(self, other):
         if self.__class__ is other.__class__:
             return self.name > other.name
         if hasattr(other.__class__, "name"):
             return self.name > other.name
         return NotImplemented
+
     def __le__(self, other):
         if self.__class__ is other.__class__:
             return self.name <= other.name
         if hasattr(other.__class__, "name"):
             return self.name <= other.name
         return NotImplemented
+
     def __lt__(self, other):
         if self.__class__ is other.__class__:
             return self.name < other.name
@@ -195,7 +198,7 @@ class CompassDir(OrderedEnum):
 
     @property
     def distance(self):
-        return sum(a*a for a in self.coords)
+        return sum(a * a for a in self.coords)
 
     def __init__(self, *args, **kw):
         self.__cords = None
@@ -231,10 +234,10 @@ class CompassDir(OrderedEnum):
         return self.from_coords(self.flip_coords[self.coords])
 
     def __add__(self, o):
-        return o.__class__(o[0]+self.x, o[1]+self.y)
+        return o.__class__(o[0] + self.x, o[1] + self.y)
 
     def __radd__(self, o):
-        return o.__class__(o[0]+self.x, o[1]+self.y)
+        return o.__class__(o[0] + self.x, o[1] + self.y)
 
     def __str__(self):
         return "(%2i, %2i, %s)" % (self.x, self.y, self.name)
@@ -247,7 +250,7 @@ CompassDir.straight = []
 CompassDir.angled = []
 for d in list(CompassDir) + [None]:
     if d is None:
-        x,y = 0, 0
+        x, y = 0, 0
     else:
         if d.name[0] == 'N':
             y = -1
@@ -267,14 +270,13 @@ for d in list(CompassDir) + [None]:
 
     CompassDir.convert_to_coords[d] = (x, y)
     CompassDir.convert_from_coords[(x, y)] = d
-    CompassDir.flip_coords[(x, y)] = (-1*x, -1*y)
+    CompassDir.flip_coords[(x, y)] = (-1 * x, -1 * y)
 
-    length = x*x + y*y
+    length = x * x + y * y
     if length == 1:
         CompassDir.straight.append(d)
     elif length == 2:
         CompassDir.angled.append(d)
-
 
 if __name__ == "__main__":
     import doctest
