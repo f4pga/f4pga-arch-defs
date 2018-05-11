@@ -2,13 +2,19 @@
 // [1] 7 Series DSP48E1 User Guide UG479 (v1.9) September 27, 2016
 
 // Figure 2-8 and Table 2-6 shows details
-`include "../nmux2/nmux2.sim.v"
+`include "bin_mux/bin_mux.sim.v"
+`include "b1reg_mux/b1reg_mux.sim.v"
+`include "b2reg_mux/b2reg_mux.sim.v"
+`include "bc_mux/bc_mux.sim.v"
+`include "bmult_mux/bmult_mux.sim.v"
+
 `include "../nreg/nreg.sim.v"
 
 module DUAL_B_REG
   (
    B, BCIN, INMODE,
-   BCOUT, XMUX, BMULT
+   BCOUT, XMUX, BMULT,
+   CEB1, CEB2, RSTB, CLK
    );
 
    // input mux
@@ -33,22 +39,28 @@ module DUAL_B_REG
    output wire [17:0] XMUX;
    output wire [17:0] BMULT;
 
-   wire 	      B_SEL = (B_INPUT == "DIRECT") ? 0 : 1;
-   wire 	      CASC_SEL = (BCASCREG == 1);
-
+   input wire 	      CEB1;
+   input wire 	      CEB2;
+   input wire 	      RSTB;
+   input wire 	      CLK;
+   
    wire [17:0] 	      B1IN;
    wire [17:0] 	      B1OUT;
    wire [17:0] 	      B2IN;
    wire [17:0] 	      B2OUT;
 
-   NMUX2 #(.NBITS(18)) binmux (.I0(B), .I1(BCIN), .S(B_SEL), .O(B1IN));
-   NMUX2 #(.NBITS(18)) b1mux (.I0(B1IN), .I1(B1OUT), .S(BREG>1), .O(B2IN));
-   NMUX2 #(.NBITS(18)) b2mux (.I0(B2IN), .I1(B2OUT), .S(BREG>0), .O(XMUX));
-   NMUX2 #(.NBITS(18)) bcmux (.I0(XMUX), .I1(B1OUT), .S(CASC_SEL), .O(BCOUT));
+   BIN_MUX #(.S(B_INPUT == "CASCADE")) bin_mux (.B(B), .BCIN(BCIN), .O(B1IN));
+   B1REG_MUX #(.S(BREG>1)) b1_mux (.BYPASS(B1IN), .REG(B1OUT), .O(B2IN));
+   B2REG_MUX #(.S(BREG>0)) b2_mux (.BYPASS(B2IN), .REG(B2OUT),  .O(XMUX));
+
+   // If 0, then both reg muxes are in bypass, so use B2_MUX output
+   // If 1, then use B1 register output (this works for BREG=1 or 2
+   // If 2, then both reg muxes are not in bypass so use B2_MUX output
+   BC_MUX #(.S(BCASCREG == 1)) bc_mux (.B1REG(B1OUT), .B2(XMUX), .O(BCOUT));
 
    NREG #(.NBITS(18)) b1 (.D(B1IN), .Q(B1OUT), .CLK(CLK), .CE(CEB1), .RESET(RSTB));
    NREG #(.NBITS(18)) b2 (.D(B2IN), .Q(B2OUT), .CLK(CLK), .CE(CEB2), .RESET(RSTB));
 
-   NMUX2 #(.NBITS(18)) bmultmux (.I0(B1OUT), .I1(XMUX), .S(INMODE[4]), .O(BMULT));
+   BMULT_MUX bmultmux (.B2(XMUX), .B1REG(B1OUT), .S(INMODE[4]), .O(BMULT));
 
 endmodule // DUALB_REG
