@@ -38,7 +38,8 @@ class ChannelNotStraight(TypeError):
 
 
 _Track = namedtuple(
-    "Track", ("start", "end", "idx", "type_hint", "direction_hint", "segment_id"))
+    "Track",
+    ("start", "end", "idx", "type_hint", "direction_hint", "segment_id"))
 
 
 class Track(_Track):
@@ -481,7 +482,6 @@ class ChannelGrid(dict):
         if self.chan_type == Track.Type.Y and pos.y == 0:
             raise ValueError("%sInvalid CHANY y=0 point %s" % (msg, pos))
 
-
     def create_track(self, t, idx=None):
         """
         Channel allocator
@@ -792,12 +792,16 @@ class ChannelGrid(dict):
         tracks = []
         for pos, ti, t in self.foreach_track():
             if t is None:
-                tracks.append(self.create_track(
-                    Track(
-                        pos, pos,
-                        segment_id=segment_id, name=name,
-                        type_hint=self.chan_type, direction_hint=Track.Direction.BI),
-                    idx=ti))
+                tracks.append(
+                    self.create_track(
+                        Track(
+                            pos,
+                            pos,
+                            segment_id=segment_id,
+                            name=name,
+                            type_hint=self.chan_type,
+                            direction_hint=Track.Direction.BI),
+                        idx=ti))
         return tracks
 
     def channel_widths(self):
@@ -832,6 +836,7 @@ class ChannelGrid(dict):
             assert t is not None, 'Unoccupied Position(x=%d, y=%d) track=%d' % (
                 pos.x, pos.y, ti)
 
+
 class Channels:
     """Holds all channels for the whole grid (X + Y)"""
 
@@ -856,9 +861,13 @@ class Channels:
             return (ta, tb)
 
     def create_xy_track(self,
-                        start, end, segment_id,
-                        idx=None, name=None,
-                        typeh=None, direction=None):
+                        start,
+                        end,
+                        segment_id,
+                        idx=None,
+                        name=None,
+                        typeh=None,
+                        direction=None):
         """
         idx: None to automatically allocate
         """
@@ -869,9 +878,12 @@ class Channels:
         # Create track(s)
         # Will throw exception if not straight
         t = Track(
-            start, end,
-            segment_id=segment_id, name=name,
-            type_hint=typeh, direction_hint=direction)
+            start,
+            end,
+            segment_id=segment_id,
+            name=name,
+            type_hint=typeh,
+            direction_hint=direction)
 
         # Add the track to associated channel list
         # Get the track now with the index assigned
@@ -970,34 +982,30 @@ class Channels:
         self.to_xml_channels(single_element(xml_graph, 'channels'))
 
 
-def TX(start,
-        end,
-        idx=None,
-        name=None,
-        direction_hint=None,
-        segment_id=None):
+def TX(start, end, idx=None, name=None, direction_hint=None, segment_id=None):
     if start == end and direction_hint is None:
         direction_hint = Track.Direction.INC
-    return T(start, end, idx=idx,
-             name=name,
-             type_hint=Track.Type.X,
-             direction_hint=direction_hint,
-             segment_id=segment_id)
-
-
-def TY(start,
+    return T(
+        start,
         end,
-        idx=None,
-        name=None,
-        direction_hint=None,
-        segment_id=None):
+        idx=idx,
+        name=name,
+        type_hint=Track.Type.X,
+        direction_hint=direction_hint,
+        segment_id=segment_id)
+
+
+def TY(start, end, idx=None, name=None, direction_hint=None, segment_id=None):
     if start == end and direction_hint is None:
         direction_hint = Track.Direction.INC
-    return T(start, end, idx=idx,
-             name=name,
-             type_hint=Track.Type.Y,
-             direction_hint=direction_hint,
-             segment_id=segment_id)
+    return T(
+        start,
+        end,
+        idx=idx,
+        name=name,
+        type_hint=Track.Type.Y,
+        direction_hint=direction_hint,
+        segment_id=segment_id)
 
 
 def docprint(x):
@@ -1063,7 +1071,6 @@ def test_pad():
     g.fill_empty(0, name='XX')
     g.check()
     return g.pretty_print()
-
 
 
 def test_x_manual():

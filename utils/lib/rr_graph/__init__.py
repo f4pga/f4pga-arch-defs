@@ -23,6 +23,7 @@ class static_property(object):
 
         return attr
 
+
 # FIXME: define operators
 Position = namedtuple("P", ("x", "y"))
 P = Position  # Even shorter alias
@@ -116,7 +117,6 @@ def single_element(parent, name):
     elements = list(parent.iterfind(name))
     assert len(elements) == 1, elements
     return elements[0]
-
 
 
 def node_pos(node):
