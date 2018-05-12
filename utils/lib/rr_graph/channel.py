@@ -27,10 +27,16 @@ import lxml.etree as ET
 
 from . import Position
 from . import Size
-from . import static_property
+
+# FIXME: doctests and static_property are not playing nice together.
+#from . import static_property
+static_property = property
+
 from . import node_pos, single_element
-from ..asserts import assert_type
+from ..asserts import assert_eq
 from ..asserts import assert_len_eq
+from ..asserts import assert_type
+from ..asserts import assert_type_or_none
 
 
 class ChannelNotStraight(TypeError):
@@ -39,7 +45,7 @@ class ChannelNotStraight(TypeError):
 
 _Track = namedtuple(
     "Track",
-    ("start", "end", "idx", "type_hint", "direction_hint", "segment_id"))
+    ("start", "end", "direction", "segment_id", "idx"))
 
 
 class Track(_Track):
@@ -73,38 +79,34 @@ class Track(_Track):
     def __new__(cls,
                 start,
                 end,
+                direction=Direction.INC,
+                segment_id=0,
                 idx=None,
                 name=None,
                 type_hint=None,
-                direction_hint=None,
-                segment_id=None):
+                ):
         """Make most but not all attributes immutable"""
 
         if not isinstance(start, Position):
             start = Position(*start)
+        assert_type(start, Position)
         if not isinstance(end, Position):
             end = Position(*end)
+        assert_type(end, Position)
 
         if start.x != end.x and start.y != end.y:
             raise ChannelNotStraight("Track not straight! {}->{}".format(
                 start, end))
 
-        if idx is not None:
-            assert_type(idx, int)
+        assert_type(direction, cls.Direction)
+        assert_type(segment_id, int)
+        assert_type_or_none(idx, int)
+        assert_type_or_none(name, str)
+        assert_type_or_none(type_hint, cls.Type)
 
-        obj = _Track.__new__(cls, start, end, idx, type_hint, direction_hint,
-                             segment_id)
+        obj = _Track.__new__(cls, start, end, direction, segment_id, idx)
         obj.name = name
-
-        # Verify not ambiguous
-        obj.type
-        obj.direction
-        # And check for consistency if its not ambiguous
-        assert obj.type_guess is None or obj.type_guess == obj.type
-        if direction_hint != Track.Direction.BI:
-            assert obj.direction_guess is None or obj.direction_guess == obj.direction, "Guess: %s, got: %s" % (
-                obj.direction_guess, obj.direction)
-
+        obj.type_hint = type_hint
         return obj
 
     @static_property
@@ -117,18 +119,36 @@ class Track(_Track):
         Track.Type.X
         >>> Track((0, 1), (0, 10)).type
         Track.Type.Y
-        >>> Track((1, 1), (1, 1)).type_guess
-        None
+        >>> Track((1, 1), (1, 1)).type
+        Traceback (most recent call last):
+            ...
+        ValueError: Ambiguous type
+        >>> Track((1, 1), (1, 1), type_hint=Track.Type.X).type
+        Track.Type.X
+        >>> Track((1, 1), (1, 1), type_hint=Track.Type.Y).type
+        Track.Type.Y
+
         """
         if self.type_hint:
             return self.type_hint
         guess = self.type_guess
         if guess is None:
-            return ValueError("Ambiguous type")
+            raise ValueError("Ambiguous type")
         return guess
 
     @static_property
     def type_guess(self):
+        """Type of the channel.
+
+        Returns: Track.Type
+
+        >>> Track((1, 0), (10, 0)).type_guess
+        Track.Type.X
+        >>> Track((0, 1), (0, 10)).type_guess
+        Track.Type.Y
+        >>> str(Track((1, 1), (1, 1)).type_guess)
+        'None'
+        """
         if self.start.x == self.end.x and self.start.y == self.end.y:
             return None
         elif self.start.x == self.end.x:
@@ -136,7 +156,7 @@ class Track(_Track):
         elif self.start.y == self.end.y:
             return Track.Type.X
         else:
-            assert False
+            assert False, self
 
     def positions(self):
         """Generate all positions this track occupies"""
@@ -155,8 +175,12 @@ class Track(_Track):
         1
         >>> Track((0, 1), (0, 10)).start0
         1
-        # >>> Track((1, 1), (1, 1)).start0
-        # 1
+        >>> Track((1, 1), (1, 1)).start0
+        Traceback (most recent call last):
+            ...
+        ValueError: Ambiguous type
+        >>> Track((1, 1), (1, 1), type_hint=Track.Type.X).start0
+        1
         >>> Track((10, 0), (1, 0)).start0
         10
         >>> Track((0, 10), (0, 1)).start0
@@ -177,8 +201,12 @@ class Track(_Track):
         10
         >>> Track((0, 1), (0, 10)).end0
         10
-        # >>> Track((1, 1), (1, 1)).end0
-        # 1
+        >>> Track((1, 1), (1, 1)).end0
+        Traceback (most recent call last):
+            ...
+        ValueError: Ambiguous type
+        >>> Track((1, 1), (1, 1), type_hint=Track.Type.X).end0
+        1
         >>> Track((10, 0), (1, 0)).end0
         1
         >>> Track((0, 10), (0, 1)).end0
@@ -200,6 +228,10 @@ class Track(_Track):
         >>> Track((0, 0), (0, 10)).common
         0
         >>> Track((1, 1), (1, 1)).common
+        Traceback (most recent call last):
+            ...
+        ValueError: Ambiguous type
+        >>> Track((1, 1), (1, 1), type_hint=Track.Type.X).common
         1
         >>> Track((10, 0), (0, 0)).common
         0
@@ -209,46 +241,13 @@ class Track(_Track):
         4
         """
         if self.type == Track.Type.X:
-            assert self.start.y == self.end.y
+            assert_eq(self.start.y, self.end.y)
             return self.start.y
         elif self.type == Track.Type.Y:
-            assert self.start.x == self.end.x
+            assert_eq(self.start.x, self.end.x)
             return self.start.x
         else:
             assert False
-
-    @static_property
-    def direction(self):
-        """Direction the channel runs.
-
-        Returns: Track.Direction
-
-        >>> Track((0, 0), (10, 0)).direction
-        Track.Direction.INC
-        >>> Track((0, 0), (0, 10)).direction
-        Track.Direction.INC
-        >>> Track((1, 1), (1, 1)).direction
-        Track.Direction.INC
-        >>> Track((10, 0), (0, 0)).direction
-        Track.Direction.DEC
-        >>> Track((0, 10), (0, 0)).direction
-        Track.Direction.DEC
-        """
-        if self.direction_hint:
-            return self.direction_hint
-        guess = self.direction_guess
-        if guess is None:
-            raise ValueError("Ambiguous direction")
-        return guess
-
-    @static_property
-    def direction_guess(self):
-        if self.end0 == self.start0:
-            return None
-        elif self.end0 < self.start0:
-            return Track.Direction.DEC
-        else:
-            return Track.Direction.INC
 
     @static_property
     def length(self):
@@ -265,17 +264,20 @@ class Track(_Track):
         >>> Track((0, 10), (0, 0)).length
         10
         """
-        return abs(self.end0 - self.start0)
+        try:
+            return abs(self.end0 - self.start0)
+        except ValueError:
+            return 0
 
     def new_idx(self, idx):
         """Create a new channel with the same start/end but new index value.
 
         >>> s = (1, 4)
         >>> e = (1, 8)
-        >>> c1 = Track(s, e, 0)
+        >>> c1 = Track(s, e, idx=0)
         >>> c2 = c1.new_idx(2)
-        >>> assert c1.start == c2.start
-        >>> assert c1.end == c2.end
+        >>> assert_eq(c1.start, c2.start)
+        >>> assert_eq(c1.end, c2.end)
         >>> c1.idx
         0
         >>> c2.idx
@@ -284,11 +286,12 @@ class Track(_Track):
         return self.__class__(
             self.start,
             self.end,
+            self.direction,
+            self.segment_id,
             idx,
             name=self.name,
             type_hint=self.type_hint,
-            direction_hint=self.direction_hint,
-            segment_id=self.segment_id)
+            )
 
     def __repr__(self):
         """
@@ -297,11 +300,11 @@ class Track(_Track):
         'T((0,0), (10,0))'
         >>> repr(Track((0, 0), (0, 10)))
         'T((0,0), (0,10))'
-        >>> repr(Track((1, 2), (3, 2), 5))
+        >>> repr(Track((1, 2), (3, 2), idx=5))
         'T((1,2), (3,2), 5)'
-        >>> repr(Track((1, 2), (3, 2), None, "ABC"))
+        >>> repr(Track((1, 2), (3, 2), name="ABC"))
         'T(ABC)'
-        >>> repr(Track((1, 2), (3, 2), 5, "ABC"))
+        >>> repr(Track((1, 2), (3, 2), idx=5, name="ABC"))
         'T(ABC,5)'
         """
         if self.name:
@@ -323,11 +326,11 @@ class Track(_Track):
         'CHANX 0,0->10,0'
         >>> str(Track((0, 0), (0, 10)))
         'CHANY 0,0->0,10'
-        >>> str(Track((1, 2), (3, 2), 5))
+        >>> str(Track((1, 2), (3, 2), idx=5))
         'CHANX 1,2->3,2 @5'
-        >>> str(Track((1, 2), (3, 2), None, "ABC"))
+        >>> str(Track((1, 2), (3, 2), name="ABC"))
         'ABC'
-        >>> str(Track((1, 2), (3, 2), 5, "ABC"))
+        >>> str(Track((1, 2), (3, 2), idx=5, name="ABC"))
         'ABC@5'
         """
         idx_str = ""
@@ -491,7 +494,7 @@ class ChannelGrid(dict):
 
         >>> g = ChannelGrid((11, 11), Track.Type.X)
         >>> # Adding the first channel
-        >>> g.create_track(Track((1, 6), (4, 6), None, "A"))
+        >>> g.create_track(Track((1, 6), (4, 6), name="A"))
         T(A,0)
         >>> g[(1,6)]
         [T(A,0)]
@@ -502,7 +505,7 @@ class ChannelGrid(dict):
         >>> g[(5,6)]
         [None]
         >>> # Adding second non-overlapping second channel
-        >>> g.create_track(Track((5, 6), (7, 6), None, "B"))
+        >>> g.create_track(Track((5, 6), (7, 6), name="B"))
         T(B,0)
         >>> g[(4,6)]
         [T(A,0)]
@@ -513,7 +516,7 @@ class ChannelGrid(dict):
         >>> g[(8,6)]
         [None]
         >>> # Adding third channel which overlaps with second channel
-        >>> g.create_track(Track((5, 6), (7, 6), None, "T"))
+        >>> g.create_track(Track((5, 6), (7, 6), name="T"))
         T(T,1)
         >>> g[(4,6)]
         [T(A,0), None]
@@ -522,7 +525,7 @@ class ChannelGrid(dict):
         >>> g[(7,6)]
         [T(B,0), T(T,1)]
         >>> # Adding a channel which overlaps, but is a row over
-        >>> g.create_track(Track((5, 7), (7, 7), None, "D"))
+        >>> g.create_track(Track((5, 7), (7, 7), name="D"))
         T(D,0)
         >>> g[(5,6)]
         [T(B,0), T(T,1)]
@@ -530,7 +533,7 @@ class ChannelGrid(dict):
         [T(D,0)]
         >>> # Adding fourth channel which overlaps both the first
         >>> # and second+third channel
-        >>> g.create_track(Track((3, 6), (6, 6), None, "E"))
+        >>> g.create_track(Track((3, 6), (6, 6), name="E"))
         T(E,2)
         >>> g[(2,6)]
         [T(A,0), None, None]
@@ -541,7 +544,7 @@ class ChannelGrid(dict):
         >>> g[(7,6)]
         [T(B,0), T(T,1), None]
         >>> # This channel fits in the hole left by the last one.
-        >>> g.create_track(Track((1, 6), (3, 6), None, "F"))
+        >>> g.create_track(Track((1, 6), (3, 6), name="F"))
         T(F,1)
         >>> g[(1,6)]
         [T(A,0), T(F,1), None]
@@ -552,7 +555,7 @@ class ChannelGrid(dict):
         >>> g[(4,6)]
         [T(A,0), None, T(E,2)]
         >>> # Add another channel which causes a hole
-        >>> g.create_track(Track((1, 6), (7, 6), None, "G"))
+        >>> g.create_track(Track((1, 6), (7, 6), name="G"))
         T(G,3)
         >>> g[(1,6)]
         [T(A,0), T(F,1), None, T(G,3)]
@@ -577,25 +580,26 @@ class ChannelGrid(dict):
         self.validate_pos(t.start, 'start')
         self.validate_pos(t.end, 'end')
 
-        if t.type != self.chan_type:
+        if t.type_guess != self.chan_type:
             if t.length != 0:
                 raise TypeError(
                     "Can only add channels of type {} which {} ({}) is not.".
                     format(self.chan_type, t, t.type))
             else:
-                t.type = self.chan_type
+                t.type_hint = self.chan_type
 
         l = self.track_slice(t)
         assert_len_eq(l)
 
         # Find start and end
-        # TODO: BI should maybe sort
         if t.direction == Track.Direction.BI:
             s, e = min(t.start0, t.end0), max(t.start0, t.end0)
         elif t.direction == Track.Direction.INC:
             s, e = (t.start0, t.end0)
         elif t.direction == Track.Direction.DEC:
             s, e = (t.end0, t.start0)
+        else:
+            assert False, "Unknown track direction: {}".format(t.direction)
 
         assert e >= s, (e, '>=', s)
         assert s < len(l), (s, '<', len(l), l)
@@ -800,7 +804,7 @@ class ChannelGrid(dict):
                             segment_id=segment_id,
                             name=name,
                             type_hint=self.chan_type,
-                            direction_hint=Track.Direction.BI),
+                            direction=Track.Direction.BI),
                         idx=ti))
         return tracks
 
@@ -883,7 +887,7 @@ class Channels:
             segment_id=segment_id,
             name=name,
             type_hint=typeh,
-            direction_hint=direction)
+            direction=direction)
 
         # Add the track to associated channel list
         # Get the track now with the index assigned
@@ -982,30 +986,36 @@ class Channels:
         self.to_xml_channels(single_element(xml_graph, 'channels'))
 
 
-def TX(start, end, idx=None, name=None, direction_hint=None, segment_id=None):
-    if start == end and direction_hint is None:
-        direction_hint = Track.Direction.INC
+def TX(start, end, idx=None, name=None, direction=None, segment_id=None):
+    if direction is None:
+        direction = Track.Direction.INC
+    if segment_id is None:
+        segment_id = 0
     return T(
         start,
         end,
+        direction=direction,
+        segment_id=segment_id,
         idx=idx,
         name=name,
         type_hint=Track.Type.X,
-        direction_hint=direction_hint,
-        segment_id=segment_id)
+        )
 
 
-def TY(start, end, idx=None, name=None, direction_hint=None, segment_id=None):
-    if start == end and direction_hint is None:
-        direction_hint = Track.Direction.INC
+def TY(start, end, idx=None, name=None, direction=None, segment_id=None):
+    if direction is None:
+        direction = Track.Direction.INC
+    if segment_id is None:
+        segment_id = 0
     return T(
         start,
         end,
+        direction=direction,
+        segment_id=segment_id,
         idx=idx,
         name=name,
         type_hint=Track.Type.Y,
-        direction_hint=direction_hint,
-        segment_id=segment_id)
+        )
 
 
 def docprint(x):
@@ -1014,14 +1024,14 @@ def docprint(x):
 
 def create_test_channel_grid():
     g = ChannelGrid((6, 3), Track.Type.X)
-    g.create_track(TX((1, 0), (5, 0), None, "AA"))
-    g.create_track(TX((1, 0), (3, 0), None, "BB"))
-    g.create_track(TX((2, 0), (5, 0), None, "CC"))
-    g.create_track(TX((1, 0), (1, 0), None, "DD"))
+    g.create_track(TX((1, 0), (5, 0), name="AA"))
+    g.create_track(TX((1, 0), (3, 0), name="BB"))
+    g.create_track(TX((2, 0), (5, 0), name="CC"))
+    g.create_track(TX((1, 0), (1, 0), name="DD"))
 
-    g.create_track(TX((1, 1), (3, 1), None, "aa"))
-    g.create_track(TX((4, 1), (5, 1), None, "bb"))
-    g.create_track(TX((1, 1), (5, 1), None, "cc"))
+    g.create_track(TX((1, 1), (3, 1), name="aa"))
+    g.create_track(TX((4, 1), (5, 1), name="bb"))
+    g.create_track(TX((1, 1), (5, 1), name="cc"))
 
     g.check()
     return g
@@ -1092,17 +1102,17 @@ def test_x_manual():
      '']
     """
     g = ChannelGrid((6, 3), Track.Type.X)
-    g.create_track(TX((1, 0), (5, 0), None, "AA"), idx=0)
-    g.create_track(TX((1, 0), (3, 0), None, "BB"), idx=1)
-    g.create_track(TX((2, 0), (5, 0), None, "CC"), idx=2)
-    g.create_track(TX((1, 0), (1, 0), None, "DD"), idx=2)
+    g.create_track(TX((1, 0), (5, 0), name="AA"), idx=0)
+    g.create_track(TX((1, 0), (3, 0), name="BB"), idx=1)
+    g.create_track(TX((2, 0), (5, 0), name="CC"), idx=2)
+    g.create_track(TX((1, 0), (1, 0), name="DD"), idx=2)
 
-    g.create_track(TX((1, 1), (3, 1), None, "aa"), idx=0)
-    g.create_track(TX((4, 1), (5, 1), None, "bb"), idx=0)
-    g.create_track(TX((1, 1), (5, 1), None, "cc"), idx=1)
+    g.create_track(TX((1, 1), (3, 1), name="aa"), idx=0)
+    g.create_track(TX((4, 1), (5, 1), name="bb"), idx=0)
+    g.create_track(TX((1, 1), (5, 1), name="cc"), idx=1)
 
     try:
-        g.create_track(T((1, 1), (5, 1), None, "dd"), idx=1)
+        g.create_track(TX((1, 1), (5, 1), name="dd"), idx=1)
         assert False, "Should have failed to place"
     except IndexError:
         pass
@@ -1122,14 +1132,14 @@ def test_y_auto():
      '|*| 5  | AA        CC    |*| 5  | bb   cc    |*| 5  |  ']
     """
     g = ChannelGrid((3, 6), Track.Type.Y)
-    g.create_track(TY((0, 1), (0, 5), None, "AA"))
-    g.create_track(TY((0, 1), (0, 3), None, "BB"))
-    g.create_track(TY((0, 2), (0, 5), None, "CC"))
-    g.create_track(TY((0, 1), (0, 1), None, "DD"))
+    g.create_track(TY((0, 1), (0, 5), name="AA"))
+    g.create_track(TY((0, 1), (0, 3), name="BB"))
+    g.create_track(TY((0, 2), (0, 5), name="CC"))
+    g.create_track(TY((0, 1), (0, 1), name="DD"))
 
-    g.create_track(TY((1, 1), (1, 3), None, "aa"))
-    g.create_track(TY((1, 4), (1, 5), None, "bb"))
-    g.create_track(TY((1, 1), (1, 5), None, "cc"))
+    g.create_track(TY((1, 1), (1, 3), name="aa"))
+    g.create_track(TY((1, 4), (1, 5), name="bb"))
+    g.create_track(TY((1, 1), (1, 5), name="cc"))
 
     g.check()
     return g.pretty_print()
