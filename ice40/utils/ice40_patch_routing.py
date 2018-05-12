@@ -1221,11 +1221,11 @@ for edge_src, edge_dst, delta in [
 for edge_src, edge_dst, delta in [
     ("t", "b", CompassDir.N),
     ("l", "r", CompassDir.E),
-        # Connection around the corners..
-        #("t", "r", CompassDir.NW),
-        #("t", "l", CompassDir.NE),
-        #("l", "b", CompassDir.NW),
-        #("l", "r", CompassDir.NE),
+    # Connection around the corners..
+    #("t", "r", CompassDir.NW),
+    #("t", "l", CompassDir.NE),
+    #("l", "b", CompassDir.NW),
+    #("l", "r", CompassDir.NE),
 ]:
 
     # IO Span 4s
