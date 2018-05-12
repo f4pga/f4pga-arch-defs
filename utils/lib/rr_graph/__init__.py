@@ -13,8 +13,12 @@ class static_property(object):
         """
         self._attr_name = factory.__name__
         self._factory = factory
+        self.__doc__ = factory.__doc__
 
     def __get__(self, instance, owner):
+        if instance is None:
+            return self
+
         # Build the attribute.
         attr = self._factory(instance)
 
