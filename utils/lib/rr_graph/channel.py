@@ -43,9 +43,8 @@ class ChannelNotStraight(TypeError):
     pass
 
 
-_Track = namedtuple(
-    "Track",
-    ("start", "end", "direction", "segment_id", "idx"))
+_Track = namedtuple("Track",
+                    ("start", "end", "direction", "segment_id", "idx"))
 
 
 class Track(_Track):
@@ -76,15 +75,16 @@ class Track(_Track):
         def __repr__(self):
             return 'Track.Direction.' + self.name
 
-    def __new__(cls,
-                start,
-                end,
-                direction=Direction.INC,
-                segment_id=0,
-                idx=None,
-                name=None,
-                type_hint=None,
-                ):
+    def __new__(
+            cls,
+            start,
+            end,
+            direction=Direction.INC,
+            segment_id=0,
+            idx=None,
+            name=None,
+            type_hint=None,
+    ):
         """Make most but not all attributes immutable"""
 
         if not isinstance(start, Position):
@@ -291,7 +291,7 @@ class Track(_Track):
             idx,
             name=self.name,
             type_hint=self.type_hint,
-            )
+        )
 
     def __repr__(self):
         """
@@ -592,15 +592,7 @@ class ChannelGrid(dict):
         assert_len_eq(l)
 
         # Find start and end
-        if t.direction == Track.Direction.BI:
-            s, e = min(t.start0, t.end0), max(t.start0, t.end0)
-        elif t.direction == Track.Direction.INC:
-            s, e = (t.start0, t.end0)
-        elif t.direction == Track.Direction.DEC:
-            s, e = (t.end0, t.start0)
-        else:
-            assert False, "Unknown track direction: {}".format(t.direction)
-
+        s, e = min(t.start0, t.end0), max(t.start0, t.end0)
         assert e >= s, (e, '>=', s)
         assert s < len(l), (s, '<', len(l), l)
         assert e < len(l), (e + 1, '<', len(l), l)
@@ -999,7 +991,7 @@ def TX(start, end, idx=None, name=None, direction=None, segment_id=None):
         idx=idx,
         name=name,
         type_hint=Track.Type.X,
-        )
+    )
 
 
 def TY(start, end, idx=None, name=None, direction=None, segment_id=None):
@@ -1015,7 +1007,7 @@ def TY(start, end, idx=None, name=None, direction=None, segment_id=None):
         idx=idx,
         name=name,
         type_hint=Track.Type.Y,
-        )
+    )
 
 
 def docprint(x):
