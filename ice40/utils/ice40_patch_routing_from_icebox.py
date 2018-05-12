@@ -1085,8 +1085,12 @@ def add_edges(g, nn, verbose=0):
                 ))
             verbose and print('  ', entry)
             # FIXME: proper switch ID
-            edgea, edgeb = g.routing.create_rr_edge_with_ids_bidir(
-                src_node_id, dst_node_id, switch=g.switches[0], bidir=bidir)
+            edgea = g.routing.create_edge_with_ids(
+                src_node_id, dst_node_id, switch=g.switches[0])
+            edgeb = None
+            if bidir:
+                edgeb = g.routing.create_edge_with_ids(
+                    dst_node_id, src_node_id, switch=g.switches[0])
 
             def edgestr(edge):
                 return '%s => %s' % (edge.get('src_node'),
@@ -1188,8 +1192,8 @@ def run(part, read_rr_graph, write_rr_graph):
     #create_segments(g)
     print()
     print('Rebuilding block I/O nodes')
-    g._create_block_pins_fabric(g.switches['__vpr_delayless_switch__'],
-                                get_pin_sides)
+    g.create_block_pins_fabric(g.switches['__vpr_delayless_switch__'],
+                               get_pin_sides)
     print_nodes_edges(g)
 
     print('Indexing pin node names w/ %d index entries' % len(

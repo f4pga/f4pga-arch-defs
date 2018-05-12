@@ -959,7 +959,8 @@ class Segment(MostlyReadOnly):
         ...     <timing R_per_meter="101" C_per_meter="2.25000005e-14"/>
         ... </segment>
         ... '''
-        >>> segment = Segment.from_xml(ET.fromstring(xml_string))
+        >>> Segment.from_xml(ET.fromstring(xml_string))
+        Segment(id=0, name='span', timing=SegmentTiming(R_per_meter=101.0, C_per_meter=2.25000005e-14))
         """
         assert_type(segment_xml, ET._Element)
         seg_id = int(segment_xml.get('id'))
@@ -990,6 +991,13 @@ class Segment(MostlyReadOnly):
 SwitchTiming = namedtuple("SwitchTiming", ("R", "Cin", "Cout", "Tdel"))
 SwitchSizing = namedtuple("SwitchSizing", ("mux_trans_size", "buf_size"))
 
+class SwitchType(enum.Enum):
+    MUX = "mux"
+    TRISTATE = "tristate"
+    PASS_GATE = "pass_gate"
+    SHORT = "short"
+    BUFFER = "buffer"
+
 
 class Switch(MostlyReadOnly):
     """A Switch.
@@ -997,6 +1005,7 @@ class Switch(MostlyReadOnly):
     Attributes
     ----------
     id : int
+    type : SwitchType
     name : str
     buffered : bool
     configurable : bool
@@ -1007,6 +1016,7 @@ class Switch(MostlyReadOnly):
     __slots__ = [
         "_id",
         "_name",
+        "_type",
         "_buffered",
         "_configurable",
         "_timing",
@@ -1015,12 +1025,14 @@ class Switch(MostlyReadOnly):
 
     def __init__(self,
                  id,
+                 type,
                  name,
                  buffered=False,
                  configurable=False,
                  timing=None,
                  sizing=None):
         assert_type(id, int)
+        assert_type(type, SwitchType)
         assert_type(name, str)
         assert_type(buffered, bool)
         assert_type(configurable, bool)
@@ -1028,6 +1040,7 @@ class Switch(MostlyReadOnly):
         assert_type_or_none(sizing, SwitchSizing)
         self._id = id
         self._name = name
+        self._type = type
         self._buffered = buffered
         self._configurable = configurable
         self._timing = timing
@@ -1054,11 +1067,12 @@ class Switch(MostlyReadOnly):
         ...  <sizing mux_trans_size="2.63073993" buf_size="27.6459007"/>
         ... </switch>
         ... '''
-        >>> switch = Switch.from_xml(ET.fromstring(xml_string))
-
+        >>> Switch.from_xml(ET.fromstring(xml_string))
+        Switch(id=0, name='buffer', type=<SwitchType.MUX: 'mux'>, buffered=True, configurable=True, timing=SwitchTiming(R=551.0, Cin=7.70000012e-16, Cout=4.00000001e-15, Tdel=4.00000001e-15), sizing=SwitchSizing(mux_trans_size=2.63073993, buf_size=27.6459007))
         """
         assert_type(switch_xml, ET._Element)
         sw_id = int(switch_xml.attrib.get('id'))
+        sw_type = SwitchType(switch_xml.attrib.get('type'))
         name = switch_xml.attrib.get('name')
         buffered = bool(switch_xml.attrib.get('buffered'))
         configurable = bool(switch_xml.attrib.get('configurable'))
@@ -1088,6 +1102,7 @@ class Switch(MostlyReadOnly):
 
         return cls(
             id=sw_id,
+            type=sw_type,
             name=name,
             buffered=buffered,
             configurable=configurable,
@@ -1806,13 +1821,13 @@ class Graph:
         Look at the switches via name or ID number;
         >>> g = simple_test_graph()
         >>> g.switches[0]
-        Switch(id=0, name='mux', buffered=True, configurable=True, ...)
+        Switch(id=0, name='mux', type=<SwitchType.MUX: 'mux'>, buffered=True, configurable=True, ...)
         >>> g.switches[1]
-        Switch(id=1, name='__vpr_delayless_switch__', buffered=True, configurable=True, ...)
+        Switch(id=1, name='__vpr_delayless_switch__', type=<SwitchType.MUX: 'mux'>, buffered=True, configurable=True, ...)
         >>> g.switches["mux"]
-        Switch(id=0, name='mux', buffered=True, configurable=True, ...)
+        Switch(id=0, name='mux', type=<SwitchType.MUX: 'mux'>, buffered=True, configurable=True, ...)
         >>> g.switches["__vpr_delayless_switch__"]
-        Switch(id=1, name='__vpr_delayless_switch__', buffered=True, configurable=True, ...)
+        Switch(id=1, name='__vpr_delayless_switch__', type=<SwitchType.MUX: 'mux'>, buffered=True, configurable=True, ...)
 
         Look at the block grid;
         >>> g = simple_test_graph()
@@ -1984,6 +1999,37 @@ class Graph:
 
         return pin_node
 
+    def create_node_from_track(self, track):
+        """
+        Creates the CHANX/CHANY node for a Track object.
+
+        Parameters
+        ----------
+        track : channels.Track
+
+        Returns
+        -------
+        RoutingNode
+
+        Examples
+        --------
+        """
+        assert_type(track, Track)
+        assert track.idx != None
+
+        track_node = self.routing.create_node(
+            track.start,
+            track.end,
+            track.idx,
+            track.type.value,
+            direction=track.direction,
+            segment_id=track.segment_id)
+
+        if track.name is not None:
+            self.routing.globalnames.add(track.name, track_node)
+
+        return track_node
+
     def create_nodes_from_pin_class(self, block, pin_class, switch, sides):
         """Creates a SOURCE or SINK RoutingNode from a `class PinClass` object.
 
@@ -2067,31 +2113,6 @@ class Graph:
         """
         for block in blocks:
             self.create_nodes_from_block(block, switch, sides)
-
-    def create_node_from_track(self, track):
-        """
-        Creates the CHANX/CHANY node for a Track object.
-
-        Parameters
-        ----------
-        track : channels.Track
-
-        Examples
-        --------
-        """
-        assert_type(track, Track)
-        assert track.idx != None
-
-        track_node = self.routing.create_node(
-            track.start,
-            track.end,
-            track.idx,
-            track.type.value,
-            direction=track.direction,
-            segment_id=track.segment_id)
-
-        if track.name is not None:
-            self.routing.globalnames.add(track.name, track_node)
 
     def connect_pin_to_track(self, block, pin, track, switch, node_index=None):
         """
