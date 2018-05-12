@@ -1313,6 +1313,11 @@ def create_tracks(g, verbose=False):
     type_x = channel.Track.Type.X
     bi_dir = channel.Track.Direction.BI
 
+    short_xml = list(g._xml_graph.iterfind('//switches/switch/[@name="short"]'))[0]
+    #short_xml.attrib['configurable'] = '0'
+    #short_xml.attrib['buffered'] = '0'
+    print("Rewrote short too: ", ET.tostring(short_xml))
+
     #############################################################################
     # Internal Block wires
     #############################################################################
@@ -1336,7 +1341,7 @@ def create_tracks(g, verbose=False):
 
             print("{} - {}".format(block, l_n))
 
-            g.routing.add_localname(begin, l_n, _track_node)
+            g.routing.localnames.add(begin, l_n, _track_node)
 
         for g_n in global_names:
             track, _track_node = g.create_xy_track(
@@ -1344,7 +1349,7 @@ def create_tracks(g, verbose=False):
 
             print("{} - {}".format(block, g_n))
 
-            g.routing.add_localname(begin, g_n, _track_node)
+            g.routing.localnames.add(begin, g_n, _track_node)
 
         # Padding ------------------------------------------------
         track, _track_node = g.create_xy_track(
@@ -1364,9 +1369,9 @@ def create_tracks(g, verbose=False):
 
             print("%s - Created track %s (%s)" % (block, d.aliases, track))
 
-            g.routing.add_localname(begin, d.name, _track_node)
+            g.routing.localnames.add(begin, d.name, _track_node)
             for alias in d.aliases:
-                g.routing.add_localname(begin, alias, _track_node)
+                g.routing.localnames.add(begin, alias, _track_node)
 
     #############################################################################
     # Internal Block connections
@@ -1405,8 +1410,7 @@ def create_tracks(g, verbose=False):
 
             src_node = g.routing.localnames[(src_block.position, src_name)]
             dst_node = g.routing.localnames[(src_block.position, dst_name)]
-            g.connect_track_to_track(src_node, dst_node,
-                                     g.switches[switch_type])
+            g.routing.create_edge_with_nodes(src_node, dst_node, g.switches[switch_type])
 
             #print(src_block, src_name, "->", dst_name)
 
@@ -1440,8 +1444,10 @@ def create_tracks(g, verbose=False):
 
             print("Found {}->{} on {} {} ({})".format(
                 src_name, dst_name, src_block, delta, dst_block))
-            g.connect_track_to_track_bidir(
-                src_node, dst_node, g.switches["__vpr_delayless_switch__"])
+            g.routing.create_edge_with_nodes(
+                src_node, dst_node, g.switches["short"])
+            g.routing.create_edge_with_nodes(
+                dst_node, src_node, g.switches["short"])
 
     #############################################################################
 
