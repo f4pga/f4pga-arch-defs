@@ -1192,7 +1192,6 @@ def run(part, read_rr_graph, write_rr_graph):
                                 get_pin_sides)
     print_nodes_edges(g)
 
-    print
     print('Indexing pin node names w/ %d index entries' % len(
         nn.poslname2nodeid))
     nn.index_pin_node_ids(g)
@@ -1200,18 +1199,7 @@ def run(part, read_rr_graph, write_rr_graph):
     # self.poslname2nodeid[(PN1(block.position), localname)]
     print(
         'Indexed pin node names w/ %d index entries' % len(nn.poslname2nodeid))
-    if 0:
-        import pprint
-        pprint.pprint(nn.poslname2nodeid)
-        print
-        sys.exit(1)
-    '''
-    # think these will get added as part of below
-    if 0:
-        print()
-        add_local_tracks(g, nn)
-        print_nodes_edges(g)
-    '''
+
     #add_global_nets(g, nn)
     print()
     add_span_tracks(g, nn)
