@@ -2114,7 +2114,7 @@ class Graph:
         for block in blocks:
             self.create_nodes_from_block(block, switch, sides)
 
-    def connect_pin_to_track(self, block, pin, track, switch, node_index=None):
+    def connect_pin_to_track(self, block, pin, track, switch):
         """
         Create an edge from given pin in block to given track with switching properties of switch
         """
@@ -2130,7 +2130,7 @@ class Graph:
         else:
             self.routing.create_edge_with_nodes(track_node, pin_node, switch)
 
-    def connect_track_to_track(self, src, dst, switch, node_index=None):
+    def connect_track_to_track(self, src, dst, switch):
         assert_type(src, Track)
         assert_type(dst, Track)
         src_node = self.routing.globalnames[src.name]
@@ -2140,8 +2140,7 @@ class Graph:
     def connect_track_to_track_bidir(self,
                                      tracka,
                                      trackb,
-                                     switch,
-                                     node_index=None):
+                                     switch):
         self.connect_track_to_track(tracka, trackb, switch)
         self.connect_track_to_track(trackb, tracka, switch)
 
