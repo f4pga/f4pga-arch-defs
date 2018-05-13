@@ -31,11 +31,11 @@
    <direct name="io_0_OUT_ENB" input="BLK_TL-PIO_L.io_0_OUT_ENB" output="BLK_IG-IO_LOCAL.io_0_OUT_ENB"/>
    <direct name="io_1_OUT_ENB" input="BLK_TL-PIO_L.io_1_OUT_ENB" output="BLK_IG-IO_LOCAL.io_1_OUT_ENB"/>
 
-   <direct name="io_global_cen"    input="BLK_TL-PIO_L.io_global_cen"    output="BLK_IG-IO_LOCAL.CEN"    />
-   <direct name="io_global_inclk"  input="BLK_TL-PIO_L.io_global_inclk"  output="BLK_IG-IO_LOCAL.INCLK"  />
-   <direct name="io_global_outclk" input="BLK_TL-PIO_L.io_global_outclk" output="BLK_IG-IO_LOCAL.OUTCLK" />
+   <direct name="io_global_cen"    input="BLK_TL-PIO_L.io_global_cen"    output="BLK_IG-IO_LOCAL.io_global_cen"    />
+   <direct name="io_global_inclk"  input="BLK_TL-PIO_L.io_global_inclk"  output="BLK_IG-IO_LOCAL.io_global_inclk"  />
+   <direct name="io_global_outclk" input="BLK_TL-PIO_L.io_global_outclk" output="BLK_IG-IO_LOCAL.io_global_outclk" />
 
-   <direct name="io_global_latch"  input="BLK_TL-PIO_L.io_global_latch"  output="BLK_IG-IO_LOCAL.LATCH"  />
+   <direct name="io_global_latch"  input="BLK_TL-PIO_L.io_global_latch"  output="BLK_IG-IO_LOCAL.io_global_latch"  />
   </interconnect>
 
   <pinlocations pattern="custom">
@@ -86,11 +86,11 @@
    <direct name="io_0_OUT_ENB" input="BLK_TL-PIO_R.io_0_OUT_ENB" output="BLK_IG-IO_LOCAL.io_0_OUT_ENB"/>
    <direct name="io_1_OUT_ENB" input="BLK_TL-PIO_R.io_1_OUT_ENB" output="BLK_IG-IO_LOCAL.io_1_OUT_ENB"/>
 
-   <direct name="io_global_cen"    input="BLK_TL-PIO_R.io_global_cen"    output="BLK_IG-IO_LOCAL.CEN"    />
-   <direct name="io_global_inclk"  input="BLK_TL-PIO_R.io_global_inclk"  output="BLK_IG-IO_LOCAL.INCLK"  />
-   <direct name="io_global_outclk" input="BLK_TL-PIO_R.io_global_outclk" output="BLK_IG-IO_LOCAL.OUTCLK" />
+   <direct name="io_global_cen"    input="BLK_TL-PIO_R.io_global_cen"    output="BLK_IG-IO_LOCAL.io_global_cen"    />
+   <direct name="io_global_inclk"  input="BLK_TL-PIO_R.io_global_inclk"  output="BLK_IG-IO_LOCAL.io_global_inclk"  />
+   <direct name="io_global_outclk" input="BLK_TL-PIO_R.io_global_outclk" output="BLK_IG-IO_LOCAL.io_global_outclk" />
 
-   <direct name="io_global_latch"  input="BLK_TL-PIO_R.io_global_latch"  output="BLK_IG-IO_LOCAL.LATCH"  />
+   <direct name="io_global_latch"  input="BLK_TL-PIO_R.io_global_latch"  output="BLK_IG-IO_LOCAL.io_global_latch"  />
   </interconnect>
 
   <pinlocations pattern="custom">
@@ -141,11 +141,11 @@
    <direct name="io_0_OUT_ENB" input="BLK_TL-PIO_B.io_0_OUT_ENB" output="BLK_IG-IO_LOCAL.io_0_OUT_ENB"/>
    <direct name="io_1_OUT_ENB" input="BLK_TL-PIO_B.io_1_OUT_ENB" output="BLK_IG-IO_LOCAL.io_1_OUT_ENB"/>
 
-   <direct name="io_global_cen"    input="BLK_TL-PIO_B.io_global_cen"    output="BLK_IG-IO_LOCAL.CEN"    />
-   <direct name="io_global_inclk"  input="BLK_TL-PIO_B.io_global_inclk"  output="BLK_IG-IO_LOCAL.INCLK"  />
-   <direct name="io_global_outclk" input="BLK_TL-PIO_B.io_global_outclk" output="BLK_IG-IO_LOCAL.OUTCLK" />
+   <direct name="io_global_cen"    input="BLK_TL-PIO_B.io_global_cen"    output="BLK_IG-IO_LOCAL.io_global_cen"    />
+   <direct name="io_global_inclk"  input="BLK_TL-PIO_B.io_global_inclk"  output="BLK_IG-IO_LOCAL.io_global_inclk"  />
+   <direct name="io_global_outclk" input="BLK_TL-PIO_B.io_global_outclk" output="BLK_IG-IO_LOCAL.io_global_outclk" />
 
-   <direct name="io_global_latch"  input="BLK_TL-PIO_B.io_global_latch"  output="BLK_IG-IO_LOCAL.LATCH"  />
+   <direct name="io_global_latch"  input="BLK_TL-PIO_B.io_global_latch"  output="BLK_IG-IO_LOCAL.io_global_latch"  />
   </interconnect>
 
   <pinlocations pattern="custom">
@@ -196,11 +196,11 @@
    <direct name="io_0_OUT_ENB" input="BLK_TL-PIO_T.io_0_OUT_ENB" output="BLK_IG-IO_LOCAL.io_0_OUT_ENB"/>
    <direct name="io_1_OUT_ENB" input="BLK_TL-PIO_T.io_1_OUT_ENB" output="BLK_IG-IO_LOCAL.io_1_OUT_ENB"/>
 
-   <direct name="io_global_cen"    input="BLK_TL-PIO_T.io_global_cen"    output="BLK_IG-IO_LOCAL.CEN"    />
-   <direct name="io_global_inclk"  input="BLK_TL-PIO_T.io_global_inclk"  output="BLK_IG-IO_LOCAL.INCLK"  />
-   <direct name="io_global_outclk" input="BLK_TL-PIO_T.io_global_outclk" output="BLK_IG-IO_LOCAL.OUTCLK" />
+   <direct name="io_global_cen"    input="BLK_TL-PIO_T.io_global_cen"    output="BLK_IG-IO_LOCAL.io_global_cen"    />
+   <direct name="io_global_inclk"  input="BLK_TL-PIO_T.io_global_inclk"  output="BLK_IG-IO_LOCAL.io_global_inclk"  />
+   <direct name="io_global_outclk" input="BLK_TL-PIO_T.io_global_outclk" output="BLK_IG-IO_LOCAL.io_global_outclk" />
 
-   <direct name="io_global_latch"  input="BLK_TL-PIO_T.io_global_latch"  output="BLK_IG-IO_LOCAL.LATCH"  />
+   <direct name="io_global_latch"  input="BLK_TL-PIO_T.io_global_latch"  output="BLK_IG-IO_LOCAL.io_global_latch"  />
   </interconnect>
 
   <pinlocations pattern="custom">
