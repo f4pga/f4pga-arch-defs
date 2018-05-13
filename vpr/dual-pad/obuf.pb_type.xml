@@ -1,0 +1,47 @@
+<!-- An IO pin found on an FPGA -->
+<pb_type name="BLK_IG-OBUF" capacity="2">
+ <input name="outpad" num_pins="1"/>
+ <output name="inpad" num_pins="1"/>
+
+ <!-- IO operating as an input -->
+ <mode name="PAD_IS_INPUT">
+   <pb_type name="PAD_IN-INPUT" blif_model=".input" num_pb="1">
+    <output name="inpad" num_pins="1"/>
+   </pb_type>
+   <interconnect>
+    <direct name="INPUT" input="PAD_IN-INPUT.inpad" output="BLK_IG-OBUF.inpad">
+     <delay_constant max="4.243e-11" in_port="PAD_IN-INPUT.inpad" out_port="BLK_IG-OBUF.inpad"/>
+    </direct>
+   </interconnect>
+ </mode>
+
+ <!-- IO operating as an output -->
+ <mode name="PAD_IS_OUTPUT">
+  <pb_type name="PAD_OT-OUTPUT" blif_model=".output" num_pb="1">
+   <input name="outpad" num_pins="1"/>
+  </pb_type>
+  <interconnect>
+   <direct name="OUTPUT" input="BLK_IG-OBUF.outpad" output="PAD_OT-OUTPUT.outpad">
+    <delay_constant max="1.394e-11" in_port="BLK_IG-OBUF.outpad" out_port="PAD_OT-OUTPUT.outpad"/>
+   </direct>
+  </interconnect>
+ </mode>
+
+ <!-- FIXME - Should have a IO operating as bi-directional -->
+
+ <!-- IO pins are never connected to the fabric, they are connected to a platform specific IO tile -->
+ <fc in_type="frac" in_val="1" out_type="frac" out_val="1"/>
+
+ <!--
+  IOs go on the periphery of the FPGA/
+
+  Currently for consistency make it physically equivalent on all sides so
+  that only one definition of I/Os is needed.
+
+  If I do not make a physically equivalent definition, then we need to 4
+  different pin definitions (one for each side of the FPGA).
+ -->
+ <pinlocations pattern="custom">
+  <loc side="right">BLK_IG-OBUF.outpad BLK_IG-OBUF.inpad</loc>
+ </pinlocations>
+</pb_type>
