@@ -1316,7 +1316,7 @@ def create_tracks(g, verbose=False):
     short_xml = list(g._xml_graph.iterfind('//switches/switch/[@name="short"]'))[0]
     #short_xml.attrib['configurable'] = '0'
     #short_xml.attrib['buffered'] = '0'
-    print("Rewrote short too: ", ET.tostring(short_xml))
+    print("Rewrote short switch: ", ET.tostring(short_xml))
 
     #############################################################################
     # Internal Block wires
