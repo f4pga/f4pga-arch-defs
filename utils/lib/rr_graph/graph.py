@@ -59,6 +59,7 @@ from .channel import Channels, Track
 
 from ..asserts import assert_eq
 from ..asserts import assert_is
+from ..asserts import assert_not_in
 from ..asserts import assert_type
 from ..asserts import assert_type_or_none
 
@@ -239,6 +240,10 @@ class Pin(MostlyReadOnly):
     @property
     def name(self):
         """<portname>[<port_index>]"""
+        assert_type(self.port_name, str,
+                    "Pin doesn't have port_name {}".format(self))
+        assert_type(self.port_index, int,
+                    "Pin doesn't have port_index {}".format(self))
         return "{}[{}]".format(self.port_name, self.port_index)
 
     @property
@@ -991,6 +996,7 @@ class Segment(MostlyReadOnly):
 SwitchTiming = namedtuple("SwitchTiming", ("R", "Cin", "Cout", "Tdel"))
 SwitchSizing = namedtuple("SwitchSizing", ("mux_trans_size", "buf_size"))
 
+
 class SwitchType(enum.Enum):
     MUX = "mux"
     TRISTATE = "tristate"
@@ -1360,6 +1366,8 @@ class MappingLocalNames(dict):
 
         if pos not in self.localnames:
             self.localnames[pos] = set()
+
+        assert_not_in(name, self.localnames[pos])
         self.localnames[pos].add(name)
 
         dict.__setitem__(self, key, xml_node)
@@ -1917,7 +1925,9 @@ class Graph:
                 # Lookup Block/<grid_loc>
                 # ptc is the associated pin ptc value of the block_type
                 block = self.block_grid[pos]
+                assert_type(block, Block)
                 pin = block.ptc2pin(ptc)
+                assert pin.name is not None, pin.name
                 self.routing.localnames.add(pos, pin.name, node)
 
     def _import_block_types(self):
@@ -2137,10 +2147,7 @@ class Graph:
         dst_node = self.routing.globalnames[dst.name]
         self.routing.create_edge_with_nodes(src_node, dst_node, switch)
 
-    def connect_track_to_track_bidir(self,
-                                     tracka,
-                                     trackb,
-                                     switch):
+    def connect_track_to_track_bidir(self, tracka, trackb, switch):
         self.connect_track_to_track(tracka, trackb, switch)
         self.connect_track_to_track(trackb, tracka, switch)
 
