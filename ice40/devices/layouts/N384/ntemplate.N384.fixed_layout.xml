@@ -1,13 +1,10 @@
 <!-- set: ai sw=1 ts=1 sta et -->
-<fixed_layout name="{N}384" width="12" height="12">
+<fixed_layout name="{N}384" width="10" height="12">
  <col    type="EMPTY"            startx="0"  priority="30"/>
  <col    type="BLK_TL-PIO_L"     startx="1"  priority="10"/>
  <region type="BLK_TL-PLB"       startx="2" endx="7" starty="2" endy="9" priority="4"/> <!-- Logic blocks 8x10 -->
  <col    type="BLK_TL-PIO_R"     startx="8"  priority="10"/>
  <col    type="EMPTY"            startx="9"  priority="30"/>
- <!-- Temp -->
- <col    type="EMPTY"            startx="10" priority="30"/>
- <col    type="EMPTY"            startx="11" priority="30"/>
 
  <row    type="EMPTY"            starty="0"  priority="31"/>
  <row    type="BLK_TL-PIO_B"     starty="1"  priority="11"/>
