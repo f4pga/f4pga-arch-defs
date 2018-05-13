@@ -13,10 +13,10 @@
   <input  name="io_0_OUT_ENB" num_pins="1" equivalent="false"/>
   <input  name="io_1_OUT_ENB" num_pins="1" equivalent="false"/>
 
-  <input  name="CEN"    num_pins="1" equivalent="false"/>
-  <clock  name="INCLK"  num_pins="1" equivalent="false"/>
-  <clock  name="OUTCLK" num_pins="1" equivalent="false"/>
-  <input  name="LATCH"  num_pins="1" equivalent="false"/>
+  <input  name="io_global_cen"    num_pins="1" equivalent="false"/>
+  <clock  name="io_global_inclk"  num_pins="1" equivalent="false"/>
+  <clock  name="io_global_outclk" num_pins="1" equivalent="false"/>
+  <input  name="io_global_latch"  num_pins="1" equivalent="false"/>
 
   <xi:include href="../../../../cells/io_local/io_local.pb_type.xml"/>
 
@@ -30,10 +30,12 @@
    <!-- Control signals -->
    <direct name="io_0_OUT_ENB" input="BLK_TL-PIO_L.io_0_OUT_ENB" output="BLK_IG-IO_LOCAL.io_0_OUT_ENB"/>
    <direct name="io_1_OUT_ENB" input="BLK_TL-PIO_L.io_1_OUT_ENB" output="BLK_IG-IO_LOCAL.io_1_OUT_ENB"/>
-   <direct name="CEN"          input="BLK_TL-PIO_L.CEN"          output="BLK_IG-IO_LOCAL.CEN"         />
-   <direct name="INCLK"        input="BLK_TL-PIO_L.INCLK"        output="BLK_IG-IO_LOCAL.INCLK"       />
-   <direct name="OUTCLK"       input="BLK_TL-PIO_L.OUTCLK"       output="BLK_IG-IO_LOCAL.OUTCLK"      />
-   <direct name="LATCH"        input="BLK_TL-PIO_L.LATCH"        output="BLK_IG-IO_LOCAL.LATCH"       />
+
+   <direct name="io_global_cen"    input="BLK_TL-PIO_L.io_global_cen"    output="BLK_IG-IO_LOCAL.io_global_cen"    />
+   <direct name="io_global_inclk"  input="BLK_TL-PIO_L.io_global_inclk"  output="BLK_IG-IO_LOCAL.io_global_inclk"  />
+   <direct name="io_global_outclk" input="BLK_TL-PIO_L.io_global_outclk" output="BLK_IG-IO_LOCAL.io_global_outclk" />
+
+   <direct name="io_global_latch"  input="BLK_TL-PIO_L.io_global_latch"  output="BLK_IG-IO_LOCAL.io_global_latch"  />
   </interconnect>
 
   <pinlocations pattern="custom">
@@ -44,10 +46,10 @@
     BLK_TL-PIO_L.io_1_D_OUT
     BLK_TL-PIO_L.io_0_OUT_ENB
     BLK_TL-PIO_L.io_1_OUT_ENB
-    BLK_TL-PIO_L.CEN
-    BLK_TL-PIO_L.INCLK
-    BLK_TL-PIO_L.OUTCLK
-    BLK_TL-PIO_L.LATCH
+    BLK_TL-PIO_L.io_global_cen
+    BLK_TL-PIO_L.io_global_inclk
+    BLK_TL-PIO_L.io_global_outclk
+    BLK_TL-PIO_L.io_global_latch
    </loc>
   </pinlocations>
   <fc in_type="abs" in_val="2" out_type="abs" out_val="2" />
@@ -66,10 +68,10 @@
   <input  name="io_0_OUT_ENB" num_pins="1" equivalent="false"/>
   <input  name="io_1_OUT_ENB" num_pins="1" equivalent="false"/>
 
-  <input  name="CEN"    num_pins="1" equivalent="false"/>
-  <clock  name="INCLK"  num_pins="1" equivalent="false"/>
-  <clock  name="OUTCLK" num_pins="1" equivalent="false"/>
-  <input  name="LATCH"  num_pins="1" equivalent="false"/>
+  <input  name="io_global_cen"    num_pins="1" equivalent="false"/>
+  <clock  name="io_global_inclk"  num_pins="1" equivalent="false"/>
+  <clock  name="io_global_outclk" num_pins="1" equivalent="false"/>
+  <input  name="io_global_latch"  num_pins="1" equivalent="false"/>
 
   <xi:include href="../../../../cells/io_local/io_local.pb_type.xml"/>
 
@@ -83,10 +85,12 @@
    <!-- Control signals -->
    <direct name="io_0_OUT_ENB" input="BLK_TL-PIO_R.io_0_OUT_ENB" output="BLK_IG-IO_LOCAL.io_0_OUT_ENB"/>
    <direct name="io_1_OUT_ENB" input="BLK_TL-PIO_R.io_1_OUT_ENB" output="BLK_IG-IO_LOCAL.io_1_OUT_ENB"/>
-   <direct name="CEN"          input="BLK_TL-PIO_R.CEN"          output="BLK_IG-IO_LOCAL.CEN"         />
-   <direct name="INCLK"        input="BLK_TL-PIO_R.INCLK"        output="BLK_IG-IO_LOCAL.INCLK"       />
-   <direct name="OUTCLK"       input="BLK_TL-PIO_R.OUTCLK"       output="BLK_IG-IO_LOCAL.OUTCLK"      />
-   <direct name="LATCH"        input="BLK_TL-PIO_R.LATCH"        output="BLK_IG-IO_LOCAL.LATCH"       />
+
+   <direct name="io_global_cen"    input="BLK_TL-PIO_R.io_global_cen"    output="BLK_IG-IO_LOCAL.io_global_cen"    />
+   <direct name="io_global_inclk"  input="BLK_TL-PIO_R.io_global_inclk"  output="BLK_IG-IO_LOCAL.io_global_inclk"  />
+   <direct name="io_global_outclk" input="BLK_TL-PIO_R.io_global_outclk" output="BLK_IG-IO_LOCAL.io_global_outclk" />
+
+   <direct name="io_global_latch"  input="BLK_TL-PIO_R.io_global_latch"  output="BLK_IG-IO_LOCAL.io_global_latch"  />
   </interconnect>
 
   <pinlocations pattern="custom">
@@ -97,10 +101,10 @@
     BLK_TL-PIO_R.io_1_D_OUT
     BLK_TL-PIO_R.io_0_OUT_ENB
     BLK_TL-PIO_R.io_1_OUT_ENB
-    BLK_TL-PIO_R.CEN
-    BLK_TL-PIO_R.INCLK
-    BLK_TL-PIO_R.OUTCLK
-    BLK_TL-PIO_R.LATCH
+    BLK_TL-PIO_R.io_global_cen
+    BLK_TL-PIO_R.io_global_inclk
+    BLK_TL-PIO_R.io_global_outclk
+    BLK_TL-PIO_R.io_global_latch
    </loc>
   </pinlocations>
   <fc in_type="abs" in_val="2" out_type="abs" out_val="2" />
@@ -119,10 +123,10 @@
   <input  name="io_0_OUT_ENB" num_pins="1" equivalent="false"/>
   <input  name="io_1_OUT_ENB" num_pins="1" equivalent="false"/>
 
-  <input  name="CEN"    num_pins="1" equivalent="false"/>
-  <clock  name="INCLK"  num_pins="1" equivalent="false"/>
-  <clock  name="OUTCLK" num_pins="1" equivalent="false"/>
-  <input  name="LATCH"  num_pins="1" equivalent="false"/>
+  <input  name="io_global_cen"    num_pins="1" equivalent="false"/>
+  <clock  name="io_global_inclk"  num_pins="1" equivalent="false"/>
+  <clock  name="io_global_outclk" num_pins="1" equivalent="false"/>
+  <input  name="io_global_latch"  num_pins="1" equivalent="false"/>
 
   <xi:include href="../../../../cells/io_local/io_local.pb_type.xml"/>
 
@@ -136,10 +140,12 @@
    <!-- Control signals -->
    <direct name="io_0_OUT_ENB" input="BLK_TL-PIO_B.io_0_OUT_ENB" output="BLK_IG-IO_LOCAL.io_0_OUT_ENB"/>
    <direct name="io_1_OUT_ENB" input="BLK_TL-PIO_B.io_1_OUT_ENB" output="BLK_IG-IO_LOCAL.io_1_OUT_ENB"/>
-   <direct name="CEN"          input="BLK_TL-PIO_B.CEN"          output="BLK_IG-IO_LOCAL.CEN"         />
-   <direct name="INCLK"        input="BLK_TL-PIO_B.INCLK"        output="BLK_IG-IO_LOCAL.INCLK"       />
-   <direct name="OUTCLK"       input="BLK_TL-PIO_B.OUTCLK"       output="BLK_IG-IO_LOCAL.OUTCLK"      />
-   <direct name="LATCH"        input="BLK_TL-PIO_B.LATCH"        output="BLK_IG-IO_LOCAL.LATCH"       />
+
+   <direct name="io_global_cen"    input="BLK_TL-PIO_B.io_global_cen"    output="BLK_IG-IO_LOCAL.io_global_cen"    />
+   <direct name="io_global_inclk"  input="BLK_TL-PIO_B.io_global_inclk"  output="BLK_IG-IO_LOCAL.io_global_inclk"  />
+   <direct name="io_global_outclk" input="BLK_TL-PIO_B.io_global_outclk" output="BLK_IG-IO_LOCAL.io_global_outclk" />
+
+   <direct name="io_global_latch"  input="BLK_TL-PIO_B.io_global_latch"  output="BLK_IG-IO_LOCAL.io_global_latch"  />
   </interconnect>
 
   <pinlocations pattern="custom">
@@ -150,10 +156,10 @@
     BLK_TL-PIO_B.io_1_D_OUT
     BLK_TL-PIO_B.io_0_OUT_ENB
     BLK_TL-PIO_B.io_1_OUT_ENB
-    BLK_TL-PIO_B.CEN
-    BLK_TL-PIO_B.INCLK
-    BLK_TL-PIO_B.OUTCLK
-    BLK_TL-PIO_B.LATCH
+    BLK_TL-PIO_B.io_global_cen
+    BLK_TL-PIO_B.io_global_inclk
+    BLK_TL-PIO_B.io_global_outclk
+    BLK_TL-PIO_B.io_global_latch
    </loc>
   </pinlocations>
   <fc in_type="abs" in_val="2" out_type="abs" out_val="2" />
@@ -172,10 +178,10 @@
   <input  name="io_0_OUT_ENB" num_pins="1" equivalent="false"/>
   <input  name="io_1_OUT_ENB" num_pins="1" equivalent="false"/>
 
-  <input  name="CEN"    num_pins="1" equivalent="false"/>
-  <clock  name="INCLK"  num_pins="1" equivalent="false"/>
-  <clock  name="OUTCLK" num_pins="1" equivalent="false"/>
-  <input  name="LATCH"  num_pins="1" equivalent="false"/>
+  <input  name="io_global_cen"    num_pins="1" equivalent="false"/>
+  <clock  name="io_global_inclk"  num_pins="1" equivalent="false"/>
+  <clock  name="io_global_outclk" num_pins="1" equivalent="false"/>
+  <input  name="io_global_latch"  num_pins="1" equivalent="false"/>
 
   <xi:include href="../../../../cells/io_local/io_local.pb_type.xml"/>
 
@@ -189,10 +195,12 @@
    <!-- Control signals -->
    <direct name="io_0_OUT_ENB" input="BLK_TL-PIO_T.io_0_OUT_ENB" output="BLK_IG-IO_LOCAL.io_0_OUT_ENB"/>
    <direct name="io_1_OUT_ENB" input="BLK_TL-PIO_T.io_1_OUT_ENB" output="BLK_IG-IO_LOCAL.io_1_OUT_ENB"/>
-   <direct name="CEN"          input="BLK_TL-PIO_T.CEN"          output="BLK_IG-IO_LOCAL.CEN"         />
-   <direct name="INCLK"        input="BLK_TL-PIO_T.INCLK"        output="BLK_IG-IO_LOCAL.INCLK"       />
-   <direct name="OUTCLK"       input="BLK_TL-PIO_T.OUTCLK"       output="BLK_IG-IO_LOCAL.OUTCLK"      />
-   <direct name="LATCH"        input="BLK_TL-PIO_T.LATCH"        output="BLK_IG-IO_LOCAL.LATCH"       />
+
+   <direct name="io_global_cen"    input="BLK_TL-PIO_T.io_global_cen"    output="BLK_IG-IO_LOCAL.io_global_cen"    />
+   <direct name="io_global_inclk"  input="BLK_TL-PIO_T.io_global_inclk"  output="BLK_IG-IO_LOCAL.io_global_inclk"  />
+   <direct name="io_global_outclk" input="BLK_TL-PIO_T.io_global_outclk" output="BLK_IG-IO_LOCAL.io_global_outclk" />
+
+   <direct name="io_global_latch"  input="BLK_TL-PIO_T.io_global_latch"  output="BLK_IG-IO_LOCAL.io_global_latch"  />
   </interconnect>
 
   <pinlocations pattern="custom">
@@ -203,10 +211,10 @@
     BLK_TL-PIO_T.io_1_D_OUT
     BLK_TL-PIO_T.io_0_OUT_ENB
     BLK_TL-PIO_T.io_1_OUT_ENB
-    BLK_TL-PIO_T.CEN
-    BLK_TL-PIO_T.INCLK
-    BLK_TL-PIO_T.OUTCLK
-    BLK_TL-PIO_T.LATCH
+    BLK_TL-PIO_T.io_global_cen
+    BLK_TL-PIO_T.io_global_inclk
+    BLK_TL-PIO_T.io_global_outclk
+    BLK_TL-PIO_T.io_global_latch
    </loc>
   </pinlocations>
   <fc in_type="abs" in_val="2" out_type="abs" out_val="2" />

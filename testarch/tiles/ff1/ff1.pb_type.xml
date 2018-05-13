@@ -1,4 +1,4 @@
-<pb_type xmlns:xi="http://www.w3.org/2001/XInclude" name="BLK_TI-FF1" num_pb="1">
+<pb_type xmlns:xi="http://www.w3.org/2001/XInclude" name="BLK_TI-TILE">
  <!-- Pins -->
  <input name="IN   " num_pins="2" />
  <clock name="CLK  " num_pins="2" />

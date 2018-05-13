@@ -25,6 +25,12 @@ all: | redir .git/info/exclude
 .PHONY: all
 .DEFAULT_GOAL := all
 
+simtest: | $(CONDA_COCOTB)
+	$(call heading,Running simulation tests)
+	@for ii in `find . -type d -name simtest -a ! -wholename "./.deps/*"`; do echo $$ii; $(MAKE) -C $$ii TOP_DIR=$(TOP_DIR) > /dev/null; [ `grep -c failure $$ii/results.xml` == 0 ]; done
+
+.PHONY: simtest
+
 test: simtest
 	$(call heading,Running Python utils tests)
 	@$(MAKE) -C utils tests $(result)
@@ -38,14 +44,12 @@ test: simtest
 	$(call heading,$(PURPLE)Test Arch:$(NC)Running Verilog to Routing tests)
 	@$(MAKE) ARCH=testarch -C tests $(result)
 
-
 .PHONY: test
 
-simtest: | $(CONDA_COCOTB)
-	$(call heading,Running simulation tests)
-	@for ii in `find . -type d -name simtest -a ! -wholename "./.deps/*"`; do echo $$ii; $(MAKE) -C $$ii TOP_DIR=$(TOP_DIR) > /dev/null; [ `grep -c failure $$ii/results.xml` == 0 ]; done
+format:
+	find . -name \*.py -and -not -path './third_party/*' -and -not -path './env/*' -and -not -path './.git/*' -exec yapf -p -i {} \;
 
-.PHONY: simtest
+.PHONY: format
 
 clean:
 	@true

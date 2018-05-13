@@ -41,7 +41,7 @@
    <direct name="EN" input="BLK_XX-io_global.i_cen" output="BLK_XX-io_global.o_cen"/>
    <direct name="ICLK" input="BLK_XX-io_global.i_inclk" output="BLK_XX-io_global.o_inclk"/>
    <direct name="OCLK" input="BLK_XX-io_global.i_outclk" output="BLK_XX-io_global.o_outclk"/>
-   <direct name="LATCH" input="BLK_XX-io_global.i_latch" output="BLK_XX-io_global.o_latch"/>
+   <direct name="io_global_latch" input="BLK_XX-io_global.i_latch" output="BLK_XX-io_global.o_latch"/>
   </interconnect>
  </pb_type>
 

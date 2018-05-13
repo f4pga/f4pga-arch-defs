@@ -18,9 +18,15 @@ def __safe_error(msg, a, b):
     )
 
 
-def assert_eq(a, b):
+def assert_eq(a, b, msg=None):
     """Assert equal with better error message."""
-    assert a == b, __safe_error("!=", a, b)
+    assert a == b, msg or __safe_error("!=", a, b)
+
+
+def assert_not_in(needle, haystack, msg=None):
+    """Assert equal with better error message."""
+    assert needle not in haystack, msg or __safe_error("already in", needle,
+                                                       haystack)
 
 
 def assert_is(a, b):

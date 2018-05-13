@@ -3,10 +3,10 @@
  <output name="D_IN" num_pins="2" equivalent="false"/>
  <input  name="D_OUT" num_pins="2" equivalent="false"/>
  <input  name="OUT_ENB" num_pins="1" equivalent="false"/>
- <input  name="CEN" num_pins="1" equivalent="false"/>
- <clock  name="INCLK" num_pins="1" equivalent="false"/>
- <clock  name="OUTCLK" num_pins="1" equivalent="false"/>
- <input  name="LATCH" num_pins="1" equivalent="false"/>
+ <input  name="io_global_cen" num_pins="1" equivalent="false"/>
+ <clock  name="io_global_inclk" num_pins="1" equivalent="false"/>
+ <clock  name="io_global_outclk" num_pins="1" equivalent="false"/>
+ <input  name="io_global_latch" num_pins="1" equivalent="false"/>
 
  <!-- IO operating as an input -->
  <mode name="PAD_IS_INPUT">
