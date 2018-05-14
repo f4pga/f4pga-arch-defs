@@ -62,7 +62,7 @@ MIN_ROUTE_CHAN_WIDTH_HINT ?= $(ROUTE_CHAN_WIDTH)
 
 # VPR commands
 VPR_ARGS ?=
-VPR_CMD = $(VPR) $(VPR_ARGS)  $(DEVICE_FILE) --device $(DEVICE) --timing_analysis off --min_route_chan_width_hint $(MIN_ROUTE_CHAN_WIDTH_HINT)
+VPR_CMD = $(VPR) $(VPR_ARGS)  $(DEVICE_FILE) --device $(DEVICE) --min_route_chan_width_hint $(MIN_ROUTE_CHAN_WIDTH_HINT)
 VPR_FULL_CMD = cd $(OUTPUT_DIR); $(VPR_CMD)
 
 
@@ -81,6 +81,12 @@ $(OUTPUT_DIR)/%.patched.rr_graph.xml: $(OUTPUT_DIR)/%.rr_graph.xml $(RR_PATCH_TO
 # ------------------------------------------------------------------------
 %.patched.disp: $(OUTPUT_DIR)/%.eblif $(OUTPUT_DIR)/%.patched.rr_graph.xml $(DEVICE_FILE)
 	$(VPR_FULL_CMD) $(notdir $<) --route_chan_width $(ROUTE_CHAN_WIDTH) --read_rr_graph $*.patched.rr_graph.xml --disp on
+
+%.patched.echo: $(OUTPUT_DIR)/%.eblif $(OUTPUT_DIR)/%.patched.rr_graph.xml $(DEVICE_FILE)
+	$(VPR_FULL_CMD) $(notdir $<) --route_chan_width $(ROUTE_CHAN_WIDTH) --read_rr_graph $*.patched.rr_graph.xml --echo_file on --full_stats on
+
+%.patched.verilog: $(OUTPUT_DIR)/%.eblif $(OUTPUT_DIR)/%.patched.rr_graph.xml $(DEVICE_FILE)
+	$(VPR_FULL_CMD) $(notdir $<) --route_chan_width $(ROUTE_CHAN_WIDTH) --read_rr_graph $*.patched.rr_graph.xml --gen_post_synthesis_netlist on
 
 %.rr_graph.xml: $(OUTPUT_DIR)/%.rr_graph.xml | $(OUTPUT_DIR)
 	@true
