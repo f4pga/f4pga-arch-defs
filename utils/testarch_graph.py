@@ -187,6 +187,11 @@ def rebuild_graph(fn, fn_out, rcw=6, verbose=False):
     print("Completed rebuild")
     print_nodes_edges(g)
 
+    #short_xml = list(g._xml_graph.iterfind('//switches/switch/[@name="short"]'))[0]
+    #short_xml.attrib['configurable'] = '0'
+    #short_xml.attrib['buffered'] = '0'
+    #print("Rewrote short switch: ", ET.tostring(short_xml))
+
     if fn_out:
         print('Writing to %s' % fn_out)
         open(fn_out, 'w').write(
