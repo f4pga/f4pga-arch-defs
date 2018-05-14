@@ -1,3 +1,6 @@
+`ifndef DSP48_NREG_NREG
+`define DSP48_NREG_NREG
+
 `include "reg.sim.v"
 
 module NREG(D, Q, CLK, CE, RESET);
@@ -16,3 +19,5 @@ module NREG(D, Q, CLK, CE, RESET);
    end
 
 endmodule // NREG
+
+`endif //  `ifndef DSP48_NREG_NREG

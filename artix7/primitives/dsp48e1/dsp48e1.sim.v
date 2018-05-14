@@ -4,9 +4,9 @@
 `include "dual_ad_preadder/dual_ad_preadder.sim.v"
 `include "dual_b_reg/dual_b_reg.sim.v"
 `include "mult25x18/mult25x18.sim.v"
-`include "xmux/xmux.sim.v"
-`include "ymux/ymux.sim.v"
-`include "zmux/zmux.sim.v"
+`include "xmux/dsp48_xmux.sim.v"
+`include "ymux/dsp48_ymux.sim.v"
+`include "zmux/dsp48_zmux.sim.v"
 `include "alu/alu.sim.v"
 `endif
 
@@ -95,8 +95,36 @@ module DSP48E1(
 
 `ifndef PB_TYPE
 
+   parameter ACASCREG = 1;
+   parameter ADREG = 1;
+   parameter ALUMODEREG = 1;
+   parameter AREG = 1;
+   parameter BCASCREG = 1;
+   parameter BREG = 1;
+   parameter CARRYINREG = 1;
+   parameter CARRYINSELREG = 1;
+   parameter CREG = 1;
+   parameter DREG = 1;
+   parameter INMODEREG = 1;
+   parameter MREG = 1;
+   parameter OPMODEREG = 1;
+   parameter PREG = 1;
+   parameter A_INPUT = "DIRECT";
+   parameter B_INPUT = "DIRECT";
+   parameter USE_DPORT = "FALSE";
+   parameter USE_MULT = "MULTIPLY";
+   parameter USE_SIMD = "ONE48";
+   parameter AUTORESET_PATDET = "NO_RESET";
+   parameter MASK = 001111111111111111111111111111111111111111111111;
+   parameter PATTERN = 000000000000000000000000000000000000000000000000;
+   parameter SEL_MASK = "MASK";
+   parameter SEL_PATTERN = "PATTERN";
+   parameter USE_PATTERN_DETECT = "NO_PATDET";
+
    // input register blocks for A, B, D
-   DUAL_AD_PREADDER dual_ad_preadder (.A(A), .ACIN(ACIN), .D(D), .ACOUT(ACOUT), .XMUX(XMUX_A_CAT), .AMULT(AMULT));
+   DUAL_AD_PREADDER dual_ad_preadder (.A(A), .ACIN(ACIN), .D(D), .INMODE(INMODE),
+				      .ACOUT(ACOUT), .XMUX(XMUX_A_CAT), .AMULT(AMULT),
+				      .CEA1(CEA1), .CEA2(CEA2), .RSTA(RSTA), .CED(CED), .CEAD(CEAD), .RSTD(RSTD), .CLK(CLK));
    DUAL_B_REG dualb_reg (.B(B), .BCIN(BCIN), .INMODE(INMODE),
 			 .BCOUT(BCOUT), .XMUX(XMUX_B_CAT), .BMULT(BMULT),
 			 .CEB1(CEB1), .CEB2(CEB2), .RSTB(RSTB), .CLK(CLK));
@@ -117,20 +145,21 @@ module DSP48E1(
 
    // TODO(elmsfu): take in full OPMODE to check for undefined behaviors
    // See table 2-7 for X mux selection
-   XMUX xmux (.ZEROS(48'h000000000000), .M({5'b00000, MULT_OUT[85:43]}), .P(P), .AB_CAT(XMUX_CAT), .S(OPMODE[1:0]), .O(X));
+   DSP48_XMUX dsp48_xmux (.ZEROS(48'h000000000000), .M({5'b00000, MULT_OUT[85:43]}), .P(P), .AB_CAT(XMUX_CAT), .S(OPMODE[1:0]), .O(X));
 
    // See table 2-8 for Y mux selection
-   YMUX ymux (.ZEROS(48'h000000000000), .M({5'b00000, MULT_OUT[42:0]}), .ONES(48'hFFFFFFFFFFFF), .C(C), .S(OPMODE[3:2]), .O(Y));
+   DSP48_YMUX dsp48_ymux (.ZEROS(48'h000000000000), .M({5'b00000, MULT_OUT[42:0]}), .ONES(48'hFFFFFFFFFFFF), .C(C), .S(OPMODE[3:2]), .O(Y));
 
    // See table 2-9 for Z mux selection
    // Note: Z mux actually has 7 inputs but 2 and 4 are both P
-   ZMUX zmux (.ZEROS(48'h000000000000), .PCIN(PCIN), .P(P), .C(C), .P2(P), .PCIN_UPSHIFT({ {17{PCIN[47]}}, PCIN[47:17]}), .P_UPSHIFT({ {17{P[47]}}, P[47:17]}), .S(OPMODE[6:4]), .O(Z));
+   DSP48_ZMUX dsp48_zmux (.ZEROS(48'h000000000000), .PCIN(PCIN), .P(P), .C(C), .P2(P), .PCIN_UPSHIFT({ {17{PCIN[47]}}, PCIN[47:17]}), .P_UPSHIFT({ {17{P[47]}}, P[47:17]}), .S(OPMODE[6:4]), .O(Z));
 
    // See table 2-10 for 3 input behavior
    // See table 2-13 for 2 input behavior
    ALU alu (.X(X), .Y(Y), .Z(Z), .ALUMODE(ALUMODE), .CARRYIN(CARRYIN), .MULTSIGNIN(MULTSIGNIN), .OUT(P), .CARRYOUT(CARRYOUT), .MULTSIGNOUT(MULTSIGNOUT));
 
    assign PCOUT = P;
+
 `endif //  `ifndef PB_TYPE
 
 endmodule // DSP48E1

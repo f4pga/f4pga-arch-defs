@@ -1,3 +1,6 @@
+`ifndef DSP48_NREG_REG
+`define DSP48_NREG_REG
+
 module REG (D, Q, CLK, CE, RESET);
    input wire D;
    input wire CLK;
@@ -13,3 +16,5 @@ module REG (D, Q, CLK, CE, RESET);
    end
 
 endmodule // REG
+
+`endif //  `ifndef DSP48_NREG_REG
