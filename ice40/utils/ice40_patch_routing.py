@@ -365,6 +365,56 @@ if True:
         Track(name="sp04_v[57]", type="span4", aliases=("sp4_v_t[45]", )),
         Track(name="sp04_v[58]", type="span4", aliases=("sp4_v_t[46]", )),
         Track(name="sp04_v[59]", type="span4", aliases=("sp4_v_t[47]", )),
+        # Span 4 Right Vertical
+        Track(name="sp04_rv----", type="space", aliases=()),
+        Track(name="sp04_rv[00]", type="span4", aliases=("sp4_r_v_b[0]", )),
+        Track(name="sp04_rv[01]", type="span4", aliases=("sp4_r_v_b[1]", )),
+        Track(name="sp04_rv[02]", type="span4", aliases=("sp4_r_v_b[2]", )),
+        Track(name="sp04_rv[03]", type="span4", aliases=("sp4_r_v_b[3]", )),
+        Track(name="sp04_rv[04]", type="span4", aliases=("sp4_r_v_b[4]", )),
+        Track(name="sp04_rv[05]", type="span4", aliases=("sp4_r_v_b[5]", )),
+        Track(name="sp04_rv[06]", type="span4", aliases=("sp4_r_v_b[6]", )),
+        Track(name="sp04_rv[07]", type="span4", aliases=("sp4_r_v_b[7]", )),
+        Track(name="sp04_rv[08]", type="span4", aliases=("sp4_r_v_b[8]", )),
+        Track(name="sp04_rv[09]", type="span4", aliases=("sp4_r_v_b[9]", )),
+        Track(name="sp04_rv[10]", type="span4", aliases=("sp4_r_v_b[10]", )),
+        Track(name="sp04_rv[11]", type="span4", aliases=("sp4_r_v_b[11]", )),
+        Track(name="sp04_rv[12]", type="span4", aliases=("sp4_r_v_b[12]", )),
+        Track(name="sp04_rv[13]", type="span4", aliases=("sp4_r_v_b[13]", )),
+        Track(name="sp04_rv[14]", type="span4", aliases=("sp4_r_v_b[14]", )),
+        Track(name="sp04_rv[15]", type="span4", aliases=("sp4_r_v_b[15]", )),
+        Track(name="sp04_rv[16]", type="span4", aliases=("sp4_r_v_b[16]", )),
+        Track(name="sp04_rv[17]", type="span4", aliases=("sp4_r_v_b[17]", )),
+        Track(name="sp04_rv[18]", type="span4", aliases=("sp4_r_v_b[18]", )),
+        Track(name="sp04_rv[19]", type="span4", aliases=("sp4_r_v_b[19]", )),
+        Track(name="sp04_rv[20]", type="span4", aliases=("sp4_r_v_b[20]", )),
+        Track(name="sp04_rv[21]", type="span4", aliases=("sp4_r_v_b[21]", )),
+        Track(name="sp04_rv[22]", type="span4", aliases=("sp4_r_v_b[22]", )),
+        Track(name="sp04_rv[23]", type="span4", aliases=("sp4_r_v_b[23]", )),
+        Track(name="sp04_rv[24]", type="span4", aliases=("sp4_r_v_b[24]", )),
+        Track(name="sp04_rv[25]", type="span4", aliases=("sp4_r_v_b[25]", )),
+        Track(name="sp04_rv[26]", type="span4", aliases=("sp4_r_v_b[26]", )),
+        Track(name="sp04_rv[27]", type="span4", aliases=("sp4_r_v_b[27]", )),
+        Track(name="sp04_rv[28]", type="span4", aliases=("sp4_r_v_b[28]", )),
+        Track(name="sp04_rv[29]", type="span4", aliases=("sp4_r_v_b[29]", )),
+        Track(name="sp04_rv[30]", type="span4", aliases=("sp4_r_v_b[30]", )),
+        Track(name="sp04_rv[31]", type="span4", aliases=("sp4_r_v_b[31]", )),
+        Track(name="sp04_rv[32]", type="span4", aliases=("sp4_r_v_b[32]", )),
+        Track(name="sp04_rv[33]", type="span4", aliases=("sp4_r_v_b[33]", )),
+        Track(name="sp04_rv[34]", type="span4", aliases=("sp4_r_v_b[34]", )),
+        Track(name="sp04_rv[35]", type="span4", aliases=("sp4_r_v_b[35]", )),
+        Track(name="sp04_rv[36]", type="span4", aliases=("sp4_r_v_b[36]", )),
+        Track(name="sp04_rv[37]", type="span4", aliases=("sp4_r_v_b[37]", )),
+        Track(name="sp04_rv[38]", type="span4", aliases=("sp4_r_v_b[38]", )),
+        Track(name="sp04_rv[39]", type="span4", aliases=("sp4_r_v_b[39]", )),
+        Track(name="sp04_rv[40]", type="span4", aliases=("sp4_r_v_b[40]", )),
+        Track(name="sp04_rv[41]", type="span4", aliases=("sp4_r_v_b[41]", )),
+        Track(name="sp04_rv[42]", type="span4", aliases=("sp4_r_v_b[42]", )),
+        Track(name="sp04_rv[43]", type="span4", aliases=("sp4_r_v_b[43]", )),
+        Track(name="sp04_rv[44]", type="span4", aliases=("sp4_r_v_b[44]", )),
+        Track(name="sp04_rv[45]", type="span4", aliases=("sp4_r_v_b[45]", )),
+        Track(name="sp04_rv[46]", type="span4", aliases=("sp4_r_v_b[46]", )),
+        Track(name="sp04_rv[47]", type="span4", aliases=("sp4_r_v_b[47]", )),
         # Span 12 Vertical
         Track(name="sp12_v----", type="space", aliases=()),
         Track(name="sp12_v[00]", type="span12", aliases=("sp12_v_b[1]", )),
@@ -1204,13 +1254,16 @@ mappings = []
 for edge_src, edge_dst, delta in [
     ("v_t", "v_b", CompassDir.N),
     ("h_l", "h_r", CompassDir.E),
+    ("v_b", "r_v_b", CompassDir.W),
 ]:
-
     # Span 4s
     for i in range(0, 48):
         src_net = "sp4_%s[%s]" % (edge_src, i)
         dst_net = "sp4_%s[%s]" % (edge_dst, i)
         mappings.append((src_net, delta, dst_net))
+
+    if edge_src.startswith("r_"):
+        continue
 
     # Span 12s
     for i in range(0, 24):
@@ -1221,11 +1274,11 @@ for edge_src, edge_dst, delta in [
 for edge_src, edge_dst, delta in [
     ("t", "b", CompassDir.N),
     ("l", "r", CompassDir.E),
-    # Connection around the corners..
-    #("t", "r", CompassDir.NW),
-    #("t", "l", CompassDir.NE),
-    #("l", "b", CompassDir.NW),
-    #("l", "r", CompassDir.NE),
+        # Connection around the corners..
+        #("t", "r", CompassDir.NW),
+        #("t", "l", CompassDir.NE),
+        #("l", "b", CompassDir.NW),
+        #("l", "r", CompassDir.NE),
 ]:
 
     # IO Span 4s
@@ -1255,7 +1308,7 @@ def segment_type(g, d):
         d_type = channel.Track.Type.Y
     elif '_h' in d.name:
         d_type = channel.Track.Type.X
-    elif '_v' in d.name:
+    elif '_v' in d.name or '_rv' in d.name:
         d_type = channel.Track.Type.Y
     else:
         #d_type = channel.Track.Type.X
@@ -1313,7 +1366,8 @@ def create_tracks(g, verbose=False):
     type_x = channel.Track.Type.X
     bi_dir = channel.Track.Direction.BI
 
-    short_xml = list(g._xml_graph.iterfind('//switches/switch/[@name="short"]'))[0]
+    short_xml = list(
+        g._xml_graph.iterfind('//switches/switch/[@name="short"]'))[0]
     #short_xml.attrib['configurable'] = '0'
     #short_xml.attrib['buffered'] = '0'
     print("Rewrote short switch: ", ET.tostring(short_xml))
@@ -1410,9 +1464,10 @@ def create_tracks(g, verbose=False):
 
             src_node = g.routing.localnames[(src_block.position, src_name)]
             dst_node = g.routing.localnames[(src_block.position, dst_name)]
-            g.routing.create_edge_with_nodes(src_node, dst_node, g.switches[switch_type])
+            g.routing.create_edge_with_nodes(src_node, dst_node,
+                                             g.switches[switch_type])
 
-            #print(src_block, src_name, "->", dst_name)
+            print(src_block, src_name, ET.tostring(src_node), "->", dst_name, ET.tostring(dst_node))
 
     #############################################################################
     # Block -> Block connections
@@ -1444,10 +1499,10 @@ def create_tracks(g, verbose=False):
 
             print("Found {}->{} on {} {} ({})".format(
                 src_name, dst_name, src_block, delta, dst_block))
-            g.routing.create_edge_with_nodes(
-                src_node, dst_node, g.switches["short"])
-            g.routing.create_edge_with_nodes(
-                dst_node, src_node, g.switches["short"])
+            g.routing.create_edge_with_nodes(src_node, dst_node,
+                                             g.switches["short"])
+            g.routing.create_edge_with_nodes(dst_node, src_node,
+                                             g.switches["short"])
 
     #############################################################################
 
