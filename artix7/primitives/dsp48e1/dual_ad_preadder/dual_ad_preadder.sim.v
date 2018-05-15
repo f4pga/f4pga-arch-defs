@@ -26,12 +26,12 @@ module DUAL_AD_PREADDER
 
    parameter DREG = 1;
    parameter USE_DPORT = "FALSE";
-  
+
    input wire [29:0] A;
    input wire [29:0] ACIN;
    input wire [24:0] D;
    input wire [4:0]  INMODE;
-   
+
    output wire [29:0] ACOUT;
    output wire [29:0] XMUX;
    output wire [24:0] AMULT;
@@ -65,13 +65,13 @@ module DUAL_AD_PREADDER
    AREG_MUX #(.S(AREG==2)) a1mux (.BYPASS(A1IN), .REG(A1REG_OUT), .O(A2IN));
    AREG_MUX #(.S(AREG>0)) a2mux (.BYPASS(A2IN), .REG(A2REG_OUT), .O(XMUX));
    ACOUT_MUX #(.S(ACASCREG == 1)) acout_mux (.I0(A1REG_OUT), .I1(XMUX), .O(ACOUT));
-        
+
    NREG #(.NBITS(30)) a1 (.D(A1IN), .Q(A1REG_OUT), .CLK(CLK), .CE(CEA1), .RESET(RSTA));
    NREG #(.NBITS(30)) a2 (.D(A2IN), .Q(A2REG_OUT), .CLK(CLK), .CE(CEA2), .RESET(RSTA));
 
    DREG_MUX #(.S(DREG == 0)) d_mux (.BYPASS(D), .REG(DREG_OUT), .O(DOUT));
    DREG_MUX #(.S(ADREG == 0)) ad_mux (.BYPASS(ADDER_OUT), .REG(ADREG_OUT), .O(AD_OUT));
-   
+
    NREG #(.NBITS(25)) d (.D(D), .Q(DREG_OUT), .CLK(CLK), .CE(CED), .RESET(RSTD));
    NREG #(.NBITS(25)) ad (.D(ADDER_OUT), .Q(ADREG_OUT), .CLK(CLK), .CE(CEAD), .RESET(RSTD));
 

@@ -140,10 +140,10 @@ module DSP48E1(
    // ALUMODE register
    wire [3:0]	      ALUMODE_REG;
    wire [3:0] 	      ALUMODE_MUX_OUT;
-   
+
    NREG #(.NBITS(4)) alu_reg (.D(ALUMODE), .Q(ALUMODE_REG), .CE(CEALUMODE), .CLK(CLK), .RESET(RSTALUMODE));
    ALUMODE_MUX #(.S(ALUMODEREG)) alumode_mux (.BYPASS(ALUMODE), .REG(ALUMODE_REG), .O(ALUMODE_MUX_OUT));
-   
+
    wire [2:0] 	      CARRYINSEL_REG;
    wire [2:0] 	      CARRYINSEL_MUX_OUT;
 
@@ -153,7 +153,7 @@ module DSP48E1(
    wire 	      CIN;
    CARRYINSEL_LOGIC #(.MREG(MREG), .CARRYINREG(CARRYINREG)) carryinsel_logic (.CARRYIN(CARRYIN), .CARRYCASCIN(CARRYCASCIN), .CARRYCASCOUT(CARRYCASCOUT), .A(A), .B(B), .P(P), .PCIN(PCIN), .CARRYINSEL(CARRYINSEL), .CIN(CIN),
 									     .RSTALLCARRYIN(RSTALLCARRYIN), .CECARRYIN(CECARRYIN), .CEM(CEM), .CLK(CLK));
-   
+
    // INMODE register and bypass mux
    wire [4:0] 	      INMODE_REG;
    wire [4:0] 	      INMODE_MUX_OUT;
@@ -185,10 +185,10 @@ module DSP48E1(
    // Figure 2-9
    wire [47:0] 	      C_REG;
    wire [47:0] 	      CMUX_OUT;
-   
+
    NREG #(.NBITS(48)) creg (.D(C), .Q(C_REG), .CLK(CLK), .CE(CEC), .RESET(RSTC));
    CREG_MUX #(.S(CREG)) creg_mux (.BYPASS(C), .REG(C_REG), .O(CMUX_OUT));
-   
+
    // signals from muxes to ALU unit
    wire [47:0] 	      X;
    wire [47:0] 	      Y;

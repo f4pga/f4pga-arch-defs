@@ -43,7 +43,7 @@ module DUAL_B_REG
    input wire 	      CEB2;
    input wire 	      RSTB;
    input wire 	      CLK;
-   
+
    wire [17:0] 	      B1IN;
    wire [17:0] 	      B1OUT;
    wire [17:0] 	      B2IN;

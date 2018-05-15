@@ -13,7 +13,7 @@ module NMUX2
    input wire [NBITS-1:0] I1;
 
    input wire 		  S;
-   
+
    output wire [NBITS-1:0] O;
 
    genvar 		 ii;
