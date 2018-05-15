@@ -3,6 +3,7 @@
 
 `include "../mux2/mux2.sim.v"
 
+(* blackbox *) (* CLASS="mux" *)
 module MUX8(I0, I1, I2, I3, I4, I5, I6, I7, S0, S1, S2, O);
    input wire I0;
    input wire I1;
