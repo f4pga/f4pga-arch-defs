@@ -436,7 +436,7 @@ for span_wire, pins in sorted(wires_by_type['span'].items(), key=lambda i: (i[0]
             assert len(srcs) > 1
 
             port_names = [
-                (mux_lib.MuxPinType.OUTPUT, "OUT", 1, 0),
+                mux_lib.ModulePort(mux_lib.MuxPinType.OUTPUT, "OUT", 1, 0),
             ]
             for src_wire, index in sorted(srcs):
                 if src_wire in net_dirs['inputs']:
@@ -448,7 +448,7 @@ for span_wire, pins in sorted(wires_by_type['span'].items(), key=lambda i: (i[0]
                 mux_wire_name = "%s%s" % (src_wire, index)
                 add_direct(src_wire_name, "%s.%s" % (mux_name, mux_wire_name))
                 port_names.append(
-                    (mux_lib.MuxPinType.INPUT, mux_wire_name, 1, 0),
+                    mux_lib.ModulePort(mux_lib.MuxPinType.INPUT, mux_wire_name, 1, 0),
                 )
 
             pb_type_xml.append(mux_lib.pb_type_xml(
@@ -518,7 +518,7 @@ for local_wire, pins in sorted(wires_by_type['local'].items()):
             print("WARNING:", "No sources for %s%s: %r" % (local_wire,pin,srcs))
 
         port_names = [
-            (mux_lib.MuxPinType.OUTPUT, "OUT", 1, 0),
+            mux_lib.ModulePort(mux_lib.MuxPinType.OUTPUT, "OUT", 1, 0),
         ]
         for src_wire, index in sorted(srcs):
             if src_wire in net_dirs["outputs"]:
@@ -529,7 +529,7 @@ for local_wire, pins in sorted(wires_by_type['local'].items()):
 
             add_direct(src_wire_name, "%s.%s" % (mux_name, mux_wire_name))
             port_names.append(
-                (mux_lib.MuxPinType.INPUT, mux_wire_name, 1, 0),
+                mux_lib.ModulePort(mux_lib.MuxPinType.INPUT, mux_wire_name, 1, 0),
             )
 
         pb_type_xml.append(mux_lib.pb_type_xml(
