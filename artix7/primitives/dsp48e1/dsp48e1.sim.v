@@ -3,6 +3,7 @@
 `ifndef PB_TYPE
 `include "alu/alu.sim.v"
 `include "alumode_mux/alumode_mux.sim.v"
+`include "carryinsel_logic/carryinsel_logic.sim.v"
 `include "carryinsel_mux/carryinsel_mux.sim.v"
 `include "creg_mux/creg_mux.sim.v"
 `include "dual_ad_preadder/dual_ad_preadder.sim.v"
@@ -147,8 +148,12 @@ module DSP48E1(
    wire [2:0] 	      CARRYINSEL_MUX_OUT;
 
    NREG #(.NBITS(3)) carryinsel_reg (.D(CARRYINSEL), .Q(CARRYINSEL_REG), .CE(CECTRL), .CLK(CLK), .RESET(RSTCTRL));
-   CARRYINSEL_MUX #(.S(CARRYINSELREG)) carryseling_mux (.BYPASS(CARRSELIN), .REG(CARRYINSELG_REG), .O(CARRYINSEL_MUX_OUT));
-      
+   CARRYINSEL_MUX #(.S(CARRYINSELREG)) carryseling_mux (.BYPASS(CARRYSELIN), .REG(CARRYINSEL_REG), .O(CARRYINSEL_MUX_OUT));
+
+   wire 	      CIN;
+   CARRYINSEL_LOGIC #(.MREG(MREG), .CARRYINREG(CARRYINREG)) carryinsel_logic (.CARRYIN(CARRYIN), .CARRYCASCIN(CARRYCASCIN), .CARRYCASCOUT(CARRYCASCOUT), .A(A), .B(B), .P(P), .PCIN(PCIN), .CARRYINSEL(CARRYINSEL), .CIN(CIN),
+									     .RSTALLCARRYIN(RSTALLCARRYIN), .CECARRYIN(CECARRYIN), .CEM(CEM), .CLK(CLK));
+   
    // INMODE register and bypass mux
    wire [4:0] 	      INMODE_REG;
    wire [4:0] 	      INMODE_MUX_OUT;
@@ -202,7 +207,7 @@ module DSP48E1(
 
    // See table 2-10 for 3 input behavior
    // See table 2-13 for 2 input behavior
-   ALU alu (.X(X), .Y(Y), .Z(Z), .ALUMODE(ALUMODE_MUX_OUT), .CARRYIN(CARRYIN), .MULTSIGNIN(MULTSIGNIN), .OUT(P), .CARRYOUT(CARRYOUT), .MULTSIGNOUT(MULTSIGNOUT));
+   ALU alu (.X(X), .Y(Y), .Z(Z), .ALUMODE(ALUMODE_MUX_OUT), .CARRYIN(CIN), .MULTSIGNIN(MULTSIGNIN), .OUT(P), .CARRYOUT(CARRYOUT), .MULTSIGNOUT(MULTSIGNOUT));
 
    assign PCOUT = P;
 
