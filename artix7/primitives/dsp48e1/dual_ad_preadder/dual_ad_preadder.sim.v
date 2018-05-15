@@ -59,7 +59,8 @@ module DUAL_AD_PREADDER
    wire [24:0]	      AD_OUT;
 
    wire [24:0]	      A_ADDER_CANDIDATE;
-   
+
+`ifndef PB_TYPE
    AIN_MUX #(.S(A_INPUT == "DIRECT")) ain_mux (.A(A), .ACIN(ACIN), .O(A1IN));
    AREG_MUX #(.S(AREG==2)) a1mux (.BYPASS(A1IN), .REG(A1REG_OUT), .O(A2IN));
    AREG_MUX #(.S(AREG>0)) a2mux (.BYPASS(A2IN), .REG(A2REG_OUT), .O(XMUX));
@@ -74,15 +75,16 @@ module DUAL_AD_PREADDER
    NREG #(.NBITS(25)) d (.D(D), .Q(DREG_OUT), .CLK(CLK), .CE(CED), .RESET(RSTD));
    NREG #(.NBITS(25)) ad (.D(ADDER_OUT), .Q(ADREG_OUT), .CLK(CLK), .CE(CEAD), .RESET(RSTD));
 
-   AMULT_MUX #(.S(USE_DPORT == "FALSE")) amult_mux (.A(ADDER_AIN), .ADDER_OUT(ADDER_OUT), .O(AMULT));
+   A_ADDER_MUX a_adder_muxx (.A2(XMUX[24:0]), .A1(A1REG_OUT[24:0]), .S(INMODE[0]), .O(A_ADDER_CANDIDATE));
 
-   A_ADDER_MUX a_adder_mux (.A2(XMUX[24:0]), .A1(A1REG_OUT[24:0]), .S(INMODE[0]), .O(A_ADDER_CANDIDATE));
-   
-   assign ADDER_AIN = INMODE[1] ? 25'b0 : A_ADDER_CANDIDATE;
-   assign ADDER_DIN = INMODE[2] ? DOUT : 25'b0;
+   A_ADDER_MUX a_or_zero (.A2(A_ADDER_CANDIDATE), .A1(25'b0), .S(INMODE[1]), .O(ADDER_AIN));
+   A_ADDER_MUX d_or_zero (.A2(25'b0), .A1(DOUT), .S(INMODE[2]), .O(ADDER_DIN));
 
    assign ADDER_OUT = INMODE[3] ? (ADDER_DIN - ADDER_AIN) : (ADDER_DIN + ADDER_AIN);
-   
+
+   AMULT_MUX #(.S(USE_DPORT == "FALSE")) amult_mux (.A(ADDER_AIN), .ADDER_OUT(ADDER_OUT), .O(AMULT));
+`endif //  `ifndef PB_TYPE
+
 endmodule // DUAL_AD_PREADDER
 
 // Table 2-5 defines behavior
