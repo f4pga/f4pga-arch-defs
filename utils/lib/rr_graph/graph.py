@@ -1595,6 +1595,30 @@ class RoutingGraph:
             parent = self._xml_parent(xml_type)
             parent.append(xml_node)
 
+    @staticmethod
+    def node_ids_for_edge(xml_node):
+        """Return the node ids associated with given edge.
+
+        Parameters
+        ----------
+        xml_node: RoutingEdge
+
+        Returns
+        -------
+        (int, int)
+            Source RoutingNode ID, Sink RoutingNode ID
+
+        Example
+        -------
+        >>> e = ET.fromstring('<edge src_node="0" sink_node="1" switch_id="1"/>')
+        >>> RoutingGraph.node_ids_for_edge(e)
+        (0, 1)
+        """
+        assert xml_node.tag == 'edge'
+        src_node_id = int(xml_node.attrib.get("src_node"))
+        snk_node_id = int(xml_node.attrib.get("sink_node"))
+        return src_node_id, snk_node_id
+
     def nodes_for_edge(self, xml_node):
         """Return all nodes associated with given edge.
 
@@ -1605,14 +1629,13 @@ class RoutingGraph:
         Returns
         -------
         (RoutingNode, RoutingNode)
-            XML nodes (ET._Element) associated with the given edge.
+            Source RoutingNode, Sink RoutingNode - XML nodes (ET._Element)
+            associated with the given edge.
 
         Example
         -------
         """
-        assert xml_node.tag == 'edge'
-        snk_node_id = int(xml_node.attrib.get("sink_node"))
-        src_node_id = int(xml_node.attrib.get("src_node"))
+        src_node_id, snk_node_id = self.node_ids_for_edge(xml_node)
 
         ids2element = self._ids_map(RoutingNode)
         assert snk_node_id in ids2element, "{:r} in {}".format(
@@ -1620,6 +1643,30 @@ class RoutingGraph:
         assert src_node_id in ids2element, "{:r} in {}".format(
             src_node_id, ids2element.keys())
         return ids2element[src_node_id], ids2element[snk_node_id]
+
+    def edges_for_allnodes(self):
+        """Return a mapping between edges and associated nodes.
+
+        Returns
+        -------
+        dict[int] -> list of RoutingEdge
+            Mapping from RoutingNode ID to XML edges (ET._Element) associated
+            with the given node.
+
+        Example
+        -------
+
+        """
+        nodes2edges = {}
+        for node_id in self._ids_map(RoutingNode).keys():
+            nodes2edges[node_id] = []
+
+        for edge_node in self._ids_map(RoutingEdge).values():
+            src_id, snk_id = self.node_ids_for_edge(edge_node)
+            nodes2edges[src_id].append(edge_node)
+            nodes2edges[snk_id].append(edge_node)
+
+        return nodes2edges
 
     def edges_for_node(self, xml_node):
         """Return all edges associated with given node.
@@ -1638,20 +1685,7 @@ class RoutingGraph:
         """
         node_id = xml_node.attrib.get('id', None)
         assert node_id is not None, ET.tostring(xml_node)
-
-        edges = []
-        for edge_node in self._ids_map(RoutingEdge).values():
-            src_node, snk_node = self.nodes_for_edge(edge_node)
-
-            src_id = src_node.get('id', None)
-            assert src_id is not None, ET.tostring(src_node)
-            snk_id = snk_node.get('id', None)
-            assert snk_id is not None, ET.tostring(snk_node)
-
-            if src_id == node_id or snk_id == node_id:
-                edges.append(edge_node)
-
-        return edges
+        return self.edges_for_allnodes()[node_id]
 
     ######################################################################
     # Constructor methods
