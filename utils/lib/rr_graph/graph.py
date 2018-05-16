@@ -1295,7 +1295,7 @@ class RoutingGraphPrinter:
             s=type_str)
 
     @classmethod
-    def edge(cls, block_graph, rr_graph, xml_node, flip=False):
+    def edge(cls, block_graph, routing, xml_node, flip=False):
         """Get a globally unique name for an `edge` in the rr_edges.
 
         An edge goes between two `node` objects.
@@ -1324,7 +1324,7 @@ class RoutingGraphPrinter:
         ... '''))
         'X000Y003_INBLOCK[00].SRC--> ->>- X000Y003||05|>X003Y000'
         """
-        src_node, snk_node = rr_graph.nodes_for_edge(xml_node)
+        src_node, snk_node = routing.nodes_for_edge(xml_node)
         if flip:
             s = "{} -<<- {}"
         else:
@@ -1640,7 +1640,7 @@ class RoutingGraph:
         assert node_id is not None, ET.tostring(xml_node)
 
         edges = []
-        for edge_node in self._xml_rr_edges:
+        for edge_node in self._ids_map(RoutingEdge).values():
             src_node, snk_node = self.nodes_for_edge(edge_node)
 
             src_id = src_node.get('id', None)
