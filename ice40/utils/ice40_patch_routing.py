@@ -1019,6 +1019,7 @@ if True:
     #span4_vert_b_{0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15}
     #span4_vert_t_{12,13,14,15}
     io_tracks = [
+        Track(name="fabout", type="local", aliases=("fabout[0]", )),
         Track(name="sp4_h----", type="space", aliases=()),
         Track(name="sp4_h[00]", type="span4", aliases=("span4_horz_r[0]", )),
         Track(name="sp4_h[01]", type="span4", aliases=("span4_horz_r[1]", )),
@@ -1287,7 +1288,7 @@ for edge_src, edge_dst, delta in [
         dst_net = "sp4_io_%s[%s]" % (edge_dst, i)
         mappings.append((src_net, delta, dst_net))
 
-mappings.append(("FCOUT[0]", CompassDir.S, "FCIN[0]"))
+mappings.append(("FCOUT[0]", CompassDir.N, "FCIN[0]"))
 
 
 def segment_type(g, d):
@@ -1300,6 +1301,8 @@ def segment_type(g, d):
     elif d.type == 'glb2local':
         s_type = g.segments["glb2local"]
     elif d.type == 'global':
+        s_type = g.segments["local"]
+    elif d.type == 'local':
         s_type = g.segments["local"]
     else:
         assert False, "segment_type " + d.name
@@ -1467,7 +1470,23 @@ def create_tracks(g, verbose=False):
             g.routing.create_edge_with_nodes(src_node, dst_node,
                                              g.switches[switch_type])
 
-            print(src_block, src_name, ET.tostring(src_node), "->", dst_name, ET.tostring(dst_node))
+            xml_id = graph.RoutingGraph._get_xml_id
+
+            if entry[1] == 'routing':
+                g.routing.create_edge_with_nodes(dst_node, src_node,
+                                                 g.switches[switch_type])
+
+            dir_str = {
+                'buffer': "->",
+                'routing': "<->",
+            }[entry[1]]
+
+            print(
+                src_block, src_name, xml_id(src_node),
+                dir_str,
+                dst_name, xml_id(dst_node),
+            )
+
 
     #############################################################################
     # Block -> Block connections
@@ -1501,8 +1520,8 @@ def create_tracks(g, verbose=False):
                 src_name, dst_name, src_block, delta, dst_block))
             g.routing.create_edge_with_nodes(src_node, dst_node,
                                              g.switches["short"])
-            g.routing.create_edge_with_nodes(dst_node, src_node,
-                                             g.switches["short"])
+            #g.routing.create_edge_with_nodes(dst_node, src_node,
+            #                                 g.switches["short"])
 
     #############################################################################
 
