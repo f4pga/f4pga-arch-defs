@@ -1451,6 +1451,18 @@ class RoutingNodeType(enum.Enum):
         """Is this RoutingNodeType an pin_class?"""
         return self in (self.SINK, self.SOURCE)
 
+    @property
+    def can_sink(self):
+        """Can be a destination of an edge."""
+        # -> XXX
+        return self in (self.IPIN, self.CHANX, self.CHANY)
+
+    @property
+    def can_source(self):
+        """Can be a source of an edge."""
+        # XXX ->
+        return self in (self.OPIN, self.CHANX, self.CHANY)
+
 
 class RoutingNodeSide(enum.Enum):
     LEFT = 'LEFT'
@@ -1790,8 +1802,41 @@ class RoutingGraph:
         assert_type(sink_node_id, int)
         assert_type(switch, Switch)
 
-        assert src_node_id in self.id2element[RoutingNode], src_node_id
-        assert sink_node_id in self.id2element[RoutingNode], sink_node_id
+        id2node = self.id2element[RoutingNode]
+        assert src_node_id in id2node, src_node_id
+        src_node_type = RoutingNodeType.from_xml(id2node[src_node_id])
+        assert sink_node_id in id2node, sink_node_id
+        sink_node_type = RoutingNodeType.from_xml(id2node[sink_node_id])
+
+        valid = False
+        if False:
+            pass
+        elif src_node_type == RoutingNodeType.IPIN:
+            # IPIN -> SINK
+            valid = (sink_node_type == RoutingNodeType.SINK)
+        elif src_node_type == RoutingNodeType.OPIN:
+            # OPIN -> (IPIN, CHANX, CHANY) (IE A sink)
+            valid = sink_node_type.can_sink
+        elif src_node_type == RoutingNodeType.SINK:
+            # IPIN -> SINK
+            valid = False
+        elif src_node_type == RoutingNodeType.SOURCE:
+            # SOURCE -> OPIN
+            valid = (sink_node_type == RoutingNodeType.OPIN)
+        elif src_node_type == RoutingNodeType.CHANX:
+            # CHANX -> (IPIN, CHANX, CHANY) (IE A sink)
+            valid = sink_node_type.can_sink
+        elif src_node_type == RoutingNodeType.CHANY:
+            # CHANY -> (IPIN, CHANX, CHANY)
+            valid = sink_node_type.can_sink
+        else:
+            assert False
+
+        assert valid, "{} -> {} not valid\n{}\n  ->  \n{}\n".format(
+                src_node_type, sink_node_type,
+                ET.tostring(id2node[src_node_id]), ET.tostring(id2node[sink_node_id]),
+            )
+
         edge = RoutingEdge(
             attrib={
                 'src_node': str(src_node_id),
