@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 import lib.rr_graph.graph as graph
 import lib.rr_graph.channel as channel
