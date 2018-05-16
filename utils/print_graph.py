@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 import lib.rr_graph.graph as graph
 
 
