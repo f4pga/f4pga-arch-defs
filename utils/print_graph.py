@@ -55,15 +55,19 @@ def print_nodes(g, lim=None):
     routing = g.routing
     print('Nodes: {}, edges {}'.format(
         len(routing._ids_map(graph.RoutingNode)), len(routing._ids_map(graph.RoutingEdge))))
-    for nodei, node in sorted(routing._ids_map(graph.RoutingNode).items()):
+
+    nodemap = routing._ids_map(graph.RoutingNode)
+    node2edges = routing.edges_for_allnodes()
+    for i, node_id in enumerate(sorted(node2edges.keys())):
+        node = nodemap[node_id]
         print()
-        if lim and nodei >= lim:
+        if lim and i >= lim:
             print('...')
             break
-        print('{} ({})'.format(node_name(node), node.get("id")))
+        print('{} - {} ({})'.format(i, node_name(node), node_id))
         srcs = []
         snks = []
-        for e in routing.edges_for_node(node):
+        for e in node2edges[node_id]:
             src, snk = routing.nodes_for_edge(e)
             if src == node:
                 srcs.append(e)
