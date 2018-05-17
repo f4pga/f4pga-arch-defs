@@ -1318,7 +1318,7 @@ class RoutingGraphPrinter:
 
         if block_graph is not None:
             block = block_graph[low]
-            block_name = "_"+block.block_type.name
+            block_name = "_" + block.block_type.name
             x = block.position.x
             y = block.position.y
         else:
@@ -1327,11 +1327,7 @@ class RoutingGraphPrinter:
             y = low.y
 
         return "X{x:03d}Y{y:03d}{t}[{i:02d}].{s}".format(
-            t=block_name,
-            x=x,
-            y=y,
-            i=ptc,
-            s=type_str)
+            t=block_name, x=x, y=y, i=ptc, s=type_str)
 
     @classmethod
     def edge(cls, routing, xml_node, block_graph=None, flip=False):
@@ -1373,7 +1369,8 @@ class RoutingGraphPrinter:
         else:
             s = "{} ->>- {}"
         return s.format(
-            cls.node(src_node, block_graph=block_graph), cls.node(snk_node, block_graph=block_graph))
+            cls.node(src_node, block_graph=block_graph),
+            cls.node(snk_node, block_graph=block_graph))
 
 
 class MappingLocalNames(dict):
@@ -1978,8 +1975,11 @@ class RoutingGraph:
 
         if not valid:
             raise TypeError("{} -> {} not valid, {}\n{}\n  ->\n{}".format(
-                src_node_type, sink_node_type, msg,
-                ET.tostring(id2node[src_node_id]), ET.tostring(id2node[sink_node_id]),
+                src_node_type,
+                sink_node_type,
+                msg,
+                ET.tostring(id2node[src_node_id]),
+                ET.tostring(id2node[sink_node_id]),
             ))
 
         edge = RoutingEdge(
@@ -2441,16 +2441,34 @@ def simple_test_routing():
     >>> r = simple_test_routing()
     """
     routing = RoutingGraph()
-    routing.create_node(Position(0, 0), Position(0, 0), 0, ntype=RoutingNodeType.SOURCE)
-    routing.create_node(Position(0, 0), Position(0, 0), 0, ntype=RoutingNodeType.OPIN, side=RoutingNodeSide.RIGHT)
-    routing.create_node(Position(0, 0), Position(0, 10), 0, ntype=RoutingNodeType.CHANX, segment_id=0, direction=RoutingNodeDir.BI_DIR)
-    routing.create_node(Position(0, 10), Position(0, 10), 0, ntype=RoutingNodeType.IPIN, side=RoutingNodeSide.LEFT)
-    routing.create_node(Position(0, 10), Position(0, 10), 0, ntype=RoutingNodeType.SINK)
+    routing.create_node(
+        Position(0, 0), Position(0, 0), 0, ntype=RoutingNodeType.SOURCE)
+    routing.create_node(
+        Position(0, 0),
+        Position(0, 0),
+        0,
+        ntype=RoutingNodeType.OPIN,
+        side=RoutingNodeSide.RIGHT)
+    routing.create_node(
+        Position(0, 0),
+        Position(0, 10),
+        0,
+        ntype=RoutingNodeType.CHANX,
+        segment_id=0,
+        direction=RoutingNodeDir.BI_DIR)
+    routing.create_node(
+        Position(0, 10),
+        Position(0, 10),
+        0,
+        ntype=RoutingNodeType.IPIN,
+        side=RoutingNodeSide.LEFT)
+    routing.create_node(
+        Position(0, 10), Position(0, 10), 0, ntype=RoutingNodeType.SINK)
     sw = Switch(id=0, name="sw", type=SwitchType.MUX)
-    routing.create_edge_with_ids(0, 1, sw) # SRC->OPIN
-    routing.create_edge_with_ids(1, 2, sw) # OPIN->CHANX
-    routing.create_edge_with_ids(2, 3, sw) # CHANX->IPIN
-    routing.create_edge_with_ids(3, 4, sw) # IPIN->SINK
+    routing.create_edge_with_ids(0, 1, sw)  # SRC->OPIN
+    routing.create_edge_with_ids(1, 2, sw)  # OPIN->CHANX
+    routing.create_edge_with_ids(2, 3, sw)  # CHANX->IPIN
+    routing.create_edge_with_ids(3, 4, sw)  # IPIN->SINK
     return routing
 
 
