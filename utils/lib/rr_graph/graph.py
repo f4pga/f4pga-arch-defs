@@ -1797,6 +1797,11 @@ class RoutingGraph:
     def edges_for_node(self, xml_node):
         """Return all edges associated with given node.
 
+        **WARNING:** This function is quite slow when a graph has a large
+        number of edges. If doing lots of lookups, consider using
+        `edges_for_allnodes` function to get a dictionary that you can lookup
+        the edges in directly.
+
         Parameters
         ----------
         xml_node: RoutingNode
