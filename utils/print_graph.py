@@ -46,15 +46,18 @@ def print_grid(g):
 
 def print_nodes(g, lim=None):
     '''Display source/sink edges on all XML nodes'''
+
     def node_name(node):
-        return graph.RoutingGraphPrinter.node(g.block_grid, node)
+        return graph.RoutingGraphPrinter.node(node, g.block_grid)
 
     def edge_name(node, flip=False):
-        return graph.RoutingGraphPrinter.edge(g.block_grid, g.routing, node, flip)
+        return graph.RoutingGraphPrinter.edge(node, g.block_grid, g.routing,
+                                              flip)
 
     routing = g.routing
     print('Nodes: {}, edges {}'.format(
-        len(routing._ids_map(graph.RoutingNode)), len(routing._ids_map(graph.RoutingEdge))))
+        len(routing._ids_map(graph.RoutingNode)),
+        len(routing._ids_map(graph.RoutingEdge))))
 
     nodemap = routing._ids_map(graph.RoutingNode)
     node2edges = routing.edges_for_allnodes()
