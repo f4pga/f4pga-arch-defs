@@ -3,21 +3,21 @@
 import lib.rr_graph.graph as graph
 
 
-def print_block_types(rr_graph):
+def print_block_types(g):
     '''Sequentially list block types'''
-    bg = rr_graph.block_grid
+    bg = g.block_grid
 
-    for type_id, bt in bg.block_types.items():
+    for type_id, bt in bg.block_types._ids.items():
         print(
             "{:4}  ".format(type_id),
             "{:40s}".format(bt.to_string()),
             bt.to_string(extra=True))
 
 
-def print_grid(rr_graph):
+def print_grid(g):
     '''ASCII diagram displaying XY layout'''
-    bg = rr_graph.block_grid
-    grid = bg.size()
+    bg = g.block_grid
+    grid = bg.size
 
     #print('Grid %dw x %dh' % (grid.width, grid.height))
     col_widths = []
@@ -44,50 +44,58 @@ def print_grid(rr_graph):
         print()
 
 
-def print_nodes(rr_graph, lim=None):
+def print_nodes(g, lim=None):
     '''Display source/sink edges on all XML nodes'''
-    ids = rr_graph.ids
+    def node_name(node):
+        return graph.RoutingGraphPrinter.node(g.block_grid, node)
+
+    def edge_name(node, flip=False):
+        return graph.RoutingGraphPrinter.edge(g.block_grid, g.routing, node, flip)
+
+    routing = g.routing
     print('Nodes: {}, edges {}'.format(
-        len(ids._xml_nodes), len(ids._xml_edges)))
-    for nodei, node in enumerate(ids._xml_nodes):
+        len(routing._ids_map(graph.RoutingNode)), len(routing._ids_map(graph.RoutingEdge))))
+
+    nodemap = routing._ids_map(graph.RoutingNode)
+    node2edges = routing.edges_for_allnodes()
+    for i, node_id in enumerate(sorted(node2edges.keys())):
+        node = nodemap[node_id]
         print()
-        if lim and nodei >= lim:
+        if lim and i >= lim:
             print('...')
             break
-        #print(nodei)
-        #ET.dump(node)
-        print('{} ({})'.format(ids.node_name(node), node.get("id")))
+        print('{} - {} ({})'.format(i, node_name(node), node_id))
         srcs = []
         snks = []
-        for e in ids.edges_for_node(node):
-            src, snk = ids.nodes_for_edge(e)
+        for e in node2edges[node_id]:
+            src, snk = routing.nodes_for_edge(e)
             if src == node:
                 srcs.append(e)
             elif snk == node:
                 snks.append(e)
             else:
-                print("!?@", ids.edge_name(e))
+                print("!?@", edge_name(e))
 
         print("  Sources:")
         for e in srcs:
-            print("   ", ids.edge_name(e))
+            print("   ", edge_name(e))
         if not srcs:
             print("   ", None)
 
         print("  Sink:")
         for e in snks:
-            print("   ", ids.edge_name(e, flip=True))
+            print("   ", edge_name(e, flip=True))
         if not snks:
             print("   ", None)
 
 
-def print_graph(rr_graph, lim=0):
+def print_graph(g, lim=0):
     print()
-    print_block_types(rr_graph)
+    print_block_types(g)
     print()
-    print_grid(rr_graph)
+    print_grid(g)
     print()
-    print_nodes(rr_graph, lim=lim)
+    print_nodes(g, lim=lim)
     print()
 
 
