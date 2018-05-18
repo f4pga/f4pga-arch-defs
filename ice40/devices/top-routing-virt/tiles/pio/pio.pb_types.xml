@@ -16,7 +16,9 @@
   <input  name="io_global_cen"    num_pins="1" equivalent="false"/>
   <clock  name="io_global_inclk"  num_pins="1" equivalent="false"/>
   <clock  name="io_global_outclk" num_pins="1" equivalent="false"/>
+  <!--
   <input  name="io_global_latch"  num_pins="1" equivalent="false"/>
+  -->
 
   <xi:include href="../../../../cells/io_local/io_local.pb_type.xml"/>
 
@@ -35,7 +37,9 @@
    <direct name="io_global_inclk"  input="BLK_TL-PIO_L.io_global_inclk"  output="BLK_IG-IO_LOCAL.io_global_inclk"  />
    <direct name="io_global_outclk" input="BLK_TL-PIO_L.io_global_outclk" output="BLK_IG-IO_LOCAL.io_global_outclk" />
 
+   <!--
    <direct name="io_global_latch"  input="BLK_TL-PIO_L.io_global_latch"  output="BLK_IG-IO_LOCAL.io_global_latch"  />
+   -->
   </interconnect>
 
   <pinlocations pattern="custom">
@@ -49,7 +53,6 @@
     BLK_TL-PIO_L.io_global_cen
     BLK_TL-PIO_L.io_global_inclk
     BLK_TL-PIO_L.io_global_outclk
-    BLK_TL-PIO_L.io_global_latch
    </loc>
   </pinlocations>
   <fc in_type="frac" in_val="1.0" out_type="frac" out_val="1.0" />
@@ -71,7 +74,9 @@
   <input  name="io_global_cen"    num_pins="1" equivalent="false"/>
   <clock  name="io_global_inclk"  num_pins="1" equivalent="false"/>
   <clock  name="io_global_outclk" num_pins="1" equivalent="false"/>
+  <!--
   <input  name="io_global_latch"  num_pins="1" equivalent="false"/>
+  -->
 
   <xi:include href="../../../../cells/io_local/io_local.pb_type.xml"/>
 
@@ -90,7 +95,9 @@
    <direct name="io_global_inclk"  input="BLK_TL-PIO_R.io_global_inclk"  output="BLK_IG-IO_LOCAL.io_global_inclk"  />
    <direct name="io_global_outclk" input="BLK_TL-PIO_R.io_global_outclk" output="BLK_IG-IO_LOCAL.io_global_outclk" />
 
+   <!--
    <direct name="io_global_latch"  input="BLK_TL-PIO_R.io_global_latch"  output="BLK_IG-IO_LOCAL.io_global_latch"  />
+   -->
   </interconnect>
 
   <pinlocations pattern="custom">
@@ -104,7 +111,6 @@
     BLK_TL-PIO_R.io_global_cen
     BLK_TL-PIO_R.io_global_inclk
     BLK_TL-PIO_R.io_global_outclk
-    BLK_TL-PIO_R.io_global_latch
    </loc>
   </pinlocations>
   <fc in_type="frac" in_val="1.0" out_type="frac" out_val="1.0" />
@@ -126,7 +132,9 @@
   <input  name="io_global_cen"    num_pins="1" equivalent="false"/>
   <clock  name="io_global_inclk"  num_pins="1" equivalent="false"/>
   <clock  name="io_global_outclk" num_pins="1" equivalent="false"/>
+  <!--
   <input  name="io_global_latch"  num_pins="1" equivalent="false"/>
+  -->
 
   <xi:include href="../../../../cells/io_local/io_local.pb_type.xml"/>
 
@@ -145,7 +153,9 @@
    <direct name="io_global_inclk"  input="BLK_TL-PIO_B.io_global_inclk"  output="BLK_IG-IO_LOCAL.io_global_inclk"  />
    <direct name="io_global_outclk" input="BLK_TL-PIO_B.io_global_outclk" output="BLK_IG-IO_LOCAL.io_global_outclk" />
 
+   <!--
    <direct name="io_global_latch"  input="BLK_TL-PIO_B.io_global_latch"  output="BLK_IG-IO_LOCAL.io_global_latch"  />
+   -->
   </interconnect>
 
   <pinlocations pattern="custom">
@@ -159,7 +169,6 @@
     BLK_TL-PIO_B.io_global_cen
     BLK_TL-PIO_B.io_global_inclk
     BLK_TL-PIO_B.io_global_outclk
-    BLK_TL-PIO_B.io_global_latch
    </loc>
   </pinlocations>
   <fc in_type="frac" in_val="1.0" out_type="frac" out_val="1.0" />
@@ -181,7 +190,9 @@
   <input  name="io_global_cen"    num_pins="1" equivalent="false"/>
   <clock  name="io_global_inclk"  num_pins="1" equivalent="false"/>
   <clock  name="io_global_outclk" num_pins="1" equivalent="false"/>
+  <!--
   <input  name="io_global_latch"  num_pins="1" equivalent="false"/>
+  -->
 
   <xi:include href="../../../../cells/io_local/io_local.pb_type.xml"/>
 
@@ -199,8 +210,9 @@
    <direct name="io_global_cen"    input="BLK_TL-PIO_T.io_global_cen"    output="BLK_IG-IO_LOCAL.io_global_cen"    />
    <direct name="io_global_inclk"  input="BLK_TL-PIO_T.io_global_inclk"  output="BLK_IG-IO_LOCAL.io_global_inclk"  />
    <direct name="io_global_outclk" input="BLK_TL-PIO_T.io_global_outclk" output="BLK_IG-IO_LOCAL.io_global_outclk" />
-
+   <!--
    <direct name="io_global_latch"  input="BLK_TL-PIO_T.io_global_latch"  output="BLK_IG-IO_LOCAL.io_global_latch"  />
+   -->
   </interconnect>
 
   <pinlocations pattern="custom">
@@ -214,7 +226,6 @@
     BLK_TL-PIO_T.io_global_cen
     BLK_TL-PIO_T.io_global_inclk
     BLK_TL-PIO_T.io_global_outclk
-    BLK_TL-PIO_T.io_global_latch
    </loc>
   </pinlocations>
   <fc in_type="frac" in_val="1.0" out_type="frac" out_val="1.0" />
