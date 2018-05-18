@@ -62,7 +62,7 @@ MIN_ROUTE_CHAN_WIDTH_HINT ?= $(ROUTE_CHAN_WIDTH)
 
 # VPR commands
 VPR_ARGS ?=
-VPR_CMD = $(VPR) $(VPR_ARGS)  $(DEVICE_FILE) --device $(DEVICE) --min_route_chan_width_hint $(MIN_ROUTE_CHAN_WIDTH_HINT)
+VPR_CMD = $(VPR) $(VPR_ARGS)  $(DEVICE_FILE) --device $(DEVICE) --min_route_chan_width_hint $(MIN_ROUTE_CHAN_WIDTH_HINT) --timing_analysis off
 VPR_FULL_CMD = cd $(OUTPUT_DIR); $(VPR_CMD)
 
 
