@@ -51,8 +51,7 @@ def print_nodes(g, lim=None):
         return graph.RoutingGraphPrinter.node(node, g.block_grid)
 
     def edge_name(node, flip=False):
-        return graph.RoutingGraphPrinter.edge(node, g.block_grid, g.routing,
-                                              flip)
+        return graph.RoutingGraphPrinter.edge(g.routing, node, block_graph=g.block_grid, flip=flip)
 
     routing = g.routing
     print('Nodes: {}, edges {}'.format(

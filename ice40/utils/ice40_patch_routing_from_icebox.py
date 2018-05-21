@@ -366,7 +366,7 @@ class NetNames:
                     orientation, blocki)] = 'io_{}/OUT_ENB'.format(blocki)
 
         for block in g.block_grid:
-            for pin in block.pins():
+            for pin in block.pins:
                 node = g.routing.localnames[(block.position, pin.name)]
 
                 rr_name = pin.xmlname
