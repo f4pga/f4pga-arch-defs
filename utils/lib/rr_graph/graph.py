@@ -189,9 +189,6 @@ class Pin(MostlyReadOnly):
 
     Attributes
     ----------
-    pin_class_index : int
-        Starts at 0 within a pin_class and increments for each pin.
-        Equal to the index property in the rr_graph XML.
 
     port_name : string
 
@@ -215,7 +212,6 @@ class Pin(MostlyReadOnly):
 
     __slots__ = [
         "_pin_class",
-        "_pin_class_index",
         "_port_name",
         "_port_index",
         "_block_type_name",
@@ -258,7 +254,6 @@ class Pin(MostlyReadOnly):
 
     def __init__(self,
                  pin_class=None,
-                 pin_class_index=None,
                  port_name=None,
                  port_index=None,
                  block_type_name=None,
@@ -266,7 +261,6 @@ class Pin(MostlyReadOnly):
                  side=None):
 
         assert_type_or_none(pin_class, PinClass)
-        assert_type_or_none(pin_class_index, int)
 
         assert_type_or_none(port_name, str)
         assert_type_or_none(port_index, int)
@@ -277,7 +271,6 @@ class Pin(MostlyReadOnly):
         assert_type_or_none(side, RoutingNodeSide)
 
         self._pin_class = pin_class
-        self._pin_class_index = pin_class_index
         self._port_name = port_name
         self._port_index = port_index
         self._block_type_name = block_type_name
@@ -296,7 +289,6 @@ class Pin(MostlyReadOnly):
     def from_text(cls,
                   pin_class,
                   text,
-                  pin_class_index=None,
                   block_type_index=None):
         """Create a Pin object from a textual pin string.
 
@@ -307,7 +299,6 @@ class Pin(MostlyReadOnly):
         text : str
             Textual pin definition
 
-        pin_class_index : int or None, optional
         block_type_index : int or None, optional
 
         Examples
@@ -315,19 +306,19 @@ class Pin(MostlyReadOnly):
 
         >>> pin = Pin.from_text(None, '0')
         >>> pin
-        Pin(pin_class=None, pin_class_index=None, port_name=None, port_index=None, block_type_name=None, block_type_index=0, side=None)
+        Pin(pin_class=None, port_name=None, port_index=None, block_type_name=None, block_type_index=0, side=None)
         >>> str(pin)
         'None(0)->None[None]'
 
         >>> pin = Pin.from_text(None, '10')
         >>> pin
-        Pin(pin_class=None, pin_class_index=None, port_name=None, port_index=None, block_type_name=None, block_type_index=10, side=None)
+        Pin(pin_class=None, port_name=None, port_index=None, block_type_name=None, block_type_index=10, side=None)
         >>> str(pin)
         'None(10)->None[None]'
 
         >>> pin = Pin.from_text(None, 'bt.outpad[2]')
         >>> pin
-        Pin(pin_class=None, pin_class_index=None, port_name='outpad', port_index=2, block_type_name='bt', block_type_index=None, side=None)
+        Pin(pin_class=None, port_name='outpad', port_index=2, block_type_name='bt', block_type_index=None, side=None)
         >>> str(pin)
         'bt(None)->outpad[2]'
 
@@ -345,7 +336,6 @@ class Pin(MostlyReadOnly):
 
         return cls(
             pin_class,
-            pin_class_index,
             port_name,
             port_index,
             block_type_name,
@@ -369,20 +359,18 @@ class Pin(MostlyReadOnly):
         >>> xml_string = '<pin index="0" ptc="1">bt.outpad[2]</pin>'
         >>> pin = Pin.from_xml(pc, ET.fromstring(xml_string))
         >>> pin
-        Pin(pin_class=PinClass(), pin_class_index=0, port_name='outpad', port_index=2, block_type_name='bt', block_type_index=1, side=None)
+        Pin(pin_class=PinClass(), port_name='outpad', port_index=2, block_type_name='bt', block_type_index=1, side=None)
         >>> str(pin)
         'bt(1)->outpad[2]'
         >>> pin.ptc
         1
         """
         assert pin_node.tag == "pin"
-        pin_class_index = int(pin_node.attrib["index"])
         block_type_index = int(pin_node.attrib["ptc"])
 
         return cls.from_text(
             pin_class,
             pin_node.text.strip(),
-            pin_class_index=pin_class_index,
             block_type_index=block_type_index)
 
 
@@ -413,8 +401,6 @@ class PinClass(MostlyReadOnly):
 
     direction : PinClassDirection
 
-    pins_index : MappingProxyType[int] -> Pin
-
     pins : tuple of Pin
         Pin inside this PinClass object. Useful for doing `for p in pc.pins`.
 
@@ -426,11 +412,7 @@ class PinClass(MostlyReadOnly):
     block_type_name : str
     """
 
-    __slots__ = ["_block_type", "_direction", "_pins_index"]
-
-    @property
-    def pins(self):
-        return tuple(self._pins_index.values())
+    __slots__ = ["_block_type", "_direction", "_pins"]
 
     @property
     def port_name(self):
@@ -440,11 +422,11 @@ class PinClass(MostlyReadOnly):
         >>> c1 = PinClass(block_type=bt, direction=PinClassDirection.OUTPUT)
         >>> c2 = PinClass(block_type=bt, direction=PinClassDirection.OUTPUT)
         >>> c3 = PinClass(block_type=bt, direction=PinClassDirection.OUTPUT)
-        >>> p0 = Pin(pin_class=c1, pin_class_index=0, port_name="P1", port_index=0)
-        >>> p1 = Pin(pin_class=c2, pin_class_index=0, port_name="P1", port_index=1)
-        >>> p2 = Pin(pin_class=c2, pin_class_index=1, port_name="P1", port_index=2)
-        >>> p3 = Pin(pin_class=c2, pin_class_index=2, port_name="P1", port_index=3)
-        >>> p4 = Pin(pin_class=c3, pin_class_index=0, port_name="P2", port_index=0)
+        >>> p0 = Pin(pin_class=c1, port_name="P1", port_index=0)
+        >>> p1 = Pin(pin_class=c2, port_name="P1", port_index=1)
+        >>> p2 = Pin(pin_class=c2, port_name="P1", port_index=2)
+        >>> p3 = Pin(pin_class=c2, port_name="P1", port_index=3)
+        >>> p4 = Pin(pin_class=c3, port_name="P2", port_index=0)
         >>> c1.port_name
         'P1[0]'
         >>> c2.port_name
@@ -472,8 +454,9 @@ class PinClass(MostlyReadOnly):
 
         self._block_type = block_type
         self._direction = direction
-        # pin index to Pin object
-        self._pins_index = {}
+        # Although pins within a pin class have no defined order,
+        # preserve input XML ordering for consistency
+        self._pins = []
 
         if block_type is not None:
             block_type._add_pin_class(self)
@@ -481,6 +464,7 @@ class PinClass(MostlyReadOnly):
         if pins is not None:
             for p in pins:
                 self._add_pin(p)
+
 
     @classmethod
     def from_xml(cls, block_type, pin_class_node):
@@ -497,13 +481,13 @@ class PinClass(MostlyReadOnly):
         ... '''
         >>> pc = PinClass.from_xml(bt, ET.fromstring(xml_string1))
         >>> pc # doctest: +ELLIPSIS
-        PinClass(block_type=BlockType(), direction='input', pins_index={1: ...})
+        PinClass(block_type=BlockType(), direction='input', pins=[...])
         >>> len(pc.pins)
         2
         >>> pc.pins[0]
-        Pin(pin_class=PinClass(), pin_class_index=1, port_name='outpad', port_index=3, block_type_name='bt', block_type_index=2, side=None)
+        Pin(pin_class=PinClass(), port_name='outpad', port_index=3, block_type_name='bt', block_type_index=2, side=None)
         >>> pc.pins[1]
-        Pin(pin_class=PinClass(), pin_class_index=2, port_name='outpad', port_index=4, block_type_name='bt', block_type_index=3, side=None)
+        Pin(pin_class=PinClass(), port_name='outpad', port_index=4, block_type_name='bt', block_type_index=3, side=None)
         >>> for p in pc.pins:
         ...   print("{}[{}]".format(p.port_name, p.port_index))
         outpad[3]
@@ -516,11 +500,11 @@ class PinClass(MostlyReadOnly):
         ... '''
         >>> pc = PinClass.from_xml(None, ET.fromstring(xml_string2))
         >>> pc # doctest: +ELLIPSIS
-        PinClass(block_type=None, direction='input', pins_index={0: ...})
+        PinClass(block_type=None, direction='input', pins=[...])
         >>> len(pc.pins)
         1
         >>> pc.pins[0]
-        Pin(pin_class=PinClass(), pin_class_index=0, port_name=None, port_index=None, block_type_name=None, block_type_index=0, side=None)
+        Pin(pin_class=PinClass(), port_name=None, port_index=None, block_type_name=None, block_type_index=0, side=None)
 
 
         >>> xml_string3 = '''
@@ -528,15 +512,15 @@ class PinClass(MostlyReadOnly):
         ... '''
         >>> pc = PinClass.from_xml(None, ET.fromstring(xml_string3))
         >>> pc # doctest: +ELLIPSIS
-        PinClass(block_type=None, direction='output', pins_index={0: ...})
+        PinClass(block_type=None, direction='output', pins=[...])
         >>> len(pc.pins)
         3
         >>> pc.pins[0]
-        Pin(pin_class=PinClass(), pin_class_index=0, port_name=None, port_index=None, block_type_name=None, block_type_index=2, side=None)
+        Pin(pin_class=PinClass(), port_name=None, port_index=None, block_type_name=None, block_type_index=2, side=None)
         >>> pc.pins[1]
-        Pin(pin_class=PinClass(), pin_class_index=1, port_name=None, port_index=None, block_type_name=None, block_type_index=3, side=None)
+        Pin(pin_class=PinClass(), port_name=None, port_index=None, block_type_name=None, block_type_index=3, side=None)
         >>> pc.pins[2]
-        Pin(pin_class=PinClass(), pin_class_index=2, port_name=None, port_index=None, block_type_name=None, block_type_index=4, side=None)
+        Pin(pin_class=PinClass(), port_name=None, port_index=None, block_type_name=None, block_type_index=4, side=None)
         """
         assert_eq(pin_class_node.tag, "pin_class")
         assert "type" in pin_class_node.attrib
@@ -547,12 +531,15 @@ class PinClass(MostlyReadOnly):
         pc_obj = cls(block_type, class_direction)
 
         pin_nodes = list(pin_class_node.iterfind("./pin"))
+        # Old format with pins described in text field
         if len(pin_nodes) == 0:
             for n in pin_class_node.text.split():
                 pc_obj._add_pin(Pin.from_text(pc_obj, n))
+        # New format using XML nodes
         else:
             for pin_node in pin_nodes:
                 pc_obj._add_pin(Pin.from_xml(pc_obj, pin_node))
+
         return pc_obj
 
     def __str__(self):
@@ -565,14 +552,14 @@ class PinClass(MostlyReadOnly):
     def _add_pin(self, pin):
         assert_type(pin, Pin)
 
+        # PinClass.from_xml() and Pin.from_xml() both call add_pin
+        if pin in self._pins:
+            return
+
         # Verify the pin has matching properties.
         # --------------------------------------------
         if pin.pin_class is not None:
             assert_eq(pin.pin_class, self)
-
-        if pin.pin_class_index is not None:
-            if pin.pin_class_index in self._pins_index:
-                assert_eq(pin, self._pins_index[pin.pin_class_index])
 
         #if pin.port_name is not None:
         #    assert_eq(pin.port_name, self.port_name)
@@ -588,9 +575,7 @@ class PinClass(MostlyReadOnly):
         if pin.pin_class is None:
             pin._pin_class = self
 
-        if pin.pin_class_index is None:
-            pin._pin_class_index = dict_next_id(self._pins_index)
-        self._pins_index[pin.pin_class_index] = pin
+        self._pins.append(pin)
 
         #if pin.port_name is None:
         #    pin._port_name = self.port_name
@@ -710,17 +695,17 @@ class BlockType(MostlyReadOnly):
         >>> bt.pin_classes[0].direction
         'output'
         >>> bt.pin_classes[0] # doctest: +ELLIPSIS
-        PinClass(block_type=BlockType(), direction='output', pins_index={...})
+        PinClass(block_type=BlockType(), direction='output', pins=[...])
         >>> bt.pin_classes[0].pins[0]
-        Pin(pin_class=PinClass(), pin_class_index=0, port_name='outpad', port_index=0, block_type_name='BLK_BB-VPR_PAD', block_type_index=0, side=None)
+        Pin(pin_class=PinClass(), port_name='outpad', port_index=0, block_type_name='BLK_BB-VPR_PAD', block_type_index=0, side=None)
         >>> bt.pin_classes[1].direction
         'output'
         >>> bt.pin_classes[1].pins[0]
-        Pin(pin_class=PinClass(), pin_class_index=0, port_name='outpad', port_index=1, block_type_name='BLK_BB-VPR_PAD', block_type_index=1, side=None)
+        Pin(pin_class=PinClass(), port_name='outpad', port_index=1, block_type_name='BLK_BB-VPR_PAD', block_type_index=1, side=None)
         >>> bt.pin_classes[2].direction
         'input'
         >>> bt.pin_classes[2].pins[0]
-        Pin(pin_class=PinClass(), pin_class_index=0, port_name='inpad', port_index=0, block_type_name='BLK_BB-VPR_PAD', block_type_index=2, side=None)
+        Pin(pin_class=PinClass(), port_name='inpad', port_index=0, block_type_name='BLK_BB-VPR_PAD', block_type_index=2, side=None)
 
         >>> xml_string = '''
         ... <block_type id="1" name="BLK_BB-VPR_PAD" width="2" height="3">
@@ -735,9 +720,9 @@ class BlockType(MostlyReadOnly):
         ... '''
         >>> bt = BlockType.from_xml(None, ET.fromstring(xml_string))
         >>> bt # doctest: +ELLIPSIS
-        BlockType(graph=None, id=1, name='BLK_BB-VPR_PAD', size=Size(w=2, h=3), pin_classes=[...], pins_index={...})
+        BlockType(graph=None, id=1, name='BLK_BB-VPR_PAD', size=Size(w=2, h=3), pin_classes=[...], pins_index={...}, ports_index={...})
         >>> bt.pin_classes[0] # doctest: +ELLIPSIS
-        PinClass(block_type=BlockType(), direction='output', pins_index={...})
+        PinClass(block_type=BlockType(), direction='output', pins=[...])
         >>> len(bt.pins_index)
         3
         >>> len(bt.pin_classes)
@@ -747,11 +732,11 @@ class BlockType(MostlyReadOnly):
         >>> len(bt.pin_classes[1].pins)
         1
         >>> bt.pin_classes[0].pins[0]
-        Pin(pin_class=PinClass(), pin_class_index=0, port_name='outpad', port_index=0, block_type_name='BLK_BB-VPR_PAD', block_type_index=0, side=None)
+        Pin(pin_class=PinClass(), port_name='outpad', port_index=0, block_type_name='BLK_BB-VPR_PAD', block_type_index=0, side=None)
         >>> bt.pin_classes[0].pins[1]
-        Pin(pin_class=PinClass(), pin_class_index=1, port_name='outpad', port_index=1, block_type_name='BLK_BB-VPR_PAD', block_type_index=1, side=None)
+        Pin(pin_class=PinClass(), port_name='outpad', port_index=1, block_type_name='BLK_BB-VPR_PAD', block_type_index=1, side=None)
         >>> bt.pin_classes[1].pins[0]
-        Pin(pin_class=PinClass(), pin_class_index=0, port_name='inpad', port_index=0, block_type_name='BLK_BB-VPR_PAD', block_type_index=2, side=None)
+        Pin(pin_class=PinClass(), port_name='inpad', port_index=0, block_type_name='BLK_BB-VPR_PAD', block_type_index=2, side=None)
         >>>
         """
         assert block_type_node.tag == "block_type", block_type_node
@@ -794,7 +779,6 @@ class BlockType(MostlyReadOnly):
         # Verify the pin has matching properties.
         # --------------------------------------------
         assert pin.pin_class is not None
-        assert pin.pin_class_index is not None
 
         if pin.port_name is not None and pin.port_index is not None:
             if pin.port_name in self._ports_index:
@@ -827,14 +811,14 @@ class BlockType(MostlyReadOnly):
 
     def _add_pin_class(self, pin_class):
         assert_type(pin_class, PinClass)
-        for p in pin_class._pins_index.values():
+        for p in pin_class.pins:
             self._could_add_pin(p)
 
         if pin_class.block_type is None:
             pin_class.block_type = self
         assert self is pin_class.block_type
 
-        for p in pin_class._pins_index.values():
+        for p in pin_class.pins:
             self._add_pin(p)
 
         if pin_class not in self._pin_classes:
@@ -2407,7 +2391,6 @@ class Graph:
         pos_high = block.position + pin_class.block_type.size - Size(1, 1)
 
         # Assuming only one pin per class for now
-        # see [0] references
         assert len(
             pin_class.pins) == 1, 'Expect one pin per pin class, got %s' % (
                 pin_class.pins, )
@@ -2603,25 +2586,25 @@ def simple_test_block_grid():
     # Create a block type with one input and one output pin
     bt = BlockType(g=bg, id=0, name="DUALBLK")
     pci = PinClass(block_type=bt, direction=PinClassDirection.INPUT)
-    pi = Pin(pin_class=pci, pin_class_index=0, port_name="A", port_index=0)
+    pi = Pin(pin_class=pci, port_name="A", port_index=0)
     pco = PinClass(block_type=bt, direction=PinClassDirection.OUTPUT)
-    po = Pin(pin_class=pco, pin_class_index=0, port_name="B", port_index=0)
+    po = Pin(pin_class=pco, port_name="B", port_index=0)
 
     # Create a block type with one input class with 4 pins
     bt = BlockType(g=bg, id=1, name="INBLOCK")
     pci = PinClass(block_type=bt, direction=PinClassDirection.INPUT)
-    Pin(pin_class=pci, pin_class_index=0, port_name="C", port_index=0)
-    Pin(pin_class=pci, pin_class_index=1, port_name="C", port_index=1)
-    Pin(pin_class=pci, pin_class_index=2, port_name="C", port_index=2)
-    Pin(pin_class=pci, pin_class_index=3, port_name="C", port_index=3)
+    Pin(pin_class=pci, port_name="C", port_index=0)
+    Pin(pin_class=pci, port_name="C", port_index=1)
+    Pin(pin_class=pci, port_name="C", port_index=2)
+    Pin(pin_class=pci, port_name="C", port_index=3)
 
     # Create a block type with out input class with 2 pins
     bt = BlockType(g=bg, id=2, name="OUTBLOK")
     pci = PinClass(block_type=bt, direction=PinClassDirection.OUTPUT)
-    Pin(pin_class=pci, pin_class_index=0, port_name="D", port_index=0)
-    Pin(pin_class=pci, pin_class_index=1, port_name="D", port_index=1)
-    Pin(pin_class=pci, pin_class_index=2, port_name="D", port_index=2)
-    Pin(pin_class=pci, pin_class_index=3, port_name="D", port_index=3)
+    Pin(pin_class=pci, port_name="D", port_index=0)
+    Pin(pin_class=pci, port_name="D", port_index=1)
+    Pin(pin_class=pci, port_name="D", port_index=2)
+    Pin(pin_class=pci, port_name="D", port_index=3)
 
     # Add some blocks
     bg.add_block(Block(g=bg, block_type_id=1, position=Position(0, 0)))
