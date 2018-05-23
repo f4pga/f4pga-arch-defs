@@ -76,6 +76,7 @@ sys.path.insert(0, os.path.join(MYDIR, "..", "..", "utils"))
 from os.path import commonprefix
 
 import icebox
+import icebox_asc2hlc
 import lib.rr_graph.graph as graph
 import lib.rr_graph.channel as channel
 import re
@@ -904,15 +905,21 @@ def create_xy_track(g,
 
 class IceboxNodeIDFile:
     '''Translate between icebox names and generate node IDs'''
-    def __init__(self, fn):
+    def __init__(self, fn, size):
         self.f = open(fn, 'w')
-        self.f.write('node_id,tile_x tile_y local_name,...\n')
+        self.size = (size[0]-1, size[1]-1)
 
     def add_track(self, nids, track_node):
         line = '{}'.format(track_node.get('id'))
-        for (x, y), localname in nids:
-            line += ',{} {} {}'.format(x, y, localname)
-        self.f.write(line + '\n')
+        hlcnames = set()
+        for pos, localname in nids:
+#            if "local" in localname:
+#                hlcname = "x{}y{}_{}".format(*pos, localname)
+#            else:
+            hlcname = icebox_asc2hlc.translate_netname(*pos, *self.size, localname)
+            hlcnames.add(hlcname)
+        assert len(hlcnames) == 1
+        self.f.write("{} {}\n".format(track_node.get('id'), hlcnames.pop()))
 
 
 def add_span_tracks(g, nn, verbose=True, ice_node_id_file=None):
@@ -1184,7 +1191,7 @@ def run(part, read_rr_graph, write_rr_graph, write_ice_node_id):
 
     print('Importing input g')
     ic, g, nn = init(part, read_rr_graph)
-    ice_node_id_file = IceboxNodeIDFile(write_ice_node_id)
+    ice_node_id_file = IceboxNodeIDFile(write_ice_node_id, (ic.max_x, ic.max_y))
 
     # my_test(ic, g)
     print('Source g loaded')
