@@ -911,16 +911,16 @@ class IceboxNodeIDFile:
         self.size = (size[0]-1, size[1]-1)
 
     def add_track(self, nids, track_node):
-        line = '{}'.format(track_node.get('id'))
+        nodeid = '{}'.format(track_node.get('id'))
         hlcnames = set()
         for pos, localname in nids:
-#            if "local" in localname:
-#                hlcname = "x{}y{}_{}".format(*pos, localname)
-#            else:
+            print("{} ({} {})".format(nodeid, pos, localname))
             hlcname = icebox_asc2hlc.translate_netname(*pos, *self.size, localname)
             hlcnames.add(hlcname)
         assert len(hlcnames) == 1
-        self.f.write("{} {}\n".format(track_node.get('id'), hlcnames.pop()))
+        print(hlcnames)
+        print("-"*10)
+        self.f.write("{} {}\n".format(nodeid, hlcnames.pop()))
 
 
 def add_span_tracks(g, nn, verbose=True, ice_node_id_file=None):
@@ -1030,7 +1030,7 @@ def add_span_tracks(g, nn, verbose=True, ice_node_id_file=None):
     print('Ran')
 
 
-def add_edges(g, nn, verbose=0):
+def add_edges(g, nn, verbose=True):
     for xic, yic in nn.all_tiles:
         pos_ic = TilePos(xic, yic)
         if pos_ic in nn.corner_tiles:
@@ -1046,15 +1046,14 @@ def add_edges(g, nn, verbose=0):
         switch_types = set()
         adds = set()
         for entry in ic.tile_db(xic, yic):
-            verbose = 0
             if not ic.tile_has_entry(xic, yic, entry):
                 continue
             # TODO: review
-            if entry[1] != 'buffer':
-                continue
+            #if entry[1] != 'buffer':
+            #    continue
 
             verbose and print('')
-            verbose and print('ic_raw', entry)
+            #verbose and print('ic_raw', entry)
             # [['B2[3]', 'B3[3]'], 'routing', 'sp12_h_r_0', 'sp12_h_l_23']
             switch_type = entry[1]
             switch_types.add(switch_type)
@@ -1190,8 +1189,9 @@ def my_test(ic, g):
 def run(part, read_rr_graph, write_rr_graph, write_ice_node_id):
     global ic
 
-    print('Importing input g')
+    print('Importing input g', part)
     ic, g, nn = init(part, read_rr_graph)
+    print("ic", ic)
     ice_node_id_file = IceboxNodeIDFile(write_ice_node_id, (ic.max_x, ic.max_y))
 
     # my_test(ic, g)
