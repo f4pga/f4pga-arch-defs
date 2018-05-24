@@ -374,6 +374,7 @@ class NetNames:
                 try:
                     localname = name_rr2local[rr_name]
                 except KeyError:
+                    continue
                     raise KeyError(
                         "rr_name {} doesn't have a translation".format(
                             rr_name))
