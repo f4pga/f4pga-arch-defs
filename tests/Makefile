@@ -22,13 +22,17 @@ endif
 
 ##########################################################################
 
+arch.merged.stamp:
+	cd $(TOP_DIR); make $(DEVICE_FILE)
+	date > arch.merged.stamp
+
+.PHONY: arch.merged.stamp
+
 DEVICE_DIR_FULL = $(realpath $(DEVICE_DIR)/$(DEVICE_TYPE))
 
 DEVICE_FILE = $(DEVICE_DIR_FULL)/arch.merged.xml
-$(DEVICE_FILE):
-	cd $(TOP_DIR); make $(TARGET)
-
-.PHONY: $(DEVICE_FILE)
+$(DEVICE_FILE): | arch.merged.stamp
+	@true
 
 ##########################################################################
 
