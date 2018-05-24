@@ -1254,32 +1254,8 @@ if __name__ == '__main__':
 
     parser = argparse.ArgumentParser()
     parser.add_argument(
-        '--dev-t4',
-        '-4',
-        action='store_true',
-        help='create chipdb for test4 device')
-    parser.add_argument(
-        '--dev-384',
-        '-3',
-        action='store_true',
-        help='create chipdb for 384 device')
-    parser.add_argument(
-        '--dev-1k',
-        '-1',
-        action='store_true',
-        help='create chipdb for 1k device')
-    parser.add_argument(
-        '--dev-5k',
-        '-5',
-        action='store_true',
-        help='create chipdb for 5k device')
-    parser.add_argument(
-        '--dev-8k',
-        '-8',
-        action='store_true',
-        help='create chipdb for 8k device')
-    parser.add_argument(
         '--verbose', '-v', action='store_true', help='verbose output')
+    parser.add_argument('--device', help='')
     parser.add_argument('--read_rr_graph', help='')
     parser.add_argument('--write_rr_graph', default='out.xml', help='')
     parser.add_argument('--write_ice_node_id', default='ice_node_id.csv', help='')
@@ -1288,17 +1264,5 @@ if __name__ == '__main__':
 
     VERBOSE = args.verbose
 
-    if args.dev_t4:
-        mode = 't4'
-    elif args.dev_8k:
-        mode = '8k'
-    elif args.dev_5k:
-        mode = '5k'
-    elif args.dev_1k:
-        mode = '1k'
-    elif args.dev_384:
-        mode = '384'
-    else:
-        #assert 0, "Must specifiy device"
-        mode = '384'
+    mode = args.device.lower()[2:]
     run(mode, args.read_rr_graph, args.write_rr_graph, args.write_ice_node_id)
