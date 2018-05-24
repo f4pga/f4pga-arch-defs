@@ -76,6 +76,7 @@ sys.path.insert(0, os.path.join(MYDIR, "..", "..", "utils"))
 from os.path import commonprefix
 
 import icebox
+import icebox_asc2hlc
 import lib.rr_graph.graph as graph
 import lib.rr_graph.channel as channel
 import re
@@ -373,6 +374,7 @@ class NetNames:
                 try:
                     localname = name_rr2local[rr_name]
                 except KeyError:
+                    continue
                     raise KeyError(
                         "rr_name {} doesn't have a translation".format(
                             rr_name))
@@ -899,10 +901,29 @@ def create_xy_track(g,
         typeh=typeh,
         direction=direction)
     nn.index_track(int(track_node.get('id')), nids)
-    return track
+    return track, track_node
 
 
-def add_span_tracks(g, nn, verbose=True):
+class IceboxNodeIDFile:
+    '''Translate between icebox names and generate node IDs'''
+    def __init__(self, fn, size):
+        self.f = open(fn, 'w')
+        self.size = (size[0]-1, size[1]-1)
+
+    def add_track(self, nids, track_node):
+        line = '{}'.format(track_node.get('id'))
+        hlcnames = set()
+        for pos, localname in nids:
+#            if "local" in localname:
+#                hlcname = "x{}y{}_{}".format(*pos, localname)
+#            else:
+            hlcname = icebox_asc2hlc.translate_netname(*pos, *self.size, localname)
+            hlcnames.add(hlcname)
+        assert len(hlcnames) == 1
+        self.f.write("{} {}\n".format(track_node.get('id'), hlcnames.pop()))
+
+
+def add_span_tracks(g, nn, verbose=True, ice_node_id_file=None):
     print('Adding span tracks')
 
     #x_channel_offset = LOCAL_TRACKS_MAX_GROUPS * (LOCAL_TRACKS_PER_GROUP) + GBL2LOCAL_MAX_TRACKS
@@ -994,13 +1015,17 @@ def add_span_tracks(g, nn, verbose=True):
         print("WARNING: skipping track %s" % gtype)
 
     for globalname, nids in sorted(nn.globalname2netnames.items()):
-        {
+        result = {
             "channel": add_track_channel,
             # NOTE: review creation before adding
             # "direct": add_track_direct,
             "glb2local": add_track_glb2local,
             "local": add_track_local,
         }.get(globalname[0], add_track_default)(globalname, nids)
+
+        if result is not None and ice_node_id_file:
+            _track, track_node = result
+            ice_node_id_file.add_track(nids, track_node)
 
     print('Ran')
 
@@ -1162,11 +1187,12 @@ def my_test(ic, g):
     sys.exit(1)
 
 
-def run(part, read_rr_graph, write_rr_graph):
+def run(part, read_rr_graph, write_rr_graph, write_ice_node_id):
     global ic
 
     print('Importing input g')
     ic, g, nn = init(part, read_rr_graph)
+    ice_node_id_file = IceboxNodeIDFile(write_ice_node_id, (ic.max_x, ic.max_y))
 
     # my_test(ic, g)
     print('Source g loaded')
@@ -1206,7 +1232,7 @@ def run(part, read_rr_graph, write_rr_graph):
 
     #add_global_nets(g, nn)
     print()
-    add_span_tracks(g, nn)
+    add_span_tracks(g, nn, ice_node_id_file=ice_node_id_file)
     print_nodes_edges(g)
     print()
     add_edges(g, nn)
@@ -1256,6 +1282,7 @@ if __name__ == '__main__':
         '--verbose', '-v', action='store_true', help='verbose output')
     parser.add_argument('--read_rr_graph', help='')
     parser.add_argument('--write_rr_graph', default='out.xml', help='')
+    parser.add_argument('--write_ice_node_id', default='ice_node_id.csv', help='')
 
     args = parser.parse_args()
 
@@ -1274,4 +1301,4 @@ if __name__ == '__main__':
     else:
         #assert 0, "Must specifiy device"
         mode = '384'
-    run(mode, args.read_rr_graph, args.write_rr_graph)
+    run(mode, args.read_rr_graph, args.write_rr_graph, args.write_ice_node_id)
