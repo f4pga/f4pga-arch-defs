@@ -1043,7 +1043,6 @@ def add_edges(g, nn, verbose=True):
             print(xic, yic)
             print("-" * 75)
         edgei = 0
-        switch_types = set()
         adds = set()
         for entry in ic.tile_db(xic, yic):
             if not ic.tile_has_entry(xic, yic, entry):
@@ -1056,7 +1055,6 @@ def add_edges(g, nn, verbose=True):
             #verbose and print('ic_raw', entry)
             # [['B2[3]', 'B3[3]'], 'routing', 'sp12_h_r_0', 'sp12_h_l_23']
             switch_type = entry[1]
-            switch_types.add(switch_type)
             if switch_type not in ("routing", "buffer"):
                 verbose and print('WARNING: skip switch type %s' % switch_type)
                 continue
@@ -1110,11 +1108,11 @@ def add_edges(g, nn, verbose=True):
             verbose and print('  ', entry)
             # FIXME: proper switch ID
             edgea = g.routing.create_edge_with_ids(
-                src_node_id, dst_node_id, switch=g.switches[0])
+                src_node_id, dst_node_id, switch=g.switches[switch_type])
             edgeb = None
             if bidir:
                 edgeb = g.routing.create_edge_with_ids(
-                    dst_node_id, src_node_id, switch=g.switches[0])
+                    dst_node_id, src_node_id, switch=g.switches[switch_type])
 
             def edgestr(edge):
                 return '%s => %s' % (edge.get('src_node'),
@@ -1130,7 +1128,6 @@ def add_edges(g, nn, verbose=True):
             edgei += 1
             if 0 and edgei > 380:
                 break
-    print(switch_types)
 
 
 def print_nodes_edges(g):
