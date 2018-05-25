@@ -1082,6 +1082,16 @@ def add_edges(g, nn, verbose=True):
             dst_node_id = nn.poslname2nodeid.get((pos_ic, dst_localname), None)
             # May have duplicate entries
             if (src_node_id, dst_node_id) in adds:
+                verbose and print(
+                    "duplicate edge {}:{} node {} => {}:{} node {}".
+                    format(
+                        pos_ic,
+                        src_localname,
+                        src_node_id,
+                        pos_ic,
+                        dst_localname,
+                        dst_node_id,
+                    ))
                 continue
             if src_node_id is None or dst_node_id is None:
                 verbose and print(
