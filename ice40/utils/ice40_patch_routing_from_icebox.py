@@ -382,7 +382,7 @@ class NetNames:
                 self.poslname2nodeid[(PN1(block.position),
                                       localname)] = node_id
                 if ice_node_id_file:
-                    ice_node_id_file.annotate_node(node, [(block.position, localname.split('/')[-1])])
+                    ice_node_id_file.annotate_node(node, [(block.position, localname)])
 
     def index_track(self, trackid, nids):
         for pos, localname in nids:
