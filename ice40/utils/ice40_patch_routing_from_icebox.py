@@ -314,7 +314,7 @@ class NetNames:
             for x, y, netname in fgroup:
                 self.add_globalname2localname(gname, TilePos(x, y), netname)
 
-    def index_pin_node_ids(self, g):
+    def index_pin_node_ids(self, g, ice_node_id_file=None):
         '''Build a list of icebox global pin names to Graph node IDs'''
         name_rr2local = {}
 
@@ -381,6 +381,8 @@ class NetNames:
                 node_id = int(node.get('id'))
                 self.poslname2nodeid[(PN1(block.position),
                                       localname)] = node_id
+                if ice_node_id_file:
+                    ice_node_id_file.annotate_node(node, [(block.position, localname.split('/')[-1])])
 
     def index_track(self, trackid, nids):
         for pos, localname in nids:
@@ -910,8 +912,9 @@ class IceboxNodeIDFile:
         self.f = open(fn, 'w')
         self.size = (size[0]-1, size[1]-1)
 
-    def add_track(self, nids, track_node):
-        nodeid = '{}'.format(track_node.get('id'))
+    def annotate_node(self, node, nids):
+        """a.annotate_node(ET._Element, [(pos, name)])"""
+        nodeid = '{}'.format(node.get('id'))
         hlcnames = set()
         for pos, localname in nids:
             print("{} ({} {})".format(nodeid, pos, localname))
@@ -1025,7 +1028,7 @@ def add_span_tracks(g, nn, verbose=True, ice_node_id_file=None):
 
         if result is not None and ice_node_id_file:
             _track, track_node = result
-            ice_node_id_file.add_track(nids, track_node)
+            ice_node_id_file.annotate_node(track_node, nids)
 
     print('Ran')
 
@@ -1221,7 +1224,7 @@ def run(part, read_rr_graph, write_rr_graph, write_ice_node_id):
 
     print('Indexing pin node names w/ %d index entries' % len(
         nn.poslname2nodeid))
-    nn.index_pin_node_ids(g)
+    nn.index_pin_node_ids(g, ice_node_id_file=ice_node_id_file)
     # 'lutff_4/out'
     # self.poslname2nodeid[(PN1(block.position), localname)]
     print(
