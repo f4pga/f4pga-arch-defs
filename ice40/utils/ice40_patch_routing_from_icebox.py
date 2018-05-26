@@ -319,7 +319,7 @@ class NetNames:
         '''Build a list of icebox global pin names to Graph node IDs'''
         name_rr2local = {}
 
-        # FIXME: quick attempt, not thorougly checked
+        # FIXME: quick attempt, not thoroughly checked
         # BLK_TL-PLB
         # http://www.clifford.at/icestorm/logic_tile.html
         # http://www.clifford.at/icestorm/bitdocs-1k/tile_1_1.html
@@ -345,26 +345,26 @@ class NetNames:
 
         # BLK_TL-PIO
         # http://www.clifford.at/icestorm/io_tile.html
-        for orientation in 'LRBT':
+        for orientation in 'LRBTA':
             # FIXME: filter out orientations that don't exist?
-            name_rr2local['BLK_TL-PIO_{}.io_global_latch[0]'.format(
-                orientation)] = 'io_global/latch'
-            name_rr2local['BLK_TL-PIO_{}.io_global_outclk[0]'.format(
-                orientation)] = 'io_global/outclk'
-            name_rr2local['BLK_TL-PIO_{}.io_global_cen[0]'.format(
-                orientation)] = 'io_global/cen'
-            name_rr2local['BLK_TL-PIO_{}.io_global_inclk[0]'.format(
-                orientation)] = 'io_global/inclk'
+            #name_rr2local['BLK_TL-PIO_{}.io_global_latch[0]'.format(
+            #    orientation)] = 'io_global/latch'
+            #name_rr2local['BLK_TL-PIO_{}.io_global_outclk[0]'.format(
+            #    orientation)] = 'io_global/outclk'
+            #name_rr2local['BLK_TL-PIO_{}.io_global_cen[0]'.format(
+            #    orientation)] = 'io_global/cen'
+            #name_rr2local['BLK_TL-PIO_{}.io_global_inclk[0]'.format(
+            #    orientation)] = 'io_global/inclk'
             for blocki in range(2):
-                name_rr2local['BLK_TL-PIO_{}.io_{}_D_IN[0]'.format(
+                name_rr2local['BLK_TL-PIO_{}.[{}]io_D_IN[0]'.format(
                     orientation, blocki)] = 'io_{}/D_IN_0'.format(blocki)
-                name_rr2local['BLK_TL-PIO_{}.io_{}_D_IN[1]'.format(
+                name_rr2local['BLK_TL-PIO_{}.[{}]io_D_IN[1]'.format(
                     orientation, blocki)] = 'io_{}/D_IN_1'.format(blocki)
-                name_rr2local['BLK_TL-PIO_{}.io_{}_D_OUT[0]'.format(
+                name_rr2local['BLK_TL-PIO_{}.[{}]io_D_OUT[0]'.format(
                     orientation, blocki)] = 'io_{}/D_OUT_0'.format(blocki)
-                name_rr2local['BLK_TL-PIO_{}.io_{}_D_OUT[1]'.format(
+                name_rr2local['BLK_TL-PIO_{}.[{}]io_D_OUT[1]'.format(
                     orientation, blocki)] = 'io_{}/D_OUT_1'.format(blocki)
-                name_rr2local['BLK_TL-PIO_{}.io_{}_OUT_ENB[0]'.format(
+                name_rr2local['BLK_TL-PIO_{}.[{}]io_OUT_ENB[0]'.format(
                     orientation, blocki)] = 'io_{}/OUT_ENB'.format(blocki)
 
         for block in g.block_grid:
@@ -375,10 +375,9 @@ class NetNames:
                 try:
                     localname = name_rr2local[rr_name]
                 except KeyError:
-                    continue
-                    raise KeyError(
-                        "rr_name {} doesn't have a translation".format(
+                    print("WARNING: rr_name {} doesn't have a translation".format(
                             rr_name))
+                    continue
                 node_id = int(node.get('id'))
                 self.poslname2nodeid[(PN1(block.position),
                                       localname)] = node_id
@@ -1094,9 +1093,21 @@ def add_edges(g, nn, verbose=True):
                         dst_node_id,
                     ))
                 continue
-            if src_node_id is None or dst_node_id is None:
+            if src_node_id is None:
                 verbose and print(
-                    "WARNING: skipping edge {}:{} node {} => {}:{} node {}".
+                    "WARNING: skipping edge as src missing *{}:{}* node {} => {}:{} node {}".
+                    format(
+                        pos_ic,
+                        src_localname,
+                        src_node_id,
+                        pos_ic,
+                        dst_localname,
+                        dst_node_id,
+                    ))
+                continue
+            if dst_node_id is None:
+                verbose and print(
+                    "WARNING: skipping edge as dst missing {}:{} node {} => *{}:{}* node {}".
                     format(
                         pos_ic,
                         src_localname,

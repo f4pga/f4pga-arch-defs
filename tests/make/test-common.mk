@@ -1,5 +1,5 @@
-include ../../make/inc/common.mk
-include ../../make/inc/func.mk
+include ../../../make/inc/common.mk
+include ../../../make/inc/func.mk
 
 VPR   ?= vpr
 YOSYS ?= yosys
@@ -85,8 +85,8 @@ $(OUT_RRXML_VIRT): $(TOP_DIR)/common/wire.eblif $(OUT_ARCH_XML)
 
 # Generate the "real" rr_graph.xml from the default rr_graph.xml file
 OUT_RRXML_REAL = $(OUT_DEV_DIR)/rr_graph.real.xml
-$(OUT_RRXML_REAL): $(OUT_RRXML_VIRT) $(RR_PATCH_TOOL)
-	$(RR_PATCH_CMD) 2>&1 | tee $(OUT_DEV_DIR)/rr_graph.real.out
+$(OUT_RRXML_REAL): $(OUT_RRXML_VIRT) $(OUT_ARCH_XML) $(RR_PATCH_TOOL)
+	$(RR_PATCH_CMD) 2>&1 | tee $(OUT_DEV_DIR)/rr_graph.real.out; (exit $${PIPESTATUS[0]})
 .PRECIOUS: $(OUT_RRXML_REAL)
 
 # Quick shortcuts
@@ -163,6 +163,11 @@ VPR_CMD = \
 		--route_chan_width $(VPR_ROUTE_CHAN_WIDTH) \
 		--read_rr_graph $(OUT_RRXML_REAL)
 
+# Add IO placement
+ifneq ($(wildcard io.place),)
+VPR_CMD += --fix_pins $(PWD)/io.place
+endif
+
 VPR_ARGS_FILE=$(OUT_LOCAL)/vpr.args
 $(VPR_ARGS_FILE): always-run | $(OUT_LOCAL)
 	@echo -- "$(VPR_CMD)" > $(VPR_ARGS_FILE).new
@@ -182,7 +187,7 @@ $(VPR_DEPS): $(OUT_ARCH_XML) $(OUT_RRXML_REAL) $(VPR_ARGS_FILE) | $(OUT_LOCAL)
 #-------------------------------------------------------------------------
 OUT_NET=$(OUT_LOCAL)/$(SOURCE).net
 $(OUT_NET): $(OUT_EBLIF) $(VPR_DEPS)
-	$(VPR_CMD) --pack
+	$(VPR_CMD) --pack --place
 	@mv $(OUT_LOCAL)/vpr_stdout.log $(OUT_LOCAL)/pack.log
 .PRECIOUS: $(OUT_NET)
 
@@ -243,7 +248,10 @@ all: clean route
 clean:
 	rm -rf $(OUT_LOCAL)
 
-dist-clean: clean clean-dev
+all-clean:
+	rm -rf build-*
+
+dist-clean: all-clean clean-dev
 	@true
 
 .PHONY: all clean help

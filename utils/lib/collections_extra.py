@@ -49,7 +49,7 @@ class MostlyReadOnly:
     >>> a.missing
     Traceback (most recent call last):
         ...
-    AttributeError: missing not found on <class 'lib.collections_extra.MyRO'>
+    AttributeError: 'MyRO' object has no attribute 'missing'
     >>> a.missing = 1
     Traceback (most recent call last):
         ...
@@ -57,7 +57,7 @@ class MostlyReadOnly:
     >>> a.missing
     Traceback (most recent call last):
         ...
-    AttributeError: missing not found on <class 'lib.collections_extra.MyRO'>
+    AttributeError: 'MyRO' object has no attribute 'missing'
     """
 
     def __setattr__(self, key, new_value=None):
@@ -78,7 +78,7 @@ class MostlyReadOnly:
 
     def __getattr__(self, key):
         if "_" + key not in self.__class__.__slots__:
-            raise AttributeError("{} not found on {}".format(key, self.__class__))
+            super().__getattribute__(key)
 
         value = getattr(self, "_" + key, None)
         if isinstance(value,

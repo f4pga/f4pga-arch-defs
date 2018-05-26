@@ -46,116 +46,135 @@
  <input  name="FCIN"   num_pins="1" equivalent="false"/>
  <output name="FCOUT"  num_pins="1" equivalent="false"/>
 
- <pb_type name="BLK_IG-LUT_CARRY" num_pb="8">
-  <xi:include href="../lut_carry/lut_carry.pb_type.xml" xpointer="xpointer(pb_type/child::node())"/>
- </pb_type>
-
- <pb_type name="BLK_IG-FF_ARRAY" num_pb="1">
-  <xi:include href="../ff_array/ff_array.pb_type.xml" xpointer="xpointer(pb_type/child::node())"/>
+ <pb_type name="BLK_IG-PLB_CELL" num_pb="8">
+  <xi:include href="../plb/plb.pb_type.xml" xpointer="xpointer(pb_type/child::node())"/>
  </pb_type>
 
  <interconnect>
   <!-- SB_LUT4 inputs -->
-  <direct name="I0[0]" input="BLK_IG-PLB_LOCAL.I0[0]"                        output="BLK_IG-LUT_CARRY[0].I[0]" />
-  <direct name="I0[1]" input="BLK_IG-PLB_LOCAL.I0[1]"                        output="BLK_IG-LUT_CARRY[0].I[1]" />
-  <direct name="I0[2]" input="BLK_IG-PLB_LOCAL.I0[2]"                        output="BLK_IG-LUT_CARRY[0].I[2]" />
-  <direct name="I0[3]" input="BLK_IG-PLB_LOCAL.I0[3]"                        output="BLK_IG-LUT_CARRY[0].I[3]" />
+  <direct name="LI0[0]" input="BLK_IG-PLB_LOCAL.I0[0]"                        output="BLK_IG-PLB_CELL[0].I[0]" />
+  <direct name="LI0[1]" input="BLK_IG-PLB_LOCAL.I0[1]"                        output="BLK_IG-PLB_CELL[0].I[1]" />
+  <direct name="LI0[2]" input="BLK_IG-PLB_LOCAL.I0[2]"                        output="BLK_IG-PLB_CELL[0].I[2]" />
+  <direct name="LI0[3]" input="BLK_IG-PLB_LOCAL.I0[3]"                        output="BLK_IG-PLB_CELL[0].I[3]" />
+  <direct name="LO0"    input="BLK_IG-PLB_CELL[0].O"                         output="BLK_IG-FF_ARRAY.in[0]"     >
+   <pack_pattern name="LUT+FF" in_port="BLK_IG-PLB_CELL[0].O" out_port="BLK_IG-FF_ARRAY.in[0]" />
+  </direct>
 
-  <direct name="I1[0]" input="BLK_IG-PLB_LOCAL.I1[0]"                        output="BLK_IG-LUT_CARRY[1].I[0]" />
-  <direct name="I1[1]" input="BLK_IG-PLB_LOCAL.I1[1]"                        output="BLK_IG-LUT_CARRY[1].I[1]" />
-  <!-- <mux    name="I1[2]" input="BLK_IG-PLB_LOCAL.I1[2] BLK_IG-LUT_CARRY[0].LO" output="BLK_IG-LUT_CARRY[1].I[2]" /> -->
-  <direct name="I1[2]" input="BLK_IG-PLB_LOCAL.I1[2]"                        output="BLK_IG-LUT_CARRY[1].I[2]" />
-  <direct name="I1[3]" input="BLK_IG-PLB_LOCAL.I1[3]"                        output="BLK_IG-LUT_CARRY[1].I[3]" />
+  <direct name="LI1[0]" input="BLK_IG-PLB_LOCAL.I1[0]"                        output="BLK_IG-PLB_CELL[1].I[0]" />
+  <direct name="LI1[1]" input="BLK_IG-PLB_LOCAL.I1[1]"                        output="BLK_IG-PLB_CELL[1].I[1]" />
+  <!-- <mux      name="I1[2]" input="BLK_IG-PLB_LOCAL.I1[2] BLK_IG-PLB_CELL[0].LO" output="BLK_IG-PLB_CELL[1].I[2]" /> -->
+  <direct name="LI1[2]" input="BLK_IG-PLB_LOCAL.I1[2]"                        output="BLK_IG-PLB_CELL[1].I[2]" />
+  <direct name="LI1[3]" input="BLK_IG-PLB_LOCAL.I1[3]"                        output="BLK_IG-PLB_CELL[1].I[3]" />
+  <direct name="LO1"    input="BLK_IG-PLB_CELL[1].O"                         output="BLK_IG-FF_ARRAY.in[1]"     >
+   <pack_pattern name="LUT+FF" in_port="BLK_IG-PLB_CELL[0].O" out_port="BLK_IG-FF_ARRAY.in[0]" />
+  </direct>
 
-  <direct name="I2[0]" input="BLK_IG-PLB_LOCAL.I2[0]"                        output="BLK_IG-LUT_CARRY[2].I[0]" />
-  <direct name="I2[1]" input="BLK_IG-PLB_LOCAL.I2[1]"                        output="BLK_IG-LUT_CARRY[2].I[1]" />
-  <!-- <mux    name="I2[2]" input="BLK_IG-PLB_LOCAL.I2[2] BLK_IG-LUT_CARRY[1].LO" output="BLK_IG-LUT_CARRY[2].I[2]" /> -->
-  <direct name="I2[2]" input="BLK_IG-PLB_LOCAL.I2[2]"                        output="BLK_IG-LUT_CARRY[2].I[2]" />
-  <direct name="I2[3]" input="BLK_IG-PLB_LOCAL.I2[3]"                        output="BLK_IG-LUT_CARRY[2].I[3]" />
+  <direct name="LI2[0]" input="BLK_IG-PLB_LOCAL.I2[0]"                        output="BLK_IG-PLB_CELL[2].I[0]" />
+  <direct name="LI2[1]" input="BLK_IG-PLB_LOCAL.I2[1]"                        output="BLK_IG-PLB_CELL[2].I[1]" />
+  <!-- <mux       name="I2[2]" input="BLK_IG-PLB_LOCAL.I2[2] BLK_IG-PLB_CELL[1].LO" output="BLK_IG-PLB_CELL[2].I[2]" /> -->
+  <direct name="LI2[2]" input="BLK_IG-PLB_LOCAL.I2[2]"                        output="BLK_IG-PLB_CELL[2].I[2]" />
+  <direct name="LI2[3]" input="BLK_IG-PLB_LOCAL.I2[3]"                        output="BLK_IG-PLB_CELL[2].I[3]" />
+  <direct name="LO2"    input="BLK_IG-PLB_CELL[2].O"                         output="BLK_IG-FF_ARRAY.in[2]"     >
+   <pack_pattern name="LUT+FF" in_port="BLK_IG-PLB_CELL[0].O" out_port="BLK_IG-FF_ARRAY.in[0]" />
+  </direct>
 
-  <direct name="I3[0]" input="BLK_IG-PLB_LOCAL.I3[0]"                        output="BLK_IG-LUT_CARRY[3].I[0]" />
-  <direct name="I3[1]" input="BLK_IG-PLB_LOCAL.I3[1]"                        output="BLK_IG-LUT_CARRY[3].I[1]" />
-  <!-- <mux    name="I3[2]" input="BLK_IG-PLB_LOCAL.I3[2] BLK_IG-LUT_CARRY[2].LO" output="BLK_IG-LUT_CARRY[3].I[2]" /> -->
-  <direct name="I3[2]" input="BLK_IG-PLB_LOCAL.I3[2]"                        output="BLK_IG-LUT_CARRY[3].I[2]" />
-  <direct name="I3[3]" input="BLK_IG-PLB_LOCAL.I3[3]"                        output="BLK_IG-LUT_CARRY[3].I[3]" />
+  <direct name="LI3[0]" input="BLK_IG-PLB_LOCAL.I3[0]"                        output="BLK_IG-PLB_CELL[3].I[0]" />
+  <direct name="LI3[1]" input="BLK_IG-PLB_LOCAL.I3[1]"                        output="BLK_IG-PLB_CELL[3].I[1]" />
+  <!-- <mux       name="I3[2]" input="BLK_IG-PLB_LOCAL.I3[2] BLK_IG-PLB_CELL[2].LO" output="BLK_IG-PLB_CELL[3].I[2]" /> -->
+  <direct name="LI3[2]" input="BLK_IG-PLB_LOCAL.I3[2]"                        output="BLK_IG-PLB_CELL[3].I[2]" />
+  <direct name="LI3[3]" input="BLK_IG-PLB_LOCAL.I3[3]"                        output="BLK_IG-PLB_CELL[3].I[3]" />
+  <direct name="LO3"    input="BLK_IG-PLB_CELL[3].O"                         output="BLK_IG-FF_ARRAY.in[3]"     >
+   <pack_pattern name="LUT+FF" in_port="BLK_IG-PLB_CELL[0].O" out_port="BLK_IG-FF_ARRAY.in[0]" />
+  </direct>
 
-  <direct name="I4[0]" input="BLK_IG-PLB_LOCAL.I4[0]"                        output="BLK_IG-LUT_CARRY[4].I[0]" />
-  <direct name="I4[1]" input="BLK_IG-PLB_LOCAL.I4[1]"                        output="BLK_IG-LUT_CARRY[4].I[1]" />
-  <!-- <mux    name="I4[2]" input="BLK_IG-PLB_LOCAL.I4[2] BLK_IG-LUT_CARRY[3].LO" output="BLK_IG-LUT_CARRY[4].I[2]" /> -->
-  <direct name="I4[2]" input="BLK_IG-PLB_LOCAL.I4[2]"                        output="BLK_IG-LUT_CARRY[4].I[2]" />
-  <direct name="I4[3]" input="BLK_IG-PLB_LOCAL.I4[3]"                        output="BLK_IG-LUT_CARRY[4].I[3]" />
+  <direct name="LI4[0]" input="BLK_IG-PLB_LOCAL.I4[0]"                        output="BLK_IG-PLB_CELL[4].I[0]" />
+  <direct name="LI4[1]" input="BLK_IG-PLB_LOCAL.I4[1]"                        output="BLK_IG-PLB_CELL[4].I[1]" />
+  <!-- <mux       name="I4[2]" input="BLK_IG-PLB_LOCAL.I4[2] BLK_IG-PLB_CELL[3].LO" output="BLK_IG-PLB_CELL[4].I[2]" /> -->
+  <direct name="LI4[2]" input="BLK_IG-PLB_LOCAL.I4[2]"                        output="BLK_IG-PLB_CELL[4].I[2]" />
+  <direct name="LI4[3]" input="BLK_IG-PLB_LOCAL.I4[3]"                        output="BLK_IG-PLB_CELL[4].I[3]" />
+  <direct name="LO4"    input="BLK_IG-PLB_CELL[4].O"                         output="BLK_IG-FF_ARRAY.in[4]"     >
+   <pack_pattern name="LUT+FF" in_port="BLK_IG-PLB_CELL[0].O" out_port="BLK_IG-FF_ARRAY.in[0]" />
+  </direct>
 
-  <direct name="I5[0]" input="BLK_IG-PLB_LOCAL.I5[0]"                        output="BLK_IG-LUT_CARRY[5].I[0]" />
-  <direct name="I5[1]" input="BLK_IG-PLB_LOCAL.I5[1]"                        output="BLK_IG-LUT_CARRY[5].I[1]" />
-  <!-- <mux    name="I5[2]" input="BLK_IG-PLB_LOCAL.I5[2] BLK_IG-LUT_CARRY[4].LO" output="BLK_IG-LUT_CARRY[5].I[2]" /> -->
-  <direct name="I5[2]" input="BLK_IG-PLB_LOCAL.I5[2]"                        output="BLK_IG-LUT_CARRY[5].I[2]" />
-  <direct name="I5[3]" input="BLK_IG-PLB_LOCAL.I5[3]"                        output="BLK_IG-LUT_CARRY[5].I[3]" />
+  <direct name="LI5[0]" input="BLK_IG-PLB_LOCAL.I5[0]"                        output="BLK_IG-PLB_CELL[5].I[0]" />
+  <direct name="LI5[1]" input="BLK_IG-PLB_LOCAL.I5[1]"                        output="BLK_IG-PLB_CELL[5].I[1]" />
+  <!-- <mux       name="I5[2]" input="BLK_IG-PLB_LOCAL.I5[2] BLK_IG-PLB_CELL[4].LO" output="BLK_IG-PLB_CELL[5].I[2]" /> -->
+  <direct name="LI5[2]" input="BLK_IG-PLB_LOCAL.I5[2]"                        output="BLK_IG-PLB_CELL[5].I[2]" />
+  <direct name="LI5[3]" input="BLK_IG-PLB_LOCAL.I5[3]"                        output="BLK_IG-PLB_CELL[5].I[3]" />
+  <direct name="LO5"    input="BLK_IG-PLB_CELL[5].O"                         output="BLK_IG-FF_ARRAY.in[5]"     >
+   <pack_pattern name="LUT+FF" in_port="BLK_IG-PLB_CELL[0].O" out_port="BLK_IG-FF_ARRAY.in[0]" />
+  </direct>
 
-  <direct name="I6[0]" input="BLK_IG-PLB_LOCAL.I6[0]"                        output="BLK_IG-LUT_CARRY[6].I[0]" />
-  <direct name="I6[1]" input="BLK_IG-PLB_LOCAL.I6[1]"                        output="BLK_IG-LUT_CARRY[6].I[1]" />
-  <!-- <mux    name="I6[2]" input="BLK_IG-PLB_LOCAL.I6[2] BLK_IG-LUT_CARRY[5].LO" output="BLK_IG-LUT_CARRY[6].I[2]" /> -->
-  <direct name="I6[2]" input="BLK_IG-PLB_LOCAL.I6[2]"                        output="BLK_IG-LUT_CARRY[6].I[2]" />
-  <direct name="I6[3]" input="BLK_IG-PLB_LOCAL.I6[3]"                        output="BLK_IG-LUT_CARRY[6].I[3]" />
+  <direct name="LI6[0]" input="BLK_IG-PLB_LOCAL.I6[0]"                        output="BLK_IG-PLB_CELL[6].I[0]" />
+  <direct name="LI6[1]" input="BLK_IG-PLB_LOCAL.I6[1]"                        output="BLK_IG-PLB_CELL[6].I[1]" />
+  <!-- <mux       name="I6[2]" input="BLK_IG-PLB_LOCAL.I6[2] BLK_IG-PLB_CELL[5].LO" output="BLK_IG-PLB_CELL[6].I[2]" /> -->
+  <direct name="LI6[2]" input="BLK_IG-PLB_LOCAL.I6[2]"                        output="BLK_IG-PLB_CELL[6].I[2]" />
+  <direct name="LI6[3]" input="BLK_IG-PLB_LOCAL.I6[3]"                        output="BLK_IG-PLB_CELL[6].I[3]" />
+  <direct name="LO6"    input="BLK_IG-PLB_CELL[6].O"                         output="BLK_IG-FF_ARRAY.in[6]"     >
+   <pack_pattern name="LUT+FF" in_port="BLK_IG-PLB_CELL[0].O" out_port="BLK_IG-FF_ARRAY.in[0]" />
+  </direct>
 
-  <direct name="I7[0]" input="BLK_IG-PLB_LOCAL.I7[0]"                        output="BLK_IG-LUT_CARRY[7].I[0]" />
-  <direct name="I7[1]" input="BLK_IG-PLB_LOCAL.I7[1]"                        output="BLK_IG-LUT_CARRY[7].I[1]" />
-  <!-- <mux    name="I7[2]" input="BLK_IG-PLB_LOCAL.I7[2] BLK_IG-LUT_CARRY[6].LO" output="BLK_IG-LUT_CARRY[7].I[2]" /> -->
-  <direct name="I7[2]" input="BLK_IG-PLB_LOCAL.I7[2]"                        output="BLK_IG-LUT_CARRY[7].I[2]" />
-  <direct name="I7[3]" input="BLK_IG-PLB_LOCAL.I7[3]"                        output="BLK_IG-LUT_CARRY[7].I[3]" />
+  <direct name="LI7[0]" input="BLK_IG-PLB_LOCAL.I7[0]"                        output="BLK_IG-PLB_CELL[7].I[0]" />
+  <direct name="LI7[1]" input="BLK_IG-PLB_LOCAL.I7[1]"                        output="BLK_IG-PLB_CELL[7].I[1]" />
+  <!-- <mux       name="I7[2]" input="BLK_IG-PLB_LOCAL.I7[2] BLK_IG-PLB_CELL[6].LO" output="BLK_IG-PLB_CELL[7].I[2]" /> -->
+  <direct name="LI7[2]" input="BLK_IG-PLB_LOCAL.I7[2]"                        output="BLK_IG-PLB_CELL[7].I[2]" />
+  <direct name="LI7[3]" input="BLK_IG-PLB_LOCAL.I7[3]"                        output="BLK_IG-PLB_CELL[7].I[3]" />
+  <direct name="LO7"    input="BLK_IG-PLB_CELL[7].O"                         output="BLK_IG-FF_ARRAY.in[7]"     >
+   <pack_pattern name="LUT+FF" in_port="BLK_IG-PLB_CELL[0].O" out_port="BLK_IG-FF_ARRAY.in[0]" />
+  </direct>
 
   <!-- Flip Flops inputs -->
   <complete name="CLK"  input="BLK_IG-PLB_LOCAL.CLK"      output="BLK_IG-FF_ARRAY.clk"     />
   <complete name="SR"   input="BLK_IG-PLB_LOCAL.SR"       output="BLK_IG-FF_ARRAY.s_r"     />
   <complete name="EN"   input="BLK_IG-PLB_LOCAL.EN"       output="BLK_IG-FF_ARRAY.cen"     />
-  <direct name="LUT2FF" input="BLK_IG-LUT_CARRY[7:0].O"   output="BLK_IG-FF_ARRAY.in"      />
 
   <!-- Flip Flop outputs -->
-  <mux name="O0" input="BLK_IG-LUT_CARRY[0].O BLK_IG-FF_ARRAY.out[0]" output="BLK_IG-PLB_LOCAL.O0" />
-  <mux name="O1" input="BLK_IG-LUT_CARRY[1].O BLK_IG-FF_ARRAY.out[1]" output="BLK_IG-PLB_LOCAL.O1" />
-  <mux name="O2" input="BLK_IG-LUT_CARRY[2].O BLK_IG-FF_ARRAY.out[2]" output="BLK_IG-PLB_LOCAL.O2" />
-  <mux name="O3" input="BLK_IG-LUT_CARRY[3].O BLK_IG-FF_ARRAY.out[3]" output="BLK_IG-PLB_LOCAL.O3" />
-  <mux name="O4" input="BLK_IG-LUT_CARRY[4].O BLK_IG-FF_ARRAY.out[4]" output="BLK_IG-PLB_LOCAL.O4" />
-  <mux name="O5" input="BLK_IG-LUT_CARRY[5].O BLK_IG-FF_ARRAY.out[5]" output="BLK_IG-PLB_LOCAL.O5" />
-  <mux name="O6" input="BLK_IG-LUT_CARRY[6].O BLK_IG-FF_ARRAY.out[6]" output="BLK_IG-PLB_LOCAL.O6" />
-  <mux name="O7" input="BLK_IG-LUT_CARRY[7].O BLK_IG-FF_ARRAY.out[7]" output="BLK_IG-PLB_LOCAL.O7" />
+  <mux name="O0" input="BLK_IG-PLB_CELL[0].O BLK_IG-FF_ARRAY.out[0]" output="BLK_IG-PLB_LOCAL.O0" />
+  <mux name="O1" input="BLK_IG-PLB_CELL[1].O BLK_IG-FF_ARRAY.out[1]" output="BLK_IG-PLB_LOCAL.O1" />
+  <mux name="O2" input="BLK_IG-PLB_CELL[2].O BLK_IG-FF_ARRAY.out[2]" output="BLK_IG-PLB_LOCAL.O2" />
+  <mux name="O3" input="BLK_IG-PLB_CELL[3].O BLK_IG-FF_ARRAY.out[3]" output="BLK_IG-PLB_LOCAL.O3" />
+  <mux name="O4" input="BLK_IG-PLB_CELL[4].O BLK_IG-FF_ARRAY.out[4]" output="BLK_IG-PLB_LOCAL.O4" />
+  <mux name="O5" input="BLK_IG-PLB_CELL[5].O BLK_IG-FF_ARRAY.out[5]" output="BLK_IG-PLB_LOCAL.O5" />
+  <mux name="O6" input="BLK_IG-PLB_CELL[6].O BLK_IG-FF_ARRAY.out[6]" output="BLK_IG-PLB_LOCAL.O6" />
+  <mux name="O7" input="BLK_IG-PLB_CELL[7].O BLK_IG-FF_ARRAY.out[7]" output="BLK_IG-PLB_LOCAL.O7" />
 
   <!-- Fast carry outputs -->
-  <direct name="FCOUT0" input="BLK_IG-LUT_CARRY[0].FCOUT" output="BLK_IG-PLB_LOCAL.FCOUT0" />
-  <direct name="FCOUT1" input="BLK_IG-LUT_CARRY[1].FCOUT" output="BLK_IG-PLB_LOCAL.FCOUT1" />
-  <direct name="FCOUT2" input="BLK_IG-LUT_CARRY[2].FCOUT" output="BLK_IG-PLB_LOCAL.FCOUT2" />
-  <direct name="FCOUT3" input="BLK_IG-LUT_CARRY[3].FCOUT" output="BLK_IG-PLB_LOCAL.FCOUT3" />
-  <direct name="FCOUT4" input="BLK_IG-LUT_CARRY[4].FCOUT" output="BLK_IG-PLB_LOCAL.FCOUT4" />
-  <direct name="FCOUT5" input="BLK_IG-LUT_CARRY[5].FCOUT" output="BLK_IG-PLB_LOCAL.FCOUT5" />
-  <direct name="FCOUT6" input="BLK_IG-LUT_CARRY[6].FCOUT" output="BLK_IG-PLB_LOCAL.FCOUT6" />
-  <direct name="FCOUT7" input="BLK_IG-LUT_CARRY[7].FCOUT" output="BLK_IG-PLB_LOCAL.FCOUT7" />
+  <direct name="FCOUT0" input="BLK_IG-PLB_CELL[0].FCOUT" output="BLK_IG-PLB_LOCAL.FCOUT0" />
+  <direct name="FCOUT1" input="BLK_IG-PLB_CELL[1].FCOUT" output="BLK_IG-PLB_LOCAL.FCOUT1" />
+  <direct name="FCOUT2" input="BLK_IG-PLB_CELL[2].FCOUT" output="BLK_IG-PLB_LOCAL.FCOUT2" />
+  <direct name="FCOUT3" input="BLK_IG-PLB_CELL[3].FCOUT" output="BLK_IG-PLB_LOCAL.FCOUT3" />
+  <direct name="FCOUT4" input="BLK_IG-PLB_CELL[4].FCOUT" output="BLK_IG-PLB_LOCAL.FCOUT4" />
+  <direct name="FCOUT5" input="BLK_IG-PLB_CELL[5].FCOUT" output="BLK_IG-PLB_LOCAL.FCOUT5" />
+  <direct name="FCOUT6" input="BLK_IG-PLB_CELL[6].FCOUT" output="BLK_IG-PLB_LOCAL.FCOUT6" />
+  <direct name="FCOUT7" input="BLK_IG-PLB_CELL[7].FCOUT" output="BLK_IG-PLB_LOCAL.FCOUT7" />
 
   <!-- Fast carry chain -->
-  <direct name="FCIN" input="BLK_IG-PLB_LOCAL.FCIN" output="BLK_IG-LUT_CARRY[0].FCIN">
-   <pack_pattern name="CARRYCHAIN" in_port="BLK_IG-PLB_LOCAL.FCIN" out_port="BLK_IG-LUT_CARRY[0].FCIN"/>
+  <direct name="FCIN" input="BLK_IG-PLB_LOCAL.FCIN" output="BLK_IG-PLB_CELL[0].FCIN">
+   <pack_pattern name="CARRYCHAIN" in_port="BLK_IG-PLB_LOCAL.FCIN" out_port="BLK_IG-PLB_CELL[0].FCIN"/>
   </direct>
-  <direct name="FCC0" input="BLK_IG-LUT_CARRY[0].FCOUT" output="BLK_IG-LUT_CARRY[1].FCIN">
-   <pack_pattern name="CARRYCHAIN" in_port="BLK_IG-LUT_CARRY[0].FCOUT" out_port="BLK_IG-LUT_CARRY[1].FCIN"/>
+  <direct name="FCC0" input="BLK_IG-PLB_CELL[0].FCOUT" output="BLK_IG-PLB_CELL[1].FCIN">
+   <pack_pattern name="CARRYCHAIN" in_port="BLK_IG-PLB_CELL[0].FCOUT" out_port="BLK_IG-PLB_CELL[1].FCIN"/>
   </direct>
-  <direct name="FCC1" input="BLK_IG-LUT_CARRY[1].FCOUT" output="BLK_IG-LUT_CARRY[2].FCIN">
-   <pack_pattern name="CARRYCHAIN" in_port="BLK_IG-LUT_CARRY[1].FCOUT" out_port="BLK_IG-LUT_CARRY[2].FCIN"/>
+  <direct name="FCC1" input="BLK_IG-PLB_CELL[1].FCOUT" output="BLK_IG-PLB_CELL[2].FCIN">
+   <pack_pattern name="CARRYCHAIN" in_port="BLK_IG-PLB_CELL[1].FCOUT" out_port="BLK_IG-PLB_CELL[2].FCIN"/>
   </direct>
-  <direct name="FCC2" input="BLK_IG-LUT_CARRY[2].FCOUT" output="BLK_IG-LUT_CARRY[3].FCIN">
-   <pack_pattern name="CARRYCHAIN" in_port="BLK_IG-LUT_CARRY[2].FCOUT" out_port="BLK_IG-LUT_CARRY[3].FCIN"/>
+  <direct name="FCC2" input="BLK_IG-PLB_CELL[2].FCOUT" output="BLK_IG-PLB_CELL[3].FCIN">
+   <pack_pattern name="CARRYCHAIN" in_port="BLK_IG-PLB_CELL[2].FCOUT" out_port="BLK_IG-PLB_CELL[3].FCIN"/>
   </direct>
-  <direct name="FCC3" input="BLK_IG-LUT_CARRY[3].FCOUT" output="BLK_IG-LUT_CARRY[4].FCIN">
-   <pack_pattern name="CARRYCHAIN" in_port="BLK_IG-LUT_CARRY[3].FCOUT" out_port="BLK_IG-LUT_CARRY[4].FCIN"/>
+  <direct name="FCC3" input="BLK_IG-PLB_CELL[3].FCOUT" output="BLK_IG-PLB_CELL[4].FCIN">
+   <pack_pattern name="CARRYCHAIN" in_port="BLK_IG-PLB_CELL[3].FCOUT" out_port="BLK_IG-PLB_CELL[4].FCIN"/>
   </direct>
-  <direct name="FCC4" input="BLK_IG-LUT_CARRY[4].FCOUT" output="BLK_IG-LUT_CARRY[5].FCIN">
-   <pack_pattern name="CARRYCHAIN" in_port="BLK_IG-LUT_CARRY[4].FCOUT" out_port="BLK_IG-LUT_CARRY[5].FCIN"/>
+  <direct name="FCC4" input="BLK_IG-PLB_CELL[4].FCOUT" output="BLK_IG-PLB_CELL[5].FCIN">
+   <pack_pattern name="CARRYCHAIN" in_port="BLK_IG-PLB_CELL[4].FCOUT" out_port="BLK_IG-PLB_CELL[5].FCIN"/>
   </direct>
-  <direct name="FCC5" input="BLK_IG-LUT_CARRY[5].FCOUT" output="BLK_IG-LUT_CARRY[6].FCIN">
-   <pack_pattern name="CARRYCHAIN" in_port="BLK_IG-LUT_CARRY[5].FCOUT" out_port="BLK_IG-LUT_CARRY[6].FCIN"/>
+  <direct name="FCC5" input="BLK_IG-PLB_CELL[5].FCOUT" output="BLK_IG-PLB_CELL[6].FCIN">
+   <pack_pattern name="CARRYCHAIN" in_port="BLK_IG-PLB_CELL[5].FCOUT" out_port="BLK_IG-PLB_CELL[6].FCIN"/>
   </direct>
-  <direct name="FCC6" input="BLK_IG-LUT_CARRY[6].FCOUT" output="BLK_IG-LUT_CARRY[7].FCIN">
-   <pack_pattern name="CARRYCHAIN" in_port="BLK_IG-LUT_CARRY[6].FCOUT" out_port="BLK_IG-LUT_CARRY[7].FCIN"/>
+  <direct name="FCC6" input="BLK_IG-PLB_CELL[6].FCOUT" output="BLK_IG-PLB_CELL[7].FCIN">
+   <pack_pattern name="CARRYCHAIN" in_port="BLK_IG-PLB_CELL[6].FCOUT" out_port="BLK_IG-PLB_CELL[7].FCIN"/>
   </direct>
-  <direct name="FCOUT" input="BLK_IG-LUT_CARRY[7].FCOUT" output="BLK_IG-PLB_LOCAL.FCOUT">
-   <pack_pattern name="CARRYCHAIN" in_port="BLK_IG-LUT_CARRY[7].FCOUT" out_port="BLK_IG-PLB_LOCAL.FCOUT"/>
+  <direct name="FCOUT" input="BLK_IG-PLB_CELL[7].FCOUT" output="BLK_IG-PLB_LOCAL.FCOUT">
+   <pack_pattern name="CARRYCHAIN" in_port="BLK_IG-PLB_CELL[7].FCOUT" out_port="BLK_IG-PLB_LOCAL.FCOUT"/>
   </direct>
  </interconnect>
 
