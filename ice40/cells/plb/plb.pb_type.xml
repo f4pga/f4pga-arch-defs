@@ -1,0 +1,53 @@
+<!-- set: ai sw=1 ts=1 sta et -->
+<pb_type name="BLK_IG-PLB_CELL" num_pb="1" xmlns:xi="http://www.w3.org/2001/XInclude">
+ <!-- LUT -->
+ <input  name="I"     num_pins="4" equivalent="false"/>
+ <output name="LO"    num_pins="1" equivalent="false"/>
+
+ <!-- FF -->
+ <clock  name="CLK"   num_pins="1" equivalent="false"/>
+ <input  name="EN"    num_pins="1" equivalent="false"/>
+ <input  name="SR"    num_pins="1" equivalent="false"/>
+ <output name="O"     num_pins="1" equivalent="false"/>
+
+ <!-- CARRY -->
+ <input  name="FCIN"  num_pins="1" equivalent="false"/>
+ <output name="FCOUT" num_pins="1" equivalent="false"/>
+
+ <xi:include href="../../primitives/sb_lut/sb_lut.pb_type.xml"/>
+ <xi:include href="../../primitives/sb_carry/sb_carry.pb_type.xml"/>
+ <xi:include href="../../primitives/sb_ff/sb_ff.pb_type.xml"/>
+
+ <interconnect>
+  <!-- LUT -->
+  <direct name="LUT.I[0]" input="BLK_IG-PLB_CELL.I[0]"                       output="BEL_LT-LUT.in[0]" />
+  <direct name="LUT.I[1]" input="BLK_IG-PLB_CELL.I[1]"                       output="BEL_LT-LUT.in[1]" />
+  <direct name="LUT.I[2]" input="BLK_IG-PLB_CELL.I[2]"                       output="BEL_LT-LUT.in[2]" />
+  <!-- Disable FCIN->I3 mux until https://github.com/verilog-to-routing/vtr-verilog-to-routing/issues/325 is fixed.
+  <mux    name="LUT.I[3]" input="BLK_IG-PLB_CELL.I[3] BLK_IG-PLB_CELL.FCIN" output="BEL_LT-LUT.in[3]" /> -->
+  <direct name="LUT.I[3]" input="BLK_IG-PLB_CELL.I[3]"                       output="BEL_LT-LUT.in[3]" />
+  <direct name="LO"       input="BEL_LT-LUT.out"                             output="BLK_IG-PLB_CELL.LO" />
+
+  <!-- LUT -->
+  <direct name="FF.C[0]"  input="BLK_IG-PLB_CELL.CLK" output="BEL_FF-SB_FF.C" />
+  <direct name="FF.E[0]"  input="BLK_IG-PLB_CELL.EN"  output="BEL_FF-SB_FF.E" />
+  <direct name="FF.E[0]"  input="BLK_IG-PLB_CELL.SR"  output="BEL_FF-SB_FF.R" />
+  <direct name="FF.E[0]"  input="BLK_IG-PLB_CELL.SR"  output="BEL_FF-SB_FF.S" />
+  <direct name="FF.D[0]"  input="BEL_LT-LUT.out"      output="BEL_FF-SB_FF.D"  >
+   <pack_pattern name="LUT+FF" in_port="BEL_LT-LUT.out" out_port="BEL_FF-SB_FF.Q" />
+  </direct>
+  <direct name="FF.D[0]"  input="BEL_FF-SB_FF.Q"      output="BLK_IG-PLB_CELL.O" />
+
+  <!-- CARRY -->
+  <direct name="SB_CARRY.I0" input="BLK_IG-PLB_CELL.I[1]" output="SB_CARRY.I0" />
+  <direct name="SB_CARRY.I1" input="BLK_IG-PLB_CELL.I[2]" output="SB_CARRY.I1" />
+
+  <direct name="BLK_IG-PLB_CELL.FCIN" input="BLK_IG-PLB_CELL.FCIN" output="SB_CARRY.CI">
+   <pack_pattern name="CARRYCHAIN" in_port="BLK_IG-PLB_CELL.FCIN" out_port="SB_CARRY.CI"/>
+  </direct>
+  <direct name="BLK_IG-PLB_CELL.FCOUT" input="SB_CARRY.CO" output="BLK_IG-PLB_CELL.FCOUT">
+   <pack_pattern name="CARRYCHAIN" in_port="SB_CARRY.CO" out_port="BLK_IG-PLB_CELL.FCOUT"/>
+  </direct>
+
+ </interconnect>
+</pb_type>
