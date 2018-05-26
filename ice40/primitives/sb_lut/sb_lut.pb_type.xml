@@ -3,7 +3,6 @@
     <pb_type name="BEL_LT-LUT" num_pb="1">
      <input  name="in" num_pins="4" />
      <output name="out" num_pins="1" />
-     <output name="lout" num_pins="1" />
      <!--
 	FIXME: The VPR LUT mode must be first, otherwise VPR can't route
 	through the LUT.
@@ -22,7 +21,6 @@
       <interconnect>
        <direct name="I"  input="BEL_LT-LUT.in"   output="BLK_IG-LUT4.in"  />
        <direct name="O"  input="BLK_IG-LUT4.out" output="BEL_LT-LUT.out"  />
-       <direct name="LO" input="BLK_IG-LUT4.out" output="BEL_LT-LUT.lout" />
       </interconnect>
      </mode>
      <mode name="SB_LUT4">
@@ -43,7 +41,6 @@
        <direct name="I2" input="BEL_LT-LUT.in[2]" output="BLK_IG-SB_LUT4.I2" />
        <direct name="I3" input="BEL_LT-LUT.in[3]" output="BLK_IG-SB_LUT4.I3" />
        <direct name="O"  input="BLK_IG-SB_LUT4.O" output="BEL_LT-LUT.out"    />
-       <direct name="LO" input="BLK_IG-SB_LUT4.O" output="BEL_LT-LUT.lout"   />
       </interconnect>
      </mode>
     </pb_type>
