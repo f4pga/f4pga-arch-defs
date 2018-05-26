@@ -72,6 +72,7 @@ import sys
 import os.path
 MYDIR = os.path.dirname(__file__)
 sys.path.insert(0, os.path.join(MYDIR, "..", "..", "utils"))
+sys.path.insert(0, os.path.join(MYDIR, "..", "..", "third_party", "icestorm", "icebox"))
 
 from os.path import commonprefix
 
@@ -1268,9 +1269,14 @@ if __name__ == '__main__':
     parser.add_argument('--device', help='')
     parser.add_argument('--read_rr_graph', help='')
     parser.add_argument('--write_rr_graph', default='out.xml', help='')
-    parser.add_argument('--write_ice_node_id', default='ice_node_id.csv', help='')
+    parser.add_argument('--write_ice_node_id', default=None, help='')
 
     args = parser.parse_args()
+
+    if not args.write_ice_node_id:
+        args.write_ice_node_id = os.path.join(
+                os.path.dirname(args.write_rr_graph),
+                'ice_node_id.csv')
 
     VERBOSE = args.verbose
 

@@ -1,7 +1,7 @@
 <!-- set: ai sw=1 ts=1 sta et -->
 <complexblocklist>
  <pb_type name="BLK_TL-PIO_L" xmlns:xi="http://www.w3.org/2001/XInclude">
-  <!-- SB_IO inputs -->
+  <!-- SB_IO inputs   -->
   <output name="io_0_D_IN" num_pins="2" equivalent="false"/>
   <output name="io_1_D_IN" num_pins="2" equivalent="false"/>
 
