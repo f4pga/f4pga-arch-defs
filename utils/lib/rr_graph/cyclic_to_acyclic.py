@@ -54,13 +54,13 @@ class CycleSeas:
         self.node_to_cyclesea.update(cycleseas.node_to_cyclesea)
 
 
-def find_cycleseas(path, mapping, visited, stopping_nodes, cycleseas):
+def find_cycleseas(starting_node_id, mapping, visited, stopping_nodes, cycleseas):
     """
     Recursively searchs for cycleseas in a graph.
     Doesn't return anything.  Just updates objects in place.
 
     Arguments:
-      `path` is a list of the nodes passed to reach this node.
+      `starting_node_id` is the node at which we start traversing the graph.
       `mapping` maps node indices to a set of node indices to which they are forwards connected.
       `stopping_nodes` is a set of nodes at which we should stop traversal.
       `cycleseas` is a collection of the cycleseas that have been found so far.
@@ -71,7 +71,7 @@ def find_cycleseas(path, mapping, visited, stopping_nodes, cycleseas):
          4 <- 5
     >>> mapping = {0: [1], 1: [2], 2: [3, 5], 3: [], 4: [1], 5: [4]}
     >>> cycleseas = CycleSeas()
-    >>> find_cycleseas([0], mapping, set(), set(), cycleseas)
+    >>> find_cycleseas(0, mapping, set(), set(), cycleseas)
     >>> len(cycleseas.cycleseas)
     1
     >>> sorted(cycleseas.cycleseas[1])
@@ -89,23 +89,40 @@ def find_cycleseas(path, mapping, visited, stopping_nodes, cycleseas):
     ...             8: [2], 9: [8], 10: [9], 11: [],
     ...             12: [6]}
     >>> cycleseas2 = CycleSeas()
-    >>> find_cycleseas([0], mapping2, set(), set(), cycleseas2)
+    >>> find_cycleseas(0, mapping2, set(), set(), cycleseas2)
     >>> len(cycleseas2.cycleseas)
     1
     >>> sorted(cycleseas2.cycleseas[1])
     [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 12]
     """
-    node_id = path[-1]
-    visited.add(node_id)
-    for dest_id in mapping[node_id]:
+    path = [starting_node_id]
+    dest_iterators = [iter(mapping[starting_node_id])]
+
+    while True:
+        node_id = path[-1]
+        dest_iterator = dest_iterators[-1]
+        dest_id = None
+        while dest_id is None:
+            try:
+                dest_id = next(dest_iterator)
+            except StopIteration:
+                path.pop()
+                dest_iterators.pop()
+                if not path:
+                    return
+                node_id = path[-1]
+                dest_iterator = dest_iterators[-1]
         assert node_id != dest_id
+        visited.add(node_id)
+
         if dest_id in stopping_nodes:
             pass
         elif dest_id in path:
             # We've intercepted the path we're on.
             # That means we've found a cyclesea entirely within our path.
             path_index = path.index(dest_id)
-            cycleseas.add_nodes_to_cycleseas(set(path[path_index:]), possibly_unconnected=True)
+            cycleseas.add_nodes_to_cycleseas(set(path[path_index:]+[dest_id]),
+                                             possibly_unconnected=True)
         elif dest_id in visited:
             if dest_id in cycleseas.node_to_cyclesea:
                 # We've intercepted a cyclesea.
@@ -114,13 +131,14 @@ def find_cycleseas(path, mapping, visited, stopping_nodes, cycleseas):
                 cyclesea_id = cycleseas.node_to_cyclesea[dest_id]
                 path_overlap = cycleseas.cycleseas[cyclesea_id] & set(path)
                 if path_overlap:
-                    path_index = min([path.index(node_id) for node_id in path_overlap])
+                    path_index = min([path.index(overlap_id) for overlap_id in path_overlap])
                     cycleseas.add_nodes_to_cycleseas(
                         set(path[path_index:]), possibly_unconnected=False)
         else:
-            path.append(dest_id)
-            find_cycleseas(path, mapping, visited, stopping_nodes, cycleseas)
-            path.pop()
+            node_id = dest_id
+            path.append(node_id)
+            dest_iterator = iter(mapping[node_id])
+            dest_iterators.append(dest_iterator)
 
 
 def cyclic_to_acyclic(mapping):
@@ -182,7 +200,7 @@ def cyclic_to_acyclic(mapping):
         these_visited = set()
         node_id = not_visited.pop()
         cycleseas = CycleSeas()
-        find_cycleseas([node_id], mapping, visited=these_visited, stopping_nodes=visited,
+        find_cycleseas(node_id, mapping, visited=these_visited, stopping_nodes=visited,
                        cycleseas=cycleseas)
         visited |= these_visited
         # We shouldn't have any partial cycles because we passed an empty visited set.
