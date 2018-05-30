@@ -35,7 +35,7 @@
 
  <directlist>
   <!-- Carry chain from one PLB to the next PLB -->
-  <direct name="CARRY"   from_pin="BLK_TL-PLB.FCOUT" to_pin="BLK_TL-PLB.FCIN" x_offset="0" y_offset="-1" z_offset="0"/>
+  <direct name="CARRYCHAIN" from_pin="BLK_TL-PLB.FCOUT" to_pin="BLK_TL-PLB.FCIN" x_offset="0" y_offset="-1" z_offset="0"/>
  </directlist>
 
  <device>

@@ -37,7 +37,9 @@
   </pb_type>
   <interconnect>
    <direct name="C" input="BEL_FF-SB_FF.C" output="SB_DFF.C"       />
-   <direct name="D" input="BEL_FF-SB_FF.D" output="SB_DFF.D"       />
+   <direct name="D" input="BEL_FF-SB_FF.D" output="SB_DFF.D"        >
+    <!-- <pack_pattern name="LUT+FF" in_port="BEL_FF-SB_FF.D" out_port="SB_DFF.D" /> -->
+   </direct>
    <direct name="Q" input="SB_DFF.Q"       output="BEL_FF-SB_FF.Q" />
   </interconnect>
  </mode>
