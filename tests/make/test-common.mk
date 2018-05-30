@@ -217,6 +217,26 @@ $(OUT_ANALYSIS): $(OUT_ROUTE) $(VPR_DEPS)
 	@mv $(OUT_LOCAL)/vpr_stdout.log $(OUT_ANALYSIS)
 .PRECIOUS: $(OUT_ANALYSIS)
 
+# Performing routing generates HLC automatically, nothing to do here
+#-------------------------------------------------------------------------
+OUT_HLC=$(OUT_LOCAL)/top.hlc
+$(OUT_HLC): $(OUT_ROUTE)
+.PRECIOUS: $(OUT_HLC)
+
+# Generate bitstream
+#-------------------------------------------------------------------------
+OUT_BITSTREAM=$(OUT_LOCAL)/$(SOURCE).$(BS_EXTENSION)
+$(OUT_BITSTREAM): $(OUT_HLC)
+	$(HLC_TO_BIT_CMD)
+.PRECIOUS: $(OUT_BITSTREAM)
+
+# Convert bitstream back to Verilog
+#-------------------------------------------------------------------------
+OUT_BIT_VERILOG=$(OUT_LOCAL)/$(SOURCE)_bitstream.v
+$(OUT_BIT_VERILOG): $(OUT_BITSTREAM)
+	$(BIT_TO_V_CMD)
+.PRECIOUS: $(OUT_BIT_VERILOG)
+
 # Shortcuts
 #-------------------------------------------------------------------------
 pack:
@@ -234,6 +254,14 @@ route:
 analysis:
 	make $(OUT_ANALYSIS)
 .PHONY: analysis
+
+bit:
+	make $(OUT_BITSTREAM)
+.PHONY: bit
+
+bit_v:
+	make $(OUT_BIT_VERILOG)
+.PHONY: bit_v
 
 %.disp:
 	make VPR_ARGS="--disp on" $*
