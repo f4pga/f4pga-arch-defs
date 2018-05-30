@@ -1,6 +1,6 @@
 <!-- set: ai sw=1 ts=1 sta et -->
  <models>
-  <!--  module SB_DFF (output Q, input C, D); -->
+  <!-- module SB_DFF (output Q, input C, D); -->
   <model name="SB_DFF">
    <input_ports>
     <port name="C" is_clock="1" />
@@ -11,7 +11,7 @@
    </output_ports>
   </model>
 
-  <!--  module SB_DFFE (output Q, input C, E, D); -->
+  <!-- module SB_DFFE (output Q, input C, E, D); -->
   <model name="SB_DFFE">
    <input_ports>
     <port name="C" is_clock="1" />
@@ -23,68 +23,7 @@
    </output_ports>
   </model>
 
-  <!--  module SB_DFFSR (output Q, input C, R, D); -->
-  <model name="SB_DFFSR">
-   <input_ports>
-    <port name="C" is_clock="1" />
-    <port name="R" clock="C" />
-    <port name="D" clock="C" />
-   </input_ports>
-   <output_ports>
-    <port name="Q" clock="C" />
-   </output_ports>
-  </model>
-
-  <!--  module SB_DFFR (output Q, input C, R, D); -->
-  <model name="SB_DFFR">
-   <input_ports>
-    <port name="C" is_clock="1" />
-    <port name="R" clock="C" />
-    <port name="D" clock="C" />
-   </input_ports>
-   <output_ports>
-    <port name="Q" clock="C" />
-   </output_ports>
-  </model>
-
-  <!--  module SB_DFFSS (output Q, input C, S, D); -->
-  <model name="SB_DFFSS">
-   <input_ports>
-    <port name="C" is_clock="1" />
-    <port name="S" clock="C" />
-    <port name="D" clock="C" />
-   </input_ports>
-   <output_ports>
-    <port name="Q" clock="C" />
-   </output_ports>
-  </model>
-
-  <!--  module SB_DFFS (output Q, input C, S, D); -->
-  <model name="SB_DFFS">
-   <input_ports>
-    <port name="C" is_clock="1" />
-    <port name="S" clock="C" />
-    <port name="D" clock="C" />
-   </input_ports>
-   <output_ports>
-    <port name="Q" clock="C" />
-   </output_ports>
-  </model>
-
-  <!--  module SB_DFFESR (output Q, input C, E, R, D); -->
-  <model name="SB_DFFESR">
-   <input_ports>
-    <port name="C" is_clock="1" />
-    <port name="E" clock="C" />
-    <port name="R" clock="C" />
-    <port name="D" clock="C" />
-   </input_ports>
-   <output_ports>
-    <port name="Q" clock="C" />
-   </output_ports>
-  </model>
-
-  <!--  module SB_DFFER (output Q, input C, E, R, D); -->
+  <!-- module SB_DFFER (output Q, input C, E, R, D); -->
   <model name="SB_DFFER">
    <input_ports>
     <port name="C" is_clock="1" />
@@ -97,7 +36,33 @@
    </output_ports>
   </model>
 
-  <!--  module SB_DFFESS (output Q, input C, E, S, D); -->
+  <!-- module SB_DFFES (output Q, input C, E, R, D); -->
+  <model name="SB_DFFES">
+   <input_ports>
+    <port name="C" is_clock="1" />
+    <port name="E" clock="C" />
+    <port name="R" clock="C" />
+    <port name="D" clock="C" />
+   </input_ports>
+   <output_ports>
+    <port name="Q" clock="C" />
+   </output_ports>
+ </model>
+
+  <!-- module SB_DFFESR (output Q, input C, E, R, D); -->
+  <model name="SB_DFFESR">
+   <input_ports>
+    <port name="C" is_clock="1" />
+    <port name="E" clock="C" />
+    <port name="R" clock="C" />
+    <port name="D" clock="C" />
+   </input_ports>
+   <output_ports>
+    <port name="Q" clock="C" />
+   </output_ports>
+  </model>
+
+  <!-- module SB_DFFESS (output Q, input C, E, S, D); -->
   <model name="SB_DFFESS">
    <input_ports>
     <port name="C" is_clock="1" />
@@ -110,17 +75,52 @@
    </output_ports>
   </model>
 
-  <!--  module SB_DFFES (output Q, input C, E, R, D); -->
-  <model name="SB_DFFES">
+  <!-- module SB_DFFR (output Q, input C, R, D); -->
+  <model name="SB_DFFR">
    <input_ports>
     <port name="C" is_clock="1" />
-    <port name="E" clock="C" />
     <port name="R" clock="C" />
     <port name="D" clock="C" />
    </input_ports>
    <output_ports>
     <port name="Q" clock="C" />
    </output_ports>
- </model>
+  </model>
+
+  <!-- module SB_DFFS (output Q, input C, S, D); -->
+  <model name="SB_DFFS">
+   <input_ports>
+    <port name="C" is_clock="1" />
+    <port name="S" clock="C" />
+    <port name="D" clock="C" />
+   </input_ports>
+   <output_ports>
+    <port name="Q" clock="C" />
+   </output_ports>
+  </model>
+
+  <!-- module SB_DFFSR (output Q, input C, R, D); -->
+  <model name="SB_DFFSR">
+   <input_ports>
+    <port name="C" is_clock="1" />
+    <port name="R" clock="C" />
+    <port name="D" clock="C" />
+   </input_ports>
+   <output_ports>
+    <port name="Q" clock="C" />
+   </output_ports>
+  </model>
+
+  <!-- module SB_DFFSS (output Q, input C, S, D); -->
+  <model name="SB_DFFSS">
+   <input_ports>
+    <port name="C" is_clock="1" />
+    <port name="S" clock="C" />
+    <port name="D" clock="C" />
+   </input_ports>
+   <output_ports>
+    <port name="Q" clock="C" />
+   </output_ports>
+  </model>
 
  </models>
