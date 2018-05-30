@@ -327,17 +327,13 @@ class NetNames:
         name_rr2local['BLK_TL-PLB.lutff_global_clk[0]'] = 'lutff_global/clk'
         name_rr2local['BLK_TL-PLB.lutff_global_cen[0]'] = 'lutff_global/cen'
         # FIXME: these two are wrong I think, but don't worry about carry for now
-        name_rr2local['BLK_TL-PLB.FCIN[0]'] = 'lutff_0/cin'
-        name_rr2local['BLK_TL-PLB.FCOUT[0]'] = 'lutff_7/cout'
+        #name_rr2local['BLK_TL-PLB.FCIN[0]'] = 'lutff_0/cin'
+        #name_rr2local['BLK_TL-PLB.FCOUT[0]'] = 'lutff_7/cout'
         #name_rr2local['BLK_TL-PLB.lutff_0_cin[0]'] = 'lutff_0/cin'
         #name_rr2local['BLK_TL-PLB.lutff_7_cout[0]'] = 'lutff_7/cout'
         for luti in range(8):
             name_rr2local['BLK_TL-PLB.lutff_{}_out[0]'.format(
                 luti)] = 'lutff_{}/out'.format(luti)
-            name_rr2local['BLK_TL-PLB.lutff_{}_cout[0]'.format(
-                luti)] = 'lutff_{}/cout'.format(luti)
-            name_rr2local['BLK_TL-PLB.lutff_{}_fcout[0]'.format(
-                luti)] = 'lutff_{}/fcout'.format(luti)
             for lut_input in range(4):
                 name_rr2local['BLK_TL-PLB.lutff_{}_in[{}]'.format(
                     luti, lut_input)] = 'lutff_{}/in_{}'.format(
