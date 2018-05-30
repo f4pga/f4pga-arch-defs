@@ -161,7 +161,9 @@ VPR_CMD = \
 		--device $(DEVICE) \
 		--min_route_chan_width_hint $(VPR_ROUTE_CHAN_MINWIDTH_HINT) \
 		--route_chan_width $(VPR_ROUTE_CHAN_WIDTH) \
-		--read_rr_graph $(OUT_RRXML_REAL)
+		--read_rr_graph $(OUT_RRXML_REAL) \
+		\
+		--debug_clustering on
 
 # Add IO placement
 ifneq ($(wildcard io.place),)

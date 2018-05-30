@@ -65,9 +65,16 @@
   <direct name="lutff_6_out"      input="BLK_IG-PLB_LOCAL.O6"         output="BLK_TL-PLB.lutff_6_out"  />
   <direct name="lutff_7_out"      input="BLK_IG-PLB_LOCAL.O7"         output="BLK_TL-PLB.lutff_7_out"  />
 
-  <!-- Fast Carry chain -->
+  <!-- Fast Carry chain 
   <direct name="FCIN"  input="BLK_TL-PLB.FCIN"        output="BLK_IG-PLB_LOCAL.FCIN" />
   <direct name="FCOUT" input="BLK_IG-PLB_LOCAL.FCOUT" output="BLK_TL-PLB.FCOUT"      />
+       -->
+  <direct name="FCIN"  input="BLK_TL-PLB.FCIN"        output="BLK_IG-PLB_LOCAL.FCIN" >
+   <pack_pattern name="CARRYCHAIN" in_port="BLK_TL-PLB.FCIN" out_port="BLK_IG-PLB_LOCAL.FCIN" />
+  </direct>
+  <direct name="FCOUT" input="BLK_IG-PLB_LOCAL.FCOUT" output="BLK_TL-PLB.FCOUT"      >
+   <pack_pattern name="CARRYCHAIN" in_port="BLK_IG-PLB_LOCAL.FCOUT" out_port="BLK_TL-PLB.FCOUT" />
+  </direct>
 
  </interconnect>
  <pinlocations pattern="custom">

@@ -1,46 +1,48 @@
 <!-- set: ai sw=1 ts=1 sta et -->
-    <!-- 4 input LUT found in the ICE40 -->
-    <pb_type name="BEL_LT-LUT" num_pb="1">
-     <input  name="in" num_pins="4" />
-     <output name="out" num_pins="1" />
-     <!--
-	FIXME: The VPR LUT mode must be first, otherwise VPR can't route
-	through the LUT.
-     -->
-     <mode name="VPR_LUT4">
-      <pb_type name="BLK_IG-LUT4" num_pb="1" class="lut" blif_model=".names">
-       <input  name="in"  num_pins="4" port_class="lut_in" />
-       <output name="out" num_pins="1" port_class="lut_out" />
-       <delay_matrix type="max" in_port="BLK_IG-LUT4.in" out_port="BLK_IG-LUT4.out">
-        10e-12
-        10e-12
-        10e-12
-        10e-12
-       </delay_matrix>
-      </pb_type>
-      <interconnect>
-       <direct name="I"  input="BEL_LT-LUT.in"   output="BLK_IG-LUT4.in"  />
-       <direct name="O"  input="BLK_IG-LUT4.out" output="BEL_LT-LUT.out"  />
-      </interconnect>
-     </mode>
-     <mode name="SB_LUT4">
-      <pb_type name="BLK_IG-SB_LUT4" num_pb="1" blif_model=".subckt SB_LUT4">
-       <input  name="I0" num_pins="1" />
-       <input  name="I1" num_pins="1" />
-       <input  name="I2" num_pins="1" />
-       <input  name="I3" num_pins="1" />
-       <output name="O"  num_pins="1" />
-       <delay_constant max="10e-12" in_port="BLK_IG-SB_LUT4.I0" out_port="BLK_IG-SB_LUT4.O"/>
-       <delay_constant max="10e-12" in_port="BLK_IG-SB_LUT4.I1" out_port="BLK_IG-SB_LUT4.O"/>
-       <delay_constant max="10e-12" in_port="BLK_IG-SB_LUT4.I2" out_port="BLK_IG-SB_LUT4.O"/>
-       <delay_constant max="10e-12" in_port="BLK_IG-SB_LUT4.I3" out_port="BLK_IG-SB_LUT4.O"/>
-      </pb_type>
-      <interconnect>
-       <direct name="I0" input="BEL_LT-LUT.in[0]" output="BLK_IG-SB_LUT4.I0" />
-       <direct name="I1" input="BEL_LT-LUT.in[1]" output="BLK_IG-SB_LUT4.I1" />
-       <direct name="I2" input="BEL_LT-LUT.in[2]" output="BLK_IG-SB_LUT4.I2" />
-       <direct name="I3" input="BEL_LT-LUT.in[3]" output="BLK_IG-SB_LUT4.I3" />
-       <direct name="O"  input="BLK_IG-SB_LUT4.O" output="BEL_LT-LUT.out"    />
-      </interconnect>
-     </mode>
-    </pb_type>
+<!-- 4 input LUT found in the ICE40 -->
+<pb_type name="BEL_LT-LUT" num_pb="1">
+ <input  name="in" num_pins="4" />
+ <output name="out" num_pins="1" />
+ <!--
+    FIXME: The VPR LUT mode must be first, otherwise VPR can't route
+    through the LUT.
+ -->
+ <mode name="VPR_LUT4">
+  <pb_type name="BLK_IG-LUT4" num_pb="1" class="lut" blif_model=".names">
+   <input  name="in"  num_pins="4" port_class="lut_in" />
+   <output name="out" num_pins="1" port_class="lut_out" />
+   <delay_matrix type="max" in_port="BLK_IG-LUT4.in" out_port="BLK_IG-LUT4.out">
+    10e-12
+    10e-12
+    10e-12
+    10e-12
+   </delay_matrix>
+  </pb_type>
+  <interconnect>
+   <direct name="I"  input="BEL_LT-LUT.in"   output="BLK_IG-LUT4.in"  />
+   <direct name="O"  input="BLK_IG-LUT4.out" output="BEL_LT-LUT.out"   >
+    <pack_pattern name="LUT+FF" in_port="BLK_IG-LUT4.out" out_port="BEL_LT-LUT.out" />
+   </direct>
+  </interconnect>
+ </mode>
+ <mode name="SB_LUT4">
+  <pb_type name="BLK_IG-SB_LUT4" num_pb="1" blif_model=".subckt SB_LUT4">
+   <input  name="I0" num_pins="1" />
+   <input  name="I1" num_pins="1" />
+   <input  name="I2" num_pins="1" />
+   <input  name="I3" num_pins="1" />
+   <output name="O"  num_pins="1" />
+   <delay_constant max="10e-12" in_port="BLK_IG-SB_LUT4.I0" out_port="BLK_IG-SB_LUT4.O"/>
+   <delay_constant max="10e-12" in_port="BLK_IG-SB_LUT4.I1" out_port="BLK_IG-SB_LUT4.O"/>
+   <delay_constant max="10e-12" in_port="BLK_IG-SB_LUT4.I2" out_port="BLK_IG-SB_LUT4.O"/>
+   <delay_constant max="10e-12" in_port="BLK_IG-SB_LUT4.I3" out_port="BLK_IG-SB_LUT4.O"/>
+  </pb_type>
+  <interconnect>
+   <direct name="I0" input="BEL_LT-LUT.in[0]" output="BLK_IG-SB_LUT4.I0" />
+   <direct name="I1" input="BEL_LT-LUT.in[1]" output="BLK_IG-SB_LUT4.I1" />
+   <direct name="I2" input="BEL_LT-LUT.in[2]" output="BLK_IG-SB_LUT4.I2" />
+   <direct name="I3" input="BEL_LT-LUT.in[3]" output="BLK_IG-SB_LUT4.I3" />
+   <direct name="O"  input="BLK_IG-SB_LUT4.O" output="BEL_LT-LUT.out"    />
+  </interconnect>
+ </mode>
+</pb_type>
