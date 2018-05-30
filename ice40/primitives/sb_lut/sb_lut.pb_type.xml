@@ -42,7 +42,9 @@
    <direct name="I1" input="BEL_LT-LUT.in[1]" output="BLK_IG-SB_LUT4.I1" />
    <direct name="I2" input="BEL_LT-LUT.in[2]" output="BLK_IG-SB_LUT4.I2" />
    <direct name="I3" input="BEL_LT-LUT.in[3]" output="BLK_IG-SB_LUT4.I3" />
-   <direct name="O"  input="BLK_IG-SB_LUT4.O" output="BEL_LT-LUT.out"    />
+   <direct name="O"  input="BLK_IG-SB_LUT4.O" output="BEL_LT-LUT.out"     >
+	   <!-- <pack_pattern name="LUT+FF" in_port="BLK_IG-SB_LUT4" out_port="BEL_LT-LUT.out" /> -->
+   </direct>
   </interconnect>
  </mode>
 </pb_type>

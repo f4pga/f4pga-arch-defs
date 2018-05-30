@@ -24,7 +24,7 @@
   <!-- LUT -->
   <direct name="LUT.I[0]" input="BLK_IG-PLB_CELL.I[0]"                         output="BEL_LT-LUT.in[0]" />
   <direct name="LUT.I[1]" input="BLK_IG-PLB_CELL.I[1]"                         output="BEL_LT-LUT.in[1]" />
-  <mux    name="LUT.I[2]" input="BLK_IG-PLB_CELL.I[2] BLK_IG-PLB_CELL.LCIN[0]" output="BEL_LT-LUT.in[2]" />
+  <mux    name="LUT.I[2]" input="BLK_IG-PLB_CELL.LCIN[0] BLK_IG-PLB_CELL.I[2]" output="BEL_LT-LUT.in[2]" />
   <!-- Disable FCIN->I3 mux until https://github.com/verilog-to-routing/vtr-verilog-to-routing/issues/325 is fixed.
   <mux    name="LUT.I[3]" input="BLK_IG-PLB_CELL.I[3] BLK_IG-PLB_CELL.FCIN" output="BEL_LT-LUT.in[3]" /> -->
   <direct name="LUT.I[3]" input="BLK_IG-PLB_CELL.I[3]"                         output="BEL_LT-LUT.in[3]" />
