@@ -93,6 +93,3 @@
 #----------     --      --      ------    ------ ---    ---   --   --  ------  --  --
 btn             14      8       1       # set_io btn    59    13   7   1       14   8
 out:LED3        14      7       1       # set_io LED3   56    13   6   1       14   7
-out:LED4        14      5       1       # set_io LED4   53    13   4   1       14   5
-out:LED5        14      4       1       # set_io LED5   51    13   3   1       14   4
-clk             1       10      0       # set_io clk 	13    0    9   0       1   10

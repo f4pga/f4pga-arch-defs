@@ -237,6 +237,11 @@ $(OUT_BIT_VERILOG): $(OUT_BITSTREAM)
 	$(BIT_TO_V_CMD)
 .PRECIOUS: $(OUT_BIT_VERILOG)
 
+# Equivalence check
+check: $(OUT_BIT_VERILOG)
+	$(YOSYS) -p "$(EQUIV_CHECK_SCRIPT)" $<
+.PHONY: check
+
 # Shortcuts
 #-------------------------------------------------------------------------
 pack:
