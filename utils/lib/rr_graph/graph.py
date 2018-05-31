@@ -27,8 +27,7 @@ class RoutingGraph:
     so they don't see the XML directly
     except print does iterate directly over the XML
 class Graph:
-    Top level class holding everything together
-    has
+    Top level class holding everything together has
 
 enums
 class BlockTypeEdge(enum.Enum):
@@ -1678,6 +1677,52 @@ class RoutingNodeType(enum.Enum):
         return self in (self.OPIN, self.CHANX, self.CHANY)
 
 
+def _metadata(parent_node):
+    elements = list(parent_node.iterfind("metadata"))
+    if len(elements) == 1:
+        return elements[0]
+    return None
+
+
+def _set_metadata(parent_node, key, value):
+    metadata = _metadata(parent_node)
+    if metadata is None:
+        metadata = ET.SubElement(parent_node, "metadata")
+
+    metanode = None
+    for node in metadata.iterfind("./meta"):
+        if node.attrib["name"] == key:
+            metanode = node
+            break
+    else:
+        metanode = ET.SubElement(metadata, "meta", attrib={"name": key})
+
+    metanode.text = str(value)
+
+
+_get_metadata_sentry = []
+def _get_metadata(parent_node, key, default=_get_metadata_sentry):
+    metanode = None
+
+    metadata = _metadata(parent_node)
+    if metadata is not None:
+        for node in metadata.iterfind("./meta"):
+            if node.attrib["name"] == key:
+                metanode = node
+                break
+
+    if metanode is None:
+        if default is not _get_metadata_sentry:
+            return default
+        else:
+            raise ValueError("No metadata {} on\n{}".format(
+                key,
+                ET.tostring(parent_node, pretty_print=True).decode().strip())
+            )
+
+    return metanode.text
+
+
 class RoutingNodeSide(enum.Enum):
     LEFT = 'LEFT'
     RIGHT = 'RIGHT'
@@ -1694,9 +1739,21 @@ class RoutingNodeDir(enum.Enum):
 class RoutingNode(ET.ElementBase):
     TAG = "node"
 
+    def set_metadata(self, key, value):
+        _set_metadata(self, key, value)
+
+    def get_metadata(self, key, default=_get_metadata_sentry):
+        return _get_metadata(self, key, default)
+
 
 class RoutingEdge(ET.ElementBase):
     TAG = "edge"
+
+    def set_metadata(self, key, value):
+        _set_metadata(self, key, value)
+
+    def get_metadata(self, key, default=_get_metadata_sentry):
+        return _get_metadata(self, key, default)
 
 
 class RoutingGraph:
@@ -1716,6 +1773,70 @@ class RoutingGraph:
         if node_id is not None:
             node_id = int(node_id)
         return node_id
+
+    @staticmethod
+    def set_metadata(node, key, value):
+        """
+        Examples
+        --------
+        >>> # Works with edges
+        >>> r = simple_test_routing()
+        >>> sw = Switch(id=0, type=SwitchType.MUX, name="sw")
+        >>> e1 = r.create_edge_with_ids(0, 1, sw)
+        >>> # Call directly on the edge
+        >>> e1.get_metadata("test", default=":-(")
+        ':-('
+        >>> e1.set_metadata("test", "123")
+        >>> print(ET.tostring(e1, pretty_print=True).decode().strip())
+        <edge sink_node="1" src_node="0" switch_id="0" id="4">
+          <metadata>
+            <meta name="test">123</meta>
+          </metadata>
+        </edge>
+        >>> e1.get_metadata("test", default=":-(")
+        '123'
+        >>> # Or via the routing object
+        >>> r.set_metadata(e1, "test", "234")
+        >>> r.get_metadata(e1, "test")
+        '234'
+        >>> # Exception if no default provided
+        >>> r.get_metadata(e1, "not_found")
+        Traceback (most recent call last):
+            ...
+        ValueError: No metadata not_found on
+        <edge sink_node="1" src_node="0" switch_id="0" id="4">
+          <metadata>
+            <meta name="test">234</meta>
+          </metadata>
+        </edge>
+        >>> r.set_metadata(e1, "test", 1)
+        >>> # Works with nodes
+        >>> n1 = r.get_node_by_id(0)
+        >>> # Call directly on the node
+        >>> n1.get_metadata("test", default=":-(")
+        ':-('
+        >>> n1.set_metadata("test", "123")
+        >>> print(ET.tostring(n1, pretty_print=True).decode().strip())
+        <node capacity="1" id="0" type="SOURCE">
+          <loc ptc="0" xhigh="0" xlow="0" yhigh="0" ylow="0"/>
+          <timing C="0" R="0"/>
+          <metadata>
+            <meta name="test">123</meta>
+          </metadata>
+        </node>
+        >>> n1.get_metadata("test", default=":-(")
+        '123'
+        >>> # Or via the routing object
+        >>> r.set_metadata(n1, "test", "234")
+        >>> r.get_metadata(n1, "test")
+        '234'
+
+        """
+        _set_metadata(node, key, value)
+
+    @staticmethod
+    def get_metadata(node, key, default=_get_metadata_sentry):
+        return _get_metadata(node, key, default)
 
     def __init__(self, xml_graph=None, verbose=True, clear_fabric=False):
         """
@@ -2007,7 +2128,8 @@ class RoutingGraph:
                     direction=None,
                     segment_id=None,
                     side=None,
-                    timing=None):
+                    timing=None,
+                    metadata={}):
         """Create an node.
 
         Parameters
@@ -2021,6 +2143,7 @@ class RoutingGraph:
         segment_id : int, optional
         side : RoutingNodeSide, optional
         timing : RoutingNodeTiming, optional
+        metadata : {str: Any}, optional
 
         Returns
         -------
@@ -2077,10 +2200,13 @@ class RoutingGraph:
             assert_type(segment_id, int)
             ET.SubElement(node, 'segment', {'segment_id': str(segment_id)})
 
+        for k, v in metadata.items():
+            node.set_metadata(k, v)
+
         self._add_xml_element(node)
         return node
 
-    def create_edge_with_ids(self, src_node_id, sink_node_id, switch):
+    def create_edge_with_ids(self, src_node_id, sink_node_id, switch, metadata={}):
         """Create an RoutingEdge between given IDs for two RoutingNodes.
 
         Parameters
@@ -2088,6 +2214,7 @@ class RoutingGraph:
         src_node_id : int
         sink_node_id : int
         switch : Switch
+        metadata : {str: Any}, optional
 
         Returns
         -------
@@ -2167,6 +2294,9 @@ class RoutingGraph:
                 'sink_node': str(sink_node_id),
                 'switch_id': str(switch.id)
             })
+
+        for k, v in metadata.items():
+            edge.set_metadata(k, v)
 
         self._add_xml_element(edge)
         return edge
