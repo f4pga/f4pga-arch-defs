@@ -22,7 +22,7 @@ def inaccessible_node_ids(forward_connections, node_id, target_node_ids):
         new_layer -= visited
         visited |= new_layer
         layer = new_layer
-    return visited & target_node_ids
+    return target_node_ids - visited
 
 
 def routing_graph_to_dictionary(routing_graph):
