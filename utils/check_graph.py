@@ -75,6 +75,8 @@ def check_graph(rr_graph_file):
     routing_graph = graph.RoutingGraph(xml_graph, verbose=True, clear_fabric=False)
     print('Checking if all source nodes connect to all sink nodes.')
     inaccessible_nodes = inaccessible_sink_node_ids_by_source_node_id(routing_graph)
+    import pdb
+    pdb.set_trace()
     if inaccessible_nodes:
         print('FAIL')
         for source_id, sink_ids in inaccessible_nodes.items():
