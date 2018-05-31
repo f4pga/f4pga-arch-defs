@@ -315,7 +315,7 @@ class NetNames:
             for x, y, netname in fgroup:
                 self.add_globalname2localname(gname, TilePos(x, y), netname)
 
-    def index_pin_node_ids(self, g, ice_node_id_file=None):
+    def index_pin_node_ids(self, g):
         '''Build a list of icebox global pin names to Graph node IDs'''
         name_rr2local = {}
 
@@ -377,8 +377,7 @@ class NetNames:
                 node_id = int(node.get('id'))
                 self.poslname2nodeid[(PN1(block.position),
                                       localname)] = node_id
-                if ice_node_id_file:
-                    ice_node_id_file.annotate_node(node, [(block.position, localname)])
+                set_hlc_metadata(g, node, [(block.position, localname)])
 
     def index_track(self, trackid, nids):
         for pos, localname in nids:
@@ -902,27 +901,21 @@ def create_xy_track(g,
     return track, track_node
 
 
-class IceboxNodeIDFile:
-    '''Translate between icebox names and generate node IDs'''
-    def __init__(self, fn, size):
-        self.f = open(fn, 'w')
-        self.size = (size[0]-1, size[1]-1)
-
-    def annotate_node(self, node, nids):
-        """a.annotate_node(ET._Element, [(pos, name)])"""
-        nodeid = '{}'.format(node.get('id'))
-        hlcnames = set()
-        for pos, localname in nids:
-            print("{} ({} {})".format(nodeid, pos, localname))
-            hlcname = icebox_asc2hlc.translate_netname(*pos, *self.size, localname)
-            hlcnames.add(hlcname)
-        assert len(hlcnames) == 1
-        print(hlcnames)
-        print("-"*10)
-        self.f.write("{} {}\n".format(nodeid, hlcnames.pop()))
+def set_hlc_metadata(g, node, nids):
+    """set_hlc_metadata(g, ET._Element, [(pos, name)])"""
+    nodeid = '{}'.format(node.get('id'))
+    hlcnames = set()
+    for pos, localname in nids:
+        print("{} ({} {})".format(nodeid, pos, localname))
+        hlcname = icebox_asc2hlc.translate_netname(*pos, ic.max_x-1, ic.max_y-1, localname)
+        hlcnames.add(hlcname)
+    assert len(hlcnames) == 1, hlcnames
+    print(hlcnames)
+    print("-"*10)
+    g.routing.set_metadata(node, "hlc_name", hlcnames.pop())
 
 
-def add_span_tracks(g, nn, verbose=True, ice_node_id_file=None):
+def add_span_tracks(g, nn, verbose=True):
     print('Adding span tracks')
 
     #x_channel_offset = LOCAL_TRACKS_MAX_GROUPS * (LOCAL_TRACKS_PER_GROUP) + GBL2LOCAL_MAX_TRACKS
@@ -1022,9 +1015,9 @@ def add_span_tracks(g, nn, verbose=True, ice_node_id_file=None):
             "local": add_track_local,
         }.get(globalname[0], add_track_default)(globalname, nids)
 
-        if result is not None and ice_node_id_file:
+        if result is not None:
             _track, track_node = result
-            ice_node_id_file.annotate_node(track_node, nids)
+            set_hlc_metadata(g, track_node, nids)
 
     print('Ran')
 
@@ -1051,6 +1044,7 @@ def add_edges(g, nn, verbose=True):
             #    continue
 
             verbose and print('')
+            print("icebox edge entry", xic, yic, entry)
             #verbose and print('ic_raw', entry)
             # [['B2[3]', 'B3[3]'], 'routing', 'sp12_h_r_0', 'sp12_h_l_23']
             switch_type = entry[1]
@@ -1127,13 +1121,16 @@ def add_edges(g, nn, verbose=True):
                     dst_node_id,
                 ))
             verbose and print('  ', entry)
+
             # FIXME: proper switch ID
             edgea = g.routing.create_edge_with_ids(
-                src_node_id, dst_node_id, switch=g.switches[switch_type])
+                src_node_id, dst_node_id, switch=g.switches[switch_type],
+                metadata={'hlc_coord': '{},{}'.format(*pos_ic)})
             edgeb = None
             if bidir:
                 edgeb = g.routing.create_edge_with_ids(
-                    dst_node_id, src_node_id, switch=g.switches[switch_type])
+                    dst_node_id, src_node_id, switch=g.switches[switch_type],
+                    metadata={'hlc_coord': '{},{}'.format(*pos_ic)})
 
             def edgestr(edge):
                 return '%s => %s' % (edge.get('src_node'),
@@ -1204,13 +1201,12 @@ def my_test(ic, g):
     sys.exit(1)
 
 
-def run(part, read_rr_graph, write_rr_graph, write_ice_node_id):
+def run(part, read_rr_graph, write_rr_graph):
     global ic
 
     print('Importing input g', part)
     ic, g, nn = init(part, read_rr_graph)
     print("ic", ic)
-    ice_node_id_file = IceboxNodeIDFile(write_ice_node_id, (ic.max_x, ic.max_y))
 
     # my_test(ic, g)
     print('Source g loaded')
@@ -1242,7 +1238,7 @@ def run(part, read_rr_graph, write_rr_graph, write_ice_node_id):
 
     print('Indexing pin node names w/ %d index entries' % len(
         nn.poslname2nodeid))
-    nn.index_pin_node_ids(g, ice_node_id_file=ice_node_id_file)
+    nn.index_pin_node_ids(g)
     # 'lutff_4/out'
     # self.poslname2nodeid[(PN1(block.position), localname)]
     print(
@@ -1250,7 +1246,7 @@ def run(part, read_rr_graph, write_rr_graph, write_ice_node_id):
 
     #add_global_nets(g, nn)
     print()
-    add_span_tracks(g, nn, ice_node_id_file=ice_node_id_file)
+    add_span_tracks(g, nn)
     print_nodes_edges(g)
     print()
     add_edges(g, nn)
@@ -1276,16 +1272,10 @@ if __name__ == '__main__':
     parser.add_argument('--device', help='')
     parser.add_argument('--read_rr_graph', help='')
     parser.add_argument('--write_rr_graph', default='out.xml', help='')
-    parser.add_argument('--write_ice_node_id', default=None, help='')
 
     args = parser.parse_args()
-
-    if not args.write_ice_node_id:
-        args.write_ice_node_id = os.path.join(
-                os.path.dirname(args.write_rr_graph),
-                'ice_node_id.csv')
 
     VERBOSE = args.verbose
 
     mode = args.device.lower()[2:]
-    run(mode, args.read_rr_graph, args.write_rr_graph, args.write_ice_node_id)
+    run(mode, args.read_rr_graph, args.write_rr_graph)
