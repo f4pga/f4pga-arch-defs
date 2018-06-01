@@ -124,6 +124,10 @@ OUT_EBLIF=$(OUT_LOCAL)/$(SOURCE).eblif
 ifneq ($(SOURCE_V),)
 $(OUT_EBLIF): $(SOURCE).v | $(OUT_LOCAL)
 	$(YOSYS) -p "$(YOSYS_SCRIPT) opt_clean; write_blif -attr -cname -conn -param $@" $<
+
+OUT_BLIF=$(OUT_LOCAL)/$(SOURCE).blif
+$(OUT_BLIF): $(SOURCE).v | $(OUT_LOCAL)
+	$(YOSYS) -p "$(YOSYS_SCRIPT) opt_clean; write_blif $@" $<
 endif
 
 # We just have a BLIF file
