@@ -41,4 +41,8 @@
   </interconnect>
  </mode>
 
+ <metadata>
+  <meta name="hlc_name">io</meta>
+ </metadata>
+
 </pb_type>

@@ -20,6 +20,27 @@
  <xi:include href="../../primitives/sb_carry/sb_carry.pb_type.xml"/>
  <xi:include href="../../primitives/sb_ff/sb_ff.pb_type.xml"/>
 
+ <pb_type name="BLK_IG-ENABLE_FF" num_pb="1">
+  <input  name="I" num_pins="1" equivalent="false"/>
+  <output name="O" num_pins="1" equivalent="false"/>
+  <interconnect>
+   <direct name="I" input="BLK_IG-ENABLE_FF.I" output="BLK_IG-ENABLE_FF.O" />
+  </interconnect>
+  <metadata>
+   <meta name="hlc_property">enable_dff</meta>
+  </metadata>
+ </pb_type>
+ <pb_type name="BLK_IG-DISABLE_FF" num_pb="1">
+  <input  name="I" num_pins="1" equivalent="false"/>
+  <output name="O" num_pins="1" equivalent="false"/>
+  <interconnect>
+   <direct name="I" input="BLK_IG-DISABLE_FF.I" output="BLK_IG-DISABLE_FF.O" />
+  </interconnect>
+  <metadata>
+   <meta name="hlc_property">disable_dff</meta>
+  </metadata>
+ </pb_type>
+
  <interconnect>
   <!-- LUT -->
   <direct name="LUT.I[0]" input="BLK_IG-PLB_CELL.I[0]"                         output="BEL_LT-LUT.in[0]" />
@@ -39,8 +60,16 @@
    <pack_pattern name="LUT+FF" in_port="BEL_LT-LUT.out" out_port="BEL_FF-SB_FF.D" />
   </direct>
 
+  <direct name="DISABLE_FF" input="BEL_LT-LUT.out" output="BLK_IG-DISABLE_FF.I" />
+  <direct name="ENABLE_FF"  input="BEL_FF-SB_FF.Q" output="BLK_IG-ENABLE_FF.I"  />
   <!-- Output -->
-  <mux name="O" input="BEL_LT-LUT.out BEL_FF-SB_FF.Q" output="BLK_IG-PLB_CELL.O" />
+  <mux name="O" input="BLK_IG-DISABLE_FF.O BLK_IG-ENABLE_FF.O" output="BLK_IG-PLB_CELL.O" />
+
+  <!--
+  <direct name="OMUX.LT" input="BLK_IG-ENABLE_FF.O"  output="BEL_RX-RMUX2.LT" />
+  <direct name="OMUX.FF" input="BLK_IG-DISABLE_FF.O" output="BEL_RX-RMUX2.FF" />
+  <direct name="OMUX.O"  input="BEL_RX-RMUX2.O"      output="BLK_IG-PLB_CELL.O" />
+       -->
 
   <!-- CARRY -->
   <direct name="SB_CARRY.I0" input="BLK_IG-PLB_CELL.I[1]" output="SB_CARRY.I0" />
@@ -58,4 +87,7 @@
   -->
 
  </interconnect>
+ <metadata>
+  <meta name="hlc_cell">lutff</meta>
+ </metadata>
 </pb_type>
