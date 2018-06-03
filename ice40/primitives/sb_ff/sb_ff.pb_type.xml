@@ -24,6 +24,9 @@
    </direct>
    <direct name="Q" input="VPR_FF.Q"       output="BEL_FF-SB_FF.Q" />
   </interconnect>
+  <metadata>
+   <meta name="hlc_property">enable_dff</meta>
+  </metadata>
  </mode>
 
  <!-- module SB_DFF (output Q, input C, D); -->

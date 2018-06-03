@@ -13,14 +13,17 @@ RR_PATCH_CMD  ?= $(RR_PATCH_TOOL) \
 	--device=$(DEVICE) \
 	--read_rr_graph $(OUT_RRXML_VIRT) \
 	--write_rr_graph $(OUT_RRXML_REAL)
-HLC_TO_BIT_CMD ?= icebox_hlc2asc $(OUT_HLC) > $(OUT_BITSTREAM) || rm $(OUT_BITSTREAM)
+
+HLC_TO_BIT ?= icebox_hlc2asc
+HLC_TO_BIT_CMD ?= $(HLC_TO_BIT) $(OUT_HLC) > $(OUT_BITSTREAM) || rm $(OUT_BITSTREAM)
 INPUT_PCF_FILE ?= $(SOURCE).pcf
 BIT_TO_V_CMD ?= icebox_vlog -n top -p $(INPUT_PCF_FILE) -d $(PACKAGE) $(OUT_BITSTREAM) > $(OUT_BIT_VERILOG) || rm $(OUT_BIT_VERILOG)
 EQUIV_CHECK_SCRIPT = rename top gate; read_verilog $(SOURCE).v; rename top gold; hierarchy; proc; miter -equiv -flatten -ignore_gold_x -make_outputs -make_outcmp gold gate miter; sat -verify-no-timeout -timeout 20 -prove trigger 0 -show-inputs -show-outputs miter
 
 ICE_DEVICE:=$(shell echo $(DEVICE) | sed -e's/^..//' -e's/K/k/')
 
-arachne-pnr: $(OUT_BLIF)
+arachne-pnr:
+	$(YOSYS) -p "synth_ice40 -nocarry -blif $(OUT_LOCAL)/example.blif" $(SOURCE_V).v
 	arachne-pnr -d $(ICE_DEVICE) \
 		--post-pack-blif $(OUT_LOCAL)/arachne-pack.blif \
 		--post-pack-verilog $(OUT_LOCAL)/arachne-pack.v \
