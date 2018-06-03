@@ -26,6 +26,11 @@
    <interconnect>
     <mux name="D_OUT" input="PAD.D_OUT[0] PAD.D_OUT[1]" output="output.outpad"/>
    </interconnect>
+   <metadata>
+    <meta name="hlc_property">disable_pull_up</meta>
+    <meta name="hlc_property">output_pin_type = simple_output_pin</meta>
+    <meta name="hlc_property">input_pin_type = simple_input_pin</meta>
+   </metadata>
   </pb_type>
 
   <interconnect>
@@ -46,6 +51,11 @@
     <mux name="D_IN_0" input="input.inpad" output="PAD.D_IN[0]"/>
     <mux name="D_IN_1" input="input.inpad" output="PAD.D_IN[1]"/>
    </interconnect>
+   <metadata>
+    <meta name="hlc_property">disable_pull_up</meta>
+    <meta name="hlc_property">enable_input</meta>
+    <meta name="hlc_property">input_pin_type = simple_input_pin</meta>
+   </metadata>
   </pb_type>
 
   <interconnect>
@@ -53,7 +63,13 @@
    <direct name="io_D_IN[0]" input="PAD.D_IN[0]" output="BLK_TL-PIO_{N}.io_D_IN[0]" />
    <direct name="io_D_IN[1]" input="PAD.D_IN[1]" output="BLK_TL-PIO_{N}.io_D_IN[1]" />
   </interconnect>
+
  </mode>
+
+ <metadata>
+  <meta name="hlc_cell">io</meta>
+  <meta name="hlc_tile">io_tile</meta>
+ </metadata>
 
  <pinlocations pattern="custom">
   <loc side="right" xoffset="0" yoffset="0">

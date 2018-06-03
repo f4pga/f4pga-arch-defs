@@ -115,4 +115,7 @@
   <fc_override fc_type="frac" fc_val="0.0" port_name="FCOUT" />
   <fc_override fc_type="frac" fc_val="0.0" port_name="FCIN"  />
  </fc>
+ <metadata>
+  <meta name="hlc_tile">logic_tile</meta>
+ </metadata>
 </pb_type>

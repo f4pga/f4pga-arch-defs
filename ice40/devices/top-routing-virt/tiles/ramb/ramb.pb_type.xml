@@ -150,5 +150,8 @@
   </loc>
   <loc side="right" xoffset="0" yoffset="1"> -->
  <switchblock_locations pattern="external_full_internal_straight"/>
+ <metadata>
+  <meta name="hlc_tile">ramb_tile</meta>
+ </metadata>
 </pb_type>
 <!-- End RAMB -->
