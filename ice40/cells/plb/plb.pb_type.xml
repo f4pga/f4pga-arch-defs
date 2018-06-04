@@ -37,7 +37,7 @@
    <direct name="I" input="BLK_IG-DISABLE_FF.I" output="BLK_IG-DISABLE_FF.O" />
   </interconnect>
   <metadata>
-   <meta name="hlc_property">disable_dff</meta>
+   <meta name="hlc_property"># disable_dff</meta>
   </metadata>
  </pb_type>
 
