@@ -323,19 +323,19 @@ class NetNames:
         # BLK_TL-PLB
         # http://www.clifford.at/icestorm/logic_tile.html
         # http://www.clifford.at/icestorm/bitdocs-1k/tile_1_1.html
-        name_rr2local['BLK_TL-PLB.lutff_global_s_r[0]'] = 'lutff_global/s_r'
-        name_rr2local['BLK_TL-PLB.lutff_global_clk[0]'] = 'lutff_global/clk'
-        name_rr2local['BLK_TL-PLB.lutff_global_cen[0]'] = 'lutff_global/cen'
+        name_rr2local['BLK_TL-PLB.lutff_global/s_r[0]'] = 'lutff_global/s_r'
+        name_rr2local['BLK_TL-PLB.lutff_global/clk[0]'] = 'lutff_global/clk'
+        name_rr2local['BLK_TL-PLB.lutff_global/cen[0]'] = 'lutff_global/cen'
         # FIXME: these two are wrong I think, but don't worry about carry for now
         #name_rr2local['BLK_TL-PLB.FCIN[0]'] = 'lutff_0/cin'
         #name_rr2local['BLK_TL-PLB.FCOUT[0]'] = 'lutff_7/cout'
         #name_rr2local['BLK_TL-PLB.lutff_0_cin[0]'] = 'lutff_0/cin'
         #name_rr2local['BLK_TL-PLB.lutff_7_cout[0]'] = 'lutff_7/cout'
         for luti in range(8):
-            name_rr2local['BLK_TL-PLB.lutff_{}_out[0]'.format(
+            name_rr2local['BLK_TL-PLB.lutff_{}/out[0]'.format(
                 luti)] = 'lutff_{}/out'.format(luti)
             for lut_input in range(4):
-                name_rr2local['BLK_TL-PLB.lutff_{}_in[{}]'.format(
+                name_rr2local['BLK_TL-PLB.lutff_{}/in[{}]'.format(
                     luti, lut_input)] = 'lutff_{}/in_{}'.format(
                         luti, lut_input)
 
@@ -352,15 +352,15 @@ class NetNames:
             #name_rr2local['BLK_TL-PIO_{}.io_global_inclk[0]'.format(
             #    orientation)] = 'io_global/inclk'
             for blocki in range(2):
-                name_rr2local['BLK_TL-PIO_{}.[{}]io_D_IN[0]'.format(
+                name_rr2local['BLK_TL-PIO_{}.[{}]D_IN_0[0]'.format(
                     orientation, blocki)] = 'io_{}/D_IN_0'.format(blocki)
-                name_rr2local['BLK_TL-PIO_{}.[{}]io_D_IN[1]'.format(
+                name_rr2local['BLK_TL-PIO_{}.[{}]D_IN_1[0]'.format(
                     orientation, blocki)] = 'io_{}/D_IN_1'.format(blocki)
-                name_rr2local['BLK_TL-PIO_{}.[{}]io_D_OUT[0]'.format(
+                name_rr2local['BLK_TL-PIO_{}.[{}]D_OUT_0[0]'.format(
                     orientation, blocki)] = 'io_{}/D_OUT_0'.format(blocki)
-                name_rr2local['BLK_TL-PIO_{}.[{}]io_D_OUT[1]'.format(
+                name_rr2local['BLK_TL-PIO_{}.[{}]D_OUT_1[0]'.format(
                     orientation, blocki)] = 'io_{}/D_OUT_1'.format(blocki)
-                name_rr2local['BLK_TL-PIO_{}.[{}]io_OUT_ENB[0]'.format(
+                name_rr2local['BLK_TL-PIO_{}.[{}]OUT_ENB[0]'.format(
                     orientation, blocki)] = 'io_{}/OUT_ENB'.format(blocki)
 
         for block in g.block_grid:
