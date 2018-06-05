@@ -22,9 +22,13 @@ EQUIV_CHECK_SCRIPT = rename top gate; read_verilog $(SOURCE).v; rename top gold;
 
 ICE_DEVICE:=$(shell echo $(DEVICE) | sed -e's/^..//' -e's/K/k/')
 
-arachne-pnr:
-	$(YOSYS) -p "synth_ice40 -nocarry -blif $(OUT_LOCAL)/example.blif" $(SOURCE_V).v
-	arachne-pnr -d $(ICE_DEVICE) \
+OUT_BLIF=$(OUT_LOCAL)/$(SOURCE).blif
+
+ARACHNE_PNR ?= arachne-pnr
+arachne-pnr: | $(OUT_LOCAL)
+	mkdir -p $(OUT_LOCAL)
+	$(YOSYS) -p "synth_ice40 -nocarry -blif $(OUT_BLIF)" $(SOURCE_V).v
+	$(ARACHNE_PNR) -d $(ICE_DEVICE) \
 		--post-pack-blif $(OUT_LOCAL)/arachne-pack.blif \
 		--post-pack-verilog $(OUT_LOCAL)/arachne-pack.v \
 		--post-place-blif $(OUT_LOCAL)/arachne-place.blif \
