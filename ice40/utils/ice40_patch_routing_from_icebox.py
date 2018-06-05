@@ -1107,7 +1107,7 @@ def add_edges(g, nn, verbose=True):
                         dst_node_id,
                     ))
                 continue
-            bidir = switch_type == "routing"
+            bidir = False #switch_type == "routing"
             verbose and print(
                 "Adding {} {} edge {}  {}:{} ({}) => {}:{} ({})".format(
                     switch_type,
