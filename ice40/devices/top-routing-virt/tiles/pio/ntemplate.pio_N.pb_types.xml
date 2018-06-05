@@ -1,13 +1,15 @@
 <!-- set: ai sw=1 ts=1 sta et -->
 <pb_type name="BLK_TL-PIO_{N}" capacity="2" xmlns:xi="http://www.w3.org/2001/XInclude">
  <!-- SB_IO inputs   -->
- <output name="io_D_IN" num_pins="2" equivalent="false"/>
+ <output name="D_IN_0" num_pins="1" equivalent="false"/>
+ <output name="D_IN_1" num_pins="1" equivalent="false"/>
 
  <!-- SB_IO outputs -->
- <input  name="io_D_OUT" num_pins="2" equivalent="false"/>
+ <input  name="D_OUT_0" num_pins="1" equivalent="false"/>
+ <input  name="D_OUT_1" num_pins="1" equivalent="false"/>
 
  <!-- Control signals -->
- <input  name="io_OUT_ENB" num_pins="1" equivalent="false"/>
+ <input  name="OUT_ENB" num_pins="1" equivalent="false"/>
 
  <!--
  <input  name="io_global_cen"    num_pins="1" equivalent="false"/>
@@ -35,8 +37,8 @@
 
   <interconnect>
    <!-- SB_IO outputs -->
-   <direct name="io_D_OUT[0]" input="BLK_TL-PIO_{N}.io_D_OUT[0]" output="PAD.D_OUT[0]" />
-   <direct name="io_D_OUT[1]" input="BLK_TL-PIO_{N}.io_D_OUT[1]" output="PAD.D_OUT[1]" />
+   <direct name="D_OUT_0" input="BLK_TL-PIO_{N}.D_OUT_0" output="PAD.D_OUT[0]" />
+   <direct name="D_OUT_1" input="BLK_TL-PIO_{N}.D_OUT_1" output="PAD.D_OUT[1]" />
   </interconnect>
  </mode>
 
@@ -60,8 +62,8 @@
 
   <interconnect>
    <!-- SB_IO inputs -->
-   <direct name="io_D_IN[0]" input="PAD.D_IN[0]" output="BLK_TL-PIO_{N}.io_D_IN[0]" />
-   <direct name="io_D_IN[1]" input="PAD.D_IN[1]" output="BLK_TL-PIO_{N}.io_D_IN[1]" />
+   <direct name="D_IN_0" input="PAD.D_IN[0]" output="BLK_TL-PIO_{N}.D_IN_0" />
+   <direct name="D_IN_1" input="PAD.D_IN[1]" output="BLK_TL-PIO_{N}.D_IN_1" />
   </interconnect>
 
  </mode>
@@ -73,9 +75,11 @@
 
  <pinlocations pattern="custom">
   <loc side="right" xoffset="0" yoffset="0">
-   BLK_TL-PIO_{N}.io_D_IN
-   BLK_TL-PIO_{N}.io_D_OUT
-   BLK_TL-PIO_{N}.io_OUT_ENB
+   BLK_TL-PIO_{N}.D_IN_0
+   BLK_TL-PIO_{N}.D_IN_1
+   BLK_TL-PIO_{N}.D_OUT_0
+   BLK_TL-PIO_{N}.D_OUT_1
+   BLK_TL-PIO_{N}.OUT_ENB
   </loc>
  </pinlocations>
  <fc in_type="frac" in_val="1.0" out_type="frac" out_val="1.0" />
