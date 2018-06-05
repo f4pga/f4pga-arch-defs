@@ -105,10 +105,12 @@ rr_graph.xml: rr_graph.real.xml
 ##########################################################################
 ##########################################################################
 
-SOURCE_E = $(basename $(wildcard *.eblif))
-SOURCE_V = $(basename $(wildcard *.v))
-SOURCE = $(SOURCE_V)$(SOURCE_E)
+SOURCE_E = $(wildcard *.eblif)
+SOURCE_V = $(filter-out %_tb.v,$(wildcard *.v))
+SOURCE = $(basename $(SOURCE_V)$(SOURCE_E))
 $(info SOURCE = $(SOURCE))
+
+SOURCE_F = $(abspath $(SOURCE_V)$(SOURCE_E))
 
 OUT_LOCAL = $(PWD)/build-$(FQDN)
 $(OUT_LOCAL):
@@ -143,6 +145,33 @@ eblif: $(OUT_LOCAL)/$(SOURCE).eblif
 synth: $(OUT_LOCAL)/$(SOURCE).eblif
 	@true
 .PHONY: synth
+
+##########################################################################
+# Simulation
+##########################################################################
+
+TB=$(basename $(wildcard $(SOURCE)_tb.v))
+ifneq ($(TB),)
+
+TB_F=$(abspath $(TB).v)
+
+$(OUT_LOCAL)/$(TB): $(TB_F) $(SOURCE_F) | $(OUT_LOCAL)
+	iverilog -o $@ $^
+
+$(OUT_LOCAL)/$(TB).vcd: $(OUT_LOCAL)/$(TB) | $(OUT_LOCAL)
+	vvp -N $< +vcd=$@
+
+.PRECIOUS: $(OUT_LOCAL)/$(TB).vcd
+
+testbench: $(OUT_LOCAL)/$(TB).vcd
+	@true
+
+testbench.view: $(OUT_LOCAL)/$(TB).vcd
+	gtkwave $^
+
+.PHONY: testbench
+
+endif
 
 ##########################################################################
 # VPR Place and route
@@ -241,6 +270,25 @@ $(OUT_BIT_VERILOG): $(OUT_BITSTREAM)
 check: $(OUT_BIT_VERILOG)
 	$(YOSYS) -p "$(EQUIV_CHECK_SCRIPT)" $<
 .PHONY: check
+
+ifneq ($(TB),)
+$(OUT_LOCAL)/$(TB)_bitstream: $(TB_F) $(OUT_BIT_VERILOG) | $(OUT_LOCAL)
+	iverilog -o $@ $^
+
+$(OUT_LOCAL)/$(TB)_bitstream.vcd: $(OUT_LOCAL)/$(TB)_bitstream | $(OUT_LOCAL)
+	vvp -N $< +vcd=$@
+
+.PRECIOUS: $(OUT_LOCAL)/$(TB)_bitstream.vcd
+
+testbinch: $(OUT_LOCAL)/$(TB)_bitstream.vcd
+	@true
+
+testbinch.view: $(OUT_LOCAL)/$(TB)_bitstream.vcd
+	gtkwave $^
+
+.PHONY: testbench
+
+endif
 
 # Shortcuts
 #-------------------------------------------------------------------------
