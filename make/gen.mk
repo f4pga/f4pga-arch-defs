@@ -11,7 +11,7 @@ $(call include_type_all,xray)
 $(call include_type_all,dummy)
 
 gen-clean:
-	@rm -f $(call find_generated_files,$(FILTER_BELOW))
+	$(foreach ii,$(call find_generated_files,$(FILTER_BELOW)),$(shell rm -df $(ii)))
 
 clean: gen-clean
 

@@ -1,0 +1,7 @@
+MUX_COMMENT = mux used in CARRYIN selection
+MUX_TYPE = routing
+MUX_OUTFILE = carryin_mux
+MUX_NAME = CARRYIN_MUX
+MUX_WIDTH = 2
+MUX_SPLIT_INPUTS = 1
+MUX_INPUTS = BYPASS,REG

@@ -59,6 +59,32 @@ class MuxPinType(Enum):
         return self.value
 
 
+class ModulePort(object):
+    def __init__(self, pin_type, name, width, index, data_width=1):
+        self.name = name
+        self.pin_type = pin_type
+        self.width = width
+        self.index = index
+        self.data_width = data_width
+
+    def getParameterString(self):
+        if self.width == 1:
+            return '\tparameter [0:0] %s = 0;\n' % (self.name)
+        else:
+            return '\tparameter %s %s = 0;\n' % (self.index, self.name)
+
+    def getDefinition(self):
+        if self.width == 1:
+            if self.data_width is not None and self.data_width > 1:
+                return '\t%s [%d:0] %s;\n' % (self.pin_type.verilog(),
+                                              self.data_width - 1, self.name)
+            else:
+                return '\t%s %s;\n' % (self.pin_type.verilog(), self.name)
+        else:
+            return '\t%s %s %s;\n' % (self.pin_type.verilog(), self.index,
+                                      self.name)
+
+
 def pb_type_xml(mux_type, mux_name, pins, subckt=None, num_pb=1, comment=""):
     """Generate <pb_type> XML for a mux.
 
@@ -122,27 +148,36 @@ def pb_type_xml(mux_type, mux_name, pins, subckt=None, num_pb=1, comment=""):
     if comment is not None:
         pb_type_xml.append(ET.Comment(comment))
 
-    for pin_type, pin_name, pin_width, pin_index in pins:
-        #assert pin_index < pin_width, (
-        #    "Pin index {} >= width {} for pin {} {}".format(pin_index, pin_width, pin_name, pin_type))
-        if mux_type == MuxType.ROUTING and pin_type == MuxPinType.SELECT:
+    for port in pins:
+        #assert port.index < port.width, (
+        #    "Pin index {} >= width {} for pin {} {}".format(port.index, port.width, port.name, port.pin_type))
+        if mux_type == MuxType.ROUTING and port.pin_type == MuxPinType.SELECT:
             continue
+
+        assert port.width == 1 or port.data_width == 1, 'Only one of width(%d) or data_width(%d) may > 1 for pin %s' % (
+            port.width, port.data_width, port.name)
+
+        if port.width == 1 and port.data_width > 1:
+            num_pins = port.data_width
+        else:
+            num_pins = port.width
+
         ET.SubElement(
             pb_type_xml,
-            pin_type.direction(),
+            port.pin_type.direction(),
             {
-                'name': pin_name,
-                'num_pins': str(pin_width)
+                'name': port.name,
+                'num_pins': str(num_pins)
             },
         )
 
     if mux_type == MuxType.LOGIC:
-        for ipin_type, ipin_name, ipin_width, ipin_index in pins:
-            if ipin_type not in (MuxPinType.INPUT, MuxPinType.SELECT):
+        for inport in pins:
+            if inport.pin_type not in (MuxPinType.INPUT, MuxPinType.SELECT):
                 continue
 
-            for opin_type, opin_name, opin_width, opin_index in pins:
-                if opin_type not in (MuxPinType.OUTPUT, ):
+            for outport in pins:
+                if outport.pin_type not in (MuxPinType.OUTPUT, ):
                     continue
 
                 ET.SubElement(
@@ -150,20 +185,20 @@ def pb_type_xml(mux_type, mux_name, pins, subckt=None, num_pb=1, comment=""):
                     'delay_constant',
                     {
                         'max': "10e-12",
-                        'in_port': "%s.%s" % (mux_name, ipin_name),
-                        'out_port': "%s.%s" % (mux_name, opin_name),
+                        'in_port': "%s.%s" % (mux_name, inport.name),
+                        'out_port': "%s.%s" % (mux_name, outport.name),
                     },
                 )
     elif mux_type == MuxType.ROUTING:
         interconnect = ET.SubElement(pb_type_xml, 'interconnect')
 
         inputs = [
-            "{}.{}".format(mux_name, n) for t, n, _, _ in pins
-            if t in (MuxPinType.INPUT, )
+            "{}.{}".format(mux_name, port.name) for port in pins
+            if port.pin_type in (MuxPinType.INPUT, )
         ]
         outputs = [
-            "{}.{}".format(mux_name, n) for t, n, _, _ in pins
-            if t in (MuxPinType.OUTPUT, )
+            "{}.{}".format(mux_name, port.name) for port in pins
+            if port.pin_type in (MuxPinType.OUTPUT, )
         ]
         assert len(outputs) == 1
 
