@@ -18,7 +18,7 @@ module top (
 
 	reg error, rdmode, rdfin;
 
-	reg [31:0] scratchpad [0:7];
+	reg [31:0] scratchpad [0:1023];
 	reg [31:0] xorshift32_state;
 	reg [9:0] index;
 
