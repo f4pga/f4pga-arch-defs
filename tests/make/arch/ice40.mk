@@ -7,8 +7,8 @@ PACKAGE				?= vq100
 BS_EXTENSION  ?= asc #.bin later
 #YOSYS_SCRIPT  ?= synth_ice40 -nodffe -nocarry; ice40_opt -unlut; abc -lut 4;
 YOSYS_SCRIPT  ?= synth_ice40 -nocarry; ice40_opt -unlut; abc -lut 4;
-#RR_PATCH_TOOL ?= $(TOP_DIR)/ice40/utils/ice40_patch_routing.py
-RR_PATCH_TOOL ?= $(TOP_DIR)/ice40/utils/ice40_patch_routing_from_icebox.py
+#RR_PATCH_TOOL ?= $(TOP_DIR)/ice40/utils/ice40_generate_routing.py
+RR_PATCH_TOOL ?= $(TOP_DIR)/ice40/utils/ice40_import_routing_from_icebox.py
 RR_PATCH_CMD  ?= $(RR_PATCH_TOOL) \
 	--device=$(DEVICE) \
 	--read_rr_graph $(OUT_RRXML_VIRT) \
