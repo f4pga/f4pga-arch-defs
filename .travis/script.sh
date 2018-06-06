@@ -13,9 +13,9 @@ start_section "symbiflow.merged" "Running ${GREEN}make merged${NC}"
 make merged
 end_section "symbiflow.merged"
 
-start_section "symbiflow.render" "Running ${GREEN}make render${NC}"
-make render
-end_section "symbiflow.render"
+#start_section "symbiflow.render" "Running ${GREEN}make render${NC}"
+#make render
+#end_section "symbiflow.render"
 
 $SPACER
 
