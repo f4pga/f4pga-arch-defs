@@ -1,5 +1,8 @@
-include ../../../make/inc/common.mk
-include ../../../make/inc/func.mk
+COMMON_MK_DIR  := $(realpath $(dir $(lastword $(MAKEFILE_LIST))))
+TOP_DIR   := $(realpath $(COMMON_MK_DIR)/../..)
+
+include $(TOP_DIR)/make/inc/common.mk
+include $(TOP_DIR)/make/inc/func.mk
 
 VPR   ?= vpr
 YOSYS ?= yosys
