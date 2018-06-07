@@ -22,10 +22,10 @@ HLC_TO_BIT ?= icebox_hlc2asc
 BIT_TO_V ?= icebox_vlog
 endif
 
-HLC_TO_BIT_CMD ?= $(HLC_TO_BIT) $(OUT_HLC) > $(OUT_BITSTREAM) || rm $(OUT_BITSTREAM)
-INPUT_PCF_FILE ?= $(abspath $(SOURCE).pcf)
-BIT_TO_V_CMD ?= $(BIT_TO_V) -c -n top -p $(INPUT_PCF_FILE) -d $(PACKAGE) $(OUT_BITSTREAM) > $(OUT_BIT_VERILOG) || rm $(OUT_BIT_VERILOG)
-EQUIV_CHECK_SCRIPT = rename top gate; read_verilog $(SOURCE).v; rename top gold; hierarchy; proc; miter -equiv -flatten -ignore_gold_x -make_outputs -make_outcmp gold gate miter; sat -dump_vcd out.vcd -verify-no-timeout -timeout 20 -seq 1000 -prove trigger 0 -prove-skip 1 -show-inputs -show-outputs miter
+HLC_TO_BIT_CMD = $(HLC_TO_BIT) $(OUT_HLC) > $(OUT_BITSTREAM) || rm $(OUT_BITSTREAM)
+INPUT_PCF_FILE = $(TEST_DIR)/$(SOURCE).pcf
+BIT_TO_V_CMD = $(BIT_TO_V) -c -n top -p $(INPUT_PCF_FILE) -d $(PACKAGE) $(OUT_BITSTREAM) > $(OUT_BIT_VERILOG) || rm $(OUT_BIT_VERILOG)
+EQUIV_CHECK_SCRIPT = rename top gate; read_verilog $(SOURCE_F); rename top gold; hierarchy; proc; miter -equiv -flatten -ignore_gold_x -make_outputs -make_outcmp gold gate miter; sat -dump_vcd $(OUT_LOCAL)/out.vcd -verify-no-timeout -timeout 20 -seq 1000 -prove trigger 0 -prove-skip 1 -show-inputs -show-outputs miter
 
 ICE_DEVICE:=$(shell echo $(DEVICE) | sed -e's/^..//' -e's/K/k/')
 
@@ -34,12 +34,12 @@ OUT_BLIF=$(OUT_LOCAL)/$(SOURCE).blif
 ARACHNE_PNR ?= arachne-pnr
 arachne-pnr: | $(OUT_LOCAL)
 	mkdir -p $(OUT_LOCAL)
-	$(YOSYS) -p "synth_ice40 -nocarry -blif $(OUT_BLIF)" $(abspath $(SOURCE).v)
+	$(YOSYS) -p "synth_ice40 -nocarry -blif $(OUT_BLIF)" $(SOURCE_F)
 	$(ARACHNE_PNR) -d $(ICE_DEVICE) \
 		--post-pack-blif $(OUT_LOCAL)/arachne-pack.blif \
 		--post-pack-verilog $(OUT_LOCAL)/arachne-pack.v \
 		--post-place-blif $(OUT_LOCAL)/arachne-place.blif \
-		--pcf-file $(abspath $(SOURCE).pcf) \
+		--pcf-file $(INPUT_PCF_FILE) \
 		--package $(PACKAGE) \
 		-o $(OUT_LOCAL)/arachne.asc \
 		$(OUT_BLIF)
