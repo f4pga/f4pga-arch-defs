@@ -115,7 +115,12 @@ $(info SOURCE = $(SOURCE))
 
 SOURCE_F = $(abspath $(SOURCE_V)$(SOURCE_E))
 
-OUT_LOCAL = $(PWD)/build-$(FQDN)
+
+TEST_DIR = $(dir $(realpath $(firstword $(MAKEFILE_LIST))))
+OUT_LOCAL = $(TEST_DIR)/build-$(FQDN)
+
+$(info OUT_LOCAL = $(OUT_LOCAL))
+
 $(OUT_LOCAL):
 	mkdir -p $@
 
@@ -188,7 +193,7 @@ VPR_CMD = \
 	cd $(OUT_LOCAL); \
 	$(VPR) \
 		$(OUT_ARCH_XML) \
-		$(SOURCE).eblif \
+		$(OUT_EBLIF) \
 		$(VPR_ARGS) \
 		--device $(DEVICE) \
 		--min_route_chan_width_hint $(VPR_ROUTE_CHAN_MINWIDTH_HINT) \
@@ -199,7 +204,7 @@ VPR_CMD = \
 
 # Add IO placement
 ifneq ($(wildcard io.place),)
-VPR_CMD += --fix_pins $(PWD)/io.place
+VPR_CMD += --fix_pins $(TEST_DIR)/io.place
 endif
 
 VPR_ARGS_FILE=$(OUT_LOCAL)/vpr.args
@@ -328,6 +333,19 @@ bit_v:
 ##########################################################################
 ##########################################################################
 
+SUBDIRS := $(sort $(dir $(foreach SUBDIR,$(wildcard *),$(wildcard $(SUBDIR)/Makefile))))
+$(info SUBDIRS = $(SUBDIRS))
+
+$(SUBDIRS):
+	cd $@; $(MAKE) $(MAKECMDGOALS) #> $(OUT_LOCAL)/$@.log
+
+.PHONY: $(SUBDIRS)
+
+##########################################################################
+
+check-all: check $(SUBDIRS)
+	@true
+
 all: clean route
 	@true
 
@@ -340,4 +358,4 @@ all-clean:
 dist-clean: all-clean clean-dev
 	@true
 
-.PHONY: all clean help
+.PHONY: check-all all clean help
