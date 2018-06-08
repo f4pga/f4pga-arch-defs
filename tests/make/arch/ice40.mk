@@ -16,9 +16,11 @@ RR_PATCH_CMD  ?= $(RR_PATCH_TOOL) \
 
 ifneq ($(ICEBOX),)
 HLC_TO_BIT ?= $(ICEBOX)/icebox_hlc2asc.py
+BIT_TO_HLC ?= $(ICEBOX)/icebox_asc2hlc.py
 BIT_TO_V ?= $(ICEBOX)/icebox_vlog.py
 else
 HLC_TO_BIT ?= icebox_hlc2asc
+BIT_TO_HLC ?= icebox_asc2hlc
 BIT_TO_V ?= icebox_vlog
 endif
 
@@ -43,6 +45,11 @@ arachne-pnr: | $(OUT_LOCAL)
 		--package $(PACKAGE) \
 		-o $(OUT_LOCAL)/arachne.asc \
 		$(OUT_BLIF)
-	icebox_asc2hlc $(OUT_LOCAL)/arachne.asc > $(OUT_LOCAL)/arachne.hlc
+	$(BIT_TO_HLC) $(OUT_LOCAL)/arachne.asc > $(OUT_LOCAL)/arachne.hlc
+	$(HLC_TO_BIT) $(OUT_LOCAL)/arachne.hlc > $(OUT_LOCAL)/arachne_from_hlc.asc
+	$(BIT_TO_V) -c -n top -p $(INPUT_PCF_FILE) -d $(PACKAGE) $(OUT_LOCAL)/arachne.asc > $(OUT_LOCAL)/arachne_bitstream.v
+	$(BIT_TO_V) -c -n top -p $(INPUT_PCF_FILE) -d $(PACKAGE) $(OUT_LOCAL)/arachne_from_hlc.asc > $(OUT_LOCAL)/arachne_bitstream_hlc.v
+	$(YOSYS) -p "rename top gate; $(EQUIV_READ); rename top gold; hierarchy; proc; miter -equiv -flatten -ignore_gold_x -make_outputs -make_outcmp gold gate miter; sat -dump_vcd $(OUT_LOCAL)/arachne-out.vcd -verify-no-timeout -timeout 20 -seq 1000 -prove trigger 0 -prove-skip 1 -show-inputs -show-outputs miter" $(OUT_LOCAL)/arachne_bitstream_hlc.v
+
 
 .PHONY: arachne-pnr
