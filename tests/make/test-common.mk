@@ -340,10 +340,10 @@ bit_v:
 .PHONY: bit_v
 
 %.disp:
-	make VPR_ARGS="--disp on" $*
+	make VPR_ARGS="$(VPR_ARGS) --disp on" $*
 
 %.echo:
-	make VPR_ARGS="--echo_file on" $*
+	make VPR_ARGS="$(VPR_ARGS) --echo_file on" $*
 
 ##########################################################################
 ##########################################################################
