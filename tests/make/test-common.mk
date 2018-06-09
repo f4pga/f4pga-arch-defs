@@ -284,6 +284,16 @@ check: $(OUT_BIT_VERILOG)
 	$(YOSYS) -p "$(EQUIV_CHECK_SCRIPT)" $<
 .PHONY: check
 
+check-orig-blif: route.echo
+	cat $(OUT_LOCAL)/atom_netlist.orig.echo.blif | sed '/.end/q' > $(OUT_LOCAL)/atom_netlist.orig.echo.yosys.blif
+	$(YOSYS) -p "$(EQUIV_CHECK_SCRIPT)" $(TOP_DIR)/env/conda/share/yosys/$(CELLS_SIM) $(OUT_LOCAL)/atom_netlist.orig.echo.yosys.blif
+.PHONY: check-orig-blif
+
+check-cleaned-blif: route.echo
+	cat $(OUT_LOCAL)/atom_netlist.cleaned.echo.blif | sed '/.end/q' > $(OUT_LOCAL)/atom_netlist.cleaned.echo.yosys.blif
+	$(YOSYS) -p "$(EQUIV_CHECK_SCRIPT)" $(TOP_DIR)/env/conda/share/yosys/$(CELLS_SIM) $(OUT_LOCAL)/atom_netlist.cleaned.echo.yosys.blif
+.PHONY: check-cleaned-blif
+
 ifneq ($(TB),)
 $(OUT_LOCAL)/$(TB)_bitstream: $(TB_F) $(OUT_BIT_VERILOG) | $(OUT_LOCAL)
 	iverilog -o $@ $^
