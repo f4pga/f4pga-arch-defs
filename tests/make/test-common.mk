@@ -294,6 +294,37 @@ check-cleaned-blif: route.echo
 	$(YOSYS) -p "$(EQUIV_CHECK_SCRIPT)" $(TOP_DIR)/env/conda/share/yosys/$(CELLS_SIM) $(OUT_LOCAL)/atom_netlist.cleaned.echo.yosys.blif
 .PHONY: check-cleaned-blif
 
+check-post-blif: analysis.echo
+	$(YOSYS) -p "$(EQUIV_CHECK_SCRIPT)" $(TOP_DIR)/env/conda/share/yosys/$(CELLS_SIM) $(OUT_LOCAL)/top_post_synthesis.blif
+.PHONY: check-post-blif
+
+$(OUT_LOCAL)/sim.top_post_synthesis_blif.vcd: $(OUT_LOCAL)/top_post_synthesis.blif
+	$(YOSYS) -p "prep -top top; sim -clock clk -n 1000 -vcd $(OUT_LOCAL)/sim.top_post_synthesis_blif.vcd -zinit top" $(TOP_DIR)/env/conda/share/yosys/$(CELLS_SIM) $(OUT_LOCAL)/top_post_synthesis.blif
+
+sim-post-blif: $(OUT_LOCAL)/sim.top_post_synthesis_blif.vcd
+	@true
+.PHONY: sim-post-blif
+
+sim-post-blif.view: $(OUT_LOCAL)/sim.top_post_synthesis_blif.vcd
+	gtkwave $<
+.PHONY: sim-post-blif.view
+
+check-post-v: analysis.echo
+	$(YOSYS) -p "$(EQUIV_CHECK_SCRIPT)" $(TOP_DIR)/env/conda/share/yosys/$(CELLS_SIM) $(TOP_DIR)/vpr/primitives.v $(OUT_LOCAL)/top_post_synthesis.v
+.PHONY: check-post-v
+
+$(OUT_LOCAL)/sim.top_post_synthesis_v.vcd: $(OUT_LOCAL)/top_post_synthesis.v
+	$(YOSYS) -p "prep -top top; sim -clock clk -n 1000 -vcd $(OUT_LOCAL)/sim.top_post_synthesis_v.vcd -zinit top" $(TOP_DIR)/env/conda/share/yosys/$(CELLS_SIM) $(TOP_DIR)/vpr/primitives.v $(OUT_LOCAL)/top_post_synthesis.v
+
+sim-post-v: $(OUT_LOCAL)/sim.top_post_synthesis_v.vcd
+	@true
+.PHONY: sim-post-v
+
+sim-post-v.view: $(OUT_LOCAL)/sim.top_post_synthesis_v.vcd
+	gtkwave $<
+.PHONY: sim-post-v.view
+
+
 ifneq ($(TB),)
 $(OUT_LOCAL)/$(TB)_bitstream: $(TB_F) $(OUT_BIT_VERILOG) | $(OUT_LOCAL)
 	iverilog -o $@ $^
