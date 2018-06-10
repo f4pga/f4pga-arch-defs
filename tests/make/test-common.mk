@@ -179,7 +179,7 @@ $(OUT_LOCAL)/$(TB).vcd: $(OUT_LOCAL)/$(TB) | $(OUT_LOCAL)
 testbench: $(OUT_LOCAL)/$(TB).vcd
 	@true
 
-testbench.view: $(OUT_LOCAL)/$(TB).vcd
+testbench.view: $(OUT_LOCAL)/$(TB).fixed.vcd
 	gtkwave $^
 
 .PHONY: testbench
@@ -259,6 +259,9 @@ $(OUT_ANALYSIS): $(OUT_ROUTE) $(VPR_DEPS)
 	@mv $(OUT_LOCAL)/vpr_stdout.log $(OUT_ANALYSIS)
 .PRECIOUS: $(OUT_ANALYSIS)
 
+$(OUT_LOCAL)/top_post_synthesis.v: $(OUT_ANALYSIS)
+$(OUT_LOCAL)/top_post_synthesis.blif: $(OUT_ANALYSIS)
+
 # Performing routing generates HLC automatically, nothing to do here
 #-------------------------------------------------------------------------
 OUT_HLC=$(OUT_LOCAL)/top.hlc
@@ -284,6 +287,9 @@ check: $(OUT_BIT_VERILOG)
 	$(YOSYS) -p "$(EQUIV_CHECK_SCRIPT)" $<
 .PHONY: check
 
+$(OUT_LOCAL)/%.fixed.vcd: $(OUT_LOCAL)/%.vcd
+	cat $< | sed -e's/:/_/g' > $@
+
 check-orig-blif: route.echo
 	cat $(OUT_LOCAL)/atom_netlist.orig.echo.blif | sed '/.end/q' > $(OUT_LOCAL)/atom_netlist.orig.echo.yosys.blif
 	$(YOSYS) -p "$(EQUIV_CHECK_SCRIPT)" $(TOP_DIR)/env/conda/share/yosys/$(CELLS_SIM) $(OUT_LOCAL)/atom_netlist.orig.echo.yosys.blif
@@ -305,7 +311,7 @@ sim-post-blif: $(OUT_LOCAL)/sim.top_post_synthesis_blif.vcd
 	@true
 .PHONY: sim-post-blif
 
-sim-post-blif.view: $(OUT_LOCAL)/sim.top_post_synthesis_blif.vcd
+sim-post-blif.view: $(OUT_LOCAL)/sim.top_post_synthesis_blif.fixed.vcd
 	gtkwave $<
 .PHONY: sim-post-blif.view
 
@@ -320,7 +326,7 @@ sim-post-v: $(OUT_LOCAL)/sim.top_post_synthesis_v.vcd
 	@true
 .PHONY: sim-post-v
 
-sim-post-v.view: $(OUT_LOCAL)/sim.top_post_synthesis_v.vcd
+sim-post-v.view: $(OUT_LOCAL)/sim.top_post_synthesis_v.fixed.vcd
 	gtkwave $<
 .PHONY: sim-post-v.view
 
@@ -337,7 +343,7 @@ $(OUT_LOCAL)/$(TB)_bitstream.vcd: $(OUT_LOCAL)/$(TB)_bitstream | $(OUT_LOCAL)
 testbinch: $(OUT_LOCAL)/$(TB)_bitstream.vcd
 	@true
 
-testbinch.view: $(OUT_LOCAL)/$(TB)_bitstream.vcd
+testbinch.view: $(OUT_LOCAL)/$(TB)_bitstream.fixed.vcd
 	gtkwave $^
 
 .PHONY: testbench
