@@ -40,6 +40,83 @@
   <xi:include href="../plb/plb.pb_type.xml" xpointer="xpointer(pb_type/child::node())"/>
  </pb_type>
 
+ <pb_type name="BLK_IG-LC0" num_pb="1">
+  <input  name="I" num_pins="1" equivalent="false"/>
+  <output name="O" num_pins="1" equivalent="false"/>
+  <interconnect>
+   <direct name="I" input="BLK_IG-LC0.I" output="BLK_IG-LC0.O" />
+  </interconnect>
+  <metadata>
+   <meta name="hlc_property">lutff_0/lout -> lutff_1/in_2</meta>
+  </metadata>
+ </pb_type>
+
+ <pb_type name="BLK_IG-LC1" num_pb="1">
+  <input  name="I" num_pins="1" equivalent="false"/>
+  <output name="O" num_pins="1" equivalent="false"/>
+  <interconnect>
+   <direct name="I" input="BLK_IG-LC1.I" output="BLK_IG-LC1.O" />
+  </interconnect>
+  <metadata>
+   <meta name="hlc_property">lutff_1/lout -> lutff_2/in_2</meta>
+  </metadata>
+ </pb_type>
+
+ <pb_type name="BLK_IG-LC2" num_pb="1">
+  <input  name="I" num_pins="1" equivalent="false"/>
+  <output name="O" num_pins="1" equivalent="false"/>
+  <interconnect>
+   <direct name="I" input="BLK_IG-LC2.I" output="BLK_IG-LC2.O" />
+  </interconnect>
+  <metadata>
+   <meta name="hlc_property">lutff_2/lout -> lutff_3/in_2</meta>
+  </metadata>
+ </pb_type>
+
+ <pb_type name="BLK_IG-LC3" num_pb="1">
+  <input  name="I" num_pins="1" equivalent="false"/>
+  <output name="O" num_pins="1" equivalent="false"/>
+  <interconnect>
+   <direct name="I" input="BLK_IG-LC3.I" output="BLK_IG-LC3.O" />
+  </interconnect>
+  <metadata>
+   <meta name="hlc_property">lutff_3/lout -> lutff_4/in_2</meta>
+  </metadata>
+ </pb_type>
+
+ <pb_type name="BLK_IG-LC4" num_pb="1">
+  <input  name="I" num_pins="1" equivalent="false"/>
+  <output name="O" num_pins="1" equivalent="false"/>
+  <interconnect>
+   <direct name="I" input="BLK_IG-LC4.I" output="BLK_IG-LC4.O" />
+  </interconnect>
+  <metadata>
+   <meta name="hlc_property">lutff_4/lout -> lutff_5/in_2</meta>
+  </metadata>
+ </pb_type>
+
+ <pb_type name="BLK_IG-LC5" num_pb="1">
+  <input  name="I" num_pins="1" equivalent="false"/>
+  <output name="O" num_pins="1" equivalent="false"/>
+  <interconnect>
+   <direct name="I" input="BLK_IG-LC5.I" output="BLK_IG-LC5.O" />
+  </interconnect>
+  <metadata>
+   <meta name="hlc_property">lutff_5/lout -> lutff_6/in_2</meta>
+  </metadata>
+ </pb_type>
+
+ <pb_type name="BLK_IG-LC6" num_pb="1">
+  <input  name="I" num_pins="1" equivalent="false"/>
+  <output name="O" num_pins="1" equivalent="false"/>
+  <interconnect>
+   <direct name="I" input="BLK_IG-LC6.I" output="BLK_IG-LC6.O" />
+  </interconnect>
+  <metadata>
+   <meta name="hlc_property">lutff_6/lout -> lutff_7/in_2</meta>
+  </metadata>
+ </pb_type>
+
  <interconnect>
   <!-- Cell 0 -->
   <direct name="I0[0]" input="BLK_IG-PLB_LOCAL.I0[0]" output="BLK_IG-PLB_CELL[0].I[0]" />
@@ -125,13 +202,20 @@
   <!--
   <direct name="LCIN"  input="BLK_IG-PLB_LOCAL.LCIN"    output="BLK_IG-PLB_CELL[0].LCIN" />
     -->
-  <direct name="LCC0"  input="BLK_IG-PLB_CELL[0].LCOUT" output="BLK_IG-PLB_CELL[1].LCIN" />
-  <direct name="LCC1"  input="BLK_IG-PLB_CELL[1].LCOUT" output="BLK_IG-PLB_CELL[2].LCIN" />
-  <direct name="LCC2"  input="BLK_IG-PLB_CELL[2].LCOUT" output="BLK_IG-PLB_CELL[3].LCIN" />
-  <direct name="LCC3"  input="BLK_IG-PLB_CELL[3].LCOUT" output="BLK_IG-PLB_CELL[4].LCIN" />
-  <direct name="LCC4"  input="BLK_IG-PLB_CELL[4].LCOUT" output="BLK_IG-PLB_CELL[5].LCIN" />
-  <direct name="LCC5"  input="BLK_IG-PLB_CELL[5].LCOUT" output="BLK_IG-PLB_CELL[6].LCIN" />
-  <direct name="LCC6"  input="BLK_IG-PLB_CELL[6].LCOUT" output="BLK_IG-PLB_CELL[7].LCIN" />
+  <direct name="LCCI0" input="BLK_IG-PLB_CELL[0].LCOUT" output="BLK_IG-LC0.I" />
+  <direct name="LCCI1" input="BLK_IG-PLB_CELL[1].LCOUT" output="BLK_IG-LC1.I" />
+  <direct name="LCCI2" input="BLK_IG-PLB_CELL[2].LCOUT" output="BLK_IG-LC2.I" />
+  <direct name="LCCI3" input="BLK_IG-PLB_CELL[3].LCOUT" output="BLK_IG-LC3.I" />
+  <direct name="LCCI4" input="BLK_IG-PLB_CELL[4].LCOUT" output="BLK_IG-LC4.I" />
+  <direct name="LCCI5" input="BLK_IG-PLB_CELL[5].LCOUT" output="BLK_IG-LC5.I" />
+  <direct name="LCCI6" input="BLK_IG-PLB_CELL[6].LCOUT" output="BLK_IG-LC6.I" />
+  <direct name="LCCO0" input="BLK_IG-LC0.O"             output="BLK_IG-PLB_CELL[1].LCIN" />
+  <direct name="LCCO1" input="BLK_IG-LC1.O"             output="BLK_IG-PLB_CELL[2].LCIN" />
+  <direct name="LCCO2" input="BLK_IG-LC2.O"             output="BLK_IG-PLB_CELL[3].LCIN" />
+  <direct name="LCCO3" input="BLK_IG-LC3.O"             output="BLK_IG-PLB_CELL[4].LCIN" />
+  <direct name="LCCO4" input="BLK_IG-LC4.O"             output="BLK_IG-PLB_CELL[5].LCIN" />
+  <direct name="LCCO5" input="BLK_IG-LC5.O"             output="BLK_IG-PLB_CELL[6].LCIN" />
+  <direct name="LCCO6" input="BLK_IG-LC6.O"             output="BLK_IG-PLB_CELL[7].LCIN" />
   <!--
   <direct name="LCOUT" input="BLK_IG-PLB_CELL[7].LCOUT" output="BLK_IG-PLB_LOCAL.LCOUT"  />
     -->
