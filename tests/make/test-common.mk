@@ -133,7 +133,7 @@ OUT_EBLIF=$(OUT_LOCAL)/$(SOURCE).eblif
 # We have a Verilog file and use a Yosys command to convert it
 ifneq ($(SOURCE_V),)
 $(OUT_EBLIF): $(SOURCE_F) | $(OUT_LOCAL)
-	$(YOSYS) -p "$(YOSYS_SCRIPT) opt_clean; write_blif -attr -cname -conn -param $@" $<
+	$(YOSYS) -p "$(YOSYS_SCRIPT) opt_clean; write_blif -attr -cname -param $@" $<
 
 EQUIV_READ = read_verilog $(SOURCE_F)
 
@@ -277,10 +277,15 @@ $(OUT_BITSTREAM): $(OUT_HLC)
 
 # Convert bitstream back to Verilog
 #-------------------------------------------------------------------------
-OUT_BIT_VERILOG=$(OUT_LOCAL)/$(SOURCE)_bitstream.v
+OUT_BIT_VERILOG=$(OUT_LOCAL)/$(SOURCE)_bit.v
 $(OUT_BIT_VERILOG): $(OUT_BITSTREAM)
 	$(BIT_TO_V_CMD)
 .PRECIOUS: $(OUT_BIT_VERILOG)
+
+OUT_TIME_VERILOG=$(OUT_LOCAL)/$(SOURCE)_time.v
+$(OUT_TIME_VERILOG): $(OUT_BITSTREAM)
+	$(BIT_TIME_CMD)
+.PRECIOUS: $(OUT_TIME_VERILOG)
 
 # Equivalence check
 check: $(OUT_BIT_VERILOG)
@@ -332,18 +337,18 @@ sim-post-v.view: $(OUT_LOCAL)/sim.top_post_synthesis_v.fixed.vcd
 
 
 ifneq ($(TB),)
-$(OUT_LOCAL)/$(TB)_bitstream: $(TB_F) $(OUT_BIT_VERILOG) | $(OUT_LOCAL)
+$(OUT_LOCAL)/$(TB)_bit: $(TB_F) $(OUT_BIT_VERILOG) | $(OUT_LOCAL)
 	iverilog -o $@ $^
 
-$(OUT_LOCAL)/$(TB)_bitstream.vcd: $(OUT_LOCAL)/$(TB)_bitstream | $(OUT_LOCAL)
+$(OUT_LOCAL)/$(TB)_bit.vcd: $(OUT_LOCAL)/$(TB)_bit | $(OUT_LOCAL)
 	vvp -N $< +vcd=$@
 
-.PRECIOUS: $(OUT_LOCAL)/$(TB)_bitstream.vcd
+.PRECIOUS: $(OUT_LOCAL)/$(TB)_bit.vcd
 
-testbinch: $(OUT_LOCAL)/$(TB)_bitstream.vcd
+testbinch: $(OUT_LOCAL)/$(TB)_bit.vcd
 	@true
 
-testbinch.view: $(OUT_LOCAL)/$(TB)_bitstream.fixed.vcd
+testbinch.view: $(OUT_LOCAL)/$(TB)_bit.fixed.vcd
 	gtkwave $^
 
 .PHONY: testbench
@@ -371,6 +376,10 @@ analysis:
 bit:
 	make $(OUT_BITSTREAM)
 .PHONY: bit
+
+time:
+	make $(OUT_TIME_VERILOG)
+.PHONY: time
 
 bit_v:
 	make $(OUT_BIT_VERILOG)
