@@ -297,11 +297,8 @@ $(OUT_TIME_VERILOG): $(OUT_BITSTREAM)
 
 # Equivalence check
 check: $(OUT_BIT_VERILOG)
-	$(YOSYS) -p "$(EQUIV_CHECK_SCRIPT)" $<
+	$(YOSYS) -p "$(EQUIV_CHECK_SCRIPT)" $(TOP_DIR)/env/conda/share/yosys/$(CELLS_SIM) $<
 .PHONY: check
-
-$(OUT_LOCAL)/%.fixed.vcd: $(OUT_LOCAL)/%.vcd
-	cat $< | sed -e's/:/_/g' > $@
 
 check-orig-blif: route.echo
 	cat $(OUT_LOCAL)/atom_netlist.orig.echo.blif | sed '/.end/q' > $(OUT_LOCAL)/atom_netlist.orig.echo.yosys.blif
@@ -317,6 +314,25 @@ check-post-blif: analysis.echo
 	$(YOSYS) -p "$(EQUIV_CHECK_SCRIPT)" $(TOP_DIR)/env/conda/share/yosys/$(CELLS_SIM) $(OUT_LOCAL)/top_post_synthesis.blif
 .PHONY: check-post-blif
 
+check-post-v: analysis.echo
+	$(YOSYS) -p "$(EQUIV_CHECK_SCRIPT)" $(TOP_DIR)/env/conda/share/yosys/$(CELLS_SIM) $(TOP_DIR)/vpr/primitives.v $(OUT_LOCAL)/top_post_synthesis.v
+.PHONY: check-post-v
+
+# Simulation
+$(OUT_LOCAL)/%.fixed.vcd: $(OUT_LOCAL)/%.vcd
+	cat $< | sed -e's/:/_/g' > $@
+
+$(OUT_LOCAL)/sim.bit.vcd: $(OUT_LOCAL)/$(SOURCE)_bit.v
+	$(YOSYS) -p "proc; check; sim -clock clk -n 1000 -vcd $(OUT_LOCAL)/sim.bit.vcd -zinit top" $(TOP_DIR)/env/conda/share/yosys/$(CELLS_SIM) $(TOP_DIR)/vpr/primitives.v $(OUT_LOCAL)/$(SOURCE)_bit.v
+
+sim-bit: $(OUT_LOCAL)/sim.bit.vcd
+	@true
+.PHONY: sim-bit
+
+sim-bit.view: $(OUT_LOCAL)/sim.bit.fixed.vcd
+	gtkwave $<
+.PHONY: sim-bit.view
+
 $(OUT_LOCAL)/sim.top_post_synthesis_blif.vcd: $(OUT_LOCAL)/top_post_synthesis.blif
 	$(YOSYS) -p "prep -top top; sim -clock clk -n 1000 -vcd $(OUT_LOCAL)/sim.top_post_synthesis_blif.vcd -zinit top" $(TOP_DIR)/env/conda/share/yosys/$(CELLS_SIM) $(OUT_LOCAL)/top_post_synthesis.blif
 
@@ -327,10 +343,6 @@ sim-post-blif: $(OUT_LOCAL)/sim.top_post_synthesis_blif.vcd
 sim-post-blif.view: $(OUT_LOCAL)/sim.top_post_synthesis_blif.fixed.vcd
 	gtkwave $<
 .PHONY: sim-post-blif.view
-
-check-post-v: analysis.echo
-	$(YOSYS) -p "$(EQUIV_CHECK_SCRIPT)" $(TOP_DIR)/env/conda/share/yosys/$(CELLS_SIM) $(TOP_DIR)/vpr/primitives.v $(OUT_LOCAL)/top_post_synthesis.v
-.PHONY: check-post-v
 
 $(OUT_LOCAL)/sim.top_post_synthesis_v.vcd: $(OUT_LOCAL)/top_post_synthesis.v
 	$(YOSYS) -p "prep -top top; sim -clock clk -n 1000 -vcd $(OUT_LOCAL)/sim.top_post_synthesis_v.vcd -zinit top" $(TOP_DIR)/env/conda/share/yosys/$(CELLS_SIM) $(TOP_DIR)/vpr/primitives.v $(OUT_LOCAL)/top_post_synthesis.v
@@ -412,7 +424,7 @@ $(SUBDIRS):
 
 ##########################################################################
 
-check-all: check $(SUBDIRS)
+check-all: clean check $(SUBDIRS)
 	@true
 
 all: clean route
