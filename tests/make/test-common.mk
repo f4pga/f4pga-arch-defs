@@ -115,6 +115,14 @@ $(info SOURCE = $(SOURCE))
 
 SOURCE_F = $(abspath $(SOURCE_V)$(SOURCE_E))
 
+SOURCES = $(SOURCE_E) $(SOURCE_V)
+
+ifneq ($(words $(SOURCES)),1)
+ifeq ($(words $(SOURCES)),0)
+$(error "No sources found!")
+endif
+$(error "Multiple sources found! $(SOURCES)")
+endif
 
 TEST_DIR = $(dir $(realpath $(firstword $(MAKEFILE_LIST))))
 OUT_LOCAL = $(TEST_DIR)/build-$(FQDN)
