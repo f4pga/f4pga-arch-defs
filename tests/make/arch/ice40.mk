@@ -7,6 +7,7 @@ PACKAGE				?= vq100
 BS_EXTENSION  ?= asc #.bin later
 #YOSYS_SCRIPT  ?= synth_ice40 -nodffe -nocarry; ice40_opt -unlut; abc -lut 4;
 YOSYS_SCRIPT  ?= synth_ice40 -nocarry; ice40_opt -unlut; abc -lut 4;
+#YOSYS_SCRIPT  ?= synth_ice40 -nocarry;
 #RR_PATCH_TOOL ?= $(TOP_DIR)/ice40/utils/ice40_generate_routing.py
 RR_PATCH_TOOL ?= $(TOP_DIR)/ice40/utils/ice40_import_routing_from_icebox.py
 RR_PATCH_CMD  ?= $(RR_PATCH_TOOL) \
@@ -23,14 +24,19 @@ HLC_TO_BIT ?= icebox_hlc2asc
 BIT_TO_HLC ?= icebox_asc2hlc
 BIT_TO_V ?= icebox_vlog
 endif
+BIT_TIME ?= icetime
+
+ICE_DEVICE := $(shell echo $(DEVICE) | sed -e's/^..//' -e's/K/k/')
+ICE_DEVICE2 := $(shell echo $(DEVICE) | tr A-Z a-z)
 
 HLC_TO_BIT_CMD = $(HLC_TO_BIT) $(OUT_HLC) > $(OUT_BITSTREAM) || rm $(OUT_BITSTREAM)
 INPUT_PCF_FILE = $(TEST_DIR)/$(SOURCE).pcf
 BIT_TO_V_CMD = $(BIT_TO_V) -c -n top -p $(INPUT_PCF_FILE) -d $(PACKAGE) $(OUT_BITSTREAM) > $(OUT_BIT_VERILOG) || rm $(OUT_BIT_VERILOG)
+
+BIT_TIME_CMD = $(BIT_TIME) -v -t -p $(INPUT_PCF_FILE) -d $(ICE_DEVICE2) $(OUT_BITSTREAM) -o $(OUT_TIME_VERILOG)
+
 CELLS_SIM = ice40/cells_sim.v
 EQUIV_CHECK_SCRIPT = rename top gate; $(EQUIV_READ); rename top gold; hierarchy; proc; miter -equiv -flatten -ignore_gold_x -make_outputs -make_outcmp gold gate miter; sat -dump_vcd $(OUT_LOCAL)/out.vcd -verify-no-timeout -timeout 20 -seq 1000 -prove trigger 0 -prove-skip 1 -show-inputs -show-outputs miter
-
-ICE_DEVICE:=$(shell echo $(DEVICE) | sed -e's/^..//' -e's/K/k/')
 
 OUT_BLIF=$(OUT_LOCAL)/$(SOURCE).blif
 
