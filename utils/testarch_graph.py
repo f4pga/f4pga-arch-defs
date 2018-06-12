@@ -74,7 +74,7 @@ def connect_blocks_to_tracks(g, grid_sz, rcw, switch, verbose=False):
     def connect_block_to_track(block, tracks):
         """Connect all block pins to given track"""
         assert type(block) is graph.Block, type(block)
-        for pin in block.pins():
+        for pin in block.pins:
             pin_node_xml = g.routing.localnames[(block.position, pin.name)]
             pin_side = graph.RoutingNodeSide[graph.single_element(
                 pin_node_xml, 'loc').get('side')]
