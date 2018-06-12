@@ -14,6 +14,11 @@ RR_PATCH_CMD  ?= $(RR_PATCH_TOOL) \
 	--device=$(DEVICE) \
 	--read_rr_graph $(OUT_RRXML_VIRT) \
 	--write_rr_graph $(OUT_RRXML_REAL)
+PLACE_TOOL    ?= $(TOP_DIR)/ice40/utils/ice40_create_ioplace.py
+PLACE_TOOL_CMD ?= $(PLACE_TOOL) \
+	--map $(TOP_DIR)/ice40/devices/layouts/generated/$(ICE_DEVICE).$(PACKAGE).pinmap.csv \
+	--blif $(OUT_EBLIF) \
+	--pcf $(SOURCE).$(PIN_EXT)
 
 ifneq ($(ICEBOX),)
 HLC_TO_BIT ?= $(ICEBOX)/icebox_hlc2asc.py
@@ -30,6 +35,8 @@ BIT_TIME ?= icetime
 
 ICE_DEVICE := $(shell echo $(DEVICE) | sed -e's/^..//' -e's/K/k/')
 ICE_DEVICE2 := $(shell echo $(DEVICE) | tr A-Z a-z)
+
+PIN_EXT = pcf
 
 HLC_TO_BIT_CMD = $(HLC_TO_BIT) $(OUT_HLC) > $(OUT_BITSTREAM) || rm $(OUT_BITSTREAM)
 INPUT_PCF_FILE = $(TEST_DIR)/$(SOURCE).pcf

@@ -220,6 +220,11 @@ ifneq ($(wildcard io.place),)
 VPR_CMD += --fix_pins $(TEST_DIR)/io.place
 endif
 
+OUT_IO=$(OUT_LOCAL)/io.place
+$(OUT_IO): $(OUT_EBLIF) $(SOURCE).$(PIN_EXT)
+	$(PLACE_TOOL_CMD) --out $(OUT_IO)
+$(info OUT_IO=$(OUT_IO))
+
 VPR_ARGS_FILE=$(OUT_LOCAL)/vpr.args
 $(VPR_ARGS_FILE): always-run | $(OUT_LOCAL)
 	@echo -- "$(VPR_CMD)" > $(VPR_ARGS_FILE).new
