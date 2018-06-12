@@ -2,8 +2,9 @@
 
 DEVICE_DIR     = $(TOP_DIR)/ice40/devices
 DEVICE_TYPE   ?= top-routing-virt
-DEVICE        ?= HX1K
+DEVICE        ?= hx1k
 PACKAGE	      ?= vq100
+DEVICE_FULL   = $(DEVICE)-$(PACKAGE)
 BS_EXTENSION  ?= asc #.bin later
 #YOSYS_SCRIPT  ?= synth_ice40 -nodffe -nocarry; ice40_opt -unlut; abc -lut 4;
 YOSYS_SCRIPT  ?= synth_ice40 -nocarry; ice40_opt -unlut; abc -lut 4; opt_clean; write_blif -attr -cname -param $@
@@ -14,6 +15,11 @@ RR_PATCH_CMD  ?= $(RR_PATCH_TOOL) \
 	--device=$(DEVICE) \
 	--read_rr_graph $(OUT_RRXML_VIRT) \
 	--write_rr_graph $(OUT_RRXML_REAL)
+PLACE_TOOL    ?= $(TOP_DIR)/ice40/utils/ice40_create_ioplace.py
+PLACE_TOOL_CMD ?= $(PLACE_TOOL) \
+	--map $(TOP_DIR)/ice40/devices/layouts/icebox/$(ICE_DEVICE).$(PACKAGE).pinmap.csv \
+	--blif $(OUT_EBLIF) \
+	--pcf $(SOURCE).$(PIN_EXT)
 
 ifneq ($(ICEBOX),)
 HLC_TO_BIT ?= $(ICEBOX)/icebox_hlc2asc.py
@@ -28,14 +34,15 @@ PROG_CMD ?= iceprog
 endif
 BIT_TIME ?= icetime
 
-ICE_DEVICE := $(shell echo $(DEVICE) | sed -e's/^..//' -e's/K/k/')
-ICE_DEVICE2 := $(shell echo $(DEVICE) | tr A-Z a-z)
+ICE_DEVICE := $(shell echo $(DEVICE) | sed -e's/^..//')
+
+PIN_EXT = pcf
 
 HLC_TO_BIT_CMD = $(HLC_TO_BIT) $(OUT_HLC) > $(OUT_BITSTREAM) || rm $(OUT_BITSTREAM)
 INPUT_PCF_FILE = $(TEST_DIR)/$(SOURCE).pcf
 BIT_TO_V_CMD = $(BIT_TO_V) -D -c -n top -p $(INPUT_PCF_FILE) -d $(PACKAGE) $(OUT_BITSTREAM) > $(OUT_BIT_VERILOG) || rm $(OUT_BIT_VERILOG)
 
-BIT_TIME_CMD = $(BIT_TIME) -v -t -p $(INPUT_PCF_FILE) -d $(ICE_DEVICE2) $(OUT_BITSTREAM) -o $(OUT_TIME_VERILOG)
+BIT_TIME_CMD = $(BIT_TIME) -v -t -p $(INPUT_PCF_FILE) -d $(DEVICE) $(OUT_BITSTREAM) -o $(OUT_TIME_VERILOG)
 
 CELLS_SIM = ice40/cells_sim.v
 EQUIV_CHECK_SCRIPT = rename top gate; $(EQUIV_READ); rename top gold; hierarchy; proc; miter -equiv -flatten -ignore_gold_x -make_outputs -make_outcmp gold gate miter; sat -dump_vcd $(OUT_LOCAL)/out.vcd -verify-no-timeout -timeout 20 -seq 1000 -prove trigger 0 -prove-skip 1 -show-inputs -show-outputs miter
@@ -59,7 +66,7 @@ arachne-pnr: | $(OUT_LOCAL)
 	$(BIT_TO_V) -c -n top -p $(INPUT_PCF_FILE) -d $(PACKAGE) $(OUT_LOCAL)/arachne.asc > $(OUT_LOCAL)/arachne_bitstream.v
 	$(BIT_TO_V) -c -n top -p $(INPUT_PCF_FILE) -d $(PACKAGE) $(OUT_LOCAL)/arachne_from_hlc.asc > $(OUT_LOCAL)/arachne_bitstream_hlc.v
 	#$(YOSYS) -p "rename top gate; $(EQUIV_READ); rename top gold; hierarchy; proc; miter -equiv -flatten -ignore_gold_x -make_outputs -make_outcmp gold gate miter; sat -dump_vcd $(OUT_LOCAL)/arachne-out.vcd -verify-no-timeout -timeout 20 -seq 1000 -prove trigger 0 -prove-skip 1 -show-inputs -show-outputs miter" $(OUT_LOCAL)/arachne_bitstream_hlc.v
-	$(BIT_TIME) -v -t -p $(INPUT_PCF_FILE) -d $(ICE_DEVICE2) $(OUT_LOCAL)/arachne.asc -o $(OUT_LOCAL)/arache_time.v
+	$(BIT_TIME) -v -t -p $(INPUT_PCF_FILE) -d $(DEVICE) $(OUT_LOCAL)/arachne.asc -o $(OUT_LOCAL)/arache_time.v
 
 arachne-prog: | $(OUT_LOCAL)
 	icepack $(OUT_LOCAL)/arachne.asc > $(OUT_LOCAL)/arachne.bin
