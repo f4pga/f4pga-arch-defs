@@ -1,5 +1,5 @@
-COMMON_MK_DIR  := $(realpath $(dir $(lastword $(MAKEFILE_LIST))))
-TOP_DIR   := $(realpath $(COMMON_MK_DIR)/../..)
+TESTS_MK_DIR  := $(realpath $(dir $(lastword $(MAKEFILE_LIST))))
+TOP_DIR   := $(realpath $(TESTS_MK_DIR)/..)
 
 include $(TOP_DIR)/make/inc/common.mk
 include $(TOP_DIR)/make/inc/func.mk
@@ -8,7 +8,7 @@ VPR   ?= vpr
 YOSYS ?= yosys
 
 ifneq (,$(ARCH))
-include $(TOP_DIR)/tests/make/arch/$(ARCH).mk
+include $(TOP_DIR)/make/arch/$(ARCH).mk
 else
 $(error "Please set which $$ARCH you are using.")
 endif

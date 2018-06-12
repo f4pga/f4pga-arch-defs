@@ -1,1 +1,1 @@
-include ../../make/test-common.mk
+include ../../../make/tests.mk
