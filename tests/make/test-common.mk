@@ -141,7 +141,7 @@ OUT_EBLIF=$(OUT_LOCAL)/$(SOURCE).eblif
 # We have a Verilog file and use a Yosys command to convert it
 ifneq ($(SOURCE_V),)
 $(OUT_EBLIF): $(SOURCE_F) | $(OUT_LOCAL)
-	$(YOSYS) -p "$(YOSYS_SCRIPT) opt_clean; write_blif -attr -cname -param $@" $<
+	$(YOSYS) -p "$(YOSYS_SCRIPT)" $<
 
 EQUIV_READ = read_verilog $(SOURCE_F)
 
