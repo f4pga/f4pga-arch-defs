@@ -1,0 +1,5 @@
+set_io cen 59
+set_io rst 56
+set_io ina 53
+set_io inb 51
+set_io clk 13
