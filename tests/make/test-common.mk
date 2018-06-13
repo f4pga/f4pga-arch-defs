@@ -283,6 +283,19 @@ $(OUT_BITSTREAM): $(OUT_HLC)
 	$(HLC_TO_BIT_CMD)
 .PRECIOUS: $(OUT_BITSTREAM)
 
+OUT_BIN=$(OUT_LOCAL)/$(SOURCE).bin
+$(OUT_BIN): $(OUT_BITSTREAM)
+	icepack $< > $@
+.PRECIOUS: $(OUT_BIN)
+
+bin: $(OUT_BIN)
+	@true
+.PHONY: bin
+
+prog: $(OUT_BIN)
+	$(PROG_CMD) $<
+.PHONY: prog
+
 # Convert bitstream back to Verilog
 #-------------------------------------------------------------------------
 OUT_BIT_VERILOG=$(OUT_LOCAL)/$(SOURCE)_bit.v

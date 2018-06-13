@@ -3,7 +3,7 @@
 DEVICE_DIR     = $(TOP_DIR)/ice40/devices
 DEVICE_TYPE   ?= top-routing-virt
 DEVICE        ?= HX1K
-PACKAGE				?= vq100
+PACKAGE	      ?= vq100
 BS_EXTENSION  ?= asc #.bin later
 #YOSYS_SCRIPT  ?= synth_ice40 -nodffe -nocarry; ice40_opt -unlut; abc -lut 4;
 YOSYS_SCRIPT  ?= synth_ice40 -nocarry; ice40_opt -unlut; abc -lut 4; opt_clean; write_blif -attr -cname -param $@
@@ -19,10 +19,12 @@ ifneq ($(ICEBOX),)
 HLC_TO_BIT ?= $(ICEBOX)/icebox_hlc2asc.py
 BIT_TO_HLC ?= $(ICEBOX)/icebox_asc2hlc.py
 BIT_TO_V ?= $(ICEBOX)/icebox_vlog.py
+PROG_CMD ?= $(ICEBOX)/../iceprog/iceprog
 else
 HLC_TO_BIT ?= icebox_hlc2asc
 BIT_TO_HLC ?= icebox_asc2hlc
 BIT_TO_V ?= icebox_vlog
+PROG_CMD ?= iceprog
 endif
 BIT_TIME ?= icetime
 
@@ -56,7 +58,17 @@ arachne-pnr: | $(OUT_LOCAL)
 	$(HLC_TO_BIT) $(OUT_LOCAL)/arachne.hlc > $(OUT_LOCAL)/arachne_from_hlc.asc
 	$(BIT_TO_V) -c -n top -p $(INPUT_PCF_FILE) -d $(PACKAGE) $(OUT_LOCAL)/arachne.asc > $(OUT_LOCAL)/arachne_bitstream.v
 	$(BIT_TO_V) -c -n top -p $(INPUT_PCF_FILE) -d $(PACKAGE) $(OUT_LOCAL)/arachne_from_hlc.asc > $(OUT_LOCAL)/arachne_bitstream_hlc.v
-	$(YOSYS) -p "rename top gate; $(EQUIV_READ); rename top gold; hierarchy; proc; miter -equiv -flatten -ignore_gold_x -make_outputs -make_outcmp gold gate miter; sat -dump_vcd $(OUT_LOCAL)/arachne-out.vcd -verify-no-timeout -timeout 20 -seq 1000 -prove trigger 0 -prove-skip 1 -show-inputs -show-outputs miter" $(OUT_LOCAL)/arachne_bitstream_hlc.v
+	#$(YOSYS) -p "rename top gate; $(EQUIV_READ); rename top gold; hierarchy; proc; miter -equiv -flatten -ignore_gold_x -make_outputs -make_outcmp gold gate miter; sat -dump_vcd $(OUT_LOCAL)/arachne-out.vcd -verify-no-timeout -timeout 20 -seq 1000 -prove trigger 0 -prove-skip 1 -show-inputs -show-outputs miter" $(OUT_LOCAL)/arachne_bitstream_hlc.v
+	$(BIT_TIME) -v -t -p $(INPUT_PCF_FILE) -d $(ICE_DEVICE2) $(OUT_LOCAL)/arachne.asc -o $(OUT_LOCAL)/arache_time.v
+
+arachne-prog: | $(OUT_LOCAL)
+	icepack $(OUT_LOCAL)/arachne.asc > $(OUT_LOCAL)/arachne.bin
+	$(PROG_CMD) $(OUT_LOCAL)/arachne.bin
+
+sort:
+	$(ICEBOX)/icebox_hlcsort.py $(OUT_LOCAL)/arachne.hlc > $(OUT_LOCAL)/arachne.sorted.hlc
+	$(BIT_TO_HLC) $(OUT_LOCAL)/$(SOURCE).asc > $(OUT_LOCAL)/$(SOURCE).hlc
+	$(ICEBOX)/icebox_hlcsort.py $(OUT_LOCAL)/$(SOURCE).hlc > $(OUT_LOCAL)/$(SOURCE).sorted.hlc
 
 
 .PHONY: arachne-pnr
