@@ -7,7 +7,8 @@
  <output name="LCOUT" num_pins="1" equivalent="false"/>
 
  <!-- FF -->
- <clock  name="CLK"   num_pins="1" equivalent="false"/>
+ <clock  name="PCLK"  num_pins="1" equivalent="false"/>
+ <clock  name="NCLK"  num_pins="1" equivalent="false"/>
  <input  name="EN"    num_pins="1" equivalent="false"/>
  <input  name="SR"    num_pins="1" equivalent="false"/>
  <output name="O"     num_pins="1" equivalent="false"/>
@@ -52,11 +53,12 @@
   <direct name="LCOUT"    input="BEL_LT-LUT.out"                               output="BLK_IG-PLB_CELL.LCOUT" />
 
   <!-- LUT -->
-  <direct name="FF.C[0]"  input="BLK_IG-PLB_CELL.CLK" output="BEL_FF-SB_FF.C" />
-  <direct name="FF.E[0]"  input="BLK_IG-PLB_CELL.EN"  output="BEL_FF-SB_FF.E" />
-  <direct name="FF.R[0]"  input="BLK_IG-PLB_CELL.SR"  output="BEL_FF-SB_FF.R" />
-  <direct name="FF.S[0]"  input="BLK_IG-PLB_CELL.SR"  output="BEL_FF-SB_FF.S" />
-  <direct name="FF.D[0]"  input="BEL_LT-LUT.out"      output="BEL_FF-SB_FF.D"  >
+  <direct name="FF.C[0]"  input="BLK_IG-PLB_CELL.PCLK" output="BEL_FF-SB_FF.C" />
+  <direct name="FF.N[0]"  input="BLK_IG-PLB_CELL.NCLK" output="BEL_FF-SB_FF.N" />
+  <direct name="FF.E[0]"  input="BLK_IG-PLB_CELL.EN"   output="BEL_FF-SB_FF.E" />
+  <direct name="FF.R[0]"  input="BLK_IG-PLB_CELL.SR"   output="BEL_FF-SB_FF.R" />
+  <direct name="FF.S[0]"  input="BLK_IG-PLB_CELL.SR"   output="BEL_FF-SB_FF.S" />
+  <direct name="FF.D[0]"  input="BEL_LT-LUT.out"       output="BEL_FF-SB_FF.D"  >
    <pack_pattern name="LUT+FF" in_port="BEL_LT-LUT.out" out_port="BEL_FF-SB_FF.D" />
   </direct>
 

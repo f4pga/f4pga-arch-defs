@@ -117,13 +117,54 @@
   </metadata>
  </pb_type>
 
+ <pb_type name="BLK_IG-CLKINV" num_pb="1">
+  <clock  name="ICLK"  num_pins="1"/>
+  <output name="PCLK"  num_pins="1"/>
+  <output name="NCLK"  num_pins="1"/>
+  <mode name="POS_CLK">
+   <pb_type name="BLK_IG-CLKPOS" num_pb="1">
+    <clock  name="I" num_pins="1"/>
+    <output name="O" num_pins="1"/>
+    <interconnect>
+     <direct name="_" input="BLK_IG-CLKPOS.I" output="BLK_IG-CLKPOS.O" />
+    </interconnect>
+    <metadata>
+     <meta name="hlc_property"># Positive Clk</meta>
+    </metadata>
+   </pb_type>
+   <interconnect>
+    <direct name="I" input="BLK_IG-CLKINV.ICLK" output="BLK_IG-CLKPOS.I" />
+    <direct name="O" input="BLK_IG-CLKPOS.O" output="BLK_IG-CLKINV.PCLK" />
+   </interconnect>
+  </mode>
+  <mode name="NEG_CLK">
+   <pb_type name="BLK_IG-CLKNEG" num_pb="1">
+    <clock  name="I" num_pins="1"/>
+    <output name="O" num_pins="1"/>
+    <interconnect>
+     <direct name="_" input="BLK_IG-CLKNEG.I" output="BLK_IG-CLKNEG.O" />
+    </interconnect>
+    <metadata>
+     <meta name="hlc_property">NegClk</meta>
+    </metadata>
+   </pb_type>
+   <interconnect>
+    <direct name="I" input="BLK_IG-CLKINV.ICLK" output="BLK_IG-CLKNEG.I" />
+    <direct name="O" input="BLK_IG-CLKNEG.O" output="BLK_IG-CLKINV.NCLK" />
+   </interconnect>
+  </mode>
+ </pb_type>
+
  <interconnect>
+  <direct name="CLK"   input="BLK_IG-PLB_LOCAL.CLK"   output="BLK_IG-CLKINV.ICLK"      />
+
   <!-- Cell 0 -->
   <direct name="I0[0]" input="BLK_IG-PLB_LOCAL.I0[0]" output="BLK_IG-PLB_CELL[0].I[0]" />
   <direct name="I0[1]" input="BLK_IG-PLB_LOCAL.I0[1]" output="BLK_IG-PLB_CELL[0].I[1]" />
   <direct name="I0[2]" input="BLK_IG-PLB_LOCAL.I0[2]" output="BLK_IG-PLB_CELL[0].I[2]" />
   <direct name="I0[3]" input="BLK_IG-PLB_LOCAL.I0[3]" output="BLK_IG-PLB_CELL[0].I[3]" />
-  <direct name="C0"    input="BLK_IG-PLB_LOCAL.CLK"   output="BLK_IG-PLB_CELL[0].CLK"  />
+  <direct name="PC0"   input="BLK_IG-CLKINV.PCLK"     output="BLK_IG-PLB_CELL[0].PCLK" />
+  <direct name="NC0"   input="BLK_IG-CLKINV.NCLK"     output="BLK_IG-PLB_CELL[0].NCLK" />
   <direct name="E0"    input="BLK_IG-PLB_LOCAL.EN"    output="BLK_IG-PLB_CELL[0].EN"   />
   <direct name="S0"    input="BLK_IG-PLB_LOCAL.SR"    output="BLK_IG-PLB_CELL[0].SR"   />
   <direct name="O0"    input="BLK_IG-PLB_CELL[0].O"   output="BLK_IG-PLB_LOCAL.O0"     />
@@ -133,7 +174,8 @@
   <direct name="I1[1]" input="BLK_IG-PLB_LOCAL.I1[1]" output="BLK_IG-PLB_CELL[1].I[1]" />
   <direct name="I1[2]" input="BLK_IG-PLB_LOCAL.I1[2]" output="BLK_IG-PLB_CELL[1].I[2]" />
   <direct name="I1[3]" input="BLK_IG-PLB_LOCAL.I1[3]" output="BLK_IG-PLB_CELL[1].I[3]" />
-  <direct name="C1"    input="BLK_IG-PLB_LOCAL.CLK"   output="BLK_IG-PLB_CELL[1].CLK"  />
+  <direct name="PC1"   input="BLK_IG-CLKINV.PCLK"     output="BLK_IG-PLB_CELL[1].PCLK" />
+  <direct name="NC1"   input="BLK_IG-CLKINV.NCLK"     output="BLK_IG-PLB_CELL[1].NCLK" />
   <direct name="E1"    input="BLK_IG-PLB_LOCAL.EN"    output="BLK_IG-PLB_CELL[1].EN"   />
   <direct name="S1"    input="BLK_IG-PLB_LOCAL.SR"    output="BLK_IG-PLB_CELL[1].SR"   />
   <direct name="O1"    input="BLK_IG-PLB_CELL[1].O"   output="BLK_IG-PLB_LOCAL.O1"     />
@@ -143,7 +185,8 @@
   <direct name="I2[1]" input="BLK_IG-PLB_LOCAL.I2[1]" output="BLK_IG-PLB_CELL[2].I[1]" />
   <direct name="I2[2]" input="BLK_IG-PLB_LOCAL.I2[2]" output="BLK_IG-PLB_CELL[2].I[2]" />
   <direct name="I2[3]" input="BLK_IG-PLB_LOCAL.I2[3]" output="BLK_IG-PLB_CELL[2].I[3]" />
-  <direct name="C2"    input="BLK_IG-PLB_LOCAL.CLK"   output="BLK_IG-PLB_CELL[2].CLK"  />
+  <direct name="PC2"   input="BLK_IG-CLKINV.PCLK"     output="BLK_IG-PLB_CELL[2].PCLK" />
+  <direct name="NC2"   input="BLK_IG-CLKINV.NCLK"     output="BLK_IG-PLB_CELL[2].NCLK" />
   <direct name="E2"    input="BLK_IG-PLB_LOCAL.EN"    output="BLK_IG-PLB_CELL[2].EN"   />
   <direct name="S2"    input="BLK_IG-PLB_LOCAL.SR"    output="BLK_IG-PLB_CELL[2].SR"   />
   <direct name="O2"    input="BLK_IG-PLB_CELL[2].O"   output="BLK_IG-PLB_LOCAL.O2"     />
@@ -153,7 +196,8 @@
   <direct name="I3[1]" input="BLK_IG-PLB_LOCAL.I3[1]" output="BLK_IG-PLB_CELL[3].I[1]" />
   <direct name="I3[2]" input="BLK_IG-PLB_LOCAL.I3[2]" output="BLK_IG-PLB_CELL[3].I[2]" />
   <direct name="I3[3]" input="BLK_IG-PLB_LOCAL.I3[3]" output="BLK_IG-PLB_CELL[3].I[3]" />
-  <direct name="C3"    input="BLK_IG-PLB_LOCAL.CLK"   output="BLK_IG-PLB_CELL[3].CLK"  />
+  <direct name="PC3"   input="BLK_IG-CLKINV.PCLK"     output="BLK_IG-PLB_CELL[3].PCLK" />
+  <direct name="NC3"   input="BLK_IG-CLKINV.NCLK"     output="BLK_IG-PLB_CELL[3].NCLK" />
   <direct name="E3"    input="BLK_IG-PLB_LOCAL.EN"    output="BLK_IG-PLB_CELL[3].EN"   />
   <direct name="S3"    input="BLK_IG-PLB_LOCAL.SR"    output="BLK_IG-PLB_CELL[3].SR"   />
   <direct name="O3"    input="BLK_IG-PLB_CELL[3].O"   output="BLK_IG-PLB_LOCAL.O3"     />
@@ -163,7 +207,8 @@
   <direct name="I4[1]" input="BLK_IG-PLB_LOCAL.I4[1]" output="BLK_IG-PLB_CELL[4].I[1]" />
   <direct name="I4[2]" input="BLK_IG-PLB_LOCAL.I4[2]" output="BLK_IG-PLB_CELL[4].I[2]" />
   <direct name="I4[3]" input="BLK_IG-PLB_LOCAL.I4[3]" output="BLK_IG-PLB_CELL[4].I[3]" />
-  <direct name="C4"    input="BLK_IG-PLB_LOCAL.CLK"   output="BLK_IG-PLB_CELL[4].CLK"  />
+  <direct name="PC4"   input="BLK_IG-CLKINV.PCLK"     output="BLK_IG-PLB_CELL[4].PCLK" />
+  <direct name="NC4"   input="BLK_IG-CLKINV.NCLK"     output="BLK_IG-PLB_CELL[4].NCLK" />
   <direct name="E4"    input="BLK_IG-PLB_LOCAL.EN"    output="BLK_IG-PLB_CELL[4].EN"   />
   <direct name="S4"    input="BLK_IG-PLB_LOCAL.SR"    output="BLK_IG-PLB_CELL[4].SR"   />
   <direct name="O4"    input="BLK_IG-PLB_CELL[4].O"   output="BLK_IG-PLB_LOCAL.O4"     />
@@ -173,7 +218,8 @@
   <direct name="I5[1]" input="BLK_IG-PLB_LOCAL.I5[1]" output="BLK_IG-PLB_CELL[5].I[1]" />
   <direct name="I5[2]" input="BLK_IG-PLB_LOCAL.I5[2]" output="BLK_IG-PLB_CELL[5].I[2]" />
   <direct name="I5[3]" input="BLK_IG-PLB_LOCAL.I5[3]" output="BLK_IG-PLB_CELL[5].I[3]" />
-  <direct name="C5"    input="BLK_IG-PLB_LOCAL.CLK"   output="BLK_IG-PLB_CELL[5].CLK"  />
+  <direct name="PC5"   input="BLK_IG-CLKINV.PCLK"     output="BLK_IG-PLB_CELL[5].PCLK" />
+  <direct name="NC5"   input="BLK_IG-CLKINV.NCLK"     output="BLK_IG-PLB_CELL[5].NCLK" />
   <direct name="E5"    input="BLK_IG-PLB_LOCAL.EN"    output="BLK_IG-PLB_CELL[5].EN"   />
   <direct name="S5"    input="BLK_IG-PLB_LOCAL.SR"    output="BLK_IG-PLB_CELL[5].SR"   />
   <direct name="O5"    input="BLK_IG-PLB_CELL[5].O"   output="BLK_IG-PLB_LOCAL.O5"     />
@@ -183,7 +229,8 @@
   <direct name="I6[1]" input="BLK_IG-PLB_LOCAL.I6[1]" output="BLK_IG-PLB_CELL[6].I[1]" />
   <direct name="I6[2]" input="BLK_IG-PLB_LOCAL.I6[2]" output="BLK_IG-PLB_CELL[6].I[2]" />
   <direct name="I6[3]" input="BLK_IG-PLB_LOCAL.I6[3]" output="BLK_IG-PLB_CELL[6].I[3]" />
-  <direct name="C6"    input="BLK_IG-PLB_LOCAL.CLK"   output="BLK_IG-PLB_CELL[6].CLK"  />
+  <direct name="PC6"   input="BLK_IG-CLKINV.PCLK"     output="BLK_IG-PLB_CELL[6].PCLK" />
+  <direct name="NC6"   input="BLK_IG-CLKINV.NCLK"     output="BLK_IG-PLB_CELL[6].NCLK" />
   <direct name="E6"    input="BLK_IG-PLB_LOCAL.EN"    output="BLK_IG-PLB_CELL[6].EN"   />
   <direct name="S6"    input="BLK_IG-PLB_LOCAL.SR"    output="BLK_IG-PLB_CELL[6].SR"   />
   <direct name="O6"    input="BLK_IG-PLB_CELL[6].O"   output="BLK_IG-PLB_LOCAL.O6"     />
@@ -193,7 +240,8 @@
   <direct name="I7[1]" input="BLK_IG-PLB_LOCAL.I7[1]" output="BLK_IG-PLB_CELL[7].I[1]" />
   <direct name="I7[2]" input="BLK_IG-PLB_LOCAL.I7[2]" output="BLK_IG-PLB_CELL[7].I[2]" />
   <direct name="I7[3]" input="BLK_IG-PLB_LOCAL.I7[3]" output="BLK_IG-PLB_CELL[7].I[3]" />
-  <direct name="C7"    input="BLK_IG-PLB_LOCAL.CLK"   output="BLK_IG-PLB_CELL[7].CLK"  />
+  <direct name="PC7"   input="BLK_IG-CLKINV.PCLK"     output="BLK_IG-PLB_CELL[7].PCLK" />
+  <direct name="NC7"   input="BLK_IG-CLKINV.NCLK"     output="BLK_IG-PLB_CELL[7].NCLK" />
   <direct name="E7"    input="BLK_IG-PLB_LOCAL.EN"    output="BLK_IG-PLB_CELL[7].EN"   />
   <direct name="S7"    input="BLK_IG-PLB_LOCAL.SR"    output="BLK_IG-PLB_CELL[7].SR"   />
   <direct name="O7"    input="BLK_IG-PLB_CELL[7].O"   output="BLK_IG-PLB_LOCAL.O7"     />
