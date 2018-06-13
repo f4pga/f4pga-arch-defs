@@ -10,7 +10,7 @@ module top (
 );
 
 	localparam BITS = 4;
-	localparam LOG2DELAY = 6;
+	localparam LOG2DELAY = 22;
 
 	reg [BITS+LOG2DELAY-1:0] counter = 0;
 	reg [BITS-1:0] outcnt;
