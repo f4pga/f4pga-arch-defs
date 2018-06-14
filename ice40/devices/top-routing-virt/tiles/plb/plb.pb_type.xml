@@ -36,44 +36,44 @@
  <input  name="FCIN"   num_pins="1" equivalent="false"/>
  <output name="FCOUT"  num_pins="1" equivalent="false"/>
 
- <!-- A BLK_IG-PLB_LOCAL contains the same 'cell' repeated 8 times. -->
- <xi:include href="../../../../cells/plb_local/plb_local.pb_type.xml"/>
+ <!-- A BLK_IG-PLB contains the same 'cell' repeated 8 times. -->
+ <xi:include href="../../../../cells/plb/plb.pb_type.xml"/>
 
  <interconnect>
   <!-- LUT inputs -->
-  <direct name="lutff_0/in"       input="BLK_TL-PLB.lutff_0/in"       output="BLK_IG-PLB_LOCAL.I0"     />
-  <direct name="lutff_1/in"       input="BLK_TL-PLB.lutff_1/in"       output="BLK_IG-PLB_LOCAL.I1"     />
-  <direct name="lutff_2/in"       input="BLK_TL-PLB.lutff_2/in"       output="BLK_IG-PLB_LOCAL.I2"     />
-  <direct name="lutff_3/in"       input="BLK_TL-PLB.lutff_3/in"       output="BLK_IG-PLB_LOCAL.I3"     />
-  <direct name="lutff_4/in"       input="BLK_TL-PLB.lutff_4/in"       output="BLK_IG-PLB_LOCAL.I4"     />
-  <direct name="lutff_5/in"       input="BLK_TL-PLB.lutff_5/in"       output="BLK_IG-PLB_LOCAL.I5"     />
-  <direct name="lutff_6/in"       input="BLK_TL-PLB.lutff_6/in"       output="BLK_IG-PLB_LOCAL.I6"     />
-  <direct name="lutff_7/in"       input="BLK_TL-PLB.lutff_7/in"       output="BLK_IG-PLB_LOCAL.I7"     />
+  <direct name="lutff_0/in"       input="BLK_TL-PLB.lutff_0/in"       output="BLK_IG-PLB.I0"     />
+  <direct name="lutff_1/in"       input="BLK_TL-PLB.lutff_1/in"       output="BLK_IG-PLB.I1"     />
+  <direct name="lutff_2/in"       input="BLK_TL-PLB.lutff_2/in"       output="BLK_IG-PLB.I2"     />
+  <direct name="lutff_3/in"       input="BLK_TL-PLB.lutff_3/in"       output="BLK_IG-PLB.I3"     />
+  <direct name="lutff_4/in"       input="BLK_TL-PLB.lutff_4/in"       output="BLK_IG-PLB.I4"     />
+  <direct name="lutff_5/in"       input="BLK_TL-PLB.lutff_5/in"       output="BLK_IG-PLB.I5"     />
+  <direct name="lutff_6/in"       input="BLK_TL-PLB.lutff_6/in"       output="BLK_IG-PLB.I6"     />
+  <direct name="lutff_7/in"       input="BLK_TL-PLB.lutff_7/in"       output="BLK_IG-PLB.I7"     />
 
   <!-- D flip-flop controls -->
-  <direct name="lutff_global/clk" input="BLK_TL-PLB.lutff_global/clk" output="BLK_IG-PLB_LOCAL.CLK"    />
-  <direct name="lutff_global/s_r" input="BLK_TL-PLB.lutff_global/s_r" output="BLK_IG-PLB_LOCAL.SR"     />
-  <direct name="lutff_global/cen" input="BLK_TL-PLB.lutff_global/cen" output="BLK_IG-PLB_LOCAL.EN"     />
+  <direct name="lutff_global/clk" input="BLK_TL-PLB.lutff_global/clk" output="BLK_IG-PLB.CLK"    />
+  <direct name="lutff_global/s_r" input="BLK_TL-PLB.lutff_global/s_r" output="BLK_IG-PLB.SR"     />
+  <direct name="lutff_global/cen" input="BLK_TL-PLB.lutff_global/cen" output="BLK_IG-PLB.EN"     />
 
   <!-- D flip-flop outputs -->
-  <direct name="lutff_0/out"      input="BLK_IG-PLB_LOCAL.O0"         output="BLK_TL-PLB.lutff_0/out"  />
-  <direct name="lutff_1/out"      input="BLK_IG-PLB_LOCAL.O1"         output="BLK_TL-PLB.lutff_1/out"  />
-  <direct name="lutff_2/out"      input="BLK_IG-PLB_LOCAL.O2"         output="BLK_TL-PLB.lutff_2/out"  />
-  <direct name="lutff_3/out"      input="BLK_IG-PLB_LOCAL.O3"         output="BLK_TL-PLB.lutff_3/out"  />
-  <direct name="lutff_4/out"      input="BLK_IG-PLB_LOCAL.O4"         output="BLK_TL-PLB.lutff_4/out"  />
-  <direct name="lutff_5/out"      input="BLK_IG-PLB_LOCAL.O5"         output="BLK_TL-PLB.lutff_5/out"  />
-  <direct name="lutff_6/out"      input="BLK_IG-PLB_LOCAL.O6"         output="BLK_TL-PLB.lutff_6/out"  />
-  <direct name="lutff_7/out"      input="BLK_IG-PLB_LOCAL.O7"         output="BLK_TL-PLB.lutff_7/out"  />
+  <direct name="lutff_0/out"      input="BLK_IG-PLB.O0"         output="BLK_TL-PLB.lutff_0/out"  />
+  <direct name="lutff_1/out"      input="BLK_IG-PLB.O1"         output="BLK_TL-PLB.lutff_1/out"  />
+  <direct name="lutff_2/out"      input="BLK_IG-PLB.O2"         output="BLK_TL-PLB.lutff_2/out"  />
+  <direct name="lutff_3/out"      input="BLK_IG-PLB.O3"         output="BLK_TL-PLB.lutff_3/out"  />
+  <direct name="lutff_4/out"      input="BLK_IG-PLB.O4"         output="BLK_TL-PLB.lutff_4/out"  />
+  <direct name="lutff_5/out"      input="BLK_IG-PLB.O5"         output="BLK_TL-PLB.lutff_5/out"  />
+  <direct name="lutff_6/out"      input="BLK_IG-PLB.O6"         output="BLK_TL-PLB.lutff_6/out"  />
+  <direct name="lutff_7/out"      input="BLK_IG-PLB.O7"         output="BLK_TL-PLB.lutff_7/out"  />
 
-  <!-- Fast Carry chain 
-  <direct name="FCIN"  input="BLK_TL-PLB.FCIN"        output="BLK_IG-PLB_LOCAL.FCIN" />
-  <direct name="FCOUT" input="BLK_IG-PLB_LOCAL.FCOUT" output="BLK_TL-PLB.FCOUT"      />
+  <!-- Fast Carry chain
+  <direct name="FCIN"  input="BLK_TL-PLB.FCIN"        output="BLK_IG-PLB.FCIN" />
+  <direct name="FCOUT" input="BLK_IG-PLB.FCOUT" output="BLK_TL-PLB.FCOUT"      />
        -->
-  <direct name="FCIN"  input="BLK_TL-PLB.FCIN"        output="BLK_IG-PLB_LOCAL.FCIN" >
-   <pack_pattern name="CARRYCHAIN" in_port="BLK_TL-PLB.FCIN" out_port="BLK_IG-PLB_LOCAL.FCIN" />
+  <direct name="FCIN"  input="BLK_TL-PLB.FCIN"        output="BLK_IG-PLB.FCIN" >
+   <pack_pattern name="CARRYCHAIN" in_port="BLK_TL-PLB.FCIN" out_port="BLK_IG-PLB.FCIN" />
   </direct>
-  <direct name="FCOUT" input="BLK_IG-PLB_LOCAL.FCOUT" output="BLK_TL-PLB.FCOUT"      >
-   <pack_pattern name="CARRYCHAIN" in_port="BLK_IG-PLB_LOCAL.FCOUT" out_port="BLK_TL-PLB.FCOUT" />
+  <direct name="FCOUT" input="BLK_IG-PLB.FCOUT" output="BLK_TL-PLB.FCOUT"      >
+   <pack_pattern name="CARRYCHAIN" in_port="BLK_IG-PLB.FCOUT" out_port="BLK_TL-PLB.FCOUT" />
   </direct>
 
  </interconnect>
