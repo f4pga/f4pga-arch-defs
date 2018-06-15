@@ -117,7 +117,7 @@
   </interconnect>
  </pb_type>
 
- <xi:include href="../../../../cells/plb_local/plb_local.pb_type.xml"/>
+ <xi:include href="../../../../cells/plb/plb.pb_type.xml"/>
 
  <interconnect>
   <!-- ################################################################ -->
