@@ -1,18 +1,80 @@
+(*blackbox*) (* MODEL_NAME="SB_IO" *)
 module SB_IO (
-	inout  PACKAGE_PIN,
-	input  LATCH_INPUT_VALUE,
-	input  CLOCK_ENABLE,
-	input  INPUT_CLK,
-	input  OUTPUT_CLK,
-	input  OUTPUT_ENABLE,
-	input  D_OUT_0,
-	input  D_OUT_1,
-	output D_IN_0,
-	output D_IN_1
+	// Connection to package
+	PACKAGE_PIN_I,
+	PACKAGE_PIN_O,
+
+	// ???
+	LATCH_INPUT_VALUE,
+
+	// Clock enable for both clocks
+	CLOCK_ENABLE,
+
+	// Tristate
+	OUTPUT_ENABLE,
+
+	// Data going out the IC
+	OUTPUT_CLK,
+	D_OUT_0, D_OUT_1,
+	// Data coming into the IC
+	INPUT_CLK,
+	D_IN_0, D_IN_1
+
 );
+	input wire PACKAGE_PIN_I;
+
+	(* DELAY_CONST_OUTPUT_ENABLE="10e-12" *)
+	(* DELAY_CONST_D_IN_0="10e-12" *)
+	(* DELAY_CONST_D_IN_1="10e-12" *)
+	output wire PACKAGE_PIN_O;
+
+	input wire LATCH_INPUT_VALUE;
+	input wire OUTPUT_ENABLE;
+
+	/* Clock enable for both clocks */
+	input wire CLOCK_ENABLE;
+	/* Output registers clock */
+	input wire OUTPUT_CLK;
+	/* Input registers clock */
+	input wire INPUT_CLK;
+
+	/* Data from PACKAGE_PIN on rising clk edge */
+	input wire D_OUT_0;
+	/* Data from PACKAGE_PIN on falling clk edge */
+	input wire D_OUT_1;
+
+	/* Data to PACKAGE_PIN on rising clk edge */
+	(* DELAY_CONST_OUTPUT_ENABLE="10e-12" *)
+	(* DELAY_CONST_PACKAGE_PIN_I="10e-12" *)
+	output wire D_IN_0;
+	/* Data to PACKAGE_PIN on falling clk edge */
+	(* DELAY_CONST_OUTPUT_ENABLE="10e-12" *)
+	(* DELAY_CONST_PACKAGE_PIN_I="10e-12" *)
+	output wire D_IN_1;
+
 	parameter [5:0] PIN_TYPE = 6'b000000;
+
+	/* IE - enable input buffers */
+
+	/* REN */
 	parameter [0:0] PULLUP = 1'b0;
+
+	/* 1'b0 - Registers are positive edge trigger
+	 * 1'b1 - Registers are negative edge trigger
+	 */
 	parameter [0:0] NEG_TRIGGER = 1'b0;
+
+	/* Bank 3 / left edge
+	 * -- SB_LVDS_INPUT
+	 * - SB_SSTL2_CLASS_2,
+	 * - SB_SSTL2_CLASS_1,
+	 * - SB_SSTL18_FULL,
+	 * - SB_SSTL18_HALF,
+	 * - SB_MDDR10,
+	 * - SB_MDDR8,
+	 * - SB_MDDR4,
+	 * - SB_MDDR2
+	 */
 	parameter IO_STANDARD = "SB_LVCMOS";
 
 `ifndef BLACKBOX

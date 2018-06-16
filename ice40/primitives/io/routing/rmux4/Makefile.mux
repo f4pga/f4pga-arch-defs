@@ -1,0 +1,4 @@
+MUX_TYPE = logic
+MUX_OUTFILE = io_rmux4
+MUX_NAME = IO_RMUX4
+MUX_WIDTH = 4
