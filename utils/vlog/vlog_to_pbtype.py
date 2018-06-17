@@ -176,12 +176,13 @@ def make_pb_content(mod, xml_parent, mod_pname, is_submode=False):
             # into a top level output - or all outputs if "mode" is used.
             inp_cons = mod.cell_conns(cname, "input")
             for pin, net in inp_cons:
+                print("in  pin", cname, pin, net)
                 drvs = mod.net_drivers(net)
                 if len(drvs) == 0:
                     print(
                         "ERROR: pin {}.{} has no driver, interconnect will be missing".
                         format(pb_name, pin))
-                    assert False
+                    #assert False
                 elif len(drvs) > 1:
                     print(
                         "ERROR: pin {}.{} has multiple drivers, interconnect will be overspecified".
@@ -192,6 +193,7 @@ def make_pb_content(mod, xml_parent, mod_pname, is_submode=False):
 
             out_cons = mod.cell_conns(cname, "output")
             for pin, net in out_cons:
+                print("out pin", cname, pin, net)
                 sinks = mod.net_sinks(net)
                 for sink_cell, sink_pin in sinks:
                     if sink_cell == mod.name:

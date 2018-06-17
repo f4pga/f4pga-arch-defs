@@ -348,7 +348,8 @@ Generated with %s
             args.width,
         ))
         f.write("\n")
-        f.write('(* blackbox *) (* CLASS="%s" *)\n' % mux_class)
+        #f.write('(* blackbox *) (* CLASS="%s" *)\n' % mux_class)
+        f.write('(* CLASS="%s" *)\n' % mux_class)
         f.write("module %s(%s);\n" % (args.name_mux, ", ".join(module_args)))
         previous_type = None
         for port in port_names:
