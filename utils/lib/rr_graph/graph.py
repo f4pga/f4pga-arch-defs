@@ -2178,9 +2178,10 @@ class RoutingGraph:
         if ntype.track:
             assert direction != None
             attrib['direction'] = direction.value
-        else:
-            #assert low == high, (low, high)
-            pass
+        elif not ntype.pin_class:
+            assert low == high, (low, high)
+
+
         node = RoutingNode(attrib=attrib)
 
         # <loc> needed for all nodes
@@ -2537,8 +2538,8 @@ class Graph:
 
         pc = pin.pin_class
         # Connection within the same tile
-        low = block.position+offset
-        high = block.position+offset
+        low = block.position + offset
+        high = block.position + offset
 
         pin_node = None
         if pc.direction in (PinClassDirection.INPUT, PinClassDirection.CLOCK):
