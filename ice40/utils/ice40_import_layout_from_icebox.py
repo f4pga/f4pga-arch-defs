@@ -38,6 +38,8 @@ def add_tile(layout_xml, type_name, pos):
 for name, pins in icebox.pinloc_db.items():
     part, package = name.split('-')
     print(part, package)
+    if ':' in package:
+        continue
     #if part != "1k":
     #    continue
     pin_locs = {}
@@ -49,7 +51,12 @@ for name, pins in icebox.pinloc_db.items():
     ic = icebox.iceconfig()
     getattr(ic, "setup_empty_{}".format(part))()
 
-    layout_xml = ET.Element("fixed_layout", {'name': '{}-{}'.format(part,package)})
+    layout_xml = ET.Element(
+        "fixed_layout", {
+            'name': 'hx{}-{}'.format(part,package),
+            'width': str(ic.max_x+4+1),
+            'height': str(ic.max_y+4+1),
+         })
 
     def edge_blocks(x,y):
         p = [[0,0], [0,0], [0,0]]
@@ -152,11 +159,11 @@ for name, pins in icebox.pinloc_db.items():
                     pin_xml = add_tile(layout_xml, "PIN", pin_pos)
                     for z, name in pin_locs[ipos].items():
                         add_metadata(pin_xml, "hlc_pin:{}".format(z), name)
-                        pin_map[(x, y, z)] = name
+                        pin_map[(*pin_pos, z)] = name
                 else:
                     pin_xml = add_tile(layout_xml, "EMPTY", pin_pos)
 
-                add_metadata(pin_xml, "hlc_coord", "{},{}".format(x+e[0], y+e[1]))
+                add_metadata(pin_xml, "hlc_coord", "{} {}".format(x+e[0], y+e[1]))
 
     with open("{}.{}.fixed_layout.xml".format(part,package), "wb+") as f:
         f.write(ET.tostring(layout_xml, pretty_print=True))

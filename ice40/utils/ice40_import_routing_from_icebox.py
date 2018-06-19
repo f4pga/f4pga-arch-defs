@@ -111,13 +111,13 @@ def P1(pos):
     assert type(pos) is graph.Position
     # evidently doens't have operator defined...
     # return pos + graph.Position(1, 1)
-    return graph.Position(pos.x + 1, pos.y + 1)
+    return graph.Position(pos.x + 2, pos.y + 2)
 
 
 def PN1(pos):
     '''Convert VTR to icebox coordinate system by subtracting 1 for dummy blocks'''
     assert type(pos) is graph.Position
-    return graph.Position(pos.x - 1, pos.y - 1)
+    return graph.Position(pos.x - 2, pos.y - 2)
 
 
 TilePos = graph.Position
@@ -1214,10 +1214,13 @@ def run(part, read_rr_graph, write_rr_graph):
     grid_sz = g.block_grid.size
     print("Grid size: %s" % (grid_sz, ))
     print('Exporting pin placement')
-    pin_sides = g.extract_pin_sides()
+    pin_meta = g.extract_pin_meta()
 
-    def get_pin_sides(block, pin):
-        return pin_sides[(block.position, pin.name)]
+    def get_pin_meta(block, pin):
+        return (
+            pin_meta[0][(block.position, pin.name)],
+            pin_meta[1][(block.position, pin.name)],
+        )
 
     print()
 
@@ -1233,7 +1236,7 @@ def run(part, read_rr_graph, write_rr_graph):
     print()
     print('Rebuilding block I/O nodes')
     g.create_block_pins_fabric(g.switches['__vpr_delayless_switch__'],
-                               get_pin_sides)
+                               get_pin_meta)
     print_nodes_edges(g)
 
     print('Indexing pin node names w/ %d index entries' % len(

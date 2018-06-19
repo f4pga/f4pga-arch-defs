@@ -664,6 +664,13 @@ class BlockType(MostlyReadOnly):
     def ports(self):
         return tuple(self._ports_index.keys())
 
+    @property
+    def positions(self):
+        for x in range(0, self.size.width):
+            for y in range(0, self.size.height):
+                yield Offset(x, y)
+
+
     __slots__ = [
         "_graph", "_id", "_name", "_size",
         "_pin_classes", "_pins_index",
@@ -914,6 +921,11 @@ class Block(MostlyReadOnly):
     def pins(self):
         return self.block_type.pins
 
+    @property
+    def positions(self):
+        for offset in self.block_type.positions:
+            yield self.position + offset
+
     def __init__(self,
                  g=None,
                  block_type_id=None,
@@ -938,9 +950,6 @@ class Block(MostlyReadOnly):
         self._block_type = block_type
         self._position = position
         self._offset = offset
-
-        if g is not None:
-            g.add_block(self)
 
     @classmethod
     def from_xml(cls, g, grid_loc_node):
@@ -1011,10 +1020,11 @@ class BlockGrid:
 
     def add_block(self, block):
         assert_type_or_none(block, Block)
-        pos = block.position
-        assert (pos not in self.block_grid or self.block_grid[pos] is None
-                or self.block_grid[pos] is block)
-        self.block_grid[pos] = block
+        assert block.offset == (0, 0), block
+        for pos in block.positions:
+            assert (pos not in self.block_grid or self.block_grid[pos] is None
+                    or self.block_grid[pos] is block)
+            self.block_grid[pos] = block
 
     @property
     def size(self):
@@ -1058,7 +1068,10 @@ class BlockGrid:
                 if pos.y != row:
                     continue
 
-            ss.append(self.block_grid[pos])
+            block = self.block_grid[pos]
+            if block.position != pos:
+                continue
+            ss.append(block)
         return ss
 
     def __getitem__(self, pos):
@@ -1066,6 +1079,9 @@ class BlockGrid:
 
     def __iter__(self):
         for pos in sorted(self.block_grid):
+            block = self.block_grid[pos]
+            if block.position != pos:
+                continue
             yield self.block_grid[pos]
 
 
@@ -2163,7 +2179,8 @@ class RoutingGraph:
             assert direction != None
             attrib['direction'] = direction.value
         else:
-            assert low == high, (low, high)
+            #assert low == high, (low, high)
+            pass
         node = RoutingNode(attrib=attrib)
 
         # <loc> needed for all nodes
@@ -2324,8 +2341,8 @@ class RoutingGraph:
             self._get_xml_id(src_node), self._get_xml_id(sink_node), switch)
 
 
-def sides_always_right(*a, **kw):
-    return RoutingNodeSide.RIGHT
+def pin_meta_always_right(*a, **kw):
+    return (RoutingNodeSide.RIGHT, Offset(0, 0))
 
 
 class Graph:
@@ -2338,7 +2355,7 @@ class Graph:
                  rr_graph_file=None,
                  verbose=False,
                  clear_fabric=False,
-                 sides=sides_always_right):
+                 pin_meta=pin_meta_always_right):
         """
 
         Parameters
@@ -2347,7 +2364,7 @@ class Graph:
         verbose : bool
         clear_fabric : bool
             Remove the rr_graph (IE All nodes and edges - and thus channels too).
-        sides : callable(Block, Pin) -> RoutingNodeSide
+        pin_meta : callable(Block, Pin) -> (RoutingNodeSide, Offset)
 
         Examples
         --------
@@ -2432,7 +2449,7 @@ class Graph:
 
         # Recreate the routing nodes for blocks if we cleared the routing
         if clear_fabric:
-            self.create_block_pins_fabric(sides=sides)
+            self.create_block_pins_fabric(pin_meta=pin_meta)
         else:
             self._index_pin_localnames()
 
@@ -2458,9 +2475,11 @@ class Graph:
                 # Lookup Block/<grid_loc>
                 # ptc is the associated pin ptc value of the block_type
                 block = self.block_grid[pos]
+                print(block, pos)
                 assert_type(block, Block)
                 pin = block.ptc2pin(ptc)
                 assert pin.name is not None, pin.name
+                print(pos, pin.name, node)
                 self.routing.localnames.add(pos, pin.name, node)
 
     def _import_block_types(self):
@@ -2470,7 +2489,9 @@ class Graph:
 
     def _import_block_grid(self):
         for block_xml in self._xml_graph.iterfind("./grid/grid_loc"):
-            Block.from_xml(self.block_grid, block_xml)
+            b = Block.from_xml(self.block_grid, block_xml)
+            if b.offset == (0, 0):
+                self.block_grid.add_block(b)
         size = self.block_grid.size
         assert size.x > 0
         assert size.y > 0
@@ -2486,10 +2507,10 @@ class Graph:
     def _import_xml_channels(self):
         self.channels.from_xml_nodes(self.routing._xml_parent(RoutingNode))
 
-    def create_block_pins_fabric(self, switch=None, sides=sides_always_right):
+    def create_block_pins_fabric(self, switch=None, pin_meta=pin_meta_always_right):
         if switch is None:
             switch = self.switches[0]
-        self.create_nodes_from_blocks(self.block_grid, switch, sides)
+        self.create_nodes_from_blocks(self.block_grid, switch, pin_meta)
 
     def set_tooling(self, name, version, comment):
         root = self._xml_graph.getroot()
@@ -2497,7 +2518,7 @@ class Graph:
         root.set("tool_version", version)
         root.set("tool_comment", comment)
 
-    def create_node_from_pin(self, block, pin, side):
+    def create_node_from_pin(self, block, pin, side, offset):
         """Creates an IPIN/OPIN RoutingNode from `class Pin` object.
 
         Parameters
@@ -2505,6 +2526,7 @@ class Graph:
         block : Block
         pin : Pin
         side : RoutingNodeSide
+        offset : Offset
 
         Returns
         -------
@@ -2517,10 +2539,8 @@ class Graph:
 
         pc = pin.pin_class
         # Connection within the same tile
-        low = block.position
-        # FIXME: look into multiple tile blocks
-        assert block.offset == (0, 0), block.offset
-        high = block.position
+        low = block.position+offset
+        high = block.position+offset
 
         pin_node = None
         if pc.direction in (PinClassDirection.INPUT, PinClassDirection.CLOCK):
@@ -2573,7 +2593,7 @@ class Graph:
 
         return track_node
 
-    def create_nodes_from_pin_class(self, block, pin_class, switch, sides):
+    def create_nodes_from_pin_class(self, block, pin_class, switch, pin_meta):
         """Creates a SOURCE or SINK RoutingNode from a `class PinClass` object.
 
         Parameters
@@ -2581,7 +2601,7 @@ class Graph:
         block : Block
         pin_class : PinClass
         switch : Switch
-        sides : callable(Block, Pin) -> RoutingNodeSide
+        pin_meta : callable(Block, Pin) -> (RoutingNodeSide, Offset)
         """
         assert_type(block, Block)
         assert_type(block.block_type, BlockType)
@@ -2606,7 +2626,7 @@ class Graph:
                                                  'SINK')
 
             for p in pin_class.pins:
-                pin_node = self.create_node_from_pin(block, p, sides(block, p))
+                pin_node = self.create_node_from_pin(block, p, *pin_meta(block, p))
 
                 # Edge PIN->SINK
                 self.routing.create_edge_with_nodes(pin_node, sink_node,
@@ -2618,7 +2638,7 @@ class Graph:
                                                 'SOURCE')
 
             for p in pin_class.pins:
-                pin_node = self.create_node_from_pin(block, p, sides(block, p))
+                pin_node = self.create_node_from_pin(block, p, *pin_meta(block, p))
 
                 # Edge SOURCE->PIN
                 self.routing.create_edge_with_nodes(src_node, pin_node, switch)
@@ -2627,7 +2647,7 @@ class Graph:
             assert False, "Unknown dir of {} for {}".format(
                 pin_class.direction, str(pin_class))
 
-    def create_nodes_from_block(self, block, switch, sides):
+    def create_nodes_from_block(self, block, switch, pin_meta):
         """
         Creates the SOURCE/SINK nodes for each pin class
         Creates the IPIN/OPIN nodes for each pin inside a pin class.
@@ -2637,24 +2657,24 @@ class Graph:
         ----------
         block : Block
         switch : Switch
-        sides : callable(Block, Pin) -> RoutingNodeSide
+        pin_meta : callable(Block, Pin) -> (RoutingNodeSide, Offset)
 
         Examples
         --------
         """
         for pc in block.block_type.pin_classes:
-            self.create_nodes_from_pin_class(block, pc, switch, sides)
+            self.create_nodes_from_pin_class(block, pc, switch, pin_meta)
 
-    def create_nodes_from_blocks(self, blocks, switch, sides):
+    def create_nodes_from_blocks(self, blocks, switch, pin_meta):
         """
         Parameters
         ----------
         block : Block
         switch : Switch
-        sides : callable(Block, Pin) -> RoutingNodeSide
+        pin_meta : callable(Block, Pin) -> (RoutingNodeSide, Offset)
         """
         for block in blocks:
-            self.create_nodes_from_block(block, switch, sides)
+            self.create_nodes_from_block(block, switch, pin_meta)
 
     def connect_pin_to_track(self, block, pin, track, switch):
         """
@@ -2716,17 +2736,27 @@ class Graph:
         for track in self.channels.pad_channels(segment):
             self.create_node_from_track(track)
 
-    def extract_pin_sides(self):
-        """Export pin placement as ret[(block, pin)] to import when rebuilding pin nodes"""
-        ret = MappingLocalNames(type=RoutingNodeSide)
+    def extract_pin_meta(self):
+        """Export pin placement as pin_meta[(block, pin)] to import when rebuilding pin nodes"""
+        sides = MappingLocalNames(type=RoutingNodeSide)
+        offsets = MappingLocalNames(type=Offset)
         for block in self.block_grid:
             for pin_class in block.block_type.pin_classes:
                 for pin in pin_class.pins:
-                    node = self.routing.localnames[(block.position, pin.name)]
-                    side = single_element(node, 'loc').get('side')
-                    assert side is not None, ET.tostring(node)
-                    ret[(block.position, pin.name)] = RoutingNodeSide(side)
-        return ret
+                    for offset in block.block_type.positions:
+                        pos = block.position + offset
+                        try:
+                            node = self.routing.localnames[(pos, pin.name)]
+                        except KeyError:
+                            continue
+
+                        print(ET.tostring(node), block, pos, offset)
+                        assert node != None, "{}:{} not found at {}\n{}".format(block, pin.name, list(block.positions), self.routing.localnames)
+                        side = single_element(node, 'loc').get('side')
+                        assert side is not None, ET.tostring(node)
+                        sides[(block.position, pin.name)] = RoutingNodeSide(side)
+                        offsets[(block.position, pin.name)] = offset
+        return sides, offsets
 
     def to_xml(self):
         """Return an ET object representing this rr_graph"""

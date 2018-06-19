@@ -1,0 +1,11 @@
+<models xmlns:xi="http://www.w3.org/2001/XInclude">
+  <model name="IOBUFT">
+    <input_ports>
+      <port name="O"/>
+      <port name="OE"/>
+    </input_ports>
+    <output_ports>
+      <port name="I"/>
+    </output_ports>
+  </model>
+</models>

@@ -76,7 +76,7 @@ $(OUT_RRXML_VIRT): $(TOP_DIR)/common/wire.eblif $(OUT_ARCH_XML)
 	cd $(OUT_DEV_DIR); \
 	$(VPR) \
 		$(OUT_ARCH_XML) \
-		--device $(DEVICE) \
+		--device $(DEVICE_FULL) \
 		$(TOP_DIR)/common/wire.eblif \
 		\
 		--route_chan_width 10 \
@@ -208,22 +208,13 @@ VPR_CMD = \
 		$(OUT_ARCH_XML) \
 		$(OUT_EBLIF) \
 		$(VPR_ARGS) \
-		--device $(DEVICE) \
+		--device $(DEVICE_FULL) \
 		--min_route_chan_width_hint $(VPR_ROUTE_CHAN_MINWIDTH_HINT) \
 		--route_chan_width $(VPR_ROUTE_CHAN_WIDTH) \
 		--read_rr_graph $(OUT_RRXML_REAL) \
 		\
-		--debug_clustering on
+		--debug_clustering on \
 
-# Add IO placement
-ifneq ($(wildcard io.place),)
-VPR_CMD += --fix_pins $(TEST_DIR)/io.place
-endif
-
-OUT_IO=$(OUT_LOCAL)/io.place
-$(OUT_IO): $(OUT_EBLIF) $(SOURCE).$(PIN_EXT)
-	$(PLACE_TOOL_CMD) --out $(OUT_IO)
-$(info OUT_IO=$(OUT_IO))
 
 VPR_ARGS_FILE=$(OUT_LOCAL)/vpr.args
 $(VPR_ARGS_FILE): always-run | $(OUT_LOCAL)
@@ -240,10 +231,22 @@ $(VPR_DEPS): $(OUT_ARCH_XML) $(OUT_RRXML_REAL) $(VPR_ARGS_FILE) | $(OUT_LOCAL)
 	@echo "VPR dependencies changed!"
 	@touch $@
 
+# Generate IO constraints file.
+#-------------------------------------------------------------------------
+ifneq ($(wildcard $(SOURCE).$(PIN_EXT)),)
+OUT_IO=$(OUT_LOCAL)/io.place
+$(OUT_IO): $(OUT_EBLIF) $(SOURCE).$(PIN_EXT)
+	$(PLACE_TOOL_CMD) --out $(OUT_IO)
+
+VPR_CMD := $(VPR_CMD) --fix_pins $(OUT_IO)
+else
+OUT_IO=
+endif
+
 # Generate packing.
 #-------------------------------------------------------------------------
 OUT_NET=$(OUT_LOCAL)/$(SOURCE).net
-$(OUT_NET): $(OUT_EBLIF) $(VPR_DEPS)
+$(OUT_NET): $(OUT_EBLIF) $(OUT_IO) $(VPR_DEPS)
 	$(VPR_CMD) --pack --place
 	@mv $(OUT_LOCAL)/vpr_stdout.log $(OUT_LOCAL)/pack.log
 .PRECIOUS: $(OUT_NET)
@@ -251,7 +254,7 @@ $(OUT_NET): $(OUT_EBLIF) $(VPR_DEPS)
 # Generate placement.
 #-------------------------------------------------------------------------
 OUT_PLACE=$(OUT_LOCAL)/$(SOURCE).place
-$(OUT_PLACE): $(OUT_NET) $(VPR_DEPS)
+$(OUT_PLACE): $(OUT_NET) $(OUT_IO) $(VPR_DEPS)
 	$(VPR_CMD) --place
 	@mv $(OUT_LOCAL)/vpr_stdout.log $(OUT_LOCAL)/place.log
 .PRECIOUS: $(OUT_PLACE)
@@ -259,7 +262,7 @@ $(OUT_PLACE): $(OUT_NET) $(VPR_DEPS)
 # Generate routing.
 #-------------------------------------------------------------------------
 OUT_ROUTE=$(OUT_LOCAL)/$(SOURCE).route
-$(OUT_ROUTE): $(OUT_PLACE) $(VPR_DEPS)
+$(OUT_ROUTE): $(OUT_PLACE) $(OUT_IO) $(VPR_DEPS)
 	$(VPR_CMD) --route
 	@mv $(OUT_LOCAL)/vpr_stdout.log $(OUT_LOCAL)/route.log
 .PRECIOUS: $(OUT_ROUTE)
@@ -267,7 +270,7 @@ $(OUT_ROUTE): $(OUT_PLACE) $(VPR_DEPS)
 # Generate analysis.
 #-------------------------------------------------------------------------
 OUT_ANALYSIS=$(OUT_LOCAL)/analysis.log
-$(OUT_ANALYSIS): $(OUT_ROUTE) $(VPR_DEPS)
+$(OUT_ANALYSIS): $(OUT_ROUTE) $(OUT_IO) $(VPR_DEPS)
 	$(VPR_CMD) --analysis --gen_post_synthesis_netlist on
 	@mv $(OUT_LOCAL)/vpr_stdout.log $(OUT_ANALYSIS)
 .PRECIOUS: $(OUT_ANALYSIS)
