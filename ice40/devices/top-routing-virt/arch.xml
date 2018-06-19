@@ -15,24 +15,36 @@
  <!-- Description of the block tiles available in the iCE40 -->
  <complexblocklist>
   <xi:include href="tiles/plb/plb.pb_type.xml"/>
-  <xi:include href="tiles/ramb/ramb.pb_type.xml"/>
-  <xi:include href="tiles/ramt/ramt.pb_type.xml"/>
-  <xi:include href="tiles/pio/pio_A.pb_types.xml"/>
+  <xi:include href="tiles/ram/ram.pb_type.xml"/>
+  <xi:include href="tiles/pio/pio.pb_types.xml"/>
  </complexblocklist>
 
  <!-- Description of the tile layouts available in the iCE40 family -->
  <layout>
-  <xi:include href="../layouts/test4/test4.fixed_layout.xml"/>
-  <xi:include href="../layouts/N384/lp384.fixed_layout.xml"/>
-  <xi:include href="../layouts/N384/hx384.fixed_layout.xml"/>
-  <xi:include href="../layouts/N1k/lp1k.fixed_layout.xml"/>
-  <xi:include href="../layouts/N1k/hx1k.fixed_layout.xml"/>
-  <xi:include href="../layouts/N4k/lp4k.fixed_layout.xml"/>
-  <xi:include href="../layouts/N4k/hx4k.fixed_layout.xml"/>
-  <xi:include href="../layouts/N8k/lp8k.fixed_layout.xml"/>
-  <xi:include href="../layouts/N8k/hx8k.fixed_layout.xml"/>
+  <xi:include href="../layouts/icebox/384.cm36.fixed_layout.xml"/>
+  <xi:include href="../layouts/icebox/384.cm49.fixed_layout.xml"/>
+  <xi:include href="../layouts/icebox/384.qn32.fixed_layout.xml"/>
+  <xi:include href="../layouts/icebox/1k.cb121.fixed_layout.xml"/>
+  <xi:include href="../layouts/icebox/1k.cb132.fixed_layout.xml"/>
+  <xi:include href="../layouts/icebox/1k.cb81.fixed_layout.xml"/>
+  <xi:include href="../layouts/icebox/1k.cm121.fixed_layout.xml"/>
+  <xi:include href="../layouts/icebox/1k.cm36.fixed_layout.xml"/>
+  <xi:include href="../layouts/icebox/1k.cm49.fixed_layout.xml"/>
+  <xi:include href="../layouts/icebox/1k.cm81.fixed_layout.xml"/>
+  <xi:include href="../layouts/icebox/1k.qn84.fixed_layout.xml"/>
+  <xi:include href="../layouts/icebox/1k.swg16tr.fixed_layout.xml"/>
+  <xi:include href="../layouts/icebox/1k.tq144.fixed_layout.xml"/>
+  <xi:include href="../layouts/icebox/1k.vq100.fixed_layout.xml"/>
+  <xi:include href="../layouts/icebox/lm4k.cm49.fixed_layout.xml"/>
+  <xi:include href="../layouts/icebox/5k.sg48.fixed_layout.xml"/>
+  <xi:include href="../layouts/icebox/5k.uwg30.fixed_layout.xml"/>
+  <xi:include href="../layouts/icebox/8k.bg121.fixed_layout.xml"/>
+  <xi:include href="../layouts/icebox/8k.cb132.fixed_layout.xml"/>
+  <xi:include href="../layouts/icebox/8k.cm121.fixed_layout.xml"/>
+  <xi:include href="../layouts/icebox/8k.cm225.fixed_layout.xml"/>
+  <xi:include href="../layouts/icebox/8k.cm81.fixed_layout.xml"/>
+  <xi:include href="../layouts/icebox/8k.ct256.fixed_layout.xml"/>
  </layout>
-
  <directlist>
   <!-- Carry chain from one PLB to the next PLB -->
   <direct name="CARRYCHAIN" from_pin="BLK_TL-PLB.FCOUT" to_pin="BLK_TL-PLB.FCIN" x_offset="0" y_offset="-1" z_offset="0"/>
