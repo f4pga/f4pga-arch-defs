@@ -329,6 +329,36 @@ def add_pin_aliases(g, ic, verbose=True):
         name_rr2local['BLK_TL-PIO.[{}]OUT_ENB[0]'.format(
             blocki)] = 'io_{}/OUT_ENB'.format(blocki)
 
+    # BLK_TL-RAM
+    for top_bottom in 'BT':
+        # rdata, wdata, and mask ranges are the same based on Top/Bottom
+        if top_bottom == 'T':
+            data_range = range(8,16)
+            # top has Read clock and enbable and address
+            rw = 'R'
+        else:
+            data_range = range(0,8)
+            # top has Read clock and enbable and address
+            rw = 'W'
+
+        def add_ram_pin(rw, sig, ind=None):
+            if ind is None:
+                name_rr2local['BLK_TL-RAM.{}{}[{}]'.format(rw, sig, 0)] = 'ram/{}{}'.format(rw, sig)
+            else:
+                name_rr2local['BLK_TL-RAM.{}{}[{}]'.format(rw, sig, ind)] = 'ram/{}{}_{}'.format(rw, sig, ind)
+
+        add_ram_pin(rw, 'CLK')
+        add_ram_pin(rw, 'CLKE')
+        add_ram_pin(rw, 'E')
+
+        for ind in range(11):
+            add_ram_pin(rw, 'ADDR', ind)
+
+        for ind in data_range:
+            add_ram_pin('R', 'DATA', ind)
+            add_ram_pin('W', 'DATA', ind)
+            add_ram_pin('', 'MASK', ind)
+
     for block in g.block_grid:
         ipos = pos_vpr2icebox(PositionVPR(*block.position))
         for pin in block.pins:
@@ -572,15 +602,19 @@ def get_pin_meta(block, pin):
 
     if "RAM" in block.block_type.name:
         print("ram", end=" ")
-        top_pins = ["RDATAB", "WADDR", "MASKB", "WDATAB", "WCLKE", "WCLK", "WE"]
-        bot_pins = ["RDATAT", "RADDR", "MASKT", "WDATAT", "RCLKE", "RCLK", "RE"]
-        if pin.port_name in top_pins:
+        top_pins = ["RADDR", "RCLKE", "RCLK", "RE"]
+        bot_pins = ["WADDR", "WCLKE", "WCLK", "WE"]
+        if pin.port_name in top_pins or (
+                pin.port_name in ["RDATA", "MASK", "WDATA"] and
+                pin.port_index in range(8,16)):
             print("top")
             return (graph.RoutingNodeSide.RIGHT, Offset(0, 1))
-        elif pin.port_name in bot_pins:
+        elif pin.port_name in bot_pins or (
+                pin.port_name in ["RDATA", "MASK", "WDATA"] and
+                pin.port_index in range(8)):
             print("bot")
             return (graph.RoutingNodeSide.RIGHT, Offset(0, 0))
-        assert False
+        assert False, "RAM pin doesn't match name expected for metadata"
 
     if "PIO" in block.block_type.name:
         print("pio", end=" ")
