@@ -1572,22 +1572,22 @@ class MappingLocalNames(dict):
         self.localnames = {}
         dict.__init__(self, *args, **kw)
 
-    def add(self, pos, name, xml_node):
-        assert_type(xml_node, self.type)
+    def add(self, pos, name, value):
+        assert_type(value, self.type)
         assert_type(pos, Position)
         assert_type(name, str)
 
-        self[(pos, name)] = xml_node
+        self[(pos, name)] = value
 
     def clear(self):
         self.localnames.clear()
         dict.clear(self)
 
-    def __setitem__(self, key, xml_node):
+    def __setitem__(self, key, value):
         """
-        map[(Position, name)] = ET._Element
+        map[(Position, name)] = type
         """
-        assert_type(xml_node, self.type)
+        assert_type(value, self.type)
 
         pos, name = key
         assert_type(pos, Position)
@@ -1595,11 +1595,11 @@ class MappingLocalNames(dict):
 
         if pos not in self.localnames:
             self.localnames[pos] = set()
-
-        assert_not_in(name, self.localnames[pos])
+        if key in self:
+            assert_eq(self[key], value)
         self.localnames[pos].add(name)
 
-        dict.__setitem__(self, key, xml_node)
+        dict.__setitem__(self, key, value)
 
     def __getitem__(self, key):
         """
@@ -1882,7 +1882,7 @@ class RoutingGraph:
             for edge in self._xml_parent(RoutingEdge):
                 self._add_xml_element(edge, existing=True)
 
-    def clear(self, create_pins=True):
+    def clear(self):
         """Delete the existing rr_nodes and rr_edges."""
         self._xml_parent(RoutingNode).clear()
         self._xml_parent(RoutingEdge).clear()
@@ -2475,11 +2475,9 @@ class Graph:
                 # Lookup Block/<grid_loc>
                 # ptc is the associated pin ptc value of the block_type
                 block = self.block_grid[pos]
-                print(block, pos)
                 assert_type(block, Block)
                 pin = block.ptc2pin(ptc)
                 assert pin.name is not None, pin.name
-                print(pos, pin.name, node)
                 self.routing.localnames.add(pos, pin.name, node)
 
     def _import_block_types(self):
@@ -2558,6 +2556,7 @@ class Graph:
             print("Adding pin {:55s} on tile ({:12s}, {:12s})@{:4d} {}".format(
                 str(pin), str(low), str(high), pin.ptc, pin))
 
+        print("create_node_from_pin", pin, side, offset)
         self.routing.localnames.add(block.position, pin.name, pin_node)
 
         return pin_node
@@ -2622,8 +2621,8 @@ class Graph:
         if pin_class.direction in (PinClassDirection.INPUT,
                                    PinClassDirection.CLOCK):
             # Sink node
-            sink_node = self.routing.create_node(pos_low, pos_high, pin.ptc,
-                                                 'SINK')
+            sink_node = self.routing.create_node(
+                pos_low, pos_high, pin.ptc, 'SINK')
 
             for p in pin_class.pins:
                 pin_node = self.create_node_from_pin(block, p, *pin_meta(block, p))
@@ -2634,8 +2633,8 @@ class Graph:
 
         elif pin_class.direction in (PinClassDirection.OUTPUT, ):
             # Source node
-            src_node = self.routing.create_node(pos_low, pos_high, pin.ptc,
-                                                'SOURCE')
+            src_node = self.routing.create_node(
+                pos_low, pos_high, pin.ptc, 'SOURCE')
 
             for p in pin_class.pins:
                 pin_node = self.create_node_from_pin(block, p, *pin_meta(block, p))
@@ -2750,7 +2749,6 @@ class Graph:
                         except KeyError:
                             continue
 
-                        print(ET.tostring(node), block, pos, offset)
                         assert node != None, "{}:{} not found at {}\n{}".format(block, pin.name, list(block.positions), self.routing.localnames)
                         side = single_element(node, 'loc').get('side')
                         assert side is not None, ET.tostring(node)
