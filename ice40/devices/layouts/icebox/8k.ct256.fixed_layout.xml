@@ -1,0 +1,6688 @@
+<fixed_layout height="38" name="hx8k-ct256" width="38">
+  <single priority="1" type="BLK_TL-PIO" x="2" y="2">
+    <metadata>
+      <meta name="hlc_coord">0 0</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="EMPTY" x="2" y="0"/>
+  <single priority="1" type="EMPTY" x="2" y="1">
+    <metadata>
+      <meta name="hlc_coord">0 -1</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="EMPTY" x="0" y="2"/>
+  <single priority="1" type="EMPTY" x="1" y="2">
+    <metadata>
+      <meta name="hlc_coord">-1 0</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="EMPTY" x="0" y="0"/>
+  <single priority="1" type="EMPTY" x="1" y="1">
+    <metadata>
+      <meta name="hlc_coord">-1 -1</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PIO" x="2" y="3">
+    <metadata>
+      <meta name="hlc_coord">0 1</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="EMPTY" x="0" y="3"/>
+  <single priority="1" type="EMPTY" x="1" y="3">
+    <metadata>
+      <meta name="hlc_coord">-1 1</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PIO" x="2" y="4">
+    <metadata>
+      <meta name="hlc_coord">0 2</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="EMPTY" x="0" y="4"/>
+  <single priority="1" type="EMPTY" x="1" y="4">
+    <metadata>
+      <meta name="hlc_coord">-1 2</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PIO" x="2" y="5">
+    <metadata>
+      <meta name="hlc_coord">0 3</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="EMPTY" x="0" y="5"/>
+  <single priority="1" type="PIN" x="1" y="5">
+    <metadata>
+      <meta name="hlc_pin:0">N4</meta>
+      <meta name="hlc_pin:1">R1</meta>
+      <meta name="hlc_coord">-1 3</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PIO" x="2" y="6">
+    <metadata>
+      <meta name="hlc_coord">0 4</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="EMPTY" x="0" y="6"/>
+  <single priority="1" type="PIN" x="1" y="6">
+    <metadata>
+      <meta name="hlc_pin:0">M5</meta>
+      <meta name="hlc_pin:1">P2</meta>
+      <meta name="hlc_coord">-1 4</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PIO" x="2" y="7">
+    <metadata>
+      <meta name="hlc_coord">0 5</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="EMPTY" x="0" y="7"/>
+  <single priority="1" type="PIN" x="1" y="7">
+    <metadata>
+      <meta name="hlc_pin:0">M4</meta>
+      <meta name="hlc_pin:1">P1</meta>
+      <meta name="hlc_coord">-1 5</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PIO" x="2" y="8">
+    <metadata>
+      <meta name="hlc_coord">0 6</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="EMPTY" x="0" y="8"/>
+  <single priority="1" type="PIN" x="1" y="8">
+    <metadata>
+      <meta name="hlc_pin:1">L5</meta>
+      <meta name="hlc_pin:0">N3</meta>
+      <meta name="hlc_coord">-1 6</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PIO" x="2" y="9">
+    <metadata>
+      <meta name="hlc_coord">0 7</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="EMPTY" x="0" y="9"/>
+  <single priority="1" type="PIN" x="1" y="9">
+    <metadata>
+      <meta name="hlc_pin:0">M3</meta>
+      <meta name="hlc_pin:1">M6</meta>
+      <meta name="hlc_coord">-1 7</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PIO" x="2" y="10">
+    <metadata>
+      <meta name="hlc_coord">0 8</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="EMPTY" x="0" y="10"/>
+  <single priority="1" type="PIN" x="1" y="10">
+    <metadata>
+      <meta name="hlc_pin:1">L7</meta>
+      <meta name="hlc_pin:0">N2</meta>
+      <meta name="hlc_coord">-1 8</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PIO" x="2" y="11">
+    <metadata>
+      <meta name="hlc_coord">0 9</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="EMPTY" x="0" y="11"/>
+  <single priority="1" type="PIN" x="1" y="11">
+    <metadata>
+      <meta name="hlc_pin:1">K5</meta>
+      <meta name="hlc_pin:0">M2</meta>
+      <meta name="hlc_coord">-1 9</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PIO" x="2" y="12">
+    <metadata>
+      <meta name="hlc_coord">0 10</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="EMPTY" x="0" y="12"/>
+  <single priority="1" type="PIN" x="1" y="12">
+    <metadata>
+      <meta name="hlc_pin:0">L3</meta>
+      <meta name="hlc_pin:1">L6</meta>
+      <meta name="hlc_coord">-1 10</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PIO" x="2" y="13">
+    <metadata>
+      <meta name="hlc_coord">0 11</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="EMPTY" x="0" y="13"/>
+  <single priority="1" type="PIN" x="1" y="13">
+    <metadata>
+      <meta name="hlc_pin:1">K4</meta>
+      <meta name="hlc_pin:0">M1</meta>
+      <meta name="hlc_coord">-1 11</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PIO" x="2" y="14">
+    <metadata>
+      <meta name="hlc_coord">0 12</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="EMPTY" x="0" y="14"/>
+  <single priority="1" type="PIN" x="1" y="14">
+    <metadata>
+      <meta name="hlc_pin:0">L1</meta>
+      <meta name="hlc_pin:1">L4</meta>
+      <meta name="hlc_coord">-1 12</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PIO" x="2" y="15">
+    <metadata>
+      <meta name="hlc_coord">0 13</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="EMPTY" x="0" y="15"/>
+  <single priority="1" type="PIN" x="1" y="15">
+    <metadata>
+      <meta name="hlc_pin:1">K1</meta>
+      <meta name="hlc_pin:0">K3</meta>
+      <meta name="hlc_coord">-1 13</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PIO" x="2" y="16">
+    <metadata>
+      <meta name="hlc_coord">0 14</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="EMPTY" x="0" y="16"/>
+  <single priority="1" type="PIN" x="1" y="16">
+    <metadata>
+      <meta name="hlc_pin:0">J1</meta>
+      <meta name="hlc_pin:1">J2</meta>
+      <meta name="hlc_coord">-1 14</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PIO" x="2" y="17">
+    <metadata>
+      <meta name="hlc_coord">0 15</meta>
+      <meta name="hlc_latch_io">1</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="EMPTY" x="0" y="17"/>
+  <single priority="1" type="EMPTY" x="1" y="17">
+    <metadata>
+      <meta name="hlc_coord">-1 15</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PIO" x="2" y="18">
+    <metadata>
+      <meta name="hlc_coord">0 16</meta>
+      <meta name="hlc_global_io:1">glb_netwk_1</meta>
+      <meta name="hlc_global_fabric:1">glb_netwk_6</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="EMPTY" x="0" y="18"/>
+  <single priority="1" type="PIN" x="1" y="18">
+    <metadata>
+      <meta name="hlc_pin:0">H1</meta>
+      <meta name="hlc_pin:1">J3</meta>
+      <meta name="hlc_coord">-1 16</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PIO" x="2" y="19">
+    <metadata>
+      <meta name="hlc_coord">0 17</meta>
+      <meta name="hlc_global_io:0">glb_netwk_4</meta>
+      <meta name="hlc_global_fabric:0">glb_netwk_3</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="EMPTY" x="0" y="19"/>
+  <single priority="1" type="PIN" x="1" y="19">
+    <metadata>
+      <meta name="hlc_pin:0">G1</meta>
+      <meta name="hlc_pin:1">J5</meta>
+      <meta name="hlc_coord">-1 17</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PIO" x="2" y="20">
+    <metadata>
+      <meta name="hlc_coord">0 18</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="EMPTY" x="0" y="20"/>
+  <single priority="1" type="PIN" x="1" y="20">
+    <metadata>
+      <meta name="hlc_pin:0">H2</meta>
+      <meta name="hlc_pin:1">J4</meta>
+      <meta name="hlc_coord">-1 18</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PIO" x="2" y="21">
+    <metadata>
+      <meta name="hlc_coord">0 19</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="EMPTY" x="0" y="21"/>
+  <single priority="1" type="PIN" x="1" y="21">
+    <metadata>
+      <meta name="hlc_pin:0">G2</meta>
+      <meta name="hlc_pin:1">H4</meta>
+      <meta name="hlc_coord">-1 19</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PIO" x="2" y="22">
+    <metadata>
+      <meta name="hlc_coord">0 20</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="EMPTY" x="0" y="22"/>
+  <single priority="1" type="PIN" x="1" y="22">
+    <metadata>
+      <meta name="hlc_pin:0">F1</meta>
+      <meta name="hlc_pin:1">H6</meta>
+      <meta name="hlc_coord">-1 20</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PIO" x="2" y="23">
+    <metadata>
+      <meta name="hlc_coord">0 21</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="EMPTY" x="0" y="23"/>
+  <single priority="1" type="PIN" x="1" y="23">
+    <metadata>
+      <meta name="hlc_pin:0">F2</meta>
+      <meta name="hlc_pin:1">H3</meta>
+      <meta name="hlc_coord">-1 21</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PIO" x="2" y="24">
+    <metadata>
+      <meta name="hlc_coord">0 22</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="EMPTY" x="0" y="24"/>
+  <single priority="1" type="PIN" x="1" y="24">
+    <metadata>
+      <meta name="hlc_pin:0">F3</meta>
+      <meta name="hlc_pin:1">G3</meta>
+      <meta name="hlc_coord">-1 22</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PIO" x="2" y="25">
+    <metadata>
+      <meta name="hlc_coord">0 23</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="EMPTY" x="0" y="25"/>
+  <single priority="1" type="PIN" x="1" y="25">
+    <metadata>
+      <meta name="hlc_pin:0">E2</meta>
+      <meta name="hlc_pin:1">H5</meta>
+      <meta name="hlc_coord">-1 23</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PIO" x="2" y="26">
+    <metadata>
+      <meta name="hlc_coord">0 24</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="EMPTY" x="0" y="26"/>
+  <single priority="1" type="PIN" x="1" y="26">
+    <metadata>
+      <meta name="hlc_pin:0">E3</meta>
+      <meta name="hlc_pin:1">G4</meta>
+      <meta name="hlc_coord">-1 24</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PIO" x="2" y="27">
+    <metadata>
+      <meta name="hlc_coord">0 25</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="EMPTY" x="0" y="27"/>
+  <single priority="1" type="PIN" x="1" y="27">
+    <metadata>
+      <meta name="hlc_pin:0">D1</meta>
+      <meta name="hlc_pin:1">G5</meta>
+      <meta name="hlc_coord">-1 25</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PIO" x="2" y="28">
+    <metadata>
+      <meta name="hlc_coord">0 26</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="EMPTY" x="0" y="28"/>
+  <single priority="1" type="EMPTY" x="1" y="28">
+    <metadata>
+      <meta name="hlc_coord">-1 26</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PIO" x="2" y="29">
+    <metadata>
+      <meta name="hlc_coord">0 27</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="EMPTY" x="0" y="29"/>
+  <single priority="1" type="PIN" x="1" y="29">
+    <metadata>
+      <meta name="hlc_pin:0">D2</meta>
+      <meta name="hlc_pin:1">F4</meta>
+      <meta name="hlc_coord">-1 27</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PIO" x="2" y="30">
+    <metadata>
+      <meta name="hlc_coord">0 28</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="EMPTY" x="0" y="30"/>
+  <single priority="1" type="PIN" x="1" y="30">
+    <metadata>
+      <meta name="hlc_pin:1">C1</meta>
+      <meta name="hlc_pin:0">C2</meta>
+      <meta name="hlc_coord">-1 28</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PIO" x="2" y="31">
+    <metadata>
+      <meta name="hlc_coord">0 29</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="EMPTY" x="0" y="31"/>
+  <single priority="1" type="EMPTY" x="1" y="31">
+    <metadata>
+      <meta name="hlc_coord">-1 29</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PIO" x="2" y="32">
+    <metadata>
+      <meta name="hlc_coord">0 30</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="EMPTY" x="0" y="32"/>
+  <single priority="1" type="PIN" x="1" y="32">
+    <metadata>
+      <meta name="hlc_pin:0">B1</meta>
+      <meta name="hlc_pin:1">F5</meta>
+      <meta name="hlc_coord">-1 30</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PIO" x="2" y="33">
+    <metadata>
+      <meta name="hlc_coord">0 31</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="EMPTY" x="0" y="33"/>
+  <single priority="1" type="PIN" x="1" y="33">
+    <metadata>
+      <meta name="hlc_pin:0">B2</meta>
+      <meta name="hlc_pin:1">E4</meta>
+      <meta name="hlc_coord">-1 31</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PIO" x="2" y="34">
+    <metadata>
+      <meta name="hlc_coord">0 32</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="EMPTY" x="0" y="34"/>
+  <single priority="1" type="EMPTY" x="1" y="34">
+    <metadata>
+      <meta name="hlc_coord">-1 32</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PIO" x="2" y="35">
+    <metadata>
+      <meta name="hlc_coord">0 33</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="EMPTY" x="2" y="37"/>
+  <single priority="1" type="EMPTY" x="2" y="36">
+    <metadata>
+      <meta name="hlc_coord">0 34</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="EMPTY" x="0" y="37"/>
+  <single priority="1" type="EMPTY" x="1" y="36">
+    <metadata>
+      <meta name="hlc_coord">-1 34</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="EMPTY" x="0" y="35"/>
+  <single priority="1" type="EMPTY" x="1" y="35">
+    <metadata>
+      <meta name="hlc_coord">-1 33</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PIO" x="3" y="2">
+    <metadata>
+      <meta name="hlc_coord">1 0</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="EMPTY" x="3" y="0"/>
+  <single priority="1" type="EMPTY" x="3" y="1">
+    <metadata>
+      <meta name="hlc_coord">1 -1</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="3" y="3">
+    <metadata>
+      <meta name="hlc_coord">1 1</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="3" y="4">
+    <metadata>
+      <meta name="hlc_coord">1 2</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="3" y="5">
+    <metadata>
+      <meta name="hlc_coord">1 3</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="3" y="6">
+    <metadata>
+      <meta name="hlc_coord">1 4</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="3" y="7">
+    <metadata>
+      <meta name="hlc_coord">1 5</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="3" y="8">
+    <metadata>
+      <meta name="hlc_coord">1 6</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="3" y="9">
+    <metadata>
+      <meta name="hlc_coord">1 7</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="3" y="10">
+    <metadata>
+      <meta name="hlc_coord">1 8</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="3" y="11">
+    <metadata>
+      <meta name="hlc_coord">1 9</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="3" y="12">
+    <metadata>
+      <meta name="hlc_coord">1 10</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="3" y="13">
+    <metadata>
+      <meta name="hlc_coord">1 11</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="3" y="14">
+    <metadata>
+      <meta name="hlc_coord">1 12</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="3" y="15">
+    <metadata>
+      <meta name="hlc_coord">1 13</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="3" y="16">
+    <metadata>
+      <meta name="hlc_coord">1 14</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="3" y="17">
+    <metadata>
+      <meta name="hlc_coord">1 15</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="3" y="18">
+    <metadata>
+      <meta name="hlc_coord">1 16</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="3" y="19">
+    <metadata>
+      <meta name="hlc_coord">1 17</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="3" y="20">
+    <metadata>
+      <meta name="hlc_coord">1 18</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="3" y="21">
+    <metadata>
+      <meta name="hlc_coord">1 19</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="3" y="22">
+    <metadata>
+      <meta name="hlc_coord">1 20</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="3" y="23">
+    <metadata>
+      <meta name="hlc_coord">1 21</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="3" y="24">
+    <metadata>
+      <meta name="hlc_coord">1 22</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="3" y="25">
+    <metadata>
+      <meta name="hlc_coord">1 23</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="3" y="26">
+    <metadata>
+      <meta name="hlc_coord">1 24</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="3" y="27">
+    <metadata>
+      <meta name="hlc_coord">1 25</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="3" y="28">
+    <metadata>
+      <meta name="hlc_coord">1 26</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="3" y="29">
+    <metadata>
+      <meta name="hlc_coord">1 27</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="3" y="30">
+    <metadata>
+      <meta name="hlc_coord">1 28</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="3" y="31">
+    <metadata>
+      <meta name="hlc_coord">1 29</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="3" y="32">
+    <metadata>
+      <meta name="hlc_coord">1 30</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="3" y="33">
+    <metadata>
+      <meta name="hlc_coord">1 31</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="3" y="34">
+    <metadata>
+      <meta name="hlc_coord">1 32</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PIO" x="3" y="35">
+    <metadata>
+      <meta name="hlc_coord">1 33</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="EMPTY" x="3" y="37"/>
+  <single priority="1" type="PIN" x="3" y="36">
+    <metadata>
+      <meta name="hlc_pin:0">C3</meta>
+      <meta name="hlc_pin:1">D3</meta>
+      <meta name="hlc_coord">1 34</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PIO" x="4" y="2">
+    <metadata>
+      <meta name="hlc_coord">2 0</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="EMPTY" x="4" y="0"/>
+  <single priority="1" type="PIN" x="4" y="1">
+    <metadata>
+      <meta name="hlc_pin:0">N6</meta>
+      <meta name="hlc_pin:1">T1</meta>
+      <meta name="hlc_coord">2 -1</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="4" y="3">
+    <metadata>
+      <meta name="hlc_coord">2 1</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="4" y="4">
+    <metadata>
+      <meta name="hlc_coord">2 2</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="4" y="5">
+    <metadata>
+      <meta name="hlc_coord">2 3</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="4" y="6">
+    <metadata>
+      <meta name="hlc_coord">2 4</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="4" y="7">
+    <metadata>
+      <meta name="hlc_coord">2 5</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="4" y="8">
+    <metadata>
+      <meta name="hlc_coord">2 6</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="4" y="9">
+    <metadata>
+      <meta name="hlc_coord">2 7</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="4" y="10">
+    <metadata>
+      <meta name="hlc_coord">2 8</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="4" y="11">
+    <metadata>
+      <meta name="hlc_coord">2 9</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="4" y="12">
+    <metadata>
+      <meta name="hlc_coord">2 10</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="4" y="13">
+    <metadata>
+      <meta name="hlc_coord">2 11</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="4" y="14">
+    <metadata>
+      <meta name="hlc_coord">2 12</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="4" y="15">
+    <metadata>
+      <meta name="hlc_coord">2 13</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="4" y="16">
+    <metadata>
+      <meta name="hlc_coord">2 14</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="4" y="17">
+    <metadata>
+      <meta name="hlc_coord">2 15</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="4" y="18">
+    <metadata>
+      <meta name="hlc_coord">2 16</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="4" y="19">
+    <metadata>
+      <meta name="hlc_coord">2 17</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="4" y="20">
+    <metadata>
+      <meta name="hlc_coord">2 18</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="4" y="21">
+    <metadata>
+      <meta name="hlc_coord">2 19</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="4" y="22">
+    <metadata>
+      <meta name="hlc_coord">2 20</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="4" y="23">
+    <metadata>
+      <meta name="hlc_coord">2 21</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="4" y="24">
+    <metadata>
+      <meta name="hlc_coord">2 22</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="4" y="25">
+    <metadata>
+      <meta name="hlc_coord">2 23</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="4" y="26">
+    <metadata>
+      <meta name="hlc_coord">2 24</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="4" y="27">
+    <metadata>
+      <meta name="hlc_coord">2 25</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="4" y="28">
+    <metadata>
+      <meta name="hlc_coord">2 26</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="4" y="29">
+    <metadata>
+      <meta name="hlc_coord">2 27</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="4" y="30">
+    <metadata>
+      <meta name="hlc_coord">2 28</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="4" y="31">
+    <metadata>
+      <meta name="hlc_coord">2 29</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="4" y="32">
+    <metadata>
+      <meta name="hlc_coord">2 30</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="4" y="33">
+    <metadata>
+      <meta name="hlc_coord">2 31</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="4" y="34">
+    <metadata>
+      <meta name="hlc_coord">2 32</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PIO" x="4" y="35">
+    <metadata>
+      <meta name="hlc_coord">2 33</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="EMPTY" x="4" y="37"/>
+  <single priority="1" type="PIN" x="4" y="36">
+    <metadata>
+      <meta name="hlc_pin:1">D4</meta>
+      <meta name="hlc_pin:0">E5</meta>
+      <meta name="hlc_coord">2 34</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PIO" x="5" y="2">
+    <metadata>
+      <meta name="hlc_coord">3 0</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="EMPTY" x="5" y="0"/>
+  <single priority="1" type="PIN" x="5" y="1">
+    <metadata>
+      <meta name="hlc_pin:0">P4</meta>
+      <meta name="hlc_pin:1">R2</meta>
+      <meta name="hlc_coord">3 -1</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="5" y="3">
+    <metadata>
+      <meta name="hlc_coord">3 1</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="5" y="4">
+    <metadata>
+      <meta name="hlc_coord">3 2</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="5" y="5">
+    <metadata>
+      <meta name="hlc_coord">3 3</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="5" y="6">
+    <metadata>
+      <meta name="hlc_coord">3 4</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="5" y="7">
+    <metadata>
+      <meta name="hlc_coord">3 5</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="5" y="8">
+    <metadata>
+      <meta name="hlc_coord">3 6</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="5" y="9">
+    <metadata>
+      <meta name="hlc_coord">3 7</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="5" y="10">
+    <metadata>
+      <meta name="hlc_coord">3 8</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="5" y="11">
+    <metadata>
+      <meta name="hlc_coord">3 9</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="5" y="12">
+    <metadata>
+      <meta name="hlc_coord">3 10</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="5" y="13">
+    <metadata>
+      <meta name="hlc_coord">3 11</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="5" y="14">
+    <metadata>
+      <meta name="hlc_coord">3 12</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="5" y="15">
+    <metadata>
+      <meta name="hlc_coord">3 13</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="5" y="16">
+    <metadata>
+      <meta name="hlc_coord">3 14</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="5" y="17">
+    <metadata>
+      <meta name="hlc_coord">3 15</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="5" y="18">
+    <metadata>
+      <meta name="hlc_coord">3 16</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="5" y="19">
+    <metadata>
+      <meta name="hlc_coord">3 17</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="5" y="20">
+    <metadata>
+      <meta name="hlc_coord">3 18</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="5" y="21">
+    <metadata>
+      <meta name="hlc_coord">3 19</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="5" y="22">
+    <metadata>
+      <meta name="hlc_coord">3 20</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="5" y="23">
+    <metadata>
+      <meta name="hlc_coord">3 21</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="5" y="24">
+    <metadata>
+      <meta name="hlc_coord">3 22</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="5" y="25">
+    <metadata>
+      <meta name="hlc_coord">3 23</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="5" y="26">
+    <metadata>
+      <meta name="hlc_coord">3 24</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="5" y="27">
+    <metadata>
+      <meta name="hlc_coord">3 25</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="5" y="28">
+    <metadata>
+      <meta name="hlc_coord">3 26</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="5" y="29">
+    <metadata>
+      <meta name="hlc_coord">3 27</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="5" y="30">
+    <metadata>
+      <meta name="hlc_coord">3 28</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="5" y="31">
+    <metadata>
+      <meta name="hlc_coord">3 29</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="5" y="32">
+    <metadata>
+      <meta name="hlc_coord">3 30</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="5" y="33">
+    <metadata>
+      <meta name="hlc_coord">3 31</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="5" y="34">
+    <metadata>
+      <meta name="hlc_coord">3 32</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PIO" x="5" y="35">
+    <metadata>
+      <meta name="hlc_coord">3 33</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="EMPTY" x="5" y="37"/>
+  <single priority="1" type="PIN" x="5" y="36">
+    <metadata>
+      <meta name="hlc_pin:0">B3</meta>
+      <meta name="hlc_pin:1">C4</meta>
+      <meta name="hlc_coord">3 34</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PIO" x="6" y="2">
+    <metadata>
+      <meta name="hlc_coord">4 0</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="EMPTY" x="6" y="0"/>
+  <single priority="1" type="PIN" x="6" y="1">
+    <metadata>
+      <meta name="hlc_pin:0">N5</meta>
+      <meta name="hlc_pin:1">T2</meta>
+      <meta name="hlc_coord">4 -1</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="6" y="3">
+    <metadata>
+      <meta name="hlc_coord">4 1</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="6" y="4">
+    <metadata>
+      <meta name="hlc_coord">4 2</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="6" y="5">
+    <metadata>
+      <meta name="hlc_coord">4 3</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="6" y="6">
+    <metadata>
+      <meta name="hlc_coord">4 4</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="6" y="7">
+    <metadata>
+      <meta name="hlc_coord">4 5</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="6" y="8">
+    <metadata>
+      <meta name="hlc_coord">4 6</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="6" y="9">
+    <metadata>
+      <meta name="hlc_coord">4 7</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="6" y="10">
+    <metadata>
+      <meta name="hlc_coord">4 8</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="6" y="11">
+    <metadata>
+      <meta name="hlc_coord">4 9</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="6" y="12">
+    <metadata>
+      <meta name="hlc_coord">4 10</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="6" y="13">
+    <metadata>
+      <meta name="hlc_coord">4 11</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="6" y="14">
+    <metadata>
+      <meta name="hlc_coord">4 12</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="6" y="15">
+    <metadata>
+      <meta name="hlc_coord">4 13</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="6" y="16">
+    <metadata>
+      <meta name="hlc_coord">4 14</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="6" y="17">
+    <metadata>
+      <meta name="hlc_coord">4 15</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="6" y="18">
+    <metadata>
+      <meta name="hlc_coord">4 16</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="6" y="19">
+    <metadata>
+      <meta name="hlc_coord">4 17</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="6" y="20">
+    <metadata>
+      <meta name="hlc_coord">4 18</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="6" y="21">
+    <metadata>
+      <meta name="hlc_coord">4 19</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="6" y="22">
+    <metadata>
+      <meta name="hlc_coord">4 20</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="6" y="23">
+    <metadata>
+      <meta name="hlc_coord">4 21</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="6" y="24">
+    <metadata>
+      <meta name="hlc_coord">4 22</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="6" y="25">
+    <metadata>
+      <meta name="hlc_coord">4 23</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="6" y="26">
+    <metadata>
+      <meta name="hlc_coord">4 24</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="6" y="27">
+    <metadata>
+      <meta name="hlc_coord">4 25</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="6" y="28">
+    <metadata>
+      <meta name="hlc_coord">4 26</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="6" y="29">
+    <metadata>
+      <meta name="hlc_coord">4 27</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="6" y="30">
+    <metadata>
+      <meta name="hlc_coord">4 28</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="6" y="31">
+    <metadata>
+      <meta name="hlc_coord">4 29</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="6" y="32">
+    <metadata>
+      <meta name="hlc_coord">4 30</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="6" y="33">
+    <metadata>
+      <meta name="hlc_coord">4 31</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="6" y="34">
+    <metadata>
+      <meta name="hlc_coord">4 32</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PIO" x="6" y="35">
+    <metadata>
+      <meta name="hlc_coord">4 33</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="EMPTY" x="6" y="37"/>
+  <single priority="1" type="PIN" x="6" y="36">
+    <metadata>
+      <meta name="hlc_pin:1">A1</meta>
+      <meta name="hlc_pin:0">C5</meta>
+      <meta name="hlc_coord">4 34</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PIO" x="7" y="2">
+    <metadata>
+      <meta name="hlc_coord">5 0</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="EMPTY" x="7" y="0"/>
+  <single priority="1" type="PIN" x="7" y="1">
+    <metadata>
+      <meta name="hlc_pin:0">P5</meta>
+      <meta name="hlc_pin:1">R3</meta>
+      <meta name="hlc_coord">5 -1</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="7" y="3">
+    <metadata>
+      <meta name="hlc_coord">5 1</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="7" y="4">
+    <metadata>
+      <meta name="hlc_coord">5 2</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="7" y="5">
+    <metadata>
+      <meta name="hlc_coord">5 3</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="7" y="6">
+    <metadata>
+      <meta name="hlc_coord">5 4</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="7" y="7">
+    <metadata>
+      <meta name="hlc_coord">5 5</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="7" y="8">
+    <metadata>
+      <meta name="hlc_coord">5 6</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="7" y="9">
+    <metadata>
+      <meta name="hlc_coord">5 7</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="7" y="10">
+    <metadata>
+      <meta name="hlc_coord">5 8</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="7" y="11">
+    <metadata>
+      <meta name="hlc_coord">5 9</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="7" y="12">
+    <metadata>
+      <meta name="hlc_coord">5 10</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="7" y="13">
+    <metadata>
+      <meta name="hlc_coord">5 11</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="7" y="14">
+    <metadata>
+      <meta name="hlc_coord">5 12</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="7" y="15">
+    <metadata>
+      <meta name="hlc_coord">5 13</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="7" y="16">
+    <metadata>
+      <meta name="hlc_coord">5 14</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="7" y="17">
+    <metadata>
+      <meta name="hlc_coord">5 15</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="7" y="18">
+    <metadata>
+      <meta name="hlc_coord">5 16</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="7" y="19">
+    <metadata>
+      <meta name="hlc_coord">5 17</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="7" y="20">
+    <metadata>
+      <meta name="hlc_coord">5 18</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="7" y="21">
+    <metadata>
+      <meta name="hlc_coord">5 19</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="7" y="22">
+    <metadata>
+      <meta name="hlc_coord">5 20</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="7" y="23">
+    <metadata>
+      <meta name="hlc_coord">5 21</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="7" y="24">
+    <metadata>
+      <meta name="hlc_coord">5 22</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="7" y="25">
+    <metadata>
+      <meta name="hlc_coord">5 23</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="7" y="26">
+    <metadata>
+      <meta name="hlc_coord">5 24</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="7" y="27">
+    <metadata>
+      <meta name="hlc_coord">5 25</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="7" y="28">
+    <metadata>
+      <meta name="hlc_coord">5 26</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="7" y="29">
+    <metadata>
+      <meta name="hlc_coord">5 27</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="7" y="30">
+    <metadata>
+      <meta name="hlc_coord">5 28</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="7" y="31">
+    <metadata>
+      <meta name="hlc_coord">5 29</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="7" y="32">
+    <metadata>
+      <meta name="hlc_coord">5 30</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="7" y="33">
+    <metadata>
+      <meta name="hlc_coord">5 31</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="7" y="34">
+    <metadata>
+      <meta name="hlc_coord">5 32</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PIO" x="7" y="35">
+    <metadata>
+      <meta name="hlc_coord">5 33</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="EMPTY" x="7" y="37"/>
+  <single priority="1" type="PIN" x="7" y="36">
+    <metadata>
+      <meta name="hlc_pin:1">A2</meta>
+      <meta name="hlc_pin:0">D5</meta>
+      <meta name="hlc_coord">5 34</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PIO" x="8" y="2">
+    <metadata>
+      <meta name="hlc_coord">6 0</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="EMPTY" x="8" y="0"/>
+  <single priority="1" type="PIN" x="8" y="1">
+    <metadata>
+      <meta name="hlc_pin:0">R5</meta>
+      <meta name="hlc_pin:1">T3</meta>
+      <meta name="hlc_coord">6 -1</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="8" y="3">
+    <metadata>
+      <meta name="hlc_coord">6 1</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="8" y="4">
+    <metadata>
+      <meta name="hlc_coord">6 2</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="8" y="5">
+    <metadata>
+      <meta name="hlc_coord">6 3</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="8" y="6">
+    <metadata>
+      <meta name="hlc_coord">6 4</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="8" y="7">
+    <metadata>
+      <meta name="hlc_coord">6 5</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="8" y="8">
+    <metadata>
+      <meta name="hlc_coord">6 6</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="8" y="9">
+    <metadata>
+      <meta name="hlc_coord">6 7</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="8" y="10">
+    <metadata>
+      <meta name="hlc_coord">6 8</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="8" y="11">
+    <metadata>
+      <meta name="hlc_coord">6 9</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="8" y="12">
+    <metadata>
+      <meta name="hlc_coord">6 10</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="8" y="13">
+    <metadata>
+      <meta name="hlc_coord">6 11</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="8" y="14">
+    <metadata>
+      <meta name="hlc_coord">6 12</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="8" y="15">
+    <metadata>
+      <meta name="hlc_coord">6 13</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="8" y="16">
+    <metadata>
+      <meta name="hlc_coord">6 14</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="8" y="17">
+    <metadata>
+      <meta name="hlc_coord">6 15</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="8" y="18">
+    <metadata>
+      <meta name="hlc_coord">6 16</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="8" y="19">
+    <metadata>
+      <meta name="hlc_coord">6 17</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="8" y="20">
+    <metadata>
+      <meta name="hlc_coord">6 18</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="8" y="21">
+    <metadata>
+      <meta name="hlc_coord">6 19</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="8" y="22">
+    <metadata>
+      <meta name="hlc_coord">6 20</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="8" y="23">
+    <metadata>
+      <meta name="hlc_coord">6 21</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="8" y="24">
+    <metadata>
+      <meta name="hlc_coord">6 22</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="8" y="25">
+    <metadata>
+      <meta name="hlc_coord">6 23</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="8" y="26">
+    <metadata>
+      <meta name="hlc_coord">6 24</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="8" y="27">
+    <metadata>
+      <meta name="hlc_coord">6 25</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="8" y="28">
+    <metadata>
+      <meta name="hlc_coord">6 26</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="8" y="29">
+    <metadata>
+      <meta name="hlc_coord">6 27</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="8" y="30">
+    <metadata>
+      <meta name="hlc_coord">6 28</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="8" y="31">
+    <metadata>
+      <meta name="hlc_coord">6 29</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="8" y="32">
+    <metadata>
+      <meta name="hlc_coord">6 30</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="8" y="33">
+    <metadata>
+      <meta name="hlc_coord">6 31</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="8" y="34">
+    <metadata>
+      <meta name="hlc_coord">6 32</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PIO" x="8" y="35">
+    <metadata>
+      <meta name="hlc_coord">6 33</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="EMPTY" x="8" y="37"/>
+  <single priority="1" type="PIN" x="8" y="36">
+    <metadata>
+      <meta name="hlc_pin:1">B4</meta>
+      <meta name="hlc_coord">6 34</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PIO" x="9" y="2">
+    <metadata>
+      <meta name="hlc_coord">7 0</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="EMPTY" x="9" y="0"/>
+  <single priority="1" type="PIN" x="9" y="1">
+    <metadata>
+      <meta name="hlc_pin:1">R4</meta>
+      <meta name="hlc_coord">7 -1</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="9" y="3">
+    <metadata>
+      <meta name="hlc_coord">7 1</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="9" y="4">
+    <metadata>
+      <meta name="hlc_coord">7 2</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="9" y="5">
+    <metadata>
+      <meta name="hlc_coord">7 3</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="9" y="6">
+    <metadata>
+      <meta name="hlc_coord">7 4</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="9" y="7">
+    <metadata>
+      <meta name="hlc_coord">7 5</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="9" y="8">
+    <metadata>
+      <meta name="hlc_coord">7 6</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="9" y="9">
+    <metadata>
+      <meta name="hlc_coord">7 7</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="9" y="10">
+    <metadata>
+      <meta name="hlc_coord">7 8</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="9" y="11">
+    <metadata>
+      <meta name="hlc_coord">7 9</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="9" y="12">
+    <metadata>
+      <meta name="hlc_coord">7 10</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="9" y="13">
+    <metadata>
+      <meta name="hlc_coord">7 11</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="9" y="14">
+    <metadata>
+      <meta name="hlc_coord">7 12</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="9" y="15">
+    <metadata>
+      <meta name="hlc_coord">7 13</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="9" y="16">
+    <metadata>
+      <meta name="hlc_coord">7 14</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="9" y="17">
+    <metadata>
+      <meta name="hlc_coord">7 15</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="9" y="18">
+    <metadata>
+      <meta name="hlc_coord">7 16</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="9" y="19">
+    <metadata>
+      <meta name="hlc_coord">7 17</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="9" y="20">
+    <metadata>
+      <meta name="hlc_coord">7 18</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="9" y="21">
+    <metadata>
+      <meta name="hlc_coord">7 19</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="9" y="22">
+    <metadata>
+      <meta name="hlc_coord">7 20</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="9" y="23">
+    <metadata>
+      <meta name="hlc_coord">7 21</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="9" y="24">
+    <metadata>
+      <meta name="hlc_coord">7 22</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="9" y="25">
+    <metadata>
+      <meta name="hlc_coord">7 23</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="9" y="26">
+    <metadata>
+      <meta name="hlc_coord">7 24</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="9" y="27">
+    <metadata>
+      <meta name="hlc_coord">7 25</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="9" y="28">
+    <metadata>
+      <meta name="hlc_coord">7 26</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="9" y="29">
+    <metadata>
+      <meta name="hlc_coord">7 27</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="9" y="30">
+    <metadata>
+      <meta name="hlc_coord">7 28</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="9" y="31">
+    <metadata>
+      <meta name="hlc_coord">7 29</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="9" y="32">
+    <metadata>
+      <meta name="hlc_coord">7 30</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="9" y="33">
+    <metadata>
+      <meta name="hlc_coord">7 31</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="9" y="34">
+    <metadata>
+      <meta name="hlc_coord">7 32</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PIO" x="9" y="35">
+    <metadata>
+      <meta name="hlc_coord">7 33</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="EMPTY" x="9" y="37"/>
+  <single priority="1" type="PIN" x="9" y="36">
+    <metadata>
+      <meta name="hlc_pin:1">B5</meta>
+      <meta name="hlc_pin:0">E6</meta>
+      <meta name="hlc_coord">7 34</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PIO" x="10" y="2">
+    <metadata>
+      <meta name="hlc_coord">8 0</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="EMPTY" x="10" y="0"/>
+  <single priority="1" type="PIN" x="10" y="1">
+    <metadata>
+      <meta name="hlc_pin:0">M7</meta>
+      <meta name="hlc_coord">8 -1</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-RAM" x="10" y="3">
+    <metadata>
+      <meta name="hlc_coord">8 1</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-RAM" x="10" y="5">
+    <metadata>
+      <meta name="hlc_coord">8 3</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-RAM" x="10" y="7">
+    <metadata>
+      <meta name="hlc_coord">8 5</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-RAM" x="10" y="9">
+    <metadata>
+      <meta name="hlc_coord">8 7</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-RAM" x="10" y="11">
+    <metadata>
+      <meta name="hlc_coord">8 9</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-RAM" x="10" y="13">
+    <metadata>
+      <meta name="hlc_coord">8 11</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-RAM" x="10" y="15">
+    <metadata>
+      <meta name="hlc_coord">8 13</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-RAM" x="10" y="17">
+    <metadata>
+      <meta name="hlc_coord">8 15</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-RAM" x="10" y="19">
+    <metadata>
+      <meta name="hlc_coord">8 17</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-RAM" x="10" y="21">
+    <metadata>
+      <meta name="hlc_coord">8 19</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-RAM" x="10" y="23">
+    <metadata>
+      <meta name="hlc_coord">8 21</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-RAM" x="10" y="25">
+    <metadata>
+      <meta name="hlc_coord">8 23</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-RAM" x="10" y="27">
+    <metadata>
+      <meta name="hlc_coord">8 25</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-RAM" x="10" y="29">
+    <metadata>
+      <meta name="hlc_coord">8 27</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-RAM" x="10" y="31">
+    <metadata>
+      <meta name="hlc_coord">8 29</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-RAM" x="10" y="33">
+    <metadata>
+      <meta name="hlc_coord">8 31</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PIO" x="10" y="35">
+    <metadata>
+      <meta name="hlc_coord">8 33</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="EMPTY" x="10" y="37"/>
+  <single priority="1" type="PIN" x="10" y="36">
+    <metadata>
+      <meta name="hlc_pin:0">A5</meta>
+      <meta name="hlc_pin:1">D6</meta>
+      <meta name="hlc_coord">8 34</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PIO" x="11" y="2">
+    <metadata>
+      <meta name="hlc_coord">9 0</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="EMPTY" x="11" y="0"/>
+  <single priority="1" type="PIN" x="11" y="1">
+    <metadata>
+      <meta name="hlc_pin:0">N7</meta>
+      <meta name="hlc_pin:1">P6</meta>
+      <meta name="hlc_coord">9 -1</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="11" y="3">
+    <metadata>
+      <meta name="hlc_coord">9 1</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="11" y="4">
+    <metadata>
+      <meta name="hlc_coord">9 2</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="11" y="5">
+    <metadata>
+      <meta name="hlc_coord">9 3</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="11" y="6">
+    <metadata>
+      <meta name="hlc_coord">9 4</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="11" y="7">
+    <metadata>
+      <meta name="hlc_coord">9 5</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="11" y="8">
+    <metadata>
+      <meta name="hlc_coord">9 6</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="11" y="9">
+    <metadata>
+      <meta name="hlc_coord">9 7</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="11" y="10">
+    <metadata>
+      <meta name="hlc_coord">9 8</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="11" y="11">
+    <metadata>
+      <meta name="hlc_coord">9 9</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="11" y="12">
+    <metadata>
+      <meta name="hlc_coord">9 10</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="11" y="13">
+    <metadata>
+      <meta name="hlc_coord">9 11</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="11" y="14">
+    <metadata>
+      <meta name="hlc_coord">9 12</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="11" y="15">
+    <metadata>
+      <meta name="hlc_coord">9 13</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="11" y="16">
+    <metadata>
+      <meta name="hlc_coord">9 14</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="11" y="17">
+    <metadata>
+      <meta name="hlc_coord">9 15</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="11" y="18">
+    <metadata>
+      <meta name="hlc_coord">9 16</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="11" y="19">
+    <metadata>
+      <meta name="hlc_coord">9 17</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="11" y="20">
+    <metadata>
+      <meta name="hlc_coord">9 18</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="11" y="21">
+    <metadata>
+      <meta name="hlc_coord">9 19</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="11" y="22">
+    <metadata>
+      <meta name="hlc_coord">9 20</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="11" y="23">
+    <metadata>
+      <meta name="hlc_coord">9 21</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="11" y="24">
+    <metadata>
+      <meta name="hlc_coord">9 22</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="11" y="25">
+    <metadata>
+      <meta name="hlc_coord">9 23</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="11" y="26">
+    <metadata>
+      <meta name="hlc_coord">9 24</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="11" y="27">
+    <metadata>
+      <meta name="hlc_coord">9 25</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="11" y="28">
+    <metadata>
+      <meta name="hlc_coord">9 26</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="11" y="29">
+    <metadata>
+      <meta name="hlc_coord">9 27</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="11" y="30">
+    <metadata>
+      <meta name="hlc_coord">9 28</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="11" y="31">
+    <metadata>
+      <meta name="hlc_coord">9 29</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="11" y="32">
+    <metadata>
+      <meta name="hlc_coord">9 30</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="11" y="33">
+    <metadata>
+      <meta name="hlc_coord">9 31</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="11" y="34">
+    <metadata>
+      <meta name="hlc_coord">9 32</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PIO" x="11" y="35">
+    <metadata>
+      <meta name="hlc_coord">9 33</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="EMPTY" x="11" y="37"/>
+  <single priority="1" type="PIN" x="11" y="36">
+    <metadata>
+      <meta name="hlc_pin:0">A6</meta>
+      <meta name="hlc_pin:1">D7</meta>
+      <meta name="hlc_coord">9 34</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PIO" x="12" y="2">
+    <metadata>
+      <meta name="hlc_coord">10 0</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="EMPTY" x="12" y="0"/>
+  <single priority="1" type="PIN" x="12" y="1">
+    <metadata>
+      <meta name="hlc_pin:0">M8</meta>
+      <meta name="hlc_pin:1">T5</meta>
+      <meta name="hlc_coord">10 -1</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="12" y="3">
+    <metadata>
+      <meta name="hlc_coord">10 1</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="12" y="4">
+    <metadata>
+      <meta name="hlc_coord">10 2</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="12" y="5">
+    <metadata>
+      <meta name="hlc_coord">10 3</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="12" y="6">
+    <metadata>
+      <meta name="hlc_coord">10 4</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="12" y="7">
+    <metadata>
+      <meta name="hlc_coord">10 5</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="12" y="8">
+    <metadata>
+      <meta name="hlc_coord">10 6</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="12" y="9">
+    <metadata>
+      <meta name="hlc_coord">10 7</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="12" y="10">
+    <metadata>
+      <meta name="hlc_coord">10 8</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="12" y="11">
+    <metadata>
+      <meta name="hlc_coord">10 9</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="12" y="12">
+    <metadata>
+      <meta name="hlc_coord">10 10</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="12" y="13">
+    <metadata>
+      <meta name="hlc_coord">10 11</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="12" y="14">
+    <metadata>
+      <meta name="hlc_coord">10 12</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="12" y="15">
+    <metadata>
+      <meta name="hlc_coord">10 13</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="12" y="16">
+    <metadata>
+      <meta name="hlc_coord">10 14</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="12" y="17">
+    <metadata>
+      <meta name="hlc_coord">10 15</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="12" y="18">
+    <metadata>
+      <meta name="hlc_coord">10 16</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="12" y="19">
+    <metadata>
+      <meta name="hlc_coord">10 17</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="12" y="20">
+    <metadata>
+      <meta name="hlc_coord">10 18</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="12" y="21">
+    <metadata>
+      <meta name="hlc_coord">10 19</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="12" y="22">
+    <metadata>
+      <meta name="hlc_coord">10 20</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="12" y="23">
+    <metadata>
+      <meta name="hlc_coord">10 21</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="12" y="24">
+    <metadata>
+      <meta name="hlc_coord">10 22</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="12" y="25">
+    <metadata>
+      <meta name="hlc_coord">10 23</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="12" y="26">
+    <metadata>
+      <meta name="hlc_coord">10 24</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="12" y="27">
+    <metadata>
+      <meta name="hlc_coord">10 25</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="12" y="28">
+    <metadata>
+      <meta name="hlc_coord">10 26</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="12" y="29">
+    <metadata>
+      <meta name="hlc_coord">10 27</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="12" y="30">
+    <metadata>
+      <meta name="hlc_coord">10 28</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="12" y="31">
+    <metadata>
+      <meta name="hlc_coord">10 29</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="12" y="32">
+    <metadata>
+      <meta name="hlc_coord">10 30</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="12" y="33">
+    <metadata>
+      <meta name="hlc_coord">10 31</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="12" y="34">
+    <metadata>
+      <meta name="hlc_coord">10 32</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PIO" x="12" y="35">
+    <metadata>
+      <meta name="hlc_coord">10 33</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="EMPTY" x="12" y="37"/>
+  <single priority="1" type="PIN" x="12" y="36">
+    <metadata>
+      <meta name="hlc_pin:1">B6</meta>
+      <meta name="hlc_pin:0">C6</meta>
+      <meta name="hlc_coord">10 34</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PIO" x="13" y="2">
+    <metadata>
+      <meta name="hlc_coord">11 0</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="EMPTY" x="13" y="0"/>
+  <single priority="1" type="PIN" x="13" y="1">
+    <metadata>
+      <meta name="hlc_pin:1">R6</meta>
+      <meta name="hlc_coord">11 -1</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="13" y="3">
+    <metadata>
+      <meta name="hlc_coord">11 1</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="13" y="4">
+    <metadata>
+      <meta name="hlc_coord">11 2</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="13" y="5">
+    <metadata>
+      <meta name="hlc_coord">11 3</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="13" y="6">
+    <metadata>
+      <meta name="hlc_coord">11 4</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="13" y="7">
+    <metadata>
+      <meta name="hlc_coord">11 5</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="13" y="8">
+    <metadata>
+      <meta name="hlc_coord">11 6</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="13" y="9">
+    <metadata>
+      <meta name="hlc_coord">11 7</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="13" y="10">
+    <metadata>
+      <meta name="hlc_coord">11 8</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="13" y="11">
+    <metadata>
+      <meta name="hlc_coord">11 9</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="13" y="12">
+    <metadata>
+      <meta name="hlc_coord">11 10</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="13" y="13">
+    <metadata>
+      <meta name="hlc_coord">11 11</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="13" y="14">
+    <metadata>
+      <meta name="hlc_coord">11 12</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="13" y="15">
+    <metadata>
+      <meta name="hlc_coord">11 13</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="13" y="16">
+    <metadata>
+      <meta name="hlc_coord">11 14</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="13" y="17">
+    <metadata>
+      <meta name="hlc_coord">11 15</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="13" y="18">
+    <metadata>
+      <meta name="hlc_coord">11 16</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="13" y="19">
+    <metadata>
+      <meta name="hlc_coord">11 17</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="13" y="20">
+    <metadata>
+      <meta name="hlc_coord">11 18</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="13" y="21">
+    <metadata>
+      <meta name="hlc_coord">11 19</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="13" y="22">
+    <metadata>
+      <meta name="hlc_coord">11 20</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="13" y="23">
+    <metadata>
+      <meta name="hlc_coord">11 21</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="13" y="24">
+    <metadata>
+      <meta name="hlc_coord">11 22</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="13" y="25">
+    <metadata>
+      <meta name="hlc_coord">11 23</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="13" y="26">
+    <metadata>
+      <meta name="hlc_coord">11 24</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="13" y="27">
+    <metadata>
+      <meta name="hlc_coord">11 25</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="13" y="28">
+    <metadata>
+      <meta name="hlc_coord">11 26</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="13" y="29">
+    <metadata>
+      <meta name="hlc_coord">11 27</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="13" y="30">
+    <metadata>
+      <meta name="hlc_coord">11 28</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="13" y="31">
+    <metadata>
+      <meta name="hlc_coord">11 29</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="13" y="32">
+    <metadata>
+      <meta name="hlc_coord">11 30</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="13" y="33">
+    <metadata>
+      <meta name="hlc_coord">11 31</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="13" y="34">
+    <metadata>
+      <meta name="hlc_coord">11 32</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PIO" x="13" y="35">
+    <metadata>
+      <meta name="hlc_coord">11 33</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="EMPTY" x="13" y="37"/>
+  <single priority="1" type="PIN" x="13" y="36">
+    <metadata>
+      <meta name="hlc_pin:0">B7</meta>
+      <meta name="hlc_pin:1">C7</meta>
+      <meta name="hlc_coord">11 34</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PIO" x="14" y="2">
+    <metadata>
+      <meta name="hlc_coord">12 0</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="EMPTY" x="14" y="0"/>
+  <single priority="1" type="PIN" x="14" y="1">
+    <metadata>
+      <meta name="hlc_pin:0">P8</meta>
+      <meta name="hlc_pin:1">T6</meta>
+      <meta name="hlc_coord">12 -1</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="14" y="3">
+    <metadata>
+      <meta name="hlc_coord">12 1</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="14" y="4">
+    <metadata>
+      <meta name="hlc_coord">12 2</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="14" y="5">
+    <metadata>
+      <meta name="hlc_coord">12 3</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="14" y="6">
+    <metadata>
+      <meta name="hlc_coord">12 4</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="14" y="7">
+    <metadata>
+      <meta name="hlc_coord">12 5</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="14" y="8">
+    <metadata>
+      <meta name="hlc_coord">12 6</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="14" y="9">
+    <metadata>
+      <meta name="hlc_coord">12 7</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="14" y="10">
+    <metadata>
+      <meta name="hlc_coord">12 8</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="14" y="11">
+    <metadata>
+      <meta name="hlc_coord">12 9</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="14" y="12">
+    <metadata>
+      <meta name="hlc_coord">12 10</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="14" y="13">
+    <metadata>
+      <meta name="hlc_coord">12 11</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="14" y="14">
+    <metadata>
+      <meta name="hlc_coord">12 12</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="14" y="15">
+    <metadata>
+      <meta name="hlc_coord">12 13</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="14" y="16">
+    <metadata>
+      <meta name="hlc_coord">12 14</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="14" y="17">
+    <metadata>
+      <meta name="hlc_coord">12 15</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="14" y="18">
+    <metadata>
+      <meta name="hlc_coord">12 16</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="14" y="19">
+    <metadata>
+      <meta name="hlc_coord">12 17</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="14" y="20">
+    <metadata>
+      <meta name="hlc_coord">12 18</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="14" y="21">
+    <metadata>
+      <meta name="hlc_coord">12 19</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="14" y="22">
+    <metadata>
+      <meta name="hlc_coord">12 20</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="14" y="23">
+    <metadata>
+      <meta name="hlc_coord">12 21</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="14" y="24">
+    <metadata>
+      <meta name="hlc_coord">12 22</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="14" y="25">
+    <metadata>
+      <meta name="hlc_coord">12 23</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="14" y="26">
+    <metadata>
+      <meta name="hlc_coord">12 24</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="14" y="27">
+    <metadata>
+      <meta name="hlc_coord">12 25</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="14" y="28">
+    <metadata>
+      <meta name="hlc_coord">12 26</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="14" y="29">
+    <metadata>
+      <meta name="hlc_coord">12 27</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="14" y="30">
+    <metadata>
+      <meta name="hlc_coord">12 28</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="14" y="31">
+    <metadata>
+      <meta name="hlc_coord">12 29</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="14" y="32">
+    <metadata>
+      <meta name="hlc_coord">12 30</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="14" y="33">
+    <metadata>
+      <meta name="hlc_coord">12 31</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="14" y="34">
+    <metadata>
+      <meta name="hlc_coord">12 32</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PIO" x="14" y="35">
+    <metadata>
+      <meta name="hlc_coord">12 33</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="EMPTY" x="14" y="37"/>
+  <single priority="1" type="PIN" x="14" y="36">
+    <metadata>
+      <meta name="hlc_pin:0">A7</meta>
+      <meta name="hlc_coord">12 34</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PIO" x="15" y="2">
+    <metadata>
+      <meta name="hlc_coord">13 0</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="EMPTY" x="15" y="0"/>
+  <single priority="1" type="PIN" x="15" y="1">
+    <metadata>
+      <meta name="hlc_pin:0">L9</meta>
+      <meta name="hlc_pin:1">T7</meta>
+      <meta name="hlc_coord">13 -1</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="15" y="3">
+    <metadata>
+      <meta name="hlc_coord">13 1</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="15" y="4">
+    <metadata>
+      <meta name="hlc_coord">13 2</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="15" y="5">
+    <metadata>
+      <meta name="hlc_coord">13 3</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="15" y="6">
+    <metadata>
+      <meta name="hlc_coord">13 4</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="15" y="7">
+    <metadata>
+      <meta name="hlc_coord">13 5</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="15" y="8">
+    <metadata>
+      <meta name="hlc_coord">13 6</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="15" y="9">
+    <metadata>
+      <meta name="hlc_coord">13 7</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="15" y="10">
+    <metadata>
+      <meta name="hlc_coord">13 8</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="15" y="11">
+    <metadata>
+      <meta name="hlc_coord">13 9</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="15" y="12">
+    <metadata>
+      <meta name="hlc_coord">13 10</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="15" y="13">
+    <metadata>
+      <meta name="hlc_coord">13 11</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="15" y="14">
+    <metadata>
+      <meta name="hlc_coord">13 12</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="15" y="15">
+    <metadata>
+      <meta name="hlc_coord">13 13</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="15" y="16">
+    <metadata>
+      <meta name="hlc_coord">13 14</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="15" y="17">
+    <metadata>
+      <meta name="hlc_coord">13 15</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="15" y="18">
+    <metadata>
+      <meta name="hlc_coord">13 16</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="15" y="19">
+    <metadata>
+      <meta name="hlc_coord">13 17</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="15" y="20">
+    <metadata>
+      <meta name="hlc_coord">13 18</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="15" y="21">
+    <metadata>
+      <meta name="hlc_coord">13 19</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="15" y="22">
+    <metadata>
+      <meta name="hlc_coord">13 20</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="15" y="23">
+    <metadata>
+      <meta name="hlc_coord">13 21</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="15" y="24">
+    <metadata>
+      <meta name="hlc_coord">13 22</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="15" y="25">
+    <metadata>
+      <meta name="hlc_coord">13 23</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="15" y="26">
+    <metadata>
+      <meta name="hlc_coord">13 24</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="15" y="27">
+    <metadata>
+      <meta name="hlc_coord">13 25</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="15" y="28">
+    <metadata>
+      <meta name="hlc_coord">13 26</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="15" y="29">
+    <metadata>
+      <meta name="hlc_coord">13 27</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="15" y="30">
+    <metadata>
+      <meta name="hlc_coord">13 28</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="15" y="31">
+    <metadata>
+      <meta name="hlc_coord">13 29</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="15" y="32">
+    <metadata>
+      <meta name="hlc_coord">13 30</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="15" y="33">
+    <metadata>
+      <meta name="hlc_coord">13 31</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="15" y="34">
+    <metadata>
+      <meta name="hlc_coord">13 32</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PIO" x="15" y="35">
+    <metadata>
+      <meta name="hlc_coord">13 33</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="EMPTY" x="15" y="37"/>
+  <single priority="1" type="PIN" x="15" y="36">
+    <metadata>
+      <meta name="hlc_pin:0">B8</meta>
+      <meta name="hlc_coord">13 34</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PIO" x="16" y="2">
+    <metadata>
+      <meta name="hlc_coord">14 0</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="EMPTY" x="16" y="0"/>
+  <single priority="1" type="PIN" x="16" y="1">
+    <metadata>
+      <meta name="hlc_pin:1">P7</meta>
+      <meta name="hlc_pin:0">T8</meta>
+      <meta name="hlc_coord">14 -1</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="16" y="3">
+    <metadata>
+      <meta name="hlc_coord">14 1</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="16" y="4">
+    <metadata>
+      <meta name="hlc_coord">14 2</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="16" y="5">
+    <metadata>
+      <meta name="hlc_coord">14 3</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="16" y="6">
+    <metadata>
+      <meta name="hlc_coord">14 4</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="16" y="7">
+    <metadata>
+      <meta name="hlc_coord">14 5</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="16" y="8">
+    <metadata>
+      <meta name="hlc_coord">14 6</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="16" y="9">
+    <metadata>
+      <meta name="hlc_coord">14 7</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="16" y="10">
+    <metadata>
+      <meta name="hlc_coord">14 8</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="16" y="11">
+    <metadata>
+      <meta name="hlc_coord">14 9</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="16" y="12">
+    <metadata>
+      <meta name="hlc_coord">14 10</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="16" y="13">
+    <metadata>
+      <meta name="hlc_coord">14 11</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="16" y="14">
+    <metadata>
+      <meta name="hlc_coord">14 12</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="16" y="15">
+    <metadata>
+      <meta name="hlc_coord">14 13</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="16" y="16">
+    <metadata>
+      <meta name="hlc_coord">14 14</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="16" y="17">
+    <metadata>
+      <meta name="hlc_coord">14 15</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="16" y="18">
+    <metadata>
+      <meta name="hlc_coord">14 16</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="16" y="19">
+    <metadata>
+      <meta name="hlc_coord">14 17</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="16" y="20">
+    <metadata>
+      <meta name="hlc_coord">14 18</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="16" y="21">
+    <metadata>
+      <meta name="hlc_coord">14 19</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="16" y="22">
+    <metadata>
+      <meta name="hlc_coord">14 20</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="16" y="23">
+    <metadata>
+      <meta name="hlc_coord">14 21</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="16" y="24">
+    <metadata>
+      <meta name="hlc_coord">14 22</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="16" y="25">
+    <metadata>
+      <meta name="hlc_coord">14 23</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="16" y="26">
+    <metadata>
+      <meta name="hlc_coord">14 24</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="16" y="27">
+    <metadata>
+      <meta name="hlc_coord">14 25</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="16" y="28">
+    <metadata>
+      <meta name="hlc_coord">14 26</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="16" y="29">
+    <metadata>
+      <meta name="hlc_coord">14 27</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="16" y="30">
+    <metadata>
+      <meta name="hlc_coord">14 28</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="16" y="31">
+    <metadata>
+      <meta name="hlc_coord">14 29</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="16" y="32">
+    <metadata>
+      <meta name="hlc_coord">14 30</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="16" y="33">
+    <metadata>
+      <meta name="hlc_coord">14 31</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="16" y="34">
+    <metadata>
+      <meta name="hlc_coord">14 32</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PIO" x="16" y="35">
+    <metadata>
+      <meta name="hlc_coord">14 33</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="EMPTY" x="16" y="37"/>
+  <single priority="1" type="PIN" x="16" y="36">
+    <metadata>
+      <meta name="hlc_pin:1">D8</meta>
+      <meta name="hlc_coord">14 34</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PIO" x="17" y="2">
+    <metadata>
+      <meta name="hlc_coord">15 0</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="EMPTY" x="17" y="0"/>
+  <single priority="1" type="PIN" x="17" y="1">
+    <metadata>
+      <meta name="hlc_pin:0">N9</meta>
+      <meta name="hlc_pin:1">T9</meta>
+      <meta name="hlc_coord">15 -1</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="17" y="3">
+    <metadata>
+      <meta name="hlc_coord">15 1</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="17" y="4">
+    <metadata>
+      <meta name="hlc_coord">15 2</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="17" y="5">
+    <metadata>
+      <meta name="hlc_coord">15 3</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="17" y="6">
+    <metadata>
+      <meta name="hlc_coord">15 4</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="17" y="7">
+    <metadata>
+      <meta name="hlc_coord">15 5</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="17" y="8">
+    <metadata>
+      <meta name="hlc_coord">15 6</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="17" y="9">
+    <metadata>
+      <meta name="hlc_coord">15 7</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="17" y="10">
+    <metadata>
+      <meta name="hlc_coord">15 8</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="17" y="11">
+    <metadata>
+      <meta name="hlc_coord">15 9</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="17" y="12">
+    <metadata>
+      <meta name="hlc_coord">15 10</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="17" y="13">
+    <metadata>
+      <meta name="hlc_coord">15 11</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="17" y="14">
+    <metadata>
+      <meta name="hlc_coord">15 12</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="17" y="15">
+    <metadata>
+      <meta name="hlc_coord">15 13</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="17" y="16">
+    <metadata>
+      <meta name="hlc_coord">15 14</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="17" y="17">
+    <metadata>
+      <meta name="hlc_coord">15 15</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="17" y="18">
+    <metadata>
+      <meta name="hlc_coord">15 16</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="17" y="19">
+    <metadata>
+      <meta name="hlc_coord">15 17</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="17" y="20">
+    <metadata>
+      <meta name="hlc_coord">15 18</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="17" y="21">
+    <metadata>
+      <meta name="hlc_coord">15 19</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="17" y="22">
+    <metadata>
+      <meta name="hlc_coord">15 20</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="17" y="23">
+    <metadata>
+      <meta name="hlc_coord">15 21</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="17" y="24">
+    <metadata>
+      <meta name="hlc_coord">15 22</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="17" y="25">
+    <metadata>
+      <meta name="hlc_coord">15 23</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="17" y="26">
+    <metadata>
+      <meta name="hlc_coord">15 24</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="17" y="27">
+    <metadata>
+      <meta name="hlc_coord">15 25</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="17" y="28">
+    <metadata>
+      <meta name="hlc_coord">15 26</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="17" y="29">
+    <metadata>
+      <meta name="hlc_coord">15 27</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="17" y="30">
+    <metadata>
+      <meta name="hlc_coord">15 28</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="17" y="31">
+    <metadata>
+      <meta name="hlc_coord">15 29</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="17" y="32">
+    <metadata>
+      <meta name="hlc_coord">15 30</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="17" y="33">
+    <metadata>
+      <meta name="hlc_coord">15 31</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="17" y="34">
+    <metadata>
+      <meta name="hlc_coord">15 32</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PIO" x="17" y="35">
+    <metadata>
+      <meta name="hlc_coord">15 33</meta>
+      <meta name="hlc_latch_io">1</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="EMPTY" x="17" y="37"/>
+  <single priority="1" type="EMPTY" x="17" y="36">
+    <metadata>
+      <meta name="hlc_coord">15 34</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PIO" x="18" y="2">
+    <metadata>
+      <meta name="hlc_coord">16 0</meta>
+      <meta name="hlc_global_io:1">glb_netwk_6</meta>
+      <meta name="hlc_global_fabric:1">glb_netwk_5</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="EMPTY" x="18" y="0"/>
+  <single priority="1" type="PIN" x="18" y="1">
+    <metadata>
+      <meta name="hlc_pin:0">M9</meta>
+      <meta name="hlc_pin:1">R9</meta>
+      <meta name="hlc_coord">16 -1</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="18" y="3">
+    <metadata>
+      <meta name="hlc_coord">16 1</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="18" y="4">
+    <metadata>
+      <meta name="hlc_coord">16 2</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="18" y="5">
+    <metadata>
+      <meta name="hlc_coord">16 3</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="18" y="6">
+    <metadata>
+      <meta name="hlc_coord">16 4</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="18" y="7">
+    <metadata>
+      <meta name="hlc_coord">16 5</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="18" y="8">
+    <metadata>
+      <meta name="hlc_coord">16 6</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="18" y="9">
+    <metadata>
+      <meta name="hlc_coord">16 7</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="18" y="10">
+    <metadata>
+      <meta name="hlc_coord">16 8</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="18" y="11">
+    <metadata>
+      <meta name="hlc_coord">16 9</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="18" y="12">
+    <metadata>
+      <meta name="hlc_coord">16 10</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="18" y="13">
+    <metadata>
+      <meta name="hlc_coord">16 11</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="18" y="14">
+    <metadata>
+      <meta name="hlc_coord">16 12</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="18" y="15">
+    <metadata>
+      <meta name="hlc_coord">16 13</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="18" y="16">
+    <metadata>
+      <meta name="hlc_coord">16 14</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="18" y="17">
+    <metadata>
+      <meta name="hlc_coord">16 15</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="18" y="18">
+    <metadata>
+      <meta name="hlc_coord">16 16</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="18" y="19">
+    <metadata>
+      <meta name="hlc_coord">16 17</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="18" y="20">
+    <metadata>
+      <meta name="hlc_coord">16 18</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="18" y="21">
+    <metadata>
+      <meta name="hlc_coord">16 19</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="18" y="22">
+    <metadata>
+      <meta name="hlc_coord">16 20</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="18" y="23">
+    <metadata>
+      <meta name="hlc_coord">16 21</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="18" y="24">
+    <metadata>
+      <meta name="hlc_coord">16 22</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="18" y="25">
+    <metadata>
+      <meta name="hlc_coord">16 23</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="18" y="26">
+    <metadata>
+      <meta name="hlc_coord">16 24</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="18" y="27">
+    <metadata>
+      <meta name="hlc_coord">16 25</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="18" y="28">
+    <metadata>
+      <meta name="hlc_coord">16 26</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="18" y="29">
+    <metadata>
+      <meta name="hlc_coord">16 27</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="18" y="30">
+    <metadata>
+      <meta name="hlc_coord">16 28</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="18" y="31">
+    <metadata>
+      <meta name="hlc_coord">16 29</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="18" y="32">
+    <metadata>
+      <meta name="hlc_coord">16 30</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="18" y="33">
+    <metadata>
+      <meta name="hlc_coord">16 31</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="18" y="34">
+    <metadata>
+      <meta name="hlc_coord">16 32</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PIO" x="18" y="35">
+    <metadata>
+      <meta name="hlc_coord">16 33</meta>
+      <meta name="hlc_global_io:1">glb_netwk_7</meta>
+      <meta name="hlc_global_fabric:1">glb_netwk_4</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="EMPTY" x="18" y="37"/>
+  <single priority="1" type="PIN" x="18" y="36">
+    <metadata>
+      <meta name="hlc_pin:0">B9</meta>
+      <meta name="hlc_pin:1">F7</meta>
+      <meta name="hlc_coord">16 34</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PIO" x="19" y="2">
+    <metadata>
+      <meta name="hlc_coord">17 0</meta>
+      <meta name="hlc_global_io:0">glb_netwk_3</meta>
+      <meta name="hlc_global_fabric:0">glb_netwk_0</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="EMPTY" x="19" y="0"/>
+  <single priority="1" type="PIN" x="19" y="1">
+    <metadata>
+      <meta name="hlc_pin:0">K9</meta>
+      <meta name="hlc_pin:1">P9</meta>
+      <meta name="hlc_coord">17 -1</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="19" y="3">
+    <metadata>
+      <meta name="hlc_coord">17 1</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="19" y="4">
+    <metadata>
+      <meta name="hlc_coord">17 2</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="19" y="5">
+    <metadata>
+      <meta name="hlc_coord">17 3</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="19" y="6">
+    <metadata>
+      <meta name="hlc_coord">17 4</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="19" y="7">
+    <metadata>
+      <meta name="hlc_coord">17 5</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="19" y="8">
+    <metadata>
+      <meta name="hlc_coord">17 6</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="19" y="9">
+    <metadata>
+      <meta name="hlc_coord">17 7</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="19" y="10">
+    <metadata>
+      <meta name="hlc_coord">17 8</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="19" y="11">
+    <metadata>
+      <meta name="hlc_coord">17 9</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="19" y="12">
+    <metadata>
+      <meta name="hlc_coord">17 10</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="19" y="13">
+    <metadata>
+      <meta name="hlc_coord">17 11</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="19" y="14">
+    <metadata>
+      <meta name="hlc_coord">17 12</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="19" y="15">
+    <metadata>
+      <meta name="hlc_coord">17 13</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="19" y="16">
+    <metadata>
+      <meta name="hlc_coord">17 14</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="19" y="17">
+    <metadata>
+      <meta name="hlc_coord">17 15</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="19" y="18">
+    <metadata>
+      <meta name="hlc_coord">17 16</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="19" y="19">
+    <metadata>
+      <meta name="hlc_coord">17 17</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="19" y="20">
+    <metadata>
+      <meta name="hlc_coord">17 18</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="19" y="21">
+    <metadata>
+      <meta name="hlc_coord">17 19</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="19" y="22">
+    <metadata>
+      <meta name="hlc_coord">17 20</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="19" y="23">
+    <metadata>
+      <meta name="hlc_coord">17 21</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="19" y="24">
+    <metadata>
+      <meta name="hlc_coord">17 22</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="19" y="25">
+    <metadata>
+      <meta name="hlc_coord">17 23</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="19" y="26">
+    <metadata>
+      <meta name="hlc_coord">17 24</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="19" y="27">
+    <metadata>
+      <meta name="hlc_coord">17 25</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="19" y="28">
+    <metadata>
+      <meta name="hlc_coord">17 26</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="19" y="29">
+    <metadata>
+      <meta name="hlc_coord">17 27</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="19" y="30">
+    <metadata>
+      <meta name="hlc_coord">17 28</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="19" y="31">
+    <metadata>
+      <meta name="hlc_coord">17 29</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="19" y="32">
+    <metadata>
+      <meta name="hlc_coord">17 30</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="19" y="33">
+    <metadata>
+      <meta name="hlc_coord">17 31</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="19" y="34">
+    <metadata>
+      <meta name="hlc_coord">17 32</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PIO" x="19" y="35">
+    <metadata>
+      <meta name="hlc_coord">17 33</meta>
+      <meta name="hlc_global_io:0">glb_netwk_2</meta>
+      <meta name="hlc_global_fabric:0">glb_netwk_1</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="EMPTY" x="19" y="37"/>
+  <single priority="1" type="PIN" x="19" y="36">
+    <metadata>
+      <meta name="hlc_pin:0">C8</meta>
+      <meta name="hlc_pin:1">F9</meta>
+      <meta name="hlc_coord">17 34</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PIO" x="20" y="2">
+    <metadata>
+      <meta name="hlc_coord">18 0</meta>
+      <meta name="hlc_latch_io">1</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="EMPTY" x="20" y="0"/>
+  <single priority="1" type="EMPTY" x="20" y="1">
+    <metadata>
+      <meta name="hlc_coord">18 -1</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="20" y="3">
+    <metadata>
+      <meta name="hlc_coord">18 1</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="20" y="4">
+    <metadata>
+      <meta name="hlc_coord">18 2</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="20" y="5">
+    <metadata>
+      <meta name="hlc_coord">18 3</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="20" y="6">
+    <metadata>
+      <meta name="hlc_coord">18 4</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="20" y="7">
+    <metadata>
+      <meta name="hlc_coord">18 5</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="20" y="8">
+    <metadata>
+      <meta name="hlc_coord">18 6</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="20" y="9">
+    <metadata>
+      <meta name="hlc_coord">18 7</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="20" y="10">
+    <metadata>
+      <meta name="hlc_coord">18 8</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="20" y="11">
+    <metadata>
+      <meta name="hlc_coord">18 9</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="20" y="12">
+    <metadata>
+      <meta name="hlc_coord">18 10</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="20" y="13">
+    <metadata>
+      <meta name="hlc_coord">18 11</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="20" y="14">
+    <metadata>
+      <meta name="hlc_coord">18 12</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="20" y="15">
+    <metadata>
+      <meta name="hlc_coord">18 13</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="20" y="16">
+    <metadata>
+      <meta name="hlc_coord">18 14</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="20" y="17">
+    <metadata>
+      <meta name="hlc_coord">18 15</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="20" y="18">
+    <metadata>
+      <meta name="hlc_coord">18 16</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="20" y="19">
+    <metadata>
+      <meta name="hlc_coord">18 17</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="20" y="20">
+    <metadata>
+      <meta name="hlc_coord">18 18</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="20" y="21">
+    <metadata>
+      <meta name="hlc_coord">18 19</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="20" y="22">
+    <metadata>
+      <meta name="hlc_coord">18 20</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="20" y="23">
+    <metadata>
+      <meta name="hlc_coord">18 21</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="20" y="24">
+    <metadata>
+      <meta name="hlc_coord">18 22</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="20" y="25">
+    <metadata>
+      <meta name="hlc_coord">18 23</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="20" y="26">
+    <metadata>
+      <meta name="hlc_coord">18 24</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="20" y="27">
+    <metadata>
+      <meta name="hlc_coord">18 25</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="20" y="28">
+    <metadata>
+      <meta name="hlc_coord">18 26</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="20" y="29">
+    <metadata>
+      <meta name="hlc_coord">18 27</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="20" y="30">
+    <metadata>
+      <meta name="hlc_coord">18 28</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="20" y="31">
+    <metadata>
+      <meta name="hlc_coord">18 29</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="20" y="32">
+    <metadata>
+      <meta name="hlc_coord">18 30</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="20" y="33">
+    <metadata>
+      <meta name="hlc_coord">18 31</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="20" y="34">
+    <metadata>
+      <meta name="hlc_coord">18 32</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PIO" x="20" y="35">
+    <metadata>
+      <meta name="hlc_coord">18 33</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="EMPTY" x="20" y="37"/>
+  <single priority="1" type="PIN" x="20" y="36">
+    <metadata>
+      <meta name="hlc_pin:1">A9</meta>
+      <meta name="hlc_coord">18 34</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PIO" x="21" y="2">
+    <metadata>
+      <meta name="hlc_coord">19 0</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="EMPTY" x="21" y="0"/>
+  <single priority="1" type="PIN" x="21" y="1">
+    <metadata>
+      <meta name="hlc_pin:1">L10</meta>
+      <meta name="hlc_pin:0">R10</meta>
+      <meta name="hlc_coord">19 -1</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="21" y="3">
+    <metadata>
+      <meta name="hlc_coord">19 1</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="21" y="4">
+    <metadata>
+      <meta name="hlc_coord">19 2</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="21" y="5">
+    <metadata>
+      <meta name="hlc_coord">19 3</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="21" y="6">
+    <metadata>
+      <meta name="hlc_coord">19 4</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="21" y="7">
+    <metadata>
+      <meta name="hlc_coord">19 5</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="21" y="8">
+    <metadata>
+      <meta name="hlc_coord">19 6</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="21" y="9">
+    <metadata>
+      <meta name="hlc_coord">19 7</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="21" y="10">
+    <metadata>
+      <meta name="hlc_coord">19 8</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="21" y="11">
+    <metadata>
+      <meta name="hlc_coord">19 9</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="21" y="12">
+    <metadata>
+      <meta name="hlc_coord">19 10</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="21" y="13">
+    <metadata>
+      <meta name="hlc_coord">19 11</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="21" y="14">
+    <metadata>
+      <meta name="hlc_coord">19 12</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="21" y="15">
+    <metadata>
+      <meta name="hlc_coord">19 13</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="21" y="16">
+    <metadata>
+      <meta name="hlc_coord">19 14</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="21" y="17">
+    <metadata>
+      <meta name="hlc_coord">19 15</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="21" y="18">
+    <metadata>
+      <meta name="hlc_coord">19 16</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="21" y="19">
+    <metadata>
+      <meta name="hlc_coord">19 17</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="21" y="20">
+    <metadata>
+      <meta name="hlc_coord">19 18</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="21" y="21">
+    <metadata>
+      <meta name="hlc_coord">19 19</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="21" y="22">
+    <metadata>
+      <meta name="hlc_coord">19 20</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="21" y="23">
+    <metadata>
+      <meta name="hlc_coord">19 21</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="21" y="24">
+    <metadata>
+      <meta name="hlc_coord">19 22</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="21" y="25">
+    <metadata>
+      <meta name="hlc_coord">19 23</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="21" y="26">
+    <metadata>
+      <meta name="hlc_coord">19 24</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="21" y="27">
+    <metadata>
+      <meta name="hlc_coord">19 25</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="21" y="28">
+    <metadata>
+      <meta name="hlc_coord">19 26</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="21" y="29">
+    <metadata>
+      <meta name="hlc_coord">19 27</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="21" y="30">
+    <metadata>
+      <meta name="hlc_coord">19 28</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="21" y="31">
+    <metadata>
+      <meta name="hlc_coord">19 29</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="21" y="32">
+    <metadata>
+      <meta name="hlc_coord">19 30</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="21" y="33">
+    <metadata>
+      <meta name="hlc_coord">19 31</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="21" y="34">
+    <metadata>
+      <meta name="hlc_coord">19 32</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PIO" x="21" y="35">
+    <metadata>
+      <meta name="hlc_coord">19 33</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="EMPTY" x="21" y="37"/>
+  <single priority="1" type="PIN" x="21" y="36">
+    <metadata>
+      <meta name="hlc_pin:0">D9</meta>
+      <meta name="hlc_pin:1">E9</meta>
+      <meta name="hlc_coord">19 34</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PIO" x="22" y="2">
+    <metadata>
+      <meta name="hlc_coord">20 0</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="EMPTY" x="22" y="0"/>
+  <single priority="1" type="PIN" x="22" y="1">
+    <metadata>
+      <meta name="hlc_pin:1">N10</meta>
+      <meta name="hlc_pin:0">P10</meta>
+      <meta name="hlc_coord">20 -1</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="22" y="3">
+    <metadata>
+      <meta name="hlc_coord">20 1</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="22" y="4">
+    <metadata>
+      <meta name="hlc_coord">20 2</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="22" y="5">
+    <metadata>
+      <meta name="hlc_coord">20 3</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="22" y="6">
+    <metadata>
+      <meta name="hlc_coord">20 4</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="22" y="7">
+    <metadata>
+      <meta name="hlc_coord">20 5</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="22" y="8">
+    <metadata>
+      <meta name="hlc_coord">20 6</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="22" y="9">
+    <metadata>
+      <meta name="hlc_coord">20 7</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="22" y="10">
+    <metadata>
+      <meta name="hlc_coord">20 8</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="22" y="11">
+    <metadata>
+      <meta name="hlc_coord">20 9</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="22" y="12">
+    <metadata>
+      <meta name="hlc_coord">20 10</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="22" y="13">
+    <metadata>
+      <meta name="hlc_coord">20 11</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="22" y="14">
+    <metadata>
+      <meta name="hlc_coord">20 12</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="22" y="15">
+    <metadata>
+      <meta name="hlc_coord">20 13</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="22" y="16">
+    <metadata>
+      <meta name="hlc_coord">20 14</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="22" y="17">
+    <metadata>
+      <meta name="hlc_coord">20 15</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="22" y="18">
+    <metadata>
+      <meta name="hlc_coord">20 16</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="22" y="19">
+    <metadata>
+      <meta name="hlc_coord">20 17</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="22" y="20">
+    <metadata>
+      <meta name="hlc_coord">20 18</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="22" y="21">
+    <metadata>
+      <meta name="hlc_coord">20 19</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="22" y="22">
+    <metadata>
+      <meta name="hlc_coord">20 20</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="22" y="23">
+    <metadata>
+      <meta name="hlc_coord">20 21</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="22" y="24">
+    <metadata>
+      <meta name="hlc_coord">20 22</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="22" y="25">
+    <metadata>
+      <meta name="hlc_coord">20 23</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="22" y="26">
+    <metadata>
+      <meta name="hlc_coord">20 24</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="22" y="27">
+    <metadata>
+      <meta name="hlc_coord">20 25</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="22" y="28">
+    <metadata>
+      <meta name="hlc_coord">20 26</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="22" y="29">
+    <metadata>
+      <meta name="hlc_coord">20 27</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="22" y="30">
+    <metadata>
+      <meta name="hlc_coord">20 28</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="22" y="31">
+    <metadata>
+      <meta name="hlc_coord">20 29</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="22" y="32">
+    <metadata>
+      <meta name="hlc_coord">20 30</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="22" y="33">
+    <metadata>
+      <meta name="hlc_coord">20 31</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="22" y="34">
+    <metadata>
+      <meta name="hlc_coord">20 32</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PIO" x="22" y="35">
+    <metadata>
+      <meta name="hlc_coord">20 33</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="EMPTY" x="22" y="37"/>
+  <single priority="1" type="PIN" x="22" y="36">
+    <metadata>
+      <meta name="hlc_pin:0">C9</meta>
+      <meta name="hlc_pin:1">D10</meta>
+      <meta name="hlc_coord">20 34</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PIO" x="23" y="2">
+    <metadata>
+      <meta name="hlc_coord">21 0</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="EMPTY" x="23" y="0"/>
+  <single priority="1" type="PIN" x="23" y="1">
+    <metadata>
+      <meta name="hlc_pin:0">T10</meta>
+      <meta name="hlc_pin:1">T11</meta>
+      <meta name="hlc_coord">21 -1</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="23" y="3">
+    <metadata>
+      <meta name="hlc_coord">21 1</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="23" y="4">
+    <metadata>
+      <meta name="hlc_coord">21 2</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="23" y="5">
+    <metadata>
+      <meta name="hlc_coord">21 3</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="23" y="6">
+    <metadata>
+      <meta name="hlc_coord">21 4</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="23" y="7">
+    <metadata>
+      <meta name="hlc_coord">21 5</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="23" y="8">
+    <metadata>
+      <meta name="hlc_coord">21 6</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="23" y="9">
+    <metadata>
+      <meta name="hlc_coord">21 7</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="23" y="10">
+    <metadata>
+      <meta name="hlc_coord">21 8</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="23" y="11">
+    <metadata>
+      <meta name="hlc_coord">21 9</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="23" y="12">
+    <metadata>
+      <meta name="hlc_coord">21 10</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="23" y="13">
+    <metadata>
+      <meta name="hlc_coord">21 11</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="23" y="14">
+    <metadata>
+      <meta name="hlc_coord">21 12</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="23" y="15">
+    <metadata>
+      <meta name="hlc_coord">21 13</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="23" y="16">
+    <metadata>
+      <meta name="hlc_coord">21 14</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="23" y="17">
+    <metadata>
+      <meta name="hlc_coord">21 15</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="23" y="18">
+    <metadata>
+      <meta name="hlc_coord">21 16</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="23" y="19">
+    <metadata>
+      <meta name="hlc_coord">21 17</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="23" y="20">
+    <metadata>
+      <meta name="hlc_coord">21 18</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="23" y="21">
+    <metadata>
+      <meta name="hlc_coord">21 19</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="23" y="22">
+    <metadata>
+      <meta name="hlc_coord">21 20</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="23" y="23">
+    <metadata>
+      <meta name="hlc_coord">21 21</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="23" y="24">
+    <metadata>
+      <meta name="hlc_coord">21 22</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="23" y="25">
+    <metadata>
+      <meta name="hlc_coord">21 23</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="23" y="26">
+    <metadata>
+      <meta name="hlc_coord">21 24</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="23" y="27">
+    <metadata>
+      <meta name="hlc_coord">21 25</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="23" y="28">
+    <metadata>
+      <meta name="hlc_coord">21 26</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="23" y="29">
+    <metadata>
+      <meta name="hlc_coord">21 27</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="23" y="30">
+    <metadata>
+      <meta name="hlc_coord">21 28</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="23" y="31">
+    <metadata>
+      <meta name="hlc_coord">21 29</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="23" y="32">
+    <metadata>
+      <meta name="hlc_coord">21 30</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="23" y="33">
+    <metadata>
+      <meta name="hlc_coord">21 31</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="23" y="34">
+    <metadata>
+      <meta name="hlc_coord">21 32</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PIO" x="23" y="35">
+    <metadata>
+      <meta name="hlc_coord">21 33</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="EMPTY" x="23" y="37"/>
+  <single priority="1" type="EMPTY" x="23" y="36">
+    <metadata>
+      <meta name="hlc_coord">21 34</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PIO" x="24" y="2">
+    <metadata>
+      <meta name="hlc_coord">22 0</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="EMPTY" x="24" y="0"/>
+  <single priority="1" type="PIN" x="24" y="1">
+    <metadata>
+      <meta name="hlc_pin:1">T15</meta>
+      <meta name="hlc_coord">22 -1</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="24" y="3">
+    <metadata>
+      <meta name="hlc_coord">22 1</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="24" y="4">
+    <metadata>
+      <meta name="hlc_coord">22 2</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="24" y="5">
+    <metadata>
+      <meta name="hlc_coord">22 3</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="24" y="6">
+    <metadata>
+      <meta name="hlc_coord">22 4</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="24" y="7">
+    <metadata>
+      <meta name="hlc_coord">22 5</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="24" y="8">
+    <metadata>
+      <meta name="hlc_coord">22 6</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="24" y="9">
+    <metadata>
+      <meta name="hlc_coord">22 7</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="24" y="10">
+    <metadata>
+      <meta name="hlc_coord">22 8</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="24" y="11">
+    <metadata>
+      <meta name="hlc_coord">22 9</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="24" y="12">
+    <metadata>
+      <meta name="hlc_coord">22 10</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="24" y="13">
+    <metadata>
+      <meta name="hlc_coord">22 11</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="24" y="14">
+    <metadata>
+      <meta name="hlc_coord">22 12</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="24" y="15">
+    <metadata>
+      <meta name="hlc_coord">22 13</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="24" y="16">
+    <metadata>
+      <meta name="hlc_coord">22 14</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="24" y="17">
+    <metadata>
+      <meta name="hlc_coord">22 15</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="24" y="18">
+    <metadata>
+      <meta name="hlc_coord">22 16</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="24" y="19">
+    <metadata>
+      <meta name="hlc_coord">22 17</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="24" y="20">
+    <metadata>
+      <meta name="hlc_coord">22 18</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="24" y="21">
+    <metadata>
+      <meta name="hlc_coord">22 19</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="24" y="22">
+    <metadata>
+      <meta name="hlc_coord">22 20</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="24" y="23">
+    <metadata>
+      <meta name="hlc_coord">22 21</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="24" y="24">
+    <metadata>
+      <meta name="hlc_coord">22 22</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="24" y="25">
+    <metadata>
+      <meta name="hlc_coord">22 23</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="24" y="26">
+    <metadata>
+      <meta name="hlc_coord">22 24</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="24" y="27">
+    <metadata>
+      <meta name="hlc_coord">22 25</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="24" y="28">
+    <metadata>
+      <meta name="hlc_coord">22 26</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="24" y="29">
+    <metadata>
+      <meta name="hlc_coord">22 27</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="24" y="30">
+    <metadata>
+      <meta name="hlc_coord">22 28</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="24" y="31">
+    <metadata>
+      <meta name="hlc_coord">22 29</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="24" y="32">
+    <metadata>
+      <meta name="hlc_coord">22 30</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="24" y="33">
+    <metadata>
+      <meta name="hlc_coord">22 31</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="24" y="34">
+    <metadata>
+      <meta name="hlc_coord">22 32</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PIO" x="24" y="35">
+    <metadata>
+      <meta name="hlc_coord">22 33</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="EMPTY" x="24" y="37"/>
+  <single priority="1" type="PIN" x="24" y="36">
+    <metadata>
+      <meta name="hlc_pin:1">A10</meta>
+      <meta name="hlc_pin:0">A11</meta>
+      <meta name="hlc_coord">22 34</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PIO" x="25" y="2">
+    <metadata>
+      <meta name="hlc_coord">23 0</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="EMPTY" x="25" y="0"/>
+  <single priority="1" type="PIN" x="25" y="1">
+    <metadata>
+      <meta name="hlc_pin:1">M11</meta>
+      <meta name="hlc_pin:0">T14</meta>
+      <meta name="hlc_coord">23 -1</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="25" y="3">
+    <metadata>
+      <meta name="hlc_coord">23 1</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="25" y="4">
+    <metadata>
+      <meta name="hlc_coord">23 2</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="25" y="5">
+    <metadata>
+      <meta name="hlc_coord">23 3</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="25" y="6">
+    <metadata>
+      <meta name="hlc_coord">23 4</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="25" y="7">
+    <metadata>
+      <meta name="hlc_coord">23 5</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="25" y="8">
+    <metadata>
+      <meta name="hlc_coord">23 6</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="25" y="9">
+    <metadata>
+      <meta name="hlc_coord">23 7</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="25" y="10">
+    <metadata>
+      <meta name="hlc_coord">23 8</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="25" y="11">
+    <metadata>
+      <meta name="hlc_coord">23 9</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="25" y="12">
+    <metadata>
+      <meta name="hlc_coord">23 10</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="25" y="13">
+    <metadata>
+      <meta name="hlc_coord">23 11</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="25" y="14">
+    <metadata>
+      <meta name="hlc_coord">23 12</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="25" y="15">
+    <metadata>
+      <meta name="hlc_coord">23 13</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="25" y="16">
+    <metadata>
+      <meta name="hlc_coord">23 14</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="25" y="17">
+    <metadata>
+      <meta name="hlc_coord">23 15</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="25" y="18">
+    <metadata>
+      <meta name="hlc_coord">23 16</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="25" y="19">
+    <metadata>
+      <meta name="hlc_coord">23 17</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="25" y="20">
+    <metadata>
+      <meta name="hlc_coord">23 18</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="25" y="21">
+    <metadata>
+      <meta name="hlc_coord">23 19</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="25" y="22">
+    <metadata>
+      <meta name="hlc_coord">23 20</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="25" y="23">
+    <metadata>
+      <meta name="hlc_coord">23 21</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="25" y="24">
+    <metadata>
+      <meta name="hlc_coord">23 22</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="25" y="25">
+    <metadata>
+      <meta name="hlc_coord">23 23</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="25" y="26">
+    <metadata>
+      <meta name="hlc_coord">23 24</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="25" y="27">
+    <metadata>
+      <meta name="hlc_coord">23 25</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="25" y="28">
+    <metadata>
+      <meta name="hlc_coord">23 26</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="25" y="29">
+    <metadata>
+      <meta name="hlc_coord">23 27</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="25" y="30">
+    <metadata>
+      <meta name="hlc_coord">23 28</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="25" y="31">
+    <metadata>
+      <meta name="hlc_coord">23 29</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="25" y="32">
+    <metadata>
+      <meta name="hlc_coord">23 30</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="25" y="33">
+    <metadata>
+      <meta name="hlc_coord">23 31</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="25" y="34">
+    <metadata>
+      <meta name="hlc_coord">23 32</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PIO" x="25" y="35">
+    <metadata>
+      <meta name="hlc_coord">23 33</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="EMPTY" x="25" y="37"/>
+  <single priority="1" type="PIN" x="25" y="36">
+    <metadata>
+      <meta name="hlc_pin:1">B11</meta>
+      <meta name="hlc_pin:0">C10</meta>
+      <meta name="hlc_coord">23 34</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PIO" x="26" y="2">
+    <metadata>
+      <meta name="hlc_coord">24 0</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="EMPTY" x="26" y="0"/>
+  <single priority="1" type="PIN" x="26" y="1">
+    <metadata>
+      <meta name="hlc_pin:0">T13</meta>
+      <meta name="hlc_coord">24 -1</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="26" y="3">
+    <metadata>
+      <meta name="hlc_coord">24 1</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="26" y="4">
+    <metadata>
+      <meta name="hlc_coord">24 2</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="26" y="5">
+    <metadata>
+      <meta name="hlc_coord">24 3</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="26" y="6">
+    <metadata>
+      <meta name="hlc_coord">24 4</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="26" y="7">
+    <metadata>
+      <meta name="hlc_coord">24 5</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="26" y="8">
+    <metadata>
+      <meta name="hlc_coord">24 6</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="26" y="9">
+    <metadata>
+      <meta name="hlc_coord">24 7</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="26" y="10">
+    <metadata>
+      <meta name="hlc_coord">24 8</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="26" y="11">
+    <metadata>
+      <meta name="hlc_coord">24 9</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="26" y="12">
+    <metadata>
+      <meta name="hlc_coord">24 10</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="26" y="13">
+    <metadata>
+      <meta name="hlc_coord">24 11</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="26" y="14">
+    <metadata>
+      <meta name="hlc_coord">24 12</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="26" y="15">
+    <metadata>
+      <meta name="hlc_coord">24 13</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="26" y="16">
+    <metadata>
+      <meta name="hlc_coord">24 14</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="26" y="17">
+    <metadata>
+      <meta name="hlc_coord">24 15</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="26" y="18">
+    <metadata>
+      <meta name="hlc_coord">24 16</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="26" y="19">
+    <metadata>
+      <meta name="hlc_coord">24 17</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="26" y="20">
+    <metadata>
+      <meta name="hlc_coord">24 18</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="26" y="21">
+    <metadata>
+      <meta name="hlc_coord">24 19</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="26" y="22">
+    <metadata>
+      <meta name="hlc_coord">24 20</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="26" y="23">
+    <metadata>
+      <meta name="hlc_coord">24 21</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="26" y="24">
+    <metadata>
+      <meta name="hlc_coord">24 22</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="26" y="25">
+    <metadata>
+      <meta name="hlc_coord">24 23</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="26" y="26">
+    <metadata>
+      <meta name="hlc_coord">24 24</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="26" y="27">
+    <metadata>
+      <meta name="hlc_coord">24 25</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="26" y="28">
+    <metadata>
+      <meta name="hlc_coord">24 26</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="26" y="29">
+    <metadata>
+      <meta name="hlc_coord">24 27</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="26" y="30">
+    <metadata>
+      <meta name="hlc_coord">24 28</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="26" y="31">
+    <metadata>
+      <meta name="hlc_coord">24 29</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="26" y="32">
+    <metadata>
+      <meta name="hlc_coord">24 30</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="26" y="33">
+    <metadata>
+      <meta name="hlc_coord">24 31</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="26" y="34">
+    <metadata>
+      <meta name="hlc_coord">24 32</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PIO" x="26" y="35">
+    <metadata>
+      <meta name="hlc_coord">24 33</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="EMPTY" x="26" y="37"/>
+  <single priority="1" type="PIN" x="26" y="36">
+    <metadata>
+      <meta name="hlc_pin:0">B10</meta>
+      <meta name="hlc_pin:1">B12</meta>
+      <meta name="hlc_coord">24 34</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PIO" x="27" y="2">
+    <metadata>
+      <meta name="hlc_coord">25 0</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="EMPTY" x="27" y="0"/>
+  <single priority="1" type="EMPTY" x="27" y="1">
+    <metadata>
+      <meta name="hlc_coord">25 -1</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-RAM" x="27" y="3">
+    <metadata>
+      <meta name="hlc_coord">25 1</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-RAM" x="27" y="5">
+    <metadata>
+      <meta name="hlc_coord">25 3</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-RAM" x="27" y="7">
+    <metadata>
+      <meta name="hlc_coord">25 5</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-RAM" x="27" y="9">
+    <metadata>
+      <meta name="hlc_coord">25 7</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-RAM" x="27" y="11">
+    <metadata>
+      <meta name="hlc_coord">25 9</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-RAM" x="27" y="13">
+    <metadata>
+      <meta name="hlc_coord">25 11</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-RAM" x="27" y="15">
+    <metadata>
+      <meta name="hlc_coord">25 13</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-RAM" x="27" y="17">
+    <metadata>
+      <meta name="hlc_coord">25 15</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-RAM" x="27" y="19">
+    <metadata>
+      <meta name="hlc_coord">25 17</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-RAM" x="27" y="21">
+    <metadata>
+      <meta name="hlc_coord">25 19</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-RAM" x="27" y="23">
+    <metadata>
+      <meta name="hlc_coord">25 21</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-RAM" x="27" y="25">
+    <metadata>
+      <meta name="hlc_coord">25 23</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-RAM" x="27" y="27">
+    <metadata>
+      <meta name="hlc_coord">25 25</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-RAM" x="27" y="29">
+    <metadata>
+      <meta name="hlc_coord">25 27</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-RAM" x="27" y="31">
+    <metadata>
+      <meta name="hlc_coord">25 29</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-RAM" x="27" y="33">
+    <metadata>
+      <meta name="hlc_coord">25 31</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PIO" x="27" y="35">
+    <metadata>
+      <meta name="hlc_coord">25 33</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="EMPTY" x="27" y="37"/>
+  <single priority="1" type="PIN" x="27" y="36">
+    <metadata>
+      <meta name="hlc_pin:1">C11</meta>
+      <meta name="hlc_pin:0">D11</meta>
+      <meta name="hlc_coord">25 34</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PIO" x="28" y="2">
+    <metadata>
+      <meta name="hlc_coord">26 0</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="EMPTY" x="28" y="0"/>
+  <single priority="1" type="PIN" x="28" y="1">
+    <metadata>
+      <meta name="hlc_pin:1">L11</meta>
+      <meta name="hlc_pin:0">N12</meta>
+      <meta name="hlc_coord">26 -1</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="28" y="3">
+    <metadata>
+      <meta name="hlc_coord">26 1</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="28" y="4">
+    <metadata>
+      <meta name="hlc_coord">26 2</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="28" y="5">
+    <metadata>
+      <meta name="hlc_coord">26 3</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="28" y="6">
+    <metadata>
+      <meta name="hlc_coord">26 4</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="28" y="7">
+    <metadata>
+      <meta name="hlc_coord">26 5</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="28" y="8">
+    <metadata>
+      <meta name="hlc_coord">26 6</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="28" y="9">
+    <metadata>
+      <meta name="hlc_coord">26 7</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="28" y="10">
+    <metadata>
+      <meta name="hlc_coord">26 8</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="28" y="11">
+    <metadata>
+      <meta name="hlc_coord">26 9</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="28" y="12">
+    <metadata>
+      <meta name="hlc_coord">26 10</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="28" y="13">
+    <metadata>
+      <meta name="hlc_coord">26 11</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="28" y="14">
+    <metadata>
+      <meta name="hlc_coord">26 12</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="28" y="15">
+    <metadata>
+      <meta name="hlc_coord">26 13</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="28" y="16">
+    <metadata>
+      <meta name="hlc_coord">26 14</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="28" y="17">
+    <metadata>
+      <meta name="hlc_coord">26 15</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="28" y="18">
+    <metadata>
+      <meta name="hlc_coord">26 16</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="28" y="19">
+    <metadata>
+      <meta name="hlc_coord">26 17</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="28" y="20">
+    <metadata>
+      <meta name="hlc_coord">26 18</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="28" y="21">
+    <metadata>
+      <meta name="hlc_coord">26 19</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="28" y="22">
+    <metadata>
+      <meta name="hlc_coord">26 20</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="28" y="23">
+    <metadata>
+      <meta name="hlc_coord">26 21</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="28" y="24">
+    <metadata>
+      <meta name="hlc_coord">26 22</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="28" y="25">
+    <metadata>
+      <meta name="hlc_coord">26 23</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="28" y="26">
+    <metadata>
+      <meta name="hlc_coord">26 24</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="28" y="27">
+    <metadata>
+      <meta name="hlc_coord">26 25</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="28" y="28">
+    <metadata>
+      <meta name="hlc_coord">26 26</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="28" y="29">
+    <metadata>
+      <meta name="hlc_coord">26 27</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="28" y="30">
+    <metadata>
+      <meta name="hlc_coord">26 28</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="28" y="31">
+    <metadata>
+      <meta name="hlc_coord">26 29</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="28" y="32">
+    <metadata>
+      <meta name="hlc_coord">26 30</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="28" y="33">
+    <metadata>
+      <meta name="hlc_coord">26 31</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="28" y="34">
+    <metadata>
+      <meta name="hlc_coord">26 32</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PIO" x="28" y="35">
+    <metadata>
+      <meta name="hlc_coord">26 33</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="EMPTY" x="28" y="37"/>
+  <single priority="1" type="PIN" x="28" y="36">
+    <metadata>
+      <meta name="hlc_pin:1">B13</meta>
+      <meta name="hlc_pin:0">E10</meta>
+      <meta name="hlc_coord">26 34</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PIO" x="29" y="2">
+    <metadata>
+      <meta name="hlc_coord">27 0</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="EMPTY" x="29" y="0"/>
+  <single priority="1" type="PIN" x="29" y="1">
+    <metadata>
+      <meta name="hlc_pin:1">M12</meta>
+      <meta name="hlc_pin:0">T16</meta>
+      <meta name="hlc_coord">27 -1</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="29" y="3">
+    <metadata>
+      <meta name="hlc_coord">27 1</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="29" y="4">
+    <metadata>
+      <meta name="hlc_coord">27 2</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="29" y="5">
+    <metadata>
+      <meta name="hlc_coord">27 3</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="29" y="6">
+    <metadata>
+      <meta name="hlc_coord">27 4</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="29" y="7">
+    <metadata>
+      <meta name="hlc_coord">27 5</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="29" y="8">
+    <metadata>
+      <meta name="hlc_coord">27 6</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="29" y="9">
+    <metadata>
+      <meta name="hlc_coord">27 7</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="29" y="10">
+    <metadata>
+      <meta name="hlc_coord">27 8</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="29" y="11">
+    <metadata>
+      <meta name="hlc_coord">27 9</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="29" y="12">
+    <metadata>
+      <meta name="hlc_coord">27 10</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="29" y="13">
+    <metadata>
+      <meta name="hlc_coord">27 11</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="29" y="14">
+    <metadata>
+      <meta name="hlc_coord">27 12</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="29" y="15">
+    <metadata>
+      <meta name="hlc_coord">27 13</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="29" y="16">
+    <metadata>
+      <meta name="hlc_coord">27 14</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="29" y="17">
+    <metadata>
+      <meta name="hlc_coord">27 15</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="29" y="18">
+    <metadata>
+      <meta name="hlc_coord">27 16</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="29" y="19">
+    <metadata>
+      <meta name="hlc_coord">27 17</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="29" y="20">
+    <metadata>
+      <meta name="hlc_coord">27 18</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="29" y="21">
+    <metadata>
+      <meta name="hlc_coord">27 19</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="29" y="22">
+    <metadata>
+      <meta name="hlc_coord">27 20</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="29" y="23">
+    <metadata>
+      <meta name="hlc_coord">27 21</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="29" y="24">
+    <metadata>
+      <meta name="hlc_coord">27 22</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="29" y="25">
+    <metadata>
+      <meta name="hlc_coord">27 23</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="29" y="26">
+    <metadata>
+      <meta name="hlc_coord">27 24</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="29" y="27">
+    <metadata>
+      <meta name="hlc_coord">27 25</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="29" y="28">
+    <metadata>
+      <meta name="hlc_coord">27 26</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="29" y="29">
+    <metadata>
+      <meta name="hlc_coord">27 27</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="29" y="30">
+    <metadata>
+      <meta name="hlc_coord">27 28</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="29" y="31">
+    <metadata>
+      <meta name="hlc_coord">27 29</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="29" y="32">
+    <metadata>
+      <meta name="hlc_coord">27 30</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="29" y="33">
+    <metadata>
+      <meta name="hlc_coord">27 31</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="29" y="34">
+    <metadata>
+      <meta name="hlc_coord">27 32</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PIO" x="29" y="35">
+    <metadata>
+      <meta name="hlc_coord">27 33</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="EMPTY" x="29" y="37"/>
+  <single priority="1" type="PIN" x="29" y="36">
+    <metadata>
+      <meta name="hlc_pin:0">A15</meta>
+      <meta name="hlc_pin:1">A16</meta>
+      <meta name="hlc_coord">27 34</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PIO" x="30" y="2">
+    <metadata>
+      <meta name="hlc_coord">28 0</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="EMPTY" x="30" y="0"/>
+  <single priority="1" type="PIN" x="30" y="1">
+    <metadata>
+      <meta name="hlc_pin:0">R16</meta>
+      <meta name="hlc_coord">28 -1</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="30" y="3">
+    <metadata>
+      <meta name="hlc_coord">28 1</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="30" y="4">
+    <metadata>
+      <meta name="hlc_coord">28 2</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="30" y="5">
+    <metadata>
+      <meta name="hlc_coord">28 3</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="30" y="6">
+    <metadata>
+      <meta name="hlc_coord">28 4</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="30" y="7">
+    <metadata>
+      <meta name="hlc_coord">28 5</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="30" y="8">
+    <metadata>
+      <meta name="hlc_coord">28 6</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="30" y="9">
+    <metadata>
+      <meta name="hlc_coord">28 7</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="30" y="10">
+    <metadata>
+      <meta name="hlc_coord">28 8</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="30" y="11">
+    <metadata>
+      <meta name="hlc_coord">28 9</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="30" y="12">
+    <metadata>
+      <meta name="hlc_coord">28 10</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="30" y="13">
+    <metadata>
+      <meta name="hlc_coord">28 11</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="30" y="14">
+    <metadata>
+      <meta name="hlc_coord">28 12</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="30" y="15">
+    <metadata>
+      <meta name="hlc_coord">28 13</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="30" y="16">
+    <metadata>
+      <meta name="hlc_coord">28 14</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="30" y="17">
+    <metadata>
+      <meta name="hlc_coord">28 15</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="30" y="18">
+    <metadata>
+      <meta name="hlc_coord">28 16</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="30" y="19">
+    <metadata>
+      <meta name="hlc_coord">28 17</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="30" y="20">
+    <metadata>
+      <meta name="hlc_coord">28 18</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="30" y="21">
+    <metadata>
+      <meta name="hlc_coord">28 19</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="30" y="22">
+    <metadata>
+      <meta name="hlc_coord">28 20</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="30" y="23">
+    <metadata>
+      <meta name="hlc_coord">28 21</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="30" y="24">
+    <metadata>
+      <meta name="hlc_coord">28 22</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="30" y="25">
+    <metadata>
+      <meta name="hlc_coord">28 23</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="30" y="26">
+    <metadata>
+      <meta name="hlc_coord">28 24</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="30" y="27">
+    <metadata>
+      <meta name="hlc_coord">28 25</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="30" y="28">
+    <metadata>
+      <meta name="hlc_coord">28 26</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="30" y="29">
+    <metadata>
+      <meta name="hlc_coord">28 27</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="30" y="30">
+    <metadata>
+      <meta name="hlc_coord">28 28</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="30" y="31">
+    <metadata>
+      <meta name="hlc_coord">28 29</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="30" y="32">
+    <metadata>
+      <meta name="hlc_coord">28 30</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="30" y="33">
+    <metadata>
+      <meta name="hlc_coord">28 31</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="30" y="34">
+    <metadata>
+      <meta name="hlc_coord">28 32</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PIO" x="30" y="35">
+    <metadata>
+      <meta name="hlc_coord">28 33</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="EMPTY" x="30" y="37"/>
+  <single priority="1" type="PIN" x="30" y="36">
+    <metadata>
+      <meta name="hlc_pin:1">C13</meta>
+      <meta name="hlc_coord">28 34</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PIO" x="31" y="2">
+    <metadata>
+      <meta name="hlc_coord">29 0</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="EMPTY" x="31" y="0"/>
+  <single priority="1" type="PIN" x="31" y="1">
+    <metadata>
+      <meta name="hlc_pin:0">K11</meta>
+      <meta name="hlc_pin:1">P13</meta>
+      <meta name="hlc_coord">29 -1</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="31" y="3">
+    <metadata>
+      <meta name="hlc_coord">29 1</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="31" y="4">
+    <metadata>
+      <meta name="hlc_coord">29 2</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="31" y="5">
+    <metadata>
+      <meta name="hlc_coord">29 3</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="31" y="6">
+    <metadata>
+      <meta name="hlc_coord">29 4</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="31" y="7">
+    <metadata>
+      <meta name="hlc_coord">29 5</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="31" y="8">
+    <metadata>
+      <meta name="hlc_coord">29 6</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="31" y="9">
+    <metadata>
+      <meta name="hlc_coord">29 7</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="31" y="10">
+    <metadata>
+      <meta name="hlc_coord">29 8</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="31" y="11">
+    <metadata>
+      <meta name="hlc_coord">29 9</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="31" y="12">
+    <metadata>
+      <meta name="hlc_coord">29 10</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="31" y="13">
+    <metadata>
+      <meta name="hlc_coord">29 11</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="31" y="14">
+    <metadata>
+      <meta name="hlc_coord">29 12</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="31" y="15">
+    <metadata>
+      <meta name="hlc_coord">29 13</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="31" y="16">
+    <metadata>
+      <meta name="hlc_coord">29 14</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="31" y="17">
+    <metadata>
+      <meta name="hlc_coord">29 15</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="31" y="18">
+    <metadata>
+      <meta name="hlc_coord">29 16</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="31" y="19">
+    <metadata>
+      <meta name="hlc_coord">29 17</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="31" y="20">
+    <metadata>
+      <meta name="hlc_coord">29 18</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="31" y="21">
+    <metadata>
+      <meta name="hlc_coord">29 19</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="31" y="22">
+    <metadata>
+      <meta name="hlc_coord">29 20</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="31" y="23">
+    <metadata>
+      <meta name="hlc_coord">29 21</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="31" y="24">
+    <metadata>
+      <meta name="hlc_coord">29 22</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="31" y="25">
+    <metadata>
+      <meta name="hlc_coord">29 23</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="31" y="26">
+    <metadata>
+      <meta name="hlc_coord">29 24</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="31" y="27">
+    <metadata>
+      <meta name="hlc_coord">29 25</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="31" y="28">
+    <metadata>
+      <meta name="hlc_coord">29 26</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="31" y="29">
+    <metadata>
+      <meta name="hlc_coord">29 27</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="31" y="30">
+    <metadata>
+      <meta name="hlc_coord">29 28</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="31" y="31">
+    <metadata>
+      <meta name="hlc_coord">29 29</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="31" y="32">
+    <metadata>
+      <meta name="hlc_coord">29 30</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="31" y="33">
+    <metadata>
+      <meta name="hlc_coord">29 31</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="31" y="34">
+    <metadata>
+      <meta name="hlc_coord">29 32</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PIO" x="31" y="35">
+    <metadata>
+      <meta name="hlc_coord">29 33</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="EMPTY" x="31" y="37"/>
+  <single priority="1" type="PIN" x="31" y="36">
+    <metadata>
+      <meta name="hlc_pin:1">C12</meta>
+      <meta name="hlc_pin:0">E11</meta>
+      <meta name="hlc_coord">29 34</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PIO" x="32" y="2">
+    <metadata>
+      <meta name="hlc_coord">30 0</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="EMPTY" x="32" y="0"/>
+  <single priority="1" type="PIN" x="32" y="1">
+    <metadata>
+      <meta name="hlc_pin:1">P11</meta>
+      <meta name="hlc_pin:0">P12</meta>
+      <meta name="hlc_coord">30 -1</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="32" y="3">
+    <metadata>
+      <meta name="hlc_coord">30 1</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="32" y="4">
+    <metadata>
+      <meta name="hlc_coord">30 2</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="32" y="5">
+    <metadata>
+      <meta name="hlc_coord">30 3</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="32" y="6">
+    <metadata>
+      <meta name="hlc_coord">30 4</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="32" y="7">
+    <metadata>
+      <meta name="hlc_coord">30 5</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="32" y="8">
+    <metadata>
+      <meta name="hlc_coord">30 6</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="32" y="9">
+    <metadata>
+      <meta name="hlc_coord">30 7</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="32" y="10">
+    <metadata>
+      <meta name="hlc_coord">30 8</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="32" y="11">
+    <metadata>
+      <meta name="hlc_coord">30 9</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="32" y="12">
+    <metadata>
+      <meta name="hlc_coord">30 10</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="32" y="13">
+    <metadata>
+      <meta name="hlc_coord">30 11</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="32" y="14">
+    <metadata>
+      <meta name="hlc_coord">30 12</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="32" y="15">
+    <metadata>
+      <meta name="hlc_coord">30 13</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="32" y="16">
+    <metadata>
+      <meta name="hlc_coord">30 14</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="32" y="17">
+    <metadata>
+      <meta name="hlc_coord">30 15</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="32" y="18">
+    <metadata>
+      <meta name="hlc_coord">30 16</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="32" y="19">
+    <metadata>
+      <meta name="hlc_coord">30 17</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="32" y="20">
+    <metadata>
+      <meta name="hlc_coord">30 18</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="32" y="21">
+    <metadata>
+      <meta name="hlc_coord">30 19</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="32" y="22">
+    <metadata>
+      <meta name="hlc_coord">30 20</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="32" y="23">
+    <metadata>
+      <meta name="hlc_coord">30 21</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="32" y="24">
+    <metadata>
+      <meta name="hlc_coord">30 22</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="32" y="25">
+    <metadata>
+      <meta name="hlc_coord">30 23</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="32" y="26">
+    <metadata>
+      <meta name="hlc_coord">30 24</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="32" y="27">
+    <metadata>
+      <meta name="hlc_coord">30 25</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="32" y="28">
+    <metadata>
+      <meta name="hlc_coord">30 26</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="32" y="29">
+    <metadata>
+      <meta name="hlc_coord">30 27</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="32" y="30">
+    <metadata>
+      <meta name="hlc_coord">30 28</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="32" y="31">
+    <metadata>
+      <meta name="hlc_coord">30 29</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="32" y="32">
+    <metadata>
+      <meta name="hlc_coord">30 30</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="32" y="33">
+    <metadata>
+      <meta name="hlc_coord">30 31</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="32" y="34">
+    <metadata>
+      <meta name="hlc_coord">30 32</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PIO" x="32" y="35">
+    <metadata>
+      <meta name="hlc_coord">30 33</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="EMPTY" x="32" y="37"/>
+  <single priority="1" type="PIN" x="32" y="36">
+    <metadata>
+      <meta name="hlc_pin:0">B14</meta>
+      <meta name="hlc_pin:1">D13</meta>
+      <meta name="hlc_coord">30 34</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PIO" x="33" y="2">
+    <metadata>
+      <meta name="hlc_coord">31 0</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="EMPTY" x="33" y="0"/>
+  <single priority="1" type="PIN" x="33" y="1">
+    <metadata>
+      <meta name="hlc_pin:0">R11</meta>
+      <meta name="hlc_pin:1">R12</meta>
+      <meta name="hlc_coord">31 -1</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="33" y="3">
+    <metadata>
+      <meta name="hlc_coord">31 1</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="33" y="4">
+    <metadata>
+      <meta name="hlc_coord">31 2</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="33" y="5">
+    <metadata>
+      <meta name="hlc_coord">31 3</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="33" y="6">
+    <metadata>
+      <meta name="hlc_coord">31 4</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="33" y="7">
+    <metadata>
+      <meta name="hlc_coord">31 5</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="33" y="8">
+    <metadata>
+      <meta name="hlc_coord">31 6</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="33" y="9">
+    <metadata>
+      <meta name="hlc_coord">31 7</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="33" y="10">
+    <metadata>
+      <meta name="hlc_coord">31 8</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="33" y="11">
+    <metadata>
+      <meta name="hlc_coord">31 9</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="33" y="12">
+    <metadata>
+      <meta name="hlc_coord">31 10</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="33" y="13">
+    <metadata>
+      <meta name="hlc_coord">31 11</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="33" y="14">
+    <metadata>
+      <meta name="hlc_coord">31 12</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="33" y="15">
+    <metadata>
+      <meta name="hlc_coord">31 13</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="33" y="16">
+    <metadata>
+      <meta name="hlc_coord">31 14</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="33" y="17">
+    <metadata>
+      <meta name="hlc_coord">31 15</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="33" y="18">
+    <metadata>
+      <meta name="hlc_coord">31 16</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="33" y="19">
+    <metadata>
+      <meta name="hlc_coord">31 17</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="33" y="20">
+    <metadata>
+      <meta name="hlc_coord">31 18</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="33" y="21">
+    <metadata>
+      <meta name="hlc_coord">31 19</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="33" y="22">
+    <metadata>
+      <meta name="hlc_coord">31 20</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="33" y="23">
+    <metadata>
+      <meta name="hlc_coord">31 21</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="33" y="24">
+    <metadata>
+      <meta name="hlc_coord">31 22</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="33" y="25">
+    <metadata>
+      <meta name="hlc_coord">31 23</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="33" y="26">
+    <metadata>
+      <meta name="hlc_coord">31 24</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="33" y="27">
+    <metadata>
+      <meta name="hlc_coord">31 25</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="33" y="28">
+    <metadata>
+      <meta name="hlc_coord">31 26</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="33" y="29">
+    <metadata>
+      <meta name="hlc_coord">31 27</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="33" y="30">
+    <metadata>
+      <meta name="hlc_coord">31 28</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="33" y="31">
+    <metadata>
+      <meta name="hlc_coord">31 29</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="33" y="32">
+    <metadata>
+      <meta name="hlc_coord">31 30</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="33" y="33">
+    <metadata>
+      <meta name="hlc_coord">31 31</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="33" y="34">
+    <metadata>
+      <meta name="hlc_coord">31 32</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PIO" x="33" y="35">
+    <metadata>
+      <meta name="hlc_coord">31 33</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="EMPTY" x="33" y="37"/>
+  <single priority="1" type="PIN" x="33" y="36">
+    <metadata>
+      <meta name="hlc_pin:0">B15</meta>
+      <meta name="hlc_pin:1">C14</meta>
+      <meta name="hlc_coord">31 34</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PIO" x="34" y="2">
+    <metadata>
+      <meta name="hlc_coord">32 0</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="EMPTY" x="34" y="0"/>
+  <single priority="1" type="EMPTY" x="34" y="1">
+    <metadata>
+      <meta name="hlc_coord">32 -1</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="34" y="3">
+    <metadata>
+      <meta name="hlc_coord">32 1</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="34" y="4">
+    <metadata>
+      <meta name="hlc_coord">32 2</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="34" y="5">
+    <metadata>
+      <meta name="hlc_coord">32 3</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="34" y="6">
+    <metadata>
+      <meta name="hlc_coord">32 4</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="34" y="7">
+    <metadata>
+      <meta name="hlc_coord">32 5</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="34" y="8">
+    <metadata>
+      <meta name="hlc_coord">32 6</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="34" y="9">
+    <metadata>
+      <meta name="hlc_coord">32 7</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="34" y="10">
+    <metadata>
+      <meta name="hlc_coord">32 8</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="34" y="11">
+    <metadata>
+      <meta name="hlc_coord">32 9</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="34" y="12">
+    <metadata>
+      <meta name="hlc_coord">32 10</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="34" y="13">
+    <metadata>
+      <meta name="hlc_coord">32 11</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="34" y="14">
+    <metadata>
+      <meta name="hlc_coord">32 12</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="34" y="15">
+    <metadata>
+      <meta name="hlc_coord">32 13</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="34" y="16">
+    <metadata>
+      <meta name="hlc_coord">32 14</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="34" y="17">
+    <metadata>
+      <meta name="hlc_coord">32 15</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="34" y="18">
+    <metadata>
+      <meta name="hlc_coord">32 16</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="34" y="19">
+    <metadata>
+      <meta name="hlc_coord">32 17</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="34" y="20">
+    <metadata>
+      <meta name="hlc_coord">32 18</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="34" y="21">
+    <metadata>
+      <meta name="hlc_coord">32 19</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="34" y="22">
+    <metadata>
+      <meta name="hlc_coord">32 20</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="34" y="23">
+    <metadata>
+      <meta name="hlc_coord">32 21</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="34" y="24">
+    <metadata>
+      <meta name="hlc_coord">32 22</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="34" y="25">
+    <metadata>
+      <meta name="hlc_coord">32 23</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="34" y="26">
+    <metadata>
+      <meta name="hlc_coord">32 24</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="34" y="27">
+    <metadata>
+      <meta name="hlc_coord">32 25</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="34" y="28">
+    <metadata>
+      <meta name="hlc_coord">32 26</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="34" y="29">
+    <metadata>
+      <meta name="hlc_coord">32 27</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="34" y="30">
+    <metadata>
+      <meta name="hlc_coord">32 28</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="34" y="31">
+    <metadata>
+      <meta name="hlc_coord">32 29</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="34" y="32">
+    <metadata>
+      <meta name="hlc_coord">32 30</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="34" y="33">
+    <metadata>
+      <meta name="hlc_coord">32 31</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PLB" x="34" y="34">
+    <metadata>
+      <meta name="hlc_coord">32 32</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PIO" x="34" y="35">
+    <metadata>
+      <meta name="hlc_coord">32 33</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="EMPTY" x="34" y="37"/>
+  <single priority="1" type="EMPTY" x="34" y="36">
+    <metadata>
+      <meta name="hlc_coord">32 34</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PIO" x="35" y="2">
+    <metadata>
+      <meta name="hlc_coord">33 0</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="EMPTY" x="35" y="0"/>
+  <single priority="1" type="EMPTY" x="35" y="1">
+    <metadata>
+      <meta name="hlc_coord">33 -1</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="EMPTY" x="37" y="2"/>
+  <single priority="1" type="EMPTY" x="36" y="2">
+    <metadata>
+      <meta name="hlc_coord">34 0</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="EMPTY" x="37" y="0"/>
+  <single priority="1" type="EMPTY" x="36" y="1">
+    <metadata>
+      <meta name="hlc_coord">34 -1</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PIO" x="35" y="3">
+    <metadata>
+      <meta name="hlc_coord">33 1</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="EMPTY" x="37" y="3"/>
+  <single priority="1" type="PIN" x="36" y="3">
+    <metadata>
+      <meta name="hlc_pin:0">R14</meta>
+      <meta name="hlc_pin:1">R15</meta>
+      <meta name="hlc_coord">34 1</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PIO" x="35" y="4">
+    <metadata>
+      <meta name="hlc_coord">33 2</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="EMPTY" x="37" y="4"/>
+  <single priority="1" type="PIN" x="36" y="4">
+    <metadata>
+      <meta name="hlc_pin:0">P14</meta>
+      <meta name="hlc_pin:1">P15</meta>
+      <meta name="hlc_coord">34 2</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PIO" x="35" y="5">
+    <metadata>
+      <meta name="hlc_coord">33 3</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="EMPTY" x="37" y="5"/>
+  <single priority="1" type="PIN" x="36" y="5">
+    <metadata>
+      <meta name="hlc_pin:1">M13</meta>
+      <meta name="hlc_pin:0">P16</meta>
+      <meta name="hlc_coord">34 3</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PIO" x="35" y="6">
+    <metadata>
+      <meta name="hlc_coord">33 4</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="EMPTY" x="37" y="6"/>
+  <single priority="1" type="PIN" x="36" y="6">
+    <metadata>
+      <meta name="hlc_pin:1">L12</meta>
+      <meta name="hlc_pin:0">M14</meta>
+      <meta name="hlc_coord">34 4</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PIO" x="35" y="7">
+    <metadata>
+      <meta name="hlc_coord">33 5</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="EMPTY" x="37" y="7"/>
+  <single priority="1" type="PIN" x="36" y="7">
+    <metadata>
+      <meta name="hlc_pin:1">L13</meta>
+      <meta name="hlc_pin:0">N16</meta>
+      <meta name="hlc_coord">34 5</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PIO" x="35" y="8">
+    <metadata>
+      <meta name="hlc_coord">33 6</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="EMPTY" x="37" y="8"/>
+  <single priority="1" type="PIN" x="36" y="8">
+    <metadata>
+      <meta name="hlc_pin:1">K12</meta>
+      <meta name="hlc_pin:0">L14</meta>
+      <meta name="hlc_coord">34 6</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PIO" x="35" y="9">
+    <metadata>
+      <meta name="hlc_coord">33 7</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="EMPTY" x="37" y="9"/>
+  <single priority="1" type="PIN" x="36" y="9">
+    <metadata>
+      <meta name="hlc_pin:1">J10</meta>
+      <meta name="hlc_pin:0">M16</meta>
+      <meta name="hlc_coord">34 7</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PIO" x="35" y="10">
+    <metadata>
+      <meta name="hlc_coord">33 8</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="EMPTY" x="37" y="10"/>
+  <single priority="1" type="PIN" x="36" y="10">
+    <metadata>
+      <meta name="hlc_pin:0">M15</meta>
+      <meta name="hlc_coord">34 8</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PIO" x="35" y="11">
+    <metadata>
+      <meta name="hlc_coord">33 9</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="EMPTY" x="37" y="11"/>
+  <single priority="1" type="PIN" x="36" y="11">
+    <metadata>
+      <meta name="hlc_pin:1">J11</meta>
+      <meta name="hlc_coord">34 9</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PIO" x="35" y="12">
+    <metadata>
+      <meta name="hlc_coord">33 10</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="EMPTY" x="37" y="12"/>
+  <single priority="1" type="PIN" x="36" y="12">
+    <metadata>
+      <meta name="hlc_pin:1">K13</meta>
+      <meta name="hlc_pin:0">L16</meta>
+      <meta name="hlc_coord">34 10</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PIO" x="35" y="13">
+    <metadata>
+      <meta name="hlc_coord">33 11</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="EMPTY" x="37" y="13"/>
+  <single priority="1" type="PIN" x="36" y="13">
+    <metadata>
+      <meta name="hlc_pin:1">J15</meta>
+      <meta name="hlc_pin:0">K14</meta>
+      <meta name="hlc_coord">34 11</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PIO" x="35" y="14">
+    <metadata>
+      <meta name="hlc_coord">33 12</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="EMPTY" x="37" y="14"/>
+  <single priority="1" type="PIN" x="36" y="14">
+    <metadata>
+      <meta name="hlc_pin:0">K15</meta>
+      <meta name="hlc_coord">34 12</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PIO" x="35" y="15">
+    <metadata>
+      <meta name="hlc_coord">33 13</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="EMPTY" x="37" y="15"/>
+  <single priority="1" type="PIN" x="36" y="15">
+    <metadata>
+      <meta name="hlc_pin:1">J14</meta>
+      <meta name="hlc_pin:0">K16</meta>
+      <meta name="hlc_coord">34 13</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PIO" x="35" y="16">
+    <metadata>
+      <meta name="hlc_coord">33 14</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="EMPTY" x="37" y="16"/>
+  <single priority="1" type="PIN" x="36" y="16">
+    <metadata>
+      <meta name="hlc_pin:1">J12</meta>
+      <meta name="hlc_coord">34 14</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PIO" x="35" y="17">
+    <metadata>
+      <meta name="hlc_coord">33 15</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="EMPTY" x="37" y="17"/>
+  <single priority="1" type="PIN" x="36" y="17">
+    <metadata>
+      <meta name="hlc_pin:0">J13</meta>
+      <meta name="hlc_pin:1">J16</meta>
+      <meta name="hlc_coord">34 15</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PIO" x="35" y="18">
+    <metadata>
+      <meta name="hlc_coord">33 16</meta>
+      <meta name="hlc_global_io:1">glb_netwk_0</meta>
+      <meta name="hlc_global_fabric:1">glb_netwk_7</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="EMPTY" x="37" y="18"/>
+  <single priority="1" type="PIN" x="36" y="18">
+    <metadata>
+      <meta name="hlc_pin:1">H11</meta>
+      <meta name="hlc_pin:0">H13</meta>
+      <meta name="hlc_coord">34 16</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PIO" x="35" y="19">
+    <metadata>
+      <meta name="hlc_coord">33 17</meta>
+      <meta name="hlc_global_io:0">glb_netwk_5</meta>
+      <meta name="hlc_global_fabric:0">glb_netwk_2</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="EMPTY" x="37" y="19"/>
+  <single priority="1" type="PIN" x="36" y="19">
+    <metadata>
+      <meta name="hlc_pin:1">H14</meta>
+      <meta name="hlc_pin:0">H16</meta>
+      <meta name="hlc_coord">34 17</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PIO" x="35" y="20">
+    <metadata>
+      <meta name="hlc_coord">33 18</meta>
+      <meta name="hlc_latch_io">1</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="EMPTY" x="37" y="20"/>
+  <single priority="1" type="EMPTY" x="36" y="20">
+    <metadata>
+      <meta name="hlc_coord">34 18</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PIO" x="35" y="21">
+    <metadata>
+      <meta name="hlc_coord">33 19</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="EMPTY" x="37" y="21"/>
+  <single priority="1" type="PIN" x="36" y="21">
+    <metadata>
+      <meta name="hlc_pin:0">G16</meta>
+      <meta name="hlc_pin:1">H12</meta>
+      <meta name="hlc_coord">34 19</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PIO" x="35" y="22">
+    <metadata>
+      <meta name="hlc_coord">33 20</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="EMPTY" x="37" y="22"/>
+  <single priority="1" type="PIN" x="36" y="22">
+    <metadata>
+      <meta name="hlc_pin:1">G10</meta>
+      <meta name="hlc_pin:0">G15</meta>
+      <meta name="hlc_coord">34 20</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PIO" x="35" y="23">
+    <metadata>
+      <meta name="hlc_coord">33 21</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="EMPTY" x="37" y="23"/>
+  <single priority="1" type="PIN" x="36" y="23">
+    <metadata>
+      <meta name="hlc_pin:0">F16</meta>
+      <meta name="hlc_pin:1">G11</meta>
+      <meta name="hlc_coord">34 21</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PIO" x="35" y="24">
+    <metadata>
+      <meta name="hlc_coord">33 22</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="EMPTY" x="37" y="24"/>
+  <single priority="1" type="PIN" x="36" y="24">
+    <metadata>
+      <meta name="hlc_pin:0">F15</meta>
+      <meta name="hlc_pin:1">G14</meta>
+      <meta name="hlc_coord">34 22</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PIO" x="35" y="25">
+    <metadata>
+      <meta name="hlc_coord">33 23</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="EMPTY" x="37" y="25"/>
+  <single priority="1" type="PIN" x="36" y="25">
+    <metadata>
+      <meta name="hlc_pin:0">E16</meta>
+      <meta name="hlc_pin:1">G13</meta>
+      <meta name="hlc_coord">34 23</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PIO" x="35" y="26">
+    <metadata>
+      <meta name="hlc_coord">33 24</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="EMPTY" x="37" y="26"/>
+  <single priority="1" type="PIN" x="36" y="26">
+    <metadata>
+      <meta name="hlc_pin:0">D16</meta>
+      <meta name="hlc_pin:1">G12</meta>
+      <meta name="hlc_coord">34 24</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PIO" x="35" y="27">
+    <metadata>
+      <meta name="hlc_coord">33 25</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="EMPTY" x="37" y="27"/>
+  <single priority="1" type="PIN" x="36" y="27">
+    <metadata>
+      <meta name="hlc_pin:1">F12</meta>
+      <meta name="hlc_pin:0">F14</meta>
+      <meta name="hlc_coord">34 25</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PIO" x="35" y="28">
+    <metadata>
+      <meta name="hlc_coord">33 26</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="EMPTY" x="37" y="28"/>
+  <single priority="1" type="PIN" x="36" y="28">
+    <metadata>
+      <meta name="hlc_pin:0">D15</meta>
+      <meta name="hlc_pin:1">F11</meta>
+      <meta name="hlc_coord">34 26</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PIO" x="35" y="29">
+    <metadata>
+      <meta name="hlc_coord">33 27</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="EMPTY" x="37" y="29"/>
+  <single priority="1" type="PIN" x="36" y="29">
+    <metadata>
+      <meta name="hlc_pin:1">E14</meta>
+      <meta name="hlc_coord">34 27</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PIO" x="35" y="30">
+    <metadata>
+      <meta name="hlc_coord">33 28</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="EMPTY" x="37" y="30"/>
+  <single priority="1" type="PIN" x="36" y="30">
+    <metadata>
+      <meta name="hlc_pin:0">C16</meta>
+      <meta name="hlc_pin:1">F13</meta>
+      <meta name="hlc_coord">34 28</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PIO" x="35" y="31">
+    <metadata>
+      <meta name="hlc_coord">33 29</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="EMPTY" x="37" y="31"/>
+  <single priority="1" type="EMPTY" x="36" y="31">
+    <metadata>
+      <meta name="hlc_coord">34 29</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PIO" x="35" y="32">
+    <metadata>
+      <meta name="hlc_coord">33 30</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="EMPTY" x="37" y="32"/>
+  <single priority="1" type="PIN" x="36" y="32">
+    <metadata>
+      <meta name="hlc_pin:0">B16</meta>
+      <meta name="hlc_pin:1">E13</meta>
+      <meta name="hlc_coord">34 30</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PIO" x="35" y="33">
+    <metadata>
+      <meta name="hlc_coord">33 31</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="EMPTY" x="37" y="33"/>
+  <single priority="1" type="PIN" x="36" y="33">
+    <metadata>
+      <meta name="hlc_pin:0">D14</meta>
+      <meta name="hlc_coord">34 31</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PIO" x="35" y="34">
+    <metadata>
+      <meta name="hlc_coord">33 32</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="EMPTY" x="37" y="34"/>
+  <single priority="1" type="EMPTY" x="36" y="34">
+    <metadata>
+      <meta name="hlc_coord">34 32</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="BLK_TL-PIO" x="35" y="35">
+    <metadata>
+      <meta name="hlc_coord">33 33</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="EMPTY" x="35" y="37"/>
+  <single priority="1" type="EMPTY" x="35" y="36">
+    <metadata>
+      <meta name="hlc_coord">33 34</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="EMPTY" x="37" y="35"/>
+  <single priority="1" type="EMPTY" x="36" y="35">
+    <metadata>
+      <meta name="hlc_coord">34 33</meta>
+    </metadata>
+  </single>
+  <single priority="1" type="EMPTY" x="37" y="37"/>
+  <single priority="1" type="EMPTY" x="36" y="36">
+    <metadata>
+      <meta name="hlc_coord">34 34</meta>
+    </metadata>
+  </single>
+</fixed_layout>
