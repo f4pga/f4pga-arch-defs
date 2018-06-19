@@ -154,10 +154,10 @@ def rebuild_graph(fn, fn_out, rcw=6, verbose=False):
     grid_sz = g.block_grid.size
     print("Grid size: %s" % (grid_sz, ))
     print('Exporting pin placement')
-    pin_sides = g.extract_pin_sides()
+    pin_sides, pin_offsets = g.extract_pin_meta()
 
-    def get_pin_sides(block, pin):
-        return pin_sides[(block.position, pin.name)]
+    def get_pin_meta(block, pin):
+        return (pin_sides[(block.position, pin.name)], pin_offsets[(block.position, pin.name)])
 
     print()
 
@@ -173,7 +173,7 @@ def rebuild_graph(fn, fn_out, rcw=6, verbose=False):
 
     print('Rebuilding block I/O nodes')
     g.create_block_pins_fabric(g.switches['__vpr_delayless_switch__'],
-                               get_pin_sides)
+                               get_pin_meta)
     print_nodes_edges(g)
 
     print()
