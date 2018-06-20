@@ -2475,11 +2475,9 @@ class Graph:
                 # Lookup Block/<grid_loc>
                 # ptc is the associated pin ptc value of the block_type
                 block = self.block_grid[pos]
-                print(block, pos)
                 assert_type(block, Block)
                 pin = block.ptc2pin(ptc)
                 assert pin.name is not None, pin.name
-                print(pos, pin.name, node)
                 self.routing.localnames.add(pos, pin.name, node)
 
     def _import_block_types(self):
@@ -2750,7 +2748,6 @@ class Graph:
                         except KeyError:
                             continue
 
-                        print(ET.tostring(node), block, pos, offset)
                         assert node != None, "{}:{} not found at {}\n{}".format(block, pin.name, list(block.positions), self.routing.localnames)
                         side = single_element(node, 'loc').get('side')
                         assert side is not None, ET.tostring(node)
