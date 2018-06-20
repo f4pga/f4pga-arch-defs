@@ -1572,22 +1572,22 @@ class MappingLocalNames(dict):
         self.localnames = {}
         dict.__init__(self, *args, **kw)
 
-    def add(self, pos, name, xml_node):
-        assert_type(xml_node, self.type)
+    def add(self, pos, name, value):
+        assert_type(value, self.type)
         assert_type(pos, Position)
         assert_type(name, str)
 
-        self[(pos, name)] = xml_node
+        self[(pos, name)] = value
 
     def clear(self):
         self.localnames.clear()
         dict.clear(self)
 
-    def __setitem__(self, key, xml_node):
+    def __setitem__(self, key, value):
         """
-        map[(Position, name)] = ET._Element
+        map[(Position, name)] = type
         """
-        assert_type(xml_node, self.type)
+        assert_type(value, self.type)
 
         pos, name = key
         assert_type(pos, Position)
@@ -1599,7 +1599,7 @@ class MappingLocalNames(dict):
         assert_not_in(name, self.localnames[pos])
         self.localnames[pos].add(name)
 
-        dict.__setitem__(self, key, xml_node)
+        dict.__setitem__(self, key, value)
 
     def __getitem__(self, key):
         """
