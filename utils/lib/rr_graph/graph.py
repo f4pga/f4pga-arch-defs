@@ -1882,7 +1882,7 @@ class RoutingGraph:
             for edge in self._xml_parent(RoutingEdge):
                 self._add_xml_element(edge, existing=True)
 
-    def clear(self, create_pins=True):
+    def clear(self):
         """Delete the existing rr_nodes and rr_edges."""
         self._xml_parent(RoutingNode).clear()
         self._xml_parent(RoutingEdge).clear()
