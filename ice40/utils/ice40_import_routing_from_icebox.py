@@ -78,6 +78,7 @@ from os.path import commonprefix
 
 import icebox
 import icebox_asc2hlc
+from lib.rr_graph import Offset
 import lib.rr_graph.graph as graph
 import lib.rr_graph.channel as channel
 import re
@@ -1027,13 +1028,20 @@ def add_edges(g, nn, verbose=True):
         pos_ic = TilePos(xic, yic)
         if pos_ic in nn.corner_tiles:
             continue
-        #if pos_ic != (1, 1):
-        #    continue
+        tile_type = nn.ic.tile_type(xic, yic)
 
         if verbose:
             print()
             print(xic, yic)
             print("-" * 75)
+
+        # FIXME: If IO type, connect PACKAGE_PIN_I and PACKAGE_PIN_O manually...
+        #if tile_type == "IO":
+        #    src_node_id = nn.poslname2nodeid.get((pos_ic, "PACKAGE_PIN_I"))
+        #    dst_node_id = nn.poslname2nodeid.get((pos_ic, "PACKAGE_PIN_O"))
+        #    print(src_node_id, dst_node_id, g.switches["short"])
+        #    edgea = g.routing.create_edge_with_ids(
+        #        src_node_id, dst_node_id, switch=g.switches["short"])
         edgei = 0
         adds = set()
         for entry in ic.tile_db(xic, yic):
@@ -1214,13 +1222,7 @@ def run(part, read_rr_graph, write_rr_graph):
     grid_sz = g.block_grid.size
     print("Grid size: %s" % (grid_sz, ))
     print('Exporting pin placement')
-    pin_meta = g.extract_pin_meta()
-
-    def get_pin_meta(block, pin):
-        return (
-            pin_meta[0][(block.position, pin.name)],
-            pin_meta[1][(block.position, pin.name)],
-        )
+    #pin_meta = g.extract_pin_meta()
 
     print()
 
@@ -1235,6 +1237,68 @@ def run(part, read_rr_graph, write_rr_graph):
     #create_segments(g)
     print()
     print('Rebuilding block I/O nodes')
+    def get_pin_meta(block, pin):
+        global ic
+        print("get_pin_meta", block, pin, end=" ")
+        if "PIN" in block.block_type.name:
+            print("pin", end=" ")
+            if block.position.x == 1:
+                print("right")
+                return (graph.RoutingNodeSide.RIGHT, Offset(0, 0))
+            elif block.position.y == 1:
+                print("top")
+                return (graph.RoutingNodeSide.TOP, Offset(0, 0))
+            elif block.position.y == grid_sz.y-2:
+                print("bottom")
+                return (graph.RoutingNodeSide.BOTTOM, Offset(0, 0))
+            elif block.position.x == grid_sz.x-2:
+                print("left")
+                return (graph.RoutingNodeSide.LEFT, Offset(0, 0))
+
+        if "RAM" in block.block_type.name:
+            print("ram", end=" ")
+            top_pins = ["RDATAB", "WADDR", "MASKB", "WDATAB", "WCLKE", "WCLK", "WE"]
+            bot_pins = ["RDATAT", "RADDR", "MASKT", "WDATAT", "RCLKE", "RCLK", "RE"]
+            if pin.port_name in top_pins:
+                print("top")
+                return (graph.RoutingNodeSide.RIGHT, Offset(0, 1))
+            elif pin.port_name in bot_pins:
+                print("bot")
+                return (graph.RoutingNodeSide.RIGHT, Offset(0, 0))
+            assert False
+
+        if "PIO" in block.block_type.name:
+            print("pio", end=" ")
+            if "PACKAGE_PIN" in pin.name:
+                if block.position.x == 2:
+                    print("right")
+                    return (graph.RoutingNodeSide.RIGHT, Offset(0, 0))
+                elif block.position.y == 2:
+                    print("top")
+                    return (graph.RoutingNodeSide.TOP, Offset(0, 0))
+                elif block.position.y == grid_sz.y-3:
+                    print("bottom")
+                    return (graph.RoutingNodeSide.BOTTOM, Offset(0, 0))
+                elif block.position.x == grid_sz.x-3:
+                    print("left")
+                    return (graph.RoutingNodeSide.LEFT, Offset(0, 0))
+            print("other")
+            return (graph.RoutingNodeSide.RIGHT, Offset(0, 0))
+
+        if "PLB" in block.block_type.name:
+            print("plb", end=" ")
+            if "FCIN" in pin.port_name:
+                print("bottom")
+                return (graph.RoutingNodeSide.BOTTOM, Offset(0, 0))
+            elif "FCOUT" in pin.port_name:
+                print("top")
+                return (graph.RoutingNodeSide.TOP, Offset(0, 0))
+
+            print("other")
+            return (graph.RoutingNodeSide.RIGHT, Offset(0, 0))
+
+        assert False, (block, pin)
+
     g.create_block_pins_fabric(g.switches['__vpr_delayless_switch__'],
                                get_pin_meta)
     print_nodes_edges(g)
