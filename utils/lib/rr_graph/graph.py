@@ -2620,8 +2620,8 @@ class Graph:
         if pin_class.direction in (PinClassDirection.INPUT,
                                    PinClassDirection.CLOCK):
             # Sink node
-            sink_node = self.routing.create_node(pos_low, pos_high, pin.ptc,
-                                                 'SINK')
+            sink_node = self.routing.create_node(
+                pos_low, pos_high, pin.ptc, 'SINK')
 
             for p in pin_class.pins:
                 pin_node = self.create_node_from_pin(block, p, *pin_meta(block, p))
@@ -2632,8 +2632,8 @@ class Graph:
 
         elif pin_class.direction in (PinClassDirection.OUTPUT, ):
             # Source node
-            src_node = self.routing.create_node(pos_low, pos_high, pin.ptc,
-                                                'SOURCE')
+            src_node = self.routing.create_node(
+                pos_low, pos_high, pin.ptc, 'SOURCE')
 
             for p in pin_class.pins:
                 pin_node = self.create_node_from_pin(block, p, *pin_meta(block, p))
