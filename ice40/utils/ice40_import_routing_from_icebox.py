@@ -111,13 +111,13 @@ def P1(pos):
     assert type(pos) is graph.Position
     # evidently doens't have operator defined...
     # return pos + graph.Position(1, 1)
-    return graph.Position(pos.x + 1, pos.y + 1)
+    return graph.Position(pos.x + 2, pos.y + 2)
 
 
 def PN1(pos):
     '''Convert VTR to icebox coordinate system by subtracting 1 for dummy blocks'''
     assert type(pos) is graph.Position
-    return graph.Position(pos.x - 1, pos.y - 1)
+    return graph.Position(pos.x - 2, pos.y - 2)
 
 
 TilePos = graph.Position
