@@ -1,5 +1,5 @@
 <!-- set: ai sw=1 ts=1 sta et -->
-<pb_type name="BLK_TL-PIO" xmlns:xi="http://www.w3.org/2001/XInclude">
+<pb_type name="BLK_TL-PIO" capacity="2" xmlns:xi="http://www.w3.org/2001/XInclude">
  <!-- SB_IO inputs   -->
  <output name="D_IN_0" num_pins="1" equivalent="false"/>
  <output name="D_IN_1" num_pins="1" equivalent="false"/>
@@ -17,16 +17,16 @@
  <clock  name="io_global_outclk" num_pins="1" equivalent="false"/>
  <input  name="io_global_latch"  num_pins="1" equivalent="false"/>
  -->
- <output name="PACKAGE_PIN_O" num_pins="1" equivalent="false"/>
- <input name="PACKAGE_PIN_I" num_pins="1" equivalent="false"/>
 
  <!-- IO operating as an output -->
  <mode name="PAD_IS_OUTPUT">
-  <pb_type name="OUTPUT" num_pb="1">
-   <input name="I" num_pins="1" equivalent="false"/>
-   <output name="O" num_pins="1" equivalent="false"/>
+  <pb_type name="PAD" num_pb="1">
+   <input name="D_OUT" num_pins="2" equivalent="false"/>
+   <pb_type name="output" blif_model=".output" num_pb="1">
+    <input name="outpad" num_pins="1"/>
+   </pb_type>
    <interconnect>
-    <direct name="USED" input="OUTPUT.I" output="OUTPUT.O"/>
+    <mux name="D_OUT" input="PAD.D_OUT[0] PAD.D_OUT[1]" output="output.outpad"/>
    </interconnect>
    <metadata>
     <meta name="hlc_property">disable_pull_up</meta>
@@ -34,19 +34,24 @@
     <meta name="hlc_property">input_pin_type = simple_input_pin</meta>
    </metadata>
   </pb_type>
+
   <interconnect>
-   <direct name="I" input="BLK_TL-PIO.D_OUT_0" output="OUTPUT.I" />
-   <direct name="O" input="OUTPUT.O" output="BLK_TL-PIO.PACKAGE_PIN_O" />
+   <!-- SB_IO outputs -->
+   <direct name="D_OUT_0" input="BLK_TL-PIO.D_OUT_0" output="PAD.D_OUT[0]" />
+   <direct name="D_OUT_1" input="BLK_TL-PIO.D_OUT_1" output="PAD.D_OUT[1]" />
   </interconnect>
  </mode>
 
  <!-- IO operating as an input -->
  <mode name="PAD_IS_INPUT">
-  <pb_type name="INPUT" num_pb="1">
-   <input name="I" num_pins="1" equivalent="false"/>
-   <output name="O" num_pins="1" equivalent="false"/>
+  <pb_type name="PAD" num_pb="1">
+   <output name="D_IN" num_pins="2" equivalent="false"/>
+   <pb_type name="input" blif_model=".input" num_pb="1">
+    <output name="inpad" num_pins="1"/>
+   </pb_type>
    <interconnect>
-    <direct name="USED" input="INPUT.I" output="INPUT.O"/>
+    <mux name="D_IN_0" input="input.inpad" output="PAD.D_IN[0]"/>
+    <mux name="D_IN_1" input="input.inpad" output="PAD.D_IN[1]"/>
    </interconnect>
    <metadata>
     <meta name="hlc_property">disable_pull_up</meta>
@@ -54,10 +59,13 @@
     <meta name="hlc_property">input_pin_type = simple_input_pin</meta>
    </metadata>
   </pb_type>
+
   <interconnect>
-   <direct name="I" input="BLK_TL-PIO.PACKAGE_PIN_I" output="INPUT.I" />
-   <direct name="O" input="INPUT.O" output="BLK_TL-PIO.D_IN_0" />
+   <!-- SB_IO inputs -->
+   <direct name="D_IN_0" input="PAD.D_IN[0]" output="BLK_TL-PIO.D_IN_0" />
+   <direct name="D_IN_1" input="PAD.D_IN[1]" output="BLK_TL-PIO.D_IN_1" />
   </interconnect>
+
  </mode>
 
  <metadata>
@@ -72,8 +80,6 @@
    BLK_TL-PIO.D_OUT_0
    BLK_TL-PIO.D_OUT_1
    BLK_TL-PIO.OUT_ENB
-   BLK_TL-PIO.PACKAGE_PIN_O
-   BLK_TL-PIO.PACKAGE_PIN_I
   </loc>
  </pinlocations>
  <fc in_type="frac" in_val="1.0" out_type="frac" out_val="1.0" />
