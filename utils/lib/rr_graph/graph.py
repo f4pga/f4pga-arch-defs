@@ -1330,7 +1330,7 @@ class LookupMap:
 
 class RoutingGraphPrinter:
     @classmethod
-    def node(cls, xml_node, block_graph=None):
+    def node(cls, xml_node, block_grid=None):
         """Get a globally unique name for an `node` in the rr_nodes.
 
         Without a block graph, the name won't include the block type.
@@ -1448,8 +1448,8 @@ class RoutingGraphPrinter:
         ptc = int(loc_node.attrib["ptc"])
         edge = loc_node.attrib.get("side", " ")[0]
 
-        if block_graph is not None:
-            block = block_graph[low]
+        if block_grid is not None:
+            block = block_grid[low]
         else:
             block = None
 
@@ -1489,8 +1489,8 @@ class RoutingGraphPrinter:
             assert False, "Unknown node_type {}".format(node_type)
         assert type_str
 
-        if block_graph is not None:
-            block = block_graph[low]
+        if block_grid is not None:
+            block = block_grid[low]
             block_name = "_" + block.block_type.name
             x = block.position.x
             y = block.position.y
@@ -1519,7 +1519,7 @@ class RoutingGraphPrinter:
             t=block_name, x=x, y=y, i=ptc_str, s=type_str)
 
     @classmethod
-    def edge(cls, routing, xml_node, block_graph=None, flip=False):
+    def edge(cls, routing, xml_node, block_grid=None, flip=False):
         """Get a globally unique name for an `edge` in the rr_edges.
 
         An edge goes between two `node` objects.
@@ -1558,8 +1558,8 @@ class RoutingGraphPrinter:
         else:
             s = "{} ->>- {}"
         return s.format(
-            cls.node(src_node, block_graph=block_graph),
-            cls.node(snk_node, block_graph=block_graph))
+            cls.node(src_node, block_grid=block_grid),
+            cls.node(snk_node, block_grid=block_grid))
 
 
 class MappingLocalNames(dict):
