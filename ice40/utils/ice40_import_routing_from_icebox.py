@@ -361,23 +361,23 @@ def add_pin_aliases(g, ic, verbose=True):
     for block in g.block_grid:
         for pin in block.pins:
             if "RAM" in block.block_type.name:
-              pin_pos = block.position + ram_pin_offset(pin)
+                pin_pos = block.position + ram_pin_offset(pin)
             else:
-              pin_pos = block.position
+                pin_pos = block.position
             ipos = pos_vpr2icebox(PositionVPR(*pin_pos))
 
-            hlc_name = group_hlc_name([(ipos, pin.name)])
+            hlc_name = name_rr2local.get(pin.xmlname, group_hlc_name([(ipos, pin.name)]))
 
             node = g.routing.localnames[(pin_pos, pin.name)]
-            node.set_metadata("hlc_pos", "{} {}".format(*ipos))
+            node.set_metadata("hlc_coord", "{},{}".format(*ipos))
             node.set_metadata("hlc_name", hlc_name)
 
             rr_name = pin.xmlname
             try:
-              localname = name_rr2local[rr_name]
+                localname = name_rr2local[rr_name]
             except KeyError:
-              print("WARNING: rr_name {} doesn't have a translation".format(rr_name))
-              continue
+                print("WARNING: rr_name {} doesn't have a translation".format(rr_name))
+                continue
 
             # FIXME: only add for actual position instead for all
             print("Adding alias {}:{} for {}".format(
@@ -580,7 +580,7 @@ def add_edges(g, ic, verbose=True):
             edge = g.routing.create_edge_with_nodes(
                 src_node, dst_node, switch=g.switches[switch_type])
 
-            edge.set_metadata("hlc_pos", "{} {}".format(*ipos))
+            edge.set_metadata("hlc_coord", "{},{}".format(*ipos))
 
 
 def print_nodes_edges(g):
