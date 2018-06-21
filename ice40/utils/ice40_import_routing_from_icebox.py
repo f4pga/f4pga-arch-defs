@@ -410,13 +410,11 @@ def add_tracks(g, ic, segtype_filter=None, verbose=True):
 
     all_group_segments = ic.group_segments(list(tiles(ic)), connect_gb=True)
     for group in sorted(all_group_segments):
-        if verbose:
-            print()
         group = [(PositionIcebox(x, y), netname) for x, y, netname in group]
 
         fgroup = filter_track_names(group)
         if not fgroup:
-            print("Filtered out track group", group)
+            verbose and print("Filtered out track group", group)
             continue
 
         fgroup = filter_non_straight(fgroup)
@@ -427,10 +425,10 @@ def add_tracks(g, ic, segtype_filter=None, verbose=True):
             continue
 
         if segtype == "unknown":
-            print("Skipping unknown track group", group)
+            verbose and print("Skipping unknown track group", group)
             continue
         if segtype == "global":
-            print("Skipping global track group", group)
+            verbose and print("Skipping global track group", group)
             continue
         segment = g.segments[segtype]
 
@@ -442,19 +440,18 @@ def add_tracks(g, ic, segtype_filter=None, verbose=True):
         elif istart.x != iend.x and istart.y == iend.y:
             typeh = channel.Track.Type.X
         elif istart.x != iend.x and istart.y != iend.y:
-            print("Skipping non-straight track", group)
+            verbose and print("Skipping non-straight track", group)
             continue
         else:
             typeh = group_chan_type(fgroup)
         vstart, vend = pos_icebox2vpr(istart), pos_icebox2vpr(iend)
 
-        print()
-        print("Creating track", hlc_name, vstart, vend, segment, typeh, group)
         track, track_node = g.create_xy_track(
             vstart, vend,
             segment=segment,
             typeh=typeh,
             direction=channel.Track.Direction.BI)
+        verbose and print("Created track", hlc_name, format_node(g, track_node), segment.name, typeh, group)
 
         track_node.set_metadata("hlc_name", hlc_name)
 
@@ -462,8 +459,9 @@ def add_tracks(g, ic, segtype_filter=None, verbose=True):
             vpos = pos_icebox2vpr(pos)
             g.routing.localnames.add(vpos, hlc_name, track_node)
             g.routing.localnames.add(vpos, netname, track_node)
-            print(pos, "->", vpos, format_node(g, track_node), "==", netname)
-        print()
+            verbose and print(
+                "  Setting on ", pos, "(%s)" % vpos,
+                "name", "==", netname)
         print()
 
 
