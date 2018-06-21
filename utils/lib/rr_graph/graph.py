@@ -1867,6 +1867,8 @@ class RoutingGraph:
         # Global names for each node
         self.globalnames = MappingGlobalNames()
 
+        self._cache_nodes2edges = {}
+
         if xml_graph is None:
             xml_graph = ET.Element("rr_graph")
             ET.SubElement(xml_graph, "rr_nodes")
@@ -1881,6 +1883,7 @@ class RoutingGraph:
                 self._add_xml_element(node, existing=True)
             for edge in self._xml_parent(RoutingEdge):
                 self._add_xml_element(edge, existing=True)
+            self._build_cache_node2edge()
 
     def clear(self):
         """Delete the existing rr_nodes and rr_edges."""
@@ -1892,6 +1895,8 @@ class RoutingGraph:
 
         self.localnames.clear()
         self.globalnames.clear()
+
+        self._cache_nodes2edges.clear()
 
     def _xml_type(self, xml_node):
         """Get the type of an ET._Element object.
@@ -1959,6 +1964,28 @@ class RoutingGraph:
         if not existing:
             parent = self._xml_parent(xml_type)
             parent.append(xml_node)
+            self._add_cache_node2edge(xml_node)
+
+    def _add_cache_node2edge(self, xml_node):
+        xml_type = self._xml_type(xml_node)
+        node_id = self._get_xml_id(xml_node)
+        if xml_type == RoutingNode:
+            assert node_id not in self._cache_nodes2edges
+            self._cache_nodes2edges[node_id] = set()
+        elif xml_type == RoutingEdge:
+            src_id, snk_id = self.node_ids_for_edge(xml_node)
+            self._cache_nodes2edges[src_id].add(node_id)
+            self._cache_nodes2edges[snk_id].add(node_id)
+        else:
+            assert False, "Unknown xml_node {}".format(xml_node)
+
+    def _build_cache_node2edge(self):
+        assert len(self._cache_nodes2edges) == 0
+        for node in self._ids_map(RoutingNode).values():
+            self._add_cache_node2edge(node)
+
+        for edge in self._ids_map(RoutingEdge).values():
+            self._add_cache_node2edge(edge)
 
     def get_node_by_id(self, node_id):
         """Get the RoutingNode from a given ID.
@@ -2094,24 +2121,10 @@ class RoutingGraph:
         -------
 
         """
-        nodes2edges = {}
-        for node_id in self._ids_map(RoutingNode).keys():
-            nodes2edges[node_id] = []
-
-        for edge_node in self._ids_map(RoutingEdge).values():
-            src_id, snk_id = self.node_ids_for_edge(edge_node)
-            nodes2edges[src_id].append(edge_node)
-            nodes2edges[snk_id].append(edge_node)
-
-        return nodes2edges
+        return MappingProxyType(self._cache_nodes2edges)
 
     def edges_for_node(self, xml_node):
         """Return all edges associated with given node.
-
-        **WARNING:** This function is quite slow when a graph has a large
-        number of edges. If doing lots of lookups, consider using
-        `edges_for_allnodes` function to get a dictionary that you can lookup
-        the edges in directly.
 
         Parameters
         ----------
@@ -2130,7 +2143,7 @@ class RoutingGraph:
         >>> [RoutingGraphPrinter.edge(r, e) for e in r.edges_for_node(r.get_node_by_id(2))]
         ['X000Y000[00].R-PIN> ->>- X000Y000<-00->X000Y010', 'X000Y000<-00->X000Y010 ->>- X000Y010[00].L-PIN<']
         """
-        return self.edges_for_allnodes()[self._get_xml_id(xml_node)]
+        return [self.get_edge_by_id(i) for i in self.edges_for_allnodes()[self._get_xml_id(xml_node)]]
 
     ######################################################################
     # Constructor methods
@@ -2181,7 +2194,6 @@ class RoutingGraph:
         elif not ntype.pin_class:
             assert low == high, (low, high)
 
-
         node = RoutingNode(attrib=attrib)
 
         # <loc> needed for all nodes
@@ -2222,6 +2234,7 @@ class RoutingGraph:
             node.set_metadata(k, v)
 
         self._add_xml_element(node)
+
         return node
 
     def create_edge_with_ids(self, src_node_id, sink_node_id, switch, metadata={}):
