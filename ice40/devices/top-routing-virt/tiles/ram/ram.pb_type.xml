@@ -120,7 +120,6 @@
 
  <pinlocations pattern="custom">
   <!-- RAM Tile -->
-<!--
    <loc side="right" xoffset="0" yoffset="1">
    BLK_TL-RAM.RDATA[8:15]
    BLK_TL-RAM.MASK[8:15]
@@ -134,20 +133,6 @@
    BLK_TL-RAM.RDATA[0:7]
    BLK_TL-RAM.MASK[0:7]
    BLK_TL-RAM.WDATA[0:7]
-   BLK_TL-RAM.WADDR
-   BLK_TL-RAM.WCLKE
-   BLK_TL-RAM.WCLK
-   BLK_TL-RAM.WE
-  </loc>
--->
-  <loc side="right" xoffset="0" yoffset="0">
-   BLK_TL-RAM.RDATA
-   BLK_TL-RAM.MASK
-   BLK_TL-RAM.WDATA
-   BLK_TL-RAM.RADDR
-   BLK_TL-RAM.RCLKE
-   BLK_TL-RAM.RCLK
-   BLK_TL-RAM.RE
    BLK_TL-RAM.WADDR
    BLK_TL-RAM.WCLKE
    BLK_TL-RAM.WCLK

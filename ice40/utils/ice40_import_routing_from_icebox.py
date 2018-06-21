@@ -359,25 +359,31 @@ def add_pin_aliases(g, ic, verbose=True):
             add_ram_pin('', 'MASK', ind)
 
     for block in g.block_grid:
-        ipos = pos_vpr2icebox(PositionVPR(*block.position))
         for pin in block.pins:
+            if "RAM" in block.block_type.name:
+              pin_pos = block.position + ram_pin_offset(pin)
+            else:
+              pin_pos = block.position
+            ipos = pos_vpr2icebox(PositionVPR(*pin_pos))
+
             hlc_name = group_hlc_name([(ipos, pin.name)])
 
-            node = g.routing.localnames[(block.position, pin.name)]
+            node = g.routing.localnames[(pin_pos, pin.name)]
             node.set_metadata("hlc_pos", "{} {}".format(*ipos))
             node.set_metadata("hlc_name", hlc_name)
 
             rr_name = pin.xmlname
             try:
-                localname = name_rr2local[rr_name]
+              localname = name_rr2local[rr_name]
             except KeyError:
-                print("WARNING: rr_name {} doesn't have a translation".format(rr_name))
-                continue
+              print("WARNING: rr_name {} doesn't have a translation".format(rr_name))
+              continue
 
+            # FIXME: only add for actual position instead for all
             print("Adding alias {}:{} for {}".format(
                 block.position, localname, format_node(g, node)))
-            g.routing.localnames.add(block.position, localname, node)
-            g.routing.localnames.add(block.position, hlc_name, node)
+            g.routing.localnames.add(pin_pos, localname, node)
+            g.routing.localnames.add(pin_pos, hlc_name, node)
 
 
 def add_dummy_tracks(g, ic, verbose=True):
@@ -588,6 +594,23 @@ def print_nodes_edges(g):
            len(g.routing.id2element[graph.RoutingNode])))
 
 
+def ram_pin_offset(pin):
+    top_pins = ["RADDR", "RCLKE", "RCLK", "RE"]
+    bot_pins = ["WADDR", "WCLKE", "WCLK", "WE"]
+    if pin.port_name in top_pins or (
+            pin.port_name in ["RDATA", "MASK", "WDATA"] and
+            pin.port_index in range(8,16)):
+        print("top")
+        return Offset(0, 1)
+    elif pin.port_name in bot_pins or (
+            pin.port_name in ["RDATA", "MASK", "WDATA"] and
+            pin.port_index in range(8)):
+        print("bot")
+        return Offset(0, 0)
+    else:
+        assert False, "RAM pin doesn't match name expected for metadata"
+
+
 def get_pin_meta(block, pin):
     grid_sz = PositionVPR(ic.max_x+1+4, ic.max_y+1+4)
     print("get_pin_meta", block, pin, pin.name, end=" ")
@@ -608,19 +631,7 @@ def get_pin_meta(block, pin):
 
     if "RAM" in block.block_type.name:
         print("ram", end=" ")
-        top_pins = ["RADDR", "RCLKE", "RCLK", "RE"]
-        bot_pins = ["WADDR", "WCLKE", "WCLK", "WE"]
-        if pin.port_name in top_pins or (
-                pin.port_name in ["RDATA", "MASK", "WDATA"] and
-                pin.port_index in range(8,16)):
-            print("top")
-            return (graph.RoutingNodeSide.RIGHT, Offset(0, 1))
-        elif pin.port_name in bot_pins or (
-                pin.port_name in ["RDATA", "MASK", "WDATA"] and
-                pin.port_index in range(8)):
-            print("bot")
-            return (graph.RoutingNodeSide.RIGHT, Offset(0, 0))
-        assert False, "RAM pin doesn't match name expected for metadata"
+        return (graph.RoutingNodeSide.RIGHT, ram_pin_offset(pin))
 
     if "PIO" in block.block_type.name:
         print("pio", end=" ")

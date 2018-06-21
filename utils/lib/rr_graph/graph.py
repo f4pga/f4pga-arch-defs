@@ -2551,16 +2551,15 @@ class Graph:
 
         pc = pin.pin_class
         # Connection within the same tile
-        low = block.position + offset
-        high = block.position + offset
+        pos = block.position + offset
 
         pin_node = None
         if pc.direction in (PinClassDirection.INPUT, PinClassDirection.CLOCK):
             pin_node = self.routing.create_node(
-                low, high, pin.ptc, 'IPIN', side=side)
+                pos, pos, pin.ptc, 'IPIN', side=side)
         elif pin.pin_class.direction in (PinClassDirection.OUTPUT, ):
             pin_node = self.routing.create_node(
-                low, high, pin.ptc, 'OPIN', side=side)
+                pos, pos, pin.ptc, 'OPIN', side=side)
         else:
             assert False, "Unknown dir of {}.{}".format(pin, pin.pin_class)
 
@@ -2568,9 +2567,9 @@ class Graph:
 
         if self.verbose:
             print("Adding pin {:55s} on tile ({:12s}, {:12s})@{:4d} {}".format(
-                str(pin), str(low), str(high), pin.ptc, pin))
+                str(pin), str(pos), str(pos), pin.ptc, pin))
 
-        self.routing.localnames.add(block.position, pin.name, pin_node)
+        self.routing.localnames.add(pos, pin.name, pin_node)
 
         return pin_node
 
