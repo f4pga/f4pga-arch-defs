@@ -143,8 +143,7 @@ def format_node(g, node):
     if node.tag == "node":
         return graph.RoutingGraphPrinter.node(node, g.block_grid)
     elif node.tag == "edge":
-        return str(node)
-        #return graph.RoutingGraphPrinter.edge(g.routing, node, g.block_grid)
+        return graph.RoutingGraphPrinter.edge(g.routing, node, g.block_grid)
 
 
 def tiles(ic):
@@ -381,7 +380,8 @@ def add_pin_aliases(g, ic, verbose=True):
             g.routing.localnames.add(block.position, hlc_name, node)
 
 
-def add_tracks(g, ic, verbose=True):
+def add_dummy_tracks(g, ic, verbose=True):
+    """Add a single dummy track to every channel."""
     dummy = g.segments["dummy"]
     for x in range(-2, ic.max_x+2):
         istart = PositionIcebox(x, 0)
@@ -398,8 +398,11 @@ def add_tracks(g, ic, verbose=True):
             segment=dummy,
             direction=channel.Track.Direction.BI)
 
-    all_group_segments = ic.group_segments(
-        list(tiles(ic)), connect_gb=False)
+
+def add_tracks(g, ic, segtype_filter=None, verbose=True):
+    add_dummy_tracks(g, ic, verbose)
+
+    all_group_segments = ic.group_segments(list(tiles(ic)), connect_gb=True)
     for group in sorted(all_group_segments):
         if verbose:
             print()
@@ -414,6 +417,9 @@ def add_tracks(g, ic, verbose=True):
         assert fgroup, (fgroup, fgroup)
 
         segtype = group_seg_type(group)
+        if segtype_filter is not None and segtype != segtype_filter:
+            continue
+
         if segtype == "unknown":
             print("Skipping unknown track group", group)
             continue
@@ -503,7 +509,7 @@ def add_edges(g, ic, verbose=True):
         for entry in ic.tile_db(*ipos):
             if not ic.tile_has_entry(*ipos, entry):
                 verbose and print(
-                    '  WARNING: skip %s %s' % (ipos, entry))
+                    'DEBUG: skip non-existent edge %s %s' % (ipos, entry))
                 continue
 
             verbose and print('')
@@ -683,7 +689,12 @@ def run(part, read_rr_graph, write_rr_graph):
     print('Adding pin aliases')
     print('='*80)
     add_pin_aliases(g, ic, VERBOSE)
-    add_tracks(g, ic, VERBOSE)
+
+    add_tracks(g, ic, segtype_filter="local", verbose=VERBOSE)
+    add_tracks(g, ic, segtype_filter="span4", verbose=VERBOSE)
+    add_tracks(g, ic, segtype_filter="span12", verbose=VERBOSE)
+    #add_tracks(g, ic, segtype_filter="global", verbose=VERBOSE)
+
     print()
     print('Adding edges')
     print('='*80)
