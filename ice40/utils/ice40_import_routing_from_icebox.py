@@ -69,6 +69,7 @@ Then add globals, then neighbourhood
 """
 
 # Python libs
+import logging
 import operator
 import os.path
 import re
@@ -94,7 +95,6 @@ from lib.rr_graph import Offset
 from lib.asserts import assert_type
 
 ic = None
-VERBOSE = True
 device_name = None
 
 
@@ -136,14 +136,28 @@ def pos_icebox2vprpin(pos):
     assert False, (pos, (ic.max_x, ic.max_y))
 
 
+class RunOnStr:
+    """Don't run function until a str() is called."""
+    def __init__(self, f, *args, **kw):
+        self.f = f
+        self.args = args
+        self.kw = kw
+        self.s = None
+
+    def __str__(self):
+        if not self.s:
+            self.s = self.f(*self.args, **self.kw)
+        return self.s
+
+
 def format_node(g, node):
     if node is None:
         return "None"
     assert isinstance(node, ET._Element), node
     if node.tag == "node":
-        return graph.RoutingGraphPrinter.node(node, g.block_grid)
+        return RunOnStr(graph.RoutingGraphPrinter.node, node, g.block_grid)
     elif node.tag == "edge":
-        return graph.RoutingGraphPrinter.edge(g.routing, node, g.block_grid)
+        return RunOnStr(graph.RoutingGraphPrinter.edge, g.routing, node, g.block_grid)
 
 
 def tiles(ic):
@@ -200,14 +214,14 @@ def filter_non_straight(group):
         x_ipos = x_val[-1][1]
         for ipos, netname in group:
             if ipos.x != x_ipos:
-                print("Skipping non-straight", "x", x_ipos, ipos, netname)
+                logging.debug("Skipping non-straight: x %s %s %s", x_ipos, ipos, netname)
                 continue
             r.append((ipos, netname))
     else:
         y_ipos = y_val[-1][1]
         for ipos, netname in group:
             if ipos.y != y_ipos:
-                print("Skipping non-straight", "y", y_ipos, ipos, netname)
+                logging.debug("Skipping non-straight: y %s %s %s", y_ipos, ipos, netname)
                 continue
             r.append((ipos, netname))
     return r
@@ -281,7 +295,7 @@ def init(device_name, read_rr_graph):
     return ic, g
 
 
-def add_pin_aliases(g, ic, verbose=True):
+def add_pin_aliases(g, ic):
     '''Build a list of icebox global pin names to Graph node IDs'''
     name_rr2local = {}
 
@@ -376,17 +390,18 @@ def add_pin_aliases(g, ic, verbose=True):
             try:
                 localname = name_rr2local[rr_name]
             except KeyError:
-                print("WARNING: rr_name {} doesn't have a translation".format(rr_name))
+                logging.warn("rr_name %s doesn't have a translation", rr_name)
                 continue
 
             # FIXME: only add for actual position instead for all
-            print("Adding alias {}:{} for {}".format(
-                block.position, localname, format_node(g, node)))
+            logging.debug(
+                "Adding alias %s:%s for %s",
+                block.position, localname, format_node(g, node))
             g.routing.localnames.add(pin_pos, localname, node)
             g.routing.localnames.add(pin_pos, hlc_name, node)
 
 
-def add_dummy_tracks(g, ic, verbose=True):
+def add_dummy_tracks(g, ic):
     """Add a single dummy track to every channel."""
     dummy = g.segments["dummy"]
     for x in range(-2, ic.max_x+2):
@@ -405,8 +420,8 @@ def add_dummy_tracks(g, ic, verbose=True):
             direction=channel.Track.Direction.BI)
 
 
-def add_tracks(g, ic, segtype_filter=None, verbose=True):
-    add_dummy_tracks(g, ic, verbose)
+def add_tracks(g, ic, segtype_filter=None):
+    add_dummy_tracks(g, ic)
 
     all_group_segments = ic.group_segments(list(tiles(ic)), connect_gb=True)
     for group in sorted(all_group_segments):
@@ -414,21 +429,21 @@ def add_tracks(g, ic, segtype_filter=None, verbose=True):
 
         fgroup = filter_track_names(group)
         if not fgroup:
-            verbose and print("Filtered out track group", group)
+            logging.debug("Filtered out track group", group)
             continue
 
         fgroup = filter_non_straight(fgroup)
-        assert fgroup, (fgroup, fgroup)
+        assert len(fgroup) > 0, (fgroup, fgroup)
 
         segtype = group_seg_type(group)
         if segtype_filter is not None and segtype != segtype_filter:
             continue
 
         if segtype == "unknown":
-            verbose and print("Skipping unknown track group", group)
+            logging.debug("Skipping unknown track group", group)
             continue
         if segtype == "global":
-            verbose and print("Skipping global track group", group)
+            logging.debug("Skipping global track group", group)
             continue
         segment = g.segments[segtype]
 
@@ -440,7 +455,7 @@ def add_tracks(g, ic, segtype_filter=None, verbose=True):
         elif istart.x != iend.x and istart.y == iend.y:
             typeh = channel.Track.Type.X
         elif istart.x != iend.x and istart.y != iend.y:
-            verbose and print("Skipping non-straight track", group)
+            logging.debug("Skipping non-straight track", group)
             continue
         else:
             typeh = group_chan_type(fgroup)
@@ -451,31 +466,24 @@ def add_tracks(g, ic, segtype_filter=None, verbose=True):
             segment=segment,
             typeh=typeh,
             direction=channel.Track.Direction.BI)
-        verbose and print("Created track", hlc_name, format_node(g, track_node), segment.name, typeh, group)
+        logging.debug("Created track", hlc_name, format_node(g, track_node), segment.name, typeh, group)
 
         track_node.set_metadata("hlc_name", hlc_name)
 
+        assert len(fgroup) > 0, (fgroup, fgroup)
         for pos, netname in fgroup:
             vpos = pos_icebox2vpr(pos)
             g.routing.localnames.add(vpos, hlc_name, track_node)
             g.routing.localnames.add(vpos, netname, track_node)
-            verbose and print(
-                "  Setting on ", pos, "(%s)" % vpos,
-                "name", "==", netname)
-        print()
+            logging.debug(
+                "  Setting on %s (%s) name == %s", pos, vpos, netname)
 
 
-def add_edges(g, ic, verbose=True):
-    verbose = True
+def add_edges(g, ic):
     all_tiles = list(tiles(ic))
     for ipos in all_tiles:
         tile_type = ic.tile_type(*ipos)
         vpos = pos_icebox2vpr(ipos)
-
-        if verbose:
-            print()
-            print(ipos)
-            print("-" * 75)
 
         # FIXME: If IO type, connect PACKAGE_PIN_I and PACKAGE_PIN_O manually...
 ##        if tile_type == "IO":
@@ -511,23 +519,25 @@ def add_edges(g, ic, verbose=True):
 ##                      edgeo)
 
         for entry in ic.tile_db(*ipos):
+            def skip(m, *args, level=logging.DEBUG, **kw):
+                p = {
+                    logging.DEBUG: logging.debug,
+                    logging.WARNING: logging.warn,
+                    logging.INFO: logging.info,
+                }[level]
+                p("On %s skipping entry %s: "+m, ipos, entry, *args, **kw)
+
             if not ic.tile_has_entry(*ipos, entry):
-                verbose and print(
-                    'DEBUG: skip non-existent edge %s %s' % (ipos, entry))
+                skip('Non-existent edge!')
                 continue
 
-            verbose and print('')
-            verbose and print("icebox edge entry", ipos, entry)
             switch_type = entry[1]
             if switch_type not in ("routing", "buffer"):
-                verbose and print(
-                    '  WARNING: skip switch type %s' % switch_type)
+                skip('Unknown switch type %s', switch_type)
                 continue
 
             src_localname = entry[2]
             dst_localname = entry[3]
-            verbose and print(
-                '  Got name %s => %s' % (src_localname, dst_localname))
 
             src_node = g.routing.localnames.get((vpos, src_localname), None)
             dst_node = g.routing.localnames.get((vpos, dst_localname), None)
@@ -537,36 +547,8 @@ def add_edges(g, ic, verbose=True):
 
             # May have duplicate entries
             if src_node is None:
-                verbose and print(
-                    "  WARNING: skipping edge as src missing *{}:{}* ({}) node {} => {}:{} ({}) node {}".format(
-                        vpos,
-                        src_localname,
-                        src_hlc_name,
-                        format_node(g, src_node),
-                        vpos,
-                        dst_localname,
-                        dst_hlc_name,
-                        format_node(g, dst_node),
-                    ))
-                continue
-            if dst_node is None:
-                verbose and print(
-                    "  WARNING: skipping edge as dst missing {}:{} ({}) node {} => *{}:{}* ({}) node {}".format(
-                        vpos,
-                        src_localname,
-                        src_hlc_name,
-                        format_node(g, src_node),
-                        vpos,
-                        dst_localname,
-                        dst_hlc_name,
-                        format_node(g, dst_node),
-                    ))
-                continue
-
-            verbose and print(
-                "  ADDING: {} edge {} - {}:{} ({}) node {} => {}:{} ({}) node {}".format(
-                    switch_type,
-                    len(g.routing.id2element[graph.RoutingEdge]),
+                skip(
+                    "src missing *%s:%s* (%s) node %s => %s:%s (%s) node %s",
                     vpos,
                     src_localname,
                     src_hlc_name,
@@ -575,7 +557,36 @@ def add_edges(g, ic, verbose=True):
                     dst_localname,
                     dst_hlc_name,
                     format_node(g, dst_node),
-                ))
+                    level=logging.WARNING,
+                )
+                continue
+            if dst_node is None:
+                skip(
+                    "dst missing %s:%s (%s) node %s => *%s:%s* (%s) node %s",
+                    vpos,
+                    src_localname,
+                    src_hlc_name,
+                    format_node(g, src_node),
+                    vpos,
+                    dst_localname,
+                    dst_hlc_name,
+                    format_node(g, dst_node),
+                )
+                continue
+
+            logging.debug(
+                "ADDING: %s edge %s - %s:%s (%s) node %s => %s:%s (%s) node %s",
+                switch_type,
+                len(g.routing.id2element[graph.RoutingEdge]),
+                vpos,
+                src_localname,
+                src_hlc_name,
+                format_node(g, src_node),
+                vpos,
+                dst_localname,
+                dst_hlc_name,
+                format_node(g, dst_node),
+            )
 
             edge = g.routing.create_edge_with_nodes(
                 src_node, dst_node, switch=g.switches[switch_type])
@@ -598,12 +609,10 @@ def ram_pin_offset(pin):
     if pin.port_name in top_pins or (
             pin.port_name in ["RDATA", "MASK", "WDATA"] and
             pin.port_index in range(8,16)):
-        print("top")
         return Offset(0, 1)
     elif pin.port_name in bot_pins or (
             pin.port_name in ["RDATA", "MASK", "WDATA"] and
             pin.port_index in range(8)):
-        print("bot")
         return Offset(0, 0)
     else:
         assert False, "RAM pin doesn't match name expected for metadata"
@@ -611,60 +620,43 @@ def ram_pin_offset(pin):
 
 def get_pin_meta(block, pin):
     grid_sz = PositionVPR(ic.max_x+1+4, ic.max_y+1+4)
-    print("get_pin_meta", block, pin, pin.name, end=" ")
     if "PIN" in block.block_type.name:
-        print("pin", end=" ")
         if block.position.x == 1:
-            print("right")
             return (graph.RoutingNodeSide.RIGHT, Offset(0, 0))
         elif block.position.y == 1:
-            print("top")
             return (graph.RoutingNodeSide.TOP, Offset(0, 0))
         elif block.position.y == grid_sz.y-2:
-            print("bottom")
             return (graph.RoutingNodeSide.BOTTOM, Offset(0, 0))
         elif block.position.x == grid_sz.x-2:
-            print("left")
             return (graph.RoutingNodeSide.LEFT, Offset(0, 0))
 
     if "RAM" in block.block_type.name:
-        print("ram", end=" ")
         return (graph.RoutingNodeSide.RIGHT, ram_pin_offset(pin))
 
     if "PIO" in block.block_type.name:
-        print("pio", end=" ")
         if pin.name.startswith("O[") or pin.name.startswith("I["):
             if block.position.x == 2:
-                print("right")
                 return (graph.RoutingNodeSide.LEFT, Offset(0, 0))
             elif block.position.y == 2:
-                print("top")
                 return (graph.RoutingNodeSide.BOTTOM, Offset(0, 0))
             elif block.position.y == grid_sz.y-3:
-                print("bottom")
                 return (graph.RoutingNodeSide.TOP, Offset(0, 0))
             elif block.position.x == grid_sz.x-3:
-                print("left")
                 return (graph.RoutingNodeSide.RIGHT, Offset(0, 0))
-        print("other")
         return (graph.RoutingNodeSide.RIGHT, Offset(0, 0))
 
     if "PLB" in block.block_type.name:
-        print("plb", end=" ")
         if "FCIN" in pin.port_name:
-            print("bottom")
             return (graph.RoutingNodeSide.BOTTOM, Offset(0, 0))
         elif "FCOUT" in pin.port_name:
-            print("top")
             return (graph.RoutingNodeSide.TOP, Offset(0, 0))
 
-        print("other")
         return (graph.RoutingNodeSide.RIGHT, Offset(0, 0))
 
     assert False, (block, pin)
 
 
-def run(part, read_rr_graph, write_rr_graph):
+def main(part, read_rr_graph, write_rr_graph):
     global ic
 
     print('Importing input g', part)
@@ -697,17 +689,17 @@ def run(part, read_rr_graph, write_rr_graph):
     print()
     print('Adding pin aliases')
     print('='*80)
-    add_pin_aliases(g, ic, VERBOSE)
+    add_pin_aliases(g, ic)
 
-    add_tracks(g, ic, segtype_filter="local", verbose=VERBOSE)
-    add_tracks(g, ic, segtype_filter="span4", verbose=VERBOSE)
-    add_tracks(g, ic, segtype_filter="span12", verbose=VERBOSE)
-    #add_tracks(g, ic, segtype_filter="global", verbose=VERBOSE)
+    add_tracks(g, ic, segtype_filter="local")
+    add_tracks(g, ic, segtype_filter="span4")
+    add_tracks(g, ic, segtype_filter="span12")
+    #add_tracks(g, ic, segtype_filter="global")
 
     print()
     print('Adding edges')
     print('='*80)
-    add_edges(g, ic, VERBOSE)
+    add_edges(g, ic)
     print()
     print_nodes_edges(g)
     print()
@@ -736,7 +728,11 @@ if __name__ == '__main__':
 
     args = parser.parse_args()
 
-    VERBOSE = args.verbose
+    if args.verbose:
+        loglevel=logging.DEBUG
+    else:
+        loglevel=logging.INFO
+    logging.basicConfig(level=loglevel)
 
     mode = args.device.lower()[2:]
-    run(mode, args.read_rr_graph, args.write_rr_graph)
+    main(mode, args.read_rr_graph, args.write_rr_graph)
