@@ -12,6 +12,7 @@ YOSYS_SCRIPT  ?= synth_ice40 -nocarry; ice40_opt -unlut; abc -lut 4; opt_clean; 
 #RR_PATCH_TOOL ?= $(TOP_DIR)/ice40/utils/ice40_generate_routing.py
 RR_PATCH_TOOL ?= $(TOP_DIR)/ice40/utils/ice40_import_routing_from_icebox.py
 RR_PATCH_CMD  ?= $(RR_PATCH_TOOL) \
+	--verbose \
 	--device=$(DEVICE) \
 	--read_rr_graph $(OUT_RRXML_VIRT) \
 	--write_rr_graph $(OUT_RRXML_REAL)

@@ -214,7 +214,10 @@ VPR_CMD = \
 		--read_rr_graph $(OUT_RRXML_REAL) \
 		\
 		--debug_clustering on \
+		--clock_modeling_method route \
 
+
+#		--constant_net_method route \
 
 VPR_ARGS_FILE=$(OUT_LOCAL)/vpr.args
 $(VPR_ARGS_FILE): always-run | $(OUT_LOCAL)

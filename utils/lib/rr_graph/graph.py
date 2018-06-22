@@ -65,6 +65,9 @@ from ..asserts import assert_type_or_none
 from ..collections_extra import MostlyReadOnly
 
 
+_DEFAULT_MARKER = []
+
+
 def dict_next_id(d):
     current_ids = [-1] + list(d.keys())
     return max(current_ids) + 1
@@ -1515,7 +1518,8 @@ class RoutingGraphPrinter:
             y = low.y
             ptc_str = "[{:02d}].".format(ptc)
 
-        return "X{x:03d}Y{y:03d}{t}{i}{s}".format(
+        return "{id} X{x:03d}Y{y:03d}{t}{i}{s}".format(
+            id=RoutingGraph._get_xml_id(xml_node),
             t=block_name, x=x, y=y, i=ptc_str, s=type_str)
 
     @classmethod
@@ -1986,6 +1990,37 @@ class RoutingGraph:
 
         for edge in self._ids_map(RoutingEdge).values():
             self._add_cache_node2edge(edge)
+
+    def get_by_name(self, name, pos=None, default=_DEFAULT_MARKER):
+        """Get the RoutingNode using name (and pos).
+
+        Parameters
+        ----------
+        name: str
+        pos: Position
+        default: Optional value to return if not found.
+
+        Returns
+        -------
+        RoutingNode (ET._Element)
+
+        Examples
+        --------
+        FIXME: Add example.
+
+        """
+        r = _DEFAULT_MARKER
+        if pos is not None:
+            r = self.localnames.get((pos, name), _DEFAULT_MARKER)
+        if r is _DEFAULT_MARKER:
+            r = self.globalnames.get(name, _DEFAULT_MARKER)
+        if r is not _DEFAULT_MARKER:
+            return r
+        if default is not _DEFAULT_MARKER:
+            return default
+        else:
+            raise KeyError("No node named {} globally or locally at {}".format(
+                name, pos))
 
     def get_node_by_id(self, node_id):
         """Get the RoutingNode from a given ID.
