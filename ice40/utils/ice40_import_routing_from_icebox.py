@@ -99,16 +99,16 @@ ic = None
 
 class PositionIcebox(graph.Position):
     def __str__(self):
-        return graph.Position.__str__(self).replace("PositionIcebox", "PI")
+        return "PI(%2s,%2s)" % self
     def __repr__(self):
-        return graph.Position.__repr__(self).replace("PositionIcebox", "PI")
+        return str(self)
 
 
 class PositionVPR(graph.Position):
     def __str__(self):
-        return graph.Position.__str__(self).replace("PositionVPR", "PV")
+        return "PV(%2s,%2s)" % self
     def __repr__(self):
-        return graph.Position.__repr__(self).replace("PositionVPR", "PV")
+        return str(self)
 
 
 def pos_icebox2vpr(pos):
@@ -159,10 +159,30 @@ def format_node(g, node):
         return RunOnStr(graph.RoutingGraphPrinter.edge, g.routing, node, g.block_grid)
 
 
+def format_entry(e):
+    try:
+        bits, sw, src, dst, *args = e
+    except ValueError:
+        return str(e)
+    if args:
+        args = " " + str(args)
+    else:
+        args = ""
+    return RunOnStr(operator.mod, "[%s %s %s %s%s]", (",".join(bits), sw, src, dst, args))
+
+
+def is_corner(ic, pos):
+    return pos in (
+        (0, 0), (0, ic.max_y), (ic.max_x, 0), (ic.max_x, ic.max_y))
+
+
 def tiles(ic):
     for x in range(ic.max_x + 1):
         for y in range(ic.max_y + 1):
-            yield PositionIcebox(x, y)
+            p = PositionIcebox(x, y)
+            if is_corner(ic, p):
+                continue
+            yield p
 
 
 def find_path(group):
@@ -183,11 +203,19 @@ def filter_track_names(group):
     names = []
     for ipos, netname in group:
         assert_type(ipos, PositionIcebox)
+        # FIXME: Get the neighbourhood wires working.
         if "neigh_op" in netname:
             continue
+        # FIXME: Get the logic_op wires working.
         if "logic_op" in netname:
             continue
-        if "glb_netwk" in netname:
+        # FIXME: Get the sp4_r_v_ wires working
+        if "sp4_r_v_" in netname:
+            continue
+        # FIXME: Fix the carry logic.
+        if "cout" in netname or "carry_in" in netname:
+            continue
+        if "lout" in netname:
             continue
         names.append((ipos, netname))
     return names
@@ -208,22 +236,23 @@ def filter_non_straight(group):
     x_val = list(sorted((c, x) for x, c in x_count.items()))
     y_val = list(sorted((c, y) for y, c in y_count.items()))
 
-    r = []
+    good = []
+    skipped = []
     if x_val[-1][0] > y_val[-1][0]:
         x_ipos = x_val[-1][1]
         for ipos, netname in group:
             if ipos.x != x_ipos:
-                logging.debug("Skipping non-straight: x %s %s %s", x_ipos, ipos, netname)
+                skipped.append((ipos, netname))
                 continue
-            r.append((ipos, netname))
+            good.append((ipos, netname))
     else:
         y_ipos = y_val[-1][1]
         for ipos, netname in group:
             if ipos.y != y_ipos:
-                logging.debug("Skipping non-straight: y %s %s %s", y_ipos, ipos, netname)
+                skipped.append((ipos, netname))
                 continue
-            r.append((ipos, netname))
-    return r
+            good.append((ipos, netname))
+    return good, skipped
 
 
 def group_hlc_name(group):
@@ -311,18 +340,20 @@ def add_pin_aliases(g, ic):
                 luti, lut_input)] = 'lutff_{}/in_{}'.format(
                     luti, lut_input)
 
+    name_rr2local['BLK_TL-PLB.FCOUT[0]'] = 'lutff_0/cout'
+
     # BLK_TL-PIO
     # http://www.clifford.at/icestorm/io_tile.html
     # FIXME: filter out orientations that don't exist?
-    #name_rr2local['BLK_TL-PIO_{}.io_global_latch[0]'.format(
-    #    orientation)] = 'io_global/latch'
-    #name_rr2local['BLK_TL-PIO_{}.io_global_outclk[0]'.format(
-    #    orientation)] = 'io_global/outclk'
-    #name_rr2local['BLK_TL-PIO_{}.io_global_cen[0]'.format(
-    #    orientation)] = 'io_global/cen'
-    #name_rr2local['BLK_TL-PIO_{}.io_global_inclk[0]'.format(
-    #    orientation)] = 'io_global/inclk'
     for blocki in range(2):
+        name_rr2local['BLK_TL-PIO.[{}]LATCH[0]'.format(
+            blocki)] = 'io_{}/latch'.format(blocki)
+        name_rr2local['BLK_TL-PIO.[{}]OUTCLK[0]'.format(
+            blocki)] = 'io_{}/outclk'.format(blocki)
+        name_rr2local['BLK_TL-PIO.[{}]CEN[0]'.format(
+            blocki)] = 'io_{}/cen'.format(blocki)
+        name_rr2local['BLK_TL-PIO.[{}]INCLK[0]'.format(
+            blocki)] = 'io_{}/inclk'.format(blocki)
         name_rr2local['BLK_TL-PIO.[{}]D_IN_0[0]'.format(
             blocki)] = 'io_{}/D_IN_0'.format(blocki)
         name_rr2local['BLK_TL-PIO.[{}]D_IN_1[0]'.format(
@@ -333,6 +364,8 @@ def add_pin_aliases(g, ic):
             blocki)] = 'io_{}/D_OUT_1'.format(blocki)
         name_rr2local['BLK_TL-PIO.[{}]OUT_ENB[0]'.format(
             blocki)] = 'io_{}/OUT_ENB'.format(blocki)
+        name_rr2local['BLK_TL-PIO.[{}]PACKAGE_PIN[0]'.format(
+            blocki)] = 'padin_{}'.format(blocki)
 
     # BLK_TL-RAM
     for top_bottom in 'BT':
@@ -388,7 +421,7 @@ def add_pin_aliases(g, ic):
             # FIXME: only add for actual position instead for all
             logging.debug(
                 "Adding alias %s:%s for %s",
-                block.position, localname, format_node(g, node))
+                PositionVPR(*block.position), localname, format_node(g, node))
             g.routing.localnames.add(pin_pos, localname, node)
             g.routing.localnames.add(pin_pos, hlc_name, node)
 
@@ -412,32 +445,245 @@ def add_dummy_tracks(g, ic):
             direction=channel.Track.Direction.BI)
 
 
-def add_tracks(g, ic, segtype_filter=None):
-    add_dummy_tracks(g, ic)
+def add_global_tracks(g, ic):
+    """Add the global tracks to every channel."""
+    def skip(fmt, *args, **kw):
+        raise AssertionError(fmt % args)
 
-    all_group_segments = ic.group_segments(list(tiles(ic)), connect_gb=True)
-    for group in sorted(all_group_segments):
-        group = [(PositionIcebox(x, y), netname) for x, y, netname in group]
+    GLOBAL_SPINE_ROW = ic.max_x // 2
 
-        fgroup = filter_track_names(group)
-        if not fgroup:
-            logging.debug("Filtered out track group", group)
+    # Create the 8 global networks
+    glb = g.segments["global"]
+    short = g.switches["__vpr_delayless_switch__"]
+    for i in range(0, 8):
+        glb_name = "glb_netwk_{}".format(i)
+
+        # Vertical global wires
+        for x in range(0, ic.max_x+1):
+            istart = PositionIcebox(x, 0)
+            iend = PositionIcebox(x, ic.max_y)
+            track, track_node = g.create_xy_track(
+                pos_icebox2vpr(istart), pos_icebox2vpr(iend),
+                segment=glb,
+                typeh=channel.Track.Type.Y,
+                direction=channel.Track.Direction.BI)
+            track_node.set_metadata("hlc_name", glb_name)
+            for y in range(0, ic.max_y+1):
+                ipos = PositionIcebox(x, y)
+                vpos = pos_icebox2vpr(ipos)
+                g.routing.localnames.add(vpos, glb_name, track_node)
+
+        # One horizontal wire
+        istart = PositionIcebox(0, GLOBAL_SPINE_ROW)
+        iend = PositionIcebox(ic.max_x+1, GLOBAL_SPINE_ROW)
+        track, track_node = g.create_xy_track(
+            pos_icebox2vpr(istart), pos_icebox2vpr(iend),
+            segment=glb,
+            typeh=channel.Track.Type.X,
+            direction=channel.Track.Direction.BI)
+        track_node.set_metadata("hlc_name", glb_name)
+
+        for x in range(0, ic.max_x+1):
+            ipos = PositionIcebox(x, GLOBAL_SPINE_ROW)
+            vpos = pos_icebox2vpr(ipos)
+            g.routing.localnames.add(vpos, glb_name+"_h", track_node)
+
+        # Connect the vertical wires to the horizontal one to make a single
+        # global network
+        for x in range(0, ic.max_x+1):
+            ipos = PositionIcebox(x, GLOBAL_SPINE_ROW)
+            create_edge_with_names(
+                g,
+                glb_name, glb_name+"_h",
+                ipos, short,
+                skip,
+                bidir=True,
+            )
+
+    buf = g.switches["buffer"]
+
+    # Create the io to global network driver
+    padin = ic.padin_pio_db()
+    fabout_to_glb = {}
+    for n, (gx, gy, gz) in enumerate(ic.padin_pio_db()):
+        ipos = PositionIcebox(gx, gy)
+        vpos = pos_icebox2vpr(ipos)
+        assert ipos not in fabout_to_glb, (ipos, fabout_to_glb)
+        fabout_to_glb[ipos] = gz
+        glb_name = "glb_netwk_{}".format(n)
+        glb_drive = "padin_{}".format(gz)
+
+        create_edge_with_names(
+            g,
+            glb_drive, glb_name,
+            ipos, buf,
+            skip,
+        )
+
+    # Create the fabout track, which is sometimes a permanent global
+    # network driver.
+    for ipos in list(tiles(ic)):
+        tile_type = ic.tile_type(*ipos)
+        if tile_type != "IO":
             continue
 
-        fgroup = filter_non_straight(fgroup)
-        assert len(fgroup) > 0, (fgroup, fgroup)
+        vpos = pos_icebox2vpr(ipos)
+
+        # Connect together the io_global signals inside a tile
+        io_names = [
+            "inclk",
+            "outclk",
+            "cen",
+            "latch",
+        ]
+        for name in io_names:
+            glb_name = "io_global/{}".format(name)
+
+            hlc_name = group_hlc_name([(ipos, glb_name)])
+            track, track_node = g.create_xy_track(
+                vpos, vpos,
+                segment=glb,
+                typeh=channel.Track.Type.Y,
+                direction=channel.Track.Direction.BI)
+            track_node.set_metadata("hlc_name", hlc_name)
+            g.routing.localnames.add(vpos, glb_name, track_node)
+
+            for i in range(2):
+                local_name = "io_{}/{}".format(i, name)
+                create_edge_with_names(
+                    g,
+                    glb_name,
+                    local_name,
+                    ipos, short,
+                    skip,
+                )
+
+        # Create the fabout track
+        hlc_name = group_hlc_name([(ipos, "fabout")])
+        track, track_node = g.create_xy_track(
+            vpos, vpos,
+            segment=glb,
+            typeh=channel.Track.Type.Y,
+            direction=channel.Track.Direction.BI)
+        track_node.set_metadata("hlc_name", hlc_name)
+        g.routing.localnames.add(vpos, "fabout", track_node)
+
+        # Permanently connect fabout to the global network.
+        if ipos in fabout_to_glb:
+            # FIXME: Connect the correct IO pad output to fabout?
+            gz = fabout_to_glb[ipos]
+
+            gn = None
+            for igx, igy, ign in ic.gbufin_db():
+                if ipos == (igx, igy):
+                    gn = ign
+            assert gn is not None, (ipos, gz, gn)
+            glb_name = "glb_netwk_{}".format(gn)
+
+            create_edge_with_names(
+                g,
+                "fabout", glb_name,
+                ipos, short,
+                skip,
+            )
+
+        # Permanently connect fabout to the iolatch
+        iolatch_db = ic.iolatch_db()
+        if ipos in iolatch_db:
+            create_edge_with_names(
+                g,
+                "fabout", "io_global/latch",
+                ipos, short,
+                skip,
+            )
+
+
+def create_edge_with_names(g, src_name, dst_name, ipos, switch, skip, bidir=False):
+    src_hlc_name = group_hlc_name([(ipos, src_name)])
+    dst_hlc_name = group_hlc_name([(ipos, dst_name)])
+
+    vpos = pos_icebox2vpr(ipos)
+    src_node = g.routing.get_by_name(src_name, vpos, None)
+    dst_node = g.routing.get_by_name(dst_name, vpos, None)
+
+    if src_node is None:
+        skip(
+            "src missing *%s:%s* (%s) node %s => %s:%s (%s) node %s",
+            vpos,
+            src_name,
+            src_hlc_name,
+            format_node(g, src_node),
+            vpos,
+            dst_name,
+            dst_hlc_name,
+            format_node(g, dst_node),
+            level=logging.WARNING,
+        )
+        return
+    if dst_node is None:
+        skip(
+            "dst missing %s:%s (%s) node %s => *%s:%s* (%s) node %s",
+            vpos,
+            src_name,
+            src_hlc_name,
+            format_node(g, src_node),
+            vpos,
+            dst_name,
+            dst_hlc_name,
+            format_node(g, dst_node),
+        )
+        return
+
+    logging.debug(
+        "On %s add %-8s edge %s - %s:%s (%s) node %s => %s:%s (%s) node %s",
+        ipos,
+        switch.name,
+        len(g.routing.id2element[graph.RoutingEdge]),
+        vpos,
+        src_name,
+        src_hlc_name,
+        format_node(g, src_node),
+        vpos,
+        dst_name,
+        dst_hlc_name,
+        format_node(g, dst_node),
+    )
+
+    edge = g.routing.create_edge_with_nodes(src_node, dst_node, switch=switch)
+    edge.set_metadata("hlc_coord", "{},{}".format(*ipos))
+    if bidir:
+        edge = g.routing.create_edge_with_nodes(dst_node, src_node, switch=switch)
+        edge.set_metadata("hlc_coord", "{},{}".format(*ipos))
+
+
+def add_tracks(g, ic, all_group_segments, segtype_filter=None):
+    add_dummy_tracks(g, ic)
+
+    for group in sorted(all_group_segments):
+        group = [(PositionIcebox(x, y), netname) for x, y, netname in group]
 
         segtype = group_seg_type(group)
         if segtype_filter is not None and segtype != segtype_filter:
             continue
-
         if segtype == "unknown":
-            logging.debug("Skipping unknown track group", group)
+            logging.debug("Skipping unknown track group: %s", group)
             continue
         if segtype == "global":
-            logging.debug("Skipping global track group", group)
+            logging.debug("Skipping global track group: %s", group)
             continue
         segment = g.segments[segtype]
+
+        fgroup = filter_track_names(group)
+        if not fgroup:
+            logging.debug("Filtered out track group: %s", group)
+            continue
+
+        fgroup, skipped = filter_non_straight(fgroup)
+        assert len(fgroup) > 0, (fgroup, fgroup)
+        if len(skipped) > 0:
+            logging.debug("""Filtered non-straight segments;
+ Skipping: %s
+Remaining: %s""", skipped, fgroup)
 
         hlc_name = group_hlc_name(group)
 
@@ -447,7 +693,7 @@ def add_tracks(g, ic, segtype_filter=None):
         elif istart.x != iend.x and istart.y == iend.y:
             typeh = channel.Track.Type.X
         elif istart.x != iend.x and istart.y != iend.y:
-            logging.debug("Skipping non-straight track", group)
+            logging.warn("Skipping non-straight track group: %s (%s)", fgroup, group)
             continue
         else:
             typeh = group_chan_type(fgroup)
@@ -458,22 +704,29 @@ def add_tracks(g, ic, segtype_filter=None):
             segment=segment,
             typeh=typeh,
             direction=channel.Track.Direction.BI)
-        logging.debug("Created track", hlc_name, format_node(g, track_node), segment.name, typeh, group)
+
+        track_fmt = format_node(g, track_node)
+        logging.debug(
+            "Created track %s %s %s from %s %s",
+            hlc_name, track_fmt, segment.name, typeh, group)
 
         track_node.set_metadata("hlc_name", hlc_name)
+        if segtype != "local":
+            g.routing.globalnames.add(hlc_name, track_node)
+            logging.debug(
+                " Setting global name %s for %s",
+                hlc_name, track_fmt)
 
-        assert len(fgroup) > 0, (fgroup, fgroup)
         for pos, netname in fgroup:
             vpos = pos_icebox2vpr(pos)
-            g.routing.localnames.add(vpos, hlc_name, track_node)
             g.routing.localnames.add(vpos, netname, track_node)
             logging.debug(
-                "  Setting on %s (%s) name == %s", pos, vpos, netname)
+                " Setting local  name %s on %s for %s",
+                netname, vpos, track_fmt)
 
 
 def add_edges(g, ic):
-    all_tiles = list(tiles(ic))
-    for ipos in all_tiles:
+    for ipos in list(tiles(ic)):
         tile_type = ic.tile_type(*ipos)
         vpos = pos_icebox2vpr(ipos)
 
@@ -517,10 +770,10 @@ def add_edges(g, ic):
                     logging.WARNING: logging.warn,
                     logging.INFO: logging.info,
                 }[level]
-                p("On %s skipping entry %s: "+m, ipos, entry, *args, **kw)
+                p("On %s skipping entry %s: "+m, ipos, format_entry(entry), *args, **kw)
 
             if not ic.tile_has_entry(*ipos, entry):
-                skip('Non-existent edge!')
+                #skip('Non-existent edge!')
                 continue
 
             switch_type = entry[1]
@@ -531,59 +784,17 @@ def add_edges(g, ic):
             src_localname = entry[2]
             dst_localname = entry[3]
 
-            src_node = g.routing.localnames.get((vpos, src_localname), None)
-            dst_node = g.routing.localnames.get((vpos, dst_localname), None)
-
-            dst_hlc_name = group_hlc_name([(ipos, dst_localname)])
-            src_hlc_name = group_hlc_name([(ipos, src_localname)])
-
-            # May have duplicate entries
-            if src_node is None:
-                skip(
-                    "src missing *%s:%s* (%s) node %s => %s:%s (%s) node %s",
-                    vpos,
-                    src_localname,
-                    src_hlc_name,
-                    format_node(g, src_node),
-                    vpos,
-                    dst_localname,
-                    dst_hlc_name,
-                    format_node(g, dst_node),
-                    level=logging.WARNING,
-                )
-                continue
-            if dst_node is None:
-                skip(
-                    "dst missing %s:%s (%s) node %s => *%s:%s* (%s) node %s",
-                    vpos,
-                    src_localname,
-                    src_hlc_name,
-                    format_node(g, src_node),
-                    vpos,
-                    dst_localname,
-                    dst_hlc_name,
-                    format_node(g, dst_node),
-                )
+            remaining = filter_track_names([(ipos, src_localname), (ipos, dst_localname)])
+            if len(remaining) != 2:
+                skip("Remaining %s", remaining)
                 continue
 
-            logging.debug(
-                "ADDING: %s edge %s - %s:%s (%s) node %s => %s:%s (%s) node %s",
-                switch_type,
-                len(g.routing.id2element[graph.RoutingEdge]),
-                vpos,
-                src_localname,
-                src_hlc_name,
-                format_node(g, src_node),
-                vpos,
-                dst_localname,
-                dst_hlc_name,
-                format_node(g, dst_node),
+            create_edge_with_names(
+                g,
+                src_localname, dst_localname,
+                ipos, g.switches[switch_type],
+                skip,
             )
-
-            edge = g.routing.create_edge_with_nodes(
-                src_node, dst_node, switch=g.switches[switch_type])
-
-            edge.set_metadata("hlc_coord", "{},{}".format(*ipos))
 
 
 def print_nodes_edges(g):
@@ -683,10 +894,11 @@ def main(part, read_rr_graph, write_rr_graph):
     print('='*80)
     add_pin_aliases(g, ic)
 
-    add_tracks(g, ic, segtype_filter="local")
-    add_tracks(g, ic, segtype_filter="span4")
-    add_tracks(g, ic, segtype_filter="span12")
-    #add_tracks(g, ic, segtype_filter="global")
+    segments = ic.group_segments(list(tiles(ic)))
+    add_tracks(g, ic, segments, segtype_filter="local")
+    add_tracks(g, ic, segments, segtype_filter="span4")
+    add_tracks(g, ic, segments, segtype_filter="span12")
+    add_global_tracks(g, ic)
 
     print()
     print('Adding edges')
