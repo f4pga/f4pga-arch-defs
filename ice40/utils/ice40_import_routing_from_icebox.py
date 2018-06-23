@@ -365,7 +365,7 @@ def add_pin_aliases(g, ic):
         name_rr2local['BLK_TL-PIO.[{}]OUT_ENB[0]'.format(
             blocki)] = 'io_{}/OUT_ENB'.format(blocki)
         name_rr2local['BLK_TL-PIO.[{}]PACKAGE_PIN[0]'.format(
-            blocki)] = 'padin_{}'.format(blocki)
+            blocki)] = 'io_{}/pin'.format(blocki)
 
     # BLK_TL-RAM
     for top_bottom in 'BT':
@@ -451,6 +451,9 @@ def add_global_tracks(g, ic):
         raise AssertionError(fmt % args)
 
     GLOBAL_SPINE_ROW = ic.max_x // 2
+    GLOBAL_BUF = "GLOBAL_BUFFER_OUTPUT"
+    padin_db = ic.padin_pio_db()
+    iolatch_db = ic.iolatch_db()
 
     # Create the 8 global networks
     glb = g.segments["global"]
@@ -500,28 +503,62 @@ def add_global_tracks(g, ic):
                 bidir=True,
             )
 
-    buf = g.switches["buffer"]
+    # Create the padin_X localname aliases for the glb_network_Y
+    # FIXME: Why do these exist!?
+    for n, (gx, gy, gz) in enumerate(padin_db):
+        vpos = pos_icebox2vpr(PositionIcebox(gx, gy))
 
-    # Create the io to global network driver
-    padin = ic.padin_pio_db()
-    fabout_to_glb = {}
-    for n, (gx, gy, gz) in enumerate(ic.padin_pio_db()):
+        glb_name = "glb_netwk_{}".format(n)
+        glb_node = g.routing.get_by_name(glb_name, vpos)
+        g.routing.localnames.add(vpos, "padin_{}".format(gz), glb_node)
+
+    # Create the IO->global drivers which exist in some IO tiles.
+    for n, (gx, gy, gz) in enumerate(padin_db):
         ipos = PositionIcebox(gx, gy)
         vpos = pos_icebox2vpr(ipos)
-        assert ipos not in fabout_to_glb, (ipos, fabout_to_glb)
-        fabout_to_glb[ipos] = gz
-        glb_name = "glb_netwk_{}".format(n)
-        glb_drive = "padin_{}".format(gz)
+
+        # Create the GLOBAL_BUFFER_OUTPUT track and short it to the
+        # PACKAGE_PIN output of the correct IO subtile.
+        track, track_node = g.create_xy_track(
+            vpos, vpos,
+            segment=glb,
+            typeh=channel.Track.Type.Y,
+            direction=channel.Track.Direction.BI)
+        track_node.set_metadata(
+            "hlc_name", "io_{}/{}".format(gz, GLOBAL_BUF))
+        g.routing.localnames.add(vpos, GLOBAL_BUF, track_node)
 
         create_edge_with_names(
             g,
-            glb_drive, glb_name,
-            ipos, buf,
+            "io_{}/pin".format(gz), GLOBAL_BUF,
+            ipos, short,
             skip,
         )
 
-    # Create the fabout track, which is sometimes a permanent global
-    # network driver.
+        # Create the switch to enable the GLOBAL_BUFFER_OUTPUT track to
+        # drive the global network.
+        create_edge_with_names(
+            g,
+            GLOBAL_BUF, "glb_netwk_{}".format(n),
+            ipos, g.switches["buffer"],
+            skip,
+        )
+
+    # Work out for which tiles the fabout is directly shorted to a global
+    # network.
+    fabout_to_glb = {}
+    for gn, (gx, gy, gz) in enumerate(padin_db):
+        ipos = PositionIcebox(gx, gy)
+        assert ipos not in fabout_to_glb, (ipos, fabout_to_glb)
+        gn = None
+        for igx, igy, ign in ic.gbufin_db():
+            if ipos == (igx, igy):
+                gn = ign
+        assert gn is not None, (ipos, gz, gn)
+
+        fabout_to_glb[ipos] = (gz, gn)
+
+    # Create the nets which are "global" to an IO tile pair.
     for ipos in list(tiles(ic)):
         tile_type = ic.tile_type(*ipos)
         if tile_type != "IO":
@@ -529,7 +566,7 @@ def add_global_tracks(g, ic):
 
         vpos = pos_icebox2vpr(ipos)
 
-        # Connect together the io_global signals inside a tile
+        # Create the "io_global" signals inside a tile
         io_names = [
             "inclk",
             "outclk",
@@ -548,6 +585,7 @@ def add_global_tracks(g, ic):
             track_node.set_metadata("hlc_name", hlc_name)
             g.routing.localnames.add(vpos, glb_name, track_node)
 
+            # Connect together the io_global signals inside a tile
             for i in range(2):
                 local_name = "io_{}/{}".format(i, name)
                 create_edge_with_names(
@@ -558,7 +596,10 @@ def add_global_tracks(g, ic):
                     skip,
                 )
 
-        # Create the fabout track
+        # Create the fabout track. Every IO tile has a fabout track, but
+        # sometimes the track is special;
+        # - drives a glb_netwk_X,
+        # - drives the io_global/latch for the bank
         hlc_name = group_hlc_name([(ipos, "fabout")])
         track, track_node = g.create_xy_track(
             vpos, vpos,
@@ -568,27 +609,17 @@ def add_global_tracks(g, ic):
         track_node.set_metadata("hlc_name", hlc_name)
         g.routing.localnames.add(vpos, "fabout", track_node)
 
-        # Permanently connect fabout to the global network.
+        # Fabout drives a global network?
         if ipos in fabout_to_glb:
-            # FIXME: Connect the correct IO pad output to fabout?
-            gz = fabout_to_glb[ipos]
-
-            gn = None
-            for igx, igy, ign in ic.gbufin_db():
-                if ipos == (igx, igy):
-                    gn = ign
-            assert gn is not None, (ipos, gz, gn)
-            glb_name = "glb_netwk_{}".format(gn)
-
+            gz, gn = fabout_to_glb[ipos]
             create_edge_with_names(
                 g,
-                "fabout", glb_name,
+                "fabout", "glb_netwk_{}".format(gn),
                 ipos, short,
                 skip,
             )
 
-        # Permanently connect fabout to the iolatch
-        iolatch_db = ic.iolatch_db()
+        # Fabout drives the io_global/latch?
         if ipos in iolatch_db:
             create_edge_with_names(
                 g,
