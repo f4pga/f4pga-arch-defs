@@ -23,3 +23,11 @@ env
 
 # Unused stuff
 *unused*
+
+# VPR output
+*.rpt
+*.echo
+*.net
+*.place
+*.route
+*.hlc
