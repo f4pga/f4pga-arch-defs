@@ -1,0 +1,82 @@
+(DELAYFILE
+  (SDFVERSION "3.0")
+  (TIMESCALE 1ps)
+  (CELL
+    (CELLTYPE "LogicCell40")
+    (INSTANCE *)
+    (DELAY
+      (ABSOLUTE
+        (IOPATH carryin carryout (101.47:112.205:126.242) (84.5586:93.5045:105.202))
+        (IOPATH in1 carryout (208.578:230.644:259.498) (197.303:218.177:245.471))
+        (IOPATH in2 carryout (186.029:205.71:231.444) (107.108:118.439:133.256))
+
+	#(IOPATH port_spec port_instance delval_list )
+	# A triple consists of one, two or three colon-separated NUMBERs.
+	# Each NUMBER corresponds to a data value in one of three data sets,
+	# commonly used (in order) as values under;
+	#  0) - best case/minimum,
+	#  1) - nominal/typical, and
+	#  2) - worst case/maximum operating conditions.
+	# IE - (best:typical:worst)
+        (IOPATH in0 ltout (293.136:324.149:364.7) (310.048:342.85:385.74))
+        (IOPATH in1 ltout (259.313:286.747:322.619) (304.411:336.616:378.727))
+        (IOPATH in2 ltout (248.039:274.28:308.592) (276.225:305.448:343.659))
+        (IOPATH in3 ltout (214.215:236.878:266.511) (219.852:243.112:273.525))
+
+        (IOPATH in0 lcout (360.783:398.952:448.861) (310.048:342.85:385.74))
+        (IOPATH in1 lcout (321.323:355.317:399.767) (304.411:336.616:378.727))
+        (IOPATH in2 lcout (304.411:336.616:378.727) (281.862:311.682:350.673))
+        (IOPATH in3 lcout (253.676:280.513:315.606) (231.127:255.579:287.552))
+
+        (IOPATH (posedge clk) lcout (434.067:479.99:540.036) (434.067:479.99:540.036))
+        (IOPATH sr lcout (0:0:0) (481.612:532.564:599.188))
+        (IOPATH sr lcout (481.589:532.539:599.16) (0:0:0))
+      )
+    )
+    (TIMINGCHECK
+      # in0 + clk
+      # -----
+      # posedge posedge
+      (HOLD (posedge in0) (posedge clk) (0:0:0))
+      (SETUP (posedge in0) (posedge clk) (377.695:417.653:469.902))
+      # negedge posedge
+      (HOLD (negedge in0) (posedge clk) (0:0:0))
+      (SETUP (negedge in0) (posedge clk) (321.323:355.317:399.767))
+
+      # in1 + clk
+      # -----
+      # posedge posedge
+      (HOLD (posedge in1) (posedge clk) (0:0:0))
+      (SETUP (posedge in1) (posedge clk) (321.323:355.317:399.767))
+      # negedge posedge
+      (HOLD (negedge in1) (posedge clk) (0:0:0))
+      (SETUP (negedge in1) (posedge clk) (304.411:336.616:378.727))
+
+      (HOLD (negedge in2) (posedge clk) (0:0:0))
+      (HOLD (negedge in3) (posedge clk) (0:0:0))
+      (HOLD (posedge in2) (posedge clk) (0:0:0))
+      (HOLD (posedge in3) (posedge clk) (0:0:0))
+
+      (SETUP (negedge in2) (posedge clk) (259.313:286.747:322.619))
+      (SETUP (negedge in3) (posedge clk) (174.754:193.243:217.417))
+      (SETUP (posedge in2) (posedge clk) (298.774:330.382:371.713))
+      (SETUP (posedge in3) (posedge clk) (219.852:243.112:273.525))
+
+
+      (HOLD (negedge ce) (posedge clk) (0:0:0))
+      (HOLD (posedge ce) (posedge clk) (0:0:0))
+      (SETUP (negedge ce) (posedge clk) (0:0:0))
+      (SETUP (posedge ce) (posedge clk) (0:0:0))
+
+      (HOLD (negedge sr) (posedge clk) (-158.688:-175.477:-197.429))
+      (HOLD (posedge sr) (posedge clk) (-143.975:-159.207:-179.124))
+      (SETUP (negedge sr) (posedge clk) (112.745:124.673:140.269))
+      (RECOVERY (negedge sr) (posedge clk) (128.36:141.94:159.696))
+      (RECOVERY (posedge sr) (posedge clk) (0:0:0))
+      (REMOVAL (negedge sr) (posedge clk) (0:0:0))
+      (REMOVAL (posedge sr) (posedge clk) (0:0:0))
+
+      (SETUP (posedge sr) (posedge clk) (163.48:180.775:203.39))
+    )
+  )
+)

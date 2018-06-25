@@ -1,0 +1,7 @@
+<delays device="hx1k">
+ <delay_constant max="300e-12" in_port="SB_LUT4.I0" out_port="SB_LUT4.O"/>
+ <delay_constant max="300e-12" in_port="SB_LUT4.I1" out_port="SB_LUT4.O"/>
+ <delay_constant max="300e-12" in_port="SB_LUT4.I2" out_port="SB_LUT4.O"/>
+ <delay_constant max="300e-12" in_port="SB_LUT4.I3" out_port="SB_LUT4.O"/>
+ <delay_constant max="300e-12" in_port="SB_LUT4.I4" out_port="SB_LUT4.O"/>
+</delays>

@@ -1,0 +1,11 @@
+<!-- set: ai sw=1 ts=1 sta et -->
+<delays>
+ <device name="hx1k">
+  <delay_matrix type="max" in_port="BLK_IG-LUT4.in" out_port="BLK_IG-LUT4.out">
+   10e-12
+   10e-12
+   10e-12
+   10e-12
+  </delay_matrix>
+ </device>
+</delays>
