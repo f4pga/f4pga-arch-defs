@@ -682,6 +682,18 @@ def format_node(g, node):
 
 ###################################################################
 
+    # IO Span 4s
+    for i in range(0, 16):
+        src_net = "span4_%s_%s[%s]" % (d, edge_src, i)
+        dst_net = "span4_%s_%s[%s]" % (d, edge_dst, i)
+        mappings.append((
+            (tile_src, src_net),
+            delta,
+            (tile_dst, dst_net),
+            True,
+        ))
+
+#------------------------------
 
 def segment_type(g, d):
     if d.type == "space":
@@ -710,6 +722,45 @@ def segment_type(g, d):
         assert False, "dir " + d.name
 
     return s_type, d_type
+
+
+class PositionIcebox(graph.Position):
+    def __str__(self):
+        return "PI(%2s,%2s)" % self
+    def __repr__(self):
+        return str(self)
+
+
+class PositionVPR(graph.Position):
+    def __str__(self):
+        return "PV(%2s,%2s)" % self
+    def __repr__(self):
+        return str(self)
+
+
+def pos_icebox2vpr(pos):
+    '''Convert icebox to VTR coordinate system by adding 1 for dummy blocks'''
+    assert_type(pos, PositionIcebox)
+    return PositionVPR(pos.x + 2, pos.y + 2)
+
+
+def pos_vpr2icebox(pos):
+    '''Convert VTR to icebox coordinate system by subtracting 1 for dummy blocks'''
+    assert_type(pos, PositionVPR)
+    return PositionIcebox(pos.x - 2, pos.y - 2)
+
+
+def pos_icebox2vprpin(pos):
+    global IC
+    if pos.x == 0:
+        return PositionVPR(1, pos.y+2)
+    elif pos.y == 0:
+        return PositionVPR(pos.x+2, 1)
+    elif pos.x == IC.max_x:
+        return PositionVPR(pos.x+2+1, pos.y+2)
+    elif pos.y == IC.max_y:
+        return PositionVPR(pos.x+2, pos.y+2+1)
+    assert False, (pos, (IC.max_x, IC.max_y))
 
 
 def edges_for(d):
