@@ -2342,7 +2342,6 @@ class RoutingGraph:
           ->
         4 X000Y010[00].SINK-< b'<node capacity="1" id="4" type="SINK"><loc ptc="0" xhigh="0" xlow="0" yhigh="10" ylow="10"/><timing C="0" R="0"/></node>'
         """
-
         id2node = self.id2element[RoutingNode]
         assert src_node_id in id2node, src_node_id
         src_node_type = RoutingNodeType.from_xml(id2node[src_node_id])
@@ -2947,6 +2946,75 @@ class Graph:
         for offset, values in metadata.items():
             for k, v in values.items():
                 track_node.set_metadata(k, v, offset=offset)
+
+        for x in range(start.x, end.x+1):
+            pos = Position(x, spine)
+            self.routing.localnames.add(
+                pos, name+"_h", track_node)
+
+        assert_eq(len(v_tracks), len(range(start.x, end.x+1)))
+        # Connect the vertical wires to the horizontal one to make a single
+        # global network
+        for i, x in enumerate(range(start.x, end.x+1)):
+            pos = Position(x, spine)
+            self.routing.create_edge_with_nodes(
+                v_tracks[i], track_node, switch, bidir=True)
+
+        return v_tracks + [track_node]
+
+
+    def connect_all(self, start, end, name, segment, metadata={}, spine=None, switch=None):
+        """Add a track which is present at all tiles within a range.
+
+        Returns:
+            List of ET.RoutingNode
+        """
+        assert_type(start, Position)
+        assert_type(end, Position)
+        assert_type(name, str)
+        assert_type(segment, Segment)
+        assert_type(metadata, dict)
+        assert_type_or_none(spine, int)
+        if spine is None:
+            spine = start.y + (end.y-start.y)//2
+
+        assert start.x <= end.x, "x - {} < {}".format(start, end)
+        assert start.y <= end.y, "y - {} < {}".format(start, end)
+
+        if switch is None:
+            switch = self.switches["short"]
+
+        # Vertical wires
+        v_tracks = []
+        for x in range(start.x, end.x+1):
+            spos = Position(x, start.y)
+            epos = Position(x, end.y)
+            track, track_node = self.create_xy_track(
+                spos, epos,
+                segment=segment,
+                typeh=Track.Type.Y,
+                direction=Track.Direction.BI)
+            v_tracks.append(track_node)
+
+            for k, v in metadata.items():
+                track_node.set_metadata(k, v)
+
+            for y in range(start.y, end.y+1):
+                pos = Position(x, y)
+                self.routing.localnames.add(
+                    pos, name, track_node)
+
+        # One horizontal wire
+        spos = Position(start.x, spine)
+        epos = Position(end.x, spine)
+        track, track_node = self.create_xy_track(
+            spos, epos,
+            segment=segment,
+            typeh=Track.Type.X,
+            direction=Track.Direction.BI)
+
+        for k, v in metadata.items():
+            track_node.set_metadata(k, v)
 
         for x in range(start.x, end.x+1):
             pos = Position(x, spine)
