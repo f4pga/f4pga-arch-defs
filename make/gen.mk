@@ -10,6 +10,9 @@ $(call include_type_all,v2x)	# Then Verilog -> XML
 $(call include_type_all,xray)
 $(call include_type_all,dummy)
 
+# ice40 specific
+$(call include_type_all,icestorm)
+
 gen-clean:
 	$(foreach ii,$(call find_generated_files,$(FILTER_BELOW)),$(shell rm -df $(ii)))
 

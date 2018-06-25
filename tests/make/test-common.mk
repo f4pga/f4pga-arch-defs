@@ -239,7 +239,7 @@ $(VPR_DEPS): $(OUT_ARCH_XML) $(OUT_RRXML_REAL) $(VPR_ARGS_FILE) | $(OUT_LOCAL)
 #-------------------------------------------------------------------------
 ifneq ($(INPUT_IO_FILE),)
 OUT_IO=$(OUT_LOCAL)/io.place
-$(OUT_IO): $(OUT_EBLIF) $(INPUT_IO_FILE)
+$(OUT_IO): $(OUT_EBLIF) $(INPUT_IO_FILE) $(OUT_ARCH_XML)
 	$(PLACE_TOOL_CMD) --out $(OUT_IO)
 
 VPR_CMD := $(VPR_CMD) --fix_pins $(OUT_IO)
