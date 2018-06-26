@@ -1596,7 +1596,7 @@ class MappingLocalNames(dict):
         if pos not in self.localnames:
             self.localnames[pos] = set()
         if key in self:
-            assert_eq(self[key], value)
+            assert_eq(self[key], value, msg="%s already exist!" % (key,))
         self.localnames[pos].add(name)
 
         dict.__setitem__(self, key, value)
