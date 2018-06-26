@@ -1126,7 +1126,7 @@ class Segment(MostlyReadOnly):
 
         Returns
         -------
-        Switch
+        Segment
 
         Examples
         --------
