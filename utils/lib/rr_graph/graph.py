@@ -2404,6 +2404,7 @@ class Graph:
                  rr_graph_file=None,
                  verbose=False,
                  clear_fabric=False,
+                 switch_name=None,
                  pin_meta=pin_meta_always_right):
         """
 
@@ -2498,7 +2499,8 @@ class Graph:
 
         # Recreate the routing nodes for blocks if we cleared the routing
         if clear_fabric:
-            self.create_block_pins_fabric(pin_meta=pin_meta)
+            switch = self.switches[switch_name]
+            self.create_block_pins_fabric(switch=switch, pin_meta=pin_meta)
         else:
             self._index_pin_localnames()
 
