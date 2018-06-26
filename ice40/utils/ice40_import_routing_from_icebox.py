@@ -447,6 +447,8 @@ def add_dummy_tracks(g, ic):
 
 def add_global_tracks(g, ic):
     """Add the global tracks to every channel."""
+    add_dummy_tracks(g, ic)
+
     def skip(fmt, *args, **kw):
         raise AssertionError(fmt % args)
 
