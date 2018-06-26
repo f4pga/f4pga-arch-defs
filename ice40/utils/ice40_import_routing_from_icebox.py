@@ -854,11 +854,10 @@ def print_nodes_edges(g):
           (len(g.routing._xml_parent(graph.RoutingNode)),
            len(g.routing.id2element[graph.RoutingNode])))
 
-# DEBUG:root:On PI(25,13) skipping entry [!B2[0],!B2[1],B2[2],!B3[0],!B3[2] buffer glb_netwk_0 ram/RCLK]: dst missing PV(27,15):glb_netwk_0 (glb_netwk_0) node X027Y002<|125|>X027Y035 => *PV(27,15):ram/RCLK* (ram/RCLK) node None
-# DEBUG:root:On PV(27,16) for 72973 X027Y015_BLK_TL-RAM[74].RCLK[0]-R-PIN<
-# DEBUG:root: Setting local name ram/RCLK on PV(27,16) for 72973 X027Y015_BLK_TL-RAM[74].RCLK[0]-R-PIN<
-# DEBUG:root: Local name ram/RCLK same as hlc_name on PV(27,16) for 72973 X027Y015_BLK_TL-RAM[74].RCLK[0]-R-PIN<
+
 def ram_pin_offset(pin):
+    # The pin split between top/bottom tiles is different on the 1k to all the
+    # other parts.
     ram_pins_0to8 = ["WADDR[0]", "WCLKE[0]", "WCLK[0]", "WE[0]"]
     for i in range(8):
         ram_pins_0to8.extend([
