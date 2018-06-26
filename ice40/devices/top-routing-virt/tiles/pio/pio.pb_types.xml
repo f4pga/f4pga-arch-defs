@@ -51,7 +51,7 @@
     <output name="inpad" num_pins="1"/>
    </pb_type>
    <interconnect>
-    <mux    name="D_IN_0" input="input.inpad" output="PAD.D_IN[0]"/>
+    <direct name="D_IN_0" input="input.inpad" output="PAD.D_IN[0]"/>
     <mux    name="D_IN_1" input="input.inpad" output="PAD.D_IN[1]"/>
     <direct name="PIN"    input="input.inpad" output="PAD.PIN"    />
    </interconnect>
