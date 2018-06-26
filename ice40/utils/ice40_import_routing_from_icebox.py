@@ -95,7 +95,6 @@ from lib.rr_graph import Offset
 from lib.asserts import assert_type
 
 ic = None
-device_name = None
 
 
 class PositionIcebox(graph.Position):
@@ -277,13 +276,6 @@ def init(device_name, read_rr_graph):
         '1k': ic.setup_empty_1k,
         '384': ic.setup_empty_384,
     }[device_name]()
-    fn_dir = {
-        't4': 'test4',
-        '8k': 'HX8K',
-        '5k': 'HX5K',
-        '1k': 'HX1K',
-        '384': 'LP384',
-    }[device_name]
 
     print('Loading rr_graph')
     g = graph.Graph(read_rr_graph, clear_fabric=True)
