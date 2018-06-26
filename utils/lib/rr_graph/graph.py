@@ -1182,10 +1182,8 @@ class Switch(MostlyReadOnly):
     Attributes
     ----------
     id : int
-    type : SwitchType
     name : str
-    buffered : bool
-    configurable : bool
+    type : SwitchType
 
     timing : SwitchTiming
     sizing : SwitchSizing
@@ -1194,8 +1192,6 @@ class Switch(MostlyReadOnly):
         "_id",
         "_name",
         "_type",
-        "_buffered",
-        "_configurable",
         "_timing",
         "_sizing",
     ]
@@ -1204,22 +1200,16 @@ class Switch(MostlyReadOnly):
                  id,
                  type,
                  name,
-                 buffered=False,
-                 configurable=False,
                  timing=None,
                  sizing=None):
         assert_type(id, int)
         assert_type(type, SwitchType)
         assert_type(name, str)
-        assert_type(buffered, bool)
-        assert_type(configurable, bool)
         assert_type_or_none(timing, SwitchTiming)
         assert_type_or_none(sizing, SwitchSizing)
         self._id = id
         self._name = name
         self._type = type
-        self._buffered = buffered
-        self._configurable = configurable
         self._timing = timing
         self._sizing = sizing
 
@@ -1259,7 +1249,7 @@ class Switch(MostlyReadOnly):
         --------
 
         >>> xml_string = '''
-        ... <switch id="0" type="mux" name="buffer" buffered="1" configurable="1">
+        ... <switch id="0" type="mux" name="buffer">
         ...  <timing R="551" Cin="7.70000012e-16" Cout="4.00000001e-15" Tdel="5.80000006e-11"/>
         ...  <sizing mux_trans_size="2.63073993" buf_size="27.6459007"/>
         ... </switch>
@@ -1277,8 +1267,6 @@ class Switch(MostlyReadOnly):
         sw_id = int(switch_xml.attrib.get('id'))
         sw_type = SwitchType(switch_xml.attrib.get('type'))
         name = switch_xml.attrib.get('name')
-        buffered = bool(switch_xml.attrib.get('buffered'))
-        configurable = bool(switch_xml.attrib.get('configurable'))
 
         timing = None
         timings = list(switch_xml.iterfind('timing'))
@@ -1307,8 +1295,6 @@ class Switch(MostlyReadOnly):
             id=sw_id,
             type=sw_type,
             name=name,
-            buffered=buffered,
-            configurable=configurable,
             timing=timing,
             sizing=sizing)
 
@@ -2488,13 +2474,13 @@ class Graph:
         Look at the switches via name or ID number;
         >>> g = simple_test_graph()
         >>> g.switches[0]
-        Switch(id=0, name='mux', type=<SwitchType.MUX: 'mux'>, buffered=True, configurable=True, ...)
+        Switch(id=0, name='mux', type=<SwitchType.MUX: 'mux'>, ...)
         >>> g.switches[1]
-        Switch(id=1, name='__vpr_delayless_switch__', type=<SwitchType.MUX: 'mux'>, buffered=True, configurable=True, ...)
+        Switch(id=1, name='__vpr_delayless_switch__', type=<SwitchType.MUX: 'mux'>, ...)
         >>> g.switches["mux"]
-        Switch(id=0, name='mux', type=<SwitchType.MUX: 'mux'>, buffered=True, configurable=True, ...)
+        Switch(id=0, name='mux', type=<SwitchType.MUX: 'mux'>, ...)
         >>> g.switches["__vpr_delayless_switch__"]
-        Switch(id=1, name='__vpr_delayless_switch__', type=<SwitchType.MUX: 'mux'>, buffered=True, configurable=True, ...)
+        Switch(id=1, name='__vpr_delayless_switch__', type=<SwitchType.MUX: 'mux'>, ...)
 
         Look at the block grid;
         >>> g = simple_test_graph()
@@ -2549,9 +2535,7 @@ class Graph:
                 Switch(
                     id=self.switches.next_id(),
                     type="mux",
-                    name="__vpr_delayless_switch__",
-                    buffered=True,
-                    configurable=True))
+                    name="__vpr_delayless_switch__"))
 
         self.routing = RoutingGraph(
             self._xml_graph, verbose=verbose, clear_fabric=clear_fabric)
@@ -3071,11 +3055,11 @@ def simple_test_graph(**kwargs):
         <y_list index ="2" info="1"/>
     </channels>
     <switches>
-        <switch id="0" type="mux" name="mux" buffered="1" configurable="1">
+        <switch id="0" type="mux" name="mux">
             <timing R="551" Cin="7.70000012e-16" Cout="4.00000001e-15" Tdel="5.80000006e-11"/>
             <sizing mux_trans_size="2.63073993" buf_size="27.6459007"/>
         </switch>
-        <switch id="1" type="mux" name="__vpr_delayless_switch__" buffered="1" configurable="1">
+        <switch id="1" type="mux" name="__vpr_delayless_switch__">
             <timing R="0" Cin="0" Cout="0" Tdel="0"/>
             <sizing mux_trans_size="0" buf_size="0"/>
         </switch>
