@@ -27,12 +27,14 @@ def inaccessible_node_ids(forward_connections, node_id, target_node_ids):
 
 
 def routing_graph_to_dictionary(routing_graph):
+    edge_map = routing_graph._ids_map(graph.RoutingEdge)
     edges_by_node = routing_graph.edges_for_allnodes()
     dict_graph = {}
     for node in routing_graph._xml_parent(graph.RoutingNode):
         node_id = int(node.get('id'))
         dest_ids = set()
-        for edge in edges_by_node[node_id]:
+        for edge_id in edges_by_node[node_id]:
+            edge = edge_map[edge_id]
             if int(edge.get('src_node')) == node_id:
                 dest_ids.add(int(edge.get('sink_node')))
         dict_graph[node_id] = dest_ids
