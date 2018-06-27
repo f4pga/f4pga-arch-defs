@@ -23,7 +23,6 @@ module top (
 
    wire bout;
    memory m1 (clk, bout);
-
    assign LED1 = bout;
    assign {LED2, LED3, LED4, LED5} = outcnt;
 endmodule
@@ -33,7 +32,7 @@ module memory (
 	       output bout
 	       );
 
-   localparam DEPTH = 10;
+   localparam DEPTH = 5;
    localparam LEN = 1<<(DEPTH-1);
 
    wire [15:0] 	      data;
@@ -41,8 +40,8 @@ module memory (
    reg [DEPTH-1:0] 	 cnt = 0;
 
   SB_RAM40_4K #(
-		    .INIT_0(256'h5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a),
-		    .INIT_1(256'hffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff),
+		    .INIT_0(256'h0000000100000001000000010001000000000000000100000000000100000001),
+		    .INIT_1(256'h0000000100000001000000010000000100000001000000010000000100000001),
 		    .INIT_2(256'hxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx),
 		    .INIT_3(256'hxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx),
 		    .INIT_4(256'hxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx),
