@@ -142,7 +142,8 @@
 
   <switchblock_locations pattern="external_full_internal_straight"/>
  <metadata>
-  <meta name="hlc_tile">ramt_tile</meta>
+   <meta name="hlc_tile" x_offset="0" y_offset="1">ramt_tile</meta>
+   <meta name="hlc_tile" x_offset="0" y_offset="0">ramb_tile</meta>
  </metadata>
 </pb_type>
 <!-- End RAM -->
