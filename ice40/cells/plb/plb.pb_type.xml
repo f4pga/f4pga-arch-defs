@@ -8,41 +8,41 @@
   -->
 <pb_type name="BLK_IG-PLB" num_pb="1" xmlns:xi="http://www.w3.org/2001/XInclude">
  <!-- SB_LUT4 inputs -->
- <input  name="I0"     num_pins="4" equivalent="false"/>
- <input  name="I1"     num_pins="4" equivalent="false"/>
- <input  name="I2"     num_pins="4" equivalent="false"/>
- <input  name="I3"     num_pins="4" equivalent="false"/>
- <input  name="I4"     num_pins="4" equivalent="false"/>
- <input  name="I5"     num_pins="4" equivalent="false"/>
- <input  name="I6"     num_pins="4" equivalent="false"/>
- <input  name="I7"     num_pins="4" equivalent="false"/>
+ <input  name="I0"     num_pins="4"/>
+ <input  name="I1"     num_pins="4"/>
+ <input  name="I2"     num_pins="4"/>
+ <input  name="I3"     num_pins="4"/>
+ <input  name="I4"     num_pins="4"/>
+ <input  name="I5"     num_pins="4"/>
+ <input  name="I6"     num_pins="4"/>
+ <input  name="I7"     num_pins="4"/>
 
  <!-- D flip-flop outputs -->
- <output name="O0"     num_pins="1" equivalent="false"/>
- <output name="O1"     num_pins="1" equivalent="false"/>
- <output name="O2"     num_pins="1" equivalent="false"/>
- <output name="O3"     num_pins="1" equivalent="false"/>
- <output name="O4"     num_pins="1" equivalent="false"/>
- <output name="O5"     num_pins="1" equivalent="false"/>
- <output name="O6"     num_pins="1" equivalent="false"/>
- <output name="O7"     num_pins="1" equivalent="false"/>
+ <output name="O0"     num_pins="1"/>
+ <output name="O1"     num_pins="1"/>
+ <output name="O2"     num_pins="1"/>
+ <output name="O3"     num_pins="1"/>
+ <output name="O4"     num_pins="1"/>
+ <output name="O5"     num_pins="1"/>
+ <output name="O6"     num_pins="1"/>
+ <output name="O7"     num_pins="1"/>
 
  <!-- D flip-flop controls -->
- <clock  name="CLK"    num_pins="1" equivalent="false"/>
- <input  name="EN"     num_pins="1" equivalent="false"/>
- <input  name="SR"     num_pins="1" equivalent="false"/>
+ <clock  name="CLK"    num_pins="1"/>
+ <input  name="EN"     num_pins="1"/>
+ <input  name="SR"     num_pins="1"/>
 
  <!-- Fast Carry chain -->
- <input  name="FCIN"   num_pins="1" equivalent="false"/>
- <output name="FCOUT"  num_pins="1" equivalent="false"/>
+ <input  name="FCIN"   num_pins="1"/>
+ <output name="FCOUT"  num_pins="1"/>
 
  <pb_type name="BLK_IG-LUTFF" num_pb="8">
   <xi:include href="../lutff/lutff.pb_type.xml" xpointer="xpointer(pb_type/child::node())"/>
  </pb_type>
 
  <pb_type name="BLK_IG-LC0" num_pb="1">
-  <input  name="I" num_pins="1" equivalent="false"/>
-  <output name="O" num_pins="1" equivalent="false"/>
+  <input  name="I" num_pins="1"/>
+  <output name="O" num_pins="1"/>
   <interconnect>
    <direct name="I" input="BLK_IG-LC0.I" output="BLK_IG-LC0.O" />
   </interconnect>
@@ -52,8 +52,8 @@
  </pb_type>
 
  <pb_type name="BLK_IG-LC1" num_pb="1">
-  <input  name="I" num_pins="1" equivalent="false"/>
-  <output name="O" num_pins="1" equivalent="false"/>
+  <input  name="I" num_pins="1"/>
+  <output name="O" num_pins="1"/>
   <interconnect>
    <direct name="I" input="BLK_IG-LC1.I" output="BLK_IG-LC1.O" />
   </interconnect>
@@ -63,8 +63,8 @@
  </pb_type>
 
  <pb_type name="BLK_IG-LC2" num_pb="1">
-  <input  name="I" num_pins="1" equivalent="false"/>
-  <output name="O" num_pins="1" equivalent="false"/>
+  <input  name="I" num_pins="1"/>
+  <output name="O" num_pins="1"/>
   <interconnect>
    <direct name="I" input="BLK_IG-LC2.I" output="BLK_IG-LC2.O" />
   </interconnect>
@@ -74,8 +74,8 @@
  </pb_type>
 
  <pb_type name="BLK_IG-LC3" num_pb="1">
-  <input  name="I" num_pins="1" equivalent="false"/>
-  <output name="O" num_pins="1" equivalent="false"/>
+  <input  name="I" num_pins="1"/>
+  <output name="O" num_pins="1"/>
   <interconnect>
    <direct name="I" input="BLK_IG-LC3.I" output="BLK_IG-LC3.O" />
   </interconnect>
@@ -85,8 +85,8 @@
  </pb_type>
 
  <pb_type name="BLK_IG-LC4" num_pb="1">
-  <input  name="I" num_pins="1" equivalent="false"/>
-  <output name="O" num_pins="1" equivalent="false"/>
+  <input  name="I" num_pins="1"/>
+  <output name="O" num_pins="1"/>
   <interconnect>
    <direct name="I" input="BLK_IG-LC4.I" output="BLK_IG-LC4.O" />
   </interconnect>
@@ -96,8 +96,8 @@
  </pb_type>
 
  <pb_type name="BLK_IG-LC5" num_pb="1">
-  <input  name="I" num_pins="1" equivalent="false"/>
-  <output name="O" num_pins="1" equivalent="false"/>
+  <input  name="I" num_pins="1"/>
+  <output name="O" num_pins="1"/>
   <interconnect>
    <direct name="I" input="BLK_IG-LC5.I" output="BLK_IG-LC5.O" />
   </interconnect>
@@ -107,8 +107,8 @@
  </pb_type>
 
  <pb_type name="BLK_IG-LC6" num_pb="1">
-  <input  name="I" num_pins="1" equivalent="false"/>
-  <output name="O" num_pins="1" equivalent="false"/>
+  <input  name="I" num_pins="1"/>
+  <output name="O" num_pins="1"/>
   <interconnect>
    <direct name="I" input="BLK_IG-LC6.I" output="BLK_IG-LC6.O" />
   </interconnect>

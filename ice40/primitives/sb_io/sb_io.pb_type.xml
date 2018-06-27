@@ -1,17 +1,17 @@
 <!-- set: ai sw=1 ts=1 sta et -->
 <pb_type>
- <output name="D_IN"    num_pins="2" equivalent="false"/>
- <input  name="D_OUT"   num_pins="2" equivalent="false"/>
- <input  name="OUT_ENB" num_pins="1" equivalent="false"/>
- <input  name="CEN"     num_pins="1" equivalent="false"/>
- <clock  name="INCLK"   num_pins="1" equivalent="false"/>
- <clock  name="OUTCLK"  num_pins="1" equivalent="false"/>
- <input  name="LATCH"   num_pins="1" equivalent="false"/>
+ <output name="D_IN"    num_pins="2"/>
+ <input  name="D_OUT"   num_pins="2"/>
+ <input  name="OUT_ENB" num_pins="1"/>
+ <input  name="CEN"     num_pins="1"/>
+ <clock  name="INCLK"   num_pins="1"/>
+ <clock  name="OUTCLK"  num_pins="1"/>
+ <input  name="LATCH"   num_pins="1"/>
 
  <!-- IO operating as an input -->
  <mode name="PAD_IS_INPUT">
   <pb_type name="PAD_IN-INPUT" num_pb="1">
-   <output name="D_IN" num_pins="2" equivalent="false"/>
+   <output name="D_IN" num_pins="2"/>
    <pb_type name="input" blif_model=".input" num_pb="1">
     <output name="inpad" num_pins="1"/>
    </pb_type>
@@ -28,7 +28,7 @@
  <!-- IO operating as an output -->
  <mode name="PAD_IS_OUTPUT">
   <pb_type name="PAD_IN-OUTPUT" num_pb="1">
-   <input name="D_OUT" num_pins="2" equivalent="false"/>
+   <input name="D_OUT" num_pins="2"/>
    <pb_type name="output" blif_model=".output" num_pb="1">
     <input name="outpad" num_pins="1"/>
    </pb_type>

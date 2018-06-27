@@ -8,33 +8,33 @@
   -->
 <pb_type name="BLK_TL-PLB" xmlns:xi="http://www.w3.org/2001/XInclude">
  <!-- LUT inputs -->
- <input  name="lutff_0/in"       num_pins="4" equivalent="false"/>
- <input  name="lutff_1/in"       num_pins="4" equivalent="false"/>
- <input  name="lutff_2/in"       num_pins="4" equivalent="false"/>
- <input  name="lutff_3/in"       num_pins="4" equivalent="false"/>
- <input  name="lutff_4/in"       num_pins="4" equivalent="false"/>
- <input  name="lutff_5/in"       num_pins="4" equivalent="false"/>
- <input  name="lutff_6/in"       num_pins="4" equivalent="false"/>
- <input  name="lutff_7/in"       num_pins="4" equivalent="false"/>
+ <input  name="lutff_0/in"       num_pins="4"/>
+ <input  name="lutff_1/in"       num_pins="4"/>
+ <input  name="lutff_2/in"       num_pins="4"/>
+ <input  name="lutff_3/in"       num_pins="4"/>
+ <input  name="lutff_4/in"       num_pins="4"/>
+ <input  name="lutff_5/in"       num_pins="4"/>
+ <input  name="lutff_6/in"       num_pins="4"/>
+ <input  name="lutff_7/in"       num_pins="4"/>
 
  <!-- D flip-flop controls -->
- <clock  name="lutff_global/clk" num_pins="1" equivalent="false"/>
- <input  name="lutff_global/cen" num_pins="1" equivalent="false"/>
- <input  name="lutff_global/s_r" num_pins="1" equivalent="false"/>
+ <clock  name="lutff_global/clk" num_pins="1"/>
+ <input  name="lutff_global/cen" num_pins="1"/>
+ <input  name="lutff_global/s_r" num_pins="1"/>
 
  <!-- D flip-flop outputs -->
- <output name="lutff_0/out"      num_pins="1" equivalent="false"/>
- <output name="lutff_1/out"      num_pins="1" equivalent="false"/>
- <output name="lutff_2/out"      num_pins="1" equivalent="false"/>
- <output name="lutff_3/out"      num_pins="1" equivalent="false"/>
- <output name="lutff_4/out"      num_pins="1" equivalent="false"/>
- <output name="lutff_5/out"      num_pins="1" equivalent="false"/>
- <output name="lutff_6/out"      num_pins="1" equivalent="false"/>
- <output name="lutff_7/out"      num_pins="1" equivalent="false"/>
+ <output name="lutff_0/out"      num_pins="1"/>
+ <output name="lutff_1/out"      num_pins="1"/>
+ <output name="lutff_2/out"      num_pins="1"/>
+ <output name="lutff_3/out"      num_pins="1"/>
+ <output name="lutff_4/out"      num_pins="1"/>
+ <output name="lutff_5/out"      num_pins="1"/>
+ <output name="lutff_6/out"      num_pins="1"/>
+ <output name="lutff_7/out"      num_pins="1"/>
 
  <!-- Fast Carry chain -->
- <input  name="FCIN"   num_pins="1" equivalent="false"/>
- <output name="FCOUT"  num_pins="1" equivalent="false"/>
+ <input  name="FCIN"   num_pins="1"/>
+ <output name="FCOUT"  num_pins="1"/>
 
  <!-- A BLK_IG-PLB contains the same 'cell' repeated 8 times. -->
  <xi:include href="../../../../cells/plb/plb.pb_type.xml"/>

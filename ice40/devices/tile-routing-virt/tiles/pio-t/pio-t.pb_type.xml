@@ -4,13 +4,13 @@
  <xi:include href="../pio-tb/pio-tb.pb_type.xml" xpointer="xpointer(pb_type/child::node())"/>
 
  <!-- Local neighbourhood ############################################ -->
- <input  name="o_neigh_op_bnl" num_pins="8" equivalent="false"/>
- <input  name="o_neigh_op_bot" num_pins="8" equivalent="false"/>
- <input  name="o_neigh_op_bnr" num_pins="8" equivalent="false"/>
+ <input  name="o_neigh_op_bnl" num_pins="8"/>
+ <input  name="o_neigh_op_bot" num_pins="8"/>
+ <input  name="o_neigh_op_bnr" num_pins="8"/>
 
- <input  name="i_neigh_op_bnl" num_pins="8" equivalent="false"/>
- <input  name="i_neigh_op_bot" num_pins="8" equivalent="false"/>
- <input  name="i_neigh_op_bnr" num_pins="8" equivalent="false"/>
+ <input  name="i_neigh_op_bnl" num_pins="8"/>
+ <input  name="i_neigh_op_bot" num_pins="8"/>
+ <input  name="i_neigh_op_bnr" num_pins="8"/>
 
  <interconnect>
   <xi:include href="../pio/pio.interconnect.xml" xpointer="xpointer(interconnect/child::node())"/>

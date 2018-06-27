@@ -1,29 +1,29 @@
 <!-- set: ai sw=1 ts=1 sta et -->
 <pb_type name="BLK_IG-LUTFF" num_pb="1" xmlns:xi="http://www.w3.org/2001/XInclude">
  <!-- LUT -->
- <input  name="I"     num_pins="4" equivalent="false"/>
+ <input  name="I"     num_pins="4"/>
 
- <input  name="LCIN"  num_pins="1" equivalent="false"/>
- <output name="LCOUT" num_pins="1" equivalent="false"/>
+ <input  name="LCIN"  num_pins="1"/>
+ <output name="LCOUT" num_pins="1"/>
 
  <!-- FF -->
- <clock  name="PCLK"  num_pins="1" equivalent="false"/>
- <clock  name="NCLK"  num_pins="1" equivalent="false"/>
- <input  name="EN"    num_pins="1" equivalent="false"/>
- <input  name="SR"    num_pins="1" equivalent="false"/>
- <output name="O"     num_pins="1" equivalent="false"/>
+ <clock  name="PCLK"  num_pins="1"/>
+ <clock  name="NCLK"  num_pins="1"/>
+ <input  name="EN"    num_pins="1"/>
+ <input  name="SR"    num_pins="1"/>
+ <output name="O"     num_pins="1"/>
 
  <!-- CARRY -->
- <input  name="FCIN"  num_pins="1" equivalent="false"/>
- <output name="FCOUT" num_pins="1" equivalent="false"/>
+ <input  name="FCIN"  num_pins="1"/>
+ <output name="FCOUT" num_pins="1"/>
 
  <xi:include href="../../primitives/sb_lut/sb_lut.pb_type.xml"/>
  <xi:include href="../../primitives/sb_carry/sb_carry.pb_type.xml"/>
  <xi:include href="../../primitives/sb_ff/sb_ff.pb_type.xml"/>
 
  <pb_type name="BLK_IG-ENABLE_FF" num_pb="1">
-  <input  name="I" num_pins="1" equivalent="false"/>
-  <output name="O" num_pins="1" equivalent="false"/>
+  <input  name="I" num_pins="1"/>
+  <output name="O" num_pins="1"/>
   <interconnect>
    <direct name="I" input="BLK_IG-ENABLE_FF.I" output="BLK_IG-ENABLE_FF.O" />
   </interconnect>
@@ -32,8 +32,8 @@
   </metadata>
  </pb_type>
  <pb_type name="BLK_IG-DISABLE_FF" num_pb="1">
-  <input  name="I" num_pins="1" equivalent="false"/>
-  <output name="O" num_pins="1" equivalent="false"/>
+  <input  name="I" num_pins="1"/>
+  <output name="O" num_pins="1"/>
   <interconnect>
    <direct name="I" input="BLK_IG-DISABLE_FF.I" output="BLK_IG-DISABLE_FF.O" />
   </interconnect>
