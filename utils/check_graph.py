@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
 import argparse
+import re
 from lxml import etree
 from lib.rr_graph import graph
 
@@ -38,21 +39,42 @@ def routing_graph_to_dictionary(routing_graph):
     return dict_graph
 
 
-def inaccessible_sink_node_ids_by_source_node_id(routing_graph):
+def filter_nodes(all_node_ids, g, f):
+    node_map = g.routing._ids_map(graph.RoutingNode)
+    f = re.compile(f)
+    node_ids = set()
+    for nid in all_node_ids:
+        node = node_map[nid]
+        n = graph.RoutingGraphPrinter.node(node, g.block_grid)
+        if f.search(n):
+            print("Filtering out ", n)
+            continue
+        node_ids.add(nid)
+    return node_ids
+
+
+def inaccessible_sink_node_ids_by_source_node_id(g, filter=""):
     """
     Returns a dictionary that maps source node ids to sets of sink node ids
     which are inaccessible to them.
     If a source node id can access all sink nodes it is not present in the
     returned dictionary.
     """
+    routing_graph = g.routing
+
     # First convert the graph to a dictionary.
     cyclic_graph = routing_graph_to_dictionary(routing_graph)
-    source_node_ids = set([
+
+    all_source_node_ids = set([
         int(node.get('id')) for node in routing_graph._xml_parent(graph.RoutingNode)
         if node.get('type') == 'SOURCE'])
-    sink_node_ids = set([
+    source_node_ids = filter_nodes(all_source_node_ids, g, filter)
+
+    all_sink_node_ids = set([
         int(node.get('id')) for node in routing_graph._xml_parent(graph.RoutingNode)
         if node.get('type') == 'SINK'])
+    sink_node_ids = filter_nodes(all_sink_node_ids, g, filter)
+
     inaccessible_by_source_node = {}
     total = len(source_node_ids)
     for index, source_node_id in enumerate(source_node_ids):
@@ -65,22 +87,32 @@ def inaccessible_sink_node_ids_by_source_node_id(routing_graph):
             print('Checked {}/{} source nodes'.format(index, total))
     return inaccessible_by_source_node
 
-def check_graph(rr_graph_file):
+
+def check_graph(rr_graph_file, filter):
     '''
     Check that the rr_graph has connections from all SOURCE nodes to all SINK nodes.
     '''
-    print('Parsing XML')
-    xml_graph = etree.parse(rr_graph_file, etree.XMLParser(remove_blank_text=True))
-    print('Creating a routing graph')
-    routing_graph = graph.RoutingGraph(xml_graph, verbose=True, clear_fabric=False)
+    print('Loading the routing graph file')
+    g = graph.Graph(rr_graph_file, verbose=True, clear_fabric=False)
+    routing_graph = g.routing
     print('Checking if all source nodes connect to all sink nodes.')
-    inaccessible_nodes = inaccessible_sink_node_ids_by_source_node_id(routing_graph)
-    import pdb
-    pdb.set_trace()
+    inaccessible_nodes = inaccessible_sink_node_ids_by_source_node_id(g, filter)
     if inaccessible_nodes:
         print('FAIL')
+        node_map = routing_graph._ids_map(graph.RoutingNode)
         for source_id, sink_ids in inaccessible_nodes.items():
-            print('Node {} does not connect to nodes {}.'.format(source_id, sink_ids))
+            source_node = graph.RoutingGraphPrinter.node(
+                node_map[source_id], g.block_grid)
+            sink_nodes = [
+                graph.RoutingGraphPrinter.node(
+                    node_map[i], g.block_grid) for i in sink_ids]
+
+            print('Node {} does not connect to nodes:.'.format(source_node))
+            for n in sink_nodes:
+                print('    ', n)
+            print()
+        import pdb
+        pdb.set_trace()
     else:
         print('SUCCESS')
 
@@ -88,8 +120,9 @@ def check_graph(rr_graph_file):
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('rr_graph_file', type=str)
+    parser.add_argument('filter', type=str)
     args = parser.parse_args()
-    check_graph(args.rr_graph_file)
+    check_graph(args.rr_graph_file, args.filter)
 
 
 if __name__ == '__main__':
