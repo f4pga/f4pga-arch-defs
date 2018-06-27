@@ -1,21 +1,21 @@
 <!-- set: ai sw=1 ts=1 sta et -->
 <pb_type name="BLK_IG-IO_LOCAL" num_pb="1" xmlns:xi="http://www.w3.org/2001/XInclude">
  <!-- SB_IO inputs -->
- <output name="io_0_D_IN"       num_pins="2" equivalent="false"/>
- <output name="io_1_D_IN"       num_pins="2" equivalent="false"/>
+ <output name="io_0_D_IN"       num_pins="2"/>
+ <output name="io_1_D_IN"       num_pins="2"/>
 
  <!-- SB_IO outputs -->
- <input name="io_0_D_OUT"       num_pins="2" equivalent="false"/>
- <input name="io_1_D_OUT"       num_pins="2" equivalent="false"/>
+ <input name="io_0_D_OUT"       num_pins="2"/>
+ <input name="io_1_D_OUT"       num_pins="2"/>
 
  <!-- Control signals -->
- <input name="io_0_OUT_ENB"     num_pins="1" equivalent="false"/>
- <input name="io_1_OUT_ENB"     num_pins="1" equivalent="false"/>
+ <input name="io_0_OUT_ENB"     num_pins="1"/>
+ <input name="io_1_OUT_ENB"     num_pins="1"/>
 
- <input name="io_global_cen"    num_pins="1" equivalent="false"/>
- <clock name="io_global_inclk"  num_pins="1" equivalent="false"/>
- <clock name="io_global_outclk" num_pins="1" equivalent="false"/>
- <input name="io_global_latch"  num_pins="1" equivalent="false"/>
+ <input name="io_global_cen"    num_pins="1"/>
+ <clock name="io_global_inclk"  num_pins="1"/>
+ <clock name="io_global_outclk" num_pins="1"/>
+ <input name="io_global_latch"  num_pins="1"/>
 
  <pb_type name="BLK_IG-IO" num_pb="2">
   <xi:include href="../../primitives/sb_io/sb_io.pb_type.xml" xpointer="xpointer(pb_type/child::node())"/>
