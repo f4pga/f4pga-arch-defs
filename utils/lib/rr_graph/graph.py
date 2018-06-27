@@ -2679,8 +2679,8 @@ class Graph:
                 pin_node = self.create_node_from_pin(block, p, *pin_meta(block, p))
 
                 # Edge PIN->SINK
-                self.routing.create_edge_with_nodes(pin_node, sink_node,
-                                                    switch)
+                self.routing.create_edge_with_nodes(
+                        pin_node, sink_node, switch)
 
         elif pin_class.direction in (PinClassDirection.OUTPUT, ):
             # Source node
@@ -2691,7 +2691,8 @@ class Graph:
                 pin_node = self.create_node_from_pin(block, p, *pin_meta(block, p))
 
                 # Edge SOURCE->PIN
-                self.routing.create_edge_with_nodes(src_node, pin_node, switch)
+                self.routing.create_edge_with_nodes(
+                        src_node, pin_node, switch)
 
         else:
             assert False, "Unknown dir of {} for {}".format(
