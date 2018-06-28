@@ -79,7 +79,8 @@ $(OUT_RRXML_VIRT): $(TOP_DIR)/common/wire.eblif $(OUT_ARCH_XML)
 		--device $(DEVICE_FULL) \
 		$(TOP_DIR)/common/wire.eblif \
 		\
-		--route_chan_width 10 \
+		--route_chan_width 100 \
+		--echo_file on \
 		--min_route_chan_width_hint 1 \
 		--write_rr_graph $(OUT_RRXML_VIRT)
 	rm $(OUT_DEV_DIR)/wire.{net,place,route}

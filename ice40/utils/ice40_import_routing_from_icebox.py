@@ -474,10 +474,9 @@ def add_global_tracks(g, ic):
     iolatch_db = ic.iolatch_db()
 
     # Create the 8 global networks
-    glb = g.segments["global"]
-    short = g.switches["__vpr_delayless_switch__"]
     for i in range(0, 8):
         glb_name = "glb_netwk_{}".format(i)
+        seg = g.segments[glb_name]
 
         # Vertical global wires
         for x in range(0, ic.max_x+1):
@@ -485,7 +484,7 @@ def add_global_tracks(g, ic):
             iend = PositionIcebox(x, ic.max_y)
             track, track_node = g.create_xy_track(
                 pos_icebox2vpr(istart), pos_icebox2vpr(iend),
-                segment=glb,
+                segment=seg,
                 typeh=channel.Track.Type.Y,
                 direction=channel.Track.Direction.BI)
             track_node.set_metadata("hlc_name", glb_name)
@@ -499,7 +498,7 @@ def add_global_tracks(g, ic):
         iend = PositionIcebox(ic.max_x+1, GLOBAL_SPINE_ROW)
         track, track_node = g.create_xy_track(
             pos_icebox2vpr(istart), pos_icebox2vpr(iend),
-            segment=glb,
+            segment=seg,
             typeh=channel.Track.Type.X,
             direction=channel.Track.Direction.BI)
         track_node.set_metadata("hlc_name", glb_name)
@@ -516,7 +515,7 @@ def add_global_tracks(g, ic):
             create_edge_with_names(
                 g,
                 glb_name, glb_name+"_h",
-                ipos, short,
+                ipos, g.switches['short'],
                 skip,
                 bidir=True,
             )
@@ -532,6 +531,7 @@ def add_global_tracks(g, ic):
 
     # Create the IO->global drivers which exist in some IO tiles.
     for n, (gx, gy, gz) in enumerate(padin_db):
+        glb_name = "glb_netwk_{}".format(n)
         ipos = PositionIcebox(gx, gy)
         vpos = pos_icebox2vpr(ipos)
 
@@ -539,7 +539,7 @@ def add_global_tracks(g, ic):
         # PACKAGE_PIN output of the correct IO subtile.
         track, track_node = g.create_xy_track(
             vpos, vpos,
-            segment=glb,
+            segment=g.segments[glb_name],
             typeh=channel.Track.Type.Y,
             direction=channel.Track.Direction.BI)
         track_node.set_metadata(
@@ -549,7 +549,7 @@ def add_global_tracks(g, ic):
         create_edge_with_names(
             g,
             "io_{}/pin".format(gz), GLOBAL_BUF,
-            ipos, short,
+            ipos, g.switches["driver"],
             skip,
         )
 
@@ -557,7 +557,7 @@ def add_global_tracks(g, ic):
         # drive the global network.
         create_edge_with_names(
             g,
-            GLOBAL_BUF, "glb_netwk_{}".format(n),
+            GLOBAL_BUF, glb_name,
             ipos, g.switches["buffer"],
             skip,
         )
@@ -592,25 +592,25 @@ def add_global_tracks(g, ic):
             "latch",
         ]
         for name in io_names:
-            glb_name = "io_global/{}".format(name)
+            tile_glb_name = "io_global/{}".format(name)
 
-            hlc_name = group_hlc_name([(ipos, glb_name)])
+            hlc_name = group_hlc_name([(ipos, tile_glb_name)])
             track, track_node = g.create_xy_track(
                 vpos, vpos,
-                segment=glb,
+                segment=g.segments['tile_global'],
                 typeh=channel.Track.Type.Y,
                 direction=channel.Track.Direction.BI)
             track_node.set_metadata("hlc_name", hlc_name)
-            g.routing.localnames.add(vpos, glb_name, track_node)
+            g.routing.localnames.add(vpos, tile_glb_name, track_node)
 
             # Connect together the io_global signals inside a tile
             for i in range(2):
                 local_name = "io_{}/{}".format(i, name)
                 create_edge_with_names(
                     g,
-                    glb_name,
+                    tile_glb_name,
                     local_name,
-                    ipos, short,
+                    ipos, g.switches['driver'],
                     skip,
                 )
 
@@ -621,7 +621,7 @@ def add_global_tracks(g, ic):
         hlc_name = group_hlc_name([(ipos, "fabout")])
         track, track_node = g.create_xy_track(
             vpos, vpos,
-            segment=glb,
+            segment=g.segments['fabout'],
             typeh=channel.Track.Type.Y,
             direction=channel.Track.Direction.BI)
         track_node.set_metadata("hlc_name", hlc_name)
@@ -633,7 +633,7 @@ def add_global_tracks(g, ic):
             create_edge_with_names(
                 g,
                 "fabout", "glb_netwk_{}".format(gn),
-                ipos, short,
+                ipos, g.switches['short'],
                 skip,
             )
 
@@ -642,12 +642,21 @@ def add_global_tracks(g, ic):
             create_edge_with_names(
                 g,
                 "fabout", "io_global/latch",
-                ipos, short,
+                ipos, g.switches['short'],
                 skip,
             )
 
 
-def create_edge_with_names(g, src_name, dst_name, ipos, switch, skip, bidir=False):
+def create_edge_with_names(g, src_name, dst_name, ipos, switch, skip, bidir=None):
+    if switch.type in (graph.SwitchType.SHORT, graph.SwitchType.PASS_GATE):
+        if bidir is None:
+            bidir = True
+        else:
+            assert bidir is True, "Switch {} must be bidir ({})".format(
+                switch, (ipos, src_name, dst_name, bidir))
+    elif bidir is None:
+        bidir = False
+
     src_hlc_name = group_hlc_name([(ipos, src_name)])
     dst_hlc_name = group_hlc_name([(ipos, dst_name)])
 
@@ -937,6 +946,19 @@ def main(part, read_rr_graph, write_rr_graph):
 
     print('Importing input g', part)
     ic, g = init(part, read_rr_graph)
+
+    short = graph.Switch(
+        id=g.switches.next_id(), type=graph.SwitchType.SHORT, name="short",
+        timing=graph.SwitchTiming(R=0, Cin=0, Cout=0, Tdel=0),
+        sizing=graph.SwitchSizing(mux_trans_size=0, buf_size=0),
+    )
+    g.add_switch(short)
+    driver = graph.Switch(
+        id=g.switches.next_id(), type=graph.SwitchType.BUFFER, name="driver",
+        timing=graph.SwitchTiming(R=0, Cin=0, Cout=0, Tdel=0),
+        sizing=graph.SwitchSizing(mux_trans_size=0, buf_size=0),
+    )
+    g.add_switch(driver)
 
     # my_test(ic, g)
     print('Source g loaded')
