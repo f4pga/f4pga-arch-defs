@@ -152,13 +152,12 @@
    <mux name="buffer"/>
   </segment>
 
-  <!-- Neighbourhood tracks
+  <!-- Neighbourhood tracks -->
   <segment name="neigh" length="2" freq="1.000000" type="unidir" Rmetal="101" Cmetal="22.5e-15">
    <sb type="pattern">0 0 0</sb>
    <cb type="pattern">1 1</cb>
    <mux name="buffer"/>
   </segment>
-    -->
 
   <!-- Dummy tracks -->
   <segment name="dummy" length="1" freq="1.000000" type="unidir" Rmetal="101" Cmetal="22.5e-15">
