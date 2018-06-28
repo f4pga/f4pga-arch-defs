@@ -74,7 +74,7 @@ import operator
 import os.path
 import re
 import sys
-from collections import namedtuple, OrderedDict
+from collections import namedtuple, OrderedDict, defaultdict
 from functools import reduce
 from os.path import commonprefix
 
@@ -89,10 +89,15 @@ import icebox_asc2hlc
 
 # Local libs
 sys.path.insert(0, os.path.join(MYDIR, "..", "..", "utils"))
-import lib.rr_graph.graph as graph
 import lib.rr_graph.channel as channel
+import lib.rr_graph.graph as graph
+import lib.rr_graph.points as points
 from lib.rr_graph import Offset
+from lib.asserts import assert_eq
+from lib.asserts import assert_not_in
 from lib.asserts import assert_type
+
+NP = points.NamedPosition
 
 ic = None
 
@@ -186,101 +191,107 @@ def tiles(ic):
             yield p
 
 
-def find_path(group):
-    assert_type(group, list)
-    start = group[0][0]
-    end = group[0][0]
-    for ipos, netname in group:
-        assert_type(ipos, PositionIcebox)
-        if ipos < start:
-            start = ipos
-        if ipos > end:
-            end = ipos
-    return start, end
-
-
 def filter_track_names(group):
     assert_type(group, list)
-    names = []
-    for ipos, netname in group:
-        assert_type(ipos, PositionIcebox)
-        # FIXME: Get the neighbourhood wires working.
-        if "neigh_op" in netname:
-            continue
-        # FIXME: Get the logic_op wires working.
-        if "logic_op" in netname:
-            continue
-        # FIXME: Get the sp4_r_v_ wires working
-        if "sp4_r_v_" in netname:
-            continue
-        # FIXME: Fix the carry logic.
-        if "cout" in netname or "carry_in" in netname:
-            continue
-        if "lout" in netname:
-            continue
-        names.append((ipos, netname))
-    return names
+    for p in group:
+        assert_type(p.pos, PositionIcebox)
+        names = list(p.names)
+        p.names.clear()
 
-
-def filter_non_straight(group):
-    assert_type(group, list)
-    x_count = {}
-    y_count = {}
-    for ipos, netname in group:
-        assert_type(ipos, PositionIcebox)
-        if ipos.x not in x_count:
-            x_count[ipos.x] = 0
-        x_count[ipos.x] += 1
-        if ipos.y not in y_count:
-            y_count[ipos.y] = 0
-        y_count[ipos.y] += 1
-    x_val = list(sorted((c, x) for x, c in x_count.items()))
-    y_val = list(sorted((c, y) for y, c in y_count.items()))
-
-    good = []
-    skipped = []
-    if x_val[-1][0] > y_val[-1][0]:
-        x_ipos = x_val[-1][1]
-        for ipos, netname in group:
-            if ipos.x != x_ipos:
-                skipped.append((ipos, netname))
+        for n in names:
+            # FIXME: Get the sp4_r_v_ wires working
+            if "sp4_r_v_" in n:
                 continue
-            good.append((ipos, netname))
-    else:
-        y_ipos = y_val[-1][1]
-        for ipos, netname in group:
-            if ipos.y != y_ipos:
-                skipped.append((ipos, netname))
+            # FIXME: Fix the carry logic.
+            if "cout" in n or "carry_in" in n:
                 continue
-            good.append((ipos, netname))
-    return good, skipped
+            if "lout" in n:
+                continue
+            p.names.append(n)
+
+    rgroup = []
+    for p in group:
+        if not p.names:
+            continue
+        rgroup.append(p)
+    return rgroup
 
 
 def group_hlc_name(group):
     assert_type(group, list)
     global ic
-    hlcnames = set()
-    for ipos, localname in group:
-        assert_type(ipos, PositionIcebox)
-        hlcname = icebox_asc2hlc.translate_netname(*ipos, ic.max_x-1, ic.max_y-1, localname)
-        hlcnames.add(hlcname)
-    assert len(hlcnames) == 1, hlcnames
-    return hlcnames.pop()
+    hlcnames = defaultdict(int)
+    hlcnames_details = []
+    for ipos, localnames in group:
+        for name in localnames:
+            assert_type(ipos, PositionIcebox)
+            hlcname = icebox_asc2hlc.translate_netname(*ipos, ic.max_x-1, ic.max_y-1, name)
+            hlcnames_details.append((ipos, name, hlcname))
+
+            # Special case for the neighbourhood tracks which don't seem to have a
+            # HLC name?
+            if "_op_" in name:
+                continue
+
+            hlcnames[hlcname] += 1
+
+    if not hlcnames:
+        return None
+
+    if len(hlcnames) > 1:
+        logging.warn("Multiple HLC names (%s) found group %s", hlcnames, group)
+        filtered_hlcnames = {k: v for k,v in hlcnames.items() if v > 1}
+        assert len(filtered_hlcnames) == 1, (hlcnames, hlcnames_details)
+        hlcnames = filtered_hlcnames
+    assert len(hlcnames) == 1, (hlcnames, hlcnames_details)
+    return list(hlcnames.keys())[0]
 
 
 def group_seg_type(group):
     assert_type(group, list)
-    for ipos, netname in group:
+
+    types = defaultdict(int)
+    for ipos, localnames in group:
         assert_type(ipos, PositionIcebox)
-        if "local" in netname:
-            return "local"
-        if "global" in netname:
-            return "global"
-        if "sp4" in netname or "span4" in netname:
-            return "span4"
-        if "sp12" in netname or "span12" in netname:
-            return "span12"
-    return "unknown"
+        for name in localnames:
+            # ???
+            if "/" in name:
+                types["pin"] += 1
+                continue
+            if "carry" in name:
+                types["pin"] += 1
+                continue
+            # Normal tracks...
+            if "local" in name:
+                types["local"] += 1
+            if "op" in name:
+                types["neigh"] += 1
+            if "global" in name:
+                types["global"] += 1
+            if "sp4" in name or "span4" in name:
+                types["span4"] += 1
+            if "sp12" in name or "span12" in name:
+                types["span12"] += 1
+            # The global drivers
+            if "fabout" in name:
+                types["local"] += 1
+            if "pin" in name:
+                types["local"] += 1
+
+    assert types, "No group types for {}".format(group)
+
+    logging.debug(group, types)
+
+    if len(types) > 1:
+        logging.warn("Multiple types (%s) found for group %s", types, group)
+        filtered_types = {k: v for k,v in types.items() if v > 1}
+        assert len(filtered_types) == 1, (filtered_types, types, group)
+        types = filtered_types
+
+    assert len(types) == 1, "Multiple group types {} for {}".format(types, group)
+    for k in types:
+        return k
+    assert False, types
 
 
 def group_chan_type(group):
@@ -293,6 +304,14 @@ def group_chan_type(group):
             return channel.Track.Type.X
         if "_v" in netname:
             return channel.Track.Type.Y
+        # The drivers
+        if "fabout" in netname:
+            return channel.Track.Type.X
+        if "pin" in netname:
+            return channel.Track.Type.X
+        if "/" in netname:
+            return channel.Track.Type.Y
+    assert False, group
     return None
 
 
@@ -413,7 +432,7 @@ def add_pin_aliases(g, ic):
             logging.debug("On %s for %s", vpos, format_node(g, node))
 
             hlc_name = name_rr2local.get(
-                pin.xmlname, group_hlc_name([(ipos, pin.name)]))
+                pin.xmlname, group_hlc_name([NP(ipos, [pin.name])]))
             logging.debug(
                 " Setting local name %s on %s for %s",
                 hlc_name, vpos, format_node(g, node))
@@ -465,9 +484,6 @@ def add_global_tracks(g, ic):
     """Add the global tracks to every channel."""
     add_dummy_tracks(g, ic)
 
-    def skip(fmt, *args, **kw):
-        raise AssertionError(fmt % args)
-
     GLOBAL_SPINE_ROW = ic.max_x // 2
     GLOBAL_BUF = "GLOBAL_BUFFER_OUTPUT"
     padin_db = ic.padin_pio_db()
@@ -516,8 +532,6 @@ def add_global_tracks(g, ic):
                 g,
                 glb_name, glb_name+"_h",
                 ipos, g.switches['short'],
-                skip,
-                bidir=True,
             )
 
     # Create the padin_X localname aliases for the glb_network_Y
@@ -550,7 +564,6 @@ def add_global_tracks(g, ic):
             g,
             "io_{}/pin".format(gz), GLOBAL_BUF,
             ipos, g.switches["driver"],
-            skip,
         )
 
         # Create the switch to enable the GLOBAL_BUFFER_OUTPUT track to
@@ -559,7 +572,6 @@ def add_global_tracks(g, ic):
             g,
             GLOBAL_BUF, glb_name,
             ipos, g.switches["buffer"],
-            skip,
         )
 
     # Work out for which tiles the fabout is directly shorted to a global
@@ -594,7 +606,7 @@ def add_global_tracks(g, ic):
         for name in io_names:
             tile_glb_name = "io_global/{}".format(name)
 
-            hlc_name = group_hlc_name([(ipos, tile_glb_name)])
+            hlc_name = group_hlc_name([NP(ipos, [tile_glb_name])])
             track, track_node = g.create_xy_track(
                 vpos, vpos,
                 segment=g.segments['tile_global'],
@@ -608,17 +620,15 @@ def add_global_tracks(g, ic):
                 local_name = "io_{}/{}".format(i, name)
                 create_edge_with_names(
                     g,
-                    tile_glb_name,
-                    local_name,
+                    tile_glb_name, local_name,
                     ipos, g.switches['driver'],
-                    skip,
                 )
 
         # Create the fabout track. Every IO tile has a fabout track, but
         # sometimes the track is special;
         # - drives a glb_netwk_X,
         # - drives the io_global/latch for the bank
-        hlc_name = group_hlc_name([(ipos, "fabout")])
+        hlc_name = group_hlc_name([NP(ipos, ["fabout"])])
         track, track_node = g.create_xy_track(
             vpos, vpos,
             segment=g.segments['fabout'],
@@ -634,7 +644,6 @@ def add_global_tracks(g, ic):
                 g,
                 "fabout", "glb_netwk_{}".format(gn),
                 ipos, g.switches['short'],
-                skip,
             )
 
         # Fabout drives the io_global/latch?
@@ -643,11 +652,19 @@ def add_global_tracks(g, ic):
                 g,
                 "fabout", "io_global/latch",
                 ipos, g.switches['short'],
-                skip,
             )
 
 
-def create_edge_with_names(g, src_name, dst_name, ipos, switch, skip, bidir=None):
+def create_edge_with_names(g, src_name, dst_name, ipos, switch, skip=None, bidir=None):
+    assert_type(src_name, str)
+    assert_type(dst_name, str)
+    assert_type(ipos, PositionIcebox)
+    assert_type(switch, graph.Switch)
+
+    if skip is None:
+        def skip(fmt, *a, **k):
+            raise AssertionError(fmt % a)
+
     if switch.type in (graph.SwitchType.SHORT, graph.SwitchType.PASS_GATE):
         if bidir is None:
             bidir = True
@@ -657,8 +674,8 @@ def create_edge_with_names(g, src_name, dst_name, ipos, switch, skip, bidir=None
     elif bidir is None:
         bidir = False
 
-    src_hlc_name = group_hlc_name([(ipos, src_name)])
-    dst_hlc_name = group_hlc_name([(ipos, dst_name)])
+    src_hlc_name = group_hlc_name([NP(ipos, [src_name])])
+    dst_hlc_name = group_hlc_name([NP(ipos, [dst_name])])
 
     vpos = pos_icebox2vpr(ipos)
     src_node = g.routing.get_by_name(src_name, vpos, None)
@@ -707,20 +724,28 @@ def create_edge_with_names(g, src_name, dst_name, ipos, switch, skip, bidir=None
         format_node(g, dst_node),
     )
 
-    edge = g.routing.create_edge_with_nodes(src_node, dst_node, switch=switch)
-    edge.set_metadata("hlc_coord", "{},{}".format(*ipos))
-    if bidir:
-        edge = g.routing.create_edge_with_nodes(dst_node, src_node, switch=switch)
-        edge.set_metadata("hlc_coord", "{},{}".format(*ipos))
+    g.routing.create_edge_with_nodes(
+        src_node, dst_node,
+        switch=switch,
+        bidir=bidir,
+        metadata={"hlc_coord": "{},{}".format(*ipos)},
+    )
 
 
 def add_tracks(g, ic, all_group_segments, segtype_filter=None):
     add_dummy_tracks(g, ic)
 
     for group in sorted(all_group_segments):
-        group = [(PositionIcebox(x, y), netname) for x, y, netname in group]
+        positions = {}
+        for x, y, netname in group:
+            p = PositionIcebox(x, y)
+            if p in positions:
+                positions[p].names.append(netname)
+            else:
+                positions[(x, y)] = points.NamedPosition(p, [netname])
+        positions = list(positions.values())
 
-        segtype = group_seg_type(group)
+        segtype = group_seg_type(positions)
         if segtype_filter is not None and segtype != segtype_filter:
             continue
         if segtype == "unknown":
@@ -731,56 +756,91 @@ def add_tracks(g, ic, all_group_segments, segtype_filter=None):
             continue
         segment = g.segments[segtype]
 
-        fgroup = filter_track_names(group)
-        if not fgroup:
-            logging.debug("Filtered out track group: %s", group)
+        fpositions = filter_track_names(positions)
+        if not fpositions:
+            logging.debug("Filtered out track group: %s", positions)
             continue
 
-        fgroup, skipped = filter_non_straight(fgroup)
-        assert len(fgroup) > 0, (fgroup, fgroup)
-        if len(skipped) > 0:
-            logging.debug("""Filtered non-straight segments;
- Skipping: %s
-Remaining: %s""", skipped, fgroup)
-
-        hlc_name = group_hlc_name(group)
-
-        istart, iend = find_path(fgroup)
-        if istart.x == iend.x and istart.y != iend.y:
-            typeh = channel.Track.Type.Y
-        elif istart.x != iend.x and istart.y == iend.y:
-            typeh = channel.Track.Type.X
-        elif istart.x != iend.x and istart.y != iend.y:
-            logging.warn("Skipping non-straight track group: %s (%s)", fgroup, group)
+        hlc_name = group_hlc_name(fpositions)
+        if not hlc_name:
+            logging.debug("Skipping unknown group? %s", group)
             continue
-        else:
-            typeh = group_chan_type(fgroup)
-        vstart, vend = pos_icebox2vpr(istart), pos_icebox2vpr(iend)
 
-        track, track_node = g.create_xy_track(
-            vstart, vend,
-            segment=segment,
-            typeh=typeh,
-            direction=channel.Track.Direction.BI)
+        connections, lines = points.decompose_into_straight_lines(fpositions)
 
-        track_fmt = format_node(g, track_node)
         logging.debug(
-            "Created track %s %s %s from %s %s",
-            hlc_name, track_fmt, segment.name, typeh, group)
-
-        track_node.set_metadata("hlc_name", hlc_name)
-        if segtype != "local":
-            g.routing.globalnames.add(hlc_name, track_node)
+            "Created track %s from sections: %s", segtype, len(lines))
+        for line in lines:
+            istart, iend = points.straight_ends([p.pos for p in line])
             logging.debug(
-                " Setting global name %s for %s",
-                hlc_name, track_fmt)
-
-        for pos, netname in fgroup:
-            vpos = pos_icebox2vpr(pos)
-            g.routing.localnames.add(vpos, netname, track_node)
+                "  %s>%s (%s)", istart, iend, line) #{n for p, n in named_positions})
+        for ipos, (name_a, name_b) in sorted(connections.items()):
             logging.debug(
-                " Setting local name %s on %s for %s",
-                netname, vpos, track_fmt)
+                "  %s %s<->%s", ipos, name_a, name_b)
+
+        for line in lines:
+            istart, iend = points.straight_ends([p.pos for p in line])
+            vstart, vend = pos_icebox2vpr(istart), pos_icebox2vpr(iend)
+
+            if line.direction.value == '-':
+                typeh = channel.Track.Type.X
+            elif line.direction.value == '|':
+                typeh = channel.Track.Type.Y
+            else:
+                typeh = channel.Track.Type.Y
+
+            track, track_node = g.create_xy_track(
+                vstart, vend,
+                segment=segment,
+                typeh=typeh,
+                direction=channel.Track.Direction.BI)
+            track_node.set_metadata("hlc_name", hlc_name)
+
+            track_fmt = format_node(g, track_node)
+            logging.debug(
+                " Created track %s %s %s from %s",
+                hlc_name, track_fmt, segment.name, typeh)
+
+            for npos in line:
+                ipos = npos.pos
+                vpos = pos_icebox2vpr(ipos)
+                for n in npos.names:
+                    try:
+                        g.routing.localnames[(vpos, n)]
+
+                        drv_node = g.routing.localnames[(vpos, n)]
+                        drv_fmt = str(format_node(g, drv_node))
+                        logging.debug(
+                            "  Existing node %s with local name %s on %s",
+                            drv_fmt, n, vpos)
+
+                        g.routing.localnames.add(vpos, n+"_?", track_node)
+                        if ipos in connections:
+                            continue
+                            assert ipos not in connections, (ipos, connections[ipos])
+                        connections[ipos] = (n, n+"_?")
+                    except KeyError:
+                        g.routing.localnames.add(vpos, n, track_node)
+                        logging.debug(
+                            "  Setting local name %s on %s for %s",
+                            n, vpos, track_fmt)
+
+        for ipos, (name_a, name_b) in sorted(connections.items()):
+            vpos = pos_icebox2vpr(ipos)
+
+            node_a = g.routing.localnames[(vpos, name_a)]
+            node_b = g.routing.localnames[(vpos, name_b)]
+
+            logging.debug(" Shorting at coords %s - %s -> %s\n\t%s\n ->\n\t%s",
+                ipos, name_a, name_b,
+                format_node(g, node_a),
+                format_node(g, node_b),
+            )
+            create_edge_with_names(
+                g,
+                name_a, name_b,
+                ipos, g.switches["short"],
+            )
 
 
 def add_edges(g, ic):
@@ -842,7 +902,7 @@ def add_edges(g, ic):
             src_localname = entry[2]
             dst_localname = entry[3]
 
-            remaining = filter_track_names([(ipos, src_localname), (ipos, dst_localname)])
+            remaining = filter_track_names([NP(ipos, [src_localname]), NP(ipos, [dst_localname])])
             if len(remaining) != 2:
                 skip("Remaining %s", remaining)
                 continue
@@ -991,9 +1051,10 @@ def main(part, read_rr_graph, write_rr_graph):
 
     segments = ic.group_segments(list(tiles(ic)))
     add_tracks(g, ic, segments, segtype_filter="local")
+    add_tracks(g, ic, segments, segtype_filter="neigh")
     add_tracks(g, ic, segments, segtype_filter="span4")
     add_tracks(g, ic, segments, segtype_filter="span12")
-    add_global_tracks(g, ic)
+    #add_global_tracks(g, ic)
 
     print()
     print('Adding edges')

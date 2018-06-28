@@ -214,7 +214,7 @@ VPR_CMD = \
 		--route_chan_width $(VPR_ROUTE_CHAN_WIDTH) \
 		--read_rr_graph $(OUT_RRXML_REAL) \
 		\
-		--debug_clustering on \
+		--timing_analysis off \
 		--clock_modeling_method route \
 
 

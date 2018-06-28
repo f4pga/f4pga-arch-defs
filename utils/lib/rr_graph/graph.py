@@ -40,17 +40,15 @@ XXX: parse comments? Maybe can do a pass removing them
 
 import enum
 import io
-import pprint
 import re
-import sys
 
 from collections import namedtuple
-from collections import OrderedDict
 from types import MappingProxyType
 
 import lxml.etree as ET
 
 from . import Position
+from . import P
 from . import Size
 from . import Offset
 from . import node_pos, single_element
@@ -58,7 +56,6 @@ from .channel import Channels, Track
 
 from ..asserts import assert_eq
 from ..asserts import assert_is
-from ..asserts import assert_not_in
 from ..asserts import assert_type
 from ..asserts import assert_type_or_none
 
@@ -1807,7 +1804,8 @@ class RoutingGraph:
         >>> # Works with edges
         >>> r = simple_test_routing()
         >>> sw = Switch(id=0, type=SwitchType.MUX, name="sw")
-        >>> e1 = r.create_edge_with_ids(0, 1, sw)
+        >>> r.create_edge_with_ids(0, 1, sw)
+        >>> e1 = r.get_edge_by_id(4)
         >>> # Call directly on the edge
         >>> e1.get_metadata("test", default=":-(")
         ':-('
@@ -2298,7 +2296,8 @@ class RoutingGraph:
         --------
         >>> r = simple_test_routing()
         >>> sw = Switch(id=0, type=SwitchType.MUX, name="sw")
-        >>> e1 = r.create_edge_with_ids(0, 1, sw)
+        >>> r.create_edge_with_ids(0, 1, sw)
+        >>> e1 = r.get_edge_by_id(4)
         >>> RoutingGraphPrinter.edge(r, e1)
         '0 X000Y000[00].SRC--> ->>- 1 X000Y000[00].R-PIN>'
 
@@ -2318,25 +2317,6 @@ class RoutingGraph:
           ->
         4 X000Y010[00].SINK-< b'<node capacity="1" id="4" type="SINK"><loc ptc="0" xhigh="0" xlow="0" yhigh="10" ylow="10"/><timing C="0" R="0"/></node>'
         """
-        edgea = self._create_edge_with_ids(src_node_id, sink_node_id, switch, metadata)
-        sw_bidir = switch.type in (SwitchType.SHORT, SwitchType.PASS_GATE)
-        if bidir is None:
-            bidir = sw_bidir
-        elif sw_bidir:
-            assert bidir, "Switch type {} must be bidir ({})".format(
-                switch, (sink_node_id, src_node_id))
-
-        if bidir:
-            edgeb = self._create_edge_with_ids(sink_node_id, src_node_id, switch, metadata)
-            return edgea, edgeb
-        else:
-            return edgea
-
-    def _create_edge_with_ids(self, src_node_id, sink_node_id, switch, metadata={}):
-        # <edge src_node="34" sink_node="44" switch_id="1"/>
-        assert_type(src_node_id, int)
-        assert_type(sink_node_id, int)
-        assert_type(switch, Switch)
 
         id2node = self.id2element[RoutingNode]
         assert src_node_id in id2node, src_node_id
@@ -2344,6 +2324,35 @@ class RoutingGraph:
         assert sink_node_id in id2node, sink_node_id
         sink_node_type = RoutingNodeType.from_xml(id2node[sink_node_id])
 
+        valid, msg = self._is_valid(src_node_type, sink_node_type)
+        if not valid:
+            src_node = id2node[src_node_id]
+            sink_node = id2node[sink_node_id]
+            raise TypeError("{} -> {} not valid, {}\n{} {}\n  ->\n{} {}".format(
+                src_node_type,
+                sink_node_type,
+                msg,
+                RoutingGraphPrinter.node(src_node),
+                ET.tostring(src_node),
+                RoutingGraphPrinter.node(sink_node),
+                ET.tostring(sink_node),
+            ))
+
+        sw_bidir = switch.type in (SwitchType.SHORT, SwitchType.PASS_GATE)
+        if bidir is None:
+            bidir = sw_bidir
+        elif sw_bidir:
+            assert bidir, "Switch type {} must be bidir {} ({})".format(
+                switch, (sw_bidir, bidir), (sink_node_id, src_node_id))
+
+        self._create_edge_with_ids(src_node_id, sink_node_id, switch, metadata)
+
+        valid, msg = self._is_valid(sink_node_type, src_node_type)
+        if valid and bidir:
+            self._create_edge_with_ids(sink_node_id, src_node_id, switch, metadata)
+
+    @staticmethod
+    def _is_valid(src_node_type, sink_node_type):
         valid = False
         if False:
             pass
@@ -2367,19 +2376,13 @@ class RoutingGraph:
             valid = sink_node_type.can_sink
         else:
             assert False
+        return valid, msg
 
-        if not valid:
-            src_node = id2node[src_node_id]
-            sink_node = id2node[sink_node_id]
-            raise TypeError("{} -> {} not valid, {}\n{} {}\n  ->\n{} {}".format(
-                src_node_type,
-                sink_node_type,
-                msg,
-                RoutingGraphPrinter.node(src_node),
-                ET.tostring(src_node),
-                RoutingGraphPrinter.node(sink_node),
-                ET.tostring(sink_node),
-            ))
+    def _create_edge_with_ids(self, src_node_id, sink_node_id, switch, metadata={}):
+        # <edge src_node="34" sink_node="44" switch_id="1"/>
+        assert_type(src_node_id, int)
+        assert_type(sink_node_id, int)
+        assert_type(switch, Switch)
 
         edge = RoutingEdge(
             attrib={
@@ -2392,7 +2395,6 @@ class RoutingGraph:
             edge.set_metadata(k, v)
 
         self._add_xml_element(edge)
-        return edge
 
     def create_edge_with_nodes(self, src_node, sink_node, switch, metadata={}, bidir=None):
         """Create an RoutingEdge between given two RoutingNodes.
@@ -2413,7 +2415,7 @@ class RoutingGraph:
         assert_type(sink_node, ET._Element)
         assert_eq(sink_node.tag, "node")
 
-        return self.create_edge_with_ids(
+        self.create_edge_with_ids(
             self._get_xml_id(src_node),
             self._get_xml_id(sink_node),
             switch,
@@ -2851,7 +2853,6 @@ class Graph:
 
         self.channels.to_xml(self._xml_graph)
         return self._xml_graph
-
 
     def connect_all(self, start, end, name, segment, metadata={}, spine=None, switch=None):
         """Add a track which is present at all tiles within a range.
