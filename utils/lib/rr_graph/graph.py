@@ -414,6 +414,9 @@ class PinClassDirection(enum.Enum):
     def __repr__(self):
         return repr(self.value)
 
+    def __str__(self):
+        return str(enum.Enum.__str__(self)).replace("PinClassDirection", "PCD")
+
 
 class PinClass(MostlyReadOnly):
     """
@@ -584,7 +587,7 @@ class PinClass(MostlyReadOnly):
         return "{}.PinClass({}, [{}])".format(
             self.block_type_name,
             self.direction,
-            ", ".join(str(i) for i in sorted(self.pins.items())),
+            ", ".join(str(i) for i in sorted(self.pins)),
         )
 
     def _add_pin(self, pin):
@@ -2011,6 +2014,9 @@ class RoutingGraph:
         FIXME: Add example.
 
         """
+        assert_type(name, str)
+        assert_type_or_none(pos, Position)
+
         r = _DEFAULT_MARKER
         if pos is not None:
             r = self.localnames.get((pos, name), _DEFAULT_MARKER)
@@ -2274,7 +2280,7 @@ class RoutingGraph:
 
         return node
 
-    def create_edge_with_ids(self, src_node_id, sink_node_id, switch, metadata={}):
+    def create_edge_with_ids(self, src_node_id, sink_node_id, switch, metadata={}, bidir=None):
         """Create an RoutingEdge between given IDs for two RoutingNodes.
 
         Parameters
@@ -2312,6 +2318,21 @@ class RoutingGraph:
           ->
         4 X000Y010[00].SINK-< b'<node capacity="1" id="4" type="SINK"><loc ptc="0" xhigh="0" xlow="0" yhigh="10" ylow="10"/><timing C="0" R="0"/></node>'
         """
+        edgea = self._create_edge_with_ids(src_node_id, sink_node_id, switch, metadata)
+        sw_bidir = switch.type in (SwitchType.SHORT, SwitchType.PASS_GATE)
+        if bidir is None:
+            bidir = sw_bidir
+        elif sw_bidir:
+            assert bidir, "Switch type {} must be bidir ({})".format(
+                switch, (sink_node_id, src_node_id))
+
+        if bidir:
+            edgeb = self._create_edge_with_ids(sink_node_id, src_node_id, switch, metadata)
+            return edgea, edgeb
+        else:
+            return edgea
+
+    def _create_edge_with_ids(self, src_node_id, sink_node_id, switch, metadata={}):
         # <edge src_node="34" sink_node="44" switch_id="1"/>
         assert_type(src_node_id, int)
         assert_type(sink_node_id, int)
@@ -2348,12 +2369,16 @@ class RoutingGraph:
             assert False
 
         if not valid:
-            raise TypeError("{} -> {} not valid, {}\n{}\n  ->\n{}".format(
+            src_node = id2node[src_node_id]
+            sink_node = id2node[sink_node_id]
+            raise TypeError("{} -> {} not valid, {}\n{} {}\n  ->\n{} {}".format(
                 src_node_type,
                 sink_node_type,
                 msg,
-                ET.tostring(id2node[src_node_id]),
-                ET.tostring(id2node[sink_node_id]),
+                RoutingGraphPrinter.node(src_node),
+                ET.tostring(src_node),
+                RoutingGraphPrinter.node(sink_node),
+                ET.tostring(sink_node),
             ))
 
         edge = RoutingEdge(
@@ -2369,7 +2394,7 @@ class RoutingGraph:
         self._add_xml_element(edge)
         return edge
 
-    def create_edge_with_nodes(self, src_node, sink_node, switch):
+    def create_edge_with_nodes(self, src_node, sink_node, switch, metadata={}, bidir=None):
         """Create an RoutingEdge between given two RoutingNodes.
 
         Parameters
@@ -2389,7 +2414,11 @@ class RoutingGraph:
         assert_eq(sink_node.tag, "node")
 
         return self.create_edge_with_ids(
-            self._get_xml_id(src_node), self._get_xml_id(sink_node), switch)
+            self._get_xml_id(src_node),
+            self._get_xml_id(sink_node),
+            switch,
+            metadata=metadata,
+            bidir=bidir)
 
 
 def pin_meta_always_right(*a, **kw):
@@ -2606,7 +2635,8 @@ class Graph:
 
         if self.verbose:
             print("Adding pin {:55s} on tile ({:12s}, {:12s})@{:4d} {}".format(
-                str(pin), str(pos), str(pos), pin.ptc, pin))
+                str(pin), str(pos), str(pos), pin.ptc,
+                RoutingGraphPrinter.node(pin_node, self.block_grid)))
 
         self.routing.localnames.add(pos, pin.name, pin_node)
 
@@ -2675,6 +2705,11 @@ class Graph:
             sink_node = self.routing.create_node(
                 pos_low, pos_high, pin.ptc, 'SINK')
 
+            if self.verbose:
+                print("Adding snk {:55s} on tile ({:12s}, {:12s}) {}".format(
+                    str(pin_class), str(pos_low), str(pos_high),
+                    RoutingGraphPrinter.node(sink_node, self.block_grid)))
+
             for p in pin_class.pins:
                 pin_node = self.create_node_from_pin(block, p, *pin_meta(block, p))
 
@@ -2686,6 +2721,11 @@ class Graph:
             # Source node
             src_node = self.routing.create_node(
                 pos_low, pos_high, pin.ptc, 'SOURCE')
+
+            if self.verbose:
+                print("Adding src {:55s} on tile ({:12s}, {:12s}) {}".format(
+                    str(pin_class), str(pos_low), str(pos_high),
+                    RoutingGraphPrinter.node(src_node, self.block_grid)))
 
             for p in pin_class.pins:
                 pin_node = self.create_node_from_pin(block, p, *pin_meta(block, p))
@@ -2742,17 +2782,6 @@ class Graph:
             self.routing.create_edge_with_nodes(pin_node, track_node, switch)
         else:
             self.routing.create_edge_with_nodes(track_node, pin_node, switch)
-
-    def connect_track_to_track(self, src, dst, switch):
-        assert_type(src, Track)
-        assert_type(dst, Track)
-        src_node = self.routing.globalnames[src.name]
-        dst_node = self.routing.globalnames[dst.name]
-        self.routing.create_edge_with_nodes(src_node, dst_node, switch)
-
-    def connect_track_to_track_bidir(self, tracka, trackb, switch):
-        self.connect_track_to_track(tracka, trackb, switch)
-        self.connect_track_to_track(trackb, tracka, switch)
 
     def create_xy_track(self,
                         start,
@@ -2822,6 +2851,75 @@ class Graph:
 
         self.channels.to_xml(self._xml_graph)
         return self._xml_graph
+
+
+    def connect_all(self, start, end, name, segment, metadata={}, spine=None, switch=None):
+        """Add a track which is present at all tiles within a range.
+
+        Returns:
+            List of ET.RoutingNode
+        """
+        assert_type(start, Position)
+        assert_type(end, Position)
+        assert_type(name, str)
+        assert_type(segment, Segment)
+        assert_type(metadata, dict)
+        assert_type_or_none(spine, int)
+        if spine is None:
+            spine = start.y + (end.y-start.y)//2
+
+        assert start.x <= end.x, "x - {} < {}".format(start, end)
+        assert start.y <= end.y, "y - {} < {}".format(start, end)
+
+        if switch is None:
+            switch = self.switches["short"]
+
+        # Vertical wires
+        v_tracks = []
+        for x in range(start.x, end.x+1):
+            spos = Position(x, start.y)
+            epos = Position(x, end.y)
+            track, track_node = self.create_xy_track(
+                spos, epos,
+                segment=segment,
+                typeh=Track.Type.Y,
+                direction=Track.Direction.BI)
+            v_tracks.append(track_node)
+
+            for k, v in metadata.items():
+                track_node.set_metadata(k, v)
+
+            for y in range(start.y, end.y+1):
+                pos = Position(x, y)
+                self.routing.localnames.add(
+                    pos, name, track_node)
+
+        # One horizontal wire
+        spos = Position(start.x, spine)
+        epos = Position(end.x, spine)
+        track, track_node = self.create_xy_track(
+            spos, epos,
+            segment=segment,
+            typeh=Track.Type.X,
+            direction=Track.Direction.BI)
+
+        for k, v in metadata.items():
+            track_node.set_metadata(k, v)
+
+        for x in range(start.x, end.x+1):
+            pos = Position(x, spine)
+            self.routing.localnames.add(
+                pos, name+"_h", track_node)
+
+        assert_eq(len(v_tracks), len(range(start.x, end.x+1)))
+        # Connect the vertical wires to the horizontal one to make a single
+        # global network
+        for i, x in enumerate(range(start.x, end.x+1)):
+            pos = Position(x, spine)
+            self.routing.create_edge_with_nodes(
+                v_tracks[i], track_node, switch, bidir=True)
+
+        return v_tracks + [track_node]
 
 
 def simple_test_routing():
