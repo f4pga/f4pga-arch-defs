@@ -280,8 +280,6 @@ def group_seg_type(group):
 
     assert types, "No group types for {}".format(group)
 
-    logging.debug(group, types)
-
     if len(types) > 1:
         logging.warn("Multiple types (%s) found for group %s", types, group)
         filtered_types = {k: v for k,v in types.items() if v > 1}
