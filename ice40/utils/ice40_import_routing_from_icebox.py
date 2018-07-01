@@ -137,6 +137,7 @@ def pos_icebox2vprpin(pos):
 
 class RunOnStr:
     """Don't run function until a str() is called."""
+
     def __init__(self, f, *args, **kw):
         self.f = f
         self.args = args
@@ -354,13 +355,13 @@ def add_pin_aliases(g, ic):
             blocki)] = 'io_{}/cen'.format(blocki)
         name_rr2local['BLK_TL-PIO.[{}]INCLK[0]'.format(
             blocki)] = 'io_{}/inclk'.format(blocki)
-        name_rr2local['BLK_TL-PIO.[{}]D_IN_0[0]'.format(
+        name_rr2local['BLK_TL-PIO.[{}]D_IN[0]'.format(
             blocki)] = 'io_{}/D_IN_0'.format(blocki)
-        name_rr2local['BLK_TL-PIO.[{}]D_IN_1[0]'.format(
+        name_rr2local['BLK_TL-PIO.[{}]D_IN[1]'.format(
             blocki)] = 'io_{}/D_IN_1'.format(blocki)
-        name_rr2local['BLK_TL-PIO.[{}]D_OUT_0[0]'.format(
+        name_rr2local['BLK_TL-PIO.[{}]D_OUT[0]'.format(
             blocki)] = 'io_{}/D_OUT_0'.format(blocki)
-        name_rr2local['BLK_TL-PIO.[{}]D_OUT_1[0]'.format(
+        name_rr2local['BLK_TL-PIO.[{}]D_OUT[1]'.format(
             blocki)] = 'io_{}/D_OUT_1'.format(blocki)
         name_rr2local['BLK_TL-PIO.[{}]OUT_ENB[0]'.format(
             blocki)] = 'io_{}/OUT_ENB'.format(blocki)
@@ -403,27 +404,42 @@ def add_pin_aliases(g, ic):
                 pin_pos = block.position + ram_pin_offset(pin)
             else:
                 pin_pos = block.position
-            ipos = pos_vpr2icebox(PositionVPR(*pin_pos))
-
-            hlc_name = name_rr2local.get(pin.xmlname, group_hlc_name([(ipos, pin.name)]))
+            vpos = PositionVPR(*pin_pos)
+            ipos = pos_vpr2icebox(vpos)
 
             node = g.routing.localnames[(pin_pos, pin.name)]
             node.set_metadata("hlc_coord", "{},{}".format(*ipos))
+
+            logging.debug("On %s for %s", vpos, format_node(g, node))
+
+            hlc_name = name_rr2local.get(
+                pin.xmlname, group_hlc_name([(ipos, pin.name)]))
+            logging.debug(
+                " Setting local name %s on %s for %s",
+                hlc_name, vpos, format_node(g, node))
+            g.routing.localnames.add(vpos, hlc_name, node)
             node.set_metadata("hlc_name", hlc_name)
 
             rr_name = pin.xmlname
             try:
                 localname = name_rr2local[rr_name]
             except KeyError:
-                logging.warn("rr_name %s doesn't have a translation", rr_name)
+                logging.warn(
+                    "On %s rr_name %s doesn't have a translation",
+                    ipos, rr_name)
                 continue
 
             # FIXME: only add for actual position instead for all
-            logging.debug(
-                "Adding alias %s:%s for %s",
-                PositionVPR(*block.position), localname, format_node(g, node))
-            g.routing.localnames.add(pin_pos, localname, node)
-            g.routing.localnames.add(pin_pos, hlc_name, node)
+            if localname == hlc_name:
+                logging.debug(
+                    " Local name %s same as hlc_name on %s for %s",
+                    localname, vpos, format_node(g, node))
+            else:
+                assert False, "{} != {}".format(localname, hlc_name)
+                logging.debug(
+                    " Setting local name %s on %s for %s",
+                    localname, vpos, format_node(g, node))
+                g.routing.localnames.add(vpos, localname, node)
 
 
 def add_dummy_tracks(g, ic):
@@ -754,7 +770,7 @@ Remaining: %s""", skipped, fgroup)
             vpos = pos_icebox2vpr(pos)
             g.routing.localnames.add(vpos, netname, track_node)
             logging.debug(
-                " Setting local  name %s on %s for %s",
+                " Setting local name %s on %s for %s",
                 netname, vpos, track_fmt)
 
 
@@ -838,20 +854,45 @@ def print_nodes_edges(g):
           (len(g.routing._xml_parent(graph.RoutingNode)),
            len(g.routing.id2element[graph.RoutingNode])))
 
-
+# DEBUG:root:On PI(25,13) skipping entry [!B2[0],!B2[1],B2[2],!B3[0],!B3[2] buffer glb_netwk_0 ram/RCLK]: dst missing PV(27,15):glb_netwk_0 (glb_netwk_0) node X027Y002<|125|>X027Y035 => *PV(27,15):ram/RCLK* (ram/RCLK) node None
+# DEBUG:root:On PV(27,16) for 72973 X027Y015_BLK_TL-RAM[74].RCLK[0]-R-PIN<
+# DEBUG:root: Setting local name ram/RCLK on PV(27,16) for 72973 X027Y015_BLK_TL-RAM[74].RCLK[0]-R-PIN<
+# DEBUG:root: Local name ram/RCLK same as hlc_name on PV(27,16) for 72973 X027Y015_BLK_TL-RAM[74].RCLK[0]-R-PIN<
 def ram_pin_offset(pin):
-    top_pins = ["RADDR", "RCLKE", "RCLK", "RE"]
-    bot_pins = ["WADDR", "WCLKE", "WCLK", "WE"]
-    if pin.port_name in top_pins or (
-            pin.port_name in ["RDATA", "MASK", "WDATA"] and
-            pin.port_index in range(8,16)):
+    ram_pins_0to8 = ["WADDR[0]", "WCLKE[0]", "WCLK[0]", "WE[0]"]
+    for i in range(8):
+        ram_pins_0to8.extend([
+            "RDATA[{}]".format(i),
+            "MASK[{}]".format(i),
+            "WDATA[{}]".format(i),
+        ])
+    ram_pins_0to8.extend(['WADDR[{}]'.format(i) for i in range(0, 11)])
+
+    ram_pins_8to16 = ["RCLKE[0]", "RCLK[0]", "RE[0]"]
+    for i in range(8,16):
+        ram_pins_8to16.extend([
+            "RDATA[{}]".format(i),
+            "MASK[{}]".format(i),
+            "WDATA[{}]".format(i),
+        ])
+    ram_pins_8to16.extend(['RADDR[{}]'.format(i) for i in range(0, 11)])
+
+    if ic.device == '384':
+        assert False, "384 device doesn't have RAM!"
+    elif ic.device == '1k':
+        top_pins = ram_pins_8to16
+        bot_pins = ram_pins_0to8
+    else:
+        assert ic.device in ('5k', '8k'), "{} is unknown device".format(ic.device)
+        top_pins = ram_pins_0to8
+        bot_pins = ram_pins_8to16
+
+    if pin.name in top_pins:
         return Offset(0, 1)
-    elif pin.port_name in bot_pins or (
-            pin.port_name in ["RDATA", "MASK", "WDATA"] and
-            pin.port_index in range(8)):
+    elif pin.name in bot_pins:
         return Offset(0, 0)
     else:
-        assert False, "RAM pin doesn't match name expected for metadata"
+        assert False, "RAM pin {} doesn't match name expected for metadata".format(pin.name)
 
 
 def get_pin_meta(block, pin):
