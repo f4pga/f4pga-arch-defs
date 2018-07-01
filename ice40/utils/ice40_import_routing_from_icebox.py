@@ -1007,12 +1007,6 @@ def main(part, read_rr_graph, write_rr_graph):
     print('Importing input g', part)
     ic, g = init(part, read_rr_graph)
 
-    short = graph.Switch(
-        id=g.switches.next_id(), type=graph.SwitchType.SHORT, name="short",
-        timing=graph.SwitchTiming(R=0, Cin=0, Cout=0, Tdel=0),
-        sizing=graph.SwitchSizing(mux_trans_size=0, buf_size=0),
-    )
-    g.add_switch(short)
     driver = graph.Switch(
         id=g.switches.next_id(), type=graph.SwitchType.BUFFER, name="driver",
         timing=graph.SwitchTiming(R=0, Cin=0, Cout=0, Tdel=0),
