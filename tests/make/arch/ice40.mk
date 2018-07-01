@@ -88,8 +88,7 @@ ifeq ($(BIT_TIME),)
 BIT_TIME ?= $(ICESTORM)/icetime/icetime
 
 $(BIT_TIME):
-	cd $(ICESTORM)/icetime
-	make
+	(cd $(ICESTORM)/icetime; make PREFIX=$(TOP_DIR)/env/conda icetime)
 endif
 BIT_TIME_CMD = $(BIT_TIME) -v -t -p $(INPUT_IO_FILE) -d $(DEVICE) $(OUT_BITSTREAM) -o $(OUT_TIME_VERILOG)
 
@@ -102,7 +101,7 @@ EQUIV_CHECK_SCRIPT = rename top gate; $(EQUIV_READ); rename top gold; hierarchy;
 ARACHNE_PNR ?= arachne-pnr
 
 OUT_BLIF=$(OUT_LOCAL)/$(SOURCE).blif
-arachne-pnr: | $(OUT_LOCAL)
+arachne-pnr: $(BIT_TIME) | $(OUT_LOCAL)
 	mkdir -p $(OUT_LOCAL)
 	$(YOSYS) -p "synth_ice40 -nocarry -blif $(OUT_BLIF)" $(SOURCE_F)
 	$(ARACHNE_PNR) -d $(ICE_DEVICE) \
