@@ -1223,6 +1223,26 @@ class Switch(MostlyReadOnly):
         self._timing = timing
         self._sizing = sizing
 
+    def to_xml(self, parent_node):
+        sw_node = ET.Element("switch", attrib={
+            "id": str(self._id),
+            "name": self._name,
+            "type": self._type.value,
+        })
+        ET.SubElement(sw_node, "timing", attrib={
+            "R": str(self._timing.R),
+            "Cin": str(self._timing.Cin),
+            "Cout": str(self._timing.Cout),
+            "Tdel": str(self._timing.Tdel),
+        })
+        ET.SubElement(sw_node, "sizing", attrib={
+            "mux_trans_size": str(self._sizing.mux_trans_size),
+            "buf_size": str(self._sizing.buf_size),
+        })
+        if parent_node is not None:
+            parent_node.append(sw_node)
+        return sw_node
+
     @classmethod
     def from_xml(cls, switch_xml):
         """Create Switch object from an ET._Element XML node.
@@ -1244,8 +1264,14 @@ class Switch(MostlyReadOnly):
         ...  <sizing mux_trans_size="2.63073993" buf_size="27.6459007"/>
         ... </switch>
         ... '''
-        >>> Switch.from_xml(ET.fromstring(xml_string))
-        Switch(id=0, name='buffer', type=<SwitchType.MUX: 'mux'>, buffered=True, configurable=True, timing=SwitchTiming(R=551.0, Cin=7.70000012e-16, Cout=4.00000001e-15, Tdel=4.00000001e-15), sizing=SwitchSizing(mux_trans_size=2.63073993, buf_size=27.6459007))
+        >>> sw = Switch.from_xml(ET.fromstring(xml_string))
+        >>> sw
+        Switch(id=0, name='buffer', type=<SwitchType.MUX: 'mux'>, timing=SwitchTiming(R=551.0, Cin=7.70000012e-16, Cout=4.00000001e-15, Tdel=4.00000001e-15), sizing=SwitchSizing(mux_trans_size=2.63073993, buf_size=27.6459007))
+        >>> print(ET.tostring(sw.to_xml(None), pretty_print=True).decode('utf-8').strip())
+        <switch id="0" name="buffer" type="mux">
+          <timing Cin="7.70000012e-16" Cout="4.00000001e-15" R="551.0" Tdel="4.00000001e-15"/>
+          <sizing buf_size="27.6459007" mux_trans_size="2.63073993"/>
+        </switch>
         """
         assert_type(switch_xml, ET._Element)
         sw_id = int(switch_xml.attrib.get('id'))
@@ -2588,6 +2614,12 @@ class Graph:
 
     def _import_xml_channels(self):
         self.channels.from_xml_nodes(self.routing._xml_parent(RoutingNode))
+
+    def add_switch(self, sw):
+        assert_type(sw, Switch)
+        self.switches.add(sw)
+        switches = single_element(self._xml_graph, "./switches")
+        sw.to_xml(switches)
 
     def create_block_pins_fabric(self, switch=None, pin_meta=pin_meta_always_right):
         if switch is None:
