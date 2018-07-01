@@ -1,10 +1,10 @@
 <!-- set: ai sw=1 ts=1 sta et -->
 <pb_type name="BLK_TL-PIO" capacity="2" xmlns:xi="http://www.w3.org/2001/XInclude">
  <!-- SB_IO inputs   -->
- <output name="D_IN" num_pins="2" equivalent="false"/>
+ <output name="D_IN" num_pins="2"/>
 
  <!-- SB_IO outputs -->
- <input  name="D_OUT" num_pins="2" equivalent="false"/>
+ <input  name="D_OUT" num_pins="2"/>
 
  <!-- Control signals -->
  <input  name="OUT_ENB" num_pins="1"/>
