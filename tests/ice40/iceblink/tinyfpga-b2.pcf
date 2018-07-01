@@ -1,25 +1,10 @@
-set_io pin13 J1
-#set_io pin15_sdi H7
-set_io pin1_usb_dp A3
-#set_io pin20 E8
-set_io pin2_usb_dn A4
-#set_io pin4 B2
-#set_io pin10 E1
-#set_io pin18 D9
-#set_io pin7 B1
-#set_io pin11 G1
-#set_io pin19 C9
-#set_io pin22 A8
-#set_io pin6 A1
-#set_io pin12 H1
-#set_io pin16_sck G7
-#set_io pin21 A9
-#set_io pin5 A2
-#set_io pin9 D1
-#set_io pin14_sdo G6
-#set_io pin24 A6
-#set_io pin8 C1
-#set_io pin17_ss F7
-#set_io pin23 A7
-set_io pin3_clk_16mhz B4
-
+set_io LED5 J1 # pin13
+set_io LED4 H1 # pin12
+set_io LED3 G1 # pin11
+set_io LED2 E1 # pin10
+set_io clk B4
+# clock signal
+# set_io clk B4
+# set_io clk B5
+# set_io clk C4
+# set_io clk C5
