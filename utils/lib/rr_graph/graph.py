@@ -1343,28 +1343,28 @@ class RoutingGraphPrinter:
         ...   <timing R="0" C="0"/>
         ... </node>
         ... '''))
-        'X000Y003[00].SINK-<'
+        '0 X000Y003[00].SINK-<'
         >>> RoutingGraphPrinter.node(ET.fromstring('''
         ... <node id="1" type="SOURCE" capacity="1">
         ...   <loc xlow="1" ylow="2" xhigh="1" yhigh="2" ptc="1"/>
         ...   <timing R="0" C="0"/>
         ... </node>
         ... '''))
-        'X001Y002[01].SRC-->'
+        '1 X001Y002[01].SRC-->'
         >>> RoutingGraphPrinter.node(ET.fromstring('''
         ... <node id="2" type="IPIN" capacity="1">
         ...   <loc xlow="2" ylow="1" xhigh="2" yhigh="1" side="TOP" ptc="0"/>
         ...   <timing R="0" C="0"/>
         ... </node>
         ... '''))
-        'X002Y001[00].T-PIN<'
+        '2 X002Y001[00].T-PIN<'
         >>> RoutingGraphPrinter.node(ET.fromstring('''
         ... <node id="6" type="OPIN" capacity="1">
         ...   <loc xlow="3" ylow="0" xhigh="3" yhigh="0" side="RIGHT" ptc="1"/>
         ...   <timing R="0" C="0"/>
         ... </node>
         ... '''))
-        'X003Y000[01].R-PIN>'
+        '6 X003Y000[01].R-PIN>'
 
         With a block graph, the name will include the block type.
         >>> bg = simple_test_block_grid()
@@ -1374,28 +1374,28 @@ class RoutingGraphPrinter:
         ...   <timing R="0" C="0"/>
         ... </node>
         ... '''), bg)
-        'X000Y003_INBLOCK[00].C[3:0]-SINK-<'
+        '0 X000Y003_INBLOCK[00].C[3:0]-SINK-<'
         >>> RoutingGraphPrinter.node(ET.fromstring('''
         ... <node id="1" type="SOURCE" capacity="1">
         ...   <loc xlow="1" ylow="2" xhigh="1" yhigh="2" ptc="1"/>
         ...   <timing R="0" C="0"/>
         ... </node>
         ... '''), bg)
-        'X001Y002_DUALBLK[01].B[0]-SRC-->'
+        '1 X001Y002_DUALBLK[01].B[0]-SRC-->'
         >>> RoutingGraphPrinter.node(ET.fromstring('''
         ... <node id="2" type="IPIN" capacity="1">
         ...   <loc xlow="2" ylow="1" xhigh="2" yhigh="1" side="TOP" ptc="0"/>
         ...   <timing R="0" C="0"/>
         ... </node>
         ... '''), bg)
-        'X002Y001_DUALBLK[00].A[0]-T-PIN<'
+        '2 X002Y001_DUALBLK[00].A[0]-T-PIN<'
         >>> RoutingGraphPrinter.node(ET.fromstring('''
         ... <node id="6" type="OPIN" capacity="1">
         ...   <loc xlow="3" ylow="0" xhigh="3" yhigh="0" side="RIGHT" ptc="1"/>
         ...   <timing R="0" C="0"/>
         ... </node>
         ... '''), bg)
-        'X003Y000_OUTBLOK[01].D[1]-R-PIN>'
+        '6 X003Y000_OUTBLOK[01].D[1]-R-PIN>'
 
         Edges don't require a block graph, as they have the full information on
         the node.
@@ -1406,7 +1406,7 @@ class RoutingGraphPrinter:
         ...   <segment segment_id="1"/>
         ... </node>
         ... '''))
-        'X003Y000--04->X003Y000'
+        '372 X003Y000--04->X003Y000'
         >>> RoutingGraphPrinter.node(ET.fromstring('''
         ... <node capacity="1" direction="DEC_DIR" id="373" type="CHANY">
         ...   <loc ptc="5" xhigh="3" xlow="3" yhigh="0" ylow="0"/>
@@ -1414,7 +1414,7 @@ class RoutingGraphPrinter:
         ...   <segment segment_id="1"/>
         ... </node>
         ... '''))
-        'X003Y000<|05||X003Y000'
+        '373 X003Y000<|05||X003Y000'
         >>> RoutingGraphPrinter.node(ET.fromstring('''
         ... <node capacity="1" direction="BI_DIR" id="374" type="CHANX">
         ...   <loc ptc="5" xhigh="3" xlow="3" yhigh="0" ylow="0"/>
@@ -1422,7 +1422,7 @@ class RoutingGraphPrinter:
         ...   <segment segment_id="1"/>
         ... </node>
         ... '''))
-        'X003Y000<-05->X003Y000'
+        '374 X003Y000<-05->X003Y000'
 
         'X002Y003_BT[00].T-PIN<'
         'X002Y003_BT[00].L-PIN<'
@@ -1456,6 +1456,7 @@ class RoutingGraphPrinter:
         else:
             block = None
 
+        node_id = RoutingGraph._get_xml_id(xml_node)
         type_str = None
         node_type = RoutingNodeType.from_xml(xml_node)
         if False:
@@ -1468,7 +1469,8 @@ class RoutingGraphPrinter:
                 'BI_DIR': '<{f}{ptc:02d}{f}>',
             }.get(direction, None)
             assert direction_fmt, "Bad direction %s" % direction
-            return "X{:03d}Y{:03d}{}X{:03d}Y{:03d}".format(
+            return "{} X{:03d}Y{:03d}{}X{:03d}Y{:03d}".format(
+                node_id,
                 low.x, low.y,
                 direction_fmt.format(
                     f={
@@ -1519,7 +1521,7 @@ class RoutingGraphPrinter:
             ptc_str = "[{:02d}].".format(ptc)
 
         return "{id} X{x:03d}Y{y:03d}{t}{i}{s}".format(
-            id=RoutingGraph._get_xml_id(xml_node),
+            id=node_id,
             t=block_name, x=x, y=y, i=ptc_str, s=type_str)
 
     @classmethod
@@ -1550,11 +1552,11 @@ class RoutingGraphPrinter:
         >>> RoutingGraphPrinter.edge(rg, ET.fromstring('''
         ... <edge sink_node="1" src_node="0" switch_id="1"/>
         ... '''))
-        'X000Y003[00].SRC--> ->>- X000Y003||05|>X003Y000'
+        '0 X000Y003[00].SRC--> ->>- 1 X000Y003||05|>X003Y000'
         >>> RoutingGraphPrinter.edge(rg, ET.fromstring('''
         ... <edge sink_node="1" src_node="0" switch_id="1"/>
         ... '''), bg)
-        'X000Y003_INBLOCK[00].C[3:0]-SRC--> ->>- X000Y003||05|>X003Y000'
+        '0 X000Y003_INBLOCK[00].C[3:0]-SRC--> ->>- 1 X000Y003||05|>X003Y000'
         """
         src_node, snk_node = routing.nodes_for_edge(xml_node)
         if flip:
@@ -2037,15 +2039,15 @@ class RoutingGraph:
         --------
         >>> r = simple_test_routing()
         >>> RoutingGraphPrinter.node(r.get_node_by_id(0))
-        'X000Y000[00].SRC-->'
+        '0 X000Y000[00].SRC-->'
         >>> RoutingGraphPrinter.node(r.get_node_by_id(1))
-        'X000Y000[00].R-PIN>'
+        '1 X000Y000[00].R-PIN>'
         >>> RoutingGraphPrinter.node(r.get_node_by_id(2))
-        'X000Y000<-00->X000Y010'
+        '2 X000Y000<-00->X000Y010'
         >>> RoutingGraphPrinter.node(r.get_node_by_id(3))
-        'X000Y010[00].L-PIN<'
+        '3 X000Y010[00].L-PIN<'
         >>> RoutingGraphPrinter.node(r.get_node_by_id(4))
-        'X000Y010[00].SINK-<'
+        '4 X000Y010[00].SINK-<'
         >>> RoutingGraphPrinter.node(r.get_node_by_id(5))
         Traceback (most recent call last):
             ...
@@ -2069,13 +2071,13 @@ class RoutingGraph:
         --------
         >>> r = simple_test_routing()
         >>> RoutingGraphPrinter.edge(r, r.get_edge_by_id(0))
-        'X000Y000[00].SRC--> ->>- X000Y000[00].R-PIN>'
+        '0 X000Y000[00].SRC--> ->>- 1 X000Y000[00].R-PIN>'
         >>> RoutingGraphPrinter.edge(r, r.get_edge_by_id(1))
-        'X000Y000[00].R-PIN> ->>- X000Y000<-00->X000Y010'
+        '1 X000Y000[00].R-PIN> ->>- 2 X000Y000<-00->X000Y010'
         >>> RoutingGraphPrinter.edge(r, r.get_edge_by_id(2))
-        'X000Y000<-00->X000Y010 ->>- X000Y010[00].L-PIN<'
+        '2 X000Y000<-00->X000Y010 ->>- 3 X000Y010[00].L-PIN<'
         >>> RoutingGraphPrinter.edge(r, r.get_edge_by_id(3))
-        'X000Y010[00].L-PIN< ->>- X000Y010[00].SINK-<'
+        '3 X000Y010[00].L-PIN< ->>- 4 X000Y010[00].SINK-<'
         >>> r.get_edge_by_id(4)
         Traceback (most recent call last):
             ...
@@ -2125,14 +2127,14 @@ class RoutingGraph:
         >>> r = simple_test_routing()
         >>> e1 = r.get_edge_by_id(0)
         >>> RoutingGraphPrinter.edge(r, e1)
-        'X000Y000[00].SRC--> ->>- X000Y000[00].R-PIN>'
+        '0 X000Y000[00].SRC--> ->>- 1 X000Y000[00].R-PIN>'
         >>> [RoutingGraphPrinter.node(n) for n in r.nodes_for_edge(e1)]
-        ['X000Y000[00].SRC-->', 'X000Y000[00].R-PIN>']
+        ['0 X000Y000[00].SRC-->', '1 X000Y000[00].R-PIN>']
         >>> e2 = r.get_edge_by_id(1)
         >>> RoutingGraphPrinter.edge(r, e2)
-        'X000Y000[00].R-PIN> ->>- X000Y000<-00->X000Y010'
+        '1 X000Y000[00].R-PIN> ->>- 2 X000Y000<-00->X000Y010'
         >>> [RoutingGraphPrinter.node(n) for n in r.nodes_for_edge(e2)]
-        ['X000Y000[00].R-PIN>', 'X000Y000<-00->X000Y010']
+        ['1 X000Y000[00].R-PIN>', '2 X000Y000<-00->X000Y010']
         """
         src_node_id, snk_node_id = self.node_ids_for_edge(xml_node)
 
@@ -2174,9 +2176,9 @@ class RoutingGraph:
         --------
         >>> r = simple_test_routing()
         >>> [RoutingGraphPrinter.edge(r, e) for e in r.edges_for_node(r.get_node_by_id(1))]
-        ['X000Y000[00].SRC--> ->>- X000Y000[00].R-PIN>', 'X000Y000[00].R-PIN> ->>- X000Y000<-00->X000Y010']
+        ['0 X000Y000[00].SRC--> ->>- 1 X000Y000[00].R-PIN>', '1 X000Y000[00].R-PIN> ->>- 2 X000Y000<-00->X000Y010']
         >>> [RoutingGraphPrinter.edge(r, e) for e in r.edges_for_node(r.get_node_by_id(2))]
-        ['X000Y000[00].R-PIN> ->>- X000Y000<-00->X000Y010', 'X000Y000<-00->X000Y010 ->>- X000Y010[00].L-PIN<']
+        ['1 X000Y000[00].R-PIN> ->>- 2 X000Y000<-00->X000Y010', '2 X000Y000<-00->X000Y010 ->>- 3 X000Y010[00].L-PIN<']
         """
         return [self.get_edge_by_id(i) for i in self.edges_for_allnodes()[self._get_xml_id(xml_node)]]
 
@@ -2292,23 +2294,23 @@ class RoutingGraph:
         >>> sw = Switch(id=0, type=SwitchType.MUX, name="sw")
         >>> e1 = r.create_edge_with_ids(0, 1, sw)
         >>> RoutingGraphPrinter.edge(r, e1)
-        'X000Y000[00].SRC--> ->>- X000Y000[00].R-PIN>'
+        '0 X000Y000[00].SRC--> ->>- 1 X000Y000[00].R-PIN>'
 
         The code protects against invalid edge creation;
         >>> r.create_edge_with_ids(0, 2, sw)
         Traceback (most recent call last):
           ...
         TypeError: RoutingNodeType.SOURCE -> RoutingNodeType.CHANX not valid, Only SOURCE -> OPIN is valid
-        b'<node capacity="1" id="0" type="SOURCE"><loc ptc="0" xhigh="0" xlow="0" yhigh="0" ylow="0"/><timing C="0" R="0"/></node>'
+        0 X000Y000[00].SRC--> b'<node capacity="1" id="0" type="SOURCE"><loc ptc="0" xhigh="0" xlow="0" yhigh="0" ylow="0"/><timing C="0" R="0"/></node>'
           ->
-        b'<node capacity="1" direction="BI_DIR" id="2" type="CHANX"><loc ptc="0" xhigh="0" xlow="0" yhigh="10" ylow="0"/><timing C="1" R="1"/><segment segment_id="0"/></node>'
+        2 X000Y000<-00->X000Y010 b'<node capacity="1" direction="BI_DIR" id="2" type="CHANX"><loc ptc="0" xhigh="0" xlow="0" yhigh="10" ylow="0"/><timing C="1" R="1"/><segment segment_id="0"/></node>'
         >>> r.create_edge_with_ids(1, 4, sw)
         Traceback (most recent call last):
           ...
         TypeError: RoutingNodeType.OPIN -> RoutingNodeType.SINK not valid, Only OPIN -> IPIN, CHANX, CHANY (IE A sink) is valid
-        b'<node capacity="1" id="1" type="OPIN"><loc ptc="0" side="RIGHT" xhigh="0" xlow="0" yhigh="0" ylow="0"/><timing C="0" R="0"/></node>'
+        1 X000Y000[00].R-PIN> b'<node capacity="1" id="1" type="OPIN"><loc ptc="0" side="RIGHT" xhigh="0" xlow="0" yhigh="0" ylow="0"/><timing C="0" R="0"/></node>'
           ->
-        b'<node capacity="1" id="4" type="SINK"><loc ptc="0" xhigh="0" xlow="0" yhigh="10" ylow="10"/><timing C="0" R="0"/></node>'
+        4 X000Y010[00].SINK-< b'<node capacity="1" id="4" type="SINK"><loc ptc="0" xhigh="0" xlow="0" yhigh="10" ylow="10"/><timing C="0" R="0"/></node>'
         """
         # <edge src_node="34" sink_node="44" switch_id="1"/>
         assert_type(src_node_id, int)
