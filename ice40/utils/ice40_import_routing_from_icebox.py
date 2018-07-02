@@ -761,7 +761,10 @@ def add_track_with_lines(g, ic, segment, lines, connections, hlc_name_f):
             vstart, vend,
             segment=segment,
             typeh=typeh,
-            direction=channel.Track.Direction.BI)
+            direction=channel.Track.Direction.BI,
+        )
+        track_node.set_metadata("hlc_coord", "{},{}".format(*istart), offset=Offset(0, 0))
+        # FIXME: Add offset for iend
 
         # <metadata>
         #   <meta name="hlc_name">{PI( 0, 1): 'io_1/D_IN_0', PI( 1, 1): 'neigh_op_lft_2,neigh_op_lft_6'}</meta>
@@ -783,7 +786,8 @@ def add_track_with_lines(g, ic, segment, lines, connections, hlc_name_f):
 
             offset = Offset(npos.pos.x-line[0].pos.x, npos.pos.y-line[0].pos.y)
             hlc_name = hlc_name_f(line, ipos)
-            track_node.set_metadata("hlc_name", hlc_name, offset=offset)
+            if hlc_name is not None:
+                track_node.set_metadata("hlc_name", hlc_name, offset=offset)
 
             for n in npos.names:
                 try:
@@ -836,8 +840,11 @@ def add_track_with_localnames(g, ic, segment, connections, lines):
     def hlc_name_f(line, pos):
         for npos in line:
             if pos.x == npos.x and pos.y == npos.y:
-                assert len(npos.names) == 1, (line, npos)
-                return npos.names[0]
+                names = set(n for n in npos.names if not n.endswith("_x"))
+                assert len(names) <= 1, (line, npos)
+                if not names:
+                    return None
+                return names.pop()
         assert False, (line, npos, pos)
 
     new_lines = []
