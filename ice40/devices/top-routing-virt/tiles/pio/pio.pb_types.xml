@@ -24,7 +24,7 @@
     <input name="outpad" num_pins="1"/>
    </pb_type>
    <interconnect>
-    <mux name="D_OUT" input="PAD.D_OUT[0] PAD.D_OUT[1]" output="output.outpad"/>
+    <mux name="D_OUT" input="PAD.D_OUT[0]" output="output.outpad"/>
    </interconnect>
    <metadata>
     <meta name="hlc_property">disable_pull_up</meta>
@@ -50,7 +50,6 @@
    </pb_type>
    <interconnect>
     <direct name="D_IN[0]" input="input.inpad" output="PAD.D_IN[0]"/>
-    <mux    name="D_IN[1]" input="input.inpad" output="PAD.D_IN[1]"/>
     <direct name="PIN"    input="input.inpad" output="PAD.PIN"    />
    </interconnect>
    <metadata>
