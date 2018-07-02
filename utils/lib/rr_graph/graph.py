@@ -1718,19 +1718,31 @@ def _metadata(parent_node):
     return None
 
 
-def _set_metadata(parent_node, key, value):
+def _set_metadata(parent_node, key, value, offset=None):
     metadata = _metadata(parent_node)
     if metadata is None:
         metadata = ET.SubElement(parent_node, "metadata")
 
+    attribs = [("name", key)]
+    if offset:
+        attribs.append(("x_offset", str(offset.width)))
+        attribs.append(("y_offset", str(offset.height)))
+
     metanode = None
     for node in metadata.iterfind("./meta"):
-        if node.attrib["name"] == key:
+        matches = True
+        for n, v in attribs:
+            if node.attrib.get(n, None) != v:
+                matches = False
+                break
+        if matches:
             metanode = node
             break
     else:
-        metanode = ET.SubElement(metadata, "meta", attrib={"name": key})
+        metanode = ET.SubElement(metadata, "meta", attrib=dict(attribs))
 
+    for n, v in attribs:
+        metanode.attrib[n] = v
     metanode.text = str(value)
 
 
@@ -1773,8 +1785,8 @@ class RoutingNodeDir(enum.Enum):
 class RoutingNode(ET.ElementBase):
     TAG = "node"
 
-    def set_metadata(self, key, value):
-        _set_metadata(self, key, value)
+    def set_metadata(self, key, value, offset=None):
+        _set_metadata(self, key, value, offset=offset)
 
     def get_metadata(self, key, default=_get_metadata_sentry):
         return _get_metadata(self, key, default)
@@ -1783,8 +1795,8 @@ class RoutingNode(ET.ElementBase):
 class RoutingEdge(ET.ElementBase):
     TAG = "edge"
 
-    def set_metadata(self, key, value):
-        _set_metadata(self, key, value)
+    def set_metadata(self, key, value, offset=None):
+        _set_metadata(self, key, value, offset=offset)
 
     def get_metadata(self, key, default=_get_metadata_sentry):
         return _get_metadata(self, key, default)
@@ -1809,7 +1821,7 @@ class RoutingGraph:
         return node_id
 
     @staticmethod
-    def set_metadata(node, key, value):
+    def set_metadata(node, key, value, offset=None):
         """
         Examples
         --------
@@ -1867,7 +1879,7 @@ class RoutingGraph:
         '234'
 
         """
-        _set_metadata(node, key, value)
+        _set_metadata(node, key, value, offset)
 
     @staticmethod
     def get_metadata(node, key, default=_get_metadata_sentry):
@@ -2283,8 +2295,9 @@ class RoutingGraph:
             assert_type(segment_id, int)
             ET.SubElement(node, 'segment', {'segment_id': str(segment_id)})
 
-        for k, v in metadata.items():
-            node.set_metadata(k, v)
+        for offset, values in metadata.items():
+            for k, v in values.items():
+                node.set_metadata(k, v, offset=offset)
 
         self._add_xml_element(node)
 
@@ -2403,8 +2416,9 @@ class RoutingGraph:
                 'switch_id': str(switch.id)
             })
 
-        for k, v in metadata.items():
-            edge.set_metadata(k, v)
+        for offset, values in metadata.items():
+            for k, v in values.items():
+                edge.set_metadata(k, v, offset=offset)
 
         self._add_xml_element(edge)
 
@@ -2903,8 +2917,9 @@ class Graph:
                 direction=Track.Direction.BI)
             v_tracks.append(track_node)
 
-            for k, v in metadata.items():
-                track_node.set_metadata(k, v)
+            for offset, values in metadata.items():
+                for k, v in values.items():
+                    track_node.set_metadata(k, v, offset=offset)
 
             for y in range(start.y, end.y+1):
                 pos = Position(x, y)
@@ -2920,8 +2935,9 @@ class Graph:
             typeh=Track.Type.X,
             direction=Track.Direction.BI)
 
-        for k, v in metadata.items():
-            track_node.set_metadata(k, v)
+        for offset, values in metadata.items():
+            for k, v in values.items():
+                track_node.set_metadata(k, v, offset=offset)
 
         for x in range(start.x, end.x+1):
             pos = Position(x, spine)
