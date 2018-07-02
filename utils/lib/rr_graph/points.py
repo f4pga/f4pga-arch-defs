@@ -3,6 +3,7 @@
 Functions for dealing with groups of points.
 """
 
+import logging
 import math
 import string
 import sys
@@ -66,8 +67,10 @@ class StraightSegment(list):
         def __repr__(self):
             return 'StraightSegment.Type.' + self.name
 
-    def __new__(cls, direction, positions):
+    def __init__(self, direction, positions):
+        list.__init__(self, positions)
         assert_type(direction, StraightSegment.Type)
+        assert_type(positions, list)
         if direction == StraightSegment.Type.S:
             assert len(positions) == 1, (
                 "Stubs must only have one position not {}".format(positions))
@@ -80,12 +83,7 @@ class StraightSegment(list):
                     assert_eq(p[0].y, p.y)
                 else:
                     assert False, "Unknown direction {}".format(direction)
-        obj = list.__new__(cls, positions)
-        obj.direction = direction
-        return obj
-
-    def __init__(self, direction, positions):
-        pass
+        self.direction = direction
 
     @property
     def d(self):
@@ -167,6 +165,12 @@ class StraightSegment(list):
         assert self.d != StraightSegment.Type.S, self
         assert False, self
 
+    @property
+    def names(self):
+        names = []
+        for npos in self:
+            names.extend(n for n in npos.names)
+        return list(set(names))
 
 
 def straight_longest(positions):
@@ -523,7 +527,7 @@ def decompose_into_straight_lines(positions):
         'ALL': [],
     }
     # connections[position] = (namea, nameb)
-    connections = {}
+    connections = defaultdict(list)
 
     def add_segment(s, is_spine=False):
         assert len(s) > 0, (s, is_spine)
@@ -553,7 +557,7 @@ def decompose_into_straight_lines(positions):
                 s.replace(connection_p)
             else:
                 s.append(connection_p)
-            connections[p] = (current_name, new_name)
+            connections[p].append((current_name, new_name))
         s.sort()
         #print(s)
         segments['ALL'].append(s)
@@ -588,7 +592,7 @@ def decompose_into_straight_lines(positions):
         longest.sort()
         other[0].append(npclass(corner_point, [corner_name+"_x"]))
         other[0].sort()
-        connections[corner_point] = (corner_name, corner_name+"_x")
+        connections[corner_point].append((corner_name, corner_name+"_x"))
 
     """
     # FIXME: Check all the segments are connected together

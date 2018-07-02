@@ -226,12 +226,9 @@ def group_hlc_name(group):
         for name in localnames:
             assert_type(ipos, PositionIcebox)
             hlcname = icebox_asc2hlc.translate_netname(*ipos, ic.max_x-1, ic.max_y-1, name)
-            hlcnames_details.append((ipos, name, hlcname))
 
-            # Special case for the neighbourhood tracks which don't seem to have a
-            # HLC name?
-            if "_op_" in name:
-                continue
+            if hlcname != name:
+                hlcnames_details.append((ipos, name, hlcname))
 
             hlcnames[hlcname] += 1
 
@@ -241,6 +238,8 @@ def group_hlc_name(group):
     if len(hlcnames) > 1:
         logging.warn("Multiple HLC names (%s) found group %s", hlcnames, group)
         filtered_hlcnames = {k: v for k,v in hlcnames.items() if v > 1}
+        if not filtered_hlcnames:
+            return None
         assert len(filtered_hlcnames) == 1, (hlcnames, hlcnames_details)
         hlcnames = filtered_hlcnames
     assert len(hlcnames) == 1, (hlcnames, hlcnames_details)
@@ -418,14 +417,17 @@ def add_pin_aliases(g, ic):
     for block in g.block_grid:
         for pin in block.pins:
             if "RAM" in block.block_type.name:
-                pin_pos = block.position + ram_pin_offset(pin)
+                pin_offset = ram_pin_offset(pin)
+                pin_pos = block.position + pin_offset
             else:
+                pin_offset = Offset(0, 0)
                 pin_pos = block.position
+
             vpos = PositionVPR(*pin_pos)
             ipos = pos_vpr2icebox(vpos)
 
             node = g.routing.localnames[(pin_pos, pin.name)]
-            node.set_metadata("hlc_coord", "{},{}".format(*ipos))
+            node.set_metadata("hlc_coord", "{},{}".format(*ipos), offset=pin_offset)
 
             logging.debug("On %s for %s", vpos, format_node(g, node))
 
@@ -435,7 +437,7 @@ def add_pin_aliases(g, ic):
                 " Setting local name %s on %s for %s",
                 hlc_name, vpos, format_node(g, node))
             g.routing.localnames.add(vpos, hlc_name, node)
-            node.set_metadata("hlc_name", hlc_name)
+            node.set_metadata("hlc_name", hlc_name, offset=pin_offset)
 
             rr_name = pin.xmlname
             try:
@@ -726,8 +728,147 @@ def create_edge_with_names(g, src_name, dst_name, ipos, switch, skip=None, bidir
         src_node, dst_node,
         switch=switch,
         bidir=bidir,
-        metadata={"hlc_coord": "{},{}".format(*ipos)},
+        metadata={Offset(0,0):{"hlc_coord": "{},{}".format(*ipos)}},
     )
+
+
+def add_track_with_lines(g, ic, segment, lines, connections, hlc_name_f):
+    logging.debug(
+        "Created track %s from sections: %s", segment.name, len(lines))
+    logging.debug(
+        "Created track %s from sections: %s", segment.name, lines)
+    for line in lines:
+        istart, iend = points.straight_ends([p.pos for p in line])
+        logging.debug(
+            "  %s>%s (%s)", istart, iend, line) #{n for p, n in named_positions})
+    for ipos, joins in sorted(connections.items()):
+        for name_a, name_b in joins:
+            logging.debug(
+                "  %s %s<->%s", ipos, name_a, name_b)
+
+    for line in lines:
+        istart, iend = points.straight_ends([p.pos for p in line])
+        vstart, vend = pos_icebox2vpr(istart), pos_icebox2vpr(iend)
+
+        if line.direction.value == '-':
+            typeh = channel.Track.Type.X
+        elif line.direction.value == '|':
+            typeh = channel.Track.Type.Y
+        else:
+            typeh = channel.Track.Type.Y
+
+        track, track_node = g.create_xy_track(
+            vstart, vend,
+            segment=segment,
+            typeh=typeh,
+            direction=channel.Track.Direction.BI)
+
+        # <metadata>
+        #   <meta name="hlc_name">{PI( 0, 1): 'io_1/D_IN_0', PI( 1, 1): 'neigh_op_lft_2,neigh_op_lft_6'}</meta>
+        # </metadata>
+        #
+        # <metadata>
+        #   <meta name="hlc_name" x_offset="0" y_offset="1">io_1/D_IN_0</meta>
+        #   <meta name="hlc_name" x_offset="1" y_offset="1">neigh_op_lft_2</meta>
+        #   <meta name="hlc_name" x_offset="1" y_offset="1">neigh_op_lft_6</meta>
+        # </metadata>
+
+        track_fmt = format_node(g, track_node)
+        logging.debug(
+            " Created track %s %s from %s", track_fmt, segment.name, typeh)
+
+        for npos in line:
+            ipos = npos.pos
+            vpos = pos_icebox2vpr(ipos)
+
+            offset = Offset(npos.pos.x-line[0].pos.x, npos.pos.y-line[0].pos.y)
+            hlc_name = hlc_name_f(line, ipos)
+            track_node.set_metadata("hlc_name", hlc_name, offset=offset)
+
+            for n in npos.names:
+                try:
+                    g.routing.localnames[(vpos, n)]
+
+                    drv_node = g.routing.localnames[(vpos, n)]
+                    drv_fmt = str(format_node(g, drv_node))
+                    logging.debug(
+                        "  Existing node %s with local name %s on %s",
+                        drv_fmt, n, vpos)
+
+                    g.routing.localnames.add(vpos, n+"_?", track_node)
+                    if ipos in connections:
+                        continue
+                        assert ipos not in connections, (ipos, connections[ipos])
+                    connections[ipos].append((n, n+"_?"))
+                except KeyError:
+                    g.routing.localnames.add(vpos, n, track_node)
+                    logging.debug(
+                        "  Setting local name %s on %s for %s",
+                        n, vpos, track_fmt)
+
+    for ipos, joins in sorted(connections.items()):
+        logging.info("pos:%s joins:%s", ipos, joins)
+        for name_a, name_b in joins:
+            vpos = pos_icebox2vpr(ipos)
+
+            node_a = g.routing.localnames[(vpos, name_a)]
+            node_b = g.routing.localnames[(vpos, name_b)]
+
+            logging.debug(" Shorting at coords %s - %s -> %s\n\t%s\n ->\n\t%s",
+                ipos, name_a, name_b,
+                format_node(g, node_a),
+                format_node(g, node_b),
+            )
+            create_edge_with_names(
+                g,
+                name_a, name_b,
+                ipos, g.switches["short"],
+            )
+
+
+def add_track_with_globalname(g, ic, segment, connections, lines, globalname):
+    def hlc_name_f(line, offset):
+        return globalname
+    add_track_with_lines(g, ic, segment, lines, connections, hlc_name_f)
+
+
+def add_track_with_localnames(g, ic, segment, connections, lines):
+    def hlc_name_f(line, pos):
+        for npos in line:
+            if pos.x == npos.x and pos.y == npos.y:
+                assert len(npos.names) == 1, (line, npos)
+                return npos.names[0]
+        assert False, (line, npos, pos)
+
+    new_lines = []
+    for line in lines:
+        names = [n for n in line.names if not n.endswith('_x')]
+        if len(names) <= 1:
+            continue
+
+        for npos in line:
+            if len(npos.names) <= 1:
+                continue
+            fnames = [i for i in npos.names if not i.endswith("_x")]
+            if len(fnames) <= 1:
+                continue
+            logging.debug("temp - %s %s %s", npos, fnames[0], fnames[1:])
+            for name in fnames[1:]:
+                npos.names.remove(name)
+                new_pos = points.NamedPosition(npos.pos, [name])
+                new_line = points.StraightSegment(
+                    direction=line.direction, positions=[new_pos])
+                logging.debug(
+                    "npos:%s name:%s new_pos:%s new_line:%s",
+                    npos, name, new_pos, new_line)
+                new_lines.append(new_line)
+                connections[npos.pos].append((fnames[0], name))
+                assert new_lines[-1], (npos, new_lines)
+            assert npos.names, npos
+    logging.debug("new_lines: %s", new_lines)
+    lines.extend(new_lines)
+    add_track_with_lines(g, ic, segment, lines, connections, hlc_name_f)
+
 
 
 def add_tracks(g, ic, all_group_segments, segtype_filter=None):
@@ -759,86 +900,13 @@ def add_tracks(g, ic, all_group_segments, segtype_filter=None):
             logging.debug("Filtered out track group: %s", positions)
             continue
 
-        hlc_name = group_hlc_name(fpositions)
-        if not hlc_name:
-            logging.debug("Skipping unknown group? %s", group)
-            continue
-
         connections, lines = points.decompose_into_straight_lines(fpositions)
-
-        logging.debug(
-            "Created track %s from sections: %s", segtype, len(lines))
-        for line in lines:
-            istart, iend = points.straight_ends([p.pos for p in line])
-            logging.debug(
-                "  %s>%s (%s)", istart, iend, line) #{n for p, n in named_positions})
-        for ipos, (name_a, name_b) in sorted(connections.items()):
-            logging.debug(
-                "  %s %s<->%s", ipos, name_a, name_b)
-
-        for line in lines:
-            istart, iend = points.straight_ends([p.pos for p in line])
-            vstart, vend = pos_icebox2vpr(istart), pos_icebox2vpr(iend)
-
-            if line.direction.value == '-':
-                typeh = channel.Track.Type.X
-            elif line.direction.value == '|':
-                typeh = channel.Track.Type.Y
-            else:
-                typeh = channel.Track.Type.Y
-
-            track, track_node = g.create_xy_track(
-                vstart, vend,
-                segment=segment,
-                typeh=typeh,
-                direction=channel.Track.Direction.BI)
-            track_node.set_metadata("hlc_name", hlc_name)
-
-            track_fmt = format_node(g, track_node)
-            logging.debug(
-                " Created track %s %s %s from %s",
-                hlc_name, track_fmt, segment.name, typeh)
-
-            for npos in line:
-                ipos = npos.pos
-                vpos = pos_icebox2vpr(ipos)
-                for n in npos.names:
-                    try:
-                        g.routing.localnames[(vpos, n)]
-
-                        drv_node = g.routing.localnames[(vpos, n)]
-                        drv_fmt = str(format_node(g, drv_node))
-                        logging.debug(
-                            "  Existing node %s with local name %s on %s",
-                            drv_fmt, n, vpos)
-
-                        g.routing.localnames.add(vpos, n+"_?", track_node)
-                        if ipos in connections:
-                            continue
-                            assert ipos not in connections, (ipos, connections[ipos])
-                        connections[ipos] = (n, n+"_?")
-                    except KeyError:
-                        g.routing.localnames.add(vpos, n, track_node)
-                        logging.debug(
-                            "  Setting local name %s on %s for %s",
-                            n, vpos, track_fmt)
-
-        for ipos, (name_a, name_b) in sorted(connections.items()):
-            vpos = pos_icebox2vpr(ipos)
-
-            node_a = g.routing.localnames[(vpos, name_a)]
-            node_b = g.routing.localnames[(vpos, name_b)]
-
-            logging.debug(" Shorting at coords %s - %s -> %s\n\t%s\n ->\n\t%s",
-                ipos, name_a, name_b,
-                format_node(g, node_a),
-                format_node(g, node_b),
-            )
-            create_edge_with_names(
-                g,
-                name_a, name_b,
-                ipos, g.switches["short"],
-            )
+        logging.info("connections:%s lines:%s", connections, lines)
+        hlc_name = group_hlc_name(fpositions)
+        if hlc_name:
+            add_track_with_globalname(g, ic, segment, connections, lines, hlc_name)
+        else:
+            add_track_with_localnames(g, ic, segment, connections, lines)
 
 
 def add_edges(g, ic):
