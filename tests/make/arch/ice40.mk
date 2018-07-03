@@ -11,6 +11,7 @@ PACKAGE=tq144
 
 ifeq ($(PROG_TOOL),)
 PROG_TOOL=$(ICESTORM)/iceprog/iceprog
+PROG_CMD ?= $(PROG_TOOL)
 
 $(PROG_TOOL):
 	cd $(ICESTORM)/iceprog && make iceprog
@@ -42,7 +43,9 @@ DEVICE=hx8k
 PACKAGE=cm81
 
 ifeq ($(PROG_TOOL),)
-PROG_TOOL=$(CONDA)/bin/tinyfpgab
+PROG_TOOL=$(CONDA_DIR)/bin/tinyfpgab
+PROG_CMD ?= $(PROG_TOOL) --program
+
 $(PROG_TOOL):
 	pip install tinyfpgab
 
