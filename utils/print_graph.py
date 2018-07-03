@@ -51,7 +51,7 @@ def print_nodes(g, lim=None):
         return graph.RoutingGraphPrinter.node(node, g.block_grid)
 
     def edge_name(node, flip=False):
-        return graph.RoutingGraphPrinter.edge(g.routing, node, block_graph=g.block_grid, flip=flip)
+        return graph.RoutingGraphPrinter.edge(g.routing, node, block_grid=g.block_grid, flip=flip)
 
     routing = g.routing
     print('Nodes: {}, edges {}'.format(
@@ -59,6 +59,7 @@ def print_nodes(g, lim=None):
         len(routing._ids_map(graph.RoutingEdge))))
 
     nodemap = routing._ids_map(graph.RoutingNode)
+    edgemap = routing._ids_map(graph.RoutingEdge)
     node2edges = routing.edges_for_allnodes()
     for i, node_id in enumerate(sorted(node2edges.keys())):
         node = nodemap[node_id]
@@ -70,13 +71,14 @@ def print_nodes(g, lim=None):
         srcs = []
         snks = []
         for e in node2edges[node_id]:
-            src, snk = routing.nodes_for_edge(e)
+            edge = edgemap[e]
+            src, snk = routing.nodes_for_edge(edge)
             if src == node:
-                srcs.append(e)
+                srcs.append(edge)
             elif snk == node:
-                snks.append(e)
+                snks.append(edge)
             else:
-                print("!?@", edge_name(e))
+                print("!?@", edge_name(edge))
 
         print("  Sources:")
         for e in srcs:

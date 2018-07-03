@@ -1,8 +1,0 @@
-<!-- set: ai sw=1 ts=1 sta et -->
-<interconnect>
- <direct   name="in"  input="BLK_IG-FF_ARRAY.in"  output="BEL_FF-FF.in"        />
- <direct   name="out" input="BEL_FF-FF.out"       output="BLK_IG-FF_ARRAY.out" />
- <complete name="clk" input="BLK_IG-FF_ARRAY.clk" output="BEL_FF-FF.clk"       />
- <complete name="s_r" input="BLK_IG-FF_ARRAY.s_r" output="BEL_FF-FF.s_r"       />
- <complete name="cen" input="BLK_IG-FF_ARRAY.cen" output="BEL_FF-FF.cen"       />
-</interconnect>

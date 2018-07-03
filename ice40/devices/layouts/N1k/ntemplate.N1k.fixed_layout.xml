@@ -5,15 +5,15 @@
   extra empty tiles.
  -->
  <col     type="EMPTY"          startx="0"  priority="30"/>
- <col     type="BLK_TL-PIO_L"   startx="1"  priority="10"/>
+ <col     type="BLK_TL-PIO_A"   startx="1"  priority="10"/>
  <region  type="BLK_TL-PLB"     startx="2" endx="13" starty="2" endy="17" priority="4"/> <!-- Logic blocks 11x15 -->
- <col     type="BLK_TL-PIO_R"   startx="14" priority="10"/>
+ <col     type="BLK_TL-PIO_A"   startx="14" priority="10"/>
  <col     type="EMPTY"          startx="15" priority="30"/>
 
  <row     type="EMPTY"          starty="0"  priority="31"/>
- <row     type="BLK_TL-PIO_B"   starty="1"  priority="11"/>
+ <row     type="BLK_TL-PIO_A"   starty="1"  priority="11"/>
  <!--                           starty="2" endy="17" -->
- <row     type="BLK_TL-PIO_T"   starty="18" priority="11"/>
+ <row     type="BLK_TL-PIO_A"   starty="18" priority="11"/>
  <row     type="EMPTY"          starty="19" priority="31"/>
 
  <!-- Block RAM -->

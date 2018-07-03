@@ -3,18 +3,18 @@
 
  <!-- Horizontal spans ############################################### -->
  <!-- Span-4 Horizontal -->
- <input  name="i_span4_horz"   num_pins="48" equivalent="false"/>
- <output name="o_span4_horz"   num_pins="48" equivalent="false"/>
+ <input  name="i_span4_horz"   num_pins="48"/>
+ <output name="o_span4_horz"   num_pins="48"/>
 
  <!-- Span-12 Horizontal -->
- <input  name="i_span12_horz"  num_pins="24" equivalent="false"/>
- <output name="o_span12_horz"  num_pins="24" equivalent="false"/>
+ <input  name="i_span12_horz"  num_pins="24"/>
+ <output name="o_span12_horz"  num_pins="24"/>
 
  <!-- Vertical spans ################################################# -->
  <!-- Span-4 Vertical -->
- <input  name="i_span4_vert_t" num_pins="16" equivalent="false"/>
- <output name="o_span4_vert_t" num_pins="16" equivalent="false"/>
- <input  name="i_span4_vert_b" num_pins="16" equivalent="false"/>
- <output name="o_span4_vert_b" num_pins="16" equivalent="false"/>
+ <input  name="i_span4_vert_t" num_pins="16"/>
+ <output name="o_span4_vert_t" num_pins="16"/>
+ <input  name="i_span4_vert_b" num_pins="16"/>
+ <output name="o_span4_vert_b" num_pins="16"/>
 
 </pb_type>

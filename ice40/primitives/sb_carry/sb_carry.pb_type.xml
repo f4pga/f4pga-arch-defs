@@ -8,4 +8,7 @@
  <delay_constant max="10e-12" in_port="SB_CARRY.CI" out_port="SB_CARRY.CO"/>
  <delay_constant max="10e-12" in_port="SB_CARRY.I1" out_port="SB_CARRY.CO"/>
  <delay_constant max="10e-12" in_port="SB_CARRY.I0" out_port="SB_CARRY.CO"/>
+ <metadata>
+  <meta name="hlc_property">enable_carry</meta>
+ </metadata>
 </pb_type>

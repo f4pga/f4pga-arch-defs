@@ -74,7 +74,7 @@ def connect_blocks_to_tracks(g, grid_sz, rcw, switch, verbose=False):
     def connect_block_to_track(block, tracks):
         """Connect all block pins to given track"""
         assert type(block) is graph.Block, type(block)
-        for pin in block.pins():
+        for pin in block.pins:
             pin_node_xml = g.routing.localnames[(block.position, pin.name)]
             pin_side = graph.RoutingNodeSide[graph.single_element(
                 pin_node_xml, 'loc').get('side')]
@@ -154,10 +154,10 @@ def rebuild_graph(fn, fn_out, rcw=6, verbose=False):
     grid_sz = g.block_grid.size
     print("Grid size: %s" % (grid_sz, ))
     print('Exporting pin placement')
-    pin_sides = g.extract_pin_sides()
+    pin_sides, pin_offsets = g.extract_pin_meta()
 
-    def get_pin_sides(block, pin):
-        return pin_sides[(block.position, pin.name)]
+    def get_pin_meta(block, pin):
+        return (pin_sides[(block.position, pin.name)], pin_offsets[(block.position, pin.name)])
 
     print()
 
@@ -173,7 +173,7 @@ def rebuild_graph(fn, fn_out, rcw=6, verbose=False):
 
     print('Rebuilding block I/O nodes')
     g.create_block_pins_fabric(g.switches['__vpr_delayless_switch__'],
-                               get_pin_sides)
+                               get_pin_meta)
     print_nodes_edges(g)
 
     print()
@@ -186,6 +186,11 @@ def rebuild_graph(fn, fn_out, rcw=6, verbose=False):
     print()
     print("Completed rebuild")
     print_nodes_edges(g)
+
+    #short_xml = list(g._xml_graph.iterfind('//switches/switch/[@name="short"]'))[0]
+    #short_xml.attrib['configurable'] = '0'
+    #short_xml.attrib['buffered'] = '0'
+    #print("Rewrote short switch: ", ET.tostring(short_xml))
 
     if fn_out:
         print('Writing to %s' % fn_out)
