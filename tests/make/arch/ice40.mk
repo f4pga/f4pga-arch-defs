@@ -9,11 +9,26 @@ ifeq ($(BOARD),icestick)
 DEVICE=hx1k
 PACKAGE=tq144
 
-ifeq ($(PROG_CMD),)
-PROG_CMD=$(ICESTORM)/iceprog/iceprog
+ifeq ($(PROG_TOOL),)
+PROG_TOOL=$(ICESTORM)/iceprog/iceprog
 
-$(PROG_CMD):
+$(PROG_TOOL):
 	cd $(ICESTORM)/iceprog && make iceprog
+
+endif
+endif
+
+ifeq ($(BOARD),iceblink40-lp1k)
+# FIXME: Should be lp1k
+DEVICE=hx1k
+PACKAGE=qn84
+
+ifeq ($(PROG_TOOL),)
+PROG_TOOL ?= $(CONDA_DIR)/bin/iCEburn
+PROG_CMD ?= $(PROG_TOOL) -ew
+
+$(PROG_TOOL):
+	pip install -e git+https://github.com/davidcarne/iceBurn.git#egg=iceBurn
 
 endif
 endif
@@ -26,9 +41,9 @@ ifeq ($(BOARD),tinyfpga-b2)
 DEVICE=hx8k
 PACKAGE=cm81
 
-ifeq ($(PROG_CMD),)
-PROG_CMD=$(CONDA_BIN)/tinyfpgab
-$(PROG_CMD):
+ifeq ($(PROG_TOOL),)
+PROG_TOOL=$(CONDA)/bin/tinyfpgab
+$(PROG_TOOL):
 	pip install tinyfpgab
 
 endif
@@ -45,8 +60,8 @@ endif
 ifeq ($(PACKAGE),)
 $(error No $$PACKAGE set.)
 endif
-ifeq ($(PROG_CMD),)
-$(error No $$PROG_CMD set.)
+ifeq ($(PROG_TOOL),)
+$(error No $$PROG_TOOL set.)
 endif
 
 DEVICE_DIR     = $(TOP_DIR)/ice40/devices
