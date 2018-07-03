@@ -304,7 +304,7 @@ bin: $(OUT_BIN)
 	@true
 .PHONY: bin
 
-prog: $(OUT_BIN)
+prog: $(OUT_BIN) $(PROG_TOOL)
 	$(PROG_CMD) $<
 .PHONY: prog
 
