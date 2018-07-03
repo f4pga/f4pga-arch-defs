@@ -4,3 +4,6 @@
 [submodule "third_party/prjxray-db"]
 	path = third_party/prjxray-db
 	url = https://github.com/SymbiFlow/prjxray-db.git
+[submodule "third_party/icestorm"]
+	path = third_party/icestorm
+	url = https://github.com/cliffordwolf/icestorm.git

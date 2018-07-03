@@ -1,8 +1,0 @@
-<!-- set: ai sw=1 ts=1 sta et -->
-<interconnect>
- <direct name="in"  input="BEL_FF-FF.in"  output="DFF.D"         />
- <direct name="out" input="DFF.Q"         output="BEL_FF-FF.out" />
- <direct name="cen" input="BEL_FF-FF.cen" output="DFF.E"         />
- <direct name="clk" input="BEL_FF-FF.clk" output="DFF.C"         />
- <direct name="s_r" input="BEL_FF-FF.s_r" output="DFF.S"         />
-</interconnect>

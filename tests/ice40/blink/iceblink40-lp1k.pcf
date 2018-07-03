@@ -1,0 +1,5 @@
+set_io LED5 A29 # Actually LD1
+set_io LED2 B20
+set_io LED3 B19
+set_io LED4 A25
+set_io clk A9

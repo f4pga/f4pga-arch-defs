@@ -1,6 +1,0 @@
-.model top
-.inputs clk di
-.outputs do
-.latch di do re clk 0
-.cname my_ff
-.end

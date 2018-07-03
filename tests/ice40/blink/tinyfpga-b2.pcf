@@ -1,0 +1,10 @@
+set_io LED5 J1 # pin13
+set_io LED4 H1 # pin12
+set_io LED3 G1 # pin11
+set_io LED2 E1 # pin10
+set_io clk B4
+# clock signal
+# set_io clk B4
+# set_io clk B5
+# set_io clk C4
+# set_io clk C5

@@ -1,0 +1,312 @@
+<!-- set: ai sw=1 ts=1 sta et -->
+<!-- A diagram for the iCE40 PLB "Logic Cell" is shown in;
+      http://www.latticesemi.com/~/media/LatticeSemi/Documents/DataSheets/iCE/iCE40LPHXFamilyDataSheet.pdf
+      Architecture iCE40 LP/HX Family Data Sheet
+       * Figure 2-2. PLB Block Diagram
+
+     It is 8 x (SB_CARRY + SB_LUT4 + FF)
+  -->
+<pb_type name="BLK_IG-PLB" num_pb="1" xmlns:xi="http://www.w3.org/2001/XInclude">
+ <!-- SB_LUT4 inputs -->
+ <input  name="I0"     num_pins="4"/>
+ <input  name="I1"     num_pins="4"/>
+ <input  name="I2"     num_pins="4"/>
+ <input  name="I3"     num_pins="4"/>
+ <input  name="I4"     num_pins="4"/>
+ <input  name="I5"     num_pins="4"/>
+ <input  name="I6"     num_pins="4"/>
+ <input  name="I7"     num_pins="4"/>
+
+ <!-- D flip-flop outputs -->
+ <output name="O0"     num_pins="1"/>
+ <output name="O1"     num_pins="1"/>
+ <output name="O2"     num_pins="1"/>
+ <output name="O3"     num_pins="1"/>
+ <output name="O4"     num_pins="1"/>
+ <output name="O5"     num_pins="1"/>
+ <output name="O6"     num_pins="1"/>
+ <output name="O7"     num_pins="1"/>
+
+ <!-- D flip-flop controls -->
+ <clock  name="CLK"    num_pins="1"/>
+ <input  name="EN"     num_pins="1"/>
+ <input  name="SR"     num_pins="1"/>
+
+ <!-- Fast Carry chain -->
+ <input  name="FCIN"   num_pins="1"/>
+ <output name="FCOUT"  num_pins="1"/>
+
+ <pb_type name="BLK_IG-LUTFF" num_pb="8">
+  <xi:include href="../lutff/lutff.pb_type.xml" xpointer="xpointer(pb_type/child::node())"/>
+ </pb_type>
+
+ <pb_type name="BLK_IG-LC0" num_pb="1">
+  <input  name="I" num_pins="1"/>
+  <output name="O" num_pins="1"/>
+  <interconnect>
+   <direct name="I" input="BLK_IG-LC0.I" output="BLK_IG-LC0.O" />
+  </interconnect>
+  <metadata>
+   <meta name="hlc_property">lutff_0/lout -> lutff_1/in_2</meta>
+  </metadata>
+ </pb_type>
+
+ <pb_type name="BLK_IG-LC1" num_pb="1">
+  <input  name="I" num_pins="1"/>
+  <output name="O" num_pins="1"/>
+  <interconnect>
+   <direct name="I" input="BLK_IG-LC1.I" output="BLK_IG-LC1.O" />
+  </interconnect>
+  <metadata>
+   <meta name="hlc_property">lutff_1/lout -> lutff_2/in_2</meta>
+  </metadata>
+ </pb_type>
+
+ <pb_type name="BLK_IG-LC2" num_pb="1">
+  <input  name="I" num_pins="1"/>
+  <output name="O" num_pins="1"/>
+  <interconnect>
+   <direct name="I" input="BLK_IG-LC2.I" output="BLK_IG-LC2.O" />
+  </interconnect>
+  <metadata>
+   <meta name="hlc_property">lutff_2/lout -> lutff_3/in_2</meta>
+  </metadata>
+ </pb_type>
+
+ <pb_type name="BLK_IG-LC3" num_pb="1">
+  <input  name="I" num_pins="1"/>
+  <output name="O" num_pins="1"/>
+  <interconnect>
+   <direct name="I" input="BLK_IG-LC3.I" output="BLK_IG-LC3.O" />
+  </interconnect>
+  <metadata>
+   <meta name="hlc_property">lutff_3/lout -> lutff_4/in_2</meta>
+  </metadata>
+ </pb_type>
+
+ <pb_type name="BLK_IG-LC4" num_pb="1">
+  <input  name="I" num_pins="1"/>
+  <output name="O" num_pins="1"/>
+  <interconnect>
+   <direct name="I" input="BLK_IG-LC4.I" output="BLK_IG-LC4.O" />
+  </interconnect>
+  <metadata>
+   <meta name="hlc_property">lutff_4/lout -> lutff_5/in_2</meta>
+  </metadata>
+ </pb_type>
+
+ <pb_type name="BLK_IG-LC5" num_pb="1">
+  <input  name="I" num_pins="1"/>
+  <output name="O" num_pins="1"/>
+  <interconnect>
+   <direct name="I" input="BLK_IG-LC5.I" output="BLK_IG-LC5.O" />
+  </interconnect>
+  <metadata>
+   <meta name="hlc_property">lutff_5/lout -> lutff_6/in_2</meta>
+  </metadata>
+ </pb_type>
+
+ <pb_type name="BLK_IG-LC6" num_pb="1">
+  <input  name="I" num_pins="1"/>
+  <output name="O" num_pins="1"/>
+  <interconnect>
+   <direct name="I" input="BLK_IG-LC6.I" output="BLK_IG-LC6.O" />
+  </interconnect>
+  <metadata>
+   <meta name="hlc_property">lutff_6/lout -> lutff_7/in_2</meta>
+  </metadata>
+ </pb_type>
+
+ <pb_type name="BLK_IG-CLKINV" num_pb="1">
+  <clock  name="ICLK"  num_pins="1"/>
+  <output name="PCLK"  num_pins="1"/>
+  <output name="NCLK"  num_pins="1"/>
+  <mode name="POS_CLK">
+   <pb_type name="BLK_IG-CLKPOS" num_pb="1">
+    <clock  name="I" num_pins="1"/>
+    <output name="O" num_pins="1"/>
+    <interconnect>
+     <direct name="_" input="BLK_IG-CLKPOS.I" output="BLK_IG-CLKPOS.O" />
+    </interconnect>
+    <metadata>
+     <meta name="hlc_property"># Positive Clk</meta>
+    </metadata>
+   </pb_type>
+   <interconnect>
+    <direct name="I" input="BLK_IG-CLKINV.ICLK" output="BLK_IG-CLKPOS.I" />
+    <direct name="O" input="BLK_IG-CLKPOS.O" output="BLK_IG-CLKINV.PCLK" />
+   </interconnect>
+  </mode>
+  <mode name="NEG_CLK">
+   <pb_type name="BLK_IG-CLKNEG" num_pb="1">
+    <clock  name="I" num_pins="1"/>
+    <output name="O" num_pins="1"/>
+    <interconnect>
+     <direct name="_" input="BLK_IG-CLKNEG.I" output="BLK_IG-CLKNEG.O" />
+    </interconnect>
+    <metadata>
+     <meta name="hlc_property">NegClk</meta>
+    </metadata>
+   </pb_type>
+   <interconnect>
+    <direct name="I" input="BLK_IG-CLKINV.ICLK" output="BLK_IG-CLKNEG.I" />
+    <direct name="O" input="BLK_IG-CLKNEG.O" output="BLK_IG-CLKINV.NCLK" />
+   </interconnect>
+  </mode>
+ </pb_type>
+
+ <interconnect>
+  <direct name="CLK"   input="BLK_IG-PLB.CLK"   output="BLK_IG-CLKINV.ICLK"   />
+
+  <!-- Cell 0 -->
+  <direct name="I0[0]" input="BLK_IG-PLB.I0[0]"   output="BLK_IG-LUTFF[0].I[0]" />
+  <direct name="I0[1]" input="BLK_IG-PLB.I0[1]"   output="BLK_IG-LUTFF[0].I[1]" />
+  <direct name="I0[2]" input="BLK_IG-PLB.I0[2]"   output="BLK_IG-LUTFF[0].I[2]" />
+  <direct name="I0[3]" input="BLK_IG-PLB.I0[3]"   output="BLK_IG-LUTFF[0].I[3]" />
+  <direct name="PC0"   input="BLK_IG-CLKINV.PCLK" output="BLK_IG-LUTFF[0].PCLK" />
+  <direct name="NC0"   input="BLK_IG-CLKINV.NCLK" output="BLK_IG-LUTFF[0].NCLK" />
+  <direct name="E0"    input="BLK_IG-PLB.EN"      output="BLK_IG-LUTFF[0].EN"   />
+  <direct name="S0"    input="BLK_IG-PLB.SR"      output="BLK_IG-LUTFF[0].SR"   />
+  <direct name="O0"    input="BLK_IG-LUTFF[0].O"  output="BLK_IG-PLB.O0"        />
+
+  <!-- Cell 1 -->
+  <direct name="I1[0]" input="BLK_IG-PLB.I1[0]"   output="BLK_IG-LUTFF[1].I[0]" />
+  <direct name="I1[1]" input="BLK_IG-PLB.I1[1]"   output="BLK_IG-LUTFF[1].I[1]" />
+  <direct name="I1[2]" input="BLK_IG-PLB.I1[2]"   output="BLK_IG-LUTFF[1].I[2]" />
+  <direct name="I1[3]" input="BLK_IG-PLB.I1[3]"   output="BLK_IG-LUTFF[1].I[3]" />
+  <direct name="PC1"   input="BLK_IG-CLKINV.PCLK" output="BLK_IG-LUTFF[1].PCLK" />
+  <direct name="NC1"   input="BLK_IG-CLKINV.NCLK" output="BLK_IG-LUTFF[1].NCLK" />
+  <direct name="E1"    input="BLK_IG-PLB.EN"      output="BLK_IG-LUTFF[1].EN"   />
+  <direct name="S1"    input="BLK_IG-PLB.SR"      output="BLK_IG-LUTFF[1].SR"   />
+  <direct name="O1"    input="BLK_IG-LUTFF[1].O"  output="BLK_IG-PLB.O1"        />
+
+  <!-- Cell 2 -->
+  <direct name="I2[0]" input="BLK_IG-PLB.I2[0]"   output="BLK_IG-LUTFF[2].I[0]" />
+  <direct name="I2[1]" input="BLK_IG-PLB.I2[1]"   output="BLK_IG-LUTFF[2].I[1]" />
+  <direct name="I2[2]" input="BLK_IG-PLB.I2[2]"   output="BLK_IG-LUTFF[2].I[2]" />
+  <direct name="I2[3]" input="BLK_IG-PLB.I2[3]"   output="BLK_IG-LUTFF[2].I[3]" />
+  <direct name="PC2"   input="BLK_IG-CLKINV.PCLK" output="BLK_IG-LUTFF[2].PCLK" />
+  <direct name="NC2"   input="BLK_IG-CLKINV.NCLK" output="BLK_IG-LUTFF[2].NCLK" />
+  <direct name="E2"    input="BLK_IG-PLB.EN"      output="BLK_IG-LUTFF[2].EN"   />
+  <direct name="S2"    input="BLK_IG-PLB.SR"      output="BLK_IG-LUTFF[2].SR"   />
+  <direct name="O2"    input="BLK_IG-LUTFF[2].O"  output="BLK_IG-PLB.O2"        />
+
+  <!-- Cell 3 -->
+  <direct name="I3[0]" input="BLK_IG-PLB.I3[0]"   output="BLK_IG-LUTFF[3].I[0]" />
+  <direct name="I3[1]" input="BLK_IG-PLB.I3[1]"   output="BLK_IG-LUTFF[3].I[1]" />
+  <direct name="I3[2]" input="BLK_IG-PLB.I3[2]"   output="BLK_IG-LUTFF[3].I[2]" />
+  <direct name="I3[3]" input="BLK_IG-PLB.I3[3]"   output="BLK_IG-LUTFF[3].I[3]" />
+  <direct name="PC3"   input="BLK_IG-CLKINV.PCLK" output="BLK_IG-LUTFF[3].PCLK" />
+  <direct name="NC3"   input="BLK_IG-CLKINV.NCLK" output="BLK_IG-LUTFF[3].NCLK" />
+  <direct name="E3"    input="BLK_IG-PLB.EN"      output="BLK_IG-LUTFF[3].EN"   />
+  <direct name="S3"    input="BLK_IG-PLB.SR"      output="BLK_IG-LUTFF[3].SR"   />
+  <direct name="O3"    input="BLK_IG-LUTFF[3].O"  output="BLK_IG-PLB.O3"        />
+
+  <!-- Cell 4 -->
+  <direct name="I4[0]" input="BLK_IG-PLB.I4[0]"   output="BLK_IG-LUTFF[4].I[0]" />
+  <direct name="I4[1]" input="BLK_IG-PLB.I4[1]"   output="BLK_IG-LUTFF[4].I[1]" />
+  <direct name="I4[2]" input="BLK_IG-PLB.I4[2]"   output="BLK_IG-LUTFF[4].I[2]" />
+  <direct name="I4[3]" input="BLK_IG-PLB.I4[3]"   output="BLK_IG-LUTFF[4].I[3]" />
+  <direct name="PC4"   input="BLK_IG-CLKINV.PCLK" output="BLK_IG-LUTFF[4].PCLK" />
+  <direct name="NC4"   input="BLK_IG-CLKINV.NCLK" output="BLK_IG-LUTFF[4].NCLK" />
+  <direct name="E4"    input="BLK_IG-PLB.EN"      output="BLK_IG-LUTFF[4].EN"   />
+  <direct name="S4"    input="BLK_IG-PLB.SR"      output="BLK_IG-LUTFF[4].SR"   />
+  <direct name="O4"    input="BLK_IG-LUTFF[4].O"  output="BLK_IG-PLB.O4"        />
+
+  <!-- Cell 5 -->
+  <direct name="I5[0]" input="BLK_IG-PLB.I5[0]"   output="BLK_IG-LUTFF[5].I[0]" />
+  <direct name="I5[1]" input="BLK_IG-PLB.I5[1]"   output="BLK_IG-LUTFF[5].I[1]" />
+  <direct name="I5[2]" input="BLK_IG-PLB.I5[2]"   output="BLK_IG-LUTFF[5].I[2]" />
+  <direct name="I5[3]" input="BLK_IG-PLB.I5[3]"   output="BLK_IG-LUTFF[5].I[3]" />
+  <direct name="PC5"   input="BLK_IG-CLKINV.PCLK" output="BLK_IG-LUTFF[5].PCLK" />
+  <direct name="NC5"   input="BLK_IG-CLKINV.NCLK" output="BLK_IG-LUTFF[5].NCLK" />
+  <direct name="E5"    input="BLK_IG-PLB.EN"      output="BLK_IG-LUTFF[5].EN"   />
+  <direct name="S5"    input="BLK_IG-PLB.SR"      output="BLK_IG-LUTFF[5].SR"   />
+  <direct name="O5"    input="BLK_IG-LUTFF[5].O"  output="BLK_IG-PLB.O5"        />
+
+  <!-- Cell 6 -->
+  <direct name="I6[0]" input="BLK_IG-PLB.I6[0]"   output="BLK_IG-LUTFF[6].I[0]" />
+  <direct name="I6[1]" input="BLK_IG-PLB.I6[1]"   output="BLK_IG-LUTFF[6].I[1]" />
+  <direct name="I6[2]" input="BLK_IG-PLB.I6[2]"   output="BLK_IG-LUTFF[6].I[2]" />
+  <direct name="I6[3]" input="BLK_IG-PLB.I6[3]"   output="BLK_IG-LUTFF[6].I[3]" />
+  <direct name="PC6"   input="BLK_IG-CLKINV.PCLK" output="BLK_IG-LUTFF[6].PCLK" />
+  <direct name="NC6"   input="BLK_IG-CLKINV.NCLK" output="BLK_IG-LUTFF[6].NCLK" />
+  <direct name="E6"    input="BLK_IG-PLB.EN"      output="BLK_IG-LUTFF[6].EN"   />
+  <direct name="S6"    input="BLK_IG-PLB.SR"      output="BLK_IG-LUTFF[6].SR"   />
+  <direct name="O6"    input="BLK_IG-LUTFF[6].O"  output="BLK_IG-PLB.O6"        />
+
+  <!-- Cell 7 -->
+  <direct name="I7[0]" input="BLK_IG-PLB.I7[0]"   output="BLK_IG-LUTFF[7].I[0]" />
+  <direct name="I7[1]" input="BLK_IG-PLB.I7[1]"   output="BLK_IG-LUTFF[7].I[1]" />
+  <direct name="I7[2]" input="BLK_IG-PLB.I7[2]"   output="BLK_IG-LUTFF[7].I[2]" />
+  <direct name="I7[3]" input="BLK_IG-PLB.I7[3]"   output="BLK_IG-LUTFF[7].I[3]" />
+  <direct name="PC7"   input="BLK_IG-CLKINV.PCLK" output="BLK_IG-LUTFF[7].PCLK" />
+  <direct name="NC7"   input="BLK_IG-CLKINV.NCLK" output="BLK_IG-LUTFF[7].NCLK" />
+  <direct name="E7"    input="BLK_IG-PLB.EN"      output="BLK_IG-LUTFF[7].EN"   />
+  <direct name="S7"    input="BLK_IG-PLB.SR"      output="BLK_IG-LUTFF[7].SR"   />
+  <direct name="O7"    input="BLK_IG-LUTFF[7].O"  output="BLK_IG-PLB.O7"        />
+
+  <!-- LUT carry chain -->
+  <!--
+  <direct name="LCIN"  input="BLK_IG-PLB.LCIN"    output="BLK_IG-LUTFF[0].LCIN" />
+    -->
+  <direct name="LCCI0" input="BLK_IG-LUTFF[0].LCOUT" output="BLK_IG-LC0.I" />
+  <direct name="LCCI1" input="BLK_IG-LUTFF[1].LCOUT" output="BLK_IG-LC1.I" />
+  <direct name="LCCI2" input="BLK_IG-LUTFF[2].LCOUT" output="BLK_IG-LC2.I" />
+  <direct name="LCCI3" input="BLK_IG-LUTFF[3].LCOUT" output="BLK_IG-LC3.I" />
+  <direct name="LCCI4" input="BLK_IG-LUTFF[4].LCOUT" output="BLK_IG-LC4.I" />
+  <direct name="LCCI5" input="BLK_IG-LUTFF[5].LCOUT" output="BLK_IG-LC5.I" />
+  <direct name="LCCI6" input="BLK_IG-LUTFF[6].LCOUT" output="BLK_IG-LC6.I" />
+  <direct name="LCCO0" input="BLK_IG-LC0.O"          output="BLK_IG-LUTFF[1].LCIN" />
+  <direct name="LCCO1" input="BLK_IG-LC1.O"          output="BLK_IG-LUTFF[2].LCIN" />
+  <direct name="LCCO2" input="BLK_IG-LC2.O"          output="BLK_IG-LUTFF[3].LCIN" />
+  <direct name="LCCO3" input="BLK_IG-LC3.O"          output="BLK_IG-LUTFF[4].LCIN" />
+  <direct name="LCCO4" input="BLK_IG-LC4.O"          output="BLK_IG-LUTFF[5].LCIN" />
+  <direct name="LCCO5" input="BLK_IG-LC5.O"          output="BLK_IG-LUTFF[6].LCIN" />
+  <direct name="LCCO6" input="BLK_IG-LC6.O"          output="BLK_IG-LUTFF[7].LCIN" />
+  <!--
+  <direct name="LCOUT" input="BLK_IG-LUTFF[7].LCOUT" output="BLK_IG-PLB.LCOUT"  />
+    -->
+
+  <direct name="FCIN" input="BLK_IG-PLB.FCIN" output="BLK_IG-LUTFF[0].FCIN">
+   <pack_pattern name="CARRYCHAIN" in_port="BLK_IG-PLB.FCIN" out_port="BLK_IG-LUTFF[0].FCIN"/>
+  </direct>
+  <direct name="FCC0" input="BLK_IG-LUTFF[0].FCOUT" output="BLK_IG-LUTFF[1].FCIN">
+   <pack_pattern name="CARRYCHAIN" in_port="BLK_IG-LUTFF[0].FCOUT" out_port="BLK_IG-LUTFF[1].FCIN"/>
+  </direct>
+  <direct name="FCC1" input="BLK_IG-LUTFF[1].FCOUT" output="BLK_IG-LUTFF[2].FCIN">
+   <pack_pattern name="CARRYCHAIN" in_port="BLK_IG-LUTFF[1].FCOUT" out_port="BLK_IG-LUTFF[2].FCIN"/>
+  </direct>
+  <direct name="FCC2" input="BLK_IG-LUTFF[2].FCOUT" output="BLK_IG-LUTFF[3].FCIN">
+   <pack_pattern name="CARRYCHAIN" in_port="BLK_IG-LUTFF[2].FCOUT" out_port="BLK_IG-LUTFF[3].FCIN"/>
+  </direct>
+  <direct name="FCC3" input="BLK_IG-LUTFF[3].FCOUT" output="BLK_IG-LUTFF[4].FCIN">
+   <pack_pattern name="CARRYCHAIN" in_port="BLK_IG-LUTFF[3].FCOUT" out_port="BLK_IG-LUTFF[4].FCIN"/>
+  </direct>
+  <direct name="FCC4" input="BLK_IG-LUTFF[4].FCOUT" output="BLK_IG-LUTFF[5].FCIN">
+   <pack_pattern name="CARRYCHAIN" in_port="BLK_IG-LUTFF[4].FCOUT" out_port="BLK_IG-LUTFF[5].FCIN"/>
+  </direct>
+  <direct name="FCC5" input="BLK_IG-LUTFF[5].FCOUT" output="BLK_IG-LUTFF[6].FCIN">
+   <pack_pattern name="CARRYCHAIN" in_port="BLK_IG-LUTFF[5].FCOUT" out_port="BLK_IG-LUTFF[6].FCIN"/>
+  </direct>
+  <direct name="FCC6" input="BLK_IG-LUTFF[6].FCOUT" output="BLK_IG-LUTFF[7].FCIN">
+   <pack_pattern name="CARRYCHAIN" in_port="BLK_IG-LUTFF[6].FCOUT" out_port="BLK_IG-LUTFF[7].FCIN"/>
+  </direct>
+  <direct name="FCOUT" input="BLK_IG-LUTFF[7].FCOUT" output="BLK_IG-PLB.FCOUT">
+   <pack_pattern name="CARRYCHAIN" in_port="BLK_IG-LUTFF[7].FCOUT" out_port="BLK_IG-PLB.FCOUT"/>
+  </direct>
+  <!-- Fast carry chain
+  <direct name="FCIN" input="BLK_IG-PLB.FCIN" output="BLK_IG-LUTFF[0].FCIN" />
+  <direct name="FCC0" input="BLK_IG-LUTFF[0].FCOUT" output="BLK_IG-LUTFF[1].FCIN" />
+  <direct name="FCC1" input="BLK_IG-LUTFF[1].FCOUT" output="BLK_IG-LUTFF[2].FCIN" />
+  <direct name="FCC2" input="BLK_IG-LUTFF[2].FCOUT" output="BLK_IG-LUTFF[3].FCIN" />
+  <direct name="FCC3" input="BLK_IG-LUTFF[3].FCOUT" output="BLK_IG-LUTFF[4].FCIN" />
+  <direct name="FCC4" input="BLK_IG-LUTFF[4].FCOUT" output="BLK_IG-LUTFF[5].FCIN" />
+  <direct name="FCC5" input="BLK_IG-LUTFF[5].FCOUT" output="BLK_IG-LUTFF[6].FCIN" />
+  <direct name="FCC6" input="BLK_IG-LUTFF[6].FCOUT" output="BLK_IG-LUTFF[7].FCIN" />
+  <direct name="FCOUT" input="BLK_IG-LUTFF[7].FCOUT" output="BLK_IG-PLB.FCOUT" />
+       -->
+
+ </interconnect>
+
+</pb_type>

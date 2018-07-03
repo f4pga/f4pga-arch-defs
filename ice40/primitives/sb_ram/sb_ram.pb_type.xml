@@ -2,45 +2,45 @@
     <!-- Block ram  found inside the iCE40 -->
     <pb_type name="SB_RAM" num_pb="1">
      <!-- Read port -->
-     <output name="RDATA" num_pins="16" equivalent="false"/>
-     <clock  name="RCLK"  num_pins="1"  equivalent="false"/>
-     <input  name="RCLKE" num_pins="1"  equivalent="false"/>
-     <input  name="RE"    num_pins="1"  equivalent="false"/>
-     <input  name="RADDR" num_pins="11" equivalent="false"/>
+     <output name="RDATA" num_pins="16"/>
+     <clock  name="RCLK"  num_pins="1"/>
+     <input  name="RCLKE" num_pins="1"/>
+     <input  name="RE"    num_pins="1"/>
+     <input  name="RADDR" num_pins="11"/>
      <!-- Write port -->
-     <clock  name="WCLK"  num_pins="1"  equivalent="false"/>
-     <input  name="WCLKE" num_pins="1"  equivalent="false"/>
-     <input  name="WE"    num_pins="1"  equivalent="false"/>
-     <input  name="WADDR" num_pins="11" equivalent="false"/>
-     <input  name="MASK"  num_pins="16" equivalent="false"/>
-     <input  name="WDATA" num_pins="16" equivalent="false"/>
+     <clock  name="WCLK"  num_pins="1"/>
+     <input  name="WCLKE" num_pins="1"/>
+     <input  name="WE"    num_pins="1"/>
+     <input  name="WADDR" num_pins="11"/>
+     <input  name="MASK"  num_pins="16"/>
+     <input  name="WDATA" num_pins="16"/>
 
      <mode name="SB_RAM40_4K">
 <!--
      <pb_type name="SB_RAM256x16" blif_model=".subckt dual_port_ram" num_pb="1" class="memory">
-      <output name="RDATA" num_pins="16" equivalent="false" port_class="data_out1" />
-      <input  name="RADDR"    num_pins="8"  equivalent="false" port_class="address1"  />
-      <clock  name="CLK1"     num_pins="1"  equivalent="false" port_class="clock1"    />
-      <input  name="DATAIN2"  num_pins="16" equivalent="false" port_class="data_in2"  />
-      <input  name="WE2"      num_pins="1"  equivalent="false" port_class="write_en2" />
-      <input  name="WADDR"    num_pins="8"  equivalent="false" port_class="address2"  />
-      <clock  name="WCLK"     num_pins="1"  equivalent="false" port_class="clock2"    />
+      <output name="RDATA" num_pins="16" port_class="data_out1" />
+      <input  name="RADDR"    num_pins="8" port_class="address1"  />
+      <clock  name="CLK1"     num_pins="1" port_class="clock1"    />
+      <input  name="DATAIN2"  num_pins="16" port_class="data_in2"  />
+      <input  name="WE2"      num_pins="1" port_class="write_en2" />
+      <input  name="WADDR"    num_pins="8" port_class="address2"  />
+      <clock  name="WCLK"     num_pins="1" port_class="clock2"    />
 -->
       <pb_type name="SB_RAM256x16" blif_model=".subckt SB_RAM40_4K" num_pb="1">
        <!-- Read port -->
-       <output name="RDATA" num_pins="16" equivalent="false"/>
-       <clock  name="RCLK"  num_pins="1"  equivalent="false"/>
-       <input  name="RCLKE" num_pins="1"  equivalent="false"/>
-       <input  name="RE"    num_pins="1"  equivalent="false"/>
-       <input  name="RADDR" num_pins="11" equivalent="false"/>
+       <output name="RDATA" num_pins="16"/>
+       <clock  name="RCLK"  num_pins="1"/>
+       <input  name="RCLKE" num_pins="1"/>
+       <input  name="RE"    num_pins="1"/>
+       <input  name="RADDR" num_pins="11"/>
 
        <!-- Write port -->
-       <clock  name="WCLK"   num_pins="1"  equivalent="false"/>
-       <input  name="WCLKE"  num_pins="1"  equivalent="false"/>
-       <input  name="WE"     num_pins="1"  equivalent="false"/>
-       <input  name="WADDR"  num_pins="11" equivalent="false"/>
-       <input  name="MASK"   num_pins="16" equivalent="false"/>
-       <input  name="WDATA"  num_pins="16" equivalent="false"/>
+       <clock  name="WCLK"   num_pins="1"/>
+       <input  name="WCLKE"  num_pins="1"/>
+       <input  name="WE"     num_pins="1"/>
+       <input  name="WADDR"  num_pins="11"/>
+       <input  name="MASK"   num_pins="16"/>
+       <input  name="WDATA"  num_pins="16"/>
 
        <!-- Read port timing -->
        <T_setup value="50e-12" port="SB_RAM256x16.RDATA" clock="RCLK"/>

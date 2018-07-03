@@ -2,18 +2,18 @@
 <pb_type xmlns:xi="http://www.w3.org/2001/XInclude">
 
  <!-- fabout -->
- <output name="fabout" num_pins="1" equivalent="false"/>
+ <output name="fabout" num_pins="1"/>
 
  <!-- Global wires ################################################### -->
- <input  name="i_glb_netwk" num_pins="8" equivalent="false"/>
- <output name="o_glb_netwk" num_pins="8" equivalent="false"/>
+ <input  name="i_glb_netwk" num_pins="8"/>
+ <output name="o_glb_netwk" num_pins="8"/>
 
  <!-- ################################################################ -->
  <!-- # Local tracks                                                 # -->
  <!-- ################################################################ -->
  <pb_type name="BLK_XX-local_g" num_pb="2">
-  <input  name="i"  num_pins="8" equivalent="false"/>
-  <output name="o"  num_pins="8" equivalent="false"/>
+  <input  name="i"  num_pins="8"/>
+  <output name="o"  num_pins="8"/>
 
   <interconnect>
    <direct name="i_to_o" input="BLK_XX-local_g.i" output="BLK_XX-local_g.o" />
@@ -21,8 +21,8 @@
  </pb_type>
 
  <pb_type name="BLK_XX-glb_netwk" num_pb="8">
-  <input  name="i" num_pins="1" equivalent="false"/>
-  <output name="o" num_pins="1" equivalent="false"/>
+  <input  name="i" num_pins="1"/>
+  <output name="o" num_pins="1"/>
   <interconnect>
    <direct name="i_to_o" input="BLK_XX-glb_netwk.i" output="BLK_XX-glb_netwk.o" />
   </interconnect>
@@ -33,10 +33,10 @@
  <!-- ################################################################ -->
 
  <pb_type name="BLK_XX-io_global" num_pb="1">
-  <input name="i_cen" num_pins="1" equivalent="false" /><output name="o_cen" num_pins="1" equivalent="false" />
-  <clock name="i_inclk" num_pins="1" equivalent="false" /><output name="o_inclk" num_pins="1" equivalent="false" />
-  <clock name="i_outclk" num_pins="1" equivalent="false" /><output name="o_outclk" num_pins="1" equivalent="false" />
-  <input name="i_latch" num_pins="1" equivalent="false" /><output name="o_latch" num_pins="1" equivalent="false" />
+  <input name="i_cen" num_pins="1" /><output name="o_cen" num_pins="1" />
+  <clock name="i_inclk" num_pins="1" /><output name="o_inclk" num_pins="1" />
+  <clock name="i_outclk" num_pins="1" /><output name="o_outclk" num_pins="1" />
+  <input name="i_latch" num_pins="1" /><output name="o_latch" num_pins="1" />
   <interconnect>
    <direct name="EN" input="BLK_XX-io_global.i_cen" output="BLK_XX-io_global.o_cen"/>
    <direct name="ICLK" input="BLK_XX-io_global.i_inclk" output="BLK_XX-io_global.o_inclk"/>
