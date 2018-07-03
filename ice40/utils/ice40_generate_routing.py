@@ -517,7 +517,7 @@ for (tile_src, edge_src), delta, (tile_dst, edge_dst) in [
             "joiner",
         ))
 
-    if edge_dst.startswith("r_"):
+    if edge_src.startswith("r_"):
         continue
 
     # Span 12s
@@ -976,7 +976,7 @@ def generate_routing(g, verbose=False):
     bi_dir = channel.Track.Direction.BI
 
     glbshort = graph.Switch(
-        id=g.switches.next_id(), type=graph.SwitchType.MUX, name="glbshort",
+        id=g.switches.next_id(), type=graph.SwitchType.SHORT, name="glbshort",
         timing=graph.SwitchTiming(R=0, Cin=0, Cout=0, Tdel=0),
         sizing=graph.SwitchSizing(mux_trans_size=0, buf_size=0),
     )
@@ -1005,21 +1005,21 @@ def generate_routing(g, verbose=False):
     g.add_switch(package_pin)
 
     fabout = graph.Switch(
-        id=g.switches.next_id(), type=graph.SwitchType.MUX, name="fabout",
+        id=g.switches.next_id(), type=graph.SwitchType.SHORT, name="fabout",
         timing=graph.SwitchTiming(R=0, Cin=0, Cout=0, Tdel=0),
         sizing=graph.SwitchSizing(mux_trans_size=0, buf_size=0),
     )
     g.add_switch(fabout)
 
     clk = graph.Switch(
-        id=g.switches.next_id(), type=graph.SwitchType.MUX, name="clk",
+        id=g.switches.next_id(), type=graph.SwitchType.BUFFER, name="clk",
         timing=graph.SwitchTiming(R=0, Cin=0, Cout=0, Tdel=0),
         sizing=graph.SwitchSizing(mux_trans_size=0, buf_size=0),
     )
     g.add_switch(clk)
 
     cen = graph.Switch(
-        id=g.switches.next_id(), type=graph.SwitchType.MUX, name="cen",
+        id=g.switches.next_id(), type=graph.SwitchType.BUFFER, name="cen",
         timing=graph.SwitchTiming(R=0, Cin=0, Cout=0, Tdel=0),
         sizing=graph.SwitchSizing(mux_trans_size=0, buf_size=0),
     )
