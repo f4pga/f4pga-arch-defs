@@ -117,18 +117,19 @@ class PositionVPR(graph.Position):
 
 
 def pos_icebox2vpr(pos):
-    '''Convert icebox to VTR coordinate system by adding 1 for dummy blocks'''
+    """Convert icebox to VTR coordinates."""
     assert_type(pos, PositionIcebox)
     return PositionVPR(pos.x + 2, pos.y + 2)
 
 
 def pos_vpr2icebox(pos):
-    '''Convert VTR to icebox coordinate system by subtracting 1 for dummy blocks'''
+    """Convert VTR to icebox coordinates."""
     assert_type(pos, PositionVPR)
     return PositionIcebox(pos.x - 2, pos.y - 2)
 
 
 def pos_icebox2vprpin(pos):
+    """Convert icebox IO position into VTR 'pin' position."""
     if pos.x == 0:
         return PositionVPR(1, pos.y+2)
     elif pos.y == 0:
@@ -156,6 +157,7 @@ class RunOnStr:
 
 
 def format_node(g, node):
+    """A pretty string from an RoutingGraph node."""
     if node is None:
         return "None"
     assert isinstance(node, ET._Element), node
@@ -166,6 +168,7 @@ def format_node(g, node):
 
 
 def format_entry(e):
+    """A pretty string from an icebox entry."""
     try:
         bits, sw, src, dst, *args = e
     except ValueError:
@@ -178,11 +181,13 @@ def format_entry(e):
 
 
 def is_corner(ic, pos):
+    """Return if a position is the corner of an chip."""
     return pos in (
         (0, 0), (0, ic.max_y), (ic.max_x, 0), (ic.max_x, ic.max_y))
 
 
 def tiles(ic):
+    """Return all tiles on the chip (except the corners)."""
     for x in range(ic.max_x + 1):
         for y in range(ic.max_y + 1):
             p = PositionIcebox(x, y)
@@ -192,6 +197,7 @@ def tiles(ic):
 
 
 def filter_track_names(group):
+    """Filter out unusable icebox track names."""
     assert_type(group, list)
     for p in group:
         assert_type(p.pos, PositionIcebox)
@@ -218,6 +224,7 @@ def filter_track_names(group):
 
 
 def group_hlc_name(group):
+    """Get the HLC "global name" from a group local names."""
     assert_type(group, list)
     global ic
     hlcnames = defaultdict(int)
@@ -247,6 +254,7 @@ def group_hlc_name(group):
 
 
 def group_seg_type(group):
+    """Get the segment type from a group of local names."""
     assert_type(group, list)
 
     types = defaultdict(int)
@@ -292,6 +300,7 @@ def group_seg_type(group):
 
 
 def group_chan_type(group):
+    """Get the channel track type from a group of local names."""
     assert_type(group, list)
     for ipos, netname in group:
         assert_type(ipos, PositionIcebox)
@@ -334,13 +343,10 @@ def init(device_name, read_rr_graph):
 
 
 def add_pin_aliases(g, ic):
-    '''Build a list of icebox global pin names to Graph node IDs'''
+    """Create icebox local names from the architecture pin names."""
     name_rr2local = {}
 
-    # FIXME: quick attempt, not thoroughly checked
-    # BLK_TL-PLB
-    # http://www.clifford.at/icestorm/logic_tile.html
-    # http://www.clifford.at/icestorm/bitdocs-1k/tile_1_1.html
+    # BLK_TL-PLB - http://www.clifford.at/icestorm/logic_tile.html
     name_rr2local['BLK_TL-PLB.lutff_global/s_r[0]'] = 'lutff_global/s_r'
     name_rr2local['BLK_TL-PLB.lutff_global/clk[0]'] = 'lutff_global/clk'
     name_rr2local['BLK_TL-PLB.lutff_global/cen[0]'] = 'lutff_global/cen'
@@ -359,9 +365,7 @@ def add_pin_aliases(g, ic):
 
     name_rr2local['BLK_TL-PLB.FCOUT[0]'] = 'lutff_0/cout'
 
-    # BLK_TL-PIO
-    # http://www.clifford.at/icestorm/io_tile.html
-    # FIXME: filter out orientations that don't exist?
+    # BLK_TL-PIO - http://www.clifford.at/icestorm/io_tile.html
     for blocki in range(2):
         name_rr2local['BLK_TL-PIO.[{}]LATCH[0]'.format(
             blocki)] = 'io_{}/latch'.format(blocki)
@@ -384,7 +388,7 @@ def add_pin_aliases(g, ic):
         name_rr2local['BLK_TL-PIO.[{}]PACKAGE_PIN[0]'.format(
             blocki)] = 'io_{}/pin'.format(blocki)
 
-    # BLK_TL-RAM
+    # BLK_TL-RAM - http://www.clifford.at/icestorm/ram_tile.html
     for top_bottom in 'BT':
         # rdata, wdata, and mask ranges are the same based on Top/Bottom
         if top_bottom == 'T':
@@ -444,7 +448,7 @@ def add_pin_aliases(g, ic):
                 localname = name_rr2local[rr_name]
             except KeyError:
                 logging.warn(
-                    "On %s rr_name %s doesn't have a translation",
+                    "On %s - %s doesn't have a translation",
                     ipos, rr_name)
                 continue
 
@@ -480,6 +484,7 @@ def add_dummy_tracks(g, ic):
             direction=channel.Track.Direction.BI)
 
 
+# FIXME: Currently unused.
 def add_global_tracks(g, ic):
     """Add the global tracks to every channel."""
     add_dummy_tracks(g, ic)
@@ -656,6 +661,7 @@ def add_global_tracks(g, ic):
 
 
 def create_edge_with_names(g, src_name, dst_name, ipos, switch, skip=None, bidir=None):
+    """Create an edge at a given icebox position from two local names."""
     assert_type(src_name, str)
     assert_type(dst_name, str)
     assert_type(ipos, PositionIcebox)
@@ -733,6 +739,7 @@ def create_edge_with_names(g, src_name, dst_name, ipos, switch, skip=None, bidir
 
 
 def add_track_with_lines(g, ic, segment, lines, connections, hlc_name_f):
+    """Add tracks to the rr_graph from straight lines and connections."""
     logging.debug(
         "Created track %s from sections: %s", segment.name, len(lines))
     logging.debug(
@@ -802,7 +809,6 @@ def add_track_with_lines(g, ic, segment, lines, connections, hlc_name_f):
                     g.routing.localnames.add(vpos, n+"_?", track_node)
                     if ipos in connections:
                         continue
-                        assert ipos not in connections, (ipos, connections[ipos])
                     connections[ipos].append((n, n+"_?"))
                 except KeyError:
                     g.routing.localnames.add(vpos, n, track_node)
@@ -831,12 +837,14 @@ def add_track_with_lines(g, ic, segment, lines, connections, hlc_name_f):
 
 
 def add_track_with_globalname(g, ic, segment, connections, lines, globalname):
+    """Add tracks to the rr_graph from lines, connections, using a HLC global name."""
     def hlc_name_f(line, offset):
         return globalname
     add_track_with_lines(g, ic, segment, lines, connections, hlc_name_f)
 
 
 def add_track_with_localnames(g, ic, segment, connections, lines):
+    """Add tracks to the rr_graph from lines, connections, using local names (from the positions)."""
     def hlc_name_f(line, pos):
         for npos in line:
             if pos.x == npos.x and pos.y == npos.y:
@@ -879,6 +887,7 @@ def add_track_with_localnames(g, ic, segment, connections, lines):
 
 
 def add_tracks(g, ic, all_group_segments, segtype_filter=None):
+    """Adding tracks from icebox segment groups."""
     add_dummy_tracks(g, ic)
 
     for group in sorted(all_group_segments):
@@ -917,6 +926,7 @@ def add_tracks(g, ic, all_group_segments, segtype_filter=None):
 
 
 def add_edges(g, ic):
+    """Adding edges to the rr_graph from icebox edges."""
     for ipos in list(tiles(ic)):
         tile_type = ic.tile_type(*ipos)
         vpos = pos_icebox2vpr(ipos)
@@ -998,6 +1008,7 @@ def print_nodes_edges(g):
 
 
 def ram_pin_offset(pin):
+    """Get the offset for a given RAM pin."""
     # The pin split between top/bottom tiles is different on the 1k to all the
     # other parts.
     ram_pins_0to8 = ["WADDR[0]", "WCLKE[0]", "WCLK[0]", "WE[0]"]
@@ -1037,6 +1048,7 @@ def ram_pin_offset(pin):
 
 
 def get_pin_meta(block, pin):
+    """Get the offset and edge for a given pin."""
     grid_sz = PositionVPR(ic.max_x+1+4, ic.max_y+1+4)
     if "PIN" in block.block_type.name:
         if block.position.x == 1:
