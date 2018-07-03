@@ -303,8 +303,9 @@ def print_segments(segs):
         print(s)
 
 def print_conns(conns):
-    for p, (aname, bname)  in sorted(conns.items()):
-        print("{}x{} {}<->{}".format(p.x, p.y, aname, bname))
+    for p, joins  in sorted(conns.items()):
+        for (aname, bname) in joins:
+            print("{}x{} {}<->{}".format(p.x, p.y, aname, bname))
 
 
 def decompose_into_straight_lines(positions):
