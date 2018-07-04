@@ -1,6 +1,10 @@
 `include "../ff1/io_ff1.sim.v"
 `include "../ff2/io_ff2.sim.v"
+`include "../inv/io_inv.sim.v"
 
+/* Pathway into the FPGA fabric.
+ * Has 4 modes of operation.
+ */
 (* MODES = "DISABLE; DIRECT; REGISTERED; DDR" *)
 module IO_IN (
 	CLK,
@@ -14,6 +18,7 @@ module IO_IN (
 	(* CLOCK *)
 	input wire CLK;
 
+	/* Signal coming in from the IO pin */
 	input wire D_IN;
 
 	(* DELAY_CONST_D_IN="10e-12" *)
@@ -27,7 +32,7 @@ module IO_IN (
 	wire CLK_P;
 	wire CLK_N;
 	assign CLK_P = CLK;
-	assign CLK_N = ~CLK;
+	/* assign CLK_N = ~CLK; */
 
 	generate
 		if (MODE == "DISABLE") begin
@@ -39,6 +44,7 @@ module IO_IN (
 			IO_FF1 reg_d0(.clk(CLK_P), .D(D_IN), .Q(D_IN_P));
 		end
 		if (MODE == "DDR") begin
+			IO_INV #(.MODE("INVERT")) clk_inv(.I(CLK_P), .O(CLK_N));
 			IO_FF1 reg_d0(.clk(CLK_P), .D(D_IN), .Q(D_IN_P));
 			IO_FF2 reg_d1(.clk(CLK_N), .D(D_IN), .Q(D_IN_N));
 		end
