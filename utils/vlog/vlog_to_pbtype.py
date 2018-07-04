@@ -187,16 +187,12 @@ def make_pb_content(mod, xml_parent, mod_pname, is_submode=False):
             inp_cons = mod.cell_conns(cname, "input")
             for pin, net in inp_cons:
                 drvs = mod.net_drivers(net)
-                if len(drvs) == 0:
-                    print(
-                        "ERROR: pin {}.{} has no driver, interconnect will be missing".
-                        format(pb_name, pin))
-                    assert False
-                elif len(drvs) > 1:
-                    print(
-                        "ERROR: pin {}.{} has multiple drivers, interconnect will be overspecified".
-                        format(pb_name, pin))
-                    assert False
+                assert len(drvs) > 0, (
+                    "ERROR: pin {}.{} has no driver, interconnect will be missing\n{}".
+                    format(pb_name, pin, mod))
+                assert len(drvs) < 2, (
+                    "ERROR: pin {}.{} has multiple drivers, interconnect will be overspecified".
+                    format(pb_name, pin))
                 for drv_cell, drv_pin in drvs:
                     interconn.append(((drv_cell, drv_pin), (cname, pin)))
 
