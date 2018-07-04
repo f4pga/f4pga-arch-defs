@@ -1,5 +1,7 @@
+`include "../cen/io_cen.sim.v"
 `include "../in/io_in.sim.v"
 `include "../inv/io_inv.sim.v"
+`include "../latch/io_latch.sim.v"
 `include "../oe/io_oe.sim.v"
 `include "../out/io_out.sim.v"
 `include "../tri/io_tri.sim.v"
@@ -41,8 +43,10 @@ module IO_TILE (
 	/* Clock enable for both clocks */
 	input wire CLOCK_ENABLE;
 	/* Output registers clock */
+	(* CLOCK *)
 	input wire OUTPUT_CLK;
 	/* Input registers clock */
+	(* CLOCK *)
 	input wire INPUT_CLK;
 
 	/* Data from PACKAGE_PIN on rising clk edge */
@@ -112,14 +116,29 @@ module IO_TILE (
 	 */
 	parameter IO_STANDARD = "SB_LVCMOS";
 
+	/* MODES = "ON; OFF" */
+	parameter MODE_IN_CEN = "ON";
+
+	/* MODES = "ON; OFF" */
+	parameter MODE_IN_LATCH = "ON";
+
+	/* MODES = "ON; OFF" */
+	parameter MODE_OUT_CEN = "ON";
+
 	/* Input path */
 	wire iclk;
-	assign iclk = INPUT_CLK & CLOCK_ENABLE;
+	IO_CEN #(
+		.MODE(MODE_IN_CEN)
+	) in_cen(
+		.I(INPUT_CLK),
+		.EN(CLOCK_ENABLE),
+		.O(iclk),
+	);
 
 	wire din;
 	IO_IN #(
 		.MODE(MODE_IN)
-	) io_in(
+	) in_data(
 		.CLK(iclk),
 		.D_IN(din),
 		.D_IN_P(D_IN_0), .D_IN_N(D_IN_1)
@@ -127,28 +146,44 @@ module IO_TILE (
 
 	/* Output path */
 	wire oclk;
-	assign oclk = OUTPUT_CLK & CLOCK_ENABLE;
+	IO_CEN #(
+		.MODE(MODE_OUT_CEN)
+	) out_cen(
+		.I(OUTPUT_CLK),
+		.EN(CLOCK_ENABLE),
+		.O(oclk),
+	);
 
 	wire dout;
 	IO_OUT #(
 		.MODE(MODE_OUT)
-	) io_out(
+	) out_data(
 		.CLK(oclk),
 		.D_OUT_P(D_OUT_0), .D_OUT_N(D_OUT_1),
 		.D_OUT(dout),
+	);
+
+	/* "iCEGATE" input latch */
+	wire dlin;
+	IO_LATCH #(
+		.MODE(MODE_IN_LATCH)
+	) in_latch(
+		.D(dlin),
+		.EN(LATCH_INPUT_VALUE),
+		.Q(din)
 	);
 
 	/* Tristate */
 	wire oe;
 	IO_OE #(
 		.MODE(MODE_OE)
-	) io_oe(
+	) out_en(
 		.CLK(oclk),
 		.OE_I(OUTPUT_ENABLE), .OE_O(oe)
 	);
 
-	IO_TRI io_tri(
-		.I(din), .O(dout), .OE(oe),
+	IO_TRI tristate(
+		.I(dlin), .O(dout), .OE(oe),
 		.PIN_I(PACKAGE_PIN_I), .PIN_O(PACKAGE_PIN_O), .PIN_OE(PACKAGE_PIN_OE)
 	);
 
