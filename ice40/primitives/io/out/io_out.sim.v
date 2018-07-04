@@ -1,5 +1,6 @@
 `include "../ff1/io_ff1.sim.v"
 `include "../ff2/io_ff2.sim.v"
+`include "../inv/io_inv.sim.v"
 `include "../routing/rmux2/io_rmux2.sim.v"
 
 (* MODES = "DISABLE; DIRECT; REGISTERED; DDR" *)
@@ -29,7 +30,6 @@ module IO_OUT (
 	wire CLK_P;
 	wire CLK_N;
 	assign CLK_P = CLK;
-	assign CLK_N = ~CLK;
 
 	generate
 		if (MODE == "DISABLE") begin
@@ -42,6 +42,8 @@ module IO_OUT (
 			IO_FF1 reg_d0(.clk(CLK_P), .D(D_OUT_P), .Q(D_OUT));
 		end
 		if (MODE == "DDR") begin
+			IO_INV #(.MODE("INVERT")) clk_inv(.I(CLK_P), .O(CLK_N));
+
 			wire dp;
 			IO_FF1 reg_d0(.clk(CLK_P), .D(D_OUT_P), .Q(dp));
 			wire dn;

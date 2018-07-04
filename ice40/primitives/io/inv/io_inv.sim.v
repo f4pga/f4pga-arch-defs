@@ -1,3 +1,6 @@
+`ifndef IO_INV
+`define IO_INV
+
 (* MODES = "STRAIGHT; INVERT" *)
 module IO_INV (
 	I,
@@ -17,3 +20,5 @@ module IO_INV (
 		end
 	endgenerate
 endmodule
+
+`endif
