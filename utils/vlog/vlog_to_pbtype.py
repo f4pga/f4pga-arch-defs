@@ -134,6 +134,14 @@ def mod_pb_name(mod):
         return "BLK_IG-" + mod.name
 
 
+def strip_name(name):
+    if '\\' in name:
+        ts = name.find('\\')
+        tf = name.rfind('\\')
+        return name[ts+1:tf]
+    return name
+
+
 def make_pb_content(mod, xml_parent, mod_pname, is_submode=False):
     """Build the pb_type content - child pb_types, timing and direct interconnect,
     but not IO. This may be put directly inside <pb_type>, or inside <mode>."""
@@ -167,7 +175,7 @@ def make_pb_content(mod, xml_parent, mod_pname, is_submode=False):
     if (not is_blackbox) or is_submode:
         # Process cells. First build the list of cnames.
         for cname, i_of in mod.cells:
-            pb_name = i_of
+            pb_name = strip_name(i_of)
             module_file = yj.get_module_file(i_of)
             module_path = os.path.dirname(module_file)
             module_basename = os.path.basename(module_file)
