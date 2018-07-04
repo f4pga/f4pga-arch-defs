@@ -8,12 +8,17 @@ be used before outputting the JSON.
 
 import os, sys
 import json
+import pprint
 
 
 class YosysModule:
     def __init__(self, name, module_data):
         self.name = name
         self.data = module_data
+
+    def __str__(self):
+        return "YosysModule({},\n{})".format(
+            self.name, pprint.pformat(self.data))
 
     @property
     def ports(self):
@@ -48,6 +53,11 @@ class YosysModule:
                 continue
             clist.append((cell, cdata["type"]))
         return clist
+
+    @property
+    def nets(self):
+        """List the net ids avaliable in the design."""
+        return list(sorted(set(n['bits'][0] for n in self.data["netnames"].values())))
 
     def cell_type(self, cell):
         """Return the type of a given cell"""
@@ -254,3 +264,4 @@ class YosysJSON:
         src = self.module(module).attr("src")
         cpos = src.rfind(":")
         return src[0:cpos]
+
