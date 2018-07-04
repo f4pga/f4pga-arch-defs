@@ -49,6 +49,11 @@ class YosysModule:
             clist.append((cell, cdata["type"]))
         return clist
 
+    @property
+    def nets(self):
+        """List the net ids avaliable in the design."""
+        return list(sorted(set(n['bits'][0] for n in self.data["netnames"].values())))
+
     def cell_type(self, cell):
         """Return the type of a given cell"""
         for cname, cdata in self.data["cells"].items():
@@ -246,3 +251,4 @@ class YosysJSON:
         src = self.module(module).attr("src")
         cpos = src.rfind(":")
         return src[0:cpos]
+

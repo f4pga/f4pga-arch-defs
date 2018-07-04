@@ -209,6 +209,19 @@ def make_pb_content(mod, xml_parent, mod_pname, is_submode=False):
                         #in those cells.
                         interconn.append(((cname, pin), (sink_cell, sink_pin)))
 
+        # Direct pin->pin connections
+        for net in mod.nets:
+            drv = mod.conn_io(net, "input")
+            if not drv:
+                continue
+            assert len(drv) == 1, (
+                    "ERROR: net {} has multiple drivers {}, interconnect will be overspecified".
+                    format(net, drv))
+            for snk in mod.conn_io(net, "output"):
+                conn = ((mod.name, drv[0]), (mod.name,snk))
+                interconn.append(conn)
+
+
         ic_xml = ET.SubElement(xml_parent, "interconnect")
         # Process interconnect
         for source, dest in interconn:
