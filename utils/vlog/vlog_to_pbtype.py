@@ -139,6 +139,14 @@ def mod_pb_name(mod):
         return "BLK_IG-" + mod.name
 
 
+def strip_name(name):
+    if '\\' in name:
+        ts = name.find('\\')
+        tf = name.rfind('\\')
+        return name[ts+1:tf]
+    return name
+
+
 def make_pb_content(mod, xml_parent, mod_pname, is_submode=False):
     """Build the pb_type content - child pb_types, timing and direct interconnect,
     but not IO. This may be put directly inside <pb_type>, or inside <mode>."""
@@ -174,7 +182,7 @@ def make_pb_content(mod, xml_parent, mod_pname, is_submode=False):
     if (not is_blackbox) or is_submode:
         # Process cells. First build the list of cnames.
         for cname, i_of in mod.cells:
-            pb_name = i_of
+            pb_name = strip_name(i_of)
             module_file = yj.get_module_file(i_of)
             module_path = os.path.dirname(module_file)
             module_basename = os.path.basename(module_file)
@@ -196,18 +204,12 @@ def make_pb_content(mod, xml_parent, mod_pname, is_submode=False):
             inp_cons = mod.cell_conns(cname, "input")
             for pin, net in inp_cons:
                 drvs = mod.net_drivers(net)
-                if len(drvs) == 0:
-                    print(
-                        "ERROR: pin {}.{} has no driver, interconnect will be missing"
-                        .format(pb_name, pin)
-                    )
-                    assert False
-                elif len(drvs) > 1:
-                    print(
-                        "ERROR: pin {}.{} has multiple drivers, interconnect will be overspecified"
-                        .format(pb_name, pin)
-                    )
-                    assert False
+                assert len(drvs) > 0, (
+                    "ERROR: pin {}.{} has no driver, interconnect will be missing\n{}".
+                    format(pb_name, pin, mod))
+                assert len(drvs) < 2, (
+                    "ERROR: pin {}.{} has multiple drivers, interconnect will be overspecified".
+                    format(pb_name, pin))
                 for drv_cell, drv_pin in drvs:
                     interconn.append(((drv_cell, drv_pin), (cname, pin)))
 
@@ -219,6 +221,19 @@ def make_pb_content(mod, xml_parent, mod_pname, is_submode=False):
                         #Only consider outputs from cell to top level IO. Inputs to other cells will be dealt with
                         #in those cells.
                         interconn.append(((cname, pin), (sink_cell, sink_pin)))
+
+        # Direct pin->pin connections
+        for net in mod.nets:
+            drv = mod.conn_io(net, "input")
+            if not drv:
+                continue
+            assert len(drv) == 1, (
+                    "ERROR: net {} has multiple drivers {}, interconnect will be overspecified".
+                    format(net, drv))
+            for snk in mod.conn_io(net, "output"):
+                conn = ((mod.name, drv[0]), (mod.name,snk))
+                interconn.append(conn)
+
 
         ic_xml = ET.SubElement(xml_parent, "interconnect")
         # Process interconnect
