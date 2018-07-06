@@ -1,5 +1,4 @@
-`include "../ff1/io_ff1.sim.v"
-`include "../ff2/io_ff2.sim.v"
+`include "../ff/io_ff.sim.v"
 `include "../inv/io_inv.sim.v"
 `include "../routing/rmux2/io_rmux2.sim.v"
 
@@ -39,22 +38,20 @@ module IO_OUT (
 		end
 		if (MODE == "REGISTERED") begin
 			wire do;
-			IO_FF1 reg_d0(.clk(CLK_P), .D(D_OUT_P), .Q(D_OUT));
+			IO_FF reg_d0(.clk(CLK_P), .D(D_OUT_P), .Q(D_OUT));
 		end
 		if (MODE == "DDR") begin
-			IO_INV #(.MODE("INVERT")) clk_inv(.I(CLK_P), .O(CLK_N));
+			IO_INV clk_inv(.IN(CLK_P), .OUT(CLK_N));
 
 			wire dp;
-			IO_FF1 reg_d0(.clk(CLK_P), .D(D_OUT_P), .Q(dp));
+			IO_FF reg_d0(.clk(CLK_P), .D(D_OUT_P), .Q(dp));
 			wire dn;
-			IO_FF2 reg_d1(.clk(CLK_N), .D(D_OUT_N), .Q(dn));
+			IO_FF reg_d1(.clk(CLK_N), .D(D_OUT_N), .Q(dn));
 
-			/* DDR MUX */
-			IO_RMUX2 ddrmux(
-				.I0(dp),
-				.I1(dn),
-				.S0(CLK),
-				.O(D_OUT));
+			/* Output mux which uses the clock to select between
+			 * the output from the two different registers.
+			 */
+			IO_RMUX2 ddrmux(.I0(dp), .I1(dn), .S0(CLK), .O(D_OUT));
 		end
 	endgenerate
 endmodule

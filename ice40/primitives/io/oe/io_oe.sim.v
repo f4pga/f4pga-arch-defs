@@ -1,4 +1,4 @@
-`include "../ff1/io_ff1.sim.v"
+`include "../ff/io_ff.sim.v"
 
 (* MODES = "DISABLE; DIRECT; REGISTERED" *)
 module IO_OE (
@@ -23,7 +23,7 @@ module IO_OE (
 			assign OE_O = OE_I;
 		end
 		if (MODE == "REGISTERED") begin
-			IO_FF1 reg_d0(.clk(CLK), .D(OE_I), .Q(OE_O));
+			IO_FF reg_d0(.clk(CLK), .D(OE_I), .Q(OE_O));
 		end
 	endgenerate
 endmodule

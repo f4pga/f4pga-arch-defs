@@ -1,5 +1,4 @@
-`include "../ff1/io_ff1.sim.v"
-`include "../ff2/io_ff2.sim.v"
+`include "../ff/io_ff.sim.v"
 `include "../inv/io_inv.sim.v"
 
 /* Pathway into the FPGA fabric.
@@ -41,12 +40,12 @@ module IO_IN (
 			assign D_IN_P = D_IN;
 		end
 		if (MODE == "REGISTERED") begin
-			IO_FF1 reg_d0(.clk(CLK_P), .D(D_IN), .Q(D_IN_P));
+			IO_FF reg_d0(.clk(CLK_P), .D(D_IN), .Q(D_IN_P));
 		end
 		if (MODE == "DDR") begin
-			IO_INV #(.MODE("INVERT")) clk_inv(.I(CLK_P), .O(CLK_N));
-			IO_FF1 reg_d0(.clk(CLK_P), .D(D_IN), .Q(D_IN_P));
-			IO_FF2 reg_d1(.clk(CLK_N), .D(D_IN), .Q(D_IN_N));
+			IO_INV clk_inv(.IN(CLK_P), .OUT(CLK_N));
+			IO_FF reg_d0(.clk(CLK_P), .D(D_IN), .Q(D_IN_P));
+			IO_FF reg_d1(.clk(CLK_N), .D(D_IN), .Q(D_IN_N));
 		end
 	endgenerate
 endmodule

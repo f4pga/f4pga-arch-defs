@@ -1,24 +1,19 @@
 `ifndef IO_INV
 `define IO_INV
 
-(* MODES = "STRAIGHT; INVERT" *)
+`include "../../../../vpr/inv/vpr_inv.sim.v"
+
 module IO_INV (
-	I,
-	O
+	IN,
+	OUT
 );
-	input wire I;
-	output wire O;
+	input wire IN;
+	output wire OUT;
 
-	parameter MODE = "INVERT";
-
-	generate
-		if (MODE == "STRAIGHT") begin
-			assign O = I;
-		end
-		if (MODE == "INVERT") begin
-			assign O = ~I;
-		end
-	endgenerate
+	VPR_INV inv(
+		.IN(IN),
+		.OUT(OUT)
+	);
 endmodule
 
 `endif
