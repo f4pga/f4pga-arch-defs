@@ -1,0 +1,12 @@
+<models xmlns:xi="http://www.w3.org/2001/XInclude">
+  <!-- https://docs.verilogtorouting.org/en/latest/tutorials/arch/timing_modeling/#sequential-block-no-internal-paths -->
+  <model name="dff">
+    <input_ports>
+      <port name="d" clock="clk"/>
+      <port name="clk" is_clock="1"/>
+    </input_ports>
+    <output_ports>
+      <port name="q" clock="clk"/>
+    </output_ports>
+  </model>
+</models>

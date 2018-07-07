@@ -1,0 +1,14 @@
+<models xmlns:xi="http://www.w3.org/2001/XInclude">
+  <!-- https://docs.verilogtorouting.org/en/latest/tutorials/arch/timing_modeling/#sequential-block-no-internal-paths -->
+  <model name="adder">
+    <input_ports>
+      <port name="a" combinational_sink_ports="cout sum"/>
+      <port name="b" combinational_sink_ports="cout sum"/>
+      <port name="cin" combinational_sink_ports="cout sum"/>
+    </input_ports>
+    <output_ports>
+      <port name="cout"/>
+      <port name="sum"/>
+    </output_ports>
+  </model>
+</models>

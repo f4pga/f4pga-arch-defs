@@ -1,0 +1,17 @@
+(DELAYFILE
+	(CELL
+		(CELLTYPE "adder")
+		(INSTANCE *)
+		(DELAY
+			(ABSOLUTE
+				(IOPATH a sum (::300) (::300))
+				(IOPATH b sum (::300) (::300))
+				(IOPATH cin sum (::300) (::300))
+
+				(IOPATH a cout (::300) (::300))
+				(IOPATH b cout (::300) (::300))
+				(IOPATH cin cout (::10) (::10))
+			)
+		)
+	)
+)
