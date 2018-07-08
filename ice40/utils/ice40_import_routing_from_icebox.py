@@ -481,7 +481,7 @@ def add_pin_aliases(g, ic):
             ipos = pos_vpr2icebox(vpos)
 
             node = g.routing.localnames[(pin_pos, pin.name)]
-            node.set_metadata("hlc_coord", "{},{}".format(*ipos), offset=pin_offset)
+            node.set_metadata("hlc_coord", "{},{}".format(*ipos))
 
             logging.debug("On %s for %s", vpos, format_node(g, node))
 
@@ -491,7 +491,7 @@ def add_pin_aliases(g, ic):
                 " Setting local name %s on %s for %s",
                 hlc_name, vpos, format_node(g, node))
             g.routing.localnames.add(vpos, hlc_name, node)
-            node.set_metadata("hlc_name", hlc_name, offset=pin_offset)
+            node.set_metadata("hlc_name", hlc_name)
 
             rr_name = pin.xmlname
             try:
