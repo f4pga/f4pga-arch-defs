@@ -1,26 +1,25 @@
+`ifndef VCDFILE
+`define VCDFILE "out.vcd"
+`endif
+
 module testbench;
 	reg clk;
 	always #5 clk = (clk === 1'b0);
 
-   wire     data;
-
+	wire     data;
 
 	top uut (
 		 .clk(clk),
 		 .LED1(data)
 		 );
 
-	reg [4095:0] vcdfile;
-
 	initial begin
-		if ($value$plusargs("vcd=%s", vcdfile)) begin
-			$dumpfile(vcdfile);
-			$dumpvars(0, testbench);
-		end
+		$dumpfile(`VCDFILE);
+		$dumpvars(1, uut);
 	end
 
 	initial begin
 		repeat (60) @(posedge clk);
-	   $finish;
+		$finish;
 	end
 endmodule
