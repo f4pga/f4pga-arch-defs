@@ -178,7 +178,7 @@ ifneq ($(TB),)
 TB_F=$(abspath $(TB).v)
 
 $(OUT_LOCAL)/$(TB).vpp: $(TB_F) $(SOURCE_F) | $(OUT_LOCAL)
-	iverilog -v -DVCDFILE=\"$(OUT_LOCAL)/$(TB).vcd\" -DCLK_MHZ=0.001 -o $@ $^ $(OUT_BIT_VERILOG) $(TOP_DIR)/env/conda/share/yosys/$(CELLS_SIM)
+	iverilog -v -DVCDFILE=\"$(OUT_LOCAL)/$(TB).vcd\" -DCLK_MHZ=0.001 -o $@ $^ $(TOP_DIR)/env/conda/share/yosys/$(CELLS_SIM)
 
 $(OUT_LOCAL)/$(TB).vcd: $(OUT_LOCAL)/$(TB).vpp | $(OUT_LOCAL)
 	vvp -v -N $<
@@ -200,29 +200,6 @@ $(warning Test has no test bench!)
 endif
 
 #-------------------------------------------------------------------------
-#-------------------------------------------------------------------------
-
-# FIXME: Does this work?
-# Simulate using the testbench
-ifneq ($(TB),)
-$(OUT_LOCAL)/$(TB)_bit.vpp: $(TB_F) $(OUT_BIT_VERILOG) | $(OUT_LOCAL)
-	iverilog -v -DVCDFILE=\"$(OUT_LOCAL)/$(TB)_bit.vcd\" -DCLK_MHZ=0.001 -o $@ $^ $(OUT_BIT_VERILOG) $(TOP_DIR)/env/conda/share/yosys/$(CELLS_SIM)
-
-$(OUT_LOCAL)/$(TB)_bit.vcd: $(OUT_LOCAL)/$(TB)_bit.vpp | $(OUT_LOCAL)
-	vvp -v -N $<
-
-.PRECIOUS: $(OUT_LOCAL)/$(TB)_bit.vcd
-
-testbinch: $(OUT_LOCAL)/$(TB)_bit.vcd
-	@true
-
-testbinch.view: $(OUT_LOCAL)/$(TB)_bit.fixed.vcd
-	gtkwave $^
-
-.PHONY: testbench
-
-endif
-
 
 
 ##########################################################################
@@ -347,6 +324,29 @@ OUT_TIME_VERILOG=$(OUT_LOCAL)/$(SOURCE)_time.v
 $(OUT_TIME_VERILOG): $(OUT_BITSTREAM)
 	$(BIT_TIME_CMD)
 .PRECIOUS: $(OUT_TIME_VERILOG)
+
+#-------------------------------------------------------------------------
+
+# FIXME: Does this work?
+# Simulate using the testbench
+ifneq ($(TB),)
+$(OUT_LOCAL)/$(TB)_bit.vpp: $(TB_F) $(OUT_BIT_VERILOG) | $(OUT_LOCAL)
+	iverilog -v -DVCDFILE=\"$(OUT_LOCAL)/$(TB)_bit.vcd\" -DCLK_MHZ=0.01 -o $@ $^ $(TOP_DIR)/env/conda/share/yosys/$(CELLS_SIM)
+
+$(OUT_LOCAL)/$(TB)_bit.vcd: $(OUT_LOCAL)/$(TB)_bit.vpp | $(OUT_LOCAL)
+	vvp -v -N $<
+
+.PRECIOUS: $(OUT_LOCAL)/$(TB)_bit.vcd
+
+testbinch: $(OUT_LOCAL)/$(TB)_bit.vcd
+	@true
+
+testbinch.view: $(OUT_LOCAL)/$(TB)_bit.fixed.vcd
+	gtkwave $^
+
+.PHONY: testbinch
+
+endif
 
 # Equivalence check
 #-------------------------------------------------------------------------
