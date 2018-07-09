@@ -220,9 +220,8 @@ VPR_CMD = \
 		--min_route_chan_width_hint $(VPR_ROUTE_CHAN_MINWIDTH_HINT) \
 		--route_chan_width $(VPR_ROUTE_CHAN_WIDTH) \
 		--read_rr_graph $(OUT_RRXML_REAL) \
-		\
 		--clock_modeling_method route \
-		--constant_net_method route \
+		--constant_net_method route
 
 
 VPR_ARGS_FILE=$(OUT_LOCAL)/vpr.args
