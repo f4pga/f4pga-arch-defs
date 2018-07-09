@@ -178,7 +178,7 @@ ifneq ($(TB),)
 TB_F=$(abspath $(TB).v)
 
 $(OUT_LOCAL)/$(TB).vpp: $(TB_F) $(SOURCE_F) | $(OUT_LOCAL)
-	iverilog -v -DVCDFILE=\"$(OUT_LOCAL)/$(TB).vcd\" -DCLK_MHZ=0.001 -o $@ $^
+	iverilog -v -DVCDFILE=\"$(OUT_LOCAL)/$(TB).vcd\" -DCLK_MHZ=0.001 -o $@ $^ $(OUT_BIT_VERILOG) $(TOP_DIR)/env/conda/share/yosys/$(CELLS_SIM)
 
 $(OUT_LOCAL)/$(TB).vcd: $(OUT_LOCAL)/$(TB).vpp | $(OUT_LOCAL)
 	vvp -v -N $<
@@ -206,7 +206,7 @@ endif
 # Simulate using the testbench
 ifneq ($(TB),)
 $(OUT_LOCAL)/$(TB)_bit.vpp: $(TB_F) $(OUT_BIT_VERILOG) | $(OUT_LOCAL)
-	iverilog -v -DVCDFILE=\"$(OUT_LOCAL)/$(TB)_bit.vcd\" -DCLK_MHZ=0.001 -o $@ $^
+	iverilog -v -DVCDFILE=\"$(OUT_LOCAL)/$(TB)_bit.vcd\" -DCLK_MHZ=0.001 -o $@ $^ $(OUT_BIT_VERILOG) $(TOP_DIR)/env/conda/share/yosys/$(CELLS_SIM)
 
 $(OUT_LOCAL)/$(TB)_bit.vcd: $(OUT_LOCAL)/$(TB)_bit.vpp | $(OUT_LOCAL)
 	vvp -v -N $<
