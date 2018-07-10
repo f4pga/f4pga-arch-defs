@@ -96,7 +96,7 @@ for name, pins in icebox.pinloc_db.items():
             return SKIP, {}
         if tt.startswith("DSP"):
             if tt.endswith("0"):
-                return "DSP", metadata
+                return "BLK_TL-DSP", metadata
             return SKIP, {}
         if tt == "IO":
             padin = ic.padin_pio_db()

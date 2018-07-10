@@ -1,0 +1,43 @@
+<!-- set: ai sw=1 ts=1 sta et -->
+<!-- Place holder for the iCE40 UP DSP Block
+     http://www.clifford.at/icestorm/ultraplus.html -->
+<pb_type name="BLK_TL-DSP" height="4" xmlns:xi="http://www.w3.org/2001/XInclude">
+ <!-- Read port -->
+ <input  name="DUMMY_IN0"  num_pins="1"/>
+ <output name="DUMMY_OUT0" num_pins="1"/>
+ <input  name="DUMMY_IN1"  num_pins="1"/>
+ <output name="DUMMY_OUT1" num_pins="1"/>
+ <input  name="DUMMY_IN2"  num_pins="1"/>
+ <output name="DUMMY_OUT2" num_pins="1"/>
+ <input  name="DUMMY_IN3"  num_pins="1"/>
+ <output name="DUMMY_OUT3" num_pins="1"/>
+ <interconnect>
+  <direct input="BLK_TL-DSP.DUMMY_IN0" output="BLK_TL-DSP.DUMMY_OUT0" name="DUMMY0"/>
+ </interconnect>
+ <fc in_type="abs" in_val="2" out_type="abs" out_val="2"/>
+ <pinlocations pattern="custom">
+  <loc side="right" xoffset="0" yoffset="3">
+   BLK_TL-DSP.DUMMY_OUT3
+   BLK_TL-DSP.DUMMY_IN3
+  </loc>
+  <loc side="right" xoffset="0" yoffset="2">
+   BLK_TL-DSP.DUMMY_OUT2
+   BLK_TL-DSP.DUMMY_IN2
+  </loc>
+  <loc side="right" xoffset="0" yoffset="1">
+   BLK_TL-DSP.DUMMY_OUT1
+   BLK_TL-DSP.DUMMY_IN1
+  </loc>
+  <loc side="right" xoffset="0" yoffset="0">
+   BLK_TL-DSP.DUMMY_OUT0
+   BLK_TL-DSP.DUMMY_IN0
+  </loc>
+ </pinlocations>
+ <switchblock_locations pattern="external_full_internal_straight"/>
+ <metadata>
+  <meta xoffset="0" yoffset="3" name="hlc_tile">dsp3_tile</meta>
+  <meta xoffset="0" yoffset="2" name="hlc_tile">dsp2_tile</meta>
+  <meta xoffset="0" yoffset="1" name="hlc_tile">dsp1_tile</meta>
+  <meta xoffset="0" yoffset="0" name="hlc_tile">dsp0_tile</meta>
+ </metadata>
+</pb_type>
