@@ -3,34 +3,28 @@
      http://www.clifford.at/icestorm/ultraplus.html -->
 <pb_type name="BLK_TL-DSP" height="4" xmlns:xi="http://www.w3.org/2001/XInclude">
  <!-- Read port -->
- <input  name="DUMMY_IN0"  num_pins="1"/>
- <output name="DUMMY_OUT0" num_pins="1"/>
- <input  name="DUMMY_IN1"  num_pins="1"/>
- <output name="DUMMY_OUT1" num_pins="1"/>
- <input  name="DUMMY_IN2"  num_pins="1"/>
- <output name="DUMMY_OUT2" num_pins="1"/>
- <input  name="DUMMY_IN3"  num_pins="1"/>
- <output name="DUMMY_OUT3" num_pins="1"/>
+ <input  name="DUMMY_IN"  num_pins="4"/>
+ <output name="DUMMY_OUT" num_pins="4"/>
  <interconnect>
-  <direct input="BLK_TL-DSP.DUMMY_IN0" output="BLK_TL-DSP.DUMMY_OUT0" name="DUMMY0"/>
+  <direct input="BLK_TL-DSP.DUMMY_IN" output="BLK_TL-DSP.DUMMY_OUT" name="DUMMY"/>
  </interconnect>
  <fc in_type="abs" in_val="2" out_type="abs" out_val="2"/>
  <pinlocations pattern="custom">
   <loc side="right" xoffset="0" yoffset="3">
-   BLK_TL-DSP.DUMMY_OUT3
-   BLK_TL-DSP.DUMMY_IN3
+   BLK_TL-DSP.DUMMY_OUT[3]
+   BLK_TL-DSP.DUMMY_IN[3]
   </loc>
   <loc side="right" xoffset="0" yoffset="2">
-   BLK_TL-DSP.DUMMY_OUT2
-   BLK_TL-DSP.DUMMY_IN2
+   BLK_TL-DSP.DUMMY_OUT[2]
+   BLK_TL-DSP.DUMMY_IN[2]
   </loc>
   <loc side="right" xoffset="0" yoffset="1">
-   BLK_TL-DSP.DUMMY_OUT1
-   BLK_TL-DSP.DUMMY_IN1
+   BLK_TL-DSP.DUMMY_OUT[1]
+   BLK_TL-DSP.DUMMY_IN[1]
   </loc>
   <loc side="right" xoffset="0" yoffset="0">
-   BLK_TL-DSP.DUMMY_OUT0
-   BLK_TL-DSP.DUMMY_IN0
+   BLK_TL-DSP.DUMMY_OUT[0]
+   BLK_TL-DSP.DUMMY_IN[0]
   </loc>
  </pinlocations>
  <switchblock_locations pattern="external_full_internal_straight"/>
