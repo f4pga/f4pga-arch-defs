@@ -13,7 +13,7 @@ module top (
    parameter LOG2RAMDELAY = 20;
 
    localparam BITS = 4;
-   localparam LOG2DELAY = LOG2RAMDELAY + 6;
+   localparam LOG2DELAY = LOG2RAMDELAY + 7;
 
    reg [BITS+LOG2DELAY-1:0] counter = 0;
    reg [BITS-1:0] 	    outcnt;
