@@ -247,7 +247,9 @@ def group_hlc_name(group):
         filtered_hlcnames = {k: v for k,v in hlcnames.items() if v > 1}
         if not filtered_hlcnames:
             return None
-        assert len(filtered_hlcnames) == 1, (hlcnames, hlcnames_details)
+        if len(filtered_hlcnames) != 1:
+            logging.warn("Skipping as conflicting names for %s (%s)", hlcnames, hlcnames_details)
+            return None
         hlcnames = filtered_hlcnames
     assert len(hlcnames) == 1, (hlcnames, hlcnames_details)
     return list(hlcnames.keys())[0]
@@ -266,6 +268,23 @@ def group_seg_type(group):
                 types["pin"] += 1
                 continue
             if "carry" in name:
+                types["pin"] += 1
+                continue
+            # DSP Pins
+            # FIXME: Must be a better way to do this.
+            if name in ("clk", "ce", "c", "a", "b", "c", "ci", "o", "co"):
+                types["pin"] += 1
+                continue
+            if "hold" in name:
+                types["pin"] += 1
+                continue
+            if "rst" in name:  # irsttop, irstbot, orsttop, orstbot
+                types["pin"] += 1
+                continue
+            if "load" in name:  # oloadtop, oloadbot
+                types["pin"] += 1
+                continue
+            if "addsub" in name:  # oloadtop, oloadbot
                 types["pin"] += 1
                 continue
             # Normal tracks...
@@ -422,10 +441,11 @@ def add_pin_aliases(g, ic):
         for pin in block.pins:
             if "RAM" in block.block_type.name:
                 pin_offset = ram_pin_offset(pin)
-                pin_pos = block.position + pin_offset
+            elif "DSP" in block.block_type.name:
+                pin_offset = dsp_pin_offset(pin)
             else:
                 pin_offset = Offset(0, 0)
-                pin_pos = block.position
+            pin_pos = block.position + pin_offset
 
             vpos = PositionVPR(*pin_pos)
             ipos = pos_vpr2icebox(vpos)
@@ -1047,6 +1067,10 @@ def ram_pin_offset(pin):
         assert False, "RAM pin {} doesn't match name expected for metadata".format(pin.name)
 
 
+def dsp_pin_offset(pin):
+    return Offset(0, pin.port_index)
+
+
 def get_pin_meta(block, pin):
     """Get the offset and edge for a given pin."""
     grid_sz = PositionVPR(ic.max_x+1+4, ic.max_y+1+4)
@@ -1062,6 +1086,9 @@ def get_pin_meta(block, pin):
 
     if "RAM" in block.block_type.name:
         return (graph.RoutingNodeSide.RIGHT, ram_pin_offset(pin))
+
+    if "DSP" in block.block_type.name:
+        return (graph.RoutingNodeSide.RIGHT, dsp_pin_offset(pin))
 
     if "PIO" in block.block_type.name:
         if pin.name.startswith("O[") or pin.name.startswith("I["):

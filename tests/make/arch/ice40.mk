@@ -2,26 +2,24 @@
 
 ICESTORM ?= $(TOP_DIR)/third_party/icestorm/
 
+ICEPROG_TOOL=$(ICESTORM)/iceprog/iceprog
+$(ICEPROG_TOOL):
+	cd $(ICESTORM)/iceprog && make iceprog
+
 # Lattice iCEstick
 # http://www.latticesemi.com/icestick
 # ---------------------------------------------
 ifeq ($(BOARD),icestick)
 DEVICE=hx1k
 PACKAGE=tq144
-
-ifeq ($(PROG_TOOL),)
-PROG_TOOL=$(ICESTORM)/iceprog/iceprog
-PROG_CMD ?= $(PROG_TOOL)
-
-$(PROG_TOOL):
-	cd $(ICESTORM)/iceprog && make iceprog
-
-endif
+PROG_TOOL=$(ICEPROG_TOOL)
 endif
 
+# Lattice iCEblink40-LP1K Evaluation Kit
+# **HX** version is different!
+# ---------------------------------------------
 ifeq ($(BOARD),iceblink40-lp1k)
-# FIXME: Should be lp1k
-DEVICE=hx1k
+DEVICE=lp1k
 PACKAGE=qn84
 
 ifeq ($(PROG_TOOL),)
@@ -33,7 +31,6 @@ $(PROG_TOOL):
 
 endif
 endif
-
 
 # TinyFPGA B2
 # iCE40-LP8K-CM81
@@ -50,6 +47,15 @@ $(PROG_TOOL):
 	pip install tinyfpgab
 
 endif
+endif
+
+# DPControl icevision board
+# iCE40UP5K-SG48
+# ---------------------------------------------
+ifeq ($(BOARD),icevision)
+DEVICE=up5k
+PACKAGE=sg48
+PROG_TOOL=$(ICEPROG_TOOL)
 endif
 
 # ---------------------------------------------
@@ -83,7 +89,7 @@ RR_PATCH_CMD  ?= $(RR_PATCH_TOOL) \
 	--write_rr_graph $(OUT_RRXML_REAL)
 PLACE_TOOL    ?= $(TOP_DIR)/ice40/utils/ice40_create_ioplace.py
 PLACE_TOOL_CMD ?= $(PLACE_TOOL) \
-	--map $(TOP_DIR)/ice40/devices/layouts/icebox/$(ICE_DEVICE).$(PACKAGE).pinmap.csv \
+	--map $(TOP_DIR)/ice40/devices/layouts/icebox/$(DEVICE).$(PACKAGE).pinmap.csv \
 	--blif $(OUT_EBLIF) \
 	--pcf $(INPUT_IO_FILE)
 

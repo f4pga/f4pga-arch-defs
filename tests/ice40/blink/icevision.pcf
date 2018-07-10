@@ -1,0 +1,5 @@
+set_io LED5 39 # RGB0 / LC1 / LDEX1 / LDB1
+set_io LED4 40 # RGB1 / LC2 / LDEX2 / LDB2
+set_io LED3 41 # RGB2 / LC3 / LDEX3 / LDB3
+set_io LED2 6 # IOB_13B / 6 / GPIO 2
+set_io clk 44 # period 41.66
