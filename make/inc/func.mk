@@ -139,7 +139,7 @@ $$(info $$(INC_ALL_TYPE)   OUTPUTS: $$(OUTPUTS))
 endif
 
 ifeq (0,$$(words $$(OUTPUTS)))
-$$(error No outputs generated for $$(INC_ALL_TYPE))
+$$(warning No outputs generated for $$(INC_ALL_TYPE))
 endif
 
 $$(call add_generated_files,$$(OUTPUTS))
