@@ -3,19 +3,13 @@
 import sys
 import os
 MYDIR = os.path.dirname(os.path.abspath(__file__))
-sys.path.append(os.path.join(MYDIR, "..", "..", "utils"))
-sys.path.insert(0, os.path.join(MYDIR, "..", "..", "third_party", "icestorm", "icebox"))
 
 import lxml.etree as ET
 
+sys.path.insert(0, os.path.join(MYDIR, "..", "..", "third_party", "icestorm", "icebox"))
 import icebox
 
-"""
-<fixed_layout name="{N}384" width="12" height="12">
-
-
-<single type="EMPTY" x="1" y="1"  priority="40"/>
-"""
+from ice40_list_layout_in_icebox import versions
 
 
 def vpr_pos(x,y):
@@ -48,7 +42,6 @@ SKIP = []
 
 for name, pins in icebox.pinloc_db.items():
     part, package = name.split('-')
-    print(part, package)
     if ':' in package:
         continue
     #if part != "1k":
@@ -61,13 +54,6 @@ for name, pins in icebox.pinloc_db.items():
 
     ic = icebox.iceconfig()
     getattr(ic, "setup_empty_{}".format(part))()
-
-    layout_xml = ET.Element(
-        "fixed_layout", {
-            'name': 'hx{}-{}'.format(part,package),
-            'width': str(ic.max_x+4+1),
-            'height': str(ic.max_y+4+1),
-         })
 
     def edge_blocks(x,y):
         p = [[0,0], [0,0], [0,0]]
@@ -145,56 +131,58 @@ for name, pins in icebox.pinloc_db.items():
         return None, {}
         assert False, tt
 
-    # extra_bits_db = {
-    # gbufin_db = {
-    import pprint
-    pprint.pprint(pin_locs)
+    for version in versions(part):
+        layout_xml = ET.Element(
+            "fixed_layout", {
+                'name': '{}-{}'.format(version,package),
+                'width': str(ic.max_x+4+1),
+                'height': str(ic.max_y+4+1),
+             })
 
-    pin_map = {}
-    for x in range(0, ic.max_x+1):
-        for y in range(0, ic.max_y+1):
-            ipos = (x,y)
-            vpos = vpr_pos(*ipos)
+        pin_map = {}
+        for x in range(0, ic.max_x+1):
+            for y in range(0, ic.max_y+1):
+                ipos = (x,y)
+                vpos = vpr_pos(*ipos)
 
-            tt, metadata = tile_type(*ipos)
-            if tt is not None:
-                if tt is not SKIP:
-                    tile_xml = add_tile(layout_xml, tt, vpos)
-            else:
-                tile_xml = add_tile(layout_xml, "EMPTY", vpos)
-
-            for k, v in metadata.items():
-                add_metadata(tile_xml, k, str(v))
-
-            eposes = edge_blocks(x, y)
-            #print(vpos, eposes)
-            for e in eposes:
-                pad_xml = add_tile(layout_xml, "EMPTY", (vpos[0]+e[0]*2, vpos[1]+e[1]*2))
-
-                pin_pos = vpos[0]+e[0]*1, vpos[1]+e[1]*1
-                if ipos in pin_locs:
-                    pin_xml = add_tile(layout_xml, "EMPTY", pin_pos)
-                    for z, name in pin_locs[ipos].items():
-                        add_metadata(pin_xml, "hlc_pin:{}".format(z), name)
-                        pin_map[(*vpos, z)] = name
+                tt, metadata = tile_type(*ipos)
+                if tt is not None:
+                    if tt is not SKIP:
+                        tile_xml = add_tile(layout_xml, tt, vpos)
                 else:
-                    pin_xml = add_tile(layout_xml, "EMPTY", pin_pos)
+                    tile_xml = add_tile(layout_xml, "EMPTY", vpos)
 
-                add_metadata(pin_xml, "hlc_coord", "{} {}".format(x+e[0], y+e[1]))
+                for k, v in metadata.items():
+                    add_metadata(tile_xml, k, str(v))
 
-    with open("{}.{}.fixed_layout.xml".format(part,package), "wb+") as f:
-        f.write(ET.tostring(layout_xml, pretty_print=True))
+                eposes = edge_blocks(x, y)
+                #print(vpos, eposes)
+                for e in eposes:
+                    pad_xml = add_tile(layout_xml, "EMPTY", (vpos[0]+e[0]*2, vpos[1]+e[1]*2))
 
-    pprint.pprint(pin_map)
+                    pin_pos = vpos[0]+e[0]*1, vpos[1]+e[1]*1
+                    if ipos in pin_locs:
+                        pin_xml = add_tile(layout_xml, "EMPTY", pin_pos)
+                        for z, name in pin_locs[ipos].items():
+                            add_metadata(pin_xml, "hlc_pin:{}".format(z), name)
+                            pin_map[(*vpos, z)] = name
+                    else:
+                        pin_xml = add_tile(layout_xml, "EMPTY", pin_pos)
 
-    def i(x):
-        try:
-            return int(x)
-        except ValueError:
-            return x
+                    add_metadata(pin_xml, "hlc_coord", "{} {}".format(x+e[0], y+e[1]))
 
-    lines = [(i(v), *k) for k, v in pin_map.items()]
-    with open("{}.{}.pinmap.csv".format(part,package), "wb+") as f:
-        f.write("name,x,y,z\n".format(*k, v).encode("utf-8"))
-        for i in sorted(lines):
-            f.write("{},{},{},{}\n".format(*i).encode("utf-8"))
+        with open("{}.{}.fixed_layout.xml".format(version,package), "wb+") as f:
+            f.write(ET.tostring(layout_xml, pretty_print=True))
+
+        def i(x):
+            try:
+                return int(x)
+            except ValueError:
+                return x
+
+        lines = [(i(v), *k) for k, v in pin_map.items()]
+        with open("{}.{}.pinmap.csv".format(version,package), "wb+") as f:
+            f.write("name,x,y,z\n".format(*k, v).encode("utf-8"))
+            for i in sorted(lines):
+                f.write("{},{},{},{}\n".format(*i).encode("utf-8"))
+

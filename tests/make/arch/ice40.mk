@@ -20,8 +20,7 @@ endif
 endif
 
 ifeq ($(BOARD),iceblink40-lp1k)
-# FIXME: Should be lp1k
-DEVICE=hx1k
+DEVICE=lp1k
 PACKAGE=qn84
 
 ifeq ($(PROG_TOOL),)
@@ -83,7 +82,7 @@ RR_PATCH_CMD  ?= $(RR_PATCH_TOOL) \
 	--write_rr_graph $(OUT_RRXML_REAL)
 PLACE_TOOL    ?= $(TOP_DIR)/ice40/utils/ice40_create_ioplace.py
 PLACE_TOOL_CMD ?= $(PLACE_TOOL) \
-	--map $(TOP_DIR)/ice40/devices/layouts/icebox/$(ICE_DEVICE).$(PACKAGE).pinmap.csv \
+	--map $(TOP_DIR)/ice40/devices/layouts/icebox/$(DEVICE).$(PACKAGE).pinmap.csv \
 	--blif $(OUT_EBLIF) \
 	--pcf $(INPUT_IO_FILE)
 
