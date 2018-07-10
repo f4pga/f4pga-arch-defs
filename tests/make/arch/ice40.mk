@@ -2,23 +2,22 @@
 
 ICESTORM ?= $(TOP_DIR)/third_party/icestorm/
 
+ICEPROG_TOOL=$(ICESTORM)/iceprog/iceprog
+$(ICEPROG_TOOL):
+	cd $(ICESTORM)/iceprog && make iceprog
+
 # Lattice iCEstick
 # http://www.latticesemi.com/icestick
 # ---------------------------------------------
 ifeq ($(BOARD),icestick)
 DEVICE=hx1k
 PACKAGE=tq144
-
-ifeq ($(PROG_TOOL),)
-PROG_TOOL=$(ICESTORM)/iceprog/iceprog
-PROG_CMD ?= $(PROG_TOOL)
-
-$(PROG_TOOL):
-	cd $(ICESTORM)/iceprog && make iceprog
-
-endif
+PROG_TOOL=$(ICEPROG_TOOL)
 endif
 
+# Lattice iCEblink40-LP1K Evaluation Kit
+# **HX** version is different!
+# ---------------------------------------------
 ifeq ($(BOARD),iceblink40-lp1k)
 DEVICE=lp1k
 PACKAGE=qn84
@@ -32,7 +31,6 @@ $(PROG_TOOL):
 
 endif
 endif
-
 
 # TinyFPGA B2
 # iCE40-LP8K-CM81
@@ -49,6 +47,15 @@ $(PROG_TOOL):
 	pip install tinyfpgab
 
 endif
+endif
+
+# DPControl icevision board
+# iCE40UP5K-SG48
+# ---------------------------------------------
+ifeq ($(BOARD),icevision)
+DEVICE=up5k
+PACKAGE=sg48
+PROG_TOOL=$(ICEPROG_TOOL)
 endif
 
 # ---------------------------------------------
