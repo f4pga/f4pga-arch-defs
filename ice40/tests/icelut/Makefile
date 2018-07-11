@@ -1,3 +1,3 @@
 ARCH=ice40
-DEVICE=HX1K
+BOARD=none
 include ../../../make/tests.mk

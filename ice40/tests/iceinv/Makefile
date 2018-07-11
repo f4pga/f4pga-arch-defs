@@ -1,4 +1,3 @@
 ARCH=ice40
-DEVICE=HX1K
-PACKAGE=vq100
+BOARD=none
 include ../../../make/tests.mk

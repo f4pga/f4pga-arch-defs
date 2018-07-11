@@ -58,22 +58,28 @@ PACKAGE=sg48
 PROG_TOOL=$(ICEPROG_TOOL)
 endif
 
+# DPControl icevision board
+# iCE40UP5K-SG48
+# ---------------------------------------------
+ifeq ($(BOARD),none)
+DEVICE=hx1k
+PACKAGE=tq144
+PROG_TOOL=true
+endif
+
 # ---------------------------------------------
 # ---------------------------------------------
 
 INPUT_IO_FILE=$(wildcard $(TEST_DIR)/$(BOARD).pcf)
 
 ifeq ($(DEVICE),)
-#$(error No $$DEVICE set.)
-DEVICE=hx1k
+$(error No $$DEVICE set.)
 endif
 ifeq ($(PACKAGE),)
-#$(error No $$PACKAGE set.)
-PACKAGE=qn84
+$(error No $$PACKAGE set.)
 endif
 ifeq ($(PROG_TOOL),)
-#$(error No $$PROG_TOOL set.)
-PROG_TOOL=true
+$(error No $$PROG_TOOL set.)
 endif
 
 PROG_CMD ?= $(PROG_TOOL)
