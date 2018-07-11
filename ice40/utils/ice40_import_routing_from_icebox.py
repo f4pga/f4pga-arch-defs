@@ -412,11 +412,11 @@ def add_pin_aliases(g, ic):
         # rdata, wdata, and mask ranges are the same based on Top/Bottom
         if top_bottom == 'T':
             data_range = range(8,16)
-            # top has Read clock and enbable and address
+            # top has Read clock and enable and address
             rw = 'R'
         else:
             data_range = range(0,8)
-            # top has Read clock and enbable and address
+            # top has Read clock and enable and address
             rw = 'W'
 
         def add_ram_pin(rw, sig, ind=None):
@@ -1055,22 +1055,6 @@ def print_nodes_edges(g):
     print("Nodes: %d (index: %d)" %
           (len(g.routing._xml_parent(graph.RoutingNode)),
            len(g.routing.id2element[graph.RoutingNode])))
-
-def ram_pin_offset(pin):
-    top_pins = ["RADDR", "RCLKE", "RCLK", "RE"]
-    bot_pins = ["WADDR", "WCLKE", "WCLK", "WE"]
-    if pin.port_name in top_pins or (
-        pin.port_name in ["RDATA", "MASK", "WDATA"] and
-        pin.port_index in range(8,16)):
-        print("top")
-        return Offset(0, 1)
-    elif pin.port_name in bot_pins or (
-        pin.port_name in ["RDATA", "MASK", "WDATA"] and
-        pin.port_index in range(8)):
-        print("bot")
-        return Offset(0, 0)
-    else:
-        assert False, "RAM pin doesn't match name expected for metadata"
 
 def ram_pin_offset(pin):
     """Get the offset for a given RAM pin."""

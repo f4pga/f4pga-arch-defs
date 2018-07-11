@@ -66,15 +66,17 @@ module memory (
 		 .INIT_F(256'hxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx),
 		 .READ_MODE(32'sd1),
 		 .WRITE_MODE(32'sd1)
-		 ) mem  (
-			 .RADDR({ 5'b0, cnt}),
-			 .RCLK(clk),
-			 .RCLKE(1'b1),
-			 .RDATA(data),
-			 .RE(1'b1),
-			 .WCLK(clk),
-			 .WCLKE(1'b0)
-			 );
+		 )
+   mem
+     (
+      .RADDR({ 5'b0, cnt}),
+      .RCLK(clk),
+      .RCLKE(1'b1),
+      .RDATA(data),
+      .RE(1'b1),
+      .WCLK(clk),
+      .WCLKE(1'b0)
+      );
 
    always @(posedge inc) begin
       cnt <= cnt + 1;
