@@ -7,8 +7,9 @@ include $(TOP_DIR)/make/inc/func.mk
 VPR   ?= vpr
 YOSYS ?= yosys
 
+# FIXME: We could probably detect the architecture using the path.
 ifneq (,$(ARCH))
-include $(TOP_DIR)/make/arch/$(ARCH).mk
+include $(TOP_DIR)/$(ARCH)/make/tests.mk
 else
 $(error "Please set which $$ARCH you are using.")
 endif
