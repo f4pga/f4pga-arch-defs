@@ -1,1 +1,0 @@
-include ../../../make/tests.mk
