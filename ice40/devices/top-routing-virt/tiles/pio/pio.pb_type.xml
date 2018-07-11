@@ -35,8 +35,8 @@
 
   <interconnect>
    <!-- SB_IO outputs -->
-   <direct name="D_OUT[0]" input="BLK_TL-PIO.D_OUT[0]" output="PAD.D_OUT[0]" />
-   <direct name="D_OUT[1]" input="BLK_TL-PIO.D_OUT[1]" output="PAD.D_OUT[1]" />
+   <direct input="BLK_TL-PIO.D_OUT[0]" output="PAD.D_OUT[0]" />
+   <direct input="BLK_TL-PIO.D_OUT[1]" output="PAD.D_OUT[1]" />
   </interconnect>
  </mode>
 
@@ -49,8 +49,8 @@
     <output name="inpad" num_pins="1"/>
    </pb_type>
    <interconnect>
-    <direct name="D_IN[0]" input="input.inpad" output="PAD.D_IN[0]"/>
-    <direct name="PIN"    input="input.inpad" output="PAD.PIN"    />
+    <direct input="input.inpad" output="PAD.D_IN[0]"/>
+    <direct input="input.inpad" output="PAD.PIN"    />
    </interconnect>
    <metadata>
     <meta name="hlc_property">disable_pull_up</meta>
@@ -61,9 +61,9 @@
 
   <interconnect>
    <!-- SB_IO inputs -->
-   <direct name="D_IN[0]" input="PAD.D_IN[0]" output="BLK_TL-PIO.D_IN[0]"    />
-   <direct name="D_IN[1]" input="PAD.D_IN[1]" output="BLK_TL-PIO.D_IN[1]"    />
-   <direct name="PIN"    input="PAD.PIN"     output="BLK_TL-PIO.PACKAGE_PIN" />
+   <direct input="PAD.D_IN[0]" output="BLK_TL-PIO.D_IN[0]"    />
+   <direct input="PAD.D_IN[1]" output="BLK_TL-PIO.D_IN[1]"    />
+   <direct input="PAD.PIN"     output="BLK_TL-PIO.PACKAGE_PIN" />
   </interconnect>
 
  </mode>
