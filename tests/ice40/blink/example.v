@@ -3,8 +3,7 @@
  */
 
 `ifndef CLK_MHZ
-`define CLK_MHZ 12.5
-// CLK_MHZ 4 -> LOG2DELAY 22
+`define CLK_MHZ 24
 `endif
 
 module top (
@@ -16,8 +15,7 @@ module top (
 );
 
 	localparam BITS = 4;
-	// CLK_MHZ * 1e6 / 100
-	localparam LOG2DELAY = $clog2(`CLK_MHZ * 1e6 / 100);
+        localparam LOG2DELAY = $clog2($rtoi(`CLK_MHZ * 1e6));
 
 	reg [BITS+LOG2DELAY-1:0] counter = 0;
 	reg [BITS-1:0] outcnt;
