@@ -61,16 +61,19 @@ endif
 # ---------------------------------------------
 # ---------------------------------------------
 
-INPUT_IO_FILE=$(TEST_DIR)/$(BOARD).pcf
+INPUT_IO_FILE=$(wildcard $(TEST_DIR)/$(BOARD).pcf)
 
 ifeq ($(DEVICE),)
-$(error No $$DEVICE set.)
+#$(error No $$DEVICE set.)
+DEVICE=hx1k
 endif
 ifeq ($(PACKAGE),)
-$(error No $$PACKAGE set.)
+#$(error No $$PACKAGE set.)
+PACKAGE=qn84
 endif
 ifeq ($(PROG_TOOL),)
-$(error No $$PROG_TOOL set.)
+#$(error No $$PROG_TOOL set.)
+PROG_TOOL=true
 endif
 
 PROG_CMD ?= $(PROG_TOOL)
@@ -88,11 +91,14 @@ RR_PATCH_CMD  ?= $(RR_PATCH_TOOL) \
 	--device=$(DEVICE) \
 	--read_rr_graph $(OUT_RRXML_VIRT) \
 	--write_rr_graph $(OUT_RRXML_REAL)
+
+ifneq ($(INPUT_IO_FILE),)
 PLACE_TOOL    ?= $(TOP_DIR)/ice40/utils/ice40_create_ioplace.py
 PLACE_TOOL_CMD ?= $(PLACE_TOOL) \
 	--map $(TOP_DIR)/ice40/devices/layouts/icebox/$(DEVICE).$(PACKAGE).pinmap.csv \
 	--blif $(OUT_EBLIF) \
 	--pcf $(INPUT_IO_FILE)
+endif
 
 ICEBOX ?= $(ICESTORM)/icebox/
 ICE_DEVICE := $(shell echo $(DEVICE) | sed -e's/^..//')
