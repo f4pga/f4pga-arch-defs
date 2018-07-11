@@ -2815,6 +2815,13 @@ class Graph:
         else:
             self.routing.create_edge_with_nodes(track_node, pin_node, switch)
 
+    def connect_track_to_track(self, src, dst, switch):
+        assert_type(src, Track)
+        assert_type(dst, Track)
+        src_node = self.routing.globalnames[src.name]
+        dst_node = self.routing.globalnames[dst.name]
+        self.routing.create_edge_with_nodes(src_node, dst_node, switch)
+
     def create_xy_track(self,
                         start,
                         end,
