@@ -2,7 +2,7 @@
 
 DEVICE_DIR     = $(TOP_DIR)/testarch/devices
 DEVICE_TYPE   ?= clutff-unidir-s4
-DEVICE        ?= 2x4
+DEVICE        ?= 4x4
 DEVICE_FULL   = $(DEVICE)
 YOSYS_SCRIPT  ?= synth -top top -flatten; abc -lut 4; opt_clean; write_blif -attr -cname -conn -param $@
 RR_PATCH_TOOL ?= $(TOP_DIR)/utils/testarch_graph.py
