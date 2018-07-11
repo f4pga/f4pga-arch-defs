@@ -412,6 +412,36 @@ def add_pin_aliases(g, ic):
         # rdata, wdata, and mask ranges are the same based on Top/Bottom
         if top_bottom == 'T':
             data_range = range(8,16)
+            # top has Read clock and enable and address
+            rw = 'R'
+        else:
+            data_range = range(0,8)
+            # top has Read clock and enable and address
+            rw = 'W'
+
+        def add_ram_pin(rw, sig, ind=None):
+            if ind is None:
+                name_rr2local['BLK_TL-RAM.{}{}[{}]'.format(rw, sig, 0)] = 'ram/{}{}'.format(rw, sig)
+            else:
+                name_rr2local['BLK_TL-RAM.{}{}[{}]'.format(rw, sig, ind)] = 'ram/{}{}_{}'.format(rw, sig, ind)
+
+        add_ram_pin(rw, 'CLK')
+        add_ram_pin(rw, 'CLKE')
+        add_ram_pin(rw, 'E')
+
+        for ind in range(11):
+            add_ram_pin(rw, 'ADDR', ind)
+
+        for ind in data_range:
+            add_ram_pin('R', 'DATA', ind)
+            add_ram_pin('W', 'DATA', ind)
+            add_ram_pin('', 'MASK', ind)
+
+    # BLK_TL-RAM
+    for top_bottom in 'BT':
+        # rdata, wdata, and mask ranges are the same based on Top/Bottom
+        if top_bottom == 'T':
+            data_range = range(8,16)
             # top has Read clock and enbable and address
             rw = 'R'
         else:
@@ -451,7 +481,7 @@ def add_pin_aliases(g, ic):
             ipos = pos_vpr2icebox(vpos)
 
             node = g.routing.localnames[(pin_pos, pin.name)]
-            node.set_metadata("hlc_coord", "{},{}".format(*ipos), offset=pin_offset)
+            node.set_metadata("hlc_coord", "{},{}".format(*ipos))
 
             logging.debug("On %s for %s", vpos, format_node(g, node))
 
@@ -461,7 +491,7 @@ def add_pin_aliases(g, ic):
                 " Setting local name %s on %s for %s",
                 hlc_name, vpos, format_node(g, node))
             g.routing.localnames.add(vpos, hlc_name, node)
-            node.set_metadata("hlc_name", hlc_name, offset=pin_offset)
+            node.set_metadata("hlc_name", hlc_name)
 
             rr_name = pin.xmlname
             try:
@@ -1025,7 +1055,6 @@ def print_nodes_edges(g):
     print("Nodes: %d (index: %d)" %
           (len(g.routing._xml_parent(graph.RoutingNode)),
            len(g.routing.id2element[graph.RoutingNode])))
-
 
 def ram_pin_offset(pin):
     """Get the offset for a given RAM pin."""

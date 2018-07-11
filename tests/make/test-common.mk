@@ -177,11 +177,11 @@ ifneq ($(TB),)
 
 TB_F=$(abspath $(TB).v)
 
-$(OUT_LOCAL)/$(TB): $(TB_F) $(SOURCE_F) | $(OUT_LOCAL)
-	iverilog -o $@ $^
+$(OUT_LOCAL)/$(TB).vpp: $(TB_F) $(SOURCE_F) | $(OUT_LOCAL)
+	iverilog -v -DVCDFILE=\"$(OUT_LOCAL)/$(TB).vcd\" -DCLK_MHZ=0.001 -o $@ $^ $(TOP_DIR)/env/conda/share/yosys/$(CELLS_SIM)
 
-$(OUT_LOCAL)/$(TB).vcd: $(OUT_LOCAL)/$(TB) | $(OUT_LOCAL)
-	vvp -N $< +vcd=$@
+$(OUT_LOCAL)/$(TB).vcd: $(OUT_LOCAL)/$(TB).vpp | $(OUT_LOCAL)
+	vvp -v -N $<
 
 .PRECIOUS: $(OUT_LOCAL)/$(TB).vcd
 
@@ -193,7 +193,14 @@ testbench.view: $(OUT_LOCAL)/$(TB).fixed.vcd
 
 .PHONY: testbench
 
+else
+
+$(warning Test has no test bench!)
+
 endif
+
+#-------------------------------------------------------------------------
+
 
 ##########################################################################
 # VPR Place and route
@@ -213,12 +220,9 @@ VPR_CMD = \
 		--min_route_chan_width_hint $(VPR_ROUTE_CHAN_MINWIDTH_HINT) \
 		--route_chan_width $(VPR_ROUTE_CHAN_WIDTH) \
 		--read_rr_graph $(OUT_RRXML_REAL) \
-		\
-		--timing_analysis off \
 		--clock_modeling_method route \
+		--constant_net_method route
 
-
-#		--constant_net_method route \
 
 VPR_ARGS_FILE=$(OUT_LOCAL)/vpr.args
 $(VPR_ARGS_FILE): always-run | $(OUT_LOCAL)
@@ -320,7 +324,31 @@ $(OUT_TIME_VERILOG): $(OUT_BITSTREAM)
 	$(BIT_TIME_CMD)
 .PRECIOUS: $(OUT_TIME_VERILOG)
 
+#-------------------------------------------------------------------------
+
+# Simulate using the testbench with verilog from bit file
+ifneq ($(TB),)
+$(OUT_LOCAL)/$(TB)_bit.vpp: $(TB_F) $(OUT_BIT_VERILOG) | $(OUT_LOCAL)
+	iverilog -v -DVCDFILE=\"$(OUT_LOCAL)/$(TB)_bit.vcd\" -DCLK_MHZ=0.01 -o $@ $^ $(TOP_DIR)/env/conda/share/yosys/$(CELLS_SIM)
+
+$(OUT_LOCAL)/$(TB)_bit.vcd: $(OUT_LOCAL)/$(TB)_bit.vpp | $(OUT_LOCAL)
+	vvp -v -N $<
+
+.PRECIOUS: $(OUT_LOCAL)/$(TB)_bit.vcd
+
+testbinch: $(OUT_LOCAL)/$(TB)_bit.vcd
+	@true
+
+testbinch.view: $(OUT_LOCAL)/$(TB)_bit.fixed.vcd
+	gtkwave $^
+
+.PHONY: testbinch
+
+endif
+
 # Equivalence check
+#-------------------------------------------------------------------------
+
 check: $(OUT_BIT_VERILOG)
 	$(YOSYS) -p "$(EQUIV_CHECK_SCRIPT)" $(TOP_DIR)/env/conda/share/yosys/$(CELLS_SIM) $<
 .PHONY: check
@@ -335,70 +363,57 @@ check-cleaned-blif: route.echo
 	$(YOSYS) -p "$(EQUIV_CHECK_SCRIPT)" $(TOP_DIR)/env/conda/share/yosys/$(CELLS_SIM) $(OUT_LOCAL)/atom_netlist.cleaned.echo.yosys.blif
 .PHONY: check-cleaned-blif
 
-check-post-blif: analysis.echo
+check-post-blif: $(OUT_LOCAL)/top_post_synthesis.blif
 	$(YOSYS) -p "$(EQUIV_CHECK_SCRIPT)" $(TOP_DIR)/env/conda/share/yosys/$(CELLS_SIM) $(OUT_LOCAL)/top_post_synthesis.blif
 .PHONY: check-post-blif
 
-check-post-v: analysis.echo
+check-post-v: $(OUT_LOCAL)/top_post_synthesis.v
 	$(YOSYS) -p "$(EQUIV_CHECK_SCRIPT)" $(TOP_DIR)/env/conda/share/yosys/$(CELLS_SIM) $(TOP_DIR)/vpr/primitives.v $(OUT_LOCAL)/top_post_synthesis.v
 .PHONY: check-post-v
 
-# Simulation
+# Compare the bitstream Verilog to original Verilog
+#-------------------------------------------------------------------------
+
+# Fix up names inside VCD files that gtkwave doesn't like
 $(OUT_LOCAL)/%.fixed.vcd: $(OUT_LOCAL)/%.vcd
-	cat $< | sed -e's/:/_/g' > $@
+	test -f $< && cat $< | sed -e's/:/_/g' > $@
 
-$(OUT_LOCAL)/sim.bit.vcd: $(OUT_LOCAL)/$(SOURCE)_bit.v
-	$(YOSYS) -p "proc; check; sim -clock clk -n 1000 -vcd $(OUT_LOCAL)/sim.bit.vcd -zinit top" $(TOP_DIR)/env/conda/share/yosys/$(CELLS_SIM) $(TOP_DIR)/vpr/primitives.v $(OUT_LOCAL)/$(SOURCE)_bit.v
+# Simulate the converted bit file
+$(OUT_LOCAL)/autosim.bit.vcd: $(OUT_LOCAL)/$(SOURCE)_bit.v
+	$(YOSYS) -p "proc; check; sim -clock clk -n $(CYCLES) -vcd $(OUT_LOCAL)/autosim.bit.vcd -zinit top" $(TOP_DIR)/env/conda/share/yosys/$(CELLS_SIM) $(TOP_DIR)/vpr/primitives.v $(OUT_LOCAL)/$(SOURCE)_bit.v
 
-sim-bit: $(OUT_LOCAL)/sim.bit.vcd
+autosim-bit: $(OUT_LOCAL)/autosim.bit.vcd
 	@true
-.PHONY: sim-bit
+.PHONY: autosim-bit
 
-sim-bit.view: $(OUT_LOCAL)/sim.bit.fixed.vcd
+autosim-bit.view: $(OUT_LOCAL)/autosim.bit.fixed.vcd
 	gtkwave $<
-.PHONY: sim-bit.view
+.PHONY: autosim-bit.view
 
-$(OUT_LOCAL)/sim.top_post_synthesis_blif.vcd: $(OUT_LOCAL)/top_post_synthesis.blif
-	$(YOSYS) -p "prep -top top; sim -clock clk -n 1000 -vcd $(OUT_LOCAL)/sim.top_post_synthesis_blif.vcd -zinit top" $(TOP_DIR)/env/conda/share/yosys/$(CELLS_SIM) $(OUT_LOCAL)/top_post_synthesis.blif
+# Simulate the post synthesis BLIF file from VPR
+$(OUT_LOCAL)/autosim.top_post_synthesis_blif.vcd: $(OUT_LOCAL)/top_post_synthesis.blif
+	$(YOSYS) -p "prep -top top; sim -clock clk -n $(CYCLES) -vcd $(OUT_LOCAL)/autosim.top_post_synthesis_blif.vcd -zinit top" $(TOP_DIR)/env/conda/share/yosys/$(CELLS_SIM) $(OUT_LOCAL)/top_post_synthesis.blif
 
-sim-post-blif: $(OUT_LOCAL)/sim.top_post_synthesis_blif.vcd
+autosim-post-blif: $(OUT_LOCAL)/autosim.top_post_synthesis_blif.vcd
 	@true
-.PHONY: sim-post-blif
+.PHONY: autosim-post-blif
 
-sim-post-blif.view: $(OUT_LOCAL)/sim.top_post_synthesis_blif.fixed.vcd
+autosim-post-blif.view: $(OUT_LOCAL)/autosim.top_post_synthesis_blif.fixed.vcd
 	gtkwave $<
-.PHONY: sim-post-blif.view
+.PHONY: autosim-post-blif.view
 
-$(OUT_LOCAL)/sim.top_post_synthesis_v.vcd: $(OUT_LOCAL)/top_post_synthesis.v
-	$(YOSYS) -p "prep -top top; sim -clock clk -n 1000 -vcd $(OUT_LOCAL)/sim.top_post_synthesis_v.vcd -zinit top" $(TOP_DIR)/env/conda/share/yosys/$(CELLS_SIM) $(TOP_DIR)/vpr/primitives.v $(OUT_LOCAL)/top_post_synthesis.v
+# Simulate the post synthesis Verilog file from VPR
+$(OUT_LOCAL)/autosim.top_post_synthesis_v.vcd: $(OUT_LOCAL)/top_post_synthesis.v
+	$(YOSYS) -p "prep -top top; sim -clock clk -n $(CYCLES) -vcd $(OUT_LOCAL)/autosim.top_post_synthesis_v.vcd -zinit top" $(TOP_DIR)/env/conda/share/yosys/$(CELLS_SIM) $(TOP_DIR)/vpr/primitives.v $(OUT_LOCAL)/top_post_synthesis.v
 
-sim-post-v: $(OUT_LOCAL)/sim.top_post_synthesis_v.vcd
+autosim-post-v: $(OUT_LOCAL)/autosim.top_post_synthesis_v.vcd
 	@true
-.PHONY: sim-post-v
+.PHONY: autosim-post-v
 
-sim-post-v.view: $(OUT_LOCAL)/sim.top_post_synthesis_v.fixed.vcd
+autosim-post-v.view: $(OUT_LOCAL)/autosim.top_post_synthesis_v.fixed.vcd
 	gtkwave $<
-.PHONY: sim-post-v.view
+.PHONY: autosim-post-v.view
 
-
-ifneq ($(TB),)
-$(OUT_LOCAL)/$(TB)_bit: $(TB_F) $(OUT_BIT_VERILOG) | $(OUT_LOCAL)
-	iverilog -o $@ $^
-
-$(OUT_LOCAL)/$(TB)_bit.vcd: $(OUT_LOCAL)/$(TB)_bit | $(OUT_LOCAL)
-	vvp -N $< +vcd=$@
-
-.PRECIOUS: $(OUT_LOCAL)/$(TB)_bit.vcd
-
-testbinch: $(OUT_LOCAL)/$(TB)_bit.vcd
-	@true
-
-testbinch.view: $(OUT_LOCAL)/$(TB)_bit.fixed.vcd
-	gtkwave $^
-
-.PHONY: testbench
-
-endif
 
 # Shortcuts
 #-------------------------------------------------------------------------
