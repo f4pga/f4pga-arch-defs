@@ -44,7 +44,7 @@ always-run:
 FQDN = $(ARCH)-$(DEVICE_TYPE)-$(DEVICE)
 
 # Were we put files for a specific architecture
-OUT_DEV_DIR = $(TOP_DIR)/tests/build/$(FQDN)
+OUT_DEV_DIR = $(TOP_DIR)/$(ARCH)/build/$(FQDN)
 $(OUT_DEV_DIR):
 	mkdir -p $@
 
