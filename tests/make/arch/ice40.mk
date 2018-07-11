@@ -73,6 +73,7 @@ ifeq ($(PROG_TOOL),)
 $(error No $$PROG_TOOL set.)
 endif
 
+PROG_CMD ?= $(PROG_TOOL)
 DEVICE_DIR     = $(TOP_DIR)/ice40/devices
 DEVICE_TYPE   ?= top-routing-virt
 DEVICE_FULL   = $(DEVICE)-$(PACKAGE)
