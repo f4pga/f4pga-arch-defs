@@ -19,10 +19,10 @@
    <T_setup    value="10e-12" port="SB_DFFSR.D" clock="C"/>
   </pb_type>
   <interconnect>
-   <direct name="Q" input="SB_DFFSR.Q" output="DFF.Q" />
-   <direct name="C" input="DFF.C"      output="SB_DFFSR.C" />
-   <direct name="S" input="DFF.S"      output="SB_DFFSR.R" />
-   <direct name="D" input="DFF.D"      output="SB_DFFSR.D" />
+   <direct input="SB_DFFSR.Q" output="DFF.Q" />
+   <direct input="DFF.C"      output="SB_DFFSR.C" />
+   <direct input="DFF.S"      output="SB_DFFSR.R" />
+   <direct input="DFF.D"      output="SB_DFFSR.D" />
   </interconnect>
  </mode>
 
@@ -38,10 +38,10 @@
    <T_setup    value="10e-12" port="SB_DFFR.D" clock="C"/>
   </pb_type>
   <interconnect>
-   <direct name="Q" input="SB_DFFR.Q" output="DFF.Q" />
-   <direct name="C" input="DFF.C"     output="SB_DFFR.C" />
-   <direct name="S" input="DFF.S"     output="SB_DFFR.R" />
-   <direct name="D" input="DFF.D"     output="SB_DFFR.D" />
+   <direct input="SB_DFFR.Q" output="DFF.Q" />
+   <direct input="DFF.C"     output="SB_DFFR.C" />
+   <direct input="DFF.S"     output="SB_DFFR.R" />
+   <direct input="DFF.D"     output="SB_DFFR.D" />
   </interconnect>
  </mode>
 
@@ -57,10 +57,10 @@
    <T_setup    value="10e-12" port="SB_DFFSS.D" clock="C"/>
   </pb_type>
   <interconnect>
-   <direct name="Q" input="SB_DFFSS.Q" output="DFF.Q" />
-   <direct name="C" input="DFF.C"      output="SB_DFFSS.C" />
-   <direct name="S" input="DFF.S"      output="SB_DFFSS.S" />
-   <direct name="D" input="DFF.D"      output="SB_DFFSS.D" />
+   <direct input="SB_DFFSS.Q" output="DFF.Q" />
+   <direct input="DFF.C"      output="SB_DFFSS.C" />
+   <direct input="DFF.S"      output="SB_DFFSS.S" />
+   <direct input="DFF.D"      output="SB_DFFSS.D" />
   </interconnect>
  </mode>
 
@@ -76,10 +76,10 @@
    <T_setup    value="10e-12" port="SB_DFFS.D" clock="C"/>
   </pb_type>
   <interconnect>
-   <direct name="Q" input="SB_DFFS.Q" output="DFF.Q" />
-   <direct name="C" input="DFF.C"     output="SB_DFFS.C" />
-   <direct name="S" input="DFF.S"     output="SB_DFFS.S" />
-   <direct name="D" input="DFF.D"     output="SB_DFFS.D" />
+   <direct input="SB_DFFS.Q" output="DFF.Q" />
+   <direct input="DFF.C"     output="SB_DFFS.C" />
+   <direct input="DFF.S"     output="SB_DFFS.S" />
+   <direct input="DFF.D"     output="SB_DFFS.D" />
   </interconnect>
  </mode>
 </pb_type>

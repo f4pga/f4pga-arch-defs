@@ -19,11 +19,11 @@
    <T_clock_to_Q max="10e-12" port="VPR_FF.Q" clock="clk"/>
   </pb_type>
   <interconnect>
-   <direct name="C" input="BEL_FF-SB_FF.C" output="VPR_FF.clk"     />
-   <direct name="D" input="BEL_FF-SB_FF.D" output="VPR_FF.D"       >
+   <direct input="BEL_FF-SB_FF.C" output="VPR_FF.clk"     />
+   <direct input="BEL_FF-SB_FF.D" output="VPR_FF.D"       >
     <pack_pattern name="LUT+FF" in_port="BEL_FF-SB_FF.D" out_port="VPR_FF.D" />
    </direct>
-   <direct name="Q" input="VPR_FF.Q"       output="BEL_FF-SB_FF.Q" />
+   <direct input="VPR_FF.Q"       output="BEL_FF-SB_FF.Q" />
   </interconnect>
   <metadata>
    <meta name="hlc_property">enable_dff</meta>
@@ -40,11 +40,11 @@
    <T_clock_to_Q max="10e-12" port="SB_DFF.Q" clock="C"/>
   </pb_type>
   <interconnect>
-   <direct name="C" input="BEL_FF-SB_FF.C" output="SB_DFF.C"       />
-   <direct name="D" input="BEL_FF-SB_FF.D" output="SB_DFF.D"        >
+   <direct input="BEL_FF-SB_FF.C" output="SB_DFF.C"       />
+   <direct input="BEL_FF-SB_FF.D" output="SB_DFF.D"        >
     <!-- <pack_pattern name="LUT+FF" in_port="BEL_FF-SB_FF.D" out_port="SB_DFF.D" /> -->
    </direct>
-   <direct name="Q" input="SB_DFF.Q"       output="BEL_FF-SB_FF.Q" />
+   <direct input="SB_DFF.Q"       output="BEL_FF-SB_FF.Q" />
   </interconnect>
  </mode>
 
@@ -60,10 +60,10 @@
    <T_clock_to_Q max="10e-12" port="SB_DFFE.Q" clock="C"/>
   </pb_type>
   <interconnect>
-   <direct name="C" input="BEL_FF-SB_FF.C" output="SB_DFFE.C"      />
-   <direct name="E" input="BEL_FF-SB_FF.E" output="SB_DFFE.E"      />
-   <direct name="D" input="BEL_FF-SB_FF.D" output="SB_DFFE.D"      />
-   <direct name="Q" input="SB_DFFE.Q"      output="BEL_FF-SB_FF.Q" />
+   <direct input="BEL_FF-SB_FF.C" output="SB_DFFE.C"      />
+   <direct input="BEL_FF-SB_FF.E" output="SB_DFFE.E"      />
+   <direct input="BEL_FF-SB_FF.D" output="SB_DFFE.D"      />
+   <direct input="SB_DFFE.Q"      output="BEL_FF-SB_FF.Q" />
   </interconnect>
  </mode>
 
@@ -81,11 +81,11 @@
    <T_clock_to_Q max="10e-12" port="SB_DFFER.Q" clock="C"/>
   </pb_type>
   <interconnect>
-   <direct name="C" input="BEL_FF-SB_FF.C" output="SB_DFFER.C"     />
-   <direct name="E" input="BEL_FF-SB_FF.E" output="SB_DFFER.E"     />
-   <direct name="S" input="BEL_FF-SB_FF.R" output="SB_DFFER.R"     />
-   <direct name="D" input="BEL_FF-SB_FF.D" output="SB_DFFER.D"     />
-   <direct name="Q" input="SB_DFFER.Q"     output="BEL_FF-SB_FF.Q" />
+   <direct input="BEL_FF-SB_FF.C" output="SB_DFFER.C"     />
+   <direct input="BEL_FF-SB_FF.E" output="SB_DFFER.E"     />
+   <direct input="BEL_FF-SB_FF.R" output="SB_DFFER.R"     />
+   <direct input="BEL_FF-SB_FF.D" output="SB_DFFER.D"     />
+   <direct input="SB_DFFER.Q"     output="BEL_FF-SB_FF.Q" />
   </interconnect>
  </mode>
 
@@ -103,11 +103,11 @@
    <T_clock_to_Q max="10e-12" port="SB_DFFES.Q" clock="C"/>
   </pb_type>
   <interconnect>
-   <direct name="C" input="BEL_FF-SB_FF.C" output="SB_DFFES.C"     />
-   <direct name="E" input="BEL_FF-SB_FF.E" output="SB_DFFES.E"     />
-   <direct name="S" input="BEL_FF-SB_FF.R" output="SB_DFFES.R"     />
-   <direct name="D" input="BEL_FF-SB_FF.D" output="SB_DFFES.D"     />
-   <direct name="Q" input="SB_DFFES.Q"     output="BEL_FF-SB_FF.Q" />
+   <direct input="BEL_FF-SB_FF.C" output="SB_DFFES.C"     />
+   <direct input="BEL_FF-SB_FF.E" output="SB_DFFES.E"     />
+   <direct input="BEL_FF-SB_FF.R" output="SB_DFFES.R"     />
+   <direct input="BEL_FF-SB_FF.D" output="SB_DFFES.D"     />
+   <direct input="SB_DFFES.Q"     output="BEL_FF-SB_FF.Q" />
   </interconnect>
  </mode>
 
@@ -125,11 +125,11 @@
    <T_clock_to_Q max="10e-12" port="SB_DFFESR.Q" clock="C"/>
   </pb_type>
   <interconnect>
-   <direct name="C" input="BEL_FF-SB_FF.C" output="SB_DFFESR.C"    />
-   <direct name="E" input="BEL_FF-SB_FF.E" output="SB_DFFESR.E"    />
-   <direct name="S" input="BEL_FF-SB_FF.R" output="SB_DFFESR.R"    />
-   <direct name="D" input="BEL_FF-SB_FF.D" output="SB_DFFESR.D"    />
-   <direct name="Q" input="SB_DFFESR.Q"    output="BEL_FF-SB_FF.Q" />
+   <direct input="BEL_FF-SB_FF.C" output="SB_DFFESR.C"    />
+   <direct input="BEL_FF-SB_FF.E" output="SB_DFFESR.E"    />
+   <direct input="BEL_FF-SB_FF.R" output="SB_DFFESR.R"    />
+   <direct input="BEL_FF-SB_FF.D" output="SB_DFFESR.D"    />
+   <direct input="SB_DFFESR.Q"    output="BEL_FF-SB_FF.Q" />
   </interconnect>
  </mode>
 
@@ -147,11 +147,11 @@
    <T_clock_to_Q max="10e-12" port="SB_DFFESS.Q" clock="C"/>
   </pb_type>
   <interconnect>
-   <direct name="C" input="BEL_FF-SB_FF.C" output="SB_DFFESS.C"    />
-   <direct name="E" input="BEL_FF-SB_FF.E" output="SB_DFFESS.E"    />
-   <direct name="S" input="BEL_FF-SB_FF.S" output="SB_DFFESS.S"    />
-   <direct name="D" input="BEL_FF-SB_FF.D" output="SB_DFFESS.D"    />
-   <direct name="Q" input="SB_DFFESS.Q"    output="BEL_FF-SB_FF.Q" />
+   <direct input="BEL_FF-SB_FF.C" output="SB_DFFESS.C"    />
+   <direct input="BEL_FF-SB_FF.E" output="SB_DFFESS.E"    />
+   <direct input="BEL_FF-SB_FF.S" output="SB_DFFESS.S"    />
+   <direct input="BEL_FF-SB_FF.D" output="SB_DFFESS.D"    />
+   <direct input="SB_DFFESS.Q"    output="BEL_FF-SB_FF.Q" />
   </interconnect>
  </mode>
 
@@ -167,10 +167,10 @@
    <T_clock_to_Q max="10e-12" port="SB_DFFR.Q" clock="C"/>
   </pb_type>
   <interconnect>
-   <direct name="C" input="BEL_FF-SB_FF.C" output="SB_DFFR.C"     />
-   <direct name="S" input="BEL_FF-SB_FF.S" output="SB_DFFR.R"     />
-   <direct name="D" input="BEL_FF-SB_FF.D" output="SB_DFFR.D"     />
-   <direct name="Q" input="SB_DFFR.Q"     output="BEL_FF-SB_FF.Q" />
+   <direct input="BEL_FF-SB_FF.C" output="SB_DFFR.C"     />
+   <direct input="BEL_FF-SB_FF.S" output="SB_DFFR.R"     />
+   <direct input="BEL_FF-SB_FF.D" output="SB_DFFR.D"     />
+   <direct input="SB_DFFR.Q"     output="BEL_FF-SB_FF.Q" />
   </interconnect>
  </mode>
 
@@ -186,10 +186,10 @@
    <T_clock_to_Q max="10e-12" port="SB_DFFS.Q" clock="C"/>
   </pb_type>
   <interconnect>
-   <direct name="C" input="BEL_FF-SB_FF.C" output="SB_DFFS.C"    />
-   <direct name="S" input="BEL_FF-SB_FF.S" output="SB_DFFS.S"    />
-   <direct name="D" input="BEL_FF-SB_FF.D" output="SB_DFFS.D"    />
-   <direct name="Q" input="SB_DFFS.Q"    output="BEL_FF-SB_FF.Q" />
+   <direct input="BEL_FF-SB_FF.C" output="SB_DFFS.C"    />
+   <direct input="BEL_FF-SB_FF.S" output="SB_DFFS.S"    />
+   <direct input="BEL_FF-SB_FF.D" output="SB_DFFS.D"    />
+   <direct input="SB_DFFS.Q"    output="BEL_FF-SB_FF.Q" />
   </interconnect>
  </mode>
 
@@ -205,10 +205,10 @@
    <T_clock_to_Q max="10e-12" port="SB_DFFSR.Q" clock="C"/>
   </pb_type>
   <interconnect>
-   <direct name="C" input="BEL_FF-SB_FF.C" output="SB_DFFSR.C"    />
-   <direct name="S" input="BEL_FF-SB_FF.S" output="SB_DFFSR.R"    />
-   <direct name="D" input="BEL_FF-SB_FF.D" output="SB_DFFSR.D"    />
-   <direct name="Q" input="SB_DFFSR.Q"    output="BEL_FF-SB_FF.Q" />
+   <direct input="BEL_FF-SB_FF.C" output="SB_DFFSR.C"    />
+   <direct input="BEL_FF-SB_FF.S" output="SB_DFFSR.R"    />
+   <direct input="BEL_FF-SB_FF.D" output="SB_DFFSR.D"    />
+   <direct input="SB_DFFSR.Q"    output="BEL_FF-SB_FF.Q" />
   </interconnect>
  </mode>
 
@@ -224,10 +224,10 @@
    <T_clock_to_Q max="10e-12" port="SB_DFFSS.Q" clock="C"/>
   </pb_type>
   <interconnect>
-   <direct name="C" input="BEL_FF-SB_FF.C" output="SB_DFFSS.C"    />
-   <direct name="S" input="BEL_FF-SB_FF.S" output="SB_DFFSS.S"    />
-   <direct name="D" input="BEL_FF-SB_FF.D" output="SB_DFFSS.D"    />
-   <direct name="Q" input="SB_DFFSS.Q"    output="BEL_FF-SB_FF.Q" />
+   <direct input="BEL_FF-SB_FF.C" output="SB_DFFSS.C"    />
+   <direct input="BEL_FF-SB_FF.S" output="SB_DFFSS.S"    />
+   <direct input="BEL_FF-SB_FF.D" output="SB_DFFSS.D"    />
+   <direct input="SB_DFFSS.Q"    output="BEL_FF-SB_FF.Q" />
   </interconnect>
  </mode>
 
@@ -241,11 +241,11 @@
    <T_clock_to_Q max="10e-12" port="SB_DFFN.Q" clock="C"/>
   </pb_type>
   <interconnect>
-   <direct name="C" input="BEL_FF-SB_FF.N" output="SB_DFFN.C"       />
-   <direct name="D" input="BEL_FF-SB_FF.D" output="SB_DFFN.D"        >
+   <direct input="BEL_FF-SB_FF.N" output="SB_DFFN.C"       />
+   <direct input="BEL_FF-SB_FF.D" output="SB_DFFN.D"        >
     <!-- <pack_pattern name="LUT+FF" in_port="BEL_FF-SB_FF.D" out_port="SB_DFFN.D" /> -->
    </direct>
-   <direct name="Q" input="SB_DFFN.Q"       output="BEL_FF-SB_FF.Q" />
+   <direct input="SB_DFFN.Q"       output="BEL_FF-SB_FF.Q" />
   </interconnect>
  </mode>
 
@@ -261,10 +261,10 @@
    <T_clock_to_Q max="10e-12" port="SB_DFFNE.Q" clock="C"/>
   </pb_type>
   <interconnect>
-   <direct name="C" input="BEL_FF-SB_FF.N" output="SB_DFFNE.C"      />
-   <direct name="E" input="BEL_FF-SB_FF.E" output="SB_DFFNE.E"      />
-   <direct name="D" input="BEL_FF-SB_FF.D" output="SB_DFFNE.D"      />
-   <direct name="Q" input="SB_DFFNE.Q"      output="BEL_FF-SB_FF.Q" />
+   <direct input="BEL_FF-SB_FF.N" output="SB_DFFNE.C"      />
+   <direct input="BEL_FF-SB_FF.E" output="SB_DFFNE.E"      />
+   <direct input="BEL_FF-SB_FF.D" output="SB_DFFNE.D"      />
+   <direct input="SB_DFFNE.Q"      output="BEL_FF-SB_FF.Q" />
   </interconnect>
  </mode>
 
@@ -282,11 +282,11 @@
    <T_clock_to_Q max="10e-12" port="SB_DFFNER.Q" clock="C"/>
   </pb_type>
   <interconnect>
-   <direct name="C" input="BEL_FF-SB_FF.N" output="SB_DFFNER.C"     />
-   <direct name="E" input="BEL_FF-SB_FF.E" output="SB_DFFNER.E"     />
-   <direct name="S" input="BEL_FF-SB_FF.R" output="SB_DFFNER.R"     />
-   <direct name="D" input="BEL_FF-SB_FF.D" output="SB_DFFNER.D"     />
-   <direct name="Q" input="SB_DFFNER.Q"     output="BEL_FF-SB_FF.Q" />
+   <direct input="BEL_FF-SB_FF.N" output="SB_DFFNER.C"     />
+   <direct input="BEL_FF-SB_FF.E" output="SB_DFFNER.E"     />
+   <direct input="BEL_FF-SB_FF.R" output="SB_DFFNER.R"     />
+   <direct input="BEL_FF-SB_FF.D" output="SB_DFFNER.D"     />
+   <direct input="SB_DFFNER.Q"     output="BEL_FF-SB_FF.Q" />
   </interconnect>
  </mode>
 
@@ -304,11 +304,11 @@
    <T_clock_to_Q max="10e-12" port="SB_DFFNES.Q" clock="C"/>
   </pb_type>
   <interconnect>
-   <direct name="C" input="BEL_FF-SB_FF.N" output="SB_DFFNES.C"     />
-   <direct name="E" input="BEL_FF-SB_FF.E" output="SB_DFFNES.E"     />
-   <direct name="S" input="BEL_FF-SB_FF.R" output="SB_DFFNES.R"     />
-   <direct name="D" input="BEL_FF-SB_FF.D" output="SB_DFFNES.D"     />
-   <direct name="Q" input="SB_DFFNES.Q"     output="BEL_FF-SB_FF.Q" />
+   <direct input="BEL_FF-SB_FF.N" output="SB_DFFNES.C"     />
+   <direct input="BEL_FF-SB_FF.E" output="SB_DFFNES.E"     />
+   <direct input="BEL_FF-SB_FF.R" output="SB_DFFNES.R"     />
+   <direct input="BEL_FF-SB_FF.D" output="SB_DFFNES.D"     />
+   <direct input="SB_DFFNES.Q"     output="BEL_FF-SB_FF.Q" />
   </interconnect>
  </mode>
 
@@ -326,11 +326,11 @@
    <T_clock_to_Q max="10e-12" port="SB_DFFNESR.Q" clock="C"/>
   </pb_type>
   <interconnect>
-   <direct name="C" input="BEL_FF-SB_FF.N" output="SB_DFFNESR.C"    />
-   <direct name="E" input="BEL_FF-SB_FF.E" output="SB_DFFNESR.E"    />
-   <direct name="S" input="BEL_FF-SB_FF.R" output="SB_DFFNESR.R"    />
-   <direct name="D" input="BEL_FF-SB_FF.D" output="SB_DFFNESR.D"    />
-   <direct name="Q" input="SB_DFFNESR.Q"    output="BEL_FF-SB_FF.Q" />
+   <direct input="BEL_FF-SB_FF.N" output="SB_DFFNESR.C"    />
+   <direct input="BEL_FF-SB_FF.E" output="SB_DFFNESR.E"    />
+   <direct input="BEL_FF-SB_FF.R" output="SB_DFFNESR.R"    />
+   <direct input="BEL_FF-SB_FF.D" output="SB_DFFNESR.D"    />
+   <direct input="SB_DFFNESR.Q"    output="BEL_FF-SB_FF.Q" />
   </interconnect>
  </mode>
 
@@ -348,11 +348,11 @@
    <T_clock_to_Q max="10e-12" port="SB_DFFNESS.Q" clock="C"/>
   </pb_type>
   <interconnect>
-   <direct name="C" input="BEL_FF-SB_FF.N" output="SB_DFFNESS.C"    />
-   <direct name="E" input="BEL_FF-SB_FF.E" output="SB_DFFNESS.E"    />
-   <direct name="S" input="BEL_FF-SB_FF.S" output="SB_DFFNESS.S"    />
-   <direct name="D" input="BEL_FF-SB_FF.D" output="SB_DFFNESS.D"    />
-   <direct name="Q" input="SB_DFFNESS.Q"    output="BEL_FF-SB_FF.Q" />
+   <direct input="BEL_FF-SB_FF.N" output="SB_DFFNESS.C"    />
+   <direct input="BEL_FF-SB_FF.E" output="SB_DFFNESS.E"    />
+   <direct input="BEL_FF-SB_FF.S" output="SB_DFFNESS.S"    />
+   <direct input="BEL_FF-SB_FF.D" output="SB_DFFNESS.D"    />
+   <direct input="SB_DFFNESS.Q"    output="BEL_FF-SB_FF.Q" />
   </interconnect>
  </mode>
 
@@ -368,10 +368,10 @@
    <T_clock_to_Q max="10e-12" port="SB_DFFNR.Q" clock="C"/>
   </pb_type>
   <interconnect>
-   <direct name="C" input="BEL_FF-SB_FF.N" output="SB_DFFNR.C"     />
-   <direct name="S" input="BEL_FF-SB_FF.S" output="SB_DFFNR.R"     />
-   <direct name="D" input="BEL_FF-SB_FF.D" output="SB_DFFNR.D"     />
-   <direct name="Q" input="SB_DFFNR.Q"     output="BEL_FF-SB_FF.Q" />
+   <direct input="BEL_FF-SB_FF.N" output="SB_DFFNR.C"     />
+   <direct input="BEL_FF-SB_FF.S" output="SB_DFFNR.R"     />
+   <direct input="BEL_FF-SB_FF.D" output="SB_DFFNR.D"     />
+   <direct input="SB_DFFNR.Q"     output="BEL_FF-SB_FF.Q" />
   </interconnect>
  </mode>
 
@@ -387,10 +387,10 @@
    <T_clock_to_Q max="10e-12" port="SB_DFFNS.Q" clock="C"/>
   </pb_type>
   <interconnect>
-   <direct name="C" input="BEL_FF-SB_FF.N" output="SB_DFFNS.C"    />
-   <direct name="S" input="BEL_FF-SB_FF.S" output="SB_DFFNS.S"    />
-   <direct name="D" input="BEL_FF-SB_FF.D" output="SB_DFFNS.D"    />
-   <direct name="Q" input="SB_DFFNS.Q"    output="BEL_FF-SB_FF.Q" />
+   <direct input="BEL_FF-SB_FF.N" output="SB_DFFNS.C"    />
+   <direct input="BEL_FF-SB_FF.S" output="SB_DFFNS.S"    />
+   <direct input="BEL_FF-SB_FF.D" output="SB_DFFNS.D"    />
+   <direct input="SB_DFFNS.Q"    output="BEL_FF-SB_FF.Q" />
   </interconnect>
  </mode>
 
@@ -406,10 +406,10 @@
    <T_clock_to_Q max="10e-12" port="SB_DFFNSR.Q" clock="C"/>
   </pb_type>
   <interconnect>
-   <direct name="C" input="BEL_FF-SB_FF.N" output="SB_DFFNSR.C"    />
-   <direct name="S" input="BEL_FF-SB_FF.S" output="SB_DFFNSR.R"    />
-   <direct name="D" input="BEL_FF-SB_FF.D" output="SB_DFFNSR.D"    />
-   <direct name="Q" input="SB_DFFNSR.Q"    output="BEL_FF-SB_FF.Q" />
+   <direct input="BEL_FF-SB_FF.N" output="SB_DFFNSR.C"    />
+   <direct input="BEL_FF-SB_FF.S" output="SB_DFFNSR.R"    />
+   <direct input="BEL_FF-SB_FF.D" output="SB_DFFNSR.D"    />
+   <direct input="SB_DFFNSR.Q"    output="BEL_FF-SB_FF.Q" />
   </interconnect>
  </mode>
 
@@ -425,10 +425,10 @@
    <T_clock_to_Q max="10e-12" port="SB_DFFNSS.Q" clock="C"/>
   </pb_type>
   <interconnect>
-   <direct name="C" input="BEL_FF-SB_FF.N" output="SB_DFFNSS.C"    />
-   <direct name="S" input="BEL_FF-SB_FF.S" output="SB_DFFNSS.S"    />
-   <direct name="D" input="BEL_FF-SB_FF.D" output="SB_DFFNSS.D"    />
-   <direct name="Q" input="SB_DFFNSS.Q"    output="BEL_FF-SB_FF.Q" />
+   <direct input="BEL_FF-SB_FF.N" output="SB_DFFNSS.C"    />
+   <direct input="BEL_FF-SB_FF.S" output="SB_DFFNSS.S"    />
+   <direct input="BEL_FF-SB_FF.D" output="SB_DFFNSS.D"    />
+   <direct input="SB_DFFNSS.Q"    output="BEL_FF-SB_FF.Q" />
   </interconnect>
  </mode>
 

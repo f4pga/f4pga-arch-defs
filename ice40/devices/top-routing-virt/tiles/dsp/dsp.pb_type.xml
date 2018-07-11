@@ -6,7 +6,7 @@
  <input  name="DUMMY_IN"  num_pins="4"/>
  <output name="DUMMY_OUT" num_pins="4"/>
  <interconnect>
-  <direct input="BLK_TL-DSP.DUMMY_IN" output="BLK_TL-DSP.DUMMY_OUT" name="DUMMY"/>
+  <direct input="BLK_TL-DSP.DUMMY_IN" output="BLK_TL-DSP.DUMMY_OUT"/>
  </interconnect>
  <fc in_type="abs" in_val="2" out_type="abs" out_val="2"/>
  <pinlocations pattern="custom">

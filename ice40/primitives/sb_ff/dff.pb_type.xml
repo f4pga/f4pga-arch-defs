@@ -17,9 +17,9 @@
    <T_clock_to_Q max="10e-12" port="VPR_FF.Q" clock="clk"/>
   </pb_type>
   <interconnect>
-   <direct name="C" input="DFF.C"    output="VPR_FF.clk" />
-   <direct name="D" input="DFF.D"    output="VPR_FF.D" />
-   <direct name="Q" input="VPR_FF.Q" output="DFF.Q" />
+   <direct input="DFF.C"    output="VPR_FF.clk" />
+   <direct input="DFF.D"    output="VPR_FF.D" />
+   <direct input="VPR_FF.Q" output="DFF.Q" />
   </interconnect>
  </mode>
 
@@ -33,9 +33,9 @@
    <T_setup    value="10e-12" port="SB_DFF.D" clock="C"/>
   </pb_type>
   <interconnect>
-   <direct name="Q" input="SB_DFF.Q" output="DFF.Q" />
-   <direct name="C" input="DFF.C"    output="SB_DFF.C" />
-   <direct name="D" input="DFF.D"    output="SB_DFF.D" />
+   <direct input="SB_DFF.Q" output="DFF.Q" />
+   <direct input="DFF.C"    output="SB_DFF.C" />
+   <direct input="DFF.D"    output="SB_DFF.D" />
   </interconnect>
  </mode>
 </pb_type>

@@ -19,10 +19,10 @@
    <T_setup    value="10e-12" port="SB_DFFE.D" clock="C"/>
   </pb_type>
   <interconnect>
-   <direct name="Q" input="SB_DFFE.Q" output="DFF.Q" />
-   <direct name="C" input="DFF.C"     output="SB_DFFE.C" />
-   <direct name="E" input="DFF.E"     output="SB_DFFE.E" />
-   <direct name="D" input="DFF.D"     output="SB_DFFE.D" />
+   <direct input="SB_DFFE.Q" output="DFF.Q" />
+   <direct input="DFF.C"     output="SB_DFFE.C" />
+   <direct input="DFF.E"     output="SB_DFFE.E" />
+   <direct input="DFF.D"     output="SB_DFFE.D" />
   </interconnect>
  </mode>
 </pb_type>
