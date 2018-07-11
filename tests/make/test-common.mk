@@ -326,8 +326,7 @@ $(OUT_TIME_VERILOG): $(OUT_BITSTREAM)
 
 #-------------------------------------------------------------------------
 
-# FIXME: Does this work?
-# Simulate using the testbench
+# Simulate using the testbench with verilog from bit file
 ifneq ($(TB),)
 $(OUT_LOCAL)/$(TB)_bit.vpp: $(TB_F) $(OUT_BIT_VERILOG) | $(OUT_LOCAL)
 	iverilog -v -DVCDFILE=\"$(OUT_LOCAL)/$(TB)_bit.vcd\" -DCLK_MHZ=0.01 -o $@ $^ $(TOP_DIR)/env/conda/share/yosys/$(CELLS_SIM)
