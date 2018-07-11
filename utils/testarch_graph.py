@@ -208,7 +208,7 @@ def main():
 
     parser = argparse.ArgumentParser()
     parser.add_argument("--verbose", action='store_true')
-    parser.add_argument("--route_chan_width", type=int, default=6)
+    parser.add_argument("--route_chan_width", type=int, default=20)
     parser.add_argument("--read_rr_graph")
     parser.add_argument("--write_rr_graph")
     args = parser.parse_args()
