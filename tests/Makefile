@@ -1,6 +1,5 @@
 
 SUBDIRS=$(sort $(wildcard [0-9]-*))
-ARCHS=$(sort $(basename $(notdir $(wildcard ../*/make/tests.mk))))
 ARCHS=$(sort $(patsubst ../%/make/tests.mk,%,$(wildcard ../*/make/tests.mk)))
 
 list:
