@@ -2,8 +2,10 @@
 
 DEVICE_DIR     = $(TOP_DIR)/artix7/devices
 DEVICE_TYPE   ?= xc7a50t-roi-virt
-DEVICE        ?= xc7a50t-test
-YOSYS_SCRIPT  ?= synth_xilinx -vpr;
+DEVICE        ?= xc7a50t
+PACKAGE       ?= test
+DEVICE_FULL   ?= $(DEVICE)-$(PACKAGE)
+YOSYS_SCRIPT  ?= synth_xilinx -vpr; write_blif -attr -cname -param $@
 RR_PATCH_TOOL ?= $(TOP_DIR)/artix7/utils/prjxray-routing-import.py
 RR_PATCH_CMD  ?= \
 	cp $(OUT_RRXML_VIRT) $(OUT_RRXML_REAL)
