@@ -31,3 +31,5 @@ env
 *.place
 *.route
 *.hlc
+build
+build-*
