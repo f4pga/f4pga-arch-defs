@@ -19,8 +19,8 @@
    </delay_matrix>
   </pb_type>
   <interconnect>
-   <direct input="BEL_LT-LUT.in"   output="BLK_IG-LUT4.in"  />
-   <direct input="BLK_IG-LUT4.out" output="BEL_LT-LUT.out"   >
+   <direct><port type="input" name="in"/><port type="output" from="BLK_IG-LUT4" name="in"/></direct>
+   <direct><port type="input" from="BLK_IG-LUT4" name="out"/><port type="output" name="out"/>
     <pack_pattern name="LUT+FF" in_port="BLK_IG-LUT4.out" out_port="BEL_LT-LUT.out" />
    </direct>
   </interconnect>
@@ -38,11 +38,11 @@
    <delay_constant max="10e-12" in_port="BLK_IG-SB_LUT4.I3" out_port="BLK_IG-SB_LUT4.O"/>
   </pb_type>
   <interconnect>
-   <direct input="BEL_LT-LUT.in[0]" output="BLK_IG-SB_LUT4.I0" />
-   <direct input="BEL_LT-LUT.in[1]" output="BLK_IG-SB_LUT4.I1" />
-   <direct input="BEL_LT-LUT.in[2]" output="BLK_IG-SB_LUT4.I2" />
-   <direct input="BEL_LT-LUT.in[3]" output="BLK_IG-SB_LUT4.I3" />
-   <direct input="BLK_IG-SB_LUT4.O" output="BEL_LT-LUT.out"     >
+   <direct><port type="input" name="in[0]"/><port type="output" from="BLK_IG-SB_LUT4" name="I0"/></direct>
+   <direct><port type="input" name="in[1]"/><port type="output" from="BLK_IG-SB_LUT4" name="I1"/></direct>
+   <direct><port type="input" name="in[2]"/><port type="output" from="BLK_IG-SB_LUT4" name="I2"/></direct>
+   <direct><port type="input" name="in[3]"/><port type="output" from="BLK_IG-SB_LUT4" name="I3"/></direct>
+   <direct><port type="input" from="BLK_IG-SB_LUT4" name="O"/><port type="output" name="out"/>
 	   <!-- <pack_pattern name="LUT+FF" in_port="BLK_IG-SB_LUT4" out_port="BEL_LT-LUT.out" /> -->
    </direct>
   </interconnect>

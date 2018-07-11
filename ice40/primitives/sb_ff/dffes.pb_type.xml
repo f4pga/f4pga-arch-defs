@@ -21,11 +21,11 @@
    <T_setup    value="10e-12" port="SB_DFFESR.D" clock="C"/>
   </pb_type>
   <interconnect>
-   <direct input="SB_DFFESR.Q" output="DFF.Q" />
-   <direct input="DFF.C"       output="SB_DFFESR.C" />
-   <direct input="DFF.E"       output="SB_DFFESR.E" />
-   <direct input="DFF.S"       output="SB_DFFESR.R" />
-   <direct input="DFF.D"       output="SB_DFFESR.D" />
+   <direct><port type="input" from="SB_DFFESR" name="Q"/><port type="output" name="Q"/></direct>
+   <direct><port type="input" name="C"/><port type="output" from="SB_DFFESR" name="C"/></direct>
+   <direct><port type="input" name="E"/><port type="output" from="SB_DFFESR" name="E"/></direct>
+   <direct><port type="input" name="S"/><port type="output" from="SB_DFFESR" name="R"/></direct>
+   <direct><port type="input" name="D"/><port type="output" from="SB_DFFESR" name="D"/></direct>
   </interconnect>
  </mode>
 
@@ -43,11 +43,11 @@
    <T_setup    value="10e-12" port="SB_DFFER.D" clock="C"/>
   </pb_type>
   <interconnect>
-   <direct input="SB_DFFER.Q" output="DFF.Q" />
-   <direct input="DFF.C"      output="SB_DFFER.C" />
-   <direct input="DFF.E"      output="SB_DFFER.E" />
-   <direct input="DFF.S"      output="SB_DFFER.R" />
-   <direct input="DFF.D"      output="SB_DFFER.D" />
+   <direct><port type="input" from="SB_DFFER" name="Q"/><port type="output" name="Q"/></direct>
+   <direct><port type="input" name="C"/><port type="output" from="SB_DFFER" name="C"/></direct>
+   <direct><port type="input" name="E"/><port type="output" from="SB_DFFER" name="E"/></direct>
+   <direct><port type="input" name="S"/><port type="output" from="SB_DFFER" name="R"/></direct>
+   <direct><port type="input" name="D"/><port type="output" from="SB_DFFER" name="D"/></direct>
   </interconnect>
  </mode>
 
@@ -65,11 +65,11 @@
    <T_setup    value="10e-12" port="SB_DFFESS.D" clock="C"/>
   </pb_type>
   <interconnect>
-   <direct input="SB_DFFESS.Q" output="DFF.Q" />
-   <direct input="DFF.C"       output="SB_DFFESS.C" />
-   <direct input="DFF.E"       output="SB_DFFESS.E" />
-   <direct input="DFF.S"       output="SB_DFFESS.S" />
-   <direct input="DFF.D"       output="SB_DFFESS.D" />
+   <direct><port type="input" from="SB_DFFESS" name="Q"/><port type="output" name="Q"/></direct>
+   <direct><port type="input" name="C"/><port type="output" from="SB_DFFESS" name="C"/></direct>
+   <direct><port type="input" name="E"/><port type="output" from="SB_DFFESS" name="E"/></direct>
+   <direct><port type="input" name="S"/><port type="output" from="SB_DFFESS" name="S"/></direct>
+   <direct><port type="input" name="D"/><port type="output" from="SB_DFFESS" name="D"/></direct>
   </interconnect>
  </mode>
 
@@ -87,11 +87,11 @@
    <T_setup    value="10e-12" port="SB_DFFES.D" clock="C"/>
   </pb_type>
   <interconnect>
-   <direct input="SB_DFFES.Q" output="DFF.Q" />
-   <direct input="DFF.C"      output="SB_DFFES.C" />
-   <direct input="DFF.E"      output="SB_DFFES.E" />
-   <direct input="DFF.S"      output="SB_DFFES.R" />
-   <direct input="DFF.D"      output="SB_DFFES.D" />
+   <direct><port type="input" from="SB_DFFES" name="Q"/><port type="output" name="Q"/></direct>
+   <direct><port type="input" name="C"/><port type="output" from="SB_DFFES" name="C"/></direct>
+   <direct><port type="input" name="E"/><port type="output" from="SB_DFFES" name="E"/></direct>
+   <direct><port type="input" name="S"/><port type="output" from="SB_DFFES" name="R"/></direct>
+   <direct><port type="input" name="D"/><port type="output" from="SB_DFFES" name="D"/></direct>
   </interconnect>
  </mode>
 </pb_type>

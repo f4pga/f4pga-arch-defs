@@ -16,12 +16,12 @@
     <output name="inpad" num_pins="1"/>
    </pb_type>
    <interconnect>
-    <mux input="input.inpad" output="PAD_IN-INPUT.D_IN[0]"/>
-    <mux input="input.inpad" output="PAD_IN-INPUT.D_IN[1]"/>
+    <mux><port type="input" from="input" name="inpad"/><port type="output" from="PAD_IN-INPUT" name="D_IN[0]"/></mux>
+    <mux><port type="input" from="input" name="inpad"/><port type="output" from="PAD_IN-INPUT" name="D_IN[1]"/></mux>
    </interconnect>
   </pb_type>
   <interconnect>
-   <direct input="PAD_IN-INPUT.D_IN" output="BLK_IG-IO.D_IN"/>
+   <direct><port type="input" from="PAD_IN-INPUT" name="D_IN"/><port type="output" name="D_IN"/></direct>
   </interconnect>
  </mode>
 
@@ -33,11 +33,15 @@
     <input name="outpad" num_pins="1"/>
    </pb_type>
    <interconnect>
-    <mux input="PAD_IN-OUTPUT.D_OUT[0] PAD_IN-OUTPUT.D_OUT[1]" output="output.outpad"/>
+    <mux>
+     <port type="input"  from="PAD_IN-OUTPUT" name="D_OUT[0]"/>
+     <port type="input"  from="PAD_IN-OUTPUT" name="D_OUT[1]"/>
+     <port type="output" from="output" name="outpad"/>
+    </mux>
    </interconnect>
   </pb_type>
   <interconnect>
-   <direct input="BLK_IG-IO.D_OUT" output="PAD_IN-OUTPUT.D_OUT"/>
+   <direct><port type="input" name="D_OUT"/><port type="output" from="PAD_IN-OUTPUT" name="D_OUT"/></direct>
   </interconnect>
  </mode>
 
