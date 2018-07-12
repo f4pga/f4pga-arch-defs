@@ -1,8 +1,22 @@
 include(v2x_tests.cmake)
 
+# Functional testing
+add_subdirectory(clocks)
+add_subdirectory(multiple_instance)
+
+# Simple design tests
+add_subdirectory(single_port_rom_mixed)
+add_subdirectory(simple_pll)
+
+# Tests from the VtR timing tutorial
 add_subdirectory(fig41-full-adder)
 add_subdirectory(fig42-dff)
-add_subdirectory(clocks)
+#add_subdirectory(fig43-single_port_ram_mixed)
+#add_subdirectory(fig44-single_port_ram_seq)
+#add_subdirectory(fig45-single_port_ram_seq_comb)
+#add_subdirectory(fig46-multiclock_dual_port_ram)
+
+# Tests which demonstrate DSP style systems
 add_subdirectory(dsp_combinational)
 # FIXME: Output is incorrectly marked as being clocked.
 #add_subdirectory(dsp_in_registered)
@@ -16,6 +30,4 @@ add_subdirectory(dsp_combinational)
 #add_subdirectory(dsp_out_registered)
 # FIXME: Input `m` and output is incorrectly marked as being clocked.
 #add_subdirectory(dsp_partial_registered)
-#add_subdirectory(dsp_modes)
-add_subdirectory(simple_pll)
-add_subdirectory(multiple_instance)
+add_subdirectory(dsp_modes)

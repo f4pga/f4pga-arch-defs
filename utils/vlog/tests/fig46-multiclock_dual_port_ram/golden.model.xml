@@ -1,0 +1,20 @@
+<models xmlns:xi="http://www.w3.org/2001/XInclude">
+  <!-- https://docs.verilogtorouting.org/en/latest/tutorials/arch/timing_modeling/#multi-clock-sequential-block-with-internal-paths -->
+  <model name="multiclock_dual_port_ram">
+    <input_ports>
+      <!-- Write Port -->
+      <port name="we1" clock="clk1" combinational_sink_ports="data2"/>
+      <port name="addr1" clock="clk1" combinational_sink_ports="data2"/>
+      <port name="data1" clock="clk1" combinational_sink_ports="data2"/>
+      <port name="clk1" is_clock="1"/>
+
+      <!-- Read Port -->
+      <port name="addr2" clock="clk2" combinational_sink_ports="data2"/>
+      <port name="clk2" is_clock="1"/>
+    </input_ports>
+    <output_ports>
+      <!-- Read Port -->
+      <port name="data2" clock="clk2" combinational_sink_ports="data2"/>
+    </output_ports>
+  </model>
+</models>

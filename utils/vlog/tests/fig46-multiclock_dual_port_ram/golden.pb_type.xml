@@ -1,0 +1,33 @@
+<pb_type name="mem_dp" blif_model=".subckt multiclock_dual_port_ram" num_pb="1">
+  <input name="addr1" num_pins="9"/>
+  <input name="data1" num_pins="64"/>
+  <input name="we1" num_pins="1"/>
+  <input name="addr2" num_pins="9"/>
+  <output name="data2" num_pins="64"/>
+  <clock name="clk1" num_pins="1"/>
+  <clock name="clk2" num_pins="1"/>
+
+  <!-- External input register timing -->
+  <T_setup value="50e-12" port="mem_dp.addr1" clock="clk1"/>
+  <T_setup value="50e-12" port="mem_dp.data1" clock="clk1"/>
+  <T_setup value="50e-12" port="mem_dp.we1" clock="clk1"/>
+  <T_setup value="50e-12" port="mem_dp.addr2" clock="clk2"/>
+
+  <!-- Internal input register timing -->
+  <T_clock_to_Q max="200e-12" port="mem_dp.addr1" clock="clk1"/>
+  <T_clock_to_Q max="200e-12" port="mem_dp.data1" clock="clk1"/>
+  <T_clock_to_Q max="200e-12" port="mem_dp.we1" clock="clk1"/>
+  <T_clock_to_Q max="200e-12" port="mem_dp.addr2" clock="clk2"/>
+
+  <!-- Internal combinational delay -->
+  <delay_constant max="740e-12" in_port="mem_dp.addr1" out_port="mem_dp.data2"/>
+  <delay_constant max="740e-12" in_port="mem_dp.data1" out_port="mem_dp.data2"/>
+  <delay_constant max="740e-12" in_port="mem_dp.we1" out_port="mem_dp.data2"/>
+  <delay_constant max="740e-12" in_port="mem_dp.addr2" out_port="mem_dp.data2"/>
+
+  <!-- Internal output register timing -->
+  <T_setup value="60e-12" port="mem_dp.data2" clock="clk2"/>
+
+  <!-- External output register timing -->
+  <T_clock_to_Q max="300e-12" port="mem_dp.data2" clock="clk2"/>
+</pb_type>
