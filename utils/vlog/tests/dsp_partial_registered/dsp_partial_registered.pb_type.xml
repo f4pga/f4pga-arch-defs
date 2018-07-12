@@ -1,0 +1,22 @@
+<pb_type name="mem_sp" blif_model=".subckt single_port_ram_mixed" num_pb="1">
+  <input name="addr" num_pins="9"/>
+  <input name="data" num_pins="64"/>
+  <input name="we" num_pins="1"/>
+  <output name="out" num_pins="64"/>
+  <clock name="clk" num_pins="1"/>
+
+  <!-- External input register timing -->
+  <T_setup value="50e-12" port="mem_sp.addr" clock="clk"/>
+  <T_setup value="50e-12" port="mem_sp.data" clock="clk"/>
+  <T_setup value="50e-12" port="mem_sp.we" clock="clk"/>
+
+  <!-- Internal input register timing -->
+  <T_clock_to_Q max="200e-12" port="mem_sp.addr" clock="clk"/>
+  <T_clock_to_Q max="200e-12" port="mem_sp.data" clock="clk"/>
+  <T_clock_to_Q max="200e-12" port="mem_sp.we" clock="clk"/>
+
+  <!-- Internal combinational delay -->
+  <delay_constant max="800e-12" in_port="mem_sp.addr" out_port="mem_sp.out"/>
+  <delay_constant max="800e-12" in_port="mem_sp.data" out_port="mem_sp.out"/>
+  <delay_constant max="800e-12" in_port="mem_sp.we" out_port="mem_sp.out"/>
+</pb_type>

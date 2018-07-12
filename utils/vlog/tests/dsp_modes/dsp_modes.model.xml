@@ -1,0 +1,16 @@
+<models xmlns:xi="http://www.w3.org/2001/XInclude">
+  <xi:include href="../dsp_in_registered/dsp_regi.model.xml" xpointer="xpointer(models/child::node())"/>
+  <xi:include href="../dsp_inout_registered/dsp_regio.model.xml" xpointer="xpointer(models/child::node())"/>
+  <xi:include href="../dsp_out_registered/dsp_rego.model.xml" xpointer="xpointer(models/child::node())"/>
+  <model name="dsp_modes">
+    <input_ports>
+      <port clock="clk" combinational_sink_ports="out" name="a"/>
+      <port clock="clk" combinational_sink_ports="out" name="b"/>
+      <port is_clock="1" name="clk"/>
+      <port clock="clk" combinational_sink_ports="out" name="m"/>
+    </input_ports>
+    <output_ports>
+      <port clock="clk" name="out"/>
+    </output_ports>
+  </model>
+</models>

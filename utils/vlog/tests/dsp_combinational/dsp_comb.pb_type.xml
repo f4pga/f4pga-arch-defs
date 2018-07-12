@@ -1,0 +1,14 @@
+<pb_type name="adder" blif_model=".subckt adder" num_pb="1">
+  <input name="a" num_pins="1"/>
+  <input name="b" num_pins="1"/>
+  <input name="cin" num_pins="1"/>
+  <output name="cout" num_pins="1"/>
+  <output name="sum" num_pins="1"/>
+
+  <delay_constant max="300e-12" in_port="adder.a" out_port="adder.sum"/>
+  <delay_constant max="300e-12" in_port="adder.b" out_port="adder.sum"/>
+  <delay_constant max="300e-12" in_port="adder.cin" out_port="adder.sum"/>
+  <delay_constant max="300e-12" in_port="adder.a" out_port="adder.cout"/>
+  <delay_constant max="300e-12" in_port="adder.b" out_port="adder.cout"/>
+  <delay_constant max="10e-12" in_port="adder.cin" out_port="adder.cout"/>
+</pb_type>
