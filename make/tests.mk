@@ -43,6 +43,13 @@ always-run:
 # Fully qualified device name
 FQDN = $(ARCH)-$(DEVICE_TYPE)-$(DEVICE)
 
+TEST_DIR = $(dir $(realpath $(firstword $(MAKEFILE_LIST))))
+OUT_LOCAL = $(TEST_DIR)/build-$(FQDN)
+$(info OUT_LOCAL = $(OUT_LOCAL))
+
+# FIXME: have to include again since some defines depend on OUT_LOCAL being set
+include $(TOP_DIR)/$(ARCH)/make/tests.mk
+
 # Were we put files for a specific architecture
 OUT_DEV_DIR = $(TOP_DIR)/$(ARCH)/build/$(FQDN)
 $(OUT_DEV_DIR):
@@ -126,10 +133,6 @@ endif
 $(error "Multiple sources found! $(SOURCES)")
 endif
 
-TEST_DIR = $(dir $(realpath $(firstword $(MAKEFILE_LIST))))
-OUT_LOCAL = $(TEST_DIR)/build-$(FQDN)
-
-$(info OUT_LOCAL = $(OUT_LOCAL))
 
 $(OUT_LOCAL):
 	mkdir -p $@
