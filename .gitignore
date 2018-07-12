@@ -8,4 +8,7 @@ __pycache__/
 
 # CMake output
 build
-*.orig
+build-*
+
+model.xml
+*.sort.xml
