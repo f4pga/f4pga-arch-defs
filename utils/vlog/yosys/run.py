@@ -140,6 +140,8 @@ def do_select(infiles, module, expr, prep=False, flatten=False):
     p = ""
     if prep:
         p = "prep -top {} {};".format(module, f)
+    else:
+        p = "proc;"
 
     outfile = tempfile.mktemp()
     sel_cmd = "{} cd {}; select -write {} {}".format(
