@@ -58,8 +58,8 @@ PACKAGE=sg48
 PROG_TOOL=$(ICEPROG_TOOL)
 endif
 
-# DPControl icevision board
-# iCE40UP5K-SG48
+# Default dummy
+# iCE40 hx1k-tq144 (same as icestick)
 # ---------------------------------------------
 ifeq ($(BOARD),none)
 DEVICE=hx1k
