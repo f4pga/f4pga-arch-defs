@@ -1,3 +1,5 @@
+`ifndef DSP_COMB
+`define DSP_COMB
 module dsp_comb (
 	a, b, m,
 	out
@@ -13,4 +15,4 @@ module dsp_comb (
 	// Full adder combinational logic
 	assign out = m ? a * b : a / b;
 endmodule
-
+`endif

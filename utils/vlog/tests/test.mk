@@ -1,5 +1,5 @@
 %.sort.xml: %.xml
-	xsltproc ../../../../common/xml/xmlsort.xsl $< > $@
+	xsltproc --xinclude ../../../../common/xml/xmlsort.xsl $< > $@
 
 model.xml: $(NAME).sim.v
 	V=1 ../../../vlog/vlog_to_model.py $< --top $(NAME)
