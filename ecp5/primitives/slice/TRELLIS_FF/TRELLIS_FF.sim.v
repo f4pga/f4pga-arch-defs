@@ -15,7 +15,7 @@ module TRELLIS_FF(input CLK, LSR, CE, DI, output reg Q);
 	wire muxlsr = (LSRMUX == "INV") ? ~LSR : LSR;
 	wire muxclk = (CLKMUX == "INV") ? ~CLK : CLK;
 
-	wire srval = (REGSET == "SET") ? 1'b1 : 1'b0;
+	localparam srval = (REGSET == "SET") ? 1'b1 : 1'b0;
 
 	initial Q = srval;
 
