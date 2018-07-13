@@ -300,7 +300,7 @@ def make_pb_type(mod):
     # Process IOs
     clocks = yosys.run.list_clocks(args.infiles, mod.name)
     for name, width, iodir in mod.ports:
-        ioattrs = {"name": name, "num_pins": str(width), "equivalent": "false"}
+        ioattrs = {"name": name, "num_pins": str(width)}
         pclass = mod.net_attr(name, "PORT_CLASS")
         if pclass is not None:
             ioattrs["port_class"] = pclass
