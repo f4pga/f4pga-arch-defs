@@ -1,22 +1,21 @@
 `default_nettype none
-module TRELLIS_RAM16X2 (
-	input DI0, DI1,
-	input WAD0, WAD1, WAD2, WAD3,
+module TRELLIS_DPR16X4 (
+	input [3:0] DI,
+	input [3:0] WAD,
 	input WRE, WCK,
-	input RAD0, RAD1, RAD2, RAD3,
-	output DO0, DO1
+	input [3:0] RAD,
+	output [3:0] DO
 );
   	parameter WCKMUX = "WCK";
 	parameter WREMUX = "WRE";
-	parameter INITVAL_0 = 16'h0000;
-	parameter INITVAL_1 = 16'h0000;
+	parameter [63:0] INITVAL = 64'h0000000000000000;
 
-	reg [1:0] mem[15:0];
+	reg [3:0] mem[15:0];
 
 	integer i;
 	initial begin
 		for (i = 0; i < 16; i = i + 1)
-			mem[i] <= {INITVAL_1[i], INITVAL_0[i]};
+			mem[i] <= INITVAL[4*i :+ 4];
 	end
 
 	wire muxwck = (WCKMUX == "INV") ? ~WCK : WCK;
@@ -28,7 +27,7 @@ module TRELLIS_RAM16X2 (
 
 	always @(posedge muxwck)
 		if (muxwre)
-			mem[{WAD3, WAD2, WAD1, WAD0}] <= {DI1, DI0};
+			mem[WAD] <= DI;
 
-	assign {DO1, DO0} = mem[{RAD3, RAD2, RAD1, RAD0}];
+	assign DO = mem[RAD];
 endmodule
