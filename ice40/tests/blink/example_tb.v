@@ -13,7 +13,7 @@ module test;
 	wire ledB;
 	wire ledC;
 	wire ledD;
-	top uut (clk, ledA, ledB, ledC, ledD);
+	top uut (.clk(clk), .LED2(ledA), .LED3(ledB), .LED4(ledC), .LED5(ledD));
 
 	initial begin
 		$dumpfile(`VCDFILE);
