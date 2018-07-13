@@ -13,3 +13,12 @@ RR_PATCH_CMD  ?= \
 #	$(RR_PATCH_TOOL) \
 #	--database $(PWD)/../third_party/prjxray-db/artix7/ \
 #	--start_x 35 --end_x 38 --start_y 1 --end_y 3
+
+# ---------------------------------------------
+
+# Fully qualified device name
+FQDN = $(ARCH)-$(DEVICE_TYPE)-$(DEVICE)
+OUT_LOCAL = $(TEST_DIR)/build-$(FQDN)
+
+# Were we put files for a specific architecture
+OUT_DEV_DIR = $(TOP_DIR)/$(ARCH)/build/$(FQDN)

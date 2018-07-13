@@ -11,3 +11,11 @@ RR_PATCH_CMD  ?= $(RR_PATCH_TOOL) \
 	--write_rr_graph $(OUT_RRXML_REAL)
 #RR_PATCH_TOOL ?= /bin/cp
 #RR_PATCH_CMD  ?= $(RR_PATCH_TOOL) $(OUT_RRXML_VIRT) $(OUT_RRXML_REAL)
+
+
+# Fully qualified device name
+FQDN = $(ARCH)-$(DEVICE_TYPE)-$(DEVICE)
+OUT_LOCAL = $(TEST_DIR)/build-$(FQDN)
+
+# Were we put files for a specific architecture
+OUT_DEV_DIR = $(TOP_DIR)/$(ARCH)/build/$(FQDN)

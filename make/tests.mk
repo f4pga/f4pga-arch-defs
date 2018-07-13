@@ -1,5 +1,6 @@
-TESTS_MK_DIR  := $(realpath $(dir $(lastword $(MAKEFILE_LIST))))
-TOP_DIR   := $(realpath $(TESTS_MK_DIR)/..)
+TESTS_MK_DIR := $(realpath $(dir $(lastword $(MAKEFILE_LIST))))
+TEST_DIR     := $(dir $(realpath $(firstword $(MAKEFILE_LIST))))
+TOP_DIR      := $(realpath $(TESTS_MK_DIR)/..)
 
 include $(TOP_DIR)/make/inc/common.mk
 include $(TOP_DIR)/make/inc/func.mk
@@ -33,25 +34,21 @@ endif
 ifeq (,$(RR_PATCH_CMD))
 $(error "RR_PATCH_CMD isn't defined in the ARCH file, please check.")
 endif
+ifeq (,$(OUT_LOCAL))
+$(error "OUT_LOCAL isn't defined in the ARCH file, please check.")
+endif
 
 always-run:
 	@true
 .PHONY: always-run
 
 ##########################################################################
-
-# Fully qualified device name
-FQDN = $(ARCH)-$(DEVICE_TYPE)-$(DEVICE)
-
-TEST_DIR = $(dir $(realpath $(firstword $(MAKEFILE_LIST))))
-OUT_LOCAL = $(TEST_DIR)/build-$(FQDN)
 $(info OUT_LOCAL = $(OUT_LOCAL))
 
-# FIXME: have to include again since some defines depend on OUT_LOCAL being set
-include $(TOP_DIR)/$(ARCH)/make/tests.mk
+$(OUT_LOCAL):
+	mkdir -p $@
 
-# Were we put files for a specific architecture
-OUT_DEV_DIR = $(TOP_DIR)/$(ARCH)/build/$(FQDN)
+
 $(OUT_DEV_DIR):
 	mkdir -p $@
 
@@ -133,9 +130,6 @@ endif
 $(error "Multiple sources found! $(SOURCES)")
 endif
 
-
-$(OUT_LOCAL):
-	mkdir -p $@
 
 ##########################################################################
 # Generate BLIF as start of vpr input.

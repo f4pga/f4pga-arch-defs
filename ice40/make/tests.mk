@@ -68,9 +68,6 @@ PROG_TOOL=true
 endif
 
 # ---------------------------------------------
-# ---------------------------------------------
-
-INPUT_IO_FILE=$(wildcard $(TEST_DIR)/$(BOARD).pcf)
 
 ifeq ($(DEVICE),)
 $(error No $$DEVICE set.)
@@ -81,6 +78,19 @@ endif
 ifeq ($(PROG_TOOL),)
 $(error No $$PROG_TOOL set.)
 endif
+
+# ---------------------------------------------
+
+# Fully qualified device name
+FQDN = $(ARCH)-$(DEVICE_TYPE)-$(DEVICE)
+OUT_LOCAL = $(TEST_DIR)/build-$(FQDN)
+
+# Were we put files for a specific architecture
+OUT_DEV_DIR = $(TOP_DIR)/$(ARCH)/build/$(FQDN)
+
+INPUT_IO_FILE=$(wildcard $(TEST_DIR)/$(BOARD).pcf)
+
+# ---------------------------------------------
 
 PROG_CMD ?= $(PROG_TOOL)
 DEVICE_DIR     = $(TOP_DIR)/ice40/devices
