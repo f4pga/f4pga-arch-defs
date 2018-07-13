@@ -103,7 +103,7 @@ with open(args.infiles[0], 'r') as f:
             continue
         deps_files.add(im.group(1))
 
-if len(deps_files) > 0:
+if True:
     # Has dependencies, not a leaf model
     for df in sorted(deps_files):
         abs_base = os.path.dirname(os.path.abspath(args.infiles[0]))
@@ -126,7 +126,7 @@ if len(deps_files) > 0:
             outfile=outfile,
             xptr="xpointer(models/child::node())"
         )
-else:
+if True:
     # Is a leaf model
     topname = tmod.attr("MODEL_NAME", top)
     modclass = tmod.attr("CLASS", "")
@@ -147,13 +147,16 @@ else:
         for name, width, iodir in ports:
             attrs = dict(name=name)
             sinks = yosys.run.get_combinational_sinks(args.infiles, top, name)
-            if len(sinks) > 0 and iodir == "input":
-                attrs["combinational_sink_ports"] = " ".join(sinks)
+            # FIXME: Check if ignoring clock for "combination_sink_ports" is a
+            # valid thing to do.
             if name in clocks:
                 attrs["is_clock"] = "1"
-            for clk in clocks:
-                if name in clk_sigs[clk]:
-                    attrs["clock"] = clk
+            else:
+                if len(sinks) > 0 and iodir == "input" and name not in clocks:
+                    attrs["combinational_sink_ports"] = " ".join(sinks)
+                for clk in clocks:
+                    if name in clk_sigs[clk]:
+                        attrs["clock"] = clk
             if iodir == "input":
                 ET.SubElement(inports_xml, "port", attrs)
             elif iodir == "output":
