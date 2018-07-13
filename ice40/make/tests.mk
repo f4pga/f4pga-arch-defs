@@ -32,6 +32,15 @@ $(PROG_TOOL):
 endif
 endif
 
+# iCE40-HX8K Breakout Board Evaluation Kit
+# iCE40-HX8K-CT256
+# ---------------------------------------------
+ifeq ($(BOARD),hx8k-b-evn)
+DEVICE=hx8k
+PACKAGE=ct256
+PROG_TOOL ?= $(ICEPROG_TOOL)
+endif
+
 # TinyFPGA B2
 # iCE40-LP8K-CM81
 # ---------------------------------------------
