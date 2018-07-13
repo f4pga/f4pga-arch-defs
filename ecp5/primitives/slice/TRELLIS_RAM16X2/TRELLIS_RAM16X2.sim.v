@@ -1,5 +1,5 @@
 `default_nettype none
-module TRELLIS_RAM16X12(
+module TRELLIS_RAM16X2 (
 	input DI0, DI1,
 	input WAD0, WAD1, WAD2, WAD3,
 	input WRE, WCK,

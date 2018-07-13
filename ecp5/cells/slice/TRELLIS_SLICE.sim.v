@@ -84,7 +84,7 @@ module TRELLIS_SLICE(
 			assign WADO2 = C0;
 			assign WADO3 = A0;
 		end else if (MODE == "DPRAM") begin
-			TRELLIS_RAM16X12 #(
+			TRELLIS_RAM16X2 #(
 				.INITVAL_0(LUT0_INITVAL),
 				.INITVAL_1(LUT1_INITVAL),
 				.WREMUX(WREMUX)
