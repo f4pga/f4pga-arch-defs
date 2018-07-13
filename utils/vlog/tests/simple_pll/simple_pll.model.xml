@@ -1,0 +1,10 @@
+<models xmlns:xi="http://www.w3.org/2001/XInclude">
+  <model name="simple_pll">
+    <input_ports>
+      <port name="in_clock" is_clock="1"/>
+    </input_ports>
+    <output_ports>
+      <port name="out_clock" is_clock="1"/>
+    </output_ports>
+  </model>
+</models>
