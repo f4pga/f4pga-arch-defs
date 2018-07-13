@@ -43,6 +43,16 @@ module TRELLIS_SLICE(
 	parameter [127:0] CCU2_INJECT1_1 = "NO";
 	parameter WREMUX = "WRE";
 
+	function [15:0] permute_initval;
+		input [15:0] initval;
+		integer i;
+		begin
+			for (i = 0; i < 16; i = i + 1) begin
+				permute_initval[{i[0], i[2], i[1], i[3]}] = initval[i];
+			end
+		end
+	endfunction
+
 	generate
 		if (MODE == "LOGIC") begin
 			// LUTs
@@ -85,14 +95,14 @@ module TRELLIS_SLICE(
 			assign WADO3 = A0;
 		end else if (MODE == "DPRAM") begin
 			TRELLIS_RAM16X2 #(
-				.INITVAL_0(LUT0_INITVAL),
-				.INITVAL_1(LUT1_INITVAL),
+				.INITVAL_0(permute_initval(LUT0_INITVAL)),
+				.INITVAL_1(permute_initval(LUT1_INITVAL)),
 				.WREMUX(WREMUX)
 			) ram_i (
 				.DI0(WD0), .DI1(WD1),
 				.WAD0(WAD0), .WAD1(WAD1), .WAD2(WAD2), .WAD3(WAD3),
 				.WRE(WRE), .WCK(WCK),
-				.RAD0(D0), .RAD1(C0), .RAD2(B0), .RAD3(A0),
+				.RAD0(D0), .RAD1(B0), .RAD2(C0), .RAD3(A0),
 				.DO0(F0), .DO1(F1)
 			);
 			// TODO: confirm RAD and INITVAL ordering
