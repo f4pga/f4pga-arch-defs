@@ -9,11 +9,22 @@ VPR   ?= vpr
 YOSYS ?= yosys
 
 # FIXME: We could probably detect the architecture using the path.
-ifneq (,$(ARCH))
-include $(TOP_DIR)/$(ARCH)/make/tests.mk
-else
+ifeq (,$(ARCH))
 $(error "Please set which $$ARCH you are using.")
 endif
+
+# set variables based on BOARD
+-include $(TOP_DIR)/$(ARCH)/make/tools.mk
+-include $(TOP_DIR)/$(ARCH)/make/boards.mk
+# Fully qualified device name
+FQDN = $(ARCH)-$(DEVICE_TYPE)-$(DEVICE)
+
+TEST_DIR = $(dir $(realpath $(firstword $(MAKEFILE_LIST))))
+OUT_LOCAL = $(TEST_DIR)/build-$(FQDN)
+$(info OUT_LOCAL = $(OUT_LOCAL))
+
+# include common ARCH specific rules and variables
+include $(TOP_DIR)/$(ARCH)/make/tests.mk
 
 ##########################################################################
 # Sanity check for ARCH file
@@ -48,7 +59,8 @@ $(info OUT_LOCAL = $(OUT_LOCAL))
 $(OUT_LOCAL):
 	mkdir -p $@
 
-
+# Were we put files for a specific architecture
+OUT_DEV_DIR = $(TOP_DIR)/$(ARCH)/build/$(FQDN)
 $(OUT_DEV_DIR):
 	mkdir -p $@
 
