@@ -22,9 +22,35 @@
 
  <!-- Description of the tile layouts available in the iCE40 family -->
  <layout>
+  <!-- lp384 -->
   <xi:include href="../layouts/icebox/lp384.cm36.fixed_layout.xml"/>
   <xi:include href="../layouts/icebox/lp384.cm49.fixed_layout.xml"/>
   <xi:include href="../layouts/icebox/lp384.qn32.fixed_layout.xml"/>
+  <!-- lp1k -->
+  <xi:include href="../layouts/icebox/lp1k.cb121.fixed_layout.xml"/>
+  <xi:include href="../layouts/icebox/lp1k.cb132.fixed_layout.xml"/>
+  <xi:include href="../layouts/icebox/lp1k.cb81.fixed_layout.xml"/>
+  <xi:include href="../layouts/icebox/lp1k.cm121.fixed_layout.xml"/>
+  <xi:include href="../layouts/icebox/lp1k.cm36.fixed_layout.xml"/>
+  <xi:include href="../layouts/icebox/lp1k.cm49.fixed_layout.xml"/>
+  <xi:include href="../layouts/icebox/lp1k.cm81.fixed_layout.xml"/>
+  <xi:include href="../layouts/icebox/lp1k.qn84.fixed_layout.xml"/>
+  <xi:include href="../layouts/icebox/lp1k.swg16tr.fixed_layout.xml"/>
+  <xi:include href="../layouts/icebox/lp1k.tq144.fixed_layout.xml"/>
+  <xi:include href="../layouts/icebox/lp1k.vq100.fixed_layout.xml"/>
+  <!-- lp8k -->
+  <xi:include href="../layouts/icebox/lp8k.bg121.fixed_layout.xml"/>
+  <xi:include href="../layouts/icebox/lp8k.cb132.fixed_layout.xml"/>
+  <xi:include href="../layouts/icebox/lp8k.cm121.fixed_layout.xml"/>
+  <xi:include href="../layouts/icebox/lp8k.cm225.fixed_layout.xml"/>
+  <xi:include href="../layouts/icebox/lp8k.cm81.fixed_layout.xml"/>
+  <xi:include href="../layouts/icebox/lp8k.ct256.fixed_layout.xml"/>
+  <!-- lm4k -->
+  <xi:include href="../layouts/icebox/lm4k.cm49.fixed_layout.xml"/>
+  <!-- up5k -->
+  <xi:include href="../layouts/icebox/up5k.sg48.fixed_layout.xml"/>
+  <xi:include href="../layouts/icebox/up5k.uwg30.fixed_layout.xml"/>
+  <!-- hx1k -->
   <xi:include href="../layouts/icebox/hx1k.cb121.fixed_layout.xml"/>
   <xi:include href="../layouts/icebox/hx1k.cb132.fixed_layout.xml"/>
   <xi:include href="../layouts/icebox/hx1k.cb81.fixed_layout.xml"/>
@@ -36,9 +62,7 @@
   <xi:include href="../layouts/icebox/hx1k.swg16tr.fixed_layout.xml"/>
   <xi:include href="../layouts/icebox/hx1k.tq144.fixed_layout.xml"/>
   <xi:include href="../layouts/icebox/hx1k.vq100.fixed_layout.xml"/>
-  <xi:include href="../layouts/icebox/lm4k.cm49.fixed_layout.xml"/>
-  <xi:include href="../layouts/icebox/up5k.sg48.fixed_layout.xml"/>
-  <xi:include href="../layouts/icebox/up5k.uwg30.fixed_layout.xml"/>
+  <!-- hx8k -->
   <xi:include href="../layouts/icebox/hx8k.bg121.fixed_layout.xml"/>
   <xi:include href="../layouts/icebox/hx8k.cb132.fixed_layout.xml"/>
   <xi:include href="../layouts/icebox/hx8k.cm121.fixed_layout.xml"/>
