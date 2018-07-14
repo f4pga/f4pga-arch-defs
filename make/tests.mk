@@ -234,9 +234,16 @@ VPR_CMD = \
 		--min_route_chan_width_hint $(VPR_ROUTE_CHAN_MINWIDTH_HINT) \
 		--route_chan_width $(VPR_ROUTE_CHAN_WIDTH) \
 		--read_rr_graph $(OUT_RRXML_REAL) \
+		--verbose_sweep on \
+		--allow_unrelated_clustering off \
+		--max_criticality 0.0 \
+		--target_ext_pin_util 0.7 \
+		--max_router_iterations 500 \
+		--routing_failure_predictor off \
 		--clock_modeling_method route \
 		--constant_net_method route
 
+#		--router_algorithm breadth_first \
 
 VPR_ARGS_FILE=$(OUT_LOCAL)/vpr.args
 $(VPR_ARGS_FILE): always-run | $(OUT_LOCAL)
