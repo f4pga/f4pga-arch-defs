@@ -24,7 +24,7 @@ module hx8kdemo (
 	input ser_rx,
 
 	output [7:0] leds,
-
+/*
 	output flash_csb,
 	output flash_clk,
 	inout  flash_io0,
@@ -41,6 +41,7 @@ module hx8kdemo (
 	output debug_flash_io1,
 	output debug_flash_io2,
 	output debug_flash_io3
+*/
 );
 	reg [5:0] reset_cnt = 0;
 	wire resetn = &reset_cnt;
@@ -49,6 +50,7 @@ module hx8kdemo (
 		reset_cnt <= reset_cnt + !resetn;
 	end
 
+	/*
 	wire flash_io0_oe, flash_io0_do, flash_io0_di;
 	wire flash_io1_oe, flash_io1_do, flash_io1_di;
 	wire flash_io2_oe, flash_io2_do, flash_io2_di;
@@ -63,6 +65,7 @@ module hx8kdemo (
 		.D_OUT_0({flash_io3_do, flash_io2_do, flash_io1_do, flash_io0_do}),
 		.D_IN_0({flash_io3_di, flash_io2_di, flash_io1_di, flash_io0_di})
 	);
+	*/
 
 	wire        iomem_valid;
 	reg         iomem_ready;
@@ -96,7 +99,7 @@ module hx8kdemo (
 
 		.ser_tx       (ser_tx      ),
 		.ser_rx       (ser_rx      ),
-
+/*
 		.flash_csb    (flash_csb   ),
 		.flash_clk    (flash_clk   ),
 
@@ -114,7 +117,7 @@ module hx8kdemo (
 		.flash_io1_di (flash_io1_di),
 		.flash_io2_di (flash_io2_di),
 		.flash_io3_di (flash_io3_di),
-
+*/
 		.irq_5        (1'b0        ),
 		.irq_6        (1'b0        ),
 		.irq_7        (1'b0        ),
@@ -129,11 +132,12 @@ module hx8kdemo (
 
 	assign debug_ser_tx = ser_tx;
 	assign debug_ser_rx = ser_rx;
-
+/*
 	assign debug_flash_csb = flash_csb;
 	assign debug_flash_clk = flash_clk;
 	assign debug_flash_io0 = flash_io0_di;
 	assign debug_flash_io1 = flash_io1_di;
 	assign debug_flash_io2 = flash_io2_di;
 	assign debug_flash_io3 = flash_io3_di;
+	*/
 endmodule
