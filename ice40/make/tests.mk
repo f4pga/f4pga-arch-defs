@@ -59,7 +59,7 @@ ARACHNE_PNR ?= arachne-pnr
 OUT_BLIF=$(OUT_LOCAL)/$(SOURCE).blif
 arachne-pnr: $(BIT_TIME) | $(OUT_LOCAL)
 	mkdir -p $(OUT_LOCAL)
-	$(YOSYS) -p "synth_ice40 -nocarry -blif $(OUT_BLIF)" $(SOURCE_F)
+	$(YOSYS) -p "synth_ice40 -nocarry -blif $(OUT_BLIF)" $(SOURCE_FILES)
 	$(ARACHNE_PNR) -d $(ICE_DEVICE) \
 		--post-pack-blif $(OUT_LOCAL)/arachne-pack.blif \
 		--post-pack-verilog $(OUT_LOCAL)/arachne-pack.v \
