@@ -12,15 +12,16 @@ import icebox
 # FIXME: Move this into icebox
 parts = [
     # LP Series (Low Power)
-    "lp384", "lp1k",
-    # Unsupported: "lp640", "lp4k", "lp8k",
+    "lp384", "lp1k", "lp8k",
+    # Unsupported: "lp640", "lp4k" (alias for lp8k),
 
     # LM Series (Low Power, Embedded IP)
     # Unsupported: "lm1k", "lm2k",
     "lm4k",
 
     # HX Series (High Performance)
-    "hx1k", "hx4k", "hx8k",
+    "hx1k", "hx8k",
+    # Unsupported: "hx4k" (alias for hx8k)
 
     # iCE40 UltraLite
     # Unsupported: "ul640", "ul1k",
@@ -42,4 +43,5 @@ if __name__ == "__main__":
         if ':' in package:
             continue
         for v in versions(part):
-            print("{}.{}".format(v, package))
+            device = "{}.{}".format(v, package)
+            print(device)
