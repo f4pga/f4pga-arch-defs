@@ -21,7 +21,6 @@ FQDN = $(ARCH)-$(DEVICE_TYPE)-$(DEVICE)
 
 TEST_DIR = $(dir $(realpath $(firstword $(MAKEFILE_LIST))))
 OUT_LOCAL = $(TEST_DIR)/build-$(FQDN)
-$(info OUT_LOCAL = $(OUT_LOCAL))
 
 # include common ARCH specific rules and variables
 include $(TOP_DIR)/$(ARCH)/make/tests.mk
@@ -125,56 +124,56 @@ rr_graph.xml: rr_graph.real.xml
 
 ##########################################################################
 ##########################################################################
-
+ifeq ($(SOURCES),)
 SOURCE_E = $(wildcard *.eblif)
 SOURCE_V = $(filter-out %_tb.v,$(wildcard *.v))
-SOURCE = $(basename $(SOURCE_V)$(SOURCE_E))
-$(info SOURCE = $(SOURCE))
-
-SOURCE_F = $(abspath $(SOURCE_V)$(SOURCE_E))
-
 SOURCES = $(SOURCE_E) $(SOURCE_V)
+else
+SOURCE_E = $(filter %.eblif,$(SOURCES))
+SOURCE_V = $(filter %.v,$(SOURCES))
+endif
 
-ifneq ($(words $(SOURCES)),1)
 ifeq ($(words $(SOURCES)),0)
 $(error "No sources found!")
 endif
-$(error "Multiple sources found! $(SOURCES)")
-endif
 
+SOURCE_FILES = $(abspath $(SOURCES))
+SOURCE_FIRST = $(firstword $(SOURCE_FILES))
+SOURCE = $(basename $(notdir $(firstword $(SOURCE_FILES))))
+
+$(info SOURCE_FILES = $(SOURCE_FILES))
+$(info SOURCE = $(SOURCE))
 
 ##########################################################################
 # Generate BLIF as start of vpr input.
 ##########################################################################
-
-OUT_EBLIF=$(OUT_LOCAL)/$(SOURCE).eblif
+OUT_EBLIF = $(OUT_LOCAL)/$(SOURCE).eblif
 
 # We have a Verilog file and use a Yosys command to convert it
 ifneq ($(SOURCE_V),)
-$(OUT_EBLIF): $(SOURCE_F) | $(OUT_LOCAL)
-	$(YOSYS) -p "$(YOSYS_SCRIPT)" $<
+$(OUT_EBLIF): $(SOURCE_FILES) | $(OUT_LOCAL)
+	$(YOSYS) -p "$(YOSYS_SCRIPT)" $^
 
-EQUIV_READ = read_verilog $(SOURCE_F)
-
+EQUIV_READ = read_verilog $(SOURCE_FILES)
 endif
 
 # We just have a BLIF file
 ifneq ($(SOURCE_E),)
-$(OUT_EBLIF): $(SOURCE_F) | $(OUT_LOCAL)
+$(OUT_EBLIF): $(SOURCE_FILES) | $(OUT_LOCAL)
 	cp $< $@
 
-EQUIV_READ = read_blif -wideports $(SOURCE_F)
+EQUIV_READ = read_blif -wideports $(SOURCE_FILES)
 endif
 
 # Always keep the eblif output
-.PRECIOUS: $(OUT_LOCAL)/$(SOURCE).eblif
+.PRECIOUS: $(OUT_EBLIF)
 
 # Quick shortcut
-eblif: $(OUT_LOCAL)/$(SOURCE).eblif
+eblif: $(OUT_EBLIF)
 	@true
 .PHONY: eblif
 
-synth: $(OUT_LOCAL)/$(SOURCE).eblif
+synth: $(OUT_EBLIF)
 	@true
 .PHONY: synth
 
@@ -182,12 +181,17 @@ synth: $(OUT_LOCAL)/$(SOURCE).eblif
 # Simulation
 ##########################################################################
 
-TB=$(basename $(wildcard $(SOURCE)_tb.v))
+ifeq ($(TESTBENCH_SOURCES),)
+TESTBENCH_SOURCES = $(wildcard $(SOURCE)_tb.v)
+endif
+
+TB=$(basename $(notdir $(firstword $(TESTBENCH_SOURCES))))
+
 ifneq ($(TB),)
 
 TB_F=$(abspath $(TB).v)
 
-$(OUT_LOCAL)/$(TB).vpp: $(TB_F) $(SOURCE_F) | $(OUT_LOCAL)
+$(OUT_LOCAL)/$(TB).vpp: $(TB_F) $(SOURCE_FILES) | $(OUT_LOCAL)
 	iverilog -v -DVCDFILE=\"$(OUT_LOCAL)/$(TB).vcd\" -DCLK_MHZ=0.001 -o $@ $^ $(TOP_DIR)/env/conda/share/yosys/$(CELLS_SIM)
 
 $(OUT_LOCAL)/$(TB).vcd: $(OUT_LOCAL)/$(TB).vpp | $(OUT_LOCAL)
@@ -298,7 +302,11 @@ $(OUT_LOCAL)/top_post_synthesis.blif: $(OUT_ANALYSIS)
 
 # Performing routing generates HLC automatically, nothing to do here
 #-------------------------------------------------------------------------
-OUT_HLC=$(OUT_LOCAL)/top.hlc
+ifeq ($(TOP),)
+TOP=top
+endif
+
+OUT_HLC=$(OUT_LOCAL)/$(TOP).hlc
 $(OUT_HLC): $(OUT_ROUTE)
 .PRECIOUS: $(OUT_HLC)
 

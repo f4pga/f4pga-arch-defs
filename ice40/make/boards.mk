@@ -1,9 +1,3 @@
-ICESTORM ?= $(TOP_DIR)/third_party/icestorm/
-
-ICEPROG_TOOL=$(ICESTORM)/iceprog/iceprog
-$(ICEPROG_TOOL):
-	cd $(ICESTORM)/iceprog && make iceprog
-
 # Lattice iCEstick
 # http://www.latticesemi.com/icestick
 # ---------------------------------------------
@@ -57,7 +51,6 @@ $(PROG_TOOL):
 endif
 endif
 
-
 # TinyFPGA BX
 # iCE40-LP8K-CM81
 # ---------------------------------------------
@@ -104,16 +97,3 @@ endif
 ifeq ($(PROG_TOOL),)
 $(error No $$PROG_TOOL set.)
 endif
-
-# ---------------------------------------------
-
-# Fully qualified device name
-FQDN = $(ARCH)-$(DEVICE_TYPE)-$(DEVICE)
-OUT_LOCAL = $(TEST_DIR)/build-$(FQDN)
-
-# Were we put files for a specific architecture
-OUT_DEV_DIR = $(TOP_DIR)/$(ARCH)/build/$(FQDN)
-
-INPUT_IO_FILE=$(wildcard $(TEST_DIR)/$(BOARD).pcf)
-
-# ---------------------------------------------
