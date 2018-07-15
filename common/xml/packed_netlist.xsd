@@ -1,0 +1,77 @@
+<?xml version="1.0"?>
+<!--
+  Copyright 2018 Jeppe Johansen
+
+  XML 1.0 Schema for packed netlist format developed based on documentation here:
+  http://vtr-verilog-to-routing.readthedocs.io/en/latest/vpr/file_formats.html#packed-netlist-format-net
+-->
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
+
+  <xs:complexType name="named_value">
+    <xs:simpleContent>
+      <xs:extension base="xs:string">
+        <xs:attribute name="name" type="xs:string" use="required"/>
+      </xs:extension>
+    </xs:simpleContent>
+  </xs:complexType>
+
+  <xs:complexType name="port">
+    <xs:simpleContent>
+      <xs:extension base="xs:string">
+        <xs:attribute name="name" type="xs:string" use="required"/>
+      </xs:extension>
+    </xs:simpleContent>
+  </xs:complexType>
+
+  <xs:complexType name="port_rotation_map">
+    <xs:simpleContent>
+      <xs:extension base="xs:string">
+        <xs:attribute name="name" type="xs:string" use="required"/>
+      </xs:extension>
+    </xs:simpleContent>
+  </xs:complexType>
+
+  <xs:complexType name="port_group">
+    <xs:sequence>
+      <xs:element name="port" type="port" minOccurs="0" maxOccurs="unbounded"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="block">
+    <xs:choice minOccurs="0" maxOccurs="unbounded">
+      <xs:element name="inputs">
+        <xs:complexType>
+          <xs:choice minOccurs="0" maxOccurs="unbounded">
+            <xs:element name="port" type="port"/>
+            <xs:element name="port_rotation_map" type="port_rotation_map"/>
+          </xs:choice>
+        </xs:complexType>
+      </xs:element>
+      <xs:element name="outputs" type="port_group"/>
+      <xs:element name="clocks" type="port_group"/>
+      <xs:element name="attributes">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element name="attribute" type="named_value" minOccurs="0" maxOccurs="unbounded"/>
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+      <xs:element name="parameters">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element name="parameter" type="named_value" minOccurs="0" maxOccurs="unbounded"/>
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+
+      <xs:element name="block" type="block"/>
+    </xs:choice>
+
+    <xs:attribute name="name" type="xs:string"/>
+    <xs:attribute name="instance" type="xs:string"/>
+    <xs:attribute name="mode" type="xs:string"/>
+  </xs:complexType>
+
+  <xs:element name="block" type="block"/>
+
+</xs:schema>
