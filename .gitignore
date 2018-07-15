@@ -11,4 +11,5 @@ build
 build-*
 
 model.xml
+pb_type.xml
 *.sort.xml
