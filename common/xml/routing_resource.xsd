@@ -1,4 +1,10 @@
 <?xml version="1.0"?>
+<!--
+  Copyright 2018 Jeppe Johansen
+
+  XML 1.0 Schema for rr_graph structure developed based on documentation here:
+  http://vtr-verilog-to-routing.readthedocs.io/en/latest/vpr/file_formats.html#routing-resource-graph-file-format-xml
+-->
 <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
 
   <xs:complexType name="channel">
