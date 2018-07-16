@@ -20,10 +20,14 @@ module TRELLIS_DPR16X4 (
 
 	wire muxwck = (WCKMUX == "INV") ? ~WCK : WCK;
 
-	wire muxwre = (WREMUX == "1") ? 1'b1 :
-							  (WREMUX == "0") ? 1'b0 :
-							  (WREMUX == "INV") ? ~WRE :
-							  WRE;
+	reg muxwre;
+	always @(*)
+		case (WREMUX)
+			"1": muxwre = 1'b1;
+			"0": muxwre = 1'b0;
+			"INV": muxwre = ~WRE;
+			default: muxwre = WRE;
+		endcase
 
 	always @(posedge muxwck)
 		if (muxwre)
