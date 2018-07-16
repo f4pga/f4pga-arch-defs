@@ -43,7 +43,7 @@ module DPR16X4C (
 	integer i;
 	initial begin
 		for (i = 0; i < 15; i = i + 1) begin
-			ram[i] = conv_initval[4*i +: 4];
+			ram[i] <= conv_initval[4*i +: 4];
 		end
 	end
 
