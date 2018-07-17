@@ -1,0 +1,10 @@
+set_io --warn-no-port LED3 J9
+set_io --warn-no-port LED4 E8
+set_io --warn-no-port LED5 J2
+
+# LED
+set_io --warn-no-port LED2 B3
+
+# 16MHz clock
+set_io --warn-no-port clk B2 # input
+

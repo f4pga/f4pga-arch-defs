@@ -53,7 +53,25 @@ PROG_TOOL=$(CONDA_DIR)/bin/tinyfpgab
 PROG_CMD ?= $(PROG_TOOL) --program
 
 $(PROG_TOOL):
-	pip install tinyfpgab
+	$(CONDA_PIP) install tinyfpgab
+
+endif
+endif
+
+
+# TinyFPGA BX
+# iCE40-LP8K-CM81
+# ---------------------------------------------
+ifeq ($(BOARD),tinyfpga-bx)
+DEVICE=hx8k
+PACKAGE=cm81
+
+ifeq ($(PROG_TOOL),)
+PROG_TOOL=$(CONDA_DIR)/bin/tinyprog
+PROG_CMD ?= $(PROG_TOOL) -p
+
+$(PROG_TOOL):
+	$(CONDA_PIP) install tinyprog
 
 endif
 endif
