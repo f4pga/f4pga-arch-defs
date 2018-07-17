@@ -7,6 +7,26 @@
 -->
 <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
 
+  <!-- Metadata -->
+  <xs:complexType name="meta">
+    <xs:simpleContent>
+        <xs:extension base="xs:string">
+          <xs:attribute name="name" type="xs:string" use="required"/>
+          <xs:attribute name="xoffset" type="xs:int"/>
+          <xs:attribute name="x_offset" type="xs:int"/>
+          <xs:attribute name="yoffset" type="xs:int"/>
+          <xs:attribute name="y_offset" type="xs:int"/>
+        </xs:extension>
+    </xs:simpleContent>
+  </xs:complexType>
+
+  <xs:complexType name="metadata">
+    <xs:sequence>
+      <xs:element name="meta" type="meta" minOccurs="0" maxOccurs="unbounded"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <!-- Actual definitions -->
   <xs:complexType name="port">
     <xs:attribute name="name" type="xs:string" use="required" />
     <xs:attribute name="is_clock" type="xs:boolean" />
@@ -50,6 +70,9 @@
   </xs:complexType>
 
   <xs:complexType name="single">
+    <xs:sequence>
+      <xs:element name="metadata" type="metadata" minOccurs="0" maxOccurs="unbounded"/>
+    </xs:sequence>
     <xs:attribute name="type" type="xs:string" use="required"/>
     <xs:attribute name="priority" type="xs:int" use="required"/>
     <xs:attribute name="x" type="xs:string" use="required"/>
@@ -326,10 +349,19 @@
   </xs:group>
 
   <xs:complexType name="interconnect_type">
-    <xs:group ref="timing_group" minOccurs="0"/>
+    <xs:choice maxOccurs="unbounded">
+      <xs:element name="pack_pattern" type="pack_pattern"/>
+      <xs:group ref="timing_group" minOccurs="0"/>
+    </xs:choice>
     <xs:attribute name="name" type="xs:string" use="required"/>
     <xs:attribute name="input" type="xs:string" use="required"/>
     <xs:attribute name="output" type="xs:string" use="required"/>
+  </xs:complexType>
+  
+  <xs:complexType name="pack_pattern">
+    <xs:attribute name="name" type="xs:string" use="required"/>
+    <xs:attribute name="in_port" type="xs:string" use="required"/>
+    <xs:attribute name="out_port" type="xs:string" use="required"/>
   </xs:complexType>
 
   <xs:complexType name="interconnect">
@@ -337,13 +369,6 @@
       <xs:element name="complete" type="interconnect_type"/>
       <xs:element name="direct" type="interconnect_type"/>
       <xs:element name="mux" type="interconnect_type"/>
-      <xs:element name="pack_pattern">
-        <xs:complexType>
-          <xs:attribute name="name" type="xs:string" use="required"/>
-          <xs:attribute name="in_port" type="xs:string" use="required"/>
-          <xs:attribute name="out_port" type="xs:string" use="required"/>
-        </xs:complexType>
-      </xs:element>
     </xs:choice>
   </xs:complexType>
 
@@ -451,23 +476,25 @@
     <xs:attribute name="out_val" type="xs:double" use="required"/>
   </xs:complexType>
 
+  <xs:complexType name="mode">
+    <xs:choice maxOccurs="unbounded" minOccurs="0">
+      <xs:element name="pb_type" type="pb_type"/>
+      <xs:element name="interconnect" type="interconnect"/>
+      <xs:element name="pinlocations" type="pinlocations"/>
+      <xs:element name="switchblock_locations" type="switchblock_locations"/>
+      <xs:element name="metadata" type="metadata"/>
+    </xs:choice>
+    <xs:attribute name="name" type="xs:string" use="required"/>
+  </xs:complexType>
+
   <xs:complexType name="pb_type">
     <xs:choice maxOccurs="unbounded" minOccurs="0">
       <xs:element name="pb_type" type="pb_type"/>
       <xs:element name="input" type="pb_type_input"/>
       <xs:element name="output" type="pb_type_output"/>
       <xs:element name="clock" type="pb_type_output"/>
-      <xs:element name="mode">
-        <xs:complexType>
-          <xs:choice maxOccurs="unbounded" minOccurs="0">
-            <xs:element name="pb_type" type="pb_type"/>
-            <xs:element name="interconnect" type="interconnect"/>
-            <xs:element name="pinlocations" type="pinlocations"/>
-            <xs:element name="switchblock_locations" type="switchblock_locations"/>
-          </xs:choice>
-          <xs:attribute name="name" type="xs:string" use="required"/>
-        </xs:complexType>
-      </xs:element>
+      <xs:element name="metadata" type="metadata"/>
+      <xs:element name="mode" type="mode"/>
       <xs:element name="interconnect" type="interconnect"/>
       <xs:element name="pinlocations" type="pinlocations"/>
       <xs:element name="switchblock_locations" type="switchblock_locations"/>
@@ -559,7 +586,7 @@
     <xs:attribute name="x_offset" type="xs:int" use="required"/>
     <xs:attribute name="y_offset" type="xs:int" use="required"/>
     <xs:attribute name="z_offset" type="xs:int" use="required"/>
-    <xs:attribute name="switch_name" type="xs:string" use="required"/>
+    <xs:attribute name="switch_name" type="xs:string"/>
   </xs:complexType>
 
   <xs:complexType name="directlist">
