@@ -175,66 +175,61 @@
     <xs:attribute name="switch_id" type="xs:int" use="required"/>
   </xs:complexType>
 
+  <xs:complexType name="channels">
+    <xs:choice maxOccurs="unbounded">
+      <xs:element name="channel" type="channel"/>
+      <xs:element name="x_list" type="x_list"/>
+      <xs:element name="y_list" type="y_list"/>
+    </xs:choice>
+  </xs:complexType>
+
+  <xs:complexType name="switches">
+    <xs:sequence>
+      <xs:element name="switch" type="switch" maxOccurs="unbounded"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="segments">
+    <xs:sequence>
+      <xs:element name="segment" type="segment" maxOccurs="unbounded"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="block_types">
+    <xs:sequence>
+      <xs:element name="block_type" type="block_type" maxOccurs="unbounded"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="grid_locs">
+    <xs:sequence>
+      <xs:element name="grid_loc" type="grid_loc" maxOccurs="unbounded"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="rr_nodes">
+    <xs:choice maxOccurs="unbounded">
+      <xs:element name="node" type="node"/>
+    </xs:choice>
+  </xs:complexType>
+  
+  <xs:complexType name="rr_edges">
+    <xs:choice maxOccurs="unbounded">
+      <xs:element name="edge" type="edge"/>
+    </xs:choice>
+  </xs:complexType>
+
   <xs:element name="rr_graph">
     <xs:complexType>
       <xs:choice maxOccurs="unbounded">
-        <xs:element name="channels">
-          <xs:complexType>
-            <xs:choice maxOccurs="unbounded">
-              <xs:element name="channel" type="channel"/>
-              <xs:element name="x_list" type="x_list"/>
-              <xs:element name="y_list" type="y_list"/>
-            </xs:choice>
-          </xs:complexType>
-        </xs:element>
+        <xs:element name="channels" type="channels"/>
+        <xs:element name="switches" type="switches"/>
+        <xs:element name="segments" type="segments"/>
+        <xs:element name="block_types" type="block_types"/>
+        <xs:element name="grid" type="grid_locs"/>
+        <xs:element name="rr_nodes" type="rr_nodes"/>
 
-        <xs:element name="switches">
-          <xs:complexType>
-            <xs:sequence>
-              <xs:element name="switch" type="switch" maxOccurs="unbounded"/>
-            </xs:sequence>
-          </xs:complexType>
-        </xs:element>
-
-        <xs:element name="segments">
-          <xs:complexType>
-            <xs:sequence>
-              <xs:element name="segment" type="segment" maxOccurs="unbounded"/>
-            </xs:sequence>
-          </xs:complexType>
-        </xs:element>
-
-        <xs:element name="block_types">
-          <xs:complexType>
-            <xs:sequence>
-              <xs:element name="block_type" type="block_type" maxOccurs="unbounded"/>
-            </xs:sequence>
-          </xs:complexType>
-        </xs:element>
-
-        <xs:element name="grid">
-          <xs:complexType>
-            <xs:sequence>
-              <xs:element name="grid_loc" type="grid_loc" maxOccurs="unbounded"/>
-            </xs:sequence>
-          </xs:complexType>
-        </xs:element>
-
-        <xs:element name="rr_nodes">
-          <xs:complexType>
-            <xs:choice maxOccurs="unbounded">
-              <xs:element name="node" type="node"/>
-            </xs:choice>
-          </xs:complexType>
-        </xs:element>
-
-        <xs:element name="rr_edges">
-          <xs:complexType>
-            <xs:choice maxOccurs="unbounded">
-              <xs:element name="edge" type="edge"/>
-            </xs:choice>
-          </xs:complexType>
-        </xs:element>
+        <xs:element name="rr_edges" type="rr_edges"/>
       </xs:choice>
 
       <xs:attribute name="tool_name" type="xs:string"/>
