@@ -1,4 +1,4 @@
-`include "../dsp_combinational/dsp_comb.sim.v"
+`include "../dsp_combinational/dsp_combinational.sim.v"
 
 /* DSP Block with register on both the inputs and the output */
 module dsp_partial_registered (clk, a, b, m, out);
@@ -20,7 +20,7 @@ module dsp_partial_registered (clk, a, b, m, out);
 	end
 
 	wire [DATA_WIDTH-1:0] c_out;
-	dsp_comb comb (.a(a), .b(b), .m(m), .out(c_out));
+	dsp_combinational comb (.a(q_a), .b(q_b), .m(m), .out(c_out));
 
 	/* Output register */
 	reg [DATA_WIDTH-1:0] q_out;

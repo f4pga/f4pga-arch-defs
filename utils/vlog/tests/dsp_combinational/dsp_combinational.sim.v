@@ -1,6 +1,6 @@
 `ifndef DSP_COMB
 `define DSP_COMB
-module dsp_comb (
+module dsp_combinational (
 	a, b, m,
 	out
 );

@@ -1,2 +1,2 @@
-NAME=dsp_regio
+NAME=dsp_inout_registered
 include ../test.mk

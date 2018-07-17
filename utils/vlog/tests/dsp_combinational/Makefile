@@ -1,2 +1,2 @@
-NAME=dsp_comb
+NAME=dsp_combinational
 include ../test.mk

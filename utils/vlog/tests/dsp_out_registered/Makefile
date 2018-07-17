@@ -1,2 +1,2 @@
-NAME=dsp_rego
+NAME=dsp_out_registered
 include ../test.mk
