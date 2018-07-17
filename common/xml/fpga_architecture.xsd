@@ -10,13 +10,13 @@
   <!-- Metadata -->
   <xs:complexType name="meta">
     <xs:simpleContent>
-        <xs:extension base="xs:string">
-          <xs:attribute name="name" type="xs:string" use="required"/>
-          <xs:attribute name="xoffset" type="xs:int"/>
-          <xs:attribute name="x_offset" type="xs:int"/>
-          <xs:attribute name="yoffset" type="xs:int"/>
-          <xs:attribute name="y_offset" type="xs:int"/>
-        </xs:extension>
+      <xs:extension base="xs:string">
+        <xs:attribute name="name" type="xs:string" use="required"/>
+        <xs:attribute name="xoffset" type="xs:int"/>
+        <xs:attribute name="x_offset" type="xs:int"/>
+        <xs:attribute name="yoffset" type="xs:int"/>
+        <xs:attribute name="y_offset" type="xs:int"/>
+      </xs:extension>
     </xs:simpleContent>
   </xs:complexType>
 
@@ -26,12 +26,24 @@
     </xs:sequence>
   </xs:complexType>
 
+  <xs:simpleType name="stringlist">
+    <xs:list itemType="xs:string"/>
+  </xs:simpleType>
+
+  <xs:simpleType name="intlist">
+    <xs:list itemType="xs:int"/>
+  </xs:simpleType>
+
+  <xs:simpleType name="doublelist">
+    <xs:list itemType="xs:double"/>
+  </xs:simpleType>
+
   <!-- Actual definitions -->
   <xs:complexType name="port">
     <xs:attribute name="name" type="xs:string" use="required" />
     <xs:attribute name="is_clock" type="xs:boolean" />
     <xs:attribute name="clock" type="xs:string" />
-    <xs:attribute name="combinational_sink_ports" type="xs:string" />
+    <xs:attribute name="combinational_sink_ports" type="stringlist" />
   </xs:complexType>
 
   <xs:complexType name="port_list">
@@ -304,7 +316,7 @@
 
   <xs:complexType name="delay_matrix">
     <xs:simpleContent>
-      <xs:extension base="xs:string">
+      <xs:extension base="doublelist">
         <xs:attribute name="type" type="delay_matrix_type" use="required"/>
         <xs:attribute name="in_port" type="xs:string" use="required"/>
         <xs:attribute name="out_port" type="xs:string" use="required"/>
@@ -354,14 +366,14 @@
       <xs:group ref="timing_group" minOccurs="0"/>
     </xs:choice>
     <xs:attribute name="name" type="xs:string" use="required"/>
-    <xs:attribute name="input" type="xs:string" use="required"/>
-    <xs:attribute name="output" type="xs:string" use="required"/>
+    <xs:attribute name="input" type="stringlist" use="required"/>
+    <xs:attribute name="output" type="stringlist" use="required"/>
   </xs:complexType>
   
   <xs:complexType name="pack_pattern">
     <xs:attribute name="name" type="xs:string" use="required"/>
-    <xs:attribute name="in_port" type="xs:string" use="required"/>
-    <xs:attribute name="out_port" type="xs:string" use="required"/>
+    <xs:attribute name="in_port" type="stringlist" use="required"/>
+    <xs:attribute name="out_port" type="stringlist" use="required"/>
   </xs:complexType>
 
   <xs:complexType name="interconnect">
@@ -426,19 +438,19 @@
     </xs:restriction>
   </xs:simpleType>
 
+  <xs:complexType name="loc">
+    <xs:simpleContent>
+      <xs:extension base="stringlist">
+        <xs:attribute name="side" type="loc_side" use="required"/>
+        <xs:attribute name="xoffset" type="xs:int" default="0"/>
+        <xs:attribute name="yoffset" type="xs:int" default="0"/>
+      </xs:extension>
+    </xs:simpleContent>
+  </xs:complexType>
+
   <xs:complexType name="pinlocations">
     <xs:sequence>
-      <xs:element name="loc" maxOccurs="unbounded" minOccurs="0">
-        <xs:complexType>
-          <xs:simpleContent>
-            <xs:extension base="xs:string">
-              <xs:attribute name="side" type="loc_side" use="required"/>
-              <xs:attribute name="xoffset" type="xs:int" default="0"/>
-              <xs:attribute name="yoffset" type="xs:int" default="0"/>
-            </xs:extension>
-          </xs:simpleContent>
-        </xs:complexType>
-      </xs:element>
+      <xs:element name="loc" type="loc" maxOccurs="unbounded" minOccurs="0" />
     </xs:sequence>
     <xs:attribute name="pattern" type="pinlocations_pattern"/>
   </xs:complexType>
@@ -537,14 +549,8 @@
 
   <xs:complexType name="segment_block">
     <xs:simpleContent>
-      <xs:extension base="xs:string">
-        <xs:attribute name="type" use="required">
-          <xs:simpleType>
-            <xs:restriction base="xs:string">
-              <xs:enumeration value="pattern"/>
-            </xs:restriction>
-          </xs:simpleType>
-        </xs:attribute>
+      <xs:extension base="intlist">
+        <xs:attribute name="type" type="xs:string" use="required" fixed="pattern"/>
       </xs:extension>
     </xs:simpleContent>
   </xs:complexType>
