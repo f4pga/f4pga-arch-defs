@@ -18,7 +18,7 @@
  */
 
 `timescale 1 ns / 1 ps
-
+`include "spiflash.v"
 module testbench;
 	reg clk;
 	always #5 clk = (clk === 1'b0);
@@ -53,9 +53,9 @@ module testbench;
 		.flash_csb(flash_csb),
 		.flash_clk(flash_clk),
 		.flash_io0(flash_io0),
-		.flash_io1(flash_io1),
+		.flash_io1(flash_io1)/*,
 		.flash_io2(flash_io2),
-		.flash_io3(flash_io3)
+		.flash_io3(flash_io3)*/
 	);
 
 	spiflash spiflash (
