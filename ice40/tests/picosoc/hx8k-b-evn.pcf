@@ -3,10 +3,10 @@
 
 set_io clk J3
 
-#set_io flash_csb R12
-#set_io flash_clk R11
-#set_io flash_io0 P12
-#set_io flash_io1 P11
+set_io flash_csb R12
+set_io flash_clk R11
+set_io flash_io0 P12
+set_io flash_io1 P11
 
 # for QSPI mode the flash chip on the iCE40-HX8K Breakout Board
 # must be replaced with one that supports QSPI and the IO2 and IO3
