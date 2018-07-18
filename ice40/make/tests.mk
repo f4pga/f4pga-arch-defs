@@ -63,7 +63,7 @@ endif
 # iCE40-LP8K-CM81
 # ---------------------------------------------
 ifeq ($(BOARD),tinyfpga-bx)
-DEVICE=hx8k
+DEVICE=lp8k
 PACKAGE=cm81
 
 ifeq ($(PROG_TOOL),)
