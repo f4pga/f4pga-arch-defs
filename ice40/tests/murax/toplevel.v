@@ -10,26 +10,32 @@ module toplevel(
     input   io_B10,
     output [7:0] io_led
   );
-  
+
   wire [31:0] io_gpioA_read;
   wire [31:0] io_gpioA_write;
   wire [31:0] io_gpioA_writeEnable;
   wire io_mainClk;
   wire io_jtag_tck;
 
+  assign io_mainClk = io_J3;
+  /*
   SB_GB mainClkBuffer (
     .USER_SIGNAL_TO_GLOBAL_BUFFER (io_J3),
     .GLOBAL_BUFFER_OUTPUT ( io_mainClk)
   );
+  */
 
+  assign io_jtag_tck = io_H16;
+  /*
   SB_GB jtagClkBuffer (
     .USER_SIGNAL_TO_GLOBAL_BUFFER (io_H16),
     .GLOBAL_BUFFER_OUTPUT ( io_jtag_tck)
   );
+  */
 
   assign io_led = io_gpioA_write[7 : 0];
 
-  Murax murax ( 
+  Murax murax (
     .io_asyncReset(0),
     .io_mainClk (io_mainClk ),
     .io_jtag_tck(io_jtag_tck),
@@ -41,5 +47,5 @@ module toplevel(
     .io_gpioA_writeEnable(io_gpioA_writeEnable),
     .io_uart_txd(io_B12),
     .io_uart_rxd(io_B10)
-  );		
+  );
 endmodule
