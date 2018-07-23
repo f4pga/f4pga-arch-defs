@@ -17,7 +17,7 @@
    <input  name="D" num_pins="1"/>
    <T_clock_to_Q max="10e-12" port="SB_DFFESR.Q" clock="C"/>
    <T_setup    value="10e-12" port="SB_DFFESR.E" clock="C"/>
-   <T_setup    value="10e-12" port="SB_DFFESR.R" clock="C"/>
+   <T_setup    value="10e-12" port="SB_DFFESR.S" clock="C"/>
    <T_setup    value="10e-12" port="SB_DFFESR.D" clock="C"/>
   </pb_type>
   <interconnect>
@@ -73,13 +73,13 @@
   </interconnect>
  </mode>
 
- <!-- module SB_DFFES (output Q, input C, E, R, D); -->
+ <!-- module SB_DFFES (output Q, input C, E, S, D); -->
  <mode name="SB_DFFES">
   <pb_type name="SB_DFFES" num_pb="1" blif_model=".subckt SB_DFFES">
    <output name="Q" num_pins="1"/>
    <clock  name="C" num_pins="1"/>
    <input  name="E" num_pins="1"/>
-   <input  name="R" num_pins="1"/>
+   <input  name="S" num_pins="1"/>
    <input  name="D" num_pins="1"/>
    <T_clock_to_Q max="10e-12" port="SB_DFFES.Q" clock="C"/>
    <T_setup    value="10e-12" port="SB_DFFES.E" clock="C"/>
@@ -90,7 +90,7 @@
    <direct><port type="input" from="SB_DFFES" name="Q"/><port type="output" name="Q"/></direct>
    <direct><port type="input" name="C"/><port type="output" from="SB_DFFES" name="C"/></direct>
    <direct><port type="input" name="E"/><port type="output" from="SB_DFFES" name="E"/></direct>
-   <direct><port type="input" name="S"/><port type="output" from="SB_DFFES" name="R"/></direct>
+   <direct><port type="input" name="S"/><port type="output" from="SB_DFFES" name="S"/></direct>
    <direct><port type="input" name="D"/><port type="output" from="SB_DFFES" name="D"/></direct>
   </interconnect>
  </mode>

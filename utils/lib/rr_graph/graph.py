@@ -2223,6 +2223,7 @@ class RoutingGraph:
                     segment_id=None,
                     side=None,
                     timing=None,
+                    capacity=1,
                     metadata={}):
         """Create an node.
 
@@ -2250,8 +2251,7 @@ class RoutingGraph:
         attrib = {
             'id': str(self._next_id(RoutingNode)),
             'type': ntype.value,
-            # FIXME: Hard setting capacity to 1?
-            'capacity': str(1),
+            'capacity': str(capacity),
         }
         if ntype.track:
             assert direction != None
@@ -2674,7 +2674,7 @@ class Graph:
 
         return pin_node
 
-    def create_node_from_track(self, track):
+    def create_node_from_track(self, track, capacity=1):
         """
         Creates the CHANX/CHANY node for a Track object.
 
@@ -2698,7 +2698,8 @@ class Graph:
             track.idx,
             track.type.value,
             direction=track.direction,
-            segment_id=track.segment_id)
+            segment_id=track.segment_id,
+            capacity=capacity)
 
         if track.name is not None:
             self.routing.globalnames.add(track.name, track_node)
@@ -2829,7 +2830,8 @@ class Graph:
                         idx=None,
                         name=None,
                         typeh=None,
-                        direction=None):
+                        direction=None,
+                        capacity=1):
         """Create track object and corresponding nodes"""
         if not isinstance(start, Position):
             start = Position(*start)
@@ -2846,14 +2848,14 @@ class Graph:
             name=name,
             typeh=typeh,
             direction=direction)
-        track_node = self.create_node_from_track(track)
+        track_node = self.create_node_from_track(track, capacity)
 
         return track, track_node
 
     def pad_channels(self, segment):
         """Workaround for https://github.com/verilog-to-routing/vtr-verilog-to-routing/issues/339"""
         for track in self.channels.pad_channels(segment):
-            self.create_node_from_track(track)
+            self.create_node_from_track(track, capacity=0)
 
     def extract_pin_meta(self):
         """Export pin placement as pin_meta[(block, pin)] to import when rebuilding pin nodes"""

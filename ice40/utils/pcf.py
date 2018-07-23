@@ -18,7 +18,7 @@ def parse_pcf(f, pin_map, icecube2_hacks=False):
                 p = re.sub(r"_obuf$", "", p)
                 p = re.sub(r"_gb_io$", "", p)
                 p = re.sub(r"_pad(_[0-9]+|)$", r"\1", p)
-            if not re.match(r"[a-zA-Z_][a-zA-Z0-9_]*$", p):
+            if not re.match(r"[a-zA-Z_][a-zA-Z0-9_]*(\[[0-9]*\])?$", p):
                 p = "\\%s " % p
             if len(line) > 3:
                 pinloc = tuple([int(s) for s in line[2:]])
