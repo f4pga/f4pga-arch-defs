@@ -37,6 +37,7 @@ ifeq ($(BOARD),hx8k-b-evn)
 DEVICE=hx8k
 PACKAGE=ct256
 PROG_TOOL ?= $(ICEPROG_TOOL)
+PROG_CMD ?= $(PROG_TOOL) -S
 endif
 
 # TinyFPGA B2
