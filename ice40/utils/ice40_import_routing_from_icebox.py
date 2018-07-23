@@ -524,14 +524,16 @@ def add_dummy_tracks(g, ic):
         track, track_node = g.create_xy_track(
             pos_icebox2vpr(istart), pos_icebox2vpr(iend),
             segment=dummy,
-            direction=channel.Track.Direction.BI)
+            direction=channel.Track.Direction.BI,
+            capacity=0)
     for y in range(-2, ic.max_y+2):
         istart = PositionIcebox(0, y)
         iend = PositionIcebox(ic.max_x, y)
         track, track_node = g.create_xy_track(
             pos_icebox2vpr(istart), pos_icebox2vpr(iend),
             segment=dummy,
-            direction=channel.Track.Direction.BI)
+            direction=channel.Track.Direction.BI,
+            capacity=0)
 
 
 # FIXME: Currently unused.
