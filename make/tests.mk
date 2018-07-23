@@ -133,6 +133,12 @@ SOURCE_E = $(filter %.eblif,$(SOURCES))
 SOURCE_V = $(filter %.v,$(SOURCES))
 endif
 
+ifneq ($(words $(SOURCE_E)),0)
+ifneq ($(words $(SOURCE_E)),1)
+$(error "Too many eblif sources found!")
+endif
+endif
+
 ifeq ($(words $(SOURCES)),0)
 $(error "No sources found!")
 endif
