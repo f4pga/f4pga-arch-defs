@@ -1,8 +1,11 @@
 <!-- set: ai sw=1 ts=1 sta et -->
 <!-- Flip flop found inside the iCE40 -->
 <pb_type name="BEL_FF-SB_FF" num_pb="1">
- <clock  name="C" num_pins="1"/>
- <clock  name="N" num_pins="1"/>
+ <clock  name="PCLK" num_pins="1"/>
+ <clock  name="NCLK" num_pins="1"/>
+ <clock  name="PCEN" num_pins="1"/>
+ <clock  name="NCEN" num_pins="1"/>
+
  <input  name="E" num_pins="1"/>
  <input  name="S" num_pins="1"/>
  <input  name="R" num_pins="1"/>
@@ -19,7 +22,7 @@
    <T_clock_to_Q max="10e-12" port="VPR_FF.Q" clock="clk"/>
   </pb_type>
   <interconnect>
-   <direct><port type="input" name="C"/><port type="output" from="VPR_FF" name="clk"/></direct>
+   <direct><port type="input" name="PCLK"/><port type="output" from="VPR_FF" name="clk"/></direct>
    <direct><port type="input" name="D"/><port type="output" from="VPR_FF" name="D"/>
     <pack_pattern name="LUT+FF" in_port="BEL_FF-SB_FF.D" out_port="VPR_FF.D" />
    </direct>
@@ -40,7 +43,7 @@
    <T_clock_to_Q max="10e-12" port="SB_DFF.Q" clock="C"/>
   </pb_type>
   <interconnect>
-   <direct><port type="input" name="C"/><port type="output" from="SB_DFF" name="C"/></direct>
+   <direct><port type="input" name="PCLK"/><port type="output" from="SB_DFF" name="C"/></direct>
    <direct><port type="input" name="D"/><port type="output" from="SB_DFF" name="D"/>
     <!-- <pack_pattern name="LUT+FF" in_port="BEL_FF-SB_FF.D" out_port="SB_DFF.D" /> -->
    </direct>
@@ -60,7 +63,7 @@
    <T_clock_to_Q max="10e-12" port="SB_DFFE.Q" clock="C"/>
   </pb_type>
   <interconnect>
-   <direct><port type="input" name="C"/><port type="output" from="SB_DFFE" name="C"/></direct>
+   <direct><port type="input" name="PCEN"/><port type="output" from="SB_DFFE" name="C"/></direct>
    <direct><port type="input" name="E"/><port type="output" from="SB_DFFE" name="E"/></direct>
    <direct><port type="input" name="D"/><port type="output" from="SB_DFFE" name="D"/></direct>
    <direct><port type="input" from="SB_DFFE" name="Q" /><port type="output" name="Q"/></direct>
@@ -81,7 +84,7 @@
    <T_clock_to_Q max="10e-12" port="SB_DFFER.Q" clock="C"/>
   </pb_type>
   <interconnect>
-   <direct><port type="input" name="C"/><port type="output" from="SB_DFFER" name="C"/></direct>
+   <direct><port type="input" name="PCEN"/><port type="output" from="SB_DFFER" name="C"/></direct>
    <direct><port type="input" name="E"/><port type="output" from="SB_DFFER" name="E"/></direct>
    <direct><port type="input" name="R"/><port type="output" from="SB_DFFER" name="R"/></direct>
    <direct><port type="input" name="D"/><port type="output" from="SB_DFFER" name="D"/></direct>
@@ -103,7 +106,7 @@
    <T_clock_to_Q max="10e-12" port="SB_DFFES.Q" clock="C"/>
   </pb_type>
   <interconnect>
-   <direct><port type="input" name="C"/><port type="output" from="SB_DFFES" name="C"/></direct>
+   <direct><port type="input" name="PCEN"/><port type="output" from="SB_DFFES" name="C"/></direct>
    <direct><port type="input" name="E"/><port type="output" from="SB_DFFES" name="E"/></direct>
    <direct><port type="input" name="S"/><port type="output" from="SB_DFFES" name="S"/></direct>
    <direct><port type="input" name="D"/><port type="output" from="SB_DFFES" name="D"/></direct>
@@ -125,7 +128,7 @@
    <T_clock_to_Q max="10e-12" port="SB_DFFESR.Q" clock="C"/>
   </pb_type>
   <interconnect>
-   <direct><port type="input" name="C"/><port type="output" from="SB_DFFESR" name="C"/></direct>
+   <direct><port type="input" name="PCEN"/><port type="output" from="SB_DFFESR" name="C"/></direct>
    <direct><port type="input" name="E"/><port type="output" from="SB_DFFESR" name="E"/></direct>
    <direct><port type="input" name="R"/><port type="output" from="SB_DFFESR" name="R"/></direct>
    <direct><port type="input" name="D"/><port type="output" from="SB_DFFESR" name="D"/></direct>
@@ -147,7 +150,7 @@
    <T_clock_to_Q max="10e-12" port="SB_DFFESS.Q" clock="C"/>
   </pb_type>
   <interconnect>
-   <direct><port type="input" name="C"/><port type="output" from="SB_DFFESS" name="C"/></direct>
+   <direct><port type="input" name="PCEN"/><port type="output" from="SB_DFFESS" name="C"/></direct>
    <direct><port type="input" name="E"/><port type="output" from="SB_DFFESS" name="E"/></direct>
    <direct><port type="input" name="S"/><port type="output" from="SB_DFFESS" name="S"/></direct>
    <direct><port type="input" name="D"/><port type="output" from="SB_DFFESS" name="D"/></direct>
@@ -167,7 +170,7 @@
    <T_clock_to_Q max="10e-12" port="SB_DFFR.Q" clock="C"/>
   </pb_type>
   <interconnect>
-   <direct><port type="input" name="C"/><port type="output" from="SB_DFFR" name="C"/></direct>
+   <direct><port type="input" name="PCLK"/><port type="output" from="SB_DFFR" name="C"/></direct>
    <direct><port type="input" name="S"/><port type="output" from="SB_DFFR" name="R"/></direct>
    <direct><port type="input" name="D"/><port type="output" from="SB_DFFR" name="D"/></direct>
    <direct><port type="input" from="SB_DFFR" name="Q" /><port type="output" name="Q"/></direct>
@@ -186,7 +189,7 @@
    <T_clock_to_Q max="10e-12" port="SB_DFFS.Q" clock="C"/>
   </pb_type>
   <interconnect>
-   <direct><port type="input" name="C"/><port type="output" from="SB_DFFS" name="C"/></direct>
+   <direct><port type="input" name="PCLK"/><port type="output" from="SB_DFFS" name="C"/></direct>
    <direct><port type="input" name="S"/><port type="output" from="SB_DFFS" name="S"/></direct>
    <direct><port type="input" name="D"/><port type="output" from="SB_DFFS" name="D"/></direct>
    <direct><port type="input" from="SB_DFFS" name="Q" /><port type="output" name="Q"/></direct>
@@ -205,7 +208,7 @@
    <T_clock_to_Q max="10e-12" port="SB_DFFSR.Q" clock="C"/>
   </pb_type>
   <interconnect>
-   <direct><port type="input" name="C"/><port type="output" from="SB_DFFSR" name="C"/></direct>
+   <direct><port type="input" name="PCLK"/><port type="output" from="SB_DFFSR" name="C"/></direct>
    <direct><port type="input" name="S"/><port type="output" from="SB_DFFSR" name="R"/></direct>
    <direct><port type="input" name="D"/><port type="output" from="SB_DFFSR" name="D"/></direct>
    <direct><port type="input" from="SB_DFFSR" name="Q" /><port type="output" name="Q"/></direct>
@@ -224,7 +227,7 @@
    <T_clock_to_Q max="10e-12" port="SB_DFFSS.Q" clock="C"/>
   </pb_type>
   <interconnect>
-   <direct><port type="input" name="C"/><port type="output" from="SB_DFFSS" name="C"/></direct>
+   <direct><port type="input" name="PCLK"/><port type="output" from="SB_DFFSS" name="C"/></direct>
    <direct><port type="input" name="S"/><port type="output" from="SB_DFFSS" name="S"/></direct>
    <direct><port type="input" name="D"/><port type="output" from="SB_DFFSS" name="D"/></direct>
    <direct><port type="input" from="SB_DFFSS" name="Q" /><port type="output" name="Q"/></direct>
@@ -241,7 +244,7 @@
    <T_clock_to_Q max="10e-12" port="SB_DFFN.Q" clock="C"/>
   </pb_type>
   <interconnect>
-   <direct><port type="input" name="N"/><port type="output" from="SB_DFFN" name="C" /></direct>
+   <direct><port type="input" name="NCLK"/><port type="output" from="SB_DFFN" name="C" /></direct>
    <direct><port type="input" name="D"/><port type="output" from="SB_DFFN" name="D" />
     <!-- <pack_pattern name="LUT+FF" in_port="BEL_FF-SB_FF.D" out_port="SB_DFFN.D" /> -->
    </direct>
@@ -261,7 +264,7 @@
    <T_clock_to_Q max="10e-12" port="SB_DFFNE.Q" clock="C"/>
   </pb_type>
   <interconnect>
-   <direct><port type="input" name="N"/><port type="output" from="SB_DFFNE" name="C"/></direct>
+   <direct><port type="input" name="NCEN"/><port type="output" from="SB_DFFNE" name="C"/></direct>
    <direct><port type="input" name="E"/><port type="output" from="SB_DFFNE" name="E"/></direct>
    <direct><port type="input" name="D"/><port type="output" from="SB_DFFNE" name="D"/></direct>
    <direct><port type="input" from="SB_DFFNE" name="Q" /><port type="output" name="Q"/></direct>
@@ -282,7 +285,7 @@
    <T_clock_to_Q max="10e-12" port="SB_DFFNER.Q" clock="C"/>
   </pb_type>
   <interconnect>
-   <direct><port type="input" name="N"/><port type="output" from="SB_DFFNER" name="C"/></direct>
+   <direct><port type="input" name="NCEN"/><port type="output" from="SB_DFFNER" name="C"/></direct>
    <direct><port type="input" name="E"/><port type="output" from="SB_DFFNER" name="E"/></direct>
    <direct><port type="input" name="R"/><port type="output" from="SB_DFFNER" name="R"/></direct>
    <direct><port type="input" name="D"/><port type="output" from="SB_DFFNER" name="D"/></direct>
@@ -304,7 +307,7 @@
    <T_clock_to_Q max="10e-12" port="SB_DFFNES.Q" clock="C"/>
   </pb_type>
   <interconnect>
-   <direct><port type="input" name="N"/><port type="output" from="SB_DFFNES" name="C"/></direct>
+   <direct><port type="input" name="NCEN"/><port type="output" from="SB_DFFNES" name="C"/></direct>
    <direct><port type="input" name="E"/><port type="output" from="SB_DFFNES" name="E"/></direct>
    <direct><port type="input" name="R"/><port type="output" from="SB_DFFNES" name="R"/></direct>
    <direct><port type="input" name="D"/><port type="output" from="SB_DFFNES" name="D"/></direct>
@@ -326,7 +329,7 @@
    <T_clock_to_Q max="10e-12" port="SB_DFFNESR.Q" clock="C"/>
   </pb_type>
   <interconnect>
-   <direct><port type="input" name="N"/><port type="output" from="SB_DFFNESR" name="C"/></direct>
+   <direct><port type="input" name="NCEN"/><port type="output" from="SB_DFFNESR" name="C"/></direct>
    <direct><port type="input" name="E"/><port type="output" from="SB_DFFNESR" name="E"/></direct>
    <direct><port type="input" name="R"/><port type="output" from="SB_DFFNESR" name="R"/></direct>
    <direct><port type="input" name="D"/><port type="output" from="SB_DFFNESR" name="D"/></direct>
@@ -348,7 +351,7 @@
    <T_clock_to_Q max="10e-12" port="SB_DFFNESS.Q" clock="C"/>
   </pb_type>
   <interconnect>
-   <direct><port type="input" name="N"/><port type="output" from="SB_DFFNESS" name="C"/></direct>
+   <direct><port type="input" name="NCEN"/><port type="output" from="SB_DFFNESS" name="C"/></direct>
    <direct><port type="input" name="E"/><port type="output" from="SB_DFFNESS" name="E"/></direct>
    <direct><port type="input" name="S"/><port type="output" from="SB_DFFNESS" name="S"/></direct>
    <direct><port type="input" name="D"/><port type="output" from="SB_DFFNESS" name="D"/></direct>
@@ -368,7 +371,7 @@
    <T_clock_to_Q max="10e-12" port="SB_DFFNR.Q" clock="C"/>
   </pb_type>
   <interconnect>
-   <direct><port type="input" name="N"/><port type="output" from="SB_DFFNR" name="C"/></direct>
+   <direct><port type="input" name="NCLK"/><port type="output" from="SB_DFFNR" name="C"/></direct>
    <direct><port type="input" name="S"/><port type="output" from="SB_DFFNR" name="R"/></direct>
    <direct><port type="input" name="D"/><port type="output" from="SB_DFFNR" name="D"/></direct>
    <direct><port type="input" from="SB_DFFNR" name="Q" /><port type="output" name="Q"/></direct>
@@ -387,7 +390,7 @@
    <T_clock_to_Q max="10e-12" port="SB_DFFNS.Q" clock="C"/>
   </pb_type>
   <interconnect>
-   <direct><port type="input" name="N"/><port type="output" from="SB_DFFNS" name="C"/></direct>
+   <direct><port type="input" name="NCLK"/><port type="output" from="SB_DFFNS" name="C"/></direct>
    <direct><port type="input" name="S"/><port type="output" from="SB_DFFNS" name="S"/></direct>
    <direct><port type="input" name="D"/><port type="output" from="SB_DFFNS" name="D"/></direct>
    <direct><port type="input" from="SB_DFFNS" name="Q" /><port type="output" name="Q"/></direct>
@@ -406,7 +409,7 @@
    <T_clock_to_Q max="10e-12" port="SB_DFFNSR.Q" clock="C"/>
   </pb_type>
   <interconnect>
-   <direct><port type="input" name="N"/><port type="output" from="SB_DFFNSR" name="C"/></direct>
+   <direct><port type="input" name="NCLK"/><port type="output" from="SB_DFFNSR" name="C"/></direct>
    <direct><port type="input" name="S"/><port type="output" from="SB_DFFNSR" name="R"/></direct>
    <direct><port type="input" name="D"/><port type="output" from="SB_DFFNSR" name="D"/></direct>
    <direct><port type="input" from="SB_DFFNSR" name="Q" /><port type="output" name="Q"/></direct>
@@ -425,7 +428,7 @@
    <T_clock_to_Q max="10e-12" port="SB_DFFNSS.Q" clock="C"/>
   </pb_type>
   <interconnect>
-   <direct><port type="input" name="N"/><port type="output" from="SB_DFFNSS" name="C"/></direct>
+   <direct><port type="input" name="NCLK"/><port type="output" from="SB_DFFNSS" name="C"/></direct>
    <direct><port type="input" name="S"/><port type="output" from="SB_DFFNSS" name="S"/></direct>
    <direct><port type="input" name="D"/><port type="output" from="SB_DFFNSS" name="D"/></direct>
    <direct><port type="input" from="SB_DFFNSS" name="Q" /><port type="output" name="Q"/></direct>
