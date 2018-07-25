@@ -246,7 +246,7 @@ VPR_CMD = \
 		--target_ext_pin_util 0.7 \
 		--max_router_iterations 500 \
 		--routing_failure_predictor off \
-		--clock_modeling_method route \
+		--clock_modeling route \
 		--constant_net_method route
 
 #		--router_algorithm breadth_first \

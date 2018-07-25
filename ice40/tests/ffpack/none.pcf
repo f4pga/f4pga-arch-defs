@@ -1,0 +1,22 @@
+set_io cen 23
+set_io rst 24
+set_io ina 25
+set_io inb 26
+set_io clk 22
+
+set_io outa 31
+set_io outb 28
+set_io outc 29
+set_io outd 20
+
+set_io vec0[0] 41
+set_io vec0[1] 42
+set_io vec0[2] 43
+set_io vec0[3] 44
+set_io vec0[4] 45
+
+set_io vec1[0] 48
+set_io vec1[1] 49
+set_io vec1[2] 50
+set_io vec1[3] 52
+set_io vec1[4] 56
