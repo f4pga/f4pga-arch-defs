@@ -7,14 +7,18 @@
  <output name="LCOUT" num_pins="1"/>
 
  <!-- FF -->
- <clock  name="PCLK"  num_pins="1"/>
- <clock  name="NCLK"  num_pins="1"/>
- <clock  name="PCEN"  num_pins="1"/>
- <clock  name="NCEN"  num_pins="1"/>
+ <clock  name="PCLK"        num_pins="1"/>
+ <clock  name="NCLK"        num_pins="1"/>
+ <clock  name="PCLK+CEN"    num_pins="1"/>
+ <clock  name="NCLK+CEN"    num_pins="1"/>
+ <clock  name="PCLK+SR"     num_pins="1"/>
+ <clock  name="NCLK+SR"     num_pins="1"/>
+ <clock  name="PCLK+CEN+SR" num_pins="1"/>
+ <clock  name="NCLK+CEN+SR" num_pins="1"/>
 
- <input  name="EN"    num_pins="1"/>
- <input  name="SR"    num_pins="1"/>
- <output name="O"     num_pins="1"/>
+ <input  name="EN" num_pins="1"/>
+ <input  name="SR" num_pins="1"/>
+ <output name="O"  num_pins="1"/>
 
  <!-- CARRY -->
  <input  name="FCIN"  num_pins="1"/>
@@ -56,14 +60,19 @@
   <direct name="LCOUT"    input="BEL_LT-LUT.out"                         output="BLK_IG-LUTFF.LCOUT" />
 
   <!-- LUT -->
-  <direct name="FF.PCLK[0]" input="BLK_IG-LUTFF.PCLK" output="BEL_FF-SB_FF.PCLK" />
-  <direct name="FF.NCLK[0]" input="BLK_IG-LUTFF.NCLK" output="BEL_FF-SB_FF.NCLK" />
-  <direct name="FF.PCEN[0]" input="BLK_IG-LUTFF.PCEN" output="BEL_FF-SB_FF.PCEN" />
-  <direct name="FF.NCEN[0]" input="BLK_IG-LUTFF.NCEN" output="BEL_FF-SB_FF.NCEN" />
-  <direct name="FF.E[0]"    input="BLK_IG-LUTFF.EN"   output="BEL_FF-SB_FF.E"    />
-  <direct name="FF.R[0]"    input="BLK_IG-LUTFF.SR"   output="BEL_FF-SB_FF.R"    />
-  <direct name="FF.S[0]"    input="BLK_IG-LUTFF.SR"   output="BEL_FF-SB_FF.S"    />
-  <direct name="FF.D[0]"    input="BEL_LT-LUT.out"    output="BEL_FF-SB_FF.D"     >
+  <direct name="FF.PCLK"        input="BLK_IG-LUTFF.PCLK"        output="BEL_FF-SB_FF.PCLK"        />
+  <direct name="FF.NCLK"        input="BLK_IG-LUTFF.NCLK"        output="BEL_FF-SB_FF.NCLK"        />
+  <direct name="FF.PCLK+CEN"    input="BLK_IG-LUTFF.PCLK+CEN"    output="BEL_FF-SB_FF.PCLK+CEN"    />
+  <direct name="FF.NCLK+CEN"    input="BLK_IG-LUTFF.NCLK+CEN"    output="BEL_FF-SB_FF.NCLK+CEN"    />
+  <direct name="FF.PCLK+SR"     input="BLK_IG-LUTFF.PCLK+SR"     output="BEL_FF-SB_FF.PCLK+SR"     />
+  <direct name="FF.NCLK+SR"     input="BLK_IG-LUTFF.NCLK+SR"     output="BEL_FF-SB_FF.NCLK+SR"     />
+  <direct name="FF.PCLK+CEN+SR" input="BLK_IG-LUTFF.PCLK+CEN+SR" output="BEL_FF-SB_FF.PCLK+CEN+SR" />
+  <direct name="FF.NCLK+CEN+SR" input="BLK_IG-LUTFF.NCLK+CEN+SR" output="BEL_FF-SB_FF.NCLK+CEN+SR" />
+
+  <direct name="FF.E"           input="BLK_IG-LUTFF.EN"          output="BEL_FF-SB_FF.E"           />
+  <direct name="FF.R"           input="BLK_IG-LUTFF.SR"          output="BEL_FF-SB_FF.R"           />
+  <direct name="FF.S"           input="BLK_IG-LUTFF.SR"          output="BEL_FF-SB_FF.S"           />
+  <direct name="FF.D"           input="BEL_LT-LUT.out"           output="BEL_FF-SB_FF.D"            >
    <pack_pattern name="LUT+FF" in_port="BEL_LT-LUT.out" out_port="BEL_FF-SB_FF.D"/>
   </direct>
 
