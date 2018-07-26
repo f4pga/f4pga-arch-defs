@@ -220,67 +220,8 @@ Generated with %s
     sim_filename = '%s.sim.v' % args.outfilename
 
     output_files = [
-        model_xml_filename, pbtype_xml_filename, sim_filename, 'Makefile.mux'
+        model_xml_filename, pbtype_xml_filename, sim_filename,
     ]
-    commit_files = ["Makefile.mux"]
-    remove_files = [f for f in output_files if f not in commit_files]
-
-    new_makefile_contents = io.StringIO()
-    if True:
-        f = new_makefile_contents
-        # Comment goes first so it is the first thing people see.
-        if args.comment:
-            print("MUX_COMMENT = {}".format(args.comment), file=f)
-
-        # Required values
-        print("MUX_TYPE = {}".format(args.type.lower()), file=f)
-        print("MUX_OUTFILE = {}".format(args.outfilename), file=f)
-        print("MUX_NAME = {}".format(args.name_mux), file=f)
-        print("MUX_WIDTH = {}".format(args.width), file=f)
-
-        # Optional values
-        if args.split_inputs:
-            print("MUX_SPLIT_INPUTS = 1", file=f)
-            if args.name_inputs != parser.get_default('name_inputs'):
-                print(
-                    "MUX_INPUTS = {}".format(",".join(args.name_inputs)),
-                    file=f)
-        else:
-            if args.name_input != parser.get_default('name_input'):
-                print("MUX_INPUT = {}".format(args.name_input), file=f)
-
-        if args.data_width > 1:
-            print("MUX_DATA_WIDTH = {}".format(args.data_width), file=f)
-
-        if args.split_selects:
-            print("MUX_SPLIT_SELECTS = 1", file=f)
-            if args.name_selects != parser.get_default('name_selects'):
-                print(
-                    "MUX_SELECTS = {}".format(",".join(args.name_selects)),
-                    file=f)
-        else:
-            if args.name_select != parser.get_default('name_select'):
-                print("MUX_SELECT = {}".format(args.name_select), file=f)
-
-        if args.name_output != parser.get_default('name_output'):
-            print("MUX_OUTPUT = {}".format(args.name_output), file=f)
-
-        if args.order != parser.get_default('order'):
-            print("MUX_ORDER = {}".format(args.order), file=f)
-
-        if args.subckt != parser.get_default('subckt'):
-            print("MUX_SUBCKT = {}".format(args.subckt), file=f)
-
-    new_makefile_contents = new_makefile_contents.getvalue()
-    if not os.path.exists(makefile_file):
-        current_makefile_contents = ""
-    else:
-        current_makefile_contents = open(makefile_file, "r").read()
-
-    if current_makefile_contents != new_makefile_contents:
-        open(makefile_file, "w").write(new_makefile_contents)
-
-    output_block("Makefile.mux", open(makefile_file).read())
 
     # ------------------------------------------------------------------------
     # Work out the port and their names
