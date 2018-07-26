@@ -42,8 +42,8 @@ def mux_gen(name, mux_name, type, width, split_inputs=None,
     split_selects = False
 
   mux_gen_args = (
-      ' --outdir $(@D) --outfilename ' + name + ' --type ' + type + ' --width ' + str(width) +
-      ' --name-mux ' + mux_name
+      ' --outdir $(@D) --outfilename ' + name + ' --type ' + type +
+      ' --width ' + str(width) + ' --name-mux ' + mux_name
       )
 
   if comment != None:
@@ -70,12 +70,15 @@ def mux_gen(name, mux_name, type, width, split_inputs=None,
   if data_width:
     mux_gen_args += ' --data-width ' + data_width
 
+  outputs = [name + '.sim.v', name + '.pb_type.xml', name + '.model.xml']
   native.genrule(
       name = name,
       srcs = [],
-      outs = [name + '.sim.v', name + '.pb_type.xml', name + '.model.xml'],
+      outs = outputs,
       cmd = ('$(location //utils:mux_gen) ' + mux_gen_args),
       tools = [
           "//utils:mux_gen",
           ],
       )
+
+  return outputs
