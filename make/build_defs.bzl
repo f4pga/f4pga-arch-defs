@@ -1,4 +1,4 @@
-def n_template(name, prefixes, srcs):
+def n_template(name, prefixes, srcs, v2x=False):
   for prefix in prefixes:
     for src in srcs:
       output_file = src.replace('ntemplate.', '').replace('N', prefix)
@@ -9,6 +9,9 @@ def n_template(name, prefixes, srcs):
           cmd = "$(location //utils:n) " + prefix + " $< $@",
           tools = ["//utils:n"],
           )
+
+      if v2x:
+        v2x(prefix + name, [src])
 
 def mux_gen(name, mux_name, type, width, split_inputs=None,
             inputs=None, split_selects=None, selects=None, subckt=None,
@@ -88,3 +91,28 @@ def mux_gen(name, mux_name, type, width, split_inputs=None,
           prefixes = ntemplate_prefixes,
           srcs = [output],
           )
+
+def v2x(name, srcs, top_module=None):
+  for src in srcs:
+    if not src.endswith('.sim.v'):
+      fail('File ' + src + ' does not end with .sim.v')
+
+  top_arg = ''
+  if top_module != None:
+    top_arg = '--top ' + top_module
+
+  native.genrule(
+      name = name + '_pb_type',
+      srcs = srcs,
+      outs = [name + '.pb_type.xml'],
+      cmd = '$(location //utils/vlog:vlog_to_pbtype) ' + top_arg + ' -o $@ $<',
+      tools = ['//utils/vlog:vlog_to_pbtype'],
+      )
+
+  native.genrule(
+      name = name + '_model',
+      srcs = srcs,
+      outs = [name + '.model.xml'],
+      cmd = '$(location //utils/vlog:vlog_to_model) ' + top_arg + ' -o $@ $<',
+      tools = ['//utils/vlog:vlog_to_model'],
+      )

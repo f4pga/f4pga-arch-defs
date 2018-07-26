@@ -17,7 +17,7 @@ The following Verilog attributes are considered on modules:
     class.
 """
 import argparse, re
-import os, tempfile, sys
+import os, sys
 
 import lxml.etree as ET
 

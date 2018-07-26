@@ -44,7 +44,7 @@ The following are allowed on ports:
 The Verilog define "PB_TYPE" is set during generation.
 """
 
-import os, tempfile, sys
+import os, sys
 import argparse, re
 
 import lxml.etree as ET
@@ -260,7 +260,6 @@ def make_pb_type(mod):
     """Build the pb_type for a given module. mod is the YosysModule object to
     generate."""
 
-    attrs = mod.module_attrs
     modes = mod.attr("MODES", None)
     if modes is not None:
         modes = modes.split(";")
