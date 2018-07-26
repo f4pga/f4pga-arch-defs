@@ -1,4 +1,4 @@
-load('//make:build_defs.bzl', 'n_template', 'mux_gen')
+load('//make:build_defs.bzl', 'mux_gen')
 
 mux_gen(
     name = 'ntemplate.carry4_Nmux',

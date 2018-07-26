@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-import os, subprocess, sys, re
+import os, subprocess, re
 import tempfile, json
 import yosys.utils
 
