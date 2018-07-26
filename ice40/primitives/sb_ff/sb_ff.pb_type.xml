@@ -1,10 +1,14 @@
 <!-- set: ai sw=1 ts=1 sta et -->
 <!-- Flip flop found inside the iCE40 -->
 <pb_type name="BEL_FF-SB_FF" num_pb="1">
- <clock  name="PCLK" num_pins="1"/>
- <clock  name="NCLK" num_pins="1"/>
- <clock  name="PCEN" num_pins="1"/>
- <clock  name="NCEN" num_pins="1"/>
+ <clock  name="PCLK"        num_pins="1"/>
+ <clock  name="NCLK"        num_pins="1"/>
+ <clock  name="PCLK+CEN"    num_pins="1"/>
+ <clock  name="NCLK+CEN"    num_pins="1"/>
+ <clock  name="PCLK+SR"     num_pins="1"/>
+ <clock  name="NCLK+SR"     num_pins="1"/>
+ <clock  name="PCLK+CEN+SR" num_pins="1"/>
+ <clock  name="NCLK+CEN+SR" num_pins="1"/>
 
  <input  name="E" num_pins="1"/>
  <input  name="S" num_pins="1"/>
@@ -81,7 +85,7 @@
    </metadata>
   </pb_type>
   <interconnect>
-   <direct><port type="input" name="PCEN"/><port type="output" from="SB_DFFE" name="C"/></direct>
+   <direct><port type="input" name="PCLK+CEN"/><port type="output" from="SB_DFFE" name="C"/></direct>
    <direct><port type="input" name="E"/><port type="output" from="SB_DFFE" name="E"/></direct>
    <direct><port type="input" name="D"/><port type="output" from="SB_DFFE" name="D"/></direct>
    <direct><port type="input" from="SB_DFFE" name="Q" /><port type="output" name="Q"/></direct>
@@ -111,7 +115,7 @@
    </metadata>
   </pb_type>
   <interconnect>
-   <direct><port type="input" name="PCEN"/><port type="output" from="SB_DFFER" name="C"/></direct>
+   <direct><port type="input" name="PCLK+CEN+SR"/><port type="output" from="SB_DFFER" name="C"/></direct>
    <direct><port type="input" name="E"/><port type="output" from="SB_DFFER" name="E"/></direct>
    <direct><port type="input" name="R"/><port type="output" from="SB_DFFER" name="R"/></direct>
    <direct><port type="input" name="D"/><port type="output" from="SB_DFFER" name="D"/></direct>
@@ -142,7 +146,7 @@
    </metadata>
   </pb_type>
   <interconnect>
-   <direct><port type="input" name="PCEN"/><port type="output" from="SB_DFFES" name="C"/></direct>
+   <direct><port type="input" name="PCLK+CEN+SR"/><port type="output" from="SB_DFFES" name="C"/></direct>
    <direct><port type="input" name="E"/><port type="output" from="SB_DFFES" name="E"/></direct>
    <direct><port type="input" name="S"/><port type="output" from="SB_DFFES" name="S"/></direct>
    <direct><port type="input" name="D"/><port type="output" from="SB_DFFES" name="D"/></direct>
@@ -173,7 +177,7 @@
    </metadata>
   </pb_type>
   <interconnect>
-   <direct><port type="input" name="PCEN"/><port type="output" from="SB_DFFESR" name="C"/></direct>
+   <direct><port type="input" name="PCLK+CEN+SR"/><port type="output" from="SB_DFFESR" name="C"/></direct>
    <direct><port type="input" name="E"/><port type="output" from="SB_DFFESR" name="E"/></direct>
    <direct><port type="input" name="R"/><port type="output" from="SB_DFFESR" name="R"/></direct>
    <direct><port type="input" name="D"/><port type="output" from="SB_DFFESR" name="D"/></direct>
@@ -204,7 +208,7 @@
    </metadata>
   </pb_type>
   <interconnect>
-   <direct><port type="input" name="PCEN"/><port type="output" from="SB_DFFESS" name="C"/></direct>
+   <direct><port type="input" name="PCLK+CEN+SR"/><port type="output" from="SB_DFFESS" name="C"/></direct>
    <direct><port type="input" name="E"/><port type="output" from="SB_DFFESS" name="E"/></direct>
    <direct><port type="input" name="S"/><port type="output" from="SB_DFFESS" name="S"/></direct>
    <direct><port type="input" name="D"/><port type="output" from="SB_DFFESS" name="D"/></direct>
@@ -233,7 +237,7 @@
    </metadata>
   </pb_type>
   <interconnect>
-   <direct><port type="input" name="PCLK"/><port type="output" from="SB_DFFR" name="C"/></direct>
+   <direct><port type="input" name="PCLK+SR"/><port type="output" from="SB_DFFR" name="C"/></direct>
    <direct><port type="input" name="S"/><port type="output" from="SB_DFFR" name="R"/></direct>
    <direct><port type="input" name="D"/><port type="output" from="SB_DFFR" name="D"/></direct>
    <direct><port type="input" from="SB_DFFR" name="Q" /><port type="output" name="Q"/></direct>
@@ -261,7 +265,7 @@
    </metadata>
   </pb_type>
   <interconnect>
-   <direct><port type="input" name="PCLK"/><port type="output" from="SB_DFFS" name="C"/></direct>
+   <direct><port type="input" name="PCLK+SR"/><port type="output" from="SB_DFFS" name="C"/></direct>
    <direct><port type="input" name="S"/><port type="output" from="SB_DFFS" name="S"/></direct>
    <direct><port type="input" name="D"/><port type="output" from="SB_DFFS" name="D"/></direct>
    <direct><port type="input" from="SB_DFFS" name="Q" /><port type="output" name="Q"/></direct>
@@ -289,7 +293,7 @@
    </metadata>
   </pb_type>
   <interconnect>
-   <direct><port type="input" name="PCLK"/><port type="output" from="SB_DFFSR" name="C"/></direct>
+   <direct><port type="input" name="PCLK+SR"/><port type="output" from="SB_DFFSR" name="C"/></direct>
    <direct><port type="input" name="S"/><port type="output" from="SB_DFFSR" name="R"/></direct>
    <direct><port type="input" name="D"/><port type="output" from="SB_DFFSR" name="D"/></direct>
    <direct><port type="input" from="SB_DFFSR" name="Q" /><port type="output" name="Q"/></direct>
@@ -317,7 +321,7 @@
    </metadata>
   </pb_type>
   <interconnect>
-   <direct><port type="input" name="PCLK"/><port type="output" from="SB_DFFSS" name="C"/></direct>
+   <direct><port type="input" name="PCLK+SR"/><port type="output" from="SB_DFFSS" name="C"/></direct>
    <direct><port type="input" name="S"/><port type="output" from="SB_DFFSS" name="S"/></direct>
    <direct><port type="input" name="D"/><port type="output" from="SB_DFFSS" name="D"/></direct>
    <direct><port type="input" from="SB_DFFSS" name="Q" /><port type="output" name="Q"/></direct>
@@ -372,7 +376,7 @@
    </metadata>
   </pb_type>
   <interconnect>
-   <direct><port type="input" name="NCEN"/><port type="output" from="SB_DFFNE" name="C"/></direct>
+   <direct><port type="input" name="NCLK+CEN"/><port type="output" from="SB_DFFNE" name="C"/></direct>
    <direct><port type="input" name="E"/><port type="output" from="SB_DFFNE" name="E"/></direct>
    <direct><port type="input" name="D"/><port type="output" from="SB_DFFNE" name="D"/></direct>
    <direct><port type="input" from="SB_DFFNE" name="Q" /><port type="output" name="Q"/></direct>
@@ -402,7 +406,7 @@
    </metadata>
   </pb_type>
   <interconnect>
-   <direct><port type="input" name="NCEN"/><port type="output" from="SB_DFFNER" name="C"/></direct>
+   <direct><port type="input" name="NCLK+CEN+SR"/><port type="output" from="SB_DFFNER" name="C"/></direct>
    <direct><port type="input" name="E"/><port type="output" from="SB_DFFNER" name="E"/></direct>
    <direct><port type="input" name="R"/><port type="output" from="SB_DFFNER" name="R"/></direct>
    <direct><port type="input" name="D"/><port type="output" from="SB_DFFNER" name="D"/></direct>
@@ -433,7 +437,7 @@
    </metadata>
   </pb_type>
   <interconnect>
-   <direct><port type="input" name="NCEN"/><port type="output" from="SB_DFFNES" name="C"/></direct>
+   <direct><port type="input" name="NCLK+CEN+SR"/><port type="output" from="SB_DFFNES" name="C"/></direct>
    <direct><port type="input" name="E"/><port type="output" from="SB_DFFNES" name="E"/></direct>
    <direct><port type="input" name="R"/><port type="output" from="SB_DFFNES" name="R"/></direct>
    <direct><port type="input" name="D"/><port type="output" from="SB_DFFNES" name="D"/></direct>
@@ -464,7 +468,7 @@
    </metadata>
   </pb_type>
   <interconnect>
-   <direct><port type="input" name="NCEN"/><port type="output" from="SB_DFFNESR" name="C"/></direct>
+   <direct><port type="input" name="NCLK+CEN+SR"/><port type="output" from="SB_DFFNESR" name="C"/></direct>
    <direct><port type="input" name="E"/><port type="output" from="SB_DFFNESR" name="E"/></direct>
    <direct><port type="input" name="R"/><port type="output" from="SB_DFFNESR" name="R"/></direct>
    <direct><port type="input" name="D"/><port type="output" from="SB_DFFNESR" name="D"/></direct>
@@ -495,7 +499,7 @@
    </metadata>
   </pb_type>
   <interconnect>
-   <direct><port type="input" name="NCEN"/><port type="output" from="SB_DFFNESS" name="C"/></direct>
+   <direct><port type="input" name="NCLK+CEN+SR"/><port type="output" from="SB_DFFNESS" name="C"/></direct>
    <direct><port type="input" name="E"/><port type="output" from="SB_DFFNESS" name="E"/></direct>
    <direct><port type="input" name="S"/><port type="output" from="SB_DFFNESS" name="S"/></direct>
    <direct><port type="input" name="D"/><port type="output" from="SB_DFFNESS" name="D"/></direct>
@@ -524,7 +528,7 @@
    </metadata>
   </pb_type>
   <interconnect>
-   <direct><port type="input" name="NCLK"/><port type="output" from="SB_DFFNR" name="C"/></direct>
+   <direct><port type="input" name="NCLK+SR"/><port type="output" from="SB_DFFNR" name="C"/></direct>
    <direct><port type="input" name="S"/><port type="output" from="SB_DFFNR" name="R"/></direct>
    <direct><port type="input" name="D"/><port type="output" from="SB_DFFNR" name="D"/></direct>
    <direct><port type="input" from="SB_DFFNR" name="Q" /><port type="output" name="Q"/></direct>
@@ -552,7 +556,7 @@
    </metadata>
   </pb_type>
   <interconnect>
-   <direct><port type="input" name="NCLK"/><port type="output" from="SB_DFFNS" name="C"/></direct>
+   <direct><port type="input" name="NCLK+SR"/><port type="output" from="SB_DFFNS" name="C"/></direct>
    <direct><port type="input" name="S"/><port type="output" from="SB_DFFNS" name="S"/></direct>
    <direct><port type="input" name="D"/><port type="output" from="SB_DFFNS" name="D"/></direct>
    <direct><port type="input" from="SB_DFFNS" name="Q" /><port type="output" name="Q"/></direct>
@@ -580,7 +584,7 @@
    </metadata>
   </pb_type>
   <interconnect>
-   <direct><port type="input" name="NCLK"/><port type="output" from="SB_DFFNSR" name="C"/></direct>
+   <direct><port type="input" name="NCLK+SR"/><port type="output" from="SB_DFFNSR" name="C"/></direct>
    <direct><port type="input" name="S"/><port type="output" from="SB_DFFNSR" name="R"/></direct>
    <direct><port type="input" name="D"/><port type="output" from="SB_DFFNSR" name="D"/></direct>
    <direct><port type="input" from="SB_DFFNSR" name="Q" /><port type="output" name="Q"/></direct>
@@ -608,7 +612,7 @@
    </metadata>
   </pb_type>
   <interconnect>
-   <direct><port type="input" name="NCLK"/><port type="output" from="SB_DFFNSS" name="C"/></direct>
+   <direct><port type="input" name="NCLK+SR"/><port type="output" from="SB_DFFNSS" name="C"/></direct>
    <direct><port type="input" name="S"/><port type="output" from="SB_DFFNSS" name="S"/></direct>
    <direct><port type="input" name="D"/><port type="output" from="SB_DFFNSS" name="D"/></direct>
    <direct><port type="input" from="SB_DFFNSS" name="Q" /><port type="output" name="Q"/></direct>
