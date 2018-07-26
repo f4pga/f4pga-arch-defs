@@ -12,7 +12,7 @@ def n_template(name, prefixes, srcs):
 
 def mux_gen(name, mux_name, type, width, split_inputs=None,
             inputs=None, split_selects=None, selects=None, subckt=None,
-            comment=None, output=None, data_width=None):
+            comment=None, output=None, data_width=None, ntemplate_prefixes=None):
   if type == 'routing':
     if subckt != None:
       fail('Can not use subckt=' + subckt + ' with routing mux.')
@@ -81,4 +81,10 @@ def mux_gen(name, mux_name, type, width, split_inputs=None,
           ],
       )
 
-  return outputs
+  if name.startswith('ntemplate.') and ntemplate_prefixes != None:
+    for output in outputs:
+      n_template(
+          name = output.replace('ntemplate.', ''),
+          prefixes = ntemplate_prefixes,
+          srcs = [output],
+          )
