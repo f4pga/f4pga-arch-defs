@@ -58,6 +58,23 @@ module test;
       #1; // b
       #1; // pos
       #1; // b
+      in <= 4'b0010;
+      $display("reseting with cen and ina off");
+      
+      #1; // neg
+      if (out != 4'b1110) $error("clock to out %b", out);
+      #1; // b
+      in <= 4'b0111;
+      $display("reseting with cen and ina");
+      #1; // pos
+      #1; // b
+      if (vec0 != 5'b00000) $error("vec0 %b", vec0);
+      if (vec1 != 5'b11111) $error("vec1 %b", vec1);
+
+      #1; // neg
+      #1; // b
+      if (vec0 != 5'b00000) $error("vec0 %b", vec0);
+      if (vec1 != 5'b00001) $error("vec1 %b", vec1);
       
       $dumpflush;
       $finish;

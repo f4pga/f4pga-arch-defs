@@ -21,7 +21,27 @@
   <interconnect>
    <direct><port type="input" name="in"/><port type="output" from="BLK_IG-LUT4" name="in"/></direct>
    <direct><port type="input" from="BLK_IG-LUT4" name="out"/><port type="output" name="out"/>
-    <pack_pattern name="LUT+FF" in_port="BLK_IG-LUT4.out" out_port="BEL_LT-LUT.out" />
+    <pack_pattern name="LUT+FFA" in_port="BLK_IG-LUT4.out" out_port="BEL_LT-LUT.out"/>
+    <pack_pattern name="LUT+FFB" in_port="BLK_IG-LUT4.out" out_port="BEL_LT-LUT.out"/>
+    <pack_pattern name="LUT+FFC" in_port="BLK_IG-LUT4.out" out_port="BEL_LT-LUT.out"/>
+    <pack_pattern name="LUT+FFD" in_port="BLK_IG-LUT4.out" out_port="BEL_LT-LUT.out"/>
+    <pack_pattern name="LUT+FFE" in_port="BLK_IG-LUT4.out" out_port="BEL_LT-LUT.out"/>
+    <pack_pattern name="LUT+FFF" in_port="BLK_IG-LUT4.out" out_port="BEL_LT-LUT.out"/>
+    <pack_pattern name="LUT+FFG" in_port="BLK_IG-LUT4.out" out_port="BEL_LT-LUT.out"/>
+    <pack_pattern name="LUT+FFH" in_port="BLK_IG-LUT4.out" out_port="BEL_LT-LUT.out"/>
+    <pack_pattern name="LUT+FFI" in_port="BLK_IG-LUT4.out" out_port="BEL_LT-LUT.out"/>
+    <pack_pattern name="LUT+FFJ" in_port="BLK_IG-LUT4.out" out_port="BEL_LT-LUT.out"/>
+    <pack_pattern name="LUT+FFK" in_port="BLK_IG-LUT4.out" out_port="BEL_LT-LUT.out"/>
+    <pack_pattern name="LUT+FFL" in_port="BLK_IG-LUT4.out" out_port="BEL_LT-LUT.out"/>
+    <pack_pattern name="LUT+FFM" in_port="BLK_IG-LUT4.out" out_port="BEL_LT-LUT.out"/>
+    <pack_pattern name="LUT+FFN" in_port="BLK_IG-LUT4.out" out_port="BEL_LT-LUT.out"/>
+    <pack_pattern name="LUT+FFO" in_port="BLK_IG-LUT4.out" out_port="BEL_LT-LUT.out"/>
+    <pack_pattern name="LUT+FFP" in_port="BLK_IG-LUT4.out" out_port="BEL_LT-LUT.out"/>
+    <pack_pattern name="LUT+FFQ" in_port="BLK_IG-LUT4.out" out_port="BEL_LT-LUT.out"/>
+    <pack_pattern name="LUT+FFR" in_port="BLK_IG-LUT4.out" out_port="BEL_LT-LUT.out"/>
+    <pack_pattern name="LUT+FFS" in_port="BLK_IG-LUT4.out" out_port="BEL_LT-LUT.out"/>
+    <pack_pattern name="LUT+FFT" in_port="BLK_IG-LUT4.out" out_port="BEL_LT-LUT.out"/>
+    <pack_pattern name="LUT+FFU" in_port="BLK_IG-LUT4.out" out_port="BEL_LT-LUT.out"/>
    </direct>
   </interconnect>
  </mode>
@@ -43,7 +63,6 @@
    <direct><port type="input" name="in[2]"/><port type="output" from="BLK_IG-SB_LUT4" name="I2"/></direct>
    <direct><port type="input" name="in[3]"/><port type="output" from="BLK_IG-SB_LUT4" name="I3"/></direct>
    <direct><port type="input" from="BLK_IG-SB_LUT4" name="O"/><port type="output" name="out"/>
-	   <!-- <pack_pattern name="LUT+FF" in_port="BLK_IG-SB_LUT4" out_port="BEL_LT-LUT.out" /> -->
    </direct>
   </interconnect>
  </mode>

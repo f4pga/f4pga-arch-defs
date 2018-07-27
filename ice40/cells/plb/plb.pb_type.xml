@@ -39,18 +39,22 @@
  <pb_type name="BLK_IG-MODE_CLK" num_pb="1">
   <input  name="I" num_pins="1"/>
 
-  <output name="PCLK" num_pins="1"/>
-  <output name="PCEN" num_pins="1"/>
+  <output name="PCLK"        num_pins="1"/>
+  <output name="PCLK+CEN"    num_pins="1"/>
+  <output name="PCLK+SR"     num_pins="1"/>
+  <output name="PCLK+CEN+SR" num_pins="1"/>
 
-  <output name="NCLK" num_pins="1"/>
-  <output name="NCEN" num_pins="1"/>
+  <output name="NCLK"        num_pins="1"/>
+  <output name="NCLK+CEN"    num_pins="1"/>
+  <output name="NCLK+SR"     num_pins="1"/>
+  <output name="NCLK+CEN+SR" num_pins="1"/>
 
   <mode name="BLK_IG-PCLK">
    <pb_type name="BLK_IG-BUF" num_pb="1">
     <input  name="I" num_pins="1"/>
     <output name="O" num_pins="1"/>
     <metadata>
-     <meta name="hlc_property"># Positive Clk, CEN constant 1</meta>
+     <meta name="hlc_property"># PosClk, CEN constant 1, SR constant 0</meta>
     </metadata>
     <interconnect><direct><port type="input" name="I" /><port type="output" name="O"/></direct></interconnect>
    </pb_type>
@@ -64,13 +68,41 @@
     <input  name="I" num_pins="1"/>
     <output name="O" num_pins="1"/>
     <metadata>
-     <meta name="hlc_property"># Positive Clk, CEN in use</meta>
+     <meta name="hlc_property"># PosClk, CEN in use, SR constant 0</meta>
     </metadata>
     <interconnect><direct><port type="input" name="I" /><port type="output" name="O"/></direct></interconnect>
    </pb_type>
    <interconnect>
     <direct><port type="input" name="I" /><port type="output" name="I" from="BLK_IG-BUF"/></direct>
-    <direct><port type="input" name="O" from="BLK_IG-BUF"/><port type="output" name="PCEN"/></direct>
+    <direct><port type="input" name="O" from="BLK_IG-BUF"/><port type="output" name="PCLK+CEN"/></direct>
+   </interconnect>
+  </mode>
+  <mode name="BLK_IG-PCLK+SR">
+   <pb_type name="BLK_IG-BUF" num_pb="1">
+    <input  name="I" num_pins="1"/>
+    <output name="O" num_pins="1"/>
+    <metadata>
+     <meta name="hlc_property"># PosClk, CEN constant 0, SR in use</meta>
+    </metadata>
+    <interconnect><direct><port type="input" name="I" /><port type="output" name="O"/></direct></interconnect>
+   </pb_type>
+   <interconnect>
+    <direct><port type="input" name="I" /><port type="output" name="I" from="BLK_IG-BUF"/></direct>
+    <direct><port type="input" name="O" from="BLK_IG-BUF"/><port type="output" name="PCLK+SR"/></direct>
+   </interconnect>
+  </mode>
+  <mode name="BLK_IG-PCLK+CEN+SR">
+   <pb_type name="BLK_IG-BUF" num_pb="1">
+    <input  name="I" num_pins="1"/>
+    <output name="O" num_pins="1"/>
+    <metadata>
+     <meta name="hlc_property"># PosClk, CEN in use, SR in use</meta>
+    </metadata>
+    <interconnect><direct><port type="input" name="I" /><port type="output" name="O"/></direct></interconnect>
+   </pb_type>
+   <interconnect>
+    <direct><port type="input" name="I" /><port type="output" name="I" from="BLK_IG-BUF"/></direct>
+    <direct><port type="input" name="O" from="BLK_IG-BUF"/><port type="output" name="PCLK+CEN+SR"/></direct>
    </interconnect>
   </mode>
   <mode name="BLK_IG-NCLK">
@@ -78,7 +110,7 @@
     <input  name="I" num_pins="1"/>
     <output name="O" num_pins="1"/>
     <metadata>
-     <meta name="hlc_property">NegClk # CEN constant 1</meta>
+     <meta name="hlc_property">NegClk # CEN constant 1, SR constant 0</meta>
     </metadata>
     <interconnect><direct><port type="input" name="I" /><port type="output" name="O"/></direct></interconnect>
    </pb_type>
@@ -92,13 +124,41 @@
     <input  name="I" num_pins="1"/>
     <output name="O" num_pins="1"/>
     <metadata>
-     <meta name="hlc_property">NegClk # CEN in use</meta>
+     <meta name="hlc_property">NegClk # CEN in use, SR constant 0</meta>
     </metadata>
     <interconnect><direct><port type="input" name="I" /><port type="output" name="O"/></direct></interconnect>
    </pb_type>
    <interconnect>
     <direct><port type="input" name="I" /><port type="output" name="I" from="BLK_IG-BUF"/></direct>
-    <direct><port type="input" name="O" from="BLK_IG-BUF"/><port type="output" name="NCEN"/></direct>
+    <direct><port type="input" name="O" from="BLK_IG-BUF"/><port type="output" name="NCLK+CEN"/></direct>
+   </interconnect>
+  </mode>
+  <mode name="BLK_IG-NCLK+SR">
+   <pb_type name="BLK_IG-BUF" num_pb="1">
+    <input  name="I" num_pins="1"/>
+    <output name="O" num_pins="1"/>
+    <metadata>
+     <meta name="hlc_property">NegClk # CEN constant 0, SR in use</meta>
+    </metadata>
+    <interconnect><direct><port type="input" name="I" /><port type="output" name="O"/></direct></interconnect>
+   </pb_type>
+   <interconnect>
+    <direct><port type="input" name="I" /><port type="output" name="I" from="BLK_IG-BUF"/></direct>
+    <direct><port type="input" name="O" from="BLK_IG-BUF"/><port type="output" name="NCLK+SR"/></direct>
+   </interconnect>
+  </mode>
+  <mode name="BLK_IG-NCLK+CEN+SR">
+   <pb_type name="BLK_IG-BUF" num_pb="1">
+    <input  name="I" num_pins="1"/>
+    <output name="O" num_pins="1"/>
+    <metadata>
+     <meta name="hlc_property">NegClk # CEN in use, SR in use</meta>
+    </metadata>
+    <interconnect><direct><port type="input" name="I" /><port type="output" name="O"/></direct></interconnect>
+   </pb_type>
+   <interconnect>
+    <direct><port type="input" name="I" /><port type="output" name="I" from="BLK_IG-BUF"/></direct>
+    <direct><port type="input" name="O" from="BLK_IG-BUF"/><port type="output" name="NCLK+CEN+SR"/></direct>
    </interconnect>
   </mode>
  </pb_type>
@@ -192,10 +252,14 @@
   <direct name="I0[1]" input="BLK_IG-PLB.I0[1]"     output="BLK_IG-LUTFF[0].I[1]" />
   <direct name="I0[2]" input="BLK_IG-PLB.I0[2]"     output="BLK_IG-LUTFF[0].I[2]" />
   <direct name="I0[3]" input="BLK_IG-PLB.I0[3]"     output="BLK_IG-LUTFF[0].I[3]" />
-  <direct name="PC0"   input="BLK_IG-MODE_CLK.PCLK" output="BLK_IG-LUTFF[0].PCLK" />
-  <direct name="NC0"   input="BLK_IG-MODE_CLK.NCLK" output="BLK_IG-LUTFF[0].NCLK" />
-  <direct name="PCE0"  input="BLK_IG-MODE_CLK.PCEN" output="BLK_IG-LUTFF[0].PCEN" />
-  <direct name="NCE0"  input="BLK_IG-MODE_CLK.NCEN" output="BLK_IG-LUTFF[0].NCEN" />
+  <direct name="PC0"   input="BLK_IG-MODE_CLK.PCLK"        output="BLK_IG-LUTFF[0].PCLK"        />
+  <direct name="NC0"   input="BLK_IG-MODE_CLK.NCLK"        output="BLK_IG-LUTFF[0].NCLK"        />
+  <direct name="PCE0"  input="BLK_IG-MODE_CLK.PCLK+CEN"    output="BLK_IG-LUTFF[0].PCLK+CEN"    />
+  <direct name="NCE0"  input="BLK_IG-MODE_CLK.NCLK+CEN"    output="BLK_IG-LUTFF[0].NCLK+CEN"    />
+  <direct name="PCS0"  input="BLK_IG-MODE_CLK.PCLK+SR"     output="BLK_IG-LUTFF[0].PCLK+SR"     />
+  <direct name="NCS0"  input="BLK_IG-MODE_CLK.NCLK+SR"     output="BLK_IG-LUTFF[0].NCLK+SR"     />
+  <direct name="PCES0" input="BLK_IG-MODE_CLK.PCLK+CEN+SR" output="BLK_IG-LUTFF[0].PCLK+CEN+SR" />
+  <direct name="NCES0" input="BLK_IG-MODE_CLK.NCLK+CEN+SR" output="BLK_IG-LUTFF[0].NCLK+CEN+SR" />
   <direct name="E0"    input="BLK_IG-PLB.EN"        output="BLK_IG-LUTFF[0].EN"   />
   <direct name="S0"    input="BLK_IG-PLB.SR"        output="BLK_IG-LUTFF[0].SR"   />
   <direct name="O0"    input="BLK_IG-LUTFF[0].O"    output="BLK_IG-PLB.O0"        />
@@ -205,10 +269,14 @@
   <direct name="I1[1]" input="BLK_IG-PLB.I1[1]"     output="BLK_IG-LUTFF[1].I[1]" />
   <direct name="I1[2]" input="BLK_IG-PLB.I1[2]"     output="BLK_IG-LUTFF[1].I[2]" />
   <direct name="I1[3]" input="BLK_IG-PLB.I1[3]"     output="BLK_IG-LUTFF[1].I[3]" />
-  <direct name="PC1"   input="BLK_IG-MODE_CLK.PCLK" output="BLK_IG-LUTFF[1].PCLK" />
-  <direct name="NC1"   input="BLK_IG-MODE_CLK.NCLK" output="BLK_IG-LUTFF[1].NCLK" />
-  <direct name="PCE1"  input="BLK_IG-MODE_CLK.PCEN" output="BLK_IG-LUTFF[1].PCEN" />
-  <direct name="NCE1"  input="BLK_IG-MODE_CLK.NCEN" output="BLK_IG-LUTFF[1].NCEN" />
+  <direct name="PC1"   input="BLK_IG-MODE_CLK.PCLK"        output="BLK_IG-LUTFF[1].PCLK"        />
+  <direct name="NC1"   input="BLK_IG-MODE_CLK.NCLK"        output="BLK_IG-LUTFF[1].NCLK"        />
+  <direct name="PCE1"  input="BLK_IG-MODE_CLK.PCLK+CEN"    output="BLK_IG-LUTFF[1].PCLK+CEN"    />
+  <direct name="NCE1"  input="BLK_IG-MODE_CLK.NCLK+CEN"    output="BLK_IG-LUTFF[1].NCLK+CEN"    />
+  <direct name="PCS1"  input="BLK_IG-MODE_CLK.PCLK+SR"     output="BLK_IG-LUTFF[1].PCLK+SR"     />
+  <direct name="NCS1"  input="BLK_IG-MODE_CLK.NCLK+SR"     output="BLK_IG-LUTFF[1].NCLK+SR"     />
+  <direct name="PCES1" input="BLK_IG-MODE_CLK.PCLK+CEN+SR" output="BLK_IG-LUTFF[1].PCLK+CEN+SR" />
+  <direct name="NCES1" input="BLK_IG-MODE_CLK.NCLK+CEN+SR" output="BLK_IG-LUTFF[1].NCLK+CEN+SR" />
   <direct name="E1"    input="BLK_IG-PLB.EN"        output="BLK_IG-LUTFF[1].EN"   />
   <direct name="S1"    input="BLK_IG-PLB.SR"        output="BLK_IG-LUTFF[1].SR"   />
   <direct name="O1"    input="BLK_IG-LUTFF[1].O"    output="BLK_IG-PLB.O1"        />
@@ -218,10 +286,14 @@
   <direct name="I2[1]" input="BLK_IG-PLB.I2[1]"     output="BLK_IG-LUTFF[2].I[1]" />
   <direct name="I2[2]" input="BLK_IG-PLB.I2[2]"     output="BLK_IG-LUTFF[2].I[2]" />
   <direct name="I2[3]" input="BLK_IG-PLB.I2[3]"     output="BLK_IG-LUTFF[2].I[3]" />
-  <direct name="PC2"   input="BLK_IG-MODE_CLK.PCLK" output="BLK_IG-LUTFF[2].PCLK" />
-  <direct name="NC2"   input="BLK_IG-MODE_CLK.NCLK" output="BLK_IG-LUTFF[2].NCLK" />
-  <direct name="PCE2"  input="BLK_IG-MODE_CLK.PCEN" output="BLK_IG-LUTFF[2].PCEN" />
-  <direct name="NCE2"  input="BLK_IG-MODE_CLK.NCEN" output="BLK_IG-LUTFF[2].NCEN" />
+  <direct name="PC2"   input="BLK_IG-MODE_CLK.PCLK"        output="BLK_IG-LUTFF[2].PCLK"        />
+  <direct name="NC2"   input="BLK_IG-MODE_CLK.NCLK"        output="BLK_IG-LUTFF[2].NCLK"        />
+  <direct name="PCE2"  input="BLK_IG-MODE_CLK.PCLK+CEN"    output="BLK_IG-LUTFF[2].PCLK+CEN"    />
+  <direct name="NCE2"  input="BLK_IG-MODE_CLK.NCLK+CEN"    output="BLK_IG-LUTFF[2].NCLK+CEN"    />
+  <direct name="PCS2"  input="BLK_IG-MODE_CLK.PCLK+SR"     output="BLK_IG-LUTFF[2].PCLK+SR"     />
+  <direct name="NCS2"  input="BLK_IG-MODE_CLK.NCLK+SR"     output="BLK_IG-LUTFF[2].NCLK+SR"     />
+  <direct name="PCES2" input="BLK_IG-MODE_CLK.PCLK+CEN+SR" output="BLK_IG-LUTFF[2].PCLK+CEN+SR" />
+  <direct name="NCES2" input="BLK_IG-MODE_CLK.NCLK+CEN+SR" output="BLK_IG-LUTFF[2].NCLK+CEN+SR" />
   <direct name="E2"    input="BLK_IG-PLB.EN"        output="BLK_IG-LUTFF[2].EN"   />
   <direct name="S2"    input="BLK_IG-PLB.SR"        output="BLK_IG-LUTFF[2].SR"   />
   <direct name="O2"    input="BLK_IG-LUTFF[2].O"    output="BLK_IG-PLB.O2"        />
@@ -231,10 +303,14 @@
   <direct name="I3[1]" input="BLK_IG-PLB.I3[1]"     output="BLK_IG-LUTFF[3].I[1]" />
   <direct name="I3[2]" input="BLK_IG-PLB.I3[2]"     output="BLK_IG-LUTFF[3].I[2]" />
   <direct name="I3[3]" input="BLK_IG-PLB.I3[3]"     output="BLK_IG-LUTFF[3].I[3]" />
-  <direct name="PC3"   input="BLK_IG-MODE_CLK.PCLK" output="BLK_IG-LUTFF[3].PCLK" />
-  <direct name="NC3"   input="BLK_IG-MODE_CLK.NCLK" output="BLK_IG-LUTFF[3].NCLK" />
-  <direct name="PCE3"  input="BLK_IG-MODE_CLK.PCEN" output="BLK_IG-LUTFF[3].PCEN" />
-  <direct name="NCE3"  input="BLK_IG-MODE_CLK.NCEN" output="BLK_IG-LUTFF[3].NCEN" />
+  <direct name="PC3"   input="BLK_IG-MODE_CLK.PCLK"        output="BLK_IG-LUTFF[3].PCLK"        />
+  <direct name="NC3"   input="BLK_IG-MODE_CLK.NCLK"        output="BLK_IG-LUTFF[3].NCLK"        />
+  <direct name="PCE3"  input="BLK_IG-MODE_CLK.PCLK+CEN"    output="BLK_IG-LUTFF[3].PCLK+CEN"    />
+  <direct name="NCE3"  input="BLK_IG-MODE_CLK.NCLK+CEN"    output="BLK_IG-LUTFF[3].NCLK+CEN"    />
+  <direct name="PCS3"  input="BLK_IG-MODE_CLK.PCLK+SR"     output="BLK_IG-LUTFF[3].PCLK+SR"     />
+  <direct name="NCS3"  input="BLK_IG-MODE_CLK.NCLK+SR"     output="BLK_IG-LUTFF[3].NCLK+SR"     />
+  <direct name="PCES3" input="BLK_IG-MODE_CLK.PCLK+CEN+SR" output="BLK_IG-LUTFF[3].PCLK+CEN+SR" />
+  <direct name="NCES3" input="BLK_IG-MODE_CLK.NCLK+CEN+SR" output="BLK_IG-LUTFF[3].NCLK+CEN+SR" />
   <direct name="E3"    input="BLK_IG-PLB.EN"        output="BLK_IG-LUTFF[3].EN"   />
   <direct name="S3"    input="BLK_IG-PLB.SR"        output="BLK_IG-LUTFF[3].SR"   />
   <direct name="O3"    input="BLK_IG-LUTFF[3].O"    output="BLK_IG-PLB.O3"        />
@@ -244,10 +320,14 @@
   <direct name="I4[1]" input="BLK_IG-PLB.I4[1]"     output="BLK_IG-LUTFF[4].I[1]" />
   <direct name="I4[2]" input="BLK_IG-PLB.I4[2]"     output="BLK_IG-LUTFF[4].I[2]" />
   <direct name="I4[3]" input="BLK_IG-PLB.I4[3]"     output="BLK_IG-LUTFF[4].I[3]" />
-  <direct name="PC4"   input="BLK_IG-MODE_CLK.PCLK" output="BLK_IG-LUTFF[4].PCLK" />
-  <direct name="NC4"   input="BLK_IG-MODE_CLK.NCLK" output="BLK_IG-LUTFF[4].NCLK" />
-  <direct name="PCE4"  input="BLK_IG-MODE_CLK.PCEN" output="BLK_IG-LUTFF[4].PCEN" />
-  <direct name="NCE4"  input="BLK_IG-MODE_CLK.NCEN" output="BLK_IG-LUTFF[4].NCEN" />
+  <direct name="PC4"   input="BLK_IG-MODE_CLK.PCLK"        output="BLK_IG-LUTFF[4].PCLK"        />
+  <direct name="NC4"   input="BLK_IG-MODE_CLK.NCLK"        output="BLK_IG-LUTFF[4].NCLK"        />
+  <direct name="PCE4"  input="BLK_IG-MODE_CLK.PCLK+CEN"    output="BLK_IG-LUTFF[4].PCLK+CEN"    />
+  <direct name="NCE4"  input="BLK_IG-MODE_CLK.NCLK+CEN"    output="BLK_IG-LUTFF[4].NCLK+CEN"    />
+  <direct name="PCS4"  input="BLK_IG-MODE_CLK.PCLK+SR"     output="BLK_IG-LUTFF[4].PCLK+SR"     />
+  <direct name="NCS4"  input="BLK_IG-MODE_CLK.NCLK+SR"     output="BLK_IG-LUTFF[4].NCLK+SR"     />
+  <direct name="PCES4" input="BLK_IG-MODE_CLK.PCLK+CEN+SR" output="BLK_IG-LUTFF[4].PCLK+CEN+SR" />
+  <direct name="NCES4" input="BLK_IG-MODE_CLK.NCLK+CEN+SR" output="BLK_IG-LUTFF[4].NCLK+CEN+SR" />
   <direct name="E4"    input="BLK_IG-PLB.EN"        output="BLK_IG-LUTFF[4].EN"   />
   <direct name="S4"    input="BLK_IG-PLB.SR"        output="BLK_IG-LUTFF[4].SR"   />
   <direct name="O4"    input="BLK_IG-LUTFF[4].O"    output="BLK_IG-PLB.O4"        />
@@ -257,10 +337,14 @@
   <direct name="I5[1]" input="BLK_IG-PLB.I5[1]"     output="BLK_IG-LUTFF[5].I[1]" />
   <direct name="I5[2]" input="BLK_IG-PLB.I5[2]"     output="BLK_IG-LUTFF[5].I[2]" />
   <direct name="I5[3]" input="BLK_IG-PLB.I5[3]"     output="BLK_IG-LUTFF[5].I[3]" />
-  <direct name="PC5"   input="BLK_IG-MODE_CLK.PCLK" output="BLK_IG-LUTFF[5].PCLK" />
-  <direct name="NC5"   input="BLK_IG-MODE_CLK.NCLK" output="BLK_IG-LUTFF[5].NCLK" />
-  <direct name="PCE5"  input="BLK_IG-MODE_CLK.PCEN" output="BLK_IG-LUTFF[5].PCEN" />
-  <direct name="NCE5"  input="BLK_IG-MODE_CLK.NCEN" output="BLK_IG-LUTFF[5].NCEN" />
+  <direct name="PC5"   input="BLK_IG-MODE_CLK.PCLK"        output="BLK_IG-LUTFF[5].PCLK"        />
+  <direct name="NC5"   input="BLK_IG-MODE_CLK.NCLK"        output="BLK_IG-LUTFF[5].NCLK"        />
+  <direct name="PCE5"  input="BLK_IG-MODE_CLK.PCLK+CEN"    output="BLK_IG-LUTFF[5].PCLK+CEN"    />
+  <direct name="NCE5"  input="BLK_IG-MODE_CLK.NCLK+CEN"    output="BLK_IG-LUTFF[5].NCLK+CEN"    />
+  <direct name="PCS5"  input="BLK_IG-MODE_CLK.PCLK+SR"     output="BLK_IG-LUTFF[5].PCLK+SR"     />
+  <direct name="NCS5"  input="BLK_IG-MODE_CLK.NCLK+SR"     output="BLK_IG-LUTFF[5].NCLK+SR"     />
+  <direct name="PCES5" input="BLK_IG-MODE_CLK.PCLK+CEN+SR" output="BLK_IG-LUTFF[5].PCLK+CEN+SR" />
+  <direct name="NCES5" input="BLK_IG-MODE_CLK.NCLK+CEN+SR" output="BLK_IG-LUTFF[5].NCLK+CEN+SR" />
   <direct name="E5"    input="BLK_IG-PLB.EN"        output="BLK_IG-LUTFF[5].EN"   />
   <direct name="S5"    input="BLK_IG-PLB.SR"        output="BLK_IG-LUTFF[5].SR"   />
   <direct name="O5"    input="BLK_IG-LUTFF[5].O"    output="BLK_IG-PLB.O5"        />
@@ -270,10 +354,14 @@
   <direct name="I6[1]" input="BLK_IG-PLB.I6[1]"     output="BLK_IG-LUTFF[6].I[1]" />
   <direct name="I6[2]" input="BLK_IG-PLB.I6[2]"     output="BLK_IG-LUTFF[6].I[2]" />
   <direct name="I6[3]" input="BLK_IG-PLB.I6[3]"     output="BLK_IG-LUTFF[6].I[3]" />
-  <direct name="PC6"   input="BLK_IG-MODE_CLK.PCLK" output="BLK_IG-LUTFF[6].PCLK" />
-  <direct name="NC6"   input="BLK_IG-MODE_CLK.NCLK" output="BLK_IG-LUTFF[6].NCLK" />
-  <direct name="PCE6"  input="BLK_IG-MODE_CLK.PCEN" output="BLK_IG-LUTFF[6].PCEN" />
-  <direct name="NCE6"  input="BLK_IG-MODE_CLK.NCEN" output="BLK_IG-LUTFF[6].NCEN" />
+  <direct name="PC6"   input="BLK_IG-MODE_CLK.PCLK"        output="BLK_IG-LUTFF[6].PCLK"        />
+  <direct name="NC6"   input="BLK_IG-MODE_CLK.NCLK"        output="BLK_IG-LUTFF[6].NCLK"        />
+  <direct name="PCE6"  input="BLK_IG-MODE_CLK.PCLK+CEN"    output="BLK_IG-LUTFF[6].PCLK+CEN"    />
+  <direct name="NCE6"  input="BLK_IG-MODE_CLK.NCLK+CEN"    output="BLK_IG-LUTFF[6].NCLK+CEN"    />
+  <direct name="PCS6"  input="BLK_IG-MODE_CLK.PCLK+SR"     output="BLK_IG-LUTFF[6].PCLK+SR"     />
+  <direct name="NCS6"  input="BLK_IG-MODE_CLK.NCLK+SR"     output="BLK_IG-LUTFF[6].NCLK+SR"     />
+  <direct name="PCES6" input="BLK_IG-MODE_CLK.PCLK+CEN+SR" output="BLK_IG-LUTFF[6].PCLK+CEN+SR" />
+  <direct name="NCES6" input="BLK_IG-MODE_CLK.NCLK+CEN+SR" output="BLK_IG-LUTFF[6].NCLK+CEN+SR" />
   <direct name="E6"    input="BLK_IG-PLB.EN"        output="BLK_IG-LUTFF[6].EN"   />
   <direct name="S6"    input="BLK_IG-PLB.SR"        output="BLK_IG-LUTFF[6].SR"   />
   <direct name="O6"    input="BLK_IG-LUTFF[6].O"    output="BLK_IG-PLB.O6"        />
@@ -283,10 +371,14 @@
   <direct name="I7[1]" input="BLK_IG-PLB.I7[1]"     output="BLK_IG-LUTFF[7].I[1]" />
   <direct name="I7[2]" input="BLK_IG-PLB.I7[2]"     output="BLK_IG-LUTFF[7].I[2]" />
   <direct name="I7[3]" input="BLK_IG-PLB.I7[3]"     output="BLK_IG-LUTFF[7].I[3]" />
-  <direct name="PC7"   input="BLK_IG-MODE_CLK.PCLK" output="BLK_IG-LUTFF[7].PCLK" />
-  <direct name="NC7"   input="BLK_IG-MODE_CLK.NCLK" output="BLK_IG-LUTFF[7].NCLK" />
-  <direct name="PCE7"  input="BLK_IG-MODE_CLK.PCEN" output="BLK_IG-LUTFF[7].PCEN" />
-  <direct name="NCE7"  input="BLK_IG-MODE_CLK.NCEN" output="BLK_IG-LUTFF[7].NCEN" />
+  <direct name="PC7"   input="BLK_IG-MODE_CLK.PCLK"        output="BLK_IG-LUTFF[7].PCLK"        />
+  <direct name="NC7"   input="BLK_IG-MODE_CLK.NCLK"        output="BLK_IG-LUTFF[7].NCLK"        />
+  <direct name="PCE7"  input="BLK_IG-MODE_CLK.PCLK+CEN"    output="BLK_IG-LUTFF[7].PCLK+CEN"    />
+  <direct name="NCE7"  input="BLK_IG-MODE_CLK.NCLK+CEN"    output="BLK_IG-LUTFF[7].NCLK+CEN"    />
+  <direct name="PCS7"  input="BLK_IG-MODE_CLK.PCLK+SR"     output="BLK_IG-LUTFF[7].PCLK+SR"     />
+  <direct name="NCS7"  input="BLK_IG-MODE_CLK.NCLK+SR"     output="BLK_IG-LUTFF[7].NCLK+SR"     />
+  <direct name="PCES7" input="BLK_IG-MODE_CLK.PCLK+CEN+SR" output="BLK_IG-LUTFF[7].PCLK+CEN+SR" />
+  <direct name="NCES7" input="BLK_IG-MODE_CLK.NCLK+CEN+SR" output="BLK_IG-LUTFF[7].NCLK+CEN+SR" />
   <direct name="E7"    input="BLK_IG-PLB.EN"        output="BLK_IG-LUTFF[7].EN"   />
   <direct name="S7"    input="BLK_IG-PLB.SR"        output="BLK_IG-LUTFF[7].SR"   />
   <direct name="O7"    input="BLK_IG-LUTFF[7].O"    output="BLK_IG-PLB.O7"        />
