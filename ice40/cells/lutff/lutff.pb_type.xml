@@ -73,7 +73,27 @@
   <direct name="FF.R"           input="BLK_IG-LUTFF.SR"          output="BEL_FF-SB_FF.R"           />
   <direct name="FF.S"           input="BLK_IG-LUTFF.SR"          output="BEL_FF-SB_FF.S"           />
   <direct name="FF.D"           input="BEL_LT-LUT.out"           output="BEL_FF-SB_FF.D"            >
-   <pack_pattern name="LUT+FF" in_port="BEL_LT-LUT.out" out_port="BEL_FF-SB_FF.D"/>
+   <pack_pattern name="LUT+FFA" in_port="BEL_LT-LUT.out" out_port="BEL_FF-SB_FF.D"/>
+   <pack_pattern name="LUT+FFB" in_port="BEL_LT-LUT.out" out_port="BEL_FF-SB_FF.D"/>
+   <pack_pattern name="LUT+FFC" in_port="BEL_LT-LUT.out" out_port="BEL_FF-SB_FF.D"/>
+   <pack_pattern name="LUT+FFD" in_port="BEL_LT-LUT.out" out_port="BEL_FF-SB_FF.D"/>
+   <pack_pattern name="LUT+FFE" in_port="BEL_LT-LUT.out" out_port="BEL_FF-SB_FF.D"/>
+   <pack_pattern name="LUT+FFF" in_port="BEL_LT-LUT.out" out_port="BEL_FF-SB_FF.D"/>
+   <pack_pattern name="LUT+FFG" in_port="BEL_LT-LUT.out" out_port="BEL_FF-SB_FF.D"/>
+   <pack_pattern name="LUT+FFH" in_port="BEL_LT-LUT.out" out_port="BEL_FF-SB_FF.D"/>
+   <pack_pattern name="LUT+FFI" in_port="BEL_LT-LUT.out" out_port="BEL_FF-SB_FF.D"/>
+   <pack_pattern name="LUT+FFJ" in_port="BEL_LT-LUT.out" out_port="BEL_FF-SB_FF.D"/>
+   <pack_pattern name="LUT+FFK" in_port="BEL_LT-LUT.out" out_port="BEL_FF-SB_FF.D"/>
+   <pack_pattern name="LUT+FFL" in_port="BEL_LT-LUT.out" out_port="BEL_FF-SB_FF.D"/>
+   <pack_pattern name="LUT+FFM" in_port="BEL_LT-LUT.out" out_port="BEL_FF-SB_FF.D"/>
+   <pack_pattern name="LUT+FFN" in_port="BEL_LT-LUT.out" out_port="BEL_FF-SB_FF.D"/>
+   <pack_pattern name="LUT+FFO" in_port="BEL_LT-LUT.out" out_port="BEL_FF-SB_FF.D"/>
+   <pack_pattern name="LUT+FFP" in_port="BEL_LT-LUT.out" out_port="BEL_FF-SB_FF.D"/>
+   <pack_pattern name="LUT+FFQ" in_port="BEL_LT-LUT.out" out_port="BEL_FF-SB_FF.D"/>
+   <pack_pattern name="LUT+FFR" in_port="BEL_LT-LUT.out" out_port="BEL_FF-SB_FF.D"/>
+   <pack_pattern name="LUT+FFS" in_port="BEL_LT-LUT.out" out_port="BEL_FF-SB_FF.D"/>
+   <pack_pattern name="LUT+FFT" in_port="BEL_LT-LUT.out" out_port="BEL_FF-SB_FF.D"/>
+   <pack_pattern name="LUT+FFU" in_port="BEL_LT-LUT.out" out_port="BEL_FF-SB_FF.D"/>
   </direct>
 
   <direct name="DISABLE_FF" input="BEL_LT-LUT.out" output="BLK_IG-DISABLE_FF.I" />
