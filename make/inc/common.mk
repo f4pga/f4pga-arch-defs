@@ -18,6 +18,11 @@ COMMON_MK_DIR  := $(realpath $(dir $(lastword $(MAKEFILE_LIST))))
 TOP_DIR   := $(realpath $(COMMON_MK_DIR)/../..)
 UTILS_DIR := $(realpath $(TOP_DIR)/utils)
 
+# Make sure submodules are initialized
+ifeq ($(shell ls $(TOP_DIR)/third_party/*/.git),)
+$(error Submodules are not initialized! -- Run git submodule update --init)
+endif
+
 # Human readable aliases for the 'Automatic Variables' because I can never
 # remember what $@ / $< etc mean.
 # See [10.5.3 Automatic Variables](https://www.gnu.org/software/make/manual/html_node/Automatic-Variables.html)
