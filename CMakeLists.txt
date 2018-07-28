@@ -31,6 +31,7 @@ function(V2X)
   cmake_parse_arguments(V2X "${options}" "${oneValueArgs}" "${multiValueArgs}" ${ARGN} )
 
   set(INCLUDES "")
+  set(DEPENDS_LIST "")
   set(REAL_SOURCE_LIST "")
   foreach(SRC ${V2X_SRCS})
     if(NOT "${SRC}" MATCHES "\\.sim\\.v$")
@@ -38,6 +39,7 @@ function(V2X)
     endif()
 
     GET_FILE_TARGET(SRC_TARGET ${SRC})
+    list(APPEND DEPENDS_LIST ${SRC_TARGET})
     get_target_property(SRC_INCLUDES ${SRC_TARGET} INCLUDES)
     get_target_property(SRC_LOCATION ${SRC_TARGET} LOCATION)
     if("${SRC_LOCATION}" STREQUAL "NOT_FOUND")
@@ -71,7 +73,7 @@ function(V2X)
 
   add_custom_command(
     OUTPUT "${V2X_NAME}.pb_type.xml"
-    DEPENDS ${REAL_SOURCE_LIST} ${symbiflow-arch-defs_SOURCE_DIR}/utils/vlog/vlog_to_pbtype.py
+    DEPENDS ${DEPENDS_LIST} ${symbiflow-arch-defs_SOURCE_DIR}/utils/vlog/vlog_to_pbtype.py
     COMMAND ${symbiflow-arch-defs_SOURCE_DIR}/utils/vlog/vlog_to_pbtype.py ${TOP_ARG} -o ${CMAKE_CURRENT_BINARY_DIR}/${V2X_NAME}.pb_type.xml ${FIRST_SOURCE} ${INCLUDE_ARG}
     WORKING_DIRECTORY ${symbiflow-arch-defs_SOURCE_DIR}/utils/vlog/
     )
@@ -80,7 +82,7 @@ function(V2X)
 
   add_custom_command(
     OUTPUT "${V2X_NAME}.model.xml"
-    DEPENDS ${REAL_SOURCE_LIST} ${symbiflow-arch-defs_SOURCE_DIR}/utils/vlog/vlog_to_pbtype.py
+    DEPENDS ${DEPENDS_LIST} ${symbiflow-arch-defs_SOURCE_DIR}/utils/vlog/vlog_to_pbtype.py
     COMMAND ${symbiflow-arch-defs_SOURCE_DIR}/utils/vlog/vlog_to_model.py ${TOP_ARG} -o ${CMAKE_CURRENT_BINARY_DIR}/${V2X_NAME}.model.xml ${FIRST_SOURCE} ${INCLUDE_ARG}
     WORKING_DIRECTORY ${symbiflow-arch-defs_SOURCE_DIR}/utils/vlog/
     )
@@ -198,7 +200,7 @@ function(N_TEMPLATE)
       GET_FILE_TARGET(SRC_TARGET ${SRC})
       add_custom_command(
         OUTPUT ${SRC_WITH_PREFIX}
-        DEPENDS ${SRC} ${symbiflow-arch-defs_SOURCE_DIR}/utils/n.py
+        DEPENDS ${SRC} ${SRC_TARGET} ${symbiflow-arch-defs_SOURCE_DIR}/utils/n.py
         COMMAND ${symbiflow-arch-defs_SOURCE_DIR}/utils/n.py ${PREFIX} $<TARGET_PROPERTY:${SRC_TARGET},LOCATION> ${CMAKE_CURRENT_BINARY_DIR}/${SRC_WITH_PREFIX}
         WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
         )
