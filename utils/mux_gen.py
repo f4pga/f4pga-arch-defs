@@ -151,12 +151,8 @@ def main(argv):
 
     outdir = normpath(outdir)
 
-    mydir = normpath(os.path.dirname(mypath), to=outdir)
-    mypath = normpath(mypath, to=outdir)
-    mux_dir = normpath(os.path.join(mydir, '..', 'vpr', 'muxes'), to=outdir)
-    buf_dir = normpath(os.path.join(mydir, '..', 'vpr', 'buf'), to=outdir)
-    mux_mk = normpath(
-        os.path.join(mydir, '..', 'common', 'make', 'mux.mk'), to=outdir)
+    mux_dir = os.path.join('vpr', 'muxes')
+    buf_dir = os.path.join('vpr', 'buf')
 
     if args.data_width > 1 and not args.split_inputs:
         assert False, "data_width(%d) > 1 requires using split_inputs" % (
@@ -206,11 +202,6 @@ Generated with %s
 
     # XML Files can't have "--" in them, so instead we use ~~
     xml_comment = generated_with.replace("--", "~~")
-
-    # ------------------------------------------------------------------------
-    # Create a makefile to regenerate files.
-    # ------------------------------------------------------------------------
-    makefile_file = os.path.join(outdir, "Makefile.mux")
 
     if not args.outfilename:
         args.outfilename = args.name_mux.lower()
