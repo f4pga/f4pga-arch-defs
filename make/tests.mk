@@ -243,12 +243,15 @@ VPR_CMD = \
 		--verbose_sweep on \
 		--allow_unrelated_clustering off \
 		--max_criticality 0.0 \
-		--target_ext_pin_util 0.7 \
-		--max_router_iterations 500 \
+		--max_router_iterations 50 \
 		--routing_failure_predictor off \
+		--router_algorithm breadth_first \
 		--clock_modeling route \
+		--debug_clustering on \
+		--clustering_pin_feasibility_filter off \
 		--constant_net_method route
 
+#		--target_ext_pin_util 0.7 \
 #		--router_algorithm breadth_first \
 
 VPR_ARGS_FILE=$(OUT_LOCAL)/vpr.args

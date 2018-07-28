@@ -2,10 +2,10 @@
 <pb_type name="BLK_IG-LUTFF" num_pb="1" xmlns:xi="http://www.w3.org/2001/XInclude">
  <!-- LUT -->
  <input  name="I"     num_pins="4"/>
-
+ <!--
  <input  name="LCIN"  num_pins="1"/>
  <output name="LCOUT" num_pins="1"/>
-
+ -->
  <!-- FF -->
  <clock  name="PCLK"        num_pins="1"/>
  <clock  name="NCLK"        num_pins="1"/>
@@ -20,14 +20,19 @@
  <input  name="SR" num_pins="1"/>
  <output name="O"  num_pins="1"/>
 
- <!-- CARRY -->
+ <!-- CARRY 
+ <input  name="C0"  num_pins="1"/>
+ <input  name="C1"  num_pins="1"/>
+ <output name="CO"  num_pins="1"/>
  <input  name="FCIN"  num_pins="1"/>
  <output name="FCOUT" num_pins="1"/>
+      -->
 
  <xi:include href="../../primitives/sb_lut/sb_lut.pb_type.xml"/>
- <xi:include href="../../primitives/sb_carry/sb_carry.pb_type.xml"/>
+ <!-- <xi:include href="../../primitives/sb_carry/sb_carry.pb_type.xml"/> -->
  <xi:include href="../../primitives/sb_ff/sb_ff.pb_type.xml"/>
 
+ <!--
  <pb_type name="BLK_IG-ENABLE_FF" num_pb="1">
   <input  name="I" num_pins="1"/>
   <output name="O" num_pins="1"/>
@@ -48,17 +53,24 @@
    <meta name="hlc_property"># disable_dff</meta>
   </metadata>
  </pb_type>
+ -->
 
  <interconnect>
   <!-- LUT -->
-  <direct name="LUT.I[0]" input="BLK_IG-LUTFF.I[0]"                      output="BEL_LT-LUT.in[0]" />
+  <direct name="LUT.I[0]" input="BLK_IG-LUTFF.I[0]"                      output="BEL_LT-LUT.in[0]">
+  </direct>
   <direct name="LUT.I[1]" input="BLK_IG-LUTFF.I[1]"                      output="BEL_LT-LUT.in[1]" />
-  <mux    name="LUT.I[2]" input="BLK_IG-LUTFF.LCIN[0] BLK_IG-LUTFF.I[2]" output="BEL_LT-LUT.in[2]" />
   <!-- Disable FCIN->I3 mux until https://github.com/verilog-to-routing/vtr-verilog-to-routing/issues/325 is fixed.
-  <mux    name="LUT.I[3]" input="BLK_IG-LUTFF.I[3] BLK_IG-LUTFF.FCIN" output="BEL_LT-LUT.in[3]" /> -->
+  <mux    name="LUT.I[2]" input="BLK_IG-LUTFF.LCIN[0] BLK_IG-LUTFF.I[2]" output="BEL_LT-LUT.in[2]" />
+   -->
+  <direct name="LUT.I[2]" input="BLK_IG-LUTFF.I[2]"                      output="BEL_LT-LUT.in[2]" />
+  <!-- Disable FCIN->I3 mux until https://github.com/verilog-to-routing/vtr-verilog-to-routing/issues/325 is fixed.
+  <mux    name="LUT.I[3]" input="BLK_IG-LUTFF.I[3] BLK_IG-LUTFF.FCIN" output="BEL_LT-LUT.in[3]" />
+  -->
   <direct name="LUT.I[3]" input="BLK_IG-LUTFF.I[3]"                      output="BEL_LT-LUT.in[3]" />
+  <!--
   <direct name="LCOUT"    input="BEL_LT-LUT.out"                         output="BLK_IG-LUTFF.LCOUT" />
-
+  -->
   <!-- LUT -->
   <direct name="FF.PCLK"        input="BLK_IG-LUTFF.PCLK"        output="BEL_FF-SB_FF.PCLK"        />
   <direct name="FF.NCLK"        input="BLK_IG-LUTFF.NCLK"        output="BEL_FF-SB_FF.NCLK"        />
@@ -73,6 +85,7 @@
   <direct name="FF.R"           input="BLK_IG-LUTFF.SR"          output="BEL_FF-SB_FF.R"           />
   <direct name="FF.S"           input="BLK_IG-LUTFF.SR"          output="BEL_FF-SB_FF.S"           />
   <direct name="FF.D"           input="BEL_LT-LUT.out"           output="BEL_FF-SB_FF.D"            >
+   <pack_pattern name="CTEMP" in_port="BEL_LT-LUT.out" out_port="BEL_FF-SB_FF.D"/>
    <pack_pattern name="LUT+FFA" in_port="BEL_LT-LUT.out" out_port="BEL_FF-SB_FF.D"/>
    <pack_pattern name="LUT+FFB" in_port="BEL_LT-LUT.out" out_port="BEL_FF-SB_FF.D"/>
    <pack_pattern name="LUT+FFC" in_port="BEL_LT-LUT.out" out_port="BEL_FF-SB_FF.D"/>
@@ -96,10 +109,11 @@
    <pack_pattern name="LUT+FFU" in_port="BEL_LT-LUT.out" out_port="BEL_FF-SB_FF.D"/>
   </direct>
 
-  <direct name="DISABLE_FF" input="BEL_LT-LUT.out" output="BLK_IG-DISABLE_FF.I" />
-  <direct name="ENABLE_FF"  input="BEL_FF-SB_FF.Q" output="BLK_IG-ENABLE_FF.I"  />
   <!-- Output -->
-  <mux name="O" input="BLK_IG-DISABLE_FF.O BLK_IG-ENABLE_FF.O" output="BLK_IG-LUTFF.O" />
+  <mux name="O" input="BEL_LT-LUT.out BEL_FF-SB_FF.Q" output="BLK_IG-LUTFF.O">
+   <pack_pattern name="CTEMP" in_port="BEL_LT-LUT.out" out_port="BLK_IG-LUTFF.O"/>
+   <pack_pattern name="CTEMP" in_port="BEL_FF-SB_FF.Q" out_port="BLK_IG-LUTFF.O"/>
+  </mux>
 
   <!--
   <direct name="OMUX.LT" input="BLK_IG-ENABLE_FF.O"  output="BEL_RX-RMUX2.LT" />
@@ -107,21 +121,10 @@
   <direct name="OMUX.O"  input="BEL_RX-RMUX2.O"      output="BLK_IG-LUTFF.O" />
        -->
 
-  <!-- CARRY -->
+  <!-- CARRY 
   <direct name="SB_CARRY.I0" input="BLK_IG-LUTFF.I[1]" output="SB_CARRY.I0" />
   <direct name="SB_CARRY.I1" input="BLK_IG-LUTFF.I[2]" output="SB_CARRY.I1" />
-
-  <direct name="BLK_IG-LUTFF.FCIN" input="BLK_IG-LUTFF.FCIN" output="SB_CARRY.CI">
-   <pack_pattern name="CARRYCHAIN" in_port="BLK_IG-LUTFF.FCIN" out_port="SB_CARRY.CI" />
-  </direct>
-  <direct name="BLK_IG-LUTFF.FCOUT" input="SB_CARRY.CO" output="BLK_IG-LUTFF.FCOUT">
-   <pack_pattern name="CARRYCHAIN" in_port="SB_CARRY.CO" out_port="BLK_IG-LUTFF.FCOUT" />
-  </direct>
-  <!--
-  <direct name="BLK_IG-LUTFF.FCIN" input="BLK_IG-LUTFF.FCIN" output="SB_CARRY.CI" />
-  <direct name="BLK_IG-LUTFF.FCOUT" input="SB_CARRY.CO" output="BLK_IG-LUTFF.FCOUT" />
-  -->
-
+       -->
  </interconnect>
  <metadata>
   <meta name="hlc_cell">lutff</meta>
