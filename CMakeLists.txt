@@ -125,7 +125,7 @@ function(MUX_GEN)
     list(APPEND MUX_GEN_ARGS "--name-out=${MUX_GEN_OUTPUT}")
   endif()
 
-  if(NOT "${MUX_GEN_SPLIT_INPUTS}" STREQUAL "")
+  if(${MUX_GEN_SPLIT_INPUTS})
     list(APPEND MUX_GEN_ARGS "--split-inputs=1")
   endif()
 
@@ -133,7 +133,7 @@ function(MUX_GEN)
     list(APPEND MUX_GEN_ARGS "--name-inputs=${MUX_GEN_INPUTS}")
   endif()
 
-  if(NOT "${MUX_GEN_SPLIT_SELECTS}" STREQUAL "")
+  if(${MUX_GEN_SPLIT_SELECTS})
     list(APPEND MUX_GEN_ARGS "--split-selects=1")
   endif()
 
