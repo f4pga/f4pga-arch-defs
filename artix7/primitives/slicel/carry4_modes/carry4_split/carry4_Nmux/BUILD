@@ -9,4 +9,5 @@ mux_gen(
     inputs = ['CI', 'DI'],
     subckt = 'MUXCY',
     ntemplate_prefixes = ['a', 'b', 'c', 'd'],
+    visibility = ["//artix7/primitives/slicel/carry4_modes/carry4_split:__pkg__"],
     )

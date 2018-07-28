@@ -1,0 +1,11 @@
+MUX_GEN(
+  NAME ntemplate.carry4_Nmux
+  TYPE logic
+  MUX_NAME CARRY4_{N}MUX
+  WIDTH 2
+  SPLIT_INPUTS
+  INPUTS "CI,DI"
+  SUBCKT "MUXCY"
+  NTEMPLATE_PREFIXES "a;b;c;d"
+  )
+
