@@ -36,6 +36,8 @@ def add_include(path):
 
 def get_includes():
     """Return a list of include directories, as a list of arguments to pass to Yosys `read_verilog`"""
+    print("INCLUDES")
+    print(includes)
     return " ".join(["-I" + _ for _ in includes])
 
 

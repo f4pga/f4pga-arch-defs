@@ -89,8 +89,9 @@ if "o" in args and args.o is not None:
     outfile = args.o
 
 yosys.run.add_define("PB_TYPE")
-for include in args.includes.split(','):
-  yosys.run.add_include(include)
+if args.includes:
+  for include in args.includes.split(','):
+    yosys.run.add_include(include)
 
 vjson = yosys.run.vlog_to_json(args.infiles, flatten=False, aig=False)
 yj = YosysJSON(vjson)
