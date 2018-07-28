@@ -41,6 +41,19 @@
   <xi:include href="../../../../cells/plb/plb.pb_type.xml" xpointer="xpointer(pb_type/child::node())"/>
  </pb_type>
 
+ <pb_type name="SB_CARRY" num_pb="2" blif_model=".subckt SB_CARRY">
+  <input  name="I1" num_pins="1"/>
+  <input  name="CI" num_pins="1"/>
+  <input  name="I0" num_pins="1"/>
+  <output name="CO" num_pins="1"/>
+  <delay_constant max="10e-12" in_port="SB_CARRY.CI" out_port="SB_CARRY.CO"/>
+  <delay_constant max="10e-12" in_port="SB_CARRY.I1" out_port="SB_CARRY.CO"/>
+  <delay_constant max="10e-12" in_port="SB_CARRY.I0" out_port="SB_CARRY.CO"/>
+  <metadata>
+   <meta name="hlc_property">enable_carry</meta>
+  </metadata>
+ </pb_type>
+
  <interconnect>
   <!-- LUT inputs -->
   <direct><port type="input" name="lutff_0/in"/><port type="output" name="I0" from="BLK_IG-PLB"/></direct>
@@ -72,13 +85,41 @@
   <direct><port type="input" name="FCOUT" from="BLK_IG-PLB" /><port type="output" name="FCOUT"/></direct>
        -->
   <direct>
-   <port type="input" name="FCIN"/><port type="output" name="FCIN" from="BLK_IG-PLB" />
-   <pack_pattern name="CARRYCHAIN" in_port="BLK_TL-PLB.FCIN" out_port="BLK_IG-PLB.FCIN" />
-  </direct>
+   <port type="input" name="FCIN"/><port type="output" name="CI" from="SB_CARRY[0]" />
+   <pack_pattern name="CTEMP" in_port="BLK_TL-PLB.FCIN" out_port="SB_CARRY[0].CI" />
+		</direct>
+
   <direct>
-   <port type="input" name="FCOUT" from="BLK_IG-PLB" /><port type="output" name="FCOUT"/>
-   <pack_pattern name="CARRYCHAIN" in_port="BLK_IG-PLB.FCOUT" out_port="BLK_TL-PLB.FCOUT" />
-  </direct>
+			<port type="input" name="lutff_0/in[1]"/><port type="output" name="I0" from="SB_CARRY[0]" />
+		</direct>
+  <direct>
+			<port type="input" name="lutff_0/in[2]"/><port type="output" name="I1" from="SB_CARRY[0]" />
+		</direct>
+
+  <direct>
+   <port type="input" name="CO" from="SB_CARRY[0]" /><port type="output" name="CI" from="SB_CARRY[1]" />
+   <pack_pattern name="CTEMP" in_port="SB_CARRY[0].CO" out_port="SB_CARRY[1].CI" />
+		</direct>
+  <mux>
+			<port type="input" name="CO" from="SB_CARRY[0]" /><port type="output" name="I0[0]" from="BLK_IG-PLB" />
+   <pack_pattern name="CTEMP" in_port="SB_CARRY[0].CO" out_port="BLK_IG-PLB.I0[0]" />
+		</mux>
+
+  <direct>
+			<port type="input" name="lutff_1/in[1]"/><port type="output" name="I0" from="SB_CARRY[1]" />
+		</direct>
+  <direct>
+			<port type="input" name="lutff_1/in[2]"/><port type="output" name="I1" from="SB_CARRY[1]" />
+		</direct>
+
+  <direct>
+   <port type="input" from="SB_CARRY[1]" name="CO"/><port type="output" name="FCOUT" />
+   <pack_pattern name="CTEMP" in_port="SB_CARRY[1].CO" out_port="BLK_TL-PLB.FCOUT" />
+		</direct>
+  <mux>
+			<port type="input" name="CO" from="SB_CARRY[1]" /><port type="output" name="I1[0]" from="BLK_IG-PLB" />
+   <pack_pattern name="CTEMP" in_port="SB_CARRY[1].CO" out_port="BLK_IG-PLB.I1[0]" />
+		</mux>
 
  </interconnect>
  <pinlocations pattern="custom">

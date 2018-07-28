@@ -251,6 +251,7 @@
    <direct><port type="input" name="S"/><port type="output" from="SB_DFFR" name="R"/></direct>
    <direct><port type="input" name="D"/><port type="output" from="SB_DFFR" name="D"/>
     <pack_pattern name="LUT+FFH" in_port="BEL_FF-SB_FF.D" out_port="SB_DFFR.D" />
+    <pack_pattern name="CTEMP" in_port="BEL_FF-SB_FF.D" out_port="SB_DFFR.D" />
    </direct>
    <direct><port type="input" from="SB_DFFR" name="Q" /><port type="output" name="Q"/></direct>
   </interconnect>
