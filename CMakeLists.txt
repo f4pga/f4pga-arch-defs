@@ -53,15 +53,27 @@ function(V2X)
 
   set(TOP_ARG "")
   if(NOT ${TOP_MODULE} STREQUAL "")
-    set(TOP_ARG "--top ${TOP_MODULE}")
+    set(TOP_ARG "--top=${TOP_MODULE}")
   endif()
 
   list(GET REAL_SOURCE_LIST 0 FIRST_SOURCE)
 
+  list(APPEND INCLUDES "${CMAKE_CURRENT_BINARY_DIR}")
+  list(APPEND INCLUDES "${CMAKE_CURRENT_SOURCE_DIR}")
+  list(APPEND INCLUDES "${symbiflow-arch-defs_SOURCE_DIR}")
+
+  string(REPLACE ";" "," INCLUDES_LIST "${INCLUDES}")
+
+  set(INCLUDE_ARG "")
+  if(NOT "${INCLUDES_LIST}" STREQUAL "")
+    set(INCLUDE_ARG "--includes=${INCLUDES_LIST}")
+  endif()
+
   add_custom_command(
     OUTPUT "${V2X_NAME}.pb_type.xml"
     DEPENDS ${REAL_SOURCE_LIST} ${symbiflow-arch-defs_SOURCE_DIR}/utils/vlog/vlog_to_pbtype.py
-    COMMAND ${symbiflow-arch-defs_SOURCE_DIR}/utils/vlog/vlog_to_pbtype.py ${TOP_ARG} -o ${CMAKE_CURRENT_BINARY_DIR}/${V2X_NAME}.pb_type.xml ${FIRST_SOURCE}
+    COMMAND ${symbiflow-arch-defs_SOURCE_DIR}/utils/vlog/vlog_to_pbtype.py ${TOP_ARG} -o ${CMAKE_CURRENT_BINARY_DIR}/${V2X_NAME}.pb_type.xml ${FIRST_SOURCE} ${INCLUDE_ARG}
+    WORKING_DIRECTORY ${symbiflow-arch-defs_SOURCE_DIR}/utils/vlog/
     )
 
   MAKE_FILE_TARGET(FILE "${V2X_NAME}.pb_type.xml" GENERATED)
@@ -69,7 +81,8 @@ function(V2X)
   add_custom_command(
     OUTPUT "${V2X_NAME}.model.xml"
     DEPENDS ${REAL_SOURCE_LIST} ${symbiflow-arch-defs_SOURCE_DIR}/utils/vlog/vlog_to_pbtype.py
-    COMMAND ${symbiflow-arch-defs_SOURCE_DIR}/utils/vlog/vlog_to_model.py ${TOP_ARG} -o ${CMAKE_CURRENT_BINARY_DIR}/${V2X_NAME}.model.xml ${FIRST_SOURCE}
+    COMMAND ${symbiflow-arch-defs_SOURCE_DIR}/utils/vlog/vlog_to_model.py ${TOP_ARG} -o ${CMAKE_CURRENT_BINARY_DIR}/${V2X_NAME}.model.xml ${FIRST_SOURCE} ${INCLUDE_ARG}
+    WORKING_DIRECTORY ${symbiflow-arch-defs_SOURCE_DIR}/utils/vlog/
     )
 
   MAKE_FILE_TARGET(FILE "${V2X_NAME}.model.xml" GENERATED)
@@ -151,6 +164,8 @@ function(MUX_GEN)
   foreach(OUTPUT ${OUTPUTS})
     MAKE_FILE_TARGET(FILE ${OUTPUT} GENERATED)
   endforeach()
+
+  GET_FILE_TARGET(SRC_TARGET "${MUX_GEN_NAME}.sim.v")
 
   add_custom_target(
     ${MUX_GEN_NAME} ALL

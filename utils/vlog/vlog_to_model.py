@@ -59,8 +59,9 @@ outfile = "model.xml"
 if "o" in args and args.o is not None:
     outfile = args.o
 
-for include in args.includes.split(','):
-  yosys.run.add_include(include)
+if args.includes:
+  for include in args.includes.split(','):
+    yosys.run.add_include(include)
 
 aig_json = yosys.run.vlog_to_json(args.infiles, flatten=True, aig=True)
 
