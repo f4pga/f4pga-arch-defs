@@ -30,25 +30,7 @@
  <output name="lutff_4/out"      num_pins="1"/>
  <output name="lutff_5/out"      num_pins="1"/>
  <output name="lutff_6/out"      num_pins="1"/>
-	<output name="lutff_7/out"      num_pins="1"/>
-
- <output name="lutff_0/cout"     num_pins="1"/>
- <output name="lutff_1/cout"     num_pins="1"/>
- <output name="lutff_2/cout"     num_pins="1"/>
- <output name="lutff_3/cout"     num_pins="1"/>
- <output name="lutff_4/cout"     num_pins="1"/>
- <output name="lutff_5/cout"     num_pins="1"/>
- <output name="lutff_6/cout"     num_pins="1"/>
- <output name="lutff_7/cout"     num_pins="1"/>
-
- <input  name="lutff_0/cin"      num_pins="4"/>
- <input  name="lutff_1/cin"      num_pins="4"/>
- <input  name="lutff_2/cin"      num_pins="4"/>
- <input  name="lutff_3/cin"      num_pins="4"/>
- <input  name="lutff_4/cin"      num_pins="4"/>
- <input  name="lutff_5/cin"      num_pins="4"/>
- <input  name="lutff_6/cin"      num_pins="4"/>
- <input  name="lutff_7/cin"      num_pins="4"/>
+ <output name="lutff_7/out"      num_pins="1"/>
 
  <!-- Fast Carry chain -->
  <input  name="FCIN"   num_pins="1"/>
@@ -63,1091 +45,1186 @@
    10e-12
    10e-12
   </delay_matrix>
+  <metadata>
+   <meta name="hlc_cell">lutff</meta>
+  </metadata>
  </pb_type>
 
  <!-- PCLK        -->
-	<!-- NCLK        -->
-	<!-- PCLK+CEN    -->
-	<!-- NCLK+CEN    -->
-	<!-- PCLK+SR     -->
-	<!-- NCLK+SR     -->
-	<!-- PCLK+CEN+SR -->
-	<!-- NCLK+CEN+SR -->
-	<pb_type name="BLK_IG-FF_MODE" num_pb="1">
+ <!-- NCLK        -->
+ <!-- PCLK+CEN    -->
+ <!-- NCLK+CEN    -->
+ <!-- PCLK+SR     -->
+ <!-- NCLK+SR     -->
+ <!-- PCLK+CEN+SR -->
+ <!-- NCLK+CEN+SR -->
+ <pb_type name="BLK_IG-FF_MODE" num_pb="1">
   <clock  name="C" num_pins="1"/>
   <input  name="E" num_pins="1"/>
-		<input  name="S" num_pins="1"/>
-		<input  name="R" num_pins="1"/>
+  <input  name="S" num_pins="1"/>
+  <input  name="R" num_pins="1"/>
   <input  name="D" num_pins="8"/>
   <output name="Q" num_pins="8"/>
 
-		<mode name="PCLK">
+  <mode name="PCLK">
    <pb_type name="BEL_FF-SB_FF" num_pb="8">
-				<clock  name="C" num_pins="1"/>
-				<input  name="E" num_pins="1"/>
-				<input  name="S" num_pins="1"/>
-				<input  name="R" num_pins="1"/>
-				<input  name="D" num_pins="1"/>
-				<output name="Q" num_pins="1"/>
+    <clock  name="C" num_pins="1"/>
+    <input  name="D" num_pins="1"/>
+    <output name="Q" num_pins="1"/>
 
-				<!-- Plain VPR flip flop -->
-				<mode name="VPR_FF">
-					<pb_type name="VPR_FF" num_pb="1" blif_model=".latch" class="flipflop">
-						<clock  name="clk" num_pins="1" port_class="clock" />
-						<input  name="D"   num_pins="1" port_class="D"     />
-						<output name="Q"   num_pins="1" port_class="Q"     />
-						<T_setup    value="10e-12" port="VPR_FF.D" clock="clk"/>
-						<T_clock_to_Q max="10e-12" port="VPR_FF.Q" clock="clk"/>
-						<metadata>
-							<meta name="hlc_property"># VPR_FF - $_DFF_P_</meta>
-						</metadata>
-					</pb_type>
-					<interconnect>
-						<direct><port type="input" name="C"/><port type="output" from="VPR_FF" name="clk"/></direct>
-						<direct><port type="input" name="D"/><port type="output" from="VPR_FF" name="D"/>
-							<pack_pattern name="LUT+FFA" in_port="BEL_FF-SB_FF.D" out_port="VPR_FF.D" />
-						</direct>
-						<direct><port type="input" from="VPR_FF" name="Q" /><port type="output" name="Q"/></direct>
-					</interconnect>
-				</mode><!--VPR_FF -->
+    <!-- Plain VPR flip flop -->
+    <mode name="VPR_FF">
+     <pb_type name="VPR_FF" num_pb="1" blif_model=".latch" class="flipflop">
+      <clock  name="clk" num_pins="1" port_class="clock" />
+      <input  name="D"   num_pins="1" port_class="D"     />
+      <output name="Q"   num_pins="1" port_class="Q"     />
+      <T_setup    value="10e-12" port="VPR_FF.D" clock="clk"/>
+      <T_clock_to_Q max="10e-12" port="VPR_FF.Q" clock="clk"/>
+      <metadata>
+       <meta name="hlc_property">
+           enable_dff
+           # VPR_FF - $_DFF_P_
+       </meta>
+      </metadata>
+     </pb_type>
+     <interconnect>
+      <direct><port type="input" name="C"/><port type="output" from="VPR_FF" name="clk"/></direct>
+      <direct><port type="input" name="D"/><port type="output" from="VPR_FF" name="D"/>
+       <pack_pattern name="LUT+FFA" in_port="BEL_FF-SB_FF.D" out_port="VPR_FF.D" />
+      </direct>
+      <direct><port type="input" from="VPR_FF" name="Q" /><port type="output" name="Q"/></direct>
+     </interconnect>
+    </mode><!--VPR_FF -->
 
-				<!-- module SB_DFF (output Q, input C, D); -->
-				<mode name="SB_DFF">
-					<pb_type name="SB_DFF" num_pb="1" blif_model=".subckt SB_DFF">
-						<clock  name="C" num_pins="1"/>
-						<input  name="D" num_pins="1"/>
-						<output name="Q" num_pins="1"/>
-						<T_setup    value="10e-12" port="SB_DFF.D" clock="C"/>
-						<T_clock_to_Q max="10e-12" port="SB_DFF.Q" clock="C"/>
-						<metadata>
-							<meta name="hlc_property">
-											# - SB_DFF - $_DFF_P_
-											# PosClk
-											# no_cen
-											# no_setreset
-											# --
-							</meta>
-						</metadata>
-					</pb_type>
-					<interconnect>
-						<direct><port type="input" name="C"/><port type="output" from="SB_DFF" name="C"/></direct>
-						<direct><port type="input" name="D"/><port type="output" from="SB_DFF" name="D"/>
-							<pack_pattern name="LUT+FFB" in_port="BEL_FF-SB_FF.D" out_port="SB_DFF.D" />
-						</direct>
-						<direct><port type="input" from="SB_DFF" name="Q" /><port type="output" name="Q"/></direct>
-					</interconnect>
-				</mode><!--SB_DFF -->
-			</pb_type>
-			<interconnect>
-				<!-- Global Clock -->
-				<direct><port type="input" name="C"/><port type="output" from="BEL_FF-SB_FF[0]" name="C"/></direct>
-				<direct><port type="input" name="C"/><port type="output" from="BEL_FF-SB_FF[1]" name="C"/></direct>
-				<direct><port type="input" name="C"/><port type="output" from="BEL_FF-SB_FF[2]" name="C"/></direct>
-				<direct><port type="input" name="C"/><port type="output" from="BEL_FF-SB_FF[3]" name="C"/></direct>
-				<direct><port type="input" name="C"/><port type="output" from="BEL_FF-SB_FF[4]" name="C"/></direct>
-				<direct><port type="input" name="C"/><port type="output" from="BEL_FF-SB_FF[5]" name="C"/></direct>
-				<direct><port type="input" name="C"/><port type="output" from="BEL_FF-SB_FF[6]" name="C"/></direct>
-				<direct><port type="input" name="C"/><port type="output" from="BEL_FF-SB_FF[7]" name="C"/></direct>
-				<!-- Data In -->
-				<direct><port type="input" name="D[0]"/><port type="output" from="BEL_FF-SB_FF[0]" name="D"/></direct>
-				<direct><port type="input" name="D[1]"/><port type="output" from="BEL_FF-SB_FF[1]" name="D"/></direct>
-				<direct><port type="input" name="D[2]"/><port type="output" from="BEL_FF-SB_FF[2]" name="D"/></direct>
-				<direct><port type="input" name="D[3]"/><port type="output" from="BEL_FF-SB_FF[3]" name="D"/></direct>
-				<direct><port type="input" name="D[4]"/><port type="output" from="BEL_FF-SB_FF[4]" name="D"/></direct>
-				<direct><port type="input" name="D[5]"/><port type="output" from="BEL_FF-SB_FF[5]" name="D"/></direct>
-				<direct><port type="input" name="D[6]"/><port type="output" from="BEL_FF-SB_FF[6]" name="D"/></direct>
-				<direct><port type="input" name="D[7]"/><port type="output" from="BEL_FF-SB_FF[7]" name="D"/></direct>
-				<!-- Data Out -->
-				<direct><port type="input" from="BEL_FF-SB_FF[0]" name="Q"/><port type="output" name="Q[0]"/></direct>
-				<direct><port type="input" from="BEL_FF-SB_FF[1]" name="Q"/><port type="output" name="Q[1]"/></direct>
-				<direct><port type="input" from="BEL_FF-SB_FF[2]" name="Q"/><port type="output" name="Q[2]"/></direct>
-				<direct><port type="input" from="BEL_FF-SB_FF[3]" name="Q"/><port type="output" name="Q[3]"/></direct>
-				<direct><port type="input" from="BEL_FF-SB_FF[4]" name="Q"/><port type="output" name="Q[4]"/></direct>
-				<direct><port type="input" from="BEL_FF-SB_FF[5]" name="Q"/><port type="output" name="Q[5]"/></direct>
-				<direct><port type="input" from="BEL_FF-SB_FF[6]" name="Q"/><port type="output" name="Q[6]"/></direct>
-				<direct><port type="input" from="BEL_FF-SB_FF[7]" name="Q"/><port type="output" name="Q[7]"/></direct>
-			</interconnect>
-		</mode><!-- PCLK -->
+    <!-- module SB_DFF (output Q, input C, D); -->
+    <mode name="SB_DFF">
+     <pb_type name="SB_DFF" num_pb="1" blif_model=".subckt SB_DFF">
+      <clock  name="C" num_pins="1"/>
+      <input  name="D" num_pins="1"/>
+      <output name="Q" num_pins="1"/>
+      <T_setup    value="10e-12" port="SB_DFF.D" clock="C"/>
+      <T_clock_to_Q max="10e-12" port="SB_DFF.Q" clock="C"/>
+      <metadata>
+       <meta name="hlc_property">
+           # - SB_DFF - $_DFF_P_
+           enable_dff
+           # PosClk
+           # no_cen
+           # no_setreset
+           # --
+       </meta>
+      </metadata>
+     </pb_type>
+     <interconnect>
+      <direct><port type="input" name="C"/><port type="output" from="SB_DFF" name="C"/></direct>
+      <direct><port type="input" name="D"/><port type="output" from="SB_DFF" name="D"/>
+       <pack_pattern name="LUT+FFB" in_port="BEL_FF-SB_FF.D" out_port="SB_DFF.D" />
+      </direct>
+      <direct><port type="input" from="SB_DFF" name="Q" /><port type="output" name="Q"/></direct>
+     </interconnect>
+    </mode><!--SB_DFF -->
+    <metadata>
+     <meta name="hlc_cell">lutff</meta>
+    </metadata>
+   </pb_type>
+   <interconnect>
+    <!-- Global Clock -->
+    <direct><port type="input" name="C"/><port type="output" from="BEL_FF-SB_FF[0]" name="C"/></direct>
+    <direct><port type="input" name="C"/><port type="output" from="BEL_FF-SB_FF[1]" name="C"/></direct>
+    <direct><port type="input" name="C"/><port type="output" from="BEL_FF-SB_FF[2]" name="C"/></direct>
+    <direct><port type="input" name="C"/><port type="output" from="BEL_FF-SB_FF[3]" name="C"/></direct>
+    <direct><port type="input" name="C"/><port type="output" from="BEL_FF-SB_FF[4]" name="C"/></direct>
+    <direct><port type="input" name="C"/><port type="output" from="BEL_FF-SB_FF[5]" name="C"/></direct>
+    <direct><port type="input" name="C"/><port type="output" from="BEL_FF-SB_FF[6]" name="C"/></direct>
+    <direct><port type="input" name="C"/><port type="output" from="BEL_FF-SB_FF[7]" name="C"/></direct>
+    <!-- Data In -->
+    <direct><port type="input" name="D[0]"/><port type="output" from="BEL_FF-SB_FF[0]" name="D"/></direct>
+    <direct><port type="input" name="D[1]"/><port type="output" from="BEL_FF-SB_FF[1]" name="D"/></direct>
+    <direct><port type="input" name="D[2]"/><port type="output" from="BEL_FF-SB_FF[2]" name="D"/></direct>
+    <direct><port type="input" name="D[3]"/><port type="output" from="BEL_FF-SB_FF[3]" name="D"/></direct>
+    <direct><port type="input" name="D[4]"/><port type="output" from="BEL_FF-SB_FF[4]" name="D"/></direct>
+    <direct><port type="input" name="D[5]"/><port type="output" from="BEL_FF-SB_FF[5]" name="D"/></direct>
+    <direct><port type="input" name="D[6]"/><port type="output" from="BEL_FF-SB_FF[6]" name="D"/></direct>
+    <direct><port type="input" name="D[7]"/><port type="output" from="BEL_FF-SB_FF[7]" name="D"/></direct>
+    <!-- Data Out -->
+    <direct><port type="input" from="BEL_FF-SB_FF[0]" name="Q"/><port type="output" name="Q[0]"/></direct>
+    <direct><port type="input" from="BEL_FF-SB_FF[1]" name="Q"/><port type="output" name="Q[1]"/></direct>
+    <direct><port type="input" from="BEL_FF-SB_FF[2]" name="Q"/><port type="output" name="Q[2]"/></direct>
+    <direct><port type="input" from="BEL_FF-SB_FF[3]" name="Q"/><port type="output" name="Q[3]"/></direct>
+    <direct><port type="input" from="BEL_FF-SB_FF[4]" name="Q"/><port type="output" name="Q[4]"/></direct>
+    <direct><port type="input" from="BEL_FF-SB_FF[5]" name="Q"/><port type="output" name="Q[5]"/></direct>
+    <direct><port type="input" from="BEL_FF-SB_FF[6]" name="Q"/><port type="output" name="Q[6]"/></direct>
+    <direct><port type="input" from="BEL_FF-SB_FF[7]" name="Q"/><port type="output" name="Q[7]"/></direct>
+   </interconnect>
+   <metadata>
+    <meta name="hlc_property">
+        # PosClk
+        # no_cen
+        # no_setreset
+    </meta>
+   </metadata>
+  </mode><!-- PCLK -->
 
-		<mode name="NCLK">
+  <mode name="NCLK">
    <pb_type name="BEL_FF-SB_FF" num_pb="8">
-				<clock  name="C" num_pins="1"/>
-				<input  name="E" num_pins="1"/>
-				<input  name="S" num_pins="1"/>
-				<input  name="R" num_pins="1"/>
-				<input  name="D" num_pins="1"/>
-				<output name="Q" num_pins="1"/>
+    <clock  name="C" num_pins="1"/>
+    <input  name="D" num_pins="1"/>
+    <output name="Q" num_pins="1"/>
 
-				<!-- module SB_DFFN (output Q, input C, D); -->
-				<mode name="SB_DFFN">
-					<pb_type name="SB_DFFN" num_pb="1" blif_model=".subckt SB_DFFN">
-						<clock  name="C" num_pins="1"/>
-						<input  name="D" num_pins="1"/>
-						<output name="Q" num_pins="1"/>
-						<T_setup    value="10e-12" port="SB_DFFN.D" clock="C"/>
-						<T_clock_to_Q max="10e-12" port="SB_DFFN.Q" clock="C"/>
-						<metadata>
-							<meta name="hlc_property">
-											# - SB_DFFN
-											# NegClk
-											# no_cen
-											# no_setreset
-											# --
-							</meta>
-						</metadata>
-					</pb_type>
-					<interconnect>
-						<direct><port type="input" name="C"/><port type="output" from="SB_DFFN" name="C" /></direct>
-						<direct><port type="input" name="D"/><port type="output" from="SB_DFFN" name="D" />
-							<pack_pattern name="LUT+FFL" in_port="BEL_FF-SB_FF.D" out_port="SB_DFFN.D" />
-						</direct>
-						<direct><port type="input" from="SB_DFFN" name="Q" /><port type="output" name="Q"/></direct>
-					</interconnect>
-				</mode><!--SB_DFFN -->
-			</pb_type>
-			<interconnect>
-				<!-- Global Clock -->
-				<direct><port type="input" name="C"/><port type="output" from="BEL_FF-SB_FF[0]" name="C"/></direct>
-				<direct><port type="input" name="C"/><port type="output" from="BEL_FF-SB_FF[1]" name="C"/></direct>
-				<direct><port type="input" name="C"/><port type="output" from="BEL_FF-SB_FF[2]" name="C"/></direct>
-				<direct><port type="input" name="C"/><port type="output" from="BEL_FF-SB_FF[3]" name="C"/></direct>
-				<direct><port type="input" name="C"/><port type="output" from="BEL_FF-SB_FF[4]" name="C"/></direct>
-				<direct><port type="input" name="C"/><port type="output" from="BEL_FF-SB_FF[5]" name="C"/></direct>
-				<direct><port type="input" name="C"/><port type="output" from="BEL_FF-SB_FF[6]" name="C"/></direct>
-				<direct><port type="input" name="C"/><port type="output" from="BEL_FF-SB_FF[7]" name="C"/></direct>
-				<!-- Data In -->
-				<direct><port type="input" name="D[0]"/><port type="output" from="BEL_FF-SB_FF[0]" name="D"/></direct>
-				<direct><port type="input" name="D[1]"/><port type="output" from="BEL_FF-SB_FF[1]" name="D"/></direct>
-				<direct><port type="input" name="D[2]"/><port type="output" from="BEL_FF-SB_FF[2]" name="D"/></direct>
-				<direct><port type="input" name="D[3]"/><port type="output" from="BEL_FF-SB_FF[3]" name="D"/></direct>
-				<direct><port type="input" name="D[4]"/><port type="output" from="BEL_FF-SB_FF[4]" name="D"/></direct>
-				<direct><port type="input" name="D[5]"/><port type="output" from="BEL_FF-SB_FF[5]" name="D"/></direct>
-				<direct><port type="input" name="D[6]"/><port type="output" from="BEL_FF-SB_FF[6]" name="D"/></direct>
-				<direct><port type="input" name="D[7]"/><port type="output" from="BEL_FF-SB_FF[7]" name="D"/></direct>
-				<!-- Data Out -->
-				<direct><port type="input" from="BEL_FF-SB_FF[0]" name="Q"/><port type="output" name="Q[0]"/></direct>
-				<direct><port type="input" from="BEL_FF-SB_FF[1]" name="Q"/><port type="output" name="Q[1]"/></direct>
-				<direct><port type="input" from="BEL_FF-SB_FF[2]" name="Q"/><port type="output" name="Q[2]"/></direct>
-				<direct><port type="input" from="BEL_FF-SB_FF[3]" name="Q"/><port type="output" name="Q[3]"/></direct>
-				<direct><port type="input" from="BEL_FF-SB_FF[4]" name="Q"/><port type="output" name="Q[4]"/></direct>
-				<direct><port type="input" from="BEL_FF-SB_FF[5]" name="Q"/><port type="output" name="Q[5]"/></direct>
-				<direct><port type="input" from="BEL_FF-SB_FF[6]" name="Q"/><port type="output" name="Q[6]"/></direct>
-				<direct><port type="input" from="BEL_FF-SB_FF[7]" name="Q"/><port type="output" name="Q[7]"/></direct>
-			</interconnect>
-		</mode><!-- NCLK -->
+    <!-- module SB_DFFN (output Q, input C, D); -->
+    <mode name="SB_DFFN">
+     <pb_type name="SB_DFFN" num_pb="1" blif_model=".subckt SB_DFFN">
+      <clock  name="C" num_pins="1"/>
+      <input  name="D" num_pins="1"/>
+      <output name="Q" num_pins="1"/>
+      <T_setup    value="10e-12" port="SB_DFFN.D" clock="C"/>
+      <T_clock_to_Q max="10e-12" port="SB_DFFN.Q" clock="C"/>
+      <metadata>
+       <meta name="hlc_property">
+           # - SB_DFFN
+           enable_dff
+           # NegClk
+           # no_cen
+           # no_setreset
+           # --
+       </meta>
+      </metadata>
+     </pb_type>
+     <interconnect>
+      <direct><port type="input" name="C"/><port type="output" from="SB_DFFN" name="C" /></direct>
+      <direct><port type="input" name="D"/><port type="output" from="SB_DFFN" name="D" />
+       <pack_pattern name="LUT+FFL" in_port="BEL_FF-SB_FF.D" out_port="SB_DFFN.D" />
+      </direct>
+      <direct><port type="input" from="SB_DFFN" name="Q" /><port type="output" name="Q"/></direct>
+     </interconnect>
+    </mode><!--SB_DFFN -->
+    <metadata>
+     <meta name="hlc_cell">lutff</meta>
+    </metadata>
+   </pb_type>
+   <interconnect>
+    <!-- Global Clock -->
+    <direct><port type="input" name="C"/><port type="output" from="BEL_FF-SB_FF[0]" name="C"/></direct>
+    <direct><port type="input" name="C"/><port type="output" from="BEL_FF-SB_FF[1]" name="C"/></direct>
+    <direct><port type="input" name="C"/><port type="output" from="BEL_FF-SB_FF[2]" name="C"/></direct>
+    <direct><port type="input" name="C"/><port type="output" from="BEL_FF-SB_FF[3]" name="C"/></direct>
+    <direct><port type="input" name="C"/><port type="output" from="BEL_FF-SB_FF[4]" name="C"/></direct>
+    <direct><port type="input" name="C"/><port type="output" from="BEL_FF-SB_FF[5]" name="C"/></direct>
+    <direct><port type="input" name="C"/><port type="output" from="BEL_FF-SB_FF[6]" name="C"/></direct>
+    <direct><port type="input" name="C"/><port type="output" from="BEL_FF-SB_FF[7]" name="C"/></direct>
+    <!-- Data In -->
+    <direct><port type="input" name="D[0]"/><port type="output" from="BEL_FF-SB_FF[0]" name="D"/></direct>
+    <direct><port type="input" name="D[1]"/><port type="output" from="BEL_FF-SB_FF[1]" name="D"/></direct>
+    <direct><port type="input" name="D[2]"/><port type="output" from="BEL_FF-SB_FF[2]" name="D"/></direct>
+    <direct><port type="input" name="D[3]"/><port type="output" from="BEL_FF-SB_FF[3]" name="D"/></direct>
+    <direct><port type="input" name="D[4]"/><port type="output" from="BEL_FF-SB_FF[4]" name="D"/></direct>
+    <direct><port type="input" name="D[5]"/><port type="output" from="BEL_FF-SB_FF[5]" name="D"/></direct>
+    <direct><port type="input" name="D[6]"/><port type="output" from="BEL_FF-SB_FF[6]" name="D"/></direct>
+    <direct><port type="input" name="D[7]"/><port type="output" from="BEL_FF-SB_FF[7]" name="D"/></direct>
+    <!-- Data Out -->
+    <direct><port type="input" from="BEL_FF-SB_FF[0]" name="Q"/><port type="output" name="Q[0]"/></direct>
+    <direct><port type="input" from="BEL_FF-SB_FF[1]" name="Q"/><port type="output" name="Q[1]"/></direct>
+    <direct><port type="input" from="BEL_FF-SB_FF[2]" name="Q"/><port type="output" name="Q[2]"/></direct>
+    <direct><port type="input" from="BEL_FF-SB_FF[3]" name="Q"/><port type="output" name="Q[3]"/></direct>
+    <direct><port type="input" from="BEL_FF-SB_FF[4]" name="Q"/><port type="output" name="Q[4]"/></direct>
+    <direct><port type="input" from="BEL_FF-SB_FF[5]" name="Q"/><port type="output" name="Q[5]"/></direct>
+    <direct><port type="input" from="BEL_FF-SB_FF[6]" name="Q"/><port type="output" name="Q[6]"/></direct>
+    <direct><port type="input" from="BEL_FF-SB_FF[7]" name="Q"/><port type="output" name="Q[7]"/></direct>
+   </interconnect>
+   <metadata>
+    <meta name="hlc_property">
+        NegClk
+        # no_cen
+        # no_setreset
+    </meta>
+   </metadata>
+  </mode><!-- NCLK -->
 
-		<mode name="PCLK+CEN">
+  <mode name="PCLK+CEN">
    <pb_type name="BEL_FF-SB_FF" num_pb="8">
-				<clock  name="C" num_pins="1"/>
-				<input  name="E" num_pins="1"/>
-				<input  name="S" num_pins="1"/>
-				<input  name="R" num_pins="1"/>
-				<input  name="D" num_pins="1"/>
-				<output name="Q" num_pins="1"/>
+    <clock  name="C" num_pins="1"/>
+    <input  name="E" num_pins="1"/>
+    <input  name="D" num_pins="1"/>
+    <output name="Q" num_pins="1"/>
 
-				<!-- module SB_DFFE (output Q, input C, E, D); -->
-				<mode name="SB_DFFE">
-					<pb_type name="SB_DFFE" num_pb="1" blif_model=".subckt SB_DFFE">
-						<clock  name="C" num_pins="1"/>
-						<input  name="E" num_pins="1"/>
-						<input  name="D" num_pins="1"/>
-						<output name="Q" num_pins="1"/>
-						<T_setup    value="10e-12" port="SB_DFFE.E" clock="C"/>
-						<T_setup    value="10e-12" port="SB_DFFE.D" clock="C"/>
-						<T_clock_to_Q max="10e-12" port="SB_DFFE.Q" clock="C"/>
-						<metadata>
-							<meta name="hlc_property">
-											# - SB_DFFE - $_DFFE_PN_
-											# PosClk
-											# use_cen
-											# no_setreset
-											# --
-							</meta>
-						</metadata>
-					</pb_type>
-					<interconnect>
-						<direct><port type="input" name="C"/><port type="output" from="SB_DFFE" name="C"/></direct>
-						<direct><port type="input" name="E"/><port type="output" from="SB_DFFE" name="E"/></direct>
-						<direct><port type="input" name="D"/><port type="output" from="SB_DFFE" name="D"/>
-							<pack_pattern name="LUT+FFC" in_port="BEL_FF-SB_FF.D" out_port="SB_DFFE.D" />
-						</direct>
-						<direct><port type="input" from="SB_DFFE" name="Q" /><port type="output" name="Q"/></direct>
-					</interconnect>
-				</mode><!--SB_DFFE -->
-			</pb_type>
-			<interconnect>
-				<!-- Global Clock -->
-				<direct><port type="input" name="C"/><port type="output" from="BEL_FF-SB_FF[0]" name="C"/></direct>
-				<direct><port type="input" name="C"/><port type="output" from="BEL_FF-SB_FF[1]" name="C"/></direct>
-				<direct><port type="input" name="C"/><port type="output" from="BEL_FF-SB_FF[2]" name="C"/></direct>
-				<direct><port type="input" name="C"/><port type="output" from="BEL_FF-SB_FF[3]" name="C"/></direct>
-				<direct><port type="input" name="C"/><port type="output" from="BEL_FF-SB_FF[4]" name="C"/></direct>
-				<direct><port type="input" name="C"/><port type="output" from="BEL_FF-SB_FF[5]" name="C"/></direct>
-				<direct><port type="input" name="C"/><port type="output" from="BEL_FF-SB_FF[6]" name="C"/></direct>
-				<direct><port type="input" name="C"/><port type="output" from="BEL_FF-SB_FF[7]" name="C"/></direct>
-				<!-- Global Clock Enable -->
-				<direct><port type="input" name="E"/><port type="output" from="BEL_FF-SB_FF[0]" name="E"/></direct>
-				<direct><port type="input" name="E"/><port type="output" from="BEL_FF-SB_FF[1]" name="E"/></direct>
-				<direct><port type="input" name="E"/><port type="output" from="BEL_FF-SB_FF[2]" name="E"/></direct>
-				<direct><port type="input" name="E"/><port type="output" from="BEL_FF-SB_FF[3]" name="E"/></direct>
-				<direct><port type="input" name="E"/><port type="output" from="BEL_FF-SB_FF[4]" name="E"/></direct>
-				<direct><port type="input" name="E"/><port type="output" from="BEL_FF-SB_FF[5]" name="E"/></direct>
-				<direct><port type="input" name="E"/><port type="output" from="BEL_FF-SB_FF[6]" name="E"/></direct>
-				<direct><port type="input" name="E"/><port type="output" from="BEL_FF-SB_FF[7]" name="E"/></direct>
-				<!-- Data In -->
-				<direct><port type="input" name="D[0]"/><port type="output" from="BEL_FF-SB_FF[0]" name="D"/></direct>
-				<direct><port type="input" name="D[1]"/><port type="output" from="BEL_FF-SB_FF[1]" name="D"/></direct>
-				<direct><port type="input" name="D[2]"/><port type="output" from="BEL_FF-SB_FF[2]" name="D"/></direct>
-				<direct><port type="input" name="D[3]"/><port type="output" from="BEL_FF-SB_FF[3]" name="D"/></direct>
-				<direct><port type="input" name="D[4]"/><port type="output" from="BEL_FF-SB_FF[4]" name="D"/></direct>
-				<direct><port type="input" name="D[5]"/><port type="output" from="BEL_FF-SB_FF[5]" name="D"/></direct>
-				<direct><port type="input" name="D[6]"/><port type="output" from="BEL_FF-SB_FF[6]" name="D"/></direct>
-				<direct><port type="input" name="D[7]"/><port type="output" from="BEL_FF-SB_FF[7]" name="D"/></direct>
-				<!-- Data Out -->
-				<direct><port type="input" from="BEL_FF-SB_FF[0]" name="Q"/><port type="output" name="Q[0]"/></direct>
-				<direct><port type="input" from="BEL_FF-SB_FF[1]" name="Q"/><port type="output" name="Q[1]"/></direct>
-				<direct><port type="input" from="BEL_FF-SB_FF[2]" name="Q"/><port type="output" name="Q[2]"/></direct>
-				<direct><port type="input" from="BEL_FF-SB_FF[3]" name="Q"/><port type="output" name="Q[3]"/></direct>
-				<direct><port type="input" from="BEL_FF-SB_FF[4]" name="Q"/><port type="output" name="Q[4]"/></direct>
-				<direct><port type="input" from="BEL_FF-SB_FF[5]" name="Q"/><port type="output" name="Q[5]"/></direct>
-				<direct><port type="input" from="BEL_FF-SB_FF[6]" name="Q"/><port type="output" name="Q[6]"/></direct>
-				<direct><port type="input" from="BEL_FF-SB_FF[7]" name="Q"/><port type="output" name="Q[7]"/></direct>
-			</interconnect>
-		</mode><!-- PCLK+CEN -->
+    <!-- module SB_DFFE (output Q, input C, E, D); -->
+    <mode name="SB_DFFE">
+     <pb_type name="SB_DFFE" num_pb="1" blif_model=".subckt SB_DFFE">
+      <clock  name="C" num_pins="1"/>
+      <input  name="E" num_pins="1"/>
+      <input  name="D" num_pins="1"/>
+      <output name="Q" num_pins="1"/>
+      <T_setup    value="10e-12" port="SB_DFFE.E" clock="C"/>
+      <T_setup    value="10e-12" port="SB_DFFE.D" clock="C"/>
+      <T_clock_to_Q max="10e-12" port="SB_DFFE.Q" clock="C"/>
+      <metadata>
+       <meta name="hlc_property">
+           # - SB_DFFE - $_DFFE_PN_
+           enable_dff
+           # PosClk
+           # use_cen
+           # no_setreset
+           # --
+       </meta>
+      </metadata>
+     </pb_type>
+     <interconnect>
+      <direct><port type="input" name="C"/><port type="output" from="SB_DFFE" name="C"/></direct>
+      <direct><port type="input" name="E"/><port type="output" from="SB_DFFE" name="E"/></direct>
+      <direct><port type="input" name="D"/><port type="output" from="SB_DFFE" name="D"/>
+       <pack_pattern name="LUT+FFC" in_port="BEL_FF-SB_FF.D" out_port="SB_DFFE.D" />
+      </direct>
+      <direct><port type="input" from="SB_DFFE" name="Q" /><port type="output" name="Q"/></direct>
+     </interconnect>
+    </mode><!--SB_DFFE -->
+    <metadata>
+     <meta name="hlc_cell">lutff</meta>
+    </metadata>
+   </pb_type>
+   <interconnect>
+    <!-- Global Clock -->
+    <direct><port type="input" name="C"/><port type="output" from="BEL_FF-SB_FF[0]" name="C"/></direct>
+    <direct><port type="input" name="C"/><port type="output" from="BEL_FF-SB_FF[1]" name="C"/></direct>
+    <direct><port type="input" name="C"/><port type="output" from="BEL_FF-SB_FF[2]" name="C"/></direct>
+    <direct><port type="input" name="C"/><port type="output" from="BEL_FF-SB_FF[3]" name="C"/></direct>
+    <direct><port type="input" name="C"/><port type="output" from="BEL_FF-SB_FF[4]" name="C"/></direct>
+    <direct><port type="input" name="C"/><port type="output" from="BEL_FF-SB_FF[5]" name="C"/></direct>
+    <direct><port type="input" name="C"/><port type="output" from="BEL_FF-SB_FF[6]" name="C"/></direct>
+    <direct><port type="input" name="C"/><port type="output" from="BEL_FF-SB_FF[7]" name="C"/></direct>
+    <!-- Global Clock Enable -->
+    <direct><port type="input" name="E"/><port type="output" from="BEL_FF-SB_FF[0]" name="E"/></direct>
+    <direct><port type="input" name="E"/><port type="output" from="BEL_FF-SB_FF[1]" name="E"/></direct>
+    <direct><port type="input" name="E"/><port type="output" from="BEL_FF-SB_FF[2]" name="E"/></direct>
+    <direct><port type="input" name="E"/><port type="output" from="BEL_FF-SB_FF[3]" name="E"/></direct>
+    <direct><port type="input" name="E"/><port type="output" from="BEL_FF-SB_FF[4]" name="E"/></direct>
+    <direct><port type="input" name="E"/><port type="output" from="BEL_FF-SB_FF[5]" name="E"/></direct>
+    <direct><port type="input" name="E"/><port type="output" from="BEL_FF-SB_FF[6]" name="E"/></direct>
+    <direct><port type="input" name="E"/><port type="output" from="BEL_FF-SB_FF[7]" name="E"/></direct>
+    <!-- Data In -->
+    <direct><port type="input" name="D[0]"/><port type="output" from="BEL_FF-SB_FF[0]" name="D"/></direct>
+    <direct><port type="input" name="D[1]"/><port type="output" from="BEL_FF-SB_FF[1]" name="D"/></direct>
+    <direct><port type="input" name="D[2]"/><port type="output" from="BEL_FF-SB_FF[2]" name="D"/></direct>
+    <direct><port type="input" name="D[3]"/><port type="output" from="BEL_FF-SB_FF[3]" name="D"/></direct>
+    <direct><port type="input" name="D[4]"/><port type="output" from="BEL_FF-SB_FF[4]" name="D"/></direct>
+    <direct><port type="input" name="D[5]"/><port type="output" from="BEL_FF-SB_FF[5]" name="D"/></direct>
+    <direct><port type="input" name="D[6]"/><port type="output" from="BEL_FF-SB_FF[6]" name="D"/></direct>
+    <direct><port type="input" name="D[7]"/><port type="output" from="BEL_FF-SB_FF[7]" name="D"/></direct>
+    <!-- Data Out -->
+    <direct><port type="input" from="BEL_FF-SB_FF[0]" name="Q"/><port type="output" name="Q[0]"/></direct>
+    <direct><port type="input" from="BEL_FF-SB_FF[1]" name="Q"/><port type="output" name="Q[1]"/></direct>
+    <direct><port type="input" from="BEL_FF-SB_FF[2]" name="Q"/><port type="output" name="Q[2]"/></direct>
+    <direct><port type="input" from="BEL_FF-SB_FF[3]" name="Q"/><port type="output" name="Q[3]"/></direct>
+    <direct><port type="input" from="BEL_FF-SB_FF[4]" name="Q"/><port type="output" name="Q[4]"/></direct>
+    <direct><port type="input" from="BEL_FF-SB_FF[5]" name="Q"/><port type="output" name="Q[5]"/></direct>
+    <direct><port type="input" from="BEL_FF-SB_FF[6]" name="Q"/><port type="output" name="Q[6]"/></direct>
+    <direct><port type="input" from="BEL_FF-SB_FF[7]" name="Q"/><port type="output" name="Q[7]"/></direct>
+   </interconnect>
+   <metadata>
+    <meta name="hlc_property">
+        # PosClk
+        # use_cen
+        # no_setreset
+    </meta>
+   </metadata>
+  </mode><!-- PCLK+CEN -->
 
-		<mode name="NCLK+CEN">
+  <mode name="NCLK+CEN">
    <pb_type name="BEL_FF-SB_FF" num_pb="8">
-				<clock  name="C" num_pins="1"/>
-				<input  name="E" num_pins="1"/>
-				<input  name="S" num_pins="1"/>
-				<input  name="R" num_pins="1"/>
-				<input  name="D" num_pins="1"/>
-				<output name="Q" num_pins="1"/>
+    <clock  name="C" num_pins="1"/>
+    <input  name="E" num_pins="1"/>
+    <input  name="D" num_pins="1"/>
+    <output name="Q" num_pins="1"/>
 
-				<!-- module SB_DFFNE (output Q, input C, E, D); -->
-				<mode name="SB_DFFNE">
-					<pb_type name="SB_DFFNE" num_pb="1" blif_model=".subckt SB_DFFNE">
-						<clock  name="C" num_pins="1"/>
-						<input  name="E" num_pins="1"/>
-						<input  name="D" num_pins="1"/>
-						<output name="Q" num_pins="1"/>
-						<T_setup    value="10e-12" port="SB_DFFNE.E" clock="C"/>
-						<T_setup    value="10e-12" port="SB_DFFNE.D" clock="C"/>
-						<T_clock_to_Q max="10e-12" port="SB_DFFNE.Q" clock="C"/>
-						<metadata>
-							<meta name="hlc_property">
-											# - SB_DFFNE
-											# NegClk
-											# use_cen
-											# no_setreset
-											# --
-							</meta>
-						</metadata>
-					</pb_type>
-					<interconnect>
-						<direct><port type="input" name="C"/><port type="output" from="SB_DFFNE" name="C"/></direct>
-						<direct><port type="input" name="E"/><port type="output" from="SB_DFFNE" name="E"/></direct>
-						<direct><port type="input" name="D"/><port type="output" from="SB_DFFNE" name="D"/>
-							<pack_pattern name="LUT+FFM" in_port="BEL_FF-SB_FF.D" out_port="SB_DFFNE.D" />
-						</direct>
-						<direct><port type="input" from="SB_DFFNE" name="Q" /><port type="output" name="Q"/></direct>
-					</interconnect>
-				</mode><!--SB_DFFNE -->
-			</pb_type>
-			<interconnect>
-				<!-- Global Clock -->
-				<direct><port type="input" name="C"/><port type="output" from="BEL_FF-SB_FF[0]" name="C"/></direct>
-				<direct><port type="input" name="C"/><port type="output" from="BEL_FF-SB_FF[1]" name="C"/></direct>
-				<direct><port type="input" name="C"/><port type="output" from="BEL_FF-SB_FF[2]" name="C"/></direct>
-				<direct><port type="input" name="C"/><port type="output" from="BEL_FF-SB_FF[3]" name="C"/></direct>
-				<direct><port type="input" name="C"/><port type="output" from="BEL_FF-SB_FF[4]" name="C"/></direct>
-				<direct><port type="input" name="C"/><port type="output" from="BEL_FF-SB_FF[5]" name="C"/></direct>
-				<direct><port type="input" name="C"/><port type="output" from="BEL_FF-SB_FF[6]" name="C"/></direct>
-				<direct><port type="input" name="C"/><port type="output" from="BEL_FF-SB_FF[7]" name="C"/></direct>
-				<!-- Global Clock Enable -->
-				<direct><port type="input" name="E"/><port type="output" from="BEL_FF-SB_FF[0]" name="E"/></direct>
-				<direct><port type="input" name="E"/><port type="output" from="BEL_FF-SB_FF[1]" name="E"/></direct>
-				<direct><port type="input" name="E"/><port type="output" from="BEL_FF-SB_FF[2]" name="E"/></direct>
-				<direct><port type="input" name="E"/><port type="output" from="BEL_FF-SB_FF[3]" name="E"/></direct>
-				<direct><port type="input" name="E"/><port type="output" from="BEL_FF-SB_FF[4]" name="E"/></direct>
-				<direct><port type="input" name="E"/><port type="output" from="BEL_FF-SB_FF[5]" name="E"/></direct>
-				<direct><port type="input" name="E"/><port type="output" from="BEL_FF-SB_FF[6]" name="E"/></direct>
-				<direct><port type="input" name="E"/><port type="output" from="BEL_FF-SB_FF[7]" name="E"/></direct>
-				<!-- Data In -->
-				<direct><port type="input" name="D[0]"/><port type="output" from="BEL_FF-SB_FF[0]" name="D"/></direct>
-				<direct><port type="input" name="D[1]"/><port type="output" from="BEL_FF-SB_FF[1]" name="D"/></direct>
-				<direct><port type="input" name="D[2]"/><port type="output" from="BEL_FF-SB_FF[2]" name="D"/></direct>
-				<direct><port type="input" name="D[3]"/><port type="output" from="BEL_FF-SB_FF[3]" name="D"/></direct>
-				<direct><port type="input" name="D[4]"/><port type="output" from="BEL_FF-SB_FF[4]" name="D"/></direct>
-				<direct><port type="input" name="D[5]"/><port type="output" from="BEL_FF-SB_FF[5]" name="D"/></direct>
-				<direct><port type="input" name="D[6]"/><port type="output" from="BEL_FF-SB_FF[6]" name="D"/></direct>
-				<direct><port type="input" name="D[7]"/><port type="output" from="BEL_FF-SB_FF[7]" name="D"/></direct>
-				<!-- Data Out -->
-				<direct><port type="input" from="BEL_FF-SB_FF[0]" name="Q"/><port type="output" name="Q[0]"/></direct>
-				<direct><port type="input" from="BEL_FF-SB_FF[1]" name="Q"/><port type="output" name="Q[1]"/></direct>
-				<direct><port type="input" from="BEL_FF-SB_FF[2]" name="Q"/><port type="output" name="Q[2]"/></direct>
-				<direct><port type="input" from="BEL_FF-SB_FF[3]" name="Q"/><port type="output" name="Q[3]"/></direct>
-				<direct><port type="input" from="BEL_FF-SB_FF[4]" name="Q"/><port type="output" name="Q[4]"/></direct>
-				<direct><port type="input" from="BEL_FF-SB_FF[5]" name="Q"/><port type="output" name="Q[5]"/></direct>
-				<direct><port type="input" from="BEL_FF-SB_FF[6]" name="Q"/><port type="output" name="Q[6]"/></direct>
-				<direct><port type="input" from="BEL_FF-SB_FF[7]" name="Q"/><port type="output" name="Q[7]"/></direct>
-			</interconnect>
-		</mode><!-- NCLK+CEN -->
+    <!-- module SB_DFFNE (output Q, input C, E, D); -->
+    <mode name="SB_DFFNE">
+     <pb_type name="SB_DFFNE" num_pb="1" blif_model=".subckt SB_DFFNE">
+      <clock  name="C" num_pins="1"/>
+      <input  name="E" num_pins="1"/>
+      <input  name="D" num_pins="1"/>
+      <output name="Q" num_pins="1"/>
+      <T_setup    value="10e-12" port="SB_DFFNE.E" clock="C"/>
+      <T_setup    value="10e-12" port="SB_DFFNE.D" clock="C"/>
+      <T_clock_to_Q max="10e-12" port="SB_DFFNE.Q" clock="C"/>
+      <metadata>
+       <meta name="hlc_property">
+           # - SB_DFFNE
+           enable_dff
+           # NegClk
+           # use_cen
+           # no_setreset
+           # --
+       </meta>
+      </metadata>
+     </pb_type>
+     <interconnect>
+      <direct><port type="input" name="C"/><port type="output" from="SB_DFFNE" name="C"/></direct>
+      <direct><port type="input" name="E"/><port type="output" from="SB_DFFNE" name="E"/></direct>
+      <direct><port type="input" name="D"/><port type="output" from="SB_DFFNE" name="D"/>
+       <pack_pattern name="LUT+FFM" in_port="BEL_FF-SB_FF.D" out_port="SB_DFFNE.D" />
+      </direct>
+      <direct><port type="input" from="SB_DFFNE" name="Q" /><port type="output" name="Q"/></direct>
+     </interconnect>
+    </mode><!--SB_DFFNE -->
+    <metadata>
+     <meta name="hlc_cell">lutff</meta>
+    </metadata>
+   </pb_type>
+   <interconnect>
+    <!-- Global Clock -->
+    <direct><port type="input" name="C"/><port type="output" from="BEL_FF-SB_FF[0]" name="C"/></direct>
+    <direct><port type="input" name="C"/><port type="output" from="BEL_FF-SB_FF[1]" name="C"/></direct>
+    <direct><port type="input" name="C"/><port type="output" from="BEL_FF-SB_FF[2]" name="C"/></direct>
+    <direct><port type="input" name="C"/><port type="output" from="BEL_FF-SB_FF[3]" name="C"/></direct>
+    <direct><port type="input" name="C"/><port type="output" from="BEL_FF-SB_FF[4]" name="C"/></direct>
+    <direct><port type="input" name="C"/><port type="output" from="BEL_FF-SB_FF[5]" name="C"/></direct>
+    <direct><port type="input" name="C"/><port type="output" from="BEL_FF-SB_FF[6]" name="C"/></direct>
+    <direct><port type="input" name="C"/><port type="output" from="BEL_FF-SB_FF[7]" name="C"/></direct>
+    <!-- Global Clock Enable -->
+    <direct><port type="input" name="E"/><port type="output" from="BEL_FF-SB_FF[0]" name="E"/></direct>
+    <direct><port type="input" name="E"/><port type="output" from="BEL_FF-SB_FF[1]" name="E"/></direct>
+    <direct><port type="input" name="E"/><port type="output" from="BEL_FF-SB_FF[2]" name="E"/></direct>
+    <direct><port type="input" name="E"/><port type="output" from="BEL_FF-SB_FF[3]" name="E"/></direct>
+    <direct><port type="input" name="E"/><port type="output" from="BEL_FF-SB_FF[4]" name="E"/></direct>
+    <direct><port type="input" name="E"/><port type="output" from="BEL_FF-SB_FF[5]" name="E"/></direct>
+    <direct><port type="input" name="E"/><port type="output" from="BEL_FF-SB_FF[6]" name="E"/></direct>
+    <direct><port type="input" name="E"/><port type="output" from="BEL_FF-SB_FF[7]" name="E"/></direct>
+    <!-- Data In -->
+    <direct><port type="input" name="D[0]"/><port type="output" from="BEL_FF-SB_FF[0]" name="D"/></direct>
+    <direct><port type="input" name="D[1]"/><port type="output" from="BEL_FF-SB_FF[1]" name="D"/></direct>
+    <direct><port type="input" name="D[2]"/><port type="output" from="BEL_FF-SB_FF[2]" name="D"/></direct>
+    <direct><port type="input" name="D[3]"/><port type="output" from="BEL_FF-SB_FF[3]" name="D"/></direct>
+    <direct><port type="input" name="D[4]"/><port type="output" from="BEL_FF-SB_FF[4]" name="D"/></direct>
+    <direct><port type="input" name="D[5]"/><port type="output" from="BEL_FF-SB_FF[5]" name="D"/></direct>
+    <direct><port type="input" name="D[6]"/><port type="output" from="BEL_FF-SB_FF[6]" name="D"/></direct>
+    <direct><port type="input" name="D[7]"/><port type="output" from="BEL_FF-SB_FF[7]" name="D"/></direct>
+    <!-- Data Out -->
+    <direct><port type="input" from="BEL_FF-SB_FF[0]" name="Q"/><port type="output" name="Q[0]"/></direct>
+    <direct><port type="input" from="BEL_FF-SB_FF[1]" name="Q"/><port type="output" name="Q[1]"/></direct>
+    <direct><port type="input" from="BEL_FF-SB_FF[2]" name="Q"/><port type="output" name="Q[2]"/></direct>
+    <direct><port type="input" from="BEL_FF-SB_FF[3]" name="Q"/><port type="output" name="Q[3]"/></direct>
+    <direct><port type="input" from="BEL_FF-SB_FF[4]" name="Q"/><port type="output" name="Q[4]"/></direct>
+    <direct><port type="input" from="BEL_FF-SB_FF[5]" name="Q"/><port type="output" name="Q[5]"/></direct>
+    <direct><port type="input" from="BEL_FF-SB_FF[6]" name="Q"/><port type="output" name="Q[6]"/></direct>
+    <direct><port type="input" from="BEL_FF-SB_FF[7]" name="Q"/><port type="output" name="Q[7]"/></direct>
+   </interconnect>
+   <metadata>
+    <meta name="hlc_property">
+        NegClk
+        # use_cen
+        # no_setreset
+    </meta>
+   </metadata>
+  </mode><!-- NCLK+CEN -->
 
-		<mode name="PCLK+SR">
+  <mode name="PCLK+SR">
    <pb_type name="BEL_FF-SB_FF" num_pb="8">
-				<clock  name="C" num_pins="1"/>
-				<input  name="E" num_pins="1"/>
-				<input  name="S" num_pins="1"/>
-				<input  name="R" num_pins="1"/>
-				<input  name="D" num_pins="1"/>
-				<output name="Q" num_pins="1"/>
+    <clock  name="C" num_pins="1"/>
+    <input  name="S" num_pins="1"/>
+    <input  name="R" num_pins="1"/>
+    <input  name="D" num_pins="1"/>
+    <output name="Q" num_pins="1"/>
 
-				<!-- module SB_DFFR (output Q, input C, R, D); -->
-				<mode name="SB_DFFR">
-					<pb_type name="SB_DFFR" num_pb="1" blif_model=".subckt SB_DFFR">
-						<clock  name="C" num_pins="1"/>
-						<input  name="R" num_pins="1"/>
-						<input  name="D" num_pins="1"/>
-						<output name="Q" num_pins="1"/>
-						<T_setup    value="10e-12" port="SB_DFFR.R" clock="C"/>
-						<T_setup    value="10e-12" port="SB_DFFR.D" clock="C"/>
-						<T_clock_to_Q max="10e-12" port="SB_DFFR.Q" clock="C"/>
-						<metadata>
-							<meta name="hlc_property">
-											# - SB_DFFR
-											# PosClk
-											# no_cen
-											async_setreset
-											# reset
-							</meta>
-						</metadata>
-					</pb_type>
-					<interconnect>
-						<direct><port type="input" name="C"/><port type="output" from="SB_DFFR" name="C"/></direct>
-						<direct><port type="input" name="S"/><port type="output" from="SB_DFFR" name="R"/></direct>
-						<direct><port type="input" name="D"/><port type="output" from="SB_DFFR" name="D"/>
-							<pack_pattern name="LUT+FFH" in_port="BEL_FF-SB_FF.D" out_port="SB_DFFR.D" />
-						</direct>
-						<direct><port type="input" from="SB_DFFR" name="Q" /><port type="output" name="Q"/></direct>
-					</interconnect>
-				</mode><!--SB_DFFR -->
+    <!-- module SB_DFFR (output Q, input C, R, D); -->
+    <mode name="SB_DFFR">
+     <pb_type name="SB_DFFR" num_pb="1" blif_model=".subckt SB_DFFR">
+      <clock  name="C" num_pins="1"/>
+      <input  name="R" num_pins="1"/>
+      <input  name="D" num_pins="1"/>
+      <output name="Q" num_pins="1"/>
+      <T_setup    value="10e-12" port="SB_DFFR.R" clock="C"/>
+      <T_setup    value="10e-12" port="SB_DFFR.D" clock="C"/>
+      <T_clock_to_Q max="10e-12" port="SB_DFFR.Q" clock="C"/>
+      <metadata>
+       <meta name="hlc_property">
+           # - SB_DFFR
+           enable_dff
+           # PosClk
+           # no_cen
+           async_setreset
+           # reset
+       </meta>
+      </metadata>
+     </pb_type>
+     <interconnect>
+      <direct><port type="input" name="C"/><port type="output" from="SB_DFFR" name="C"/></direct>
+      <direct><port type="input" name="S"/><port type="output" from="SB_DFFR" name="R"/></direct>
+      <direct><port type="input" name="D"/><port type="output" from="SB_DFFR" name="D"/>
+       <pack_pattern name="LUT+FFH" in_port="BEL_FF-SB_FF.D" out_port="SB_DFFR.D" />
+      </direct>
+      <direct><port type="input" from="SB_DFFR" name="Q" /><port type="output" name="Q"/></direct>
+     </interconnect>
+    </mode><!--SB_DFFR -->
 
-				<!-- module SB_DFFS (output Q, input C, S, D); -->
-				<mode name="SB_DFFS">
-					<pb_type name="SB_DFFS" num_pb="1" blif_model=".subckt SB_DFFS">
-						<clock  name="C" num_pins="1"/>
-						<input  name="S" num_pins="1"/>
-						<input  name="D" num_pins="1"/>
-						<output name="Q" num_pins="1"/>
-						<T_setup    value="10e-12" port="SB_DFFS.S" clock="C"/>
-						<T_setup    value="10e-12" port="SB_DFFS.D" clock="C"/>
-						<T_clock_to_Q max="10e-12" port="SB_DFFS.Q" clock="C"/>
-						<metadata>
-							<meta name="hlc_property">
-											# - SB_DFFS
-											# PosClk
-											# no_cen
-											async_setreset
-											set_noreset
-							</meta>
-						</metadata>
-					</pb_type>
-					<interconnect>
-						<direct><port type="input" name="C"/><port type="output" from="SB_DFFS" name="C"/></direct>
-						<direct><port type="input" name="S"/><port type="output" from="SB_DFFS" name="S"/></direct>
-						<direct><port type="input" name="D"/><port type="output" from="SB_DFFS" name="D"/>
-							<pack_pattern name="LUT+FFI" in_port="BEL_FF-SB_FF.D" out_port="SB_DFFS.D" />
-						</direct>
-						<direct><port type="input" from="SB_DFFS" name="Q" /><port type="output" name="Q"/></direct>
-					</interconnect>
-				</mode><!--SB_DFFS -->
+    <!-- module SB_DFFS (output Q, input C, S, D); -->
+    <mode name="SB_DFFS">
+     <pb_type name="SB_DFFS" num_pb="1" blif_model=".subckt SB_DFFS">
+      <clock  name="C" num_pins="1"/>
+      <input  name="S" num_pins="1"/>
+      <input  name="D" num_pins="1"/>
+      <output name="Q" num_pins="1"/>
+      <T_setup    value="10e-12" port="SB_DFFS.S" clock="C"/>
+      <T_setup    value="10e-12" port="SB_DFFS.D" clock="C"/>
+      <T_clock_to_Q max="10e-12" port="SB_DFFS.Q" clock="C"/>
+      <metadata>
+       <meta name="hlc_property">
+           # - SB_DFFS
+           enable_dff
+           # PosClk
+           # no_cen
+           async_setreset
+           set_noreset
+       </meta>
+      </metadata>
+     </pb_type>
+     <interconnect>
+      <direct><port type="input" name="C"/><port type="output" from="SB_DFFS" name="C"/></direct>
+      <direct><port type="input" name="S"/><port type="output" from="SB_DFFS" name="S"/></direct>
+      <direct><port type="input" name="D"/><port type="output" from="SB_DFFS" name="D"/>
+       <pack_pattern name="LUT+FFI" in_port="BEL_FF-SB_FF.D" out_port="SB_DFFS.D" />
+      </direct>
+      <direct><port type="input" from="SB_DFFS" name="Q" /><port type="output" name="Q"/></direct>
+     </interconnect>
+    </mode><!--SB_DFFS -->
 
-				<!-- module SB_DFFSR (output Q, input C, R, D); -->
-				<mode name="SB_DFFSR">
-					<pb_type name="SB_DFFSR" num_pb="1" blif_model=".subckt SB_DFFSR">
-						<clock  name="C" num_pins="1"/>
-						<input  name="R" num_pins="1"/>
-						<input  name="D" num_pins="1"/>
-						<output name="Q" num_pins="1"/>
-						<T_setup    value="10e-12" port="SB_DFFSR.R" clock="C"/>
-						<T_setup    value="10e-12" port="SB_DFFSR.D" clock="C"/>
-						<T_clock_to_Q max="10e-12" port="SB_DFFSR.Q" clock="C"/>
-						<metadata>
-							<meta name="hlc_property">
-											# - SB_DFFSR
-											# PosClk
-											# no_cen
-											# sync_setreset
-											# reset
-							</meta>
-						</metadata>
-					</pb_type>
-					<interconnect>
-						<direct><port type="input" name="C"/><port type="output" from="SB_DFFSR" name="C"/></direct>
-						<direct><port type="input" name="S"/><port type="output" from="SB_DFFSR" name="R"/></direct>
-						<direct><port type="input" name="D"/><port type="output" from="SB_DFFSR" name="D"/>
-							<pack_pattern name="LUT+FFJ" in_port="BEL_FF-SB_FF.D" out_port="SB_DFFSR.D" />
-						</direct>
-						<direct><port type="input" from="SB_DFFSR" name="Q" /><port type="output" name="Q"/></direct>
-					</interconnect>
-				</mode><!--SB_DFFSR -->
+    <!-- module SB_DFFSR (output Q, input C, R, D); -->
+    <mode name="SB_DFFSR">
+     <pb_type name="SB_DFFSR" num_pb="1" blif_model=".subckt SB_DFFSR">
+      <clock  name="C" num_pins="1"/>
+      <input  name="R" num_pins="1"/>
+      <input  name="D" num_pins="1"/>
+      <output name="Q" num_pins="1"/>
+      <T_setup    value="10e-12" port="SB_DFFSR.R" clock="C"/>
+      <T_setup    value="10e-12" port="SB_DFFSR.D" clock="C"/>
+      <T_clock_to_Q max="10e-12" port="SB_DFFSR.Q" clock="C"/>
+      <metadata>
+       <meta name="hlc_property">
+           # - SB_DFFSR
+           enable_dff
+           # PosClk
+           # no_cen
+           # sync_setreset
+           # reset
+       </meta>
+      </metadata>
+     </pb_type>
+     <interconnect>
+      <direct><port type="input" name="C"/><port type="output" from="SB_DFFSR" name="C"/></direct>
+      <direct><port type="input" name="S"/><port type="output" from="SB_DFFSR" name="R"/></direct>
+      <direct><port type="input" name="D"/><port type="output" from="SB_DFFSR" name="D"/>
+       <pack_pattern name="LUT+FFJ" in_port="BEL_FF-SB_FF.D" out_port="SB_DFFSR.D" />
+      </direct>
+      <direct><port type="input" from="SB_DFFSR" name="Q" /><port type="output" name="Q"/></direct>
+     </interconnect>
+    </mode><!--SB_DFFSR -->
 
-				<!-- module SB_DFFSS (output Q, input C, S, D); -->
-				<mode name="SB_DFFSS">
-					<pb_type name="SB_DFFSS" num_pb="1" blif_model=".subckt SB_DFFSS">
-						<clock  name="C" num_pins="1"/>
-						<input  name="S" num_pins="1"/>
-						<input  name="D" num_pins="1"/>
-						<output name="Q" num_pins="1"/>
-						<T_setup    value="10e-12" port="SB_DFFSS.S" clock="C"/>
-						<T_setup    value="10e-12" port="SB_DFFSS.D" clock="C"/>
-						<T_clock_to_Q max="10e-12" port="SB_DFFSS.Q" clock="C"/>
-						<metadata>
-							<meta name="hlc_property">
-											# - SB_DFFSS
-											# PosClk
-											# no_cen
-											# sync_setreset
-											set_noreset
-							</meta>
-						</metadata>
-					</pb_type>
-					<interconnect>
-						<direct><port type="input" name="C"/><port type="output" from="SB_DFFSS" name="C"/></direct>
-						<direct><port type="input" name="S"/><port type="output" from="SB_DFFSS" name="S"/></direct>
-						<direct><port type="input" name="D"/><port type="output" from="SB_DFFSS" name="D"/>
-							<pack_pattern name="LUT+FFK" in_port="BEL_FF-SB_FF.D" out_port="SB_DFFSS.D" />
-						</direct>
-						<direct><port type="input" from="SB_DFFSS" name="Q" /><port type="output" name="Q"/></direct>
-					</interconnect>
-				</mode><!--SB_DFFSS -->
-			</pb_type>
-			<interconnect>
-				<!-- Global Clock -->
-				<direct><port type="input" name="C"/><port type="output" from="BEL_FF-SB_FF[0]" name="C"/></direct>
-				<direct><port type="input" name="C"/><port type="output" from="BEL_FF-SB_FF[1]" name="C"/></direct>
-				<direct><port type="input" name="C"/><port type="output" from="BEL_FF-SB_FF[2]" name="C"/></direct>
-				<direct><port type="input" name="C"/><port type="output" from="BEL_FF-SB_FF[3]" name="C"/></direct>
-				<direct><port type="input" name="C"/><port type="output" from="BEL_FF-SB_FF[4]" name="C"/></direct>
-				<direct><port type="input" name="C"/><port type="output" from="BEL_FF-SB_FF[5]" name="C"/></direct>
-				<direct><port type="input" name="C"/><port type="output" from="BEL_FF-SB_FF[6]" name="C"/></direct>
-				<direct><port type="input" name="C"/><port type="output" from="BEL_FF-SB_FF[7]" name="C"/></direct>
-				<!-- Global Set -->
-				<direct><port type="input" name="S"/><port type="output" from="BEL_FF-SB_FF[0]" name="S"/></direct>
-				<direct><port type="input" name="S"/><port type="output" from="BEL_FF-SB_FF[1]" name="S"/></direct>
-				<direct><port type="input" name="S"/><port type="output" from="BEL_FF-SB_FF[2]" name="S"/></direct>
-				<direct><port type="input" name="S"/><port type="output" from="BEL_FF-SB_FF[3]" name="S"/></direct>
-				<direct><port type="input" name="S"/><port type="output" from="BEL_FF-SB_FF[4]" name="S"/></direct>
-				<direct><port type="input" name="S"/><port type="output" from="BEL_FF-SB_FF[5]" name="S"/></direct>
-				<direct><port type="input" name="S"/><port type="output" from="BEL_FF-SB_FF[6]" name="S"/></direct>
-				<direct><port type="input" name="S"/><port type="output" from="BEL_FF-SB_FF[7]" name="S"/></direct>
-				<!-- Global Reset -->
-				<direct><port type="input" name="R"/><port type="output" from="BEL_FF-SB_FF[0]" name="R"/></direct>
-				<direct><port type="input" name="R"/><port type="output" from="BEL_FF-SB_FF[1]" name="R"/></direct>
-				<direct><port type="input" name="R"/><port type="output" from="BEL_FF-SB_FF[2]" name="R"/></direct>
-				<direct><port type="input" name="R"/><port type="output" from="BEL_FF-SB_FF[3]" name="R"/></direct>
-				<direct><port type="input" name="R"/><port type="output" from="BEL_FF-SB_FF[4]" name="R"/></direct>
-				<direct><port type="input" name="R"/><port type="output" from="BEL_FF-SB_FF[5]" name="R"/></direct>
-				<direct><port type="input" name="R"/><port type="output" from="BEL_FF-SB_FF[6]" name="R"/></direct>
-				<direct><port type="input" name="R"/><port type="output" from="BEL_FF-SB_FF[7]" name="R"/></direct>
-				<!-- Data In -->
-				<direct><port type="input" name="D[0]"/><port type="output" from="BEL_FF-SB_FF[0]" name="D"/></direct>
-				<direct><port type="input" name="D[1]"/><port type="output" from="BEL_FF-SB_FF[1]" name="D"/></direct>
-				<direct><port type="input" name="D[2]"/><port type="output" from="BEL_FF-SB_FF[2]" name="D"/></direct>
-				<direct><port type="input" name="D[3]"/><port type="output" from="BEL_FF-SB_FF[3]" name="D"/></direct>
-				<direct><port type="input" name="D[4]"/><port type="output" from="BEL_FF-SB_FF[4]" name="D"/></direct>
-				<direct><port type="input" name="D[5]"/><port type="output" from="BEL_FF-SB_FF[5]" name="D"/></direct>
-				<direct><port type="input" name="D[6]"/><port type="output" from="BEL_FF-SB_FF[6]" name="D"/></direct>
-				<direct><port type="input" name="D[7]"/><port type="output" from="BEL_FF-SB_FF[7]" name="D"/></direct>
-				<!-- Data Out -->
-				<direct><port type="input" from="BEL_FF-SB_FF[0]" name="Q"/><port type="output" name="Q[0]"/></direct>
-				<direct><port type="input" from="BEL_FF-SB_FF[1]" name="Q"/><port type="output" name="Q[1]"/></direct>
-				<direct><port type="input" from="BEL_FF-SB_FF[2]" name="Q"/><port type="output" name="Q[2]"/></direct>
-				<direct><port type="input" from="BEL_FF-SB_FF[3]" name="Q"/><port type="output" name="Q[3]"/></direct>
-				<direct><port type="input" from="BEL_FF-SB_FF[4]" name="Q"/><port type="output" name="Q[4]"/></direct>
-				<direct><port type="input" from="BEL_FF-SB_FF[5]" name="Q"/><port type="output" name="Q[5]"/></direct>
-				<direct><port type="input" from="BEL_FF-SB_FF[6]" name="Q"/><port type="output" name="Q[6]"/></direct>
-				<direct><port type="input" from="BEL_FF-SB_FF[7]" name="Q"/><port type="output" name="Q[7]"/></direct>
-			</interconnect>
-		</mode><!-- PCLK+SR -->
+    <!-- module SB_DFFSS (output Q, input C, S, D); -->
+    <mode name="SB_DFFSS">
+     <pb_type name="SB_DFFSS" num_pb="1" blif_model=".subckt SB_DFFSS">
+      <clock  name="C" num_pins="1"/>
+      <input  name="S" num_pins="1"/>
+      <input  name="D" num_pins="1"/>
+      <output name="Q" num_pins="1"/>
+      <T_setup    value="10e-12" port="SB_DFFSS.S" clock="C"/>
+      <T_setup    value="10e-12" port="SB_DFFSS.D" clock="C"/>
+      <T_clock_to_Q max="10e-12" port="SB_DFFSS.Q" clock="C"/>
+      <metadata>
+       <meta name="hlc_property">
+           # - SB_DFFSS
+           enable_dff
+           # PosClk
+           # no_cen
+           # sync_setreset
+           set_noreset
+       </meta>
+      </metadata>
+     </pb_type>
+     <interconnect>
+      <direct><port type="input" name="C"/><port type="output" from="SB_DFFSS" name="C"/></direct>
+      <direct><port type="input" name="S"/><port type="output" from="SB_DFFSS" name="S"/></direct>
+      <direct><port type="input" name="D"/><port type="output" from="SB_DFFSS" name="D"/>
+       <pack_pattern name="LUT+FFK" in_port="BEL_FF-SB_FF.D" out_port="SB_DFFSS.D" />
+      </direct>
+      <direct><port type="input" from="SB_DFFSS" name="Q" /><port type="output" name="Q"/></direct>
+     </interconnect>
+    </mode><!--SB_DFFSS -->
+    <metadata>
+     <meta name="hlc_cell">lutff</meta>
+    </metadata>
+   </pb_type>
+   <interconnect>
+    <!-- Global Clock -->
+    <direct><port type="input" name="C"/><port type="output" from="BEL_FF-SB_FF[0]" name="C"/></direct>
+    <direct><port type="input" name="C"/><port type="output" from="BEL_FF-SB_FF[1]" name="C"/></direct>
+    <direct><port type="input" name="C"/><port type="output" from="BEL_FF-SB_FF[2]" name="C"/></direct>
+    <direct><port type="input" name="C"/><port type="output" from="BEL_FF-SB_FF[3]" name="C"/></direct>
+    <direct><port type="input" name="C"/><port type="output" from="BEL_FF-SB_FF[4]" name="C"/></direct>
+    <direct><port type="input" name="C"/><port type="output" from="BEL_FF-SB_FF[5]" name="C"/></direct>
+    <direct><port type="input" name="C"/><port type="output" from="BEL_FF-SB_FF[6]" name="C"/></direct>
+    <direct><port type="input" name="C"/><port type="output" from="BEL_FF-SB_FF[7]" name="C"/></direct>
+    <!-- Global Set -->
+    <direct><port type="input" name="S"/><port type="output" from="BEL_FF-SB_FF[0]" name="S"/></direct>
+    <direct><port type="input" name="S"/><port type="output" from="BEL_FF-SB_FF[1]" name="S"/></direct>
+    <direct><port type="input" name="S"/><port type="output" from="BEL_FF-SB_FF[2]" name="S"/></direct>
+    <direct><port type="input" name="S"/><port type="output" from="BEL_FF-SB_FF[3]" name="S"/></direct>
+    <direct><port type="input" name="S"/><port type="output" from="BEL_FF-SB_FF[4]" name="S"/></direct>
+    <direct><port type="input" name="S"/><port type="output" from="BEL_FF-SB_FF[5]" name="S"/></direct>
+    <direct><port type="input" name="S"/><port type="output" from="BEL_FF-SB_FF[6]" name="S"/></direct>
+    <direct><port type="input" name="S"/><port type="output" from="BEL_FF-SB_FF[7]" name="S"/></direct>
+    <!-- Global Reset -->
+    <direct><port type="input" name="R"/><port type="output" from="BEL_FF-SB_FF[0]" name="R"/></direct>
+    <direct><port type="input" name="R"/><port type="output" from="BEL_FF-SB_FF[1]" name="R"/></direct>
+    <direct><port type="input" name="R"/><port type="output" from="BEL_FF-SB_FF[2]" name="R"/></direct>
+    <direct><port type="input" name="R"/><port type="output" from="BEL_FF-SB_FF[3]" name="R"/></direct>
+    <direct><port type="input" name="R"/><port type="output" from="BEL_FF-SB_FF[4]" name="R"/></direct>
+    <direct><port type="input" name="R"/><port type="output" from="BEL_FF-SB_FF[5]" name="R"/></direct>
+    <direct><port type="input" name="R"/><port type="output" from="BEL_FF-SB_FF[6]" name="R"/></direct>
+    <direct><port type="input" name="R"/><port type="output" from="BEL_FF-SB_FF[7]" name="R"/></direct>
+    <!-- Data In -->
+    <direct><port type="input" name="D[0]"/><port type="output" from="BEL_FF-SB_FF[0]" name="D"/></direct>
+    <direct><port type="input" name="D[1]"/><port type="output" from="BEL_FF-SB_FF[1]" name="D"/></direct>
+    <direct><port type="input" name="D[2]"/><port type="output" from="BEL_FF-SB_FF[2]" name="D"/></direct>
+    <direct><port type="input" name="D[3]"/><port type="output" from="BEL_FF-SB_FF[3]" name="D"/></direct>
+    <direct><port type="input" name="D[4]"/><port type="output" from="BEL_FF-SB_FF[4]" name="D"/></direct>
+    <direct><port type="input" name="D[5]"/><port type="output" from="BEL_FF-SB_FF[5]" name="D"/></direct>
+    <direct><port type="input" name="D[6]"/><port type="output" from="BEL_FF-SB_FF[6]" name="D"/></direct>
+    <direct><port type="input" name="D[7]"/><port type="output" from="BEL_FF-SB_FF[7]" name="D"/></direct>
+    <!-- Data Out -->
+    <direct><port type="input" from="BEL_FF-SB_FF[0]" name="Q"/><port type="output" name="Q[0]"/></direct>
+    <direct><port type="input" from="BEL_FF-SB_FF[1]" name="Q"/><port type="output" name="Q[1]"/></direct>
+    <direct><port type="input" from="BEL_FF-SB_FF[2]" name="Q"/><port type="output" name="Q[2]"/></direct>
+    <direct><port type="input" from="BEL_FF-SB_FF[3]" name="Q"/><port type="output" name="Q[3]"/></direct>
+    <direct><port type="input" from="BEL_FF-SB_FF[4]" name="Q"/><port type="output" name="Q[4]"/></direct>
+    <direct><port type="input" from="BEL_FF-SB_FF[5]" name="Q"/><port type="output" name="Q[5]"/></direct>
+    <direct><port type="input" from="BEL_FF-SB_FF[6]" name="Q"/><port type="output" name="Q[6]"/></direct>
+    <direct><port type="input" from="BEL_FF-SB_FF[7]" name="Q"/><port type="output" name="Q[7]"/></direct>
+   </interconnect>
+   <metadata>
+    <meta name="hlc_property">
+        # PosClk
+        # no_cen
+        # use_setreset
+    </meta>
+   </metadata>
+  </mode><!-- PCLK+SR -->
 
-		<mode name="NCLK+SR">
+  <mode name="NCLK+SR">
    <pb_type name="BEL_FF-SB_FF" num_pb="8">
-				<clock  name="C" num_pins="1"/>
-				<input  name="E" num_pins="1"/>
-				<input  name="S" num_pins="1"/>
-				<input  name="R" num_pins="1"/>
-				<input  name="D" num_pins="1"/>
-				<output name="Q" num_pins="1"/>
+    <clock  name="C" num_pins="1"/>
+    <input  name="S" num_pins="1"/>
+    <input  name="R" num_pins="1"/>
+    <input  name="D" num_pins="1"/>
+    <output name="Q" num_pins="1"/>
 
-				<!-- module SB_DFFNR (output Q, input C, R, D); -->
-				<mode name="SB_DFFNR">
-					<pb_type name="SB_DFFNR" num_pb="1" blif_model=".subckt SB_DFFNR">
-						<clock  name="C" num_pins="1"/>
-						<input  name="R" num_pins="1"/>
-						<input  name="D" num_pins="1"/>
-						<output name="Q" num_pins="1"/>
-						<T_setup    value="10e-12" port="SB_DFFNR.R" clock="C"/>
-						<T_setup    value="10e-12" port="SB_DFFNR.D" clock="C"/>
-						<T_clock_to_Q max="10e-12" port="SB_DFFNR.Q" clock="C"/>
-						<metadata>
-							<meta name="hlc_property">
-											# - SB_DFFNR
-											# NegClk
-											# no_cen
-											async_setreset
-											# reset
-							</meta>
-						</metadata>
-					</pb_type>
-					<interconnect>
-						<direct><port type="input" name="C"/><port type="output" from="SB_DFFNR" name="C"/></direct>
-						<direct><port type="input" name="S"/><port type="output" from="SB_DFFNR" name="R"/></direct>
-						<direct><port type="input" name="D"/><port type="output" from="SB_DFFNR" name="D"/>
-							<pack_pattern name="LUT+FFR" in_port="BEL_FF-SB_FF.D" out_port="SB_DFFNR.D" />
-						</direct>
-						<direct><port type="input" from="SB_DFFNR" name="Q" /><port type="output" name="Q"/></direct>
-					</interconnect>
-				</mode><!--SB_DFFNR -->
+    <!-- module SB_DFFNR (output Q, input C, R, D); -->
+    <mode name="SB_DFFNR">
+     <pb_type name="SB_DFFNR" num_pb="1" blif_model=".subckt SB_DFFNR">
+      <clock  name="C" num_pins="1"/>
+      <input  name="R" num_pins="1"/>
+      <input  name="D" num_pins="1"/>
+      <output name="Q" num_pins="1"/>
+      <T_setup    value="10e-12" port="SB_DFFNR.R" clock="C"/>
+      <T_setup    value="10e-12" port="SB_DFFNR.D" clock="C"/>
+      <T_clock_to_Q max="10e-12" port="SB_DFFNR.Q" clock="C"/>
+      <metadata>
+       <meta name="hlc_property">
+           # - SB_DFFNR
+           enable_dff
+           # NegClk
+           # no_cen
+           async_setreset
+           # reset
+       </meta>
+      </metadata>
+     </pb_type>
+     <interconnect>
+      <direct><port type="input" name="C"/><port type="output" from="SB_DFFNR" name="C"/></direct>
+      <direct><port type="input" name="S"/><port type="output" from="SB_DFFNR" name="R"/></direct>
+      <direct><port type="input" name="D"/><port type="output" from="SB_DFFNR" name="D"/>
+       <pack_pattern name="LUT+FFR" in_port="BEL_FF-SB_FF.D" out_port="SB_DFFNR.D" />
+      </direct>
+      <direct><port type="input" from="SB_DFFNR" name="Q" /><port type="output" name="Q"/></direct>
+     </interconnect>
+    </mode><!--SB_DFFNR -->
 
-				<!-- module SB_DFFNS (output Q, input C, S, D); -->
-				<mode name="SB_DFFNS">
-					<pb_type name="SB_DFFNS" num_pb="1" blif_model=".subckt SB_DFFNS">
-						<clock  name="C" num_pins="1"/>
-						<input  name="S" num_pins="1"/>
-						<input  name="D" num_pins="1"/>
-						<output name="Q" num_pins="1"/>
-						<T_setup    value="10e-12" port="SB_DFFNS.S" clock="C"/>
-						<T_setup    value="10e-12" port="SB_DFFNS.D" clock="C"/>
-						<T_clock_to_Q max="10e-12" port="SB_DFFNS.Q" clock="C"/>
-						<metadata>
-							<meta name="hlc_property">
-											# - SB_DFFNS
-											# NegClk
-											# no_cen
-											async_setreset
-											set_noreset
-							</meta>
-						</metadata>
-					</pb_type>
-					<interconnect>
-						<direct><port type="input" name="C"/><port type="output" from="SB_DFFNS" name="C"/></direct>
-						<direct><port type="input" name="S"/><port type="output" from="SB_DFFNS" name="S"/></direct>
-						<direct><port type="input" name="D"/><port type="output" from="SB_DFFNS" name="D"/>
-							<pack_pattern name="LUT+FFS" in_port="BEL_FF-SB_FF.D" out_port="SB_DFFNS.D" />
-						</direct>
-						<direct><port type="input" from="SB_DFFNS" name="Q" /><port type="output" name="Q"/></direct>
-					</interconnect>
-				</mode><!--SB_DFFNS -->
+    <!-- module SB_DFFNS (output Q, input C, S, D); -->
+    <mode name="SB_DFFNS">
+     <pb_type name="SB_DFFNS" num_pb="1" blif_model=".subckt SB_DFFNS">
+      <clock  name="C" num_pins="1"/>
+      <input  name="S" num_pins="1"/>
+      <input  name="D" num_pins="1"/>
+      <output name="Q" num_pins="1"/>
+      <T_setup    value="10e-12" port="SB_DFFNS.S" clock="C"/>
+      <T_setup    value="10e-12" port="SB_DFFNS.D" clock="C"/>
+      <T_clock_to_Q max="10e-12" port="SB_DFFNS.Q" clock="C"/>
+      <metadata>
+       <meta name="hlc_property">
+           # - SB_DFFNS
+           enable_dff
+           # NegClk
+           # no_cen
+           async_setreset
+           set_noreset
+       </meta>
+      </metadata>
+     </pb_type>
+     <interconnect>
+      <direct><port type="input" name="C"/><port type="output" from="SB_DFFNS" name="C"/></direct>
+      <direct><port type="input" name="S"/><port type="output" from="SB_DFFNS" name="S"/></direct>
+      <direct><port type="input" name="D"/><port type="output" from="SB_DFFNS" name="D"/>
+       <pack_pattern name="LUT+FFS" in_port="BEL_FF-SB_FF.D" out_port="SB_DFFNS.D" />
+      </direct>
+      <direct><port type="input" from="SB_DFFNS" name="Q" /><port type="output" name="Q"/></direct>
+     </interconnect>
+    </mode><!--SB_DFFNS -->
 
-				<!-- module SB_DFFNSR (output Q, input C, R, D); -->
-				<mode name="SB_DFFNSR">
-					<pb_type name="SB_DFFNSR" num_pb="1" blif_model=".subckt SB_DFFNSR">
-						<clock  name="C" num_pins="1"/>
-						<input  name="R" num_pins="1"/>
-						<input  name="D" num_pins="1"/>
-						<output name="Q" num_pins="1"/>
-						<T_setup    value="10e-12" port="SB_DFFNSR.R" clock="C"/>
-						<T_setup    value="10e-12" port="SB_DFFNSR.D" clock="C"/>
-						<T_clock_to_Q max="10e-12" port="SB_DFFNSR.Q" clock="C"/>
-						<metadata>
-							<meta name="hlc_property">
-											# - SB_DFFNSR
-											# NegClk
-											# no_cen
-											# sync_setreset
-											# reset
-							</meta>
-						</metadata>
-					</pb_type>
-					<interconnect>
-						<direct><port type="input" name="C"/><port type="output" from="SB_DFFNSR" name="C"/></direct>
-						<direct><port type="input" name="S"/><port type="output" from="SB_DFFNSR" name="R"/></direct>
-						<direct><port type="input" name="D"/><port type="output" from="SB_DFFNSR" name="D"/>
-							<pack_pattern name="LUT+FFT" in_port="BEL_FF-SB_FF.D" out_port="SB_DFFNSR.D" />
-						</direct>
-						<direct><port type="input" from="SB_DFFNSR" name="Q" /><port type="output" name="Q"/></direct>
-					</interconnect>
-				</mode><!--SB_DFFNSR -->
+    <!-- module SB_DFFNSR (output Q, input C, R, D); -->
+    <mode name="SB_DFFNSR">
+     <pb_type name="SB_DFFNSR" num_pb="1" blif_model=".subckt SB_DFFNSR">
+      <clock  name="C" num_pins="1"/>
+      <input  name="R" num_pins="1"/>
+      <input  name="D" num_pins="1"/>
+      <output name="Q" num_pins="1"/>
+      <T_setup    value="10e-12" port="SB_DFFNSR.R" clock="C"/>
+      <T_setup    value="10e-12" port="SB_DFFNSR.D" clock="C"/>
+      <T_clock_to_Q max="10e-12" port="SB_DFFNSR.Q" clock="C"/>
+      <metadata>
+       <meta name="hlc_property">
+           # - SB_DFFNSR
+           enable_dff
+           # NegClk
+           # no_cen
+           # sync_setreset
+           # reset
+       </meta>
+      </metadata>
+     </pb_type>
+     <interconnect>
+      <direct><port type="input" name="C"/><port type="output" from="SB_DFFNSR" name="C"/></direct>
+      <direct><port type="input" name="S"/><port type="output" from="SB_DFFNSR" name="R"/></direct>
+      <direct><port type="input" name="D"/><port type="output" from="SB_DFFNSR" name="D"/>
+       <pack_pattern name="LUT+FFT" in_port="BEL_FF-SB_FF.D" out_port="SB_DFFNSR.D" />
+      </direct>
+      <direct><port type="input" from="SB_DFFNSR" name="Q" /><port type="output" name="Q"/></direct>
+     </interconnect>
+    </mode><!--SB_DFFNSR -->
 
-				<!-- module SB_DFFNSS (output Q, input C, S, D); -->
-				<mode name="SB_DFFNSS">
-					<pb_type name="SB_DFFNSS" num_pb="1" blif_model=".subckt SB_DFFNSS">
-						<clock  name="C" num_pins="1"/>
-						<input  name="S" num_pins="1"/>
-						<input  name="D" num_pins="1"/>
-						<output name="Q" num_pins="1"/>
-						<T_setup    value="10e-12" port="SB_DFFNSS.S" clock="C"/>
-						<T_setup    value="10e-12" port="SB_DFFNSS.D" clock="C"/>
-						<T_clock_to_Q max="10e-12" port="SB_DFFNSS.Q" clock="C"/>
-						<metadata>
-							<meta name="hlc_property">
-											# - SB_DFFNSS
-											# NegClk
-											# no_cen
-											# sync_setreset
-											set_noreset
-							</meta>
-						</metadata>
-					</pb_type>
-					<interconnect>
-						<direct><port type="input" name="C"/><port type="output" from="SB_DFFNSS" name="C"/></direct>
-						<direct><port type="input" name="S"/><port type="output" from="SB_DFFNSS" name="S"/></direct>
-						<direct><port type="input" name="D"/><port type="output" from="SB_DFFNSS" name="D"/>
-							<pack_pattern name="LUT+FFU" in_port="BEL_FF-SB_FF.D" out_port="SB_DFFNSS.D" />
-						</direct>
-						<direct><port type="input" from="SB_DFFNSS" name="Q" /><port type="output" name="Q"/></direct>
-					</interconnect>
-				</mode><!--SB_DFFNSS -->
-			</pb_type>
-			<interconnect>
-				<!-- Global Clock -->
-				<direct><port type="input" name="C"/><port type="output" from="BEL_FF-SB_FF[0]" name="C"/></direct>
-				<direct><port type="input" name="C"/><port type="output" from="BEL_FF-SB_FF[1]" name="C"/></direct>
-				<direct><port type="input" name="C"/><port type="output" from="BEL_FF-SB_FF[2]" name="C"/></direct>
-				<direct><port type="input" name="C"/><port type="output" from="BEL_FF-SB_FF[3]" name="C"/></direct>
-				<direct><port type="input" name="C"/><port type="output" from="BEL_FF-SB_FF[4]" name="C"/></direct>
-				<direct><port type="input" name="C"/><port type="output" from="BEL_FF-SB_FF[5]" name="C"/></direct>
-				<direct><port type="input" name="C"/><port type="output" from="BEL_FF-SB_FF[6]" name="C"/></direct>
-				<direct><port type="input" name="C"/><port type="output" from="BEL_FF-SB_FF[7]" name="C"/></direct>
-				<!-- Global Set -->
-				<direct><port type="input" name="S"/><port type="output" from="BEL_FF-SB_FF[0]" name="S"/></direct>
-				<direct><port type="input" name="S"/><port type="output" from="BEL_FF-SB_FF[1]" name="S"/></direct>
-				<direct><port type="input" name="S"/><port type="output" from="BEL_FF-SB_FF[2]" name="S"/></direct>
-				<direct><port type="input" name="S"/><port type="output" from="BEL_FF-SB_FF[3]" name="S"/></direct>
-				<direct><port type="input" name="S"/><port type="output" from="BEL_FF-SB_FF[4]" name="S"/></direct>
-				<direct><port type="input" name="S"/><port type="output" from="BEL_FF-SB_FF[5]" name="S"/></direct>
-				<direct><port type="input" name="S"/><port type="output" from="BEL_FF-SB_FF[6]" name="S"/></direct>
-				<direct><port type="input" name="S"/><port type="output" from="BEL_FF-SB_FF[7]" name="S"/></direct>
-				<!-- Global Reset -->
-				<direct><port type="input" name="R"/><port type="output" from="BEL_FF-SB_FF[0]" name="R"/></direct>
-				<direct><port type="input" name="R"/><port type="output" from="BEL_FF-SB_FF[1]" name="R"/></direct>
-				<direct><port type="input" name="R"/><port type="output" from="BEL_FF-SB_FF[2]" name="R"/></direct>
-				<direct><port type="input" name="R"/><port type="output" from="BEL_FF-SB_FF[3]" name="R"/></direct>
-				<direct><port type="input" name="R"/><port type="output" from="BEL_FF-SB_FF[4]" name="R"/></direct>
-				<direct><port type="input" name="R"/><port type="output" from="BEL_FF-SB_FF[5]" name="R"/></direct>
-				<direct><port type="input" name="R"/><port type="output" from="BEL_FF-SB_FF[6]" name="R"/></direct>
-				<direct><port type="input" name="R"/><port type="output" from="BEL_FF-SB_FF[7]" name="R"/></direct>
-				<!-- Data In -->
-				<direct><port type="input" name="D[0]"/><port type="output" from="BEL_FF-SB_FF[0]" name="D"/></direct>
-				<direct><port type="input" name="D[1]"/><port type="output" from="BEL_FF-SB_FF[1]" name="D"/></direct>
-				<direct><port type="input" name="D[2]"/><port type="output" from="BEL_FF-SB_FF[2]" name="D"/></direct>
-				<direct><port type="input" name="D[3]"/><port type="output" from="BEL_FF-SB_FF[3]" name="D"/></direct>
-				<direct><port type="input" name="D[4]"/><port type="output" from="BEL_FF-SB_FF[4]" name="D"/></direct>
-				<direct><port type="input" name="D[5]"/><port type="output" from="BEL_FF-SB_FF[5]" name="D"/></direct>
-				<direct><port type="input" name="D[6]"/><port type="output" from="BEL_FF-SB_FF[6]" name="D"/></direct>
-				<direct><port type="input" name="D[7]"/><port type="output" from="BEL_FF-SB_FF[7]" name="D"/></direct>
-				<!-- Data Out -->
-				<direct><port type="input" from="BEL_FF-SB_FF[0]" name="Q"/><port type="output" name="Q[0]"/></direct>
-				<direct><port type="input" from="BEL_FF-SB_FF[1]" name="Q"/><port type="output" name="Q[1]"/></direct>
-				<direct><port type="input" from="BEL_FF-SB_FF[2]" name="Q"/><port type="output" name="Q[2]"/></direct>
-				<direct><port type="input" from="BEL_FF-SB_FF[3]" name="Q"/><port type="output" name="Q[3]"/></direct>
-				<direct><port type="input" from="BEL_FF-SB_FF[4]" name="Q"/><port type="output" name="Q[4]"/></direct>
-				<direct><port type="input" from="BEL_FF-SB_FF[5]" name="Q"/><port type="output" name="Q[5]"/></direct>
-				<direct><port type="input" from="BEL_FF-SB_FF[6]" name="Q"/><port type="output" name="Q[6]"/></direct>
-				<direct><port type="input" from="BEL_FF-SB_FF[7]" name="Q"/><port type="output" name="Q[7]"/></direct>
-			</interconnect>
-		</mode><!-- NCLK+SR -->
+    <!-- module SB_DFFNSS (output Q, input C, S, D); -->
+    <mode name="SB_DFFNSS">
+     <pb_type name="SB_DFFNSS" num_pb="1" blif_model=".subckt SB_DFFNSS">
+      <clock  name="C" num_pins="1"/>
+      <input  name="S" num_pins="1"/>
+      <input  name="D" num_pins="1"/>
+      <output name="Q" num_pins="1"/>
+      <T_setup    value="10e-12" port="SB_DFFNSS.S" clock="C"/>
+      <T_setup    value="10e-12" port="SB_DFFNSS.D" clock="C"/>
+      <T_clock_to_Q max="10e-12" port="SB_DFFNSS.Q" clock="C"/>
+      <metadata>
+       <meta name="hlc_property">
+           # - SB_DFFNSS
+           enable_dff
+           # NegClk
+           # no_cen
+           # sync_setreset
+           set_noreset
+       </meta>
+      </metadata>
+     </pb_type>
+     <interconnect>
+      <direct><port type="input" name="C"/><port type="output" from="SB_DFFNSS" name="C"/></direct>
+      <direct><port type="input" name="S"/><port type="output" from="SB_DFFNSS" name="S"/></direct>
+      <direct><port type="input" name="D"/><port type="output" from="SB_DFFNSS" name="D"/>
+       <pack_pattern name="LUT+FFU" in_port="BEL_FF-SB_FF.D" out_port="SB_DFFNSS.D" />
+      </direct>
+      <direct><port type="input" from="SB_DFFNSS" name="Q" /><port type="output" name="Q"/></direct>
+     </interconnect>
+    </mode><!--SB_DFFNSS -->
+    <metadata>
+     <meta name="hlc_cell">lutff</meta>
+    </metadata>
+   </pb_type>
+   <interconnect>
+    <!-- Global Clock -->
+    <direct><port type="input" name="C"/><port type="output" from="BEL_FF-SB_FF[0]" name="C"/></direct>
+    <direct><port type="input" name="C"/><port type="output" from="BEL_FF-SB_FF[1]" name="C"/></direct>
+    <direct><port type="input" name="C"/><port type="output" from="BEL_FF-SB_FF[2]" name="C"/></direct>
+    <direct><port type="input" name="C"/><port type="output" from="BEL_FF-SB_FF[3]" name="C"/></direct>
+    <direct><port type="input" name="C"/><port type="output" from="BEL_FF-SB_FF[4]" name="C"/></direct>
+    <direct><port type="input" name="C"/><port type="output" from="BEL_FF-SB_FF[5]" name="C"/></direct>
+    <direct><port type="input" name="C"/><port type="output" from="BEL_FF-SB_FF[6]" name="C"/></direct>
+    <direct><port type="input" name="C"/><port type="output" from="BEL_FF-SB_FF[7]" name="C"/></direct>
+    <!-- Global Set -->
+    <direct><port type="input" name="S"/><port type="output" from="BEL_FF-SB_FF[0]" name="S"/></direct>
+    <direct><port type="input" name="S"/><port type="output" from="BEL_FF-SB_FF[1]" name="S"/></direct>
+    <direct><port type="input" name="S"/><port type="output" from="BEL_FF-SB_FF[2]" name="S"/></direct>
+    <direct><port type="input" name="S"/><port type="output" from="BEL_FF-SB_FF[3]" name="S"/></direct>
+    <direct><port type="input" name="S"/><port type="output" from="BEL_FF-SB_FF[4]" name="S"/></direct>
+    <direct><port type="input" name="S"/><port type="output" from="BEL_FF-SB_FF[5]" name="S"/></direct>
+    <direct><port type="input" name="S"/><port type="output" from="BEL_FF-SB_FF[6]" name="S"/></direct>
+    <direct><port type="input" name="S"/><port type="output" from="BEL_FF-SB_FF[7]" name="S"/></direct>
+    <!-- Global Reset -->
+    <direct><port type="input" name="R"/><port type="output" from="BEL_FF-SB_FF[0]" name="R"/></direct>
+    <direct><port type="input" name="R"/><port type="output" from="BEL_FF-SB_FF[1]" name="R"/></direct>
+    <direct><port type="input" name="R"/><port type="output" from="BEL_FF-SB_FF[2]" name="R"/></direct>
+    <direct><port type="input" name="R"/><port type="output" from="BEL_FF-SB_FF[3]" name="R"/></direct>
+    <direct><port type="input" name="R"/><port type="output" from="BEL_FF-SB_FF[4]" name="R"/></direct>
+    <direct><port type="input" name="R"/><port type="output" from="BEL_FF-SB_FF[5]" name="R"/></direct>
+    <direct><port type="input" name="R"/><port type="output" from="BEL_FF-SB_FF[6]" name="R"/></direct>
+    <direct><port type="input" name="R"/><port type="output" from="BEL_FF-SB_FF[7]" name="R"/></direct>
+    <!-- Data In -->
+    <direct><port type="input" name="D[0]"/><port type="output" from="BEL_FF-SB_FF[0]" name="D"/></direct>
+    <direct><port type="input" name="D[1]"/><port type="output" from="BEL_FF-SB_FF[1]" name="D"/></direct>
+    <direct><port type="input" name="D[2]"/><port type="output" from="BEL_FF-SB_FF[2]" name="D"/></direct>
+    <direct><port type="input" name="D[3]"/><port type="output" from="BEL_FF-SB_FF[3]" name="D"/></direct>
+    <direct><port type="input" name="D[4]"/><port type="output" from="BEL_FF-SB_FF[4]" name="D"/></direct>
+    <direct><port type="input" name="D[5]"/><port type="output" from="BEL_FF-SB_FF[5]" name="D"/></direct>
+    <direct><port type="input" name="D[6]"/><port type="output" from="BEL_FF-SB_FF[6]" name="D"/></direct>
+    <direct><port type="input" name="D[7]"/><port type="output" from="BEL_FF-SB_FF[7]" name="D"/></direct>
+    <!-- Data Out -->
+    <direct><port type="input" from="BEL_FF-SB_FF[0]" name="Q"/><port type="output" name="Q[0]"/></direct>
+    <direct><port type="input" from="BEL_FF-SB_FF[1]" name="Q"/><port type="output" name="Q[1]"/></direct>
+    <direct><port type="input" from="BEL_FF-SB_FF[2]" name="Q"/><port type="output" name="Q[2]"/></direct>
+    <direct><port type="input" from="BEL_FF-SB_FF[3]" name="Q"/><port type="output" name="Q[3]"/></direct>
+    <direct><port type="input" from="BEL_FF-SB_FF[4]" name="Q"/><port type="output" name="Q[4]"/></direct>
+    <direct><port type="input" from="BEL_FF-SB_FF[5]" name="Q"/><port type="output" name="Q[5]"/></direct>
+    <direct><port type="input" from="BEL_FF-SB_FF[6]" name="Q"/><port type="output" name="Q[6]"/></direct>
+    <direct><port type="input" from="BEL_FF-SB_FF[7]" name="Q"/><port type="output" name="Q[7]"/></direct>
+   </interconnect>
+   <metadata>
+    <meta name="hlc_property">
+        NegClk
+        # no_cen
+        # use_setreset
+    </meta>
+   </metadata>
+  </mode><!-- NCLK+SR -->
 
-		<mode name="PCLK+CEN+SR">
+  <mode name="PCLK+CEN+SR">
    <pb_type name="BEL_FF-SB_FF" num_pb="8">
-				<clock  name="C" num_pins="1"/>
-				<input  name="E" num_pins="1"/>
-				<input  name="S" num_pins="1"/>
-				<input  name="R" num_pins="1"/>
-				<input  name="D" num_pins="1"/>
-				<output name="Q" num_pins="1"/>
+    <clock  name="C" num_pins="1"/>
+    <input  name="E" num_pins="1"/>
+    <input  name="S" num_pins="1"/>
+    <input  name="R" num_pins="1"/>
+    <input  name="D" num_pins="1"/>
+    <output name="Q" num_pins="1"/>
 
-				<!-- module SB_DFFER (output Q, input C, E, R, D); -->
-				<mode name="SB_DFFER">
-					<pb_type name="SB_DFFER" num_pb="1" blif_model=".subckt SB_DFFER">
-						<clock  name="C" num_pins="1"/>
-						<input  name="E" num_pins="1"/>
-						<input  name="R" num_pins="1"/>
-						<input  name="D" num_pins="1"/>
-						<output name="Q" num_pins="1"/>
-						<T_setup    value="10e-12" port="SB_DFFER.E" clock="C"/>
-						<T_setup    value="10e-12" port="SB_DFFER.R" clock="C"/>
-						<T_setup    value="10e-12" port="SB_DFFER.D" clock="C"/>
-						<T_clock_to_Q max="10e-12" port="SB_DFFER.Q" clock="C"/>
-						<metadata>
-							<meta name="hlc_property">
-											# - SB_DFFER - $_DFFE_PN0
-											# PosClk
-											# use_cen
-											async_setreset
-											# reset
-							</meta>
-						</metadata>
-					</pb_type>
-					<interconnect>
-						<direct><port type="input" name="C"/><port type="output" from="SB_DFFER" name="C"/></direct>
-						<direct><port type="input" name="E"/><port type="output" from="SB_DFFER" name="E"/></direct>
-						<direct><port type="input" name="R"/><port type="output" from="SB_DFFER" name="R"/></direct>
-						<direct><port type="input" name="D"/><port type="output" from="SB_DFFER" name="D"/>
-							<pack_pattern name="LUT+FFD" in_port="BEL_FF-SB_FF.D" out_port="SB_DFFER.D" />
-						</direct>
-						<direct><port type="input" from="SB_DFFER" name="Q" /><port type="output" name="Q"/></direct>
-					</interconnect>
-				</mode><!--SB_DFFER -->
+    <!-- module SB_DFFER (output Q, input C, E, R, D); -->
+    <mode name="SB_DFFER">
+     <pb_type name="SB_DFFER" num_pb="1" blif_model=".subckt SB_DFFER">
+      <clock  name="C" num_pins="1"/>
+      <input  name="E" num_pins="1"/>
+      <input  name="R" num_pins="1"/>
+      <input  name="D" num_pins="1"/>
+      <output name="Q" num_pins="1"/>
+      <T_setup    value="10e-12" port="SB_DFFER.E" clock="C"/>
+      <T_setup    value="10e-12" port="SB_DFFER.R" clock="C"/>
+      <T_setup    value="10e-12" port="SB_DFFER.D" clock="C"/>
+      <T_clock_to_Q max="10e-12" port="SB_DFFER.Q" clock="C"/>
+      <metadata>
+       <meta name="hlc_property">
+           # - SB_DFFER - $_DFFE_PN0
+           enable_dff
+           # PosClk
+           # use_cen
+           async_setreset
+           # reset
+       </meta>
+      </metadata>
+     </pb_type>
+     <interconnect>
+      <direct><port type="input" name="C"/><port type="output" from="SB_DFFER" name="C"/></direct>
+      <direct><port type="input" name="E"/><port type="output" from="SB_DFFER" name="E"/></direct>
+      <direct><port type="input" name="R"/><port type="output" from="SB_DFFER" name="R"/></direct>
+      <direct><port type="input" name="D"/><port type="output" from="SB_DFFER" name="D"/>
+       <pack_pattern name="LUT+FFD" in_port="BEL_FF-SB_FF.D" out_port="SB_DFFER.D" />
+      </direct>
+      <direct><port type="input" from="SB_DFFER" name="Q" /><port type="output" name="Q"/></direct>
+     </interconnect>
+    </mode><!--SB_DFFER -->
 
-				<!-- module SB_DFFES (output Q, input C, E, S, D); -->
-				<mode name="SB_DFFES">
-					<pb_type name="SB_DFFES" num_pb="1" blif_model=".subckt SB_DFFES">
-						<clock  name="C" num_pins="1"/>
-						<input  name="E" num_pins="1"/>
-						<input  name="S" num_pins="1"/>
-						<input  name="D" num_pins="1"/>
-						<output name="Q" num_pins="1"/>
-						<T_setup    value="10e-12" port="SB_DFFES.E" clock="C"/>
-						<T_setup    value="10e-12" port="SB_DFFES.S" clock="C"/>
-						<T_setup    value="10e-12" port="SB_DFFES.D" clock="C"/>
-						<T_clock_to_Q max="10e-12" port="SB_DFFES.Q" clock="C"/>
-						<metadata>
-							<meta name="hlc_property">
-											# SB_DFFES - $_DFFE_PN1
-											# PosClk
-											# use_cen
-											async_setreset
-											set_noreset
-							</meta>
-						</metadata>
-					</pb_type>
-					<interconnect>
-						<direct><port type="input" name="C"/><port type="output" from="SB_DFFES" name="C"/></direct>
-						<direct><port type="input" name="E"/><port type="output" from="SB_DFFES" name="E"/></direct>
-						<direct><port type="input" name="S"/><port type="output" from="SB_DFFES" name="S"/></direct>
-						<direct><port type="input" name="D"/><port type="output" from="SB_DFFES" name="D"/>
-							<pack_pattern name="LUT+FFE" in_port="BEL_FF-SB_FF.D" out_port="SB_DFFES.D" />
-						</direct>
-						<direct><port type="input" from="SB_DFFES" name="Q" /><port type="output" name="Q"/></direct>
-					</interconnect>
-				</mode><!--SB_DFFES -->
+    <!-- module SB_DFFES (output Q, input C, E, S, D); -->
+    <mode name="SB_DFFES">
+     <pb_type name="SB_DFFES" num_pb="1" blif_model=".subckt SB_DFFES">
+      <clock  name="C" num_pins="1"/>
+      <input  name="E" num_pins="1"/>
+      <input  name="S" num_pins="1"/>
+      <input  name="D" num_pins="1"/>
+      <output name="Q" num_pins="1"/>
+      <T_setup    value="10e-12" port="SB_DFFES.E" clock="C"/>
+      <T_setup    value="10e-12" port="SB_DFFES.S" clock="C"/>
+      <T_setup    value="10e-12" port="SB_DFFES.D" clock="C"/>
+      <T_clock_to_Q max="10e-12" port="SB_DFFES.Q" clock="C"/>
+      <metadata>
+       <meta name="hlc_property">
+           # SB_DFFES - $_DFFE_PN1
+           enable_dff
+           # PosClk
+           # use_cen
+           async_setreset
+           set_noreset
+       </meta>
+      </metadata>
+     </pb_type>
+     <interconnect>
+      <direct><port type="input" name="C"/><port type="output" from="SB_DFFES" name="C"/></direct>
+      <direct><port type="input" name="E"/><port type="output" from="SB_DFFES" name="E"/></direct>
+      <direct><port type="input" name="S"/><port type="output" from="SB_DFFES" name="S"/></direct>
+      <direct><port type="input" name="D"/><port type="output" from="SB_DFFES" name="D"/>
+       <pack_pattern name="LUT+FFE" in_port="BEL_FF-SB_FF.D" out_port="SB_DFFES.D" />
+      </direct>
+      <direct><port type="input" from="SB_DFFES" name="Q" /><port type="output" name="Q"/></direct>
+     </interconnect>
+    </mode><!--SB_DFFES -->
 
-				<!-- module SB_DFFESR (output Q, input C, E, R, D); -->
-				<mode name="SB_DFFESR">
-					<pb_type name="SB_DFFESR" num_pb="1" blif_model=".subckt SB_DFFESR">
-						<clock  name="C" num_pins="1"/>
-						<input  name="E" num_pins="1"/>
-						<input  name="R" num_pins="1"/>
-						<input  name="D" num_pins="1"/>
-						<output name="Q" num_pins="1"/>
-						<T_setup    value="10e-12" port="SB_DFFESR.E" clock="C"/>
-						<T_setup    value="10e-12" port="SB_DFFESR.R" clock="C"/>
-						<T_setup    value="10e-12" port="SB_DFFESR.D" clock="C"/>
-						<T_clock_to_Q max="10e-12" port="SB_DFFESR.Q" clock="C"/>
-						<metadata>
-							<meta name="hlc_property">
-											# - SB_DFFESR
-											# PosClk
-											# use_cen
-											# sync_setreset
-											# reset
-							</meta>
-						</metadata>
-					</pb_type>
-					<interconnect>
-						<direct><port type="input" name="C"/><port type="output" from="SB_DFFESR" name="C"/></direct>
-						<direct><port type="input" name="E"/><port type="output" from="SB_DFFESR" name="E"/></direct>
-						<direct><port type="input" name="R"/><port type="output" from="SB_DFFESR" name="R"/></direct>
-						<direct><port type="input" name="D"/><port type="output" from="SB_DFFESR" name="D"/>
-							<pack_pattern name="LUT+FFF" in_port="BEL_FF-SB_FF.D" out_port="SB_DFFESR.D" />
-						</direct>
-						<direct><port type="input" from="SB_DFFESR" name="Q" /><port type="output" name="Q"/></direct>
-					</interconnect>
-				</mode><!--SB_DFFESR -->
+    <!-- module SB_DFFESR (output Q, input C, E, R, D); -->
+    <mode name="SB_DFFESR">
+     <pb_type name="SB_DFFESR" num_pb="1" blif_model=".subckt SB_DFFESR">
+      <clock  name="C" num_pins="1"/>
+      <input  name="E" num_pins="1"/>
+      <input  name="R" num_pins="1"/>
+      <input  name="D" num_pins="1"/>
+      <output name="Q" num_pins="1"/>
+      <T_setup    value="10e-12" port="SB_DFFESR.E" clock="C"/>
+      <T_setup    value="10e-12" port="SB_DFFESR.R" clock="C"/>
+      <T_setup    value="10e-12" port="SB_DFFESR.D" clock="C"/>
+      <T_clock_to_Q max="10e-12" port="SB_DFFESR.Q" clock="C"/>
+      <metadata>
+       <meta name="hlc_property">
+           # - SB_DFFESR
+           enable_dff
+           # PosClk
+           # use_cen
+           # sync_setreset
+           # reset
+       </meta>
+      </metadata>
+     </pb_type>
+     <interconnect>
+      <direct><port type="input" name="C"/><port type="output" from="SB_DFFESR" name="C"/></direct>
+      <direct><port type="input" name="E"/><port type="output" from="SB_DFFESR" name="E"/></direct>
+      <direct><port type="input" name="R"/><port type="output" from="SB_DFFESR" name="R"/></direct>
+      <direct><port type="input" name="D"/><port type="output" from="SB_DFFESR" name="D"/>
+       <pack_pattern name="LUT+FFF" in_port="BEL_FF-SB_FF.D" out_port="SB_DFFESR.D" />
+      </direct>
+      <direct><port type="input" from="SB_DFFESR" name="Q" /><port type="output" name="Q"/></direct>
+     </interconnect>
+    </mode><!--SB_DFFESR -->
 
-				<!-- module SB_DFFESS (output Q, input C, E, S, D); -->
-				<mode name="SB_DFFESS">
-					<pb_type name="SB_DFFESS" num_pb="1" blif_model=".subckt SB_DFFESS">
-						<clock  name="C" num_pins="1"/>
-						<input  name="E" num_pins="1"/>
-						<input  name="S" num_pins="1"/>
-						<input  name="D" num_pins="1"/>
-						<output name="Q" num_pins="1"/>
-						<T_setup    value="10e-12" port="SB_DFFESS.E" clock="C"/>
-						<T_setup    value="10e-12" port="SB_DFFESS.S" clock="C"/>
-						<T_setup    value="10e-12" port="SB_DFFESS.D" clock="C"/>
-						<T_clock_to_Q max="10e-12" port="SB_DFFESS.Q" clock="C"/>
-						<metadata>
-							<meta name="hlc_property">
-											# - SB_DFFESS
-											# PosClk
-											# use_cen
-											# sync_setreset
-											set_noreset
-							</meta>
-						</metadata>
-					</pb_type>
-					<interconnect>
-						<direct><port type="input" name="C"/><port type="output" from="SB_DFFESS" name="C"/></direct>
-						<direct><port type="input" name="E"/><port type="output" from="SB_DFFESS" name="E"/></direct>
-						<direct><port type="input" name="S"/><port type="output" from="SB_DFFESS" name="S"/></direct>
-						<direct><port type="input" name="D"/><port type="output" from="SB_DFFESS" name="D"/>
-							<pack_pattern name="LUT+FFG" in_port="BEL_FF-SB_FF.D" out_port="SB_DFFESS.D" />
-						</direct>
-						<direct><port type="input" from="SB_DFFESS" name="Q" /><port type="output" name="Q"/></direct>
-					</interconnect>
-				</mode><!--SB_DFFESS -->
-			</pb_type>
-			<interconnect>
-				<!-- Global Clock -->
-				<direct><port type="input" name="C"/><port type="output" from="BEL_FF-SB_FF[0]" name="C"/></direct>
-				<direct><port type="input" name="C"/><port type="output" from="BEL_FF-SB_FF[1]" name="C"/></direct>
-				<direct><port type="input" name="C"/><port type="output" from="BEL_FF-SB_FF[2]" name="C"/></direct>
-				<direct><port type="input" name="C"/><port type="output" from="BEL_FF-SB_FF[3]" name="C"/></direct>
-				<direct><port type="input" name="C"/><port type="output" from="BEL_FF-SB_FF[4]" name="C"/></direct>
-				<direct><port type="input" name="C"/><port type="output" from="BEL_FF-SB_FF[5]" name="C"/></direct>
-				<direct><port type="input" name="C"/><port type="output" from="BEL_FF-SB_FF[6]" name="C"/></direct>
-				<direct><port type="input" name="C"/><port type="output" from="BEL_FF-SB_FF[7]" name="C"/></direct>
-				<!-- Global Clock Enable -->
-				<direct><port type="input" name="E"/><port type="output" from="BEL_FF-SB_FF[0]" name="E"/></direct>
-				<direct><port type="input" name="E"/><port type="output" from="BEL_FF-SB_FF[1]" name="E"/></direct>
-				<direct><port type="input" name="E"/><port type="output" from="BEL_FF-SB_FF[2]" name="E"/></direct>
-				<direct><port type="input" name="E"/><port type="output" from="BEL_FF-SB_FF[3]" name="E"/></direct>
-				<direct><port type="input" name="E"/><port type="output" from="BEL_FF-SB_FF[4]" name="E"/></direct>
-				<direct><port type="input" name="E"/><port type="output" from="BEL_FF-SB_FF[5]" name="E"/></direct>
-				<direct><port type="input" name="E"/><port type="output" from="BEL_FF-SB_FF[6]" name="E"/></direct>
-				<direct><port type="input" name="E"/><port type="output" from="BEL_FF-SB_FF[7]" name="E"/></direct>
-				<!-- Global Set -->
-				<direct><port type="input" name="S"/><port type="output" from="BEL_FF-SB_FF[0]" name="S"/></direct>
-				<direct><port type="input" name="S"/><port type="output" from="BEL_FF-SB_FF[1]" name="S"/></direct>
-				<direct><port type="input" name="S"/><port type="output" from="BEL_FF-SB_FF[2]" name="S"/></direct>
-				<direct><port type="input" name="S"/><port type="output" from="BEL_FF-SB_FF[3]" name="S"/></direct>
-				<direct><port type="input" name="S"/><port type="output" from="BEL_FF-SB_FF[4]" name="S"/></direct>
-				<direct><port type="input" name="S"/><port type="output" from="BEL_FF-SB_FF[5]" name="S"/></direct>
-				<direct><port type="input" name="S"/><port type="output" from="BEL_FF-SB_FF[6]" name="S"/></direct>
-				<direct><port type="input" name="S"/><port type="output" from="BEL_FF-SB_FF[7]" name="S"/></direct>
-				<!-- Global Reset -->
-				<direct><port type="input" name="R"/><port type="output" from="BEL_FF-SB_FF[0]" name="R"/></direct>
-				<direct><port type="input" name="R"/><port type="output" from="BEL_FF-SB_FF[1]" name="R"/></direct>
-				<direct><port type="input" name="R"/><port type="output" from="BEL_FF-SB_FF[2]" name="R"/></direct>
-				<direct><port type="input" name="R"/><port type="output" from="BEL_FF-SB_FF[3]" name="R"/></direct>
-				<direct><port type="input" name="R"/><port type="output" from="BEL_FF-SB_FF[4]" name="R"/></direct>
-				<direct><port type="input" name="R"/><port type="output" from="BEL_FF-SB_FF[5]" name="R"/></direct>
-				<direct><port type="input" name="R"/><port type="output" from="BEL_FF-SB_FF[6]" name="R"/></direct>
-				<direct><port type="input" name="R"/><port type="output" from="BEL_FF-SB_FF[7]" name="R"/></direct>
-				<!-- Data In -->
-				<direct><port type="input" name="D[0]"/><port type="output" from="BEL_FF-SB_FF[0]" name="D"/></direct>
-				<direct><port type="input" name="D[1]"/><port type="output" from="BEL_FF-SB_FF[1]" name="D"/></direct>
-				<direct><port type="input" name="D[2]"/><port type="output" from="BEL_FF-SB_FF[2]" name="D"/></direct>
-				<direct><port type="input" name="D[3]"/><port type="output" from="BEL_FF-SB_FF[3]" name="D"/></direct>
-				<direct><port type="input" name="D[4]"/><port type="output" from="BEL_FF-SB_FF[4]" name="D"/></direct>
-				<direct><port type="input" name="D[5]"/><port type="output" from="BEL_FF-SB_FF[5]" name="D"/></direct>
-				<direct><port type="input" name="D[6]"/><port type="output" from="BEL_FF-SB_FF[6]" name="D"/></direct>
-				<direct><port type="input" name="D[7]"/><port type="output" from="BEL_FF-SB_FF[7]" name="D"/></direct>
-				<!-- Data Out -->
-				<direct><port type="input" from="BEL_FF-SB_FF[0]" name="Q"/><port type="output" name="Q[0]"/></direct>
-				<direct><port type="input" from="BEL_FF-SB_FF[1]" name="Q"/><port type="output" name="Q[1]"/></direct>
-				<direct><port type="input" from="BEL_FF-SB_FF[2]" name="Q"/><port type="output" name="Q[2]"/></direct>
-				<direct><port type="input" from="BEL_FF-SB_FF[3]" name="Q"/><port type="output" name="Q[3]"/></direct>
-				<direct><port type="input" from="BEL_FF-SB_FF[4]" name="Q"/><port type="output" name="Q[4]"/></direct>
-				<direct><port type="input" from="BEL_FF-SB_FF[5]" name="Q"/><port type="output" name="Q[5]"/></direct>
-				<direct><port type="input" from="BEL_FF-SB_FF[6]" name="Q"/><port type="output" name="Q[6]"/></direct>
-				<direct><port type="input" from="BEL_FF-SB_FF[7]" name="Q"/><port type="output" name="Q[7]"/></direct>
-			</interconnect>
-		</mode><!-- PCLK+CEN+SR -->
+    <!-- module SB_DFFESS (output Q, input C, E, S, D); -->
+    <mode name="SB_DFFESS">
+     <pb_type name="SB_DFFESS" num_pb="1" blif_model=".subckt SB_DFFESS">
+      <clock  name="C" num_pins="1"/>
+      <input  name="E" num_pins="1"/>
+      <input  name="S" num_pins="1"/>
+      <input  name="D" num_pins="1"/>
+      <output name="Q" num_pins="1"/>
+      <T_setup    value="10e-12" port="SB_DFFESS.E" clock="C"/>
+      <T_setup    value="10e-12" port="SB_DFFESS.S" clock="C"/>
+      <T_setup    value="10e-12" port="SB_DFFESS.D" clock="C"/>
+      <T_clock_to_Q max="10e-12" port="SB_DFFESS.Q" clock="C"/>
+      <metadata>
+       <meta name="hlc_property">
+           # - SB_DFFESS
+           enable_dff
+           # PosClk
+           # use_cen
+           # sync_setreset
+           set_noreset
+       </meta>
+      </metadata>
+     </pb_type>
+     <interconnect>
+      <direct><port type="input" name="C"/><port type="output" from="SB_DFFESS" name="C"/></direct>
+      <direct><port type="input" name="E"/><port type="output" from="SB_DFFESS" name="E"/></direct>
+      <direct><port type="input" name="S"/><port type="output" from="SB_DFFESS" name="S"/></direct>
+      <direct><port type="input" name="D"/><port type="output" from="SB_DFFESS" name="D"/>
+       <pack_pattern name="LUT+FFG" in_port="BEL_FF-SB_FF.D" out_port="SB_DFFESS.D" />
+      </direct>
+      <direct><port type="input" from="SB_DFFESS" name="Q" /><port type="output" name="Q"/></direct>
+     </interconnect>
+    </mode><!--SB_DFFESS -->
+    <metadata>
+     <meta name="hlc_cell">lutff</meta>
+    </metadata>
+   </pb_type>
+   <interconnect>
+    <!-- Global Clock -->
+    <direct><port type="input" name="C"/><port type="output" from="BEL_FF-SB_FF[0]" name="C"/></direct>
+    <direct><port type="input" name="C"/><port type="output" from="BEL_FF-SB_FF[1]" name="C"/></direct>
+    <direct><port type="input" name="C"/><port type="output" from="BEL_FF-SB_FF[2]" name="C"/></direct>
+    <direct><port type="input" name="C"/><port type="output" from="BEL_FF-SB_FF[3]" name="C"/></direct>
+    <direct><port type="input" name="C"/><port type="output" from="BEL_FF-SB_FF[4]" name="C"/></direct>
+    <direct><port type="input" name="C"/><port type="output" from="BEL_FF-SB_FF[5]" name="C"/></direct>
+    <direct><port type="input" name="C"/><port type="output" from="BEL_FF-SB_FF[6]" name="C"/></direct>
+    <direct><port type="input" name="C"/><port type="output" from="BEL_FF-SB_FF[7]" name="C"/></direct>
+    <!-- Global Clock Enable -->
+    <direct><port type="input" name="E"/><port type="output" from="BEL_FF-SB_FF[0]" name="E"/></direct>
+    <direct><port type="input" name="E"/><port type="output" from="BEL_FF-SB_FF[1]" name="E"/></direct>
+    <direct><port type="input" name="E"/><port type="output" from="BEL_FF-SB_FF[2]" name="E"/></direct>
+    <direct><port type="input" name="E"/><port type="output" from="BEL_FF-SB_FF[3]" name="E"/></direct>
+    <direct><port type="input" name="E"/><port type="output" from="BEL_FF-SB_FF[4]" name="E"/></direct>
+    <direct><port type="input" name="E"/><port type="output" from="BEL_FF-SB_FF[5]" name="E"/></direct>
+    <direct><port type="input" name="E"/><port type="output" from="BEL_FF-SB_FF[6]" name="E"/></direct>
+    <direct><port type="input" name="E"/><port type="output" from="BEL_FF-SB_FF[7]" name="E"/></direct>
+    <!-- Global Set -->
+    <direct><port type="input" name="S"/><port type="output" from="BEL_FF-SB_FF[0]" name="S"/></direct>
+    <direct><port type="input" name="S"/><port type="output" from="BEL_FF-SB_FF[1]" name="S"/></direct>
+    <direct><port type="input" name="S"/><port type="output" from="BEL_FF-SB_FF[2]" name="S"/></direct>
+    <direct><port type="input" name="S"/><port type="output" from="BEL_FF-SB_FF[3]" name="S"/></direct>
+    <direct><port type="input" name="S"/><port type="output" from="BEL_FF-SB_FF[4]" name="S"/></direct>
+    <direct><port type="input" name="S"/><port type="output" from="BEL_FF-SB_FF[5]" name="S"/></direct>
+    <direct><port type="input" name="S"/><port type="output" from="BEL_FF-SB_FF[6]" name="S"/></direct>
+    <direct><port type="input" name="S"/><port type="output" from="BEL_FF-SB_FF[7]" name="S"/></direct>
+    <!-- Global Reset -->
+    <direct><port type="input" name="R"/><port type="output" from="BEL_FF-SB_FF[0]" name="R"/></direct>
+    <direct><port type="input" name="R"/><port type="output" from="BEL_FF-SB_FF[1]" name="R"/></direct>
+    <direct><port type="input" name="R"/><port type="output" from="BEL_FF-SB_FF[2]" name="R"/></direct>
+    <direct><port type="input" name="R"/><port type="output" from="BEL_FF-SB_FF[3]" name="R"/></direct>
+    <direct><port type="input" name="R"/><port type="output" from="BEL_FF-SB_FF[4]" name="R"/></direct>
+    <direct><port type="input" name="R"/><port type="output" from="BEL_FF-SB_FF[5]" name="R"/></direct>
+    <direct><port type="input" name="R"/><port type="output" from="BEL_FF-SB_FF[6]" name="R"/></direct>
+    <direct><port type="input" name="R"/><port type="output" from="BEL_FF-SB_FF[7]" name="R"/></direct>
+    <!-- Data In -->
+    <direct><port type="input" name="D[0]"/><port type="output" from="BEL_FF-SB_FF[0]" name="D"/></direct>
+    <direct><port type="input" name="D[1]"/><port type="output" from="BEL_FF-SB_FF[1]" name="D"/></direct>
+    <direct><port type="input" name="D[2]"/><port type="output" from="BEL_FF-SB_FF[2]" name="D"/></direct>
+    <direct><port type="input" name="D[3]"/><port type="output" from="BEL_FF-SB_FF[3]" name="D"/></direct>
+    <direct><port type="input" name="D[4]"/><port type="output" from="BEL_FF-SB_FF[4]" name="D"/></direct>
+    <direct><port type="input" name="D[5]"/><port type="output" from="BEL_FF-SB_FF[5]" name="D"/></direct>
+    <direct><port type="input" name="D[6]"/><port type="output" from="BEL_FF-SB_FF[6]" name="D"/></direct>
+    <direct><port type="input" name="D[7]"/><port type="output" from="BEL_FF-SB_FF[7]" name="D"/></direct>
+    <!-- Data Out -->
+    <direct><port type="input" from="BEL_FF-SB_FF[0]" name="Q"/><port type="output" name="Q[0]"/></direct>
+    <direct><port type="input" from="BEL_FF-SB_FF[1]" name="Q"/><port type="output" name="Q[1]"/></direct>
+    <direct><port type="input" from="BEL_FF-SB_FF[2]" name="Q"/><port type="output" name="Q[2]"/></direct>
+    <direct><port type="input" from="BEL_FF-SB_FF[3]" name="Q"/><port type="output" name="Q[3]"/></direct>
+    <direct><port type="input" from="BEL_FF-SB_FF[4]" name="Q"/><port type="output" name="Q[4]"/></direct>
+    <direct><port type="input" from="BEL_FF-SB_FF[5]" name="Q"/><port type="output" name="Q[5]"/></direct>
+    <direct><port type="input" from="BEL_FF-SB_FF[6]" name="Q"/><port type="output" name="Q[6]"/></direct>
+    <direct><port type="input" from="BEL_FF-SB_FF[7]" name="Q"/><port type="output" name="Q[7]"/></direct>
+   </interconnect>
+   <metadata>
+    <meta name="hlc_property">
+        # PosClk
+        # use_cen
+        # use_setreset
+    </meta>
+   </metadata>
+  </mode><!-- PCLK+CEN+SR -->
 
-		<mode name="NCLK+CEN+SR">
+  <mode name="NCLK+CEN+SR">
    <pb_type name="BEL_FF-SB_FF" num_pb="8">
-				<clock  name="C" num_pins="1"/>
-				<input  name="E" num_pins="1"/>
-				<input  name="S" num_pins="1"/>
-				<input  name="R" num_pins="1"/>
-				<input  name="D" num_pins="1"/>
-				<output name="Q" num_pins="1"/>
+    <clock  name="C" num_pins="1"/>
+    <input  name="E" num_pins="1"/>
+    <input  name="S" num_pins="1"/>
+    <input  name="R" num_pins="1"/>
+    <input  name="D" num_pins="1"/>
+    <output name="Q" num_pins="1"/>
 
-				<!-- module SB_DFFNER (output Q, input C, E, R, D); -->
-				<mode name="SB_DFFNER">
-					<pb_type name="SB_DFFNER" num_pb="1" blif_model=".subckt SB_DFFNER">
-						<clock  name="C" num_pins="1"/>
-						<input  name="E" num_pins="1"/>
-						<input  name="R" num_pins="1"/>
-						<input  name="D" num_pins="1"/>
-						<output name="Q" num_pins="1"/>
-						<T_setup    value="10e-12" port="SB_DFFNER.E" clock="C"/>
-						<T_setup    value="10e-12" port="SB_DFFNER.R" clock="C"/>
-						<T_setup    value="10e-12" port="SB_DFFNER.D" clock="C"/>
-						<T_clock_to_Q max="10e-12" port="SB_DFFNER.Q" clock="C"/>
-						<metadata>
-							<meta name="hlc_property">
-											# - SB_DFFNER
-											# NegClk
-											# use_cen
-											async_setreset
-											# reset
-							</meta>
-						</metadata>
-					</pb_type>
-					<interconnect>
-						<direct><port type="input" name="C"/><port type="output" from="SB_DFFNER" name="C"/></direct>
-						<direct><port type="input" name="E"/><port type="output" from="SB_DFFNER" name="E"/></direct>
-						<direct><port type="input" name="R"/><port type="output" from="SB_DFFNER" name="R"/></direct>
-						<direct><port type="input" name="D"/><port type="output" from="SB_DFFNER" name="D"/>
-							<pack_pattern name="LUT+FFN" in_port="BEL_FF-SB_FF.D" out_port="SB_DFFNER.D" />
-						</direct>
-						<direct><port type="input" from="SB_DFFNER" name="Q" /><port type="output" name="Q"/></direct>
-					</interconnect>
-				</mode><!--SB_DFFNER -->
+    <!-- module SB_DFFNER (output Q, input C, E, R, D); -->
+    <mode name="SB_DFFNER">
+     <pb_type name="SB_DFFNER" num_pb="1" blif_model=".subckt SB_DFFNER">
+      <clock  name="C" num_pins="1"/>
+      <input  name="E" num_pins="1"/>
+      <input  name="R" num_pins="1"/>
+      <input  name="D" num_pins="1"/>
+      <output name="Q" num_pins="1"/>
+      <T_setup    value="10e-12" port="SB_DFFNER.E" clock="C"/>
+      <T_setup    value="10e-12" port="SB_DFFNER.R" clock="C"/>
+      <T_setup    value="10e-12" port="SB_DFFNER.D" clock="C"/>
+      <T_clock_to_Q max="10e-12" port="SB_DFFNER.Q" clock="C"/>
+      <metadata>
+       <meta name="hlc_property">
+           enable_dff
+           # - SB_DFFNER
+           # NegClk
+           # use_cen
+           async_setreset
+           # reset
+       </meta>
+      </metadata>
+     </pb_type>
+     <interconnect>
+      <direct><port type="input" name="C"/><port type="output" from="SB_DFFNER" name="C"/></direct>
+      <direct><port type="input" name="E"/><port type="output" from="SB_DFFNER" name="E"/></direct>
+      <direct><port type="input" name="R"/><port type="output" from="SB_DFFNER" name="R"/></direct>
+      <direct><port type="input" name="D"/><port type="output" from="SB_DFFNER" name="D"/>
+       <pack_pattern name="LUT+FFN" in_port="BEL_FF-SB_FF.D" out_port="SB_DFFNER.D" />
+      </direct>
+      <direct><port type="input" from="SB_DFFNER" name="Q" /><port type="output" name="Q"/></direct>
+     </interconnect>
+    </mode><!--SB_DFFNER -->
 
-				<!-- module SB_DFFNES (output Q, input C, E, R, D); -->
-				<mode name="SB_DFFNES">
-					<pb_type name="SB_DFFNES" num_pb="1" blif_model=".subckt SB_DFFNES">
-						<clock  name="C" num_pins="1"/>
-						<input  name="E" num_pins="1"/>
-						<input  name="R" num_pins="1"/>
-						<input  name="D" num_pins="1"/>
-						<output name="Q" num_pins="1"/>
-						<T_setup    value="10e-12" port="SB_DFFNES.E" clock="C"/>
-						<T_setup    value="10e-12" port="SB_DFFNES.R" clock="C"/>
-						<T_setup    value="10e-12" port="SB_DFFNES.D" clock="C"/>
-						<T_clock_to_Q max="10e-12" port="SB_DFFNES.Q" clock="C"/>
-						<metadata>
-							<meta name="hlc_property">
-											# - SB_DFFNES
-											# NegClk
-											# use_cen
-											async_setreset
-											set_noreset
-							</meta>
-						</metadata>
-					</pb_type>
-					<interconnect>
-						<direct><port type="input" name="C"/><port type="output" from="SB_DFFNES" name="C"/></direct>
-						<direct><port type="input" name="E"/><port type="output" from="SB_DFFNES" name="E"/></direct>
-						<direct><port type="input" name="R"/><port type="output" from="SB_DFFNES" name="R"/></direct>
-						<direct><port type="input" name="D"/><port type="output" from="SB_DFFNES" name="D"/>
-							<pack_pattern name="LUT+FFO" in_port="BEL_FF-SB_FF.D" out_port="SB_DFFNES.D" />
-						</direct>
-						<direct><port type="input" from="SB_DFFNES" name="Q" /><port type="output" name="Q"/></direct>
-					</interconnect>
-				</mode><!--SB_DFFNES -->
+    <!-- module SB_DFFNES (output Q, input C, E, R, D); -->
+    <mode name="SB_DFFNES">
+     <pb_type name="SB_DFFNES" num_pb="1" blif_model=".subckt SB_DFFNES">
+      <clock  name="C" num_pins="1"/>
+      <input  name="E" num_pins="1"/>
+      <input  name="R" num_pins="1"/>
+      <input  name="D" num_pins="1"/>
+      <output name="Q" num_pins="1"/>
+      <T_setup    value="10e-12" port="SB_DFFNES.E" clock="C"/>
+      <T_setup    value="10e-12" port="SB_DFFNES.R" clock="C"/>
+      <T_setup    value="10e-12" port="SB_DFFNES.D" clock="C"/>
+      <T_clock_to_Q max="10e-12" port="SB_DFFNES.Q" clock="C"/>
+      <metadata>
+       <meta name="hlc_property">
+           # - SB_DFFNES
+           enable_dff
+           # NegClk
+           # use_cen
+           async_setreset
+           set_noreset
+       </meta>
+      </metadata>
+     </pb_type>
+     <interconnect>
+      <direct><port type="input" name="C"/><port type="output" from="SB_DFFNES" name="C"/></direct>
+      <direct><port type="input" name="E"/><port type="output" from="SB_DFFNES" name="E"/></direct>
+      <direct><port type="input" name="R"/><port type="output" from="SB_DFFNES" name="R"/></direct>
+      <direct><port type="input" name="D"/><port type="output" from="SB_DFFNES" name="D"/>
+       <pack_pattern name="LUT+FFO" in_port="BEL_FF-SB_FF.D" out_port="SB_DFFNES.D" />
+      </direct>
+      <direct><port type="input" from="SB_DFFNES" name="Q" /><port type="output" name="Q"/></direct>
+     </interconnect>
+    </mode><!--SB_DFFNES -->
 
-				<!-- module SB_DFFNESR (output Q, input C, E, R, D); -->
-				<mode name="SB_DFFNESR">
-					<pb_type name="SB_DFFNESR" num_pb="1" blif_model=".subckt SB_DFFNESR">
-						<clock  name="C" num_pins="1"/>
-						<input  name="E" num_pins="1"/>
-						<input  name="R" num_pins="1"/>
-						<input  name="D" num_pins="1"/>
-						<output name="Q" num_pins="1"/>
-						<T_setup    value="10e-12" port="SB_DFFNESR.E" clock="C"/>
-						<T_setup    value="10e-12" port="SB_DFFNESR.R" clock="C"/>
-						<T_setup    value="10e-12" port="SB_DFFNESR.D" clock="C"/>
-						<T_clock_to_Q max="10e-12" port="SB_DFFNESR.Q" clock="C"/>
-						<metadata>
-							<meta name="hlc_property">
-											# - SB_DFFNESR
-											# NegClk
-											# use_cen
-											# sync_setreset
-											# reset
-							</meta>
-						</metadata>
-					</pb_type>
-					<interconnect>
-						<direct><port type="input" name="C"/><port type="output" from="SB_DFFNESR" name="C"/></direct>
-						<direct><port type="input" name="E"/><port type="output" from="SB_DFFNESR" name="E"/></direct>
-						<direct><port type="input" name="R"/><port type="output" from="SB_DFFNESR" name="R"/></direct>
-						<direct><port type="input" name="D"/><port type="output" from="SB_DFFNESR" name="D"/>
-							<pack_pattern name="LUT+FFP" in_port="BEL_FF-SB_FF.D" out_port="SB_DFFNESR.D" />
-						</direct>
-						<direct><port type="input" from="SB_DFFNESR" name="Q" /><port type="output" name="Q"/></direct>
-					</interconnect>
-				</mode><!--SB_DFFNESR -->
+    <!-- module SB_DFFNESR (output Q, input C, E, R, D); -->
+    <mode name="SB_DFFNESR">
+     <pb_type name="SB_DFFNESR" num_pb="1" blif_model=".subckt SB_DFFNESR">
+      <clock  name="C" num_pins="1"/>
+      <input  name="E" num_pins="1"/>
+      <input  name="R" num_pins="1"/>
+      <input  name="D" num_pins="1"/>
+      <output name="Q" num_pins="1"/>
+      <T_setup    value="10e-12" port="SB_DFFNESR.E" clock="C"/>
+      <T_setup    value="10e-12" port="SB_DFFNESR.R" clock="C"/>
+      <T_setup    value="10e-12" port="SB_DFFNESR.D" clock="C"/>
+      <T_clock_to_Q max="10e-12" port="SB_DFFNESR.Q" clock="C"/>
+      <metadata>
+       <meta name="hlc_property">
+           # - SB_DFFNESR
+           enable_dff
+           # NegClk
+           # use_cen
+           # sync_setreset
+           # reset
+       </meta>
+      </metadata>
+     </pb_type>
+     <interconnect>
+      <direct><port type="input" name="C"/><port type="output" from="SB_DFFNESR" name="C"/></direct>
+      <direct><port type="input" name="E"/><port type="output" from="SB_DFFNESR" name="E"/></direct>
+      <direct><port type="input" name="R"/><port type="output" from="SB_DFFNESR" name="R"/></direct>
+      <direct><port type="input" name="D"/><port type="output" from="SB_DFFNESR" name="D"/>
+       <pack_pattern name="LUT+FFP" in_port="BEL_FF-SB_FF.D" out_port="SB_DFFNESR.D" />
+      </direct>
+      <direct><port type="input" from="SB_DFFNESR" name="Q" /><port type="output" name="Q"/></direct>
+     </interconnect>
+    </mode><!--SB_DFFNESR -->
 
-				<!-- module SB_DFFNESS (output Q, input C, E, S, D); -->
-				<mode name="SB_DFFNESS">
-					<pb_type name="SB_DFFNESS" num_pb="1" blif_model=".subckt SB_DFFNESS">
-						<clock  name="C" num_pins="1"/>
-						<input  name="E" num_pins="1"/>
-						<input  name="S" num_pins="1"/>
-						<input  name="D" num_pins="1"/>
-						<output name="Q" num_pins="1"/>
-						<T_setup    value="10e-12" port="SB_DFFNESS.E" clock="C"/>
-						<T_setup    value="10e-12" port="SB_DFFNESS.S" clock="C"/>
-						<T_setup    value="10e-12" port="SB_DFFNESS.D" clock="C"/>
-						<T_clock_to_Q max="10e-12" port="SB_DFFNESS.Q" clock="C"/>
-						<metadata>
-							<meta name="hlc_property">
-											# - SB_DFFNESS
-											# NegClk
-											# use_cen
-											# sync_setreset
-											set_noreset
-							</meta>
-						</metadata>
-					</pb_type>
-					<interconnect>
-						<direct><port type="input" name="C"/><port type="output" from="SB_DFFNESS" name="C"/></direct>
-						<direct><port type="input" name="E"/><port type="output" from="SB_DFFNESS" name="E"/></direct>
-						<direct><port type="input" name="S"/><port type="output" from="SB_DFFNESS" name="S"/></direct>
-						<direct><port type="input" name="D"/><port type="output" from="SB_DFFNESS" name="D"/>
-							<pack_pattern name="LUT+FFQ" in_port="BEL_FF-SB_FF.D" out_port="SB_DFFNESS.D" />
-						</direct>
-						<direct><port type="input" from="SB_DFFNESS" name="Q" /><port type="output" name="Q"/></direct>
-					</interconnect>
-				</mode><!--SB_DFFNESS -->
-			</pb_type>
-			<interconnect>
-				<!-- Global Clock -->
-				<direct><port type="input" name="C"/><port type="output" from="BEL_FF-SB_FF[0]" name="C"/></direct>
-				<direct><port type="input" name="C"/><port type="output" from="BEL_FF-SB_FF[1]" name="C"/></direct>
-				<direct><port type="input" name="C"/><port type="output" from="BEL_FF-SB_FF[2]" name="C"/></direct>
-				<direct><port type="input" name="C"/><port type="output" from="BEL_FF-SB_FF[3]" name="C"/></direct>
-				<direct><port type="input" name="C"/><port type="output" from="BEL_FF-SB_FF[4]" name="C"/></direct>
-				<direct><port type="input" name="C"/><port type="output" from="BEL_FF-SB_FF[5]" name="C"/></direct>
-				<direct><port type="input" name="C"/><port type="output" from="BEL_FF-SB_FF[6]" name="C"/></direct>
-				<direct><port type="input" name="C"/><port type="output" from="BEL_FF-SB_FF[7]" name="C"/></direct>
-				<!-- Global Clock Enable -->
-				<direct><port type="input" name="E"/><port type="output" from="BEL_FF-SB_FF[0]" name="E"/></direct>
-				<direct><port type="input" name="E"/><port type="output" from="BEL_FF-SB_FF[1]" name="E"/></direct>
-				<direct><port type="input" name="E"/><port type="output" from="BEL_FF-SB_FF[2]" name="E"/></direct>
-				<direct><port type="input" name="E"/><port type="output" from="BEL_FF-SB_FF[3]" name="E"/></direct>
-				<direct><port type="input" name="E"/><port type="output" from="BEL_FF-SB_FF[4]" name="E"/></direct>
-				<direct><port type="input" name="E"/><port type="output" from="BEL_FF-SB_FF[5]" name="E"/></direct>
-				<direct><port type="input" name="E"/><port type="output" from="BEL_FF-SB_FF[6]" name="E"/></direct>
-				<direct><port type="input" name="E"/><port type="output" from="BEL_FF-SB_FF[7]" name="E"/></direct>
-				<!-- Global Set -->
-				<direct><port type="input" name="S"/><port type="output" from="BEL_FF-SB_FF[0]" name="S"/></direct>
-				<direct><port type="input" name="S"/><port type="output" from="BEL_FF-SB_FF[1]" name="S"/></direct>
-				<direct><port type="input" name="S"/><port type="output" from="BEL_FF-SB_FF[2]" name="S"/></direct>
-				<direct><port type="input" name="S"/><port type="output" from="BEL_FF-SB_FF[3]" name="S"/></direct>
-				<direct><port type="input" name="S"/><port type="output" from="BEL_FF-SB_FF[4]" name="S"/></direct>
-				<direct><port type="input" name="S"/><port type="output" from="BEL_FF-SB_FF[5]" name="S"/></direct>
-				<direct><port type="input" name="S"/><port type="output" from="BEL_FF-SB_FF[6]" name="S"/></direct>
-				<direct><port type="input" name="S"/><port type="output" from="BEL_FF-SB_FF[7]" name="S"/></direct>
-				<!-- Global Reset -->
-				<direct><port type="input" name="R"/><port type="output" from="BEL_FF-SB_FF[0]" name="R"/></direct>
-				<direct><port type="input" name="R"/><port type="output" from="BEL_FF-SB_FF[1]" name="R"/></direct>
-				<direct><port type="input" name="R"/><port type="output" from="BEL_FF-SB_FF[2]" name="R"/></direct>
-				<direct><port type="input" name="R"/><port type="output" from="BEL_FF-SB_FF[3]" name="R"/></direct>
-				<direct><port type="input" name="R"/><port type="output" from="BEL_FF-SB_FF[4]" name="R"/></direct>
-				<direct><port type="input" name="R"/><port type="output" from="BEL_FF-SB_FF[5]" name="R"/></direct>
-				<direct><port type="input" name="R"/><port type="output" from="BEL_FF-SB_FF[6]" name="R"/></direct>
-				<direct><port type="input" name="R"/><port type="output" from="BEL_FF-SB_FF[7]" name="R"/></direct>
-				<!-- Data In -->
-				<direct><port type="input" name="D[0]"/><port type="output" from="BEL_FF-SB_FF[0]" name="D"/></direct>
-				<direct><port type="input" name="D[1]"/><port type="output" from="BEL_FF-SB_FF[1]" name="D"/></direct>
-				<direct><port type="input" name="D[2]"/><port type="output" from="BEL_FF-SB_FF[2]" name="D"/></direct>
-				<direct><port type="input" name="D[3]"/><port type="output" from="BEL_FF-SB_FF[3]" name="D"/></direct>
-				<direct><port type="input" name="D[4]"/><port type="output" from="BEL_FF-SB_FF[4]" name="D"/></direct>
-				<direct><port type="input" name="D[5]"/><port type="output" from="BEL_FF-SB_FF[5]" name="D"/></direct>
-				<direct><port type="input" name="D[6]"/><port type="output" from="BEL_FF-SB_FF[6]" name="D"/></direct>
-				<direct><port type="input" name="D[7]"/><port type="output" from="BEL_FF-SB_FF[7]" name="D"/></direct>
-				<!-- Data Out -->
-				<direct><port type="input" from="BEL_FF-SB_FF[0]" name="Q"/><port type="output" name="Q[0]"/></direct>
-				<direct><port type="input" from="BEL_FF-SB_FF[1]" name="Q"/><port type="output" name="Q[1]"/></direct>
-				<direct><port type="input" from="BEL_FF-SB_FF[2]" name="Q"/><port type="output" name="Q[2]"/></direct>
-				<direct><port type="input" from="BEL_FF-SB_FF[3]" name="Q"/><port type="output" name="Q[3]"/></direct>
-				<direct><port type="input" from="BEL_FF-SB_FF[4]" name="Q"/><port type="output" name="Q[4]"/></direct>
-				<direct><port type="input" from="BEL_FF-SB_FF[5]" name="Q"/><port type="output" name="Q[5]"/></direct>
-				<direct><port type="input" from="BEL_FF-SB_FF[6]" name="Q"/><port type="output" name="Q[6]"/></direct>
-				<direct><port type="input" from="BEL_FF-SB_FF[7]" name="Q"/><port type="output" name="Q[7]"/></direct>
-			</interconnect>
-		</mode><!-- NCLK+CEN+SR -->
-	</pb_type>
+    <!-- module SB_DFFNESS (output Q, input C, E, S, D); -->
+    <mode name="SB_DFFNESS">
+     <pb_type name="SB_DFFNESS" num_pb="1" blif_model=".subckt SB_DFFNESS">
+      <clock  name="C" num_pins="1"/>
+      <input  name="E" num_pins="1"/>
+      <input  name="S" num_pins="1"/>
+      <input  name="D" num_pins="1"/>
+      <output name="Q" num_pins="1"/>
+      <T_setup    value="10e-12" port="SB_DFFNESS.E" clock="C"/>
+      <T_setup    value="10e-12" port="SB_DFFNESS.S" clock="C"/>
+      <T_setup    value="10e-12" port="SB_DFFNESS.D" clock="C"/>
+      <T_clock_to_Q max="10e-12" port="SB_DFFNESS.Q" clock="C"/>
+      <metadata>
+       <meta name="hlc_property">
+           # - SB_DFFNESS
+           enable_dff
+           # NegClk
+           # use_cen
+           # sync_setreset
+           set_noreset
+       </meta>
+      </metadata>
+     </pb_type>
+     <interconnect>
+      <direct><port type="input" name="C"/><port type="output" from="SB_DFFNESS" name="C"/></direct>
+      <direct><port type="input" name="E"/><port type="output" from="SB_DFFNESS" name="E"/></direct>
+      <direct><port type="input" name="S"/><port type="output" from="SB_DFFNESS" name="S"/></direct>
+      <direct><port type="input" name="D"/><port type="output" from="SB_DFFNESS" name="D"/>
+       <pack_pattern name="LUT+FFQ" in_port="BEL_FF-SB_FF.D" out_port="SB_DFFNESS.D" />
+      </direct>
+      <direct><port type="input" from="SB_DFFNESS" name="Q" /><port type="output" name="Q"/></direct>
+     </interconnect>
+    </mode><!--SB_DFFNESS -->
+    <metadata>
+     <meta name="hlc_cell">lutff</meta>
+    </metadata>
+   </pb_type>
+   <interconnect>
+    <!-- Global Clock -->
+    <direct><port type="input" name="C"/><port type="output" from="BEL_FF-SB_FF[0]" name="C"/></direct>
+    <direct><port type="input" name="C"/><port type="output" from="BEL_FF-SB_FF[1]" name="C"/></direct>
+    <direct><port type="input" name="C"/><port type="output" from="BEL_FF-SB_FF[2]" name="C"/></direct>
+    <direct><port type="input" name="C"/><port type="output" from="BEL_FF-SB_FF[3]" name="C"/></direct>
+    <direct><port type="input" name="C"/><port type="output" from="BEL_FF-SB_FF[4]" name="C"/></direct>
+    <direct><port type="input" name="C"/><port type="output" from="BEL_FF-SB_FF[5]" name="C"/></direct>
+    <direct><port type="input" name="C"/><port type="output" from="BEL_FF-SB_FF[6]" name="C"/></direct>
+    <direct><port type="input" name="C"/><port type="output" from="BEL_FF-SB_FF[7]" name="C"/></direct>
+    <!-- Global Clock Enable -->
+    <direct><port type="input" name="E"/><port type="output" from="BEL_FF-SB_FF[0]" name="E"/></direct>
+    <direct><port type="input" name="E"/><port type="output" from="BEL_FF-SB_FF[1]" name="E"/></direct>
+    <direct><port type="input" name="E"/><port type="output" from="BEL_FF-SB_FF[2]" name="E"/></direct>
+    <direct><port type="input" name="E"/><port type="output" from="BEL_FF-SB_FF[3]" name="E"/></direct>
+    <direct><port type="input" name="E"/><port type="output" from="BEL_FF-SB_FF[4]" name="E"/></direct>
+    <direct><port type="input" name="E"/><port type="output" from="BEL_FF-SB_FF[5]" name="E"/></direct>
+    <direct><port type="input" name="E"/><port type="output" from="BEL_FF-SB_FF[6]" name="E"/></direct>
+    <direct><port type="input" name="E"/><port type="output" from="BEL_FF-SB_FF[7]" name="E"/></direct>
+    <!-- Global Set -->
+    <direct><port type="input" name="S"/><port type="output" from="BEL_FF-SB_FF[0]" name="S"/></direct>
+    <direct><port type="input" name="S"/><port type="output" from="BEL_FF-SB_FF[1]" name="S"/></direct>
+    <direct><port type="input" name="S"/><port type="output" from="BEL_FF-SB_FF[2]" name="S"/></direct>
+    <direct><port type="input" name="S"/><port type="output" from="BEL_FF-SB_FF[3]" name="S"/></direct>
+    <direct><port type="input" name="S"/><port type="output" from="BEL_FF-SB_FF[4]" name="S"/></direct>
+    <direct><port type="input" name="S"/><port type="output" from="BEL_FF-SB_FF[5]" name="S"/></direct>
+    <direct><port type="input" name="S"/><port type="output" from="BEL_FF-SB_FF[6]" name="S"/></direct>
+    <direct><port type="input" name="S"/><port type="output" from="BEL_FF-SB_FF[7]" name="S"/></direct>
+    <!-- Global Reset -->
+    <direct><port type="input" name="R"/><port type="output" from="BEL_FF-SB_FF[0]" name="R"/></direct>
+    <direct><port type="input" name="R"/><port type="output" from="BEL_FF-SB_FF[1]" name="R"/></direct>
+    <direct><port type="input" name="R"/><port type="output" from="BEL_FF-SB_FF[2]" name="R"/></direct>
+    <direct><port type="input" name="R"/><port type="output" from="BEL_FF-SB_FF[3]" name="R"/></direct>
+    <direct><port type="input" name="R"/><port type="output" from="BEL_FF-SB_FF[4]" name="R"/></direct>
+    <direct><port type="input" name="R"/><port type="output" from="BEL_FF-SB_FF[5]" name="R"/></direct>
+    <direct><port type="input" name="R"/><port type="output" from="BEL_FF-SB_FF[6]" name="R"/></direct>
+    <direct><port type="input" name="R"/><port type="output" from="BEL_FF-SB_FF[7]" name="R"/></direct>
+    <!-- Data In -->
+    <direct><port type="input" name="D[0]"/><port type="output" from="BEL_FF-SB_FF[0]" name="D"/></direct>
+    <direct><port type="input" name="D[1]"/><port type="output" from="BEL_FF-SB_FF[1]" name="D"/></direct>
+    <direct><port type="input" name="D[2]"/><port type="output" from="BEL_FF-SB_FF[2]" name="D"/></direct>
+    <direct><port type="input" name="D[3]"/><port type="output" from="BEL_FF-SB_FF[3]" name="D"/></direct>
+    <direct><port type="input" name="D[4]"/><port type="output" from="BEL_FF-SB_FF[4]" name="D"/></direct>
+    <direct><port type="input" name="D[5]"/><port type="output" from="BEL_FF-SB_FF[5]" name="D"/></direct>
+    <direct><port type="input" name="D[6]"/><port type="output" from="BEL_FF-SB_FF[6]" name="D"/></direct>
+    <direct><port type="input" name="D[7]"/><port type="output" from="BEL_FF-SB_FF[7]" name="D"/></direct>
+    <!-- Data Out -->
+    <direct><port type="input" from="BEL_FF-SB_FF[0]" name="Q"/><port type="output" name="Q[0]"/></direct>
+    <direct><port type="input" from="BEL_FF-SB_FF[1]" name="Q"/><port type="output" name="Q[1]"/></direct>
+    <direct><port type="input" from="BEL_FF-SB_FF[2]" name="Q"/><port type="output" name="Q[2]"/></direct>
+    <direct><port type="input" from="BEL_FF-SB_FF[3]" name="Q"/><port type="output" name="Q[3]"/></direct>
+    <direct><port type="input" from="BEL_FF-SB_FF[4]" name="Q"/><port type="output" name="Q[4]"/></direct>
+    <direct><port type="input" from="BEL_FF-SB_FF[5]" name="Q"/><port type="output" name="Q[5]"/></direct>
+    <direct><port type="input" from="BEL_FF-SB_FF[6]" name="Q"/><port type="output" name="Q[6]"/></direct>
+    <direct><port type="input" from="BEL_FF-SB_FF[7]" name="Q"/><port type="output" name="Q[7]"/></direct>
+   </interconnect>
+   <metadata>
+    <meta name="hlc_property">
+        NegClk
+        # use_cen
+        # use_setreset
+    </meta>
+    <meta name="hlc_cell">lutff</meta>
+   </metadata>
+  </mode><!-- NCLK+CEN+SR -->
+ </pb_type>
 
  <pb_type name="SB_CARRY" num_pb="8" blif_model=".subckt SB_CARRY">
   <input  name="I1" num_pins="1"/>
@@ -1159,142 +1236,86 @@
   <delay_constant max="10e-12" in_port="SB_CARRY.I0" out_port="SB_CARRY.CO"/>
   <metadata>
    <meta name="hlc_property">enable_carry</meta>
+   <meta name="hlc_cell">lutff</meta>
   </metadata>
  </pb_type>
 
  <interconnect>
-		<!-- LUT0 inputs 
+  <!-- LUT0 inputs -->
   <direct><port type="input" name="lutff_0/in[0]"/><port type="output" name="in[0]" from="BLK_IG-LUT4[0]"/></direct>
-							-->
-  <mux input="BLK_TL-PLB.lutff_0/in[0] SB_CARRY[0].CO" output="BLK_IG-LUT4[0].in[0]" name="BLK_IG-LUT4[0].in[0]">
-		</mux>
   <direct><port type="input" name="lutff_0/in[1]"/><port type="output" name="in[1]" from="BLK_IG-LUT4[0]"/></direct>
   <direct><port type="input" name="lutff_0/in[2]"/><port type="output" name="in[2]" from="BLK_IG-LUT4[0]"/></direct>
-		<direct><port type="input" name="lutff_0/in[3]"/><port type="output" name="in[3]" from="BLK_IG-LUT4[0]"/></direct>
+  <direct><port type="input" name="lutff_0/in[3]"/><port type="output" name="in[3]" from="BLK_IG-LUT4[0]"/></direct>
+  <!--
+  <mux input="BLK_TL-PLB.lutff_0/in[3] BLK_TL-PLB.FCIN" output="BLK_IG-LUT4[0].in[3]" name="BLK_IG-LUT4[0].in[3]"></mux>
+  -->
 
-		<!-- LUT1 inputs
-  <direct><port type="input" name="lutff_1/in[0]"/><port type="output" name="in[0]" from="BLK_IG-LUT4[1]"/></direct>
-							-->
-  <mux input="BLK_TL-PLB.lutff_1/in[0] SB_CARRY[1].CO" output="BLK_IG-LUT4[1].in[0]" name="BLK_IG-LUT4[1].in[0]">
-		</mux>
-  <direct><port type="input" name="lutff_1/in[1]"/><port type="output" name="in[1]" from="BLK_IG-LUT4[1]"/></direct>
-  <direct><port type="input" name="lutff_1/in[2]"/><port type="output" name="in[2]" from="BLK_IG-LUT4[1]"/></direct>
-  <direct><port type="input" name="lutff_1/in[3]"/><port type="output" name="in[3]" from="BLK_IG-LUT4[1]"/></direct>
+  <!-- LUT1 inputs -->
+  <direct><port type="input" name="lutff_1/in[0]"/><port type="output" from="BLK_IG-LUT4[1]" name="in[0]"/></direct>
+  <direct><port type="input" name="lutff_1/in[1]"/><port type="output" from="BLK_IG-LUT4[1]" name="in[1]"/></direct>
+  <mux input="BLK_TL-PLB.lutff_1/in[2] BLK_IG-LUT4[0].out" output="BLK_IG-LUT4[1].in[2]" name="BLK_IG-LUT4[1].in[2]"></mux>
+  <mux input="BLK_TL-PLB.lutff_1/in[3] SB_CARRY[0].CO"     output="BLK_IG-LUT4[1].in[3]" name="BLK_IG-LUT4[1].in[3]"></mux>
 
-		<!-- LUT2 inputs
-  <direct><port type="input" name="lutff_2/in[0]"/><port type="output" name="in[0]" from="BLK_IG-LUT4[2]"/></direct>
-							-->
-  <mux input="BLK_TL-PLB.lutff_2/in[0] SB_CARRY[2].CO" output="BLK_IG-LUT4[2].in[0]" name="BLK_IG-LUT4[2].in[0]">
-		</mux>
-  <direct><port type="input" name="lutff_2/in[1]"/><port type="output" name="in[1]" from="BLK_IG-LUT4[2]"/></direct>
-  <direct><port type="input" name="lutff_2/in[2]"/><port type="output" name="in[2]" from="BLK_IG-LUT4[2]"/></direct>
-  <direct><port type="input" name="lutff_2/in[3]"/><port type="output" name="in[3]" from="BLK_IG-LUT4[2]"/></direct>
+  <!-- LUT2 inputs -->
+  <direct><port type="input" name="lutff_2/in[0]"/><port type="output" from="BLK_IG-LUT4[2]" name="in[0]"/></direct>
+  <direct><port type="input" name="lutff_2/in[1]"/><port type="output" from="BLK_IG-LUT4[2]" name="in[1]"/></direct>
+  <mux input="BLK_TL-PLB.lutff_2/in[2] BLK_IG-LUT4[1].out" output="BLK_IG-LUT4[2].in[2]" name="BLK_IG-LUT4[2].in[2]"></mux>
+  <mux input="BLK_TL-PLB.lutff_2/in[3] SB_CARRY[1].CO"     output="BLK_IG-LUT4[2].in[3]" name="BLK_IG-LUT4[2].in[3]"></mux>
 
-		<!-- LUT3 inputs
-  <direct><port type="input" name="lutff_3/in[0]"/><port type="output" name="in[0]" from="BLK_IG-LUT4[3]"/></direct>
-							-->
-  <mux input="BLK_TL-PLB.lutff_3/in[0] SB_CARRY[3].CO" output="BLK_IG-LUT4[3].in[0]" name="BLK_IG-LUT4[3].in[0]">
-		</mux>
-  <direct><port type="input" name="lutff_3/in[1]"/><port type="output" name="in[1]" from="BLK_IG-LUT4[3]"/></direct>
-  <direct><port type="input" name="lutff_3/in[2]"/><port type="output" name="in[2]" from="BLK_IG-LUT4[3]"/></direct>
-		<direct><port type="input" name="lutff_3/in[3]"/><port type="output" name="in[3]" from="BLK_IG-LUT4[3]"/></direct>
+  <!-- LUT3 inputs -->
+  <direct><port type="input" name="lutff_3/in[0]"/><port type="output" from="BLK_IG-LUT4[3]" name="in[0]"/></direct>
+  <direct><port type="input" name="lutff_3/in[1]"/><port type="output" from="BLK_IG-LUT4[3]" name="in[1]"/></direct>
+  <mux input="BLK_TL-PLB.lutff_3/in[2] BLK_IG-LUT4[2].out" output="BLK_IG-LUT4[3].in[2]" name="BLK_IG-LUT4[3].in[2]"></mux>
+  <mux input="BLK_TL-PLB.lutff_3/in[3] SB_CARRY[2].CO"     output="BLK_IG-LUT4[3].in[3]" name="BLK_IG-LUT4[3].in[3]"></mux>
 
-		<!-- LUT4 inputs
-  <direct><port type="input" name="lutff_4/in[0]"/><port type="output" name="in[0]" from="BLK_IG-LUT4[4]"/></direct>
-							-->
-  <mux input="BLK_TL-PLB.lutff_4/in[0] SB_CARRY[4].CO" output="BLK_IG-LUT4[4].in[0]" name="BLK_IG-LUT4[4].in[0]">
-		</mux>
-  <direct><port type="input" name="lutff_4/in[1]"/><port type="output" name="in[1]" from="BLK_IG-LUT4[4]"/></direct>
-  <direct><port type="input" name="lutff_4/in[2]"/><port type="output" name="in[2]" from="BLK_IG-LUT4[4]"/></direct>
-  <direct><port type="input" name="lutff_4/in[3]"/><port type="output" name="in[3]" from="BLK_IG-LUT4[4]"/></direct>
+  <!-- LUT4 inputs -->
+  <direct><port type="input" name="lutff_4/in[0]"/><port type="output" from="BLK_IG-LUT4[4]" name="in[0]"/></direct>
+  <direct><port type="input" name="lutff_4/in[1]"/><port type="output" from="BLK_IG-LUT4[4]" name="in[1]"/></direct>
+  <mux input="BLK_TL-PLB.lutff_4/in[2] BLK_IG-LUT4[3].out" output="BLK_IG-LUT4[4].in[2]" name="BLK_IG-LUT4[4].in[2]"></mux>
+  <mux input="BLK_TL-PLB.lutff_4/in[3] SB_CARRY[3].CO"     output="BLK_IG-LUT4[4].in[3]" name="BLK_IG-LUT4[4].in[3]"></mux>
 
-		<!-- LUT5 inputs
-  <direct><port type="input" name="lutff_5/in[0]"/><port type="output" name="in[0]" from="BLK_IG-LUT4[5]"/></direct>
-							-->
-  <mux input="BLK_TL-PLB.lutff_5/in[0] SB_CARRY[5].CO" output="BLK_IG-LUT4[5].in[0]" name="BLK_IG-LUT4[5].in[0]">
-		</mux>
-  <direct><port type="input" name="lutff_5/in[1]"/><port type="output" name="in[1]" from="BLK_IG-LUT4[5]"/></direct>
-  <direct><port type="input" name="lutff_5/in[2]"/><port type="output" name="in[2]" from="BLK_IG-LUT4[5]"/></direct>
-		<direct><port type="input" name="lutff_5/in[3]"/><port type="output" name="in[3]" from="BLK_IG-LUT4[5]"/></direct>
+  <!-- LUT5 inputs -->
+  <direct><port type="input" name="lutff_5/in[0]"/><port type="output" from="BLK_IG-LUT4[5]" name="in[0]"/></direct>
+  <direct><port type="input" name="lutff_5/in[1]"/><port type="output" from="BLK_IG-LUT4[5]" name="in[1]"/></direct>
+  <mux input="BLK_TL-PLB.lutff_5/in[2] BLK_IG-LUT4[4].out" output="BLK_IG-LUT4[5].in[2]" name="BLK_IG-LUT4[5].in[2]"></mux>
+  <mux input="BLK_TL-PLB.lutff_5/in[3] SB_CARRY[4].CO"     output="BLK_IG-LUT4[5].in[3]" name="BLK_IG-LUT4[5].in[3]"></mux>
 
-		<!-- LUT6 inputs
-  <direct><port type="input" name="lutff_6/in[0]"/><port type="output" name="in[0]" from="BLK_IG-LUT4[6]"/></direct>
-							-->
-  <mux input="BLK_TL-PLB.lutff_6/in[0] SB_CARRY[6].CO" output="BLK_IG-LUT4[6].in[0]" name="BLK_IG-LUT4[6].in[0]">
-		</mux>
-  <direct><port type="input" name="lutff_6/in[1]"/><port type="output" name="in[1]" from="BLK_IG-LUT4[6]"/></direct>
-  <direct><port type="input" name="lutff_6/in[2]"/><port type="output" name="in[2]" from="BLK_IG-LUT4[6]"/></direct>
-		<direct><port type="input" name="lutff_6/in[3]"/><port type="output" name="in[3]" from="BLK_IG-LUT4[6]"/></direct>
+  <!-- LUT6 inputs -->
+  <direct><port type="input" name="lutff_6/in[0]"/><port type="output" from="BLK_IG-LUT4[6]" name="in[0]"/></direct>
+  <direct><port type="input" name="lutff_6/in[1]"/><port type="output" from="BLK_IG-LUT4[6]" name="in[1]"/></direct>
+  <mux input="BLK_TL-PLB.lutff_6/in[2] BLK_IG-LUT4[5].out" output="BLK_IG-LUT4[6].in[2]" name="BLK_IG-LUT4[6].in[2]"></mux>
+  <mux input="BLK_TL-PLB.lutff_6/in[3] SB_CARRY[5].CO"     output="BLK_IG-LUT4[6].in[3]" name="BLK_IG-LUT4[6].in[3]"></mux>
 
-		<!-- LUT7 inputs
-  <direct><port type="input" name="lutff_7/in[0]"/><port type="output" name="in[0]" from="BLK_IG-LUT4[7]"/></direct>
-							-->
-  <mux input="BLK_TL-PLB.lutff_7/in[0] SB_CARRY[7].CO" output="BLK_IG-LUT4[7].in[0]" name="BLK_IG-LUT4[7].in[0]">
-		</mux>
-  <direct><port type="input" name="lutff_7/in[1]"/><port type="output" name="in[1]" from="BLK_IG-LUT4[7]"/></direct>
-  <direct><port type="input" name="lutff_7/in[2]"/><port type="output" name="in[2]" from="BLK_IG-LUT4[7]"/></direct>
-		<direct><port type="input" name="lutff_7/in[3]"/><port type="output" name="in[3]" from="BLK_IG-LUT4[7]"/></direct>
+  <!-- LUT7 inputs -->
+  <direct><port type="input" name="lutff_7/in[0]"/><port type="output" from="BLK_IG-LUT4[7]" name="in[0]"/></direct>
+  <direct><port type="input" name="lutff_7/in[1]"/><port type="output" from="BLK_IG-LUT4[7]" name="in[1]"/></direct>
+  <mux input="BLK_TL-PLB.lutff_7/in[2] BLK_IG-LUT4[6].out" output="BLK_IG-LUT4[7].in[2]" name="BLK_IG-LUT4[7].in[2]"></mux>
+  <mux input="BLK_TL-PLB.lutff_7/in[3] SB_CARRY[6].CO"     output="BLK_IG-LUT4[7].in[3]" name="BLK_IG-LUT4[7].in[3]"></mux>
 
   <!-- D flip-flop controls -->
-		<!-- Global Clock
-  <direct><port type="input" name="lutff_global/clk"/><port type="output" name="C" from="BEL_FF-SB_FF[0]"/></direct>
-		<direct><port type="input" name="lutff_global/clk"/><port type="output" name="C" from="BEL_FF-SB_FF[1]"/></direct>
-		<direct><port type="input" name="lutff_global/clk"/><port type="output" name="C" from="BEL_FF-SB_FF[2]"/></direct>
-		<direct><port type="input" name="lutff_global/clk"/><port type="output" name="C" from="BEL_FF-SB_FF[3]"/></direct>
-		<direct><port type="input" name="lutff_global/clk"/><port type="output" name="C" from="BEL_FF-SB_FF[4]"/></direct>
-		<direct><port type="input" name="lutff_global/clk"/><port type="output" name="C" from="BEL_FF-SB_FF[5]"/></direct>
-		<direct><port type="input" name="lutff_global/clk"/><port type="output" name="C" from="BEL_FF-SB_FF[6]"/></direct>
-		<direct><port type="input" name="lutff_global/clk"/><port type="output" name="C" from="BEL_FF-SB_FF[7]"/></direct>
-							-->
+  <!-- Global Clock -->
   <direct><port type="input" name="lutff_global/clk"/><port type="output" name="C" from="BLK_IG-FF_MODE"/></direct>
 
-		<!-- Global Set
-  <direct><port type="input" name="lutff_global/s_r"/><port type="output" name="S" from="BEL_FF-SB_FF[0]"/></direct>
-		<direct><port type="input" name="lutff_global/s_r"/><port type="output" name="S" from="BEL_FF-SB_FF[1]"/></direct>
-		<direct><port type="input" name="lutff_global/s_r"/><port type="output" name="S" from="BEL_FF-SB_FF[2]"/></direct>
-		<direct><port type="input" name="lutff_global/s_r"/><port type="output" name="S" from="BEL_FF-SB_FF[3]"/></direct>
-		<direct><port type="input" name="lutff_global/s_r"/><port type="output" name="S" from="BEL_FF-SB_FF[4]"/></direct>
-		<direct><port type="input" name="lutff_global/s_r"/><port type="output" name="S" from="BEL_FF-SB_FF[5]"/></direct>
-		<direct><port type="input" name="lutff_global/s_r"/><port type="output" name="S" from="BEL_FF-SB_FF[6]"/></direct>
-		<direct><port type="input" name="lutff_global/s_r"/><port type="output" name="S" from="BEL_FF-SB_FF[7]"/></direct>
-							-->
+  <!-- Global Set -->
   <direct><port type="input" name="lutff_global/s_r"/><port type="output" name="S" from="BLK_IG-FF_MODE"/></direct>
 
-		<!-- Global Reset
-  <direct><port type="input" name="lutff_global/s_r"/><port type="output" name="R" from="BEL_FF-SB_FF[0]"/></direct>
-		<direct><port type="input" name="lutff_global/s_r"/><port type="output" name="R" from="BEL_FF-SB_FF[1]"/></direct>
-		<direct><port type="input" name="lutff_global/s_r"/><port type="output" name="R" from="BEL_FF-SB_FF[2]"/></direct>
-		<direct><port type="input" name="lutff_global/s_r"/><port type="output" name="R" from="BEL_FF-SB_FF[3]"/></direct>
-		<direct><port type="input" name="lutff_global/s_r"/><port type="output" name="R" from="BEL_FF-SB_FF[4]"/></direct>
-		<direct><port type="input" name="lutff_global/s_r"/><port type="output" name="R" from="BEL_FF-SB_FF[5]"/></direct>
-		<direct><port type="input" name="lutff_global/s_r"/><port type="output" name="R" from="BEL_FF-SB_FF[6]"/></direct>
-		<direct><port type="input" name="lutff_global/s_r"/><port type="output" name="R" from="BEL_FF-SB_FF[7]"/></direct>
-							-->
+  <!-- Global Reset -->
   <direct><port type="input" name="lutff_global/s_r"/><port type="output" name="R" from="BLK_IG-FF_MODE"/></direct>
 
-		<!-- Global Clock Enable
-  <direct><port type="input" name="lutff_global/cen"/><port type="output" name="E" from="BEL_FF-SB_FF[0]"/></direct>
-  <direct><port type="input" name="lutff_global/cen"/><port type="output" name="E" from="BEL_FF-SB_FF[1]"/></direct>
-  <direct><port type="input" name="lutff_global/cen"/><port type="output" name="E" from="BEL_FF-SB_FF[2]"/></direct>
-  <direct><port type="input" name="lutff_global/cen"/><port type="output" name="E" from="BEL_FF-SB_FF[3]"/></direct>
-  <direct><port type="input" name="lutff_global/cen"/><port type="output" name="E" from="BEL_FF-SB_FF[4]"/></direct>
-  <direct><port type="input" name="lutff_global/cen"/><port type="output" name="E" from="BEL_FF-SB_FF[5]"/></direct>
-  <direct><port type="input" name="lutff_global/cen"/><port type="output" name="E" from="BEL_FF-SB_FF[6]"/></direct>
-  <direct><port type="input" name="lutff_global/cen"/><port type="output" name="E" from="BEL_FF-SB_FF[7]"/></direct>
-							-->
+  <!-- Global Clock Enable -->
   <direct><port type="input" name="lutff_global/cen"/><port type="output" name="E" from="BLK_IG-FF_MODE"/></direct>
 
   <!-- D flip-flop inputs -->
-		<direct><port type="input" name="out" from="BLK_IG-LUT4[0]" /><port type="output" name="D[0]" from="BLK_IG-FF_MODE"/></direct>
-		<direct><port type="input" name="out" from="BLK_IG-LUT4[1]" /><port type="output" name="D[1]" from="BLK_IG-FF_MODE"/></direct>
-		<direct><port type="input" name="out" from="BLK_IG-LUT4[2]" /><port type="output" name="D[2]" from="BLK_IG-FF_MODE"/></direct>
-		<direct><port type="input" name="out" from="BLK_IG-LUT4[3]" /><port type="output" name="D[3]" from="BLK_IG-FF_MODE"/></direct>
-		<direct><port type="input" name="out" from="BLK_IG-LUT4[4]" /><port type="output" name="D[4]" from="BLK_IG-FF_MODE"/></direct>
-		<direct><port type="input" name="out" from="BLK_IG-LUT4[5]" /><port type="output" name="D[5]" from="BLK_IG-FF_MODE"/></direct>
-		<direct><port type="input" name="out" from="BLK_IG-LUT4[6]" /><port type="output" name="D[6]" from="BLK_IG-FF_MODE"/></direct>
-		<direct><port type="input" name="out" from="BLK_IG-LUT4[7]" /><port type="output" name="D[7]" from="BLK_IG-FF_MODE"/></direct>
+  <direct><port type="input" name="out" from="BLK_IG-LUT4[0]" /><port type="output" name="D[0]" from="BLK_IG-FF_MODE"/></direct>
+  <direct><port type="input" name="out" from="BLK_IG-LUT4[1]" /><port type="output" name="D[1]" from="BLK_IG-FF_MODE"/></direct>
+  <direct><port type="input" name="out" from="BLK_IG-LUT4[2]" /><port type="output" name="D[2]" from="BLK_IG-FF_MODE"/></direct>
+  <direct><port type="input" name="out" from="BLK_IG-LUT4[3]" /><port type="output" name="D[3]" from="BLK_IG-FF_MODE"/></direct>
+  <direct><port type="input" name="out" from="BLK_IG-LUT4[4]" /><port type="output" name="D[4]" from="BLK_IG-FF_MODE"/></direct>
+  <direct><port type="input" name="out" from="BLK_IG-LUT4[5]" /><port type="output" name="D[5]" from="BLK_IG-FF_MODE"/></direct>
+  <direct><port type="input" name="out" from="BLK_IG-LUT4[6]" /><port type="output" name="D[6]" from="BLK_IG-FF_MODE"/></direct>
+  <direct><port type="input" name="out" from="BLK_IG-LUT4[7]" /><port type="output" name="D[7]" from="BLK_IG-FF_MODE"/></direct>
 
-		<!-- Data Out -->
+  <!-- Data Out -->
   <mux input="BLK_IG-LUT4[0].out BLK_IG-FF_MODE.Q[0]" output="BLK_TL-PLB.lutff_0/out" name="BLK_TL-PLB-lutff_0/out" />
   <mux input="BLK_IG-LUT4[1].out BLK_IG-FF_MODE.Q[1]" output="BLK_TL-PLB.lutff_1/out" name="BLK_TL-PLB-lutff_1/out" />
   <mux input="BLK_IG-LUT4[2].out BLK_IG-FF_MODE.Q[2]" output="BLK_TL-PLB.lutff_2/out" name="BLK_TL-PLB-lutff_2/out" />
@@ -1308,117 +1329,119 @@
   <!-- Fast Carry chain
   <direct><port type="input" name="FCIN"/><port type="output" name="FCIN" from="BLK_TL-PLB" /></direct>
   <direct><port type="input" name="FCOUT" from="BLK_TL-PLB" /><port type="output" name="FCOUT"/></direct>
-							-->
-		<!--
+       -->
+  <!--
   <mux input="BLK_TL-PLB.FCIN BLK_TL-PLB.lutff_0/cin[0]" output="SB_CARRY[0].CI" name="SB_CARRY[0].CI">
    <pack_pattern name="CTEMP" in_port="BLK_TL-PLB.FCIN" out_port="SB_CARRY[0].CI" />
-		</mux>
-		-->
-		<direct><port type="input" name="FCIN"/><port type="output" name="CI" from="SB_CARRY[0]" />
-		</direct>
-		<direct><port type="input" name="lutff_0/in[1]"/><port type="output" name="I0" from="SB_CARRY[0]" />
-		</direct>
-		<direct><port type="input" name="lutff_0/in[2]"/><port type="output" name="I1" from="SB_CARRY[0]" />
-		</direct>
-		<direct><port type="input" name="CO" from="SB_CARRY[0]"/><port type="output" name="lutff_0/cout"  /></direct>
+  </mux>
+  <direct><port type="input" name="FCIN"/><port type="output" name="CI" from="SB_CARRY[0]" />
+  </direct>
+  -->
+  <direct><port type="input" name="lutff_0/in[3]"/><port type="output" name="CI" from="SB_CARRY[0]" />
+  </direct>
+  <direct><port type="input" name="lutff_0/in[1]"/><port type="output" name="I0" from="SB_CARRY[0]" />
+  </direct>
+  <direct><port type="input" name="lutff_0/in[2]"/><port type="output" name="I1" from="SB_CARRY[0]" />
+  </direct>
+  <!--
+  <direct><port type="input" name="CO" from="SB_CARRY[0]"/><port type="output" name="lutff_0/cout"  /></direct>
 
-		<!--
   <mux input="SB_CARRY[0].CO BLK_TL-PLB.lutff_1/cin[0]" output="SB_CARRY[1].CI" name="SB_CARRY[1].CI">
    <pack_pattern name="CTEMP" in_port="SB_CARRY[0].CO" out_port="SB_CARRY[1].CI" />
-		</mux>
-		-->
-		<direct><port type="input" name="CO" from="SB_CARRY[0]"/><port type="output" name="CI" from="SB_CARRY[1]" />
-		</direct>
-		<direct><port type="input" name="lutff_1/in[1]"/><port type="output" name="I0" from="SB_CARRY[1]" />
-		</direct>
-		<direct><port type="input" name="lutff_1/in[2]"/><port type="output" name="I1" from="SB_CARRY[1]" />
-		</direct>
-		<direct><port type="input" name="CO" from="SB_CARRY[1]"/><port type="output" name="lutff_1/cout"  /></direct>
+  </mux>
+  -->
+  <direct><port type="input" name="CO" from="SB_CARRY[0]"/><port type="output" name="CI" from="SB_CARRY[1]" />
+  </direct>
+  <direct><port type="input" name="lutff_1/in[1]"/><port type="output" name="I0" from="SB_CARRY[1]" />
+  </direct>
+  <direct><port type="input" name="lutff_1/in[2]"/><port type="output" name="I1" from="SB_CARRY[1]" />
+  </direct>
+  <!--
+  <direct><port type="input" name="CO" from="SB_CARRY[1]"/><port type="output" name="lutff_1/cout"  /></direct>
 
-		<!--
   <mux input="SB_CARRY[1].CO BLK_TL-PLB.lutff_2/cin[0]" output="SB_CARRY[2].CI" name="SB_CARRY[2].CI">
    <pack_pattern name="CTEMP" in_port="SB_CARRY[1].CO" out_port="SB_CARRY[2].CI" />
-		</mux>
-		-->
-		<direct><port type="input" name="CO" from="SB_CARRY[1]"/><port type="output" name="CI" from="SB_CARRY[2]" />
-		</direct>
-		<direct><port type="input" name="lutff_2/in[1]"/><port type="output" name="I0" from="SB_CARRY[2]" />
-		</direct>
-		<direct><port type="input" name="lutff_2/in[2]"/><port type="output" name="I1" from="SB_CARRY[2]" />
-		</direct>
-		<direct><port type="input" name="CO" from="SB_CARRY[2]"/><port type="output" name="lutff_2/cout"  /></direct>
+  </mux>
+  -->
+  <direct><port type="input" name="CO" from="SB_CARRY[1]"/><port type="output" name="CI" from="SB_CARRY[2]" />
+  </direct>
+  <direct><port type="input" name="lutff_2/in[1]"/><port type="output" name="I0" from="SB_CARRY[2]" />
+  </direct>
+  <direct><port type="input" name="lutff_2/in[2]"/><port type="output" name="I1" from="SB_CARRY[2]" />
+  </direct>
+  <!--
+  <direct><port type="input" name="CO" from="SB_CARRY[2]"/><port type="output" name="lutff_2/cout"  /></direct>
 
-		<!--
   <mux input="SB_CARRY[2].CO BLK_TL-PLB.lutff_3/cin[0]" output="SB_CARRY[3].CI" name="SB_CARRY[3].CI">
    <pack_pattern name="CTEMP" in_port="SB_CARRY[2].CO" out_port="SB_CARRY[3].CI" />
-		</mux>
-		-->
-		<direct><port type="input" name="CO" from="SB_CARRY[2]"/><port type="output" name="CI" from="SB_CARRY[3]" />
-		</direct>
-		<direct><port type="input" name="lutff_3/in[1]"/><port type="output" name="I0" from="SB_CARRY[3]" />
-		</direct>
-		<direct><port type="input" name="lutff_3/in[2]"/><port type="output" name="I1" from="SB_CARRY[3]" />
-		</direct>
-		<direct><port type="input" name="CO" from="SB_CARRY[3]"/><port type="output" name="lutff_3/cout"  /></direct>
+  </mux>
+  -->
+  <direct><port type="input" name="CO" from="SB_CARRY[2]"/><port type="output" name="CI" from="SB_CARRY[3]" />
+  </direct>
+  <direct><port type="input" name="lutff_3/in[1]"/><port type="output" name="I0" from="SB_CARRY[3]" />
+  </direct>
+  <direct><port type="input" name="lutff_3/in[2]"/><port type="output" name="I1" from="SB_CARRY[3]" />
+  </direct>
+  <!--
+  <direct><port type="input" name="CO" from="SB_CARRY[3]"/><port type="output" name="lutff_3/cout"  /></direct>
 
-		<!--
   <mux input="SB_CARRY[3].CO BLK_TL-PLB.lutff_4/cin[0]" output="SB_CARRY[4].CI" name="SB_CARRY[4].CI">
    <pack_pattern name="CTEMP" in_port="SB_CARRY[3].CO" out_port="SB_CARRY[4].CI" />
-		</mux>
-		-->
-		<direct><port type="input" name="CO" from="SB_CARRY[3]"/><port type="output" name="CI" from="SB_CARRY[4]" />
-		</direct>
-		<direct><port type="input" name="lutff_4/in[1]"/><port type="output" name="I0" from="SB_CARRY[4]" />
-		</direct>
-		<direct><port type="input" name="lutff_4/in[2]"/><port type="output" name="I1" from="SB_CARRY[4]" />
-		</direct>
-		<direct><port type="input" name="CO" from="SB_CARRY[4]"/><port type="output" name="lutff_4/cout"  /></direct>
+  </mux>
+  -->
+  <direct><port type="input" name="CO" from="SB_CARRY[3]"/><port type="output" name="CI" from="SB_CARRY[4]" />
+  </direct>
+  <direct><port type="input" name="lutff_4/in[1]"/><port type="output" name="I0" from="SB_CARRY[4]" />
+  </direct>
+  <direct><port type="input" name="lutff_4/in[2]"/><port type="output" name="I1" from="SB_CARRY[4]" />
+  </direct>
+  <!--
+  <direct><port type="input" name="CO" from="SB_CARRY[4]"/><port type="output" name="lutff_4/cout"  /></direct>
 
-		<!--
   <mux input="SB_CARRY[4].CO BLK_TL-PLB.lutff_5/cin[0]" output="SB_CARRY[5].CI" name="SB_CARRY[5].CI">
    <pack_pattern name="CTEMP" in_port="SB_CARRY[4].CO" out_port="SB_CARRY[5].CI" />
-		</mux>
-		-->
-		<direct><port type="input" name="CO" from="SB_CARRY[4]"/><port type="output" name="CI" from="SB_CARRY[5]" />
-		</direct>
-		<direct><port type="input" name="lutff_5/in[1]"/><port type="output" name="I0" from="SB_CARRY[5]" />
-		</direct>
-		<direct><port type="input" name="lutff_5/in[2]"/><port type="output" name="I1" from="SB_CARRY[5]" />
-		</direct>
-		<direct><port type="input" name="CO" from="SB_CARRY[5]"/><port type="output" name="lutff_5/cout"  /></direct>
+  </mux>
+  -->
+  <direct><port type="input" name="CO" from="SB_CARRY[4]"/><port type="output" name="CI" from="SB_CARRY[5]" />
+  </direct>
+  <direct><port type="input" name="lutff_5/in[1]"/><port type="output" name="I0" from="SB_CARRY[5]" />
+  </direct>
+  <direct><port type="input" name="lutff_5/in[2]"/><port type="output" name="I1" from="SB_CARRY[5]" />
+  </direct>
+  <!--
+  <direct><port type="input" name="CO" from="SB_CARRY[5]"/><port type="output" name="lutff_5/cout"  /></direct>
 
-		<!--
   <mux input="SB_CARRY[5].CO BLK_TL-PLB.lutff_6/cin[0]" output="SB_CARRY[6].CI" name="SB_CARRY[6].CI">
    <pack_pattern name="CTEMP" in_port="SB_CARRY[5].CO" out_port="SB_CARRY[6].CI" />
-		</mux>
-		-->
-		<direct><port type="input" name="CO" from="SB_CARRY[5]"/><port type="output" name="CI" from="SB_CARRY[6]" />
-		</direct>
-		<direct><port type="input" name="lutff_6/in[1]"/><port type="output" name="I0" from="SB_CARRY[6]" />
-		</direct>
-		<direct><port type="input" name="lutff_6/in[2]"/><port type="output" name="I1" from="SB_CARRY[6]" />
-		</direct>
-		<direct><port type="input" name="CO" from="SB_CARRY[6]"/><port type="output" name="lutff_6/cout"  /></direct>
+  </mux>
+  -->
+  <direct><port type="input" name="CO" from="SB_CARRY[5]"/><port type="output" name="CI" from="SB_CARRY[6]" />
+  </direct>
+  <direct><port type="input" name="lutff_6/in[1]"/><port type="output" name="I0" from="SB_CARRY[6]" />
+  </direct>
+  <direct><port type="input" name="lutff_6/in[2]"/><port type="output" name="I1" from="SB_CARRY[6]" />
+  </direct>
+  <!--
+  <direct><port type="input" name="CO" from="SB_CARRY[6]"/><port type="output" name="lutff_6/cout"  /></direct>
 
-		<!--
   <mux input="SB_CARRY[6].CO BLK_TL-PLB.lutff_7/cin[0]" output="SB_CARRY[7].CI" name="SB_CARRY[7].CI">
    <pack_pattern name="CTEMP" in_port="SB_CARRY[6].CO" out_port="SB_CARRY[7].CI" />
-		</mux>
-		-->
-		<direct><port type="input" name="CO" from="SB_CARRY[6]"/><port type="output" name="CI" from="SB_CARRY[7]" />
-		</direct>
-		<direct><port type="input" name="lutff_7/in[1]"/><port type="output" name="I0" from="SB_CARRY[7]" />
-		</direct>
-		<direct><port type="input" name="lutff_7/in[2]"/><port type="output" name="I1" from="SB_CARRY[7]" />
-		</direct>
-		<direct><port type="input" name="CO" from="SB_CARRY[7]"/><port type="output" name="lutff_7/cout"  /></direct>
+  </mux>
+  -->
+  <direct><port type="input" name="CO" from="SB_CARRY[6]"/><port type="output" name="CI" from="SB_CARRY[7]" />
+  </direct>
+  <direct><port type="input" name="lutff_7/in[1]"/><port type="output" name="I0" from="SB_CARRY[7]" />
+  </direct>
+  <direct><port type="input" name="lutff_7/in[2]"/><port type="output" name="I1" from="SB_CARRY[7]" />
+  </direct>
+  <!--
+  <direct><port type="input" name="CO" from="SB_CARRY[7]"/><port type="output" name="lutff_7/cout"  /></direct>
+  -->
 
-		<!--
   <direct>
    <port type="input" from="SB_CARRY[7]" name="CO"/><port type="output" name="FCOUT" />
-   <pack_pattern name="CTEMP" in_port="SB_CARRY[7].CO" out_port="BLK_TL-PLB.FCOUT" />
-		</direct>
-		-->
+   <!-- <pack_pattern name="CTEMP" in_port="SB_CARRY[7].CO" out_port="BLK_TL-PLB.FCOUT" /> -->
+  </direct>
 
  </interconnect>
  <pinlocations pattern="custom">
@@ -1449,25 +1472,6 @@
   </loc>
   <loc side="bottom" xoffset="0" yoffset="0">
    BLK_TL-PLB.FCOUT
-  </loc>
-  <loc side="left" xoffset="0" yoffset="0">
-   BLK_TL-PLB.lutff_0/cout
-   BLK_TL-PLB.lutff_1/cout
-   BLK_TL-PLB.lutff_2/cout
-   BLK_TL-PLB.lutff_3/cout
-   BLK_TL-PLB.lutff_4/cout
-   BLK_TL-PLB.lutff_5/cout
-   BLK_TL-PLB.lutff_6/cout
-			BLK_TL-PLB.lutff_7/cout
-
-   BLK_TL-PLB.lutff_0/cin
-   BLK_TL-PLB.lutff_1/cin
-   BLK_TL-PLB.lutff_2/cin
-   BLK_TL-PLB.lutff_3/cin
-   BLK_TL-PLB.lutff_4/cin
-   BLK_TL-PLB.lutff_5/cin
-   BLK_TL-PLB.lutff_6/cin
-   BLK_TL-PLB.lutff_7/cin
   </loc>
  </pinlocations>
 
