@@ -1,9 +1,9 @@
 MAKE_FILE_TARGET(
-  FILE mux2.sim.v
+  FILE mux8.sim.v
   SCANNER_TYPE verilog
   )
 V2X(
-  NAME mux2
-  SRCS mux2.sim.v
+  NAME mux8
+  SRCS mux8.sim.v
   )
 

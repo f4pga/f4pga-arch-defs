@@ -44,22 +44,63 @@ function(APPEND_FILE_INCLUDES var src_file)
   set(${var} "${${var}}" PARENT_SCOPE)
 endfunction()
 
+function(GET_VERILOG_INCLUDES var file)
+  execute_process(
+    COMMAND grep "^`include" "${file}"
+    COMMAND cut -d \" -f 2
+    WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+    OUTPUT_VARIABLE INCLUDES)
+
+  string(REPLACE "\n" ";" INCLUDES_LIST "${INCLUDES}")
+  foreach(INCLUDE ${INCLUDES_LIST})
+    string(STRIP ${INCLUDE} INCLUDE)
+    if(NOT "${INCLUDE}" STREQUAL "")
+      get_filename_component(ABS_PATH_TO_INCLUDE ${CMAKE_CURRENT_SOURCE_DIR}/${INCLUDE}
+        ABSOLUTE
+        BASE_DIR ${symbiflow-arch-defs_SOURCE_DIR})
+      list(APPEND ${var} ${ABS_PATH_TO_INCLUDE})
+    endif()
+  endforeach()
+  set(${var} "${${var}}" PARENT_SCOPE)
+endfunction()
+
 function(MAKE_FILE_TARGET)
   set(options GENERATED)
-  set(oneValueArgs FILE)
+  set(oneValueArgs FILE SCANNER_TYPE)
   set(multiValueArgs)
   cmake_parse_arguments(MAKE_FILE_TARGET "${options}" "${oneValueArgs}" "${multiValueArgs}" ${ARGN} )
 
   GET_FILE_TARGET(TARGET_NAME ${MAKE_FILE_TARGET_FILE})
 
-  add_custom_target(${TARGET_NAME}
-    DEPENDS ${MAKE_FILE_TARGET_FILE})
-
-  if(${MAKE_FILE_TARGET_GENERATED})
-    set_target_properties(${TARGET_NAME} PROPERTIES LOCATION ${CMAKE_CURRENT_BINARY_DIR}/${MAKE_FILE_TARGET_FILE})
-  else()
-    set_target_properties(${TARGET_NAME} PROPERTIES LOCATION ${CMAKE_CURRENT_SOURCE_DIR}/${MAKE_FILE_TARGET_FILE})
+  SET(INCLUDE_FILES "")
+  if(NOT ${MAKE_FILE_TARGET_GENERATED})
+    if("${MAKE_FILE_TARGET_SCANNER_TYPE}" STREQUAL "")
+    elseif("${MAKE_FILE_TARGET_SCANNER_TYPE}" STREQUAL "verilog")
+      GET_VERILOG_INCLUDES(INCLUDE_FILES ${MAKE_FILE_TARGET_FILE})
+    else()
+      message(FATAL_ERROR "Unknown SCANNER_TYPE=${MAKE_FILE_TARGET_SCANNER_TYPE}.")
+    endif()
   endif()
+
+  SET(INCLUDE_FILES_TARGETS "")
+  foreach(INCLUDE ${INCLUDE_FILES})
+    APPEND_FILE_DEPENDENCY(INCLUDE_FILES_TARGETS ${INCLUDE})
+  endforeach()
+
+  if(NOT ${MAKE_FILE_TARGET_GENERATED})
+    add_custom_command(
+      OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/${MAKE_FILE_TARGET_FILE}
+        COMMAND ${CMAKE_COMMAND} -E copy
+          ${CMAKE_CURRENT_SOURCE_DIR}/${MAKE_FILE_TARGET_FILE}
+          ${CMAKE_CURRENT_BINARY_DIR}/${MAKE_FILE_TARGET_FILE}
+          DEPENDS ${INCLUDE_FILES_TARGETS}
+          )
+  endif()
+
+  add_custom_target(${TARGET_NAME}
+    DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/${MAKE_FILE_TARGET_FILE} ${INCLUDE_FILES_TARGETS})
+
+  set_target_properties(${TARGET_NAME} PROPERTIES LOCATION ${CMAKE_CURRENT_BINARY_DIR}/${MAKE_FILE_TARGET_FILE})
   set_target_properties(${TARGET_NAME} PROPERTIES INCLUDES "")
 endfunction(MAKE_FILE_TARGET)
 
@@ -89,7 +130,7 @@ function(V2X)
   GET_FILE_LOCATION(FIRST_SOURCE ${FIRST_SOURCE_FILE})
 
   set(TOP_ARG "")
-  if(NOT ${TOP_MODULE} STREQUAL "")
+  if(NOT ${V2X_TOP_MODULE} STREQUAL "")
     set(TOP_ARG "--top=${TOP_MODULE}")
   endif()
 
@@ -132,7 +173,7 @@ function(MUX_GEN)
   cmake_parse_arguments(MUX_GEN "${options}" "${oneValueArgs}" "${multiValueArgs}" ${ARGN})
 
   if("${MUX_GEN_TYPE}" STREQUAL "routing")
-    if("${MUX_GEN_SUBCKT}" STREQUAL "")
+    if(NOT "${MUX_GEN_SUBCKT}" STREQUAL "")
       message(FATAL_ERROR "Can not use SUBCKT=${MUX_GEN_SUBCKT} with routing mux.")
     endif()
   elseif("${MUX_GEN_TYPE}" STREQUAL "logic")
@@ -148,7 +189,7 @@ function(MUX_GEN)
   list(APPEND MUX_GEN_ARGS "--name-mux=${MUX_GEN_MUX_NAME}")
 
   if(NOT "${MUX_GEN_COMMENT}" STREQUAL "")
-    list(APPEND MUX_GEN_ARGS "--command=${MUX_GEN_COMMENT}")
+    list(APPEND MUX_GEN_ARGS "--comment=\"${MUX_GEN_COMMENT}\"")
   endif()
 
   if(NOT "${MUX_GEN_OUTPUT}" STREQUAL "")
@@ -198,6 +239,10 @@ function(MUX_GEN)
   MAKE_FILE_TARGET(FILE "${MUX_GEN_NAME}.model.xml"
     GENERATED)
 
+  add_custom_target(${MUX_GEN_NAME} ALL
+    DEPENDS ${OUTPUTS}
+      )
+
   if(NOT "${MUX_GEN_NTEMPLATE_PREFIXES}" STREQUAL "")
     foreach(OUTPUT ${OUTPUTS})
       string(REPLACE "ntemplate." "" N_TEMPLATE_NAME ${OUTPUT})
@@ -246,6 +291,7 @@ function(N_TEMPLATE)
     ${N_TEMPLATE_NAME} ALL
     DEPENDS ${OUTPUTS})
 endfunction(N_TEMPLATE)
-
 add_subdirectory(vpr)
 add_subdirectory(artix7)
+add_subdirectory(ice40)
+add_subdirectory(testarch)

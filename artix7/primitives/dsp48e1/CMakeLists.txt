@@ -1,0 +1,24 @@
+add_subdirectory(nreg)
+add_subdirectory(alu)
+add_subdirectory(alumode_mux)
+add_subdirectory(carryinsel_logic)
+add_subdirectory(carryinsel_mux)
+add_subdirectory(creg_mux)
+add_subdirectory(dual_ad_preadder)
+add_subdirectory(dual_b_reg)
+add_subdirectory(inmode_mux)
+add_subdirectory(mult25x18)
+add_subdirectory(mult_mux)
+add_subdirectory(opmode_mux)
+add_subdirectory(xmux)
+add_subdirectory(ymux)
+add_subdirectory(zmux)
+MAKE_FILE_TARGET(
+  FILE dsp48e1.sim.v
+  SCANNER_TYPE verilog
+  )
+V2X(
+  NAME dsp48e1
+  SRCS dsp48e1.sim.v
+  )
+
