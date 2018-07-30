@@ -1,0 +1,4 @@
+add_subdirectory(N1k)
+add_subdirectory(N384)
+add_subdirectory(N4k)
+add_subdirectory(N8k)
