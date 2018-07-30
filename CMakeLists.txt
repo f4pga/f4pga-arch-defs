@@ -2,9 +2,46 @@ cmake_minimum_required (VERSION 3.0)
 project (symbiflow-arch-defs)
 
 function(GET_FILE_TARGET var path)
-  set(SOURCE_LOCATION ${CMAKE_CURRENT_SOURCE_DIR}/${path})
+  if(${path} MATCHES "^/")
+    set(SOURCE_LOCATION ${path})
+  else()
+    set(SOURCE_LOCATION ${CMAKE_CURRENT_SOURCE_DIR}/${path})
+  endif()
   string(REPLACE "/" "_" TARGET_PATH ${SOURCE_LOCATION})
   set(${var} file_${TARGET_PATH} PARENT_SCOPE)
+endfunction()
+
+function(GET_FILE_LOCATION var src_file)
+  GET_FILE_TARGET(SRC_TARGET ${src_file})
+  get_target_property(SRC_LOCATION ${SRC_TARGET} LOCATION)
+  if("${SRC_LOCATION}" STREQUAL "NOT_FOUND")
+    message(FATAL_ERROR "File ${src_file} is not a valid verilog target, missing LOCATION.")
+  endif()
+
+  set(${var} ${SRC_LOCATION} PARENT_SCOPE)
+endfunction()
+
+function(APPEND_FILE_DEPENDENCY var src_file)
+  GET_FILE_TARGET(SRC_TARGET ${src_file})
+  get_target_property(SRC_LOCATION ${SRC_TARGET} LOCATION)
+  if("${SRC_LOCATION}" STREQUAL "NOT_FOUND")
+    message(FATAL_ERROR "File ${src_file} is not a valid verilog target, missing LOCATION.")
+  endif()
+
+  list(APPEND ${var} ${SRC_TARGET})
+  list(APPEND ${var} ${SRC_LOCATION})
+  set(${var} "${${var}}" PARENT_SCOPE)
+endfunction()
+
+function(APPEND_FILE_INCLUDES var src_file)
+  GET_FILE_TARGET(SRC_TARGET ${src_file})
+  get_target_property(SRC_INCLUDES ${SRC_TARGET} INCLUDES)
+  if("${SRC_INCLUDES}" STREQUAL "NOT_FOUND")
+    message(FATAL_ERROR "File ${SRC} is not a valid verilog target, missing INCLUDES list.")
+  endif()
+
+  list(APPEND ${var} ${SRC_INCLUDES})
+  set(${var} "${${var}}" PARENT_SCOPE)
 endfunction()
 
 function(MAKE_FILE_TARGET)
@@ -15,7 +52,9 @@ function(MAKE_FILE_TARGET)
 
   GET_FILE_TARGET(TARGET_NAME ${MAKE_FILE_TARGET_FILE})
 
-  add_custom_target(${TARGET_NAME} DEPENDS ${MAKE_FILE_TARGET_FILE})
+  add_custom_target(${TARGET_NAME}
+    DEPENDS ${MAKE_FILE_TARGET_FILE})
+
   if(${MAKE_FILE_TARGET_GENERATED})
     set_target_properties(${TARGET_NAME} PROPERTIES LOCATION ${CMAKE_CURRENT_BINARY_DIR}/${MAKE_FILE_TARGET_FILE})
   else()
@@ -31,6 +70,10 @@ function(V2X)
   cmake_parse_arguments(V2X "${options}" "${oneValueArgs}" "${multiValueArgs}" ${ARGN} )
 
   set(INCLUDES "")
+  list(APPEND INCLUDES "${CMAKE_CURRENT_BINARY_DIR}")
+  list(APPEND INCLUDES "${CMAKE_CURRENT_SOURCE_DIR}")
+  list(APPEND INCLUDES "${symbiflow-arch-defs_SOURCE_DIR}")
+
   set(DEPENDS_LIST "")
   set(REAL_SOURCE_LIST "")
   foreach(SRC ${V2X_SRCS})
@@ -38,31 +81,17 @@ function(V2X)
       message(FATAL_ERROR "File ${SRC} does not end with .sim.v")
     endif()
 
-    GET_FILE_TARGET(SRC_TARGET ${SRC})
-    list(APPEND DEPENDS_LIST ${SRC_TARGET})
-    get_target_property(SRC_INCLUDES ${SRC_TARGET} INCLUDES)
-    get_target_property(SRC_LOCATION ${SRC_TARGET} LOCATION)
-    if("${SRC_LOCATION}" STREQUAL "NOT_FOUND")
-      message(FATAL_ERROR "File ${SRC} did is not a valid verilog target, missing LOCATION.")
-    endif()
-    if("${SRC_INCLUDES}" STREQUAL "NOT_FOUND")
-      message(FATAL_ERROR "File ${SRC} did is not a valid verilog target, missing INCLUDES list.")
-    endif()
-
-    list(APPEND INCLUDES ${SRC_INCLUDES})
-    list(APPEND REAL_SOURCE_LIST ${SRC_LOCATION})
+    APPEND_FILE_DEPENDENCY(DEPENDS_LIST ${SRC})
+    APPEND_FILE_INCLUDES(INCLUDES ${SRC})
   endforeach()
+
+  list(GET V2X_SRCS 0 FIRST_SOURCE_FILE)
+  GET_FILE_LOCATION(FIRST_SOURCE ${FIRST_SOURCE_FILE})
 
   set(TOP_ARG "")
   if(NOT ${TOP_MODULE} STREQUAL "")
     set(TOP_ARG "--top=${TOP_MODULE}")
   endif()
-
-  list(GET REAL_SOURCE_LIST 0 FIRST_SOURCE)
-
-  list(APPEND INCLUDES "${CMAKE_CURRENT_BINARY_DIR}")
-  list(APPEND INCLUDES "${CMAKE_CURRENT_SOURCE_DIR}")
-  list(APPEND INCLUDES "${symbiflow-arch-defs_SOURCE_DIR}")
 
   string(REPLACE ";" "," INCLUDES_LIST "${INCLUDES}")
 
@@ -82,14 +111,13 @@ function(V2X)
 
   add_custom_command(
     OUTPUT "${V2X_NAME}.model.xml"
-    DEPENDS ${DEPENDS_LIST} ${symbiflow-arch-defs_SOURCE_DIR}/utils/vlog/vlog_to_pbtype.py
+    DEPENDS ${DEPENDS_LIST} ${symbiflow-arch-defs_SOURCE_DIR}/utils/vlog/vlog_to_model.py
     COMMAND ${symbiflow-arch-defs_SOURCE_DIR}/utils/vlog/vlog_to_model.py ${TOP_ARG} -o ${CMAKE_CURRENT_BINARY_DIR}/${V2X_NAME}.model.xml ${FIRST_SOURCE} ${INCLUDE_ARG}
     WORKING_DIRECTORY ${symbiflow-arch-defs_SOURCE_DIR}/utils/vlog/
     )
 
   MAKE_FILE_TARGET(FILE "${V2X_NAME}.model.xml" GENERATED)
 
-  message(STATUS "Test ${V2X_NAME}")
   add_custom_target(${V2X_NAME} ALL
     DEPENDS
       "${V2X_NAME}.model.xml"
@@ -160,18 +188,15 @@ function(MUX_GEN)
 
   add_custom_command(
     OUTPUT ${OUTPUTS}
-    DEPENDS ${symbiflow-arch-defs_SOURCE_DIR}/utils/mux_gen.py
+    DEPENDS ${symbiflow-arch-defs_SOURCE_DIR}/utils/mux_gen.py ${symbiflow-arch-defs_SOURCE_DIR}/vpr/muxes/logic/mux${MUX_GEN_WIDTH}/mux${MUX_GEN_WIDTH}.sim.v
     COMMAND ${symbiflow-arch-defs_SOURCE_DIR}/utils/mux_gen.py ${MUX_GEN_ARGS})
 
-  foreach(OUTPUT ${OUTPUTS})
-    MAKE_FILE_TARGET(FILE ${OUTPUT} GENERATED)
-  endforeach()
-
-  GET_FILE_TARGET(SRC_TARGET "${MUX_GEN_NAME}.sim.v")
-
-  add_custom_target(
-    ${MUX_GEN_NAME} ALL
-    DEPENDS ${OUTPUTS})
+  MAKE_FILE_TARGET(FILE "${MUX_GEN_NAME}.sim.v"
+    GENERATED)
+  MAKE_FILE_TARGET(FILE "${MUX_GEN_NAME}.pb_type.xml"
+    GENERATED)
+  MAKE_FILE_TARGET(FILE "${MUX_GEN_NAME}.model.xml"
+    GENERATED)
 
   if(NOT "${MUX_GEN_NTEMPLATE_PREFIXES}" STREQUAL "")
     foreach(OUTPUT ${OUTPUTS})
@@ -200,12 +225,14 @@ function(N_TEMPLATE)
       GET_FILE_TARGET(SRC_TARGET ${SRC})
       add_custom_command(
         OUTPUT ${SRC_WITH_PREFIX}
-        DEPENDS ${SRC} ${SRC_TARGET} ${symbiflow-arch-defs_SOURCE_DIR}/utils/n.py
+        DEPENDS ${symbiflow-arch-defs_SOURCE_DIR}/utils/n.py ${SRC} ${SRC_TARGET}
         COMMAND ${symbiflow-arch-defs_SOURCE_DIR}/utils/n.py ${PREFIX} $<TARGET_PROPERTY:${SRC_TARGET},LOCATION> ${CMAKE_CURRENT_BINARY_DIR}/${SRC_WITH_PREFIX}
         WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
         )
 
-      MAKE_FILE_TARGET(FILE ${SRC_WITH_PREFIX} GENERATED)
+      MAKE_FILE_TARGET(FILE ${SRC_WITH_PREFIX} GENERATED
+        DEPENDS ${SRC}
+        )
 
       list(APPEND OUTPUTS ${SRC_WITH_PREFIX})
 
@@ -220,4 +247,5 @@ function(N_TEMPLATE)
     DEPENDS ${OUTPUTS})
 endfunction(N_TEMPLATE)
 
+add_subdirectory(vpr)
 add_subdirectory(artix7)
