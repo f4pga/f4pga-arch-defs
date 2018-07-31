@@ -1,3 +1,4 @@
+
 ADD_FPGA_TARGET(
   NAME picosoc
   BOARD hx8k-b-evn
@@ -9,7 +10,7 @@ ADD_FPGA_TARGET(
     simpleuart.v
     spimemio.v
   TESTBENCH_SOURCES
-    hx8kdemo_tb.v
     spiflash.v
+    hx8kdemo_tb.v
   INPUT_IO_FILE hx8k-b-evn.pcf
   )

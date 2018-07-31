@@ -3,7 +3,7 @@ SET(ICEBOX ${ICESTORM}/icebox/)
 
 DEFINE_ARCH(
   ARCH ice40
-  YOSYS_SCRIPT "synth_ice40 -nocarry; ice40_opt -unlut; abc -lut 4; opt_clean;"
+  YOSYS_SCRIPT "synth_ice40 -nocarry $<SEMICOLON>  ice40_opt -unlut $<SEMICOLON> abc -lut 4 $<SEMICOLON>  opt_clean"
   RR_PATCH_TOOL ${symbiflow-arch-defs_SOURCE_DIR}/ice40/utils/ice40_import_routing_from_icebox.py
   RR_PATCH_CMD "\${RR_PATCH_TOOL} \
   --verbose \
@@ -12,7 +12,7 @@ DEFINE_ARCH(
   --write_rr_graph \${OUT_RRXML_REAL}"
   PLACE_TOOL ${symbiflow-arch-defs_SOURCE_DIR}/ice40/utils/ice40_create_ioplace.py
   PLACE_TOOL_CMD "\${PLACE_TOOL} \
-  --map \\\$<TARGET_PROPERTY:\${DEVICE},\${DEVICE}_${PACKAGE}_PINMAP> \
+  --map \${PINMAP} \
   --blif \${OUT_EBLIF} \
   --pcf \${INPUT_IO_FILE}"
   CELLS_SIM ${symbiflow-arch-defs_SOURCE_DIR}/ice40/cells_sim.v
