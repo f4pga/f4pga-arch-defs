@@ -707,6 +707,7 @@ function(ADD_FPGA_TARGET)
     DEPENDS ${OUT_NET} ${OUT_IO} ${VPR_DEPS}
     COMMAND ${VPR_CMD} --place
     COMMAND ${CMAKE_COMMAND} -E copy ${OUT_LOCAL}/vpr_stdout.log ${OUT_LOCAL}/place.log
+    WORKING_DIRECTORY ${OUT_LOCAL}
     )
 
   # Generate routing.
