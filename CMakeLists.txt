@@ -1,6 +1,12 @@
 cmake_minimum_required (VERSION 3.0)
 project (symbiflow-arch-defs)
 
+function(REPLACE_WITH_ENV_IF_SET var)
+  if(NOT "$ENV{${var}}" STREQUAL "")
+    set(${var} $ENV{${var}} PARENT_SCOPE)
+  endif()
+endfunction()
+
 function(SETUP_ENV)
   add_custom_target(env)
 
@@ -14,29 +20,35 @@ function(SETUP_ENV)
 
     foreach(binary ${MAYBE_CONDA_BINARIES})
       string(TOUPPER ${binary} binary_upper)
+      set(${binary_upper} ${CONDA_DIR}/bin/${binary})
+      REPLACE_WITH_ENV_IF_SET(${binary_upper})
       set_target_properties(
         env
         PROPERTIES
-        ${binary_upper} ${CONDA_DIR}/bin/${binary}
+        ${binary_upper} ${${binary_upper}}
         )
     endforeach()
   else()
     foreach(binary ${MAYBE_CONDA_BINARIES})
       string(TOUPPER ${binary} binary_upper)
+      set(${binary_upper} ${binary})
+      REPLACE_WITH_ENV_IF_SET(${binary_upper})
       set_target_properties(
         env
         PROPERTIES
-        ${binary_upper} ${binary}
+        ${binary_upper} ${${binary_upper}}
         )
     endforeach()
   endif()
 
   foreach(binary ${OTHER_BINARIES})
     string(TOUPPER ${binary} binary_upper)
+    set(${binary_upper} ${binary})
+    REPLACE_WITH_ENV_IF_SET(${binary_upper})
     set_target_properties(
       env
       PROPERTIES
-      ${binary_upper} ${binary}
+      ${binary_upper} ${${binary_upper}}
       )
   endforeach()
 endfunction()
@@ -376,7 +388,7 @@ function(DEFINE_ARCH)
       message(FATAL_ERROR "Required argument ${ARG} is the empty string.")
     endif()
     set_target_properties(${DEFINE_ARCH_ARCH}
-      PROPERTIES ${ARG} ${DEFINE_ARCH_${ARG}})
+      PROPERTIES ${ARG} "${DEFINE_ARCH_${ARG}}")
   endforeach()
 endfunction()
 
@@ -529,7 +541,7 @@ function(DEFINE_BOARD)
 endfunction()
 
 function(ADD_FPGA_TARGET)
-  set(options)
+  set(options EXPLICIT_MAKE_FILE_TARGET)
   set(oneValueArgs NAME TOP BOARD INPUT_IO_FILE)
   set(multiValueArgs SOURCES TESTBENCH_SOURCES)
   cmake_parse_arguments(ADD_FPGA_TARGET "${options}" "${oneValueArgs}" "${multiValueArgs}" ${ARGN} )
@@ -551,6 +563,7 @@ function(ADD_FPGA_TARGET)
   get_target_property_required(DEVICE_TYPE ${DEVICE} DEVICE_TYPE)
 
   get_target_property_required(BITSTREAM_EXTENSION ${ARCH} BITSTREAM_EXTENSION)
+  get_target_property_required(YOSYS env YOSYS)
   get_target_property_required(YOSYS_SCRIPT ${ARCH} YOSYS_SCRIPT)
 
   get_target_property_required(DEVICE_MERGED_FILE ${DEVICE_TYPE} DEVICE_MERGED_FILE)
@@ -563,18 +576,51 @@ function(ADD_FPGA_TARGET)
   set(VPR_ROUTE_CHAN_WIDTH 100)
   set(VPR_ROUTE_CHAN_MINWIDTH_HINT ${VPR_ROUTE_CHAN_WIDTH})
 
+  if(NOT ${ADD_FPGA_TARGET_EXPLICIT_MAKE_FILE_TARGET})
+    foreach(SRC ${ADD_FPGA_TARGET_SOURCES})
+      MAKE_FILE_TARGET(
+        FILE ${SRC}
+        SCANNER_TYPE verilog
+        )
+    endforeach()
+    foreach(SRC ${ADD_FPGA_TARGET_TESTBENCH_SOURCES})
+      MAKE_FILE_TARGET(
+        FILE ${SRC}
+        SCANNER_TYPE verilog
+        )
+    endforeach()
+
+    MAKE_FILE_TARGET(
+      FILE ${ADD_FPGA_TARGET_INPUT_IO_FILE}
+      )
+
+  endif()
+
   ##########################################################################
   # Generate BLIF as start of vpr input.
   ##########################################################################
   set(OUT_EBLIF ${OUT_LOCAL}/${TOP}.eblif)
 
-  set(SOURCE_FILES ${ADD_FPGA_TARGET_SOURCES})
-  set(SOURCE_INPUT "")
+  set(DIRECTORY_TARGET ${NAME}-${FQDN}-make-directory)
+  add_custom_target(${DIRECTORY_TARGET} ALL
+    COMMAND ${CMAKE_COMMAND} -E make_directory ${OUT_LOCAL})
+
+  set(SOURCE_FILES_DEPS "")
+  set(SOURCE_FILES "")
+  foreach(SRC ${ADD_FPGA_TARGET_SOURCES})
+    GET_FILE_LOCATION(SRC_LOCATION ${SRC})
+    GET_FILE_TARGET(SRC_TARGET ${SRC})
+    list(APPEND SOURCE_FILES ${SRC_LOCATION})
+    list(APPEND SOURCE_FILES_DEPS ${SRC_TARGET})
+  endforeach()
+
+  SET(COMPLETE_YOSYS_SCRIPT "${YOSYS_SCRIPT} $<SEMICOLON> write_blif -attr -cname -param ${OUT_EBLIF}")
 
   add_custom_command(
     OUTPUT ${OUT_EBLIF}
-    DEPENDS ${SOURCE_FILES}
-    COMMAND ${YOSYS} -p "${YOSYS_SCRIPT}; write_blif -attr -cname -param ${OUT_EBLIF}" ${SOURCE_FILES}
+    DEPENDS ${SOURCE_FILES} ${SOURCE_FILES_DEPS} ${DIRECTORY_TARGET}
+    COMMAND ${YOSYS} -p "${COMPLETE_YOSYS_SCRIPT}" ${SOURCE_FILES}
+    VERBATIM
     )
   add_custom_target(
     ${NAME}_eblif
@@ -622,17 +668,20 @@ function(ADD_FPGA_TARGET)
   #-------------------------------------------------------------------------
   set(OUT_IO "")
   if(NOT ${ADD_FPGA_TARGET_INPUT_IO_FILE} STREQUAL "")
-    set(INPUT_IO_FILE ${ADD_FPGA_TARGET_INPUT_IO_FILE})
+    GET_FILE_LOCATION(INPUT_IO_FILE ${ADD_FPGA_TARGET_INPUT_IO_FILE})
+    GET_FILE_TARGET(INPUT_IO_FILE_TARGET ${ADD_FPGA_TARGET_INPUT_IO_FILE})
     get_target_property_required(PLACE_TOOL ${ARCH} PLACE_TOOL)
     get_target_property_required(PLACE_TOOL_CMD ${ARCH} PLACE_TOOL_CMD)
+    get_target_property_required(PINMAP_FILE ${DEVICE} ${DEVICE}_${PACKAGE}_PINMAP)
+    GET_FILE_LOCATION(PINMAP ${PINMAP_FILE})
+    GET_FILE_TARGET(PINMAP_TARGET ${PINMAP_FILE})
     set(OUT_IO ${OUT_LOCAL}/io.place)
     string(CONFIGURE ${PLACE_TOOL_CMD} PLACE_TOOL_CMD_FOR_TARGET)
     separate_arguments(PLACE_TOOL_CMD_FOR_TARGET_LIST UNIX_COMMAND ${PLACE_TOOL_CMD_FOR_TARGET})
     add_custom_command(
       OUTPUT ${OUT_IO}
-      DEPENDS ${OUT_EBLIF} ${ADD_FPGA_TARGET_INPUT_IO_FILE} ${VPR_DEPS}
+      DEPENDS ${OUT_EBLIF} ${INPUT_IO_FILE} ${INPUT_IO_FILE_TARGET} ${PINMAP} ${PINMAP_TARGET} ${VPR_DEPS}
       COMMAND ${PLACE_TOOL_CMD_FOR_TARGET_LIST} --out ${OUT_IO}
-      COMMAND ${CMAKE_COMMAND} -E copy ${OUT_LOCAL}/vpr_stdout.log ${OUT_LOCAL}/io.log
       WORKING_DIRECTORY ${OUT_LOCAL}
       )
 
