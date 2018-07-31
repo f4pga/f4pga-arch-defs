@@ -5,20 +5,20 @@ DEFINE_ARCH(
   ARCH ice40
   YOSYS_SCRIPT "synth_ice40 -nocarry; ice40_opt -unlut; abc -lut 4; opt_clean;"
   RR_PATCH_TOOL ${symbiflow-arch-defs_SOURCE_DIR}/ice40/utils/ice40_import_routing_from_icebox.py
-  RR_PATCH_CMD "\${RR_PATCH_TOOL}
-  --verbose
-  --device=\${DEVICE}
-  --read_rr_graph \${OUT_RRXML_VIRT}
+  RR_PATCH_CMD "\${RR_PATCH_TOOL} \
+  --verbose \
+  --device=\${DEVICE} \
+  --read_rr_graph \${OUT_RRXML_VIRT} \
   --write_rr_graph \${OUT_RRXML_REAL}"
   PLACE_TOOL ${symbiflow-arch-defs_SOURCE_DIR}/ice40/utils/ice40_create_ioplace.py
-  PLACE_TOOL_CMD "\${PLACE_TOOL}
-  --map \$<TARGET_PROPERTY:\${DEVICE}},PINMAP>
-  --blif \${OUT_EBLIF}
+  PLACE_TOOL_CMD "\${PLACE_TOOL} \
+  --map \\\$<TARGET_PROPERTY:\${DEVICE},\${DEVICE}_${PACKAGE}_PINMAP> \
+  --blif \${OUT_EBLIF} \
   --pcf \${INPUT_IO_FILE}"
   CELLS_SIM ${symbiflow-arch-defs_SOURCE_DIR}/ice40/cells_sim.v
   EQUIV_CHECK_SCRIPT "hierarchy; proc; clk2fflogic; miter -equiv -flatten -ignore_gold_x -make_outputs -make_outcmp gold gate miter; sat -verify-no-timeout -timeout 600 -seq 1000 -prove trigger 0 -prove-skip 1 -show-inputs -show-outputs miter"
   HLC_TO_BIT ${ICEBOX}/icebox_hlc2asc.py
-  HLC_TO_BIT_CMD \${HLC_TO_BIT} \${OUT_HLC} > \${OUT_BITSTREAM}
+  HLC_TO_BIT_CMD "\${HLC_TO_BIT} \${OUT_HLC} > \${OUT_BITSTREAM}"
   BITSTREAM_EXTENSION asc
   )
 
@@ -48,3 +48,5 @@ DEFINE_BOARD(
   PROG_TOOL ${ICEPROG_TOOL}
   PROG_CMD $${PROG_TOOL}} -S
   )
+
+add_subdirectory(tests)

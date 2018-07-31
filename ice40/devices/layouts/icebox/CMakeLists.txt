@@ -1,10 +1,10 @@
+set(ICESTORM_DB ${symbiflow-arch-defs_SOURCE_DIR}/third_party/icestorm/icebox/icebox.py)
+set(ICE_UTILS_DIR ${symbiflow-arch-defs_SOURCE_DIR}/ice40/utils)
+set(ICESTORM_LAYOUT_LIST ${ICE_UTILS_DIR}/ice40_list_layout_in_icebox.py)
+set(ICESTORM_LAYOUT_IMPORT ${ICE_UTILS_DIR}/ice40_import_layout_from_icebox.py)
+
 function(generate_all_icebox_layouts)
   get_target_property_required(PYTHON3 env PYTHON3)
-
-  set(ICESTORM_DB ${symbiflow-arch-defs_SOURCE_DIR}/third_party/icestorm/icebox/icebox.py)
-  set(ICE_UTILS_DIR ${symbiflow-arch-defs_SOURCE_DIR}/ice40/utils)
-  set(ICESTORM_LAYOUT_LIST ${ICE_UTILS_DIR}/ice40_list_layout_in_icebox.py)
-  set(ICESTORM_LAYOUT_IMPORT ${ICE_UTILS_DIR}/ice40_import_layout_from_icebox.py)
 
   execute_process(
     COMMAND ${PYTHON3} ${ICESTORM_LAYOUT_LIST}
@@ -29,6 +29,22 @@ function(generate_all_icebox_layouts)
 
   foreach(OUTPUT ${OUTPUTS})
     MAKE_FILE_TARGET(FILE ${OUTPUT} GENERATED)
+  endforeach()
+endfunction()
+
+function(ADD_ICEBOX_LAYOUTS)
+  set(options)
+  set(oneValueArgs DEVICE PACKAGES)
+  set(multiValueArgs)
+  cmake_parse_arguments(SET_ICEBOX_LAYOUT "${options}" "${oneValueArgs}" "${multiValueArgs}" ${ARGN})
+
+  set(DEVICE ${SET_ICEBOX_LAYOUT_DEVICE})
+  foreach(PACKAGE ${SET_ICEBOX_LAYOUT_PACKAGES})
+    set_target_properties(
+      ${DEVICE}
+      PROPERTIES
+      ${DEVICE}_${PACKAGE}_PINMAP ${symbiflow-arch-defs_SOURCE_DIR}/ice40/devices/layouts/icebox/${DEVICE}.${PACKAGE}.pinmap.csv
+      )
   endforeach()
 endfunction()
 

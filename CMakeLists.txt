@@ -369,12 +369,12 @@ endfunction()
 
 function(DEFINE_ARCH)
   set(options)
-  set(oneValueArgs ARCH YOSYS_SCRIPT BITSTREAM_EXTENSION RR_PATCH_TOOL RR_PATCH_CMD)
+  set(oneValueArgs ARCH YOSYS_SCRIPT BITSTREAM_EXTENSION RR_PATCH_TOOL RR_PATCH_CMD PLACE_TOOL PLACE_TOOL_CMD CELLS_SIM EQUIV_CHECK_SCRIPT HLC_TO_BIT HLC_TO_BIT_CMD)
   set(multiValueArgs)
   cmake_parse_arguments(DEFINE_ARCH "${options}" "${oneValueArgs}" "${multiValueArgs}" ${ARGN})
 
   add_custom_target(${DEFINE_ARCH_ARCH})
-  foreach(ARG YOSYS_SCRIPT BITSTREAM_EXTENSION RR_PATCH_TOOL RR_PATCH_CMD)
+  foreach(ARG YOSYS_SCRIPT BITSTREAM_EXTENSION RR_PATCH_TOOL RR_PATCH_CMD PLACE_TOOL PLACE_TOOL_CMD CELLS_SIM EQUIV_CHECK_SCRIPT HLC_TO_BIT HLC_TO_BIT_CMD)
     if("${DEFINE_ARCH_${ARG}}" STREQUAL "")
       message(FATAL_ERROR "Required argument ${ARG} is the empty string.")
     endif()
@@ -401,20 +401,18 @@ function(DEFINE_DEVICE_TYPE)
   ##########################################################################
   # Generate a arch.xml for a device.
   ##########################################################################
-  set(DEVICE_DIR ${CMAKE_CURRENT_BINARY_DIR}/${ARCH}/devices)
-  set(OUT_DEVICE_DIR ${DEVICE_DIR}/${DEFINE_DEVICE_TYPE_DEVICE_TYPE})
-  set(DEVICE_MERGED_FILE ${OUT_DEVICE_DIR}/arch.xml)
+  set(DEVICE_MERGED_FILE arch.merged.xml)
 
   set(MERGE_XML_XSL ${symbiflow-arch-defs_SOURCE_DIR}/common/xml/xmlsort.xsl)
   set(MERGE_XML_INPUT ${CMAKE_CURRENT_BINARY_DIR}/${DEFINE_DEVICE_TYPE_ARCH_XML})
   GET_FILE_TARGET(MERGE_XML_INPUT_TARGET ${DEFINE_DEVICE_TYPE_ARCH_XML})
-  set(MERGE_XML_OUTPUT ${DEVICE_MERGED_FILE})
+  set(MERGE_XML_OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/${DEVICE_MERGED_FILE})
 
   get_target_property_required(XSLTPROC env XSLTPROC)
   add_custom_command(
     OUTPUT ${MERGE_XML_OUTPUT}
     DEPENDS ${MERGE_XML_XSL} ${MERGE_XML_INPUT} ${MERGE_XML_INPUT_TARGET}
-    COMMAND ${CMAKE_COMMAND} -E make_directory ${OUT_DEVICE_DIR}
+    COMMAND ${CMAKE_COMMAND} -E make_directory ${CMAKE_CURRENT_BINARY_DIR}/${OUT_DEVICE_DIR}
     COMMAND ${XSLTPROC} --nomkdir --nonet --xinclude --output ${MERGE_XML_OUTPUT} ${MERGE_XML_XSL} ${MERGE_XML_INPUT}
     )
   add_custom_target(
@@ -426,48 +424,18 @@ function(DEFINE_DEVICE_TYPE)
     )
 
   set_target_properties(${DEFINE_DEVICE_TYPE_DEVICE_TYPE}
-    PROPERTIES DEVICE_MERGED_FILE ${DEVICE_MERGED_FILE})
-
-  ##########################################################################
-  # Generate a rr_graph for a device.
-  ##########################################################################
-
-  # Generate the "default" rr_graph.xml we are going to patch using wire.
-  set(OUT_RRXML_VIRT ${OUT_DEVICE_DIR}/rr_graph.virt.xml)
-  get_target_property_required(VPR env VPR)
-  add_custom_command(
-    OUTPUT ${OUT_RRXML_VIRT} ${OUT_DEVICE_DIR}/rr_graph.virt.out
-    DEPENDS ${symbiflow-arch-defs_SOURCE_DIR}/common/wire.eblif ${DEVICE_MERGED_FILE}
-    COMMAND ${VPR}
-      ${DEVICE_MERGED_FILE}
-      --device ${DEVICE_FULL}
-      ${symbiflow-arch-defs_SOURCE_DIR}/common/wire.eblif
-      --route_chan_width 100
-      --echo_file on
-      --min_route_chan_width_hint 1
-      --write_rr_graph ${OUT_RRXML_VIRT}
-    COMMAND ${CMAKE_COMMAND} -E remove ${OUT_DEVICE_DIR}/wire.{net,place,route}
-    COMMAND ${CMAKE_COMMAND} -E move ${OUT_DEVICE_DIR}/vpr_stdout.log ${OUT_DEVICE_DIR}/rr_graph.virt.out
-    WORKING_DIRECTORY ${OUT_DEVICE_DIR}
-    )
-
-  MAKE_FILE_TARGET(
-    FILE ${OUT_RRXML_VIRT} GENERATED
-    )
-
-  set_target_properties(${DEFINE_DEVICE_TYPE_DEVICE_TYPE}
-    PROPERTIES OUT_RRXML_VIRT ${OUT_RRXML_VIRT})
+    PROPERTIES DEVICE_MERGED_FILE ${CMAKE_CURRENT_SOURCE_DIR}/${DEVICE_MERGED_FILE})
 
 endfunction()
 
 function(DEFINE_DEVICE)
   set(options)
-  set(oneValueArgs DEVICE ARCH DEVICE_TYPE ARCH_XML PACKAGES)
+  set(oneValueArgs DEVICE ARCH DEVICE_TYPE PACKAGES)
   set(multiValueArgs)
   cmake_parse_arguments(DEFINE_DEVICE "${options}" "${oneValueArgs}" "${multiValueArgs}" ${ARGN})
 
   add_custom_target(${DEFINE_DEVICE_DEVICE})
-  foreach(ARG ARCH DEVICE_TYPE)
+  foreach(ARG ARCH DEVICE_TYPE PACKAGES)
     if("${DEFINE_DEVICE_${ARG}}" STREQUAL "")
       message(FATAL_ERROR "Required argument ${ARG} is the empty string.")
     endif()
@@ -478,31 +446,76 @@ function(DEFINE_DEVICE)
   get_target_property_required(RR_PATCH_TOOL ${DEFINE_DEVICE_ARCH} RR_PATCH_TOOL)
   get_target_property_required(RR_PATCH_CMD ${DEFINE_DEVICE_ARCH} RR_PATCH_CMD)
 
+  get_target_property_required(VIRT_DEVICE_MERGED_FILE ${DEFINE_DEVICE_DEVICE_TYPE} DEVICE_MERGED_FILE)
+  GET_FILE_TARGET(DEVICE_MERGED_FILE_TARGET ${VIRT_DEVICE_MERGED_FILE})
+  GET_FILE_LOCATION(DEVICE_MERGED_FILE ${VIRT_DEVICE_MERGED_FILE})
+  get_target_property_required(VPR env VPR)
+
   set(DEVICE ${DEFINE_DEVICE_DEVICE})
-  get_target_property_required(OUT_RRXML_VIRT ${DEFINE_DEVICE_DEVICE_TYPE} OUT_RRXML_VIRT)
-  set(OUT_RRXML_REAL ${OUT_DEVICE_DIR}/${DEFINE_DEVICE_DEVICE}_rr_graph.real.xml)
-  string(CONFIGURE ${RR_PATCH_CMD} RR_PATCH_CMD_FOR_TARGET)
+  foreach(PACKAGE ${DEFINE_DEVICE_PACKAGES})
+    set(DEVICE_FULL ${DEVICE}-${PACKAGE})
+    set(OUT_RRXML_VIRT_FILENAME rr_graph_${DEVICE}_${PACKAGE}.rr_graph.virt.xml)
+    set(OUT_RRXML_REAL_FILENAME rr_graph_${DEVICE}_${PACKAGE}.rr_graph.real.xml)
+    set(OUT_RRXML_VIRT ${CMAKE_CURRENT_BINARY_DIR}/${OUT_RRXML_VIRT_FILENAME})
+    set(OUT_RRXML_REAL ${CMAKE_CURRENT_BINARY_DIR}/${OUT_RRXML_REAL_FILENAME})
 
-  set(RR_PATCH_DEPS "")
-  foreach(IN ${OUT_RRXML_VIRT} ${DEVICE_MERGED_FILE})
-    list(APPEND RR_PATCH_DEPS ${IN})
-    GET_FILE_TARGET(IN_TARGET ${IN})
-    list(APPEND RR_PATCH_DEPS ${IN_TARGET})
+    ##########################################################################
+    # Generate a rr_graph for a device.
+    ##########################################################################
+
+    # Generate the "default" rr_graph.xml we are going to patch using wire.
+    add_custom_command(
+      OUTPUT ${OUT_RRXML_VIRT} rr_graph_${DEVICE}_${PACKAGE}.virt.out
+      DEPENDS ${symbiflow-arch-defs_SOURCE_DIR}/common/wire.eblif ${DEVICE_MERGED_FILE} ${DEVICE_MERGED_FILE_TARGET}
+      COMMAND ${VPR}
+        ${DEVICE_MERGED_FILE}
+        --device ${DEVICE}-${PACKAGE}
+        ${symbiflow-arch-defs_SOURCE_DIR}/common/wire.eblif
+        --route_chan_width 100
+        --echo_file on
+        --min_route_chan_width_hint 1
+        --write_rr_graph ${OUT_RRXML_VIRT}
+      COMMAND ${CMAKE_COMMAND} -E remove wire.{net,place,route}
+      COMMAND ${CMAKE_COMMAND} -E copy vpr_stdout.log rr_graph_${DEVICE}_${PACKAGE}.virt.out
+      WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
+      )
+    add_custom_target(
+      ${DEFINE_DEVICE_ARCH}_${DEFINE_DEVICE_DEVICE}_${PACKAGE}_rrxml_virt
+      DEPENDS ${OUT_RRXML_VIRT})
+
+    MAKE_FILE_TARGET(
+      FILE ${OUT_RRXML_VIRT_FILENAME} GENERATED
+      )
+
+    set_target_properties(${DEFINE_DEVICE_DEVICE}
+      PROPERTIES OUT_RRXML_VIRT ${CMAKE_CURRENT_SOURCE_DIR}/${OUT_RRXML_VIRT_FILENAME})
+
+    set(RR_PATCH_DEPS "")
+    list(APPEND RR_PATCH_DEPS ${DEVICE_MERGED_FILE})
+    list(APPEND RR_PATCH_DEPS ${DEVICE_MERGED_FILE_TARGET})
+
+    # Generate the "real" rr_graph.xml from the default rr_graph.xml file
+    string(CONFIGURE ${RR_PATCH_CMD} RR_PATCH_CMD_FOR_TARGET)
+    separate_arguments(RR_PATCH_CMD_FOR_TARGET_LIST UNIX_COMMAND ${RR_PATCH_CMD_FOR_TARGET})
+    add_custom_command(
+      OUTPUT ${OUT_RRXML_REAL}
+      DEPENDS ${RR_PATCH_DEPS} ${RR_PATCH_TOOL} ${OUT_RRXML_VIRT}
+      COMMAND ${RR_PATCH_CMD_FOR_TARGET_LIST}
+      VERBATIM
+      )
+
+    MAKE_FILE_TARGET(
+      FILE ${OUT_RRXML_REAL_FILENAME} GENERATED
+      )
+
+    set_target_properties(${DEFINE_DEVICE_DEVICE}
+      PROPERTIES ${PACKAGE}_OUT_RRXML_REAL ${CMAKE_CURRENT_SOURCE_DIR}/${OUT_RRXML_REAL_FILENAME})
+
+    add_custom_target(
+      ${DEFINE_DEVICE_ARCH}_${DEFINE_DEVICE_DEVICE}_${PACKAGE}_rrxml_real
+      DEPENDS ${OUT_RRXML_REAL}
+      )
   endforeach()
-
-  # Generate the "real" rr_graph.xml from the default rr_graph.xml file
-  add_custom_command(
-    OUTPUT ${OUT_RRXML_REAL}
-    DEPENDS ${RR_PATCH_DEPS} ${RR_PATCH_TOOL}
-    COMMAND ${RR_PATCH_CMD_FOR_TARGET}
-    )
-
-  MAKE_FILE_TARGET(
-    FILE ${OUT_RRXML_REAL} GENERATED
-    )
-
-  set_target_properties(${DEFINE_DEVICE_DEVICE}
-    PROPERTIES OUT_RRXML_REAL ${OUT_RRXML_REAL})
 endfunction()
 
 function(DEFINE_BOARD)
@@ -530,16 +543,21 @@ function(ADD_FPGA_TARGET)
   endif()
 
   set(BOARD ${ADD_FPGA_TARGET_BOARD})
+  if(${BOARD} STREQUAL "")
+    message(FATAL_ERROR "BOARD is a required parameters.")
+  endif()
+
   get_target_property_required(DEVICE ${BOARD} DEVICE)
+  get_target_property_required(PACKAGE ${BOARD} PACKAGE)
+
   get_target_property_required(ARCH ${DEVICE} ARCH)
   get_target_property_required(DEVICE_TYPE ${DEVICE} DEVICE_TYPE)
-  get_target_property_required(PACKAGE ${BOARD} PACKAGE)
 
   get_target_property_required(BITSTREAM_EXTENSION ${ARCH} BITSTREAM_EXTENSION)
   get_target_property_required(YOSYS_SCRIPT ${ARCH} YOSYS_SCRIPT)
 
   get_target_property_required(DEVICE_MERGED_FILE ${DEVICE_TYPE} DEVICE_MERGED_FILE)
-  get_target_property_required(OUT_RRXML_REAL ${DEVICE} OUT_RRXML_REAL)
+  get_target_property_required(OUT_RRXML_REAL ${DEVICE} ${PACKAGE}_OUT_RRXML_REAL)
 
   set(DEVICE_FULL ${DEVICE}-${PACKAGE})
   set(FQDN ${ARCH}-${DEVICE_TYPE}-${DEVICE})
@@ -575,21 +593,25 @@ function(ADD_FPGA_TARGET)
   set(VPR_DEPS "")
   list(APPEND VPR_DEPS ${OUT_EBLIF})
 
-  foreach(DEVICE_SRC ${DEVICE_MERGED_FILE} ${OUT_RRXML_REAL})
-    list(APPEND VPR_DEPS ${DEVICE_SRCS})
-    GET_FILE_TARGET(DEVICE_SRC_TARGET ${DEVICE_SRC})
-    list(APPEND VPR_DEPS ${DEVICE_SRC_TARGET})
+  GET_FILE_LOCATION(OUT_RRXML_REAL_LOCATION ${OUT_RRXML_REAL})
+  GET_FILE_LOCATION(DEVICE_MERGED_FILE_LOCATION ${DEVICE_MERGED_FILE})
+
+  foreach(SRC ${DEVICE_MERGED_FILE} ${OUT_RRXML_REAL})
+    GET_FILE_LOCATION(SRC_LOCATION ${SRC})
+    GET_FILE_TARGET(SRC_TARGET ${SRC})
+    list(APPEND VPR_DEPS ${SRC_LOCATION})
+    list(APPEND VPR_DEPS ${SRC_TARGET})
   endforeach()
 
   get_target_property_required(VPR env VPR)
   set(VPR_CMD
     ${VPR}
-      ${DEVICE_MERGED_FILE}
+      ${DEVICE_MERGED_FILE_LOCATION}
       ${OUT_EBLIF}
       --device ${DEVICE_FULL}
       --min_route_chan_width_hint ${VPR_ROUTE_CHAN_MINWIDTH_HINT}
       --route_chan_width ${VPR_ROUTE_CHAN_WIDTH}
-      --read_rr_graph ${OUT_RRXML_REAL}
+      --read_rr_graph ${OUT_RRXML_REAL_LOCATION}
       --verbose_sweep on
       --allow_unrelated_clustering off
       --max_criticality 0.0
@@ -608,10 +630,11 @@ function(ADD_FPGA_TARGET)
     get_target_property_required(PLACE_TOOL_CMD ${ARCH} PLACE_TOOL_CMD)
     set(OUT_IO ${OUT_LOCAL}/io.place)
     string(CONFIGURE ${PLACE_TOOL_CMD} PLACE_TOOL_CMD_FOR_TARGET)
+    separate_arguments(PLACE_TOOL_CMD_FOR_TARGET_LIST UNIX_COMMAND ${PLACE_TOOL_CMD_FOR_TARGET})
     add_custom_command(
       OUTPUT ${OUT_IO}
       DEPENDS ${OUT_EBLIF} ${ADD_FPGA_TARGET_INPUT_IO_FILE} ${VPR_DEPS}
-      COMMAND ${PLACE_TOOL_CMD} --out ${OUT_IO}
+      COMMAND ${PLACE_TOOL_CMD_FOR_TARGET_LIST} --out ${OUT_IO}
       COMMAND ${CMAKE_COMMAND} -E copy ${OUT_LOCAL}/vpr_stdout.log ${OUT_LOCAL}/io.log
       WORKING_DIRECTORY ${OUT_LOCAL}
       )
@@ -656,11 +679,20 @@ function(ADD_FPGA_TARGET)
   # Generate bitstream
   #-------------------------------------------------------------------------
   set(OUT_BITSTREAM ${OUT_LOCAL}/${TOP}.${BITSTREAM_EXTENSION})
+
+  get_target_property_required(HLC_TO_BIT ${ARCH} HLC_TO_BIT)
+  get_target_property_required(HLC_TO_BIT_CMD ${ARCH} HLC_TO_BIT_CMD)
   string(CONFIGURE ${HLC_TO_BIT_CMD} HLC_TO_BIT_CMD_FOR_TARGET)
+  separate_arguments(HLC_TO_BIT_CMD_FOR_TARGET_LIST UNIX_COMMAND ${HLC_TO_BIT_CMD_FOR_TARGET})
   add_custom_command(
     OUTPUT ${OUT_BITSTREAM}
-    DEPENDS ${OUT_HLC} ${HLC_TO_BIT_CMD}
-    COMMAND ${HLC_TO_BIT_CMD_FOR_TARGET}
+    DEPENDS ${OUT_HLC} ${HLC_TO_BIT}
+    COMMAND ${HLC_TO_BIT_CMD_FOR_TARGET_LIST}
+    )
+
+  add_custom_target(
+    ${NAME}_bit ALL
+    DEPENDS ${OUT_BITSTREAM}
     )
 endfunction()
 
