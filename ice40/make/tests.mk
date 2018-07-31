@@ -37,7 +37,7 @@ BIT_TO_HLC ?= $(ICEBOX)/icebox_asc2hlc.py
 
 # Convert a bit (asc) file into Verilog output
 BIT_TO_V ?= $(ICEBOX)/icebox_vlog.py
-BIT_TO_V_CMD = $(BIT_TO_V) -D -c -n top -p $(INPUT_IO_FILE) -d $(PACKAGE) $(OUT_BITSTREAM) > $(OUT_BIT_VERILOG) || rm $(OUT_BIT_VERILOG)
+BIT_TO_V_CMD = $(BIT_TO_V) -L -D -c -n top -p $(INPUT_IO_FILE) -d $(PACKAGE) $(OUT_BITSTREAM) > $(OUT_BIT_VERILOG) || rm $(OUT_BIT_VERILOG)
 
 # Run timing analysis on a bit (asc) file
 ifeq ($(BIT_TIME),)

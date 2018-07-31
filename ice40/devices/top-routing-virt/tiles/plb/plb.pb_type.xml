@@ -82,9 +82,9 @@
       <T_clock_to_Q max="10e-12" port="VPR_FF.Q" clock="clk"/>
       <metadata>
        <meta name="hlc_property">
-           enable_dff
            # VPR_FF - $_DFF_P_
-       </meta>
+           enable_dff
+</meta>
       </metadata>
      </pb_type>
      <interconnect>
@@ -105,14 +105,13 @@
       <T_setup    value="10e-12" port="SB_DFF.D" clock="C"/>
       <T_clock_to_Q max="10e-12" port="SB_DFF.Q" clock="C"/>
       <metadata>
-       <meta name="hlc_property">
-           # - SB_DFF - $_DFF_P_
-           enable_dff
-           # PosClk
-           # no_cen
-           # no_setreset
-           # --
-       </meta>
+       <meta name="hlc_property"># - SB_DFF - $_DFF_P_
+       enable_dff
+       # PosClk
+       # no_cen
+       # no_setreset
+       # --
+</meta>
       </metadata>
      </pb_type>
      <interconnect>
@@ -157,11 +156,8 @@
     <direct><port type="input" from="BEL_FF-SB_FF[7]" name="Q"/><port type="output" name="Q[7]"/></direct>
    </interconnect>
    <metadata>
-    <meta name="hlc_property">
-        # PosClk
-        # no_cen
-        # no_setreset
-    </meta>
+    <meta name="hlc_property"># PCLK</meta>
+    <meta name="hlc_cell">global</meta>
    </metadata>
   </mode><!-- PCLK -->
 
@@ -180,14 +176,13 @@
       <T_setup    value="10e-12" port="SB_DFFN.D" clock="C"/>
       <T_clock_to_Q max="10e-12" port="SB_DFFN.Q" clock="C"/>
       <metadata>
-       <meta name="hlc_property">
-           # - SB_DFFN
-           enable_dff
-           # NegClk
-           # no_cen
-           # no_setreset
-           # --
-       </meta>
+       <meta name="hlc_property"># - SB_DFFN
+       enable_dff
+       # NegClk
+       # no_cen
+       # no_setreset
+       # --
+</meta>
       </metadata>
      </pb_type>
      <interconnect>
@@ -232,11 +227,9 @@
     <direct><port type="input" from="BEL_FF-SB_FF[7]" name="Q"/><port type="output" name="Q[7]"/></direct>
    </interconnect>
    <metadata>
-    <meta name="hlc_property">
-        NegClk
-        # no_cen
-        # no_setreset
-    </meta>
+    <meta name="hlc_property"># NCLK
+    NegClk</meta>
+    <meta name="hlc_cell">global</meta>
    </metadata>
   </mode><!-- NCLK -->
 
@@ -258,14 +251,13 @@
       <T_setup    value="10e-12" port="SB_DFFE.D" clock="C"/>
       <T_clock_to_Q max="10e-12" port="SB_DFFE.Q" clock="C"/>
       <metadata>
-       <meta name="hlc_property">
-           # - SB_DFFE - $_DFFE_PN_
-           enable_dff
-           # PosClk
-           # use_cen
-           # no_setreset
-           # --
-       </meta>
+       <meta name="hlc_property"># - SB_DFFE - $_DFFE_PN_
+        enable_dff
+        # PosClk
+        # use_cen
+        # no_setreset
+        # --
+</meta>
       </metadata>
      </pb_type>
      <interconnect>
@@ -320,11 +312,7 @@
     <direct><port type="input" from="BEL_FF-SB_FF[7]" name="Q"/><port type="output" name="Q[7]"/></direct>
    </interconnect>
    <metadata>
-    <meta name="hlc_property">
-        # PosClk
-        # use_cen
-        # no_setreset
-    </meta>
+    <meta name="hlc_property"># PCLK+CEN</meta>
    </metadata>
   </mode><!-- PCLK+CEN -->
 
@@ -346,14 +334,13 @@
       <T_setup    value="10e-12" port="SB_DFFNE.D" clock="C"/>
       <T_clock_to_Q max="10e-12" port="SB_DFFNE.Q" clock="C"/>
       <metadata>
-       <meta name="hlc_property">
-           # - SB_DFFNE
-           enable_dff
-           # NegClk
-           # use_cen
-           # no_setreset
-           # --
-       </meta>
+       <meta name="hlc_property"># - SB_DFFNE
+        enable_dff
+        # NegClk
+        # use_cen
+        # no_setreset
+        # --
+</meta>
       </metadata>
      </pb_type>
      <interconnect>
@@ -408,11 +395,9 @@
     <direct><port type="input" from="BEL_FF-SB_FF[7]" name="Q"/><port type="output" name="Q[7]"/></direct>
    </interconnect>
    <metadata>
-    <meta name="hlc_property">
-        NegClk
-        # use_cen
-        # no_setreset
-    </meta>
+    <meta name="hlc_property"># NCLK+CEN
+    NegClk</meta>
+    <meta name="hlc_cell">global</meta>
    </metadata>
   </mode><!-- NCLK+CEN -->
 
@@ -435,14 +420,13 @@
       <T_setup    value="10e-12" port="SB_DFFR.D" clock="C"/>
       <T_clock_to_Q max="10e-12" port="SB_DFFR.Q" clock="C"/>
       <metadata>
-       <meta name="hlc_property">
-           # - SB_DFFR
-           enable_dff
-           # PosClk
-           # no_cen
-           async_setreset
-           # reset
-       </meta>
+       <meta name="hlc_property"># - SB_DFFR
+        enable_dff
+        # PosClk
+        # no_cen
+        async_setreset
+        # reset
+</meta>
       </metadata>
      </pb_type>
      <interconnect>
@@ -466,14 +450,13 @@
       <T_setup    value="10e-12" port="SB_DFFS.D" clock="C"/>
       <T_clock_to_Q max="10e-12" port="SB_DFFS.Q" clock="C"/>
       <metadata>
-       <meta name="hlc_property">
-           # - SB_DFFS
-           enable_dff
-           # PosClk
-           # no_cen
-           async_setreset
-           set_noreset
-       </meta>
+       <meta name="hlc_property"># - SB_DFFS
+        enable_dff
+        # PosClk
+        # no_cen
+        async_setreset
+        set_noreset
+</meta>
       </metadata>
      </pb_type>
      <interconnect>
@@ -497,14 +480,13 @@
       <T_setup    value="10e-12" port="SB_DFFSR.D" clock="C"/>
       <T_clock_to_Q max="10e-12" port="SB_DFFSR.Q" clock="C"/>
       <metadata>
-       <meta name="hlc_property">
-           # - SB_DFFSR
-           enable_dff
-           # PosClk
-           # no_cen
-           # sync_setreset
-           # reset
-       </meta>
+       <meta name="hlc_property"># - SB_DFFSR
+        enable_dff
+        # PosClk
+        # no_cen
+        # sync_setreset
+        # reset
+</meta>
       </metadata>
      </pb_type>
      <interconnect>
@@ -528,14 +510,13 @@
       <T_setup    value="10e-12" port="SB_DFFSS.D" clock="C"/>
       <T_clock_to_Q max="10e-12" port="SB_DFFSS.Q" clock="C"/>
       <metadata>
-       <meta name="hlc_property">
-           # - SB_DFFSS
-           enable_dff
-           # PosClk
-           # no_cen
-           # sync_setreset
-           set_noreset
-       </meta>
+       <meta name="hlc_property"># - SB_DFFSS
+        enable_dff
+        # PosClk
+        # no_cen
+        # sync_setreset
+        set_noreset
+</meta>
       </metadata>
      </pb_type>
      <interconnect>
@@ -599,11 +580,8 @@
     <direct><port type="input" from="BEL_FF-SB_FF[7]" name="Q"/><port type="output" name="Q[7]"/></direct>
    </interconnect>
    <metadata>
-    <meta name="hlc_property">
-        # PosClk
-        # no_cen
-        # use_setreset
-    </meta>
+    <meta name="hlc_property"># PCLK+SR</meta>
+    <meta name="hlc_cell">global</meta>
    </metadata>
   </mode><!-- PCLK+SR -->
 
@@ -626,14 +604,13 @@
       <T_setup    value="10e-12" port="SB_DFFNR.D" clock="C"/>
       <T_clock_to_Q max="10e-12" port="SB_DFFNR.Q" clock="C"/>
       <metadata>
-       <meta name="hlc_property">
-           # - SB_DFFNR
-           enable_dff
-           # NegClk
-           # no_cen
-           async_setreset
-           # reset
-       </meta>
+       <meta name="hlc_property"># - SB_DFFNR
+        enable_dff
+        # NegClk
+        # no_cen
+        async_setreset
+        # reset
+</meta>
       </metadata>
      </pb_type>
      <interconnect>
@@ -657,14 +634,13 @@
       <T_setup    value="10e-12" port="SB_DFFNS.D" clock="C"/>
       <T_clock_to_Q max="10e-12" port="SB_DFFNS.Q" clock="C"/>
       <metadata>
-       <meta name="hlc_property">
-           # - SB_DFFNS
-           enable_dff
-           # NegClk
-           # no_cen
-           async_setreset
-           set_noreset
-       </meta>
+       <meta name="hlc_property"># - SB_DFFNS
+        enable_dff
+        # NegClk
+        # no_cen
+        async_setreset
+        set_noreset
+</meta>
       </metadata>
      </pb_type>
      <interconnect>
@@ -688,14 +664,13 @@
       <T_setup    value="10e-12" port="SB_DFFNSR.D" clock="C"/>
       <T_clock_to_Q max="10e-12" port="SB_DFFNSR.Q" clock="C"/>
       <metadata>
-       <meta name="hlc_property">
-           # - SB_DFFNSR
-           enable_dff
-           # NegClk
-           # no_cen
-           # sync_setreset
-           # reset
-       </meta>
+       <meta name="hlc_property"># - SB_DFFNSR
+        enable_dff
+        # NegClk
+        # no_cen
+        # sync_setreset
+        # reset
+</meta>
       </metadata>
      </pb_type>
      <interconnect>
@@ -719,14 +694,13 @@
       <T_setup    value="10e-12" port="SB_DFFNSS.D" clock="C"/>
       <T_clock_to_Q max="10e-12" port="SB_DFFNSS.Q" clock="C"/>
       <metadata>
-       <meta name="hlc_property">
-           # - SB_DFFNSS
-           enable_dff
-           # NegClk
-           # no_cen
-           # sync_setreset
-           set_noreset
-       </meta>
+       <meta name="hlc_property"># - SB_DFFNSS
+        enable_dff
+        # NegClk
+        # no_cen
+        # sync_setreset
+        set_noreset
+</meta>
       </metadata>
      </pb_type>
      <interconnect>
@@ -790,11 +764,9 @@
     <direct><port type="input" from="BEL_FF-SB_FF[7]" name="Q"/><port type="output" name="Q[7]"/></direct>
    </interconnect>
    <metadata>
-    <meta name="hlc_property">
-        NegClk
-        # no_cen
-        # use_setreset
-    </meta>
+				<meta name="hlc_property"># NCLK+SR
+    NegClk</meta>
+    <meta name="hlc_cell">global</meta>
    </metadata>
   </mode><!-- NCLK+SR -->
 
@@ -820,14 +792,13 @@
       <T_setup    value="10e-12" port="SB_DFFER.D" clock="C"/>
       <T_clock_to_Q max="10e-12" port="SB_DFFER.Q" clock="C"/>
       <metadata>
-       <meta name="hlc_property">
-           # - SB_DFFER - $_DFFE_PN0
-           enable_dff
-           # PosClk
-           # use_cen
-           async_setreset
-           # reset
-       </meta>
+       <meta name="hlc_property"># - SB_DFFER - $_DFFE_PN0
+        enable_dff
+        # PosClk
+        # use_cen
+        async_setreset
+        # reset
+</meta>
       </metadata>
      </pb_type>
      <interconnect>
@@ -854,14 +825,13 @@
       <T_setup    value="10e-12" port="SB_DFFES.D" clock="C"/>
       <T_clock_to_Q max="10e-12" port="SB_DFFES.Q" clock="C"/>
       <metadata>
-       <meta name="hlc_property">
-           # SB_DFFES - $_DFFE_PN1
-           enable_dff
-           # PosClk
-           # use_cen
-           async_setreset
-           set_noreset
-       </meta>
+       <meta name="hlc_property"># SB_DFFES - $_DFFE_PN1
+        enable_dff
+        # PosClk
+        # use_cen
+        async_setreset
+        set_noreset
+</meta>
       </metadata>
      </pb_type>
      <interconnect>
@@ -888,14 +858,13 @@
       <T_setup    value="10e-12" port="SB_DFFESR.D" clock="C"/>
       <T_clock_to_Q max="10e-12" port="SB_DFFESR.Q" clock="C"/>
       <metadata>
-       <meta name="hlc_property">
-           # - SB_DFFESR
-           enable_dff
-           # PosClk
-           # use_cen
-           # sync_setreset
-           # reset
-       </meta>
+       <meta name="hlc_property"># - SB_DFFESR
+        enable_dff
+        # PosClk
+        # use_cen
+        # sync_setreset
+        # reset
+</meta>
       </metadata>
      </pb_type>
      <interconnect>
@@ -922,14 +891,13 @@
       <T_setup    value="10e-12" port="SB_DFFESS.D" clock="C"/>
       <T_clock_to_Q max="10e-12" port="SB_DFFESS.Q" clock="C"/>
       <metadata>
-       <meta name="hlc_property">
-           # - SB_DFFESS
-           enable_dff
-           # PosClk
-           # use_cen
-           # sync_setreset
-           set_noreset
-       </meta>
+       <meta name="hlc_property"># - SB_DFFESS
+        enable_dff
+        # PosClk
+        # use_cen
+        # sync_setreset
+        set_noreset
+</meta>
       </metadata>
      </pb_type>
      <interconnect>
@@ -1003,11 +971,8 @@
     <direct><port type="input" from="BEL_FF-SB_FF[7]" name="Q"/><port type="output" name="Q[7]"/></direct>
    </interconnect>
    <metadata>
-    <meta name="hlc_property">
-        # PosClk
-        # use_cen
-        # use_setreset
-    </meta>
+    <meta name="hlc_property"># PCLK+CEN+SR</meta>
+    <meta name="hlc_cell">global</meta>
    </metadata>
   </mode><!-- PCLK+CEN+SR -->
 
@@ -1033,14 +998,13 @@
       <T_setup    value="10e-12" port="SB_DFFNER.D" clock="C"/>
       <T_clock_to_Q max="10e-12" port="SB_DFFNER.Q" clock="C"/>
       <metadata>
-       <meta name="hlc_property">
-           enable_dff
-           # - SB_DFFNER
-           # NegClk
-           # use_cen
-           async_setreset
-           # reset
-       </meta>
+       <meta name="hlc_property"># - SB_DFFNER
+        enable_dff
+        # NegClk
+        # use_cen
+        async_setreset
+        # reset
+</meta>
       </metadata>
      </pb_type>
      <interconnect>
@@ -1067,14 +1031,13 @@
       <T_setup    value="10e-12" port="SB_DFFNES.D" clock="C"/>
       <T_clock_to_Q max="10e-12" port="SB_DFFNES.Q" clock="C"/>
       <metadata>
-       <meta name="hlc_property">
-           # - SB_DFFNES
-           enable_dff
-           # NegClk
-           # use_cen
-           async_setreset
-           set_noreset
-       </meta>
+       <meta name="hlc_property"># - SB_DFFNES
+        enable_dff
+        # NegClk
+        # use_cen
+        async_setreset
+        set_noreset
+</meta>
       </metadata>
      </pb_type>
      <interconnect>
@@ -1101,14 +1064,13 @@
       <T_setup    value="10e-12" port="SB_DFFNESR.D" clock="C"/>
       <T_clock_to_Q max="10e-12" port="SB_DFFNESR.Q" clock="C"/>
       <metadata>
-       <meta name="hlc_property">
-           # - SB_DFFNESR
-           enable_dff
-           # NegClk
-           # use_cen
-           # sync_setreset
-           # reset
-       </meta>
+       <meta name="hlc_property"># - SB_DFFNESR
+        enable_dff
+        # NegClk
+        # use_cen
+        # sync_setreset
+        # reset
+</meta>
       </metadata>
      </pb_type>
      <interconnect>
@@ -1135,14 +1097,13 @@
       <T_setup    value="10e-12" port="SB_DFFNESS.D" clock="C"/>
       <T_clock_to_Q max="10e-12" port="SB_DFFNESS.Q" clock="C"/>
       <metadata>
-       <meta name="hlc_property">
-           # - SB_DFFNESS
-           enable_dff
-           # NegClk
-           # use_cen
-           # sync_setreset
-           set_noreset
-       </meta>
+       <meta name="hlc_property"># - SB_DFFNESS
+        enable_dff
+        # NegClk
+        # use_cen
+        # sync_setreset
+        set_noreset
+</meta>
       </metadata>
      </pb_type>
      <interconnect>
@@ -1216,12 +1177,9 @@
     <direct><port type="input" from="BEL_FF-SB_FF[7]" name="Q"/><port type="output" name="Q[7]"/></direct>
    </interconnect>
    <metadata>
-    <meta name="hlc_property">
-        NegClk
-        # use_cen
-        # use_setreset
-    </meta>
-    <meta name="hlc_cell">lutff</meta>
+    <meta name="hlc_property"># NCLK+CEN+SR
+    NegClk</meta>
+    <meta name="hlc_cell">global</meta>
    </metadata>
   </mode><!-- NCLK+CEN+SR -->
  </pb_type>
@@ -1245,52 +1203,102 @@
   <direct><port type="input" name="lutff_0/in[0]"/><port type="output" name="in[0]" from="BLK_IG-LUT4[0]"/></direct>
   <direct><port type="input" name="lutff_0/in[1]"/><port type="output" name="in[1]" from="BLK_IG-LUT4[0]"/></direct>
   <direct><port type="input" name="lutff_0/in[2]"/><port type="output" name="in[2]" from="BLK_IG-LUT4[0]"/></direct>
-  <direct><port type="input" name="lutff_0/in[3]"/><port type="output" name="in[3]" from="BLK_IG-LUT4[0]"/></direct>
-  <!--
-  <mux input="BLK_TL-PLB.lutff_0/in[3] BLK_TL-PLB.FCIN" output="BLK_IG-LUT4[0].in[3]" name="BLK_IG-LUT4[0].in[3]"></mux>
-  -->
+		<mux input="BLK_TL-PLB.lutff_7/in[3]" output="BLK_IG-LUT4[7].in[3]" name="BLK_IG-LUT4[7].in[3]-A" />
+		<!--
+		<mux input="SB_CARRY[6].CO"           output="BLK_IG-LUT4[7].in[3]" name="BLK_IG-LUT4[7].in[3]-B">
+			<metadata><meta name="hlc_property">lutff_6/cout -> lutff_7/in_3</meta></metadata>
+		</mux>
+		-->
 
   <!-- LUT1 inputs -->
   <direct><port type="input" name="lutff_1/in[0]"/><port type="output" from="BLK_IG-LUT4[1]" name="in[0]"/></direct>
   <direct><port type="input" name="lutff_1/in[1]"/><port type="output" from="BLK_IG-LUT4[1]" name="in[1]"/></direct>
-  <mux input="BLK_TL-PLB.lutff_1/in[2] BLK_IG-LUT4[0].out" output="BLK_IG-LUT4[1].in[2]" name="BLK_IG-LUT4[1].in[2]"></mux>
-  <mux input="BLK_TL-PLB.lutff_1/in[3] SB_CARRY[0].CO"     output="BLK_IG-LUT4[1].in[3]" name="BLK_IG-LUT4[1].in[3]"></mux>
+  <direct><port type="input" name="lutff_1/in[2]"/><port type="output" from="BLK_IG-LUT4[1]" name="in[2]"/></direct>
+		<mux input="BLK_TL-PLB.lutff_1/in[2]" output="BLK_IG-LUT4[1].in[2]" name="BLK_IG-LUT4[1].in[2]-A" />
+		<mux input="BLK_IG-LUT4[0].out"       output="BLK_IG-LUT4[1].in[2]" name="BLK_IG-LUT4[1].in[2]-B">
+			<metadata><meta name="hlc_property">lutff_0/lout -> lutff_1/in_2</meta></metadata>
+		</mux>
+		<mux input="BLK_TL-PLB.lutff_1/in[3]" output="BLK_IG-LUT4[1].in[3]" name="BLK_IG-LUT4[1].in[3]-A" />
+		<mux input="SB_CARRY[0].CO"           output="BLK_IG-LUT4[1].in[3]" name="BLK_IG-LUT4[1].in[3]-B">
+			<metadata><meta name="hlc_property">lutff_0/cout -> lutff_1/in_3</meta></metadata>
+		</mux>
 
   <!-- LUT2 inputs -->
   <direct><port type="input" name="lutff_2/in[0]"/><port type="output" from="BLK_IG-LUT4[2]" name="in[0]"/></direct>
   <direct><port type="input" name="lutff_2/in[1]"/><port type="output" from="BLK_IG-LUT4[2]" name="in[1]"/></direct>
-  <mux input="BLK_TL-PLB.lutff_2/in[2] BLK_IG-LUT4[1].out" output="BLK_IG-LUT4[2].in[2]" name="BLK_IG-LUT4[2].in[2]"></mux>
-  <mux input="BLK_TL-PLB.lutff_2/in[3] SB_CARRY[1].CO"     output="BLK_IG-LUT4[2].in[3]" name="BLK_IG-LUT4[2].in[3]"></mux>
+  <direct><port type="input" name="lutff_2/in[2]"/><port type="output" from="BLK_IG-LUT4[2]" name="in[2]"/></direct>
+		<mux input="BLK_TL-PLB.lutff_2/in[2]" output="BLK_IG-LUT4[2].in[2]" name="BLK_IG-LUT4[2].in[2]-A" />
+		<mux input="BLK_IG-LUT4[1].out"       output="BLK_IG-LUT4[2].in[2]" name="BLK_IG-LUT4[2].in[2]-B">
+			<metadata><meta name="hlc_property">lutff_1/lout -> lutff_2/in_2</meta></metadata>
+		</mux>
+		<mux input="BLK_TL-PLB.lutff_2/in[3]" output="BLK_IG-LUT4[2].in[3]" name="BLK_IG-LUT4[2].in[3]-A" />
+		<mux input="SB_CARRY[1].CO"           output="BLK_IG-LUT4[2].in[3]" name="BLK_IG-LUT4[2].in[3]-B">
+			<metadata><meta name="hlc_property">lutff_1/cout -> lutff_2/in_3</meta></metadata>
+		</mux>
 
   <!-- LUT3 inputs -->
   <direct><port type="input" name="lutff_3/in[0]"/><port type="output" from="BLK_IG-LUT4[3]" name="in[0]"/></direct>
   <direct><port type="input" name="lutff_3/in[1]"/><port type="output" from="BLK_IG-LUT4[3]" name="in[1]"/></direct>
-  <mux input="BLK_TL-PLB.lutff_3/in[2] BLK_IG-LUT4[2].out" output="BLK_IG-LUT4[3].in[2]" name="BLK_IG-LUT4[3].in[2]"></mux>
-  <mux input="BLK_TL-PLB.lutff_3/in[3] SB_CARRY[2].CO"     output="BLK_IG-LUT4[3].in[3]" name="BLK_IG-LUT4[3].in[3]"></mux>
+  <direct><port type="input" name="lutff_3/in[2]"/><port type="output" from="BLK_IG-LUT4[3]" name="in[2]"/></direct>
+		<mux input="BLK_TL-PLB.lutff_3/in[2]" output="BLK_IG-LUT4[3].in[2]" name="BLK_IG-LUT4[3].in[2]-A" />
+		<mux input="BLK_IG-LUT4[2].out"       output="BLK_IG-LUT4[3].in[2]" name="BLK_IG-LUT4[3].in[2]-B">
+			<metadata><meta name="hlc_property">lutff_2/lout -> lutff_3/in_2</meta></metadata>
+		</mux>
+		<mux input="BLK_TL-PLB.lutff_3/in[3]" output="BLK_IG-LUT4[3].in[3]" name="BLK_IG-LUT4[3].in[3]-A" />
+		<mux input="SB_CARRY[2].CO"           output="BLK_IG-LUT4[3].in[3]" name="BLK_IG-LUT4[3].in[3]-B">
+			<metadata><meta name="hlc_property">lutff_2/cout -> lutff_3/in_3</meta></metadata>
+		</mux>
 
   <!-- LUT4 inputs -->
   <direct><port type="input" name="lutff_4/in[0]"/><port type="output" from="BLK_IG-LUT4[4]" name="in[0]"/></direct>
   <direct><port type="input" name="lutff_4/in[1]"/><port type="output" from="BLK_IG-LUT4[4]" name="in[1]"/></direct>
-  <mux input="BLK_TL-PLB.lutff_4/in[2] BLK_IG-LUT4[3].out" output="BLK_IG-LUT4[4].in[2]" name="BLK_IG-LUT4[4].in[2]"></mux>
-  <mux input="BLK_TL-PLB.lutff_4/in[3] SB_CARRY[3].CO"     output="BLK_IG-LUT4[4].in[3]" name="BLK_IG-LUT4[4].in[3]"></mux>
+  <direct><port type="input" name="lutff_4/in[2]"/><port type="output" from="BLK_IG-LUT4[4]" name="in[2]"/></direct>
+		<mux input="BLK_TL-PLB.lutff_4/in[2]" output="BLK_IG-LUT4[4].in[2]" name="BLK_IG-LUT4[4].in[2]-A" />
+		<mux input="BLK_IG-LUT4[3].out"       output="BLK_IG-LUT4[4].in[2]" name="BLK_IG-LUT4[4].in[2]-B">
+			<metadata><meta name="hlc_property">lutff_3/lout -> lutff_4/in_2</meta></metadata>
+		</mux>
+		<mux input="BLK_TL-PLB.lutff_4/in[3]" output="BLK_IG-LUT4[4].in[3]" name="BLK_IG-LUT4[4].in[3]-A" />
+		<mux input="SB_CARRY[3].CO"           output="BLK_IG-LUT4[4].in[3]" name="BLK_IG-LUT4[4].in[3]-B">
+			<metadata><meta name="hlc_property">lutff_3/cout -> lutff_4/in_3</meta></metadata>
+		</mux>
 
   <!-- LUT5 inputs -->
   <direct><port type="input" name="lutff_5/in[0]"/><port type="output" from="BLK_IG-LUT4[5]" name="in[0]"/></direct>
   <direct><port type="input" name="lutff_5/in[1]"/><port type="output" from="BLK_IG-LUT4[5]" name="in[1]"/></direct>
-  <mux input="BLK_TL-PLB.lutff_5/in[2] BLK_IG-LUT4[4].out" output="BLK_IG-LUT4[5].in[2]" name="BLK_IG-LUT4[5].in[2]"></mux>
-  <mux input="BLK_TL-PLB.lutff_5/in[3] SB_CARRY[4].CO"     output="BLK_IG-LUT4[5].in[3]" name="BLK_IG-LUT4[5].in[3]"></mux>
+  <direct><port type="input" name="lutff_5/in[2]"/><port type="output" from="BLK_IG-LUT4[5]" name="in[2]"/></direct>
+		<mux input="BLK_TL-PLB.lutff_5/in[2]" output="BLK_IG-LUT4[5].in[2]" name="BLK_IG-LUT4[5].in[2]-A" />
+		<mux input="BLK_IG-LUT4[4].out"       output="BLK_IG-LUT4[5].in[2]" name="BLK_IG-LUT4[5].in[2]-B">
+			<metadata><meta name="hlc_property">lutff_4/lout -> lutff_5/in_2</meta></metadata>
+		</mux>
+		<mux input="BLK_TL-PLB.lutff_5/in[3]" output="BLK_IG-LUT4[5].in[3]" name="BLK_IG-LUT4[5].in[3]-A" />
+		<mux input="SB_CARRY[4].CO"           output="BLK_IG-LUT4[5].in[3]" name="BLK_IG-LUT4[5].in[3]-B">
+			<metadata><meta name="hlc_property">lutff_4/cout -> lutff_5/in_3</meta></metadata>
+		</mux>
 
   <!-- LUT6 inputs -->
   <direct><port type="input" name="lutff_6/in[0]"/><port type="output" from="BLK_IG-LUT4[6]" name="in[0]"/></direct>
   <direct><port type="input" name="lutff_6/in[1]"/><port type="output" from="BLK_IG-LUT4[6]" name="in[1]"/></direct>
-  <mux input="BLK_TL-PLB.lutff_6/in[2] BLK_IG-LUT4[5].out" output="BLK_IG-LUT4[6].in[2]" name="BLK_IG-LUT4[6].in[2]"></mux>
-  <mux input="BLK_TL-PLB.lutff_6/in[3] SB_CARRY[5].CO"     output="BLK_IG-LUT4[6].in[3]" name="BLK_IG-LUT4[6].in[3]"></mux>
+  <direct><port type="input" name="lutff_6/in[2]"/><port type="output" from="BLK_IG-LUT4[6]" name="in[2]"/></direct>
+		<mux input="BLK_TL-PLB.lutff_6/in[2]" output="BLK_IG-LUT4[6].in[2]" name="BLK_IG-LUT4[6].in[2]-A" />
+		<mux input="BLK_IG-LUT4[5].out"       output="BLK_IG-LUT4[6].in[2]" name="BLK_IG-LUT4[6].in[2]-B">
+			<metadata><meta name="hlc_property">lutff_5/lout -> lutff_6/in_2</meta></metadata>
+		</mux>
+		<mux input="BLK_TL-PLB.lutff_6/in[3]" output="BLK_IG-LUT4[6].in[3]" name="BLK_IG-LUT4[6].in[3]-A" />
+		<mux input="SB_CARRY[5].CO"           output="BLK_IG-LUT4[6].in[3]" name="BLK_IG-LUT4[6].in[3]-B">
+			<metadata><meta name="hlc_property">lutff_5/cout -> lutff_6/in_3</meta></metadata>
+		</mux>
 
   <!-- LUT7 inputs -->
   <direct><port type="input" name="lutff_7/in[0]"/><port type="output" from="BLK_IG-LUT4[7]" name="in[0]"/></direct>
   <direct><port type="input" name="lutff_7/in[1]"/><port type="output" from="BLK_IG-LUT4[7]" name="in[1]"/></direct>
-  <mux input="BLK_TL-PLB.lutff_7/in[2] BLK_IG-LUT4[6].out" output="BLK_IG-LUT4[7].in[2]" name="BLK_IG-LUT4[7].in[2]"></mux>
-  <mux input="BLK_TL-PLB.lutff_7/in[3] SB_CARRY[6].CO"     output="BLK_IG-LUT4[7].in[3]" name="BLK_IG-LUT4[7].in[3]"></mux>
+		<mux input="BLK_TL-PLB.lutff_7/in[2]" output="BLK_IG-LUT4[7].in[2]" name="BLK_IG-LUT4[7].in[2]-A" />
+		<mux input="BLK_IG-LUT4[6].out"       output="BLK_IG-LUT4[7].in[2]" name="BLK_IG-LUT4[7].in[2]-B">
+			<metadata><meta name="hlc_property">lutff_6/lout -> lutff_7/in_2</meta></metadata>
+		</mux>
+		<mux input="BLK_TL-PLB.lutff_7/in[3]" output="BLK_IG-LUT4[7].in[3]" name="BLK_IG-LUT4[7].in[3]-A" />
+		<mux input="SB_CARRY[6].CO"           output="BLK_IG-LUT4[7].in[3]" name="BLK_IG-LUT4[7].in[3]-B">
+			<metadata><meta name="hlc_property">lutff_6/cout -> lutff_7/in_3</meta></metadata>
+		</mux>
 
   <!-- D flip-flop controls -->
   <!-- Global Clock -->
