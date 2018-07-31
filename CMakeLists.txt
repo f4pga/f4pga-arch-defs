@@ -175,9 +175,6 @@ function(V2X)
   cmake_parse_arguments(V2X "${options}" "${oneValueArgs}" "${multiValueArgs}" ${ARGN} )
 
   set(INCLUDES "")
-  list(APPEND INCLUDES "${CMAKE_CURRENT_BINARY_DIR}")
-  list(APPEND INCLUDES "${CMAKE_CURRENT_SOURCE_DIR}")
-  list(APPEND INCLUDES "${symbiflow-arch-defs_SOURCE_DIR}")
 
   set(DEPENDS_LIST "")
   set(REAL_SOURCE_LIST "")
