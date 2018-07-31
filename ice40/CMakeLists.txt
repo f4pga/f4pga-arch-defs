@@ -1,2 +1,50 @@
-add_subdirectory(devices)
+SET(ICESTORM ${symbiflow-arch-defs_SOURCE_DIR}/third_party/icestorm)
+SET(ICEBOX ${ICESTORM}/icebox/)
+
+DEFINE_ARCH(
+  ARCH ice40
+  YOSYS_SCRIPT "synth_ice40 -nocarry; ice40_opt -unlut; abc -lut 4; opt_clean;"
+  RR_PATCH_TOOL ${symbiflow-arch-defs_SOURCE_DIR}/ice40/utils/ice40_import_routing_from_icebox.py
+  RR_PATCH_CMD "\${RR_PATCH_TOOL}
+  --verbose
+  --device=\${DEVICE}
+  --read_rr_graph \${OUT_RRXML_VIRT}
+  --write_rr_graph \${OUT_RRXML_REAL}"
+  PLACE_TOOL ${symbiflow-arch-defs_SOURCE_DIR}/ice40/utils/ice40_create_ioplace.py
+  PLACE_TOOL_CMD "\${PLACE_TOOL}
+  --map \$<TARGET_PROPERTY:\${DEVICE}},PINMAP>
+  --blif \${OUT_EBLIF}
+  --pcf \${INPUT_IO_FILE}"
+  CELLS_SIM ${symbiflow-arch-defs_SOURCE_DIR}/ice40/cells_sim.v
+  EQUIV_CHECK_SCRIPT "hierarchy; proc; clk2fflogic; miter -equiv -flatten -ignore_gold_x -make_outputs -make_outcmp gold gate miter; sat -verify-no-timeout -timeout 600 -seq 1000 -prove trigger 0 -prove-skip 1 -show-inputs -show-outputs miter"
+  HLC_TO_BIT ${ICEBOX}/icebox_hlc2asc.py
+  HLC_TO_BIT_CMD \${HLC_TO_BIT} \${OUT_HLC} > \${OUT_BITSTREAM}
+  BITSTREAM_EXTENSION asc
+  )
+
 add_subdirectory(primitives)
+add_subdirectory(cells)
+add_subdirectory(devices)
+
+DEFINE_BOARD(
+  BOARD icestick
+  DEVICE hx1k
+  PACKAGE tq144
+  PROG_TOOL ${ICEPROG_TOOL}
+  )
+
+DEFINE_BOARD(
+  BOARD iceblink40-lp1k
+  DEVICE lp1k
+  PACKAGE qn84
+  PROG_TOOL ${ICEPROG_TOOL}
+  PROG_CMD $${PROG_TOOL}} -ew
+  )
+
+DEFINE_BOARD(
+  BOARD hx8k-b-evn
+  DEVICE hx8k
+  PACKAGE ct256
+  PROG_TOOL ${ICEPROG_TOOL}
+  PROG_CMD $${PROG_TOOL}} -S
+  )
