@@ -151,8 +151,9 @@ def main(argv):
 
     outdir = normpath(outdir)
 
-    mux_dir = os.path.join('vpr', 'muxes')
-    buf_dir = os.path.join('vpr', 'buf')
+    mydir = normpath(os.path.dirname(mypath), to=outdir)
+    mux_dir = normpath(os.path.join(mydir, '..', 'vpr', 'muxes'), to=outdir)
+    buf_dir = normpath(os.path.join(mydir, '..', 'vpr', 'buf'), to=outdir)
 
     if args.data_width > 1 and not args.split_inputs:
         assert False, "data_width(%d) > 1 requires using split_inputs" % (
