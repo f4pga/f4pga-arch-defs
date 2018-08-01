@@ -65,6 +65,8 @@ function(DEFINE_ARCH)
     EQUIV_CHECK_SCRIPT
     HLC_TO_BIT
     HLC_TO_BIT_CMD
+    BIT_TO_V
+    BIT_TO_V_CMD
   )
   set(multiValueArgs)
   cmake_parse_arguments(
@@ -88,6 +90,8 @@ function(DEFINE_ARCH)
     EQUIV_CHECK_SCRIPT
     HLC_TO_BIT
     HLC_TO_BIT_CMD
+    BIT_TO_V
+    BIT_TO_V_CMD
   )
     if("${DEFINE_ARCH_${ARG}}" STREQUAL "")
       message(FATAL_ERROR "Required argument ${ARG} is the empty string.")
@@ -473,7 +477,7 @@ function(ADD_FPGA_TARGET)
     OUTPUT ${OUT_EBLIF}
     DEPENDS ${SOURCE_FILES} ${SOURCE_FILES_DEPS} ${DIRECTORY_TARGET}
     COMMAND
-      ${YOSYS} -P "${COMPLETE_YOSYS_SCRIPT}" ${SOURCE_FILES}
+      ${YOSYS} -p "${COMPLETE_YOSYS_SCRIPT}" ${SOURCE_FILES}
     VERBATIM
   )
   add_custom_target(${NAME}_eblif DEPENDS ${OUT_EBLIF})
@@ -541,7 +545,7 @@ function(ADD_FPGA_TARGET)
         ${PINMAP}
         ${PINMAP_TARGET}
         ${VPR_DEPS}
-      COMMAND ${PLACE_TOOL_CMD_FOR_TARGET_LIST} --OUT ${OUT_IO}
+      COMMAND ${PLACE_TOOL_CMD_FOR_TARGET_LIST} --out ${OUT_IO}
       WORKING_DIRECTORY ${OUT_LOCAL}
     )
 
@@ -554,7 +558,7 @@ function(ADD_FPGA_TARGET)
   add_custom_command(
     OUTPUT ${OUT_NET}
     DEPENDS ${OUT_EBLIF} ${OUT_IO} ${VPR_DEPS}
-    COMMAND ${VPR_CMD} --PACK --PLACE
+    COMMAND ${VPR_CMD} --pack --place
     COMMAND
       ${CMAKE_COMMAND} -E copy ${OUT_LOCAL}/vpr_stdout.log ${OUT_LOCAL}/pack.log
     WORKING_DIRECTORY ${OUT_LOCAL}
@@ -566,7 +570,7 @@ function(ADD_FPGA_TARGET)
   add_custom_command(
     OUTPUT ${OUT_PLACE}
     DEPENDS ${OUT_NET} ${OUT_IO} ${VPR_DEPS}
-    COMMAND ${VPR_CMD} --PLACE
+    COMMAND ${VPR_CMD} --place
     COMMAND
       ${CMAKE_COMMAND} -E copy ${OUT_LOCAL}/vpr_stdout.log
       ${OUT_LOCAL}/place.log
@@ -578,7 +582,7 @@ function(ADD_FPGA_TARGET)
   add_custom_command(
     OUTPUT ${OUT_ROUTE} ${OUT_HLC}
     DEPENDS ${OUT_PLACE} ${OUT_IO} ${VPR_DEPS}
-    COMMAND ${VPR_CMD} --ROUTE
+    COMMAND ${VPR_CMD} --route
     WORKING_DIRECTORY ${OUT_LOCAL}
   )
 
@@ -602,12 +606,33 @@ function(ADD_FPGA_TARGET)
 
   add_custom_target(${NAME}_bit ALL DEPENDS ${OUT_BITSTREAM})
 
+  set(OUT_BIT_VERILOG ${OUT_LOCAL}/${TOP}_bit.v)
+  get_target_property_required(BIT_TO_V ${ARCH} BIT_TO_V)
+  get_target_property_required(BIT_TO_V_CMD ${ARCH} BIT_TO_V_CMD)
+  string(CONFIGURE ${BIT_TO_V_CMD} BIT_TO_V_CMD_FOR_TARGET)
+  separate_arguments(
+    BIT_TO_V_CMD_FOR_TARGET_LIST UNIX_COMMAND ${BIT_TO_V_CMD_FOR_TARGET}
+  )
+  add_custom_command(
+    OUTPUT ${OUT_BIT_VERILOG}
+    COMMAND ${BIT_TO_V_CMD_FOR_TARGET_LIST}
+    DEPENDS ${BIT_TO_V}
+    )
+
+  add_custom_target(${NAME}_bit_v DEPENDS ${OUT_BIT_VERILOG})
+  make_file_target(FILE ${NAME}/${FQDN}/${TOP}_bit.v GENERATED)
+
   foreach(TESTBENCH ${TESTBENCH_SOURCES})
     get_filename_component(TESTBENCH_NAME ${TESTBENCH} NAME_WE)
     add_testbench(
-      NAME ${TESTBENCH_NAME}
+      NAME testbench_${TESTBENCH_NAME}
       ARCH ${ARCH}
-      SOURCES ${TESTBENCH}
+      SOURCES ${TESTBENCH} ${ADD_FPGA_TARGET_SOURCES}
+      )
+    add_testbench(
+      NAME testbinch_${TESTBENCH_NAME}
+      ARCH ${ARCH}
+      SOURCES ${TESTBENCH} ${OUT_BIT_VERILOG}
       )
   endforeach()
 endfunction()
