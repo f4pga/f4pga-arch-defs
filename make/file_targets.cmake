@@ -60,6 +60,22 @@ function(GET_FILE_LOCATION var src_file)
   set(${var} ${SRC_LOCATION} PARENT_SCOPE)
 endfunction()
 
+function(APPEND_FILE_LOCATION var src_file)
+  # Appends to list var in PARENT_SCOPE both file location for
+  # given src_file.
+  get_file_target(SRC_TARGET ${src_file})
+  get_target_property(SRC_LOCATION ${SRC_TARGET} LOCATION)
+  if("${SRC_LOCATION}" STREQUAL "NOT_FOUND")
+    message(
+      FATAL_ERROR
+        "File ${src_file} is not a valid verilog target, missing LOCATION."
+    )
+  endif()
+
+  list(APPEND ${var} ${SRC_LOCATION})
+  set(${var} "${${var}}" PARENT_SCOPE)
+endfunction()
+
 function(APPEND_FILE_DEPENDENCY var src_file)
   # Appends to list var in PARENT_SCOPE both file location and file target for
   # given src_file.
