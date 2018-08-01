@@ -156,10 +156,10 @@ function(DEFINE_DEVICE_TYPE)
       ${CMAKE_CURRENT_BINARY_DIR}/${OUT_DEVICE_DIR}
     COMMAND
       ${XSLTPROC}
-      --NOMKDIR
-      --NONET
-      --XINCLUDE
-      --OUTPUT ${MERGE_XML_OUTPUT} ${MERGE_XML_XSL} ${MERGE_XML_INPUT}
+      --nomkdir
+      --nonet
+      --xinclude
+      --output ${MERGE_XML_OUTPUT} ${MERGE_XML_XSL} ${MERGE_XML_INPUT}
   )
   add_custom_target(
     ${DEFINE_DEVICE_TYPE_ARCH}_${DEFINE_DEVICE_TYPE_DEVICE_TYPE}_arch
@@ -248,13 +248,12 @@ function(DEFINE_DEVICE)
         ${DEVICE_MERGED_FILE} ${DEVICE_MERGED_FILE_TARGET}
       COMMAND
         ${VPR} ${DEVICE_MERGED_FILE}
-        --DEVICE
-          ${DEVICE}-${PACKAGE}
-          ${symbiflow-arch-defs_SOURCE_DIR}/common/wire.eblif
-        --ROUTE_CHAN_WIDTH 100
-        --ECHO_FILE on
-        --MIN_ROUTE_CHAN_WIDTH_HINT 1
-        --WRITE_RR_GRAPH ${OUT_RRXML_VIRT}
+        --device ${DEVICE}-${PACKAGE}
+        ${symbiflow-arch-defs_SOURCE_DIR}/common/wire.eblif
+        --route_chan_width 100
+        --echo_file on
+        --min_route_chan_width_hint 1
+        --write_rr_graph ${OUT_RRXML_VIRT}
       COMMAND
         ${CMAKE_COMMAND} -E remove wire.{net,place,route}
       COMMAND
@@ -428,7 +427,7 @@ function(ADD_FPGA_TARGET)
   set(DEVICE_FULL ${DEVICE}-${PACKAGE})
   set(FQDN ${ARCH}-${DEVICE_TYPE}-${DEVICE}-${PACKAGE})
   set(OUT_LOCAL ${CMAKE_CURRENT_BINARY_DIR}/${NAME}/${FQDN})
-  set(DIRECTORY_TARGET ${NAME}-${FQDN}-make-directory)
+  set(DIRECTORY_TARGET ${ADD_FPGA_TARGET_NAME}-${FQDN}-make-directory)
   add_custom_target(
     ${DIRECTORY_TARGET} ALL
     COMMAND
@@ -503,30 +502,18 @@ function(ADD_FPGA_TARGET)
     ${VPR}
     ${DEVICE_MERGED_FILE_LOCATION}
     ${OUT_EBLIF}
-    --device
-    ${DEVICE_FULL}
-    --min_route_chan_width_hint
-    ${VPR_ROUTE_CHAN_MINWIDTH_HINT}
-    --route_chan_width
-    ${VPR_ROUTE_CHAN_WIDTH}
-    --read_rr_graph
-    ${OUT_RRXML_REAL_LOCATION}
-    --verbose_sweep
-    on
-    --allow_unrelated_clustering
-    off
-    --max_criticality
-    0.0
-    --target_ext_pin_util
-    0.7
-    --max_router_iterations
-    500
-    --routing_failure_predictor
-    off
-    --clock_modeling
-    route
-    --constant_net_method
-    route
+    --device ${DEVICE_FULL}
+    --min_route_chan_width_hint ${VPR_ROUTE_CHAN_MINWIDTH_HINT}
+    --route_chan_width ${VPR_ROUTE_CHAN_WIDTH}
+    --read_rr_graph ${OUT_RRXML_REAL_LOCATION}
+    --verbose_sweep on
+    --allow_unrelated_clustering off
+    --max_criticality 0.0
+    --target_ext_pin_util 0.7
+    --max_router_iterations 500
+    --routing_failure_predictor off
+    --clock_modeling route
+    --constant_net_method route
   )
 
   # Generate IO constraints file.
