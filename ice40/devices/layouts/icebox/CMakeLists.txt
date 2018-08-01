@@ -43,7 +43,7 @@ function(ADD_ICEBOX_LAYOUTS)
     set_target_properties(
       ${DEVICE}
       PROPERTIES
-      ${DEVICE}_${PACKAGE}_PINMAP ${symbiflow-arch-defs_SOURCE_DIR}/ice40/devices/layouts/icebox/${DEVICE}.${PACKAGE}.pinmap.csv
+      ${PACKAGE}_PINMAP ${symbiflow-arch-defs_SOURCE_DIR}/ice40/devices/layouts/icebox/${DEVICE}.${PACKAGE}.pinmap.csv
       )
   endforeach()
 endfunction()
