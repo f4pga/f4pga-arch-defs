@@ -1,22 +1,10 @@
-MAKE_FILE_TARGET(
-  FILE ntemplate.Nlut.sim.v
-  SCANNER_TYPE verilog
-  )
+make_file_target(FILE ntemplate.Nlut.sim.v SCANNER_TYPE verilog)
 
-MAKE_FILE_TARGET(
-  FILE ntemplate.Nlut.pb_type.xml
-  )
-N_TEMPLATE(
+make_file_target(FILE ntemplate.Nlut.pb_type.xml)
+n_template(
   NAME Nlut.pb_type.xml
   PREFIXES a;b;c;d
   SRCS ntemplate.Nlut.pb_type.xml
-  
-  )
+)
 
-N_TEMPLATE(
-  NAME Nlut.sim.v
-  PREFIXES a;b;c;d
-  SRCS ntemplate.Nlut.sim.v
-  
-  )
-
+n_template(NAME Nlut.sim.v PREFIXES a;b;c;d SRCS ntemplate.Nlut.sim.v)

@@ -1,4 +1,4 @@
-MUX_GEN(
+mux_gen(
   NAME dffmux
   INPUTS XOR,O6,O5,DX,CY
   MUX_NAME DFFMUX
@@ -6,4 +6,4 @@ MUX_GEN(
   SPLIT_INPUTS 1
   TYPE routing
   WIDTH 5
-  )
+)

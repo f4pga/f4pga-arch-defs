@@ -1,4 +1,4 @@
-MUX_GEN(
+mux_gen(
   NAME doutmux
   INPUTS D5Q,XOR,O6,O5,CY
   MUX_NAME DOUTMUX
@@ -6,4 +6,4 @@ MUX_GEN(
   SPLIT_INPUTS 1
   TYPE routing
   WIDTH 5
-  )
+)

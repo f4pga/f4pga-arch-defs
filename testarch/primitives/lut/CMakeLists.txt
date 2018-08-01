@@ -1,9 +1,2 @@
-MAKE_FILE_TARGET(
-  FILE lut.sim.v
-  SCANNER_TYPE verilog
-  )
-V2X(
-  NAME lut
-  SRCS lut.sim.v
-  )
-
+make_file_target(FILE lut.sim.v SCANNER_TYPE verilog)
+v2x(NAME lut SRCS lut.sim.v)

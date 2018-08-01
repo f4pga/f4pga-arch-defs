@@ -13,12 +13,5 @@ add_subdirectory(opmode_mux)
 add_subdirectory(xmux)
 add_subdirectory(ymux)
 add_subdirectory(zmux)
-MAKE_FILE_TARGET(
-  FILE dsp48e1.sim.v
-  SCANNER_TYPE verilog
-  )
-V2X(
-  NAME dsp48e1
-  SRCS dsp48e1.sim.v
-  )
-
+make_file_target(FILE dsp48e1.sim.v SCANNER_TYPE verilog)
+v2x(NAME dsp48e1 SRCS dsp48e1.sim.v)

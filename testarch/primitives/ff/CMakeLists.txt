@@ -1,9 +1,2 @@
-MAKE_FILE_TARGET(
-  FILE ff.sim.v
-  SCANNER_TYPE verilog
-  )
-V2X(
-  NAME ff
-  SRCS ff.sim.v
-  )
-
+make_file_target(FILE ff.sim.v SCANNER_TYPE verilog)
+v2x(NAME ff SRCS ff.sim.v)

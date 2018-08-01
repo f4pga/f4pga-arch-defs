@@ -1,4 +1,4 @@
-MUX_GEN(
+mux_gen(
   NAME a_adder_mux
   COMMENT "DSP48E1 a adder mux"
   DATA_WIDTH 25
@@ -7,4 +7,4 @@ MUX_GEN(
   SPLIT_INPUTS 1
   TYPE logic
   WIDTH 2
-  )
+)

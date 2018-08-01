@@ -1,4 +1,4 @@
-MUX_GEN(
+mux_gen(
   NAME boutmux
   INPUTS B5Q,XOR,O6,O5,F8,CY
   MUX_NAME BOUTMUX
@@ -6,4 +6,4 @@ MUX_GEN(
   SPLIT_INPUTS 1
   TYPE routing
   WIDTH 6
-  )
+)

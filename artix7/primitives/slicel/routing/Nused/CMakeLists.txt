@@ -1,33 +1,14 @@
-MAKE_FILE_TARGET(
-  FILE ntemplate.Nused.sim.v
-  SCANNER_TYPE verilog
-  )
+make_file_target(FILE ntemplate.Nused.sim.v SCANNER_TYPE verilog)
 
-MAKE_FILE_TARGET(
-  FILE ntemplate.Nused.model.xml
-  )
+make_file_target(FILE ntemplate.Nused.model.xml)
 
-MAKE_FILE_TARGET(
-  FILE ntemplate.Nused.pb_type.xml
-  )
-N_TEMPLATE(
-  NAME Nused.model.xml
-  PREFIXES a;b;c;d
-  SRCS ntemplate.Nused.model.xml
-  
-  )
+make_file_target(FILE ntemplate.Nused.pb_type.xml)
+n_template(NAME Nused.model.xml PREFIXES a;b;c;d SRCS ntemplate.Nused.model.xml)
 
-N_TEMPLATE(
-  NAME Nused.sim.v
-  PREFIXES a;b;c;d
-  SRCS ntemplate.Nused.sim.v
-  
-  )
+n_template(NAME Nused.sim.v PREFIXES a;b;c;d SRCS ntemplate.Nused.sim.v)
 
-N_TEMPLATE(
+n_template(
   NAME Nused.pb_type.xml
   PREFIXES a;b;c;d
   SRCS ntemplate.Nused.pb_type.xml
-  
-  )
-
+)

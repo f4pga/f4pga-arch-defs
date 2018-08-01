@@ -1,12 +1,5 @@
 add_subdirectory(tiles)
 
-MAKE_FILE_TARGET(
-  FILE arch.xml
-  SCANNER_TYPE xml
-  )
+make_file_target(FILE arch.xml SCANNER_TYPE xml)
 
-DEFINE_DEVICE_TYPE(
-  DEVICE_TYPE top-routing-virt
-  ARCH ice40
-  ARCH_XML arch.xml
-  )
+define_device_type(DEVICE_TYPE top-routing-virt ARCH ice40 ARCH_XML arch.xml)

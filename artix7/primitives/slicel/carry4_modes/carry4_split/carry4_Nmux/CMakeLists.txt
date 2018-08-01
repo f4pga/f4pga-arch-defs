@@ -1,4 +1,4 @@
-MUX_GEN(
+mux_gen(
   NAME ntemplate.carry4_Nmux
   INPUTS CI,DI
   MUX_NAME CARRY4_{N}MUX
@@ -7,4 +7,4 @@ MUX_GEN(
   SUBCKT MUXCY
   TYPE logic
   WIDTH 2
-  )
+)

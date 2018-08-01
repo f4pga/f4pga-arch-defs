@@ -1,5 +1,1 @@
-MAKE_FILE_TARGET(
-  FILE lutff.pb_type.xml
-  SCANNER_TYPE xml
-  )
-
+make_file_target(FILE lutff.pb_type.xml SCANNER_TYPE xml)

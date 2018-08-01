@@ -1,4 +1,1 @@
-MAKE_FILE_TARGET(
-  FILE pio.pb_type.xml
-  SCANNER_TYPE xml
-  )
+make_file_target(FILE pio.pb_type.xml SCANNER_TYPE xml)
