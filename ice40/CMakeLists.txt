@@ -24,7 +24,7 @@ define_arch(
   HLC_TO_BIT ${ICEBOX}/icebox_hlc2asc.py
   HLC_TO_BIT_CMD "\${HLC_TO_BIT} \${OUT_HLC} > \${OUT_BITSTREAM}"
   BIT_TO_V ${ICEBOX}/icebox_vlog.py
-  BIT_TO_V_CMD "\${BIT_TO_V} -D -c -n top -p \${INPUT_IO_FILE} -d \${PACKAGE} \${OUT_BITSTREAM} > \${OUT_BIT_VERILOG} || rm \${OUT_BIT_VERILOG}"
+  BIT_TO_V_CMD "\${BIT_TO_V} -D -c -n \${TOP} -p \${INPUT_IO_FILE} -d \${PACKAGE} \${OUT_BITSTREAM} > \${OUT_BIT_VERILOG} || rm \${OUT_BIT_VERILOG}"
   BITSTREAM_EXTENSION asc
 )
 
