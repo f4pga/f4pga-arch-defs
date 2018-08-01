@@ -22,6 +22,8 @@ function(DEFINE_ARCH)
   #    EQUIV_CHECK_SCRIPT <yosys to script verify two bitstreams gold and gate>
   #    HLC_TO_BIT <path to HLC to bitstream converter>
   #    HLC_TO_BIT_CMD <command to run HLC_TO_BIT>
+  #    BIT_TO_V <path to bitstream to verilog converter>
+  #    BIT_TO_V_CMD <command to run BIT_TO_V>
   #   )
   # ~~~
   #
@@ -51,6 +53,15 @@ function(DEFINE_ARCH)
   # * HLC_TO_BIT - Value of HLC_TO_BIT property of <arch>.
   # * OUT_HLC - Input path to HLC file.
   # * OUT_BITSTREAM - Output path to bitstream file.
+  #
+  # BIT_TO_V variables:
+  #
+  # * BIT_TO_V - Value of BIT_TO_V property of <arch>.
+  # * TOP - Name of top module.
+  # * INPUT_IO_FILE - Logic to IO pad constraint file.
+  # * PACKAGE - Package of bitstream.
+  # * OUT_BITSTREAM - Input path to bitstream.
+  # * OUT_BIT_VERILOG - Output path to verilog version of bitstream.
   set(options)
   set(
     oneValueArgs
@@ -348,6 +359,11 @@ function(DEFINE_BOARD)
   endforeach()
 endfunction()
 
+function(ADD_OUTPUT_TO_FPGA_TARGET name property file)
+  make_file_target(FILE ${file} GENERATED)
+  set_target_properties(${name} PROPERTIES ${property} ${file})
+endfunction()
+
 function(ADD_FPGA_TARGET)
   # ~~~
   # ADD_FPGA_TARGET(
@@ -428,9 +444,11 @@ function(ADD_FPGA_TARGET)
     OUT_RRXML_REAL ${DEVICE} ${PACKAGE}_OUT_RRXML_REAL
   )
 
+  set(NAME ${ADD_FPGA_TARGET_NAME})
   set(DEVICE_FULL ${DEVICE}-${PACKAGE})
   set(FQDN ${ARCH}-${DEVICE_TYPE}-${DEVICE}-${PACKAGE})
-  set(OUT_LOCAL ${CMAKE_CURRENT_BINARY_DIR}/${FQDN})
+  set(OUT_LOCAL_REL ${FQDN})
+  set(OUT_LOCAL ${CMAKE_CURRENT_BINARY_DIR}/${OUT_LOCAL_REL})
   set(DIRECTORY_TARGET ${ADD_FPGA_TARGET_NAME}-${FQDN}-make-directory)
   add_custom_target(
     ${DIRECTORY_TARGET} ALL
@@ -438,7 +456,8 @@ function(ADD_FPGA_TARGET)
       ${CMAKE_COMMAND} -E make_directory ${OUT_LOCAL}
   )
 
-  set(NAME ${ADD_FPGA_TARGET_NAME})
+  # Create target to handle all output paths of off
+  add_custom_target(${NAME})
   set(VPR_ROUTE_CHAN_WIDTH 100)
   set(VPR_ROUTE_CHAN_MINWIDTH_HINT ${VPR_ROUTE_CHAN_WIDTH})
 
@@ -482,6 +501,7 @@ function(ADD_FPGA_TARGET)
   )
   add_custom_target(${NAME}_eblif DEPENDS ${OUT_EBLIF})
   add_custom_target(${NAME}_synth DEPENDS ${OUT_EBLIF})
+  add_output_to_fpga_target(${NAME} EBLIF ${OUT_LOCAL_REL}/${TOP}.eblif)
 
   # Generate routing and generate HLC.
   set(OUT_ROUTE ${OUT_LOCAL}/${TOP}.route)
@@ -550,6 +570,8 @@ function(ADD_FPGA_TARGET)
     )
 
     set(VPR_CMD ${VPR_CMD} --fix_pins ${OUT_IO})
+
+    add_output_to_fpga_target(${NAME} IO_PLACE ${OUT_LOCAL_REL}/${TOP}_io.place)
   endif()
 
   # Generate packing.
@@ -605,6 +627,7 @@ function(ADD_FPGA_TARGET)
   )
 
   add_custom_target(${NAME}_bit ALL DEPENDS ${OUT_BITSTREAM})
+  add_output_to_fpga_target(${NAME} BIT ${OUT_LOCAL_REL}/${TOP}.${BITSTREAM_EXTENSION})
 
   # Generate verilog from bitstream
   # -------------------------------------------------------------------------
@@ -623,7 +646,7 @@ function(ADD_FPGA_TARGET)
     )
 
   add_custom_target(${NAME}_bit_v DEPENDS ${OUT_BIT_VERILOG})
-  make_file_target(FILE ${FQDN}/${TOP}_bit.v GENERATED)
+  add_output_to_fpga_target(${NAME} BIT_V ${OUT_LOCAL_REL}/${TOP}_bit.v)
 
   # Add test bench targets
   # -------------------------------------------------------------------------
@@ -632,12 +655,12 @@ function(ADD_FPGA_TARGET)
     add_testbench(
       NAME testbench_${TESTBENCH_NAME}
       ARCH ${ARCH}
-      SOURCES ${TESTBENCH} ${ADD_FPGA_TARGET_SOURCES}
+      SOURCES ${ADD_FPGA_TARGET_SOURCES} ${TESTBENCH}
       )
     add_testbench(
       NAME testbinch_${TESTBENCH_NAME}
       ARCH ${ARCH}
-      SOURCES ${TESTBENCH} ${FQDN}/${TOP}_bit.v
+      SOURCES ${FQDN}/${TOP}_bit.v ${TESTBENCH}
       )
   endforeach()
 endfunction()
