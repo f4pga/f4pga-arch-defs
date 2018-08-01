@@ -223,6 +223,21 @@ function(DEFINE_DEVICE)
 endfunction()
 
 function(DEFINE_BOARD)
+  # DEFINE_BOARD(
+  #   BOARD <board>
+  #   DEVICE <device>
+  #   PACKAGE <package>
+  #   PROG_TOOL <prog_tool>
+  #   [PROG_CMD <command to use PROG_TOOL>
+  #   )
+  #
+  # Defines a target board for a project.  The listed device and package must
+  # have been defined using DEFINE_DEVICE.
+  #
+  # PROG_TOOL should be an executable that will program a bitstream to the
+  # specified board. PROG_CMD is an optional command string.  If PROG_CMD is
+  # not provided, PROG_CMD will simply be ${PROG_TOOL}.
+  #
   set(options)
   set(oneValueArgs BOARD DEVICE PACKAGE PROG_TOOL PROG_CMD)
   set(multiValueArgs)
@@ -236,6 +251,43 @@ function(DEFINE_BOARD)
 endfunction()
 
 function(ADD_FPGA_TARGET)
+  # ADD_FPGA_TARGET(
+  #   NAME <name>
+  #   TOP <top>
+  #   BOARD <board>
+  #   SOURCES <source list>
+  #   TESTBENCH_SOURCES <testbench source list>
+  #   [INPUT_IO_FILE <input_io_file>]
+  #   [EXPLICIT_MAKE_FILE_TARGET]
+  #   )
+  #
+  # ADD_FPGA_TARGET defines a FPGA build targetting a specific board.  By
+  # default input files (SOURCES, TESTBENCH_SOURCES, INPUT_IO_FILE) will be
+  # implicitly passed to MAKE_FILE_TARGET.  If EXPLICIT_MAKE_FILE_TARGET is
+  # supplied, this behavior is supressed.
+  #
+  # The SOURCES file list will be used to synthesize the FPGA images.
+  # INPUT_IO_FILE is required to define an io map.
+  # TESTBENCH_SOURCES will be used to run test benches.
+  #
+  # Targets generated:
+  #   <name>_eblif - Generate eblif file.
+  #   <name>_synth - Alias of <name>_eblif.
+  #   <name>_route - Generate place and routing synthesized design.
+  #   <name>_bit - Generate output bitstream.
+  #
+  # Naming conventions:
+  #
+  #  Outputs for this target will all be located in
+  # ${CMAKE_CURRENT_BINARY_DIR}/${NAME}/${ARCH}-${DEVICE_TYPE}-${DEVICE}-${PACKAGE}
+  #
+  #  Output files:
+  #    ${TOP}.eblif - Synthesized design
+  #    ${TOP}_io.place - IO placement.
+  #    ${TOP}.route - Place and routed design
+  #    ${TOP}.hlc - Place and routed design
+  #    ${TOP}.${BITSTREAM_EXTENSION} - Place and routed design
+  #
   set(options EXPLICIT_MAKE_FILE_TARGET)
   set(oneValueArgs NAME TOP BOARD INPUT_IO_FILE)
   set(multiValueArgs SOURCES TESTBENCH_SOURCES)
@@ -265,8 +317,12 @@ function(ADD_FPGA_TARGET)
   get_target_property_required(OUT_RRXML_REAL ${DEVICE} ${PACKAGE}_OUT_RRXML_REAL)
 
   set(DEVICE_FULL ${DEVICE}-${PACKAGE})
-  set(FQDN ${ARCH}-${DEVICE_TYPE}-${DEVICE})
+  set(FQDN ${ARCH}-${DEVICE_TYPE}-${DEVICE}-${PACKAGE})
   set(OUT_LOCAL ${CMAKE_CURRENT_BINARY_DIR}/${NAME}/${FQDN})
+  set(DIRECTORY_TARGET ${NAME}-${FQDN}-make-directory)
+  add_custom_target(${DIRECTORY_TARGET} ALL
+    COMMAND ${CMAKE_COMMAND} -E make_directory ${OUT_LOCAL})
+
   set(NAME ${ADD_FPGA_TARGET_NAME})
   set(VPR_ROUTE_CHAN_WIDTH 100)
   set(VPR_ROUTE_CHAN_MINWIDTH_HINT ${VPR_ROUTE_CHAN_WIDTH})
@@ -296,10 +352,6 @@ function(ADD_FPGA_TARGET)
   ##########################################################################
   set(OUT_EBLIF ${OUT_LOCAL}/${TOP}.eblif)
 
-  set(DIRECTORY_TARGET ${NAME}-${FQDN}-make-directory)
-  add_custom_target(${DIRECTORY_TARGET} ALL
-    COMMAND ${CMAKE_COMMAND} -E make_directory ${OUT_LOCAL})
-
   set(SOURCE_FILES_DEPS "")
   set(SOURCE_FILES "")
   foreach(SRC ${ADD_FPGA_TARGET_SOURCES})
@@ -325,7 +377,7 @@ function(ADD_FPGA_TARGET)
     DEPENDS ${OUT_EBLIF})
 
   # Generate routing and generate HLC.
-  set(OUT_ROUTE $(OUT_LOCAL)/${TOP}.route)
+  set(OUT_ROUTE ${OUT_LOCAL}/${TOP}.route)
   set(OUT_HLC ${OUT_LOCAL}/${TOP}.hlc)
 
   set(VPR_DEPS "")
@@ -370,7 +422,7 @@ function(ADD_FPGA_TARGET)
     get_target_property_required(PINMAP_FILE ${DEVICE} ${PACKAGE}_PINMAP)
     GET_FILE_LOCATION(PINMAP ${PINMAP_FILE})
     GET_FILE_TARGET(PINMAP_TARGET ${PINMAP_FILE})
-    set(OUT_IO ${OUT_LOCAL}/io.place)
+    set(OUT_IO ${OUT_LOCAL}/${TOP}_io.place)
     string(CONFIGURE ${PLACE_TOOL_CMD} PLACE_TOOL_CMD_FOR_TARGET)
     separate_arguments(PLACE_TOOL_CMD_FOR_TARGET_LIST UNIX_COMMAND ${PLACE_TOOL_CMD_FOR_TARGET})
     add_custom_command(
