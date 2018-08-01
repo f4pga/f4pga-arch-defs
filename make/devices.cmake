@@ -601,4 +601,52 @@ function(ADD_FPGA_TARGET)
   )
 
   add_custom_target(${NAME}_bit ALL DEPENDS ${OUT_BITSTREAM})
+
+  foreach(TESTBENCH ${TESTBENCH_SOURCES})
+    get_filename_component(TESTBENCH_NAME ${TESTBENCH} NAME_WE)
+    add_testbench(
+      NAME ${TESTBENCH_NAME}
+      ARCH ${ARCH}
+      SOURCES ${TESTBENCH}
+      )
+  endforeach()
+endfunction()
+
+function(add_testbench)
+  set(options)
+  set(oneValueArgs NAME ARCH)
+  set(multiValueArgs SOURCES)
+  cmake_parse_arguments(
+    ADD_TESTBENCH
+    "${options}"
+    "${oneValueArgs}"
+    "${multiValueArgs}"
+    ${ARGN}
+  )
+
+  get_target_property_required(IVERILOG env IVERILOG)
+  set(SOURCE_LOCATIONS "")
+  set(FILE_DEPENDS "")
+  foreach(SRC ${ADD_TESTBENCH_SOURCES})
+    append_file_location(SOURCE_LOCATIONS ${SRC})
+    append_file_dependency(FILE_DEPENDS ${SRC})
+  endforeach()
+
+  get_target_property_required(CELLS_SIM ${ADD_TESTBENCH_SOURCES} CELLS_SIM)
+
+  set(NAME ${ADD_TESTBENCH_NAME})
+
+  add_custom_command(
+    OUTPUT ${NAME}.vpp ${NAME}.vcd
+    COMMAND
+      ${IVERILOG} -v -DVCDFILE=\"${CMAKE_CURRENT_BINARY_DIR}/${NAME}.vcd\"
+      -DCLK_MHZ=0.001 -o ${CMAKE_CURRENT_BINARY_DIR}/${NAME}.vpp
+      ${SOURCE_LOCATIONS}
+      ${symbiflow-arch-defs_SOURCE_DIR}/env/conda/share/yosys/${CELLS_SIM}
+    DEPENDS ${IVERILOG} ${FILE_DEPENDS}
+    )
+
+  add_custom_target(
+    ${NAME} DEPENDS ${NAME}.vcd
+    )
 endfunction()
