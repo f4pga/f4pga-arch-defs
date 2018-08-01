@@ -1,4 +1,4 @@
-MUX_GEN(
+mux_gen(
   NAME ntemplate.N5ffmux
   COMMENT "MUX on inputs to N5FF inputs."
   INPUTS IN_B,IN_A
@@ -7,4 +7,4 @@ MUX_GEN(
   SPLIT_INPUTS 1
   TYPE routing
   WIDTH 2
-  )
+)

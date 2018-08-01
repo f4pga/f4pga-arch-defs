@@ -1,10 +1,13 @@
-MUX_GEN(
+mux_gen(
   NAME f8mux
-  COMMENT "F8MUX is used to create a LUT8 from two LUT7s (which are built out of two LUT6s themselves)."
+  COMMENT
+    "F8MUX is used to create a LUT8 from two LUT7s (which are built out of two LUT6s themselves)."
   MUX_NAME F8MUX
   OUTPUT OUT
-  SPLIT_INPUTS 1
-  SPLIT_SELECTS 1
+  SPLIT_INPUTS
+  1
+  SPLIT_SELECTS
+  1
   TYPE logic
   WIDTH 2
-  )
+)

@@ -1,9 +1,11 @@
 function(V2X)
+  # ~~~
   # V2X(
   #   NAME <name>
   #   [TOP_MODULE <top module>]
   #   SRCS <src1> <src2>
   #   )
+  # ~~~
   #
   # V2X converts SRCS from verilog to .pb_type.xml and .model.xml via the
   # utilities in <root>/util/vlog/vlog_to_<x>.
@@ -14,7 +16,13 @@ function(V2X)
   set(options)
   set(oneValueArgs NAME TOP_MODULE)
   set(multiValueArgs SRCS)
-  cmake_parse_arguments(V2X "${options}" "${oneValueArgs}" "${multiValueArgs}" ${ARGN} )
+  cmake_parse_arguments(
+    V2X
+    "${options}"
+    "${oneValueArgs}"
+    "${multiValueArgs}"
+    ${ARGN}
+  )
 
   set(INCLUDES "")
 
@@ -25,19 +33,25 @@ function(V2X)
       message(FATAL_ERROR "File ${SRC} does not end with .sim.v")
     endif()
 
-    APPEND_FILE_DEPENDENCY(DEPENDS_LIST ${SRC})
-    APPEND_FILE_INCLUDES(INCLUDES ${SRC})
+    append_file_dependency(DEPENDS_LIST ${SRC})
+    append_file_includes(INCLUDES ${SRC})
   endforeach()
 
   list(GET V2X_SRCS 0 FIRST_SOURCE_FILE)
-  GET_FILE_LOCATION(FIRST_SOURCE ${FIRST_SOURCE_FILE})
+  get_file_location(FIRST_SOURCE ${FIRST_SOURCE_FILE})
 
   set(TOP_ARG "")
   if(NOT ${V2X_TOP_MODULE} STREQUAL "")
     set(TOP_ARG "--top=${TOP_MODULE}")
   endif()
 
-  string(REPLACE ";" "," INCLUDES_LIST "${INCLUDES}")
+  string(
+    REPLACE
+      ";"
+      ","
+      INCLUDES_LIST
+      "${INCLUDES}"
+  )
 
   set(INCLUDE_ARG "")
   if(NOT "${INCLUDES_LIST}" STREQUAL "")
@@ -46,30 +60,40 @@ function(V2X)
 
   add_custom_command(
     OUTPUT "${V2X_NAME}.pb_type.xml"
-    DEPENDS ${DEPENDS_LIST} ${symbiflow-arch-defs_SOURCE_DIR}/utils/vlog/vlog_to_pbtype.py
-    COMMAND ${symbiflow-arch-defs_SOURCE_DIR}/utils/vlog/vlog_to_pbtype.py ${TOP_ARG} -o ${CMAKE_CURRENT_BINARY_DIR}/${V2X_NAME}.pb_type.xml ${FIRST_SOURCE} ${INCLUDE_ARG}
+    DEPENDS
+      ${DEPENDS_LIST}
+      ${symbiflow-arch-defs_SOURCE_DIR}/utils/vlog/vlog_to_pbtype.py
+    COMMAND
+      ${symbiflow-arch-defs_SOURCE_DIR}/utils/vlog/vlog_to_pbtype.py ${TOP_ARG}
+      -O ${CMAKE_CURRENT_BINARY_DIR}/${V2X_NAME}.pb_type.xml ${FIRST_SOURCE}
+      ${INCLUDE_ARG}
     WORKING_DIRECTORY ${symbiflow-arch-defs_SOURCE_DIR}/utils/vlog/
-    )
+  )
 
-  MAKE_FILE_TARGET(FILE "${V2X_NAME}.pb_type.xml" GENERATED)
+  make_file_target(FILE "${V2X_NAME}.pb_type.xml" GENERATED)
 
   add_custom_command(
     OUTPUT "${V2X_NAME}.model.xml"
-    DEPENDS ${DEPENDS_LIST} ${symbiflow-arch-defs_SOURCE_DIR}/utils/vlog/vlog_to_model.py
-    COMMAND ${symbiflow-arch-defs_SOURCE_DIR}/utils/vlog/vlog_to_model.py ${TOP_ARG} -o ${CMAKE_CURRENT_BINARY_DIR}/${V2X_NAME}.model.xml ${FIRST_SOURCE} ${INCLUDE_ARG}
-    WORKING_DIRECTORY ${symbiflow-arch-defs_SOURCE_DIR}/utils/vlog/
-    )
-
-  MAKE_FILE_TARGET(FILE "${V2X_NAME}.model.xml" GENERATED)
-
-  add_custom_target(${V2X_NAME}
     DEPENDS
-      "${V2X_NAME}.model.xml"
-      "${V2X_NAME}.pb_type.xml"
-      )
+      ${DEPENDS_LIST}
+      ${symbiflow-arch-defs_SOURCE_DIR}/utils/vlog/vlog_to_model.py
+    COMMAND
+      ${symbiflow-arch-defs_SOURCE_DIR}/utils/vlog/vlog_to_model.py ${TOP_ARG}
+      -O ${CMAKE_CURRENT_BINARY_DIR}/${V2X_NAME}.model.xml ${FIRST_SOURCE}
+      ${INCLUDE_ARG}
+    WORKING_DIRECTORY ${symbiflow-arch-defs_SOURCE_DIR}/utils/vlog/
+  )
+
+  make_file_target(FILE "${V2X_NAME}.model.xml" GENERATED)
+
+  add_custom_target(
+    ${V2X_NAME}
+    DEPENDS "${V2X_NAME}.model.xml" "${V2X_NAME}.pb_type.xml"
+  )
 endfunction(V2X)
 
 function(MUX_GEN)
+  # ~~~
   # MUX_GEN(
   #   NAME <name>
   #   TYPE "routing"|"logic"
@@ -85,25 +109,47 @@ function(MUX_GEN)
   #   [DATA_WIDTH <data width>]
   #   [NTEMPLATE_PREFIXES <list of prefixes>]
   #   )
+  # ~~~
   #
-  #  Generate <name>.sim.v, <name>.pb_type.xml, and <name>.model.xml for mux
-  #  with given parameters using <root>/utils/mux_gen.py. A target <name> will
-  #  be created that will generate all outputs.
+  # Generate <name>.sim.v, <name>.pb_type.xml, and <name>.model.xml for mux with
+  # given parameters using <root>/utils/mux_gen.py. A target <name> will be
+  # created that will generate all outputs.
   #
-  #  If <name> starts with "ntemplate.", NTEMPLATE_PREFIXES can be used to call
-  #  N_TEMPLATE function on each output with the specified prefixes.
+  # If <name> starts with "ntemplate.", NTEMPLATE_PREFIXES can be used to call
+  # N_TEMPLATE function on each output with the specified prefixes.
   #
-  #  For other mux arguments, see <root>/utils/mux_gen.py for details.
+  # For other mux arguments, see <root>/utils/mux_gen.py for details.
   set(options SPLIT_INPUTS SPLIT_SELECTS)
-  set(oneValueArgs NAME MUX_NAME TYPE WIDTH INPUTS SELECTS SUBCKT COMMENT OUTPUT DATA_WIDTH)
+  set(
+    oneValueArgs
+    NAME
+    MUX_NAME
+    TYPE
+    WIDTH
+    INPUTS
+    SELECTS
+    SUBCKT
+    COMMENT
+    OUTPUT
+    DATA_WIDTH
+  )
   set(multiValueArgs NTEMPLATE_PREFIXES)
-  cmake_parse_arguments(MUX_GEN "${options}" "${oneValueArgs}" "${multiValueArgs}" ${ARGN})
+  cmake_parse_arguments(
+    MUX_GEN
+    "${options}"
+    "${oneValueArgs}"
+    "${multiValueArgs}"
+    ${ARGN}
+  )
 
   if("${MUX_GEN_TYPE}" STREQUAL "routing")
     if(NOT "${MUX_GEN_SUBCKT}" STREQUAL "")
-      message(FATAL_ERROR "Can not use SUBCKT=${MUX_GEN_SUBCKT} with routing mux.")
+      message(
+        FATAL_ERROR "Can not use SUBCKT=${MUX_GEN_SUBCKT} with routing mux."
+      )
     endif()
   elseif("${MUX_GEN_TYPE}" STREQUAL "logic")
+
   else()
     message(FATAL_ERROR "MUX_GEN type must be \"routing\" or \"logic\".")
   endif()
@@ -148,86 +194,112 @@ function(MUX_GEN)
   endif()
 
   set(OUTPUTS "")
-  list(APPEND OUTPUTS
-    "${MUX_GEN_NAME}.sim.v"
-    "${MUX_GEN_NAME}.pb_type.xml"
-    "${MUX_GEN_NAME}.model.xml"
-    )
+  list(
+    APPEND
+      OUTPUTS
+      "${MUX_GEN_NAME}.sim.v"
+      "${MUX_GEN_NAME}.pb_type.xml"
+      "${MUX_GEN_NAME}.model.xml"
+  )
 
   add_custom_command(
     OUTPUT ${OUTPUTS}
-    DEPENDS ${symbiflow-arch-defs_SOURCE_DIR}/utils/mux_gen.py ${symbiflow-arch-defs_SOURCE_DIR}/vpr/muxes/logic/mux${MUX_GEN_WIDTH}/mux${MUX_GEN_WIDTH}.sim.v
-    COMMAND ${symbiflow-arch-defs_SOURCE_DIR}/utils/mux_gen.py ${MUX_GEN_ARGS})
+    DEPENDS
+      ${symbiflow-arch-defs_SOURCE_DIR}/utils/mux_gen.py
+      ${symbiflow-arch-defs_SOURCE_DIR}/vpr/muxes/logic/mux${MUX_GEN_WIDTH}/mux${MUX_GEN_WIDTH}.sim.v
+    COMMAND ${symbiflow-arch-defs_SOURCE_DIR}/utils/mux_gen.py ${MUX_GEN_ARGS}
+  )
 
-  MAKE_FILE_TARGET(FILE "${MUX_GEN_NAME}.sim.v"
-    GENERATED)
-  MAKE_FILE_TARGET(FILE "${MUX_GEN_NAME}.pb_type.xml"
-    GENERATED)
-  MAKE_FILE_TARGET(FILE "${MUX_GEN_NAME}.model.xml"
-    GENERATED)
+  make_file_target(FILE "${MUX_GEN_NAME}.sim.v" GENERATED)
+  make_file_target(FILE "${MUX_GEN_NAME}.pb_type.xml" GENERATED)
+  make_file_target(FILE "${MUX_GEN_NAME}.model.xml" GENERATED)
 
-  add_custom_target(${MUX_GEN_NAME}
-    DEPENDS ${OUTPUTS}
-      )
+  add_custom_target(${MUX_GEN_NAME} DEPENDS ${OUTPUTS})
 
   if(NOT "${MUX_GEN_NTEMPLATE_PREFIXES}" STREQUAL "")
     foreach(OUTPUT ${OUTPUTS})
-      string(REPLACE "ntemplate." "" N_TEMPLATE_NAME ${OUTPUT})
-      N_TEMPLATE(
+      string(
+        REPLACE
+          "ntemplate."
+          ""
+          N_TEMPLATE_NAME
+          ${OUTPUT}
+      )
+      n_template(
         NAME ${N_TEMPLATE_NAME}
         PREFIXES ${MUX_GEN_NTEMPLATE_PREFIXES}
         SRCS ${OUTPUT}
-        )
+      )
     endforeach()
   endif()
 endfunction(MUX_GEN)
 
 function(N_TEMPLATE)
+  # ~~~
   # N_TEMPLATE(
   #   NAME <name>
   #   SRCS <list of sources>
   #   PREFIXES <list of prefixes>
   #   [APPLY_V2X]
   #   )
+  # ~~~
   #
-  # N_TEMPLATE converts files with prefix ntemplate.<rest> to <rest> and
-  # applies the template prefix, converting all N's to <prefix>.
+  # N_TEMPLATE converts files with prefix ntemplate.<rest> to <rest> and applies
+  # the template prefix, converting all N's to <prefix>.
   #
-  # If APPLY_V2X is set, V2X will be invoked with NAME = <prefix><name> and
-  # the output of the templating process.
+  # If APPLY_V2X is set, V2X will be invoked with NAME = <prefix><name> and the
+  # output of the templating process.
   set(options APPLY_V2X)
   set(oneValueArgs NAME)
   set(multiValueArgs SRCS PREFIXES)
-  cmake_parse_arguments(N_TEMPLATE "${options}" "${oneValueArgs}" "${multiValueArgs}" ${ARGN} )
+  cmake_parse_arguments(
+    N_TEMPLATE
+    "${options}"
+    "${oneValueArgs}"
+    "${multiValueArgs}"
+    ${ARGN}
+  )
 
   set(OUTPUTS "")
 
   foreach(PREFIX ${N_TEMPLATE_PREFIXES})
     foreach(SRC ${N_TEMPLATE_SRCS})
-      string(REPLACE "ntemplate." "" SRC_NO_NTEMPLATE ${SRC})
-      string(REPLACE "N" ${PREFIX} SRC_WITH_PREFIX ${SRC_NO_NTEMPLATE})
-      GET_FILE_TARGET(SRC_TARGET ${SRC})
-      GET_FILE_LOCATION(SRC_LOCATION ${SRC})
+      string(
+        REPLACE
+          "ntemplate."
+          ""
+          SRC_NO_NTEMPLATE
+          ${SRC}
+      )
+      string(
+        REPLACE
+          "N"
+          ${PREFIX}
+          SRC_WITH_PREFIX
+          ${SRC_NO_NTEMPLATE}
+      )
+      get_file_target(SRC_TARGET ${SRC})
+      get_file_location(SRC_LOCATION ${SRC})
       add_custom_command(
         OUTPUT ${SRC_WITH_PREFIX}
-        DEPENDS ${symbiflow-arch-defs_SOURCE_DIR}/utils/n.py ${SRC_LOCATION} ${SRC_TARGET}
-        COMMAND ${symbiflow-arch-defs_SOURCE_DIR}/utils/n.py ${PREFIX} ${SRC_LOCATION} ${CMAKE_CURRENT_BINARY_DIR}/${SRC_WITH_PREFIX}
+        DEPENDS
+          ${symbiflow-arch-defs_SOURCE_DIR}/utils/n.py ${SRC_LOCATION}
+          ${SRC_TARGET}
+        COMMAND
+          ${symbiflow-arch-defs_SOURCE_DIR}/utils/n.py ${PREFIX} ${SRC_LOCATION}
+          ${CMAKE_CURRENT_BINARY_DIR}/${SRC_WITH_PREFIX}
         WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
-        )
+      )
 
-      MAKE_FILE_TARGET(FILE ${SRC_WITH_PREFIX} GENERATED
-        DEPENDS ${SRC}
-        )
+      make_file_target(FILE ${SRC_WITH_PREFIX} GENERATED DEPENDS ${SRC})
 
       list(APPEND OUTPUTS ${SRC_WITH_PREFIX})
 
       if(${APPLY_V2X})
-        V2X(NAME ${PREFIX}${NAME} SRCS ${SRC_WITH_PREFIX})
+        v2x(NAME ${PREFIX}${NAME} SRCS ${SRC_WITH_PREFIX})
       endif()
     endforeach(SRC)
   endforeach(PREFIX)
 
-  add_custom_target(
-    ${N_TEMPLATE_NAME} ALL
-    DEPENDS ${OUTPUTS})
+  add_custom_target(${N_TEMPLATE_NAME} ALL DEPENDS ${OUTPUTS})
 endfunction(N_TEMPLATE)

@@ -15,18 +15,31 @@ function(SETUP_ENV)
   #
   # If conda is not present, then the executable is expected to be on the PATH.
   #
-  # In all cases, setting an enviroment variable will override the default behavior.
+  # In all cases, setting an enviroment variable will override the default
+  # behavior.
   #
-  # Example:
-  #  export VPR=<path to VPR>
+  # Example: export VPR=<path to VPR>
   #
-  #  will cause get_target_property(var env VPR) to return $ENV{VPR}.
+  # will cause get_target_property(var env VPR) to return $ENV{VPR}.
   #
   # FIXME: Consider using CMake CACHE variables instead of target properties.
   add_custom_target(env)
 
   set(OTHER_BINARIES inkscape)
-  set(MAYBE_CONDA_BINARIES yosys vpr xsltproc pytest yapf node npm iverilog python3 pip cocotb)
+  set(
+    MAYBE_CONDA_BINARIES
+    yosys
+    vpr
+    xsltproc
+    pytest
+    yapf
+    node
+    npm
+    iverilog
+    python3
+    pip
+    cocotb
+  )
 
   # FIXME: Add target to configure conda.
   set(ENV_DIR ${symbiflow-arch-defs_SOURCE_DIR}/env)
@@ -36,34 +49,22 @@ function(SETUP_ENV)
     foreach(binary ${MAYBE_CONDA_BINARIES})
       string(TOUPPER ${binary} binary_upper)
       set(${binary_upper} ${CONDA_DIR}/bin/${binary})
-      REPLACE_WITH_ENV_IF_SET(${binary_upper})
-      set_target_properties(
-        env
-        PROPERTIES
-        ${binary_upper} ${${binary_upper}}
-        )
+      replace_with_env_if_set(${binary_upper})
+      set_target_properties(env PROPERTIES ${binary_upper} ${${binary_upper}})
     endforeach()
   else()
     foreach(binary ${MAYBE_CONDA_BINARIES})
       string(TOUPPER ${binary} binary_upper)
       set(${binary_upper} ${binary})
-      REPLACE_WITH_ENV_IF_SET(${binary_upper})
-      set_target_properties(
-        env
-        PROPERTIES
-        ${binary_upper} ${${binary_upper}}
-        )
+      replace_with_env_if_set(${binary_upper})
+      set_target_properties(env PROPERTIES ${binary_upper} ${${binary_upper}})
     endforeach()
   endif()
 
   foreach(binary ${OTHER_BINARIES})
     string(TOUPPER ${binary} binary_upper)
     set(${binary_upper} ${binary})
-    REPLACE_WITH_ENV_IF_SET(${binary_upper})
-    set_target_properties(
-      env
-      PROPERTIES
-      ${binary_upper} ${${binary_upper}}
-      )
+    replace_with_env_if_set(${binary_upper})
+    set_target_properties(env PROPERTIES ${binary_upper} ${${binary_upper}})
   endforeach()
 endfunction()

@@ -1,4 +1,4 @@
-MUX_GEN(
+mux_gen(
   NAME mult_mux
   COMMENT "DSP48E1 MREG mux"
   DATA_WIDTH 86
@@ -7,4 +7,4 @@ MUX_GEN(
   SPLIT_INPUTS 1
   TYPE routing
   WIDTH 2
-  )
+)

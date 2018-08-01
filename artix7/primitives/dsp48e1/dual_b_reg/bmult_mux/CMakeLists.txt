@@ -1,4 +1,4 @@
-MUX_GEN(
+mux_gen(
   NAME bmult_mux
   COMMENT "DSP48E1 b multiplier output mux"
   DATA_WIDTH 18
@@ -7,4 +7,4 @@ MUX_GEN(
   SPLIT_INPUTS 1
   TYPE logic
   WIDTH 2
-  )
+)

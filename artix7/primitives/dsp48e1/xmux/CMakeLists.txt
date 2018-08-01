@@ -1,4 +1,4 @@
-MUX_GEN(
+mux_gen(
   NAME dsp48_xmux
   COMMENT "DSP48E1 Xmux"
   DATA_WIDTH 48
@@ -7,4 +7,4 @@ MUX_GEN(
   SPLIT_INPUTS 1
   TYPE logic
   WIDTH 4
-  )
+)

@@ -1,4 +1,4 @@
-MUX_GEN(
+mux_gen(
   NAME coutmux
   INPUTS C5Q,XOR,O6,O5,F7,CY
   MUX_NAME COUTMUX
@@ -6,4 +6,4 @@ MUX_GEN(
   SPLIT_INPUTS 1
   TYPE routing
   WIDTH 6
-  )
+)
