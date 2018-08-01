@@ -18,7 +18,7 @@
  */
 
 `timescale 1 ns / 1 ps
-
+`include "spiflash.v"
 module testbench;
 	reg flash_csb = 1;
 	reg flash_clk = 0;

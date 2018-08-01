@@ -19,6 +19,7 @@
 
 `timescale 1 ns / 1 ps
 `include "spiflash.v"
+`include "hx8kdemo.v"
 module testbench;
 	reg clk;
 	always #5 clk = (clk === 1'b0);
