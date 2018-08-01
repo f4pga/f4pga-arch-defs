@@ -10,6 +10,6 @@ add_fpga_target(
     picorv32.v
     simpleuart.v
     spimemio.v
-  TESTBENCH_SOURCES hx8kdemo_tb.v spiflash_tb.v
+  TESTBENCH_SOURCES hx8kdemo_tb.v
   INPUT_IO_FILE hx8k-b-evn.pcf
 )
