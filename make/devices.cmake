@@ -430,7 +430,7 @@ function(ADD_FPGA_TARGET)
 
   set(DEVICE_FULL ${DEVICE}-${PACKAGE})
   set(FQDN ${ARCH}-${DEVICE_TYPE}-${DEVICE}-${PACKAGE})
-  set(OUT_LOCAL ${CMAKE_CURRENT_BINARY_DIR}/${NAME}/${FQDN})
+  set(OUT_LOCAL ${CMAKE_CURRENT_BINARY_DIR}/${FQDN})
   set(DIRECTORY_TARGET ${ADD_FPGA_TARGET_NAME}-${FQDN}-make-directory)
   add_custom_target(
     ${DIRECTORY_TARGET} ALL
@@ -606,6 +606,8 @@ function(ADD_FPGA_TARGET)
 
   add_custom_target(${NAME}_bit ALL DEPENDS ${OUT_BITSTREAM})
 
+  # Generate verilog from bitstream
+  # -------------------------------------------------------------------------
   set(OUT_BIT_VERILOG ${OUT_LOCAL}/${TOP}_bit.v)
   get_target_property_required(BIT_TO_V ${ARCH} BIT_TO_V)
   get_target_property_required(BIT_TO_V_CMD ${ARCH} BIT_TO_V_CMD)
@@ -613,21 +615,29 @@ function(ADD_FPGA_TARGET)
   separate_arguments(
     BIT_TO_V_CMD_FOR_TARGET_LIST UNIX_COMMAND ${BIT_TO_V_CMD_FOR_TARGET}
   )
+
   add_custom_command(
     OUTPUT ${OUT_BIT_VERILOG}
     COMMAND ${BIT_TO_V_CMD_FOR_TARGET_LIST}
-    DEPENDS ${BIT_TO_V}
+    DEPENDS ${BIT_TO_V} ${OUT_BITSTREAM}
     )
 
   add_custom_target(${NAME}_bit_v DEPENDS ${OUT_BIT_VERILOG})
-  make_file_target(FILE ${NAME}/${FQDN}/${TOP}_bit.v GENERATED)
+  make_file_target(FILE ${FQDN}/${TOP}_bit.v GENERATED)
 
+  # Add test bench targets
+  # -------------------------------------------------------------------------
   foreach(TESTBENCH ${ADD_FPGA_TARGET_TESTBENCH_SOURCES})
     get_filename_component(TESTBENCH_NAME ${TESTBENCH} NAME_WE)
     add_testbench(
       NAME testbench_${TESTBENCH_NAME}
       ARCH ${ARCH}
       SOURCES ${TESTBENCH} ${ADD_FPGA_TARGET_SOURCES}
+      )
+    add_testbench(
+      NAME testbinch_${TESTBENCH_NAME}
+      ARCH ${ARCH}
+      SOURCES ${TESTBENCH} ${FQDN}/${TOP}_bit.v
       )
   endforeach()
 endfunction()
