@@ -622,17 +622,12 @@ function(ADD_FPGA_TARGET)
   add_custom_target(${NAME}_bit_v DEPENDS ${OUT_BIT_VERILOG})
   make_file_target(FILE ${NAME}/${FQDN}/${TOP}_bit.v GENERATED)
 
-  foreach(TESTBENCH ${TESTBENCH_SOURCES})
+  foreach(TESTBENCH ${ADD_FPGA_TARGET_TESTBENCH_SOURCES})
     get_filename_component(TESTBENCH_NAME ${TESTBENCH} NAME_WE)
     add_testbench(
       NAME testbench_${TESTBENCH_NAME}
       ARCH ${ARCH}
       SOURCES ${TESTBENCH} ${ADD_FPGA_TARGET_SOURCES}
-      )
-    add_testbench(
-      NAME testbinch_${TESTBENCH_NAME}
-      ARCH ${ARCH}
-      SOURCES ${TESTBENCH} ${OUT_BIT_VERILOG}
       )
   endforeach()
 endfunction()
@@ -657,7 +652,7 @@ function(add_testbench)
     append_file_dependency(FILE_DEPENDS ${SRC})
   endforeach()
 
-  get_target_property_required(CELLS_SIM ${ADD_TESTBENCH_SOURCES} CELLS_SIM)
+  get_target_property_required(CELLS_SIM ${ADD_TESTBENCH_ARCH} CELLS_SIM)
 
   set(NAME ${ADD_TESTBENCH_NAME})
 
