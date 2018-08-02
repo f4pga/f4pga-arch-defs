@@ -372,6 +372,7 @@ function(ADD_FPGA_TARGET)
   #   BOARD <board>
   #   SOURCES <source list>
   #   TESTBENCH_SOURCES <testbench source list>
+  #   [TESTBENCH_GENERATES_WAVES]
   #   [INPUT_IO_FILE <input_io_file>]
   #   [EXPLICIT_MAKE_FILE_TARGET]
   #   )
@@ -406,7 +407,7 @@ function(ADD_FPGA_TARGET)
   # * ${TOP}.hlc - Place and routed design
   # * ${TOP}.${BITSTREAM_EXTENSION} - Place and routed design
   #
-  set(options EXPLICIT_MAKE_FILE_TARGET)
+  set(options EXPLICIT_MAKE_FILE_TARGET TESTBENCH_GENERATES_WAVES)
   set(oneValueArgs NAME TOP BOARD INPUT_IO_FILE)
   set(multiValueArgs SOURCES TESTBENCH_SOURCES)
   cmake_parse_arguments(
@@ -650,23 +651,30 @@ function(ADD_FPGA_TARGET)
 
   # Add test bench targets
   # -------------------------------------------------------------------------
+  set(GENERATES_WAVES_OPT "")
+  if(${ADD_FPGA_TARGET_TESTBENCH_GENERATES_WAVES})
+    set(GENERATES_WAVES_OPT "GENERATES_WAVES")
+
+  endif()
   foreach(TESTBENCH ${ADD_FPGA_TARGET_TESTBENCH_SOURCES})
     get_filename_component(TESTBENCH_NAME ${TESTBENCH} NAME_WE)
     add_testbench(
       NAME testbench_${TESTBENCH_NAME}
       ARCH ${ARCH}
       SOURCES ${ADD_FPGA_TARGET_SOURCES} ${TESTBENCH}
+      ${GENERATES_WAVES_OPT}
       )
     add_testbench(
       NAME testbinch_${TESTBENCH_NAME}
       ARCH ${ARCH}
       SOURCES ${FQDN}/${TOP}_bit.v ${TESTBENCH}
+      ${GENERATES_WAVES_OPT}
       )
   endforeach()
 endfunction()
 
 function(add_testbench)
-  set(options)
+  set(options GENERATES_WAVES)
   set(oneValueArgs NAME ARCH)
   set(multiValueArgs SOURCES)
   cmake_parse_arguments(
@@ -689,8 +697,14 @@ function(add_testbench)
 
   set(NAME ${ADD_TESTBENCH_NAME})
 
+  set(OUTPUTS "")
+  list(APPEND OUTPUTS ${NAME}.vpp)
+  if(${ADD_TESTBENCH_GENERATES_WAVES})
+    list(APPEND OUTPUTS ${NAME}.vcd)
+  endif()
+
   add_custom_command(
-    OUTPUT ${NAME}.vpp ${NAME}.vcd
+    OUTPUT ${OUTPUTS}
     COMMAND
       ${IVERILOG} -v -DVCDFILE=\"${CMAKE_CURRENT_BINARY_DIR}/${NAME}.vcd\"
       -DCLK_MHZ=0.001 -o ${CMAKE_CURRENT_BINARY_DIR}/${NAME}.vpp
@@ -698,8 +712,22 @@ function(add_testbench)
       ${symbiflow-arch-defs_SOURCE_DIR}/env/conda/share/yosys/${CELLS_SIM}
     DEPENDS ${IVERILOG} ${FILE_DEPENDS}
     )
-
   add_custom_target(
-    ${NAME} DEPENDS ${NAME}.vcd
+    ${NAME} DEPENDS ${NAME}.vpp
     )
+
+  if(${ADD_TESTBENCH_GENERATES_WAVES})
+    add_custom_command(
+      OUTPUT ${NAME}.fixed.vcd
+      COMMAND sed -e's/:/_/g' <${CMAKE_CURRENT_BINARY_DIR}/${NAME}.vcd > ${CMAKE_CURRENT_BINARY_DIR}/${NAME}.fixed.vcd
+      DEPENDS ${NAME}.vcd
+      )
+
+    get_target_property_required(GTKWAVE env GTKWAVE)
+    add_custom_target(
+      ${NAME}_view
+      DEPENDS ${NAME}.fixed.vcd
+      COMMAND ${GTKWAVE} ${NAME}.fixed.vcd
+      )
+  endif()
 endfunction()
