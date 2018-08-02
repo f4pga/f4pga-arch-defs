@@ -36,6 +36,7 @@ function(SETUP_ENV)
     node
     npm
     iverilog
+    vvp
     python3
     pip
     cocotb
