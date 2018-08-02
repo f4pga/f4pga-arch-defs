@@ -19,12 +19,10 @@ define_arch(
   --blif \${OUT_EBLIF} \
   --pcf \${INPUT_IO_FILE}"
   CELLS_SIM ice40/cells_sim.v
-  EQUIV_CHECK_SCRIPT
-    "hierarchy; proc; clk2fflogic; miter -equiv -flatten -ignore_gold_x -make_outputs -make_outcmp gold gate miter; sat -verify-no-timeout -timeout 600 -seq 1000 -prove trigger 0 -prove-skip 1 -show-inputs -show-outputs miter"
   HLC_TO_BIT ${ICEBOX}/icebox_hlc2asc.py
   HLC_TO_BIT_CMD "\${HLC_TO_BIT} \${OUT_HLC} > \${OUT_BITSTREAM}"
   BIT_TO_V ${ICEBOX}/icebox_vlog.py
-  BIT_TO_V_CMD "\${BIT_TO_V} -D -c -n \${TOP} -p \${INPUT_IO_FILE} -d \${PACKAGE} \${OUT_BITSTREAM} > \${OUT_BIT_VERILOG} || rm \${OUT_BIT_VERILOG}"
+  BIT_TO_V_CMD "\${BIT_TO_V} -D -c -n \${TOP} -p \${INPUT_IO_FILE} -d \${PACKAGE} \${OUT_BITSTREAM} > \${OUT_BIT_VERILOG}"
   BITSTREAM_EXTENSION asc
   BIT_TO_BIN ${ICESTORM}/icepack/icepack
   BIT_TO_BIN_CMD "\${BIT_TO_BIN} \${OUT_BITSTREAM} > \${OUT_BIN}"

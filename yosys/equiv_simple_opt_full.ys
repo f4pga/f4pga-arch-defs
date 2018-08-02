@@ -1,0 +1,14 @@
+# Equivalance check script that uses yosys equiv circuit models, but first
+# optimizes to model to remove nodes that might be tricky to prove without
+# first collapsing them.
+#
+# Taken from https://github.com/YosysHQ/yosys/issues/302#issuecomment-276019637
+hierarchy
+proc
+equiv_make gold gate equiv
+prep -flatten -top equiv
+opt_clean -purge
+opt -full
+equiv_simple -seq 10
+equiv_induct -seq 10
+equiv_status -assert

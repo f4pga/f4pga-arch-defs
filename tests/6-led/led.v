@@ -7,11 +7,11 @@ module top (
 	output LED5
 );
 
-	localparam BITS = 5;
+	localparam BITS = 3;
 	localparam LOG2DELAY = 22;
 
 	reg [BITS+LOG2DELAY-1:0] counter = 0;
-	reg [BITS-1:0] outcnt;
+	reg [BITS-1:0] outcnt = 0;
 
 	always @(posedge clk) begin
 		counter <= counter + 1;
