@@ -25,7 +25,7 @@ function(SETUP_ENV)
   # FIXME: Consider using CMake CACHE variables instead of target properties.
   add_custom_target(env)
 
-  set(OTHER_BINARIES inkscape)
+  set(OTHER_BINARIES inkscape gtkwave)
   set(
     MAYBE_CONDA_BINARIES
     yosys

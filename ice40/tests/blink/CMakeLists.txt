@@ -5,6 +5,7 @@ add_fpga_target(
     example.v
   TESTBENCH_SOURCES
     example_tb.v
+  TESTBENCH_GENERATES_WAVES
   INPUT_IO_FILE hx8k-b-evn.pcf
 )
 
