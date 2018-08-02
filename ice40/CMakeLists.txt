@@ -1,5 +1,6 @@
 set(ICESTORM ${symbiflow-arch-defs_SOURCE_DIR}/third_party/icestorm)
 set(ICEBOX ${ICESTORM}/icebox/)
+set(ICEPROG_TOOL ${ICESTORM}/iceprog/iceprog)
 
 define_arch(
   ARCH ice40
@@ -25,6 +26,8 @@ define_arch(
   BIT_TO_V ${ICEBOX}/icebox_vlog.py
   BIT_TO_V_CMD "\${BIT_TO_V} -D -c -n \${TOP} -p \${INPUT_IO_FILE} -d \${PACKAGE} \${OUT_BITSTREAM} > \${OUT_BIT_VERILOG} || rm \${OUT_BIT_VERILOG}"
   BITSTREAM_EXTENSION asc
+  BIT_TO_BIN ${ICESTORM}/icepack/icepack
+  BIT_TO_BIN_CMD "\${BIT_TO_BIN} \${OUT_BITSTREAM} > \${OUT_BIN}"
 )
 
 add_subdirectory(primitives)
@@ -38,7 +41,7 @@ define_board(
   DEVICE lp1k
   PACKAGE qn84
   PROG_TOOL ${ICEPROG_TOOL}
-  PROG_CMD $${PROG_TOOL}} -ew
+  PROG_CMD ${ICEPROG_TOOL} -ew
 )
 
 define_board(
@@ -46,7 +49,7 @@ define_board(
   DEVICE hx8k
   PACKAGE ct256
   PROG_TOOL ${ICEPROG_TOOL}
-  PROG_CMD $${PROG_TOOL}} -S
+  PROG_CMD ${ICEPROG_TOOL} -S
 )
 
 add_subdirectory(tests)

@@ -24,6 +24,8 @@ function(DEFINE_ARCH)
   #    HLC_TO_BIT_CMD <command to run HLC_TO_BIT>
   #    BIT_TO_V <path to bitstream to verilog converter>
   #    BIT_TO_V_CMD <command to run BIT_TO_V>
+  #    BIT_TO_BIN <path to bitstream to binary>
+  #    BIT_TO_BIN_CMD <command to run BIT_TO_BIN>
   #   )
   # ~~~
   #
@@ -78,6 +80,8 @@ function(DEFINE_ARCH)
     HLC_TO_BIT_CMD
     BIT_TO_V
     BIT_TO_V_CMD
+    BIT_TO_BIN
+    BIT_TO_BIN_CMD
   )
   set(multiValueArgs)
   cmake_parse_arguments(
@@ -103,6 +107,8 @@ function(DEFINE_ARCH)
     HLC_TO_BIT_CMD
     BIT_TO_V
     BIT_TO_V_CMD
+    BIT_TO_BIN
+    BIT_TO_BIN_CMD
   )
     if("${DEFINE_ARCH_${ARG}}" STREQUAL "")
       message(FATAL_ERROR "Required argument ${ARG} is the empty string.")
@@ -648,6 +654,35 @@ function(ADD_FPGA_TARGET)
 
   add_custom_target(${NAME}_bit_v DEPENDS ${OUT_BIT_VERILOG})
   add_output_to_fpga_target(${NAME} BIT_V ${OUT_LOCAL_REL}/${TOP}_bit.v)
+
+  set(OUT_BIN ${OUT_LOCAL}/${TOP}.bin)
+  get_target_property_required(BIT_TO_BIN ${ARCH} BIT_TO_BIN)
+  get_target_property_required(BIT_TO_BIN_CMD ${ARCH} BIT_TO_BIN_CMD)
+  string(CONFIGURE ${BIT_TO_BIN_CMD} BIT_TO_BIN_CMD_FOR_TARGET)
+  separate_arguments(
+    BIT_TO_BIN_CMD_FOR_TARGET_LIST UNIX_COMMAND ${BIT_TO_BIN_CMD_FOR_TARGET}
+  )
+  add_custom_command(
+    OUTPUT ${OUT_BIN}
+    COMMAND ${BIT_TO_BIN_CMD_FOR_TARGET_LIST}
+    DEPENDS ${BIT_TO_BIN} ${OUT_BITSTREAM}
+    )
+
+  add_custom_target(${NAME}_bin DEPENDS ${OUT_BIN})
+  add_output_to_fpga_target(${NAME} BIN ${OUT_LOCAL_REL}/${TOP}.bin)
+
+  get_target_property_required(PROG_TOOL ${BOARD} PROG_TOOL)
+  get_target_property(PROG_CMD ${BOARD} PROG_CMD)
+
+  if("${PROG_CMD}" STREQUAL "NOTFOUND")
+    set(PROG_CMD ${PROG_TOOL})
+  endif()
+
+  add_custom_target(
+    ${NAME}_prog
+    COMMAND ${PROG_CMD} ${OUT_BIN}
+    DEPENDS ${OUT_BIN} ${PROG_TOOL}
+    )
 
   # Add test bench targets
   # -------------------------------------------------------------------------
