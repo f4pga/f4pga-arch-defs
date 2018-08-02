@@ -1,0 +1,17 @@
+# Equivalance check script that uses yosys equiv circuit models, but converts
+# flip-flops to global clock that catchs all events.
+#
+# Taken from https://github.com/YosysHQ/yosys/issues/302#issuecomment-276019637
+hierarchy
+proc
+equiv_make gold gate equiv
+prep -flatten -top equiv
+opt_clean -purge
+# From yosys documentation:
+# This command replaces clocked flip-flops with generic $ff cells that use the
+# implicit global clock.
+clk2fflogic
+equiv_simple -seq 10
+equiv_induct -seq 10
+equiv_status -assert
+
