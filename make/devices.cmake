@@ -406,11 +406,10 @@ function(ADD_FPGA_TARGET)
   #
   # Output files:
   #
-  # * ${TOP}.eblif - Synthesized design
+  # * ${TOP}.eblif - Synthesized design (http://docs.verilogtorouting.org/en/latest/vpr/file_formats/#extended-blif-eblif)
   # * ${TOP}_io.place - IO placement.
-  # * ${TOP}.route - Place and routed design
-  # * ${TOP}.hlc - Place and routed design
-  # * ${TOP}.${BITSTREAM_EXTENSION} - Place and routed design
+  # * ${TOP}.route - Place and routed design (http://docs.verilogtorouting.org/en/latest/vpr/file_formats/#routing-file-format-route)
+  # * ${TOP}.${BITSTREAM_EXTENSION} - Bitstream for target.
   #
   set(options EXPLICIT_MAKE_FILE_TARGET)
   set(oneValueArgs NAME TOP BOARD INPUT_IO_FILE)
@@ -549,6 +548,7 @@ function(ADD_FPGA_TARGET)
   # Generate IO constraints file.
   # -------------------------------------------------------------------------
   set(OUT_IO "")
+  set(FIX_PINS_ARG "")
   if(NOT ${ADD_FPGA_TARGET_INPUT_IO_FILE} STREQUAL "")
     get_file_location(INPUT_IO_FILE ${ADD_FPGA_TARGET_INPUT_IO_FILE})
     get_file_target(INPUT_IO_FILE_TARGET ${ADD_FPGA_TARGET_INPUT_IO_FILE})
@@ -575,7 +575,7 @@ function(ADD_FPGA_TARGET)
       WORKING_DIRECTORY ${OUT_LOCAL}
     )
 
-    set(VPR_CMD ${VPR_CMD} --fix_pins ${OUT_IO})
+    set(FIX_PINS_ARG --fix_pins ${OUT_IO})
 
     add_output_to_fpga_target(${NAME} IO_PLACE ${OUT_LOCAL_REL}/${TOP}_io.place)
   endif()
@@ -586,7 +586,7 @@ function(ADD_FPGA_TARGET)
   add_custom_command(
     OUTPUT ${OUT_NET}
     DEPENDS ${OUT_EBLIF} ${OUT_IO} ${VPR_DEPS}
-    COMMAND ${VPR_CMD} --pack --place
+    COMMAND ${VPR_CMD} --pack
     COMMAND
       ${CMAKE_COMMAND} -E copy ${OUT_LOCAL}/vpr_stdout.log ${OUT_LOCAL}/pack.log
     WORKING_DIRECTORY ${OUT_LOCAL}
@@ -598,7 +598,7 @@ function(ADD_FPGA_TARGET)
   add_custom_command(
     OUTPUT ${OUT_PLACE}
     DEPENDS ${OUT_NET} ${OUT_IO} ${VPR_DEPS}
-    COMMAND ${VPR_CMD} --place
+    COMMAND ${VPR_CMD} ${FIX_PINS_ARG} --place
     COMMAND
       ${CMAKE_COMMAND} -E copy ${OUT_LOCAL}/vpr_stdout.log
       ${OUT_LOCAL}/place.log
