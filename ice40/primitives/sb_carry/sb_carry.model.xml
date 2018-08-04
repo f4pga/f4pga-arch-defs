@@ -2,12 +2,13 @@
 <models>
  <model name="SB_CARRY">
   <input_ports>
-   <port name="I0" combinational_sink_ports="CO" /> <!-- I1 -->
-   <port name="I1" combinational_sink_ports="CO" /> <!-- I2 -->
-   <port name="CI" combinational_sink_ports="CO" /> <!-- FCIN -->
+   <port name="I0" combinational_sink_ports="CO LO" /> <!-- I1 -->
+   <port name="I1" combinational_sink_ports="CO LO" /> <!-- I2 -->
+   <port name="CI" combinational_sink_ports="CO LO" /> <!-- FCIN -->
   </input_ports>
   <output_ports>
    <port name="CO" /> <!-- FCOUT -->
+   <port name="LO" /> <!-- FCOUT -->
   </output_ports>
  </model>
 </models>
