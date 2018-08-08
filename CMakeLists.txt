@@ -8,7 +8,9 @@ include(make/gen.cmake)
 include(make/devices.cmake)
 
 setup_env()
+enable_testing()
 
+add_subdirectory(utils)
 add_subdirectory(vpr)
 add_subdirectory(artix7)
 add_subdirectory(ice40)
