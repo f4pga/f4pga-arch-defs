@@ -130,7 +130,7 @@ function(DEFINE_DEVICE_TYPE)
   # ~~~
   #
   # Defines a device type with the specified architecture.  ARCH_XML argument
-  # must be a file target (see MAKE_FILE_TARGET).
+  # must be a file target (see ADD_FILE_TARGET).
   #
   # DEFINE_DEVICE_TYPE defines a dummy target <arch>_<device_type>_arch that
   # will build the merged architecture file for the device type.
@@ -187,7 +187,7 @@ function(DEFINE_DEVICE_TYPE)
     DEPENDS ${DEVICE_MERGED_FILE}
   )
 
-  make_file_target(FILE ${DEVICE_MERGED_FILE} GENERATED)
+  add_file_target(FILE ${DEVICE_MERGED_FILE} GENERATED)
 
   set_target_properties(
     ${DEFINE_DEVICE_TYPE_DEVICE_TYPE}
@@ -287,7 +287,7 @@ function(DEFINE_DEVICE)
       DEPENDS ${OUT_RRXML_VIRT}
     )
 
-    make_file_target(FILE ${OUT_RRXML_VIRT_FILENAME} GENERATED)
+    add_file_target(FILE ${OUT_RRXML_VIRT_FILENAME} GENERATED)
 
     set_target_properties(
       ${DEFINE_DEVICE_DEVICE}
@@ -311,7 +311,7 @@ function(DEFINE_DEVICE)
       VERBATIM
     )
 
-    make_file_target(FILE ${OUT_RRXML_REAL_FILENAME} GENERATED)
+    add_file_target(FILE ${OUT_RRXML_REAL_FILENAME} GENERATED)
 
     set_target_properties(
       ${DEFINE_DEVICE_DEVICE}
@@ -366,7 +366,7 @@ function(DEFINE_BOARD)
 endfunction()
 
 function(ADD_OUTPUT_TO_FPGA_TARGET name property file)
-  make_file_target(FILE ${file} GENERATED)
+  add_file_target(FILE ${file} GENERATED)
   set_target_properties(${name} PROPERTIES ${property} ${file})
 endfunction()
 
@@ -379,13 +379,13 @@ function(ADD_FPGA_TARGET)
   #   SOURCES <source list>
   #   TESTBENCH_SOURCES <testbench source list>
   #   [INPUT_IO_FILE <input_io_file>]
-  #   [EXPLICIT_MAKE_FILE_TARGET]
+  #   [EXPLICIT_ADD_FILE_TARGET]
   #   )
   # ~~~
   #
   # ADD_FPGA_TARGET defines a FPGA build targetting a specific board.  By
   # default input files (SOURCES, TESTBENCH_SOURCES, INPUT_IO_FILE) will be
-  # implicitly passed to MAKE_FILE_TARGET.  If EXPLICIT_MAKE_FILE_TARGET is
+  # implicitly passed to ADD_FILE_TARGET.  If EXPLICIT_ADD_FILE_TARGET is
   # supplied, this behavior is supressed.
   #
   # The SOURCES file list will be used to synthesize the FPGA images.
@@ -411,7 +411,7 @@ function(ADD_FPGA_TARGET)
   # * ${TOP}.route - Place and routed design (http://docs.verilogtorouting.org/en/latest/vpr/file_formats/#routing-file-format-route)
   # * ${TOP}.${BITSTREAM_EXTENSION} - Bitstream for target.
   #
-  set(options EXPLICIT_MAKE_FILE_TARGET)
+  set(options EXPLICIT_ADD_FILE_TARGET)
   set(oneValueArgs NAME TOP BOARD INPUT_IO_FILE)
   set(multiValueArgs SOURCES TESTBENCH_SOURCES)
   cmake_parse_arguments(
@@ -466,15 +466,15 @@ function(ADD_FPGA_TARGET)
   set(VPR_ROUTE_CHAN_WIDTH 100)
   set(VPR_ROUTE_CHAN_MINWIDTH_HINT ${VPR_ROUTE_CHAN_WIDTH})
 
-  if(NOT ${ADD_FPGA_TARGET_EXPLICIT_MAKE_FILE_TARGET})
+  if(NOT ${ADD_FPGA_TARGET_EXPLICIT_ADD_FILE_TARGET})
     foreach(SRC ${ADD_FPGA_TARGET_SOURCES})
-      make_file_target(FILE ${SRC} SCANNER_TYPE verilog)
+      add_file_target(FILE ${SRC} SCANNER_TYPE verilog)
     endforeach()
     foreach(SRC ${ADD_FPGA_TARGET_TESTBENCH_SOURCES})
-      make_file_target(FILE ${SRC} SCANNER_TYPE verilog)
+      add_file_target(FILE ${SRC} SCANNER_TYPE verilog)
     endforeach()
 
-    make_file_target(FILE ${ADD_FPGA_TARGET_INPUT_IO_FILE})
+    add_file_target(FILE ${ADD_FPGA_TARGET_INPUT_IO_FILE})
 
   endif()
 

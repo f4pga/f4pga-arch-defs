@@ -4,7 +4,7 @@
 #
 # Key functions:
 #
-# * MAKE_FILE_TARGET - Creates a file target.  All source files, whether
+# * ADD_FILE_TARGET - Creates a file target.  All source files, whether
 #   generated or not should call this function.
 # * GET_FILE_TARGET - Given a absolute or local source path, what is the target
 #   that will build this file.
@@ -184,21 +184,21 @@ function(GET_XML_INCLUDES var file)
   set(${var} "${${var}}" PARENT_SCOPE)
 endfunction()
 
-function(MAKE_FILE_TARGET)
+function(ADD_FILE_TARGET)
   # ~~~
-  # MAKE_FILE_TARGET(
+  # ADD_FILE_TARGET(
   #   FILE <source file location>
   #   [GENERATED | SCANNER_TYPE <verilog|xml>]
   #   )
   # ~~~
   #
-  # Creates new file target for given source location.  Even if MAKE_FILE_TARGET
+  # Creates new file target for given source location.  Even if ADD_FILE_TARGET
   # is being called on a file that is located in the binary directory, always
   # pass the source location it would have if the source and binary directories
   # were the same.  This is important for dependency definitions that assume all
   # inputs are in one folder.
   #
-  # MAKE_FILE_TARGET ensures that all sources are in one folder, because of how
+  # ADD_FILE_TARGET ensures that all sources are in one folder, because of how
   # the verilog include directive is defined.
   #
   # SCANNER_TYPE argument can be used if GENERATED is not set.  Valid
@@ -210,26 +210,26 @@ function(MAKE_FILE_TARGET)
   set(oneValueArgs FILE SCANNER_TYPE)
   set(multiValueArgs)
   cmake_parse_arguments(
-    MAKE_FILE_TARGET
+    ADD_FILE_TARGET
     "${options}"
     "${oneValueArgs}"
     "${multiValueArgs}"
     ${ARGN}
   )
 
-  get_file_target(TARGET_NAME ${MAKE_FILE_TARGET_FILE})
+  get_file_target(TARGET_NAME ${ADD_FILE_TARGET_FILE})
 
   set(INCLUDE_FILES "")
-  if(NOT ${MAKE_FILE_TARGET_GENERATED})
-    if("${MAKE_FILE_TARGET_SCANNER_TYPE}" STREQUAL "")
+  if(NOT ${ADD_FILE_TARGET_GENERATED})
+    if("${ADD_FILE_TARGET_SCANNER_TYPE}" STREQUAL "")
 
-    elseif("${MAKE_FILE_TARGET_SCANNER_TYPE}" STREQUAL "verilog")
-      get_verilog_includes(INCLUDE_FILES ${MAKE_FILE_TARGET_FILE})
-    elseif("${MAKE_FILE_TARGET_SCANNER_TYPE}" STREQUAL "xml")
-      get_xml_includes(INCLUDE_FILES ${MAKE_FILE_TARGET_FILE})
+    elseif("${ADD_FILE_TARGET_SCANNER_TYPE}" STREQUAL "verilog")
+      get_verilog_includes(INCLUDE_FILES ${ADD_FILE_TARGET_FILE})
+    elseif("${ADD_FILE_TARGET_SCANNER_TYPE}" STREQUAL "xml")
+      get_xml_includes(INCLUDE_FILES ${ADD_FILE_TARGET_FILE})
     else()
       message(
-        FATAL_ERROR "Unknown SCANNER_TYPE=${MAKE_FILE_TARGET_SCANNER_TYPE}."
+        FATAL_ERROR "Unknown SCANNER_TYPE=${ADD_FILE_TARGET_SCANNER_TYPE}."
       )
     endif()
   endif()
@@ -239,13 +239,13 @@ function(MAKE_FILE_TARGET)
     append_file_dependency(INCLUDE_FILES_TARGETS ${INCLUDE})
   endforeach()
 
-  if(NOT ${MAKE_FILE_TARGET_GENERATED})
+  if(NOT ${ADD_FILE_TARGET_GENERATED})
     add_custom_command(
-      OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/${MAKE_FILE_TARGET_FILE}
+      OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/${ADD_FILE_TARGET_FILE}
       COMMAND
         ${CMAKE_COMMAND} -E copy
-        ${CMAKE_CURRENT_SOURCE_DIR}/${MAKE_FILE_TARGET_FILE}
-        ${CMAKE_CURRENT_BINARY_DIR}/${MAKE_FILE_TARGET_FILE}
+        ${CMAKE_CURRENT_SOURCE_DIR}/${ADD_FILE_TARGET_FILE}
+        ${CMAKE_CURRENT_BINARY_DIR}/${ADD_FILE_TARGET_FILE}
       DEPENDS ${INCLUDE_FILES_TARGETS}
     )
   endif()
@@ -253,13 +253,13 @@ function(MAKE_FILE_TARGET)
   add_custom_target(
     ${TARGET_NAME}
     DEPENDS
-      ${CMAKE_CURRENT_BINARY_DIR}/${MAKE_FILE_TARGET_FILE}
+      ${CMAKE_CURRENT_BINARY_DIR}/${ADD_FILE_TARGET_FILE}
       ${INCLUDE_FILES_TARGETS}
   )
 
   set_target_properties(
     ${TARGET_NAME}
-    PROPERTIES LOCATION ${CMAKE_CURRENT_BINARY_DIR}/${MAKE_FILE_TARGET_FILE}
+    PROPERTIES LOCATION ${CMAKE_CURRENT_BINARY_DIR}/${ADD_FILE_TARGET_FILE}
   )
   set_target_properties(${TARGET_NAME} PROPERTIES INCLUDES "")
-endfunction(MAKE_FILE_TARGET)
+endfunction(ADD_FILE_TARGET)
