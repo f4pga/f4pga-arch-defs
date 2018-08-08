@@ -1,4 +1,4 @@
-make_file_target(FILE spiflash.v SCANNER_TYPE verilog)
+add_file_target(FILE spiflash.v SCANNER_TYPE verilog)
 
 add_fpga_target(
   NAME picosoc

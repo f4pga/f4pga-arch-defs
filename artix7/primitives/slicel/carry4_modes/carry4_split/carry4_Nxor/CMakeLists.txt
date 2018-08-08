@@ -1,4 +1,4 @@
-make_file_target(FILE ntemplate.carry4_Nxor.sim.v SCANNER_TYPE verilog)
+add_file_target(FILE ntemplate.carry4_Nxor.sim.v SCANNER_TYPE verilog)
 n_template(
   NAME carry4_Nxor.sim.v
   PREFIXES a;b;c;d

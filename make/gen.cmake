@@ -10,7 +10,7 @@ function(V2X)
   # V2X converts SRCS from verilog to .pb_type.xml and .model.xml via the
   # utilities in <root>/util/vlog/vlog_to_<x>.
   #
-  # V2X requires all files in SRCS to have a file target via MAKE_FILE_TARGET.
+  # V2X requires all files in SRCS to have a file target via ADD_FILE_TARGET.
   #
   # V2X will generate a dummy target <name> that will build both xml outputs.
   set(options)
@@ -70,7 +70,7 @@ function(V2X)
     WORKING_DIRECTORY ${symbiflow-arch-defs_SOURCE_DIR}/utils/vlog/
   )
 
-  make_file_target(FILE "${V2X_NAME}.pb_type.xml" GENERATED)
+  add_file_target(FILE "${V2X_NAME}.pb_type.xml" GENERATED)
 
   add_custom_command(
     OUTPUT "${V2X_NAME}.model.xml"
@@ -84,7 +84,7 @@ function(V2X)
     WORKING_DIRECTORY ${symbiflow-arch-defs_SOURCE_DIR}/utils/vlog/
   )
 
-  make_file_target(FILE "${V2X_NAME}.model.xml" GENERATED)
+  add_file_target(FILE "${V2X_NAME}.model.xml" GENERATED)
 
   add_custom_target(
     ${V2X_NAME}
@@ -210,9 +210,9 @@ function(MUX_GEN)
     COMMAND ${symbiflow-arch-defs_SOURCE_DIR}/utils/mux_gen.py ${MUX_GEN_ARGS}
   )
 
-  make_file_target(FILE "${MUX_GEN_NAME}.sim.v" GENERATED)
-  make_file_target(FILE "${MUX_GEN_NAME}.pb_type.xml" GENERATED)
-  make_file_target(FILE "${MUX_GEN_NAME}.model.xml" GENERATED)
+  add_file_target(FILE "${MUX_GEN_NAME}.sim.v" GENERATED)
+  add_file_target(FILE "${MUX_GEN_NAME}.pb_type.xml" GENERATED)
+  add_file_target(FILE "${MUX_GEN_NAME}.model.xml" GENERATED)
 
   add_custom_target(${MUX_GEN_NAME} DEPENDS ${OUTPUTS})
 
@@ -291,7 +291,7 @@ function(N_TEMPLATE)
         WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
       )
 
-      make_file_target(FILE ${SRC_WITH_PREFIX} GENERATED DEPENDS ${SRC})
+      add_file_target(FILE ${SRC_WITH_PREFIX} GENERATED DEPENDS ${SRC})
 
       list(APPEND OUTPUTS ${SRC_WITH_PREFIX})
 

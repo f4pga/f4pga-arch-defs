@@ -37,7 +37,7 @@ function(generate_all_icebox_layouts)
   )
 
   foreach(OUTPUT ${OUTPUTS})
-    make_file_target(FILE ${OUTPUT} GENERATED)
+    add_file_target(FILE ${OUTPUT} GENERATED)
   endforeach()
 endfunction()
 
