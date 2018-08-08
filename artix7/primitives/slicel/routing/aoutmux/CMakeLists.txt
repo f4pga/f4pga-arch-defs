@@ -1,0 +1,9 @@
+mux_gen(
+  NAME aoutmux
+  INPUTS A5Q,XOR,O6,O5,F7,CY
+  MUX_NAME AOUTMUX
+  OUTPUT OUT
+  SPLIT_INPUTS 1
+  TYPE routing
+  WIDTH 6
+)

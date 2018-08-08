@@ -18,7 +18,6 @@
  */
 
 `timescale 1 ns / 1 ps
-
 module testbench;
 	reg flash_csb = 1;
 	reg flash_clk = 0;

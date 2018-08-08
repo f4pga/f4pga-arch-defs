@@ -1,0 +1,10 @@
+mux_gen(
+  NAME inmode_mux
+  COMMENT "DSP48E1 INMODE mux"
+  DATA_WIDTH 5
+  INPUTS BYPASS,REG
+  MUX_NAME INMODE_MUX
+  SPLIT_INPUTS 1
+  TYPE routing
+  WIDTH 2
+)

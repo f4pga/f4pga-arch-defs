@@ -1,0 +1,10 @@
+mux_gen(
+  NAME creg_mux
+  COMMENT "DSP48E1 CREG mux"
+  DATA_WIDTH 48
+  INPUTS BYPASS,REG
+  MUX_NAME CREG_MUX
+  SPLIT_INPUTS 1
+  TYPE routing
+  WIDTH 2
+)

@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-import os, subprocess, sys, re
+import os, subprocess, re
 import tempfile, json
 import yosys.utils
 
@@ -17,6 +17,7 @@ def get_output(params):
 
 
 defines = []
+includes = []
 
 
 def add_define(defname):
@@ -29,6 +30,15 @@ def get_defines():
     return " ".join(["-D" + _ for _ in defines])
 
 
+def add_include(path):
+    """ Add a path to search when reading verilog to the list of includes set in Yosys"""
+    includes.append(path)
+
+def get_includes():
+    """Return a list of include directories, as a list of arguments to pass to Yosys `read_verilog`"""
+    return " ".join(["-I" + _ for _ in includes])
+
+
 def commands(commands, infiles=[]):
     """Run a given string containing Yosys commands
 
@@ -37,7 +47,7 @@ def commands(commands, infiles=[]):
     commands : string of Yosys commands to run
     infiles : list of input files
     """
-    commands = "read_verilog {} {}; ".format(get_defines(),
+    commands = "read_verilog {} {} {}; ".format(get_defines(), get_includes(),
                                              " ".join(infiles)) + commands
     params = ["-q", "-p", commands]
     return get_output(params)

@@ -1,0 +1,10 @@
+mux_gen(
+  NAME alumode_mux
+  COMMENT "DSP48E1 ALUMODE mux"
+  DATA_WIDTH 4
+  INPUTS BYPASS,REG
+  MUX_NAME ALUMODE_MUX
+  SPLIT_INPUTS 1
+  TYPE routing
+  WIDTH 2
+)

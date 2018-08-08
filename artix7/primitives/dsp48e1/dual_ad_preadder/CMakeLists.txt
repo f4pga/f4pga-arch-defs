@@ -1,0 +1,8 @@
+add_subdirectory(a_adder_mux)
+add_subdirectory(acout_mux)
+add_subdirectory(ain_mux)
+add_subdirectory(amult_mux)
+add_subdirectory(amux)
+add_subdirectory(dmux)
+add_file_target(FILE dual_ad_preadder.sim.v SCANNER_TYPE verilog)
+v2x(NAME dual_ad_preadder SRCS dual_ad_preadder.sim.v)

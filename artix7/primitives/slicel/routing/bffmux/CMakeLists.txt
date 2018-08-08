@@ -1,0 +1,9 @@
+mux_gen(
+  NAME bffmux
+  INPUTS XOR,O6,O5,F8,CY,BX
+  MUX_NAME BFFMUX
+  OUTPUT OUT
+  SPLIT_INPUTS 1
+  TYPE routing
+  WIDTH 6
+)

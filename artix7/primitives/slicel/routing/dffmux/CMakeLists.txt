@@ -1,0 +1,9 @@
+mux_gen(
+  NAME dffmux
+  INPUTS XOR,O6,O5,DX,CY
+  MUX_NAME DFFMUX
+  OUTPUT OUT
+  SPLIT_INPUTS 1
+  TYPE routing
+  WIDTH 5
+)

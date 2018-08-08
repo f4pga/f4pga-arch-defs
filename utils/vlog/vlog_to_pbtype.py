@@ -44,7 +44,7 @@ The following are allowed on ports:
 The Verilog define "PB_TYPE" is set during generation.
 """
 
-import os, tempfile, sys
+import os, sys
 import argparse, re
 
 import lxml.etree as ET
@@ -71,6 +71,12 @@ parser.add_argument(
 Top level module, will usually be automatically determined from the file name
 %.sim.v
 """)
+parser.add_argument(
+    '--includes',
+    help="""\
+Command seperate list of include directories.
+""",
+default="")
 parser.add_argument('-o', help="""\
 Output filename, default 'model.xml'
 """)
@@ -83,6 +89,10 @@ if "o" in args and args.o is not None:
     outfile = args.o
 
 yosys.run.add_define("PB_TYPE")
+if args.includes:
+  for include in args.includes.split(','):
+    yosys.run.add_include(include)
+
 vjson = yosys.run.vlog_to_json(args.infiles, flatten=False, aig=False)
 yj = YosysJSON(vjson)
 
@@ -260,7 +270,6 @@ def make_pb_type(mod):
     """Build the pb_type for a given module. mod is the YosysModule object to
     generate."""
 
-    attrs = mod.module_attrs
     modes = mod.attr("MODES", None)
     if modes is not None:
         modes = modes.split(";")
