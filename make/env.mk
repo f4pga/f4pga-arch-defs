@@ -76,7 +76,7 @@ make:
 .PHONY: make
 
 env:
-	make -C $(TOP_DIR) -f $(TOP_DIR)/make/env.mk $(CONDA_YOSYS) $(CONDA_VPR) $(CONDA_IVERILOG) $(CONDA_DIR)/lib/python3.6/site-packages/lxml
+	make -C $(TOP_DIR) -f $(TOP_DIR)/make/env.mk $(CONDA_YOSYS) $(CONDA_VPR) $(CONDA_IVERILOG) $(CONDA_DIR)/lib/python3.6/site-packages/lxml $(CONDA_PYTEST)
 
 .PHONY: env
 
