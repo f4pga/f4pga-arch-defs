@@ -1,0 +1,10 @@
+mux_gen(
+  NAME bin_mux
+  COMMENT "DSP48E1 B input mux"
+  DATA_WIDTH 18
+  INPUTS B,BCIN
+  MUX_NAME BIN_MUX
+  SPLIT_INPUTS 1
+  TYPE routing
+  WIDTH 2
+)

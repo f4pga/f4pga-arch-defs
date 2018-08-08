@@ -1,0 +1,7 @@
+add_subdirectory(b1reg_mux)
+add_subdirectory(b2reg_mux)
+add_subdirectory(bc_mux)
+add_subdirectory(bin_mux)
+add_subdirectory(bmult_mux)
+add_file_target(FILE dual_b_reg.sim.v SCANNER_TYPE verilog)
+v2x(NAME dual_b_reg SRCS dual_b_reg.sim.v)

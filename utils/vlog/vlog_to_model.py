@@ -17,7 +17,7 @@ The following Verilog attributes are considered on modules:
     class.
 """
 import argparse, re
-import os, tempfile, sys
+import os, sys
 
 import lxml.etree as ET
 
@@ -42,6 +42,12 @@ parser.add_argument(
 Top level module, will usually be automatically determined from the file name
 %.sim.v
 """)
+parser.add_argument(
+    '--includes',
+    help="""\
+Command seperate list of include directories.
+""",
+default="")
 parser.add_argument('-o', help="""\
 Output filename, default 'model.xml'
 """)
@@ -52,6 +58,10 @@ iname = os.path.basename(args.infiles[0])
 outfile = "model.xml"
 if "o" in args and args.o is not None:
     outfile = args.o
+
+if args.includes:
+  for include in args.includes.split(','):
+    yosys.run.add_include(include)
 
 aig_json = yosys.run.vlog_to_json(args.infiles, flatten=True, aig=True)
 

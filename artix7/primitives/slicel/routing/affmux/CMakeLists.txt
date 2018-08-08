@@ -1,0 +1,9 @@
+mux_gen(
+  NAME affmux
+  INPUTS XOR,O6,O5,F7,CY,AX
+  MUX_NAME AFFMUX
+  OUTPUT OUT
+  SPLIT_INPUTS 1
+  TYPE routing
+  WIDTH 6
+)

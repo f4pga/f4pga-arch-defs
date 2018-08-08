@@ -1,0 +1,6 @@
+add_subdirectory(N5ff)
+add_subdirectory(Nff)
+add_subdirectory(Nlut)
+add_subdirectory(carry4_modes)
+add_subdirectory(muxes)
+add_subdirectory(routing)
