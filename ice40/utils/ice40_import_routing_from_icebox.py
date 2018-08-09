@@ -72,11 +72,8 @@ Then add globals, then neighbourhood
 import logging
 import operator
 import os.path
-import re
 import sys
-from collections import namedtuple, OrderedDict, defaultdict
-from functools import reduce
-from os.path import commonprefix
+from collections import defaultdict
 
 MYDIR = os.path.dirname(__file__)
 
