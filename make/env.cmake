@@ -74,6 +74,15 @@ function(SETUP_ENV)
 endfunction()
 
 function(ADD_CONDA_PIP)
+  # ~~~
+  # ADD_CONDA_PIP(
+  #   NAME <name>
+  #   )
+  # ~~~
+  #
+  # Installs an executable via conda PIP.  This generates two env properties.
+  # <name> is set to the path to the executable. <name>_TARGET is set to the
+  # target that will invoke pip if not already installed.
   set(options)
   set(oneValueArgs NAME)
   set(multiValueArgs)
@@ -101,6 +110,12 @@ function(ADD_CONDA_PIP)
       ${NAME}
       DEPENDS ${BIN}
       )
+
+    add_custom_target(
+      _clean_pip_${NAME}
+      COMMAND ${PIP} uninstall -y ${NAME}
+      )
+    add_dependencies(clean_pip _clean_pip_${NAME})
 
     set(${binary_upper} ${BIN})
     replace_with_env_if_set(${binary_upper})
