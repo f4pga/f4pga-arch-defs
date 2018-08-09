@@ -1,0 +1,7 @@
+add_file_target(FILE 1x1.fixed_layout.xml SCANNER_TYPE xml)
+add_file_target(FILE 1x1.min.fixed_layout.xml SCANNER_TYPE xml)
+add_file_target(FILE 1x2.fixed_layout.xml SCANNER_TYPE xml)
+add_file_target(FILE 2x1.fixed_layout.xml SCANNER_TYPE xml)
+add_file_target(FILE 2x4.fixed_layout.xml SCANNER_TYPE xml)
+add_file_target(FILE 4x4.fixed_layout.xml SCANNER_TYPE xml)
+add_file_target(FILE all.xml SCANNER_TYPE xml)
