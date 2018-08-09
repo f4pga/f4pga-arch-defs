@@ -1,5 +1,5 @@
 set(BOARDS "")
-list(APPEND BOARDS icestick)
+list(APPEND BOARDS dummy_ice40_hx1k_tq144)
 
 function(add_simple_test)
   # ~~~

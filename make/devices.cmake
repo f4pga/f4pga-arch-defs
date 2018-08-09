@@ -323,6 +323,14 @@ function(DEFINE_DEVICE)
       ${DEFINE_DEVICE_ARCH}_${DEFINE_DEVICE_DEVICE}_${PACKAGE}_rrxml_real
       DEPENDS ${OUT_RRXML_REAL}
     )
+
+    # Define dummy boards.  PROG_TOOL is set to false to disallow programming.
+    define_board(
+      BOARD dummy_${DEFINE_DEVICE_ARCH}_${DEFINE_DEVICE_DEVICE}_${PACKAGE}
+      DEVICE ${DEFINE_DEVICE_DEVICE}
+      PACKAGE ${PACKAGE}
+      PROG_TOOL false
+      )
   endforeach()
 endfunction()
 
@@ -369,6 +377,108 @@ function(ADD_OUTPUT_TO_FPGA_TARGET name property file)
   set_target_properties(${name} PROPERTIES ${property} ${file})
 endfunction()
 
+function(ADD_FPGA_TARGET_BOARDS)
+  # ~~~
+  # ADD_FPGA_TARGET_BOARDS(
+  #   NAME <name>
+  #   [TOP <top>]
+  #   BOARDS <board list>
+  #   SOURCES <source list>
+  #   TESTBENCH_SOURCES <testbench source list>
+  #   [IMPLICIT_INPUT_IO_FILES]
+  #   [INPUT_IO_FILES <input_io_file list>]
+  #   [EXPLICIT_ADD_FILE_TARGET]
+  #   [EMIT_CHECK_TESTS EQUIV_CHECK_SCRIPT <yosys to script verify two bitstreams gold and gate>]
+  #   )
+  # ~~~
+  # Version of ADD_FPGA_TARGET that emits targets for multiple boards.
+  #
+  # If INPUT_IO_FILES is supplied, BOARDS[i] will use INPUT_IO_FILES[i].
+  #
+  # If IMPLICIT_INPUT_IO_FILES is supplied, INPUT_IO_FILES[i] will be set to
+  # "BOARDS[i].pcf".
+  #
+  # Targets will be named <name>_<board>.
+  #
+  set(options EXPLICIT_ADD_FILE_TARGET EMIT_CHECK_TESTS IMPLICIT_INPUT_IO_FILES)
+  set(oneValueArgs NAME TOP  EQUIV_CHECK_SCRIPT)
+  set(multiValueArgs SOURCES BOARDS INPUT_IO_FILE TESTBENCH_SOURCES)
+  cmake_parse_arguments(
+    ADD_FPGA_TARGET_BOARDS
+    "${options}"
+    "${oneValueArgs}"
+    "${multiValueArgs}"
+    ${ARGN}
+  )
+
+  set(INPUT_IO_FILES ${ADD_FPGA_TARGET_BOARDS_INPUT_IO_FILES})
+  if(NOT "${INPUT_IO_FILES}" STREQUAL "" AND ${ADD_FPGA_TARGET_BOARDS_IMPLICIT_INPUT_IO_FILES})
+    message(FATAL_ERROR "Cannot request implicit IO files and supply explicit IO file list")
+  endif()
+
+  set(BOARDS ${ADD_FPGA_TARGET_BOARDS_BOARDS})
+  list(LENGTH BOARDS NUM_BOARDS)
+  if(${ADD_FPGA_TARGET_BOARDS_IMPLICIT_INPUT_IO_FILES})
+    foreach(BOARD ${BOARDS})
+      list(APPEND INPUT_IO_FILES ${BOARD}.pcf)
+    endforeach()
+    set(HAVE_IO_FILES TRUE)
+  else()
+    list(LENGTH INPUT_IO_FILES NUM_INPUT_IO_FILES)
+    if(${NUM_INPUT_IO_FILES} GREATER 0)
+      set(HAVE_IO_FILES TRUE)
+    else()
+      set(HAVE_IO_FILES FALSE)
+    endif()
+    if(${HAVE_IO_FILES} AND NOT ${NUM_INPUT_IO_FILES} EQUAL ${NUM_BOARDS})
+      message(FATAL_ERROR "Provide ${NUM_BOARDS} boards and ${NUM_INPUT_IO_FILES} io files, must be equal.")
+    endif()
+  endif()
+
+  if(NOT ${ADD_FPGA_TARGET_BOARDS_EXPLICIT_ADD_FILE_TARGET})
+    set(FILE_LIST  "")
+    foreach(SRC ${ADD_FPGA_TARGET_BOARDS_SOURCES} ${ADD_FPGA_TARGET_BOARDS_TESTBENCH_SOURCES})
+      add_file_target(FILE ${SRC} SCANNER_TYPE verilog)
+    endforeach()
+    foreach(SRC ${INPUT_IO_FILES})
+      add_file_target(FILE ${SRC})
+    endforeach()
+  endif()
+
+  set(OPT_ARGS "")
+  foreach(OPT_STR_ARG TOP EQUIV_CHECK_SCRIPT)
+    if("${ADD_FPGA_TARGET_BOARDS_${OPT_STR_ARG}}" STREQUAL "")
+      list(APPEND OPT_ARGS ${OPT_STR_ARG} ${ADD_FPGA_TARGET_BOARDS_${OPT_STR_ARG}})
+    endif()
+  endforeach()
+  foreach(OPT_OPTION_ARG EMIT_CHECK_TESTS)
+    if(${ADD_FPGA_TARGET_BOARDS_${OPT_OPTION_ARG}})
+      list(APPEND OPT_ARGS ${OPT_OPTION_ARG})
+    endif()
+  endforeach()
+  list(LENGTH ADD_FPGA_TARGET_BOARDS_TESTBENCH_SOURCES NUM_TESTBENCH_SOURCES)
+  if($NUM_TESTBENCH_SOURCES} GREATER 0)
+    list(APPEND OPT_ARGS TESTBENCH_SOURCES ${ADD_FPGA_TARGET_BOARDS_TESTBENCH_SOURCES})
+  endif()
+
+  math(EXPR NUM_BOARDS_MINUS_1 ${NUM_BOARDS}-1)
+  foreach(IDX RANGE ${NUM_BOARDS_MINUS_1})
+    list(GET BOARDS ${IDX} BOARD)
+    set(BOARD_OPT_ARGS ${OPT_ARGS})
+    if(${HAVE_IO_FILES})
+      list(GET INPUT_IO_FILES ${IDX} INPUT_IO_FILE)
+      list(APPEND BOARD_OPT_ARGS INPUT_IO_FILE ${INPUT_IO_FILE})
+    endif()
+    add_fpga_target(
+      NAME ${ADD_FPGA_TARGET_BOARDS_NAME}_${BOARD}
+      BOARD ${BOARD}
+      SOURCES ${ADD_FPGA_TARGET_BOARDS_SOURCES}
+      EXPLICIT_ADD_FILE_TARGET
+      ${BOARD_OPT_ARGS}
+      )
+  endforeach()
+endfunction()
+
 function(ADD_FPGA_TARGET)
   # ~~~
   # ADD_FPGA_TARGET(
@@ -404,7 +514,7 @@ function(ADD_FPGA_TARGET)
   #
   # Outputs for this target will all be located in
   # ~~~
-  # ${CMAKE_CURRENT_BINARY_DIR}/${NAME}/${ARCH}-${DEVICE_TYPE}-${DEVICE}-${PACKAGE}
+  # ${CMAKE_CURRENT_BINARY_DIR}/${ARCH}-${DEVICE_TYPE}-${DEVICE}-${PACKAGE}
   # ~~~
   #
   # Output files:
@@ -676,6 +786,9 @@ function(ADD_FPGA_TARGET)
 
   get_target_property_required(PROG_TOOL ${BOARD} PROG_TOOL)
   get_target_property(PROG_CMD ${BOARD} PROG_CMD)
+  separate_arguments(
+    PROG_CMD_LIST UNIX_COMMAND ${PROG_CMD}
+  )
 
   if("${PROG_CMD}" STREQUAL "NOTFOUND")
     set(PROG_CMD ${PROG_TOOL})
@@ -683,7 +796,7 @@ function(ADD_FPGA_TARGET)
 
   add_custom_target(
     ${NAME}_prog
-    COMMAND ${PROG_CMD} ${OUT_BIN}
+    COMMAND ${PROG_CMD_LIST} ${OUT_BIN}
     DEPENDS ${OUT_BIN} ${PROG_TOOL}
     )
 
