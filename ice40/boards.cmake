@@ -16,3 +16,10 @@ define_board(
   PROG_CMD ${ICEPROG_TOOL} -S
 )
 
+define_board(
+  BOARD icevision
+  DEVICE up5k
+  PACKAGE sg48
+  PROG_TOOL ${ICEPROG_TOOL}
+)
+
