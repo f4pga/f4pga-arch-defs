@@ -323,6 +323,14 @@ function(DEFINE_DEVICE)
       ${DEFINE_DEVICE_ARCH}_${DEFINE_DEVICE_DEVICE}_${PACKAGE}_rrxml_real
       DEPENDS ${OUT_RRXML_REAL}
     )
+
+    # Define dummy boards.  PROG_TOOL is set to false to disallow programming.
+    define_board(
+      BOARD dummy_${DEFINE_DEVICE_ARCH}_${DEFINE_DEVICE_DEVICE}_${PACKAGE}
+      DEVICE ${DEFINE_DEVICE_DEVICE}
+      PACKAGE ${PACKAGE}
+      PROG_TOOL false
+      )
   endforeach()
 endfunction()
 
