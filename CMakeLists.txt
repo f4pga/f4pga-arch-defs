@@ -9,6 +9,10 @@ include(make/gen.cmake)
 include(make/devices.cmake)
 
 setup_env()
+
+# Target for removing pip binaries, forcing them to retrieved again.
+add_custom_target(clean_pip)
+
 # Target for all check tests.
 add_custom_target(all_check_tests)
 

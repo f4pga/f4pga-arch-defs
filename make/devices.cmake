@@ -514,7 +514,7 @@ function(ADD_FPGA_TARGET)
   #
   # Outputs for this target will all be located in
   # ~~~
-  # ${CMAKE_CURRENT_BINARY_DIR}/${ARCH}-${DEVICE_TYPE}-${DEVICE}-${PACKAGE}
+  # ${CMAKE_CURRENT_BINARY_DIR}/${NAME}/${ARCH}-${DEVICE_TYPE}-${DEVICE}-${PACKAGE}
   # ~~~
   #
   # Output files:
@@ -565,9 +565,9 @@ function(ADD_FPGA_TARGET)
   set(NAME ${ADD_FPGA_TARGET_NAME})
   set(DEVICE_FULL ${DEVICE}-${PACKAGE})
   set(FQDN ${ARCH}-${DEVICE_TYPE}-${DEVICE}-${PACKAGE})
-  set(OUT_LOCAL_REL ${FQDN})
+  set(OUT_LOCAL_REL ${NAME}/${FQDN})
   set(OUT_LOCAL ${CMAKE_CURRENT_BINARY_DIR}/${OUT_LOCAL_REL})
-  set(DIRECTORY_TARGET ${ADD_FPGA_TARGET_NAME}-${FQDN}-make-directory)
+  set(DIRECTORY_TARGET ${NAME}-${FQDN}-make-directory)
   add_custom_target(
     ${DIRECTORY_TARGET} ALL
     COMMAND
@@ -812,7 +812,7 @@ function(ADD_FPGA_TARGET)
     add_testbench(
       NAME testbinch_${TESTBENCH_NAME}
       ARCH ${ARCH}
-      SOURCES ${FQDN}/${TOP}_bit.v ${TESTBENCH}
+      SOURCES ${OUT_LOCAL_REL}/${TOP}_bit.v ${TESTBENCH}
       )
   endforeach()
 
