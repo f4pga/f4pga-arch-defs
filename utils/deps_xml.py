@@ -36,12 +36,11 @@ def read_dependencies(f):
 def main(argv):
     args = parser.parse_args(argv[1:])
 
-    data = StringIO()
-
     if args.file_per_line:
       for dep in read_dependencies(args.inputfile):
         print(dep)
     else:
+      data = StringIO()
       inputpath = os.path.abspath(args.inputfile.name)
       for dep in read_dependencies(args.inputfile):
         add_dependency(data, inputpath, dep)
