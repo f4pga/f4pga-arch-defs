@@ -1,0 +1,16 @@
+<!-- set: ai sw=1 ts=1 sta et -->
+<models>
+ <model name="ICESTORM_CARRY_LUT">
+  <input_ports>
+   <port name="CI" combinational_sink_ports="CO LO" />
+   <port name="I0" combinational_sink_ports="LO" />
+   <port name="I1" combinational_sink_ports="CO LO" />
+   <port name="I2" combinational_sink_ports="CO LO" />
+   <port name="CI" combinational_sink_ports="CO LO" />
+  </input_ports>
+  <output_ports>
+   <port name="CO" />
+   <port name="LO" />
+  </output_ports>
+ </model>
+</models>
