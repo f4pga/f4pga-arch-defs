@@ -1,0 +1,5 @@
+add_file_target(FILE miter_and_tempinduct.ys)
+add_file_target(FILE miter_and_tempinduct_skip_1.ys)
+add_file_target(FILE equiv_simple_clk2fflogic.ys)
+add_file_target(FILE equiv_simple_opt_full.ys)
+add_file_target(FILE miter_and_tempinduct_large_N.ys)

@@ -19,7 +19,6 @@ function(DEFINE_ARCH)
   #    PLACE_TOOL <path to place tool>
   #    PLACE_TOOL_CMD <command to run PLACE_TOOL>
   #    CELLS_SIM <path to verilog file used for simulation>
-  #    EQUIV_CHECK_SCRIPT <yosys to script verify two bitstreams gold and gate>
   #    HLC_TO_BIT <path to HLC to bitstream converter>
   #    HLC_TO_BIT_CMD <command to run HLC_TO_BIT>
   #    BIT_TO_V <path to bitstream to verilog converter>
@@ -75,7 +74,6 @@ function(DEFINE_ARCH)
     PLACE_TOOL
     PLACE_TOOL_CMD
     CELLS_SIM
-    EQUIV_CHECK_SCRIPT
     HLC_TO_BIT
     HLC_TO_BIT_CMD
     BIT_TO_V
@@ -102,7 +100,6 @@ function(DEFINE_ARCH)
     PLACE_TOOL
     PLACE_TOOL_CMD
     CELLS_SIM
-    EQUIV_CHECK_SCRIPT
     HLC_TO_BIT
     HLC_TO_BIT_CMD
     BIT_TO_V
@@ -186,6 +183,8 @@ function(DEFINE_DEVICE_TYPE)
     ${DEFINE_DEVICE_TYPE_ARCH}_${DEFINE_DEVICE_TYPE_DEVICE_TYPE}_arch
     DEPENDS ${DEVICE_MERGED_FILE}
   )
+  add_dependencies(all_merged_arch_xmls
+    ${DEFINE_DEVICE_TYPE_ARCH}_${DEFINE_DEVICE_TYPE_DEVICE_TYPE}_arch)
 
   add_file_target(FILE ${DEVICE_MERGED_FILE} GENERATED)
 
@@ -374,12 +373,13 @@ function(ADD_FPGA_TARGET)
   # ~~~
   # ADD_FPGA_TARGET(
   #   NAME <name>
-  #   TOP <top>
+  #   [TOP <top>]
   #   BOARD <board>
   #   SOURCES <source list>
   #   TESTBENCH_SOURCES <testbench source list>
   #   [INPUT_IO_FILE <input_io_file>]
   #   [EXPLICIT_ADD_FILE_TARGET]
+  #   [EMIT_CHECK_TESTS EQUIV_CHECK_SCRIPT <yosys to script verify two bitstreams gold and gate>]
   #   )
   # ~~~
   #
@@ -387,6 +387,9 @@ function(ADD_FPGA_TARGET)
   # default input files (SOURCES, TESTBENCH_SOURCES, INPUT_IO_FILE) will be
   # implicitly passed to ADD_FILE_TARGET.  If EXPLICIT_ADD_FILE_TARGET is
   # supplied, this behavior is supressed.
+  #
+  # TOP is the name of the top-level module in the design.  If no supplied,
+  # TOP is set to "top".
   #
   # The SOURCES file list will be used to synthesize the FPGA images.
   # INPUT_IO_FILE is required to define an io map. TESTBENCH_SOURCES will be
@@ -411,8 +414,8 @@ function(ADD_FPGA_TARGET)
   # * ${TOP}.route - Place and routed design (http://docs.verilogtorouting.org/en/latest/vpr/file_formats/#routing-file-format-route)
   # * ${TOP}.${BITSTREAM_EXTENSION} - Bitstream for target.
   #
-  set(options EXPLICIT_ADD_FILE_TARGET)
-  set(oneValueArgs NAME TOP BOARD INPUT_IO_FILE)
+  set(options EXPLICIT_ADD_FILE_TARGET EMIT_CHECK_TESTS)
+  set(oneValueArgs NAME TOP BOARD INPUT_IO_FILE EQUIV_CHECK_SCRIPT)
   set(multiValueArgs SOURCES TESTBENCH_SOURCES)
   cmake_parse_arguments(
     ADD_FPGA_TARGET
@@ -423,12 +426,12 @@ function(ADD_FPGA_TARGET)
   )
 
   set(TOP "top")
-  if(NOT ${ADD_FPGA_TARGET_TOP} STREQUAL "")
+  if(NOT "${ADD_FPGA_TARGET_TOP}" STREQUAL "")
     set(TOP ${ADD_FPGA_TARGET_TOP})
   endif()
 
   set(BOARD ${ADD_FPGA_TARGET_BOARD})
-  if(${BOARD} STREQUAL "")
+  if("${BOARD}" STREQUAL "")
     message(FATAL_ERROR "BOARD is a required parameters.")
   endif()
 
@@ -474,8 +477,9 @@ function(ADD_FPGA_TARGET)
       add_file_target(FILE ${SRC} SCANNER_TYPE verilog)
     endforeach()
 
-    add_file_target(FILE ${ADD_FPGA_TARGET_INPUT_IO_FILE})
-
+    if(NOT "${ADD_FPGA_TARGET_INPUT_IO_FILE}" STREQUAL "")
+      add_file_target(FILE ${ADD_FPGA_TARGET_INPUT_IO_FILE})
+    endif()
   endif()
 
   #
@@ -698,9 +702,124 @@ function(ADD_FPGA_TARGET)
       SOURCES ${FQDN}/${TOP}_bit.v ${TESTBENCH}
       )
   endforeach()
+
+  if(${ADD_FPGA_TARGET_EMIT_CHECK_TESTS})
+    if("${ADD_FPGA_TARGET_EQUIV_CHECK_SCRIPT}" STREQUAL "")
+      message(FATAL_ERROR "EQUIV_CHECK_SCRIPT is required if EMIT_CHECK_TESTS is set.")
+    endif()
+
+    add_check_test(
+      NAME ${NAME}_check
+      ARCH ${ARCH}
+      READ_GOLD "read_verilog ${SOURCE_FILES} $<SEMICOLON> rename ${TOP} gold"
+      READ_GATE "read_verilog ${OUT_BIT_VERILOG} $<SEMICOLON> rename ${TOP} gate"
+      EQUIV_CHECK_SCRIPT ${ADD_FPGA_TARGET_EQUIV_CHECK_SCRIPT}
+      DEPENDS ${SOURCE_FILES} ${SOURCE_FILES_DEPS} ${OUT_BIT_VERILOG}
+      )
+    add_check_test(
+      NAME ${NAME}_check_eblif
+      ARCH ${ARCH}
+      READ_GOLD "read_verilog ${SOURCE_FILES} $<SEMICOLON> rename ${TOP} gold"
+      READ_GATE "read_blif -wideports ${OUT_EBLIF} $<SEMICOLON> rename ${TOP} gate"
+      EQUIV_CHECK_SCRIPT ${ADD_FPGA_TARGET_EQUIV_CHECK_SCRIPT}
+      DEPENDS ${SOURCE_FILES} ${SOURCE_FILES_DEPS} ${OUT_EBLIF}
+      )
+  endif()
+endfunction()
+
+function(add_check_test)
+  # ~~~
+  # ADD_CHECK_TEST(
+  #    NAME <name>
+  #    ARCH <arch>
+  #    READ_GOLD <yosys script>
+  #    READ_GATE <yosys script>
+  #    EQUIV_CHECK_SCRIPT <yosys to script verify two bitstreams gold and gate>
+  #    DEPENDS <files and targets>
+  #   )
+  # ~~~
+  #
+  # ADD_CHECK_TEST defines a cmake test to compare analytically two modules.
+  # READ_GOLD should be a yosys script that puts the truth module in a module
+  # named gold. READ_GATE should be a yosys script that puts the gate module
+  # in a module named gate.
+  #
+  # DEPENDS should the be complete list of dependencies to add to the check
+  # target.
+  set(options)
+  set(oneValueArgs NAME ARCH READ_GOLD READ_GATE EQUIV_CHECK_SCRIPT)
+  set(multiValueArgs DEPENDS)
+  cmake_parse_arguments(
+    ADD_CHECK_TEST
+    "${options}"
+    "${oneValueArgs}"
+    "${multiValueArgs}"
+    ${ARGN}
+  )
+
+  get_target_property_required(YOSYS env YOSYS)
+  get_target_property_required(CELLS_SIM ${ADD_CHECK_TEST_ARCH} CELLS_SIM)
+  set(EQUIV_CHECK_SCRIPT ${ADD_CHECK_TEST_EQUIV_CHECK_SCRIPT})
+  if("${EQUIV_CHECK_SCRIPT}" STREQUAL "")
+    message(FATAL_ERROR "EQUIV_CHECK_SCRIPT is not optional to add_check_test.")
+  endif()
+
+  get_file_location(EQUIV_CHECK_SCRIPT_LOCATION ${EQUIV_CHECK_SCRIPT})
+  get_file_target(EQUIV_CHECK_SCRIPT_TARGET ${EQUIV_CHECK_SCRIPT})
+
+  set(PATH_TO_CELLS_SIM ${symbiflow-arch-defs_SOURCE_DIR}/env/conda/share/yosys/${CELLS_SIM})
+  # CTest doesn't support build target dependencies, so we have to manually
+  # make them.
+  #
+  # See https://stackoverflow.com/questions/733475/cmake-ctest-make-test-doesnt-build-tests
+  add_custom_target(_target_${ADD_CHECK_TEST_NAME}_build_depends
+    DEPENDS ${ADD_CHECK_TEST_DEPENDS} ${PATH_TO_CELLS_SIM} ${EQUIV_CHECK_SCRIPT_TARGET} ${EQUIV_CHECK_SCRIPT_LOCATION})
+  add_test(
+    NAME _test_${ADD_CHECK_TEST_NAME}_build
+    COMMAND "${CMAKE_COMMAND}" --build ${CMAKE_BINARY_DIR} --target _target_${ADD_CHECK_TEST_NAME}_build_depends --config $<CONFIG>
+    )
+  # Make sure only one build is running at a time, ninja (and probably make)
+  # output doesn't support multiple calls into it from seperate processes.
+  set_tests_properties(
+    _test_${ADD_CHECK_TEST_NAME}_build PROPERTIES RESOURCE_LOCK cmake
+    )
+  add_test(
+    NAME ${ADD_CHECK_TEST_NAME}
+    COMMAND ${YOSYS} -p "${ADD_CHECK_TEST_READ_GOLD} $<SEMICOLON> ${ADD_CHECK_TEST_READ_GATE} $<SEMICOLON> script ${EQUIV_CHECK_SCRIPT_LOCATION}" ${PATH_TO_CELLS_SIM}
+    )
+  set_tests_properties(
+    ${ADD_CHECK_TEST_NAME} PROPERTIES DEPENDS _test_${ADD_CHECK_TEST_NAME}_build
+    )
+
+  # Also provide a make target that runs the analysis.
+  add_custom_target(
+    ${ADD_CHECK_TEST_NAME}
+    COMMAND ${YOSYS} -p "${ADD_CHECK_TEST_READ_GOLD} $<SEMICOLON> ${ADD_CHECK_TEST_READ_GATE} $<SEMICOLON> script ${EQUIV_CHECK_SCRIPT_LOCATION}" ${PATH_TO_CELLS_SIM}
+    DEPENDS ${ADD_CHECK_TEST_DEPENDS} ${PATH_TO_CELLS_SIM} ${EQUIV_CHECK_SCRIPT_TARGET} ${EQUIV_CHECK_SCRIPT_LOCATION}
+    VERBATIM
+    )
+
+  # Add this check list to the catch all target "all_check_tests".
+  add_dependencies(all_check_tests ${ADD_CHECK_TEST_NAME})
 endfunction()
 
 function(add_testbench)
+  # ~~~
+  #   ADD_TESTBENCH(
+  #     NAME <name of testbench>
+  #     ARCH <arch>
+  #     SOURCES <source list>
+  #   )
+  # ~~~
+  #
+  # ADD_TESTBENCH emits two custom targets, ${NAME} and ${NAME}_view.  ${NAME}
+  # builds and executes a testbench with iverilog.
+  #
+  # ${NAME}_view launches GTKWAVE on the output wave file. For wave viewing, it
+  # is assumed that all testbenches will output some variable dump and dump
+  # to a file defined by VCDFILE.  If this is not true, the ${NAME}_view target
+  # will not work.
+
   set(options)
   set(oneValueArgs NAME ARCH)
   set(multiValueArgs SOURCES)
@@ -736,19 +855,94 @@ function(add_testbench)
     WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
     VERBATIM
     )
+
+  # This target always just executes the testbench.  If the user wants to view
+  # waves generated from this executation, they should just build ${NAME}_view
+  # not ${NAME}.
+  add_custom_target(
+    ${NAME}
+    COMMAND ${VVP} -v -N ${NAME}.vpp
+    DEPENDS ${VVP} ${NAME}.vpp
+    )
+
+  get_target_property_required(GTKWAVE env GTKWAVE)
   add_custom_command(
     OUTPUT ${NAME}.vcd
     COMMAND ${VVP} -v -N ${NAME}.vpp
     DEPENDS ${VVP} ${NAME}.vpp
     )
   add_custom_target(
-    ${NAME} DEPENDS ${NAME}.vcd
-    )
-
-  get_target_property_required(GTKWAVE env GTKWAVE)
-  add_custom_target(
     ${NAME}_view
     DEPENDS ${NAME}.vcd
     COMMAND ${GTKWAVE} ${NAME}.vcd
     )
+endfunction()
+
+function(generate_pinmap)
+  # ~~~
+  #   GENERATE_PINMAP(
+  #     NAME <name of file to output pinmap file>
+  #     TOP <module name to generate pinmap for>
+  #     BOARD <board to generate pinmap for>
+  #     SOURCES <list of sources to load>
+  #   )
+  # ~~~
+  #
+  # Generate pinmap blindly assigns each input and output from the module
+  # ${TOP} to valid pins for the specified board. In its current version,
+  # GENERATE_PINMAP may assign IO to global wire.
+  #
+  # TODO: Consider adding knowledge of global wires and be able to assign
+  # specific wires to global wires (e.g. clock or reset lines).
+  #
+  # SOURCES must contain a module that matches ${TOP}.
+  set(options)
+  set(oneValueArgs NAME TOP BOARD)
+  set(multiValueArgs SOURCES)
+
+  cmake_parse_arguments(
+    GENERATE_PINMAP
+    "${options}"
+    "${oneValueArgs}"
+    "${multiValueArgs}"
+    ${ARGN}
+  )
+
+  get_target_property_required(YOSYS env YOSYS)
+  get_target_property_required(PYTHON3 env PYTHON3)
+
+  set(BOARD ${GENERATE_PINMAP_BOARD})
+  get_target_property_required(DEVICE ${BOARD} DEVICE)
+  get_target_property_required(PACKAGE ${BOARD} PACKAGE)
+  get_target_property_required(PINMAP_FILE ${DEVICE} ${PACKAGE}_PINMAP)
+  get_file_location(PINMAP ${PINMAP_FILE})
+  get_file_target(PINMAP_TARGET ${PINMAP_FILE})
+
+  set(CREATE_PINMAP ${symbiflow-arch-defs_SOURCE_DIR}/utils/create_pinmap.py)
+
+  set(SOURCE_FILES "")
+  set(SOURCE_FILES_DEPS "")
+  foreach(SRC ${GENERATE_PINMAP_SOURCES})
+    get_file_location(SRC_LOCATION ${SRC})
+    get_file_target(SRC_TARGET ${SRC})
+    list(APPEND SOURCE_FILES ${SRC_LOCATION})
+    list(APPEND SOURCE_FILES_DEPS ${SRC_TARGET})
+  endforeach()
+
+  add_custom_command(
+    OUTPUT ${GENERATE_PINMAP_NAME}.json
+    COMMAND ${YOSYS} -p "write_json ${CMAKE_CURRENT_BINARY_DIR}/${GENERATE_PINMAP_NAME}.json" ${SOURCE_FILES}
+    DEPENDS ${YOSYS} ${SOURCE_FILES} ${SOURCE_FILES_DEPS}
+    )
+
+  add_custom_command(
+    OUTPUT ${GENERATE_PINMAP_NAME}
+    COMMAND ${PYTHON3} ${CREATE_PINMAP}
+      --design_json ${CMAKE_CURRENT_BINARY_DIR}/${GENERATE_PINMAP_NAME}.json
+      --pinmap_csv ${PINMAP}
+      --module ${GENERATE_PINMAP_TOP} > ${CMAKE_CURRENT_BINARY_DIR}/${GENERATE_PINMAP_NAME}
+    DEPENDS ${GENERATE_PINMAP_NAME}.json ${CREATE_PINMAP} ${PINMAP} ${PINMAP_TARGET}
+    )
+
+  add_file_target(FILE ${GENERATE_PINMAP_NAME} GENERATED)
 endfunction()

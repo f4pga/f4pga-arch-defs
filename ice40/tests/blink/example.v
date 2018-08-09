@@ -18,7 +18,7 @@ module top (
         localparam LOG2DELAY = $clog2($rtoi(`CLK_MHZ * 1e6));
 
 	reg [BITS+LOG2DELAY-1:0] counter = 0;
-	reg [BITS-1:0] outcnt;
+	reg [BITS-1:0] outcnt = 0;
 
 	always @(posedge clk) begin
 		counter <= counter + 1;
