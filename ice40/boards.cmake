@@ -34,3 +34,38 @@ define_board(
   PACKAGE sg48
   PROG_TOOL ${ICEPROG_TOOL}
 )
+add_conda_pip(
+  NAME tinyfpgab
+  )
+
+get_target_property_required(TINYFPGAB env TINYFPGAB)
+get_target_property(TINYFPGAB_TARGET env TINYFPGAB_TARGET)
+
+# TinyFPGA B2
+# iCE40-LP8K-CM81
+# ---------------------------------------------
+define_board(
+  BOARD tinyfpga-b2
+  DEVICE lp8k
+  PACKAGE cm81
+  PROG_TOOL ${TINYFPGAB_TARGET}
+  PROG_CMD "${TINYFPGAB} --program"
+)
+
+add_conda_pip(
+  NAME tinyprog
+  )
+
+get_target_property_required(TINYPROG env TINYPROG)
+get_target_property_required(TINYPROG_TARGET env TINYPROG_TARGET)
+
+# TinyFPGA BX
+# iCE40-LP8K-CM81
+# ---------------------------------------------
+define_board(
+  BOARD tinyfpga-bx
+  DEVICE lp8k
+  PACKAGE cm81
+  PROG_TOOL ${TINYPROG_TARGET}
+  PROG_CMD "${TINYPROG} -p"
+)
