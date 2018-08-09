@@ -5,7 +5,7 @@ define_board(
   DEVICE lp1k
   PACKAGE qn84
   PROG_TOOL ${ICEPROG_TOOL}
-  PROG_CMD ${ICEPROG_TOOL} -ew
+  PROG_CMD "${ICEPROG_TOOL} -ew"
 )
 
 define_board(
@@ -13,7 +13,7 @@ define_board(
   DEVICE hx8k
   PACKAGE ct256
   PROG_TOOL ${ICEPROG_TOOL}
-  PROG_CMD ${ICEPROG_TOOL} -S
+  PROG_CMD "${ICEPROG_TOOL} -S"
 )
 
 define_board(
