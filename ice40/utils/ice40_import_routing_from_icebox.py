@@ -973,24 +973,37 @@ def add_tracks(g, ic, all_group_segments, segtype_filter=None):
 
 
 def add_carry_edges(g, ic):
+    """
+    The carry chain runs "up" the device.
+
+    LUT0 is the bottom cell in a tile.
+    LUT7 is the top cell in a tile.
+
+    Carry enters via the FCIN pin at bottom of the tile and goes into
+    lutff_0/cin (via the carry_in_mux).
+
+    Then it goes to LUT1, LUT2, LUT3....
+
+    Carry leaves from lutff_7/cout via the FCOUT pin at the top of the tile.
+    """
     for x, y in list(tiles(ic)):
-        ipos_src = PositionIcebox(x, y)
         ipos_dst = PositionIcebox(x, y+1)
+        ipos_src = PositionIcebox(x, y)
 
-        vpos_src = pos_icebox2vpr(ipos_src)
         vpos_dst = pos_icebox2vpr(ipos_dst)
+        vpos_src = pos_icebox2vpr(ipos_src)
 
-        name_src = "lutff_7/cout"
         name_dst = "lutff_0/cin"
-
-        node_src = g.routing.get_by_name(name_src, vpos_src, None)
-        if node_src is None:
-            logging.info("On %s skipping carry no %s", vpos_src, name_src)
-            continue
+        name_src = "lutff_7/cout"
 
         node_dst = g.routing.get_by_name(name_dst, vpos_dst, None)
         if node_dst is None:
             logging.info("On %s skipping carry no %s", vpos_dst, name_dst)
+            continue
+
+        node_src = g.routing.get_by_name(name_src, vpos_src, None)
+        if node_src is None:
+            logging.info("On %s skipping carry no %s", vpos_src, name_src)
             continue
 
         logging.debug(" Connecting carry from coords %s to %s - %s -> %s\n\t%s\n ->\n\t%s",
