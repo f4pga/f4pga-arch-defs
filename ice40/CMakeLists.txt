@@ -7,6 +7,8 @@ define_arch(
   YOSYS_SCRIPT
     "synth_ice40 -nocarry $<SEMICOLON>  ice40_opt -unlut $<SEMICOLON> abc -lut 4 $<SEMICOLON>  opt_clean"
   DEVICE_FULL_TEMPLATE \${DEVICE}-\${PACKAGE}
+  VPR_ARCH_ARGS
+    --clock_modeling route
   RR_PATCH_TOOL
     ${symbiflow-arch-defs_SOURCE_DIR}/ice40/utils/ice40_import_routing_from_icebox.py
   RR_PATCH_CMD "\${RR_PATCH_TOOL} \
