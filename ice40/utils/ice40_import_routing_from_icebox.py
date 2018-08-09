@@ -367,8 +367,8 @@ def add_pin_aliases(g, ic):
     name_rr2local['BLK_TL-PLB.lutff_global/clk[0]'] = 'lutff_global/clk'
     name_rr2local['BLK_TL-PLB.lutff_global/cen[0]'] = 'lutff_global/cen'
     # FIXME: these two are wrong I think, but don't worry about carry for now
-    #name_rr2local['BLK_TL-PLB.FCIN[0]'] = 'lutff_0/cin'
-    #name_rr2local['BLK_TL-PLB.FCOUT[0]'] = 'lutff_7/cout'
+    name_rr2local['BLK_TL-PLB.FCIN[0]'] = 'lutff_0/cin'
+    name_rr2local['BLK_TL-PLB.FCOUT[0]'] = 'lutff_7/cout'
     #name_rr2local['BLK_TL-PLB.lutff_0_cin[0]'] = 'lutff_0/cin'
     #name_rr2local['BLK_TL-PLB.lutff_7_cout[0]'] = 'lutff_7/cout'
     for luti in range(8):
@@ -378,8 +378,6 @@ def add_pin_aliases(g, ic):
             name_rr2local['BLK_TL-PLB.lutff_{}/in[{}]'.format(
                 luti, lut_input)] = 'lutff_{}/in_{}'.format(
                     luti, lut_input)
-
-    name_rr2local['BLK_TL-PLB.FCOUT[0]'] = 'lutff_0/cout'
 
     # BLK_TL-PIO - http://www.clifford.at/icestorm/io_tile.html
     for blocki in range(2):
@@ -974,6 +972,41 @@ def add_tracks(g, ic, all_group_segments, segtype_filter=None):
             add_track_with_localnames(g, ic, segment, connections, lines)
 
 
+def add_carry_edges(g, ic):
+    for x, y in list(tiles(ic)):
+        ipos_src = PositionIcebox(x, y)
+        ipos_dst = PositionIcebox(x, y+1)
+
+        vpos_src = pos_icebox2vpr(ipos_src)
+        vpos_dst = pos_icebox2vpr(ipos_dst)
+
+        name_src = "lutff_7/cout"
+        name_dst = "lutff_0/cin"
+
+        node_src = g.routing.get_by_name(name_src, vpos_src, None)
+        if node_src is None:
+            logging.info("On %s skipping carry no %s", vpos_src, name_src)
+            continue
+
+        node_dst = g.routing.get_by_name(name_dst, vpos_dst, None)
+        if node_dst is None:
+            logging.info("On %s skipping carry no %s", vpos_dst, name_dst)
+            continue
+
+        logging.debug(" Connecting carry from coords %s to %s - %s -> %s\n\t%s\n ->\n\t%s",
+            vpos_src, vpos_dst,
+            name_src, name_dst,
+            format_node(g, node_src),
+            format_node(g, node_dst),
+        )
+        g.routing.create_edge_with_nodes(
+            node_src, node_dst,
+            switch=g.switches['buffer'],
+            bidir=False,
+            metadata={},
+        )
+
+
 def add_edges(g, ic):
     """Adding edges to the rr_graph from icebox edges."""
     for ipos in list(tiles(ic)):
@@ -1054,6 +1087,7 @@ def print_nodes_edges(g):
     print("Nodes: %d (index: %d)" %
           (len(g.routing._xml_parent(graph.RoutingNode)),
            len(g.routing.id2element[graph.RoutingNode])))
+
 
 def ram_pin_offset(pin):
     """Get the offset for a given RAM pin."""
@@ -1195,6 +1229,11 @@ def main(part, read_rr_graph, write_rr_graph):
     add_tracks(g, ic, segments, segtype_filter="span4")
     add_tracks(g, ic, segments, segtype_filter="span12")
     #add_global_tracks(g, ic)
+
+    print()
+    print('Adding carry chain')
+    print('='*80)
+    add_carry_edges(g, ic)
 
     print()
     print('Adding edges')
