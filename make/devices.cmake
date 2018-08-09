@@ -778,6 +778,9 @@ function(ADD_FPGA_TARGET)
 
   get_target_property_required(PROG_TOOL ${BOARD} PROG_TOOL)
   get_target_property(PROG_CMD ${BOARD} PROG_CMD)
+  separate_arguments(
+    PROG_CMD_LIST UNIX_COMMAND ${PROG_CMD}
+  )
 
   if("${PROG_CMD}" STREQUAL "NOTFOUND")
     set(PROG_CMD ${PROG_TOOL})
@@ -785,7 +788,7 @@ function(ADD_FPGA_TARGET)
 
   add_custom_target(
     ${NAME}_prog
-    COMMAND ${PROG_CMD} ${OUT_BIN}
+    COMMAND ${PROG_CMD_LIST} ${OUT_BIN}
     DEPENDS ${OUT_BIN} ${PROG_TOOL}
     )
 
