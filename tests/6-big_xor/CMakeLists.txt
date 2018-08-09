@@ -1,6 +1,6 @@
 add_simple_test(
   NAME 6-big_xor
   SOURCES big_xor.v
-  BOARDS ${BOARDS}
+  BOARDS ${SMALL_BOARDS} ${FULL_BOARDS}
   )
 

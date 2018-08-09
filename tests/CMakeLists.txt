@@ -1,6 +1,7 @@
-set(FULL_BOARDS dummy_ice40_hx1k_tq144)
+set(FULL_BOARDS dummy_ice40_hx1k_tq144 )
 set(SMALL_BOARDS dummy_testarch_4x4_dummy)
-set(BOARDS ${FULL_BOARDS} ${SMALL_BOARDS})
+set(ARTIX7_BOARDS dummy_artix7_xc7a50t_test)
+set(BOARDS ${FULL_BOARDS} ${SMALL_BOARDS} ${ARTIX7_BOARDS})
 
 function(add_simple_test)
   # ~~~

@@ -35,6 +35,16 @@ function(V2X)
 
     append_file_dependency(DEPENDS_LIST ${SRC})
     append_file_includes(INCLUDES ${SRC})
+
+    get_file_target(SRC_TARGET ${SRC})
+    get_target_property(INCLUDE_FILES ${SRC_TARGET} INCLUDE_FILES)
+    foreach(INCLUDE_SRC ${INCLUDE_FILES})
+      get_filename_component(INCLUDE_SRC_DIR ${INCLUDE_SRC} DIRECTORY)
+      get_filename_component(INCLUDE_ROOT ${INCLUDE_SRC} NAME_WE)
+
+      append_file_dependency(DEPENDS_LIST ${INCLUDE_SRC_DIR}/${INCLUDE_ROOT}.model.xml)
+      append_file_dependency(DEPENDS_LIST ${INCLUDE_SRC_DIR}/${INCLUDE_ROOT}.pb_type.xml)
+    endforeach()
   endforeach()
 
   list(GET V2X_SRCS 0 FIRST_SOURCE_FILE)
@@ -295,8 +305,9 @@ function(N_TEMPLATE)
 
       list(APPEND OUTPUTS ${SRC_WITH_PREFIX})
 
-      if(${APPLY_V2X})
-        v2x(NAME ${PREFIX}${NAME} SRCS ${SRC_WITH_PREFIX})
+      if(${N_TEMPLATE_APPLY_V2X})
+        get_filename_component(V2X_NAME ${SRC_WITH_PREFIX} NAME_WE)
+        v2x(NAME ${V2X_NAME} SRCS ${SRC_WITH_PREFIX})
       endif()
     endforeach(SRC)
   endforeach(PREFIX)
