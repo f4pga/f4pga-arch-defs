@@ -377,6 +377,19 @@ function(ADD_OUTPUT_TO_FPGA_TARGET name property file)
   set_target_properties(${name} PROPERTIES ${property} ${file})
 endfunction()
 
+set(VPR_BASE_ARGS
+    --min_route_chan_width_hint 100
+    --route_chan_width 100
+    --verbose_sweep on
+    --allow_unrelated_clustering off
+    --max_criticality 0.0
+    --target_ext_pin_util 0.7
+    --max_router_iterations 500
+    --routing_failure_predictor off
+    --clock_modeling route
+    --constant_net_method route
+    CACHE STRING "Base VPR arguments")
+set(VPR_EXTRA_ARGS "" CACHE STRING "Extra VPR arguments")
 function(ADD_FPGA_TARGET_BOARDS)
   # ~~~
   # ADD_FPGA_TARGET_BOARDS(
@@ -574,6 +587,13 @@ function(ADD_FPGA_TARGET)
       ${CMAKE_COMMAND} -E make_directory ${OUT_LOCAL}
   )
 
+  set(ECHO_DIRECTORY_TARGET ${NAME}-${FQDN}-make-directory-echo)
+  add_custom_target(
+    ${ECHO_DIRECTORY_TARGET} ALL
+    COMMAND
+      ${CMAKE_COMMAND} -E make_directory ${OUT_LOCAL}/echo
+  )
+
   # Create target to handle all output paths of off
   add_custom_target(${NAME})
   set(VPR_ROUTE_CHAN_WIDTH 100)
@@ -640,23 +660,21 @@ function(ADD_FPGA_TARGET)
   endforeach()
 
   get_target_property_required(VPR env VPR)
+  separate_arguments(
+    VPR_BASE_ARGS_LIST UNIX_COMMAND "${VPR_BASE_ARGS}"
+    )
+  separate_arguments(
+    VPR_EXTRA_ARGS_LIST UNIX_COMMAND "${VPR_EXTRA_ARGS}"
+    )
   set(
     VPR_CMD
     ${VPR}
     ${DEVICE_MERGED_FILE_LOCATION}
     ${OUT_EBLIF}
     --device ${DEVICE_FULL}
-    --min_route_chan_width_hint ${VPR_ROUTE_CHAN_MINWIDTH_HINT}
-    --route_chan_width ${VPR_ROUTE_CHAN_WIDTH}
     --read_rr_graph ${OUT_RRXML_REAL_LOCATION}
-    --verbose_sweep on
-    --allow_unrelated_clustering off
-    --max_criticality 0.0
-    --target_ext_pin_util 0.7
-    --max_router_iterations 500
-    --routing_failure_predictor off
-    --clock_modeling route
-    --constant_net_method route
+    ${VPR_BASE_ARGS_LIST}
+    ${VPR_EXTRA_ARGS_LIST}
   )
 
   # Generate IO constraints file.
@@ -706,6 +724,16 @@ function(ADD_FPGA_TARGET)
     WORKING_DIRECTORY ${OUT_LOCAL}
   )
 
+  set(ECHO_OUT_NET ${OUT_LOCAL}/echo/${TOP}.net)
+  add_custom_command(
+    OUTPUT ${ECHO_OUT_NET}
+    DEPENDS ${OUT_EBLIF} ${OUT_IO} ${VPR_DEPS}
+    COMMAND ${VPR_CMD} --echo_file on --pack
+    COMMAND
+      ${CMAKE_COMMAND} -E copy ${OUT_LOCAL}/echo/vpr_stdout.log ${OUT_LOCAL}/echo/pack.log
+    WORKING_DIRECTORY ${OUT_LOCAL}/echo
+  )
+
   # Generate placement.
   # -------------------------------------------------------------------------
   set(OUT_PLACE ${OUT_LOCAL}/${TOP}.place)
@@ -719,6 +747,17 @@ function(ADD_FPGA_TARGET)
     WORKING_DIRECTORY ${OUT_LOCAL}
   )
 
+  set(ECHO_OUT_PLACE ${OUT_LOCAL}/echo/${TOP}.place)
+  add_custom_command(
+    OUTPUT ${ECHO_OUT_PLACE}
+    DEPENDS ${ECHO_OUT_NET} ${OUT_IO} ${VPR_DEPS}
+    COMMAND ${VPR_CMD} ${FIX_PINS_ARG} --place
+    COMMAND
+      ${CMAKE_COMMAND} -E copy ${OUT_LOCAL}/echo/vpr_stdout.log
+        ${OUT_LOCAL}/echo/place.log
+    WORKING_DIRECTORY ${OUT_LOCAL}/echo
+  )
+
   # Generate routing.
   # -------------------------------------------------------------------------
   add_custom_command(
@@ -727,8 +766,18 @@ function(ADD_FPGA_TARGET)
     COMMAND ${VPR_CMD} --route
     WORKING_DIRECTORY ${OUT_LOCAL}
   )
-
   add_custom_target(${NAME}_route DEPENDS ${OUT_ROUTE})
+
+  set(ECHO_ATOM_NETLIST_ORIG ${OUT_LOCAL}/echo/atom_netlist.orig.echo.blif)
+  set(ECHO_ATOM_NETLIST_CLEANED ${OUT_LOCAL}/echo/atom_netlist.cleaned.echo.blif)
+  add_custom_command(
+    OUTPUT ${ECHO_ATOM_NETLIST_ORIG} ${ECHO_ATOM_NETLIST_CLEANED}
+      ${OUT_LOCAL}/echo/atom_netlist.cleaned.echo.blif
+    DEPENDS ${ECHO_OUT_PLACE} ${ECHO_OUT_IO} ${VPR_DEPS} ${ECHO_DIRECTORY_TARGET}
+    COMMAND ${VPR_CMD} --echo_file on --route
+    WORKING_DIRECTORY ${OUT_LOCAL}/echo
+  )
+  add_custom_target(${NAME}_route_echo DEPENDS ${OUT_ROUTE})
 
   # Generate bitstream
   # -------------------------------------------------------------------------
@@ -829,6 +878,7 @@ function(ADD_FPGA_TARGET)
       EQUIV_CHECK_SCRIPT ${ADD_FPGA_TARGET_EQUIV_CHECK_SCRIPT}
       DEPENDS ${SOURCE_FILES} ${SOURCE_FILES_DEPS} ${OUT_BIT_VERILOG}
       )
+
     add_check_test(
       NAME ${NAME}_check_eblif
       ARCH ${ARCH}
@@ -836,6 +886,27 @@ function(ADD_FPGA_TARGET)
       READ_GATE "read_blif -wideports ${OUT_EBLIF} $<SEMICOLON> rename ${TOP} gate"
       EQUIV_CHECK_SCRIPT ${ADD_FPGA_TARGET_EQUIV_CHECK_SCRIPT}
       DEPENDS ${SOURCE_FILES} ${SOURCE_FILES_DEPS} ${OUT_EBLIF}
+      )
+
+    # Add post-route and post-synthesis check tests to all_check_tests.
+    add_dependencies(all_check_tests ${NAME}_check ${NAME}_check_eblif)
+
+    add_check_test(
+      NAME ${NAME}_check_orig_blif
+      ARCH ${ARCH}
+      READ_GOLD "read_verilog ${SOURCE_FILES} $<SEMICOLON> rename ${TOP} gold"
+      READ_GATE "read_blif -wideports ${ECHO_ATOM_NETLIST_ORIG} $<SEMICOLON> rename ${TOP} gate"
+      EQUIV_CHECK_SCRIPT ${ADD_FPGA_TARGET_EQUIV_CHECK_SCRIPT}
+      DEPENDS ${SOURCE_FILES} ${SOURCE_FILES_DEPS} ${ECHO_ATOM_NETLIST_ORIG}
+      )
+
+    add_check_test(
+      NAME ${NAME}_check_cleaned_blif
+      ARCH ${ARCH}
+      READ_GOLD "read_verilog ${SOURCE_FILES} $<SEMICOLON> rename ${TOP} gold"
+      READ_GATE "read_blif -wideports ${ECHO_ATOM_NETLIST_CLEANED} $<SEMICOLON> rename ${TOP} gate"
+      EQUIV_CHECK_SCRIPT ${ADD_FPGA_TARGET_EQUIV_CHECK_SCRIPT}
+      DEPENDS ${SOURCE_FILES} ${SOURCE_FILES_DEPS} ${ECHO_ATOM_NETLIST_CLEANED}
       )
   endif()
 endfunction()
@@ -911,9 +982,6 @@ function(add_check_test)
     DEPENDS ${ADD_CHECK_TEST_DEPENDS} ${PATH_TO_CELLS_SIM} ${EQUIV_CHECK_SCRIPT_TARGET} ${EQUIV_CHECK_SCRIPT_LOCATION}
     VERBATIM
     )
-
-  # Add this check list to the catch all target "all_check_tests".
-  add_dependencies(all_check_tests ${ADD_CHECK_TEST_NAME})
 endfunction()
 
 function(add_testbench)
