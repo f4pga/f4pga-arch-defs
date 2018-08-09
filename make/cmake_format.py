@@ -34,7 +34,7 @@ keyword_case = u'upper'
 
 # Specify structure for custom cmake functions
 additional_commands = {
-  "make_file_target": {
+  "add_file_target": {
     "flags": [
       "GENERATED",
     ],
@@ -120,7 +120,8 @@ additional_commands = {
   },
   "add_fpga_target": {
     "flags": [
-    "EXPLICIT_MAKE_FILE_TARGET",
+    "EXPLICIT_ADD_FILE_TARGET",
+    "EMIT_CHECK_TESTS",
     ],
     "kwargs": {
       "NAME": 1,

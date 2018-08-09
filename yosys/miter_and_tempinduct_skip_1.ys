@@ -1,0 +1,10 @@
+# Equivalance check script that creates a miter circuit and proves used
+# temporaly induction that the miter circuit never asserts.
+#
+# This skips assert checking on the first induction step, allowing first step
+# initialization differences to be ignored.
+hierarchy
+proc
+clk2fflogic
+miter -equiv -flatten -ignore_gold_x -make_outputs -make_outcmp gold gate miter
+sat -prove trigger 0 -verify -tempinduct-skip 1 -tempinduct miter

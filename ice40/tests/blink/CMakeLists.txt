@@ -7,4 +7,3 @@ add_fpga_target(
     example_tb.v
   INPUT_IO_FILE icestick.pcf
 )
-

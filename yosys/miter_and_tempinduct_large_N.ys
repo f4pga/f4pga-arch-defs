@@ -1,0 +1,12 @@
+# Equivalance check script that creates a miter circuit and proves used
+# temporaly induction that the miter circuit never asserts.
+#
+# This version of the tempinduct attempts to prove the induction starting at
+# 32 steps, and only attempts a proof at an interval of 16 steps.  This enables
+# a larger search space for models with large induction loops (e.g. larger
+# counters).
+hierarchy
+proc
+clk2fflogic
+miter -equiv -flatten -ignore_gold_x -make_outputs -make_outcmp gold gate miter
+sat -prove trigger 0 -verify -tempinduct -tempinduct-skip 1 -initsteps 32 -stepsize 16 miter
