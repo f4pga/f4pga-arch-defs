@@ -1,5 +1,6 @@
-set(BOARDS "")
-list(APPEND BOARDS dummy_ice40_hx1k_tq144)
+set(FULL_BOARDS dummy_ice40_hx1k_tq144)
+set(SMALL_BOARDS dummy_testarch_4x4_dummy)
+set(BOARDS ${FULL_BOARDS} ${SMALL_BOARDS})
 
 function(add_simple_test)
   # ~~~
@@ -24,6 +25,7 @@ function(add_simple_test)
     "${multiValueArgs}"
     ${ARGN}
   )
+
   foreach(SRC ${ADD_SIMPLE_TEST_SOURCES})
     add_file_target(
       FILE ${SRC}
@@ -45,17 +47,25 @@ function(add_simple_test)
 
 
   foreach(BOARD ${ADD_SIMPLE_TEST_BOARDS})
-    generate_pinmap(
-      NAME ${BOARD}.pcf
-      TOP top
-      BOARD ${BOARD}
-      SOURCES ${ADD_SIMPLE_TEST_SOURCES}
-      )
+    get_target_property_required(DEVICE ${BOARD} DEVICE)
+    get_target_property_required(ARCH ${DEVICE} ARCH)
+    get_target_property_required(NO_PINS ${ARCH} NO_PINS)
+
+    set(INPUT_IO_FILE_ARG "")
+    if(NOT ${NO_PINS})
+      generate_pinmap(
+        NAME ${BOARD}.pcf
+        TOP top
+        BOARD ${BOARD}
+        SOURCES ${ADD_SIMPLE_TEST_SOURCES}
+        )
+      set(INPUT_IO_FILE_ARG INPUT_IO_FILE ${BOARD}.pcf)
+    endif()
 
     add_fpga_target(
       NAME ${ADD_SIMPLE_TEST_NAME}_${BOARD}
       BOARD ${BOARD}
-      INPUT_IO_FILE ${BOARD}.pcf
+      ${INPUT_IO_FILE_ARG}
       SOURCES ${ADD_SIMPLE_TEST_SOURCES}
       EXPLICIT_ADD_FILE_TARGET
       ${CHECK_TEST_ARGS}

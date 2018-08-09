@@ -1,8 +1,8 @@
 <pb_type xmlns:xi="http://www.w3.org/2001/XInclude" name="BLK_IG-LUTFF" num_pb="1">
-  <clock  equivalent="false" name="C"  num_pins="1"/>
-  <input  equivalent="false" name="I"  num_pins="4"/>
-  <output equivalent="false" name="O"  num_pins="1"/>
-  <output equivalent="false" name="LO" num_pins="1"/>
+  <clock  name="C"  num_pins="1"/>
+  <input  name="I"  num_pins="4"/>
+  <output name="O"  num_pins="1"/>
+  <output name="LO" num_pins="1"/>
   <xi:include href="../ff/ff.pb_type.xml"/>
   <xi:include href="../lut/lut.pb_type.xml"/>
   <interconnect>

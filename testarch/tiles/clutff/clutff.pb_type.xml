@@ -9,19 +9,19 @@
  <output name="COUT " num_pins="1" />
 
  <pb_type name="BLK_BB-CARRY" num_pb="1" blif_model=".subckt CARRY">
-  <input  name="CIN"  num_pins="1" equivalent="false"/>
-  <input  name="LIN"  num_pins="1" equivalent="false"/>
-  <output name="COUT" num_pins="1" equivalent="false"/>
+  <input  name="CIN"  num_pins="1"/>
+  <input  name="LIN"  num_pins="1"/>
+  <output name="COUT" num_pins="1"/>
   <delay_constant max="0.068e-9" min="0.068e-9" in_port="BLK_BB-CARRY.CIN" out_port="BLK_BB-CARRY.COUT"/>
   <delay_constant max="0.068e-9" min="0.068e-9" in_port="BLK_BB-CARRY.LIN" out_port="BLK_BB-CARRY.COUT"/>
  </pb_type>
 
  <!-- Internal LUTFF -->
  <pb_type name="BLK_SI-LUTFF" num_pb="1">
-  <input  name="I"  num_pins="4" equivalent="false"/>
-  <clock  name="C"  num_pins="1" equivalent="false"/>
-  <output name="O"  num_pins="1" equivalent="false"/>
-  <output name="LO" num_pins="1" equivalent="false"/>
+  <input  name="I"  num_pins="4"/>
+  <clock  name="C"  num_pins="1"/>
+  <output name="O"  num_pins="1"/>
+  <output name="LO" num_pins="1"/>
   <xi:include href="../../primitives/lutff/lutff.pb_type.xml"/>
   <interconnect>
    <direct name="BLK_IG-LUTFF.I[0]" input="BLK_SI-LUTFF.I[0]" output="BLK_IG-LUTFF.I[0]" />

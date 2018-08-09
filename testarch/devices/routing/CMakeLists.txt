@@ -1,0 +1,7 @@
+add_file_target(FILE device.xml SCANNER_TYPE xml)
+add_file_target(FILE bidir-min.xml SCANNER_TYPE xml)
+add_file_target(FILE bidir-s4-g.xml SCANNER_TYPE xml)
+add_file_target(FILE bidir-s4.xml SCANNER_TYPE xml)
+add_file_target(FILE multi-sw.xml SCANNER_TYPE xml)
+add_file_target(FILE unidir-min.xml SCANNER_TYPE xml)
+add_file_target(FILE unidir-s4.xml SCANNER_TYPE xml)
