@@ -5,10 +5,12 @@ enable_testing()
 include(make/util.cmake)
 include(make/env.cmake)
 include(make/file_targets.cmake)
-include(make/gen.cmake)
 include(make/devices.cmake)
 
 setup_env()
+
+include(make/image_gen.cmake)
+include(make/gen.cmake)
 
 # Target for removing pip binaries, forcing them to retrieved again.
 add_custom_target(clean_pip)
