@@ -14,10 +14,12 @@ function(DEFINE_ARCH)
   #    ARCH <arch>
   #    YOSYS_SCRIPT <yosys_script>
   #    BITSTREAM_EXTENSION <ext>
+  #    [VPR_ARCH_ARGS <arg list>]
   #    RR_PATCH_TOOL <path to rr_patch tool>
   #    RR_PATCH_CMD <command to run RR_PATCH_TOOL>
   #    DEVICE_FULL_TEMPLATE <template for constructing DEVICE_FULL strings.
   #    [NO_PINS]
+  #    [NO_PLACE]
   #    PLACE_TOOL <path to place tool>
   #    PLACE_TOOL_CMD <command to run PLACE_TOOL>
   #    [NO_BITSTREAM]
@@ -94,7 +96,7 @@ function(DEFINE_ARCH)
     BIT_TO_BIN
     BIT_TO_BIN_CMD
   )
-  set(multiValueArgs)
+  set(multiValueArgs VPR_ARCH_ARGS)
   cmake_parse_arguments(
     DEFINE_ARCH
     "${options}"
@@ -132,6 +134,9 @@ function(DEFINE_ARCH)
     BIT_TO_BIN
     BIT_TO_BIN_CMD
     )
+
+  set(VPR_${DEFINE_ARCH_ARCH}_ARCH_ARGS "${DEFINE_ARCH_VPR_ARCH_ARGS}"
+    CACHE STRING "Extra VPR arguments for ARCH=${ARCH}")
 
   if(${DEFINE_ARCH_NO_PINS})
     list(APPEND DISALLOWED_ARGS ${PLACE_ARGS})
@@ -446,7 +451,6 @@ set(VPR_BASE_ARGS
     --target_ext_pin_util 0.7
     --max_router_iterations 500
     --routing_failure_predictor off
-    --clock_modeling route
     --constant_net_method route
     CACHE STRING "Base VPR arguments")
 set(VPR_EXTRA_ARGS "" CACHE STRING "Extra VPR arguments")
@@ -726,6 +730,9 @@ function(ADD_FPGA_TARGET)
   separate_arguments(
     VPR_EXTRA_ARGS_LIST UNIX_COMMAND "${VPR_EXTRA_ARGS}"
     )
+  separate_arguments(
+    VPR_ARCH_ARGS_LIST UNIX_COMMAND "${VPR_${ARCH}_ARCH_ARGS}"
+    )
   set(
     VPR_CMD
     ${VPR}
@@ -734,6 +741,7 @@ function(ADD_FPGA_TARGET)
     --device ${DEVICE_FULL}
     --read_rr_graph ${OUT_RRXML_REAL_LOCATION}
     ${VPR_BASE_ARGS_LIST}
+    ${VPR_ARCH_ARGS_LIST}
     ${VPR_EXTRA_ARGS_LIST}
   )
 
