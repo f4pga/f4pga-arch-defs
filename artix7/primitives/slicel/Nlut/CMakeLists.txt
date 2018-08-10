@@ -8,3 +8,5 @@ n_template(
 )
 
 n_template(NAME Nlut.sim.v PREFIXES a;b;c;d SRCS ntemplate.Nlut.sim.v)
+
+add_file_target(FILE Nlut.model.xml SCANNER_TYPE xml)

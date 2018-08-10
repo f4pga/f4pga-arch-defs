@@ -5,11 +5,11 @@ OUTPUT=$(dirname $1)/$NAME.xml
 
 cat > $OUTPUT <<EOF
  <pb_type name="$NAME">
-   <input  name="I" num_pins="1" equivalent="false"/>
-   <output name="O" num_pins="1" equivalent="false"/>
+   <input  name="I" num_pins="1"/>
+   <output name="O" num_pins="1"/>
    <pb_type name="DUMMY" num_pb="1" blif_model=".subckt DUMMY">
-    <input  name="I" num_pins="1" equivalent="false"/>
-    <output name="O" num_pins="1" equivalent="false"/>
+    <input  name="I" num_pins="1"/>
+    <output name="O" num_pins="1"/>
     <delay_constant in_port="DUMMY.I" max="10e-12" out_port="DUMMY.O"/>
    </pb_type>
    <interconnect>
