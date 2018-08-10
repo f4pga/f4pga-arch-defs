@@ -4,6 +4,7 @@ function(V2X)
   #   NAME <name>
   #   [TOP_MODULE <top module>]
   #   SRCS <src1> <src2>
+  #   [DO_NOT_APPLY_VERILOG_IMAGE_GEN]
   #   )
   # ~~~
   #
@@ -13,7 +14,10 @@ function(V2X)
   # V2X requires all files in SRCS to have a file target via ADD_FILE_TARGET.
   #
   # V2X will generate a dummy target <name> that will build both xml outputs.
-  set(options)
+  #
+  # By default V2X implicitly calls ADD_VERILOG_IMAGE_GEN for the input source
+  # files.  DO_NOT_APPLY_VERILOG_IMAGE_GEN suppress this default.
+  set(options DO_NOT_APPLY_VERILOG_IMAGE_GEN)
   set(oneValueArgs NAME TOP_MODULE)
   set(multiValueArgs SRCS)
   cmake_parse_arguments(
@@ -31,6 +35,10 @@ function(V2X)
   foreach(SRC ${V2X_SRCS})
     if(NOT "${SRC}" MATCHES "\\.sim\\.v$")
       message(FATAL_ERROR "File ${SRC} does not end with .sim.v")
+    endif()
+
+    if(NOT ${V2X_DO_NOT_APPLY_VERILOG_IMAGE_GEN})
+      add_verilog_image_gen(FILE ${SRC})
     endif()
 
     append_file_dependency(DEPENDS_LIST ${SRC})
@@ -224,6 +232,8 @@ function(MUX_GEN)
   add_file_target(FILE "${MUX_GEN_NAME}.pb_type.xml" GENERATED)
   add_file_target(FILE "${MUX_GEN_NAME}.model.xml" GENERATED)
 
+  add_verilog_image_gen(FILE "${MUX_GEN_NAME}.sim.v")
+
   add_custom_target(${MUX_GEN_NAME} DEPENDS ${OUTPUTS})
 
   if(NOT "${MUX_GEN_NTEMPLATE_PREFIXES}" STREQUAL "")
@@ -251,6 +261,7 @@ function(N_TEMPLATE)
   #   SRCS <list of sources>
   #   PREFIXES <list of prefixes>
   #   [APPLY_V2X]
+  #   [APPLY_VERILOG_IMAGE_GEN]
   #   )
   # ~~~
   #
@@ -259,7 +270,10 @@ function(N_TEMPLATE)
   #
   # If APPLY_V2X is set, V2X will be invoked with NAME = <prefix><name> and the
   # output of the templating process.
-  set(options APPLY_V2X)
+  #
+  # If APPLY_VERILOG_IMAGE_GEN, ADD_VERILOG_IMAGE_GEN will be invoked with each
+  # output file.
+  set(options APPLY_V2X APPLY_VERILOG_IMAGE_GEN)
   set(oneValueArgs NAME)
   set(multiValueArgs SRCS PREFIXES)
   cmake_parse_arguments(
@@ -308,6 +322,9 @@ function(N_TEMPLATE)
       if(${N_TEMPLATE_APPLY_V2X})
         get_filename_component(V2X_NAME ${SRC_WITH_PREFIX} NAME_WE)
         v2x(NAME ${V2X_NAME} SRCS ${SRC_WITH_PREFIX})
+      endif()
+      if(${N_TEMPLATE_APPLY_VERILOG_IMAGE_GEN})
+        add_verilog_image_gen(FILE ${SRC_WITH_PREFIX})
       endif()
     endforeach(SRC)
   endforeach(PREFIX)

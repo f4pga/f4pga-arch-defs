@@ -11,4 +11,6 @@ n_template(
   SRCS ntemplate.N5ff.pb_type.xml
 )
 
-n_template(NAME N5ff.sim.v PREFIXES a;b;c;d SRCS ntemplate.N5ff.sim.v)
+n_template(NAME N5ff.sim.v PREFIXES a;b;c;d SRCS ntemplate.N5ff.sim.v
+  APPLY_VERILOG_IMAGE_GEN
+  )
