@@ -1,5 +1,5 @@
 <pb_type xmlns:xi="http://www.w3.org/2001/XInclude" blif_model=".names" class="lut" name="BEL_01-CONST" num_pb="1">
-  <input equivalent="false" name="in" num_pins="0" port_class="lut_in"/>
-  <output equivalent="false" name="out" num_pins="1" port_class="lut_out"/>
+  <input name="in" num_pins="0" port_class="lut_in"/>
+  <output name="out" num_pins="1" port_class="lut_out"/>
   <delay_matrix in_port="BEL_01-CONST.in" out_port="BEL_01-CONST.out" type="max">0</delay_matrix>
 </pb_type>

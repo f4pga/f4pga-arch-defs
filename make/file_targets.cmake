@@ -90,6 +90,11 @@ function(APPEND_FILE_DEPENDENCY var src_file)
 
   list(APPEND ${var} ${SRC_TARGET})
   list(APPEND ${var} ${SRC_LOCATION})
+
+  get_target_property(INCLUDE_FILES ${SRC_TARGET} INCLUDE_FILES)
+  foreach(SRC ${INCLUDE_FILES})
+    append_file_dependency(${var} ${SRC})
+  endforeach()
   set(${var} "${${var}}" PARENT_SCOPE)
 endfunction()
 
@@ -263,4 +268,5 @@ function(ADD_FILE_TARGET)
     PROPERTIES LOCATION ${CMAKE_CURRENT_BINARY_DIR}/${ADD_FILE_TARGET_FILE}
   )
   set_target_properties(${TARGET_NAME} PROPERTIES INCLUDES "")
+  set_target_properties(${TARGET_NAME} PROPERTIES INCLUDE_FILES "${INCLUDE_FILES}")
 endfunction(ADD_FILE_TARGET)
