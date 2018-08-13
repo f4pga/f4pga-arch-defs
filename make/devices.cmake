@@ -39,7 +39,7 @@ function(DEFINE_ARCH)
   # If NO_BITSTREAM is set, HLC_TO_BIT, HLC_TO_BIT_CMD BIT_TO_V,
   # BIT_TO_V_CMD, BIT_TO_BIN and BIT_TO_BIN_CMD cannot be specified.
   #
-  # DEVICE_FULL_TEMPLATE, RR_PATCH_CMD, PLACE_TOOL_CMD and HLC_TO_BIT_CMD will 
+  # DEVICE_FULL_TEMPLATE, RR_PATCH_CMD, PLACE_TOOL_CMD and HLC_TO_BIT_CMD will
   # all be called with string(CONFIGURE) to substitute variables.
   #
   # DEVICE_FULL_TEMPLATE variables:
@@ -226,6 +226,7 @@ function(DEFINE_DEVICE_TYPE)
   set(MERGE_XML_OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/${DEVICE_MERGED_FILE})
 
   get_target_property_required(XSLTPROC env XSLTPROC)
+  get_target_property(XSLTPROC_TARGET env XSLTPROC_TARGET)
   add_custom_command(
     OUTPUT ${MERGE_XML_OUTPUT}
     DEPENDS
@@ -233,6 +234,7 @@ function(DEFINE_DEVICE_TYPE)
       ${MERGE_XML_INPUT}
       ${MERGE_XML_INPUT_TARGET}
       ${DEPS}
+      ${XSLTPROC} ${XSLTPROC_TARGET}
     COMMAND
       ${CMAKE_COMMAND} -E make_directory
       ${CMAKE_CURRENT_BINARY_DIR}/${OUT_DEVICE_DIR}
@@ -311,6 +313,9 @@ function(DEFINE_DEVICE)
   get_file_target(DEVICE_MERGED_FILE_TARGET ${VIRT_DEVICE_MERGED_FILE})
   get_file_location(DEVICE_MERGED_FILE ${VIRT_DEVICE_MERGED_FILE})
   get_target_property_required(VPR env VPR)
+  get_target_property(VPR_TARGET env VPR_TARGET)
+  get_target_property_required(QUIET_CMD env QUIET_CMD)
+  get_target_property(QUIET_CMD_TARGET env QUIET_CMD_TARGET)
 
   set(DEVICE ${DEFINE_DEVICE_DEVICE})
   foreach(PACKAGE ${DEFINE_DEVICE_PACKAGES})
@@ -331,8 +336,10 @@ function(DEFINE_DEVICE)
       DEPENDS
         ${symbiflow-arch-defs_SOURCE_DIR}/common/wire.eblif
         ${DEVICE_MERGED_FILE} ${DEVICE_MERGED_FILE_TARGET}
+        ${QUIET_CMD} ${QUIET_CMD_TARGET}
+        ${VPR} ${VPR_TARGET}
       COMMAND
-        ${VPR} ${DEVICE_MERGED_FILE}
+        ${QUIET_CMD} ${VPR} ${DEVICE_MERGED_FILE}
         --device ${DEVICE_FULL}
         ${symbiflow-arch-defs_SOURCE_DIR}/common/wire.eblif
         --route_chan_width 100
@@ -371,7 +378,8 @@ function(DEFINE_DEVICE)
     add_custom_command(
       OUTPUT ${OUT_RRXML_REAL}
       DEPENDS ${RR_PATCH_DEPS} ${RR_PATCH_TOOL} ${OUT_RRXML_VIRT}
-      COMMAND ${RR_PATCH_CMD_FOR_TARGET_LIST}
+      COMMAND ${QUIET_CMD} ${RR_PATCH_CMD_FOR_TARGET_LIST}
+      WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
       VERBATIM
     )
 
@@ -388,6 +396,7 @@ function(DEFINE_DEVICE)
       ${DEFINE_DEVICE_ARCH}_${DEFINE_DEVICE_DEVICE}_${PACKAGE}_rrxml_real
       DEPENDS ${OUT_RRXML_REAL}
     )
+    add_dependencies(all_rrgraph_xmls ${DEFINE_DEVICE_ARCH}_${DEFINE_DEVICE_DEVICE}_${PACKAGE}_rrxml_real)
 
     # Define dummy boards.  PROG_TOOL is set to false to disallow programming.
     define_board(
@@ -629,6 +638,9 @@ function(ADD_FPGA_TARGET)
   get_target_property_required(DEVICE_TYPE ${DEVICE} DEVICE_TYPE)
 
   get_target_property_required(YOSYS env YOSYS)
+  get_target_property(YOSYS_TARGET env YOSYS_TARGET)
+  get_target_property_required(QUIET_CMD env QUIET_CMD)
+  get_target_property(QUIET_CMD_TARGET env QUIET_CMD_TARGET)
   get_target_property_required(YOSYS_SCRIPT ${ARCH} YOSYS_SCRIPT)
 
   get_target_property_required(
@@ -698,8 +710,10 @@ function(ADD_FPGA_TARGET)
   add_custom_command(
     OUTPUT ${OUT_EBLIF}
     DEPENDS ${SOURCE_FILES} ${SOURCE_FILES_DEPS} ${DIRECTORY_TARGET}
+    ${YOSYS} ${YOSYS_TARGET} ${QUIET_CMD} ${QUIET_CMD_TARGET}
     COMMAND
-      ${YOSYS} -p "${COMPLETE_YOSYS_SCRIPT}" ${SOURCE_FILES}
+      ${QUIET_CMD} ${YOSYS} -p "${COMPLETE_YOSYS_SCRIPT}" ${SOURCE_FILES}
+    WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
     VERBATIM
   )
   add_custom_target(${NAME}_eblif DEPENDS ${OUT_EBLIF})
@@ -724,6 +738,7 @@ function(ADD_FPGA_TARGET)
   endforeach()
 
   get_target_property_required(VPR env VPR)
+  get_target_property(VPR_TARGET env VPR_TARGET)
   separate_arguments(
     VPR_BASE_ARGS_LIST UNIX_COMMAND "${VPR_BASE_ARGS}"
     )
@@ -735,7 +750,7 @@ function(ADD_FPGA_TARGET)
     )
   set(
     VPR_CMD
-    ${VPR}
+    ${QUIET_CMD} ${VPR}
     ${DEVICE_MERGED_FILE_LOCATION}
     ${OUT_EBLIF}
     --device ${DEVICE_FULL}
@@ -744,6 +759,7 @@ function(ADD_FPGA_TARGET)
     ${VPR_ARCH_ARGS_LIST}
     ${VPR_EXTRA_ARGS_LIST}
   )
+  list(APPEND VPR_DEPS ${VPR} ${VPR_TARGET} ${QUIET_CMD} ${QUIET_CMD_TARGET})
 
   # Generate IO constraints file.
   # -------------------------------------------------------------------------
@@ -1000,7 +1016,7 @@ function(get_cells_sim_path var arch)
   get_target_property(CELLS_SIM ${arch} CELLS_SIM)
   set(PATH_TO_CELLS_SIM "")
   if(NOT "${CELLS_SIM}" STREQUAL "")
-    set(PATH_TO_CELLS_SIM ${symbiflow-arch-defs_SOURCE_DIR}/env/conda/share/yosys/${CELLS_SIM})
+    set(PATH_TO_CELLS_SIM ${symbiflow-arch-defs_BINARY_DIR}/env/conda/share/yosys/${CELLS_SIM})
   endif()
   set(${var} ${PATH_TO_CELLS_SIM} PARENT_SCOPE)
 endfunction()
@@ -1036,6 +1052,9 @@ function(add_check_test)
   )
 
   get_target_property_required(YOSYS env YOSYS)
+  get_target_property(YOSYS_TARGET env YOSYS_TARGET)
+  get_target_property_required(QUIET_CMD env QUIET_CMD)
+  get_target_property(QUIET_CMD_TARGET env QUIET_CMD_TARGET)
   set(EQUIV_CHECK_SCRIPT ${ADD_CHECK_TEST_EQUIV_CHECK_SCRIPT})
   if("${EQUIV_CHECK_SCRIPT}" STREQUAL "")
     message(FATAL_ERROR "EQUIV_CHECK_SCRIPT is not optional to add_check_test.")
@@ -1050,7 +1069,14 @@ function(add_check_test)
   #
   # See https://stackoverflow.com/questions/733475/cmake-ctest-make-test-doesnt-build-tests
   add_custom_target(_target_${ADD_CHECK_TEST_NAME}_build_depends
-    DEPENDS ${ADD_CHECK_TEST_DEPENDS} ${PATH_TO_CELLS_SIM} ${EQUIV_CHECK_SCRIPT_TARGET} ${EQUIV_CHECK_SCRIPT_LOCATION})
+    DEPENDS
+      ${ADD_CHECK_TEST_DEPENDS}
+      ${PATH_TO_CELLS_SIM}
+      ${EQUIV_CHECK_SCRIPT_TARGET}
+      ${EQUIV_CHECK_SCRIPT_LOCATION}
+      ${YOSYS}
+      ${YOSYS_TARGET}
+    )
   add_test(
     NAME _test_${ADD_CHECK_TEST_NAME}_build
     COMMAND "${CMAKE_COMMAND}" --build ${CMAKE_BINARY_DIR} --target _target_${ADD_CHECK_TEST_NAME}_build_depends --config $<CONFIG>
@@ -1071,8 +1097,14 @@ function(add_check_test)
   # Also provide a make target that runs the analysis.
   add_custom_target(
     ${ADD_CHECK_TEST_NAME}
-    COMMAND ${YOSYS} -p "${ADD_CHECK_TEST_READ_GOLD} $<SEMICOLON> ${ADD_CHECK_TEST_READ_GATE} $<SEMICOLON> script ${EQUIV_CHECK_SCRIPT_LOCATION}" ${PATH_TO_CELLS_SIM}
-    DEPENDS ${ADD_CHECK_TEST_DEPENDS} ${PATH_TO_CELLS_SIM} ${EQUIV_CHECK_SCRIPT_TARGET} ${EQUIV_CHECK_SCRIPT_LOCATION}
+    COMMAND ${QUIET_CMD} ${YOSYS} -p "${ADD_CHECK_TEST_READ_GOLD} $<SEMICOLON> ${ADD_CHECK_TEST_READ_GATE} $<SEMICOLON> script ${EQUIV_CHECK_SCRIPT_LOCATION}" ${PATH_TO_CELLS_SIM}
+    DEPENDS
+      ${QUIET_CMD} ${QUIET_CMD_TARGET}
+      ${ADD_CHECK_TEST_DEPENDS} ${PATH_TO_CELLS_SIM}
+      ${EQUIV_CHECK_SCRIPT_TARGET} ${EQUIV_CHECK_SCRIPT_LOCATION}
+      ${YOSYS}
+      ${YOSYS_TARGET}
+    WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
     VERBATIM
     )
 endfunction()
@@ -1105,8 +1137,10 @@ function(add_testbench)
     ${ARGN}
   )
 
-  get_target_property_required(IVERILOG env IVERILOG)
-  get_target_property_required(VVP env VVP)
+  get_target_property(IVERILOG env IVERILOG)
+  get_target_property_required(IVERILOG_TARGET env IVERILOG_TARGET)
+  get_target_property(VVP env VVP)
+  get_target_property_required(VVP_TARGET env VVP_TARGET)
   set(SOURCE_LOCATIONS "")
   set(FILE_DEPENDS "")
   foreach(SRC ${ADD_TESTBENCH_SOURCES})
@@ -1125,7 +1159,7 @@ function(add_testbench)
       -DCLK_MHZ=0.001 -o ${CMAKE_CURRENT_BINARY_DIR}/${NAME}.vpp
       ${PATH_TO_CELLS_SIM}
       ${SOURCE_LOCATIONS}
-    DEPENDS ${IVERILOG} ${FILE_DEPENDS}
+      DEPENDS ${IVERILOG} ${IVERILOG_TARGET} ${FILE_DEPENDS}
     WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
     VERBATIM
     )
@@ -1136,19 +1170,20 @@ function(add_testbench)
   add_custom_target(
     ${NAME}
     COMMAND ${VVP} -v -N ${NAME}.vpp
-    DEPENDS ${VVP} ${NAME}.vpp
+    DEPENDS ${VVP} ${VVP_TARGET} ${NAME}.vpp
     )
 
   get_target_property_required(GTKWAVE env GTKWAVE)
+  get_target_property(GTKWAVE_TARGET env GTKWAVE_TARGET)
   add_custom_command(
     OUTPUT ${NAME}.vcd
     COMMAND ${VVP} -v -N ${NAME}.vpp
-    DEPENDS ${VVP} ${NAME}.vpp
+    DEPENDS ${VVP} ${VVP_TARGET} ${NAME}.vpp
     )
   add_custom_target(
     ${NAME}_view
     DEPENDS ${NAME}.vcd
-    COMMAND ${GTKWAVE} ${NAME}.vcd
+    COMMAND ${GTKWAVE} ${GTKWAVE_TARGET} ${NAME}.vcd
     )
 endfunction()
 
@@ -1183,7 +1218,11 @@ function(generate_pinmap)
   )
 
   get_target_property_required(YOSYS env YOSYS)
+  get_target_property(YOSYS_TARGET env YOSYS_TARGET)
   get_target_property_required(PYTHON3 env PYTHON3)
+  get_target_property(PYTHON3_TARGET env PYTHON3_TARGET)
+  get_target_property_required(QUIET_CMD env QUIET_CMD)
+  get_target_property(QUIET_CMD_TARGET env QUIET_CMD_TARGET)
 
   set(BOARD ${GENERATE_PINMAP_BOARD})
   get_target_property_required(DEVICE ${BOARD} DEVICE)
@@ -1205,8 +1244,12 @@ function(generate_pinmap)
 
   add_custom_command(
     OUTPUT ${GENERATE_PINMAP_NAME}.json
-    COMMAND ${YOSYS} -p "write_json ${CMAKE_CURRENT_BINARY_DIR}/${GENERATE_PINMAP_NAME}.json" ${SOURCE_FILES}
-    DEPENDS ${YOSYS} ${SOURCE_FILES} ${SOURCE_FILES_DEPS}
+    COMMAND ${QUIET_CMD} ${YOSYS} -p "write_json ${CMAKE_CURRENT_BINARY_DIR}/${GENERATE_PINMAP_NAME}.json" ${SOURCE_FILES}
+    DEPENDS
+      ${QUIET_CMD} ${QUIET_CMD_TARGET}
+      ${YOSYS} ${YOSYS_TARGET}
+      ${SOURCE_FILES} ${SOURCE_FILES_DEPS}
+    WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
     )
 
   add_custom_command(
@@ -1215,7 +1258,11 @@ function(generate_pinmap)
       --design_json ${CMAKE_CURRENT_BINARY_DIR}/${GENERATE_PINMAP_NAME}.json
       --pinmap_csv ${PINMAP}
       --module ${GENERATE_PINMAP_TOP} > ${CMAKE_CURRENT_BINARY_DIR}/${GENERATE_PINMAP_NAME}
-    DEPENDS ${GENERATE_PINMAP_NAME}.json ${CREATE_PINMAP} ${PINMAP} ${PINMAP_TARGET}
+    DEPENDS
+      ${PYTHON3_TARGET} ${PYTHON3}
+      ${CREATE_PINMAP}
+      ${PINMAP} ${PINMAP_TARGET}
+      ${GENERATE_PINMAP_NAME}.json
     )
 
   add_file_target(FILE ${GENERATE_PINMAP_NAME} GENERATED)

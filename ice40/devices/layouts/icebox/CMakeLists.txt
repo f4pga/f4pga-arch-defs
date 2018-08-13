@@ -7,13 +7,18 @@ set(ICESTORM_LAYOUT_LIST ${ICE_UTILS_DIR}/ice40_list_layout_in_icebox.py)
 set(ICESTORM_LAYOUT_IMPORT ${ICE_UTILS_DIR}/ice40_import_layout_from_icebox.py)
 
 function(generate_all_icebox_layouts)
-  get_target_property_required(PYTHON3 env PYTHON3)
-
+  # Use system python during configure time. Conda is setup during build time.
   execute_process(
-    COMMAND ${PYTHON3} ${ICESTORM_LAYOUT_LIST}
+    COMMAND ${PYTHON_EXECUTABLE} ${ICESTORM_LAYOUT_LIST}
     OUTPUT_VARIABLE ICESTORM_LAYOUT_PARTS
+    RESULT_VARIABLE ERROR_CODE
+    ERROR_VARIABLE ERROR_MESSAGES
     WORKING_DIRECTORY ${symbiflow-arch-defs_SOURCE_DIR}/ice40/utils/
   )
+
+  if(NOT ${ERROR_CODE} EQUAL 0)
+    message(FATAL_ERROR "Error getting layout list: ${ERROR_CODE} ${ERROR_MESSAGES}")
+  endif()
 
   string(
     REPLACE
@@ -29,10 +34,17 @@ function(generate_all_icebox_layouts)
     list(APPEND OUTPUTS ${PART}.pinmap.csv)
   endforeach()
 
+  get_target_property_required(PYTHON3 env PYTHON3)
+  get_target_property(PYTHON3_TARGET env PYTHON3_TARGET)
+  get_target_property_required(QUIET_CMD env QUIET_CMD)
+  get_target_property(QUIET_CMD_TARGET env QUIET_CMD_TARGET)
   add_custom_command(
     OUTPUT ${OUTPUTS}
-    COMMAND ${PYTHON3} ${ICESTORM_LAYOUT_IMPORT}
-    DEPENDS ${ICESTORM_LAYOUT_IMPORT} ${ICESTORM_LAYOUT_LIST} ${ICESTORM_DB}
+    COMMAND ${QUIET_CMD} ${PYTHON3} ${ICESTORM_LAYOUT_IMPORT}
+    DEPENDS
+      ${QUIET_CMD} ${QUIET_CMD_TARGET}
+      ${PYTHON3} ${PYTHON3_TARGET}
+      ${ICESTORM_LAYOUT_IMPORT} ${ICESTORM_LAYOUT_LIST} ${ICESTORM_DB}
     WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
   )
 

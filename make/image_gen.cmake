@@ -12,12 +12,17 @@ function(setup_netlistsvg)
   # Creates target netlistsvg that installs netlistsvg to the local node
   # environment.
   get_target_property_required(NODE env NODE)
+  get_target_property(NODE_TARGET env NODE_TARGET)
   get_target_property_required(NPM env NPM)
+  get_target_property(NPM_TARGET env NPM_TARGET)
   add_custom_command(
     OUTPUT ${NETLISTSVG_LOCK}
     COMMAND ${NODE} ${NPM} install
     WORKING_DIRECTORY ${NETLISTSVG}
-    DEPENDS ${NODE} ${NPM} ${NETLISTSVG}/package.json
+    DEPENDS
+      ${NODE} ${NODE_TARGET}
+      ${NPM} ${NPM_TARGET}
+      ${NETLISTSVG}/package.json
     )
 
   add_custom_target(
@@ -140,11 +145,13 @@ function(add_verilog_image_gen)
   set(SVGS ${SRC_BB_YOSYS_SVG} ${SRC_FLAT_YOSYS_SVG})
 
   get_target_property_required(YOSYS env YOSYS)
+  get_target_property(YOSYS_TARGET env YOSYS_TARGET)
   get_target_property_required(NODE env NODE)
+  get_target_property(NODE_TARGET env NODE_TARGET)
   add_custom_command(
     OUTPUT ${SRC_BB_JSON}
     COMMAND ${YOSYS} -p "prep -top ${SIM_TOP} $<SEMICOLON> write_json ${SRC_BB_JSON}" ${SRC_LOCATION}
-    DEPENDS ${DEPS} ${YOSYS}
+    DEPENDS ${DEPS} ${YOSYS} ${YOSYS_TARGET}
     WORKING_DIRECTORY ${SRC_DIR}
     VERBATIM
     )
@@ -152,7 +159,7 @@ function(add_verilog_image_gen)
   add_custom_command(
     OUTPUT ${SRC_BB_YOSYS_SVG}
     COMMAND ${YOSYS} -p "prep -top ${SIM_TOP} $<SEMICOLON> show -format svg -prefix ${SRC_BASE}.bb.yosys ${SIM_TOP}" ${SRC}
-    DEPENDS ${DEPS} ${YOSYS}
+    DEPENDS ${DEPS} ${YOSYS} ${YOSYS_TARGET}
     WORKING_DIRECTORY ${SRC_DIR}
     VERBATIM
     )
@@ -160,7 +167,7 @@ function(add_verilog_image_gen)
   add_custom_command(
     OUTPUT ${SRC_AIG_JSON}
     COMMAND ${YOSYS} -p "prep -top ${SIM_TOP} -flatten $<SEMICOLON> aigmap $<SEMICOLON> write_json ${SRC_AIG_JSON}" ${SRC}
-    DEPENDS ${DEPS} ${YOSYS}
+    DEPENDS ${DEPS} ${YOSYS} ${YOSYS_TARGET}
     WORKING_DIRECTORY ${SRC_DIR}
     VERBATIM
     )
@@ -168,7 +175,7 @@ function(add_verilog_image_gen)
   add_custom_command(
     OUTPUT ${SRC_FLAT_JSON}
     COMMAND ${YOSYS} -p "prep -top ${SIM_TOP} -flatten $<SEMICOLON> write_json ${SRC_FLAT_JSON}" ${SRC}
-    DEPENDS ${DEPS} ${YOSYS}
+    DEPENDS ${DEPS} ${YOSYS} ${YOSYS_TARGET}
     WORKING_DIRECTORY ${SRC_DIR}
     VERBATIM
     )
@@ -176,7 +183,7 @@ function(add_verilog_image_gen)
   add_custom_command(
     OUTPUT ${SRC_FLAT_YOSYS_SVG}
     COMMAND ${YOSYS} -p "prep -top ${SIM_TOP} -flatten $<SEMICOLON> show -format svg -prefix ${SRC_BASE}.flat.yosys ${SIM_TOP}" ${SRC}
-    DEPENDS ${DEPS} ${YOSYS}
+    DEPENDS ${DEPS} ${YOSYS} ${YOSYS_TARGET}
     WORKING_DIRECTORY ${SRC_DIR}
     VERBATIM
     )
@@ -189,7 +196,7 @@ function(add_verilog_image_gen)
     add_custom_command(
       OUTPUT ${SRC_SVG}
       COMMAND ${NODE} ${NETLISTSVG_BIN} ${SRC_JSON} -o ${SRC_SVG} --skin ${NETLISTSVG_SKIN}
-      DEPENDS ${NODE} ${NETLISTSVG_BIN} ${NETLISTSVG_SKIN} netlistsvg ${SRC_JSON}
+      DEPENDS ${NODE} ${NODE_TARGET} ${NETLISTSVG_BIN} ${NETLISTSVG_SKIN} netlistsvg ${SRC_JSON}
       )
   endforeach()
 

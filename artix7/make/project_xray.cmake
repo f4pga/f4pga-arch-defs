@@ -22,6 +22,7 @@ function(PROJECT_XRAY_INT)
   string(TOLOWER ${PROJECT_XRAY_INT_INT} INT)
 
   get_target_property_required(PYTHON3 env PYTHON3)
+  get_target_property(PYTHON3_TARGET env PYTHON3_TARGET)
 
   set(INT_IMPORT ${symbiflow-arch-defs_SOURCE_DIR}/artix7/utils/prjxray-int-import.py)
   get_project_xray_dependencies(DEPS ${PROJECT_XRAY_INT_PART} ${INT})
@@ -34,6 +35,7 @@ function(PROJECT_XRAY_INT)
     DEPENDS
       ${INT_IMPORT}
       ${DEPS}
+      ${PYTHON3} ${PYTHON3_TARGET}
     )
 
   add_file_target(FILE ${INT}.pb_type.xml GENERATED)
@@ -54,6 +56,7 @@ function(PROJECT_XRAY_CLB)
   string(TOLOWER ${PROJECT_XRAY_CLB_CLB} CLB)
 
   get_target_property_required(PYTHON3 env PYTHON3)
+  get_target_property(PYTHON3_TARGET env PYTHON3_TARGET)
 
   set(CLB_IMPORT ${symbiflow-arch-defs_SOURCE_DIR}/artix7/utils/prjxray-clb-import.py)
   get_project_xray_dependencies(DEPS ${PROJECT_XRAY_CLB_PART} ${CLB})
@@ -75,6 +78,7 @@ function(PROJECT_XRAY_CLB)
     DEPENDS
     ${CLB_IMPORT}
     ${DEPS}
+    ${PYTHON3} ${PYTHON3_TARGET}
     )
 
   add_file_target(FILE ${CLB}.pb_type.xml GENERATED)
