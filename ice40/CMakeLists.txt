@@ -11,13 +11,13 @@ define_arch(
     --clock_modeling route
   RR_PATCH_TOOL
     ${symbiflow-arch-defs_SOURCE_DIR}/ice40/utils/ice40_import_routing_from_icebox.py
-  RR_PATCH_CMD "\${RR_PATCH_TOOL} \
+  RR_PATCH_CMD "\${PYTHON3} \${RR_PATCH_TOOL} \
   --device=\${DEVICE} \
   --read_rr_graph \${OUT_RRXML_VIRT} \
   --write_rr_graph \${OUT_RRXML_REAL}"
   PLACE_TOOL
     ${symbiflow-arch-defs_SOURCE_DIR}/ice40/utils/ice40_create_ioplace.py
-  PLACE_TOOL_CMD "\${PLACE_TOOL} \
+  PLACE_TOOL_CMD "\${PYTHON3} \${PLACE_TOOL} \
   --map \${PINMAP} \
   --blif \${OUT_EBLIF} \
   --pcf \${INPUT_IO_FILE}"

@@ -3,67 +3,63 @@
 source .travis/common.sh
 set -e
 
-start_section "symbiflow.files.1" "Info on ${YELLOW}files${NC} before running"
-./.travis/compare-files.sh
-end_section "symbiflow.files.1"
+$SPACER
+
+start_section "symbiflow.configure_cmake" "Configuring CMake"
+mkdir build
+cd build
+cmake ..
+end_section "symbiflow.configure_cmake"
 
 $SPACER
 
-start_section "symbiflow.merged" "Running ${GREEN}make merged${NC}"
-make merged
-end_section "symbiflow.merged"
-
-#start_section "symbiflow.render" "Running ${GREEN}make render${NC}"
-#make render
-#end_section "symbiflow.render"
+start_section "symbiflow.conda" "Setting up basic ${YELLOW}conda environment${NC}"
+make all_conda
+end_section "symbiflow.conda"
 
 $SPACER
 
-start_section "symbiflow.gitexclude" "Running ${GREEN}make .git/info/exclude${NC}"
-make .git/info/exclude
-end_section "symbiflow.gitexclude"
+# Output some useful info
+start_section "info.conda.env" "Info on ${YELLOW}conda environment${NC}"
+env/conda/bin/conda info
+end_section "info.conda.env"
 
-start_section "symbiflow.info.1" "Info on ${YELLOW}.git/info/exclude${NC}"
-cat .git/info/exclude
-end_section "symbiflow.info.1"
-
-$SPACER
-
-start_section "symbiflow.files.2" "Info on ${YELLOW}files${NC} after running"
-./.travis/compare-files.sh
-end_section "symbiflow.files.2"
+start_section "info.conda.config" "Info on ${YELLOW}conda config${NC}"
+env/conda/bin/conda config --show
+end_section "info.conda.config"
 
 $SPACER
 
-start_section "symbiflow.test" "Running ${GREEN}make test${NC}"
-make test
-end_section "symbiflow.test"
-
-#start_section "symbiflow.files.3" "Info on ${YELLOW}files${NC} after testing"
-#./.travis/compare-files.sh
-#end_section "symbiflow.files.3"
+start_section "symbiflow.build_all_arch_xmls" "Build all arch XMLs."
+make all_merged_arch_xmls
+end_section "symbiflow.build_all_arch_xmls"
 
 $SPACER
 
-start_section "symbiflow.clean" "Running ${GREEN}make clean${NC}"
-make clean
-end_section "symbiflow.clean"
-
-start_section "symbiflow.files.4" "Info on ${YELLOW}files${NC} after clean"
-./.travis/compare-files.sh
-end_section "symbiflow.files.4"
+start_section "symbiflow.build_all_rrgraph_xmls" "Build all rrgraph XMLs."
+echo "Supressing all_rrgraph_xmls generatation, as the 8k parts cannot be built on travis."
+#make all_rrgraph_xmls
+end_section "symbiflow.build_all_rrgraph_xmls"
 
 $SPACER
 
-start_section "symbiflow.redir.1" "Running ${GREEN}make redir${NC}"
-make redir
-end_section "symbiflow.redir.1"
+start_section "symbiflow.route_all_tests" "Complete all routing tests"
+make all_route_tests
+end_section "symbiflow.route_all_tests"
 
-start_section "symbiflow.redir.2" "Running ${GREEN}make${NC} inside ${PURPLE}vpr${NC} directory"
-(
-	cd vpr
-	make || exit $?
-)
-end_section "symbiflow.redir.2"
+$SPACER
+
+start_section "symbiflow.run_check_tests" "Complete all equivilence tests"
+make all_check_tests
+end_section "symbiflow.run_check_tests"
+
+$SPACER
+
+start_section "symbiflow.build_all_demos" "Building all demo bitstreams"
+echo "Supressing some demo bitstreams, as the 8k parts cannot be built on travis."
+#make all
+
+make blink_iceblink40-lp1k
+end_section "symbiflow.build_all_demos"
 
 $SPACER
