@@ -31,6 +31,14 @@ function(V2X)
   set(INCLUDES "")
 
   set(DEPENDS_LIST "")
+  get_target_property_required(PYTHON3 env PYTHON3)
+  get_target_property(PYTHON3_TARGET env PYTHON3_TARGET)
+  list(APPEND DEPENDS_LIST ${PYTHON3} ${PYTHON3_TARGET})
+
+  get_target_property_required(YOSYS env YOSYS)
+  get_target_property(YOSYS_TARGET env YOSYS_TARGET)
+  list(APPEND DEPENDS_LIST ${YOSYS} ${YOSYS_TARGET})
+
   set(REAL_SOURCE_LIST "")
   foreach(SRC ${V2X_SRCS})
     if(NOT "${SRC}" MATCHES "\\.sim\\.v$")
@@ -82,7 +90,7 @@ function(V2X)
       ${DEPENDS_LIST}
       ${symbiflow-arch-defs_SOURCE_DIR}/utils/vlog/vlog_to_pbtype.py
     COMMAND
-      ${symbiflow-arch-defs_SOURCE_DIR}/utils/vlog/vlog_to_pbtype.py ${TOP_ARG}
+      ${CMAKE_COMMAND} -E env YOSYS=${YOSYS}  ${PYTHON3} ${symbiflow-arch-defs_SOURCE_DIR}/utils/vlog/vlog_to_pbtype.py ${TOP_ARG}
       -o ${CMAKE_CURRENT_BINARY_DIR}/${V2X_NAME}.pb_type.xml ${FIRST_SOURCE}
       ${INCLUDE_ARG}
     WORKING_DIRECTORY ${symbiflow-arch-defs_SOURCE_DIR}/utils/vlog/
@@ -96,7 +104,7 @@ function(V2X)
       ${DEPENDS_LIST}
       ${symbiflow-arch-defs_SOURCE_DIR}/utils/vlog/vlog_to_model.py
     COMMAND
-      ${symbiflow-arch-defs_SOURCE_DIR}/utils/vlog/vlog_to_model.py ${TOP_ARG}
+      ${CMAKE_COMMAND} -E env YOSYS=${YOSYS}  ${PYTHON3} ${symbiflow-arch-defs_SOURCE_DIR}/utils/vlog/vlog_to_model.py ${TOP_ARG}
       -o ${CMAKE_CURRENT_BINARY_DIR}/${V2X_NAME}.model.xml ${FIRST_SOURCE}
       ${INCLUDE_ARG}
     WORKING_DIRECTORY ${symbiflow-arch-defs_SOURCE_DIR}/utils/vlog/
@@ -220,12 +228,16 @@ function(MUX_GEN)
       "${MUX_GEN_NAME}.model.xml"
   )
 
+  get_target_property_required(PYTHON3 env PYTHON3)
+  get_target_property(PYTHON3_TARGET env PYTHON3_TARGET)
+
   add_custom_command(
     OUTPUT ${OUTPUTS}
     DEPENDS
+      ${PYTHON3} ${PYTHON3_TARGET}
       ${symbiflow-arch-defs_SOURCE_DIR}/utils/mux_gen.py
       ${symbiflow-arch-defs_SOURCE_DIR}/vpr/muxes/logic/mux${MUX_GEN_WIDTH}/mux${MUX_GEN_WIDTH}.sim.v
-    COMMAND ${symbiflow-arch-defs_SOURCE_DIR}/utils/mux_gen.py ${MUX_GEN_ARGS}
+    COMMAND ${PYTHON3} ${symbiflow-arch-defs_SOURCE_DIR}/utils/mux_gen.py ${MUX_GEN_ARGS}
   )
 
   add_file_target(FILE "${MUX_GEN_NAME}.sim.v" GENERATED)
@@ -285,6 +297,8 @@ function(N_TEMPLATE)
   )
 
   set(OUTPUTS "")
+  get_target_property_required(PYTHON3 env PYTHON3)
+  get_target_property(PYTHON3_TARGET env PYTHON3_TARGET)
 
   foreach(PREFIX ${N_TEMPLATE_PREFIXES})
     foreach(SRC ${N_TEMPLATE_SRCS})
@@ -307,10 +321,11 @@ function(N_TEMPLATE)
       add_custom_command(
         OUTPUT ${SRC_WITH_PREFIX}
         DEPENDS
+          ${PYTHON3} ${PYTHON3_TARGET}
           ${symbiflow-arch-defs_SOURCE_DIR}/utils/n.py ${SRC_LOCATION}
           ${SRC_TARGET}
         COMMAND
-          ${symbiflow-arch-defs_SOURCE_DIR}/utils/n.py ${PREFIX} ${SRC_LOCATION}
+          ${PYTHON3} ${symbiflow-arch-defs_SOURCE_DIR}/utils/n.py ${PREFIX} ${SRC_LOCATION}
           ${CMAKE_CURRENT_BINARY_DIR}/${SRC_WITH_PREFIX}
         WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
       )
