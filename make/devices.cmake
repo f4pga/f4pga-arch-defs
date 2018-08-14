@@ -852,6 +852,9 @@ function(ADD_FPGA_TARGET)
     OUTPUT ${OUT_ROUTE} ${OUT_HLC}
     DEPENDS ${OUT_PLACE} ${OUT_IO} ${VPR_DEPS}
     COMMAND ${VPR_CMD} --route
+    COMMAND
+      ${CMAKE_COMMAND} -E copy ${OUT_LOCAL}/vpr_stdout.log
+        ${OUT_LOCAL}/route.log
     WORKING_DIRECTORY ${OUT_LOCAL}
   )
   add_custom_target(${NAME}_route DEPENDS ${OUT_ROUTE})
@@ -863,9 +866,27 @@ function(ADD_FPGA_TARGET)
       ${OUT_LOCAL}/echo/atom_netlist.cleaned.echo.blif
     DEPENDS ${ECHO_OUT_PLACE} ${ECHO_OUT_IO} ${VPR_DEPS} ${ECHO_DIRECTORY_TARGET}
     COMMAND ${VPR_CMD} --echo_file on --route
+    COMMAND
+      ${CMAKE_COMMAND} -E copy ${OUT_LOCAL}/echo/vpr_stdout.log
+        ${OUT_LOCAL}/echo/route.log
     WORKING_DIRECTORY ${OUT_LOCAL}/echo
   )
   add_custom_target(${NAME}_route_echo DEPENDS ${OUT_ROUTE})
+
+  # Generate analysis.
+  #-------------------------------------------------------------------------
+  set(OUT_ANALYSIS ${OUT_LOCAL}/analysis.log)
+  set(OUT_POST_SYNTHESIS_V ${OUT_LOCAL}/top_post_synthesis.v)
+  set(OUT_POST_SYNTHESIS_BLIF ${OUT_LOCAL}/top_post_synthesis.blif)
+  add_custom_command(
+    OUTPUT ${OUT_ANALYSIS} ${OUT_POST_SYNTHESIS_V} ${OUT_POST_SYNTHESIS_BLIF}
+    DEPENDS ${OUT_ROUTE} ${OUT_IO} ${VPR_DEPS}
+    COMMAND ${VPR_CMD} --analysis --gen_post_synthesis_netlist on
+    COMMAND ${CMAKE_COMMAND} -E copy ${OUT_LOCAL}/vpr_stdout.log
+        ${OUT_LOCAL}/analysis.log
+    WORKING_DIRECTORY ${OUT_LOCAL}
+    )
+  add_custom_target(${NAME}_analysis DEPENDS ${OUT_ANALYSIS})
 
   get_target_property_required(NO_BITSTREAM ${ARCH} NO_BITSTREAM)
   if(NOT ${NO_BITSTREAM})
@@ -989,6 +1010,26 @@ function(ADD_FPGA_TARGET)
 
     # Add post-synthesis check tests to all_check_tests.
     add_dependencies(all_check_tests ${NAME}_check_eblif)
+
+    add_check_test(
+      NAME ${NAME}_check_post_blif
+      ARCH ${ARCH}
+      READ_GOLD "read_verilog ${SOURCE_FILES} $<SEMICOLON> rename ${TOP} gold"
+      READ_GATE "read_blif -wideports ${OUT_POST_SYNTHESIS_BLIF} $<SEMICOLON> rename ${TOP} gate"
+      EQUIV_CHECK_SCRIPT ${ADD_FPGA_TARGET_EQUIV_CHECK_SCRIPT}
+      DEPENDS ${SOURCE_FILES} ${SOURCE_FILES_DEPS} ${OUT_POST_SYNTHESIS_BLIF}
+      )
+
+    add_dependencies(all_check_tests ${NAME}_check_post_blif)
+
+    add_check_test(
+      NAME ${NAME}_check_post_v
+      ARCH ${ARCH}
+      READ_GOLD "read_verilog ${SOURCE_FILES} $<SEMICOLON> rename ${TOP} gold"
+      READ_GATE "read_verilog ${OUT_POST_SYNTHESIS_V} $<SEMICOLON> rename ${TOP} gate"
+      EQUIV_CHECK_SCRIPT ${ADD_FPGA_TARGET_EQUIV_CHECK_SCRIPT}
+      DEPENDS ${SOURCE_FILES} ${SOURCE_FILES_DEPS} ${OUT_POST_SYNTHESIS_V}
+      )
 
     add_check_test(
       NAME ${NAME}_check_orig_blif
