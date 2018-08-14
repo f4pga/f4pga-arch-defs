@@ -57,7 +57,7 @@ add_conda_pip(
   )
 
 get_target_property_required(TINYPROG env TINYPROG)
-get_target_property_required(TINYPROG_TARGET env TINYPROG_TARGET)
+get_target_property(TINYPROG_TARGET env TINYPROG_TARGET)
 
 # TinyFPGA BX
 # iCE40-LP8K-CM81
