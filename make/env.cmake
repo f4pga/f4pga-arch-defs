@@ -34,7 +34,6 @@ function(SETUP_ENV)
   add_custom_target(clean_pip)
   add_custom_target(all_conda)
 
-  set(OTHER_BINARIES inkscape gtkwave)
   set(
     MAYBE_CONDA_BINARIES
     python3
@@ -57,8 +56,13 @@ function(SETUP_ENV)
 
     set(CONDA_BIN ${CONDA_DIR}/bin/conda)
     set_target_properties(env PROPERTIES CONDA_BIN ${CONDA_BIN})
+    set(OUTPUTS ${CONDA_BIN})
+    foreach(BINARY ${MAYBE_CONDA_BINARIES})
+      list(APPEND OUTPUTS ${CONDA_DIR}/bin/${BINARY})
+    endforeach()
+
     add_custom_command(
-      OUTPUT ${CONDA_BIN}
+      OUTPUT ${OUTPUTS}
       COMMAND sh ${ENV_DIR}/${MINICONDA_FILE} -p ${CONDA_DIR} -b -f
       COMMAND ${CONDA_BIN} config --system --set always_yes yes
       COMMAND ${CONDA_BIN} config --system --add envs_dirs ${CONDA_DIR}/envs
@@ -97,16 +101,6 @@ function(SETUP_ENV)
         )
     endforeach()
   endif()
-
-  foreach(binary ${OTHER_BINARIES})
-    string(TOUPPER ${binary} binary_upper)
-    set(${binary_upper} ${binary})
-    replace_with_env_if_set(${binary_upper})
-    set_target_properties(env PROPERTIES 
-      ${binary_upper} ${${binary_upper}}
-      ${binary_upper}_TARGET ""
-      )
-  endforeach()
 
   set_target_properties(env PROPERTIES
     QUIET_CMD ${symbiflow-arch-defs_SOURCE_DIR}/utils/quiet_cmd.sh
