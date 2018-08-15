@@ -1,4 +1,18 @@
 ## CMake build system
+## Variables
+
+* `USE_CONDA` - Whether to rely on conda to supply external binaries (e.g. yosys, vpr).
+* `VPR_BASE_ARGS` - Base VPR arguments used during pack, place and route. [Default arguments](make/devices.cmake#L454).
+* `VPR_EXTRA_ARGS` - Additional arguments to pass to VPR during pack, place and route.
+
+To set CMake variable, use the -D flag during the configuration process.  Example:
+```
+mkdir build
+cd build
+cmake -DUSE_CONDA=FALSE ..
+make
+```
+
 ### Terminology
 
 The CMake system in symbiflow-arch-defs uses the following hierarchy:
