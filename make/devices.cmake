@@ -611,7 +611,7 @@ function(ADD_FPGA_TARGET)
   # * ${TOP}.${BITSTREAM_EXTENSION} - Bitstream for target.
   #
   set(options EXPLICIT_ADD_FILE_TARGET EMIT_CHECK_TESTS)
-  set(oneValueArgs NAME TOP BOARD INPUT_IO_FILE EQUIV_CHECK_SCRIPT)
+  set(oneValueArgs NAME TOP BOARD INPUT_IO_FILE EQUIV_CHECK_SCRIPT AUTOSIM_CYCLES)
   set(multiValueArgs SOURCES TESTBENCH_SOURCES)
   cmake_parse_arguments(
     ADD_FPGA_TARGET
@@ -863,7 +863,6 @@ function(ADD_FPGA_TARGET)
   set(ECHO_ATOM_NETLIST_CLEANED ${OUT_LOCAL}/echo/atom_netlist.cleaned.echo.blif)
   add_custom_command(
     OUTPUT ${ECHO_ATOM_NETLIST_ORIG} ${ECHO_ATOM_NETLIST_CLEANED}
-      ${OUT_LOCAL}/echo/atom_netlist.cleaned.echo.blif
     DEPENDS ${ECHO_OUT_PLACE} ${ECHO_OUT_IO} ${VPR_DEPS} ${ECHO_DIRECTORY_TARGET}
     COMMAND ${VPR_CMD} --echo_file on --route
     COMMAND
@@ -928,6 +927,19 @@ function(ADD_FPGA_TARGET)
 
     add_custom_target(${NAME}_bit_v DEPENDS ${OUT_BIT_VERILOG})
     add_output_to_fpga_target(${NAME} BIT_V ${OUT_LOCAL_REL}/${TOP}_bit.v)
+
+    set(AUTOSIM_CYCLES ${ADD_FPGA_TARGET_AUTOSIM_CYCLES})
+    if("${AUTOSIM_CYCLES}" STREQUAL "")
+      set(AUTOSIM_CYCLES 100)
+    endif()
+
+    add_autosim(
+      NAME ${NAME}_autosim_bit
+      TOP ${TOP}
+      ARCH ${ARCH}
+      SOURCES ${OUT_LOCAL_REL}/${TOP}_bit.v
+      CYCLES ${AUTOSIM_CYCLES}
+      )
 
     set(OUT_BIN ${OUT_LOCAL}/${TOP}.bin)
     get_target_property_required(BIT_TO_BIN ${ARCH} BIT_TO_BIN)
@@ -1150,6 +1162,8 @@ function(add_check_test)
     )
 endfunction()
 
+find_program(GTKWAVE gtkwave)
+
 function(add_testbench)
   # ~~~
   #   ADD_TESTBENCH(
@@ -1214,8 +1228,6 @@ function(add_testbench)
     DEPENDS ${VVP} ${VVP_TARGET} ${NAME}.vpp
     )
 
-  get_target_property_required(GTKWAVE env GTKWAVE)
-  get_target_property(GTKWAVE_TARGET env GTKWAVE_TARGET)
   add_custom_command(
     OUTPUT ${NAME}.vcd
     COMMAND ${VVP} -v -N ${NAME}.vpp
@@ -1223,8 +1235,8 @@ function(add_testbench)
     )
   add_custom_target(
     ${NAME}_view
-    DEPENDS ${NAME}.vcd
-    COMMAND ${GTKWAVE} ${GTKWAVE_TARGET} ${NAME}.vcd
+    COMMAND ${GTKWAVE} ${NAME}.vcd
+    DEPENDS ${NAME}.vcd ${GTKWAVE}
     )
 endfunction()
 
@@ -1307,4 +1319,53 @@ function(generate_pinmap)
     )
 
   add_file_target(FILE ${GENERATE_PINMAP_NAME} GENERATED)
+endfunction()
+
+function(add_autosim)
+  # ~~~
+  #   ADD_AUTOSIM(
+  #     NAME <name of autosim target>
+  #     TOP <name of top module>
+  #     SOURCES <source list to autosim>
+  #     CYCLES <number of cycles to sim>
+  #   )
+  # ~~~
+  #
+  set(options)
+  set(oneValueArgs NAME ARCH TOP CYCLES)
+  set(multiValueArgs SOURCES)
+
+  cmake_parse_arguments(
+    ADD_AUTOSIM
+    "${options}"
+    "${oneValueArgs}"
+    "${multiValueArgs}"
+    ${ARGN}
+  )
+
+  set(SOURCE_FILES "")
+  set(SOURCE_FILES_DEPS "")
+  foreach(SRC ${ADD_AUTOSIM_SOURCES})
+    append_file_dependency(SOURCE_FILES_DEPS ${SRC})
+    append_file_location(SOURCE_FILES ${SRC})
+  endforeach()
+
+  get_target_property_required(YOSYS env YOSYS)
+  get_target_property(YOSYS_TARGET env YOSYS_TARGET)
+
+  set(AUTOSIM_VCD ${ADD_AUTOSIM_NAME}.vcd)
+  get_cells_sim_path(CELLS_SIM_LOCATION ${ADD_AUTOSIM_ARCH})
+  add_custom_command(
+    OUTPUT ${AUTOSIM_VCD}
+    COMMAND ${YOSYS} -p "prep -top ${ADD_AUTOSIM_TOP}; $<SEMICOLON> sim -clock clk -n ${ADD_AUTOSIM_CYCLES} -vcd ${AUTOSIM_VCD} -zinit ${ADD_AUTOSIM_TOP}" ${SOURCE_FILES} ${CELLS_SIM_LOCATION}
+    DEPENDS ${YOSYS} ${YOSYS_TARGET} ${SOURCE_FILES_DEPS} ${CELLS_SIM_LOCATION}
+    VERBATIM
+    )
+
+  add_custom_target(${ADD_AUTOSIM_NAME} DEPENDS ${AUTOSIM_VCD})
+
+  add_custom_target(${ADD_AUTOSIM_NAME}_view
+    COMMAND ${GTKWAVE} ${AUTOSIM_VCD}
+    DEPENDS ${AUTOSIM_VCD}
+    )
 endfunction()
