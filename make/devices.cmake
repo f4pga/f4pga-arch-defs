@@ -30,6 +30,8 @@ function(DEFINE_ARCH)
   #    BIT_TO_V_CMD <command to run BIT_TO_V>
   #    BIT_TO_BIN <path to bitstream to binary>
   #    BIT_TO_BIN_CMD <command to run BIT_TO_BIN>
+  #    BIT_TIME <path to BIT_TIME executable>
+  #    BIT_TIME_CMD <command to run BIT_TIME>
   #   )
   # ~~~
   #
@@ -95,6 +97,8 @@ function(DEFINE_ARCH)
     BIT_TO_V_CMD
     BIT_TO_BIN
     BIT_TO_BIN_CMD
+    BIT_TIME
+    BIT_TIME_CMD
   )
   set(multiValueArgs VPR_ARCH_ARGS)
   cmake_parse_arguments(
@@ -133,6 +137,8 @@ function(DEFINE_ARCH)
     BIT_TO_V_CMD
     BIT_TO_BIN
     BIT_TO_BIN_CMD
+    BIT_TIME
+    BIT_TIME_CMD
     )
 
   set(VPR_${DEFINE_ARCH_ARCH}_ARCH_ARGS "${DEFINE_ARCH_VPR_ARCH_ARGS}"
@@ -959,6 +965,24 @@ function(ADD_FPGA_TARGET)
       ${NAME}_prog
       COMMAND ${PROG_CMD_LIST} ${OUT_BIN}
       DEPENDS ${OUT_BIN} ${PROG_TOOL}
+      )
+
+    set(OUT_TIME_VERILOG ${OUT_LOCAL}/${TOP}_time.v)
+    get_target_property_required(BIT_TIME ${ARCH} BIT_TIME)
+    get_target_property_required(BIT_TIME_CMD ${ARCH} BIT_TIME_CMD)
+    string(CONFIGURE ${BIT_TIME_CMD} BIT_TIME_CMD_FOR_TARGET)
+    separate_arguments(
+      BIT_TIME_CMD_FOR_TARGET_LIST UNIX_COMMAND ${BIT_TIME_CMD_FOR_TARGET}
+    )
+    add_custom_command(
+      OUTPUT ${OUT_TIME_VERILOG}
+      COMMAND ${BIT_TIME_CMD_FOR_TARGET_LIST}
+      DEPENDS ${OUT_BITSTREAM} ${BIT_TIME}
+      )
+
+    add_custom_target(
+      ${NAME}_time
+      DEPENDS ${OUT_TIME_VERILOG}
       )
   endif()
 
