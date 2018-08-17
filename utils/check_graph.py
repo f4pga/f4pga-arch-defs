@@ -42,6 +42,8 @@ def routing_graph_to_dictionary(routing_graph):
 
 
 def filter_nodes(all_node_ids, g, f):
+    if not f:
+        return all_node_ids
     node_map = g.routing._ids_map(graph.RoutingNode)
     f = re.compile(f)
     node_ids = set()
