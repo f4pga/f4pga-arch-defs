@@ -27,13 +27,13 @@ $(call add_generated_files,$(PNG_FILES))
 
 # Basic black box version
 %.bb.json: %.sim.v $(SIM_DEPS)
-	$(call quiet_cmd,$(YOSYS) -p "prep -top $(SIM_TOP); $(YOSYS_EXTRA); write_json $(TARGET)" $(PREREQ_FIRST),$(GENERATED_FROM))
+	$(call quiet_cmd,$(YOSYS) -p "prep -top $(SIM_TOP); $(YOSYS_EXTRA); cd $(SIM_TOP); write_json $(TARGET)" $(PREREQ_FIRST),$(GENERATED_FROM))
 
 %.aig.json: %.sim.v $(SIM_DEPS)
-	$(call quiet_cmd,$(YOSYS) -p "prep -top $(SIM_TOP) -flatten; aigmap; $(YOSYS_EXTRA); write_json $(TARGET)" $(PREREQ_FIRST),$(GENERATED_FROM))
+	$(call quiet_cmd,$(YOSYS) -p "prep -top $(SIM_TOP) -flatten; aigmap; $(YOSYS_EXTRA); cd $(SIM_TOP); write_json $(TARGET)" $(PREREQ_FIRST),$(GENERATED_FROM))
 
 %.flat.json: %.sim.v  $(SIM_DEPS)
-	$(call quiet_cmd,$(YOSYS) -p "prep -top $(SIM_TOP) -flatten; $(YOSYS_EXTRA); write_json $(TARGET)" $(PREREQ_FIRST),$(GENERATED_FROM))
+	$(call quiet_cmd,$(YOSYS) -p "prep -top $(SIM_TOP) -flatten; $(YOSYS_EXTRA); cd $(SIM_TOP); write_json $(TARGET)" $(PREREQ_FIRST),$(GENERATED_FROM))
 
 .PRECIOUS: $(JSON_ENDINGS)
 
@@ -44,7 +44,7 @@ $(call add_generated_files,$(PNG_FILES))
 	$(call quiet_cmd,$(YOSYS) -p "prep -top $(SIM_TOP); $(YOSYS_EXTRA); cd $(SIM_TOP); show -format svg -prefix $(subst .svg,,$(TARGET))" $(PREREQ_FIRST) || cp $(TOP_DIR)/common/empty.svg $(TARGET),$(GENERATED_FROM))
 
 %.flat.yosys.svg: %.sim.v %.flat.json
-	$(call quiet_cmd,$(YOSYS) -p "prep -top $(SIM_TOP) -flatten; $(YOSYS_EXTRA); show -format svg -prefix $(subst .svg,,$(TARGET))" $(PREREQ_FIRST) || cp $(TOP_DIR)/common/empty.svg $(TARGET),$(GENERATED_FROM))
+	$(call quiet_cmd,$(YOSYS) -p "prep -top $(SIM_TOP) -flatten; $(YOSYS_EXTRA); cd $(SIM_TOP); show -format svg -prefix $(subst .svg,,$(TARGET))" $(PREREQ_FIRST) || cp $(TOP_DIR)/common/empty.svg $(TARGET),$(GENERATED_FROM))
 
 .PRECIOUS: %.svg %.bb.yosys.svg %.flat.yosys.svg
 
