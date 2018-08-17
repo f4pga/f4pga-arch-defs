@@ -19,7 +19,12 @@
    </delay_matrix>
   </pb_type>
   <interconnect>
-   <direct><port type="input" name="in"/><port type="output" from="BLK_IG-LUT4" name="in"/></direct>
+			<direct><port type="input" name="in[0]"/><port type="output" from="BLK_IG-LUT4" name="in[0]"/>
+    <pack_pattern name="CTEMP" in_port="BEL_LT-LUT.in[0]" out_port="BLK_IG-LUT4.in[0]" />
+			</direct>
+   <direct><port type="input" name="in[1]"/><port type="output" from="BLK_IG-LUT4" name="in[1]"/></direct>
+   <direct><port type="input" name="in[2]"/><port type="output" from="BLK_IG-LUT4" name="in[2]"/></direct>
+   <direct><port type="input" name="in[3]"/><port type="output" from="BLK_IG-LUT4" name="in[3]"/></direct>
    <direct><port type="input" from="BLK_IG-LUT4" name="out"/><port type="output" name="out"/>
     <pack_pattern name="LUT+FFA" in_port="BLK_IG-LUT4.out" out_port="BEL_LT-LUT.out"/>
     <pack_pattern name="LUT+FFB" in_port="BLK_IG-LUT4.out" out_port="BEL_LT-LUT.out"/>

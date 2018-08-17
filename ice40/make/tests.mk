@@ -5,7 +5,7 @@ DEVICE_TYPE   ?= top-routing-virt
 DEVICE_FULL   = $(DEVICE)-$(PACKAGE)
 BS_EXTENSION  ?= asc #.bin later
 #YOSYS_SCRIPT  ?= synth_ice40 -nodffe -nocarry; ice40_opt -unlut; abc -lut 4;
-YOSYS_SCRIPT  ?= synth_ice40 -nocarry; ice40_opt -unlut; abc -lut 4; opt_clean; write_blif -attr -cname -param $@
+YOSYS_SCRIPT  ?= synth_ice40; ice40_opt -unlut; abc -lut 4; opt_clean; write_blif -attr -cname -param $@
 #YOSYS_SCRIPT  ?= synth_ice40 -top top -vpr -nocarry -blif $@;
 #RR_PATCH_TOOL ?= $(TOP_DIR)/ice40/utils/ice40_generate_routing.py
 RR_PATCH_TOOL ?= $(TOP_DIR)/ice40/utils/ice40_import_routing_from_icebox.py
@@ -37,7 +37,7 @@ BIT_TO_HLC ?= $(ICEBOX)/icebox_asc2hlc.py
 
 # Convert a bit (asc) file into Verilog output
 BIT_TO_V ?= $(ICEBOX)/icebox_vlog.py
-BIT_TO_V_CMD = $(BIT_TO_V) -D -c -n top -p $(INPUT_IO_FILE) -d $(PACKAGE) $(OUT_BITSTREAM) > $(OUT_BIT_VERILOG) || rm $(OUT_BIT_VERILOG)
+BIT_TO_V_CMD = $(BIT_TO_V) -L -D -c -n top -p $(INPUT_IO_FILE) -d $(PACKAGE) $(OUT_BITSTREAM) > $(OUT_BIT_VERILOG) || rm $(OUT_BIT_VERILOG)
 
 # Run timing analysis on a bit (asc) file
 ifeq ($(BIT_TIME),)

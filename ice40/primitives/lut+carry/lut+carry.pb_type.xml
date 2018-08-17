@@ -1,0 +1,112 @@
+<pb_type name="BLK_IG-LUT+CARRY" xmlns:xi="http://www.w3.org/2001/XInclude">
+	<!-- LUT / Carry input -->
+ <input  name="in"   num_pins="4"/>
+	<output name="lout" num_pins="1"/>
+
+ <!-- Fast Carry inputs -->
+ <input  name="fcin"  num_pins="1"/>
+ <output name="fcout" num_pins="1"/>
+
+ <!-- LUT Cascade -->
+	<input  name="lin"   num_pins="1"/>
+
+	<mode name="ONLY-LUT"><!-- Also covers the CARRY-TO-FABRIC pathway -->
+		<pb_type name="BEL_LT-LUT4" num_pb="1" class="lut" blif_model=".names">
+			<input  name="in"  num_pins="4" port_class="lut_in" />
+			<output name="out" num_pins="1" port_class="lut_out" />
+			<delay_matrix type="max" in_port="BEL_LT-LUT4.in" out_port="BEL_LT-LUT4.out">
+				10e-12
+				10e-12
+				10e-12
+				10e-12
+			</delay_matrix>
+		</pb_type>
+  <interconnect>
+			<!-- LUT - Normal inputs -->
+   <direct><port type="input" name="in[0]"/><port type="output" from="BEL_LT-LUT4" name="in[0]"/></direct>
+   <direct><port type="input" name="in[1]"/><port type="output" from="BEL_LT-LUT4" name="in[1]"/></direct>
+   <!-- LUT - Cascade input -->
+			<mux input="BLK_IG-LUT+CARRY.in[2]" output="BEL_LT-LUT4.in[2]" name="INPUT->BEL_LT-LUT4.in[2]"/>
+			<mux input="BLK_IG-LUT+CARRY.lin"   output="BEL_LT-LUT4.in[2]" name="LUTCA->BEL_LT-LUT4.in[2]">
+				<metadata><meta name="hlc_property">lout -> in_2</meta></metadata>
+			</mux>
+   <!-- LUT - Carry input -->
+			<mux input="BLK_IG-LUT+CARRY.in[3]" output="BEL_LT-LUT4.in[3]" name="INPUT->BEL_LT-LUT4.in[3]"/>
+			<mux input="BLK_IG-LUT+CARRY.fcin"  output="BEL_LT-LUT4.in[3]" name="CARRY->BEL_LT-LUT4.in[3]">
+			 <metadata><meta name="hlc_property">cout -> in_3</meta></metadata>
+		 </mux>
+   <!-- LUT output -->
+			<direct><port type="input" name="out" from="BEL_LT-LUT4"/><port type="output" name="lout"/>
+    <pack_pattern name="LUT+VFF"     in_port="BEL_LT-LUT4.out" out_port="BLK_IG-LUT+CARRY.lout" />
+    <pack_pattern name="LUT+DFF"     in_port="BEL_LT-LUT4.out" out_port="BLK_IG-LUT+CARRY.lout" />
+    <pack_pattern name="LUT+DFFN"    in_port="BEL_LT-LUT4.out" out_port="BLK_IG-LUT+CARRY.lout" />
+    <pack_pattern name="LUT+DFFE"    in_port="BEL_LT-LUT4.out" out_port="BLK_IG-LUT+CARRY.lout" />
+    <pack_pattern name="LUT+DFFNE"   in_port="BEL_LT-LUT4.out" out_port="BLK_IG-LUT+CARRY.lout" />
+    <pack_pattern name="LUT+DFFR"    in_port="BEL_LT-LUT4.out" out_port="BLK_IG-LUT+CARRY.lout" />
+    <pack_pattern name="LUT+DFFS"    in_port="BEL_LT-LUT4.out" out_port="BLK_IG-LUT+CARRY.lout" />
+    <pack_pattern name="LUT+DFFSR"   in_port="BEL_LT-LUT4.out" out_port="BLK_IG-LUT+CARRY.lout" />
+    <pack_pattern name="LUT+DFFSS"   in_port="BEL_LT-LUT4.out" out_port="BLK_IG-LUT+CARRY.lout" />
+    <pack_pattern name="LUT+DFFNR"   in_port="BEL_LT-LUT4.out" out_port="BLK_IG-LUT+CARRY.lout" />
+    <pack_pattern name="LUT+DFFNS"   in_port="BEL_LT-LUT4.out" out_port="BLK_IG-LUT+CARRY.lout" />
+    <pack_pattern name="LUT+DFFNSR"  in_port="BEL_LT-LUT4.out" out_port="BLK_IG-LUT+CARRY.lout" />
+    <pack_pattern name="LUT+DFFNSS"  in_port="BEL_LT-LUT4.out" out_port="BLK_IG-LUT+CARRY.lout" />
+    <pack_pattern name="LUT+DFFER"   in_port="BEL_LT-LUT4.out" out_port="BLK_IG-LUT+CARRY.lout" />
+    <pack_pattern name="LUT+DFFES"   in_port="BEL_LT-LUT4.out" out_port="BLK_IG-LUT+CARRY.lout" />
+    <pack_pattern name="LUT+DFFESR"  in_port="BEL_LT-LUT4.out" out_port="BLK_IG-LUT+CARRY.lout" />
+    <pack_pattern name="LUT+DFFESS"  in_port="BEL_LT-LUT4.out" out_port="BLK_IG-LUT+CARRY.lout" />
+    <pack_pattern name="LUT+DFFNER"  in_port="BEL_LT-LUT4.out" out_port="BLK_IG-LUT+CARRY.lout" />
+    <pack_pattern name="LUT+DFFNES"  in_port="BEL_LT-LUT4.out" out_port="BLK_IG-LUT+CARRY.lout" />
+    <pack_pattern name="LUT+DFFNESR" in_port="BEL_LT-LUT4.out" out_port="BLK_IG-LUT+CARRY.lout" />
+				<pack_pattern name="LUT+DFFNESS" in_port="BEL_LT-LUT4.out" out_port="BLK_IG-LUT+CARRY.lout" />
+			</direct>
+  </interconnect>
+ </mode>
+	<mode name="LUT+CARRY">
+		<pb_type name="BEL_BB-LUT+CARRY" num_pb="1" blif_model=".subckt ICESTORM_CARRY_LUT">
+			<input  name="CI" num_pins="1"/>
+			<input  name="I0" num_pins="1"/>
+			<input  name="I1" num_pins="1"/>
+			<input  name="I2" num_pins="1"/>
+			<output name="LO" num_pins="1"/>
+			<output name="CO" num_pins="1"/>
+			<delay_constant max="10e-12" in_port="BEL_BB-LUT+CARRY.CI" out_port="BEL_BB-LUT+CARRY.CO"/>
+			<delay_constant max="10e-12" in_port="BEL_BB-LUT+CARRY.I1" out_port="BEL_BB-LUT+CARRY.CO"/>
+			<delay_constant max="10e-12" in_port="BEL_BB-LUT+CARRY.I2" out_port="BEL_BB-LUT+CARRY.CO"/>
+			<delay_constant max="10e-12" in_port="BEL_BB-LUT+CARRY.CI" out_port="BEL_BB-LUT+CARRY.LO"/>
+			<delay_constant max="10e-12" in_port="BEL_BB-LUT+CARRY.I0" out_port="BEL_BB-LUT+CARRY.LO"/>
+			<delay_constant max="10e-12" in_port="BEL_BB-LUT+CARRY.I1" out_port="BEL_BB-LUT+CARRY.LO"/>
+			<delay_constant max="10e-12" in_port="BEL_BB-LUT+CARRY.I2" out_port="BEL_BB-LUT+CARRY.LO"/>
+			<metadata>
+				<meta name="hlc_property">enable_carry</meta>
+			 <meta name="hlc_property">cout -> in_3 # FCIN MUX</meta>
+			</metadata>
+		</pb_type>
+		<interconnect>
+			<direct><port type="input" name="fcin" /><port type="output" from="BEL_BB-LUT+CARRY" name="CI"/>
+				<pack_pattern in_port="BLK_IG-LUT+CARRY.fcin" name="CARRYCHAIN" out_port="BEL_BB-LUT+CARRY.CI"/>
+			</direct>
+   <direct><port type="input" name="in[0]"/><port type="output" from="BEL_BB-LUT+CARRY" name="I0"/></direct>
+			<direct><port type="input" name="in[1]"/><port type="output" from="BEL_BB-LUT+CARRY" name="I1"/></direct>
+			<direct><port type="input" name="in[2]"/><port type="output" from="BEL_BB-LUT+CARRY" name="I2"/></direct>
+			<direct><port type="input" name="LO" from="BEL_BB-LUT+CARRY"/><port type="output" name="lout"/>
+			</direct>
+			<direct><port type="input" name="CO" from="BEL_BB-LUT+CARRY"/><port type="output" name="fcout"/>
+				<pack_pattern in_port="BEL_BB-LUT+CARRY.CO" name="CARRYCHAIN" out_port="BLK_IG-LUT+CARRY.fcout"/>
+			</direct>
+  </interconnect>
+ </mode>
+	<mode name="FABRIC-TO-CARRY">
+		<pb_type name="BEL_LT-WIRE" num_pb="1" class="lut" blif_model=".names">
+			<input  name="in"  num_pins="1" port_class="lut_in" />
+   <output name="out" num_pins="1" port_class="lut_out" />
+   <delay_matrix type="max" in_port="BEL_LT-WIRE.in" out_port="BEL_LT-WIRE.out">10e-12</delay_matrix>
+		</pb_type>
+		<interconnect>
+   <direct><port type="input" name="in[1]" /><port type="output" from="BEL_LT-WIRE" name="in"/></direct>
+   <direct><port type="input" name="out" from="BEL_LT-WIRE"/><port type="output" name="fcout"/></direct>
+  </interconnect>
+ </mode>
+ <metadata>
+  <meta name="hlc_cell">lutff</meta>
+	</metadata>
+</pb_type>
