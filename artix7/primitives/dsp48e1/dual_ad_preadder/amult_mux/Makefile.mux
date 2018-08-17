@@ -1,8 +1,0 @@
-MUX_COMMENT = DSP48E1 mux that select output to feed forward to A multipler
-MUX_TYPE = routing
-MUX_OUTFILE = amult_mux
-MUX_NAME = AMULT_MUX
-MUX_WIDTH = 2
-MUX_SPLIT_INPUTS = 1
-MUX_INPUTS = A,ADDER_OUT
-MUX_DATA_WIDTH = 25
