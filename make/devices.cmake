@@ -377,6 +377,7 @@ function(DEFINE_DEVICE)
     list(APPEND RR_PATCH_DEPS ${DEVICE_MERGED_FILE_TARGET})
 
     # Generate the "real" rr_graph.xml from the default rr_graph.xml file
+    get_target_property_required(PYTHON3 env PYTHON3)
     string(CONFIGURE ${RR_PATCH_CMD} RR_PATCH_CMD_FOR_TARGET)
     separate_arguments(
       RR_PATCH_CMD_FOR_TARGET_LIST UNIX_COMMAND ${RR_PATCH_CMD_FOR_TARGET}
@@ -779,6 +780,7 @@ function(ADD_FPGA_TARGET)
     get_file_location(INPUT_IO_FILE ${ADD_FPGA_TARGET_INPUT_IO_FILE})
     get_file_target(INPUT_IO_FILE_TARGET ${ADD_FPGA_TARGET_INPUT_IO_FILE})
     get_target_property_required(PLACE_TOOL ${ARCH} PLACE_TOOL)
+    get_target_property_required(PYTHON3 env PYTHON3)
     get_target_property_required(PLACE_TOOL_CMD ${ARCH} PLACE_TOOL_CMD)
     get_target_property_required(PINMAP_FILE ${DEVICE} ${PACKAGE}_PINMAP)
     get_file_location(PINMAP ${PINMAP_FILE})
