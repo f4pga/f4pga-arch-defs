@@ -1,6 +1,0 @@
-MUX_TYPE = routing
-MUX_OUTFILE = ntemplate.Ncy0
-MUX_NAME = {N}CY0
-MUX_WIDTH = 2
-MUX_SPLIT_INPUTS = 1
-MUX_INPUTS = O5,{N}X
