@@ -11,12 +11,13 @@ function(add_simple_test)
   #     BOARDS <list of boards to test against>
   #     [ROUTE_ONLY]
   #     [EQUIV_CHECK_SCRIPT <filename of yosys script to prove gold and gate>]
+  #     [EXPLICIT_ADD_FILE_TARGET]
   #   )
   # ~~~
   #
   # ADD_SIMPLE_TEST creates test targets that check routing and equivilence
   # between original source, post-synthesis and post-place and route modules.
-  set(options ROUTE_ONLY)
+  set(options ROUTE_ONLY EXPLICIT_ADD_FILE_TARGET NO_SYNTHESIS)
   set(oneValueArgs NAME EQUIV_CHECK_SCRIPT)
   set(multiValueArgs SOURCES BOARDS)
   cmake_parse_arguments(
@@ -27,12 +28,14 @@ function(add_simple_test)
     ${ARGN}
   )
 
-  foreach(SRC ${ADD_SIMPLE_TEST_SOURCES})
-    add_file_target(
-      FILE ${SRC}
-      SCANNER_TYPE verilog
-      )
-  endforeach()
+  if(NOT ${ADD_SIMPLE_TEST_EXPLICIT_ADD_FILE_TARGET})
+    foreach(SRC ${ADD_SIMPLE_TEST_SOURCES})
+      add_file_target(
+        FILE ${SRC}
+        SCANNER_TYPE verilog
+        )
+    endforeach()
+  endif()
 
   set(EQUIV_CHECK_SCRIPT ${ADD_SIMPLE_TEST_EQUIV_CHECK_SCRIPT})
 
@@ -63,6 +66,11 @@ function(add_simple_test)
       set(INPUT_IO_FILE_ARG INPUT_IO_FILE ${BOARD}.pcf)
     endif()
 
+    set(NO_SYNTHESIS_ARG "")
+    if(${ADD_SIMPLE_TEST_NO_SYNTHESIS})
+      set(NO_SYNTHESIS_ARG NO_SYNTHESIS)
+    endif()
+
     add_fpga_target(
       NAME ${ADD_SIMPLE_TEST_NAME}_${BOARD}
       BOARD ${BOARD}
@@ -70,6 +78,7 @@ function(add_simple_test)
       SOURCES ${ADD_SIMPLE_TEST_SOURCES}
       EXPLICIT_ADD_FILE_TARGET
       ${CHECK_TEST_ARGS}
+      ${NO_SYNTHESIS_ARG}
       )
 
     add_dependencies(all_route_tests ${ADD_SIMPLE_TEST_NAME}_${BOARD}_route)
