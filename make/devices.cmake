@@ -583,6 +583,7 @@ function(ADD_FPGA_TARGET)
   #   [INPUT_IO_FILE <input_io_file>]
   #   [EXPLICIT_ADD_FILE_TARGET]
   #   [EMIT_CHECK_TESTS EQUIV_CHECK_SCRIPT <yosys to script verify two bitstreams gold and gate>]
+  #   [NO_SYNTHESIS]
   #   )
   # ~~~
   #
@@ -598,9 +599,11 @@ function(ADD_FPGA_TARGET)
   # INPUT_IO_FILE is required to define an io map. TESTBENCH_SOURCES will be
   # used to run test benches.
   #
+  # If NO_SYNTHESIS is supplied, <source list> must be 1 eblif file.
+  #
   # Targets generated:
   #
-  # * <name>_eblif - Generate eblif file.
+  # * <name>_eblif - Generated eblif file.
   # * <name>_synth - Alias of <name>_eblif.
   # * <name>_route - Generate place and routing synthesized design.
   # * <name>_bit - Generate output bitstream.
@@ -617,7 +620,7 @@ function(ADD_FPGA_TARGET)
   # * ${TOP}.route - Place and routed design (http://docs.verilogtorouting.org/en/latest/vpr/file_formats/#routing-file-format-route)
   # * ${TOP}.${BITSTREAM_EXTENSION} - Bitstream for target.
   #
-  set(options EXPLICIT_ADD_FILE_TARGET EMIT_CHECK_TESTS)
+  set(options EXPLICIT_ADD_FILE_TARGET EMIT_CHECK_TESTS NO_SYNTHESIS)
   set(oneValueArgs NAME TOP BOARD INPUT_IO_FILE EQUIV_CHECK_SCRIPT AUTOSIM_CYCLES)
   set(multiValueArgs SOURCES TESTBENCH_SOURCES)
   cmake_parse_arguments(
@@ -682,10 +685,26 @@ function(ADD_FPGA_TARGET)
   set(VPR_ROUTE_CHAN_WIDTH 100)
   set(VPR_ROUTE_CHAN_MINWIDTH_HINT ${VPR_ROUTE_CHAN_WIDTH})
 
+  if(${ADD_FPGA_TARGET_NO_SYNTHESIS})
+    list(LENGTH ADD_FPGA_TARGET_SOURCES SRC_COUNT)
+    if(NOT ${SRC_COUNT} EQUAL 1)
+      message(FATAL_ERROR "In NO_SYNTHESIS, only one input source is allowed, given ${SRC_COUNT}.")
+    endif()
+    set(READ_FUNCTION "read_blif")
+  else()
+    set(READ_FUNCTION "read_verilog")
+  endif()
+
   if(NOT ${ADD_FPGA_TARGET_EXPLICIT_ADD_FILE_TARGET})
-    foreach(SRC ${ADD_FPGA_TARGET_SOURCES})
-      add_file_target(FILE ${SRC} SCANNER_TYPE verilog)
-    endforeach()
+    if(NOT ${ADD_FPGA_TARGET_NO_SYNTHESIS})
+      foreach(SRC ${ADD_FPGA_TARGET_SOURCES})
+        add_file_target(FILE ${SRC} SCANNER_TYPE verilog)
+      endforeach()
+    else()
+      foreach(SRC ${ADD_FPGA_TARGET_SOURCES})
+        add_file_target(FILE ${SRC})
+      endforeach()
+    endif()
     foreach(SRC ${ADD_FPGA_TARGET_TESTBENCH_SOURCES})
       add_file_target(FILE ${SRC} SCANNER_TYPE verilog)
     endforeach()
@@ -703,26 +722,33 @@ function(ADD_FPGA_TARGET)
   set(SOURCE_FILES_DEPS "")
   set(SOURCE_FILES "")
   foreach(SRC ${ADD_FPGA_TARGET_SOURCES})
-    get_file_location(SRC_LOCATION ${SRC})
-    get_file_target(SRC_TARGET ${SRC})
-    list(APPEND SOURCE_FILES ${SRC_LOCATION})
-    list(APPEND SOURCE_FILES_DEPS ${SRC_TARGET})
+    append_file_location(SOURCE_FILES ${SRC})
+    append_file_dependency(SOURCE_FILES_DEPS ${SRC})
   endforeach()
 
-  set(
-    COMPLETE_YOSYS_SCRIPT
-    "${YOSYS_SCRIPT} $<SEMICOLON> write_blif -attr -cname -param ${OUT_EBLIF}"
-  )
+  if(NOT ${ADD_FPGA_TARGET_NO_SYNTHESIS})
+    set(
+      COMPLETE_YOSYS_SCRIPT
+      "${YOSYS_SCRIPT} $<SEMICOLON> write_blif -attr -cname -param ${OUT_EBLIF}"
+    )
 
-  add_custom_command(
-    OUTPUT ${OUT_EBLIF}
-    DEPENDS ${SOURCE_FILES} ${SOURCE_FILES_DEPS} ${DIRECTORY_TARGET}
-    ${YOSYS} ${YOSYS_TARGET} ${QUIET_CMD} ${QUIET_CMD_TARGET}
-    COMMAND
-      ${QUIET_CMD} ${YOSYS} -p "${COMPLETE_YOSYS_SCRIPT}" ${SOURCE_FILES}
-    WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
-    VERBATIM
-  )
+    add_custom_command(
+      OUTPUT ${OUT_EBLIF}
+      DEPENDS ${SOURCE_FILES} ${SOURCE_FILES_DEPS} ${DIRECTORY_TARGET}
+              ${YOSYS} ${YOSYS_TARGET} ${QUIET_CMD} ${QUIET_CMD_TARGET}
+      COMMAND
+        ${QUIET_CMD} ${YOSYS} -p "${COMPLETE_YOSYS_SCRIPT}" ${SOURCE_FILES}
+      WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
+      VERBATIM
+    )
+  else()
+    add_custom_command(
+      OUTPUT ${OUT_EBLIF}
+      DEPENDS ${SOURCE_FILES_DEPS} ${DIRECTORY_TARGET}
+      COMMAND ${CMAKE_COMMAND} -E copy ${SOURCE_FILES} ${OUT_EBLIF}
+      )
+  endif()
+
   add_custom_target(${NAME}_eblif DEPENDS ${OUT_EBLIF})
   add_custom_target(${NAME}_synth DEPENDS ${OUT_EBLIF})
   add_output_to_fpga_target(${NAME} EBLIF ${OUT_LOCAL_REL}/${TOP}.eblif)
@@ -1028,7 +1054,7 @@ function(ADD_FPGA_TARGET)
       add_check_test(
         NAME ${NAME}_check
         ARCH ${ARCH}
-        READ_GOLD "read_verilog ${SOURCE_FILES} $<SEMICOLON> rename ${TOP} gold"
+        READ_GOLD "${READ_FUNCTION} ${SOURCE_FILES} $<SEMICOLON> rename ${TOP} gold"
         READ_GATE "read_verilog ${OUT_BIT_VERILOG} $<SEMICOLON> rename ${TOP} gate"
         EQUIV_CHECK_SCRIPT ${ADD_FPGA_TARGET_EQUIV_CHECK_SCRIPT}
         DEPENDS ${SOURCE_FILES} ${SOURCE_FILES_DEPS} ${OUT_BIT_VERILOG}
@@ -1040,7 +1066,7 @@ function(ADD_FPGA_TARGET)
     add_check_test(
       NAME ${NAME}_check_eblif
       ARCH ${ARCH}
-      READ_GOLD "read_verilog ${SOURCE_FILES} $<SEMICOLON> rename ${TOP} gold"
+      READ_GOLD "${READ_FUNCTION} ${SOURCE_FILES} $<SEMICOLON> rename ${TOP} gold"
       READ_GATE "read_blif -wideports ${OUT_EBLIF} $<SEMICOLON> rename ${TOP} gate"
       EQUIV_CHECK_SCRIPT ${ADD_FPGA_TARGET_EQUIV_CHECK_SCRIPT}
       DEPENDS ${SOURCE_FILES} ${SOURCE_FILES_DEPS} ${OUT_EBLIF}
@@ -1052,7 +1078,7 @@ function(ADD_FPGA_TARGET)
     add_check_test(
       NAME ${NAME}_check_post_blif
       ARCH ${ARCH}
-      READ_GOLD "read_verilog ${SOURCE_FILES} $<SEMICOLON> rename ${TOP} gold"
+      READ_GOLD "${READ_FUNCTION} ${SOURCE_FILES} $<SEMICOLON> rename ${TOP} gold"
       READ_GATE "read_blif -wideports ${OUT_POST_SYNTHESIS_BLIF} $<SEMICOLON> rename ${TOP} gate"
       EQUIV_CHECK_SCRIPT ${ADD_FPGA_TARGET_EQUIV_CHECK_SCRIPT}
       DEPENDS ${SOURCE_FILES} ${SOURCE_FILES_DEPS} ${OUT_POST_SYNTHESIS_BLIF}
@@ -1063,7 +1089,7 @@ function(ADD_FPGA_TARGET)
     add_check_test(
       NAME ${NAME}_check_post_v
       ARCH ${ARCH}
-      READ_GOLD "read_verilog ${SOURCE_FILES} $<SEMICOLON> rename ${TOP} gold"
+      READ_GOLD "${READ_FUNCTION} ${SOURCE_FILES} $<SEMICOLON> rename ${TOP} gold"
       READ_GATE "read_verilog ${OUT_POST_SYNTHESIS_V} $<SEMICOLON> rename ${TOP} gate"
       EQUIV_CHECK_SCRIPT ${ADD_FPGA_TARGET_EQUIV_CHECK_SCRIPT}
       DEPENDS ${SOURCE_FILES} ${SOURCE_FILES_DEPS} ${OUT_POST_SYNTHESIS_V}
@@ -1072,7 +1098,7 @@ function(ADD_FPGA_TARGET)
     add_check_test(
       NAME ${NAME}_check_orig_blif
       ARCH ${ARCH}
-      READ_GOLD "read_verilog ${SOURCE_FILES} $<SEMICOLON> rename ${TOP} gold"
+      READ_GOLD "${READ_FUNCTION} ${SOURCE_FILES} $<SEMICOLON> rename ${TOP} gold"
       READ_GATE "read_blif -wideports ${ECHO_ATOM_NETLIST_ORIG} $<SEMICOLON> rename ${TOP} gate"
       EQUIV_CHECK_SCRIPT ${ADD_FPGA_TARGET_EQUIV_CHECK_SCRIPT}
       DEPENDS ${SOURCE_FILES} ${SOURCE_FILES_DEPS} ${ECHO_ATOM_NETLIST_ORIG}
@@ -1081,7 +1107,7 @@ function(ADD_FPGA_TARGET)
     add_check_test(
       NAME ${NAME}_check_cleaned_blif
       ARCH ${ARCH}
-      READ_GOLD "read_verilog ${SOURCE_FILES} $<SEMICOLON> rename ${TOP} gold"
+      READ_GOLD "${READ_FUNCTION} ${SOURCE_FILES} $<SEMICOLON> rename ${TOP} gold"
       READ_GATE "read_blif -wideports ${ECHO_ATOM_NETLIST_CLEANED} $<SEMICOLON> rename ${TOP} gate"
       EQUIV_CHECK_SCRIPT ${ADD_FPGA_TARGET_EQUIV_CHECK_SCRIPT}
       DEPENDS ${SOURCE_FILES} ${SOURCE_FILES_DEPS} ${ECHO_ATOM_NETLIST_CLEANED}
@@ -1315,10 +1341,8 @@ function(generate_pinmap)
   set(SOURCE_FILES "")
   set(SOURCE_FILES_DEPS "")
   foreach(SRC ${GENERATE_PINMAP_SOURCES})
-    get_file_location(SRC_LOCATION ${SRC})
-    get_file_target(SRC_TARGET ${SRC})
-    list(APPEND SOURCE_FILES ${SRC_LOCATION})
-    list(APPEND SOURCE_FILES_DEPS ${SRC_TARGET})
+    append_file_location(SOURCE_FILES ${SRC})
+    append_file_dependency(SOURCE_FILES_DEPS ${SRC})
   endforeach()
 
   add_custom_command(
