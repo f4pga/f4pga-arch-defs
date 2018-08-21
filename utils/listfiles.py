@@ -7,6 +7,7 @@ Excludes the files in the top level .excludes file.
 
 import argparse
 import fnmatch
+import logging
 import os.path
 import re
 import subprocess
@@ -24,7 +25,6 @@ parser = argparse.ArgumentParser(
 
 parser.add_argument(
     '--verbose',
-    '--no-verbose',
     action=ActionStoreBool,
     default=os.environ.get('V', '') == '1',
     help="Print information about files ignored.")
@@ -36,26 +36,32 @@ parser.add_argument(
     'directory', nargs="*", default=[TOPDIR], help="Directory to list from.")
 
 
-def stderr(*args, **kw):
-    print(*args, **kw, file=sys.stderr, flush=True)
-
-
 def normpath(r, f):
     return os.path.normpath(os.path.join(r, f))
 
 
-def main(argv):
-    global stderr
+def listfiles(directory, exclude_patterns):
+    for path in directory:
+        logging.debug("Looking in: %s", path)
+        for root, dirs, files in os.walk(path, topdown=True):
+            for pattern in exclude_patterns:
+                # Filter out the directories we want to ignore
+                for d in fnmatch.filter(dirs, pattern):
+                    logging.debug(" -dir %s", normpath(root, d))
+                    dirs.remove(d)
 
-    args = parser.parse_args(argv[1:])
+                # Filter out the files
+                for f in fnmatch.filter(files, pattern):
+                    logging.debug("-file %s", normpath(root, f))
+                    files.remove(f)
 
-    if not args.verbose:
-        stderr = lambda *args, **kw: None
+            for f in files:
+                yield os.path.normpath(os.path.join(root, f))
 
-    stderr("Top level directory:", TOPDIR)
 
-    exclude_patterns = args.exclude
-    with open(os.path.join(TOPDIR, ".excludes"), "r") as exclude_file:
+def parse_excludes(exclude_name=os.path.join(TOPDIR, ".excludes")):
+    exclude_patterns = []
+    with open(exclude_name, "r") as exclude_file:
         for line in exclude_file:
             # Strip comments
             if '#' in line:
@@ -70,24 +76,23 @@ def main(argv):
 
             exclude_patterns.append(line)
 
-    stderr("Exclude patterns:", exclude_patterns)
-    stderr("Will search:", args.directory)
-    for path in args.directory:
-        stderr("Looking in:", path)
-        for root, dirs, files in os.walk(path, topdown=True):
-            for pattern in exclude_patterns:
-                # Filter out the directories we want to ignore
-                for d in fnmatch.filter(dirs, pattern):
-                    stderr(" -dir", normpath(root, d))
-                    dirs.remove(d)
+    return exclude_patterns
 
-                # Filter out the files
-                for f in fnmatch.filter(files, pattern):
-                    stderr("-file", normpath(root, f))
-                    files.remove(f)
 
-            for f in files:
-                print(os.path.normpath(os.path.join(root, f)))
+def main(argv):
+    args = parser.parse_args(argv[1:])
+
+    if args.verbose:
+        logging.basicConfig(level=logging.DEBUG)
+
+    logging.debug("Top level directory: %s", TOPDIR)
+
+    exclude_patterns = args.exclude + parse_excludes()
+
+    logging.debug("Exclude patterns: %s", exclude_patterns)
+    logging.debug("Will search: %s", args.directory)
+    for item in listfiles(args.directory, exclude_patterns):
+        print(item)
 
 
 if __name__ == "__main__":
