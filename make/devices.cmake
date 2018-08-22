@@ -796,6 +796,8 @@ function(ADD_FPGA_TARGET)
   get_target_property_required(VPR env VPR)
   get_target_property_required(GENHLC env GENHLC)
   get_target_property(VPR_TARGET env VPR_TARGET)
+  get_target_property(GENHLC_TARGET env GENHLC_TARGET)
+
   separate_arguments(
     VPR_BASE_ARGS_LIST UNIX_COMMAND "${VPR_BASE_ARGS}"
     )
@@ -957,7 +959,7 @@ function(ADD_FPGA_TARGET)
   # -------------------------------------------------------------------------
   add_custom_command(
     OUTPUT ${OUT_HLC}
-    DEPENDS ${OUT_ROUTE} ${OUT_PLACE} ${OUT_IO} ${VPR_DEPS}
+    DEPENDS ${OUT_ROUTE} ${OUT_PLACE} ${OUT_IO} ${VPR_DEPS} ${GENHLC_TARGET}
     COMMAND ${GENHLC_CMD}
     COMMAND
       ${CMAKE_COMMAND} -E copy ${OUT_LOCAL}/vpr_stdout.log
