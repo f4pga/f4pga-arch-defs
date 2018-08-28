@@ -23,6 +23,10 @@ add_conda_package(
   PROVIDES xsltproc
   )
 add_conda_package(
+  NAME libxml2
+  PROVIDES xmllint
+  )
+add_conda_package(
   NAME pytest
   PROVIDES pytest
   )

@@ -218,6 +218,7 @@ function(DEFINE_DEVICE_TYPE)
   # Generate a arch.xml for a device.
   #
   set(DEVICE_MERGED_FILE arch.merged.xml)
+  set(DEVICE_MERGED_LINT_FILE arch.merged.lint.html)
 
   set(MERGE_XML_XSL ${symbiflow-arch-defs_SOURCE_DIR}/common/xml/xmlsort.xsl)
   set(
@@ -230,9 +231,13 @@ function(DEFINE_DEVICE_TYPE)
     append_file_dependency(DEPS ${SRC})
   endforeach()
   set(MERGE_XML_OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/${DEVICE_MERGED_FILE})
+  set(MERGE_XMLLINT_OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/${DEVICE_MERGED_LINT_FILE})
 
   get_target_property_required(XSLTPROC env XSLTPROC)
   get_target_property(XSLTPROC_TARGET env XSLTPROC_TARGET)
+  get_target_property_required(XMLLINT env XMLLINT)
+  set(ARCH_SCHEMA ${symbiflow-arch-defs_SOURCE_DIR}/common/xml/fpga_architecture.xsd)
+
   add_custom_command(
     OUTPUT ${MERGE_XML_OUTPUT}
     DEPENDS
@@ -257,6 +262,23 @@ function(DEFINE_DEVICE_TYPE)
   )
   add_dependencies(all_merged_arch_xmls
     ${DEFINE_DEVICE_TYPE_ARCH}_${DEFINE_DEVICE_TYPE_DEVICE_TYPE}_arch)
+
+  add_custom_command(
+    OUTPUT ${MERGE_XMLLINT_OUTPUT}
+    DEPENDS
+      ${MERGE_XML_OUTPUT}
+      ${XMLLINT}
+      ${ARCH_SCHEMA}
+    COMMAND
+      ${XMLLINT}
+      --output ${MERGE_XMLLINT_OUTPUT}
+      --schema ${ARCH_SCHEMA}
+      ${MERGE_XML_OUTPUT}
+  )
+  add_custom_target(
+    ${DEFINE_DEVICE_TYPE_ARCH}_${DEFINE_DEVICE_TYPE_DEVICE_TYPE}_arch_lint
+    DEPENDS ${MERGE_XMLLINT_OUTPUT}
+  )
 
   add_file_target(FILE ${DEVICE_MERGED_FILE} GENERATED)
 
