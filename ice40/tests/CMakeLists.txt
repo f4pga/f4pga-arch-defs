@@ -1,4 +1,5 @@
 add_subdirectory(blink)
+add_subdirectory(checker)
 add_subdirectory(iceram)
 add_subdirectory(murax)
 add_subdirectory(picosoc)
