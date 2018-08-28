@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/SymbiFlow/symbiflow-arch-defs.svg?branch=master)](https://travis-ci.org/SymbiFlow/symbiflow-arch-defs)
+
 # WARNING!
 
 This repo is currently a **work in progress** nothing is currently yet working!
