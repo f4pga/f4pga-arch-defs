@@ -1,5 +1,3 @@
-[![Build Status](https://travis-ci.org/SymbiFlow/symbiflow-arch-defs.svg?branch=master)](https://travis-ci.org/SymbiFlow/symbiflow-arch-defs)
-
 # WARNING!
 
 This repo is currently a **work in progress** nothing is currently yet working!
@@ -7,6 +5,8 @@ This repo is currently a **work in progress** nothing is currently yet working!
 ---
 
 # SymbiFlow Architecture Definitions
+
+[![Build Status](https://travis-ci.org/SymbiFlow/symbiflow-arch-defs.svg?branch=master)](https://travis-ci.org/SymbiFlow/symbiflow-arch-defs)
 
 This repo contains documentation of various FPGA architectures, it is currently
 concentrating on;
@@ -26,6 +26,51 @@ The repo includes;
  * Documentation for humans
 
 The documentation can be generated using Sphinx.
+
+# Getting Started
+
+Make sure git submodules are cloned:
+
+```
+git submodule init
+git submodule update
+```
+
+Run the full suite:
+
+```
+# doesn't work yet
+# export ARCH=artix7
+export ARCH=testarch
+make env
+make .git/info/exclude
+make redir
+make
+
+```
+Test the rr_graph library:
+```
+export PATH=$PWD/env/conda/bin/:$PATH
+export PYTHONPATH=$PWD/utils:$PYTHONPATH
+python3 -m lib.rr_graph.graph
+```
+
+Parse an rr_graph.xml using rr_graph library:
+
+```
+cd tests
+make wire.rr_graph.xml
+stat build/testarch/2x4/wire.rr_graph.xml
+# Run test suite
+# Dump an rr_graph file
+python3 -m lib.rr_graph.graph build/testarch/2x4/wire.rr_graph.xml
+```
+
+See some example vpr commands (while still in tests):
+
+```
+make V=1
+```
 
 # Verilog To Routing Notes
 
@@ -114,84 +159,44 @@ architectures, here are some tips;
  * DRY (Don't repeat yourself) - Uses
    [XML XIncludes](https://en.wikipedia.org/wiki/XInclude) to reuse stuff!
 
-# Getting Started
-
-Make sure git submodules are cloned:
-
-```
-git submodule init
-git submodule update
-```
-
-Run the full suite:
-
-```
-# doesn't work yet
-# export ARCH=artix7
-export ARCH=testarch
-make env
-make .git/info/exclude
-make redir
-make
-
-```
-Test the rr_graph library:
-```
-export PATH=$PWD/env/conda/bin/:$PATH
-export PYTHONPATH=$PWD/utils:$PYTHONPATH
-python3 -m lib.rr_graph.graph
-```
-
-Parse an rr_graph.xml using rr_graph library:
-
-```
-cd tests
-make wire.rr_graph.xml
-stat build/testarch/2x4/wire.rr_graph.xml
-# Run test suite
-# Dump an rr_graph file
-python3 -m lib.rr_graph.graph build/testarch/2x4/wire.rr_graph.xml
-```
-
-See some example vpr commands (while still in tests):
-
-```
-make V=1
-```
-
 # Tools
 
- * [`third_party/yosys/`](third_party/yosys/)
+ * [`third_party/netlistsvg`](third_party/netlistsvg)
+
+ * [`third_party/icestorm`](third_party/icestorm)
+
+ * [`third_party/prjxray-db`](third_party/prjxray-db)
+
+## Tools used via conda
+
+ * [yosys](https://github.com/YosysHQ/yosys)
    Verilog parsing and synthesis.
 
- * [`third_party/vtr/`](third_party/vtr/)
+ * [vtr](https://github.com/SymbiFlow/vtr-verilog-to-routing)
    Place and route tool.
 
- * [`third_party/xmllint`](third_party/xmllint)
-   Tool for parsing, formatting XML. Used to process the XML files before
-   giving them to VPR.
-
- * [`third_party/sim/iverilog/`](third_party/sim/iverilog/)
+ * [iverilog](https://github.com/steveicarus/iverilog)
    Very correct FOSS Verilog Simulator
 
- * [`third_party/sim/verilator/`](third_party/sim/verilator/)
+## Tools to use in the future
+ * [verilator](https://www.veripool.org/wiki/verilator)
    Fast FOSS Verilog Simulator
 
- * [`third_party/docgen/sphinx/`](third_party/docgen/sphinx/)
+ * sphinx
    Tool for generating nice looking documentation.
 
- * [`third_party/docgen/breathe/`](third_party/docgen/breathe)
+ * breathe
    Tool for allowing Doxygen and Sphinx integration.
 
- * [`third_party/docgen/doxygen-verilog`](third_party/docgen/doxygen-verilog)
+ * doxygen-verilog
    Allows using Doxygen style comments inside Verilog files.
 
- * [`third_party/docgen/netlistsvg/`](third_party/docgen/netlistsvg)
+ * netlistsvg
    Tool for generating nice logic diagrams from Verilog code.
 
- * [`third_party/docgen/symbolator/`](third_party/docgen/symbolator)
+ * symbolator
    Tool for generating symbol diagrams from Verilog (and VHDL) code.
 
- * [`third_party/docgen/wavedrom/`](third_party/docgen/wavedrom/)
+ * wavedrom
    Tool for generating waveform / timing diagrams.
 
