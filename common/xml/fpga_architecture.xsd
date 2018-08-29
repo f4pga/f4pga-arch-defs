@@ -335,6 +335,7 @@
     <xs:attribute name="name" type="xs:string" use="required"/>
     <xs:attribute name="equivalent" type="pb_clock_equivalent" default="none"/>
     <xs:attribute name="num_pins" type="xs:int" use="required"/>
+    <xs:attribute name="port_class" type="xs:string"/>
   </xs:complexType>
 
   <xs:simpleType name="delay_matrix_type">
