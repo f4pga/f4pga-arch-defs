@@ -447,6 +447,10 @@ function(DEFINE_DEVICE)
 	--schema ${ROUTING_SCHEMA}
 	${OUT_RRXML_REAL}
       )
+    add_custom_target(
+      ${DEFINE_DEVICE_ARCH}_${DEFINE_DEVICE_DEVICE}_${PACKAGE}_rrxml_real_lint
+      DEPENDS ${OUT_RRXML_REAL_LINT}
+      )
 
     # Define dummy boards.  PROG_TOOL is set to false to disallow programming.
     define_board(
