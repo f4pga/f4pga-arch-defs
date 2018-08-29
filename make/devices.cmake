@@ -274,7 +274,7 @@ function(DEFINE_DEVICE_TYPE)
       ${XMLLINT}
       --output ${MERGE_XMLLINT_OUTPUT}
       --schema ${ARCH_SCHEMA}
-      ${MERGE_XML_OUTPUT}
+      ${MERGE_XML_OUTPUT} 2>&1 | head -n10 && [ "$$\{PIPESTATUS[0]\}" -eq 0 ]
   )
   add_custom_target(
     ${DEFINE_DEVICE_TYPE_ARCH}_${DEFINE_DEVICE_TYPE_DEVICE_TYPE}_arch_lint
@@ -442,10 +442,10 @@ function(DEFINE_DEVICE)
         ${XMLLINT} ${XMLLINT_TARGET}
         ${ROUTING_SCHEMA}
       COMMAND
-        ${QUIET_CMD} ${XMLLINT}
+        ${XMLLINT}
 	--output ${OUT_RRXML_REAL_LINT}
 	--schema ${ROUTING_SCHEMA}
-	${OUT_RRXML_REAL}
+	${OUT_RRXML_REAL} 2>&1 |  head -n10 && [ "$$\{PIPESTATUS[0]\}" -eq 0 ]
       )
     add_custom_target(
       ${DEFINE_DEVICE_ARCH}_${DEFINE_DEVICE_DEVICE}_${PACKAGE}_rrxml_real_lint
@@ -903,7 +903,25 @@ function(ADD_FPGA_TARGET)
     WORKING_DIRECTORY ${OUT_LOCAL}/echo
     )
 
-  # TODO: validate .net xml file against common/xml/packed_netlist.xsd
+  # validate .net xml file against common/xml/packed_netlist.xsd
+  set(OUT_NET_XMLLINT ${OUT_NET}.lint)
+  get_target_property_required(XMLLINT env XMLLINT)
+  get_target_property(XMLLINT_TARGET env XMLLINT_TARGET)
+  set(NET_SCHEMA ${symbiflow-arch-defs_SOURCE_DIR}/common/xml/packed_netlist.xsd)
+
+  add_custom_command(
+    OUTPUT ${OUT_NET_XMLLINT}
+    DEPENDS
+      ${OUT_NET}
+      ${XMLLINT} ${XMLLINT_TARGET}
+      ${NET_SCHEMA}
+    COMMAND
+      ${XMLLINT}
+      --output ${OUT_NET_XMLLINT}
+      --schema ${NET_SCHEMA}
+      ${OUT_NET}  2>&1 | head -n10 && [ "$$\{PIPESTATUS[0]\}" -eq 0 ]
+  )
+  add_custom_target(${NAME}_lint DEPENDS ${OUT_NET_XMLLINT})
 
   # Generate placement.
   # -------------------------------------------------------------------------
