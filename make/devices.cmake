@@ -236,6 +236,7 @@ function(DEFINE_DEVICE_TYPE)
   get_target_property_required(XSLTPROC env XSLTPROC)
   get_target_property(XSLTPROC_TARGET env XSLTPROC_TARGET)
   get_target_property_required(XMLLINT env XMLLINT)
+  get_target_property(XMLLINT_TARGET env XMLLINT_TARGET)
   set(ARCH_SCHEMA ${symbiflow-arch-defs_SOURCE_DIR}/common/xml/fpga_architecture.xsd)
 
   add_custom_command(
@@ -267,7 +268,7 @@ function(DEFINE_DEVICE_TYPE)
     OUTPUT ${MERGE_XMLLINT_OUTPUT}
     DEPENDS
       ${MERGE_XML_OUTPUT}
-      ${XMLLINT}
+      ${XMLLINT} ${XMLLINT_TARGET}
       ${ARCH_SCHEMA}
     COMMAND
       ${XMLLINT}
@@ -345,14 +346,20 @@ function(DEFINE_DEVICE)
   get_target_property_required(QUIET_CMD env QUIET_CMD)
   get_target_property(QUIET_CMD_TARGET env QUIET_CMD_TARGET)
 
+  get_target_property_required(XMLLINT env XMLLINT)
+  get_target_property(XMLLINT_TARGET env XMLLINT_TARGET)
+  set(ROUTING_SCHEMA ${symbiflow-arch-defs_SOURCE_DIR}/common/xml/routing_resource.xsd)
+
   set(DEVICE ${DEFINE_DEVICE_DEVICE})
   foreach(PACKAGE ${DEFINE_DEVICE_PACKAGES})
     get_target_property_required(DEVICE_FULL_TEMPLATE ${DEFINE_DEVICE_ARCH} DEVICE_FULL_TEMPLATE)
     string(CONFIGURE ${DEVICE_FULL_TEMPLATE} DEVICE_FULL)
     set(OUT_RRXML_VIRT_FILENAME rr_graph_${DEVICE}_${PACKAGE}.rr_graph.virt.xml)
     set(OUT_RRXML_REAL_FILENAME rr_graph_${DEVICE}_${PACKAGE}.rr_graph.real.xml)
+    set(OUT_RRXML_REAL_LINT_FILENAME rr_graph_${DEVICE}_${PACKAGE}.rr_graph.real.lint.html)
     set(OUT_RRXML_VIRT ${CMAKE_CURRENT_BINARY_DIR}/${OUT_RRXML_VIRT_FILENAME})
     set(OUT_RRXML_REAL ${CMAKE_CURRENT_BINARY_DIR}/${OUT_RRXML_REAL_FILENAME})
+    set(OUT_RRXML_REAL_LINT ${CMAKE_CURRENT_BINARY_DIR}/${OUT_RRXML_REAL_LINT_FILENAME})
 
     #
     # Generate a rr_graph for a device.
@@ -424,8 +431,22 @@ function(DEFINE_DEVICE)
     add_custom_target(
       ${DEFINE_DEVICE_ARCH}_${DEFINE_DEVICE_DEVICE}_${PACKAGE}_rrxml_real
       DEPENDS ${OUT_RRXML_REAL}
-    )
+      )
     add_dependencies(all_rrgraph_xmls ${DEFINE_DEVICE_ARCH}_${DEFINE_DEVICE_DEVICE}_${PACKAGE}_rrxml_real)
+
+    # Lint the "real" rr_graph.xml
+    add_custom_command(
+      OUTPUT ${OUT_RRXML_REAL_LINT}
+      DEPENDS
+        ${OUT_RRXML_REAL}
+        ${XMLLINT} ${XMLLINT_TARGET}
+        ${ROUTING_SCHEMA}
+      COMMAND
+        ${QUIET_CMD} ${XMLLINT}
+	--output ${OUT_RRXML_REAL_LINT}
+	--schema ${ROUTING_SCHEMA}
+	${OUT_RRXML_REAL}
+      )
 
     # Define dummy boards.  PROG_TOOL is set to false to disallow programming.
     define_board(
@@ -876,7 +897,9 @@ function(ADD_FPGA_TARGET)
     COMMAND
       ${CMAKE_COMMAND} -E copy ${OUT_LOCAL}/echo/vpr_stdout.log ${OUT_LOCAL}/echo/pack.log
     WORKING_DIRECTORY ${OUT_LOCAL}/echo
-  )
+    )
+
+  # TODO: validate .net xml file against common/xml/packed_netlist.xsd
 
   # Generate placement.
   # -------------------------------------------------------------------------
