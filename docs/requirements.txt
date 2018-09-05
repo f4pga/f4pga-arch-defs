@@ -1,0 +1,35 @@
+sphinx
+sphinx-autobuild
+
+# Important core Sphinx extensions
+sphinx_rtd_theme
+recommonmark
+breathe
+exhale
+sphinxcontrib-napoleon
+
+-e hg+https://mithro@bitbucket.org/mithro/sphinxcontrib-domaintools@mithro/use-dictitems-instead-of-dictiteritems-f-1519177628123#egg=sphinxcontrib-domaintools
+
+# Unimportant Sphinx extensions
+#sphinxcontrib-ansi
+sphinxcontrib-argdoc
+sphinxcontrib-autoprogram
+sphinxcontrib-cheader
+#sphinxcontrib-cheeseshop
+#sphinxcontrib-cmakedomain
+sphinxcontrib-documentedlist
+sphinxcontrib-examplecode
+sphinxcontrib-inlinesyntaxhighlight
+sphinxcontrib-makedomain
+sphinxcontrib-manpage
+sphinxcontrib-spelling
+# Weirdly named Sphinx extensions
+sphinxcontrib-trio
+sphinx-git
+sphinx-autodoc-typehints
+sphinx-autodoc-napoleon-typehints
+
+# Sphinx extensions for support HDL stuff.
+symbolator
+sphinxcontrib-wavedrom
+# sphinxcontrib-gtkwave

@@ -1,0 +1,6 @@
+.Makefile.d
+_build
+_doxygen
+_venv
+tools
+verilog
