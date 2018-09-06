@@ -58,6 +58,8 @@ add_custom_target(all_merged_arch_xmls)
 # Target for all rrgraph xmls.
 add_custom_target(all_rrgraph_xmls)
 
+add_custom_target(all_xml_lint)
+
 add_subdirectory(utils)
 add_subdirectory(vpr)
 add_subdirectory(yosys)
