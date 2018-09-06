@@ -31,7 +31,7 @@
     </xs:simpleContent>
   </xs:complexType>
 
-  <xs:complexType name="port_group">
+  <xs:complexType name="port_group" mixed="true">
     <xs:sequence>
       <xs:element name="port" type="port" minOccurs="0" maxOccurs="unbounded"/>
     </xs:sequence>
@@ -40,7 +40,7 @@
   <xs:complexType name="block">
     <xs:choice minOccurs="0" maxOccurs="unbounded">
       <xs:element name="inputs">
-        <xs:complexType>
+        <xs:complexType  mixed="true">
           <xs:choice minOccurs="0" maxOccurs="unbounded">
             <xs:element name="port" type="port"/>
             <xs:element name="port_rotation_map" type="port_rotation_map"/>
@@ -70,6 +70,9 @@
     <xs:attribute name="name" type="xs:string"/>
     <xs:attribute name="instance" type="xs:string"/>
     <xs:attribute name="mode" type="xs:string"/>
+    <xs:attribute name="architecture_id" type="xs:string"/>
+    <xs:attribute name="atom_netlist_id" type="xs:string"/>
+    <xs:attribute name="pb_type_num_modes" type="xs:integer"/>
   </xs:complexType>
 
   <xs:element name="block" type="block"/>

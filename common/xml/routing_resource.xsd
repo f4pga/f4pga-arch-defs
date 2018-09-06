@@ -43,7 +43,7 @@
   </xs:complexType>
 
   <xs:complexType name="sizing">
-    <xs:attribute name="mux_trans_size" type="xs:int" use="required"/>
+    <xs:attribute name="mux_trans_size" type="xs:double" use="required"/>
     <xs:attribute name="buf_size" type="xs:double" use="required"/>
   </xs:complexType>
 
@@ -85,9 +85,25 @@
     <xs:attribute name="type" type="pin_type" use="required"/>
   </xs:complexType>
 
+  <xs:complexType name="meta">
+    <xs:simpleContent>
+      <xs:extension base="xs:string">
+        <xs:attribute name="name" type="xs:string" use="required"/>
+	<xs:attribute name="x_offset" type="xs:int"/>
+	<xs:attribute name="y_offset" type="xs:int"/>
+      </xs:extension>
+    </xs:simpleContent>
+  </xs:complexType>
+
+  <xs:complexType name="metadata">
+    <xs:sequence>
+      <xs:element name="meta" type="meta" maxOccurs="unbounded"/>
+    </xs:sequence>
+  </xs:complexType>
+
   <xs:complexType name="block_type">
     <xs:sequence>
-      <xs:element name="pin_class" type="pin_class" maxOccurs="unbounded"/>
+      <xs:element name="pin_class" type="pin_class" minOccurs="0" maxOccurs="unbounded"/>
     </xs:sequence>
     <xs:attribute name="id" type="xs:int" use="required"/>
     <xs:attribute name="name" type="xs:string" use="required"/>
@@ -162,6 +178,7 @@
       <xs:element name="loc" type="node_loc"/>
       <xs:element name="timing" type="node_timing"/>
       <xs:element name="segment" type="node_segment"/>
+      <xs:element name="metadata" type="metadata"/>
     </xs:choice>
     <xs:attribute name="id" type="xs:int" use="required"/>
     <xs:attribute name="type" type="node_type" use="required"/>
@@ -170,6 +187,10 @@
   </xs:complexType>
 
   <xs:complexType name="edge">
+    <xs:choice minOccurs="0" maxOccurs="unbounded">
+      <xs:element name="metadata" type="metadata"/>
+    </xs:choice>
+    <xs:attribute name="id" type="xs:int"/>
     <xs:attribute name="src_node" type="xs:int" use="required"/>
     <xs:attribute name="sink_node" type="xs:int" use="required"/>
     <xs:attribute name="switch_id" type="xs:int" use="required"/>
