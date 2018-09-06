@@ -235,8 +235,6 @@ function(DEFINE_DEVICE_TYPE)
 
   get_target_property_required(XSLTPROC env XSLTPROC)
   get_target_property(XSLTPROC_TARGET env XSLTPROC_TARGET)
-  get_target_property_required(XMLLINT env XMLLINT)
-  get_target_property(XMLLINT_TARGET env XMLLINT_TARGET)
   set(ARCH_SCHEMA ${symbiflow-arch-defs_SOURCE_DIR}/common/xml/fpga_architecture.xsd)
 
   add_custom_command(
@@ -264,22 +262,12 @@ function(DEFINE_DEVICE_TYPE)
   add_dependencies(all_merged_arch_xmls
     ${DEFINE_DEVICE_TYPE_ARCH}_${DEFINE_DEVICE_TYPE_DEVICE_TYPE}_arch)
 
-  add_custom_command(
-    OUTPUT ${MERGE_XMLLINT_OUTPUT}
-    DEPENDS
-      ${MERGE_XML_OUTPUT}
-      ${XMLLINT} ${XMLLINT_TARGET}
-      ${ARCH_SCHEMA}
-    COMMAND
-      ${XMLLINT}
-      --output ${MERGE_XMLLINT_OUTPUT}
-      --schema ${ARCH_SCHEMA}
-      ${MERGE_XML_OUTPUT} 2>&1 | head -n10 && [ "$$\{PIPESTATUS[0]\}" -eq 0 ]
-  )
-  add_custom_target(
-    ${DEFINE_DEVICE_TYPE_ARCH}_${DEFINE_DEVICE_TYPE_DEVICE_TYPE}_arch_lint
-    DEPENDS ${MERGE_XMLLINT_OUTPUT}
-  )
+  xml_lint(
+    NAME ${DEFINE_DEVICE_TYPE_ARCH}_${DEFINE_DEVICE_TYPE_DEVICE_TYPE}_arch_lint
+    FILE ${MERGE_XML_OUTPUT}
+    LINT_OUTPUT ${MERGE_XMLLINT_OUTPUT}
+    SCHEMA ${ARCH_SCHEMA}
+    )
 
   add_file_target(FILE ${DEVICE_MERGED_FILE} GENERATED)
 
@@ -290,6 +278,45 @@ function(DEFINE_DEVICE_TYPE)
   )
 
 endfunction()
+
+function(XML_LINT)
+  # ~~~
+  # XML_LINT(
+  # NAME
+  # FILE
+  # LINT_OUTPUT
+  # SCHEMA
+  # )
+  set(oneValueArgs NAME FILE LINT_OUTPUT SCHEMA)
+  cmake_parse_arguments(
+    XML_LINT
+    ""
+    "${oneValueArgs}"
+    ""
+    ${ARGN}
+    )
+
+  get_target_property_required(XMLLINT env XMLLINT)
+  get_target_property(XMLLINT_TARGET env XMLLINT_TARGET)
+
+  # For xmllint we use head to shortcircuit failure as it can take a
+  # very long time to output all of the errors
+  add_custom_command(
+    OUTPUT ${XML_LINT_LINT_OUTPUT}
+    DEPENDS ${XML_LINT_FILE} ${XML_LINT_SCHEMA} ${XMLLINT} ${XMLLINT_TARGET}
+    COMMAND
+    ${XMLLINT}
+    --output ${XML_LINT_LINT_OUTPUT}
+    --schema ${XML_LINT_SCHEMA}
+    ${XML_LINT_FILE} 2>&1 |  head -n10 && [ "$$\{PIPESTATUS[0]\}" -eq 0 ]
+    )
+  add_custom_target(
+    ${XML_LINT_NAME}
+    DEPENDS ${XML_LINT_LINT_OUTPUT}
+    )
+  add_dependencies(all_xml_lint ${XML_LINT_NAME})
+
+endfunction(XML_LINT)
 
 function(DEFINE_DEVICE)
   # ~~~
@@ -346,8 +373,6 @@ function(DEFINE_DEVICE)
   get_target_property_required(QUIET_CMD env QUIET_CMD)
   get_target_property(QUIET_CMD_TARGET env QUIET_CMD_TARGET)
 
-  get_target_property_required(XMLLINT env XMLLINT)
-  get_target_property(XMLLINT_TARGET env XMLLINT_TARGET)
   set(ROUTING_SCHEMA ${symbiflow-arch-defs_SOURCE_DIR}/common/xml/routing_resource.xsd)
 
   set(DEVICE ${DEFINE_DEVICE_DEVICE})
@@ -435,21 +460,11 @@ function(DEFINE_DEVICE)
     add_dependencies(all_rrgraph_xmls ${DEFINE_DEVICE_ARCH}_${DEFINE_DEVICE_DEVICE}_${PACKAGE}_rrxml_real)
 
     # Lint the "real" rr_graph.xml
-    add_custom_command(
-      OUTPUT ${OUT_RRXML_REAL_LINT}
-      DEPENDS
-        ${OUT_RRXML_REAL}
-        ${XMLLINT} ${XMLLINT_TARGET}
-        ${ROUTING_SCHEMA}
-      COMMAND
-        ${XMLLINT}
-	--output ${OUT_RRXML_REAL_LINT}
-	--schema ${ROUTING_SCHEMA}
-	${OUT_RRXML_REAL} 2>&1 |  head -n10 && [ "$$\{PIPESTATUS[0]\}" -eq 0 ]
-      )
-    add_custom_target(
-      ${DEFINE_DEVICE_ARCH}_${DEFINE_DEVICE_DEVICE}_${PACKAGE}_rrxml_real_lint
-      DEPENDS ${OUT_RRXML_REAL_LINT}
+    xml_lint(
+      NAME ${DEFINE_DEVICE_ARCH}_${DEFINE_DEVICE_DEVICE}_${PACKAGE}_rrxml_real_lint
+      LINT_OUTPUT ${OUT_RRXML_REAL_LINT}
+      FILE ${OUT_RRXML_REAL}
+      SCHEMA ${ROUTING_SCHEMA}
       )
 
     # Define dummy boards.  PROG_TOOL is set to false to disallow programming.
@@ -905,23 +920,14 @@ function(ADD_FPGA_TARGET)
 
   # validate .net xml file against common/xml/packed_netlist.xsd
   set(OUT_NET_XMLLINT ${OUT_NET}.lint)
-  get_target_property_required(XMLLINT env XMLLINT)
-  get_target_property(XMLLINT_TARGET env XMLLINT_TARGET)
   set(NET_SCHEMA ${symbiflow-arch-defs_SOURCE_DIR}/common/xml/packed_netlist.xsd)
 
-  add_custom_command(
-    OUTPUT ${OUT_NET_XMLLINT}
-    DEPENDS
-      ${OUT_NET}
-      ${XMLLINT} ${XMLLINT_TARGET}
-      ${NET_SCHEMA}
-    COMMAND
-      ${XMLLINT}
-      --output ${OUT_NET_XMLLINT}
-      --schema ${NET_SCHEMA}
-      ${OUT_NET}  2>&1 | head -n10 && [ "$$\{PIPESTATUS[0]\}" -eq 0 ]
-  )
-  add_custom_target(${NAME}_lint DEPENDS ${OUT_NET_XMLLINT})
+  xml_lint(
+    NAME ${NAME}_lint
+    LINT_OUTPUT ${OUT_NET_XMLLINT}
+    FILE ${OUT_NET}
+    SCHEMA ${NET_SCHEMA}
+    )
 
   # Generate placement.
   # -------------------------------------------------------------------------
