@@ -49,6 +49,12 @@ end_section "symbiflow.route_all_tests"
 
 $SPACER
 
+start_section "symbiflow.xmllint_all_tests" "Complete all xmllint"
+make all_xml_lint
+end_section "symbiflow.xmllint_all"
+
+$SPACER
+
 start_section "symbiflow.run_check_tests" "Complete all equivilence tests"
 make all_check_tests
 end_section "symbiflow.run_check_tests"
