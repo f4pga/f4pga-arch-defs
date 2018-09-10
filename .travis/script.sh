@@ -50,6 +50,7 @@ end_section "symbiflow.route_all_tests"
 $SPACER
 
 start_section "symbiflow.xmllint_all_tests" "Complete all xmllint"
+echo "Supressing some xml linting, as the 5k/8k parts cannot be built on travis."
 make all_xml_lint
 end_section "symbiflow.xmllint_all"
 
@@ -63,9 +64,7 @@ $SPACER
 
 start_section "symbiflow.build_all_demos" "Building all demo bitstreams"
 echo "Supressing some demo bitstreams, as the 8k parts cannot be built on travis."
-#make all
-
-make blink_iceblink40-lp1k
+make all
 end_section "symbiflow.build_all_demos"
 
 $SPACER
