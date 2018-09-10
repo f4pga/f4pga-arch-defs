@@ -304,11 +304,11 @@ function(XML_LINT)
   add_custom_command(
     OUTPUT ${XML_LINT_LINT_OUTPUT}
     DEPENDS ${XML_LINT_FILE} ${XML_LINT_SCHEMA} ${XMLLINT} ${XMLLINT_TARGET}
-    COMMAND
-    ${XMLLINT}
+    COMMAND bash -c
+    '${XMLLINT}
     --output ${XML_LINT_LINT_OUTPUT}
     --schema ${XML_LINT_SCHEMA}
-    ${XML_LINT_FILE} 2>&1 |  head -n10 && [ "$$\{PIPESTATUS[0]\}" -eq 0 ]
+    ${XML_LINT_FILE} 2>&1 |  head -n10 && exit "$$\{PIPESTATUS[0]\}" '
     )
   add_custom_target(
     ${XML_LINT_NAME}
