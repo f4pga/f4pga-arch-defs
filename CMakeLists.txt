@@ -5,6 +5,7 @@ enable_testing()
 include(make/util.cmake)
 include(make/env.cmake)
 include(make/file_targets.cmake)
+include(make/xml.cmake)
 include(make/devices.cmake)
 
 find_package(PythonInterp 3 REQUIRED)
@@ -21,6 +22,10 @@ add_conda_package(
 add_conda_package(
   NAME libxslt
   PROVIDES xsltproc
+  )
+add_conda_package(
+  NAME libxml2
+  PROVIDES xmllint
   )
 add_conda_package(
   NAME pytest
@@ -53,6 +58,9 @@ add_custom_target(all_merged_arch_xmls)
 
 # Target for all rrgraph xmls.
 add_custom_target(all_rrgraph_xmls)
+
+# Target to lint all xml files.
+add_custom_target(all_xml_lint)
 
 add_subdirectory(utils)
 add_subdirectory(vpr)
