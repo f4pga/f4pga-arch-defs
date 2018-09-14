@@ -218,6 +218,7 @@ function(DEFINE_DEVICE_TYPE)
   # Generate a arch.xml for a device.
   #
   set(DEVICE_MERGED_FILE arch.merged.xml)
+  set(DEVICE_MERGED_LINT_FILE arch.merged.lint.html)
 
   set(MERGE_XML_XSL ${symbiflow-arch-defs_SOURCE_DIR}/common/xml/xmlsort.xsl)
   set(
@@ -230,9 +231,12 @@ function(DEFINE_DEVICE_TYPE)
     append_file_dependency(DEPS ${SRC})
   endforeach()
   set(MERGE_XML_OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/${DEVICE_MERGED_FILE})
+  set(MERGE_XMLLINT_OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/${DEVICE_MERGED_LINT_FILE})
 
   get_target_property_required(XSLTPROC env XSLTPROC)
   get_target_property(XSLTPROC_TARGET env XSLTPROC_TARGET)
+  set(ARCH_SCHEMA ${symbiflow-arch-defs_SOURCE_DIR}/common/xml/fpga_architecture.xsd)
+
   add_custom_command(
     OUTPUT ${MERGE_XML_OUTPUT}
     DEPENDS
@@ -257,6 +261,13 @@ function(DEFINE_DEVICE_TYPE)
   )
   add_dependencies(all_merged_arch_xmls
     ${DEFINE_DEVICE_TYPE_ARCH}_${DEFINE_DEVICE_TYPE_DEVICE_TYPE}_arch)
+
+  xml_lint(
+    NAME ${DEFINE_DEVICE_TYPE_ARCH}_${DEFINE_DEVICE_TYPE_DEVICE_TYPE}_arch_lint
+    FILE ${MERGE_XML_OUTPUT}
+    LINT_OUTPUT ${MERGE_XMLLINT_OUTPUT}
+    SCHEMA ${ARCH_SCHEMA}
+    )
 
   add_file_target(FILE ${DEVICE_MERGED_FILE} GENERATED)
 
@@ -323,14 +334,18 @@ function(DEFINE_DEVICE)
   get_target_property_required(QUIET_CMD env QUIET_CMD)
   get_target_property(QUIET_CMD_TARGET env QUIET_CMD_TARGET)
 
+  set(ROUTING_SCHEMA ${symbiflow-arch-defs_SOURCE_DIR}/common/xml/routing_resource.xsd)
+
   set(DEVICE ${DEFINE_DEVICE_DEVICE})
   foreach(PACKAGE ${DEFINE_DEVICE_PACKAGES})
     get_target_property_required(DEVICE_FULL_TEMPLATE ${DEFINE_DEVICE_ARCH} DEVICE_FULL_TEMPLATE)
     string(CONFIGURE ${DEVICE_FULL_TEMPLATE} DEVICE_FULL)
     set(OUT_RRXML_VIRT_FILENAME rr_graph_${DEVICE}_${PACKAGE}.rr_graph.virt.xml)
     set(OUT_RRXML_REAL_FILENAME rr_graph_${DEVICE}_${PACKAGE}.rr_graph.real.xml)
+    set(OUT_RRXML_REAL_LINT_FILENAME rr_graph_${DEVICE}_${PACKAGE}.rr_graph.real.lint.html)
     set(OUT_RRXML_VIRT ${CMAKE_CURRENT_BINARY_DIR}/${OUT_RRXML_VIRT_FILENAME})
     set(OUT_RRXML_REAL ${CMAKE_CURRENT_BINARY_DIR}/${OUT_RRXML_REAL_FILENAME})
+    set(OUT_RRXML_REAL_LINT ${CMAKE_CURRENT_BINARY_DIR}/${OUT_RRXML_REAL_LINT_FILENAME})
 
     #
     # Generate a rr_graph for a device.
@@ -402,8 +417,16 @@ function(DEFINE_DEVICE)
     add_custom_target(
       ${DEFINE_DEVICE_ARCH}_${DEFINE_DEVICE_DEVICE}_${PACKAGE}_rrxml_real
       DEPENDS ${OUT_RRXML_REAL}
-    )
+      )
     add_dependencies(all_rrgraph_xmls ${DEFINE_DEVICE_ARCH}_${DEFINE_DEVICE_DEVICE}_${PACKAGE}_rrxml_real)
+
+    # Lint the "real" rr_graph.xml
+    xml_lint(
+      NAME ${DEFINE_DEVICE_ARCH}_${DEFINE_DEVICE_DEVICE}_${PACKAGE}_rrxml_real_lint
+      LINT_OUTPUT ${OUT_RRXML_REAL_LINT}
+      FILE ${OUT_RRXML_REAL}
+      SCHEMA ${ROUTING_SCHEMA}
+      )
 
     # Define dummy boards.  PROG_TOOL is set to false to disallow programming.
     define_board(
@@ -854,7 +877,18 @@ function(ADD_FPGA_TARGET)
     COMMAND
       ${CMAKE_COMMAND} -E copy ${OUT_LOCAL}/echo/vpr_stdout.log ${OUT_LOCAL}/echo/pack.log
     WORKING_DIRECTORY ${OUT_LOCAL}/echo
-  )
+    )
+
+  # validate .net xml file against common/xml/packed_netlist.xsd
+  set(OUT_NET_XMLLINT ${OUT_NET}.lint)
+  set(NET_SCHEMA ${symbiflow-arch-defs_SOURCE_DIR}/common/xml/packed_netlist.xsd)
+
+  xml_lint(
+    NAME ${NAME}_lint
+    LINT_OUTPUT ${OUT_NET_XMLLINT}
+    FILE ${OUT_NET}
+    SCHEMA ${NET_SCHEMA}
+    )
 
   # Generate placement.
   # -------------------------------------------------------------------------
