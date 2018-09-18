@@ -794,7 +794,10 @@ function(ADD_FPGA_TARGET)
   endforeach()
 
   get_target_property_required(VPR env VPR)
+  get_target_property_required(GENHLC env GENHLC)
   get_target_property(VPR_TARGET env VPR_TARGET)
+  get_target_property(GENHLC_TARGET env GENHLC_TARGET)
+
   separate_arguments(
     VPR_BASE_ARGS_LIST UNIX_COMMAND "${VPR_BASE_ARGS}"
     )
@@ -816,6 +819,18 @@ function(ADD_FPGA_TARGET)
     ${VPR_EXTRA_ARGS_LIST}
   )
   list(APPEND VPR_DEPS ${VPR} ${VPR_TARGET} ${QUIET_CMD} ${QUIET_CMD_TARGET})
+
+  set(
+    GENHLC_CMD
+    ${QUIET_CMD} ${GENHLC}
+    ${DEVICE_MERGED_FILE_LOCATION}
+    ${OUT_EBLIF}
+    --device ${DEVICE_FULL}
+    --read_rr_graph ${OUT_RRXML_REAL_LOCATION}
+    ${VPR_BASE_ARGS_LIST}
+    ${VPR_ARCH_ARGS_LIST}
+    ${VPR_EXTRA_ARGS_LIST}
+  )
 
   # Generate IO constraints file.
   # -------------------------------------------------------------------------
@@ -917,7 +932,7 @@ function(ADD_FPGA_TARGET)
   # Generate routing.
   # -------------------------------------------------------------------------
   add_custom_command(
-    OUTPUT ${OUT_ROUTE} ${OUT_HLC}
+    OUTPUT ${OUT_ROUTE}
     DEPENDS ${OUT_PLACE} ${OUT_IO} ${VPR_DEPS}
     COMMAND ${VPR_CMD} --route
     COMMAND
@@ -939,6 +954,19 @@ function(ADD_FPGA_TARGET)
     WORKING_DIRECTORY ${OUT_LOCAL}/echo
   )
   add_custom_target(${NAME}_route_echo DEPENDS ${OUT_ROUTE})
+
+  # Generate HLC
+  # -------------------------------------------------------------------------
+  add_custom_command(
+    OUTPUT ${OUT_HLC}
+    DEPENDS ${OUT_ROUTE} ${OUT_PLACE} ${OUT_IO} ${VPR_DEPS} ${GENHLC_TARGET}
+    COMMAND ${GENHLC_CMD}
+    COMMAND
+      ${CMAKE_COMMAND} -E copy ${OUT_LOCAL}/vpr_stdout.log
+        ${OUT_LOCAL}/genhlc.log
+    WORKING_DIRECTORY ${OUT_LOCAL}
+  )
+  add_custom_target(${NAME}_hlc DEPENDS ${OUT_HLC})
 
   # Generate analysis.
   #-------------------------------------------------------------------------
