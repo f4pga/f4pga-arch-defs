@@ -2,14 +2,6 @@
 `include "Nlut/blut.sim.v"
 `include "Nlut/clut.sim.v"
 `include "Nlut/dlut.sim.v"
-`include "N5ff/a5ff.sim.v"
-`include "N5ff/b5ff.sim.v"
-`include "N5ff/c5ff.sim.v"
-`include "N5ff/d5ff.sim.v"
-`include "Nff/aff.sim.v"
-`include "Nff/bff.sim.v"
-`include "Nff/cff.sim.v"
-`include "Nff/dff.sim.v"
 `include "muxes/f7amux/f7amux.sim.v"
 `include "muxes/f7bmux/f7bmux.sim.v"
 `include "muxes/f8mux/f8mux.sim.v"
@@ -45,7 +37,7 @@
 `include "routing/Nused/cused.sim.v"
 `include "routing/Nused/dused.sim.v"
 
-`include "carry4_modes/carry4_modes.sim.v"
+`include "carry/carry.sim.v"
 
 `include "routing/clkinv/clkinv.sim.v"
 
@@ -178,7 +170,7 @@ module SLICEL(
 	F8MUX f8mux (.I0(F7BMUX_OUT), .I1(F7AMUX_OUT), .OUT(F8MUX_OUT), .S0(BX));
 
 	wire PRECYINIT_OUT;
-	PRECYINIT_MUX precyinit_mux (/*.I0(0), .I1(1),*/ .CI(CIN), .CYINIT(CYINIT), .OUT(PRECYINIT_OUT));
+	PRECYINIT_MUX precyinit_mux (.C0(0), .C1(1), .CI(CIN), .CYINIT(CYINIT), .OUT(PRECYINIT_OUT));
 
 	wire [3:0] CARRY4_CO;
 	wire [3:0] CARRY4_O;

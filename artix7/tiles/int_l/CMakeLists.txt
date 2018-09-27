@@ -1,4 +1,5 @@
-project_xray_int(
+project_xray_tile(
   PART artix7
-  INT INT_L
+  TILE INT_L
+  SITE_TYPES TIEOFF
   )

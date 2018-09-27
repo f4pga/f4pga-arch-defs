@@ -1,4 +1,5 @@
-project_xray_clb(
+project_xray_tile(
   PART artix7
-  CLB CLBLL_L
+  TILE CLBLL_L
+  SITE_TYPES SLICEL
   )
