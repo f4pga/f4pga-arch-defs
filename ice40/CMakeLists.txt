@@ -14,7 +14,7 @@ define_arch(
     --clock_modeling route
   RR_PATCH_TOOL
     ${symbiflow-arch-defs_SOURCE_DIR}/ice40/utils/ice40_import_routing_from_icebox.py
-  RR_PATCH_CMD "\${PYTHON3} \${RR_PATCH_TOOL} \
+  RR_PATCH_CMD "\${QUIET_CMD} \${PYTHON3} \${RR_PATCH_TOOL} \
   --device=\${DEVICE} \
   --read_rr_graph \${OUT_RRXML_VIRT} \
   --write_rr_graph \${OUT_RRXML_REAL}"
@@ -34,6 +34,7 @@ define_arch(
   BIT_TO_BIN_CMD "\${BIT_TO_BIN} \${OUT_BITSTREAM} > \${OUT_BIN}"
   BIT_TIME ${ICETIME}
   BIT_TIME_CMD "\${BIT_TIME} -v -t -p \${INPUT_IO_FILE} -d \${DEVICE} \${OUT_BITSTREAM} -o \${OUT_TIME_VERILOG}"
+  ROUTE_CHAN_WIDTH 100
 )
 
 add_subdirectory(primitives)

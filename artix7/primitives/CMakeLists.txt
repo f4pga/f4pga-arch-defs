@@ -1,2 +1,5 @@
+add_subdirectory(ff)
 add_subdirectory(dsp48e1)
 add_subdirectory(slicel)
+add_subdirectory(tieoff)
+add_subdirectory(iob33)

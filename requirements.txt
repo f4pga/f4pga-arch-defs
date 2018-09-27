@@ -2,3 +2,5 @@ pip
 virtualenv
 lxml
 hdlparse
+progressbar2
+simplejson
