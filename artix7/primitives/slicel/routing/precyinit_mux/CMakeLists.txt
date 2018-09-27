@@ -1,9 +1,9 @@
 mux_gen(
   NAME precyinit_mux
-  INPUTS CI,CYINIT
+  INPUTS CI,CYINIT,C0,C1
   MUX_NAME PRECYINIT_MUX
   OUTPUT OUT
   SPLIT_INPUTS 1
   TYPE routing
-  WIDTH 2
+  WIDTH 4
 )

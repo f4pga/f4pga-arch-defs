@@ -1,5 +1,13 @@
 from collections import namedtuple
 import pprint
+from enum import Enum
+
+class Direction(Enum):
+    NO_SIDE = 0
+    LEFT = 1
+    RIGHT = 2
+    TOP = 3
+    BOTTOM = 4
 
 Track = namedtuple('Track', 'direction x_low x_high y_low y_high')
 
@@ -111,6 +119,82 @@ def make_tracks(xs, ys, points):
             connections.add((x_tracks[0], idx))
 
     return tracks, list(connections)
+
+class Tracks(object):
+    def __init__(self, tracks, track_connections):
+        self.tracks = tracks
+        self.track_connections = track_connections
+
+    def verify_tracks(self):
+        """ Verify that all tracks are connected to all other tracks. """
+        track_connections = {}
+
+        for idx, _ in enumerate(self.tracks):
+            track_connections[idx] = set((idx,))
+
+        for conn_a, conn_b in self.track_connections:
+            if track_connections[conn_a] is track_connections[conn_b]:
+                continue
+
+            assert self.tracks[conn_a].direction != self.tracks[conn_b].direction
+
+            track_connections[conn_a] |= track_connections[conn_b]
+
+            for track_idx in track_connections[conn_a]:
+                track_connections[track_idx] = track_connections[conn_a]
+
+        assert len(set(id(s) for s in track_connections.values())) == 1, track_connections
+
+    def is_wire_adjacent_to_track(self, idx, coord):
+        track = self.tracks[idx]
+        wire_x, wire_y = coord
+
+        if track.direction == 'X':
+            pin_top = track.y_low == wire_y
+            pin_bottom = track.y_low == wire_y-1
+            adjacent_channel = ((pin_top or pin_bottom) and (
+                    track.x_low <= wire_x and wire_x <= track.x_high))
+
+            if adjacent_channel:
+                if pin_top:
+                    return Direction.TOP
+                elif pin_bottom:
+                    return Direction.BOTTOM
+                else:
+                    assert False, (coord, track)
+            else:
+                return Direction.NO_SIDE
+
+        elif track.direction == 'Y':
+            pin_right = track.x_low == wire_x
+            pin_left = track.x_low == wire_x-1
+            adjacent_channel = ((pin_right or pin_left) and (
+                    track.y_low <= wire_y and wire_y <= track.y_high))
+
+            if adjacent_channel:
+                if pin_right:
+                    return Direction.RIGHT
+                elif pin_left:
+                    return Direction.LEFT
+                else:
+                    assert False, (coord, track)
+            else:
+                return Direction.NO_SIDE
+        else:
+            assert False, track
+
+
+
+    def get_tracks_for_wire_at_coord(self, coord):
+        """ Returns which track indicies and direction a wire at a coord can
+            be connected too. """
+
+        wire_x, wire_y = coord
+
+        for idx, track in enumerate(self.tracks):
+            pin_dir = self.is_wire_adjacent_to_track(idx, coord)
+            if pin_dir != Direction.NO_SIDE:
+                yield (idx, pin_dir)
 
 def main():
     import doctest

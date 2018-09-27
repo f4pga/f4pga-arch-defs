@@ -2,11 +2,12 @@ mux_gen(
   NAME f7bmux
   COMMENT "F7BMUX is used to create a LUT7 from two LUT6s."
   MUX_NAME F7BMUX
-  OUTPUT OUT
-  SPLIT_INPUTS
-  1
-  SPLIT_SELECTS
-  1
+  SUBCKT MUXF7
+  INPUTS I0,I1
+  OUTPUT O
+  SELECTS S
+  SPLIT_INPUTS 1
+  SPLIT_SELECTS 1
   TYPE logic
   WIDTH 2
 )

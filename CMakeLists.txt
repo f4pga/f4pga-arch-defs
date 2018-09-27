@@ -17,7 +17,7 @@ add_conda_package(
   )
 add_conda_package(
   NAME vtr
-  PROVIDES vpr genhlc
+  PROVIDES vpr genhlc genfasm
   )
 add_conda_package(
   NAME libxslt

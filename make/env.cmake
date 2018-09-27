@@ -196,7 +196,7 @@ function(ADD_CONDA_PIP)
   # Installs an executable via conda PIP.  This generates two env properties.
   # <name> is set to the path to the executable. <name>_TARGET is set to the
   # target that will invoke pip if not already installed.
-  set(options)
+  set(options NO_EXE)
   set(oneValueArgs NAME)
   set(multiValueArgs)
   cmake_parse_arguments(
@@ -215,16 +215,36 @@ function(ADD_CONDA_PIP)
     get_target_property_required(PIP env PIP)
     get_target_property(PIP_TARGET env PIP_TARGET)
 
-    set(BIN ${CONDA_DIR}/bin/${NAME})
-    add_custom_command(
-      OUTPUT ${BIN}
-      COMMAND ${PIP} install ${NAME}
-      DEPENDS ${PIP} ${PIP_TARGET}
-      )
-    add_custom_target(
-      ${NAME}
-      DEPENDS ${BIN}
-      )
+    if(ADD_CONDA_PIP_NO_EXE)
+      add_custom_command(
+        OUTPUT ${NAME}.pip
+        COMMAND ${PIP} install ${NAME}
+        COMMAND ${CMAKE_COMMAND} -E touch ${NAME}.pip
+        DEPENDS ${PIP} ${PIP_TARGET}
+        )
+
+      add_custom_target(
+        ${NAME}
+        DEPENDS ${NAME}.pip
+        )
+    else()
+      set(BIN ${CONDA_DIR}/bin/${NAME})
+      add_custom_command(
+        OUTPUT ${BIN}
+        COMMAND ${PIP} install ${NAME}
+        DEPENDS ${PIP} ${PIP_TARGET}
+        )
+      add_custom_target(
+        ${NAME}
+        DEPENDS ${BIN}
+        )
+
+      set(${binary_upper} ${BIN})
+      replace_with_env_if_set(${binary_upper})
+      set_target_properties(env PROPERTIES ${binary_upper} ${BIN})
+      set_target_properties(env PROPERTIES ${binary_upper}_TARGET ${NAME})
+    endif()
+
     add_dependencies(all_conda ${NAME})
 
     add_custom_target(
@@ -232,11 +252,6 @@ function(ADD_CONDA_PIP)
       COMMAND ${PIP} uninstall -y ${NAME}
       )
     add_dependencies(clean_pip _clean_pip_${NAME})
-
-    set(${binary_upper} ${BIN})
-    replace_with_env_if_set(${binary_upper})
-    set_target_properties(env PROPERTIES ${binary_upper} ${BIN})
-    set_target_properties(env PROPERTIES ${binary_upper}_TARGET ${NAME})
   else()
     if(DEFINED ENV{${binary_upper}})
       set(${binary_upper} $ENV{${binary_upper}})
