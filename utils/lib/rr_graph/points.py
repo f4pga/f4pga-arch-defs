@@ -12,10 +12,10 @@ import enum
 from collections import defaultdict
 from collections import namedtuple
 
-from ..asserts import assert_eq
-from ..asserts import assert_type
+from lib.asserts import assert_eq
+from lib.asserts import assert_type
 
-from . import Position, P
+from lib.rr_graph import Position, P
 
 
 _NamedPosition = namedtuple("NamedPosition", ["pos", "names"])
@@ -744,6 +744,285 @@ def straight_closet(line1, line2):
     assert pb != None, "{} {}".format(line1, line2)
     return pa, pb
 
+class Point(object):
+    def __init__(self, coord, tracks=2):
+        self.x, self.y = coord
+        self.tracks = tracks
+
+    def __repr__(self):
+        return 'Point(coord=({},{}),tracks={})'.format(self.x, self.y, repr(self.tracks))
+
+class Track(object):
+    def __init__(self, dim, tracks=None, other_tracks=None, points=[]):
+        self.dim = dim
+
+        self.points = list(points)
+        self.tracks = tracks
+        self.other_tracks = other_tracks
+
+    def __repr__(self):
+        return 'Track(dim={},points={})'.format(repr(self.dim), repr(self.points))
+
+def decompose_points_into_tracks(points):
+    """ This function takes a bag of points and returns a set of x lines and
+        y lines that cover all points, and all lines touch each other.
+
+    This is the first step to forming VPR tracks from points.  VPR tracks have
+    limited length, whereas this function returns lines of infinite length.
+
+    >>> # Single element
+    >>> pos = [(1,0)]
+    >>> ret = decompose_points_into_tracks(pos)
+    >>> print_tracks(ret)
+    x = [1]
+    y = []
+
+    >>> # Single horizontal line
+    >>> pos = [(1,0), (2,0)]
+    >>> ret = decompose_points_into_tracks(pos)
+    >>> print_tracks(ret)
+    x = []
+    y = [0]
+
+    >>> # Single vertical line
+    >>> pos = [(1,2), (1,3)]
+    >>> ret = decompose_points_into_tracks(pos)
+    >>> print_tracks(ret)
+    x = [1]
+    y = []
+
+    >>> # Cross shape
+    >>> pos = [
+    ...         (1,0),
+    ...  (0,1), (1,1), (2, 1),
+    ...         (1,2),
+    ... ]
+    >>> ret = decompose_points_into_tracks(pos)
+    >>> print_tracks(ret)
+    x = [1]
+    y = [1]
+
+    >>> # Cross with two horizontal bars
+    >>> pos = [
+    ...         (1,0),
+    ...  (0,1), (1,1), (2, 1), (3, 1),
+    ...  (0,2), (1,2), (2, 2), (3, 2),
+    ...         (1,3),
+    ... ]
+    >>> ret = decompose_points_into_tracks(pos)
+    >>> print_tracks(ret)
+    x = [1]
+    y = [1, 2]
+
+    >>> # Cross with unequal horizontal bars
+    >>> pos = [
+    ...         (1,0),
+    ...  (0,1), (1,1), (2, 1), (3, 1),
+    ...  (0,2), (1,2), (2, 2),
+    ...         (1,3),
+    ... ]
+    >>> ret = decompose_points_into_tracks(pos)
+    >>> print_tracks(ret)
+    x = [1]
+    y = [1, 2]
+
+    >>> pos = [
+    ...           (1,0),
+    ...  (0,1),          (10, 1),
+    ...           (1,5),
+    ... ]
+    >>> ret = decompose_points_into_tracks(pos)
+    >>> print_tracks(ret)
+    x = [1]
+    y = [1]
+
+    >>> # 3 straight lines
+    >>> pos = [
+    ...  (0,0), (1,0),
+    ...  (0,1),          (2,1),
+    ...  (0,2), (1,2),
+    ...  (0,3), (1,3),   (2,3),
+    ...  (0,4), (1,4),
+    ...  (0,5),          (2,5),
+    ...  (0,6), (1,6),
+    ... ]
+    >>> ret = decompose_points_into_tracks(pos)
+    >>> print_tracks(ret)
+    x = [0, 1, 2]
+    y = [3]
+
+    >>> # H shaped
+    >>> pos = [
+    ...  (0,0),        (2,0),
+    ...  (0,1),        (2,1),
+    ...  (0,2),        (2,2),
+    ...  (0,3), (1,3), (2,3),
+    ...  (0,4),        (2,4),
+    ... ]
+    >>> ret = decompose_points_into_tracks(pos)
+    >>> print_tracks(ret)
+    x = [0, 2]
+    y = [3]
+
+    >>> # Corner shape
+    >>> pos = [
+    ...  (0,1), (1,1),
+    ...                         (1,2)
+    ... ]
+    >>> ret = decompose_points_into_tracks(pos)
+    >>> print_tracks(ret)
+    x = [1]
+    y = [1]
+
+    >>> # Going around corners
+    >>> pos = [
+    ...         (1,0), (2,0), (3,0), (4,0),
+    ...  (0,1),
+    ... ]
+    >>> ret = decompose_points_into_tracks(pos)
+    >>> print_tracks(ret)
+    x = [0]
+    y = [0]
+
+    >>> pos = [
+    ...                            (1,0), (2,0), (3,0),
+    ...  (0,1),
+    ...  (0,2),
+    ... ]
+    >>> ret = decompose_points_into_tracks(pos)
+    >>> print_tracks(ret)
+    x = [0]
+    y = [0]
+
+    >>> pos = [
+    ...  (10,0), (12,0), (13,0),
+    ...                          (14,1),
+    ...                          (14,2),
+    ... ]
+    >>> ret = decompose_points_into_tracks(pos)
+    >>> print_tracks(ret)
+    x = [14]
+    y = [0]
+
+    >>> # Make sure (1,2) isn't in the output...
+    >>> pos = [
+    ... (0,0),        (2,0),
+    ... (0,1), (1,1), (2,1),
+    ... (0,2),        (2,2),
+    ... (0,3), (1,3), (2,3),
+    ... (0,4),        (2,4),
+    ... ]
+    >>> ret = decompose_points_into_tracks(pos)
+    >>> print_tracks(ret)
+    x = [0, 2]
+    y = [1, 3]
+
+    >>> pos = [
+    ...  (0,16),
+    ...          (1,17),
+    ... ]
+    >>> ret = decompose_points_into_tracks(pos)
+    >>> print_tracks(ret)
+    x = [0]
+    y = [17]
+
+    >>> pos = [
+    ... (68,48), (69,48),
+    ... (68,49), (69,49),
+    ...          (69,50),
+    ...          (69,51),
+    ...          (69,52),
+    ...          (69,53), (70,53), (71,53), (72,53)]
+    >>> ret = decompose_points_into_tracks(pos)
+    >>> print_tracks(ret)
+    x = [68, 69]
+    y = [53]
+
+    """
+    xs, ys = zip(*points)
+
+    x_min = min(xs)
+    x_max = max(xs)
+    y_min = min(ys)
+    y_max = max(ys)
+
+    points = [Point(p) for p in points]
+    x_tracks = {}
+    y_tracks = {}
+
+    for x in range(x_min, x_max+1):
+        x_tracks[x] = Track(dim=x, tracks=x_tracks, other_tracks=y_tracks)
+    for y in range(y_min, y_max+1):
+        y_tracks[y] = Track(dim=y, tracks=y_tracks, other_tracks=x_tracks)
+
+    for p in points:
+        x_tracks[p.x].points.append(p)
+        y_tracks[p.y].points.append(p)
+
+    def try_remove_track(track):
+        assert track.dim in track.tracks
+
+        for point in track.tracks[track.dim].points:
+            if point.tracks <= 1:
+                return False
+
+        # If there is more than 1 other track, cannot have zero of this track.
+        if len(track.tracks) <= 1 and len(track.other_tracks) > 1:
+            return False
+
+        for point in track.tracks[track.dim].points:
+            point.tracks -= 1
+
+        del track.tracks[track.dim]
+
+        return True
+
+    # Attempt to remove tracks, starting with the track with the smallest
+    # number of connections.
+    while len(x_tracks) > 0 and len(y_tracks) > 0:
+        x_track = min(x_tracks.values(), key=lambda key: len(key.points))
+        y_track = min(y_tracks.values(), key=lambda key: len(key.points))
+
+        if len(x_track.points) < len(y_track.points):
+            if not try_remove_track(x_track):
+                if not try_remove_track(y_track):
+                    break
+        else:
+            if not try_remove_track(y_track):
+                if not try_remove_track(x_track):
+                    break
+
+    # Walk each dimension, attempting to removing excess lines from the line
+    # with the smallest number of points.
+    while len(x_tracks) > 0:
+        x_track = min(x_tracks.values(), key=lambda key: len(key.points))
+        if not try_remove_track(x_track):
+            break
+
+    while len(y_tracks) > 0:
+        y_track = min(y_tracks.values(), key=lambda key: len(key.points))
+        if not try_remove_track(y_track):
+            break
+
+    # Walk each dimension, attempting to removing excess lines from any line,
+    # starting with the smallest.
+    while True:
+        for x_track in sorted(x_tracks.values(), key=lambda key: len(key.points)):
+            if try_remove_track(x_track):
+                continue
+        for y_track in sorted(y_tracks.values(), key=lambda key: len(key.points)):
+            if try_remove_track(y_track):
+                continue
+        break
+
+    return list(x_tracks.keys()), list(y_tracks.keys())
+
+
+def print_tracks(ret):
+    x_tracks, y_tracks = ret
+
+    print('x = {}'.format(x_tracks))
+    print('y = {}'.format(y_tracks))
 
 def main():
     import doctest
