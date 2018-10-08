@@ -1,3 +1,5 @@
+#	xsltproc --xinclude ../../../../common/xml/xmlsort.xsl $< > $@.tmp
+#	xmllint --c14n $@.tmp > $@
 %.sort.xml: %.xml
 	xsltproc --xinclude ../../../../common/xml/xmlsort.xsl $< > $@
 

@@ -12,10 +12,12 @@
     <xsl:copy>
       <!-- Sort the attributes by name and remove the xml:base attribute -->
       <xsl:for-each select="@*[name()!='xml:base']">
-	<xsl:sort select="name( . )"/>
+	<xsl:sort select="name( . )" order="ascending"/>
 	<xsl:attribute name="{local-name()}"><xsl:value-of select="normalize-space(.)"/></xsl:attribute>
       </xsl:for-each>
-      <xsl:apply-templates/>
+      <xsl:apply-templates>
+        <xsl:sort select="." />
+      </xsl:apply-templates>
     </xsl:copy>
   </xsl:template>
 
