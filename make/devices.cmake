@@ -887,8 +887,8 @@ function(ADD_FPGA_TARGET)
   set(ECHO_OUT_NET ${OUT_LOCAL}/echo/${TOP}.net)
   add_custom_command(
     OUTPUT ${ECHO_OUT_NET}
-    DEPENDS ${OUT_EBLIF} ${OUT_IO} ${VPR_DEPS}
-    COMMAND ${VPR_CMD} --echo_file on --pack
+    DEPENDS ${OUT_EBLIF} ${OUT_IO} ${VPR_DEPS} ${ECHO_DIRECTORY_TARGET}
+    COMMAND ${VPR_CMD} --debug_clustering on --echo_file on --pack
     COMMAND
       ${CMAKE_COMMAND} -E copy ${OUT_LOCAL}/echo/vpr_stdout.log ${OUT_LOCAL}/echo/pack.log
     WORKING_DIRECTORY ${OUT_LOCAL}/echo
@@ -921,8 +921,8 @@ function(ADD_FPGA_TARGET)
   set(ECHO_OUT_PLACE ${OUT_LOCAL}/echo/${TOP}.place)
   add_custom_command(
     OUTPUT ${ECHO_OUT_PLACE}
-    DEPENDS ${ECHO_OUT_NET} ${OUT_IO} ${VPR_DEPS}
-    COMMAND ${VPR_CMD} ${FIX_PINS_ARG} --place
+    DEPENDS ${ECHO_OUT_NET} ${OUT_IO} ${VPR_DEPS} ${ECHO_DIRECTORY_TARGET}
+    COMMAND ${VPR_CMD} ${FIX_PINS_ARG} --echo_file on --place
     COMMAND
       ${CMAKE_COMMAND} -E copy ${OUT_LOCAL}/echo/vpr_stdout.log
         ${OUT_LOCAL}/echo/place.log
@@ -953,7 +953,7 @@ function(ADD_FPGA_TARGET)
         ${OUT_LOCAL}/echo/route.log
     WORKING_DIRECTORY ${OUT_LOCAL}/echo
   )
-  add_custom_target(${NAME}_route_echo DEPENDS ${OUT_ROUTE})
+  add_custom_target(${NAME}_route_echo DEPENDS ${ECHO_ATOM_NETLIST_ORIG})
 
   # Generate HLC
   # -------------------------------------------------------------------------
