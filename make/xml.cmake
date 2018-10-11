@@ -42,10 +42,9 @@ function(XML_SORT)
   # XML_SORT(
   # NAME
   # FILE
-  # SORT_OUTPUT
-  # SCHEMA
+  # OUTPUT
   # )
-  set(oneValueArgs NAME FILE SORT_OUTPUT SCHEMA)
+  set(oneValueArgs NAME FILE OUTPUT)
   cmake_parse_arguments(
     XML_SORT
     ""
@@ -64,7 +63,7 @@ function(XML_SORT)
   foreach(SRC ${INCLUDE_FILES})
     append_file_dependency(DEPS ${SRC})
   endforeach()
-  set(XML_SORT_OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/${XML_SORT_FILE})
+  set(XML_SORT_OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/${XML_SORT_OUTPUT})
 
   get_target_property_required(XSLTPROC env XSLTPROC)
   get_target_property(XSLTPROC_TARGET env XSLTPROC_TARGET)
@@ -87,5 +86,50 @@ function(XML_SORT)
       --xinclude
       --output ${XML_SORT_OUTPUT} ${XML_SORT_XSL} ${XML_SORT_INPUT}
   )
-
+  add_custom_target(
+    ${XML_SORT_NAME}
+    DEPENDS ${XML_SORT_OUTPUT}
+  )
 endfunction(XML_SORT)
+
+function(DIFF)
+  # ~~~
+  # DIFF(
+  # NAME
+  # GOLDEN
+  # ACTUAL
+  # )
+  set(oneValueArgs NAME GOLDEN ACTUAL)
+  cmake_parse_arguments(
+    DIFF
+    ""
+    "${oneValueArgs}"
+    ""
+    ${ARGN}
+    )
+
+  set(
+    DIFF_FILE_A ${CMAKE_CURRENT_BINARY_DIR}/${DIFF_GOLDEN}
+  )
+  set(
+    DIFF_FILE_B ${CMAKE_CURRENT_BINARY_DIR}/${DIFF_ACTUAL}
+  )
+  get_file_target(DIFF_FILE_A_TARGET ${DIFF_FILE_A})
+  get_file_target(DIFF_FILE_B_TARGET ${DIFF_FILE_B})
+  set(DIFF_OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/${DIFF_NAME}.diff)
+
+  add_custom_command(
+    OUTPUT ${DIFF_OUTPUT}
+    DEPENDS
+      ${DIFF_FILE_A}
+      ${DIFF_FILE_A_TARGET}
+      ${DIFF_FILE_B}
+      ${DIFF_FILE_B_TARGET}
+    COMMAND
+      diff -u ${DIFF_FILE_A} ${DIFF_FILE_B} | tee ${DIFF_OUTPUT}
+  )
+  add_custom_target(
+    ${DIFF_NAME}
+    DEPENDS ${DIFF_OUTPUT}
+  )
+endfunction(DIFF)
