@@ -54,7 +54,6 @@ function(XML_SORT)
     ${ARGN}
     )
 
-  set(ARCH_SCHEMA ${symbiflow-arch-defs_SOURCE_DIR}/common/xml/fpga_architecture.xsd)
   set(XML_SORT_XSL ${symbiflow-arch-defs_SOURCE_DIR}/common/xml/xmlsort.xsl)
   set(
     XML_SORT_INPUT ${CMAKE_CURRENT_BINARY_DIR}/${XML_SORT_FILE}
@@ -88,30 +87,5 @@ function(XML_SORT)
       --xinclude
       --output ${XML_SORT_OUTPUT} ${XML_SORT_XSL} ${XML_SORT_INPUT}
   )
-
-
-  get_target_property_required(XSLTPROC env XSLTPROC)
-  get_target_property(XSLTPROC_TARGET env XSLTPROC_TARGET)
-
-  # For xmllint we use head to shortcircuit failure as it can take a
-  # very long time to output all of the errors
-  add_custom_command(
-    OUTPUT ${XML_SORT_OUTPUT}
-    DEPENDS
-
-      ${XML_SORT_FILE} ${XML_SORT_SCHEMA}
-      ${DEPS}
-      ${XSLTPROC} ${XSLTPROC_TARGET}
-    COMMAND bash -c
-    '${XSLTPROC}
-    --output ${XML_SORT_SORT_OUTPUT}
-    --schema ${XML_SORT_SCHEMA}
-    ${XML_SORT_FILE} 2>&1 |  head -n10 && exit "$$\{PIPESTATUS[0]\}" '
-    )
-  add_custom_target(
-    ${XML_SORT_NAME}
-    DEPENDS ${XML_SORT_SORT_OUTPUT}
-    )
-  add_dependencies(all_xml_lint ${XML_SORT_NAME})
 
 endfunction(XML_SORT)
