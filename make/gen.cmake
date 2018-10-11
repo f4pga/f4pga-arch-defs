@@ -68,7 +68,7 @@ function(V2X)
 
   set(TOP_ARG "")
   if(NOT ${V2X_TOP_MODULE} STREQUAL "")
-    set(TOP_ARG "--top=${TOP_MODULE}")
+    set(TOP_ARG "--top=${V2X_TOP_MODULE}")
   endif()
 
   string(
