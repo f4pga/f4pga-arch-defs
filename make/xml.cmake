@@ -54,20 +54,20 @@ function(XML_SORT)
     )
 
   set(XML_SORT_XSL ${symbiflow-arch-defs_SOURCE_DIR}/common/xml/xmlsort.xsl)
-  set(
-    XML_SORT_INPUT ${CMAKE_CURRENT_BINARY_DIR}/${XML_SORT_FILE}
-  )
+
+  get_file_location(XML_SORT_INPUT_LOCATION ${XML_SORT_FILE})
+
   get_file_target(XML_SORT_INPUT_TARGET ${XML_SORT_FILE})
   get_target_property(INCLUDE_FILES ${XML_SORT_INPUT_TARGET} INCLUDE_FILES)
   set(DEPS "")
   foreach(SRC ${INCLUDE_FILES})
     append_file_dependency(DEPS ${SRC})
   endforeach()
-  set(XML_SORT_OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/${XML_SORT_OUTPUT})
 
   get_target_property_required(XSLTPROC env XSLTPROC)
   get_target_property(XSLTPROC_TARGET env XSLTPROC_TARGET)
 
+  add_file_target(FILE ${XML_SORT_OUTPUT} GENERATED)
   add_custom_command(
     OUTPUT ${XML_SORT_OUTPUT}
     DEPENDS
@@ -84,7 +84,7 @@ function(XML_SORT)
       --nomkdir
       --nonet
       --xinclude
-      --output ${XML_SORT_OUTPUT} ${XML_SORT_XSL} ${XML_SORT_INPUT}
+      --output ${CMAKE_CURRENT_BINARY_DIR}/${XML_SORT_OUTPUT} ${XML_SORT_XSL} ${XML_SORT_INPUT_LOCATION}
   )
   add_custom_target(
     ${XML_SORT_NAME}
@@ -108,16 +108,16 @@ function(DIFF)
     ${ARGN}
     )
 
-  set(
-    DIFF_FILE_A ${CMAKE_CURRENT_BINARY_DIR}/${DIFF_GOLDEN}
-  )
-  set(
-    DIFF_FILE_B ${CMAKE_CURRENT_BINARY_DIR}/${DIFF_ACTUAL}
-  )
+  set(DIFF_FILE_A ${DIFF_GOLDEN})
+  set(DIFF_FILE_B ${DIFF_ACTUAL})
+
   get_file_target(DIFF_FILE_A_TARGET ${DIFF_FILE_A})
   get_file_target(DIFF_FILE_B_TARGET ${DIFF_FILE_B})
-  set(DIFF_OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/${DIFF_NAME}.diff)
+  get_file_location(DIFF_FILE_A_LOCATION ${DIFF_FILE_A})
+  get_file_location(DIFF_FILE_B_LOCATION ${DIFF_FILE_B})
 
+  set(DIFF_OUTPUT ${DIFF_NAME}.diff)
+  add_file_target(FILE ${DIFF_OUTPUT} GENERATED)
   add_custom_command(
     OUTPUT ${DIFF_OUTPUT}
     DEPENDS
@@ -126,7 +126,7 @@ function(DIFF)
       ${DIFF_FILE_B}
       ${DIFF_FILE_B_TARGET}
     COMMAND
-      diff -u ${DIFF_FILE_A} ${DIFF_FILE_B} | tee ${DIFF_OUTPUT}
+      diff -u ${DIFF_FILE_A_LOCATION} ${DIFF_FILE_B_LOCATION} | tee ${DIFF_OUTPUT}
   )
   add_custom_target(
     ${DIFF_NAME}
