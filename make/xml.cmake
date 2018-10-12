@@ -59,6 +59,7 @@ function(XML_SORT)
 
   get_file_target(XML_SORT_INPUT_TARGET ${XML_SORT_FILE})
   get_target_property(INCLUDE_FILES ${XML_SORT_INPUT_TARGET} INCLUDE_FILES)
+  append_file_dependency(DEPS ${XML_SORT_FILE})
   set(DEPS "")
   foreach(SRC ${INCLUDE_FILES})
     append_file_dependency(DEPS ${SRC})
@@ -67,12 +68,11 @@ function(XML_SORT)
   get_target_property_required(XSLTPROC env XSLTPROC)
   get_target_property(XSLTPROC_TARGET env XSLTPROC_TARGET)
 
-  add_file_target(FILE ${XML_SORT_OUTPUT} GENERATED)
   add_custom_command(
     OUTPUT ${XML_SORT_OUTPUT}
     DEPENDS
       ${XML_SORT_XSL}
-      ${XML_SORT_INPUT}
+      ${XML_SORT_INPUT_LOCATION}
       ${XML_SORT_INPUT_TARGET}
       ${DEPS}
       ${XSLTPROC} ${XSLTPROC_TARGET}
@@ -86,6 +86,7 @@ function(XML_SORT)
       --xinclude
       --output ${CMAKE_CURRENT_BINARY_DIR}/${XML_SORT_OUTPUT} ${XML_SORT_XSL} ${XML_SORT_INPUT_LOCATION}
   )
+  add_file_target(FILE ${XML_SORT_OUTPUT} GENERATED)
   add_custom_target(
     ${XML_SORT_NAME}
     DEPENDS ${XML_SORT_OUTPUT}
@@ -117,17 +118,19 @@ function(DIFF)
   get_file_location(DIFF_FILE_B_LOCATION ${DIFF_FILE_B})
 
   set(DIFF_OUTPUT ${DIFF_NAME}.diff)
-  add_file_target(FILE ${DIFF_OUTPUT} GENERATED)
   add_custom_command(
     OUTPUT ${DIFF_OUTPUT}
     DEPENDS
-      ${DIFF_FILE_A}
+      ${DIFF_FILE_A_LOCATION}
       ${DIFF_FILE_A_TARGET}
-      ${DIFF_FILE_B}
+      ${DIFF_FILE_B_LOCATION}
       ${DIFF_FILE_B_TARGET}
     COMMAND
-      diff -u ${DIFF_FILE_A_LOCATION} ${DIFF_FILE_B_LOCATION} | tee ${DIFF_OUTPUT}
+      diff -u ${DIFF_FILE_A_LOCATION} ${DIFF_FILE_B_LOCATION} > ${DIFF_OUTPUT} || true
+    COMMAND
+      diff -u ${DIFF_FILE_A_LOCATION} ${DIFF_FILE_B_LOCATION}
   )
+  add_file_target(FILE ${DIFF_OUTPUT} GENERATED)
   add_custom_target(
     ${DIFF_NAME}
     DEPENDS ${DIFF_OUTPUT}
