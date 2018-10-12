@@ -59,11 +59,8 @@ function(XML_SORT)
 
   get_file_target(XML_SORT_INPUT_TARGET ${XML_SORT_FILE})
   get_target_property(INCLUDE_FILES ${XML_SORT_INPUT_TARGET} INCLUDE_FILES)
-  append_file_dependency(DEPS ${XML_SORT_FILE})
   set(DEPS "")
-  foreach(SRC ${INCLUDE_FILES})
-    append_file_dependency(DEPS ${SRC})
-  endforeach()
+  append_file_dependency(DEPS ${XML_SORT_FILE})
 
   get_target_property_required(XSLTPROC env XSLTPROC)
   get_target_property(XSLTPROC_TARGET env XSLTPROC_TARGET)
