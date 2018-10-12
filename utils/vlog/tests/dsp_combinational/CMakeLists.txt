@@ -1,0 +1,1 @@
+v2x_test_both(NAME dsp_combinational TOP_MODULE dsp_combinational)

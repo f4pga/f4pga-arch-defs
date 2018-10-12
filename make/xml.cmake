@@ -77,14 +77,13 @@ function(XML_SORT)
       ${DEPS}
       ${XSLTPROC} ${XSLTPROC_TARGET}
     COMMAND
-      ${CMAKE_COMMAND} -E make_directory
-      ${CMAKE_CURRENT_BINARY_DIR}/${OUT_DEVICE_DIR}
-    COMMAND
       ${XSLTPROC}
       --nomkdir
       --nonet
       --xinclude
-      --output ${CMAKE_CURRENT_BINARY_DIR}/${XML_SORT_OUTPUT} ${XML_SORT_XSL} ${XML_SORT_INPUT_LOCATION}
+      --output ${CMAKE_CURRENT_BINARY_DIR}/${XML_SORT_OUTPUT}
+      ${XML_SORT_XSL}
+      ${XML_SORT_INPUT_LOCATION}
   )
   add_file_target(FILE ${XML_SORT_OUTPUT} GENERATED)
   add_custom_target(
