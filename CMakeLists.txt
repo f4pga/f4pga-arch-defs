@@ -7,6 +7,7 @@ include(make/env.cmake)
 include(make/file_targets.cmake)
 include(make/xml.cmake)
 include(make/devices.cmake)
+include(make/tools.cmake)
 
 find_package(PythonInterp 3 REQUIRED)
 
