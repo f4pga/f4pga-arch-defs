@@ -1,9 +1,10 @@
 <!-- vim: set ai sw=1 ts=1 sta et: -->
 
-<!-- D6LUT, C6LUT, B6LUT, A6LUT == W6LUT
+<!-- D6LUT, C6LUT, B6LUT, A6LUT == {N}6LUT
+     FIXME: This needs some updating / checking.
      A fracturable 6 input LUT. Can either be;
-      - 2 * 5 input, 1 output LUT
-      - 1 * 6 input, 1 output LUT
+      - 2 * LUT with 5 inputs and 1 output LUT (shares XXX inputs)
+      - 1 * LUT with 6 inputs and 1 output LUT
   -->
 <pb_type name="{N}LUT" num_pb="1" xmlns:xi="http://www.w3.org/2001/XInclude">
  <input  name="A1" num_pins="1"/>
@@ -63,9 +64,11 @@
      </direct>
 
      <!-- LUT outputs -->
+     <!-- FIXME: Check if this should be LUT[0] or LUT[1] -->
      <direct name="O5" input="{N}5LUT[0].out"                output="{N}LUT.O5">
       <pack_pattern in_port="{N}5LUT[0].out" name="LUT5x2"     out_port="{N}LUT.O5"/>
      </direct>
+     <!-- FIXME: Check if this should be LUT[0] or LUT[1] -->
      <mux    name="O6" input="{N}5LUT[1].out F6MUX.O" output="{N}LUT.O6">
       <pack_pattern in_port="F6MUX.O"        name="LUT5toLUT6" out_port="{N}LUT.O6"/>
       <pack_pattern in_port="F6MUX.O"        name="LUT5toLUT7" out_port="{N}LUT.O6"/>
@@ -81,6 +84,40 @@
      </meta>
    </metadata>
  </mode>
+
+ <!-- LUT6
+ FIXME: Why is this disabled?
+ <mode name="{N}LUT-LUT6">
+   <pb_type name="{N}6LUT" num_pb="1" class="lut" blif_model=".names">
+     <input  name="in"  num_pins="6" port_class="lut_in" />
+     <output name="out" num_pins="1" port_class="lut_out" />
+     <delay_matrix type="max" in_port="{N}6LUT.in" out_port="{N}6LUT.out">
+      0.068e-9
+      0.068e-9
+      0.068e-9
+      0.068e-9
+      0.068e-9
+      0.068e-9
+    </delay_matrix>
+   </pb_type>
+   <interconnect>
+     <direct name="{N}LUT_A6" input="{N}LUT.A6"   output="{N}6LUT.in[5]"/>
+     <direct name="{N}LUT_A5" input="{N}LUT.A5"   output="{N}6LUT.in[4]"/>
+     <direct name="{N}LUT_A4" input="{N}LUT.A4"   output="{N}6LUT.in[3]"/>
+     <direct name="{N}LUT_A3" input="{N}LUT.A3"   output="{N}6LUT.in[2]"/>
+     <direct name="{N}LUT_A2" input="{N}LUT.A2"   output="{N}6LUT.in[1]"/>
+     <direct name="{N}LUT_A1" input="{N}LUT.A1"   output="{N}6LUT.in[0]"/>
+     <direct name="O6"        input="{N}6LUT.out" output="{N}LUT.O6"/>
+   </interconnect>
+   <metadata>
+     <meta name="fasm_type">LUT</meta>
+     <meta name="fasm_lut">{N}LUT.INIT[63:0]</meta>
+     <meta name="type">bel</meta>
+     <meta name="subtype">lut</meta>
+   </metadata>
+ </mode>
+      -->
+
  <metadata>
    <meta name="type">block</meta>
    <meta name="subtype">ignore</meta>
