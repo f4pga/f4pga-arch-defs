@@ -1053,7 +1053,7 @@ function(ADD_FPGA_TARGET)
     add_custom_target(${NAME}_bin DEPENDS ${OUT_BIN})
     add_output_to_fpga_target(${NAME} BIN ${OUT_LOCAL_REL}/${TOP}.bin)
 
-    get_target_property_required(PROG_TOOL ${BOARD} PROG_TOOL)
+    get_target_property(PROG_TOOL ${BOARD} PROG_TOOL)
     get_target_property(PROG_CMD ${BOARD} PROG_CMD)
     separate_arguments(
       PROG_CMD_LIST UNIX_COMMAND ${PROG_CMD}
@@ -1307,9 +1307,9 @@ function(add_testbench)
   )
 
   get_target_property(IVERILOG env IVERILOG)
-  get_target_property_required(IVERILOG_TARGET env IVERILOG_TARGET)
+  get_target_property(IVERILOG_TARGET env IVERILOG_TARGET)
   get_target_property(VVP env VVP)
-  get_target_property_required(VVP_TARGET env VVP_TARGET)
+  get_target_property(VVP_TARGET env VVP_TARGET)
   set(SOURCE_LOCATIONS "")
   set(FILE_DEPENDS "")
   foreach(SRC ${ADD_TESTBENCH_SOURCES})
