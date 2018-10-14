@@ -100,6 +100,8 @@ function(SETUP_ENV)
     endforeach()
   endif()
 
+  set(YOSYS_DATADIR ${ENV_DIR}/conda/share/yosys CACHE PATH "Path to yosys data directory")
+
   set_target_properties(env PROPERTIES
     QUIET_CMD ${symbiflow-arch-defs_SOURCE_DIR}/utils/quiet_cmd.sh
     QUIET_CMD_TARGET ""
