@@ -159,11 +159,15 @@ function(ADD_CONDA_PACKAGE)
         ${binary_upper} ${${binary_upper}}
         ${binary_upper}_TARGET ${TARGET})
     endforeach()
-  elseif()
-    set(${binary_upper} ${NAME})
-    replace_with_env_if_set(${binary_upper})
-    set_target_properties(env PROPERTIES ${binary_upper} ${${binary_upper}})
-    set_target_properties(env PROPERTIES ${binary_upper}_TARGET "")
+  else()
+    foreach(OUTPUT ${ADD_CONDA_PACKAGE_PROVIDES})
+      string(TOUPPER ${OUTPUT} binary_upper)
+      set(${binary_upper} ${OUTPUT})
+      replace_with_env_if_set(${binary_upper})
+      set_target_properties(env PROPERTIES
+        ${binary_upper} ${${binary_upper}}
+        ${binary_upper}_TARGET "")
+    endforeach()
   endif()
 endfunction()
 
