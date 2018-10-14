@@ -1,4 +1,8 @@
-set(PRJXRAY_DIR ${symbiflow-arch-defs_SOURCE_DIR}/third_party/prjxray-db)
+set(
+  PRJXRAY_DIR
+  ${symbiflow-arch-defs_SOURCE_DIR}/third_party/prjxray-db
+  CACHE PATH "Path to prjxray database files"
+)
 
 function(get_project_xray_dependencies var part element)
   list(APPEND ${var} ${PRJXRAY_DIR}/Info.md)
