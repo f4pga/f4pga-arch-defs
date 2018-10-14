@@ -1,6 +1,9 @@
-set(ICESTORM ${symbiflow-arch-defs_SOURCE_DIR}/third_party/icestorm)
-set(ICEBOX ${ICESTORM}/icebox/)
-set(ICEPROG_TOOL ${ICESTORM}/iceprog/iceprog)
+set(ICESTORM ${symbiflow-arch-defs_SOURCE_DIR}/third_party/icestorm CACHE PATH "Path to icestorm repository")
+find_program(ICEPROG_TOOL iceprog PATHS ${ICESTORM}/iceprog)
+find_program(ICEBOX_HLC2ASC NAMES icebox_hlc2asc icebox_hlc2asc.py PATHS ${ICESTORM}/icebox)
+find_program(ICEBOX_VLOG NAMES icebox_vlog icebox_vlog.py PATHS ${ICESTORM}/icebox)
+find_program(ICEPACK icepack PATHS ${ICESTORM}/icepack)
+find_program(ICETIME icetime PATHS ${ICESTORM}/icetime)
 
 define_arch(
   ARCH ice40
@@ -22,14 +25,14 @@ define_arch(
   --blif \${OUT_EBLIF} \
   --pcf \${INPUT_IO_FILE}"
   CELLS_SIM ice40/cells_sim.v
-  HLC_TO_BIT ${ICEBOX}/icebox_hlc2asc.py
+  HLC_TO_BIT ${ICEBOX_HLC2ASC}
   HLC_TO_BIT_CMD "\${HLC_TO_BIT} \${OUT_HLC} > \${OUT_BITSTREAM}"
-  BIT_TO_V ${ICEBOX}/icebox_vlog.py
+  BIT_TO_V ${ICEBOX_VLOG}
   BIT_TO_V_CMD "\${BIT_TO_V} -D -c -n \${TOP} -p \${INPUT_IO_FILE} -d \${PACKAGE} \${OUT_BITSTREAM} > \${OUT_BIT_VERILOG}"
   BITSTREAM_EXTENSION asc
-  BIT_TO_BIN ${ICESTORM}/icepack/icepack
+  BIT_TO_BIN ${ICEPACK}
   BIT_TO_BIN_CMD "\${BIT_TO_BIN} \${OUT_BITSTREAM} > \${OUT_BIN}"
-  BIT_TIME ${ICESTORM}/icetime/icetime
+  BIT_TIME ${ICETIME}
   BIT_TIME_CMD "\${BIT_TIME} -v -t -p \${INPUT_IO_FILE} -d \${DEVICE} \${OUT_BITSTREAM} -o \${OUT_TIME_VERILOG}"
 )
 
