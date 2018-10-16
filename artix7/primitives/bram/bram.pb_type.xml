@@ -34,8 +34,8 @@ The RAM has extra bits that can be used for parity (DIP / DOP).
    <input  name="ADDRBWRADDR"   num_pins="14" port_class="address2" />
    <input  name="DIBDI"         num_pins="16" port_class="data_in2" />
    <input  name="DIPBDIP"       num_pins="2"  />
-   <input  name="WEBWE"         num_pins="4"  port_class="write_en1" />
-   <output name="DOBDO"         num_pins="16" port_class="data_out1" />
+   <input  name="WEBWE"         num_pins="4"  port_class="write_en2" />
+   <output name="DOBDO"         num_pins="16" port_class="data_out2" />
    <output name="DOPBDOP"       num_pins="2"  />
   </pb_type>
   <!-- FIFO16 mode -->
