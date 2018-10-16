@@ -1,0 +1,73 @@
+<!-- vim: set ai sw=1 ts=1 sta et: -->
+
+<!--
+Block RAM in 7 series is 36kbbit split into two 18kbit sections.
+The Block RAM is "true dual port".
+There are both Latches (first) and Registers (second) on the output (why!?)
+
+The RAM has extra bits that can be used for parity (DIP / DOP).
+
+  -->
+<pb_type name="BRAM" num_pb="1">
+
+ <mode name="SPLIT">
+  <pb_type name="RAMB18E1" num_pb="2" blif_model=".subckt RAMB18E1" class="memory">
+   <!-- Port A - 16bit wide -->
+   <clock  name="CLKARDCLK"     num_pins="1"  port_class="clock" />
+   <input  name="REGCEAREGCE"   num_pins="1"  />
+   <input  name="ENARDEN"       num_pins="1"  />
+   <input  name="RSTRAMARSTRAM" num_pins="1"  />
+   <input  name="RSTREGARSTREG" num_pins="1"  />
+   <input  name="ADDRARDADDR"   num_pins="14" port_class="address1" />
+   <input  name="DIADI"         num_pins="16" port_class="data_in1" />
+   <input  name="DIPADIP"       num_pins="2"  />
+   <input  name="WEA"           num_pins="2"  port_class="write_en1" />
+   <output name="DOADO"         num_pins="16" port_class="data_out1" />
+   <output name="DOPADOP"       num_pins="2"  />
+
+   <!-- Port B - 16bit wide -->
+   <clock  name="CLKBWRCLK"     num_pins="1"  />
+   <input  name="ENBWREN"       num_pins="1"  />
+   <input  name="REGCEB"        num_pins="1"  />
+   <input  name="RSTRAMB"       num_pins="1"  />
+   <input  name="RSTREGB"       num_pins="1"  />
+   <input  name="ADDRBWRADDR"   num_pins="14" port_class="address2" />
+   <input  name="DIBDI"         num_pins="16" port_class="data_in2" />
+   <input  name="DIPBDIP"       num_pins="2"  />
+   <input  name="WEBWE"         num_pins="4"  port_class="write_en1" />
+   <output name="DOBDO"         num_pins="16" port_class="data_out1" />
+   <output name="DOPBDOP"       num_pins="2"  />
+  </pb_type>
+  <!-- FIFO16 mode -->
+ </mode>
+ <mode name="SINGLE">
+  <pb_type name="RAMB36E1" num_pb="1" blif_model=".subckt RAMB36E1" class="memory">
+   <!-- Port A - 32bit wide -->
+   <clock  name="CLKARDCLK"     num_pins="1"  />
+   <input  name="REGCEAREGCE"   num_pins="1"  />
+   <input  name="ENARDEN"       num_pins="1"  />
+   <input  name="RSTRAMARSTRAM" num_pins="1"  />
+   <input  name="RSTREGARSTREG" num_pins="1"  />
+   <input  name="ADDRARDADDR"   num_pins="16" port_class="address1" />
+   <input  name="DIADI"         num_pins="32" port_class="data_in1" />
+   <input  name="DIPADIP"       num_pins="4"  />
+   <input  name="WEA"           num_pins="4"  port_class="write_en1" />
+   <output name="DOADO"         num_pins="32" port_class="data_out1" />
+   <output name="DOPADOP"       num_pins="4"  />
+
+   <!-- Port B - 32bit wide -->
+   <clock  name="CLKBWRCLK"     num_pins="1"  />
+   <input  name="ENBWREN"       num_pins="1"  />
+   <input  name="REGCEB"        num_pins="1"  />
+   <input  name="RSTRAMB"       num_pins="1"  />
+   <input  name="RSTREGB"       num_pins="1"  />
+   <input  name="ADDRBWRADDR"   num_pins="16" port_class="address2" />
+   <input  name="DIBDI"         num_pins="32" port_class="data_in2"/>
+   <input  name="DIPBDIP"       num_pins="4"  />
+   <input  name="WEBWE"         num_pins="8"  port_class="write_en2" />
+   <output name="DOBDO"         num_pins="32" port_class="data_out2" />
+   <output name="DOPBDOP"       num_pins="4"  />
+  </pb_type>
+  <!-- FIFO36 mode -->
+ </mode>
+</pb_type>
