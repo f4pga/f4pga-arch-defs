@@ -208,9 +208,10 @@ def main():
         cells_idx.append(site_type_count[site.type])
         site_type_count[site.type] += 1
         site_prefixes[site.type].append('{}_X{}'.format(site.type, site.x))
+    del idx, site
 
     for site_type in sorted(site_type_count):
-        site_type_path = site_pbtype.format(site.type.lower())
+        site_type_path = site_pbtype.format(site_type.lower())
         cell_pb_type = ET.ElementTree()
         root_element = cell_pb_type.parse(site_type_path)
         cell_names[site_type] = root_element.attrib['name']
