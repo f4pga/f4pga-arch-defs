@@ -41,6 +41,7 @@
 
   <input name="SR" num_pins="1"/>
   <input name="CE" num_pins="1"/>
+  <input name="WE" num_pins="1"/>
 
   <clock name="CLK" num_pins="1"/>
 
@@ -147,7 +148,7 @@
     <direct name="DI" output="BLK_IG-DLUT.DI1" input="BLK_IG-SLICEM.DI" />
     <mux    name="CI" output="BLK_IG-CLUT.DI1" input="BLK_IG-SLICEM.CI BLK_IG-DLUT.MC31 BLK_IG-SLICEM.DI" />
     <mux    name="BI" output="BLK_IG-BLUT.DI1" input="BLK_IG-SLICEM.BI BLK_IG-CLUT.MC31 BLK_IG-SLICEM.DI" />
-    <mux    name="AI" output="BLK_IG-ALUT.DI1" input="BLK_IG-SLICEM.AI BLK_IG-BLUT.MC31 BLK_IG-BLUT.DI1" />
+    <mux    name="AI" output="BLK_IG-ALUT.DI1" input="BLK_IG-SLICEM.AI BLK_IG-BLUT.MC31 " /> <!-- FIXME: BLK_IG-BLUT.DI1 -->
 
     <direct name="DX" output="BLK_IG-DLUT.DI2" input="BLK_IG-SLICEM.DX" />
     <direct name="CX" output="BLK_IG-CLUT.DI2" input="BLK_IG-SLICEM.CX" />
@@ -155,7 +156,7 @@
     <direct name="AX" output="BLK_IG-ALUT.DI2" input="BLK_IG-SLICEM.AX" />
 
     <!-- 5FF MUXs -->
-    <mux name="D5FFMUX" input="BLK_IG-SLICEM.DX BLK_IG-DLUT.O5" output="BLK_IG-D5FF.D" >
+    <mux name="D5FFMUX" input="BLK_IG-SLICEM.DX BLK_IG-DLUT.O5" output="BLK_BB-SLICE_FF.D5[3]" >
       <metadata>
         <meta name="fasm_mux">
           BLK_IG-DLUT.O5 = D5FF.MUX.A
@@ -163,7 +164,7 @@
         </meta>
       </metadata>
     </mux>
-    <mux name="C5FFMUX" input="BLK_IG-SLICEM.CX BLK_IG-CLUT.O5" output="BLK_IG-C5FF.D" >
+    <mux name="C5FFMUX" input="BLK_IG-SLICEM.CX BLK_IG-CLUT.O5" output="BLK_BB-SLICE_FF.D5[2]" >
       <metadata>
         <meta name="fasm_mux">
           BLK_IG-CLUT.O5 = C5FF.MUX.A
@@ -171,7 +172,7 @@
         </meta>
       </metadata>
     </mux>
-    <mux name="B5FFMUX" input="BLK_IG-SLICEM.CX BLK_IG-BLUT.O5" output="BLK_IG-B5FF.D" >
+    <mux name="B5FFMUX" input="BLK_IG-SLICEM.BX BLK_IG-BLUT.O5" output="BLK_BB-SLICE_FF.D5[1]" >
       <metadata>
         <meta name="fasm_mux">
           BLK_IG-BLUT.O5 = B5FF.MUX.A
@@ -179,7 +180,7 @@
         </meta>
       </metadata>
     </mux>
-    <mux name="A5FFMUX" input="BLK_IG-SLICEM.CX BLK_IG-ALUT.O5" output="BLK_IG-A5FF.D" >
+    <mux name="A5FFMUX" input="BLK_IG-SLICEM.AX BLK_IG-ALUT.O5" output="BLK_BB-SLICE_FF.D5[0]" >
       <metadata>
         <meta name="fasm_mux">
           BLK_IG-ALUT.O5 = A5FF.MUX.A
@@ -423,6 +424,11 @@
     <direct name="CK" input="BLK_IG-SLICEM.CLK" output="BLK_BB-SLICE_FF.CK"/>
     <direct name="CE" input="BLK_IG-SLICEM.CE"  output="BLK_BB-SLICE_FF.CE"/>
     <direct name="SR" input="BLK_IG-SLICEM.SR"  output="BLK_BB-SLICE_FF.SR"/>
+    <!-- FIXME -->
+    <mux name="WE1" input="BLK_IG-SLICEM.CE BLK_IG-SLICEM.WE"  output="BLK_IG-ALUT.WE"/>
+    <mux name="WE2" input="BLK_IG-SLICEM.CE BLK_IG-SLICEM.WE"  output="BLK_IG-BLUT.WE"/>
+    <mux name="WE3" input="BLK_IG-SLICEM.CE BLK_IG-SLICEM.WE"  output="BLK_IG-CLUT.WE"/>
+    <mux name="WE4" input="BLK_IG-SLICEM.CE BLK_IG-SLICEM.WE"  output="BLK_IG-DLUT.WE"/>
 
   </interconnect>
 </pb_type>
