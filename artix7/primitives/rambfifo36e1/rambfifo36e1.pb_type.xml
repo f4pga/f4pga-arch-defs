@@ -1,0 +1,11 @@
+<!-- vim: set ai sw=1 ts=1 sta et: -->
+
+<!--
+Block RAM in 7 series is 36kbbit split into two 18kbit sections.
+The Block RAM is "true dual port".
+There are both Latches (first) and Registers (second) on the output (why!?)
+
+The RAM has extra bits that can be used for parity (DIP / DOP).
+
+  -->
+<pb_type name="BLK_IG-RAMBFIFO36E1" num_pb="1"></pb_type>
