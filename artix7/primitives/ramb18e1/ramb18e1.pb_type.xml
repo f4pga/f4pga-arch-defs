@@ -8,7 +8,7 @@ There are both Latches (first) and Registers (second) on the output (why!?)
 The RAM has extra bits that can be used for parity (DIP / DOP).
 
   -->
-<pb_type name="BRAM" num_pb="1">
+<pb_type name="BLK_IG-RAMB18E1" num_pb="1">
 
  <mode name="SPLIT">
   <pb_type name="RAMB18E1" num_pb="2" blif_model=".subckt RAMB18E1" class="memory">
