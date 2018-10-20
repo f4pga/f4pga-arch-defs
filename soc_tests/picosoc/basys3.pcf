@@ -1,0 +1,19 @@
+
+# Pinout for the basys3 Breakout Board
+# FIXME: These pindefs are random for placement.
+
+set_io clk W5
+
+set_io flash_csb U16
+set_io flash_clk E19
+set_io flash_io0 U19
+set_io flash_io1 V17
+
+set_io ser_tx V19
+set_io ser_rx W16
+
+set_io leds[0] W18
+set_io leds[1] U15
+set_io leds[2] U14
+set_io leds[3] V14
+
