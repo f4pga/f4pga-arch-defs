@@ -22,5 +22,6 @@ v2x(
   SRCS cyinit_fabric.sim.v
 )
 
-add_file_target(FILE slicem.model.xml SCANNER_TYPE xml)
-add_file_target(FILE slicem.pb_type.xml SCANNER_TYPE xml)
+add_file_target(FILE common_slice.model.xml SCANNER_TYPE xml)
+add_file_target(FILE common_slice.pb_type.xml SCANNER_TYPE xml)
+add_file_target(FILE common_slice.sim.v SCANNER_TYPE verilog)
