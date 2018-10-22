@@ -4,7 +4,7 @@
 
     COMMON_SLICE is the common wiring between SLICEL and SLICEM.
 
-    Note: For SLICEL, the DMC31 input is left unconnected.
+    Note: For SLICEL, the AMC31 input is left unconnected.
   -->
 <pb_type name="BLK_IG-COMMON_SLICE" num_pb="1" xmlns:xi="http://www.w3.org/2001/XInclude">
 
@@ -27,7 +27,7 @@
   <input name="CE" num_pins="1"/>
 
   <!-- This input in unconnected on SLICEL -->
-  <input name="DMC31" num_pins="1"/>
+  <input name="AMC31" num_pins="1"/>
 
   <clock name="CLK" num_pins="1"/>
 
@@ -130,12 +130,12 @@
 
     <!-- [A-D]MUX -->
     <mux name="DMUX"
-      input="BLK_IG-COMMON_SLICE.DMC31 BLK_BB-SLICE_FF.Q5[3] BEL_BB-CARRY[3].O BEL_BB-CARRY[3].CO_FABRIC BLK_IG-COMMON_SLICE.DO6 BLK_IG-COMMON_SLICE.DO5"
+      input="BLK_IG-COMMON_SLICE.AMC31 BLK_BB-SLICE_FF.Q5[3] BEL_BB-CARRY[3].O BEL_BB-CARRY[3].CO_FABRIC BLK_IG-COMMON_SLICE.DO6 BLK_IG-COMMON_SLICE.DO5"
       output="BLK_IG-COMMON_SLICE.DMUX">
       <metadata>
         <meta name="fasm_mux">
-          <!-- TODO: Test that this mux defaults to DMC31 -->
-          BLK_IG-COMMON_SLICE.DMC31 = NONE
+          <!-- TODO: Test that this mux defaults to AMC31 -->
+          BLK_IG-COMMON_SLICE.AMC31 = NONE
           BLK_BB-SLICE_FF.Q5[3] = DMUX.D5Q
           BLK_IG-COMMON_SLICE.DO5 = DMUX.O5
           BLK_IG-COMMON_SLICE.DO6 = DMUX.O6

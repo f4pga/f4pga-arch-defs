@@ -73,20 +73,7 @@
   <xi:include href="Nlut/blut.pb_type.xml"/>
   <xi:include href="Nlut/clut.pb_type.xml"/>
   <xi:include href="Nlut/dlut.pb_type.xml"/>
-
-  <xi:include href="muxes/f7amux/f7amux.pb_type.xml"/>
-  <xi:include href="muxes/f7bmux/f7bmux.pb_type.xml"/>
-  <xi:include href="muxes/f8mux/f8mux.pb_type.xml"/>
-
-  <xi:include href="../ff/ff.pb_type.xml" />
-
-  <!-- CARRY4 logic -->
-  <xi:include href="cyinit_constants.pb_type.xml" />
-  <xi:include href="cyinit_fabric.pb_type.xml" />
-  <pb_type name="BLK_IG-CARRY" num_pb="4">
-    <xi:include href="carry/carry.pb_type.xml"
-                xpointer="xpointer(pb_type/child::node())" />
-  </pb_type>
+  <xi:include href="../common_slice/common_slice.pb_type.xml"/>
 
   <interconnect>
     <!-- Normal LUT input pins -->
@@ -125,18 +112,21 @@
     <direct name="WD4" input="BLK_IG-SLICEM.D4" output="BLK_IG-DLUT.WA4" />
     <direct name="WD5" input="BLK_IG-SLICEM.D5" output="BLK_IG-DLUT.WA5" />
     <direct name="wD6" input="BLK_IG-SLICEM.D6" output="BLK_IG-DLUT.WA6" />
+
     <direct name="WC1" input="BLK_IG-SLICEM.D1" output="BLK_IG-CLUT.WA1" />
     <direct name="WC2" input="BLK_IG-SLICEM.D2" output="BLK_IG-CLUT.WA2" />
     <direct name="WC3" input="BLK_IG-SLICEM.D3" output="BLK_IG-CLUT.WA3" />
     <direct name="WC4" input="BLK_IG-SLICEM.D4" output="BLK_IG-CLUT.WA4" />
     <direct name="WC5" input="BLK_IG-SLICEM.D5" output="BLK_IG-CLUT.WA5" />
     <direct name="WC6" input="BLK_IG-SLICEM.D6" output="BLK_IG-CLUT.WA6" />
+
     <direct name="WB1" input="BLK_IG-SLICEM.D1" output="BLK_IG-BLUT.WA1" />
     <direct name="WB2" input="BLK_IG-SLICEM.D2" output="BLK_IG-BLUT.WA2" />
     <direct name="WB3" input="BLK_IG-SLICEM.D3" output="BLK_IG-BLUT.WA3" />
     <direct name="WB4" input="BLK_IG-SLICEM.D4" output="BLK_IG-BLUT.WA4" />
     <direct name="WB5" input="BLK_IG-SLICEM.D5" output="BLK_IG-BLUT.WA5" />
     <direct name="WB6" input="BLK_IG-SLICEM.D6" output="BLK_IG-BLUT.WA6" />
+
     <direct name="WA1" input="BLK_IG-SLICEM.D1" output="BLK_IG-ALUT.WA1" />
     <direct name="WA2" input="BLK_IG-SLICEM.D2" output="BLK_IG-ALUT.WA2" />
     <direct name="WA3" input="BLK_IG-SLICEM.D3" output="BLK_IG-ALUT.WA3" />
@@ -148,283 +138,68 @@
     <direct name="DI" output="BLK_IG-DLUT.DI1" input="BLK_IG-SLICEM.DI" />
     <mux    name="CI" output="BLK_IG-CLUT.DI1" input="BLK_IG-SLICEM.CI BLK_IG-DLUT.MC31 BLK_IG-SLICEM.DI" />
     <mux    name="BI" output="BLK_IG-BLUT.DI1" input="BLK_IG-SLICEM.BI BLK_IG-CLUT.MC31 BLK_IG-SLICEM.DI" />
-    <mux    name="AI" output="BLK_IG-ALUT.DI1" input="BLK_IG-SLICEM.AI BLK_IG-BLUT.MC31 " /> <!-- FIXME: BLK_IG-BLUT.DI1 -->
+    <mux    name="AI" output="BLK_IG-ALUT.DI1" input="BLK_IG-SLICEM.AI BLK_IG-BLUT.MC31 BLK_IG-BLUT.DI1_OUT" />
 
-    <direct name="DX" output="BLK_IG-DLUT.DI2" input="BLK_IG-SLICEM.DX" />
-    <direct name="CX" output="BLK_IG-CLUT.DI2" input="BLK_IG-SLICEM.CX" />
-    <direct name="BX" output="BLK_IG-BLUT.DI2" input="BLK_IG-SLICEM.BX" />
-    <direct name="AX" output="BLK_IG-ALUT.DI2" input="BLK_IG-SLICEM.AX" />
+    <direct name="D.DI2" output="BLK_IG-DLUT.DI2" input="BLK_IG-SLICEM.DX" />
+    <direct name="C.DI2" output="BLK_IG-CLUT.DI2" input="BLK_IG-SLICEM.CX" />
+    <direct name="B.DI2" output="BLK_IG-BLUT.DI2" input="BLK_IG-SLICEM.BX" />
+    <direct name="A.DI2" output="BLK_IG-ALUT.DI2" input="BLK_IG-SLICEM.AX" />
 
-    <!-- 5FF MUXs -->
-    <mux name="D5FFMUX" input="BLK_IG-SLICEM.DX BLK_IG-DLUT.O5" output="BLK_BB-SLICE_FF.D5[3]" >
-      <metadata>
-        <meta name="fasm_mux">
-          BLK_IG-DLUT.O5 = D5FF.MUX.A
-          BLK_IG-SLICEM.DX = D5FF.MUX.B
-        </meta>
-      </metadata>
-    </mux>
-    <mux name="C5FFMUX" input="BLK_IG-SLICEM.CX BLK_IG-CLUT.O5" output="BLK_BB-SLICE_FF.D5[2]" >
-      <metadata>
-        <meta name="fasm_mux">
-          BLK_IG-CLUT.O5 = C5FF.MUX.A
-          BLK_IG-SLICEM.CX = C5FF.MUX.B
-        </meta>
-      </metadata>
-    </mux>
-    <mux name="B5FFMUX" input="BLK_IG-SLICEM.BX BLK_IG-BLUT.O5" output="BLK_BB-SLICE_FF.D5[1]" >
-      <metadata>
-        <meta name="fasm_mux">
-          BLK_IG-BLUT.O5 = B5FF.MUX.A
-          BLK_IG-SLICEM.BX = B5FF.MUX.B
-        </meta>
-      </metadata>
-    </mux>
-    <mux name="A5FFMUX" input="BLK_IG-SLICEM.AX BLK_IG-ALUT.O5" output="BLK_BB-SLICE_FF.D5[0]" >
-      <metadata>
-        <meta name="fasm_mux">
-          BLK_IG-ALUT.O5 = A5FF.MUX.A
-          BLK_IG-SLICEM.AX = A5FF.MUX.B
-        </meta>
-      </metadata>
-    </mux>
+    <!-- COMMON_SLICE inputs -->
+    <direct name="DX"  input="BLK_IG-SLICEM.DX" output="BLK_IG-COMMON_SLICE.DX" />
+    <direct name="DO6" input="BLK_IG-DLUT.O6"   output="BLK_IG-COMMON_SLICE.DO6" />
+    <direct name="DO5" input="BLK_IG-DLUT.O5"   output="BLK_IG-COMMON_SLICE.DO5" />
 
-    <!-- F7AMUX inputs -->
-    <direct name="F7AMUX_I0" input="BLK_IG-BLUT.O6"   output="BEL_MX-F7AMUX.I0">
-     <pack_pattern in_port="BLK_IG-BLUT.O6" name="LUT5toLUT7" out_port="BEL_MX-F7AMUX.I0"/>
-     <pack_pattern in_port="BLK_IG-BLUT.O6" name="LUT5toLUT8" out_port="BEL_MX-F7AMUX.I0"/>
-    </direct>
-    <direct name="F7AMUX_I1" input="BLK_IG-ALUT.O6"   output="BEL_MX-F7AMUX.I1">
-     <pack_pattern in_port="BLK_IG-ALUT.O6" name="LUT5toLUT7" out_port="BEL_MX-F7AMUX.I1"/>
-     <pack_pattern in_port="BLK_IG-ALUT.O6" name="LUT5toLUT8" out_port="BEL_MX-F7AMUX.I1"/>
-    </direct>
-    <direct name="F7AMUX_S"  input="BLK_IG-SLICEM.AX" output="BEL_MX-F7AMUX.S" />
-    <!-- F7BMUX inputs -->
-    <direct name="F7BMUX_I0" input="BLK_IG-DLUT.O6"   output="BEL_MX-F7BMUX.I0">
-     <pack_pattern in_port="BLK_IG-DLUT.O6" name="LUT5toLUT7" out_port="BEL_MX-F7BMUX.I0"/>
-     <pack_pattern in_port="BLK_IG-DLUT.O6" name="LUT5toLUT8" out_port="BEL_MX-F7BMUX.I0"/>
-    </direct>
-    <direct name="F7BMUX_I1" input="BLK_IG-CLUT.O6"   output="BEL_MX-F7BMUX.I1">
-     <pack_pattern in_port="BLK_IG-CLUT.O6" name="LUT5toLUT7" out_port="BEL_MX-F7BMUX.I1"/>
-     <pack_pattern in_port="BLK_IG-CLUT.O6" name="LUT5toLUT8" out_port="BEL_MX-F7BMUX.I1"/>
-    </direct>
-    <direct name="F7BMUX_S"  input="BLK_IG-SLICEM.CX" output="BEL_MX-F7BMUX.S" />
-    <!-- F8MUX inputs -->
-    <direct name="F8MUX_I0"  input="BEL_MX-F7BMUX.O"  output="BEL_MX-F8MUX.I0">
-     <pack_pattern in_port="BEL_MX-F7BMUX.O" name="LUT5toLUT8" out_port="BEL_MX-F8MUX.I0"/>
-    </direct>
-    <direct name="F8MUX_I1"  input="BEL_MX-F7AMUX.O"  output="BEL_MX-F8MUX.I1">
-     <pack_pattern in_port="BEL_MX-F7AMUX.O" name="LUT5toLUT8" out_port="BEL_MX-F8MUX.I1"/>
-    </direct>
-    <direct name="F8MUX_S"   input="BLK_IG-SLICEM.BX" output="BEL_MX-F8MUX.S" />
+    <direct name="CX"  input="BLK_IG-SLICEM.CX" output="BLK_IG-COMMON_SLICE.CX" />
+    <direct name="CO6" input="BLK_IG-CLUT.O6"   output="BLK_IG-COMMON_SLICE.CO6" />
+    <direct name="CO5" input="BLK_IG-CLUT.O5"   output="BLK_IG-COMMON_SLICE.CO5" />
 
-    <!-- [A-D]MUX -->
-    <mux name="DMUX"
-      input="BLK_BB-SLICE_FF.Q5[3] BLK_IG-CARRY[3].O BLK_IG-CARRY[3].CO BLK_IG-DLUT.O6 BLK_IG-DLUT.O5"
-      output="BLK_IG-SLICEM.DMUX">
-      <metadata>
-        <meta name="fasm_mux">
-          BLK_BB-SLICE_FF.Q5[3] = DMUX.D5Q
-          BLK_IG-DLUT.O5 = DMUX.O5
-          BLK_IG-DLUT.O6 = DMUX.O6
-          BLK_IG-CARRY[3].CO = DMUX.CY
-          BLK_IG-CARRY[3].O = DMUX.XOR
-        </meta>
-      </metadata>
-    </mux>
-    <mux name="CMUX"
-      input="BLK_BB-SLICE_FF.Q5[2] BLK_IG-CARRY[2].O BLK_IG-CARRY[2].CO BLK_IG-CLUT.O6 BLK_IG-CLUT.O5 BEL_MX-F7BMUX.O"
-      output="BLK_IG-SLICEM.CMUX" >
-      <metadata>
-        <meta name="fasm_mux">
-          BLK_BB-SLICE_FF.Q5[2] = CMUX.C5Q
-          BEL_MX-F7BMUX.O = CMUX.F7
-          BLK_IG-CLUT.O5 = CMUX.O5
-          BLK_IG-CLUT.O6 = CMUX.O6
-          BLK_IG-CARRY[2].CO = CMUX.CY
-          BLK_IG-CARRY[2].O = CMUX.XOR
-        </meta>
-      </metadata>
-    </mux>
-    <mux name="BMUX"
-      input="BLK_BB-SLICE_FF.Q5[1] BLK_IG-CARRY[1].O BLK_IG-CARRY[1].CO BLK_IG-BLUT.O6 BLK_IG-BLUT.O5 BEL_MX-F8MUX.O"
-      output="BLK_IG-SLICEM.BMUX" >
-      <metadata>
-        <meta name="fasm_mux">
-          BLK_BB-SLICE_FF.Q5[1] = BMUX.B5Q
-          BEL_MX-F8MUX.O = BMUX.F8
-          BLK_IG-BLUT.O5 = BMUX.O5
-          BLK_IG-BLUT.O6 = BMUX.O6
-          BLK_IG-CARRY[1].CO = BMUX.CY
-          BLK_IG-CARRY[1].O = BMUX.XOR
-        </meta>
-      </metadata>
-    </mux>
-    <mux name="AMUX"
-      input="BLK_BB-SLICE_FF.Q5[0] BLK_IG-CARRY[0].O BLK_IG-CARRY[0].CO BLK_IG-ALUT.O6 BLK_IG-ALUT.O5 BEL_MX-F7AMUX.O"
-      output="BLK_IG-SLICEM.AMUX" >
-      <metadata>
-        <meta name="fasm_mux">
-          BLK_BB-SLICE_FF.Q5[0] = AMUX.A5Q
-          BEL_MX-F7AMUX.O = AMUX.F7
-          BLK_IG-ALUT.O5 = AMUX.O5
-          BLK_IG-ALUT.O6 = AMUX.O6
-          BLK_IG-CARRY[0].CO = AMUX.CY
-          BLK_IG-CARRY[0].O = AMUX.XOR
-        </meta>
-      </metadata>
-    </mux>
+    <direct name="BX"  input="BLK_IG-SLICEM.BX" output="BLK_IG-COMMON_SLICE.BX" />
+    <direct name="BO6" input="BLK_IG-BLUT.O6"   output="BLK_IG-COMMON_SLICE.BO6" />
+    <direct name="BO5" input="BLK_IG-BLUT.O5"   output="BLK_IG-COMMON_SLICE.BO5" />
 
-    <!-- [A-D]FFMUX -->
-    <mux name="DFFMUX"
-      input="BLK_IG-CARRY[3].O BLK_IG-CARRY[3].CO BLK_IG-DLUT.O6 BLK_IG-DLUT.O5 BLK_IG-SLICEM.DX"
-      output="BLK_BB-SLICE_FF.D[3]" >
-      <metadata>
-        <meta name="fasm_mux">
-          BLK_IG-SLICEM.DX = DFF.DMUX.DX
-          BLK_IG-DLUT.O5 = DFF.DMUX.O5
-          BLK_IG-DLUT.O6 = DFF.DMUX.O6
-          BLK_IG-CARRY[3].CO = DFF.DMUX.CY
-          BLK_IG-CARRY[3].O = DFF.DMUX.XOR
-        </meta>
-      </metadata>
-    </mux>
-    <mux name="CFFMUX"
-      input="BLK_IG-CARRY[2].O BLK_IG-CARRY[2].CO BLK_IG-CLUT.O6 BLK_IG-CLUT.O5 BLK_IG-SLICEM.CX BEL_MX-F7BMUX.O"
-      output="BLK_BB-SLICE_FF.D[2]" >
-      <metadata>
-        <meta name="fasm_mux">
-          BLK_IG-SLICEM.CX = CFF.DMUX.CX
-          BEL_MX-F7BMUX.O = CFF.DMUX.F7
-          BLK_IG-CLUT.O5 = CFF.DMUX.O5
-          BLK_IG-CLUT.O6 = CFF.DMUX.O6
-          BLK_IG-CARRY[2].CO = CFF.DMUX.CY
-          BLK_IG-CARRY[2].O = CFF.DMUX.XOR
-        </meta>
-      </metadata>
-    </mux>
-    <mux name="BFFMUX"
-      input="BLK_IG-CARRY[1].O BLK_IG-CARRY[1].CO BLK_IG-BLUT.O6 BLK_IG-BLUT.O5 BLK_IG-SLICEM.BX BEL_MX-F8MUX.O"
-      output="BLK_BB-SLICE_FF.D[1]" >
-      <metadata>
-        <meta name="fasm_mux">
-          BLK_IG-SLICEM.BX = BFF.DMUX.BX
-          BEL_MX-F8MUX.O = BFF.DMUX.F8
-          BLK_IG-BLUT.O5 = BFF.DMUX.O5
-          BLK_IG-BLUT.O6 = BFF.DMUX.O6
-          BLK_IG-CARRY[1].CO = BFF.DMUX.CY
-          BLK_IG-CARRY[1].O = BFF.DMUX.XOR
-        </meta>
-      </metadata>
-    </mux>
-    <mux name="AFFMUX"
-      input="BLK_IG-CARRY[0].O BLK_IG-CARRY[0].CO BLK_IG-ALUT.O6 BLK_IG-ALUT.O5 BLK_IG-SLICEM.AX BEL_MX-F7AMUX.O"
-      output="BLK_BB-SLICE_FF.D[0]" >
-      <metadata>
-        <meta name="fasm_mux">
-          BLK_IG-SLICEM.AX = AFF.DMUX.AX
-          BEL_MX-F7AMUX.O = AFF.DMUX.F7
-          BLK_IG-ALUT.O5 = AFF.DMUX.O5
-          BLK_IG-ALUT.O6 = AFF.DMUX.O6
-          BLK_IG-CARRY[0].CO = AFF.DMUX.CY
-          BLK_IG-CARRY[0].O = AFF.DMUX.XOR
-        </meta>
-      </metadata>
-    </mux>
+    <direct name="AX"  input="BLK_IG-SLICEM.AX" output="BLK_IG-COMMON_SLICE.AX" />
+    <direct name="AO6" input="BLK_IG-ALUT.O6"   output="BLK_IG-COMMON_SLICE.AO6" />
+    <direct name="AO5" input="BLK_IG-ALUT.O5"   output="BLK_IG-COMMON_SLICE.AO5" />
+    <direct name="AMC31" input="BLK_IG-ALUT.MC31"   output="BLK_IG-COMMON_SLICE.AMC31" />
 
     <!-- [A-F]Q outputs -->
-    <direct name="AFF" input="BLK_BB-SLICE_FF.Q[0]" output="BLK_IG-SLICEM.AQ" />
-    <direct name="BFF" input="BLK_BB-SLICE_FF.Q[1]" output="BLK_IG-SLICEM.BQ" />
-    <direct name="CFF" input="BLK_BB-SLICE_FF.Q[2]" output="BLK_IG-SLICEM.CQ" />
-    <direct name="DFF" input="BLK_BB-SLICE_FF.Q[3]" output="BLK_IG-SLICEM.DQ" />
+    <direct name="AQ" input="BLK_IG-COMMON_SLICE.AQ" output="BLK_IG-SLICEM.AQ" />
+    <direct name="BQ" input="BLK_IG-COMMON_SLICE.BQ" output="BLK_IG-SLICEM.BQ" />
+    <direct name="CQ" input="BLK_IG-COMMON_SLICE.CQ" output="BLK_IG-SLICEM.CQ" />
+    <direct name="DQ" input="BLK_IG-COMMON_SLICE.DQ" output="BLK_IG-SLICEM.DQ" />
 
-    <!-- LUT O6 output -->
-    <direct name="BLK_IG-SLICEM_DOUT" input="BLK_IG-DLUT.O6" output="BLK_IG-SLICEM.D" />
-    <direct name="BLK_IG-SLICEM_COUT" input="BLK_IG-CLUT.O6" output="BLK_IG-SLICEM.C" />
-    <direct name="BLK_IG-SLICEM_BOUT" input="BLK_IG-BLUT.O6" output="BLK_IG-SLICEM.B" />
-    <direct name="BLK_IG-SLICEM_AOUT" input="BLK_IG-ALUT.O6" output="BLK_IG-SLICEM.A" />
+    <!-- A-D output -->
+    <direct name="BLK_IG-SLICEM_DOUT" input="BLK_IG-COMMON_SLICE.D" output="BLK_IG-SLICEM.D" />
+    <direct name="BLK_IG-SLICEM_COUT" input="BLK_IG-COMMON_SLICE.C" output="BLK_IG-SLICEM.C" />
+    <direct name="BLK_IG-SLICEM_BOUT" input="BLK_IG-COMMON_SLICE.B" output="BLK_IG-SLICEM.B" />
+    <direct name="BLK_IG-SLICEM_AOUT" input="BLK_IG-COMMON_SLICE.A" output="BLK_IG-SLICEM.A" />
+
+    <!-- AMUX-DMUX output -->
+    <direct name="BLK_IG-SLICEM_DMUX" input="BLK_IG-COMMON_SLICE.DMUX" output="BLK_IG-SLICEM.DMUX" />
+    <direct name="BLK_IG-SLICEM_CMUX" input="BLK_IG-COMMON_SLICE.CMUX" output="BLK_IG-SLICEM.CMUX" />
+    <direct name="BLK_IG-SLICEM_BMUX" input="BLK_IG-COMMON_SLICE.BMUX" output="BLK_IG-SLICEM.BMUX" />
+    <direct name="BLK_IG-SLICEM_AMUX" input="BLK_IG-COMMON_SLICE.AMUX" output="BLK_IG-SLICEM.AMUX" />
 
     <!-- Carry -->
 
-    <!-- Carry initialization -->
-    <direct name="AX_TO_CYINIT_FABRIC" input="BLK_IG-SLICEM.AX" output="BEL_BB-CYINIT_FABRIC.CI_FABRIC" />
-    <mux name="PRECYINIT_MUX" input="BEL_BB-CYINIT_FABRIC.CI_CHAIN BLK_IG-SLICEM.AX BLK_IG-SLICEM.CIN BEL_BB-CYINIT_CONSTANTS.C0 BEL_BB-CYINIT_CONSTANTS.C1" output="BLK_IG-CARRY[0].CIN">
-      <pack_pattern name="CARRYCHAIN" in_port="BLK_IG-SLICEM.CIN" out_port="BLK_IG-CARRY[0].CIN"/>
-      <metadata>
-        <meta name="fasm_mux">
-          BEL_BB-CYINIT_CONSTANTS.C0 = NULL
-          BEL_BB-CYINIT_CONSTANTS.C1 = PRECYINIT.1
-          BLK_IG-CYINIT_FABRIC.CI_CHAIN = PRECYINIT.AX
-          BLK_IG-SLICEM.AX = PRECYINIT.AX
-          BLK_IG-SLICEM.CIN = PRECYINIT.CIN
-        </meta>
-      </metadata>
-    </mux>
-
-    <!-- Tile internal carry -->
-    <direct name="CARRY0_TO_CARRY1"    input="BLK_IG-CARRY[0].COUT"   output="BLK_IG-CARRY[1].CIN"      >
-      <pack_pattern name="CARRYCHAIN" in_port="BLK_IG-CARRY[0].COUT" out_port="BLK_IG-CARRY[1].CIN"/>
+    <direct name="CIN" input="BLK_IG-SLICEM.CIN" output="BLK_IG-COMMON_SLICE.CIN" >
+      <pack_pattern name="CARRYCHAIN" in_port="BLK_IG-SLICEM.CIN" out_port="BLK_IG-COMMON_SLICE.CIN"/>
     </direct>
-    <direct name="CARRY1_TO_CARRY2"    input="BLK_IG-CARRY[1].COUT"   output="BLK_IG-CARRY[2].CIN"      >
-      <pack_pattern name="CARRYCHAIN" in_port="BLK_IG-CARRY[1].COUT" out_port="BLK_IG-CARRY[2].CIN"/>
-    </direct>
-    <direct name="CARRY2_TO_CARRY3"    input="BLK_IG-CARRY[2].COUT"   output="BLK_IG-CARRY[3].CIN"      >
-      <pack_pattern name="CARRYCHAIN" in_port="BLK_IG-CARRY[2].COUT" out_port="BLK_IG-CARRY[3].CIN"/>
-    </direct>
-
-    <!-- Carry selects -->
-    <direct name="CARRY_S3" input="BLK_IG-DLUT.O6" output="BLK_IG-CARRY[3].S" />
-    <direct name="CARRY_S2" input="BLK_IG-CLUT.O6" output="BLK_IG-CARRY[2].S" />
-    <direct name="CARRY_S1" input="BLK_IG-BLUT.O6" output="BLK_IG-CARRY[1].S" />
-    <direct name="CARRY_S0" input="BLK_IG-ALUT.O6" output="BLK_IG-CARRY[0].S" />
-
-    <!-- Carry MUXCY.DI -->
-    <mux name="CARRY_DI3" input="BLK_IG-DLUT.O5 BLK_IG-SLICEM.DX" output="BLK_IG-CARRY[3].DI" >
-      <metadata>
-        <meta name="fasm_mux">
-          <!-- Double check this, it might be backwards! -->
-          BLK_IG-DLUT.O5 = NULL
-          BLK_IG-SLICEM.DX = CARRY4.DCY0
-        </meta>
-      </metadata>
-    </mux>
-    <mux name="CARRY_DI2" input="BLK_IG-CLUT.O5 BLK_IG-SLICEM.CX" output="BLK_IG-CARRY[2].DI" >
-      <metadata>
-        <meta name="fasm_mux">
-          <!-- Double check this, it might be backwards! -->
-          BLK_IG-CLUT.O5 = NULL
-          BLK_IG-SLICEM.CX = CARRY4.CCY0
-        </meta>
-      </metadata>
-    </mux>
-    <mux name="CARRY_DI1" input="BLK_IG-BLUT.O5 BLK_IG-SLICEM.BX" output="BLK_IG-CARRY[1].DI" >
-      <metadata>
-        <meta name="fasm_mux">
-          <!-- Double check this, it might be backwards! -->
-          BLK_IG-BLUT.O5 = NULL
-          BLK_IG-SLICEM.BX = CARRY4.BCY0
-        </meta>
-      </metadata>
-    </mux>
-    <mux name="CARRY_DI0" input="BLK_IG-ALUT.O5 BLK_IG-SLICEM.AX" output="BLK_IG-CARRY[0].DI" >
-      <metadata>
-        <meta name="fasm_mux">
-          <!-- Double check this, it might be backwards! -->
-          BLK_IG-ALUT.O5 = NULL
-          BLK_IG-SLICEM.AX = CARRY4.ACY0
-        </meta>
-      </metadata>
-    </mux>
-
-    <direct name="COUT" input="BLK_IG-CARRY[3].COUT" output="BLK_IG-SLICEM.COUT"  >
-      <pack_pattern name="CARRYCHAIN" in_port="BLK_IG-CARRY[3].COUT" out_port="BLK_IG-SLICEM.COUT"/>
+    <direct name="COUT" input="BLK_IG-COMMON_SLICE.COUT" output="BLK_IG-SLICEM.COUT" >
+      <pack_pattern name="CARRYCHAIN"  in_port="BLK_IG-COMMON_SLICE.COUT" out_port="BLK_IG-SLICEM.COUT"/>
     </direct>
 
     <!-- Clock, Clock Enable and Reset -->
-    <direct name="CK" input="BLK_IG-SLICEM.CLK" output="BLK_BB-SLICE_FF.CK"/>
-    <direct name="CE" input="BLK_IG-SLICEM.CE"  output="BLK_BB-SLICE_FF.CE"/>
-    <direct name="SR" input="BLK_IG-SLICEM.SR"  output="BLK_BB-SLICE_FF.SR"/>
-    <!-- FIXME -->
+    <direct name="CK" input="BLK_IG-SLICEM.CLK" output="BLK_IG-COMMON_SLICE.CLK"/>
+    <direct name="CE" input="BLK_IG-SLICEM.CE"  output="BLK_IG-COMMON_SLICE.CE"/>
+    <direct name="SR" input="BLK_IG-SLICEM.SR"  output="BLK_IG-COMMON_SLICE.SR"/>
+
+    <direct name="AMEMCLK" input="BLK_IG-SLICEM.CLK" output="BLK_IG-ALUT.CLK"/>
+    <direct name="BMEMCLK" input="BLK_IG-SLICEM.CLK" output="BLK_IG-BLUT.CLK"/>
+    <direct name="CMEMCLK" input="BLK_IG-SLICEM.CLK" output="BLK_IG-CLUT.CLK"/>
+    <direct name="DMEMCLK" input="BLK_IG-SLICEM.CLK" output="BLK_IG-DLUT.CLK"/>
+
     <mux name="WE1" input="BLK_IG-SLICEM.CE BLK_IG-SLICEM.WE"  output="BLK_IG-ALUT.WE"/>
     <mux name="WE2" input="BLK_IG-SLICEM.CE BLK_IG-SLICEM.WE"  output="BLK_IG-BLUT.WE"/>
     <mux name="WE3" input="BLK_IG-SLICEM.CE BLK_IG-SLICEM.WE"  output="BLK_IG-CLUT.WE"/>
