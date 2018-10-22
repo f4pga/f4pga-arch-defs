@@ -18,14 +18,14 @@
  <output name="O6" num_pins="1"/>
 
  <!-- Extended memory LUT pins -->
+ <clock  name="CLK"  num_pins="1" />
+
  <input  name="WA1"  num_pins="1" />
  <input  name="WA2"  num_pins="1" />
  <input  name="WA3"  num_pins="1" />
  <input  name="WA4"  num_pins="1" />
  <input  name="WA5"  num_pins="1" />
  <input  name="WA6"  num_pins="1" />
- <input  name="WA7"  num_pins="1" />
- <input  name="WA8"  num_pins="1" />
 
  <input  name="WE"   num_pins="1" />
 
@@ -33,6 +33,9 @@
  <input  name="DI2"  num_pins="1" />
 
  <output name="MC31" num_pins="1" />
+
+ <!-- BLUT.DI1 is also connected to ALUT.DI1, so route DI1 back out. -->
+ <output  name="DI1_OUT"  num_pins="1" />
 
  <!-- LUT5+LUT5+F6MUX with two outputs -->
  <mode name="BLK_IG-{N}LUT-LUT5_MUX">
@@ -47,7 +50,7 @@
       0.068e-9
      </delay_matrix>
    </pb_type>
-   <xi:include href="../muxes/f6mux/f6mux.pb_type.xml" />
+   <xi:include href="../../common_slice/muxes/f6mux/f6mux.pb_type.xml" />
    <interconnect>
      <!-- LUT5 (upper) -> O6 -->
      <direct name="{N}LUT_A5_0" input="BLK_IG-{N}LUT.A5" output="BEL_LT-{N}5LUT[0].in[4]"/>
@@ -78,14 +81,14 @@
      </direct>
 
      <!-- LUT outputs -->
-     <direct name="O5" input="BEL_LT-{N}5LUT[1].out"                output="BLK_IG-{N}LUT.O5">
-      <pack_pattern in_port="BEL_LT-{N}5LUT[1].out" name="LUT5x2"     out_port="BLK_IG-{N}LUT.O5"/>
+     <direct name="O5" input="BEL_LT-{N}5LUT[0].out"                output="BLK_IG-{N}LUT.O5">
+      <pack_pattern in_port="BEL_LT-{N}5LUT[0].out" name="LUT5x2"     out_port="BLK_IG-{N}LUT.O5"/>
      </direct>
-     <mux    name="O6" input="BEL_LT-{N}5LUT[0].out BEL_MX-F6MUX.O" output="BLK_IG-{N}LUT.O6">
+     <mux    name="O6" input="BEL_LT-{N}5LUT[1].out BEL_MX-F6MUX.O" output="BLK_IG-{N}LUT.O6">
       <pack_pattern in_port="BEL_MX-F6MUX.O"        name="LUT5toLUT6" out_port="BLK_IG-{N}LUT.O6"/>
       <pack_pattern in_port="BEL_MX-F6MUX.O"        name="LUT5toLUT7" out_port="BLK_IG-{N}LUT.O6"/>
       <pack_pattern in_port="BEL_MX-F6MUX.O"        name="LUT5toLUT8" out_port="BLK_IG-{N}LUT.O6"/>
-      <pack_pattern in_port="BEL_LT-{N}5LUT[0].out" name="LUT5x2"     out_port="BLK_IG-{N}LUT.O6"/>
+      <pack_pattern in_port="BEL_LT-{N}5LUT[1].out" name="LUT5x2"     out_port="BLK_IG-{N}LUT.O6"/>
      </mux>
    </interconnect>
    <metadata>
@@ -96,87 +99,60 @@
      </meta>
    </metadata>
  </mode>
-
- <!-- LUT6 -->
- <mode name="BLK_IG-{N}LUT-LUT6">
-   <pb_type name="BEL_LT-{N}6LUT" num_pb="1" class="lut" blif_model=".names">
-     <input  name="in"  num_pins="6" port_class="lut_in" />
-     <output name="out" num_pins="1" port_class="lut_out" />
-     <delay_matrix type="max" in_port="BEL_LT-{N}6LUT.in" out_port="BEL_LT-{N}6LUT.out">
-      0.068e-9
-      0.068e-9
-      0.068e-9
-      0.068e-9
-      0.068e-9
-      0.068e-9
-    </delay_matrix>
-   </pb_type>
-   <interconnect>
-     <direct name="{N}LUT_A6" input="BLK_IG-{N}LUT.A6"   output="BEL_LT-{N}6LUT.in[5]"/>
-     <direct name="{N}LUT_A5" input="BLK_IG-{N}LUT.A5"   output="BEL_LT-{N}6LUT.in[4]"/>
-     <direct name="{N}LUT_A4" input="BLK_IG-{N}LUT.A4"   output="BEL_LT-{N}6LUT.in[3]"/>
-     <direct name="{N}LUT_A3" input="BLK_IG-{N}LUT.A3"   output="BEL_LT-{N}6LUT.in[2]"/>
-     <direct name="{N}LUT_A2" input="BLK_IG-{N}LUT.A2"   output="BEL_LT-{N}6LUT.in[1]"/>
-     <direct name="{N}LUT_A1" input="BLK_IG-{N}LUT.A1"   output="BEL_LT-{N}6LUT.in[0]"/>
-     <direct name="O6"        input="BEL_LT-{N}6LUT.out" output="BLK_IG-{N}LUT.O6"/>
-   </interconnect>
-   <metadata>
-     <meta name="fasm_type">LUT</meta>
-     <meta name="fasm_lut">{N}LUT.INIT[63:0]</meta>
-   </metadata>
- </mode>
- <mode name="DISTRIBUTED_RAM64">
-  <pb_type name="BLK_MM-RAM64X1D" num_pb="1" blif_model=".subckt RAM64X1D" class="memory">
-   <clock  name="WCLK"          num_pins="1"  port_class="clock" />
+ <!-- Missing modes SPRAM64, SPRAM32, DPRAM32, SRL32, SRL16 -->
+ <mode name="DPRAM64">
+  <pb_type name="BLK_MM-DPRAM64" num_pb="1" blif_model=".subckt DPRAM64" class="memory">
+   <clock  name="CLK" num_pins="1"  port_class="clock" />
 
    <!-- A1 - Read port -->
-   <input  name="A"             num_pins="6" port_class="address1"  />
-   <input  name="D"             num_pins="1" port_class="data_in1"  />
-   <output name="SPO"           num_pins="1" port_class="data_out1" />
-   <input  name="WE"            num_pins="1" port_class="write_en1" />
+   <input  name="A"   num_pins="6" port_class="address1"  />
+   <output name="O6"  num_pins="1" port_class="data_out1" />
+
+   <delay_matrix type="max" in_port="BLK_MM-DPRAM64.A" out_port="BLK_MM-DPRAM64.O6">
+    0.068e-9
+    0.068e-9
+    0.068e-9
+    0.068e-9
+    0.068e-9
+    0.068e-9
+   </delay_matrix>
 
    <!-- B1 - Write Port -->
-   <input  name="DPRA"          num_pins="6" port_class="address2" />
-   <!-- <input  name="DPI"           num_pins="1" port_class="data_in2"  /> -->
-   <!-- <input  name="WEN"           num_pins="1" port_class="write_en2" /> -->
-   <output name="DPO"           num_pins="1" port_class="data_out2" />
+   <input  name="WA"  num_pins="6" port_class="address2"  />
+   <input  name="DI1"  num_pins="1" port_class="data_in2"  />
+   <input  name="WE"  num_pins="1" port_class="write_en2" />
 
-   <T_setup    value="10e-12" port="BLK_MM-RAM64X1D.A"   clock="WCLK" />
-   <T_setup    value="10e-12" port="BLK_MM-RAM64X1D.D"   clock="WCLK" />
-   <T_clock_to_Q max="10e-12" port="BLK_MM-RAM64X1D.SPO" clock="WCLK" />
-   <T_setup    value="10e-12" port="BLK_MM-RAM64X1D.WE"  clock="WCLK" />
-
+   <T_setup      value="10e-12" port="BLK_MM-DPRAM64.WA"  clock="CLK" />
+   <T_clock_to_Q   max="10e-12" port="BLK_MM-DPRAM64.WA"  clock="CLK" />
+   <delay_constant max="10e-12" in_port="BLK_MM-DPRAM64.WA"  out_port="BLK_MM-DPRAM64.O6" />
+   <T_setup    value="10e-12" port="BLK_MM-DPRAM64.WE"  clock="CLK" />
+   <T_clock_to_Q   max="10e-12" port="BLK_MM-DPRAM64.WE"  clock="CLK" />
+   <delay_constant max="10e-12" in_port="BLK_MM-DPRAM64.WE"  out_port="BLK_MM-DPRAM64.O6" />
+   <T_setup    value="10e-12" port="BLK_MM-DPRAM64.DI1"  clock="CLK" />
+   <T_clock_to_Q   max="10e-12" port="BLK_MM-DPRAM64.DI1"  clock="CLK" />
+   <delay_constant max="10e-12" in_port="BLK_MM-DPRAM64.DI1"  out_port="BLK_MM-DPRAM64.O6" />
   </pb_type>
   <interconnect>
-   <!-- FIXME! These are wrong! -->
-   <direct name="{N}LUT.A1"  input="BLK_IG-{N}LUT.A1"  output="BLK_MM-RAM64X1D.A[0]" />
-   <direct name="{N}LUT.A2"  input="BLK_IG-{N}LUT.A2"  output="BLK_MM-RAM64X1D.A[1]" />
-   <direct name="{N}LUT.A3"  input="BLK_IG-{N}LUT.A3"  output="BLK_MM-RAM64X1D.A[2]" />
-   <direct name="{N}LUT.A4"  input="BLK_IG-{N}LUT.A4"  output="BLK_MM-RAM64X1D.A[3]" />
-   <direct name="{N}LUT.A5"  input="BLK_IG-{N}LUT.A5"  output="BLK_MM-RAM64X1D.A[4]" />
-   <direct name="{N}LUT.A6"  input="BLK_IG-{N}LUT.A6"  output="BLK_MM-RAM64X1D.A[5]" />
-   <!-- <direct name="{N}LUT.DI1" input="BLK_IG-{N}LUT.DI1" output="BLK_MM-RAM64X1D.A[6]" /> -->
-   <direct name="{N}LUT.DI2" input="BLK_IG-{N}LUT.DI2" output="BLK_MM-RAM64X1D.D"    />
+   <direct name="{N}LUT.A1"  input="BLK_IG-{N}LUT.A1"  output="BLK_MM-DPRAM64.A[0]" />
+   <direct name="{N}LUT.A2"  input="BLK_IG-{N}LUT.A2"  output="BLK_MM-DPRAM64.A[1]" />
+   <direct name="{N}LUT.A3"  input="BLK_IG-{N}LUT.A3"  output="BLK_MM-DPRAM64.A[2]" />
+   <direct name="{N}LUT.A4"  input="BLK_IG-{N}LUT.A4"  output="BLK_MM-DPRAM64.A[3]" />
+   <direct name="{N}LUT.A5"  input="BLK_IG-{N}LUT.A5"  output="BLK_MM-DPRAM64.A[4]" />
+   <direct name="{N}LUT.A6"  input="BLK_IG-{N}LUT.A6"  output="BLK_MM-DPRAM64.A[5]" />
+   <direct name="{N}LUT.DI1" input="BLK_IG-{N}LUT.DI1" output="BLK_MM-DPRAM64.DI1"   />
 
-   <direct name="{N}LUT.WA1" input="BLK_IG-{N}LUT.WA1" output="BLK_MM-RAM64X1D.DPRA[0]" />
-   <direct name="{N}LUT.WA2" input="BLK_IG-{N}LUT.WA2" output="BLK_MM-RAM64X1D.DPRA[1]" />
-   <direct name="{N}LUT.WA3" input="BLK_IG-{N}LUT.WA3" output="BLK_MM-RAM64X1D.DPRA[2]" />
-   <direct name="{N}LUT.WA4" input="BLK_IG-{N}LUT.WA4" output="BLK_MM-RAM64X1D.DPRA[3]" />
-   <direct name="{N}LUT.WA5" input="BLK_IG-{N}LUT.WA5" output="BLK_MM-RAM64X1D.DPRA[4]" />
-   <direct name="{N}LUT.WA6" input="BLK_IG-{N}LUT.WA6" output="BLK_MM-RAM64X1D.DPRA[5]" />
-   <direct name="{N}LUT.WA7" input="BLK_IG-{N}LUT.WA7" output="BLK_MM-RAM64X1D.WCLK"    />
+   <direct name="{N}LUT.WA1" input="BLK_IG-{N}LUT.WA1" output="BLK_MM-DPRAM64.WA[0]" />
+   <direct name="{N}LUT.WA2" input="BLK_IG-{N}LUT.WA2" output="BLK_MM-DPRAM64.WA[1]" />
+   <direct name="{N}LUT.WA3" input="BLK_IG-{N}LUT.WA3" output="BLK_MM-DPRAM64.WA[2]" />
+   <direct name="{N}LUT.WA4" input="BLK_IG-{N}LUT.WA4" output="BLK_MM-DPRAM64.WA[3]" />
+   <direct name="{N}LUT.WA5" input="BLK_IG-{N}LUT.WA5" output="BLK_MM-DPRAM64.WA[4]" />
+   <direct name="{N}LUT.WA6" input="BLK_IG-{N}LUT.WA6" output="BLK_MM-DPRAM64.WA[5]" />
 
-   <direct name="{N}LUT.WE"  input="BLK_IG-{N}LUT.WE"  output="BLK_MM-RAM64X1D.WE" />
+   <direct name="{N}LUT.CLK" input="BLK_IG-{N}LUT.CLK" output="BLK_MM-DPRAM64.CLK"   />
 
-   <direct name="{N}LUT.O5" input="BLK_MM-RAM64X1D.SPO" output="BLK_IG-{N}LUT.O5" />
-   <direct name="{N}LUT.O6" input="BLK_MM-RAM64X1D.DPO" output="BLK_IG-{N}LUT.O6" />
+   <direct name="{N}LUT.WE"  input="BLK_IG-{N}LUT.WE"  output="BLK_MM-DPRAM64.WE" />
 
+   <direct name="{N}LUT.O5" input="BLK_MM-DPRAM64.O6" output="BLK_IG-{N}LUT.O6" />
   </interconnect>
  </mode>
- <!--
- <mode name="SMALL">
- </mode>
- <mode name="SRL">
- </mode>
- -->
 </pb_type>
