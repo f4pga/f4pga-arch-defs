@@ -65,24 +65,11 @@
         - 2 * 5 input, 1 output LUT
         - 1 * 6 input, 1 output LUT
     -->
-  <xi:include href="Nlut/alut.pb_type.xml"/>
-  <xi:include href="Nlut/blut.pb_type.xml"/>
-  <xi:include href="Nlut/clut.pb_type.xml"/>
-  <xi:include href="Nlut/dlut.pb_type.xml"/>
-
-  <xi:include href="muxes/f7amux/f7amux.pb_type.xml"/>
-  <xi:include href="muxes/f7bmux/f7bmux.pb_type.xml"/>
-  <xi:include href="muxes/f8mux/f8mux.pb_type.xml"/>
-
-  <xi:include href="../ff/ff.pb_type.xml" />
-
-  <!-- CARRY4 logic -->
-  <xi:include href="cyinit_constants.pb_type.xml" />
-  <xi:include href="cyinit_fabric.pb_type.xml" />
-  <pb_type name="BEL_BB-CARRY" blif_model=".subckt CARRY" num_pb="4">
-    <xi:include href="carry/carry.pb_type.xml"
-                xpointer="xpointer(pb_type/child::node())" />
-  </pb_type>
+  <xi:include href="../common_slice/Nlut/alut.pb_type.xml"/>
+  <xi:include href="../common_slice/Nlut/blut.pb_type.xml"/>
+  <xi:include href="../common_slice/Nlut/clut.pb_type.xml"/>
+  <xi:include href="../common_slice/Nlut/dlut.pb_type.xml"/>
+  <xi:include href="../common_slice/common_slice.pb_type.xml"/>
 
   <interconnect>
     <!-- LUT input pins -->
@@ -114,283 +101,54 @@
     <direct name="A5" input="BLK_IG-SLICEL.A5" output="BLK_IG-ALUT.A5" />
     <direct name="A6" input="BLK_IG-SLICEL.A6" output="BLK_IG-ALUT.A6" />
 
-    <!-- 5FF MUXs -->
-    <mux name="D5FFMUX" input="BLK_IG-SLICEL.DX BLK_IG-DLUT.O5" output="BLK_BB-SLICE_FF.D5[3]" >
-      <metadata>
-        <meta name="fasm_mux">
-          BLK_IG-DLUT.O5 = D5FF.MUX.A
-          BLK_IG-SLICEL.DX = D5FF.MUX.B
-        </meta>
-      </metadata>
-    </mux>
-    <mux name="C5FFMUX" input="BLK_IG-SLICEL.CX BLK_IG-CLUT.O5" output="BLK_BB-SLICE_FF.D5[2]" >
-      <metadata>
-        <meta name="fasm_mux">
-          BLK_IG-CLUT.O5 = C5FF.MUX.A
-          BLK_IG-SLICEL.CX = C5FF.MUX.B
-        </meta>
-      </metadata>
-    </mux>
-    <mux name="B5FFMUX" input="BLK_IG-SLICEL.BX BLK_IG-BLUT.O5" output="BLK_BB-SLICE_FF.D5[1]" >
-      <metadata>
-        <meta name="fasm_mux">
-          BLK_IG-BLUT.O5 = B5FF.MUX.A
-          BLK_IG-SLICEL.BX = B5FF.MUX.B
-        </meta>
-      </metadata>
-    </mux>
-    <mux name="A5FFMUX" input="BLK_IG-SLICEL.AX BLK_IG-ALUT.O5" output="BLK_BB-SLICE_FF.D5[0]" >
-      <metadata>
-        <meta name="fasm_mux">
-          BLK_IG-ALUT.O5 = A5FF.MUX.A
-          BLK_IG-SLICEL.AX = A5FF.MUX.B
-        </meta>
-      </metadata>
-    </mux>
+    <!-- COMMON_SLICE inputs -->
+    <direct name="DX"  input="BLK_IG-SLICEL.DX" output="BLK_IG-COMMON_SLICE.DX" />
+    <direct name="DO6" input="BLK_IG-DLUT.O6"   output="BLK_IG-COMMON_SLICE.DO6" />
+    <direct name="DO5" input="BLK_IG-DLUT.O5"   output="BLK_IG-COMMON_SLICE.DO5" />
 
-    <!-- F7AMUX inputs -->
-    <direct name="F7AMUX_I0" input="BLK_IG-BLUT.O6"   output="BEL_MX-F7AMUX.I0">
-     <pack_pattern in_port="BLK_IG-BLUT.O6" name="LUT5toLUT7" out_port="BEL_MX-F7AMUX.I0"/>
-     <pack_pattern in_port="BLK_IG-BLUT.O6" name="LUT5toLUT8" out_port="BEL_MX-F7AMUX.I0"/>
-    </direct>
-    <direct name="F7AMUX_I1" input="BLK_IG-ALUT.O6"   output="BEL_MX-F7AMUX.I1">
-     <pack_pattern in_port="BLK_IG-ALUT.O6" name="LUT5toLUT7" out_port="BEL_MX-F7AMUX.I1"/>
-     <pack_pattern in_port="BLK_IG-ALUT.O6" name="LUT5toLUT8" out_port="BEL_MX-F7AMUX.I1"/>
-    </direct>
-    <direct name="F7AMUX_S"  input="BLK_IG-SLICEL.AX" output="BEL_MX-F7AMUX.S" />
-    <!-- F7BMUX inputs -->
-    <direct name="F7BMUX_I0" input="BLK_IG-DLUT.O6"   output="BEL_MX-F7BMUX.I0">
-     <pack_pattern in_port="BLK_IG-DLUT.O6" name="LUT5toLUT7" out_port="BEL_MX-F7BMUX.I0"/>
-     <pack_pattern in_port="BLK_IG-DLUT.O6" name="LUT5toLUT8" out_port="BEL_MX-F7BMUX.I0"/>
-    </direct>
-    <direct name="F7BMUX_I1" input="BLK_IG-CLUT.O6"   output="BEL_MX-F7BMUX.I1">
-     <pack_pattern in_port="BLK_IG-CLUT.O6" name="LUT5toLUT7" out_port="BEL_MX-F7BMUX.I1"/>
-     <pack_pattern in_port="BLK_IG-CLUT.O6" name="LUT5toLUT8" out_port="BEL_MX-F7BMUX.I1"/>
-    </direct>
-    <direct name="F7BMUX_S"  input="BLK_IG-SLICEL.CX" output="BEL_MX-F7BMUX.S" />
-    <!-- F8MUX inputs -->
-    <direct name="F8MUX_I0"  input="BEL_MX-F7BMUX.O"  output="BEL_MX-F8MUX.I0">
-     <pack_pattern in_port="BEL_MX-F7BMUX.O" name="LUT5toLUT8" out_port="BEL_MX-F8MUX.I0"/>
-    </direct>
-    <direct name="F8MUX_I1"  input="BEL_MX-F7AMUX.O"  output="BEL_MX-F8MUX.I1">
-     <pack_pattern in_port="BEL_MX-F7AMUX.O" name="LUT5toLUT8" out_port="BEL_MX-F8MUX.I1"/>
-    </direct>
-    <direct name="F8MUX_S"   input="BLK_IG-SLICEL.BX" output="BEL_MX-F8MUX.S" />
+    <direct name="CX"  input="BLK_IG-SLICEL.CX" output="BLK_IG-COMMON_SLICE.CX" />
+    <direct name="CO6" input="BLK_IG-CLUT.O6"   output="BLK_IG-COMMON_SLICE.CO6" />
+    <direct name="CO5" input="BLK_IG-CLUT.O5"   output="BLK_IG-COMMON_SLICE.CO5" />
 
-    <!-- [A-D]MUX -->
-    <mux name="DMUX"
-      input="BLK_BB-SLICE_FF.Q5[3] BEL_BB-CARRY[3].O BEL_BB-CARRY[3].CO_FABRIC BLK_IG-DLUT.O6 BLK_IG-DLUT.O5"
-      output="BLK_IG-SLICEL.DMUX">
-      <metadata>
-        <meta name="fasm_mux">
-          BLK_BB-SLICE_FF.Q5[3] = DMUX.D5Q
-          BLK_IG-DLUT.O5 = DMUX.O5
-          BLK_IG-DLUT.O6 = DMUX.O6
-          BEL_BB-CARRY[3].CO_FABRIC = DMUX.CY
-          BEL_BB-CARRY[3].O = DMUX.XOR
-        </meta>
-      </metadata>
-    </mux>
-    <mux name="CMUX"
-      input="BLK_BB-SLICE_FF.Q5[2] BEL_BB-CARRY[2].O BEL_BB-CARRY[2].CO_FABRIC BLK_IG-CLUT.O6 BLK_IG-CLUT.O5 BEL_MX-F7BMUX.O"
-      output="BLK_IG-SLICEL.CMUX" >
-      <metadata>
-        <meta name="fasm_mux">
-          BLK_BB-SLICE_FF.Q5[2] = CMUX.C5Q
-          BEL_MX-F7BMUX.O = CMUX.F7
-          BLK_IG-CLUT.O5 = CMUX.O5
-          BLK_IG-CLUT.O6 = CMUX.O6
-          BEL_BB-CARRY[2].CO_FABRIC = CMUX.CY
-          BEL_BB-CARRY[2].O = CMUX.XOR
-        </meta>
-      </metadata>
-    </mux>
-    <mux name="BMUX"
-      input="BLK_BB-SLICE_FF.Q5[1] BEL_BB-CARRY[1].O BEL_BB-CARRY[1].CO_FABRIC BLK_IG-BLUT.O6 BLK_IG-BLUT.O5 BEL_MX-F8MUX.O"
-      output="BLK_IG-SLICEL.BMUX" >
-      <metadata>
-        <meta name="fasm_mux">
-          BLK_BB-SLICE_FF.Q5[1] = BMUX.B5Q
-          BEL_MX-F8MUX.O = BMUX.F8
-          BLK_IG-BLUT.O5 = BMUX.O5
-          BLK_IG-BLUT.O6 = BMUX.O6
-          BEL_BB-CARRY[1].CO_FABRIC = BMUX.CY
-          BEL_BB-CARRY[1].O = BMUX.XOR
-        </meta>
-      </metadata>
-    </mux>
-    <mux name="AMUX"
-      input="BLK_BB-SLICE_FF.Q5[0] BEL_BB-CARRY[0].O BEL_BB-CARRY[0].CO_FABRIC BLK_IG-ALUT.O6 BLK_IG-ALUT.O5 BEL_MX-F7AMUX.O"
-      output="BLK_IG-SLICEL.AMUX" >
-      <metadata>
-        <meta name="fasm_mux">
-          BLK_BB-SLICE_FF.Q5[0] = AMUX.A5Q
-          BEL_MX-F7AMUX.O = AMUX.F7
-          BLK_IG-ALUT.O5 = AMUX.O5
-          BLK_IG-ALUT.O6 = AMUX.O6
-          BEL_BB-CARRY[0].CO_FABRIC = AMUX.CY
-          BEL_BB-CARRY[0].O = AMUX.XOR
-        </meta>
-      </metadata>
-    </mux>
+    <direct name="BX"  input="BLK_IG-SLICEL.BX" output="BLK_IG-COMMON_SLICE.BX" />
+    <direct name="BO6" input="BLK_IG-BLUT.O6"   output="BLK_IG-COMMON_SLICE.BO6" />
+    <direct name="BO5" input="BLK_IG-BLUT.O5"   output="BLK_IG-COMMON_SLICE.BO5" />
 
-    <!-- [A-D]FFMUX -->
-    <mux name="DFFMUX"
-      input="BEL_BB-CARRY[3].O BEL_BB-CARRY[3].CO_FABRIC BLK_IG-DLUT.O6 BLK_IG-DLUT.O5 BLK_IG-SLICEL.DX"
-      output="BLK_BB-SLICE_FF.D[3]" >
-      <metadata>
-        <meta name="fasm_mux">
-          BLK_IG-SLICEL.DX = DFF.DMUX.DX
-          BLK_IG-DLUT.O5 = DFF.DMUX.O5
-          BLK_IG-DLUT.O6 = DFF.DMUX.O6
-          BEL_BB-CARRY[3].CO_FABRIC = DFF.DMUX.CY
-          BEL_BB-CARRY[3].O = DFF.DMUX.XOR
-        </meta>
-      </metadata>
-    </mux>
-    <mux name="CFFMUX"
-      input="BEL_BB-CARRY[2].O BEL_BB-CARRY[2].CO_FABRIC BLK_IG-CLUT.O6 BLK_IG-CLUT.O5 BLK_IG-SLICEL.CX BEL_MX-F7BMUX.O"
-      output="BLK_BB-SLICE_FF.D[2]" >
-      <metadata>
-        <meta name="fasm_mux">
-          BLK_IG-SLICEL.CX = CFF.DMUX.CX
-          BEL_MX-F7BMUX.O = CFF.DMUX.F7
-          BLK_IG-CLUT.O5 = CFF.DMUX.O5
-          BLK_IG-CLUT.O6 = CFF.DMUX.O6
-          BEL_BB-CARRY[2].CO_FABRIC = CFF.DMUX.CY
-          BEL_BB-CARRY[2].O = CFF.DMUX.XOR
-        </meta>
-      </metadata>
-    </mux>
-    <mux name="BFFMUX"
-      input="BEL_BB-CARRY[1].O BEL_BB-CARRY[1].CO_FABRIC BLK_IG-BLUT.O6 BLK_IG-BLUT.O5 BLK_IG-SLICEL.BX BEL_MX-F8MUX.O"
-      output="BLK_BB-SLICE_FF.D[1]" >
-      <metadata>
-        <meta name="fasm_mux">
-          BLK_IG-SLICEL.BX = BFF.DMUX.BX
-          BEL_MX-F8MUX.O = BFF.DMUX.F8
-          BLK_IG-BLUT.O5 = BFF.DMUX.O5
-          BLK_IG-BLUT.O6 = BFF.DMUX.O6
-          BEL_BB-CARRY[1].CO_FABRIC = BFF.DMUX.CY
-          BEL_BB-CARRY[1].O = BFF.DMUX.XOR
-        </meta>
-      </metadata>
-    </mux>
-    <mux name="AFFMUX"
-      input="BEL_BB-CARRY[0].O BEL_BB-CARRY[0].CO_FABRIC BLK_IG-ALUT.O6 BLK_IG-ALUT.O5 BLK_IG-SLICEL.AX BEL_MX-F7AMUX.O"
-      output="BLK_BB-SLICE_FF.D[0]" >
-      <metadata>
-        <meta name="fasm_mux">
-          BLK_IG-SLICEL.AX = AFF.DMUX.AX
-          BEL_MX-F7AMUX.O = AFF.DMUX.F7
-          BLK_IG-ALUT.O5 = AFF.DMUX.O5
-          BLK_IG-ALUT.O6 = AFF.DMUX.O6
-          BEL_BB-CARRY[0].CO_FABRIC = AFF.DMUX.CY
-          BEL_BB-CARRY[0].O = AFF.DMUX.XOR
-        </meta>
-      </metadata>
-    </mux>
+    <direct name="AX"  input="BLK_IG-SLICEL.AX" output="BLK_IG-COMMON_SLICE.AX" />
+    <direct name="AO6" input="BLK_IG-ALUT.O6"   output="BLK_IG-COMMON_SLICE.AO6" />
+    <direct name="AO5" input="BLK_IG-ALUT.O5"   output="BLK_IG-COMMON_SLICE.AO5" />
 
     <!-- [A-F]Q outputs -->
-    <direct name="AFF" input="BLK_BB-SLICE_FF.Q[0]" output="BLK_IG-SLICEL.AQ" />
-    <direct name="BFF" input="BLK_BB-SLICE_FF.Q[1]" output="BLK_IG-SLICEL.BQ" />
-    <direct name="CFF" input="BLK_BB-SLICE_FF.Q[2]" output="BLK_IG-SLICEL.CQ" />
-    <direct name="DFF" input="BLK_BB-SLICE_FF.Q[3]" output="BLK_IG-SLICEL.DQ" />
+    <direct name="AQ" input="BLK_IG-COMMON_SLICE.AQ" output="BLK_IG-SLICEL.AQ" />
+    <direct name="BQ" input="BLK_IG-COMMON_SLICE.BQ" output="BLK_IG-SLICEL.BQ" />
+    <direct name="CQ" input="BLK_IG-COMMON_SLICE.CQ" output="BLK_IG-SLICEL.CQ" />
+    <direct name="DQ" input="BLK_IG-COMMON_SLICE.DQ" output="BLK_IG-SLICEL.DQ" />
 
-    <!-- LUT O6 output -->
-    <direct name="BLK_IG-SLICEL_DOUT" input="BLK_IG-DLUT.O6" output="BLK_IG-SLICEL.D" />
-    <direct name="BLK_IG-SLICEL_COUT" input="BLK_IG-CLUT.O6" output="BLK_IG-SLICEL.C" />
-    <direct name="BLK_IG-SLICEL_BOUT" input="BLK_IG-BLUT.O6" output="BLK_IG-SLICEL.B" />
-    <direct name="BLK_IG-SLICEL_AOUT" input="BLK_IG-ALUT.O6" output="BLK_IG-SLICEL.A" />
+    <!-- A-D output -->
+    <direct name="BLK_IG-SLICEL_DOUT" input="BLK_IG-COMMON_SLICE.D" output="BLK_IG-SLICEL.D" />
+    <direct name="BLK_IG-SLICEL_COUT" input="BLK_IG-COMMON_SLICE.C" output="BLK_IG-SLICEL.C" />
+    <direct name="BLK_IG-SLICEL_BOUT" input="BLK_IG-COMMON_SLICE.B" output="BLK_IG-SLICEL.B" />
+    <direct name="BLK_IG-SLICEL_AOUT" input="BLK_IG-COMMON_SLICE.A" output="BLK_IG-SLICEL.A" />
+
+    <!-- AMUX-DMUX output -->
+    <direct name="BLK_IG-SLICEL_DMUX" input="BLK_IG-COMMON_SLICE.DMUX" output="BLK_IG-SLICEL.DMUX" />
+    <direct name="BLK_IG-SLICEL_CMUX" input="BLK_IG-COMMON_SLICE.CMUX" output="BLK_IG-SLICEL.CMUX" />
+    <direct name="BLK_IG-SLICEL_BMUX" input="BLK_IG-COMMON_SLICE.BMUX" output="BLK_IG-SLICEL.BMUX" />
+    <direct name="BLK_IG-SLICEL_AMUX" input="BLK_IG-COMMON_SLICE.AMUX" output="BLK_IG-SLICEL.AMUX" />
 
     <!-- Carry -->
 
-    <!-- Carry initialization -->
-    <direct name="AX_TO_CYINIT_FABRIC" input="BLK_IG-SLICEL.AX" output="BEL_BB-CYINIT_FABRIC.CI_FABRIC" />
-    <mux name="PRECYINIT_MUX"
-      input="BEL_BB-CYINIT_FABRIC.CI_CHAIN BLK_IG-SLICEL.AX BEL_BB-CYINIT_CONSTANTS.C0 BEL_BB-CYINIT_CONSTANTS.C1 BLK_IG-SLICEL.CIN" 
-      output="BEL_BB-CARRY[0].CI">
-      <pack_pattern name="CARRYCHAIN" in_port="BLK_IG-SLICEL.CIN" out_port="BEL_BB-CARRY[0].CI"/>
-      <metadata>
-        <meta name="fasm_mux">
-          BEL_BB-CYINIT_CONSTANTS.C0 = NULL
-          BEL_BB-CYINIT_CONSTANTS.C1 = PRECYINIT.1
-          BEL_BB-CYINIT_FABRIC.CI_CHAIN = PRECYINIT.AX
-          BLK_IG-SLICEL.AX = PRECYINIT.AX
-          BLK_IG-SLICEL.CIN = PRECYINIT.CIN
-        </meta>
-      </metadata>
-    </mux>
-
-    <!-- Tile internal carry -->
-    <direct name="CARRY0_TO_CARRY1"    input="BEL_BB-CARRY[0].CO_CHAIN"   output="BEL_BB-CARRY[1].CI"      >
-      <pack_pattern name="CARRYCHAIN" in_port="BEL_BB-CARRY[0].CO_CHAIN" out_port="BEL_BB-CARRY[1].CI"/>
+    <direct name="CIN" input="BLK_IG-SLICEL.CIN" output="BLK_IG-COMMON_SLICE.CIN" >
+      <pack_pattern name="CARRYCHAIN" in_port="BLK_IG-SLICEL.CIN" out_port="BLK_IG-COMMON_SLICE.CIN"/>
     </direct>
-    <direct name="CARRY1_TO_CARRY2"    input="BEL_BB-CARRY[1].CO_CHAIN"   output="BEL_BB-CARRY[2].CI"      >
-      <pack_pattern name="CARRYCHAIN" in_port="BEL_BB-CARRY[1].CO_CHAIN" out_port="BEL_BB-CARRY[2].CI"/>
-    </direct>
-    <direct name="CARRY2_TO_CARRY3"    input="BEL_BB-CARRY[2].CO_CHAIN"   output="BEL_BB-CARRY[3].CI"      >
-      <pack_pattern name="CARRYCHAIN" in_port="BEL_BB-CARRY[2].CO_CHAIN" out_port="BEL_BB-CARRY[3].CI"/>
-    </direct>
-
-    <!-- Carry selects -->
-    <direct name="CARRY_S3" input="BLK_IG-DLUT.O6" output="BEL_BB-CARRY[3].S" />
-    <direct name="CARRY_S2" input="BLK_IG-CLUT.O6" output="BEL_BB-CARRY[2].S" />
-    <direct name="CARRY_S1" input="BLK_IG-BLUT.O6" output="BEL_BB-CARRY[1].S" />
-    <direct name="CARRY_S0" input="BLK_IG-ALUT.O6" output="BEL_BB-CARRY[0].S" />
-
-    <!-- Carry MUXCY.DI -->
-    <mux name="CARRY_DI3" input="BLK_IG-DLUT.O5 BLK_IG-SLICEL.DX" output="BEL_BB-CARRY[3].DI" >
-      <metadata>
-        <meta name="fasm_mux">
-          BLK_IG-DLUT.O5 = CARRY4.DCY0
-          BLK_IG-SLICEL.DX = NULL
-        </meta>
-      </metadata>
-    </mux>
-    <mux name="CARRY_DI2" input="BLK_IG-CLUT.O5 BLK_IG-SLICEL.CX" output="BEL_BB-CARRY[2].DI" >
-      <metadata>
-        <meta name="fasm_mux">
-          BLK_IG-CLUT.O5 = CARRY4.CCY0
-          BLK_IG-SLICEL.CX = NULL
-        </meta>
-      </metadata>
-    </mux>
-    <mux name="CARRY_DI1" input="BLK_IG-BLUT.O5 BLK_IG-SLICEL.BX" output="BEL_BB-CARRY[1].DI" >
-      <metadata>
-        <meta name="fasm_mux">
-          BLK_IG-BLUT.O5 = CARRY4.BCY0
-          BLK_IG-SLICEL.BX = NULL
-        </meta>
-      </metadata>
-    </mux>
-    <mux name="CARRY_DI0" input="BLK_IG-ALUT.O5 BLK_IG-SLICEL.AX" output="BEL_BB-CARRY[0].DI" >
-      <metadata>
-        <meta name="fasm_mux">
-          BLK_IG-ALUT.O5 = CARRY4.ACY0
-          BLK_IG-SLICEL.AX = NULL
-        </meta>
-      </metadata>
-    </mux>
-
-    <direct name="COUT" input="BEL_BB-CARRY[3].CO_CHAIN" output="BLK_IG-SLICEL.COUT" >
-      <pack_pattern name="CARRYCHAIN" in_port="BEL_BB-CARRY[3].CO_CHAIN" out_port="BLK_IG-SLICEL.COUT"/>
+    <direct name="COUT" input="BLK_IG-COMMON_SLICE.COUT" output="BLK_IG-SLICEL.COUT" >
+      <pack_pattern name="CARRYCHAIN"  in_port="BLK_IG-COMMON_SLICE.COUT" out_port="BLK_IG-SLICEL.COUT"/>
     </direct>
 
     <!-- Clock, Clock Enable and Reset -->
-    <direct name="CK" input="BLK_IG-SLICEL.CLK" output="BLK_BB-SLICE_FF.CK"/>
-    <direct name="CE" input="BLK_IG-SLICEL.CE"  output="BLK_BB-SLICE_FF.CE"/>
-    <direct name="SR" input="BLK_IG-SLICEL.SR"  output="BLK_BB-SLICE_FF.SR"/>
+    <direct name="CK" input="BLK_IG-SLICEL.CLK" output="BLK_IG-COMMON_SLICE.CLK"/>
+    <direct name="CE" input="BLK_IG-SLICEL.CE"  output="BLK_IG-COMMON_SLICE.CE"/>
+    <direct name="SR" input="BLK_IG-SLICEL.SR"  output="BLK_IG-COMMON_SLICE.SR"/>
 
   </interconnect>
-  <metadata>
-    <meta name="fasm_features">
-      <!-- Because VPR cannot understand muxes that either tied to a  -->
-      <!-- constant or a port, VPR always connects CE and SR.  -->
-      <!-- Once VPR can understand the CEUSEDMUX and SRUSEDMUX, it can choose -->
-      <!-- whether CEUSEDMUX and SRUSEDMUX should be set or not.  -->
-      CEUSEDMUX
-      SRUSEDMUX
-    </meta>
-  </metadata>
 </pb_type>

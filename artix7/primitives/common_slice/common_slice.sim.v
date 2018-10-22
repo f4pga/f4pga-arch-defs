@@ -1,47 +1,48 @@
-`include "../common_slice/Nlut/alut.sim.v"
-`include "../common_slice/Nlut/blut.sim.v"
-`include "../common_slice/Nlut/clut.sim.v"
-`include "../common_slice/Nlut/dlut.sim.v"
-`include "../common_slice/muxes/f7amux/f7amux.sim.v"
-`include "../common_slice/muxes/f7bmux/f7bmux.sim.v"
-`include "../common_slice/muxes/f8mux/f8mux.sim.v"
+`include "Nlut/alut.sim.v"
+`include "Nlut/blut.sim.v"
+`include "Nlut/clut.sim.v"
+`include "Nlut/dlut.sim.v"
+`include "muxes/f7amux/f7amux.sim.v"
+`include "muxes/f7bmux/f7bmux.sim.v"
+`include "muxes/f8mux/f8mux.sim.v"
 
-`include "../common_slice/routing/affmux/affmux.sim.v"
-`include "../common_slice/routing/bffmux/bffmux.sim.v"
-`include "../common_slice/routing/cffmux/cffmux.sim.v"
-`include "../common_slice/routing/dffmux/dffmux.sim.v"
+`include "routing/affmux/affmux.sim.v"
+`include "routing/bffmux/bffmux.sim.v"
+`include "routing/cffmux/cffmux.sim.v"
+`include "routing/dffmux/dffmux.sim.v"
 
-`include "../common_slice/routing/aoutmux/aoutmux.sim.v"
-`include "../common_slice/routing/boutmux/boutmux.sim.v"
-`include "../common_slice/routing/coutmux/coutmux.sim.v"
-`include "../common_slice/routing/doutmux/doutmux.sim.v"
+`include "routing/aoutmux/aoutmux.sim.v"
+`include "routing/boutmux/boutmux.sim.v"
+`include "routing/coutmux/coutmux.sim.v"
+`include "routing/doutmux/doutmux.sim.v"
 
-`include "../common_slice/routing/precyinit_mux/precyinit_mux.sim.v"
-`include "../common_slice/routing/coutused/coutused.sim.v"
+`include "routing/precyinit_mux/precyinit_mux.sim.v"
+`include "routing/coutused/coutused.sim.v"
 
-`include "../common_slice/routing/srusedmux/srusedmux.sim.v"
-`include "../common_slice/routing/ceusedmux/ceusedmux.sim.v"
+`include "routing/srusedmux/srusedmux.sim.v"
+`include "routing/ceusedmux/ceusedmux.sim.v"
 
-`include "../common_slice/routing/N5ffmux/a5ffmux.sim.v"
-`include "../common_slice/routing/N5ffmux/b5ffmux.sim.v"
-`include "../common_slice/routing/N5ffmux/c5ffmux.sim.v"
-`include "../common_slice/routing/N5ffmux/d5ffmux.sim.v"
+`include "routing/N5ffmux/a5ffmux.sim.v"
+`include "routing/N5ffmux/b5ffmux.sim.v"
+`include "routing/N5ffmux/c5ffmux.sim.v"
+`include "routing/N5ffmux/d5ffmux.sim.v"
 
-`include "../common_slice/routing/Ncy0/acy0.sim.v"
-`include "../common_slice/routing/Ncy0/bcy0.sim.v"
-`include "../common_slice/routing/Ncy0/ccy0.sim.v"
-`include "../common_slice/routing/Ncy0/dcy0.sim.v"
+`include "routing/Ncy0/acy0.sim.v"
+`include "routing/Ncy0/bcy0.sim.v"
+`include "routing/Ncy0/ccy0.sim.v"
+`include "routing/Ncy0/dcy0.sim.v"
 
-`include "../common_slice/routing/Nused/aused.sim.v"
-`include "../common_slice/routing/Nused/bused.sim.v"
-`include "../common_slice/routing/Nused/cused.sim.v"
-`include "../common_slice/routing/Nused/dused.sim.v"
+`include "routing/Nused/aused.sim.v"
+`include "routing/Nused/bused.sim.v"
+`include "routing/Nused/cused.sim.v"
+`include "routing/Nused/dused.sim.v"
 
-`include "../common_slice/carry/carry.sim.v"
+`include "carry/carry.sim.v"
 
-`include "../common_slice/routing/clkinv/clkinv.sim.v"
+`include "routing/clkinv/clkinv.sim.v"
 
-module SLICEL(
+// Broken
+module COMMON_SLICE(
 	DX, D1, D2, D3, D4, D5, D6, DMUX, D, DQ,	// D port
 	CX, C1, C2, C3, C4, C5, C6, CMUX, C, CQ,	// C port
 	BX, B1, B2, B3, B4, B5, B6, BMUX, B, BQ,	// B port
