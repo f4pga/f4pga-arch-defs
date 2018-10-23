@@ -22,7 +22,7 @@ define_arch(
   #
   # opt -undriven makes sure all nets are driven, if only by the $undef
   # net.
-  YOSYS_SCRIPT "synth_xilinx -vpr -flatten $<SEMICOLON> opt -undriven"
+  YOSYS_SCRIPT "synth_xilinx -vpr -flatten $<SEMICOLON> opt_expr -undriven $<SEMICOLON> opt_clean"
   DEVICE_FULL_TEMPLATE \${DEVICE}-\${PACKAGE}
   CELLS_SIM xilinx/cells_sim.v
   RR_PATCH_TOOL
