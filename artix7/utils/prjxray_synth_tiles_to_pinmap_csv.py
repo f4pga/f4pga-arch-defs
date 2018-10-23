@@ -28,7 +28,7 @@ def main():
 
     pads = set()
     writer.writeheader()
-    for synth_tile in synth_tiles.values():
+    for synth_tile in synth_tiles['tiles'].values():
         if len(synth_tile['pins']) == 0:
             continue
 
