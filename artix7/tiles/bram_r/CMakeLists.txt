@@ -1,5 +1,5 @@
 project_xray_tile(
   PART artix7
   TILE BRAM_R
-  SITE_TYPES RAMB18E1
+  SITE_TYPES RAMB18E1 RAMBFIFO36E1
   )
