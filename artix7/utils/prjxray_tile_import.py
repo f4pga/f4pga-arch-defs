@@ -19,8 +19,44 @@ import prjxray.db
 import prjxray.site_type
 import os.path
 import simplejson as json
+import re
 
 import lxml.etree as ET
+
+def find_port(pin_name, ports):
+    if pin_name in ports:
+        return {
+                'pin_name': pin_name,
+                'pin_idx': None,
+                }
+
+    # Find trailing digits, which are assumed to be pin indicies, example:
+    # ADDRARDADDR13
+    m = re.search('([0-9]+)$', pin_name)
+    if m is None:
+        return None
+
+    prefix = pin_name[:-len(m.group(1))]
+    prefix_pin_idx = int(m.group(1))
+
+    if prefix in ports and prefix_pin_idx < ports[prefix]:
+        return {
+                'pin_name': prefix,
+                'pin_idx': prefix_pin_idx,
+                }
+    else:
+        return None
+
+def object_ref(pb_name, pin_name, pb_idx=None, pin_idx=None):
+    pb_addr = ''
+    if pb_idx is not None:
+        pb_addr = '[{}]'.format(pb_idx)
+
+    pin_addr = ''
+    if pin_idx is not None:
+        pin_addr = '[{}]'.format(pin_idx)
+
+    return '{}{}.{}{}'.format(pb_name, pb_addr, pin_name, pin_addr)
 
 def main():
     mydir = os.path.dirname(__file__)
@@ -128,6 +164,8 @@ def main():
 
     site_types = set(site.type for site in tile.get_sites())
     for site_type in site_types:
+        if site_type in ignored_site_types:
+            continue
         add_model_include(site_type)
 
     model_str = ET.tostring(model_xml, pretty_print=True).decode('utf-8')
@@ -189,11 +227,7 @@ def main():
 
     pb_type_xml.append(ET.Comment(" Internal Sites "))
 
-    def object_ref(pb_name, pin_name, pb_idx=None):
-        if pb_idx is None:
-            return '{}.{}'.format(pb_name, pin_name)
-        else:
-            return '{}[{}].{}'.format(pb_name, pb_idx, pin_name)
+
 
     cell_names = {}
 
@@ -210,11 +244,28 @@ def main():
         site_prefixes[site.type].append('{}_X{}'.format(site.type, site.x))
     del idx, site
 
+    site_type_ports = {}
+
     for site_type in sorted(site_type_count):
+        if site_type in ignored_site_types:
+            continue
+
         site_type_path = site_pbtype.format(site_type.lower())
         cell_pb_type = ET.ElementTree()
         root_element = cell_pb_type.parse(site_type_path)
         cell_names[site_type] = root_element.attrib['name']
+
+        ports = {}
+        for inputs in root_element.iter('input'):
+            ports[inputs.attrib['name']] = int(inputs.attrib['num_pins'])
+
+        for clocks in root_element.iter('clock'):
+            ports[clocks.attrib['name']] = int(clocks.attrib['num_pins'])
+
+        for outputs in root_element.iter('output'):
+            ports[outputs.attrib['name']] = int(outputs.attrib['num_pins'])
+
+        site_type_ports[site_type] = ports
 
         attrib = dict(root_element.attrib)
         attrib['num_pb'] = str(site_type_count[site_type])
@@ -238,6 +289,9 @@ def main():
                 })
 
     for idx, site in enumerate(tile.get_sites()):
+        if site.type in ignored_site_types:
+            continue
+
         site_name = cell_names[site.type]
         site_idx = cells_idx[idx]
 
@@ -248,12 +302,18 @@ def main():
             if site_pin.wire is None:
                 continue
 
+            port = find_port(site_pin.name, site_type_ports[site.type])
+            if port is None:
+                print("*** WARNING *** Didn't find port for name {} for site type {}".format(
+                    site_pin.name, site.type), file=sys.stderr)
+                continue
+
             site_type_pin = site_type.get_site_pin(site_pin.name)
 
             if site_type_pin.direction == prjxray.site_type.SitePinDirection.IN:
                 add_direct(interconnect_xml,
                         input=object_ref(tile_name, site_pin.wire),
-                        output=object_ref(site_name, site_pin.name, pb_idx=site_idx)
+                        output=object_ref(site_name, pb_idx=site_idx, **port)
                            )
             elif site_type_pin.direction == prjxray.site_type.SitePinDirection.OUT:
                 pass
@@ -265,13 +325,18 @@ def main():
             if site_pin.wire is None:
                 continue
 
+            port = find_port(site_pin.name, site_type_ports[site.type])
+            if port is None:
+                continue
+
             site_type_pin = site_type.get_site_pin(site_pin.name)
 
             if site_type_pin.direction == prjxray.site_type.SitePinDirection.IN:
                 pass
             elif site_type_pin.direction == prjxray.site_type.SitePinDirection.OUT:
                 add_direct(interconnect_xml,
-                        input=object_ref(site_name, site_pin.name, pb_idx=site_idx),
+                        input=object_ref(site_name,
+                            pb_idx=site_idx, **port),
                         output=object_ref(tile_name, site_pin.wire),
                         )
             else:

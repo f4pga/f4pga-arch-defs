@@ -19,7 +19,10 @@ define_arch(
   ARCH artix7
   # -flatten is used to ensure that the output eblif has only one module.
   # Some of symbiflow expects eblifs with only one module.
-  YOSYS_SCRIPT "synth_xilinx -vpr -flatten"
+  #
+  # opt -undriven makes sure all nets are driven, if only by the $undef
+  # net.
+  YOSYS_SCRIPT "synth_xilinx -vpr -flatten $<SEMICOLON> opt -undriven"
   DEVICE_FULL_TEMPLATE \${DEVICE}-\${PACKAGE}
   CELLS_SIM xilinx/cells_sim.v
   RR_PATCH_TOOL

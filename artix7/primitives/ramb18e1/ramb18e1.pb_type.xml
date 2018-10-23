@@ -8,66 +8,52 @@ There are both Latches (first) and Registers (second) on the output (why!?)
 The RAM has extra bits that can be used for parity (DIP / DOP).
 
   -->
-<pb_type name="BLK_IG-RAMB18E1" num_pb="1">
+<pb_type name="BLK_IG-RAMB18E1" num_pb="1" blif_model=".subckt RAMB18E1">
+ <!-- Port A - 16bit wide -->
+ <clock  name="CLKARDCLK"     num_pins="1"  />
+ <input  name="REGCEAREGCE"   num_pins="1"  />
+ <input  name="ENARDEN"       num_pins="1"  />
+ <input  name="RSTRAMARSTRAM" num_pins="1"  />
+ <input  name="RSTREGARSTREG" num_pins="1"  />
+ <input  name="ADDRARDADDR"   num_pins="14" />
+ <input  name="DIADI"         num_pins="16" />
+ <input  name="DIPADIP"       num_pins="2"  />
+ <input  name="WEA"           num_pins="2"  />
+ <output name="DOADO"         num_pins="16" />
+ <output name="DOPADOP"       num_pins="2"  />
 
- <mode name="SPLIT">
-  <pb_type name="RAMB18E1" num_pb="2" blif_model=".subckt RAMB18E1" class="memory">
-   <!-- Port A - 16bit wide -->
-   <clock  name="CLKARDCLK"     num_pins="1"  port_class="clock" />
-   <input  name="REGCEAREGCE"   num_pins="1"  />
-   <input  name="ENARDEN"       num_pins="1"  />
-   <input  name="RSTRAMARSTRAM" num_pins="1"  />
-   <input  name="RSTREGARSTREG" num_pins="1"  />
-   <input  name="ADDRARDADDR"   num_pins="14" port_class="address1" />
-   <input  name="DIADI"         num_pins="16" port_class="data_in1" />
-   <input  name="DIPADIP"       num_pins="2"  />
-   <input  name="WEA"           num_pins="2"  port_class="write_en1" />
-   <output name="DOADO"         num_pins="16" port_class="data_out1" />
-   <output name="DOPADOP"       num_pins="2"  />
+ <T_setup value="10e-12" port="BLK_IG-RAMB18E1.REGCEAREGCE"  clock="CLKARDCLK" />
+ <T_setup value="10e-12" port="BLK_IG-RAMB18E1.ENARDEN"  clock="CLKARDCLK" />
+ <T_setup value="10e-12" port="BLK_IG-RAMB18E1.RSTRAMARSTRAM"  clock="CLKARDCLK" />
+ <T_setup value="10e-12" port="BLK_IG-RAMB18E1.RSTREGARSTREG"  clock="CLKARDCLK" />
+ <T_setup value="10e-12" port="BLK_IG-RAMB18E1.ADDRARDADDR"  clock="CLKARDCLK" />
+ <T_setup value="10e-12" port="BLK_IG-RAMB18E1.DIADI"  clock="CLKARDCLK" />
+ <T_setup value="10e-12" port="BLK_IG-RAMB18E1.DIPADIP"  clock="CLKARDCLK" />
+ <T_setup value="10e-12" port="BLK_IG-RAMB18E1.WEA"  clock="CLKARDCLK" />
+ <T_clock_to_Q max="10e-12" port="BLK_IG-RAMB18E1.DOADO"  clock="CLKARDCLK" />
+ <T_clock_to_Q max="10e-12" port="BLK_IG-RAMB18E1.DOPADOP"  clock="CLKARDCLK" />
 
-   <!-- Port B - 16bit wide -->
-   <clock  name="CLKBWRCLK"     num_pins="1"  />
-   <input  name="ENBWREN"       num_pins="1"  />
-   <input  name="REGCEB"        num_pins="1"  />
-   <input  name="RSTRAMB"       num_pins="1"  />
-   <input  name="RSTREGB"       num_pins="1"  />
-   <input  name="ADDRBWRADDR"   num_pins="14" port_class="address2" />
-   <input  name="DIBDI"         num_pins="16" port_class="data_in2" />
-   <input  name="DIPBDIP"       num_pins="2"  />
-   <input  name="WEBWE"         num_pins="4"  port_class="write_en2" />
-   <output name="DOBDO"         num_pins="16" port_class="data_out2" />
-   <output name="DOPBDOP"       num_pins="2"  />
-  </pb_type>
-  <!-- FIFO16 mode -->
- </mode>
- <mode name="SINGLE">
-  <pb_type name="RAMB36E1" num_pb="1" blif_model=".subckt RAMB36E1" class="memory">
-   <!-- Port A - 32bit wide -->
-   <clock  name="CLKARDCLK"     num_pins="1"  />
-   <input  name="REGCEAREGCE"   num_pins="1"  />
-   <input  name="ENARDEN"       num_pins="1"  />
-   <input  name="RSTRAMARSTRAM" num_pins="1"  />
-   <input  name="RSTREGARSTREG" num_pins="1"  />
-   <input  name="ADDRARDADDR"   num_pins="16" port_class="address1" />
-   <input  name="DIADI"         num_pins="32" port_class="data_in1" />
-   <input  name="DIPADIP"       num_pins="4"  />
-   <input  name="WEA"           num_pins="4"  port_class="write_en1" />
-   <output name="DOADO"         num_pins="32" port_class="data_out1" />
-   <output name="DOPADOP"       num_pins="4"  />
+ <!-- Port B - 16bit wide -->
+ <clock  name="CLKBWRCLK"     num_pins="1"  />
+ <input  name="ENBWREN"       num_pins="1"  />
+ <input  name="REGCEB"        num_pins="1"  />
+ <input  name="RSTRAMB"       num_pins="1"  />
+ <input  name="RSTREGB"       num_pins="1"  />
+ <input  name="ADDRBWRADDR"   num_pins="14" />
+ <input  name="DIBDI"         num_pins="16" />
+ <input  name="DIPBDIP"       num_pins="2"  />
+ <input  name="WEBWE"         num_pins="4"  />
+ <output name="DOBDO"         num_pins="16" />
+ <output name="DOPBDOP"       num_pins="2"  />
 
-   <!-- Port B - 32bit wide -->
-   <clock  name="CLKBWRCLK"     num_pins="1"  />
-   <input  name="ENBWREN"       num_pins="1"  />
-   <input  name="REGCEB"        num_pins="1"  />
-   <input  name="RSTRAMB"       num_pins="1"  />
-   <input  name="RSTREGB"       num_pins="1"  />
-   <input  name="ADDRBWRADDR"   num_pins="16" port_class="address2" />
-   <input  name="DIBDI"         num_pins="32" port_class="data_in2"/>
-   <input  name="DIPBDIP"       num_pins="4"  />
-   <input  name="WEBWE"         num_pins="8"  port_class="write_en2" />
-   <output name="DOBDO"         num_pins="32" port_class="data_out2" />
-   <output name="DOPBDOP"       num_pins="4"  />
-  </pb_type>
-  <!-- FIFO36 mode -->
- </mode>
+ <T_setup value="10e-12" port="BLK_IG-RAMB18E1.ENBWREN"  clock="CLKBWRCLK" />
+ <T_setup value="10e-12" port="BLK_IG-RAMB18E1.REGCEB"  clock="CLKBWRCLK" />
+ <T_setup value="10e-12" port="BLK_IG-RAMB18E1.RSTRAMB"  clock="CLKBWRCLK" />
+ <T_setup value="10e-12" port="BLK_IG-RAMB18E1.RSTREGB"  clock="CLKBWRCLK" />
+ <T_setup value="10e-12" port="BLK_IG-RAMB18E1.ADDRBWRADDR"  clock="CLKBWRCLK" />
+ <T_setup value="10e-12" port="BLK_IG-RAMB18E1.DIBDI"  clock="CLKBWRCLK" />
+ <T_setup value="10e-12" port="BLK_IG-RAMB18E1.DIPBDIP"  clock="CLKBWRCLK" />
+ <T_setup value="10e-12" port="BLK_IG-RAMB18E1.WEBWE"  clock="CLKBWRCLK" />
+ <T_clock_to_Q max="10e-12" port="BLK_IG-RAMB18E1.DOBDO"  clock="CLKBWRCLK" />
+ <T_clock_to_Q max="10e-12" port="BLK_IG-RAMB18E1.DOPBDOP"  clock="CLKBWRCLK" />
 </pb_type>

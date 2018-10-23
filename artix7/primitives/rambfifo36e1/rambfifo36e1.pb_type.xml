@@ -8,4 +8,154 @@ There are both Latches (first) and Registers (second) on the output (why!?)
 The RAM has extra bits that can be used for parity (DIP / DOP).
 
   -->
-<pb_type name="BLK_IG-RAMBFIFO36E1" num_pb="1"></pb_type>
+<pb_type name="BLK_IG-RAMBFIFO36E1" num_pb="1">
+ <!-- Port A - 32bit wide -->
+ <clock  name="CLKARDCLK"     num_pins="1"  />
+ <input  name="REGCEAREGCE"   num_pins="1"  />
+ <input  name="ENARDEN"       num_pins="1"  />
+ <input  name="RSTRAMARSTRAM" num_pins="1"  />
+ <input  name="RSTREGARSTREG" num_pins="1"  />
+ <input  name="ADDRARDADDR"   num_pins="16" />
+ <input  name="DIADI"         num_pins="32" />
+ <input  name="DIPADIP"       num_pins="4"  />
+ <input  name="WEA"           num_pins="4"  />
+ <output name="DOADO"         num_pins="32" />
+ <output name="DOPADOP"       num_pins="4"  />
+
+ <!-- Port B - 32bit wide -->
+ <clock  name="CLKBWRCLK"     num_pins="1"  />
+ <input  name="ENBWREN"       num_pins="1"  />
+ <input  name="REGCEB"        num_pins="1"  />
+ <input  name="RSTRAMB"       num_pins="1"  />
+ <input  name="RSTREGB"       num_pins="1"  />
+ <input  name="ADDRBWRADDR"   num_pins="16" />
+ <input  name="DIBDI"         num_pins="32" />
+ <input  name="DIPBDIP"       num_pins="4"  />
+ <input  name="WEBWE"         num_pins="7"  />
+ <output name="DOBDO"         num_pins="32" />
+ <output name="DOPBDOP"       num_pins="4"  />
+
+ <input  name="CASCADEINA"    num_pins="1"  />
+ <input  name="CASCADEINB"    num_pins="1"  />
+ <output name="CASCADEOUTA"   num_pins="1"  />
+ <output name="CASCADEOUTB"   num_pins="1"  />
+
+ <input  name="INJECTDBITERR" num_pins="1"  />
+ <input  name="INJECTSBITERR" num_pins="1"  />
+
+ <output name="ECCPARITY"     num_pins="7"  />
+ <output name="RDADDRECC"     num_pins="13" />
+ <output name="DBITERR"       num_pins="1"  />
+ <output name="SBITERR"       num_pins="1" />
+
+ <!-- Missing FIFO36E1 -->
+ <mode name="BRAM">
+  <pb_type name="BLK_IG-RAMB36E1" num_pb="1" blif_model=".subckt RAMB36E1">
+   <!-- Port A - 32bit wide -->
+   <clock  name="CLKARDCLK"     num_pins="1"  />
+   <input  name="REGCEAREGCE"   num_pins="1"  />
+   <input  name="ENARDEN"       num_pins="1"  />
+   <input  name="RSTRAMARSTRAM" num_pins="1"  />
+   <input  name="RSTREGARSTREG" num_pins="1"  />
+   <input  name="ADDRARDADDR"   num_pins="16" />
+   <input  name="DIADI"         num_pins="32" />
+   <input  name="DIPADIP"       num_pins="4"  />
+   <input  name="WEA"           num_pins="4"  />
+   <output name="DOADO"         num_pins="32" />
+   <output name="DOPADOP"       num_pins="4"  />
+
+   <T_setup value="10e-12" port="BLK_IG-RAMB36E1.REGCEAREGCE"  clock="CLKARDCLK" />
+   <T_setup value="10e-12" port="BLK_IG-RAMB36E1.ENARDEN"  clock="CLKARDCLK" />
+   <T_setup value="10e-12" port="BLK_IG-RAMB36E1.RSTRAMARSTRAM"  clock="CLKARDCLK" />
+   <T_setup value="10e-12" port="BLK_IG-RAMB36E1.RSTREGARSTREG"  clock="CLKARDCLK" />
+   <T_setup value="10e-12" port="BLK_IG-RAMB36E1.ADDRARDADDR"  clock="CLKARDCLK" />
+   <T_setup value="10e-12" port="BLK_IG-RAMB36E1.DIADI"  clock="CLKARDCLK" />
+   <T_setup value="10e-12" port="BLK_IG-RAMB36E1.DIPADIP"  clock="CLKARDCLK" />
+   <T_setup value="10e-12" port="BLK_IG-RAMB36E1.WEA"  clock="CLKARDCLK" />
+   <T_clock_to_Q max="10e-12" port="BLK_IG-RAMB36E1.DOADO"  clock="CLKARDCLK" />
+   <T_clock_to_Q max="10e-12" port="BLK_IG-RAMB36E1.DOPADOP"  clock="CLKARDCLK" />
+
+   <!-- Port B - 32bit wide -->
+   <clock  name="CLKBWRCLK"     num_pins="1"  />
+   <input  name="ENBWREN"       num_pins="1"  />
+   <input  name="REGCEB"        num_pins="1"  />
+   <input  name="RSTRAMB"       num_pins="1"  />
+   <input  name="RSTREGB"       num_pins="1"  />
+   <input  name="ADDRBWRADDR"   num_pins="16" />
+   <input  name="DIBDI"         num_pins="32" />
+   <input  name="DIPBDIP"       num_pins="4"  />
+   <input  name="WEBWE"         num_pins="7"  />
+   <output name="DOBDO"         num_pins="32" />
+   <output name="DOPBDOP"       num_pins="4"  />
+
+   <T_setup value="10e-12" port="BLK_IG-RAMB36E1.ENBWREN"  clock="CLKBWRCLK" />
+   <T_setup value="10e-12" port="BLK_IG-RAMB36E1.REGCEB"  clock="CLKBWRCLK" />
+   <T_setup value="10e-12" port="BLK_IG-RAMB36E1.RSTRAMB"  clock="CLKBWRCLK" />
+   <T_setup value="10e-12" port="BLK_IG-RAMB36E1.RSTREGB"  clock="CLKBWRCLK" />
+   <T_setup value="10e-12" port="BLK_IG-RAMB36E1.ADDRBWRADDR"  clock="CLKBWRCLK" />
+   <T_setup value="10e-12" port="BLK_IG-RAMB36E1.DIBDI"  clock="CLKBWRCLK" />
+   <T_setup value="10e-12" port="BLK_IG-RAMB36E1.DIPBDIP"  clock="CLKBWRCLK" />
+   <T_setup value="10e-12" port="BLK_IG-RAMB36E1.WEBWE"  clock="CLKBWRCLK" />
+   <T_clock_to_Q max="10e-12" port="BLK_IG-RAMB36E1.DOBDO"  clock="CLKBWRCLK" />
+   <T_clock_to_Q max="10e-12" port="BLK_IG-RAMB36E1.DOPBDOP"  clock="CLKBWRCLK" />
+
+   <input  name="CASCADEINA"    num_pins="1"  />
+   <input  name="CASCADEINB"    num_pins="1"  />
+   <output name="CASCADEOUTA"   num_pins="1"  />
+   <output name="CASCADEOUTB"   num_pins="1"  />
+
+   <input  name="INJECTDBITERR" num_pins="1"  />
+   <input  name="INJECTSBITERR" num_pins="1"  />
+
+   <output name="ECCPARITY"     num_pins="7"  />
+   <output name="RDADDRECC"     num_pins="13" />
+   <output name="DBITERR"       num_pins="1"  />
+   <output name="SBITERR"       num_pins="1"  />
+  </pb_type>
+  <interconnect>
+   <!-- Port A inputs -->
+   <direct name="CLKARDCLK"     input="BLK_IG-RAMBFIFO36E1.CLKARDCLK"     output="BLK_IG-RAMB36E1.CLKARDCLK"     />
+   <direct name="REGCEAREGCE"   input="BLK_IG-RAMBFIFO36E1.REGCEAREGCE"   output="BLK_IG-RAMB36E1.REGCEAREGCE"   />
+   <direct name="ENARDEN"       input="BLK_IG-RAMBFIFO36E1.ENARDEN"       output="BLK_IG-RAMB36E1.ENARDEN"       />
+   <direct name="RSTRAMARSTRAM" input="BLK_IG-RAMBFIFO36E1.RSTRAMARSTRAM" output="BLK_IG-RAMB36E1.RSTRAMARSTRAM" />
+   <direct name="RSTREGARSTREG" input="BLK_IG-RAMBFIFO36E1.RSTREGARSTREG" output="BLK_IG-RAMB36E1.RSTREGARSTREG" />
+   <direct name="ADDRARDADDR"   input="BLK_IG-RAMBFIFO36E1.ADDRARDADDR"   output="BLK_IG-RAMB36E1.ADDRARDADDR"   />
+   <direct name="DIADI"         input="BLK_IG-RAMBFIFO36E1.DIADI"         output="BLK_IG-RAMB36E1.DIADI"         />
+   <direct name="DIPADIP"       input="BLK_IG-RAMBFIFO36E1.DIPADIP"       output="BLK_IG-RAMB36E1.DIPADIP"       />
+   <direct name="WEA"           input="BLK_IG-RAMBFIFO36E1.WEA"           output="BLK_IG-RAMB36E1.WEA"           />
+
+   <!-- Port A outputs -->
+   <direct name="DOADO"         input="BLK_IG-RAMB36E1.DOADO"             output="BLK_IG-RAMBFIFO36E1.DOADO"     />
+   <direct name="DOPADOP"       input="BLK_IG-RAMB36E1.DOPADOP"           output="BLK_IG-RAMBFIFO36E1.DOPADOP"   />
+
+   <!-- Port B inputs -->
+   <direct name="CLKBWRCLK"     input="BLK_IG-RAMBFIFO36E1.CLKBWRCLK"     output="BLK_IG-RAMB36E1.CLKBWRCLK"     />
+   <direct name="ENBWREN"       input="BLK_IG-RAMBFIFO36E1.ENBWREN"       output="BLK_IG-RAMB36E1.ENBWREN"       />
+   <direct name="REGCEB"        input="BLK_IG-RAMBFIFO36E1.REGCEB"        output="BLK_IG-RAMB36E1.REGCEB"        />
+   <direct name="RSTRAMB"       input="BLK_IG-RAMBFIFO36E1.RSTRAMB"       output="BLK_IG-RAMB36E1.RSTRAMB"       />
+   <direct name="RSTREGB"       input="BLK_IG-RAMBFIFO36E1.RSTREGB"       output="BLK_IG-RAMB36E1.RSTREGB"       />
+   <direct name="ADDRBWRADDR"   input="BLK_IG-RAMBFIFO36E1.ADDRBWRADDR"   output="BLK_IG-RAMB36E1.ADDRBWRADDR"   />
+   <direct name="DIBDI"         input="BLK_IG-RAMBFIFO36E1.DIBDI"         output="BLK_IG-RAMB36E1.DIBDI"         />
+   <direct name="DIPBDIP"       input="BLK_IG-RAMBFIFO36E1.DIPBDIP"       output="BLK_IG-RAMB36E1.DIPBDIP"       />
+   <direct name="WEBWE"         input="BLK_IG-RAMBFIFO36E1.WEBWE"         output="BLK_IG-RAMB36E1.WEBWE"         />
+
+   <!-- Port B outputs -->
+   <direct name="DOBDO"         input="BLK_IG-RAMB36E1.DOBDO"             output="BLK_IG-RAMBFIFO36E1.DOBDO"     />
+   <direct name="DOPBDOP"       input="BLK_IG-RAMB36E1.DOPBDOP"           output="BLK_IG-RAMBFIFO36E1.DOPBDOP"   />
+
+   <!-- Other pins -->
+   <direct name="CASCADEINA"    input="BLK_IG-RAMBFIFO36E1.CASCADEINA"    output="BLK_IG-RAMB36E1.CASCADEINA"    />
+   <direct name="CASCADEINB"    input="BLK_IG-RAMBFIFO36E1.CASCADEINB"    output="BLK_IG-RAMB36E1.CASCADEINB"    />
+   <direct name="CASCADEOUTA"   input="BLK_IG-RAMB36E1.CASCADEOUTA"       output="BLK_IG-RAMBFIFO36E1.CASCADEOUTA" />
+   <direct name="CASCADEOUTB"   input="BLK_IG-RAMB36E1.CASCADEOUTB"       output="BLK_IG-RAMBFIFO36E1.CASCADEOUTB" />
+
+   <direct name="INJECTDBITERR" input="BLK_IG-RAMBFIFO36E1.INJECTDBITERR" output="BLK_IG-RAMB36E1.INJECTDBITERR" />
+   <direct name="INJECTSBITERR" input="BLK_IG-RAMBFIFO36E1.INJECTSBITERR" output="BLK_IG-RAMB36E1.INJECTSBITERR" />
+
+   <direct name="ECCPARITY"     input="BLK_IG-RAMB36E1.ECCPARITY"         output="BLK_IG-RAMBFIFO36E1.ECCPARITY" />
+   <direct name="RDADDRECC"     input="BLK_IG-RAMB36E1.RDADDRECC"         output="BLK_IG-RAMBFIFO36E1.RDADDRECC" />
+   <direct name="DBITERR"       input="BLK_IG-RAMB36E1.DBITERR"           output="BLK_IG-RAMBFIFO36E1.DBITERR"   />
+   <direct name="SBITERR"       input="BLK_IG-RAMB36E1.SBITERR"           output="BLK_IG-RAMBFIFO36E1.SBITERR"   />
+  </interconnect>
+ </mode>
+</pb_type>
