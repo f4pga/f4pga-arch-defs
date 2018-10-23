@@ -24,6 +24,7 @@ function(DEFINE_ARCH)
   #    PLACE_TOOL <path to place tool>
   #    PLACE_TOOL_CMD <command to run PLACE_TOOL>
   #    [NO_BITSTREAM]
+  #    [NO_BIT_TO_V]
   #    CELLS_SIM <path to verilog file used for simulation>
   #    HLC_TO_BIT <path to HLC to bitstream converter>
   #    HLC_TO_BIT_CMD <command to run HLC_TO_BIT>
@@ -83,13 +84,14 @@ function(DEFINE_ARCH)
   # * PACKAGE - Package of bitstream.
   # * OUT_BITSTREAM - Input path to bitstream.
   # * OUT_BIT_VERILOG - Output path to verilog version of bitstream.
-  set(options NO_PINS NO_BITSTREAM USE_FASM)
+  set(options NO_PINS NO_BITSTREAM NO_BIT_TO_V NO_BIT_TIME USE_FASM)
   set(
     oneValueArgs
     ARCH
     YOSYS_SCRIPT
     DEVICE_FULL_TEMPLATE
     BITSTREAM_EXTENSION
+    BIN_EXTENSION
     RR_PATCH_TOOL
     RR_PATCH_CMD
     PLACE_TOOL
@@ -126,6 +128,8 @@ function(DEFINE_ARCH)
     RR_PATCH_CMD
     NO_PINS
     NO_BITSTREAM
+    NO_BIT_TO_V
+    NO_BIT_TIME
     USE_FASM
     ROUTE_CHAN_WIDTH
     )
@@ -151,10 +155,17 @@ function(DEFINE_ARCH)
 
   set(BIT_ARGS
     BITSTREAM_EXTENSION
-    BIT_TO_V
-    BIT_TO_V_CMD
+    BIN_EXTENSION
     BIT_TO_BIN
     BIT_TO_BIN_CMD
+    )
+
+  set(BIT_TO_V_ARGS
+    BIT_TO_V
+    BIT_TO_V_CMD
+    )
+
+  set(BIT_TIME_ARGS
     BIT_TIME
     BIT_TIME_CMD
     )
@@ -185,6 +196,18 @@ function(DEFINE_ARCH)
     list(APPEND DISALLOWED_ARGS ${BIT_ARGS})
   else()
     list(APPEND REQUIRED_ARGS ${BIT_ARGS})
+  endif()
+
+  if(${DEFINE_ARCH_NO_BIT_TO_V})
+    list(APPEND DISALLOWED_ARGS ${BIT_TO_V_ARGS})
+  else()
+    list(APPEND REQUIRED_ARGS ${BIT_TO_V_ARGS})
+  endif()
+
+  if(${DEFINE_ARCH_NO_BIT_TIME})
+    list(APPEND DISALLOWED_ARGS ${BIT_TIME_ARGS})
+  else()
+    list(APPEND REQUIRED_ARGS ${BIT_TIME_ARGS})
   endif()
 
   foreach(ARG ${REQUIRED_ARGS})
@@ -1104,39 +1127,43 @@ function(ADD_FPGA_TARGET)
     add_custom_target(${NAME}_bit ALL DEPENDS ${OUT_BITSTREAM})
     add_output_to_fpga_target(${NAME} BIT ${OUT_LOCAL_REL}/${TOP}.${BITSTREAM_EXTENSION})
 
-    # Generate verilog from bitstream
-    # -------------------------------------------------------------------------
-    set(OUT_BIT_VERILOG ${OUT_LOCAL}/${TOP}_bit.v)
-    get_target_property_required(BIT_TO_V ${ARCH} BIT_TO_V)
-    get_target_property_required(BIT_TO_V_CMD ${ARCH} BIT_TO_V_CMD)
-    string(CONFIGURE ${BIT_TO_V_CMD} BIT_TO_V_CMD_FOR_TARGET)
-    separate_arguments(
-      BIT_TO_V_CMD_FOR_TARGET_LIST UNIX_COMMAND ${BIT_TO_V_CMD_FOR_TARGET}
-    )
+    get_target_property_required(NO_BIT_TO_V ${ARCH} NO_BIT_TO_V)
+    if(NOT ${NO_BIT_TO_V})
+        # Generate verilog from bitstream
+        # -------------------------------------------------------------------------
+        set(OUT_BIT_VERILOG ${OUT_LOCAL}/${TOP}_bit.v)
+        get_target_property_required(BIT_TO_V ${ARCH} BIT_TO_V)
+        get_target_property_required(BIT_TO_V_CMD ${ARCH} BIT_TO_V_CMD)
+        string(CONFIGURE ${BIT_TO_V_CMD} BIT_TO_V_CMD_FOR_TARGET)
+        separate_arguments(
+        BIT_TO_V_CMD_FOR_TARGET_LIST UNIX_COMMAND ${BIT_TO_V_CMD_FOR_TARGET}
+        )
 
-    add_custom_command(
-      OUTPUT ${OUT_BIT_VERILOG}
-      COMMAND ${BIT_TO_V_CMD_FOR_TARGET_LIST}
-      DEPENDS ${BIT_TO_V} ${OUT_BITSTREAM}
-      )
+        add_custom_command(
+        OUTPUT ${OUT_BIT_VERILOG}
+        COMMAND ${BIT_TO_V_CMD_FOR_TARGET_LIST}
+        DEPENDS ${BIT_TO_V} ${OUT_BITSTREAM}
+        )
 
-    add_custom_target(${NAME}_bit_v DEPENDS ${OUT_BIT_VERILOG})
-    add_output_to_fpga_target(${NAME} BIT_V ${OUT_LOCAL_REL}/${TOP}_bit.v)
+        add_custom_target(${NAME}_bit_v DEPENDS ${OUT_BIT_VERILOG})
+        add_output_to_fpga_target(${NAME} BIT_V ${OUT_LOCAL_REL}/${TOP}_bit.v)
 
-    set(AUTOSIM_CYCLES ${ADD_FPGA_TARGET_AUTOSIM_CYCLES})
-    if("${AUTOSIM_CYCLES}" STREQUAL "")
-      set(AUTOSIM_CYCLES 100)
+        set(AUTOSIM_CYCLES ${ADD_FPGA_TARGET_AUTOSIM_CYCLES})
+        if("${AUTOSIM_CYCLES}" STREQUAL "")
+        set(AUTOSIM_CYCLES 100)
+        endif()
+
+        add_autosim(
+        NAME ${NAME}_autosim_bit
+        TOP ${TOP}
+        ARCH ${ARCH}
+        SOURCES ${OUT_LOCAL_REL}/${TOP}_bit.v
+        CYCLES ${AUTOSIM_CYCLES}
+        )
     endif()
 
-    add_autosim(
-      NAME ${NAME}_autosim_bit
-      TOP ${TOP}
-      ARCH ${ARCH}
-      SOURCES ${OUT_LOCAL_REL}/${TOP}_bit.v
-      CYCLES ${AUTOSIM_CYCLES}
-      )
-
-    set(OUT_BIN ${OUT_LOCAL}/${TOP}.bin)
+    get_target_property_required(BIN_EXTENSION ${ARCH} BIN_EXTENSION)
+    set(OUT_BIN ${OUT_LOCAL}/${TOP}.${BIN_EXTENSION})
     get_target_property_required(BIT_TO_BIN ${ARCH} BIT_TO_BIN)
     get_target_property_required(BIT_TO_BIN_CMD ${ARCH} BIT_TO_BIN_CMD)
     string(CONFIGURE ${BIT_TO_BIN_CMD} BIT_TO_BIN_CMD_FOR_TARGET)
@@ -1168,23 +1195,26 @@ function(ADD_FPGA_TARGET)
       DEPENDS ${OUT_BIN} ${PROG_TOOL}
       )
 
-    set(OUT_TIME_VERILOG ${OUT_LOCAL}/${TOP}_time.v)
-    get_target_property_required(BIT_TIME ${ARCH} BIT_TIME)
-    get_target_property_required(BIT_TIME_CMD ${ARCH} BIT_TIME_CMD)
-    string(CONFIGURE ${BIT_TIME_CMD} BIT_TIME_CMD_FOR_TARGET)
-    separate_arguments(
-      BIT_TIME_CMD_FOR_TARGET_LIST UNIX_COMMAND ${BIT_TIME_CMD_FOR_TARGET}
-    )
-    add_custom_command(
-      OUTPUT ${OUT_TIME_VERILOG}
-      COMMAND ${BIT_TIME_CMD_FOR_TARGET_LIST}
-      DEPENDS ${OUT_BITSTREAM} ${BIT_TIME}
-      )
+    get_target_property_required(NO_BIT_TIME ${ARCH} NO_BIT_TIME)
+    if(NOT ${NO_BIT_TIME})
+        set(OUT_TIME_VERILOG ${OUT_LOCAL}/${TOP}_time.v)
+        get_target_property_required(BIT_TIME ${ARCH} BIT_TIME)
+        get_target_property_required(BIT_TIME_CMD ${ARCH} BIT_TIME_CMD)
+        string(CONFIGURE ${BIT_TIME_CMD} BIT_TIME_CMD_FOR_TARGET)
+        separate_arguments(
+        BIT_TIME_CMD_FOR_TARGET_LIST UNIX_COMMAND ${BIT_TIME_CMD_FOR_TARGET}
+        )
+        add_custom_command(
+        OUTPUT ${OUT_TIME_VERILOG}
+        COMMAND ${BIT_TIME_CMD_FOR_TARGET_LIST}
+        DEPENDS ${OUT_BITSTREAM} ${BIT_TIME}
+        )
 
-    add_custom_target(
-      ${NAME}_time
-      DEPENDS ${OUT_TIME_VERILOG}
-      )
+        add_custom_target(
+        ${NAME}_time
+        DEPENDS ${OUT_TIME_VERILOG}
+        )
+    endif()
   endif()
 
   # Add test bench targets

@@ -29,6 +29,7 @@ define_arch(
   BITSTREAM_EXTENSION asc
   BIT_TO_BIN ${ICESTORM}/icepack/icepack
   BIT_TO_BIN_CMD "\${BIT_TO_BIN} \${OUT_BITSTREAM} > \${OUT_BIN}"
+  BIN_EXTENSION bin
   BIT_TIME ${ICESTORM}/icetime/icetime
   BIT_TIME_CMD "\${BIT_TIME} -v -t -p \${INPUT_IO_FILE} -d \${DEVICE} \${OUT_BITSTREAM} -o \${OUT_TIME_VERILOG}"
   ROUTE_CHAN_WIDTH 100
