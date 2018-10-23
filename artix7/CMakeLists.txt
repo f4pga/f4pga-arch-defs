@@ -8,6 +8,8 @@ project_xray_prepare_database(
   PART artix7
   )
 
+set(ROI_PART xc7a35tcpg236-1)
+set(ROI_DIR ${PRJXRAY_DB_DIR}/roi/basys3/)
 
 add_subdirectory(tiles)
 add_subdirectory(blocks)
@@ -36,7 +38,22 @@ define_arch(
   --map \${PINMAP} \
   --blif \${OUT_EBLIF} \
   --pcf \${INPUT_IO_FILE}"
-  NO_BITSTREAM
+  BITSTREAM_EXTENSION frames
+  BIN_EXTENSION bit
+  FASM_TO_BIT ${PRJXRAY_DIR}/utils/fasm2frames.py
+  FASM_TO_BIT_CMD "${CMAKE_COMMAND} -E env \
+  PYTHONPATH=${PRJXRAY_DIR}:${PRJXRAY_DIR}/third_party/fasm \
+  \${PYTHON3} \${FASM_TO_BIT} \
+  --db_root ${PRJXRAY_DB_DIR}/artix7  \
+  --sparse \
+  \${OUT_FASM} \${OUT_BITSTREAM}"
+  BIT_TO_BIN xc7patch
+  BIT_TO_BIN_CMD "xc7patch \
+  --part_name ${ROI_PART} \
+  --part_file ${PRJXRAY_DB_DIR}/artix7/${ROI_PART}.yaml \
+  --bitstream_file ${ROI_DIR}/design.bit \
+  --frm_file \${OUT_BITSTREAM} \
+  --output_file \${OUT_BIN}"
   NO_BIT_TO_V
   NO_BIT_TIME
   USE_FASM
