@@ -11,11 +11,6 @@ append_file_dependency(DEVICE_RR_PATCH_DEPS ${CHANNELS})
 append_file_dependency(DEVICE_RR_PATCH_DEPS ${SYNTH_TILES})
 
 add_conda_pip(
-  NAME intervaltree
-  NO_EXE
-  )
-
-add_conda_pip(
   NAME textx
   NO_EXE
   )
