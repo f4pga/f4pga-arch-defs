@@ -9,11 +9,13 @@ file specified in the --synth_tiles output argument.  This can be used to genera
 IO placement spefications to target the synthetic IO pads.
 
 """
+from __future__ import print_function
 import argparse
 import prjxray.db
+from prjxray.roi import Roi
 import os.path
 import simplejson as json
-import csv
+import sys
 
 import lxml.etree as ET
 
@@ -155,47 +157,62 @@ def main():
     roi_outputs = []
 
     synth_tiles = {}
+    synth_tiles['tiles'] = {}
     if args.use_roi:
         only_emit_roi = True
         with open(args.use_roi) as f:
-            for d in csv.DictReader(f, delimiter=' '):
-                if d['name'].startswith('dout['):
-                    roi_outputs.append(d)
-                    port_type = 'input'
-                    is_clock = False
-                elif d['name'].startswith('din['):
-                    roi_inputs.append(d)
-                    is_clock = False
-                    port_type = 'output'
-                elif d['name'].startswith('clk'):
-                    roi_inputs.append(d)
-                    port_type = 'output'
-                    is_clock = True
-                else:
-                    assert False, d
+            j = json.load(f)
 
-                tile, wire = d['wire'].split('/')
+        roi = Roi(
+                db=db,
+                x1=j['info']['GRID_X_MIN'],
+                y1=j['info']['GRID_Y_MIN'],
+                x2=j['info']['GRID_X_MAX'],
+                y2=j['info']['GRID_Y_MAX'],
+                )
 
-                # Make sure connecting wire is not in ROI!
+        synth_tiles['info'] = j['info']
+
+        for port in j['ports']:
+            if port['name'].startswith('dout['):
+                roi_outputs.append(port)
+                port_type = 'input'
+                is_clock = False
+            elif port['name'].startswith('din['):
+                roi_inputs.append(port)
+                is_clock = False
+                port_type = 'output'
+            elif port['name'].startswith('clk'):
+                roi_inputs.append(port)
+                port_type = 'output'
+                is_clock = True
+            else:
+                assert False, port
+
+            tile, wire = port['wire'].split('/')
+
+            # Make sure connecting wire is not in ROI!
+            loc = g.loc_of_tilename(tile)
+            if roi.tile_in_roi(loc):
+                # Or if in the ROI, make sure it has no sites.
                 gridinfo = g.gridinfo_at_tilename(tile)
-                if gridinfo.in_roi:
-                    # Or if in the ROI, make sure it has no sites.
-                    assert len(db.get_tile_type(gridinfo.tile_type).get_sites()) == 0, tile
+                assert len(db.get_tile_type(gridinfo.tile_type).get_sites()) == 0, tile
 
 
-                if tile not in synth_tiles:
-                    synth_tiles[tile] = {
-                            'pins': [],
-                            'loc': g.loc_of_tilename(tile),
-                    }
 
-                synth_tiles[tile]['pins'].append({
-                        'roi_name': d['name'].replace('[', '_').replace(']','_'),
-                        'wire': wire,
-                        'pad': d['pin'],
-                        'port_type': port_type,
-                        'is_clock': is_clock,
-                })
+            if tile not in synth_tiles['tiles']:
+                synth_tiles['tiles'][tile] = {
+                        'pins': [],
+                        'loc': g.loc_of_tilename(tile),
+                }
+
+            synth_tiles['tiles'][tile]['pins'].append({
+                    'roi_name': port['name'].replace('[', '_').replace(']','_'),
+                    'wire': wire,
+                    'pad': port['pin'],
+                    'port_type': port_type,
+                    'is_clock': is_clock,
+            })
 
         with open(args.synth_tiles, 'w') as f:
             json.dump(synth_tiles, f)
@@ -206,13 +223,13 @@ def main():
         gridinfo = g.gridinfo_at_loc(loc)
         tile = g.tilename_at_loc(loc)
 
-        if tile in synth_tiles:
-            synth_tile = synth_tiles[tile]
+        if tile in synth_tiles['tiles']:
+            synth_tile = synth_tiles['tiles'][tile]
 
             assert len(synth_tile['pins']) == 1
 
             vpr_tile_type = synth_tile_map[synth_tile['pins'][0]['port_type']]
-        elif only_emit_roi and not gridinfo.in_roi:
+        elif only_emit_roi and not roi.tile_in_roi(loc):
             # This tile is outside the ROI, skip it.
             continue
         elif gridinfo.tile_type in tile_types:
@@ -221,6 +238,10 @@ def main():
         else:
             # We don't want this tile
             continue
+
+        if gridinfo.segment is None:
+            print('*** WARNING *** Skip tile {} because it lacks bitstream data.'.format(tile),
+                    file=sys.stderr)
 
         single_xml = ET.SubElement(fixed_layout_xml, 'single', {
                 'priority': '1',
@@ -233,7 +254,6 @@ def main():
                 'name': 'fasm_prefix',
         }).text = tile
 
-    #directlist_xml = ET.SubElement(arch_xml, 'directlist')
     device_xml = ET.SubElement(arch_xml, 'device')
 
     ET.SubElement(device_xml, 'sizing', {

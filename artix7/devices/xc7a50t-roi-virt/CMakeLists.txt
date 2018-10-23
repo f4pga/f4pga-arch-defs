@@ -1,7 +1,7 @@
 project_xray_arch(
   PART artix7
   TILE_TYPES INT_R INT_L CLBLL_R CLBLL_L
-  USE_ROI ${CMAKE_CURRENT_SOURCE_DIR}/design.txt
+  USE_ROI ${PRJXRAY_DB_DIR}/roi/basys3/design.json
   )
 
 define_device_type(
