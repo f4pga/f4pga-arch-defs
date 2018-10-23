@@ -47,6 +47,8 @@ add_conda_package(
 include(make/image_gen.cmake)
 include(make/gen.cmake)
 
+add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/third_party/prjxray)
+
 # Target for all check tests.
 add_custom_target(all_check_tests)
 
