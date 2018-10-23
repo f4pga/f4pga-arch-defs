@@ -13,6 +13,11 @@ add_conda_pip(
   NO_EXE
   )
 
+add_conda_pip(
+  NAME intervaltree
+  NO_EXE
+  )
+
 function(get_project_xray_dependencies var part element)
   list(APPEND ${var} ${PRJXRAY_DB_DIR}/Info.md)
   string(TOLOWER ${element} element_LOWER)
@@ -228,7 +233,7 @@ function(PROJECT_XRAY_PREPARE_DATABASE)
     --channels ${CMAKE_CURRENT_BINARY_DIR}/${CHANNELS}
     DEPENDS
     ${FORM_CHANNELS}
-    ${DEPS} ${DEPS2} simplejson progressbar2
+    ${DEPS} ${DEPS2} simplejson progressbar2 intervaltree
     ${PYTHON3} ${PYTHON3_TARGET}
     )
 
