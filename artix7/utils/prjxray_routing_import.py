@@ -8,6 +8,7 @@ node specified.
 
 import argparse
 import prjxray.db
+from prjxray.roi import Roi
 from lib.rr_graph import graph2
 from lib.rr_graph import tracks
 import lib.rr_graph_xml.graph2 as xml_graph2
@@ -207,6 +208,15 @@ def main():
         use_roi = True
         with open(args.synth_tiles) as f:
             synth_tiles = json.load(f)
+
+        roi = Roi(
+                db=db,
+                x1=synth_tiles['info']['GRID_X_MIN'],
+                y1=synth_tiles['info']['GRID_Y_MIN'],
+                x2=synth_tiles['info']['GRID_X_MAX'],
+                y2=synth_tiles['info']['GRID_Y_MAX'],
+                )
+
         print('{} generating routing graph for ROI.'.format(now()))
     else:
         use_roi = False
@@ -242,7 +252,8 @@ def main():
         if use_roi:
             alive = False
             for tile, wire in channel['wires']:
-                if grid.gridinfo_at_tilename(tile).in_roi or tile in synth_tiles:
+                loc = grid.loc_of_tilename(tile)
+                if roi.tile_in_roi(loc) or tile in synth_tiles['tiles']:
                     alive = True
                     break
 
@@ -294,9 +305,9 @@ def main():
         tile_name = grid.tilename_at_loc(loc)
 
         if use_roi:
-            if tile_name in synth_tiles:
-                assert len(synth_tiles[tile_name]['pins']) == 1
-                for pin in synth_tiles[tile_name]['pins']:
+            if tile_name in synth_tiles['tiles']:
+                assert len(synth_tiles['tiles'][tile_name]['pins']) == 1
+                for pin in synth_tiles['tiles'][tile_name]['pins']:
                     tracks_model, track_nodes = track_wire_map[(tile_name, pin['wire'])]
 
                     option = list(tracks_model.get_tracks_for_wire_at_coord(loc))
@@ -336,7 +347,7 @@ def main():
                         assert False, pin
             else:
                 # Not a synth node, check if in ROI.
-                if not gridinfo.in_roi:
+                if not roi.tile_in_roi(loc):
                     continue
 
         tile_type = db.get_tile_type(gridinfo.tile_type)
