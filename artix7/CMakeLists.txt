@@ -37,6 +37,8 @@ define_arch(
   --blif \${OUT_EBLIF} \
   --pcf \${INPUT_IO_FILE}"
   NO_BITSTREAM
+  NO_BIT_TO_V
+  NO_BIT_TIME
   USE_FASM
   RR_GRAPH_EXT ".xml"
   ROUTE_CHAN_WIDTH 500
