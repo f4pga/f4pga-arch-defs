@@ -15,7 +15,12 @@ add_conda_pip(
   NO_EXE
   )
 
-list(APPEND DEVICE_RR_PATCH_DEPS intervaltree)
+add_conda_pip(
+  NAME textx
+  NO_EXE
+  )
+
+list(APPEND DEVICE_RR_PATCH_DEPS intervaltree textx)
 
 define_device(
   DEVICE xc7a50t
