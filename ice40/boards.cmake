@@ -11,7 +11,7 @@ define_board(
   DEVICE lp1k
   PACKAGE qn84
   PROG_TOOL ${ICEPROG_TOOL}
-  PROG_CMD "${ICEPROG_TOOL} -ew"
+  PROG_CMD "${ICEPROG_TOOL} -ew \${OUT_BIT}"
 )
 
 # iCE40-HX8K Breakout Board Evaluation Kit
@@ -22,7 +22,7 @@ define_board(
   DEVICE hx8k
   PACKAGE ct256
   PROG_TOOL ${ICEPROG_TOOL}
-  PROG_CMD "${ICEPROG_TOOL} -S"
+  PROG_CMD "${ICEPROG_TOOL} -S \${OUT_BIT}"
 )
 
 # DPControl icevision board
@@ -49,7 +49,7 @@ define_board(
   DEVICE lp8k
   PACKAGE cm81
   PROG_TOOL ${TINYFPGAB_TARGET}
-  PROG_CMD "${TINYFPGAB} --program"
+  PROG_CMD "${TINYFPGAB} --program \${OUT_BIT}"
 )
 
 add_conda_pip(
@@ -67,5 +67,5 @@ define_board(
   DEVICE lp8k
   PACKAGE cm81
   PROG_TOOL ${TINYPROG_TARGET}
-  PROG_CMD "${TINYPROG} -p"
+  PROG_CMD "${TINYPROG} -p \${OUT_BIT}"
 )
