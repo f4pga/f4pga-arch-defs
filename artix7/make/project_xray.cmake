@@ -67,7 +67,7 @@ function(PROJECT_XRAY_DUMMY_SITE)
 endfunction()
 
 function(PROJECT_XRAY_TILE)
-  set(options)
+    set(options FUSED_SITES)
   set(oneValueArgs PART TILE)
   set(multiValueArgs SITE_TYPES)
   cmake_parse_arguments(
@@ -101,6 +101,11 @@ function(PROJECT_XRAY_TILE)
   append_file_dependency(DEPS ${symbiflow-arch-defs_SOURCE_DIR}/${PART}/pin_assignments.json)
   get_file_location(PIN_ASSIGNMENTS ${symbiflow-arch-defs_SOURCE_DIR}/${PART}/pin_assignments.json)
 
+  set(FUSED_SITES_ARGS "")
+  if(PROJECT_XRAY_TILE_FUSED_SITES)
+      set(FUSED_SITES_ARGS "--fused_sites")
+  endif()
+
   add_custom_command(
     OUTPUT ${TILE}.pb_type.xml ${TILE}.model.xml
     COMMAND ${CMAKE_COMMAND} -E env PYTHONPATH=${PRJXRAY_DIR}:${symbiflow-arch-defs_SOURCE_DIR}/utils
@@ -112,6 +117,7 @@ function(PROJECT_XRAY_TILE)
     --pin_assignments ${PIN_ASSIGNMENTS}
     --output-pb-type ${CMAKE_CURRENT_BINARY_DIR}/${TILE}.pb_type.xml
     --output-model ${CMAKE_CURRENT_BINARY_DIR}/${TILE}.model.xml
+    ${FUSED_SITES_ARGS}
     DEPENDS
     ${TILE_IMPORT}
       ${DEPS}

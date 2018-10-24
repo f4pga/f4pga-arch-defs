@@ -96,6 +96,11 @@ def main():
     parser.add_argument(
             '--site_types', required=True, help="Comma seperated list of site types to include in this tile.")
 
+    parser.add_argument(
+            '--fused_sites',
+            action='store_true',
+            help="Typically a tile can treat the sites within the tile as independent.  For tiles where this is not true, fused sites only imports 1 primatative for the entire tile, which should be named the same as the tile type.")
+
     args = parser.parse_args()
 
     db = prjxray.db.Database(os.path.join(prjxray_db, args.part))
@@ -108,38 +113,54 @@ def main():
     # Wires source from a site within the tile are output wires.
     output_wires = set()
 
-    site_types_to_import = set(args.site_types.split(','))
-    imported_site_types = set()
-    ignored_site_types = set()
+    if not args.fused_sites:
+        site_types_to_import = set(args.site_types.split(','))
+        imported_site_types = set()
+        ignored_site_types = set()
 
-    for site in tile.get_sites():
-        site_type = db.get_site_type(site.type)
+        for site in tile.get_sites():
+            site_type = db.get_site_type(site.type)
 
-        if site.type not in site_types_to_import:
-            ignored_site_types.add(site.type)
-            continue
+            if site.type not in site_types_to_import:
+                ignored_site_types.add(site.type)
+                continue
 
-        imported_site_types.add(site.type)
+            imported_site_types.add(site.type)
 
-        for site_pin in site.site_pins:
-            site_type_pin = site_type.get_site_pin(site_pin.name)
+            for site_pin in site.site_pins:
+                site_type_pin = site_type.get_site_pin(site_pin.name)
 
-            if site_type_pin.direction == prjxray.site_type.SitePinDirection.IN:
-                if site_pin.wire is not None:
-                    input_wires.add(site_pin.wire)
-            elif site_type_pin.direction == prjxray.site_type.SitePinDirection.OUT:
-                if site_pin.wire is not None:
-                    output_wires.add(site_pin.wire)
-            else:
-                assert False, site_type_pin.direction
+                if site_type_pin.direction == prjxray.site_type.SitePinDirection.IN:
+                    if site_pin.wire is not None:
+                        input_wires.add(site_pin.wire)
+                elif site_type_pin.direction == prjxray.site_type.SitePinDirection.OUT:
+                    if site_pin.wire is not None:
+                        output_wires.add(site_pin.wire)
+                else:
+                    assert False, site_type_pin.direction
 
-    # Make sure all requested site types actually get imported.
-    assert len(site_types_to_import - imported_site_types) == 0, (
-            site_types_to_import, imported_site_types)
+        # Make sure all requested site types actually get imported.
+        assert len(site_types_to_import - imported_site_types) == 0, (
+                site_types_to_import, imported_site_types)
 
-    for ignored_site_type in ignored_site_types:
-        print('*** WARNING *** Ignored site type {} in tile type {}'.format(
-            ignored_site_type, args.tile), file=sys.stderr)
+        for ignored_site_type in ignored_site_types:
+            print('*** WARNING *** Ignored site type {} in tile type {}'.format(
+                ignored_site_type, args.tile), file=sys.stderr)
+    else:
+        for site in tile.get_sites():
+            site_type = db.get_site_type(site.type)
+
+            for site_pin in site.site_pins:
+                site_type_pin = site_type.get_site_pin(site_pin.name)
+
+                if site_type_pin.direction == prjxray.site_type.SitePinDirection.IN:
+                    if site_pin.wire is not None:
+                        input_wires.add(site_pin.wire)
+                elif site_type_pin.direction == prjxray.site_type.SitePinDirection.OUT:
+                    if site_pin.wire is not None:
+                        output_wires.add(site_pin.wire)
+                else:
+                    assert False, site_type_pin.direction
 
     site_model = args.site_directory + "/{0}/{0}.model.xml"
     site_pbtype = args.site_directory + "/{0}/{0}.pb_type.xml"
@@ -162,11 +183,16 @@ def main():
             'href': site_model.format(name.lower()),
             'xpointer': "xpointer(models/child::node())"})
 
-    site_types = set(site.type for site in tile.get_sites())
-    for site_type in site_types:
-        if site_type in ignored_site_types:
-            continue
-        add_model_include(site_type)
+    if not args.fused_sites:
+        site_types = set(site.type for site in tile.get_sites())
+        for site_type in site_types:
+            if site_type in ignored_site_types:
+                continue
+            add_model_include(site_type)
+    else:
+        fused_site_name = args.tile.lower()
+
+        add_model_include(fused_site_name)
 
     model_str = ET.tostring(model_xml, pretty_print=True).decode('utf-8')
     args.output_model.write(model_str)
@@ -227,33 +253,125 @@ def main():
 
     pb_type_xml.append(ET.Comment(" Internal Sites "))
 
-
-
     cell_names = {}
 
-    site_type_count = {}
-    site_prefixes = {}
-    cells_idx = []
-    for idx, site in enumerate(tile.get_sites()):
-        if site.type not in site_type_count:
-            site_type_count[site.type] = 0
-            site_prefixes[site.type] = []
+    if not args.fused_sites:
+        site_type_count = {}
+        site_prefixes = {}
+        cells_idx = []
+        for idx, site in enumerate(tile.get_sites()):
+            if site.type not in site_type_count:
+                site_type_count[site.type] = 0
+                site_prefixes[site.type] = []
 
-        cells_idx.append(site_type_count[site.type])
-        site_type_count[site.type] += 1
-        site_prefixes[site.type].append('{}_X{}'.format(site.type, site.x))
-    del idx, site
+            cells_idx.append(site_type_count[site.type])
+            site_type_count[site.type] += 1
+            site_prefixes[site.type].append('{}_X{}'.format(site.type, site.x))
+        del idx, site
 
-    site_type_ports = {}
+        site_type_ports = {}
 
-    for site_type in sorted(site_type_count):
-        if site_type in ignored_site_types:
-            continue
+        for site_type in sorted(site_type_count):
+            if site_type in ignored_site_types:
+                continue
 
-        site_type_path = site_pbtype.format(site_type.lower())
+            site_type_path = site_pbtype.format(site_type.lower())
+            cell_pb_type = ET.ElementTree()
+            root_element = cell_pb_type.parse(site_type_path)
+            cell_names[site_type] = root_element.attrib['name']
+
+            ports = {}
+            for inputs in root_element.iter('input'):
+                ports[inputs.attrib['name']] = int(inputs.attrib['num_pins'])
+
+            for clocks in root_element.iter('clock'):
+                ports[clocks.attrib['name']] = int(clocks.attrib['num_pins'])
+
+            for outputs in root_element.iter('output'):
+                ports[outputs.attrib['name']] = int(outputs.attrib['num_pins'])
+
+            site_type_ports[site_type] = ports
+
+            attrib = dict(root_element.attrib)
+            attrib['num_pb'] = str(site_type_count[site_type])
+            include_xml = ET.SubElement(pb_type_xml, 'pb_type', attrib)
+            ET.SubElement(include_xml, xi_include, {
+                'href': site_type_path,
+                'xpointer':
+                "xpointer(pb_type/child::node()[local-name()!='metadata'])",
+                })
+
+            metadata_xml = ET.SubElement(include_xml, 'metadata')
+            ET.SubElement(metadata_xml, 'meta', {
+                    'name': 'fasm_prefix',
+            }).text = ' '.join(site_prefixes[site_type])
+
+            # Import pb_type metadata if it exists.
+            if len(tuple(root_element.iter('metadata'))) > 0:
+                ET.SubElement(metadata_xml, xi_include, {
+                    'href': site_type_path,
+                    'xpointer': "xpointer(pb_type/metadata/child::node())",
+                    })
+
+        for idx, site in enumerate(tile.get_sites()):
+            if site.type in ignored_site_types:
+                continue
+
+            site_name = cell_names[site.type]
+            site_idx = cells_idx[idx]
+
+            site_type = db.get_site_type(site.type)
+
+            interconnect_xml.append(ET.Comment(" Tile->Site "))
+            for site_pin in sorted(site.site_pins, key=lambda site_pin: site_pin.name):
+                if site_pin.wire is None:
+                    continue
+
+                port = find_port(site_pin.name, site_type_ports[site.type])
+                if port is None:
+                    print("*** WARNING *** Didn't find port for name {} for site type {}".format(
+                        site_pin.name, site.type), file=sys.stderr)
+                    continue
+
+                site_type_pin = site_type.get_site_pin(site_pin.name)
+
+                if site_type_pin.direction == prjxray.site_type.SitePinDirection.IN:
+                    add_direct(interconnect_xml,
+                            input=object_ref(tile_name, site_pin.wire),
+                            output=object_ref(site_name, pb_idx=site_idx, **port)
+                            )
+                elif site_type_pin.direction == prjxray.site_type.SitePinDirection.OUT:
+                    pass
+                else:
+                    assert False, site_type_pin.direction
+
+            interconnect_xml.append(ET.Comment(" Site->Tile "))
+            for site_pin in sorted(site.site_pins, key=lambda site_pin: site_pin.name):
+                if site_pin.wire is None:
+                    continue
+
+                port = find_port(site_pin.name, site_type_ports[site.type])
+                if port is None:
+                    continue
+
+                site_type_pin = site_type.get_site_pin(site_pin.name)
+
+                if site_type_pin.direction == prjxray.site_type.SitePinDirection.IN:
+                    pass
+                elif site_type_pin.direction == prjxray.site_type.SitePinDirection.OUT:
+                    add_direct(interconnect_xml,
+                            input=object_ref(site_name,
+                                pb_idx=site_idx, **port),
+                            output=object_ref(tile_name, site_pin.wire),
+                            )
+                else:
+                    assert False, site_type_pin.direction
+    else:
+        site_type_ports = {}
+
+        site_type_path = site_pbtype.format(fused_site_name)
         cell_pb_type = ET.ElementTree()
         root_element = cell_pb_type.parse(site_type_path)
-        cell_names[site_type] = root_element.attrib['name']
 
         ports = {}
         for inputs in root_element.iter('input'):
@@ -265,82 +383,69 @@ def main():
         for outputs in root_element.iter('output'):
             ports[outputs.attrib['name']] = int(outputs.attrib['num_pins'])
 
-        site_type_ports[site_type] = ports
-
         attrib = dict(root_element.attrib)
-        attrib['num_pb'] = str(site_type_count[site_type])
         include_xml = ET.SubElement(pb_type_xml, 'pb_type', attrib)
         ET.SubElement(include_xml, xi_include, {
             'href': site_type_path,
             'xpointer':
-            "xpointer(pb_type/child::node()[local-name()!='metadata'])",
+            "xpointer(pb_type/child::node())",
             })
 
-        metadata_xml = ET.SubElement(include_xml, 'metadata')
-        ET.SubElement(metadata_xml, 'meta', {
-                'name': 'fasm_prefix',
-        }).text = ' '.join(site_prefixes[site_type])
+        site_name = root_element.attrib['name']
+        site_idx = 0
 
-        # Import pb_type metadata if it exists.
-        if len(tuple(root_element.iter('metadata'))) > 0:
-            ET.SubElement(metadata_xml, xi_include, {
-                'href': site_type_path,
-                'xpointer': "xpointer(pb_type/metadata/child::node())",
-                })
+        def fused_port_name(site, site_pin):
+            return '{}_{}_{}'.format(site.prefix, site.name, site_pin.name)
 
-    for idx, site in enumerate(tile.get_sites()):
-        if site.type in ignored_site_types:
-            continue
+        for idx, site in enumerate(tile.get_sites()):
+            site_type = db.get_site_type(site.type)
 
-        site_name = cell_names[site.type]
-        site_idx = cells_idx[idx]
+            interconnect_xml.append(ET.Comment(" Tile->Site "))
+            for site_pin in sorted(site.site_pins, key=lambda site_pin: site_pin.name):
+                if site_pin.wire is None:
+                    continue
 
-        site_type = db.get_site_type(site.type)
+                port_name = fused_port_name(site, site_pin)
+                port = find_port(port_name, ports)
+                if port is None:
+                    print("*** WARNING *** Didn't find port for name {} for site type {}".format(
+                        port_name, site.type), file=sys.stderr)
+                    continue
 
-        interconnect_xml.append(ET.Comment(" Tile->Site "))
-        for site_pin in sorted(site.site_pins, key=lambda site_pin: site_pin.name):
-            if site_pin.wire is None:
-                continue
+                site_type_pin = site_type.get_site_pin(site_pin.name)
 
-            port = find_port(site_pin.name, site_type_ports[site.type])
-            if port is None:
-                print("*** WARNING *** Didn't find port for name {} for site type {}".format(
-                    site_pin.name, site.type), file=sys.stderr)
-                continue
+                if site_type_pin.direction == prjxray.site_type.SitePinDirection.IN:
+                    add_direct(interconnect_xml,
+                            input=object_ref(tile_name, site_pin.wire),
+                            output=object_ref(site_name, pb_idx=site_idx, **port)
+                            )
+                elif site_type_pin.direction == prjxray.site_type.SitePinDirection.OUT:
+                    pass
+                else:
+                    assert False, site_type_pin.direction
 
-            site_type_pin = site_type.get_site_pin(site_pin.name)
+            interconnect_xml.append(ET.Comment(" Site->Tile "))
+            for site_pin in sorted(site.site_pins, key=lambda site_pin: site_pin.name):
+                if site_pin.wire is None:
+                    continue
 
-            if site_type_pin.direction == prjxray.site_type.SitePinDirection.IN:
-                add_direct(interconnect_xml,
-                        input=object_ref(tile_name, site_pin.wire),
-                        output=object_ref(site_name, pb_idx=site_idx, **port)
-                           )
-            elif site_type_pin.direction == prjxray.site_type.SitePinDirection.OUT:
-                pass
-            else:
-                assert False, site_type_pin.direction
+                port = find_port(fused_port_name(site, site_pin), ports)
+                if port is None:
+                    # Already warned above
+                    continue
 
-        interconnect_xml.append(ET.Comment(" Site->Tile "))
-        for site_pin in sorted(site.site_pins, key=lambda site_pin: site_pin.name):
-            if site_pin.wire is None:
-                continue
+                site_type_pin = site_type.get_site_pin(site_pin.name)
 
-            port = find_port(site_pin.name, site_type_ports[site.type])
-            if port is None:
-                continue
-
-            site_type_pin = site_type.get_site_pin(site_pin.name)
-
-            if site_type_pin.direction == prjxray.site_type.SitePinDirection.IN:
-                pass
-            elif site_type_pin.direction == prjxray.site_type.SitePinDirection.OUT:
-                add_direct(interconnect_xml,
-                        input=object_ref(site_name,
-                            pb_idx=site_idx, **port),
-                        output=object_ref(tile_name, site_pin.wire),
-                        )
-            else:
-                assert False, site_type_pin.direction
+                if site_type_pin.direction == prjxray.site_type.SitePinDirection.IN:
+                    pass
+                elif site_type_pin.direction == prjxray.site_type.SitePinDirection.OUT:
+                    add_direct(interconnect_xml,
+                            input=object_ref(site_name,
+                                pb_idx=site_idx, **port),
+                            output=object_ref(tile_name, site_pin.wire),
+                            )
+                else:
+                    assert False, site_type_pin.direction
 
 
     pb_type_xml.append(interconnect_xml)
