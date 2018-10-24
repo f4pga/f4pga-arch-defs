@@ -239,8 +239,11 @@ def main():
             # We don't want this tile
             continue
 
-        if gridinfo.segment is None:
-            print('*** WARNING *** Skip tile {} because it lacks bitstream data.'.format(tile),
+        is_vbrk = gridinfo.tile_type.find('VBRK') != -1
+
+        # VBRK tiles are known to have no bitstream data.
+        if not is_vbrk and gridinfo.segment is None:
+            print('*** WARNING *** Skipping tile {} because it lacks bitstream data.'.format(tile),
                     file=sys.stderr)
 
         single_xml = ET.SubElement(fixed_layout_xml, 'single', {
