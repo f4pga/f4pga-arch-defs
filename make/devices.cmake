@@ -1229,7 +1229,7 @@ function(ADD_FPGA_TARGET)
       SOURCES ${ADD_FPGA_TARGET_SOURCES} ${TESTBENCH}
       )
 
-    if(NOT ${NO_BITSTREAM})
+    if(NOT ${NO_BIT_TO_V})
       add_testbench(
         NAME testbinch_${TESTBENCH_NAME}
         ARCH ${ARCH}
@@ -1243,7 +1243,7 @@ function(ADD_FPGA_TARGET)
       message(FATAL_ERROR "EQUIV_CHECK_SCRIPT is required if EMIT_CHECK_TESTS is set.")
     endif()
 
-    if(NOT ${NO_BITSTREAM})
+    if(NOT ${NO_BIT_TO_V})
       add_check_test(
         NAME ${NAME}_check
         ARCH ${ARCH}
