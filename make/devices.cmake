@@ -1181,17 +1181,19 @@ function(ADD_FPGA_TARGET)
 
     get_target_property(PROG_TOOL ${BOARD} PROG_TOOL)
     get_target_property(PROG_CMD ${BOARD} PROG_CMD)
-    separate_arguments(
-      PROG_CMD_LIST UNIX_COMMAND ${PROG_CMD}
-    )
 
-    if("${PROG_CMD}" STREQUAL "NOTFOUND")
-      set(PROG_CMD ${PROG_TOOL})
+    if("${PROG_CMD}" STREQUAL "${BOARD}-NOTFOUND" OR "${PROG_CMD}" STREQUAL "")
+        set(PROG_CMD_LIST ${PROG_TOOL} ${OUT_BIN})
+    else()
+        string(CONFIGURE ${PROG_CMD} PROG_CMD_FOR_TARGET)
+        separate_arguments(
+            PROG_CMD_LIST UNIX_COMMAND ${PROG_CMD_FOR_TARGET}
+        )
     endif()
 
     add_custom_target(
       ${NAME}_prog
-      COMMAND ${PROG_CMD_LIST} ${OUT_BIN}
+      COMMAND ${PROG_CMD_LIST}
       DEPENDS ${OUT_BIN} ${PROG_TOOL}
       )
 

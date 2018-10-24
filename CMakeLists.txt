@@ -16,6 +16,10 @@ add_conda_package(
   PROVIDES yosys
   )
 add_conda_package(
+  NAME openocd
+  PROVIDES openocd
+  )
+add_conda_package(
   NAME vtr
   PROVIDES vpr genhlc genfasm
   )
