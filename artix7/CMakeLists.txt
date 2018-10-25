@@ -9,7 +9,7 @@ project_xray_prepare_database(
   )
 
 set(ROI_PART xc7a35tcpg236-1)
-set(ROI_DIR ${PRJXRAY_DB_DIR}/roi/basys3/)
+set(ROI_DIR ${PRJXRAY_DB_DIR}/artix7/harness/basys3/swbut)
 
 add_subdirectory(tiles)
 add_subdirectory(blocks)
