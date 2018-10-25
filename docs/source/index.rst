@@ -27,6 +27,23 @@ Contents
    gettingstarted
    development/development
 
+XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+
+.. symbolator::
+  :alt: Alt text
+  :align: center
+  :caption: Caption text
+  :name: vlog-example
+
+  module vlog
+    (foo, bar);
+
+    input wire foo;
+    output reg bar;
+  endmodule;
+
+
+XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
 
 Indices and tables
 ------------------
