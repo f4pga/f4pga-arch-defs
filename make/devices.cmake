@@ -342,12 +342,12 @@ function(DEFINE_DEVICE_TYPE)
     SCHEMA ${ARCH_SCHEMA}
     )
 
-  add_file_target(FILE ${DEVICE_UNIQUE_PACK_FILE} GENERATED)
+  add_file_target(FILE ${DEVICE_MERGED_FILE} GENERATED)
 
   set_target_properties(
     ${DEFINE_DEVICE_TYPE_DEVICE_TYPE}
     PROPERTIES
-    DEVICE_MERGED_FILE ${CMAKE_CURRENT_SOURCE_DIR}/${DEVICE_UNIQUE_PACK_FILE}
+    DEVICE_MERGED_FILE ${CMAKE_CURRENT_SOURCE_DIR}/${DEVICE_MERGED_FILE}
   )
 
 endfunction()
@@ -566,9 +566,7 @@ endfunction()
 set(VPR_BASE_ARGS
     --min_route_chan_width_hint 100
     --verbose_sweep on
-    --allow_unrelated_clustering off
     --max_criticality 0.0
-    --target_ext_pin_util 0.7
     --max_router_iterations 500
     --routing_failure_predictor off
     --constant_net_method route
@@ -981,10 +979,9 @@ function(ADD_FPGA_TARGET)
     OUTPUT ${ECHO_OUT_NET}
     DEPENDS ${OUT_EBLIF} ${OUT_IO} ${VPR_DEPS}
     COMMAND ${CMAKE_COMMAND} -E make_directory ${OUT_LOCAL}/echo
-    COMMAND ${VPR_CMD} --debug_clustering on --echo_file on --pack
+    COMMAND cd ${OUT_LOCAL}/echo && ${VPR_CMD} --debug_clustering on --echo_file on --pack
     COMMAND
       ${CMAKE_COMMAND} -E copy ${OUT_LOCAL}/echo/vpr_stdout.log ${OUT_LOCAL}/echo/pack.log
-    WORKING_DIRECTORY ${OUT_LOCAL}/echo
     )
 
   # Generate placement.
