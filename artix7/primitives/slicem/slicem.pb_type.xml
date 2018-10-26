@@ -184,10 +184,8 @@
     <!-- Carry -->
 
     <direct name="CIN" input="BLK_IG-SLICEM.CIN" output="BLK_IG-COMMON_SLICE.CIN" >
-      <pack_pattern name="CARRYCHAIN" in_port="BLK_IG-SLICEM.CIN" out_port="BLK_IG-COMMON_SLICE.CIN"/>
     </direct>
     <direct name="COUT" input="BLK_IG-COMMON_SLICE.COUT" output="BLK_IG-SLICEM.COUT" >
-      <pack_pattern name="CARRYCHAIN"  in_port="BLK_IG-COMMON_SLICE.COUT" out_port="BLK_IG-SLICEM.COUT"/>
     </direct>
 
     <!-- Clock, Clock Enable and Reset -->

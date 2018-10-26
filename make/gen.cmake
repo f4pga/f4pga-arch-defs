@@ -244,8 +244,6 @@ function(MUX_GEN)
   add_file_target(FILE "${MUX_GEN_NAME}.pb_type.xml" GENERATED)
   add_file_target(FILE "${MUX_GEN_NAME}.model.xml" GENERATED)
 
-  add_verilog_image_gen(FILE "${MUX_GEN_NAME}.sim.v")
-
   add_custom_target(${MUX_GEN_NAME} DEPENDS ${OUTPUTS})
 
   if(NOT "${MUX_GEN_NTEMPLATE_PREFIXES}" STREQUAL "")
@@ -340,7 +338,6 @@ function(N_TEMPLATE)
         v2x(NAME ${V2X_NAME} SRCS ${SRC_WITH_PREFIX})
       endif()
       if(${N_TEMPLATE_APPLY_VERILOG_IMAGE_GEN})
-        add_verilog_image_gen(FILE ${SRC_WITH_PREFIX})
       endif()
     endforeach(SRC)
   endforeach(PREFIX)
