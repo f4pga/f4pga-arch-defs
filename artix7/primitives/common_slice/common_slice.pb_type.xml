@@ -265,6 +265,9 @@
     <mux name="PRECYINIT_MUX"
       input="BEL_BB-CYINIT_FABRIC.CI_CHAIN BLK_IG-COMMON_SLICE.AX BEL_BB-CYINIT_CONSTANTS.C0 BEL_BB-CYINIT_CONSTANTS.C1"
       output="BEL_BB-CARRY0.CI_INIT">
+      <pack_pattern name="CARRY_INIT0" in_port="BEL_BB-CYINIT_CONSTANTS.C0" out_port="BEL_BB-CARRY0.CI_INIT"/>
+      <pack_pattern name="CARRY_INIT1" in_port="BEL_BB-CYINIT_CONSTANTS.C1" out_port="BEL_BB-CARRY0.CI_INIT"/>
+      <pack_pattern name="CARRY_FABRIC" in_port="BEL_BB-CYINIT_FABRIC.CI_CHAIN" out_port="BEL_BB-CARRY0.CI_INIT"/>
       <metadata>
         <meta name="fasm_mux">
           BEL_BB-CYINIT_CONSTANTS.C0 = NULL

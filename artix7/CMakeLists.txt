@@ -68,6 +68,7 @@ set(VPR_ARTIX7_ARCH_ARGS
  --clock_modeling route
  --place_algorithm bounding_box
  --enable_timing_computations off
+ --allow_unrelated_clustering on
  )
 
 set_target_properties(artix7 PROPERTIES VPR_ARCH_ARGS "${VPR_ARTIX7_ARCH_ARGS}")

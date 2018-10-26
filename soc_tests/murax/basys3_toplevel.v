@@ -8,7 +8,7 @@ module toplevel(
     input   io_jtag_tms,
     output  io_uart_txd,
     input   io_uart_rxd,
-    output [7:0] io_led
+    output [5:0] io_led
   );
 
   wire [31:0] io_gpioA_read;
