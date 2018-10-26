@@ -138,12 +138,8 @@
 
     <!-- Carry -->
 
-    <direct name="CIN" input="BLK_IG-SLICEL.CIN" output="BLK_IG-COMMON_SLICE.CIN" >
-      <pack_pattern name="CARRYCHAIN" in_port="BLK_IG-SLICEL.CIN" out_port="BLK_IG-COMMON_SLICE.CIN"/>
-    </direct>
-    <direct name="COUT" input="BLK_IG-COMMON_SLICE.COUT" output="BLK_IG-SLICEL.COUT" >
-      <pack_pattern name="CARRYCHAIN"  in_port="BLK_IG-COMMON_SLICE.COUT" out_port="BLK_IG-SLICEL.COUT"/>
-    </direct>
+    <direct name="CIN" input="BLK_IG-SLICEL.CIN" output="BLK_IG-COMMON_SLICE.CIN" />
+    <direct name="COUT" input="BLK_IG-COMMON_SLICE.COUT" output="BLK_IG-SLICEL.COUT" />
 
     <!-- Clock, Clock Enable and Reset -->
     <direct name="CK" input="BLK_IG-SLICEL.CLK" output="BLK_IG-COMMON_SLICE.CLK"/>

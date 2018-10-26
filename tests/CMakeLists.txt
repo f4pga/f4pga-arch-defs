@@ -2,6 +2,11 @@ set(FULL_BOARDS dummy_ice40_hx1k_tq144 dummy_artix7_xc7a50t_test)
 set(SMALL_BOARDS dummy_testarch_4x4_dummy)
 set(BOARDS ${FULL_BOARDS} ${SMALL_BOARDS})
 
+foreach(BOARD ${BOARDS})
+    add_custom_target(all_${BOARD})
+endforeach()
+
+
 function(add_simple_test)
   # ~~~
   #   ADD_SIMPLE_TEST(
@@ -46,6 +51,8 @@ function(add_simple_test)
   set(CHECK_TEST_ARGS "")
   if(NOT ${ADD_SIMPLE_TEST_ROUTE_ONLY})
     set(CHECK_TEST_ARGS EMIT_CHECK_TESTS EQUIV_CHECK_SCRIPT ${EQUIV_CHECK_SCRIPT})
+  else()
+    set(CHECK_TEST_ARGS "ROUTE_ONLY")
   endif()
 
 
@@ -57,12 +64,12 @@ function(add_simple_test)
     set(INPUT_IO_FILE_ARG "")
     if(NOT ${NO_PINS})
       generate_pinmap(
-        NAME ${BOARD}.pcf
+          NAME ${ADD_SIMPLE_TEST_NAME}_${BOARD}.pcf
         TOP top
         BOARD ${BOARD}
         SOURCES ${ADD_SIMPLE_TEST_SOURCES}
         )
-      set(INPUT_IO_FILE_ARG INPUT_IO_FILE ${BOARD}.pcf)
+      set(INPUT_IO_FILE_ARG INPUT_IO_FILE ${ADD_SIMPLE_TEST_NAME}_${BOARD}.pcf)
     endif()
 
     set(NO_SYNTHESIS_ARG "")
@@ -81,22 +88,24 @@ function(add_simple_test)
       )
 
     add_dependencies(all_route_tests ${ADD_SIMPLE_TEST_NAME}_${BOARD}_route)
+    add_dependencies(all_${BOARD} ${ADD_SIMPLE_TEST_NAME}_${BOARD}_route)
   endforeach()
 endfunction()
 
-add_subdirectory(0-const)
-add_subdirectory(1-wire)
-add_subdirectory(2-mwire)
-add_subdirectory(3-ff)
-add_subdirectory(3-lut4)
-add_subdirectory(3-lut5x2)
-add_subdirectory(3-lut6)
-add_subdirectory(3-lut7)
-add_subdirectory(3-lut8)
-add_subdirectory(4-lutff)
-add_subdirectory(4-mlut)
-add_subdirectory(5-lut_cascade_1)
-add_subdirectory(6-big_xor)
-add_subdirectory(6-counter)
-add_subdirectory(6-led)
-add_subdirectory(6-rot)
+#add_subdirectory(0-const)
+#add_subdirectory(1-wire)
+#add_subdirectory(2-mwire)
+#add_subdirectory(3-ff)
+#add_subdirectory(3-lut4)
+#add_subdirectory(3-lut5x2)
+#add_subdirectory(3-lut6)
+#add_subdirectory(3-lut7)
+#add_subdirectory(3-lut8)
+#add_subdirectory(4-lutff)
+#add_subdirectory(4-mlut)
+#add_subdirectory(5-lut_cascade_1)
+#add_subdirectory(6-big_xor)
+#add_subdirectory(6-counter)
+#add_subdirectory(6-led)
+#add_subdirectory(6-rot)
+add_subdirectory(7-carry_stress)

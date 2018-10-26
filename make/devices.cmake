@@ -276,6 +276,7 @@ function(DEFINE_DEVICE_TYPE)
   # Generate a arch.xml for a device.
   #
   set(DEVICE_MERGED_FILE arch.merged.xml)
+  set(DEVICE_UNIQUE_PACK_FILE arch.unique_pack.xml)
   set(DEVICE_MERGED_LINT_FILE arch.merged.lint.html)
 
   set(MERGE_XML_XSL ${symbiflow-arch-defs_SOURCE_DIR}/common/xml/xmlsort.xsl)
@@ -289,6 +290,7 @@ function(DEFINE_DEVICE_TYPE)
     append_file_dependency(DEPS ${SRC})
   endforeach()
   set(MERGE_XML_OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/${DEVICE_MERGED_FILE})
+  set(UNIQUE_PACK_OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/${DEVICE_UNIQUE_PACK_FILE})
   set(MERGE_XMLLINT_OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/${DEVICE_MERGED_LINT_FILE})
 
   get_target_property_required(XSLTPROC env XSLTPROC)
@@ -313,26 +315,39 @@ function(DEFINE_DEVICE_TYPE)
       --xinclude
       --output ${MERGE_XML_OUTPUT} ${MERGE_XML_XSL} ${MERGE_XML_INPUT}
   )
+
+  get_target_property_required(PYTHON3 env PYTHON3)
+  get_target_property(PYTHON3_TARGET env PYTHON3_TARGET)
+  set(SPECIALIZE_CARRYCHAINS ${symbiflow-arch-defs_SOURCE_DIR}/utils/specialize_carrychains.py)
+  add_custom_command(
+      OUTPUT ${UNIQUE_PACK_OUTPUT}
+      COMMAND ${PYTHON3} ${SPECIALIZE_CARRYCHAINS}
+      --input_arch_xml ${MERGE_XML_OUTPUT} > ${UNIQUE_PACK_OUTPUT}
+      DEPENDS
+        ${MERGE_XML_OUTPUT}
+        ${PYTHON3} ${PYTHON3_TARGET}
+        ${SPECIALIZE_CARRYCHAINS}
+        )
   add_custom_target(
     ${DEFINE_DEVICE_TYPE_ARCH}_${DEFINE_DEVICE_TYPE_DEVICE_TYPE}_arch
-    DEPENDS ${MERGE_XML_OUTPUT}
+    DEPENDS ${UNIQUE_PACK_OUTPUT}
   )
   add_dependencies(all_merged_arch_xmls
     ${DEFINE_DEVICE_TYPE_ARCH}_${DEFINE_DEVICE_TYPE_DEVICE_TYPE}_arch)
 
   xml_lint(
     NAME ${DEFINE_DEVICE_TYPE_ARCH}_${DEFINE_DEVICE_TYPE_DEVICE_TYPE}_arch_lint
-    FILE ${MERGE_XML_OUTPUT}
+    FILE ${UNIQUE_PACK_OUTPUT}
     LINT_OUTPUT ${MERGE_XMLLINT_OUTPUT}
     SCHEMA ${ARCH_SCHEMA}
     )
 
-  add_file_target(FILE ${DEVICE_MERGED_FILE} GENERATED)
+  add_file_target(FILE ${DEVICE_UNIQUE_PACK_FILE} GENERATED)
 
   set_target_properties(
     ${DEFINE_DEVICE_TYPE_DEVICE_TYPE}
     PROPERTIES
-      DEVICE_MERGED_FILE ${CMAKE_CURRENT_SOURCE_DIR}/${DEVICE_MERGED_FILE}
+    DEVICE_MERGED_FILE ${CMAKE_CURRENT_SOURCE_DIR}/${DEVICE_UNIQUE_PACK_FILE}
   )
 
 endfunction()
@@ -709,7 +724,7 @@ function(ADD_FPGA_TARGET)
   # * ${TOP}.route - Place and routed design (http://docs.verilogtorouting.org/en/latest/vpr/file_formats/#routing-file-format-route)
   # * ${TOP}.${BITSTREAM_EXTENSION} - Bitstream for target.
   #
-  set(options EXPLICIT_ADD_FILE_TARGET EMIT_CHECK_TESTS NO_SYNTHESIS)
+  set(options EXPLICIT_ADD_FILE_TARGET EMIT_CHECK_TESTS NO_SYNTHESIS ROUTE_ONLY)
   set(oneValueArgs NAME TOP BOARD INPUT_IO_FILE EQUIV_CHECK_SCRIPT AUTOSIM_CYCLES)
   set(multiValueArgs SOURCES TESTBENCH_SOURCES)
   cmake_parse_arguments(
@@ -755,19 +770,6 @@ function(ADD_FPGA_TARGET)
   set(FQDN ${ARCH}-${DEVICE_TYPE}-${DEVICE}-${PACKAGE})
   set(OUT_LOCAL_REL ${NAME}/${FQDN})
   set(OUT_LOCAL ${CMAKE_CURRENT_BINARY_DIR}/${OUT_LOCAL_REL})
-  set(DIRECTORY_TARGET ${NAME}-${FQDN}-make-directory)
-  add_custom_target(
-    ${DIRECTORY_TARGET} ALL
-    COMMAND
-      ${CMAKE_COMMAND} -E make_directory ${OUT_LOCAL}
-  )
-
-  set(ECHO_DIRECTORY_TARGET ${NAME}-${FQDN}-make-directory-echo)
-  add_custom_target(
-    ${ECHO_DIRECTORY_TARGET} ALL
-    COMMAND
-      ${CMAKE_COMMAND} -E make_directory ${OUT_LOCAL}/echo
-  )
 
   # Create target to handle all output paths of off
   add_custom_target(${NAME})
@@ -823,8 +825,10 @@ function(ADD_FPGA_TARGET)
 
     add_custom_command(
       OUTPUT ${OUT_EBLIF}
-      DEPENDS ${SOURCE_FILES} ${SOURCE_FILES_DEPS} ${DIRECTORY_TARGET}
+      DEPENDS ${SOURCE_FILES} ${SOURCE_FILES_DEPS}
               ${YOSYS} ${YOSYS_TARGET} ${QUIET_CMD} ${QUIET_CMD_TARGET}
+      COMMAND
+        ${CMAKE_COMMAND} -E make_directory ${OUT_LOCAL}
       COMMAND
         ${QUIET_CMD} ${YOSYS} -p "${COMPLETE_YOSYS_SCRIPT}" ${SOURCE_FILES}
       WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
@@ -833,14 +837,12 @@ function(ADD_FPGA_TARGET)
   else()
     add_custom_command(
       OUTPUT ${OUT_EBLIF}
-      DEPENDS ${SOURCE_FILES_DEPS} ${DIRECTORY_TARGET}
+      DEPENDS ${SOURCE_FILES_DEPS}
+      COMMAND
+        ${CMAKE_COMMAND} -E make_directory ${OUT_LOCAL}
       COMMAND ${CMAKE_COMMAND} -E copy ${SOURCE_FILES} ${OUT_EBLIF}
       )
   endif()
-
-  add_custom_target(${NAME}_eblif DEPENDS ${OUT_EBLIF})
-  add_custom_target(${NAME}_synth DEPENDS ${OUT_EBLIF})
-  add_output_to_fpga_target(${NAME} EBLIF ${OUT_LOCAL_REL}/${TOP}.eblif)
 
   # Generate routing and generate HLC.
   set(OUT_ROUTE ${OUT_LOCAL}/${TOP}.route)
@@ -892,7 +894,7 @@ function(ADD_FPGA_TARGET)
   list(APPEND VPR_DEPS ${VPR} ${VPR_TARGET} ${QUIET_CMD} ${QUIET_CMD_TARGET})
 
   get_target_property_required(USE_FASM ${ARCH} USE_FASM)
-  
+
   if(${USE_FASM})
     get_target_property_required(GENFASM env GENFASM)
     get_target_property(GENFASM_TARGET env GENFASM_TARGET)
@@ -960,7 +962,6 @@ function(ADD_FPGA_TARGET)
 
     set(FIX_PINS_ARG --fix_pins ${OUT_IO})
 
-    add_output_to_fpga_target(${NAME} IO_PLACE ${OUT_LOCAL_REL}/${TOP}_io.place)
   endif()
 
   # Generate packing.
@@ -978,22 +979,12 @@ function(ADD_FPGA_TARGET)
   set(ECHO_OUT_NET ${OUT_LOCAL}/echo/${TOP}.net)
   add_custom_command(
     OUTPUT ${ECHO_OUT_NET}
-    DEPENDS ${OUT_EBLIF} ${OUT_IO} ${VPR_DEPS} ${ECHO_DIRECTORY_TARGET}
+    DEPENDS ${OUT_EBLIF} ${OUT_IO} ${VPR_DEPS}
+    COMMAND ${CMAKE_COMMAND} -E make_directory ${OUT_LOCAL}/echo
     COMMAND ${VPR_CMD} --debug_clustering on --echo_file on --pack
     COMMAND
       ${CMAKE_COMMAND} -E copy ${OUT_LOCAL}/echo/vpr_stdout.log ${OUT_LOCAL}/echo/pack.log
     WORKING_DIRECTORY ${OUT_LOCAL}/echo
-    )
-
-  # validate .net xml file against common/xml/packed_netlist.xsd
-  set(OUT_NET_XMLLINT ${OUT_NET}.lint)
-  set(NET_SCHEMA ${symbiflow-arch-defs_SOURCE_DIR}/common/xml/packed_netlist.xsd)
-
-  xml_lint(
-    NAME ${NAME}_lint
-    LINT_OUTPUT ${OUT_NET_XMLLINT}
-    FILE ${OUT_NET}
-    SCHEMA ${NET_SCHEMA}
     )
 
   # Generate placement.
@@ -1012,7 +1003,7 @@ function(ADD_FPGA_TARGET)
   set(ECHO_OUT_PLACE ${OUT_LOCAL}/echo/${TOP}.place)
   add_custom_command(
     OUTPUT ${ECHO_OUT_PLACE}
-    DEPENDS ${ECHO_OUT_NET} ${OUT_IO} ${VPR_DEPS} ${ECHO_DIRECTORY_TARGET}
+    DEPENDS ${ECHO_OUT_NET} ${OUT_IO} ${VPR_DEPS}
     COMMAND ${VPR_CMD} ${FIX_PINS_ARG} --echo_file on --place
     COMMAND
       ${CMAKE_COMMAND} -E copy ${OUT_LOCAL}/echo/vpr_stdout.log
@@ -1045,6 +1036,10 @@ function(ADD_FPGA_TARGET)
     WORKING_DIRECTORY ${OUT_LOCAL}/echo
   )
   add_custom_target(${NAME}_route_echo DEPENDS ${ECHO_ATOM_NETLIST_ORIG})
+
+  if(${ADD_FPGA_TARGET_ROUTE_ONLY})
+    return()
+  endif()
 
   if(${USE_FASM})
     # Generate FASM
@@ -1125,7 +1120,6 @@ function(ADD_FPGA_TARGET)
     endif()
 
     add_custom_target(${NAME}_bit ALL DEPENDS ${OUT_BITSTREAM})
-    add_output_to_fpga_target(${NAME} BIT ${OUT_LOCAL_REL}/${TOP}.${BITSTREAM_EXTENSION})
 
     get_target_property_required(NO_BIT_TO_V ${ARCH} NO_BIT_TO_V)
     if(NOT ${NO_BIT_TO_V})
