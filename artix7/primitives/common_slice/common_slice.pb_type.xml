@@ -281,8 +281,8 @@
     <direct name="CIN_TO_CARRY0" input="BLK_IG-COMMON_SLICE.CIN" output="BEL_BB-CARRY0.CI" >
       <pack_pattern name="CARRYCHAIN" in_port="BLK_IG-COMMON_SLICE.CIN" out_port="BEL_BB-CARRY0.CI"/>
       <metadata>
-        <meta name="fasm_features">
-          PRECYINIT.CIN
+        <meta name="fasm_mux">
+          BLK_IG-COMMON_SLICE.CIN = PRECYINIT.CIN
         </meta>
       </metadata>
     </direct>
