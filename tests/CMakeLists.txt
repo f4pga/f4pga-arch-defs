@@ -1,4 +1,9 @@
-set(FULL_BOARDS dummy_ice40_hx1k_tq144 dummy_artix7_xc7a50t_test)
+set(FULL_BOARDS dummy_ice40_hx1k_tq144 )
+if (NOT DEFINED ENV{CI} OR NOT $ENV{CI})
+    # Disable Artix-7 on Travis-CI for now, it consumes too much memory and
+    # OOMs.
+  list(APPEND FULL_BOARDS dummy_artix7_xc7a50t_test)
+endif()
 set(SMALL_BOARDS dummy_testarch_4x4_dummy)
 set(BOARDS ${FULL_BOARDS} ${SMALL_BOARDS})
 
