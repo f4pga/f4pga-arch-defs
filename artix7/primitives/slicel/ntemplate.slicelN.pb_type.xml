@@ -65,58 +65,63 @@
         - 2 * 5 input, 1 output LUT
         - 1 * 6 input, 1 output LUT
     -->
-  <xi:include href="../common_slice/Nlut/alut.pb_type.xml"/>
-  <xi:include href="../common_slice/Nlut/blut.pb_type.xml"/>
-  <xi:include href="../common_slice/Nlut/clut.pb_type.xml"/>
-  <xi:include href="../common_slice/Nlut/dlut.pb_type.xml"/>
+  <xi:include href="../common_slice/common_lut_and_f78mux.pb_type.xml"/>
   <xi:include href="../common_slice/common_slice.pb_type.xml"/>
 
   <interconnect>
     <!-- LUT input pins -->
-    <direct name="D1" input="BLK_IG-SLICEL{N}.D1" output="BLK_IG-DLUT.A1" />
-    <direct name="D2" input="BLK_IG-SLICEL{N}.D2" output="BLK_IG-DLUT.A2" />
-    <direct name="D3" input="BLK_IG-SLICEL{N}.D3" output="BLK_IG-DLUT.A3" />
-    <direct name="D4" input="BLK_IG-SLICEL{N}.D4" output="BLK_IG-DLUT.A4" />
-    <direct name="D5" input="BLK_IG-SLICEL{N}.D5" output="BLK_IG-DLUT.A5" />
-    <direct name="D6" input="BLK_IG-SLICEL{N}.D6" output="BLK_IG-DLUT.A6" />
+    <direct name="D1" input="BLK_IG-SLICEL{N}.D1" output="BLK_IG-COMMON_LUT_AND_F78MUX.D1" />
+    <direct name="D2" input="BLK_IG-SLICEL{N}.D2" output="BLK_IG-COMMON_LUT_AND_F78MUX.D2" />
+    <direct name="D3" input="BLK_IG-SLICEL{N}.D3" output="BLK_IG-COMMON_LUT_AND_F78MUX.D3" />
+    <direct name="D4" input="BLK_IG-SLICEL{N}.D4" output="BLK_IG-COMMON_LUT_AND_F78MUX.D4" />
+    <direct name="D5" input="BLK_IG-SLICEL{N}.D5" output="BLK_IG-COMMON_LUT_AND_F78MUX.D5" />
+    <direct name="D6" input="BLK_IG-SLICEL{N}.D6" output="BLK_IG-COMMON_LUT_AND_F78MUX.D6" />
 
-    <direct name="C1" input="BLK_IG-SLICEL{N}.C1" output="BLK_IG-CLUT.A1" />
-    <direct name="C2" input="BLK_IG-SLICEL{N}.C2" output="BLK_IG-CLUT.A2" />
-    <direct name="C3" input="BLK_IG-SLICEL{N}.C3" output="BLK_IG-CLUT.A3" />
-    <direct name="C4" input="BLK_IG-SLICEL{N}.C4" output="BLK_IG-CLUT.A4" />
-    <direct name="C5" input="BLK_IG-SLICEL{N}.C5" output="BLK_IG-CLUT.A5" />
-    <direct name="C6" input="BLK_IG-SLICEL{N}.C6" output="BLK_IG-CLUT.A6" />
+    <direct name="C1" input="BLK_IG-SLICEL{N}.C1" output="BLK_IG-COMMON_LUT_AND_F78MUX.C1" />
+    <direct name="C2" input="BLK_IG-SLICEL{N}.C2" output="BLK_IG-COMMON_LUT_AND_F78MUX.C2" />
+    <direct name="C3" input="BLK_IG-SLICEL{N}.C3" output="BLK_IG-COMMON_LUT_AND_F78MUX.C3" />
+    <direct name="C4" input="BLK_IG-SLICEL{N}.C4" output="BLK_IG-COMMON_LUT_AND_F78MUX.C4" />
+    <direct name="C5" input="BLK_IG-SLICEL{N}.C5" output="BLK_IG-COMMON_LUT_AND_F78MUX.C5" />
+    <direct name="C6" input="BLK_IG-SLICEL{N}.C6" output="BLK_IG-COMMON_LUT_AND_F78MUX.C6" />
 
-    <direct name="B1" input="BLK_IG-SLICEL{N}.B1" output="BLK_IG-BLUT.A1" />
-    <direct name="B2" input="BLK_IG-SLICEL{N}.B2" output="BLK_IG-BLUT.A2" />
-    <direct name="B3" input="BLK_IG-SLICEL{N}.B3" output="BLK_IG-BLUT.A3" />
-    <direct name="B4" input="BLK_IG-SLICEL{N}.B4" output="BLK_IG-BLUT.A4" />
-    <direct name="B5" input="BLK_IG-SLICEL{N}.B5" output="BLK_IG-BLUT.A5" />
-    <direct name="B6" input="BLK_IG-SLICEL{N}.B6" output="BLK_IG-BLUT.A6" />
+    <direct name="B1" input="BLK_IG-SLICEL{N}.B1" output="BLK_IG-COMMON_LUT_AND_F78MUX.B1" />
+    <direct name="B2" input="BLK_IG-SLICEL{N}.B2" output="BLK_IG-COMMON_LUT_AND_F78MUX.B2" />
+    <direct name="B3" input="BLK_IG-SLICEL{N}.B3" output="BLK_IG-COMMON_LUT_AND_F78MUX.B3" />
+    <direct name="B4" input="BLK_IG-SLICEL{N}.B4" output="BLK_IG-COMMON_LUT_AND_F78MUX.B4" />
+    <direct name="B5" input="BLK_IG-SLICEL{N}.B5" output="BLK_IG-COMMON_LUT_AND_F78MUX.B5" />
+    <direct name="B6" input="BLK_IG-SLICEL{N}.B6" output="BLK_IG-COMMON_LUT_AND_F78MUX.B6" />
 
-    <direct name="A1" input="BLK_IG-SLICEL{N}.A1" output="BLK_IG-ALUT.A1" />
-    <direct name="A2" input="BLK_IG-SLICEL{N}.A2" output="BLK_IG-ALUT.A2" />
-    <direct name="A3" input="BLK_IG-SLICEL{N}.A3" output="BLK_IG-ALUT.A3" />
-    <direct name="A4" input="BLK_IG-SLICEL{N}.A4" output="BLK_IG-ALUT.A4" />
-    <direct name="A5" input="BLK_IG-SLICEL{N}.A5" output="BLK_IG-ALUT.A5" />
-    <direct name="A6" input="BLK_IG-SLICEL{N}.A6" output="BLK_IG-ALUT.A6" />
+    <direct name="A1" input="BLK_IG-SLICEL{N}.A1" output="BLK_IG-COMMON_LUT_AND_F78MUX.A1" />
+    <direct name="A2" input="BLK_IG-SLICEL{N}.A2" output="BLK_IG-COMMON_LUT_AND_F78MUX.A2" />
+    <direct name="A3" input="BLK_IG-SLICEL{N}.A3" output="BLK_IG-COMMON_LUT_AND_F78MUX.A3" />
+    <direct name="A4" input="BLK_IG-SLICEL{N}.A4" output="BLK_IG-COMMON_LUT_AND_F78MUX.A4" />
+    <direct name="A5" input="BLK_IG-SLICEL{N}.A5" output="BLK_IG-COMMON_LUT_AND_F78MUX.A5" />
+    <direct name="A6" input="BLK_IG-SLICEL{N}.A6" output="BLK_IG-COMMON_LUT_AND_F78MUX.A6" />
+
+    <direct name="CX"  input="BLK_IG-SLICEL{N}.CX" output="BLK_IG-COMMON_LUT_AND_F78MUX.CX" />
+    <direct name="BX"  input="BLK_IG-SLICEL{N}.BX" output="BLK_IG-COMMON_LUT_AND_F78MUX.BX" />
+    <direct name="AX"  input="BLK_IG-SLICEL{N}.AX" output="BLK_IG-COMMON_LUT_AND_F78MUX.AX" />
 
     <!-- COMMON_SLICE inputs -->
-    <direct name="DX"  input="BLK_IG-SLICEL{N}.DX" output="BLK_IG-COMMON_SLICE.DX" />
-    <direct name="DO6" input="BLK_IG-DLUT.O6"   output="BLK_IG-COMMON_SLICE.DO6" />
-    <direct name="DO5" input="BLK_IG-DLUT.O5"   output="BLK_IG-COMMON_SLICE.DO5" />
+    <direct name="DX2" input="BLK_IG-SLICEL{N}.DX" output="BLK_IG-COMMON_SLICE.DX" />
+    <direct name="DO6" input="BLK_IG-COMMON_LUT_AND_F78MUX.DO6"   output="BLK_IG-COMMON_SLICE.DO6" />
+    <direct name="DO5" input="BLK_IG-COMMON_LUT_AND_F78MUX.DO5"   output="BLK_IG-COMMON_SLICE.DO5" />
 
-    <direct name="CX"  input="BLK_IG-SLICEL{N}.CX" output="BLK_IG-COMMON_SLICE.CX" />
-    <direct name="CO6" input="BLK_IG-CLUT.O6"   output="BLK_IG-COMMON_SLICE.CO6" />
-    <direct name="CO5" input="BLK_IG-CLUT.O5"   output="BLK_IG-COMMON_SLICE.CO5" />
+    <direct name="CX2" input="BLK_IG-SLICEL{N}.CX" output="BLK_IG-COMMON_SLICE.CX" />
+    <direct name="CO6" input="BLK_IG-COMMON_LUT_AND_F78MUX.CO6"   output="BLK_IG-COMMON_SLICE.CO6" />
+    <direct name="CO5" input="BLK_IG-COMMON_LUT_AND_F78MUX.CO5"   output="BLK_IG-COMMON_SLICE.CO5" />
 
-    <direct name="BX"  input="BLK_IG-SLICEL{N}.BX" output="BLK_IG-COMMON_SLICE.BX" />
-    <direct name="BO6" input="BLK_IG-BLUT.O6"   output="BLK_IG-COMMON_SLICE.BO6" />
-    <direct name="BO5" input="BLK_IG-BLUT.O5"   output="BLK_IG-COMMON_SLICE.BO5" />
+    <direct name="BX2" input="BLK_IG-SLICEL{N}.BX" output="BLK_IG-COMMON_SLICE.BX" />
+    <direct name="BO6" input="BLK_IG-COMMON_LUT_AND_F78MUX.BO6"   output="BLK_IG-COMMON_SLICE.BO6" />
+    <direct name="BO5" input="BLK_IG-COMMON_LUT_AND_F78MUX.BO5"   output="BLK_IG-COMMON_SLICE.BO5" />
 
-    <direct name="AX"  input="BLK_IG-SLICEL{N}.AX" output="BLK_IG-COMMON_SLICE.AX" />
-    <direct name="AO6" input="BLK_IG-ALUT.O6"   output="BLK_IG-COMMON_SLICE.AO6" />
-    <direct name="AO5" input="BLK_IG-ALUT.O5"   output="BLK_IG-COMMON_SLICE.AO5" />
+    <direct name="AX2" input="BLK_IG-SLICEL{N}.AX" output="BLK_IG-COMMON_SLICE.AX" />
+    <direct name="AO6" input="BLK_IG-COMMON_LUT_AND_F78MUX.AO6"   output="BLK_IG-COMMON_SLICE.AO6" />
+    <direct name="AO5" input="BLK_IG-COMMON_LUT_AND_F78MUX.AO5"   output="BLK_IG-COMMON_SLICE.AO5" />
+
+    <direct name="F7AMUX_O" input="BLK_IG-COMMON_LUT_AND_F78MUX.F7AMUX_O"   output="BLK_IG-COMMON_SLICE.F7AMUX_O" />
+    <direct name="F7BMUX_O" input="BLK_IG-COMMON_LUT_AND_F78MUX.F7BMUX_O"   output="BLK_IG-COMMON_SLICE.F7BMUX_O" />
+    <direct name="F8MUX_O"  input="BLK_IG-COMMON_LUT_AND_F78MUX.F8MUX_O"    output="BLK_IG-COMMON_SLICE.F8MUX_O" />
 
     <!-- [A-F]Q outputs -->
     <direct name="AQ" input="BLK_IG-COMMON_SLICE.AQ" output="BLK_IG-SLICEL{N}.AQ" />

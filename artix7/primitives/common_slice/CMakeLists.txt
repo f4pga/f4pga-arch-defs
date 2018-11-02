@@ -22,6 +22,9 @@ v2x(
   SRCS cyinit_fabric.sim.v
 )
 
+add_file_target(FILE common_lut_and_f78mux.model.xml SCANNER_TYPE xml)
+add_file_target(FILE common_lut_and_f78mux.pb_type.xml SCANNER_TYPE xml)
+
 add_file_target(FILE common_slice.model.xml SCANNER_TYPE xml)
 add_file_target(FILE common_slice.pb_type.xml SCANNER_TYPE xml)
 add_file_target(FILE common_slice.sim.v SCANNER_TYPE verilog)

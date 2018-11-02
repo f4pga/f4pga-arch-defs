@@ -26,6 +26,10 @@
   <input name="SR" num_pins="1"/>
   <input name="CE" num_pins="1"/>
 
+  <input name="F7AMUX_O" num_pins="1"/>
+  <input name="F7BMUX_O" num_pins="1"/>
+  <input name="F8MUX_O" num_pins="1"/>
+
   <!-- This input in unconnected on SLICEL -->
   <input name="AMC31" num_pins="1"/>
 
@@ -50,9 +54,6 @@
   <output name="A"    num_pins="1"/>
   <output name="AQ"   num_pins="1"/>
 
-  <xi:include href="muxes/f7amux/f7amux.pb_type.xml"/>
-  <xi:include href="muxes/f7bmux/f7bmux.pb_type.xml"/>
-  <xi:include href="muxes/f8mux/f8mux.pb_type.xml"/>
 
   <xi:include href="../ff/ff.pb_type.xml" />
 
@@ -100,35 +101,6 @@
       </metadata>
     </mux>
 
-    <!-- F7AMUX inputs -->
-    <direct name="F7AMUX_I0" input="BLK_IG-COMMON_SLICE.BO6"   output="BEL_MX-F7AMUX.I0">
-     <pack_pattern in_port="BLK_IG-COMMON_SLICE.BO6" name="LUT5toLUT7" out_port="BEL_MX-F7AMUX.I0"/>
-     <pack_pattern in_port="BLK_IG-COMMON_SLICE.BO6" name="LUT5toLUT8" out_port="BEL_MX-F7AMUX.I0"/>
-    </direct>
-    <direct name="F7AMUX_I1" input="BLK_IG-COMMON_SLICE.AO6"   output="BEL_MX-F7AMUX.I1">
-     <pack_pattern in_port="BLK_IG-COMMON_SLICE.AO6" name="LUT5toLUT7" out_port="BEL_MX-F7AMUX.I1"/>
-     <pack_pattern in_port="BLK_IG-COMMON_SLICE.AO6" name="LUT5toLUT8" out_port="BEL_MX-F7AMUX.I1"/>
-    </direct>
-    <direct name="F7AMUX_S"  input="BLK_IG-COMMON_SLICE.AX" output="BEL_MX-F7AMUX.S" />
-    <!-- F7BMUX inputs -->
-    <direct name="F7BMUX_I0" input="BLK_IG-COMMON_SLICE.DO6"   output="BEL_MX-F7BMUX.I0">
-     <pack_pattern in_port="BLK_IG-COMMON_SLICE.DO6" name="LUT5toLUT7" out_port="BEL_MX-F7BMUX.I0"/>
-     <pack_pattern in_port="BLK_IG-COMMON_SLICE.DO6" name="LUT5toLUT8" out_port="BEL_MX-F7BMUX.I0"/>
-    </direct>
-    <direct name="F7BMUX_I1" input="BLK_IG-COMMON_SLICE.CO6"   output="BEL_MX-F7BMUX.I1">
-     <pack_pattern in_port="BLK_IG-COMMON_SLICE.CO6" name="LUT5toLUT7" out_port="BEL_MX-F7BMUX.I1"/>
-     <pack_pattern in_port="BLK_IG-COMMON_SLICE.CO6" name="LUT5toLUT8" out_port="BEL_MX-F7BMUX.I1"/>
-    </direct>
-    <direct name="F7BMUX_S"  input="BLK_IG-COMMON_SLICE.CX" output="BEL_MX-F7BMUX.S" />
-    <!-- F8MUX inputs -->
-    <direct name="F8MUX_I0"  input="BEL_MX-F7BMUX.O"  output="BEL_MX-F8MUX.I0">
-     <pack_pattern in_port="BEL_MX-F7BMUX.O" name="LUT5toLUT8" out_port="BEL_MX-F8MUX.I0"/>
-    </direct>
-    <direct name="F8MUX_I1"  input="BEL_MX-F7AMUX.O"  output="BEL_MX-F8MUX.I1">
-     <pack_pattern in_port="BEL_MX-F7AMUX.O" name="LUT5toLUT8" out_port="BEL_MX-F8MUX.I1"/>
-    </direct>
-    <direct name="F8MUX_S"   input="BLK_IG-COMMON_SLICE.BX" output="BEL_MX-F8MUX.S" />
-
     <!-- [A-D]MUX -->
     <mux name="DMUX"
       input="BLK_IG-COMMON_SLICE.AMC31 BLK_BB-SLICE_FF.Q5[3] BEL_BB-CARRY[2].O BEL_BB-CARRY[2].CO_FABRIC BLK_IG-COMMON_SLICE.DO6 BLK_IG-COMMON_SLICE.DO5"
@@ -146,12 +118,12 @@
       </metadata>
     </mux>
     <mux name="CMUX"
-      input="BLK_BB-SLICE_FF.Q5[2] BEL_BB-CARRY[1].O BEL_BB-CARRY[1].CO_FABRIC BLK_IG-COMMON_SLICE.CO6 BLK_IG-COMMON_SLICE.CO5 BEL_MX-F7BMUX.O"
+      input="BLK_BB-SLICE_FF.Q5[2] BEL_BB-CARRY[1].O BEL_BB-CARRY[1].CO_FABRIC BLK_IG-COMMON_SLICE.CO6 BLK_IG-COMMON_SLICE.CO5 BLK_IG-COMMON_SLICE.F7BMUX_O"
       output="BLK_IG-COMMON_SLICE.CMUX" >
       <metadata>
         <meta name="fasm_mux">
           BLK_BB-SLICE_FF.Q5[2] = CMUX.C5Q
-          BEL_MX-F7BMUX.O = CMUX.F7
+          BLK_IG-COMMON_SLICE.F7BMUX_O = CMUX.F7
           BLK_IG-COMMON_SLICE.CO5 = CMUX.O5
           BLK_IG-COMMON_SLICE.CO6 = CMUX.O6
           BEL_BB-CARRY[1].CO_FABRIC = CMUX.CY
@@ -160,12 +132,12 @@
       </metadata>
     </mux>
     <mux name="BMUX"
-      input="BLK_BB-SLICE_FF.Q5[1] BEL_BB-CARRY[0].O BEL_BB-CARRY[0].CO_FABRIC BLK_IG-COMMON_SLICE.BO6 BLK_IG-COMMON_SLICE.BO5 BEL_MX-F8MUX.O"
+      input="BLK_BB-SLICE_FF.Q5[1] BEL_BB-CARRY[0].O BEL_BB-CARRY[0].CO_FABRIC BLK_IG-COMMON_SLICE.BO6 BLK_IG-COMMON_SLICE.BO5 BLK_IG-COMMON_SLICE.F8MUX_O"
       output="BLK_IG-COMMON_SLICE.BMUX" >
       <metadata>
         <meta name="fasm_mux">
           BLK_BB-SLICE_FF.Q5[1] = BMUX.B5Q
-          BEL_MX-F8MUX.O = BMUX.F8
+          BLK_IG-COMMON_SLICE.F8MUX_O = BMUX.F8
           BLK_IG-COMMON_SLICE.BO5 = BMUX.O5
           BLK_IG-COMMON_SLICE.BO6 = BMUX.O6
           BEL_BB-CARRY[0].CO_FABRIC = BMUX.CY
@@ -174,12 +146,12 @@
       </metadata>
     </mux>
     <mux name="AMUX"
-      input="BLK_BB-SLICE_FF.Q5[0] BEL_BB-CARRY0.O BEL_BB-CARRY0.CO_FABRIC BLK_IG-COMMON_SLICE.AO6 BLK_IG-COMMON_SLICE.AO5 BEL_MX-F7AMUX.O"
+      input="BLK_BB-SLICE_FF.Q5[0] BEL_BB-CARRY0.O BEL_BB-CARRY0.CO_FABRIC BLK_IG-COMMON_SLICE.AO6 BLK_IG-COMMON_SLICE.AO5 BLK_IG-COMMON_SLICE.F7AMUX_O"
       output="BLK_IG-COMMON_SLICE.AMUX" >
       <metadata>
         <meta name="fasm_mux">
           BLK_BB-SLICE_FF.Q5[0] = AMUX.A5Q
-          BEL_MX-F7AMUX.O = AMUX.F7
+          BLK_IG-COMMON_SLICE.F7AMUX_O = AMUX.F7
           BLK_IG-COMMON_SLICE.AO5 = AMUX.O5
           BLK_IG-COMMON_SLICE.AO6 = AMUX.O6
           BEL_BB-CARRY0.CO_FABRIC = AMUX.CY
@@ -203,12 +175,12 @@
       </metadata>
     </mux>
     <mux name="CFFMUX"
-      input="BEL_BB-CARRY[1].O BEL_BB-CARRY[1].CO_FABRIC BLK_IG-COMMON_SLICE.CO6 BLK_IG-COMMON_SLICE.CO5 BLK_IG-COMMON_SLICE.CX BEL_MX-F7BMUX.O"
+      input="BEL_BB-CARRY[1].O BEL_BB-CARRY[1].CO_FABRIC BLK_IG-COMMON_SLICE.CO6 BLK_IG-COMMON_SLICE.CO5 BLK_IG-COMMON_SLICE.CX BLK_IG-COMMON_SLICE.F7BMUX_O"
       output="BLK_BB-SLICE_FF.D[2]" >
       <metadata>
         <meta name="fasm_mux">
           BLK_IG-COMMON_SLICE.CX = CFF.DMUX.CX
-          BEL_MX-F7BMUX.O = CFF.DMUX.F7
+          BLK_IG-COMMON_SLICE.F7BMUX_O = CFF.DMUX.F7
           BLK_IG-COMMON_SLICE.CO5 = CFF.DMUX.O5
           BLK_IG-COMMON_SLICE.CO6 = CFF.DMUX.O6
           BEL_BB-CARRY[1].CO_FABRIC = CFF.DMUX.CY
@@ -217,12 +189,12 @@
       </metadata>
     </mux>
     <mux name="BFFMUX"
-      input="BEL_BB-CARRY[0].O BEL_BB-CARRY[0].CO_FABRIC BLK_IG-COMMON_SLICE.BO6 BLK_IG-COMMON_SLICE.BO5 BLK_IG-COMMON_SLICE.BX BEL_MX-F8MUX.O"
+      input="BEL_BB-CARRY[0].O BEL_BB-CARRY[0].CO_FABRIC BLK_IG-COMMON_SLICE.BO6 BLK_IG-COMMON_SLICE.BO5 BLK_IG-COMMON_SLICE.BX BLK_IG-COMMON_SLICE.F8MUX_O"
       output="BLK_BB-SLICE_FF.D[1]" >
       <metadata>
         <meta name="fasm_mux">
           BLK_IG-COMMON_SLICE.BX = BFF.DMUX.BX
-          BEL_MX-F8MUX.O = BFF.DMUX.F8
+          BLK_IG-COMMON_SLICE.F8MUX_O = BFF.DMUX.F8
           BLK_IG-COMMON_SLICE.BO5 = BFF.DMUX.O5
           BLK_IG-COMMON_SLICE.BO6 = BFF.DMUX.O6
           BEL_BB-CARRY[0].CO_FABRIC = BFF.DMUX.CY
@@ -231,12 +203,12 @@
       </metadata>
     </mux>
     <mux name="AFFMUX"
-      input="BEL_BB-CARRY0.O BEL_BB-CARRY0.CO_FABRIC BLK_IG-COMMON_SLICE.AO6 BLK_IG-COMMON_SLICE.AO5 BLK_IG-COMMON_SLICE.AX BEL_MX-F7AMUX.O"
+      input="BEL_BB-CARRY0.O BEL_BB-CARRY0.CO_FABRIC BLK_IG-COMMON_SLICE.AO6 BLK_IG-COMMON_SLICE.AO5 BLK_IG-COMMON_SLICE.AX BLK_IG-COMMON_SLICE.F7AMUX_O"
       output="BLK_BB-SLICE_FF.D[0]" >
       <metadata>
         <meta name="fasm_mux">
           BLK_IG-COMMON_SLICE.AX = AFF.DMUX.AX
-          BEL_MX-F7AMUX.O = AFF.DMUX.F7
+          BLK_IG-COMMON_SLICE.F7AMUX_O = AFF.DMUX.F7
           BLK_IG-COMMON_SLICE.AO5 = AFF.DMUX.O5
           BLK_IG-COMMON_SLICE.AO6 = AFF.DMUX.O6
           BEL_BB-CARRY0.CO_FABRIC = AFF.DMUX.CY

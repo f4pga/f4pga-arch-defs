@@ -1,0 +1,27 @@
+<pb_type name="BLK_IG-D_DRAM" num_pb="1" xmlns:xi="http://www.w3.org/2001/XInclude">
+  <clock  name="CLK" num_pins="1" />
+  <input  name="A"   num_pins="6" />
+  <input  name="DI1" num_pins="1" />
+  <input  name="DI2" num_pins="1" />
+  <input  name="WE"  num_pins="1" />
+
+  <output name="O6"  num_pins="1" />
+  <output name="O5"  num_pins="1" />
+
+ <!-- Missing modes: 32_SINGLE_PORT, and SRL. -->
+ <mode name="64_SINGLE_PORT">
+   <xi:include href="spram64.pb_type.xml" />
+   <interconnect>
+     <direct name="CLK" input="BLK_IG-D_DRAM.CLK" output="BLK_MM-SPRAM64.CLK" />
+     <direct name="A" input="BLK_IG-D_DRAM.A" output="BLK_MM-SPRAM64.A" />
+     <direct name="DI" input="BLK_IG-D_DRAM.DI1" output="BLK_MM-SPRAM64.DI1" />
+     <direct name="WE" input="BLK_IG-D_DRAM.WE" output="BLK_MM-SPRAM64.WE" />
+
+     <direct name="O6" input="BLK_MM-SPRAM64.O6" output="BLK_IG-D_DRAM.O6" />
+   </interconnect>
+ </mode>
+
+ <metadata>
+  <meta name="fasm_prefix">DLUT</meta>
+ </metadata>
+</pb_type>
