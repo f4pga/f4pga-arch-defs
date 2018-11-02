@@ -15,6 +15,8 @@ def main():
     parser = argparse.ArgumentParser(description="Converts pack.log into usage numbers.")
     parser.add_argument('pack_log')
     parser.add_argument('--assert_usage', help='Comma seperate block name list with expected usage stats.')
+    parser.add_argument('--no_print_usage', action='store_false', dest='print_usage',
+            help='Comma seperate block name list with expected usage stats.')
 
     args = parser.parse_args()
 
@@ -22,6 +24,9 @@ def main():
 
     for block, count in parse_usage(args.pack_log):
         usage[block] = count
+
+    if args.print_usage:
+        print(json.dumps(usage, indent=2))
 
     if args.assert_usage:
         blocks = dict(b.split('=') for b in args.assert_usage.split(','))
@@ -32,9 +37,8 @@ def main():
                         block, int(blocks[block]), usage[block])
             else:
                 assert usage[block] == 0, 'Expect usage of block {} = 0, found {}'.format(
-                        block. usage[block])
+                        block, usage[block])
 
-    print(json.dumps(usage, indent=2))
 
 if __name__ == "__main__":
     main()

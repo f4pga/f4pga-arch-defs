@@ -686,6 +686,7 @@ function(ADD_FPGA_TARGET)
   #   [EXPLICIT_ADD_FILE_TARGET]
   #   [EMIT_CHECK_TESTS EQUIV_CHECK_SCRIPT <yosys to script verify two bitstreams gold and gate>]
   #   [NO_SYNTHESIS]
+  #   [ASSERT_USAGE <usage_spec>]
   #   )
   # ~~~
   #
@@ -723,7 +724,7 @@ function(ADD_FPGA_TARGET)
   # * ${TOP}.${BITSTREAM_EXTENSION} - Bitstream for target.
   #
   set(options EXPLICIT_ADD_FILE_TARGET EMIT_CHECK_TESTS NO_SYNTHESIS ROUTE_ONLY)
-  set(oneValueArgs NAME TOP BOARD INPUT_IO_FILE EQUIV_CHECK_SCRIPT AUTOSIM_CYCLES)
+  set(oneValueArgs NAME TOP BOARD INPUT_IO_FILE EQUIV_CHECK_SCRIPT AUTOSIM_CYCLES ASSERT_USAGE)
   set(multiValueArgs SOURCES TESTBENCH_SOURCES)
   cmake_parse_arguments(
     ADD_FPGA_TARGET
@@ -966,13 +967,24 @@ function(ADD_FPGA_TARGET)
   # -------------------------------------------------------------------------
   set(OUT_NET ${OUT_LOCAL}/${TOP}.net)
   add_custom_command(
-    OUTPUT ${OUT_NET}
+    OUTPUT ${OUT_NET} ${OUT_LOCAL}/pack.log
     DEPENDS ${OUT_EBLIF} ${OUT_IO} ${VPR_DEPS}
     COMMAND ${VPR_CMD} --pack
     COMMAND
       ${CMAKE_COMMAND} -E copy ${OUT_LOCAL}/vpr_stdout.log ${OUT_LOCAL}/pack.log
     WORKING_DIRECTORY ${OUT_LOCAL}
   )
+
+  if(NOT "${ADD_FPGA_TARGET_ASSERT_USAGE}" STREQUAL "")
+      set(USAGE_UTIL ${symbiflow-arch-defs_SOURCE_DIR}/utils/usage.py)
+      add_custom_target(
+          ${NAME}_assert_usage
+          COMMAND ${PYTHON3} ${USAGE_UTIL}
+            --assert_usage ${ADD_FPGA_TARGET_ASSERT_USAGE}
+            ${OUT_LOCAL}/pack.log
+          DEPENDS ${PYTHON3} ${PYTHON3_TARGET} ${USAGE_UTIL} ${OUT_LOCAL}/pack.log
+          )
+  endif()
 
   set(ECHO_OUT_NET ${OUT_LOCAL}/echo/${TOP}.net)
   add_custom_command(
