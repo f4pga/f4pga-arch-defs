@@ -1,6 +1,8 @@
 <pb_type name="BLK_IG-D_DRAM" num_pb="1" xmlns:xi="http://www.w3.org/2001/XInclude">
   <clock  name="CLK" num_pins="1" />
   <input  name="A"   num_pins="6" />
+  <input  name="WA7" num_pins="1" />
+  <input  name="WA8" num_pins="1" />
   <input  name="DI1" num_pins="1" />
   <input  name="DI2" num_pins="1" />
   <input  name="WE"  num_pins="1" />
@@ -8,16 +10,31 @@
   <output name="O6"  num_pins="1" />
   <output name="O5"  num_pins="1" />
 
- <!-- Missing modes: 32_SINGLE_PORT, and SRL. -->
+ <!-- Missing modes: SRL. -->
  <mode name="64_SINGLE_PORT">
    <xi:include href="spram64.pb_type.xml" />
    <interconnect>
      <direct name="CLK" input="BLK_IG-D_DRAM.CLK" output="BLK_MM-SPRAM64.CLK" />
      <direct name="A" input="BLK_IG-D_DRAM.A" output="BLK_MM-SPRAM64.A" />
+     <direct name="WA7" input="BLK_IG-D_DRAM.WA7" output="BLK_MM-SPRAM64.WA7" />
+     <direct name="WA8" input="BLK_IG-D_DRAM.WA8" output="BLK_MM-SPRAM64.WA8" />
      <direct name="DI" input="BLK_IG-D_DRAM.DI1" output="BLK_MM-SPRAM64.DI1" />
      <direct name="WE" input="BLK_IG-D_DRAM.WE" output="BLK_MM-SPRAM64.WE" />
 
      <direct name="O6" input="BLK_MM-SPRAM64.O6" output="BLK_IG-D_DRAM.O6" />
+   </interconnect>
+ </mode>
+ <mode name="32_SINGLE_PORT">
+   <xi:include href="spram32.pb_type.xml" />
+   <interconnect>
+     <direct name="CLK" input="BLK_IG-D_DRAM.CLK" output="BLK_MM-SPRAM32.CLK" />
+     <direct name="A" input="BLK_IG-D_DRAM.A[4:0]" output="BLK_MM-SPRAM32.A[4:0]" />
+     <direct name="DI1" input="BLK_IG-D_DRAM.DI1" output="BLK_MM-SPRAM32.DI1" />
+     <direct name="DI2" input="BLK_IG-D_DRAM.DI2" output="BLK_MM-SPRAM32.DI2" />
+     <direct name="WE" input="BLK_IG-D_DRAM.WE" output="BLK_MM-SPRAM32.WE" />
+
+     <direct name="O6" input="BLK_MM-SPRAM32.O6" output="BLK_IG-D_DRAM.O6" />
+     <direct name="O5" input="BLK_MM-SPRAM32.O5" output="BLK_IG-D_DRAM.O5" />
    </interconnect>
  </mode>
 

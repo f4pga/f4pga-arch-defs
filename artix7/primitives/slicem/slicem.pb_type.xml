@@ -103,6 +103,9 @@
     <input name="A5" num_pins="1"/>
     <input name="A6" num_pins="1"/>
 
+    <input name="WA7" num_pins="1"/>
+    <input name="WA8" num_pins="1"/>
+
     <input name="CE" num_pins="1"/>
     <input name="WE" num_pins="1"/>
 
@@ -264,6 +267,30 @@
         <direct name="WA5" input="BLK_IG-SLICEM_MODES.D5" output="BLK_IG-A_DRAM.WA[4]" />
         <direct name="WA6" input="BLK_IG-SLICEM_MODES.D6" output="BLK_IG-A_DRAM.WA[5]" />
 
+        <!-- WA7 and WA8 should only be used in this mode if using 256x1S,
+             which consumes the entire slice. -->
+        <direct name="D_WA7" input="BLK_IG-SLICEM_MODES.WA7"  output="BLK_IG-D_DRAM.WA7">
+          <metadata>
+            <meta name="fasm_mux">
+              BLK_IG-D_DRAM.WA7 = WA7USED
+            </meta>
+          </metadata>
+        </direct>
+        <direct name="C_WA7" input="BLK_IG-SLICEM_MODES.WA7"  output="BLK_IG-C_DRAM.WA[6]" />
+        <direct name="B_WA7" input="BLK_IG-SLICEM_MODES.WA7"  output="BLK_IG-B_DRAM.WA[6]" />
+        <direct name="A_WA7" input="BLK_IG-SLICEM_MODES.WA7"  output="BLK_IG-A_DRAM.WA[6]" />
+
+        <direct name="D_WA8" input="BLK_IG-SLICEM_MODES.WA8"  output="BLK_IG-D_DRAM.WA8">
+          <metadata>
+            <meta name="fasm_mux">
+              BLK_IG-D_DRAM.WA8 = WA8USED
+            </meta>
+          </metadata>
+        </direct>
+        <direct name="C_WA8" input="BLK_IG-SLICEM_MODES.WA8"  output="BLK_IG-C_DRAM.WA[7]" />
+        <direct name="B_WA8" input="BLK_IG-SLICEM_MODES.WA8"  output="BLK_IG-B_DRAM.WA[7]" />
+        <direct name="A_WA8" input="BLK_IG-SLICEM_MODES.WA8"  output="BLK_IG-A_DRAM.WA[7]" />
+
         <!-- Direct DI1 inputs -->
         <direct name="DI" input="BLK_IG-SLICEM_MODES.DI" output="BLK_IG-D_DRAM.DI1" />
         <direct name="CI" input="BLK_IG-SLICEM_MODES.CI" output="BLK_IG-C_DRAM.CI" />
@@ -273,7 +300,27 @@
         <!-- Parent DI1 inputs -->
         <direct name="P_CI" input="BLK_IG-SLICEM_MODES.DI" output="BLK_IG-C_DRAM.PARENT_DI" />
         <direct name="P_BI" input="BLK_IG-SLICEM_MODES.DI" output="BLK_IG-B_DRAM.PARENT_DI" />
-        <direct name="P_AI" input="BLK_IG-B_DRAM.DI_OUT" output="BLK_IG-A_DRAM.PARENT_DI" />
+
+        <!-- This isn't quiet right.  SLICEM_MODES.DI is used if and only if
+             B_DRAM is in dual-port mode, and SLICEM_MODES.BI is used if and
+             only if B_DRAM is in single-port mode.
+
+             Synthesis should only emit A_DRAM.PARENT_DI connection that match
+             with the B_DRAM mode.
+
+             The reason this isn't modelled in VPR is that VPR cannot handle
+             mode based pure edges (e.g. input -> output without touching a
+             block). If VPR is modified to handle mode-based pure connections,
+             then this can be fully modelled in a mode based connection,
+             rather than a simple mux.
+
+             It is worth noting that if B_DRAM only have 1 single port mode,
+             this issue wouldn't arise, but that would require creating
+             BLK_IG-B_DRAM32 and another top level model for 32-bit DRAMs,
+             which would duplicate SLICEM_MODES more than would otherwise be
+             required.
+             -->
+        <mux name="P_AI" input="BLK_IG-SLICEM_MODES.DI BLK_IG-SLICEM_MODES.BI" output="BLK_IG-A_DRAM.PARENT_DI" />
 
         <!-- DI2 inputs -->
         <direct name="D_DI2" input="BLK_IG-SLICEM_MODES.DX" output="BLK_IG-D_DRAM.DI2" />
@@ -330,6 +377,143 @@
       <metadata>
         <meta name="fasm_features">
           DLUT.RAM
+        </meta>
+      </metadata>
+    </mode>
+    <mode name="DRAM128">
+      <xi:include href="Ndram/a_dram128.pb_type.xml"/>
+      <xi:include href="Ndram/b_dram128.pb_type.xml"/>
+      <xi:include href="Ndram/c_dram128.pb_type.xml"/>
+      <xi:include href="Ndram/d_dram128.pb_type.xml"/>
+      <xi:include href="../common_slice/muxes/f7amux/f7amux.pb_type.xml"/>
+      <xi:include href="../common_slice/muxes/f7bmux/f7bmux.pb_type.xml"/>
+
+      <pb_type name="BLK_MM-WE_MUX" num_pb="1">
+        <input name="CE" num_pins="1"/>
+        <input name="WE" num_pins="1"/>
+
+        <output name="WE_OUT"   num_pins="1"/>
+
+        <interconnect>
+          <mux name="WE_MUX" input="BLK_MM-WE_MUX.CE BLK_MM-WE_MUX.WE"  output="BLK_MM-WE_MUX.WE_OUT">
+            <metadata>
+              <meta name="fasm_mux">
+                BLK_MM-WE_MUX.CE = WEMUX.CE
+                BLK_MM-WE_MUX.WE = NULL
+              </meta>
+            </metadata>
+          </mux>
+        </interconnect>
+      </pb_type>
+
+      <interconnect>
+        <direct name="AMEMCLK" input="BLK_IG-SLICEM_MODES.CLK" output="BLK_IG-A_DRAM128.CLK"/>
+        <direct name="BMEMCLK" input="BLK_IG-SLICEM_MODES.CLK" output="BLK_IG-B_DRAM128.CLK"/>
+        <direct name="CMEMCLK" input="BLK_IG-SLICEM_MODES.CLK" output="BLK_IG-C_DRAM128.CLK"/>
+        <direct name="DMEMCLK" input="BLK_IG-SLICEM_MODES.CLK" output="BLK_IG-D_DRAM128.CLK"/>
+
+        <direct name="D1" input="BLK_IG-SLICEM_MODES.D1" output="BLK_IG-D_DRAM128.A[0]" />
+        <direct name="D2" input="BLK_IG-SLICEM_MODES.D2" output="BLK_IG-D_DRAM128.A[1]" />
+        <direct name="D3" input="BLK_IG-SLICEM_MODES.D3" output="BLK_IG-D_DRAM128.A[2]" />
+        <direct name="D4" input="BLK_IG-SLICEM_MODES.D4" output="BLK_IG-D_DRAM128.A[3]" />
+        <direct name="D5" input="BLK_IG-SLICEM_MODES.D5" output="BLK_IG-D_DRAM128.A[4]" />
+        <direct name="D6" input="BLK_IG-SLICEM_MODES.D6" output="BLK_IG-D_DRAM128.A[5]" />
+
+        <direct name="C1" input="BLK_IG-SLICEM_MODES.C1" output="BLK_IG-C_DRAM128.A[0]" />
+        <direct name="C2" input="BLK_IG-SLICEM_MODES.C2" output="BLK_IG-C_DRAM128.A[1]" />
+        <direct name="C3" input="BLK_IG-SLICEM_MODES.C3" output="BLK_IG-C_DRAM128.A[2]" />
+        <direct name="C4" input="BLK_IG-SLICEM_MODES.C4" output="BLK_IG-C_DRAM128.A[3]" />
+        <direct name="C5" input="BLK_IG-SLICEM_MODES.C5" output="BLK_IG-C_DRAM128.A[4]" />
+        <direct name="C6" input="BLK_IG-SLICEM_MODES.C6" output="BLK_IG-C_DRAM128.A[5]" />
+
+        <direct name="B1" input="BLK_IG-SLICEM_MODES.B1" output="BLK_IG-B_DRAM128.A[0]" />
+        <direct name="B2" input="BLK_IG-SLICEM_MODES.B2" output="BLK_IG-B_DRAM128.A[1]" />
+        <direct name="B3" input="BLK_IG-SLICEM_MODES.B3" output="BLK_IG-B_DRAM128.A[2]" />
+        <direct name="B4" input="BLK_IG-SLICEM_MODES.B4" output="BLK_IG-B_DRAM128.A[3]" />
+        <direct name="B5" input="BLK_IG-SLICEM_MODES.B5" output="BLK_IG-B_DRAM128.A[4]" />
+        <direct name="B6" input="BLK_IG-SLICEM_MODES.B6" output="BLK_IG-B_DRAM128.A[5]" />
+
+        <direct name="A1" input="BLK_IG-SLICEM_MODES.A1" output="BLK_IG-A_DRAM128.A[0]" />
+        <direct name="A2" input="BLK_IG-SLICEM_MODES.A2" output="BLK_IG-A_DRAM128.A[1]" />
+        <direct name="A3" input="BLK_IG-SLICEM_MODES.A3" output="BLK_IG-A_DRAM128.A[2]" />
+        <direct name="A4" input="BLK_IG-SLICEM_MODES.A4" output="BLK_IG-A_DRAM128.A[3]" />
+        <direct name="A5" input="BLK_IG-SLICEM_MODES.A5" output="BLK_IG-A_DRAM128.A[4]" />
+        <direct name="A6" input="BLK_IG-SLICEM_MODES.A6" output="BLK_IG-A_DRAM128.A[5]" />
+
+        <!-- W Address lines come in on the DLUT pins and go to all the LUTs.
+            -->
+        <direct name="WD7" input="BLK_IG-SLICEM_MODES.WA7" output="BLK_IG-D_DRAM128.WA7" />
+
+        <direct name="WC1" input="BLK_IG-SLICEM_MODES.D1" output="BLK_IG-C_DRAM128.WA[0]" />
+        <direct name="WC2" input="BLK_IG-SLICEM_MODES.D2" output="BLK_IG-C_DRAM128.WA[1]" />
+        <direct name="WC3" input="BLK_IG-SLICEM_MODES.D3" output="BLK_IG-C_DRAM128.WA[2]" />
+        <direct name="WC4" input="BLK_IG-SLICEM_MODES.D4" output="BLK_IG-C_DRAM128.WA[3]" />
+        <direct name="WC5" input="BLK_IG-SLICEM_MODES.D5" output="BLK_IG-C_DRAM128.WA[4]" />
+        <direct name="WC6" input="BLK_IG-SLICEM_MODES.D6" output="BLK_IG-C_DRAM128.WA[5]" />
+        <direct name="WC7" input="BLK_IG-SLICEM_MODES.WA7" output="BLK_IG-C_DRAM128.WA[6]" />
+
+        <direct name="WB1" input="BLK_IG-SLICEM_MODES.D1" output="BLK_IG-B_DRAM128.WA[0]" />
+        <direct name="WB2" input="BLK_IG-SLICEM_MODES.D2" output="BLK_IG-B_DRAM128.WA[1]" />
+        <direct name="WB3" input="BLK_IG-SLICEM_MODES.D3" output="BLK_IG-B_DRAM128.WA[2]" />
+        <direct name="WB4" input="BLK_IG-SLICEM_MODES.D4" output="BLK_IG-B_DRAM128.WA[3]" />
+        <direct name="WB5" input="BLK_IG-SLICEM_MODES.D5" output="BLK_IG-B_DRAM128.WA[4]" />
+        <direct name="WB6" input="BLK_IG-SLICEM_MODES.D6" output="BLK_IG-B_DRAM128.WA[5]" />
+        <direct name="WB7" input="BLK_IG-SLICEM_MODES.WA7" output="BLK_IG-B_DRAM128.WA[6]" />
+
+        <direct name="WA1" input="BLK_IG-SLICEM_MODES.D1" output="BLK_IG-A_DRAM128.WA[0]" />
+        <direct name="WA2" input="BLK_IG-SLICEM_MODES.D2" output="BLK_IG-A_DRAM128.WA[1]" />
+        <direct name="WA3" input="BLK_IG-SLICEM_MODES.D3" output="BLK_IG-A_DRAM128.WA[2]" />
+        <direct name="WA4" input="BLK_IG-SLICEM_MODES.D4" output="BLK_IG-A_DRAM128.WA[3]" />
+        <direct name="WA5" input="BLK_IG-SLICEM_MODES.D5" output="BLK_IG-A_DRAM128.WA[4]" />
+        <direct name="WA6" input="BLK_IG-SLICEM_MODES.D6" output="BLK_IG-A_DRAM128.WA[5]" />
+        <direct name="WA7" input="BLK_IG-SLICEM_MODES.WA7" output="BLK_IG-A_DRAM128.WA[6]" />
+
+        <!-- Direct DI1 inputs -->
+        <direct name="DI" input="BLK_IG-SLICEM_MODES.DI" output="BLK_IG-D_DRAM128.DI1" />
+        <direct name="CI" input="BLK_IG-SLICEM_MODES.CI" output="BLK_IG-C_DRAM128.CI" />
+        <direct name="BI" input="BLK_IG-SLICEM_MODES.BI" output="BLK_IG-B_DRAM128.BI" />
+        <direct name="AI" input="BLK_IG-SLICEM_MODES.AI" output="BLK_IG-A_DRAM128.AI" />
+
+        <!-- Parent DI1 inputs -->
+        <direct name="P_CI" input="BLK_IG-SLICEM_MODES.DI" output="BLK_IG-C_DRAM128.PARENT_DI" />
+        <direct name="P_BI" input="BLK_IG-SLICEM_MODES.DI" output="BLK_IG-B_DRAM128.PARENT_DI" />
+        <direct name="P_AI" input="BLK_IG-B_DRAM128.DI_OUT" output="BLK_IG-A_DRAM128.PARENT_DI" />
+
+        <!-- WE inputs -->
+        <direct name="CE_TO_WE_MUX" input="BLK_IG-SLICEM_MODES.CE"  output="BLK_MM-WE_MUX.CE"/>
+        <direct name="WE_TO_WE_MUX" input="BLK_IG-SLICEM_MODES.WE"  output="BLK_MM-WE_MUX.WE"/>
+        <direct name="WE1" input="BLK_MM-WE_MUX.WE_OUT"  output="BLK_IG-A_DRAM128.WE"/>
+        <direct name="WE2" input="BLK_MM-WE_MUX.WE_OUT"  output="BLK_IG-B_DRAM128.WE"/>
+        <direct name="WE3" input="BLK_MM-WE_MUX.WE_OUT"  output="BLK_IG-C_DRAM128.WE"/>
+        <direct name="WE4" input="BLK_MM-WE_MUX.WE_OUT"  output="BLK_IG-D_DRAM128.WE"/>
+
+        <!-- Outputs -->
+        <direct name="DO6" input="BLK_IG-D_DRAM128.O6"   output="BLK_IG-SLICEM_MODES.DO6" />
+        <direct name="CO6" input="BLK_IG-C_DRAM128.O6"   output="BLK_IG-SLICEM_MODES.CO6" />
+        <direct name="BO6" input="BLK_IG-B_DRAM128.O6"   output="BLK_IG-SLICEM_MODES.BO6" />
+        <direct name="AO6" input="BLK_IG-A_DRAM128.O6"   output="BLK_IG-SLICEM_MODES.AO6" />
+
+        <!-- F7AMUX inputs -->
+        <direct name="F7AMUX_I0" input="BLK_IG-B_DRAM128.O6"   output="BEL_MX-F7AMUX.I0">
+        </direct>
+        <direct name="F7AMUX_I1" input="BLK_IG-A_DRAM128.O6"   output="BEL_MX-F7AMUX.I1">
+        </direct>
+        <direct name="F7AMUX_S"  input="BLK_IG-SLICEM_MODES.AX" output="BEL_MX-F7AMUX.S" />
+        <!-- F7BMUX inputs -->
+        <direct name="F7BMUX_I0" input="BLK_IG-D_DRAM128.O6"   output="BEL_MX-F7BMUX.I0">
+        </direct>
+        <direct name="F7BMUX_I1" input="BLK_IG-C_DRAM128.O6"   output="BEL_MX-F7BMUX.I1">
+        </direct>
+        <direct name="F7BMUX_S"  input="BLK_IG-SLICEM_MODES.CX" output="BEL_MX-F7BMUX.S" />
+
+        <direct name="F7AMUX_O"   input="BEL_MX-F7AMUX.O" output="BLK_IG-SLICEM_MODES.F7AMUX_O" />
+        <direct name="F7BMUX_O"   input="BEL_MX-F7BMUX.O" output="BLK_IG-SLICEM_MODES.F7BMUX_O" />
+      </interconnect>
+      <!-- The DLUT must be in RAM-mode for an of the RAM's to work. -->
+      <metadata>
+        <meta name="fasm_features">
+          DLUT.RAM
+          WA7USED
         </meta>
       </metadata>
     </mode>

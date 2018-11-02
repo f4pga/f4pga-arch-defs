@@ -1,0 +1,50 @@
+<pb_type name="BLK_IG-{N}_DRAM128" num_pb="1" xmlns:xi="http://www.w3.org/2001/XInclude">
+  <clock  name="CLK" num_pins="1" />
+  <input  name="A"   num_pins="6" />
+  <input  name="WA"  num_pins="7" />
+  <input  name="{N}I"  num_pins="1" />
+  <!-- The PARENT_DI is the DI used when in dual port mode.  For CLUT and BLUT
+       this is SLICEM.DI. For ALUT this is BLUT.DI_OUT. -->
+  <input  name="PARENT_DI" num_pins="1" />
+  <input  name="WE"  num_pins="1" />
+
+  <output name="O6"  num_pins="1" />
+  <output name="DI_OUT" num_pins="1" />
+
+ <mode name="128_DUAL_PORT">
+   <xi:include href="dpram128.pb_type.xml" />
+   <interconnect>
+     <direct name="CLK" input="BLK_IG-{N}_DRAM128.CLK" output="BLK_MM-DPRAM128.CLK" />
+     <direct name="A" input="BLK_IG-{N}_DRAM128.A" output="BLK_MM-DPRAM128.A" />
+     <direct name="WA" input="BLK_IG-{N}_DRAM128.WA[5:0]" output="BLK_MM-DPRAM128.WA[5:0]" />
+     <direct name="WA7" input="BLK_IG-{N}_DRAM128.WA[6]" output="BLK_MM-DPRAM128.WA7" />
+     <direct name="{N}I" input="BLK_IG-{N}_DRAM128.PARENT_DI" output="BLK_MM-DPRAM128.DI1" />
+     <direct name="WE" input="BLK_IG-{N}_DRAM128.WE" output="BLK_MM-DPRAM128.WE" />
+
+     <direct name="O6" input="BLK_MM-DPRAM128.O6" output="BLK_IG-{N}_DRAM128.O6" />
+     <direct name="DI_OUT" input="BLK_IG-{N}_DRAM128.PARENT_DI" output="BLK_IG-{N}_DRAM128.DI_OUT" />
+   </interconnect>
+ </mode>
+ <mode name="128_SINGLE_PORT">
+   <xi:include href="spram128.pb_type.xml" />
+   <metadata>
+    <meta name="fasm_features">
+      DI1MUX.{N}I
+    </meta>
+   </metadata>
+   <interconnect>
+     <direct name="CLK" input="BLK_IG-{N}_DRAM128.CLK" output="BLK_MM-SPRAM128.CLK" />
+     <direct name="A" input="BLK_IG-{N}_DRAM128.A" output="BLK_MM-SPRAM128.A" />
+     <direct name="WA7" input="BLK_IG-{N}_DRAM128.WA[6]" output="BLK_MM-SPRAM128.WA7" />
+     <direct name="{N}I" input="BLK_IG-{N}_DRAM128.{N}I" output="BLK_MM-SPRAM128.DI1" />
+     <direct name="WE" input="BLK_IG-{N}_DRAM128.WE" output="BLK_MM-SPRAM128.WE" />
+
+     <direct name="O6" input="BLK_MM-SPRAM128.O6" output="BLK_IG-{N}_DRAM128.O6" />
+     <direct name="DI_OUT" input="BLK_IG-{N}_DRAM128.{N}I" output="BLK_IG-{N}_DRAM128.DI_OUT" />
+   </interconnect>
+ </mode>
+ <metadata>
+  <meta name="fasm_prefix">{N}LUT</meta>
+ </metadata>
+</pb_type>
+
