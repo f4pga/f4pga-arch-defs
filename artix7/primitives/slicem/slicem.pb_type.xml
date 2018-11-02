@@ -64,104 +64,341 @@
   <output name="A"    num_pins="1"/>
   <output name="AQ"   num_pins="1"/>
 
-  <!-- d6lut, c6lut, b6lut, a6lut == N6lut
-       A fracturable 6 input LUT. Can either be;
-        - 2 * 5 input, 1 output LUT
-        - 1 * 6 input, 1 output LUT
-    -->
-  <xi:include href="Nlut/alut.pb_type.xml"/>
-  <xi:include href="Nlut/blut.pb_type.xml"/>
-  <xi:include href="Nlut/clut.pb_type.xml"/>
-  <xi:include href="Nlut/dlut.pb_type.xml"/>
   <xi:include href="../common_slice/common_slice.pb_type.xml"/>
 
+  <pb_type name="BLK_IG-SLICEM_MODES" num_pb="1">
+    <input name="DI" num_pins="1"/>
+    <input name="DX" num_pins="1"/>
+    <input name="D1" num_pins="1"/>
+    <input name="D2" num_pins="1"/>
+    <input name="D3" num_pins="1"/>
+    <input name="D4" num_pins="1"/>
+    <input name="D5" num_pins="1"/>
+    <input name="D6" num_pins="1"/>
+
+    <input name="CI" num_pins="1"/>
+    <input name="CX" num_pins="1"/>
+    <input name="C1" num_pins="1"/>
+    <input name="C2" num_pins="1"/>
+    <input name="C3" num_pins="1"/>
+    <input name="C4" num_pins="1"/>
+    <input name="C5" num_pins="1"/>
+    <input name="C6" num_pins="1"/>
+
+    <input name="BI" num_pins="1"/>
+    <input name="BX" num_pins="1"/>
+    <input name="B1" num_pins="1"/>
+    <input name="B2" num_pins="1"/>
+    <input name="B3" num_pins="1"/>
+    <input name="B4" num_pins="1"/>
+    <input name="B5" num_pins="1"/>
+    <input name="B6" num_pins="1"/>
+
+    <input name="AI" num_pins="1"/>
+    <input name="AX" num_pins="1"/>
+    <input name="A1" num_pins="1"/>
+    <input name="A2" num_pins="1"/>
+    <input name="A3" num_pins="1"/>
+    <input name="A4" num_pins="1"/>
+    <input name="A5" num_pins="1"/>
+    <input name="A6" num_pins="1"/>
+
+    <input name="CE" num_pins="1"/>
+    <input name="WE" num_pins="1"/>
+
+    <output name="DO6" num_pins="1"/>
+    <output name="DO5" num_pins="1"/>
+
+    <output name="CO6" num_pins="1"/>
+    <output name="CO5" num_pins="1"/>
+
+    <output name="BO6" num_pins="1"/>
+    <output name="BO5" num_pins="1"/>
+
+    <output name="AO6" num_pins="1"/>
+    <output name="AO5" num_pins="1"/>
+
+    <output name="F7AMUX_O" num_pins="1"/>
+    <output name="F7BMUX_O" num_pins="1"/>
+    <output name="F8MUX_O" num_pins="1"/>
+
+    <clock name="CLK" num_pins="1"/>
+
+    <mode name="LUTs">
+      <xi:include href="../common_slice/common_lut_and_f78mux.pb_type.xml"/>
+
+      <interconnect>
+        <!-- Normal LUT input pins -->
+        <direct name="D1" input="BLK_IG-SLICEM_MODES.D1" output="BLK_IG-COMMON_LUT_AND_F78MUX.D1" />
+        <direct name="D2" input="BLK_IG-SLICEM_MODES.D2" output="BLK_IG-COMMON_LUT_AND_F78MUX.D2" />
+        <direct name="D3" input="BLK_IG-SLICEM_MODES.D3" output="BLK_IG-COMMON_LUT_AND_F78MUX.D3" />
+        <direct name="D4" input="BLK_IG-SLICEM_MODES.D4" output="BLK_IG-COMMON_LUT_AND_F78MUX.D4" />
+        <direct name="D5" input="BLK_IG-SLICEM_MODES.D5" output="BLK_IG-COMMON_LUT_AND_F78MUX.D5" />
+        <direct name="D6" input="BLK_IG-SLICEM_MODES.D6" output="BLK_IG-COMMON_LUT_AND_F78MUX.D6" />
+
+        <direct name="C1" input="BLK_IG-SLICEM_MODES.C1" output="BLK_IG-COMMON_LUT_AND_F78MUX.C1" />
+        <direct name="C2" input="BLK_IG-SLICEM_MODES.C2" output="BLK_IG-COMMON_LUT_AND_F78MUX.C2" />
+        <direct name="C3" input="BLK_IG-SLICEM_MODES.C3" output="BLK_IG-COMMON_LUT_AND_F78MUX.C3" />
+        <direct name="C4" input="BLK_IG-SLICEM_MODES.C4" output="BLK_IG-COMMON_LUT_AND_F78MUX.C4" />
+        <direct name="C5" input="BLK_IG-SLICEM_MODES.C5" output="BLK_IG-COMMON_LUT_AND_F78MUX.C5" />
+        <direct name="C6" input="BLK_IG-SLICEM_MODES.C6" output="BLK_IG-COMMON_LUT_AND_F78MUX.C6" />
+
+        <direct name="B1" input="BLK_IG-SLICEM_MODES.B1" output="BLK_IG-COMMON_LUT_AND_F78MUX.B1" />
+        <direct name="B2" input="BLK_IG-SLICEM_MODES.B2" output="BLK_IG-COMMON_LUT_AND_F78MUX.B2" />
+        <direct name="B3" input="BLK_IG-SLICEM_MODES.B3" output="BLK_IG-COMMON_LUT_AND_F78MUX.B3" />
+        <direct name="B4" input="BLK_IG-SLICEM_MODES.B4" output="BLK_IG-COMMON_LUT_AND_F78MUX.B4" />
+        <direct name="B5" input="BLK_IG-SLICEM_MODES.B5" output="BLK_IG-COMMON_LUT_AND_F78MUX.B5" />
+        <direct name="B6" input="BLK_IG-SLICEM_MODES.B6" output="BLK_IG-COMMON_LUT_AND_F78MUX.B6" />
+
+        <direct name="A1" input="BLK_IG-SLICEM_MODES.A1" output="BLK_IG-COMMON_LUT_AND_F78MUX.A1" />
+        <direct name="A2" input="BLK_IG-SLICEM_MODES.A2" output="BLK_IG-COMMON_LUT_AND_F78MUX.A2" />
+        <direct name="A3" input="BLK_IG-SLICEM_MODES.A3" output="BLK_IG-COMMON_LUT_AND_F78MUX.A3" />
+        <direct name="A4" input="BLK_IG-SLICEM_MODES.A4" output="BLK_IG-COMMON_LUT_AND_F78MUX.A4" />
+        <direct name="A5" input="BLK_IG-SLICEM_MODES.A5" output="BLK_IG-COMMON_LUT_AND_F78MUX.A5" />
+        <direct name="A6" input="BLK_IG-SLICEM_MODES.A6" output="BLK_IG-COMMON_LUT_AND_F78MUX.A6" />
+
+        <direct name="CX"  input="BLK_IG-SLICEM_MODES.CX" output="BLK_IG-COMMON_LUT_AND_F78MUX.CX" />
+        <direct name="BX"  input="BLK_IG-SLICEM_MODES.BX" output="BLK_IG-COMMON_LUT_AND_F78MUX.BX" />
+        <direct name="AX"  input="BLK_IG-SLICEM_MODES.AX" output="BLK_IG-COMMON_LUT_AND_F78MUX.AX" />
+
+        <!-- COMMON_SLICE inputs -->
+        <direct name="DO6" input="BLK_IG-COMMON_LUT_AND_F78MUX.DO6"   output="BLK_IG-SLICEM_MODES.DO6" />
+        <direct name="DO5" input="BLK_IG-COMMON_LUT_AND_F78MUX.DO5"   output="BLK_IG-SLICEM_MODES.DO5" />
+
+        <direct name="CO6" input="BLK_IG-COMMON_LUT_AND_F78MUX.CO6"   output="BLK_IG-SLICEM_MODES.CO6" />
+        <direct name="CO5" input="BLK_IG-COMMON_LUT_AND_F78MUX.CO5"   output="BLK_IG-SLICEM_MODES.CO5" />
+
+        <direct name="BO6" input="BLK_IG-COMMON_LUT_AND_F78MUX.BO6"   output="BLK_IG-SLICEM_MODES.BO6" />
+        <direct name="BO5" input="BLK_IG-COMMON_LUT_AND_F78MUX.BO5"   output="BLK_IG-SLICEM_MODES.BO5" />
+
+        <direct name="AO6" input="BLK_IG-COMMON_LUT_AND_F78MUX.AO6"   output="BLK_IG-SLICEM_MODES.AO6" />
+        <direct name="AO5" input="BLK_IG-COMMON_LUT_AND_F78MUX.AO5"   output="BLK_IG-SLICEM_MODES.AO5" />
+
+        <direct name="F7AMUX_O" input="BLK_IG-COMMON_LUT_AND_F78MUX.F7AMUX_O"   output="BLK_IG-SLICEM_MODES.F7AMUX_O" />
+        <direct name="F7BMUX_O" input="BLK_IG-COMMON_LUT_AND_F78MUX.F7BMUX_O"   output="BLK_IG-SLICEM_MODES.F7BMUX_O" />
+        <direct name="F8MUX_O"  input="BLK_IG-COMMON_LUT_AND_F78MUX.F8MUX_O"    output="BLK_IG-SLICEM_MODES.F8MUX_O" />
+
+      </interconnect>
+    </mode>
+    <mode name="DRAMs">
+      <xi:include href="Ndram/a_dram.pb_type.xml"/>
+      <xi:include href="Ndram/b_dram.pb_type.xml"/>
+      <xi:include href="Ndram/c_dram.pb_type.xml"/>
+      <xi:include href="Ndram/d_dram.pb_type.xml"/>
+      <xi:include href="../common_slice/muxes/f7amux/f7amux.pb_type.xml"/>
+      <xi:include href="../common_slice/muxes/f7bmux/f7bmux.pb_type.xml"/>
+      <xi:include href="../common_slice/muxes/f8mux/f8mux.pb_type.xml"/>
+
+      <pb_type name="BLK_MM-WE_MUX" num_pb="1">
+        <input name="CE" num_pins="1"/>
+        <input name="WE" num_pins="1"/>
+
+        <output name="WE_OUT"   num_pins="1"/>
+
+        <interconnect>
+          <mux name="WE_MUX" input="BLK_MM-WE_MUX.CE BLK_MM-WE_MUX.WE"  output="BLK_MM-WE_MUX.WE_OUT">
+            <metadata>
+              <meta name="fasm_mux">
+                BLK_MM-WE_MUX.CE = WEMUX.CE
+                BLK_MM-WE_MUX.WE = NULL
+              </meta>
+            </metadata>
+          </mux>
+        </interconnect>
+      </pb_type>
+
+      <interconnect>
+        <direct name="AMEMCLK" input="BLK_IG-SLICEM_MODES.CLK" output="BLK_IG-A_DRAM.CLK"/>
+        <direct name="BMEMCLK" input="BLK_IG-SLICEM_MODES.CLK" output="BLK_IG-B_DRAM.CLK"/>
+        <direct name="CMEMCLK" input="BLK_IG-SLICEM_MODES.CLK" output="BLK_IG-C_DRAM.CLK"/>
+        <direct name="DMEMCLK" input="BLK_IG-SLICEM_MODES.CLK" output="BLK_IG-D_DRAM.CLK"/>
+
+        <direct name="D1" input="BLK_IG-SLICEM_MODES.D1" output="BLK_IG-D_DRAM.A[0]" />
+        <direct name="D2" input="BLK_IG-SLICEM_MODES.D2" output="BLK_IG-D_DRAM.A[1]" />
+        <direct name="D3" input="BLK_IG-SLICEM_MODES.D3" output="BLK_IG-D_DRAM.A[2]" />
+        <direct name="D4" input="BLK_IG-SLICEM_MODES.D4" output="BLK_IG-D_DRAM.A[3]" />
+        <direct name="D5" input="BLK_IG-SLICEM_MODES.D5" output="BLK_IG-D_DRAM.A[4]" />
+        <direct name="D6" input="BLK_IG-SLICEM_MODES.D6" output="BLK_IG-D_DRAM.A[5]" />
+
+        <direct name="C1" input="BLK_IG-SLICEM_MODES.C1" output="BLK_IG-C_DRAM.A[0]" />
+        <direct name="C2" input="BLK_IG-SLICEM_MODES.C2" output="BLK_IG-C_DRAM.A[1]" />
+        <direct name="C3" input="BLK_IG-SLICEM_MODES.C3" output="BLK_IG-C_DRAM.A[2]" />
+        <direct name="C4" input="BLK_IG-SLICEM_MODES.C4" output="BLK_IG-C_DRAM.A[3]" />
+        <direct name="C5" input="BLK_IG-SLICEM_MODES.C5" output="BLK_IG-C_DRAM.A[4]" />
+        <direct name="C6" input="BLK_IG-SLICEM_MODES.C6" output="BLK_IG-C_DRAM.A[5]" />
+
+        <direct name="B1" input="BLK_IG-SLICEM_MODES.B1" output="BLK_IG-B_DRAM.A[0]" />
+        <direct name="B2" input="BLK_IG-SLICEM_MODES.B2" output="BLK_IG-B_DRAM.A[1]" />
+        <direct name="B3" input="BLK_IG-SLICEM_MODES.B3" output="BLK_IG-B_DRAM.A[2]" />
+        <direct name="B4" input="BLK_IG-SLICEM_MODES.B4" output="BLK_IG-B_DRAM.A[3]" />
+        <direct name="B5" input="BLK_IG-SLICEM_MODES.B5" output="BLK_IG-B_DRAM.A[4]" />
+        <direct name="B6" input="BLK_IG-SLICEM_MODES.B6" output="BLK_IG-B_DRAM.A[5]" />
+
+        <direct name="A1" input="BLK_IG-SLICEM_MODES.A1" output="BLK_IG-A_DRAM.A[0]" />
+        <direct name="A2" input="BLK_IG-SLICEM_MODES.A2" output="BLK_IG-A_DRAM.A[1]" />
+        <direct name="A3" input="BLK_IG-SLICEM_MODES.A3" output="BLK_IG-A_DRAM.A[2]" />
+        <direct name="A4" input="BLK_IG-SLICEM_MODES.A4" output="BLK_IG-A_DRAM.A[3]" />
+        <direct name="A5" input="BLK_IG-SLICEM_MODES.A5" output="BLK_IG-A_DRAM.A[4]" />
+        <direct name="A6" input="BLK_IG-SLICEM_MODES.A6" output="BLK_IG-A_DRAM.A[5]" />
+
+        <!-- W Address lines come in on the DLUT pins and go to all the LUTs.
+            -->
+        <direct name="WC1" input="BLK_IG-SLICEM_MODES.D1" output="BLK_IG-C_DRAM.WA[0]" />
+        <direct name="WC2" input="BLK_IG-SLICEM_MODES.D2" output="BLK_IG-C_DRAM.WA[1]" />
+        <direct name="WC3" input="BLK_IG-SLICEM_MODES.D3" output="BLK_IG-C_DRAM.WA[2]" />
+        <direct name="WC4" input="BLK_IG-SLICEM_MODES.D4" output="BLK_IG-C_DRAM.WA[3]" />
+        <direct name="WC5" input="BLK_IG-SLICEM_MODES.D5" output="BLK_IG-C_DRAM.WA[4]" />
+        <direct name="WC6" input="BLK_IG-SLICEM_MODES.D6" output="BLK_IG-C_DRAM.WA[5]" />
+
+        <direct name="WB1" input="BLK_IG-SLICEM_MODES.D1" output="BLK_IG-B_DRAM.WA[0]" />
+        <direct name="WB2" input="BLK_IG-SLICEM_MODES.D2" output="BLK_IG-B_DRAM.WA[1]" />
+        <direct name="WB3" input="BLK_IG-SLICEM_MODES.D3" output="BLK_IG-B_DRAM.WA[2]" />
+        <direct name="WB4" input="BLK_IG-SLICEM_MODES.D4" output="BLK_IG-B_DRAM.WA[3]" />
+        <direct name="WB5" input="BLK_IG-SLICEM_MODES.D5" output="BLK_IG-B_DRAM.WA[4]" />
+        <direct name="WB6" input="BLK_IG-SLICEM_MODES.D6" output="BLK_IG-B_DRAM.WA[5]" />
+
+        <direct name="WA1" input="BLK_IG-SLICEM_MODES.D1" output="BLK_IG-A_DRAM.WA[0]" />
+        <direct name="WA2" input="BLK_IG-SLICEM_MODES.D2" output="BLK_IG-A_DRAM.WA[1]" />
+        <direct name="WA3" input="BLK_IG-SLICEM_MODES.D3" output="BLK_IG-A_DRAM.WA[2]" />
+        <direct name="WA4" input="BLK_IG-SLICEM_MODES.D4" output="BLK_IG-A_DRAM.WA[3]" />
+        <direct name="WA5" input="BLK_IG-SLICEM_MODES.D5" output="BLK_IG-A_DRAM.WA[4]" />
+        <direct name="WA6" input="BLK_IG-SLICEM_MODES.D6" output="BLK_IG-A_DRAM.WA[5]" />
+
+        <!-- Direct DI1 inputs -->
+        <direct name="DI" input="BLK_IG-SLICEM_MODES.DI" output="BLK_IG-D_DRAM.DI1" />
+        <direct name="CI" input="BLK_IG-SLICEM_MODES.CI" output="BLK_IG-C_DRAM.CI" />
+        <direct name="BI" input="BLK_IG-SLICEM_MODES.BI" output="BLK_IG-B_DRAM.BI" />
+        <direct name="AI" input="BLK_IG-SLICEM_MODES.AI" output="BLK_IG-A_DRAM.AI" />
+
+        <!-- Parent DI1 inputs -->
+        <direct name="P_CI" input="BLK_IG-SLICEM_MODES.DI" output="BLK_IG-C_DRAM.PARENT_DI" />
+        <direct name="P_BI" input="BLK_IG-SLICEM_MODES.DI" output="BLK_IG-B_DRAM.PARENT_DI" />
+        <direct name="P_AI" input="BLK_IG-B_DRAM.DI_OUT" output="BLK_IG-A_DRAM.PARENT_DI" />
+
+        <!-- DI2 inputs -->
+        <direct name="D_DI2" input="BLK_IG-SLICEM_MODES.DX" output="BLK_IG-D_DRAM.DI2" />
+        <direct name="C_DI2" input="BLK_IG-SLICEM_MODES.CX" output="BLK_IG-C_DRAM.DI2" />
+        <direct name="B_DI2" input="BLK_IG-SLICEM_MODES.BX" output="BLK_IG-B_DRAM.DI2" />
+        <direct name="A_DI2" input="BLK_IG-SLICEM_MODES.AX" output="BLK_IG-A_DRAM.DI2" />
+
+        <!-- WE inputs -->
+        <direct name="CE_TO_WE_MUX" input="BLK_IG-SLICEM_MODES.CE"  output="BLK_MM-WE_MUX.CE"/>
+        <direct name="WE_TO_WE_MUX" input="BLK_IG-SLICEM_MODES.WE"  output="BLK_MM-WE_MUX.WE"/>
+        <direct name="WE1" input="BLK_MM-WE_MUX.WE_OUT"  output="BLK_IG-A_DRAM.WE"/>
+        <direct name="WE2" input="BLK_MM-WE_MUX.WE_OUT"  output="BLK_IG-B_DRAM.WE"/>
+        <direct name="WE3" input="BLK_MM-WE_MUX.WE_OUT"  output="BLK_IG-C_DRAM.WE"/>
+        <direct name="WE4" input="BLK_MM-WE_MUX.WE_OUT"  output="BLK_IG-D_DRAM.WE"/>
+
+        <!-- Outputs -->
+        <direct name="DO6" input="BLK_IG-D_DRAM.O6"   output="BLK_IG-SLICEM_MODES.DO6" />
+        <direct name="DO5" input="BLK_IG-D_DRAM.O5"   output="BLK_IG-SLICEM_MODES.DO5" />
+
+        <direct name="CO6" input="BLK_IG-C_DRAM.O6"   output="BLK_IG-SLICEM_MODES.CO6" />
+        <direct name="CO5" input="BLK_IG-C_DRAM.O5"   output="BLK_IG-SLICEM_MODES.CO5" />
+
+        <direct name="BO6" input="BLK_IG-B_DRAM.O6"   output="BLK_IG-SLICEM_MODES.BO6" />
+        <direct name="BO5" input="BLK_IG-B_DRAM.O5"   output="BLK_IG-SLICEM_MODES.BO5" />
+
+        <direct name="AO6" input="BLK_IG-A_DRAM.O6"   output="BLK_IG-SLICEM_MODES.AO6" />
+        <direct name="AO5" input="BLK_IG-A_DRAM.O5"   output="BLK_IG-SLICEM_MODES.AO5" />
+
+        <!-- F7AMUX inputs -->
+        <direct name="F7AMUX_I0" input="BLK_IG-B_DRAM.O6"   output="BEL_MX-F7AMUX.I0">
+        </direct>
+        <direct name="F7AMUX_I1" input="BLK_IG-A_DRAM.O6"   output="BEL_MX-F7AMUX.I1">
+        </direct>
+        <direct name="F7AMUX_S"  input="BLK_IG-SLICEM_MODES.AX" output="BEL_MX-F7AMUX.S" />
+        <!-- F7BMUX inputs -->
+        <direct name="F7BMUX_I0" input="BLK_IG-D_DRAM.O6"   output="BEL_MX-F7BMUX.I0">
+        </direct>
+        <direct name="F7BMUX_I1" input="BLK_IG-C_DRAM.O6"   output="BEL_MX-F7BMUX.I1">
+        </direct>
+        <direct name="F7BMUX_S"  input="BLK_IG-SLICEM_MODES.CX" output="BEL_MX-F7BMUX.S" />
+        <!-- F8MUX inputs -->
+        <direct name="F8MUX_I0"  input="BEL_MX-F7BMUX.O"  output="BEL_MX-F8MUX.I0">
+        </direct>
+        <direct name="F8MUX_I1"  input="BEL_MX-F7AMUX.O"  output="BEL_MX-F8MUX.I1">
+        </direct>
+        <direct name="F8MUX_S"   input="BLK_IG-SLICEM_MODES.BX" output="BEL_MX-F8MUX.S" />
+
+        <direct name="F7AMUX_O"   input="BEL_MX-F7AMUX.O" output="BLK_IG-SLICEM_MODES.F7AMUX_O" />
+        <direct name="F7BMUX_O"   input="BEL_MX-F7BMUX.O" output="BLK_IG-SLICEM_MODES.F7BMUX_O" />
+        <direct name="F8MUX_O"   input="BEL_MX-F8MUX.O" output="BLK_IG-SLICEM_MODES.F8MUX_O" />
+
+      </interconnect>
+      <!-- The DLUT must be in RAM-mode for an of the RAM's to work. -->
+      <metadata>
+        <meta name="fasm_features">
+          DLUT.RAM
+        </meta>
+      </metadata>
+    </mode>
+  </pb_type>
+
   <interconnect>
-    <!-- Normal LUT input pins -->
-    <direct name="D1" input="BLK_IG-SLICEM.D1" output="BLK_IG-DLUT.A1" />
-    <direct name="D2" input="BLK_IG-SLICEM.D2" output="BLK_IG-DLUT.A2" />
-    <direct name="D3" input="BLK_IG-SLICEM.D3" output="BLK_IG-DLUT.A3" />
-    <direct name="D4" input="BLK_IG-SLICEM.D4" output="BLK_IG-DLUT.A4" />
-    <direct name="D5" input="BLK_IG-SLICEM.D5" output="BLK_IG-DLUT.A5" />
-    <direct name="D6" input="BLK_IG-SLICEM.D6" output="BLK_IG-DLUT.A6" />
+    <!-- SLICEM_MODES inputs -->
+    <direct name="DI" input="BLK_IG-SLICEM.DI" output="BLK_IG-SLICEM_MODES.DI" />
+    <direct name="DX2" input="BLK_IG-SLICEM.DX" output="BLK_IG-SLICEM_MODES.DX" />
+    <direct name="D1" input="BLK_IG-SLICEM.D1" output="BLK_IG-SLICEM_MODES.D1" />
+    <direct name="D2" input="BLK_IG-SLICEM.D2" output="BLK_IG-SLICEM_MODES.D2" />
+    <direct name="D3" input="BLK_IG-SLICEM.D3" output="BLK_IG-SLICEM_MODES.D3" />
+    <direct name="D4" input="BLK_IG-SLICEM.D4" output="BLK_IG-SLICEM_MODES.D4" />
+    <direct name="D5" input="BLK_IG-SLICEM.D5" output="BLK_IG-SLICEM_MODES.D5" />
+    <direct name="D6" input="BLK_IG-SLICEM.D6" output="BLK_IG-SLICEM_MODES.D6" />
 
-    <direct name="C1" input="BLK_IG-SLICEM.C1" output="BLK_IG-CLUT.A1" />
-    <direct name="C2" input="BLK_IG-SLICEM.C2" output="BLK_IG-CLUT.A2" />
-    <direct name="C3" input="BLK_IG-SLICEM.C3" output="BLK_IG-CLUT.A3" />
-    <direct name="C4" input="BLK_IG-SLICEM.C4" output="BLK_IG-CLUT.A4" />
-    <direct name="C5" input="BLK_IG-SLICEM.C5" output="BLK_IG-CLUT.A5" />
-    <direct name="C6" input="BLK_IG-SLICEM.C6" output="BLK_IG-CLUT.A6" />
+    <direct name="CI" input="BLK_IG-SLICEM.CI" output="BLK_IG-SLICEM_MODES.CI" />
+    <direct name="CX2" input="BLK_IG-SLICEM.CX" output="BLK_IG-SLICEM_MODES.CX" />
+    <direct name="C1" input="BLK_IG-SLICEM.C1" output="BLK_IG-SLICEM_MODES.C1" />
+    <direct name="C2" input="BLK_IG-SLICEM.C2" output="BLK_IG-SLICEM_MODES.C2" />
+    <direct name="C3" input="BLK_IG-SLICEM.C3" output="BLK_IG-SLICEM_MODES.C3" />
+    <direct name="C4" input="BLK_IG-SLICEM.C4" output="BLK_IG-SLICEM_MODES.C4" />
+    <direct name="C5" input="BLK_IG-SLICEM.C5" output="BLK_IG-SLICEM_MODES.C5" />
+    <direct name="C6" input="BLK_IG-SLICEM.C6" output="BLK_IG-SLICEM_MODES.C6" />
 
-    <direct name="B1" input="BLK_IG-SLICEM.B1" output="BLK_IG-BLUT.A1" />
-    <direct name="B2" input="BLK_IG-SLICEM.B2" output="BLK_IG-BLUT.A2" />
-    <direct name="B3" input="BLK_IG-SLICEM.B3" output="BLK_IG-BLUT.A3" />
-    <direct name="B4" input="BLK_IG-SLICEM.B4" output="BLK_IG-BLUT.A4" />
-    <direct name="B5" input="BLK_IG-SLICEM.B5" output="BLK_IG-BLUT.A5" />
-    <direct name="B6" input="BLK_IG-SLICEM.B6" output="BLK_IG-BLUT.A6" />
+    <direct name="BI" input="BLK_IG-SLICEM.BI" output="BLK_IG-SLICEM_MODES.BI" />
+    <direct name="BX2" input="BLK_IG-SLICEM.BX" output="BLK_IG-SLICEM_MODES.BX" />
+    <direct name="B1" input="BLK_IG-SLICEM.B1" output="BLK_IG-SLICEM_MODES.B1" />
+    <direct name="B2" input="BLK_IG-SLICEM.B2" output="BLK_IG-SLICEM_MODES.B2" />
+    <direct name="B3" input="BLK_IG-SLICEM.B3" output="BLK_IG-SLICEM_MODES.B3" />
+    <direct name="B4" input="BLK_IG-SLICEM.B4" output="BLK_IG-SLICEM_MODES.B4" />
+    <direct name="B5" input="BLK_IG-SLICEM.B5" output="BLK_IG-SLICEM_MODES.B5" />
+    <direct name="B6" input="BLK_IG-SLICEM.B6" output="BLK_IG-SLICEM_MODES.B6" />
 
-    <direct name="A1" input="BLK_IG-SLICEM.A1" output="BLK_IG-ALUT.A1" />
-    <direct name="A2" input="BLK_IG-SLICEM.A2" output="BLK_IG-ALUT.A2" />
-    <direct name="A3" input="BLK_IG-SLICEM.A3" output="BLK_IG-ALUT.A3" />
-    <direct name="A4" input="BLK_IG-SLICEM.A4" output="BLK_IG-ALUT.A4" />
-    <direct name="A5" input="BLK_IG-SLICEM.A5" output="BLK_IG-ALUT.A5" />
-    <direct name="A6" input="BLK_IG-SLICEM.A6" output="BLK_IG-ALUT.A6" />
+    <direct name="AI" input="BLK_IG-SLICEM.AI" output="BLK_IG-SLICEM_MODES.AI" />
+    <direct name="AX2" input="BLK_IG-SLICEM.AX" output="BLK_IG-SLICEM_MODES.AX" />
+    <direct name="A1" input="BLK_IG-SLICEM.A1" output="BLK_IG-SLICEM_MODES.A1" />
+    <direct name="A2" input="BLK_IG-SLICEM.A2" output="BLK_IG-SLICEM_MODES.A2" />
+    <direct name="A3" input="BLK_IG-SLICEM.A3" output="BLK_IG-SLICEM_MODES.A3" />
+    <direct name="A4" input="BLK_IG-SLICEM.A4" output="BLK_IG-SLICEM_MODES.A4" />
+    <direct name="A5" input="BLK_IG-SLICEM.A5" output="BLK_IG-SLICEM_MODES.A5" />
+    <direct name="A6" input="BLK_IG-SLICEM.A6" output="BLK_IG-SLICEM_MODES.A6" />
 
-    <!-- W Address lines come in on the DLUT pins and go to all the LUTs. -->
-    <direct name="WD1" input="BLK_IG-SLICEM.D1" output="BLK_IG-DLUT.WA1" />
-    <direct name="WD2" input="BLK_IG-SLICEM.D2" output="BLK_IG-DLUT.WA2" />
-    <direct name="WD3" input="BLK_IG-SLICEM.D3" output="BLK_IG-DLUT.WA3" />
-    <direct name="WD4" input="BLK_IG-SLICEM.D4" output="BLK_IG-DLUT.WA4" />
-    <direct name="WD5" input="BLK_IG-SLICEM.D5" output="BLK_IG-DLUT.WA5" />
-    <direct name="wD6" input="BLK_IG-SLICEM.D6" output="BLK_IG-DLUT.WA6" />
+    <direct name="CK2" input="BLK_IG-SLICEM.CLK" output="BLK_IG-SLICEM_MODES.CLK"/>
+    <direct name="CE2" input="BLK_IG-SLICEM.CE"  output="BLK_IG-SLICEM_MODES.CE"/>
+    <direct name="WE2" input="BLK_IG-SLICEM.WE"  output="BLK_IG-SLICEM_MODES.WE"/>
 
-    <direct name="WC1" input="BLK_IG-SLICEM.D1" output="BLK_IG-CLUT.WA1" />
-    <direct name="WC2" input="BLK_IG-SLICEM.D2" output="BLK_IG-CLUT.WA2" />
-    <direct name="WC3" input="BLK_IG-SLICEM.D3" output="BLK_IG-CLUT.WA3" />
-    <direct name="WC4" input="BLK_IG-SLICEM.D4" output="BLK_IG-CLUT.WA4" />
-    <direct name="WC5" input="BLK_IG-SLICEM.D5" output="BLK_IG-CLUT.WA5" />
-    <direct name="WC6" input="BLK_IG-SLICEM.D6" output="BLK_IG-CLUT.WA6" />
+    <!-- SLICEM_MODES Outputs -->
+    <direct name="DO6" input="BLK_IG-SLICEM_MODES.DO6"   output="BLK_IG-COMMON_SLICE.DO6" />
+    <direct name="DO5" input="BLK_IG-SLICEM_MODES.DO5"   output="BLK_IG-COMMON_SLICE.DO5" />
 
-    <direct name="WB1" input="BLK_IG-SLICEM.D1" output="BLK_IG-BLUT.WA1" />
-    <direct name="WB2" input="BLK_IG-SLICEM.D2" output="BLK_IG-BLUT.WA2" />
-    <direct name="WB3" input="BLK_IG-SLICEM.D3" output="BLK_IG-BLUT.WA3" />
-    <direct name="WB4" input="BLK_IG-SLICEM.D4" output="BLK_IG-BLUT.WA4" />
-    <direct name="WB5" input="BLK_IG-SLICEM.D5" output="BLK_IG-BLUT.WA5" />
-    <direct name="WB6" input="BLK_IG-SLICEM.D6" output="BLK_IG-BLUT.WA6" />
+    <direct name="CO6" input="BLK_IG-SLICEM_MODES.CO6"   output="BLK_IG-COMMON_SLICE.CO6" />
+    <direct name="CO5" input="BLK_IG-SLICEM_MODES.CO5"   output="BLK_IG-COMMON_SLICE.CO5" />
 
-    <direct name="WA1" input="BLK_IG-SLICEM.D1" output="BLK_IG-ALUT.WA1" />
-    <direct name="WA2" input="BLK_IG-SLICEM.D2" output="BLK_IG-ALUT.WA2" />
-    <direct name="WA3" input="BLK_IG-SLICEM.D3" output="BLK_IG-ALUT.WA3" />
-    <direct name="WA4" input="BLK_IG-SLICEM.D4" output="BLK_IG-ALUT.WA4" />
-    <direct name="WA5" input="BLK_IG-SLICEM.D5" output="BLK_IG-ALUT.WA5" />
-    <direct name="WA6" input="BLK_IG-SLICEM.D6" output="BLK_IG-ALUT.WA6" />
+    <direct name="BO6" input="BLK_IG-SLICEM_MODES.BO6"   output="BLK_IG-COMMON_SLICE.BO6" />
+    <direct name="BO5" input="BLK_IG-SLICEM_MODES.BO5"   output="BLK_IG-COMMON_SLICE.BO5" />
 
-    <!-- DI lines -->
-    <direct name="DI" output="BLK_IG-DLUT.DI1" input="BLK_IG-SLICEM.DI" />
-    <mux    name="CI" output="BLK_IG-CLUT.DI1" input="BLK_IG-SLICEM.CI BLK_IG-DLUT.MC31 BLK_IG-SLICEM.DI" />
-    <mux    name="BI" output="BLK_IG-BLUT.DI1" input="BLK_IG-SLICEM.BI BLK_IG-CLUT.MC31 BLK_IG-SLICEM.DI" />
-    <mux    name="AI" output="BLK_IG-ALUT.DI1" input="BLK_IG-SLICEM.AI BLK_IG-BLUT.MC31 BLK_IG-BLUT.DI1_OUT" />
+    <direct name="AO6" input="BLK_IG-SLICEM_MODES.AO6"   output="BLK_IG-COMMON_SLICE.AO6" />
+    <direct name="AO5" input="BLK_IG-SLICEM_MODES.AO5"   output="BLK_IG-COMMON_SLICE.AO5" />
 
-    <direct name="D.DI2" output="BLK_IG-DLUT.DI2" input="BLK_IG-SLICEM.DX" />
-    <direct name="C.DI2" output="BLK_IG-CLUT.DI2" input="BLK_IG-SLICEM.CX" />
-    <direct name="B.DI2" output="BLK_IG-BLUT.DI2" input="BLK_IG-SLICEM.BX" />
-    <direct name="A.DI2" output="BLK_IG-ALUT.DI2" input="BLK_IG-SLICEM.AX" />
+    <direct name="F7AMUX_O" input="BLK_IG-SLICEM_MODES.F7AMUX_O"   output="BLK_IG-COMMON_SLICE.F7AMUX_O" />
+    <direct name="F7BMUX_O" input="BLK_IG-SLICEM_MODES.F7BMUX_O"   output="BLK_IG-COMMON_SLICE.F7BMUX_O" />
+    <direct name="F8MUX_O"  input="BLK_IG-SLICEM_MODES.F8MUX_O"    output="BLK_IG-COMMON_SLICE.F8MUX_O" />
 
-    <!-- COMMON_SLICE inputs -->
+    <!-- A-DX inputs -->
     <direct name="DX"  input="BLK_IG-SLICEM.DX" output="BLK_IG-COMMON_SLICE.DX" />
-    <direct name="DO6" input="BLK_IG-DLUT.O6"   output="BLK_IG-COMMON_SLICE.DO6" />
-    <direct name="DO5" input="BLK_IG-DLUT.O5"   output="BLK_IG-COMMON_SLICE.DO5" />
-
     <direct name="CX"  input="BLK_IG-SLICEM.CX" output="BLK_IG-COMMON_SLICE.CX" />
-    <direct name="CO6" input="BLK_IG-CLUT.O6"   output="BLK_IG-COMMON_SLICE.CO6" />
-    <direct name="CO5" input="BLK_IG-CLUT.O5"   output="BLK_IG-COMMON_SLICE.CO5" />
-
     <direct name="BX"  input="BLK_IG-SLICEM.BX" output="BLK_IG-COMMON_SLICE.BX" />
-    <direct name="BO6" input="BLK_IG-BLUT.O6"   output="BLK_IG-COMMON_SLICE.BO6" />
-    <direct name="BO5" input="BLK_IG-BLUT.O5"   output="BLK_IG-COMMON_SLICE.BO5" />
-
     <direct name="AX"  input="BLK_IG-SLICEM.AX" output="BLK_IG-COMMON_SLICE.AX" />
-    <direct name="AO6" input="BLK_IG-ALUT.O6"   output="BLK_IG-COMMON_SLICE.AO6" />
-    <direct name="AO5" input="BLK_IG-ALUT.O5"   output="BLK_IG-COMMON_SLICE.AO5" />
-    <direct name="AMC31" input="BLK_IG-ALUT.MC31"   output="BLK_IG-COMMON_SLICE.AMC31" />
 
     <!-- [A-F]Q outputs -->
     <direct name="AQ" input="BLK_IG-COMMON_SLICE.AQ" output="BLK_IG-SLICEM.AQ" />
@@ -182,26 +419,12 @@
     <direct name="BLK_IG-SLICEM_AMUX" input="BLK_IG-COMMON_SLICE.AMUX" output="BLK_IG-SLICEM.AMUX" />
 
     <!-- Carry -->
-
-    <direct name="CIN" input="BLK_IG-SLICEM.CIN" output="BLK_IG-COMMON_SLICE.CIN" >
-    </direct>
-    <direct name="COUT" input="BLK_IG-COMMON_SLICE.COUT" output="BLK_IG-SLICEM.COUT" >
-    </direct>
+    <direct name="CIN" input="BLK_IG-SLICEM.CIN" output="BLK_IG-COMMON_SLICE.CIN" />
+    <direct name="COUT" input="BLK_IG-COMMON_SLICE.COUT" output="BLK_IG-SLICEM.COUT" />
 
     <!-- Clock, Clock Enable and Reset -->
     <direct name="CK" input="BLK_IG-SLICEM.CLK" output="BLK_IG-COMMON_SLICE.CLK"/>
     <direct name="CE" input="BLK_IG-SLICEM.CE"  output="BLK_IG-COMMON_SLICE.CE"/>
     <direct name="SR" input="BLK_IG-SLICEM.SR"  output="BLK_IG-COMMON_SLICE.SR"/>
-
-    <direct name="AMEMCLK" input="BLK_IG-SLICEM.CLK" output="BLK_IG-ALUT.CLK"/>
-    <direct name="BMEMCLK" input="BLK_IG-SLICEM.CLK" output="BLK_IG-BLUT.CLK"/>
-    <direct name="CMEMCLK" input="BLK_IG-SLICEM.CLK" output="BLK_IG-CLUT.CLK"/>
-    <direct name="DMEMCLK" input="BLK_IG-SLICEM.CLK" output="BLK_IG-DLUT.CLK"/>
-
-    <mux name="WE1" input="BLK_IG-SLICEM.CE BLK_IG-SLICEM.WE"  output="BLK_IG-ALUT.WE"/>
-    <mux name="WE2" input="BLK_IG-SLICEM.CE BLK_IG-SLICEM.WE"  output="BLK_IG-BLUT.WE"/>
-    <mux name="WE3" input="BLK_IG-SLICEM.CE BLK_IG-SLICEM.WE"  output="BLK_IG-CLUT.WE"/>
-    <mux name="WE4" input="BLK_IG-SLICEM.CE BLK_IG-SLICEM.WE"  output="BLK_IG-DLUT.WE"/>
-
   </interconnect>
 </pb_type>

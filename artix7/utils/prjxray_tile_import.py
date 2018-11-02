@@ -315,7 +315,7 @@ def main():
             }).text = site_prefix
 
             # Import pb_type metadata if it exists.
-            if len(tuple(root_element.iter('metadata'))) > 0:
+            if any(child.tag == 'metadata' for child in root_element):
                 ET.SubElement(metadata_xml, xi_include, {
                     'href': site_type_path,
                     'xpointer': "xpointer(pb_type/metadata/child::node())",
