@@ -8,6 +8,8 @@
   <input  name="PARENT_DI" num_pins="1" />
   <input  name="WE"  num_pins="1" />
 
+  <output name="DO6"  num_pins="1" />
+  <output name="SO6"  num_pins="1" />
   <output name="O6"  num_pins="1" />
   <output name="DI_OUT" num_pins="1" />
 
@@ -21,6 +23,7 @@
      <direct name="{N}I" input="BLK_IG-{N}_DRAM128.PARENT_DI" output="BLK_MM-DPRAM128.DI1" />
      <direct name="WE" input="BLK_IG-{N}_DRAM128.WE" output="BLK_MM-DPRAM128.WE" />
 
+     <direct name="DO6" input="BLK_MM-DPRAM128.O6" output="BLK_IG-{N}_DRAM128.DO6" />
      <direct name="O6" input="BLK_MM-DPRAM128.O6" output="BLK_IG-{N}_DRAM128.O6" />
      <direct name="DI_OUT" input="BLK_IG-{N}_DRAM128.PARENT_DI" output="BLK_IG-{N}_DRAM128.DI_OUT" />
    </interconnect>
@@ -39,6 +42,7 @@
      <direct name="{N}I" input="BLK_IG-{N}_DRAM128.{N}I" output="BLK_MM-SPRAM128.DI1" />
      <direct name="WE" input="BLK_IG-{N}_DRAM128.WE" output="BLK_MM-SPRAM128.WE" />
 
+     <direct name="SO6" input="BLK_MM-SPRAM128.O6" output="BLK_IG-{N}_DRAM128.SO6" />
      <direct name="O6" input="BLK_MM-SPRAM128.O6" output="BLK_IG-{N}_DRAM128.O6" />
      <direct name="DI_OUT" input="BLK_IG-{N}_DRAM128.{N}I" output="BLK_IG-{N}_DRAM128.DI_OUT" />
    </interconnect>

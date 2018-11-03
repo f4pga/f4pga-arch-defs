@@ -9,6 +9,7 @@
   <input  name="DI2"  num_pins="1" />
   <input  name="WE"  num_pins="1" />
 
+  <output name="DO6"  num_pins="1" />
   <output name="O6"  num_pins="1" />
   <output name="O5"  num_pins="1" />
 
@@ -91,6 +92,7 @@
       <direct name="WE" input="BLK_IG-{N}_DRAM.WE" output="BLK_MM-DPRAM64.WE" />
 
       <direct name="O6" input="BLK_MM-DPRAM64.O6" output="BLK_IG-{N}_DRAM.O6" />
+      <direct name="DO6" input="BLK_MM-DPRAM64.O6" output="BLK_IG-{N}_DRAM.DO6" />
     </interconnect>
   </mode>
   <mode name="32_DUAL_PORT">

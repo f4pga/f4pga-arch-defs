@@ -46,7 +46,7 @@
 
      <!-- MUX used for LUT6 -->
      <direct name="F6MUX_I0" input="BEL_LT-{N}5LUT[0].out" output="BEL_MX-F6MUX.I0">
-      <pack_pattern in_port="BEL_LT-{N}5LUT[0].out" name="{N}_LUT5toLUT6" out_port="BEL_MX-F6MUX.I0"/>
+      <pack_pattern in_port="BEL_LT-{N}5LUT[0].out" name="LUT5toLUT6" out_port="BEL_MX-F6MUX.I0"/>
       <pack_pattern in_port="BEL_LT-{N}5LUT[0].out" name="LUT5toLUT7" out_port="BEL_MX-F6MUX.I0"/>
       <pack_pattern in_port="BEL_LT-{N}5LUT[0].out" name="LUT5toLUT8" out_port="BEL_MX-F6MUX.I0"/>
      </direct>
@@ -60,13 +60,13 @@
 
      <!-- LUT outputs -->
      <direct name="O5" input="BEL_LT-{N}5LUT[0].out"                output="BLK_IG-{N}LUT.O5">
-      <pack_pattern in_port="BEL_LT-{N}5LUT[0].out" name="{N}_LUT5x2"     out_port="BLK_IG-{N}LUT.O5"/>
+      <pack_pattern in_port="BEL_LT-{N}5LUT[0].out" name="LUT5x2"     out_port="BLK_IG-{N}LUT.O5"/>
      </direct>
      <mux    name="O6" input="BEL_LT-{N}5LUT[1].out BEL_MX-F6MUX.O" output="BLK_IG-{N}LUT.O6">
-      <pack_pattern in_port="BEL_MX-F6MUX.O"        name="{N}_LUT5toLUT6" out_port="BLK_IG-{N}LUT.O6"/>
+      <pack_pattern in_port="BEL_MX-F6MUX.O"        name="LUT5toLUT6" out_port="BLK_IG-{N}LUT.O6"/>
       <pack_pattern in_port="BEL_MX-F6MUX.O"        name="LUT5toLUT7" out_port="BLK_IG-{N}LUT.O6"/>
       <pack_pattern in_port="BEL_MX-F6MUX.O"        name="LUT5toLUT8" out_port="BLK_IG-{N}LUT.O6"/>
-      <pack_pattern in_port="BEL_LT-{N}5LUT[1].out" name="{N}_LUT5x2"     out_port="BLK_IG-{N}LUT.O6"/>
+      <pack_pattern in_port="BEL_LT-{N}5LUT[1].out" name="LUT5x2"     out_port="BLK_IG-{N}LUT.O6"/>
      </mux>
    </interconnect>
    <metadata>

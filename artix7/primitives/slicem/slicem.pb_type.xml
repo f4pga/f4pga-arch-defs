@@ -269,24 +269,12 @@
 
         <!-- WA7 and WA8 should only be used in this mode if using 256x1S,
              which consumes the entire slice. -->
-        <direct name="D_WA7" input="BLK_IG-SLICEM_MODES.WA7"  output="BLK_IG-D_DRAM.WA7">
-          <metadata>
-            <meta name="fasm_mux">
-              BLK_IG-D_DRAM.WA7 = WA7USED
-            </meta>
-          </metadata>
-        </direct>
+        <direct name="D_WA7" input="BLK_IG-SLICEM_MODES.WA7"  output="BLK_IG-D_DRAM.WA7" />
         <direct name="C_WA7" input="BLK_IG-SLICEM_MODES.WA7"  output="BLK_IG-C_DRAM.WA[6]" />
         <direct name="B_WA7" input="BLK_IG-SLICEM_MODES.WA7"  output="BLK_IG-B_DRAM.WA[6]" />
         <direct name="A_WA7" input="BLK_IG-SLICEM_MODES.WA7"  output="BLK_IG-A_DRAM.WA[6]" />
 
-        <direct name="D_WA8" input="BLK_IG-SLICEM_MODES.WA8"  output="BLK_IG-D_DRAM.WA8">
-          <metadata>
-            <meta name="fasm_mux">
-              BLK_IG-D_DRAM.WA8 = WA8USED
-            </meta>
-          </metadata>
-        </direct>
+        <direct name="D_WA8" input="BLK_IG-SLICEM_MODES.WA8"  output="BLK_IG-D_DRAM.WA8" />
         <direct name="C_WA8" input="BLK_IG-SLICEM_MODES.WA8"  output="BLK_IG-C_DRAM.WA[7]" />
         <direct name="B_WA8" input="BLK_IG-SLICEM_MODES.WA8"  output="BLK_IG-B_DRAM.WA[7]" />
         <direct name="A_WA8" input="BLK_IG-SLICEM_MODES.WA8"  output="BLK_IG-A_DRAM.WA[7]" />
@@ -350,21 +338,27 @@
         <direct name="AO5" input="BLK_IG-A_DRAM.O5"   output="BLK_IG-SLICEM_MODES.AO5" />
 
         <!-- F7AMUX inputs -->
-        <direct name="F7AMUX_I0" input="BLK_IG-B_DRAM.O6"   output="BEL_MX-F7AMUX.I0">
+        <direct name="F7AMUX_I0" input="BLK_IG-B_DRAM.DO6"   output="BEL_MX-F7AMUX.I0">
+          <pack_pattern in_port="BLK_IG-B_DRAM.DO6" name="DRAM256" out_port="BEL_MX-F7AMUX.I0"/>
         </direct>
-        <direct name="F7AMUX_I1" input="BLK_IG-A_DRAM.O6"   output="BEL_MX-F7AMUX.I1">
+        <direct name="F7AMUX_I1" input="BLK_IG-A_DRAM.DO6"   output="BEL_MX-F7AMUX.I1">
+          <pack_pattern in_port="BLK_IG-A_DRAM.DO6" name="DRAM256" out_port="BEL_MX-F7AMUX.I1"/>
         </direct>
         <direct name="F7AMUX_S"  input="BLK_IG-SLICEM_MODES.AX" output="BEL_MX-F7AMUX.S" />
         <!-- F7BMUX inputs -->
-        <direct name="F7BMUX_I0" input="BLK_IG-D_DRAM.O6"   output="BEL_MX-F7BMUX.I0">
+        <direct name="F7BMUX_I0" input="BLK_IG-D_DRAM.SO6"   output="BEL_MX-F7BMUX.I0">
+          <pack_pattern in_port="BLK_IG-D_DRAM.SO6" name="DRAM256" out_port="BEL_MX-F7BMUX.I0"/>
         </direct>
-        <direct name="F7BMUX_I1" input="BLK_IG-C_DRAM.O6"   output="BEL_MX-F7BMUX.I1">
+        <direct name="F7BMUX_I1" input="BLK_IG-C_DRAM.DO6"   output="BEL_MX-F7BMUX.I1">
+          <pack_pattern in_port="BLK_IG-C_DRAM.DO6" name="DRAM256" out_port="BEL_MX-F7BMUX.I1"/>
         </direct>
         <direct name="F7BMUX_S"  input="BLK_IG-SLICEM_MODES.CX" output="BEL_MX-F7BMUX.S" />
         <!-- F8MUX inputs -->
         <direct name="F8MUX_I0"  input="BEL_MX-F7BMUX.O"  output="BEL_MX-F8MUX.I0">
+          <pack_pattern in_port="BEL_MX-F7BMUX.O" name="DRAM256" out_port="BEL_MX-F8MUX.I0"/>
         </direct>
         <direct name="F8MUX_I1"  input="BEL_MX-F7AMUX.O"  output="BEL_MX-F8MUX.I1">
+          <pack_pattern in_port="BEL_MX-F7AMUX.O" name="DRAM256" out_port="BEL_MX-F8MUX.I1"/>
         </direct>
         <direct name="F8MUX_S"   input="BLK_IG-SLICEM_MODES.BX" output="BEL_MX-F8MUX.S" />
 
@@ -494,15 +488,19 @@
         <direct name="AO6" input="BLK_IG-A_DRAM128.O6"   output="BLK_IG-SLICEM_MODES.AO6" />
 
         <!-- F7AMUX inputs -->
-        <direct name="F7AMUX_I0" input="BLK_IG-B_DRAM128.O6"   output="BEL_MX-F7AMUX.I0">
+        <direct name="F7AMUX_I0" input="BLK_IG-B_DRAM128.SO6"   output="BEL_MX-F7AMUX.I0">
+          <pack_pattern in_port="BLK_IG-B_DRAM128.SO6" name="DRAM128" out_port="BEL_MX-F7AMUX.I0"/>
         </direct>
-        <direct name="F7AMUX_I1" input="BLK_IG-A_DRAM128.O6"   output="BEL_MX-F7AMUX.I1">
+        <direct name="F7AMUX_I1" input="BLK_IG-A_DRAM128.DO6"   output="BEL_MX-F7AMUX.I1">
+          <pack_pattern in_port="BLK_IG-A_DRAM128.DO6" name="DRAM128" out_port="BEL_MX-F7AMUX.I1"/>
         </direct>
         <direct name="F7AMUX_S"  input="BLK_IG-SLICEM_MODES.AX" output="BEL_MX-F7AMUX.S" />
         <!-- F7BMUX inputs -->
         <direct name="F7BMUX_I0" input="BLK_IG-D_DRAM128.O6"   output="BEL_MX-F7BMUX.I0">
+          <pack_pattern in_port="BLK_IG-D_DRAM128.O6" name="DRAM128" out_port="BEL_MX-F7BMUX.I0"/>
         </direct>
-        <direct name="F7BMUX_I1" input="BLK_IG-C_DRAM128.O6"   output="BEL_MX-F7BMUX.I1">
+        <direct name="F7BMUX_I1" input="BLK_IG-C_DRAM128.DO6"   output="BEL_MX-F7BMUX.I1">
+          <pack_pattern in_port="BLK_IG-C_DRAM128.DO6" name="DRAM128" out_port="BEL_MX-F7BMUX.I1"/>
         </direct>
         <direct name="F7BMUX_S"  input="BLK_IG-SLICEM_MODES.CX" output="BEL_MX-F7BMUX.S" />
 
@@ -513,7 +511,6 @@
       <metadata>
         <meta name="fasm_features">
           DLUT.RAM
-          WA7USED
         </meta>
       </metadata>
     </mode>
@@ -610,5 +607,21 @@
     <direct name="CK" input="BLK_IG-SLICEM.CLK" output="BLK_IG-COMMON_SLICE.CLK"/>
     <direct name="CE" input="BLK_IG-SLICEM.CE"  output="BLK_IG-COMMON_SLICE.CE"/>
     <direct name="SR" input="BLK_IG-SLICEM.SR"  output="BLK_IG-COMMON_SLICE.SR"/>
+
+    <!-- WA7 and WA8 -->
+    <direct name="WA7"  input="BLK_IG-SLICEM.CX" output="BLK_IG-SLICEM_MODES.WA7">
+      <metadata>
+        <meta name="fasm_mux">
+          BLK_IG-SLICEM.CX = WA7USED
+        </meta>
+      </metadata>
+    </direct>
+    <direct name="WA8"  input="BLK_IG-SLICEM.BX" output="BLK_IG-SLICEM_MODES.WA8">
+      <metadata>
+        <meta name="fasm_mux">
+          BLK_IG-SLICEM.BX = WA8USED
+        </meta>
+      </metadata>
+    </direct>
   </interconnect>
 </pb_type>
