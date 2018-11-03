@@ -488,11 +488,13 @@
         <direct name="AO6" input="BLK_IG-A_DRAM128.O6"   output="BLK_IG-SLICEM_MODES.AO6" />
 
         <!-- F7AMUX inputs -->
-        <direct name="F7AMUX_I0" input="BLK_IG-B_DRAM128.SO6"   output="BEL_MX-F7AMUX.I0">
+        <mux name="F7AMUX_I0" input="BLK_IG-B_DRAM128.DO6 BLK_IG-B_DRAM128.SO6"   output="BEL_MX-F7AMUX.I0">
           <pack_pattern in_port="BLK_IG-B_DRAM128.SO6" name="DRAM128" out_port="BEL_MX-F7AMUX.I0"/>
-        </direct>
+          <pack_pattern in_port="BLK_IG-B_DRAM128.DO6" name="DRAM128_D" out_port="BEL_MX-F7AMUX.I0"/>
+        </mux>
         <direct name="F7AMUX_I1" input="BLK_IG-A_DRAM128.DO6"   output="BEL_MX-F7AMUX.I1">
           <pack_pattern in_port="BLK_IG-A_DRAM128.DO6" name="DRAM128" out_port="BEL_MX-F7AMUX.I1"/>
+          <pack_pattern in_port="BLK_IG-A_DRAM128.DO6" name="DRAM128_D" out_port="BEL_MX-F7AMUX.I1"/>
         </direct>
         <direct name="F7AMUX_S"  input="BLK_IG-SLICEM_MODES.AX" output="BEL_MX-F7AMUX.S" />
         <!-- F7BMUX inputs -->
