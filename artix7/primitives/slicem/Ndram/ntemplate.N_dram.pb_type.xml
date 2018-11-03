@@ -61,20 +61,6 @@
       </meta>
     </metadata>
   </mode>
-  <mode name="64_DUAL_PORT">
-    <xi:include href="dpram64.pb_type.xml" />
-    <interconnect>
-      <direct name="CLK" input="BLK_IG-{N}_DRAM.CLK" output="BLK_MM-DPRAM64.CLK" />
-      <direct name="A" input="BLK_IG-{N}_DRAM.A" output="BLK_MM-DPRAM64.A" />
-      <direct name="WA" input="BLK_IG-{N}_DRAM.WA[5:0]" output="BLK_MM-DPRAM64.WA[5:0]" />
-      <direct name="WA7" input="BLK_IG-{N}_DRAM.WA[6]" output="BLK_MM-DPRAM64.WA7" />
-      <direct name="WA8" input="BLK_IG-{N}_DRAM.WA[7]" output="BLK_MM-DPRAM64.WA8" />
-      <direct name="{N}I" input="BLK_IG-{N}_DRAM.PARENT_DI" output="BLK_MM-DPRAM64.DI1" />
-      <direct name="WE" input="BLK_IG-{N}_DRAM.WE" output="BLK_MM-DPRAM64.WE" />
-
-      <direct name="O6" input="BLK_MM-DPRAM64.O6" output="BLK_IG-{N}_DRAM.O6" />
-    </interconnect>
-  </mode>
   <mode name="64_SINGLE_PORT">
     <xi:include href="spram64.pb_type.xml" />
     <metadata>
@@ -91,6 +77,20 @@
       <direct name="WE" input="BLK_IG-{N}_DRAM.WE" output="BLK_MM-SPRAM64.WE" />
 
       <direct name="O6" input="BLK_MM-SPRAM64.O6" output="BLK_IG-{N}_DRAM.O6" />
+    </interconnect>
+  </mode>
+  <mode name="64_DUAL_PORT">
+    <xi:include href="dpram64.pb_type.xml" />
+    <interconnect>
+      <direct name="CLK" input="BLK_IG-{N}_DRAM.CLK" output="BLK_MM-DPRAM64.CLK" />
+      <direct name="A" input="BLK_IG-{N}_DRAM.A" output="BLK_MM-DPRAM64.A" />
+      <direct name="WA" input="BLK_IG-{N}_DRAM.WA[5:0]" output="BLK_MM-DPRAM64.WA[5:0]" />
+      <direct name="WA7" input="BLK_IG-{N}_DRAM.WA[6]" output="BLK_MM-DPRAM64.WA7" />
+      <direct name="WA8" input="BLK_IG-{N}_DRAM.WA[7]" output="BLK_MM-DPRAM64.WA8" />
+      <direct name="{N}I" input="BLK_IG-{N}_DRAM.PARENT_DI" output="BLK_MM-DPRAM64.DI1" />
+      <direct name="WE" input="BLK_IG-{N}_DRAM.WE" output="BLK_MM-DPRAM64.WE" />
+
+      <direct name="O6" input="BLK_MM-DPRAM64.O6" output="BLK_IG-{N}_DRAM.O6" />
     </interconnect>
   </mode>
   <mode name="32_DUAL_PORT">
