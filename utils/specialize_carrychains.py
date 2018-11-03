@@ -24,9 +24,10 @@ def main():
     root_element = arch_xml.parse(args.input_arch_xml)
 
     for pat in root_element.iter('pack_pattern'):
-        pat.attrib['name'] = '{}.{}'.format(
-                '.'.join(get_pb_type_chain(pat)[:2]),
-                pat.attrib['name'])
+        if 'CARRY' in pat.attrib['name']:
+            pat.attrib['name'] = '{}.{}'.format(
+                    '.'.join(get_pb_type_chain(pat)[:2]),
+                    pat.attrib['name'])
 
     print(ET.tostring(arch_xml, pretty_print=True).decode('utf-8'))
 
