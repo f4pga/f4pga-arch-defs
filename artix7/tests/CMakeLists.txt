@@ -1,5 +1,6 @@
 add_subdirectory(buttons)
 add_subdirectory(counter)
+add_subdirectory(uart_tx)
 add_subdirectory(carry)
 add_subdirectory(simple_ff)
 add_subdirectory(dram)

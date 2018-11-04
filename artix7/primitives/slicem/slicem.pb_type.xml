@@ -191,6 +191,14 @@
       <xi:include href="../common_slice/muxes/f7amux/f7amux.pb_type.xml"/>
       <xi:include href="../common_slice/muxes/f7bmux/f7bmux.pb_type.xml"/>
       <xi:include href="../common_slice/muxes/f8mux/f8mux.pb_type.xml"/>
+      <pb_type name="BEL_BB-DRAM_4_OUTPUT_STUB" blif_model=".subckt DRAM_4_OUTPUT_STUB" num_pb="2">
+        <xi:include href="dram_4_output_stub.pb_type.xml"
+                    xpointer="xpointer(pb_type/child::node())" />
+      </pb_type>
+      <pb_type name="BEL_BB-DRAM_2_OUTPUT_STUB" blif_model=".subckt DRAM_2_OUTPUT_STUB" num_pb="4">
+        <xi:include href="dram_2_output_stub.pb_type.xml"
+                    xpointer="xpointer(pb_type/child::node())" />
+      </pb_type>
 
       <pb_type name="BLK_MM-WE_MUX" num_pb="1">
         <input name="CE" num_pins="1"/>
@@ -325,16 +333,73 @@
         <direct name="WE4" input="BLK_MM-WE_MUX.WE_OUT"  output="BLK_IG-D_DRAM.WE"/>
 
         <!-- Outputs -->
-        <direct name="DO6" input="BLK_IG-D_DRAM.O6"   output="BLK_IG-SLICEM_MODES.DO6" />
+
+        <direct name="SPO_0" input="BLK_IG-D_DRAM.SO6_32" output="BEL_BB-DRAM_2_OUTPUT_STUB[0].SPO">
+          <pack_pattern in_port="BLK_IG-D_DRAM.SO6_32" name="DRAM_DP_32" out_port="BEL_BB-DRAM_2_OUTPUT_STUB[0].SPO" />
+        </direct>
+        <direct name="DPO_0" input="BLK_IG-C_DRAM.DO6_32" output="BEL_BB-DRAM_2_OUTPUT_STUB[0].DPO">
+          <pack_pattern in_port="BLK_IG-C_DRAM.DO6_32" name="DRAM_DP_32" out_port="BEL_BB-DRAM_2_OUTPUT_STUB[0].DPO" />
+        </direct>
+        <direct name="SPO_1" input="BLK_IG-B_DRAM.SO6_32" output="BEL_BB-DRAM_2_OUTPUT_STUB[1].SPO">
+          <pack_pattern in_port="BLK_IG-B_DRAM.SO6_32" name="DRAM_DP_32" out_port="BEL_BB-DRAM_2_OUTPUT_STUB[1].SPO" />
+        </direct>
+        <direct name="DPO_1" input="BLK_IG-A_DRAM.DO6_32" output="BEL_BB-DRAM_2_OUTPUT_STUB[1].DPO">
+          <pack_pattern in_port="BLK_IG-A_DRAM.DO6_32" name="DRAM_DP_32" out_port="BEL_BB-DRAM_2_OUTPUT_STUB[1].DPO" />
+        </direct>
+
+        <direct name="SPO_2" input="BLK_IG-D_DRAM.SO6" output="BEL_BB-DRAM_2_OUTPUT_STUB[2].SPO">
+          <pack_pattern in_port="BLK_IG-D_DRAM.SO6" name="DRAM_DP" out_port="BEL_BB-DRAM_2_OUTPUT_STUB[2].SPO" />
+        </direct>
+        <direct name="DPO_2" input="BLK_IG-C_DRAM.DO6" output="BEL_BB-DRAM_2_OUTPUT_STUB[2].DPO">
+          <pack_pattern in_port="BLK_IG-C_DRAM.DO6" name="DRAM_DP" out_port="BEL_BB-DRAM_2_OUTPUT_STUB[2].DPO" />
+        </direct>
+        <direct name="SPO_3" input="BLK_IG-B_DRAM.SO6" output="BEL_BB-DRAM_2_OUTPUT_STUB[3].SPO">
+          <pack_pattern in_port="BLK_IG-B_DRAM.SO6" name="DRAM_DP" out_port="BEL_BB-DRAM_2_OUTPUT_STUB[3].SPO" />
+        </direct>
+        <direct name="DPO_3" input="BLK_IG-A_DRAM.DO6" output="BEL_BB-DRAM_2_OUTPUT_STUB[3].DPO">
+          <pack_pattern in_port="BLK_IG-A_DRAM.DO6" name="DRAM_DP" out_port="BEL_BB-DRAM_2_OUTPUT_STUB[3].DPO" />
+        </direct>
+
+        <direct name="DOD32" input="BLK_IG-D_DRAM.SO6_32" output="BEL_BB-DRAM_4_OUTPUT_STUB[0].DOD">
+          <pack_pattern  in_port="BLK_IG-D_DRAM.SO6_32" name="DRAM_QP_32" out_port="BEL_BB-DRAM_4_OUTPUT_STUB[0].DOD" />
+        </direct>
+        <direct name="DOC32" input="BLK_IG-C_DRAM.DO6_32" output="BEL_BB-DRAM_4_OUTPUT_STUB[0].DOC">
+          <pack_pattern  in_port="BLK_IG-C_DRAM.DO6_32" name="DRAM_QP_32" out_port="BEL_BB-DRAM_4_OUTPUT_STUB[0].DOC" />
+        </direct>
+        <direct name="DOB32" input="BLK_IG-B_DRAM.DO6_32" output="BEL_BB-DRAM_4_OUTPUT_STUB[0].DOB">
+          <pack_pattern  in_port="BLK_IG-B_DRAM.DO6_32" name="DRAM_QP_32" out_port="BEL_BB-DRAM_4_OUTPUT_STUB[0].DOB" />
+        </direct>
+        <direct name="DOA32" input="BLK_IG-A_DRAM.DO6_32" output="BEL_BB-DRAM_4_OUTPUT_STUB[0].DOA">
+          <pack_pattern  in_port="BLK_IG-A_DRAM.DO6_32" name="DRAM_QP_32" out_port="BEL_BB-DRAM_4_OUTPUT_STUB[0].DOA" />
+        </direct>
+
+        <direct name="DOD" input="BLK_IG-D_DRAM.SO6" output="BEL_BB-DRAM_4_OUTPUT_STUB[1].DOD">
+          <pack_pattern  in_port="BLK_IG-D_DRAM.SO6" name="DRAM_QP" out_port="BEL_BB-DRAM_4_OUTPUT_STUB[1].DOD" />
+        </direct>
+        <direct name="DOC" input="BLK_IG-C_DRAM.DO6" output="BEL_BB-DRAM_4_OUTPUT_STUB[1].DOC">
+          <pack_pattern  in_port="BLK_IG-C_DRAM.DO6" name="DRAM_QP" out_port="BEL_BB-DRAM_4_OUTPUT_STUB[1].DOC" />
+        </direct>
+        <direct name="DOB" input="BLK_IG-B_DRAM.DO6" output="BEL_BB-DRAM_4_OUTPUT_STUB[1].DOB">
+          <pack_pattern  in_port="BLK_IG-B_DRAM.DO6" name="DRAM_QP" out_port="BEL_BB-DRAM_4_OUTPUT_STUB[1].DOB" />
+        </direct>
+        <direct name="DOA" input="BLK_IG-A_DRAM.DO6" output="BEL_BB-DRAM_4_OUTPUT_STUB[1].DOA">
+          <pack_pattern  in_port="BLK_IG-A_DRAM.DO6" name="DRAM_QP" out_port="BEL_BB-DRAM_4_OUTPUT_STUB[1].DOA" />
+        </direct>
+
+        <mux    name="DO6" input="BLK_IG-D_DRAM.O6 BEL_BB-DRAM_2_OUTPUT_STUB[0].SPO_OUT BEL_BB-DRAM_2_OUTPUT_STUB[2].SPO_OUT BEL_BB-DRAM_4_OUTPUT_STUB[0].DOD_OUT BEL_BB-DRAM_4_OUTPUT_STUB[1].DOD_OUT"
+                output="BLK_IG-SLICEM_MODES.DO6" />
         <direct name="DO5" input="BLK_IG-D_DRAM.O5"   output="BLK_IG-SLICEM_MODES.DO5" />
 
-        <direct name="CO6" input="BLK_IG-C_DRAM.O6"   output="BLK_IG-SLICEM_MODES.CO6" />
+        <mux    name="CO6" input="BLK_IG-C_DRAM.O6 BEL_BB-DRAM_2_OUTPUT_STUB[0].DPO_OUT BEL_BB-DRAM_2_OUTPUT_STUB[2].DPO_OUT BEL_BB-DRAM_4_OUTPUT_STUB[0].DOC_OUT BEL_BB-DRAM_4_OUTPUT_STUB[1].DOC_OUT"
+                output="BLK_IG-SLICEM_MODES.CO6" />
         <direct name="CO5" input="BLK_IG-C_DRAM.O5"   output="BLK_IG-SLICEM_MODES.CO5" />
 
-        <direct name="BO6" input="BLK_IG-B_DRAM.O6"   output="BLK_IG-SLICEM_MODES.BO6" />
+        <mux    name="BO6" input="BLK_IG-B_DRAM.O6 BEL_BB-DRAM_2_OUTPUT_STUB[1].SPO_OUT BEL_BB-DRAM_2_OUTPUT_STUB[3].SPO_OUT BEL_BB-DRAM_4_OUTPUT_STUB[0].DOB_OUT BEL_BB-DRAM_4_OUTPUT_STUB[1].DOB_OUT"
+                output="BLK_IG-SLICEM_MODES.BO6" />
         <direct name="BO5" input="BLK_IG-B_DRAM.O5"   output="BLK_IG-SLICEM_MODES.BO5" />
 
-        <direct name="AO6" input="BLK_IG-A_DRAM.O6"   output="BLK_IG-SLICEM_MODES.AO6" />
+        <mux    name="AO6" input="BLK_IG-A_DRAM.O6 BEL_BB-DRAM_2_OUTPUT_STUB[1].DPO_OUT BEL_BB-DRAM_2_OUTPUT_STUB[3].DPO_OUT BEL_BB-DRAM_4_OUTPUT_STUB[0].DOA_OUT BEL_BB-DRAM_4_OUTPUT_STUB[1].DOA_OUT"
+                output="BLK_IG-SLICEM_MODES.AO6" />
         <direct name="AO5" input="BLK_IG-A_DRAM.O5"   output="BLK_IG-SLICEM_MODES.AO5" />
 
         <!-- F7AMUX inputs -->
@@ -381,6 +446,7 @@
       <xi:include href="Ndram/d_dram128.pb_type.xml"/>
       <xi:include href="../common_slice/muxes/f7amux/f7amux.pb_type.xml"/>
       <xi:include href="../common_slice/muxes/f7bmux/f7bmux.pb_type.xml"/>
+      <xi:include href="dram_2_output_stub.pb_type.xml"/>
 
       <pb_type name="BLK_MM-WE_MUX" num_pb="1">
         <input name="CE" num_pins="1"/>
@@ -506,8 +572,15 @@
         </direct>
         <direct name="F7BMUX_S"  input="BLK_IG-SLICEM_MODES.CX" output="BEL_MX-F7BMUX.S" />
 
-        <direct name="F7AMUX_O"   input="BEL_MX-F7AMUX.O" output="BLK_IG-SLICEM_MODES.F7AMUX_O" />
-        <direct name="F7BMUX_O"   input="BEL_MX-F7BMUX.O" output="BLK_IG-SLICEM_MODES.F7BMUX_O" />
+        <direct name="DPO" input="BEL_MX-F7AMUX.O" output="BEL_BB-DRAM_2_OUTPUT_STUB.DPO">
+          <pack_pattern in_port="BEL_MX-F7AMUX.O" name="DRAM128_DP" out_port="BEL_BB-DRAM_2_OUTPUT_STUB.DPO" />
+        </direct>
+        <direct name="SPO" input="BEL_MX-F7BMUX.O" output="BEL_BB-DRAM_2_OUTPUT_STUB.SPO">
+          <pack_pattern in_port="BEL_MX-F7BMUX.O" name="DRAM128_DP" out_port="BEL_BB-DRAM_2_OUTPUT_STUB.SPO" />
+        </direct>
+
+        <mux name="F7AMUX_O"   input="BEL_MX-F7AMUX.O BEL_BB-DRAM_2_OUTPUT_STUB.DPO_OUT" output="BLK_IG-SLICEM_MODES.F7AMUX_O" />
+        <mux name="F7BMUX_O"   input="BEL_MX-F7BMUX.O BEL_BB-DRAM_2_OUTPUT_STUB.SPO_OUT" output="BLK_IG-SLICEM_MODES.F7BMUX_O" />
       </interconnect>
       <!-- The DLUT must be in RAM-mode for an of the RAM's to work. -->
       <metadata>
