@@ -8,6 +8,7 @@
   <input  name="WE"  num_pins="1" />
 
   <output name="SO6"  num_pins="1" />
+  <output name="SO6_32"  num_pins="1" />
   <output name="O6"  num_pins="1" />
   <output name="O5"  num_pins="1" />
 
@@ -37,6 +38,7 @@
 
      <direct name="O6" input="BLK_MM-SPRAM32.O6" output="BLK_IG-D_DRAM.O6" />
      <direct name="O5" input="BLK_MM-SPRAM32.O5" output="BLK_IG-D_DRAM.O5" />
+     <direct name="SO6_32" input="BLK_MM-SPRAM32.O6" output="BLK_IG-D_DRAM.SO6_32" />
    </interconnect>
  </mode>
 

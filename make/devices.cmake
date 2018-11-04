@@ -808,6 +808,7 @@ function(ADD_FPGA_TARGET)
   # Generate BLIF as start of vpr input.
   #
   set(OUT_EBLIF ${OUT_LOCAL}/${TOP}.eblif)
+  set(OUT_SYNTH_V ${OUT_LOCAL}/${TOP}_synth.v)
 
   set(SOURCE_FILES_DEPS "")
   set(SOURCE_FILES "")
@@ -819,11 +820,11 @@ function(ADD_FPGA_TARGET)
   if(NOT ${ADD_FPGA_TARGET_NO_SYNTHESIS})
     set(
       COMPLETE_YOSYS_SCRIPT
-      "${YOSYS_SCRIPT} $<SEMICOLON> write_blif -attr -cname -param ${OUT_EBLIF}"
+      "${YOSYS_SCRIPT} $<SEMICOLON> write_blif -attr -cname -param ${OUT_EBLIF} $<SEMICOLON> write_verilog ${OUT_SYNTH_V}"
     )
 
     add_custom_command(
-      OUTPUT ${OUT_EBLIF}
+      OUTPUT ${OUT_EBLIF} ${OUT_SYNTH_V}
       DEPENDS ${SOURCE_FILES} ${SOURCE_FILES_DEPS}
               ${YOSYS} ${YOSYS_TARGET} ${QUIET_CMD} ${QUIET_CMD_TARGET}
       COMMAND
@@ -833,6 +834,9 @@ function(ADD_FPGA_TARGET)
       WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
       VERBATIM
     )
+    add_file_target(FILE ${OUT_SYNTH_V} GENERATED)
+    add_output_to_fpga_target(${NAME} SYNTH_V
+        ${OUT_LOCAL_REL}/${TOP}_synth.v)
   else()
     add_custom_command(
       OUTPUT ${OUT_EBLIF}
