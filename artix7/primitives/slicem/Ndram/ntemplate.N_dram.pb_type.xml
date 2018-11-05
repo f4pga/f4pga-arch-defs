@@ -60,8 +60,8 @@
     <metadata>
       <meta name="fasm_type">SPLIT_LUT</meta>
       <meta name="fasm_lut">
-        {N}LUT.INIT[31:0] = BEL_LT-{N}5LUT[0]
-        {N}LUT.INIT[63:32] = BEL_LT-{N}5LUT[1]
+        INIT[31:0] = BEL_LT-{N}5LUT[0]
+        INIT[63:32] = BEL_LT-{N}5LUT[1]
       </meta>
     </metadata>
   </mode>
