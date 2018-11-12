@@ -2,7 +2,7 @@ add_fpga_target(
   NAME uart_tx
   BOARD basys3
   INPUT_IO_FILE basys3.pcf
-  SOURCES uart_rx.v uart_tx.v top.v baudgen.v
+  SOURCES uart.v uart_rx.v uart_tx.v top.v baudgen.v
   )
 
 get_target_property_required(DEVICE basys3 DEVICE)
