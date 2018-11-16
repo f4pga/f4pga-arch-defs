@@ -47,7 +47,7 @@ define_arch(
   FASM_TO_BIT_CMD "${CMAKE_COMMAND} -E env \
   PYTHONPATH=${PRJXRAY_DIR}:${PRJXRAY_DIR}/third_party/fasm \
   \${PYTHON3} \${FASM_TO_BIT} \
-  --db_root ${PRJXRAY_DB_DIR}/artix7  \
+  --db-root ${PRJXRAY_DB_DIR}/artix7  \
   --sparse \
   \${OUT_FASM} \${OUT_BITSTREAM}"
   BIT_TO_BIN xc7patch

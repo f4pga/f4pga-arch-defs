@@ -1,5 +1,5 @@
 <models>
-  <model name="FDRE">
+  <model name="FDRE_ZINI">
     <input_ports>
     <port name="C"  is_clock="1" />
     <port name="CE" clock="C" />
@@ -10,7 +10,7 @@
     <port name="Q" clock="C"  />
     </output_ports>
   </model>
-  <model name="FDSE">
+  <model name="FDSE_ZINI">
     <input_ports>
     <port name="C"  is_clock="1" />
     <port name="CE" clock="C" />
@@ -21,7 +21,7 @@
     <port name="Q" clock="C"  />
     </output_ports>
   </model>
-  <model name="FDPE">
+  <model name="FDPE_ZINI">
     <input_ports>
     <port name="C"  is_clock="1" />
     <port name="CE" clock="C" />
@@ -32,7 +32,7 @@
     <port name="Q" clock="C"  />
     </output_ports>
   </model>
-  <model name="FDCE">
+  <model name="FDCE_ZINI">
     <input_ports>
     <port name="C"  is_clock="1" />
     <port name="CE" clock="C" />
@@ -43,7 +43,7 @@
     <port name="Q" clock="C"  />
     </output_ports>
   </model>
-  <model name="LDPE">
+  <model name="LDPE_ZINI">
     <input_ports>
     <port name="G"  is_clock="1" />
     <port name="GE" clock="G" />
@@ -54,7 +54,7 @@
     <port name="Q" clock="G"  />
     </output_ports>
   </model>
-  <model name="LDCE">
+  <model name="LDCE_ZINI">
     <input_ports>
     <port name="G"  is_clock="1" />
     <port name="GE" clock="G" />
