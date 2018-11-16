@@ -1,7 +1,10 @@
 module top (
     input  clk,
     input rx,
-    output tx
+    output tx,
+    output tx_data_ready,
+    output tx_data_accepted,
+    output [7:0] tx_data
 );
     reg nrst = 0;
     wire tx_baud_edge;
@@ -12,9 +15,9 @@ module top (
     wire rx_data_ready_wire;
 
     // Data out.
-    reg tx_data_ready;
+    wire tx_data_ready;
     wire tx_data_accepted;
-    reg [7:0] tx_data;
+    wire [7:0] tx_data;
 
     assign leds = rx_data;
 
@@ -33,21 +36,92 @@ module top (
         .rx_data_ready(rx_data_ready_wire)
     );
 
+    wire [5:0] write_address;
+    wire [5:0] read_address;
+    wire [0:0] read_data;
+    wire [0:0] write_data;
+    wire write_enable;
+
+    wire [0:0] rom_read_data;
+    wire [5:0] rom_read_address;
+    assign rom_read_data[0] = ^rom_read_data;
+
+    wire loop_complete;
+    wire error_detected;
+    wire [7:0] error_state;
+    wire [5:0] error_address;
+    wire [0:0] expected_data;
+    wire [0:0] actual_data;
+
+`ifdef COMMENT
+    RAM_TEST #(
+        .ADDR_WIDTH(6),
+        .DATA_WIDTH(1),
+        .IS_DUAL_PORT(1),
+        .ADDRESS_STEP(1),
+        // 64-bit LUT memories are 0-63
+        .MAX_ADDRESS(63),
+    ) dram_test (
+        .rst(!nrst),
+        .clk(clk),
+        // Memory connection
+        .read_data(read_data),
+        .write_data(write_data),
+        .write_enable(write_enable),
+        .read_address(read_address),
+        .write_address(write_address),
+        // INIT ROM connection
+        .rom_read_data(rom_read_data),
+        .rom_read_address(rom_read_address),
+        // Reporting
+        .loop_complete(loop_complete),
+        .error(error_detected),
+        .error_state(error_state),
+        .error_address(error_address),
+        .expected_data(expected_data),
+        .actual_data(actual_data)
+    );
+
+    RAM64X1D #(
+        .INIT({32{2'b10}})
+    ) dram(
+        .WCLK(clk),
+        .A5(write_address[5]),
+        .A4(write_address[4]),
+        .A3(write_address[3]),
+        .A2(write_address[2]),
+        .A1(write_address[1]),
+        .A0(write_address[0]),
+        .DPRA5(read_address[5]),
+        .DPRA4(read_address[4]),
+        .DPRA3(read_address[3]),
+        .DPRA2(read_address[2]),
+        .DPRA1(read_address[1]),
+        .DPRA0(read_address[0]),
+        .DPO(read_data[0]),
+        .D(write_data[0]),
+        .WE(write_enable)
+    );
+`endif
+
+    ERROR_OUTPUT_LOGIC #(
+        .DATA_WIDTH(1),
+        .ADDR_WIDTH(6)
+    ) output_logic(
+        .clk(clk),
+        .rst(!nrst),
+        .loop_complete(loop_complete),
+        .error_detected(error_detected),
+        .error_state(error_state),
+        .error_address(error_address),
+        .expected_data(expected_data),
+        .actual_data(actual_data),
+        .tx_data(tx_data),
+        .tx_data_ready(tx_data_ready),
+        .tx_data_accepted(tx_data_accepted)
+    );
+
     always @(posedge clk) begin
         nrst <= 1;
-        if(!nrst) begin
-            tx_data_ready <= 0;
-        end else begin
-            if (rx_data_ready_wire) begin
-                if(!tx_data_ready) begin
-                    tx_data <= rx_data_wire;
-                    tx_data_ready <= 1;
-                end
-            end
-
-            if (tx_data_accepted) begin
-                tx_data_ready <= 0;
-            end
-        end
     end
 endmodule
