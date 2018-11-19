@@ -1,7 +1,5 @@
 <models xmlns:xi="http://www.w3.org/2001/XInclude">
  <xi:include href="carry/carry.model.xml"         xpointer="xpointer(models/child::node())" />
  <xi:include href="carry/carry0.model.xml"        xpointer="xpointer(models/child::node())" />
- <xi:include href="cyinit_fabric.model.xml"       xpointer="xpointer(models/child::node())" />
- <xi:include href="cyinit_constants.model.xml"    xpointer="xpointer(models/child::node())" />
  <xi:include href="../ff/ff.model.xml"            xpointer="xpointer(models/child::node())" />
 </models>

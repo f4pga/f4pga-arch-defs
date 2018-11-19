@@ -58,8 +58,6 @@
   <xi:include href="../ff/ff.pb_type.xml" />
 
   <!-- CARRY4 logic -->
-  <xi:include href="cyinit_fabric.pb_type.xml" />
-  <xi:include href="cyinit_constants.pb_type.xml" />
   <xi:include href="carry/carry0.pb_type.xml" />
 
   <pb_type name="BEL_BB-CARRY" blif_model=".subckt CARRY" num_pb="3">
@@ -232,23 +230,15 @@
     <!-- Carry -->
 
     <!-- Carry initialization -->
-    <direct name="AX_TO_CYINIT_FABRIC" input="BLK_IG-COMMON_SLICE.AX" output="BEL_BB-CYINIT_FABRIC.CI_FABRIC" >
-    </direct>
-    <mux name="PRECYINIT_MUX"
-      input="BEL_BB-CYINIT_FABRIC.CI_CHAIN BLK_IG-COMMON_SLICE.AX BEL_BB-CYINIT_CONSTANTS.C0 BEL_BB-CYINIT_CONSTANTS.C1"
+    <direct name="PRECYINIT_MUX"
+      input="BLK_IG-COMMON_SLICE.AX"
       output="BEL_BB-CARRY0.CI_INIT">
-      <pack_pattern name="CARRY_INIT0" in_port="BEL_BB-CYINIT_CONSTANTS.C0" out_port="BEL_BB-CARRY0.CI_INIT"/>
-      <pack_pattern name="CARRY_INIT1" in_port="BEL_BB-CYINIT_CONSTANTS.C1" out_port="BEL_BB-CARRY0.CI_INIT"/>
-      <pack_pattern name="CARRY_FABRIC" in_port="BEL_BB-CYINIT_FABRIC.CI_CHAIN" out_port="BEL_BB-CARRY0.CI_INIT"/>
       <metadata>
         <meta name="fasm_mux">
-          BEL_BB-CYINIT_CONSTANTS.C0 = NULL
-          BEL_BB-CYINIT_CONSTANTS.C1 = PRECYINIT.1
-          BEL_BB-CYINIT_FABRIC.CI_CHAIN = PRECYINIT.AX
           BLK_IG-COMMON_SLICE.AX = PRECYINIT.AX
         </meta>
       </metadata>
-    </mux>
+    </direct>>
 
     <direct name="CIN_TO_CARRY0" input="BLK_IG-COMMON_SLICE.CIN" output="BEL_BB-CARRY0.CI" >
       <pack_pattern name="CARRYCHAIN" in_port="BLK_IG-COMMON_SLICE.CIN" out_port="BEL_BB-CARRY0.CI"/>

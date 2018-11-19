@@ -3,25 +3,6 @@ add_subdirectory(Nlut)
 add_subdirectory(carry)
 add_subdirectory(routing)
 
-add_file_target(
-  FILE cyinit_constants.sim.v
-  SCANNER_TYPE verilog
-  )
-v2x(
-  NAME cyinit_constants
-  SRCS cyinit_constants.sim.v
-  )
-
-add_file_target(
-  FILE cyinit_fabric.sim.v
-  SCANNER_TYPE verilog
-  )
-
-v2x(
-  NAME cyinit_fabric
-  SRCS cyinit_fabric.sim.v
-)
-
 add_file_target(FILE common_lut_and_f78mux.model.xml SCANNER_TYPE xml)
 add_file_target(FILE common_lut_and_f78mux.pb_type.xml SCANNER_TYPE xml)
 
