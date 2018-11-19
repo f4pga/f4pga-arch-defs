@@ -3,14 +3,3 @@ set_io clk W5
 
 set_io tx A18
 set_io rx B18
-
-set_io tx_data_ready U16
-set_io tx_data_accepted E19
-set_io tx_data[0] U19
-set_io tx_data[1] V19
-set_io tx_data[2] W18
-set_io tx_data[3] U15
-set_io tx_data[4] U14
-set_io tx_data[5] V14
-set_io tx_data[6] V13
-set_io tx_data[7] V3

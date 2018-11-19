@@ -1,6 +1,7 @@
 module UART_RX(
     input rst, clk, baud_edge, rx,
-    output [7:0] data, data_ready, framing_error
+    output [7:0] data,
+    output data_ready, framing_error
 );
     parameter OVERSAMPLE = 8;
     localparam FIND_EDGE = 3'd1, START = 3'd2, DATA = 3'd3, END = 3'd4;
