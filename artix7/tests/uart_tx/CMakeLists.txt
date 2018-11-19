@@ -14,5 +14,5 @@ add_autosim(
     TOP top
     ARCH ${ARCH}
     SOURCES ${SYNTH_V}
-    CYCLES 20000
+    CYCLES 3000
     )

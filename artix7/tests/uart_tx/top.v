@@ -1,10 +1,7 @@
 module top (
     input  clk,
     input rx,
-    output tx,
-    output tx_data_ready,
-    output tx_data_accepted,
-    output [7:0] tx_data
+    output tx
 );
     reg nrst = 0;
     wire tx_baud_edge;
@@ -18,8 +15,6 @@ module top (
     wire tx_data_ready;
     wire tx_data_accepted;
     wire [7:0] tx_data;
-
-    assign leds = rx_data;
 
     UART #(
         .COUNTER(25),
@@ -44,7 +39,7 @@ module top (
 
     wire [0:0] rom_read_data;
     wire [5:0] rom_read_address;
-    assign rom_read_data[0] = ^rom_read_data;
+    assign rom_read_data[0] = ^rom_read_address;
 
     wire loop_complete;
     wire error_detected;
@@ -53,7 +48,6 @@ module top (
     wire [0:0] expected_data;
     wire [0:0] actual_data;
 
-`ifdef COMMENT
     RAM_TEST #(
         .ADDR_WIDTH(6),
         .DATA_WIDTH(1),
@@ -83,7 +77,7 @@ module top (
     );
 
     RAM64X1D #(
-        .INIT({32{2'b10}})
+        .INIT(64'b01101001_10010110_10010110_01101001_10010110_01101001_01101001_10010110)
     ) dram(
         .WCLK(clk),
         .A5(write_address[5]),
@@ -102,7 +96,6 @@ module top (
         .D(write_data[0]),
         .WE(write_enable)
     );
-`endif
 
     ERROR_OUTPUT_LOGIC #(
         .DATA_WIDTH(1),
