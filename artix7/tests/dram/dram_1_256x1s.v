@@ -5,7 +5,7 @@ module top (
 );
     RAM256X1S #(
         .INIT(128'b10)
-    ) ram0(
+    ) ram0 (
         .WCLK(clk),
         .A(in[7:0]),
         .O(out[0]),

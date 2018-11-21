@@ -16,7 +16,7 @@
   <output name="O6"  num_pins="1" />
   <output name="O5"  num_pins="1" />
 
-  <!-- Missing modes: 32_DUAL_PORT, 32_SINGLE_PORT, and SRL. -->
+  <!-- TODO: Missing modes: SRL -->
   <mode name="LUT">
     <pb_type name="BEL_LT-{N}5LUT" num_pb="2" class="lut" blif_model=".names">
       <input  name="in"  num_pins="5" port_class="lut_in" />

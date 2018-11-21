@@ -12,7 +12,7 @@
   <output name="O6"  num_pins="1" />
   <output name="O5"  num_pins="1" />
 
- <!-- Missing modes: SRL. -->
+ <!-- TODO: Missing modes: SRL. -->
  <mode name="64_SINGLE_PORT">
    <xi:include href="spram64.pb_type.xml" />
    <interconnect>
