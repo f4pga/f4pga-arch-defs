@@ -17,7 +17,7 @@ foreach(CARRY_DEPTH RANGE 1 32)
     add_simple_test(
         NAME 7-carry_stress_init0_depth_${CARRY_DEPTH}
         SOURCES ${CARRY_TEST}
-        BOARDS ${BOARDS}
+        BOARDS ${FULL_BOARDS}
         EXPLICIT_ADD_FILE_TARGET
         ROUTE_ONLY
         )
@@ -37,7 +37,7 @@ foreach(CARRY_DEPTH RANGE 1 32)
     add_simple_test(
         NAME 7-carry_stress_init1_depth_${CARRY_DEPTH}
         SOURCES ${CARRY_TEST}
-        BOARDS ${BOARDS}
+        BOARDS ${FULL_BOARDS}
         EXPLICIT_ADD_FILE_TARGET
         ROUTE_ONLY
         )
@@ -57,7 +57,7 @@ foreach(CARRY_DEPTH RANGE 1 32)
     add_simple_test(
         NAME 7-carry_stress_init_fabric_depth_${CARRY_DEPTH}
         SOURCES ${CARRY_TEST}
-        BOARDS ${BOARDS}
+        BOARDS ${FULL_BOARDS}
         EXPLICIT_ADD_FILE_TARGET
         ROUTE_ONLY
         )
