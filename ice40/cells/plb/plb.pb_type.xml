@@ -406,31 +406,22 @@
     -->
 
   <direct name="FCIN" input="BLK_IG-PLB.FCIN" output="BLK_IG-LUTFF[0].FCIN">
-   <pack_pattern name="CARRYCHAIN" in_port="BLK_IG-PLB.FCIN" out_port="BLK_IG-LUTFF[0].FCIN"/>
   </direct>
   <direct name="FCC0" input="BLK_IG-LUTFF[0].FCOUT" output="BLK_IG-LUTFF[1].FCIN">
-   <pack_pattern name="CARRYCHAIN" in_port="BLK_IG-LUTFF[0].FCOUT" out_port="BLK_IG-LUTFF[1].FCIN"/>
   </direct>
   <direct name="FCC1" input="BLK_IG-LUTFF[1].FCOUT" output="BLK_IG-LUTFF[2].FCIN">
-   <pack_pattern name="CARRYCHAIN" in_port="BLK_IG-LUTFF[1].FCOUT" out_port="BLK_IG-LUTFF[2].FCIN"/>
   </direct>
   <direct name="FCC2" input="BLK_IG-LUTFF[2].FCOUT" output="BLK_IG-LUTFF[3].FCIN">
-   <pack_pattern name="CARRYCHAIN" in_port="BLK_IG-LUTFF[2].FCOUT" out_port="BLK_IG-LUTFF[3].FCIN"/>
   </direct>
   <direct name="FCC3" input="BLK_IG-LUTFF[3].FCOUT" output="BLK_IG-LUTFF[4].FCIN">
-   <pack_pattern name="CARRYCHAIN" in_port="BLK_IG-LUTFF[3].FCOUT" out_port="BLK_IG-LUTFF[4].FCIN"/>
   </direct>
   <direct name="FCC4" input="BLK_IG-LUTFF[4].FCOUT" output="BLK_IG-LUTFF[5].FCIN">
-   <pack_pattern name="CARRYCHAIN" in_port="BLK_IG-LUTFF[4].FCOUT" out_port="BLK_IG-LUTFF[5].FCIN"/>
   </direct>
   <direct name="FCC5" input="BLK_IG-LUTFF[5].FCOUT" output="BLK_IG-LUTFF[6].FCIN">
-   <pack_pattern name="CARRYCHAIN" in_port="BLK_IG-LUTFF[5].FCOUT" out_port="BLK_IG-LUTFF[6].FCIN"/>
   </direct>
   <direct name="FCC6" input="BLK_IG-LUTFF[6].FCOUT" output="BLK_IG-LUTFF[7].FCIN">
-   <pack_pattern name="CARRYCHAIN" in_port="BLK_IG-LUTFF[6].FCOUT" out_port="BLK_IG-LUTFF[7].FCIN"/>
   </direct>
   <direct name="FCOUT" input="BLK_IG-LUTFF[7].FCOUT" output="BLK_IG-PLB.FCOUT">
-   <pack_pattern name="CARRYCHAIN" in_port="BLK_IG-LUTFF[7].FCOUT" out_port="BLK_IG-PLB.FCOUT"/>
   </direct>
   <!-- Fast carry chain
   <direct name="FCIN" input="BLK_IG-PLB.FCIN" output="BLK_IG-LUTFF[0].FCIN" />

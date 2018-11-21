@@ -73,11 +73,9 @@
        -->
   <direct>
    <port type="input" name="FCIN"/><port type="output" name="FCIN" from="BLK_IG-PLB" />
-   <pack_pattern name="CARRYCHAIN" in_port="BLK_TL-PLB.FCIN" out_port="BLK_IG-PLB.FCIN" />
   </direct>
   <direct>
    <port type="input" name="FCOUT" from="BLK_IG-PLB" /><port type="output" name="FCOUT"/>
-   <pack_pattern name="CARRYCHAIN" in_port="BLK_IG-PLB.FCOUT" out_port="BLK_TL-PLB.FCOUT" />
   </direct>
 
  </interconnect>
