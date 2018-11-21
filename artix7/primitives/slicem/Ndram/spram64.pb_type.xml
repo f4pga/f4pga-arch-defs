@@ -20,8 +20,6 @@
     0.068e-9
   </delay_matrix>
 
-  <!-- B1 - Write Port -->
-
   <T_setup      value="10e-12" port="BLK_MM-SPRAM64.A"  clock="CLK" />
   <T_clock_to_Q   max="10e-12" port="BLK_MM-SPRAM64.A"  clock="CLK" />
   <T_setup      value="10e-12" port="BLK_MM-SPRAM64.WA7"  clock="CLK" />

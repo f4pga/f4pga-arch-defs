@@ -5,7 +5,7 @@ module top (
 );
     RAM128X1D #(
         .INIT(128'b10)
-    ) ram0(
+    ) ram0 (
         .WCLK(clk),
         .A(in[6:0]),
         .DPRA(in[13:7]),

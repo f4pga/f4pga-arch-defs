@@ -1,14 +1,14 @@
 module top (
-	input  clk,
-	input [15:0] in,
-	output [7:0] out
+    input  clk,
+    input [15:0] in,
+    output [7:0] out
 );
-	genvar i;
-	generate for (i = 0; i < 4; i = i + 1) begin:slice
+    genvar i;
+    generate for (i = 0; i < 4; i = i + 1) begin:slice
         RAM32X2S #(
             .INIT_00(32'b10),
             .INIT_01(32'b100)
-        ) ram(
+        ) ram (
             .WCLK(clk),
             .A4(in[4]),
             .A3(in[3]),

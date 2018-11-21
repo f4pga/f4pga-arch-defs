@@ -5,7 +5,7 @@ module top (
 );
     RAM128X1S #(
         .INIT(128'b10)
-    ) ram0(
+    ) ram0 (
         .WCLK(clk),
         .A6(in[6]),
         .A5(in[5]),
@@ -21,7 +21,7 @@ module top (
 
     RAM128X1S #(
         .INIT(128'b100)
-    ) ram1(
+    ) ram1 (
         .WCLK(clk),
         .A6(in[6]),
         .A5(in[5]),
