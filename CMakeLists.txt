@@ -16,8 +16,12 @@ add_conda_package(
   PROVIDES yosys
   )
 add_conda_package(
+  NAME openocd
+  PROVIDES openocd
+  )
+add_conda_package(
   NAME vtr
-  PROVIDES vpr genhlc
+  PROVIDES vpr genhlc genfasm
   )
 add_conda_package(
   NAME libxslt
@@ -47,6 +51,8 @@ add_conda_package(
 include(make/image_gen.cmake)
 include(make/gen.cmake)
 
+add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/third_party/prjxray)
+
 # Target for all check tests.
 add_custom_target(all_check_tests)
 
@@ -65,7 +71,11 @@ add_custom_target(all_xml_lint)
 add_subdirectory(utils)
 add_subdirectory(vpr)
 add_subdirectory(yosys)
+# Disable 7-series support in CI because it consumes too much memory.
+if (NOT DEFINED ENV{CI} OR NOT $ENV{CI})
 add_subdirectory(artix7)
+endif (NOT DEFINED ENV{CI} OR NOT $ENV{CI})
 add_subdirectory(ice40)
 add_subdirectory(testarch)
 add_subdirectory(tests)
+add_subdirectory(soc_tests)

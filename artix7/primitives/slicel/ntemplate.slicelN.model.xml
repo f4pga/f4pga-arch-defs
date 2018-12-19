@@ -1,0 +1,4 @@
+<models xmlns:xi="http://www.w3.org/2001/XInclude">
+ <xi:include href="../common_slice/common_slice.model.xml" xpointer="xpointer(models/child::node())" />
+ <xi:include href="../common_slice/common_lut_and_f78mux.model.xml" xpointer="xpointer(models/child::node())" />
+</models>

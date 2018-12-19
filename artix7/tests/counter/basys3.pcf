@@ -1,0 +1,9 @@
+# basys3 100 MHz CLK
+set_io clk W5
+
+# LED1-LED5 correspond with LD0-LD4 on the basys3
+set_io LED1 U16
+set_io LED2 E19
+set_io LED3 U19
+set_io LED4 V19
+set_io LED5 W18

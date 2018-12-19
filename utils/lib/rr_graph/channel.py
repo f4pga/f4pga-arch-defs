@@ -785,11 +785,9 @@ class ChannelGrid(dict):
         return occupied, net
 
     def fill_empty(self, segment_id, name=None):
-        tracks = []
         for pos, ti, t in self.foreach_track():
             if t is None:
-                tracks.append(
-                    self.create_track(
+                yield self.create_track(
                         Track(
                             pos,
                             pos,
@@ -797,8 +795,7 @@ class ChannelGrid(dict):
                             name=name,
                             type_hint=self.chan_type,
                             direction=Track.Direction.BI),
-                        idx=ti))
-        return tracks
+                        idx=ti)
 
     def channel_widths(self):
         """Return (min channel width, max channel width, row/col widths)"""

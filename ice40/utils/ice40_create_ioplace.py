@@ -1,12 +1,13 @@
 #!/usr/bin/env python3
 
+from __future__ import print_function
 import sys
 import os
 MYDIR = os.path.dirname(os.path.abspath(__file__))
 sys.path.append(os.path.join(MYDIR, "..", "..", "utils"))
 
 import pcf
-import eblif
+import vpr_io_place
 
 import csv
 import argparse
@@ -41,38 +42,14 @@ def main(argv):
 
     locs = pcf.parse_pcf(args.pcf, pin_map)
 
-    blif = eblif.parse_blif(args.blif)
+    io_place = vpr_io_place.IoPlace()
 
-    nl = len("Block name")
-    for name in list(locs.keys()):
-        if name in blif['inputs']['args']:
-            net_type = 'in'
-        elif name in blif['outputs']['args']:
-            net_type = 'out'
-        else:
-            raise SyntaxError("""\
-Unable to find net {} in blif {}
-Found inputs:  {}
-Found outputs: {}
-""".format(name, args.blif.name, blif['inputs']['args'], blif['outputs']['args']))
+    io_place.read_io_list_from_eblif(args.blif)
 
-        nname = name
-        if net_type == 'out':
-            nname = 'out:'+name
-            locs[nname] = locs[name]
-            del locs[name]
+    for name, (loc, pcf_line) in locs.items():
+        io_place.constrain_net(net_name=name, loc=loc, comment=pcf_line)
 
-        nl = max(nl, len(nname))
-
-    print("""\
-#{name:<{nl}} x   y   z    pcf_line
-#{s:-^{nl}} --  --  -    ----""".format(
-    name="Block Name", nl=nl, s=""), file=args.output)
-    for name, ((x, y, z), pcf_line) in locs.items():
-        print("""\
-{name:<{nl}} {x: 3} {y: 3} {z: 2}  # {pcf_line}""".format(
-    name=name, nl=nl, x=x, y=y, z=z, pcf_line=pcf_line),
-            file=args.output)
+    io_place.output_io_place(args.output)
 
 
 if __name__ == "__main__":
