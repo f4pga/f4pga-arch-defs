@@ -1,0 +1,45 @@
+<!-- Sinlge port 64x1 DRAM.  Used in 64x1 and 256x1 modes. -->
+<pb_type name="BLK_MM-SPRAM64" num_pb="1" blif_model=".subckt SPRAM64">
+  <clock  name="CLK" num_pins="1" />
+
+  <!-- A - Read/write port -->
+  <input  name="A"   num_pins="6" />
+  <input  name="WA7" num_pins="1" />
+  <input  name="WA8" num_pins="1" />
+  <input  name="DI1" num_pins="1" />
+  <input  name="WE"  num_pins="1" />
+
+  <output name="O6"  num_pins="1" />
+
+  <delay_matrix type="max" in_port="BLK_MM-SPRAM64.A" out_port="BLK_MM-SPRAM64.O6">
+    0.068e-9
+    0.068e-9
+    0.068e-9
+    0.068e-9
+    0.068e-9
+    0.068e-9
+  </delay_matrix>
+
+  <T_setup      value="10e-12" port="BLK_MM-SPRAM64.A"  clock="CLK" />
+  <T_clock_to_Q   max="10e-12" port="BLK_MM-SPRAM64.A"  clock="CLK" />
+  <T_setup      value="10e-12" port="BLK_MM-SPRAM64.WA7"  clock="CLK" />
+  <T_clock_to_Q   max="10e-12" port="BLK_MM-SPRAM64.WA7"  clock="CLK" />
+  <delay_constant max="10e-12" in_port="BLK_MM-SPRAM64.WA7"  out_port="BLK_MM-SPRAM64.O6" />
+  <T_setup      value="10e-12" port="BLK_MM-SPRAM64.WA8"  clock="CLK" />
+  <T_clock_to_Q   max="10e-12" port="BLK_MM-SPRAM64.WA8"  clock="CLK" />
+  <delay_constant max="10e-12" in_port="BLK_MM-SPRAM64.WA8"  out_port="BLK_MM-SPRAM64.O6" />
+  <T_setup    value="10e-12" port="BLK_MM-SPRAM64.WE"  clock="CLK" />
+  <T_clock_to_Q   max="10e-12" port="BLK_MM-SPRAM64.WE"  clock="CLK" />
+  <delay_constant max="10e-12" in_port="BLK_MM-SPRAM64.WE"  out_port="BLK_MM-SPRAM64.O6" />
+  <T_setup    value="10e-12" port="BLK_MM-SPRAM64.DI1"  clock="CLK" />
+  <T_clock_to_Q   max="10e-12" port="BLK_MM-SPRAM64.DI1"  clock="CLK" />
+  <delay_constant max="10e-12" in_port="BLK_MM-SPRAM64.DI1"  out_port="BLK_MM-SPRAM64.O6" />
+  <metadata>
+    <meta name="fasm_params">
+      INIT[63:0] = INIT
+    </meta>
+    <meta name="fasm_features">
+      RAM
+    </meta>
+  </metadata>
+</pb_type>

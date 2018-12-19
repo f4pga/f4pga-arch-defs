@@ -14,6 +14,9 @@ define_arch(
   --write_rr_graph \${OUT_RRXML_REAL}"
   NO_PINS
   NO_BITSTREAM
+  NO_BIT_TO_V
+  NO_BIT_TIME
+  ROUTE_CHAN_WIDTH 100
 )
 unset(PYTHON3)
 

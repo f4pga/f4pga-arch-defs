@@ -1,0 +1,68 @@
+<models>
+  <model name="FDRE_ZINI">
+    <input_ports>
+    <port name="C"  is_clock="1" />
+    <port name="CE" clock="C" />
+    <port name="R"  clock="C" />
+    <port name="D"  clock="C" />
+    </input_ports>
+    <output_ports>
+    <port name="Q" clock="C"  />
+    </output_ports>
+  </model>
+  <model name="FDSE_ZINI">
+    <input_ports>
+    <port name="C"  is_clock="1" />
+    <port name="CE" clock="C" />
+    <port name="S"  clock="C" />
+    <port name="D"  clock="C" />
+    </input_ports>
+    <output_ports>
+    <port name="Q" clock="C"  />
+    </output_ports>
+  </model>
+  <model name="FDPE_ZINI">
+    <input_ports>
+    <port name="C"  is_clock="1" />
+    <port name="CE" clock="C" />
+    <port name="PRE"  clock="C" />
+    <port name="D"  clock="C" />
+    </input_ports>
+    <output_ports>
+    <port name="Q" clock="C"  />
+    </output_ports>
+  </model>
+  <model name="FDCE_ZINI">
+    <input_ports>
+    <port name="C"  is_clock="1" />
+    <port name="CE" clock="C" />
+    <port name="CLR"  clock="C" />
+    <port name="D"  clock="C" />
+    </input_ports>
+    <output_ports>
+    <port name="Q" clock="C"  />
+    </output_ports>
+  </model>
+  <model name="LDPE_ZINI">
+    <input_ports>
+    <port name="G"  is_clock="1" />
+    <port name="GE" clock="G" />
+    <port name="PRE"  clock="G" />
+    <port name="D"  clock="G" />
+    </input_ports>
+    <output_ports>
+    <port name="Q" clock="G"  />
+    </output_ports>
+  </model>
+  <model name="LDCE_ZINI">
+    <input_ports>
+    <port name="G"  is_clock="1" />
+    <port name="GE" clock="G" />
+    <port name="CLR"  clock="G" />
+    <port name="D"  clock="G" />
+    </input_ports>
+    <output_ports>
+    <port name="Q" clock="G"  />
+    </output_ports>
+  </model>
+</models>

@@ -380,12 +380,12 @@ Generated with %s
                         'name':
                         port.name,
                         'combinational_sink_ports':
-                        ','.join(
+                        ' '.join(
                             port.name for port in port_names
                             if port.pin_type in (mux_lib.MuxPinType.OUTPUT, )),
                     })
             elif port.pin_type in (mux_lib.MuxPinType.OUTPUT, ):
-                ET.SubElement(output_ports, 'port', {'name': args.name_output})
+                ET.SubElement(output_ports, 'port', {'name': port.name})
 
         models_str = ET.tostring(models_xml, pretty_print=True).decode('utf-8')
     else:

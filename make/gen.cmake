@@ -244,8 +244,6 @@ function(MUX_GEN)
   add_file_target(FILE "${MUX_GEN_NAME}.pb_type.xml" GENERATED)
   add_file_target(FILE "${MUX_GEN_NAME}.model.xml" GENERATED)
 
-  add_verilog_image_gen(FILE "${MUX_GEN_NAME}.sim.v")
-
   add_custom_target(${MUX_GEN_NAME} DEPENDS ${OUTPUTS})
 
   if(NOT "${MUX_GEN_NTEMPLATE_PREFIXES}" STREQUAL "")
@@ -316,14 +314,15 @@ function(N_TEMPLATE)
           SRC_WITH_PREFIX
           ${SRC_NO_NTEMPLATE}
       )
-      get_file_target(SRC_TARGET ${SRC})
       get_file_location(SRC_LOCATION ${SRC})
+      set(DEPS "")
+      append_file_dependency(DEPS ${SRC})
       add_custom_command(
         OUTPUT ${SRC_WITH_PREFIX}
         DEPENDS
           ${PYTHON3} ${PYTHON3_TARGET}
           ${symbiflow-arch-defs_SOURCE_DIR}/utils/n.py ${SRC_LOCATION}
-          ${SRC_TARGET}
+          ${DEPS}
         COMMAND
           ${PYTHON3} ${symbiflow-arch-defs_SOURCE_DIR}/utils/n.py ${PREFIX} ${SRC_LOCATION}
           ${CMAKE_CURRENT_BINARY_DIR}/${SRC_WITH_PREFIX}
@@ -339,7 +338,6 @@ function(N_TEMPLATE)
         v2x(NAME ${V2X_NAME} SRCS ${SRC_WITH_PREFIX})
       endif()
       if(${N_TEMPLATE_APPLY_VERILOG_IMAGE_GEN})
-        add_verilog_image_gen(FILE ${SRC_WITH_PREFIX})
       endif()
     endforeach(SRC)
   endforeach(PREFIX)

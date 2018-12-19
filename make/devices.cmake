@@ -20,18 +20,23 @@ function(DEFINE_ARCH)
   #    DEVICE_FULL_TEMPLATE <template for constructing DEVICE_FULL strings.
   #    [NO_PINS]
   #    [NO_PLACE]
+  #    [USE_FASM]
   #    PLACE_TOOL <path to place tool>
   #    PLACE_TOOL_CMD <command to run PLACE_TOOL>
   #    [NO_BITSTREAM]
+  #    [NO_BIT_TO_V]
   #    CELLS_SIM <path to verilog file used for simulation>
   #    HLC_TO_BIT <path to HLC to bitstream converter>
   #    HLC_TO_BIT_CMD <command to run HLC_TO_BIT>
+  #    FASM_TO_BIT <path to FASM to bitstream converter>
+  #    FASM_TO_BIT_CMD <command to run FASM_TO_BIT>
   #    BIT_TO_V <path to bitstream to verilog converter>
   #    BIT_TO_V_CMD <command to run BIT_TO_V>
   #    BIT_TO_BIN <path to bitstream to binary>
   #    BIT_TO_BIN_CMD <command to run BIT_TO_BIN>
   #    BIT_TIME <path to BIT_TIME executable>
   #    BIT_TIME_CMD <command to run BIT_TIME>
+  #    [RR_GRAPH_EXT <ext>]
   #   )
   # ~~~
   #
@@ -79,13 +84,14 @@ function(DEFINE_ARCH)
   # * PACKAGE - Package of bitstream.
   # * OUT_BITSTREAM - Input path to bitstream.
   # * OUT_BIT_VERILOG - Output path to verilog version of bitstream.
-  set(options NO_PINS NO_BITSTREAM)
+  set(options NO_PINS NO_BITSTREAM NO_BIT_TO_V NO_BIT_TIME USE_FASM)
   set(
     oneValueArgs
     ARCH
     YOSYS_SCRIPT
     DEVICE_FULL_TEMPLATE
     BITSTREAM_EXTENSION
+    BIN_EXTENSION
     RR_PATCH_TOOL
     RR_PATCH_CMD
     PLACE_TOOL
@@ -93,12 +99,16 @@ function(DEFINE_ARCH)
     CELLS_SIM
     HLC_TO_BIT
     HLC_TO_BIT_CMD
+    FASM_TO_BIT
+    FASM_TO_BIT_CMD
     BIT_TO_V
     BIT_TO_V_CMD
     BIT_TO_BIN
     BIT_TO_BIN_CMD
     BIT_TIME
     BIT_TIME_CMD
+    RR_GRAPH_EXT
+    ROUTE_CHAN_WIDTH
   )
   set(multiValueArgs VPR_ARCH_ARGS)
   cmake_parse_arguments(
@@ -118,6 +128,10 @@ function(DEFINE_ARCH)
     RR_PATCH_CMD
     NO_PINS
     NO_BITSTREAM
+    NO_BIT_TO_V
+    NO_BIT_TIME
+    USE_FASM
+    ROUTE_CHAN_WIDTH
     )
   set(DISALLOWED_ARGS "")
   set(OPTIONAL_ARGS
@@ -129,17 +143,40 @@ function(DEFINE_ARCH)
     PLACE_TOOL_CMD
     )
 
-  set(BIT_ARGS
-    BITSTREAM_EXTENSION
+  set(FASM_BIT_ARGS
+    FASM_TO_BIT
+    FASM_TO_BIT_CMD
+    )
+
+  set(HLC_BIT_ARGS
     HLC_TO_BIT
     HLC_TO_BIT_CMD
-    BIT_TO_V
-    BIT_TO_V_CMD
+    )
+
+  set(BIT_ARGS
+    BITSTREAM_EXTENSION
+    BIN_EXTENSION
     BIT_TO_BIN
     BIT_TO_BIN_CMD
+    )
+
+  set(BIT_TO_V_ARGS
+    BIT_TO_V
+    BIT_TO_V_CMD
+    )
+
+  set(BIT_TIME_ARGS
     BIT_TIME
     BIT_TIME_CMD
     )
+
+  if(${DEFINE_ARCH_USE_FASM})
+    list(APPEND DISALLOWED_ARGS ${HLC_BIT_ARGS})
+    list(APPEND BIT_ARGS ${FASM_BIT_ARGS})
+  else()
+    list(APPEND DISALLOWED_ARGS ${FASM_BIT_ARGS})
+    list(APPEND BIT_ARGS ${HLC_BIT_ARGS})
+  endif()
 
   set(VPR_${DEFINE_ARCH_ARCH}_ARCH_ARGS "${DEFINE_ARCH_VPR_ARCH_ARGS}"
     CACHE STRING "Extra VPR arguments for ARCH=${ARCH}")
@@ -150,10 +187,27 @@ function(DEFINE_ARCH)
     list(APPEND REQUIRED_ARGS ${PLACE_ARGS})
   endif()
 
+  set(RR_GRAPH_EXT ".xml")
+  if(NOT "${DEFINE_ARCH_RR_GRAPH_EXT}" STREQUAL "")
+    set(RR_GRAPH_EXT "${DEFINE_ARCH_RR_GRAPH_EXT}")
+  endif()
+
   if(${DEFINE_ARCH_NO_BITSTREAM})
     list(APPEND DISALLOWED_ARGS ${BIT_ARGS})
   else()
     list(APPEND REQUIRED_ARGS ${BIT_ARGS})
+  endif()
+
+  if(${DEFINE_ARCH_NO_BIT_TO_V})
+    list(APPEND DISALLOWED_ARGS ${BIT_TO_V_ARGS})
+  else()
+    list(APPEND REQUIRED_ARGS ${BIT_TO_V_ARGS})
+  endif()
+
+  if(${DEFINE_ARCH_NO_BIT_TIME})
+    list(APPEND DISALLOWED_ARGS ${BIT_TIME_ARGS})
+  else()
+    list(APPEND REQUIRED_ARGS ${BIT_TIME_ARGS})
   endif()
 
   foreach(ARG ${REQUIRED_ARGS})
@@ -165,6 +219,10 @@ function(DEFINE_ARCH)
       PROPERTIES ${ARG} "${DEFINE_ARCH_${ARG}}"
     )
   endforeach()
+  set_target_properties(
+    ${DEFINE_ARCH_ARCH}
+    PROPERTIES RR_GRAPH_EXT "${RR_GRAPH_EXT}"
+  )
   foreach(ARG ${OPTIONAL_ARGS})
     set_target_properties(
       ${DEFINE_ARCH_ARCH}
@@ -218,6 +276,7 @@ function(DEFINE_DEVICE_TYPE)
   # Generate a arch.xml for a device.
   #
   set(DEVICE_MERGED_FILE arch.merged.xml)
+  set(DEVICE_UNIQUE_PACK_FILE arch.unique_pack.xml)
   set(DEVICE_MERGED_LINT_FILE arch.merged.lint.html)
 
   set(MERGE_XML_XSL ${symbiflow-arch-defs_SOURCE_DIR}/common/xml/xmlsort.xsl)
@@ -231,6 +290,7 @@ function(DEFINE_DEVICE_TYPE)
     append_file_dependency(DEPS ${SRC})
   endforeach()
   set(MERGE_XML_OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/${DEVICE_MERGED_FILE})
+  set(UNIQUE_PACK_OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/${DEVICE_UNIQUE_PACK_FILE})
   set(MERGE_XMLLINT_OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/${DEVICE_MERGED_LINT_FILE})
 
   get_target_property_required(XSLTPROC env XSLTPROC)
@@ -255,26 +315,39 @@ function(DEFINE_DEVICE_TYPE)
       --xinclude
       --output ${MERGE_XML_OUTPUT} ${MERGE_XML_XSL} ${MERGE_XML_INPUT}
   )
+
+  get_target_property_required(PYTHON3 env PYTHON3)
+  get_target_property(PYTHON3_TARGET env PYTHON3_TARGET)
+  set(SPECIALIZE_CARRYCHAINS ${symbiflow-arch-defs_SOURCE_DIR}/utils/specialize_carrychains.py)
+  add_custom_command(
+      OUTPUT ${UNIQUE_PACK_OUTPUT}
+      COMMAND ${PYTHON3} ${SPECIALIZE_CARRYCHAINS}
+      --input_arch_xml ${MERGE_XML_OUTPUT} > ${UNIQUE_PACK_OUTPUT}
+      DEPENDS
+        ${MERGE_XML_OUTPUT}
+        ${PYTHON3} ${PYTHON3_TARGET}
+        ${SPECIALIZE_CARRYCHAINS}
+        )
   add_custom_target(
     ${DEFINE_DEVICE_TYPE_ARCH}_${DEFINE_DEVICE_TYPE_DEVICE_TYPE}_arch
-    DEPENDS ${MERGE_XML_OUTPUT}
+    DEPENDS ${UNIQUE_PACK_OUTPUT}
   )
   add_dependencies(all_merged_arch_xmls
     ${DEFINE_DEVICE_TYPE_ARCH}_${DEFINE_DEVICE_TYPE_DEVICE_TYPE}_arch)
 
   xml_lint(
     NAME ${DEFINE_DEVICE_TYPE_ARCH}_${DEFINE_DEVICE_TYPE_DEVICE_TYPE}_arch_lint
-    FILE ${MERGE_XML_OUTPUT}
+    FILE ${UNIQUE_PACK_OUTPUT}
     LINT_OUTPUT ${MERGE_XMLLINT_OUTPUT}
     SCHEMA ${ARCH_SCHEMA}
     )
 
-  add_file_target(FILE ${DEVICE_MERGED_FILE} GENERATED)
+  add_file_target(FILE ${DEVICE_UNIQUE_PACK_FILE} GENERATED)
 
   set_target_properties(
     ${DEFINE_DEVICE_TYPE_DEVICE_TYPE}
     PROPERTIES
-      DEVICE_MERGED_FILE ${CMAKE_CURRENT_SOURCE_DIR}/${DEVICE_MERGED_FILE}
+    DEVICE_MERGED_FILE ${CMAKE_CURRENT_SOURCE_DIR}/${DEVICE_UNIQUE_PACK_FILE}
   )
 
 endfunction()
@@ -299,7 +372,7 @@ function(DEFINE_DEVICE)
   # ${PACKAGE}_PINMAP on target <device> must be set.
   set(options)
   set(oneValueArgs DEVICE ARCH DEVICE_TYPE PACKAGES)
-  set(multiValueArgs)
+  set(multiValueArgs RR_PATCH_DEPS RR_PATCH_EXTRA_ARGS)
   cmake_parse_arguments(
     DEFINE_DEVICE
     "${options}"
@@ -323,6 +396,8 @@ function(DEFINE_DEVICE)
     RR_PATCH_TOOL ${DEFINE_DEVICE_ARCH} RR_PATCH_TOOL
   )
   get_target_property_required(RR_PATCH_CMD ${DEFINE_DEVICE_ARCH} RR_PATCH_CMD)
+  get_target_property_required(ROUTE_CHAN_WIDTH ${DEFINE_DEVICE_ARCH}
+    ROUTE_CHAN_WIDTH)
 
   get_target_property_required(
     VIRT_DEVICE_MERGED_FILE ${DEFINE_DEVICE_DEVICE_TYPE} DEVICE_MERGED_FILE
@@ -332,6 +407,7 @@ function(DEFINE_DEVICE)
   get_target_property_required(VPR env VPR)
   get_target_property(VPR_TARGET env VPR_TARGET)
   get_target_property_required(QUIET_CMD env QUIET_CMD)
+  get_target_property_required(RR_GRAPH_EXT ${DEFINE_DEVICE_ARCH} RR_GRAPH_EXT)
   get_target_property(QUIET_CMD_TARGET env QUIET_CMD_TARGET)
 
   set(ROUTING_SCHEMA ${symbiflow-arch-defs_SOURCE_DIR}/common/xml/routing_resource.xsd)
@@ -340,8 +416,10 @@ function(DEFINE_DEVICE)
   foreach(PACKAGE ${DEFINE_DEVICE_PACKAGES})
     get_target_property_required(DEVICE_FULL_TEMPLATE ${DEFINE_DEVICE_ARCH} DEVICE_FULL_TEMPLATE)
     string(CONFIGURE ${DEVICE_FULL_TEMPLATE} DEVICE_FULL)
-    set(OUT_RRXML_VIRT_FILENAME rr_graph_${DEVICE}_${PACKAGE}.rr_graph.virt.xml)
-    set(OUT_RRXML_REAL_FILENAME rr_graph_${DEVICE}_${PACKAGE}.rr_graph.real.xml)
+    set(OUT_RRXML_VIRT_FILENAME
+      rr_graph_${DEVICE}_${PACKAGE}.rr_graph.virt${RR_GRAPH_EXT})
+    set(OUT_RRXML_REAL_FILENAME
+      rr_graph_${DEVICE}_${PACKAGE}.rr_graph.real${RR_GRAPH_EXT})
     set(OUT_RRXML_REAL_LINT_FILENAME rr_graph_${DEVICE}_${PACKAGE}.rr_graph.real.lint.html)
     set(OUT_RRXML_VIRT ${CMAKE_CURRENT_BINARY_DIR}/${OUT_RRXML_VIRT_FILENAME})
     set(OUT_RRXML_REAL ${CMAKE_CURRENT_BINARY_DIR}/${OUT_RRXML_REAL_FILENAME})
@@ -363,10 +441,12 @@ function(DEFINE_DEVICE)
         ${QUIET_CMD} ${VPR} ${DEVICE_MERGED_FILE}
         --device ${DEVICE_FULL}
         ${symbiflow-arch-defs_SOURCE_DIR}/common/wire.eblif
-        --route_chan_width 100
+        --route_chan_width 6
         --echo_file on
         --min_route_chan_width_hint 1
         --write_rr_graph ${OUT_RRXML_VIRT}
+        --pack
+        --place
       COMMAND
         ${CMAKE_COMMAND} -E remove wire.{net,place,route}
       COMMAND
@@ -387,7 +467,7 @@ function(DEFINE_DEVICE)
         OUT_RRXML_VIRT ${CMAKE_CURRENT_SOURCE_DIR}/${OUT_RRXML_VIRT_FILENAME}
     )
 
-    set(RR_PATCH_DEPS "")
+    set(RR_PATCH_DEPS ${DEFINE_DEVICE_RR_PATCH_DEPS})
     list(APPEND RR_PATCH_DEPS ${DEVICE_MERGED_FILE})
     list(APPEND RR_PATCH_DEPS ${DEVICE_MERGED_FILE_TARGET})
 
@@ -400,7 +480,7 @@ function(DEFINE_DEVICE)
     add_custom_command(
       OUTPUT ${OUT_RRXML_REAL}
       DEPENDS ${RR_PATCH_DEPS} ${RR_PATCH_TOOL} ${OUT_RRXML_VIRT}
-      COMMAND ${QUIET_CMD} ${RR_PATCH_CMD_FOR_TARGET_LIST}
+      COMMAND ${RR_PATCH_CMD_FOR_TARGET_LIST} ${DEFINE_DEVICE_RR_PATCH_EXTRA_ARGS}
       WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
       VERBATIM
     )
@@ -421,12 +501,14 @@ function(DEFINE_DEVICE)
     add_dependencies(all_rrgraph_xmls ${DEFINE_DEVICE_ARCH}_${DEFINE_DEVICE_DEVICE}_${PACKAGE}_rrxml_real)
 
     # Lint the "real" rr_graph.xml
-    xml_lint(
-      NAME ${DEFINE_DEVICE_ARCH}_${DEFINE_DEVICE_DEVICE}_${PACKAGE}_rrxml_real_lint
-      LINT_OUTPUT ${OUT_RRXML_REAL_LINT}
-      FILE ${OUT_RRXML_REAL}
-      SCHEMA ${ROUTING_SCHEMA}
-      )
+    if("${RR_GRAPH_EXT}" STREQUAL ".xml")
+      xml_lint(
+        NAME ${DEFINE_DEVICE_ARCH}_${DEFINE_DEVICE_DEVICE}_${PACKAGE}_rrxml_real_lint
+        LINT_OUTPUT ${OUT_RRXML_REAL_LINT}
+        FILE ${OUT_RRXML_REAL}
+        SCHEMA ${ROUTING_SCHEMA}
+        )
+    endif()
 
     # Define dummy boards.  PROG_TOOL is set to false to disallow programming.
     define_board(
@@ -483,11 +565,8 @@ endfunction()
 
 set(VPR_BASE_ARGS
     --min_route_chan_width_hint 100
-    --route_chan_width 100
     --verbose_sweep on
-    --allow_unrelated_clustering off
     --max_criticality 0.0
-    --target_ext_pin_util 0.7
     --max_router_iterations 500
     --routing_failure_predictor off
     --constant_net_method route
@@ -607,6 +686,7 @@ function(ADD_FPGA_TARGET)
   #   [EXPLICIT_ADD_FILE_TARGET]
   #   [EMIT_CHECK_TESTS EQUIV_CHECK_SCRIPT <yosys to script verify two bitstreams gold and gate>]
   #   [NO_SYNTHESIS]
+  #   [ASSERT_USAGE <usage_spec>]
   #   )
   # ~~~
   #
@@ -643,8 +723,8 @@ function(ADD_FPGA_TARGET)
   # * ${TOP}.route - Place and routed design (http://docs.verilogtorouting.org/en/latest/vpr/file_formats/#routing-file-format-route)
   # * ${TOP}.${BITSTREAM_EXTENSION} - Bitstream for target.
   #
-  set(options EXPLICIT_ADD_FILE_TARGET EMIT_CHECK_TESTS NO_SYNTHESIS)
-  set(oneValueArgs NAME TOP BOARD INPUT_IO_FILE EQUIV_CHECK_SCRIPT AUTOSIM_CYCLES)
+  set(options EXPLICIT_ADD_FILE_TARGET EMIT_CHECK_TESTS NO_SYNTHESIS ROUTE_ONLY)
+  set(oneValueArgs NAME TOP BOARD INPUT_IO_FILE EQUIV_CHECK_SCRIPT AUTOSIM_CYCLES ASSERT_USAGE)
   set(multiValueArgs SOURCES TESTBENCH_SOURCES)
   cmake_parse_arguments(
     ADD_FPGA_TARGET
@@ -689,19 +769,6 @@ function(ADD_FPGA_TARGET)
   set(FQDN ${ARCH}-${DEVICE_TYPE}-${DEVICE}-${PACKAGE})
   set(OUT_LOCAL_REL ${NAME}/${FQDN})
   set(OUT_LOCAL ${CMAKE_CURRENT_BINARY_DIR}/${OUT_LOCAL_REL})
-  set(DIRECTORY_TARGET ${NAME}-${FQDN}-make-directory)
-  add_custom_target(
-    ${DIRECTORY_TARGET} ALL
-    COMMAND
-      ${CMAKE_COMMAND} -E make_directory ${OUT_LOCAL}
-  )
-
-  set(ECHO_DIRECTORY_TARGET ${NAME}-${FQDN}-make-directory-echo)
-  add_custom_target(
-    ${ECHO_DIRECTORY_TARGET} ALL
-    COMMAND
-      ${CMAKE_COMMAND} -E make_directory ${OUT_LOCAL}/echo
-  )
 
   # Create target to handle all output paths of off
   add_custom_target(${NAME})
@@ -741,6 +808,7 @@ function(ADD_FPGA_TARGET)
   # Generate BLIF as start of vpr input.
   #
   set(OUT_EBLIF ${OUT_LOCAL}/${TOP}.eblif)
+  set(OUT_SYNTH_V ${OUT_LOCAL}/${TOP}_synth.v)
 
   set(SOURCE_FILES_DEPS "")
   set(SOURCE_FILES "")
@@ -752,33 +820,35 @@ function(ADD_FPGA_TARGET)
   if(NOT ${ADD_FPGA_TARGET_NO_SYNTHESIS})
     set(
       COMPLETE_YOSYS_SCRIPT
-      "${YOSYS_SCRIPT} $<SEMICOLON> write_blif -attr -cname -param ${OUT_EBLIF}"
+      "${YOSYS_SCRIPT} $<SEMICOLON> write_blif -attr -cname -param ${OUT_EBLIF} $<SEMICOLON> write_verilog ${OUT_SYNTH_V}"
     )
 
     add_custom_command(
-      OUTPUT ${OUT_EBLIF}
-      DEPENDS ${SOURCE_FILES} ${SOURCE_FILES_DEPS} ${DIRECTORY_TARGET}
+      OUTPUT ${OUT_EBLIF} ${OUT_SYNTH_V}
+      DEPENDS ${SOURCE_FILES} ${SOURCE_FILES_DEPS}
               ${YOSYS} ${YOSYS_TARGET} ${QUIET_CMD} ${QUIET_CMD_TARGET}
+      COMMAND
+        ${CMAKE_COMMAND} -E make_directory ${OUT_LOCAL}
       COMMAND
         ${QUIET_CMD} ${YOSYS} -p "${COMPLETE_YOSYS_SCRIPT}" ${SOURCE_FILES}
       WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
       VERBATIM
     )
+    add_file_target(FILE ${OUT_SYNTH_V} GENERATED)
+    add_output_to_fpga_target(${NAME} SYNTH_V
+        ${OUT_LOCAL_REL}/${TOP}_synth.v)
   else()
     add_custom_command(
       OUTPUT ${OUT_EBLIF}
-      DEPENDS ${SOURCE_FILES_DEPS} ${DIRECTORY_TARGET}
+      DEPENDS ${SOURCE_FILES_DEPS}
+      COMMAND
+        ${CMAKE_COMMAND} -E make_directory ${OUT_LOCAL}
       COMMAND ${CMAKE_COMMAND} -E copy ${SOURCE_FILES} ${OUT_EBLIF}
       )
   endif()
 
-  add_custom_target(${NAME}_eblif DEPENDS ${OUT_EBLIF})
-  add_custom_target(${NAME}_synth DEPENDS ${OUT_EBLIF})
-  add_output_to_fpga_target(${NAME} EBLIF ${OUT_LOCAL_REL}/${TOP}.eblif)
-
   # Generate routing and generate HLC.
   set(OUT_ROUTE ${OUT_LOCAL}/${TOP}.route)
-  set(OUT_HLC ${OUT_LOCAL}/${TOP}.hlc)
 
   set(VPR_DEPS "")
   list(APPEND VPR_DEPS ${OUT_EBLIF})
@@ -794,18 +864,24 @@ function(ADD_FPGA_TARGET)
   endforeach()
 
   get_target_property_required(VPR env VPR)
-  get_target_property_required(GENHLC env GENHLC)
   get_target_property(VPR_TARGET env VPR_TARGET)
-  get_target_property(GENHLC_TARGET env GENHLC_TARGET)
+
+  get_target_property_required(ROUTE_CHAN_WIDTH ${ARCH} ROUTE_CHAN_WIDTH)
+
+  get_target_property(VPR_ARCH_ARGS ${ARCH} VPR_ARCH_ARGS)
+  if("${VPR_ARCH_ARGS}" STREQUAL "VPR_ARCH_ARGS-NOTFOUND")
+    set(VPR_ARCH_ARGS "")
+  endif()
 
   separate_arguments(
     VPR_BASE_ARGS_LIST UNIX_COMMAND "${VPR_BASE_ARGS}"
     )
+  list(APPEND VPR_BASE_ARGS_LIST --route_chan_width ${ROUTE_CHAN_WIDTH})
   separate_arguments(
     VPR_EXTRA_ARGS_LIST UNIX_COMMAND "${VPR_EXTRA_ARGS}"
     )
   separate_arguments(
-    VPR_ARCH_ARGS_LIST UNIX_COMMAND "${VPR_${ARCH}_ARCH_ARGS}"
+    VPR_ARCH_ARGS_LIST UNIX_COMMAND "${VPR_ARCH_ARGS}"
     )
   set(
     VPR_CMD
@@ -820,17 +896,37 @@ function(ADD_FPGA_TARGET)
   )
   list(APPEND VPR_DEPS ${VPR} ${VPR_TARGET} ${QUIET_CMD} ${QUIET_CMD_TARGET})
 
-  set(
-    GENHLC_CMD
-    ${QUIET_CMD} ${GENHLC}
-    ${DEVICE_MERGED_FILE_LOCATION}
-    ${OUT_EBLIF}
-    --device ${DEVICE_FULL}
-    --read_rr_graph ${OUT_RRXML_REAL_LOCATION}
-    ${VPR_BASE_ARGS_LIST}
-    ${VPR_ARCH_ARGS_LIST}
-    ${VPR_EXTRA_ARGS_LIST}
-  )
+  get_target_property_required(USE_FASM ${ARCH} USE_FASM)
+
+  if(${USE_FASM})
+    get_target_property_required(GENFASM env GENFASM)
+    get_target_property(GENFASM_TARGET env GENFASM_TARGET)
+    set(
+      GENFASM_CMD
+      ${QUIET_CMD} ${GENFASM}
+      ${DEVICE_MERGED_FILE_LOCATION}
+      ${OUT_EBLIF}
+      --device ${DEVICE_FULL}
+      --read_rr_graph ${OUT_RRXML_REAL_LOCATION}
+      ${VPR_BASE_ARGS_LIST}
+      ${VPR_ARCH_ARGS_LIST}
+      ${VPR_EXTRA_ARGS_LIST}
+    )
+  else()
+    get_target_property_required(GENHLC env GENHLC)
+    get_target_property(GENHLC_TARGET env GENHLC_TARGET)
+    set(
+      GENHLC_CMD
+      ${QUIET_CMD} ${GENHLC}
+      ${DEVICE_MERGED_FILE_LOCATION}
+      ${OUT_EBLIF}
+      --device ${DEVICE_FULL}
+      --read_rr_graph ${OUT_RRXML_REAL_LOCATION}
+      ${VPR_BASE_ARGS_LIST}
+      ${VPR_ARCH_ARGS_LIST}
+      ${VPR_EXTRA_ARGS_LIST}
+    )
+  endif()
 
   # Generate IO constraints file.
   # -------------------------------------------------------------------------
@@ -869,14 +965,13 @@ function(ADD_FPGA_TARGET)
 
     set(FIX_PINS_ARG --fix_pins ${OUT_IO})
 
-    add_output_to_fpga_target(${NAME} IO_PLACE ${OUT_LOCAL_REL}/${TOP}_io.place)
   endif()
 
   # Generate packing.
   # -------------------------------------------------------------------------
   set(OUT_NET ${OUT_LOCAL}/${TOP}.net)
   add_custom_command(
-    OUTPUT ${OUT_NET}
+    OUTPUT ${OUT_NET} ${OUT_LOCAL}/pack.log
     DEPENDS ${OUT_EBLIF} ${OUT_IO} ${VPR_DEPS}
     COMMAND ${VPR_CMD} --pack
     COMMAND
@@ -884,25 +979,25 @@ function(ADD_FPGA_TARGET)
     WORKING_DIRECTORY ${OUT_LOCAL}
   )
 
+  if(NOT "${ADD_FPGA_TARGET_ASSERT_USAGE}" STREQUAL "")
+      set(USAGE_UTIL ${symbiflow-arch-defs_SOURCE_DIR}/utils/usage.py)
+      add_custom_target(
+          ${NAME}_assert_usage
+          COMMAND ${PYTHON3} ${USAGE_UTIL}
+            --assert_usage ${ADD_FPGA_TARGET_ASSERT_USAGE}
+            ${OUT_LOCAL}/pack.log
+          DEPENDS ${PYTHON3} ${PYTHON3_TARGET} ${USAGE_UTIL} ${OUT_LOCAL}/pack.log
+          )
+  endif()
+
   set(ECHO_OUT_NET ${OUT_LOCAL}/echo/${TOP}.net)
   add_custom_command(
     OUTPUT ${ECHO_OUT_NET}
-    DEPENDS ${OUT_EBLIF} ${OUT_IO} ${VPR_DEPS} ${ECHO_DIRECTORY_TARGET}
-    COMMAND ${VPR_CMD} --debug_clustering on --echo_file on --pack
+    DEPENDS ${OUT_EBLIF} ${OUT_IO} ${VPR_DEPS}
+    COMMAND ${CMAKE_COMMAND} -E make_directory ${OUT_LOCAL}/echo
+    COMMAND cd ${OUT_LOCAL}/echo && ${VPR_CMD} --debug_clustering on --echo_file on --pack
     COMMAND
       ${CMAKE_COMMAND} -E copy ${OUT_LOCAL}/echo/vpr_stdout.log ${OUT_LOCAL}/echo/pack.log
-    WORKING_DIRECTORY ${OUT_LOCAL}/echo
-    )
-
-  # validate .net xml file against common/xml/packed_netlist.xsd
-  set(OUT_NET_XMLLINT ${OUT_NET}.lint)
-  set(NET_SCHEMA ${symbiflow-arch-defs_SOURCE_DIR}/common/xml/packed_netlist.xsd)
-
-  xml_lint(
-    NAME ${NAME}_lint
-    LINT_OUTPUT ${OUT_NET_XMLLINT}
-    FILE ${OUT_NET}
-    SCHEMA ${NET_SCHEMA}
     )
 
   # Generate placement.
@@ -921,7 +1016,7 @@ function(ADD_FPGA_TARGET)
   set(ECHO_OUT_PLACE ${OUT_LOCAL}/echo/${TOP}.place)
   add_custom_command(
     OUTPUT ${ECHO_OUT_PLACE}
-    DEPENDS ${ECHO_OUT_NET} ${OUT_IO} ${VPR_DEPS} ${ECHO_DIRECTORY_TARGET}
+    DEPENDS ${ECHO_OUT_NET} ${OUT_IO} ${VPR_DEPS}
     COMMAND ${VPR_CMD} ${FIX_PINS_ARG} --echo_file on --place
     COMMAND
       ${CMAKE_COMMAND} -E copy ${OUT_LOCAL}/echo/vpr_stdout.log
@@ -955,18 +1050,39 @@ function(ADD_FPGA_TARGET)
   )
   add_custom_target(${NAME}_route_echo DEPENDS ${ECHO_ATOM_NETLIST_ORIG})
 
-  # Generate HLC
-  # -------------------------------------------------------------------------
-  add_custom_command(
-    OUTPUT ${OUT_HLC}
-    DEPENDS ${OUT_ROUTE} ${OUT_PLACE} ${OUT_IO} ${VPR_DEPS} ${GENHLC_TARGET}
-    COMMAND ${GENHLC_CMD}
-    COMMAND
-      ${CMAKE_COMMAND} -E copy ${OUT_LOCAL}/vpr_stdout.log
-        ${OUT_LOCAL}/genhlc.log
-    WORKING_DIRECTORY ${OUT_LOCAL}
-  )
-  add_custom_target(${NAME}_hlc DEPENDS ${OUT_HLC})
+  if(${ADD_FPGA_TARGET_ROUTE_ONLY})
+    return()
+  endif()
+
+  if(${USE_FASM})
+    # Generate FASM
+    # -------------------------------------------------------------------------
+    set(OUT_FASM ${OUT_LOCAL}/${TOP}.fasm)
+    add_custom_command(
+      OUTPUT ${OUT_FASM}
+      DEPENDS ${OUT_ROUTE} ${OUT_PLACE} ${OUT_IO} ${VPR_DEPS} ${GENHLC_TARGET}
+      COMMAND ${GENFASM_CMD}
+      COMMAND
+        ${CMAKE_COMMAND} -E copy ${OUT_LOCAL}/vpr_stdout.log
+          ${OUT_LOCAL}/genhlc.log
+      WORKING_DIRECTORY ${OUT_LOCAL}
+    )
+    add_custom_target(${NAME}_fasm DEPENDS ${OUT_FASM})
+  else()
+    # Generate HLC
+    # -------------------------------------------------------------------------
+    set(OUT_HLC ${OUT_LOCAL}/${TOP}.hlc)
+    add_custom_command(
+      OUTPUT ${OUT_HLC}
+      DEPENDS ${OUT_ROUTE} ${OUT_PLACE} ${OUT_IO} ${VPR_DEPS} ${GENHLC_TARGET}
+      COMMAND ${GENHLC_CMD}
+      COMMAND
+        ${CMAKE_COMMAND} -E copy ${OUT_LOCAL}/vpr_stdout.log
+          ${OUT_LOCAL}/genhlc.log
+      WORKING_DIRECTORY ${OUT_LOCAL}
+    )
+    add_custom_target(${NAME}_hlc DEPENDS ${OUT_HLC})
+  endif()
 
   # Generate analysis.
   #-------------------------------------------------------------------------
@@ -990,54 +1106,71 @@ function(ADD_FPGA_TARGET)
     get_target_property_required(BITSTREAM_EXTENSION ${ARCH} BITSTREAM_EXTENSION)
     set(OUT_BITSTREAM ${OUT_LOCAL}/${TOP}.${BITSTREAM_EXTENSION})
 
-    get_target_property_required(HLC_TO_BIT ${ARCH} HLC_TO_BIT)
-    get_target_property_required(HLC_TO_BIT_CMD ${ARCH} HLC_TO_BIT_CMD)
-    string(CONFIGURE ${HLC_TO_BIT_CMD} HLC_TO_BIT_CMD_FOR_TARGET)
-    separate_arguments(
-      HLC_TO_BIT_CMD_FOR_TARGET_LIST UNIX_COMMAND ${HLC_TO_BIT_CMD_FOR_TARGET}
-    )
-    add_custom_command(
-      OUTPUT ${OUT_BITSTREAM}
-      DEPENDS ${OUT_HLC} ${HLC_TO_BIT}
-      COMMAND ${HLC_TO_BIT_CMD_FOR_TARGET_LIST}
-    )
-
-    add_custom_target(${NAME}_bit ALL DEPENDS ${OUT_BITSTREAM})
-    add_output_to_fpga_target(${NAME} BIT ${OUT_LOCAL_REL}/${TOP}.${BITSTREAM_EXTENSION})
-
-    # Generate verilog from bitstream
-    # -------------------------------------------------------------------------
-    set(OUT_BIT_VERILOG ${OUT_LOCAL}/${TOP}_bit.v)
-    get_target_property_required(BIT_TO_V ${ARCH} BIT_TO_V)
-    get_target_property_required(BIT_TO_V_CMD ${ARCH} BIT_TO_V_CMD)
-    string(CONFIGURE ${BIT_TO_V_CMD} BIT_TO_V_CMD_FOR_TARGET)
-    separate_arguments(
-      BIT_TO_V_CMD_FOR_TARGET_LIST UNIX_COMMAND ${BIT_TO_V_CMD_FOR_TARGET}
-    )
-
-    add_custom_command(
-      OUTPUT ${OUT_BIT_VERILOG}
-      COMMAND ${BIT_TO_V_CMD_FOR_TARGET_LIST}
-      DEPENDS ${BIT_TO_V} ${OUT_BITSTREAM}
+    if(${USE_FASM})
+      get_target_property_required(FASM_TO_BIT ${ARCH} FASM_TO_BIT)
+      get_target_property_required(FASM_TO_BIT_CMD ${ARCH} FASM_TO_BIT_CMD)
+      string(CONFIGURE ${FASM_TO_BIT_CMD} FASM_TO_BIT_CMD_FOR_TARGET)
+      separate_arguments(
+        FASM_TO_BIT_CMD_FOR_TARGET_LIST UNIX_COMMAND ${FASM_TO_BIT_CMD_FOR_TARGET}
       )
-
-    add_custom_target(${NAME}_bit_v DEPENDS ${OUT_BIT_VERILOG})
-    add_output_to_fpga_target(${NAME} BIT_V ${OUT_LOCAL_REL}/${TOP}_bit.v)
-
-    set(AUTOSIM_CYCLES ${ADD_FPGA_TARGET_AUTOSIM_CYCLES})
-    if("${AUTOSIM_CYCLES}" STREQUAL "")
-      set(AUTOSIM_CYCLES 100)
+      add_custom_command(
+        OUTPUT ${OUT_BITSTREAM}
+        DEPENDS ${OUT_FASM} ${FASM_TO_BIT}
+        COMMAND ${FASM_TO_BIT_CMD_FOR_TARGET_LIST}
+      )
+    else()
+      get_target_property_required(HLC_TO_BIT ${ARCH} HLC_TO_BIT)
+      get_target_property_required(HLC_TO_BIT_CMD ${ARCH} HLC_TO_BIT_CMD)
+      string(CONFIGURE ${HLC_TO_BIT_CMD} HLC_TO_BIT_CMD_FOR_TARGET)
+      separate_arguments(
+        HLC_TO_BIT_CMD_FOR_TARGET_LIST UNIX_COMMAND ${HLC_TO_BIT_CMD_FOR_TARGET}
+      )
+      add_custom_command(
+        OUTPUT ${OUT_BITSTREAM}
+        DEPENDS ${OUT_HLC} ${HLC_TO_BIT}
+        COMMAND ${HLC_TO_BIT_CMD_FOR_TARGET_LIST}
+      )
     endif()
 
-    add_autosim(
-      NAME ${NAME}_autosim_bit
-      TOP ${TOP}
-      ARCH ${ARCH}
-      SOURCES ${OUT_LOCAL_REL}/${TOP}_bit.v
-      CYCLES ${AUTOSIM_CYCLES}
-      )
+    add_custom_target(${NAME}_bit ALL DEPENDS ${OUT_BITSTREAM})
 
-    set(OUT_BIN ${OUT_LOCAL}/${TOP}.bin)
+    get_target_property_required(NO_BIT_TO_V ${ARCH} NO_BIT_TO_V)
+    if(NOT ${NO_BIT_TO_V})
+        # Generate verilog from bitstream
+        # -------------------------------------------------------------------------
+        set(OUT_BIT_VERILOG ${OUT_LOCAL}/${TOP}_bit.v)
+        get_target_property_required(BIT_TO_V ${ARCH} BIT_TO_V)
+        get_target_property_required(BIT_TO_V_CMD ${ARCH} BIT_TO_V_CMD)
+        string(CONFIGURE ${BIT_TO_V_CMD} BIT_TO_V_CMD_FOR_TARGET)
+        separate_arguments(
+        BIT_TO_V_CMD_FOR_TARGET_LIST UNIX_COMMAND ${BIT_TO_V_CMD_FOR_TARGET}
+        )
+
+        add_custom_command(
+        OUTPUT ${OUT_BIT_VERILOG}
+        COMMAND ${BIT_TO_V_CMD_FOR_TARGET_LIST}
+        DEPENDS ${BIT_TO_V} ${OUT_BITSTREAM}
+        )
+
+        add_custom_target(${NAME}_bit_v DEPENDS ${OUT_BIT_VERILOG})
+        add_output_to_fpga_target(${NAME} BIT_V ${OUT_LOCAL_REL}/${TOP}_bit.v)
+
+        set(AUTOSIM_CYCLES ${ADD_FPGA_TARGET_AUTOSIM_CYCLES})
+        if("${AUTOSIM_CYCLES}" STREQUAL "")
+        set(AUTOSIM_CYCLES 100)
+        endif()
+
+        add_autosim(
+        NAME ${NAME}_autosim_bit
+        TOP ${TOP}
+        ARCH ${ARCH}
+        SOURCES ${OUT_LOCAL_REL}/${TOP}_bit.v
+        CYCLES ${AUTOSIM_CYCLES}
+        )
+    endif()
+
+    get_target_property_required(BIN_EXTENSION ${ARCH} BIN_EXTENSION)
+    set(OUT_BIN ${OUT_LOCAL}/${TOP}.${BIN_EXTENSION})
     get_target_property_required(BIT_TO_BIN ${ARCH} BIT_TO_BIN)
     get_target_property_required(BIT_TO_BIN_CMD ${ARCH} BIT_TO_BIN_CMD)
     string(CONFIGURE ${BIT_TO_BIN_CMD} BIT_TO_BIN_CMD_FOR_TARGET)
@@ -1055,37 +1188,42 @@ function(ADD_FPGA_TARGET)
 
     get_target_property(PROG_TOOL ${BOARD} PROG_TOOL)
     get_target_property(PROG_CMD ${BOARD} PROG_CMD)
-    separate_arguments(
-      PROG_CMD_LIST UNIX_COMMAND ${PROG_CMD}
-    )
 
-    if("${PROG_CMD}" STREQUAL "NOTFOUND")
-      set(PROG_CMD ${PROG_TOOL})
+    if("${PROG_CMD}" STREQUAL "${BOARD}-NOTFOUND" OR "${PROG_CMD}" STREQUAL "")
+        set(PROG_CMD_LIST ${PROG_TOOL} ${OUT_BIN})
+    else()
+        string(CONFIGURE ${PROG_CMD} PROG_CMD_FOR_TARGET)
+        separate_arguments(
+            PROG_CMD_LIST UNIX_COMMAND ${PROG_CMD_FOR_TARGET}
+        )
     endif()
 
     add_custom_target(
       ${NAME}_prog
-      COMMAND ${PROG_CMD_LIST} ${OUT_BIN}
+      COMMAND ${PROG_CMD_LIST}
       DEPENDS ${OUT_BIN} ${PROG_TOOL}
       )
 
-    set(OUT_TIME_VERILOG ${OUT_LOCAL}/${TOP}_time.v)
-    get_target_property_required(BIT_TIME ${ARCH} BIT_TIME)
-    get_target_property_required(BIT_TIME_CMD ${ARCH} BIT_TIME_CMD)
-    string(CONFIGURE ${BIT_TIME_CMD} BIT_TIME_CMD_FOR_TARGET)
-    separate_arguments(
-      BIT_TIME_CMD_FOR_TARGET_LIST UNIX_COMMAND ${BIT_TIME_CMD_FOR_TARGET}
-    )
-    add_custom_command(
-      OUTPUT ${OUT_TIME_VERILOG}
-      COMMAND ${BIT_TIME_CMD_FOR_TARGET_LIST}
-      DEPENDS ${OUT_BITSTREAM} ${BIT_TIME}
-      )
+    get_target_property_required(NO_BIT_TIME ${ARCH} NO_BIT_TIME)
+    if(NOT ${NO_BIT_TIME})
+        set(OUT_TIME_VERILOG ${OUT_LOCAL}/${TOP}_time.v)
+        get_target_property_required(BIT_TIME ${ARCH} BIT_TIME)
+        get_target_property_required(BIT_TIME_CMD ${ARCH} BIT_TIME_CMD)
+        string(CONFIGURE ${BIT_TIME_CMD} BIT_TIME_CMD_FOR_TARGET)
+        separate_arguments(
+        BIT_TIME_CMD_FOR_TARGET_LIST UNIX_COMMAND ${BIT_TIME_CMD_FOR_TARGET}
+        )
+        add_custom_command(
+        OUTPUT ${OUT_TIME_VERILOG}
+        COMMAND ${BIT_TIME_CMD_FOR_TARGET_LIST}
+        DEPENDS ${OUT_BITSTREAM} ${BIT_TIME}
+        )
 
-    add_custom_target(
-      ${NAME}_time
-      DEPENDS ${OUT_TIME_VERILOG}
-      )
+        add_custom_target(
+        ${NAME}_time
+        DEPENDS ${OUT_TIME_VERILOG}
+        )
+    endif()
   endif()
 
   # Add test bench targets
@@ -1098,7 +1236,7 @@ function(ADD_FPGA_TARGET)
       SOURCES ${ADD_FPGA_TARGET_SOURCES} ${TESTBENCH}
       )
 
-    if(NOT ${NO_BITSTREAM})
+    if(NOT ${NO_BIT_TO_V})
       add_testbench(
         NAME testbinch_${TESTBENCH_NAME}
         ARCH ${ARCH}
@@ -1112,7 +1250,7 @@ function(ADD_FPGA_TARGET)
       message(FATAL_ERROR "EQUIV_CHECK_SCRIPT is required if EMIT_CHECK_TESTS is set.")
     endif()
 
-    if(NOT ${NO_BITSTREAM})
+    if(NOT ${NO_BIT_TO_V})
       add_check_test(
         NAME ${NAME}_check
         ARCH ${ARCH}
