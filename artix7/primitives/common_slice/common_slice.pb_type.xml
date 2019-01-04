@@ -164,11 +164,11 @@
       output="BLK_BB-SLICE_FF.D[3]" >
       <metadata>
         <meta name="fasm_mux">
-          BLK_IG-COMMON_SLICE.DX = DFF.DMUX.DX
-          BLK_IG-COMMON_SLICE.DO5 = DFF.DMUX.O5
-          BLK_IG-COMMON_SLICE.DO6 = DFF.DMUX.O6
-          BEL_BB-CARRY[2].CO_FABRIC = DFF.DMUX.CY
-          BEL_BB-CARRY[2].O = DFF.DMUX.XOR
+          BLK_IG-COMMON_SLICE.DX = DFFMUX.DX
+          BLK_IG-COMMON_SLICE.DO5 = DFFMUX.O5
+          BLK_IG-COMMON_SLICE.DO6 = DFFMUX.O6
+          BEL_BB-CARRY[2].CO_FABRIC = DFFMUX.CY
+          BEL_BB-CARRY[2].O = DFFMUX.XOR
         </meta>
       </metadata>
     </mux>
@@ -177,12 +177,12 @@
       output="BLK_BB-SLICE_FF.D[2]" >
       <metadata>
         <meta name="fasm_mux">
-          BLK_IG-COMMON_SLICE.CX = CFF.DMUX.CX
-          BLK_IG-COMMON_SLICE.F7BMUX_O = CFF.DMUX.F7
-          BLK_IG-COMMON_SLICE.CO5 = CFF.DMUX.O5
-          BLK_IG-COMMON_SLICE.CO6 = CFF.DMUX.O6
-          BEL_BB-CARRY[1].CO_FABRIC = CFF.DMUX.CY
-          BEL_BB-CARRY[1].O = CFF.DMUX.XOR
+          BLK_IG-COMMON_SLICE.CX = CFFMUX.CX
+          BLK_IG-COMMON_SLICE.F7BMUX_O = CFFMUX.F7
+          BLK_IG-COMMON_SLICE.CO5 = CFFMUX.O5
+          BLK_IG-COMMON_SLICE.CO6 = CFFMUX.O6
+          BEL_BB-CARRY[1].CO_FABRIC = CFFMUX.CY
+          BEL_BB-CARRY[1].O = CFFMUX.XOR
         </meta>
       </metadata>
     </mux>
@@ -191,12 +191,12 @@
       output="BLK_BB-SLICE_FF.D[1]" >
       <metadata>
         <meta name="fasm_mux">
-          BLK_IG-COMMON_SLICE.BX = BFF.DMUX.BX
-          BLK_IG-COMMON_SLICE.F8MUX_O = BFF.DMUX.F8
-          BLK_IG-COMMON_SLICE.BO5 = BFF.DMUX.O5
-          BLK_IG-COMMON_SLICE.BO6 = BFF.DMUX.O6
-          BEL_BB-CARRY[0].CO_FABRIC = BFF.DMUX.CY
-          BEL_BB-CARRY[0].O = BFF.DMUX.XOR
+          BLK_IG-COMMON_SLICE.BX = BFFMUX.BX
+          BLK_IG-COMMON_SLICE.F8MUX_O = BFFMUX.F8
+          BLK_IG-COMMON_SLICE.BO5 = BFFMUX.O5
+          BLK_IG-COMMON_SLICE.BO6 = BFFMUX.O6
+          BEL_BB-CARRY[0].CO_FABRIC = BFFMUX.CY
+          BEL_BB-CARRY[0].O = BFFMUX.XOR
         </meta>
       </metadata>
     </mux>
@@ -205,12 +205,12 @@
       output="BLK_BB-SLICE_FF.D[0]" >
       <metadata>
         <meta name="fasm_mux">
-          BLK_IG-COMMON_SLICE.AX = AFF.DMUX.AX
-          BLK_IG-COMMON_SLICE.F7AMUX_O = AFF.DMUX.F7
-          BLK_IG-COMMON_SLICE.AO5 = AFF.DMUX.O5
-          BLK_IG-COMMON_SLICE.AO6 = AFF.DMUX.O6
-          BEL_BB-CARRY0.CO_FABRIC = AFF.DMUX.CY
-          BEL_BB-CARRY0.O = AFF.DMUX.XOR
+          BLK_IG-COMMON_SLICE.AX = AFFMUX.AX
+          BLK_IG-COMMON_SLICE.F7AMUX_O = AFFMUX.F7
+          BLK_IG-COMMON_SLICE.AO5 = AFFMUX.O5
+          BLK_IG-COMMON_SLICE.AO6 = AFFMUX.O6
+          BEL_BB-CARRY0.CO_FABRIC = AFFMUX.CY
+          BEL_BB-CARRY0.O = AFFMUX.XOR
         </meta>
       </metadata>
     </mux>
