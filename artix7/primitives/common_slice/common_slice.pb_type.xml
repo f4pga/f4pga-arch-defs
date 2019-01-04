@@ -69,32 +69,32 @@
     <mux name="D5FFMUX" input="BLK_IG-COMMON_SLICE.DX BLK_IG-COMMON_SLICE.DO5" output="BLK_BB-SLICE_FF.D5[3]" >
       <metadata>
         <meta name="fasm_mux">
-          BLK_IG-COMMON_SLICE.DO5 = D5FF.MUX.A
-          BLK_IG-COMMON_SLICE.DX = D5FF.MUX.B
+          BLK_IG-COMMON_SLICE.DO5 = D5FFMUX.IN_A
+          BLK_IG-COMMON_SLICE.DX = D5FFMUX.IN_B
         </meta>
       </metadata>
     </mux>
     <mux name="C5FFMUX" input="BLK_IG-COMMON_SLICE.CX BLK_IG-COMMON_SLICE.CO5" output="BLK_BB-SLICE_FF.D5[2]" >
       <metadata>
         <meta name="fasm_mux">
-          BLK_IG-COMMON_SLICE.CO5 = C5FF.MUX.A
-          BLK_IG-COMMON_SLICE.CX = C5FF.MUX.B
+          BLK_IG-COMMON_SLICE.CO5 = C5FFMUX.IN_A
+          BLK_IG-COMMON_SLICE.CX = C5FFMUX.IN_B
         </meta>
       </metadata>
     </mux>
     <mux name="B5FFMUX" input="BLK_IG-COMMON_SLICE.BX BLK_IG-COMMON_SLICE.BO5" output="BLK_BB-SLICE_FF.D5[1]" >
       <metadata>
         <meta name="fasm_mux">
-          BLK_IG-COMMON_SLICE.BO5 = B5FF.MUX.A
-          BLK_IG-COMMON_SLICE.BX = B5FF.MUX.B
+          BLK_IG-COMMON_SLICE.BO5 = B5FFMUX.IN_A
+          BLK_IG-COMMON_SLICE.BX = B5FFMUX.IN_B
         </meta>
       </metadata>
     </mux>
     <mux name="A5FFMUX" input="BLK_IG-COMMON_SLICE.AX BLK_IG-COMMON_SLICE.AO5" output="BLK_BB-SLICE_FF.D5[0]" >
       <metadata>
         <meta name="fasm_mux">
-          BLK_IG-COMMON_SLICE.AO5 = A5FF.MUX.A
-          BLK_IG-COMMON_SLICE.AX = A5FF.MUX.B
+          BLK_IG-COMMON_SLICE.AO5 = A5FFMUX.IN_A
+          BLK_IG-COMMON_SLICE.AX = A5FFMUX.IN_B
         </meta>
       </metadata>
     </mux>
@@ -107,11 +107,11 @@
         <meta name="fasm_mux">
           <!-- TODO: Test that this mux defaults to AMC31 -->
           BLK_IG-COMMON_SLICE.AMC31 = NONE
-          BLK_BB-SLICE_FF.Q5[3] = DMUX.D5Q
-          BLK_IG-COMMON_SLICE.DO5 = DMUX.O5
-          BLK_IG-COMMON_SLICE.DO6 = DMUX.O6
-          BEL_BB-CARRY[2].CO_FABRIC = DMUX.CY
-          BEL_BB-CARRY[2].O = DMUX.XOR
+          BLK_BB-SLICE_FF.Q5[3] = DOUTMUX.D5Q
+          BLK_IG-COMMON_SLICE.DO5 = DOUTMUX.O5
+          BLK_IG-COMMON_SLICE.DO6 = DOUTMUX.O6
+          BEL_BB-CARRY[2].CO_FABRIC = DOUTMUX.CY
+          BEL_BB-CARRY[2].O = DOUTMUX.XOR
         </meta>
       </metadata>
     </mux>
@@ -120,12 +120,12 @@
       output="BLK_IG-COMMON_SLICE.CMUX" >
       <metadata>
         <meta name="fasm_mux">
-          BLK_BB-SLICE_FF.Q5[2] = CMUX.C5Q
-          BLK_IG-COMMON_SLICE.F7BMUX_O = CMUX.F7
-          BLK_IG-COMMON_SLICE.CO5 = CMUX.O5
-          BLK_IG-COMMON_SLICE.CO6 = CMUX.O6
-          BEL_BB-CARRY[1].CO_FABRIC = CMUX.CY
-          BEL_BB-CARRY[1].O = CMUX.XOR
+          BLK_BB-SLICE_FF.Q5[2] = COUTMUX.C5Q
+          BLK_IG-COMMON_SLICE.F7BMUX_O = COUTMUX.F7
+          BLK_IG-COMMON_SLICE.CO5 = COUTMUX.O5
+          BLK_IG-COMMON_SLICE.CO6 = COUTMUX.O6
+          BEL_BB-CARRY[1].CO_FABRIC = COUTMUX.CY
+          BEL_BB-CARRY[1].O = COUTMUX.XOR
         </meta>
       </metadata>
     </mux>
@@ -134,12 +134,12 @@
       output="BLK_IG-COMMON_SLICE.BMUX" >
       <metadata>
         <meta name="fasm_mux">
-          BLK_BB-SLICE_FF.Q5[1] = BMUX.B5Q
-          BLK_IG-COMMON_SLICE.F8MUX_O = BMUX.F8
-          BLK_IG-COMMON_SLICE.BO5 = BMUX.O5
-          BLK_IG-COMMON_SLICE.BO6 = BMUX.O6
-          BEL_BB-CARRY[0].CO_FABRIC = BMUX.CY
-          BEL_BB-CARRY[0].O = BMUX.XOR
+          BLK_BB-SLICE_FF.Q5[1] = BOUTMUX.B5Q
+          BLK_IG-COMMON_SLICE.F8MUX_O = BOUTMUX.F8
+          BLK_IG-COMMON_SLICE.BO5 = BOUTMUX.O5
+          BLK_IG-COMMON_SLICE.BO6 = BOUTMUX.O6
+          BEL_BB-CARRY[0].CO_FABRIC = BOUTMUX.CY
+          BEL_BB-CARRY[0].O = BOUTMUX.XOR
         </meta>
       </metadata>
     </mux>
@@ -148,12 +148,12 @@
       output="BLK_IG-COMMON_SLICE.AMUX" >
       <metadata>
         <meta name="fasm_mux">
-          BLK_BB-SLICE_FF.Q5[0] = AMUX.A5Q
-          BLK_IG-COMMON_SLICE.F7AMUX_O = AMUX.F7
-          BLK_IG-COMMON_SLICE.AO5 = AMUX.O5
-          BLK_IG-COMMON_SLICE.AO6 = AMUX.O6
-          BEL_BB-CARRY0.CO_FABRIC = AMUX.CY
-          BEL_BB-CARRY0.O = AMUX.XOR
+          BLK_BB-SLICE_FF.Q5[0] = AOUTMUX.A5Q
+          BLK_IG-COMMON_SLICE.F7AMUX_O = AOUTMUX.F7
+          BLK_IG-COMMON_SLICE.AO5 = AOUTMUX.O5
+          BLK_IG-COMMON_SLICE.AO6 = AOUTMUX.O6
+          BEL_BB-CARRY0.CO_FABRIC = AOUTMUX.CY
+          BEL_BB-CARRY0.O = AOUTMUX.XOR
         </meta>
       </metadata>
     </mux>
@@ -164,11 +164,11 @@
       output="BLK_BB-SLICE_FF.D[3]" >
       <metadata>
         <meta name="fasm_mux">
-          BLK_IG-COMMON_SLICE.DX = DFF.DMUX.DX
-          BLK_IG-COMMON_SLICE.DO5 = DFF.DMUX.O5
-          BLK_IG-COMMON_SLICE.DO6 = DFF.DMUX.O6
-          BEL_BB-CARRY[2].CO_FABRIC = DFF.DMUX.CY
-          BEL_BB-CARRY[2].O = DFF.DMUX.XOR
+          BLK_IG-COMMON_SLICE.DX = DFFMUX.DX
+          BLK_IG-COMMON_SLICE.DO5 = DFFMUX.O5
+          BLK_IG-COMMON_SLICE.DO6 = DFFMUX.O6
+          BEL_BB-CARRY[2].CO_FABRIC = DFFMUX.CY
+          BEL_BB-CARRY[2].O = DFFMUX.XOR
         </meta>
       </metadata>
     </mux>
@@ -177,12 +177,12 @@
       output="BLK_BB-SLICE_FF.D[2]" >
       <metadata>
         <meta name="fasm_mux">
-          BLK_IG-COMMON_SLICE.CX = CFF.DMUX.CX
-          BLK_IG-COMMON_SLICE.F7BMUX_O = CFF.DMUX.F7
-          BLK_IG-COMMON_SLICE.CO5 = CFF.DMUX.O5
-          BLK_IG-COMMON_SLICE.CO6 = CFF.DMUX.O6
-          BEL_BB-CARRY[1].CO_FABRIC = CFF.DMUX.CY
-          BEL_BB-CARRY[1].O = CFF.DMUX.XOR
+          BLK_IG-COMMON_SLICE.CX = CFFMUX.CX
+          BLK_IG-COMMON_SLICE.F7BMUX_O = CFFMUX.F7
+          BLK_IG-COMMON_SLICE.CO5 = CFFMUX.O5
+          BLK_IG-COMMON_SLICE.CO6 = CFFMUX.O6
+          BEL_BB-CARRY[1].CO_FABRIC = CFFMUX.CY
+          BEL_BB-CARRY[1].O = CFFMUX.XOR
         </meta>
       </metadata>
     </mux>
@@ -191,12 +191,12 @@
       output="BLK_BB-SLICE_FF.D[1]" >
       <metadata>
         <meta name="fasm_mux">
-          BLK_IG-COMMON_SLICE.BX = BFF.DMUX.BX
-          BLK_IG-COMMON_SLICE.F8MUX_O = BFF.DMUX.F8
-          BLK_IG-COMMON_SLICE.BO5 = BFF.DMUX.O5
-          BLK_IG-COMMON_SLICE.BO6 = BFF.DMUX.O6
-          BEL_BB-CARRY[0].CO_FABRIC = BFF.DMUX.CY
-          BEL_BB-CARRY[0].O = BFF.DMUX.XOR
+          BLK_IG-COMMON_SLICE.BX = BFFMUX.BX
+          BLK_IG-COMMON_SLICE.F8MUX_O = BFFMUX.F8
+          BLK_IG-COMMON_SLICE.BO5 = BFFMUX.O5
+          BLK_IG-COMMON_SLICE.BO6 = BFFMUX.O6
+          BEL_BB-CARRY[0].CO_FABRIC = BFFMUX.CY
+          BEL_BB-CARRY[0].O = BFFMUX.XOR
         </meta>
       </metadata>
     </mux>
@@ -205,12 +205,12 @@
       output="BLK_BB-SLICE_FF.D[0]" >
       <metadata>
         <meta name="fasm_mux">
-          BLK_IG-COMMON_SLICE.AX = AFF.DMUX.AX
-          BLK_IG-COMMON_SLICE.F7AMUX_O = AFF.DMUX.F7
-          BLK_IG-COMMON_SLICE.AO5 = AFF.DMUX.O5
-          BLK_IG-COMMON_SLICE.AO6 = AFF.DMUX.O6
-          BEL_BB-CARRY0.CO_FABRIC = AFF.DMUX.CY
-          BEL_BB-CARRY0.O = AFF.DMUX.XOR
+          BLK_IG-COMMON_SLICE.AX = AFFMUX.AX
+          BLK_IG-COMMON_SLICE.F7AMUX_O = AFFMUX.F7
+          BLK_IG-COMMON_SLICE.AO5 = AFFMUX.O5
+          BLK_IG-COMMON_SLICE.AO6 = AFFMUX.O6
+          BEL_BB-CARRY0.CO_FABRIC = AFFMUX.CY
+          BEL_BB-CARRY0.O = AFFMUX.XOR
         </meta>
       </metadata>
     </mux>
