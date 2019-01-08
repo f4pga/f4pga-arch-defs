@@ -26,7 +26,7 @@ define_arch(
   DEVICE_FULL_TEMPLATE \${DEVICE}-\${PACKAGE}
   CELLS_SIM xilinx/cells_sim.v
   RR_PATCH_TOOL
-    ${symbiflow-arch-defs_SOURCE_DIR}/artix7/utils/prjxray_routing_import.py
+    ${symbiflow-arch-defs_SOURCE_DIR}/xc7/utils/prjxray_routing_import.py
   RR_PATCH_CMD "${CMAKE_COMMAND} -E env \
   PYTHONPATH=${PRJXRAY_DIR}:${symbiflow-arch-defs_SOURCE_DIR}/utils:${symbiflow-arch-defs_BINARY_DIR}/utils \
   \${PYTHON3} \${RR_PATCH_TOOL} \
@@ -34,7 +34,7 @@ define_arch(
   --read_rr_graph \${OUT_RRXML_VIRT} \
   --write_rr_graph \${OUT_RRXML_REAL}"
   PLACE_TOOL
-    ${symbiflow-arch-defs_SOURCE_DIR}/artix7/utils/prjxray_create_ioplace.py
+    ${symbiflow-arch-defs_SOURCE_DIR}/xc7/utils/prjxray_create_ioplace.py
   PLACE_TOOL_CMD "${CMAKE_COMMAND} -E env \
   PYTHONPATH=${symbiflow-arch-defs_SOURCE_DIR}/utils \
   \${PYTHON3} \${PLACE_TOOL} \

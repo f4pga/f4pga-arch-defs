@@ -45,7 +45,7 @@ function(PROJECT_XRAY_DUMMY_SITE)
   get_target_property_required(PYTHON3 env PYTHON3)
   get_target_property(PYTHON3_TARGET env PYTHON3_TARGET)
 
-  set(DUMMY_SITE_IMPORT ${symbiflow-arch-defs_SOURCE_DIR}/artix7/utils/prjxray_generate_dummy_site.py)
+  set(DUMMY_SITE_IMPORT ${symbiflow-arch-defs_SOURCE_DIR}/xc7/utils/prjxray_generate_dummy_site.py)
   get_project_xray_dependencies(DEPS ${PROJECT_XRAY_DUMMY_SITE_PART} ${SITE})
 
   add_custom_command(
@@ -83,7 +83,7 @@ function(PROJECT_XRAY_TILE)
   get_target_property_required(PYTHON3 env PYTHON3)
   get_target_property(PYTHON3_TARGET env PYTHON3_TARGET)
 
-  set(TILE_IMPORT ${symbiflow-arch-defs_SOURCE_DIR}/artix7/utils/prjxray_tile_import.py)
+  set(TILE_IMPORT ${symbiflow-arch-defs_SOURCE_DIR}/xc7/utils/prjxray_tile_import.py)
   get_project_xray_dependencies(DEPS ${PROJECT_XRAY_TILE_PART} ${TILE})
 
   set(PART ${PROJECT_XRAY_TILE_PART})
@@ -91,15 +91,15 @@ function(PROJECT_XRAY_TILE)
   set(MODEL_INCLUDE_FILES "")
   foreach(SITE_TYPE ${PROJECT_XRAY_TILE_SITE_TYPES})
     string(TOLOWER ${SITE_TYPE} SITE_TYPE_LOWER)
-    append_file_dependency(DEPS ${symbiflow-arch-defs_SOURCE_DIR}/${PART}/primitives/${SITE_TYPE_LOWER}.pb_type.xml)
-    append_file_dependency(DEPS ${symbiflow-arch-defs_SOURCE_DIR}/${PART}/primitives/${SITE_TYPE_LOWER}.model.xml)
-    list(APPEND PB_TYPE_INCLUDE_FILES ${symbiflow-arch-defs_SOURCE_DIR}/${PART}/primitives/${SITE_TYPE_LOWER}.pb_type.xml)
-    list(APPEND MODEL_INCLUDE_FILES ${symbiflow-arch-defs_SOURCE_DIR}/${PART}/primitives/${SITE_TYPE_LOWER}.model.xml)
+    append_file_dependency(DEPS ${symbiflow-arch-defs_SOURCE_DIR}/xc7/primitives/${SITE_TYPE_LOWER}.pb_type.xml)
+    append_file_dependency(DEPS ${symbiflow-arch-defs_SOURCE_DIR}/xc7/primitives/${SITE_TYPE_LOWER}.model.xml)
+    list(APPEND PB_TYPE_INCLUDE_FILES ${symbiflow-arch-defs_SOURCE_DIR}/xc7/primitives/${SITE_TYPE_LOWER}.pb_type.xml)
+    list(APPEND MODEL_INCLUDE_FILES ${symbiflow-arch-defs_SOURCE_DIR}/xc7/primitives/${SITE_TYPE_LOWER}.model.xml)
   endforeach()
   string(REPLACE ";" "," SITE_TYPES_COMMA "${PROJECT_XRAY_TILE_SITE_TYPES}")
 
-  append_file_dependency(DEPS ${symbiflow-arch-defs_SOURCE_DIR}/${PART}/pin_assignments.json)
-  get_file_location(PIN_ASSIGNMENTS ${symbiflow-arch-defs_SOURCE_DIR}/${PART}/pin_assignments.json)
+  append_file_dependency(DEPS ${symbiflow-arch-defs_SOURCE_DIR}/xc7/pin_assignments.json)
+  get_file_location(PIN_ASSIGNMENTS ${symbiflow-arch-defs_SOURCE_DIR}/xc7/pin_assignments.json)
 
   set(FUSED_SITES_ARGS "")
   if(PROJECT_XRAY_TILE_FUSED_SITES)
@@ -112,7 +112,7 @@ function(PROJECT_XRAY_TILE)
     ${PYTHON3} ${TILE_IMPORT}
     --part ${PROJECT_XRAY_TILE_PART}
     --tile ${PROJECT_XRAY_TILE_TILE}
-    --site_directory ${symbiflow-arch-defs_BINARY_DIR}/${PROJECT_XRAY_TILE_PART}/primitives
+    --site_directory ${symbiflow-arch-defs_BINARY_DIR}/xc7/primitives
     --site_types ${SITE_TYPES_COMMA}
     --pin_assignments ${PIN_ASSIGNMENTS}
     --output-pb-type ${CMAKE_CURRENT_BINARY_DIR}/${TILE}.pb_type.xml
@@ -150,14 +150,14 @@ function(PROJECT_XRAY_ARCH)
 
   set(PART ${PROJECT_XRAY_ARCH_PART})
 
-  set(ARCH_IMPORT ${symbiflow-arch-defs_SOURCE_DIR}/artix7/utils/prjxray_arch_import.py)
+  set(ARCH_IMPORT ${symbiflow-arch-defs_SOURCE_DIR}/xc7/utils/prjxray_arch_import.py)
   set(DEPS ${PRJXRAY_DB_DIR}/${PART}/tilegrid.json)
 
   set(ARCH_INCLUDE_FILES "")
   foreach(TILE_TYPE ${PROJECT_XRAY_ARCH_TILE_TYPES})
     string(TOLOWER ${TILE_TYPE} TILE_TYPE_LOWER)
-    set(PB_TYPE_XML ${symbiflow-arch-defs_SOURCE_DIR}/${PART}/tiles/${TILE_TYPE_LOWER}/${TILE_TYPE_LOWER}.pb_type.xml)
-    set(MODEL_XML ${symbiflow-arch-defs_SOURCE_DIR}/${PART}/tiles/${TILE_TYPE_LOWER}/${TILE_TYPE_LOWER}.model.xml)
+    set(PB_TYPE_XML ${symbiflow-arch-defs_SOURCE_DIR}/xc7/tiles/${TILE_TYPE_LOWER}/${TILE_TYPE_LOWER}.pb_type.xml)
+    set(MODEL_XML ${symbiflow-arch-defs_SOURCE_DIR}/xc7/tiles/${TILE_TYPE_LOWER}/${TILE_TYPE_LOWER}.model.xml)
     append_file_dependency(DEPS ${PB_TYPE_XML})
     append_file_dependency(DEPS ${MODEL_XML})
 
@@ -178,8 +178,8 @@ function(PROJECT_XRAY_ARCH)
     list(APPEND DEPS ${PROJECT_XRAY_ARCH_USE_ROI})
   endif()
 
-  append_file_dependency(DEPS ${symbiflow-arch-defs_SOURCE_DIR}/${PART}/pin_assignments.json)
-  get_file_location(PIN_ASSIGNMENTS ${symbiflow-arch-defs_SOURCE_DIR}/${PART}/pin_assignments.json)
+  append_file_dependency(DEPS ${symbiflow-arch-defs_SOURCE_DIR}/xc7/pin_assignments.json)
+  get_file_location(PIN_ASSIGNMENTS ${symbiflow-arch-defs_SOURCE_DIR}/xc7/pin_assignments.json)
 
   string(REPLACE ";" "," TILE_TYPES_COMMA "${PROJECT_XRAY_ARCH_TILE_TYPES}")
 
@@ -225,8 +225,8 @@ function(PROJECT_XRAY_PREPARE_DATABASE)
   get_target_property(PYTHON3_TARGET env PYTHON3_TARGET)
 
   set(PART ${PROJECT_XRAY_PREPARE_DATABASE_PART})
-  set(FORM_CHANNELS ${symbiflow-arch-defs_SOURCE_DIR}/artix7/utils/prjxray_form_channels.py)
-  set(ASSIGN_PINS ${symbiflow-arch-defs_SOURCE_DIR}/artix7/utils/prjxray_assign_tile_pin_direction.py)
+  set(FORM_CHANNELS ${symbiflow-arch-defs_SOURCE_DIR}/xc7/utils/prjxray_form_channels.py)
+  set(ASSIGN_PINS ${symbiflow-arch-defs_SOURCE_DIR}/xc7/utils/prjxray_assign_tile_pin_direction.py)
   file(GLOB DEPS ${PRJXRAY_DB_DIR}/${PART}/*.json)
   file(GLOB DEPS2 ${PRJXRAY_DIR}/prjxray/*.py)
 
