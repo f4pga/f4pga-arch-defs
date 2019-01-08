@@ -73,7 +73,7 @@ add_subdirectory(vpr)
 add_subdirectory(yosys)
 # Disable 7-series support in CI because it consumes too much memory.
 if (NOT DEFINED ENV{CI} OR NOT $ENV{CI})
-add_subdirectory(artix7)
+add_subdirectory(xc7)
 endif (NOT DEFINED ENV{CI} OR NOT $ENV{CI})
 add_subdirectory(ice40)
 add_subdirectory(testarch)
