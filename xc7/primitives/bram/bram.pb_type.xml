@@ -275,8 +275,12 @@ reason, BRAM tiles use a "fused sites" mode to accomidate the cross site logic.
   </interconnect>
  </mode>
  <mode name="2xBRAM18">
-  <pb_type name="BLK_IG-RAMB18E1" num_pb="2" blif_model=".subckt RAMB18E1">
-   <xi:include href="ramb18e1.pb_type.xml" xpointer="xpointer(pb_type/child::node())" />
+  <pb_type name="BLK_IG-RAMB18E1" num_pb="2" blif_model=".subckt RAMB18E1_VPR">
+   <xi:include href="ramb18e1.pb_type.xml" xpointer="xpointer(pb_type/child::node()[local-name()!='metadata'])" />
+   <metadata>
+     <xi:include href="ramb18e1.pb_type.xml" xpointer="xpointer(pb_type/metadata/child::node())" />
+     <meta name="fasm_prefix">RAMB18_Y0 RAMB18_Y1</meta>
+   </metadata>
   </pb_type>
   <interconnect>
    <!-- Y0 should point to a rambfifo18e1 model, not ramb18e1 model. -->

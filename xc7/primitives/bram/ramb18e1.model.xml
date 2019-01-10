@@ -1,6 +1,6 @@
 <!-- vim: set ai sw=1 ts=1 sta et: -->
 <models>
- <model name="RAMB18E1">
+ <model name="RAMB18E1_VPR">
   <input_ports>
    <!-- Port A - 16bit wide -->
    <port is_clock="1"        name="CLKARDCLK"     />
