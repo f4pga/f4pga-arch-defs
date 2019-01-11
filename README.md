@@ -44,11 +44,11 @@ make
 
 # Tools
 
- * [`third_party/netlistsvg`](third_party/netlistsvg)
+ * [`third_party/netlistsvg`](https://github.com/nturley/netlistsvg/)
 
- * [`third_party/icestorm`](third_party/icestorm)
+ * [`third_party/icestorm`](https://github.com/cliffordwolf/icestorm/)
 
- * [`third_party/prjxray-db`](third_party/prjxray-db)
+ * [`third_party/prjxray-db`](https://github.com/SymbiFlow/prjxray-db/)
 
 ## Tools used via conda
 
