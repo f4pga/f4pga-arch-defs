@@ -1,1 +1,2 @@
-include(artix7.cmake)
+#include(artix7.cmake)
+include(zynq7.cmake)
