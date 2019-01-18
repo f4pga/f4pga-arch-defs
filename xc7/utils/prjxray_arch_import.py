@@ -145,7 +145,7 @@ def main():
     g = db.grid()
     x_min, x_max, y_min, y_max = g.dims()
 
-    name = 'xc7a50t-test'
+    name = 'xc7z010-test'
     fixed_layout_xml = ET.SubElement(layout_xml, 'fixed_layout', {
             'name': name,
             'height': str(y_max+1),
@@ -172,7 +172,6 @@ def main():
                 )
 
         synth_tiles['info'] = j['info']
-
         for port in j['ports']:
             if port['name'].startswith('dout['):
                 roi_outputs.append(port)
