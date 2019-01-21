@@ -1,27 +1,22 @@
-function(ADD_ARCH_DEFINE)
+function(ADD_XC7_ARCH_DEFINE)
   set(options)
   set(oneValueArgs ARCH ROI_PART ROI_DIR YOSYS_SCRIPT)
   set(multiValueArgs)
   cmake_parse_arguments(
-    ADD_ARCH_DEFINE
+    ADD_XC7_ARCH_DEFINE
     "${options}"
     "${oneValueArgs}"
     "${multiValueArgs}"
     ${ARGN}
   )
 
-  set(ARCH ${ADD_ARCH_DEFINE_ARCH})
-  set(ROI_PART ${ADD_ARCH_DEFINE_ROI_PART})
-  set(ROI_DIR ${ADD_ARCH_DEFINE_ROI_DIR})
-  set(YOSYS_SCRIPT ${ADD_ARCH_DEFINE_YOSYS_SCRIPT})
+  set(ARCH ${ADD_XC7_ARCH_DEFINE_ARCH})
+  set(ROI_PART ${ADD_XC7_ARCH_DEFINE_ROI_PART})
+  set(ROI_DIR ${ADD_XC7_ARCH_DEFINE_ROI_DIR})
+  set(YOSYS_SCRIPT ${ADD_XC7_ARCH_DEFINE_YOSYS_SCRIPT})
 
   define_arch(
 	  ARCH ${ARCH}
-    # -flatten is used to ensure that the output eblif has only one module.
-    # Some of symbiflow expects eblifs with only one module.
-    #
-    # opt -undriven makes sure all nets are driven, if only by the $undef
-    # net.
     YOSYS_SCRIPT ${YOSYS_SCRIPT}
     DEVICE_FULL_TEMPLATE \${DEVICE}-\${PACKAGE}
     CELLS_SIM xilinx/cells_sim.v
