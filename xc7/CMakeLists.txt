@@ -1,2 +1,3 @@
-#include(artix7.cmake)
-include(zynq7.cmake)
+set(XC7_DIR ${CMAKE_CURRENT_SOURCE_DIR})
+
+include(arch.cmake)
