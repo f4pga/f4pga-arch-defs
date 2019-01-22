@@ -1,13 +1,6 @@
-#add_fpga_target(
-#  NAME counter
-#  BOARD basys3
-#  INPUT_IO_FILE basys3.pcf
-#  SOURCES counter.v
-#  )
-
-add_fpga_target(
+add_fpga_target_boards(
   NAME counter
-  BOARD zybo
-  INPUT_IO_FILE zybo.pcf
+  BOARDS basys3 zybo
+  INPUT_IO_FILE basys3.pcf zybo.pcf
   SOURCES counter.v
-  )
+ )
