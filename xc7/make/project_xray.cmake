@@ -1,23 +1,3 @@
-set(PRJXRAY_DIR ${symbiflow-arch-defs_SOURCE_DIR}/third_party/prjxray)
-set(PRJXRAY_DB_DIR
-  ${symbiflow-arch-defs_SOURCE_DIR}/third_party/prjxray-db
-  CACHE PATH "Path to prjxray database files")
-
-add_conda_pip(
-  NAME progressbar2
-  NO_EXE
-  )
-
-add_conda_pip(
-  NAME simplejson
-  NO_EXE
-  )
-
-add_conda_pip(
-  NAME intervaltree
-  NO_EXE
-  )
-
 function(get_project_xray_dependencies var part element)
   list(APPEND ${var} ${PRJXRAY_DB_DIR}/Info.md)
   string(TOLOWER ${element} element_LOWER)
