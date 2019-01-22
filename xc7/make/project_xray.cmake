@@ -98,8 +98,8 @@ function(PROJECT_XRAY_TILE)
   endforeach()
   string(REPLACE ";" "," SITE_TYPES_COMMA "${PROJECT_XRAY_TILE_SITE_TYPES}")
 
-  append_file_dependency(DEPS ${symbiflow-arch-defs_SOURCE_DIR}/xc7/${PART}.pin_assignments.json)
-  get_file_location(PIN_ASSIGNMENTS ${symbiflow-arch-defs_SOURCE_DIR}/xc7/${PART}.pin_assignments.json)
+  append_file_dependency(DEPS ${symbiflow-arch-defs_SOURCE_DIR}/xc7/archs/${PART}/pin_assignments.json)
+  get_file_location(PIN_ASSIGNMENTS ${symbiflow-arch-defs_SOURCE_DIR}/xc7/archs/${PART}/pin_assignments.json)
 
   set(FUSED_SITES_ARGS "")
   if(PROJECT_XRAY_TILE_FUSED_SITES)
@@ -115,8 +115,8 @@ function(PROJECT_XRAY_TILE)
     --site_directory ${symbiflow-arch-defs_BINARY_DIR}/xc7/primitives
     --site_types ${SITE_TYPES_COMMA}
     --pin_assignments ${PIN_ASSIGNMENTS}
-    --output-pb-type ${CMAKE_CURRENT_BINARY_DIR}/${TILE}.pb_type.xml
-    --output-model ${CMAKE_CURRENT_BINARY_DIR}/${TILE}.model.xml
+    --output-pb-type ${CMAKE_CURRENT_BINARY_DIR}/tiles/${TILE}.pb_type.xml
+    --output-model ${CMAKE_CURRENT_BINARY_DIR}/tiles/${TILE}.model.xml
     ${FUSED_SITES_ARGS}
     DEPENDS
     ${TILE_IMPORT}
@@ -156,8 +156,8 @@ function(PROJECT_XRAY_ARCH)
   set(ARCH_INCLUDE_FILES "")
   foreach(TILE_TYPE ${PROJECT_XRAY_ARCH_TILE_TYPES})
     string(TOLOWER ${TILE_TYPE} TILE_TYPE_LOWER)
-    set(PB_TYPE_XML ${symbiflow-arch-defs_SOURCE_DIR}/xc7/tiles/${TILE_TYPE_LOWER}/${TILE_TYPE_LOWER}.pb_type.xml)
-    set(MODEL_XML ${symbiflow-arch-defs_SOURCE_DIR}/xc7/tiles/${TILE_TYPE_LOWER}/${TILE_TYPE_LOWER}.model.xml)
+    set(PB_TYPE_XML ${symbiflow-arch-defs_SOURCE_DIR}/xc7/archs/${PART}/tiles/${TILE_TYPE_LOWER}/${TILE_TYPE_LOWER}.pb_type.xml)
+    set(MODEL_XML ${symbiflow-arch-defs_SOURCE_DIR}/xc7/archs/${PART}/tiles/${TILE_TYPE_LOWER}/${TILE_TYPE_LOWER}.model.xml)
     append_file_dependency(DEPS ${PB_TYPE_XML})
     append_file_dependency(DEPS ${MODEL_XML})
 
@@ -178,8 +178,8 @@ function(PROJECT_XRAY_ARCH)
     list(APPEND DEPS ${PROJECT_XRAY_ARCH_USE_ROI})
   endif()
 
-  append_file_dependency(DEPS ${symbiflow-arch-defs_SOURCE_DIR}/xc7/${PART}.pin_assignments.json)
-  get_file_location(PIN_ASSIGNMENTS ${symbiflow-arch-defs_SOURCE_DIR}/xc7/${PART}.pin_assignments.json)
+  append_file_dependency(DEPS ${symbiflow-arch-defs_SOURCE_DIR}/xc7/archs/${PART}/pin_assignments.json)
+  get_file_location(PIN_ASSIGNMENTS ${symbiflow-arch-defs_SOURCE_DIR}/xc7/archs/${PART}/pin_assignments.json)
 
   string(REPLACE ";" "," TILE_TYPES_COMMA "${PROJECT_XRAY_ARCH_TILE_TYPES}")
 
@@ -230,7 +230,7 @@ function(PROJECT_XRAY_PREPARE_DATABASE)
   file(GLOB DEPS ${PRJXRAY_DB_DIR}/${PART}/*.json)
   file(GLOB DEPS2 ${PRJXRAY_DIR}/prjxray/*.py)
 
-  set(CHANNELS ${PART}.channels.json)
+  set(CHANNELS channels.json)
   add_custom_command(
     OUTPUT ${CHANNELS}
     COMMAND ${CMAKE_COMMAND} -E env PYTHONPATH=${PRJXRAY_DIR}:${symbiflow-arch-defs_SOURCE_DIR}/utils
@@ -245,7 +245,7 @@ function(PROJECT_XRAY_PREPARE_DATABASE)
 
   add_file_target(FILE ${CHANNELS} GENERATED)
 
-  set(PIN_ASSIGNMENTS ${PART}.pin_assignments.json)
+  set(PIN_ASSIGNMENTS pin_assignments.json)
   add_custom_command(
     OUTPUT ${PIN_ASSIGNMENTS}
     COMMAND ${CMAKE_COMMAND} -E env PYTHONPATH=${PRJXRAY_DIR}:${symbiflow-arch-defs_SOURCE_DIR}/utils
