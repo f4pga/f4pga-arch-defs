@@ -1,0 +1,6 @@
+project_xray_tile(
+  PART zynq7
+  TILE BRAM_R
+  SITE_TYPES BRAM_R/BRAM_R
+  FUSED_SITES
+  )
