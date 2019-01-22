@@ -72,10 +72,9 @@ add_subdirectory(utils)
 add_subdirectory(vpr)
 add_subdirectory(yosys)
 # Disable 7-series support in CI because it consumes too much memory.
-# FIXME: Temporary enabled xc7 for CI
-#if (NOT DEFINED ENV{CI} OR NOT $ENV{CI})
+if (NOT DEFINED ENV{CI} OR NOT $ENV{CI})
 add_subdirectory(xc7)
-#endif (NOT DEFINED ENV{CI} OR NOT $ENV{CI})
+endif (NOT DEFINED ENV{CI} OR NOT $ENV{CI})
 add_subdirectory(ice40)
 add_subdirectory(testarch)
 add_subdirectory(tests)
