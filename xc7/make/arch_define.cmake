@@ -67,6 +67,4 @@ function(ADD_XC7_ARCH_DEFINE)
    )
 
   set_target_properties(${ARCH} PROPERTIES VPR_ARCH_ARGS "${VPR_ARCH_ARGS}")
-
-  include_directories(${XC7_DIR}/tiles ${XC7_DIR}/blocks ${XC7_DIR}/devices)
 endfunction()
