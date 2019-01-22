@@ -1,2 +1,2 @@
-include(artix7.cmake)
-include(zynq7.cmake)
+add_subdirectory(artix7)
+add_subdirectory(zynq7)
