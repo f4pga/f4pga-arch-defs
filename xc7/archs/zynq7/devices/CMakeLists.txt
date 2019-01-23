@@ -1,4 +1,4 @@
 add_xc7_device_define(
-  ARCH ${ARCH}
+  ARCH zynq7
   DEVICES xc7z010
 )
