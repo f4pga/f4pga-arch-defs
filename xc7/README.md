@@ -16,13 +16,13 @@ The following examples are testing on basys3:
 After creating a cmake build directory (running make env in root), cd into example and run:
 
 ```
-make <example name>_bin
+make <example name>_<board name>_bin
 ```
 
 to generate a bitstream.  To program the bitstream via OpenOCD run:
 
 ```
-make <example name>_prog
+make <example name>_<board name>_prog
 ```
 
 Additional targets are best explored via tab completion.
@@ -35,5 +35,5 @@ cd symbiflow-arch-defs
 make env
 cd build
 cd xc7/tests/buttons
-make buttons_bin
+make buttons_basys3_bin
 ```
