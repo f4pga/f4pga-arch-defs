@@ -1,6 +1,6 @@
 function(ADD_XC7_ARCH_DEFINE)
   set(options)
-  set(oneValueArgs YOSYS_SCRIPT)
+  set(oneValueArgs ARCH YOSYS_SCRIPT)
   set(multiValueArgs)
   cmake_parse_arguments(
     ADD_XC7_ARCH_DEFINE
@@ -10,6 +10,7 @@ function(ADD_XC7_ARCH_DEFINE)
     ${ARGN}
   )
 
+  set(ARCH ${ADD_XC7_ARCH_DEFINE_ARCH})
   set(YOSYS_SCRIPT ${ADD_XC7_ARCH_DEFINE_YOSYS_SCRIPT})
 
   define_arch(

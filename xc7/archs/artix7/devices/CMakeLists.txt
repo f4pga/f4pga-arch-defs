@@ -1,4 +1,4 @@
 add_xc7_device_define(
-  ARCH ${ARCH}
+  ARCH artix7
   DEVICES xc7a50t
 )
