@@ -1,5 +1,6 @@
 project_xray_arch(
   PART ${ARCH}
+  DEVICE ${DEVICE}
   TILE_TYPES INT_R INT_L CLBLL_R CLBLL_L CLBLM_R CLBLM_L BRAM_L
   USE_ROI ${ROI_DIR}/design.json
 )

@@ -54,7 +54,6 @@ function(ADD_XC7_DEVICE_DEFINE)
       COMMAND ${PYTHON3} ${SYNTH_TILES_TO_PINMAP_CSV}
         --synth_tiles ${SYNTH_TILES_LOCATION}
         --output ${CMAKE_CURRENT_BINARY_DIR}/${PINMAP_CSV}
-        --device ${DEVICE}
         DEPENDS ${PINMAP_CSV_DEPS}
         )
 

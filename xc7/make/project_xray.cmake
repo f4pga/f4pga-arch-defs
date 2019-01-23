@@ -115,7 +115,7 @@ endfunction()
 
 function(PROJECT_XRAY_ARCH)
   set(options)
-  set(oneValueArgs PART USE_ROI)
+  set(oneValueArgs PART USE_ROI DEVICE)
   set(multiValueArgs TILE_TYPES)
   cmake_parse_arguments(
     PROJECT_XRAY_ARCH
@@ -129,6 +129,7 @@ function(PROJECT_XRAY_ARCH)
   get_target_property(PYTHON3_TARGET env PYTHON3_TARGET)
 
   set(PART ${PROJECT_XRAY_ARCH_PART})
+  set(DEVICE ${PROJECT_XRAY_ARCH_DEVICE})
 
   set(ARCH_IMPORT ${symbiflow-arch-defs_SOURCE_DIR}/xc7/utils/prjxray_arch_import.py)
   set(DEPS ${PRJXRAY_DB_DIR}/${PART}/tilegrid.json)
@@ -171,6 +172,7 @@ function(PROJECT_XRAY_ARCH)
     --output-arch ${CMAKE_CURRENT_BINARY_DIR}/arch.xml
     --tile-types "${TILE_TYPES_COMMA}"
     --pin_assignments ${PIN_ASSIGNMENTS}
+    --device ${DEVICE}
     ${ROI_ARG}
     DEPENDS
     ${ARCH_IMPORT}
