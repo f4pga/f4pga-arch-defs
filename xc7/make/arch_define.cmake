@@ -13,6 +13,10 @@ function(ADD_XC7_ARCH_DEFINE)
   set(ARCH ${ADD_XC7_ARCH_DEFINE_ARCH})
   set(YOSYS_SCRIPT ${ADD_XC7_ARCH_DEFINE_YOSYS_SCRIPT})
 
+  project_xray_prepare_database(
+    PART ${ARCH}
+  )
+
   define_arch(
 	  ARCH ${ARCH}
     YOSYS_SCRIPT ${YOSYS_SCRIPT}
