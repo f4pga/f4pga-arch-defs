@@ -7,7 +7,6 @@ project_xray_prepare_database(
 )
 
 add_subdirectory(tiles)
-add_subdirectory(blocks)
 
 add_xc7_arch_define(
   # -flatten is used to ensure that the output eblif has only one module.
