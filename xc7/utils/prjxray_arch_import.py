@@ -110,6 +110,8 @@ def main():
             '--use_roi', required=False)
     parser.add_argument(
             '--synth_tiles', required=False)
+    parser.add_argument(
+            '--device', required=True)
 
     args = parser.parse_args()
 
@@ -145,7 +147,7 @@ def main():
     g = db.grid()
     x_min, x_max, y_min, y_max = g.dims()
 
-    name = 'xc7z010-test'
+    name = '{}-test'.format(args.device)
     fixed_layout_xml = ET.SubElement(layout_xml, 'fixed_layout', {
             'name': name,
             'height': str(y_max+1),
