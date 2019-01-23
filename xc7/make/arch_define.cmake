@@ -1,6 +1,6 @@
 function(ADD_XC7_ARCH_DEFINE)
   set(options)
-  set(oneValueArgs ARCH ROI_PART ROI_DIR YOSYS_SCRIPT)
+  set(oneValueArgs YOSYS_SCRIPT)
   set(multiValueArgs)
   cmake_parse_arguments(
     ADD_XC7_ARCH_DEFINE
@@ -10,9 +10,6 @@ function(ADD_XC7_ARCH_DEFINE)
     ${ARGN}
   )
 
-  set(ARCH ${ADD_XC7_ARCH_DEFINE_ARCH})
-  set(ROI_PART ${ADD_XC7_ARCH_DEFINE_ROI_PART})
-  set(ROI_DIR ${ADD_XC7_ARCH_DEFINE_ROI_DIR})
   set(YOSYS_SCRIPT ${ADD_XC7_ARCH_DEFINE_YOSYS_SCRIPT})
 
   define_arch(

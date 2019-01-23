@@ -95,8 +95,8 @@ function(PROJECT_XRAY_TILE)
     --site_directory ${symbiflow-arch-defs_BINARY_DIR}/xc7/primitives
     --site_types ${SITE_TYPES_COMMA}
     --pin_assignments ${PIN_ASSIGNMENTS}
-    --output-pb-type ${CMAKE_CURRENT_BINARY_DIR}/tiles/${TILE}.pb_type.xml
-    --output-model ${CMAKE_CURRENT_BINARY_DIR}/tiles/${TILE}.model.xml
+    --output-pb-type ${CMAKE_CURRENT_BINARY_DIR}/${TILE}.pb_type.xml
+    --output-model ${CMAKE_CURRENT_BINARY_DIR}/${TILE}.model.xml
     ${FUSED_SITES_ARGS}
     DEPENDS
     ${TILE_IMPORT}
