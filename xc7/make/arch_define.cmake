@@ -42,7 +42,7 @@ function(ADD_XC7_ARCH_DEFINE)
     BIN_EXTENSION bit
     FASM_TO_BIT ${PRJXRAY_DIR}/utils/fasm2frames.py
     FASM_TO_BIT_CMD "${CMAKE_COMMAND} -E env \
-    PYTHONPATH=${PRJXRAY_DIR}:${PRJXRAY_DIR}/third_party/fasm \
+    PYTHONPATH=${symbiflow-arch-defs_BINARY_DIR}/env/conda/lib/python3.7/site-packages:${PRJXRAY_DIR}:${PRJXRAY_DIR}/third_party/fasm \
     \${PYTHON3} \${FASM_TO_BIT} \
 	  --db-root ${PRJXRAY_DB_DIR}/${ARCH} \
     --sparse \
