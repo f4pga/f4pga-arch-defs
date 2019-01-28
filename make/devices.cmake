@@ -1109,6 +1109,7 @@ function(ADD_FPGA_TARGET)
     if(${USE_FASM})
       get_target_property_required(FASM_TO_BIT ${ARCH} FASM_TO_BIT)
       get_target_property_required(FASM_TO_BIT_CMD ${ARCH} FASM_TO_BIT_CMD)
+      get_target_property_required(PYTHON3 env PYTHON3)
       string(CONFIGURE ${FASM_TO_BIT_CMD} FASM_TO_BIT_CMD_FOR_TARGET)
       separate_arguments(
         FASM_TO_BIT_CMD_FOR_TARGET_LIST UNIX_COMMAND ${FASM_TO_BIT_CMD_FOR_TARGET}
