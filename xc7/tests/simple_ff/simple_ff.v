@@ -3,9 +3,7 @@ module top(
 	input [7:0] in,
 	output [7:0] out
 );
-  FDCE #(
-      .INIT(0),
-  ) fdse (
+  FDCE_ZINI #() fdce (
       .Q(out[0]),
       .C(clk),
       .CE(in[0]),
