@@ -45,7 +45,7 @@ function(ADD_XC7_DEVICE_DEFINE)
     get_target_property_required(PYTHON3_TARGET env PYTHON3_TARGET)
 
     set(SYNTH_TILES_TO_PINMAP_CSV ${symbiflow-arch-defs_SOURCE_DIR}/xc7/utils/prjxray_synth_tiles_to_pinmap_csv.py)
-    set(PINMAP_CSV xc7z010-roi-virt/synth_tiles_pinmap.csv)
+    set(PINMAP_CSV ${DEVICE}-roi-virt/synth_tiles_pinmap.csv)
 
     set(PINMAP_CSV_DEPS ${PYTHON3} ${PYTHON3_TARGET} ${SYNTH_TILES_TO_PINMAP_CSV})
     append_file_dependency(PINMAP_CSV_DEPS ${SYNTH_TILES})
