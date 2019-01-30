@@ -3,6 +3,37 @@ add_conda_pip(
   NO_EXE
 )
 
+function(ADD_XC7_DEVICE_DEFINE_TYPE)
+  set(options)
+  set(oneValueArgs ARCH DEVICE ROI_DIR)
+  set(multiValueArgs TILE_TYPES)
+  cmake_parse_arguments(
+    ADD_XC7_DEVICE_DEFINE_TYPE
+     "${options}"
+     "${oneValueArgs}"
+     "${multiValueArgs}"
+     ${ARGN}
+    )
+
+  set(ARCH ${ADD_XC7_DEVICE_DEFINE_TYPE_ARCH})
+  set(DEVICE ${ADD_XC7_DEVICE_DEFINE_TYPE_DEVICE})
+  set(ROI_DIR ${ADD_XC7_DEVICE_DEFINE_TYPE_ROI_DIR})
+  set(TILE_TYPES ${ADD_XC7_DEVICE_DEFINE_TYPE_TILE_TYPES})
+
+  project_xray_arch(
+    PART ${ARCH}
+    DEVICE ${DEVICE}
+    TILE_TYPES ${TILE_TYPES}
+    USE_ROI ${ROI_DIR}/design.json
+    )
+
+  define_device_type(
+    DEVICE_TYPE ${DEVICE}-roi-virt
+    ARCH ${ARCH}
+    ARCH_XML arch.xml
+    )
+endfunction()
+
 function(ADD_XC7_DEVICE_DEFINE)
   set(options)
   set(oneValueArgs ARCH)

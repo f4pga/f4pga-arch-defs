@@ -1,12 +1,6 @@
-project_xray_arch(
-  PART zynq7
-  DEVICE ${DEVICE}
-  TILE_TYPES INT_R INT_L CLBLL_R CLBLL_L CLBLM_R CLBLM_L BRAM_L
-  USE_ROI ${ROI_DIR}/design.json
-)
-
-define_device_type(
-  DEVICE_TYPE ${DEVICE}-roi-virt
+add_xc7_device_define_type(
   ARCH zynq7
-  ARCH_XML arch.xml
+  DEVICE xc7z010
+  ROI_DIR ${PRJXRAY_DB_DIR}/zynq7/harness/zybo/swbut
+  TILE_TYPES INT_R INT_L CLBLL_R CLBLL_L CLBLM_R CLBLM_L BRAM_L
 )
