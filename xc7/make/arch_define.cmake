@@ -1,6 +1,6 @@
 function(ADD_XC7_ARCH_DEFINE)
   set(options)
-  set(oneValueArgs ARCH YOSYS_SCRIPT)
+  set(oneValueArgs ARCH ROI_PART YOSYS_SCRIPT)
   set(multiValueArgs)
   cmake_parse_arguments(
     ADD_XC7_ARCH_DEFINE
@@ -11,6 +11,7 @@ function(ADD_XC7_ARCH_DEFINE)
   )
 
   set(ARCH ${ADD_XC7_ARCH_DEFINE_ARCH})
+  set(ROI_PART ${ADD_XC7_ARCH_DEFINE_ROI_PART})
   set(YOSYS_SCRIPT ${ADD_XC7_ARCH_DEFINE_YOSYS_SCRIPT})
 
   project_xray_prepare_database(
