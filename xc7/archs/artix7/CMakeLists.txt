@@ -1,6 +1,3 @@
-set(ROI_PART xc7a35tcpg236-1)
-set(ROI_DIR ${PRJXRAY_DB_DIR}/artix7/harness/basys3/swbut)
-
 add_xc7_arch_define(
   ARCH artix7
   # -flatten is used to ensure that the output eblif has only one module.
