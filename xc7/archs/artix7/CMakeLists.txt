@@ -1,6 +1,6 @@
 add_xc7_arch_define(
   ARCH artix7
-  ROI_PART xc7a50tfgg484-1
+  ROI_PART xc7a35tcpg236-1
   ROI_DIR ${PRJXRAY_DB_DIR}/artix7/harness/basys3/swbut
   # -flatten is used to ensure that the output eblif has only one module.
   # Some of symbiflow expects eblifs with only one module.
