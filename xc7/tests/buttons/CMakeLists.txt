@@ -1,6 +1,6 @@
-add_fpga_target(
+add_fpga_target_boards(
   NAME buttons
-  BOARD basys3
-  INPUT_IO_FILE basys3.pcf
+  BOARDS basys3 zybo
   SOURCES buttons.v
+  IMPLICIT_INPUT_IO_FILES
   )

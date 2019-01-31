@@ -8,3 +8,10 @@ define_board(
   PROG_TOOL ${OPENOCD_TARGET}
   PROG_CMD "${OPENOCD} -f ${PRJXRAY_DIR}/utils/openocd/board-digilent-basys3.cfg -c \\\"init $<SEMICOLON> pld load 0 \${OUT_BIN} $<SEMICOLON> exit\\\""
 )
+
+# TODO: https://github.com/SymbiFlow/symbiflow-arch-defs/issues/344
+define_board(
+  BOARD zybo
+  DEVICE xc7z010
+  PACKAGE test
+)

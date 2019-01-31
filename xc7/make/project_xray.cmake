@@ -1,23 +1,3 @@
-set(PRJXRAY_DIR ${symbiflow-arch-defs_SOURCE_DIR}/third_party/prjxray)
-set(PRJXRAY_DB_DIR
-  ${symbiflow-arch-defs_SOURCE_DIR}/third_party/prjxray-db
-  CACHE PATH "Path to prjxray database files")
-
-add_conda_pip(
-  NAME progressbar2
-  NO_EXE
-  )
-
-add_conda_pip(
-  NAME simplejson
-  NO_EXE
-  )
-
-add_conda_pip(
-  NAME intervaltree
-  NO_EXE
-  )
-
 function(get_project_xray_dependencies var part element)
   list(APPEND ${var} ${PRJXRAY_DB_DIR}/Info.md)
   string(TOLOWER ${element} element_LOWER)
@@ -98,8 +78,8 @@ function(PROJECT_XRAY_TILE)
   endforeach()
   string(REPLACE ";" "," SITE_TYPES_COMMA "${PROJECT_XRAY_TILE_SITE_TYPES}")
 
-  append_file_dependency(DEPS ${symbiflow-arch-defs_SOURCE_DIR}/xc7/pin_assignments.json)
-  get_file_location(PIN_ASSIGNMENTS ${symbiflow-arch-defs_SOURCE_DIR}/xc7/pin_assignments.json)
+  append_file_dependency(DEPS ${symbiflow-arch-defs_SOURCE_DIR}/xc7/archs/${PART}/pin_assignments.json)
+  get_file_location(PIN_ASSIGNMENTS ${symbiflow-arch-defs_SOURCE_DIR}/xc7/archs/${PART}/pin_assignments.json)
 
   set(FUSED_SITES_ARGS "")
   if(PROJECT_XRAY_TILE_FUSED_SITES)
@@ -135,7 +115,7 @@ endfunction()
 
 function(PROJECT_XRAY_ARCH)
   set(options)
-  set(oneValueArgs PART USE_ROI)
+  set(oneValueArgs PART USE_ROI DEVICE)
   set(multiValueArgs TILE_TYPES)
   cmake_parse_arguments(
     PROJECT_XRAY_ARCH
@@ -149,6 +129,7 @@ function(PROJECT_XRAY_ARCH)
   get_target_property(PYTHON3_TARGET env PYTHON3_TARGET)
 
   set(PART ${PROJECT_XRAY_ARCH_PART})
+  set(DEVICE ${PROJECT_XRAY_ARCH_DEVICE})
 
   set(ARCH_IMPORT ${symbiflow-arch-defs_SOURCE_DIR}/xc7/utils/prjxray_arch_import.py)
   set(DEPS ${PRJXRAY_DB_DIR}/${PART}/tilegrid.json)
@@ -156,8 +137,8 @@ function(PROJECT_XRAY_ARCH)
   set(ARCH_INCLUDE_FILES "")
   foreach(TILE_TYPE ${PROJECT_XRAY_ARCH_TILE_TYPES})
     string(TOLOWER ${TILE_TYPE} TILE_TYPE_LOWER)
-    set(PB_TYPE_XML ${symbiflow-arch-defs_SOURCE_DIR}/xc7/tiles/${TILE_TYPE_LOWER}/${TILE_TYPE_LOWER}.pb_type.xml)
-    set(MODEL_XML ${symbiflow-arch-defs_SOURCE_DIR}/xc7/tiles/${TILE_TYPE_LOWER}/${TILE_TYPE_LOWER}.model.xml)
+    set(PB_TYPE_XML ${symbiflow-arch-defs_SOURCE_DIR}/xc7/archs/${PART}/tiles/${TILE_TYPE_LOWER}/${TILE_TYPE_LOWER}.pb_type.xml)
+    set(MODEL_XML ${symbiflow-arch-defs_SOURCE_DIR}/xc7/archs/${PART}/tiles/${TILE_TYPE_LOWER}/${TILE_TYPE_LOWER}.model.xml)
     append_file_dependency(DEPS ${PB_TYPE_XML})
     append_file_dependency(DEPS ${MODEL_XML})
 
@@ -178,8 +159,8 @@ function(PROJECT_XRAY_ARCH)
     list(APPEND DEPS ${PROJECT_XRAY_ARCH_USE_ROI})
   endif()
 
-  append_file_dependency(DEPS ${symbiflow-arch-defs_SOURCE_DIR}/xc7/pin_assignments.json)
-  get_file_location(PIN_ASSIGNMENTS ${symbiflow-arch-defs_SOURCE_DIR}/xc7/pin_assignments.json)
+  append_file_dependency(DEPS ${symbiflow-arch-defs_SOURCE_DIR}/xc7/archs/${PART}/pin_assignments.json)
+  get_file_location(PIN_ASSIGNMENTS ${symbiflow-arch-defs_SOURCE_DIR}/xc7/archs/${PART}/pin_assignments.json)
 
   string(REPLACE ";" "," TILE_TYPES_COMMA "${PROJECT_XRAY_ARCH_TILE_TYPES}")
 
@@ -191,6 +172,7 @@ function(PROJECT_XRAY_ARCH)
     --output-arch ${CMAKE_CURRENT_BINARY_DIR}/arch.xml
     --tile-types "${TILE_TYPES_COMMA}"
     --pin_assignments ${PIN_ASSIGNMENTS}
+    --device ${DEVICE}
     ${ROI_ARG}
     DEPENDS
     ${ARCH_IMPORT}
