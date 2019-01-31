@@ -1,15 +1,15 @@
 # zybo 125 MHz CLK
 set_io clk K17
 
-# in[] correspond with LD0-LD3 on the zybo
-set_io in[0] M14
-set_io in[1] M15
-set_io in[2] G14
-set_io in[3] D18
-
 # out[] correspond with SW0-SW3 on the zybo
-set_io out[0] G15
-set_io out[1] P15
-set_io out[2] W13
-set_io out[3] T16
+set_io out[0] M14
+set_io out[1] M15
+set_io out[2] G14
+set_io out[3] D18
+
+# in[] correspond with LD0-LD3 on the zybo
+set_io in[0] G15
+set_io in[1] P15
+set_io in[2] W13
+set_io in[3] T16
 
