@@ -135,6 +135,7 @@ function(DEFINE_ARCH)
     )
   set(DISALLOWED_ARGS "")
   set(OPTIONAL_ARGS
+    VPR_ARCH_ARGS
     CELLS_SIM
     )
 

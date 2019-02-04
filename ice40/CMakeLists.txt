@@ -12,6 +12,8 @@ define_arch(
   DEVICE_FULL_TEMPLATE \${DEVICE}-\${PACKAGE}
   VPR_ARCH_ARGS
     --clock_modeling route
+    --allow_unrelated_clustering off
+    --target_ext_pin_util 0.7
   RR_PATCH_TOOL
     ${symbiflow-arch-defs_SOURCE_DIR}/ice40/utils/ice40_import_routing_from_icebox.py
   RR_PATCH_CMD "\${QUIET_CMD} \${PYTHON3} \${RR_PATCH_TOOL} \
