@@ -118,16 +118,23 @@ endfunction()
 function(ADD_CONDA_PACKAGE)
   # ~~~
   # ADD_CONDA_PACKAGE(
-  #   PACKAGE <name>
+  #   NAME <name>
   #   PROVIDES <exe list>
+  #   [PACKAGE_SPEC <package_spec>]
   #   )
   # ~~~
   #
   # Installs a package via conda.  This generates two env properties per name
   # in PROVIDES list. <name> is set to the path the executable.  <name>_TARGET
   # is set to the target that will invoke conda.
+  #
+  # PACKAGE_SPEC can optionally be provided. This is useful to specify
+  # version and build for debugging. See conda documention for details:
+  # https://docs.conda.io/projects/conda-build/en/latest/source/package-spec.html#package-match-specifications
+  # Find specific versions and builds: conda search <package>
+  #
   set(options)
-  set(oneValueArgs NAME)
+  set(oneValueArgs NAME PACKAGE_SPEC)
   set(multiValueArgs PROVIDES)
   cmake_parse_arguments(
     ADD_CONDA_PACKAGE
@@ -149,9 +156,15 @@ function(ADD_CONDA_PACKAGE)
       list(APPEND TOUCH_COMMANDS COMMAND ${CMAKE_COMMAND} -E touch_nocreate ${CONDA_DIR}/bin/${OUTPUT})
     endforeach()
 
+    if(NOT ${ADD_CONDA_PACKAGE_PACKAGE_SPEC} STREQUAL "")
+      set(PACKAGE_SPEC ${ADD_CONDA_PACKAGE_PACKAGE_SPEC})
+    else()
+      set(PACKAGE_SPEC ${ADD_CONDA_PACKAGE_NAME})
+    endif()
+
     add_custom_command(
       OUTPUT ${OUTPUTS}
-      COMMAND ${CONDA_BIN} install -f ${ADD_CONDA_PACKAGE_NAME}
+      COMMAND ${CONDA_BIN} install -f ${PACKAGE_SPEC}
       ${TOUCH_COMMANDS}
       DEPENDS conda ${CONDA_BIN}
       )
