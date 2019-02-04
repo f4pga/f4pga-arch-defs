@@ -24,6 +24,11 @@ function(ADD_XC7_ARCH_DEFINE)
     YOSYS_SCRIPT ${YOSYS_SCRIPT}
     DEVICE_FULL_TEMPLATE \${DEVICE}-\${PACKAGE}
     CELLS_SIM xilinx/cells_sim.v
+    VPR_ARCH_ARGS
+      --clock_modeling route
+      --place_algorithm bounding_box
+      --enable_timing_computations off
+      --allow_unrelated_clustering on
     RR_PATCH_TOOL
       ${symbiflow-arch-defs_SOURCE_DIR}/xc7/utils/prjxray_routing_import.py
     RR_PATCH_CMD "${CMAKE_COMMAND} -E env \
@@ -63,12 +68,4 @@ function(ADD_XC7_ARCH_DEFINE)
     ROUTE_CHAN_WIDTH 500
   )
 
-  set(VPR_ARCH_ARGS
-   --clock_modeling route
-   --place_algorithm bounding_box
-   --enable_timing_computations off
-   --allow_unrelated_clustering on
-   )
-
-  set_target_properties(${ARCH} PROPERTIES VPR_ARCH_ARGS "${VPR_ARCH_ARGS}")
 endfunction()
