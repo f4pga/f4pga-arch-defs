@@ -147,7 +147,7 @@ def main():
     g = db.grid()
     x_min, x_max, y_min, y_max = g.dims()
 
-    # FIXME: There is an issue in the routing phase.
+    # FIXME: There is an issue in the routing phase. (https://github.com/SymbiFlow/symbiflow-arch-defs/issues/353)
     # if a zynq device is selected the grid must be expanded by 1
     if args.device == 'xc7z010':
         x_max += 1
