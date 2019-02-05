@@ -12,16 +12,6 @@ module ram0(
 
     (* ram_style = "block" *) reg [15:0] ram[0:1023];
 
-    genvar i;
-    generate
-        for(i=0;i<1023;i++) begin
-            initial
-            begin
-                ram[i] = i;
-            end
-        end
-    endgenerate
-
     always @ (posedge wrclk) begin
         if(wren == 1) begin
             ram[wraddr] <= di;
@@ -74,9 +64,12 @@ module top (
     wire [15:0] read_data;
     wire [15:0] write_data;
     wire write_enable;
+    wire read_enable = !write_enable;
 
-    wire [15:0] rom_read_data = 16'h0000;
     wire [9:0] rom_read_address;
+    wire [15:0] rom_read_data = 16'b0;
+
+    //assign rom_read_data[9:0] = rom_read_address;
 
     wire loop_complete;
     wire error_detected;
@@ -90,7 +83,7 @@ module top (
         .DATA_WIDTH(16),
         .IS_DUAL_PORT(1),
         .ADDRESS_STEP(2),
-        .MAX_ADDRESS(1023),
+        .MAX_ADDRESS(1023)
     ) dram_test (
         .rst(!nrst),
         .clk(clk),
@@ -121,7 +114,7 @@ module top (
         .wraddr(write_address),
         // Read port
         .rdclk(clk),
-        .rden(1'b1),
+        .rden(read_enable),
         .rdaddr(read_address),
         .do(read_data)
     );
