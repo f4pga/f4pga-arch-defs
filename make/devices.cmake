@@ -96,7 +96,6 @@ function(DEFINE_ARCH)
     RR_PATCH_CMD
     PLACE_TOOL
     PLACE_TOOL_CMD
-    CELLS_SIM
     HLC_TO_BIT
     HLC_TO_BIT_CMD
     FASM_TO_BIT
@@ -110,7 +109,7 @@ function(DEFINE_ARCH)
     RR_GRAPH_EXT
     ROUTE_CHAN_WIDTH
   )
-  set(multiValueArgs VPR_ARCH_ARGS)
+  set(multiValueArgs CELLS_SIM VPR_ARCH_ARGS)
   cmake_parse_arguments(
     DEFINE_ARCH
     "${options}"
@@ -1322,11 +1321,7 @@ function(get_cells_sim_path var arch)
   # If CELLS_SIM is defined for ${arch}, sets var to the path to CELLS_SIM,
   # otherwise sets var to "".
   get_target_property(CELLS_SIM ${arch} CELLS_SIM)
-  set(PATH_TO_CELLS_SIM "")
-  if(NOT "${CELLS_SIM}" STREQUAL "")
-    set(PATH_TO_CELLS_SIM ${YOSYS_DATADIR}/${CELLS_SIM})
-  endif()
-  set(${var} ${PATH_TO_CELLS_SIM} PARENT_SCOPE)
+  set(${var} ${CELLS_SIM} PARENT_SCOPE)
 endfunction()
 
 function(add_check_test)
