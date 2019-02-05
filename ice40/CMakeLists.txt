@@ -7,8 +7,7 @@ find_program(ICETIME icetime PATHS ${ICESTORM}/icetime)
 
 define_arch(
   ARCH ice40
-  YOSYS_SCRIPT
-    "synth_ice40 -nocarry $<SEMICOLON>  ice40_opt -unlut $<SEMICOLON> abc -lut 4 $<SEMICOLON>  opt_clean"
+  YOSYS_SCRIPT ${symbiflow-arch-defs_SOURCE_DIR}/ice40/yosys/synth.tcl
   DEVICE_FULL_TEMPLATE \${DEVICE}-\${PACKAGE}
   VPR_ARCH_ARGS
     --clock_modeling route

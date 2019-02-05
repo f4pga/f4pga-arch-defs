@@ -821,17 +821,18 @@ function(ADD_FPGA_TARGET)
   if(NOT ${ADD_FPGA_TARGET_NO_SYNTHESIS})
     set(
       COMPLETE_YOSYS_SCRIPT
-      "${YOSYS_SCRIPT} $<SEMICOLON> write_blif -attr -cname -param ${OUT_EBLIF} $<SEMICOLON> write_verilog ${OUT_SYNTH_V}"
+      "tcl ${YOSYS_SCRIPT} $<SEMICOLON> write_blif -attr -cname -param ${OUT_EBLIF} $<SEMICOLON> write_verilog ${OUT_SYNTH_V}"
     )
 
     add_custom_command(
       OUTPUT ${OUT_EBLIF} ${OUT_SYNTH_V}
       DEPENDS ${SOURCE_FILES} ${SOURCE_FILES_DEPS}
               ${YOSYS} ${YOSYS_TARGET} ${QUIET_CMD} ${QUIET_CMD_TARGET}
+              ${YOSYS_SCRIPT}
       COMMAND
         ${CMAKE_COMMAND} -E make_directory ${OUT_LOCAL}
       COMMAND
-        ${QUIET_CMD} ${YOSYS} -p "${COMPLETE_YOSYS_SCRIPT}" ${SOURCE_FILES}
+        ${CMAKE_COMMAND} -E env symbiflow-arch-defs_SOURCE_DIR=${symbiflow-arch-defs_SOURCE_DIR} ${QUIET_CMD} ${YOSYS} -p "${COMPLETE_YOSYS_SCRIPT}" ${SOURCE_FILES}
       WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
       VERBATIM
     )
