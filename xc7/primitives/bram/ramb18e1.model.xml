@@ -1,6 +1,6 @@
 <!-- vim: set ai sw=1 ts=1 sta et: -->
 <models>
- <model name="RAMB18E1">
+ <model name="RAMB18E1_VPR">
   <input_ports>
    <!-- Port A - 16bit wide -->
    <port is_clock="1"        name="CLKARDCLK"     />
@@ -9,6 +9,7 @@
    <port clock="CLKARDCLK"   name="REGCLKARDRCLK" />
    <port clock="CLKARDCLK"   name="RSTRAMARSTRAM" />
    <port clock="CLKARDCLK"   name="RSTREGARSTREG" />
+   <port                     name="ADDRATIEHIGH"  />
    <port clock="CLKARDCLK"   name="ADDRARDADDR"   />
    <port clock="CLKARDCLK"   name="DIADI"         />
    <port clock="CLKARDCLK"   name="DIPADIP"       />
@@ -21,6 +22,7 @@
    <port clock="CLKBWRCLK"   name="REGCEB"        />
    <port clock="CLKBWRCLK"   name="RSTRAMB"       />
    <port clock="CLKBWRCLK"   name="RSTREGB"       />
+   <port                     name="ADDRBTIEHIGH"  />
    <port clock="CLKBWRCLK"   name="ADDRBWRADDR"   />
    <port clock="CLKBWRCLK"   name="DIBDI"         />
    <port clock="CLKBWRCLK"   name="DIPBDIP"       />

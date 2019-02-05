@@ -1,12 +1,72 @@
+module ram0(
+    // Write port
+    input wrclk,
+    input [15:0] di,
+    input wren,
+    input [9:0] wraddr,
+    // Read port
+    input rdclk,
+    input rden,
+    input [9:0] rdaddr,
+    output reg [15:0] do);
+
+    (* ram_style = "block" *) reg [15:0] ram[0:1023];
+
+    initial begin
+        ram[0] = 16'b00000000_00000001;
+        ram[1] = 16'b10101010_10101010;
+        ram[2] = 16'b01010101_01010101;
+        ram[3] = 16'b11111111_11111111;
+        ram[4] = 16'b11110000_11110000;
+        ram[5] = 16'b00001111_00001111;
+        ram[6] = 16'b11001100_11001100;
+        ram[7] = 16'b00110011_00110011;
+        ram[8] = 16'b00000000_00000010;
+        ram[9] = 16'b00000000_00000100;
+    end
+
+    always @ (posedge wrclk) begin
+        if(wren == 1) begin
+            ram[wraddr] <= di;
+        end
+    end
+
+    always @ (posedge rdclk) begin
+        if(rden == 1) begin
+            do <= ram[rdaddr];
+        end
+    end
+
+endmodule
+
 module top (
 	input  clk,
 	input [15:0] in,
 	output [15:0] out
 );
-  reg [15:0] ram[0:1023];
+  wire rden;
+  reg wren;
+  wire [9:0] rdaddr;
+  wire [9:0] wraddr;
+  wire [15:0] di;
+  wire [15:0] do;
+  ram0 ram(
+      .wrclk(clk),
+      .di(di),
+      .wren(wren),
+      .wraddr(wraddr),
+      .rdclk(clk),
+      .rden(rden),
+      .rdaddr(rdaddr),
+      .do(do)
+  );
+
   reg [9:0] address_reg;
   reg [15:0] data_reg;
   reg [15:0] out_reg;
+
+  assign rdaddr = address_reg;
+  assign wraddr = address_reg;
 
   // display_mode == 00 -> ram[address_reg]
   // display_mode == 01 -> address_reg
@@ -30,38 +90,37 @@ module top (
   assign input_mode[1] = in[13];
 
   assign we = in[11];
+  assign out = out_reg;
+  assign di = data_reg;
+  assign rden = 1;
 
   initial begin
-      ram[0] = 16'b00000000_00000001;
-      ram[1] = 16'b10101010_10101010;
-      ram[2] = 16'b01010101_01010101;
-      ram[3] = 16'b11111111_11111111;
-      ram[4] = 16'b11110000_11110000;
-      ram[5] = 16'b00001111_00001111;
-      ram[6] = 16'b11001100_11001100;
-      ram[7] = 16'b00110011_00110011;
-      ram[8] = 16'b00000000_00000010;
-      ram[9] = 16'b00000000_00000100;
+      address_reg = 10'b0;
+      data_reg = 16'b0;
+      out_reg = 16'b0;
   end
 
   always @ (posedge clk) begin
       if(display_mode == 0) begin
-          out <= ram[address_reg];
+          out_reg <= do;
       end else if(display_mode == 1) begin
-          out <= address_reg;
+          out_reg <= address_reg;
       end else if(display_mode == 2) begin
-          out <= data_reg;
+          out_reg <= data_reg;
       end
 
       if(we == 1) begin
           if(input_mode == 0) begin
               address_reg <= in[9:0];
+              wren <= 0;
           end else if(input_mode == 1) begin
               data_reg[7:0] <= in[7:0];
+              wren <= 0;
           end else if(input_mode == 2) begin
               data_reg[15:8] <= in[7:0];
+              wren <= 0;
           end else if(input_mode == 3) begin
-              ram[address_reg] <= data_reg;
+              wren <= 1;
           end
       end
   end

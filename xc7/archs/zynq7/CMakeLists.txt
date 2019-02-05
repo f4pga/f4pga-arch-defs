@@ -7,7 +7,7 @@ add_xc7_arch_define(
   #
   # opt -undriven makes sure all nets are driven, if only by the $undef
   # net.
-  YOSYS_SCRIPT "synth_xilinx -vpr -flatten $<SEMICOLON> opt_expr -undriven $<SEMICOLON> opt_clean"
+  YOSYS_SCRIPT "synth_xilinx -vpr -flatten $<SEMICOLON> read_verilog -lib ${symbiflow-arch-defs_SOURCE_DIR}/xc7/techmap/cells_sim.v $<SEMICOLON> techmap -map  ${symbiflow-arch-defs_SOURCE_DIR}/xc7/techmap/cells_map.v $<SEMICOLON> opt_expr -undriven $<SEMICOLON> opt_clean"
 )
 
 add_subdirectory(tiles)
