@@ -16,6 +16,7 @@ The RAM has extra bits that can be used for parity (DIP / DOP).
  <input  name="ENARDEN"       num_pins="1"  />
  <input  name="RSTRAMARSTRAM" num_pins="1"  />
  <input  name="RSTREGARSTREG" num_pins="1"  />
+ <input  name="ADDRATIEHIGH"  num_pins="2"  />
  <input  name="ADDRARDADDR"   num_pins="14" />
  <input  name="DIADI"         num_pins="16" />
  <input  name="DIPADIP"       num_pins="2"  />
@@ -42,6 +43,7 @@ The RAM has extra bits that can be used for parity (DIP / DOP).
  <input  name="REGCLKB"       num_pins="1"  />
  <input  name="RSTRAMB"       num_pins="1"  />
  <input  name="RSTREGB"       num_pins="1"  />
+ <input  name="ADDRBTIEHIGH"  num_pins="2"  />
  <input  name="ADDRBWRADDR"   num_pins="14" />
  <input  name="DIBDI"         num_pins="16" />
  <input  name="DIPBDIP"       num_pins="2"  />
@@ -62,6 +64,9 @@ The RAM has extra bits that can be used for parity (DIP / DOP).
  <T_clock_to_Q max="10e-12" port="BLK_IG-RAMB18E1.DOPBDOP"  clock="CLKBWRCLK" />
 
  <metadata>
+   <meta name="fasm_features">
+     IN_USE
+   </meta>
    <meta name="fasm_params">
      READ_WIDTH_A_18 = READ_WIDTH_A_18
      READ_WIDTH_A_9 = READ_WIDTH_A_9
@@ -73,6 +78,16 @@ The RAM has extra bits that can be used for parity (DIP / DOP).
      READ_WIDTH_B_4 = READ_WIDTH_B_4
      READ_WIDTH_B_2 = READ_WIDTH_B_2
      READ_WIDTH_B_1 = READ_WIDTH_B_1
+     WRITE_WIDTH_A_18 = WRITE_WIDTH_A_18
+     WRITE_WIDTH_A_9 = WRITE_WIDTH_A_9
+     WRITE_WIDTH_A_4 = WRITE_WIDTH_A_4
+     WRITE_WIDTH_A_2 = WRITE_WIDTH_A_2
+     WRITE_WIDTH_A_1 = WRITE_WIDTH_A_1
+     WRITE_WIDTH_B_18 = WRITE_WIDTH_B_18
+     WRITE_WIDTH_B_9 = WRITE_WIDTH_B_9
+     WRITE_WIDTH_B_4 = WRITE_WIDTH_B_4
+     WRITE_WIDTH_B_2 = WRITE_WIDTH_B_2
+     WRITE_WIDTH_B_1 = WRITE_WIDTH_B_1
      ZINIT_A[17:0] = ZINIT_A
      ZINIT_B[17:0] = ZINIT_B
      ZSRVAL_A[17:0] = ZSRVAL_A
