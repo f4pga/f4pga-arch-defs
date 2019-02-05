@@ -56,7 +56,9 @@ module RAM_TEST #(
         VERIFY_RANDOM = 8'd12,
         RESTART_LOOP = 8'd13;
 
+    reg pause;
     reg lfsr_reset;
+    reg wait_for_lfsr_reset;
     reg [LFSR_WIDTH-1:0] lfsr_seed;
     reg [LFSR_WIDTH-1:0] start_lfsr_seed;
     wire [LFSR_WIDTH-1:0] rand_data;
@@ -118,28 +120,33 @@ module RAM_TEST #(
                         read_address <= 0;
                         write_address <= 0;
                         write_enable <= 0;
+                        pause <= 1;
                         state <= VERIFY_ZEROS;
                     end
                 end
                 VERIFY_ZEROS: begin
-                    if(read_data != {DATA_WIDTH{1'b0}}) begin
-                        error <= 1;
-                        error_state <= state;
-                        error_address <= read_address;
-                        expected_data <= {DATA_WIDTH{1'b0}};
-                        actual_data <= read_data;
+                    if(pause) begin
+                        pause <= 0;
                     end else begin
-                        error <= 0;
-                    end
+                        if(read_data != {DATA_WIDTH{1'b0}}) begin
+                            error <= 1;
+                            error_state <= state;
+                            error_address <= read_address;
+                            expected_data <= {DATA_WIDTH{1'b0}};
+                            actual_data <= read_data;
+                        end else begin
+                            error <= 0;
+                        end
 
-                    if(read_address + ADDRESS_STEP <= MAX_ADDRESS) begin
-                        read_address <= read_address + ADDRESS_STEP;
-                    end else begin
-                        read_address <= 0;
-                        write_address <= 0;
-                        write_enable <= 1;
-                        write_data <= {DATA_WIDTH{1'b1}};
-                        state <= WRITE_ONES;
+                        if(read_address + ADDRESS_STEP <= MAX_ADDRESS) begin
+                            read_address <= read_address + ADDRESS_STEP;
+                        end else begin
+                            read_address <= 0;
+                            write_address <= 0;
+                            write_enable <= 1;
+                            write_data <= {DATA_WIDTH{1'b1}};
+                            state <= WRITE_ONES;
+                        end
                     end
                 end
                 WRITE_ONES: begin
@@ -174,28 +181,33 @@ module RAM_TEST #(
                         write_address <= 0;
                         write_enable <= 0;
                         state <= VERIFY_ONES;
+                        pause <= 1;
                     end
                 end
                 VERIFY_ONES: begin
-                    if(read_data != {DATA_WIDTH{1'b1}}) begin
-                        error <= 1;
-                        error_state <= state;
-                        error_address <= read_address;
-                        expected_data <= {DATA_WIDTH{1'b1}};
-                        actual_data <= read_data;
+                    if(pause) begin
+                        pause <= 0;
                     end else begin
-                        error <= 0;
-                    end
+                        if(read_data != {DATA_WIDTH{1'b1}}) begin
+                            error <= 1;
+                            error_state <= state;
+                            error_address <= read_address;
+                            expected_data <= {DATA_WIDTH{1'b1}};
+                            actual_data <= read_data;
+                        end else begin
+                            error <= 0;
+                        end
 
-                    if(read_address + ADDRESS_STEP <= MAX_ADDRESS) begin
-                        read_address <= read_address + ADDRESS_STEP;
-                    end else begin
-                        state <= WRITE_RANDOM;
-                        write_enable <= 1;
-                        write_address <= 0;
-                        lfsr_seed <= rand_data;
-                        write_data <= rand_data[DATA_WIDTH-1:0];
-                        read_address <= 0;
+                        if(read_address + ADDRESS_STEP <= MAX_ADDRESS) begin
+                            read_address <= read_address + ADDRESS_STEP;
+                        end else begin
+                            state <= WRITE_RANDOM;
+                            write_enable <= 1;
+                            write_address <= 0;
+                            lfsr_seed <= rand_data;
+                            write_data <= rand_data[DATA_WIDTH-1:0];
+                            read_address <= 0;
+                        end
                     end
                 end
                 WRITE_RANDOM: begin
@@ -210,12 +222,15 @@ module RAM_TEST #(
 
                         // Return LFSR to state at beginning of WRITE_RANDOM.
                         lfsr_reset <= 1;
+                        wait_for_lfsr_reset <= 1;
                     end
                 end
                 VERIFY_RANDOM: begin
-                    if(lfsr_reset) begin
-                        lfsr_reset <= 0;
+                    if(wait_for_lfsr_reset) begin
+                        wait_for_lfsr_reset <= 0;
+                        lfsr_reset <= 1;
                     end else begin
+                        lfsr_reset <= 0;
                         if(read_data != rand_data[DATA_WIDTH-1:0]) begin
                             error <= 1;
                             error_state <= state;
