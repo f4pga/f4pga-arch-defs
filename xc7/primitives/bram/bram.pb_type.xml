@@ -306,7 +306,9 @@ reason, BRAM tiles use a "fused sites" mode to accomidate the cross site logic.
    <direct name="RAMB18_X0Y29_DIBDI"            input="BLK_IG-BRAM.RAMB18_Y0_DIBDI"             output="BLK_IG-RAMB18E1[0].DIBDI" />
    <direct name="RAMB18_X0Y29_DIADI"            input="BLK_IG-BRAM.RAMB18_Y0_DIADI"             output="BLK_IG-RAMB18E1[0].DIADI" />
 
+   <direct name="RAMB18_X0Y29_ADDRATIEHIGH"     input="BLK_IG-BRAM.RAMB18_Y0_ADDRATIEHIGH"      output="BLK_IG-RAMB18E1[0].ADDRATIEHIGH" />
    <direct name="RAMB18_X0Y29_ADDRARDADDR"      input="BLK_IG-BRAM.RAMB18_Y0_ADDRARDADDR"       output="BLK_IG-RAMB18E1[0].ADDRARDADDR" />
+   <direct name="RAMB18_X0Y29_ADDRBTIEHIGH"     input="BLK_IG-BRAM.RAMB18_Y0_ADDRBTIEHIGH"      output="BLK_IG-RAMB18E1[0].ADDRBTIEHIGH" />
    <direct name="RAMB18_X0Y29_ADDRBWRADDR"      input="BLK_IG-BRAM.RAMB18_Y0_ADDRBWRADDR"       output="BLK_IG-RAMB18E1[0].ADDRBWRADDR" />
 
    <direct name="RAMB18_X0Y29_DOBDOP"           input="BLK_IG-RAMB18E1[0].DOPBDOP"              output="BLK_IG-BRAM.RAMB18_Y0_DOP[3:2]" />
@@ -336,7 +338,9 @@ reason, BRAM tiles use a "fused sites" mode to accomidate the cross site logic.
    <direct name="RAMB18_X0Y30_DIBDI"            input="BLK_IG-BRAM.RAMB18_Y1_DIBDI"             output="BLK_IG-RAMB18E1[1].DIBDI" />
    <direct name="RAMB18_X0Y30_DIADI"            input="BLK_IG-BRAM.RAMB18_Y1_DIADI"             output="BLK_IG-RAMB18E1[1].DIADI" />
 
+   <direct name="RAMB18_X0Y30_ADDRATIEHIGH"     input="BLK_IG-BRAM.RAMB18_Y1_ADDRATIEHIGH"      output="BLK_IG-RAMB18E1[1].ADDRATIEHIGH" />
    <direct name="RAMB18_X0Y30_ADDRARDADDR"      input="BLK_IG-BRAM.RAMB18_Y1_ADDRARDADDR"       output="BLK_IG-RAMB18E1[1].ADDRARDADDR" />
+   <direct name="RAMB18_X0Y30_ADDRBTIEHIGH"     input="BLK_IG-BRAM.RAMB18_Y1_ADDRBTIEHIGH"      output="BLK_IG-RAMB18E1[1].ADDRBTIEHIGH" />
    <direct name="RAMB18_X0Y30_ADDRBWRADDR"      input="BLK_IG-BRAM.RAMB18_Y1_ADDRBWRADDR"       output="BLK_IG-RAMB18E1[1].ADDRBWRADDR" />
 
    <direct name="RAMB18_X0Y30_DOPADOP"          input="BLK_IG-RAMB18E1[1].DOPADOP"                output="BLK_IG-BRAM.RAMB18_Y1_DOPADOP" />
