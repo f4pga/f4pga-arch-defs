@@ -25,7 +25,7 @@ define_arch(
   --map \${PINMAP} \
   --blif \${OUT_EBLIF} \
   --pcf \${INPUT_IO_FILE}"
-  CELLS_SIM ice40/cells_sim.v
+  CELLS_SIM ${YOSYS_DATADIR}/ice40/cells_sim.v
   HLC_TO_BIT ${ICEBOX_HLC2ASC}
   HLC_TO_BIT_CMD "\${HLC_TO_BIT} \${OUT_HLC} > \${OUT_BITSTREAM}"
   BIT_TO_V ${ICEBOX_VLOG}
