@@ -4,8 +4,7 @@ add_subdirectory(tiles)
 get_target_property_required(PYTHON3 env PYTHON3)
 define_arch(
   ARCH testarch
-  YOSYS_SCRIPT
-    "synth -top top -flatten $<SEMICOLON> abc -lut 4 $<SEMICOLON>  opt_clean"
+  YOSYS_SCRIPT ${symbiflow-arch-defs_SOURCE_DIR}/testarch/yosys/synth.tcl
   DEVICE_FULL_TEMPLATE \${DEVICE}
   RR_PATCH_TOOL
     ${symbiflow-arch-defs_SOURCE_DIR}/utils/testarch_graph.py
