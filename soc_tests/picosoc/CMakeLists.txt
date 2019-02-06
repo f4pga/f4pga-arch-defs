@@ -38,7 +38,7 @@ add_fpga_target(
   TOP basys3_demo
   SOURCES
     basys3_demo.v
-    picosoc_nomem.v
+    picosoc_noflash.v
     picorv32.v
     simpleuart.v
     progmem.v
