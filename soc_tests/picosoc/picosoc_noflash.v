@@ -220,7 +220,7 @@ module picosoc_regs (
 	output [31:0] rdata1,
 	output [31:0] rdata2
 );
-	reg [31:0] regs [0:31];
+	(* ram_style = "distributed" *) reg [31:0] regs [0:31];
 
 	always @(posedge clk)
 		if (wen) regs[waddr[4:0]] <= wdata;
@@ -238,7 +238,7 @@ module picosoc_mem #(
 	input [31:0] wdata,
 	output reg [31:0] rdata
 );
-	reg [31:0] mem [0:WORDS-1];
+	(* ram_style = "distributed" *) reg [31:0] mem [0:WORDS-1];
 
 	always @(posedge clk) begin
 		rdata <= mem[addr];
