@@ -111,6 +111,8 @@ module RAMB18E1_VPR (
 	parameter ZINV_RSTRAMB = 1'b1;
 	parameter ZINV_RSTREGARSTREG = 1'b1;
 	parameter ZINV_RSTREGB = 1'b1;
+	parameter ZINV_REGCLKARDRCLK = 1'b1;
+	parameter ZINV_REGCLKB = 1'b1;
 
 	parameter integer DOA_REG = 0;
 	parameter integer DOB_REG = 0;
@@ -141,4 +143,3 @@ module RAMB18E1_VPR (
 	parameter WRITE_MODE_B_NO_CHANGE = 1'b0;
 	parameter WRITE_MODE_B_READ_FIRST = 1'b0;
 endmodule
-
