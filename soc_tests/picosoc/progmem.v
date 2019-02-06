@@ -20,7 +20,7 @@ localparam  MEM_ADDR_MASK   = 32'h0010_0000;
 // ============================================================================
 
 wire [MEM_SIZE_BITS-1:0]    mem_addr;
-reg  [31:0]                 mem_data;
+(* rom_style = "distributed" *) reg [31:0] mem_data;
 
 always @(posedge clk)
     case (mem_addr)
