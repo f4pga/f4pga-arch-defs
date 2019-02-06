@@ -81,7 +81,7 @@ def opposite_direction(direction):
 HCLK_CK_BUFHCLK_REGEX = re.compile('HCLK_CK_BUFHCLK[0-9]+')
 
 def check_feature(feature):
-    """ Check if enabling this feature requires other features to be enabled. 
+    """ Check if enabling this feature requires other features to be enabled.
 
     Some pips imply other features.  Example:
 
@@ -101,7 +101,38 @@ def check_feature(feature):
 
     return feature
 
-def make_connection(graph, track_wire_map, loc, tile_name, tile_type, pip, switch_id, edges_with_mux, grid, pip_set):
+def check_allowed(src_node, sink_node, output_only_nodes, input_only_nodes):
+    if src_node in input_only_nodes:
+        return False
+
+    if sink_node in output_only_nodes:
+        return False
+
+    return True
+
+
+def make_connection(graph, track_wire_map, loc, tile_name, tile_type, pip, switch_id, edges_with_mux, grid, pip_set, output_only_nodes, input_only_nodes):
+    def add_edge(pip_name, src_node, sink_node, switch_id):
+        """ Add edge to graph, checking for duplicates and disabled PIPs.
+
+        Also handles adding addition featuers if required (e.g. check_feature).
+        """
+        if (src_node, sink_node, switch_id) in pip_set:
+            return
+
+        pip_set.add((src_node, sink_node, switch_id))
+
+        # Check if pip is allowed given synth tile usage.
+        if not check_allowed(src_node, sink_node,
+                output_only_nodes, input_only_nodes):
+            return
+
+        graph.add_edge(
+                src_node=src_node, sink_node=sink_node, switch_id=switch_id,
+                name='fasm_features', value=check_feature(pip_name))
+
+        return (src_node, sink_node, switch_id)
+
     src_pin = {}
     src_node_type = None
     sink_node_type = None
@@ -138,50 +169,28 @@ def make_connection(graph, track_wire_map, loc, tile_name, tile_type, pip, switc
                     if node_type != graph2.NodeType.IPIN:
                         continue
 
-                    if (src_node, sink_node, switch_id) in pip_set:
-                        return
-
-                    pip_set.add((src_node, sink_node, switch_id))
-                    graph.add_edge(
-                            src_node=src_pin[opposite_direction(sink_pin_dir)], sink_node=sink_node, switch_id=switch_id,
-                            name='fasm_features', value=check_feature(pip_name))
-                    return (src_node, sink_node, switch_id)
+                    return add_edge(
+                            pip_name=pip_name,
+                            src_node=src_pin[opposite_direction(sink_pin_dir)],
+                            sink_node=sink_node,
+                            switch_id=switch_id)
 
     for sink_node_type, sink_node, sink_pin_dir in find_nodes(graph, track_wire_map, loc, tile_name, tile_type, pip.net_to):
         sink_is_chan = sink_node_type in (graph2.NodeType.CHANX, graph2.NodeType.CHANY)
 
-        if src_is_chan and sink_is_chan:
-            if (src_node, sink_node, switch_id) in pip_set:
-                return
-
-            pip_set.add((src_node, sink_node, switch_id))
-            graph.add_edge(
-                    src_node=src_node, sink_node=sink_node, switch_id=switch_id,
-                    name='fasm_features', value=check_feature(pip_name))
-
-            return (src_node, sink_node, switch_id)
-
-        if not src_is_chan and not sink_is_chan:
-            if (src_node, sink_node, switch_id) in pip_set:
-                return
-
-            # Both pins, just make the connection.
-            pip_set.add((src_node, sink_node, switch_id))
-            graph.add_edge(
-                    src_node=src_node, sink_node=sink_node, switch_id=switch_id,
-                    name='fasm_features', value=check_feature(pip_name))
-
-            return (src_node, sink_node, switch_id)
+        if (src_is_chan and sink_is_chan) or (not src_is_chan and not sink_is_chan):
+            return add_edge(
+                    pip_name=pip_name,
+                    src_node=src_node,
+                    sink_node=sink_node,
+                    switch_id=switch_id)
 
         if sink_pin_dir in src_pin:
-            if (src_node, sink_node, switch_id) in pip_set:
-                return
-
-            pip_set.add((src_node, sink_node, switch_id))
-            graph.add_edge(
-                    src_node=src_pin[sink_pin_dir], sink_node=sink_node, switch_id=switch_id,
-                    name='fasm_features', value=check_feature(pip_name))
-            return (src_node, sink_node, switch_id)
+            return add_edge(
+                    pip_name=pip_name,
+                    src_node=src_pin[sink_pin_dir],
+                    sink_node=sink_node,
+                    switch_id=switch_id)
 
     if sink_node_type is not None:
         assert False, (tile_name, pip)
@@ -220,6 +229,7 @@ def main():
         print('{} generating routing graph for ROI.'.format(now()))
     else:
         use_roi = False
+        roi = None
 
     # Convert input rr graph into graph2.Graph object.
     input_rr_graph = read_xml_file(args.read_rr_graph)
@@ -299,12 +309,16 @@ def main():
     # Set of (src, sink, switch_id) tuples that pip edges have been sent to
     # VPR.  VPR cannot handle duplicate paths with the same switch id.
     pip_set = set()
-    print('{} Adding edges'.format(now()))
-    for loc in progressbar.progressbar(grid.tile_locations()):
-        gridinfo = grid.gridinfo_at_loc(loc)
-        tile_name = grid.tilename_at_loc(loc)
 
-        if use_roi:
+    output_only_nodes = set()
+    input_only_nodes = set()
+
+    print('{} Adding edges'.format(now()))
+    if use_roi:
+        for loc in progressbar.progressbar(grid.tile_locations()):
+            gridinfo = grid.gridinfo_at_loc(loc)
+            tile_name = grid.tilename_at_loc(loc)
+
             if tile_name in synth_tiles['tiles']:
                 assert len(synth_tiles['tiles'][tile_name]['pins']) == 1
                 for pin in synth_tiles['tiles'][tile_name]['pins']:
@@ -336,6 +350,9 @@ def main():
                                 switch_id=routing_switch,
                                 name='synth_{}_{}'.format(tile_name, pin['wire']),
                         )
+
+                        # This track can output be used as a sink.
+                        input_only_nodes |= set(track_nodes)
                     elif pin['port_type'] == 'output':
                         graph.add_edge(
                                 src_node=pin_node[0][0],
@@ -343,12 +360,19 @@ def main():
                                 switch_id=routing_switch,
                                 name='synth_{}_{}'.format(tile_name, pin['wire']),
                         )
+
+                        # This track can output be used as a src.
+                        output_only_nodes |= set(track_nodes)
                     else:
                         assert False, pin
-            else:
-                # Not a synth node, check if in ROI.
-                if not roi.tile_in_roi(loc):
-                    continue
+
+    for loc in progressbar.progressbar(grid.tile_locations()):
+        gridinfo = grid.gridinfo_at_loc(loc)
+        tile_name = grid.tilename_at_loc(loc)
+
+        # Not a synth node, check if in ROI.
+        if use_roi and not roi.tile_in_roi(loc):
+            continue
 
         tile_type = db.get_tile_type(gridinfo.tile_type)
 
@@ -360,8 +384,9 @@ def main():
                 # TODO: Handle bidirectional pips?
                 continue
 
-            edge_node = make_connection(graph, track_wire_map, loc, tile_name, gridinfo.tile_type,
-                            pip, routing_switch, edges_with_mux, grid, pip_set)
+            edge_node = make_connection(graph, track_wire_map, loc, tile_name,
+                    gridinfo.tile_type, pip, routing_switch, edges_with_mux,
+                    grid, pip_set, output_only_nodes, input_only_nodes)
 
             if edge_node is not None:
                 pip_map[(tile_name, pip.name)] = edge_node
