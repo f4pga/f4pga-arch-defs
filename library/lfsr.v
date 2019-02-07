@@ -1,3 +1,6 @@
+// Linear feedback shift register.
+//
+// Useful as a simple psuedo-random number generator.
 module LFSR #(
     parameter WIDTH = 16,
     parameter POLY = 16'hD008

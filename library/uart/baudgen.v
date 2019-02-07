@@ -1,3 +1,4 @@
+// Baudrate generator for asyncronous data transmitters (e.g. UARTs).
 module BAUDGEN(
     input clk,
     input rst,

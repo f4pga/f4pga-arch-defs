@@ -1,3 +1,4 @@
+// Oversampling UART receiver.
 module UART_RX(
     input rst, clk, baud_edge, rx,
     output [7:0] data,

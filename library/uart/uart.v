@@ -1,3 +1,4 @@
+// Bi-direction UART.
 module UART (
     input rst,
     // IO ports
