@@ -1,3 +1,4 @@
+// Bi-direction UART.
 module UART (
     input rst,
     // IO ports
@@ -55,6 +56,7 @@ module UART (
         .baud_edge(rx_baud_edge),
         .rx(rx),
         .data(rx_data),
-        .data_ready(rx_data_ready)
+        .data_ready(rx_data_ready),
+        .framing_error(rx_framing_error)
     );
 endmodule

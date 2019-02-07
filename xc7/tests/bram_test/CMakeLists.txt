@@ -8,7 +8,7 @@ endforeach()
 add_file_target(FILE basys3.pcf)
 
 add_fpga_target(
-  NAME ram_test
+  NAME bram_test
   BOARD basys3
   INPUT_IO_FILE basys3.pcf
   SOURCES ${UART_SOURCES} ${symbiflow-arch-defs_SOURCE_DIR}/library/lfsr.v ${SOURCES}
@@ -17,10 +17,10 @@ add_fpga_target(
 
 get_target_property_required(DEVICE basys3 DEVICE)
 get_target_property_required(ARCH ${DEVICE} ARCH)
-get_target_property_required(SYNTH_V ram_test SYNTH_V)
+get_target_property_required(SYNTH_V bram_test SYNTH_V)
 
 add_autosim(
-    NAME ram_test_autosim_synth
+    NAME bram_test_autosim_synth
     TOP top
     ARCH ${ARCH}
     SOURCES ${SYNTH_V}
