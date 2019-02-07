@@ -1,3 +1,4 @@
+// UART transmitter.
 module UART_TX(
     input rst, clk, baud_edge, data_ready,
     input [7:0] data,
