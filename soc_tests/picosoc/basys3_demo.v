@@ -23,7 +23,7 @@ module basys3_demo (
 	output ser_tx,
 	input ser_rx,
 
-	output [15:0] leds
+	output [3:0] leds
 );
 	reg [5:0] reset_cnt = 0;
 	wire resetn = &reset_cnt;
@@ -52,7 +52,7 @@ module basys3_demo (
 	reg  [31:0] iomem_rdata;
 
 	reg [31:0] gpio;
-	assign leds = gpio[15:0];
+	assign leds = gpio[3:0];
 
 	always @(posedge clk) begin
 		if (!resetn) begin
