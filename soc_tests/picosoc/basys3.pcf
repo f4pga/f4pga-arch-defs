@@ -11,16 +11,4 @@ set_io leds[0] U16
 set_io leds[1] E19
 set_io leds[2] U19
 set_io leds[3] V19
-set_io leds[4] W18
-set_io leds[5] U15
-set_io leds[6] U14
-set_io leds[7] V14
-set_io leds[8] V13
-set_io leds[9] V3
-set_io leds[10] W3
-set_io leds[11] U3
-set_io leds[12] P3
-set_io leds[13] N3
-set_io leds[14] P1
-set_io leds[15] L1
 
