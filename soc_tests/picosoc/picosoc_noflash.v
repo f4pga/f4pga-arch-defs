@@ -1,6 +1,12 @@
 /*
  *  PicoSoC - A simple example SoC using PicoRV32
  *
+ *  This is a modified PicoSoC example which has removed the requirement
+ *  for an external SPI flash. The PicoRV32 program is stored in ROM implemented
+ *  as a number of case statements. The ROM file is generated using an external
+ *  script.
+ *
+ *
  *  Copyright (C) 2017  Clifford Wolf <clifford@clifford.at>
  *
  *  Permission to use, copy, modify, and/or distribute this software for any
@@ -140,6 +146,7 @@ module picosoc_noflash (
 `endif
 	);
 
+    // This it the program ROM memory for the PicoRV32
     progmem progmem (
         .clk    (clk),
         .rstn   (resetn),
