@@ -13,19 +13,19 @@ addons:
      - make
 
 before_install:
- - source ./.travis/common.sh
+ - source ./.github/travis/common.sh
 
 install:
- - stdbuf -i0 -o0 -e0 ./.travis/install.sh
+ - stdbuf -i0 -o0 -e0 ./.github/travis/install.sh
 
 script:
   # ping stdout every 9 minutes or Travis kills build
   # https://docs.travis-ci.com/user/common-build-problems/#Build-times-out-because-no-output-was-received
  - while sleep 9m; do echo "=====[ $SECONDS seconds still running ]====="; done &
- - stdbuf -i0 -o0 -e0 ./.travis/script.sh
+ - stdbuf -i0 -o0 -e0 ./.github/travis/script.sh
 
 after_success:
- - stdbuf -i0 -o0 -e0 ./.travis/after_success.sh
+ - stdbuf -i0 -o0 -e0 ./.github/travis/after_success.sh
 
 after_failure:
- - stdbuf -i0 -o0 -e0 ./.travis/after_failure.sh
+ - stdbuf -i0 -o0 -e0 ./.github/travis/after_failure.sh
