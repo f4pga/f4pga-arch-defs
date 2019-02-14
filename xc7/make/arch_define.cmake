@@ -52,6 +52,7 @@ function(ADD_XC7_ARCH_DEFINE)
     PYTHONPATH=${symbiflow-arch-defs_BINARY_DIR}/env/conda/lib/python3.7/site-packages:${PRJXRAY_DIR}:${PRJXRAY_DIR}/third_party/fasm \
     \${PYTHON3} \${FASM_TO_BIT} \
         --db-root ${PRJXRAY_DB_DIR}/${ARCH} \
+        --roi ${ROI_DIR}/design.json \
         --sparse \
     \${OUT_FASM} \${OUT_BITSTREAM}"
     BIT_TO_BIN xc7patch
