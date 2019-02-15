@@ -1,3 +1,234 @@
+// ============================================================================
+// Define FFs required by VPR
+
+module FDRE_ZINI (output reg Q, input C, CE, D, R);
+  parameter [0:0] INIT = 1'b0;
+  parameter [0:0] IS_C_INVERTED = 1'b0;
+  parameter [0:0] IS_D_INVERTED = 1'b0;
+  parameter [0:0] IS_R_INVERTED = 1'b0;
+  initial Q <= INIT;
+  generate case (|IS_C_INVERTED)
+    1'b0: always @(posedge C) if (R == !IS_R_INVERTED) Q <= 1'b0; else if (CE) Q <= D ^ IS_D_INVERTED;
+    1'b1: always @(negedge C) if (R == !IS_R_INVERTED) Q <= 1'b0; else if (CE) Q <= D ^ IS_D_INVERTED;
+  endcase endgenerate
+endmodule
+
+module FDSE_ZINI (output reg Q, input C, CE, D, S);
+  parameter [0:0] INIT = 1'b0;
+  parameter [0:0] IS_C_INVERTED = 1'b0;
+  parameter [0:0] IS_D_INVERTED = 1'b0;
+  parameter [0:0] IS_S_INVERTED = 1'b0;
+  initial Q <= INIT;
+  generate case (|IS_C_INVERTED)
+    1'b0: always @(posedge C) if (S == !IS_S_INVERTED) Q <= 1'b1; else if (CE) Q <= D ^ IS_D_INVERTED;
+    1'b1: always @(negedge C) if (S == !IS_S_INVERTED) Q <= 1'b1; else if (CE) Q <= D ^ IS_D_INVERTED;
+  endcase endgenerate
+endmodule
+
+module FDCE_ZINI (output reg Q, input C, CE, D, CLR);
+  parameter [0:0] INIT = 1'b0;
+  parameter [0:0] IS_C_INVERTED = 1'b0;
+  parameter [0:0] IS_D_INVERTED = 1'b0;
+  parameter [0:0] IS_CLR_INVERTED = 1'b0;
+  initial Q <= INIT;
+  generate case ({|IS_C_INVERTED, |IS_CLR_INVERTED})
+    2'b00: always @(posedge C, posedge CLR) if ( CLR) Q <= 1'b0; else if (CE) Q <= D ^ IS_D_INVERTED;
+    2'b01: always @(posedge C, negedge CLR) if (!CLR) Q <= 1'b0; else if (CE) Q <= D ^ IS_D_INVERTED;
+    2'b10: always @(negedge C, posedge CLR) if ( CLR) Q <= 1'b0; else if (CE) Q <= D ^ IS_D_INVERTED;
+    2'b11: always @(negedge C, negedge CLR) if (!CLR) Q <= 1'b0; else if (CE) Q <= D ^ IS_D_INVERTED;
+  endcase endgenerate
+endmodule
+
+module FDPE_ZINI (output reg Q, input C, CE, D, PRE);
+  parameter [0:0] INIT = 1'b0;
+  parameter [0:0] IS_C_INVERTED = 1'b0;
+  parameter [0:0] IS_D_INVERTED = 1'b0;
+  parameter [0:0] IS_PRE_INVERTED = 1'b0;
+  initial Q <= INIT;
+  generate case ({|IS_C_INVERTED, |IS_PRE_INVERTED})
+    2'b00: always @(posedge C, posedge PRE) if ( PRE) Q <= 1'b1; else if (CE) Q <= D ^ IS_D_INVERTED;
+    2'b01: always @(posedge C, negedge PRE) if (!PRE) Q <= 1'b1; else if (CE) Q <= D ^ IS_D_INVERTED;
+    2'b10: always @(negedge C, posedge PRE) if ( PRE) Q <= 1'b1; else if (CE) Q <= D ^ IS_D_INVERTED;
+    2'b11: always @(negedge C, negedge PRE) if (!PRE) Q <= 1'b1; else if (CE) Q <= D ^ IS_D_INVERTED;
+  endcase endgenerate
+endmodule
+
+// ============================================================================
+// Carry chain primitives
+
+module CARRY0(output CO_CHAIN, CO_FABRIC, O, input CI, CI_INIT, DI, S);
+  parameter CYINIT_FABRIC = 0;
+  wire CI_COMBINE;
+  if(CYINIT_FABRIC) begin
+    assign CI_COMBINE = CI_INIT;
+  end else begin
+    assign CI_COMBINE = CI;
+  end
+  assign CO_CHAIN = S ? CI_COMBINE : DI;
+  assign CO_FABRIC = S ? CI_COMBINE : DI;
+  assign O = S ^ CI_COMBINE;
+endmodule
+
+module CARRY(output CO_CHAIN, CO_FABRIC, O, input CI, DI, S);
+  assign CO_CHAIN = S ? CI : DI;
+  assign CO_FABRIC = S ? CI : DI;
+  assign O = S ^ CI;
+endmodule
+
+// ============================================================================
+// Distributed RAMs
+
+module DPRAM128 (
+  output O6,
+  input  DI1, CLK, WE, WA7,
+  input [5:0] A, WA,
+);
+  parameter [63:0] INIT = 64'h0;
+  parameter IS_WCLK_INVERTED = 1'b0;
+  parameter HIGH_WA7_SELECT = 1'b0;
+  wire [5:0] A;
+  wire [5:0] WA;
+  reg [63:0] mem;
+  initial mem <= INIT;
+  assign O6 = mem[A];
+  wire clk = CLK ^ IS_WCLK_INVERTED;
+  always @(posedge clk) if (WE & (WA7 == HIGH_WA7_SELECT)) mem[WA] <= DI1;
+endmodule
+
+module SPRAM128 (
+  output O6,
+  input  DI1, CLK, WE, WA7,
+  input [5:0] A
+);
+  parameter [63:0] INIT = 64'h0;
+  parameter IS_WCLK_INVERTED = 1'b0;
+  parameter HIGH_WA7_SELECT = 1'b0;
+  wire [5:0] A;
+  reg [63:0] mem;
+  initial mem <= INIT;
+  assign O6 = mem[A];
+  wire clk = CLK ^ IS_WCLK_INVERTED;
+  always @(posedge clk) if (WE & (WA7 == HIGH_WA7_SELECT)) mem[A] <= DI1;
+endmodule
+
+module DPRAM64 (
+  output O6,
+  input  DI1, CLK, WE, WA7, WA8,
+  input [5:0] A, WA
+);
+  parameter [63:0] INIT = 64'h0;
+  parameter IS_WCLK_INVERTED = 1'b0;
+  parameter WA7USED = 1'b0;
+  parameter WA8USED = 1'b0;
+  parameter HIGH_WA7_SELECT = 1'b0;
+  parameter HIGH_WA8_SELECT = 1'b0;
+  wire [5:0] A;
+  wire [5:0] WA;
+  reg [63:0] mem;
+  initial mem <= INIT;
+  assign O6 = mem[A];
+  wire clk = CLK ^ IS_WCLK_INVERTED;
+
+  wire WA7SELECT = !WA7USED | (WA7 == HIGH_WA7_SELECT);
+  wire WA8SELECT = !WA8USED | (WA8 == HIGH_WA8_SELECT);
+  wire address_selected = WA7SELECT & WA8SELECT;
+  always @(posedge clk) if (WE & address_selected) mem[WA] <= DI1;
+endmodule
+
+module SPRAM64 (
+  output O6,
+  input  DI1, CLK, WE, WA7, WA8,
+  input [5:0] A
+);
+  parameter [63:0] INIT = 64'h0;
+  parameter IS_WCLK_INVERTED = 1'b0;
+  parameter WA7USED = 1'b0;
+  parameter WA8USED = 1'b0;
+  parameter HIGH_WA7_SELECT = 1'b0;
+  parameter HIGH_WA8_SELECT = 1'b0;
+  wire [5:0] A;
+  reg [63:0] mem;
+  initial mem <= INIT;
+  assign O6 = mem[A];
+  wire clk = CLK ^ IS_WCLK_INVERTED;
+
+  wire WA7SELECT = !WA7USED | (WA7 == HIGH_WA7_SELECT);
+  wire WA8SELECT = !WA8USED | (WA8 == HIGH_WA8_SELECT);
+  wire address_selected = WA7SELECT & WA8SELECT;
+  always @(posedge clk) if (WE & address_selected) mem[A] <= DI1;
+endmodule
+
+module DPRAM32 (
+  output O6, O5,
+  input  DI1, DI2, CLK, WE,
+  input [4:0] A, WA
+);
+  parameter [31:0] INIT_00 = 32'h0;
+  parameter [31:0] INIT_01 = 32'h0;
+  parameter IS_WCLK_INVERTED = 1'b0;
+  wire [4:0] A;
+  wire [4:0] WA;
+  reg [31:0] mem1;
+  reg [31:0] mem2;
+  initial mem1 <= INIT_00;
+  initial mem2 <= INIT_01;
+  assign O6 = mem1[A];
+  assign O5 = mem2[A];
+  wire clk = CLK ^ IS_WCLK_INVERTED;
+  always @(posedge clk) if (WE) begin
+    mem1[WA] <= DI1;
+    mem2[WA] <= DI2;
+  end
+endmodule
+
+module SPRAM32 (
+  output O6, O5,
+  input  DI1, DI2, CLK, WE,
+  input [4:0] A
+);
+  parameter [31:0] INIT_00 = 32'h0;
+  parameter [31:0] INIT_01 = 32'h0;
+  parameter IS_WCLK_INVERTED = 1'b0;
+  wire [4:0] A;
+  reg [31:0] mem1;
+  reg [31:0] mem2;
+  initial mem1 <= INIT_00;
+  initial mem2 <= INIT_01;
+  assign O6 = mem1[A];
+  assign O5 = mem2[A];
+  wire clk = CLK ^ IS_WCLK_INVERTED;
+  always @(posedge clk) if (WE) begin
+    mem1[A] <= DI1;
+    mem2[A] <= DI2;
+  end
+endmodule
+
+
+// To ensure that all DRAMs are co-located within a SLICEM, this block is
+// a simple passthrough black box to allow a pack pattern for dual port DRAMs.
+module DRAM_2_OUTPUT_STUB(
+    input SPO, DPO,
+    output SPO_OUT, DPO_OUT
+);
+  wire SPO_OUT;
+  wire DPO_OUT;
+  assign SPO_OUT = SPO;
+  assign DPO_OUT = DPO;
+endmodule
+
+module DRAM_4_OUTPUT_STUB(
+    input DOA, DOB, DOC, DOD,
+    output DOA_OUT, DOB_OUT, DOC_OUT, DOD_OUT
+);
+  assign DOA_OUT = DOA;
+  assign DOB_OUT = DOB;
+  assign DOC_OUT = DOC;
+  assign DOD_OUT = DOD;
+endmodule
+
+// ============================================================================
+// Block RAMs
+
 module RAMB18E1_VPR (
 	input CLKARDCLK,
 	input CLKBWRCLK,
@@ -16,7 +247,6 @@ module RAMB18E1_VPR (
 	input [13:0] ADDRBWRADDR,
 	input [1:0]  ADDRATIEHIGH,
 	input [13:0] ADDRARDADDR,
-	input [13:0] ADDRBWRADDR,
 	input [15:0] DIADI,
 	input [15:0] DIBDI,
 	input [1:0] DIPADIP,
