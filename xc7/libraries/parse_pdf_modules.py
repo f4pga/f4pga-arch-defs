@@ -13,52 +13,129 @@ from pdfminer.pdfdocument import PDFDocument
 from pdfminer.pdfinterp import PDFResourceManager, PDFPageInterpreter
 from pdfminer.pdfpage import PDFPage
 from pdfminer.converter import PDFLayoutAnalyzer
-from pdfminer.layout import LAParams, LTText, LTContainer
+from pdfminer.layout import LAParams, LTText, LTContainer, LTTextLineHorizontal
 
-from collections import OrderedDict
+from collections import OrderedDict, namedtuple
+import pprint
 import re
 
 PAGE_MARGIN = 60    # space ignored at the top and bottom of the page, for page header/footer
-HEADER_MARGIN = 25  # space ignored at the start of the section due to the section header
+HEADER_MARGIN = 30  # space ignored at the start of the section due to the section header
 COL_MARGIN = 5      # acceptable variation in x-position of entries in the same column
 
-class PortParser(PDFLayoutAnalyzer):
+def rev_enumerate(it,last=None):
+    for i in range(len(it))[last::-1]:
+        yield i, it[i]
+    
+class PDFTableParser(PDFLayoutAnalyzer):
     """Custom interpreter that hooks into pdfminer to process PDF text elements"""
-    def __init__(self, rsrcmgr, laparams=None, top=None, bottom=None):
+    def __init__(self, rsrcmgr, laparams=None, stop_at=None, top=None, bottom=None):
         PDFLayoutAnalyzer.__init__(self, rsrcmgr, pageno=1, laparams=laparams)
-        self.set_bounds(top, bottom)
-    def process_text(self, bbox, txt):
-        if txt.lower() == 'direction' or txt == 'Direction Width':  # the two headers might get mashed together in some tables
-            txt = 'Type'
-        if txt in self.heads:
-            self.heads[txt] = int(bbox[0]-COL_MARGIN)
-        else:
-            self.text_items.append((-int(bbox[3]), int(bbox[0]), txt))
-    def set_bounds(self, top, bottom):
+        self.stop_at = stop_at
+        self.reset(top, bottom)
+    def process_text(self, bbox, txt, obj):
+        # there's no guarantee on the order in which text strings appear
+        # so store them all for post-processing after sorting them into order
+        if self.stop_at is not None and txt.startswith(self.stop_at):
+            self.done = True
+            self.bottom = bbox[3] + COL_MARGIN
+            return True
+        txt = txt.replace(u'\u2019',"'")    # all HEX constants
+        txt = txt.replace(u'\u2022','\n*')  # bullet lists
+        txt = txt.replace(u'\u201c','"')    # e.g. FRAME_ECCE2 (FRAME_RBT_IN_FILENAME)
+        txt = txt.replace(u'\u201d','"')    # e.g. FRAME_ECCE2 (FRAME_RBT_IN_FILENAME)
+        self.items.append([int(-bbox[3]), int(bbox[0]), txt])
+        return True
+    def reset(self, top, bottom):
         self.top = top
         self.bottom = bottom
-        self.text_items = []
-        self.heads = OrderedDict(Function=None, Width=None, Type=None, Port=None)
+        self.done = False
+        self.items = []
     def receive_layout(self, ltpage):
+        if self.done: return
         def render(item):
             # don't process it if it's outside the FOV
-            if getattr(item,'y1',self.bottom) <= self.bottom: return
-            if getattr(item,'y0',self.top) >= self.top: return
-            # process text or any items that might contain text
-            if isinstance(item, LTText):
-                self.process_text(item.bbox, item.get_text().strip())
+            if getattr(item,'y1',self.bottom) <= self.bottom: return True
+            if getattr(item,'y0',self.top) >= self.top: return True
+            # process individual lines of text
+            if isinstance(item, LTTextLineHorizontal):
+                if not self.process_text(item.bbox, item.get_text().strip(), item):
+                    return False
+            # process containers that (might) contain text (e.g. LTTextBoxHorizontal)
             elif isinstance(item, LTContainer):
                 for child in item:
-                    render(child)
-        # default to the entire page
+                    if not render(child):
+                        return False
+            return True
+        # default to processing the entire page
         if self.top is None: self.top = ltpage.mediabox[3]
         if self.bottom is None: self.bottom = ltpage.mediabox[1]
         render(ltpage)
+        self.items[:] = sorted(self.items)
     # don't bother doing any image/line rendering
     def render_image(self, name, stream):
         return
     def paint_path(self, gstate, stroke, fill, evenodd, path):
         return
+    # data processing functions
+    def process_table(self):
+        # figure out the table header
+        top = -self.bottom
+        self.heads = []
+        for y,x,t in self.items:
+            if y < top: top = y
+        for i,(y,x,t) in rev_enumerate(self.items):
+            if y < top + COL_MARGIN:
+                self.heads.append((x - COL_MARGIN, t))
+                self.items.pop(i)
+        self.heads = sorted(self.heads)
+        # figure out the rows
+        leftcol = self.heads[1][0]
+        self.rows = []
+        self.items[:] = sorted(self.items)
+        for i,(y,x,t) in rev_enumerate(self.items):
+            if x < leftcol:
+                self.items.pop(i)
+                if t[0] == '<' and t[-1] == '>': continue #IDELAYE2
+                self.rows.append((y,t))
+                if t.startswith('NOTE:') or not (t.isupper() or t in ['/','-','to']) or y > -self.bottom:
+                    self.bottom = -y
+                    self.done = True
+        self.rows = [(y, t) for y,t in self.rows[::-1] if y < -self.bottom]
+        # join rows together if required
+        for i,x in rev_enumerate(self.rows,-3):
+            if self.rows[i+1][1] in ('to','/','-'):
+                self.rows[i] = (x[0], x[1] + self.rows[i+1][1] + self.rows.pop(i+2)[1])
+                self.rows.pop(i+1)
+        for i,x in rev_enumerate(self.rows,-2):
+            if x[1][-1] in ',_/' or x[1].endswith('to') or self.rows[i+1][1][0] == '_' or x[0] == self.rows[i+1][0]:
+                self.rows[i] = (x[0], x[1] + self.rows.pop(i+1)[1])
+        # correct y-positions
+        for i,(y,x,t) in rev_enumerate(self.items):
+            if y >= -self.bottom:
+                self.items.pop(i)
+            else:
+                self.items[i][0] = int(y)
+        # now sort items by corrected y-positions
+        self.items = sorted(self.items)
+    def get_row(self,y):
+        for i,(y0,t) in enumerate(self.rows[1:]):
+            if y < y0 - COL_MARGIN: return i
+        return len(self.rows)-1
+    def arrange_items(self):
+        data = []
+        for r in self.rows:
+            d = OrderedDict([(k[1],'') for k in self.heads])
+            d[self.heads[0][1]] = r[1].replace(' ','')
+            data.append(d)
+        for y,x,t in sorted(self.items):
+            for x0,head in self.heads[::-1]:
+                if x >= x0:
+                    entry = data[self.get_row(y)]
+                    if len(entry[head]) and entry[head][-1] != '_' and t[0] != '_': t = ' ' + t
+                    entry[head] += t
+                    break
+        return data
 
 def resolve_goto_action(doc, a):
     """Resolves a "goto" action from the PDF outline into the associated page object and position on that page"""
@@ -85,7 +162,7 @@ def find_pages(pgs, start, stop):
         if pg.pageid == stop[0].objid:
             return
 
-def parse_module_pages(doc):
+def parse_module_pages(doc,start_at):
     """Deconstruct the PDF outline into a list of modules, with links to the start and end of the associated "port descriptions" section"""
     parts = OrderedDict()
     module = None
@@ -97,7 +174,7 @@ def parse_module_pages(doc):
             process = title.startswith('Ch. 4:')  # modules are defined in chapter 4
         elif process and level == 3:  # module names are defined at level 3 of the TOC
             module = title
-        elif level == 4 and module is not None and title.startswith('Port Description'):   # might not be plural (e.g. LUT6)
+        elif level == 4 and module is not None and title.startswith(start_at):   # might not be plural (e.g. LUT6)
             start = resolve_goto_action(doc, a)
         elif start is not None and module not in parts: # i.e. this is the FIRST following section
             stop = resolve_goto_action(doc, a)
@@ -105,65 +182,42 @@ def parse_module_pages(doc):
             start = None
     return parts
 
-def generate_xml(module, ports):
-    """Generate some trashy XML to describe the module"""
-    s = '<module name="%s">\n'%module
-    for p in ports: s += '\t<port name="%s" type="%s" width="%d" />\n'%p
-    s += '</module>\n\n'
-    return s
-    
-def generate_verilog(module, ports):
-    """Generate some Verilog describing the module"""
-    s = 'module %s (%s);\n'%(module, ", ".join([p[0] for p in ports]))
-    for name, type, wid in ports:
-        if wid > 1: name = ('[%d:0]\t'%(wid-1)) + name
-        s += '\t%-8s%s\n'%(type,name)
-    s += "endmodule\n\n"
-    return s
-
-def process_items(heads, items):
+def process_ports(tbl):
     """Process the text elements corresponding to the "port descriptions" table and return an ordered list of ports"""
-    if not len(items): return []
-    # workarounds for the table headers
-    if heads['Function'] is None and heads['Port'] is None: # no table present
-        return []
-    if heads['Width'] is None: # "Width" too close to "Direction" heading (e.g. RAM128X1D)
-        heads['Width'] = (heads['Type']+heads['Function'])/2. - COL_MARGIN
+    if not len(tbl.items): return []
+    # fixes for MMCME2_BASE
+    for i,(y,x,t) in rev_enumerate(tbl.items):
+        if tbl.items[i][2] == 'Clock' and tbl.items[i+1][2] == 'Inputs':
+            tbl.items[i][2] = 'CLKIN1'
+            tbl.items.pop(i+1)
+        elif tbl.items[i][2] == 'Status' and tbl.items[i+1][2] == 'Ports':
+            tbl.items[i][2] = 'LOCKED'
+            tbl.items.pop(i+1)
+        elif t == 'Direction Width':
+            tbl.items[i][2] = 'Direction'
+            tbl.items.insert(i+1,(y, (x+tbl.items[i+1][1])/2, 'Width'))
+    tbl.process_table()
+    # transform headers as necessary
+    for i,(x,name) in enumerate(tbl.heads):
+        if name.lower().startswith('direction'): tbl.heads[i] = (x,'Type')
     # sort the items into categories
-    categories = {k: [] for k in heads}
-    for y,x,t in sorted(items):
-        for head,x0 in heads.items():
-            if x > x0:
-                categories[head].append(t)
-                break
-    # we don't care about descriptions
-    categories.pop('Function')
-    # check for multiport specs (e.g. CFGLUT5 or LUT6)
-    for i in range(len(categories['Port']))[-1::-1]:
-        if categories['Port'][i].endswith(','):
-            categories['Port'][i] += categories['Port'].pop(i+1)
-    # combine the entries into rows
-    # this zip only works because we _know_ each category has one entry per row. if we didn't drop descriptions, this would be more complicated
-    ports = [item[::-1] for item in zip(*categories.values())]
+    ports = tbl.arrange_items()
     # process the rows one-by-one (in reverse, because we might insert new entries)
-    for i in range(len(ports))[::-1]:
-        name, dir, wid = ports[i]
-        if not name.isupper(): # remove strings AFTER the table (e.g. RAM128X1D)
-            ports.pop(i)
-            continue
+    for i,x in rev_enumerate(ports):
         # process the "width" entry
-        M = re.match(r'([0-9]+)', wid)   # remove any additional text (e.g. ODDR, KEEPER)
+        M = re.match(r'([0-9]+)', x['Width'])   # remove any additional text (e.g. ODDR, KEEPER)
         if M is None:
-            print('\tInvalid width %s, skipping item'%repr(wid))
+            print('\tInvalid width %s on %s, skipping item'%(repr(x['Width']),repr(x['Port'])))
             return []
-        wid = int(M.group(0))
+        x['Width'] = wid = int(M.group(0))
         # process the "direction" entry
-        if dir == 'Input':      dir = 'input'
-        elif dir == 'Output':   dir = 'output'
-        elif dir == 'In/out':   dir = 'inout'
-        else:                   assert False, 'Invalid pin type %s'%repr(dir)
+        if x['Type'] == 'Input':    dir = 'input'
+        elif x['Type'] == 'Output': dir = 'output'
+        elif x['Type'] == 'In/out': dir = 'inout'
+        else:                       assert False, 'Invalid pin type %s'%repr(x['Type'])
+        x['Type'] = dir
         # process the port name
-        name = re.sub(r'\s','',name)    # remove any spaces from (multiline) name entries (e.g. MMCME2_BASE)
+        name = re.sub(r'\s','',x['Port'])   # remove any spaces from (multiline) name entries (e.g. MMCME2_BASE)
         if '<' in name:   # bus pins MIGHT be explicitly listed in name; perform sanity check
             name, bits = name.split('<',1)
             assert bits == '%d:0>'%(wid-1)
@@ -171,39 +225,151 @@ def process_items(heads, items):
             n, start, stop = re.match(r'([A-Z]+)([0-9]+)\s*-\s*[A-Z]+([0-9]+)',name).groups()
             ports.pop(i)
             for j in range(int(start),int(stop)+1):
-                ports.insert(i+j, (n+'%d'%j, dir, wid))
+                y = x.copy()
+                y['Port'] = n+'%d'%j
+                ports.insert(i+j-1, y)
             continue
         # is the entry actually a LIST of pins? (e.g. CFGLUT5, OSERDESE2, ODDR)
         M = re.split(r'[,/:]', name)
         if len(M) > 1:
             ports.pop(i)
-            for n in M: ports.insert(i, (n.strip(), dir, wid))
+            for j,n in enumerate(M):
+                y = x.copy()
+                y['Port'] = n.strip()
+                ports.insert(i+j, y)
         else:
-            ports[i] = (name, dir, wid)
+            x['Port'] = name
     return ports
+
+def process_attributes(tbl):
+    if not len(tbl.items): return []
+    print(tbl.items)
+    tbl.process_table()
+    # transform headers as necessary
+    for i,(x,name) in enumerate(tbl.heads):
+        if name in ('Allowed Values', 'Allowed_Values'): tbl.heads[i] = (x,'Allowed')
+        if name == 'Descriptions': tbl.heads[i] = (x,'Description')
+    # transform text as necessary
+    for i,(y,x,t) in enumerate(tbl.items):
+        t = t.replace(u'\u2122','(tm)')     # IOBUF (DRIVE)
+        t = t.replace('""','"')             # RAM18E1 (SIM_DEVICE)
+        tbl.items[i][2] = t
+    # sort the items into categories
+    attribs = tbl.arrange_items()
+    # post-process the entries
+    for i,x in rev_enumerate(attribs):
+        if x['Type'] == 'STRING' and x['Default'] == 'None':      # ICAPE2 (SIM_CFG_FILE_NAME)
+            x['Default'] = '""'
+        if x['Default'][0] == '"' and x['Default'][-1] != '"':    # RAMB18E1 (WRITE_MODE_A)
+            s1, s2 = x['Default'].rsplit('"',1)
+            x['Default'] = s1+'"'
+            x['Description'] = s2 + ' ' + x['Description']
+        if x['Default'].startswith('All'):
+            if 'one' in x['Default']:
+                val = 'F'
+            elif 'zero' in x['Default']:
+                val = '0'
+            else:
+                raise TypeError
+            assert x['Type'] == 'HEX'
+            M = re.search(r'(\d+)[-\s][Bb]it', x['Allowed'])
+            if M is None: break
+            sz = int(M.group(1))
+            pad = 1 if sz % 4 else 0
+            x['Default'] = "%d'h%s"%(sz, val*((sz//4)+pad))
+        if ',' in x['Attribute']:
+            attribs.pop(i)
+            for j,n in enumerate(x['Attribute'].split(',')):
+                n = n.strip()
+                if not len(n): continue
+                y = x.copy()
+                y['Attribute'] = n
+                attribs.insert(i+j, y)
+        M = re.match(r'([A-Z_]+)([0-9A-F]+)?(_[A-Z_]+)?to([A-Z_]+)([0-9A-F]+)(_[A-Z_]+)?', x['Attribute'])
+        if M is not None:
+            pre1, start, post1, pre2, stop, post2 = M.groups()
+            attribs.pop(i)
+            if start is None:
+                y = x.copy()
+                y['Attribute'] = pre1
+                attribs.insert(i, y)
+                start = '0'
+                pre1 = pre2
+                post1 = post2
+                i += 1
+            else:
+                assert pre1 == pre2 and post1 == post2 and len(start) == len(stop)
+                if post1 is None: post1 = ''
+            nchar = len(stop)
+            if re.match(r'[0-9]+$',start) is not None and re.match(r'[0-9]+$',stop) is not None:
+                start = int(start)
+                stop = int(stop)
+                fmt = '%s%0*d%s'
+            else:
+                start = int(start,16)
+                stop = int(stop,16)
+                fmt = '%s%0*X%s'
+            for j in range(start, stop+1):
+                y = x.copy()
+                y['Attribute'] = fmt%(pre1,nchar,j,post1)
+                attribs.insert(i+j,y)
+    return attribs
     
+def generate_xml(module, ports, attribs):
+    """Generate some trashy XML to describe the module"""
+    s = '\n<module name="%s">\n'%module
+    for x in ports: s += '\t<port name="%s" type="%s" width="%d">%s</port>\n'%(x['Port'],x['Type'],x['Width'],x['Function'].replace('<','&lt;').replace('>','&gt;').replace('\n','<br/>'))
+    for x in attribs: s += '\t<attribute name="%s" type="%s" default="%s" values="%s">%s</attribute>\n'%(x['Attribute'],x['Type'],x['Default'].replace('"',""),x['Allowed'].replace('"',''),x['Description'].replace('\n','<br/>'))
+    s += '</module>\n'
+    return s
     
-def run(infp, outfp, flush=True):
+def generate_verilog(module, ports, attribs):
+    """Generate some Verilog describing the module"""
+    s = 'module %s (%s);\n'%(module, ", ".join([p['Port'] for p in ports]))
+    for x in ports:
+        name = (('[%d:0] '%(x['Width']-1)) + x['Port']) if x['Width'] > 1 else x['Port']
+        s += '\t%s %s\n\t\t\\\\ %s\n'%(x['Type'],name,x['Function'])
+    if len(attribs): s += '\n'
+    for x in attribs:
+        s += '\tparameter %s = %s;\n'%(x['Attribute'],x['Default'])
+        s += '\t\t\\\\ [%s] Values: %s\n'%(x['Type'],x['Allowed'])
+        for line in x['Description'].splitlines():
+            s += '\t\t\\\\ ' + line + '\n'
+    s += "endmodule\n\n"
+    return s
+    
+def run(infp, outfp, xml=True, flush=True):
     """Process the specific input PDF into the output XML"""
     resman = PDFResourceManager()
     doc = PDFDocument(PDFParser(infp))
-    laparams = LAParams(line_margin=0.1, char_margin=0.8)   # parameters optimised to prevent incorrectly joining together words
-    device = PortParser(resman, laparams)
+    laparams = LAParams(line_margin=0.1, char_margin=0.7)   # parameters optimised to prevent incorrectly joining together words
+    
+    device = PDFTableParser(resman, laparams, stop_at='VHDL')
     interpreter = PDFPageInterpreter(resman, device)
     
-    for module, pages in parse_module_pages(doc).items():
+    port_list = parse_module_pages(doc,'Port Desc')
+    attrib_list = parse_module_pages(doc,'Available Attrib')
+    if xml: outfp.write('<xml>')
+    for module in port_list:
         print(module)
         ports = []
-        for pg, top, bottom in pages:
-            device.set_bounds(top, bottom)
+        attribs = []
+        for pg, top, bottom in port_list[module]:
+            device.reset(top, bottom)
             interpreter.process_page(pg)
-            ports += process_items(device.heads, device.text_items)
-        if len(ports):
-            outfp.write(generate_verilog(module, ports))
-            if flush: outfp.flush()
+            ports += process_ports(device)
+            if device.done: break
+        for pg, top, bottom in attrib_list.get(module, []):
+            device.reset(top, bottom)
+            interpreter.process_page(pg)
+            attribs += process_attributes(device)
+            if device.done: break
+        outfp.write(generate_xml(module, ports, attribs))
+        if flush: outfp.flush()
+    if xml: outfp.write('</xml>')
         
 if __name__ == '__main__':
     import sys
     infile = sys.argv[1] if len(sys.argv) > 1 else 'ug953-vivado-7series-libraries.pdf'
-    outfile = sys.argv[2] if len(sys.argv) > 2 else 'cells_xtra.v'
+    outfile = sys.argv[2] if len(sys.argv) > 2 else 'cells_xtra.xml'
     run(open(infile,'rb'), open(outfile,'w'))
