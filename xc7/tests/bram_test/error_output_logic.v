@@ -30,7 +30,9 @@ module ERROR_OUTPUT_LOGIC #(
     reg [7:0] latched_error_count;
 
     reg [7:0] errors;
-    reg [8:0] state;
+    reg [10:0] state;
+    reg [15:0] loop_count;
+    reg [15:0] latched_loop_count;
 
     localparam START = (1 << 0),
         ERROR_COUNT_HEADER = (1 << 1),
@@ -39,8 +41,10 @@ module ERROR_OUTPUT_LOGIC #(
         LF = (1 << 4),
         ERROR_HEADER = (1 << 5),
         ERROR_STATE = (1 << 6),
-        ERROR_EXPECTED_DATA = (1 << 7),
-        ERROR_ACTUAL_DATA = (1 << 8);
+        ERROR_ADDRESS = (1 << 7),
+        ERROR_EXPECTED_DATA = (1 << 8),
+        ERROR_ACTUAL_DATA = (1 << 9),
+        LOOP_COUNT = (1 << 10);
 
     always @(posedge clk) begin
         if(rst) begin
@@ -49,6 +53,7 @@ module ERROR_OUTPUT_LOGIC #(
             reg_error_detected <= 0;
             tx_data_ready <= 0;
             tx_data <= 8'b0;
+            loop_count <= 0;
         end else begin
 
             if(error_detected) begin
@@ -70,9 +75,11 @@ module ERROR_OUTPUT_LOGIC #(
             end
 
             if(loop_complete) begin
+                loop_count <= loop_count + 1;
                 if(!loop_ready) begin
                     loop_ready <= 1;
                     latched_error_count <= error_count;
+                    latched_loop_count <= loop_count;
                     error_count <= 0;
                 end
             end
@@ -95,9 +102,23 @@ module ERROR_OUTPUT_LOGIC #(
                 ERROR_COUNT_COUNT: begin
                     if(!tx_data_ready) begin
                         tx_data <= latched_error_count;
-                        loop_ready <= 0;
                         tx_data_ready <= 1;
-                        state <= CR;
+                        output_shift <= 0;
+                        state <= LOOP_COUNT;
+                    end
+                end
+                LOOP_COUNT: begin
+                    if(!tx_data_ready) begin
+                        tx_data <= (latched_loop_count >> output_shift);
+                        tx_data_ready <= 1;
+
+                        if(output_shift + 8 >= 16) begin
+                            output_shift <= 0;
+                            loop_ready <= 0;
+                            state <= CR;
+                        end else begin
+                            output_shift <= output_shift + 8;
+                        end
                     end
                 end
                 CR: begin
@@ -118,7 +139,6 @@ module ERROR_OUTPUT_LOGIC #(
                     if(!tx_data_ready) begin
                         tx_data <= "E";
                         tx_data_ready <= 1;
-                        output_shift <= 0;
                         state <= ERROR_STATE;
                     end
                 end
@@ -126,7 +146,21 @@ module ERROR_OUTPUT_LOGIC #(
                     if(!tx_data_ready) begin
                         tx_data <= reg_error_state;
                         tx_data_ready <= 1;
-                        state <= ERROR_EXPECTED_DATA;
+                        output_shift <= 0;
+                        state <= ERROR_ADDRESS;
+                    end
+                end
+                ERROR_ADDRESS: begin
+                    if(!tx_data_ready) begin
+                        tx_data <= (reg_error_address >> output_shift);
+                        tx_data_ready <= 1;
+
+                        if(output_shift + 8 >= ADDR_WIDTH) begin
+                            output_shift <= 0;
+                            state <= ERROR_EXPECTED_DATA;
+                        end else begin
+                            output_shift <= output_shift + 8;
+                        end
                     end
                 end
                 ERROR_EXPECTED_DATA: begin
@@ -148,7 +182,7 @@ module ERROR_OUTPUT_LOGIC #(
                         tx_data_ready <= 1;
 
                         if(output_shift + 8 >= DATA_WIDTH) begin
-                            state <= START;
+                            state <= CR;
                             reg_error_detected <= 0;
                         end else begin
                             output_shift <= output_shift + 8;
