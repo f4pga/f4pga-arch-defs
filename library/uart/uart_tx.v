@@ -10,6 +10,11 @@ module UART_TX(
     reg [2:0] data_counter;
     reg [3:0] state;
 
+    initial begin
+        tx <= 1;
+        data_accepted <= 0;
+    end
+
     always @(posedge clk) begin
         if(rst) begin
             state <= END;
