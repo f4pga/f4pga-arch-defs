@@ -23,18 +23,22 @@ class RamTestState(enum.Enum):
     VERIFY_RANDOM = 12
     RESTART_LOOP = 13
 
-Result = namedtuple('Results', 'error_count')
+Result = namedtuple('Results', 'error_count loop_count')
 Error = namedtuple('Error', 'state address expected_value actual_value')
 
-RESULT_LOG = '>BBBB'
+RESULT_LOG = '<BBHBB'
 RESULT_LOG_SIZE = struct.calcsize(RESULT_LOG)
 
-ERROR_LOG = '>BBHHHBB'
+ERROR_LOG = '<BBHHHBB'
 ERROR_LOG_SIZE = struct.calcsize(ERROR_LOG)
 
 def process_buffer(data):
     while data:
-        while data and bytes((data[0],)) not in [b'E', b'L']:
+        while data:
+            first_char = bytes((data[0],))
+            if first_char in [b'E', b'L']:
+                break
+
             data.popleft()
 
         if not data:
@@ -46,10 +50,10 @@ def process_buffer(data):
             log = bytes(itertools.islice(data, 0, RESULT_LOG_SIZE))
             data.popleft()
 
-            header, error_count, cr, lf = struct.unpack(RESULT_LOG, log)
+            header, error_count, loop_count, cr, lf = struct.unpack(RESULT_LOG, log)
 
             if cr == ord('\r') and lf == ord('\n'):
-                yield Result(error_count=error_count)
+                yield Result(error_count=error_count, loop_count=loop_count)
 
         elif first_char == b'E' and len(data) >= ERROR_LOG_SIZE:
             log = bytes(itertools.islice(data, 0, ERROR_LOG_SIZE))
@@ -58,6 +62,11 @@ def process_buffer(data):
             header, state, address, expected_value, actual_value, cr, lf = struct.unpack(ERROR_LOG, log)
 
             if cr == ord('\r') and lf == ord('\n'):
+                try:
+                    state = RamTestState(state)
+                except:
+                    continue
+
                 yield Error(
                         state=RamTestState(state),
                         address=hex(address),
@@ -73,18 +82,25 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
 
     parser.add_argument('uart')
+    parser.add_argument('--file', action='store_true')
     parser.add_argument('--baudrate', '-B', type=int, default=500000)
 
     args = parser.parse_args()
 
-    data = deque()
-    with serial.Serial(port=args.uart, baudrate=args.baudrate, timeout=1) as s:
-        while True:
-            buf = s.read(16)
-            data.extend(buf)
-
+    if args.file:
+        with open(args.uart, 'rb') as f:
+            data = deque(f.read())
             for log in process_buffer(data):
                 print(log)
+    else:
+        data = deque()
+        with serial.Serial(port=args.uart, baudrate=args.baudrate, timeout=.200, inter_byte_timeout=.200) as s:
+            while True:
+                buf = s.read(10*1024)
+                data.extend(buf)
+
+                for log in process_buffer(data):
+                    print(log)
 
 
 if __name__ == '__main__':

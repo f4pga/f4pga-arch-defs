@@ -158,6 +158,13 @@ module RAMB18E1 (
   wire REGCLKA;
   wire REGCLKB;
 
+  wire [7:0] WEBWE_WIDE = {
+      WEBWE[3], WEBWE[3], WEBWE[2], WEBWE[2],
+      WEBWE[1], WEBWE[1], WEBWE[0], WEBWE[0]};
+
+  wire [3:0] WEA_WIDE = {WEA[1], WEA[1], WEA[0], WEA[0]};
+
+
   if (DOA_REG)
       assign REGCLKA = CLKARDCLK;
   else
@@ -301,8 +308,8 @@ module RAMB18E1 (
     .DIBDI(DIBDI),
     .DIPADIP(DIPADIP),
     .DIPBDIP(DIPBDIP),
-    .WEA(WEA),
-    .WEBWE(WEBWE),
+    .WEA(WEA_WIDE),
+    .WEBWE(WEBWE_WIDE),
 
     .DOADO(DOADO),
     .DOBDO(DOBDO),
