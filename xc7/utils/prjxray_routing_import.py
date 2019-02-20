@@ -79,6 +79,7 @@ def opposite_direction(direction):
         assert False, direction
 
 HCLK_CK_BUFHCLK_REGEX = re.compile('HCLK_CK_BUFHCLK[0-9]+')
+CASCOUT_REGEX = re.compile('BRAM_CASCOUT_ADDR((?:BWR)|(?:ARD))ADDRU([0-9]+)')
 
 def check_feature(feature):
     """ Check if enabling this feature requires other features to be enabled.
@@ -98,6 +99,14 @@ def check_feature(feature):
                 feature_path[-1])
 
         return ' '.join((feature, enable_buffer_feature))
+
+    m = CASCOUT_REGEX.fullmatch(feature_path[-2])
+    if m:
+        enable_cascout = '{}.CASCOUT_{}_ACTIVE'.format(
+                feature_path[0],
+                m.group(1))
+
+        return ' '.join((feature, enable_cascout))
 
     return feature
 
