@@ -24,6 +24,12 @@ module RAMB18E1 (
 	output [1:0] DOPADOP,
 	output [1:0] DOPBDOP
 );
+	parameter INIT_A = 18'h0;
+	parameter INIT_B = 18'h0;
+
+	parameter SRVAL_A = 18'h0;
+	parameter SRVAL_B = 18'h0;
+
 	parameter INITP_00 = 256'h0000000000000000000000000000000000000000000000000000000000000000;
 	parameter INITP_01 = 256'h0000000000000000000000000000000000000000000000000000000000000000;
 	parameter INITP_02 = 256'h0000000000000000000000000000000000000000000000000000000000000000;
@@ -109,8 +115,8 @@ module RAMB18E1 (
 
 	parameter RAM_MODE = "TDP";
     parameter SIM_DEVICE = "7SERIES";
-	parameter integer DOA_REG = 0;
-	parameter integer DOB_REG = 0;
+	parameter DOA_REG = 1'b0;
+	parameter DOB_REG = 1'b0;
 
 	parameter integer READ_WIDTH_A = 0;
 	parameter integer READ_WIDTH_B = 0;
@@ -176,6 +182,14 @@ module RAMB18E1 (
       assign REGCLKB = 0;
 
   RAMB18E1_VPR #(
+      .IN_USE(READ_WIDTH_A != 0 || READ_WIDTH_B != 0 || WRITE_WIDTH_A != 0 || WRITE_WIDTH_B != 0),
+
+      .ZINIT_A(INIT_A ^ {18{1'b1}}),
+      .ZINIT_B(INIT_B ^ {18{1'b1}}),
+
+      .ZSRVAL_A(SRVAL_A ^ {18{1'b1}}),
+      .ZSRVAL_B(SRVAL_B ^ {18{1'b1}}),
+
       .INITP_00(INITP_00),
       .INITP_01(INITP_01),
       .INITP_02(INITP_02),
@@ -260,8 +274,10 @@ module RAMB18E1 (
       .ZINV_RSTREGB(!IS_RSTREGB_INVERTED),
       .ZINV_REGCLKARDRCLK(!IS_CLKARDCLK_INVERTED),
       .ZINV_REGCLKB(!IS_CLKBWRCLK_INVERTED),
+
       .DOA_REG(DOA_REG),
       .DOB_REG(DOB_REG),
+
       .READ_WIDTH_A_1(READ_WIDTH_A == 1 || READ_WIDTH_A == 0),
       .READ_WIDTH_A_2(READ_WIDTH_A == 2),
       .READ_WIDTH_A_4(READ_WIDTH_A == 4),
