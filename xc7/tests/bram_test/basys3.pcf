@@ -1,5 +1,0 @@
-# basys3 100 MHz CLK
-set_io clk W5
-
-set_io tx A18
-set_io rx B18

@@ -12,3 +12,5 @@ techmap -map  $::env(symbiflow-arch-defs_SOURCE_DIR)/xc7/techmap/cells_map.v
 # net.
 opt_expr -undriven
 opt_clean
+
+setundef -zero -params
