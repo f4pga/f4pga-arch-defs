@@ -17,6 +17,84 @@ module  \$_DFF_PN1_ (input D, C, R, output Q); FDPE_ZINI #(.ZINI(|1), .IS_C_INVE
 module  \$_DFF_PP1_ (input D, C, R, output Q); FDPE_ZINI #(.ZINI(|1), .IS_C_INVERTED(|0), .IS_D_INVERTED(|0), .IS_PRE_INVERTED(|0)) _TECHMAP_REPLACE_ (.D(D), .Q(Q), .C(C), .CE(1'b1), .PRE(R)); endmodule
 
 // ============================================================================
+// LUTs
+
+module LUT1(output O, input I0);
+  parameter [1:0] INIT = 0;
+  \$lut #(
+    .WIDTH(1),
+    .LUT(INIT)
+  ) _TECHMAP_REPLACE_ (
+    .A(I0),
+    .Y(O)
+  );
+endmodule
+
+module LUT2(output O, input I0, I1);
+  parameter [3:0] INIT = 0;
+  \$lut #(
+    .WIDTH(2),
+    .LUT(INIT)
+  ) _TECHMAP_REPLACE_ (
+    .A({I1, I0}),
+    .Y(O)
+  );
+endmodule
+
+module LUT3(output O, input I0, I1, I2);
+  parameter [7:0] INIT = 0;
+  \$lut #(
+    .WIDTH(3),
+    .LUT(INIT)
+  ) _TECHMAP_REPLACE_ (
+    .A({I2, I1, I0}),
+    .Y(O)
+  );
+endmodule
+
+module LUT4(output O, input I0, I1, I2, I3);
+  parameter [15:0] INIT = 0;
+  \$lut #(
+    .WIDTH(4),
+    .LUT(INIT)
+  ) _TECHMAP_REPLACE_ (
+    .A({I3, I2, I1, I0}),
+    .Y(O)
+  );
+endmodule
+
+module LUT5(output O, input I0, I1, I2, I3, I4);
+  parameter [31:0] INIT = 0;
+  \$lut #(
+    .WIDTH(5),
+    .LUT(INIT)
+  ) _TECHMAP_REPLACE_ (
+    .A({I4, I3, I2, I1, I0}),
+    .Y(O)
+  );
+endmodule
+
+module LUT6(output O, input I0, I1, I2, I3, I4, I5);
+  parameter [63:0] INIT = 0;
+  wire T0, T1;
+  \$lut #(
+    .WIDTH(5),
+    .LUT(INIT[31:0])
+  ) fpga_lut_0 (
+    .A({I4, I3, I2, I1, I0}),
+    .Y(T0)
+  );
+  \$lut #(
+    .WIDTH(5),
+    .LUT(INIT[63:31])
+  ) fpga_lut_1 (
+    .A({I4, I3, I2, I1, I0}),
+    .Y(T1)
+  );
+  MUXF6 fpga_mux_0 (.O(O), .I0(T0), .I1(T1), .S(A[5]));
+endmodule
+
+// ============================================================================
 // Distributed RAMs
 
 module RAM128X1S (

@@ -54,6 +54,13 @@ module FDPE_ZINI (output reg Q, input C, CE, D, PRE);
 endmodule
 
 // ============================================================================
+// LUT related muxes
+
+module MUXF6(output O, input I0, I1, S);
+  assign O = S ? I1 : I0;
+endmodule
+
+// ============================================================================
 // Carry chain primitives
 
 module CARRY0(output CO_CHAIN, CO_FABRIC, O, input CI, CI_INIT, DI, S);
