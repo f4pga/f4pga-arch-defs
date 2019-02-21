@@ -88,7 +88,7 @@ endmodule
 module DPRAM128 (
   output O6,
   input  DI1, CLK, WE, WA7,
-  input [5:0] A, WA,
+  input [5:0] A, WA
 );
   parameter [63:0] INIT = 64'h0;
   parameter IS_WCLK_INVERTED = 1'b0;
