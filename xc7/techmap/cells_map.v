@@ -86,12 +86,12 @@ module LUT6(output O, input I0, I1, I2, I3, I4, I5);
   );
   \$lut #(
     .WIDTH(5),
-    .LUT(INIT[63:31])
+    .LUT(INIT[63:32])
   ) fpga_lut_1 (
     .A({I4, I3, I2, I1, I0}),
     .Y(T1)
   );
-  MUXF6 fpga_mux_0 (.O(O), .I0(T0), .I1(T1), .S(A[5]));
+  MUXF6 fpga_mux_0 (.O(O), .I0(T0), .I1(T1), .S(I5));
 endmodule
 
 // ============================================================================
