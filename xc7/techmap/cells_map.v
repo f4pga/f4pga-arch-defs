@@ -1,20 +1,54 @@
 // ============================================================================
 // FFs
-module  \$_DFF_N_ (input D, C, output Q); FDRE_ZINI #(.ZINI(|1), .IS_C_INVERTED(|1), .IS_D_INVERTED(|0), .IS_R_INVERTED(|0)) _TECHMAP_REPLACE_ (.D(D), .Q(Q), .C(C), .CE(1'b1), .R(1'b0)); endmodule
-module  \$_DFF_P_ (input D, C, output Q); FDRE_ZINI #(.ZINI(|1), .IS_C_INVERTED(|0), .IS_D_INVERTED(|0), .IS_R_INVERTED(|0)) _TECHMAP_REPLACE_ (.D(D), .Q(Q), .C(C), .CE(1'b1), .R(1'b0)); endmodule
 
-module  \$_DFFE_NP_ (input D, C, E, output Q); FDRE_ZINI #(.ZINI(|1), .IS_C_INVERTED(|1), .IS_D_INVERTED(|0), .IS_R_INVERTED(|0)) _TECHMAP_REPLACE_ (.D(D), .Q(Q), .C(C), .CE(E), .R(1'b0)); endmodule
-module  \$_DFFE_PP_ (input D, C, E, output Q); FDRE_ZINI #(.ZINI(|1), .IS_C_INVERTED(|0), .IS_D_INVERTED(|0), .IS_R_INVERTED(|0)) _TECHMAP_REPLACE_ (.D(D), .Q(Q), .C(C), .CE(E), .R(1'b0)); endmodule
+module FDRE (output reg Q, input C, CE, D, R);
+  parameter [0:0] INIT = 1'b0;
+  FDRE_ZINI #(.ZINI(!|INIT), .IS_C_INVERTED(|0), .IS_D_INVERTED(|0), .IS_R_INVERTED(|0))
+  _TECHMAP_REPLACE_ (.D(D), .Q(Q), .C(C), .CE(CE), .R(R));   
+endmodule
 
-module  \$_DFF_NN0_ (input D, C, R, output Q); FDCE_ZINI #(.ZINI(|1), .IS_C_INVERTED(|1), .IS_D_INVERTED(|0), .IS_CLR_INVERTED(|1)) _TECHMAP_REPLACE_ (.D(D), .Q(Q), .C(C), .CE(1'b1), .CLR(R)); endmodule
-module  \$_DFF_NP0_ (input D, C, R, output Q); FDCE_ZINI #(.ZINI(|1), .IS_C_INVERTED(|1), .IS_D_INVERTED(|0), .IS_CLR_INVERTED(|0)) _TECHMAP_REPLACE_ (.D(D), .Q(Q), .C(C), .CE(1'b1), .CLR(R)); endmodule
-module  \$_DFF_PN0_ (input D, C, R, output Q); FDCE_ZINI #(.ZINI(|1), .IS_C_INVERTED(|0), .IS_D_INVERTED(|0), .IS_CLR_INVERTED(|1)) _TECHMAP_REPLACE_ (.D(D), .Q(Q), .C(C), .CE(1'b1), .CLR(R)); endmodule
-module  \$_DFF_PP0_ (input D, C, R, output Q); FDCE_ZINI #(.ZINI(|1), .IS_C_INVERTED(|0), .IS_D_INVERTED(|0), .IS_CLR_INVERTED(|0)) _TECHMAP_REPLACE_ (.D(D), .Q(Q), .C(C), .CE(1'b1), .CLR(R)); endmodule
+module FDSE (output reg Q, input C, CE, D, S);
+  parameter [0:0] INIT = 1'b1;
+  FDSE_ZINI #(.ZINI(!|INIT), .IS_C_INVERTED(|0), .IS_D_INVERTED(|0), .IS_R_INVERTED(|0))
+  _TECHMAP_REPLACE_ (.D(D), .Q(Q), .C(C), .CE(CE), .S(S));   
+endmodule
 
-module  \$_DFF_NN1_ (input D, C, R, output Q); FDPE_ZINI #(.ZINI(|1), .IS_C_INVERTED(|1), .IS_D_INVERTED(|0), .IS_PRE_INVERTED(|1)) _TECHMAP_REPLACE_ (.D(D), .Q(Q), .C(C), .CE(1'b1), .PRE(R)); endmodule
-module  \$_DFF_NP1_ (input D, C, R, output Q); FDPE_ZINI #(.ZINI(|1), .IS_C_INVERTED(|1), .IS_D_INVERTED(|0), .IS_PRE_INVERTED(|0)) _TECHMAP_REPLACE_ (.D(D), .Q(Q), .C(C), .CE(1'b1), .PRE(R)); endmodule
-module  \$_DFF_PN1_ (input D, C, R, output Q); FDPE_ZINI #(.ZINI(|1), .IS_C_INVERTED(|0), .IS_D_INVERTED(|0), .IS_PRE_INVERTED(|1)) _TECHMAP_REPLACE_ (.D(D), .Q(Q), .C(C), .CE(1'b1), .PRE(R)); endmodule
-module  \$_DFF_PP1_ (input D, C, R, output Q); FDPE_ZINI #(.ZINI(|1), .IS_C_INVERTED(|0), .IS_D_INVERTED(|0), .IS_PRE_INVERTED(|0)) _TECHMAP_REPLACE_ (.D(D), .Q(Q), .C(C), .CE(1'b1), .PRE(R)); endmodule
+module FDCE (output reg Q, input C, CE, D, CLR);
+  parameter [0:0] INIT = 1'b0;
+  FDCE_ZINI #(.ZINI(!|INIT), .IS_C_INVERTED(|0), .IS_D_INVERTED(|0), .IS_R_INVERTED(|0))
+  _TECHMAP_REPLACE_ (.D(D), .Q(Q), .C(C), .CE(CE), .CLR(CLR));   
+endmodule
+
+module FDPE (output reg Q, input C, CE, D, PRE);
+  parameter [0:0] INIT = 1'b1;
+  FDPE_ZINI #(.ZINI(!|INIT), .IS_C_INVERTED(|0), .IS_D_INVERTED(|0), .IS_R_INVERTED(|0))
+  _TECHMAP_REPLACE_ (.D(D), .Q(Q), .C(C), .CE(CE), .PRE(PRE));   
+endmodule
+
+
+module FDRE_1 (output reg Q, input C, CE, D, R);
+  parameter [0:0] INIT = 1'b0;
+  FDRE_ZINI #(.ZINI(!|INIT), .IS_C_INVERTED(|1), .IS_D_INVERTED(|0), .IS_R_INVERTED(|0))
+  _TECHMAP_REPLACE_ (.D(D), .Q(Q), .C(C), .CE(CE), .R(R));   
+endmodule
+
+module FDSE_1 (output reg Q, input C, CE, D, S);
+  parameter [0:0] INIT = 1'b1;
+  FDSE_ZINI #(.ZINI(!|INIT), .IS_C_INVERTED(|1), .IS_D_INVERTED(|0), .IS_R_INVERTED(|0))
+  _TECHMAP_REPLACE_ (.D(D), .Q(Q), .C(C), .CE(CE), .S(S));   
+endmodule
+
+module FDCE_1 (output reg Q, input C, CE, D, CLR);
+  parameter [0:0] INIT = 1'b0;
+  FDCE_ZINI #(.ZINI(!|INIT), .IS_C_INVERTED(|1), .IS_D_INVERTED(|0), .IS_R_INVERTED(|0))
+  _TECHMAP_REPLACE_ (.D(D), .Q(Q), .C(C), .CE(CE), .CLR(CLR));   
+endmodule
+
+module FDPE_1 (output reg Q, input C, CE, D, PRE);
+  parameter [0:0] INIT = 1'b1;
+  FDPE_ZINI #(.ZINI(!|INIT), .IS_C_INVERTED(|1), .IS_D_INVERTED(|0), .IS_R_INVERTED(|0))
+  _TECHMAP_REPLACE_ (.D(D), .Q(Q), .C(C), .CE(CE), .PRE(PRE));   
+endmodule
 
 // ============================================================================
 // LUTs
