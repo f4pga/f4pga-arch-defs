@@ -10,9 +10,6 @@ synth_xilinx -vpr -flatten
 read_verilog -lib $::env(symbiflow-arch-defs_SOURCE_DIR)/xc7/techmap/cells_sim.v
 techmap -map  $::env(symbiflow-arch-defs_SOURCE_DIR)/xc7/techmap/cells_map.v
 
-# Initialize VPR specific FFs
-dffinit -ff FDRE_ZINI Q INIT -ff FDCE_ZINI Q INIT -ff FDPE_ZINI Q INIT -ff FDSE_ZINI Q INIT
-
 # opt_expr -undriven makes sure all nets are driven, if only by the $undef
 # net.
 opt_expr -undriven
