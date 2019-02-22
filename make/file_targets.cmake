@@ -36,14 +36,27 @@ function(GET_FILE_TARGET var src_file)
   else()
     set(SOURCE_LOCATION ${CMAKE_CURRENT_SOURCE_DIR}/${src_file})
   endif()
+
+  get_filename_component(CANON_LOCATION ${SOURCE_LOCATION}
+      ABSOLUTE
+      BASE_DIR ${symbiflow-arch-defs_SOURCE_DIR}
+      )
+
+  string(
+    REPLACE
+      "${symbiflow-arch-defs_SOURCE_DIR}"
+      ""
+      REL_CANON_LOCATION
+      ${CANON_LOCATION}
+      )
   string(
     REPLACE
       "/"
       "_"
       TARGET_PATH
-      ${SOURCE_LOCATION}
+      ${REL_CANON_LOCATION}
   )
-  set(${var} file_${TARGET_PATH} PARENT_SCOPE)
+  set(${var} file${TARGET_PATH} PARENT_SCOPE)
 endfunction()
 
 function(GET_FILE_LOCATION var src_file)
