@@ -103,84 +103,84 @@ reason, BRAM tiles use a "fused sites" mode to accomidate the cross site logic.
  <output name="RAMB36_X0Y0_ALMOSTEMPTY"    num_pins="1"  />
 
  <!-- FIFO18E1 site pins -->
- <input  name="RAMB18_X0Y29_WREN"          num_pins="1"  />
- <input  name="RAMB18_X0Y29_WRCLK"         num_pins="1"  />
- <input  name="RAMB18_X0Y29_WEBWE"         num_pins="8"  />
- <input  name="RAMB18_X0Y29_WEA"           num_pins="4"  />
+ <input  name="RAMB18_X0Y0_WREN"          num_pins="1"  />
+ <input  name="RAMB18_X0Y0_WRCLK"         num_pins="1"  />
+ <input  name="RAMB18_X0Y0_WEBWE"         num_pins="8"  />
+ <input  name="RAMB18_X0Y0_WEA"           num_pins="4"  />
 
- <input  name="RAMB18_X0Y29_RSTREGB"       num_pins="1"  />
- <input  name="RAMB18_X0Y29_RSTREG"        num_pins="1"  />
- <input  name="RAMB18_X0Y29_RSTRAMB"       num_pins="1"  />
- <input  name="RAMB18_X0Y29_RST"           num_pins="1"  />
+ <input  name="RAMB18_X0Y0_RSTREGB"       num_pins="1"  />
+ <input  name="RAMB18_X0Y0_RSTREG"        num_pins="1"  />
+ <input  name="RAMB18_X0Y0_RSTRAMB"       num_pins="1"  />
+ <input  name="RAMB18_X0Y0_RST"           num_pins="1"  />
 
- <input  name="RAMB18_X0Y29_REGCLKB"       num_pins="1"  />
- <input  name="RAMB18_X0Y29_REGCEB"        num_pins="1"  />
- <input  name="RAMB18_X0Y29_REGCE"         num_pins="1"  />
- <input  name="RAMB18_X0Y29_RDRCLK"        num_pins="1"  />
- <input  name="RAMB18_X0Y29_RDEN"          num_pins="1"  />
- <input  name="RAMB18_X0Y29_RDCLK"         num_pins="1"  />
+ <input  name="RAMB18_X0Y0_REGCLKB"       num_pins="1"  />
+ <input  name="RAMB18_X0Y0_REGCEB"        num_pins="1"  />
+ <input  name="RAMB18_X0Y0_REGCE"         num_pins="1"  />
+ <input  name="RAMB18_X0Y0_RDRCLK"        num_pins="1"  />
+ <input  name="RAMB18_X0Y0_RDEN"          num_pins="1"  />
+ <input  name="RAMB18_X0Y0_RDCLK"         num_pins="1"  />
 
- <input  name="RAMB18_X0Y29_DIPBDIP"       num_pins="2"  />
- <input  name="RAMB18_X0Y29_DIPADIP"       num_pins="2"  />
- <input  name="RAMB18_X0Y29_DIBDI"         num_pins="16" />
- <input  name="RAMB18_X0Y29_DIADI"         num_pins="16" />
+ <input  name="RAMB18_X0Y0_DIPBDIP"       num_pins="2"  />
+ <input  name="RAMB18_X0Y0_DIPADIP"       num_pins="2"  />
+ <input  name="RAMB18_X0Y0_DIBDI"         num_pins="16" />
+ <input  name="RAMB18_X0Y0_DIADI"         num_pins="16" />
 
- <input  name="RAMB18_X0Y29_ADDRARDADDR"   num_pins="14" />
- <input  name="RAMB18_X0Y29_ADDRBWRADDR"   num_pins="14" />
- <input  name="RAMB18_X0Y29_ADDRATIEHIGH"  num_pins="2"  />
- <input  name="RAMB18_X0Y29_ADDRBTIEHIGH"  num_pins="2"  />
+ <input  name="RAMB18_X0Y0_ADDRARDADDR"   num_pins="14" />
+ <input  name="RAMB18_X0Y0_ADDRBWRADDR"   num_pins="14" />
+ <input  name="RAMB18_X0Y0_ADDRATIEHIGH"  num_pins="2"  />
+ <input  name="RAMB18_X0Y0_ADDRBTIEHIGH"  num_pins="2"  />
 
- <output name="RAMB18_X0Y29_WRERR"         num_pins="1"  />
- <output name="RAMB18_X0Y29_WRCOUNT"       num_pins="12" />
- <output name="RAMB18_X0Y29_RDERR"         num_pins="1"  />
- <output name="RAMB18_X0Y29_RDCOUNT"       num_pins="12" />
- <output name="RAMB18_X0Y29_FULL"          num_pins="1"  />
- <output name="RAMB18_X0Y29_EMPTY"         num_pins="1"  />
- <output name="RAMB18_X0Y29_DOP"           num_pins="4"  />
- <output name="RAMB18_X0Y29_DO"            num_pins="32" />
- <output name="RAMB18_X0Y29_ALMOSTFULL"    num_pins="1"  />
- <output name="RAMB18_X0Y29_ALMOSTEMPTY"   num_pins="1"  />
+ <output name="RAMB18_X0Y0_WRERR"         num_pins="1"  />
+ <output name="RAMB18_X0Y0_WRCOUNT"       num_pins="12" />
+ <output name="RAMB18_X0Y0_RDERR"         num_pins="1"  />
+ <output name="RAMB18_X0Y0_RDCOUNT"       num_pins="12" />
+ <output name="RAMB18_X0Y0_FULL"          num_pins="1"  />
+ <output name="RAMB18_X0Y0_EMPTY"         num_pins="1"  />
+ <output name="RAMB18_X0Y0_DOP"           num_pins="4"  />
+ <output name="RAMB18_X0Y0_DO"            num_pins="32" />
+ <output name="RAMB18_X0Y0_ALMOSTFULL"    num_pins="1"  />
+ <output name="RAMB18_X0Y0_ALMOSTEMPTY"   num_pins="1"  />
 
  <!-- RAMB18E1 site pins -->
- <input  name="RAMB18_X0Y30_ENBWREN"       num_pins="1"  />
- <input  name="RAMB18_X0Y30_CLKBWRCLK"     num_pins="1"  />
- <input  name="RAMB18_X0Y30_WEBWE"         num_pins="8"  />
- <input  name="RAMB18_X0Y30_WEA"           num_pins="4"  />
+ <input  name="RAMB18_X0Y1_ENBWREN"       num_pins="1"  />
+ <input  name="RAMB18_X0Y1_CLKBWRCLK"     num_pins="1"  />
+ <input  name="RAMB18_X0Y1_WEBWE"         num_pins="8"  />
+ <input  name="RAMB18_X0Y1_WEA"           num_pins="4"  />
 
- <input  name="RAMB18_X0Y30_RSTREGB"       num_pins="1"  />
- <input  name="RAMB18_X0Y30_RSTREGARSTREG" num_pins="1"  />
- <input  name="RAMB18_X0Y30_RSTRAMB"       num_pins="1"  />
- <input  name="RAMB18_X0Y30_RSTRAMARSTRAM" num_pins="1"  />
+ <input  name="RAMB18_X0Y1_RSTREGB"       num_pins="1"  />
+ <input  name="RAMB18_X0Y1_RSTREGARSTREG" num_pins="1"  />
+ <input  name="RAMB18_X0Y1_RSTRAMB"       num_pins="1"  />
+ <input  name="RAMB18_X0Y1_RSTRAMARSTRAM" num_pins="1"  />
 
- <input  name="RAMB18_X0Y30_REGCLKB"       num_pins="1"  />
- <input  name="RAMB18_X0Y30_REGCEB"        num_pins="1"  />
- <input  name="RAMB18_X0Y30_REGCEAREGCE"   num_pins="1"  />
- <input  name="RAMB18_X0Y30_REGCLKARDRCLK" num_pins="1"  />
- <input  name="RAMB18_X0Y30_ENARDEN"       num_pins="1"  />
- <input  name="RAMB18_X0Y30_CLKARDCLK"     num_pins="1"  />
+ <input  name="RAMB18_X0Y1_REGCLKB"       num_pins="1"  />
+ <input  name="RAMB18_X0Y1_REGCEB"        num_pins="1"  />
+ <input  name="RAMB18_X0Y1_REGCEAREGCE"   num_pins="1"  />
+ <input  name="RAMB18_X0Y1_REGCLKARDRCLK" num_pins="1"  />
+ <input  name="RAMB18_X0Y1_ENARDEN"       num_pins="1"  />
+ <input  name="RAMB18_X0Y1_CLKARDCLK"     num_pins="1"  />
 
- <input  name="RAMB18_X0Y30_DIPBDIP"       num_pins="2"  />
- <input  name="RAMB18_X0Y30_DIPADIP"       num_pins="2"  />
- <input  name="RAMB18_X0Y30_DIBDI"         num_pins="16" />
- <input  name="RAMB18_X0Y30_DIADI"         num_pins="16" />
+ <input  name="RAMB18_X0Y1_DIPBDIP"       num_pins="2"  />
+ <input  name="RAMB18_X0Y1_DIPADIP"       num_pins="2"  />
+ <input  name="RAMB18_X0Y1_DIBDI"         num_pins="16" />
+ <input  name="RAMB18_X0Y1_DIADI"         num_pins="16" />
 
- <input  name="RAMB18_X0Y30_ADDRARDADDR"   num_pins="14" />
- <input  name="RAMB18_X0Y30_ADDRBWRADDR"   num_pins="14" />
- <input  name="RAMB18_X0Y30_ADDRATIEHIGH"  num_pins="2"  />
- <input  name="RAMB18_X0Y30_ADDRBTIEHIGH"  num_pins="2"  />
+ <input  name="RAMB18_X0Y1_ADDRARDADDR"   num_pins="14" />
+ <input  name="RAMB18_X0Y1_ADDRBWRADDR"   num_pins="14" />
+ <input  name="RAMB18_X0Y1_ADDRATIEHIGH"  num_pins="2"  />
+ <input  name="RAMB18_X0Y1_ADDRBTIEHIGH"  num_pins="2"  />
 
- <output name="RAMB18_X0Y30_WRERR"         num_pins="1"  />
- <output name="RAMB18_X0Y30_WRCOUNT"       num_pins="12" />
- <output name="RAMB18_X0Y30_RDERR"         num_pins="1"  />
- <output name="RAMB18_X0Y30_RDCOUNT"       num_pins="12" />
- <output name="RAMB18_X0Y30_FULL"          num_pins="1"  />
- <output name="RAMB18_X0Y30_EMPTY"         num_pins="1"  />
- <output name="RAMB18_X0Y30_DOPADOP"       num_pins="2"  />
- <output name="RAMB18_X0Y30_DOPBDOP"       num_pins="2"  />
- <output name="RAMB18_X0Y30_DOADO"         num_pins="16" />
- <output name="RAMB18_X0Y30_DOBDO"         num_pins="16" />
- <output name="RAMB18_X0Y30_ALMOSTFULL"    num_pins="1"  />
- <output name="RAMB18_X0Y30_ALMOSTEMPTY"   num_pins="1"  />
+ <output name="RAMB18_X0Y1_WRERR"         num_pins="1"  />
+ <output name="RAMB18_X0Y1_WRCOUNT"       num_pins="12" />
+ <output name="RAMB18_X0Y1_RDERR"         num_pins="1"  />
+ <output name="RAMB18_X0Y1_RDCOUNT"       num_pins="12" />
+ <output name="RAMB18_X0Y1_FULL"          num_pins="1"  />
+ <output name="RAMB18_X0Y1_EMPTY"         num_pins="1"  />
+ <output name="RAMB18_X0Y1_DOPADOP"       num_pins="2"  />
+ <output name="RAMB18_X0Y1_DOPBDOP"       num_pins="2"  />
+ <output name="RAMB18_X0Y1_DOADO"         num_pins="16" />
+ <output name="RAMB18_X0Y1_DOBDO"         num_pins="16" />
+ <output name="RAMB18_X0Y1_ALMOSTFULL"    num_pins="1"  />
+ <output name="RAMB18_X0Y1_ALMOSTEMPTY"   num_pins="1"  />
 
  <xi:include href="../bram/bram.pb_type.xml"/>
 
@@ -273,82 +273,82 @@ reason, BRAM tiles use a "fused sites" mode to accomidate the cross site logic.
   <direct name="RAMB36_X0Y0_ALMOSTFULL"        input="BLK_IG-BRAM.RAMB36_Y0_ALMOSTFULL"             output="BLK_IG-BRAM_L.RAMB36_X0Y0_ALMOSTFULL" />
   <direct name="RAMB36_X0Y0_ALMOSTEMPTY"       input="BLK_IG-BRAM.RAMB36_Y0_ALMOSTEMPTY"            output="BLK_IG-BRAM_L.RAMB36_X0Y0_ALMOSTEMPTY" />
 
-  <direct name="RAMB18_X0Y29_WREN"             input="BLK_IG-BRAM_L.RAMB18_X0Y29_WREN"              output="BLK_IG-BRAM.RAMB18_Y0_WREN" />
-  <direct name="RAMB18_X0Y29_WRCLK"            input="BLK_IG-BRAM_L.RAMB18_X0Y29_WRCLK"             output="BLK_IG-BRAM.RAMB18_Y0_WRCLK" />
-  <direct name="RAMB18_X0Y29_WEBWE"            input="BLK_IG-BRAM_L.RAMB18_X0Y29_WEBWE"             output="BLK_IG-BRAM.RAMB18_Y0_WEBWE" />
-  <direct name="RAMB18_X0Y29_WEA"              input="BLK_IG-BRAM_L.RAMB18_X0Y29_WEA"               output="BLK_IG-BRAM.RAMB18_Y0_WEA" />
+  <direct name="RAMB18_X0Y0_WREN"             input="BLK_IG-BRAM_L.RAMB18_X0Y0_WREN"                output="BLK_IG-BRAM.RAMB18_Y0_WREN" />
+  <direct name="RAMB18_X0Y0_WRCLK"            input="BLK_IG-BRAM_L.RAMB18_X0Y0_WRCLK"               output="BLK_IG-BRAM.RAMB18_Y0_WRCLK" />
+  <direct name="RAMB18_X0Y0_WEBWE"            input="BLK_IG-BRAM_L.RAMB18_X0Y0_WEBWE"               output="BLK_IG-BRAM.RAMB18_Y0_WEBWE" />
+  <direct name="RAMB18_X0Y0_WEA"              input="BLK_IG-BRAM_L.RAMB18_X0Y0_WEA"                 output="BLK_IG-BRAM.RAMB18_Y0_WEA" />
 
-  <direct name="RAMB18_X0Y29_RSTREGB"          input="BLK_IG-BRAM_L.RAMB18_X0Y29_RSTREGB"           output="BLK_IG-BRAM.RAMB18_Y0_RSTREGB" />
-  <direct name="RAMB18_X0Y29_RSTREG"           input="BLK_IG-BRAM_L.RAMB18_X0Y29_RSTREG"            output="BLK_IG-BRAM.RAMB18_Y0_RSTREG" />
-  <direct name="RAMB18_X0Y29_RSTRAMB"          input="BLK_IG-BRAM_L.RAMB18_X0Y29_RSTRAMB"           output="BLK_IG-BRAM.RAMB18_Y0_RSTRAMB" />
-  <direct name="RAMB18_X0Y29_RST"              input="BLK_IG-BRAM_L.RAMB18_X0Y29_RST"               output="BLK_IG-BRAM.RAMB18_Y0_RST" />
+  <direct name="RAMB18_X0Y0_RSTREGB"          input="BLK_IG-BRAM_L.RAMB18_X0Y0_RSTREGB"             output="BLK_IG-BRAM.RAMB18_Y0_RSTREGB" />
+  <direct name="RAMB18_X0Y0_RSTREG"           input="BLK_IG-BRAM_L.RAMB18_X0Y0_RSTREG"              output="BLK_IG-BRAM.RAMB18_Y0_RSTREG" />
+  <direct name="RAMB18_X0Y0_RSTRAMB"          input="BLK_IG-BRAM_L.RAMB18_X0Y0_RSTRAMB"             output="BLK_IG-BRAM.RAMB18_Y0_RSTRAMB" />
+  <direct name="RAMB18_X0Y0_RST"              input="BLK_IG-BRAM_L.RAMB18_X0Y0_RST"                 output="BLK_IG-BRAM.RAMB18_Y0_RST" />
 
-  <direct name="RAMB18_X0Y29_REGCLKB"          input="BLK_IG-BRAM_L.RAMB18_X0Y29_REGCLKB"           output="BLK_IG-BRAM.RAMB18_Y0_REGCLKB" />
-  <direct name="RAMB18_X0Y29_REGCEB"           input="BLK_IG-BRAM_L.RAMB18_X0Y29_REGCEB"            output="BLK_IG-BRAM.RAMB18_Y0_REGCEB" />
-  <direct name="RAMB18_X0Y29_REGCE"            input="BLK_IG-BRAM_L.RAMB18_X0Y29_REGCE"             output="BLK_IG-BRAM.RAMB18_Y0_REGCE" />
-  <direct name="RAMB18_X0Y29_RDRCLK"           input="BLK_IG-BRAM_L.RAMB18_X0Y29_RDRCLK"            output="BLK_IG-BRAM.RAMB18_Y0_RDRCLK" />
-  <direct name="RAMB18_X0Y29_RDEN"             input="BLK_IG-BRAM_L.RAMB18_X0Y29_RDEN"              output="BLK_IG-BRAM.RAMB18_Y0_RDEN" />
-  <direct name="RAMB18_X0Y29_RDCLK"            input="BLK_IG-BRAM_L.RAMB18_X0Y29_RDCLK"             output="BLK_IG-BRAM.RAMB18_Y0_RDCLK" />
+  <direct name="RAMB18_X0Y0_REGCLKB"          input="BLK_IG-BRAM_L.RAMB18_X0Y0_REGCLKB"             output="BLK_IG-BRAM.RAMB18_Y0_REGCLKB" />
+  <direct name="RAMB18_X0Y0_REGCEB"           input="BLK_IG-BRAM_L.RAMB18_X0Y0_REGCEB"              output="BLK_IG-BRAM.RAMB18_Y0_REGCEB" />
+  <direct name="RAMB18_X0Y0_REGCE"            input="BLK_IG-BRAM_L.RAMB18_X0Y0_REGCE"               output="BLK_IG-BRAM.RAMB18_Y0_REGCE" />
+  <direct name="RAMB18_X0Y0_RDRCLK"           input="BLK_IG-BRAM_L.RAMB18_X0Y0_RDRCLK"              output="BLK_IG-BRAM.RAMB18_Y0_RDRCLK" />
+  <direct name="RAMB18_X0Y0_RDEN"             input="BLK_IG-BRAM_L.RAMB18_X0Y0_RDEN"                output="BLK_IG-BRAM.RAMB18_Y0_RDEN" />
+  <direct name="RAMB18_X0Y0_RDCLK"            input="BLK_IG-BRAM_L.RAMB18_X0Y0_RDCLK"               output="BLK_IG-BRAM.RAMB18_Y0_RDCLK" />
 
-  <direct name="RAMB18_X0Y29_DIPBDIP"          input="BLK_IG-BRAM_L.RAMB18_X0Y29_DIPBDIP"           output="BLK_IG-BRAM.RAMB18_Y0_DIPBDIP" />
-  <direct name="RAMB18_X0Y29_DIPADIP"          input="BLK_IG-BRAM_L.RAMB18_X0Y29_DIPADIP"           output="BLK_IG-BRAM.RAMB18_Y0_DIPADIP" />
-  <direct name="RAMB18_X0Y29_DIBDI"            input="BLK_IG-BRAM_L.RAMB18_X0Y29_DIBDI"             output="BLK_IG-BRAM.RAMB18_Y0_DIBDI" />
-  <direct name="RAMB18_X0Y29_DIADI"            input="BLK_IG-BRAM_L.RAMB18_X0Y29_DIADI"             output="BLK_IG-BRAM.RAMB18_Y0_DIADI" />
+  <direct name="RAMB18_X0Y0_DIPBDIP"          input="BLK_IG-BRAM_L.RAMB18_X0Y0_DIPBDIP"             output="BLK_IG-BRAM.RAMB18_Y0_DIPBDIP" />
+  <direct name="RAMB18_X0Y0_DIPADIP"          input="BLK_IG-BRAM_L.RAMB18_X0Y0_DIPADIP"             output="BLK_IG-BRAM.RAMB18_Y0_DIPADIP" />
+  <direct name="RAMB18_X0Y0_DIBDI"            input="BLK_IG-BRAM_L.RAMB18_X0Y0_DIBDI"               output="BLK_IG-BRAM.RAMB18_Y0_DIBDI" />
+  <direct name="RAMB18_X0Y0_DIADI"            input="BLK_IG-BRAM_L.RAMB18_X0Y0_DIADI"               output="BLK_IG-BRAM.RAMB18_Y0_DIADI" />
 
-  <direct name="RAMB18_X0Y29_ADDRARDADDR"      input="BLK_IG-BRAM_L.RAMB18_X0Y29_ADDRARDADDR"       output="BLK_IG-BRAM.RAMB18_Y0_ADDRARDADDR" />
-  <direct name="RAMB18_X0Y29_ADDRBWRADDR"      input="BLK_IG-BRAM_L.RAMB18_X0Y29_ADDRBWRADDR"       output="BLK_IG-BRAM.RAMB18_Y0_ADDRBWRADDR" />
-  <direct name="RAMB18_X0Y29_ADDRATIEHIGH"     input="BLK_IG-BRAM_L.RAMB18_X0Y29_ADDRATIEHIGH"      output="BLK_IG-BRAM.RAMB18_Y0_ADDRATIEHIGH" />
-  <direct name="RAMB18_X0Y29_ADDRBTIEHIGH"     input="BLK_IG-BRAM_L.RAMB18_X0Y29_ADDRBTIEHIGH"      output="BLK_IG-BRAM.RAMB18_Y0_ADDRBTIEHIGH" />
+  <direct name="RAMB18_X0Y0_ADDRARDADDR"      input="BLK_IG-BRAM_L.RAMB18_X0Y0_ADDRARDADDR"         output="BLK_IG-BRAM.RAMB18_Y0_ADDRARDADDR" />
+  <direct name="RAMB18_X0Y0_ADDRBWRADDR"      input="BLK_IG-BRAM_L.RAMB18_X0Y0_ADDRBWRADDR"         output="BLK_IG-BRAM.RAMB18_Y0_ADDRBWRADDR" />
+  <direct name="RAMB18_X0Y0_ADDRATIEHIGH"     input="BLK_IG-BRAM_L.RAMB18_X0Y0_ADDRATIEHIGH"        output="BLK_IG-BRAM.RAMB18_Y0_ADDRATIEHIGH" />
+  <direct name="RAMB18_X0Y0_ADDRBTIEHIGH"     input="BLK_IG-BRAM_L.RAMB18_X0Y0_ADDRBTIEHIGH"        output="BLK_IG-BRAM.RAMB18_Y0_ADDRBTIEHIGH" />
 
-  <direct name="RAMB18_X0Y29_WRERR"            input="BLK_IG-BRAM.RAMB18_Y0_WRERR"                  output="BLK_IG-BRAM_L.RAMB18_X0Y29_WRERR" />
-  <direct name="RAMB18_X0Y29_WRCOUNT"          input="BLK_IG-BRAM.RAMB18_Y0_WRCOUNT"                output="BLK_IG-BRAM_L.RAMB18_X0Y29_WRCOUNT" />
-  <direct name="RAMB18_X0Y29_RDERR"            input="BLK_IG-BRAM.RAMB18_Y0_RDERR"                  output="BLK_IG-BRAM_L.RAMB18_X0Y29_RDERR" />
-  <direct name="RAMB18_X0Y29_RDCOUNT"          input="BLK_IG-BRAM.RAMB18_Y0_RDCOUNT"                output="BLK_IG-BRAM_L.RAMB18_X0Y29_RDCOUNT" />
-  <direct name="RAMB18_X0Y29_FULL"             input="BLK_IG-BRAM.RAMB18_Y0_FULL"                   output="BLK_IG-BRAM_L.RAMB18_X0Y29_FULL" />
-  <direct name="RAMB18_X0Y29_EMPTY"            input="BLK_IG-BRAM.RAMB18_Y0_EMPTY"                  output="BLK_IG-BRAM_L.RAMB18_X0Y29_EMPTY" />
-  <direct name="RAMB18_X0Y29_DOP"              input="BLK_IG-BRAM.RAMB18_Y0_DOP"                    output="BLK_IG-BRAM_L.RAMB18_X0Y29_DOP" />
-  <direct name="RAMB18_X0Y29_DO"               input="BLK_IG-BRAM.RAMB18_Y0_DO"                     output="BLK_IG-BRAM_L.RAMB18_X0Y29_DO" />
-  <direct name="RAMB18_X0Y29_ALMOSTFULL"       input="BLK_IG-BRAM.RAMB18_Y0_ALMOSTFULL"             output="BLK_IG-BRAM_L.RAMB18_X0Y29_ALMOSTFULL" />
-  <direct name="RAMB18_X0Y29_ALMOSTEMPTY"      input="BLK_IG-BRAM.RAMB18_Y0_ALMOSTEMPTY"            output="BLK_IG-BRAM_L.RAMB18_X0Y29_ALMOSTEMPTY" />
+  <direct name="RAMB18_X0Y0_WRERR"            input="BLK_IG-BRAM.RAMB18_Y0_WRERR"                   output="BLK_IG-BRAM_L.RAMB18_X0Y0_WRERR" />
+  <direct name="RAMB18_X0Y0_WRCOUNT"          input="BLK_IG-BRAM.RAMB18_Y0_WRCOUNT"                 output="BLK_IG-BRAM_L.RAMB18_X0Y0_WRCOUNT" />
+  <direct name="RAMB18_X0Y0_RDERR"            input="BLK_IG-BRAM.RAMB18_Y0_RDERR"                   output="BLK_IG-BRAM_L.RAMB18_X0Y0_RDERR" />
+  <direct name="RAMB18_X0Y0_RDCOUNT"          input="BLK_IG-BRAM.RAMB18_Y0_RDCOUNT"                 output="BLK_IG-BRAM_L.RAMB18_X0Y0_RDCOUNT" />
+  <direct name="RAMB18_X0Y0_FULL"             input="BLK_IG-BRAM.RAMB18_Y0_FULL"                    output="BLK_IG-BRAM_L.RAMB18_X0Y0_FULL" />
+  <direct name="RAMB18_X0Y0_EMPTY"            input="BLK_IG-BRAM.RAMB18_Y0_EMPTY"                   output="BLK_IG-BRAM_L.RAMB18_X0Y0_EMPTY" />
+  <direct name="RAMB18_X0Y0_DOP"              input="BLK_IG-BRAM.RAMB18_Y0_DOP"                     output="BLK_IG-BRAM_L.RAMB18_X0Y0_DOP" />
+  <direct name="RAMB18_X0Y0_DO"               input="BLK_IG-BRAM.RAMB18_Y0_DO"                      output="BLK_IG-BRAM_L.RAMB18_X0Y0_DO" />
+  <direct name="RAMB18_X0Y0_ALMOSTFULL"       input="BLK_IG-BRAM.RAMB18_Y0_ALMOSTFULL"              output="BLK_IG-BRAM_L.RAMB18_X0Y0_ALMOSTFULL" />
+  <direct name="RAMB18_X0Y0_ALMOSTEMPTY"      input="BLK_IG-BRAM.RAMB18_Y0_ALMOSTEMPTY"             output="BLK_IG-BRAM_L.RAMB18_X0Y0_ALMOSTEMPTY" />
 
-  <direct name="RAMB18_X0Y30_ENBWREN"          input="BLK_IG-BRAM_L.RAMB18_X0Y30_ENBWREN"           output="BLK_IG-BRAM.RAMB18_Y1_ENBWREN" />
-  <direct name="RAMB18_X0Y30_CLKBWRCLK"        input="BLK_IG-BRAM_L.RAMB18_X0Y30_CLKBWRCLK"         output="BLK_IG-BRAM.RAMB18_Y1_CLKBWRCLK" />
-  <direct name="RAMB18_X0Y30_WEBWE"            input="BLK_IG-BRAM_L.RAMB18_X0Y30_WEBWE"             output="BLK_IG-BRAM.RAMB18_Y1_WEBWE" />
-  <direct name="RAMB18_X0Y30_WEA"              input="BLK_IG-BRAM_L.RAMB18_X0Y30_WEA"               output="BLK_IG-BRAM.RAMB18_Y1_WEA" />
+  <direct name="RAMB18_X0Y1_ENBWREN"          input="BLK_IG-BRAM_L.RAMB18_X0Y1_ENBWREN"             output="BLK_IG-BRAM.RAMB18_Y1_ENBWREN" />
+  <direct name="RAMB18_X0Y1_CLKBWRCLK"        input="BLK_IG-BRAM_L.RAMB18_X0Y1_CLKBWRCLK"           output="BLK_IG-BRAM.RAMB18_Y1_CLKBWRCLK" />
+  <direct name="RAMB18_X0Y1_WEBWE"            input="BLK_IG-BRAM_L.RAMB18_X0Y1_WEBWE"               output="BLK_IG-BRAM.RAMB18_Y1_WEBWE" />
+  <direct name="RAMB18_X0Y1_WEA"              input="BLK_IG-BRAM_L.RAMB18_X0Y1_WEA"                 output="BLK_IG-BRAM.RAMB18_Y1_WEA" />
 
-  <direct name="RAMB18_X0Y30_RSTREGB"          input="BLK_IG-BRAM_L.RAMB18_X0Y30_RSTREGB"           output="BLK_IG-BRAM.RAMB18_Y1_RSTREGB" />
-  <direct name="RAMB18_X0Y30_RSTREGARSTREG"    input="BLK_IG-BRAM_L.RAMB18_X0Y30_RSTREGARSTREG"     output="BLK_IG-BRAM.RAMB18_Y1_RSTREGARSTREG" />
-  <direct name="RAMB18_X0Y30_RSTRAMB"          input="BLK_IG-BRAM_L.RAMB18_X0Y30_RSTRAMB"           output="BLK_IG-BRAM.RAMB18_Y1_RSTRAMB" />
-  <direct name="RAMB18_X0Y30_RSTRAMARSTRAM"    input="BLK_IG-BRAM_L.RAMB18_X0Y30_RSTRAMARSTRAM"     output="BLK_IG-BRAM.RAMB18_Y1_RSTRAMARSTRAM" />
+  <direct name="RAMB18_X0Y1_RSTREGB"          input="BLK_IG-BRAM_L.RAMB18_X0Y1_RSTREGB"             output="BLK_IG-BRAM.RAMB18_Y1_RSTREGB" />
+  <direct name="RAMB18_X0Y1_RSTREGARSTREG"    input="BLK_IG-BRAM_L.RAMB18_X0Y1_RSTREGARSTREG"       output="BLK_IG-BRAM.RAMB18_Y1_RSTREGARSTREG" />
+  <direct name="RAMB18_X0Y1_RSTRAMB"          input="BLK_IG-BRAM_L.RAMB18_X0Y1_RSTRAMB"             output="BLK_IG-BRAM.RAMB18_Y1_RSTRAMB" />
+  <direct name="RAMB18_X0Y1_RSTRAMARSTRAM"    input="BLK_IG-BRAM_L.RAMB18_X0Y1_RSTRAMARSTRAM"       output="BLK_IG-BRAM.RAMB18_Y1_RSTRAMARSTRAM" />
 
-  <direct name="RAMB18_X0Y30_REGCLKB"          input="BLK_IG-BRAM_L.RAMB18_X0Y30_REGCLKB"           output="BLK_IG-BRAM.RAMB18_Y1_REGCLKB" />
-  <direct name="RAMB18_X0Y30_REGCEB"           input="BLK_IG-BRAM_L.RAMB18_X0Y30_REGCEB"            output="BLK_IG-BRAM.RAMB18_Y1_REGCEB" />
-  <direct name="RAMB18_X0Y30_REGCEAREGCE"      input="BLK_IG-BRAM_L.RAMB18_X0Y30_REGCEAREGCE"       output="BLK_IG-BRAM.RAMB18_Y1_REGCEAREGCE" />
-  <direct name="RAMB18_X0Y30_REGCLKARDRCLK"    input="BLK_IG-BRAM_L.RAMB18_X0Y30_REGCLKARDRCLK"     output="BLK_IG-BRAM.RAMB18_Y1_REGCLKARDRCLK" />
-  <direct name="RAMB18_X0Y30_ENARDEN"          input="BLK_IG-BRAM_L.RAMB18_X0Y30_ENARDEN"           output="BLK_IG-BRAM.RAMB18_Y1_ENARDEN" />
-  <direct name="RAMB18_X0Y30_CLKARDCLK"        input="BLK_IG-BRAM_L.RAMB18_X0Y30_CLKARDCLK"         output="BLK_IG-BRAM.RAMB18_Y1_CLKARDCLK" />
+  <direct name="RAMB18_X0Y1_REGCLKB"          input="BLK_IG-BRAM_L.RAMB18_X0Y1_REGCLKB"             output="BLK_IG-BRAM.RAMB18_Y1_REGCLKB" />
+  <direct name="RAMB18_X0Y1_REGCEB"           input="BLK_IG-BRAM_L.RAMB18_X0Y1_REGCEB"              output="BLK_IG-BRAM.RAMB18_Y1_REGCEB" />
+  <direct name="RAMB18_X0Y1_REGCEAREGCE"      input="BLK_IG-BRAM_L.RAMB18_X0Y1_REGCEAREGCE"         output="BLK_IG-BRAM.RAMB18_Y1_REGCEAREGCE" />
+  <direct name="RAMB18_X0Y1_REGCLKARDRCLK"    input="BLK_IG-BRAM_L.RAMB18_X0Y1_REGCLKARDRCLK"       output="BLK_IG-BRAM.RAMB18_Y1_REGCLKARDRCLK" />
+  <direct name="RAMB18_X0Y1_ENARDEN"          input="BLK_IG-BRAM_L.RAMB18_X0Y1_ENARDEN"             output="BLK_IG-BRAM.RAMB18_Y1_ENARDEN" />
+  <direct name="RAMB18_X0Y1_CLKARDCLK"        input="BLK_IG-BRAM_L.RAMB18_X0Y1_CLKARDCLK"           output="BLK_IG-BRAM.RAMB18_Y1_CLKARDCLK" />
 
-  <direct name="RAMB18_X0Y30_DIPBDIP"          input="BLK_IG-BRAM_L.RAMB18_X0Y30_DIPBDIP"           output="BLK_IG-BRAM.RAMB18_Y1_DIPBDIP" />
-  <direct name="RAMB18_X0Y30_DIPADIP"          input="BLK_IG-BRAM_L.RAMB18_X0Y30_DIPADIP"           output="BLK_IG-BRAM.RAMB18_Y1_DIPADIP" />
-  <direct name="RAMB18_X0Y30_DIBDI"            input="BLK_IG-BRAM_L.RAMB18_X0Y30_DIBDI"             output="BLK_IG-BRAM.RAMB18_Y1_DIBDI" />
-  <direct name="RAMB18_X0Y30_DIADI"            input="BLK_IG-BRAM_L.RAMB18_X0Y30_DIADI"             output="BLK_IG-BRAM.RAMB18_Y1_DIADI" />
+  <direct name="RAMB18_X0Y1_DIPBDIP"          input="BLK_IG-BRAM_L.RAMB18_X0Y1_DIPBDIP"             output="BLK_IG-BRAM.RAMB18_Y1_DIPBDIP" />
+  <direct name="RAMB18_X0Y1_DIPADIP"          input="BLK_IG-BRAM_L.RAMB18_X0Y1_DIPADIP"             output="BLK_IG-BRAM.RAMB18_Y1_DIPADIP" />
+  <direct name="RAMB18_X0Y1_DIBDI"            input="BLK_IG-BRAM_L.RAMB18_X0Y1_DIBDI"               output="BLK_IG-BRAM.RAMB18_Y1_DIBDI" />
+  <direct name="RAMB18_X0Y1_DIADI"            input="BLK_IG-BRAM_L.RAMB18_X0Y1_DIADI"               output="BLK_IG-BRAM.RAMB18_Y1_DIADI" />
 
-  <direct name="RAMB18_X0Y30_ADDRARDADDR"      input="BLK_IG-BRAM_L.RAMB18_X0Y30_ADDRARDADDR"       output="BLK_IG-BRAM.RAMB18_Y1_ADDRARDADDR" />
-  <direct name="RAMB18_X0Y30_ADDRBWRADDR"      input="BLK_IG-BRAM_L.RAMB18_X0Y30_ADDRBWRADDR"       output="BLK_IG-BRAM.RAMB18_Y1_ADDRBWRADDR" />
-  <direct name="RAMB18_X0Y30_ADDRATIEHIGH"     input="BLK_IG-BRAM_L.RAMB18_X0Y30_ADDRATIEHIGH"      output="BLK_IG-BRAM.RAMB18_Y1_ADDRATIEHIGH" />
-  <direct name="RAMB18_X0Y30_ADDRBTIEHIGH"     input="BLK_IG-BRAM_L.RAMB18_X0Y30_ADDRBTIEHIGH"      output="BLK_IG-BRAM.RAMB18_Y1_ADDRBTIEHIGH" />
+  <direct name="RAMB18_X0Y1_ADDRARDADDR"      input="BLK_IG-BRAM_L.RAMB18_X0Y1_ADDRARDADDR"         output="BLK_IG-BRAM.RAMB18_Y1_ADDRARDADDR" />
+  <direct name="RAMB18_X0Y1_ADDRBWRADDR"      input="BLK_IG-BRAM_L.RAMB18_X0Y1_ADDRBWRADDR"         output="BLK_IG-BRAM.RAMB18_Y1_ADDRBWRADDR" />
+  <direct name="RAMB18_X0Y1_ADDRATIEHIGH"     input="BLK_IG-BRAM_L.RAMB18_X0Y1_ADDRATIEHIGH"        output="BLK_IG-BRAM.RAMB18_Y1_ADDRATIEHIGH" />
+  <direct name="RAMB18_X0Y1_ADDRBTIEHIGH"     input="BLK_IG-BRAM_L.RAMB18_X0Y1_ADDRBTIEHIGH"        output="BLK_IG-BRAM.RAMB18_Y1_ADDRBTIEHIGH" />
 
-  <direct name="RAMB18_X0Y30_WRERR"            input="BLK_IG-BRAM.RAMB18_Y1_WRERR"                  output="BLK_IG-BRAM_L.RAMB18_X0Y30_WRERR" />
-  <direct name="RAMB18_X0Y30_WRCOUNT"          input="BLK_IG-BRAM.RAMB18_Y1_WRCOUNT"                output="BLK_IG-BRAM_L.RAMB18_X0Y30_WRCOUNT" />
-  <direct name="RAMB18_X0Y30_RDERR"            input="BLK_IG-BRAM.RAMB18_Y1_RDERR"                  output="BLK_IG-BRAM_L.RAMB18_X0Y30_RDERR" />
-  <direct name="RAMB18_X0Y30_RDCOUNT"          input="BLK_IG-BRAM.RAMB18_Y1_RDCOUNT"                output="BLK_IG-BRAM_L.RAMB18_X0Y30_RDCOUNT" />
-  <direct name="RAMB18_X0Y30_FULL"             input="BLK_IG-BRAM.RAMB18_Y1_FULL"                   output="BLK_IG-BRAM_L.RAMB18_X0Y30_FULL" />
-  <direct name="RAMB18_X0Y30_EMPTY"            input="BLK_IG-BRAM.RAMB18_Y1_EMPTY"                  output="BLK_IG-BRAM_L.RAMB18_X0Y30_EMPTY" />
-  <direct name="RAMB18_X0Y30_DOPADOP"          input="BLK_IG-BRAM.RAMB18_Y1_DOPADOP"                output="BLK_IG-BRAM_L.RAMB18_X0Y30_DOPADOP" />
-  <direct name="RAMB18_X0Y30_DOPBDOP"          input="BLK_IG-BRAM.RAMB18_Y1_DOPBDOP"                output="BLK_IG-BRAM_L.RAMB18_X0Y30_DOPBDOP" />
-  <direct name="RAMB18_X0Y30_DOADO"            input="BLK_IG-BRAM.RAMB18_Y1_DOADO"                  output="BLK_IG-BRAM_L.RAMB18_X0Y30_DOADO" />
-  <direct name="RAMB18_X0Y30_DOBDO"            input="BLK_IG-BRAM.RAMB18_Y1_DOBDO"                  output="BLK_IG-BRAM_L.RAMB18_X0Y30_DOBDO" />
-  <direct name="RAMB18_X0Y30_ALMOSTFULL"       input="BLK_IG-BRAM.RAMB18_Y1_ALMOSTFULL"             output="BLK_IG-BRAM_L.RAMB18_X0Y30_ALMOSTFULL" />
-  <direct name="RAMB18_X0Y30_ALMOSTEMPTY"      input="BLK_IG-BRAM.RAMB18_Y1_ALMOSTEMPTY"            output="BLK_IG-BRAM_L.RAMB18_X0Y30_ALMOSTEMPTY" />
+  <direct name="RAMB18_X0Y1_WRERR"            input="BLK_IG-BRAM.RAMB18_Y1_WRERR"                   output="BLK_IG-BRAM_L.RAMB18_X0Y1_WRERR" />
+  <direct name="RAMB18_X0Y1_WRCOUNT"          input="BLK_IG-BRAM.RAMB18_Y1_WRCOUNT"                 output="BLK_IG-BRAM_L.RAMB18_X0Y1_WRCOUNT" />
+  <direct name="RAMB18_X0Y1_RDERR"            input="BLK_IG-BRAM.RAMB18_Y1_RDERR"                   output="BLK_IG-BRAM_L.RAMB18_X0Y1_RDERR" />
+  <direct name="RAMB18_X0Y1_RDCOUNT"          input="BLK_IG-BRAM.RAMB18_Y1_RDCOUNT"                 output="BLK_IG-BRAM_L.RAMB18_X0Y1_RDCOUNT" />
+  <direct name="RAMB18_X0Y1_FULL"             input="BLK_IG-BRAM.RAMB18_Y1_FULL"                    output="BLK_IG-BRAM_L.RAMB18_X0Y1_FULL" />
+  <direct name="RAMB18_X0Y1_EMPTY"            input="BLK_IG-BRAM.RAMB18_Y1_EMPTY"                   output="BLK_IG-BRAM_L.RAMB18_X0Y1_EMPTY" />
+  <direct name="RAMB18_X0Y1_DOPADOP"          input="BLK_IG-BRAM.RAMB18_Y1_DOPADOP"                 output="BLK_IG-BRAM_L.RAMB18_X0Y1_DOPADOP" />
+  <direct name="RAMB18_X0Y1_DOPBDOP"          input="BLK_IG-BRAM.RAMB18_Y1_DOPBDOP"                 output="BLK_IG-BRAM_L.RAMB18_X0Y1_DOPBDOP" />
+  <direct name="RAMB18_X0Y1_DOADO"            input="BLK_IG-BRAM.RAMB18_Y1_DOADO"                   output="BLK_IG-BRAM_L.RAMB18_X0Y1_DOADO" />
+  <direct name="RAMB18_X0Y1_DOBDO"            input="BLK_IG-BRAM.RAMB18_Y1_DOBDO"                   output="BLK_IG-BRAM_L.RAMB18_X0Y1_DOBDO" />
+  <direct name="RAMB18_X0Y1_ALMOSTFULL"       input="BLK_IG-BRAM.RAMB18_Y1_ALMOSTFULL"              output="BLK_IG-BRAM_L.RAMB18_X0Y1_ALMOSTFULL" />
+  <direct name="RAMB18_X0Y1_ALMOSTEMPTY"      input="BLK_IG-BRAM.RAMB18_Y1_ALMOSTEMPTY"             output="BLK_IG-BRAM_L.RAMB18_X0Y1_ALMOSTEMPTY" />
  </interconnect>
 </pb_type>
