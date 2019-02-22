@@ -2,8 +2,6 @@ yosys -import
 
 # -flatten is used to ensure that the output eblif has only one module.
 # Some of symbiflow expects eblifs with only one module.
-#
-# Since we do not support BRAMs for now they are not inferred.
 synth_xilinx -vpr -flatten
 
 # Map Xilinx tech library to 7-series VPR tech library.
