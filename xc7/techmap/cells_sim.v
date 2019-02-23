@@ -125,6 +125,7 @@ module RAMB18E1_VPR (
 	parameter integer DOA_REG = 1'b0;
 	parameter integer DOB_REG = 1'b0;
 
+	parameter integer SDP_READ_WIDTH_36 = 1'b0;
 	parameter integer READ_WIDTH_A_18 = 1'b0;
 	parameter integer READ_WIDTH_A_9 = 1'b0;
 	parameter integer READ_WIDTH_A_4 = 1'b0;
@@ -135,6 +136,8 @@ module RAMB18E1_VPR (
 	parameter integer READ_WIDTH_B_4 = 1'b0;
 	parameter integer READ_WIDTH_B_2 = 1'b0;
 	parameter integer READ_WIDTH_B_1 = 1'b1;
+
+	parameter integer SDP_WRITE_WIDTH_36 = 1'b0;
 	parameter integer WRITE_WIDTH_A_18 = 1'b0;
 	parameter integer WRITE_WIDTH_A_9 = 1'b0;
 	parameter integer WRITE_WIDTH_A_4 = 1'b0;
