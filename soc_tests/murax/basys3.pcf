@@ -2,16 +2,14 @@
 
 set_io io_mainClk W5
 
-set_io io_jtag_tck V17
-set_io io_jtag_tdi V16
-set_io io_jtag_tms W16
-set_io io_uart_rxd W17
+set_io io_uart_txd A18
+set_io io_uart_rxd B18
 
-set_io io_jtag_tdo U16
-set_io io_uart_txd E19
-set_io io_led[0] U19
-set_io io_led[1] V19
-set_io io_led[2] W18
-set_io io_led[3] U15
-set_io io_led[4] U14
-set_io io_led[5] V14
+set_io io_led[0] U16
+set_io io_led[1] E19
+set_io io_led[2] U19
+set_io io_led[3] V19
+set_io io_led[4] W18
+set_io io_led[5] U15
+set_io io_led[6] U14
+set_io io_led[7] V14

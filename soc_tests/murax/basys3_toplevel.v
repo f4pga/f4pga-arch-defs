@@ -2,13 +2,9 @@
 
 module toplevel(
     input   io_mainClk,
-    input   io_jtag_tck,
-    input   io_jtag_tdi,
-    output  io_jtag_tdo,
-    input   io_jtag_tms,
     output  io_uart_txd,
     input   io_uart_rxd,
-    output [5:0] io_led
+    output [7:0] io_led
   );
 
   wire [31:0] io_gpioA_read;
@@ -27,10 +23,9 @@ module toplevel(
   Murax murax (
     .io_asyncReset(0),
     .io_mainClk (io_mainClk ),
-    .io_jtag_tck(io_jtag_tck),
-    .io_jtag_tdi(io_jtag_tdi),
-    .io_jtag_tdo(io_jtag_tdo),
-    .io_jtag_tms(io_jtag_tms),
+    .io_jtag_tck(1'b0),
+    .io_jtag_tdi(1'b0),
+    .io_jtag_tms(1'b0),
     .io_gpioA_read       (io_gpioA_read),
     .io_gpioA_write      (io_gpioA_write),
     .io_gpioA_writeEnable(io_gpioA_writeEnable),
