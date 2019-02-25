@@ -1676,39 +1676,39 @@ class RoutingNodeType(enum.Enum):
     @property
     def track(self):
         """Is this RoutingNodeType a track?"""
-        return self in (self.CHANX, self.CHANY)
+        return self in (RoutingNodeType.CHANX, RoutingNodeType.CHANY)
 
     @property
     def output(self):
         """Is this RoutingNodeType an output?"""
-        return self in (self.OPIN, self.SOURCE)
+        return self in (RoutingNodeType.OPIN, RoutingNodeType.SOURCE)
 
     @property
     def input(self):
         """Is this RoutingNodeType an input?"""
-        return self in (self.IPIN, self.SINK)
+        return self in (RoutingNodeType.IPIN, RoutingNodeType.SINK)
 
     @property
     def pin(self):
         """Is this RoutingNodeType an pin?"""
-        return self in (self.OPIN, self.IPIN)
+        return self in (RoutingNodeType.OPIN, RoutingNodeType.IPIN)
 
     @property
     def pin_class(self):
         """Is this RoutingNodeType an pin_class?"""
-        return self in (self.SINK, self.SOURCE)
+        return self in (RoutingNodeType.SINK, RoutingNodeType.SOURCE)
 
     @property
     def can_sink(self):
         """Can be a destination of an edge."""
         # -> XXX
-        return self in (self.IPIN, self.CHANX, self.CHANY)
+        return self in (RoutingNodeType.IPIN, RoutingNodeType.CHANX, RoutingNodeType.CHANY)
 
     @property
     def can_source(self):
         """Can be a source of an edge."""
         # XXX ->
-        return self in (self.OPIN, self.CHANX, self.CHANY)
+        return self in (RoutingNodeType.OPIN, RoutingNodeType.CHANX, RoutingNodeType.CHANY)
 
 
 def _metadata(parent_node):
