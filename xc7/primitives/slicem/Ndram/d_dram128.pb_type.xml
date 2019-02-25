@@ -1,26 +1,45 @@
 <pb_type name="BLK_IG-D_DRAM128" num_pb="1" xmlns:xi="http://www.w3.org/2001/XInclude">
   <clock  name="CLK" num_pins="1" />
   <input  name="A"   num_pins="6" />
+  <input  name="WA"  num_pins="6" />
   <input  name="WA7" num_pins="1" />
   <input  name="DI1" num_pins="1" />
   <input  name="WE"  num_pins="1" />
 
-  <output name="O6"  num_pins="1" />
+  <output name="DO6"  num_pins="1" />
+  <output name="SO6"  num_pins="1" />
+  <output name="O6"   num_pins="1" />
+  <output name="DI_OUT" num_pins="1" />
 
- <mode name="128_SINGLE_PORT">
-   <xi:include href="spram128.pb_type.xml" />
-   <interconnect>
-     <direct name="CLK" input="BLK_IG-D_DRAM128.CLK" output="BLK_MM-SPRAM128.CLK" />
-     <direct name="A" input="BLK_IG-D_DRAM128.A" output="BLK_MM-SPRAM128.A" />
-     <direct name="WA7" input="BLK_IG-D_DRAM128.WA7" output="BLK_MM-SPRAM128.WA7" />
-     <direct name="DI" input="BLK_IG-D_DRAM128.DI1" output="BLK_MM-SPRAM128.DI1" />
-     <direct name="WE" input="BLK_IG-D_DRAM128.WE" output="BLK_MM-SPRAM128.WE" />
+  <mode name="128_DUAL_PORT">
+    <xi:include href="dpram128.pb_type.xml" />
+      <interconnect>
+        <direct name="CLK" input="BLK_IG-D_DRAM128.CLK" output="BLK_MM-DPRAM128.CLK" />
+        <direct name="A" input="BLK_IG-D_DRAM128.A" output="BLK_MM-DPRAM128.A" />
+        <direct name="WA" input="BLK_IG-D_DRAM128.WA[5:0]" output="BLK_MM-DPRAM128.WA[5:0]" />
+        <direct name="WA7" input="BLK_IG-D_DRAM128.WA7" output="BLK_MM-DPRAM128.WA7" />
+        <direct name="DI" input="BLK_IG-D_DRAM128.DI1" output="BLK_MM-DPRAM128.DI1" />
+        <direct name="WE" input="BLK_IG-D_DRAM128.WE" output="BLK_MM-DPRAM128.WE" />
 
-     <direct name="O6" input="BLK_MM-SPRAM128.O6" output="BLK_IG-D_DRAM128.O6" />
-   </interconnect>
- </mode>
+        <direct name="DO6" input="BLK_MM-DPRAM128.O6" output="BLK_IG-D_DRAM128.DO6" />
+        <direct name="O6" input="BLK_MM-DPRAM128.O6" output="BLK_IG-D_DRAM128.O6" />
+        <direct name="DI_OUT" input="BLK_IG-D_DRAM128.DI1" output="BLK_IG-D_DRAM128.DI_OUT" />
+      </interconnect>
+  </mode>
+  <mode name="128_SINGLE_PORT">
+    <xi:include href="spram128.pb_type.xml" />
+    <interconnect>
+      <direct name="CLK" input="BLK_IG-D_DRAM128.CLK" output="BLK_MM-SPRAM128.CLK" />
+      <direct name="A" input="BLK_IG-D_DRAM128.A" output="BLK_MM-SPRAM128.A" />
+      <direct name="WA7" input="BLK_IG-D_DRAM128.WA7" output="BLK_MM-SPRAM128.WA7" />
+      <direct name="DI" input="BLK_IG-D_DRAM128.DI1" output="BLK_MM-SPRAM128.DI1" />
+      <direct name="WE" input="BLK_IG-D_DRAM128.WE" output="BLK_MM-SPRAM128.WE" />
 
- <metadata>
-  <meta name="fasm_prefix">DLUT</meta>
- </metadata>
+      <direct name="O6" input="BLK_MM-SPRAM128.O6" output="BLK_IG-D_DRAM128.O6" />
+    </interconnect>
+  </mode>
+
+  <metadata>
+    <meta name="fasm_prefix">DLUT</meta>
+  </metadata>
 </pb_type>
