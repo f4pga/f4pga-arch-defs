@@ -1,9 +1,12 @@
 # basys3 100 MHz CLK
 set_io clk W5
 
-# LED1-LED4 correspond with LD0-LD3 on the basys3
-set_io LED1 U16
-set_io LED2 E19
-set_io LED3 U19
-set_io LED4 V19
-# set_io LED5 W18
+# out[0:7] correspond with LD0-LD7 on the basys3
+set_io out[0] U16
+set_io out[1] E19
+set_io out[2] U19
+set_io out[3] V19
+set_io out[4] W18
+set_io out[5] U15
+set_io out[6] U14
+set_io out[7] V14
