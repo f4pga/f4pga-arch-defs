@@ -254,7 +254,7 @@ module RAMB18E1_VPR (
 	output [1:0] DOPADOP,
 	output [1:0] DOPBDOP
 );
-	parameter IN_USE = 0;
+	parameter IN_USE = 1'b0;
 
 	parameter ZINIT_A = 18'h0;
 	parameter ZINIT_B = 18'h0;
@@ -347,8 +347,8 @@ module RAMB18E1_VPR (
 	parameter ZINV_REGCLKARDRCLK = 1'b1;
 	parameter ZINV_REGCLKB = 1'b1;
 
-    parameter integer DOA_REG = 0;
-    parameter integer DOB_REG = 0;
+	parameter DOA_REG = 1'b0;
+	parameter DOB_REG = 1'b0;
 
 	parameter integer SDP_READ_WIDTH_36 = 1'b0;
 	parameter integer READ_WIDTH_A_18 = 1'b0;

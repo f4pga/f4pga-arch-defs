@@ -690,8 +690,8 @@ module RAMB18E1 (
 
     parameter RAM_MODE = "TDP";
     parameter SIM_DEVICE = "7SERIES";
-    parameter integer DOA_REG = 1'b0;
-    parameter integer DOB_REG = 1'b0;
+    parameter DOA_REG = 1'b0;
+    parameter DOB_REG = 1'b0;
 
     parameter integer READ_WIDTH_A = 0;
     parameter integer READ_WIDTH_B = 0;
