@@ -599,6 +599,12 @@ module RAMB18E1 (
     output [1:0] DOPADOP,
     output [1:0] DOPBDOP
 );
+    parameter INIT_A = 18'h0;
+    parameter INIT_B = 18'h0;
+
+    parameter SRVAL_A = 18'h0;
+    parameter SRVAL_B = 18'h0;
+
     parameter INITP_00 = 256'h0000000000000000000000000000000000000000000000000000000000000000;
     parameter INITP_01 = 256'h0000000000000000000000000000000000000000000000000000000000000000;
     parameter INITP_02 = 256'h0000000000000000000000000000000000000000000000000000000000000000;
@@ -684,8 +690,8 @@ module RAMB18E1 (
 
     parameter RAM_MODE = "TDP";
     parameter SIM_DEVICE = "7SERIES";
-    parameter integer DOA_REG = 0;
-    parameter integer DOB_REG = 0;
+    parameter integer DOA_REG = 1'b0;
+    parameter integer DOB_REG = 1'b0;
 
     parameter integer READ_WIDTH_A = 0;
     parameter integer READ_WIDTH_B = 0;
@@ -704,30 +710,43 @@ module RAMB18E1 (
         && READ_WIDTH_A != 1
         && READ_WIDTH_A != 4
         && READ_WIDTH_A != 9
-        && READ_WIDTH_A != 18)
-        _TECHMAP_FAIL_ <= 1;
+        && READ_WIDTH_A != 18
+        && READ_WIDTH_A != 36
+        && READ_WIDTH_A != 72)
+        $error("Invalid READ_WIDTH_A: ", READ_WIDTH_A);
     if(READ_WIDTH_B != 0
         && READ_WIDTH_B != 1
         && READ_WIDTH_B != 4
         && READ_WIDTH_B != 9
         && READ_WIDTH_B != 18)
-        _TECHMAP_FAIL_ <= 1;
+        $error("Invalid READ_WIDTH_B: ", READ_WIDTH_B);
     if(WRITE_WIDTH_A != 0
         && WRITE_WIDTH_A != 1
         && WRITE_WIDTH_A != 4
         && WRITE_WIDTH_A != 9
         && WRITE_WIDTH_A != 18)
-        _TECHMAP_FAIL_ <= 1;
+        $error("Invalid WRITE_WIDTH_A: ", WRITE_WIDTH_A);
     if(WRITE_WIDTH_B != 0
         && WRITE_WIDTH_B != 1
         && WRITE_WIDTH_B != 4
         && WRITE_WIDTH_B != 9
-        && WRITE_WIDTH_B != 18)
-        _TECHMAP_FAIL_ <= 1;
+        && WRITE_WIDTH_B != 18
+        && WRITE_WIDTH_B != 36
+        && WRITE_WIDTH_B != 72)
+        $error("Invalid WRITE_WIDTH_B: ", WRITE_WIDTH_B);
+
+    if(READ_WIDTH_A > 18 && RAM_MODE != "SDP") begin
+        $error("READ_WIDTH_A > 18 requires SDP mode.");
+    end
+
+    if(WRITE_WIDTH_B > 18 && RAM_MODE != "SDP") begin
+        $error("WRITE_WIDTH_B > 18 requires SDP mode.");
+    end
+
     if(WRITE_MODE_A != "WRITE_FIRST" && WRITE_MODE_A != "NO_CHANGE" && WRITE_MODE_A != "READ_FIRST")
-        _TECHMAP_FAIL_ <= 1;
+        $error("Invalid WRITE_MODE_A", WRITE_MODE_A);
     if(WRITE_MODE_B != "WRITE_FIRST" && WRITE_MODE_B != "NO_CHANGE" && WRITE_MODE_B != "READ_FIRST")
-        _TECHMAP_FAIL_ <= 1;
+        $error("Invalid WRITE_MODE_B", WRITE_MODE_B);
   end
 
   wire REGCLKA;
@@ -847,26 +866,28 @@ module RAMB18E1 (
       .DOA_REG(DOA_REG),
       .DOB_REG(DOB_REG),
 
-      .READ_WIDTH_A_1(READ_WIDTH_A == 1 || READ_WIDTH_A == 0),
-      .READ_WIDTH_A_2(READ_WIDTH_A == 2),
-      .READ_WIDTH_A_4(READ_WIDTH_A == 4),
-      .READ_WIDTH_A_9(READ_WIDTH_A == 9),
-      .READ_WIDTH_A_18(READ_WIDTH_A == 18),
-      .READ_WIDTH_B_1(READ_WIDTH_B == 1 || READ_WIDTH_B == 0),
+      .READ_WIDTH_A_1(READ_WIDTH_A == 1 || READ_WIDTH_A == 0 || RAM_MODE == "SDP"),
+      .READ_WIDTH_A_2(READ_WIDTH_A == 2 && RAM_MODE != "SDP"),
+      .READ_WIDTH_A_4(READ_WIDTH_A == 4 && RAM_MODE != "SDP"),
+      .READ_WIDTH_A_9(READ_WIDTH_A == 9 && RAM_MODE != "SDP"),
+      .READ_WIDTH_A_18(READ_WIDTH_A == 18 && RAM_MODE != "SDP"),
+      .SDP_READ_WIDTH_36(READ_WIDTH_A == 36),
+      .READ_WIDTH_B_1((READ_WIDTH_B == 1 || READ_WIDTH_B == 0) && RAM_MODE != "SDP"),
       .READ_WIDTH_B_2(READ_WIDTH_B == 2),
       .READ_WIDTH_B_4(READ_WIDTH_B == 4),
       .READ_WIDTH_B_9(READ_WIDTH_B == 9),
-      .READ_WIDTH_B_18(READ_WIDTH_B == 18),
-      .WRITE_WIDTH_A_1(WRITE_WIDTH_A == 1 || WRITE_WIDTH_A == 0),
+      .READ_WIDTH_B_18(READ_WIDTH_B == 18 || (READ_WIDTH_A == 36)),
+      .WRITE_WIDTH_A_1((WRITE_WIDTH_A == 1 || WRITE_WIDTH_A == 0) && RAM_MODE != "SDP"),
       .WRITE_WIDTH_A_2(WRITE_WIDTH_A == 2),
       .WRITE_WIDTH_A_4(WRITE_WIDTH_A == 4),
       .WRITE_WIDTH_A_9(WRITE_WIDTH_A == 9),
-      .WRITE_WIDTH_A_18(WRITE_WIDTH_A == 18),
+      .WRITE_WIDTH_A_18(WRITE_WIDTH_A == 18 || WRITE_WIDTH_B == 36),
       .WRITE_WIDTH_B_1(WRITE_WIDTH_B == 1 || WRITE_WIDTH_B == 0),
       .WRITE_WIDTH_B_2(WRITE_WIDTH_B == 2),
       .WRITE_WIDTH_B_4(WRITE_WIDTH_B == 4),
       .WRITE_WIDTH_B_9(WRITE_WIDTH_B == 9),
-      .WRITE_WIDTH_B_18(WRITE_WIDTH_B == 18),
+      .WRITE_WIDTH_B_18(WRITE_WIDTH_B == 18 || WRITE_WIDTH_B == 36),
+      .SDP_WRITE_WIDTH_36(WRITE_WIDTH_B == 36),
       .WRITE_MODE_A_NO_CHANGE(WRITE_MODE_A == "NO_CHANGE"),
       .WRITE_MODE_A_READ_FIRST(WRITE_MODE_A == "READ_FIRST"),
       .WRITE_MODE_B_NO_CHANGE(WRITE_MODE_B == "NO_CHANGE"),
