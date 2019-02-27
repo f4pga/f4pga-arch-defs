@@ -81,10 +81,11 @@ for name, pins in icebox.pinloc_db.items():
         return fabric_glb_network
 
     def tile_type(x,y):
-        metadata = {
-            'hlc_coord': "{} {}".format(x,y),
-        }
         tt = ic.tile_type(x, y)
+        metadata = {
+            'hlc_coord': "{:d} {:d}".format(x,y),
+            "fasm_prefix": "{}_X{:d}_Y{:d}".format(tt, x, y)
+        }
         if (x,y) in get_corner_tiles(ic):
             return None, {}
         if tt == "RAMB":
