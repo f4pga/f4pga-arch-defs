@@ -9,3 +9,5 @@ simplemap
 opt
 abc -lut 4
 opt_clean
+
+setundef -zero -params
