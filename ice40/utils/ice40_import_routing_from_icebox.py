@@ -83,6 +83,7 @@ import lxml.etree as ET
 
 import icebox
 import icebox_asc2hlc
+from ice40_feature import Feature, IceDbEntry
 
 # Local libs
 import lib.rr_graph.channel as channel
@@ -489,6 +490,8 @@ def add_pin_aliases(g, ic):
             g.routing.localnames.add(vpos, hlc_name, node)
             node.set_metadata("hlc_name", hlc_name)
 
+            #node.set_metadata("fasm_feature", )
+
             rr_name = pin.xmlname
             try:
                 localname = name_rr2local[rr_name]
@@ -708,7 +711,7 @@ def add_global_tracks(g, ic):
             )
 
 
-def create_edge_with_names(g, src_name, dst_name, ipos, switch, skip=None, bidir=None):
+def create_edge_with_names(g, src_name, dst_name, ipos, switch, skip=None, bidir=None, metadata={}):
     """Create an edge at a given icebox position from two local names."""
     assert_type(src_name, str)
     assert_type(dst_name, str)
@@ -778,11 +781,13 @@ def create_edge_with_names(g, src_name, dst_name, ipos, switch, skip=None, bidir
         format_node(g, dst_node),
     )
 
+    metadata["hlc_coord"] = "{},{}".format(*ipos)
+
     g.routing.create_edge_with_nodes(
         src_node, dst_node,
         switch=switch,
         bidir=bidir,
-        metadata={Offset(0,0):{"hlc_coord": "{},{}".format(*ipos)}},
+        metadata={Offset(0,0): metadata},
     )
 
 
@@ -1038,11 +1043,15 @@ def add_edges(g, ic):
                 skip("Remaining %s", remaining)
                 continue
 
+            feature, _ = Feature.fromIceDbEntry(IceDbEntry(ic.tile_type(*ipos), ipos, entry[0], entry[1:], None)).toFasmEntry()
+            fasm_data = {'fasm_features': feature}
+
             create_edge_with_names(
                 g,
                 src_localname, dst_localname,
                 ipos, g.switches[switch_type],
                 skip,
+                metadata=fasm_data
             )
 
 
