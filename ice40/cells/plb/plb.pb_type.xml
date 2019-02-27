@@ -166,6 +166,7 @@
  <pb_type name="BLK_IG-LUTFF" num_pb="8">
    <xi:include href="../lutff/lutff.pb_type.xml" xpointer="xpointer(pb_type/child::node())"/>
    <metadata>
+     <meta name="hlc_cell">lutff</meta>
      <meta name="fasm_prefix">LC_0 LC_1 LC_2 LC_3 LC_4 LC_5 LC_6 LC_7</meta>
      <meta name="fasm_type">LUT</meta>
      <meta name="fasm_lut">
