@@ -53,6 +53,8 @@
         # no_setreset
         # --
     </meta>
+    <meta name="fasm_features">
+    </meta>
    </metadata>
   </pb_type>
   <interconnect>
@@ -81,6 +83,9 @@
         # use_cen
         # no_setreset
         # --
+    </meta>
+    <meta name="fasm_features">
+      CarryEnable
     </meta>
    </metadata>
   </pb_type>
@@ -113,6 +118,10 @@
         # use_cen
         async_setreset
         # reset
+    </meta>
+    <meta name="fasm_features">
+      CarryEnable
+      AsyncSetReset
     </meta>
    </metadata>
   </pb_type>
@@ -147,6 +156,11 @@
         async_setreset
         set_noreset
     </meta>
+       <meta name="fasm_features">
+      CarryEnable
+      AsyncSetReset
+      Set_NoReset
+    </meta>
    </metadata>
   </pb_type>
   <interconnect>
@@ -179,6 +193,9 @@
         # use_cen
         # sync_setreset
         # reset
+    </meta>
+    <meta name="fasm_features">
+      CarryEnable
     </meta>
    </metadata>
   </pb_type>
@@ -213,6 +230,10 @@
         # sync_setreset
         set_noreset
     </meta>
+    <meta name="fasm_features">
+      CarryEnable
+      Set_NoReset
+    </meta>
    </metadata>
   </pb_type>
   <interconnect>
@@ -244,6 +265,9 @@
         async_setreset
         # reset
     </meta>
+    <meta name="fasm_features">
+      AsyncSetReset
+    </meta>
    </metadata>
   </pb_type>
   <interconnect>
@@ -273,6 +297,10 @@
         # no_cen
         async_setreset
         set_noreset
+    </meta>
+    <meta name="fasm_features">
+      AsyncSetReset
+      Set_NoReset
     </meta>
    </metadata>
   </pb_type>
@@ -304,6 +332,8 @@
         # sync_setreset
         # reset
     </meta>
+    <meta name="fasm_features">
+    </meta>
    </metadata>
   </pb_type>
   <interconnect>
@@ -334,6 +364,9 @@
         # sync_setreset
         set_noreset
     </meta>
+    <meta name="fasm_features">
+      Set_NoReset
+    </meta>
    </metadata>
   </pb_type>
   <interconnect>
@@ -361,6 +394,10 @@
         # no_cen
         # no_setreset
         # --
+    </meta>
+    <meta name="fasm_features">
+      AsyncSetReset
+      NegClk
     </meta>
    </metadata>
   </pb_type>
@@ -390,6 +427,11 @@
         # use_cen
         # no_setreset
         # --
+    </meta>
+    <meta name="fasm_features">
+      CarryEnable
+      Set_NoReset
+      NegClk
     </meta>
    </metadata>
   </pb_type>
@@ -422,6 +464,11 @@
         # use_cen
         async_setreset
         # reset
+    </meta>
+    <meta name="fasm_features">
+      CarryEnable
+      AsyncSetReset
+      NegClk
     </meta>
    </metadata>
   </pb_type>
@@ -456,6 +503,12 @@
         async_setreset
         set_noreset
     </meta>
+    <meta name="fasm_features">
+      CarryEnable
+      AsyncSetReset
+      Set_NoReset
+      NegClk
+    </meta>
    </metadata>
   </pb_type>
   <interconnect>
@@ -488,6 +541,11 @@
         # use_cen
         # sync_setreset
         # reset
+    </meta>
+    <meta name="fasm_features">
+      CarryEnable
+      Set_NoReset
+      NegClk
     </meta>
    </metadata>
   </pb_type>
@@ -522,6 +580,11 @@
         # sync_setreset
         set_noreset
     </meta>
+    <meta name="fasm_features">
+      CarryEnable
+      Set_NoReset
+      NegClk
+    </meta>
    </metadata>
   </pb_type>
   <interconnect>
@@ -553,6 +616,10 @@
         async_setreset
         # reset
     </meta>
+    <meta name="fasm_features">
+      AsyncSetReset
+      NegClk
+    </meta>
    </metadata>
   </pb_type>
   <interconnect>
@@ -582,6 +649,11 @@
         # no_cen
         async_setreset
         set_noreset
+    </meta>
+    <meta name="fasm_features">
+      AsyncSetReset
+      Set_NoReset
+      NegClk
     </meta>
    </metadata>
   </pb_type>
@@ -613,6 +685,9 @@
         # sync_setreset
         # reset
     </meta>
+    <meta name="fasm_features">
+      NegClk
+    </meta>
    </metadata>
   </pb_type>
   <interconnect>
@@ -642,6 +717,10 @@
         # no_cen
         # sync_setreset
         set_noreset
+    </meta>
+    <meta name="fasm_features">
+      Set_NoReset
+      NegClk
     </meta>
    </metadata>
   </pb_type>
