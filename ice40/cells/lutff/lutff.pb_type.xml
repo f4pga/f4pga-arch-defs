@@ -99,8 +99,14 @@
   <direct name="DISABLE_FF" input="BEL_LT-LUT.out" output="BLK_IG-DISABLE_FF.I" />
   <direct name="ENABLE_FF"  input="BEL_FF-SB_FF.Q" output="BLK_IG-ENABLE_FF.I"  />
   <!-- Output -->
-  <mux name="O" input="BLK_IG-DISABLE_FF.O BLK_IG-ENABLE_FF.O" output="BLK_IG-LUTFF.O" />
-
+  <mux name="O" input="BLK_IG-DISABLE_FF.O BLK_IG-ENABLE_FF.O" output="BLK_IG-LUTFF.O">
+    <metadata>
+      <meta name="fasm_mux">
+	BLK_IG-ENABLE_FF.O  = DffEnable
+	BLK_IG-DISABLE_FF.O = NULL
+      </meta>
+    </metadata>
+  </mux>
   <!--
   <direct name="OMUX.LT" input="BLK_IG-ENABLE_FF.O"  output="BEL_RX-RMUX2.LT" />
   <direct name="OMUX.FF" input="BLK_IG-DISABLE_FF.O" output="BEL_RX-RMUX2.FF" />
