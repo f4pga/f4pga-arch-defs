@@ -15,11 +15,14 @@ from pdfminer.pdfpage import PDFPage
 from pdfminer.converter import PDFLayoutAnalyzer
 from pdfminer.layout import LAParams, LTText, LTContainer, LTTextLineHorizontal
 
-from collections import OrderedDict, namedtuple
-import pprint
+from collections import OrderedDict
+import sys
 import re
 
-PAGE_MARGIN = 60    # space ignored at the top and bottom of the page, for page header/footer
+from datetime import datetime
+from lxml import objectify, etree
+
+PAGE_MARGIN = 60  # space ignored at the top and bottom of the page, for page header/footer
 HEADER_MARGIN = 30  # space ignored at the start of the section due to the section header
 COL_MARGIN = 5      # acceptable variation in x-position of entries in the same column
 
@@ -170,15 +173,17 @@ def parse_module_pages(doc,start_at):
     process = False
     pgs = PDFPage.create_pages(doc)
     for (level, title, dest, a, se) in doc.get_outlines():
-        if level == 2:
-            process = title.startswith('Ch. 4:')  # modules are defined in chapter 4
+        if level == 2:  # chapter titles
+            # modules are defined in chapter 4
+            process = title.startswith('Ch. 4:')
         elif process and level == 3:  # module names are defined at level 3 of the TOC
             module = title
-        elif level == 4 and module is not None and title.startswith(start_at):   # might not be plural (e.g. LUT6)
+        elif level == 4 and module is not None and title.startswith(start_at):
+            # NB: possible incosistency in "title" name (e.g. LUT6)
             start = resolve_goto_action(doc, a)
-        elif start is not None and module not in parts: # i.e. this is the FIRST following section
+        elif start is not None and module not in parts:  # i.e. this is the FIRST following section
             stop = resolve_goto_action(doc, a)
-            parts[module] = list(find_pages(pgs, start, stop))
+            parts[module] = find_pages(pgs, start, stop)
             start = None
     return parts
 
@@ -243,7 +248,6 @@ def process_ports(tbl):
 
 def process_attributes(tbl):
     if not len(tbl.items): return []
-    print(tbl.items)
     tbl.process_table()
     # transform headers as necessary
     for i,(x,name) in enumerate(tbl.heads):
@@ -314,62 +318,71 @@ def process_attributes(tbl):
                 y['Attribute'] = fmt%(pre1,nchar,j,post1)
                 attribs.insert(i+j,y)
     return attribs
-    
-def generate_xml(module, ports, attribs):
-    """Generate some trashy XML to describe the module"""
-    s = '\n<module name="%s">\n'%module
-    for x in ports: s += '\t<port name="%s" type="%s" width="%d">%s</port>\n'%(x['Port'],x['Type'],x['Width'],x['Function'].replace('<','&lt;').replace('>','&gt;').replace('\n','<br/>'))
-    for x in attribs: s += '\t<attribute name="%s" type="%s" default="%s" values="%s">%s</attribute>\n'%(x['Attribute'],x['Type'],x['Default'].replace('"',""),x['Allowed'].replace('"',''),x['Description'].replace('\n','<br/>'))
-    s += '</module>\n'
-    return s
-    
-def generate_verilog(module, ports, attribs):
-    """Generate some Verilog describing the module"""
-    s = 'module %s (%s);\n'%(module, ", ".join([p['Port'] for p in ports]))
-    for x in ports:
-        name = (('[%d:0] '%(x['Width']-1)) + x['Port']) if x['Width'] > 1 else x['Port']
-        s += '\t%s %s\n\t\t\\\\ %s\n'%(x['Type'],name,x['Function'])
-    if len(attribs): s += '\n'
-    for x in attribs:
-        s += '\tparameter %s = %s;\n'%(x['Attribute'],x['Default'])
-        s += '\t\t\\\\ [%s] Values: %s\n'%(x['Type'],x['Allowed'])
-        for line in x['Description'].splitlines():
-            s += '\t\t\\\\ ' + line + '\n'
-    s += "endmodule\n\n"
-    return s
-    
-def run(infp, outfp, xml=True, flush=True):
-    """Process the specific input PDF into the output XML"""
+
+
+def process_specs(infile, modules=[]):
+    """Process the module specifications in the input PDF into an XML tree"""
+    # initialise the pdfminer interface --
+    # we use a custom "render device" to receive the text objects in the PDF for further processing
     resman = PDFResourceManager()
-    doc = PDFDocument(PDFParser(infp))
+    doc = PDFDocument(PDFParser(open(infile,'rb')))
     laparams = LAParams(line_margin=0.1, char_margin=0.7)   # parameters optimised to prevent incorrectly joining together words
     
     device = PDFTableParser(resman, laparams, stop_at='VHDL')
     interpreter = PDFPageInterpreter(resman, device)
-    
-    port_list = parse_module_pages(doc,'Port Desc')
-    attrib_list = parse_module_pages(doc,'Available Attrib')
-    if xml: outfp.write('<xml>')
-    for module in port_list:
-        print(module)
-        ports = []
-        attribs = []
-        for pg, top, bottom in port_list[module]:
+
+    # parse the PDF table of contents to figure out what modules exist and which pages to process
+    port_pages = parse_module_pages(doc, 'Port Desc')
+    if not len(modules):
+        modules = port_pages.keys()  # default to processing ALL modules
+    attrib_list = parse_module_pages(
+        doc, 'Available Attrib')  # NB: not all modules have attributes
+
+    # parse the specifications and generate an XML tree
+    E = objectify.ElementMaker(annotate=False)
+    root = E.xml(source=infile, processed=datetime.now().isoformat())
+
+    # run through the modules
+    for module in modules:
+        sys.stderr.write('Processing %s...\n'%module)
+        node = E.module(name=module)
+        # process the ports of this module
+        for pg, top, bottom in port_pages[module]:
             device.reset(top, bottom)
             interpreter.process_page(pg)
-            ports += process_ports(device)
+            for P in process_ports(device):
+                node.append(
+                    E.port(P['Function'],
+                        name=P['Port'],
+                        type=P['Type'],
+                        width=str(P['Width'])
+                    ))
             if device.done: break
+        # process the attributes of this module
         for pg, top, bottom in attrib_list.get(module, []):
             device.reset(top, bottom)
             interpreter.process_page(pg)
-            attribs += process_attributes(device)
+            for A in process_attributes(device):
+                node.append(
+                    E.attribute(A['Description'],
+                        name=A['Attribute'],
+                        type=A['Type'],
+                        default=A['Default'].replace('"', ''),
+                        values=A['Allowed'].replace('"', '')
+                    ))
             if device.done: break
-        outfp.write(generate_xml(module, ports, attribs))
-        if flush: outfp.flush()
-    if xml: outfp.write('</xml>')
-        
+        # add it to the root object
+        root.append(node)
+    return root
+
+
 if __name__ == '__main__':
-    import sys
-    infile = sys.argv[1] if len(sys.argv) > 1 else 'ug953-vivado-7series-libraries.pdf'
-    outfile = sys.argv[2] if len(sys.argv) > 2 else 'cells_xtra.xml'
-    run(open(infile,'rb'), open(outfile,'w'))
+    import argparse
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--input', '-i', nargs='?', default='ug953-vivado-7series-libraries.pdf')
+    parser.add_argument('--output', '-o', nargs='?', type=argparse.FileType('wb'), default=sys.stdout)
+    parser.add_argument('--modules', '-m', nargs='*')
+    args = parser.parse_args()
+    
+    xml = process_specs(args.input, args.modules)
+    args.output.write(etree.tostring(xml, pretty_print=True))

@@ -4,7 +4,7 @@ from datetime import datetime
 
 def format_port(name,width,type,**kwargs):
     wstr = '' if int(width) == 1 else '[%s:0]\t'%width
-    return '\t%s\t%s%s\n'%(type,wstr,name)
+    return '\t%s\t%s%s;\n'%(type,wstr,name)
 
 def format_attrib(name,type,default,**kwargs):
     if type == 'STRING': default = '"%s"'%default # need to ensure strings are quoted
@@ -25,7 +25,9 @@ def process(infile, outfile):
             output.write('endmodule\n\n')
 
 if __name__ == '__main__':
-    import sys
-    input = sys.argv[1] if len(sys.argv) > 1 else 'cells_xtra.xml'
-    output = sys.argv[2] if len(sys.argv) > 2 else 'cells_xtra.v'
-    process(input, output)
+    import argparse
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--input', '-i', nargs='?', default='cells_xtra.xml')
+    parser.add_argument('--output', '-o', nargs='?', default='cells_xtra.v')
+    args = parser.parse_args()
+    process(args.input, args.output)
