@@ -76,6 +76,29 @@
        <delay_constant max="740e-12" in_port="SB_RAM256x16.MASK"  out_port="SB_RAM256x16.RDATA"/>
        <delay_constant max="740e-12" in_port="SB_RAM256x16.WDATA" out_port="SB_RAM256x16.RDATA"/>
 
+       <metadata>
+         <meta name="fasm_params">
+           INIT0[255:0] = INIT_0
+           INIT1[255:0] = INIT_1
+           INIT2[255:0] = INIT_2
+           INIT3[255:0] = INIT_3
+           INIT4[255:0] = INIT_4
+           INIT5[255:0] = INIT_5
+           INIT6[255:0] = INIT_6
+           INIT7[255:0] = INIT_7
+           INIT8[255:0] = INIT_8
+           INIT9[255:0] = INIT_9
+           INITA[255:0] = INIT_A
+           INITB[255:0] = INIT_B
+           INITC[255:0] = INIT_C
+           INITD[255:0] = INIT_D
+           INITE[255:0] = INIT_E
+           INITF[255:0] = INIT_F
+           WRITE_MODE[1:0] = WRITE_MODE
+           READ_MODE [1:0] = READ_MODE
+         </meta>
+       </metadata>
+
       </pb_type>
       <interconnect>
        <!-- Read port -->
@@ -166,4 +189,9 @@
       </interconnect>
      </mode>
 
+     <metadata>
+       <meta name="fasm_features">
+	 RamConfig.PowerUp
+       </meta>
+     </metadata>
     </pb_type>
