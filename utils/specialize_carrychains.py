@@ -42,7 +42,15 @@ def main():
 
     # Specialize first chain in each tile, and delete the rest.
     for tile, pats in tiles.items():
-        pat_indices, _ = zip(*sorted(enumerate((get_pb_type_chain(pat)[1] for pat in pats)), key=lambda x: x[1]))
+        patterns = []
+        for idx, pat in enumerate(pats):
+            parts = get_pb_type_chain(pat)
+            if len(parts) > 1:
+                patterns.append((idx, parts[1]))
+            else:
+                patterns.append((idx, ''))
+
+        pat_indices, _ = zip(*sorted(patterns, key=lambda x: x[1]))
         chain_to_keep = specialized_chain_name(pats[pat_indices[0]])
 
         for pat_idx in pat_indices:
