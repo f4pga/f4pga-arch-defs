@@ -81,6 +81,11 @@ endfunction()
 
 icestorm_setup()
 
+add_conda_pip(
+  NAME numpy
+  NO_EXE
+  )
+
 add_subdirectory(primitives)
 add_subdirectory(cells)
 add_subdirectory(devices)
