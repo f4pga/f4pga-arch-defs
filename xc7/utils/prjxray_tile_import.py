@@ -481,11 +481,6 @@ def main():
                     'side': side.lower(),
             }).text = ' '.join(pins)
 
-    metadata_xml = ET.SubElement(pb_type_xml, 'metadata')
-    ET.SubElement(metadata_xml, 'meta', {
-            'name': 'fasm_prefix',
-    }).text = args.tile
-
     direct_pins = set()
     for direct in pin_assignments['direct_connections']:
         if direct['from_pin'].split('.')[0] == args.tile:
