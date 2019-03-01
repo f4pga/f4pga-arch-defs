@@ -16,9 +16,112 @@ and will convert to verilog content beginning at that address only !
 
 """
 import argparse
+import sys
 
 # =============================================================================
 
+class Templates:
+
+    memory_case = """
+module progmem
+(
+// Closk & reset
+input  wire         clk,
+input  wire         rstn,
+
+// PicoRV32 bus interface
+input  wire         valid,
+output wire         ready,
+input  wire [31:0]  addr,
+output wire [31:0]  rdata
+);
+
+// ============================================================================
+
+localparam  MEM_SIZE_BITS   = {mem_size}; // In 32-bit words
+localparam  MEM_SIZE        = 1 << MEM_SIZE_BITS;
+localparam  MEM_ADDR_MASK   = 32'h0010_0000;
+
+// ============================================================================
+
+wire [MEM_SIZE_BITS-1:0]    mem_addr;
+reg  [31:0]                 mem_data;
+
+always @(posedge clk)
+    case (mem_addr)
+
+{mem_data}
+
+    default:    mem_data <= 32'hDEADBEEF;
+
+    endcase
+
+// ============================================================================
+
+reg o_ready;
+
+always @(posedge clk or negedge rstn)
+    if (!rstn)  o_ready <= 1'd0;
+    else        o_ready <= valid && ((addr & MEM_ADDR_MASK) != 0);
+
+// Output connectins
+assign ready    = o_ready;
+assign rdata    = mem_data;
+assign mem_addr = addr[MEM_SIZE_BITS+1:2];
+
+endmodule
+"""
+
+    memory_initial = """
+module progmem
+(
+// Closk & reset
+input  wire         clk,
+input  wire         rstn,
+
+// PicoRV32 bus interface
+input  wire         valid,
+output wire         ready,
+input  wire [31:0]  addr,
+output wire [31:0]  rdata
+);
+
+// ============================================================================
+
+localparam  MEM_SIZE_BITS   = {mem_size}; // In 32-bit words
+localparam  MEM_SIZE        = 1 << MEM_SIZE_BITS;
+localparam  MEM_ADDR_MASK   = 32'h0010_0000;
+
+// ============================================================================
+
+wire [MEM_SIZE_BITS-1:0]    mem_addr;
+reg  [31:0]                 mem_data;
+reg  [31:0]                 mem[0:MEM_SIZE];
+
+initial begin
+{mem_data}
+end
+
+always @(posedge clk)
+    mem_data <= mem[mem_addr];
+
+// ============================================================================
+
+reg o_ready;
+
+always @(posedge clk or negedge rstn)
+    if (!rstn)  o_ready <= 1'd0;
+    else        o_ready <= valid && ((addr & MEM_ADDR_MASK) != 0);
+
+// Output connectins
+assign ready    = o_ready;
+assign rdata    = mem_data;
+assign mem_addr = addr[MEM_SIZE_BITS+1:2];
+
+endmodule
+"""
+
+# =============================================================================
 
 def load_hex_file(file_name):
     """
@@ -26,7 +129,7 @@ def load_hex_file(file_name):
     'objcopy -O verilog firmware.elf firmware.hex'
     """
 
-    print("Loading 'HEX' from: " + file_name)
+    sys.stderr.write("Loading 'HEX' from: " + file_name + "\n")
 
     # Load and parse HEX data
     sections = {}
@@ -52,19 +155,21 @@ def load_hex_file(file_name):
         sections[section] = bytes([int(s, 16) for s in sections[section]])
 
     # Dump sections
-    print("Sections:")
+    sys.stderr.write("Sections:\n")
     for section in sections.keys():
         length = len(sections[section])
-        print(" @%08X - @%08X, %d bytes" % (section, section+length, length))
+        sys.stderr.write(" @%08X - @%08X, %d bytes\n" % (section, section+length, length))
 
     return sections
 
 
-def modify_code_templte(file_name, sections):
+def modify_code_templte(sections, rom_style):
     """
     Modifies verilog ROM template by inserting case statements with the
     ROM content. Requires the sections dict to contain a section beginning
     at 0x00100000 address.
+
+    Returns a string with the verilog code
     """
 
     # Get section at 0x00100000
@@ -77,41 +182,49 @@ def modify_code_templte(file_name, sections):
 
     # Determine memory size bits (in words)
     mem_size_bits = len(data).bit_length() - 2
-    print("ROM size (words): %d bits" % mem_size_bits)
+    sys.stderr.write("ROM size (words): %d bits\n" % mem_size_bits)
 
     # Encode verilog case statements
-    case_statements = []
-    for i in range(len(data) // 4):
+    if rom_style == "case":
 
-        # Little endian
-        data_word  = data[4*i+0]
-        data_word |= data[4*i+1] << 8
-        data_word |= data[4*i+2] << 16
-        data_word |= data[4*i+3] << 24
+        # Generate statements
+        case_statements = ""
+        for i in range(len(data) // 4):
 
-        statement = "    'h%04X: mem_data <= 32'h%08X;\n" % (i, data_word)
-        case_statements.append(statement)
+            # Little endian
+            data_word  = data[4*i+0]
+            data_word |= data[4*i+1] << 8
+            data_word |= data[4*i+2] << 16
+            data_word |= data[4*i+3] << 24
 
-    # Load the template
-    with open(file_name + ".template", "r") as fp:
-        code = fp.readlines()
+            statement = "    'h%04X: mem_data <= 32'h%08X;\n" % (i, data_word)
+            case_statements += statement
 
-    # Change memory size
-    for i in range(len(code)):
-        fields = code[i].split()
-        if len(fields) >= 4 and fields[0] == "localparam" and fields[1] == "MEM_SIZE_BITS":
-            code[i] = "localparam  MEM_SIZE_BITS   = %d; // In 32-bit words\n" % mem_size_bits
+        # Return the code
+        return Templates.memory_case.format(mem_size = mem_size_bits, mem_data = case_statements)
 
-    # Inject case statements
-    for i in range(len(code)):
-        if "case (mem_addr)" in code[i]:
-            code = code[:i+1] + ["\n"] + case_statements + code[i+1:]
-            break
+    # Encode data as initial statements for a verilog array
+    if rom_style == "initial":
 
-    # Write modified code to a new file
-    print("Writing verilog code to: " + file_name)
-    with open(file_name, "w") as fp:
-        fp.writelines(code)
+        # Generate statements
+        initial_statements = ""
+        for i in range(len(data) // 4):
+
+            # Little endian
+            data_word  = data[4*i+0]
+            data_word |= data[4*i+1] << 8
+            data_word |= data[4*i+2] << 16
+            data_word |= data[4*i+3] << 24
+
+            statement = "    mem['h%04X] <= 32'h%08X;\n" % (i, data_word)
+            initial_statements += statement
+
+        # Return the code
+        return Templates.memory_initial.format(mem_size = mem_size_bits, mem_data = initial_statements)
+
+    # Error
+    sys.stdout.write("Invalid ROM style '%s'\n" % rom_style)
+    return ""
 
 # =============================================================================
 
@@ -120,14 +233,19 @@ def main():
     # Argument parser
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("hex", type=str, help="Input HEX file")
+    parser.add_argument("--rom-style", type=str, default="case", help="ROM style")
 
     args = parser.parse_args()
 
     # Load HEX
     sections = load_hex_file(args.hex)
 
-    # Modify the verilog code
-    modify_code_templte("progmem.v", sections)
+    # Generate verilog code
+    code = modify_code_templte(sections, args.rom_style)
+
+    # Output verilog code
+    sys.stdout.write(code)
+    sys.stdout.flush()
 
 # =============================================================================
 
