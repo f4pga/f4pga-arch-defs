@@ -707,7 +707,6 @@ function(ADD_FPGA_TARGET)
   # Targets generated:
   #
   # * <name>_eblif - Generated eblif file.
-  # * <name>_synth - Alias of <name>_eblif.
   # * <name>_route - Generate place and routing synthesized design.
   # * <name>_bit - Generate output bitstream.
   #
@@ -847,6 +846,8 @@ function(ADD_FPGA_TARGET)
       COMMAND ${CMAKE_COMMAND} -E copy ${SOURCE_FILES} ${OUT_EBLIF}
       )
   endif()
+
+  add_custom_target(${NAME}_eblif ALL DEPENDS ${OUT_EBLIF})
 
   # Generate routing and generate HLC.
   set(OUT_ROUTE ${OUT_LOCAL}/${TOP}.route)
