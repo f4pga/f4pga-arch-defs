@@ -255,6 +255,7 @@ function(ADD_CONDA_PIP)
         ${NAME}
         DEPENDS ${NAME}.pip
         )
+      set_target_properties(env PROPERTIES ${binary_upper}_TARGET ${NAME})
     else()
       set(BIN ${CONDA_DIR}/bin/${NAME})
       add_custom_command(

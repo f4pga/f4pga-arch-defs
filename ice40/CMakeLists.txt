@@ -17,6 +17,23 @@ function(icestorm_setup)
     )
   get_target_property(LIBFTDI_TARGET env LIBFTDI_TARGET)
 
+  add_conda_pip(
+    NAME numpy
+    NO_EXE
+    )
+
+  add_thirdparty_package(
+    NAME fasm
+    BUILD_INSTALL_COMMAND "cd ${symbiflow-arch-defs_SOURCE_DIR}/third_party/fasm && ${PYTHON3} setup.py install"
+    PROVIDES fasm
+    )
+
+  set(FASM2ASC ${symbiflow-arch-defs_SOURCE_DIR}/ice40/utils/fasm_icebox/fasm2asc.py)
+  add_custom_target(
+    OUTPUT ${symbiflow-arch-defs_SOURCE_DIR}/ice40/utils/fasm_icebox/fasm2asc.py
+    DEPENDS numpy ${FASM2ASC}
+    )
+
   get_target_property_required(PKG-CONFIG env PKG-CONFIG)
   get_target_property_required(PKG-CONFIG_TARGET env PKG-CONFIG_TARGET)
 
@@ -72,19 +89,16 @@ function(icestorm_setup)
     BIT_TIME ${ICETIME_TARGET}
     BIN_EXTENSION bin
     BIT_TIME_CMD "${ICETIME} -v -t -p \${INPUT_IO_FILE} -d \${DEVICE} \${OUT_BITSTREAM} -o \${OUT_TIME_VERILOG}"
-    HLC_TO_BIT ${ICEBOX_HLC2ASC_TARGET}
-    HLC_TO_BIT_CMD "${ICEBOX_HLC2ASC} \${OUT_HLC} > \${OUT_BITSTREAM}"
+    FASM_TO_BIT ${FASM2ASC}
+    FASM_TO_BIT_CMD "\${QUIET_CMD}  \${CMAKE_COMMAND} -E env  ${PYPATH_ARG} \
+    \${PYTHON3} ${FASM2ASC} \${OUT_FASM} \${OUT_BITSTREAM}"
+    USE_FASM
     ROUTE_CHAN_WIDTH 100
   )
 
 endfunction()
 
 icestorm_setup()
-
-add_conda_pip(
-  NAME numpy
-  NO_EXE
-  )
 
 add_subdirectory(primitives)
 add_subdirectory(cells)
