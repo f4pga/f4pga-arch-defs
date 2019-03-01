@@ -278,3 +278,90 @@ function(ADD_CONDA_PIP)
     set_target_properties(env PROPERTIES ${binary_upper}_TARGET "")
   endif()
 endfunction()
+
+
+
+function(ADD_THIRDPARTY_PACKAGE)
+  # ~~~
+  # ADD_THIRDPARTY_PACKAGE(
+  #   NAME <name>
+  #   PROVIDES <exe list>
+  #   [BUILD_INSTALL_COMMAND <build_install command>
+  #   )
+  # ~~~
+  #
+  # Provide target and dependency for thirdparty software
+  # Package should be install in env directory.
+  # This generates two env properties per name
+  # in PROVIDES list. <name> is set to the path the executable.  <name>_TARGET
+  # is set to the target that will invoke conda.
+  #
+  set(options)
+  set(oneValueArgs NAME BUILD_INSTALL_COMMAND DEPENDS)
+  set(multiValueArgs PROVIDES)
+  cmake_parse_arguments(
+    ADD_THIRDPARTY_PACKAGE
+    "${options}"
+    "${oneValueArgs}"
+    "${multiValueArgs}"
+    ${ARGN}
+  )
+
+  set(NAME ${ADD_THIRDPARTY_PACKAGE_NAME})
+  get_target_property_required(USE_CONDA env USE_CONDA)
+
+  #if using conda and a command given, run it then look in conda
+  # otherwise just look for it. This is so python packages show up in site-packages
+  if( ${USE_CONDA})
+    if (NOT ADD_THIRDPARTY_PACKAGE_BUILD_INSTALL_COMMAND)
+      message(FATAL_ERROR "BUILD_INSTALL_COMMAND not supplied for thirdparty package ${NAME}")
+    endif()
+
+    separate_arguments(INSTALL_COMMAND UNIX_COMMAND ${ADD_THIRDPARTY_PACKAGE_BUILD_INSTALL_COMMAND})
+
+    set(OUTPUTS "")
+    set(TOUCH_COMMANDS "")
+    get_target_property_required(PREFIX env CONDA_DIR)
+
+    foreach(OUTPUT ${ADD_THIRDPARTY_PACKAGE_PROVIDES})
+      list(APPEND OUTPUTS ${PREFIX}/bin/${OUTPUT})
+      list(APPEND TOUCH_COMMANDS COMMAND ${CMAKE_COMMAND} -E touch_nocreate ${PREFIX}/bin/${OUTPUT})
+    endforeach()
+
+    add_custom_command(
+      OUTPUT ${OUTPUTS}
+      COMMAND ${INSTALL_COMMAND}
+      ${TOUCH_COMMANDS}
+      DEPENDS ${ADD_THIRDPARTY_DEPENDS}
+      )
+
+    set(TARGET thirdparty_${NAME})
+    add_custom_target(${TARGET} DEPENDS ${OUTPUTS})
+
+    foreach(OUTPUT ${ADD_THIRDPARTY_PACKAGE_PROVIDES})
+      string(TOUPPER ${OUTPUT} binary_upper)
+      set(${binary_upper} ${PREFIX}/bin/${OUTPUT})
+      replace_with_env_if_set(${binary_upper})
+      set_target_properties(env PROPERTIES
+        ${binary_upper} ${${binary_upper}}
+        ${binary_upper}_TARGET ${TARGET})
+    endforeach()
+  else()
+  # if command not provide, just look the provides
+    foreach(OUTPUT ${ADD_THIRDPARTY_PACKAGE_PROVIDES})
+      string(TOUPPER ${OUTPUT} binary_upper)
+      if(DEFINED ENV{${binary_upper}})
+        set(${binary_upper} $ENV{${binary_upper}})
+      else()
+        find_program(${binary_upper} ${OUTPUT})
+      endif()
+      if(NOT ${binary_upper})
+        message(FATAL_ERROR "Could not find program ${OUTPUT}.")
+      endif()
+      set_target_properties(env PROPERTIES
+        ${binary_upper} ${${binary_upper}}
+        ${binary_upper}_TARGET "")
+    endforeach()
+  endif()
+
+endfunction(ADD_THIRDPARTY)

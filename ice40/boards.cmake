@@ -1,7 +1,16 @@
+get_target_property_required(ICEPROG env ICEPROG)
+get_target_property(ICEPROG_TARGET env ICEPROG_TARGET)
+
 # Lattice iCEstick
 # http://www.latticesemi.com/icestick
 # ---------------------------------------------
-define_board(BOARD icestick DEVICE hx1k PACKAGE tq144 PROG_TOOL ${ICEPROG_TOOL})
+define_board(
+  BOARD icestick
+  DEVICE hx1k
+  PACKAGE tq144
+  PROG_TOOL ${ICEPROG_TARGET}
+  PROG_CMD "${ICEPROG} \${OUT_BIN}"
+  )
 
 # Lattice iCEblink40-LP1K Evaluation Kit
 # **HX** version is different!
@@ -10,8 +19,8 @@ define_board(
   BOARD iceblink40-lp1k
   DEVICE lp1k
   PACKAGE qn84
-  PROG_TOOL ${ICEPROG_TOOL}
-  PROG_CMD "${ICEPROG_TOOL} -ew \${OUT_BIT}"
+  PROG_TOOL ${ICEPROG_TARGET}
+  PROG_CMD "${ICEPROG} -ew \${OUT_BIN}"
 )
 
 # iCE40-HX8K Breakout Board Evaluation Kit
@@ -21,8 +30,8 @@ define_board(
   BOARD hx8k-b-evn
   DEVICE hx8k
   PACKAGE ct256
-  PROG_TOOL ${ICEPROG_TOOL}
-  PROG_CMD "${ICEPROG_TOOL} -S \${OUT_BIT}"
+  PROG_TOOL ${ICEPROG_TARGET}
+  PROG_CMD "${ICEPROG} -S \${OUT_BIN}"
 )
 
 # DPControl icevision board
@@ -32,7 +41,8 @@ define_board(
   BOARD icevision
   DEVICE up5k
   PACKAGE sg48
-  PROG_TOOL ${ICEPROG_TOOL}
+  PROG_TOOL ${ICEPROG_TARGET}
+  PROG_CMD "${ICEPROG} \${OUT_BIN}"
 )
 add_conda_pip(
   NAME tinyfpgab
@@ -49,7 +59,7 @@ define_board(
   DEVICE lp8k
   PACKAGE cm81
   PROG_TOOL ${TINYFPGAB_TARGET}
-  PROG_CMD "${TINYFPGAB} --program \${OUT_BIT}"
+  PROG_CMD "${TINYFPGAB} --program \${OUT_BIN}"
 )
 
 add_conda_pip(
@@ -67,5 +77,5 @@ define_board(
   DEVICE lp8k
   PACKAGE cm81
   PROG_TOOL ${TINYPROG_TARGET}
-  PROG_CMD "${TINYPROG} -p \${OUT_BIT}"
+  PROG_CMD "${TINYPROG} -p \${OUT_BIN}"
 )
