@@ -323,6 +323,8 @@ def process_attributes(tbl):
             sz = int(M.group(1))
             pad = 1 if sz % 4 else 0
             x['Default'] = "%d'h%s" % (sz, val * ((sz // 4) + pad))
+        elif x['Default'].startswith("0'h"): # ICAPE2 (DEVICE_ID)
+            x['Default'] = "32'h0" + x['Default'][3:]
         if ',' in x['Attribute']:
             attribs.pop(i)
             for j, n in enumerate(x['Attribute'].split(',')):
