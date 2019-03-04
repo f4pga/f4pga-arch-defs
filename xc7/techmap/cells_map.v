@@ -187,6 +187,7 @@ module RAM128X1D (
   input  [6:0] A, DPRA
 );
     parameter [127:0] INIT = 128'bx;
+    parameter IS_WCLK_INVERTED = 0;
     wire dlut_o6;
     wire clut_o6;
     wire blut_o6;
@@ -194,7 +195,7 @@ module RAM128X1D (
 
     SPRAM128 #(
         .INIT(INIT[63:0]),
-        .IS_WCLK_INVERTED(1'b0),
+        .IS_WCLK_INVERTED(IS_WCLK_INVERTED),
         .HIGH_WA7_SELECT(0)
     ) ram0 (
         .DI1(D),
@@ -207,7 +208,7 @@ module RAM128X1D (
 
     DPRAM128 #(
         .INIT(INIT[127:64]),
-        .IS_WCLK_INVERTED(1'b0),
+        .IS_WCLK_INVERTED(IS_WCLK_INVERTED),
         .HIGH_WA7_SELECT(1)
     ) ram1 (
         .DI1(D),
@@ -355,6 +356,7 @@ module RAM32X1D (
   input  DPRA0, DPRA1, DPRA2, DPRA3, DPRA4
 );
     parameter [31:0] INIT = 32'bx;
+    parameter IS_WCLK_INVERTED = 0;
 
     wire [4:0] WA = {A4, A3, A2, A1, A0};
     wire [4:0] DPRA = {DPRA4, DPRA3, DPRA2, DPRA1, DPRA0};
@@ -518,6 +520,7 @@ module RAM64X1D (
   input  DPRA0, DPRA1, DPRA2, DPRA3, DPRA4, DPRA5
 );
     parameter [63:0] INIT = 64'bx;
+    parameter IS_WCLK_INVERTED = 0;
 
     wire [5:0] WA = {A5, A4, A3, A2, A1, A0};
     wire [5:0] DPRA = {DPRA5, DPRA4, DPRA3, DPRA2, DPRA1, DPRA0};
@@ -525,7 +528,7 @@ module RAM64X1D (
 
     SPRAM64 #(
         .INIT(INIT),
-        .IS_WCLK_INVERTED(1'b0)
+        .IS_WCLK_INVERTED(IS_WCLK_INVERTED)
     ) dram1 (
         .DI1(D),
         .A(WA),
@@ -535,7 +538,7 @@ module RAM64X1D (
     );
     DPRAM64 #(
         .INIT(INIT),
-        .IS_WCLK_INVERTED(1'b0)
+        .IS_WCLK_INVERTED(IS_WCLK_INVERTED)
     ) dram0 (
         .DI1(D),
         .A(DPRA),
@@ -888,9 +891,9 @@ module RAMB18E1 (
       .WRITE_WIDTH_B_9(WRITE_WIDTH_B == 9),
       .WRITE_WIDTH_B_18(WRITE_WIDTH_B == 18 || WRITE_WIDTH_B == 36),
       .SDP_WRITE_WIDTH_36(WRITE_WIDTH_B == 36),
-      .WRITE_MODE_A_NO_CHANGE(WRITE_MODE_A == "NO_CHANGE"),
+      .WRITE_MODE_A_NO_CHANGE(WRITE_MODE_A == "NO_CHANGE" || (WRITE_MODE_A == "WRITE_FIRST" && RAM_MODE == "SDP")),
       .WRITE_MODE_A_READ_FIRST(WRITE_MODE_A == "READ_FIRST"),
-      .WRITE_MODE_B_NO_CHANGE(WRITE_MODE_B == "NO_CHANGE"),
+      .WRITE_MODE_B_NO_CHANGE(WRITE_MODE_B == "NO_CHANGE" || (WRITE_MODE_B == "WRITE_FIRST" && RAM_MODE == "SDP")),
       .WRITE_MODE_B_READ_FIRST(WRITE_MODE_B == "READ_FIRST"),
   ) _TECHMAP_REPLACE_ (
     .CLKARDCLK(CLKARDCLK),
