@@ -78,17 +78,13 @@ from collections import namedtuple, OrderedDict, defaultdict
 from functools import reduce
 from os.path import commonprefix
 
-MYDIR = os.path.dirname(__file__)
-
 # Third party libs
 import lxml.etree as ET
 
-sys.path.insert(0, os.path.join(MYDIR, "..", "..", "third_party", "icestorm", "icebox"))
 import icebox
 import icebox_asc2hlc
 
 # Local libs
-sys.path.insert(0, os.path.join(MYDIR, "..", "..", "utils"))
 import lib.rr_graph.channel as channel
 import lib.rr_graph.graph as graph
 import lib.rr_graph.points as points

@@ -2,6 +2,7 @@ function(icestorm_setup)
   get_target_property_required(PYTHON3 env PYTHON3)
 
   set(ICESTORM_SRC ${symbiflow-arch-defs_SOURCE_DIR}/third_party/icestorm CACHE PATH "Path to icestorm repository")
+  set(PYUTILS_PATH ${symbiflow-arch-defs_SOURCE_DIR}/utils CACHE PATH "Path to python utils")
 
   get_target_property_required(PYTHON_PREFIX env CONDA_DIR)
   set(ICESTORM_PREFIX "PREFIX=${PYTHON_PREFIX}")
@@ -25,6 +26,7 @@ function(icestorm_setup)
   get_target_property(ICEBOX env ICEBOX)
   get_filename_component(ICEBOX_PATH ${ICEBOX} DIRECTORY)
 
+  set(PYPATH_ARG "PYTHONPATH=\${ICEBOX_PATH}:${PYUTILS_PATH}" CACHE STRING "environment variables for python namely PYTHONPATH")
   define_arch(
     ARCH ice40
     YOSYS_SCRIPT ${symbiflow-arch-defs_SOURCE_DIR}/ice40/yosys/synth.tcl
@@ -35,14 +37,14 @@ function(icestorm_setup)
       --target_ext_pin_util 0.7
     RR_PATCH_TOOL
       ${symbiflow-arch-defs_SOURCE_DIR}/ice40/utils/ice40_import_routing_from_icebox.py
-    RR_PATCH_CMD "\${QUIET_CMD} \${CMAKE_COMMAND} -E env PYTHONPATH=\${ICEBOX_PATH} \
+    RR_PATCH_CMD "\${QUIET_CMD} \${CMAKE_COMMAND} -E env ${PYPATH_ARG} \
     \${PYTHON3} \${RR_PATCH_TOOL} \
     --device=\${DEVICE} \
     --read_rr_graph \${OUT_RRXML_VIRT} \
     --write_rr_graph \${OUT_RRXML_REAL}"
     PLACE_TOOL
       ${symbiflow-arch-defs_SOURCE_DIR}/ice40/utils/ice40_create_ioplace.py
-    PLACE_TOOL_CMD "\${QUIET_CMD}  \${CMAKE_COMMAND} -E env PYTHONPATH=\${ICEBOX_PATH}
+    PLACE_TOOL_CMD "\${QUIET_CMD}  \${CMAKE_COMMAND} -E env  ${PYPATH_ARG} \
     \${PYTHON3} \${PLACE_TOOL} \
     --map \${PINMAP} \
     --blif \${OUT_EBLIF} \
