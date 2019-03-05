@@ -7,11 +7,24 @@ function(icestorm_setup)
   get_target_property_required(PYTHON_PREFIX env CONDA_DIR)
   set(ICESTORM_PREFIX "PREFIX=${PYTHON_PREFIX}")
 
+  add_conda_package(
+    NAME pkg-config
+    PROVIDES pkg-config
+    )
+  add_conda_package(
+    NAME libftdi
+    NO_EXE
+    )
+  get_target_property(LIBFTDI_TARGET env LIBFTDI_TARGET)
+
+  get_target_property(PKG-CONFIG env PKG-CONFIG)
+  get_target_property(PKG-CONFIG_TARGET env PKG-CONFIG_TARGET)
   add_thirdparty_package(
     NAME icestorm
     PROVIDES iceprog icebox_hlc2asc icebox_vlog icepack icetime icebox
-    BUILD_INSTALL_COMMAND "make -C ${ICESTORM_SRC} ${ICESTORM_PREFIX} install"
-  )
+    BUILD_INSTALL_COMMAND "make -C ${ICESTORM_SRC} ${ICESTORM_PREFIX} PKG_CONFIG=${PKG-CONFIG} install"
+    DEPENDS ${LIBFTDI_TARGET} ${PKG-CONFIG_TARGET}
+    )
 
   get_target_property(ICEBOX_VLOG env ICEBOX_VLOG)
   get_target_property(ICEPACK env ICEPACK)
