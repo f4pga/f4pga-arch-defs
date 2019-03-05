@@ -368,7 +368,7 @@ def process_attributes(tbl):
     return attribs
 
 
-def process_specs(infile, modules=[]):
+def process_specs(infile, modules=None):
     """Process the module specifications in the input PDF into an XML tree"""
     # initialise the pdfminer interface --
     # we use a custom "render device" to receive the text objects in the PDF for further processing
@@ -383,7 +383,7 @@ def process_specs(infile, modules=[]):
 
     # parse the PDF table of contents to figure out what modules exist and which pages to process
     port_pages = parse_module_pages(doc, 'Port Desc')
-    if not len(modules):
+    if modules is None or len(modules) == 0:
         modules = port_pages.keys()  # default to processing ALL modules
     attrib_list = parse_module_pages(
         doc, 'Available Attrib')  # NB: not all modules have attributes
@@ -403,7 +403,6 @@ def process_specs(infile, modules=[]):
             for P in process_ports(device):
                 node.append(
                     E.port(
-                        P['Function'],
                         name=P['Port'],
                         type=P['Type'],
                         width=str(P['Width'])))
@@ -415,7 +414,6 @@ def process_specs(infile, modules=[]):
             for A in process_attributes(device):
                 node.append(
                     E.attribute(
-                        A['Description'],
                         name=A['Attribute'],
                         type=A['Type'],
                         default=A['Default'].replace('"', ''),
@@ -438,10 +436,10 @@ if __name__ == '__main__':
         '--output',
         '-o',
         nargs='?',
-        type=argparse.FileType('wb'),
+        type=argparse.FileType('w'),
         default=sys.stdout)
     parser.add_argument('--modules', '-m', nargs='*')
     args = parser.parse_args()
 
     xml = process_specs(args.input, args.modules)
-    args.output.write(etree.tostring(xml, pretty_print=True))
+    args.output.write(etree.tostring(xml, pretty_print=True).decode('ascii'))
