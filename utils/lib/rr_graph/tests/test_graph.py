@@ -542,12 +542,9 @@ class TestGraph(unittest.TestCase):
             r.get_metadata(e1, "test", "234")
         )
         # Exception if no default provided
-        try:
+        with self.assertRaises(ValueError):
             r.get_metadata(e1, "not_found")
-            assert False # Should've failed
-        except ValueError:
-            # Exception caught
-            pass
+ 
         r.set_metadata(e1, "test", 1)
         # Works with nodes
         n1 = r.get_node_by_id(0)
@@ -591,12 +588,8 @@ class TestGraph(unittest.TestCase):
             '4 X000Y010[00].SINK-<',
             RoutingGraphPrinter.node(r.get_node_by_id(4))
         )
-        try:
+        with self.assertRaises(KeyError):
             RoutingGraphPrinter.node(r.get_node_by_id(5))
-            assert False # Should fail
-        except KeyError:
-            # Exception caught
-            pass
 
 
     def test_routinggraph_get_edge_by_id(self):
@@ -617,12 +610,8 @@ class TestGraph(unittest.TestCase):
             '3 X000Y010[00].L-PIN< ->>- 4 X000Y010[00].SINK-<',
             RoutingGraphPrinter.edge(r, r.get_edge_by_id(3))
         )
-        try:
+        with self.assertRaises(KeyError):
             r.get_edge_by_id(4)
-            assert False # Should fail
-        except KeyError:
-            # Exception caught
-            pass
 
 
     def test_routinggraph_node_ids_for_edge(self):
@@ -677,18 +666,11 @@ class TestGraph(unittest.TestCase):
             RoutingGraphPrinter.edge(r, e1)
         )
         # The code protects against invalid edge creation
-        try:
+        with self.assertRaises(TypeError):
             r.create_edge_with_ids(0, 2, sw)
-            assert False # Should fail
-        except TypeError:
-            # Exception caught
-            pass
-        try:
+
+        with self.assertRaises(TypeError):
             r.create_edge_with_ids(1, 4, sw)
-            assert False # Should fail
-        except TypeError:
-            # Exception caught
-            pass
 
 
     def test_graph_constructor(self):
@@ -734,12 +716,9 @@ class TestGraph(unittest.TestCase):
             P(x=2, y=1),
             g.block_grid[P(2, 1)].position
         )
-        try:
+        with self.assertRaises(KeyError):
             g.block_grid[P(4, 4)]
-            assert False # Should fail
-        except KeyError:
-            # Exception caught
-            pass
+
         self.assertEqual(
         1,
         g.block_grid.block_types["BLK_IG-IBUF"].id
