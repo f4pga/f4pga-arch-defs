@@ -48,7 +48,8 @@ function(generate_all_icebox_layouts)
   get_target_property(QUIET_CMD_TARGET env QUIET_CMD_TARGET)
   add_custom_command(
     OUTPUT ${OUTPUTS}
-    COMMAND ${QUIET_CMD} ${PYTHON3} ${ICESTORM_LAYOUT_IMPORT}
+    COMMAND ${QUIET_CMD} ${CMAKE_COMMAND} -E env PYTHONPATH=${ICEBOX_PATH}:${PYUTILS_PATH}
+    ${PYTHON3} ${ICESTORM_LAYOUT_IMPORT}
     DEPENDS
       ${QUIET_CMD} ${QUIET_CMD_TARGET}
       ${PYTHON3} ${PYTHON3_TARGET}
