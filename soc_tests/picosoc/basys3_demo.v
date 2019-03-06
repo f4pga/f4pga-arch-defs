@@ -17,6 +17,19 @@
  *
  */
 
+module clk_div (
+	input clk_in,
+	output clk_out
+);
+	initial begin
+		clk_out <= 0;
+	end
+
+	always @(posedge clk_in) begin
+		clk_out <= ~clk_out;
+	end
+endmodule
+
 module basys3_demo (
 	input clk,
 
@@ -25,10 +38,11 @@ module basys3_demo (
 
 	output [3:0] leds
 );
+
 	reg [5:0] reset_cnt = 0;
 	wire resetn = &reset_cnt;
 
-	always @(posedge clk) begin
+	always @(posedge clk_out[N_CLK_DIV-1]) begin
 		reset_cnt <= reset_cnt + !resetn;
 	end
 
@@ -44,6 +58,8 @@ module basys3_demo (
 	);
 	*/
 
+	localparam integer N_CLK_DIV = 2;
+
 	wire        iomem_valid;
 	reg         iomem_ready;
 	wire [3:0]  iomem_wstrb;
@@ -52,9 +68,11 @@ module basys3_demo (
 	reg  [31:0] iomem_rdata;
 
 	reg [31:0] gpio;
+	reg [N_CLK_DIV-1:0] clk_out;
+
 	assign leds = gpio[3:0];
 
-	always @(posedge clk) begin
+	always @(posedge clk_out[N_CLK_DIV-1]) begin
 		if (!resetn) begin
 			gpio <= 0;
 		end else begin
@@ -71,7 +89,7 @@ module basys3_demo (
 	end
 
 	picosoc_noflash soc (
-		.clk          (clk         ),
+		.clk          (clk_out[N_CLK_DIV-1]),
 		.resetn       (resetn      ),
 
 		.ser_tx       (ser_tx      ),
@@ -88,5 +106,8 @@ module basys3_demo (
 		.iomem_wdata  (iomem_wdata ),
 		.iomem_rdata  (iomem_rdata )
 	);
+
+	clk_div clk_div_0 (.clk_in(clk), .clk_out(clk_out[0]));
+	clk_div clk_div_1 (.clk_in(clk_out[0]), .clk_out(clk_out[1]));
 
 endmodule
