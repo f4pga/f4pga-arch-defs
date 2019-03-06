@@ -14,6 +14,7 @@ setup_env()
 add_conda_package(
   NAME yosys
   PROVIDES yosys
+  PACKAGE_SPEC "yosys 0.8 0461.1903060506.g12a8e092"
   )
 add_conda_package(
   NAME openocd
@@ -22,6 +23,7 @@ add_conda_package(
 add_conda_package(
   NAME vtr
   PROVIDES vpr genhlc genfasm
+  PACKAGE_SPEC "vtr 7.0.5 6716.1903060506.g4f2e935b9"
   )
 add_conda_package(
   NAME libxslt

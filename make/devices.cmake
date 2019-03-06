@@ -568,6 +568,7 @@ set(VPR_BASE_ARGS
     --max_criticality 0.0
     --max_router_iterations 500
     --routing_failure_predictor off
+    --router_high_fanout_threshold -1
     --constant_net_method route
     CACHE STRING "Base VPR arguments")
 set(VPR_EXTRA_ARGS "" CACHE STRING "Extra VPR arguments")
