@@ -6,8 +6,6 @@ define_arch(
   ARCH testarch
   YOSYS_SCRIPT ${symbiflow-arch-defs_SOURCE_DIR}/testarch/yosys/synth.tcl
   DEVICE_FULL_TEMPLATE \${DEVICE}
-  VPR_ARCH_ARGS
-    --cluster_seed_type timing
   RR_PATCH_TOOL
     ${symbiflow-arch-defs_SOURCE_DIR}/utils/testarch_graph.py
   RR_PATCH_CMD "\${PYTHON3} \${RR_PATCH_TOOL} \
