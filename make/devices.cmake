@@ -565,7 +565,6 @@ endfunction()
 
 set(VPR_BASE_ARGS
     --min_route_chan_width_hint 100
-    --verbose_sweep on
     --max_criticality 0.0
     --max_router_iterations 500
     --routing_failure_predictor off
