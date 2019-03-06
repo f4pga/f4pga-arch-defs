@@ -5,7 +5,6 @@ from copy import deepcopy
 import os
 import argparse
 import logging
-import gc
 
 import json
 
@@ -13,11 +12,29 @@ import json
 
 
 class GridSplitter(object):
+    """
+    Tile grid splitter class.
+
+    This class operates on tile grid loaded from the tilegrid.json as well as
+    on tile type definition json files.
+
+    The purpose is to split columns in half that contain particular tile types
+    as well as those tiles themselves. For each split tile type its sites are
+    extracted and converted to new top-level tile types.
+
+    The class also generates a forward and backward tile type map for later use.
+    """
 
     Loc = namedtuple("Loc", "x y")
-    GridExtent = namedtuple("GridExtent", "xmin ymin xmax ymax")
 
     def __init__(self, db_root, db_overlay):
+        """
+        Constructor.
+
+        :param db_root: Prjxray database root (input folder)
+        :param db_overlay: Prjxray database overlay root (output folder)
+        """
+
         self.db_root = db_root
         self.db_overlay = db_overlay
 
@@ -49,6 +66,7 @@ class GridSplitter(object):
     def _load_tilegrid(self):
         """
         Loads the tilegrid.json file
+
         :return:
         """
 
@@ -58,7 +76,9 @@ class GridSplitter(object):
 
     def _load_tile_type(self, tile_type):
         """
-        Loads tile type definition of a particular tile
+        Loads tile type definition of a particular tile and places them in
+        a dictionary for later use.
+
         :param tile_type:
         :return:
         """
@@ -124,6 +144,12 @@ class GridSplitter(object):
         return new_tiles
 
     def _split_grid(self, columns):
+        """
+        Performs the grid split
+
+        :param columns:
+        :return:
+        """
 
         self.new_grid_by_tile = {}
 
@@ -221,6 +247,11 @@ class GridSplitter(object):
             logging.debug(" " + str(new_type) + " -> " + str(type))
 
     def split(self):
+        """
+        Triggers the split operation.
+
+        :return:
+        """
 
         # Build a map of tile types to split
         self._build_tile_type_maps()
@@ -236,12 +267,16 @@ class GridSplitter(object):
         with open(file_name, "w") as fp:
             json.dump(self.new_grid_by_tile, fp, sort_keys=True, indent=1)
             fp.flush()
-            os.fsync(fp)
 
 # =============================================================================
 
 
 def main():
+    """
+    The main
+
+    :return:
+    """
 
     # Parse arguments
     parser = argparse.ArgumentParser()
@@ -269,20 +304,22 @@ def main():
 
     # .................................
 
-    # HACK
+    # Initialize connection rule splitter
+    # FIXME: Now it is a hackish way...
     from conn_splitter import ConnSplitter
     conn_splitter = ConnSplitter(args.db_root, args.db_overlay)
 
     conn_splitter.bwd_tile_type_map = grid_splitter.bwd_tile_type_map
     conn_splitter.fwd_tile_type_map = grid_splitter.fwd_tile_type_map
 
+    # Split connection rules
     conn_splitter.split()
 
     # .................................
 
+    # Split tile type definitions
     from tile_splitter import TileSplitter
 
-    # Split tiles
     for tile_type_list in args.split_tiles:
         for tile_type in tile_type_list:
             splitter = TileSplitter(args.db_root, args.db_overlay, tile_type)

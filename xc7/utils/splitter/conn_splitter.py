@@ -3,9 +3,7 @@ from collections import namedtuple
 from copy import deepcopy
 
 import os
-import argparse
 import logging
-import gc
 
 import json
 import hashlib
@@ -14,6 +12,10 @@ import hashlib
 
 
 class Connection(object):
+    """
+    This class represents a connection rule as stored in tileconnn.json file.
+    Connections are hashable and can be compared using the '==' operator.
+    """
 
     def __init__(self, grid_deltas, tile_types, wire_pairs):
         """
@@ -29,6 +31,11 @@ class Connection(object):
         self.wire_pairs  = wire_pairs
 
     def copy(self):
+        """
+        Returns a copy of the rule
+
+        :return:
+        """
         return Connection(
             deepcopy(self.grid_deltas),
             deepcopy(self.tile_types),
@@ -39,6 +46,7 @@ class Connection(object):
     def from_dict(conn):
         """
         Builds a Connection object from dict
+
         :param conn:
         :return:
         """
@@ -49,6 +57,11 @@ class Connection(object):
         )
 
     def str_no_wires(self):
+        """
+        Returns a string that describes grid deltas and tile types.
+
+        :return:
+        """
 
         s  = "[%+d,%+d] " % tuple(self.grid_deltas)
         s += "<%s, %s> "  % tuple(self.tile_types)
@@ -58,6 +71,7 @@ class Connection(object):
     def __dict__(self):
         """
         Builds a dict from the object
+
         :return:
         """
         return {
@@ -67,6 +81,11 @@ class Connection(object):
         }
 
     def __str__(self):
+        """
+        Full stringification.
+
+        :return:
+        """
 
         s  = "[%+d,%+d] " % tuple(self.grid_deltas)
         s += "<%s, %s> "  % tuple(self.tile_types)
@@ -75,6 +94,11 @@ class Connection(object):
         return s
 
     def __hash__(self):
+        """
+        Computes hash (for comparison).
+
+        :return:
+        """
 
         m = hashlib.sha256()
 
@@ -85,6 +109,12 @@ class Connection(object):
         return hash(m.digest())
 
     def __eq__(self, other):
+        """
+        Equality operator
+
+        :param other:
+        :return:
+        """
 
         # Hashes are equal, so are the rules
         if hash(self) == hash(other):
@@ -107,17 +137,30 @@ class Connection(object):
 
 
 class ConnSplitter(object):
+    """
+    Connection rule splitter.
+
+    When splitting a tile grid and creating new tile types the connection rules
+    need to be updated accordingly. This class does that.
+    """
 
     Loc  = namedtuple("Loc",  "x y")
     Conn = namedtuple("Conn", "grid_deltas tile_types wire_pairs")
 
     def __init__(self, db_root, db_overlay):
+        """
+        Constructor.
+
+        :param db_root: Prjxray database root (input folder)
+        :param db_overlay: Prjxray database overlay root (output folder)
+        """
+
         self.db_root = db_root
         self.db_overlay = db_overlay
 
         self.tile_type_defs = {}
 
-        self.bwd_tile_type_map = {}
+        self.bwd_tile_type_map = {} # FIXME: These are set externally for now. Content taken from GridSplitter
         self.fwd_tile_type_map = {}
 
         self.new_connections = set()
@@ -134,6 +177,7 @@ class ConnSplitter(object):
     def _load_tileconn(self):
         """
         Loads tileconn.json and converts connection representation to internal format.
+
         :return:
         """
 
@@ -145,6 +189,7 @@ class ConnSplitter(object):
     def _load_tile_type(self, tile_type):
         """
         Loads tile type definition of a particular tile
+
         :param tile_type:
         :return:
         """
@@ -154,6 +199,13 @@ class ConnSplitter(object):
             self.tile_type_defs[tile_type] = json.load(fp)
 
     def _get_tile_site_wires(self, tile_type):
+        """
+        Returns a list of wires that comes out of a tile which are relevant for
+        each site in it.
+
+        :param tile_type:
+        :return:
+        """
 
         # Load tile type
         file_name = os.path.join(self.db_root, "tile_type_%s.json" % tile_type)
@@ -200,6 +252,11 @@ class ConnSplitter(object):
         return site_wires
 
     def _make_connections_between_splitted_tile_types(self):
+        """
+        Self explanatory.
+
+        :return:
+        """
 
         logging.info("Making connections between splitted tile types...")
 
@@ -235,6 +292,12 @@ class ConnSplitter(object):
             self.new_connections.add(rule)
 
     def _make_connections_between_new_tile_types(self):
+        """
+        Self explanatory.
+
+        :return:
+        """
+
         rules = set()
 
         logging.info("Making connections between new tile types...")
@@ -324,6 +387,12 @@ class ConnSplitter(object):
         self.new_connections |= new_rules
 
     def _make_connections_between_new_and_old_tile_types(self):
+        """
+        Self explanatory.
+
+        :return:
+        """
+
         rules = set()
 
         logging.info("Making connections between new and old tile types...")
@@ -389,6 +458,11 @@ class ConnSplitter(object):
         self.new_connections |= new_rules
 
     def _purge_connections(self):
+        """
+        Removes connection rules that refer to "OLD" tile types.
+
+        :return:
+        """
 
         rules_to_remove = set()
 
@@ -406,6 +480,11 @@ class ConnSplitter(object):
         self.new_connections -= rules_to_remove
 
     def split(self):
+        """
+        Triggers the split.
+
+        :return:
+        """
 
         self._make_connections_between_splitted_tile_types()
         self._make_connections_between_new_tile_types()
@@ -424,7 +503,3 @@ class ConnSplitter(object):
         with open(file_name, "w") as fp:
             json.dump(connections,  fp, sort_keys=True, indent=1)
             fp.flush()
-            os.fsync(fp)
-
-
-

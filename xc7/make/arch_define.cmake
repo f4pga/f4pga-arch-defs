@@ -32,6 +32,7 @@ function(ADD_XC7_ARCH_DEFINE)
       --round_robin_prepacking on
     RR_PATCH_TOOL
       ${symbiflow-arch-defs_SOURCE_DIR}/xc7/utils/prjxray_routing_import.py
+    # FIXME: The RR_PATCH_CMD depends on the database overlay. Need to add the dependency somehow
     RR_PATCH_CMD "${CMAKE_COMMAND} -E env \
     PYTHONPATH=${PRJXRAY_DIR}:${symbiflow-arch-defs_SOURCE_DIR}/utils:${symbiflow-arch-defs_BINARY_DIR}/utils \
         \${PYTHON3} \${RR_PATCH_TOOL} \

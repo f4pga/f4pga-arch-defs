@@ -1,3 +1,8 @@
+"""
+This file contains a "proxy" class which implements an "overlay" for the
+prjxray database.
+"""
+
 import os
 import json
 
@@ -8,8 +13,17 @@ from prjxray import tile
 
 
 class DatabaseWithOverlay(db.Database):
+    """
+    Prjxray database overlay
+    """
 
     def __init__(self, db_root, overlay_root=None):
+        """
+        Constructor.
+
+        :param db_root: Prjxray database root
+        :param db_overlay: Prjxray database overlay root
+        """
 
         # Initialize base class
         db.Database.__init__(self, db_root)

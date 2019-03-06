@@ -11,8 +11,23 @@ import json
 
 
 class TileSplitter(object):
+    """
+    The tile splitter class allows to split tile type definition into individual
+    single-site tiles.
+
+    The class reads the tile type definition from a JSON file and generates new
+    tile types, one for each site. Each of new tile types contain only a single
+    site of a given type.
+    """
 
     def __init__(self, db_root, db_overlay, tile_type):
+        """
+        Constructor.
+
+        :param db_root: Prjxray database root (input folder)
+        :param db_overlay: Prjxray database overlay root (output folder)
+        """
+
         self.db_root = db_root
         self.db_overlay = db_overlay
 
@@ -25,6 +40,12 @@ class TileSplitter(object):
             self.tile = json.load(fp)
 
     def _extract_site(self, site_of_interest):
+        """
+        Extracts a site from a tile type. Generates a new tile type.
+
+        :param site_of_interest:
+        :return:
+        """
 
         # Copy the tile
         new_tile = deepcopy(self.tile)
@@ -38,6 +59,9 @@ class TileSplitter(object):
                 non_site_wires.extend([wire for wire in site["site_pins"].values()])
             else:
                 site_wires.extend([wire for wire in site["site_pins"].values()])
+
+        # Do not remove wires that are not relevant to a particular site. These will serve
+        # as a pass-through path.
 
         # # Remove the wires
         # for wire in non_site_wires:
@@ -67,6 +91,11 @@ class TileSplitter(object):
         return new_tile
 
     def split(self):
+        """
+        Triggers the split.
+
+        :return:
+        """
 
         # Loop over all sites of the tile
         for site in self.tile["sites"]:
@@ -84,6 +113,11 @@ class TileSplitter(object):
 
 
 def main():
+    """
+    The main.
+
+    :return:
+    """
 
     # Parse arguments
     parser = argparse.ArgumentParser()
@@ -107,4 +141,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-
