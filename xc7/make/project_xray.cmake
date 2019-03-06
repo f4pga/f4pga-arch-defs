@@ -91,6 +91,7 @@ function(PROJECT_XRAY_TILE)
     COMMAND ${CMAKE_COMMAND} -E env PYTHONPATH=${PRJXRAY_DIR}:${symbiflow-arch-defs_SOURCE_DIR}/utils
     ${PYTHON3} ${TILE_IMPORT}
     --part ${PROJECT_XRAY_TILE_PART}
+    --db_overlay ${PRJXRAY_DB_OVERLAY_DIR}/${PROJECT_XRAY_TILE_PART}
     --tile ${PROJECT_XRAY_TILE_TILE}
     --site_directory ${symbiflow-arch-defs_BINARY_DIR}/xc7/primitives
     --site_types ${SITE_TYPES_COMMA}
@@ -134,7 +135,7 @@ function(PROJECT_XRAY_ARCH)
   set(ARCH_IMPORT ${symbiflow-arch-defs_SOURCE_DIR}/xc7/utils/prjxray_arch_import.py)
   set(CREATE_SYNTH_TILES ${symbiflow-arch-defs_SOURCE_DIR}/xc7/utils/prjxray_create_synth_tiles.py)
   set(CREATE_EDGES ${symbiflow-arch-defs_SOURCE_DIR}/xc7/utils/prjxray_create_edges.py)
-  set(DEPS ${PRJXRAY_DB_DIR}/${PART}/tilegrid.json)
+  set(DEPS ${PRJXRAY_DB_DIR}/${PART}/tilegrid.json ${PRJXRAY_DB_OVERLAY_DIR}/${PART}/tilegrid.json)
 
   set(ARCH_INCLUDE_FILES "")
   foreach(TILE_TYPE ${PROJECT_XRAY_ARCH_TILE_TYPES})
@@ -191,12 +192,13 @@ function(PROJECT_XRAY_ARCH)
     OUTPUT arch.xml
     COMMAND ${CMAKE_COMMAND} -E env PYTHONPATH=${PRJXRAY_DIR}:${symbiflow-arch-defs_SOURCE_DIR}/utils
     ${PYTHON3} ${ARCH_IMPORT}
-      --part ${PROJECT_XRAY_ARCH_PART}
-      --output-arch ${CMAKE_CURRENT_BINARY_DIR}/arch.xml
-      --tile-types "${TILE_TYPES_COMMA}"
-      --pin_assignments ${PIN_ASSIGNMENTS}
-      --device ${DEVICE}
-      ${ROI_ARG}
+     --part ${PROJECT_XRAY_ARCH_PART}
+     --db_overlay ${PRJXRAY_DB_OVERLAY_DIR}/${PROJECT_XRAY_ARCH_PART}
+     --output-arch ${CMAKE_CURRENT_BINARY_DIR}/arch.xml
+     --tile-types "${TILE_TYPES_COMMA}"
+     --pin_assignments ${PIN_ASSIGNMENTS}
+     --device ${DEVICE}
+    ${ROI_ARG}
     DEPENDS
     ${ARCH_IMPORT}
     ${DEPS}
@@ -254,14 +256,34 @@ function(PROJECT_XRAY_PREPARE_DATABASE)
   file(GLOB DEPS2 ${PRJXRAY_DIR}/prjxray/*.py)
 
   set(CHANNELS channels.db)
+  file(MAKE_DIRECTORY ${PRJXRAY_DB_OVERLAY_DIR}/${PART})
+
+  set(GRID_SPLITTER ${symbiflow-arch-defs_SOURCE_DIR}/xc7/utils/splitter/grid_splitter.py)
+
+  # FIXME: Move it somewhere
+  set(TILES_TO_SPLIT CLBLL_L CLBLL_R CLBLM_L CLBLM_R)
+
+  set(TILEGRID ${PRJXRAY_DB_OVERLAY_DIR}/${PART}/tilegrid.json)
+  set(TILECONN ${PRJXRAY_DB_OVERLAY_DIR}/${PART}/tileconn.json)
+  add_custom_command(
+  OUTPUT ${TILEGRID} ${TILECONN} # FIXME: The script will output not only these files
+  COMMAND ${CMAKE_COMMAND} -E env PYTHONPATH=${PRJXRAY_DIR}:${symbiflow-arch-defs_SOURCE_DIR}/utils/splitter
+    ${PYTHON3} ${GRID_SPLITTER} --db_root ${PRJXRAY_DB_DIR}/${PART} --db_overlay ${PRJXRAY_DB_OVERLAY_DIR}/${PART}
+    --split-tiles ${TILES_TO_SPLIT}
+  DEPENDS ${GRID_SPLITTER} ${DEPS} ${PYTHON3} ${PYTHON3_TARGET}
+  )
+
+  set(CHANNELS channels.json)
   add_custom_command(
     OUTPUT ${CHANNELS}
-    COMMAND ${CMAKE_COMMAND} -E env PYTHONPATH=${PRJXRAY_DIR}:${symbiflow-arch-defs_SOURCE_DIR}/utils
+    COMMAND ${CMAKE_COMMAND} -E env PYTHONPATH=${PRJXRAY_DIR}:${symbiflow-arch-defs_SOURCE_DIR}/utils:${symbiflow-arch-defs_SOURCE_DIR}/db_overlay
     ${PYTHON3} ${FORM_CHANNELS}
     --db_root ${PRJXRAY_DB_DIR}/${PART}/
     --connection_database ${CMAKE_CURRENT_BINARY_DIR}/${CHANNELS}
+    --db_overlay ${PRJXRAY_DB_OVERLAY_DIR}/${PART}
+    --channels ${CMAKE_CURRENT_BINARY_DIR}/${CHANNELS}
     DEPENDS
-    ${FORM_CHANNELS}
+    ${FORM_CHANNELS} ${TILEGRID} ${TILECONN}
     ${DEPS} ${DEPS2} simplejson progressbar2 intervaltree
     ${PYTHON3} ${PYTHON3_TARGET}
     )
@@ -271,13 +293,14 @@ function(PROJECT_XRAY_PREPARE_DATABASE)
   set(PIN_ASSIGNMENTS pin_assignments.json)
   add_custom_command(
     OUTPUT ${PIN_ASSIGNMENTS}
-    COMMAND ${CMAKE_COMMAND} -E env PYTHONPATH=${PRJXRAY_DIR}:${symbiflow-arch-defs_SOURCE_DIR}/utils
+    COMMAND ${CMAKE_COMMAND} -E env PYTHONPATH=${PRJXRAY_DIR}:${symbiflow-arch-defs_SOURCE_DIR}/utils:${symbiflow-arch-defs_SOURCE_DIR}/db_overlay
     ${PYTHON3} ${ASSIGN_PINS}
     --db_root ${PRJXRAY_DB_DIR}/${PART}/
+    --db_overlay ${PRJXRAY_DB_OVERLAY_DIR}/${PART}
     --connection_database ${CMAKE_CURRENT_BINARY_DIR}/${CHANNELS}
     --pin_assignments ${CMAKE_CURRENT_BINARY_DIR}/${PIN_ASSIGNMENTS}
     DEPENDS
-    ${ASSIGN_PINS}
+    ${ASSIGN_PINS} ${TILEGRID} ${TILECONN}
     ${DEPS} ${DEPS2} ${CHANNELS}
     ${PYTHON3} ${PYTHON3_TARGET} simplejson progressbar2
     )

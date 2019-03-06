@@ -235,11 +235,18 @@ def main():
     parser.add_argument(
             '--connection_database', help='Database of fabric connectivity', required=True)
     parser.add_argument(
+            '--db_overlay', help='Project X-Ray Database overlay', required=False, default=None, type=str)
+    parser.add_argument(
             '--pin_assignments', help='Output JSON assigning pins to tile types and direction connections', required=True)
 
     args = parser.parse_args()
 
-    db = prjxray.db.Database(args.db_root)
+    if args.db_overlay is not None:
+        import db_overlay.db_overlay
+        db = db_overlay.db_overlay.DatabaseWithOverlay(args.db_root, args.db_overlay)
+    else:
+        db = prjxray.db.Database(args.db_root)
+
     grid = db.grid()
 
     edge_assignments = {}
@@ -413,3 +420,4 @@ def main():
 
 if __name__ == '__main__':
     main()
+

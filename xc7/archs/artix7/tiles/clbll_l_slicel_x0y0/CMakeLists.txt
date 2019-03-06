@@ -1,0 +1,5 @@
+project_xray_tile(
+  PART artix7
+  TILE CLBLL_L_SLICEL_X0Y0
+  SITE_TYPES SLICEL/SLICEL0
+  )

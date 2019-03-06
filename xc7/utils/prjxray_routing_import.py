@@ -466,6 +466,8 @@ def main():
     parser.add_argument(
             '--db_root', required=True, help='Project X-Ray Database')
     parser.add_argument(
+            '--db_overlay', help='Project X-Ray Database overlay', required=False, default=None, type=str)
+    parser.add_argument(
             '--read_rr_graph', required=True, help='Input rr_graph file')
     parser.add_argument(
             '--write_rr_graph', required=True, help='Output rr_graph file')
@@ -476,7 +478,12 @@ def main():
 
     args = parser.parse_args()
 
-    db = prjxray.db.Database(args.db_root)
+    if args.db_overlay is not None:
+        import db_overlay.db_overlay
+        db = db_overlay.db_overlay.DatabaseWithOverlay(args.db_root, args.db_overlay)
+    else:
+        db = prjxray.db.Database(args.db_root)
+
     grid = db.grid()
 
     if args.synth_tiles:

@@ -71,6 +71,9 @@ def main():
         help="""Project X-Ray database to use.""")
 
     parser.add_argument(
+            '--db_overlay', help='Project X-Ray Database overlay path', required=False, default=None, type=str)
+
+    parser.add_argument(
         '--tile',
         help="""Tile to generate for""")
 
@@ -99,7 +102,12 @@ def main():
 
     args = parser.parse_args()
 
-    db = prjxray.db.Database(os.path.join(prjxray_db, args.part))
+    # Load DB and get the tile
+    if args.db_overlay:
+        import db_overlay.db_overlay
+        db = db_overlay.db_overlay.DatabaseWithOverlay(os.path.join(prjxray_db, args.part), args.db_overlay)
+    else:
+        db = prjxray.db.Database(os.path.join(prjxray_db, args.part))
 
     tile = db.get_tile_type(args.tile)
 

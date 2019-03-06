@@ -101,6 +101,8 @@ def main():
         '--part', choices=[os.path.basename(db_type) for db_type in db_types],
         help="""Project X-Ray database to use.""")
     parser.add_argument(
+            '--db_overlay', help='Project X-Ray Database overlay path', required=False, default=None, type=str)
+    parser.add_argument(
             '--output-arch', nargs='?', type=argparse.FileType('w'),
             help="""File to output arch.""")
     parser.add_argument('--tile-types', help="Semi-colon seperated tile types.")
@@ -143,7 +145,13 @@ def main():
         })
 
     layout_xml = ET.SubElement(arch_xml, 'layout')
-    db = prjxray.db.Database(os.path.join(prjxray_db, args.part))
+
+    if args.db_overlay:
+        import db_overlay.db_overlay
+        db = db_overlay.db_overlay.DatabaseWithOverlay(os.path.join(prjxray_db, args.part), args.db_overlay)
+    else:
+        db = prjxray.db.Database(os.path.join(prjxray_db, args.part))
+
     g = db.grid()
     x_min, x_max, y_min, y_max = g.dims()
 

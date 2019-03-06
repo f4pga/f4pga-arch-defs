@@ -694,6 +694,8 @@ def main():
             '--db_root', help='Project X-Ray Database', required=True)
     parser.add_argument(
             '--connection_database', help='Connection database', required=True)
+    parser.add_argument(
+            '--db_overlay', help='Project X-Ray Database overlay', required=False, default=None, type=str)
 
     args = parser.parse_args()
     if os.path.exists(args.connection_database):
@@ -704,7 +706,13 @@ def main():
         create_tables(conn)
 
         print("{}: About to load database".format(datetime.datetime.now()))
-        db = prjxray.db.Database(args.db_root)
+
+        if args.db_overlay is not None:
+            import db_overlay.db_overlay
+            db = db_overlay.db_overlay.DatabaseWithOverlay(args.db_root, args.db_overlay)
+        else:
+            db = prjxray.db.Database(args.db_root)
+
         grid = db.grid()
         import_grid(db, grid, conn)
         print("{}: Initial database formed".format(datetime.datetime.now()))

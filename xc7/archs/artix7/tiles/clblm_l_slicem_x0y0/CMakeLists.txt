@@ -1,0 +1,5 @@
+project_xray_tile(
+  PART artix7
+  TILE CLBLM_L_SLICEM_X0Y0
+  SITE_TYPES SLICEM/SLICEM
+  )
