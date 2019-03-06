@@ -2,7 +2,7 @@ function(icestorm_setup)
   get_target_property_required(PYTHON3 env PYTHON3)
 
   set(ICESTORM_SRC ${symbiflow-arch-defs_SOURCE_DIR}/third_party/icestorm CACHE PATH "Path to icestorm repository")
-  set(PYUTILS_PATH ${symbiflow-arch-defs_SOURCE_DIR}/utils CACHE PATH "Path to python utils")
+  set(PYUTILS_PATH ${symbiflow-arch-defs_SOURCE_DIR}/utils:${symbiflow-arch-defs_SOURCE_DIR}/ice40/utils/fasm_icebox)
 
   get_target_property_required(PYTHON_PREFIX env CONDA_DIR)
   set(ICESTORM_PREFIX "PREFIX=${PYTHON_PREFIX}")
@@ -26,7 +26,7 @@ function(icestorm_setup)
   get_target_property(ICEBOX env ICEBOX)
   get_filename_component(ICEBOX_PATH ${ICEBOX} DIRECTORY)
 
-  set(PYPATH_ARG "PYTHONPATH=\${ICEBOX_PATH}:${PYUTILS_PATH}" CACHE STRING "environment variables for python namely PYTHONPATH")
+  set(PYPATH_ARG "PYTHONPATH=\${ICEBOX_PATH}:${PYUTILS_PATH}")
   define_arch(
     ARCH ice40
     YOSYS_SCRIPT ${symbiflow-arch-defs_SOURCE_DIR}/ice40/yosys/synth.tcl
