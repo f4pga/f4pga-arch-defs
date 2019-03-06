@@ -1,0 +1,1352 @@
+<xml processed="2019-03-06T22:22:05.641872" source=".\ug953-vivado-7series-libraries.pdf">
+  <module name="BSCANE2">
+    <port name="CAPTURE" type="output" width="1"/>
+    <port name="DRCK" type="output" width="1"/>
+    <port name="RESET" type="output" width="1"/>
+    <port name="RUNTEST" type="output" width="1"/>
+    <port name="SEL" type="output" width="1"/>
+    <port name="SHIFT" type="output" width="1"/>
+    <port name="TCK" type="output" width="1"/>
+    <port name="TDI" type="output" width="1"/>
+    <port name="TDO" type="input" width="1"/>
+    <port name="TMS" type="output" width="1"/>
+    <port name="UPDATE" type="output" width="1"/>
+    <attribute default="1" name="JTAG_CHAIN" type="DECIMAL" values="1, 2, 3, 4"/>
+  </module>
+  <module name="BUFG">
+    <port name="I" type="input" width="1"/>
+    <port name="O" type="output" width="1"/>
+  </module>
+  <module name="BUFGCE_1">
+    <port name="CE" type="input" width="1"/>
+    <port name="I" type="input" width="1"/>
+    <port name="O" type="output" width="1"/>
+  </module>
+  <module name="BUFGCTRL">
+    <port name="CE0" type="input" width="1"/>
+    <port name="CE1" type="input" width="1"/>
+    <port name="IGNORE0" type="input" width="1"/>
+    <port name="IGNORE1" type="input" width="1"/>
+    <port name="I0" type="input" width="1"/>
+    <port name="I1" type="input" width="1"/>
+    <port name="O" type="output" width="1"/>
+    <port name="S0" type="input" width="1"/>
+    <port name="S1" type="input" width="1"/>
+    <attribute default="0" name="INIT_OUT" type="DECIMAL" values="0, 1"/>
+    <attribute default="FALSE" name="PRESELECT_I0" type="BOOLEAN" values="FALSE, TRUE"/>
+    <attribute default="FALSE" name="PRESELECT_I1" type="BOOLEAN" values="FALSE, TRUE"/>
+  </module>
+  <module name="BUFGMUX">
+    <port name="I0" type="input" width="1"/>
+    <port name="I1" type="input" width="1"/>
+    <port name="O" type="output" width="1"/>
+    <port name="S" type="input" width="1"/>
+  </module>
+  <module name="BUFGMUX_CTRL">
+    <port name="I0" type="input" width="1"/>
+    <port name="I1" type="input" width="1"/>
+    <port name="O" type="output" width="1"/>
+    <port name="S" type="input" width="1"/>
+  </module>
+  <module name="BUFH">
+    <port name="I" type="input" width="1"/>
+    <port name="O" type="output" width="1"/>
+  </module>
+  <module name="BUFHCE">
+    <port name="CE" type="input" width="1"/>
+    <port name="I" type="input" width="1"/>
+    <port name="O" type="output" width="1"/>
+    <attribute default="SYNC" name="CE_TYPE" type="STRING" values="SYNC, ASYNC"/>
+    <attribute default="0" name="INIT_OUT" type="DECIMAL" values="0, 1"/>
+  </module>
+  <module name="BUFIO">
+    <port name="I" type="input" width="1"/>
+    <port name="O" type="output" width="1"/>
+  </module>
+  <module name="BUFMR">
+    <port name="I" type="input" width="1"/>
+    <port name="O" type="output" width="1"/>
+  </module>
+  <module name="BUFMRCE">
+    <port name="CE" type="input" width="1"/>
+    <port name="I" type="input" width="1"/>
+    <port name="O" type="output" width="1"/>
+    <attribute default="SYNC" name="CE_TYPE" type="STRING" values="SYNC, ASYNC"/>
+    <attribute default="0" name="INIT_OUT" type="DECIMAL" values="0, 1"/>
+  </module>
+  <module name="BUFR">
+    <port name="CE" type="input" width="1"/>
+    <port name="CLR" type="input" width="1"/>
+    <port name="I" type="input" width="1"/>
+    <port name="O" type="output" width="1"/>
+    <attribute default="BYPASS" name="BUFR_DIVIDE" type="STRING" values="BYPASS, 1, 2, 3, 4, 5, 6, 7, 8"/>
+    <attribute default="7SERIES" name="SIM_DEVICE" type="STRING" values="7SERIES"/>
+  </module>
+  <module name="CAPTUREE2">
+    <port name="CAP" type="input" width="1"/>
+    <port name="CLK" type="input" width="1"/>
+    <attribute default="TRUE" name="ONESHOT" type="STRING" values="TRUE, FALSE"/>
+  </module>
+  <module name="CARRY4">
+    <port name="O" type="output" width="4"/>
+    <port name="CO" type="output" width="4"/>
+    <port name="DI" type="input" width="4"/>
+    <port name="S" type="input" width="4"/>
+    <port name="CYINIT" type="input" width="1"/>
+    <port name="CI" type="input" width="1"/>
+  </module>
+  <module name="CFGLUT5">
+    <port name="O6" type="output" width="1"/>
+    <port name="O5" type="output" width="1"/>
+    <port name="I0" type="input" width="1"/>
+    <port name="I1" type="input" width="1"/>
+    <port name="I2" type="input" width="1"/>
+    <port name="I3" type="input" width="1"/>
+    <port name="I4" type="input" width="1"/>
+    <port name="CDO" type="output" width="1"/>
+    <port name="CDI" type="input" width="1"/>
+    <port name="CLK" type="input" width="1"/>
+    <port name="CE" type="input" width="1"/>
+    <attribute default="32'h00000000" name="INIT" type="HEX" values="Any 32-bit Value"/>
+  </module>
+  <module name="DCIRESET">
+    <port name="LOCKED" type="output" width="1"/>
+    <port name="RST" type="input" width="1"/>
+  </module>
+  <module name="DNA_PORT">
+    <port name="CLK" type="input" width="1"/>
+    <port name="DIN" type="input" width="1"/>
+    <port name="DOUT" type="output" width="1"/>
+    <port name="READ" type="input" width="1"/>
+    <port name="SHIFT" type="input" width="1"/>
+    <attribute default="57'h000000000000000" name="SIM_DNA_VALUE" type="HEX" values="57-bit HEX value"/>
+  </module>
+  <module name="DSP48E1">
+    <port name="A" type="input" width="30"/>
+    <port name="ACIN" type="input" width="30"/>
+    <port name="ACOUT" type="output" width="30"/>
+    <port name="ALUMODE" type="input" width="4"/>
+    <port name="B" type="input" width="18"/>
+    <port name="BCIN" type="input" width="18"/>
+    <port name="BCOUT" type="output" width="18"/>
+    <port name="C" type="input" width="48"/>
+    <port name="CARRYCASCIN" type="input" width="1"/>
+    <port name="CARRYCASCOUT" type="output" width="1"/>
+    <port name="CARRYIN" type="input" width="1"/>
+    <port name="CARRYINSEL" type="input" width="3"/>
+    <port name="CARRYOUT" type="output" width="4"/>
+    <port name="CEAD" type="input" width="1"/>
+    <port name="CEALUMODE" type="input" width="1"/>
+    <port name="CEA1" type="input" width="1"/>
+    <port name="CEA2" type="input" width="1"/>
+    <port name="CEB1" type="input" width="1"/>
+    <port name="CEB2" type="input" width="1"/>
+    <port name="CEC" type="input" width="1"/>
+    <port name="CECARRYIN" type="input" width="1"/>
+    <port name="CECTRL" type="input" width="1"/>
+    <port name="CED" type="input" width="1"/>
+    <port name="CEINMODE" type="input" width="1"/>
+    <port name="CEM" type="input" width="1"/>
+    <port name="CEP" type="input" width="1"/>
+    <port name="CLK" type="input" width="1"/>
+    <port name="D" type="input" width="25"/>
+    <port name="INMODE" type="input" width="5"/>
+    <port name="MULTSIGNIN" type="input" width="1"/>
+    <port name="MULTSIGNOUT" type="output" width="1"/>
+    <port name="OPMODE" type="input" width="7"/>
+    <port name="OVERFLOW" type="output" width="1"/>
+    <port name="P" type="output" width="48"/>
+    <port name="PATTERNBDETECT" type="output" width="1"/>
+    <port name="PATTERNDETECT" type="output" width="1"/>
+    <port name="PCIN" type="input" width="48"/>
+    <port name="PCOUT" type="output" width="48"/>
+    <port name="RSTA" type="input" width="1"/>
+    <port name="RSTALLCARRYIN" type="input" width="1"/>
+    <port name="RSTALUMODE" type="input" width="1"/>
+    <port name="RSTB" type="input" width="1"/>
+    <port name="RSTC" type="input" width="1"/>
+    <port name="RSTCTRL" type="input" width="1"/>
+    <port name="RSTD" type="input" width="1"/>
+    <port name="RSTINMODE" type="input" width="1"/>
+    <port name="RSTM" type="input" width="1"/>
+    <port name="RSTP" type="input" width="1"/>
+    <port name="UNDERFLOW" type="output" width="1"/>
+    <attribute default="1" name="ACASCREG" type="DECIMAL" values="1, 0, 2"/>
+    <attribute default="1" name="ADREG" type="DECIMAL" values="1, 0"/>
+    <attribute default="DIRECT" name="A_INPUT" type="STRING" values="DIRECT, CASCADE"/>
+    <attribute default="1" name="ALUMODEREG" type="DECIMAL" values="1, 0"/>
+    <attribute default="1" name="AREG" type="DECIMAL" values="1, 0, 2"/>
+    <attribute default="NO_RESET" name="AUTORESET_PATDET" type="STRING" values="NO_RESET, RESET_MATCH, RESET_NOT_MATCH"/>
+    <attribute default="1" name="BCASCREG" type="DECIMAL" values="1, 0, 2"/>
+    <attribute default="DIRECT" name="B_INPUT" type="STRING" values="DIRECT, CASCADE"/>
+    <attribute default="1" name="BREG" type="DECIMAL" values="1, 0, 2"/>
+    <attribute default="1" name="CARRYINREG" type="DECIMAL" values="1, 0"/>
+    <attribute default="1" name="CARRYINSELREG" type="DECIMAL" values="1, 0"/>
+    <attribute default="1" name="CREG" type="DECIMAL" values="1, 0"/>
+    <attribute default="1" name="DREG" type="DECIMAL" values="1, 0"/>
+    <attribute default="1" name="INMODEREG" type="DECIMAL" values="1, 0"/>
+    <attribute default="48'hFFFFFFFFFFFF" name="MASK" type="HEX" values="48-bit HEX"/>
+    <attribute default="1" name="MREG" type="DECIMAL" values="1, 0"/>
+    <attribute default="1" name="OPMODEREG" type="DECIMAL" values="1, 0"/>
+    <attribute default="48'h000000000000" name="PATTERN" type="HEX" values="48-bit HEX"/>
+    <attribute default="1" name="PREG" type="DECIMAL" values="1, 0"/>
+    <attribute default="MASK" name="SEL_MASK" type="STRING" values="MASK, C, ROUNDING_MODE1, ROUNDING_MODE2"/>
+    <attribute default="PATTERN" name="SEL_PATTERN" type="STRING" values="PATTERN, C"/>
+    <attribute default="FALSE" name="USE_DPORT" type="BOOLEAN" values="FALSE, TRUE"/>
+    <attribute default="MULTIPLY" name="USE_MULT" type="STRING" values="MULTIPLY, DYNAMIC, NONE"/>
+    <attribute default="NO_PATDET" name="USE_PATTERN_DETECT" type="STRING" values="NO_PATDET, PATDET"/>
+    <attribute default="ONE48" name="USE_SIMD" type="STRING" values="ONE48, FOUR12, TWO24"/>
+  </module>
+  <module name="EFUSE_USR">
+    <port name="EFUSEUSR" type="output" width="32"/>
+    <attribute default="32'h00000000" name="SIM_EFUSE_VALUE" type="HEX" values="32'h00000000 to 32'hffffffff"/>
+  </module>
+  <module name="FIFO18E1">
+    <port name="ALMOSTEMPTY" type="output" width="1"/>
+    <port name="ALMOSTFULL" type="output" width="1"/>
+    <port name="DI" type="input" width="32"/>
+    <port name="DIP" type="input" width="4"/>
+    <port name="DO" type="output" width="32"/>
+    <port name="DOP" type="output" width="4"/>
+    <port name="EMPTY" type="output" width="1"/>
+    <port name="FULL" type="output" width="1"/>
+    <port name="RDCLK" type="input" width="1"/>
+    <port name="RDCOUNT" type="output" width="12"/>
+    <port name="RDEN" type="input" width="1"/>
+    <port name="RDERR" type="output" width="1"/>
+    <port name="REGCE" type="input" width="1"/>
+    <port name="RST" type="input" width="1"/>
+    <port name="RSTREG" type="input" width="1"/>
+    <port name="WRCLK" type="input" width="1"/>
+    <port name="WRCOUNT" type="output" width="12"/>
+    <port name="WREN" type="input" width="1"/>
+    <port name="WRERR" type="output" width="1"/>
+    <attribute default="13'h0080" name="ALMOST_EMPTY_OFFSET" type="HEX" values="13'h0000 to 13'h1fff"/>
+    <attribute default="13'h0080" name="ALMOST_FULL_OFFSET" type="HEX" values="13'h0000 to 13'h1fff"/>
+    <attribute default="4" name="DATA_WIDTH" type="DECIMAL" values="4, 9, 18, 36"/>
+    <attribute default="1" name="DO_REG" type="DECIMAL" values="1, 0"/>
+    <attribute default="FALSE" name="EN_SYN" type="BOOLEAN" values="FALSE, TRUE"/>
+    <attribute default="FIFO18" name="FIFO_MODE" type="STRING" values="FIFO18, FIFO18_36"/>
+    <attribute default="FALSE" name="FIRST_WORD_FALL_THROUGH" type="BOOLEAN" values="FALSE, TRUE"/>
+    <attribute default="36'h000000000" name="INIT" type="HEX" values="36 bit HEX"/>
+    <attribute default="7SERIES" name="SIM_DEVICE" type="STRING" values="7SERIES"/>
+    <attribute default="36'h000000000" name="SRVAL" type="HEX" values="36 bit HEX"/>
+  </module>
+  <module name="FIFO36E1">
+    <port name="ALMOSTEMPTY" type="output" width="1"/>
+    <port name="ALMOSTFULL" type="output" width="1"/>
+    <port name="DBITERR" type="output" width="1"/>
+    <port name="DI" type="input" width="64"/>
+    <port name="DIP" type="input" width="8"/>
+    <port name="DO" type="output" width="64"/>
+    <port name="DOP" type="output" width="8"/>
+    <port name="ECCPARITY" type="output" width="8"/>
+    <port name="EMPTY" type="output" width="1"/>
+    <port name="FULL" type="output" width="1"/>
+    <port name="INJECTDBITERR" type="input" width="1"/>
+    <port name="INJECTSBITERR" type="input" width="1"/>
+    <port name="RDCLK" type="input" width="1"/>
+    <port name="RDCOUNT" type="output" width="13"/>
+    <port name="RDEN" type="input" width="1"/>
+    <port name="RDERR" type="output" width="1"/>
+    <port name="REGCE" type="input" width="1"/>
+    <port name="RST" type="input" width="1"/>
+    <port name="RSTREG" type="input" width="1"/>
+    <port name="SBITERR" type="output" width="1"/>
+    <port name="WRCLK" type="input" width="1"/>
+    <port name="WRCOUNT" type="output" width="13"/>
+    <port name="WREN" type="input" width="1"/>
+    <port name="WRERR" type="output" width="1"/>
+    <attribute default="13'h0080" name="ALMOST_EMPTY_OFFSET" type="HEX" values="13'h0000 to 13'h1fff"/>
+    <attribute default="13'h0080" name="ALMOST_FULL_OFFSET" type="HEX" values="13'h0000 to 13'h1fff"/>
+    <attribute default="4" name="DATA_WIDTH" type="DECIMAL" values="4, 9, 18, 36, 72"/>
+    <attribute default="1" name="DO_REG" type="DECIMAL" values="1, 0"/>
+    <attribute default="FALSE" name="EN_ECC_READ" type="BOOLEAN" values="FALSE, TRUE"/>
+    <attribute default="FALSE" name="EN_ECC_WRITE" type="BOOLEAN" values="FALSE, TRUE"/>
+    <attribute default="FALSE" name="EN_SYN" type="BOOLEAN" values="FALSE, TRUE"/>
+    <attribute default="FIFO36" name="FIFO_MODE" type="STRING" values="FIFO36, FIFO36_72"/>
+    <attribute default="FALSE" name="FIRST_WORD_FALL_THROUGH" type="BOOLEAN" values="FALSE, TRUE"/>
+    <attribute default="72'h000000000000000000" name="INIT" type="HEX" values="72 bit HEX"/>
+    <attribute default="7SERIES" name="SIM_DEVICE" type="STRING" values="7SERIES"/>
+    <attribute default="72'h000000000000000000" name="SRVAL" type="HEX" values="72 bit HEX"/>
+  </module>
+  <module name="FRAME_ECCE2">
+    <port name="CRCERROR" type="output" width="1"/>
+    <port name="ECCERROR" type="output" width="1"/>
+    <port name="ECCERRORSINGLE" type="output" width="1"/>
+    <port name="FAR" type="output" width="26"/>
+    <port name="SYNBIT" type="output" width="5"/>
+    <port name="SYNDROME" type="output" width="13"/>
+    <port name="SYNDROMEVALID" type="output" width="1"/>
+    <port name="SYNWORD" type="output" width="7"/>
+    <attribute default="EFAR" name="FARSRC" type="STRING" values="EFAR, FAR"/>
+    <attribute default="NONE" name="FRAME_RBT_IN_FILENAME" type="STRING" values="String representing file name and location"/>
+  </module>
+  <module name="IBUF">
+    <port name="O" type="output" width="1"/>
+    <port name="I" type="input" width="1"/>
+    <attribute default="TRUE" name="IBUF_LOW_PWR" type="BOOLEAN" values="TRUE, FALSE"/>
+    <attribute default="DEFAULT" name="IOSTANDARD" type="STRING" values="See Data Sheet"/>
+  </module>
+  <module name="IBUF_IBUFDISABLE">
+    <port name="I" type="input" width="1"/>
+    <port name="IBUFDISABLE" type="input" width="1"/>
+    <port name="O" type="output" width="1"/>
+    <attribute default="TRUE" name="IBUF_LOW_PWR" type="STRING" values="TRUE, FALSE"/>
+    <attribute default="DEFAULT" name="IOSTANDARD" type="STRING" values="See Data Sheet"/>
+    <attribute default="TRUE" name="USE_IBUFDISABLE" type="STRING" values="TRUE, FALSE"/>
+  </module>
+  <module name="IBUF_INTERMDISABLE">
+    <port name="I" type="input" width="1"/>
+    <port name="IBUFDISABLE" type="input" width="1"/>
+    <port name="INTERMDISABLE" type="input" width="1"/>
+    <port name="O" type="output" width="1"/>
+    <attribute default="TRUE" name="IBUF_LOW_PWR" type="STRING" values="TRUE, FALSE"/>
+    <attribute default="DEFAULT" name="IOSTANDARD" type="STRING" values="See Data Sheet"/>
+    <attribute default="TRUE" name="USE_IBUFDISABLE" type="STRING" values="TRUE, FALSE"/>
+  </module>
+  <module name="IBUFDS">
+    <port name="I" type="input" width="1"/>
+    <port name="IB" type="input" width="1"/>
+    <port name="O" type="output" width="1"/>
+    <attribute default="FALSE" name="DIFF_TERM" type="BOOLEAN" values="TRUE, FALSE"/>
+    <attribute default="TRUE" name="IBUF_LOW_PWR" type="BOOLEAN" values="TRUE, FALSE"/>
+    <attribute default="DEFAULT" name="IOSTANDARD" type="STRING" values="See Data Sheet."/>
+  </module>
+  <module name="IBUFDS_DIFF_OUT">
+    <port name="I" type="input" width="1"/>
+    <port name="IB" type="input" width="1"/>
+    <port name="O" type="output" width="1"/>
+    <port name="OB" type="output" width="1"/>
+    <attribute default="FALSE" name="DIFF_TERM" type="BOOLEAN" values="TRUE, FALSE"/>
+    <attribute default="TRUE" name="IBUF_LOW_PWR" type="BOOLEAN" values="TRUE, FALSE"/>
+    <attribute default="DEFAULT" name="IOSTANDARD" type="STRING" values="See Data Sheet."/>
+  </module>
+  <module name="IBUFDS_DIFF_OUT_IBUFDISABLE">
+    <port name="I" type="input" width="1"/>
+    <port name="IB" type="input" width="1"/>
+    <port name="IBUFDISABLE" type="input" width="1"/>
+    <port name="O" type="output" width="1"/>
+    <port name="OB" type="output" width="1"/>
+    <attribute default="FALSE" name="DIFF_TERM" type="STRING" values="TRUE, FALSE"/>
+    <attribute default="TRUE" name="IBUF_LOW_PWR" type="STRING" values="TRUE, FALSE"/>
+    <attribute default="DEFAULT" name="IOSTANDARD" type="STRING" values="See Data Sheet"/>
+    <attribute default="TRUE" name="USE_IBUFDISABLE" type="STRING" values="TRUE, FALSE"/>
+  </module>
+  <module name="IBUFDS_DIFF_OUT_INTERMDISABLE">
+    <port name="I" type="input" width="1"/>
+    <port name="IB" type="input" width="1"/>
+    <port name="IBUFDISABLE" type="input" width="1"/>
+    <port name="INTERMDISABLE" type="input" width="1"/>
+    <port name="O" type="output" width="1"/>
+    <port name="OB" type="output" width="1"/>
+    <attribute default="FALSE" name="DIFF_TERM" type="STRING" values="TRUE, FALSE"/>
+    <attribute default="TRUE" name="IBUF_LOW_PWR" type="STRING" values="TRUE, FALSE"/>
+    <attribute default="DEFAULT" name="IOSTANDARD" type="STRING" values="See Data Sheet"/>
+    <attribute default="TRUE" name="USE_IBUFDISABLE" type="STRING" values="TRUE, FALSE"/>
+  </module>
+  <module name="IBUFDS_IBUFDISABLE">
+    <port name="I" type="input" width="1"/>
+    <port name="IB" type="input" width="1"/>
+    <port name="IBUFDISABLE" type="input" width="1"/>
+    <port name="O" type="output" width="1"/>
+    <attribute default="FALSE" name="DIFF_TERM" type="STRING" values="TRUE, FALSE"/>
+    <attribute default="TRUE" name="IBUF_LOW_PWR" type="STRING" values="TRUE, FALSE"/>
+    <attribute default="DEFAULT" name="IOSTANDARD" type="STRING" values="See Data Sheet"/>
+    <attribute default="TRUE" name="USE_IBUFDISABLE" type="STRING" values="TRUE, FALSE"/>
+  </module>
+  <module name="IBUFDS_INTERMDISABLE">
+    <port name="I" type="input" width="1"/>
+    <port name="IB" type="input" width="1"/>
+    <port name="IBUFDISABLE" type="input" width="1"/>
+    <port name="INTERMDISABLE" type="input" width="1"/>
+    <port name="O" type="output" width="1"/>
+    <attribute default="FALSE" name="DIFF_TERM" type="STRING" values="TRUE, FALSE"/>
+    <attribute default="TRUE" name="IBUF_LOW_PWR" type="STRING" values="TRUE, FALSE"/>
+    <attribute default="DEFAULT" name="IOSTANDARD" type="STRING" values="See Data Sheet"/>
+    <attribute default="TRUE" name="USE_IBUFDISABLE" type="STRING" values="TRUE, FALSE"/>
+  </module>
+  <module name="ICAPE2">
+    <port name="CLK" type="input" width="1"/>
+    <port name="CSIB" type="input" width="1"/>
+    <port name="I" type="input" width="32"/>
+    <port name="O" type="output" width="32"/>
+    <port name="RDWRB" type="input" width="1"/>
+    <attribute default="32'h03651093" name="DEVICE_ID" type="HEX" values="32'h03651093, 32'h036A2093, 32'h036A4093, 32'h036A6093, 32'h036BF093, 32'h036B1093, 32'h036B3093, 32'h036C2093, 32'h036C4093, 32'h036C6093, 32'h036DF093, 32'h036D1093, 32'h036D3093, 32'h036D5093, 32'h036D9093, 32'h0362C093, 32'h0362D093, 32'h0363B093, 32'h0364C093, 32'h0371F093, 32'h0372C093, 32'h0377F093, 32'h03627093, 32'h03628093, 32'h03631093, 32'h03636093, 32'h03642093, 32'h03647093, 32'h03656093, 32'h03667093, 32'h03671093, 32'h03676093, 32'h03680093, 32'h03681093, 32'h03682093, 32'h03687093, 32'h03691093, 32'h03692093, 32'h03696093, 32'h03702093, 32'h03704093, 32'h03711093, 32'h03722093, 32'h03727093, 32'h03731093, 32'h03747093, 32'h03751093, 32'h03752093, 32'h03762093, 32'h03771093, 32'h03782093"/>
+    <attribute default="X32" name="ICAP_WIDTH" type="STRING" values="X32, X8, X16"/>
+    <attribute default="" name="SIM_CFG_FILE_NAME" type="STRING" values="String representing file name and location"/>
+  </module>
+  <module name="IDDR">
+    <port name="Q1" type="output" width="1"/>
+    <port name="Q2" type="output" width="1"/>
+    <port name="C" type="input" width="1"/>
+    <port name="CE" type="input" width="1"/>
+    <port name="D" type="input" width="1"/>
+    <port name="R" type="input" width="1"/>
+    <port name="S" type="input" width="1"/>
+    <attribute default="OPPOSITE_EDGE" name="DDR_CLK_EDGE" type="STRING" values="OPPOSITE_EDGE, SAME_EDGE, SAME_EDGE_PIPELINED"/>
+    <attribute default="0" name="INIT_Q1" type="BINARY" values="0, 1"/>
+    <attribute default="0" name="INIT_Q2" type="BINARY" values="0, 1"/>
+    <attribute default="SYNC" name="SRTYPE" type="STRING" values="SYNC or ASYNC"/>
+  </module>
+  <module name="IDDR_2CLK">
+    <port name="Q1" type="output" width="1"/>
+    <port name="Q2" type="output" width="1"/>
+    <port name="C" type="input" width="1"/>
+    <port name="CB" type="input" width="1"/>
+    <port name="CE" type="input" width="1"/>
+    <port name="D" type="input" width="1"/>
+    <port name="R" type="input" width="1"/>
+    <port name="S" type="input" width="1"/>
+    <attribute default="OPPOSITE_EDGE" name="DDR_CLK_EDGE" type="STRING" values="OPPOSITE_EDGE, SAME_EDGE SAME_EDGE_PIPELINED"/>
+    <attribute default="0" name="INIT_Q1" type="BINARY" values="0, 1"/>
+    <attribute default="0" name="INIT_Q2" type="BINARY" values="0, 1"/>
+    <attribute default="SYNC" name="SRTYPE" type="STRING" values="SYNC or ASYNC"/>
+  </module>
+  <module name="IDELAYCTRL">
+    <port name="RDY" type="output" width="1"/>
+    <port name="REFCLK" type="input" width="1"/>
+    <port name="RST" type="input" width="1"/>
+  </module>
+  <module name="IDELAYE2">
+    <port name="C" type="input" width="1"/>
+    <port name="CE" type="input" width="1"/>
+    <port name="CINVCTRL" type="input" width="1"/>
+    <port name="CNTVALUEIN" type="input" width="5"/>
+    <port name="CNTVALUEOUT" type="output" width="5"/>
+    <port name="DATAIN" type="input" width="1"/>
+    <port name="DATAOUT" type="output" width="1"/>
+    <port name="IDATAIN" type="input" width="1"/>
+    <port name="INC" type="input" width="1"/>
+    <port name="LD" type="input" width="1"/>
+    <port name="LDPIPEEN" type="input" width="1"/>
+    <port name="REGRST" type="input" width="1"/>
+    <attribute default="FALSE" name="CINVCTRL_SEL" type="STRING" values="FALSE, TRUE"/>
+    <attribute default="IDATAIN" name="DELAY_SRC" type="STRING" values="IDATAIN, DATAIN"/>
+    <attribute default="FALSE" name="HIGH_PERFORMANCE_MODE" type="STRING" values="FALSE, TRUE"/>
+    <attribute default="FIXED" name="IDELAY_TYPE" type="STRING" values="FIXED, VARIABLE, VAR_LOAD, VAR_LOAD_PIPE"/>
+    <attribute default="0" name="IDELAY_VALUE" type="DECIMAL" values="0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31"/>
+    <attribute default="FALSE" name="PIPE_SEL" type="STRING" values="FALSE, TRUE"/>
+    <attribute default="200.0" name="REFCLK_FREQUENCY" type="1 significant digit FLOAT" values="190-210, 290-310 Mhz"/>
+    <attribute default="DATA" name="SIGNAL_PATTERN" type="STRING" values="DATA, CLOCK"/>
+  </module>
+  <module name="IN_FIFO">
+    <port name="ALMOSTEMPTY" type="output" width="1"/>
+    <port name="ALMOSTFULL" type="output" width="1"/>
+    <port name="D0" type="input" width="4"/>
+    <port name="D1" type="input" width="4"/>
+    <port name="D2" type="input" width="4"/>
+    <port name="D3" type="input" width="4"/>
+    <port name="D4" type="input" width="4"/>
+    <port name="D5" type="input" width="8"/>
+    <port name="D6" type="input" width="8"/>
+    <port name="D7" type="input" width="4"/>
+    <port name="D8" type="input" width="4"/>
+    <port name="D9" type="input" width="4"/>
+    <port name="EMPTY" type="output" width="1"/>
+    <port name="FULL" type="output" width="1"/>
+    <port name="Q0" type="output" width="8"/>
+    <port name="Q1" type="output" width="8"/>
+    <port name="Q2" type="output" width="8"/>
+    <port name="Q3" type="output" width="8"/>
+    <port name="Q4" type="output" width="8"/>
+    <port name="Q5" type="output" width="8"/>
+    <port name="Q6" type="output" width="8"/>
+    <port name="Q7" type="output" width="8"/>
+    <port name="Q8" type="output" width="8"/>
+    <port name="Q9" type="output" width="8"/>
+    <port name="RDCLK" type="input" width="1"/>
+    <port name="RDEN" type="input" width="1"/>
+    <port name="RESET" type="input" width="1"/>
+    <port name="WRCLK" type="input" width="1"/>
+    <port name="WREN" type="input" width="1"/>
+    <attribute default="1" name="ALMOST_EMPTY_VALUE" type="DECIMAL" values="1, 2"/>
+    <attribute default="1" name="ALMOST_FULL_VALUE" type="DECIMAL" values="1, 2"/>
+    <attribute default="ARRAY_MODE_4_X_8" name="ARRAY_MODE" type="STRING" values="ARRAY_MODE_4_X_8, ARRAY_MODE_4_X_4"/>
+    <attribute default="FALSE" name="SYNCHRONOUS_MODE" type="STRING" values="FALSE"/>
+  </module>
+  <module name="IOBUF">
+    <port name="O" type="output" width="1"/>
+    <port name="IO" type="inout" width="1"/>
+    <port name="I" type="input" width="1"/>
+    <port name="T" type="input" width="1"/>
+    <attribute default="12" name="DRIVE" type="INTEGER" values="2, 4, 6, 8, 12, 16, 24"/>
+    <attribute default="DEFAULT" name="IOSTANDARD" type="STRING" values="See Data Sheet"/>
+    <attribute default="SLOW" name="SLEW" type="STRING" values="SLOW, FAST"/>
+  </module>
+  <module name="IOBUF_DCIEN">
+    <port name="IO" type="inout" width="1"/>
+    <port name="I" type="input" width="1"/>
+    <port name="IBUFDISABLE" type="input" width="1"/>
+    <port name="DCITERMDISABLE" type="input" width="1"/>
+    <port name="T" type="input" width="1"/>
+    <port name="O" type="output" width="1"/>
+    <attribute default="12" name="DRIVE" type="INTEGER" values="2, 4, 6, 8, 12, 16, 24"/>
+    <attribute default="TRUE" name="IBUF_LOW_PWR" type="STRING" values="TRUE, FALSE"/>
+    <attribute default="DEFAULT" name="IOSTANDARD" type="STRING" values="See Data Sheet"/>
+    <attribute default="SLOW" name="SLEW" type="STRING" values="SLOW, FAST,"/>
+    <attribute default="TRUE" name="USE_IBUFDISABLE" type="STRING" values="TRUE, FALSE"/>
+  </module>
+  <module name="IOBUF_INTERMDISABLE">
+    <port name="O" type="output" width="1"/>
+    <port name="IO" type="inout" width="1"/>
+    <port name="I" type="input" width="1"/>
+    <port name="IBUFDISABLE" type="input" width="1"/>
+    <port name="INTERMDISABLE" type="input" width="1"/>
+    <port name="T" type="input" width="1"/>
+    <attribute default="12" name="DRIVE" type="INTEGER" values="2, 4, 6, 8, 12, 16, 24"/>
+    <attribute default="TRUE" name="IBUF_LOW_PWR" type="STRING" values="TRUE, FALSE"/>
+    <attribute default="DEFAULT" name="IOSTANDARD" type="STRING" values="See Data Sheet"/>
+    <attribute default="SLOW" name="SLEW" type="STRING" values="SLOW, FAST"/>
+    <attribute default="TRUE" name="USE_IBUFDISABLE" type="STRING" values="TRUE, FALSE"/>
+  </module>
+  <module name="IOBUFDS">
+    <port name="O" type="output" width="1"/>
+    <port name="IO" type="inout" width="1"/>
+    <port name="IOB" type="inout" width="1"/>
+    <port name="I" type="input" width="1"/>
+    <port name="T" type="input" width="1"/>
+    <attribute default="FALSE" name="DIFF_TERM" type="BOOLEAN" values="TRUE, FALSE"/>
+    <attribute default="TRUE" name="IBUF_LOW_PWR" type="BOOLEAN" values="TRUE, FALSE"/>
+    <attribute default="DEFAULT" name="IOSTANDARD" type="STRING" values="See Data Sheet"/>
+    <attribute default="SLOW" name="SLEW" type="STRING" values="SLOW or FAST"/>
+  </module>
+  <module name="IOBUFDS_DCIEN">
+    <port name="IO" type="inout" width="1"/>
+    <port name="IOB" type="inout" width="1"/>
+    <port name="I" type="input" width="1"/>
+    <port name="IBUFDISABLE" type="input" width="1"/>
+    <port name="DCITERMDISABLE" type="input" width="1"/>
+    <port name="T" type="input" width="1"/>
+    <port name="O" type="output" width="1"/>
+    <attribute default="FALSE" name="DIFF_TERM" type="STRING" values="TRUE, FALSE"/>
+    <attribute default="TRUE" name="IBUF_LOW_PWR" type="STRING" values="TRUE, FALSE"/>
+    <attribute default="DEFAULT" name="IOSTANDARD" type="STRING" values="See Data Sheet"/>
+    <attribute default="SLOW" name="SLEW" type="STRING" values="SLOW, FAST,"/>
+    <attribute default="TRUE" name="USE_IBUFDISABLE" type="STRING" values="TRUE, FALSE"/>
+  </module>
+  <module name="IOBUFDS_DIFF_OUT">
+    <port name="O" type="output" width="1"/>
+    <port name="OB" type="output" width="1"/>
+    <port name="IO" type="inout" width="1"/>
+    <port name="IOB" type="inout" width="1"/>
+    <port name="I" type="input" width="1"/>
+    <port name="TM" type="input" width="1"/>
+    <port name="TS" type="input" width="1"/>
+    <attribute default="FALSE" name="DIFF_TERM" type="BOOLEAN" values="TRUE, FALSE"/>
+    <attribute default="TRUE" name="IBUF_LOW_PWR" type="BOOLEAN" values="TRUE, FALSE"/>
+    <attribute default="DEFAULT" name="IOSTANDARD" type="STRING" values="See Data Sheet"/>
+  </module>
+  <module name="IOBUFDS_DIFF_OUT_DCIEN">
+    <port name="IO" type="inout" width="1"/>
+    <port name="IOB" type="inout" width="1"/>
+    <port name="I" type="input" width="1"/>
+    <port name="IBUFDISABLE" type="input" width="1"/>
+    <port name="DCITERMDISABLE" type="input" width="1"/>
+    <port name="TM" type="input" width="1"/>
+    <port name="TS" type="input" width="1"/>
+    <port name="O" type="output" width="1"/>
+    <port name="OB" type="output" width="1"/>
+    <attribute default="FALSE" name="DIFF_TERM" type="STRING" values="TRUE, FALSE"/>
+    <attribute default="TRUE" name="IBUF_LOW_PWR" type="STRING" values="TRUE, FALSE"/>
+    <attribute default="DEFAULT" name="IOSTANDARD" type="STRING" values="See Data Sheet"/>
+    <attribute default="TRUE" name="USE_IBUFDISABLE" type="STRING" values="TRUE, FALSE"/>
+  </module>
+  <module name="IOBUFDS_DIFF_OUT_INTERMDISABLE">
+    <port name="IO" type="inout" width="1"/>
+    <port name="IOB" type="inout" width="1"/>
+    <port name="I" type="input" width="1"/>
+    <port name="IBUFDISABLE" type="input" width="1"/>
+    <port name="INTERMDISABLE" type="input" width="1"/>
+    <port name="TM" type="input" width="1"/>
+    <port name="TS" type="input" width="1"/>
+    <port name="O" type="output" width="1"/>
+    <port name="OB" type="output" width="1"/>
+    <attribute default="FALSE" name="DIFF_TERM" type="STRING" values="TRUE, FALSE"/>
+    <attribute default="TRUE" name="IBUF_LOW_PWR" type="STRING" values="TRUE, FALSE"/>
+    <attribute default="DEFAULT" name="IOSTANDARD" type="STRING" values="See Data Sheet"/>
+    <attribute default="TRUE" name="USE_IBUFDISABLE" type="STRING" values="TRUE, FALSE"/>
+  </module>
+  <module name="IOBUFDS_INTERMDISABLE">
+    <port name="IO" type="inout" width="1"/>
+    <port name="IOB" type="inout" width="1"/>
+    <port name="I" type="input" width="1"/>
+    <port name="IBUFDISABLE" type="input" width="1"/>
+    <port name="INTERMDISABLE" type="input" width="1"/>
+    <port name="T" type="input" width="1"/>
+    <port name="O" type="output" width="1"/>
+    <attribute default="FALSE" name="DIFF_TERM" type="STRING" values="TRUE, FALSE"/>
+    <attribute default="TRUE" name="IBUF_LOW_PWR" type="STRING" values="TRUE, FALSE"/>
+    <attribute default="DEFAULT" name="IOSTANDARD" type="STRING" values="See Data Sheet"/>
+    <attribute default="SLOW" name="SLEW" type="STRING" values="SLOW or FAST"/>
+    <attribute default="TRUE" name="USE_IBUFDISABLE" type="STRING" values="TRUE, FALSE"/>
+  </module>
+  <module name="ISERDESE2">
+    <port name="BITSLIP" type="input" width="1"/>
+    <port name="CE1" type="input" width="1"/>
+    <port name="CE2" type="input" width="1"/>
+    <port name="CLK" type="input" width="1"/>
+    <port name="CLKB" type="input" width="1"/>
+    <port name="CLKDIV" type="input" width="1"/>
+    <port name="CLKDIVP" type="input" width="1"/>
+    <port name="D" type="input" width="1"/>
+    <port name="DDLY" type="input" width="1"/>
+    <port name="DYNCLKDIVSEL" type="input" width="1"/>
+    <port name="DYNCLKSEL" type="input" width="1"/>
+    <port name="O" type="output" width="1"/>
+    <port name="OCLK" type="input" width="1"/>
+    <port name="OCLKB" type="input" width="1"/>
+    <port name="OFB" type="input" width="1"/>
+    <port name="Q1" type="output" width="1"/>
+    <port name="Q2" type="output" width="1"/>
+    <port name="Q3" type="output" width="1"/>
+    <port name="Q4" type="output" width="1"/>
+    <port name="Q5" type="output" width="1"/>
+    <port name="Q6" type="output" width="1"/>
+    <port name="Q7" type="output" width="1"/>
+    <port name="Q8" type="output" width="1"/>
+    <port name="RST" type="input" width="1"/>
+    <port name="SHIFTIN1" type="input" width="1"/>
+    <port name="SHIFTIN2" type="input" width="1"/>
+    <port name="SHIFTOUT1" type="output" width="1"/>
+    <port name="SHIFTOUT2" type="output" width="1"/>
+    <attribute default="DDR" name="DATA_RATE" type="STRING" values="DDR, SDR"/>
+    <attribute default="4" name="DATA_WIDTH" type="DECIMAL" values="4, 2, 3, 5, 6, 7, 8, 10, 14"/>
+    <attribute default="FALSE" name="DYN_CLKDIV_INV_EN" type="STRING" values="FALSE, TRUE"/>
+    <attribute default="FALSE" name="DYN_CLK_INV_EN" type="STRING" values="FALSE, TRUE"/>
+    <attribute default="1'b0" name="INIT_Q1" type="BINARY" values="1'b0 to 1'b1"/>
+    <attribute default="1'b0" name="INIT_Q2" type="BINARY" values="1'b0 to 1'b1"/>
+    <attribute default="1'b0" name="INIT_Q3" type="BINARY" values="1'b0 to 1'b1"/>
+    <attribute default="1'b0" name="INIT_Q4" type="BINARY" values="1'b0 to 1'b1"/>
+    <attribute default="MEMORY" name="INTERFACE_TYPE" type="STRING" values="MEMORY, MEMORY_DDR3, MEMORY_QDR, NETWORKING, OVERSAMPLE"/>
+    <attribute default="NONE" name="IOBDELAY" type="STRING" values="NONE, BOTH, IBUF, IFD"/>
+    <attribute default="2" name="NUM_CE" type="DECIMAL" values="2, 1"/>
+    <attribute default="FALSE" name="OFB_USED" type="STRING" values="FALSE, TRUE"/>
+    <attribute default="MASTER" name="SERDES_MODE" type="STRING" values="MASTER, SLAVE"/>
+    <attribute default="1'b0" name="SRVAL_Q1" type="BINARY" values="1'b0 to 1'b1"/>
+    <attribute default="1'b0" name="SRVAL_Q2" type="BINARY" values="1'b0 to 1'b1"/>
+    <attribute default="1'b0" name="SRVAL_Q3" type="BINARY" values="1'b0 to 1'b1"/>
+    <attribute default="1'b0" name="SRVAL_Q4" type="BINARY" values="1'b0 to 1'b1"/>
+  </module>
+  <module name="KEEPER">
+    <port name="O" type="output" width="1"/>
+  </module>
+  <module name="LUT5">
+    <port name="O" type="output" width="1"/>
+    <port name="I0" type="input" width="1"/>
+    <port name="I1" type="input" width="1"/>
+    <port name="I2" type="input" width="1"/>
+    <port name="I3" type="input" width="1"/>
+    <port name="I4" type="input" width="1"/>
+    <attribute default="32'h00000000" name="INIT" type="HEX" values="Any 32-Bit Value"/>
+  </module>
+  <module name="LUT6">
+    <port name="O" type="output" width="1"/>
+    <port name="I0" type="input" width="1"/>
+    <port name="I1" type="input" width="1"/>
+    <port name="I2" type="input" width="1"/>
+    <port name="I3" type="input" width="1"/>
+    <port name="I4" type="input" width="1"/>
+    <port name="I5" type="input" width="1"/>
+    <attribute default="64'h0000000000000000" name="INIT" type="HEX" values="Any 64-Bit Value"/>
+  </module>
+  <module name="LUT6_2">
+    <port name="O6" type="output" width="1"/>
+    <port name="O5" type="output" width="1"/>
+    <port name="I0" type="input" width="1"/>
+    <port name="I1" type="input" width="1"/>
+    <port name="I2" type="input" width="1"/>
+    <port name="I3" type="input" width="1"/>
+    <port name="I4" type="input" width="1"/>
+    <port name="I5" type="input" width="1"/>
+    <attribute default="64'h0000000000000000" name="INIT" type="HEX" values="Any 64-Bit Value"/>
+  </module>
+  <module name="MMCME2_ADV">
+    <port name="CLKFBIN" type="input" width="1"/>
+    <port name="CLKFBOUT" type="output" width="1"/>
+    <port name="CLKFBOUTB" type="output" width="1"/>
+    <port name="CLKFBSTOPPED" type="output" width="1"/>
+    <port name="CLKINSEL" type="input" width="1"/>
+    <port name="CLKINSTOPPED" type="output" width="1"/>
+    <port name="CLKIN1" type="input" width="1"/>
+    <port name="CLKIN2" type="input" width="1"/>
+    <port name="CLKOUT0" type="output" width="1"/>
+    <port name="CLKOUT0B" type="output" width="1"/>
+    <port name="CLKOUT1" type="output" width="1"/>
+    <port name="CLKOUT1B" type="output" width="1"/>
+    <port name="CLKOUT2" type="output" width="1"/>
+    <port name="CLKOUT2B" type="output" width="1"/>
+    <port name="CLKOUT3" type="output" width="1"/>
+    <port name="CLKOUT3B" type="output" width="1"/>
+    <port name="CLKOUT4" type="output" width="1"/>
+    <port name="CLKOUT5" type="output" width="1"/>
+    <port name="CLKOUT6" type="output" width="1"/>
+    <port name="DADDR" type="input" width="7"/>
+    <port name="DCLK" type="input" width="1"/>
+    <port name="DEN" type="input" width="1"/>
+    <port name="DI" type="input" width="16"/>
+    <port name="DO" type="output" width="16"/>
+    <port name="DRDY" type="output" width="1"/>
+    <port name="DWE" type="input" width="1"/>
+    <port name="LOCKED" type="output" width="1"/>
+    <port name="PSCLK" type="input" width="1"/>
+    <port name="PSDONE" type="output" width="1"/>
+    <port name="PSEN" type="input" width="1"/>
+    <port name="PSINCDEC" type="input" width="1"/>
+    <port name="PWRDWN" type="input" width="1"/>
+    <port name="RST" type="input" width="1"/>
+    <attribute default="OPTIMIZED" name="BANDWIDTH" type="STRING" values="OPTIMIZED, HIGH, LOW"/>
+    <attribute default="5.000" name="CLKFBOUT_MULT_F" type="3 significant digit FLOAT" values="2.000 to 64.000"/>
+    <attribute default="0.000" name="CLKFBOUT_PHASE" type="3 significant digit FLOAT" values="-360.000 to 360.000"/>
+    <attribute default="0.000" name="CLKIN1_PERIOD" type="FLOAT (nS)" values="0.000 to 100.000"/>
+    <attribute default="0.000" name="CLKIN2_PERIOD" type="FLOAT (nS)" values="0.000 to 100.000"/>
+    <attribute default="1" name="CLKOUT1_DIVIDE" type="DECIMAL" values="1 to 128"/>
+    <attribute default="1" name="CLKOUT2_DIVIDE" type="DECIMAL" values="1 to 128"/>
+    <attribute default="1" name="CLKOUT3_DIVIDE" type="DECIMAL" values="1 to 128"/>
+    <attribute default="1" name="CLKOUT4_DIVIDE" type="DECIMAL" values="1 to 128"/>
+    <attribute default="1" name="CLKOUT5_DIVIDE" type="DECIMAL" values="1 to 128"/>
+    <attribute default="1" name="CLKOUT6_DIVIDE" type="DECIMAL" values="1 to 128"/>
+    <attribute default="1.000" name="CLKOUT0_DIVIDE_F" type="3 significant digit FLOAT" values="1.000 to 128.000"/>
+    <attribute default="0.500" name="CLKOUT0_DUTY_CYCLE" type="3 significant digit FLOAT" values="0.001 to 0.999"/>
+    <attribute default="0.500" name="CLKOUT1_DUTY_CYCLE" type="3 significant digit FLOAT" values="0.001 to 0.999"/>
+    <attribute default="0.500" name="CLKOUT2_DUTY_CYCLE" type="3 significant digit FLOAT" values="0.001 to 0.999"/>
+    <attribute default="0.500" name="CLKOUT3_DUTY_CYCLE" type="3 significant digit FLOAT" values="0.001 to 0.999"/>
+    <attribute default="0.500" name="CLKOUT4_DUTY_CYCLE" type="3 significant digit FLOAT" values="0.001 to 0.999"/>
+    <attribute default="0.500" name="CLKOUT5_DUTY_CYCLE" type="3 significant digit FLOAT" values="0.001 to 0.999"/>
+    <attribute default="0.500" name="CLKOUT6_DUTY_CYCLE" type="3 significant digit FLOAT" values="0.001 to 0.999"/>
+    <attribute default="0.000" name="CLKOUT0_PHASE" type="3 significant digit FLOAT" values="-360.000 to 360.000"/>
+    <attribute default="0.000" name="CLKOUT1_PHASE" type="3 significant digit FLOAT" values="-360.000 to 360.000"/>
+    <attribute default="0.000" name="CLKOUT2_PHASE" type="3 significant digit FLOAT" values="-360.000 to 360.000"/>
+    <attribute default="0.000" name="CLKOUT3_PHASE" type="3 significant digit FLOAT" values="-360.000 to 360.000"/>
+    <attribute default="0.000" name="CLKOUT4_PHASE" type="3 significant digit FLOAT" values="-360.000 to 360.000"/>
+    <attribute default="0.000" name="CLKOUT5_PHASE" type="3 significant digit FLOAT" values="-360.000 to 360.000"/>
+    <attribute default="0.000" name="CLKOUT6_PHASE" type="3 significant digit FLOAT" values="-360.000 to 360.000"/>
+    <attribute default="FALSE" name="CLKOUT4_CASCADE" type="BOOLEAN" values="FALSE, TRUE"/>
+    <attribute default="ZHOLD" name="COMPENSATION" type="STRING" values="ZHOLD, BUF_IN, EXTERNAL, INTERNAL"/>
+    <attribute default="1" name="DIVCLK_DIVIDE" type="DECIMAL" values="1 to 106"/>
+    <attribute default="0.010" name="REF_JITTER1" type="3 significant digit FLOAT" values="0.000 to 0.999"/>
+    <attribute default="0.010" name="REF_JITTER2" type="3 significant digit FLOAT" values="0.000 to 0.999"/>
+    <attribute default="FALSE" name="SS_EN" type="STRING" values="FALSE, TRUE"/>
+    <attribute default="10000" name="SS_MOD_PERIOD" type="DECIMAL (nS)" values="4000 to 40000"/>
+    <attribute default="CENTER_HIGH" name="SS_MODE" type="STRING" values="CENTER_HIGH, CENTER_LOW, DOWN_HIGH, DOWN_LOW"/>
+    <attribute default="FALSE" name="STARTUP_WAIT" type="BOOLEAN" values="FALSE, TRUE"/>
+    <attribute default="FALSE" name="CLKFBOUT_USE_FINE_PS" type="BOOLEAN" values="FALSE, TRUE"/>
+    <attribute default="FALSE" name="CLKOUT0_USE_FINE_PS" type="BOOLEAN" values="FALSE, TRUE"/>
+    <attribute default="FALSE" name="CLKOUT1_USE_FINE_PS" type="BOOLEAN" values="FALSE, TRUE"/>
+    <attribute default="FALSE" name="CLKOUT2_USE_FINE_PS" type="BOOLEAN" values="FALSE, TRUE"/>
+    <attribute default="FALSE" name="CLKOUT3_USE_FINE_PS" type="BOOLEAN" values="FALSE, TRUE"/>
+    <attribute default="FALSE" name="CLKOUT4_USE_FINE_PS" type="BOOLEAN" values="FALSE, TRUE"/>
+    <attribute default="FALSE" name="CLKOUT5_USE_FINE_PS" type="BOOLEAN" values="FALSE, TRUE"/>
+    <attribute default="FALSE" name="CLKOUT6_USE_FINE_PS" type="BOOLEAN" values="FALSE, TRUE"/>
+  </module>
+  <module name="MMCME2_BASE">
+    <port name="CLKFBIN" type="input" width="1"/>
+    <port name="CLKFBOUT" type="output" width="1"/>
+    <port name="CLKFBOUTB" type="output" width="1"/>
+    <port name="CLKOUT0" type="output" width="1"/>
+    <port name="CLKOUT0B" type="output" width="1"/>
+    <port name="CLKOUT1" type="output" width="1"/>
+    <port name="CLKOUT1B" type="output" width="1"/>
+    <port name="CLKOUT2" type="output" width="1"/>
+    <port name="CLKOUT2B" type="output" width="1"/>
+    <port name="CLKOUT3" type="output" width="1"/>
+    <port name="CLKOUT3B" type="output" width="1"/>
+    <port name="CLKOUT4" type="output" width="1"/>
+    <port name="CLKOUT5" type="output" width="1"/>
+    <port name="CLKOUT6" type="output" width="1"/>
+    <port name="CLKIN1" type="input" width="1"/>
+    <port name="PWRDWN" type="input" width="1"/>
+    <port name="RST" type="input" width="1"/>
+    <attribute default="OPTIMIZED" name="BANDWIDTH" type="STRING" values="OPTIMIZED, HIGH, LOW"/>
+    <attribute default="5.000" name="CLKFBOUT_MULT_F" type="3 significant digit FLOAT" values="2.000 to 64.000"/>
+    <attribute default="0.000" name="CLKFBOUT_PHASE" type="3 significant digit FLOAT" values="-360.000 to 360.000"/>
+    <attribute default="0.000" name="CLKIN1_PERIOD" type="FLOAT(nS)" values="0.000 to 100.000"/>
+    <attribute default="1" name="CLKOUT1_DIVIDE" type="DECIMAL" values="1 to 128"/>
+    <attribute default="1" name="CLKOUT2_DIVIDE" type="DECIMAL" values="1 to 128"/>
+    <attribute default="1" name="CLKOUT3_DIVIDE" type="DECIMAL" values="1 to 128"/>
+    <attribute default="1" name="CLKOUT4_DIVIDE" type="DECIMAL" values="1 to 128"/>
+    <attribute default="1" name="CLKOUT5_DIVIDE" type="DECIMAL" values="1 to 128"/>
+    <attribute default="1" name="CLKOUT6_DIVIDE" type="DECIMAL" values="1 to 128"/>
+    <attribute default="1.000" name="CLKOUT0_DIVIDE_F" type="3 significant digit FLOAT" values="1.000 to 128.000"/>
+    <attribute default="0.500" name="CLKOUT0_DUTY_CYCLE" type="3 significant digit FLOAT" values="0.001 to 0.999"/>
+    <attribute default="0.500" name="CLKOUT1_DUTY_CYCLE" type="3 significant digit FLOAT" values="0.001 to 0.999"/>
+    <attribute default="0.500" name="CLKOUT2_DUTY_CYCLE" type="3 significant digit FLOAT" values="0.001 to 0.999"/>
+    <attribute default="0.500" name="CLKOUT3_DUTY_CYCLE" type="3 significant digit FLOAT" values="0.001 to 0.999"/>
+    <attribute default="0.500" name="CLKOUT4_DUTY_CYCLE" type="3 significant digit FLOAT" values="0.001 to 0.999"/>
+    <attribute default="0.500" name="CLKOUT5_DUTY_CYCLE" type="3 significant digit FLOAT" values="0.001 to 0.999"/>
+    <attribute default="0.500" name="CLKOUT6_DUTY_CYCLE" type="3 significant digit FLOAT" values="0.001 to 0.999"/>
+  </module>
+  <module name="MUXF7">
+    <port name="O" type="output" width="1"/>
+    <port name="I0" type="input" width="1"/>
+    <port name="I1" type="input" width="1"/>
+    <port name="S" type="input" width="1"/>
+  </module>
+  <module name="MUXF8">
+    <port name="O" type="output" width="1"/>
+    <port name="I0" type="input" width="1"/>
+    <port name="I1" type="input" width="1"/>
+    <port name="S" type="input" width="1"/>
+  </module>
+  <module name="OBUF">
+    <port name="O" type="output" width="1"/>
+    <port name="I" type="input" width="1"/>
+    <attribute default="12" name="DRIVE" type="INTEGER" values="2, 4, 6, 8, 12, 16, 24"/>
+    <attribute default="DEFAULT" name="IOSTANDARD" type="STRING" values="See Data Sheet"/>
+    <attribute default="SLOW" name="SLEW" type="STRING" values="SLOW or FAST"/>
+  </module>
+  <module name="OBUFDS">
+    <port name="O" type="output" width="1"/>
+    <port name="OB" type="output" width="1"/>
+    <port name="I" type="input" width="1"/>
+    <attribute default="DEFAULT" name="IOSTANDARD" type="STRING" values="See Data Sheet"/>
+    <attribute default="SLOW" name="SLEW" type="STRING" values="SLOW or FAST"/>
+  </module>
+  <module name="OBUFT">
+    <port name="O" type="output" width="1"/>
+    <port name="I" type="input" width="1"/>
+    <port name="T" type="input" width="1"/>
+    <attribute default="12" name="DRIVE" type="INTEGER" values="2, 4, 6, 8, 12, 16, 24"/>
+    <attribute default="DEFAULT" name="IOSTANDARD" type="STRING" values="See Data Sheet"/>
+    <attribute default="SLOW" name="SLEW" type="STRING" values="SLOW or FAST"/>
+  </module>
+  <module name="OBUFTDS">
+    <port name="O" type="output" width="1"/>
+    <port name="OB" type="output" width="1"/>
+    <port name="I" type="input" width="1"/>
+    <port name="T" type="input" width="1"/>
+    <attribute default="DEFAULT" name="IOSTANDARD" type="STRING" values="See Data Sheet"/>
+    <attribute default="SLOW" name="SLEW" type="STRING" values="SLOW or FAST"/>
+  </module>
+  <module name="ODDR">
+    <port name="Q" type="output" width="1"/>
+    <port name="C" type="input" width="1"/>
+    <port name="CE" type="input" width="1"/>
+    <port name="D1" type="input" width="1"/>
+    <port name="D2" type="input" width="1"/>
+    <port name="R" type="input" width="1"/>
+    <port name="S" type="input" width="1"/>
+    <attribute default="OPPOSITE_EDGE" name="DDR_CLK_EDGE" type="STRING" values="OPPOSITE_EDGE, SAME_EDGE"/>
+    <attribute default="1" name="INIT" type="INTEGER" values="0, 1"/>
+    <attribute default="SYNC" name="SRTYPE" type="STRING" values="SYNC, ASYNC"/>
+  </module>
+  <module name="ODELAYE2">
+    <port name="C" type="input" width="1"/>
+    <port name="CE" type="input" width="1"/>
+    <port name="CINVCTRL" type="input" width="1"/>
+    <port name="CLKIN" type="input" width="1"/>
+    <port name="CNTVALUEIN" type="input" width="5"/>
+    <port name="CNTVALUEOUT" type="output" width="5"/>
+    <port name="DATAOUT" type="output" width="1"/>
+    <port name="INC" type="input" width="1"/>
+    <port name="LD" type="input" width="1"/>
+    <port name="LDPIPEEN" type="input" width="1"/>
+    <port name="ODATAIN" type="input" width="1"/>
+    <port name="REGRST" type="input" width="1"/>
+    <attribute default="FALSE" name="CINVCTRL_SEL" type="STRING" values="FALSE, TRUE"/>
+    <attribute default="ODATAIN" name="DELAY_SRC" type="STRING" values="ODATAIN, CLKIN"/>
+    <attribute default="FALSE" name="HIGH_PERFORMANCE_MODE" type="STRING" values="FALSE, TRUE"/>
+    <attribute default="FIXED" name="ODELAY_TYPE" type="STRING" values="FIXED, VARIABLE, VAR_LOAD, VAR_LOAD_PIPE"/>
+    <attribute default="0" name="ODELAY_VALUE" type="DECIMAL" values="0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31"/>
+    <attribute default="FALSE" name="PIPE_SEL" type="STRING" values="FALSE, TRUE"/>
+    <attribute default="200.0" name="REFCLK_FREQUENCY" type="1 significant digit FLOAT" values="190-210, 290-310Mhz"/>
+    <attribute default="DATA" name="SIGNAL_PATTERN" type="STRING" values="DATA, CLOCK"/>
+  </module>
+  <module name="OSERDESE2">
+    <port name="CLK" type="input" width="1"/>
+    <port name="CLKDIV" type="input" width="1"/>
+    <port name="D1" type="input" width="1"/>
+    <port name="D2" type="input" width="1"/>
+    <port name="D3" type="input" width="1"/>
+    <port name="D4" type="input" width="1"/>
+    <port name="D5" type="input" width="1"/>
+    <port name="D6" type="input" width="1"/>
+    <port name="D7" type="input" width="1"/>
+    <port name="D8" type="input" width="1"/>
+    <port name="OCE" type="input" width="1"/>
+    <port name="OFB" type="output" width="1"/>
+    <port name="OQ" type="output" width="1"/>
+    <port name="RST" type="input" width="1"/>
+    <port name="SHIFTIN1" type="input" width="1"/>
+    <port name="SHIFTIN2" type="input" width="1"/>
+    <port name="SHIFTOUT1" type="output" width="1"/>
+    <port name="SHIFTOUT2" type="output" width="1"/>
+    <port name="TBYTEIN" type="input" width="1"/>
+    <port name="TBYTEOUT" type="output" width="1"/>
+    <port name="TCE" type="input" width="1"/>
+    <port name="TFB" type="output" width="1"/>
+    <port name="TQ" type="output" width="1"/>
+    <port name="T1" type="input" width="1"/>
+    <port name="T2" type="input" width="1"/>
+    <port name="T3" type="input" width="1"/>
+    <port name="T4" type="input" width="1"/>
+    <attribute default="DDR" name="DATA_RATE_OQ" type="STRING" values="DDR, SDR"/>
+    <attribute default="DDR" name="DATA_RATE_TQ" type="STRING" values="DDR, BUF, SDR"/>
+    <attribute default="4" name="DATA_WIDTH" type="DECIMAL" values="4, 2, 3, 5, 6, 7, 8, 10, 14"/>
+    <attribute default="1'b0" name="INIT_OQ" type="BINARY" values="1'b0 to 1'b1"/>
+    <attribute default="1'b0" name="INIT_TQ" type="BINARY" values="1'b0 to 1'b1"/>
+    <attribute default="MASTER" name="SERDES_MODE" type="STRING" values="MASTER, SLAVE"/>
+    <attribute default="1'b0" name="SRVAL_OQ" type="BINARY" values="1'b0 to 1'b1"/>
+    <attribute default="1'b0" name="SRVAL_TQ" type="BINARY" values="1'b0 to 1'b1"/>
+    <attribute default="FALSE" name="TBYTE_CTL" type="STRING" values="FALSE, TRUE"/>
+    <attribute default="FALSE" name="TBYTE_SRC" type="STRING" values="FALSE, TRUE"/>
+    <attribute default="4" name="TRISTATE_WIDTH" type="DECIMAL" values="4, 1"/>
+  </module>
+  <module name="OUT_FIFO">
+    <port name="ALMOSTEMPTY" type="output" width="1"/>
+    <port name="ALMOSTFULL" type="output" width="1"/>
+    <port name="D0" type="input" width="8"/>
+    <port name="D1" type="input" width="8"/>
+    <port name="D2" type="input" width="8"/>
+    <port name="D3" type="input" width="8"/>
+    <port name="D4" type="input" width="8"/>
+    <port name="D5" type="input" width="8"/>
+    <port name="D6" type="input" width="8"/>
+    <port name="D7" type="input" width="8"/>
+    <port name="D8" type="input" width="8"/>
+    <port name="D9" type="input" width="8"/>
+    <port name="EMPTY" type="output" width="1"/>
+    <port name="FULL" type="output" width="1"/>
+    <port name="Q0" type="output" width="4"/>
+    <port name="Q1" type="output" width="4"/>
+    <port name="Q2" type="output" width="4"/>
+    <port name="Q3" type="output" width="4"/>
+    <port name="Q4" type="output" width="4"/>
+    <port name="Q5" type="output" width="8"/>
+    <port name="Q6" type="output" width="8"/>
+    <port name="Q7" type="output" width="4"/>
+    <port name="Q8" type="output" width="4"/>
+    <port name="Q9" type="output" width="4"/>
+    <port name="RDCLK" type="input" width="1"/>
+    <port name="RDEN" type="input" width="1"/>
+    <port name="RESET" type="input" width="1"/>
+    <port name="WRCLK" type="input" width="1"/>
+    <port name="WREN" type="input" width="1"/>
+    <attribute default="1" name="ALMOST_EMPTY_VALUE" type="DECIMAL" values="1, 2"/>
+    <attribute default="1" name="ALMOST_FULL_VALUE" type="DECIMAL" values="1, 2"/>
+    <attribute default="ARRAY_MODE_8_X_4" name="ARRAY_MODE" type="STRING" values="ARRAY_MODE_8_X_4, ARRAY_MODE_4_X_4"/>
+    <attribute default="FALSE" name="OUTPUT_DISABLE" type="STRING" values="FALSE, TRUE"/>
+    <attribute default="FALSE" name="SYNCHRONOUS_MODE" type="STRING" values="FALSE"/>
+  </module>
+  <module name="PLLE2_ADV">
+    <port name="CLKFBIN" type="input" width="1"/>
+    <port name="CLKFBOUT" type="output" width="1"/>
+    <port name="CLKINSEL" type="input" width="1"/>
+    <port name="CLKIN1" type="input" width="1"/>
+    <port name="CLKIN2" type="input" width="1"/>
+    <port name="CLKOUT0" type="output" width="1"/>
+    <port name="CLKOUT1" type="output" width="1"/>
+    <port name="CLKOUT2" type="output" width="1"/>
+    <port name="CLKOUT3" type="output" width="1"/>
+    <port name="CLKOUT4" type="output" width="1"/>
+    <port name="CLKOUT5" type="output" width="1"/>
+    <port name="DADDR" type="input" width="7"/>
+    <port name="DCLK" type="input" width="1"/>
+    <port name="DEN" type="input" width="1"/>
+    <port name="DI" type="input" width="16"/>
+    <port name="DO" type="output" width="16"/>
+    <port name="DRDY" type="output" width="1"/>
+    <port name="DWE" type="input" width="1"/>
+    <port name="LOCKED" type="output" width="1"/>
+    <port name="PWRDWN" type="input" width="1"/>
+    <port name="RST" type="input" width="1"/>
+    <attribute default="OPTIMIZED" name="BANDWIDTH" type="STRING" values="OPTIMIZED, HIGH, LOW"/>
+    <attribute default="5" name="CLKFBOUT_MULT" type="DECIMAL" values="2 to 64"/>
+    <attribute default="0.000" name="CLKFBOUT_PHASE" type="3 significant digit FLOAT" values="-360.000 to 360.000"/>
+    <attribute default="0.000" name="CLKIN1_PERIOD" type="FLOAT (nS)" values="0.000 to 52.631"/>
+    <attribute default="0.000" name="CLKIN2_PERIOD" type="FLOAT (nS)" values="0.000 to 52.631"/>
+    <attribute default="1" name="CLKOUT0_DIVIDE" type="DECIMAL" values="1 to 128"/>
+    <attribute default="1" name="CLKOUT1_DIVIDE" type="DECIMAL" values="1 to 128"/>
+    <attribute default="1" name="CLKOUT2_DIVIDE" type="DECIMAL" values="1 to 128"/>
+    <attribute default="1" name="CLKOUT3_DIVIDE" type="DECIMAL" values="1 to 128"/>
+    <attribute default="1" name="CLKOUT4_DIVIDE" type="DECIMAL" values="1 to 128"/>
+    <attribute default="1" name="CLKOUT5_DIVIDE" type="DECIMAL" values="1 to 128"/>
+    <attribute default="0.500" name="CLKOUT0_DUTY_CYCLE" type="3 significant digit FLOAT" values="0.001 to 0.999"/>
+    <attribute default="0.500" name="CLKOUT1_DUTY_CYCLE" type="3 significant digit FLOAT" values="0.001 to 0.999"/>
+    <attribute default="0.500" name="CLKOUT2_DUTY_CYCLE" type="3 significant digit FLOAT" values="0.001 to 0.999"/>
+    <attribute default="0.500" name="CLKOUT3_DUTY_CYCLE" type="3 significant digit FLOAT" values="0.001 to 0.999"/>
+    <attribute default="0.500" name="CLKOUT4_DUTY_CYCLE" type="3 significant digit FLOAT" values="0.001 to 0.999"/>
+    <attribute default="0.500" name="CLKOUT5_DUTY_CYCLE" type="3 significant digit FLOAT" values="0.001 to 0.999"/>
+    <attribute default="0.000" name="CLKOUT0_PHASE" type="3 significant digit FLOAT" values="-360.000 to 360.000"/>
+    <attribute default="0.000" name="CLKOUT1_PHASE" type="3 significant digit FLOAT" values="-360.000 to 360.000"/>
+    <attribute default="0.000" name="CLKOUT2_PHASE" type="3 significant digit FLOAT" values="-360.000 to 360.000"/>
+    <attribute default="0.000" name="CLKOUT3_PHASE" type="3 significant digit FLOAT" values="-360.000 to 360.000"/>
+    <attribute default="0.000" name="CLKOUT4_PHASE" type="3 significant digit FLOAT" values="-360.000 to 360.000"/>
+    <attribute default="0.000" name="CLKOUT5_PHASE" type="3 significant digit FLOAT" values="-360.000 to 360.000"/>
+    <attribute default="ZHOLD" name="COMPENSATION" type="STRING" values="ZHOLD, BUF_IN, EXTERNAL, INTERNAL"/>
+    <attribute default="1" name="DIVCLK_DIVIDE" type="DECIMAL" values="1 to 56"/>
+    <attribute default="0.010" name="REF_JITTER1" type="3 significant digit FLOAT" values="0.000 to 0.999"/>
+    <attribute default="0.010" name="REF_JITTER2" type="3 significant digit FLOAT" values="0.000 to 0.999"/>
+    <attribute default="FALSE" name="STARTUP_WAIT" type="STRING" values="FALSE, TRUE"/>
+  </module>
+  <module name="PLLE2_BASE">
+    <port name="CLKFBIN" type="input" width="1"/>
+    <port name="CLKFBOUT" type="output" width="1"/>
+    <port name="CLKIN1" type="input" width="1"/>
+    <port name="CLKOUT0" type="output" width="1"/>
+    <port name="CLKOUT1" type="output" width="1"/>
+    <port name="CLKOUT2" type="output" width="1"/>
+    <port name="CLKOUT3" type="output" width="1"/>
+    <port name="CLKOUT4" type="output" width="1"/>
+    <port name="CLKOUT5" type="output" width="1"/>
+    <port name="LOCKED" type="output" width="1"/>
+    <port name="PWRDWN" type="input" width="1"/>
+    <port name="RST" type="input" width="1"/>
+    <attribute default="OPTIMIZED" name="BANDWIDTH" type="STRING" values="OPTIMIZED, HIGH, LOW"/>
+    <attribute default="5" name="CLKFBOUT_MULT" type="DECIMAL" values="2 to 64"/>
+    <attribute default="0.000" name="CLKFBOUT_PHASE" type="3 significant digit FLOAT" values="-360.000 to 360.000"/>
+    <attribute default="0.000" name="CLKIN1_PERIOD" type="FLOAT (nS)" values="0.000 to 52.631"/>
+    <attribute default="1" name="CLKOUT0_DIVIDE" type="DECIMAL" values="1 to 128"/>
+    <attribute default="1" name="CLKOUT1_DIVIDE" type="DECIMAL" values="1 to 128"/>
+    <attribute default="1" name="CLKOUT2_DIVIDE" type="DECIMAL" values="1 to 128"/>
+    <attribute default="1" name="CLKOUT3_DIVIDE" type="DECIMAL" values="1 to 128"/>
+    <attribute default="1" name="CLKOUT4_DIVIDE" type="DECIMAL" values="1 to 128"/>
+    <attribute default="1" name="CLKOUT5_DIVIDE" type="DECIMAL" values="1 to 128"/>
+    <attribute default="0.500" name="CLKOUT0_DUTY_CYCLE" type="3 significant digit FLOAT" values="0.001 to 0.999"/>
+    <attribute default="0.500" name="CLKOUT1_DUTY_CYCLE" type="3 significant digit FLOAT" values="0.001 to 0.999"/>
+    <attribute default="0.500" name="CLKOUT2_DUTY_CYCLE" type="3 significant digit FLOAT" values="0.001 to 0.999"/>
+    <attribute default="0.500" name="CLKOUT3_DUTY_CYCLE" type="3 significant digit FLOAT" values="0.001 to 0.999"/>
+    <attribute default="0.500" name="CLKOUT4_DUTY_CYCLE" type="3 significant digit FLOAT" values="0.001 to 0.999"/>
+    <attribute default="0.500" name="CLKOUT5_DUTY_CYCLE" type="3 significant digit FLOAT" values="0.001 to 0.999"/>
+    <attribute default="0.000" name="CLKOUT0_PHASE" type="3 significant digit FLOAT" values="-360.000 to 360.000"/>
+    <attribute default="0.000" name="CLKOUT1_PHASE" type="3 significant digit FLOAT" values="-360.000 to 360.000"/>
+    <attribute default="0.000" name="CLKOUT2_PHASE" type="3 significant digit FLOAT" values="-360.000 to 360.000"/>
+    <attribute default="0.000" name="CLKOUT3_PHASE" type="3 significant digit FLOAT" values="-360.000 to 360.000"/>
+    <attribute default="0.000" name="CLKOUT4_PHASE" type="3 significant digit FLOAT" values="-360.000 to 360.000"/>
+    <attribute default="0.000" name="CLKOUT5_PHASE" type="3 significant digit FLOAT" values="-360.000 to 360.000"/>
+    <attribute default="1" name="DIVCLK_DIVIDE" type="DECIMAL" values="1 to 56"/>
+    <attribute default="0.010" name="REF_JITTER1" type="3 significant digit FLOAT" values="0.000 to 0.999"/>
+    <attribute default="FALSE" name="STARTUP_WAIT" type="STRING" values="FALSE, TRUE"/>
+  </module>
+  <module name="PULLDOWN">
+    <port name="O" type="output" width="1"/>
+  </module>
+  <module name="PULLUP">
+    <port name="O" type="output" width="1"/>
+  </module>
+  <module name="RAM128X1D">
+    <port name="SPO" type="output" width="1"/>
+    <port name="DPO" type="output" width="1"/>
+    <port name="D" type="input" width="1"/>
+    <port name="A" type="input" width="7"/>
+    <port name="DPRA" type="input" width="7"/>
+    <port name="WE" type="input" width="1"/>
+    <port name="WCLK" type="input" width="1"/>
+    <attribute default="128'h00000000000000000000000000000000" name="INIT" type="HEX" values="Any 128-bit value"/>
+  </module>
+  <module name="RAM128X1S">
+    <port name="O" type="output" width="1"/>
+    <port name="D" type="input" width="1"/>
+    <port name="A" type="input" width="7"/>
+    <port name="WE" type="input" width="1"/>
+    <port name="WCLK" type="input" width="1"/>
+    <attribute default="128'h00000000000000000000000000000000" name="INIT" type="HEX" values="Any 128-bit value"/>
+  </module>
+  <module name="RAM256X1S">
+    <port name="O" type="output" width="1"/>
+    <port name="D" type="input" width="1"/>
+    <port name="A" type="input" width="8"/>
+    <port name="WE" type="input" width="1"/>
+    <port name="WCLK" type="input" width="1"/>
+    <attribute default="256'h0000000000000000000000000000000000000000000000000000000000000000" name="INIT" type="HEX" values="Any 256-bit value"/>
+  </module>
+  <module name="RAM32M">
+    <port name="DOA" type="output" width="2"/>
+    <port name="DOB" type="output" width="2"/>
+    <port name="DOC" type="output" width="2"/>
+    <port name="DOD" type="output" width="2"/>
+    <port name="DIA" type="input" width="2"/>
+    <port name="DIB" type="input" width="2"/>
+    <port name="DIC" type="input" width="2"/>
+    <port name="DID" type="input" width="2"/>
+    <port name="ADDRA" type="input" width="5"/>
+    <port name="ADDRB" type="input" width="5"/>
+    <port name="ADDRC" type="input" width="5"/>
+    <port name="ADDRD" type="input" width="5"/>
+    <port name="WE" type="input" width="1"/>
+    <port name="WCLK" type="input" width="1"/>
+    <attribute default="64'h0000000000000000" name="INIT_A" type="HEX" values="Any 64-bit value"/>
+    <attribute default="64'h0000000000000000" name="INIT_B" type="HEX" values="Any 64-bit value"/>
+    <attribute default="64'h0000000000000000" name="INIT_C" type="HEX" values="Any 64-bit value"/>
+    <attribute default="64'h0000000000000000" name="INIT_D" type="HEX" values="Any 64-bit value"/>
+  </module>
+  <module name="RAM64M">
+    <port name="DOA" type="output" width="1"/>
+    <port name="DOB" type="output" width="1"/>
+    <port name="DOC" type="output" width="1"/>
+    <port name="DOD" type="output" width="1"/>
+    <port name="DIA" type="input" width="1"/>
+    <port name="DIB" type="input" width="1"/>
+    <port name="DIC" type="input" width="1"/>
+    <port name="DID" type="input" width="1"/>
+    <port name="ADDRA" type="input" width="6"/>
+    <port name="ADDRB" type="input" width="6"/>
+    <port name="ADDRC" type="input" width="6"/>
+    <port name="ADDRD" type="input" width="6"/>
+    <port name="WE" type="input" width="1"/>
+    <port name="WCLK" type="input" width="1"/>
+    <attribute default="64'h0000000000000000" name="INIT_A" type="HEX" values="Any 64-bit value"/>
+    <attribute default="64'h0000000000000000" name="INIT_B" type="HEX" values="Any 64-bit value"/>
+    <attribute default="64'h0000000000000000" name="INIT_C" type="HEX" values="Any 64-bit value"/>
+    <attribute default="64'h0000000000000000" name="INIT_D" type="HEX" values="Any 64-bit value"/>
+  </module>
+  <module name="RAMB18E1">
+    <port name="ADDRARDADDR" type="input" width="14"/>
+    <port name="ADDRBWRADDR" type="input" width="14"/>
+    <port name="CLKARDCLK" type="input" width="1"/>
+    <port name="CLKBWRCLK" type="input" width="1"/>
+    <port name="DIADI" type="input" width="16"/>
+    <port name="DIBDI" type="input" width="16"/>
+    <port name="DIPADIP" type="input" width="2"/>
+    <port name="DIPBDIP" type="input" width="2"/>
+    <port name="DOADO" type="output" width="16"/>
+    <port name="DOBDO" type="output" width="16"/>
+    <port name="DOPADOP" type="output" width="2"/>
+    <port name="DOPBDOP" type="output" width="2"/>
+    <port name="ENARDEN" type="input" width="1"/>
+    <port name="ENBWREN" type="input" width="1"/>
+    <port name="REGCEAREGCE" type="input" width="1"/>
+    <port name="REGCEB" type="input" width="1"/>
+    <port name="RSTRAMARSTRAM" type="input" width="1"/>
+    <port name="RSTRAMB" type="input" width="1"/>
+    <port name="RSTREGARSTREG" type="input" width="1"/>
+    <port name="RSTREGB" type="input" width="1"/>
+    <port name="WEA" type="input" width="2"/>
+    <port name="WEBWE" type="input" width="4"/>
+    <attribute default="DELAYED_WRITE" name="RDADDR_COLLISION_HWCONFIG" type="STRING" values="DELAYED_WRITE, PERFORMANCE"/>
+    <attribute default="ALL" name="SIM_COLLISION_CHECK" type="STRING" values="ALL, GENERATE_X_ONLY, NONE, WARNING_ONLY"/>
+    <attribute default="0" name="DOA_REG" type="DECIMAL" values="0, 1"/>
+    <attribute default="0" name="DOB_REG" type="DECIMAL" values="0, 1"/>
+    <attribute default="18'h00000" name="INIT_A" type="HEX" values="18 bit HEX"/>
+    <attribute default="18'h00000" name="INIT_B" type="HEX" values="18 bit HEX"/>
+    <attribute default="256'h0000000000000000000000000000000000000000000000000000000000000000" name="INIT_00" type="HEX" values="256 bit HEX"/>
+    <attribute default="256'h0000000000000000000000000000000000000000000000000000000000000000" name="INIT_01" type="HEX" values="256 bit HEX"/>
+    <attribute default="256'h0000000000000000000000000000000000000000000000000000000000000000" name="INIT_02" type="HEX" values="256 bit HEX"/>
+    <attribute default="256'h0000000000000000000000000000000000000000000000000000000000000000" name="INIT_03" type="HEX" values="256 bit HEX"/>
+    <attribute default="256'h0000000000000000000000000000000000000000000000000000000000000000" name="INIT_04" type="HEX" values="256 bit HEX"/>
+    <attribute default="256'h0000000000000000000000000000000000000000000000000000000000000000" name="INIT_05" type="HEX" values="256 bit HEX"/>
+    <attribute default="256'h0000000000000000000000000000000000000000000000000000000000000000" name="INIT_06" type="HEX" values="256 bit HEX"/>
+    <attribute default="256'h0000000000000000000000000000000000000000000000000000000000000000" name="INIT_07" type="HEX" values="256 bit HEX"/>
+    <attribute default="256'h0000000000000000000000000000000000000000000000000000000000000000" name="INIT_08" type="HEX" values="256 bit HEX"/>
+    <attribute default="256'h0000000000000000000000000000000000000000000000000000000000000000" name="INIT_09" type="HEX" values="256 bit HEX"/>
+    <attribute default="256'h0000000000000000000000000000000000000000000000000000000000000000" name="INIT_0A" type="HEX" values="256 bit HEX"/>
+    <attribute default="256'h0000000000000000000000000000000000000000000000000000000000000000" name="INIT_0B" type="HEX" values="256 bit HEX"/>
+    <attribute default="256'h0000000000000000000000000000000000000000000000000000000000000000" name="INIT_0C" type="HEX" values="256 bit HEX"/>
+    <attribute default="256'h0000000000000000000000000000000000000000000000000000000000000000" name="INIT_0D" type="HEX" values="256 bit HEX"/>
+    <attribute default="256'h0000000000000000000000000000000000000000000000000000000000000000" name="INIT_0E" type="HEX" values="256 bit HEX"/>
+    <attribute default="256'h0000000000000000000000000000000000000000000000000000000000000000" name="INIT_0F" type="HEX" values="256 bit HEX"/>
+    <attribute default="256'h0000000000000000000000000000000000000000000000000000000000000000" name="INIT_10" type="HEX" values="256 bit HEX"/>
+    <attribute default="256'h0000000000000000000000000000000000000000000000000000000000000000" name="INIT_11" type="HEX" values="256 bit HEX"/>
+    <attribute default="256'h0000000000000000000000000000000000000000000000000000000000000000" name="INIT_12" type="HEX" values="256 bit HEX"/>
+    <attribute default="256'h0000000000000000000000000000000000000000000000000000000000000000" name="INIT_13" type="HEX" values="256 bit HEX"/>
+    <attribute default="256'h0000000000000000000000000000000000000000000000000000000000000000" name="INIT_14" type="HEX" values="256 bit HEX"/>
+    <attribute default="256'h0000000000000000000000000000000000000000000000000000000000000000" name="INIT_15" type="HEX" values="256 bit HEX"/>
+    <attribute default="256'h0000000000000000000000000000000000000000000000000000000000000000" name="INIT_16" type="HEX" values="256 bit HEX"/>
+    <attribute default="256'h0000000000000000000000000000000000000000000000000000000000000000" name="INIT_17" type="HEX" values="256 bit HEX"/>
+    <attribute default="256'h0000000000000000000000000000000000000000000000000000000000000000" name="INIT_18" type="HEX" values="256 bit HEX"/>
+    <attribute default="256'h0000000000000000000000000000000000000000000000000000000000000000" name="INIT_19" type="HEX" values="256 bit HEX"/>
+    <attribute default="256'h0000000000000000000000000000000000000000000000000000000000000000" name="INIT_1A" type="HEX" values="256 bit HEX"/>
+    <attribute default="256'h0000000000000000000000000000000000000000000000000000000000000000" name="INIT_1B" type="HEX" values="256 bit HEX"/>
+    <attribute default="256'h0000000000000000000000000000000000000000000000000000000000000000" name="INIT_1C" type="HEX" values="256 bit HEX"/>
+    <attribute default="256'h0000000000000000000000000000000000000000000000000000000000000000" name="INIT_1D" type="HEX" values="256 bit HEX"/>
+    <attribute default="256'h0000000000000000000000000000000000000000000000000000000000000000" name="INIT_1E" type="HEX" values="256 bit HEX"/>
+    <attribute default="256'h0000000000000000000000000000000000000000000000000000000000000000" name="INIT_1F" type="HEX" values="256 bit HEX"/>
+    <attribute default="256'h0000000000000000000000000000000000000000000000000000000000000000" name="INIT_20" type="HEX" values="256 bit HEX"/>
+    <attribute default="256'h0000000000000000000000000000000000000000000000000000000000000000" name="INIT_21" type="HEX" values="256 bit HEX"/>
+    <attribute default="256'h0000000000000000000000000000000000000000000000000000000000000000" name="INIT_22" type="HEX" values="256 bit HEX"/>
+    <attribute default="256'h0000000000000000000000000000000000000000000000000000000000000000" name="INIT_23" type="HEX" values="256 bit HEX"/>
+    <attribute default="256'h0000000000000000000000000000000000000000000000000000000000000000" name="INIT_24" type="HEX" values="256 bit HEX"/>
+    <attribute default="256'h0000000000000000000000000000000000000000000000000000000000000000" name="INIT_25" type="HEX" values="256 bit HEX"/>
+    <attribute default="256'h0000000000000000000000000000000000000000000000000000000000000000" name="INIT_26" type="HEX" values="256 bit HEX"/>
+    <attribute default="256'h0000000000000000000000000000000000000000000000000000000000000000" name="INIT_27" type="HEX" values="256 bit HEX"/>
+    <attribute default="256'h0000000000000000000000000000000000000000000000000000000000000000" name="INIT_28" type="HEX" values="256 bit HEX"/>
+    <attribute default="256'h0000000000000000000000000000000000000000000000000000000000000000" name="INIT_29" type="HEX" values="256 bit HEX"/>
+    <attribute default="256'h0000000000000000000000000000000000000000000000000000000000000000" name="INIT_2A" type="HEX" values="256 bit HEX"/>
+    <attribute default="256'h0000000000000000000000000000000000000000000000000000000000000000" name="INIT_2B" type="HEX" values="256 bit HEX"/>
+    <attribute default="256'h0000000000000000000000000000000000000000000000000000000000000000" name="INIT_2C" type="HEX" values="256 bit HEX"/>
+    <attribute default="256'h0000000000000000000000000000000000000000000000000000000000000000" name="INIT_2D" type="HEX" values="256 bit HEX"/>
+    <attribute default="256'h0000000000000000000000000000000000000000000000000000000000000000" name="INIT_2E" type="HEX" values="256 bit HEX"/>
+    <attribute default="256'h0000000000000000000000000000000000000000000000000000000000000000" name="INIT_2F" type="HEX" values="256 bit HEX"/>
+    <attribute default="256'h0000000000000000000000000000000000000000000000000000000000000000" name="INIT_30" type="HEX" values="256 bit HEX"/>
+    <attribute default="256'h0000000000000000000000000000000000000000000000000000000000000000" name="INIT_31" type="HEX" values="256 bit HEX"/>
+    <attribute default="256'h0000000000000000000000000000000000000000000000000000000000000000" name="INIT_32" type="HEX" values="256 bit HEX"/>
+    <attribute default="256'h0000000000000000000000000000000000000000000000000000000000000000" name="INIT_33" type="HEX" values="256 bit HEX"/>
+    <attribute default="256'h0000000000000000000000000000000000000000000000000000000000000000" name="INIT_34" type="HEX" values="256 bit HEX"/>
+    <attribute default="256'h0000000000000000000000000000000000000000000000000000000000000000" name="INIT_35" type="HEX" values="256 bit HEX"/>
+    <attribute default="256'h0000000000000000000000000000000000000000000000000000000000000000" name="INIT_36" type="HEX" values="256 bit HEX"/>
+    <attribute default="256'h0000000000000000000000000000000000000000000000000000000000000000" name="INIT_37" type="HEX" values="256 bit HEX"/>
+    <attribute default="256'h0000000000000000000000000000000000000000000000000000000000000000" name="INIT_38" type="HEX" values="256 bit HEX"/>
+    <attribute default="256'h0000000000000000000000000000000000000000000000000000000000000000" name="INIT_39" type="HEX" values="256 bit HEX"/>
+    <attribute default="256'h0000000000000000000000000000000000000000000000000000000000000000" name="INIT_3A" type="HEX" values="256 bit HEX"/>
+    <attribute default="256'h0000000000000000000000000000000000000000000000000000000000000000" name="INIT_3B" type="HEX" values="256 bit HEX"/>
+    <attribute default="256'h0000000000000000000000000000000000000000000000000000000000000000" name="INIT_3C" type="HEX" values="256 bit HEX"/>
+    <attribute default="256'h0000000000000000000000000000000000000000000000000000000000000000" name="INIT_3D" type="HEX" values="256 bit HEX"/>
+    <attribute default="256'h0000000000000000000000000000000000000000000000000000000000000000" name="INIT_3E" type="HEX" values="256 bit HEX"/>
+    <attribute default="256'h0000000000000000000000000000000000000000000000000000000000000000" name="INIT_3F" type="HEX" values="256 bit HEX"/>
+    <attribute default="" name="INIT_FILE" type="STRING" values="String representing file name and location"/>
+    <attribute default="256'h0000000000000000000000000000000000000000000000000000000000000000" name="INITP_00" type="HEX" values="256 bit HEX"/>
+    <attribute default="256'h0000000000000000000000000000000000000000000000000000000000000000" name="INITP_01" type="HEX" values="256 bit HEX"/>
+    <attribute default="256'h0000000000000000000000000000000000000000000000000000000000000000" name="INITP_02" type="HEX" values="256 bit HEX"/>
+    <attribute default="256'h0000000000000000000000000000000000000000000000000000000000000000" name="INITP_03" type="HEX" values="256 bit HEX"/>
+    <attribute default="256'h0000000000000000000000000000000000000000000000000000000000000000" name="INITP_04" type="HEX" values="256 bit HEX"/>
+    <attribute default="256'h0000000000000000000000000000000000000000000000000000000000000000" name="INITP_05" type="HEX" values="256 bit HEX"/>
+    <attribute default="256'h0000000000000000000000000000000000000000000000000000000000000000" name="INITP_06" type="HEX" values="256 bit HEX"/>
+    <attribute default="256'h0000000000000000000000000000000000000000000000000000000000000000" name="INITP_07" type="HEX" values="256 bit HEX"/>
+    <attribute default="TDP" name="RAM_MODE" type="STRING" values="TDP, SDP"/>
+    <attribute default="0" name="READ_WIDTH_A" type="DECIMAL" values="0, 1, 2, 4, 9, 18, 36, 72"/>
+    <attribute default="0" name="READ_WIDTH_B" type="DECIMAL" values="0, 1, 2, 4, 9, 18"/>
+    <attribute default="RSTREG" name="RSTREG_PRIORITY_A" type="STRING" values="RSTREG, REGCE"/>
+    <attribute default="RSTREG" name="RSTREG_PRIORITY_B" type="STRING" values="RSTREG, REGCE"/>
+    <attribute default="7SERIES" name="SIM_DEVICE" type="STRING" values="7SERIES"/>
+    <attribute default="18'h00000" name="SRVAL_A" type="HEX" values="18 bit HEX"/>
+    <attribute default="18'h00000" name="SRVAL_B" type="HEX" values="18 bit HEX"/>
+    <attribute default="WRITE_FIRST" name="WRITE_MODE_A" type="STRING" values="WRITE_FIRST, NO_CHANGE, READ_FIRST"/>
+    <attribute default="WRITE_FIRST" name="WRITE_MODE_B" type="STRING" values="WRITE_FIRST, NO_CHANGE, READ_FIRST"/>
+    <attribute default="0" name="WRITE_WIDTH_A" type="DECIMAL" values="0, 1, 2, 4, 9, 18"/>
+    <attribute default="0" name="WRITE_WIDTH_B" type="DECIMAL" values="0, 1, 2, 4, 9, 18, 36, 72"/>
+  </module>
+  <module name="RAMB36E1">
+    <port name="ADDRARDADDR" type="input" width="16"/>
+    <port name="ADDRBWRADDR" type="input" width="16"/>
+    <port name="CASCADEINA" type="input" width="1"/>
+    <port name="CASCADEINB" type="input" width="1"/>
+    <port name="CASCADEOUTA" type="output" width="1"/>
+    <port name="CASCADEOUTB" type="output" width="1"/>
+    <port name="CLKARDCLK" type="input" width="1"/>
+    <port name="CLKBWRCLK" type="input" width="1"/>
+    <port name="DBITERR" type="output" width="1"/>
+    <port name="DIADI" type="input" width="32"/>
+    <port name="DIBDI" type="input" width="32"/>
+    <port name="DIPADIP" type="input" width="4"/>
+    <port name="DIPBDIP" type="input" width="4"/>
+    <port name="DOADO" type="output" width="32"/>
+    <port name="DOBDO" type="output" width="32"/>
+    <port name="DOPADOP" type="output" width="4"/>
+    <port name="DOPBDOP" type="output" width="4"/>
+    <port name="ECCPARITY" type="output" width="8"/>
+    <port name="ENARDEN" type="input" width="1"/>
+    <port name="ENBWREN" type="input" width="1"/>
+    <port name="INJECTDBITERR" type="input" width="1"/>
+    <port name="INJECTSBITERR" type="input" width="1"/>
+    <port name="RDADDRECC" type="output" width="9"/>
+    <port name="REGCEAREGCE" type="input" width="1"/>
+    <port name="REGCEB" type="input" width="1"/>
+    <port name="RSTRAMARSTRAM" type="input" width="1"/>
+    <port name="RSTRAMB" type="input" width="1"/>
+    <port name="RSTREGARSTREG" type="input" width="1"/>
+    <port name="RSTREGB" type="input" width="1"/>
+    <port name="SBITERR" type="output" width="1"/>
+    <port name="WEA" type="input" width="4"/>
+    <port name="WEBWE" type="input" width="8"/>
+    <attribute default="DELAYED_WRITE" name="RDADDR_COLLISION_HWCONFIG" type="STRING" values="DELAYED_WRITE, PERFORMANCE"/>
+    <attribute default="ALL" name="SIM_COLLISION_CHECK" type="STRING" values="ALL, GENERATE_X_ONLY, NONE, WARNING_ONLY"/>
+    <attribute default="0" name="DOA_REG" type="DECIMAL" values="0, 1"/>
+    <attribute default="0" name="DOB_REG" type="DECIMAL" values="0, 1"/>
+    <attribute default="FALSE" name="EN_ECC_READ" type="BOOLEAN" values="FALSE, TRUE"/>
+    <attribute default="FALSE" name="EN_ECC_WRITE" type="BOOLEAN" values="FALSE, TRUE"/>
+    <attribute default="36'h000000000" name="INIT_A" type="HEX" values="36 bit HEX"/>
+    <attribute default="36'h000000000" name="INIT_B" type="HEX" values="36 bit HEX"/>
+  </module>
+  <module name="SRL16E">
+    <port name="Q" type="output" width="1"/>
+    <port name="D" type="input" width="1"/>
+    <port name="CLK" type="input" width="1"/>
+    <port name="CE" type="input" width="1"/>
+    <port name="A0" type="input" width="1"/>
+    <port name="A1" type="input" width="1"/>
+    <port name="A2" type="input" width="1"/>
+    <port name="A3" type="input" width="1"/>
+    <attribute default="16'h0000" name="INIT" type="HEX" values="Any 16-Bit Value"/>
+  </module>
+  <module name="SRLC32E">
+    <port name="Q" type="output" width="1"/>
+    <port name="Q31" type="output" width="1"/>
+    <port name="D" type="input" width="1"/>
+    <port name="CLK" type="input" width="1"/>
+    <port name="CE" type="input" width="1"/>
+    <port name="A" type="input" width="5"/>
+    <attribute default="32'h00000000" name="INIT" type="HEX" values="Any 32-Bit Value"/>
+  </module>
+  <module name="STARTUPE2">
+    <port name="CFGCLK" type="output" width="1"/>
+    <port name="CFGMCLK" type="output" width="1"/>
+    <port name="CLK" type="input" width="1"/>
+    <port name="EOS" type="output" width="1"/>
+    <port name="GSR" type="input" width="1"/>
+    <port name="GTS" type="input" width="1"/>
+    <port name="KEYCLEARB" type="input" width="1"/>
+    <port name="PACK" type="input" width="1"/>
+    <port name="PREQ" type="output" width="1"/>
+    <port name="USRCCLKO" type="input" width="1"/>
+    <port name="USRCCLKTS" type="input" width="1"/>
+    <port name="USRDONEO" type="input" width="1"/>
+    <port name="USRDONETS" type="input" width="1"/>
+    <attribute default="FALSE" name="PROG_USR" type="STRING" values="FALSE, TRUE"/>
+    <attribute default="0.0" name="SIM_CCLK_FREQ" type="FLOAT (nS)" values="0.0 to 10.0"/>
+  </module>
+  <module name="USR_ACCESSE2">
+    <port name="CFGCLK" type="output" width="1"/>
+    <port name="DATA" type="output" width="32"/>
+    <port name="DATAVALID" type="output" width="1"/>
+  </module>
+  <module name="XADC">
+    <port name="ALM" type="output" width="8"/>
+    <port name="BUSY" type="output" width="1"/>
+    <port name="CHANNEL" type="output" width="5"/>
+    <port name="CONVST" type="input" width="1"/>
+    <port name="CONVSTCLK" type="input" width="1"/>
+    <port name="DADDR" type="input" width="7"/>
+    <port name="DCLK" type="input" width="1"/>
+    <port name="DEN" type="input" width="1"/>
+    <port name="DI" type="input" width="16"/>
+    <port name="DO" type="output" width="16"/>
+    <port name="DRDY" type="output" width="1"/>
+    <port name="DWE" type="input" width="1"/>
+    <port name="EOC" type="output" width="1"/>
+    <port name="EOS" type="output" width="1"/>
+    <port name="JTAGBUSY" type="output" width="1"/>
+    <port name="JTAGLOCKED" type="output" width="1"/>
+    <port name="JTAGMODIFIED" type="output" width="1"/>
+    <port name="MUXADDR" type="output" width="5"/>
+    <port name="OT" type="output" width="1"/>
+    <port name="RESET" type="input" width="1"/>
+    <port name="VAUXN" type="input" width="16"/>
+    <port name="VAUXP" type="input" width="16"/>
+    <port name="VN" type="input" width="1"/>
+    <port name="VP" type="input" width="1"/>
+    <attribute default="16'h0000" name="INIT_4A" type="HEX" values="16'h0000 to 16'hffff"/>
+    <attribute default="16'h0000" name="INIT_4B" type="HEX" values="16'h0000 to 16'hffff"/>
+    <attribute default="16'h0000" name="INIT_4C" type="HEX" values="16'h0000 to 16'hffff"/>
+    <attribute default="16'h0000" name="INIT_4D" type="HEX" values="16'h0000 to 16'hffff"/>
+    <attribute default="16'h0000" name="INIT_4E" type="HEX" values="16'h0000 to 16'hffff"/>
+    <attribute default="16'h0000" name="INIT_4F" type="HEX" values="16'h0000 to 16'hffff"/>
+    <attribute default="16'h0000" name="INIT_5C" type="HEX" values="16'h0000 to 16'hffff"/>
+    <attribute default="16'h0000" name="INIT_40" type="HEX" values="16'h0000 to 16'hffff"/>
+    <attribute default="16'h0000" name="INIT_41" type="HEX" values="16'h0000 to 16'hffff"/>
+    <attribute default="16'h0800" name="INIT_42" type="HEX" values="16'h0000 to 16'hffff"/>
+    <attribute default="16'h0000" name="INIT_43" type="HEX" values="16'h0000 to 16'hffff"/>
+    <attribute default="16'h0000" name="INIT_44" type="HEX" values="16'h0000 to 16'hffff"/>
+    <attribute default="16'h0000" name="INIT_45" type="HEX" values="16'h0000 to 16'hffff"/>
+    <attribute default="16'h0000" name="INIT_46" type="HEX" values="16'h0000 to 16'hffff"/>
+    <attribute default="16'h0000" name="INIT_47" type="HEX" values="16'h0000 to 16'hffff"/>
+    <attribute default="16'h0000" name="INIT_48" type="HEX" values="16'h0000 to 16'hffff"/>
+    <attribute default="16'h0000" name="INIT_49" type="HEX" values="16'h0000 to 16'hffff"/>
+    <attribute default="16'h0000" name="INIT_50" type="HEX" values="16'h0000 to 16'hffff"/>
+    <attribute default="16'h0000" name="INIT_51" type="HEX" values="16'h0000 to 16'hffff"/>
+    <attribute default="16'h0000" name="INIT_52" type="HEX" values="16'h0000 to 16'hffff"/>
+    <attribute default="16'h0000" name="INIT_53" type="HEX" values="16'h0000 to 16'hffff"/>
+    <attribute default="16'h0000" name="INIT_54" type="HEX" values="16'h0000 to 16'hffff"/>
+    <attribute default="16'h0000" name="INIT_55" type="HEX" values="16'h0000 to 16'hffff"/>
+    <attribute default="16'h0000" name="INIT_56" type="HEX" values="16'h0000 to 16'hffff"/>
+    <attribute default="16'h0000" name="INIT_57" type="HEX" values="16'h0000 to 16'hffff"/>
+    <attribute default="16'h0000" name="INIT_58" type="HEX" values="16'h0000 to 16'hffff"/>
+    <attribute default="16'h0000" name="INIT_59" type="HEX" values="16'h0000 to 16'hffff"/>
+    <attribute default="16'h0000" name="INIT_5A" type="HEX" values="16'h0000 to 16'hffff"/>
+    <attribute default="16'h0000" name="INIT_5B" type="HEX" values="16'h0000 to 16'hffff"/>
+    <attribute default="16'h0000" name="INIT_5D" type="HEX" values="16'h0000 to 16'hffff"/>
+    <attribute default="16'h0000" name="INIT_5E" type="HEX" values="16'h0000 to 16'hffff"/>
+    <attribute default="16'h0000" name="INIT_5F" type="HEX" values="16'h0000 to 16'hffff"/>
+    <attribute default="7SERIES" name="SIM_DEVICE" type="STRING" values="7SERIES, ZYNQ"/>
+    <attribute default="design.txt" name="SIM_MONITOR_FILE" type="STRING" values="String representing file name and location"/>
+  </module>
+</xml>
