@@ -317,7 +317,7 @@ def main():
             'freq': '1.0',
             'type': 'bidir',
             'Rmetal':'101',
-            'Cmetal':'22.5e15',
+            'Cmetal':'22.5e-15',
     })
     ET.SubElement(dummy_xml, 'wire_switch', {
             'name': 'routing',
