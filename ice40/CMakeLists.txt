@@ -27,17 +27,17 @@ function(icestorm_setup)
     DEPENDS ${LIBFTDI_TARGET} ${PKG-CONFIG_TARGET}
     )
 
-  get_target_property(ICEBOX_VLOG env ICEBOX_VLOG)
-  get_target_property(ICEPACK env ICEPACK)
-  get_target_property(ICETIME env ICETIME)
-  get_target_property(ICEBOX_HLC2ASC env ICEBOX_HLC2ASC)
+  get_target_property_required(ICEBOX_VLOG env ICEBOX_VLOG)
+  get_target_property_required(ICEPACK env ICEPACK)
+  get_target_property_required(ICETIME env ICETIME)
+  get_target_property_required(ICEBOX_HLC2ASC env ICEBOX_HLC2ASC)
 
-  get_target_property(ICEBOX_VLOG_TARGET env ICEBOX_VLOG_TARGET)
-  get_target_property(ICEPACK_TARGET env ICEPACK_TARGET)
-  get_target_property(ICETIME_TARGET env ICETIME_TARGET)
-  get_target_property(ICEBOX_HLC2ASC_TARGET env ICEBOX_HLC2ASC_TARGET)
+  get_target_property_required(ICEBOX_VLOG_TARGET env ICEBOX_VLOG_TARGET)
+  get_target_property_required(ICEPACK_TARGET env ICEPACK_TARGET)
+  get_target_property_required(ICETIME_TARGET env ICETIME_TARGET)
+  get_target_property_required(ICEBOX_HLC2ASC_TARGET env ICEBOX_HLC2ASC_TARGET)
 
-  get_target_property(ICEBOX env ICEBOX)
+  get_target_property_required(ICEBOX env ICEBOX)
   get_filename_component(ICEBOX_PATH ${ICEBOX} DIRECTORY)
 
   set(PYPATH_ARG "PYTHONPATH=\${ICEBOX_PATH}:${PYUTILS_PATH}")
