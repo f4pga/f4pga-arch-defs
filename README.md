@@ -36,6 +36,14 @@ git submodule init
 git submodule update
 ```
 
+Install Python libraries:
+
+```
+# Make sure additional libraries are installed
+sudo apt-get install libxml2-dev libxslt1-dev lib32z1-dev
+pip install -r requirements.txt
+```
+
 Run the full suite:
 
 ```
