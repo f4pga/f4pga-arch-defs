@@ -1,6 +1,6 @@
 set(FULL_BOARDS dummy_ice40_hx1k_tq144 )
 if (NOT DEFINED ENV{CI} OR NOT $ENV{CI})
-list(APPEND FULL_BOARDdummy_artix7_xc7a50t_test)
+list(APPEND FULL_BOARDS dummy_artix7_xc7a50t_test)
 endif()
 set(SMALL_BOARDS dummy_testarch_4x4_dummy)
 set(BOARDS ${FULL_BOARDS} ${SMALL_BOARDS})
