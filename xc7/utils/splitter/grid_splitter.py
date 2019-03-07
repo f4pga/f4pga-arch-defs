@@ -103,6 +103,9 @@ class GridSplitter(object):
 
         new_tiles  = {}
 
+        # Initialize forward tile name map
+        self.fwd_tile_name_map[tile_name] = []
+
         # Generate new tiles and a tile map
         for i, new_tile_type in enumerate(self.fwd_tile_type_map[tile_type]):
 
@@ -119,6 +122,10 @@ class GridSplitter(object):
 
             new_tiles[new_tile_name] = new_tile
 
+            # Update tile name maps
+            self.fwd_tile_name_map[tile_name].append(new_tile_name)
+            self.bwd_tile_name_map[new_tile_name] = tile_name
+
         return new_tiles
 
     def _split_tile_of_non_interest(self, tile_name, tile, ofs):
@@ -131,6 +138,9 @@ class GridSplitter(object):
         :return:
         """
 
+        # Initialize forward tile name map
+        self.fwd_tile_name_map[tile_name] = []
+
         new_tiles = {}
 
         # Add two identical tiles with different suffixes
@@ -140,6 +150,10 @@ class GridSplitter(object):
 
             new_tile["grid_x"] += ofs + i
             new_tiles[new_tile_name] = new_tile
+
+            # Update tile name maps
+            self.fwd_tile_name_map[tile_name].append(new_tile_name)
+            self.bwd_tile_name_map[new_tile_name] = tile_name
 
         return new_tiles
 
@@ -266,6 +280,32 @@ class GridSplitter(object):
 
         with open(file_name, "w") as fp:
             json.dump(self.new_grid_by_tile, fp, sort_keys=True, indent=1)
+            fp.flush()
+
+        # Save tile name map
+        tile_name_map = {
+            "forward":  self.fwd_tile_name_map,
+            "backward": self.bwd_tile_name_map
+        }
+
+        file_name = os.path.join(self.db_overlay, "map_tile_names.json")
+        logging.info("Writing '%s'" % file_name)
+
+        with open(file_name, "w") as fp:
+            json.dump(tile_name_map, fp, sort_keys=True, indent=1)
+            fp.flush()
+
+        # Save tile type map
+        tile_type_map = {
+            "forward":  self.fwd_tile_type_map,
+            "backward": self.bwd_tile_type_map
+        }
+
+        file_name = os.path.join(self.db_overlay, "map_tile_types.json")
+        logging.info("Writing '%s'" % file_name)
+
+        with open(file_name, "w") as fp:
+            json.dump(tile_type_map, fp, sort_keys=True, indent=1)
             fp.flush()
 
 # =============================================================================

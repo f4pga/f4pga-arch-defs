@@ -149,8 +149,13 @@ def main():
     if args.db_overlay:
         import db_overlay.db_overlay
         db = db_overlay.db_overlay.DatabaseWithOverlay(os.path.join(prjxray_db, args.part), args.db_overlay)
+
+        with open(os.path.join(args.db_overlay, "map_tile_names.json"), "r") as fp:
+            tile_name_map = json.load(fp)
+
     else:
         db = prjxray.db.Database(os.path.join(prjxray_db, args.part))
+        tile_name_map = None
 
     g = db.grid()
     x_min, x_max, y_min, y_max = g.dims()
@@ -204,6 +209,18 @@ def main():
             # We don't want this tile
             continue
 
+        # No tile map, use the tile name directly
+        if not tile_name_map:
+            fasm_prefix = tile
+        # Try looking up tile name map if it is present
+        else:
+            try:
+                fasm_prefix = tile_name_map["backward"][tile]
+                print(tile, "->", fasm_prefix)
+            except KeyError:
+                # Tile not in the map, use the original name.
+                fasm_prefix = tile
+
         is_vbrk = gridinfo.tile_type.find('VBRK') != -1
 
         # VBRK tiles are known to have no bitstream data.
@@ -220,7 +237,7 @@ def main():
         meta = ET.SubElement(single_xml, 'metadata')
         ET.SubElement(meta, 'meta', {
                 'name': 'fasm_prefix',
-        }).text = tile
+        }).text = fasm_prefix
 
     device_xml = ET.SubElement(arch_xml, 'device')
 

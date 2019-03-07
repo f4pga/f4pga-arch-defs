@@ -34,6 +34,7 @@ import datetime
 import re
 import sqlite3
 import functools
+import os
 
 from prjxray_db_cache import DatabaseCache
 
@@ -481,8 +482,13 @@ def main():
     if args.db_overlay is not None:
         import db_overlay.db_overlay
         db = db_overlay.db_overlay.DatabaseWithOverlay(args.db_root, args.db_overlay)
+
+        with open(os.path.join(args.db_overlay, "map_tile_names.json"), "r") as fp:
+            tile_name_map = json.load(fp)
+
     else:
         db = prjxray.db.Database(args.db_root)
+        tile_name_map = None
 
     grid = db.grid()
 
