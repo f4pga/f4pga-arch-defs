@@ -53,6 +53,10 @@ def main():
         pat_indices, _ = zip(*sorted(patterns, key=lambda x: x[1]))
         chain_to_keep = specialized_chain_name(pats[pat_indices[0]])
 
+        # Since we still have some issues with SLICEM carry chain we remove the chain here.
+        if "SLICEM" in chain_to_keep:
+            chain_to_keep = None
+
         for pat_idx in pat_indices:
             pat = pats[pat_idx]
 
