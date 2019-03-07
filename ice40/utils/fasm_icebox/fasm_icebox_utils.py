@@ -170,7 +170,7 @@ class featureAccumulator(dict):
         return outf
 
 def readIceDb(ic):
-    # TODO: undo Hack to invert
+    # TODO: undo Hack to invert some specific signals
     device_1k = (ic.device == "1k")
 
     accum = featureAccumulator()
@@ -240,7 +240,7 @@ def _iceboxDb_to_fasmDb(ic, outf=StringIO()):
     fasmdb = readIceDb(ic)
     return fasmdb.asFasmDb(outf)
 
-def _convert_1k(outf=StringIO()):
+def generateFasmDb(outf, device):
     ic = icebox.iceconfig()
     ic.setup_empty_1k()
     return _iceboxDb_to_fasmDb(ic, outf)
@@ -256,7 +256,8 @@ def ascToFasm(filename, outf=StringIO()):
     return iceconfigToFasm(ic, outf)
 
 def iceconfigToFasm(ic, outf=StringIO()):
-    # TODO: add annotations for device
+    # TODO: undo Hack to invert some specific signals
+    device_1k = (ic.device == "1k")
 
     accum = featureAccumulator()
 
@@ -327,11 +328,13 @@ def iceconfigToFasm(ic, outf=StringIO()):
     return accum.asFasm(outf)
 
 
-def fasmToAsc(filename, outf):
+def fasmToAsc(in_fasm, outf, device):
     ic = icebox.iceconfig()
 
-    # TODO: need to guess device or annotate it?
-    ic.setup_empty_1k()
+    init_method_name = "setup_empty_{}".format(device.lower()[2:])
+    assert hasattr(ic, init_method_name), "no icebox method to init empty device"
+    getattr(ic, init_method_name)()
+
     device_1k = (ic.device == "1k")
 
     fasmdb = readIceDb(ic)
@@ -352,7 +355,7 @@ def fasmToAsc(filename, outf):
                 _array_to_tile(tile_bits, tile)
 
     missing_features = []
-    for line in fasm.parse_fasm_filename(filename):
+    for line in fasm.parse_fasm_string(in_fasm.read()):
         if not line.set_feature:
             continue
 
@@ -390,9 +393,8 @@ def fasmToAsc(filename, outf):
         else:
             _array_to_tile(tile_bits, tile)
 
-    ic.write_file(outf)
-
-
+    # TODO: would be nice to upstream a way to write to non-files
+    ic.write_file(outf.name)
 
 import unittest
 
@@ -464,4 +466,4 @@ if "__main__" == __name__:
         unittest.main()
     else:
         with open('ice40_1k.db', 'w') as f:
-            _convert_1k(f)
+            generateFasmDb(f, '1k')

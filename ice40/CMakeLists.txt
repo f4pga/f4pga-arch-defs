@@ -91,7 +91,7 @@ function(icestorm_setup)
     BIT_TIME_CMD "${ICETIME} -v -t -p \${INPUT_IO_FILE} -d \${DEVICE} \${OUT_BITSTREAM} -o \${OUT_TIME_VERILOG}"
     FASM_TO_BIT ${FASM2ASC}
     FASM_TO_BIT_CMD "\${QUIET_CMD}  \${CMAKE_COMMAND} -E env  ${PYPATH_ARG} \
-    \${PYTHON3} ${FASM2ASC} \${OUT_FASM} \${OUT_BITSTREAM}"
+    \${PYTHON3} ${FASM2ASC} --device \${DEVICE} \${OUT_FASM} \${OUT_BITSTREAM}"
     USE_FASM
     ROUTE_CHAN_WIDTH 100
   )
