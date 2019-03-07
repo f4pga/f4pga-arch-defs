@@ -1,9 +1,3 @@
-# WARNING!
-
-This repo is currently a **work in progress** nothing is currently yet working!
-
----
-
 # SymbiFlow Architecture Definitions
 
 [![Build Status](https://travis-ci.org/SymbiFlow/symbiflow-arch-defs.svg?branch=master)](https://travis-ci.org/SymbiFlow/symbiflow-arch-defs)
@@ -11,8 +5,8 @@ This repo is currently a **work in progress** nothing is currently yet working!
 This repo contains documentation of various FPGA architectures, it is currently
 concentrating on;
 
- * Lattice iCE40
- * Artix 7
+ * [Lattice iCE40](ice40)
+ * [Xilinx Series 7 (Artix 7 and Zynq 7)](xc7)
 
 The aim is to include useful documentation (both human and machine readable) on
 the primitives and routing infrastructure for these architectures. We hope this
@@ -50,15 +44,21 @@ Run the full suite:
 make
 ```
 
-# Tools
+# Tools installed via submodules
 
  * [`third_party/netlistsvg`](https://github.com/nturley/netlistsvg/)
+   Tool for generating nice logic diagrams from Verilog code.
 
  * [`third_party/icestorm`](https://github.com/cliffordwolf/icestorm/)
+   Bitstream and timing database + tools for the Lattice iCE40.
+
+ * [`third_party/prjxray`](https://github.com/SymbiFlow/prjxray/)
+   Tools for the Xilinx Series 7 parts.
 
  * [`third_party/prjxray-db`](https://github.com/SymbiFlow/prjxray-db/)
+   Bitstream and timing database for the Xilinx Series 7 parts.
 
-## Tools used via conda
+## Tools installed via conda
 
  * [yosys](https://github.com/YosysHQ/yosys)
    Verilog parsing and synthesis.
@@ -69,25 +69,23 @@ make
  * [iverilog](https://github.com/steveicarus/iverilog)
    Very correct FOSS Verilog Simulator
 
-## Tools to use in the future
+## Tools potentially used in the future
+
  * [verilator](https://www.veripool.org/wiki/verilator)
    Fast FOSS Verilog Simulator
 
- * sphinx
+ * [sphinx](http://www.sphinx-doc.org/en/master/)
    Tool for generating nice looking documentation.
 
- * breathe
+ * [breathe](https://breathe.readthedocs.io/en/latest/)
    Tool for allowing Doxygen and Sphinx integration.
 
  * doxygen-verilog
    Allows using Doxygen style comments inside Verilog files.
 
- * netlistsvg
-   Tool for generating nice logic diagrams from Verilog code.
-
- * symbolator
+ * [symbolator](https://kevinpt.github.io/symbolator/)
    Tool for generating symbol diagrams from Verilog (and VHDL) code.
 
- * wavedrom
+ * [wavedrom](https://wavedrom.com/)
    Tool for generating waveform / timing diagrams.
 
