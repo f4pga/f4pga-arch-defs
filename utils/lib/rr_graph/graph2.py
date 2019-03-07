@@ -114,6 +114,8 @@ class Graph(object):
         # pin name -> block type id, pin class idx, pin idx
         self.pin_name_map = {}
 
+        self.pin_ptc_to_name_map = {}
+
         # Create pin_name_map and sanity check block_types.
         for idx, block_type in enumerate(self.block_types):
             assert idx == block_type.id
@@ -121,6 +123,7 @@ class Graph(object):
                 for pin in pin_class.pin:
                     assert pin.name not in self.pin_name_map
                     self.pin_name_map[pin.name] = (block_type.id, pin_class_idx, pin.ptc)
+                    self.pin_ptc_to_name_map[(block_type.id, pin.ptc)] = pin.name
 
         # Create mapping from grid locations and pins to nodes.
         for idx, node in enumerate(self.nodes):
@@ -283,21 +286,21 @@ class Graph(object):
         for node in self.nodes:
             assert node.loc.ptc is not None, node
 
+    def set_track_ptc(self, track, ptc):
+        node_d = self.nodes[track]._asdict()
+        loc_d = self.nodes[track].loc._asdict()
+        assert loc_d['ptc'] is None
+        loc_d['ptc'] = ptc
+        node_d['loc'] = NodeLoc(**loc_d)
+
+        self.nodes[track] = Node(**node_d)
+
     def create_channels(self, pad_segment, pool=None):
         """ Pack tracks into channels and return Channels definition for tracks."""
         assert len(self.tracks) > 0
 
         xs = []
         ys = []
-
-        def set_track_ptc(track, ptc):
-            node_d = self.nodes[track]._asdict()
-            loc_d = self.nodes[track].loc._asdict()
-            assert loc_d['ptc'] is None
-            loc_d['ptc'] = ptc
-            node_d['loc'] = NodeLoc(**loc_d)
-
-            self.nodes[track] = Node(**node_d)
 
         for track in self.tracks:
             track_node = self.nodes[track]
@@ -342,7 +345,6 @@ class Graph(object):
         x_channel_models = {}
         y_channel_models = {}
 
-
         if pool is not None:
             for y in x_tracks:
                 x_channel_models[y] = pool.apply_async(process_track, (x_tracks[y],))
@@ -360,7 +362,7 @@ class Graph(object):
                 x_list.append(len(x_channel_models[y].trees))
                 for idx, tree in enumerate(x_channel_models[y].trees):
                     for i in tree:
-                        set_track_ptc(track=i[2], ptc=idx)
+                        self.set_track_ptc(track=i[2], ptc=idx)
             else:
                 x_list.append(0)
 
@@ -374,7 +376,7 @@ class Graph(object):
                 y_list.append(len(y_channel_models[x].trees))
                 for idx, tree in enumerate(y_channel_models[x].trees):
                     for i in tree:
-                        set_track_ptc(track=i[2], ptc=idx)
+                        self.set_track_ptc(track=i[2], ptc=idx)
             else:
                 y_list.append(0)
 
