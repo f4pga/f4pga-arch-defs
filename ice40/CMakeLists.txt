@@ -17,8 +17,9 @@ function(icestorm_setup)
     )
   get_target_property(LIBFTDI_TARGET env LIBFTDI_TARGET)
 
-  get_target_property(PKG-CONFIG env PKG-CONFIG)
-  get_target_property(PKG-CONFIG_TARGET env PKG-CONFIG_TARGET)
+  get_target_property_required(PKG-CONFIG env PKG-CONFIG)
+  get_target_property_required(PKG-CONFIG_TARGET env PKG-CONFIG_TARGET)
+
   add_thirdparty_package(
     NAME icestorm
     PROVIDES iceprog icebox_hlc2asc icebox_vlog icepack icetime icebox
