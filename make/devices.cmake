@@ -997,7 +997,7 @@ function(ADD_FPGA_TARGET)
     OUTPUT ${ECHO_OUT_NET}
     DEPENDS ${OUT_EBLIF} ${OUT_IO} ${VPR_DEPS}
     COMMAND ${CMAKE_COMMAND} -E make_directory ${OUT_LOCAL}/echo
-    COMMAND cd ${OUT_LOCAL}/echo && ${VPR_CMD} --debug_clustering on --echo_file on --pack
+    COMMAND cd ${OUT_LOCAL}/echo && ${VPR_CMD} --pack_verbosity 3 --echo_file on --pack
     COMMAND
       ${CMAKE_COMMAND} -E copy ${OUT_LOCAL}/echo/vpr_stdout.log ${OUT_LOCAL}/echo/pack.log
     )
