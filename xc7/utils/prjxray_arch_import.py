@@ -147,17 +147,11 @@ def main():
     g = db.grid()
     x_min, x_max, y_min, y_max = g.dims()
 
-    # FIXME: There is an issue in the routing phase. (https://github.com/SymbiFlow/symbiflow-arch-defs/issues/353)
-    # if a zynq device is selected the grid must be expanded by 1
-    if args.device == 'xc7z010':
-        x_max += 1
-        y_max += 1
-
     name = '{}-test'.format(args.device)
     fixed_layout_xml = ET.SubElement(layout_xml, 'fixed_layout', {
             'name': name,
-            'height': str(y_max+1),
-            'width': str(x_max+1),
+            'height': str(y_max+2),
+            'width': str(x_max+2),
     })
 
     only_emit_roi = False

@@ -12,7 +12,6 @@ import datetime
 import os
 import os.path
 from lib.connection_database import NodeClassification
-import multiprocessing
 
 def create_tables(conn):
     c = conn.cursor()
@@ -638,6 +637,12 @@ SELECT wires_from_node.wire_pkey, tile.grid_x, tile.grid_y
 
     conn.commit()
 
+    c.execute("""CREATE INDEX graph_node_nodes ON graph_node(node_pkey);""")
+    c.execute("""CREATE INDEX graph_node_tracks ON graph_node(track_pkey);""")
+    c.execute("""CREATE INDEX graph_edge_tracks ON graph_edge(track_pkey);""")
+
+    conn.commit()
+
 
 def form_tracks(conn):
     c = conn.cursor()
@@ -675,139 +680,12 @@ SELECT wires_from_node.wire_pkey, tile.grid_x, tile.grid_y
 
     insert_tracks(conn, tracks_to_insert)
 
-def build_channels(conn, pool):
-    c = conn.cursor()
-
-    xs = []
-    ys = []
-
-    x_tracks = {}
-    y_tracks = {}
-    for pkey, graph_node_type, x_low, x_high, y_low, y_high in c.execute("""
-SELECT pkey, graph_node_type, x_low, x_high, y_low, y_high FROM graph_node WHERE track_pkey IS NOT NULL;"""):
-        xs.append(x_low)
-        xs.append(x_high)
-        ys.append(y_low)
-        ys.append(y_high)
-
-        node_type = graph2.NodeType(graph_node_type)
-        if node_type == graph2.NodeType.CHANX:
-            assert y_low == y_high
-
-            if y_low not in x_tracks:
-                x_tracks[y_low] = []
-
-            x_tracks[y_low].append((
-                    x_low,
-                    x_high,
-                    pkey))
-        elif node_type == graph2.NodeType.CHANY:
-            assert x_low == x_high
-
-            if x_low not in y_tracks:
-                y_tracks[x_low] = []
-
-            y_tracks[x_low].append((
-                    y_low,
-                    y_high,
-                    pkey))
-        else:
-            assert False, node_type
-
-    x_list = []
-    y_list = []
-
-    x_channel_models = {}
-    y_channel_models = {}
-
-    for y in x_tracks:
-        x_channel_models[y] = pool.apply_async(graph2.process_track, (x_tracks[y],))
-
-    for x in y_tracks:
-        y_channel_models[x] = pool.apply_async(graph2.process_track, (y_tracks[x],))
-
-    for y in progressbar.progressbar(range(max(x_tracks)+1)):
-        if y in x_tracks:
-            x_channel_models[y] = x_channel_models[y].get()
-
-            x_list.append(len(x_channel_models[y].trees))
-
-            for idx, tree in enumerate(x_channel_models[y].trees):
-                for i in tree:
-                    c.execute("""UPDATE graph_node SET ptc = ? WHERE pkey = ?;""",
-                            (idx, i[2]))
-        else:
-            x_list.append(0)
-
-    for x in progressbar.progressbar(range(max(y_tracks)+1)):
-        if x in y_tracks:
-            y_channel_models[x] = y_channel_models[x].get()
-
-            y_list.append(len(y_channel_models[x].trees))
-
-            for idx, tree in enumerate(y_channel_models[x].trees):
-                for i in tree:
-                    c.execute("""UPDATE graph_node SET ptc = ? WHERE pkey = ?;""",
-                            (idx, i[2]))
-        else:
-            y_list.append(0)
-
-    x_min=min(xs)
-    y_min=min(ys)
-    x_max=max(xs)
-    y_max=max(ys)
-
-    num_padding = 0
-    for chan, channel_model in x_channel_models.items():
-        for ptc, start, end in channel_model.fill_empty(x_min, x_max):
-            num_padding += 1
-            capacity = 0
-            c.execute("""
-            INSERT INTO
-                graph_node(graph_node_type, x_low, x_high, y_low, y_high, capacity, ptc)
-            VALUES
-                (?, ?, ?, ?, ?, ?, ?);
-                """, (graph2.NodeType.CHANX.value, start, chan, end, chan, capacity, ptc))
-
-    for chan, channel_model in y_channel_models.items():
-        for ptc, start, end in channel_model.fill_empty(y_min, y_max):
-            num_padding += 1
-            c.execute("""
-            INSERT INTO
-                graph_node(graph_node_type, x_low, x_high, y_low, y_high, capacity, ptc)
-            VALUES
-                (?, ?, ?, ?, ?, ?, ?);
-                """, (graph2.NodeType.CHANY.value, chan, start, chan, end, capacity, ptc))
-
-    print('Number padding nodes {}'.format(num_padding))
-
-    c.execute("""
-    INSERT INTO channel(chan_width_max, x_min, x_max, y_min, y_max) VALUES
-        (?, ?, ?, ?, ?);""", (
-            max(max(x_list), max(y_list)),
-            x_min, y_min, x_max, y_max))
-
-    for idx, info in enumerate(x_list):
-        c.execute("""
-        INSERT INTO x_list(idx, info) VALUES (?, ?);""", (idx, info))
-
-    for idx, info in enumerate(y_list):
-        c.execute("""
-        INSERT INTO y_list(idx, info) VALUES (?, ?);""", (idx, info))
-
-    c.execute("""CREATE INDEX graph_node_tracks ON graph_node(track_pkey);""")
-    c.execute("""CREATE INDEX graph_node_nodes ON graph_node(node_pkey);""")
-    c.execute("""CREATE INDEX graph_edge_tracks ON graph_edge(track_pkey);""")
-    c.connection.commit()
-
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument(
             '--db_root', help='Project X-Ray Database', required=True)
     parser.add_argument(
             '--connection_database', help='Connection database', required=True)
-
-    pool = multiprocessing.Pool(20)
 
     args = parser.parse_args()
     if os.path.exists(args.connection_database):
@@ -829,8 +707,6 @@ def main():
     print("{}: Nodes classified".format(datetime.datetime.now()))
     form_tracks(conn)
     print("{}: Tracks formed".format(datetime.datetime.now()))
-    build_channels(conn, pool)
-    print("{}: Built channels".format(datetime.datetime.now()))
 
 if __name__ == '__main__':
     main()

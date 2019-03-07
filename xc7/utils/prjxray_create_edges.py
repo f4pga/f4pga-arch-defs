@@ -20,6 +20,7 @@ from lib.rr_graph import graph2
 from prjxray.site_type import SitePinDirection
 from lib.connection_database import get_track_model
 from lib.rr_graph.graph2 import NodeType
+import multiprocessing
 
 now = datetime.datetime.now
 
@@ -447,7 +448,7 @@ def make_connection(conn, input_only_nodes, output_only_nodes,
             pip_pkey,
             )]
 
-def mark_track_liveness(conn):
+def mark_track_liveness(conn, pool):
     """ Checks tracks for liveness.
 
     Iterates over all graph nodes that are routing tracks and determines if
@@ -487,6 +488,10 @@ def mark_track_liveness(conn):
 
     print('{} Track aliveness committed'.format(now()))
 
+    print("{}: Build channels".format(datetime.datetime.now()))
+    build_channels(conn, pool, alive_tracks)
+    print("{}: Channels built".format(datetime.datetime.now()))
+
 def direction_to_enum(pin):
     """ Converts string to tracks.Direction. """
     for direction in tracks.Direction:
@@ -494,6 +499,142 @@ def direction_to_enum(pin):
             return direction
 
     assert False
+
+
+def build_channels(conn, pool, active_tracks):
+    c = conn.cursor()
+
+    xs = []
+    ys = []
+
+    x_tracks = {}
+    y_tracks = {}
+    for pkey, track_pkey, graph_node_type, x_low, x_high, y_low, y_high in c.execute("""
+SELECT pkey, track_pkey, graph_node_type, x_low, x_high, y_low, y_high FROM graph_node WHERE track_pkey IS NOT NULL;"""):
+        if track_pkey not in active_tracks:
+            continue
+
+        x_low = max(x_low, 1)
+        y_low = max(y_low, 1)
+
+        xs.append(x_low)
+        xs.append(x_high)
+        ys.append(y_low)
+        ys.append(y_high)
+
+        node_type = graph2.NodeType(graph_node_type)
+        if node_type == graph2.NodeType.CHANX:
+            assert y_low == y_high
+
+            if y_low not in x_tracks:
+                x_tracks[y_low] = []
+
+            x_tracks[y_low].append((
+                    x_low,
+                    x_high,
+                    pkey))
+        elif node_type == graph2.NodeType.CHANY:
+            assert x_low == x_high
+
+            if x_low not in y_tracks:
+                y_tracks[x_low] = []
+
+            y_tracks[x_low].append((
+                    y_low,
+                    y_high,
+                    pkey))
+        else:
+            assert False, node_type
+
+    x_list = []
+    y_list = []
+
+    x_channel_models = {}
+    y_channel_models = {}
+
+    for y in x_tracks:
+        x_channel_models[y] = pool.apply_async(graph2.process_track, (x_tracks[y],))
+
+    for x in y_tracks:
+        y_channel_models[x] = pool.apply_async(graph2.process_track, (y_tracks[x],))
+
+    c.execute("""BEGIN EXCLUSIVE TRANSACTION;""")
+
+    for y in progressbar.progressbar(range(max(x_tracks)+1)):
+        if y in x_tracks:
+            x_channel_models[y] = x_channel_models[y].get()
+
+            x_list.append(len(x_channel_models[y].trees))
+
+            for idx, tree in enumerate(x_channel_models[y].trees):
+                for i in tree:
+                    c.execute("""UPDATE graph_node SET ptc = ? WHERE pkey = ?;""",
+                            (idx, i[2]))
+        else:
+            x_list.append(0)
+
+    for x in progressbar.progressbar(range(max(y_tracks)+1)):
+        if x in y_tracks:
+            y_channel_models[x] = y_channel_models[x].get()
+
+            y_list.append(len(y_channel_models[x].trees))
+
+            for idx, tree in enumerate(y_channel_models[x].trees):
+                for i in tree:
+                    c.execute("""UPDATE graph_node SET ptc = ? WHERE pkey = ?;""",
+                            (idx, i[2]))
+        else:
+            y_list.append(0)
+
+    x_min=min(xs)
+    y_min=min(ys)
+    x_max=max(xs)
+    y_max=max(ys)
+
+    num_padding = 0
+    capacity = 0
+    for chan, channel_model in x_channel_models.items():
+        for ptc, start, end in channel_model.fill_empty(x_min, x_max):
+            assert ptc < x_list[chan]
+
+            num_padding += 1
+            c.execute("""
+            INSERT INTO
+                graph_node(graph_node_type, x_low, x_high, y_low, y_high, capacity, ptc)
+            VALUES
+                (?, ?, ?, ?, ?, ?, ?);
+                """, (graph2.NodeType.CHANX.value, start, end, chan, chan, capacity, ptc))
+
+    for chan, channel_model in y_channel_models.items():
+        for ptc, start, end in channel_model.fill_empty(y_min, y_max):
+            assert ptc < y_list[chan]
+
+            num_padding += 1
+            c.execute("""
+            INSERT INTO
+                graph_node(graph_node_type, x_low, x_high, y_low, y_high, capacity, ptc)
+            VALUES
+                (?, ?, ?, ?, ?, ?, ?);
+                """, (graph2.NodeType.CHANY.value, chan, chan, start, end, capacity, ptc))
+
+    print('Number padding nodes {}'.format(num_padding))
+
+    c.execute("""
+    INSERT INTO channel(chan_width_max, x_min, x_max, y_min, y_max) VALUES
+        (?, ?, ?, ?, ?);""", (
+            max(max(x_list), max(y_list)),
+            x_min, x_max, y_min, y_max))
+
+    for idx, info in enumerate(x_list):
+        c.execute("""
+        INSERT INTO x_list(idx, info) VALUES (?, ?);""", (idx, info))
+
+    for idx, info in enumerate(y_list):
+        c.execute("""
+        INSERT INTO y_list(idx, info) VALUES (?, ?);""", (idx, info))
+
+    c.execute("""COMMIT TRANSACTION;""")
+
 
 def main():
     parser = argparse.ArgumentParser()
@@ -507,6 +648,8 @@ def main():
             '--synth_tiles', help='If using an ROI, synthetic tile defintion from prjxray-arch-import')
 
     args = parser.parse_args()
+
+    pool = multiprocessing.Pool(20)
 
     db = prjxray.db.Database(args.db_root)
     grid = db.grid()
@@ -576,6 +719,8 @@ def main():
 
     edges = []
 
+    edge_set = set()
+
     for loc in progressbar.progressbar(grid.tile_locations()):
         gridinfo = grid.gridinfo_at_loc(loc)
         tile_name = grid.tilename_at_loc(loc)
@@ -608,7 +753,16 @@ def main():
                     pip=pip,
                     switch_pkey=switch_pkey)
             if connections:
-                edges.extend(connections)
+                # TODO: Skip duplicate connections, until they have unique
+                # switches
+                for connection in connections:
+                    key = tuple(connection[0:3])
+                    if key in edge_set:
+                        continue
+
+                    edge_set.add(key)
+
+                    edges.append(connection)
 
     print('{} Created {} edges, inserting'.format(now(), len(edges)))
 
@@ -629,7 +783,7 @@ def main():
     c.connection.commit()
 
     print('{} Indices created, marking track liveness'.format(now()))
-    mark_track_liveness(conn)
+    mark_track_liveness(conn, pool)
 
 if __name__ == '__main__':
     main()

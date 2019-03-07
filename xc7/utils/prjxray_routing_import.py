@@ -175,6 +175,42 @@ def import_tracks(conn, alive_tracks, node_mapping, graph, segment_id):
                 name='track_{}'.format(graph_node_pkey))
         graph.set_track_ptc(node_mapping[graph_node_pkey], ptc)
 
+def import_dummy_tracks(conn, graph, segment_id):
+    c2 = conn.cursor()
+
+    num_dummy = 0
+    for (graph_node_pkey, track_pkey, graph_node_type, x_low, x_high,
+        y_low, y_high, ptc) in progressbar.progressbar(c2.execute("""
+    SELECT pkey, track_pkey, graph_node_type, x_low, x_high, y_low, y_high, ptc FROM
+        graph_node WHERE (graph_node_type = ? or graph_node_type = ?) and capacity = 0;""",
+        (graph2.NodeType.CHANX.value, graph2.NodeType.CHANY.value))):
+
+        node_type = graph2.NodeType(graph_node_type)
+
+        if node_type == graph2.NodeType.CHANX:
+            direction = 'X'
+            x_low = max(x_low, 1)
+        elif node_type == graph2.NodeType.CHANY:
+            direction = 'Y'
+            y_low = max(y_low, 1)
+        else:
+            assert False, node_type
+
+        track = tracks.Track(
+                direction=direction,
+                x_low=x_low,
+                x_high=x_high,
+                y_low=y_low,
+                y_high=y_high,
+                )
+
+        inode = graph.add_track(
+                track=track, segment_id=segment_id,
+                name='dummy_track_{}'.format(graph_node_pkey))
+        graph.set_track_ptc(inode, ptc)
+        num_dummy += 1
+
+    return num_dummy
 
 def create_track_rr_graph(conn, graph, node_mapping, use_roi, roi, synth_tiles, segment_id):
     c = conn.cursor()
@@ -189,7 +225,11 @@ def create_track_rr_graph(conn, graph, node_mapping, use_roi, roi, synth_tiles, 
     print('{} Importing alive tracks'.format(now()))
     import_tracks(conn, alive_tracks, node_mapping, graph, segment_id)
 
-    print('original {} final {}'.format(num_channels, len(alive_tracks)))
+    print('{} Importing dummy tracks'.format(now()))
+    dummy = import_dummy_tracks(conn, graph, segment_id)
+
+    print('original {} final {} dummy {}'.format(
+        num_channels, len(alive_tracks), dummy))
 
 def add_synthetic_edges(conn, graph, node_mapping, grid, synth_tiles):
     c = conn.cursor()
@@ -301,9 +341,15 @@ def make_fasm_feature(conn, tile_name_cache, pip_cache, tile_pkey, pip_pkey):
 
     return '{}.{}.{}'.format(tile_name, dest_net, src_net)
 
-def import_graph_edge(conn, graph, node_mapping, src_graph_node, dest_graph_node, switch_id, pip_name):
+def import_graph_edge(conn, added_edges, graph, node_mapping, src_graph_node, dest_graph_node, switch_id, pip_name):
     src_node = node_mapping[src_graph_node]
     sink_node = node_mapping[dest_graph_node]
+
+    assert (src_node, sink_node) not in added_edges, (
+            src_node, sink_node,
+            pip_name, src_graph_node, dest_graph_node)
+
+    added_edges.add((src_node, sink_node))
 
     if pip_name is not None:
         graph.add_edge(
@@ -322,6 +368,9 @@ def import_graph_edges(conn, graph, node_mapping):
     tile_name_cache = {}
     pip_cache = {}
     switch_name_map = {}
+
+    added_edges = set()
+
     with progressbar.ProgressBar(max_value=num_edges) as bar:
         for idx, (src_graph_node, dest_graph_node, switch_pkey, tile_pkey, pip_pkey) in enumerate(c.execute("""
     SELECT src_graph_node_pkey, dest_graph_node_pkey, switch_pkey, tile_pkey, pip_in_tile_pkey
@@ -340,7 +389,7 @@ def import_graph_edges(conn, graph, node_mapping):
 
             switch_id = get_switch_name(conn, graph, switch_name_map, switch_pkey)
 
-            import_graph_edge(conn, graph, node_mapping, src_graph_node, dest_graph_node, switch_id, pip_name)
+            import_graph_edge(conn, added_edges, graph, node_mapping, src_graph_node, dest_graph_node, switch_id, pip_name)
             bar.update(idx)
 
 def create_channels(conn):
