@@ -132,6 +132,8 @@ function(PROJECT_XRAY_ARCH)
   set(DEVICE ${PROJECT_XRAY_ARCH_DEVICE})
 
   set(ARCH_IMPORT ${symbiflow-arch-defs_SOURCE_DIR}/xc7/utils/prjxray_arch_import.py)
+  set(CREATE_SYNTH_TILES ${symbiflow-arch-defs_SOURCE_DIR}/xc7/utils/prjxray_create_synth_tiles.py)
+  set(CREATE_EDGES ${symbiflow-arch-defs_SOURCE_DIR}/xc7/utils/prjxray_create_edges.py)
   set(DEPS ${PRJXRAY_DB_DIR}/${PART}/tilegrid.json)
 
   set(ARCH_INCLUDE_FILES "")
@@ -151,12 +153,34 @@ function(PROJECT_XRAY_ARCH)
     list(APPEND ARCH_INCLUDE_FILES ${MODEL_XML} ${INCLUDE_FILES})
   endforeach()
 
-  set(OUTPUTS arch.xml)
+  set(OUTPUTS arch.xml channels.db)
   set(ROI_ARG "")
   if(NOT "${PROJECT_XRAY_ARCH_USE_ROI}" STREQUAL "")
-    set(OUTPUTS arch.xml synth_tiles.json)
+    set(OUTPUTS arch.xml channels.db)
     set(ROI_ARG --use_roi ${PROJECT_XRAY_ARCH_USE_ROI} --synth_tiles ${CMAKE_CURRENT_BINARY_DIR}/synth_tiles.json)
-    list(APPEND DEPS ${PROJECT_XRAY_ARCH_USE_ROI})
+    list(APPEND DEPS ${PROJECT_XRAY_ARCH_USE_ROI} synth_tiles.json)
+
+    set(ROI_ARG_FOR_CREATE_EDGES --synth_tiles ${CMAKE_CURRENT_BINARY_DIR}/synth_tiles.json)
+    list(APPEND CHANNELS_DEPS synth_tiles.json)
+
+    add_custom_command(
+      OUTPUT synth_tiles.json
+      COMMAND ${CMAKE_COMMAND} -E env PYTHONPATH=${PRJXRAY_DIR}:${symbiflow-arch-defs_SOURCE_DIR}/utils
+      ${PYTHON3} ${CREATE_SYNTH_TILES}
+        --db_root ${PRJXRAY_DB_DIR}/${PART}/
+        --roi ${PROJECT_XRAY_ARCH_USE_ROI}
+        --synth_tiles ${CMAKE_CURRENT_BINARY_DIR}/synth_tiles.json
+      DEPENDS
+        ${CREATE_SYNTH_TILES}
+        ${PROJECT_XRAY_ARCH_USE_ROI}
+        ${PYTHON3} ${PYTHON3_TARGET}
+        )
+    if(NOT "${PROJECT_XRAY_ARCH_USE_ROI}" STREQUAL "")
+      add_file_target(FILE synth_tiles.json GENERATED)
+      set_target_properties(${ARCH_TARGET} PROPERTIES USE_ROI TRUE)
+      set_target_properties(${ARCH_TARGET} PROPERTIES
+          SYNTH_TILES ${CMAKE_CURRENT_SOURCE_DIR}/synth_tiles.json)
+    endif()
   endif()
 
   append_file_dependency(DEPS ${symbiflow-arch-defs_SOURCE_DIR}/xc7/archs/${PART}/pin_assignments.json)
@@ -165,15 +189,15 @@ function(PROJECT_XRAY_ARCH)
   string(REPLACE ";" "," TILE_TYPES_COMMA "${PROJECT_XRAY_ARCH_TILE_TYPES}")
 
   add_custom_command(
-    OUTPUT ${OUTPUTS}
+    OUTPUT arch.xml
     COMMAND ${CMAKE_COMMAND} -E env PYTHONPATH=${PRJXRAY_DIR}:${symbiflow-arch-defs_SOURCE_DIR}/utils
     ${PYTHON3} ${ARCH_IMPORT}
-    --part ${PROJECT_XRAY_ARCH_PART}
-    --output-arch ${CMAKE_CURRENT_BINARY_DIR}/arch.xml
-    --tile-types "${TILE_TYPES_COMMA}"
-    --pin_assignments ${PIN_ASSIGNMENTS}
-    --device ${DEVICE}
-    ${ROI_ARG}
+      --part ${PROJECT_XRAY_ARCH_PART}
+      --output-arch ${CMAKE_CURRENT_BINARY_DIR}/arch.xml
+      --tile-types "${TILE_TYPES_COMMA}"
+      --pin_assignments ${PIN_ASSIGNMENTS}
+      --device ${DEVICE}
+      ${ROI_ARG}
     DEPENDS
     ${ARCH_IMPORT}
     ${DEPS}
@@ -184,11 +208,28 @@ function(PROJECT_XRAY_ARCH)
   get_file_target(ARCH_TARGET arch.xml)
   set_target_properties(${ARCH_TARGET} PROPERTIES INCLUDE_FILES "${ARCH_INCLUDE_FILES}")
 
-  if(NOT "${PROJECT_XRAY_ARCH_USE_ROI}" STREQUAL "")
-    add_file_target(FILE synth_tiles.json GENERATED)
-    set_target_properties(${ARCH_TARGET} PROPERTIES USE_ROI TRUE)
-    set_target_properties(${ARCH_TARGET} PROPERTIES SYNTH_TILES ${CMAKE_CURRENT_SOURCE_DIR}/synth_tiles.json)
-  endif()
+  set(GENERIC_CHANNELS
+      ${symbiflow-arch-defs_SOURCE_DIR}/xc7/archs/${PART}/channels.db)
+  append_file_dependency(CHANNELS_DEPS ${GENERIC_CHANNELS})
+  append_file_dependency(CHANNELS_DEPS ${symbiflow-arch-defs_SOURCE_DIR}/xc7/archs/${PART}/pin_assignments.json)
+  get_file_location(GENERIC_CHANNELS_LOCATION ${GENERIC_CHANNELS})
+  list(APPEND CHANNELS_DEPS ${PRJXRAY_DB_DIR}/${PART}/tilegrid.json)
+  list(APPEND CHANNELS_DEPS ${PRJXRAY_DB_DIR}/${PART}/tileconn.json)
+
+  add_custom_command(
+    OUTPUT channels.db
+    COMMAND ${CMAKE_COMMAND} -E copy ${GENERIC_CHANNELS_LOCATION} ${CMAKE_CURRENT_BINARY_DIR}/channels.db
+    COMMAND ${CMAKE_COMMAND} -E env PYTHONPATH=${PRJXRAY_DIR}:${symbiflow-arch-defs_SOURCE_DIR}/utils
+    ${PYTHON3} ${CREATE_EDGES}
+      --db_root ${PRJXRAY_DB_DIR}/${PART}/
+      --pin_assignments ${PIN_ASSIGNMENTS}
+      --connection_database ${CMAKE_CURRENT_BINARY_DIR}/channels.db
+      ${ROI_ARG_FOR_CREATE_EDGES}
+    DEPENDS
+    ${PYTHON3} ${PYTHON3_TARGET} ${CREATE_EDGES}
+      ${CHANNELS_DEPS}
+    )
+  add_file_target(FILE channels.db GENERATED)
 endfunction()
 
 function(PROJECT_XRAY_PREPARE_DATABASE)
@@ -212,13 +253,13 @@ function(PROJECT_XRAY_PREPARE_DATABASE)
   file(GLOB DEPS ${PRJXRAY_DB_DIR}/${PART}/*.json)
   file(GLOB DEPS2 ${PRJXRAY_DIR}/prjxray/*.py)
 
-  set(CHANNELS channels.json)
+  set(CHANNELS channels.db)
   add_custom_command(
     OUTPUT ${CHANNELS}
     COMMAND ${CMAKE_COMMAND} -E env PYTHONPATH=${PRJXRAY_DIR}:${symbiflow-arch-defs_SOURCE_DIR}/utils
     ${PYTHON3} ${FORM_CHANNELS}
     --db_root ${PRJXRAY_DB_DIR}/${PART}/
-    --channels ${CMAKE_CURRENT_BINARY_DIR}/${CHANNELS}
+    --connection_database ${CMAKE_CURRENT_BINARY_DIR}/${CHANNELS}
     DEPENDS
     ${FORM_CHANNELS}
     ${DEPS} ${DEPS2} simplejson progressbar2 intervaltree
@@ -233,10 +274,10 @@ function(PROJECT_XRAY_PREPARE_DATABASE)
     COMMAND ${CMAKE_COMMAND} -E env PYTHONPATH=${PRJXRAY_DIR}:${symbiflow-arch-defs_SOURCE_DIR}/utils
     ${PYTHON3} ${ASSIGN_PINS}
     --db_root ${PRJXRAY_DB_DIR}/${PART}/
-    --channels ${CMAKE_CURRENT_BINARY_DIR}/${CHANNELS}
+    --connection_database ${CMAKE_CURRENT_BINARY_DIR}/${CHANNELS}
     --pin_assignments ${CMAKE_CURRENT_BINARY_DIR}/${PIN_ASSIGNMENTS}
     DEPENDS
-    ${FORM_CHANNELS}
+    ${ASSIGN_PINS}
     ${DEPS} ${DEPS2} ${CHANNELS}
     ${PYTHON3} ${PYTHON3_TARGET}
     )
