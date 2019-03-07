@@ -150,7 +150,7 @@ class featureAccumulator(dict):
     def append_ice_entry(self, tile_type, tile_loc, bits, names, idx, negate=False):
 
         if negate:
-            feature = Feature.fromIceDbEntry(IceDbEntry(tile_type, tile_loc, bits, names + ["neg"], idx))
+            feature = Feature.fromIceDbEntry(IceDbEntry(tile_type, tile_loc, bits, names, idx))
             feature.bit_tuples = [tuple(self._inv_bt(bt[0])) + bt[1:] for bt in feature.bit_tuples]
         else:
             feature = Feature.fromIceDbEntry(IceDbEntry(tile_type, tile_loc, bits, names, idx))
