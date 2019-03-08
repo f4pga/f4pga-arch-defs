@@ -1,6 +1,6 @@
 module top(
-	input [3:0] in,
+	input [2:0] in,
 	output [3:0] out
 );
-  assign out = in;
+  assign out = { in[2], in };
 endmodule
