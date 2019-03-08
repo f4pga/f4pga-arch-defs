@@ -206,7 +206,8 @@ def import_dummy_tracks(conn, graph, segment_id):
 
         inode = graph.add_track(
                 track=track, segment_id=segment_id,
-                name='dummy_track_{}'.format(graph_node_pkey))
+                name='dummy_track_{}'.format(graph_node_pkey),
+                capacity=0)
         graph.set_track_ptc(inode, ptc)
         num_dummy += 1
 

@@ -324,12 +324,10 @@ def create_find_connector(conn):
         # Build the edge_map (map of edge direction to graph node).
         c.execute("""
         SELECT top_graph_node_pkey, bottom_graph_node_pkey,
-               left_graph_node_pkey, right_graph_node_pkey FROM wire WHERE pkey = ?;""",
-               (wire_pkey,))
+               left_graph_node_pkey, right_graph_node_pkey FROM wire WHERE node_pkey = ?;""",
+               (node_pkey,))
 
         all_graph_node_pkeys = c.fetchall()
-
-        assert len(all_graph_node_pkeys) == 1, wire_pkey
 
         graph_node_pkeys = None
         for keys in all_graph_node_pkeys:
@@ -448,7 +446,7 @@ def make_connection(conn, input_only_nodes, output_only_nodes,
             pip_pkey,
             )]
 
-def mark_track_liveness(conn, pool):
+def mark_track_liveness(conn, pool, input_only_nodes, output_only_nodes):
     """ Checks tracks for liveness.
 
     Iterates over all graph nodes that are routing tracks and determines if
@@ -462,17 +460,23 @@ def mark_track_liveness(conn, pool):
 
     c = conn.cursor()
     c2 = conn.cursor()
-    for graph_node_pkey, track_pkey in c.execute("""SELECT pkey, track_pkey FROM graph_node WHERE track_pkey IS NOT NULL;"""):
+    for graph_node_pkey, node_pkey, track_pkey in c.execute("""SELECT pkey, node_pkey, track_pkey FROM graph_node WHERE track_pkey IS NOT NULL;"""):
         if track_pkey in alive_tracks:
             continue
 
+        if node_pkey in input_only_nodes or node_pkey in output_only_nodes:
+            alive_tracks.add(track_pkey)
+            continue
+
         c2.execute("""SELECT count(switch_pkey) FROM graph_edge WHERE
-            src_graph_node_pkey = ? OR
-            dest_graph_node_pkey = ?;""", (graph_node_pkey, graph_node_pkey,))
+            src_graph_node_pkey = ?;""", (graph_node_pkey,))
+        src_count = c2.fetchone()[0]
 
-        count = c2.fetchone()[0]
+        c2.execute("""SELECT count(switch_pkey) FROM graph_edge WHERE
+            dest_graph_node_pkey = ?;""", (graph_node_pkey,))
+        sink_count = c2.fetchone()[0]
 
-        if count > 0:
+        if src_count > 0 and sink_count > 0:
             alive_tracks.add(track_pkey)
 
 
@@ -660,7 +664,7 @@ def main():
 
     tile_wires = []
     for tile_type, wire_map in pin_assignments['pin_directions'].items():
-        for wire in wire_map:
+        for wire in wire_map.keys():
             tile_wires.append((tile_type, wire))
 
     for tile_type, wire in progressbar.progressbar(tile_wires):
@@ -783,7 +787,7 @@ def main():
     c.connection.commit()
 
     print('{} Indices created, marking track liveness'.format(now()))
-    mark_track_liveness(conn, pool)
+    mark_track_liveness(conn, pool, input_only_nodes, output_only_nodes)
 
 if __name__ == '__main__':
     main()
