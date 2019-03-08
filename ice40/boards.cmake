@@ -31,7 +31,7 @@ define_board(
   DEVICE hx8k
   PACKAGE ct256
   PROG_TOOL ${ICEPROG_TARGET}
-  PROG_CMD "${ICEPROG} -S \${OUT_BIN}"
+  PROG_CMD "${ICEPROG} \${OUT_BIN}"
 )
 
 # DPControl icevision board

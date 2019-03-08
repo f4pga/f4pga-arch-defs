@@ -33,10 +33,10 @@
     <meta name="fasm_features">
       IOB_0.PINTYPE_3
       IOB_0.PINTYPE_4
-      IoCtrl.REN_0.neg
+      IoCtrl.REN_0
       IOB_1.PINTYPE_3
       IOB_1.PINTYPE_4
-      IoCtrl.REN_1.neg
+      IoCtrl.REN_1
     </meta>
    </metadata>
   </pb_type>
@@ -66,11 +66,11 @@
     <meta name="hlc_property">input_pin_type = simple_input_pin</meta>
     <meta name="fasm_features">
       IOB_0.PINTYPE_0
-      IoCtrl.REN_0.neg
-      IoCtrl.IE_0.neg
+      IoCtrl.REN_0
+      IoCtrl.IE_0
       IOB_1.PINTYPE_0
-      IoCtrl.REN_1.neg
-      IoCtrl.IE_1.neg
+      IoCtrl.REN_1
+      IoCtrl.IE_1
     </meta>
    </metadata>
   </pb_type>
