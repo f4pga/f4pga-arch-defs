@@ -153,16 +153,10 @@ function(PROJECT_XRAY_ARCH)
     list(APPEND ARCH_INCLUDE_FILES ${MODEL_XML} ${INCLUDE_FILES})
   endforeach()
 
-  set(OUTPUTS arch.xml channels.db)
   set(ROI_ARG "")
+  set(ROI_ARG_FOR_CREATE_EDGES "")
+
   if(NOT "${PROJECT_XRAY_ARCH_USE_ROI}" STREQUAL "")
-    set(OUTPUTS arch.xml channels.db)
-    set(ROI_ARG --use_roi ${PROJECT_XRAY_ARCH_USE_ROI} --synth_tiles ${CMAKE_CURRENT_BINARY_DIR}/synth_tiles.json)
-    list(APPEND DEPS ${PROJECT_XRAY_ARCH_USE_ROI} synth_tiles.json)
-
-    set(ROI_ARG_FOR_CREATE_EDGES --synth_tiles ${CMAKE_CURRENT_BINARY_DIR}/synth_tiles.json)
-    list(APPEND CHANNELS_DEPS synth_tiles.json)
-
     add_custom_command(
       OUTPUT synth_tiles.json
       COMMAND ${CMAKE_COMMAND} -E env PYTHONPATH=${PRJXRAY_DIR}:${symbiflow-arch-defs_SOURCE_DIR}/utils
@@ -175,12 +169,17 @@ function(PROJECT_XRAY_ARCH)
         ${PROJECT_XRAY_ARCH_USE_ROI}
         ${PYTHON3} ${PYTHON3_TARGET}
         )
-    if(NOT "${PROJECT_XRAY_ARCH_USE_ROI}" STREQUAL "")
-      add_file_target(FILE synth_tiles.json GENERATED)
-      set_target_properties(${ARCH_TARGET} PROPERTIES USE_ROI TRUE)
-      set_target_properties(${ARCH_TARGET} PROPERTIES
-          SYNTH_TILES ${CMAKE_CURRENT_SOURCE_DIR}/synth_tiles.json)
-    endif()
+
+    add_file_target(FILE synth_tiles.json GENERATED)
+    set_target_properties(${ARCH_TARGET} PROPERTIES USE_ROI TRUE)
+    set_target_properties(${ARCH_TARGET} PROPERTIES
+        SYNTH_TILES ${CMAKE_CURRENT_SOURCE_DIR}/synth_tiles.json)
+
+    set(ROI_ARG --use_roi ${PROJECT_XRAY_ARCH_USE_ROI} --synth_tiles ${CMAKE_CURRENT_BINARY_DIR}/synth_tiles.json)
+    list(APPEND DEPS ${PROJECT_XRAY_ARCH_USE_ROI} synth_tiles.json)
+
+    set(ROI_ARG_FOR_CREATE_EDGES --synth_tiles ${CMAKE_CURRENT_BINARY_DIR}/synth_tiles.json)
+    list(APPEND CHANNELS_DEPS synth_tiles.json)
   endif()
 
   append_file_dependency(DEPS ${symbiflow-arch-defs_SOURCE_DIR}/xc7/archs/${PART}/pin_assignments.json)
@@ -229,6 +228,7 @@ function(PROJECT_XRAY_ARCH)
     ${PYTHON3} ${PYTHON3_TARGET} ${CREATE_EDGES}
       ${CHANNELS_DEPS}
     )
+
   add_file_target(FILE channels.db GENERATED)
 endfunction()
 
