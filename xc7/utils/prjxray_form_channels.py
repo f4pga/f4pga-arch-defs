@@ -11,159 +11,7 @@ import sqlite3
 import datetime
 import os
 import os.path
-from lib.connection_database import NodeClassification
-
-def create_tables(conn):
-    c = conn.cursor()
-
-    c.execute("""CREATE TABLE tile_type(
-      pkey INTEGER PRIMARY KEY,
-      name TEXT
-    );""")
-    c.execute("""CREATE TABLE site_type(
-      pkey INTEGER PRIMARY KEY,
-      name TEXT
-    );""")
-    c.execute("""CREATE TABLE tile(
-      pkey INTEGER PRIMARY KEY,
-      name TEXT,
-      tile_type_pkey INT,
-      grid_x INT,
-      grid_y INT,
-      FOREIGN KEY(tile_type_pkey) REFERENCES tile_type(pkey)
-    );""")
-    c.execute("""CREATE TABLE site_pin(
-      pkey INTEGER PRIMARY KEY,
-      name TEXT,
-      site_type_pkey INT,
-      direction TEXT,
-      FOREIGN KEY(site_type_pkey) REFERENCES site_type(pkey)
-    );""")
-    c.execute("""CREATE TABLE site(
-      pkey INTEGER PRIMARY KEY,
-      name TEXT,
-      x_coord INT,
-      y_coord INT,
-      site_type_pkey INT,
-      FOREIGN KEY(site_type_pkey) REFERENCES site_type(pkey)
-    );""")
-    c.execute("""CREATE TABLE wire_in_tile(
-      pkey INTEGER PRIMARY KEY,
-      name TEXT,
-      tile_type_pkey INT,
-      site_pkey INT,
-      site_pin_pkey INT,
-      FOREIGN KEY(tile_type_pkey) REFERENCES tile_type(pkey),
-      FOREIGN KEY(site_pkey) REFERENCES site(pkey),
-      FOREIGN KEY(site_pin_pkey) REFERENCES site_pin(pkey)
-    );""")
-    c.execute("""CREATE TABLE pip_in_tile(
-      pkey INTEGER PRIMARY KEY,
-      name TEXT,
-      tile_type_pkey INT,
-      src_wire_in_tile_pkey INT,
-      dest_wire_in_tile_pkey INT,
-      FOREIGN KEY(tile_type_pkey) REFERENCES tile_type(pkey),
-      FOREIGN KEY(src_wire_in_tile_pkey) REFERENCES wire_in_tile(pkey),
-      FOREIGN KEY(dest_wire_in_tile_pkey) REFERENCES wire_in_tile(pkey)
-    );""")
-    c.execute("""CREATE TABLE track(
-      pkey INTEGER PRIMARY KEY,
-      alive BOOL
-    );""")
-    c.execute("""CREATE TABLE node(
-      pkey INTEGER PRIMARY KEY,
-      number_pips INT,
-      track_pkey INT,
-      site_wire_pkey INT,
-      classification INT,
-      FOREIGN KEY(track_pkey) REFERENCES track_pkey(pkey),
-      FOREIGN KEY(site_wire_pkey) REFERENCES wire(pkey)
-    );""")
-    c.execute("""CREATE TABLE edge_with_mux(
-      pkey INTEGER PRIMARY KEY,
-      src_wire_pkey INT,
-      dest_wire_pkey INT,
-      pip_in_tile_pkey INT,
-      FOREIGN KEY(src_wire_pkey) REFERENCES wire(pkey),
-      FOREIGN KEY(dest_wire_pkey) REFERENCES wire(pkey),
-      FOREIGN KEY(pip_in_tile_pkey) REFERENCES pip_in_tile(pkey)
-    );""")
-    c.execute("""CREATE TABLE graph_node(
-      pkey INTEGER PRIMARY KEY,
-      graph_node_type INT,
-      track_pkey INT,
-      node_pkey INT,
-      x_low INT,
-      x_high INT,
-      y_low INT,
-      y_high INT,
-      ptc INT,
-      capacity INT,
-      FOREIGN KEY(track_pkey) REFERENCES track(pkey),
-      FOREIGN KEY(node_pkey) REFERENCES node(pkey)
-    );""")
-    c.execute("""CREATE TABLE wire(
-      pkey INTEGER PRIMARY KEY,
-      node_pkey INT,
-      tile_pkey INT,
-      wire_in_tile_pkey INT,
-      graph_node_pkey INT,
-      top_graph_node_pkey INT,
-      bottom_graph_node_pkey INT,
-      left_graph_node_pkey INT,
-      right_graph_node_pkey INT,
-      FOREIGN KEY(node_pkey) REFERENCES node(pkey),
-      FOREIGN KEY(tile_pkey) REFERENCES tile(pkey),
-      FOREIGN KEY(wire_in_tile_pkey) REFERENCES wire_in_grid(pkey)
-      FOREIGN KEY(graph_node_pkey) REFERENCES graph_node(pkey)
-      FOREIGN KEY(top_graph_node_pkey) REFERENCES graph_node(pkey)
-      FOREIGN KEY(bottom_graph_node_pkey) REFERENCES graph_node(pkey)
-      FOREIGN KEY(left_graph_node_pkey) REFERENCES graph_node(pkey)
-      FOREIGN KEY(right_graph_node_pkey) REFERENCES graph_node(pkey)
-    );""")
-    c.execute("""CREATE TABLE switch(
-      pkey INTEGER PRIMARY KEY,
-      name TEXT
-    );""")
-    c.execute("""CREATE TABLE graph_edge(
-      src_graph_node_pkey INT,
-      dest_graph_node_pkey INT,
-      switch_pkey INT,
-      track_pkey INT,
-      tile_pkey INT,
-      pip_in_tile_pkey INT,
-      FOREIGN KEY(src_graph_node_pkey) REFERENCES graph_node(pkey),
-      FOREIGN KEY(dest_graph_node_pkey) REFERENCES graph_node(pkey)
-      FOREIGN KEY(track_pkey) REFERENCES track(pkey)
-      FOREIGN KEY(tile_pkey) REFERENCES tile(pkey)
-      FOREIGN KEY(pip_in_tile_pkey) REFERENCES pip(pkey)
-    );""")
-    c.execute("""CREATE TABLE channel(
-      chan_width_max INT,
-      x_min INT,
-      y_min INT,
-      x_max INT,
-      y_max INT
-    );""")
-    c.execute("""CREATE TABLE x_list(
-        idx INT,
-        info INT
-    );""")
-    c.execute("""CREATE TABLE y_list(
-        idx INT,
-        info INT
-    );""")
-
-    conn.commit()
-
-    c.execute("""INSERT INTO switch(name) VALUES
-        ("__vpr_delayless_switch__"),
-        ("routing"),
-        ("short");
-        """)
-
-    conn.commit()
+from lib.connection_database import NodeClassification, create_tables
 
 def import_site_type(db, c, site_types, site_type_name):
     assert site_type_name not in site_types
@@ -175,9 +23,11 @@ def import_site_type(db, c, site_types, site_type_name):
     for site_pin in site_type.get_site_pins():
         pin_info = site_type.get_site_pin(site_pin)
 
-        c.execute("""INSERT INTO site_pin(name, site_type_pkey, direction)
-             VALUES (?, ?, ?)""",
-             (pin_info.name, site_types[site_type_name], pin_info.direction.value))
+        c.execute("""
+INSERT INTO site_pin(name, site_type_pkey, direction)
+VALUES
+  (?, ?, ?)""", (
+      pin_info.name, site_types[site_type_name], pin_info.direction.value))
 
 def import_tile_type(db, c, tile_types, site_types, tile_type_name):
     assert tile_type_name not in tile_types
@@ -188,9 +38,10 @@ def import_tile_type(db, c, tile_types, site_types, tile_type_name):
 
     wires = {}
     for wire in tile_type.get_wires():
-        c.execute("""INSERT INTO wire_in_tile(name, tile_type_pkey)
-            VALUES (?, ?)""",
-            (wire, tile_types[tile_type_name]))
+        c.execute("""
+INSERT INTO wire_in_tile(name, tile_type_pkey)
+VALUES
+  (?, ?)""", (wire, tile_types[tile_type_name]))
         wires[wire] = c.lastrowid
 
     for pip in tile_type.get_pips():
@@ -201,9 +52,15 @@ def import_tile_type(db, c, tile_types, site_types, tile_type_name):
         if not pip.is_directional:
             continue
 
-        c.execute("""INSERT INTO pip_in_tile(name, tile_type_pkey, src_wire_in_tile_pkey, dest_wire_in_tile_pkey)
-            VALUES (?, ?, ?, ?)""",
-            (pip.name, tile_types[tile_type_name], wires[pip.net_from], wires[pip.net_to]))
+        c.execute("""
+INSERT INTO pip_in_tile(
+  name, tile_type_pkey, src_wire_in_tile_pkey,
+  dest_wire_in_tile_pkey
+)
+VALUES
+  (?, ?, ?, ?)""", (
+      pip.name, tile_types[tile_type_name], wires[pip.net_from],
+      wires[pip.net_to]))
 
     for site in tile_type.get_sites():
         if site.type not in site_types:
@@ -212,23 +69,39 @@ def import_tile_type(db, c, tile_types, site_types, tile_type_name):
 def add_wire_to_site_relation(db, c, tile_types, site_types, tile_type_name):
     tile_type = db.get_tile_type(tile_type_name)
     for site in tile_type.get_sites():
-        c.execute("""INSERT INTO site(name, x_coord, y_coord, site_type_pkey)
-            VALUES (?, ?, ?, ?)""", (site.name, site.x, site.y, site_types[site.type]))
+        c.execute("""
+INSERT INTO site(name, x_coord, y_coord, site_type_pkey)
+VALUES
+  (?, ?, ?, ?)""", (site.name, site.x, site.y, site_types[site.type]))
 
         site_pkey = c.lastrowid
 
         for site_pin in site.site_pins:
-            c.execute("""SELECT pkey FROM site_pin WHERE name = ? AND
-                    site_type_pkey = ?""", (site_pin.name, site_types[site.type]))
+            c.execute("""
+SELECT
+  pkey
+FROM
+  site_pin
+WHERE
+  name = ?
+  AND site_type_pkey = ?""", (site_pin.name, site_types[site.type]))
 
             result = c.fetchone()
             site_pin_pkey = result[0]
-            c.execute("""UPDATE wire_in_tile
-            SET site_pkey = ?,
-                site_pin_pkey = ?
-            WHERE name = ? and tile_type_pkey = ?;""", (
-                site_pkey, site_pin_pkey, site_pin.wire,
-                tile_types[tile_type_name]))
+            c.execute("""
+UPDATE
+  wire_in_tile
+SET
+  site_pkey = ?,
+  site_pin_pkey = ?
+WHERE
+  name = ?
+  and tile_type_pkey = ?;""", (
+                site_pkey,
+                site_pin_pkey,
+                site_pin.wire,
+                tile_types[tile_type_name]
+                ))
 
 def build_tile_type_indicies(c):
     c.execute("CREATE INDEX site_pin_index ON site_pin(name, site_type_pkey);")
@@ -269,9 +142,12 @@ def import_grid(db, grid, conn):
         gridinfo = grid.gridinfo_at_tilename(tile)
         loc = grid.loc_of_tilename(tile)
         # tile: pkey name tile_type_pkey grid_x grid_y
-        c.execute("""INSERT INTO tile(name, tile_type_pkey, grid_x, grid_y)
-            VALUES (?, ?, ?, ?)""",
-            (tile, tile_types[gridinfo.tile_type], loc.grid_x, loc.grid_y))
+        c.execute("""
+INSERT INTO tile(name, tile_type_pkey, grid_x, grid_y)
+VALUES
+  (?, ?, ?, ?)""", (
+      tile, tile_types[gridinfo.tile_type], loc.grid_x,
+      loc.grid_y))
 
     build_other_indicies(c)
     c.connection.commit()
@@ -297,13 +173,15 @@ def import_nodes(db, grid, conn):
 
         for wire in tile_type.get_wires():
             # pkey node_pkey tile_pkey wire_in_tile_pkey
-            c.execute("""SELECT pkey FROM wire_in_tile WHERE name = ? and tile_type_pkey = ?;""",
+            c.execute("""
+SELECT pkey FROM wire_in_tile WHERE name = ? and tile_type_pkey = ?;""",
                     (wire, tile_type_pkey))
             (wire_in_tile_pkey,) = c.fetchone()
 
             c2.execute("""
-            INSERT INTO wire(tile_pkey, wire_in_tile_pkey) VALUES
-            (?, ?);""", (tile_pkey, wire_in_tile_pkey))
+INSERT INTO wire(tile_pkey, wire_in_tile_pkey)
+VALUES
+  (?, ?);""", (tile_pkey, wire_in_tile_pkey))
 
             assert (tile, wire) not in tile_wire_map
             wire_pkey = c2.lastrowid
@@ -373,14 +251,22 @@ def count_sites_and_pips_on_nodes(conn):
 
     print("{}: Counting sites on nodes".format(datetime.datetime.now()))
     c.execute("""
-WITH
-  node_sites(node_pkey, number_site_pins) AS (
-   SELECT wire.node_pkey, count(wire_in_tile.site_pin_pkey) FROM wire_in_tile
-   INNER JOIN wire ON
-     wire.wire_in_tile_pkey = wire_in_tile.pkey
-     WHERE wire_in_tile.site_pin_pkey IS NOT NULL
-  GROUP BY wire.node_pkey)
-SELECT max(node_sites.number_site_pins) FROM node_sites;
+WITH node_sites(node_pkey, number_site_pins) AS (
+  SELECT
+    wire.node_pkey,
+    count(wire_in_tile.site_pin_pkey)
+  FROM
+    wire_in_tile
+    INNER JOIN wire ON wire.wire_in_tile_pkey = wire_in_tile.pkey
+  WHERE
+    wire_in_tile.site_pin_pkey IS NOT NULL
+  GROUP BY
+    wire.node_pkey
+)
+SELECT
+  max(node_sites.number_site_pins)
+FROM
+  node_sites;
 """)
 
     # Nodes are only expected to have 1 site
@@ -388,14 +274,26 @@ SELECT max(node_sites.number_site_pins) FROM node_sites;
 
     print("{}: Assigning site wires for nodes".format(datetime.datetime.now()))
     c.execute("""
-WITH
-  site_wires(wire_pkey, node_pkey) AS (
-    SELECT wire.pkey, wire.node_pkey FROM wire_in_tile
-    INNER JOIN wire ON
-      wire.wire_in_tile_pkey = wire_in_tile.pkey
-      WHERE wire_in_tile.site_pin_pkey IS NOT NULL)
-UPDATE node SET site_wire_pkey = (
-  SELECT site_wires.wire_pkey FROM site_wires WHERE site_wires.node_pkey = node.pkey
+WITH site_wires(wire_pkey, node_pkey) AS (
+  SELECT
+    wire.pkey,
+    wire.node_pkey
+  FROM
+    wire_in_tile
+    INNER JOIN wire ON wire.wire_in_tile_pkey = wire_in_tile.pkey
+  WHERE
+    wire_in_tile.site_pin_pkey IS NOT NULL
+)
+UPDATE
+  node
+SET
+  site_wire_pkey = (
+    SELECT
+      site_wires.wire_pkey
+    FROM
+      site_wires
+    WHERE
+      site_wires.node_pkey = node.pkey
   );
       """)
 
@@ -407,20 +305,40 @@ UPDATE node SET site_wire_pkey = (
       FOREIGN KEY(node_pkey) REFERENCES node(pkey)
     );""")
     c.execute("""
-    INSERT INTO node_pip_count(node_pkey, number_pips)
-    SELECT wire.node_pkey, count(pip_in_tile.pkey) FROM pip_in_tile
-    INNER JOIN wire WHERE
-        pip_in_tile.src_wire_in_tile_pkey = wire.wire_in_tile_pkey OR
-        pip_in_tile.dest_wire_in_tile_pkey = wire.wire_in_tile_pkey
-    GROUP BY wire.node_pkey;""");
+INSERT INTO node_pip_count(node_pkey, number_pips)
+SELECT
+  wire.node_pkey,
+  count(pip_in_tile.pkey)
+FROM
+  pip_in_tile
+  INNER JOIN wire
+WHERE
+  pip_in_tile.src_wire_in_tile_pkey = wire.wire_in_tile_pkey
+  OR pip_in_tile.dest_wire_in_tile_pkey = wire.wire_in_tile_pkey
+GROUP BY
+  wire.node_pkey;""");
     c.execute("CREATE INDEX pip_count_index ON node_pip_count(node_pkey);")
 
     print("{}: Inserting pip counts".format(datetime.datetime.now()))
     c.execute("""
-    UPDATE node SET number_pips = (
-        SELECT node_pip_count.number_pips FROM node_pip_count
-        WHERE node_pip_count.node_pkey = node.pkey
-    ) WHERE pkey IN (SELECT node_pkey FROM node_pip_count);""")
+UPDATE
+  node
+SET
+  number_pips = (
+    SELECT
+      node_pip_count.number_pips
+    FROM
+      node_pip_count
+    WHERE
+      node_pip_count.node_pkey = node.pkey
+  )
+WHERE
+  pkey IN (
+    SELECT
+      node_pkey
+    FROM
+      node_pip_count
+  );""")
 
     c.execute("""DROP TABLE node_pip_count;""")
 
@@ -451,28 +369,56 @@ UPDATE node SET classification = ?
     edge_with_mux = []
 
     c2 = conn.cursor()
-    c2.execute("SELECT count(pkey) FROM node WHERE number_pips == 1 AND site_wire_pkey IS NOT NULL;")
+    c2.execute("""
+SELECT
+  count(pkey)
+FROM
+  node
+WHERE
+  number_pips == 1
+  AND site_wire_pkey IS NOT NULL;""")
     num_nodes = c2.fetchone()[0]
     with progressbar.ProgressBar(max_value=num_nodes) as bar:
         bar.update(0)
         for idx, (node, site_wire_pkey) in enumerate(c2.execute("""
-SELECT pkey, site_wire_pkey FROM node WHERE number_pips == 1 AND site_wire_pkey IS NOT NULL;""")):
+SELECT
+  pkey,
+  site_wire_pkey
+FROM
+  node
+WHERE
+  number_pips == 1
+  AND site_wire_pkey IS NOT NULL;""")):
             bar.update(idx)
 
             c.execute("""
-WITH wire_in_node(wire_pkey, tile_pkey, wire_in_tile_pkey) AS (
-    SELECT wire.pkey, wire.tile_pkey, wire.wire_in_tile_pkey FROM wire
-    WHERE wire.node_pkey = ?)
-SELECT pip_in_tile.pkey,
-       pip_in_tile.src_wire_in_tile_pkey,
-       pip_in_tile.dest_wire_in_tile_pkey,
-       wire_in_node.wire_pkey,
-       wire_in_node.wire_in_tile_pkey,
-       wire_in_node.tile_pkey
-  FROM wire_in_node
+WITH wire_in_node(
+  wire_pkey, tile_pkey, wire_in_tile_pkey
+) AS (
+  SELECT
+    wire.pkey,
+    wire.tile_pkey,
+    wire.wire_in_tile_pkey
+  FROM
+    wire
+  WHERE
+    wire.node_pkey = ?
+)
+SELECT
+  pip_in_tile.pkey,
+  pip_in_tile.src_wire_in_tile_pkey,
+  pip_in_tile.dest_wire_in_tile_pkey,
+  wire_in_node.wire_pkey,
+  wire_in_node.wire_in_tile_pkey,
+  wire_in_node.tile_pkey
+FROM
+  wire_in_node
   INNER JOIN pip_in_tile
-  WHERE pip_in_tile.src_wire_in_tile_pkey = wire_in_node.wire_in_tile_pkey OR
-        pip_in_tile.dest_wire_in_tile_pkey = wire_in_node.wire_in_tile_pkey LIMIT 1;
+WHERE
+  pip_in_tile.src_wire_in_tile_pkey = wire_in_node.wire_in_tile_pkey
+  OR pip_in_tile.dest_wire_in_tile_pkey = wire_in_node.wire_in_tile_pkey
+LIMIT
+  1;
 """, (node,))
 
             (
@@ -539,13 +485,16 @@ SELECT pip_in_tile.pkey,
             (NodeClassification.EDGE_WITH_MUX.value, nodes[0], nodes[1]))
 
         c.execute("""
-        INSERT INTO edge_with_mux(src_wire_pkey, dest_wire_pkey, pip_in_tile_pkey)
-            VALUES (?, ?, ?);""", (src_wire_pkey, dest_wire_pkey, pip_pkey))
+INSERT INTO edge_with_mux(src_wire_pkey, dest_wire_pkey, pip_in_tile_pkey)
+VALUES
+  (?, ?, ?);""", (src_wire_pkey, dest_wire_pkey, pip_pkey))
 
     for node in progressbar.progressbar(edges_to_channel):
         c.execute("""
         UPDATE node SET classification = ?
-            WHERE pkey = ?;""", (NodeClassification.EDGES_TO_CHANNEL.value, node,))
+            WHERE pkey = ?;""", (
+                NodeClassification.EDGES_TO_CHANNEL.value,
+                node,))
 
     for null_node in progressbar.progressbar(null_nodes):
         c.execute("""
@@ -560,7 +509,8 @@ def insert_tracks(conn, tracks_to_insert):
     # TODO: Use short
     #c.execute('SELECT pkey FROM switch WHERE name = "short";')
     #short_pkey = c.fetchone()[0]
-    c.execute('SELECT pkey FROM switch WHERE name = "__vpr_delayless_switch__";')
+    c.execute("""
+SELECT pkey FROM switch WHERE name = "__vpr_delayless_switch__";""")
     short_pkey = c.fetchone()[0]
 
     track_graph_nodes = {}
@@ -581,9 +531,12 @@ def insert_tracks(conn, tracks_to_insert):
                 assert False, track.direction
 
             c.execute("""
-            INSERT INTO graph_node(
-                graph_node_type, track_pkey, node_pkey, x_low, x_high, y_low, y_high, capacity)
-                VALUES (?, ?, ?, ?, ?, ?, ?, 1)""", (
+INSERT INTO graph_node(
+  graph_node_type, track_pkey, node_pkey,
+  x_low, x_high, y_low, y_high, capacity
+)
+VALUES
+  (?, ?, ?, ?, ?, ?, ?, 1)""", (
                 node_type.value, track_pkey, node,
                 track.x_low, track.x_high, track.y_low, track.y_high
                 ))
@@ -593,8 +546,13 @@ def insert_tracks(conn, tracks_to_insert):
 
         for connection in track_connections:
             c.execute("""
-            INSERT INTO graph_edge(src_graph_node_pkey, dest_graph_node_pkey, switch_pkey, track_pkey)
-                VALUES (?, ?, ?, ?), (?, ?, ?, ?)""", (
+INSERT INTO graph_edge(
+  src_graph_node_pkey, dest_graph_node_pkey,
+  switch_pkey, track_pkey
+)
+VALUES
+  (?, ?, ?, ?),
+  (?, ?, ?, ?)""", (
                 track_graph_node_pkey[connection[0]],
                 track_graph_node_pkey[connection[1]],
                 short_pkey,
@@ -612,13 +570,22 @@ def insert_tracks(conn, tracks_to_insert):
         track_graph_node_pkey = track_graph_nodes[node]
 
         c.execute("""
-WITH
-    wires_from_node(wire_pkey, tile_pkey) AS (
-      SELECT pkey, tile_pkey FROM wire WHERE node_pkey = ?)
-SELECT wires_from_node.wire_pkey, tile.grid_x, tile.grid_y
-  FROM tile
-  INNER JOIN wires_from_node
-  ON tile.pkey = wires_from_node.tile_pkey;
+WITH wires_from_node(wire_pkey, tile_pkey) AS (
+  SELECT
+    pkey,
+    tile_pkey
+  FROM
+    wire
+  WHERE
+    node_pkey = ?
+)
+SELECT
+  wires_from_node.wire_pkey,
+  tile.grid_x,
+  tile.grid_y
+FROM
+  tile
+  INNER JOIN wires_from_node ON tile.pkey = wires_from_node.tile_pkey;
   """, (node,))
 
         wires = c.fetchall()
@@ -633,7 +600,7 @@ SELECT wires_from_node.wire_pkey, tile.grid_x, tile.grid_y
     for wire_pkey, graph_node_pkey in progressbar.progressbar(wire_to_graph.items()):
         c.execute("""
         UPDATE wire SET graph_node_pkey = ?
-                WHERE pkey = ?""", (graph_node_pkey, wire_pkey))
+            WHERE pkey = ?""", (graph_node_pkey, wire_pkey))
 
     conn.commit()
 
@@ -662,13 +629,22 @@ SELECT pkey FROM node WHERE classification == ?;
 
             unique_pos = set()
             for wire_pkey, grid_x, grid_y in c2.execute("""
-WITH
-    wires_from_node(wire_pkey, tile_pkey) AS (
-      SELECT pkey, tile_pkey FROM wire WHERE node_pkey = ?)
-SELECT wires_from_node.wire_pkey, tile.grid_x, tile.grid_y
-  FROM tile
-  INNER JOIN wires_from_node
-  ON tile.pkey = wires_from_node.tile_pkey;
+WITH wires_from_node(wire_pkey, tile_pkey) AS (
+  SELECT
+    pkey,
+    tile_pkey
+  FROM
+    wire
+  WHERE
+    node_pkey = ?
+)
+SELECT
+  wires_from_node.wire_pkey,
+  tile.grid_x,
+  tile.grid_y
+FROM
+  tile
+  INNER JOIN wires_from_node ON tile.pkey = wires_from_node.tile_pkey;
   """, (node,)):
                 unique_pos.add((grid_x, grid_y))
 
