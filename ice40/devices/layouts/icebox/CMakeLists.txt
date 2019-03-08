@@ -2,7 +2,13 @@ set(
   ICESTORM_DB
   ${symbiflow-arch-defs_SOURCE_DIR}/third_party/icestorm/icebox/icebox.py
   CACHE FILEPATH "Path to icebox.py module"
-)
+  )
+set(
+  ICEBOX_PATH
+  ${symbiflow-arch-defs_SOURCE_DIR}/third_party/icestorm/icebox
+  CACHE PATH "Path to icebox directory"
+  )
+
 set(ICE_UTILS_DIR ${symbiflow-arch-defs_SOURCE_DIR}/ice40/utils)
 set(ICESTORM_LAYOUT_LIST ${ICE_UTILS_DIR}/ice40_list_layout_in_icebox.py)
 set(ICESTORM_LAYOUT_IMPORT ${ICE_UTILS_DIR}/ice40_import_layout_from_icebox.py)
@@ -10,7 +16,8 @@ set(ICESTORM_LAYOUT_IMPORT ${ICE_UTILS_DIR}/ice40_import_layout_from_icebox.py)
 function(generate_all_icebox_layouts)
   # Use system python during configure time. Conda is setup during build time.
   execute_process(
-    COMMAND ${PYTHON_EXECUTABLE} ${ICESTORM_LAYOUT_LIST}
+    COMMAND ${CMAKE_COMMAND} -E env PYTHONPATH=${ICEBOX_PATH}
+    ${PYTHON_EXECUTABLE} ${ICESTORM_LAYOUT_LIST}
     OUTPUT_VARIABLE ICESTORM_LAYOUT_PARTS
     RESULT_VARIABLE ERROR_CODE
     ERROR_VARIABLE ERROR_MESSAGES
@@ -41,7 +48,8 @@ function(generate_all_icebox_layouts)
   get_target_property(QUIET_CMD_TARGET env QUIET_CMD_TARGET)
   add_custom_command(
     OUTPUT ${OUTPUTS}
-    COMMAND ${QUIET_CMD} ${PYTHON3} ${ICESTORM_LAYOUT_IMPORT}
+    COMMAND ${QUIET_CMD} ${CMAKE_COMMAND} -E env PYTHONPATH=${ICEBOX_PATH}:${PYUTILS_PATH}
+    ${PYTHON3} ${ICESTORM_LAYOUT_IMPORT}
     DEPENDS
       ${QUIET_CMD} ${QUIET_CMD_TARGET}
       ${PYTHON3} ${PYTHON3_TARGET}

@@ -3,8 +3,6 @@
 from __future__ import print_function
 import sys
 import os
-MYDIR = os.path.dirname(os.path.abspath(__file__))
-sys.path.append(os.path.join(MYDIR, "..", "..", "utils"))
 
 import pcf
 import vpr_io_place
