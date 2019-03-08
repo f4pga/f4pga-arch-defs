@@ -13,14 +13,60 @@ def create_tables(conn):
     """ Create connection database scheme. """
     c = conn.cursor()
 
+    # This is the database schema for relating a tile grid to a VPR routing
+    # graph.
+    #
+    # Terms:
+    #  grid - A 2D matrix of tiles
+    #
+    #  tile - A location within the grid.  A tile is always of a partial
+    #         tile type.  The tile type specifies what wires, pips and
+    #         sites a tile contains.
+    #
+    #  wires - A partial net within a tile.  It may start or end at a site pins
+    #          or a pip, or can connect to wires in other tiles.
+    #
+    #  pip - Programable interconnect point, connecting two wires within a
+    #        tile.
+    #
+    #  node - A complete net made of one or more wires.
+    #
+    #  site - A location within a tile that contains site pins and BELs.
+    #         BELs are not described in this database.
+    #
+    #  site - Site pins are the connections to/from the site to a wire in a
+    #         tile.  A site pin may be associated with one wire in the tile.
+    #
+    #  graph_node - A VPR type representing either a pb_type IPIN or OPIN or
+    #               a routing wire CHANX or CHANY.
+    #
+    #               IPIN/OPIN are similiar to site pin.
+    #               CHANX/CHANY are how VPR express routing nodes.
+    #
+    #  track - A collection of graph_node's that represents one routing node.
+    #
+    #  graph_edge - A VPR type representing a connection between an IPIN, OPIN,
+    #               CHANX, or CHANY.  All graph_edge's require a switch.
+    #
+    #  switch - See VPR documentation :http://docs.verilogtorouting.org/en/latest/arch/reference/#tag-fpga-device-information-switch_block
+    #
+    #  This database provides a relational description between the terms above.
+
+    # Tile type table, used to track tile_type using a pkey, and provide
+    # the tile_type_pkey <-> name mapping.
     c.execute("""CREATE TABLE tile_type(
       pkey INTEGER PRIMARY KEY,
       name TEXT
     );""")
+
+    # Site type table, used to track site_type using a pkey, and provide
+    # the site_type_pkey <-> name mapping.
     c.execute("""CREATE TABLE site_type(
       pkey INTEGER PRIMARY KEY,
       name TEXT
     );""")
+
+    # Tile table, contains type and name of tile and location in grid.
     c.execute("""CREATE TABLE tile(
       pkey INTEGER PRIMARY KEY,
       name TEXT,
@@ -29,6 +75,9 @@ def create_tables(conn):
       grid_y INT,
       FOREIGN KEY(tile_type_pkey) REFERENCES tile_type(pkey)
     );""")
+
+    # Site pin table, contains names of pins and their direction, along
+    # with parent site type information.
     c.execute("""CREATE TABLE site_pin(
       pkey INTEGER PRIMARY KEY,
       name TEXT,
@@ -36,6 +85,10 @@ def create_tables(conn):
       direction TEXT,
       FOREIGN KEY(site_type_pkey) REFERENCES site_type(pkey)
     );""")
+
+    # Concreate site instance within tiles.  Used to relate connect
+    # wire_in_tile instead to site_type's, along with providing metadata
+    # about the site.
     c.execute("""CREATE TABLE site(
       pkey INTEGER PRIMARY KEY,
       name TEXT,
@@ -44,6 +97,12 @@ def create_tables(conn):
       site_type_pkey INT,
       FOREIGN KEY(site_type_pkey) REFERENCES site_type(pkey)
     );""")
+
+    # Table of tile type wires. This table is the of uninstanced tile type
+    # wires. Site pins wires will reference their site and site pin rows in
+    # the site and site_pin tables.
+    #
+    # All concrete wire instances will related to a row in this table.
     c.execute("""CREATE TABLE wire_in_tile(
       pkey INTEGER PRIMARY KEY,
       name TEXT,
@@ -54,6 +113,10 @@ def create_tables(conn):
       FOREIGN KEY(site_pkey) REFERENCES site(pkey),
       FOREIGN KEY(site_pin_pkey) REFERENCES site_pin(pkey)
     );""")
+
+    # Table of tile type pips.  This table is the table of uninstanced pips.
+    # No concreate table of pips is created, instead this table is used to
+    # add rows in the graph_edge table.
     c.execute("""CREATE TABLE pip_in_tile(
       pkey INTEGER PRIMARY KEY,
       name TEXT,
@@ -64,10 +127,21 @@ def create_tables(conn):
       FOREIGN KEY(src_wire_in_tile_pkey) REFERENCES wire_in_tile(pkey),
       FOREIGN KEY(dest_wire_in_tile_pkey) REFERENCES wire_in_tile(pkey)
     );""")
+
+    # Table of tracks. alive is a flag used during routing import to indicate
+    # whether this a particular track is connected and should be imported.
     c.execute("""CREATE TABLE track(
       pkey INTEGER PRIMARY KEY,
       alive BOOL
     );""")
+
+    # Table of nodes.  Provides the concrete relation for connected wire
+    # instances. Generally speaking nodes are either routing nodes or a site
+    # pin node.
+    #
+    # Routing nodes will have track_pkey set.
+    # Site pin nodes will have a site_wire_pkey to the wire that is the wire
+    # connected to a site pin.
     c.execute("""CREATE TABLE node(
       pkey INTEGER PRIMARY KEY,
       number_pips INT,
@@ -77,6 +151,11 @@ def create_tables(conn):
       FOREIGN KEY(track_pkey) REFERENCES track_pkey(pkey),
       FOREIGN KEY(site_wire_pkey) REFERENCES wire(pkey)
     );""")
+
+    # Table of edge with mux.  An edge_with_mux needs special handling in VPR,
+    # in the form of architecture level direct connections.
+    #
+    # This table is the list of these direct connections.
     c.execute("""CREATE TABLE edge_with_mux(
       pkey INTEGER PRIMARY KEY,
       src_wire_pkey INT,
@@ -86,6 +165,9 @@ def create_tables(conn):
       FOREIGN KEY(dest_wire_pkey) REFERENCES wire(pkey),
       FOREIGN KEY(pip_in_tile_pkey) REFERENCES pip_in_tile(pkey)
     );""")
+
+    # Table of graph nodes.  This is a direction mapping of an VPR rr_node
+    # instance.
     c.execute("""CREATE TABLE graph_node(
       pkey INTEGER PRIMARY KEY,
       graph_node_type INT,
@@ -100,6 +182,19 @@ def create_tables(conn):
       FOREIGN KEY(track_pkey) REFERENCES track(pkey),
       FOREIGN KEY(node_pkey) REFERENCES node(pkey)
     );""")
+
+    # Table of wires.  This table is the complete list of all wires in the
+    # grid. All wires will belong to exactly one node.
+    #
+    # Rows will relate back to their parent tile, and generic wire instance.
+    #
+    # If the wire is connected to both a site pin and a pip, then
+    # top_graph_node_pkey, bottom_graph_node_pkey, left_graph_node_pkey, and
+    # right_graph_node_pkey will be set to the IPIN or OPIN instances, based
+    # on the pin directions for the tile.
+    #
+    # If the wire is a member of a routing node, then graph_node_pkey will be
+    # set to the graph_node this wire is a member of.
     c.execute("""CREATE TABLE wire(
       pkey INTEGER PRIMARY KEY,
       node_pkey INT,
@@ -119,10 +214,14 @@ def create_tables(conn):
       FOREIGN KEY(left_graph_node_pkey) REFERENCES graph_node(pkey)
       FOREIGN KEY(right_graph_node_pkey) REFERENCES graph_node(pkey)
     );""")
+
+    # Table of switches.
     c.execute("""CREATE TABLE switch(
       pkey INTEGER PRIMARY KEY,
       name TEXT
     );""")
+
+    # Table of graph edges.
     c.execute("""CREATE TABLE graph_edge(
       src_graph_node_pkey INT,
       dest_graph_node_pkey INT,
@@ -136,6 +235,9 @@ def create_tables(conn):
       FOREIGN KEY(tile_pkey) REFERENCES tile(pkey)
       FOREIGN KEY(pip_in_tile_pkey) REFERENCES pip(pkey)
     );""")
+
+    # channel, x_list and y_list are direct mappings of the channel object
+    # present in the rr_graph.
     c.execute("""CREATE TABLE channel(
       chan_width_max INT,
       x_min INT,
