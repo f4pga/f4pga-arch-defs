@@ -36,7 +36,8 @@ SELECT src_wire_pkey, dest_wire_pkey, pip_in_tile_pkey FROM edge_with_mux;""")):
         assert len(src_wire) == 1
         source_wire_pkey, src_tile_pkey, src_wire_in_tile_pkey = src_wire[0]
 
-        c2.execute("""SELECT tile_type_pkey, grid_x, grid_y FROM tile WHERE pkey = ?""",
+        c2.execute("""
+            SELECT tile_type_pkey, grid_x, grid_y FROM tile WHERE pkey = ?""",
                 (src_tile_pkey,))
         src_tile_type_pkey, source_loc_grid_x, source_loc_grid_y = c2.fetchone()
 
@@ -58,7 +59,8 @@ SELECT src_wire_pkey, dest_wire_pkey, pip_in_tile_pkey FROM edge_with_mux;""")):
         assert len(dest_wire) == 1
         destination_wire_pkey, dest_tile_pkey, dest_wire_in_tile_pkey = dest_wire[0]
 
-        c2.execute("""SELECT tile_type_pkey, grid_x, grid_y FROM tile WHERE pkey = ?;""",
+        c2.execute("""
+            SELECT tile_type_pkey, grid_x, grid_y FROM tile WHERE pkey = ?;""",
                 (dest_tile_pkey,))
         dest_tile_type_pkey, destination_loc_grid_x, destination_loc_grid_y = c2.fetchone()
 
@@ -129,7 +131,8 @@ SELECT pkey, classification FROM node WHERE classification != ?;
                 """, (tile_pkey,))
             (tile_type,) = c3.fetchone()
 
-            c3.execute("""SELECT pkey, name, site_pin_pkey FROM wire_in_tile WHERE pkey = ?;""",
+            c3.execute("""
+SELECT pkey, name, site_pin_pkey FROM wire_in_tile WHERE pkey = ?;""",
                     (wire_in_tile_pkey,))
             (wire_in_tile_pkey, wire, site_pin_pkey) = c3.fetchone()
 
@@ -138,8 +141,16 @@ SELECT pkey, classification FROM node WHERE classification != ?;
                 continue
 
             for pip_pkey, pip, src_wire_in_tile_pkey, dest_wire_in_tile_pkey in c3.execute("""
-            SELECT pkey, name, src_wire_in_tile_pkey, dest_wire_in_tile_pkey FROM pip_in_tile WHERE
-                src_wire_in_tile_pkey = ? OR dest_wire_in_tile_pkey = ?;""", (wire_in_tile_pkey, wire_in_tile_pkey)):
+SELECT
+  pkey,
+  name,
+  src_wire_in_tile_pkey,
+  dest_wire_in_tile_pkey
+FROM
+  pip_in_tile
+WHERE
+  src_wire_in_tile_pkey = ?
+  OR dest_wire_in_tile_pkey = ?;""", (wire_in_tile_pkey, wire_in_tile_pkey)):
                 assert (
                     src_wire_in_tile_pkey == wire_in_tile_pkey or
                     dest_wire_in_tile_pkey == wire_in_tile_pkey), pip
@@ -153,9 +164,22 @@ SELECT pkey, classification FROM node WHERE classification != ?;
                 # to the node table and get track_pkey.
                 # other_wire_in_tile_pkey -> wire pkey -> node_pkey -> track_pkey
                 c4 = conn.cursor()
-                c4.execute("""SELECT track_pkey, classification FROM node WHERE pkey = (
-                    SELECT node_pkey FROM wire WHERE tile_pkey = ? AND wire_in_tile_pkey = ?
-                    );""", (tile_pkey, other_wire_in_tile_pkey))
+                c4.execute("""
+SELECT
+  track_pkey,
+  classification
+FROM
+  node
+WHERE
+  pkey = (
+    SELECT
+      node_pkey
+    FROM
+      wire
+    WHERE
+      tile_pkey = ?
+      AND wire_in_tile_pkey = ?
+  );""", (tile_pkey, other_wire_in_tile_pkey))
                 (track_pkey, classification) = c4.fetchone()
 
 

@@ -85,9 +85,20 @@ def import_graph_nodes(conn, graph, node_mapping):
 
         if key not in tile_type_wire_to_pkey:
             c.execute("""
-            SELECT pkey FROM wire_in_tile WHERE
-                tile_type_pkey = (SELECT pkey FROM tile_type WHERE name = ?) AND
-                name = ?;""", (tile_type, pin))
+SELECT
+  pkey
+FROM
+  wire_in_tile
+WHERE
+  tile_type_pkey = (
+    SELECT
+      pkey
+    FROM
+      tile_type
+    WHERE
+      name = ?
+  )
+  AND name = ?;""", (tile_type, pin))
 
             result = c.fetchone()
             assert result is not None, (tile_type, pin)
@@ -243,9 +254,20 @@ def add_synthetic_edges(conn, graph, node_mapping, grid, synth_tiles):
             assert len(synth_tiles['tiles'][tile_name]['pins']) == 1
             for pin in synth_tiles['tiles'][tile_name]['pins']:
                 wire_pkey = get_wire_pkey(conn, tile_name, pin['wire'])
-                c.execute("""SELECT track_pkey FROM node WHERE pkey = (
-                    SELECT node_pkey FROM wire WHERE pkey = ?
-                    );""", (wire_pkey,))
+                c.execute("""
+SELECT
+  track_pkey
+FROM
+  node
+WHERE
+  pkey = (
+    SELECT
+      node_pkey
+    FROM
+      wire
+    WHERE
+      pkey = ?
+  );""", (wire_pkey,))
                 (track_pkey,) = c.fetchone()
                 assert track_pkey is not None, (tile_name, pin['wire'], wire_pkey)
                 tracks_model, track_nodes = get_track_model(conn, track_pkey)
@@ -374,8 +396,14 @@ def import_graph_edges(conn, graph, node_mapping):
 
     with progressbar.ProgressBar(max_value=num_edges) as bar:
         for idx, (src_graph_node, dest_graph_node, switch_pkey, tile_pkey, pip_pkey) in enumerate(c.execute("""
-    SELECT src_graph_node_pkey, dest_graph_node_pkey, switch_pkey, tile_pkey, pip_in_tile_pkey
-        FROM graph_edge;
+SELECT
+  src_graph_node_pkey,
+  dest_graph_node_pkey,
+  switch_pkey,
+  tile_pkey,
+  pip_in_tile_pkey
+FROM
+  graph_edge;
                 """)):
             if src_graph_node not in node_mapping:
                 continue

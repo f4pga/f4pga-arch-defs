@@ -32,8 +32,21 @@ def add_graph_nodes_for_pins(conn, tile_type, wire, pin_directions):
     # wire name.
     c = conn.cursor()
     c.execute("""
-SELECT pkey, site_pin_pkey FROM wire_in_tile
-WHERE name = ? and tile_type_pkey = (SELECT pkey FROM tile_type WHERE name = ?);
+SELECT
+  pkey,
+  site_pin_pkey
+FROM
+  wire_in_tile
+WHERE
+  name = ?
+  and tile_type_pkey = (
+    SELECT
+      pkey
+    FROM
+      tile_type
+    WHERE
+      name = ?
+  );
 """, (wire, tile_type))
 
     (wire_in_tile_pkey, site_pin_pkey) = c.fetchone()
@@ -41,8 +54,7 @@ WHERE name = ? and tile_type_pkey = (SELECT pkey FROM tile_type WHERE name = ?);
     # Determine if this should be an IPIN or OPIN based on the site_pin
     # direction.
     c.execute("""
-        SELECT direction FROM site_pin WHERE pkey = ?;
-        """, (site_pin_pkey,))
+        SELECT direction FROM site_pin WHERE pkey = ?;""", (site_pin_pkey,))
     (pin_direction,) = c.fetchone()
 
     pin_direction = SitePinDirection(pin_direction)
@@ -88,8 +100,8 @@ WHERE name = ? and tile_type_pkey = (SELECT pkey FROM tile_type WHERE name = ?);
         # Update the wire with the graph_nodes in each direction, if
         # applicable.
         c2.execute("""
-        UPDATE wire SET {updates} WHERE pkey = ?;""".format(
-            updates=','.join(updates)), values + [wire_pkey])
+            UPDATE wire SET {updates} WHERE pkey = ?;""".format(
+                updates=','.join(updates)), values + [wire_pkey])
 
     c2.execute("""COMMIT TRANSACTION;""")
     c2.connection.commit()
@@ -100,10 +112,21 @@ def create_find_pip(conn):
 
     @functools.lru_cache(maxsize=None)
     def find_pip(tile_type, pip):
-        c.execute("""SELECT pkey FROM pip_in_tile WHERE
-            name = ? AND
-            tile_type_pkey = (SELECT pkey FROM tile_type WHERE name = ?);""", (
-                pip, tile_type))
+        c.execute("""
+SELECT
+  pkey
+FROM
+  pip_in_tile
+WHERE
+  name = ?
+  AND tile_type_pkey = (
+    SELECT
+      pkey
+    FROM
+      tile_type
+    WHERE
+      name = ?
+  );""", (pip, tile_type))
 
         result = c.fetchone()
         assert result is not None, (tile_type, pip)
@@ -125,10 +148,21 @@ def create_find_wire(conn):
 
     @functools.lru_cache(maxsize=None)
     def find_wire_in_tile(tile_type, wire):
-        c.execute("""SELECT pkey FROM wire_in_tile WHERE
-            name = ? AND
-            tile_type_pkey = (SELECT pkey FROM tile_type WHERE name = ?);""", (
-                wire, tile_type))
+        c.execute("""
+SELECT
+  pkey
+FROM
+  wire_in_tile
+WHERE
+  name = ?
+  AND tile_type_pkey = (
+    SELECT
+      pkey
+    FROM
+      tile_type
+    WHERE
+      name = ?
+  );""", (wire, tile_type))
 
         return c.fetchone()[0]
 
@@ -152,10 +186,23 @@ def create_find_wire(conn):
         """
 
         wire_in_tile_pkey = find_wire_in_tile(tile_type, wire)
-        c.execute("""SELECT pkey, tile_pkey, node_pkey FROM wire WHERE
-            wire_in_tile_pkey = ? AND
-            tile_pkey = (SELECT pkey FROM tile WHERE name = ?);""", (
-                wire_in_tile_pkey, tile))
+        c.execute("""
+SELECT
+  pkey,
+  tile_pkey,
+  node_pkey
+FROM
+  wire
+WHERE
+  wire_in_tile_pkey = ?
+  AND tile_pkey = (
+    SELECT
+      pkey
+    FROM
+      tile
+    WHERE
+      name = ?
+  );""", (wire_in_tile_pkey, tile))
 
         return c.fetchone()
 
@@ -323,9 +370,15 @@ def create_find_connector(conn):
 
         # Build the edge_map (map of edge direction to graph node).
         c.execute("""
-        SELECT top_graph_node_pkey, bottom_graph_node_pkey,
-               left_graph_node_pkey, right_graph_node_pkey FROM wire WHERE node_pkey = ?;""",
-               (node_pkey,))
+SELECT
+  top_graph_node_pkey,
+  bottom_graph_node_pkey,
+  left_graph_node_pkey,
+  right_graph_node_pkey
+FROM
+  wire
+WHERE
+  node_pkey = ?;""", (node_pkey,))
 
         all_graph_node_pkeys = c.fetchall()
 
@@ -460,7 +513,15 @@ def mark_track_liveness(conn, pool, input_only_nodes, output_only_nodes):
 
     c = conn.cursor()
     c2 = conn.cursor()
-    for graph_node_pkey, node_pkey, track_pkey in c.execute("""SELECT pkey, node_pkey, track_pkey FROM graph_node WHERE track_pkey IS NOT NULL;"""):
+    for graph_node_pkey, node_pkey, track_pkey in c.execute("""
+SELECT
+  pkey,
+  node_pkey,
+  track_pkey
+FROM
+  graph_node
+WHERE
+  track_pkey IS NOT NULL;"""):
         if track_pkey in alive_tracks:
             continue
 
@@ -514,7 +575,18 @@ def build_channels(conn, pool, active_tracks):
     x_tracks = {}
     y_tracks = {}
     for pkey, track_pkey, graph_node_type, x_low, x_high, y_low, y_high in c.execute("""
-SELECT pkey, track_pkey, graph_node_type, x_low, x_high, y_low, y_high FROM graph_node WHERE track_pkey IS NOT NULL;"""):
+SELECT
+  pkey,
+  track_pkey,
+  graph_node_type,
+  x_low,
+  x_high,
+  y_low,
+  y_high
+FROM
+  graph_node
+WHERE
+  track_pkey IS NOT NULL;"""):
         if track_pkey not in active_tracks:
             continue
 
@@ -572,7 +644,7 @@ SELECT pkey, track_pkey, graph_node_type, x_low, x_high, y_low, y_high FROM grap
 
             for idx, tree in enumerate(x_channel_models[y].trees):
                 for i in tree:
-                    c.execute("""UPDATE graph_node SET ptc = ? WHERE pkey = ?;""",
+                    c.execute('UPDATE graph_node SET ptc = ? WHERE pkey = ?;',
                             (idx, i[2]))
         else:
             x_list.append(0)
@@ -585,7 +657,7 @@ SELECT pkey, track_pkey, graph_node_type, x_low, x_high, y_low, y_high FROM grap
 
             for idx, tree in enumerate(y_channel_models[x].trees):
                 for i in tree:
-                    c.execute("""UPDATE graph_node SET ptc = ? WHERE pkey = ?;""",
+                    c.execute('UPDATE graph_node SET ptc = ? WHERE pkey = ?;',
                             (idx, i[2]))
         else:
             y_list.append(0)
@@ -603,10 +675,12 @@ SELECT pkey, track_pkey, graph_node_type, x_low, x_high, y_low, y_high FROM grap
 
             num_padding += 1
             c.execute("""
-            INSERT INTO
-                graph_node(graph_node_type, x_low, x_high, y_low, y_high, capacity, ptc)
-            VALUES
-                (?, ?, ?, ?, ?, ?, ?);
+INSERT INTO graph_node(
+  graph_node_type, x_low, x_high, y_low,
+  y_high, capacity, ptc
+)
+VALUES
+  (?, ?, ?, ?, ?, ?, ?);
                 """, (graph2.NodeType.CHANX.value, start, end, chan, chan, capacity, ptc))
 
     for chan, channel_model in y_channel_models.items():
@@ -615,10 +689,12 @@ SELECT pkey, track_pkey, graph_node_type, x_low, x_high, y_low, y_high FROM grap
 
             num_padding += 1
             c.execute("""
-            INSERT INTO
-                graph_node(graph_node_type, x_low, x_high, y_low, y_high, capacity, ptc)
-            VALUES
-                (?, ?, ?, ?, ?, ?, ?);
+INSERT INTO graph_node(
+  graph_node_type, x_low, x_high, y_low,
+  y_high, capacity, ptc
+)
+VALUES
+  (?, ?, ?, ?, ?, ?, ?);
                 """, (graph2.NodeType.CHANY.value, chan, chan, start, end, capacity, ptc))
 
     print('Number padding nodes {}'.format(num_padding))
