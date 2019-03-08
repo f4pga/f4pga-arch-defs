@@ -4,9 +4,6 @@
 import os.path
 import sys
 
-MYDIR = os.path.dirname(__file__)
-
-sys.path.insert(0, os.path.join(MYDIR, "..", "..", "third_party", "icestorm", "icebox"))
 import icebox
 
 # FIXME: Move this into icebox

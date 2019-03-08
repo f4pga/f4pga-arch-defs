@@ -2,11 +2,8 @@
 
 import sys
 import os
-MYDIR = os.path.dirname(os.path.abspath(__file__))
-
 import lxml.etree as ET
 
-sys.path.insert(0, os.path.join(MYDIR, "..", "..", "third_party", "icestorm", "icebox"))
 import icebox
 
 from ice40_list_layout_in_icebox import versions

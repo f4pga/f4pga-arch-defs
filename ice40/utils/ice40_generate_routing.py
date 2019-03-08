@@ -58,8 +58,6 @@ Then add globals, then neighbourhood
 
 import sys
 import os
-MYDIR = os.path.dirname(os.path.abspath(__file__))
-sys.path.append(os.path.join(MYDIR, "..", "..", "utils"))
 
 from collections import namedtuple, OrderedDict
 import os
