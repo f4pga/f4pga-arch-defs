@@ -1,4 +1,18 @@
-""" Assign pin directions to all tile pins such that they point to the connecting channel or direct connection. """
+""" Assign pin directions to all tile pins.
+
+Tile pins are defined by one of two methods:
+ - Pins that are part of a direct connection (e.g. edge_with_mux) are assigned
+   based on the direction relationship between the two tiles, e.g. facing each
+   other.
+ - Pins that connect to a routing track face a routing track.
+
+Tile pins may end up with multiple edges if the routing tracks are formed
+differently throughout the grid.
+
+No connection database modifications are made in
+prjxray_assign_tile_pin_direction.
+
+"""
 import argparse
 from collections import namedtuple
 import prjxray.db

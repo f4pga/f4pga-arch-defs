@@ -4,6 +4,19 @@
 For ROI configurations, this also connects the synthetic IO tiles to the routing
 node specified.
 
+Rough structure:
+
+Add rr_nodes for CHANX and CHANY from the database.  IPIN and OPIN rr_nodes
+should already be present from the input rr_graph.
+
+Create a mapping between database graph_nodes and IPIN, OPIN, CHANX and CHANY
+rr_node ids in the rr_graph.
+
+Add rr_edge for each row in the graph_edge table.
+
+Import channel XML node from connection database and serialize output to
+rr_graph XML.
+
 """
 
 import argparse
