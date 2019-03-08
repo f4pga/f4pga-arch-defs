@@ -1,5 +1,35 @@
 #!/usr/bin/env python3
-""" Classify 7-series nodes and generate channels for required nodes. """
+""" Classify 7-series nodes and generate channels for required nodes.
+
+Rough structure:
+
+Create initial database import by importing tile types, tile wires, tile pips,
+site types and site pins.  After importing tile types, imports the grid of
+tiles.  This uses tilegrid.json, tile_type_*.json and site_type_*.json.
+
+Once all tiles are imported, all wires in the grid are added and nodes are
+formed from the sea of wires based on the tile connections description
+(tileconn.json).
+
+In order to determine what each node is used for, site pins and pips are counted
+on each node (count_sites_and_pips_on_nodes).  Depending on the site pin and
+pip count, the nodes are classified into one of 4 buckets:
+
+    NULL - An unconnected node
+    CHANNEL - A routing node
+    EDGE_WITH_MUX - An edge between an IPIN and OPIN.
+    EDGES_TO_CHANNEL - An edge between an IPIN/OPIN and a CHANNEL.
+
+Then all CHANNEL are grouped into tracks (form_tracks) and graph nodes are
+created for the CHANNELs.  Graph edges are added to connect graph nodes that are
+part of the same track.
+
+Note that IPIN and OPIN graph nodes are not added yet, as pins have not been
+assigned sides of the VPR tiles yet.  This occurs in
+prjxray_assign_tile_pin_direction.
+
+
+"""
 
 import argparse
 import prjxray.db

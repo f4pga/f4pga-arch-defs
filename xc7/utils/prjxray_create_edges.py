@@ -4,6 +4,21 @@
 For ROI configurations, pips that would intefer with the ROI are not emitted,
 and connections that lies outside the ROI are ignored.
 
+Rough structure:
+
+Add graph_nodes for all IPIN's and OPIN's in the grid based on pin assignments.
+
+Collect tracks used by the ROI (if in used) to prevent tracks from being used
+twice.
+
+Make graph edges based on pips in every tile.
+
+Compute which routing tracks are alive based on whether they have at least one
+edge that sinks and one edge that sources the routing node.
+
+Build final channels based on alive tracks and insert dummy CHANX or CHANY to
+fill empty spaces.  This is required by VPR to allocate the right data.
+
 """
 
 import argparse
