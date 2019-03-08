@@ -227,10 +227,10 @@ def create_track_rr_graph(conn, graph, node_mapping, use_roi, roi, synth_tiles, 
     import_tracks(conn, alive_tracks, node_mapping, graph, segment_id)
 
     print('{} Importing dummy tracks'.format(now()))
-    dummy = import_dummy_tracks(conn, graph, segment_id)
+    num_dummy = import_dummy_tracks(conn, graph, segment_id)
 
     print('original {} final {} dummy {}'.format(
-        num_channels, len(alive_tracks), dummy))
+        num_channels, len(alive_tracks), num_dummy))
 
 def add_synthetic_edges(conn, graph, node_mapping, grid, synth_tiles):
     c = conn.cursor()
