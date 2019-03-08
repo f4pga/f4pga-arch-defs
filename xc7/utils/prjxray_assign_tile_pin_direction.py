@@ -41,8 +41,8 @@ SELECT src_wire_pkey, dest_wire_pkey, pip_in_tile_pkey FROM edge_with_mux;""")):
         c2 = conn.cursor()
 
         # Get the node that is attached to the source.
-        c2.execute("""SELECT node_pkey FROM wire WHERE pkey = ?""",
-                (src_wire_pkey,))
+        c2.execute("""
+SELECT node_pkey FROM wire WHERE pkey = ?""", (src_wire_pkey,))
         (src_node_pkey,) = c2.fetchone()
 
         # Find the wire connected to the source.
@@ -51,20 +51,23 @@ SELECT src_wire_pkey, dest_wire_pkey, pip_in_tile_pkey FROM edge_with_mux;""")):
         source_wire_pkey, src_tile_pkey, src_wire_in_tile_pkey = src_wire[0]
 
         c2.execute("""
-            SELECT tile_type_pkey, grid_x, grid_y FROM tile WHERE pkey = ?""",
+SELECT tile_type_pkey, grid_x, grid_y FROM tile WHERE pkey = ?""",
                 (src_tile_pkey,))
         src_tile_type_pkey, source_loc_grid_x, source_loc_grid_y = c2.fetchone()
 
-        c2.execute("""SELECT name FROM tile_type WHERE pkey = ?""",
+        c2.execute("""
+SELECT name FROM tile_type WHERE pkey = ?""",
                 (src_tile_type_pkey,))
         (source_tile_type,) = c2.fetchone()
 
-        c2.execute("""SELECT name FROM wire_in_tile WHERE pkey = ?""",
+        c2.execute("""
+SELECT name FROM wire_in_tile WHERE pkey = ?""",
                 (src_wire_in_tile_pkey,))
         (source_wire,) = c2.fetchone()
 
         # Get the node that is attached to the sink.
-        c2.execute("""SELECT node_pkey FROM wire WHERE pkey = ?""",
+        c2.execute("""
+SELECT node_pkey FROM wire WHERE pkey = ?""",
                 (dest_wire_pkey,))
         (dest_node_pkey,) = c2.fetchone()
 
@@ -74,15 +77,17 @@ SELECT src_wire_pkey, dest_wire_pkey, pip_in_tile_pkey FROM edge_with_mux;""")):
         destination_wire_pkey, dest_tile_pkey, dest_wire_in_tile_pkey = dest_wire[0]
 
         c2.execute("""
-            SELECT tile_type_pkey, grid_x, grid_y FROM tile WHERE pkey = ?;""",
+SELECT tile_type_pkey, grid_x, grid_y FROM tile WHERE pkey = ?;""",
                 (dest_tile_pkey,))
         dest_tile_type_pkey, destination_loc_grid_x, destination_loc_grid_y = c2.fetchone()
 
-        c2.execute("""SELECT name FROM tile_type WHERE pkey = ?""",
+        c2.execute("""
+SELECT name FROM tile_type WHERE pkey = ?""",
                 (dest_tile_type_pkey,))
         (destination_tile_type,) = c2.fetchone()
 
-        c2.execute("""SELECT name FROM wire_in_tile WHERE pkey = ?""",
+        c2.execute("""
+SELECT name FROM wire_in_tile WHERE pkey = ?""",
                 (dest_wire_in_tile_pkey,))
         (destination_wire,) = c2.fetchone()
 
@@ -132,16 +137,28 @@ SELECT pkey, classification FROM node WHERE classification != ?;
 
         c2 = conn.cursor()
         for tile_pkey, wire_in_tile_pkey in c2.execute("""
-            SELECT tile_pkey, wire_in_tile_pkey
-                FROM wire WHERE node_pkey = ?;""",
+SELECT tile_pkey, wire_in_tile_pkey FROM wire WHERE node_pkey = ?;""",
         (node_pkey,)):
             c3 = conn.cursor()
-            c3.execute("""SELECT name, grid_x, grid_y FROM tile WHERE pkey = ?;
-                """, (tile_pkey,))
+            c3.execute("""
+SELECT name, grid_x, grid_y FROM tile WHERE pkey = ?;""",
+                (tile_pkey,))
             (tile, grid_x, grid_y) = c3.fetchone()
 
-            c3.execute("""SELECT name FROM tile_type
-                WHERE pkey = (SELECT tile_type_pkey FROM tile WHERE pkey = ?);
+            c3.execute("""
+SELECT
+  name
+FROM
+  tile_type
+WHERE
+  pkey = (
+    SELECT
+      tile_type_pkey
+    FROM
+      tile
+    WHERE
+      pkey = ?
+  );
                 """, (tile_pkey,))
             (tile_type,) = c3.fetchone()
 
