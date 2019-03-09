@@ -257,7 +257,7 @@ class Graph(object):
 
         return self.loc_pin_map[(loc[0], loc[1], pin_idx)]
 
-    def add_edge(self, src_node, sink_node, switch_id, name=None, value=''):
+    def create_edge(self, src_node, sink_node, switch_id, name=None, value=''):
         assert src_node >= 0 and src_node < len(self.nodes), src_node
         assert sink_node >= 0 and sink_node < len(self.nodes), sink_node
         assert switch_id >= 0 and switch_id < len(self.switches), switch_id
@@ -273,12 +273,20 @@ class Graph(object):
         else:
             metadata = None
 
-        self.edges.append(Edge(
+        return Edge(
                 src_node=src_node,
                 sink_node=sink_node,
                 switch_id=switch_id,
                 metadata=metadata
-        ))
+        )
+
+    def add_edge(self, src_node, sink_node, switch_id, name=None, value=''):
+        self.edges.append(self.create_edge(
+            src_node=src_node,
+            sink_node=sink_node,
+            switch_id=switch_id,
+            name=name,
+            value=value))
 
         return len(self.edges)-1
 
