@@ -53,7 +53,7 @@ function(ADD_XC7_DEVICE_DEFINE)
     add_subdirectory(${DEVICE}-roi-virt)
 
     # SYNTH_TILES used in ROI.
-    set(CHANNELS ${symbiflow-arch-defs_SOURCE_DIR}/xc7/archs/${ARCH}/channels.json)
+    set(CHANNELS ${CMAKE_CURRENT_SOURCE_DIR}/${DEVICE}-roi-virt/channels.db)
     set(SYNTH_TILES ${CMAKE_CURRENT_SOURCE_DIR}/${DEVICE}-roi-virt/synth_tiles.json)
     get_file_location(SYNTH_TILES_LOCATION ${SYNTH_TILES})
     get_file_location(CHANNELS_LOCATIONS ${CHANNELS})
@@ -68,7 +68,7 @@ function(ADD_XC7_DEVICE_DEFINE)
       ARCH ${ARCH}
       DEVICE_TYPE ${DEVICE}-roi-virt
       PACKAGES test
-      RR_PATCH_EXTRA_ARGS --synth_tiles ${SYNTH_TILES_LOCATION} --channels ${CHANNELS_LOCATIONS}
+      RR_PATCH_EXTRA_ARGS --synth_tiles ${SYNTH_TILES_LOCATION} --connection_database ${CHANNELS_LOCATIONS}
       RR_PATCH_DEPS ${DEVICE_RR_PATCH_DEPS}
       )
 

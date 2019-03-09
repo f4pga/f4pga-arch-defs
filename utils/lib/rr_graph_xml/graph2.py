@@ -185,17 +185,19 @@ class Graph(object):
 
         self.graph = graph2.Graph(**graph_input)
 
-    def serialize_to_xml(self, tool_version, tool_comment, pad_segment, pool=None):
+    def serialize_to_xml(self, tool_version, tool_comment, pad_segment, channels_obj=None, pool=None):
         output_xml = ET.Element('rr_graph', {
                 'tool_name': 'vpr',
                 'tool_version': tool_version,
                 'tool_comment': tool_comment,
         })
 
-        channels_obj = self.graph.create_channels(
-                pad_segment=pad_segment,
-                pool=pool,
-        )
+        if channels_obj is None:
+            channels_obj = self.graph.create_channels(
+                    pad_segment=pad_segment,
+                    pool=pool,
+            )
+
         self.graph.check_ptc()
 
         channels_xml = ET.SubElement(output_xml, 'channels')
