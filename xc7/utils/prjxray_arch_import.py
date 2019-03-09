@@ -109,9 +109,9 @@ def main():
     parser.add_argument(
             '--use_roi', required=False)
     parser.add_argument(
-            '--synth_tiles', required=False)
-    parser.add_argument(
             '--device', required=True)
+    parser.add_argument(
+            '--synth_tiles', required=False)
 
     args = parser.parse_args()
 
@@ -147,22 +147,14 @@ def main():
     g = db.grid()
     x_min, x_max, y_min, y_max = g.dims()
 
-    # FIXME: There is an issue in the routing phase. (https://github.com/SymbiFlow/symbiflow-arch-defs/issues/353)
-    # if a zynq device is selected the grid must be expanded by 1
-    if args.device == 'xc7z010':
-        x_max += 1
-        y_max += 1
-
     name = '{}-test'.format(args.device)
     fixed_layout_xml = ET.SubElement(layout_xml, 'fixed_layout', {
             'name': name,
-            'height': str(y_max+1),
-            'width': str(x_max+1),
+            'height': str(y_max+2),
+            'width': str(x_max+2),
     })
 
     only_emit_roi = False
-    roi_inputs = []
-    roi_outputs = []
 
     synth_tiles = {}
     synth_tiles['tiles'] = {}
@@ -171,6 +163,9 @@ def main():
         with open(args.use_roi) as f:
             j = json.load(f)
 
+        with open(args.synth_tiles) as f:
+            synth_tiles = json.load(f)
+
         roi = Roi(
                 db=db,
                 x1=j['info']['GRID_X_MIN'],
@@ -178,51 +173,6 @@ def main():
                 x2=j['info']['GRID_X_MAX'],
                 y2=j['info']['GRID_Y_MAX'],
                 )
-
-        synth_tiles['info'] = j['info']
-        for port in j['ports']:
-            if port['name'].startswith('dout['):
-                roi_outputs.append(port)
-                port_type = 'input'
-                is_clock = False
-            elif port['name'].startswith('din['):
-                roi_inputs.append(port)
-                is_clock = False
-                port_type = 'output'
-            elif port['name'].startswith('clk'):
-                roi_inputs.append(port)
-                port_type = 'output'
-                is_clock = True
-            else:
-                assert False, port
-
-            tile, wire = port['wire'].split('/')
-
-            # Make sure connecting wire is not in ROI!
-            loc = g.loc_of_tilename(tile)
-            if roi.tile_in_roi(loc):
-                # Or if in the ROI, make sure it has no sites.
-                gridinfo = g.gridinfo_at_tilename(tile)
-                assert len(db.get_tile_type(gridinfo.tile_type).get_sites()) == 0, tile
-
-
-
-            if tile not in synth_tiles['tiles']:
-                synth_tiles['tiles'][tile] = {
-                        'pins': [],
-                        'loc': g.loc_of_tilename(tile),
-                }
-
-            synth_tiles['tiles'][tile]['pins'].append({
-                    'roi_name': port['name'].replace('[', '_').replace(']','_'),
-                    'wire': wire,
-                    'pad': port['pin'],
-                    'port_type': port_type,
-                    'is_clock': is_clock,
-            })
-
-        with open(args.synth_tiles, 'w') as f:
-            json.dump(synth_tiles, f)
 
         synth_tile_map = add_synthetic_tile(complexblocklist_xml)
 
