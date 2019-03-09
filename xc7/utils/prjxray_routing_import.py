@@ -388,14 +388,20 @@ def import_graph_edge(conn, added_edges, graph, node_mapping, src_graph_node, de
     added_edges.add((src_node, sink_node))
 
     if pip_name is not None:
-        graph.add_edge(
+        return graph.create_edge(
                 src_node=src_node, sink_node=sink_node, switch_id=switch_id,
                 name='fasm_features', value=check_feature(pip_name))
     else:
-        graph.add_edge(
+        return graph.create_edge(
                 src_node=src_node, sink_node=sink_node, switch_id=switch_id)
 
 def import_graph_edges(conn, graph, node_mapping):
+    # First yield existing edges
+    print('{} Importing existing edges.'.format(now()))
+    for edge in graph.edges:
+        yield edge
+
+    # Then yield edges from database.
     c = conn.cursor()
 
     c.execute("SELECT count() FROM graph_edge;""")
@@ -407,6 +413,7 @@ def import_graph_edges(conn, graph, node_mapping):
 
     added_edges = set()
 
+    print('{} Importing edges from database.'.format(now()))
     with progressbar.ProgressBar(max_value=num_edges) as bar:
         for idx, (src_graph_node, dest_graph_node, switch_pkey, tile_pkey, pip_pkey) in enumerate(c.execute("""
 SELECT
@@ -431,7 +438,7 @@ FROM
 
             switch_id = get_switch_name(conn, graph, switch_name_map, switch_pkey)
 
-            import_graph_edge(conn, added_edges, graph, node_mapping, src_graph_node, dest_graph_node, switch_id, pip_name)
+            yield import_graph_edge(conn, added_edges, graph, node_mapping, src_graph_node, dest_graph_node, switch_id, pip_name)
             bar.update(idx)
 
 def create_channels(conn):
@@ -501,7 +508,9 @@ def main():
 
     xml_graph = xml_graph2.Graph(
             input_rr_graph,
-            progressbar=progressbar.progressbar)
+            progressbar=progressbar.progressbar,
+            output_file_name=args.write_rr_graph,
+            )
 
     graph = xml_graph.graph
 
@@ -528,23 +537,21 @@ def main():
         print('{} Adding synthetic edges'.format(now()))
         add_synthetic_edges(conn, graph, node_mapping, grid, synth_tiles)
 
-    print('{} Importing edges from database.'.format(now()))
-    import_graph_edges(conn, graph, node_mapping)
 
     print('{} Creating channels.'.format(now()))
     channels_obj = create_channels(conn)
 
-    print('{} Serializing.'.format(now()))
-    serialized_rr_graph = xml_graph.serialize_to_xml(
+    print('{} Serializing to disk.'.format(now()))
+    with xml_graph:
+        xml_graph.start_serialize_to_xml(
             tool_version=tool_version,
             tool_comment=tool_comment,
-            pad_segment=segment_id,
             channels_obj=channels_obj,
-    )
+            )
 
-    print('{} Writing to disk.'.format(now()))
-    with open(args.write_rr_graph, "wb") as f:
-        f.write(serialized_rr_graph)
+        xml_graph.serialize_nodes(progressbar.progressbar(xml_graph.graph.nodes))
+        xml_graph.serialize_edges(import_graph_edges(conn, graph, node_mapping))
+
     print('{} Done.'.format(now()))
 
 if __name__ == '__main__':
