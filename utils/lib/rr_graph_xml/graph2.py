@@ -3,6 +3,7 @@ from lib.rr_graph import graph2
 from lib.rr_graph import tracks
 import copy
 import lxml.etree as ET
+import contextlib
 
 def enum_from_string(enum_type, s):
     for e in enum_type:
@@ -166,12 +167,13 @@ def AddNodeMetadata(root, metadata):
         }).text = m.value
 
 class Graph(object):
-    def __init__(self, input_xml, progressbar=None):
+    def __init__(self, input_xml, output_file_name=None, progressbar=None):
         if progressbar is None:
             self.progressbar = lambda x: x
 
         self.input_xml = input_xml
         self.progressbar = progressbar
+        self.output_file_name = output_file_name
 
         graph_input = graph_from_xml(input_xml, progressbar)
 
@@ -185,96 +187,145 @@ class Graph(object):
 
         self.graph = graph2.Graph(**graph_input)
 
-    def serialize_to_xml(self, tool_version, tool_comment, pad_segment, channels_obj=None, pool=None):
-        output_xml = ET.Element('rr_graph', {
+        self.exit_stack = None
+        self.xf = None
+
+    def __enter__(self):
+        assert self.output_file_name is not None
+        assert self.exit_stack is None
+        self.exit_stack = contextlib.ExitStack().__enter__()
+
+        f = self.exit_stack.enter_context(open(self.output_file_name, 'wb'))
+        self.xf = self.exit_stack.enter_context(ET.xmlfile(f))
+
+        return self
+
+    def __exit__(self, exc_type, exc_value, traceback):
+        ret = self.exit_stack.__exit__(exc_type, exc_value, traceback)
+        self.exit_stack = None
+        self.xf = None
+        return ret
+
+    def start_serialize_to_xml(self, tool_version, tool_comment, channels_obj):
+        assert self.exit_stack is not None
+        assert self.xf is not None
+
+        self.exit_stack.enter_context(self.xf.element('rr_graph', {
                 'tool_name': 'vpr',
                 'tool_version': tool_version,
                 'tool_comment': tool_comment,
-        })
+        }))
 
+        self.graph.check_ptc()
+
+        with self.xf.element('channels'):
+            el = ET.Element('channel', {
+                    'chan_width_max': str(channels_obj.chan_width_max),
+                    'x_min': str(channels_obj.x_min),
+                    'y_min': str(channels_obj.y_min),
+                    'x_max': str(channels_obj.x_max),
+                    'y_max': str(channels_obj.y_max),
+            })
+            self.xf.write(el)
+
+            for x_list in channels_obj.x_list:
+                el = ET.Element('x_list', {
+                    'index': str(x_list.index),
+                    'info': str(x_list.info),
+                })
+                self.xf.write(el)
+
+            for y_list in channels_obj.y_list:
+                el = ET.Element('y_list', {
+                    'index': str(y_list.index),
+                    'info': str(y_list.info),
+                })
+                self.xf.write(el)
+
+        self.xf.write(self.input_xml.find('switches'))
+        self.xf.write(self.input_xml.find('segments'))
+        self.xf.write(self.input_xml.find('block_types'))
+        self.xf.write(self.input_xml.find('grid'))
+
+    def serialize_nodes(self, nodes):
+        with self.xf.element('rr_nodes'):
+            for node in nodes:
+                attrib = {
+                        'id': str(node.id),
+                        'type': node.type.name,
+                        'capacity': str(node.capacity),
+                        }
+
+                if node.direction != graph2.NodeDirection.NO_DIR:
+                    attrib['direction'] = node.direction.name
+
+                with self.xf.element('node', attrib):
+                    if node.loc is not None:
+                        loc = {
+                                'xlow': str(node.loc.x_low),
+                                'ylow': str(node.loc.y_low),
+                                'xhigh': str(node.loc.x_high),
+                                'yhigh': str(node.loc.y_high),
+                                'ptc': str(node.loc.ptc),
+                        }
+
+                    if node.loc.side is not None:
+                        loc['side'] = node.loc.side.name
+
+                    el = ET.Element('loc', loc)
+                    self.xf.write(el)
+
+                if node.timing is not None:
+                    el = ET.Element('timing', {
+                            'R': str(node.timing.r),
+                            'C': str(node.timing.c),
+                    })
+                    self.xf.write(el)
+
+                if node.metadata is not None:
+                    with self.xf.element('metadata'):
+                        for m in node.metadata:
+                            el = ET.Element('meta', {
+                                    'name': m.name,
+                                    'x_offset': str(m.x_offset),
+                                    'y_offset': str(m.y_offset),
+                                    'z_offset': str(m.z_offset),
+                            }).text = m.value
+                            self.xf.write(el)
+
+                if node.segment is not None:
+                    el = ET.Element('segment', {
+                            'segment_id': str(node.segment.segment_id),
+                    })
+
+                    self.xf.write(el)
+
+    def serialize_edges(self, edges):
+        with self.xf.element('rr_edges'):
+            for edge in edges:
+                edge_xml = ET.Element('edge', {
+                        'src_node': str(edge.src_node),
+                        'sink_node': str(edge.sink_node),
+                        'switch_id': str(edge.switch_id),
+                })
+
+                if edge.metadata is not None:
+                    AddNodeMetadata(edge_xml, edge.metadata)
+
+                self.xf.write(edge_xml)
+
+    def serialize_to_xml(self, tool_version, tool_comment, pad_segment, channels_obj=None, pool=None):
         if channels_obj is None:
             channels_obj = self.graph.create_channels(
                     pad_segment=pad_segment,
                     pool=pool,
             )
 
-        self.graph.check_ptc()
-
-        channels_xml = ET.SubElement(output_xml, 'channels')
-
-        ET.SubElement(channels_xml, 'channel', {
-                'chan_width_max': str(channels_obj.chan_width_max),
-                'x_min': str(channels_obj.x_min),
-                'y_min': str(channels_obj.y_min),
-                'x_max': str(channels_obj.x_max),
-                'y_max': str(channels_obj.y_max),
-        })
-
-        for x_list in channels_obj.x_list:
-            ET.SubElement(channels_xml, 'x_list', {
-                'index': str(x_list.index),
-                'info': str(x_list.info),
-            })
-
-        for y_list in channels_obj.y_list:
-            ET.SubElement(channels_xml, 'y_list', {
-                'index': str(y_list.index),
-                'info': str(y_list.info),
-            })
-
-        output_xml.append(copy.deepcopy(self.input_xml.find('switches')))
-        output_xml.append(copy.deepcopy(self.input_xml.find('segments')))
-        output_xml.append(copy.deepcopy(self.input_xml.find('block_types')))
-        output_xml.append(copy.deepcopy(self.input_xml.find('grid')))
-
-        rr_nodes_xml = ET.SubElement(output_xml, 'rr_nodes')
-        for node in self.progressbar(self.graph.nodes):
-            node_xml = ET.SubElement(rr_nodes_xml, 'node', {
-                    'id': str(node.id),
-                    'type': node.type.name,
-                    'capacity': str(node.capacity),
-            })
-
-            if node.direction != graph2.NodeDirection.NO_DIR:
-                node_xml.attrib['direction'] = node.direction.name
-
-            if node.loc is not None:
-                loc = {
-                        'xlow': str(node.loc.x_low),
-                        'ylow': str(node.loc.y_low),
-                        'xhigh': str(node.loc.x_high),
-                        'yhigh': str(node.loc.y_high),
-                        'ptc': str(node.loc.ptc),
-                }
-
-                if node.loc.side is not None:
-                    loc['side'] = node.loc.side.name
-
-                ET.SubElement(node_xml, 'loc', loc)
-
-            if node.timing is not None:
-                ET.SubElement(node_xml, 'timing', {
-                        'R': str(node.timing.r),
-                        'C': str(node.timing.c),
-                })
-
-            if node.metadata is not None:
-                AddNodeMetadata(node_xml, node.metadata)
-
-            if node.segment is not None:
-                ET.SubElement(node_xml, 'segment', {
-                        'segment_id': str(node.segment.segment_id),
-                })
-
-        rr_edges_xml = ET.SubElement(output_xml, 'rr_edges')
-        for edge in self.progressbar(self.graph.edges):
-            edge_xml = ET.SubElement(rr_edges_xml, 'edge', {
-                    'src_node': str(edge.src_node),
-                    'sink_node': str(edge.sink_node),
-                    'switch_id': str(edge.switch_id),
-            })
-
-            if edge.metadata is not None:
-                AddNodeMetadata(edge_xml, edge.metadata)
-
-        return ET.tostring(ET.ElementTree(output_xml), pretty_print=True)
+        with self:
+            self.start_serialize_to_xml(
+                    tool_version=tool_version,
+                    tool_comment=tool_comment,
+                    channels_obj=channels_obj,
+                    )
+            self.serialize_nodes(self.progressbar(self.graph.nodes))
+            self.serialize_edges(self.progressbar(self.graph.edges))
