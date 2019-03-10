@@ -275,30 +275,31 @@ class Graph(object):
                     el = ET.Element('loc', loc)
                     self.xf.write(el)
 
-                if node.timing is not None:
-                    el = ET.Element('timing', {
-                            'R': str(node.timing.r),
-                            'C': str(node.timing.c),
-                    })
-                    self.xf.write(el)
+                    if node.timing is not None:
+                        el = ET.Element('timing', {
+                                'R': str(node.timing.r),
+                                'C': str(node.timing.c),
+                        })
+                        self.xf.write(el)
 
-                if node.metadata is not None:
-                    with self.xf.element('metadata'):
-                        for m in node.metadata:
-                            el = ET.Element('meta', {
-                                    'name': m.name,
-                                    'x_offset': str(m.x_offset),
-                                    'y_offset': str(m.y_offset),
-                                    'z_offset': str(m.z_offset),
-                            }).text = m.value
-                            self.xf.write(el)
+                    if node.metadata is not None and len(node.metadata) > 0:
+                        with self.xf.element('metadata'):
+                            for m in node.metadata:
+                                el = ET.Element('meta', {
+                                        'name': m.name,
+                                        'x_offset': str(m.x_offset),
+                                        'y_offset': str(m.y_offset),
+                                        'z_offset': str(m.z_offset),
+                                })
+                                el.text = m.value
+                                self.xf.write(el)
 
-                if node.segment is not None:
-                    el = ET.Element('segment', {
-                            'segment_id': str(node.segment.segment_id),
-                    })
+                    if node.segment is not None:
+                        el = ET.Element('segment', {
+                                'segment_id': str(node.segment.segment_id),
+                        })
 
-                    self.xf.write(el)
+                        self.xf.write(el)
 
     def serialize_edges(self, edges):
         with self.xf.element('rr_edges'):
