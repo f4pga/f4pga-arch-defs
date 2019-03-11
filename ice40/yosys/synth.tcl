@@ -8,6 +8,10 @@ ice40_unlut
 simplemap
 opt
 abc -lut 4
+
+# opt_expr -undriven makes sure all nets are driven, if only by the $undef
+# net.
+opt_expr -undriven
 opt_clean
 
 setundef -zero -params

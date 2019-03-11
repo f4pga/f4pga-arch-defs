@@ -110,7 +110,8 @@
     <input  name="I" num_pins="1"/>
     <output name="O" num_pins="1"/>
     <metadata>
-     <meta name="hlc_property">NegClk # CEN constant 1, SR constant 0</meta>
+      <meta name="hlc_property">NegClk # CEN constant 1, SR constant 0</meta>
+      <meta name="fasm_features">NegClk</meta>
     </metadata>
     <interconnect><direct><port type="input" name="I" /><port type="output" name="O"/></direct></interconnect>
    </pb_type>
@@ -125,6 +126,7 @@
     <output name="O" num_pins="1"/>
     <metadata>
      <meta name="hlc_property">NegClk # CEN in use, SR constant 0</meta>
+     <meta name="fasm_features">NegClk</meta>
     </metadata>
     <interconnect><direct><port type="input" name="I" /><port type="output" name="O"/></direct></interconnect>
    </pb_type>
@@ -139,6 +141,7 @@
     <output name="O" num_pins="1"/>
     <metadata>
      <meta name="hlc_property">NegClk # CEN constant 0, SR in use</meta>
+     <meta name="fasm_features">NegClk</meta>
     </metadata>
     <interconnect><direct><port type="input" name="I" /><port type="output" name="O"/></direct></interconnect>
    </pb_type>
@@ -153,6 +156,7 @@
     <output name="O" num_pins="1"/>
     <metadata>
      <meta name="hlc_property">NegClk # CEN in use, SR in use</meta>
+     <meta name="fasm_features">NegClk</meta>
     </metadata>
     <interconnect><direct><port type="input" name="I" /><port type="output" name="O"/></direct></interconnect>
    </pb_type>
