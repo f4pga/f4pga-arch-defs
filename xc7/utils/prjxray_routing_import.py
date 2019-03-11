@@ -497,13 +497,26 @@ def main():
         with open(args.synth_tiles) as f:
             synth_tiles = json.load(f)
 
-        roi = Roi(
-                db=db,
-                x1=synth_tiles['info']['GRID_X_MIN'],
-                y1=synth_tiles['info']['GRID_Y_MIN'],
-                x2=synth_tiles['info']['GRID_X_MAX'],
-                y2=synth_tiles['info']['GRID_Y_MAX'],
-                )
+        if args.db_overlay:
+            import db_overlay.roi_overlay
+
+            roi = db_overlay.roi_overlay.RoiWithOverlay(
+                    db=db,
+                    x1=synth_tiles['info']['GRID_X_MIN'],
+                    y1=synth_tiles['info']['GRID_Y_MIN'],
+                    x2=synth_tiles['info']['GRID_X_MAX'],
+                    y2=synth_tiles['info']['GRID_Y_MAX'],
+                    )
+
+        else:
+
+            roi = Roi(
+                    db=db,
+                    x1=synth_tiles['info']['GRID_X_MIN'],
+                    y1=synth_tiles['info']['GRID_Y_MIN'],
+                    x2=synth_tiles['info']['GRID_X_MAX'],
+                    y2=synth_tiles['info']['GRID_Y_MAX'],
+                    )
 
         print('{} generating routing graph for ROI.'.format(now()))
     else:

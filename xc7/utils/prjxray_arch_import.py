@@ -179,13 +179,26 @@ def main():
         with open(args.synth_tiles) as f:
             synth_tiles = json.load(f)
 
-        roi = Roi(
-                db=db,
-                x1=j['info']['GRID_X_MIN'],
-                y1=j['info']['GRID_Y_MIN'],
-                x2=j['info']['GRID_X_MAX'],
-                y2=j['info']['GRID_Y_MAX'],
-                )
+        if args.db_overlay:
+            import db_overlay.roi_overlay
+
+            roi = db_overlay.roi_overlay.RoiWithOverlay(
+                    db=db,
+                    x1=j['info']['GRID_X_MIN'],
+                    y1=j['info']['GRID_Y_MIN'],
+                    x2=j['info']['GRID_X_MAX'],
+                    y2=j['info']['GRID_Y_MAX'],
+                    )
+
+        else:
+
+            roi = Roi(
+                    db=db,
+                    x1=j['info']['GRID_X_MIN'],
+                    y1=j['info']['GRID_Y_MIN'],
+                    x2=j['info']['GRID_X_MAX'],
+                    y2=j['info']['GRID_Y_MAX'],
+                    )
 
         synth_tile_map = add_synthetic_tile(complexblocklist_xml)
 

@@ -48,9 +48,11 @@ class GridSplitter(object):
 
         self.bwd_tile_name_map = {}
         self.bwd_tile_type_map = {}
+        self.bwd_grid_loc_map  = {}
 
         self.fwd_tile_name_map = {}
         self.fwd_tile_type_map = {}
+        self.fwd_grid_loc_map  = {}
 
         self.new_tile_types = set()
 
@@ -194,6 +196,14 @@ class GridSplitter(object):
                 tile["grid_x"] += ofs
                 self.new_grid_by_tile[tile_name] = tile
 
+            # Build X location map
+            tile_new_loc_x = (tile_loc.x + ofs, tile_loc.x + ofs + 1)
+
+            self.fwd_grid_loc_map[tile_loc.x] = tile_new_loc_x
+
+            self.bwd_grid_loc_map[tile_new_loc_x[0]] = tile_loc.x
+            self.bwd_grid_loc_map[tile_new_loc_x[1]] = tile_loc.x
+
     def add_tile_type_to_split(self, tile_type):
         """
         Adds a tile type to be splitted. Determines which columns need to be split
@@ -306,6 +316,19 @@ class GridSplitter(object):
 
         with open(file_name, "w") as fp:
             json.dump(tile_type_map, fp, sort_keys=True, indent=1)
+            fp.flush()
+
+        # Save grid loc map
+        grid_loc_map = {
+            "forward":  self.fwd_grid_loc_map,
+            "backward": self.bwd_grid_loc_map
+        }
+
+        file_name = os.path.join(self.db_overlay, "map_grid_loc.json")
+        logging.info("Writing '%s'" % file_name)
+
+        with open(file_name, "w") as fp:
+            json.dump(grid_loc_map, fp, sort_keys=True, indent=1)
             fp.flush()
 
 # =============================================================================
