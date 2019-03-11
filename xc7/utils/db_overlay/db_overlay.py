@@ -40,26 +40,6 @@ class DatabaseWithOverlay(db.Database):
 
                 print("Overlay tile type: '%s'" % tile_type)
 
-                segbits = os.path.join(
-                    self.overlay_root, 'segbits_{}.db'.format(tile_type))
-                if not os.path.isfile(segbits):
-                    segbits = None
-
-                block_ram_segbits = os.path.join(
-                    self.overlay_root, 'segbits_{}.block_ram.db'.format(tile_type))
-                if not os.path.isfile(block_ram_segbits):
-                    block_ram_segbits = None
-
-                ppips = os.path.join(
-                    self.overlay_root, 'ppips_{}.db'.format(tile_type))
-                if not os.path.isfile(ppips):
-                    ppips = None
-
-                mask = os.path.join(
-                    self.overlay_root, 'mask_{}.db'.format(tile_type))
-                if not os.path.isfile(mask):
-                    mask = None
-
                 tile_type_file = os.path.join(
                     self.overlay_root, 'tile_type_{}.json'.format(
                         tile_type.upper()))
@@ -67,10 +47,10 @@ class DatabaseWithOverlay(db.Database):
                     tile_type_file = None
 
                 self.tile_types[tile_type.upper()] = tile.TileDbs(
-                    segbits=segbits,
-                    block_ram_segbits=block_ram_segbits,
-                    ppips=ppips,
-                    mask=mask,
+                    segbits=None,
+                    block_ram_segbits=None,
+                    ppips=None,
+                    mask=None,
                     tile_type=tile_type_file,
                 )
 
