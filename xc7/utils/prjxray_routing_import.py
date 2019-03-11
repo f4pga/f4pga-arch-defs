@@ -33,7 +33,6 @@ import progressbar
 import datetime
 import re
 import sqlite3
-from lib.rr_graph.graph2 import NodeMetadata
 import functools
 
 now = datetime.datetime.now
