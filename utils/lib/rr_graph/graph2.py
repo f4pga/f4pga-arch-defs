@@ -209,7 +209,7 @@ class Graph(object):
     def get_delayless_switch_id(self):
         return self.delayless_switch
 
-    def add_track(self, track, segment_id, capacity=1, timing=None, name=None):
+    def add_track(self, track, segment_id, capacity=1, timing=None, name=None, ptc=None):
         if track.direction == 'X':
             node_type = NodeType.CHANX
         elif track.direction == 'Y':
@@ -238,7 +238,7 @@ class Graph(object):
                     x_high=track.x_high,
                     y_high=track.y_high,
                     side=Direction.NO_SIDE,
-                    ptc=None
+                    ptc=ptc,
             ),
             timing=timing,
             segment=NodeSegment(segment_id=segment_id),
@@ -409,7 +409,7 @@ class Graph(object):
                         capacity=0,
                         timing=None)
 
-                set_track_ptc(track_idx, ptc)
+                self.set_track_ptc(track_idx, ptc)
 
         for chan, channel_model in y_channel_models.items():
             for ptc, start, end in channel_model.fill_empty(y_min, y_max):
@@ -426,7 +426,7 @@ class Graph(object):
                         capacity=0,
                         timing=None)
 
-                set_track_ptc(track_idx, ptc)
+                self.set_track_ptc(track_idx, ptc)
 
         print('Number padding nodes {}'.format(num_padding))
 
