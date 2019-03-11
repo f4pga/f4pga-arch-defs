@@ -33,6 +33,8 @@ import progressbar
 import datetime
 import re
 import sqlite3
+from lib.rr_graph.graph2 import NodeMetadata
+import functools
 
 now = datetime.datetime.now
 
@@ -77,7 +79,7 @@ def import_graph_nodes(conn, graph, node_mapping):
     tile_type_wire_to_pkey = {}
     tile_loc_to_pkey = {}
 
-    for node in progressbar.progressbar(graph.nodes):
+    for node in graph.nodes:
         if node.type not in (graph2.NodeType.IPIN, graph2.NodeType.OPIN):
             continue
 
@@ -169,9 +171,9 @@ def is_track_alive(conn, tile_pkey, roi, synth_tiles):
 
 def import_tracks(conn, alive_tracks, node_mapping, graph, segment_id):
     c2 = conn.cursor()
-    for (graph_node_pkey, track_pkey, graph_node_type, x_low, x_high, y_low, y_high, ptc) in progressbar.progressbar(c2.execute("""
+    for (graph_node_pkey, track_pkey, graph_node_type, x_low, x_high, y_low, y_high, ptc) in c2.execute("""
     SELECT pkey, track_pkey, graph_node_type, x_low, x_high, y_low, y_high, ptc FROM
-        graph_node WHERE track_pkey IS NOT NULL;""")):
+        graph_node WHERE track_pkey IS NOT NULL;"""):
         if track_pkey not in alive_tracks:
             continue
 
@@ -195,19 +197,17 @@ def import_tracks(conn, alive_tracks, node_mapping, graph, segment_id):
                 )
         assert graph_node_pkey not in node_mapping
         node_mapping[graph_node_pkey] = graph.add_track(
-                track=track, segment_id=segment_id,
-                name='track_{}'.format(graph_node_pkey))
-        graph.set_track_ptc(node_mapping[graph_node_pkey], ptc)
+                track=track, segment_id=segment_id, ptc=ptc)
 
 def import_dummy_tracks(conn, graph, segment_id):
     c2 = conn.cursor()
 
     num_dummy = 0
     for (graph_node_pkey, track_pkey, graph_node_type, x_low, x_high,
-        y_low, y_high, ptc) in progressbar.progressbar(c2.execute("""
+        y_low, y_high, ptc) in c2.execute("""
     SELECT pkey, track_pkey, graph_node_type, x_low, x_high, y_low, y_high, ptc FROM
         graph_node WHERE (graph_node_type = ? or graph_node_type = ?) and capacity = 0;""",
-        (graph2.NodeType.CHANX.value, graph2.NodeType.CHANY.value))):
+        (graph2.NodeType.CHANX.value, graph2.NodeType.CHANY.value)):
 
         node_type = graph2.NodeType(graph_node_type)
 
@@ -228,11 +228,9 @@ def import_dummy_tracks(conn, graph, segment_id):
                 y_high=y_high,
                 )
 
-        inode = graph.add_track(
+        graph.add_track(
                 track=track, segment_id=segment_id,
-                name='dummy_track_{}'.format(graph_node_pkey),
-                capacity=0)
-        graph.set_track_ptc(inode, ptc)
+                capacity=0, ptc=ptc)
         num_dummy += 1
 
     return num_dummy
@@ -260,7 +258,7 @@ def add_synthetic_edges(conn, graph, node_mapping, grid, synth_tiles):
     c = conn.cursor()
     routing_switch = graph.get_switch_id('routing')
 
-    for loc in progressbar.progressbar(grid.tile_locations()):
+    for loc in grid.tile_locations():
         tile_name = grid.tilename_at_loc(loc)
 
         if tile_name in synth_tiles['tiles']:
@@ -324,8 +322,8 @@ WHERE
 
 def get_switch_name(conn, graph, switch_name_map, switch_pkey):
     assert switch_pkey is not None
-    c2 = conn.cursor()
     if switch_pkey not in switch_name_map:
+        c2 = conn.cursor()
         c2.execute("""SELECT name FROM switch WHERE pkey = ?;""", (switch_pkey,))
         (switch_name,) = c2.fetchone()
         switch_id = graph.get_switch_id(switch_name)
@@ -335,24 +333,24 @@ def get_switch_name(conn, graph, switch_name_map, switch_pkey):
 
     return switch_id
 
-def get_tile_name(conn, tile_name_cache, tile_pkey):
-    if tile_pkey in tile_name_cache:
-        return tile_name_cache[tile_pkey]
-    else:
-        c = conn.cursor()
+def create_get_tile_name(conn):
+    c = conn.cursor()
+
+    @functools.lru_cache(maxsize=None)
+    def get_tile_name(tile_pkey):
         c.execute("""
         SELECT name FROM tile WHERE pkey = ?;
         """, (tile_pkey,))
-        (tile_name,) = c.fetchone()
+        return c.fetchone()[0]
 
-        tile_name_cache[tile_pkey] = tile_name
-        return tile_name
+    return get_tile_name
 
-def get_pip_wire_names(conn, pip_cache, pip_pkey):
-    if pip_pkey in pip_cache:
-        return pip_cache[pip_pkey]
-    else:
-        c = conn.cursor()
+
+def create_get_pip_wire_names(conn):
+    c = conn.cursor()
+
+    @functools.lru_cache(maxsize=None)
+    def get_pip_wire_names(pip_pkey):
         c.execute("""SELECT src_wire_in_tile_pkey, dest_wire_in_tile_pkey
             FROM pip_in_tile WHERE pkey = ?;""", (pip_pkey,))
         src_wire_in_tile_pkey, dest_wire_in_tile_pkey = c.fetchone()
@@ -365,41 +363,16 @@ def get_pip_wire_names(conn, pip_cache, pip_pkey):
                 (dest_wire_in_tile_pkey,))
         (dest_net,) = c.fetchone()
 
-        pip_cache[pip_pkey] = (src_net, dest_net)
         return (src_net, dest_net)
 
+    return get_pip_wire_names
 
-def make_fasm_feature(conn, tile_name_cache, pip_cache, tile_pkey, pip_pkey):
-    assert tile_pkey is not None
-
-    tile_name = get_tile_name(conn, tile_name_cache, tile_pkey)
-    src_net, dest_net = get_pip_wire_names(conn, pip_cache, pip_pkey)
-
-    return '{}.{}.{}'.format(tile_name, dest_net, src_net)
-
-def import_graph_edge(conn, added_edges, graph, node_mapping, src_graph_node, dest_graph_node, switch_id, pip_name):
-    src_node = node_mapping[src_graph_node]
-    sink_node = node_mapping[dest_graph_node]
-
-    assert (src_node, sink_node) not in added_edges, (
-            src_node, sink_node,
-            pip_name, src_graph_node, dest_graph_node)
-
-    added_edges.add((src_node, sink_node))
-
-    if pip_name is not None:
-        return graph.create_edge(
-                src_node=src_node, sink_node=sink_node, switch_id=switch_id,
-                name='fasm_features', value=check_feature(pip_name))
-    else:
-        return graph.create_edge(
-                src_node=src_node, sink_node=sink_node, switch_id=switch_id)
 
 def import_graph_edges(conn, graph, node_mapping):
     # First yield existing edges
     print('{} Importing existing edges.'.format(now()))
     for edge in graph.edges:
-        yield edge
+        yield (edge.src_node, edge.sink_node, edge.switch_id, None)
 
     # Then yield edges from database.
     c = conn.cursor()
@@ -407,11 +380,10 @@ def import_graph_edges(conn, graph, node_mapping):
     c.execute("SELECT count() FROM graph_edge;""")
     (num_edges,) = c.fetchone()
 
-    tile_name_cache = {}
-    pip_cache = {}
-    switch_name_map = {}
+    get_tile_name = create_get_tile_name(conn)
+    get_pip_wire_names = create_get_pip_wire_names(conn)
 
-    added_edges = set()
+    switch_name_map = {}
 
     print('{} Importing edges from database.'.format(now()))
     with progressbar.ProgressBar(max_value=num_edges) as bar:
@@ -432,14 +404,26 @@ FROM
                 continue
 
             if pip_pkey is not None:
-                pip_name = make_fasm_feature(conn, tile_name_cache, pip_cache, tile_pkey, pip_pkey)
+                tile_name = get_tile_name(tile_pkey)
+                src_net, dest_net = get_pip_wire_names(pip_pkey)
+
+                pip_name = '{}.{}.{}'.format(tile_name, dest_net, src_net)
             else:
                 pip_name = None
 
             switch_id = get_switch_name(conn, graph, switch_name_map, switch_pkey)
 
-            yield import_graph_edge(conn, added_edges, graph, node_mapping, src_graph_node, dest_graph_node, switch_id, pip_name)
-            bar.update(idx)
+            src_node = node_mapping[src_graph_node]
+            sink_node = node_mapping[dest_graph_node]
+
+            if pip_name is not None:
+                yield (src_node, sink_node, switch_id,
+                        (('fasm_features', check_feature(pip_name)),))
+            else:
+                yield (src_node, sink_node, switch_id, ())
+
+            if idx % 1024 == 0:
+                bar.update(idx)
 
 def create_channels(conn):
     c = conn.cursor()
@@ -467,6 +451,14 @@ def create_channels(conn):
             x_list=x_list,
             y_list=y_list,
     )
+
+def yield_nodes(nodes):
+    with progressbar.ProgressBar(max_value=len(nodes)) as bar:
+        for idx, node in enumerate(nodes):
+            yield node
+
+            if idx % 1024 == 0:
+                bar.update(idx)
 
 def main():
     parser = argparse.ArgumentParser()
@@ -549,7 +541,7 @@ def main():
             channels_obj=channels_obj,
             )
 
-        xml_graph.serialize_nodes(progressbar.progressbar(xml_graph.graph.nodes))
+        xml_graph.serialize_nodes(yield_nodes(xml_graph.graph.nodes))
         xml_graph.serialize_edges(import_graph_edges(conn, graph, node_mapping))
 
     print('{} Done.'.format(now()))
