@@ -1,9 +1,93 @@
 """ Graph object that handles serialization and deserialization from XML. """
 from lib.rr_graph import graph2
+from lib.rr_graph.graph2 import NodeDirection
 from lib.rr_graph import tracks
-import copy
 import lxml.etree as ET
 import contextlib
+
+
+def serialize_nodes(xf, nodes):
+    """ Serialize list of Node objects to XML.
+
+    Note that this method is extremely hot, len(nodes) is order 1-10 million.
+    Almost any modification of this function has a significant effect on
+    performance, so any modification to this function should be tested for
+    performance and correctness before commiting.
+
+    """
+    element = xf.element
+    write = xf.write
+    Element = ET.Element
+    with element('rr_nodes'):
+        for node in nodes:
+            attrib = {
+                    'id': str(node.id),
+                    'type': node.type.name,
+                    'capacity': str(node.capacity),
+                    }
+
+            if node.direction != NodeDirection.NO_DIR:
+                attrib['direction'] = node.direction.name
+
+            with element('node', attrib):
+                loc = {
+                        'xlow': str(node.loc.x_low),
+                        'ylow': str(node.loc.y_low),
+                        'xhigh': str(node.loc.x_high),
+                        'yhigh': str(node.loc.y_high),
+                        'ptc': str(node.loc.ptc),
+                }
+
+                if node.loc.side is not None:
+                    loc['side'] = node.loc.side.name
+
+                write(Element('loc', loc))
+
+                if node.timing is not None:
+                    write(Element('timing', {
+                            'R': str(node.timing.r),
+                            'C': str(node.timing.c),
+                    }))
+
+                if node.metadata is not None and len(node.metadata) > 0:
+                    with element('metadata'):
+                        for m in node.metadata:
+                            with element('meta', name=m.name):
+                                write(m.value)
+
+                if node.segment is not None:
+                    write(Element('segment', {
+                            'segment_id': str(node.segment.segment_id),
+                    }))
+
+def serialize_edges(xf, edges):
+    """ Serialize list of edge tuples objects to XML.
+
+    edge tuples are (src_node(int), sink_node(int), switch_id(int), metadata(NodeMetadata)).
+
+    metadata may be None.
+
+    Note that this method is extremely hot, len(edges) is order 5-50 million.
+    Almost any modification of this function has a significant effect on
+    performance, so any modification to this function should be tested for
+    performance and correctness before commiting.
+
+    """
+    element = xf.element
+    write = xf.write
+
+    with element('rr_edges'):
+        for src_node, sink_node, switch_id, metadata in edges:
+            with element('edge', {
+                        'src_node': str(src_node),
+                        'sink_node': str(sink_node),
+                        'switch_id': str(switch_id),
+                        }):
+                if metadata is not None and len(metadata) > 0:
+                    with element('metadata'):
+                        for name, value in metadata:
+                            with element('meta', name=name):
+                                write(value)
 
 def enum_from_string(enum_type, s):
     for e in enum_type:
@@ -102,7 +186,7 @@ def graph_from_xml(input_xml, progressbar=None):
         ))
 
     nodes = []
-    for node in progressbar(input_xml.find('rr_nodes').iter('node')):
+    for node in input_xml.find('rr_nodes').iter('node'):
         node_type = enum_from_string(graph2.NodeType, node.attrib['type'])
         if node_type in [graph2.NodeType.SOURCE, graph2.NodeType.SINK,
                             graph2.NodeType.OPIN, graph2.NodeType.IPIN]:
@@ -156,16 +240,6 @@ def graph_from_xml(input_xml, progressbar=None):
             nodes=nodes
     )
 
-def AddNodeMetadata(root, metadata):
-    metadata_xml = ET.SubElement(root, 'metadata')
-    for m in metadata:
-        ET.SubElement(metadata_xml, 'meta', {
-                'name': m.name,
-                'x_offset': str(m.x_offset),
-                'y_offset': str(m.y_offset),
-                'z_offset': str(m.z_offset),
-        }).text = m.value
-
 class Graph(object):
     def __init__(self, input_xml, output_file_name=None, progressbar=None):
         if progressbar is None:
@@ -178,7 +252,7 @@ class Graph(object):
         graph_input = graph_from_xml(input_xml, progressbar)
 
         rebase_nodes = []
-        for node in progressbar(graph_input['nodes']):
+        for node in graph_input['nodes']:
             node_d = node._asdict()
             node_d['id'] = len(rebase_nodes)
             rebase_nodes.append(graph2.Node(**node_d))
@@ -248,72 +322,10 @@ class Graph(object):
         self.xf.write(self.input_xml.find('grid'))
 
     def serialize_nodes(self, nodes):
-        with self.xf.element('rr_nodes'):
-            for node in nodes:
-                attrib = {
-                        'id': str(node.id),
-                        'type': node.type.name,
-                        'capacity': str(node.capacity),
-                        }
-
-                if node.direction != graph2.NodeDirection.NO_DIR:
-                    attrib['direction'] = node.direction.name
-
-                with self.xf.element('node', attrib):
-                    if node.loc is not None:
-                        loc = {
-                                'xlow': str(node.loc.x_low),
-                                'ylow': str(node.loc.y_low),
-                                'xhigh': str(node.loc.x_high),
-                                'yhigh': str(node.loc.y_high),
-                                'ptc': str(node.loc.ptc),
-                        }
-
-                    if node.loc.side is not None:
-                        loc['side'] = node.loc.side.name
-
-                    el = ET.Element('loc', loc)
-                    self.xf.write(el)
-
-                    if node.timing is not None:
-                        el = ET.Element('timing', {
-                                'R': str(node.timing.r),
-                                'C': str(node.timing.c),
-                        })
-                        self.xf.write(el)
-
-                    if node.metadata is not None and len(node.metadata) > 0:
-                        with self.xf.element('metadata'):
-                            for m in node.metadata:
-                                el = ET.Element('meta', {
-                                        'name': m.name,
-                                        'x_offset': str(m.x_offset),
-                                        'y_offset': str(m.y_offset),
-                                        'z_offset': str(m.z_offset),
-                                })
-                                el.text = m.value
-                                self.xf.write(el)
-
-                    if node.segment is not None:
-                        el = ET.Element('segment', {
-                                'segment_id': str(node.segment.segment_id),
-                        })
-
-                        self.xf.write(el)
+        serialize_nodes(self.xf, nodes)
 
     def serialize_edges(self, edges):
-        with self.xf.element('rr_edges'):
-            for edge in edges:
-                edge_xml = ET.Element('edge', {
-                        'src_node': str(edge.src_node),
-                        'sink_node': str(edge.sink_node),
-                        'switch_id': str(edge.switch_id),
-                })
-
-                if edge.metadata is not None:
-                    AddNodeMetadata(edge_xml, edge.metadata)
-
-                self.xf.write(edge_xml)
+        serialize_edges(self.xf, edges)
 
     def serialize_to_xml(self, tool_version, tool_comment, pad_segment, channels_obj=None, pool=None):
         if channels_obj is None:
