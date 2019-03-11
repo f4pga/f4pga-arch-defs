@@ -468,7 +468,6 @@
     <meta name="fasm_features">
       CarryEnable
       AsyncSetReset
-      NegClk
     </meta>
    </metadata>
   </pb_type>
@@ -507,7 +506,6 @@
       CarryEnable
       AsyncSetReset
       Set_NoReset
-      NegClk
     </meta>
    </metadata>
   </pb_type>
@@ -545,7 +543,6 @@
     <meta name="fasm_features">
       CarryEnable
       Set_NoReset
-      NegClk
     </meta>
    </metadata>
   </pb_type>
@@ -583,7 +580,6 @@
     <meta name="fasm_features">
       CarryEnable
       Set_NoReset
-      NegClk
     </meta>
    </metadata>
   </pb_type>
@@ -618,7 +614,6 @@
     </meta>
     <meta name="fasm_features">
       AsyncSetReset
-      NegClk
     </meta>
    </metadata>
   </pb_type>
@@ -653,7 +648,6 @@
     <meta name="fasm_features">
       AsyncSetReset
       Set_NoReset
-      NegClk
     </meta>
    </metadata>
   </pb_type>
@@ -686,7 +680,6 @@
         # reset
     </meta>
     <meta name="fasm_features">
-      NegClk
     </meta>
    </metadata>
   </pb_type>
@@ -720,7 +713,6 @@
     </meta>
     <meta name="fasm_features">
       Set_NoReset
-      NegClk
     </meta>
    </metadata>
   </pb_type>
