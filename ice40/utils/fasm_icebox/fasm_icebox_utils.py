@@ -211,13 +211,35 @@ def read_ice_db(ic):
                     accum.append_ice_entry(tile_type, tile_loc, [bit], names, None)
 
             # entries to generate the negated case
-            elif tile_type == "IO" and (
-                entry[-1].startswith("REN_")
-                or (device_1k and entry[-1].startswith("IE_"))
-            ):
+            elif tile_type == "IO" and device_1k and entry[-1].startswith("IE_"):
                 accum.append_ice_entry(
                     tile_type, tile_loc, entry[0], entry[1:], None, negate=True
                 )
+            elif tile_type == "IO" and entry[-1].startswith("PINTYPE"):
+                # TODO: push this up into sythesis and pass parameters
+                # SimpleInput and SimpleOutput for IOB_0 and IOB_1
+                if entry[-1] == "PINTYPE_0":
+                    ic.tile_db(*tile_loc)
+                    sinput = []
+                    soutput = []
+                    IOB = entry[-2][-1]
+                    tmap = [xx[3:] for xx in ic.ieren_db() if xx[:3] == (tile_loc + (int(IOB),))]
+                    assert (len(tmap) < 2), "expected 1 IEREN_DB entry found {}".format(len(tmap))
+
+                    if len(tmap) == 0:
+                        print("no ieren found for {}".format( (tile_loc + (int(IOB),)) ))
+                        continue
+                    ieren_map = tmap[0]
+                    assert (ieren_map[:2] == tile_loc), "IEREN_DB entry is in a different tile. This is not currently supported."
+
+                    for ii in ic.tile_db(*tile_loc):
+                        if ii[-1] in ["IE_{}".format(ieren_map[2]), "REN_{}".format(ieren_map[2])] or (ii[-2] == "IOB_{}".format(IOB) and ii[-1] in ["PINTYPE_0"]):
+                            sinput += ii[0]
+                        if ii[-1] in ["REN_{}".format(ieren_map[2])] or (ii[-2] == "IOB_{}".format(ieren_map[2]) and ii[-1] in ["PINTYPE_0", "PINTYPE_3", "PINTYPE_4"]):
+                            soutput += ii[0]
+
+                    accum.append_ice_entry(tile_type, tile_loc, sinput, entry[1:-1] + ["SimpleInput"], None)
+                    accum.append_ice_entry(tile_type, tile_loc, soutput, entry[1:-1] + ["SimpleOutput"], None)
             elif device_1k and tile_type == "RAMB" and entry[-1] == "PowerUp":
                 accum.append_ice_entry(
                     tile_type, tile_loc, entry[0], entry[1:], None, negate=True
@@ -274,7 +296,10 @@ def _iceboxdb_to_fasmdb(ic, outf=StringIO()):
 
 def generate_fasm_db(outf, device):
     ic = icebox.iceconfig()
-    ic.setup_empty_1k()
+    init_method_name = "setup_empty_{}".format(device.lower()[2:])
+    assert hasattr(ic, init_method_name), "no icebox method to init empty device"
+    getattr(ic, init_method_name)()
+
     return _iceboxdb_to_fasmdb(ic, outf)
 
 
@@ -319,10 +344,7 @@ def iceconfig_to_fasm(ic, outf=StringIO()):
                             names = entry[1:] + [name]
                             accum.append_ice_entry(tile_type, tile_loc, [], names, None)
 
-            elif tile_type == "IO" and (
-                entry[-1].startswith("REN_")
-                or (device_1k and entry[-1].startswith("IE_"))
-            ):
+            elif tile_type == "IO" and device_1k and entry[-1].startswith("IE_"):
                 accum.append_ice_entry(
                     tile_type, tile_loc, entry[0], entry[1:], None, negate=True
                 )
@@ -402,6 +424,7 @@ def fasm_to_asc(in_fasm, outf, device):
                 device_1k
                 and (tile_type == "IO" and entry[-1] in ["IE_0", "IE_1"])
                 or (tile_type == "RAMB" and entry[-1] == "PowerUp")
+                or (entry[-2] == "ColBufCtrl")
             ):
                 tile_bits = _tile_to_array(tile)
                 tile_type = ic.tile_type(*tile_loc)
@@ -519,5 +542,6 @@ class TestConversion(unittest.TestCase):
     """
 
 if __name__ == "__main__":
-    with open("ice40_1k.db", "w") as f:
-        generate_fasm_db(f, "1k")
+    device = "hx8k"
+    with open("ice40_{}.db".format(device), "w") as f:
+        generate_fasm_db(f, device)
