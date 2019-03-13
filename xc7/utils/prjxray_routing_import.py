@@ -370,7 +370,7 @@ def create_get_pip_wire_names(conn):
     return get_pip_wire_names
 
 
-def import_graph_edges(conn, graph, node_mapping):
+def import_graph_edges(conn, graph, node_mapping, tile_name_map):
     # First yield existing edges
     print('{} Importing existing edges.'.format(now()))
     for edge in graph.edges:
@@ -409,7 +409,16 @@ FROM
                 tile_name = get_tile_name(tile_pkey)
                 src_net, dest_net = get_pip_wire_names(pip_pkey)
 
-                pip_name = '{}.{}.{}'.format(tile_name, dest_net, src_net)
+                # Translate tile name
+                fasm_tile_name = tile_name
+                if tile_name_map is not None:
+                    try:
+                        fasm_tile_name = tile_name_map["backward"][tile_name]
+                        print("'{}' -> '{}'".format(tile_name, fasm_tile_name))
+                    except KeyError:
+                        pass
+
+                pip_name = '{}.{}.{}'.format(fasm_tile_name, dest_net, src_net)
             else:
                 pip_name = None
 
@@ -568,8 +577,8 @@ def main():
                 channels_obj=channels_obj,
                 )
 
-            xml_graph.serialize_nodes(yield_nodes(xml_graph.graph.nodes))
-            xml_graph.serialize_edges(import_graph_edges(conn, graph, node_mapping))
+        xml_graph.serialize_nodes(yield_nodes(xml_graph.graph.nodes))
+        xml_graph.serialize_edges(import_graph_edges(conn, graph, node_mapping, tile_name_map))
 
 if __name__ == '__main__':
     main()

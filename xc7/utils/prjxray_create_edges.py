@@ -741,6 +741,8 @@ def main():
     parser.add_argument(
             '--db_root', required=True, help='Project X-Ray Database')
     parser.add_argument(
+            '--db_overlay', help='Project X-Ray Database overlay path', required=False, default=None, type=str)
+    parser.add_argument(
             '--connection_database', help='Database of fabric connectivity', required=True)
     parser.add_argument(
             '--pin_assignments', help='Pin assignments JSON', required=True)
@@ -751,7 +753,12 @@ def main():
 
     pool = multiprocessing.Pool(20)
 
-    db = prjxray.db.Database(args.db_root)
+    if args.db_overlay:
+        import db_overlay.db_overlay
+        db = db_overlay.db_overlay.DatabaseWithOverlay(args.db_root, args.db_overlay)
+    else:
+        db = prjxray.db.Database(args.db_root)
+
     grid = db.grid()
 
     with DatabaseCache(args.connection_database) as conn:

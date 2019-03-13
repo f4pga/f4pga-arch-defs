@@ -163,6 +163,7 @@ function(PROJECT_XRAY_ARCH)
       COMMAND ${CMAKE_COMMAND} -E env PYTHONPATH=${PRJXRAY_DIR}:${symbiflow-arch-defs_SOURCE_DIR}/utils
       ${PYTHON3} ${CREATE_SYNTH_TILES}
         --db_root ${PRJXRAY_DB_DIR}/${PART}/
+        --db_overlay ${PRJXRAY_DB_OVERLAY_DIR}/${PART}
         --roi ${PROJECT_XRAY_ARCH_USE_ROI}
         --synth_tiles ${CMAKE_CURRENT_BINARY_DIR}/synth_tiles.json
       DEPENDS
@@ -223,6 +224,7 @@ function(PROJECT_XRAY_ARCH)
     COMMAND ${CMAKE_COMMAND} -E env PYTHONPATH=${PRJXRAY_DIR}:${symbiflow-arch-defs_SOURCE_DIR}/utils
     ${PYTHON3} ${CREATE_EDGES}
       --db_root ${PRJXRAY_DB_DIR}/${PART}/
+      --db_overlay ${PRJXRAY_DB_OVERLAY_DIR}/${PART}
       --pin_assignments ${PIN_ASSIGNMENTS}
       --connection_database ${CMAKE_CURRENT_BINARY_DIR}/channels.db
       ${ROI_ARG_FOR_CREATE_EDGES}
@@ -273,7 +275,7 @@ function(PROJECT_XRAY_PREPARE_DATABASE)
   DEPENDS ${GRID_SPLITTER} ${DEPS} ${PYTHON3} ${PYTHON3_TARGET}
   )
 
-  set(CHANNELS channels.json)
+  set(CHANNELS channels.db)
   add_custom_command(
     OUTPUT ${CHANNELS}
     COMMAND ${CMAKE_COMMAND} -E env PYTHONPATH=${PRJXRAY_DIR}:${symbiflow-arch-defs_SOURCE_DIR}/utils:${symbiflow-arch-defs_SOURCE_DIR}/db_overlay
@@ -281,7 +283,6 @@ function(PROJECT_XRAY_PREPARE_DATABASE)
     --db_root ${PRJXRAY_DB_DIR}/${PART}/
     --connection_database ${CMAKE_CURRENT_BINARY_DIR}/${CHANNELS}
     --db_overlay ${PRJXRAY_DB_OVERLAY_DIR}/${PART}
-    --channels ${CMAKE_CURRENT_BINARY_DIR}/${CHANNELS}
     DEPENDS
     ${FORM_CHANNELS} ${TILEGRID} ${TILECONN}
     ${DEPS} ${DEPS2} simplejson progressbar2 intervaltree

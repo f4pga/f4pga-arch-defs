@@ -9,13 +9,20 @@ def main():
     parser.add_argument(
             '--db_root', required=True)
     parser.add_argument(
+            '--db_overlay', help='Project X-Ray Database overlay path', required=False, default=None, type=str)
+    parser.add_argument(
             '--roi', required=True)
     parser.add_argument(
             '--synth_tiles', required=False)
 
     args = parser.parse_args()
 
-    db = prjxray.db.Database(args.db_root)
+    if args.db_overlay:
+        import db_overlay.db_overlay
+        db = db_overlay.db_overlay.DatabaseWithOverlay(args.db_root, args.db_overlay)
+    else:
+        db = prjxray.db.Database(args.db_overlay)
+
     g = db.grid()
 
     synth_tiles = {}
@@ -24,13 +31,24 @@ def main():
     with open(args.roi) as f:
         j = json.load(f)
 
-    roi = Roi(
-            db=db,
-            x1=j['info']['GRID_X_MIN'],
-            y1=j['info']['GRID_Y_MIN'],
-            x2=j['info']['GRID_X_MAX'],
-            y2=j['info']['GRID_Y_MAX'],
-            )
+    if args.db_overlay:
+        import db_overlay.roi_overlay
+        roi = db_overlay.roi_overlay.RoiWithOverlay(
+                db=db,
+                x1=j['info']['GRID_X_MIN'],
+                y1=j['info']['GRID_Y_MIN'],
+                x2=j['info']['GRID_X_MAX'],
+                y2=j['info']['GRID_Y_MAX'],
+                )
+
+    else:
+        roi = Roi(
+                db=db,
+                x1=j['info']['GRID_X_MIN'],
+                y1=j['info']['GRID_Y_MIN'],
+                x2=j['info']['GRID_X_MAX'],
+                y2=j['info']['GRID_Y_MAX'],
+                )
 
     synth_tiles['info'] = j['info']
     for port in j['ports']:
