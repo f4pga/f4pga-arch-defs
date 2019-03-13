@@ -259,7 +259,8 @@ def main():
                 assert key not in edge_assignments, key
                 edge_assignments[key] = []
 
-    conn = sqlite3.connect(args.connection_database)
+    # Open database in read-only mode.
+    conn = sqlite3.connect('file:{}?mode=ro'.format(args.connection_database), uri=True)
 
     direct_connections = set()
     print('{} Processing direct connections.'.format(now()))
