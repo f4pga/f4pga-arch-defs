@@ -35,6 +35,8 @@ import re
 import sqlite3
 import functools
 
+from prjxray_db_cache import DatabaseCache
+
 now = datetime.datetime.now
 
 HCLK_CK_BUFHCLK_REGEX = re.compile('HCLK_CK_BUFHCLK[0-9]+')
@@ -508,7 +510,8 @@ def main():
     tool_version = input_rr_graph.getroot().attrib['tool_version']
     tool_comment = input_rr_graph.getroot().attrib['tool_comment']
 
-    conn = sqlite3.connect(args.connection_database)
+    db_cache = DatabaseCache(args.connection_database)
+    conn = db_cache.get_connection()
 
     # Mapping of graph_node.pkey to rr node id.
     node_mapping = {}
@@ -542,6 +545,9 @@ def main():
 
         xml_graph.serialize_nodes(yield_nodes(xml_graph.graph.nodes))
         xml_graph.serialize_edges(import_graph_edges(conn, graph, node_mapping))
+
+    print('{} Flushing database back to file "{}"'.format(now(), args.connection_database))
+    db_cache.close()
 
     print('{} Done.'.format(now()))
 

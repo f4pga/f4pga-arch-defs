@@ -37,6 +37,8 @@ from lib.connection_database import get_track_model
 from lib.rr_graph.graph2 import NodeType
 import multiprocessing
 
+from prjxray_db_cache import DatabaseCache
+
 now = datetime.datetime.now
 
 
@@ -748,7 +750,9 @@ def main():
 
     db = prjxray.db.Database(args.db_root)
     grid = db.grid()
-    conn = sqlite3.connect(args.connection_database)
+
+    db_cache = DatabaseCache(args.connection_database)
+    conn = db_cache.get_connection()
 
     with open(args.pin_assignments) as f:
         pin_assignments = json.load(f)
@@ -879,6 +883,9 @@ def main():
 
     print('{} Indices created, marking track liveness'.format(now()))
     mark_track_liveness(conn, pool, input_only_nodes, output_only_nodes)
+
+    print('{} Flushing database back to file "{}"'.format(now(), args.connection_database))
+    db_cache.close()
 
 if __name__ == '__main__':
     main()

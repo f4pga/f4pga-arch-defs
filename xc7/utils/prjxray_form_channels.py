@@ -43,6 +43,8 @@ import os
 import os.path
 from lib.connection_database import NodeClassification, create_tables
 
+from prjxray_db_cache import DatabaseCache
+
 def import_site_type(db, c, site_types, site_type_name):
     assert site_type_name not in site_types
     site_type = db.get_site_type(site_type_name)
@@ -697,7 +699,9 @@ def main():
     if os.path.exists(args.connection_database):
         os.remove(args.connection_database)
 
-    conn = sqlite3.connect(args.connection_database)
+    db_cache = DatabaseCache(args.connection_database)
+    conn = db_cache.get_connection()
+
     create_tables(conn)
 
     print("{}: About to load database".format(datetime.datetime.now()))
@@ -713,6 +717,9 @@ def main():
     print("{}: Nodes classified".format(datetime.datetime.now()))
     form_tracks(conn)
     print("{}: Tracks formed".format(datetime.datetime.now()))
+
+    print('{} Flushing database back to file "{}"'.format(datetime.datetime.now(), args.connection_database))
+    db_cache.close()
 
 if __name__ == '__main__':
     main()
