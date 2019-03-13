@@ -143,6 +143,7 @@ def _check_iceconfig_entry(tile, entry):
     bm, bp = _get_iceconfig_bits(tile, entry[0])
     return np.all(bp[bm] == tile[bm])
 
+
 def _inv_bit_tuple(bit_tuple):
     if bit_tuple[0] == "":
         neg = "!"
@@ -223,23 +224,47 @@ def read_ice_db(ic):
                     sinput = []
                     soutput = []
                     IOB = entry[-2][-1]
-                    tmap = [xx[3:] for xx in ic.ieren_db() if xx[:3] == (tile_loc + (int(IOB),))]
-                    assert (len(tmap) < 2), "expected 1 IEREN_DB entry found {}".format(len(tmap))
+                    tmap = [
+                        xx[3:]
+                        for xx in ic.ieren_db()
+                        if xx[:3] == (tile_loc + (int(IOB),))
+                    ]
+                    assert len(tmap) < 2, "expected 1 IEREN_DB entry found {}".format(
+                        len(tmap)
+                    )
 
                     if len(tmap) == 0:
-                        print("no ieren found for {}".format( (tile_loc + (int(IOB),)) ))
+                        print("no ieren found for {}".format((tile_loc + (int(IOB),))))
                         continue
                     ieren_map = tmap[0]
-                    assert (ieren_map[:2] == tile_loc), "IEREN_DB entry is in a different tile. This is not currently supported."
+                    assert (
+                        ieren_map[:2] == tile_loc
+                    ), "IEREN_DB entry is in a different tile. This is not currently supported."
 
                     for ii in ic.tile_db(*tile_loc):
-                        if ii[-1] in ["IE_{}".format(ieren_map[2]), "REN_{}".format(ieren_map[2])] or (ii[-2] == "IOB_{}".format(IOB) and ii[-1] in ["PINTYPE_0"]):
+                        if ii[-1] in [
+                            "IE_{}".format(ieren_map[2]),
+                            "REN_{}".format(ieren_map[2]),
+                        ] or (
+                            ii[-2] == "IOB_{}".format(IOB) and ii[-1] in ["PINTYPE_0"]
+                        ):
                             sinput += ii[0]
-                        if ii[-1] in ["REN_{}".format(ieren_map[2])] or (ii[-2] == "IOB_{}".format(ieren_map[2]) and ii[-1] in ["PINTYPE_0", "PINTYPE_3", "PINTYPE_4"]):
+                        if ii[-1] in ["REN_{}".format(ieren_map[2])] or (
+                            ii[-2] == "IOB_{}".format(ieren_map[2])
+                            and ii[-1] in ["PINTYPE_0", "PINTYPE_3", "PINTYPE_4"]
+                        ):
                             soutput += ii[0]
 
-                    accum.append_ice_entry(tile_type, tile_loc, sinput, entry[1:-1] + ["SimpleInput"], None)
-                    accum.append_ice_entry(tile_type, tile_loc, soutput, entry[1:-1] + ["SimpleOutput"], None)
+                    accum.append_ice_entry(
+                        tile_type, tile_loc, sinput, entry[1:-1] + ["SimpleInput"], None
+                    )
+                    accum.append_ice_entry(
+                        tile_type,
+                        tile_loc,
+                        soutput,
+                        entry[1:-1] + ["SimpleOutput"],
+                        None,
+                    )
             elif device_1k and tile_type == "RAMB" and entry[-1] == "PowerUp":
                 accum.append_ice_entry(
                     tile_type, tile_loc, entry[0], entry[1:], None, negate=True
@@ -422,8 +447,8 @@ def fasm_to_asc(in_fasm, outf, device):
         for entry in db:
             if (
                 device_1k
-                and (tile_type == "IO" and entry[-1] in ["IE_0", "IE_1"])
-                or (tile_type == "RAMB" and entry[-1] == "PowerUp")
+                and ((tile_type == "IO" and entry[-1] in ["IE_0", "IE_1"])
+                     or (tile_type == "RAMB" and entry[-1] == "PowerUp"))
                 or (entry[-2] == "ColBufCtrl")
             ):
                 tile_bits = _tile_to_array(tile)
@@ -472,7 +497,6 @@ def fasm_to_asc(in_fasm, outf, device):
 
     # TODO: would be nice to upstream a way to write to non-files
     ic.write_file(outf.name)
-
 
 
 class TestConversion(unittest.TestCase):
@@ -541,7 +565,21 @@ class TestConversion(unittest.TestCase):
             fasm_to_asc('tt', f)
     """
 
+
 if __name__ == "__main__":
-    device = "hx8k"
-    with open("ice40_{}.db".format(device), "w") as f:
-        generate_fasm_db(f, device)
+    import argparse
+    import sys
+
+    parser = argparse.ArgumentParser(
+        description="Dump FASM DB from icebox"
+    )
+    parser.add_argument("device", help="Device type (eg lp1k, hx8k)")
+    parser.add_argument(
+        "--output",
+        help="Output file",
+        type=argparse.FileType("w"),
+        default=sys.stdout,
+    )
+    args = parser.parse_args()
+
+    generate_fasm_db(args.output, args.device)

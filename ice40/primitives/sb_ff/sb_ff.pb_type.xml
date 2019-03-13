@@ -53,8 +53,6 @@
         # no_setreset
         # --
     </meta>
-    <meta name="fasm_features">
-    </meta>
    </metadata>
   </pb_type>
   <interconnect>
@@ -152,7 +150,7 @@
         async_setreset
         set_noreset
     </meta>
-       <meta name="fasm_features">
+    <meta name="fasm_features">
       AsyncSetReset
       Set_NoReset
     </meta>
@@ -188,8 +186,6 @@
         # use_cen
         # sync_setreset
         # reset
-    </meta>
-    <meta name="fasm_features">
     </meta>
    </metadata>
   </pb_type>
@@ -324,8 +320,6 @@
         # no_cen
         # sync_setreset
         # reset
-    </meta>
-    <meta name="fasm_features">
     </meta>
    </metadata>
   </pb_type>
@@ -664,8 +658,6 @@
         # no_cen
         # sync_setreset
         # reset
-    </meta>
-    <meta name="fasm_features">
     </meta>
    </metadata>
   </pb_type>
