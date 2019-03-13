@@ -14,3 +14,4 @@ opt_expr -undriven
 opt_clean
 
 setundef -zero -params
+stat
