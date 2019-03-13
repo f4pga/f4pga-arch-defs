@@ -20,7 +20,6 @@ def main(args):
     )
 
     args = parser.parse_args()
-    # parse args
     fasm_to_asc(args.input_fasm, args.output_asc, device=args.device)
 
 
