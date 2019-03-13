@@ -84,9 +84,6 @@
         # no_setreset
         # --
     </meta>
-    <meta name="fasm_features">
-      CarryEnable
-    </meta>
    </metadata>
   </pb_type>
   <interconnect>
@@ -120,7 +117,6 @@
         # reset
     </meta>
     <meta name="fasm_features">
-      CarryEnable
       AsyncSetReset
     </meta>
    </metadata>
@@ -157,7 +153,6 @@
         set_noreset
     </meta>
        <meta name="fasm_features">
-      CarryEnable
       AsyncSetReset
       Set_NoReset
     </meta>
@@ -195,7 +190,6 @@
         # reset
     </meta>
     <meta name="fasm_features">
-      CarryEnable
     </meta>
    </metadata>
   </pb_type>
@@ -231,7 +225,6 @@
         set_noreset
     </meta>
     <meta name="fasm_features">
-      CarryEnable
       Set_NoReset
     </meta>
    </metadata>
@@ -397,7 +390,6 @@
     </meta>
     <meta name="fasm_features">
       AsyncSetReset
-      NegClk
     </meta>
    </metadata>
   </pb_type>
@@ -429,9 +421,7 @@
         # --
     </meta>
     <meta name="fasm_features">
-      CarryEnable
       Set_NoReset
-      NegClk
     </meta>
    </metadata>
   </pb_type>
@@ -466,7 +456,6 @@
         # reset
     </meta>
     <meta name="fasm_features">
-      CarryEnable
       AsyncSetReset
     </meta>
    </metadata>
@@ -503,7 +492,6 @@
         set_noreset
     </meta>
     <meta name="fasm_features">
-      CarryEnable
       AsyncSetReset
       Set_NoReset
     </meta>
@@ -541,7 +529,6 @@
         # reset
     </meta>
     <meta name="fasm_features">
-      CarryEnable
       Set_NoReset
     </meta>
    </metadata>
@@ -578,7 +565,6 @@
         set_noreset
     </meta>
     <meta name="fasm_features">
-      CarryEnable
       Set_NoReset
     </meta>
    </metadata>
