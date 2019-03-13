@@ -25,6 +25,8 @@ import progressbar
 import sqlite3
 import datetime
 
+from prjxray_db_cache import DatabaseCache
+
 now = datetime.datetime.now
 DirectConnection = namedtuple('DirectConnection', 'from_pin to_pin switch_name x_offset y_offset')
 
@@ -259,7 +261,8 @@ def main():
                 assert key not in edge_assignments, key
                 edge_assignments[key] = []
 
-    conn = sqlite3.connect(args.connection_database)
+    db_cache = DatabaseCache(args.connection_database)
+    conn = db_cache.get_connection()
 
     direct_connections = set()
     print('{} Processing direct connections.'.format(now()))
@@ -406,6 +409,9 @@ SELECT pkey, track_pkey FROM node WHERE classification = ?;
             'pin_directions': pin_directions,
             'direct_connections': [d._asdict() for d in direct_connections],
         }, f, indent=2)
+
+    print('{} Flushing database back to file "{}"'.format(now(), args.connection_database))
+    db_cache.close()
 
 if __name__ == '__main__':
     main()
