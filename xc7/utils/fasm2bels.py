@@ -12,6 +12,7 @@ import re
 from lib.connection_database import get_wire_pkey
 import prjxray.db
 import functools
+from prjxray_make_routes import make_routes
 
 class Net(object):
     def __init__(self, source):
@@ -50,7 +51,6 @@ class Bel(object):
                 connection_wire = connection
             else:
                 connection_wire = self._prefix_things(connection)
-                yield '{indent}wire {connection};'.format(indent=indent, connection=connection_wire)
 
             if '[' in wire:
                 bus_name, address = wire.split('[')
@@ -140,6 +140,9 @@ class Module(object):
         self.root_out = set()
         self.root_inout = set()
 
+        self.wires = set()
+        self.wire_assigns = {}
+
     def set_iostandard(self, iostandards):
         possible_iostandards = set(iostandards[0])
 
@@ -176,26 +179,44 @@ class Module(object):
 
         # Sanity check BEL connections
         for bel in bels:
+            bel.set_prefix(prefix)
+            bel.set_site(site.name)
+
             for wire in bel.connections.values():
                 if wire == 0 or wire == 1:
                     continue
 
                 assert wire in sinks or wire in sources or wire in internal_sources or self.is_top_level(wire), wire
 
-                if wire in sinks:
-                    wire_pkey = get_wire_pkey(self.conn, tile, site_pin_map[wire])
-                    self.wire_pkey_to_wire[wire_pkey] = bel._prefix_things(wire)
-                    self.unrouted_sinks.add(wire_pkey)
+        for wire in internal_sources:
+            prefix_wire = prefix + '_' + wire
+            self.wires.add(prefix_wire)
 
-                if wire in sources:
-                    wire_pkey = get_wire_pkey(self.conn, tile, site_pin_map[wire])
-                    self.wire_pkey_to_wire[wire_pkey] = bel._prefix_things(wire)
-                    self.unrouted_sources.add(wire_pkey)
+        for wire in sinks:
+            if wire is self.is_top_level(wire):
+                continue
 
-            bel.set_prefix(prefix)
-            bel.set_site(site.name)
+            prefix_wire = prefix + '_' + wire
+            self.wires.add(prefix_wire)
+            wire_pkey = get_wire_pkey(self.conn, tile, site_pin_map[wire])
+            self.wire_pkey_to_wire[wire_pkey] = prefix_wire
+            self.unrouted_sinks.add(wire_pkey)
+
+        for wire in sources:
+            if wire is self.is_top_level(wire):
+                continue
+
+            prefix_wire = prefix + '_' + wire
+            self.wires.add(prefix_wire)
+            wire_pkey = get_wire_pkey(self.conn, tile, site_pin_map[wire])
+            self.wire_pkey_to_wire[wire_pkey] = prefix_wire
+            self.unrouted_sources.add(wire_pkey)
 
         self.bels.extend(bels)
+
+        for source_wire, sink_wire in outputs.items():
+            self.wires.add(prefix + '_' + source_wire)
+            self.wire_assigns[prefix + '_' + source_wire] = prefix + '_' + sink_wire
 
         assert len(internal_sources & sinks) == 0, (internal_sources & sinks)
         assert len(internal_sources & sources) == 0, (internal_sources & sources)
@@ -216,12 +237,23 @@ class Module(object):
 
         yield '  )'
 
+        for wire in sorted(self.wires):
+            yield '  wire {};'.format(wire)
+
         for bel in self.bels:
             print('')
             for l in bel.output_verilog(self, indent='  '):
                 yield l
 
+        for lhs, rhs in self.wire_assigns.items():
+            yield '  assign {} = {};'.format(lhs, rhs)
+
         yield 'endmodule'
+
+
+    def make_routes(self):
+        for route in make_routes(self.db, self.conn, self.wire_pkey_to_wire, self.unrouted_sinks, self.unrouted_sources, self.active_pips):
+            pass
 
 
 def get_lut_init(features, tile_name, slice_name, lut):
@@ -1417,6 +1449,8 @@ SELECT name FROM tile_type WHERE pkey = (
         tile_type = get_tile_type(tile)
 
         process_tile[tile_type](conn, top, tile, tiles[tile])
+
+    top.make_routes()
 
     for l in top.output_verilog():
         print(l)
