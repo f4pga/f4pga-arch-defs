@@ -12,13 +12,23 @@ from progressbar.bar import ProgressBar
 
 class DatabaseCache(object):
 
-    def __init__(self, file_name):
+    def __init__(self, file_name, read_only=False):
 
-        self.file_name         = file_name
-        self.memory_connection = sqlite3.connect(":memory:")
-        self.file_connection   = sqlite3.connect(file_name)
+        self.file_name = file_name
+        self.read_only = read_only
         self.bar = None
 
+        # File URI
+        if self.read_only:
+            uri = "file:%s?mode=ro"  % file_name
+        else:
+            uri = "file:%s?mode=rwc" % file_name
+
+        # Open connections
+        self.memory_connection = sqlite3.connect(":memory:")
+        self.file_connection   = sqlite3.connect(uri, uri=True)
+
+        # Load the database
         print("Loading database from '{}'".format(self.file_name))
         self.file_connection.backup(self.memory_connection, pages=100, progress=self._progress)
 
@@ -27,12 +37,15 @@ class DatabaseCache(object):
 
     def __del__(self):
 
-        print("Dumping database to '{}'".format(self.file_name))
-        self.memory_connection.backup(self.file_connection, pages=100, progress=self._progress)
+        # Write back only if not read-onlu
+        if not self.read_only:
+            print("Dumping database to '{}'".format(self.file_name))
+            self.memory_connection.backup(self.file_connection, pages=100, progress=self._progress)
 
-        self.bar.finish()
-        self.bar = None
+            self.bar.finish()
+            self.bar = None
 
+        # Close connections
         self.memory_connection.close()
         self.file_connection.close()
 
