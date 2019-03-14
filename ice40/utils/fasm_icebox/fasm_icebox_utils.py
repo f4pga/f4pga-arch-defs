@@ -116,7 +116,7 @@ def _get_feature_bits(tile, cond):
     bp = np.zeros(tile.shape, dtype=bool)
     for ii in cond:
         neg, x, y = ii
-        bm[x][y] = 1
+        bm[x][y] = True
         bp[x][y] = neg != "!"
     return bm, bp
 
@@ -216,55 +216,6 @@ def read_ice_db(ic):
                 accum.append_ice_entry(
                     tile_type, tile_loc, entry[0], entry[1:], None, negate=True
                 )
-            elif tile_type == "IO" and entry[-1].startswith("PINTYPE"):
-                # TODO: push this up into sythesis and pass parameters
-                # SimpleInput and SimpleOutput for IOB_0 and IOB_1
-                if entry[-1] == "PINTYPE_0":
-                    ic.tile_db(*tile_loc)
-                    sinput = []
-                    soutput = []
-                    IOB = entry[-2][-1]
-                    tmap = [
-                        xx[3:]
-                        for xx in ic.ieren_db()
-                        if xx[:3] == (tile_loc + (int(IOB),))
-                    ]
-                    assert len(tmap) < 2, "expected 1 IEREN_DB entry found {}".format(
-                        len(tmap)
-                    )
-
-                    if len(tmap) == 0:
-                        print("no ieren found for {}".format((tile_loc + (int(IOB),))))
-                        continue
-                    ieren_map = tmap[0]
-                    assert (
-                        ieren_map[:2] == tile_loc
-                    ), "IEREN_DB entry is in a different tile. This is not currently supported."
-
-                    for ii in ic.tile_db(*tile_loc):
-                        if ii[-1] in [
-                            "IE_{}".format(ieren_map[2]),
-                            "REN_{}".format(ieren_map[2]),
-                        ] or (
-                            ii[-2] == "IOB_{}".format(IOB) and ii[-1] in ["PINTYPE_0"]
-                        ):
-                            sinput += ii[0]
-                        if ii[-1] in ["REN_{}".format(ieren_map[2])] or (
-                            ii[-2] == "IOB_{}".format(ieren_map[2])
-                            and ii[-1] in ["PINTYPE_0", "PINTYPE_3", "PINTYPE_4"]
-                        ):
-                            soutput += ii[0]
-
-                    accum.append_ice_entry(
-                        tile_type, tile_loc, sinput, entry[1:-1] + ["SimpleInput"], None
-                    )
-                    accum.append_ice_entry(
-                        tile_type,
-                        tile_loc,
-                        soutput,
-                        entry[1:-1] + ["SimpleOutput"],
-                        None,
-                    )
             elif device_1k and tile_type == "RAMB" and entry[-1] == "PowerUp":
                 accum.append_ice_entry(
                     tile_type, tile_loc, entry[0], entry[1:], None, negate=True
@@ -425,6 +376,13 @@ def iceconfig_to_fasm(ic, outf=StringIO()):
 
     return accum.as_fasm(outf)
 
+def _set_feature_bits(ic, loc, bits):
+    tile = ic.tile(*loc)
+    tile_bits = _tile_to_array(tile)
+    bm, bv = _get_feature_bits(tile_bits, bits)
+    tile_bits[bm] = bv[bm]
+    _array_to_tile(tile_bits, tile)
+
 
 def fasm_to_asc(in_fasm, outf, device):
     ic = icebox.iceconfig()
@@ -466,6 +424,59 @@ def fasm_to_asc(in_fasm, outf, device):
         assert len(line_strs) == 1
 
         feature = Feature.fromFasmEntry(FasmEntry(line.set_feature.feature, []))
+
+        def find_ieren(ic, loc, iob):
+            tmap = [
+                xx[3:]
+                for xx in ic.ieren_db()
+                if xx[:3] == (tuple(loc) + (iob,))
+            ]
+            assert len(tmap) < 2, "expected 1 IEREN_DB entry found {}".format(
+                len(tmap)
+            )
+
+            if len(tmap) == 0:
+                print("no ieren found for {}".format((tile_loc + (iob,))))
+                return
+            return tmap[0]
+
+        # fix up for IO
+        if feature.parts[-1] == "SimpleInput":
+            iob = int(feature.parts[-2][-1])
+            new_ieren = find_ieren(ic, feature.loc, iob)
+
+            feature.parts[-1] = "PINTYPE_0"
+            db_entry = fasmdb[feature.toFasmEntry().feature]
+            _set_feature_bits(ic, db_entry.loc, db_entry.bit_tuples)
+
+            feature.loc = new_ieren[:2]
+            feature.parts[-2] = "IoCtrl"
+            feature.parts[-1] = "IE_{}".format(iob)
+            db_entry = fasmdb[feature.toFasmEntry().feature]
+            _set_feature_bits(ic, db_entry.loc, db_entry.bit_tuples)
+            feature.parts[-1] = "REN_{}".format(iob)
+            db_entry = fasmdb[feature.toFasmEntry().feature]
+            _set_feature_bits(ic, db_entry.loc, db_entry.bit_tuples)
+            continue
+
+        if feature.parts[-1] == "SimpleOutput":
+            iob = int(feature.parts[-2][-1])
+            new_ieren = find_ieren(ic, feature.loc, iob)
+
+            feature.parts[-1] = "PINTYPE_3"
+            db_entry = fasmdb[feature.toFasmEntry().feature]
+            _set_feature_bits(ic, db_entry.loc, db_entry.bit_tuples)
+            feature.parts[-1] = "PINTYPE_4"
+            db_entry = fasmdb[feature.toFasmEntry().feature]
+            _set_feature_bits(ic, db_entry.loc, db_entry.bit_tuples)
+
+            feature.loc = new_ieren[:2]
+            feature.parts[-2] = "IoCtrl"
+            feature.parts[-1] = "REN_{}".format(iob)
+            db_entry = fasmdb[feature.toFasmEntry().feature]
+            _set_feature_bits(ic, db_entry.loc, db_entry.bit_tuples)
+            continue
+
         ## special case for RAM INIT values
         tile_type, loc = feature.tile_type, feature.loc
         if tile_type == "RAMB" and feature.parts[-1].startswith("INIT"):
