@@ -719,7 +719,6 @@ def main():
     print("{}: Tracks formed".format(datetime.datetime.now()))
 
     print('{} Flushing database back to file "{}"'.format(datetime.datetime.now(), args.connection_database))
-    db_cache.close()
 
 if __name__ == '__main__':
     main()

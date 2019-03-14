@@ -411,7 +411,6 @@ SELECT pkey, track_pkey FROM node WHERE classification = ?;
         }, f, indent=2)
 
     print('{} Flushing database back to file "{}"'.format(now(), args.connection_database))
-    db_cache.close()
 
 if __name__ == '__main__':
     main()

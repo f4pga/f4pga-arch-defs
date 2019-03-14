@@ -4,11 +4,9 @@ which operates on a memory copy of the database.
 
 Upon object creation the database is "backed up" to memory. All subsequent
 operations are then pefromed on this copy which yields in performance increase.
-
-It is important to explicitly call the close() method once database connection
-is no longer needed. The method "backs up" the database back to disk.
 """
 import sqlite3
+from progressbar.bar import ProgressBar
 
 # =============================================================================
 
@@ -19,16 +17,21 @@ class DatabaseCache(object):
         self.file_name         = file_name
         self.memory_connection = sqlite3.connect(":memory:")
         self.file_connection   = sqlite3.connect(file_name)
+        self.bar = None
 
         print("Loading database from '{}'".format(self.file_name))
-        self.file_connection.backup(self.memory_connection, pages=1, progress=self._progress)
-        print("")
+        self.file_connection.backup(self.memory_connection, pages=100, progress=self._progress)
 
-    def close(self):
+        self.bar.finish()
+        self.bar = None
+
+    def __del__(self):
 
         print("Dumping database to '{}'".format(self.file_name))
-        self.memory_connection.backup(self.file_connection, pages=1, progress=self._progress)
-        print("")
+        self.memory_connection.backup(self.file_connection, pages=100, progress=self._progress)
+
+        self.bar.finish()
+        self.bar = None
 
         self.memory_connection.close()
         self.file_connection.close()
@@ -37,13 +40,10 @@ class DatabaseCache(object):
         """
         Prints database copy progress.
         """
-
-        if total > 0:
-            percent = 100.0 * (total-remaining) / total
+        if self.bar is None:
+            self.bar = ProgressBar(max_value = total)
         else:
-            percent = 100.0
-
-        print("\r%.2f%%" % percent, end="")
+            self.bar.update(total - remaining)
 
     def get_connection(self):
         """

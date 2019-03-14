@@ -547,9 +547,6 @@ def main():
         xml_graph.serialize_edges(import_graph_edges(conn, graph, node_mapping))
 
     print('{} Flushing database back to file "{}"'.format(now(), args.connection_database))
-    db_cache.close()
-
-    print('{} Done.'.format(now()))
 
 if __name__ == '__main__':
     main()
