@@ -261,7 +261,7 @@ def main():
                 assert key not in edge_assignments, key
                 edge_assignments[key] = []
 
-    db_cache = DatabaseCache(args.connection_database)
+    db_cache = DatabaseCache(args.connection_database, read_only=True)
     conn = db_cache.get_connection()
 
     direct_connections = set()
