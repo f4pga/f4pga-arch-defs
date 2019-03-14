@@ -73,6 +73,7 @@ start_section "symbiflow.run_python_tests" "Run Python unit tests"
 # Reset working directory
 cd /home/travis/build/SymbiFlow/symbiflow-arch-defs
 pip install -r ./requirements.txt
+python -m unittest utils.lib.rr_graph.tests.test_channel
 python -m unittest utils.lib.rr_graph.tests.test_graph
 end_section "symbiflow.run_python_tests"
 
