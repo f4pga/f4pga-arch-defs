@@ -8,6 +8,7 @@ The nets will be wires and the route those wires takes.
 import argparse
 import sqlite3
 import fasm
+import re
 from lib.connection_database import get_wire_pkey
 import prjxray.db
 import functools
@@ -25,52 +26,202 @@ class Bel(object):
         self.module = module
         self.connections = {}
         self.parameters = {}
-        self.prefix = ''
+        self.prefix = None
+        self.site = None
 
     def set_prefix(self, prefix):
         self.prefix = prefix
+
+    def set_site(self, site):
+        self.site = site
+
+    def _prefix_things(self, s):
+        if self.prefix is not None:
+            return '{}_{}'.format(self.prefix, s)
+        else:
+            return s
+
+    def output_verilog(self, top, indent='  '):
+        connections = {}
+        buses = {}
+
+        for wire, connection in self.connections.items():
+            if top.is_top_level(connection):
+                connection_wire = connection
+            else:
+                connection_wire = self._prefix_things(connection)
+                yield '{indent}wire {connection};'.format(indent=indent, connection=connection_wire)
+
+            if '[' in wire:
+                bus_name, address = wire.split('[')
+                assert address[-1] == ']', address
+
+                if bus_name not in buses:
+                    buses[bus_name] = {}
+
+                buses[bus_name][int(address[:-1])] = connection_wire
+            else:
+                connections[wire] = '{indent}{indent}.{wire}({connection})'.format(indent=indent, wire=wire, connection=connection_wire)
+
+        for bus_name, bus in buses.items():
+            bus_wires = [0 for _ in range(max(bus.keys())+1)]
+
+            for idx, _ in enumerate(bus_wires):
+                assert idx in bus
+                bus_wires[idx] = bus[idx]
+
+            connections[bus_name] = '{indent}{indent}.{bus_name}({connection})'.format(
+                indent=indent,
+                bus_name=bus_name,
+                connection='{{{}}}'.format(', '.join(bus_wires)))
+
+        yield ''
+
+        if self.site is not None:
+            yield '{indent}(* KEEP, DONT_TOUCH, LOC = "{site}" *)'.format(
+                indent=indent,
+                site=self.site)
+
+        yield '{indent}{site} #('.format(indent=indent, site=self.module)
+
+        parameters = []
+        for param, value in sorted(self.parameters.items(), key=lambda x: x[0]):
+            parameters.append('{indent}{indent}.{param}({value})'.format(indent=indent, param=param, value=value))
+
+        if parameters:
+            yield ',\n'.join(parameters)
+
+        yield '{indent}) {name} ('.format(indent=indent, name=self._prefix_things(self.module))
+
+        if connections:
+            yield ',\n'.join(connections[port] for port in sorted(connections))
+
+        yield '{indent});'.format(indent=indent)
 
 def get_clb_site(db, grid, tile, site):
     gridinfo = grid.gridinfo_at_tilename(tile)
     tile_type = db.get_tile_type(gridinfo.tile_type)
 
-    sites = sorted(tile_type.get_instance_sites(gridinfo))
+    sites = sorted(tile_type.get_instance_sites(gridinfo), key=lambda x: x.x)
 
     return sites[int(site[-1])]
 
+@functools.lru_cache(maxsize=None)
+def make_site_pin_map(site_pins):
+    site_pin_map = {}
+
+    for site_pin in site_pins:
+        site_pin_map[site_pin.name] = site_pin.wire
+
+    return site_pin_map
+
 class Module(object):
     def __init__(self, db, grid, conn):
+        self.iostandard = None
         self.db = db
         self.grid = grid
         self.conn = conn
         self.bels = []
-        self.nets = {}
 
+        # Map of wire_pkey to Verilog wire.
+        self.wire_pkey_to_wire = {}
+
+        # wire_pkey of sinks that are not connected to their routing.
         self.unrouted_sinks = set()
+
+        # wire_pkey of sources that are not connected to their routing.
         self.unrouted_sources = set()
+
+        # Known active pips, tuples of sink and source wire_pkey's.
+        # The sink wire_pkey is a net with the source wire_pkey.
         self.active_pips = set()
 
+        self.root_in = set()
+        self.root_out = set()
+        self.root_inout = set()
+
+    def set_iostandard(self, iostandards):
+        possible_iostandards = set(iostandards[0])
+
+        for l in iostandards:
+            possible_iostandards &= set(l)
+
+        if len(possible_iostandards) != 1:
+            raise RuntimeError('Ambigous IOSTANDARD, must specify possibilities: {}'.format(possible_iostandards))
+
+        self.iostandard = possible_iostandards.pop()
+
+    def add_top_in_port(self, tile, site, name):
+        port = '{}_{}_{}'.format(tile, site, name)
+        self.root_in.add(port)
+        return port
+
+    def add_top_out_port(self, tile, site, name):
+        port = '{}_{}_{}'.format(tile, site, name)
+        self.root_out.add(port)
+        return port
+
+    def add_top_inout_port(self, tile, site, name):
+        port = '{}_{}_{}'.format(tile, site, name)
+        self.root_inout.add(port)
+        return port
+
+    def is_top_level(self, wire):
+        return wire in self.root_in or wire in self.root_out or wire in self.root_inout
+
     def add_site(self, tile, site, bels, outputs, sinks, sources, internal_sources):
-        prefix = '{}_{}'.format(tile, site)
+        prefix = '{}_{}'.format(tile, site.name)
+
+        site_pin_map = make_site_pin_map(frozenset(site.site_pins))
 
         # Sanity check BEL connections
         for bel in bels:
-            for wire in bel.values():
-                assert wire in sinks or wire in sources or wire in internal_sources
+            for wire in bel.connections.values():
+                if wire == 0 or wire == 1:
+                    continue
+
+                assert wire in sinks or wire in sources or wire in internal_sources or self.is_top_level(wire), wire
+
+                if wire in sinks:
+                    wire_pkey = get_wire_pkey(self.conn, tile, site_pin_map[wire])
+                    self.wire_pkey_to_wire[wire_pkey] = bel._prefix_things(wire)
+                    self.unrouted_sinks.add(wire_pkey)
+
+                if wire in sources:
+                    wire_pkey = get_wire_pkey(self.conn, tile, site_pin_map[wire])
+                    self.wire_pkey_to_wire[wire_pkey] = bel._prefix_things(wire)
+                    self.unrouted_sources.add(wire_pkey)
 
             bel.set_prefix(prefix)
-            bel.set_site(site)
+            bel.set_site(site.name)
 
         self.bels.extend(bels)
 
-        assert len(internal_sources ^ sinks) == 0
-        assert len(internal_sources ^ sources) == 0
+        assert len(internal_sources & sinks) == 0, (internal_sources & sinks)
+        assert len(internal_sources & sources) == 0, (internal_sources & sources)
 
-        for wire in sinks:
-            self.unrouted_sinks(get_wire_pkey(self.conn, tile, wire))
 
-        for wire in sources:
-            self.unrouted_sources(get_wire_pkey(self.conn, tile, wire))
+    def output_verilog(self):
+        root_module_args = []
+        for in_wire in sorted(self.root_in):
+            root_module_args.append('  input ' + in_wire)
+        for out_wire in sorted(self.root_out):
+            root_module_args.append('  output ' + out_wire)
+        for inout_wire in sorted(self.root_inout):
+            root_module_args.append('  inout ' + inout_wire)
+
+        yield 'module top('
+
+        yield ',\n'.join(root_module_args)
+
+        yield '  )'
+
+        for bel in self.bels:
+            print('')
+            for l in bel.output_verilog(self, indent='  '):
+                yield l
+
+        yield 'endmodule'
 
 
 def get_lut_init(features, tile_name, slice_name, lut):
@@ -79,14 +230,14 @@ def get_lut_init(features, tile_name, slice_name, lut):
     init = 0
 
     for f in features:
-        if f.feature == target_feature:
+        if f.feature.startswith(target_feature):
             for canon_f in fasm.canonical_features(f):
                 if canon_f.start is None:
                     init |= 1
                 else:
                     init |= (1 << canon_f.start)
 
-    return init
+    return "64'b{:064b}".format(init)
 
 def create_lut(lut, internal_sources):
     bel = Bel('LUT6_2')
@@ -311,7 +462,7 @@ def process_slice(top, s):
     if 'DLUT.RAM' not in features:
         for lut in 'ABCD':
             luts[lut] = create_lut(lut, internal_sources)
-            luts[lut].parameters['INIT'] = get_lut_init(s, parts[0], aparts[0], lut)
+            luts[lut].parameters['INIT'] = get_lut_init(s, aparts[0], aparts[1], lut)
             bels.append(luts[lut])
     else:
         # DRAM is active.  Determine what BELs are in use.
@@ -339,10 +490,10 @@ def process_slice(top, s):
             ram256.connections['O'] = 'F8MUX_O'
 
             ram256.parameters['INIT'] = (
-                    get_lut_init(s, parts[0], aparts[0], 'D') |
-                    (get_lut_init(s, parts[0], aparts[0], 'C') << 64) |
-                    (get_lut_init(s, parts[0], aparts[0], 'B') << 128) |
-                    (get_lut_init(s, parts[0], aparts[0], 'A') << 192)
+                    get_lut_init(s, aparts[0], aparts[1], 'D') |
+                    (get_lut_init(s, aparts[0], aparts[1], 'C') << 64) |
+                    (get_lut_init(s, aparts[0], aparts[1], 'B') << 128) |
+                    (get_lut_init(s, aparts[0], aparts[1], 'A') << 192)
                     )
 
             bels.append(ram256)
@@ -367,8 +518,8 @@ def process_slice(top, s):
             ram128.connections['O'] = 'F7BMUX_O'
 
             ram128.parameters['INIT'] = (
-                    get_lut_init(s, parts[0], aparts[0], 'D') |
-                    (get_lut_init(s, parts[0], aparts[0], 'C') << 64))
+                    get_lut_init(s, aparts[0], aparts[1], 'D') |
+                    (get_lut_init(s, aparts[0], aparts[1], 'C') << 64))
 
             bels.append(ram128)
             internal_sources.add(ram128.connections['O'])
@@ -391,8 +542,8 @@ def process_slice(top, s):
                 ram128.connections['O'] = 'F7AMUX_O'
 
                 ram128.parameters['INIT'] = (
-                        get_lut_init(s, parts[0], aparts[0], 'B') |
-                        (get_lut_init(s, parts[0], aparts[0], 'A') << 64))
+                        get_lut_init(s, aparts[0], aparts[1], 'B') |
+                        (get_lut_init(s, aparts[0], aparts[1], 'A') << 64))
 
                 bels.append(ram128)
                 internal_sources.add(ram128.connections['O'])
@@ -419,12 +570,12 @@ def process_slice(top, s):
             ram128.connections['DPO'] = 'F7BMUX_O'
 
             ram128.parameters['INIT'] = (
-                    get_lut_init(s, parts[0], aparts[0], 'D') |
-                    (get_lut_init(s, parts[0], aparts[0], 'C') << 64))
+                    get_lut_init(s, aparts[0], aparts[1], 'D') |
+                    (get_lut_init(s, aparts[0], aparts[1], 'C') << 64))
 
             other_init = (
-                    get_lut_init(s, parts[0], aparts[0], 'B') |
-                    (get_lut_init(s, parts[0], aparts[0], 'A') << 64))
+                    get_lut_init(s, aparts[0], aparts[1], 'B') |
+                    (get_lut_init(s, aparts[0], aparts[1], 'A') << 64))
 
             assert ram128.parameters['INIT'] == other_init
 
@@ -459,8 +610,8 @@ def process_slice(top, s):
                 ram64.connections['SPO'] = lut + "O6"
                 ram64.connections['DPO'] = minus_one + "O6"
 
-                ram64.parameters['INIT'] = get_lut_init(s, parts[0], aparts[0], lut)
-                other_init = get_lut_init(s, parts[0], aparts[0], minus_one)
+                ram64.parameters['INIT'] = get_lut_init(s, aparts[0], aparts[1], lut)
+                other_init = get_lut_init(s, aparts[0], aparts[1], minus_one)
 
                 assert ram64.parameters['INIT'] == other_init
 
@@ -484,8 +635,8 @@ def process_slice(top, s):
                 ram32.connections['SPO'] = lut + "O6"
                 ram32.connections['DPO'] = minus_one + "O6"
 
-                ram32.parameters['INIT'] = get_lut_init(s, parts[0], aparts[0], lut)
-                other_init = get_lut_init(s, parts[0], aparts[0], minus_one)
+                ram32.parameters['INIT'] = get_lut_init(s, aparts[0], aparts[1], lut)
+                other_init = get_lut_init(s, aparts[0], aparts[1], minus_one)
 
                 bels.append(ram32)
                 internal_sources.add(ram32.connections['SPO'])
@@ -500,7 +651,7 @@ def process_slice(top, s):
 
             if lut_modes[lut] == 'LUT':
                 luts[lut] = create_lut(lut, internal_sources)
-                luts[lut].parameters['INIT'] = get_lut_init(s, parts[0], aparts[0], lut)
+                luts[lut].parameters['INIT'] = get_lut_init(s, aparts[0], aparts[1], lut)
                 bels.append(luts[lut])
             elif lut_modes[lut] == 'RAM64X1S':
                 ram64 = Bel('RAM64X1S')
@@ -514,8 +665,8 @@ def process_slice(top, s):
 
                 ram64.connections['O'] = lut + "O6"
 
-                ram64.parameters['INIT'] = get_lut_init(s, parts[0], aparts[0], lut)
-                other_init = get_lut_init(s, parts[0], aparts[0], minus_one)
+                ram64.parameters['INIT'] = get_lut_init(s, parts[0], aparts[1], lut)
+                other_init = get_lut_init(s, aparts[0], aparts[1], minus_one)
 
                 assert ram64.parameters['INIT'] == other_init
 
@@ -533,7 +684,7 @@ def process_slice(top, s):
 
                 ram32.connections['O'] = lut + "O6"
 
-                ram32.parameters['INIT'] = get_lut_init(s, parts[0], aparts[0], lut)
+                ram32.parameters['INIT'] = get_lut_init(s, aparts[0], aparts[1], lut)
 
                 bels.append(ram32)
                 internal_sources.add(ram32.connections['O'])
@@ -571,7 +722,7 @@ def process_slice(top, s):
             assert 'F7AMUX_O' in internal_sources
             assert 'F7BMUX_O' in internal_sources
             f8mux.connections['I0'] = 'F7BMUX_O'
-            f8mux.connections['I1'] = 'F7AMUX_I0'
+            f8mux.connections['I1'] = 'F7AMUX_O'
             f8mux.connections['S'] = 'BX'
             f8mux.connections['O'] = 'F8MUX_O'
 
@@ -607,6 +758,7 @@ def process_slice(top, s):
 
             if idx == 3:
                 bel.connections['CO[{}]'.format(idx)] = 'COUT'
+                sources.add('COUT')
             else:
                 bel.connections['CO[{}]'.format(idx)] = lut + '_CY'
                 internal_sources.add(bel.connections['CO[{}]'.format(idx)])
@@ -620,7 +772,7 @@ def process_slice(top, s):
         elif 'PRECYINIT.CIN' in features:
             bel.connections['CYINIT'] = 'CIN'
         else:
-            assert False
+            bel.connections['CYINIT'] = 0
 
         bels.append(bel)
 
@@ -681,7 +833,7 @@ def process_slice(top, s):
             source = lut + '_XOR'
             assert source in internal_sources
         else:
-            assert False
+            continue
 
         ff.connections['D'] = source
         ff.connections['Q'] = lut + 'Q'
@@ -731,7 +883,7 @@ def process_slice(top, s):
             source = lut + '_XOR'
             assert source in internal_sources
         else:
-            assert False
+            continue
 
         outputs[lut + 'MUX'] = source
         sources.add(lut + 'MUX')
@@ -740,12 +892,6 @@ def process_slice(top, s):
 
 
 def process_clb(conn, top, tile_name, features):
-    c = conn.cursor()
-    c.execute("SELECT pkey, tile_type_pkey FROM tile WHERE name = ?;", (tile_name,))
-    result = c.fetchone()
-    assert result is not None, tile_name
-
-    tile_pkey, tile_type_pkey = result
     slices = {
             '0': [],
             '1': [],
@@ -754,12 +900,14 @@ def process_clb(conn, top, tile_name, features):
     for f in features:
         parts = f.feature.split('.')
 
-        assert parts[1].startswith('SLICE')
+        if not parts[1].startswith('SLICE'):
+            continue
 
         slices[parts[1][-1]].append(f)
 
-    for s, features in slices:
-        process_slice(top, slices[s])
+    for s in slices:
+        if len(slices[s]) > 0:
+            process_slice(top, slices[s])
 
 def create_maybe_get_wire(conn):
     c = conn.cursor()
@@ -799,27 +947,404 @@ def maybe_add_pip(top, maybe_get_wire, feature):
     parts = feature.feature.split('.')
     assert len(parts) == 3
 
-    sink_wire = maybe_get_wire(parts[0], parts[1])
+    sink_wire = maybe_get_wire(parts[0], parts[2])
     if sink_wire is None:
         return
 
-    src_wire = maybe_get_wire(parts[0], parts[2])
+    src_wire = maybe_get_wire(parts[0], parts[1])
     if src_wire is None:
         return
 
-    top.active_pips.add((src_wire, sink_wire))
+    top.active_pips.add((sink_wire, src_wire))
+
+def get_iob_site(db, grid, tile, site):
+    gridinfo = grid.gridinfo_at_tilename(tile)
+    tile_type = db.get_tile_type(gridinfo.tile_type)
+
+    sites = sorted(tile_type.get_instance_sites(gridinfo), key=lambda x: x.y)
+
+    if len(sites) == 1:
+        return sites[0]
+
+    return sites[1-int(site[-1])]
+
+def get_drive(iostandard, drive):
+    parts = drive.split('.')
+
+    drive = parts[-1]
+    assert drive[0] == 'I', drive
+
+    if '_' not in drive:
+        return int(drive[1:])
+    else:
+        assert iostandard in ['LVCMOS18', 'LVCMOS33', 'LVTTL']
+        drives = sorted([int(d[1:]) for d in drive.split('_')])
+
+        if iostandard == 'LVCMOS18':
+            return min(drives)
+
+        if drives == [12, 16]:
+            if iostandard == 'LVCMOS33':
+                return 12
+            else:
+                return 16
+        elif drives == [8, 12]:
+            return 8
 
 
-def process_int(conn, top, tile, tiles):
+def add_output_parameters(bel, features):
+    assert 'IOSTANDARD' in bel.parameters
+
+    if 'SLEW.FAST' in features:
+        bel.parameters['SLEW'] = 'FAST'
+    elif 'SLEW.SLOW' in features:
+        bel.parameters['SLEW'] = 'SLOW'
+    else:
+        assert False
+
+    drive = None
+    for f in features:
+        if 'DRIVE' in f:
+            assert drive is None
+            drive  = f
+            break
+
+    assert bel.parameters['IOSTANDARD'] in drive
+
+    bel.parameters['DRIVE'] = get_drive(bel.parameters['IOSTANDARD'], drive)
+
+
+def process_iob(top, iob):
+    assert top.iostandard is not None
+
+    bels = []
+    sinks = set()
+    sources = set()
+    internal_sources = set()
+    outputs = {}
+
+    aparts = iob[0].feature.split('.')
+
+    features = set()
+    for f in iob:
+        if f.value == 0:
+            continue
+
+        parts = f.feature.split('.')
+        assert parts[0] == aparts[0]
+        assert parts[1] == aparts[1]
+        features.add('.'.join(parts[2:]))
+
+    site = get_iob_site(top.db, top.grid, aparts[0], aparts[1])
+
+    INTERMDISABLE_USED = 'INTERMDISABLE.I' in features
+    IBUFDISABLE_USED = 'IBUFDISABLE.I' in features
+
+    top_wire = None
+    if 'IN_ONLY' in features:
+        if 'ZINV_D' not in features:
+            return
+
+        # Options are:
+        # IBUF, IBUF_IBUFDISABLE, IBUF_INTERMDISABLE
+        if INTERMDISABLE_USED:
+            bel = Bel('IBUF_INTERMDISABLE')
+            bel.connections['INTERMDISABLE'] = 'INTERMDISABLE'
+            sinks.add('INTERMDISABLE')
+
+            if IBUFDISABLE_USED:
+                IBUFDISABLE = 'IBUFDISABLE'
+                sinks.add('IBUFDISABLE')
+            else:
+                IBUFDISABLE = 0
+            bel.connections['IBUFDISABLE'] = IBUFDISABLE
+        elif IBUFDISABLE_USED:
+            bel = Bel('IBUF_IBUFDISABLE')
+            bel.connections['IBUFDISABLE'] = 'IBUFDISABLE'
+            sinks.add('IBUFDISABLE')
+        else:
+            bel = Bel('IBUF')
+
+        top_wire = top.add_top_in_port(aparts[0], site.name, 'I')
+        bel.connections['I'] = top_wire
+        bel.connections['O'] = 'O'
+
+        bel.parameters['IOSTANDARD'] = top.iostandard
+        sources.add('O')
+
+        bels.append(bel)
+    elif 'INOUT' in features:
+        assert 'ZINV_D' in features
+
+        # Options are:
+        # IOBUF or IOBUF_INTERMDISABLE
+        if INTERMDISABLE_USED or IBUFDISABLE_USED:
+            bel = Bel('IOBUF_INTERMDISABLE')
+
+            if INTERMDISABLE_USED:
+                INTERMDISABLE = 'INTERMDISABLE'
+                sinks.add('INTERMDISABLE')
+            else:
+                INTERMDISABLE = 0
+
+            bel.connections['INTERMDISABLE'] = INTERMDISABLE
+
+            if IBUFDISABLE_USED:
+                IBUFDISABLE = 'IBUFDISABLE'
+                sinks.add('IBUFDISABLE')
+            else:
+                IBUFDISABLE = 0
+
+            bel.connections['IBUFDISABLE'] = IBUFDISABLE
+        else:
+            bel = Bel('IOBUF')
+
+        top_wire = top.add_top_inout_port(aparts[0], site.name, 'IO')
+        bel.connections['IO'] = top_wire
+
+        bel.connections['O'] = 'O'
+        sources.add('O')
+
+        bel.connections['T'] = 'T'
+        sinks.add('T')
+
+        bel.connections['I'] = 'I'
+        sinks.add('I')
+
+        bel.parameters['IOSTANDARD'] = top.iostandard
+
+        add_output_parameters(bel, features)
+
+        bels.append(bel)
+    else:
+        has_output = False
+        for f in features:
+            if 'DRIVE' in f:
+                has_output = True
+                break
+
+        if not has_output:
+            # Naked pull options are not supported
+            assert 'PULLTYPE.PULLDOWN' in features
+        else:
+            # TODO: Could be a OBUFT?
+            bel = Bel('OBUF')
+            top_wire = top.add_top_out_port(aparts[0], site.name, 'O')
+            bel.connections['O'] = top_wire
+            bel.connections['I'] = 'I'
+            sinks.add('I')
+
+            bel.parameters['IOSTANDARD'] = top.iostandard
+
+            add_output_parameters(bel, features)
+            bels.append(bel)
+
+    if top_wire is not None:
+        if 'PULLTYPE.PULLDOWN' in features:
+            bel = Bel('PULLDOWN')
+            bel.connections['O'] = top_wire
+            bels.append(bel)
+        elif 'PULLTYPE.KEEPER' in features:
+            bel = Bel('KEEPER')
+            bel.connections['O'] = top_wire
+            bels.append(bel)
+        elif 'PULLTYPE.PULLUP' in features:
+            bel = Bel('PULLUP')
+            bel.connections['O'] = top_wire
+            bels.append(bel)
+
+
+
+    top.add_site(aparts[0], site, bels, outputs,
+            sinks, sources, internal_sources)
+
+
+def process_iobs(conn, top, tile, features):
+    iobs = {
+            '0': [],
+            '1': [],
+            }
+
+    for f in features:
+        parts = f.feature.split('.')
+
+        if not parts[1].startswith('IOB_Y'):
+            continue
+
+        iobs[parts[1][-1]].append(f)
+
+    for iob in iobs:
+        if len(iobs[iob]) > 0:
+            process_iob(top, iobs[iob])
+
+def null_process(conn, top, tile, tiles):
     pass
 
-def process_iob(conn, top, tile, tiles):
-    pass
+def get_bufg_site(db, grid, tile, generic_site):
+    y = int(generic_site[generic_site.find('Y')+1:])
+    if '_TOP_' in tile:
+        y += 16
+
+    site_name = 'BUFGCTRL_X0Y{}'.format(y)
+
+    gridinfo = grid.gridinfo_at_tilename(tile)
+
+    tile = db.get_tile_type(gridinfo.tile_type)
+
+    for site in tile.get_instance_sites(gridinfo):
+        if site.name == site_name:
+            return site
+
+    assert False, (tile, generic_site)
+
+BUFHCE_RE = re.compile('BUFHCE_X([0-9]+)Y([0-9]+)')
+
+def bufhce_xy(site):
+    m = BUFHCE_RE.fullmatch(site)
+    assert m is not None, site
+
+    return int(m.group(1)), int(m.group(2))
+
+def get_bufhce_site(db, grid, tile, generic_site):
+    x, y = bufhce_xy(generic_site)
+
+    gridinfo = grid.gridinfo_at_tilename(tile)
+
+    tile = db.get_tile_type(gridinfo.tile_type)
+
+    for site in tile.get_instance_sites(gridinfo):
+        instance_x, instance_y = bufhce_xy(site.name)
+
+        if instance_x == x and y == (instance_y % 12):
+            return site
+
+    assert False, (tile, generic_site)
+
+def process_bufg(conn, top, tile, features):
+    bufgs = {}
+    for f in features:
+        parts = f.feature.split('.')
+
+        if parts[1] != 'BUFGCTRL':
+            continue
+
+        if parts[2] not in bufgs:
+            bufgs[parts[2]] = []
+
+        bufgs[parts[2]].append(f)
+
+    for bufg, features in bufgs.items():
+        set_features = set()
+
+        for f in features:
+            if f.value == 0:
+                continue
+
+            parts = f.feature.split('.')
+
+            set_features.add('.'.join(parts[3:]))
+
+        if 'IN_USE' not in set_features:
+            continue
+
+        bels = []
+        sinks = set()
+        sources = set()
+        internal_sources = set()
+        outputs = {}
+
+        bel = Bel('BUFGCTRL')
+        bel.parameters['IS_IGNORE0_INVERTED'] = int('IS_IGNORE0_INVERTED' in set_features)
+        bel.parameters['IS_IGNORE1_INVERTED'] = int('IS_IGNORE1_INVERTED' in set_features)
+        bel.parameters['IS_CE0_INVERTED'] = int('ZINV_CE0' not in set_features)
+        bel.parameters['IS_CE1_INVERTED'] = int('ZINV_CE1' not in set_features)
+        bel.parameters['IS_S0_INVERTED'] = int('ZINV_S0' not in set_features)
+        bel.parameters['IS_S1_INVERTED'] = int('ZINV_S1' not in set_features)
+        bel.parameters['PRESELECT_I0'] = int('ZPRESELECT_I0' not in set_features)
+        bel.parameters['PRESELECT_I1'] = int('PRESELECT_I1' in set_features)
+        bel.parameters['INIT_OUT'] = int('INIT_OUT' in set_features)
+
+        for sink in ('I0', 'I1', 'S0', 'S1', 'CE0', 'CE1', 'IGNORE0', 'IGNORE1'):
+            bel.connections[sink] = sink
+            sinks.add(sink)
+
+        bel.connections['O'] = 'O'
+        sources.add('O')
+
+        bels.append(bel)
+
+        site = get_bufg_site(top.db, top.grid, tile, features[0].feature.split('.')[2])
+        top.add_site(tile, site, bels, outputs,
+                sinks, sources, internal_sources)
+
+
+def process_hrow(conn, top, tile, features):
+    bufhs = {}
+    for f in features:
+        parts = f.feature.split('.')
+
+        if parts[1] != 'BUFHCE':
+            continue
+
+        if parts[2] not in bufhs:
+            bufhs[parts[2]] = []
+
+        bufhs[parts[2]].append(f)
+
+    for bufh, features in bufhs.items():
+        set_features = set()
+
+        for f in features:
+            if f.value == 0:
+                continue
+
+            parts = f.feature.split('.')
+
+            set_features.add('.'.join(parts[3:]))
+
+        if 'IN_USE' not in set_features:
+            continue
+
+        bels = []
+        sinks = set()
+        sources = set()
+        internal_sources = set()
+        outputs = {}
+
+        bel = Bel('BUFHCE')
+        if 'CE_TYPE.ASYNC' in set_features:
+            bel.parameters['CE_TYPE'] = 'ASYNC'
+        else:
+            bel.parameters['CE_TYPE'] = 'SYNC'
+        bel.parameters['IS_CE_INVERTED'] = int('ZINV_CE' not in set_features)
+        bel.parameters['INIT_OUT'] = int('INIT_OUT' in set_features)
+
+        for sink in ('I', 'CE'):
+            bel.connections[sink] = sink
+            sinks.add(sink)
+
+        bel.connections['O'] = 'O'
+        sources.add('O')
+
+        bels.append(bel)
+
+        site = get_bufhce_site(top.db, top.grid, tile, features[0].feature.split('.')[2])
+        top.add_site(tile, site, bels, outputs,
+                sinks, sources, internal_sources)
+
+def add_io_standards(iostandards, feature):
+    if 'IOB' not in feature:
+        return
+
+    for part in feature.split('.'):
+        if 'LVCMOS' in part or 'LVTTL' in part:
+            iostandards.append(part.split('_'))
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--connection_database', required=True)
     parser.add_argument('--db_root', required=True)
+    parser.add_argument('--iostandard')
     parser.add_argument('fasm_file')
 
     args = parser.parse_args()
@@ -844,9 +1369,16 @@ SELECT name FROM tile_type WHERE pkey = (
 
     top = Module(db, grid, conn)
 
+    iostandards = []
+
+    if args.iostandard:
+        iostandards.append([args.iostandard])
+
     for fasm_line in fasm.parse_fasm_filename(args.fasm_file):
         if not fasm_line.set_feature:
             continue
+
+        add_io_standards(iostandards, fasm_line.set_feature.feature)
 
         parts = fasm_line.set_feature.feature.split('.')
         tile = parts[0]
@@ -864,17 +1396,30 @@ SELECT name FROM tile_type WHERE pkey = (
             'CLBLL_R': process_clb,
             'CLBLM_L': process_clb,
             'CLBLM_R': process_clb,
-            'INT_L': process_int,
-            'INT_R': process_int,
-            'LIOB33': process_iob,
-            'RIOB33': process_iob,
+            'INT_L': null_process,
+            'INT_R': null_process,
+            'LIOB33': process_iobs,
+            'RIOB33': process_iobs,
+            'LIOB33_SING': process_iobs,
+            'RIOB33_SING': process_iobs,
+            'HCLK_L': null_process,
+            'HCLK_R': null_process,
+            'CLK_BUFG_REBUF': null_process,
+            'CLK_BUFG_BOT_R': process_bufg,
+            'CLK_BUFG_TOP_R': process_bufg,
+            'CLK_HROW_BOT_R': process_hrow,
+            'CLK_HROW_TOP_R': process_hrow,
             }
+
+    top.set_iostandard(iostandards)
 
     for tile in tiles:
         tile_type = get_tile_type(tile)
 
         process_tile[tile_type](conn, top, tile, tiles[tile])
 
+    for l in top.output_verilog():
+        print(l)
 
 
 if __name__ == "__main__":
