@@ -885,7 +885,6 @@ def main():
     mark_track_liveness(conn, pool, input_only_nodes, output_only_nodes)
 
     print('{} Flushing database back to file "{}"'.format(now(), args.connection_database))
-    db_cache.close()
 
 if __name__ == '__main__':
     main()
