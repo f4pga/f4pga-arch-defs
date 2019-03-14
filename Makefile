@@ -3,6 +3,9 @@
 all: env
 	cd build && make
 
+clean:
+	rm -rf build
+
 env:
 	git submodule init
 	git submodule update --init --recursive
