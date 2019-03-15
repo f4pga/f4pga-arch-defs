@@ -18,11 +18,16 @@ class DatabaseCache(object):
         self.read_only = read_only
         self.bar = None
 
+    def __enter__(self):
+        """
+        Opens the database file and makes its copy in memory
+        """
+
         # File URI
         if self.read_only:
-            uri = "file:%s?mode=ro"  % file_name
+            uri = "file:%s?mode=ro"  % self.file_name
         else:
-            uri = "file:%s?mode=rwc" % file_name
+            uri = "file:%s?mode=rwc" % self.file_name
 
         # Open connections
         self.memory_connection = sqlite3.connect(":memory:")
@@ -35,9 +40,15 @@ class DatabaseCache(object):
         self.bar.finish()
         self.bar = None
 
-    def __del__(self):
+        # Return the connection
+        return self.memory_connection
 
-        # Write back only if not read-onlu
+    def __exit__(self, exc_type, exc_value, traceback):
+        """
+        Writes back the database to file if the database was open as not read-only
+        """
+
+        # Write back only if not read-only
         if not self.read_only:
             print("Dumping database to '{}'".format(self.file_name))
             self.memory_connection.backup(self.file_connection, pages=100, progress=self._progress)
@@ -57,10 +68,4 @@ class DatabaseCache(object):
             self.bar = ProgressBar(max_value = total)
         else:
             self.bar.update(total - remaining)
-
-    def get_connection(self):
-        """
-        Returns connection to the database copy in memory
-        """
-        return self.memory_connection
 

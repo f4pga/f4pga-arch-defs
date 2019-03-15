@@ -751,140 +751,139 @@ def main():
     db = prjxray.db.Database(args.db_root)
     grid = db.grid()
 
-    db_cache = DatabaseCache(args.connection_database)
-    conn = db_cache.get_connection()
+    with DatabaseCache(args.connection_database) as conn:
 
-    with open(args.pin_assignments) as f:
-        pin_assignments = json.load(f)
+        with open(args.pin_assignments) as f:
+            pin_assignments = json.load(f)
 
-    tile_wires = []
-    for tile_type, wire_map in pin_assignments['pin_directions'].items():
-        for wire in wire_map.keys():
-            tile_wires.append((tile_type, wire))
+        tile_wires = []
+        for tile_type, wire_map in pin_assignments['pin_directions'].items():
+            for wire in wire_map.keys():
+                tile_wires.append((tile_type, wire))
 
-    for tile_type, wire in progressbar.progressbar(tile_wires):
-        pins = [direction_to_enum(pin)
-                for pin in pin_assignments['pin_directions'][tile_type][wire]]
-        add_graph_nodes_for_pins(conn, tile_type, wire, pins)
+        for tile_type, wire in progressbar.progressbar(tile_wires):
+            pins = [direction_to_enum(pin)
+                    for pin in pin_assignments['pin_directions'][tile_type][wire]]
+            add_graph_nodes_for_pins(conn, tile_type, wire, pins)
 
-    if args.synth_tiles:
-        use_roi = True
-        with open(args.synth_tiles) as f:
-            synth_tiles = json.load(f)
+        if args.synth_tiles:
+            use_roi = True
+            with open(args.synth_tiles) as f:
+                synth_tiles = json.load(f)
 
-        roi = Roi(
-                db=db,
-                x1=synth_tiles['info']['GRID_X_MIN'],
-                y1=synth_tiles['info']['GRID_Y_MIN'],
-                x2=synth_tiles['info']['GRID_X_MAX'],
-                y2=synth_tiles['info']['GRID_Y_MAX'],
-                )
+            roi = Roi(
+                    db=db,
+                    x1=synth_tiles['info']['GRID_X_MIN'],
+                    y1=synth_tiles['info']['GRID_Y_MIN'],
+                    x2=synth_tiles['info']['GRID_X_MAX'],
+                    y2=synth_tiles['info']['GRID_Y_MAX'],
+                    )
 
-        print('{} generating routing graph for ROI.'.format(now()))
-    else:
-        use_roi = False
+            print('{} generating routing graph for ROI.'.format(now()))
+        else:
+            use_roi = False
 
-    output_only_nodes = set()
-    input_only_nodes = set()
+        output_only_nodes = set()
+        input_only_nodes = set()
 
-    find_pip = create_find_pip(conn)
-    find_wire = create_find_wire(conn)
-    find_connector = create_find_connector(conn)
+        find_pip = create_find_pip(conn)
+        find_wire = create_find_wire(conn)
+        find_connector = create_find_connector(conn)
 
-    print('{} Finding nodes belonging to ROI'.format(now()))
-    if use_roi:
+        print('{} Finding nodes belonging to ROI'.format(now()))
+        if use_roi:
+            for loc in progressbar.progressbar(grid.tile_locations()):
+                gridinfo = grid.gridinfo_at_loc(loc)
+                tile_name = grid.tilename_at_loc(loc)
+
+                if tile_name in synth_tiles['tiles']:
+                    assert len(synth_tiles['tiles'][tile_name]['pins']) == 1
+                    for pin in synth_tiles['tiles'][tile_name]['pins']:
+                        _, _, node_pkey = find_wire(tile_name, gridinfo.tile_type,
+                                pin['wire'])
+
+                        if pin['port_type'] == 'input':
+                            # This track can output be used as a sink.
+                            input_only_nodes |= set((node_pkey,))
+                        elif pin['port_type'] == 'output':
+                            # This track can output be used as a src.
+                            output_only_nodes |= set((node_pkey,))
+                        else:
+                            assert False, pin
+
+        c = conn.cursor()
+        c.execute('SELECT pkey FROM switch WHERE name = ?;', ('routing',))
+        switch_pkey = c.fetchone()[0]
+
+        edges = []
+
+        edge_set = set()
+
         for loc in progressbar.progressbar(grid.tile_locations()):
             gridinfo = grid.gridinfo_at_loc(loc)
             tile_name = grid.tilename_at_loc(loc)
 
-            if tile_name in synth_tiles['tiles']:
-                assert len(synth_tiles['tiles'][tile_name]['pins']) == 1
-                for pin in synth_tiles['tiles'][tile_name]['pins']:
-                    _, _, node_pkey = find_wire(tile_name, gridinfo.tile_type,
-                            pin['wire'])
-
-                    if pin['port_type'] == 'input':
-                        # This track can output be used as a sink.
-                        input_only_nodes |= set((node_pkey,))
-                    elif pin['port_type'] == 'output':
-                        # This track can output be used as a src.
-                        output_only_nodes |= set((node_pkey,))
-                    else:
-                        assert False, pin
-
-    c = conn.cursor()
-    c.execute('SELECT pkey FROM switch WHERE name = ?;', ('routing',))
-    switch_pkey = c.fetchone()[0]
-
-    edges = []
-
-    edge_set = set()
-
-    for loc in progressbar.progressbar(grid.tile_locations()):
-        gridinfo = grid.gridinfo_at_loc(loc)
-        tile_name = grid.tilename_at_loc(loc)
-
-        # Not a synth node, check if in ROI.
-        if use_roi and not roi.tile_in_roi(loc):
-            continue
-
-
-        tile_type = db.get_tile_type(gridinfo.tile_type)
-
-        for pip in tile_type.get_pips():
-            if pip.is_pseudo:
+            # Not a synth node, check if in ROI.
+            if use_roi and not roi.tile_in_roi(loc):
                 continue
 
-            if not pip.is_directional:
-                # TODO: Handle bidirectional pips?
-                continue
 
-            connections = make_connection(
-                    conn=conn,
-                    input_only_nodes=input_only_nodes,
-                    output_only_nodes=output_only_nodes,
-                    find_pip=find_pip,
-                    find_wire=find_wire,
-                    find_connector=find_connector,
-                    tile_name=tile_name,
-                    loc=loc,
-                    tile_type=gridinfo.tile_type,
-                    pip=pip,
-                    switch_pkey=switch_pkey)
-            if connections:
-                # TODO: Skip duplicate connections, until they have unique
-                # switches
-                for connection in connections:
-                    key = tuple(connection[0:3])
-                    if key in edge_set:
-                        continue
+            tile_type = db.get_tile_type(gridinfo.tile_type)
 
-                    edge_set.add(key)
+            for pip in tile_type.get_pips():
+                if pip.is_pseudo:
+                    continue
 
-                    edges.append(connection)
+                if not pip.is_directional:
+                    # TODO: Handle bidirectional pips?
+                    continue
 
-    print('{} Created {} edges, inserting'.format(now(), len(edges)))
+                connections = make_connection(
+                        conn=conn,
+                        input_only_nodes=input_only_nodes,
+                        output_only_nodes=output_only_nodes,
+                        find_pip=find_pip,
+                        find_wire=find_wire,
+                        find_connector=find_connector,
+                        tile_name=tile_name,
+                        loc=loc,
+                        tile_type=gridinfo.tile_type,
+                        pip=pip,
+                        switch_pkey=switch_pkey)
+                if connections:
+                    # TODO: Skip duplicate connections, until they have unique
+                    # switches
+                    for connection in connections:
+                        key = tuple(connection[0:3])
+                        if key in edge_set:
+                            continue
 
-    c.execute("""BEGIN EXCLUSIVE TRANSACTION;""")
-    for edge in progressbar.progressbar(edges):
-        c.execute("""
-                INSERT INTO graph_edge(
-                    src_graph_node_pkey, dest_graph_node_pkey, switch_pkey,
-                    tile_pkey, pip_in_tile_pkey)  VALUES (?, ?, ?, ?, ?)""",
-                    edge)
+                        edge_set.add(key)
 
-    c.execute("""COMMIT TRANSACTION;""")
+                        edges.append(connection)
 
-    print('{} Inserted edges'.format(now()))
+        print('{} Created {} edges, inserting'.format(now(), len(edges)))
 
-    c.execute("""CREATE INDEX src_node_index ON graph_edge(src_graph_node_pkey);""")
-    c.execute("""CREATE INDEX dest_node_index ON graph_edge(dest_graph_node_pkey);""")
-    c.connection.commit()
+        c.execute("""BEGIN EXCLUSIVE TRANSACTION;""")
+        for edge in progressbar.progressbar(edges):
+            c.execute("""
+                    INSERT INTO graph_edge(
+                        src_graph_node_pkey, dest_graph_node_pkey, switch_pkey,
+                        tile_pkey, pip_in_tile_pkey)  VALUES (?, ?, ?, ?, ?)""",
+                        edge)
 
-    print('{} Indices created, marking track liveness'.format(now()))
-    mark_track_liveness(conn, pool, input_only_nodes, output_only_nodes)
+        c.execute("""COMMIT TRANSACTION;""")
 
-    print('{} Flushing database back to file "{}"'.format(now(), args.connection_database))
+        print('{} Inserted edges'.format(now()))
+
+        c.execute("""CREATE INDEX src_node_index ON graph_edge(src_graph_node_pkey);""")
+        c.execute("""CREATE INDEX dest_node_index ON graph_edge(dest_graph_node_pkey);""")
+        c.connection.commit()
+
+        print('{} Indices created, marking track liveness'.format(now()))
+        mark_track_liveness(conn, pool, input_only_nodes, output_only_nodes)
+
+        print('{} Flushing database back to file "{}"'.format(now(), args.connection_database))
 
 if __name__ == '__main__':
     main()
