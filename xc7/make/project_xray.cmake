@@ -169,7 +169,7 @@ function(PROJECT_XRAY_ARCH)
       DEPENDS
         ${CREATE_SYNTH_TILES}
         ${PROJECT_XRAY_ARCH_USE_ROI}
-        ${PYTHON3} ${PYTHON3_TARGET} simplejson intervaltree
+        ${PYTHON3} ${PYTHON3_TARGET} ${DEPS} simplejson intervaltree
         )
 
     add_file_target(FILE synth_tiles.json GENERATED)
@@ -215,8 +215,6 @@ function(PROJECT_XRAY_ARCH)
   append_file_dependency(CHANNELS_DEPS ${GENERIC_CHANNELS})
   append_file_dependency(CHANNELS_DEPS ${symbiflow-arch-defs_SOURCE_DIR}/xc7/archs/${PART}/pin_assignments.json)
   get_file_location(GENERIC_CHANNELS_LOCATION ${GENERIC_CHANNELS})
-  list(APPEND CHANNELS_DEPS ${PRJXRAY_DB_DIR}/${PART}/tilegrid.json)
-  list(APPEND CHANNELS_DEPS ${PRJXRAY_DB_DIR}/${PART}/tileconn.json)
 
   add_custom_command(
     OUTPUT channels.db
@@ -230,7 +228,7 @@ function(PROJECT_XRAY_ARCH)
       ${ROI_ARG_FOR_CREATE_EDGES}
     DEPENDS
     ${PYTHON3} ${PYTHON3_TARGET} ${CREATE_EDGES}
-      ${CHANNELS_DEPS}
+    ${DEPS} ${CHANNELS_DEPS}
     )
 
   add_file_target(FILE channels.db GENERATED)
@@ -267,6 +265,7 @@ function(PROJECT_XRAY_PREPARE_DATABASE)
 
   set(TILEGRID ${PRJXRAY_DB_OVERLAY_DIR}/${PART}/tilegrid.json)
   set(TILECONN ${PRJXRAY_DB_OVERLAY_DIR}/${PART}/tileconn.json)
+
   add_custom_command(
   OUTPUT ${TILEGRID} ${TILECONN} # FIXME: The script will output not only these files
   COMMAND ${CMAKE_COMMAND} -E env PYTHONPATH=${PRJXRAY_DIR}:${symbiflow-arch-defs_SOURCE_DIR}/utils/splitter
@@ -274,6 +273,9 @@ function(PROJECT_XRAY_PREPARE_DATABASE)
     --split-tiles ${TILES_TO_SPLIT}
   DEPENDS ${GRID_SPLITTER} ${DEPS} ${PYTHON3} ${PYTHON3_TARGET}
   )
+
+  list(APPEND DEPS ${TILEGRID})
+  list(APPEND DEPS ${TILECONN})
 
   set(CHANNELS channels.db)
   add_custom_command(
@@ -284,7 +286,7 @@ function(PROJECT_XRAY_PREPARE_DATABASE)
     --connection_database ${CMAKE_CURRENT_BINARY_DIR}/${CHANNELS}
     --db_overlay ${PRJXRAY_DB_OVERLAY_DIR}/${PART}
     DEPENDS
-    ${FORM_CHANNELS} ${TILEGRID} ${TILECONN}
+    ${FORM_CHANNELS}
     ${DEPS} ${DEPS2} simplejson progressbar2 intervaltree
     ${PYTHON3} ${PYTHON3_TARGET}
     )
@@ -301,7 +303,7 @@ function(PROJECT_XRAY_PREPARE_DATABASE)
     --connection_database ${CMAKE_CURRENT_BINARY_DIR}/${CHANNELS}
     --pin_assignments ${CMAKE_CURRENT_BINARY_DIR}/${PIN_ASSIGNMENTS}
     DEPENDS
-    ${ASSIGN_PINS} ${TILEGRID} ${TILECONN}
+    ${ASSIGN_PINS}
     ${DEPS} ${DEPS2} ${CHANNELS}
     ${PYTHON3} ${PYTHON3_TARGET} simplejson progressbar2
     )
