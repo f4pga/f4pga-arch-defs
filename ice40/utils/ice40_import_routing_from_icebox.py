@@ -490,8 +490,6 @@ def add_pin_aliases(g, ic):
             g.routing.localnames.add(vpos, hlc_name, node)
             node.set_metadata("hlc_name", hlc_name)
 
-            #node.set_metadata("fasm_feature", )
-
             rr_name = pin.xmlname
             try:
                 localname = name_rr2local[rr_name]
@@ -1043,7 +1041,7 @@ def add_edges(g, ic):
                 skip("Remaining %s", remaining)
                 continue
 
-            feature, _ = Feature.fromIceDbEntry(IceDbEntry(ic.tile_type(*ipos), ipos, entry[0], entry[1:], None)).toFasmEntry()
+            feature, _ = Feature.from_icedb_entry(IceDbEntry(ic.tile_type(*ipos), ipos, entry[0], entry[1:], None)).to_fasm_entry()
             fasm_data = {'fasm_features': feature}
 
             create_edge_with_names(
