@@ -41,6 +41,13 @@ def main():
                 y2=j['info']['GRID_Y_MAX'],
                 )
 
+        synth_tiles['info'] = {
+            "GRID_X_MIN": roi.x1,
+            "GRID_Y_MIN": roi.y1,
+            "GRID_X_MAX": roi.x2,
+            "GRID_Y_MAX": roi.y2
+        }
+
     else:
         roi = Roi(
                 db=db,
@@ -50,7 +57,8 @@ def main():
                 y2=j['info']['GRID_Y_MAX'],
                 )
 
-    synth_tiles['info'] = j['info']
+        synth_tiles['info'] = j['info']
+
     for port in j['ports']:
         if port['name'].startswith('dout['):
             port_type = 'input'
@@ -88,7 +96,7 @@ def main():
         })
 
     with open(args.synth_tiles, 'w') as f:
-        json.dump(synth_tiles, f)
+        json.dump(synth_tiles, f, sort_keys=True, indent=1)
 
 if __name__ == "__main__":
     main()
