@@ -47,7 +47,7 @@ function(PROJECT_XRAY_DUMMY_SITE)
 endfunction()
 
 function(PROJECT_XRAY_TILE)
-    set(options FUSED_SITES)
+  set(options FUSED_SITES)
   set(oneValueArgs PART TILE)
   set(multiValueArgs SITE_TYPES)
   cmake_parse_arguments(
