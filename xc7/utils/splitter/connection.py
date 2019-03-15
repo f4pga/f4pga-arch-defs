@@ -28,7 +28,7 @@ class Rule(object):
 
         self.grid_deltas = grid_deltas
         self.tile_types  = tile_types
-        self.wire_pairs  = sorted(wire_pairs, key=lambda pair: pair[0] + ":" + pair[1])
+        self.wire_pairs  = sorted(wire_pairs, key=lambda pair: "".join(sorted(pair)))
 
     def copy(self):
         """
@@ -100,13 +100,25 @@ class Rule(object):
         :return:
         """
 
+        # Hash 1
         m = hashlib.sha256()
+        m.update(str.encode(self.tile_types[0] + self.tile_types[1],  "utf-8"))
+        m.update(str.encode("".join([str(+x) for x in self.grid_deltas]), "utf-8"))
+        m.update(str.encode("".join([x[0] + x[1] for x in self.wire_pairs]), "utf-8"))
+        h1 = hash(m.digest())
 
-        m.update(str.encode("".join([str(x) for x in self.grid_deltas]), "utf-8"))
-        m.update(str.encode("".join([str(x) for x in self.tile_types]),  "utf-8"))
-        m.update(str.encode("".join([str(x) for x in self.wire_pairs]),  "utf-8"))
+        # Hash 2
+        m = hashlib.sha256()
+        m.update(str.encode(self.tile_types[1] + self.tile_types[0],  "utf-8"))
+        m.update(str.encode("".join([str(-x) for x in self.grid_deltas]), "utf-8"))
+        m.update(str.encode("".join([x[1] + x[0] for x in self.wire_pairs]), "utf-8"))
+        h2 = hash(m.digest())
 
-        return hash(m.digest())
+        # Select one
+        if h1 > h2:
+            return h1
+        else:
+            return h2
 
     def __eq__(self, other):
         """
@@ -116,20 +128,6 @@ class Rule(object):
         :return:
         """
 
-        # Hashes are equal, so are the rules
-        if hash(self) == hash(other):
-            return True
-
-        # Check permutation
-        if other.grid_deltas[0] == -self.grid_deltas[0] and other.grid_deltas[1] == -self.grid_deltas[1]:
-            if other.tile_types[0] == self.tile_types[1] and other.tile_types[1] == self.tile_types[0]:
-
-                # Check if wire pairs are the same, but with swapped wires
-                self_pairs  = set([pair[0] + ":" + pair[1] for pair in self.wire_pairs])
-                other_pairs = set([pair[1] + ":" + pair[0] for pair in other.wire_pairs])
-
-                return len(self_pairs - other_pairs) == 0
-
-        # Connections are different
-        return False
+        # Compare hashes
+        return hash(self) == hash(other)
 
