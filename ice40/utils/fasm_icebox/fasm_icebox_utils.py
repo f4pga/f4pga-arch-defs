@@ -1,21 +1,19 @@
-"""Convert the icestorm database to a prjxray type DB
+"""Provide utilites for converting between FASM and icebox representations.
 
-The goal is that the icestorm db doesn't encode information about BRAM init or
-inversion of some bits such as RamConfig PowerUp (differs between 8k and 1k?)
+FASM represents enabling features from a default "empty" configuration.
+IceBox documents what each bit does even if should be set by default (unused).
 
-This is handled pretty wonkley in explain and hlc code
+Therefore any differences between ice40 parts are hidden from the FASM
+portion. For example IE, REN, and Ram PowerUp are inverted for 1k parts comparted to
+all other families.
 
-These are not handled as features in icebox
- - break out INIT for ram
- - break out bits for LC_[0-7] INIT
-
-
-Another name variant
-
-HLC introduce a globally unique name for each wire named on the right endpoint.
-FASM will have a slight variation for some features due to not supporting / character
-
+FASM features attempt to maintain the IceStrom nomenclature.
+Exceptions:
+ - '/' are replaced with '_' as '/' is not valid for FASM feature name
+ - RAM CBITS are combined into READ_MODE and WRITE_MODE FASM features
+ - IO configuration bits are combined into SimpleInput and SimpleOut FASM features
 """
+
 from io import StringIO
 import re
 import unittest
@@ -25,8 +23,18 @@ import icebox
 import fasm
 from ice40_feature import Feature, IceDbEntry, FasmEntry
 
+# hardcoded permutation
+# * https://github.com/YosysHQ/nextpnr/blob/343569105ddf7c97316922774dc4d70d1d4f7c9f/ice40/bitstream.cc#L460-L468
+# * https://github.com/cliffordwolf/icestorm/blob/master/icebox/icebox_hlc2asc.py#L925-L936
+# * https://github.com/YosysHQ/arachne-pnr/blob/840bdfdeb38809f9f6af4d89dd7b22959b176fdd/src/place.cc#L1573-L1627
+LUT_BITS = [4, 14, 15, 5, 6, 16, 17, 7, 3, 13, 12, 2, 1, 11, 10, 0]
+LUT_CTRL = {"CarryEnable": 8, "DffEnable": 9, "Set_NoReset": 18, "AsyncSetReset": 19}
+
 
 def _nibbles_to_bits(line):
+    """
+    Convert from icebox hex string for ramdata in asc files to an array of Bool
+    """
     res = []
     for ch in line:
         res += [xx == "1" for xx in "{:4b}".format(int(ch, 16))]
@@ -35,6 +43,9 @@ def _nibbles_to_bits(line):
 
 
 def _bits_to_nibbles(arr):
+    """
+    Convert from array of Bool to icebox hex string used for ramdata in asc files
+    """
     res = []
     for ii in range(0, len(arr), 4):
         nibble_val = sum((1 << ii) for ii, xx in enumerate(arr[ii : ii + 4]) if xx)
@@ -57,6 +68,8 @@ def _tile_to_array(tile, is_hex=False):
 def _array_to_tile(tile_bits, tile, is_hex=False):
     """
     convert a numpy array to text icedb tile
+
+    Modifies tile in place to simplify updating of iceconfig
     """
     if is_hex:
         for ii, xx in enumerate(tile_bits):
@@ -70,48 +83,27 @@ def _lut_to_lc(lut, ctrl):
     """
     convert lut and ctrl dict to permuted lc bits
     """
-    # hardcoded permutation
-    # * https://github.com/YosysHQ/nextpnr/blob/343569105ddf7c97316922774dc4d70d1d4f7c9f/ice40/bitstream.cc#L460-L468
-    # * https://github.com/cliffordwolf/icestorm/blob/master/icebox/icebox_hlc2asc.py#L925-L936
-    # * https://github.com/YosysHQ/arachne-pnr/blob/840bdfdeb38809f9f6af4d89dd7b22959b176fdd/src/place.cc#L1573-L1627
-    lut_bits = [4, 14, 15, 5, 6, 16, 17, 7, 3, 13, 12, 2, 1, 11, 10, 0]
-    lut_ctrl = {
-        "CarryEnable": 8,
-        "DffEnable": 9,
-        "Set_NoReset": 18,
-        "AsyncSetReset": 19,
-    }
     res = 20 * [lut[0]]
-    for ii, bit in enumerate(lut_bits):
+    for ii, bit in enumerate(LUT_BITS):
         res[bit] = lut[ii]
     for k, v in ctrl.items():
-        res[lut_ctrl[k]] = v
+        res[LUT_CTRL[k]] = v
     return res
 
 
 def _lc_to_lut(lc):
-    # hardcoded permutation
-    # * https://github.com/YosysHQ/nextpnr/blob/343569105ddf7c97316922774dc4d70d1d4f7c9f/ice40/bitstream.cc#L460-L468
-    # * https://github.com/cliffordwolf/icestorm/blob/master/icebox/icebox_hlc2asc.py#L925-L936
-    # * https://github.com/YosysHQ/arachne-pnr/blob/840bdfdeb38809f9f6af4d89dd7b22959b176fdd/src/place.cc#L1573-L1627
-    lut_bits = [4, 14, 15, 5, 6, 16, 17, 7, 3, 13, 12, 2, 1, 11, 10, 0]
-    lut_ctrl = {
-        "CarryEnable": 8,
-        "DffEnable": 9,
-        "Set_NoReset": 18,
-        "AsyncSetReset": 19,
-    }
-
-    lut = [lc[val] for val in lut_bits]
-    ctrl = {k: lc[v] for k, v in lut_ctrl.items()}
-
+    """
+    convert from lc bits to unpermuted lut table and control dict
+    """
+    lut = [lc[val] for val in LUT_BITS]
+    ctrl = {k: lc[v] for k, v in LUT_CTRL.items()}
     return lut, ctrl
 
 
 def _get_feature_bits(tile, cond):
     """
-  get bitmask and values for the tile from an icebox db entry
-  """
+    get bitmask and values for the tile from an icebox db entry
+    """
     bm = np.zeros(tile.shape, dtype=bool)
     bp = np.zeros(tile.shape, dtype=bool)
     for ii in cond:
@@ -121,10 +113,21 @@ def _get_feature_bits(tile, cond):
     return bm, bp
 
 
+def _set_feature_bits(ic, loc, bits):
+    """
+    Set bits for a specifc location in an iceconfig
+    """
+    tile = ic.tile(*loc)
+    tile_bits = _tile_to_array(tile)
+    bm, bv = _get_feature_bits(tile_bits, bits)
+    tile_bits[bm] = bv[bm]
+    _array_to_tile(tile_bits, tile)
+
+
 def _get_iceconfig_bits(tile, cond):
     """
-  get bitmask and values for the tile from an icebox db entry
-  """
+    get bitmask and values for the tile from an icebox db entry
+    """
     bm = np.zeros(tile.shape, dtype=bool)
     bp = np.zeros(tile.shape, dtype=bool)
     for ii in cond:
@@ -158,17 +161,17 @@ class FeatureAccumulator(dict):
     """
 
     def append_feature(self, feature):
-        self[feature.toFasmEntry().feature] = feature
+        self[feature.to_fasm_entry().feature] = feature
 
     def append_ice_entry(self, tile_type, tile_loc, bits, names, idx, negate=False):
 
         if negate:
-            feature = Feature.fromIceDbEntry(
+            feature = Feature.from_icedb_entry(
                 IceDbEntry(tile_type, tile_loc, bits, names, idx)
             )
             feature.bit_tuples = [_inv_bit_tuple(bt) for bt in feature.bit_tuples]
         else:
-            feature = Feature.fromIceDbEntry(
+            feature = Feature.from_icedb_entry(
                 IceDbEntry(tile_type, tile_loc, bits, names, idx)
             )
 
@@ -177,7 +180,7 @@ class FeatureAccumulator(dict):
 
     def as_fasm_db(self, outf=StringIO()):
         for key in sorted(self.keys()):
-            entry = self[key].toFasmEntry()
+            entry = self[key].to_fasm_entry()
             print("{} {}".format(entry.feature, " ".join(entry.bits)), file=outf)
         return outf
 
@@ -188,6 +191,10 @@ class FeatureAccumulator(dict):
 
 
 def read_ice_db(ic):
+    """
+    read icebox database from iceconfig and construct a dictionary of features
+    """
+
     # TODO: undo Hack to invert some specific signals
     device_1k = ic.device == "1k"
 
@@ -212,7 +219,11 @@ def read_ice_db(ic):
                     accum.append_ice_entry(tile_type, tile_loc, [bit], names, None)
 
             # entries to generate the negated case
-            elif tile_type == "IO" and device_1k and entry[-1].startswith("IE_"):
+            elif (
+                tile_type == "IO"
+                and device_1k
+                and (entry[-1].startswith("IE_") or entry[-1].startswith("REN_"))
+            ):
                 accum.append_ice_entry(
                     tile_type, tile_loc, entry[0], entry[1:], None, negate=True
                 )
@@ -271,6 +282,9 @@ def _iceboxdb_to_fasmdb(ic, outf=StringIO()):
 
 
 def generate_fasm_db(outf, device):
+    """
+    Generate FASM style DB for a ice40 device
+    """
     ic = icebox.iceconfig()
     init_method_name = "setup_empty_{}".format(device.lower()[2:])
     assert hasattr(ic, init_method_name), "no icebox method to init empty device"
@@ -281,7 +295,7 @@ def generate_fasm_db(outf, device):
 
 def asc_to_fasm(filename, outf=StringIO()):
     """
-    generate a fasm output from an asc
+    Generate a fasm output from an asc
     """
     ic = icebox.iceconfig()
     ic.read_file(filename)
@@ -290,6 +304,11 @@ def asc_to_fasm(filename, outf=StringIO()):
 
 
 def iceconfig_to_fasm(ic, outf=StringIO()):
+    """
+    read iceconfig and generate FASM features.
+
+    Useful for generating FASM from ASC file.
+    """
     # TODO: undo Hack to invert some specific signals
     device_1k = ic.device == "1k"
 
@@ -320,7 +339,11 @@ def iceconfig_to_fasm(ic, outf=StringIO()):
                             names = entry[1:] + [name]
                             accum.append_ice_entry(tile_type, tile_loc, [], names, None)
 
-            elif tile_type == "IO" and device_1k and entry[-1].startswith("IE_"):
+            elif (
+                tile_type == "IO"
+                and device_1k
+                and (entry[-1].startswith("IE_") or entry[-1].startswith("REN_"))
+            ):
                 accum.append_ice_entry(
                     tile_type, tile_loc, entry[0], entry[1:], None, negate=True
                 )
@@ -367,24 +390,22 @@ def iceconfig_to_fasm(ic, outf=StringIO()):
             feature_name = "INIT{:X}".format(x)
             bit = "B{}[{}]".format(x, y)
             entry = [[bit], feature_name]
-            feature = Feature.fromIceDbEntry(
+            feature = Feature.from_icedb_entry(
                 IceDbEntry(tile_type, tile_loc, entry[0], entry[1:], y)
             )
-            print(feature.toFasmEntry().feature, file=outf)
+            print(feature.to_fasm_entry().feature, file=outf)
 
     # TODO: extra_bits
 
     return accum.as_fasm(outf)
 
-def _set_feature_bits(ic, loc, bits):
-    tile = ic.tile(*loc)
-    tile_bits = _tile_to_array(tile)
-    bm, bv = _get_feature_bits(tile_bits, bits)
-    tile_bits[bm] = bv[bm]
-    _array_to_tile(tile_bits, tile)
-
 
 def fasm_to_asc(in_fasm, outf, device):
+    """
+    Convert an FASM input to an ASC file
+
+    Set input enable defaults, RAM powerup, and enables all ColBufCtrl (until modeled in VPR see: #464)
+    """
     ic = icebox.iceconfig()
 
     init_method_name = "setup_empty_{}".format(device.lower()[2:])
@@ -405,8 +426,10 @@ def fasm_to_asc(in_fasm, outf, device):
         for entry in db:
             if (
                 device_1k
-                and ((tile_type == "IO" and entry[-1] in ["IE_0", "IE_1"])
-                     or (tile_type == "RAMB" and entry[-1] == "PowerUp"))
+                and (
+                    (tile_type == "IO" and entry[-1] in ["IE_0", "IE_1"])
+                    or (tile_type == "RAMB" and entry[-1] == "PowerUp")
+                )
                 or (entry[-2] == "ColBufCtrl")
             ):
                 tile_bits = _tile_to_array(tile)
@@ -423,17 +446,11 @@ def fasm_to_asc(in_fasm, outf, device):
         line_strs = tuple(fasm.fasm_line_to_string(line))
         assert len(line_strs) == 1
 
-        feature = Feature.fromFasmEntry(FasmEntry(line.set_feature.feature, []))
+        feature = Feature.from_fasm_entry(FasmEntry(line.set_feature.feature, []))
 
         def find_ieren(ic, loc, iob):
-            tmap = [
-                xx[3:]
-                for xx in ic.ieren_db()
-                if xx[:3] == (tuple(loc) + (iob,))
-            ]
-            assert len(tmap) < 2, "expected 1 IEREN_DB entry found {}".format(
-                len(tmap)
-            )
+            tmap = [xx[3:] for xx in ic.ieren_db() if xx[:3] == (tuple(loc) + (iob,))]
+            assert len(tmap) < 2, "expected 1 IEREN_DB entry found {}".format(len(tmap))
 
             if len(tmap) == 0:
                 print("no ieren found for {}".format((tile_loc + (iob,))))
@@ -446,16 +463,16 @@ def fasm_to_asc(in_fasm, outf, device):
             new_ieren = find_ieren(ic, feature.loc, iob)
 
             feature.parts[-1] = "PINTYPE_0"
-            db_entry = fasmdb[feature.toFasmEntry().feature]
+            db_entry = fasmdb[feature.to_fasm_entry().feature]
             _set_feature_bits(ic, db_entry.loc, db_entry.bit_tuples)
 
             feature.loc = new_ieren[:2]
             feature.parts[-2] = "IoCtrl"
-            feature.parts[-1] = "IE_{}".format(iob)
-            db_entry = fasmdb[feature.toFasmEntry().feature]
+            feature.parts[-1] = "IE_{}".format(new_ieren[2])
+            db_entry = fasmdb[feature.to_fasm_entry().feature]
             _set_feature_bits(ic, db_entry.loc, db_entry.bit_tuples)
-            feature.parts[-1] = "REN_{}".format(iob)
-            db_entry = fasmdb[feature.toFasmEntry().feature]
+            feature.parts[-1] = "REN_{}".format(new_ieren[2])
+            db_entry = fasmdb[feature.to_fasm_entry().feature]
             _set_feature_bits(ic, db_entry.loc, db_entry.bit_tuples)
             continue
 
@@ -464,16 +481,16 @@ def fasm_to_asc(in_fasm, outf, device):
             new_ieren = find_ieren(ic, feature.loc, iob)
 
             feature.parts[-1] = "PINTYPE_3"
-            db_entry = fasmdb[feature.toFasmEntry().feature]
+            db_entry = fasmdb[feature.to_fasm_entry().feature]
             _set_feature_bits(ic, db_entry.loc, db_entry.bit_tuples)
             feature.parts[-1] = "PINTYPE_4"
-            db_entry = fasmdb[feature.toFasmEntry().feature]
+            db_entry = fasmdb[feature.to_fasm_entry().feature]
             _set_feature_bits(ic, db_entry.loc, db_entry.bit_tuples)
 
             feature.loc = new_ieren[:2]
             feature.parts[-2] = "IoCtrl"
-            feature.parts[-1] = "REN_{}".format(iob)
-            db_entry = fasmdb[feature.toFasmEntry().feature]
+            feature.parts[-1] = "REN_{}".format(new_ieren[2])
+            db_entry = fasmdb[feature.to_fasm_entry().feature]
             _set_feature_bits(ic, db_entry.loc, db_entry.bit_tuples)
             continue
 
@@ -510,86 +527,14 @@ def fasm_to_asc(in_fasm, outf, device):
     ic.write_file(outf.name)
 
 
-class TestConversion(unittest.TestCase):
-    def helper(self, icedb, fasm_repr):
-        fi = Feature.fromIceDbEntry(icedb)
-        ff = Feature.fromFasmEntry(fasm_repr)
-        self.assertEqual(fasm_repr, fi.toFasmEntry())
-        self.assertEqual(icedb, ff.toIceDbEntry())
-
-    def test_lc_x_lut(self):
-        test_vec = [xx for xx in range(20)]
-        lut, ctrl = _lc_to_lut(test_vec)
-        lc = _lut_to_lc(lut, ctrl)
-        self.assertEqual(lc, test_vec)
-
-    def test_nibble_x_bits(self):
-        test_vec = "0123456789abcd"
-        bits = _nibbles_to_bits(test_vec)
-        nibbles = _bits_to_nibbles(bits)
-        self.assertEqual(nibbles, test_vec)
-
-    def test_ram(self):
-
-        self.helper(
-            IceDbEntry("RAMB", [3, 15], ["B10[49]"], ["INITA"], 49),
-            FasmEntry("RAMB_X3_Y15.INITA[49]", ["10_49"]),
-        )
-
-        self.helper(
-            IceDbEntry("RAMB", [3, 15], ["!B10[49]"], ["INITA"], 49),
-            FasmEntry("RAMB_X3_Y15.INITA[49]", ["!10_49"]),
-        )
-
-    def test_logic(self):
-        self.helper(
-            IceDbEntry(
-                "LOGIC",
-                [7, 3],
-                ["!B0[31]", "B0[32]", "!B0[33]", "!B0[34]", "!B1[31]"],
-                ["buffer", "carry_in_mux", "lutff_0/in_3"],
-                None,
-            ),
-            FasmEntry(
-                "LOGIC_X7_Y3.buffer.carry_in_mux.lutff_0_in_3",
-                "!0_31 0_32 !0_33 !0_34 !1_31".split(),
-            ),
-        )
-
-    def test_io(self):
-        self.helper(
-            IceDbEntry(
-                "IO",
-                [10, 17],
-                ["B1[17]"],
-                ["buffer", "io_0/D_IN_0", "span12_horz_0"],
-                None,
-            ),
-            FasmEntry("IO_X10_Y17.buffer.io_0_D_IN_0.span12_horz_0", ["1_17"]),
-        )
-
-    """
-    def test_asc_to_fasm(self):
-        with open('tt','w') as f:
-            res = asc_to_fasm('test_data/test1.asc', f)
-        with open('t2', 'w') as f:
-            fasm_to_asc('tt', f)
-    """
-
-
 if __name__ == "__main__":
     import argparse
     import sys
 
-    parser = argparse.ArgumentParser(
-        description="Dump FASM DB from icebox"
-    )
+    parser = argparse.ArgumentParser(description="Dump FASM DB from icebox")
     parser.add_argument("device", help="Device type (eg lp1k, hx8k)")
     parser.add_argument(
-        "--output",
-        help="Output file",
-        type=argparse.FileType("w"),
-        default=sys.stdout,
+        "--output", help="Output file", type=argparse.FileType("w"), default=sys.stdout
     )
     args = parser.parse_args()
 
