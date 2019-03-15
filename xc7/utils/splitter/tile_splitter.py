@@ -39,6 +39,36 @@ class TileSplitter(object):
         with open(tile_type_file, "r") as fp:
             self.tile = json.load(fp)
 
+    def _check_pips(self):
+        """
+        Checks whether the tile contains a pip that connects two tile
+        wires which do not go to any site
+        """
+
+        all_pips       = deepcopy(self.tile["pips"])
+        non_site_wires = self.tile["wires"]
+        site_wires     = []
+
+        # List site wires (any site)
+        for site in self.tile["sites"]:
+            for site in self.tile["sites"]:
+                site_wires.extend([wire for wire in site["site_pins"].values()])
+
+        # Remove site-relevant pips from temp. dict
+        for pip_name, pip in self.tile["pips"].items():
+            if pip["src_wire"] in site_wires or pip["dst_wire"] in site_wires:
+                del all_pips[pip_name]
+
+        # List "invalid" pips
+        for pip_name, pip in all_pips:
+            logging.critical("Pip '%s' connects two non-site wires '%s' and '%s'" % (
+                pip_name, pip["src_wire"], pip["dst_wire"]
+            ))
+
+        # Raise exception
+        if len(all_pips) > 0:
+            raise RuntimeError("Some pips connect only non-site wires!")
+
     def _extract_site(self, site_of_interest):
         """
         Extracts a site from a tile type. Generates a new tile type.
@@ -52,11 +82,11 @@ class TileSplitter(object):
 
         # Build a list of site and non-site wires
         site_wires = []
-        non_site_wires = []
+        other_site_wires = []
 
         for site in self.tile["sites"]:
             if site != site_of_interest:
-                non_site_wires.extend([wire for wire in site["site_pins"].values()])
+                other_site_wires.extend([wire for wire in site["site_pins"].values()])
             else:
                 site_wires.extend([wire for wire in site["site_pins"].values()])
 
@@ -72,12 +102,12 @@ class TileSplitter(object):
 
             # We have a pip that connects two wires from different sites.
             # The tile cannot be split
-            if (pip["src_wire"] in non_site_wires and pip["dst_wire"] in site_wires) or \
-               (pip["dst_wire"] in non_site_wires and pip["src_wire"] in site_wires):
+            if (pip["src_wire"] in other_site_wires and pip["dst_wire"] in site_wires) or \
+               (pip["dst_wire"] in other_site_wires and pip["src_wire"] in site_wires):
                 raise RuntimeError("Pip '%s' spans accross sites!" % pip_name)
 
             # Delete
-            if pip["src_wire"] in non_site_wires or pip["dst_wire"] in non_site_wires:
+            if pip["src_wire"] in other_site_wires or pip["dst_wire"] in other_site_wires:
                 del new_tile["pips"][pip_name]
 
         # Remove sites of non-interest
@@ -90,6 +120,10 @@ class TileSplitter(object):
 
         return new_tile
 
+    def _tile_stats(self, tile):
+        logging.info("Type: '%s', wires:%d, pips: %d" % (
+            tile["tile_type"], len(tile["wires"]), len(tile["pips"])))
+
     def split(self):
         """
         Triggers the split.
@@ -97,11 +131,20 @@ class TileSplitter(object):
         :return:
         """
 
+        # Stats
+        self._tile_stats(self.tile)
+
         # Loop over all sites of the tile
         for site in self.tile["sites"]:
 
+            # Check pips
+            self._check_pips()
+
             # Extract
             new_tile = self._extract_site(site)
+
+            # Stats
+            self._tile_stats(new_tile)
 
             # Save to JSON
             json_name = "tile_type_%s.json" % new_tile["tile_type"]
