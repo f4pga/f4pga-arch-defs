@@ -3,7 +3,7 @@ module top (
 	output [7:0] out
 );
 
-	localparam LOG2DELAY = 8;
+	localparam LOG2DELAY = 22;
 
 	reg [LOG2DELAY-1:0] counter0 = 0;
 	reg [LOG2DELAY-1:0] counter1 = 0;
