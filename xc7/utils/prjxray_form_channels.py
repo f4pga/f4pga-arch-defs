@@ -43,6 +43,8 @@ import os
 import os.path
 from lib.connection_database import NodeClassification, create_tables
 
+from prjxray_db_cache import DatabaseCache
+
 def import_site_type(db, c, site_types, site_type_name):
     assert site_type_name not in site_types
     site_type = db.get_site_type(site_type_name)
@@ -697,22 +699,25 @@ def main():
     if os.path.exists(args.connection_database):
         os.remove(args.connection_database)
 
-    conn = sqlite3.connect(args.connection_database)
-    create_tables(conn)
+    with DatabaseCache(args.connection_database) as conn:
 
-    print("{}: About to load database".format(datetime.datetime.now()))
-    db = prjxray.db.Database(args.db_root)
-    grid = db.grid()
-    import_grid(db, grid, conn)
-    print("{}: Initial database formed".format(datetime.datetime.now()))
-    import_nodes(db, grid, conn)
-    print("{}: Connections made".format(datetime.datetime.now()))
-    count_sites_and_pips_on_nodes(conn)
-    print("{}: Counted sites and pips".format(datetime.datetime.now()))
-    classify_nodes(conn)
-    print("{}: Nodes classified".format(datetime.datetime.now()))
-    form_tracks(conn)
-    print("{}: Tracks formed".format(datetime.datetime.now()))
+        create_tables(conn)
+
+        print("{}: About to load database".format(datetime.datetime.now()))
+        db = prjxray.db.Database(args.db_root)
+        grid = db.grid()
+        import_grid(db, grid, conn)
+        print("{}: Initial database formed".format(datetime.datetime.now()))
+        import_nodes(db, grid, conn)
+        print("{}: Connections made".format(datetime.datetime.now()))
+        count_sites_and_pips_on_nodes(conn)
+        print("{}: Counted sites and pips".format(datetime.datetime.now()))
+        classify_nodes(conn)
+        print("{}: Nodes classified".format(datetime.datetime.now()))
+        form_tracks(conn)
+        print("{}: Tracks formed".format(datetime.datetime.now()))
+
+        print('{} Flushing database back to file "{}"'.format(datetime.datetime.now(), args.connection_database))
 
 if __name__ == '__main__':
     main()

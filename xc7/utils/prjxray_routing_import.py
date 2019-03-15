@@ -35,6 +35,8 @@ import re
 import sqlite3
 import functools
 
+from prjxray_db_cache import DatabaseCache
+
 now = datetime.datetime.now
 
 HCLK_CK_BUFHCLK_REGEX = re.compile('HCLK_CK_BUFHCLK[0-9]+')
@@ -508,42 +510,42 @@ def main():
     tool_version = input_rr_graph.getroot().attrib['tool_version']
     tool_comment = input_rr_graph.getroot().attrib['tool_comment']
 
-    conn = sqlite3.connect(args.connection_database)
+    with DatabaseCache(args.connection_database) as conn:
 
-    # Mapping of graph_node.pkey to rr node id.
-    node_mapping = {}
+        # Mapping of graph_node.pkey to rr node id.
+        node_mapping = {}
 
-    # Match site pins rr nodes with graph_node's in the connection_database.
-    print('{} Importing graph nodes'.format(now()))
-    import_graph_nodes(conn, graph, node_mapping)
+        # Match site pins rr nodes with graph_node's in the connection_database.
+        print('{} Importing graph nodes'.format(now()))
+        import_graph_nodes(conn, graph, node_mapping)
 
-    # Walk all track graph nodes and add them.
-    print('{} Creating tracks'.format(now()))
-    segment_id = graph.get_segment_id_from_name('dummy')
-    create_track_rr_graph(conn, graph, node_mapping, use_roi, roi, synth_tiles, segment_id)
+        # Walk all track graph nodes and add them.
+        print('{} Creating tracks'.format(now()))
+        segment_id = graph.get_segment_id_from_name('dummy')
+        create_track_rr_graph(conn, graph, node_mapping, use_roi, roi, synth_tiles, segment_id)
 
-    # Set of (src, sink, switch_id) tuples that pip edges have been sent to
-    # VPR.  VPR cannot handle duplicate paths with the same switch id.
-    if use_roi:
-        print('{} Adding synthetic edges'.format(now()))
-        add_synthetic_edges(conn, graph, node_mapping, grid, synth_tiles)
+        # Set of (src, sink, switch_id) tuples that pip edges have been sent to
+        # VPR.  VPR cannot handle duplicate paths with the same switch id.
+        if use_roi:
+            print('{} Adding synthetic edges'.format(now()))
+            add_synthetic_edges(conn, graph, node_mapping, grid, synth_tiles)
 
 
-    print('{} Creating channels.'.format(now()))
-    channels_obj = create_channels(conn)
+        print('{} Creating channels.'.format(now()))
+        channels_obj = create_channels(conn)
 
-    print('{} Serializing to disk.'.format(now()))
-    with xml_graph:
-        xml_graph.start_serialize_to_xml(
-            tool_version=tool_version,
-            tool_comment=tool_comment,
-            channels_obj=channels_obj,
-            )
+        print('{} Serializing to disk.'.format(now()))
+        with xml_graph:
+            xml_graph.start_serialize_to_xml(
+                tool_version=tool_version,
+                tool_comment=tool_comment,
+                channels_obj=channels_obj,
+                )
 
-        xml_graph.serialize_nodes(yield_nodes(xml_graph.graph.nodes))
-        xml_graph.serialize_edges(import_graph_edges(conn, graph, node_mapping))
+            xml_graph.serialize_nodes(yield_nodes(xml_graph.graph.nodes))
+            xml_graph.serialize_edges(import_graph_edges(conn, graph, node_mapping))
 
-    print('{} Done.'.format(now()))
+        print('{} Flushing database back to file "{}"'.format(now(), args.connection_database))
 
 if __name__ == '__main__':
     main()

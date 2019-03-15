@@ -25,6 +25,8 @@ import progressbar
 import sqlite3
 import datetime
 
+from prjxray_db_cache import DatabaseCache
+
 now = datetime.datetime.now
 DirectConnection = namedtuple('DirectConnection', 'from_pin to_pin switch_name x_offset y_offset')
 
@@ -259,153 +261,155 @@ def main():
                 assert key not in edge_assignments, key
                 edge_assignments[key] = []
 
-    conn = sqlite3.connect(args.connection_database)
+    with DatabaseCache(args.connection_database, read_only=True) as conn:
 
-    direct_connections = set()
-    print('{} Processing direct connections.'.format(now()))
-    handle_direction_connections(conn, direct_connections, edge_assignments)
+        direct_connections = set()
+        print('{} Processing direct connections.'.format(now()))
+        handle_direction_connections(conn, direct_connections, edge_assignments)
 
-    wires_not_in_channels = {}
-    c = conn.cursor()
-    print('{} Processing non-channel nodes.'.format(now()))
-    for node_pkey, classification in progressbar.progressbar(c.execute("""
-SELECT pkey, classification FROM node WHERE classification != ?;
-""", (NodeClassification.CHANNEL.value,))):
-        reason = NodeClassification(classification)
+        wires_not_in_channels = {}
+        c = conn.cursor()
+        print('{} Processing non-channel nodes.'.format(now()))
+        for node_pkey, classification in progressbar.progressbar(c.execute("""
+    SELECT pkey, classification FROM node WHERE classification != ?;
+    """, (NodeClassification.CHANNEL.value,))):
+            reason = NodeClassification(classification)
 
-        for (tile, tile_type, wire) in yield_wire_info_from_node(conn, node_pkey):
-            key = (tile_type, wire)
+            for (tile, tile_type, wire) in yield_wire_info_from_node(conn, node_pkey):
+                key = (tile_type, wire)
 
-            # Sometimes nodes in particular tile instances are disconnected,
-            # disregard classification changes if this is the case.
-            if reason != NodeClassification.NULL:
-                if key not in wires_not_in_channels:
-                    wires_not_in_channels[key] = reason
-                else:
-                    other_reason = wires_not_in_channels[key]
-                    assert reason == other_reason, (tile, wire, reason, other_reason)
+                # Sometimes nodes in particular tile instances are disconnected,
+                # disregard classification changes if this is the case.
+                if reason != NodeClassification.NULL:
+                    if key not in wires_not_in_channels:
+                        wires_not_in_channels[key] = reason
+                    else:
+                        other_reason = wires_not_in_channels[key]
+                        assert reason == other_reason, (tile, wire, reason, other_reason)
 
-            if key in wires_in_tile_types:
-                wires_in_tile_types.remove(key)
+                if key in wires_in_tile_types:
+                    wires_in_tile_types.remove(key)
 
-    # List of nodes that are channels.
-    channel_nodes = []
+        # List of nodes that are channels.
+        channel_nodes = []
 
-    # Map of (tile, wire) to track.  This will be used to find channels for pips
-    # that come from EDGES_TO_CHANNEL.
-    channel_wires_to_tracks = {}
+        # Map of (tile, wire) to track.  This will be used to find channels for pips
+        # that come from EDGES_TO_CHANNEL.
+        channel_wires_to_tracks = {}
 
-    # Generate track models and verify that wires are either in a channel
-    # or not in a channel.
-    print('{} Creating models from tracks.'.format(now()))
-    for node_pkey, track_pkey in progressbar.progressbar(c.execute("""
-SELECT pkey, track_pkey FROM node WHERE classification = ?;
-""", (NodeClassification.CHANNEL.value,))):
-        assert track_pkey is not None
+        # Generate track models and verify that wires are either in a channel
+        # or not in a channel.
+        print('{} Creating models from tracks.'.format(now()))
+        for node_pkey, track_pkey in progressbar.progressbar(c.execute("""
+    SELECT pkey, track_pkey FROM node WHERE classification = ?;
+    """, (NodeClassification.CHANNEL.value,))):
+            assert track_pkey is not None
 
-        tracks_model, _ = get_track_model(conn, track_pkey)
-        channel_nodes.append(tracks_model)
-        channel_wires_to_tracks[track_pkey] = tracks_model
+            tracks_model, _ = get_track_model(conn, track_pkey)
+            channel_nodes.append(tracks_model)
+            channel_wires_to_tracks[track_pkey] = tracks_model
 
-        for (tile, tile_type, wire) in yield_wire_info_from_node(conn, node_pkey):
-            tileinfo = grid.gridinfo_at_tilename(tile)
-            key = (tileinfo.tile_type, wire)
-            # Make sure all wires in channels always are in channels
-            assert key not in wires_not_in_channels
+            for (tile, tile_type, wire) in yield_wire_info_from_node(conn, node_pkey):
+                tileinfo = grid.gridinfo_at_tilename(tile)
+                key = (tileinfo.tile_type, wire)
+                # Make sure all wires in channels always are in channels
+                assert key not in wires_not_in_channels
 
-            if key in wires_in_tile_types:
-                wires_in_tile_types.remove(key)
+                if key in wires_in_tile_types:
+                    wires_in_tile_types.remove(key)
 
-    # Make sure all wires appear to have been assigned.
-    assert len(wires_in_tile_types) == 0
+        # Make sure all wires appear to have been assigned.
+        assert len(wires_in_tile_types) == 0
 
-    # Verify that all tracks are sane.
-    for node in channel_nodes:
-        node.verify_tracks()
+        # Verify that all tracks are sane.
+        for node in channel_nodes:
+            node.verify_tracks()
 
-    null_tile_wires = set()
+        null_tile_wires = set()
 
-    # Verify that all nodes that are classified as edges to channels have at
-    # least one site, and at least one live connection to a channel.
-    #
-    # If no live connections from the node are present, this node should've
-    # been marked as NULL during channel formation.
-    print('{} Handling edges to channels.'.format(now()))
-    handle_edges_to_channels(conn, null_tile_wires, edge_assignments, channel_wires_to_tracks)
+        # Verify that all nodes that are classified as edges to channels have at
+        # least one site, and at least one live connection to a channel.
+        #
+        # If no live connections from the node are present, this node should've
+        # been marked as NULL during channel formation.
+        print('{} Handling edges to channels.'.format(now()))
+        handle_edges_to_channels(conn, null_tile_wires, edge_assignments, channel_wires_to_tracks)
 
-    print('{} Processing edge assignments.'.format(now()))
-    final_edge_assignments = {}
-    for key, available_pins in progressbar.progressbar(edge_assignments.items()):
-        (tile_type, wire) = key
-        if len(available_pins) == 0:
-            if (tile_type, wire) not in null_tile_wires:
-                # TODO: Figure out what is going on with these wires.  Appear to
-                # tile internal connections sometimes?
-                print((tile_type, wire))
+        print('{} Processing edge assignments.'.format(now()))
+        final_edge_assignments = {}
+        for key, available_pins in progressbar.progressbar(edge_assignments.items()):
+            (tile_type, wire) = key
+            if len(available_pins) == 0:
+                if (tile_type, wire) not in null_tile_wires:
+                    # TODO: Figure out what is going on with these wires.  Appear to
+                    # tile internal connections sometimes?
+                    print((tile_type, wire))
 
-            final_edge_assignments[key] = [tracks.Direction.RIGHT]
-            continue
+                final_edge_assignments[key] = [tracks.Direction.RIGHT]
+                continue
 
-        pins = set(available_pins[0])
-        for p in available_pins[1:]:
-            pins &= set(p)
+            pins = set(available_pins[0])
+            for p in available_pins[1:]:
+                pins &= set(p)
 
-        if len(pins) > 0:
-            final_edge_assignments[key] = [list(pins)[0]]
-        else:
-            # More than 2 pins are required, final the minimal number of pins
-            pins = set()
-            for p in available_pins:
-                pins |= set(p)
+            if len(pins) > 0:
+                final_edge_assignments[key] = [list(pins)[0]]
+            else:
+                # More than 2 pins are required, final the minimal number of pins
+                pins = set()
+                for p in available_pins:
+                    pins |= set(p)
 
-            while len(pins) > 2:
-                pins = list(pins)
+                while len(pins) > 2:
+                    pins = list(pins)
 
-                prev_len = len(pins)
+                    prev_len = len(pins)
 
-                for idx in range(len(pins)):
-                    pins_subset = list(pins)
-                    del pins_subset[idx]
+                    for idx in range(len(pins)):
+                        pins_subset = list(pins)
+                        del pins_subset[idx]
 
-                    pins_subset = set(pins_subset)
+                        pins_subset = set(pins_subset)
 
-                    bad_subset = False
-                    for p in available_pins:
-                        if len(pins_subset & set(p)) == 0:
-                            bad_subset = True
+                        bad_subset = False
+                        for p in available_pins:
+                            if len(pins_subset & set(p)) == 0:
+                                bad_subset = True
+                                break
+
+                        if not bad_subset:
+                            pins = list(pins_subset)
                             break
 
-                    if not bad_subset:
-                        pins = list(pins_subset)
+                    # Failed to remove any pins, stop.
+                    if len(pins) == prev_len:
                         break
 
-                # Failed to remove any pins, stop.
-                if len(pins) == prev_len:
-                    break
+                final_edge_assignments[key] = pins
 
-            final_edge_assignments[key] = pins
+        for key, available_pins in edge_assignments.items():
+            (tile_type, wire) = key
+            pins = set(final_edge_assignments[key])
 
-    for key, available_pins in edge_assignments.items():
-        (tile_type, wire) = key
-        pins = set(final_edge_assignments[key])
+            for required_pins in available_pins:
+                assert len(pins & set(required_pins)) > 0, (
+                        tile_type, wire, pins, required_pins)
 
-        for required_pins in available_pins:
-            assert len(pins & set(required_pins)) > 0, (
-                    tile_type, wire, pins, required_pins)
+        pin_directions = {}
+        for key, pins in progressbar.progressbar(final_edge_assignments.items()):
+            (tile_type, wire) = key
+            if tile_type not in pin_directions:
+                pin_directions[tile_type] = {}
 
-    pin_directions = {}
-    for key, pins in progressbar.progressbar(final_edge_assignments.items()):
-        (tile_type, wire) = key
-        if tile_type not in pin_directions:
-            pin_directions[tile_type] = {}
+            pin_directions[tile_type][wire] = [pin._name_ for pin in pins]
 
-        pin_directions[tile_type][wire] = [pin._name_ for pin in pins]
+        with open(args.pin_assignments, 'w') as f:
+            json.dump({
+                'pin_directions': pin_directions,
+                'direct_connections': [d._asdict() for d in direct_connections],
+            }, f, indent=2)
 
-    with open(args.pin_assignments, 'w') as f:
-        json.dump({
-            'pin_directions': pin_directions,
-            'direct_connections': [d._asdict() for d in direct_connections],
-        }, f, indent=2)
+        print('{} Flushing database back to file "{}"'.format(now(), args.connection_database))
 
 if __name__ == '__main__':
     main()
