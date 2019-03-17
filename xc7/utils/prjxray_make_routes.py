@@ -84,8 +84,6 @@ def expand_sink(conn, check_for_default, nets, net_map, source_to_sink_pip_map, 
     c.execute("SELECT name FROM wire_in_tile WHERE pkey = ?", (wire_in_tile_pkey,))
     (wire_name,) = c.fetchone()
 
-    print(tile_name, wire_name)
-
     sink_node_pkey = get_node_pkey(conn, sink_wire_pkey)
 
     c.execute("SELECT site_wire_pkey FROM node WHERE pkey = ?", (sink_node_pkey,))
@@ -157,7 +155,7 @@ SELECT site_pin_pkey FROM wire_in_tile WHERE pkey = (
                 nets[net_map[upstream_sink_wire_pkey]].add_node(conn, net_map, sink_node_pkey)
             return
 
-    print('ERROR, failed to find source for node = {}'.format(sink_node_pkey))
+    print('// ERROR, failed to find source for node = {}'.format(sink_node_pkey))
 
 
 def make_routes(db, conn, wire_pkey_to_wire, unrouted_sinks, unrouted_sources, active_pips):
@@ -195,8 +193,7 @@ def make_routes(db, conn, wire_pkey_to_wire, unrouted_sinks, unrouted_sources, a
 
     check_for_default = create_check_for_default(db, conn)
 
-    while len(unrouted_sinks) > 0:
-        wire_pkey = unrouted_sinks.pop()
+    for wire_pkey in unrouted_sinks:
         expand_sink(
                 conn=conn,
                 check_for_default=check_for_default,
@@ -205,4 +202,14 @@ def make_routes(db, conn, wire_pkey_to_wire, unrouted_sinks, unrouted_sources, a
                 source_to_sink_pip_map=source_to_sink_pip_map,
                 sink_wire_pkey=wire_pkey)
 
-    yield
+        if wire_pkey in net_map:
+            source_wire_pkey = net_map[wire_pkey]
+
+            if source_wire_pkey == ZERO_NET:
+                yield wire_pkey_to_wire[wire_pkey], 0
+            elif source_wire_pkey == ONE_NET:
+                yield wire_pkey_to_wire[wire_pkey], 1
+            else:
+                yield wire_pkey_to_wire[wire_pkey], wire_pkey_to_wire[source_wire_pkey]
+        else:
+            print('// ERROR, source for sink wire {} not found'.format(wire_pkey_to_wire[wire_pkey]))

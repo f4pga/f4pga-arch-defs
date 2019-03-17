@@ -255,8 +255,8 @@ class Module(object):
 
 
     def make_routes(self):
-        for route in make_routes(self.db, self.conn, self.wire_pkey_to_wire, self.unrouted_sinks, self.unrouted_sources, self.active_pips):
-            pass
+        for sink_wire, src_wire in make_routes(self.db, self.conn, self.wire_pkey_to_wire, self.unrouted_sinks, self.unrouted_sources, self.active_pips):
+            self.wire_assigns[sink_wire] = src_wire
 
 
 def get_lut_init(features, tile_name, slice_name, lut):
