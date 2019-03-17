@@ -74,6 +74,17 @@ def expand_sink(conn, check_for_default, nets, net_map, source_to_sink_pip_map, 
 
     c = conn.cursor()
 
+    c.execute("SELECT wire_in_tile_pkey, tile_pkey FROM wire WHERE pkey = ?",
+            (sink_wire_pkey,))
+    wire_in_tile_pkey, tile_pkey = c.fetchone()
+
+    c.execute("SELECT name FROM tile WHERE pkey = ?", (tile_pkey,))
+    (tile_name,) = c.fetchone()
+
+    c.execute("SELECT name FROM wire_in_tile WHERE pkey = ?", (wire_in_tile_pkey,))
+    (wire_name,) = c.fetchone()
+
+    print(tile_name, wire_name)
 
     sink_node_pkey = get_node_pkey(conn, sink_wire_pkey)
 
@@ -96,7 +107,7 @@ SELECT site_pin_pkey FROM wire_in_tile WHERE pkey = (
             elif site_pin == 'HARD0':
                 nets[ZERO_NET].add_node(conn, net_map, sink_node_pkey)
             else:
-                c.execute("SELECT name FROM tile WHERE pkey = (SELECT tile_pkey FROM wire WHERE pkey = ?)", (sink_node_pkey,))
+                c.execute("SELECT name FROM tile WHERE pkey = (SELECT tile_pkey FROM wire WHERE pkey = ?)", (site_wire_pkey,))
                 tile = c.fetchone()[0]
                 assert site_pin in ['HARD1', 'HARD0'], (sink_node_pkey, tile, site_pin)
 
@@ -117,8 +128,8 @@ SELECT site_pin_pkey FROM wire_in_tile WHERE pkey = (
                         source_to_sink_pip_map=source_to_sink_pip_map,
                         sink_wire_pkey=upstream_sink_wire_pkey)
 
-            assert upstream_sink_wire_pkey in net_map
-            nets[net_map[upstream_sink_wire_pkey]].add_node(conn, net_map, sink_node_pkey)
+            if upstream_sink_wire_pkey in net_map:
+                nets[net_map[upstream_sink_wire_pkey]].add_node(conn, net_map, sink_node_pkey)
             return
 
     # No active pips to move upstream, find a ppip upstream
@@ -142,11 +153,12 @@ SELECT site_pin_pkey FROM wire_in_tile WHERE pkey = (
                         source_to_sink_pip_map=source_to_sink_pip_map,
                         sink_wire_pkey=upstream_sink_wire_pkey)
 
-            assert upstream_sink_wire_pkey in net_map
-            nets[net_map[upstream_sink_wire_pkey]].add_node(conn, net_map, sink_node_pkey)
+            if upstream_sink_wire_pkey in net_map:
+                nets[net_map[upstream_sink_wire_pkey]].add_node(conn, net_map, sink_node_pkey)
             return
 
-    assert False, sink_node_pkey
+    print('ERROR, failed to find source for node = {}'.format(sink_node_pkey))
+
 
 def make_routes(db, conn, wire_pkey_to_wire, unrouted_sinks, unrouted_sources, active_pips):
     """ Form nets (and their routes) based:
@@ -176,6 +188,7 @@ def make_routes(db, conn, wire_pkey_to_wire, unrouted_sinks, unrouted_sources, a
     net_map = {}
     for wire_pkey in unrouted_sources:
         nets[wire_pkey] = Net(wire_pkey)
+        nets[wire_pkey].add_node(conn, net_map, get_node_pkey(conn, wire_pkey))
 
     nets[ZERO_NET] = Net(ZERO_NET)
     nets[ONE_NET] = Net(ONE_NET)

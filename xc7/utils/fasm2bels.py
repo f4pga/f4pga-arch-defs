@@ -186,7 +186,10 @@ class Module(object):
                 if wire == 0 or wire == 1:
                     continue
 
-                assert wire in sinks or wire in sources or wire in internal_sources or self.is_top_level(wire), wire
+                assert wire in sinks or \
+                       wire in sources or \
+                       wire in internal_sources or \
+                       self.is_top_level(wire), wire
 
         for wire in internal_sources:
             prefix_wire = prefix + '_' + wire
@@ -443,20 +446,17 @@ def process_slice(top, s):
         features.add('.'.join(parts[2:]))
 
     if 'CEUSEDMUX' in features:
-        sinks.add('CE')
         CE = 'CE'
     else:
         CE = 1
 
     if 'SRUSEDMUX' in features:
-        sinks.add('SR')
         SR = 'SR'
     else:
         SR = 0
 
     IS_C_INVERTED = int('CLKINV' in features)
 
-    sinks.add('CLK')
     if mlut:
         if 'WEMUX.CE' not in features:
             sinks.add('WE')
@@ -512,6 +512,7 @@ def process_slice(top, s):
             ram256 = Bel('RAM256X1S')
             ram256.connections['WE'] = WE
             ram256.connections['WCLK'] = "CLK"
+            sinks.add('CLK')
             ram256.connections['D'] = "DI"
 
             for idx in range(6):
@@ -541,6 +542,7 @@ def process_slice(top, s):
             ram128 = Bel('RAM128X1S')
             ram128.connections['WE'] = WE
             ram128.connections['WCLK'] = "CLK"
+            sinks.add('CLK')
             ram128.connections['D'] = "DI"
 
             for idx in range(6):
@@ -565,6 +567,7 @@ def process_slice(top, s):
                 ram128 = Bel('RAM128X1S')
                 ram128.connections['WE'] = WE
                 ram128.connections['WCLK'] = "CLK"
+                sinks.add('CLK')
                 ram128.connections['D'] = "BI"
 
                 for idx in range(6):
@@ -590,6 +593,7 @@ def process_slice(top, s):
 
             ram128.connections['WE'] = WE
             ram128.connections['WCLK'] = "CLK"
+            sinks.add('CLK')
             ram128.connections['D'] = "DI"
 
             for idx in range(6):
@@ -633,6 +637,7 @@ def process_slice(top, s):
 
                 ram64.connections['WE'] = WE
                 ram64.connections['WCLK'] = "CLK"
+                sinks.add('CLK')
                 ram64.connections['D'] = lut + "I"
 
                 for idx in range(6):
@@ -658,6 +663,7 @@ def process_slice(top, s):
 
                 ram32.connections['WE'] = WE
                 ram32.connections['WCLK'] = "CLK"
+                sinks.add('CLK')
                 ram32.connections['D'] = lut + "I"
 
                 for idx in range(5):
@@ -690,6 +696,7 @@ def process_slice(top, s):
 
                 ram64.connections['WE'] = WE
                 ram64.connections['WCLK'] = "CLK"
+                sinks.add('CLK')
                 ram64.connections['D'] = lut + "I"
 
                 for idx in range(6):
@@ -709,6 +716,7 @@ def process_slice(top, s):
 
                 ram32.connections['WE'] = WE
                 ram32.connections['WCLK'] = "CLK"
+                sinks.add('CLK')
                 ram32.connections['D'] = lut + "I"
 
                 for idx in range(5):
@@ -822,8 +830,16 @@ def process_slice(top, s):
 
             ff5.connections['D'] = source
             ff5.connections[clk] = "CLK"
+            sinks.add('CLK')
             ff5.connections[ce] = CE
             ff5.connections[sr] = SR
+
+            if CE == 'CE':
+                sinks.add('CE')
+
+            if SR == 'SR':
+                sinks.add('SR')
+
             ff5.connections['Q'] = lut + '5Q'
             ff5.parameters['INIT'] = init
             ff5.parameters['IS_C_INVERTED'] = IS_C_INVERTED
@@ -871,8 +887,16 @@ def process_slice(top, s):
         ff.connections['Q'] = lut + 'Q'
         sources.add(ff.connections['Q'])
         ff.connections[clk] = "CLK"
+        sinks.add('CLK')
         ff.connections[ce] = CE
         ff.connections[sr] = SR
+
+        if CE == 'CE':
+            sinks.add('CE')
+
+        if SR == 'SR':
+            sinks.add('SR')
+
         ff.parameters['INIT'] = init
         ff.parameters['IS_C_INVERTED'] = IS_C_INVERTED
 
@@ -996,9 +1020,45 @@ def get_iob_site(db, grid, tile, site):
     sites = sorted(tile_type.get_instance_sites(gridinfo), key=lambda x: x.y)
 
     if len(sites) == 1:
-        return sites[0]
+        iob_site = sites[0]
+    else:
+        iob_site = sites[1-int(site[-1])]
 
-    return sites[1-int(site[-1])]
+    loc = grid.loc_of_tilename(tile)
+
+    if gridinfo.tile_type.startswith('LIOB33'):
+        dx = 1
+    elif gridinfo.tile_type.startswith('RIOB33'):
+        dx = -1
+    else:
+        assert False, gridinfo.tile_type
+
+    iologic_tile = grid.tilename_at_loc((loc.grid_x+dx, loc.grid_y))
+    ioi3_gridinfo = grid.gridinfo_at_loc((loc.grid_x+dx, loc.grid_y))
+
+    ioi3_tile_type = db.get_tile_type(ioi3_gridinfo.tile_type)
+    ioi3_sites = ioi3_tile_type.get_instance_sites(ioi3_gridinfo)
+
+    ilogic_site = None
+    ologic_site = None
+
+    target_ilogic_site = iob_site.name.replace('IOB', 'ILOGIC')
+    target_ologic_site = iob_site.name.replace('IOB', 'OLOGIC')
+
+    for site in ioi3_sites:
+        if site.name == target_ilogic_site:
+            assert ilogic_site is None
+            ilogic_site = site
+
+        if site.name == target_ologic_site:
+            assert ologic_site is None
+            ologic_site = site
+
+    assert ilogic_site is not None
+    assert ologic_site is not None
+
+    return iob_site, iologic_tile, ilogic_site, ologic_site
+
 
 def get_drive(iostandard, drive):
     parts = drive.split('.')
@@ -1067,15 +1127,20 @@ def process_iob(top, iob):
         assert parts[1] == aparts[1]
         features.add('.'.join(parts[2:]))
 
-    site = get_iob_site(top.db, top.grid, aparts[0], aparts[1])
+    site, iologic_tile, ilogic_site, ologic_site = get_iob_site(top.db, top.grid, aparts[0], aparts[1])
 
     INTERMDISABLE_USED = 'INTERMDISABLE.I' in features
     IBUFDISABLE_USED = 'IBUFDISABLE.I' in features
 
     top_wire = None
+    ilogic_active = False
+    ologic_active = False
+
     if 'IN_ONLY' in features:
         if 'ZINV_D' not in features:
             return
+
+        ilogic_active = True
 
         # Options are:
         # IBUF, IBUF_IBUFDISABLE, IBUF_INTERMDISABLE
@@ -1099,14 +1164,17 @@ def process_iob(top, iob):
 
         top_wire = top.add_top_in_port(aparts[0], site.name, 'I')
         bel.connections['I'] = top_wire
-        bel.connections['O'] = 'O'
+        bel.connections['O'] = 'I'
+        sources.add('I')
 
         bel.parameters['IOSTANDARD'] = top.iostandard
-        sources.add('O')
 
         bels.append(bel)
     elif 'INOUT' in features:
         assert 'ZINV_D' in features
+
+        ilogic_active = True
+        ologic_active = True
 
         # Options are:
         # IOBUF or IOBUF_INTERMDISABLE
@@ -1134,14 +1202,14 @@ def process_iob(top, iob):
         top_wire = top.add_top_inout_port(aparts[0], site.name, 'IO')
         bel.connections['IO'] = top_wire
 
-        bel.connections['O'] = 'O'
-        sources.add('O')
+        bel.connections['O'] = 'I'
+        sources.add('I')
 
         bel.connections['T'] = 'T'
         sinks.add('T')
 
-        bel.connections['I'] = 'I'
-        sinks.add('I')
+        bel.connections['I'] = 'O'
+        sinks.add('O')
 
         bel.parameters['IOSTANDARD'] = top.iostandard
 
@@ -1163,13 +1231,14 @@ def process_iob(top, iob):
             bel = Bel('OBUF')
             top_wire = top.add_top_out_port(aparts[0], site.name, 'O')
             bel.connections['O'] = top_wire
-            bel.connections['I'] = 'I'
-            sinks.add('I')
+            bel.connections['I'] = 'O'
+            sinks.add('O')
 
             bel.parameters['IOSTANDARD'] = top.iostandard
 
             add_output_parameters(bel, features)
             bels.append(bel)
+            ologic_active = True
 
     if top_wire is not None:
         if 'PULLTYPE.PULLDOWN' in features:
@@ -1185,10 +1254,28 @@ def process_iob(top, iob):
             bel.connections['O'] = top_wire
             bels.append(bel)
 
-
-
     top.add_site(aparts[0], site, bels, outputs,
             sinks, sources, internal_sources)
+
+    if ilogic_active:
+        # TODO: Handle IDDR or ISERDES
+        top.add_site(
+                iologic_tile,
+                ilogic_site,
+                [], {'O': 'D'},
+                sinks=set(('D',)),
+                sources=set(('O',)),
+                internal_sources=set())
+
+    if ologic_active:
+        # TODO: Handle ODDR or OSERDES
+        top.add_site(
+                iologic_tile,
+                ologic_site,
+                [], {'OQ': 'D1'},
+                sinks=set(('D1',)),
+                sources=set(('OQ',)),
+                internal_sources=set())
 
 
 def process_iobs(conn, top, tile, features):
@@ -1441,6 +1528,8 @@ SELECT name FROM tile_type WHERE pkey = (
             'CLK_BUFG_TOP_R': process_bufg,
             'CLK_HROW_BOT_R': process_hrow,
             'CLK_HROW_TOP_R': process_hrow,
+            'HCLK_CMT': null_process,
+            'HCLK_CMT_L': null_process,
             }
 
     top.set_iostandard(iostandards)
