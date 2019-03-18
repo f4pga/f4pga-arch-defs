@@ -395,6 +395,7 @@
     <xs:choice maxOccurs="unbounded">
       <xs:element name="pack_pattern" type="pack_pattern"/>
       <xs:group ref="timing_group" minOccurs="0"/>
+      <xs:element name="metadata" type="metadata"/>
     </xs:choice>
     <xs:attribute name="name" type="xs:string" use="required"/>
     <xs:attribute name="input" type="stringlist" use="required"/>

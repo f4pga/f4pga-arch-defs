@@ -80,11 +80,20 @@ for name, pins in icebox.pinloc_db.items():
                 fabric_glb_network = "glb_netwk_{}".format(gn)
         return fabric_glb_network
 
-    def tile_type(x,y):
-        metadata = {
-            'hlc_coord': "{} {}".format(x,y),
-        }
+    def tile_type(x, y):
         tt = ic.tile_type(x, y)
+
+        if tt == "IO":
+            fasm_prefix = ""
+            for z in range(2):
+                fasm_prefix += "{}_X{:d}_Y{:d}.IOB_{:d} ".format(tt, x, y, z)
+        else:
+            fasm_prefix = "{}_X{:d}_Y{:d}".format(tt, x, y)
+
+        metadata = {
+            'hlc_coord': "{:d} {:d}".format(x,y),
+            "fasm_prefix": fasm_prefix
+        }
         if (x,y) in get_corner_tiles(ic):
             return None, {}
         if tt == "RAMB":
