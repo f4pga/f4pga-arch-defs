@@ -24,9 +24,9 @@ class TestRule(unittest.TestCase):
             [-1, 0],
             ["TILE_TYPE_B", "TILE_TYPE_A"],
             [
+                ["WIRE_Z", "WIRE_1"],
                 ["WIRE_X", "WIRE_3"],
                 ["WIRE_Y", "WIRE_2"],
-                ["WIRE_Z", "WIRE_1"],
                 ["WIRE_W", "WIRE_0"],
             ]
         )
@@ -47,10 +47,10 @@ class TestRule(unittest.TestCase):
             [-1, -1],
             ["TILE_TYPE_B", "TILE_TYPE_A"],
             [
-                ["WIRE_X", "WIRE_3"],
+                ["WIRE_U", "WIRE_4"],
                 ["WIRE_Y", "WIRE_2"],
                 ["WIRE_Z", "WIRE_1"],
-                ["WIRE_U", "WIRE_4"],
+                ["WIRE_X", "WIRE_3"],
             ]
         )
 
@@ -59,8 +59,8 @@ class TestRule(unittest.TestCase):
             ["TILE_TYPE_A", "TILE_TYPE_B"],
             [
                 ["WIRE_3", "WIRE_X"],
-                ["WIRE_2", "WIRE_Y"],
                 ["WIRE_1", "WIRE_Z"],
+                ["WIRE_2", "WIRE_Y"],
                 ["WIRE_4", "WIRE_U"],
             ]
         )
@@ -98,15 +98,15 @@ class TestRule(unittest.TestCase):
 #        print(hash(self.rule7))
 
 
-    def test_wire_sort(self):
+#    def test_wire_sort(self):
 
-        self.assertEqual(self.rule1.wire_pairs,
-            [['WIRE_0', 'WIRE_W'], ['WIRE_1', 'WIRE_Z'], ['WIRE_2', 'WIRE_Y'], ['WIRE_3', 'WIRE_X']]
-        )
+#        self.assertEqual(self.rule1.wire_pairs,
+#            [['WIRE_0', 'WIRE_W'], ['WIRE_1', 'WIRE_Z'], ['WIRE_2', 'WIRE_Y'], ['WIRE_3', 'WIRE_X']]
+#        )
 
-        self.assertEqual(self.rule2.wire_pairs,
-            [['WIRE_W', 'WIRE_0'], ['WIRE_Z', 'WIRE_1'], ['WIRE_Y', 'WIRE_2'], ['WIRE_X', 'WIRE_3']]
-        )
+#        self.assertEqual(self.rule2.wire_pairs,
+#            [['WIRE_W', 'WIRE_0'], ['WIRE_Z', 'WIRE_1'], ['WIRE_Y', 'WIRE_2'], ['WIRE_X', 'WIRE_3']]
+#        )
 
     def test_eq(self):
 

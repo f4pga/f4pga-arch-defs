@@ -166,6 +166,7 @@ class ConnSplitter(object):
                 [[wire, wire] for wire in all_wires]
             )
 
+            print(rule.str_no_wires())
             self.new_connections.add(rule)
 
     def _make_connections_between_new_tile_types(self):
@@ -210,6 +211,8 @@ class ConnSplitter(object):
 
             # Vertical
             if rule.grid_deltas[0] == 0:
+
+                assert(abs(rule.grid_deltas[1]) == 1)
 
                 # For each sub-tile
                 for i in [0, 1]:
@@ -271,6 +274,18 @@ class ConnSplitter(object):
 
         logging.info("Making connections between new and old tile types...")
 
+        # Determine which wires are relevant for a particular site
+        tile_site_wires = {}
+        for old_tile_type in self.fwd_tile_type_map.keys():
+            tile_site_wires[old_tile_type] = self._get_tile_site_wires(old_tile_type)
+
+        # Change data structure
+        tile_wires = {}
+        for tile_name, site_wires in tile_site_wires.items():
+            for site_name in site_wires.keys():
+                new_tile_name = tile_name + "_" + site_name
+                tile_wires[new_tile_name] = site_wires[site_name]
+
         # Loop over all old tile types.
         old_tile_types = list(self.fwd_tile_type_map.keys())
         for old_tile_type in old_tile_types:
@@ -286,8 +301,36 @@ class ConnSplitter(object):
 
             # Vertical
             if rule.grid_deltas[0] == 0:
-                # TODO: Skip for now. This type of connections will go outside ROI
-                logging.warning("Skipping: " + str(rule))
+                assert(abs(rule.grid_deltas[1]) == 1)
+
+                logging.info(str(rule) + " ->")
+
+                # For each sub-tile
+                for i in [0, 1]:
+                    new_rule = rule.copy()
+
+                    wires_to_keep = set()
+
+                    # Change tile types, collect wires to keep
+                    if rule.tile_types[0] in old_tile_types:
+                        new_rule.tile_types[0] = self.fwd_tile_type_map[rule.tile_types[0]][i]
+                        wires_to_keep |= set(tile_wires[new_rule.tile_types[0]])
+
+                    if rule.tile_types[1] in old_tile_types:
+                        new_rule.tile_types[1] = self.fwd_tile_type_map[rule.tile_types[1]][i]
+                        wires_to_keep |= set(tile_wires[new_rule.tile_types[1]])
+
+                    # Remove unnecessary wires
+                    new_wire_pairs = []
+                    for pair in new_rule.wire_pairs:
+                        if pair[0] in wires_to_keep or pair[1] in wires_to_keep:
+                            new_wire_pairs.append(pair)
+
+                    assert(len(new_wire_pairs) != 0)
+                    new_rule.wire_pairs = new_wire_pairs
+
+                    new_rules.add(new_rule)
+                    logging.info(" " + str(new_rule))
 
             # Horizontal or diagonal
             else:

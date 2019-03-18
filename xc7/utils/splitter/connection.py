@@ -28,7 +28,7 @@ class Rule(object):
 
         self.grid_deltas = grid_deltas
         self.tile_types  = tile_types
-        self.wire_pairs  = sorted(wire_pairs, key=lambda pair: "".join(sorted(pair)))
+        self.wire_pairs  = wire_pairs
 
     def copy(self):
         """
@@ -104,14 +104,14 @@ class Rule(object):
         m = hashlib.sha256()
         m.update(str.encode(self.tile_types[0] + self.tile_types[1],  "utf-8"))
         m.update(str.encode("".join([str(+x) for x in self.grid_deltas]), "utf-8"))
-        m.update(str.encode("".join([x[0] + x[1] for x in self.wire_pairs]), "utf-8"))
+        m.update(str.encode("".join(sorted([x[0] + x[1] for x in self.wire_pairs])), "utf-8"))
         h1 = hash(m.digest())
 
         # Hash 2
         m = hashlib.sha256()
         m.update(str.encode(self.tile_types[1] + self.tile_types[0],  "utf-8"))
         m.update(str.encode("".join([str(-x) for x in self.grid_deltas]), "utf-8"))
-        m.update(str.encode("".join([x[1] + x[0] for x in self.wire_pairs]), "utf-8"))
+        m.update(str.encode("".join(sorted([x[1] + x[0] for x in self.wire_pairs])), "utf-8"))
         h2 = hash(m.digest())
 
         # Select one
