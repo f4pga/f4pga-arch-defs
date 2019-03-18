@@ -1,4 +1,5 @@
 import enum
+import os
 from lib.rr_graph import graph2
 from lib.rr_graph import tracks
 
@@ -13,9 +14,9 @@ def create_tables(conn):
     """ Create connection database scheme. """
     connection_database_sql_file = os.path.join(
         os.path.dirname(__file__), "connection_database.sql")
-    with open(connection_database_sql_file, 'r'):
+    with open(connection_database_sql_file, 'r') as f:
         c = conn.cursor()
-        c.execute(f.read())
+        c.executescript(f.read())
         conn.commit()
 
     c = conn.cursor()
