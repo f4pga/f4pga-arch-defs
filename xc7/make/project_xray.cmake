@@ -47,7 +47,7 @@ function(PROJECT_XRAY_DUMMY_SITE)
 endfunction()
 
 function(PROJECT_XRAY_TILE)
-    set(options FUSED_SITES)
+  set(options FUSED_SITES)
   set(oneValueArgs PART TILE)
   set(multiValueArgs SITE_TYPES)
   cmake_parse_arguments(
@@ -101,7 +101,7 @@ function(PROJECT_XRAY_TILE)
     DEPENDS
     ${TILE_IMPORT}
       ${DEPS}
-      ${PYTHON3} ${PYTHON3_TARGET}
+      ${PYTHON3} ${PYTHON3_TARGET} simplejson
     )
 
   add_file_target(FILE ${TILE}.pb_type.xml GENERATED)
@@ -167,7 +167,7 @@ function(PROJECT_XRAY_ARCH)
       DEPENDS
         ${CREATE_SYNTH_TILES}
         ${PROJECT_XRAY_ARCH_USE_ROI}
-        ${PYTHON3} ${PYTHON3_TARGET}
+        ${PYTHON3} ${PYTHON3_TARGET} simplejson intervaltree
         )
 
     add_file_target(FILE synth_tiles.json GENERATED)
@@ -200,7 +200,7 @@ function(PROJECT_XRAY_ARCH)
     DEPENDS
     ${ARCH_IMPORT}
     ${DEPS}
-    ${PYTHON3} ${PYTHON3_TARGET}
+    ${PYTHON3} ${PYTHON3_TARGET} simplejson
     )
 
   add_file_target(FILE arch.xml GENERATED)
@@ -279,7 +279,7 @@ function(PROJECT_XRAY_PREPARE_DATABASE)
     DEPENDS
     ${ASSIGN_PINS}
     ${DEPS} ${DEPS2} ${CHANNELS}
-    ${PYTHON3} ${PYTHON3_TARGET}
+    ${PYTHON3} ${PYTHON3_TARGET} simplejson progressbar2
     )
 
   add_file_target(FILE ${PIN_ASSIGNMENTS} GENERATED)

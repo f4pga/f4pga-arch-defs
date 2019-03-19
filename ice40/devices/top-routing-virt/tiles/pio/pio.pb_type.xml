@@ -35,8 +35,24 @@
 
   <interconnect>
    <!-- SB_IO outputs -->
-   <direct><port type="input" name="D_OUT[0]"/><port type="output" name="D_OUT[0]" from="PAD" /></direct>
-   <direct><port type="input" name="D_OUT[1]"/><port type="output" name="D_OUT[1]" from="PAD" /></direct>
+   <direct>
+     <port type="input" name="D_OUT[0]"/>
+     <port type="output" name="D_OUT[0]" from="PAD" />
+     <metadata>
+       <meta name="fasm_mux">
+	 BLK_TL-PIO.D_OUT[0] = SimpleOutput
+       </meta>
+     </metadata>
+   </direct>
+   <direct>
+     <port type="input" name="D_OUT[1]"/>
+     <port type="output" name="D_OUT[1]" from="PAD" />
+     <metadata>
+       <meta name="fasm_mux">
+	 BLK_TL-PIO.D_OUT[1] = SimpleOutput
+       </meta>
+     </metadata>
+   </direct>
   </interconnect>
  </mode>
 
@@ -61,8 +77,24 @@
 
   <interconnect>
    <!-- SB_IO inputs -->
-   <direct><port type="input" name="D_IN[0]" from="PAD" /><port type="output" name="D_IN[0]"/></direct>
-   <direct><port type="input" name="D_IN[1]" from="PAD" /><port type="output" name="D_IN[1]"/></direct>
+   <direct>
+     <port type="input" name="D_IN[0]" from="PAD" />
+     <port type="output" name="D_IN[0]"/>
+     <metadata>
+       <meta name="fasm_mux">
+	 PAD[0].D_IN[0] = SimpleInput
+       </meta>
+     </metadata>
+   </direct>
+   <direct>
+     <port type="input" name="D_IN[1]" from="PAD" />
+     <port type="output" name="D_IN[1]"/>
+     <metadata>
+       <meta name="fasm_mux">
+	PAD[0].D_IN[1] = SimpleInput
+       </meta>
+     </metadata>
+   </direct>
    <direct><port type="input" name="PIN" from="PAD" /><port type="output" name="PACKAGE_PIN"/></direct>
   </interconnect>
 

@@ -830,7 +830,7 @@ function(ADD_FPGA_TARGET)
       COMMAND
         ${CMAKE_COMMAND} -E make_directory ${OUT_LOCAL}
       COMMAND
-        ${CMAKE_COMMAND} -E env symbiflow-arch-defs_SOURCE_DIR=${symbiflow-arch-defs_SOURCE_DIR} ${QUIET_CMD} ${YOSYS} -p "${COMPLETE_YOSYS_SCRIPT}" ${SOURCE_FILES}
+        ${CMAKE_COMMAND} -E env symbiflow-arch-defs_SOURCE_DIR=${symbiflow-arch-defs_SOURCE_DIR} ${QUIET_CMD} ${YOSYS} -p "${COMPLETE_YOSYS_SCRIPT}" -l ${OUT_EBLIF}.log ${SOURCE_FILES}
       WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
       VERBATIM
     )
