@@ -47,7 +47,6 @@ class GridSplitter(object):
         self.new_grid_by_tile = None
 
         self.bwd_tile_name_map = {}
-        self.bwd_tile_type_map = {}
         self.bwd_grid_loc_map  = {}
 
         self.fwd_tile_name_map = {}
@@ -118,7 +117,7 @@ class GridSplitter(object):
             new_tile = {
                 "grid_x": tile_loc.x + ofs + i,
                 "grid_y": tile_loc.y,
-                "sites" : {new_tile_name: tile["sites"][new_tile_name]},  # TODO: Site name is equal to tile name
+                "sites" : {"SLICE": tile["sites"][new_tile_name]},   # TODO: Is the fixed site name correct ?
                 "type"  : new_tile_type
             }
 
@@ -236,6 +235,8 @@ class GridSplitter(object):
         :return:
         """
 
+        self.new_tile_types = set()
+
         # Loop over all tile types to split
         for tile_type in self.tile_types_to_split:
             tile_type_def = self.tile_type_defs[tile_type]
@@ -244,13 +245,13 @@ class GridSplitter(object):
             sites_by_loc = {}
 
             for site in tile_type_def["sites"]:
-                new_tile_type = tile_type + "_" + site["type"] + "_" + site["name"]
+                new_tile_type = site["type"]
                 new_tile_ofs  = self.Loc(site["x_coord"], site["y_coord"])
 
                 # Append to site offset map
                 sites_by_loc[new_tile_ofs] = new_tile_type
-                # Append to backward map
-                self.bwd_tile_type_map[new_tile_type] = tile_type
+                # Store new tile type
+                self.new_tile_types.add(new_tile_type)
 
             # Sort locations
             sorted_keys = sorted(sites_by_loc.keys(), key=lambda ofs: ofs.x + 1000*ofs.y)  # FIXME: Will crash for grid with width > 1000
@@ -258,17 +259,10 @@ class GridSplitter(object):
             # Append to forward map
             self.fwd_tile_type_map[tile_type] = [sites_by_loc[key] for key in sorted_keys]
 
-        # Make new tile type set
-        self.new_tile_types = set(self.bwd_tile_type_map.keys())
-
         # Dump maps
         logging.debug("fwd_tile_type_map:")
         for type, new_type in self.fwd_tile_type_map.items():
             logging.debug(" " + str(type) + " -> " + str(new_type))
-
-        logging.debug("bwd_tile_type_map:")
-        for new_type, type in self.bwd_tile_type_map.items():
-            logging.debug(" " + str(new_type) + " -> " + str(type))
 
     def split(self):
         """
@@ -308,7 +302,6 @@ class GridSplitter(object):
         # Save tile type map
         tile_type_map = {
             "forward":  self.fwd_tile_type_map,
-            "backward": self.bwd_tile_type_map
         }
 
         file_name = os.path.join(self.db_overlay, "map_tile_types.json")
@@ -365,28 +358,27 @@ def main():
     # Do the split
     grid_splitter.split()
 
-    # .................................
+#    # .................................
 
-    # Initialize connection rule splitter
-    # FIXME: Now it is a hackish way...
-    from conn_splitter import ConnSplitter
-    conn_splitter = ConnSplitter(args.db_root, args.db_overlay)
+#    # Initialize connection rule splitter
+#    # FIXME: Now it is a hackish way...
+#    from conn_splitter import ConnSplitter
+#    conn_splitter = ConnSplitter(args.db_root, args.db_overlay)
 
-    conn_splitter.bwd_tile_type_map = grid_splitter.bwd_tile_type_map
-    conn_splitter.fwd_tile_type_map = grid_splitter.fwd_tile_type_map
+#    conn_splitter.fwd_tile_type_map = grid_splitter.fwd_tile_type_map
 
-    # Split connection rules
-    conn_splitter.split()
+#    # Split connection rules
+#    conn_splitter.split()
 
-    # .................................
+#    # .................................
 
-    # Split tile type definitions
-    from tile_splitter import TileSplitter
+#    # Split tile type definitions
+#    from tile_splitter import TileSplitter
 
-    for tile_type_list in args.split_tiles:
-        for tile_type in tile_type_list:
-            splitter = TileSplitter(args.db_root, args.db_overlay, tile_type)
-            splitter.split()
+#    for tile_type_list in args.split_tiles:
+#        for tile_type in tile_type_list:
+#            splitter = TileSplitter(args.db_root, args.db_overlay, tile_type)
+#            splitter.split()
 
 # =============================================================================
 
