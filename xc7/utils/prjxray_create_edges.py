@@ -79,6 +79,9 @@ WHERE
         node_type = NodeType.IPIN
     elif pin_direction == SitePinDirection.OUT:
         node_type = NodeType.OPIN
+    # FIXME: Support INOUT pins
+    elif pin_direction == SitePinDirection.INOUT:
+        node_type = NodeType.OPIN
     else:
         assert False, pin_direction
 
