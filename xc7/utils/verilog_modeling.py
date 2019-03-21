@@ -1,5 +1,5 @@
 import functools
-from prjxray_make_routes import make_routes
+from prjxray_make_routes import make_routes, ONE_NET, ZERO_NET
 from lib.connection_database import get_wire_pkey
 
 
@@ -17,6 +17,7 @@ class Bel(object):
         self.site = None
         self.keep = keep
         self.bel = None
+        self.nets = None
 
     def set_prefix(self, prefix):
         self.prefix = prefix
@@ -32,6 +33,9 @@ class Bel(object):
             return '{}_{}'.format(self.prefix, s)
         else:
             return s
+
+    def get_cell(self):
+        return self._prefix_things(self.name)
 
     def output_verilog(self, top, indent='  '):
         connections = {}
@@ -99,7 +103,7 @@ class Bel(object):
         if parameters:
             yield ',\n'.join(parameters)
 
-        yield '{indent}) {name} ('.format(indent=indent, name=self._prefix_things(self.name))
+        yield '{indent}) {name} ('.format(indent=indent, name=self.get_cell())
 
         if connections:
             yield ',\n'.join(connections[port] for port in sorted(connections))
@@ -124,6 +128,7 @@ class Module(object):
         self.grid = grid
         self.conn = conn
         self.bels = []
+        self.source_bels = {}
 
         # Map of wire_pkey to Verilog wire.
         self.wire_pkey_to_wire = {}
@@ -217,6 +222,11 @@ class Module(object):
             self.wire_pkey_to_wire[wire_pkey] = prefix_wire
             self.unrouted_sources.add(wire_pkey)
 
+            source_bel = sources[wire]
+
+            if source_bel is not None:
+                self.source_bels[wire_pkey] = source_bel
+
         self.bels.extend(bels)
 
         for source_wire, sink_wire in outputs.items():
@@ -224,7 +234,7 @@ class Module(object):
             self.wire_assigns[prefix + '_' + source_wire] = prefix + '_' + sink_wire
 
         assert len(internal_sources & sinks) == 0, (internal_sources & sinks)
-        assert len(internal_sources & sources) == 0, (internal_sources & sources)
+        assert len(internal_sources & set(sources.keys())) == 0, (internal_sources & set(sources.keys()))
 
 
     def output_verilog(self):
@@ -257,6 +267,7 @@ class Module(object):
 
 
     def make_routes(self, allow_orphan_sinks):
+        self.nets = {}
         for sink_wire, src_wire in make_routes(
                 db=self.db,
                 conn=self.conn,
@@ -264,6 +275,36 @@ class Module(object):
                 unrouted_sinks=self.unrouted_sinks,
                 unrouted_sources=self.unrouted_sources,
                 active_pips=self.active_pips,
-                allow_orphan_sinks=allow_orphan_sinks):
+                allow_orphan_sinks=allow_orphan_sinks,
+                nets=self.nets):
             self.wire_assigns[sink_wire] = src_wire
+
+    def output_nets(self):
+        for net_wire_pkey, net in self.nets.items():
+            if net_wire_pkey in [ZERO_NET, ONE_NET]:
+                continue
+
+            if net_wire_pkey not in self.source_bels:
+                continue
+
+            if not net.is_net_alive():
+                continue
+
+            bel, pin = self.source_bels[net_wire_pkey]
+
+            yield """
+set pin [get_pins {cell}/{pin}]
+if {{ $pin == {{}} }} {{
+    error "Failed to find pin!"
+}}
+set net [get_nets -of_object $pin]
+if {{ $net == {{}} }} {{
+    error "Failed to find net!"
+}}
+set_property FIXED_ROUTE {fixed_route} $net
+""".format(
+        cell=bel.get_cell(),
+        pin=pin,
+        fixed_route=' '.join(
+            net.make_fixed_route(self.conn, self.wire_pkey_to_wire)))
 

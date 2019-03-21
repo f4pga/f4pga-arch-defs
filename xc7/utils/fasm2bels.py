@@ -40,14 +40,16 @@ def get_lut_init(features, tile_name, slice_name, lut):
     return "64'b{:064b}".format(init)
 
 
-def create_lut(lut, internal_sources):
+def create_lut(lut, internal_sources, o6_sources, o5_sources):
     bel = Bel('LUT6_2', lut + 'LUT')
     bel.set_bel(lut + '6LUT')
 
     for idx in range(6):
         bel.connections['I{}'.format(idx)] = '{}{}'.format(lut, idx+1)
-        bel.connections['O6'.format(idx)] = lut + 'O6'
-        bel.connections['O5'.format(idx)] = lut + 'O5'
+        bel.connections['O6'] = lut + 'O6'
+        o6_sources[lut] = (bel, 'O6')
+        bel.connections['O5'] = lut + 'O5'
+        o5_sources[lut] = (bel, 'O5')
         internal_sources.add(lut + 'O6')
         internal_sources.add(lut + 'O5')
 
@@ -198,7 +200,7 @@ def process_slice(top, s):
 
     bels = []
     sinks = set()
-    sources = set()
+    sources = {}
     internal_sources = set()
 
     aparts = s[0].feature.split('.')
@@ -228,22 +230,16 @@ def process_slice(top, s):
 
     if mlut:
         if 'WEMUX.CE' not in features:
-            sinks.add('WE')
             WE = 'WE'
         else:
-            sinks.add('CE')
             WE = 'CE'
 
     if 'PRECYINIT.CIN' in features:
         sinks.add('CIN')
 
     for row in 'ABCD':
-        sinks.add('{}X'.format(row))
         for lut in range(6):
             sinks.add('{}{}'.format(row, lut+1))
-
-        if mlut:
-            sinks.add('{}I'.format(row))
 
     if 'DLUT.RAM' in features:
         # Must be a SLICEM to have RAM set.
@@ -259,10 +255,15 @@ def process_slice(top, s):
     muxes = set(('F7AMUX', 'F7BMUX', 'F8MUX'))
 
     luts = {}
+    o6_sources = {}
+    o5_sources = {}
     # Add BELs for LUTs/RAMs
     if 'DLUT.RAM' not in features:
         for lut in 'ABCD':
-            luts[lut] = create_lut(lut, internal_sources)
+            luts[lut] = create_lut(lut,
+                    internal_sources=internal_sources,
+                    o6_sources=o6_sources,
+                    o5_sources=o5_sources)
             luts[lut].parameters['INIT'] = get_lut_init(s, aparts[0], aparts[1], lut)
             bels.append(luts[lut])
     else:
@@ -280,6 +281,7 @@ def process_slice(top, s):
         if lut_modes['D'] == 'RAM256X1S':
             ram256 = Bel('RAM256X1S')
             ram256.connections['WE'] = WE
+            sinks.add(WE)
             ram256.connections['WCLK'] = "CLK"
             sinks.add('CLK')
             ram256.connections['D'] = "DI"
@@ -288,8 +290,11 @@ def process_slice(top, s):
                 ram256.connections['A[{}]'.format(idx)] = "D{}".format(idx+1)
 
             ram256.connections['A[6]'] = "CX"
+            sinks.add('CX')
             ram256.connections['A[7]'] = "BX"
+            sinks.add('BX')
             ram256.connections['O'] = 'F8MUX_O'
+            f8_source = (ram256, 'O')
 
             ram256.parameters['INIT'] = (
                     get_lut_init(s, aparts[0], aparts[1], 'D') |
@@ -310,15 +315,19 @@ def process_slice(top, s):
         elif lut_modes['D'] == 'RAM128X1S':
             ram128 = Bel('RAM128X1S')
             ram128.connections['WE'] = WE
+            sinks.add(WE)
             ram128.connections['WCLK'] = "CLK"
             sinks.add('CLK')
             ram128.connections['D'] = "DI"
+            sinks.add('DI')
 
             for idx in range(6):
                 ram128.connections['A{}'.format(idx)] = "D{}".format(idx+1)
 
             ram128.connections['A6'] = "CX"
+            sinks.add('CX')
             ram128.connections['O'] = 'F7BMUX_O'
+            f7b_source = (ram128, 'O')
 
             ram128.parameters['INIT'] = (
                     get_lut_init(s, aparts[0], aparts[1], 'D') |
@@ -335,15 +344,19 @@ def process_slice(top, s):
             if lut_modes['B'] == 'RAM128X1S':
                 ram128 = Bel('RAM128X1S')
                 ram128.connections['WE'] = WE
+                sinks.add(WE)
                 ram128.connections['WCLK'] = "CLK"
                 sinks.add('CLK')
                 ram128.connections['D'] = "BI"
+                sinks.add('BI')
 
                 for idx in range(6):
                     ram128.connections['A{}'.format(idx)] = "B{}".format(idx+1)
 
                 ram128.connections['A6'] = "AX"
+                sinks.add('AX')
                 ram128.connections['O'] = 'F7AMUX_O'
+                f7a_source = (ram128, 'O')
 
                 ram128.parameters['INIT'] = (
                         get_lut_init(s, aparts[0], aparts[1], 'B') |
@@ -361,18 +374,25 @@ def process_slice(top, s):
             ram128 = Bel('RAM128X1D')
 
             ram128.connections['WE'] = WE
+            sinks.add(WE)
             ram128.connections['WCLK'] = "CLK"
             sinks.add('CLK')
             ram128.connections['D'] = "DI"
+            sinks.add('DI')
 
             for idx in range(6):
                 ram128.connections['A[{}]'.format(idx)] = "D{}".format(idx+1)
                 ram128.connections['DPRA[{}]'.format(idx)] = "C{}".format(idx+1)
 
             ram128.connections['A[6]'] = "CX"
+            sinks.add('CX')
             ram128.connections['DPRA[6]'] = "AX"
+            sinks.add('AX')
             ram128.connections['SPO'] = 'F7AMUX_O'
             ram128.connections['DPO'] = 'F7BMUX_O'
+
+            f7a_source = (ram128, 'SPO')
+            f7b_source = (ram128, 'DPO')
 
             ram128.parameters['INIT'] = (
                     get_lut_init(s, aparts[0], aparts[1], 'D') |
@@ -405,9 +425,11 @@ def process_slice(top, s):
                 ram64 = Bel('RAM64X1D')
 
                 ram64.connections['WE'] = WE
+                sinks.add(WE)
                 ram64.connections['WCLK'] = "CLK"
                 sinks.add('CLK')
                 ram64.connections['D'] = lut + "I"
+                sinks.add(lut + 'I')
 
                 for idx in range(6):
                     ram64.connections['A{}'.format(idx)] = "{}{}".format(lut, idx+1)
@@ -415,6 +437,9 @@ def process_slice(top, s):
 
                 ram64.connections['SPO'] = lut + "O6"
                 ram64.connections['DPO'] = minus_one + "O6"
+
+                o6_sources[lut] = (ram64, 'SPO')
+                o6_sources[minus_one] = (ram64, 'DPO')
 
                 ram64.parameters['INIT'] = get_lut_init(s, aparts[0], aparts[1], lut)
                 other_init = get_lut_init(s, aparts[0], aparts[1], minus_one)
@@ -431,6 +456,7 @@ def process_slice(top, s):
                 ram32 = Bel('RAM32X1D')
 
                 ram32.connections['WE'] = WE
+                sinks.add(WE)
                 ram32.connections['WCLK'] = "CLK"
                 sinks.add('CLK')
                 ram32.connections['D'] = lut + "I"
@@ -441,6 +467,9 @@ def process_slice(top, s):
 
                 ram32.connections['SPO'] = lut + "O6"
                 ram32.connections['DPO'] = minus_one + "O6"
+
+                o6_sources[lut] = (ram32, 'SPO')
+                o6_sources[minus_one] = (ram32, 'DPO')
 
                 ram32.parameters['INIT'] = get_lut_init(s, aparts[0], aparts[1], lut)
                 other_init = get_lut_init(s, aparts[0], aparts[1], minus_one)
@@ -464,6 +493,7 @@ def process_slice(top, s):
                 ram64 = Bel('RAM64X1S')
 
                 ram64.connections['WE'] = WE
+                sinks.add(WE)
                 ram64.connections['WCLK'] = "CLK"
                 sinks.add('CLK')
                 ram64.connections['D'] = lut + "I"
@@ -472,6 +502,7 @@ def process_slice(top, s):
                     ram64.connections['A{}'.format(idx)] = "{}{}".format(lut, idx+1)
 
                 ram64.connections['O'] = lut + "O6"
+                o6_sources[lut] = (ram64, 'O')
 
                 ram64.parameters['INIT'] = get_lut_init(s, parts[0], aparts[1], lut)
                 other_init = get_lut_init(s, aparts[0], aparts[1], minus_one)
@@ -484,6 +515,7 @@ def process_slice(top, s):
                 ram32 = Bel('RAM32X1S')
 
                 ram32.connections['WE'] = WE
+                sinks.add(WE)
                 ram32.connections['WCLK'] = "CLK"
                 sinks.add('CLK')
                 ram32.connections['D'] = lut + "I"
@@ -492,6 +524,7 @@ def process_slice(top, s):
                     ram64.connections['A{}'.format(idx)] = "{}{}".format(lut, idx+1)
 
                 ram32.connections['O'] = lut + "O6"
+                o6_sources[lut] = (ram32, 'O')
 
                 ram32.parameters['INIT'] = get_lut_init(s, aparts[0], aparts[1], lut)
 
@@ -516,7 +549,9 @@ def process_slice(top, s):
             f7amux.connections['I0'] = 'BO6'
             f7amux.connections['I1'] = 'AO6'
             f7amux.connections['S'] = 'AX'
+            sinks.add('AX')
             f7amux.connections[opin] = 'F7AMUX_O'
+            f7a_source = (f7amux, opin)
 
             bels.append(f7amux)
             internal_sources.add(f7amux.connections[opin])
@@ -535,7 +570,9 @@ def process_slice(top, s):
             f7bmux.connections['I0'] = 'DO6'
             f7bmux.connections['I1'] = 'CO6'
             f7bmux.connections['S'] = 'CX'
+            sinks.add('CX')
             f7bmux.connections[opin] = 'F7BMUX_O'
+            f7b_source = (f7bmux, opin)
 
             bels.append(f7bmux)
             internal_sources.add(f7bmux.connections[opin])
@@ -553,7 +590,9 @@ def process_slice(top, s):
             f8mux.connections['I0'] = 'F7BMUX_O'
             f8mux.connections['I1'] = 'F7AMUX_O'
             f8mux.connections['S'] = 'BX'
+            sinks.add('BX')
             f8mux.connections[opin] = 'F8MUX_O'
+            f8_source = (f8mux, opin)
 
             bels.append(f8mux)
             internal_sources.add(f8mux.connections[opin])
@@ -567,7 +606,8 @@ def process_slice(top, s):
             break
 
     if can_have_carry4:
-        bel = Bel('CARRY4', keep=False)
+        bel = Bel('CARRY4')
+        carry4_bel = bel
 
         for idx in range(4):
             lut = chr(ord('A') + idx)
@@ -577,6 +617,7 @@ def process_slice(top, s):
                 bel.connections['DI[{}]'.format(idx)] = source
             else:
                 bel.connections['DI[{}]'.format(idx)] = lut + 'X'
+                sinks.add(lut + 'X')
 
             source = lut + 'O6'
             assert source in internal_sources
@@ -585,15 +626,17 @@ def process_slice(top, s):
             bel.connections['O[{}]'.format(idx)] = lut + '_XOR'
             internal_sources.add(bel.connections['O[{}]'.format(idx)])
 
+            co_pin = 'CO[{}]'.format(idx)
             if idx == 3:
-                bel.connections['CO[{}]'.format(idx)] = 'COUT'
-                sources.add('COUT')
+                bel.connections[co_pin] = 'COUT'
+                sources['COUT'] = (bel, co_pin)
             else:
-                bel.connections['CO[{}]'.format(idx)] = lut + '_CY'
-                internal_sources.add(bel.connections['CO[{}]'.format(idx)])
+                bel.connections[co_pin] = lut + '_CY'
+                internal_sources.add(bel.connections[co_pin])
 
         if 'PRECYINIT.AX' in features:
             bel.connections['CYINIT'] = 'AX'
+            sinks.add('AX')
             bel.unused_connections.add('CI')
         elif 'PRECYINIT.C0' in features:
             bel.connections['CYINIT'] = 0
@@ -610,11 +653,13 @@ def process_slice(top, s):
 
         bels.append(bel)
 
+    ff5_bels = {}
     for lut in 'ABCD':
         if '{}OUTMUX.{}5Q'.format(lut, lut) in features:
             # 5FF in use, emit
             name, clk, ce, sr, init = ff_bel(features, lut, ff5=True)
             ff5 = Bel(name, "{}5_{}".format(lut, name))
+            ff5_bels[lut] = ff5
             ff5.set_bel(lut + '5FF')
 
             if '{}5FFMUX.IN_A'.format(lut) in features:
@@ -622,6 +667,7 @@ def process_slice(top, s):
                 assert source in internal_sources
             elif '{}5FFMUX.IN_B'.format(lut) in features:
                 source = lut + 'X'
+                sinks.add(lut + 'X')
 
             ff5.connections['D'] = source
             ff5.connections[clk] = "CLK"
@@ -649,6 +695,7 @@ def process_slice(top, s):
 
         if '{}FFMUX.{}X'.format(lut, lut) in features:
             source = lut + 'X'
+            sinks.add(lut + 'X')
         elif lut == 'A' and 'AFFMUX.F7' in features:
             source = 'F7AMUX_O'
             assert source in internal_sources
@@ -671,7 +718,6 @@ def process_slice(top, s):
                 assert source in internal_sources
             else:
                 source = 'COUT'
-                sources.add(source)
         elif '{}FFMUX.XOR'.format(lut) in features:
             assert can_have_carry4
             source = lut + '_XOR'
@@ -681,7 +727,7 @@ def process_slice(top, s):
 
         ff.connections['D'] = source
         ff.connections['Q'] = lut + 'Q'
-        sources.add(ff.connections['Q'])
+        sources[ff.connections['Q']] = (ff, 'Q')
         ff.connections[clk] = "CLK"
         sinks.add('CLK')
         ff.connections[ce] = CE
@@ -702,27 +748,34 @@ def process_slice(top, s):
     for lut in 'ABCD':
         if lut + 'O6' in internal_sources:
             outputs[lut] = lut + 'O6'
-            sources.add(lut)
+            sources[lut] = o6_sources[lut]
 
     for lut in 'ABCD':
+        is_source = True
         if '{}OUTMUX.{}5Q'.format(lut, lut) in features:
             source = lut + '5Q'
+            source_bel = (ff5_bels[lut], 'Q')
             assert source in internal_sources
         elif lut == 'A' and 'AOUTMUX.F7' in features:
             source = 'F7AMUX_O'
+            source_bel = f7a_source
             assert source in internal_sources
         elif lut == 'C' and 'COUTMUX.F7' in features:
             source = 'F7BMUX_O'
+            source_bel = f7b_source
             assert source in internal_sources
         elif lut == 'B' and 'BOUTMUX.F8' in features:
             source = 'F8MUX_O'
+            source_bel = f8_source
             assert source in internal_sources
         elif '{}OUTMUX.O5'.format(lut) in features:
             source = lut + 'O5'
-            assert source in internal_sources
+            source_bel = o5_sources[lut]
         elif '{}OUTMUX.O6'.format(lut) in features:
-            source = lut + 'O6'
-            assert source in internal_sources
+            # Note: There is a dedicated O6 output.  Fixed routing requires
+            # treating xMUX.O6 as a routing connection.
+            source = lut
+            is_source = False
         elif '{}OUTMUX.CY'.format(lut) in features:
             assert can_have_carry4
             if lut != 'D':
@@ -730,15 +783,19 @@ def process_slice(top, s):
                 assert source in internal_sources
             else:
                 source = 'COUT'
+
+            source_bel = (carry4_bel, 'CO[{}]'.format(ord(lut)-ord('A')))
         elif '{}OUTMUX.XOR'.format(lut) in features:
             assert can_have_carry4
             source = lut + '_XOR'
+            source_bel = (carry4_bel, 'O[{}]'.format(ord(lut)-ord('A')))
             assert source in internal_sources
         else:
             continue
 
         outputs[lut + 'MUX'] = source
-        sources.add(lut + 'MUX')
+        if is_source:
+            sources[lut + 'MUX'] = source_bel
 
     top.add_site(aparts[0], get_clb_site(top.db, top.grid, aparts[0], aparts[1]), bels, outputs, sinks, sources, internal_sources)
 
@@ -910,7 +967,7 @@ def process_iob(top, iob):
 
     bels = []
     sinks = set()
-    sources = set()
+    sources = {}
     internal_sources = set()
     outputs = {}
 
@@ -964,7 +1021,7 @@ def process_iob(top, iob):
         top_wire = top.add_top_in_port(aparts[0], site.name, 'IPAD')
         bel.connections['I'] = top_wire
         bel.connections['O'] = 'I'
-        sources.add('I')
+        sources['I'] = (bel, 'O')
 
         bel.parameters['IOSTANDARD'] = '"{}"'.format(top.iostandard)
 
@@ -1002,7 +1059,7 @@ def process_iob(top, iob):
         bel.connections['IO'] = top_wire
 
         bel.connections['O'] = 'I'
-        sources.add('I')
+        sources['I'] = (bel, 'O')
 
         bel.connections['T'] = 'T'
         sinks.add('T')
@@ -1063,7 +1120,7 @@ def process_iob(top, iob):
                 ilogic_site,
                 [], {'O': 'D'},
                 sinks=set(('D',)),
-                sources=set(('O',)),
+                sources={'O':None},
                 internal_sources=set())
 
     if ologic_active:
@@ -1073,7 +1130,7 @@ def process_iob(top, iob):
                 ologic_site,
                 [], {'OQ': 'D1'},
                 sinks=set(('D1',)),
-                sources=set(('OQ',)),
+                sources={'OQ':None},
                 internal_sources=set())
 
 
@@ -1167,7 +1224,7 @@ def process_bufg(conn, top, tile, features):
 
         bels = []
         sinks = set()
-        sources = set()
+        sources = {}
         internal_sources = set()
         outputs = {}
 
@@ -1187,7 +1244,7 @@ def process_bufg(conn, top, tile, features):
             sinks.add(sink)
 
         bel.connections['O'] = 'O'
-        sources.add('O')
+        sources['O'] = (bel, 'O')
 
         bels.append(bel)
 
@@ -1225,7 +1282,7 @@ def process_hrow(conn, top, tile, features):
 
         bels = []
         sinks = set()
-        sources = set()
+        sources = {}
         internal_sources = set()
         outputs = {}
 
@@ -1242,7 +1299,7 @@ def process_hrow(conn, top, tile, features):
             sinks.add(sink)
 
         bel.connections['O'] = 'O'
-        sources.add('O')
+        sources['O'] = (bel, 'O')
 
         bels.append(bel)
 
@@ -1353,18 +1410,21 @@ SELECT name FROM tile_type WHERE pkey = (
         for bel in top.bels:
             print("""
 set cell [get_cells {cell}]
-if {{ $cell != {{}} }} {{
-    set_property LOC [get_sites {site}] $cell""".format(
-                cell=bel._prefix_things(bel.name),
+if {{ $cell == {{}} }} {{
+    error "Failed to find cell!"
+}}
+set_property LOC [get_sites {site}] $cell""".format(
+                cell=bel.get_cell(),
                 site=bel.site), file=f)
 
             if bel.bel is not None:
-                print('    set_property BEL "[get_property SITE_TYPE [get_sites {site}]].{bel}" $cell'.format(
+                print('set_property BEL "[get_property SITE_TYPE [get_sites {site}]].{bel}" $cell'.format(
                     site=bel.site,
                     bel=bel.bel,
                     ), file=f)
 
-            print('}', file=f)
+        for l in top.output_nets():
+            print(l, file=f)
 
 
 if __name__ == "__main__":

@@ -43,7 +43,7 @@ def process_bram_site(top, features, set_features):
 
     bels = []
     sinks = set()
-    sources = set()
+    sources = {}
     internal_sources = set()
     outputs = {}
 
@@ -304,8 +304,9 @@ def process_bram_site(top, features, set_features):
             ]:
         for idx in range(width):
             wire_name = make_wire('{}{}'.format(output_wire, idx))
-            bel.connections['{}[{}]'.format(output_wire, idx)] = wire_name
-            sources.add(wire_name)
+            pin_name = '{}[{}]'.format(output_wire, idx)
+            bel.connections[pin_name] = wire_name
+            sources[wire_name] = (bel, pin_name)
 
     top.add_site(
             aparts[0], bram_site,
