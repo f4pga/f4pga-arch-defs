@@ -510,7 +510,7 @@ def main():
     tool_version = input_rr_graph.getroot().attrib['tool_version']
     tool_comment = input_rr_graph.getroot().attrib['tool_comment']
 
-    with DatabaseCache(args.connection_database) as conn:
+    with DatabaseCache(args.connection_database, True) as conn:
 
         # Mapping of graph_node.pkey to rr node id.
         node_mapping = {}
@@ -544,8 +544,6 @@ def main():
 
             xml_graph.serialize_nodes(yield_nodes(xml_graph.graph.nodes))
             xml_graph.serialize_edges(import_graph_edges(conn, graph, node_mapping))
-
-        print('{} Flushing database back to file "{}"'.format(now(), args.connection_database))
 
 if __name__ == '__main__':
     main()
