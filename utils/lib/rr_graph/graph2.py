@@ -290,6 +290,27 @@ class Graph(object):
 
         return len(self.edges)-1
 
+    def add_switch(self, switch):
+        """ Inner add_switch method.  Do not invoke directly.
+
+        This method adds a switch into the graph model.  This method should
+        not be invoked directly, instead invoke add_switch on the serialization
+        graph object (e.g. rr_graph_xml.graph2.add_switch, etc).
+
+        """
+
+        switch_dict = switch._asdict()
+        switch_dict['id'] = self.next_switch_id
+        self.next_switch_id += 1
+
+        switch = Switch(**switch_dict)
+
+        assert switch.name not in self.switch_name_map
+        self.switch_name_map[switch.name] = switch
+        self.switches.append(switch)
+
+        return switch.id
+
     def check_ptc(self):
         for node in self.nodes:
             assert node.loc.ptc is not None, node

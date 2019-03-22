@@ -321,6 +321,43 @@ class Graph(object):
         self.xf.write(self.input_xml.find('block_types'))
         self.xf.write(self.input_xml.find('grid'))
 
+    def add_switch(self, switch):
+        """ Add switch into graph model.
+
+        Typically switches are imported from the architecture definition,
+        however VPR will not save unused switches from the arch.  In this
+        case, the switches must be added back during routing import.
+
+        Important note: any switch present in the rr graph must also be present
+        in the architecture definition.
+
+        """
+
+        # Add to Graph2 data structure
+        switch_id = self.graph.add_switch(switch)
+
+        # Add to XML
+        switch_xml = ET.SubElement(self.input_xml.find('switches'), 'switch', {
+                'id': str(switch_id),
+                'type': switch.type.name.lower(),
+                'name': switch.name,
+            })
+
+        if switch.timing:
+            ET.SubElement(switch_xml, 'timing', {
+                'R': str(switch.timing.r),
+                'Cin': str(switch.timing.c_in),
+                'Cout': str(switch.timing.c_out),
+                'Tdel': str(switch.timing.t_del),
+                })
+
+        ET.SubElement(switch_xml, 'sizing', {
+            'mux_trans_size': str(switch.sizing.mux_trans_size),
+            'buf_size': str(switch.sizing.buf_size),
+            })
+
+        return switch_id
+
     def serialize_nodes(self, nodes):
         serialize_nodes(self.xf, nodes)
 

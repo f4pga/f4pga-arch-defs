@@ -257,6 +257,11 @@ def main():
                   "mux_trans_size":"2.630740",
                   "buf_size":"27.645901"
                   })
+    ET.SubElement(switchlist_xml, 'switch', {
+                  'type':'short',
+                  'name':'short',
+                  "R":"0", "Cin":"0",  "Cout":"0", "Tdel":"0",
+                  })
 
     segmentlist_xml = ET.SubElement(arch_xml, 'segmentlist')
 

@@ -538,11 +538,7 @@ VALUES
 
 def insert_tracks(conn, tracks_to_insert):
     c = conn.cursor()
-    # TODO: Use short
-    #c.execute('SELECT pkey FROM switch WHERE name = "short";')
-    #short_pkey = c.fetchone()[0]
-    c.execute("""
-SELECT pkey FROM switch WHERE name = "__vpr_delayless_switch__";""")
+    c.execute('SELECT pkey FROM switch WHERE name = "short";')
     short_pkey = c.fetchone()[0]
 
     track_graph_nodes = {}
