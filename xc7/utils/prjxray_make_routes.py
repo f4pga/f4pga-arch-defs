@@ -111,6 +111,22 @@ class Net(object):
             else:
                 break
 
+    def remove_sink(self, conn, net_map, sink_wire_pkey):
+        assert sink_wire_pkey in self.route_wire_pkeys
+
+        node_pkey = get_node_pkey(conn, sink_wire_pkey)
+
+        # Make sure this is in fact a sink.
+        for other_node_pkey in self.parent_nodes.values():
+            assert node_pkey != other_node_pkey
+
+        del self.parent_nodes[node_pkey]
+
+        for wire_pkey in get_wires_in_node(conn, node_pkey):
+            self.route_wire_pkeys.remove(wire_pkey)
+            del net_map[wire_pkey]
+
+
     def prune_antennas(self, sink_node_pkeys):
         """ Remove entries from parent_nodes that belong to antenna wires.
 
@@ -408,7 +424,7 @@ SELECT site_pin_pkey FROM wire_in_tile WHERE pkey = (
         assert False, (sink_node_pkey, tile_name, wire_name, sink_wire_pkey)
 
 
-def make_routes(db, conn, wire_pkey_to_wire, unrouted_sinks, unrouted_sources, active_pips, allow_orphan_sinks, nets):
+def make_routes(db, conn, wire_pkey_to_wire, unrouted_sinks, unrouted_sources, active_pips, allow_orphan_sinks, nets, net_map):
     """ Form nets (and their routes) based:
 
     unrouted_sinks - Set of wire_pkeys of sinks to BELs in the graph
@@ -433,8 +449,6 @@ def make_routes(db, conn, wire_pkey_to_wire, unrouted_sinks, unrouted_sources, a
     # Every sink should belong to exactly 1 net
     # Every net should have exactly 1 source
     check_downstream_default = create_check_downstream_default(conn, db)
-
-    net_map = {}
 
     def report_sources():
         print('// Source wire pkeys:')

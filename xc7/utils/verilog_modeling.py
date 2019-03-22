@@ -13,6 +13,7 @@ class Bel(object):
         self.connections = {}
         self.unused_connections = set()
         self.parameters = {}
+        self.outputs = set()
         self.prefix = None
         self.site = None
         self.keep = keep
@@ -118,9 +119,12 @@ class Site(object):
         self.sources = {}
         self.outputs = {}
         self.internal_sources = {}
-        self.illegal_nets = {}
 
         self.set_features = set()
+        self.post_route_cleanup = None
+        self.bel_map = {}
+
+        self.site_wire_to_wire_pkey = {}
 
         aparts = features[0].feature.split('.')
 
@@ -166,6 +170,7 @@ class Site(object):
         assert bel_pin not in bel.connections
 
         bel.connections[bel_pin] = source
+        bel.outputs.add(bel_pin)
         self.sources[source] = (bel, bel_pin)
 
     def add_output_from_internal(self, source, internal_source):
@@ -184,15 +189,13 @@ class Site(object):
     def add_internal_source(self, bel, bel_pin, wire_name):
         """ Adds a site internal source. """
         bel.connections[bel_pin] = wire_name
+        bel.outputs.add(bel_pin)
         self.internal_sources[bel.connections[bel_pin]] = (bel, bel_pin)
 
     def connect_internal(self, bel, bel_pin, source):
         assert source in self.internal_sources, source
         assert bel_pin not in bel.connections
         bel.connections[bel_pin] = source
-
-    def add_illegal_connection(self, sink, source):
-        self.illegal_nets[sink] = source
 
     def integrate_site(self, conn, module):
         self.check_site()
@@ -234,6 +237,7 @@ class Site(object):
             wires.add(prefix_wire)
             wire_pkey = get_wire_pkey(conn, self.tile, site_pin_map[wire])
             wire_pkey_to_wire[wire_pkey] = prefix_wire
+            self.site_wire_to_wire_pkey[wire] = wire_pkey
             unrouted_sinks.add(wire_pkey)
 
         for wire in self.sources:
@@ -244,6 +248,7 @@ class Site(object):
             wires.add(prefix_wire)
             wire_pkey = get_wire_pkey(conn, self.tile, site_pin_map[wire])
             wire_pkey_to_wire[wire_pkey] = prefix_wire
+            self.site_wire_to_wire_pkey[wire] = wire_pkey
             unrouted_sources.add(wire_pkey)
 
             source_bel = self.sources[wire]
@@ -272,10 +277,6 @@ class Site(object):
         assert len(internal_sources & sinks) == 0, (internal_sources & sinks)
         assert len(internal_sources & sources) == 0, (internal_sources & sources)
 
-        for sink, source in self.illegal_nets.items():
-            assert sink in self.sinks
-            assert source in self.sources
-
         bel_ids = set()
         for bel in self.bels:
             bel_ids.add(id(bel))
@@ -295,8 +296,67 @@ class Site(object):
                 assert id(bel) in bel_ids
 
 
-    def add_bel(self, bel):
+    def add_bel(self, bel, name=None):
         self.bels.append(bel)
+        if name is not None:
+            assert name not in self.bel_map
+            self.bel_map[name] = bel
+
+    def maybe_get_bel(self, name):
+        if name in self.bel_map:
+            return self.bel_map[name]
+        else:
+            return None
+
+    def set_post_route_cleanup_function(self, func):
+        self.post_route_cleanup = func
+
+    def remove_bel(self, bel_to_remove):
+        bel_idx = None
+        for idx, bel in enumerate(self.bels):
+            if id(bel) == id(bel_to_remove):
+                bel_idx = idx
+                break
+
+        assert bel_idx is not None
+
+        # Make sure none of the BEL sources are in use
+        for bel in self.bels:
+            if id(bel) == id(bel_to_remove):
+                continue
+
+            for site_wire in bel.connections.values():
+                assert site_wire not in bel_to_remove.outputs, site_wire
+
+        # BEL is not used internal, preceed with removal.
+        del self.bels[bel_idx]
+        removed_sinks = []
+        removed_sources = []
+
+        for sink_wire, bels_using_sink in self.sinks.items():
+            bel_idx = None
+            for idx, (bel, _) in enumerate(bels_using_sink):
+                if id(bel) == id(bel_to_remove):
+                    bel_idx = idx
+                    break
+
+            if bel_idx is not None:
+                del bels_using_sink[bel_idx]
+
+            if len(bels_using_sink) == 0:
+                removed_sinks.append(self.site_wire_to_wire_pkey[sink_wire])
+
+        sources_to_remove = []
+        for source_wire, (bel, _) in self.sources.items():
+            if id(bel) == id(bel_to_remove):
+                removed_sources.append(self.site_wire_to_wire_pkey[source_wire])
+                sources_to_remove.append(source_wire)
+
+        for wire in sources_to_remove:
+            del self.sources[wire]
+
+        return removed_sinks, removed_sources
+
 
 @functools.lru_cache(maxsize=None)
 def make_site_pin_map(site_pins):
@@ -420,6 +480,7 @@ class Module(object):
 
     def make_routes(self, allow_orphan_sinks):
         self.nets = {}
+        self.net_map = {}
         for sink_wire, src_wire in make_routes(
                 db=self.db,
                 conn=self.conn,
@@ -428,7 +489,8 @@ class Module(object):
                 unrouted_sources=self.unrouted_sources,
                 active_pips=self.active_pips,
                 allow_orphan_sinks=allow_orphan_sinks,
-                nets=self.nets):
+                nets=self.nets,
+                net_map=self.net_map):
             self.wire_assigns[sink_wire] = src_wire
 
     def output_nets(self):
@@ -465,3 +527,45 @@ set_property FIXED_ROUTE {fixed_route} $net
             for bel in site.bels:
                 yield bel
 
+    def handle_post_route_cleanup(self):
+        for site in self.sites:
+            if site.post_route_cleanup is not None:
+                site.post_route_cleanup(self, site)
+
+    def find_sinks_from_source(self, site, site_wire):
+        wire_pkey = site.site_wire_to_wire_pkey[site_wire]
+        assert wire_pkey in self.nets
+
+        for sink_wire_pkey, source_wire_pkey in self.wire_assigns.items():
+            if wire_pkey == source_wire_pkey:
+                yield sink_wire_pkey
+
+    def remove_bel(self, site, bel):
+        """ Remove a BEL from the module.
+
+        If this is the last use of a site sink, then that wire and wire
+        connection is removed.
+        """
+
+        removed_sinks, removed_sources = site.remove_bel(bel)
+
+        # Make sure none of the sources are in use.
+        for wire_pkey in removed_sources:
+            for sink_wire_pkey, source_wire_pkey in self.wire_assigns.items():
+                assert wire_pkey != source_wire_pkey
+
+            self.unrouted_sources.remove(wire_pkey)
+            del self.source_bels[wire_pkey]
+
+        # Remove the sinks from the wires, wire assigns, and net
+        for wire_pkey in removed_sinks:
+            self.wires.remove(self.wire_pkey_to_wire[wire_pkey])
+            if wire_pkey in self.wire_assigns:
+                del self.wire_assigns[wire_pkey]
+
+            self.unrouted_sinks.remove(wire_pkey)
+
+            self.nets[self.net_map[wire_pkey]].remove_sink(
+                    conn=self.conn,
+                    net_map=self.net_map,
+                    sink_wire_pkey=wire_pkey)

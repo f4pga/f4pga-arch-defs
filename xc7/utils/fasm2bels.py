@@ -160,6 +160,38 @@ def ff_bel(site, lut, ff5):
             (False, True, False) : ('LDPE', 'G', 'GE', 'PRE', init),
             }[(ffsync, latch, zrst)]
 
+def cleanup_slice(top, site):
+    """ Perform post-routing cleanups required for SLICE.
+
+    Cleanups:
+     - Detect if CARRY4 is required.  If not, remove from site.
+
+    """
+    carry4 = site.maybe_get_bel('CARRY4')
+
+    if carry4 is None:
+        return
+
+    # Simplest check is if the CARRY4 has output in used by either the OUTMUX
+    # or the FFMUX, if any of these muxes are enable, CARRY4 must remain.
+    for lut in 'ABCD':
+        if site.has_feature('{}FFMUX.XOR'.format(lut)):
+            return
+
+        if site.has_feature('{}FFMUX.CY'.format(lut)):
+            return
+
+        if site.has_feature('{}OUTMUX.XOR'.format(lut)):
+            return
+
+        if site.has_feature('{}OUTMUX.CY'.format(lut)):
+            return
+
+    # No outputs in the SLICE use CARRY4, check if the COUT line is in use.
+    for sink in top.find_sinks_from_source(site, 'COUT'):
+        return
+
+    top.remove_bel(site, carry4)
 
 def process_slice(top, s):
     """
@@ -532,12 +564,6 @@ def process_slice(top, s):
             else:
                 site.add_sink(bel, 'DI[{}]'.format(idx), lut + 'X')
 
-                if site.has_feature(lut + 'OUTMUX.O5'):
-                    # It is illegal to have the CY0 mux be set to [ABCD]X,
-                    # and have this [ABCD]X net connected to [ABCD]MUX. If
-                    # this occurs, then the CARRY4 Bel should be deleted.
-                    site.add_illegal_connection(lut + 'X', lut + 'MUX')
-
             source = lut + 'O6'
 
             site.connect_internal(bel, 'S[{}]'.format(idx), source)
@@ -569,7 +595,7 @@ def process_slice(top, s):
         else:
             assert False
 
-        site.add_bel(bel)
+        site.add_bel(bel, name='CARRY4')
 
     ff5_bels = {}
     for lut in 'ABCD':
@@ -679,6 +705,7 @@ def process_slice(top, s):
         else:
             continue
 
+    site.set_post_route_cleanup_function(cleanup_slice)
     top.add_site(site)
 
 
@@ -1250,6 +1277,7 @@ SELECT name FROM tile_type WHERE pkey = (
         process_tile[tile_type](conn, top, tile, tiles[tile])
 
     top.make_routes(allow_orphan_sinks=args.allow_orphan_sinks)
+    top.handle_post_route_cleanup()
 
     with open(args.verilog_file, 'w') as f:
         for l in top.output_verilog():
