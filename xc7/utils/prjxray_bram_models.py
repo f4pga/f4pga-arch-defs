@@ -1,5 +1,5 @@
 import fasm
-from verilog_modeling import Bel
+from verilog_modeling import Bel, Site
 
 def get_init(features, target_feature, invert, width):
     init = 0
@@ -41,20 +41,12 @@ def process_bram_site(top, features, set_features):
     if 'IN_USE' not in set_features:
         return
 
-    bels = []
-    sinks = set()
-    sources = {}
-    internal_sources = set()
-    outputs = {}
+    aparts = features[0].feature.split('.')
+    bram_site = get_bram_site(top.db, top.grid, aparts[0], aparts[1])
+    site = Site(features, bram_site)
 
     bel = Bel('RAMB18E1')
-    bels.append(bel)
-
-    aparts = features[0].feature.split('.')
-    for f in features:
-        parts = f.feature.split('.')
-        assert parts[0] == aparts[0]
-        assert parts[1] == aparts[1]
+    site.add_bel(bel)
 
     # Parameters
 
@@ -228,7 +220,6 @@ def process_bram_site(top, features, set_features):
     else:
         bel.parameters['WRITE_MODE_B'] = '"WRITE_FIRST"'
 
-    bram_site = get_bram_site(top.db, top.grid, aparts[0], aparts[1])
 
     fifo_site = bram_site.type == 'FIFO18E1'
 
@@ -271,8 +262,7 @@ def process_bram_site(top, features, set_features):
             "RSTREGB",
             ]:
         wire_name = make_wire(input_wire)
-        bel.connections[input_wire] = wire_name
-        sinks.add(wire_name)
+        site.add_sink(bel, input_wire, wire_name)
 
     for input_wire, width in [
             # TODO: Add RAMB36 support.
@@ -289,8 +279,7 @@ def process_bram_site(top, features, set_features):
             ]:
         for idx in range(width):
             wire_name = make_wire('{}{}'.format(input_wire, idx))
-            bel.connections['{}[{}]'.format(input_wire, idx)] = wire_name
-            sinks.add(wire_name)
+            site.add_sink(bel, '{}[{}]'.format(input_wire, idx), wire_name)
 
     # TODO: Add RAMB36 support.
     # In RAMB36, WEA and WEBWE don't double up like this
@@ -300,8 +289,7 @@ def process_bram_site(top, features, set_features):
             ]:
         for idx in range(0, width, 2):
             wire_name = make_wire('{}{}'.format(input_wire, idx))
-            bel.connections['{}[{}]'.format(input_wire, idx//2)] = wire_name
-            sinks.add(wire_name)
+            site.add_sink(bel, '{}[{}]'.format(input_wire, idx//2), wire_name)
 
     for output_wire, width in [
             ('DOADO', 16),
@@ -312,12 +300,9 @@ def process_bram_site(top, features, set_features):
         for idx in range(width):
             wire_name = make_wire('{}{}'.format(output_wire, idx))
             pin_name = '{}[{}]'.format(output_wire, idx)
-            bel.connections[pin_name] = wire_name
-            sources[wire_name] = (bel, pin_name)
+            site.add_source(bel, pin_name, wire_name)
 
-    top.add_site(
-            aparts[0], bram_site,
-            bels, outputs, sinks, sources, internal_sources)
+    top.add_site(site)
 
 
 def process_bram(conn, top, tile, features):

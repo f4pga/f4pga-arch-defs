@@ -12,7 +12,7 @@ import re
 import prjxray.db
 import functools
 from prjxray_bram_models import process_bram
-from verilog_modeling import Bel, Module
+from verilog_modeling import Bel, Module, Site
 
 
 def get_clb_site(db, grid, tile, site):
@@ -40,26 +40,22 @@ def get_lut_init(features, tile_name, slice_name, lut):
     return "64'b{:064b}".format(init)
 
 
-def create_lut(lut, internal_sources, o6_sources, o5_sources):
+def create_lut(site, lut):
     bel = Bel('LUT6_2', lut + 'LUT')
     bel.set_bel(lut + '6LUT')
 
     for idx in range(6):
-        bel.connections['I{}'.format(idx)] = '{}{}'.format(lut, idx+1)
-        bel.connections['O6'] = lut + 'O6'
-        o6_sources[lut] = (bel, 'O6')
-        bel.connections['O5'] = lut + 'O5'
-        o5_sources[lut] = (bel, 'O5')
-        internal_sources.add(lut + 'O6')
-        internal_sources.add(lut + 'O5')
+        site.add_sink(bel, 'I{}'.format(idx), '{}{}'.format(lut, idx+1))
+        site.add_internal_source(bel, 'O6', lut + 'O6')
+        site.add_internal_source(bel, 'O5', lut + 'O5')
 
     return bel
 
 
-def decode_dram(features, lut_ram, di):
+def decode_dram(site, lut_ram, di):
     lut_modes = {}
-    if 'WA8USED' in features:
-        assert 'WA7USED' in features
+    if site.has_feature('WA8USED'):
+        assert site.has_feature('WA7USED')
         assert lut_ram['A']
         assert lut_ram['B']
         assert lut_ram['C']
@@ -71,7 +67,7 @@ def decode_dram(features, lut_ram, di):
         lut_modes['D'] = 'RAM256X1S'
         return lut_modes
 
-    if 'WA7USED' in features:
+    if site.has_feature('WA7USED'):
         if not lut_ram['A']:
             assert not lut_ram['B']
             assert lut_ram['C']
@@ -111,7 +107,7 @@ def decode_dram(features, lut_ram, di):
         if lut_ram[lut] and di[lut]:
             remaining.remove(lut)
 
-            if '{}LUT.SMALL'.format(lut) in features:
+            if site.has_feature('{}LUT.SMALL'.format(lut)):
                 lut_modes[lut] = 'RAM32X2S'
             else:
                 lut_modes[lut] = 'RAM64X1S'
@@ -125,17 +121,19 @@ def decode_dram(features, lut_ram, di):
             if lut_ram[minus_one]:
                 remaining.remove(lut)
                 remaining.remove(minus_one)
-                if '{}LUT.SMALL'.format(lut) in features:
+                if site.has_feature('{}LUT.SMALL'.format(lut)):
                     lut_modes[lut] = 'RAM32X1D'
                     lut_modes[minus_one] = 'RAM32X1D'
                 else:
                     lut_modes[lut] = 'RAM64X1D'
                     lut_modes[minus_one] = 'RAM64X1D'
+
+        if lut in remaining:
+            remaining.remove(lut)
+            if site.has_feature('{}LUT.SMALL'.format(lut)):
+                lut_modes[lut] = 'RAM32X2S'
             else:
-                if '{}LUT.SMALL'.format(lut) in features:
-                    lut_modes[lut] = 'RAM32X2S'
-                else:
-                    lut_modes[lut] = 'RAM64X1S'
+                lut_modes[lut] = 'RAM64X1S'
 
     for lut in remaining:
         lut_modes[lut] = 'LUT'
@@ -143,11 +141,11 @@ def decode_dram(features, lut_ram, di):
     return lut_modes
 
 
-def ff_bel(features, lut, ff5):
-    ffsync = 'FFSYNC' in features
-    latch = ('LATCH' in features) and not ff5
-    zrst = '{}{}FF.ZRST'.format(lut, '5' if ff5 else '') in features
-    zini = '{}{}FF.ZINI'.format(lut, '5' if ff5 else '') in features
+def ff_bel(site, lut, ff5):
+    ffsync = site.has_feature('FFSYNC')
+    latch = site.has_feature('LATCH') and not ff5
+    zrst = site.has_feature('{}{}FF.ZRST'.format(lut, '5' if ff5 else ''))
+    zini = site.has_feature('{}{}FF.ZINI'.format(lut, '5' if ff5 else ''))
     init = int(not zini)
 
     if latch:
@@ -198,103 +196,74 @@ def process_slice(top, s):
     SLICEM_X0.WEMUX.CE
     """
 
-    bels = []
-    sinks = set()
-    sources = {}
-    internal_sources = set()
-
     aparts = s[0].feature.split('.')
+    site = Site(s, get_clb_site(top.db, top.grid, tile=aparts[0], site=aparts[1]))
+
     mlut = aparts[1].startswith('SLICEM')
 
-    features = set()
-    for f in s:
-        if f.value == 0:
-            continue
+    def connect_ce_sr(bel, ce, sr):
+        if site.has_feature('CEUSEDMUX'):
+            site.add_sink(bel, ce, 'CE')
+        else:
+            bel.connections[ce] = 1
 
-        parts = f.feature.split('.')
-        assert parts[0] == aparts[0]
-        assert parts[1] == aparts[1]
-        features.add('.'.join(parts[2:]))
+        if site.has_feature('SRUSEDMUX'):
+            site.add_sink(bel, sr, 'SR')
+        else:
+            bel.connections[sr] = 0
 
-    if 'CEUSEDMUX' in features:
-        CE = 'CE'
-    else:
-        CE = 1
-
-    if 'SRUSEDMUX' in features:
-        SR = 'SR'
-    else:
-        SR = 0
-
-    IS_C_INVERTED = int('CLKINV' in features)
+    IS_C_INVERTED = int(site.has_feature('CLKINV'))
 
     if mlut:
-        if 'WEMUX.CE' not in features:
+        if site.has_feature('WEMUX.CE'):
             WE = 'WE'
         else:
             WE = 'CE'
 
-    if 'PRECYINIT.CIN' in features:
-        sinks.add('CIN')
-
-    for row in 'ABCD':
-        for lut in range(6):
-            sinks.add('{}{}'.format(row, lut+1))
-
-    if 'DLUT.RAM' in features:
+    if site.has_feature('DLUT.RAM'):
         # Must be a SLICEM to have RAM set.
         assert mlut
     else:
         for row in 'ABC':
-            assert '{}LUT.RAM' not in features
+            assert not site.has_feature('{}LUT.RAM')
 
     # SRL not currently supported
     for row in 'ABCD':
-        assert '{}LUT.SRL' not in features
+        assert not site.has_feature('{}LUT.SRL')
 
     muxes = set(('F7AMUX', 'F7BMUX', 'F8MUX'))
 
     luts = {}
-    o6_sources = {}
-    o5_sources = {}
     # Add BELs for LUTs/RAMs
-    if 'DLUT.RAM' not in features:
+    if site.has_feature('DLUT.RAM'):
         for lut in 'ABCD':
-            luts[lut] = create_lut(lut,
-                    internal_sources=internal_sources,
-                    o6_sources=o6_sources,
-                    o5_sources=o5_sources)
+            luts[lut] = create_lut(site, lut)
             luts[lut].parameters['INIT'] = get_lut_init(s, aparts[0], aparts[1], lut)
-            bels.append(luts[lut])
+            site.add_bel(luts[lut])
     else:
         # DRAM is active.  Determine what BELs are in use.
         lut_ram = {}
         for lut in 'ABCD':
-            lut_ram[lut] = '{}LUT.RAM'.format(lut) in features
+            lut_ram[lut] = site.has_feature('{}LUT.RAM')
 
         di = {}
         for lut in 'ABC':
-            di[lut] = 'DI1MUX.{}I'.format(lut) in features
+            di[lut] = site.has_feature('DI1MUX.{}I'.format(lut))
 
-        lut_modes = decode_dram(features, lut_ram, di)
+        lut_modes = decode_dram(site, lut_ram, di)
 
         if lut_modes['D'] == 'RAM256X1S':
             ram256 = Bel('RAM256X1S')
-            ram256.connections['WE'] = WE
-            sinks.add(WE)
-            ram256.connections['WCLK'] = "CLK"
-            sinks.add('CLK')
-            ram256.connections['D'] = "DI"
+            site.add_sink(ram256, 'WE', WE)
+            site.add_sink(ram256, 'WCLK', 'CLK')
+            site.add_sink(ram256, 'D', 'DI')
 
             for idx in range(6):
-                ram256.connections['A[{}]'.format(idx)] = "D{}".format(idx+1)
+                site.add_sink(ram256, 'A[{}]'.format(idx), "D{}".format(idx+1))
 
-            ram256.connections['A[6]'] = "CX"
-            sinks.add('CX')
-            ram256.connections['A[7]'] = "BX"
-            sinks.add('BX')
-            ram256.connections['O'] = 'F8MUX_O'
-            f8_source = (ram256, 'O')
+            site.add_sink(ram256, 'A[6]', "CX")
+            site.add_sink(ram256, 'A[7]', "BX")
+            site.add_internal_source(ram256, 'O', 'F8MUX_O')
 
             ram256.parameters['INIT'] = (
                     get_lut_init(s, aparts[0], aparts[1], 'D') |
@@ -303,8 +272,7 @@ def process_slice(top, s):
                     (get_lut_init(s, aparts[0], aparts[1], 'A') << 192)
                     )
 
-            bels.append(ram256)
-            internal_sources.add(ram256.connections['O'])
+            site.add_bel(ram256)
 
             muxes = set()
 
@@ -314,27 +282,21 @@ def process_slice(top, s):
             del lut_modes['D']
         elif lut_modes['D'] == 'RAM128X1S':
             ram128 = Bel('RAM128X1S')
-            ram128.connections['WE'] = WE
-            sinks.add(WE)
-            ram128.connections['WCLK'] = "CLK"
-            sinks.add('CLK')
-            ram128.connections['D'] = "DI"
-            sinks.add('DI')
+            site.add_sink(ram128, 'WE', WE)
+            site.add_sink(ram128, 'WCLK', "CLK")
+            site.add_sink(ram128, 'D', "DI")
 
             for idx in range(6):
-                ram128.connections['A{}'.format(idx)] = "D{}".format(idx+1)
+                site.add_sink(ram128, 'A{}'.format(idx), "D{}".format(idx+1))
 
-            ram128.connections['A6'] = "CX"
-            sinks.add('CX')
-            ram128.connections['O'] = 'F7BMUX_O'
-            f7b_source = (ram128, 'O')
+            site.add_sink(ram128, 'A6', "CX")
+            site.add_internal_source(ram128, 'O', 'F7BMUX_O')
 
             ram128.parameters['INIT'] = (
                     get_lut_init(s, aparts[0], aparts[1], 'D') |
                     (get_lut_init(s, aparts[0], aparts[1], 'C') << 64))
 
-            bels.append(ram128)
-            internal_sources.add(ram128.connections['O'])
+            site.add_bel(ram128)
             muxes.remove('F7BMUX')
 
             del lut_modes['C']
@@ -342,27 +304,22 @@ def process_slice(top, s):
 
             if lut_modes['B'] == 'RAM128X1S':
                 ram128 = Bel('RAM128X1S')
-                ram128.connections['WE'] = WE
-                sinks.add(WE)
-                ram128.connections['WCLK'] = "CLK"
-                sinks.add('CLK')
-                ram128.connections['D'] = "BI"
-                sinks.add('BI')
+                site.add_sink(ram128, 'WE', WE)
+                site.add_sink(ram128, 'WCLK', "CLK")
+                site.add_sink(ram128, 'D', "BI")
 
                 for idx in range(6):
-                    ram128.connections['A{}'.format(idx)] = "B{}".format(idx+1)
+                    site.adD_sink(ram128, 'A{}'.format(idx), "B{}".format(idx+1))
 
-                ram128.connections['A6'] = "AX"
-                sinks.add('AX')
-                ram128.connections['O'] = 'F7AMUX_O'
-                internal_sources.add(ram128.connections['O'])
-                f7a_source = (ram128, 'O')
+                site.add_sink(ram128, 'A6', "AX")
+
+                site.add_internal_source(ram128, 'O', 'F7AMUX_O')
 
                 ram128.parameters['INIT'] = (
                         get_lut_init(s, aparts[0], aparts[1], 'B') |
                         (get_lut_init(s, aparts[0], aparts[1], 'A') << 64))
 
-                bels.append(ram128)
+                site.add_bel(ram128)
 
                 muxes.remove('F7AMUX')
 
@@ -372,28 +329,19 @@ def process_slice(top, s):
         elif lut_modes['D'] == 'RAM128X1D':
             ram128 = Bel('RAM128X1D')
 
-            ram128.connections['WE'] = WE
-            sinks.add(WE)
-            ram128.connections['WCLK'] = "CLK"
-            sinks.add('CLK')
-            ram128.connections['D'] = "DI"
-            sinks.add('DI')
+            site.add_sink(ram128, 'WE', WE)
+            site.add_sink(ram128, 'WCLK', "CLK")
+            site.add_sink(ram128, 'D', "DI")
 
             for idx in range(6):
-                ram128.connections['A[{}]'.format(idx)] = "D{}".format(idx+1)
-                ram128.connections['DPRA[{}]'.format(idx)] = "C{}".format(idx+1)
+                site.add_sink(ram128, 'A[{}]'.format(idx), "D{}".format(idx+1))
+                site.add_sink(ram128, 'DPRA[{}]'.format(idx), "C{}".format(idx+1))
 
-            ram128.connections['A[6]'] = "CX"
-            sinks.add('CX')
-            ram128.connections['DPRA[6]'] = "AX"
-            sinks.add('AX')
-            ram128.connections['SPO'] = 'F7AMUX_O'
-            ram128.connections['DPO'] = 'F7BMUX_O'
-            internal_sources.add(ram128.connections['SPO'])
-            internal_sources.add(ram128.connections['DPO'])
+            site.add_sink(ram128, 'A[6]', "CX")
+            site.add_sink(ram128, 'DPRA[6]', "AX")
 
-            f7a_source = (ram128, 'SPO')
-            f7b_source = (ram128, 'DPO')
+            site.add_internal_source(ram128, 'SPO', 'F7AMUX_O')
+            site.add_internal_source(ram128, 'DPO', 'F7BMUX_O')
 
             ram128.parameters['INIT'] = (
                     get_lut_init(s, aparts[0], aparts[1], 'D') |
@@ -405,7 +353,7 @@ def process_slice(top, s):
 
             assert ram128.parameters['INIT'] == other_init
 
-            bels.append(ram128)
+            site.add_bel(ram128)
 
             muxes.remove('F7AMUX')
             muxes.remove('F7BMUX')
@@ -423,59 +371,44 @@ def process_slice(top, s):
 
                 ram64 = Bel('RAM64X1D')
 
-                ram64.connections['WE'] = WE
-                sinks.add(WE)
-                ram64.connections['WCLK'] = "CLK"
-                sinks.add('CLK')
-                ram64.connections['D'] = lut + "I"
-                sinks.add(lut + 'I')
+                site.add_sink(ram64, 'WE', WE)
+                site.add_sink(ram64, 'WCLK', "CLK")
+                site.add_sink(ram64, 'D', lut + "I")
 
                 for idx in range(6):
-                    ram64.connections['A{}'.format(idx)] = "{}{}".format(lut, idx+1)
-                    ram64.connections['DPRA{}'.format(idx)] = "{}{}".format(minus_one, idx+1)
+                    site.add_sink(ram64, 'A{}'.format(idx), "{}{}".format(lut, idx+1))
+                    site.add_sink(ram64, 'DPRA{}'.format(idx), "{}{}".format(minus_one, idx+1))
 
-                ram64.connections['SPO'] = lut + "O6"
-                ram64.connections['DPO'] = minus_one + "O6"
-
-                o6_sources[lut] = (ram64, 'SPO')
-                o6_sources[minus_one] = (ram64, 'DPO')
+                site.add_internal_source(ram64, 'SPO', lut + "O6")
+                site.add_internal_source(ram64, 'DPO', minus_one + "O6")
 
                 ram64.parameters['INIT'] = get_lut_init(s, aparts[0], aparts[1], lut)
                 other_init = get_lut_init(s, aparts[0], aparts[1], minus_one)
 
                 assert ram64.parameters['INIT'] == other_init
 
-                bels.append(ram64)
-                internal_sources.add(ram64.connections['SPO'])
-                internal_sources.add(ram64.connections['DPO'])
+                site.add_bel(ram64)
 
                 del lut_modes[lut]
                 del lut_modes[minus_one]
             elif lut_modes[lut] == 'RAM32X1D':
                 ram32 = Bel('RAM32X1D')
 
-                ram32.connections['WE'] = WE
-                sinks.add(WE)
-                ram32.connections['WCLK'] = "CLK"
-                sinks.add('CLK')
-                ram32.connections['D'] = lut + "I"
+                site.add_sink(ram32, 'WE', WE)
+                site.add_sink(ram32, 'WCLK', "CLK")
+                site.add_sink(ram32, 'D', lut + "I")
 
                 for idx in range(5):
-                    ram64.connections['A{}'.format(idx)] = "{}{}".format(lut, idx+1)
-                    ram64.connections['DPRA{}'.format(idx)] = "{}{}".format(minus_one, idx+1)
+                    site.add_sink(ram64, 'A{}'.format(idx), "{}{}".format(lut, idx+1))
+                    site.add_sink(ram64, 'DPRA{}'.format(idx), "{}{}".format(minus_one, idx+1))
 
-                ram32.connections['SPO'] = lut + "O6"
-                ram32.connections['DPO'] = minus_one + "O6"
-
-                o6_sources[lut] = (ram32, 'SPO')
-                o6_sources[minus_one] = (ram32, 'DPO')
+                site.add_sink(ram32, 'SPO', lut + "O6")
+                site.add_sink(ram32, 'DPO', minus_one + "O6")
 
                 ram32.parameters['INIT'] = get_lut_init(s, aparts[0], aparts[1], lut)
                 other_init = get_lut_init(s, aparts[0], aparts[1], minus_one)
 
-                bels.append(ram32)
-                internal_sources.add(ram32.connections['SPO'])
-                internal_sources.add(ram32.connections['DPO'])
+                site.add_bel(ram32)
 
                 del lut_modes[lut]
                 del lut_modes[minus_one]
@@ -485,59 +418,48 @@ def process_slice(top, s):
                 continue
 
             if lut_modes[lut] == 'LUT':
-                luts[lut] = create_lut(lut,
-                        internal_sources=internal_sources,
-                        o6_sources=o6_sources,
-                        o5_sources=o5_sources)
+                luts[lut] = create_lut(site, lut)
                 luts[lut].parameters['INIT'] = get_lut_init(s, aparts[0], aparts[1], lut)
-                bels.append(luts[lut])
+                site.add_bel(luts[lut])
             elif lut_modes[lut] == 'RAM64X1S':
                 ram64 = Bel('RAM64X1S')
 
-                ram64.connections['WE'] = WE
-                sinks.add(WE)
-                ram64.connections['WCLK'] = "CLK"
-                sinks.add('CLK')
-                ram64.connections['D'] = lut + "I"
+                site.add_sink(ram64, 'WE', WE)
+                site.add_sink(ram64, 'WCLK', "CLK")
+                site.add_sink(ram64, 'D', lut + "I")
 
                 for idx in range(6):
-                    ram64.connections['A{}'.format(idx)] = "{}{}".format(lut, idx+1)
+                    site.add_sink(ram64, 'A{}'.format(idx), "{}{}".format(lut, idx+1))
 
-                ram64.connections['O'] = lut + "O6"
-                o6_sources[lut] = (ram64, 'O')
+                site.add_internal_source(ram64, 'O', lut + "O6")
 
-                ram64.parameters['INIT'] = get_lut_init(s, parts[0], aparts[1], lut)
+                ram64.parameters['INIT'] = get_lut_init(s, aparts[0], aparts[1], lut)
                 other_init = get_lut_init(s, aparts[0], aparts[1], minus_one)
 
                 assert ram64.parameters['INIT'] == other_init
 
-                bels.append(ram64)
-                internal_sources.add(ram64.connections['O'])
+                site.add_bel(ram64)
             elif lut_modes[lut] == 'RAM32X2S':
                 ram32 = Bel('RAM32X1S')
 
-                ram32.connections['WE'] = WE
-                sinks.add(WE)
-                ram32.connections['WCLK'] = "CLK"
-                sinks.add('CLK')
-                ram32.connections['D'] = lut + "I"
+                site.add_sink(ram32, 'WE', WE)
+                site.add_sink(ram32, 'WCLK', "CLK")
+                site.add_sink(ram32, 'D', lut + "I")
 
                 for idx in range(5):
-                    ram64.connections['A{}'.format(idx)] = "{}{}".format(lut, idx+1)
+                    site.add_sink(ram32, 'A{}'.format(idx), "{}{}".format(lut, idx+1))
 
-                ram32.connections['O'] = lut + "O6"
-                o6_sources[lut] = (ram32, 'O')
+                site.add_internal_source(ram32 ,'O', lut + "O6")
 
                 ram32.parameters['INIT'] = get_lut_init(s, aparts[0], aparts[1], lut)
 
-                bels.append(ram32)
-                internal_sources.add(ram32.connections['O'])
+                site.add_bel(ram32)
             else:
                 assert False, lut_modes[lut]
 
-    need_f8 = 'BFFMUX.F8' in features or 'BOUTMUX.F8' in features
-    need_f7a = 'AFFMUX.F7' in features or 'AOUTMUX.F7' in features
-    need_f7b = 'CFFMUX.F7' in features or 'COUTMUX.F7' in features
+    need_f8 = site.has_feature('BFFMUX.F8') or site.has_feature('BOUTMUX.F8')
+    need_f7a = site.has_feature('AFFMUX.F7') or site.has_feature('AOUTMUX.F7')
+    need_f7b = site.has_feature('CFFMUX.F7') or site.has_feature('COUTMUX.F7')
 
     for mux in sorted(muxes):
         if mux == 'F7AMUX':
@@ -550,17 +472,13 @@ def process_slice(top, s):
             f7amux = Bel(bel_type, 'MUXF7A')
             f7amux.set_bel('F7AMUX')
 
-            assert 'AO6' in internal_sources
-            assert 'BO6' in internal_sources
-            f7amux.connections['I0'] = 'BO6'
-            f7amux.connections['I1'] = 'AO6'
-            f7amux.connections['S'] = 'AX'
-            sinks.add('AX')
-            f7amux.connections[opin] = 'F7AMUX_O'
-            f7a_source = (f7amux, opin)
+            site.connect_internal(f7amux, 'I0', 'BO6')
+            site.connect_internal(f7amux, 'I1', 'AO6')
+            site.add_sink(f7amux, 'S', 'AX')
 
-            bels.append(f7amux)
-            internal_sources.add(f7amux.connections[opin])
+            site.add_internal_source(f7amux, opin, 'F7AMUX_O')
+
+            site.add_bel(f7amux)
         elif mux == 'F7BMUX':
             if not need_f8 and not need_f7b:
                 continue
@@ -571,17 +489,13 @@ def process_slice(top, s):
             f7bmux = Bel(bel_type, 'MUXF7B')
             f7bmux.set_bel('F7BMUX')
 
-            assert 'CO6' in internal_sources
-            assert 'DO6' in internal_sources
-            f7bmux.connections['I0'] = 'DO6'
-            f7bmux.connections['I1'] = 'CO6'
-            f7bmux.connections['S'] = 'CX'
-            sinks.add('CX')
-            f7bmux.connections[opin] = 'F7BMUX_O'
-            f7b_source = (f7bmux, opin)
+            site.connect_internal(f7bmux, 'I0', 'DO6')
+            site.connect_internal(f7bmux, 'I1', 'CO6')
+            site.add_sink(f7bmux, 'S', 'CX')
 
-            bels.append(f7bmux)
-            internal_sources.add(f7bmux.connections[opin])
+            site.add_internal_source(f7bmux, opin, 'F7BMUX_O')
+
+            site.add_bel(f7bmux)
         elif mux == 'F8MUX':
             if not need_f8:
                 continue
@@ -591,219 +505,181 @@ def process_slice(top, s):
 
             f8mux = Bel(bel_type)
 
-            assert 'F7AMUX_O' in internal_sources, (internal_sources, muxes)
-            assert 'F7BMUX_O' in internal_sources, (internal_sources, muxes)
-            f8mux.connections['I0'] = 'F7BMUX_O'
-            f8mux.connections['I1'] = 'F7AMUX_O'
-            f8mux.connections['S'] = 'BX'
-            sinks.add('BX')
-            f8mux.connections[opin] = 'F8MUX_O'
-            f8_source = (f8mux, opin)
+            site.connect_internal(f8mux, 'I0', 'F7BMUX_O')
+            site.connect_internal(f8mux, 'I1', 'F7AMUX_O')
+            site.add_sink(f8mux, 'S', 'BX')
 
-            bels.append(f8mux)
-            internal_sources.add(f8mux.connections[opin])
+            site.add_internal_source(f8mux, opin, 'F8MUX_O')
+
+            site.add_bel(f8mux)
         else:
             assert False, mux
 
     can_have_carry4 = True
     for lut in 'ABCD':
-        if lut + 'O6' not in internal_sources:
+        if site.has_feature(lut + 'O6'):
             can_have_carry4 = False
             break
 
     if can_have_carry4:
         bel = Bel('CARRY4')
-        carry4_bel = bel
 
         for idx in range(4):
             lut = chr(ord('A') + idx)
-            if 'CARRY4.{}CY0'.format(lut) in features:
+            if site.has_feature('CARRY4.{}CY0'.format(lut)):
                 source = lut + 'O5'
-                assert source in internal_sources
-                bel.connections['DI[{}]'.format(idx)] = source
+                site.connect_internal(bel, 'DI[{}]'.format(idx), source)
             else:
-                bel.connections['DI[{}]'.format(idx)] = lut + 'X'
-                sinks.add(lut + 'X')
+                site.add_sink(bel, 'DI[{}]'.format(idx), lut + 'X')
+
+                if site.has_feature(lut + 'OUTMUX.O5'):
+                    # It is illegal to have the CY0 mux be set to [ABCD]X,
+                    # and have this [ABCD]X net connected to [ABCD]MUX. If
+                    # this occurs, then the CARRY4 Bel should be deleted.
+                    site.add_illegal_connection(lut + 'X', lut + 'MUX')
 
             source = lut + 'O6'
-            assert source in internal_sources
-            bel.connections['S[{}]'.format(idx)] = source
 
-            bel.connections['O[{}]'.format(idx)] = lut + '_XOR'
-            internal_sources.add(bel.connections['O[{}]'.format(idx)])
+            site.connect_internal(bel, 'S[{}]'.format(idx), source)
+
+            site.add_internal_source(bel, 'O[{}]'.format(idx), lut + '_XOR')
 
             co_pin = 'CO[{}]'.format(idx)
             if idx == 3:
-                bel.connections[co_pin] = 'COUT'
-                sources['COUT'] = (bel, co_pin)
+                site.add_source(bel, co_pin, 'COUT')
             else:
-                bel.connections[co_pin] = lut + '_CY'
-                internal_sources.add(bel.connections[co_pin])
+                site.add_internal_source(bel, co_pin, lut + '_CY')
 
-        if 'PRECYINIT.AX' in features:
-            bel.connections['CYINIT'] = 'AX'
-            sinks.add('AX')
+        if site.has_feature('PRECYINIT.AX'):
+            site.add_sink(bel, 'CYINIT', 'AX')
             bel.unused_connections.add('CI')
-        elif 'PRECYINIT.C0' in features:
+
+        elif site.has_feature('PRECYINIT.C0'):
             bel.connections['CYINIT'] = 0
             bel.unused_connections.add('CI')
-        elif 'PRECYINIT.C1' in features:
+
+        elif site.has_feature('PRECYINIT.C1'):
             bel.connections['CYINIT'] = 1
             bel.unused_connections.add('CI')
-        elif 'PRECYINIT.CIN' in features:
-            bel.connections['CI'] = 'CIN'
-            bel.unused_connections.add('CYINIT')
-        else:
-            bel.connections['CYINIT'] = 0
-            bel.unused_connections.add('CI')
 
-        bels.append(bel)
+        elif site.has_feature('PRECYINIT.CIN'):
+            bel.unused_connections.add('CYINIT')
+            site.add_sink(bel, 'CI', 'CIN')
+
+        else:
+            assert False
+
+        site.add_bel(bel)
 
     ff5_bels = {}
     for lut in 'ABCD':
-        if '{}OUTMUX.{}5Q'.format(lut, lut) in features:
+        if site.has_feature('{}OUTMUX.{}5Q'.format(lut, lut)):
             # 5FF in use, emit
-            name, clk, ce, sr, init = ff_bel(features, lut, ff5=True)
+            name, clk, ce, sr, init = ff_bel(site, lut, ff5=True)
             ff5 = Bel(name, "{}5_{}".format(lut, name))
             ff5_bels[lut] = ff5
             ff5.set_bel(lut + '5FF')
 
-            if '{}5FFMUX.IN_A'.format(lut) in features:
-                source = lut + 'O5'
-                assert source in internal_sources
-            elif '{}5FFMUX.IN_B'.format(lut) in features:
-                source = lut + 'X'
-                sinks.add(lut + 'X')
+            if site.has_feature('{}5FFMUX.IN_A'.format(lut)):
+                site.connect_internal(ff5, 'D', lut + 'O5')
+            elif site.has_feature('{}5FFMUX.IN_B'.format(lut)):
+                site.add_sink(ff5, 'D', lut + 'X')
 
-            ff5.connections['D'] = source
-            ff5.connections[clk] = "CLK"
-            sinks.add('CLK')
-            ff5.connections[ce] = CE
-            ff5.connections[sr] = SR
+            site.add_sink(ff5, clk, "CLK")
 
-            if CE == 'CE':
-                sinks.add('CE')
+            connect_ce_sr(ff5, ce, sr)
 
-            if SR == 'SR':
-                sinks.add('SR')
-
-            ff5.connections['Q'] = lut + '5Q'
+            site.add_internal_source(ff5, 'Q', lut + '5Q')
             ff5.parameters['INIT'] = init
             ff5.parameters['IS_C_INVERTED'] = IS_C_INVERTED
-            internal_sources.add(ff5.connections['Q'])
 
-            bels.append(ff5)
+            site.add_bel(ff5)
 
     for lut in 'ABCD':
-        name, clk, ce, sr, init = ff_bel(features, lut, ff5=False)
+        name, clk, ce, sr, init = ff_bel(site, lut, ff5=False)
         ff = Bel(name, "{}_{}".format(lut, name))
         ff.set_bel(lut + 'FF')
 
-        if '{}FFMUX.{}X'.format(lut, lut) in features:
-            source = lut + 'X'
-            sinks.add(lut + 'X')
-        elif lut == 'A' and 'AFFMUX.F7' in features:
-            source = 'F7AMUX_O'
-            assert source in internal_sources
-        elif lut == 'C' and 'CFFMUX.F7' in features:
-            source = 'F7BMUX_O'
-            assert source in internal_sources
-        elif lut == 'B' and 'BFFMUX.F8' in features:
-            source = 'F8MUX_O'
-            assert source in internal_sources
-        elif '{}FFMUX.O5'.format(lut) in features:
-            source = lut + 'O5'
-            assert source in internal_sources
-        elif '{}FFMUX.O6'.format(lut) in features:
-            source = lut + 'O6'
-            assert source in internal_sources
-        elif '{}FFMUX.CY'.format(lut) in features:
+        if site.has_feature('{}FFMUX.{}X'.format(lut, lut)):
+            site.add_sink(ff, 'D', lut + 'X')
+
+        elif lut == 'A' and site.has_feature('AFFMUX.F7'):
+            site.connect_internal(ff, 'D', 'F7AMUX_O')
+
+        elif lut == 'C' and site.has_feature('CFFMUX.F7'):
+            site.connect_internal(ff, 'D', 'F7BMUX_O')
+
+        elif lut == 'B' and site.has_feature('BFFMUX.F8'):
+            site.connect_internal(ff, 'D', 'F8MUX_O')
+
+        elif site.has_feature('{}FFMUX.O5'.format(lut)):
+            site.connect_internal(ff, 'D', lut + 'O5')
+
+        elif site.has_feature('{}FFMUX.O6'.format(lut)):
+            site.connect_internal(ff, 'D', lut + 'O6')
+
+        elif site.has_feature('{}FFMUX.CY'.format(lut)):
             assert can_have_carry4
             if lut != 'D':
-                source = lut + '_CY'
-                assert source in internal_sources
+                site.connect_internal(ff, 'D', lut + '_CY')
             else:
-                source = 'COUT'
-        elif '{}FFMUX.XOR'.format(lut) in features:
+                ff.connections['D'] = 'COUT'
+        elif site.has_feature('{}FFMUX.XOR'.format(lut)):
             assert can_have_carry4
-            source = lut + '_XOR'
-            assert source in internal_sources
+            site.connect_internal(ff, 'D', lut + '_XOR')
         else:
             continue
 
-        ff.connections['D'] = source
-        ff.connections['Q'] = lut + 'Q'
-        sources[ff.connections['Q']] = (ff, 'Q')
-        ff.connections[clk] = "CLK"
-        sinks.add('CLK')
-        ff.connections[ce] = CE
-        ff.connections[sr] = SR
+        site.add_source(ff, 'Q', lut + 'Q')
+        site.add_sink(ff, clk, "CLK")
 
-        if CE == 'CE':
-            sinks.add('CE')
-
-        if SR == 'SR':
-            sinks.add('SR')
+        connect_ce_sr(ff, ce, sr)
 
         ff.parameters['INIT'] = init
         ff.parameters['IS_C_INVERTED'] = IS_C_INVERTED
 
-        bels.append(ff)
-
-    outputs = {}
-    for lut in 'ABCD':
-        if lut + 'O6' in internal_sources:
-            outputs[lut] = lut + 'O6'
-            sources[lut] = o6_sources[lut]
+        site.add_bel(ff)
 
     for lut in 'ABCD':
-        is_source = True
-        if '{}OUTMUX.{}5Q'.format(lut, lut) in features:
-            source = lut + '5Q'
-            source_bel = (ff5_bels[lut], 'Q')
-            assert source in internal_sources
-        elif lut == 'A' and 'AOUTMUX.F7' in features:
-            source = 'F7AMUX_O'
-            source_bel = f7a_source
-            assert source in internal_sources
-        elif lut == 'C' and 'COUTMUX.F7' in features:
-            source = 'F7BMUX_O'
-            source_bel = f7b_source
-            assert source in internal_sources
-        elif lut == 'B' and 'BOUTMUX.F8' in features:
-            source = 'F8MUX_O'
-            source_bel = f8_source
-            assert source in internal_sources
-        elif '{}OUTMUX.O5'.format(lut) in features:
-            source = lut + 'O5'
-            source_bel = o5_sources[lut]
-        elif '{}OUTMUX.O6'.format(lut) in features:
+        if lut + 'O6' in site.internal_sources:
+            site.add_output_from_internal(lut, lut + 'O6')
+
+    for lut in 'ABCD':
+        output_wire = lut + 'MUX'
+        if site.has_feature('{}OUTMUX.{}5Q'.format(lut, lut)):
+            site.add_output_from_internal(output_wire, lut + '5Q')
+
+        elif lut == 'A' and site.has_feature('AOUTMUX.F7'):
+            site.add_output_from_internal(output_wire, 'F7AMUX_O')
+
+        elif lut == 'C' and site.has_feature('COUTMUX.F7'):
+            site.add_output_from_internal(output_wire, 'F7BMUX_O')
+
+        elif lut == 'B' and site.has_feature('BOUTMUX.F8'):
+            site.add_output_from_internal(output_wire, 'F8MUX_O')
+
+        elif site.has_feature('{}OUTMUX.O5'.format(lut)):
+            site.add_output_from_internal(output_wire, lut + 'O5')
+
+        elif site.has_feature('{}OUTMUX.O6'.format(lut)):
             # Note: There is a dedicated O6 output.  Fixed routing requires
             # treating xMUX.O6 as a routing connection.
-            source = lut
-            is_source = False
-        elif '{}OUTMUX.CY'.format(lut) in features:
+            site.add_output_from_output(output_wire, lut)
+
+        elif site.has_feature('{}OUTMUX.CY'.format(lut)):
             assert can_have_carry4
             if lut != 'D':
-                source = lut + '_CY'
-                assert source in internal_sources
+                site.add_output_from_internal(output_wire, lut + '_CY')
             else:
-                source = 'COUT'
+                site.add_output_from_output(output_wire, 'COUT')
 
-            source_bel = (carry4_bel, 'CO[{}]'.format(ord(lut)-ord('A')))
-        elif '{}OUTMUX.XOR'.format(lut) in features:
+        elif site.has_feature('{}OUTMUX.XOR'.format(lut)):
             assert can_have_carry4
-            source = lut + '_XOR'
-            source_bel = (carry4_bel, 'O[{}]'.format(ord(lut)-ord('A')))
-            assert source in internal_sources
+            site.add_output_from_internal(output_wire, lut + '_XOR')
         else:
             continue
 
-        outputs[lut + 'MUX'] = source
-        if is_source:
-            sources[lut + 'MUX'] = source_bel
-
-    top.add_site(aparts[0], get_clb_site(top.db, top.grid, aparts[0], aparts[1]), bels, outputs, sinks, sources, internal_sources)
+    top.add_site(site)
 
 
 def process_clb(conn, top, tile_name, features):
@@ -943,18 +819,18 @@ def get_drive(iostandard, drive):
             return 8
 
 
-def add_output_parameters(bel, features):
+def add_output_parameters(bel, site):
     assert 'IOSTANDARD' in bel.parameters
 
-    if 'SLEW.FAST' in features:
+    if site.has_feature('SLEW.FAST'):
         bel.parameters['SLEW'] = '"FAST"'
-    elif 'SLEW.SLOW' in features:
+    elif site.has_feature('SLEW.SLOW'):
         bel.parameters['SLEW'] = '"SLOW"'
     else:
         assert False
 
     drive = None
-    for f in features:
+    for f in site.set_features:
         if 'DRIVE' in f:
             assert drive is None
             drive  = f
@@ -971,35 +847,21 @@ def add_output_parameters(bel, features):
 def process_iob(top, iob):
     assert top.iostandard is not None
 
-    bels = []
-    sinks = set()
-    sources = {}
-    internal_sources = set()
-    outputs = {}
-
     aparts = iob[0].feature.split('.')
+    iob_site, iologic_tile, ilogic_site, ologic_site = get_iob_site(top.db,
+            top.grid, aparts[0], aparts[1])
 
-    features = set()
-    for f in iob:
-        if f.value == 0:
-            continue
+    site = Site(iob, iob_site)
 
-        parts = f.feature.split('.')
-        assert parts[0] == aparts[0]
-        assert parts[1] == aparts[1]
-        features.add('.'.join(parts[2:]))
-
-    site, iologic_tile, ilogic_site, ologic_site = get_iob_site(top.db, top.grid, aparts[0], aparts[1])
-
-    INTERMDISABLE_USED = 'INTERMDISABLE.I' in features
-    IBUFDISABLE_USED = 'IBUFDISABLE.I' in features
+    INTERMDISABLE_USED = site.has_feature('INTERMDISABLE.I')
+    IBUFDISABLE_USED = site.has_feature('IBUFDISABLE.I')
 
     top_wire = None
     ilogic_active = False
     ologic_active = False
 
-    if 'IN_ONLY' in features:
-        if 'ZINV_D' not in features:
+    if site.has_feature('IN_ONLY'):
+        if not site.has_feature('ZINV_D'):
             return
 
         ilogic_active = True
@@ -1008,32 +870,32 @@ def process_iob(top, iob):
         # IBUF, IBUF_IBUFDISABLE, IBUF_INTERMDISABLE
         if INTERMDISABLE_USED:
             bel = Bel('IBUF_INTERMDISABLE')
-            bel.connections['INTERMDISABLE'] = 'INTERMDISABLE'
-            sinks.add('INTERMDISABLE')
+
+            site.add_sink(bel, 'INTERMDISABLE', 'INTERMDISABLE')
 
             if IBUFDISABLE_USED:
-                IBUFDISABLE = 'IBUFDISABLE'
-                sinks.add('IBUFDISABLE')
+                site.add_sink(bel, 'IBUFDISABLE', 'IBUFDISABLE')
             else:
-                IBUFDISABLE = 0
-            bel.connections['IBUFDISABLE'] = IBUFDISABLE
+                bel.connections['IBUFDISABLE'] = 0
+
         elif IBUFDISABLE_USED:
             bel = Bel('IBUF_IBUFDISABLE')
-            bel.connections['IBUFDISABLE'] = 'IBUFDISABLE'
-            sinks.add('IBUFDISABLE')
+            site.add_sink(bel, 'IBUFDISABLE', 'IBUFDISABLE')
         else:
             bel = Bel('IBUF')
 
-        top_wire = top.add_top_in_port(aparts[0], site.name, 'IPAD')
+        top_wire = top.add_top_in_port(aparts[0], iob_site.name, 'IPAD')
         bel.connections['I'] = top_wire
-        bel.connections['O'] = 'I'
-        sources['I'] = (bel, 'O')
+
+        # Note this looks weird, but the BEL pin is O, and the site wire is
+        # called I, so it is in fact correct.
+        site.add_source(bel, bel_pin='O', source='I')
 
         bel.parameters['IOSTANDARD'] = '"{}"'.format(top.iostandard)
 
-        bels.append(bel)
-    elif 'INOUT' in features:
-        assert 'ZINV_D' in features
+        site.add_bel(bel)
+    elif site.has_feature('INOUT'):
+        assert site.has_feature('ZINV_D')
 
         ilogic_active = True
         ologic_active = True
@@ -1044,100 +906,92 @@ def process_iob(top, iob):
             bel = Bel('IOBUF_INTERMDISABLE')
 
             if INTERMDISABLE_USED:
-                INTERMDISABLE = 'INTERMDISABLE'
-                sinks.add('INTERMDISABLE')
+                site.add_sink(bel, 'INTERMDISABLE', 'INTERMDISABLE')
             else:
-                INTERMDISABLE = 0
-
-            bel.connections['INTERMDISABLE'] = INTERMDISABLE
+                bel.connections['INTERMDISABLE'] = 0
 
             if IBUFDISABLE_USED:
-                IBUFDISABLE = 'IBUFDISABLE'
-                sinks.add('IBUFDISABLE')
+                site.add_sink(bel, 'IBUFDISABLE', 'IBUFDISABLE')
             else:
-                IBUFDISABLE = 0
-
-            bel.connections['IBUFDISABLE'] = IBUFDISABLE
+                bel.connections['IBUFDISABLE'] = 0
         else:
             bel = Bel('IOBUF')
 
-        top_wire = top.add_top_inout_port(aparts[0], site.name, 'IOPAD')
+        top_wire = top.add_top_inout_port(aparts[0], iob_site.name, 'IOPAD')
         bel.connections['IO'] = top_wire
 
-        bel.connections['O'] = 'I'
-        sources['I'] = (bel, 'O')
+        # Note this looks weird, but the BEL pin is O, and the site wire is
+        # called I, so it is in fact correct.
+        site.add_source(bel, bel_pin='O', source='I')
 
-        bel.connections['T'] = 'T'
-        sinks.add('T')
+        site.add_sink(bel, 'T', 'T')
 
-        bel.connections['I'] = 'O'
-        sinks.add('O')
+        # Note this looks weird, but the BEL pin is I, and the site wire is
+        # called O, so it is in fact correct.
+        site.add_sink(bel, bel_pin='I', sink='O')
 
         bel.parameters['IOSTANDARD'] = '"{}"'.format(top.iostandard)
 
-        add_output_parameters(bel, features)
+        add_output_parameters(bel, site)
 
-        bels.append(bel)
+        site.add_site(bel)
     else:
         has_output = False
-        for f in features:
+        for f in site.set_features:
             if 'DRIVE' in f:
                 has_output = True
                 break
 
         if not has_output:
             # Naked pull options are not supported
-            assert 'PULLTYPE.PULLDOWN' in features
+            assert site.has_feature('PULLTYPE.PULLDOWN')
         else:
             # TODO: Could be a OBUFT?
             bel = Bel('OBUF')
-            top_wire = top.add_top_out_port(aparts[0], site.name, 'OPAD')
+            top_wire = top.add_top_out_port(aparts[0], iob_site.name, 'OPAD')
             bel.connections['O'] = top_wire
-            bel.connections['I'] = 'O'
-            sinks.add('O')
+
+            # Note this looks weird, but the BEL pin is I, and the site wire
+            # is called O, so it is in fact correct.
+            site.add_sink(bel, bel_pin='I', sink='O')
 
             bel.parameters['IOSTANDARD'] = '"{}"'.format(top.iostandard)
 
-            add_output_parameters(bel, features)
-            bels.append(bel)
+            add_output_parameters(bel, site)
+            site.add_bel(bel)
             ologic_active = True
 
     if top_wire is not None:
-        if 'PULLTYPE.PULLDOWN' in features:
+        if site.has_feature('PULLTYPE.PULLDOWN'):
             bel = Bel('PULLDOWN')
             bel.connections['O'] = top_wire
-            bels.append(bel)
-        elif 'PULLTYPE.KEEPER' in features:
+            site.add_bel(bel)
+        elif site.has_feature('PULLTYPE.KEEPER'):
             bel = Bel('KEEPER')
             bel.connections['O'] = top_wire
-            bels.append(bel)
-        elif 'PULLTYPE.PULLUP' in features:
+            site.add_bel(bel)
+        elif site.has_feature('PULLTYPE.PULLUP'):
             bel = Bel('PULLUP')
             bel.connections['O'] = top_wire
-            bels.append(bel)
+            site.add_bel(bel)
 
-    top.add_site(aparts[0], site, bels, outputs,
-            sinks, sources, internal_sources)
+    top.add_site(site)
 
     if ilogic_active:
         # TODO: Handle IDDR or ISERDES
-        top.add_site(
-                iologic_tile,
-                ilogic_site,
-                [], {'O': 'D'},
-                sinks=set(('D',)),
-                sources={'O':None},
-                internal_sources=set())
+        site = Site(iob, tile=iologic_tile, site=ilogic_site)
+        site.sources['O'] = None
+        site.sinks['D'] = []
+        site.outputs['O'] = 'D'
+        top.add_site(site)
 
     if ologic_active:
         # TODO: Handle ODDR or OSERDES
-        top.add_site(
-                iologic_tile,
-                ologic_site,
-                [], {'OQ': 'D1'},
-                sinks=set(('D1',)),
-                sources={'OQ':None},
-                internal_sources=set())
+        site = Site(iob, tile=iologic_tile, site=ologic_site)
+        site.sources['OQ'] = None
+        site.sinks['D1'] = []
+        site.outputs['OQ'] = 'D1'
+        top.add_site(site)
 
 
 def process_iobs(conn, top, tile, features):
@@ -1228,11 +1082,10 @@ def process_bufg(conn, top, tile, features):
         if 'IN_USE' not in set_features:
             continue
 
-        bels = []
-        sinks = set()
-        sources = {}
-        internal_sources = set()
-        outputs = {}
+        bufg_site = get_bufg_site(top.db, top.grid, tile, features[0].feature.split('.')[2])
+        site = Site(
+                features,
+                site=bufg_site)
 
         bel = Bel('BUFGCTRL')
         bel.parameters['IS_IGNORE0_INVERTED'] = int(not 'IS_IGNORE0_INVERTED' in set_features)
@@ -1246,17 +1099,13 @@ def process_bufg(conn, top, tile, features):
         bel.parameters['INIT_OUT'] = int('INIT_OUT' in set_features)
 
         for sink in ('I0', 'I1', 'S0', 'S1', 'CE0', 'CE1', 'IGNORE0', 'IGNORE1'):
-            bel.connections[sink] = sink
-            sinks.add(sink)
+            site.add_sink(bel, sink, sink)
 
-        bel.connections['O'] = 'O'
-        sources['O'] = (bel, 'O')
+        site.add_source(bel,'O', 'O')
 
-        bels.append(bel)
+        site.add_bel(bel)
 
-        site = get_bufg_site(top.db, top.grid, tile, features[0].feature.split('.')[2])
-        top.add_site(tile, site, bels, outputs,
-                sinks, sources, internal_sources)
+        top.add_site(site)
 
 
 def process_hrow(conn, top, tile, features):
@@ -1286,11 +1135,9 @@ def process_hrow(conn, top, tile, features):
         if 'IN_USE' not in set_features:
             continue
 
-        bels = []
-        sinks = set()
-        sources = {}
-        internal_sources = set()
-        outputs = {}
+        bufhce_site = get_bufhce_site(top.db, top.grid, tile,
+                features[0].feature.split('.')[2])
+        site = Site(features, site=bufhce_site)
 
         bel = Bel('BUFHCE')
         if 'CE_TYPE.ASYNC' in set_features:
@@ -1301,17 +1148,13 @@ def process_hrow(conn, top, tile, features):
         bel.parameters['INIT_OUT'] = int('INIT_OUT' in set_features)
 
         for sink in ('I', 'CE'):
-            bel.connections[sink] = sink
-            sinks.add(sink)
+            site.add_sink(bel, sink, sink)
 
-        bel.connections['O'] = 'O'
-        sources['O'] = (bel, 'O')
+        site.add_source(bel, 'O', 'O')
 
-        bels.append(bel)
+        site.add_bel(bel)
 
-        site = get_bufhce_site(top.db, top.grid, tile, features[0].feature.split('.')[2])
-        top.add_site(tile, site, bels, outputs,
-                sinks, sources, internal_sources)
+        top.add_site(site)
 
 def add_io_standards(iostandards, feature):
     if 'IOB' not in feature:
@@ -1413,7 +1256,7 @@ SELECT name FROM tile_type WHERE pkey = (
             print(l, file=f)
 
     with open(args.tcl_file, 'w') as f:
-        for bel in top.bels:
+        for bel in top.get_bels():
             print("""
 set cell [get_cells {cell}]
 if {{ $cell == {{}} }} {{

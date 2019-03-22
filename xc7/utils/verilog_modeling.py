@@ -111,6 +111,193 @@ class Bel(object):
         yield '{indent});'.format(indent=indent)
 
 
+class Site(object):
+    def __init__(self, features, site, tile=None):
+        self.bels = []
+        self.sinks = {}
+        self.sources = {}
+        self.outputs = {}
+        self.internal_sources = {}
+        self.illegal_nets = {}
+
+        self.set_features = set()
+
+        aparts = features[0].feature.split('.')
+
+        for f in features:
+            if f.value == 0:
+                continue
+
+            parts = f.feature.split('.')
+            assert parts[0] == aparts[0]
+            assert parts[1] == aparts[1]
+            self.set_features.add('.'.join(parts[2:]))
+
+        if tile is None:
+            self.tile = aparts[0]
+        else:
+            self.tile = tile
+
+        self.site = site
+
+    def has_feature(self, feature):
+        return feature in self.set_features
+
+    def add_sink(self, bel, bel_pin, sink):
+        """ Adds a sink.
+
+        Attaches sink to bel.
+        """
+
+        assert bel_pin not in bel.connections
+
+        if sink not in self.sinks:
+            self.sinks[sink] = []
+
+        bel.connections[bel_pin] = sink
+        self.sinks[sink].append((bel, bel_pin))
+
+    def add_source(self, bel, bel_pin, source):
+        """ Adds a source.
+
+        Attaches source to bel.
+        """
+        assert source not in self.sources
+        assert bel_pin not in bel.connections
+
+        bel.connections[bel_pin] = source
+        self.sources[source] = (bel, bel_pin)
+
+    def add_output_from_internal(self, source, internal_source):
+        """ Adds a source from a site internal source. """
+        assert source not in self.sources
+        assert internal_source in self.internal_sources
+
+        self.outputs[source] = internal_source
+        self.sources[source] = self.internal_sources[internal_source]
+
+    def add_output_from_output(self, source, other_source):
+        assert source not in self.sources
+        assert other_source in self.sources
+        self.outputs[source] = other_source
+
+    def add_internal_source(self, bel, bel_pin, wire_name):
+        """ Adds a site internal source. """
+        bel.connections[bel_pin] = wire_name
+        self.internal_sources[bel.connections[bel_pin]] = (bel, bel_pin)
+
+    def connect_internal(self, bel, bel_pin, source):
+        assert source in self.internal_sources, source
+        assert bel_pin not in bel.connections
+        bel.connections[bel_pin] = source
+
+    def add_illegal_connection(self, sink, source):
+        self.illegal_nets[sink] = source
+
+    def integrate_site(self, conn, module):
+        self.check_site()
+
+        prefix = '{}_{}'.format(self.tile, self.site.name)
+
+        site_pin_map = make_site_pin_map(frozenset(self.site.site_pins))
+
+        # Sanity check BEL connections
+        for bel in self.bels:
+            bel.set_prefix(prefix)
+            bel.set_site(self.site.name)
+
+            for wire in bel.connections.values():
+                if wire == 0 or wire == 1:
+                    continue
+
+                assert wire in self.sinks or \
+                       wire in self.sources or \
+                       wire in self.internal_sources or \
+                       module.is_top_level(wire), wire
+
+        wires = set()
+        unrouted_sinks = set()
+        unrouted_sources = set()
+        wire_pkey_to_wire = {}
+        source_bels = {}
+        wire_assigns = {}
+
+        for wire in self.internal_sources:
+            prefix_wire = prefix + '_' + wire
+            wires.add(prefix_wire)
+
+        for wire in self.sinks:
+            if wire is module.is_top_level(wire):
+                continue
+
+            prefix_wire = prefix + '_' + wire
+            wires.add(prefix_wire)
+            wire_pkey = get_wire_pkey(conn, self.tile, site_pin_map[wire])
+            wire_pkey_to_wire[wire_pkey] = prefix_wire
+            unrouted_sinks.add(wire_pkey)
+
+        for wire in self.sources:
+            if wire is module.is_top_level(wire):
+                continue
+
+            prefix_wire = prefix + '_' + wire
+            wires.add(prefix_wire)
+            wire_pkey = get_wire_pkey(conn, self.tile, site_pin_map[wire])
+            wire_pkey_to_wire[wire_pkey] = prefix_wire
+            unrouted_sources.add(wire_pkey)
+
+            source_bel = self.sources[wire]
+
+            if source_bel is not None:
+                source_bels[wire_pkey] = source_bel
+
+        for source_wire, sink_wire in self.outputs.items():
+            wires.add(prefix + '_' + source_wire)
+            wire_assigns[prefix + '_' + source_wire] = prefix + '_' + sink_wire
+
+        return dict(
+                wires=wires,
+                unrouted_sinks=unrouted_sinks,
+                unrouted_sources=unrouted_sources,
+                wire_pkey_to_wire=wire_pkey_to_wire,
+                source_bels=source_bels,
+                wire_assigns=wire_assigns,
+                )
+
+    def check_site(self):
+        internal_sources = set(self.internal_sources.keys())
+        sinks = set(self.sinks.keys())
+        sources = set(self.sources.keys())
+
+        assert len(internal_sources & sinks) == 0, (internal_sources & sinks)
+        assert len(internal_sources & sources) == 0, (internal_sources & sources)
+
+        for sink, source in self.illegal_nets.items():
+            assert sink in self.sinks
+            assert source in self.sources
+
+        bel_ids = set()
+        for bel in self.bels:
+            bel_ids.add(id(bel))
+
+        for bel_pair in self.sources.values():
+            if bel_pair is not None:
+                bel, _ = bel_pair
+                assert id(bel) in bel_ids
+
+        for sinks in self.sinks.values():
+            for bel, _ in sinks:
+                assert id(bel) in bel_ids
+
+        for bel_pair in self.internal_sources.values():
+            if bel_pair is not None:
+                bel, _ = bel_pair
+                assert id(bel) in bel_ids
+
+
+    def add_bel(self, bel):
+        self.bels.append(bel)
+
 @functools.lru_cache(maxsize=None)
 def make_site_pin_map(site_pins):
     site_pin_map = {}
@@ -120,6 +307,15 @@ def make_site_pin_map(site_pins):
 
     return site_pin_map
 
+def merge_exclusive_sets(set_a, set_b):
+    assert len(set_a & set_b) == 0, (set_a & set_b)
+
+    set_a |= set_b
+
+def merge_exclusive_dicts(dict_a, dict_b):
+    assert len(set(dict_a.keys()) & set(dict_b.keys())) == 0
+
+    dict_a.update(dict_b)
 
 class Module(object):
     def __init__(self, db, grid, conn):
@@ -127,7 +323,7 @@ class Module(object):
         self.db = db
         self.grid = grid
         self.conn = conn
-        self.bels = []
+        self.sites = []
         self.source_bels = {}
 
         # Map of wire_pkey to Verilog wire.
@@ -179,63 +375,18 @@ class Module(object):
     def is_top_level(self, wire):
         return wire in self.root_in or wire in self.root_out or wire in self.root_inout
 
-    def add_site(self, tile, site, bels, outputs, sinks, sources, internal_sources):
-        prefix = '{}_{}'.format(tile, site.name)
+    def add_site(self, site):
+        integrated_site = site.integrate_site(self.conn, self)
 
-        site_pin_map = make_site_pin_map(frozenset(site.site_pins))
+        merge_exclusive_sets(self.wires, integrated_site['wires'])
+        merge_exclusive_sets(self.unrouted_sinks, integrated_site['unrouted_sinks'])
+        merge_exclusive_sets(self.unrouted_sources, integrated_site['unrouted_sources'])
 
-        # Sanity check BEL connections
-        for bel in bels:
-            bel.set_prefix(prefix)
-            bel.set_site(site.name)
+        merge_exclusive_dicts(self.wire_pkey_to_wire, integrated_site['wire_pkey_to_wire'])
+        merge_exclusive_dicts(self.source_bels, integrated_site['source_bels'])
+        merge_exclusive_dicts(self.wire_assigns, integrated_site['wire_assigns'])
 
-            for wire in bel.connections.values():
-                if wire == 0 or wire == 1:
-                    continue
-
-                assert wire in sinks or \
-                       wire in sources or \
-                       wire in internal_sources or \
-                       self.is_top_level(wire), wire
-
-        for wire in internal_sources:
-            prefix_wire = prefix + '_' + wire
-            self.wires.add(prefix_wire)
-
-        for wire in sinks:
-            if wire is self.is_top_level(wire):
-                continue
-
-            prefix_wire = prefix + '_' + wire
-            self.wires.add(prefix_wire)
-            wire_pkey = get_wire_pkey(self.conn, tile, site_pin_map[wire])
-            self.wire_pkey_to_wire[wire_pkey] = prefix_wire
-            self.unrouted_sinks.add(wire_pkey)
-
-        for wire in sources:
-            if wire is self.is_top_level(wire):
-                continue
-
-            prefix_wire = prefix + '_' + wire
-            self.wires.add(prefix_wire)
-            wire_pkey = get_wire_pkey(self.conn, tile, site_pin_map[wire])
-            self.wire_pkey_to_wire[wire_pkey] = prefix_wire
-            self.unrouted_sources.add(wire_pkey)
-
-            source_bel = sources[wire]
-
-            if source_bel is not None:
-                self.source_bels[wire_pkey] = source_bel
-
-        self.bels.extend(bels)
-
-        for source_wire, sink_wire in outputs.items():
-            self.wires.add(prefix + '_' + source_wire)
-            self.wire_assigns[prefix + '_' + source_wire] = prefix + '_' + sink_wire
-
-        assert len(internal_sources & sinks) == 0, (internal_sources & sinks)
-        assert len(internal_sources & set(sources.keys())) == 0, (internal_sources & set(sources.keys()))
-
+        self.sites.append(site)
 
     def output_verilog(self):
         root_module_args = []
@@ -255,10 +406,11 @@ class Module(object):
         for wire in sorted(self.wires):
             yield '  wire {};'.format(wire)
 
-        for bel in self.bels:
-            yield ''
-            for l in bel.output_verilog(self, indent='  '):
-                yield l
+        for site in self.sites:
+            for bel in site.bels:
+                yield ''
+                for l in bel.output_verilog(self, indent='  '):
+                    yield l
 
         for lhs, rhs in self.wire_assigns.items():
             yield '  assign {} = {};'.format(lhs, rhs)
@@ -307,4 +459,9 @@ set_property FIXED_ROUTE {fixed_route} $net
         pin=pin,
         fixed_route=' '.join(
             net.make_fixed_route(self.conn, self.wire_pkey_to_wire)))
+
+    def get_bels(self):
+        for site in self.sites:
+            for bel in site.bels:
+                yield bel
 
