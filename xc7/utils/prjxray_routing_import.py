@@ -509,6 +509,10 @@ def main():
 
     # Add back short switch, which is unused in arch xml, so is not emitted in
     # rrgraph XML.
+    #
+    # TODO: This can be removed once
+    # https://github.com/verilog-to-routing/vtr-verilog-to-routing/issues/354
+    # is fixed.
     try:
         short = graph.get_switch_id('short')
     except KeyError:
