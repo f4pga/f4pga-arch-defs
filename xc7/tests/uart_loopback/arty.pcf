@@ -1,0 +1,2 @@
+set_io UART_RX A9
+set_io UART_TX D10
