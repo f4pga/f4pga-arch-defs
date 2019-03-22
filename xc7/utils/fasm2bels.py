@@ -335,7 +335,6 @@ def process_slice(top, s):
 
             bels.append(ram128)
             internal_sources.add(ram128.connections['O'])
-
             muxes.remove('F7BMUX')
 
             del lut_modes['C']
@@ -356,6 +355,7 @@ def process_slice(top, s):
                 ram128.connections['A6'] = "AX"
                 sinks.add('AX')
                 ram128.connections['O'] = 'F7AMUX_O'
+                internal_sources.add(ram128.connections['O'])
                 f7a_source = (ram128, 'O')
 
                 ram128.parameters['INIT'] = (
@@ -363,7 +363,6 @@ def process_slice(top, s):
                         (get_lut_init(s, aparts[0], aparts[1], 'A') << 64))
 
                 bels.append(ram128)
-                internal_sources.add(ram128.connections['O'])
 
                 muxes.remove('F7AMUX')
 
@@ -390,6 +389,8 @@ def process_slice(top, s):
             sinks.add('AX')
             ram128.connections['SPO'] = 'F7AMUX_O'
             ram128.connections['DPO'] = 'F7BMUX_O'
+            internal_sources.add(ram128.connections['SPO'])
+            internal_sources.add(ram128.connections['DPO'])
 
             f7a_source = (ram128, 'SPO')
             f7b_source = (ram128, 'DPO')
@@ -405,8 +406,6 @@ def process_slice(top, s):
             assert ram128.parameters['INIT'] == other_init
 
             bels.append(ram128)
-            internal_sources.add(ram128.connections['SPO'])
-            internal_sources.add(ram128.connections['DPO'])
 
             muxes.remove('F7AMUX')
             muxes.remove('F7BMUX')
@@ -486,7 +485,10 @@ def process_slice(top, s):
                 continue
 
             if lut_modes[lut] == 'LUT':
-                luts[lut] = create_lut(lut, internal_sources)
+                luts[lut] = create_lut(lut,
+                        internal_sources=internal_sources,
+                        o6_sources=o6_sources,
+                        o5_sources=o5_sources)
                 luts[lut].parameters['INIT'] = get_lut_init(s, aparts[0], aparts[1], lut)
                 bels.append(luts[lut])
             elif lut_modes[lut] == 'RAM64X1S':
@@ -533,9 +535,13 @@ def process_slice(top, s):
             else:
                 assert False, lut_modes[lut]
 
+    need_f8 = 'BFFMUX.F8' in features or 'BOUTMUX.F8' in features
+    need_f7a = 'AFFMUX.F7' in features or 'AOUTMUX.F7' in features
+    need_f7b = 'CFFMUX.F7' in features or 'COUTMUX.F7' in features
+
     for mux in sorted(muxes):
         if mux == 'F7AMUX':
-            if 'AFFMUX.F7' not in features and 'AOUTMUX.F7' not in features:
+            if not need_f8 and not need_f7a:
                 continue
             else:
                 bel_type = 'MUXF7'
@@ -556,7 +562,7 @@ def process_slice(top, s):
             bels.append(f7amux)
             internal_sources.add(f7amux.connections[opin])
         elif mux == 'F7BMUX':
-            if 'CFFMUX.F7' not in features and 'COUTMUX.F7' not in features:
+            if not need_f8 and not need_f7b:
                 continue
             else:
                 bel_type = 'MUXF7'
@@ -577,7 +583,7 @@ def process_slice(top, s):
             bels.append(f7bmux)
             internal_sources.add(f7bmux.connections[opin])
         elif mux == 'F8MUX':
-            if 'BFFMUX.F8' not in features and 'BOUTMUX.F8' not in features:
+            if not need_f8:
                 continue
             else:
                 bel_type = 'MUXF8'
@@ -585,8 +591,8 @@ def process_slice(top, s):
 
             f8mux = Bel(bel_type)
 
-            assert 'F7AMUX_O' in internal_sources
-            assert 'F7BMUX_O' in internal_sources
+            assert 'F7AMUX_O' in internal_sources, (internal_sources, muxes)
+            assert 'F7BMUX_O' in internal_sources, (internal_sources, muxes)
             f8mux.connections['I0'] = 'F7BMUX_O'
             f8mux.connections['I1'] = 'F7AMUX_O'
             f8mux.connections['S'] = 'BX'

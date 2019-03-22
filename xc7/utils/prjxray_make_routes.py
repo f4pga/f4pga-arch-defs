@@ -162,13 +162,21 @@ class Net(object):
 
         def descend_fixed_route(source_node_pkey, fixed_route):
             if source_node_pkey in self.incoming_wire_map:
-                c.execute("SELECT name FROM wire_in_tile WHERE pkey = (SELECT wire_in_tile_pkey FROM wire WHERE pkey = ?)", (
-                    self.incoming_wire_map[source_node_pkey],))
-                wire_name = c.fetchone()[0]
+                c.execute("SELECT wire_in_tile_pkey, tile_pkey FROM wire WHERE pkey = ?",
+                        (self.incoming_wire_map[source_node_pkey],))
+                wire_in_tile_pkey, tile_pkey = c.fetchone()
+
+                c.execute("SELECT name FROM tile WHERE pkey = ?", (tile_pkey,))
+                (tile_name,) = c.fetchone()
+
+                c.execute("SELECT name FROM wire_in_tile WHERE pkey = ?", (wire_in_tile_pkey,))
+                (wire_name,) = c.fetchone()
+
+                wire_name = tile_name + '/' + wire_name
             else:
                 # We don't have a specific upstream wire, use any from the node
                 wire_name = get_a_wire(source_node_pkey)
-                wire_name = '[lindex [split [get_nodes -of_object [get_wires {}]] /] 1]'.format(wire_name)
+                wire_name = '[get_nodes -of_object [get_wires {}]]'.format(wire_name)
 
             fixed_route.append(wire_name)
 

@@ -180,14 +180,6 @@ CREATE TABLE graph_node(
 --
 -- If the wire is a member of a routing node, then graph_node_pkey will be
 -- set to the graph_node this wire is a member of.
---
--- wire_index is used to disambiguate FIXED_ROUTE declarations.  Specifically,
--- if a node has more than one copy of a wire_in_tile_pkey that is connected
--- to a pip, wire_index is a one based index from the node's sole source pip
--- to this wires location. When emitting FIXED_ROUTE that uses a wire with
--- wire_index set, the downstream wire name is prefixed with <N> where N is
--- the wire_index value, to indicate that the route takes the Nth copy of this
--- wire.  This is primarily found in the HCLK fanout network.
 CREATE TABLE wire(
   pkey INTEGER PRIMARY KEY,
   node_pkey INT,

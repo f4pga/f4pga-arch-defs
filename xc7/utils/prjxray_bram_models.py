@@ -148,7 +148,12 @@ def process_bram_site(top, features, set_features):
         WRITE_WIDTH_A = 0
         WRITE_WIDTH_B = 36
         RAM_MODE = '"SDP"'
+        wea_width = 0
+        webwe_width = 4
     else:
+        wea_width = 1
+        webwe_width = 1
+
         if 'WRITE_WIDTH_A_1' in set_features:
             WRITE_WIDTH_A = 1
         elif 'WRITE_WIDTH_A_2' in set_features:
@@ -158,6 +163,7 @@ def process_bram_site(top, features, set_features):
         elif 'WRITE_WIDTH_A_9' in set_features:
             WRITE_WIDTH_A = 9
         elif 'WRITE_WIDTH_A_18' in set_features:
+            wea_width = 2
             WRITE_WIDTH_A = 18
         else:
             assert False
@@ -171,6 +177,7 @@ def process_bram_site(top, features, set_features):
         elif 'WRITE_WIDTH_B_9' in set_features:
             WRITE_WIDTH_B = 9
         elif 'WRITE_WIDTH_B_18' in set_features:
+            webwe_width = 2
             WRITE_WIDTH_B = 18
         else:
             assert False
@@ -288,8 +295,8 @@ def process_bram_site(top, features, set_features):
     # TODO: Add RAMB36 support.
     # In RAMB36, WEA and WEBWE don't double up like this
     for input_wire, width in [
-            ("WEA", 4),
-            ("WEBWE", 8),
+            ("WEA", wea_width*2),
+            ("WEBWE", webwe_width*2),
             ]:
         for idx in range(0, width, 2):
             wire_name = make_wire('{}{}'.format(input_wire, idx))
