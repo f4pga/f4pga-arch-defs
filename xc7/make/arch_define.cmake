@@ -1,6 +1,6 @@
 function(ADD_XC7_ARCH_DEFINE)
   set(options)
-  set(oneValueArgs ARCH ROI_PART ROI_DIR YOSYS_SCRIPT)
+  set(oneValueArgs ARCH YOSYS_SCRIPT)
   set(multiValueArgs)
   cmake_parse_arguments(
     ADD_XC7_ARCH_DEFINE
@@ -11,13 +11,7 @@ function(ADD_XC7_ARCH_DEFINE)
   )
 
   set(ARCH ${ADD_XC7_ARCH_DEFINE_ARCH})
-  set(ROI_PART ${ADD_XC7_ARCH_DEFINE_ROI_PART})
-  set(ROI_DIR ${ADD_XC7_ARCH_DEFINE_ROI_DIR})
   set(YOSYS_SCRIPT ${ADD_XC7_ARCH_DEFINE_YOSYS_SCRIPT})
-
-  project_xray_prepare_database(
-    PART ${ARCH}
-  )
 
   define_arch(
     ARCH ${ARCH}
@@ -29,7 +23,6 @@ function(ADD_XC7_ARCH_DEFINE)
       --place_algorithm bounding_box
       --enable_timing_computations off
       --allow_unrelated_clustering on
-      --round_robin_prepacking on
     RR_PATCH_TOOL
       ${symbiflow-arch-defs_SOURCE_DIR}/xc7/utils/prjxray_routing_import.py
     RR_PATCH_CMD "${CMAKE_COMMAND} -E env \
@@ -53,16 +46,14 @@ function(ADD_XC7_ARCH_DEFINE)
     PYTHONPATH=${symbiflow-arch-defs_BINARY_DIR}/env/conda/lib/python3.7/site-packages:${PRJXRAY_DIR}:${PRJXRAY_DIR}/third_party/fasm \
     \${PYTHON3} \${FASM_TO_BIT} \
         --db-root ${PRJXRAY_DB_DIR}/${ARCH} \
-        --roi ${ROI_DIR}/design.json \
         --sparse \
+        \${FASM_TO_BIT_EXTRA_ARGS} \
     \${OUT_FASM} \${OUT_BITSTREAM}"
     BIT_TO_BIN xc7patch
     BIT_TO_BIN_CMD "xc7patch \
-        --part_name ${ROI_PART} \
-        --part_file ${PRJXRAY_DB_DIR}/${ARCH}/${ROI_PART}.yaml \
-        --bitstream_file ${ROI_DIR}/design.bit \
         --frm_file \${OUT_BITSTREAM} \
-        --output_file \${OUT_BIN}"
+        --output_file \${OUT_BIN} \
+        \${BIT_TO_BIN_EXTRA_ARGS}"
     NO_BIT_TO_V
     NO_BIT_TIME
     USE_FASM
