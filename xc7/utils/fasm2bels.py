@@ -267,7 +267,7 @@ def process_slice(top, s):
 
     luts = {}
     # Add BELs for LUTs/RAMs
-    if site.has_feature('DLUT.RAM'):
+    if not site.has_feature('DLUT.RAM'):
         for lut in 'ABCD':
             luts[lut] = create_lut(site, lut)
             luts[lut].parameters['INIT'] = get_lut_init(s, aparts[0], aparts[1], lut)
@@ -276,11 +276,11 @@ def process_slice(top, s):
         # DRAM is active.  Determine what BELs are in use.
         lut_ram = {}
         for lut in 'ABCD':
-            lut_ram[lut] = site.has_feature('{}LUT.RAM')
+            lut_ram[lut] = site.has_feature('{}LUT.RAM'.format(lut))
 
         di = {}
         for lut in 'ABC':
-            di[lut] = site.has_feature('DI1MUX.{}I'.format(lut))
+            di[lut] = site.has_feature('{}LUT.DI1MUX.{}I'.format(lut, lut))
 
         lut_modes = decode_dram(site, lut_ram, di)
 
@@ -466,9 +466,6 @@ def process_slice(top, s):
                 site.add_internal_source(ram64, 'O', lut + "O6")
 
                 ram64.parameters['INIT'] = get_lut_init(s, aparts[0], aparts[1], lut)
-                other_init = get_lut_init(s, aparts[0], aparts[1], minus_one)
-
-                assert ram64.parameters['INIT'] == other_init
 
                 site.add_bel(ram64)
             elif lut_modes[lut] == 'RAM32X2S':
