@@ -1,5 +1,5 @@
 import functools
-from prjxray_make_routes import make_routes, ONE_NET, ZERO_NET
+from prjxray_make_routes import make_routes, ONE_NET, ZERO_NET, prune_antennas
 from lib.connection_database import get_wire_pkey
 
 
@@ -532,13 +532,17 @@ set_property FIXED_ROUTE {fixed_route} $net
             if site.post_route_cleanup is not None:
                 site.post_route_cleanup(self, site)
 
+        prune_antennas(self.conn, self.nets, self.unrouted_sinks)
+
     def find_sinks_from_source(self, site, site_wire):
         wire_pkey = site.site_wire_to_wire_pkey[site_wire]
         assert wire_pkey in self.nets
 
-        for sink_wire_pkey, source_wire_pkey in self.wire_assigns.items():
-            if wire_pkey == source_wire_pkey:
-                yield sink_wire_pkey
+        source_wire = self.wire_pkey_to_wire[wire_pkey]
+
+        for sink_wire, other_source_wire in self.wire_assigns.items():
+            if source_wire == other_source_wire:
+                yield sink_wire
 
     def remove_bel(self, site, bel):
         """ Remove a BEL from the module.
@@ -551,8 +555,10 @@ set_property FIXED_ROUTE {fixed_route} $net
 
         # Make sure none of the sources are in use.
         for wire_pkey in removed_sources:
-            for sink_wire_pkey, source_wire_pkey in self.wire_assigns.items():
-                assert wire_pkey != source_wire_pkey
+            source_wire = self.wire_pkey_to_wire[wire_pkey]
+
+            for _, other_source_wire in self.wire_assigns.items():
+                assert source_wire != other_source_wire, source_wire
 
             self.unrouted_sources.remove(wire_pkey)
             del self.source_bels[wire_pkey]
@@ -564,8 +570,3 @@ set_property FIXED_ROUTE {fixed_route} $net
                 del self.wire_assigns[wire_pkey]
 
             self.unrouted_sinks.remove(wire_pkey)
-
-            self.nets[self.net_map[wire_pkey]].remove_sink(
-                    conn=self.conn,
-                    net_map=self.net_map,
-                    sink_wire_pkey=wire_pkey)

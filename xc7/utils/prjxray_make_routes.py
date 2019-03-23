@@ -111,22 +111,6 @@ class Net(object):
             else:
                 break
 
-    def remove_sink(self, conn, net_map, sink_wire_pkey):
-        assert sink_wire_pkey in self.route_wire_pkeys
-
-        node_pkey = get_node_pkey(conn, sink_wire_pkey)
-
-        # Make sure this is in fact a sink.
-        for other_node_pkey in self.parent_nodes.values():
-            assert node_pkey != other_node_pkey
-
-        del self.parent_nodes[node_pkey]
-
-        for wire_pkey in get_wires_in_node(conn, node_pkey):
-            self.route_wire_pkeys.remove(wire_pkey)
-            del net_map[wire_pkey]
-
-
     def prune_antennas(self, sink_node_pkeys):
         """ Remove entries from parent_nodes that belong to antenna wires.
 
@@ -480,7 +464,7 @@ def make_routes(db, conn, wire_pkey_to_wire, unrouted_sinks, unrouted_sources, a
 
     check_for_default = create_check_for_default(db, conn)
 
-    active_sink_nodes = []
+    active_sink_nodes = set()
     for wire_pkey in unrouted_sinks:
         expand_sink(
                 conn=conn,
@@ -494,7 +478,6 @@ def make_routes(db, conn, wire_pkey_to_wire, unrouted_sinks, unrouted_sources, a
         if wire_pkey in net_map:
             source_wire_pkey = net_map[wire_pkey]
 
-            active_sink_nodes.append(get_node_pkey(conn, wire_pkey))
 
             if source_wire_pkey == ZERO_NET:
                 yield wire_pkey_to_wire[wire_pkey], 0
@@ -505,6 +488,11 @@ def make_routes(db, conn, wire_pkey_to_wire, unrouted_sinks, unrouted_sources, a
         else:
             if allow_orphan_sinks:
                 print('// ERROR, source for sink wire {} not found'.format(wire_pkey_to_wire[wire_pkey]))
+
+def prune_antennas(conn, nets, unrouted_sinks):
+    active_sink_nodes = set()
+    for wire_pkey in unrouted_sinks:
+            active_sink_nodes.add(get_node_pkey(conn, wire_pkey))
 
     for net in nets.values():
         net.prune_antennas(active_sink_nodes)
