@@ -11,12 +11,92 @@
   <output name="Q5" num_pins="4"/>
 
   <!-- |      |FFSYNC|LATCH|ZRST | -->
-  <!-- |FDSE  |   X  |     |     | -->
-  <!-- |FDRE  |   X  |     |  X  | -->
   <!-- |FDPE  |      |     |     | -->
   <!-- |FDCE  |      |     |  X  | -->
+  <!-- |FDSE  |   X  |     |     | -->
+  <!-- |FDRE  |   X  |     |  X  | -->
   <!-- |LDPE  |      |  X  |     | -->
   <!-- |LDCE  |      |  X  |  X  | -->
+  <mode name="FDPE_or_FDCE">
+    <pb_type name="BEL_FF-FDPE_or_FDCE" num_pb="8">
+      <input  name="D" num_pins="1"/>
+      <input  name="CE" num_pins="1"/>
+      <clock  name="C" num_pins="1"/>
+      <input  name="SR" num_pins="1"/>
+      <output name="Q" num_pins="1"/>
+
+      <mode name="FDPE">
+        <pb_type name="BEL_FF-FDPE" num_pb="1" blif_model=".subckt FDPE_ZINI">
+          <input  name="D" num_pins="1"/>
+          <input  name="CE" num_pins="1"/>
+          <clock  name="C" num_pins="1"/>
+          <input  name="PRE" num_pins="1"/>
+          <output name="Q" num_pins="1"/>
+          <T_setup    value="10e-12" port="BEL_FF-FDPE.D" clock="C" />
+          <T_setup    value="10e-12" port="BEL_FF-FDPE.CE" clock="C" />
+          <T_setup    value="10e-12" port="BEL_FF-FDPE.PRE" clock="C" />
+          <T_clock_to_Q max="10e-12" port="BEL_FF-FDPE.Q" clock="C" />
+
+          <metadata>
+            <meta name="fasm_params">
+              ZINI = ZINI
+            </meta>
+          </metadata>
+        </pb_type>
+
+        <interconnect>
+          <direct name="D" input="BEL_FF-FDPE_or_FDCE.D" output="BEL_FF-FDPE.D" />
+          <direct name="CE" input="BEL_FF-FDPE_or_FDCE.CE" output="BEL_FF-FDPE.CE" />
+          <direct name="C" input="BEL_FF-FDPE_or_FDCE.C" output="BEL_FF-FDPE.C" />
+          <direct name="PRE" input="BEL_FF-FDPE_or_FDCE.SR" output="BEL_FF-FDPE.PRE" />
+          <direct name="Q" input="BEL_FF-FDPE.Q" output="BEL_FF-FDPE_or_FDCE.Q" />
+        </interconnect>
+      </mode>
+      <mode name="FDCE">
+        <pb_type name="BEL_FF-FDCE" num_pb="1" blif_model=".subckt FDCE_ZINI">
+          <input  name="D" num_pins="1"/>
+          <input  name="CE" num_pins="1"/>
+          <clock  name="C" num_pins="1"/>
+          <input  name="CLR" num_pins="1"/>
+          <output name="Q" num_pins="1"/>
+          <T_setup    value="10e-12" port="BEL_FF-FDCE.D" clock="C" />
+          <T_setup    value="10e-12" port="BEL_FF-FDCE.CE" clock="C" />
+          <T_setup    value="10e-12" port="BEL_FF-FDCE.CLR" clock="C" />
+          <T_clock_to_Q max="10e-12" port="BEL_FF-FDCE.Q" clock="C" />
+
+          <metadata>
+            <meta name="fasm_params">
+              ZINI = ZINI
+            </meta>
+            <meta name="fasm_features">ZRST</meta>
+          </metadata>
+        </pb_type>
+
+        <interconnect>
+          <direct name="D" input="BEL_FF-FDPE_or_FDCE.D" output="BEL_FF-FDCE.D" />
+          <direct name="CE" input="BEL_FF-FDPE_or_FDCE.CE" output="BEL_FF-FDCE.CE" />
+          <direct name="C" input="BEL_FF-FDPE_or_FDCE.C" output="BEL_FF-FDCE.C" />
+          <direct name="CLR" input="BEL_FF-FDPE_or_FDCE.SR" output="BEL_FF-FDCE.CLR" />
+          <direct name="Q" input="BEL_FF-FDCE.Q" output="BEL_FF-FDPE_or_FDCE.Q" />
+        </interconnect>
+      </mode>
+      <metadata>
+        <meta name="fasm_prefix">AFF BFF CFF DFF A5FF B5FF C5FF D5FF</meta>
+      </metadata>
+    </pb_type>
+
+    <interconnect>
+      <complete name="CE" input="BLK_BB-SLICE_FF.CE" output="BEL_FF-FDPE_or_FDCE.CE" />
+      <complete name="C" input="BLK_BB-SLICE_FF.CK" output="BEL_FF-FDPE_or_FDCE.C" />
+      <complete name="SR" input="BLK_BB-SLICE_FF.SR" output="BEL_FF-FDPE_or_FDCE.SR" />
+
+      <direct name="D" input="BLK_BB-SLICE_FF.D[3:0]" output="BEL_FF-FDPE_or_FDCE[3:0].D" />
+      <direct name="Q" input="BEL_FF-FDPE_or_FDCE[3:0].Q" output="BLK_BB-SLICE_FF.Q[3:0]" />
+
+      <direct name="D5" input="BLK_BB-SLICE_FF.D5[3:0]" output="BEL_FF-FDPE_or_FDCE[7:4].D" />
+      <direct name="Q5" input="BEL_FF-FDPE_or_FDCE[7:4].Q" output="BLK_BB-SLICE_FF.Q5[3:0]" />
+    </interconnect>
+  </mode>
   <mode name="FDSE_or_FDRE">
     <pb_type name="BEL_FF-FDSE_or_FDRE" num_pb="8">
       <input  name="D" num_pins="1"/>
@@ -99,86 +179,6 @@
     <metadata>
       <meta name="fasm_features">FFSYNC</meta>
     </metadata>
-  </mode>
-  <mode name="FDPE_or_FDCE">
-    <pb_type name="BEL_FF-FDPE_or_FDCE" num_pb="8">
-      <input  name="D" num_pins="1"/>
-      <input  name="CE" num_pins="1"/>
-      <clock  name="C" num_pins="1"/>
-      <input  name="SR" num_pins="1"/>
-      <output name="Q" num_pins="1"/>
-
-      <mode name="FDPE">
-        <pb_type name="BEL_FF-FDPE" num_pb="1" blif_model=".subckt FDPE_ZINI">
-          <input  name="D" num_pins="1"/>
-          <input  name="CE" num_pins="1"/>
-          <clock  name="C" num_pins="1"/>
-          <input  name="PRE" num_pins="1"/>
-          <output name="Q" num_pins="1"/>
-          <T_setup    value="10e-12" port="BEL_FF-FDPE.D" clock="C" />
-          <T_setup    value="10e-12" port="BEL_FF-FDPE.CE" clock="C" />
-          <T_setup    value="10e-12" port="BEL_FF-FDPE.PRE" clock="C" />
-          <T_clock_to_Q max="10e-12" port="BEL_FF-FDPE.Q" clock="C" />
-
-          <metadata>
-            <meta name="fasm_params">
-              ZINI = ZINI
-            </meta>
-          </metadata>
-        </pb_type>
-
-        <interconnect>
-          <direct name="D" input="BEL_FF-FDPE_or_FDCE.D" output="BEL_FF-FDPE.D" />
-          <direct name="CE" input="BEL_FF-FDPE_or_FDCE.CE" output="BEL_FF-FDPE.CE" />
-          <direct name="C" input="BEL_FF-FDPE_or_FDCE.C" output="BEL_FF-FDPE.C" />
-          <direct name="PRE" input="BEL_FF-FDPE_or_FDCE.SR" output="BEL_FF-FDPE.PRE" />
-          <direct name="Q" input="BEL_FF-FDPE.Q" output="BEL_FF-FDPE_or_FDCE.Q" />
-        </interconnect>
-      </mode>
-      <mode name="FDCE">
-        <pb_type name="BEL_FF-FDCE" num_pb="1" blif_model=".subckt FDCE_ZINI">
-          <input  name="D" num_pins="1"/>
-          <input  name="CE" num_pins="1"/>
-          <clock  name="C" num_pins="1"/>
-          <input  name="CLR" num_pins="1"/>
-          <output name="Q" num_pins="1"/>
-          <T_setup    value="10e-12" port="BEL_FF-FDCE.D" clock="C" />
-          <T_setup    value="10e-12" port="BEL_FF-FDCE.CE" clock="C" />
-          <T_setup    value="10e-12" port="BEL_FF-FDCE.CLR" clock="C" />
-          <T_clock_to_Q max="10e-12" port="BEL_FF-FDCE.Q" clock="C" />
-
-          <metadata>
-            <meta name="fasm_params">
-              ZINI = ZINI
-            </meta>
-            <meta name="fasm_features">ZRST</meta>
-          </metadata>
-        </pb_type>
-
-        <interconnect>
-          <direct name="D" input="BEL_FF-FDPE_or_FDCE.D" output="BEL_FF-FDCE.D" />
-          <direct name="CE" input="BEL_FF-FDPE_or_FDCE.CE" output="BEL_FF-FDCE.CE" />
-          <direct name="C" input="BEL_FF-FDPE_or_FDCE.C" output="BEL_FF-FDCE.C" />
-          <direct name="CLR" input="BEL_FF-FDPE_or_FDCE.SR" output="BEL_FF-FDCE.CLR" />
-          <direct name="Q" input="BEL_FF-FDCE.Q" output="BEL_FF-FDPE_or_FDCE.Q" />
-        </interconnect>
-      </mode>
-      <metadata>
-        <meta name="fasm_prefix">AFF BFF CFF DFF A5FF B5FF C5FF D5FF</meta>
-      </metadata>
-    </pb_type>
-
-    <interconnect>
-      <complete name="CE" input="BLK_BB-SLICE_FF.CE" output="BEL_FF-FDPE_or_FDCE.CE" />
-      <complete name="C" input="BLK_BB-SLICE_FF.CK" output="BEL_FF-FDPE_or_FDCE.C" />
-      <complete name="SR" input="BLK_BB-SLICE_FF.SR" output="BEL_FF-FDPE_or_FDCE.SR" />
-
-      <direct name="D" input="BLK_BB-SLICE_FF.D[3:0]" output="BEL_FF-FDPE_or_FDCE[3:0].D" />
-      <direct name="Q" input="BEL_FF-FDPE_or_FDCE[3:0].Q" output="BLK_BB-SLICE_FF.Q[3:0]" />
-
-      <direct name="D5" input="BLK_BB-SLICE_FF.D5[3:0]" output="BEL_FF-FDPE_or_FDCE[7:4].D" />
-      <direct name="Q5" input="BEL_FF-FDPE_or_FDCE[7:4].Q" output="BLK_BB-SLICE_FF.Q5[3:0]" />
-    </interconnect>
   </mode>
   <mode name="LDPE_or_LDCE">
     <pb_type name="BEL_FF-LDPE_or_LDCE" num_pb="4">
