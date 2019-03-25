@@ -184,10 +184,10 @@
       </interconnect>
     </mode>
     <mode name="DRAMs">
-      <xi:include href="Ndram/a_dram.pb_type.xml"/>
-      <xi:include href="Ndram/b_dram.pb_type.xml"/>
-      <xi:include href="Ndram/c_dram.pb_type.xml"/>
       <xi:include href="Ndram/d_dram.pb_type.xml"/>
+      <xi:include href="Ndram/c_dram.pb_type.xml"/>
+      <xi:include href="Ndram/b_dram.pb_type.xml"/>
+      <xi:include href="Ndram/a_dram.pb_type.xml"/>
       <xi:include href="../common_slice/muxes/f7amux/f7amux.pb_type.xml"/>
       <xi:include href="../common_slice/muxes/f7bmux/f7bmux.pb_type.xml"/>
       <xi:include href="../common_slice/muxes/f8mux/f8mux.pb_type.xml"/>
@@ -219,10 +219,10 @@
       </pb_type>
 
       <interconnect>
-        <direct name="AMEMCLK" input="BLK_IG-SLICEM_MODES.CLK" output="BLK_IG-A_DRAM.CLK"/>
-        <direct name="BMEMCLK" input="BLK_IG-SLICEM_MODES.CLK" output="BLK_IG-B_DRAM.CLK"/>
-        <direct name="CMEMCLK" input="BLK_IG-SLICEM_MODES.CLK" output="BLK_IG-C_DRAM.CLK"/>
-        <direct name="DMEMCLK" input="BLK_IG-SLICEM_MODES.CLK" output="BLK_IG-D_DRAM.CLK"/>
+        <direct name="AMEMCLK" input="BLK_IG-SLICEM_MODES.CLK" output="BLK_IG-A_DRAM.CLK" />
+        <direct name="BMEMCLK" input="BLK_IG-SLICEM_MODES.CLK" output="BLK_IG-B_DRAM.CLK" />
+        <direct name="CMEMCLK" input="BLK_IG-SLICEM_MODES.CLK" output="BLK_IG-C_DRAM.CLK" />
+        <direct name="DMEMCLK" input="BLK_IG-SLICEM_MODES.CLK" output="BLK_IG-D_DRAM.CLK" />
 
         <direct name="D1" input="BLK_IG-SLICEM_MODES.D1" output="BLK_IG-D_DRAM.A[0]" />
         <direct name="D2" input="BLK_IG-SLICEM_MODES.D2" output="BLK_IG-D_DRAM.A[1]" />
@@ -432,18 +432,12 @@
         <direct name="F8MUX_O"   input="BEL_MX-F8MUX.O" output="BLK_IG-SLICEM_MODES.F8MUX_O" />
 
       </interconnect>
-      <!-- The DLUT must be in RAM-mode for an of the RAM's to work. -->
-      <metadata>
-        <meta name="fasm_features">
-          DLUT.RAM
-        </meta>
-      </metadata>
     </mode>
     <mode name="DRAM128">
-      <xi:include href="Ndram/a_dram128.pb_type.xml"/>
-      <xi:include href="Ndram/b_dram128.pb_type.xml"/>
-      <xi:include href="Ndram/c_dram128.pb_type.xml"/>
       <xi:include href="Ndram/d_dram128.pb_type.xml"/>
+      <xi:include href="Ndram/c_dram128.pb_type.xml"/>
+      <xi:include href="Ndram/b_dram128.pb_type.xml"/>
+      <xi:include href="Ndram/a_dram128.pb_type.xml"/>
       <xi:include href="../common_slice/muxes/f7amux/f7amux.pb_type.xml"/>
       <xi:include href="../common_slice/muxes/f7bmux/f7bmux.pb_type.xml"/>
       <xi:include href="dram_2_output_stub.pb_type.xml"/>
@@ -582,12 +576,6 @@
         <mux name="F7AMUX_O"   input="BEL_MX-F7AMUX.O BEL_BB-DRAM_2_OUTPUT_STUB.DPO_OUT" output="BLK_IG-SLICEM_MODES.F7AMUX_O" />
         <mux name="F7BMUX_O"   input="BEL_MX-F7BMUX.O BEL_BB-DRAM_2_OUTPUT_STUB.SPO_OUT" output="BLK_IG-SLICEM_MODES.F7BMUX_O" />
       </interconnect>
-      <!-- The DLUT must be in RAM-mode for an of the RAM's to work. -->
-      <metadata>
-        <meta name="fasm_features">
-          DLUT.RAM
-        </meta>
-      </metadata>
     </mode>
   </pb_type>
 
@@ -629,7 +617,17 @@
     <direct name="A5" input="BLK_IG-SLICEM.A5" output="BLK_IG-SLICEM_MODES.A5" />
     <direct name="A6" input="BLK_IG-SLICEM.A6" output="BLK_IG-SLICEM_MODES.A6" />
 
-    <direct name="CK2" input="BLK_IG-SLICEM.CLK" output="BLK_IG-SLICEM_MODES.CLK"/>
+    <direct name="CK2" input="BLK_IG-SLICEM.CLK" output="BLK_IG-SLICEM_MODES.CLK">
+        <!-- The DLUT must be in RAM-mode for an of the RAM's to work.
+             As a corrolary, a DRAM requires the clock, so only turn on the
+             DRAM if the clock is also connected.
+        -->
+      <metadata>
+        <meta name="fasm_mux">
+          BLK_IG-SLICEM.CLK = DLUT.RAM
+        </meta>
+      </metadata>
+    </direct>
     <direct name="CE2" input="BLK_IG-SLICEM.CE"  output="BLK_IG-SLICEM_MODES.CE"/>
     <direct name="WE2" input="BLK_IG-SLICEM.WE"  output="BLK_IG-SLICEM_MODES.WE"/>
 

@@ -18,7 +18,12 @@
   <!-- |LDPE  |      |  X  |     | -->
   <!-- |LDCE  |      |  X  |  X  | -->
   <mode name="NO_FF">
-    <interconnect/>
+    <pb_type name="BEL_FF-NO_FF" num_pb="4" blif_model=".subckt NO_FF">
+      <input  name="D" num_pins="1"/>
+    </pb_type>
+    <interconnect>
+      <direct name="D" input="BLK_BB-SLICE_FF.D" output="BEL_FF-NO_FF.D"/>
+    </interconnect>
   </mode>
   <mode name="FDSE_or_FDRE">
     <pb_type name="BEL_FF-FDSE_or_FDRE" num_pb="8">
