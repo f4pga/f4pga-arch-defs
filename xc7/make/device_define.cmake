@@ -72,6 +72,9 @@ function(ADD_XC7_DEVICE_DEFINE)
     get_file_location(SYNTH_TILES_LOCATION ${SYNTH_TILES})
     get_file_location(CHANNELS_LOCATIONS ${CHANNELS})
 
+    # Clear variable before adding deps for next device
+    set(DEVICE_RR_PATCH_DEPS "")
+
     append_file_dependency(DEVICE_RR_PATCH_DEPS ${CHANNELS})
     append_file_dependency(DEVICE_RR_PATCH_DEPS ${SYNTH_TILES})
 
