@@ -190,7 +190,6 @@ CREATE TABLE wire(
   bottom_graph_node_pkey INT,
   left_graph_node_pkey INT,
   right_graph_node_pkey INT,
-  wire_index INT,
   FOREIGN KEY(node_pkey) REFERENCES node(pkey),
   FOREIGN KEY(tile_pkey) REFERENCES tile(pkey),
   FOREIGN KEY(wire_in_tile_pkey) REFERENCES wire_in_grid(pkey)

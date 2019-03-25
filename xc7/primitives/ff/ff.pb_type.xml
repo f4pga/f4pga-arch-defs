@@ -105,11 +105,7 @@
       <direct name="Q5" input="BEL_FF-FDSE_or_FDRE[7:4].Q" output="BLK_BB-SLICE_FF.Q5[3:0]" />
     </interconnect>
     <metadata>
-      <!-- Because VPR cannot understand muxes that either tied to a  -->
-      <!-- constant or a port, VPR always connects CE and SR.  -->
-      <!-- Once VPR can understand the CEUSEDMUX and SRUSEDMUX, it can choose -->
-      <!-- whether CEUSEDMUX and SRUSEDMUX should be set or not.  -->
-      <meta name="fasm_features">FFSYNC CEUSEDMUX SRUSEDMUX</meta>
+      <meta name="fasm_features">FFSYNC</meta>
     </metadata>
   </mode>
   <mode name="FDPE_or_FDCE">
@@ -191,13 +187,6 @@
       <direct name="D5" input="BLK_BB-SLICE_FF.D5[3:0]" output="BEL_FF-FDPE_or_FDCE[7:4].D" />
       <direct name="Q5" input="BEL_FF-FDPE_or_FDCE[7:4].Q" output="BLK_BB-SLICE_FF.Q5[3:0]" />
     </interconnect>
-    <metadata>
-      <!-- Because VPR cannot understand muxes that either tied to a  -->
-      <!-- constant or a port, VPR always connects CE and SR.  -->
-      <!-- Once VPR can understand the CEUSEDMUX and SRUSEDMUX, it can choose -->
-      <!-- whether CEUSEDMUX and SRUSEDMUX should be set or not.  -->
-      <meta name="fasm_features">CEUSEDMUX SRUSEDMUX</meta>
-    </metadata>
   </mode>
   <mode name="LDPE_or_LDCE">
     <pb_type name="BEL_FF-LDPE_or_LDCE" num_pb="4">
@@ -349,11 +338,7 @@
       <direct name="Q5" input="BEL_FF-FDPE_or_FDCE.Q" output="BLK_BB-SLICE_FF.Q5" />
     </interconnect>
     <metadata>
-      <!-- Because VPR cannot understand muxes that either tied to a  -->
-      <!-- constant or a port, VPR always connects CE and SR.  -->
-      <!-- Once VPR can understand the CEUSEDMUX and SRUSEDMUX, it can choose -->
-      <!-- whether CEUSEDMUX and SRUSEDMUX should be set or not.  -->
-      <meta name="fasm_features">LATCH CEUSEDMUX SRUSEDMUX</meta>
+      <meta name="fasm_features">LATCH</meta>
     </metadata>
   </mode>
 </pb_type>

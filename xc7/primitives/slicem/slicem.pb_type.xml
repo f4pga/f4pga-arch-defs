@@ -678,8 +678,20 @@
 
     <!-- Clock, Clock Enable and Reset -->
     <direct name="CK" input="BLK_IG-SLICEM.CLK" output="BLK_IG-COMMON_SLICE.CLK"/>
-    <direct name="CE" input="BLK_IG-SLICEM.CE"  output="BLK_IG-COMMON_SLICE.CE"/>
-    <direct name="SR" input="BLK_IG-SLICEM.SR"  output="BLK_IG-COMMON_SLICE.SR"/>
+    <direct name="CE" input="BLK_IG-SLICEM.CE"  output="BLK_IG-COMMON_SLICE.CE">
+      <metadata>
+        <meta name="fasm_mux">
+          BLK_IG-SLICEM.CE = CEUSEDMUX
+        </meta>
+      </metadata>
+    </direct>
+    <direct name="SR" input="BLK_IG-SLICEM.SR"  output="BLK_IG-COMMON_SLICE.SR">
+      <metadata>
+        <meta name="fasm_mux">
+          BLK_IG-SLICEM.SR = SRUSEDMUX
+        </meta>
+      </metadata>
+    </direct>
 
     <!-- WA7 and WA8 -->
     <direct name="WA7"  input="BLK_IG-SLICEM.CX" output="BLK_IG-SLICEM_MODES.WA7">
