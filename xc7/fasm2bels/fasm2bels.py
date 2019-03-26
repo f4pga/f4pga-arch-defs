@@ -11,8 +11,8 @@ import fasm
 import re
 import prjxray.db
 import functools
-from prjxray_bram_models import process_bram
-from verilog_modeling import Bel, Module, Site
+from .prjxray_bram_models import process_bram
+from .verilog_modeling import Bel, Module, Site
 
 
 def get_clb_site(db, grid, tile, site):

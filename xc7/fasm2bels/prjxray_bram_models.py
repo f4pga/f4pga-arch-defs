@@ -1,5 +1,5 @@
 import fasm
-from verilog_modeling import Bel, Site
+from .verilog_modeling import Bel, Site
 
 def get_init(features, target_feature, invert, width):
     init = 0
