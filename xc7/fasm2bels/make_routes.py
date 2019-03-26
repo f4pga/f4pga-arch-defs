@@ -1,26 +1,14 @@
 import functools
+
 from prjxray.tile_segbits import PsuedoPipType
+
+from .connection_db_utils import get_node_pkey, get_wires_in_node, get_wire
+
 
 ZERO_NET = -1
 ONE_NET = -2
 
 DEBUG = False
-
-def get_node_pkey(conn, wire_pkey):
-    c = conn.cursor()
-
-    c.execute("SELECT node_pkey FROM wire WHERE pkey = ?", (wire_pkey,))
-
-    return c.fetchone()[0]
-
-
-def get_wires_in_node(conn, node_pkey):
-    c = conn.cursor()
-
-    c.execute("SELECT pkey FROM wire WHERE node_pkey = ?", (node_pkey,))
-
-    for row in c.fetchall():
-        yield row[0]
 
 def create_check_downstream_default(conn, db):
     c = conn.cursor()
@@ -271,11 +259,6 @@ def create_check_for_default(db, conn):
     return check_for_default
 
 
-def get_wire(c, tile_pkey, wire_in_tile_pkey):
-    c.execute("SELECT pkey FROM wire WHERE wire_in_tile_pkey = ? AND tile_pkey = ?;",
-            (wire_in_tile_pkey, tile_pkey,))
-    return c.fetchone()[0]
-
 def expand_sink(conn, check_for_default, nets, net_map,
         source_to_sink_pip_map, sink_wire_pkey,
         allow_orphan_sinks):
@@ -333,7 +316,7 @@ def expand_sink(conn, check_for_default, nets, net_map,
     if site_wire_pkey is not None:
         upstream_sink_wire_in_tile_pkey = check_for_default(wire_in_tile_pkey)
         if upstream_sink_wire_in_tile_pkey is not None:
-            upstream_sink_wire_pkey = get_wire(c, tile_pkey, upstream_sink_wire_in_tile_pkey)
+            upstream_sink_wire_pkey = get_wire(conn, tile_pkey, upstream_sink_wire_in_tile_pkey)
 
             if upstream_sink_wire_pkey in net_map:
                 nets[net_map[upstream_sink_wire_pkey]].add_node(

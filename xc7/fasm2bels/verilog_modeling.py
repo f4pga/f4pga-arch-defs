@@ -637,3 +637,21 @@ set_property FIXED_ROUTE {fixed_route} $net
                 del self.wire_assigns[wire_pkey]
 
             self.unrouted_sinks.remove(wire_pkey)
+
+    def output_bel_locations(self):
+        for bel in self.get_bels():
+            yield """
+set cell [get_cells {cell}]
+if {{ $cell == {{}} }} {{
+    error "Failed to find cell!"
+}}
+set_property LOC [get_sites {site}] $cell""".format(
+                cell=bel.get_cell(),
+                site=bel.site)
+
+            if bel.bel is not None:
+                yield """
+set_property BEL "[get_property SITE_TYPE [get_sites {site}]].{bel}" $cell""".format(
+                    site=bel.site,
+                    bel=bel.bel,
+                    )
