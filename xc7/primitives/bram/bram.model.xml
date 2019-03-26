@@ -1,4 +1,5 @@
 <models xmlns:xi="http://www.w3.org/2001/XInclude">
  <xi:include href="ramb18e1.model.xml" xpointer="xpointer(models/child::node())" />
+ <xi:include href="ramb36e1.model.xml" xpointer="xpointer(models/child::node())" />
  <xi:include href="rambfifo36e1.model.xml" xpointer="xpointer(models/child::node())" />
 </models>

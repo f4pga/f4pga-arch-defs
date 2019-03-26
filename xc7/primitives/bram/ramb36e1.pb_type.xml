@@ -1,0 +1,291 @@
+<!-- vim: set ai sw=1 ts=1 sta et: -->
+
+<!--
+Block RAM in 7 series is 36kbbit split into two 18kbit sections.
+The Block RAM is "true dual port".
+There are both Latches (first) and Registers (second) on the output (why!?)
+
+The RAM has extra bits that can be used for parity (DIP / DOP).
+
+  -->
+<pb_type name="BLK_IG-RAMB36E1" num_pb="1" blif_model=".subckt RAMB36E1_VPR">
+ <!-- Port A - 32bit wide -->
+ <clock  name="CLKARDCLK"     num_pins="1"  />
+ <input  name="CASCADEINA"    num_pins="1"  />
+ <input  name="REGCEAREGCE"   num_pins="1"  />
+ <!-- <input  name="REGCLKARDRCLK" num_pins="1"  /> -->
+ <input  name="ENARDEN"       num_pins="1"  />
+ <input  name="RSTRAMARSTRAM" num_pins="1"  />
+ <input  name="RSTREGARSTREG" num_pins="1"  />
+ <!--  <input  name="ADDRATIEHIGH"  num_pins="2"  /> -->
+ <input  name="ADDRARDADDR"   num_pins="16" />
+ <input  name="DIADI"         num_pins="32" />
+ <input  name="DIPADIP"       num_pins="4"  />
+ <input  name="WEA"           num_pins="4"  />
+ <output name="DOADO"         num_pins="32" />
+ <output name="DOPADOP"       num_pins="4"  />
+ <output name="CASCADEOUTA"   num_pins="1"  />
+
+ <T_setup value="10e-12" port="BLK_IG-RAMB36E1.REGCEAREGCE"  clock="CLKARDCLK" />
+ <T_setup value="10e-12" port="BLK_IG-RAMB36E1.ENARDEN"  clock="CLKARDCLK" />
+ <T_setup value="10e-12" port="BLK_IG-RAMB36E1.RSTRAMARSTRAM"  clock="CLKARDCLK" />
+ <T_setup value="10e-12" port="BLK_IG-RAMB36E1.RSTREGARSTREG"  clock="CLKARDCLK" />
+ <T_setup value="10e-12" port="BLK_IG-RAMB36E1.ADDRARDADDR"  clock="CLKARDCLK" />
+ <T_setup value="10e-12" port="BLK_IG-RAMB36E1.DIADI"  clock="CLKARDCLK" />
+ <T_setup value="10e-12" port="BLK_IG-RAMB36E1.DIPADIP"  clock="CLKARDCLK" />
+ <T_setup value="10e-12" port="BLK_IG-RAMB36E1.WEA"  clock="CLKARDCLK" />
+ <T_setup value="10e-12" port="BLK_IG-RAMB36E1.CASCADEINA"  clock="CLKARDCLK" />
+ <T_setup value="10e-12" port="BLK_IG-RAMB36E1.CASCADEOUTA"  clock="CLKARDCLK" />
+ <T_clock_to_Q max="10e-12" port="BLK_IG-RAMB36E1.DOADO"  clock="CLKARDCLK" />
+ <T_clock_to_Q max="10e-12" port="BLK_IG-RAMB36E1.DOPADOP"  clock="CLKARDCLK" />
+
+ <!-- Port B - 32bit wide -->
+ <clock  name="CLKBWRCLK"     num_pins="1"  />
+ <input  name="CASCADEINB"    num_pins="1"  />
+ <input  name="ENBWREN"       num_pins="1"  />
+ <input  name="REGCEB"        num_pins="1"  />
+ <!-- <input  name="REGCLKB"       num_pins="1"  /> -->
+ <input  name="RSTRAMB"       num_pins="1"  />
+ <input  name="RSTREGB"       num_pins="1"  />
+ <!-- <input  name="ADDRBTIEHIGH"  num_pins="2"  /> -->
+ <input  name="ADDRBWRADDR"   num_pins="16" />
+ <input  name="DIBDI"         num_pins="32" />
+ <input  name="DIPBDIP"       num_pins="4"  />
+ <input  name="WEBWE"         num_pins="8"  />
+ <output name="DOBDO"         num_pins="32" />
+ <output name="DOPBDOP"       num_pins="4"  />
+ <output name="CASCADEOUTB"   num_pins="1"  />
+
+ <T_setup value="10e-12" port="BLK_IG-RAMB36E1.ENBWREN"  clock="CLKBWRCLK" />
+ <T_setup value="10e-12" port="BLK_IG-RAMB36E1.REGCEB"  clock="CLKBWRCLK" />
+ <!-- <T_setup value="10e-12" port="BLK_IG-RAMB36E1.REGCLKB"  clock="CLKBWRCLK" /> -->
+ <T_setup value="10e-12" port="BLK_IG-RAMB36E1.RSTRAMB"  clock="CLKBWRCLK" />
+ <T_setup value="10e-12" port="BLK_IG-RAMB36E1.RSTREGB"  clock="CLKBWRCLK" />
+ <T_setup value="10e-12" port="BLK_IG-RAMB36E1.ADDRBWRADDR"  clock="CLKBWRCLK" />
+ <T_setup value="10e-12" port="BLK_IG-RAMB36E1.DIBDI"  clock="CLKBWRCLK" />
+ <T_setup value="10e-12" port="BLK_IG-RAMB36E1.DIPBDIP"  clock="CLKBWRCLK" />
+ <T_setup value="10e-12" port="BLK_IG-RAMB36E1.WEBWE"  clock="CLKBWRCLK" />
+ <T_clock_to_Q max="10e-12" port="BLK_IG-RAMB36E1.DOBDO"  clock="CLKBWRCLK" />
+ <T_clock_to_Q max="10e-12" port="BLK_IG-RAMB36E1.DOPBDOP"  clock="CLKBWRCLK" />
+
+ <!-- // ECC Signals: 1-bit (each) output: Error Correction Circuitry ports -->
+ <input  name="DBITERR"       num_pins="1"  />
+ <input  name="ECCPARITY"     num_pins="8"  />
+ <input  name="RDADDRECC"     num_pins="9"  />
+ <input  name="SBITERR"       num_pins="1"  />
+ <!-- // ECC Signals: 1-bit (each) input: Error Correction Circuitry ports -->
+ <input  name="INJECTDBITERR" num_pins="1"  />
+ <input  name="INJECTSBITERR" num_pins="1"  />
+
+ <metadata>
+   <meta name="fasm_params">
+     IN_USE = IN_USE
+
+     ZINIT_A[35:0] = ZINIT_A
+     ZINIT_B[35:0] = ZINIT_B
+
+     ZSRVAL_A[35:0] = ZSRVAL_A
+     ZSRVAL_B[35:0] = ZSRVAL_B
+
+     INITP_00[255:0] = INITP_00
+     INITP_01[255:0] = INITP_01
+     INITP_02[255:0] = INITP_02
+     INITP_03[255:0] = INITP_03
+     INITP_04[255:0] = INITP_04
+     INITP_05[255:0] = INITP_05
+     INITP_06[255:0] = INITP_06
+     INITP_07[255:0] = INITP_07
+     INITP_08[255:0] = INITP_08
+     INITP_09[255:0] = INITP_09
+     INITP_0A[255:0] = INITP_0A
+     INITP_0B[255:0] = INITP_0B
+     INITP_0C[255:0] = INITP_0C
+     INITP_0D[255:0] = INITP_0D
+     INITP_0E[255:0] = INITP_0E
+     INITP_0F[255:0] = INITP_0F
+
+     INIT_00[255:0] = INIT_00
+     INIT_01[255:0] = INIT_01
+     INIT_02[255:0] = INIT_02
+     INIT_03[255:0] = INIT_03
+     INIT_04[255:0] = INIT_04
+     INIT_05[255:0] = INIT_05
+     INIT_06[255:0] = INIT_06
+     INIT_07[255:0] = INIT_07
+     INIT_08[255:0] = INIT_08
+     INIT_09[255:0] = INIT_09
+     INIT_0A[255:0] = INIT_0A
+     INIT_0B[255:0] = INIT_0B
+     INIT_0C[255:0] = INIT_0C
+     INIT_0D[255:0] = INIT_0D
+     INIT_0E[255:0] = INIT_0E
+     INIT_0F[255:0] = INIT_0F
+
+     INIT_10[255:0] = INIT_10
+     INIT_11[255:0] = INIT_11
+     INIT_12[255:0] = INIT_12
+     INIT_13[255:0] = INIT_13
+     INIT_14[255:0] = INIT_14
+     INIT_15[255:0] = INIT_15
+     INIT_16[255:0] = INIT_16
+     INIT_17[255:0] = INIT_17
+     INIT_18[255:0] = INIT_18
+     INIT_19[255:0] = INIT_19
+     INIT_1A[255:0] = INIT_1A
+     INIT_1B[255:0] = INIT_1B
+     INIT_1C[255:0] = INIT_1C
+     INIT_1D[255:0] = INIT_1D
+     INIT_1E[255:0] = INIT_1E
+     INIT_1F[255:0] = INIT_1F
+
+     INIT_20[255:0] = INIT_20
+     INIT_21[255:0] = INIT_21
+     INIT_22[255:0] = INIT_22
+     INIT_23[255:0] = INIT_23
+     INIT_24[255:0] = INIT_24
+     INIT_25[255:0] = INIT_25
+     INIT_26[255:0] = INIT_26
+     INIT_27[255:0] = INIT_27
+     INIT_28[255:0] = INIT_28
+     INIT_29[255:0] = INIT_29
+     INIT_2A[255:0] = INIT_2A
+     INIT_2B[255:0] = INIT_2B
+     INIT_2C[255:0] = INIT_2C
+     INIT_2D[255:0] = INIT_2D
+     INIT_2E[255:0] = INIT_2E
+     INIT_2F[255:0] = INIT_2F
+
+     INIT_30[255:0] = INIT_30
+     INIT_31[255:0] = INIT_31
+     INIT_32[255:0] = INIT_32
+     INIT_33[255:0] = INIT_33
+     INIT_34[255:0] = INIT_34
+     INIT_35[255:0] = INIT_35
+     INIT_36[255:0] = INIT_36
+     INIT_37[255:0] = INIT_37
+     INIT_38[255:0] = INIT_38
+     INIT_39[255:0] = INIT_39
+     INIT_3A[255:0] = INIT_3A
+     INIT_3B[255:0] = INIT_3B
+     INIT_3C[255:0] = INIT_3C
+     INIT_3D[255:0] = INIT_3D
+     INIT_3E[255:0] = INIT_3E
+     INIT_3F[255:0] = INIT_3F
+
+     INIT_40[255:0] = INIT_40
+     INIT_41[255:0] = INIT_41
+     INIT_42[255:0] = INIT_42
+     INIT_43[255:0] = INIT_43
+     INIT_44[255:0] = INIT_44
+     INIT_45[255:0] = INIT_45
+     INIT_46[255:0] = INIT_46
+     INIT_47[255:0] = INIT_47
+     INIT_48[255:0] = INIT_48
+     INIT_49[255:0] = INIT_49
+     INIT_4A[255:0] = INIT_4A
+     INIT_4B[255:0] = INIT_4B
+     INIT_4C[255:0] = INIT_4C
+     INIT_4D[255:0] = INIT_4D
+     INIT_4E[255:0] = INIT_4E
+     INIT_4F[255:0] = INIT_4F
+
+     INIT_50[255:0] = INIT_50
+     INIT_51[255:0] = INIT_51
+     INIT_52[255:0] = INIT_52
+     INIT_53[255:0] = INIT_53
+     INIT_54[255:0] = INIT_54
+     INIT_55[255:0] = INIT_55
+     INIT_56[255:0] = INIT_56
+     INIT_57[255:0] = INIT_57
+     INIT_58[255:0] = INIT_58
+     INIT_59[255:0] = INIT_59
+     INIT_5A[255:0] = INIT_5A
+     INIT_5B[255:0] = INIT_5B
+     INIT_5C[255:0] = INIT_5C
+     INIT_5D[255:0] = INIT_5D
+     INIT_5E[255:0] = INIT_5E
+     INIT_5F[255:0] = INIT_5F
+
+     INIT_60[255:0] = INIT_60
+     INIT_61[255:0] = INIT_61
+     INIT_62[255:0] = INIT_62
+     INIT_63[255:0] = INIT_63
+     INIT_64[255:0] = INIT_64
+     INIT_65[255:0] = INIT_65
+     INIT_66[255:0] = INIT_66
+     INIT_67[255:0] = INIT_67
+     INIT_68[255:0] = INIT_68
+     INIT_69[255:0] = INIT_69
+     INIT_6A[255:0] = INIT_6A
+     INIT_6B[255:0] = INIT_6B
+     INIT_6C[255:0] = INIT_6C
+     INIT_6D[255:0] = INIT_6D
+     INIT_6E[255:0] = INIT_6E
+     INIT_6F[255:0] = INIT_6F
+
+     INIT_70[255:0] = INIT_70
+     INIT_71[255:0] = INIT_71
+     INIT_72[255:0] = INIT_72
+     INIT_73[255:0] = INIT_73
+     INIT_74[255:0] = INIT_74
+     INIT_75[255:0] = INIT_75
+     INIT_76[255:0] = INIT_76
+     INIT_77[255:0] = INIT_77
+     INIT_78[255:0] = INIT_78
+     INIT_79[255:0] = INIT_79
+     INIT_7A[255:0] = INIT_7A
+     INIT_7B[255:0] = INIT_7B
+     INIT_7C[255:0] = INIT_7C
+     INIT_7D[255:0] = INIT_7D
+     INIT_7E[255:0] = INIT_7E
+     INIT_7F[255:0] = INIT_7F
+
+     ZINV_CLKARDCLK = ZINV_CLKARDCLK
+     ZINV_CLKBWRCLK = ZINV_CLKBWRCLK
+     ZINV_ENARDEN = ZINV_ENARDEN
+     ZINV_ENBWREN = ZINV_ENBWREN
+     ZINV_RSTRAMARSTRAM = ZINV_RSTRAMARSTRAM
+     ZINV_RSTRAMB = ZINV_RSTRAMB
+     ZINV_RSTREGARSTREG = ZINV_RSTREGARSTREG
+     ZINV_RSTREGB = ZINV_RSTREGB
+     ZINV_REGCLKARDRCLK = ZINV_REGCLKARDRCLK
+     ZINV_REGCLKB = ZINV_REGCLKB
+
+     DOA_REG = DOA_REG
+     DOB_REG = DOB_REG
+
+     SDP_READ_WIDTH_72 = SDP_READ_WIDTH_72
+     READ_WIDTH_A_36 = READ_WIDTH_A_36
+     READ_WIDTH_A_18 = READ_WIDTH_A_18
+     READ_WIDTH_A_9 = READ_WIDTH_A_9
+     READ_WIDTH_A_4 = READ_WIDTH_A_4
+     READ_WIDTH_A_2 = READ_WIDTH_A_2
+     READ_WIDTH_A_1 = READ_WIDTH_A_1
+     READ_WIDTH_B_36 = READ_WIDTH_B_36
+     READ_WIDTH_B_18 = READ_WIDTH_B_18
+     READ_WIDTH_B_9 = READ_WIDTH_B_9
+     READ_WIDTH_B_4 = READ_WIDTH_B_4
+     READ_WIDTH_B_2 = READ_WIDTH_B_2
+     READ_WIDTH_B_1 = READ_WIDTH_B_1
+
+     SDP_WRITE_WIDTH_72 = SDP_WRITE_WIDTH_72
+     WRITE_WIDTH_A_36 = WRITE_WIDTH_A_36
+     WRITE_WIDTH_A_18 = WRITE_WIDTH_A_18
+     WRITE_WIDTH_A_9 = WRITE_WIDTH_A_9
+     WRITE_WIDTH_A_4 = WRITE_WIDTH_A_4
+     WRITE_WIDTH_A_2 = WRITE_WIDTH_A_2
+     WRITE_WIDTH_A_1 = WRITE_WIDTH_A_1
+     WRITE_WIDTH_B_36 = WRITE_WIDTH_B_36
+     WRITE_WIDTH_B_18 = WRITE_WIDTH_B_18
+     WRITE_WIDTH_B_9 = WRITE_WIDTH_B_9
+     WRITE_WIDTH_B_4 = WRITE_WIDTH_B_4
+     WRITE_WIDTH_B_2 = WRITE_WIDTH_B_2
+     WRITE_WIDTH_B_1 = WRITE_WIDTH_B_1
+
+     WRITE_MODE_A_NO_CHANGE = WRITE_MODE_A_NO_CHANGE
+     WRITE_MODE_A_READ_FIRST = WRITE_MODE_A_READ_FIRST
+     WRITE_MODE_B_NO_CHANGE = WRITE_MODE_B_NO_CHANGE
+     WRITE_MODE_B_READ_FIRST = WRITE_MODE_B_READ_FIRST
+   </meta>
+ </metadata>
+</pb_type>
