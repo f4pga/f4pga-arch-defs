@@ -131,3 +131,18 @@ class Rule(object):
         # Compare hashes
         return hash(self) == hash(other)
 
+
+# =============================================================================
+
+
+class ExtendedRule(object):
+
+    def __init__(self):
+
+        self.grid_deltas = []
+        self.tile_types  = []
+
+        self.connections = {
+            "indices": [],
+            "wire_pairs": []
+        }

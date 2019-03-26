@@ -20,7 +20,7 @@ class TileSplitter(object):
     site of a given type.
     """
 
-    def __init__(self, db_root, db_overlay, tile_type):
+    def __init__(self, db_root, db_overlay, tile_types):
         """
         Constructor.
 
@@ -31,126 +31,275 @@ class TileSplitter(object):
         self.db_root = db_root
         self.db_overlay = db_overlay
 
+        self.wire_name_map = {}
+
         # Load tile info
-        tile_type_file = os.path.join(db_root, "tile_type_%s.json" % tile_type)
-        if not os.path.isfile(tile_type_file):
-            raise RuntimeError("Tile type '%s' not found in DB" % tile_type)
+        self.tiles = {}
 
-        with open(tile_type_file, "r") as fp:
-            self.tile = json.load(fp)
+        for tile_type in tile_types:
 
-    def _check_pips(self):
+            tile_type_file = os.path.join(db_root, "tile_type_%s.json" % tile_type)
+            if not os.path.isfile(tile_type_file):
+                raise RuntimeError("Tile type '%s' not found in DB" % tile_type)
+
+            with open(tile_type_file, "r") as fp:
+                self.tiles[tile_type] = json.load(fp)
+
+    def _build_site_type_list(self):
         """
-        Checks whether the tile contains a pip that connects two tile
-        wires which do not go to any site
-        """
+        List all unique site types among specified tiles to be split
 
-        all_pips       = deepcopy(self.tile["pips"])
-        non_site_wires = self.tile["wires"]
-        site_wires     = []
-
-        # List site wires (any site)
-        for site in self.tile["sites"]:
-            for site in self.tile["sites"]:
-                site_wires.extend([wire for wire in site["site_pins"].values()])
-
-        # Remove site-relevant pips from temp. dict
-        for pip_name, pip in self.tile["pips"].items():
-            if pip["src_wire"] in site_wires or pip["dst_wire"] in site_wires:
-                del all_pips[pip_name]
-
-        # List "invalid" pips
-        for pip_name, pip in all_pips:
-            logging.critical("Pip '%s' connects two non-site wires '%s' and '%s'" % (
-                pip_name, pip["src_wire"], pip["dst_wire"]
-            ))
-
-        # Raise exception
-        if len(all_pips) > 0:
-            raise RuntimeError("Some pips connect only non-site wires!")
-
-    def _extract_site(self, site_of_interest):
-        """
-        Extracts a site from a tile type. Generates a new tile type.
-
-        :param site_of_interest:
         :return:
         """
 
-        # Copy the tile
-        new_tile = deepcopy(self.tile)
+        site_types = set()
 
-        # Build a list of site and non-site wires
-        site_wires = []
-        other_site_wires = []
+        # Build a set of unique site types
+        for tile in self.tiles.values():
+            for site in tile["sites"]:
+                site_type = site["type"]
+                site_types.add(site_type)
 
-        for site in self.tile["sites"]:
-            if site != site_of_interest:
-                other_site_wires.extend([wire for wire in site["site_pins"].values()])
-            else:
-                site_wires.extend([wire for wire in site["site_pins"].values()])
+        logging.info("Got site types: " + str(site_types))
+        return site_types
 
-        # Do not remove wires that are not relevant to a particular site. These will serve
-        # as a pass-through path.
+    def _build_site_pin_list(self):
+        """
+        Builds a list of pins relevant to each unique site type. This is
+        done among all tile types given.
 
-        # # Remove the wires
-        # for wire in non_site_wires:
-        #     new_tile["wires"].remove(wire)
+        :return:
+        """
 
-        # Remove pips
-        for pip_name, pip in self.tile["pips"].items():
+        site_pins = {}
 
-            # We have a pip that connects two wires from different sites.
-            # The tile cannot be split
-            if (pip["src_wire"] in other_site_wires and pip["dst_wire"] in site_wires) or \
-               (pip["dst_wire"] in other_site_wires and pip["src_wire"] in site_wires):
-                raise RuntimeError("Pip '%s' spans accross sites!" % pip_name)
+        # Build a wire list for each site type
+        for site_type in self.site_types:
+            site_pins[site_type] = set()
 
-            # Delete
-            if pip["src_wire"] in other_site_wires or pip["dst_wire"] in other_site_wires:
-                del new_tile["pips"][pip_name]
+            # Search for this site type in each tile
+            for tile in self.tiles.values():
+                for site in tile["sites"]:
+                    if site["type"] == site_type:
+                        pins = set(site["site_pins"].keys())
+                        site_pins[site_type] |= pins
 
-        # Remove sites of non-interest
-        for site in self.tile["sites"]:
-            if site != site_of_interest:
-                new_tile["sites"].remove(site)
+        return site_pins
 
-        # Set new tile type of the new tile  # FIXME: Check if the naming is correct !
-        new_tile["tile_type"] += "_" + site_of_interest["type"] + "_" + site_of_interest["name"]
+    def _build_passthrough_wire_list(self):
+        """
+        Build a list of passthrough wires that does not connect to any site.
+        :return:
+        """
+
+        passthrough_wires = set()
+
+        # Loop over all tile types
+        for tile in self.tiles.values():
+
+            # Check each wire in tile
+            for tile_wire in tile["wires"]:
+                is_passthrough = True
+
+                # Check if the wire is connected to any site directly
+                for site in tile["sites"]:
+                    if tile_wire in site["site_pins"].values():
+                        is_passthrough = False
+                        break
+
+                # Check if the wire is connected to any pip
+                for pip in tile["pips"].values():
+
+                    if pip["src_wire"] == tile_wire:
+                        is_passthrough = False
+                    if pip["dst_wire"] == tile_wire:
+                        is_passthrough = False
+                        break
+
+                # Got a passthrough
+                if is_passthrough:
+
+                    # Strip tile type prefix.
+                    # FIXME: This is heuristic and assumes that if there is a "_" in name then right before
+                    # FIXME: the "_" is the prefix.
+                    new_tile_wire = tile_wire
+                    if "_" in new_tile_wire:
+                        new_tile_wire = new_tile_wire.split("_", 1)
+                        new_tile_wire = "".join(new_tile_wire[1:])
+
+                    # Add to the passthrough list
+                    passthrough_wires.add(new_tile_wire)
+
+                    # Add to wire name map
+                    if tile_wire not in self.wire_name_map:
+                        self.wire_name_map[tile_wire] = new_tile_wire
+
+        return sorted(list(passthrough_wires))
+
+    @staticmethod
+    def _track_tile_wire_to_site_pin(tile, tile_wire):
+        """
+        Traces a tile wire connection from tile pin to site pin. Assumes
+        up to only one pip in between !
+
+        :param tile:
+        :param tile_wire:
+
+        :return: Site name, site pin name
+        """
+
+        # Check if the wire is connected to any site directly
+        for site in tile["sites"]:
+            for site_pin, site_wire in site["site_pins"].items():
+                if site_wire == tile_wire:
+                    return site["name"], site_pin
+
+        # Check if the wire goes through a pip
+        # FIXME: It assumes only one pip in the way !
+        pip_wire = None
+        for pip in tile["pips"].values():
+
+            if pip["src_wire"] == tile_wire:
+                pip_wire = pip["dst_wire"]
+                break
+
+            if pip["dst_wire"] == tile_wire:
+                pip_wire = pip["src_wire"]
+                break
+
+        # Find the wire after pip in site
+        for site in tile["sites"]:
+            for site_pin, site_wire in site["site_pins"].items():
+                if site_wire == pip_wire:
+                    return site["name"], site_pin
+
+        # Not found
+        return None, None
+
+    def _build_tile_wire_map(self):
+        """
+        Builds a map which allows to bind new tile wire names with old tile wire names. Wires that go to sites
+        are prefixed with site name. The prefix will be removed during connection definition.
+        :return:
+        """
+
+        # Loop over all tile types
+        for tile in self.tiles.values():
+
+            # Check each wire in tile
+            for tile_wire in tile["wires"]:
+
+                # Trace the wire
+                site_name, site_pin = self._track_tile_wire_to_site_pin(tile, tile_wire)
+
+                # Not connected to a site
+                if site_name is None:
+                    continue
+
+                # Format wire name
+                dummy_name = site_name + "_" + site_pin
+
+                # Got a conflict in connection map
+                if tile_wire in self.wire_name_map.keys():
+                    if self.wire_name_map[tile_wire] != dummy_name:
+                        raise RuntimeError("Conflict in tile wire map: %s -> %s, %s" % (tile_wire, self.wire_name_map[tile_wire], dummy_name))
+
+                # Store mapping
+                self.wire_name_map[tile_wire] = dummy_name
+
+    def _build_new_tile(self, site_type):
+        """
+        Constructs a new tile type.
+
+        :param site_type:
+        :return:
+        """
+
+        # Build a list of all unique site pins and wires
+        all_pins = set()
+        for site in self.site_types:
+            all_pins |= set(self.site_pins[site])
+
+        all_pins   = sorted(list(all_pins))
+        all_wires  = ["PASS_%s" % pin for pin in all_pins]
+
+        # Build a list of this particular site pins and wires
+        site_pins  = sorted(list(self.site_pins[site_type]))
+        site_wires = ["SITE_%s" % pin for pin in site_pins]
+
+        # Initialize new site type
+        new_site = {
+            "name": "X0Y0",
+            "x_coord": 0,
+            "y_coord": 0,
+            "prefix": "SLICE",  # FIXME: This prefix is hard coded here !
+            "type": site_type,
+            "site_pins": dict(zip(site_pins, site_wires))
+        }
+
+        # Initialize new tile type
+        new_tile = {
+            "tile_type": site_type,
+            "pips": {},
+            "sites": [new_site],
+            "wires": site_wires + all_wires + self.passthrough_wires
+        }
 
         return new_tile
 
-    def _tile_stats(self, tile):
-        logging.info("Type: '%s', wires:%d, pips: %d" % (
-            tile["tile_type"], len(tile["wires"]), len(tile["pips"])))
-
     def split(self):
         """
-        Triggers the split.
-
+        Do the split of tiles of interest.
         :return:
         """
 
-        # Stats
-        self._tile_stats(self.tile)
+        # Build site type list
+        self.site_types = self._build_site_type_list()
 
-        # Loop over all sites of the tile
-        for site in self.tile["sites"]:
+        # Collect site type pins
+        self.site_pins = self._build_site_pin_list()
 
-            # Check pips
-            self._check_pips()
+        # Collect passthrough wires
+        self.passthrough_wires = self._build_passthrough_wire_list()
 
-            # Extract
-            new_tile = self._extract_site(site)
+        # Build tile wire map
+        self._build_tile_wire_map()
 
-            # Stats
-            self._tile_stats(new_tile)
+        # DEBUG
+
+        # for s, w in self.site_wires.items():
+        #     logging.debug("Site '%s' (%d):" % (s, len(w)))
+        #
+        #     for ww in sorted(list(w)):
+        #         logging.debug(" %s" % ww)
+
+        # logging.debug("Passthrough wires:")
+        # for w in sorted(list(self.passthrough_wires)):
+        #     logging.debug(" %s" % w)
+
+        # logging.debug("Wire name map:")
+        # for k in sorted(list(self.wire_name_map.keys())):
+        #     logging.debug(" %s -> %s" % (k, self.wire_name_map[k]))
+
+        # DEBUG
+
+        # Build new tile types, save tiles
+        for site_type in self.site_types:
+
+            # Build it
+            new_tile = self._build_new_tile(site_type)
 
             # Save to JSON
             json_name = "tile_type_%s.json" % new_tile["tile_type"]
             file_name = os.path.join(self.db_overlay, json_name)
             with open(file_name, "w") as fp:
                 json.dump(new_tile, fp, sort_keys=True, indent=1)
+
+        # Save tile wire name map
+        file_name = os.path.join(self.db_overlay, "wire_name_map.json")
+        with open(file_name, "w") as fp:
+            json.dump(self.wire_name_map, fp, sort_keys=True, indent=1)
+
 
 # =============================================================================
 
@@ -166,15 +315,21 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--db_root", required=True, type=str, help="Database root (input files)")
     parser.add_argument("--db_overlay", type=str, default=".", help="Database overlay root (for output files)")
-    parser.add_argument("--tile", required=True, type=str, help="Tile type to split")
+    parser.add_argument("--split-tiles", required=True, type=str, nargs="*", action="append", help="Tile types to split")
 
     args = parser.parse_args()
 
     # Logging
     logging.basicConfig(level=logging.DEBUG, format="%(message)s")
 
+    # Build a list of tile types to split
+    tile_types = set()
+    for types in args.split_tiles:
+        tile_types |= set(types)
+    tile_types = list(tile_types)
+
     # Create and initialize grid splitter
-    splitter = TileSplitter(args.db_root, args.db_overlay, args.tile)
+    splitter = TileSplitter(args.db_root, args.db_overlay, tile_types)
 
     # Do the split
     splitter.split()
