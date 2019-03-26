@@ -256,9 +256,28 @@ class Site(object):
             if source_bel is not None:
                 source_bels[wire_pkey] = source_bel
 
+        shorted_nets = {}
+
         for source_wire, sink_wire in self.outputs.items():
-            wires.add(prefix + '_' + source_wire)
-            wire_assigns[prefix + '_' + source_wire] = prefix + '_' + sink_wire
+            wire_source = prefix + '_' + sink_wire
+            wire = prefix + '_' + source_wire
+            wires.add(wire)
+            wire_assigns[wire] = wire_source
+
+            # If this is a passthrough wire, then indicate that allow the net 
+            # is be merged.
+            if sink_wire not in site_pin_map:
+                continue
+
+            sink_wire_pkey = get_wire_pkey(conn, self.tile, site_pin_map[sink_wire])
+            source_wire_pkey = get_wire_pkey(conn, self.tile, site_pin_map[source_wire])
+            if sink_wire_pkey in unrouted_sinks:
+                shorted_nets[source_wire_pkey] = sink_wire_pkey
+
+                # Because this is being treated as a short, remove the 
+                # source and sink.
+                unrouted_sources.remove(source_wire_pkey)
+                unrouted_sinks.remove(sink_wire_pkey)
 
         return dict(
                 wires=wires,
@@ -267,6 +286,7 @@ class Site(object):
                 wire_pkey_to_wire=wire_pkey_to_wire,
                 source_bels=source_bels,
                 wire_assigns=wire_assigns,
+                shorted_nets=shorted_nets,
                 )
 
     def check_site(self):
@@ -386,6 +406,9 @@ class Module(object):
         self.sites = []
         self.source_bels = {}
 
+        # Map of source to sink.
+        self.shorted_nets = {}
+
         # Map of wire_pkey to Verilog wire.
         self.wire_pkey_to_wire = {}
 
@@ -445,6 +468,7 @@ class Module(object):
         merge_exclusive_dicts(self.wire_pkey_to_wire, integrated_site['wire_pkey_to_wire'])
         merge_exclusive_dicts(self.source_bels, integrated_site['source_bels'])
         merge_exclusive_dicts(self.wire_assigns, integrated_site['wire_assigns'])
+        merge_exclusive_dicts(self.shorted_nets, integrated_site['shorted_nets'])
 
         self.sites.append(site)
 
@@ -489,8 +513,9 @@ class Module(object):
                 unrouted_sources=self.unrouted_sources,
                 active_pips=self.active_pips,
                 allow_orphan_sinks=allow_orphan_sinks,
+                shorted_nets=self.shorted_nets,
                 nets=self.nets,
-                net_map=self.net_map):
+                net_map=self.net_map,):
             self.wire_assigns[sink_wire] = src_wire
 
     def output_nets(self):
