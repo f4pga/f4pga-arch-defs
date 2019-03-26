@@ -128,6 +128,9 @@ def main():
             help="Path to bitread executable, required if --bit_file is provided.")
     parser.add_argument(
         '--part', help="Name of part being targetted, required if --bit_file is provided.")
+    parser.add_argument(
+        '--top', default="top",
+        help="Root level module name.")
     parser.add_argument('verilog_file',
             help="Filename of output verilog file")
     parser.add_argument('tcl_file',
@@ -149,7 +152,7 @@ def main():
 
     maybe_get_wire = create_maybe_get_wire(conn)
 
-    top = Module(db, grid, conn)
+    top = Module(db, grid, conn, name=args.top)
 
     iostandards = []
 

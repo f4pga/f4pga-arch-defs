@@ -586,7 +586,8 @@ def merge_exclusive_dicts(dict_a, dict_b):
 
 class Module(object):
     """ Object to model a design. """
-    def __init__(self, db, grid, conn):
+    def __init__(self, db, grid, conn, name="top"):
+        self.name = name
         self.iostandard = None
         self.db = db
         self.grid = grid
@@ -733,7 +734,7 @@ class Module(object):
         for inout_wire in sorted(self.root_inout):
             root_module_args.append('  inout ' + inout_wire)
 
-        yield 'module top('
+        yield 'module {}('.format(self.name)
 
         yield ',\n'.join(root_module_args)
 
