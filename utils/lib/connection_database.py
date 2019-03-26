@@ -70,8 +70,9 @@ WHERE
   );
 """, (tile_name, wire))
 
-    (wire_pkey,) = c.fetchone()
-    return wire_pkey
+    results = c.fetchone()
+    assert results is not None, (tile_name, wire)
+    return results[0]
 
 def get_track_model(conn, track_pkey):
     assert track_pkey is not None

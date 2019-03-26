@@ -308,16 +308,5 @@
     <direct name="CK" input="BLK_IG-COMMON_SLICE.CLK" output="BLK_BB-SLICE_FF.CK"/>
     <direct name="CE" input="BLK_IG-COMMON_SLICE.CE"  output="BLK_BB-SLICE_FF.CE"/>
     <direct name="SR" input="BLK_IG-COMMON_SLICE.SR"  output="BLK_BB-SLICE_FF.SR"/>
-
   </interconnect>
-  <metadata>
-    <meta name="fasm_features">
-      <!-- Because VPR cannot understand muxes that either tied to a  -->
-      <!-- constant or a port, VPR always connects CE and SR.  -->
-      <!-- Once VPR can understand the CEUSEDMUX and SRUSEDMUX, it can choose -->
-      <!-- whether CEUSEDMUX and SRUSEDMUX should be set or not.  -->
-      CEUSEDMUX
-      SRUSEDMUX
-    </meta>
-  </metadata>
 </pb_type>
