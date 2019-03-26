@@ -50,18 +50,18 @@ Files
 Names
 -----
 
-* `BLK_MB-block_1_name-block_2_name` - `BLOCK` which is a "**m**ega **b**lock". A "mega block" is a top level block which is made up of other blocks.
-* `BLK_XX-name`       - `BLOCK` which is the hierarchy. Maps to `BLK_SI` -> `SITE` and `BLK_TI` -> `TILE` in Xilinx terminology.
-* `BLK_IG-name`       - `BLOCK` which is ignored. They don't appear in the output hierarchy and are normally used when something is needed in the description which doesn't match actual architecture.
-* `BEL_RX-mux_name`   - `BEL` which is a **r**outing mu**x**. Routing muxes are statically configured at PnR time.
-* `BEL_MX-mux_name`   - `BEL` which is a **m**u**x** .
-* `BEL_LT-lut_name`   - `BEL` which is a **l**ook up **t**able.
-* `BEL_MM-mem_name`   - `BEL` which is a **m**e**m**ory.
-* `BEL_FF-ff_name`    - `BEL` which is a **f**lip **f**lop (`FF`).
-* `BEL_LL-latch_name` - `BEL` which is a **l**atch (`LL`).
-* `BEL_BB-name`       - `BEL` which is a **b**lack **b**ox (`BB`).
-* `PAD_IN-name`       - A signal input location.
-* `PAD_OT-name`       - A signal output location.
+* ``BLK_MB-block_1_name-block_2_name`` - ``BLOCK`` which is a "**m**\ ega **b**\ lock". A "mega block" is a top level block which is made up of other blocks.
+* ``BLK_XX-name``       - ``BLOCK`` which is the hierarchy. Maps to ``BLK_SI`` -> ``SITE`` and ``BLK_TI`` -> ``TILE`` in Xilinx terminology.
+* ``BLK_IG-name``       - ``BLOCK`` which is ignored. They don't appear in the output hierarchy and are normally used when something is needed in the description which doesn't match actual architecture.
+* ``BEL_RX-mux_name``   - ``BEL`` which is a **r**\ outing mu\ **x**. Routing muxes are statically configured at PnR time.
+* ``BEL_MX-mux_name``   - ``BEL`` which is a **m**\ u\ **x** .
+* ``BEL_LT-lut_name``   - ``BEL`` which is a **l**\ ook up **t**\ able.
+* ``BEL_MM-mem_name``   - ``BEL`` which is a **m**\ e**m**\ ory.
+* ``BEL_FF-ff_name``    - ``BEL`` which is a **f**\ lip **f**\ lop (``FF``).
+* ``BEL_LL-latch_name`` - ``BEL`` which is a **l**\ atch (``LL``).
+* ``BEL_BB-name``       - ``BEL`` which is a **b**\ lack **b**\ ox (``BB``).
+* ``PAD_IN-name``       - A signal input location.
+* ``PAD_OT-name``       - A signal output location.
 
 Notes
 -----
