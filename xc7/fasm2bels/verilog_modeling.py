@@ -1,52 +1,52 @@
+""" Core classes for modelling a bitstream back into verilog and routes.
+
+There are 3 modelling elements:
+
+ - Bel: A synthesizable element.
+ - Site: A collection of Bel's, routing sinks and routing sources.
+ - Module: The root container for all Sites
+
+The modelling approach works as so:
+
+BELs represent a particular tech library instance (e.g. LUT6 or FDRE).  These
+BELs are connected into the routing fabric or internal site sources via the
+Site methods:
+
+ - Site.add_sink
+ - Site.add_source
+ - Site.add_output_from_internal
+ - Site.connect_internal
+ - Site.add_internal_source
+
+BEL parameters should be on the BEL.
+
+In cases where there is multiple instances of a BEL (e.g. LUT's), the
+Bel.set_bel must be called to ensure that Vivado places the BEL in the exact
+location.
+
+"""
+
 import functools
 from .make_routes import make_routes, ONE_NET, ZERO_NET, prune_antennas
-
-def get_wire_pkey(conn, tile_name, wire):
-    c = conn.cursor()
-    c.execute("""
-WITH selected_tile(tile_pkey, tile_type_pkey) AS (
-  SELECT
-    pkey,
-    tile_type_pkey
-  FROM
-    tile
-  WHERE
-    name = ?
-)
-SELECT
-  wire.pkey
-FROM
-  wire
-WHERE
-  wire.tile_pkey = (
-    SELECT
-      selected_tile.tile_pkey
-    FROM
-      selected_tile
-  )
-  AND wire.wire_in_tile_pkey = (
-    SELECT
-      wire_in_tile.pkey
-    FROM
-      wire_in_tile
-    WHERE
-      wire_in_tile.name = ?
-      AND wire_in_tile.tile_type_pkey = (
-        SELECT
-          tile_type_pkey
-        FROM
-          selected_tile
-      )
-  );
-""", (tile_name, wire))
-
-    results = c.fetchone()
-    assert results is not None, (tile_name, wire)
-    return results[0]
+from .connection_db_utils import get_wire_pkey
 
 
 class Bel(object):
+    """ Object to model a BEL.
+    """
     def __init__(self, module, name=None, keep=True):
+        """ Construct Bel object.
+
+        module (str): Exact tech library name to instance during synthesis.
+            Example "LUT6_2" or "FDRE".
+        name (str): Optional name of this bel, used to disambiguate multiple
+            instances of the same module in a site.  If there are multiple
+            instances of the same module in a site, name must be specified and
+            unique.
+        keep (bool): Controls if KEEP, DONT_TOUCH constraints are added to this
+            instance.
+
+        """
         self.module = module
         if name is None:
             self.name = module
@@ -63,24 +63,43 @@ class Bel(object):
         self.nets = None
 
     def set_prefix(self, prefix):
+        """ Set the prefix used for wire and BEL naming.
+
+        This is method is typically called automatically during
+        Site.integrate_site. """
         self.prefix = prefix
 
     def set_site(self, site):
+        """ Sets the site string used to set the LOC constraint.
+
+        This is method is typically called automatically during
+        Site.integrate_site. """
         self.site = site
 
     def set_bel(self, bel):
+        """ Sets the BEL constraint.
+
+        This method should be called if the parent site has multiple instances
+        of the BEL (e.g. LUT6 in a SLICE).
+        """
         self.bel = bel
 
     def _prefix_things(self, s):
+        """ Apply the prefix (if any) to the input string. """
         if self.prefix is not None:
             return '{}_{}'.format(self.prefix, s)
         else:
             return s
 
     def get_cell(self):
+        """ Get the cell name of this BEL.
+
+        Should only be called after set_prefix has been invoked (if set_prefix
+        will be called)."""
         return self._prefix_things(self.name)
 
     def output_verilog(self, top, indent='  '):
+        """ Output the Verilog to represent this BEL. """
         connections = {}
         buses = {}
 
@@ -155,6 +174,22 @@ class Bel(object):
 
 
 class Site(object):
+    """ Object to model a Site.
+
+    A site is a collection of BELs, and sources and sinks that connect the
+    site to the routing fabric.  Sources and sinks exported by the Site will
+    be used during routing formation.
+
+    Wires that are not in the sources and sinks lists will be invisible to
+    the routing formation step.  In particular, site connections that should
+    be sources and sinks but are not specified will be ingored during routing
+    formation, and likely end up as disconnected wires.
+
+    On the flip side it is import that specified sinks are always connected
+    to at least one BEL.  If this is not done, antenna nets may be emitted
+    during routing formation, which will result in a DRC violation.
+
+    """
     def __init__(self, features, site, tile=None):
         self.bels = []
         self.sinks = {}
@@ -187,12 +222,22 @@ class Site(object):
         self.site = site
 
     def has_feature(self, feature):
+        """ Does this set have the specified feature set? """
         return feature in self.set_features
 
     def add_sink(self, bel, bel_pin, sink):
         """ Adds a sink.
 
-        Attaches sink to bel.
+        Attaches sink to the specified bel.
+
+        bel (Bel): Bel object
+        bel_pin (str): The exact tech library name for the relevant pin.  Can be
+            a bus (e.g. A[5]).  The name must identically match the library
+            name or an error will occur during synthesis.
+        sink (str): The exact site pin name for this sink.  The name must
+            identically match the site pin name, or an error will be generated
+            when Site.integrate_site is invoked.
+
         """
 
         assert bel_pin not in bel.connections
@@ -207,6 +252,15 @@ class Site(object):
         """ Adds a source.
 
         Attaches source to bel.
+
+        bel (Bel): Bel object
+        bel_pin (str): The exact tech library name for the relevant pin.  Can be
+            a bus (e.g. A[5]).  The name must identically match the library
+            name or an error will occur during synthesis.
+        source (str): The exact site pin name for this source.  The name must
+            identically match the site pin name, or an error will be generated
+            when Site.integrate_site is invoked.
+
         """
         assert source not in self.sources
         assert bel_pin not in bel.connections
@@ -216,7 +270,17 @@ class Site(object):
         self.sources[source] = (bel, bel_pin)
 
     def add_output_from_internal(self, source, internal_source):
-        """ Adds a source from a site internal source. """
+        """ Adds a source from a site internal source.
+
+        This is used to convert an internal_source wire to a site source.
+
+        source (str): The exact site pin name for this source.  The name must
+            identically match the site pin name, or an error will be generated
+            when Site.integrate_site is invoked.
+        internal_source (str): The internal_source must match the internal
+            source name provided to Site.add_internal_source earlier.
+
+        """
         assert source not in self.sources
         assert internal_source in self.internal_sources
 
@@ -224,22 +288,93 @@ class Site(object):
         self.sources[source] = self.internal_sources[internal_source]
 
     def add_output_from_output(self, source, other_source):
+        """ Adds an output wire from an existing source wire.
+
+        The new output wire is not a source, but will participate in routing
+        formation.
+
+        source (str): The exact site pin name for this source.  The name must
+            identically match the site pin name, or an error will be generated
+            when Site.integrate_site is invoked.
+        other_source (str): The name of an existing source generated from add_source.
+
+        """
         assert source not in self.sources
         assert other_source in self.sources
         self.outputs[source] = other_source
 
     def add_internal_source(self, bel, bel_pin, wire_name):
-        """ Adds a site internal source. """
+        """ Adds a site internal source.
+
+        Adds an internal source to the site.  This wire will not be used during
+        routing formation, but can be connected to other BELs within the site.
+
+        bel (Bel): Bel object
+        bel_pin (str): The exact tech library name for the relevant pin.  Can be
+            a bus (e.g. A[5]).  The name must identically match the library
+            name or an error will occur during synthesis.
+        wire_name (str): The name of the site wire.  This wire_name must be
+            overlap with a source or sink site pin name.
+
+        """
         bel.connections[bel_pin] = wire_name
         bel.outputs.add(bel_pin)
-        self.internal_sources[bel.connections[bel_pin]] = (bel, bel_pin)
+
+        assert wire_name not in self.internal_sources, wire_name
+        self.internal_sources[wire_name] = (bel, bel_pin)
 
     def connect_internal(self, bel, bel_pin, source):
+        """ Connect a BEL pin to an existing internal source.
+
+        bel (Bel): Bel object
+        bel_pin (str): The exact tech library name for the relevant pin.  Can be
+            a bus (e.g. A[5]).  The name must identically match the library
+            name or an error will occur during synthesis.
+        source (str): Existing internal source wire added via
+            add_internal_source.
+
+        """
         assert source in self.internal_sources, source
         assert bel_pin not in bel.connections
         bel.connections[bel_pin] = source
 
+    def add_bel(self, bel, name=None):
+        """ Adds a BEL to the site.
+
+        All BELs that use the add_sink, add_source, add_internal_source,
+        and connect_internal must call add_bel with the relevant BEL.
+
+        bel (Bel): Bel object
+        name (str): Optional name to assign to the bel to enable retrival with
+            the maybe_get_bel method.  This name is not used for any other
+            reason.
+
+        """
+
+        self.bels.append(bel)
+        if name is not None:
+            assert name not in self.bel_map
+            self.bel_map[name] = bel
+
+
+    def set_post_route_cleanup_function(self, func):
+        """ Set callback to be called on this site during routing formation.
+
+        This callback is intended to enable sites that must perform decisions
+        based on routed connections.
+
+        func (function): Function that takes two arguments, the parent module
+            and the site object to cleanup.
+
+        """
+        self.post_route_cleanup = func
+
     def integrate_site(self, conn, module):
+        """ Integrates site so that it can be used with routing formation.
+
+        This method is called automatically by Module.add_site.
+
+        """
         self.check_site()
 
         prefix = '{}_{}'.format(self.tile, self.site.name)
@@ -306,7 +441,7 @@ class Site(object):
             wires.add(wire)
             wire_assigns[wire] = wire_source
 
-            # If this is a passthrough wire, then indicate that allow the net 
+            # If this is a passthrough wire, then indicate that allow the net
             # is be merged.
             if sink_wire not in site_pin_map:
                 continue
@@ -316,7 +451,7 @@ class Site(object):
             if sink_wire_pkey in unrouted_sinks:
                 shorted_nets[source_wire_pkey] = sink_wire_pkey
 
-                # Because this is being treated as a short, remove the 
+                # Because this is being treated as a short, remove the
                 # source and sink.
                 unrouted_sources.remove(source_wire_pkey)
                 unrouted_sinks.remove(sink_wire_pkey)
@@ -332,6 +467,7 @@ class Site(object):
                 )
 
     def check_site(self):
+        """ Sanity checks that the site is internally consistent. """
         internal_sources = set(self.internal_sources.keys())
         sinks = set(self.sinks.keys())
         sources = set(self.sources.keys())
@@ -358,22 +494,26 @@ class Site(object):
                 assert id(bel) in bel_ids
 
 
-    def add_bel(self, bel, name=None):
-        self.bels.append(bel)
-        if name is not None:
-            assert name not in self.bel_map
-            self.bel_map[name] = bel
-
     def maybe_get_bel(self, name):
+        """ Returns named BEL from site.
+
+        name (str): Name given during Site.add_bel.
+
+        Returns None if name is not found, otherwise Bel object.
+        """
         if name in self.bel_map:
             return self.bel_map[name]
         else:
             return None
 
-    def set_post_route_cleanup_function(self, func):
-        self.post_route_cleanup = func
-
     def remove_bel(self, bel_to_remove):
+        """ Attempts to remove BEL from site.
+
+        It is an error to remove a BEL if any of its outputs are currently
+        in use by the Site.  This method does NOT verify that the sources
+        of the BEL are not currently in use.
+
+        """
         bel_idx = None
         for idx, bel in enumerate(self.bels):
             if id(bel) == id(bel_to_remove):
@@ -422,6 +562,7 @@ class Site(object):
 
 @functools.lru_cache(maxsize=None)
 def make_site_pin_map(site_pins):
+    """ Create map of site pin names to tile wire names. """
     site_pin_map = {}
 
     for site_pin in site_pins:
@@ -429,17 +570,22 @@ def make_site_pin_map(site_pins):
 
     return site_pin_map
 
+
 def merge_exclusive_sets(set_a, set_b):
+    """ set_b into set_a after verifying that set_a and set_b are disjoint. """
     assert len(set_a & set_b) == 0, (set_a & set_b)
 
     set_a |= set_b
 
 def merge_exclusive_dicts(dict_a, dict_b):
+    """ dict_b into dict_a after verifying that dict_a and dict_b have disjoint keys. """
     assert len(set(dict_a.keys()) & set(dict_b.keys())) == 0
 
     dict_a.update(dict_b)
 
+
 class Module(object):
+    """ Object to model a design. """
     def __init__(self, db, grid, conn):
         self.iostandard = None
         self.db = db
@@ -472,6 +618,12 @@ class Module(object):
         self.wire_assigns = {}
 
     def set_iostandard(self, iostandards):
+        """ Set the IOSTANDARD for the design.
+
+        iostandards (list of list of str): Takes a list of IOSTANDARD
+            possibilities and selects the unique one.  Having no valid or
+            multiple valid IOSTANDARDs is an error.
+        """
         possible_iostandards = set(iostandards[0])
 
         for l in iostandards:
@@ -483,24 +635,50 @@ class Module(object):
         self.iostandard = possible_iostandards.pop()
 
     def add_top_in_port(self, tile, site, name):
+        """ Add a top level input port.
+
+        tile (str): Tile name that will sink the input port.
+        site (str): Site name that will sink the input port.
+        name (str): Name of port.
+
+        Returns str of root level port name.
+        """
         port = '{}_{}_{}'.format(tile, site, name)
         self.root_in.add(port)
         return port
 
     def add_top_out_port(self, tile, site, name):
+        """ Add a top level output port.
+
+        tile (str): Tile name that will sink the output port.
+        site (str): Site name that will sink the output port.
+        name (str): Name of port.
+
+        Returns str of root level port name.
+        """
         port = '{}_{}_{}'.format(tile, site, name)
         self.root_out.add(port)
         return port
 
     def add_top_inout_port(self, tile, site, name):
+        """ Add a top level inout port.
+
+        tile (str): Tile name that will sink the inout port.
+        site (str): Site name that will sink the inout port.
+        name (str): Name of port.
+
+        Returns str of root level port name.
+        """
         port = '{}_{}_{}'.format(tile, site, name)
         self.root_inout.add(port)
         return port
 
     def is_top_level(self, wire):
+        """ Returns true if specified wire is a top level wire. """
         return wire in self.root_in or wire in self.root_out or wire in self.root_inout
 
     def add_site(self, site):
+        """ Adds a site to the module. """
         integrated_site = site.integrate_site(self.conn, self)
 
         merge_exclusive_sets(self.wires, integrated_site['wires'])
@@ -514,7 +692,39 @@ class Module(object):
 
         self.sites.append(site)
 
+    def make_routes(self, allow_orphan_sinks):
+        """ Create nets from top level wires, activie PIPS, sources and sinks.
+
+        Invoke make_routes after all sites and pips have been added.
+
+        allow_orphan_sinks (bool): Controls whether it is an error if a sink
+            has no source.
+
+        """
+        self.nets = {}
+        self.net_map = {}
+        for sink_wire, src_wire in make_routes(
+                db=self.db,
+                conn=self.conn,
+                wire_pkey_to_wire=self.wire_pkey_to_wire,
+                unrouted_sinks=self.unrouted_sinks,
+                unrouted_sources=self.unrouted_sources,
+                active_pips=self.active_pips,
+                allow_orphan_sinks=allow_orphan_sinks,
+                shorted_nets=self.shorted_nets,
+                nets=self.nets,
+                net_map=self.net_map,):
+            self.wire_assigns[sink_wire] = src_wire
+
+        self.handle_post_route_cleanup()
+
     def output_verilog(self):
+        """ Yields lines of verilog that represent the design in Verilog.
+
+        Invoke output_verilog after invoking make_routes to ensure that
+        inter-site connections are made.
+
+        """
         root_module_args = []
         for in_wire in sorted(self.root_in):
             root_module_args.append('  input ' + in_wire)
@@ -543,24 +753,33 @@ class Module(object):
 
         yield 'endmodule'
 
+    def output_bel_locations(self):
+        """ Yields lines of tcl that will assign set the location of BELs. """
+        for bel in self.get_bels():
+            yield """
+set cell [get_cells {cell}]
+if {{ $cell == {{}} }} {{
+    error "Failed to find cell!"
+}}
+set_property LOC [get_sites {site}] $cell""".format(
+                cell=bel.get_cell(),
+                site=bel.site)
 
-    def make_routes(self, allow_orphan_sinks):
-        self.nets = {}
-        self.net_map = {}
-        for sink_wire, src_wire in make_routes(
-                db=self.db,
-                conn=self.conn,
-                wire_pkey_to_wire=self.wire_pkey_to_wire,
-                unrouted_sinks=self.unrouted_sinks,
-                unrouted_sources=self.unrouted_sources,
-                active_pips=self.active_pips,
-                allow_orphan_sinks=allow_orphan_sinks,
-                shorted_nets=self.shorted_nets,
-                nets=self.nets,
-                net_map=self.net_map,):
-            self.wire_assigns[sink_wire] = src_wire
+            if bel.bel is not None:
+                yield """
+set_property BEL "[get_property SITE_TYPE [get_sites {site}]].{bel}" $cell""".format(
+                    site=bel.site,
+                    bel=bel.bel,
+                    )
 
     def output_nets(self):
+        """ Yields lines of tcl that will assign the exact routing path for nets.
+
+        Invoke output_nets after invoking make_routes.
+
+        """
+        assert len(self.nets) > 0
+
         for net_wire_pkey, net in self.nets.items():
             if net_wire_pkey in [ZERO_NET, ONE_NET]:
                 continue
@@ -590,11 +809,13 @@ set_property FIXED_ROUTE {fixed_route} $net
             net.make_fixed_route(self.conn, self.wire_pkey_to_wire)))
 
     def get_bels(self):
+        """ Yield a list of Bel objects in the module. """
         for site in self.sites:
             for bel in site.bels:
                 yield bel
 
     def handle_post_route_cleanup(self):
+        """ Handle post route clean-up. """
         for site in self.sites:
             if site.post_route_cleanup is not None:
                 site.post_route_cleanup(self, site)
@@ -602,6 +823,7 @@ set_property FIXED_ROUTE {fixed_route} $net
         prune_antennas(self.conn, self.nets, self.unrouted_sinks)
 
     def find_sinks_from_source(self, site, site_wire):
+        """ Yields sink wire names from a site wire source. """
         wire_pkey = site.site_wire_to_wire_pkey[site_wire]
         assert wire_pkey in self.nets
 
@@ -637,21 +859,3 @@ set_property FIXED_ROUTE {fixed_route} $net
                 del self.wire_assigns[wire_pkey]
 
             self.unrouted_sinks.remove(wire_pkey)
-
-    def output_bel_locations(self):
-        for bel in self.get_bels():
-            yield """
-set cell [get_cells {cell}]
-if {{ $cell == {{}} }} {{
-    error "Failed to find cell!"
-}}
-set_property LOC [get_sites {site}] $cell""".format(
-                cell=bel.get_cell(),
-                site=bel.site)
-
-            if bel.bel is not None:
-                yield """
-set_property BEL "[get_property SITE_TYPE [get_sites {site}]].{bel}" $cell""".format(
-                    site=bel.site,
-                    bel=bel.bel,
-                    )

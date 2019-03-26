@@ -32,8 +32,9 @@ def create_lut(site, lut):
 
     for idx in range(6):
         site.add_sink(bel, 'I{}'.format(idx), '{}{}'.format(lut, idx+1))
-        site.add_internal_source(bel, 'O6', lut + 'O6')
-        site.add_internal_source(bel, 'O5', lut + 'O5')
+
+    site.add_internal_source(bel, 'O6', lut + 'O6')
+    site.add_internal_source(bel, 'O5', lut + 'O5')
 
     return bel
 

@@ -81,3 +81,47 @@ SELECT name FROM tile_type WHERE pkey = (
     SELECT tile_type_pkey FROM tile WHERE name = ?);""", (tile_name,))
 
     return c.fetchone()[0]
+
+
+def get_wire_pkey(conn, tile_name, wire):
+    c = conn.cursor()
+    c.execute("""
+WITH selected_tile(tile_pkey, tile_type_pkey) AS (
+  SELECT
+    pkey,
+    tile_type_pkey
+  FROM
+    tile
+  WHERE
+    name = ?
+)
+SELECT
+  wire.pkey
+FROM
+  wire
+WHERE
+  wire.tile_pkey = (
+    SELECT
+      selected_tile.tile_pkey
+    FROM
+      selected_tile
+  )
+  AND wire.wire_in_tile_pkey = (
+    SELECT
+      wire_in_tile.pkey
+    FROM
+      wire_in_tile
+    WHERE
+      wire_in_tile.name = ?
+      AND wire_in_tile.tile_type_pkey = (
+        SELECT
+          tile_type_pkey
+        FROM
+          selected_tile
+      )
+  );
+""", (tile_name, wire))
+
+    results = c.fetchone()
+    assert results is not None, (tile_name, wire)
+    return results[0]
