@@ -32,7 +32,6 @@ function(ADD_XC7_DEVICE_DEFINE_TYPE)
   ")
   set_target_properties(${ARCH}_${DEVICE}_${NAME}
       PROPERTIES BIT_TO_BIN_EXTRA_ARGS " \
-    --bitstream_file ${ROI_DIR}/design.bit \
     --part_name ${ROI_PART} \
     --part_file ${PRJXRAY_DB_DIR}/${ARCH}/${ROI_PART}.yaml \
   ")
