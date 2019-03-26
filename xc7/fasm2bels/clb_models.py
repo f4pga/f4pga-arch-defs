@@ -2,6 +2,7 @@ import fasm
 from .verilog_modeling import Bel, Site
 
 def get_clb_site(db, grid, tile, site):
+    """ Return the prjxray.tile.Site object for the given CLB site. """
     gridinfo = grid.gridinfo_at_tilename(tile)
     tile_type = db.get_tile_type(gridinfo.tile_type)
 
@@ -11,6 +12,7 @@ def get_clb_site(db, grid, tile, site):
 
 
 def get_lut_init(features, tile_name, slice_name, lut):
+    """ Return the INIT value for the specified LUT. """
     target_feature = '{}.{}.{}LUT.INIT'.format(tile_name, slice_name, lut)
 
     init = 0
@@ -27,6 +29,7 @@ def get_lut_init(features, tile_name, slice_name, lut):
 
 
 def create_lut(site, lut):
+    """ Create the BEL for the specified LUT. """
     bel = Bel('LUT6_2', lut + 'LUT')
     bel.set_bel(lut + '6LUT')
 
@@ -39,7 +42,19 @@ def create_lut(site, lut):
     return bel
 
 
-def decode_dram(site, lut_ram, di):
+def decode_dram(site):
+    """ Decode the modes of each LUT in the slice based on set features.
+
+    Returns dictionary of lut position (e.g. 'A') to lut mode.
+    """
+    lut_ram = {}
+    for lut in 'ABCD':
+        lut_ram[lut] = site.has_feature('{}LUT.RAM'.format(lut))
+
+    di = {}
+    for lut in 'ABC':
+        di[lut] = site.has_feature('{}LUT.DI1MUX.{}I'.format(lut, lut))
+
     lut_modes = {}
     if site.has_feature('WA8USED'):
         assert site.has_feature('WA7USED')
@@ -129,6 +144,16 @@ def decode_dram(site, lut_ram, di):
 
 
 def ff_bel(site, lut, ff5):
+    """ Returns FF information for given FF.
+
+    site (Site): Site object
+    lut (str): FF in question (e.g. 'A')
+    ff5 (bool): True if the 5FF versus the FF.
+
+    Returns tuple of (module name, clock pin, clock enable pin, reset pin,
+        init parameter).
+
+    """
     ffsync = site.has_feature('FFSYNC')
     latch = site.has_feature('LATCH') and not ff5
     zrst = site.has_feature('{}{}FF.ZRST'.format(lut, '5' if ff5 else ''))
@@ -181,6 +206,12 @@ def cleanup_slice(top, site):
     top.remove_bel(site, carry4)
 
 def process_slice(top, s):
+    """ Convert SLICE features in Bel and Site objects.
+
+    Note: Does not handle SRL option.
+
+    """
+
     """
     Available options:
 
@@ -261,15 +292,7 @@ def process_slice(top, s):
             site.add_bel(luts[lut])
     else:
         # DRAM is active.  Determine what BELs are in use.
-        lut_ram = {}
-        for lut in 'ABCD':
-            lut_ram[lut] = site.has_feature('{}LUT.RAM'.format(lut))
-
-        di = {}
-        for lut in 'ABC':
-            di[lut] = site.has_feature('{}LUT.DI1MUX.{}I'.format(lut, lut))
-
-        lut_modes = decode_dram(site, lut_ram, di)
+        lut_modes = decode_dram(site)
 
         if lut_modes['D'] == 'RAM256X1S':
             ram256 = Bel('RAM256X1S')

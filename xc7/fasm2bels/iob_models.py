@@ -1,6 +1,19 @@
 from .verilog_modeling import Bel, Site
 
 def get_iob_site(db, grid, tile, site):
+    """ Return the prjxray.tile.Site objects and tiles for the given IOB site.
+
+    Returns tuple of (iob_site, iologic_tile, ilogic_site, ologic_site)
+
+    iob_site is the relevant prjxray.tile.Site object for the IOB.
+    ilogic_site is the relevant prjxray.tile.Site object for the ILOGIC
+    connected to the IOB.
+    ologic_site is the relevant prjxray.tile.Site object for the OLOGIC
+    connected to the IOB.
+
+    iologic_tile is the tile containing the ilogic_site and ologic_site.
+
+    """
     gridinfo = grid.gridinfo_at_tilename(tile)
     tile_type = db.get_tile_type(gridinfo.tile_type)
 
@@ -47,6 +60,8 @@ def get_iob_site(db, grid, tile, site):
     return iob_site, iologic_tile, ilogic_site, ologic_site
 
 def get_drive(iostandard, drive):
+    """ Returns the drive strength given the IOSTANDARD and drive feature str.
+    """
     parts = drive.split('.')
 
     drive = parts[-1]
@@ -71,6 +86,7 @@ def get_drive(iostandard, drive):
 
 
 def add_output_parameters(bel, site):
+    """ Adds parameters required for output IOB BELs. """
     assert 'IOSTANDARD' in bel.parameters
 
     if site.has_feature('SLEW.FAST'):

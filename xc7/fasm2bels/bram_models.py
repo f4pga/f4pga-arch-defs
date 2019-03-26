@@ -2,6 +2,16 @@ import fasm
 from .verilog_modeling import Bel, Site
 
 def get_init(features, target_feature, invert, width):
+    """ Returns INIT argument for specified feature.
+
+    features: List of fasm.SetFeature objects
+    target_feature (str): Target feature prefix (e.g. INIT_A or INITP_0).
+    invert (bool): Controls whether output value should be bit inverted.
+    width (int): Bit width of INIT value.
+
+    Returns int
+
+    """
     init = 0
 
     for f in features:
@@ -19,6 +29,7 @@ def get_init(features, target_feature, invert, width):
 
 
 def get_bram_site(db, grid, tile, site):
+    """ Return the prjxray.tile.Site object for the given BRAM site. """
     gridinfo = grid.gridinfo_at_tilename(tile)
     tile_type = db.get_tile_type(gridinfo.tile_type)
 

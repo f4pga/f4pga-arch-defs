@@ -11,10 +11,17 @@ ONE_NET = -2
 DEBUG = False
 
 def create_check_downstream_default(conn, db):
+    """ Returns check_for_default function. """
     c = conn.cursor()
 
     @functools.lru_cache(maxsize=None)
     def check_for_default(wire_in_tile_pkey):
+        """ Returns downstream wire_in_tile_pkey from given wire_in_tile_pkey.
+
+        This function traverses "always" ppips downstream.
+        Returns None if no ppips are found for the given wire_in_tile_pkey.
+
+        """
         c.execute("SELECT name, tile_type_pkey FROM wire_in_tile WHERE pkey = ?", (wire_in_tile_pkey,))
         name, tile_type_pkey = c.fetchone()
 
@@ -42,6 +49,13 @@ def create_check_downstream_default(conn, db):
 
 
 def find_downstream_node(conn, check_downstream_default, source_node_pkey):
+    """ Finds a downstream node starting from source_node_pkey.
+
+    This function only traverses "always" ppips downstream, not active pips.
+
+    Returns None if no nodes downstream are connected via "always" ppips.
+
+    """
     c = conn.cursor()
 
     for wire_pkey in get_wires_in_node(conn, source_node_pkey):
@@ -58,7 +72,15 @@ def find_downstream_node(conn, check_downstream_default, source_node_pkey):
     return None
 
 class Net(object):
+    """ Object to present a net (e.g. a source and it sinks). """
     def __init__(self, source_wire_pkey):
+        """ Create a net.
+
+        source_wire_pkey (int): A pkey from the wire table that is the source
+            of this net.  This wire must be the wire connected to a site pin.
+
+        """
+
         self.source_wire_pkey = source_wire_pkey
         self.route_wire_pkeys = set()
         self.parent_nodes = {}
@@ -67,10 +89,14 @@ class Net(object):
     def add_node(self, conn, net_map, node_pkey, parent_node_pkey, incoming_wire_pkey=None):
         """ Add a node to a net.
 
-        incoming_wire_pkey is the wire_pkey that is the connecting wire in
-        this node.  For example, if this node is connected to the net via a
-        pip, then incoming_wire_pkey should be the source wire_pkey from the
-        pip.  This is important when dealing with bidirection pips.
+        node_pkey (int): A pkey from the node table that is part of this net.
+        parent_node_pkey (int): A pkey from the node table that is the source
+            for node_pkey.
+        incoming_wire_pkey (int): incoming_wire_pkey is the wire_pkey that is
+            the connecting wire in this node.  For example, if this node is
+            connected to the net via a pip, then incoming_wire_pkey should be
+            the source wire_pkey from the pip.  This is important when dealing
+            with bidirection pips.
 
         """
         if DEBUG:
@@ -121,9 +147,18 @@ class Net(object):
             del self.parent_nodes[dead_node]
 
     def is_net_alive(self):
+        """ True if this net is connected to sinks.
+
+        Call this method after invoked prune_antennas to avoid false positives.
+
+        """
         return len(self.parent_nodes) > 0
 
     def make_fixed_route(self, conn, wire_pkey_to_wire):
+        """ Yields a TCL statement that is the value for the FIXED_ROUTE param.
+
+        Should invoke this method after calling prune_antennas.
+        """
 
         source_to_sink_node_map = {}
 
@@ -201,10 +236,21 @@ class Net(object):
 
 
 def create_check_for_default(db, conn):
+    """ Returns check_for_default function. """
     c = conn.cursor()
 
     @functools.lru_cache(maxsize=None)
     def check_for_default(wire_in_tile_pkey):
+        """ Returns upstream wire_in_tile_pkey from given wire_in_tile_pkey.
+
+        This function traverses "always" or "default" ppips upstream. Because
+        this function will traverse "default" ppips, it should only be invoked
+        on wire_in_tile_pkey that have no active upstream pips, otherwise an
+        invalid connection could be made.
+
+        Returns None if no ppips are found for the given wire_in_tile_pkey.
+
+        """
         c.execute("SELECT name, tile_type_pkey FROM wire_in_tile WHERE pkey = ?", (wire_in_tile_pkey,))
         name, tile_type_pkey = c.fetchone()
 
@@ -213,6 +259,8 @@ def create_check_for_default(db, conn):
 
         tile = db.get_tile_segbits(tile_type)
 
+        # The xMUX wires have multiple "hint" connections.  Deal with them
+        # specially.
         if name in [
                 'CLBLM_L_AMUX',
                 'CLBLM_L_BMUX',
@@ -262,6 +310,7 @@ def create_check_for_default(db, conn):
 def expand_sink(conn, check_for_default, nets, net_map,
         source_to_sink_pip_map, sink_wire_pkey,
         allow_orphan_sinks):
+    """ Attempt to expand a sink to its source. """
     if sink_wire_pkey in net_map:
         return
 
@@ -282,6 +331,7 @@ def expand_sink(conn, check_for_default, nets, net_map,
 
     sink_node_pkey = get_node_pkey(conn, sink_wire_pkey)
 
+    # Check if there is an upstream active pip on this node.
     for node_wire_pkey in get_wires_in_node(conn, sink_node_pkey):
         assert node_wire_pkey not in net_map
 
@@ -311,6 +361,9 @@ def expand_sink(conn, check_for_default, nets, net_map,
                     incoming_wire_pkey=node_wire_pkey)
                 return
 
+    # There are no active pips upstream from this node, check if this is a
+    # site pin connected to a HARD0 or HARD1 pin.  These are connected to the
+    # global ZERO_NET or ONE_NET.
     c.execute("SELECT site_wire_pkey FROM node WHERE pkey = ?", (sink_node_pkey,))
     site_wire_pkey = c.fetchone()[0]
     if site_wire_pkey is not None:
@@ -385,6 +438,7 @@ SELECT site_pin_pkey FROM wire_in_tile WHERE pkey = (
                         incoming_wire_pkey=node_wire_pkey)
                 return
 
+    # There does not appear to be an upstream connection, handle it.
     if allow_orphan_sinks:
         print('// ERROR, failed to find source for node = {}'.format(sink_node_pkey))
     else:
@@ -398,10 +452,11 @@ def make_routes(db, conn, wire_pkey_to_wire, unrouted_sinks, unrouted_sources,
     unrouted_sinks - Set of wire_pkeys of sinks to BELs in the graph
     unrouted_sources - Set of wire_pkeys of sources from BELs in the graph
     active_pips - Known active pips, (sink wire_pkey, source wire_pkey).
-    shorted_nets - Map of source_wire_pkey to sink_wire_pkey that represent 
+    shorted_nets - Map of source_wire_pkey to sink_wire_pkey that represent
        shorted_nets
 
-    Once nets are formed, wire_pkey_to_wire maps wire_pkeys back to wire names.
+    Once nets are formed, yields wire names to their sources (which may be 0
+    or 1 when connected to a constant net).
 
     """
     for wire_pkey in unrouted_sinks:
@@ -480,6 +535,7 @@ def make_routes(db, conn, wire_pkey_to_wire, unrouted_sinks, unrouted_sources,
                 print('// ERROR, source for sink wire {} not found'.format(wire_pkey_to_wire[wire_pkey]))
 
 def prune_antennas(conn, nets, unrouted_sinks):
+    """ Prunes antenna routes from nets based on active sinks. """
     active_sink_nodes = set()
     for wire_pkey in unrouted_sinks:
             active_sink_nodes.add(get_node_pkey(conn, wire_pkey))
