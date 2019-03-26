@@ -4,10 +4,10 @@ add_file_target(FILE scalable_proc.v SCANNER_TYPE verilog)
 add_file_target(FILE processing_unit.v SCANNER_TYPE verilog)
 add_file_target(FILE basys3.pcf)
 
+if (NOT DEFINED ENV{CI} OR NOT $ENV{CI})
+
 get_target_property_required(PYTHON3 env PYTHON3)
 get_target_property(PYTHON3_TARGET env PYTHON3_TARGET)
-
-add_custom_target(scalable_proc_bin)
 
 foreach(NUM_PROCESSING_UNITS RANGE 1 8)
     set(VERILOG_TOP basys3_top_n${NUM_PROCESSING_UNITS}.v)
@@ -32,7 +32,6 @@ foreach(NUM_PROCESSING_UNITS RANGE 1 8)
         EXPLICIT_ADD_FILE_TARGET
         )
 
-    add_dependencies(scalable_proc_bin ${TOP_NAME}_bin)
-
 endforeach()
 
+endif (NOT DEFINED ENV{CI} OR NOT $ENV{CI})
