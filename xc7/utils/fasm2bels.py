@@ -248,9 +248,9 @@ def process_slice(top, s):
 
     if mlut:
         if site.has_feature('WEMUX.CE'):
-            WE = 'WE'
-        else:
             WE = 'CE'
+        else:
+            WE = 'WE'
 
     if site.has_feature('DLUT.RAM'):
         # Must be a SLICEM to have RAM set.
