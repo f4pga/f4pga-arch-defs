@@ -9,6 +9,8 @@ import json
 from prjxray import db
 from prjxray import tile
 
+from .connections_overlay import ConnectionsWithExt
+
 # =============================================================================
 
 
@@ -27,6 +29,8 @@ class DatabaseWithOverlay(db.Database):
 
         # Initialize base class
         db.Database.__init__(self, db_root)
+
+        self.tileconn_ext = None
 
         # Get overlay root
         if overlay_root is None:
@@ -76,3 +80,21 @@ class DatabaseWithOverlay(db.Database):
         if not self.tileconn:
             with open(os.path.join(self.overlay_root, 'tileconn.json')) as f:
                 self.tileconn = json.load(f)
+
+        # Read extended connection rules
+        if not self.tileconn_ext:
+            with open(os.path.join(self.overlay_root, 'tileconn_ext.json')) as f:
+                self.tileconn_ext = json.load(f)
+
+    def connections(self):
+
+        self._read_tilegrid()
+        self._read_tileconn()
+        self._read_tile_types()
+
+        tile_wires = dict(
+            (tile_type, db['wires']) for tile_type, db in self.tile_types.items()
+        )
+
+        return ConnectionsWithExt(
+            self.tilegrid, self.tileconn, self.tileconn_ext, tile_wires)

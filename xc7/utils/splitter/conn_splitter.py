@@ -246,7 +246,7 @@ class ConnSplitter(object):
             # Initialize a new extended connection rule that will serve
             # the pattern
             ext_rule = {
-                "gird_deltas": [],
+                "grid_deltas": [],
                 "tile_types":  [],
                 "connections": [],
             }
@@ -260,11 +260,11 @@ class ConnSplitter(object):
 
             # Grid deltas
             for x in range(len(ext_rule["tile_types"])):
-                ext_rule["gird_deltas"].append([x, 0])
+                ext_rule["grid_deltas"].append([x, 0])
 
             # Debug
             logging.debug(str(pattern))
-            logging.debug(str(ext_rule["gird_deltas"]))
+            logging.debug(str(ext_rule["grid_deltas"]))
             logging.debug(str(ext_rule["tile_types"]))
 
             N = len(pattern)
