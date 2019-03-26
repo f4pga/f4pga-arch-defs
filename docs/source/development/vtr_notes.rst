@@ -8,6 +8,6 @@ architectures, here are some tips;
   edge. To get these channels, pad the left most / right most edges with EMPTY
   tiles.
 
-* Generally we use the [`vpr/pad`](vpr/pad) object for the **actual** `.input`
-  and `.output` BLIF definitions. These are then connected to the tile which
+* Generally we use the ``vpr/pad`` object for the **actual** ``.input``
+  and ``.output`` BLIF definitions. These are then connected to the tile which
   has internal IO logic.
