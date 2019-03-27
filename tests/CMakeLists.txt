@@ -113,3 +113,5 @@ add_subdirectory(6-led)
 add_subdirectory(6-rot)
 add_subdirectory(7-carry_stress)
 add_subdirectory(9-soc)
+add_subdirectory(9-scalable_proc)
+
