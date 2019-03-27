@@ -67,8 +67,7 @@ parser.name_inputs = parser.add_argument(
     '--name-inputs',
     type=str,
     default=None,
-    help=
-    "Comma deliminator list for the name of each input to the mux (implies --split-inputs)."
+    help="Comma deliminator list for the name of each input to the mux (implies --split-inputs)."
 )
 
 parser.add_argument(
@@ -87,8 +86,7 @@ parser.name_selects = parser.add_argument(
     '--name-selects',
     type=str,
     default=None,
-    help=
-    "Comma deliminator list for the name of each select to the mux (implies --split-selects)."
+    help="Comma deliminator list for the name of each select to the mux (implies --split-selects)."
 )
 
 parser.add_argument(
@@ -96,8 +94,7 @@ parser.add_argument(
     choices=[''.join(x) for x in itertools.permutations('ios')] +
     [''.join(x) for x in itertools.permutations('io')],
     default='iso',
-    help=
-    """Order of the arguments for the MUX. (i - Inputs, o - Output, s - Select)"""
+    help="""Order of the arguments for the MUX. (i - Inputs, o - Output, s - Select)"""
 )
 
 parser.add_argument(
@@ -229,7 +226,8 @@ Generated with %s
                                            j], 1, '[%i]' % j, args.data_width)
                     for j in range(args.width))
             else:
-                # verilog range bounds are inclusive and convention is [<width-1>:0]
+                # verilog range bounds are inclusive and convention is
+                # [<width-1>:0]
                 port_names.append(
                     mux_lib.ModulePort(mux_lib.MuxPinType.INPUT,
                                        args.name_input, args.width,
@@ -241,7 +239,8 @@ Generated with %s
                                        args.name_selects[j], 1, '[%i]' % j)
                     for j in range(args.width_bits))
             else:
-                # verilog range bounds are inclusive and convention is [<width-1>:0]
+                # verilog range bounds are inclusive and convention is
+                # [<width-1>:0]
                 assert args.name_select is not None
                 port_names.append(
                     mux_lib.ModulePort(mux_lib.MuxPinType.SELECT,
