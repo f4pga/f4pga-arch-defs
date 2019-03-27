@@ -15,3 +15,5 @@ opt_clean
 
 setundef -zero -params
 stat
+write_blif -attr -cname -param $::env(OUT_EBLIF)
+write_verilog $::env(OUT_SYNTH_V)
