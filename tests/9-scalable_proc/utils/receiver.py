@@ -1,30 +1,35 @@
 #!/usr/bin/env python3
 import argparse
-
 import serial
+
+from rom_generator import generate_rom_data
 
 # =============================================================================
 
-def generate_expected_pattern(dump=False):
+def generate_expected_pattern(length, dump=False):
 
-    pattern = []
+    # Use the same generator as for ROM
+    input_data = generate_rom_data(length)
 
-    for i in range(512):
-        v0 = i*2
-        v1 = i*2 + 1
+    # Simulate processing of the data
+    output_data = []
+    for data_word in input_data:
 
-        inp_word = (v0 << 16) | v1
-        out_word = v0 * v1
+        # Decode input word
+        v0 = data_word >> 16
+        v1 = data_word &  0x0000FFFF
 
-        inp_str = "%08X" % inp_word
-        out_str = "%08X" % out_word
+        # Process
+        u = (v0 * v1) & 0xFFFFFFFF
+
+        # Store
+        output_data.append(u)
 
         if dump:
-            print("'%s' -> '%s'" % (inp_str, out_str))
+            print("%04X * %04X = %08X" % (v0, v1, u))
 
-        pattern.append((inp_str, out_str))
-
-    return pattern
+    # Join lists, convert to strings
+    return [("%08X" % v, "%08X" % u) for v, u in zip(input_data, output_data)]
 
 # =============================================================================
 
@@ -33,13 +38,14 @@ def main():
     # Argument parser
     parser = argparse.ArgumentParser()
     parser.add_argument("--port", type=str, default="/dev/ttyUSB1", help="Serial port")
-    parser.add_argument("--baud", type=int, default=115200, help="Baud rate")
+    parser.add_argument("--baud", type=int, default=9600, help="Baud rate")
+    parser.add_argument("--rom-size", type=int, default=64, help="ROM size")
     parser.add_argument("--verbose", type=int, default=0, help="Verbosity level")
 
     args = parser.parse_args()
 
     # Generate the expected pattern
-    pattern = generate_expected_pattern(True if args.verbose > 0 else False)
+    pattern = generate_expected_pattern(args.rom_size, True if args.verbose > 0 else False)
 
     # Open the port
     print("Opening '%s' at %d" % (args.port, args.baud))
