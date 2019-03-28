@@ -16,15 +16,11 @@ output wire UART_TX
 // ============================================================================
 // ROM
 wire         rom_i_stb;
-reg  [8:0]   rom_i_adr;
+reg  [31:0]  rom_i_adr; // Fixed to 32-bit. The ROM size must be a power of 2 less than 32
 wire         rom_o_stb;
 wire [31:0]  rom_o_dat;
 
-rom #
-(
-.ROM_SIZE_BITS(9)
-)
-rom
+rom rom
 (
 .CLK    (CLK),
 .RST    (RST),
