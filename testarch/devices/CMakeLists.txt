@@ -9,3 +9,9 @@ define_device(
   PACKAGES dummy
   )
 
+define_device(
+  DEVICE 10x10
+  ARCH testarch
+  DEVICE_TYPE clutff-unidir-s4
+  PACKAGES dummy
+  )

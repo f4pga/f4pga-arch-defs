@@ -1,0 +1,3 @@
+<pb_type blif_model=".subckt GND" name="BLK_IG-GND" num_pb="1">
+  <output name="GND" num_pins="1"/>
+</pb_type>

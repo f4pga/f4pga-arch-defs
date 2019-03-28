@@ -1,0 +1,3 @@
+<pb_type blif_model=".subckt VCC" name="BLK_IG-VCC" num_pb="1">
+  <output name="VCC" num_pins="1"/>
+</pb_type>
