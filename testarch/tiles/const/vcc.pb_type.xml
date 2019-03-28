@@ -1,0 +1,15 @@
+<pb_type xmlns:xi="http://www.w3.org/2001/XInclude" name="BLK_TI-VCC">
+ <!-- Tile Outputs -->
+ <output name="VCC" num_pins="1"  />
+
+ <xi:include href="../../primitives/const/vcc.pb_type.xml"/>
+ <interconnect>
+  <direct name="BLK_TI-VCC.VCC" input="BLK_IG-VCC.VCC" output="BLK_TI-VCC.VCC" />
+ </interconnect>
+
+ <pinlocations pattern="custom">
+  <loc side="right">BLK_TI-VCC.VCC[0]</loc>
+ </pinlocations>
+
+ <fc in_type="frac" in_val="1.0" out_type="frac" out_val="1.0"/>
+</pb_type>

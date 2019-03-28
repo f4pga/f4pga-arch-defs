@@ -7,8 +7,9 @@ define_arch(
   YOSYS_SCRIPT ${symbiflow-arch-defs_SOURCE_DIR}/testarch/yosys/synth.tcl
   DEVICE_FULL_TEMPLATE \${DEVICE}
   RR_PATCH_TOOL
-    ${symbiflow-arch-defs_SOURCE_DIR}/utils/testarch_graph.py
-  RR_PATCH_CMD "\${PYTHON3} \${RR_PATCH_TOOL} \
+    ${CMAKE_CURRENT_SOURCE_DIR}/utils/testarch_graph.py
+  RR_PATCH_CMD "\${CMAKE_COMMAND} -E env PYTHONPATH=${symbiflow-arch-defs_SOURCE_DIR}/utils
+   \${PYTHON3} \${RR_PATCH_TOOL} \
   --read_rr_graph \${OUT_RRXML_VIRT} \
   --write_rr_graph \${OUT_RRXML_REAL}"
   NO_PINS

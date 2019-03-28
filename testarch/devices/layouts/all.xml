@@ -5,5 +5,6 @@
  <xi:include href="2x1.fixed_layout.xml" xpointer="xpointer(layout/child::node())" />
  <xi:include href="2x4.fixed_layout.xml" xpointer="xpointer(layout/child::node())" />
  <xi:include href="4x4.fixed_layout.xml" xpointer="xpointer(layout/child::node())" />
+ <xi:include href="10x10.fixed_layout.xml" xpointer="xpointer(layout/child::node())" />
  <xi:include href="1x1.min.fixed_layout.xml" xpointer="xpointer(layout/child::node())" />
 </layout>
