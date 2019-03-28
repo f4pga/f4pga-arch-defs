@@ -48,7 +48,7 @@
 
   <xs:complexType name="port_list">
     <xs:sequence>
-      <xs:element name="port" type="port" maxOccurs="unbounded" />
+      <xs:element name="port" type="port" minOccurs="0" maxOccurs="unbounded" />
     </xs:sequence>
   </xs:complexType>
 
