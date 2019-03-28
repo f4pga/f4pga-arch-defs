@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
-# Run `python3 -m unittest utils.lib.rr_graph.tests.test_graph`
+# Run `python3 -m unittest lib.rr_graph.tests.test_graph`
 import unittest
 
-from .. import graph, P, Size
-from ..graph import (Pin, PinClass, PinClassDirection, Block, BlockGrid, BlockType, Segment,
+from lib.rr_graph import graph, P, Size
+from lib.rr_graph.graph import (Pin, PinClass, PinClassDirection, Block, BlockGrid, BlockType, Segment,
     Switch, SwitchType, RoutingGraph, RoutingGraphPrinter, RoutingNodeType)
 
 import lxml.etree as ET

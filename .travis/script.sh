@@ -30,12 +30,8 @@ end_section "info.conda.config"
 $SPACER
 
 start_section "symbiflow.run_python_tests" "Run Python unit tests"
-# Reset working directory
-pushd $TRAVIS_BUILD_DIR
-pip install -r ./requirements.txt
-python -m unittest utils.lib.rr_graph.tests.test_graph
+ctest -R python_tests
 end_section "symbiflow.run_python_tests"
-popd
 
 $SPACER
 
