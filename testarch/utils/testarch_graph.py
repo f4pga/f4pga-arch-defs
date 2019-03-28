@@ -1,140 +1,174 @@
 #!/usr/bin/env python3
 
-import lib.rr_graph.graph as graph
-import lib.rr_graph.channel as channel
-from lib.rr_graph import Position
+from lib.rr_graph import graph2
+from lib.rr_graph import tracks
+import lib.rr_graph_xml.graph2 as xml_graph2
+from lib.rr_graph_xml.utils import read_xml_file
 
-import sys
-import lxml.etree as ET
-import os
 
 
 # bi-directional channels
-def create_tracks(g, grid_sz, rcw, verbose=False):
+def create_tracks(graph, grid_width, grid_height, rcw, verbose=False):
     print("Creating tracks, channel width: %d" % rcw)
-    print("Block grid size: %s" % (g.block_grid.size, ))
-    print("Channel grid size: %s" % (g.channels.size, ))
 
     # Not strictly required, but VPR wants this I think?
     assert rcw % 2 == 0
 
     def alt_pos(begin, end, swap):
         if swap:
-            return end, begin, channel.Track.Direction.DEC
+            return end, begin, graph2.NodeDirection.DEC_DIR
         else:
-            return begin, end, channel.Track.Direction.INC
+            return begin, end, graph2.NodeDirection.INC_DIR
 
     # chanx going entire width
-    for y in range(0, grid_sz.height - 1):
-        if verbose:
-            print()
+    for y in range(0, grid_height - 1):
         for tracki in range(rcw):
-            begin, end, direction = alt_pos((1, y), (grid_sz.width - 2, y),
+            begin, end, direction = alt_pos((1, y), (grid_width - 2, y),
                                             tracki % 2 == 1)
-            track, _track_node = g.create_xy_track(
-                begin,
-                end,
-                g.segments[0],
+
+            graph.add_track(
+                track=tracks.Track(
+                        direction='X',
+                        x_low=begin[0],
+                        x_high=end[0],
+                        y_low=begin[1],
+                        y_high=end[1],
+                    ),
+                segment_id=graph.segments[0].id,
+                capacity=1,
+                direction=direction,
                 name="CHANX{:04d}@{:04d}".format(y, tracki),
-                typeh=channel.Track.Type.X,
-                direction=direction)
-            assert tracki == track.idx, 'Expect index %s, got %s' % (tracki,
-                                                                     track.idx)
-            if verbose:
-                print("Create track %s" % (track, ))
-    g.channels.x.assert_width(rcw)
-    g.channels.x.assert_full()
+                )
 
     # chany going entire height
-    for x in range(0, grid_sz.width - 1):
-        if verbose:
-            print()
+    for x in range(0, grid_width - 1):
         for tracki in range(rcw):
-            begin, end, direction = alt_pos((x, 1), (x, grid_sz.height - 2),
+            begin, end, direction = alt_pos((x, 1), (x, grid_height - 2),
                                             tracki % 2 == 1)
-            track, _track_node = g.create_xy_track(
-                begin,
-                end,
-                g.segments[0],
-                name="CHANY{:04d}@{:04d}".format(x, tracki),
-                typeh=channel.Track.Type.Y,
-                direction=direction)
-            assert tracki == track.idx, 'Expect index %s, got %s' % (tracki,
-                                                                     track.idx)
-            if verbose:
-                print("Create track %s" % (track, ))
-    g.channels.y.assert_width(rcw)
-    g.channels.y.assert_full()
+
+            graph.add_track(
+                track=tracks.Track(
+                        direction='Y',
+                        x_low=begin[0],
+                        x_high=end[0],
+                        y_low=begin[1],
+                        y_high=end[1],
+                    ),
+                segment_id=graph.segments[0].id,
+                capacity=1,
+                direction=direction,
+                name="CHANY{:04d}@{:04d}".format(y, tracki),
+                )
 
 
-def connect_blocks_to_tracks(g, grid_sz, rcw, switch, verbose=False):
-    # FIXME: performance issue here (takes a couple seconds on my machine)
-    # Will likely run into issues on real devices
+def channel_common(node):
+    if node.type == graph2.NodeType.CHANX:
+        assert node.loc.y_low == node.loc.y_high
+        return node.loc.y_low
+    elif node.type == graph2.NodeType.CHANY:
+        assert node.loc.x_low == node.loc.x_high
+        return node.loc.x_low
+    else:
+        assert False, node.type
 
-    def connect_block_to_track(block, tracks):
-        """Connect all block pins to given track"""
-        assert type(block) is graph.Block, type(block)
-        for pin in block.pins:
-            pin_node_xml = g.routing.localnames[(block.position, pin.name)]
-            pin_side = graph.RoutingNodeSide[graph.single_element(
-                pin_node_xml, 'loc').get('side')]
+def channel_start(node):
+    if node.type == graph2.NodeType.CHANX:
+        return node.loc.x_low
+    elif node.type == graph2.NodeType.CHANY:
+        return node.loc.y_low
+    else:
+        assert False, node.type
 
-            if pin_side not in tracks:
-                print("Skipping {} on {}".format(pin, block))
-                continue
 
-            track = tracks[pin_side]
-            if verbose:
-                print("Connecting block %s to track %s " % (block, track))
-            g.connect_pin_to_track(block, pin, track, switch)
+def connect_blocks_to_tracks(graph, grid_width, grid_height, rcw, switch, verbose=False):
+    ytracks = {}
+
+    for inode in graph.tracks:
+        if graph.nodes[inode].type == graph2.NodeType.CHANX:
+            continue
+        elif graph.nodes[inode].type == graph2.NodeType.CHANY:
+            x = channel_common(graph.nodes[inode])
+
+            if x not in ytracks:
+                ytracks[x] = []
+            ytracks[x].append(inode)
+        else:
+            assert False, graph.nodes[inode]
 
     print("Indexing nodes")
     print("Skipping connecting block pins to CHANX")
     print("Connecting left-right block pins to CHANY")
-    for x in range(0, grid_sz.width - 0):
-        for tracki in range(rcw):
-            # channel should run the entire length
-            tracks = {}
-            if x != 0:
-                tracks[graph.RoutingNodeSide.LEFT] = g.channels.y.column(
-                    x - 1)[1][tracki]
-            if x != grid_sz.width - 1:
-                tracks[graph.RoutingNodeSide.RIGHT] = g.channels.y.column(x)[
-                    1][tracki]
-            # Now bind to all adjacent pins
-            for block in g.block_grid.blocks_for(col=x):
-                connect_block_to_track(block, tracks)
+    for loc in graph.grid:
+        block_type = graph.block_types[loc.block_type_id]
+
+        for pin_class_idx, pin_class in enumerate(block_type.pin_class):
+            for pin in pin_class.pin:
+                for pin_node, pin_side in graph.loc_pin_map[(loc.x, loc.y, pin.ptc)]:
+                    if pin_side == tracks.Direction.LEFT:
+                        if loc.x == 0:
+                            continue
+                        tracks_for_pin = ytracks[loc.x-1]
+                    elif pin_side == tracks.Direction.RIGHT:
+                        if loc.x == grid_width-1:
+                            continue
+                        tracks_for_pin = ytracks[loc.x]
+                    elif pin_side == tracks.Direction.TOP:
+                        assert pin.name == 'BLK_TI-TILE.COUT[0]', pin
+                        continue
+                    elif pin_side == tracks.Direction.BOTTOM:
+                        assert pin.name == 'BLK_TI-TILE.CIN[0]', pin
+                        continue
+                    else:
+                        assert False, pin_side
+
+                    if pin_class.type == graph2.PinType.OUTPUT:
+                        for track_inode in tracks_for_pin:
+                            graph.add_edge(
+                                    src_node=pin_node,
+                                    sink_node=track_inode,
+                                    switch_id=switch,
+                                    )
+                    elif pin_class.type == graph2.PinType.INPUT:
+                        for track_inode in tracks_for_pin:
+                            graph.add_edge(
+                                    src_node=track_inode,
+                                    sink_node=pin_node,
+                                    switch_id=switch,
+                                    )
 
 
-def connect_tracks_to_tracks(g, switch, verbose=False):
+def connect_tracks_to_tracks(graph, switch, verbose=False):
     print("Connecting tracks to tracks")
 
-    # Iterate over all valid x channels and connect to all valid y channels and vice versa as direction implies
-    for xtrack in g.channels.x.tracks():
-        for ytrack in g.channels.y.tracks():
+    # Iterate over all valid x channels and connect to all valid y channels
+    # and vice versa as direction implies
 
-            def try_connect(atrack, btrack):
-                # One of the nodes should be going in and the other should be going out
-                # Filter out grossly non-sensical connections that confuse the VPR GUI
-                if (btrack.direction == channel.Track.Direction.INC
-                        and btrack.start0 <= atrack.common
-                        or btrack.direction == channel.Track.Direction.DEC
-                        and btrack.start0 > atrack.common):
-                    g.connect_track_to_track(btrack, atrack, switch)
-                    if verbose:
-                        print("Connect %s to %s" % (btrack, atrack))
+    def try_connect(ainode, binode):
+        atrack = graph.nodes[ainode]
+        btrack = graph.nodes[binode]
+        # One of the nodes should be going in and the other should be going out
+        # Filter out grossly non-sensical connections that confuse the VPR GUI
+        if (btrack.direction == graph2.NodeDirection.INC_DIR
+                and channel_start(btrack) <= channel_common(atrack)) \
+            or (btrack.direction == graph2.NodeDirection.DEC_DIR
+                and channel_start(btrack) > channel_common(atrack)):
+            graph.add_edge(binode, ainode, switch)
 
-            try_connect(xtrack, ytrack)
-            try_connect(ytrack, xtrack)
+    xtracks = []
+    ytracks = []
 
+    for inode in graph.tracks:
+        if graph.nodes[inode].type == graph2.NodeType.CHANX:
+            xtracks.append(inode)
+        elif graph.nodes[inode].type == graph2.NodeType.CHANY:
+            ytracks.append(inode)
+        else:
+            assert False, graph.nodes[inode]
 
-def print_nodes_edges(g):
-    print("Edges: %d (index: %d)" %
-          (len(g.routing._xml_parent(graph.RoutingEdge)),
-           len(g.routing.id2element[graph.RoutingEdge])))
-    print("Nodes: %d (index: %d)" %
-          (len(g.routing._xml_parent(graph.RoutingNode)),
-           len(g.routing.id2element[graph.RoutingNode])))
+    for xinode in xtracks:
+        for yinode in ytracks:
+            try_connect(xinode, yinode)
+            try_connect(yinode, xinode)
 
 
 def rebuild_graph(fn, fn_out, rcw=6, verbose=False):
@@ -147,60 +181,29 @@ def rebuild_graph(fn, fn_out, rcw=6, verbose=False):
     """
 
     print('Importing input g')
-    g = graph.Graph(rr_graph_file=fn, verbose=verbose, clear_fabric=False)
-    # g.print_graph(g, verbose=False)
-    print('Source g loaded')
-    print_nodes_edges(g)
-    grid_sz = g.block_grid.size
-    print("Grid size: %s" % (grid_sz, ))
-    print('Exporting pin placement')
-    pin_sides, pin_offsets = g.extract_pin_meta()
+    input_rr_graph = read_xml_file(fn)
+    xml_graph = xml_graph2.Graph(
+            input_rr_graph,
+            output_file_name=fn_out,
+            )
 
-    def get_pin_meta(block, pin):
-        return (pin_sides[(block.position, pin.name)], pin_offsets[(block.position, pin.name)])
+    graph = xml_graph.graph
 
-    print()
+    grid_width = max(p.x for p in graph.grid) + 1
+    grid_height = max(p.y for p in graph.grid) + 1
 
-    # Remove existing rr_graph
-    print('Clearing nodes and edges')
-    g.routing.clear()
-    print('Clearing channels')
-    g.channels.clear()
-    print('Cleared original g')
-    print_nodes_edges(g)
+    mux = graph.get_switch_id('mux')
 
-    print()
-
-    print('Rebuilding block I/O nodes')
-    g.create_block_pins_fabric(g.switches['__vpr_delayless_switch__'],
-                               get_pin_meta)
-    print_nodes_edges(g)
-
-    print()
-
-    create_tracks(g, grid_sz, rcw, verbose=verbose)
-    print()
-    connect_blocks_to_tracks(g, grid_sz, rcw, g.switches[0])
-    print()
-    connect_tracks_to_tracks(g, g.switches[0], verbose=verbose)
-    print()
+    create_tracks(graph, grid_width, grid_height, rcw, verbose=verbose)
+    connect_blocks_to_tracks(graph, grid_width, grid_height, rcw, switch=mux)
+    connect_tracks_to_tracks(graph, switch=mux, verbose=verbose)
     print("Completed rebuild")
-    print_nodes_edges(g)
 
-    #short_xml = list(g._xml_graph.iterfind('//switches/switch/[@name="short"]'))[0]
-    #short_xml.attrib['configurable'] = '0'
-    #short_xml.attrib['buffered'] = '0'
-    #print("Rewrote short switch: ", ET.tostring(short_xml))
-
-    if fn_out:
-        print('Writing to %s' % fn_out)
-        open(fn_out, 'w').write(
-            ET.tostring(g.to_xml(), pretty_print=True).decode('ascii'))
-    else:
-        print("Printing")
-        print(ET.tostring(g.to_xml(), pretty_print=True).decode('ascii'))
-
-    return g
+    xml_graph.serialize_to_xml(
+        tool_version="dev",
+        tool_comment="Generated from black magic",
+        pad_segment=graph.segments[0].id,
+        )
 
 
 def main():
