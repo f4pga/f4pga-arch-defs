@@ -1,0 +1,44 @@
+<!-- set: ai sw=1 ts=1 sta et -->
+<layout>
+ <fixed_layout name="10x10" width="16" height="16">
+  <!--
+      0123456789012345
+    5 ................
+    4 ...OOOOOOOOOO...
+    3 ................
+    2 .I.XXXXXXXXXX.O.
+    1 .I.XXXXXXXXXX.O.
+    0 .I.XXXXXXXXXX.O.
+    9 .I.XXXXXXXXXX.O.
+    8 .I.XXXXXXXXXX.O.
+    7 .I.XXXXXXXXXX.O.
+    6 .I.XXXXXXXXXX.O.
+    5 .I.XXXXXXXXXX.O.
+    4 .I.XXXXXXXXXX.O.
+    3 .I.XXXXXXXXXX.O.
+    2 ................
+    1 ...IIIIIIIIII...
+    0 ................
+    -->
+    <fill      priority="1" type="BLK_TI-TILE" />
+    <perimeter priority="2" type="EMPTY" />
+
+    <col priority="3" startx="1"  type="BLK_IG-IBUF" />
+    <col priority="3" startx="14" type="BLK_IG-OBUF" />
+
+    <row priority="4" starty="1"  type="BLK_IG-IBUF" />
+    <row priority="4" starty="14" type="BLK_IG-OBUF" />
+
+    <col priority="5" startx="2"  type="EMPTY"       />
+    <col priority="5" startx="13" type="EMPTY"       />
+
+    <row priority="6" starty="2"  type="EMPTY"       />
+    <row priority="6" starty="13" type="EMPTY"       />
+
+    <!-- Corners -->
+    <single priority="7" x="1" y="1"   type="BLK_TI-GND" />
+    <single priority="7" x="1" y="14"  type="BLK_TI-VCC" />
+    <single priority="7" x="14" y="1"  type="EMPTY"  />
+    <single priority="7" x="14" y="14" type="EMPTY"  />
+ </fixed_layout>
+</layout>
