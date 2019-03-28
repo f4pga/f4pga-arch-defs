@@ -178,7 +178,7 @@ function(ADD_CONDA_PACKAGE)
 
     add_custom_command(
       OUTPUT ${OUTPUTS}
-      COMMAND ${CONDA_BIN} install -f ${PACKAGE_SPEC}
+      COMMAND ${CONDA_BIN} install --force-reinstall ${PACKAGE_SPEC}
       ${TOUCH_COMMANDS}
       DEPENDS conda ${CONDA_BIN}
       )
