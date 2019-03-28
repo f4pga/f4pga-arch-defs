@@ -243,7 +243,7 @@ def graph_from_xml(input_xml, progressbar=None):
 class Graph(object):
     def __init__(self, input_xml, output_file_name=None, progressbar=None):
         if progressbar is None:
-            self.progressbar = lambda x: x
+            progressbar = lambda x: x
 
         self.input_xml = input_xml
         self.progressbar = progressbar

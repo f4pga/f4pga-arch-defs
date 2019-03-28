@@ -7,6 +7,7 @@ define_device(
   ARCH testarch
   DEVICE_TYPE clutff-unidir-s4
   PACKAGES dummy
+  RR_PATCH_DEPS intervaltree progressbar2
   )
 
 define_device(
@@ -14,4 +15,5 @@ define_device(
   ARCH testarch
   DEVICE_TYPE clutff-unidir-s4
   PACKAGES dummy
+  RR_PATCH_DEPS intervaltree progressbar2
   )
