@@ -57,11 +57,17 @@ def create_tracks(graph, grid_width, grid_height, rcw, verbose=False):
                 segment_id=graph.segments[0].id,
                 capacity=1,
                 direction=direction,
-                name="CHANY{:04d}@{:04d}".format(y, tracki),
+                name="CHANY{:04d}@{:04d}".format(x, tracki),
                 )
 
 
 def channel_common(node):
+    """ Return the value of the channel that is common.
+
+    Args:
+        node (graph2.Node): Node to get common dimension.
+
+    """
     if node.type == graph2.NodeType.CHANX:
         assert node.loc.y_low == node.loc.y_high
         return node.loc.y_low
@@ -72,12 +78,32 @@ def channel_common(node):
         assert False, node.type
 
 def channel_start(node):
+    """ Return the start value of the channel
+
+    Args:
+        node (graph2.Node): Node to get start dimension.
+
+    """
     if node.type == graph2.NodeType.CHANX:
         return node.loc.x_low
     elif node.type == graph2.NodeType.CHANY:
         return node.loc.y_low
     else:
         assert False, node.type
+
+def walk_pins(graph):
+    """ Yields all pins from grid.
+
+    Yield is tuple (graph2.GridLoc, graph2.PinClass, graph2.Pin, pin node idx, tracks.Direction).
+
+    """
+    for loc in graph.grid:
+        block_type = graph.block_types[loc.block_type_id]
+
+        for pin_class_idx, pin_class in enumerate(block_type.pin_class):
+            for pin in pin_class.pin:
+                for pin_node, pin_side in graph.loc_pin_map[(loc.x, loc.y, pin.ptc)]:
+                    yield loc, pin_class, pin, pin_node, pin_side
 
 
 def connect_blocks_to_tracks(graph, grid_width, grid_height, rcw, switch, verbose=False):
@@ -98,60 +124,65 @@ def connect_blocks_to_tracks(graph, grid_width, grid_height, rcw, switch, verbos
     print("Indexing nodes")
     print("Skipping connecting block pins to CHANX")
     print("Connecting left-right block pins to CHANY")
-    for loc in graph.grid:
-        block_type = graph.block_types[loc.block_type_id]
 
-        for pin_class_idx, pin_class in enumerate(block_type.pin_class):
-            for pin in pin_class.pin:
-                for pin_node, pin_side in graph.loc_pin_map[(loc.x, loc.y, pin.ptc)]:
-                    if pin_side == tracks.Direction.LEFT:
-                        if loc.x == 0:
-                            continue
-                        tracks_for_pin = ytracks[loc.x-1]
-                    elif pin_side == tracks.Direction.RIGHT:
-                        if loc.x == grid_width-1:
-                            continue
-                        tracks_for_pin = ytracks[loc.x]
-                    elif pin_side == tracks.Direction.TOP:
-                        assert pin.name == 'BLK_TI-TILE.COUT[0]', pin
-                        continue
-                    elif pin_side == tracks.Direction.BOTTOM:
-                        assert pin.name == 'BLK_TI-TILE.CIN[0]', pin
-                        continue
-                    else:
-                        assert False, pin_side
+    # Walk every pin and connect them to every track on the left or right,
+    # depending on pin direction
+    #
+    # Pins in the TOP/BOTTOM direction are asserted to be the carry pins.
+    for loc, pin_class, pin, pin_node, pin_side in walk_pins(graph):
+        if pin_side == tracks.Direction.LEFT:
+            if loc.x == 0:
+                continue
+            tracks_for_pin = ytracks[loc.x-1]
+        elif pin_side == tracks.Direction.RIGHT:
+            if loc.x == grid_width-1:
+                continue
+            tracks_for_pin = ytracks[loc.x]
+        elif pin_side == tracks.Direction.TOP:
+            assert pin.name == 'BLK_TI-TILE.COUT[0]', pin
+            continue
+        elif pin_side == tracks.Direction.BOTTOM:
+            assert pin.name == 'BLK_TI-TILE.CIN[0]', pin
+            continue
+        else:
+            assert False, pin_side
 
-                    if pin_class.type == graph2.PinType.OUTPUT:
-                        for track_inode in tracks_for_pin:
-                            graph.add_edge(
-                                    src_node=pin_node,
-                                    sink_node=track_inode,
-                                    switch_id=switch,
-                                    )
-                    elif pin_class.type == graph2.PinType.INPUT:
-                        for track_inode in tracks_for_pin:
-                            graph.add_edge(
-                                    src_node=track_inode,
-                                    sink_node=pin_node,
-                                    switch_id=switch,
-                                    )
+        if pin_class.type == graph2.PinType.OUTPUT:
+            for track_inode in tracks_for_pin:
+                graph.add_edge(
+                        src_node=pin_node,
+                        sink_node=track_inode,
+                        switch_id=switch,
+                        )
+        elif pin_class.type == graph2.PinType.INPUT:
+            for track_inode in tracks_for_pin:
+                graph.add_edge(
+                        src_node=track_inode,
+                        sink_node=pin_node,
+                        switch_id=switch,
+                        )
 
 
 def connect_tracks_to_tracks(graph, switch, verbose=False):
     print("Connecting tracks to tracks")
 
-    # Iterate over all valid x channels and connect to all valid y channels
-    # and vice versa as direction implies
-
     def try_connect(ainode, binode):
+        """ Connect channel at ainode and binode if possible.
+
+        Args:
+            ainode (int): Node index of destination channel
+            binode (int): Node index of source channel.
+
+        """
         atrack = graph.nodes[ainode]
         btrack = graph.nodes[binode]
-        # One of the nodes should be going in and the other should be going out
-        # Filter out grossly non-sensical connections that confuse the VPR GUI
+
+        # Check if source channel can connect to destinatio channel.
+        # Note this code assumes unidirectional channels are in use.
         if (btrack.direction == graph2.NodeDirection.INC_DIR
                 and channel_start(btrack) <= channel_common(atrack)) \
             or (btrack.direction == graph2.NodeDirection.DEC_DIR
-                and channel_start(btrack) > channel_common(atrack)):
+                and channel_start(btrack) >= channel_common(atrack)):
             graph.add_edge(binode, ainode, switch)
 
     xtracks = []
