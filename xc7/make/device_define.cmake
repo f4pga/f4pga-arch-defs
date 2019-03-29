@@ -33,6 +33,11 @@ function(ADD_XC7_DEVICE_DEFINE_TYPE)
     --part_name ${ROI_PART} \
     --part_file ${PRJXRAY_DB_DIR}/${ARCH}/${ROI_PART}.yaml \
   ")
+  set_target_properties(${ARCH}_${DEVICE}_${NAME}
+      PROPERTIES BIT_TO_V_EXTRA_ARGS " \
+    --part ${ROI_PART}
+    --connection_database ${CMAKE_CURRENT_BINARY_DIR}/channels.db
+  ")
 
   project_xray_arch(
     PART ${ARCH}
