@@ -50,6 +50,21 @@ add_conda_package(
   PROVIDES iverilog vvp
   )
 
+add_conda_pip(
+  NAME progressbar2
+  NO_EXE
+)
+
+add_conda_pip(
+  NAME simplejson
+  NO_EXE
+)
+
+add_conda_pip(
+  NAME intervaltree
+  NO_EXE
+)
+
 include(make/image_gen.cmake)
 include(make/gen.cmake)
 
