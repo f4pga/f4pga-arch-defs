@@ -209,7 +209,8 @@ class Graph(object):
     def get_delayless_switch_id(self):
         return self.delayless_switch
 
-    def add_track(self, track, segment_id, capacity=1, timing=None, name=None, ptc=None):
+    def add_track(self, track, segment_id, capacity=1, timing=None, name=None, 
+            ptc=None, direction=NodeDirection.BI_DIR):
         if track.direction == 'X':
             node_type = NodeType.CHANX
         elif track.direction == 'Y':
@@ -230,14 +231,14 @@ class Graph(object):
 
         self.tracks.append(self._create_node(
             type=node_type,
-            direction=NodeDirection.BI_DIR,
+            direction=direction,
             capacity=capacity,
             loc=NodeLoc(
                     x_low=track.x_low,
                     y_low=track.y_low,
                     x_high=track.x_high,
                     y_high=track.y_high,
-                    side=Direction.NO_SIDE,
+                    side=None,
                     ptc=ptc,
             ),
             timing=timing,
@@ -348,22 +349,24 @@ class Graph(object):
             if track_node.type == NodeType.CHANX:
                 assert track_node.loc.y_low == track_node.loc.y_high
 
+                x1, x2 = sorted((track_node.loc.x_low, track_node.loc.x_high))
+
                 if track_node.loc.y_low not in x_tracks:
                     x_tracks[track_node.loc.y_low] = []
 
                 x_tracks[track_node.loc.y_low].append((
-                        track_node.loc.x_low,
-                        track_node.loc.x_high,
+                        x1, x2,
                         track))
             elif track_node.type == NodeType.CHANY:
                 assert track_node.loc.x_low == track_node.loc.x_high
+
+                y1, y2 = sorted((track_node.loc.y_low, track_node.loc.y_high))
 
                 if track_node.loc.x_low not in y_tracks:
                     y_tracks[track_node.loc.x_low] = []
 
                 y_tracks[track_node.loc.x_low].append((
-                        track_node.loc.y_low,
-                        track_node.loc.y_high,
+                        y1, y2,
                         track))
             else:
                 assert False, track_node
@@ -416,9 +419,9 @@ class Graph(object):
 
         num_padding = 0
         for chan, channel_model in x_channel_models.items():
-            for ptc, start, end in channel_model.fill_empty(x_min, x_max):
+            for ptc, start, end in channel_model.fill_empty(max(x_min, 1), x_max):
                 num_padding += 1
-                track_idx = self.add_track(
+                self.add_track(
                         track=Track(
                                 direction='X',
                                 x_low=start,
@@ -428,14 +431,13 @@ class Graph(object):
                         ),
                         segment_id=pad_segment,
                         capacity=0,
-                        timing=None)
-
-                self.set_track_ptc(track_idx, ptc)
+                        timing=None,
+                        ptc=ptc)
 
         for chan, channel_model in y_channel_models.items():
-            for ptc, start, end in channel_model.fill_empty(y_min, y_max):
+            for ptc, start, end in channel_model.fill_empty(max(y_min, 1), y_max):
                 num_padding += 1
-                track_idx = self.add_track(
+                self.add_track(
                         track=Track(
                                 direction='Y',
                                 x_low=chan,
@@ -445,9 +447,8 @@ class Graph(object):
                         ),
                         segment_id=pad_segment,
                         capacity=0,
-                        timing=None)
-
-                self.set_track_ptc(track_idx, ptc)
+                        timing=None,
+                        ptc=ptc)
 
         print('Number padding nodes {}'.format(num_padding))
 
