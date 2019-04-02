@@ -96,3 +96,23 @@ endif (NOT DEFINED ENV{CI} OR NOT $ENV{CI})
 add_subdirectory(ice40)
 add_subdirectory(testarch)
 add_subdirectory(tests)
+
+get_target_property_required(YAPF env YAPF)
+add_custom_target(
+  check_python
+  DEPENDS conda_yapf
+  )
+add_custom_target(
+  format_python
+  DEPENDS conda_yapf
+  )
+
+add_custom_command(
+  TARGET check_python
+  COMMAND ${symbiflow-arch-defs_SOURCE_DIR}/common/yapf_helper.sh -c -y ${YAPF}
+  )
+
+add_custom_command(
+  TARGET format_python
+  COMMAND ${symbiflow-arch-defs_SOURCE_DIR}/common/yapf_helper.sh -f -y ${YAPF}
+  )
