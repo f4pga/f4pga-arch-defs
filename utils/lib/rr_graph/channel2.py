@@ -7,6 +7,7 @@ versus channel2.Channel ~70k).
 """
 from intervaltree import IntervalTree, Interval
 
+
 class Channel(object):
     def __init__(self, tracks):
         self.trees = []
@@ -15,11 +16,15 @@ class Channel(object):
     def place_track(self, track):
         for idx, tree in enumerate(self.trees):
             if not tree.overlaps(track[0], track[1]):
-                tree.add(Interval(begin=track[0], end=track[1]+1, data=track[2]))
+                tree.add(
+                    Interval(begin=track[0], end=track[1] + 1, data=track[2])
+                )
                 return
 
         self.trees.append(IntervalTree())
-        self.trees[-1].add(Interval(begin=track[0], end=track[1]+1, data=track[2]))
+        self.trees[-1].add(
+            Interval(begin=track[0], end=track[1] + 1, data=track[2])
+        )
 
     def pack_tracks(self):
         for track in self.tracks[::-1]:
@@ -29,12 +34,12 @@ class Channel(object):
         for idx, tree in enumerate(self.trees):
             tracks = list(tree.items())
 
-            if min_value <= tracks[0].begin-1:
-                yield (idx, min_value, tracks[0].begin-1)
+            if min_value <= tracks[0].begin - 1:
+                yield (idx, min_value, tracks[0].begin - 1)
 
             for cur_track, next_track in zip(tracks, tracks[1:]):
-                if cur_track.end <= next_track.begin-1:
-                    yield (idx, cur_track.end, next_track.begin-1)
+                if cur_track.end <= next_track.begin - 1:
+                    yield (idx, cur_track.end, next_track.begin - 1)
 
             if tracks[-1].end <= max_value:
                 yield (idx, tracks[-1].end, max_value)

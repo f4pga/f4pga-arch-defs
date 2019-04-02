@@ -34,6 +34,7 @@ from .connection_db_utils import get_wire_pkey
 class Bel(object):
     """ Object to model a BEL.
     """
+
     def __init__(self, module, name=None, keep=True):
         """ Construct Bel object.
 
@@ -123,40 +124,46 @@ class Bel(object):
 
                 buses[bus_name][int(address[:-1])] = connection_wire
             else:
-                connections[wire] = '{indent}{indent}.{wire}({connection})'.format(indent=indent, wire=wire, connection=connection_wire)
+                connections[wire
+                            ] = '{indent}{indent}.{wire}({connection})'.format(
+                                indent=indent,
+                                wire=wire,
+                                connection=connection_wire
+                            )
 
         yield ''
 
         for bus_name, bus in buses.items():
             bus_wire = self._prefix_things(bus_name)
-            connections[bus_name] = '{indent}{indent}.{bus_name}({bus_wire})'.format(
-                    indent=indent,
-                    bus_name=bus_name,
-                    bus_wire=bus_wire,
-                    )
+            connections[bus_name
+                        ] = '{indent}{indent}.{bus_name}({bus_wire})'.format(
+                            indent=indent,
+                            bus_name=bus_name,
+                            bus_wire=bus_wire,
+                        )
 
             yield '{indent}wire [{width_n1}:0] {bus_wire};'.format(
-                    indent=indent,
-                    bus_wire=bus_wire,
-                    width_n1=max(bus.keys()),
-                    )
+                indent=indent,
+                bus_wire=bus_wire,
+                width_n1=max(bus.keys()),
+            )
 
             for idx, wire in bus.items():
                 if wire is None:
                     continue
 
                 yield '{indent}assign {bus_wire}[{idx}] = {wire};'.format(
-                        indent=indent,
-                        bus_wire=bus_wire,
-                        idx=idx,
-                        wire=wire,
-                        )
+                    indent=indent,
+                    bus_wire=bus_wire,
+                    idx=idx,
+                    wire=wire,
+                )
 
         for unused_connection in self.unused_connections:
-            connections[unused_connection] = '{indent}{indent}.{connection}()'.format(
-                    indent=indent,
-                    connection=unused_connection)
-
+            connections[unused_connection
+                        ] = '{indent}{indent}.{connection}()'.format(
+                            indent=indent, connection=unused_connection
+                        )
 
         yield ''
 
@@ -172,14 +179,19 @@ class Bel(object):
                 comment.append('BEL = "{bel}"'.format(bel=self.bel))
 
             yield '{indent}(* {comment} *)'.format(
-                    indent=indent,
-                    comment=', '.join(comment))
+                indent=indent, comment=', '.join(comment)
+            )
 
         yield '{indent}{site} #('.format(indent=indent, site=self.module)
 
         parameters = []
-        for param, value in sorted(self.parameters.items(), key=lambda x: x[0]):
-            parameters.append('{indent}{indent}.{param}({value})'.format(indent=indent, param=param, value=value))
+        for param, value in sorted(self.parameters.items(),
+                                   key=lambda x: x[0]):
+            parameters.append(
+                '{indent}{indent}.{param}({value})'.format(
+                    indent=indent, param=param, value=value
+                )
+            )
 
         if parameters:
             yield ',\n'.join(parameters)
@@ -209,6 +221,7 @@ class Site(object):
     during routing formation, which will result in a DRC violation.
 
     """
+
     def __init__(self, features, site, tile=None):
         self.bels = []
         self.sinks = {}
@@ -375,7 +388,6 @@ class Site(object):
             assert name not in self.bel_map
             self.bel_map[name] = bel
 
-
     def set_post_route_cleanup_function(self, func):
         """ Set callback to be called on this site during routing formation.
 
@@ -465,8 +477,12 @@ class Site(object):
             if sink_wire not in site_pin_map:
                 continue
 
-            sink_wire_pkey = get_wire_pkey(conn, self.tile, site_pin_map[sink_wire])
-            source_wire_pkey = get_wire_pkey(conn, self.tile, site_pin_map[source_wire])
+            sink_wire_pkey = get_wire_pkey(
+                conn, self.tile, site_pin_map[sink_wire]
+            )
+            source_wire_pkey = get_wire_pkey(
+                conn, self.tile, site_pin_map[source_wire]
+            )
             if sink_wire_pkey in unrouted_sinks:
                 shorted_nets[source_wire_pkey] = sink_wire_pkey
 
@@ -476,14 +492,14 @@ class Site(object):
                 unrouted_sinks.remove(sink_wire_pkey)
 
         return dict(
-                wires=wires,
-                unrouted_sinks=unrouted_sinks,
-                unrouted_sources=unrouted_sources,
-                wire_pkey_to_wire=wire_pkey_to_wire,
-                source_bels=source_bels,
-                wire_assigns=wire_assigns,
-                shorted_nets=shorted_nets,
-                )
+            wires=wires,
+            unrouted_sinks=unrouted_sinks,
+            unrouted_sources=unrouted_sources,
+            wire_pkey_to_wire=wire_pkey_to_wire,
+            source_bels=source_bels,
+            wire_assigns=wire_assigns,
+            shorted_nets=shorted_nets,
+        )
 
     def check_site(self):
         """ Sanity checks that the site is internally consistent. """
@@ -492,7 +508,9 @@ class Site(object):
         sources = set(self.sources.keys())
 
         assert len(internal_sources & sinks) == 0, (internal_sources & sinks)
-        assert len(internal_sources & sources) == 0, (internal_sources & sources)
+        assert len(internal_sources & sources) == 0, (
+            internal_sources & sources
+        )
 
         bel_ids = set()
         for bel in self.bels:
@@ -511,7 +529,6 @@ class Site(object):
             if bel_pair is not None:
                 bel, _ = bel_pair
                 assert id(bel) in bel_ids
-
 
     def maybe_get_bel(self, name):
         """ Returns named BEL from site.
@@ -570,7 +587,9 @@ class Site(object):
         sources_to_remove = []
         for source_wire, (bel, _) in self.sources.items():
             if id(bel) == id(bel_to_remove):
-                removed_sources.append(self.site_wire_to_wire_pkey[source_wire])
+                removed_sources.append(
+                    self.site_wire_to_wire_pkey[source_wire]
+                )
                 sources_to_remove.append(source_wire)
 
         for wire in sources_to_remove:
@@ -581,7 +600,8 @@ class Site(object):
     def find_internal_source(self, bel, internal_source):
         source_wire = bel.connections[internal_source]
         assert source_wire in self.internal_sources, (
-                internal_source, source_wire)
+            internal_source, source_wire
+        )
 
         for source, (bel_source, bel_wire) in self.sources.items():
             if id(bel_source) != id(bel):
@@ -607,7 +627,8 @@ class Site(object):
         bel.connections[internal_sink] = None
         if sink_wire is not None:
             idx_to_remove = []
-            for idx, (other_bel, other_internal_sink) in enumerate(self.sinks[sink_wire]):
+            for idx, (other_bel,
+                      other_internal_sink) in enumerate(self.sinks[sink_wire]):
                 if id(bel) == id(other_bel):
                     assert other_internal_sink == internal_sink
                     idx_to_remove.append(idx)
@@ -637,6 +658,7 @@ def merge_exclusive_sets(set_a, set_b):
 
     set_a |= set_b
 
+
 def merge_exclusive_dicts(dict_a, dict_b):
     """ dict_b into dict_a after verifying that dict_a and dict_b have disjoint keys. """
     assert len(set(dict_a.keys()) & set(dict_b.keys())) == 0
@@ -646,6 +668,7 @@ def merge_exclusive_dicts(dict_a, dict_b):
 
 class Module(object):
     """ Object to model a design. """
+
     def __init__(self, db, grid, conn, name="top"):
         self.name = name
         self.iostandard = None
@@ -691,7 +714,10 @@ class Module(object):
             possible_iostandards &= set(l)
 
         if len(possible_iostandards) != 1:
-            raise RuntimeError('Ambigous IOSTANDARD, must specify possibilities: {}'.format(possible_iostandards))
+            raise RuntimeError(
+                'Ambigous IOSTANDARD, must specify possibilities: {}'.
+                format(possible_iostandards)
+            )
 
         self.iostandard = possible_iostandards.pop()
 
@@ -743,13 +769,23 @@ class Module(object):
         integrated_site = site.integrate_site(self.conn, self)
 
         merge_exclusive_sets(self.wires, integrated_site['wires'])
-        merge_exclusive_sets(self.unrouted_sinks, integrated_site['unrouted_sinks'])
-        merge_exclusive_sets(self.unrouted_sources, integrated_site['unrouted_sources'])
+        merge_exclusive_sets(
+            self.unrouted_sinks, integrated_site['unrouted_sinks']
+        )
+        merge_exclusive_sets(
+            self.unrouted_sources, integrated_site['unrouted_sources']
+        )
 
-        merge_exclusive_dicts(self.wire_pkey_to_wire, integrated_site['wire_pkey_to_wire'])
+        merge_exclusive_dicts(
+            self.wire_pkey_to_wire, integrated_site['wire_pkey_to_wire']
+        )
         merge_exclusive_dicts(self.source_bels, integrated_site['source_bels'])
-        merge_exclusive_dicts(self.wire_assigns, integrated_site['wire_assigns'])
-        merge_exclusive_dicts(self.shorted_nets, integrated_site['shorted_nets'])
+        merge_exclusive_dicts(
+            self.wire_assigns, integrated_site['wire_assigns']
+        )
+        merge_exclusive_dicts(
+            self.shorted_nets, integrated_site['shorted_nets']
+        )
 
         self.sites.append(site)
 
@@ -774,7 +810,8 @@ class Module(object):
                 allow_orphan_sinks=allow_orphan_sinks,
                 shorted_nets=self.shorted_nets,
                 nets=self.nets,
-                net_map=self.net_map,):
+                net_map=self.net_map,
+        ):
             self.wire_assigns[sink_wire] = src_wire
 
         self.handle_post_route_cleanup()
@@ -823,15 +860,15 @@ if {{ $cell == {{}} }} {{
     error "Failed to find cell!"
 }}
 set_property LOC [get_sites {site}] $cell""".format(
-                cell=bel.get_cell(),
-                site=bel.site)
+                cell=bel.get_cell(), site=bel.site
+            )
 
             if bel.bel is not None:
                 yield """
 set_property BEL "[get_property SITE_TYPE [get_sites {site}]].{bel}" $cell""".format(
                     site=bel.site,
                     bel=bel.bel,
-                    )
+                )
 
     def output_nets(self):
         """ Yields lines of tcl that will assign the exact routing path for nets.
@@ -865,15 +902,16 @@ if {{ $net == {{}} }} {{
     error "Failed to find net!"
 }}
 """.format(
-        cell=bel.get_cell(),
-        pin=pin,
-        )
+                    cell=bel.get_cell(),
+                    pin=pin,
+                )
 
             yield """
 set_property FIXED_ROUTE {fixed_route} $net
 """.format(
-        fixed_route=' '.join(
-            net.make_fixed_route(self.conn, self.wire_pkey_to_wire)))
+                fixed_route=' '.
+                join(net.make_fixed_route(self.conn, self.wire_pkey_to_wire))
+            )
 
     def get_bels(self):
         """ Yield a list of Bel objects in the module. """
@@ -929,4 +967,3 @@ set_property FIXED_ROUTE {fixed_route} $net
         sink_wire = self.wire_pkey_to_wire[wire_pkey]
         if sink_wire in self.wire_assigns:
             del self.wire_assigns[sink_wire]
-

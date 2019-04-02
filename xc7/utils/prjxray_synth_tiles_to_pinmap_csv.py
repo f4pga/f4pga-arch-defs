@@ -8,16 +8,21 @@ import csv
 
 
 def main():
-    parser = argparse.ArgumentParser(description='Converts a synth_tiles.json into a pin map CSV.')
+    parser = argparse.ArgumentParser(
+        description='Converts a synth_tiles.json into a pin map CSV.'
+    )
     parser.add_argument(
-            "--synth_tiles",
-            type=argparse.FileType('r'), required=True,
-            help='Pin map synth_tiles JSON file')
+        "--synth_tiles",
+        type=argparse.FileType('r'),
+        required=True,
+        help='Pin map synth_tiles JSON file'
+    )
     parser.add_argument(
-            "--output",
-            type=argparse.FileType('w'),
-            default=sys.stdout,
-            help='The output pin map CSV file')
+        "--output",
+        type=argparse.FileType('w'),
+        default=sys.stdout,
+        help='The output pin map CSV file'
+    )
 
     args = parser.parse_args()
 
@@ -40,7 +45,8 @@ def main():
             pads.add(pin['pad'])
             x = synth_tile['loc']['grid_x']
             y = synth_tile['loc']['grid_y']
-            writer.writerow(dict(
+            writer.writerow(
+                dict(
                     name=pin['pad'],
                     x=x,
                     y=y,
@@ -48,7 +54,9 @@ def main():
                     is_clock=1 if pin['is_clock'] else 0,
                     is_input=0 if pin['port_type'] == 'input' else 1,
                     is_output=0 if pin['port_type'] == 'output' else 1,
-            ))
+                )
+            )
+
 
 if __name__ == '__main__':
     main()

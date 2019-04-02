@@ -2,6 +2,7 @@ from collections import namedtuple
 import pprint
 from enum import Enum
 
+
 class Direction(Enum):
     NO_SIDE = 0
     LEFT = 1
@@ -9,10 +10,13 @@ class Direction(Enum):
     TOP = 3
     BOTTOM = 4
 
+
 Track = namedtuple('Track', 'direction x_low x_high y_low y_high')
+
 
 def print_tracks(tracks):
     pprint.pprint(tracks)
+
 
 def make_tracks(xs, ys, points):
     """ Give a list of xs columns and ys rows and points, return a list of
@@ -79,24 +83,28 @@ def make_tracks(xs, ys, points):
     x_tracks = []
     y_tracks = []
     for x in xs:
-        tracks.append(Track(
+        tracks.append(
+            Track(
                 direction='Y',
                 x_low=x,
                 x_high=x,
                 y_low=y_min,
                 y_high=y_max,
-        ))
-        y_tracks.append(len(tracks)-1)
+            )
+        )
+        y_tracks.append(len(tracks) - 1)
 
     for y in ys:
-        tracks.append(Track(
+        tracks.append(
+            Track(
                 direction='X',
                 x_low=x_min,
                 x_high=x_max,
                 y_low=y,
                 y_high=y,
-        ))
-        x_tracks.append(len(tracks)-1)
+            )
+        )
+        x_tracks.append(len(tracks) - 1)
 
     if len(tracks) == 1:
         return tracks, []
@@ -120,6 +128,7 @@ def make_tracks(xs, ys, points):
 
     return tracks, list(connections)
 
+
 class Tracks(object):
     def __init__(self, tracks, track_connections):
         self.tracks = tracks
@@ -130,20 +139,23 @@ class Tracks(object):
         track_connections = {}
 
         for idx, _ in enumerate(self.tracks):
-            track_connections[idx] = set((idx,))
+            track_connections[idx] = set((idx, ))
 
         for conn_a, conn_b in self.track_connections:
             if track_connections[conn_a] is track_connections[conn_b]:
                 continue
 
-            assert self.tracks[conn_a].direction != self.tracks[conn_b].direction
+            assert self.tracks[conn_a].direction != self.tracks[conn_b
+                                                                ].direction
 
             track_connections[conn_a] |= track_connections[conn_b]
 
             for track_idx in track_connections[conn_a]:
                 track_connections[track_idx] = track_connections[conn_a]
 
-        assert len(set(id(s) for s in track_connections.values())) == 1, track_connections
+        assert len(
+            set(id(s) for s in track_connections.values())
+        ) == 1, track_connections
 
     def is_wire_adjacent_to_track(self, idx, coord):
         track = self.tracks[idx]
@@ -151,9 +163,11 @@ class Tracks(object):
 
         if track.direction == 'X':
             pin_top = track.y_low == wire_y
-            pin_bottom = track.y_low == wire_y-1
-            adjacent_channel = ((pin_top or pin_bottom) and (
-                    track.x_low <= wire_x and wire_x <= track.x_high))
+            pin_bottom = track.y_low == wire_y - 1
+            adjacent_channel = (
+                (pin_top or pin_bottom)
+                and (track.x_low <= wire_x and wire_x <= track.x_high)
+            )
 
             if adjacent_channel:
                 if pin_top:
@@ -167,9 +181,11 @@ class Tracks(object):
 
         elif track.direction == 'Y':
             pin_right = track.x_low == wire_x
-            pin_left = track.x_low == wire_x-1
-            adjacent_channel = ((pin_right or pin_left) and (
-                    track.y_low <= wire_y and wire_y <= track.y_high))
+            pin_left = track.x_low == wire_x - 1
+            adjacent_channel = (
+                (pin_right or pin_left)
+                and (track.y_low <= wire_y and wire_y <= track.y_high)
+            )
 
             if adjacent_channel:
                 if pin_right:
@@ -183,8 +199,6 @@ class Tracks(object):
         else:
             assert False, track
 
-
-
     def get_tracks_for_wire_at_coord(self, coord):
         """ Returns which track indicies and direction a wire at a coord can
             be connected too. """
@@ -195,6 +209,7 @@ class Tracks(object):
             pin_dir = self.is_wire_adjacent_to_track(idx, coord)
             if pin_dir != Direction.NO_SIDE:
                 yield (idx, pin_dir)
+
 
 def main():
     import doctest
