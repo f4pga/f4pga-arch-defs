@@ -71,6 +71,18 @@ def find_downstream_node(conn, check_downstream_default, source_node_pkey):
 
     return None
 
+def output_builder(fixed_route):
+    yield '[list'
+
+    for i in fixed_route:
+        if type(i) is list:
+            for i2 in output_builder(i):
+                yield i2
+        else:
+            yield i
+
+    yield ']'
+
 class Net(object):
     """ Object to present a net (e.g. a source and it sinks). """
     def __init__(self, source_wire_pkey):
@@ -169,7 +181,6 @@ class Net(object):
             source_to_sink_node_map[src].append(sink)
 
 
-        fixed_route = []
 
         c = conn.cursor()
 
@@ -217,22 +228,31 @@ class Net(object):
             for idx, next_node_pkey in enumerate(source_to_sink_node_map[source_node_pkey]):
                 descend_fixed_route(next_node_pkey, descend_routes[idx])
 
-        descend_fixed_route(get_node_pkey(conn, self.source_wire_pkey), fixed_route)
 
-        def output_builder(fixed_route):
-            yield '[list'
+        if self.source_wire_pkey not in [ZERO_NET, ONE_NET]:
+            fixed_route = []
+            descend_fixed_route(get_node_pkey(conn, self.source_wire_pkey), fixed_route)
 
-            for i in fixed_route:
-                if type(i) is list:
-                    for i2 in output_builder(i):
-                        yield i2
-                else:
+            for i in output_builder(fixed_route):
+                yield i
+        else:
+            source_nodes = []
+            for node, parent_node in self.parent_nodes.items():
+                if parent_node == self.source_wire_pkey:
+                    source_nodes.append(node)
+
+            yield '[list '
+
+            for source_node in source_nodes:
+                yield '('
+                fixed_route = []
+                descend_fixed_route(source_node, fixed_route)
+                for i in output_builder(fixed_route):
                     yield i
 
-            yield ']'
+                yield ')'
 
-        for i in output_builder(fixed_route):
-            yield i
+            yield ']'
 
 
 def create_check_for_default(db, conn):

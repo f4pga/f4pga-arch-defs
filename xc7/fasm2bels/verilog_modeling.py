@@ -109,7 +109,10 @@ class Bel(object):
             elif connection in [0, 1]:
                 connection_wire = connection
             else:
-                connection_wire = self._prefix_things(connection)
+                if connection is not None:
+                    connection_wire = self._prefix_things(connection)
+                else:
+                    connection_wire = None
 
             if '[' in wire:
                 bus_name, address = wire.split('[')
@@ -122,22 +125,38 @@ class Bel(object):
             else:
                 connections[wire] = '{indent}{indent}.{wire}({connection})'.format(indent=indent, wire=wire, connection=connection_wire)
 
+        yield ''
+
         for bus_name, bus in buses.items():
-            bus_wires = [0 for _ in range(max(bus.keys())+1)]
+            bus_wire = self._prefix_things(bus_name)
+            connections[bus_name] = '{indent}{indent}.{bus_name}({bus_wire})'.format(
+                    indent=indent,
+                    bus_name=bus_name,
+                    bus_wire=bus_wire,
+                    )
 
-            for idx, _ in enumerate(bus_wires):
-                assert idx in bus
-                bus_wires[idx] = bus[idx]
+            yield '{indent}wire [{width_n1}:0] {bus_wire};'.format(
+                    indent=indent,
+                    bus_wire=bus_wire,
+                    width_n1=max(bus.keys()),
+                    )
 
-            connections[bus_name] = '{indent}{indent}.{bus_name}({connection})'.format(
-                indent=indent,
-                bus_name=bus_name,
-                connection='{{{}}}'.format(', '.join(bus_wires[::-1])))
+            for idx, wire in bus.items():
+                if wire is None:
+                    continue
+
+                yield '{indent}assign {bus_wire}[{idx}] = {wire};'.format(
+                        indent=indent,
+                        bus_wire=bus_wire,
+                        idx=idx,
+                        wire=wire,
+                        )
 
         for unused_connection in self.unused_connections:
             connections[unused_connection] = '{indent}{indent}.{connection}()'.format(
                     indent=indent,
                     connection=unused_connection)
+
 
         yield ''
 
@@ -559,6 +578,47 @@ class Site(object):
 
         return removed_sinks, removed_sources
 
+    def find_internal_source(self, bel, internal_source):
+        source_wire = bel.connections[internal_source]
+        assert source_wire in self.internal_sources, (
+                internal_source, source_wire)
+
+        for source, (bel_source, bel_wire) in self.sources.items():
+            if id(bel_source) != id(bel):
+                continue
+
+            if bel_wire == internal_source:
+                continue
+
+            return source
+
+        return None
+
+    def find_internal_sink(self, bel, internal_sink):
+        sink_wire = bel.connections[internal_sink]
+        assert sink_wire not in bel.outputs, (internal_sink, sink_wire)
+
+        if sink_wire not in self.internal_sources:
+            assert sink_wire in self.sinks
+            return sink_wire
+
+    def remove_internal_sink(self, bel, internal_sink):
+        sink_wire = self.find_internal_sink(bel, internal_sink)
+        bel.connections[internal_sink] = None
+        if sink_wire is not None:
+            idx_to_remove = []
+            for idx, (other_bel, other_internal_sink) in enumerate(self.sinks[sink_wire]):
+                if id(bel) == id(other_bel):
+                    assert other_internal_sink == internal_sink
+                    idx_to_remove.append(idx)
+
+            for idx in sorted(idx_to_remove)[::-1]:
+                del self.sinks[sink_wire][idx]
+
+            if len(self.sinks[sink_wire]) == 0:
+                del self.sinks[sink_wire]
+                return self.site_wire_to_wire_pkey[sink_wire]
+
 
 @functools.lru_cache(maxsize=None)
 def make_site_pin_map(site_pins):
@@ -782,18 +842,20 @@ set_property BEL "[get_property SITE_TYPE [get_sites {site}]].{bel}" $cell""".fo
         assert len(self.nets) > 0
 
         for net_wire_pkey, net in self.nets.items():
-            if net_wire_pkey in [ZERO_NET, ONE_NET]:
-                continue
+            if net_wire_pkey == ZERO_NET:
+                yield 'set net [get_nets {<const0>}]'
+            elif net_wire_pkey == ONE_NET:
+                yield 'set net [get_nets {<const1>}]'
+            else:
+                if net_wire_pkey not in self.source_bels:
+                    continue
 
-            if net_wire_pkey not in self.source_bels:
-                continue
+                if not net.is_net_alive():
+                    continue
 
-            if not net.is_net_alive():
-                continue
+                bel, pin = self.source_bels[net_wire_pkey]
 
-            bel, pin = self.source_bels[net_wire_pkey]
-
-            yield """
+                yield """
 set pin [get_pins {cell}/{pin}]
 if {{ $pin == {{}} }} {{
     error "Failed to find pin!"
@@ -802,10 +864,14 @@ set net [get_nets -of_object $pin]
 if {{ $net == {{}} }} {{
     error "Failed to find net!"
 }}
-set_property FIXED_ROUTE {fixed_route} $net
 """.format(
         cell=bel.get_cell(),
         pin=pin,
+        )
+
+            yield """
+set_property FIXED_ROUTE {fixed_route} $net
+""".format(
         fixed_route=' '.join(
             net.make_fixed_route(self.conn, self.wire_pkey_to_wire)))
 
@@ -855,8 +921,12 @@ set_property FIXED_ROUTE {fixed_route} $net
 
         # Remove the sinks from the wires, wire assigns, and net
         for wire_pkey in removed_sinks:
-            self.wires.remove(self.wire_pkey_to_wire[wire_pkey])
-            if wire_pkey in self.wire_assigns:
-                del self.wire_assigns[wire_pkey]
+            self.remove_sink(wire_pkey)
 
-            self.unrouted_sinks.remove(wire_pkey)
+    def remove_sink(self, wire_pkey):
+        self.unrouted_sinks.remove(wire_pkey)
+        self.wires.remove(self.wire_pkey_to_wire[wire_pkey])
+        sink_wire = self.wire_pkey_to_wire[wire_pkey]
+        if sink_wire in self.wire_assigns:
+            del self.wire_assigns[sink_wire]
+

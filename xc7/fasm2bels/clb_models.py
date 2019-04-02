@@ -177,6 +177,8 @@ def cleanup_slice(top, site):
 
     Cleanups:
      - Detect if CARRY4 is required.  If not, remove from site.
+     - Remove connections to CARRY4 that are not in used (e.g. if C[3] and
+       CO[3] are not used, disconnect S[3] and DI[2]).
 
     """
     carry4 = site.maybe_get_bel('CARRY4')
@@ -186,24 +188,49 @@ def cleanup_slice(top, site):
 
     # Simplest check is if the CARRY4 has output in used by either the OUTMUX
     # or the FFMUX, if any of these muxes are enable, CARRY4 must remain.
-    for lut in 'ABCD':
+    co_in_use = [False for _ in range(4)]
+    o_in_use = [False for _ in range(4)]
+    for idx, lut in enumerate('ABCD'):
         if site.has_feature('{}FFMUX.XOR'.format(lut)):
-            return
+            o_in_use[idx] = True
 
         if site.has_feature('{}FFMUX.CY'.format(lut)):
-            return
+            co_in_use[idx] = True
 
         if site.has_feature('{}OUTMUX.XOR'.format(lut)):
-            return
+            o_in_use[idx] = True
 
         if site.has_feature('{}OUTMUX.CY'.format(lut)):
-            return
+            co_in_use[idx] = True
+
 
     # No outputs in the SLICE use CARRY4, check if the COUT line is in use.
     for sink in top.find_sinks_from_source(site, 'COUT'):
-        return
+        co_in_use[idx] = True
+        break
 
-    top.remove_bel(site, carry4)
+    for idx in [3, 2, 1, 0]:
+        if co_in_use[idx] or o_in_use[idx]:
+            for odx in range(idx):
+                co_in_use[odx] = True
+                o_in_use[odx] = True
+
+            break
+
+    if not any(co_in_use) and not any(o_in_use):
+        # No outputs in use, remove entire BEL
+        top.remove_bel(site, carry4)
+    else:
+        for idx in range(4):
+            if not o_in_use[idx] and not co_in_use[idx]:
+                sink_wire_pkey = site.remove_internal_sink(carry4, 'S[{}]'.format(idx))
+                if sink_wire_pkey is not None:
+                    top.remove_sink(sink_wire_pkey)
+
+                sink_wire_pkey = site.remove_internal_sink(carry4, 'DI[{}]'.format(idx))
+                if sink_wire_pkey is not None:
+                    top.remove_sink(sink_wire_pkey)
+
 
 def process_slice(top, s):
     """ Convert SLICE features in Bel and Site objects.
@@ -323,7 +350,7 @@ def process_slice(top, s):
             del lut_modes['C']
             del lut_modes['D']
         elif lut_modes['D'] == 'RAM128X1S':
-            ram128 = Bel('RAM128X1S')
+            ram128 = Bel('RAM128X1S', name='RAM128X1S_CD')
             site.add_sink(ram128, 'WE', WE)
             site.add_sink(ram128, 'WCLK', "CLK")
             site.add_sink(ram128, 'D', "DI")
@@ -345,7 +372,7 @@ def process_slice(top, s):
             del lut_modes['D']
 
             if lut_modes['B'] == 'RAM128X1S':
-                ram128 = Bel('RAM128X1S')
+                ram128 = Bel('RAM128X1S', name='RAM128X1S_AB')
                 site.add_sink(ram128, 'WE', WE)
                 site.add_sink(ram128, 'WCLK', "CLK")
                 site.add_sink(ram128, 'D', "BI")
@@ -411,7 +438,8 @@ def process_slice(top, s):
             if lut_modes[lut] == 'RAM64X1D':
                 assert lut_modes[minus_one] == lut_modes[lut]
 
-                ram64 = Bel('RAM64X1D')
+                ram64 = Bel('RAM64X1D', name='RAM64X1D_' + minus_one + lut)
+                ram64.set_bel(minus_one + '6LUT')
 
                 site.add_sink(ram64, 'WE', WE)
                 site.add_sink(ram64, 'WCLK', "CLK")
@@ -434,7 +462,7 @@ def process_slice(top, s):
                 del lut_modes[lut]
                 del lut_modes[minus_one]
             elif lut_modes[lut] == 'RAM32X1D':
-                ram32 = Bel('RAM32X1D')
+                ram32 = Bel('RAM32X1D', name='RAM32X1D_' + minus_one + lut)
 
                 site.add_sink(ram32, 'WE', WE)
                 site.add_sink(ram32, 'WCLK', "CLK")
@@ -464,7 +492,7 @@ def process_slice(top, s):
                 luts[lut].parameters['INIT'] = get_lut_init(s, aparts[0], aparts[1], lut)
                 site.add_bel(luts[lut])
             elif lut_modes[lut] == 'RAM64X1S':
-                ram64 = Bel('RAM64X1S')
+                ram64 = Bel('RAM64X1S', name='RAM64X1S_' + lut)
 
                 site.add_sink(ram64, 'WE', WE)
                 site.add_sink(ram64, 'WCLK', "CLK")
@@ -479,7 +507,7 @@ def process_slice(top, s):
 
                 site.add_bel(ram64)
             elif lut_modes[lut] == 'RAM32X2S':
-                ram32 = Bel('RAM32X1S')
+                ram32 = Bel('RAM32X1S', name='RAM32X1S_' + lut)
 
                 site.add_sink(ram32, 'WE', WE)
                 site.add_sink(ram32, 'WCLK', "CLK")
