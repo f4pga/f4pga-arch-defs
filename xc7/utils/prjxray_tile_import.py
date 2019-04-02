@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-
 """
 Import the top level tile interconnect information from Project X-Ray database
 files.
@@ -23,12 +22,13 @@ import re
 
 import lxml.etree as ET
 
+
 def find_port(pin_name, ports):
     if pin_name in ports:
         return {
-                'pin_name': pin_name,
-                'pin_idx': None,
-                }
+            'pin_name': pin_name,
+            'pin_idx': None,
+        }
 
     # Find trailing digits, which are assumed to be pin indicies, example:
     # ADDRARDADDR13
@@ -41,11 +41,12 @@ def find_port(pin_name, ports):
 
     if prefix in ports and prefix_pin_idx < ports[prefix]:
         return {
-                'pin_name': prefix,
-                'pin_idx': prefix_pin_idx,
-                }
+            'pin_name': prefix,
+            'pin_idx': prefix_pin_idx,
+        }
     else:
         return None
+
 
 def object_ref(pb_name, pin_name, pin_idx=None):
     pin_addr = ''
@@ -54,48 +55,63 @@ def object_ref(pb_name, pin_name, pin_idx=None):
 
     return '{}.{}{}'.format(pb_name, pin_name, pin_addr)
 
+
 def main():
     mydir = os.path.dirname(__file__)
-    prjxray_db = os.path.abspath(os.path.join(mydir, "..", "..", "third_party", "prjxray-db"))
+    prjxray_db = os.path.abspath(
+        os.path.join(mydir, "..", "..", "third_party", "prjxray-db")
+    )
 
     db_types = prjxray.db.get_available_databases(prjxray_db)
 
     parser = argparse.ArgumentParser(
-        description=__doc__,
-        fromfile_prefix_chars='@',
-        prefix_chars='-~'
+        description=__doc__, fromfile_prefix_chars='@', prefix_chars='-~'
     )
 
     parser.add_argument(
-        '--part', choices=[os.path.basename(db_type) for db_type in db_types],
-        help="""Project X-Ray database to use.""")
+        '--part',
+        choices=[os.path.basename(db_type) for db_type in db_types],
+        help="""Project X-Ray database to use."""
+    )
+
+    parser.add_argument('--tile', help="""Tile to generate for""")
 
     parser.add_argument(
-        '--tile',
-        help="""Tile to generate for""")
+        '--site_directory', help="""Diretory where sites are defined"""
+    )
 
     parser.add_argument(
-        '--site_directory',
-        help="""Diretory where sites are defined""")
+        '--output-pb-type',
+        nargs='?',
+        type=argparse.FileType('w'),
+        default=sys.stdout,
+        help="""File to write the output too."""
+    )
 
     parser.add_argument(
-        '--output-pb-type', nargs='?', type=argparse.FileType('w'), default=sys.stdout,
-        help="""File to write the output too.""")
+        '--output-model',
+        nargs='?',
+        type=argparse.FileType('w'),
+        default=sys.stdout,
+        help="""File to write the output too."""
+    )
 
     parser.add_argument(
-        '--output-model', nargs='?', type=argparse.FileType('w'), default=sys.stdout,
-        help="""File to write the output too.""")
+        '--pin_assignments', required=True, type=argparse.FileType('r')
+    )
 
     parser.add_argument(
-            '--pin_assignments', required=True, type=argparse.FileType('r'))
+        '--site_types',
+        required=True,
+        help="Comma seperated list of site types to include in this tile."
+    )
 
     parser.add_argument(
-            '--site_types', required=True, help="Comma seperated list of site types to include in this tile.")
-
-    parser.add_argument(
-            '--fused_sites',
-            action='store_true',
-            help="Typically a tile can treat the sites within the tile as independent.  For tiles where this is not true, fused sites only imports 1 primatative for the entire tile, which should be named the same as the tile type.")
+        '--fused_sites',
+        action='store_true',
+        help=
+        "Typically a tile can treat the sites within the tile as independent.  For tiles where this is not true, fused sites only imports 1 primatative for the entire tile, which should be named the same as the tile type."
+    )
 
     args = parser.parse_args()
 
@@ -144,12 +160,16 @@ def main():
                     assert False, site_type_pin.direction
 
         # Make sure all requested site types actually get imported.
-        assert len(set(site_type_instances.keys()) - imported_site_types) == 0, (
-                site_type_instances.keys(), imported_site_types)
+        assert len(set(site_type_instances.keys()) - imported_site_types
+                   ) == 0, (site_type_instances.keys(), imported_site_types)
 
         for ignored_site_type in ignored_site_types:
-            print('*** WARNING *** Ignored site type {} in tile type {}'.format(
-                ignored_site_type, args.tile), file=sys.stderr)
+            print(
+                '*** WARNING *** Ignored site type {} in tile type {}'.format(
+                    ignored_site_type, args.tile
+                ),
+                file=sys.stderr
+            )
     else:
         for site in tile.get_sites():
             site_type = db.get_site_type(site.type)
@@ -177,15 +197,22 @@ def main():
     # Generate the model.xml file                                            #
     ##########################################################################
 
-
     model_xml = ET.Element(
-        'models', nsmap = {'xi': xi_url},
+        'models',
+        nsmap={'xi': xi_url},
     )
 
     def add_model_include(site_type, instance_name):
-        ET.SubElement(model_xml, xi_include, {
-            'href': site_model.format(site_type.lower(), instance_name.lower()),
-            'xpointer': "xpointer(models/child::node())"})
+        ET.SubElement(
+            model_xml, xi_include, {
+                'href':
+                    site_model.format(
+                        site_type.lower(), instance_name.lower()
+                    ),
+                'xpointer':
+                    "xpointer(models/child::node())"
+            }
+        )
 
     if not args.fused_sites:
         site_types = set(site.type for site in tile.get_sites())
@@ -209,29 +236,34 @@ def main():
     ##########################################################################
 
     def add_direct(xml, input, output):
-        ET.SubElement(xml, 'direct', {
+        ET.SubElement(
+            xml, 'direct', {
                 'name': '{}_to_{}'.format(input, output),
                 'input': input,
-                'output': output})
+                'output': output
+            }
+        )
 
     tile_name = "BLK_TI-{}".format(args.tile)
 
     pb_type_xml = ET.Element(
-        'pb_type', {
+        'pb_type',
+        {
             'name': tile_name,
         },
-        nsmap = {'xi': xi_url},
+        nsmap={'xi': xi_url},
     )
 
-    fc_xml = ET.SubElement(pb_type_xml, 'fc', {
-            'in_type':'abs',
-            'in_val':'2',
+    fc_xml = ET.SubElement(
+        pb_type_xml, 'fc', {
+            'in_type': 'abs',
+            'in_val': '2',
             'out_type': 'abs',
-            'out_val':'2',
-    })
+            'out_val': '2',
+        }
+    )
 
     interconnect_xml = ET.Element('interconnect')
-
 
     pb_type_xml.append(ET.Comment(" Tile Inputs "))
 
@@ -245,7 +277,10 @@ def main():
         ET.SubElement(
             pb_type_xml,
             input_type,
-            {'name': name, 'num_pins': '1'},
+            {
+                'name': name,
+                'num_pins': '1'
+            },
         )
 
     pb_type_xml.append(ET.Comment(" Tile Outputs "))
@@ -254,7 +289,10 @@ def main():
         ET.SubElement(
             pb_type_xml,
             'output',
-            {'name': name, 'num_pins': '1'},
+            {
+                'name': name,
+                'num_pins': '1'
+            },
         )
 
     pb_type_xml.append(ET.Comment(" Internal Sites "))
@@ -283,7 +321,9 @@ def main():
 
             print(site_prefix, site_instance)
 
-            site_type_path = site_pbtype.format(site.type.lower(), site_instance.lower())
+            site_type_path = site_pbtype.format(
+                site.type.lower(), site_instance.lower()
+            )
             cell_pb_type = ET.ElementTree()
             root_element = cell_pb_type.parse(site_type_path)
             cell_names[site_instance] = root_element.attrib['name']
@@ -298,28 +338,37 @@ def main():
             for outputs in root_element.iter('output'):
                 ports[outputs.attrib['name']] = int(outputs.attrib['num_pins'])
 
-            assert site_instance not in site_type_ports, (site_instance, site_type_ports.keys())
+            assert site_instance not in site_type_ports, (
+                site_instance, site_type_ports.keys()
+            )
             site_type_ports[site_instance] = ports
 
             attrib = dict(root_element.attrib)
             include_xml = ET.SubElement(pb_type_xml, 'pb_type', attrib)
-            ET.SubElement(include_xml, xi_include, {
-                'href': site_type_path,
-                'xpointer':
-                "xpointer(pb_type/child::node()[local-name()!='metadata'])",
-                })
+            ET.SubElement(
+                include_xml, xi_include, {
+                    'href':
+                        site_type_path,
+                    'xpointer':
+                        "xpointer(pb_type/child::node()[local-name()!='metadata'])",
+                }
+            )
 
             metadata_xml = ET.SubElement(include_xml, 'metadata')
-            ET.SubElement(metadata_xml, 'meta', {
+            ET.SubElement(
+                metadata_xml, 'meta', {
                     'name': 'fasm_prefix',
-            }).text = site_prefix
+                }
+            ).text = site_prefix
 
             # Import pb_type metadata if it exists.
             if any(child.tag == 'metadata' for child in root_element):
-                ET.SubElement(metadata_xml, xi_include, {
-                    'href': site_type_path,
-                    'xpointer': "xpointer(pb_type/metadata/child::node())",
-                    })
+                ET.SubElement(
+                    metadata_xml, xi_include, {
+                        'href': site_type_path,
+                        'xpointer': "xpointer(pb_type/metadata/child::node())",
+                    }
+                )
 
         for idx, site in enumerate(tile.get_sites()):
             if site.type in ignored_site_types:
@@ -332,30 +381,36 @@ def main():
             site_type = db.get_site_type(site.type)
 
             interconnect_xml.append(ET.Comment(" Tile->Site "))
-            for site_pin in sorted(site.site_pins, key=lambda site_pin: site_pin.name):
+            for site_pin in sorted(site.site_pins,
+                                   key=lambda site_pin: site_pin.name):
                 if site_pin.wire is None:
                     continue
 
                 port = find_port(site_pin.name, site_type_ports[site_instance])
                 if port is None:
-                    print("*** WARNING *** Didn't find port for name {} for site type {}".format(
-                        site_pin.name, site.type), file=sys.stderr)
+                    print(
+                        "*** WARNING *** Didn't find port for name {} for site type {}"
+                        .format(site_pin.name, site.type),
+                        file=sys.stderr
+                    )
                     continue
 
                 site_type_pin = site_type.get_site_pin(site_pin.name)
 
                 if site_type_pin.direction == prjxray.site_type.SitePinDirection.IN:
-                    add_direct(interconnect_xml,
-                            input=object_ref(tile_name, site_pin.wire),
-                            output=object_ref(site_name, **port)
-                            )
+                    add_direct(
+                        interconnect_xml,
+                        input=object_ref(tile_name, site_pin.wire),
+                        output=object_ref(site_name, **port)
+                    )
                 elif site_type_pin.direction == prjxray.site_type.SitePinDirection.OUT:
                     pass
                 else:
                     assert False, site_type_pin.direction
 
             interconnect_xml.append(ET.Comment(" Site->Tile "))
-            for site_pin in sorted(site.site_pins, key=lambda site_pin: site_pin.name):
+            for site_pin in sorted(site.site_pins,
+                                   key=lambda site_pin: site_pin.name):
                 if site_pin.wire is None:
                     continue
 
@@ -368,10 +423,11 @@ def main():
                 if site_type_pin.direction == prjxray.site_type.SitePinDirection.IN:
                     pass
                 elif site_type_pin.direction == prjxray.site_type.SitePinDirection.OUT:
-                    add_direct(interconnect_xml,
-                            input=object_ref(site_name, **port),
-                            output=object_ref(tile_name, site_pin.wire),
-                            )
+                    add_direct(
+                        interconnect_xml,
+                        input=object_ref(site_name, **port),
+                        output=object_ref(tile_name, site_pin.wire),
+                    )
                 else:
                     assert False, site_type_pin.direction
     else:
@@ -393,11 +449,12 @@ def main():
 
         attrib = dict(root_element.attrib)
         include_xml = ET.SubElement(pb_type_xml, 'pb_type', attrib)
-        ET.SubElement(include_xml, xi_include, {
-            'href': site_type_path,
-            'xpointer':
-            "xpointer(pb_type/child::node())",
-            })
+        ET.SubElement(
+            include_xml, xi_include, {
+                'href': site_type_path,
+                'xpointer': "xpointer(pb_type/child::node())",
+            }
+        )
 
         site_name = root_element.attrib['name']
 
@@ -408,31 +465,37 @@ def main():
             site_type = db.get_site_type(site.type)
 
             interconnect_xml.append(ET.Comment(" Tile->Site "))
-            for site_pin in sorted(site.site_pins, key=lambda site_pin: site_pin.name):
+            for site_pin in sorted(site.site_pins,
+                                   key=lambda site_pin: site_pin.name):
                 if site_pin.wire is None:
                     continue
 
                 port_name = fused_port_name(site, site_pin)
                 port = find_port(port_name, ports)
                 if port is None:
-                    print("*** WARNING *** Didn't find port for name {} for site type {}".format(
-                        port_name, site.type), file=sys.stderr)
+                    print(
+                        "*** WARNING *** Didn't find port for name {} for site type {}"
+                        .format(port_name, site.type),
+                        file=sys.stderr
+                    )
                     continue
 
                 site_type_pin = site_type.get_site_pin(site_pin.name)
 
                 if site_type_pin.direction == prjxray.site_type.SitePinDirection.IN:
-                    add_direct(interconnect_xml,
-                            input=object_ref(tile_name, site_pin.wire),
-                            output=object_ref(site_name, **port)
-                            )
+                    add_direct(
+                        interconnect_xml,
+                        input=object_ref(tile_name, site_pin.wire),
+                        output=object_ref(site_name, **port)
+                    )
                 elif site_type_pin.direction == prjxray.site_type.SitePinDirection.OUT:
                     pass
                 else:
                     assert False, site_type_pin.direction
 
             interconnect_xml.append(ET.Comment(" Site->Tile "))
-            for site_pin in sorted(site.site_pins, key=lambda site_pin: site_pin.name):
+            for site_pin in sorted(site.site_pins,
+                                   key=lambda site_pin: site_pin.name):
                 if site_pin.wire is None:
                     continue
 
@@ -446,23 +509,25 @@ def main():
                 if site_type_pin.direction == prjxray.site_type.SitePinDirection.IN:
                     pass
                 elif site_type_pin.direction == prjxray.site_type.SitePinDirection.OUT:
-                    add_direct(interconnect_xml,
-                            input=object_ref(site_name, **port),
-                            output=object_ref(tile_name, site_pin.wire),
-                            )
+                    add_direct(
+                        interconnect_xml,
+                        input=object_ref(site_name, **port),
+                        output=object_ref(tile_name, site_pin.wire),
+                    )
                 else:
                     assert False, site_type_pin.direction
-
 
     pb_type_xml.append(interconnect_xml)
 
     ET.SubElement(pb_type_xml, 'switchblock_locations', {
-            'pattern': 'all',
+        'pattern': 'all',
     })
 
-    pinlocations_xml = ET.SubElement(pb_type_xml, 'pinlocations', {
+    pinlocations_xml = ET.SubElement(
+        pb_type_xml, 'pinlocations', {
             'pattern': 'custom',
-    })
+        }
+    )
 
     if len(input_wires) > 0 or len(output_wires) > 0:
         pin_assignments = json.load(args.pin_assignments)
@@ -475,10 +540,9 @@ def main():
 
                 sides[side].append(object_ref(tile_name, pin))
 
-
         for side, pins in sides.items():
             ET.SubElement(pinlocations_xml, 'loc', {
-                    'side': side.lower(),
+                'side': side.lower(),
             }).text = ' '.join(pins)
 
     direct_pins = set()
@@ -490,15 +554,18 @@ def main():
             direct_pins.add(direct['to_pin'].split('.')[1])
 
     for fc_override in direct_pins:
-        ET.SubElement(fc_xml, 'fc_override', {
-            'fc_type': 'frac',
-            'fc_val': '0.0',
-            'port_name': fc_override,
-            })
+        ET.SubElement(
+            fc_xml, 'fc_override', {
+                'fc_type': 'frac',
+                'fc_val': '0.0',
+                'port_name': fc_override,
+            }
+        )
 
     pb_type_str = ET.tostring(pb_type_xml, pretty_print=True).decode('utf-8')
     args.output_pb_type.write(pb_type_str)
     args.output_pb_type.close()
+
 
 if __name__ == '__main__':
     main()

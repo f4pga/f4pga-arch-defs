@@ -1,5 +1,6 @@
 from .verilog_modeling import Bel, Site
 
+
 def get_iob_site(db, grid, tile, site):
     """ Return the prjxray.tile.Site objects and tiles for the given IOB site.
 
@@ -22,7 +23,7 @@ def get_iob_site(db, grid, tile, site):
     if len(sites) == 1:
         iob_site = sites[0]
     else:
-        iob_site = sites[1-int(site[-1])]
+        iob_site = sites[1 - int(site[-1])]
 
     loc = grid.loc_of_tilename(tile)
 
@@ -33,8 +34,8 @@ def get_iob_site(db, grid, tile, site):
     else:
         assert False, gridinfo.tile_type
 
-    iologic_tile = grid.tilename_at_loc((loc.grid_x+dx, loc.grid_y))
-    ioi3_gridinfo = grid.gridinfo_at_loc((loc.grid_x+dx, loc.grid_y))
+    iologic_tile = grid.tilename_at_loc((loc.grid_x + dx, loc.grid_y))
+    ioi3_gridinfo = grid.gridinfo_at_loc((loc.grid_x + dx, loc.grid_y))
 
     ioi3_tile_type = db.get_tile_type(ioi3_gridinfo.tile_type)
     ioi3_sites = ioi3_tile_type.get_instance_sites(ioi3_gridinfo)
@@ -58,6 +59,7 @@ def get_iob_site(db, grid, tile, site):
     assert ologic_site is not None
 
     return iob_site, iologic_tile, ilogic_site, ologic_site
+
 
 def get_drive(iostandard, drive):
     """ Returns the drive strength given the IOSTANDARD and drive feature str.
@@ -100,7 +102,7 @@ def add_output_parameters(bel, site):
     for f in site.set_features:
         if 'DRIVE' in f:
             assert drive is None
-            drive  = f
+            drive = f
             break
 
     iostandard = bel.parameters['IOSTANDARD']
@@ -115,8 +117,9 @@ def process_iob(top, iob):
     assert top.iostandard is not None
 
     aparts = iob[0].feature.split('.')
-    iob_site, iologic_tile, ilogic_site, ologic_site = get_iob_site(top.db,
-            top.grid, aparts[0], aparts[1])
+    iob_site, iologic_tile, ilogic_site, ologic_site = get_iob_site(
+        top.db, top.grid, aparts[0], aparts[1]
+    )
 
     site = Site(iob, iob_site)
 
@@ -263,9 +266,9 @@ def process_iob(top, iob):
 
 def process_iobs(conn, top, tile, features):
     iobs = {
-            '0': [],
-            '1': [],
-            }
+        '0': [],
+        '1': [],
+    }
 
     for f in features:
         parts = f.feature.split('.')

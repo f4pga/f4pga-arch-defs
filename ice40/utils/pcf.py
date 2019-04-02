@@ -1,5 +1,6 @@
 import re
 
+
 def parse_pcf(f, pin_map, icecube2_hacks=False):
     pcf_data = {}
     for i, oline in enumerate(f):
@@ -23,13 +24,15 @@ def parse_pcf(f, pin_map, icecube2_hacks=False):
             if len(line) > 3:
                 pinloc = tuple([int(s) for s in line[2:]])
             else:
-                pinloc = (line[2],)
+                pinloc = (line[2], )
 
             for l in pinloc:
                 if l not in pin_map:
-                    raise SyntaxError("""\
+                    raise SyntaxError(
+                        """\
 Pin name {} doesn't exist!
 Line: {}
-{}""".format(l, i, oline))
+{}""".format(l, i, oline)
+                    )
                 pcf_data[p] = (pin_map[l], oline.strip())
     return pcf_data

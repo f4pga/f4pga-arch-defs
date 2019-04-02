@@ -1,6 +1,7 @@
 import lxml.etree as ET
 import argparse
 
+
 def get_pb_type_chain(node):
     pb_types = []
     while True:
@@ -14,17 +15,26 @@ def get_pb_type_chain(node):
 
         node = parent
 
+
 def specialized_chain_name(pat):
     return '.'.join(get_pb_type_chain(pat)[:2])
 
+
 def specialize_chain(pat):
     pat.attrib['name'] = '{}.{}'.format(
-            specialized_chain_name(pat),
-            pat.attrib['name'])
+        specialized_chain_name(pat), pat.attrib['name']
+    )
+
 
 def main():
-    parser = argparse.ArgumentParser(description="Converts site local carry chains to fabric global.");
-    parser.add_argument('--input_arch_xml', required=True, help="Input arch.xml to specialized.")
+    parser = argparse.ArgumentParser(
+        description="Converts site local carry chains to fabric global."
+    )
+    parser.add_argument(
+        '--input_arch_xml',
+        required=True,
+        help="Input arch.xml to specialized."
+    )
 
     args = parser.parse_args()
 
@@ -62,6 +72,7 @@ def main():
                 pat.getparent().remove(pat)
 
     print(ET.tostring(arch_xml, pretty_print=True).decode('utf-8'))
+
 
 if __name__ == '__main__':
     main()

@@ -6,7 +6,7 @@ BUFHCE_RE = re.compile('BUFHCE_X([0-9]+)Y([0-9]+)')
 
 
 def get_bufg_site(db, grid, tile, generic_site):
-    y = int(generic_site[generic_site.find('Y')+1:])
+    y = int(generic_site[generic_site.find('Y') + 1:])
     if '_TOP_' in tile:
         y += 16
 
@@ -29,6 +29,7 @@ def bufhce_xy(site):
 
     return int(m.group(1)), int(m.group(2))
 
+
 def get_bufhce_site(db, grid, tile, generic_site):
     x, y = bufhce_xy(generic_site)
 
@@ -43,6 +44,7 @@ def get_bufhce_site(db, grid, tile, generic_site):
             return site
 
     assert False, (tile, generic_site)
+
 
 def process_bufg(conn, top, tile, features):
     bufgs = {}
@@ -71,26 +73,33 @@ def process_bufg(conn, top, tile, features):
         if 'IN_USE' not in set_features:
             continue
 
-        bufg_site = get_bufg_site(top.db, top.grid, tile, features[0].feature.split('.')[2])
-        site = Site(
-                features,
-                site=bufg_site)
+        bufg_site = get_bufg_site(
+            top.db, top.grid, tile, features[0].feature.split('.')[2]
+        )
+        site = Site(features, site=bufg_site)
 
         bel = Bel('BUFGCTRL')
-        bel.parameters['IS_IGNORE0_INVERTED'] = int(not 'IS_IGNORE0_INVERTED' in set_features)
-        bel.parameters['IS_IGNORE1_INVERTED'] = int(not 'IS_IGNORE1_INVERTED' in set_features)
+        bel.parameters['IS_IGNORE0_INVERTED'] = int(
+            not 'IS_IGNORE0_INVERTED' in set_features
+        )
+        bel.parameters['IS_IGNORE1_INVERTED'] = int(
+            not 'IS_IGNORE1_INVERTED' in set_features
+        )
         bel.parameters['IS_CE0_INVERTED'] = int('ZINV_CE0' not in set_features)
         bel.parameters['IS_CE1_INVERTED'] = int('ZINV_CE1' not in set_features)
         bel.parameters['IS_S0_INVERTED'] = int('ZINV_S0' not in set_features)
         bel.parameters['IS_S1_INVERTED'] = int('ZINV_S1' not in set_features)
-        bel.parameters['PRESELECT_I0'] = int('ZPRESELECT_I0' not in set_features)
+        bel.parameters['PRESELECT_I0'] = int(
+            'ZPRESELECT_I0' not in set_features
+        )
         bel.parameters['PRESELECT_I1'] = int('PRESELECT_I1' in set_features)
         bel.parameters['INIT_OUT'] = int('INIT_OUT' in set_features)
 
-        for sink in ('I0', 'I1', 'S0', 'S1', 'CE0', 'CE1', 'IGNORE0', 'IGNORE1'):
+        for sink in ('I0', 'I1', 'S0', 'S1', 'CE0', 'CE1', 'IGNORE0',
+                     'IGNORE1'):
             site.add_sink(bel, sink, sink)
 
-        site.add_source(bel,'O', 'O')
+        site.add_source(bel, 'O', 'O')
 
         site.add_bel(bel)
 
@@ -124,8 +133,9 @@ def process_hrow(conn, top, tile, features):
         if 'IN_USE' not in set_features:
             continue
 
-        bufhce_site = get_bufhce_site(top.db, top.grid, tile,
-                features[0].feature.split('.')[2])
+        bufhce_site = get_bufhce_site(
+            top.db, top.grid, tile, features[0].feature.split('.')[2]
+        )
         site = Site(features, site=bufhce_site)
 
         bel = Bel('BUFHCE')

@@ -20,6 +20,7 @@ import sys
 
 # =============================================================================
 
+
 class Templates:
 
     memory_case = """
@@ -121,7 +122,9 @@ assign mem_addr = addr[MEM_SIZE_BITS+1:2];
 endmodule
 """
 
+
 # =============================================================================
+
 
 def load_hex_file(file_name):
     """
@@ -133,7 +136,7 @@ def load_hex_file(file_name):
 
     # Load and parse HEX data
     sections = {}
-    section  = 0    # If no '@' is specified the code will end up at addr. 0
+    section = 0  # If no '@' is specified the code will end up at addr. 0
     hex_data = []
 
     with open(file_name, "r") as fp:
@@ -141,7 +144,7 @@ def load_hex_file(file_name):
 
             # Address, create new section
             if line.startswith("@"):
-                section  = int(line[1:], 16)
+                section = int(line[1:], 16)
                 hex_data = []
                 sections[section] = hex_data
                 continue
@@ -158,7 +161,9 @@ def load_hex_file(file_name):
     sys.stderr.write("Sections:\n")
     for section in sections.keys():
         length = len(sections[section])
-        sys.stderr.write(" @%08X - @%08X, %d bytes\n" % (section, section+length, length))
+        sys.stderr.write(
+            " @%08X - @%08X, %d bytes\n" % (section, section + length, length)
+        )
 
     return sections
 
@@ -192,16 +197,18 @@ def modify_code_templte(sections, rom_style):
         for i in range(len(data) // 4):
 
             # Little endian
-            data_word  = data[4*i+0]
-            data_word |= data[4*i+1] << 8
-            data_word |= data[4*i+2] << 16
-            data_word |= data[4*i+3] << 24
+            data_word = data[4 * i + 0]
+            data_word |= data[4 * i + 1] << 8
+            data_word |= data[4 * i + 2] << 16
+            data_word |= data[4 * i + 3] << 24
 
             statement = "    'h%04X: mem_data <= 32'h%08X;\n" % (i, data_word)
             case_statements += statement
 
         # Return the code
-        return Templates.memory_case.format(mem_size = mem_size_bits, mem_data = case_statements)
+        return Templates.memory_case.format(
+            mem_size=mem_size_bits, mem_data=case_statements
+        )
 
     # Encode data as initial statements for a verilog array
     if rom_style == "initial":
@@ -211,29 +218,35 @@ def modify_code_templte(sections, rom_style):
         for i in range(len(data) // 4):
 
             # Little endian
-            data_word  = data[4*i+0]
-            data_word |= data[4*i+1] << 8
-            data_word |= data[4*i+2] << 16
-            data_word |= data[4*i+3] << 24
+            data_word = data[4 * i + 0]
+            data_word |= data[4 * i + 1] << 8
+            data_word |= data[4 * i + 2] << 16
+            data_word |= data[4 * i + 3] << 24
 
             statement = "    mem['h%04X] <= 32'h%08X;\n" % (i, data_word)
             initial_statements += statement
 
         # Return the code
-        return Templates.memory_initial.format(mem_size = mem_size_bits, mem_data = initial_statements)
+        return Templates.memory_initial.format(
+            mem_size=mem_size_bits, mem_data=initial_statements
+        )
 
     # Error
     sys.stdout.write("Invalid ROM style '%s'\n" % rom_style)
     return ""
 
+
 # =============================================================================
+
 
 def main():
 
     # Argument parser
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("hex", type=str, help="Input HEX file")
-    parser.add_argument("--rom-style", type=str, default="case", help="ROM style")
+    parser.add_argument(
+        "--rom-style", type=str, default="case", help="ROM style"
+    )
 
     args = parser.parse_args()
 
@@ -247,8 +260,8 @@ def main():
     sys.stdout.write(code)
     sys.stdout.flush()
 
+
 # =============================================================================
 
 if __name__ == "__main__":
     main()
-
