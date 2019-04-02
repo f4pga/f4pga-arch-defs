@@ -200,10 +200,8 @@ reason, BRAM tiles use a "fused sites" mode to accomidate the cross site logic.
  <input  name="RAMB36_Y0_ENARDEN"       num_pins="1"  />
  <input  name="RAMB36_Y0_CLKARDCLK"     num_pins="1"  />
 
- <input  name="RAMB36_Y0_ADDRARDADDR"   num_pins="14" />
- <input  name="RAMB36_Y0_ADDRBWRADDR"   num_pins="14" />
- <input  name="RAMB36_Y0_ADDRATIEHIGH"  num_pins="2"  />
- <input  name="RAMB36_Y0_ADDRBTIEHIGH"  num_pins="2"  />
+ <input  name="RAMB36_Y0_ADDRARDADDR"   num_pins="16" />
+ <input  name="RAMB36_Y0_ADDRBWRADDR"   num_pins="16" />
 
  <mode name="BRAM36">
   <xi:include href="rambfifo36e1.pb_type.xml" />
@@ -373,13 +371,7 @@ reason, BRAM tiles use a "fused sites" mode to accomidate the cross site logic.
   </interconnect>
  </mode>
  <mode name="BRAM36">
-  <pb_type name="BLK_IG-BRAM36E1" num_pb="1" blif_model=".subckt RAMB36E1_VPR">
-   <xi:include href="ramb36e1.pb_type.xml" xpointer="xpointer(pb_type/child::node()[local-name()!='metadata'])" />
-   <metadata>
-     <xi:include href="ramb36e1.pb_type.xml" xpointer="xpointer(pb_type/metadata/child::node())" />
-     <meta name="fasm_prefix">RAMB36_Y0</meta>
-   </metadata>
-  </pb_type>
+  <xi:include href="ramb36e1.pb_type.xml" />
   <interconnect>
    <direct name="RAMB36_X0Y0_ENBWREN"          input="BLK_IG-BRAM.RAMB36_Y0_ENBWREN"           output="BLK_IG-BRAM36E1.ENBWREN" />
    <direct name="RAMB36_X0Y0_CLKBWRCLK"        input="BLK_IG-BRAM.RAMB36_Y0_CLKBWRCLK"         output="BLK_IG-BRAM36E1.CLKBWRCLK" />
@@ -391,7 +383,6 @@ reason, BRAM tiles use a "fused sites" mode to accomidate the cross site logic.
    <direct name="RAMB36_X0Y0_RSTRAMB"          input="BLK_IG-BRAM.RAMB36_Y0_RSTRAMB"           output="BLK_IG-BRAM36E1.RSTRAMB" />
    <direct name="RAMB36_X0Y0_RSTRAMARSTRAM"    input="BLK_IG-BRAM.RAMB36_Y0_RSTRAMARSTRAM"     output="BLK_IG-BRAM36E1.RSTRAMARSTRAM" />
 
-   <direct name="RAMB36_X0Y0_REGCLKB"          input="BLK_IG-BRAM.RAMB36_Y0_REGCLKB"           output="BLK_IG-BRAM36E1.REGCLKB" />
    <direct name="RAMB36_X0Y0_REGCEB"           input="BLK_IG-BRAM.RAMB36_Y0_REGCEB"            output="BLK_IG-BRAM36E1.REGCEB" />
    <direct name="RAMB36_X0Y0_REGCEAREGCE"      input="BLK_IG-BRAM.RAMB36_Y0_REGCEAREGCE"       output="BLK_IG-BRAM36E1.REGCEAREGCE" />
    <direct name="RAMB36_X0Y0_ENARDEN"          input="BLK_IG-BRAM.RAMB36_Y0_ENARDEN"           output="BLK_IG-BRAM36E1.ENARDEN" />

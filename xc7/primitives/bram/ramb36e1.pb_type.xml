@@ -8,16 +8,14 @@ There are both Latches (first) and Registers (second) on the output (why!?)
 The RAM has extra bits that can be used for parity (DIP / DOP).
 
   -->
-<pb_type name="BLK_IG-RAMB36E1" num_pb="1" blif_model=".subckt RAMB36E1_VPR">
+<pb_type name="BLK_IG-BRAM36E1" num_pb="1" blif_model=".subckt RAMB36E1_VPR">
  <!-- Port A - 32bit wide -->
  <clock  name="CLKARDCLK"     num_pins="1"  />
  <input  name="CASCADEINA"    num_pins="1"  />
  <input  name="REGCEAREGCE"   num_pins="1"  />
- <!-- <input  name="REGCLKARDRCLK" num_pins="1"  /> -->
  <input  name="ENARDEN"       num_pins="1"  />
  <input  name="RSTRAMARSTRAM" num_pins="1"  />
  <input  name="RSTREGARSTREG" num_pins="1"  />
- <!--  <input  name="ADDRATIEHIGH"  num_pins="2"  /> -->
  <input  name="ADDRARDADDR"   num_pins="16" />
  <input  name="DIADI"         num_pins="32" />
  <input  name="DIPADIP"       num_pins="4"  />
@@ -26,28 +24,24 @@ The RAM has extra bits that can be used for parity (DIP / DOP).
  <output name="DOPADOP"       num_pins="4"  />
  <output name="CASCADEOUTA"   num_pins="1"  />
 
- <T_setup value="10e-12" port="BLK_IG-RAMB36E1.REGCEAREGCE"  clock="CLKARDCLK" />
- <T_setup value="10e-12" port="BLK_IG-RAMB36E1.ENARDEN"  clock="CLKARDCLK" />
- <T_setup value="10e-12" port="BLK_IG-RAMB36E1.RSTRAMARSTRAM"  clock="CLKARDCLK" />
- <T_setup value="10e-12" port="BLK_IG-RAMB36E1.RSTREGARSTREG"  clock="CLKARDCLK" />
- <T_setup value="10e-12" port="BLK_IG-RAMB36E1.ADDRARDADDR"  clock="CLKARDCLK" />
- <T_setup value="10e-12" port="BLK_IG-RAMB36E1.DIADI"  clock="CLKARDCLK" />
- <T_setup value="10e-12" port="BLK_IG-RAMB36E1.DIPADIP"  clock="CLKARDCLK" />
- <T_setup value="10e-12" port="BLK_IG-RAMB36E1.WEA"  clock="CLKARDCLK" />
- <T_setup value="10e-12" port="BLK_IG-RAMB36E1.CASCADEINA"  clock="CLKARDCLK" />
- <T_setup value="10e-12" port="BLK_IG-RAMB36E1.CASCADEOUTA"  clock="CLKARDCLK" />
- <T_clock_to_Q max="10e-12" port="BLK_IG-RAMB36E1.DOADO"  clock="CLKARDCLK" />
- <T_clock_to_Q max="10e-12" port="BLK_IG-RAMB36E1.DOPADOP"  clock="CLKARDCLK" />
+ <T_setup value="10e-12" port="BLK_IG-BRAM36E1.REGCEAREGCE"  clock="CLKARDCLK" />
+ <T_setup value="10e-12" port="BLK_IG-BRAM36E1.ENARDEN"  clock="CLKARDCLK" />
+ <T_setup value="10e-12" port="BLK_IG-BRAM36E1.RSTRAMARSTRAM"  clock="CLKARDCLK" />
+ <T_setup value="10e-12" port="BLK_IG-BRAM36E1.RSTREGARSTREG"  clock="CLKARDCLK" />
+ <T_setup value="10e-12" port="BLK_IG-BRAM36E1.ADDRARDADDR"  clock="CLKARDCLK" />
+ <T_setup value="10e-12" port="BLK_IG-BRAM36E1.DIADI"  clock="CLKARDCLK" />
+ <T_setup value="10e-12" port="BLK_IG-BRAM36E1.DIPADIP"  clock="CLKARDCLK" />
+ <T_setup value="10e-12" port="BLK_IG-BRAM36E1.WEA"  clock="CLKARDCLK" />
+ <T_clock_to_Q max="10e-12" port="BLK_IG-BRAM36E1.DOADO"  clock="CLKARDCLK" />
+ <T_clock_to_Q max="10e-12" port="BLK_IG-BRAM36E1.DOPADOP"  clock="CLKARDCLK" />
 
  <!-- Port B - 32bit wide -->
  <clock  name="CLKBWRCLK"     num_pins="1"  />
  <input  name="CASCADEINB"    num_pins="1"  />
  <input  name="ENBWREN"       num_pins="1"  />
  <input  name="REGCEB"        num_pins="1"  />
- <!-- <input  name="REGCLKB"       num_pins="1"  /> -->
  <input  name="RSTRAMB"       num_pins="1"  />
  <input  name="RSTREGB"       num_pins="1"  />
- <!-- <input  name="ADDRBTIEHIGH"  num_pins="2"  /> -->
  <input  name="ADDRBWRADDR"   num_pins="16" />
  <input  name="DIBDI"         num_pins="32" />
  <input  name="DIPBDIP"       num_pins="4"  />
@@ -56,26 +50,26 @@ The RAM has extra bits that can be used for parity (DIP / DOP).
  <output name="DOPBDOP"       num_pins="4"  />
  <output name="CASCADEOUTB"   num_pins="1"  />
 
- <T_setup value="10e-12" port="BLK_IG-RAMB36E1.ENBWREN"  clock="CLKBWRCLK" />
- <T_setup value="10e-12" port="BLK_IG-RAMB36E1.REGCEB"  clock="CLKBWRCLK" />
- <!-- <T_setup value="10e-12" port="BLK_IG-RAMB36E1.REGCLKB"  clock="CLKBWRCLK" /> -->
- <T_setup value="10e-12" port="BLK_IG-RAMB36E1.RSTRAMB"  clock="CLKBWRCLK" />
- <T_setup value="10e-12" port="BLK_IG-RAMB36E1.RSTREGB"  clock="CLKBWRCLK" />
- <T_setup value="10e-12" port="BLK_IG-RAMB36E1.ADDRBWRADDR"  clock="CLKBWRCLK" />
- <T_setup value="10e-12" port="BLK_IG-RAMB36E1.DIBDI"  clock="CLKBWRCLK" />
- <T_setup value="10e-12" port="BLK_IG-RAMB36E1.DIPBDIP"  clock="CLKBWRCLK" />
- <T_setup value="10e-12" port="BLK_IG-RAMB36E1.WEBWE"  clock="CLKBWRCLK" />
- <T_clock_to_Q max="10e-12" port="BLK_IG-RAMB36E1.DOBDO"  clock="CLKBWRCLK" />
- <T_clock_to_Q max="10e-12" port="BLK_IG-RAMB36E1.DOPBDOP"  clock="CLKBWRCLK" />
+ <T_setup value="10e-12" port="BLK_IG-BRAM36E1.ENBWREN"  clock="CLKBWRCLK" />
+ <T_setup value="10e-12" port="BLK_IG-BRAM36E1.REGCEB"  clock="CLKBWRCLK" />
+ <T_setup value="10e-12" port="BLK_IG-BRAM36E1.RSTRAMB"  clock="CLKBWRCLK" />
+ <T_setup value="10e-12" port="BLK_IG-BRAM36E1.RSTREGB"  clock="CLKBWRCLK" />
+ <T_setup value="10e-12" port="BLK_IG-BRAM36E1.ADDRBWRADDR"  clock="CLKBWRCLK" />
+ <T_setup value="10e-12" port="BLK_IG-BRAM36E1.DIBDI"  clock="CLKBWRCLK" />
+ <T_setup value="10e-12" port="BLK_IG-BRAM36E1.DIPBDIP"  clock="CLKBWRCLK" />
+ <T_setup value="10e-12" port="BLK_IG-BRAM36E1.WEBWE"  clock="CLKBWRCLK" />
+ <T_clock_to_Q max="10e-12" port="BLK_IG-BRAM36E1.DOBDO"  clock="CLKBWRCLK" />
+ <T_clock_to_Q max="10e-12" port="BLK_IG-BRAM36E1.DOPBDOP"  clock="CLKBWRCLK" />
 
  <!-- // ECC Signals: 1-bit (each) output: Error Correction Circuitry ports -->
- <input  name="DBITERR"       num_pins="1"  />
- <input  name="ECCPARITY"     num_pins="8"  />
- <input  name="RDADDRECC"     num_pins="9"  />
- <input  name="SBITERR"       num_pins="1"  />
+ <output  name="DBITERR"       num_pins="1"  />
+ <output  name="ECCPARITY"     num_pins="8"  />
+ <output  name="RDADDRECC"     num_pins="9"  />
+ <output  name="SBITERR"       num_pins="1"  />
+
  <!-- // ECC Signals: 1-bit (each) input: Error Correction Circuitry ports -->
- <input  name="INJECTDBITERR" num_pins="1"  />
- <input  name="INJECTSBITERR" num_pins="1"  />
+ <input  name="INJECTDBITERR"  num_pins="1"  />
+ <input  name="INJECTSBITERR"  num_pins="1"  />
 
  <metadata>
    <meta name="fasm_params">
@@ -250,9 +244,6 @@ The RAM has extra bits that can be used for parity (DIP / DOP).
      ZINV_RSTREGB = ZINV_RSTREGB
      ZINV_REGCLKARDRCLK = ZINV_REGCLKARDRCLK
      ZINV_REGCLKB = ZINV_REGCLKB
-
-     DOA_REG = DOA_REG
-     DOB_REG = DOB_REG
 
      SDP_READ_WIDTH_72 = SDP_READ_WIDTH_72
      READ_WIDTH_A_36 = READ_WIDTH_A_36

@@ -6,32 +6,29 @@
    <port is_clock="1"        name="CLKARDCLK"     />
    <port clock="CLKARDCLK"   name="ENARDEN"       />
    <port clock="CLKARDCLK"   name="REGCEAREGCE"   />
-   <!--   <port clock="CLKARDCLK"   name="REGCLKARDRCLK" /> -->
    <port clock="CLKARDCLK"   name="RSTRAMARSTRAM" />
    <port clock="CLKARDCLK"   name="RSTREGARSTREG" />
-   <!-- <port                     name="ADDRATIEHIGH"  /> -->
    <port clock="CLKARDCLK"   name="ADDRARDADDR"   />
    <port clock="CLKARDCLK"   name="DIADI"         />
    <port clock="CLKARDCLK"   name="DIPADIP"       />
    <port clock="CLKARDCLK"   name="WEA"           />
-   <port clock="CLKARDCLK"   name="CASCADEINA"    />
 
    <!-- Port B - 32bit wide -->
    <port is_clock="1"        name="CLKBWRCLK"     />
    <port clock="CLKBWRCLK"   name="ENBWREN"       />
-   <port clock="CLKBWRCLK"   name="REGCLKB"       />
    <port clock="CLKBWRCLK"   name="REGCEB"        />
    <port clock="CLKBWRCLK"   name="RSTRAMB"       />
    <port clock="CLKBWRCLK"   name="RSTREGB"       />
-   <port                     name="ADDRBTIEHIGH"  />
    <port clock="CLKBWRCLK"   name="ADDRBWRADDR"   />
    <port clock="CLKBWRCLK"   name="DIBDI"         />
    <port clock="CLKBWRCLK"   name="DIPBDIP"       />
    <port clock="CLKBWRCLK"   name="WEBWE"         />
 
    <!-- FIXME -->
-   <port  name="CASCADEINA"    />
-   <port  name="CASCADEINB"    />
+   <port name="CASCADEINA"    />
+   <port name="CASCADEINB"    />
+   <port name="INJECTDBITERR" />
+   <port name="INJECTSBITERR" />
   </input_ports>
   <output_ports>
    <!-- Port A - 32bit wide -->
@@ -45,6 +42,10 @@
    <!-- FIXME -->
    <port name="CASCADEOUTA"   />
    <port name="CASCADEOUTB"   />
+   <port name="DBITERR"   />
+   <port name="SBITERR"   />
+   <port name="ECCPARITY"   />
+   <port name="RDADDRECC"   />
   </output_ports>
  </model>
 </models>
