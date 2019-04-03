@@ -42,28 +42,28 @@ def null_process(conn, top, tile, tiles):
 
 
 PROCESS_TILE = {
-        'CLBLL_L': process_clb,
-        'CLBLL_R': process_clb,
-        'CLBLM_L': process_clb,
-        'CLBLM_R': process_clb,
-        'INT_L': null_process,
-        'INT_R': null_process,
-        'LIOB33': process_iobs,
-        'RIOB33': process_iobs,
-        'LIOB33_SING': process_iobs,
-        'RIOB33_SING': process_iobs,
-        'HCLK_L': null_process,
-        'HCLK_R': null_process,
-        'CLK_BUFG_REBUF': null_process,
-        'CLK_BUFG_BOT_R': process_bufg,
-        'CLK_BUFG_TOP_R': process_bufg,
-        'CLK_HROW_BOT_R': process_hrow,
-        'CLK_HROW_TOP_R': process_hrow,
-        'HCLK_CMT': null_process,
-        'HCLK_CMT_L': null_process,
-        'BRAM_L': process_bram,
-        'BRAM_R': process_bram,
-        }
+    'CLBLL_L': process_clb,
+    'CLBLL_R': process_clb,
+    'CLBLM_L': process_clb,
+    'CLBLM_R': process_clb,
+    'INT_L': null_process,
+    'INT_R': null_process,
+    'LIOB33': process_iobs,
+    'RIOB33': process_iobs,
+    'LIOB33_SING': process_iobs,
+    'RIOB33_SING': process_iobs,
+    'HCLK_L': null_process,
+    'HCLK_R': null_process,
+    'CLK_BUFG_REBUF': null_process,
+    'CLK_BUFG_BOT_R': process_bufg,
+    'CLK_BUFG_TOP_R': process_bufg,
+    'CLK_HROW_BOT_R': process_hrow,
+    'CLK_HROW_TOP_R': process_hrow,
+    'HCLK_CMT': null_process,
+    'HCLK_CMT_L': null_process,
+    'BRAM_L': process_bram,
+    'BRAM_R': process_bram,
+}
 
 
 def process_tile(top, tile, tile_features):
@@ -83,6 +83,7 @@ def find_io_standards(feature):
         if 'LVCMOS' in part or 'LVTTL' in part:
             return part.split('_')
 
+
 def bit2fasm(db_root, db, grid, bit_file, fasm_file, bitread, part):
     """ Convert bitstream to FASM file. """
     part_yaml = os.path.join(db_root, '{}.yaml'.format(part))
@@ -90,8 +91,10 @@ def bit2fasm(db_root, db, grid, bit_file, fasm_file, bitread, part):
         bits_file = f.name
         subprocess.check_output(
             '{} --part_file {} -o {} -z -y {}'.format(
-                bitread, part_yaml, bits_file, bit_file),
-            shell=True)
+                bitread, part_yaml, bits_file, bit_file
+            ),
+            shell=True
+        )
 
         disassembler = fasm_disassembler.FasmDisassembler(db)
 
@@ -105,48 +108,67 @@ def bit2fasm(db_root, db, grid, bit_file, fasm_file, bitread, part):
     )
 
     with open(fasm_file, 'w') as f:
-        print(fasm.fasm_tuple_to_string(model, canonical=False), end='',
-                file=f)
+        print(
+            fasm.fasm_tuple_to_string(model, canonical=False), end='', file=f
+        )
 
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument('--connection_database', required=True,
-            help="Path to SQLite3 database for given FASM file part.")
-    parser.add_argument('--db_root', required=True,
-            help="Path to prjxray database for given FASM file part.")
-    parser.add_argument('--allow_orphan_sinks', action='store_true',
-            help="Allow sinks to have no connection.")
-    parser.add_argument('--iostandard',
-            help="Specify IOSTANDARD to use in event of no clear IOSTANDARD from FASM file.")
-    parser.add_argument('--fasm_file',
-            help="FASM file to convert BELs and routes.",
-            required=True)
-    parser.add_argument('--bit_file',
-            help="Bitstream file to convert to FASM.")
-    parser.add_argument('--bitread',
-            help="Path to bitread executable, required if --bit_file is provided.")
     parser.add_argument(
-        '--part', help="Name of part being targetted, required if --bit_file is provided.")
+        '--connection_database',
+        required=True,
+        help="Path to SQLite3 database for given FASM file part."
+    )
     parser.add_argument(
-        '--top', default="top",
-        help="Root level module name.")
-    parser.add_argument('verilog_file',
-            help="Filename of output verilog file")
-    parser.add_argument('tcl_file',
-            help="Filename of output tcl script.")
+        '--db_root',
+        required=True,
+        help="Path to prjxray database for given FASM file part."
+    )
+    parser.add_argument(
+        '--allow_orphan_sinks',
+        action='store_true',
+        help="Allow sinks to have no connection."
+    )
+    parser.add_argument(
+        '--iostandard',
+        help=
+        "Specify IOSTANDARD to use in event of no clear IOSTANDARD from FASM file."
+    )
+    parser.add_argument(
+        '--fasm_file',
+        help="FASM file to convert BELs and routes.",
+        required=True
+    )
+    parser.add_argument(
+        '--bit_file', help="Bitstream file to convert to FASM."
+    )
+    parser.add_argument(
+        '--bitread',
+        help="Path to bitread executable, required if --bit_file is provided."
+    )
+    parser.add_argument(
+        '--part',
+        help="Name of part being targetted, required if --bit_file is provided."
+    )
+    parser.add_argument('--top', default="top", help="Root level module name.")
+    parser.add_argument('verilog_file', help="Filename of output verilog file")
+    parser.add_argument('tcl_file', help="Filename of output tcl script.")
 
     args = parser.parse_args()
 
-    conn = sqlite3.connect('file:{}?mode=ro'.format(args.connection_database),
-            uri=True)
+    conn = sqlite3.connect(
+        'file:{}?mode=ro'.format(args.connection_database), uri=True
+    )
 
     db = prjxray.db.Database(args.db_root)
     grid = db.grid()
 
     if args.bit_file:
-        bit2fasm(args.db_root, db, grid, args.bit_file, args.fasm_file, args.bitread,
-                args.part)
+        bit2fasm(
+            args.db_root, db, grid, args.bit_file, args.fasm_file,
+            args.bitread, args.part
+        )
 
     tiles = {}
 

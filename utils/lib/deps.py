@@ -108,7 +108,8 @@ def deps_makefile(filepath, *, top_dir=TOP_DIR):
             notdir=makefile_notdir(filepath),
             ext=DEPMK_EXT,
         ),
-        top_dir=top_dir)
+        top_dir=top_dir
+    )
 
 
 def add_dependency(f, from_file, on_file, fmt=None):

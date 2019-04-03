@@ -25,8 +25,9 @@ def assert_eq(a, b, msg=None):
 
 def assert_not_in(needle, haystack, msg=None):
     """Assert equal with better error message."""
-    assert needle not in haystack, msg or __safe_error("already in", needle,
-                                                       haystack)
+    assert needle not in haystack, msg or __safe_error(
+        "already in", needle, haystack
+    )
 
 
 def assert_is(a, b):
@@ -34,9 +35,9 @@ def assert_is(a, b):
     assert a is b, __safe_error("is not", a, b)
 
 
-def assert_type(obj,
-                cls,
-                msg="{obj} ({obj!r}) should be a {cls}, not {objcls}"):
+def assert_type(
+        obj, cls, msg="{obj} ({obj!r}) should be a {cls}, not {objcls}"
+):
     """Raise a type error if obj is not an instance of cls."""
     if not isinstance(obj, cls):
         raise TypeError(msg.format(obj=obj, objcls=type(obj), cls=cls))
@@ -56,4 +57,5 @@ def assert_len_eq(l):
         assert len(
             p
         ) == max_len, "Length check failed!\nl[{}] has {} elements != {} ({!r})\n{!r}".format(
-            i, len(p), max_len, p, l)
+            i, len(p), max_len, p, l
+        )

@@ -25,8 +25,9 @@ def main(args):
 
     template = open(templatepath, "r").read()
     open(outpath, "w").write(template.format(N=replacement.upper()))
-    print("Generated {} from {}".format(
-        os.path.relpath(outpath), templatefile))
+    print(
+        "Generated {} from {}".format(os.path.relpath(outpath), templatefile)
+    )
 
 
 if __name__ == "__main__":

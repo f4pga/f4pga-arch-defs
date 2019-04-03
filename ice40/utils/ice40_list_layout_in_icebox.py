@@ -9,7 +9,9 @@ import icebox
 # FIXME: Move this into icebox
 parts = [
     # LP Series (Low Power)
-    "lp384", "lp1k", "lp8k",
+    "lp384",
+    "lp1k",
+    "lp8k",
     # Unsupported: "lp640", "lp4k" (alias for lp8k),
 
     # LM Series (Low Power, Embedded IP)
@@ -17,7 +19,8 @@ parts = [
     "lm4k",
 
     # HX Series (High Performance)
-    "hx1k", "hx8k",
+    "hx1k",
+    "hx8k",
     # Unsupported: "hx4k" (alias for hx8k)
 
     # iCE40 UltraLite
@@ -31,8 +34,10 @@ parts = [
     "up5k",
 ]
 
+
 def versions(part):
     return [p for p in parts if p.endswith(part)]
+
 
 if __name__ == "__main__":
     for name, pins in icebox.pinloc_db.items():

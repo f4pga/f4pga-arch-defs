@@ -3,6 +3,7 @@ import os
 from lib.rr_graph import graph2
 from lib.rr_graph import tracks
 
+
 class NodeClassification(enum.Enum):
     NULL = 1
     CHANNEL = 2
@@ -13,27 +14,31 @@ class NodeClassification(enum.Enum):
 def create_tables(conn):
     """ Create connection database scheme. """
     connection_database_sql_file = os.path.join(
-        os.path.dirname(__file__), "connection_database.sql")
+        os.path.dirname(__file__), "connection_database.sql"
+    )
     with open(connection_database_sql_file, 'r') as f:
         c = conn.cursor()
         c.executescript(f.read())
         conn.commit()
 
     c = conn.cursor()
-    c.execute("""
+    c.execute(
+        """
 INSERT INTO
     switch(name)
 VALUES
     ("__vpr_delayless_switch__"),
     ("routing"),
     ("short");
-""")
+"""
+    )
     conn.commit()
 
 
 def get_wire_pkey(conn, tile_name, wire):
     c = conn.cursor()
-    c.execute("""
+    c.execute(
+        """
 WITH selected_tile(tile_pkey, tile_type_pkey) AS (
   SELECT
     pkey,
@@ -68,10 +73,12 @@ WHERE
           selected_tile
       )
   );
-""", (tile_name, wire))
+""", (tile_name, wire)
+    )
 
-    (wire_pkey,) = c.fetchone()
+    (wire_pkey, ) = c.fetchone()
     return wire_pkey
+
 
 def get_track_model(conn, track_pkey):
     assert track_pkey is not None
@@ -80,9 +87,10 @@ def get_track_model(conn, track_pkey):
     track_nodes = []
     c2 = conn.cursor()
     graph_node_pkey = {}
-    for idx, (pkey, graph_node_type, x_low, x_high, y_low, y_high) in enumerate(c2.execute("""
+    for idx, (pkey, graph_node_type, x_low, x_high, y_low,
+              y_high) in enumerate(c2.execute("""
     SELECT pkey, graph_node_type, x_low, x_high, y_low, y_high
-        FROM graph_node WHERE track_pkey = ?""", (track_pkey,))):
+        FROM graph_node WHERE track_pkey = ?""", (track_pkey, ))):
         node_type = graph2.NodeType(graph_node_type)
         if node_type == graph2.NodeType.CHANX:
             direction = 'X'
@@ -91,17 +99,20 @@ def get_track_model(conn, track_pkey):
 
         graph_node_pkey[pkey] = idx
         track_nodes.append(pkey)
-        track_list.append(tracks.Track(
-            direction=direction,
-            x_low=x_low,
-            x_high=x_high,
-            y_low=y_low,
-            y_high=y_high))
+        track_list.append(
+            tracks.Track(
+                direction=direction,
+                x_low=x_low,
+                x_high=x_high,
+                y_low=y_low,
+                y_high=y_high
+            )
+        )
 
     track_connections = set()
     for src_graph_node_pkey, dest_graph_node_pkey in c2.execute("""
     SELECT src_graph_node_pkey, dest_graph_node_pkey
-        FROM graph_edge WHERE track_pkey = ?""", (track_pkey,)):
+        FROM graph_edge WHERE track_pkey = ?""", (track_pkey, )):
 
         src_idx = graph_node_pkey[src_graph_node_pkey]
         dest_idx = graph_node_pkey[dest_graph_node_pkey]
@@ -111,6 +122,7 @@ def get_track_model(conn, track_pkey):
     tracks_model = tracks.Tracks(track_list, list(track_connections))
 
     return tracks_model, track_nodes
+
 
 def yield_wire_info_from_node(conn, node_pkey):
     c2 = conn.cursor()
@@ -153,9 +165,9 @@ SELECT
 FROM
   wire_in_tile
   INNER JOIN tile_type_for_wire ON tile_type_for_wire.wire_in_tile_pkey = wire_in_tile.pkey;
-    """,
-    (node_pkey,)):
-            yield tile, tile_type, wire
+    """, (node_pkey, )):
+        yield tile, tile_type, wire
+
 
 def node_to_site_pins(conn, node_pkey):
     FIND_WIRE_WITH_SITE_PIN = """
@@ -184,5 +196,5 @@ WHERE
 
     c = conn.cursor()
     for wire_pkey, tile_pkey, wire_in_tile_pkey in c.execute(
-            FIND_WIRE_WITH_SITE_PIN, (node_pkey,)):
+            FIND_WIRE_WITH_SITE_PIN, (node_pkey, )):
         yield wire_pkey, tile_pkey, wire_in_tile_pkey

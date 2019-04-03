@@ -4,11 +4,11 @@ from prjxray.tile_segbits import PsuedoPipType
 
 from .connection_db_utils import get_node_pkey, get_wires_in_node, get_wire
 
-
 ZERO_NET = -1
 ONE_NET = -2
 
 DEBUG = False
+
 
 def create_check_downstream_default(conn, db):
     """ Returns check_for_default function. """
@@ -22,10 +22,15 @@ def create_check_downstream_default(conn, db):
         Returns None if no ppips are found for the given wire_in_tile_pkey.
 
         """
-        c.execute("SELECT name, tile_type_pkey FROM wire_in_tile WHERE pkey = ?", (wire_in_tile_pkey,))
+        c.execute(
+            "SELECT name, tile_type_pkey FROM wire_in_tile WHERE pkey = ?",
+            (wire_in_tile_pkey, )
+        )
         name, tile_type_pkey = c.fetchone()
 
-        c.execute("SELECT name FROM tile_type WHERE pkey = ?", (tile_type_pkey,))
+        c.execute(
+            "SELECT name FROM tile_type WHERE pkey = ?", (tile_type_pkey, )
+        )
         tile_type = c.fetchone()[0]
 
         tile = db.get_tile_segbits(tile_type)
@@ -37,8 +42,10 @@ def create_check_downstream_default(conn, db):
 
             if parts[2] == name and tile.ppips[k] == PsuedoPipType.ALWAYS:
                 downstream_wire = parts[1]
-                c.execute("SELECT pkey FROM wire_in_tile WHERE name = ? AND tile_type_pkey = ?;", (
-                    downstream_wire, tile_type_pkey))
+                c.execute(
+                    "SELECT pkey FROM wire_in_tile WHERE name = ? AND tile_type_pkey = ?;",
+                    (downstream_wire, tile_type_pkey)
+                )
                 downstream_wire_in_tile_pkey = c.fetchone()[0]
 
                 return downstream_wire_in_tile_pkey
@@ -59,17 +66,28 @@ def find_downstream_node(conn, check_downstream_default, source_node_pkey):
     c = conn.cursor()
 
     for wire_pkey in get_wires_in_node(conn, source_node_pkey):
-        c.execute("SELECT tile_pkey, wire_in_tile_pkey FROM wire WHERE pkey = ?", (wire_pkey,))
+        c.execute(
+            "SELECT tile_pkey, wire_in_tile_pkey FROM wire WHERE pkey = ?",
+            (wire_pkey, )
+        )
         tile_pkey, wire_in_tile_pkey = c.fetchone()
 
-        downstream_wire_in_tile_pkey = check_downstream_default(wire_in_tile_pkey)
+        downstream_wire_in_tile_pkey = check_downstream_default(
+            wire_in_tile_pkey
+        )
         if downstream_wire_in_tile_pkey is not None:
-            c.execute("SELECT node_pkey FROM wire WHERE tile_pkey = ? AND wire_in_tile_pkey = ?",
-                    (tile_pkey, downstream_wire_in_tile_pkey,))
+            c.execute(
+                "SELECT node_pkey FROM wire WHERE tile_pkey = ? AND wire_in_tile_pkey = ?",
+                (
+                    tile_pkey,
+                    downstream_wire_in_tile_pkey,
+                )
+            )
             downstream_node_pkey = c.fetchone()[0]
             return downstream_node_pkey
 
     return None
+
 
 def output_builder(fixed_route):
     yield '[list'
@@ -83,8 +101,10 @@ def output_builder(fixed_route):
 
     yield ']'
 
+
 class Net(object):
     """ Object to present a net (e.g. a source and it sinks). """
+
     def __init__(self, source_wire_pkey):
         """ Create a net.
 
@@ -98,7 +118,14 @@ class Net(object):
         self.parent_nodes = {}
         self.incoming_wire_map = {}
 
-    def add_node(self, conn, net_map, node_pkey, parent_node_pkey, incoming_wire_pkey=None):
+    def add_node(
+            self,
+            conn,
+            net_map,
+            node_pkey,
+            parent_node_pkey,
+            incoming_wire_pkey=None
+    ):
         """ Add a node to a net.
 
         node_pkey (int): A pkey from the node table that is part of this net.
@@ -112,7 +139,11 @@ class Net(object):
 
         """
         if DEBUG:
-            print('// sink node {} connected to source {}'.format(node_pkey, self.source_wire_pkey))
+            print(
+                '// sink node {} connected to source {}'.format(
+                    node_pkey, self.source_wire_pkey
+                )
+            )
 
         if incoming_wire_pkey is not None:
             assert node_pkey not in self.incoming_wire_map, node_pkey
@@ -130,10 +161,14 @@ class Net(object):
 
         while True:
             parent_node_pkey = source_node_pkey
-            source_node_pkey = find_downstream_node(conn, check_downstream_default, source_node_pkey)
+            source_node_pkey = find_downstream_node(
+                conn, check_downstream_default, source_node_pkey
+            )
 
             if source_node_pkey is not None:
-                self.add_node(conn, net_map, source_node_pkey, parent_node_pkey)
+                self.add_node(
+                    conn, net_map, source_node_pkey, parent_node_pkey
+                )
             else:
                 break
 
@@ -180,37 +215,53 @@ class Net(object):
 
             source_to_sink_node_map[src].append(sink)
 
-
-
         c = conn.cursor()
 
         def get_a_wire(node_pkey):
-            c.execute("SELECT tile_pkey, wire_in_tile_pkey FROM wire WHERE node_pkey = ? LIMIT 1", (node_pkey,))
-            (tile_pkey, wire_in_tile_pkey,) = c.fetchone()
-            c.execute("SELECT name FROM tile WHERE pkey = ?", (tile_pkey,))
+            c.execute(
+                "SELECT tile_pkey, wire_in_tile_pkey FROM wire WHERE node_pkey = ? LIMIT 1",
+                (node_pkey, )
+            )
+            (
+                tile_pkey,
+                wire_in_tile_pkey,
+            ) = c.fetchone()
+            c.execute("SELECT name FROM tile WHERE pkey = ?", (tile_pkey, ))
             tile_name = c.fetchone()[0]
-            c.execute("SELECT name FROM wire_in_tile WHERE pkey = ?", (wire_in_tile_pkey,))
+            c.execute(
+                "SELECT name FROM wire_in_tile WHERE pkey = ?",
+                (wire_in_tile_pkey, )
+            )
             wire_name = c.fetchone()[0]
 
             return tile_name + '/' + wire_name
 
         def descend_fixed_route(source_node_pkey, fixed_route):
             if source_node_pkey in self.incoming_wire_map:
-                c.execute("SELECT wire_in_tile_pkey, tile_pkey FROM wire WHERE pkey = ?",
-                        (self.incoming_wire_map[source_node_pkey],))
+                c.execute(
+                    "SELECT wire_in_tile_pkey, tile_pkey FROM wire WHERE pkey = ?",
+                    (self.incoming_wire_map[source_node_pkey], )
+                )
                 wire_in_tile_pkey, tile_pkey = c.fetchone()
 
-                c.execute("SELECT name FROM tile WHERE pkey = ?", (tile_pkey,))
-                (tile_name,) = c.fetchone()
+                c.execute(
+                    "SELECT name FROM tile WHERE pkey = ?", (tile_pkey, )
+                )
+                (tile_name, ) = c.fetchone()
 
-                c.execute("SELECT name FROM wire_in_tile WHERE pkey = ?", (wire_in_tile_pkey,))
-                (wire_name,) = c.fetchone()
+                c.execute(
+                    "SELECT name FROM wire_in_tile WHERE pkey = ?",
+                    (wire_in_tile_pkey, )
+                )
+                (wire_name, ) = c.fetchone()
 
                 wire_name = tile_name + '/' + wire_name
             else:
                 # We don't have a specific upstream wire, use any from the node
                 wire_name = get_a_wire(source_node_pkey)
-                wire_name = '[get_nodes -of_object [get_wires {}]]'.format(wire_name)
+                wire_name = '[get_nodes -of_object [get_wires {}]]'.format(
+                    wire_name
+                )
 
             fixed_route.append(wire_name)
 
@@ -219,19 +270,21 @@ class Net(object):
 
             descend_routes = []
 
-            for _ in range(len(source_to_sink_node_map[source_node_pkey])-1):
+            for _ in range(len(source_to_sink_node_map[source_node_pkey]) - 1):
                 fixed_route.append([])
                 descend_routes.append(fixed_route[-1])
 
             descend_routes.append(fixed_route)
 
-            for idx, next_node_pkey in enumerate(source_to_sink_node_map[source_node_pkey]):
+            for idx, next_node_pkey in enumerate(
+                    source_to_sink_node_map[source_node_pkey]):
                 descend_fixed_route(next_node_pkey, descend_routes[idx])
-
 
         if self.source_wire_pkey not in [ZERO_NET, ONE_NET]:
             fixed_route = []
-            descend_fixed_route(get_node_pkey(conn, self.source_wire_pkey), fixed_route)
+            descend_fixed_route(
+                get_node_pkey(conn, self.source_wire_pkey), fixed_route
+            )
 
             for i in output_builder(fixed_route):
                 yield i
@@ -271,10 +324,15 @@ def create_check_for_default(db, conn):
         Returns None if no ppips are found for the given wire_in_tile_pkey.
 
         """
-        c.execute("SELECT name, tile_type_pkey FROM wire_in_tile WHERE pkey = ?", (wire_in_tile_pkey,))
+        c.execute(
+            "SELECT name, tile_type_pkey FROM wire_in_tile WHERE pkey = ?",
+            (wire_in_tile_pkey, )
+        )
         name, tile_type_pkey = c.fetchone()
 
-        c.execute("SELECT name FROM tile_type WHERE pkey = ?", (tile_type_pkey,))
+        c.execute(
+            "SELECT name FROM tile_type WHERE pkey = ?", (tile_type_pkey, )
+        )
         tile_type = c.fetchone()[0]
 
         tile = db.get_tile_segbits(tile_type)
@@ -298,10 +356,12 @@ def create_check_for_default(db, conn):
                 'CLBLL_LL_BMUX',
                 'CLBLL_LL_CMUX',
                 'CLBLL_LL_DMUX',
-                ]:
+        ]:
             upstream_wire = name.replace('MUX', '')
-            c.execute("SELECT pkey FROM wire_in_tile WHERE name = ? AND tile_type_pkey = ?;", (
-                upstream_wire, tile_type_pkey))
+            c.execute(
+                "SELECT pkey FROM wire_in_tile WHERE name = ? AND tile_type_pkey = ?;",
+                (upstream_wire, tile_type_pkey)
+            )
 
             upstream_wire_in_tile_pkey = c.fetchone()[0]
 
@@ -311,12 +371,16 @@ def create_check_for_default(db, conn):
             parts = k.split('.')
             assert len(parts) == 3
             if k.startswith('{}.{}.'.format(tile_type, name)):
-                assert tile.ppips[k] in [PsuedoPipType.ALWAYS, PsuedoPipType.DEFAULT], (k, tile.ppips[k])
+                assert tile.ppips[k] in [
+                    PsuedoPipType.ALWAYS, PsuedoPipType.DEFAULT
+                ], (k, tile.ppips[k])
 
                 upstream_wire = parts[2]
 
-                c.execute("SELECT pkey FROM wire_in_tile WHERE name = ? AND tile_type_pkey = ?;", (
-                    upstream_wire, tile_type_pkey))
+                c.execute(
+                    "SELECT pkey FROM wire_in_tile WHERE name = ? AND tile_type_pkey = ?;",
+                    (upstream_wire, tile_type_pkey)
+                )
 
                 upstream_wire_in_tile_pkey = c.fetchone()[0]
 
@@ -327,24 +391,29 @@ def create_check_for_default(db, conn):
     return check_for_default
 
 
-def expand_sink(conn, check_for_default, nets, net_map,
-        source_to_sink_pip_map, sink_wire_pkey,
-        allow_orphan_sinks):
+def expand_sink(
+        conn, check_for_default, nets, net_map, source_to_sink_pip_map,
+        sink_wire_pkey, allow_orphan_sinks
+):
     """ Attempt to expand a sink to its source. """
     if sink_wire_pkey in net_map:
         return
 
     c = conn.cursor()
 
-    c.execute("SELECT wire_in_tile_pkey, tile_pkey FROM wire WHERE pkey = ?",
-            (sink_wire_pkey,))
+    c.execute(
+        "SELECT wire_in_tile_pkey, tile_pkey FROM wire WHERE pkey = ?",
+        (sink_wire_pkey, )
+    )
     wire_in_tile_pkey, tile_pkey = c.fetchone()
 
-    c.execute("SELECT name FROM tile WHERE pkey = ?", (tile_pkey,))
-    (tile_name,) = c.fetchone()
+    c.execute("SELECT name FROM tile WHERE pkey = ?", (tile_pkey, ))
+    (tile_name, ) = c.fetchone()
 
-    c.execute("SELECT name FROM wire_in_tile WHERE pkey = ?", (wire_in_tile_pkey,))
-    (wire_name,) = c.fetchone()
+    c.execute(
+        "SELECT name FROM wire_in_tile WHERE pkey = ?", (wire_in_tile_pkey, )
+    )
+    (wire_name, ) = c.fetchone()
 
     if DEBUG:
         print('//', tile_name, wire_name, sink_wire_pkey)
@@ -360,113 +429,160 @@ def expand_sink(conn, check_for_default, nets, net_map,
 
             if upstream_sink_wire_pkey not in net_map:
                 expand_sink(
-                        conn=conn,
-                        check_for_default=check_for_default,
-                        nets=nets,
-                        net_map=net_map,
-                        source_to_sink_pip_map=source_to_sink_pip_map,
-                        sink_wire_pkey=upstream_sink_wire_pkey,
-                        allow_orphan_sinks=allow_orphan_sinks)
+                    conn=conn,
+                    check_for_default=check_for_default,
+                    nets=nets,
+                    net_map=net_map,
+                    source_to_sink_pip_map=source_to_sink_pip_map,
+                    sink_wire_pkey=upstream_sink_wire_pkey,
+                    allow_orphan_sinks=allow_orphan_sinks
+                )
 
             if upstream_sink_wire_pkey in net_map:
                 if DEBUG:
-                    print('// {}/{} is connected to net via wire_pkey {}'.format(
-                        tile_name, wire_name, upstream_sink_wire_pkey))
+                    print(
+                        '// {}/{} is connected to net via wire_pkey {}'.format(
+                            tile_name, wire_name, upstream_sink_wire_pkey
+                        )
+                    )
 
                 nets[net_map[upstream_sink_wire_pkey]].add_node(
                     conn=conn,
                     net_map=net_map,
                     node_pkey=sink_node_pkey,
-                    parent_node_pkey=get_node_pkey(conn, upstream_sink_wire_pkey),
-                    incoming_wire_pkey=node_wire_pkey)
+                    parent_node_pkey=get_node_pkey(
+                        conn, upstream_sink_wire_pkey
+                    ),
+                    incoming_wire_pkey=node_wire_pkey
+                )
                 return
 
     # There are no active pips upstream from this node, check if this is a
     # site pin connected to a HARD0 or HARD1 pin.  These are connected to the
     # global ZERO_NET or ONE_NET.
-    c.execute("SELECT site_wire_pkey FROM node WHERE pkey = ?", (sink_node_pkey,))
+    c.execute(
+        "SELECT site_wire_pkey FROM node WHERE pkey = ?", (sink_node_pkey, )
+    )
     site_wire_pkey = c.fetchone()[0]
     if site_wire_pkey is not None:
         upstream_sink_wire_in_tile_pkey = check_for_default(wire_in_tile_pkey)
         if upstream_sink_wire_in_tile_pkey is not None:
-            upstream_sink_wire_pkey = get_wire(conn, tile_pkey, upstream_sink_wire_in_tile_pkey)
+            upstream_sink_wire_pkey = get_wire(
+                conn, tile_pkey, upstream_sink_wire_in_tile_pkey
+            )
 
             if upstream_sink_wire_pkey in net_map:
                 nets[net_map[upstream_sink_wire_pkey]].add_node(
-                        conn=conn,
-                        net_map=net_map,
-                        node_pkey=sink_node_pkey,
-                        parent_node_pkey=get_node_pkey(conn, upstream_sink_wire_pkey),
-                        incoming_wire_pkey=sink_wire_pkey,
-                        )
+                    conn=conn,
+                    net_map=net_map,
+                    node_pkey=sink_node_pkey,
+                    parent_node_pkey=get_node_pkey(
+                        conn, upstream_sink_wire_pkey
+                    ),
+                    incoming_wire_pkey=sink_wire_pkey,
+                )
                 return
 
-        c.execute("""
+        c.execute(
+            """
 SELECT site_pin_pkey FROM wire_in_tile WHERE pkey = (
-        SELECT wire_in_tile_pkey FROM wire WHERE pkey = ?);""", (site_wire_pkey,))
+        SELECT wire_in_tile_pkey FROM wire WHERE pkey = ?);""",
+            (site_wire_pkey, )
+        )
         site_pin_pkey = c.fetchone()[0]
 
         assert site_pin_pkey is not None
 
-        c.execute("SELECT name, direction FROM site_pin WHERE pkey = ?;""", (site_pin_pkey,))
+        c.execute(
+            "SELECT name, direction FROM site_pin WHERE pkey = ?;"
+            "", (site_pin_pkey, )
+        )
         site_pin, direction = c.fetchone()
 
         if direction == 'OUT':
             if site_pin == 'HARD1':
-                nets[ONE_NET].add_node(conn, net_map, sink_node_pkey, parent_node_pkey=ONE_NET)
+                nets[ONE_NET].add_node(
+                    conn, net_map, sink_node_pkey, parent_node_pkey=ONE_NET
+                )
             elif site_pin == 'HARD0':
-                nets[ZERO_NET].add_node(conn, net_map, sink_node_pkey, parent_node_pkey=ZERO_NET)
+                nets[ZERO_NET].add_node(
+                    conn, net_map, sink_node_pkey, parent_node_pkey=ZERO_NET
+                )
             else:
-                c.execute("SELECT name FROM tile WHERE pkey = (SELECT tile_pkey FROM wire WHERE pkey = ?)", (site_wire_pkey,))
+                c.execute(
+                    "SELECT name FROM tile WHERE pkey = (SELECT tile_pkey FROM wire WHERE pkey = ?)",
+                    (site_wire_pkey, )
+                )
                 tile = c.fetchone()[0]
-                assert site_pin in ['HARD1', 'HARD0'], (sink_node_pkey, tile, site_pin)
+                assert site_pin in ['HARD1',
+                                    'HARD0'], (sink_node_pkey, tile, site_pin)
 
             return
 
     # No active pips to move upstream, find a ppip upstream
     for node_wire_pkey in get_wires_in_node(conn, sink_node_pkey):
-        c.execute("SELECT tile_pkey, wire_in_tile_pkey FROM wire WHERE pkey = ?;", (node_wire_pkey,))
+        c.execute(
+            "SELECT tile_pkey, wire_in_tile_pkey FROM wire WHERE pkey = ?;",
+            (node_wire_pkey, )
+        )
         tile_pkey, wire_in_tile_pkey = c.fetchone()
 
         upstream_sink_wire_in_tile_pkey = check_for_default(wire_in_tile_pkey)
 
         if upstream_sink_wire_in_tile_pkey is not None:
-            c.execute("SELECT pkey FROM wire WHERE wire_in_tile_pkey = ? AND tile_pkey = ?;",
-                    (upstream_sink_wire_in_tile_pkey, tile_pkey,))
+            c.execute(
+                "SELECT pkey FROM wire WHERE wire_in_tile_pkey = ? AND tile_pkey = ?;",
+                (
+                    upstream_sink_wire_in_tile_pkey,
+                    tile_pkey,
+                )
+            )
             upstream_sink_wire_pkey = c.fetchone()[0]
 
             if upstream_sink_wire_pkey not in net_map:
                 expand_sink(
-                        conn=conn,
-                        check_for_default=check_for_default,
-                        nets=nets,
-                        net_map=net_map,
-                        source_to_sink_pip_map=source_to_sink_pip_map,
-                        sink_wire_pkey=upstream_sink_wire_pkey,
-                        allow_orphan_sinks=allow_orphan_sinks)
+                    conn=conn,
+                    check_for_default=check_for_default,
+                    nets=nets,
+                    net_map=net_map,
+                    source_to_sink_pip_map=source_to_sink_pip_map,
+                    sink_wire_pkey=upstream_sink_wire_pkey,
+                    allow_orphan_sinks=allow_orphan_sinks
+                )
 
             if upstream_sink_wire_pkey in net_map:
                 if DEBUG:
-                    print('// {}/{} is connected to net via wire_pkey {}'.format(
-                        tile_name, wire_name, upstream_sink_wire_pkey))
+                    print(
+                        '// {}/{} is connected to net via wire_pkey {}'.format(
+                            tile_name, wire_name, upstream_sink_wire_pkey
+                        )
+                    )
 
                 nets[net_map[upstream_sink_wire_pkey]].add_node(
-                        conn=conn,
-                        net_map=net_map,
-                        node_pkey=sink_node_pkey,
-                        parent_node_pkey=get_node_pkey(conn, upstream_sink_wire_pkey),
-                        incoming_wire_pkey=node_wire_pkey)
+                    conn=conn,
+                    net_map=net_map,
+                    node_pkey=sink_node_pkey,
+                    parent_node_pkey=get_node_pkey(
+                        conn, upstream_sink_wire_pkey
+                    ),
+                    incoming_wire_pkey=node_wire_pkey
+                )
                 return
 
     # There does not appear to be an upstream connection, handle it.
     if allow_orphan_sinks:
-        print('// ERROR, failed to find source for node = {}'.format(sink_node_pkey))
+        print(
+            '// ERROR, failed to find source for node = {}'.
+            format(sink_node_pkey)
+        )
     else:
         assert False, (sink_node_pkey, tile_name, wire_name, sink_wire_pkey)
 
 
-def make_routes(db, conn, wire_pkey_to_wire, unrouted_sinks, unrouted_sources,
-        active_pips, allow_orphan_sinks, shorted_nets, nets, net_map):
+def make_routes(
+        db, conn, wire_pkey_to_wire, unrouted_sinks, unrouted_sources,
+        active_pips, allow_orphan_sinks, shorted_nets, nets, net_map
+):
     """ Form nets (and their routes) based:
 
     unrouted_sinks - Set of wire_pkeys of sinks to BELs in the graph
@@ -504,14 +620,19 @@ def make_routes(db, conn, wire_pkey_to_wire, unrouted_sinks, unrouted_sources,
         print('// Source wire pkeys:')
         c = conn.cursor()
         for wire_pkey in unrouted_sources:
-            c.execute("SELECT tile_pkey, wire_in_tile_pkey FROM wire WHERE pkey = ?", (wire_pkey,))
+            c.execute(
+                "SELECT tile_pkey, wire_in_tile_pkey FROM wire WHERE pkey = ?",
+                (wire_pkey, )
+            )
             tile_pkey, wire_in_tile_pkey = c.fetchone()
 
-            c.execute("SELECT name, tile_type_pkey FROM wire_in_tile WHERE pkey = ?", (
-                wire_in_tile_pkey,))
+            c.execute(
+                "SELECT name, tile_type_pkey FROM wire_in_tile WHERE pkey = ?",
+                (wire_in_tile_pkey, )
+            )
             name, tile_type_pkey = c.fetchone()
 
-            c.execute("SELECT name FROM tile WHERE pkey = ?", (tile_pkey,))
+            c.execute("SELECT name FROM tile WHERE pkey = ?", (tile_pkey, ))
             tile = c.fetchone()[0]
 
             print('//', wire_pkey, tile, name)
@@ -521,7 +642,12 @@ def make_routes(db, conn, wire_pkey_to_wire, unrouted_sinks, unrouted_sources,
 
     for wire_pkey in unrouted_sources:
         nets[wire_pkey] = Net(wire_pkey)
-        nets[wire_pkey].add_node(conn, net_map, get_node_pkey(conn, wire_pkey), parent_node_pkey=None)
+        nets[wire_pkey].add_node(
+            conn,
+            net_map,
+            get_node_pkey(conn, wire_pkey),
+            parent_node_pkey=None
+        )
         nets[wire_pkey].expand_source(conn, check_downstream_default, net_map)
     del check_downstream_default
 
@@ -532,33 +658,39 @@ def make_routes(db, conn, wire_pkey_to_wire, unrouted_sinks, unrouted_sources,
 
     for wire_pkey in unrouted_sinks:
         expand_sink(
-                conn=conn,
-                check_for_default=check_for_default,
-                nets=nets,
-                net_map=net_map,
-                source_to_sink_pip_map=source_to_sink_pip_map,
-                sink_wire_pkey=wire_pkey,
-                allow_orphan_sinks=allow_orphan_sinks)
+            conn=conn,
+            check_for_default=check_for_default,
+            nets=nets,
+            net_map=net_map,
+            source_to_sink_pip_map=source_to_sink_pip_map,
+            sink_wire_pkey=wire_pkey,
+            allow_orphan_sinks=allow_orphan_sinks
+        )
 
         if wire_pkey in net_map:
             source_wire_pkey = net_map[wire_pkey]
-
 
             if source_wire_pkey == ZERO_NET:
                 yield wire_pkey_to_wire[wire_pkey], 0
             elif source_wire_pkey == ONE_NET:
                 yield wire_pkey_to_wire[wire_pkey], 1
             else:
-                yield wire_pkey_to_wire[wire_pkey], wire_pkey_to_wire[source_wire_pkey]
+                yield wire_pkey_to_wire[wire_pkey
+                                        ], wire_pkey_to_wire[source_wire_pkey]
         else:
             if allow_orphan_sinks:
-                print('// ERROR, source for sink wire {} not found'.format(wire_pkey_to_wire[wire_pkey]))
+                print(
+                    '// ERROR, source for sink wire {} not found'.format(
+                        wire_pkey_to_wire[wire_pkey]
+                    )
+                )
+
 
 def prune_antennas(conn, nets, unrouted_sinks):
     """ Prunes antenna routes from nets based on active sinks. """
     active_sink_nodes = set()
     for wire_pkey in unrouted_sinks:
-            active_sink_nodes.add(get_node_pkey(conn, wire_pkey))
+        active_sink_nodes.add(get_node_pkey(conn, wire_pkey))
 
     for net in nets.values():
         net.prune_antennas(active_sink_nodes)

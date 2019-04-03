@@ -52,7 +52,8 @@ def _bits_to_nibbles(arr):
     res = []
     for ii in range(0, len(arr), 4):
         nibble_val = sum(
-            (1 << ii) for ii, xx in enumerate(arr[ii:ii + 4]) if xx)
+            (1 << ii) for ii, xx in enumerate(arr[ii:ii + 4]) if xx
+        )
         res += "{:x}".format(nibble_val)
     res.reverse()
     return "".join(res)
@@ -64,8 +65,9 @@ def _tile_to_array(tile, is_hex=False):
     if is_hex:
         array = np.array([_nibbles_to_bits(line) for line in tile], dtype=bool)
     else:
-        array = np.array([[int(xx) for xx in line] for line in tile],
-                         dtype=bool)
+        array = np.array(
+            [[int(xx) for xx in line] for line in tile], dtype=bool
+        )
     return array
 
 
@@ -158,23 +160,21 @@ class FeatureAccumulator(dict):
     def append_feature(self, feature):
         self[feature.to_fasm_entry().feature] = feature
 
-    def append_ice_entry(self,
-                         tile_type,
-                         tile_loc,
-                         bits,
-                         names,
-                         idx,
-                         negate=False):
+    def append_ice_entry(
+            self, tile_type, tile_loc, bits, names, idx, negate=False
+    ):
 
         if negate:
             feature = Feature.from_icedb_entry(
-                IceDbEntry(tile_type, tile_loc, bits, names, idx))
+                IceDbEntry(tile_type, tile_loc, bits, names, idx)
+            )
             feature.bit_tuples = [
                 _inv_bit_tuple(bt) for bt in feature.bit_tuples
             ]
         else:
             feature = Feature.from_icedb_entry(
-                IceDbEntry(tile_type, tile_loc, bits, names, idx))
+                IceDbEntry(tile_type, tile_loc, bits, names, idx)
+            )
 
         self.append_feature(feature)
         return feature
@@ -183,7 +183,8 @@ class FeatureAccumulator(dict):
         for key in sorted(self.keys()):
             entry = self[key].to_fasm_entry()
             print(
-                "{} {}".format(entry.feature, " ".join(entry.bits)), file=outf)
+                "{} {}".format(entry.feature, " ".join(entry.bits)), file=outf
+            )
         return outf
 
     def as_fasm(self, outf=StringIO()):
@@ -212,13 +213,15 @@ def read_ice_db(ic):
                 lut, ctrl = _lc_to_lut(entry[0])
                 for ii, bit in enumerate(lut):
                     names = entry[1:] + ["INIT"]
-                    accum.append_ice_entry(tile_type, tile_loc, [bit], names,
-                                           ii)
+                    accum.append_ice_entry(
+                        tile_type, tile_loc, [bit], names, ii
+                    )
 
                 for name, bit in ctrl.items():
                     names = entry[1:] + [name]
-                    accum.append_ice_entry(tile_type, tile_loc, [bit], names,
-                                           None)
+                    accum.append_ice_entry(
+                        tile_type, tile_loc, [bit], names, None
+                    )
 
             # entries to generate the negated case
             elif (
@@ -230,7 +233,8 @@ def read_ice_db(ic):
                     entry[0],
                     entry[1:],
                     None,
-                    negate=True)
+                    negate=True
+                )
             elif device_1k and tile_type == "RAMB" and entry[-1] == "PowerUp":
                 accum.append_ice_entry(
                     tile_type,
@@ -238,11 +242,13 @@ def read_ice_db(ic):
                     entry[0],
                     entry[1:],
                     None,
-                    negate=True)
+                    negate=True
+                )
             elif tile_type == "RAMT" and entry[-1].startswith("CBIT"):
                 matches = re.match(r"CBIT_([0-9]+)", entry[-1])
                 assert matches is not None, "Expected 'CBIT_n' received {}".format(
-                    entry[-1])
+                    entry[-1]
+                )
 
                 cbit_offset = matches.group(1)
                 cbit_translation = {
@@ -254,14 +260,17 @@ def read_ice_db(ic):
                 val = cbit_translation.get(cbit_offset)
                 if val is not None:
                     ramb_tile_loc = (tile_loc[0], tile_loc[1] - 1)
-                    accum.append_ice_entry("RAMB", ramb_tile_loc, entry[0],
-                                           [val[0]], val[1])
+                    accum.append_ice_entry(
+                        "RAMB", ramb_tile_loc, entry[0], [val[0]], val[1]
+                    )
                 else:
-                    accum.append_ice_entry(tile_type, tile_loc, entry[0],
-                                           entry[1:], None)
+                    accum.append_ice_entry(
+                        tile_type, tile_loc, entry[0], entry[1:], None
+                    )
             else:
-                accum.append_ice_entry(tile_type, tile_loc, entry[0],
-                                       entry[1:], None)
+                accum.append_ice_entry(
+                    tile_type, tile_loc, entry[0], entry[1:], None
+                )
 
     # add RAM data entries features
     tile_type = "RAMB"
@@ -270,8 +279,9 @@ def read_ice_db(ic):
             feature_name = "INIT{:X}".format(i)
             for j in range(256):
                 bit = "B{}[{}]".format(i, j)
-                accum.append_ice_entry(tile_type, ram_loc, [bit],
-                                       [feature_name], j)
+                accum.append_ice_entry(
+                    tile_type, ram_loc, [bit], [feature_name], j
+                )
 
     # TODO: extra bits?
 
@@ -293,8 +303,9 @@ def generate_fasm_db(outf, device):
 
     ic = icebox.iceconfig()
     init_method_name = "setup_empty_{}".format(device.lower()[2:])
-    assert hasattr(ic,
-                   init_method_name), "no icebox method to init empty device"
+    assert hasattr(
+        ic, init_method_name
+    ), "no icebox method to init empty device"
     getattr(ic, init_method_name)()
 
     return _iceboxdb_to_fasmdb(ic, outf)
@@ -338,14 +349,16 @@ def iceconfig_to_fasm(ic, outf=StringIO()):
                     for ii, bit in enumerate(lut):
                         if bit:
                             names = entry[1:] + ["INIT"]
-                            accum.append_ice_entry(tile_type, tile_loc, [],
-                                                   names, ii)
+                            accum.append_ice_entry(
+                                tile_type, tile_loc, [], names, ii
+                            )
 
                     for name, bit in ctrl.items():
                         if bit:
                             names = entry[1:] + [name]
-                            accum.append_ice_entry(tile_type, tile_loc, [],
-                                                   names, None)
+                            accum.append_ice_entry(
+                                tile_type, tile_loc, [], names, None
+                            )
 
             elif (
                     tile_type == "IO" and device_1k and
@@ -356,7 +369,8 @@ def iceconfig_to_fasm(ic, outf=StringIO()):
                     entry[0],
                     entry[1:],
                     None,
-                    negate=True)
+                    negate=True
+                )
             elif device_1k and tile_type == "RAMB" and entry[-1] == "PowerUp":
                 accum.append_ice_entry(
                     tile_type,
@@ -364,11 +378,13 @@ def iceconfig_to_fasm(ic, outf=StringIO()):
                     entry[0],
                     entry[1:],
                     None,
-                    negate=True)
+                    negate=True
+                )
             elif tile_type == "RAMT" and entry[-1].startswith("CBIT"):
                 matches = re.match(r"CBIT_([0-9]+)", entry[-1])
                 assert matches is not None, "Expected 'CBIT_n' received {}".format(
-                    entry[-1])
+                    entry[-1]
+                )
 
                 cbit_offset = matches.group(1)
                 cbit_translation = {
@@ -380,16 +396,19 @@ def iceconfig_to_fasm(ic, outf=StringIO()):
                 val = cbit_translation.get(cbit_offset)
                 if val is not None:
                     ramb_tile_loc = (tile_loc[0], tile_loc[1] - 1)
-                    accum.append_ice_entry("RAMB", ramb_tile_loc, entry[0],
-                                           [val[0]], val[1])
+                    accum.append_ice_entry(
+                        "RAMB", ramb_tile_loc, entry[0], [val[0]], val[1]
+                    )
                 else:
-                    accum.append_ice_entry(tile_type, tile_loc, entry[0],
-                                           entry[1:], None)
+                    accum.append_ice_entry(
+                        tile_type, tile_loc, entry[0], entry[1:], None
+                    )
 
             else:
                 if _check_iceconfig_entry(tile_bits, entry):
-                    accum.append_ice_entry(tile_type, tile_loc, entry[0],
-                                           entry[1:], None)
+                    accum.append_ice_entry(
+                        tile_type, tile_loc, entry[0], entry[1:], None
+                    )
 
     # ram data
     for tile_loc, hexd in ic.ram_data.items():
@@ -401,7 +420,8 @@ def iceconfig_to_fasm(ic, outf=StringIO()):
             bit = "B{}[{}]".format(x, y)
             entry = [[bit], feature_name]
             feature = Feature.from_icedb_entry(
-                IceDbEntry(tile_type, tile_loc, entry[0], entry[1:], y))
+                IceDbEntry(tile_type, tile_loc, entry[0], entry[1:], y)
+            )
             print(feature.to_fasm_entry().feature, file=outf)
 
     # TODO: extra_bits
@@ -418,8 +438,9 @@ def fasm_to_asc(in_fasm, outf, device):
     ic = icebox.iceconfig()
 
     init_method_name = "setup_empty_{}".format(device.lower()[2:])
-    assert hasattr(ic,
-                   init_method_name), "no icebox method to init empty device"
+    assert hasattr(
+        ic, init_method_name
+    ), "no icebox method to init empty device"
     getattr(ic, init_method_name)()
 
     device_1k = ic.device == "1k"
@@ -453,15 +474,18 @@ def fasm_to_asc(in_fasm, outf, device):
         assert len(line_strs) == 1
 
         feature = Feature.from_fasm_entry(
-            FasmEntry(line.set_feature.feature, []))
+            FasmEntry(line.set_feature.feature, [])
+        )
 
         def find_ieren(ic, loc, iob):
             tmap = [
-                xx[3:] for xx in ic.ieren_db()
+                xx[3:]
+                for xx in ic.ieren_db()
                 if xx[:3] == (tuple(loc) + (iob, ))
             ]
             assert len(tmap) < 2, "expected 1 IEREN_DB entry found {}".format(
-                len(tmap))
+                len(tmap)
+            )
 
             if len(tmap) == 0:
                 print("no ieren found for {}".format((tile_loc + (iob, ))))
@@ -548,7 +572,8 @@ if __name__ == "__main__":
         "--output",
         help="Output file",
         type=argparse.FileType("w"),
-        default=sys.stdout)
+        default=sys.stdout
+    )
     args = parser.parse_args()
 
     generate_fasm_db(args.output, args.device)

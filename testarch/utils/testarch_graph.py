@@ -6,7 +6,6 @@ import lib.rr_graph_xml.graph2 as xml_graph2
 from lib.rr_graph_xml.utils import read_xml_file
 
 
-
 # bi-directional channels
 def create_tracks(graph, grid_width, grid_height, rcw, verbose=False):
     print("Creating tracks, channel width: %d" % rcw)
@@ -23,42 +22,44 @@ def create_tracks(graph, grid_width, grid_height, rcw, verbose=False):
     # chanx going entire width
     for y in range(0, grid_height - 1):
         for tracki in range(rcw):
-            begin, end, direction = alt_pos((1, y), (grid_width - 2, y),
-                                            tracki % 2 == 1)
+            begin, end, direction = alt_pos(
+                (1, y), (grid_width - 2, y), tracki % 2 == 1
+            )
 
             graph.add_track(
                 track=tracks.Track(
-                        direction='X',
-                        x_low=begin[0],
-                        x_high=end[0],
-                        y_low=begin[1],
-                        y_high=end[1],
-                    ),
+                    direction='X',
+                    x_low=begin[0],
+                    x_high=end[0],
+                    y_low=begin[1],
+                    y_high=end[1],
+                ),
                 segment_id=graph.segments[0].id,
                 capacity=1,
                 direction=direction,
                 name="CHANX{:04d}@{:04d}".format(y, tracki),
-                )
+            )
 
     # chany going entire height
     for x in range(0, grid_width - 1):
         for tracki in range(rcw):
-            begin, end, direction = alt_pos((x, 1), (x, grid_height - 2),
-                                            tracki % 2 == 1)
+            begin, end, direction = alt_pos(
+                (x, 1), (x, grid_height - 2), tracki % 2 == 1
+            )
 
             graph.add_track(
                 track=tracks.Track(
-                        direction='Y',
-                        x_low=begin[0],
-                        x_high=end[0],
-                        y_low=begin[1],
-                        y_high=end[1],
-                    ),
+                    direction='Y',
+                    x_low=begin[0],
+                    x_high=end[0],
+                    y_low=begin[1],
+                    y_high=end[1],
+                ),
                 segment_id=graph.segments[0].id,
                 capacity=1,
                 direction=direction,
                 name="CHANY{:04d}@{:04d}".format(x, tracki),
-                )
+            )
 
 
 def channel_common(node):
@@ -77,6 +78,7 @@ def channel_common(node):
     else:
         assert False, node.type
 
+
 def channel_start(node):
     """ Return the start value of the channel
 
@@ -91,6 +93,7 @@ def channel_start(node):
     else:
         assert False, node.type
 
+
 def walk_pins(graph):
     """ Yields all pins from grid.
 
@@ -102,11 +105,14 @@ def walk_pins(graph):
 
         for pin_class_idx, pin_class in enumerate(block_type.pin_class):
             for pin in pin_class.pin:
-                for pin_node, pin_side in graph.loc_pin_map[(loc.x, loc.y, pin.ptc)]:
+                for pin_node, pin_side in graph.loc_pin_map[(loc.x, loc.y,
+                                                             pin.ptc)]:
                     yield loc, pin_class, pin, pin_node, pin_side
 
 
-def connect_blocks_to_tracks(graph, grid_width, grid_height, rcw, switch, verbose=False):
+def connect_blocks_to_tracks(
+        graph, grid_width, grid_height, rcw, switch, verbose=False
+):
     ytracks = {}
 
     for inode in graph.tracks:
@@ -133,9 +139,9 @@ def connect_blocks_to_tracks(graph, grid_width, grid_height, rcw, switch, verbos
         if pin_side == tracks.Direction.LEFT:
             if loc.x == 0:
                 continue
-            tracks_for_pin = ytracks[loc.x-1]
+            tracks_for_pin = ytracks[loc.x - 1]
         elif pin_side == tracks.Direction.RIGHT:
-            if loc.x == grid_width-1:
+            if loc.x == grid_width - 1:
                 continue
             tracks_for_pin = ytracks[loc.x]
         elif pin_side == tracks.Direction.TOP:
@@ -150,17 +156,17 @@ def connect_blocks_to_tracks(graph, grid_width, grid_height, rcw, switch, verbos
         if pin_class.type == graph2.PinType.OUTPUT:
             for track_inode in tracks_for_pin:
                 graph.add_edge(
-                        src_node=pin_node,
-                        sink_node=track_inode,
-                        switch_id=switch,
-                        )
+                    src_node=pin_node,
+                    sink_node=track_inode,
+                    switch_id=switch,
+                )
         elif pin_class.type == graph2.PinType.INPUT:
             for track_inode in tracks_for_pin:
                 graph.add_edge(
-                        src_node=track_inode,
-                        sink_node=pin_node,
-                        switch_id=switch,
-                        )
+                    src_node=track_inode,
+                    sink_node=pin_node,
+                    switch_id=switch,
+                )
 
 
 def connect_tracks_to_tracks(graph, switch, verbose=False):
@@ -214,9 +220,9 @@ def rebuild_graph(fn, fn_out, rcw=6, verbose=False):
     print('Importing input g')
     input_rr_graph = read_xml_file(fn)
     xml_graph = xml_graph2.Graph(
-            input_rr_graph,
-            output_file_name=fn_out,
-            )
+        input_rr_graph,
+        output_file_name=fn_out,
+    )
 
     graph = xml_graph.graph
 
@@ -234,7 +240,7 @@ def rebuild_graph(fn, fn_out, rcw=6, verbose=False):
         tool_version="dev",
         tool_comment="Generated from black magic",
         pad_segment=graph.segments[0].id,
-        )
+    )
 
 
 def main():
@@ -251,7 +257,8 @@ def main():
         args.read_rr_graph,
         args.write_rr_graph,
         rcw=args.route_chan_width,
-        verbose=args.verbose)
+        verbose=args.verbose
+    )
 
 
 if __name__ == "__main__":
