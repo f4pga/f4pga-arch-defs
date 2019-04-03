@@ -203,7 +203,7 @@ reason, BRAM tiles use a "fused sites" mode to accomidate the cross site logic.
  <input  name="RAMB36_Y0_ADDRARDADDR"   num_pins="16" />
  <input  name="RAMB36_Y0_ADDRBWRADDR"   num_pins="16" />
 
- <mode name="BRAM36">
+ <mode name="BRAMFIFO36">
   <xi:include href="rambfifo36e1.pb_type.xml" />
   <interconnect>
    <direct name="RAMB36_X0Y0_WEBWEU"            input="BLK_IG-BRAM.RAMB36_Y0_WEBWEU"             output="BLK_IG-RAMBFIFO36E1.WEBWEU" />
