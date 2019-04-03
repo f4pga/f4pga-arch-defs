@@ -20,9 +20,6 @@ rr_graph XML.
 """
 
 import argparse
-import prjxray.db
-from prjxray.roi import Roi
-import prjxray.grid as grid
 from lib.rr_graph import graph2
 from lib.rr_graph import tracks
 from lib.connection_database import get_wire_pkey, get_track_model
@@ -179,18 +176,6 @@ WHERE
             assert False, side
 
 
-def is_track_alive(conn, tile_pkey, roi, synth_tiles):
-    c = conn.cursor()
-    c.execute(
-        """SELECT name, grid_x, grid_y FROM tile WHERE pkey = ?;""",
-        (tile_pkey, )
-    )
-    tile, grid_x, grid_y = c.fetchone()
-
-    return roi.tile_in_roi(grid.GridLoc(grid_x=grid_x, grid_y=grid_y)
-                           ) or tile in synth_tiles['tiles']
-
-
 def import_tracks(conn, alive_tracks, node_mapping, graph, segment_id):
     c2 = conn.cursor()
     for (graph_node_pkey, track_pkey, graph_node_type, x_low, x_high, y_low,
@@ -263,7 +248,7 @@ def import_dummy_tracks(conn, graph, segment_id):
 
 
 def create_track_rr_graph(
-        conn, graph, node_mapping, use_roi, roi, synth_tiles, segment_id
+        conn, graph, node_mapping, segment_id
 ):
     c = conn.cursor()
     c.execute("""SELECT count(*) FROM track;""")
@@ -287,12 +272,14 @@ def create_track_rr_graph(
     )
 
 
-def add_synthetic_edges(conn, graph, node_mapping, grid, synth_tiles):
+def add_synthetic_edges(conn, graph, node_mapping, synth_tiles):
     c = conn.cursor()
     delayless_switch = graph.get_switch_id('__vpr_delayless_switch__')
 
-    for loc in grid.tile_locations():
-        tile_name = grid.tilename_at_loc(loc)
+    c2 = conn.cursor()
+    for tile_name, grid_x, grid_y in c2.execute(
+            "SELECT name, grid_x, grid_y FROM tile"):
+        loc = (grid_x, grid_y)
 
         if tile_name in synth_tiles['tiles']:
             assert len(synth_tiles['tiles'][tile_name]['pins']) == 1
@@ -327,6 +314,7 @@ WHERE
                     (track_pkey, ) = c.fetchone()
                 else:
                     assert False, pin['port_type']
+
                 tracks_model, track_nodes = get_track_model(conn, track_pkey)
 
                 option = list(tracks_model.get_tracks_for_wire_at_coord(loc))
@@ -538,9 +526,6 @@ def yield_nodes(nodes):
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument(
-        '--db_root', required=True, help='Project X-Ray Database'
-    )
-    parser.add_argument(
         '--read_rr_graph', required=True, help='Input rr_graph file'
     )
     parser.add_argument(
@@ -558,25 +543,15 @@ def main():
 
     args = parser.parse_args()
 
-    db = prjxray.db.Database(args.db_root)
-    grid = db.grid()
-
     if args.synth_tiles:
         use_roi = True
         with open(args.synth_tiles) as f:
             synth_tiles = json.load(f)
 
-        roi = Roi(
-            db=db,
-            x1=synth_tiles['info']['GRID_X_MIN'],
-            y1=synth_tiles['info']['GRID_Y_MIN'],
-            x2=synth_tiles['info']['GRID_X_MAX'],
-            y2=synth_tiles['info']['GRID_Y_MAX'],
-        )
-
         print('{} generating routing graph for ROI.'.format(now()))
     else:
         use_roi = False
+        synth_tiles = None
 
     # Convert input rr graph into graph2.Graph object.
     input_rr_graph = read_xml_file(args.read_rr_graph)
@@ -627,14 +602,14 @@ def main():
         print('{} Creating tracks'.format(now()))
         segment_id = graph.get_segment_id_from_name('dummy')
         create_track_rr_graph(
-            conn, graph, node_mapping, use_roi, roi, synth_tiles, segment_id
+            conn, graph, node_mapping, segment_id
         )
 
         # Set of (src, sink, switch_id) tuples that pip edges have been sent to
         # VPR.  VPR cannot handle duplicate paths with the same switch id.
         if use_roi:
             print('{} Adding synthetic edges'.format(now()))
-            add_synthetic_edges(conn, graph, node_mapping, grid, synth_tiles)
+            add_synthetic_edges(conn, graph, node_mapping, synth_tiles)
 
         print('{} Creating channels.'.format(now()))
         channels_obj = create_channels(conn)

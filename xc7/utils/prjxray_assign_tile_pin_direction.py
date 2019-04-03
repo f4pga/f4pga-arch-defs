@@ -15,8 +15,6 @@ prjxray_assign_tile_pin_direction.
 """
 import argparse
 from collections import namedtuple
-import prjxray.db
-import prjxray.tile
 import simplejson as json
 from lib.rr_graph import tracks
 from lib.connection_database import (
@@ -289,14 +287,11 @@ WHERE
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument(
-        '--db_root', help='Project X-Ray Database', required=True
-    )
+
     parser.add_argument(
         '--connection_database',
         help='Database of fabric connectivity',
-        required=True
-    )
+        required=True)
     parser.add_argument(
         '--pin_assignments',
         help=
@@ -306,29 +301,29 @@ def main():
 
     args = parser.parse_args()
 
-    db = prjxray.db.Database(args.db_root)
-    grid = db.grid()
-
     edge_assignments = {}
-
     wires_in_tile_types = set()
 
-    for tile_type in db.get_tile_types():
-        type_obj = db.get_tile_type(tile_type)
-
-        for wire in type_obj.get_wires():
-            wires_in_tile_types.add((tile_type, wire))
-
-        for site in type_obj.get_sites():
-            for site_pin in site.site_pins:
-                if site_pin.wire is None:
-                    continue
-
-                key = (tile_type, site_pin.wire)
-                assert key not in edge_assignments, key
-                edge_assignments[key] = []
-
     with DatabaseCache(args.connection_database, read_only=True) as conn:
+
+        c = conn.cursor()
+
+        # List tile wires and site wires
+        tiles = c.execute("SELECT pkey, name FROM tile_type").fetchall()
+        for tile_type_pkey, tile_type in tiles:
+
+            for wire_name, site_pkey in c.execute(
+                    "SELECT name, site_pkey FROM wire_in_tile WHERE tile_type_pkey = (?)",
+                (tile_type_pkey, )):
+
+                # Tile wire
+                wires_in_tile_types.add((tile_type, wire_name))
+
+                # Site wire
+                if site_pkey is not None:
+                    key = (tile_type, wire_name)
+                    assert key not in edge_assignments, key
+                    edge_assignments[key] = []
 
         direct_connections = set()
         print('{} Processing direct connections.'.format(now()))
@@ -337,7 +332,6 @@ def main():
         )
 
         wires_not_in_channels = {}
-        c = conn.cursor()
         print('{} Processing non-channel nodes.'.format(now()))
         for node_pkey, classification in progressbar.progressbar(c.execute("""
     SELECT pkey, classification FROM node WHERE classification != ?;
@@ -383,8 +377,7 @@ def main():
 
             for (tile, tile_type,
                  wire) in yield_wire_info_from_node(conn, node_pkey):
-                tileinfo = grid.gridinfo_at_tilename(tile)
-                key = (tileinfo.tile_type, wire)
+                key = (tile_type, wire)
                 # Make sure all wires in channels always are in channels
                 assert key not in wires_not_in_channels
 
@@ -407,8 +400,7 @@ def main():
         # been marked as NULL during channel formation.
         print('{} Handling edges to channels.'.format(now()))
         handle_edges_to_channels(
-            conn, null_tile_wires, edge_assignments, channel_wires_to_tracks
-        )
+            conn, null_tile_wires, edge_assignments, channel_wires_to_tracks)
 
         print('{} Processing edge assignments.'.format(now()))
         final_edge_assignments = {}

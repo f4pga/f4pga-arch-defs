@@ -22,8 +22,6 @@ fill empty spaces.  This is required by VPR to allocate the right data.
 """
 
 import argparse
-import prjxray.db
-from prjxray.roi import Roi
 import simplejson as json
 import progressbar
 import datetime
@@ -326,8 +324,8 @@ class Connector(object):
             return graph_nodes[idx1], other_graph_nodes[idx2]
         elif self.pins and other_connector.tracks:
             assert self.pins.site_pin_direction == SitePinDirection.OUT
-            assert self.pins.x == loc.grid_x
-            assert self.pins.y == loc.grid_y
+            assert self.pins.x == loc[0]
+            assert self.pins.y == loc[1]
 
             tracks_model, graph_nodes = other_connector.tracks
             for idx, pin_dir in tracks_model.get_tracks_for_wire_at_coord(loc):
@@ -335,8 +333,8 @@ class Connector(object):
                     return self.pins.edge_map[pin_dir], graph_nodes[idx]
         elif self.tracks and other_connector.pins:
             assert other_connector.pins.site_pin_direction == SitePinDirection.IN
-            assert other_connector.pins.x == loc.grid_x
-            assert other_connector.pins.y == loc.grid_y
+            assert other_connector.pins.x == loc[0]
+            assert other_connector.pins.y == loc[1]
 
             tracks_model, graph_nodes = self.tracks
             for idx, pin_dir in tracks_model.get_tracks_for_wire_at_coord(loc):
@@ -536,10 +534,8 @@ SELECT vcc_track_pkey, gnd_track_pkey FROM constant_sources;
 
 
 def make_connection(
-        input_only_nodes, output_only_nodes, find_wire, find_pip,
-        find_connector, tile_name, loc, tile_type, pip, switch_pkey,
-        delayless_switch_pkey, const_connectors
-):
+        conn, input_only_nodes, output_only_nodes, loc, tile_pkey,
+        src_wire_pkey, dst_wire_pkey, pip_pkey, switch_pkey, find_connector):
     """ Attempt to connect graph nodes on either side of a pip.
 
     Args:
@@ -549,14 +545,14 @@ def make_connection(
         output_only_nodes (set of node_pkey): Nodes that can only be used as
             sources. This is because a synthetic tile will use this node as a
             sink.
-        find_wire (function): Return value from create_find_wire.
-        find_pip (function): Return value from create_find_pip.
-        find_connector (function): Return value from create_find_connector.
-        tile_name (str): Name of tile pip belongs too.
-        loc (prjxray.grid_types.GridLoc): Location of tile.
-        pip (prjxray.tile.Pip): Pip being connected.
+        tile_pkey (int): pkey of the tile in the tile table
+        src_wire_pkey (int): pkey of the source wire in the wire table
+        dst_wire_pkey (int): pkey of the destination wire in the wire table
+        loc (tuple): Location of tile.
+        pip_pkey (int): Pip being connected.
         switch_pkey (int): Primary key to switch table of switch to be used
             in this connection.
+        find_connector (function): Return value from create_find_connector.
 
     Returns:
         None if connection cannot be made, otherwise returns tuple of:
@@ -571,70 +567,46 @@ def make_connection(
 
     """
 
-    src_wire_pkey, tile_pkey, src_node_pkey = find_wire(
-        tile_name, tile_type, pip.net_from
-    )
-    sink_wire_pkey, tile_pkey2, sink_node_pkey = find_wire(
-        tile_name, tile_type, pip.net_to
-    )
+    c = conn.cursor()
 
-    assert tile_pkey == tile_pkey2
+    # Get node pkeys
+    src_node_pkey = c.execute(
+        "SELECT node_pkey FROM wire WHERE tile_pkey = (?) AND wire_in_tile_pkey = (?)",
+        (tile_pkey, src_wire_pkey)).fetchone()[0]
+    dst_node_pkey = c.execute(
+        "SELECT node_pkey FROM wire WHERE tile_pkey = (?) AND wire_in_tile_pkey = (?)",
+        (tile_pkey, dst_wire_pkey)).fetchone()[0]
 
     # Skip nodes that are reserved because of ROI
     if src_node_pkey in input_only_nodes:
         return
 
-    if sink_node_pkey in output_only_nodes:
+    if dst_node_pkey in output_only_nodes:
         return
 
     src_connector = find_connector(src_wire_pkey, src_node_pkey)
     if src_connector is None:
         return
 
-    sink_connector = find_connector(sink_wire_pkey, sink_node_pkey)
-    if sink_connector is None:
+    dst_connector = find_connector(dst_wire_pkey, dst_node_pkey)
+    if dst_connector is None:
         return
 
-    pip_pkey, pip_is_directional, pip_is_pseudo, pip_can_invert = \
-        find_pip(tile_type, pip.name)
-
-    assert pip_is_directional, not pip_is_pseudo
-
-    src_graph_node_pkey, dest_graph_node_pkey = src_connector.connect_at(
-        loc, sink_connector
+    src_graph_node_pkey, dst_graph_node_pkey = src_connector.connect_at(
+        loc, dst_connector
     )
 
-    edges = [
+    return [
         (
             src_graph_node_pkey,
-            dest_graph_node_pkey,
+            dst_graph_node_pkey,
             switch_pkey,
             tile_pkey,
             pip_pkey,
         )
     ]
 
-    # Make additional connections to constant network if the sink needs it.
-    for constant_src in yield_ties_to_wire(pip.net_to):
-        src_graph_node_pkey, dest_graph_node_pkey = const_connectors[
-            constant_src].connect_at(loc, sink_connector)
-
-        edges.append(
-            (
-                src_graph_node_pkey,
-                dest_graph_node_pkey,
-                delayless_switch_pkey,
-                tile_pkey,
-                None,
-            )
-        )
-
-    return edges
-
-
-def mark_track_liveness(
-        conn, pool, input_only_nodes, output_only_nodes, alive_tracks
-):
+def mark_track_liveness(conn, pool, input_only_nodes, output_only_nodes):
     """ Checks tracks for liveness.
 
     Iterates over all graph nodes that are routing tracks and determines if
@@ -930,27 +902,21 @@ def verify_channels(conn, alive_tracks):
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument(
-        '--db_root', required=True, help='Project X-Ray Database'
-    )
-    parser.add_argument(
         '--connection_database',
         help='Database of fabric connectivity',
-        required=True
-    )
+        required=True)
     parser.add_argument(
-        '--pin_assignments', help='Pin assignments JSON', required=True
-    )
+        '--pin_assignments',
+        help='Pin assignments JSON',
+        required=True)
     parser.add_argument(
         '--synth_tiles',
-        help='If using an ROI, synthetic tile defintion from prjxray-arch-import'
-    )
+        help=
+        'If using an ROI, synthetic tile defintion from prjxray-arch-import')
 
     args = parser.parse_args()
 
     pool = multiprocessing.Pool(20)
-
-    db = prjxray.db.Database(args.db_root)
-    grid = db.grid()
 
     with DatabaseCache(args.connection_database) as conn:
 
@@ -974,22 +940,22 @@ def main():
             with open(args.synth_tiles) as f:
                 synth_tiles = json.load(f)
 
-            roi = Roi(
-                db=db,
-                x1=synth_tiles['info']['GRID_X_MIN'],
-                y1=synth_tiles['info']['GRID_Y_MIN'],
-                x2=synth_tiles['info']['GRID_X_MAX'],
-                y2=synth_tiles['info']['GRID_Y_MAX'],
-            )
+            # Xmin, Ymin, Xmax, Ymax (inclusive)
+            roi_range = (
+                synth_tiles["info"]["GRID_X_MIN"],
+                synth_tiles["info"]["GRID_Y_MIN"],
+                synth_tiles["info"]["GRID_X_MAX"],
+                synth_tiles["info"]["GRID_Y_MAX"])
 
             print('{} generating routing graph for ROI.'.format(now()))
         else:
             use_roi = False
+            roi_range = None
+            synth_tiles = None
 
         output_only_nodes = set()
         input_only_nodes = set()
 
-        find_pip = create_find_pip(conn)
         find_wire = create_find_wire(conn)
         find_connector = create_find_connector(conn)
 
@@ -997,19 +963,27 @@ def main():
 
         print('{} Finding nodes belonging to ROI'.format(now()))
         if use_roi:
-            for loc in progressbar.progressbar(grid.tile_locations()):
-                gridinfo = grid.gridinfo_at_loc(loc)
-                tile_name = grid.tilename_at_loc(loc)
+
+            c = conn.cursor()
+            c2 = conn.cursor()
+
+            for tile_name, tile_type_pkey, grid_x, grid_y in progressbar.progressbar(
+                    c.execute(
+                        "SELECT name, tile_type_pkey, grid_x, grid_y FROM tile"
+                    )):
+                tile_type = c2.execute(
+                    "SELECT name FROM tile_type WHERE pkey = (?)",
+                    (tile_type_pkey, )).fetchone()[0]
 
                 if tile_name in synth_tiles['tiles']:
                     assert len(synth_tiles['tiles'][tile_name]['pins']) == 1
                     for pin in synth_tiles['tiles'][tile_name]['pins']:
+
                         if pin['port_type'] not in ['input', 'output']:
                             continue
 
                         _, _, node_pkey = find_wire(
-                            tile_name, gridinfo.tile_type, pin['wire']
-                        )
+                            tile_name, tile_type, pin['wire'])
 
                         if pin['port_type'] == 'input':
                             # This track can output be used as a sink.
@@ -1034,40 +1008,34 @@ def main():
 
         edge_set = set()
 
-        for loc in progressbar.progressbar(grid.tile_locations()):
-            gridinfo = grid.gridinfo_at_loc(loc)
-            tile_name = grid.tilename_at_loc(loc)
+        c2 = conn.cursor()
+        for tile_pkey, tile_type_pkey, grid_x, grid_y in progressbar.progressbar(
+                c.execute(
+                    "SELECT pkey, tile_type_pkey, grid_x, grid_y FROM tile")):
+            loc = (grid_x, grid_y)
 
             # Not a synth node, check if in ROI.
-            if use_roi and not roi.tile_in_roi(loc):
+            if use_roi and not (
+                    roi_range[0] <= loc[0] and loc[0] <= roi_range[2]
+                    and roi_range[1] <= loc[1] and loc[1] <= roi_range[3]):
                 continue
 
-            tile_type = db.get_tile_type(gridinfo.tile_type)
+            # Process PIPs
+            for pip_pkey, pip_name, pip_src_wire_pkey, pip_dst_wire_pkey in c2.execute(
+                    "SELECT pkey, name, src_wire_in_tile_pkey, dest_wire_in_tile_pkey FROM pip_in_tile WHERE tile_type_pkey = (?)",
+                (tile_type_pkey, )):
 
-            for pip in tile_type.get_pips():
-                if pip.is_pseudo:
-                    continue
-
-                if not pip.is_directional:
-                    # TODO: Handle bidirectional pips?
-                    continue
+                # No pseudo pips and bidirectional pips should be present here
+                # as they were skipped during import to the SQLite database
+                # in prjxray_form_channels.py
 
                 # FIXME: Will require a change here once merged with #537 (!)
 
                 connections = make_connection(
-                    input_only_nodes=input_only_nodes,
-                    output_only_nodes=output_only_nodes,
-                    find_pip=find_pip,
-                    find_wire=find_wire,
-                    find_connector=find_connector,
-                    tile_name=tile_name,
-                    loc=loc,
-                    tile_type=gridinfo.tile_type,
-                    pip=pip,
-                    switch_pkey=switch_pkey,
-                    delayless_switch_pkey=delayless_switch_pkey,
-                    const_connectors=const_connectors
-                )
+                    conn, input_only_nodes, output_only_nodes, loc, tile_pkey,
+                    pip_src_wire_pkey, pip_dst_wire_pkey, pip_pkey,
+                    switch_pkey, find_connector)
+
                 if connections:
                     # TODO: Skip duplicate connections, until they have unique
                     # switches
@@ -1089,8 +1057,7 @@ def main():
                     INSERT INTO graph_edge(
                         src_graph_node_pkey, dest_graph_node_pkey, switch_pkey,
                         tile_pkey, pip_in_tile_pkey)  VALUES (?, ?, ?, ?, ?)""",
-                edge
-            )
+                edge)
 
         c.execute("""COMMIT TRANSACTION;""")
 

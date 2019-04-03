@@ -32,6 +32,7 @@ prjxray_assign_tile_pin_direction.
 """
 
 import argparse
+import itertools
 import prjxray.db
 import progressbar
 from lib.rr_graph import points
@@ -41,6 +42,7 @@ import datetime
 import os
 import os.path
 from lib.connection_database import NodeClassification, create_tables
+import lib.grid_mapping as grid_mapping
 
 from prjxray_db_cache import DatabaseCache
 
@@ -150,28 +152,18 @@ WHERE
 
 
 def build_tile_type_indicies(c):
-    c.execute("CREATE INDEX site_pin_index ON site_pin(name, site_type_pkey);")
     c.execute(
-        "CREATE INDEX wire_name_index ON wire_in_tile(name, tile_type_pkey);"
-    )
+        "CREATE INDEX site_pin_index ON site_pin(name, site_type_pkey);")
     c.execute(
-        "CREATE INDEX wire_site_pin_index ON wire_in_tile(site_pin_pkey);"
-    )
-    c.execute("CREATE INDEX tile_type_index ON tile(tile_type_pkey);")
+        "CREATE INDEX wire_name_index ON wire_in_tile(name, tile_type_pkey);")
     c.execute(
-        "CREATE INDEX pip_tile_type_index ON pip_in_tile(tile_type_pkey);"
-    )
+        "CREATE INDEX wire_site_pin_index ON wire_in_tile(site_pin_pkey);")
     c.execute(
-        "CREATE INDEX src_pip_index ON pip_in_tile(src_wire_in_tile_pkey);"
-    )
+        "CREATE INDEX pip_tile_type_index ON pip_in_tile(tile_type_pkey);")
     c.execute(
-        "CREATE INDEX dest_pip_index ON pip_in_tile(dest_wire_in_tile_pkey);"
-    )
-
-
-def build_other_indicies(c):
-    c.execute("CREATE INDEX tile_name_index ON tile(name);")
-    c.execute("CREATE INDEX tile_location_index ON tile(grid_x, grid_y);")
+        "CREATE INDEX src_pip_index ON pip_in_tile(src_wire_in_tile_pkey);")
+    c.execute(
+        "CREATE INDEX dest_pip_index ON pip_in_tile(dest_wire_in_tile_pkey);")
 
 
 def import_grid(db, grid, conn):
@@ -202,38 +194,35 @@ def import_grid(db, grid, conn):
         # tile: pkey name tile_type_pkey grid_x grid_y
         c.execute(
             """
-INSERT INTO tile(name, tile_type_pkey, grid_x, grid_y)
+INSERT INTO phy_tile(name, tile_type_pkey, grid_x, grid_y)
 VALUES
   (?, ?, ?, ?)""",
-            (tile, tile_types[gridinfo.tile_type], loc.grid_x, loc.grid_y)
-        )
+            (tile, tile_types[gridinfo.tile_type], loc.grid_x, loc.grid_y))
 
-    build_other_indicies(c)
     c.connection.commit()
 
 
-def import_nodes(db, grid, conn):
+def import_nodes(db, conn):
     # Some nodes are just 1 wire, so start by enumerating all wires.
 
     c = conn.cursor()
+    c1 = conn.cursor()
     c2 = conn.cursor()
     c2.execute("""BEGIN EXCLUSIVE TRANSACTION;""")
 
     tiles = {}
     tile_wire_map = {}
     wires = {}
-    for tile in progressbar.progressbar(grid.tiles()):
-        gridinfo = grid.gridinfo_at_tilename(tile)
-        tile_type = db.get_tile_type(gridinfo.tile_type)
 
-        c.execute(
-            """SELECT pkey, tile_type_pkey FROM tile WHERE name = ?;""",
-            (tile, )
-        )
-        tile_pkey, tile_type_pkey = c.fetchone()
-        tiles[tile] = (tile_pkey, tile_type_pkey)
+    for tile_name, tile_pkey, tile_type_pkey in progressbar.progressbar(
+            c1.execute("SELECT name, pkey, tile_type_pkey FROM tile")):
+        tile_type = c.execute(
+            "SELECT name FROM tile_type WHERE pkey = ?",
+            (tile_type_pkey, )).fetchone()[0]
 
-        for wire in tile_type.get_wires():
+        tiles[tile_name] = (tile_pkey, tile_type_pkey)
+
+        for wire in db.get_tile_type(tile_type).get_wires():
             # pkey node_pkey tile_pkey wire_in_tile_pkey
             c.execute(
                 """
@@ -249,9 +238,9 @@ VALUES
   (?, ?);""", (tile_pkey, wire_in_tile_pkey)
             )
 
-            assert (tile, wire) not in tile_wire_map
+            assert (tile_name, wire) not in tile_wire_map
             wire_pkey = c2.lastrowid
-            tile_wire_map[(tile, wire)] = wire_pkey
+            tile_wire_map[(tile_name, wire)] = wire_pkey
             wires[wire_pkey] = None
 
     c2.execute("""COMMIT TRANSACTION;""")
@@ -378,8 +367,7 @@ SET
       node_pkey INT,
       number_pips INT,
       FOREIGN KEY(node_pkey) REFERENCES node(pkey)
-    );"""
-    )
+    );""")
     c.execute(
         """
 INSERT INTO node_pip_count(node_pkey, number_pips)
@@ -394,8 +382,7 @@ WHERE
   pip_in_tile.src_wire_in_tile_pkey = wire.wire_in_tile_pkey
   OR pip_in_tile.dest_wire_in_tile_pkey = wire.wire_in_tile_pkey)
 GROUP BY
-  wire.node_pkey;"""
-    )
+  wire.node_pkey;""")
     c.execute("CREATE INDEX pip_count_index ON node_pip_count(node_pkey);")
 
     print("{}: Inserting pip counts".format(datetime.datetime.now()))
@@ -930,6 +917,82 @@ INSERT INTO node(classification) VALUES (?)
            create_track(gnd_node, unique_pos)
 
 
+def file_tile_grid_holes(conn):
+    """
+    This function fills empty tiles in the grid with NULL tiles.
+    :param conn:
+    :return:
+    """
+    c = conn.cursor()
+
+    # Get the grid extent
+    extent = grid_mapping.get_vpr_grid_extent(conn)
+
+    # Get NULL tile pkey
+    null_pkey = c.execute(
+        "SELECT pkey FROM tile_type WHERE name = \"NULL\"").fetchone()[0]
+
+    # Fetch all occupied locations
+    occupied_locs = c.execute("SELECT grid_x, grid_y FROM tile").fetchall()
+
+    # Now loop over the extent and fill missing locations with NULL tiles
+    for x, y in itertools.product(range(extent[0], extent[2] + 1),
+                                  range(extent[1], extent[3] + 1)):
+
+        # Got a non-occupied location
+        if (x, y) not in occupied_locs:
+            tile_name = "NULL_VPR_X%dY%d" % (x, y)
+
+            c.execute(
+                "INSERT INTO tile(name, tile_type_pkey, grid_x, grid_y) VALUES (?, ?, ?, ?)",
+                (tile_name, null_pkey, x, y))
+
+    conn.commit()
+
+
+def remap_tile_grid(conn):
+    """
+    Remaps tiles present in the "phy_tile" table to the "tile" table.
+    :param conn:
+    :return:
+    """
+
+    # Initialize mapper
+    grid_loc_mapper = grid_mapping.GridLocMap(conn)
+
+    # Fetch all locations from the database
+    c = conn.cursor()
+    tile_data = c.execute(
+        "SELECT pkey, name, tile_type_pkey, grid_x, grid_y FROM phy_tile"
+    ).fetchall()
+
+    # Convert them one-by-one
+    for tile in tile_data:
+        phy_loc_x = tile[3]
+        phy_loc_y = tile[4]
+
+        # Map
+        vpr_loc = grid_loc_mapper.get_vpr_loc(
+            (phy_loc_x,
+             phy_loc_y))[0]  # For one to many correspondence use the first one
+
+        # Insert
+        c.execute(
+            "INSERT INTO tile(pkey, name, tile_type_pkey, grid_x, grid_y) VALUES (?, ?, ?, ?, ?)",
+            (tile[0], tile[1], tile[2], vpr_loc[0], vpr_loc[1]))
+
+    conn.commit()
+
+    # Fill holes
+    file_tile_grid_holes(conn)
+
+    # Build indices
+    c = conn.cursor()
+    c.execute("CREATE INDEX tile_type_index ON tile(tile_type_pkey);")
+    c.execute("CREATE INDEX tile_name_index ON tile(name);")
+    c.execute("CREATE INDEX tile_location_index ON tile(grid_x, grid_y);")
+
+
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument(
@@ -946,13 +1009,31 @@ def main():
     with DatabaseCache(args.connection_database) as conn:
 
         create_tables(conn)
+        grid_mapping.create_tables(conn)
 
         print("{}: About to load database".format(datetime.datetime.now()))
         db = prjxray.db.Database(args.db_root)
         grid = db.grid()
         import_grid(db, grid, conn)
         print("{}: Initial database formed".format(datetime.datetime.now()))
-        import_nodes(db, grid, conn)
+
+        grid_mapping.initialize_one_to_one_map(conn)
+
+        # TEST
+        from splitter.grid_splitter import GridSplitter
+        gs = GridSplitter(conn)
+        gs.set_tile_types_to_split(
+            ["CLBLL_L", "CLBLL_R", "CLBLM_L",
+             "CLBLM_R"])  # FIXME: This is just a test.
+        gs.split()
+        # TEST
+
+        print("{}: Grid map initialized".format(datetime.datetime.now()))
+
+        remap_tile_grid(conn)
+        file_tile_grid_holes(conn)
+        print("{}: Tile grid remapped".format(datetime.datetime.now()))
+        import_nodes(db, conn)
         print("{}: Connections made".format(datetime.datetime.now()))
         count_sites_and_pips_on_nodes(conn)
         print("{}: Counted sites and pips".format(datetime.datetime.now()))
@@ -966,7 +1047,6 @@ def main():
                 datetime.datetime.now(), args.connection_database
             )
         )
-
 
 if __name__ == '__main__':
     main()

@@ -51,7 +51,17 @@ CREATE TABLE site_type(
   name TEXT
 );
 
--- Tile table, contains type and name of tile and location in grid.
+-- Tile table, contains type and name of tile and location in the physical grid.
+CREATE TABLE phy_tile(
+  pkey INTEGER PRIMARY KEY,
+  name TEXT,
+  tile_type_pkey INT,
+  grid_x INT,
+  grid_y INT,
+  FOREIGN KEY(tile_type_pkey) REFERENCES tile_type(pkey)
+);
+
+-- Tile table, contains type and name of tile and location in the VPR grid.
 CREATE TABLE tile(
   pkey INTEGER PRIMARY KEY,
   name TEXT,

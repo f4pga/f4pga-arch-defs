@@ -19,6 +19,10 @@ import sys
 
 import lxml.etree as ET
 
+from prjxray.grid_types import GridLoc
+
+from prjxray_db_cache import DatabaseCache
+from lib.grid_mapping import GridLocMap, get_vpr_grid_extent
 
 def create_synth_io_tiles(complexblocklist_xml, pb_name, is_input):
     """ Creates synthetic IO pad tiles used to connect ROI inputs and outputs to the routing network.
@@ -71,6 +75,7 @@ def create_synth_io_tiles(complexblocklist_xml, pb_name, is_input):
             'num_pb': '1',
         }
     )
+
     ET.SubElement(
         pin_pb_type, port_type, {
             'name': pad_name,
@@ -177,7 +182,8 @@ def create_synth_constant_tiles(
 
 
 def add_synthetic_tiles(model_xml, complexblocklist_xml):
-    create_synth_io_tiles(complexblocklist_xml, 'BLK_SY-INPAD', is_input=True)
+    create_synth_io_tiles(
+        complexblocklist_xml, 'BLK_SY-INPAD', is_input=True)
     create_synth_io_tiles(
         complexblocklist_xml, 'BLK_SY-OUTPAD', is_input=False
     )
@@ -228,6 +234,16 @@ def main():
 
     args = parser.parse_args()
 
+    # Initialize grid mapper
+    with DatabaseCache(args.connection_database, read_only=True) as conn:
+
+        # The object will read data from the DB so it can live
+        # outside the scope of the "with" statement
+        grid_loc_mapper = GridLocMap(conn)
+
+        # Get the VPR grid extent
+        vpr_grid_extent = get_vpr_grid_extent(conn)
+
     tile_types = args.tile_types.split(',')
 
     tile_model = "../../tiles/{0}/{0}.model.xml"
@@ -263,14 +279,13 @@ def main():
     layout_xml = ET.SubElement(arch_xml, 'layout')
     db = prjxray.db.Database(os.path.join(prjxray_db, args.part))
     g = db.grid()
-    x_min, x_max, y_min, y_max = g.dims()
 
     name = '{}-test'.format(args.device)
     fixed_layout_xml = ET.SubElement(
         layout_xml, 'fixed_layout', {
             'name': name,
-            'height': str(y_max + 2),
-            'width': str(x_max + 2),
+            'height': str(vpr_grid_extent[3] + 2),
+            'width': str(vpr_grid_extent[2] + 2),
         }
     )
 
@@ -286,12 +301,20 @@ def main():
         with open(args.synth_tiles) as f:
             synth_tiles = json.load(f)
 
+        # Map ROI coordinates to the target VPR grid
+        roi_loc_lo = grid_loc_mapper.get_vpr_loc(
+            (j['info']['GRID_X_MIN'], j['info']['GRID_Y_MIN']))
+        roi_loc_hi = grid_loc_mapper.get_vpr_loc(
+            (j['info']['GRID_X_MAX'], j['info']['GRID_Y_MAX']))
+
         roi = Roi(
             db=db,
-            x1=j['info']['GRID_X_MIN'],
-            y1=j['info']['GRID_Y_MIN'],
-            x2=j['info']['GRID_X_MAX'],
-            y2=j['info']['GRID_Y_MAX'],
+            x1=min([p[0] for p in roi_loc_lo
+                    ]),  # One physical grid location may map to more than one
+            y1=min([p[1] for p in roi_loc_lo
+                    ]),  # VPR locations. So here we take min and max.
+            x2=max([p[0] for p in roi_loc_hi]),
+            y2=max([p[1] for p in roi_loc_hi]),
         )
 
         synth_tile_map = add_synthetic_tiles(model_xml, complexblocklist_xml)
@@ -300,13 +323,19 @@ def main():
         gridinfo = g.gridinfo_at_loc(loc)
         tile = g.tilename_at_loc(loc)
 
+        # Map tile location to the VPR grid
+        loc = g.loc_of_tilename(tile)
+        vpr_loc = grid_loc_mapper.get_vpr_loc((loc.grid_x, loc.grid_y))
+        vpr_loc = vpr_loc[0]  # FIXME: Assuming no split of that tile!
+        vpr_loc = GridLoc(vpr_loc[0], vpr_loc[1])
+
         if tile in synth_tiles['tiles']:
             synth_tile = synth_tiles['tiles'][tile]
 
             assert len(synth_tile['pins']) == 1
 
             vpr_tile_type = synth_tile_map[synth_tile['pins'][0]['port_type']]
-        elif only_emit_roi and not roi.tile_in_roi(loc):
+        elif only_emit_roi and not roi.tile_in_roi(vpr_loc):
             # This tile is outside the ROI, skip it.
             continue
         elif gridinfo.tile_type in tile_types:
@@ -330,10 +359,9 @@ def main():
             fixed_layout_xml, 'single', {
                 'priority': '1',
                 'type': vpr_tile_type,
-                'x': str(loc[0]),
-                'y': str(loc[1]),
-            }
-        )
+                'x': str(vpr_loc[0]),
+                'y': str(vpr_loc[1]),
+            })
         meta = ET.SubElement(single_xml, 'metadata')
         ET.SubElement(meta, 'meta', {
             'name': 'fasm_prefix',

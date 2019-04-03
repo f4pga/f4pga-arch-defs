@@ -31,7 +31,6 @@ function(ADD_XC7_ARCH_DEFINE)
     RR_PATCH_CMD "${CMAKE_COMMAND} -E env \
     PYTHONPATH=${PRJXRAY_DIR}:${symbiflow-arch-defs_SOURCE_DIR}/utils:${symbiflow-arch-defs_BINARY_DIR}/utils \
         \${PYTHON3} \${RR_PATCH_TOOL} \
-        --db_root ${PRJXRAY_DB_DIR}/${ARCH} \
         --read_rr_graph \${OUT_RRXML_VIRT} \
         --write_rr_graph \${OUT_RRXML_REAL}"
     PLACE_TOOL

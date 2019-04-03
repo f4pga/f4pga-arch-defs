@@ -159,6 +159,10 @@ function(PROJECT_XRAY_ARCH)
     list(APPEND ARCH_INCLUDE_FILES ${MODEL_XML} ${INCLUDE_FILES})
   endforeach()
 
+  set(GENERIC_CHANNELS
+      ${symbiflow-arch-defs_SOURCE_DIR}/xc7/archs/${PART}/channels.db)
+  get_file_location(GENERIC_CHANNELS_LOCATION ${GENERIC_CHANNELS})
+
   set(ROI_ARG "")
   set(ROI_ARG_FOR_CREATE_EDGES "")
 
@@ -169,10 +173,11 @@ function(PROJECT_XRAY_ARCH)
       ${PYTHON3} ${CREATE_SYNTH_TILES}
         --db_root ${PRJXRAY_DB_DIR}/${PART}/
         --roi ${PROJECT_XRAY_ARCH_USE_ROI}
+        --connection_database ${GENERIC_CHANNELS_LOCATION}
         --synth_tiles ${CMAKE_CURRENT_BINARY_DIR}/synth_tiles.json
       DEPENDS
         ${CREATE_SYNTH_TILES}
-        ${PROJECT_XRAY_ARCH_USE_ROI}
+        ${PROJECT_XRAY_ARCH_USE_ROI} ${CMAKE_CURRENT_BINARY_DIR}/channels.db
         ${PYTHON3} ${PYTHON3_TARGET} simplejson intervaltree
         )
 
@@ -199,6 +204,7 @@ function(PROJECT_XRAY_ARCH)
     COMMAND ${CMAKE_COMMAND} -E env PYTHONPATH=${PRJXRAY_DIR}:${symbiflow-arch-defs_SOURCE_DIR}/utils
     ${PYTHON3} ${ARCH_IMPORT}
       --part ${PROJECT_XRAY_ARCH_PART}
+      --connection_database ${GENERIC_CHANNELS_LOCATION}
       --output-arch ${CMAKE_CURRENT_BINARY_DIR}/arch.xml
       --tile-types "${TILE_TYPES_COMMA}"
       --pin_assignments ${PIN_ASSIGNMENTS}
@@ -206,19 +212,18 @@ function(PROJECT_XRAY_ARCH)
       ${ROI_ARG}
     DEPENDS
     ${ARCH_IMPORT}
-    ${DEPS}
+    ${DEPS} ${CMAKE_CURRENT_BINARY_DIR}/channels.db
     ${PYTHON3} ${PYTHON3_TARGET} simplejson
     )
+
+  append_file_dependency(DEPS ${GENERIC_CHANNELS})
 
   add_file_target(FILE arch.xml GENERATED)
   get_file_target(ARCH_TARGET arch.xml)
   set_target_properties(${ARCH_TARGET} PROPERTIES INCLUDE_FILES "${ARCH_INCLUDE_FILES}")
 
-  set(GENERIC_CHANNELS
-      ${symbiflow-arch-defs_SOURCE_DIR}/xc7/archs/${PART}/channels.db)
   append_file_dependency(CHANNELS_DEPS ${GENERIC_CHANNELS})
   append_file_dependency(CHANNELS_DEPS ${symbiflow-arch-defs_SOURCE_DIR}/xc7/archs/${PART}/pin_assignments.json)
-  get_file_location(GENERIC_CHANNELS_LOCATION ${GENERIC_CHANNELS})
   list(APPEND CHANNELS_DEPS ${PRJXRAY_DB_DIR}/${PART}/tilegrid.json)
   list(APPEND CHANNELS_DEPS ${PRJXRAY_DB_DIR}/${PART}/tileconn.json)
 
@@ -227,7 +232,6 @@ function(PROJECT_XRAY_ARCH)
     COMMAND ${CMAKE_COMMAND} -E copy ${GENERIC_CHANNELS_LOCATION} ${CMAKE_CURRENT_BINARY_DIR}/channels.db
     COMMAND ${CMAKE_COMMAND} -E env PYTHONPATH=${PRJXRAY_DIR}:${symbiflow-arch-defs_SOURCE_DIR}/utils
     ${PYTHON3} ${CREATE_EDGES}
-      --db_root ${PRJXRAY_DB_DIR}/${PART}/
       --pin_assignments ${PIN_ASSIGNMENTS}
       --connection_database ${CMAKE_CURRENT_BINARY_DIR}/channels.db
       ${ROI_ARG_FOR_CREATE_EDGES}
@@ -281,7 +285,6 @@ function(PROJECT_XRAY_PREPARE_DATABASE)
     OUTPUT ${PIN_ASSIGNMENTS}
     COMMAND ${CMAKE_COMMAND} -E env PYTHONPATH=${PRJXRAY_DIR}:${symbiflow-arch-defs_SOURCE_DIR}/utils
     ${PYTHON3} ${ASSIGN_PINS}
-    --db_root ${PRJXRAY_DB_DIR}/${PART}/
     --connection_database ${CMAKE_CURRENT_BINARY_DIR}/${CHANNELS}
     --pin_assignments ${CMAKE_CURRENT_BINARY_DIR}/${PIN_ASSIGNMENTS}
     DEPENDS
