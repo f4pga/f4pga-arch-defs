@@ -28,11 +28,11 @@ from lib.rr_graph import tracks
 from lib.connection_database import get_wire_pkey, get_track_model
 import lib.rr_graph_xml.graph2 as xml_graph2
 from lib.rr_graph_xml.utils import read_xml_file
+from prjxray_constant_site_pins import feature_when_routed
 import simplejson as json
 import progressbar
 import datetime
 import re
-import sqlite3
 import functools
 
 from prjxray_db_cache import DatabaseCache
@@ -69,6 +69,12 @@ def check_feature(feature):
         )
 
         return ' '.join((feature, enable_cascout))
+
+    parts = feature.split('.')
+
+    wire_feature = feature_when_routed(parts[1])
+    if wire_feature is not None:
+        return '{} {}.{}'.format(feature, parts[0], wire_feature)
 
     return feature
 
@@ -283,7 +289,7 @@ def create_track_rr_graph(
 
 def add_synthetic_edges(conn, graph, node_mapping, grid, synth_tiles):
     c = conn.cursor()
-    routing_switch = graph.get_switch_id('routing')
+    delayless_switch = graph.get_switch_id('__vpr_delayless_switch__')
 
     for loc in grid.tile_locations():
         tile_name = grid.tilename_at_loc(loc)
@@ -291,9 +297,10 @@ def add_synthetic_edges(conn, graph, node_mapping, grid, synth_tiles):
         if tile_name in synth_tiles['tiles']:
             assert len(synth_tiles['tiles'][tile_name]['pins']) == 1
             for pin in synth_tiles['tiles'][tile_name]['pins']:
-                wire_pkey = get_wire_pkey(conn, tile_name, pin['wire'])
-                c.execute(
-                    """
+                if pin['port_type'] in ['input', 'output']:
+                    wire_pkey = get_wire_pkey(conn, tile_name, pin['wire'])
+                    c.execute(
+                        """
 SELECT
   track_pkey
 FROM
@@ -307,15 +314,23 @@ WHERE
     WHERE
       pkey = ?
   );""", (wire_pkey, )
-                )
-                (track_pkey, ) = c.fetchone()
-                assert track_pkey is not None, (
-                    tile_name, pin['wire'], wire_pkey
-                )
+                    )
+                    (track_pkey, ) = c.fetchone()
+                    assert track_pkey is not None, (
+                        tile_name, pin['wire'], wire_pkey
+                    )
+                elif pin['port_type'] == 'VCC':
+                    c.execute('SELECT vcc_track_pkey FROM constant_sources')
+                    (track_pkey, ) = c.fetchone()
+                elif pin['port_type'] == 'GND':
+                    c.execute('SELECT gnd_track_pkey FROM constant_sources')
+                    (track_pkey, ) = c.fetchone()
+                else:
+                    assert False, pin['port_type']
                 tracks_model, track_nodes = get_track_model(conn, track_pkey)
 
                 option = list(tracks_model.get_tracks_for_wire_at_coord(loc))
-                assert len(option) > 0
+                assert len(option) > 0, (pin, len(option))
 
                 if pin['port_type'] == 'input':
                     tile_type = 'BLK_SY-OUTPAD'
@@ -323,6 +338,12 @@ WHERE
                 elif pin['port_type'] == 'output':
                     tile_type = 'BLK_SY-INPAD'
                     wire = 'inpad'
+                elif pin['port_type'] == 'VCC':
+                    tile_type = 'BLK_SY-VCC'
+                    wire = 'VCC'
+                elif pin['port_type'] == 'GND':
+                    tile_type = 'BLK_SY-GND'
+                    wire = 'GND'
                 else:
                     assert False, pin
 
@@ -338,14 +359,14 @@ WHERE
                     graph.add_edge(
                         src_node=node_mapping[track_node],
                         sink_node=pin_node[0][0],
-                        switch_id=routing_switch,
+                        switch_id=delayless_switch,
                         name='synth_{}_{}'.format(tile_name, pin['wire']),
                     )
-                elif pin['port_type'] == 'output':
+                elif pin['port_type'] in ['VCC', 'GND', 'output']:
                     graph.add_edge(
                         src_node=pin_node[0][0],
                         sink_node=node_mapping[track_node],
-                        switch_id=routing_switch,
+                        switch_id=delayless_switch,
                         name='synth_{}_{}'.format(tile_name, pin['wire']),
                     )
                 else:
@@ -574,9 +595,9 @@ def main():
     # https://github.com/verilog-to-routing/vtr-verilog-to-routing/issues/354
     # is fixed.
     try:
-        short = graph.get_switch_id('short')
+        graph.get_switch_id('short')
     except KeyError:
-        short = xml_graph.add_switch(
+        xml_graph.add_switch(
             graph2.Switch(
                 id=None,
                 name='short',

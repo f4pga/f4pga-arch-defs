@@ -95,15 +95,104 @@ def create_synth_io_tiles(complexblocklist_xml, pb_name, is_input):
     )
 
 
-def add_synthetic_tile(complexblocklist_xml):
+def create_synth_constant_tiles(
+        model_xml, complexblocklist_xml, pb_name, signal
+):
+    """ Creates synthetic constant tile generates some constant signal.
+
+    Routing import will create a global network to fan this signal to local
+    constant sources.
+    """
+    pb_xml = ET.SubElement(
+        complexblocklist_xml, 'pb_type', {
+            'name': pb_name,
+        }
+    )
+
+    ET.SubElement(
+        pb_xml, 'fc', {
+            'in_type': 'abs',
+            'in_val': '2',
+            'out_type': 'abs',
+            'out_val': '2',
+        }
+    )
+
+    interconnect_xml = ET.SubElement(pb_xml, 'interconnect')
+
+    blif_model = '.subckt ' + signal
+    port_type = 'output'
+    pin_name = signal
+
+    ET.SubElement(pb_xml, port_type, {
+        'name': pin_name,
+        'num_pins': '1',
+    })
+
+    port_pin = '{}.{}'.format(pb_name, pin_name)
+    pad_pin = '{}.{}'.format(pin_name, pin_name)
+
+    input_name = pad_pin
+    output_name = port_pin
+
+    pin_pb_type = ET.SubElement(
+        pb_xml, 'pb_type', {
+            'name': pin_name,
+            'blif_model': blif_model,
+            'num_pb': '1',
+        }
+    )
+    ET.SubElement(
+        pin_pb_type, port_type, {
+            'name': pin_name,
+            'num_pins': '1',
+        }
+    )
+
+    direct_xml = ET.SubElement(
+        interconnect_xml, 'direct', {
+            'name': '{}_to_{}'.format(input_name, output_name),
+            'input': input_name,
+            'output': output_name,
+        }
+    )
+
+    ET.SubElement(
+        direct_xml, 'delay_constant', {
+            'max': '1e-11',
+            'in_port': input_name,
+            'out_port': output_name,
+        }
+    )
+
+    model = ET.SubElement(model_xml, 'model', {
+        'name': signal,
+    })
+
+    ET.SubElement(model, 'input_ports')
+    output_ports = ET.SubElement(model, 'output_ports')
+    ET.SubElement(output_ports, 'port', {
+        'name': pin_name,
+    })
+
+
+def add_synthetic_tiles(model_xml, complexblocklist_xml):
     create_synth_io_tiles(complexblocklist_xml, 'BLK_SY-INPAD', is_input=True)
     create_synth_io_tiles(
         complexblocklist_xml, 'BLK_SY-OUTPAD', is_input=False
+    )
+    create_synth_constant_tiles(
+        model_xml, complexblocklist_xml, 'BLK_SY-VCC', 'VCC'
+    )
+    create_synth_constant_tiles(
+        model_xml, complexblocklist_xml, 'BLK_SY-GND', 'GND'
     )
 
     return {
         'output': 'BLK_SY-INPAD',
         'input': 'BLK_SY-OUTPAD',
+        'VCC': 'BLK_SY-VCC',
+        'GND': 'BLK_SY-GND',
     }
 
 
@@ -205,7 +294,7 @@ def main():
             y2=j['info']['GRID_Y_MAX'],
         )
 
-        synth_tile_map = add_synthetic_tile(complexblocklist_xml)
+        synth_tile_map = add_synthetic_tiles(model_xml, complexblocklist_xml)
 
     for loc in g.tile_locations():
         gridinfo = g.gridinfo_at_loc(loc)
