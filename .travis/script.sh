@@ -30,7 +30,7 @@ end_section "info.conda.config"
 $SPACER
 
 start_section "symbiflow.run_python_tests" "Run Python unit tests"
-ctest -R python_tests
+make test_python
 end_section "symbiflow.run_python_tests"
 
 $SPACER
