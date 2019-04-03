@@ -9,6 +9,7 @@ module UART (
     input tx_data_ready,
     input [7:0] tx_data,
     output tx_data_accepted,
+    output tx_idle,
     // Rx data port
     output [7:0] rx_data,
     output rx_data_ready,
@@ -41,6 +42,7 @@ module UART (
         .data_ready(tx_data_ready),
         .data(tx_data),
         .tx(tx),
+        .tx_idle(tx_idle),
         .data_accepted(tx_data_accepted)
     );
 

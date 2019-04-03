@@ -2,13 +2,16 @@
 module UART_TX(
     input rst, clk, baud_edge, data_ready,
     input [7:0] data,
-    output reg tx, data_accepted
+    output reg tx, data_accepted,
+    output tx_idle
 );
     localparam START = (1 << 0), DATA = (1 << 1), END = (1 << 2);
 
     reg [7:0] data_reg;
     reg [2:0] data_counter;
     reg [3:0] state;
+
+    assign tx_idle = state == END;
 
     initial begin
         tx <= 1;
