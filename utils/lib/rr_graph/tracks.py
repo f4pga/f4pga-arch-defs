@@ -18,7 +18,7 @@ def print_tracks(tracks):
     pprint.pprint(tracks)
 
 
-def make_tracks(xs, ys, points):
+def make_tracks(xs, ys, points, grid_width=None, grid_height=None):
     """ Give a list of xs columns and ys rows and points, return a list of
         Track's and connections between the tracks.
 
@@ -83,23 +83,33 @@ def make_tracks(xs, ys, points):
     x_tracks = []
     y_tracks = []
     for x in xs:
+        y_low = max(y_min, 1)
+        y_high = y_max
+        if grid_height is not None:
+            y_high = min(y_max, grid_height - 2)
+
         tracks.append(
             Track(
                 direction='Y',
                 x_low=x,
                 x_high=x,
-                y_low=y_min,
-                y_high=y_max,
+                y_low=y_low,
+                y_high=y_high,
             )
         )
         y_tracks.append(len(tracks) - 1)
 
     for y in ys:
+        x_low = max(x_min, 1)
+        x_high = x_max
+        if grid_width is not None:
+            x_high = min(x_high, grid_width - 2)
+
         tracks.append(
             Track(
                 direction='X',
-                x_low=x_min,
-                x_high=x_max,
+                x_low=x_low,
+                x_high=x_high,
                 y_low=y,
                 y_high=y,
             )

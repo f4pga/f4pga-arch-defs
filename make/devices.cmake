@@ -902,38 +902,6 @@ function(ADD_FPGA_TARGET)
   )
   list(APPEND VPR_DEPS ${VPR} ${VPR_TARGET} ${QUIET_CMD} ${QUIET_CMD_TARGET})
 
-  get_target_property_required(USE_FASM ${ARCH} USE_FASM)
-
-  if(${USE_FASM})
-    get_target_property_required(GENFASM env GENFASM)
-    get_target_property(GENFASM_TARGET env GENFASM_TARGET)
-    set(
-      GENFASM_CMD
-      ${QUIET_CMD} ${GENFASM}
-      ${DEVICE_MERGED_FILE_LOCATION}
-      ${OUT_EBLIF}
-      --device ${DEVICE_FULL}
-      --read_rr_graph ${OUT_RRXML_REAL_LOCATION}
-      ${VPR_BASE_ARGS_LIST}
-      ${VPR_ARCH_ARGS_LIST}
-      ${VPR_EXTRA_ARGS_LIST}
-    )
-  else()
-    get_target_property_required(GENHLC env GENHLC)
-    get_target_property(GENHLC_TARGET env GENHLC_TARGET)
-    set(
-      GENHLC_CMD
-      ${QUIET_CMD} ${GENHLC}
-      ${DEVICE_MERGED_FILE_LOCATION}
-      ${OUT_EBLIF}
-      --device ${DEVICE_FULL}
-      --read_rr_graph ${OUT_RRXML_REAL_LOCATION}
-      ${VPR_BASE_ARGS_LIST}
-      ${VPR_ARCH_ARGS_LIST}
-      ${VPR_EXTRA_ARGS_LIST}
-    )
-  endif()
-
   # Generate IO constraints file.
   # -------------------------------------------------------------------------
   set(OUT_IO "")
@@ -1060,13 +1028,45 @@ function(ADD_FPGA_TARGET)
     return()
   endif()
 
+  get_target_property_required(USE_FASM ${ARCH} USE_FASM)
+
+  if(${USE_FASM})
+    get_target_property_required(GENFASM env GENFASM)
+    get_target_property(GENFASM_TARGET env GENFASM_TARGET)
+    set(
+      GENFASM_CMD
+      ${QUIET_CMD} ${GENFASM}
+      ${DEVICE_MERGED_FILE_LOCATION}
+      ${OUT_EBLIF}
+      --device ${DEVICE_FULL}
+      --read_rr_graph ${OUT_RRXML_REAL_LOCATION}
+      ${VPR_BASE_ARGS_LIST}
+      ${VPR_ARCH_ARGS_LIST}
+      ${VPR_EXTRA_ARGS_LIST}
+    )
+  else()
+    get_target_property_required(GENHLC env GENHLC)
+    get_target_property(GENHLC_TARGET env GENHLC_TARGET)
+    set(
+      GENHLC_CMD
+      ${QUIET_CMD} ${GENHLC}
+      ${DEVICE_MERGED_FILE_LOCATION}
+      ${OUT_EBLIF}
+      --device ${DEVICE_FULL}
+      --read_rr_graph ${OUT_RRXML_REAL_LOCATION}
+      ${VPR_BASE_ARGS_LIST}
+      ${VPR_ARCH_ARGS_LIST}
+      ${VPR_EXTRA_ARGS_LIST}
+    )
+  endif()
+
   if(${USE_FASM})
     # Generate FASM
     # -------------------------------------------------------------------------
     set(OUT_FASM ${OUT_LOCAL}/${TOP}.fasm)
     add_custom_command(
       OUTPUT ${OUT_FASM}
-      DEPENDS ${OUT_ROUTE} ${OUT_PLACE} ${OUT_IO} ${VPR_DEPS} ${GENHLC_TARGET}
+      DEPENDS ${OUT_ROUTE} ${OUT_PLACE} ${OUT_IO} ${VPR_DEPS} ${GENFASM_TARGET}
       COMMAND ${GENFASM_CMD}
       COMMAND
         ${CMAKE_COMMAND} -E copy ${OUT_LOCAL}/vpr_stdout.log
