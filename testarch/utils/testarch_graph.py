@@ -2,6 +2,7 @@
 
 from lib.rr_graph import graph2
 from lib.rr_graph import tracks
+from lib.rr_graph import points
 import lib.rr_graph_xml.graph2 as xml_graph2
 from lib.rr_graph_xml.utils import read_xml_file
 
@@ -60,6 +61,110 @@ def create_tracks(graph, grid_width, grid_height, rcw, verbose=False):
                 direction=direction,
                 name="CHANY{:04d}@{:04d}".format(x, tracki),
             )
+
+
+def create_tracks_from_points(
+        name, graph, unique_pos, short, grid_width, grid_height
+):
+    xs, ys = points.decompose_points_into_tracks(unique_pos)
+    tracks_list, track_connections = tracks.make_tracks(
+        xs, ys, unique_pos, grid_width, grid_height
+    )
+    tracks_model = tracks.Tracks(tracks_list, track_connections)
+    nodes = []
+    for idx, track in enumerate(tracks_list):
+        nodes.append(
+            graph.add_track(
+                track=track,
+                segment_id=graph.segments[0].id,
+                capacity=1,
+                name="{}{}".format(name, idx),
+            )
+        )
+
+    for aidx, bidx in track_connections:
+        graph.add_edge(
+            src_node=nodes[aidx],
+            sink_node=nodes[bidx],
+            switch_id=short,
+        )
+        graph.add_edge(
+            src_node=nodes[bidx],
+            sink_node=nodes[aidx],
+            switch_id=short,
+        )
+
+    return nodes, tracks_model
+
+
+def create_global_constant_tracks(graph, mux, short, grid_width, grid_height):
+    """ Create channels for global fanout """
+    unique_pos = set()
+
+    for x in range(grid_width):
+        for y in range(grid_height):
+            if x == 0 and y == 0:
+                continue
+            if x == 0 and y == grid_height - 1:
+                continue
+            if x == grid_width - 1 and y == grid_height - 1:
+                continue
+            if x == grid_width - 1 and y == 0:
+                continue
+
+            unique_pos.add((x, y))
+
+    vcc_nodes, vcc_tracks = create_tracks_from_points(
+        "VCC", graph, unique_pos, short, grid_width, grid_height
+    )
+    gnd_nodes, gnd_tracks = create_tracks_from_points(
+        "GND", graph, unique_pos, short, grid_width, grid_height
+    )
+
+    vcc_pin = graph.create_pin_name_from_tile_type_and_pin('BLK_TI-VCC', 'VCC')
+    gnd_pin = graph.create_pin_name_from_tile_type_and_pin('BLK_TI-GND', 'GND')
+
+    found_vcc = False
+    found_gnd = False
+
+    for loc in graph.grid:
+        block_type = graph.block_types[loc.block_type_id]
+
+        for pin_class in block_type.pin_class:
+            for pin in pin_class.pin:
+                if pin.name == vcc_pin:
+                    nodes = vcc_nodes
+                    tracks = vcc_tracks
+                    found_vcc = True
+                elif pin.name == gnd_pin:
+                    nodes = gnd_nodes
+                    tracks = gnd_tracks
+                    found_gnd = True
+                else:
+                    continue
+
+                pin_map = {}
+
+                for pin_node, pin_side in graph.loc_pin_map[(loc.x, loc.y,
+                                                             pin.ptc)]:
+                    pin_map[pin_side] = pin_node
+
+                made_connection = False
+                for idx, pin_dir in tracks.get_tracks_for_wire_at_coord(
+                    (loc.x, loc.y)):
+                    if pin_dir in pin_map:
+                        made_connection = True
+                        graph.add_edge(
+                            src_node=pin_map[pin_side],
+                            sink_node=nodes[idx],
+                            switch_id=mux,
+                        )
+                        break
+
+                assert made_connection
+
+    assert found_vcc
+    assert found_gnd
 
 
 def channel_common(node):
@@ -127,6 +232,17 @@ def connect_blocks_to_tracks(
         else:
             assert False, graph.nodes[inode]
 
+    special_pins = set(
+        (
+            graph.create_pin_name_from_tile_type_and_pin(
+                'BLK_TI-TILE', 'COUT'
+            ),
+            graph.create_pin_name_from_tile_type_and_pin('BLK_TI-TILE', 'CIN'),
+            graph.create_pin_name_from_tile_type_and_pin('BLK_TI-VCC', 'VCC'),
+            graph.create_pin_name_from_tile_type_and_pin('BLK_TI-GND', 'GND'),
+        )
+    )
+
     print("Indexing nodes")
     print("Skipping connecting block pins to CHANX")
     print("Connecting left-right block pins to CHANY")
@@ -136,6 +252,9 @@ def connect_blocks_to_tracks(
     #
     # Pins in the TOP/BOTTOM direction are asserted to be the carry pins.
     for loc, pin_class, pin, pin_node, pin_side in walk_pins(graph):
+        if pin.name in special_pins:
+            continue
+
         if pin_side == tracks.Direction.LEFT:
             if loc.x == 0:
                 continue
@@ -144,12 +263,6 @@ def connect_blocks_to_tracks(
             if loc.x == grid_width - 1:
                 continue
             tracks_for_pin = ytracks[loc.x]
-        elif pin_side == tracks.Direction.TOP:
-            assert pin.name == 'BLK_TI-TILE.COUT[0]', pin
-            continue
-        elif pin_side == tracks.Direction.BOTTOM:
-            assert pin.name == 'BLK_TI-TILE.CIN[0]', pin
-            continue
         else:
             assert False, pin_side
 
@@ -231,7 +344,24 @@ def rebuild_graph(fn, fn_out, rcw=6, verbose=False):
 
     mux = graph.get_switch_id('mux')
 
+    try:
+        short = graph.get_switch_id('short')
+    except KeyError:
+        short = xml_graph.add_switch(
+            graph2.Switch(
+                id=None,
+                name='short',
+                type=graph2.SwitchType.SHORT,
+                timing=None,
+                sizing=graph2.SwitchSizing(
+                    mux_trans_size=0,
+                    buf_size=0,
+                ),
+            )
+        )
+
     create_tracks(graph, grid_width, grid_height, rcw, verbose=verbose)
+    create_global_constant_tracks(graph, mux, short, grid_width, grid_height)
     connect_blocks_to_tracks(graph, grid_width, grid_height, rcw, switch=mux)
     connect_tracks_to_tracks(graph, switch=mux, verbose=verbose)
     print("Completed rebuild")
