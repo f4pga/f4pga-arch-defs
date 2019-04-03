@@ -35,12 +35,9 @@ def rev_enumerate(it, last=None):
 class PDFTableParser(PDFLayoutAnalyzer):
     """Custom interpreter that hooks into pdfminer to process PDF text elements"""
 
-    def __init__(self,
-                 rsrcmgr,
-                 laparams=None,
-                 stop_at=None,
-                 top=None,
-                 bottom=None):
+    def __init__(
+            self, rsrcmgr, laparams=None, stop_at=None, top=None, bottom=None
+    ):
         PDFLayoutAnalyzer.__init__(self, rsrcmgr, pageno=1, laparams=laparams)
         self.stop_at = stop_at
         self.reset(top, bottom)
@@ -54,10 +51,12 @@ class PDFTableParser(PDFLayoutAnalyzer):
             return True
         txt = txt.replace(u'\u2019', "'")  # all HEX constants
         txt = txt.replace(u'\u2022', '\n*')  # bullet lists
-        txt = txt.replace(u'\u201c',
-                          '"')  # e.g. FRAME_ECCE2 (FRAME_RBT_IN_FILENAME)
-        txt = txt.replace(u'\u201d',
-                          '"')  # e.g. FRAME_ECCE2 (FRAME_RBT_IN_FILENAME)
+        txt = txt.replace(
+            u'\u201c', '"'
+        )  # e.g. FRAME_ECCE2 (FRAME_RBT_IN_FILENAME)
+        txt = txt.replace(
+            u'\u201d', '"'
+        )  # e.g. FRAME_ECCE2 (FRAME_RBT_IN_FILENAME)
         self.items.append([int(-bbox[3]), int(bbox[0]), txt])
         return True
 
@@ -76,8 +75,8 @@ class PDFTableParser(PDFLayoutAnalyzer):
             if getattr(item, 'y0', self.top) >= self.top: return True
             # process individual lines of text
             if isinstance(item, LTTextLineHorizontal):
-                if not self.process_text(item.bbox,
-                                         item.get_text().strip(), item):
+                if not self.process_text(item.bbox, item.get_text().strip(),
+                                         item):
                     return False
             # process containers that (might) contain text (e.g. LTTextBoxHorizontal)
             elif isinstance(item, LTContainer):
@@ -130,7 +129,8 @@ class PDFTableParser(PDFLayoutAnalyzer):
         for i, x in rev_enumerate(self.rows, -3):
             if self.rows[i + 1][1] in ('to', '/', '-'):
                 self.rows[i] = (
-                    x[0], x[1] + self.rows[i + 1][1] + self.rows.pop(i + 2)[1])
+                    x[0], x[1] + self.rows[i + 1][1] + self.rows.pop(i + 2)[1]
+                )
                 self.rows.pop(i + 1)
         for i, x in rev_enumerate(self.rows, -2):
             if x[1][-1] in ',_/' or x[1].endswith('to') or self.rows[
@@ -231,8 +231,9 @@ def process_ports(tbl):
             tbl.items.pop(i + 1)
         elif t == 'Direction Width':
             tbl.items[i][2] = 'Direction'
-            tbl.items.insert(i + 1, (y,
-                                     (x + tbl.items[i + 1][1]) / 2, 'Width'))
+            tbl.items.insert(
+                i + 1, (y, (x + tbl.items[i + 1][1]) / 2, 'Width')
+            )
     tbl.process_table()
     # transform headers as necessary
     for i, (x, name) in enumerate(tbl.heads):
@@ -243,11 +244,13 @@ def process_ports(tbl):
     for i, x in rev_enumerate(ports):
         # process the "width" entry
         M = re.match(
-            r'([0-9]+)',
-            x['Width'])  # remove any additional text (e.g. ODDR, KEEPER)
+            r'([0-9]+)', x['Width']
+        )  # remove any additional text (e.g. ODDR, KEEPER)
         if M is None:
-            print('\tInvalid width %s on %s, skipping item' % (repr(
-                x['Width']), repr(x['Port'])))
+            print(
+                '\tInvalid width %s on %s, skipping item' %
+                (repr(x['Width']), repr(x['Port']))
+            )
             return []
         x['Width'] = wid = int(M.group(0))
         # process the "direction" entry
@@ -264,8 +267,9 @@ def process_ports(tbl):
             name, bits = name.split('<', 1)
             assert bits == '%d:0>' % (wid - 1)
         elif '-' in name:  # entry is a range of pins (e.g. ISERDESE2)
-            n, start, stop = re.match(r'([A-Z]+)([0-9]+)\s*-\s*[A-Z]+([0-9]+)',
-                                      name).groups()
+            n, start, stop = re.match(
+                r'([A-Z]+)([0-9]+)\s*-\s*[A-Z]+([0-9]+)', name
+            ).groups()
             ports.pop(i)
             for j in range(int(start), int(stop) + 1):
                 y = x.copy()
@@ -323,7 +327,7 @@ def process_attributes(tbl):
             sz = int(M.group(1))
             pad = 1 if sz % 4 else 0
             x['Default'] = "%d'h%s" % (sz, val * ((sz // 4) + pad))
-        elif x['Default'].startswith("0'h"): # ICAPE2 (DEVICE_ID)
+        elif x['Default'].startswith("0'h"):  # ICAPE2 (DEVICE_ID)
             x['Default'] = "32'h0" + x['Default'][3:]
         if ',' in x['Attribute']:
             attribs.pop(i)
@@ -335,7 +339,8 @@ def process_attributes(tbl):
                 attribs.insert(i + j, y)
         M = re.match(
             r'([A-Z_]+)([0-9A-F]+)?(_[A-Z_]+)?to([A-Z_]+)([0-9A-F]+)(_[A-Z_]+)?',
-            x['Attribute'])
+            x['Attribute']
+        )
         if M is not None:
             pre1, start, post1, pre2, stop, post2 = M.groups()
             attribs.pop(i)
@@ -348,8 +353,8 @@ def process_attributes(tbl):
                 post1 = post2
                 i += 1
             else:
-                assert pre1 == pre2 and post1 == post2 and len(start) == len(
-                    stop)
+                assert pre1 == pre2 and post1 == post2 and len(start
+                                                               ) == len(stop)
                 if post1 is None: post1 = ''
             nchar = len(stop)
             if re.match(r'[0-9]+$', start) is not None and re.match(
@@ -386,7 +391,8 @@ def process_specs(infile, modules=None):
     if modules is None or len(modules) == 0:
         modules = port_pages.keys()  # default to processing ALL modules
     attrib_list = parse_module_pages(
-        doc, 'Available Attrib')  # NB: not all modules have attributes
+        doc, 'Available Attrib'
+    )  # NB: not all modules have attributes
 
     # parse the specifications and generate an XML tree
     E = objectify.ElementMaker(annotate=False)
@@ -403,9 +409,9 @@ def process_specs(infile, modules=None):
             for P in process_ports(device):
                 node.append(
                     E.port(
-                        name=P['Port'],
-                        type=P['Type'],
-                        width=str(P['Width'])))
+                        name=P['Port'], type=P['Type'], width=str(P['Width'])
+                    )
+                )
             if device.done: break
         # process the attributes of this module
         for pg, top, bottom in attrib_list.get(module, []):
@@ -417,7 +423,9 @@ def process_specs(infile, modules=None):
                         name=A['Attribute'],
                         type=A['Type'],
                         default=A['Default'].replace('"', ''),
-                        values=A['Allowed'].replace('"', '')))
+                        values=A['Allowed'].replace('"', '')
+                    )
+                )
             if device.done: break
         # add it to the root object
         root.append(node)
@@ -431,13 +439,15 @@ if __name__ == '__main__':
         '--input',
         '-i',
         nargs='?',
-        default='ug953-vivado-7series-libraries.pdf')
+        default='ug953-vivado-7series-libraries.pdf'
+    )
     parser.add_argument(
         '--output',
         '-o',
         nargs='?',
         type=argparse.FileType('w'),
-        default=sys.stdout)
+        default=sys.stdout
+    )
     parser.add_argument('--modules', '-m', nargs='*')
     args = parser.parse_args()
 

@@ -10,8 +10,8 @@ from progressbar.bar import ProgressBar
 
 # =============================================================================
 
-class DatabaseCache(object):
 
+class DatabaseCache(object):
     def __init__(self, file_name, read_only=False):
 
         self.file_name = file_name
@@ -25,17 +25,19 @@ class DatabaseCache(object):
 
         # File URI
         if self.read_only:
-            uri = "file:%s?mode=ro"  % self.file_name
+            uri = "file:%s?mode=ro" % self.file_name
         else:
             uri = "file:%s?mode=rwc" % self.file_name
 
         # Open connections
         self.memory_connection = sqlite3.connect(":memory:")
-        self.file_connection   = sqlite3.connect(uri, uri=True)
+        self.file_connection = sqlite3.connect(uri, uri=True)
 
         # Load the database
         print("Loading database from '{}'".format(self.file_name))
-        self.file_connection.backup(self.memory_connection, pages=100, progress=self._progress)
+        self.file_connection.backup(
+            self.memory_connection, pages=100, progress=self._progress
+        )
 
         self.bar.finish()
         self.bar = None
@@ -55,7 +57,9 @@ class DatabaseCache(object):
                 self.memory_connection.rollback()
 
             print("Dumping database to '{}'".format(self.file_name))
-            self.memory_connection.backup(self.file_connection, pages=100, progress=self._progress)
+            self.memory_connection.backup(
+                self.file_connection, pages=100, progress=self._progress
+            )
 
             self.bar.finish()
             self.bar = None
@@ -69,7 +73,6 @@ class DatabaseCache(object):
         Prints database copy progress.
         """
         if self.bar is None:
-            self.bar = ProgressBar(max_value = total)
+            self.bar = ProgressBar(max_value=total)
         else:
             self.bar.update(total - remaining)
-

@@ -13,17 +13,19 @@ class LutModel(object):
     """
     Model for LUT
     """
+
     def __init__(self, init, inputs):
         self.init = init
         self.inputs = BinaryValue(inputs)
 
     @property
     def O5(self):
-        return eval(self.init.binstr[-1-self.inputs.integer])
+        return eval(self.init.binstr[-1 - self.inputs.integer])
 
     @property
     def O6(self):
-        return eval(self.init.binstr[-1-self.inputs.integer])
+        return eval(self.init.binstr[-1 - self.inputs.integer])
+
 
 @cocotb.coroutine
 def lut_basic_test(dut, inputs):
@@ -32,7 +34,7 @@ def lut_basic_test(dut, inputs):
     yield Timer(1)
 
     for i in range(6):
-        setattr(dut, 'A%d'%(i + 1), inputs & (1 << i))
+        setattr(dut, 'A%d' % (i + 1), inputs & (1 << i))
     yield Timer(1)
     model = LutModel(dut.INIT.value, inputs)
 

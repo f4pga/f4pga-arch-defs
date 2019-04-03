@@ -21,19 +21,23 @@ MYDIR = os.path.dirname(MYFILE)
 TOPDIR = os.path.abspath(os.path.join(MYDIR, ".."))
 
 parser = argparse.ArgumentParser(
-    description=__doc__, fromfile_prefix_chars='@', prefix_chars='-')
+    description=__doc__, fromfile_prefix_chars='@', prefix_chars='-'
+)
 
 parser.add_argument(
     '--verbose',
     action=ActionStoreBool,
     default=os.environ.get('V', '') == '1',
-    help="Print information about files ignored.")
+    help="Print information about files ignored."
+)
 
 parser.add_argument(
-    '--exclude', nargs="*", default=[], help="Extra exclude patterns to add.")
+    '--exclude', nargs="*", default=[], help="Extra exclude patterns to add."
+)
 
 parser.add_argument(
-    'directory', nargs="*", default=[TOPDIR], help="Directory to list from.")
+    'directory', nargs="*", default=[TOPDIR], help="Directory to list from."
+)
 
 
 def normpath(r, f):

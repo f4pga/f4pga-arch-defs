@@ -38,10 +38,13 @@ module LFSR (
       r <= {{r[{depth}-1:1], ~f}};
 endmodule"""
 
-def main():
-    parser = argparse.ArgumentParser(description="Generates top.v for carry stress test.")
 
-    parser.add_argument('--init', choices=['0','1', 'fabric'], required=True)
+def main():
+    parser = argparse.ArgumentParser(
+        description="Generates top.v for carry stress test."
+    )
+
+    parser.add_argument('--init', choices=['0', '1', 'fabric'], required=True)
     parser.add_argument('--carry_depth', type=int, required=True)
 
     args = parser.parse_args()
@@ -51,9 +54,10 @@ def main():
         carry = 'carry_fabric'
 
     print(CARRY_TEMPLATE.format(
-        carry = carry,
+        carry=carry,
         depth=args.carry_depth,
-        ))
+    ))
+
 
 if __name__ == '__main__':
     main()

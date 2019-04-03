@@ -28,10 +28,14 @@ def mux2_basic_test(dut, inputs=(1, 0, 0)):
             'Result is incorrect for I0(%d) I1(%d) S0(%d): %s(O) != %s (expected)'\
             % (I0, I1, S0, dut.O, expected))
     else:
-        dut._log.info('I0(%d) I1(%d) S0(%d) output(%d) Ok!'%(I0, I1, S0, dut.O))
+        dut._log.info(
+            'I0(%d) I1(%d) S0(%d) output(%d) Ok!' % (I0, I1, S0, dut.O)
+        )
 
 
 factory = TestFactory(mux2_basic_test)
-input_permutations = [(x, y, z) for x in [0, 1] for y in [0, 1] for z in [0, 1]]
+input_permutations = [
+    (x, y, z) for x in [0, 1] for y in [0, 1] for z in [0, 1]
+]
 factory.add_option("inputs", input_permutations)
 factory.generate_tests()

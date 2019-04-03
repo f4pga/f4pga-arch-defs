@@ -1,5 +1,3 @@
-
-
 class BLIF:
     def __init__(self, model=None, inputs=tuple(), outputs=tuple()):
         self.model = model
@@ -32,6 +30,7 @@ def parse_blif(f):
     current = None
 
     data = {}
+
     def add(d):
         if d['type'] not in data:
             data[d['type']] = []

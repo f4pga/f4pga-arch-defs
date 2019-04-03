@@ -9,9 +9,9 @@ def print_block_types(g):
 
     for type_id, bt in bg.block_types._ids.items():
         print(
-            "{:4}  ".format(type_id),
-            "{:40s}".format(bt.to_string()),
-            bt.to_string(extra=True))
+            "{:4}  ".format(type_id), "{:40s}".format(bt.to_string()),
+            bt.to_string(extra=True)
+        )
 
 
 def print_grid(g):
@@ -23,7 +23,8 @@ def print_grid(g):
     col_widths = []
     for x in range(0, grid.width):
         col_widths.append(
-            max(len(bt.name) for bt in bg.block_types_for(col=x)))
+            max(len(bt.name) for bt in bg.block_types_for(col=x))
+        )
 
     print("    ", end=" ")
     for x in range(0, grid.width):
@@ -40,7 +41,8 @@ def print_grid(g):
         for x, bt in enumerate(bg.block_types_for(row=y)):
             assert x < len(col_widths), (x, bt)
             print(
-                "{: ^{width}}".format(bt.name, width=col_widths[x]), end=" | ")
+                "{: ^{width}}".format(bt.name, width=col_widths[x]), end=" | "
+            )
         print()
 
 
@@ -51,12 +53,17 @@ def print_nodes(g, lim=None):
         return graph.RoutingGraphPrinter.node(node, g.block_grid)
 
     def edge_name(node, flip=False):
-        return graph.RoutingGraphPrinter.edge(g.routing, node, block_grid=g.block_grid, flip=flip)
+        return graph.RoutingGraphPrinter.edge(
+            g.routing, node, block_grid=g.block_grid, flip=flip
+        )
 
     routing = g.routing
-    print('Nodes: {}, edges {}'.format(
-        len(routing._ids_map(graph.RoutingNode)),
-        len(routing._ids_map(graph.RoutingEdge))))
+    print(
+        'Nodes: {}, edges {}'.format(
+            len(routing._ids_map(graph.RoutingNode)),
+            len(routing._ids_map(graph.RoutingEdge))
+        )
+    )
 
     nodemap = routing._ids_map(graph.RoutingNode)
     edgemap = routing._ids_map(graph.RoutingEdge)
