@@ -27,12 +27,12 @@ from prjxray.roi import Roi
 import simplejson as json
 import progressbar
 import datetime
-import sqlite3
 import functools
 from collections import namedtuple
 from lib.rr_graph import tracks
 from lib.rr_graph import graph2
 from prjxray.site_type import SitePinDirection
+from prjxray_constant_site_pins import yield_ties_to_wire
 from lib.connection_database import get_track_model
 from lib.rr_graph.graph2 import NodeType
 import multiprocessing
@@ -207,7 +207,9 @@ WHERE
   );""", (wire, tile_type)
         )
 
-        return c.fetchone()[0]
+        result = c.fetchone()
+        assert result is not None, (tile_type, wire)
+        return result[0]
 
     @functools.lru_cache(maxsize=None)
     def find_wire(tile, tile_type, wire):
@@ -413,6 +415,22 @@ def create_find_connector(conn):
 
             return Connector(tracks=get_track_model(conn, track_pkey))
 
+        # Check if this node has a special track.  This is being used to
+        # denote the GND and VCC track connections on TIEOFF HARD0 and HARD1.
+        c.execute(
+            """
+SELECT
+  track_pkey,
+  site_wire_pkey
+FROM
+  node
+WHERE
+  pkey = ?;""", (node_pkey, )
+        )
+        for track_pkey, site_wire_pkey in c:
+            if track_pkey is not None and site_wire_pkey is not None:
+                return Connector(tracks=get_track_model(conn, track_pkey))
+
         # This is not a track, so it must be a site pin.  Make sure the
         # graph_nodes share a type and verify that it is in fact a site pin.
         node_type = graph2.NodeType(graph_nodes[0][2])
@@ -496,9 +514,30 @@ WHERE
     return find_connector
 
 
+def create_const_connectors(conn):
+    c = conn.cursor()
+    c.execute(
+        """
+SELECT vcc_track_pkey, gnd_track_pkey FROM constant_sources;
+    """
+    )
+    vcc_track_pkey, gnd_track_pkey = c.fetchone()
+
+    const_connectors = {}
+    const_connectors[0] = Connector(
+        tracks=get_track_model(conn, gnd_track_pkey)
+    )
+    const_connectors[1] = Connector(
+        tracks=get_track_model(conn, vcc_track_pkey)
+    )
+
+    return const_connectors
+
+
 def make_connection(
         conn, input_only_nodes, output_only_nodes, find_wire, find_pip,
-        find_connector, tile_name, loc, tile_type, pip, switch_pkey
+        find_connector, tile_name, loc, tile_type, pip, switch_pkey,
+        delayless_switch_pkey, const_connectors
 ):
     """ Attempt to connect graph nodes on either side of a pip.
 
@@ -562,7 +601,7 @@ def make_connection(
         loc, sink_connector
     )
 
-    return [
+    edges = [
         (
             src_graph_node_pkey,
             dest_graph_node_pkey,
@@ -571,6 +610,23 @@ def make_connection(
             pip_pkey,
         )
     ]
+
+    # Make additional connections to constant network if the sink needs it.
+    for constant_src in yield_ties_to_wire(pip.net_to):
+        src_graph_node_pkey, dest_graph_node_pkey = const_connectors[
+            constant_src].connect_at(loc, sink_connector)
+
+        edges.append(
+            (
+                src_graph_node_pkey,
+                dest_graph_node_pkey,
+                delayless_switch_pkey,
+                tile_pkey,
+                None,
+            )
+        )
+
+    return edges
 
 
 def mark_track_liveness(conn, pool, input_only_nodes, output_only_nodes):
@@ -685,14 +741,14 @@ WHERE
 
         node_type = graph2.NodeType(graph_node_type)
         if node_type == graph2.NodeType.CHANX:
-            assert y_low == y_high
+            assert y_low == y_high, (pkey, track_pkey)
 
             if y_low not in x_tracks:
                 x_tracks[y_low] = []
 
             x_tracks[y_low].append((x_low, x_high, pkey))
         elif node_type == graph2.NodeType.CHANY:
-            assert x_low == x_high
+            assert x_low == x_high, (pkey, track_pkey)
 
             if x_low not in y_tracks:
                 y_tracks[x_low] = []
@@ -884,6 +940,8 @@ def main():
         find_wire = create_find_wire(conn)
         find_connector = create_find_connector(conn)
 
+        const_connectors = create_const_connectors(conn)
+
         print('{} Finding nodes belonging to ROI'.format(now()))
         if use_roi:
             for loc in progressbar.progressbar(grid.tile_locations()):
@@ -893,6 +951,9 @@ def main():
                 if tile_name in synth_tiles['tiles']:
                     assert len(synth_tiles['tiles'][tile_name]['pins']) == 1
                     for pin in synth_tiles['tiles'][tile_name]['pins']:
+                        if pin['port_type'] not in ['input', 'output']:
+                            continue
+
                         _, _, node_pkey = find_wire(
                             tile_name, gridinfo.tile_type, pin['wire']
                         )
@@ -909,6 +970,12 @@ def main():
         c = conn.cursor()
         c.execute('SELECT pkey FROM switch WHERE name = ?;', ('routing', ))
         switch_pkey = c.fetchone()[0]
+
+        c.execute(
+            'SELECT pkey FROM switch WHERE name = ?;',
+            ('__vpr_delayless_switch__', )
+        )
+        delayless_switch_pkey = c.fetchone()[0]
 
         edges = []
 
@@ -943,7 +1010,9 @@ def main():
                     loc=loc,
                     tile_type=gridinfo.tile_type,
                     pip=pip,
-                    switch_pkey=switch_pkey
+                    switch_pkey=switch_pkey,
+                    delayless_switch_pkey=delayless_switch_pkey,
+                    const_connectors=const_connectors
                 )
                 if connections:
                     # TODO: Skip duplicate connections, until they have unique

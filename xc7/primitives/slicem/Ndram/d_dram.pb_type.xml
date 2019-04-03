@@ -13,6 +13,14 @@
   <output name="O5"  num_pins="1" />
 
  <!-- TODO: Missing modes: SRL. -->
+ <mode name="NO_DRAM">
+  <pb_type name="BEL_NULL-NO_DRAM" num_pb="1" blif_model=".subckt NO_DRAM">
+    <input  name="A" num_pins="6"/>
+  </pb_type>
+  <interconnect>
+    <direct name="A" input="BLK_IG-D_DRAM.A" output="BEL_NULL-NO_DRAM.A" />
+  </interconnect>
+ </mode>
  <mode name="64_SINGLE_PORT">
    <xi:include href="spram64.pb_type.xml" />
    <interconnect>

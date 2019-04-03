@@ -238,3 +238,14 @@ CREATE TABLE y_list(
     idx INT,
     info INT
 );
+
+-- Table that represents the (optional) VCC and GND global sources.
+-- VPR cannot natively take advantage of local VCC and GND sources, so
+-- a global source is generated, and local sources will connect to the global
+-- sources.
+CREATE TABLE constant_sources(
+    vcc_track_pkey INT,
+    gnd_track_pkey INT,
+    FOREIGN KEY(vcc_track_pkey) REFERENCES track(pkey),
+    FOREIGN KEY(gnd_track_pkey) REFERENCES track(pkey)
+);

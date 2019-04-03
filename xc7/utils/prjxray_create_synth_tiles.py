@@ -8,7 +8,7 @@ def main():
     parser = argparse.ArgumentParser(description="Generate synth_tiles.json")
     parser.add_argument('--db_root', required=True)
     parser.add_argument('--roi', required=True)
-    parser.add_argument('--synth_tiles', required=False)
+    parser.add_argument('--synth_tiles', required=True)
 
     args = parser.parse_args()
 
@@ -30,6 +30,7 @@ def main():
     )
 
     synth_tiles['info'] = j['info']
+    vbrk_in_use = set()
     for port in j['ports']:
         if port['name'].startswith('dout['):
             port_type = 'input'
@@ -44,6 +45,8 @@ def main():
             assert False, port
 
         tile, wire = port['wire'].split('/')
+
+        vbrk_in_use.add(tile)
 
         # Make sure connecting wire is not in ROI!
         loc = g.loc_of_tilename(tile)
@@ -70,8 +73,74 @@ def main():
             }
         )
 
+    # Find two VBRK's in the corner of the fabric to use as the synthetic VCC/
+    # GND source.
+    vbrk_loc = None
+    vbrk_tile = None
+    vbrk2_loc = None
+    vbrk2_tile = None
+    for tile in g.tiles():
+        if tile in vbrk_in_use:
+            continue
+
+        loc = g.loc_of_tilename(tile)
+        if not roi.tile_in_roi(loc):
+            continue
+
+        gridinfo = g.gridinfo_at_tilename(tile)
+        if 'VBRK' not in gridinfo.tile_type:
+            continue
+
+        assert len(db.get_tile_type(gridinfo.tile_type).get_sites()) == 0, tile
+
+        if vbrk_loc is None:
+            vbrk2_loc = vbrk_loc
+            vbrk2_tile = vbrk_tile
+            vbrk_loc = loc
+            vbrk_tile = tile
+        else:
+            if loc.grid_x < vbrk_loc.grid_x and loc.grid_y < vbrk_loc.grid_y or vbrk2_loc is None:
+                vbrk2_loc = vbrk_loc
+                vbrk2_tile = vbrk_tile
+                vbrk_loc = loc
+                vbrk_tile = tile
+
+    assert vbrk_loc is not None
+    assert vbrk_tile is not None
+    assert vbrk_tile not in synth_tiles['tiles']
+    synth_tiles['tiles'][vbrk_tile] = {
+        'loc':
+            vbrk_loc,
+        'pins':
+            [
+                {
+                    'wire': 'VCC',
+                    'pad': 'VCC',
+                    'port_type': 'VCC',
+                    'is_clock': False,
+                },
+            ],
+    }
+
+    assert vbrk2_loc is not None
+    assert vbrk2_tile is not None
+    assert vbrk2_tile not in synth_tiles['tiles']
+    synth_tiles['tiles'][vbrk2_tile] = {
+        'loc':
+            vbrk2_loc,
+        'pins':
+            [
+                {
+                    'wire': 'GND',
+                    'pad': 'GND',
+                    'port_type': 'GND',
+                    'is_clock': False,
+                },
+            ],
+    }
+
     with open(args.synth_tiles, 'w') as f:
-        json.dump(synth_tiles, f)
+        json.dump(synth_tiles, f, indent=2)
 
 
 if __name__ == "__main__":
