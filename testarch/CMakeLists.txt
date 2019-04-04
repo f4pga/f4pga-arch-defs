@@ -6,6 +6,8 @@ define_arch(
   ARCH testarch
   YOSYS_SCRIPT ${symbiflow-arch-defs_SOURCE_DIR}/testarch/yosys/synth.tcl
   DEVICE_FULL_TEMPLATE \${DEVICE}
+  VPR_ARCH_ARGS
+    --router_init_wirelength_abort_threshold 20
   RR_PATCH_TOOL
     ${CMAKE_CURRENT_SOURCE_DIR}/utils/testarch_graph.py
   RR_PATCH_CMD "\${CMAKE_COMMAND} -E env PYTHONPATH=${symbiflow-arch-defs_SOURCE_DIR}/utils
@@ -17,6 +19,7 @@ define_arch(
   NO_BIT_TO_V
   NO_BIT_TIME
   ROUTE_CHAN_WIDTH 100
+  USE_FASM
 )
 unset(PYTHON3)
 
