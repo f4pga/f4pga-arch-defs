@@ -629,7 +629,9 @@ def make_connection(
     return edges
 
 
-def mark_track_liveness(conn, pool, input_only_nodes, output_only_nodes):
+def mark_track_liveness(
+        conn, pool, input_only_nodes, output_only_nodes, alive_tracks
+):
     """ Checks tracks for liveness.
 
     Iterates over all graph nodes that are routing tracks and determines if
@@ -639,7 +641,6 @@ def mark_track_liveness(conn, pool, input_only_nodes, output_only_nodes):
         conn (sqlite3.Connection): Connection database
 
     """
-    alive_tracks = set()
 
     c = conn.cursor()
     c2 = conn.cursor()
@@ -731,9 +732,6 @@ WHERE
         if track_pkey not in active_tracks:
             continue
 
-        x_low = max(x_low, 1)
-        y_low = max(y_low, 1)
-
         xs.append(x_low)
         xs.append(x_high)
         ys.append(y_low)
@@ -813,7 +811,7 @@ WHERE
     num_padding = 0
     capacity = 0
     for chan, channel_model in x_channel_models.items():
-        for ptc, start, end in channel_model.fill_empty(x_min, x_max):
+        for ptc, start, end in channel_model.fill_empty(max(x_min, 1), x_max):
             assert ptc < x_list[chan]
 
             num_padding += 1
@@ -832,7 +830,7 @@ VALUES
             )
 
     for chan, channel_model in y_channel_models.items():
-        for ptc, start, end in channel_model.fill_empty(y_min, y_max):
+        for ptc, start, end in channel_model.fill_empty(max(y_min, 1), y_max):
             assert ptc < y_list[chan]
 
             num_padding += 1
@@ -872,6 +870,58 @@ VALUES
         )
 
     c.execute("""COMMIT TRANSACTION;""")
+
+
+def verify_channels(conn, alive_tracks):
+    """ Verify PTC numbers in channels.
+
+    There is a very specific requirement from VPR for PTC numbers:
+
+    max(chanx.ptc @ (X, Y) < len(chanx @ (X, Y))
+    max(chany.ptc @ (X, Y) < len(chany @ (X, Y))
+
+    And no duplicate PTC's.
+
+    Violation of these requirements results in a check failure during rr graph
+    loading.
+
+    """
+
+    c = conn.cursor()
+
+    chan_ptcs = {}
+
+    for (graph_node_pkey, track_pkey, graph_node_type, x_low, x_high, y_low,
+         y_high, ptc, capacity) in c.execute(
+             """
+    SELECT pkey, track_pkey, graph_node_type, x_low, x_high, y_low, y_high, ptc, capacity FROM
+        graph_node WHERE (graph_node_type = ? or graph_node_type = ?);""",
+             (graph2.NodeType.CHANX.value, graph2.NodeType.CHANY.value)):
+
+        if track_pkey not in alive_tracks and capacity != 0:
+            assert ptc is None, graph_node_pkey
+            continue
+
+        assert ptc is not None, graph_node_pkey
+
+        for x in range(x_low, x_high + 1):
+            for y in range(y_low, y_high + 1):
+                key = (graph_node_type, x, y)
+                if key not in chan_ptcs:
+                    chan_ptcs[key] = []
+
+                chan_ptcs[key].append((graph_node_pkey, ptc))
+
+    for key in chan_ptcs:
+        ptcs = {}
+        for graph_node_pkey, ptc in chan_ptcs[key]:
+            assert ptc not in ptcs, (ptcs[ptc], graph_node_pkey)
+            ptcs[ptc] = graph_node_pkey
+
+        assert max(ptcs) < len(ptcs), key
+        assert len(ptcs) == len(set(ptcs)), key
+        assert min(ptcs) == 0, key
+        assert max(ptcs) == len(ptcs) - 1, key
 
 
 def main():
@@ -1051,13 +1101,21 @@ def main():
         c.connection.commit()
 
         print('{} Indices created, marking track liveness'.format(now()))
-        mark_track_liveness(conn, pool, input_only_nodes, output_only_nodes)
+
+        alive_tracks = set()
+        mark_track_liveness(
+            conn, pool, input_only_nodes, output_only_nodes, alive_tracks
+        )
 
         print(
             '{} Flushing database back to file "{}"'.format(
                 now(), args.connection_database
             )
         )
+
+    with DatabaseCache(args.connection_database, read_only=True) as conn:
+        verify_channels(conn, alive_tracks)
+        print("{}: Channels verified".format(datetime.datetime.now()))
 
 
 if __name__ == '__main__':

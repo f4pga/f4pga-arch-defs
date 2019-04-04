@@ -71,7 +71,17 @@ def make_tracks(xs, ys, points, grid_width=None, grid_height=None):
     y_set = set(ys)
 
     for x, y in points:
-        assert x in x_set or y in y_set
+        if x > 0:
+            in_x_set = x in x_set or x - 1 in x_set, (x, x_set)
+        else:
+            in_x_set = x in x_set
+
+        if y > 0:
+            in_y_set = y in y_set or y - 1 in y_set, (y, y_set)
+        else:
+            in_y_set = y in y_set
+
+        assert in_x_set or in_y_set
 
     all_xs, all_ys = zip(*points)
     x_min = min(all_xs)

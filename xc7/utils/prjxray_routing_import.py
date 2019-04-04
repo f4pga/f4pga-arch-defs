@@ -239,10 +239,10 @@ def import_dummy_tracks(conn, graph, segment_id):
 
         if node_type == graph2.NodeType.CHANX:
             direction = 'X'
-            x_low = max(x_low, 1)
+            x_low = x_low
         elif node_type == graph2.NodeType.CHANY:
             direction = 'Y'
-            y_low = max(y_low, 1)
+            y_low = y_low
         else:
             assert False, node_type
 

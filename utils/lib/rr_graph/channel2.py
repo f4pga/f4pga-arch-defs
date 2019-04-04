@@ -9,13 +9,47 @@ from intervaltree import IntervalTree, Interval
 
 
 class Channel(object):
+    """ Packs tracks into ptc tracks
+
+    >>> tracks = [
+    ...     (1, 3, 0),
+    ...     (1, 1, 1),
+    ...     (4, 5, 2),
+    ...     (4, 4, 3),
+    ...     (0, 10, 4),
+    ...     ]
+    >>> channel_model = Channel(tracks)
+    >>> channel_model.pack_tracks()
+    >>> for ptc, tree in enumerate(channel_model.trees):
+    ...     print('ptc={}'.format(ptc))
+    ...     for itr in tree:
+    ...         x, y, idx = tracks[itr[2]]
+    ...         assert idx == itr[2]
+    ...         print(' tracks[{}] = ({}, {})'.format(itr[2], x, y))
+    ptc=0
+     tracks[4] = (0, 10)
+    ptc=1
+     tracks[2] = (4, 5)
+     tracks[0] = (1, 3)
+    ptc=2
+     tracks[3] = (4, 4)
+     tracks[1] = (1, 1)
+    >>> for ptc, min_v, max_v in channel_model.fill_empty(0, 10):
+    ...     print('ptc={} ({}, {})'.format(ptc, min_v, max_v))
+    ptc=1 (0, 0)
+    ptc=1 (6, 10)
+    ptc=2 (0, 0)
+    ptc=2 (2, 3)
+    ptc=2 (5, 10)
+    """
+
     def __init__(self, tracks):
         self.trees = []
         self.tracks = sorted(tracks, key=lambda x: x[1] - x[0])
 
     def place_track(self, track):
         for idx, tree in enumerate(self.trees):
-            if not tree.overlaps(track[0], track[1]):
+            if not tree.overlaps(track[0], track[1] + 1):
                 tree.add(
                     Interval(begin=track[0], end=track[1] + 1, data=track[2])
                 )
@@ -32,7 +66,7 @@ class Channel(object):
 
     def fill_empty(self, min_value, max_value):
         for idx, tree in enumerate(self.trees):
-            tracks = list(tree.items())
+            tracks = sorted(tree.items(), key=lambda x: x[0])
 
             if min_value <= tracks[0].begin - 1:
                 yield (idx, min_value, tracks[0].begin - 1)
