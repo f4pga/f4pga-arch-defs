@@ -716,7 +716,9 @@ FROM
             connections = list(
                 tracks_model.get_tracks_for_wire_at_coord((grid_x, grid_y))
             )
-            assert len(connections) > 0
+            assert len(connections) > 0, (
+                wire_pkey, track_pkey, grid_x, grid_y
+            )
             graph_node_pkey = track_graph_node_pkey[connections[0][0]]
 
             wire_to_graph[wire_pkey] = graph_node_pkey
@@ -811,6 +813,7 @@ INSERT INTO constant_sources(vcc_track_pkey, gnd_track_pkey) VALUES (?, ?)
     conn.commit()
 
     connect_hardpins_to_constant_network(conn, vcc_track_pkey, gnd_track_pkey)
+
 
 def connect_hardpins_to_constant_network(conn, vcc_track_pkey, gnd_track_pkey):
     """ Connect TIEOFF HARD1 and HARD0 pins.
