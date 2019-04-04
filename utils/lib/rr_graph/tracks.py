@@ -31,20 +31,20 @@ def make_tracks(xs, ys, points, grid_width=None, grid_height=None):
         [Track], [(index into track list, index into track list)]
 
     >>> pos = [
-    ... (0,0),        (2,0),
-    ... (0,1), (1,1), (2,1),
-    ... (0,2),        (2,2),
-    ... (0,3), (1,3), (2,3),
-    ... (0,4),        (2,4),
+    ... (1,1),        (3,1),
+    ... (1,2), (2,2), (3,2),
+    ... (1,3),        (3,3),
+    ... (1,4), (2,4), (3,4),
+    ... (1,5),        (3,5),
     ... ]
-    >>> xs = [0, 2]
-    >>> ys = [1, 3]
+    >>> xs = [1, 3]
+    >>> ys = [2, 4]
     >>> tracks, connections = make_tracks(xs, ys, pos)
     >>> print_tracks(tracks)
-    [Track(direction='Y', x_low=0, x_high=0, y_low=0, y_high=4),
-     Track(direction='Y', x_low=2, x_high=2, y_low=0, y_high=4),
-     Track(direction='X', x_low=0, x_high=2, y_low=1, y_high=1),
-     Track(direction='X', x_low=0, x_high=2, y_low=3, y_high=3)]
+    [Track(direction='Y', x_low=1, x_high=1, y_low=1, y_high=5),
+     Track(direction='Y', x_low=3, x_high=3, y_low=1, y_high=5),
+     Track(direction='X', x_low=1, x_high=3, y_low=2, y_high=2),
+     Track(direction='X', x_low=1, x_high=3, y_low=4, y_high=4)]
     >>> print(connections)
     [(3, 0), (2, 0), (2, 1)]
 
