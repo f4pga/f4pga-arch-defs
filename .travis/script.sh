@@ -29,6 +29,12 @@ end_section "info.conda.config"
 
 $SPACER
 
+start_section "symbiflow.format" "Check code formatting"
+make check_python
+end_section "symbiflow.format"
+
+$SPACER
+
 start_section "symbiflow.run_python_tests" "Run Python unit tests"
 make test_python
 end_section "symbiflow.run_python_tests"
