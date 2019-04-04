@@ -10,7 +10,11 @@ include(make/devices.cmake)
 
 find_package(PythonInterp 3 REQUIRED)
 
-setup_env()
+# Using miniconda3 4.5.4 instead of later (e.g. 4.5.12) because of Python 3.7
+# deprecation warnings in progressbar2 (and possible others).
+setup_env(
+    MINICONDA3_VERSION 4.5.4
+    )
 add_conda_package(
   NAME yosys
   PROVIDES yosys
