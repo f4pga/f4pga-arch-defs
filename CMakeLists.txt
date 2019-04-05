@@ -10,10 +10,13 @@ include(make/devices.cmake)
 
 find_package(PythonInterp 3 REQUIRED)
 
-# Using miniconda3 4.5.4 instead of later (e.g. 4.5.12) because of Python 3.7
-# deprecation warnings in progressbar2 (and possible others).
+# Some commands use file locks to prevent incorrect parallel access.
+# All file locks are required to register a clean command with the clean_locks
+# targets to prevent stale locks.
+add_custom_target(clean_locks)
+
 setup_env(
-    MINICONDA3_VERSION 4.5.4
+    MINICONDA3_VERSION 4.5.12
     )
 add_conda_package(
   NAME yosys

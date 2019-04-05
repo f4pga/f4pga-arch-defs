@@ -280,15 +280,10 @@ function(DEFINE_DEVICE_TYPE)
   set(DEVICE_MERGED_LINT_FILE arch.merged.lint.html)
 
   set(MERGE_XML_XSL ${symbiflow-arch-defs_SOURCE_DIR}/common/xml/xmlsort.xsl)
-  set(
-    MERGE_XML_INPUT ${CMAKE_CURRENT_BINARY_DIR}/${DEFINE_DEVICE_TYPE_ARCH_XML}
-  )
-  get_file_target(MERGE_XML_INPUT_TARGET ${DEFINE_DEVICE_TYPE_ARCH_XML})
-  get_target_property(INCLUDE_FILES ${MERGE_XML_INPUT_TARGET} INCLUDE_FILES)
-  set(DEPS "")
-  foreach(SRC ${INCLUDE_FILES})
-    append_file_dependency(DEPS ${SRC})
-  endforeach()
+
+  get_file_location(MERGE_XML_INPUT ${DEFINE_DEVICE_TYPE_ARCH_XML})
+  append_file_dependency(DEPS ${DEFINE_DEVICE_TYPE_ARCH_XML})
+
   set(MERGE_XML_OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/${DEVICE_MERGED_FILE})
   set(UNIQUE_PACK_OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/${DEVICE_UNIQUE_PACK_FILE})
   set(MERGE_XMLLINT_OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/${DEVICE_MERGED_LINT_FILE})
@@ -301,8 +296,6 @@ function(DEFINE_DEVICE_TYPE)
     OUTPUT ${MERGE_XML_OUTPUT}
     DEPENDS
       ${MERGE_XML_XSL}
-      ${MERGE_XML_INPUT}
-      ${MERGE_XML_INPUT_TARGET}
       ${DEPS}
       ${XSLTPROC} ${XSLTPROC_TARGET}
     COMMAND
@@ -316,6 +309,9 @@ function(DEFINE_DEVICE_TYPE)
       --output ${MERGE_XML_OUTPUT} ${MERGE_XML_XSL} ${MERGE_XML_INPUT}
   )
 
+  add_file_target(FILE ${DEVICE_MERGED_FILE} GENERATED)
+  append_file_dependency(SPECIALIZE_CARRYCHAINS_DEPS ${DEVICE_MERGED_FILE})
+
   get_target_property_required(PYTHON3 env PYTHON3)
   get_target_property(PYTHON3_TARGET env PYTHON3_TARGET)
   set(SPECIALIZE_CARRYCHAINS ${symbiflow-arch-defs_SOURCE_DIR}/utils/specialize_carrychains.py)
@@ -324,10 +320,11 @@ function(DEFINE_DEVICE_TYPE)
       COMMAND ${PYTHON3} ${SPECIALIZE_CARRYCHAINS}
       --input_arch_xml ${MERGE_XML_OUTPUT} > ${UNIQUE_PACK_OUTPUT}
       DEPENDS
-        ${MERGE_XML_OUTPUT}
         ${PYTHON3} ${PYTHON3_TARGET}
         ${SPECIALIZE_CARRYCHAINS}
+        ${SPECIALIZE_CARRYCHAINS_DEPS}
         )
+
   add_custom_target(
     ${DEFINE_DEVICE_TYPE_ARCH}_${DEFINE_DEVICE_TYPE_DEVICE_TYPE}_arch
     DEPENDS ${UNIQUE_PACK_OUTPUT}
@@ -468,8 +465,8 @@ function(DEFINE_DEVICE)
     )
 
     set(RR_PATCH_DEPS ${DEFINE_DEVICE_RR_PATCH_DEPS})
-    list(APPEND RR_PATCH_DEPS ${DEVICE_MERGED_FILE})
-    list(APPEND RR_PATCH_DEPS ${DEVICE_MERGED_FILE_TARGET})
+    append_file_dependency(RR_PATCH_DEPS ${VIRT_DEVICE_MERGED_FILE})
+    append_file_dependency(RR_PATCH_DEPS ${OUT_RRXML_VIRT_FILENAME})
 
     # Generate the "real" rr_graph.xml from the default rr_graph.xml file
     get_target_property_required(PYTHON3 env PYTHON3)
@@ -479,7 +476,7 @@ function(DEFINE_DEVICE)
     )
     add_custom_command(
       OUTPUT ${OUT_RRXML_REAL}
-      DEPENDS ${RR_PATCH_DEPS} ${RR_PATCH_TOOL} ${OUT_RRXML_VIRT}
+      DEPENDS ${RR_PATCH_DEPS} ${RR_PATCH_TOOL}
       COMMAND ${RR_PATCH_CMD_FOR_TARGET_LIST} ${DEFINE_DEVICE_RR_PATCH_EXTRA_ARGS}
       WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
       VERBATIM
@@ -556,6 +553,9 @@ function(DEFINE_BOARD)
       PROPERTIES ${ARG} "${DEFINE_BOARD_${ARG}}"
     )
   endforeach()
+
+  # Target for gathering all targets for a particular board.
+  add_custom_target(all_${DEFINE_BOARD_BOARD}_bin)
 endfunction()
 
 function(ADD_OUTPUT_TO_FPGA_TARGET name property file)
@@ -851,7 +851,7 @@ function(ADD_FPGA_TARGET)
       )
   endif()
 
-  add_custom_target(${NAME}_eblif ALL DEPENDS ${OUT_EBLIF})
+  add_custom_target(${NAME}_eblif DEPENDS ${OUT_EBLIF})
 
   # Generate routing and generate HLC.
   set(OUT_ROUTE ${OUT_LOCAL}/${TOP}.route)
@@ -1145,7 +1145,7 @@ function(ADD_FPGA_TARGET)
       )
     endif()
 
-    add_custom_target(${NAME}_bit ALL DEPENDS ${OUT_BITSTREAM})
+    add_custom_target(${NAME}_bit DEPENDS ${OUT_BITSTREAM})
 
     get_target_property_required(BIN_EXTENSION ${ARCH} BIN_EXTENSION)
     set(OUT_BIN ${OUT_LOCAL}/${TOP}.${BIN_EXTENSION})
@@ -1169,6 +1169,7 @@ function(ADD_FPGA_TARGET)
 
     add_custom_target(${NAME}_bin DEPENDS ${OUT_BIN})
     add_output_to_fpga_target(${NAME} BIN ${OUT_LOCAL_REL}/${TOP}.bin)
+    add_dependencies(all_${BOARD}_bin ${NAME}_bin)
 
     get_target_property(PROG_TOOL ${BOARD} PROG_TOOL)
     get_target_property(PROG_CMD ${BOARD} PROG_CMD)

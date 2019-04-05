@@ -108,9 +108,15 @@ function(PROJECT_XRAY_TILE)
   get_file_target(PB_TYPE_TARGET ${TILE}.pb_type.xml)
   set_target_properties(${PB_TYPE_TARGET} PROPERTIES INCLUDE_FILES "${PB_TYPE_INCLUDE_FILES}")
 
-  add_file_target(FILE ${TILE}.model.xml GENERATED)
   get_file_target(MODEL_TARGET ${TILE}.model.xml)
-  set_target_properties(${MODEL_TARGET} PROPERTIES INCLUDE_FILES "${MODEL_INCLUDE_FILES}")
+  add_custom_target(${MODEL_TARGET})
+
+  # Linearize the dependency to prevent double builds.
+  add_dependencies(${MODEL_TARGET} ${PB_TYPE_TARGET})
+  set_target_properties(${MODEL_TARGET} PROPERTIES
+      INCLUDE_FILES "${MODEL_INCLUDE_FILES}"
+      LOCATION ${CMAKE_CURRENT_BINARY_DIR}/${TILE}.model.xml
+      )
 endfunction()
 
 function(PROJECT_XRAY_ARCH)
@@ -176,10 +182,11 @@ function(PROJECT_XRAY_ARCH)
         SYNTH_TILES ${CMAKE_CURRENT_SOURCE_DIR}/synth_tiles.json)
 
     set(ROI_ARG --use_roi ${PROJECT_XRAY_ARCH_USE_ROI} --synth_tiles ${CMAKE_CURRENT_BINARY_DIR}/synth_tiles.json)
-    list(APPEND DEPS ${PROJECT_XRAY_ARCH_USE_ROI} synth_tiles.json)
+    append_file_dependency(DEPS synth_tiles.json)
+    list(APPEND DEPS ${PROJECT_XRAY_ARCH_USE_ROI})
 
     set(ROI_ARG_FOR_CREATE_EDGES --synth_tiles ${CMAKE_CURRENT_BINARY_DIR}/synth_tiles.json)
-    list(APPEND CHANNELS_DEPS synth_tiles.json)
+    append_file_dependency(CHANNELS_DEPS synth_tiles.json)
   endif()
 
   append_file_dependency(DEPS ${symbiflow-arch-defs_SOURCE_DIR}/xc7/archs/${PART}/pin_assignments.json)
@@ -268,6 +275,7 @@ function(PROJECT_XRAY_PREPARE_DATABASE)
 
   add_file_target(FILE ${CHANNELS} GENERATED)
 
+  append_file_dependency(DEPS ${CHANNELS})
   set(PIN_ASSIGNMENTS pin_assignments.json)
   add_custom_command(
     OUTPUT ${PIN_ASSIGNMENTS}
@@ -278,7 +286,7 @@ function(PROJECT_XRAY_PREPARE_DATABASE)
     --pin_assignments ${CMAKE_CURRENT_BINARY_DIR}/${PIN_ASSIGNMENTS}
     DEPENDS
     ${ASSIGN_PINS}
-    ${DEPS} ${DEPS2} ${CHANNELS}
+    ${DEPS} ${DEPS2}
     ${PYTHON3} ${PYTHON3_TARGET} simplejson progressbar2
     )
 
