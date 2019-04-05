@@ -108,9 +108,15 @@ function(PROJECT_XRAY_TILE)
   get_file_target(PB_TYPE_TARGET ${TILE}.pb_type.xml)
   set_target_properties(${PB_TYPE_TARGET} PROPERTIES INCLUDE_FILES "${PB_TYPE_INCLUDE_FILES}")
 
-  add_file_target(FILE ${TILE}.model.xml GENERATED)
   get_file_target(MODEL_TARGET ${TILE}.model.xml)
-  set_target_properties(${MODEL_TARGET} PROPERTIES INCLUDE_FILES "${MODEL_INCLUDE_FILES}")
+  add_custom_target(${MODEL_TARGET})
+
+  # Linearize the dependency to prevent double builds.
+  add_dependencies(${MODEL_TARGET} ${PB_TYPE_TARGET})
+  set_target_properties(${MODEL_TARGET} PROPERTIES
+      INCLUDE_FILES "${MODEL_INCLUDE_FILES}"
+      LOCATION ${CMAKE_CURRENT_BINARY_DIR}/${TILE}.model.xml
+      )
 endfunction()
 
 function(PROJECT_XRAY_ARCH)
