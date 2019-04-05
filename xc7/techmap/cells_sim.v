@@ -51,11 +51,17 @@ endmodule
 // ============================================================================
 // Carry chain primitives
 
-module CARRY0(output CO_CHAIN, CO_FABRIC, O, input CI, CI_INIT, DI, S);
-  parameter CYINIT_FABRIC = 0;
+module CARRY0_CONST(output CO_CHAIN, CO_FABRIC, O, input CI, CI_INIT, DI, S);
+  parameter CYINIT_AX = 1'b0;
+  parameter CYINIT_C0 = 1'b0;
+  parameter CYINIT_C1 = 1'b0;
   wire CI_COMBINE;
-  if(CYINIT_FABRIC) begin
+  if(CYINIT_AX) begin
     assign CI_COMBINE = CI_INIT;
+  end else if(CYINIT_C0) begin
+    assign CI_COMBINE = 0;
+  end else if(CYINIT_C1) begin
+    assign CI_COMBINE = 1;
   end else begin
     assign CI_COMBINE = CI;
   end

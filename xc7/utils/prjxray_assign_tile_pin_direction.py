@@ -23,8 +23,8 @@ from lib.connection_database import (
     NodeClassification, yield_wire_info_from_node, get_track_model,
     node_to_site_pins
 )
+from prjxray_constant_site_pins import yield_ties_to_wire
 import progressbar
-import sqlite3
 import datetime
 
 from prjxray_db_cache import DatabaseCache
@@ -150,6 +150,17 @@ def handle_edges_to_channels(
 ):
     c = conn.cursor()
 
+    c.execute(
+        """
+SELECT vcc_track_pkey, gnd_track_pkey FROM constant_sources;
+    """
+    )
+    vcc_track_pkey, gnd_track_pkey = c.fetchone()
+    const_tracks = {
+        0: gnd_track_pkey,
+        1: vcc_track_pkey,
+    }
+
     for node_pkey, classification in progressbar.progressbar(c.execute("""
 SELECT pkey, classification FROM node WHERE classification != ?;
 """, (NodeClassification.CHANNEL.value, ))):
@@ -264,6 +275,15 @@ WHERE
                     get_tracks_for_wire_at_coord((grid_x, grid_y))
                 )
                 edge_assignments[(tile_type, wire)].append(available_pins)
+
+                for constant in yield_ties_to_wire(wire):
+                    tracks_model = channel_wires_to_tracks[
+                        const_tracks[constant]]
+                    available_pins = set(
+                        pin_dir for _, pin_dir in tracks_model.
+                        get_tracks_for_wire_at_coord((grid_x, grid_y))
+                    )
+                    edge_assignments[(tile_type, wire)].append(available_pins)
 
 
 def main():

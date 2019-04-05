@@ -926,3 +926,51 @@ module RAMB18E1 (
     .DOPBDOP(DOPBDOP)
   );
 endmodule
+
+module CARRY0(output CO_CHAIN, CO_FABRIC, O, input CI, CI_INIT, DI, S);
+  parameter CYINIT_FABRIC = 0;
+  parameter _TECHMAP_CONSTMSK_CI_INIT_ = 0;
+  parameter _TECHMAP_CONSTVAL_CI_INIT_ = 0;
+
+  // Only connect CI_INIT for non-constant signals.
+  wire CI_INIT_INNER;
+  if(_TECHMAP_CONSTMSK_CI_INIT_ == 0 && CYINIT_FABRIC) begin
+    CARRY0_CONST #(
+        .CYINIT_AX(1'b1),
+        .CYINIT_C0(1'b0),
+        .CYINIT_C1(1'b0)
+    ) _TECHMAP_REPLACE_ (
+        .CO_CHAIN(CO_CHAIN),
+        .CO_FABRIC(CO_FABRIC),
+        .O(O),
+        .CI_INIT(CI_INIT),
+        .DI(DI),
+        .S(S)
+    );
+  end else if(!CYINIT_FABRIC) begin
+    CARRY0_CONST #(
+        .CYINIT_AX(1'b0),
+        .CYINIT_C0(1'b0),
+        .CYINIT_C1(1'b0)
+    ) _TECHMAP_REPLACE_ (
+        .CO_CHAIN(CO_CHAIN),
+        .CO_FABRIC(CO_FABRIC),
+        .O(O),
+        .CI(CI),
+        .DI(DI),
+        .S(S)
+    );
+  end else begin
+    CARRY0_CONST #(
+        .CYINIT_AX(1'b0),
+        .CYINIT_C0(_TECHMAP_CONSTVAL_CI_INIT_ == 0),
+        .CYINIT_C0(_TECHMAP_CONSTVAL_CI_INIT_ == 1)
+    ) _TECHMAP_REPLACE_ (
+        .CO_CHAIN(CO_CHAIN),
+        .CO_FABRIC(CO_FABRIC),
+        .O(O),
+        .DI(DI),
+        .S(S)
+    );
+  end
+endmodule

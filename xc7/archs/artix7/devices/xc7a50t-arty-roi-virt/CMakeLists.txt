@@ -3,7 +3,7 @@ add_xc7_device_define_type(
   DEVICE xc7a50t-arty
   ROI_PART xc7a35tcsg324-1
   ROI_DIR ${PRJXRAY_DB_DIR}/artix7/harness/arty-a7/uart
-  TILE_TYPES INT_R INT_L CLBLL_R CLBLL_L CLBLM_R CLBLM_L BRAM_L
+  TILE_TYPES CLBLL_R CLBLL_L CLBLM_R CLBLM_L BRAM_L
   NAME arty
 )
 

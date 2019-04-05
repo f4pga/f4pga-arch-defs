@@ -66,7 +66,12 @@ def create_tracks(graph, grid_width, grid_height, rcw, verbose=False):
 def create_tracks_from_points(
         name, graph, unique_pos, short, grid_width, grid_height
 ):
-    xs, ys = points.decompose_points_into_tracks(unique_pos)
+    xs, ys = points.decompose_points_into_tracks(
+        unique_pos,
+        grid_width,
+        grid_height,
+        right_only=True,
+    )
     tracks_list, track_connections = tracks.make_tracks(
         xs, ys, unique_pos, grid_width, grid_height
     )
@@ -103,13 +108,15 @@ def create_global_constant_tracks(graph, mux, short, grid_width, grid_height):
 
     for x in range(grid_width):
         for y in range(grid_height):
-            if x == 0 and y == 0:
+            if x == 0:
                 continue
-            if x == 0 and y == grid_height - 1:
+            if y == 0:
                 continue
-            if x == grid_width - 1 and y == grid_height - 1:
+            if x == grid_width - 1:
                 continue
-            if x == grid_width - 1 and y == 0:
+            if y == grid_height - 1:
+                continue
+            if x == grid_width - 2 and y == grid_height - 2:
                 continue
 
             unique_pos.add((x, y))
@@ -161,7 +168,7 @@ def create_global_constant_tracks(graph, mux, short, grid_width, grid_height):
                         )
                         break
 
-                assert made_connection
+                assert made_connection, (pin, pin_map)
 
     assert found_vcc
     assert found_gnd
