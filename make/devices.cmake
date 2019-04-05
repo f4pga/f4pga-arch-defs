@@ -851,7 +851,7 @@ function(ADD_FPGA_TARGET)
       )
   endif()
 
-  add_custom_target(${NAME}_eblif ALL DEPENDS ${OUT_EBLIF})
+  add_custom_target(${NAME}_eblif DEPENDS ${OUT_EBLIF})
 
   # Generate routing and generate HLC.
   set(OUT_ROUTE ${OUT_LOCAL}/${TOP}.route)
@@ -1145,7 +1145,7 @@ function(ADD_FPGA_TARGET)
       )
     endif()
 
-    add_custom_target(${NAME}_bit ALL DEPENDS ${OUT_BITSTREAM})
+    add_custom_target(${NAME}_bit DEPENDS ${OUT_BITSTREAM})
 
     get_target_property_required(BIN_EXTENSION ${ARCH} BIN_EXTENSION)
     set(OUT_BIN ${OUT_LOCAL}/${TOP}.${BIN_EXTENSION})
