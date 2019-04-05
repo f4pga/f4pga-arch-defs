@@ -136,7 +136,7 @@ function(GET_VERILOG_INCLUDES var file)
   execute_process(
     COMMAND
       ${PYTHON_EXECUTABLE} ${symbiflow-arch-defs_SOURCE_DIR}/utils/deps_verilog.py
-      --file_per_line ${CMAKE_CURRENT_SOURCE_DIR}/${file}
+      ${CMAKE_CURRENT_SOURCE_DIR}/${file}
     WORKING_DIRECTORY ${symbiflow-arch-defs_SOURCE_DIR}
     OUTPUT_VARIABLE INCLUDES
   )
@@ -173,7 +173,7 @@ function(GET_XML_INCLUDES var file)
   execute_process(
     COMMAND
       ${PYTHON_EXECUTABLE} ${symbiflow-arch-defs_SOURCE_DIR}/utils/deps_xml.py
-      --file_per_line ${CMAKE_CURRENT_SOURCE_DIR}/${file}
+      ${CMAKE_CURRENT_SOURCE_DIR}/${file}
     WORKING_DIRECTORY ${symbiflow-arch-defs_SOURCE_DIR}
     OUTPUT_VARIABLE INCLUDES
   )

@@ -89,7 +89,6 @@ add_custom_target(all_rrgraph_xmls)
 # Target to lint all xml files.
 add_custom_target(all_xml_lint)
 
-add_subdirectory(utils)
 add_subdirectory(vpr)
 add_subdirectory(yosys)
 add_subdirectory(library)
