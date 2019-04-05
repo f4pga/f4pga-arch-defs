@@ -21,7 +21,7 @@ import numpy as np
 
 import icebox
 import fasm
-from ice40_feature import Feature, IceDbEntry, FasmEntry
+from .ice40_feature import Feature, IceDbEntry, FasmEntry
 
 # hardcoded permutation
 # * https://github.com/YosysHQ/nextpnr/blob/343569105ddf7c97316922774dc4d70d1d4f7c9f/ice40/bitstream.cc#L460-L468

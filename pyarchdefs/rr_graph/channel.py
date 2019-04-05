@@ -33,10 +33,10 @@ from . import Size
 static_property = property
 
 from . import node_pos, single_element
-from ..asserts import assert_eq
-from ..asserts import assert_len_eq
-from ..asserts import assert_type
-from ..asserts import assert_type_or_none
+from lib.asserts import assert_eq
+from lib.asserts import assert_len_eq
+from lib.asserts import assert_type
+from lib.asserts import assert_type_or_none
 
 
 class ChannelNotStraight(TypeError):

@@ -2,8 +2,8 @@
 # Run: python3 -m unittest ice40.utils.fasm_icebox.tests.test_fasm_icebox_utils
 
 import unittest
-from ..ice40_feature import Feature, FasmEntry, IceDbEntry
 from .. import fasm_icebox_utils
+from ..ice40_feature import Feature, FasmEntry, IceDbEntry
 
 
 class TestConversion(unittest.TestCase):
