@@ -1,6 +1,6 @@
 from __future__ import print_function
 from collections import OrderedDict, namedtuple
-import eblif
+import parse_eblif
 
 IoConstraint = namedtuple('IoConstraint', 'name x y z comment')
 
@@ -18,7 +18,7 @@ class IoPlace(object):
         self.outputs = set()
 
     def read_io_list_from_eblif(self, eblif_file):
-        blif = eblif.parse_blif(eblif_file)
+        blif = parse_eblif.parse_blif(eblif_file)
 
         self.inputs = set(blif['inputs']['args'])
         self.outputs = set(blif['outputs']['args'])
