@@ -6,12 +6,9 @@ import simplejson as json
 
 def main():
     parser = argparse.ArgumentParser(description="Generate synth_tiles.json")
-    parser.add_argument(
-            '--db_root', required=True)
-    parser.add_argument(
-            '--roi', required=True)
-    parser.add_argument(
-            '--synth_tiles', required=False)
+    parser.add_argument('--db_root', required=True)
+    parser.add_argument('--roi', required=True)
+    parser.add_argument('--synth_tiles', required=False)
 
     args = parser.parse_args()
 
@@ -25,12 +22,12 @@ def main():
         j = json.load(f)
 
     roi = Roi(
-            db=db,
-            x1=j['info']['GRID_X_MIN'],
-            y1=j['info']['GRID_Y_MIN'],
-            x2=j['info']['GRID_X_MAX'],
-            y2=j['info']['GRID_Y_MAX'],
-            )
+        db=db,
+        x1=j['info']['GRID_X_MIN'],
+        y1=j['info']['GRID_Y_MIN'],
+        x2=j['info']['GRID_X_MAX'],
+        y2=j['info']['GRID_Y_MAX'],
+    )
 
     synth_tiles['info'] = j['info']
     for port in j['ports']:
@@ -53,24 +50,29 @@ def main():
         if roi.tile_in_roi(loc):
             # Or if in the ROI, make sure it has no sites.
             gridinfo = g.gridinfo_at_tilename(tile)
-            assert len(db.get_tile_type(gridinfo.tile_type).get_sites()) == 0, tile
+            assert len(
+                db.get_tile_type(gridinfo.tile_type).get_sites()
+            ) == 0, tile
 
         if tile not in synth_tiles['tiles']:
             synth_tiles['tiles'][tile] = {
-                    'pins': [],
-                    'loc': g.loc_of_tilename(tile),
+                'pins': [],
+                'loc': g.loc_of_tilename(tile),
             }
 
-        synth_tiles['tiles'][tile]['pins'].append({
-                'roi_name': port['name'].replace('[', '_').replace(']','_'),
+        synth_tiles['tiles'][tile]['pins'].append(
+            {
+                'roi_name': port['name'].replace('[', '_').replace(']', '_'),
                 'wire': wire,
                 'pad': port['pin'],
                 'port_type': port_type,
                 'is_clock': is_clock,
-        })
+            }
+        )
 
     with open(args.synth_tiles, 'w') as f:
         json.dump(synth_tiles, f)
+
 
 if __name__ == "__main__":
     main()

@@ -35,19 +35,22 @@ parser.add_argument(
 One or more Verilog input files, that will be passed to Yosys internally.
 They should be enough to generate a flattened representation of the model,
 so that paths through the model can be determined.
-""")
+"""
+)
 parser.add_argument(
     '--top',
     help="""\
 Top level module, will usually be automatically determined from the file name
 %.sim.v
-""")
+"""
+)
 parser.add_argument(
     '--includes',
     help="""\
 Command seperate list of include directories.
 """,
-default="")
+    default=""
+)
 parser.add_argument('-o', help="""\
 Output filename, default 'model.xml'
 """)
@@ -60,8 +63,8 @@ if "o" in args and args.o is not None:
     outfile = args.o
 
 if args.includes:
-  for include in args.includes.split(','):
-    yosys.run.add_include(include)
+    for include in args.includes.split(','):
+        yosys.run.add_include(include)
 
 aig_json = yosys.run.vlog_to_json(args.infiles, flatten=True, aig=True)
 
@@ -109,16 +112,20 @@ if len(deps_files) > 0:
         module_basename = os.path.basename(abs_dep)
         wm = re.match(r"([A-Za-z0-9_]+)\.sim\.v", module_basename)
         if wm:
-            model_path = "{}/{}.model.xml".format(module_path,
-                                                  wm.group(1).lower())
+            model_path = "{}/{}.model.xml".format(
+                module_path,
+                wm.group(1).lower()
+            )
         else:
             assert False, "included Verilog file name {} does not follow pattern %%.sim.v".format(
-                module_basename)
+                module_basename
+            )
         xmlinc.include_xml(
             parent=models_xml,
             href=model_path,
             outfile=outfile,
-            xptr="xpointer(models/child::node())")
+            xptr="xpointer(models/child::node())"
+        )
 else:
     # Is a leaf model
     topname = tmod.attr("MODEL_NAME", top)
@@ -134,7 +141,8 @@ else:
         clk_sigs = dict()
         for clk in clocks:
             clk_sigs[clk] = yosys.run.get_clock_assoc_signals(
-                args.infiles, top, clk)
+                args.infiles, top, clk
+            )
 
         for name, width, iodir in ports:
             attrs = dict(name=name)

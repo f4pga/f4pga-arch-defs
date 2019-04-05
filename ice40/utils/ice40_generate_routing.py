@@ -527,7 +527,8 @@ def create_tracks(g, verbose=False):
     bi_dir = channel.Track.Direction.BI
 
     short_xml = list(
-        g._xml_graph.iterfind('//switches/switch/[@name="short"]'))[0]
+        g._xml_graph.iterfind('//switches/switch/[@name="short"]')
+    )[0]
     #short_xml.attrib['configurable'] = '0'
     #short_xml.attrib['buffered'] = '0'
     print("Rewrote short switch: ", ET.tostring(short_xml))
@@ -551,7 +552,8 @@ def create_tracks(g, verbose=False):
         # Locals
         for l_n in local_names:
             track, _track_node = g.create_xy_track(
-                begin, end, segment_local, typeh=type_y, direction=bi_dir)
+                begin, end, segment_local, typeh=type_y, direction=bi_dir
+            )
 
             print("{} - {}".format(block, l_n))
 
@@ -559,7 +561,8 @@ def create_tracks(g, verbose=False):
 
         for g_n in global_names:
             track, _track_node = g.create_xy_track(
-                begin, end, segment_global, typeh=type_y, direction=bi_dir)
+                begin, end, segment_global, typeh=type_y, direction=bi_dir
+            )
 
             print("{} - {}".format(block, g_n))
 
@@ -567,7 +570,8 @@ def create_tracks(g, verbose=False):
 
         # Padding ------------------------------------------------
         track, _track_node = g.create_xy_track(
-            begin, end, segment_dummy, typeh=type_y, direction=bi_dir)
+            begin, end, segment_dummy, typeh=type_y, direction=bi_dir
+        )
         print()
         # --------------------------------------------------------
 
@@ -579,7 +583,8 @@ def create_tracks(g, verbose=False):
         for d in tracks:
             s_type, d_type = segment_type(g, d)
             track, _track_node = g.create_xy_track(
-                begin, end, s_type, typeh=d_type, direction=bi_dir)
+                begin, end, s_type, typeh=d_type, direction=bi_dir
+            )
 
             print("%s - Created track %s (%s)" % (block, d.aliases, track))
 
@@ -614,24 +619,32 @@ def create_tracks(g, verbose=False):
             dst_name = fix_name(dst_name)
 
             if src_name not in src_names:
-                print("{} - Skipping (src not exist) **{}** -> {}".format(
-                    src_block, src_name, dst_name))
+                print(
+                    "{} - Skipping (src not exist) **{}** -> {}".format(
+                        src_block, src_name, dst_name
+                    )
+                )
                 continue
             if dst_name not in src_names:
-                print("{} - Skipping (dst not exist) {} -> **{}**".format(
-                    src_block, src_name, dst_name))
+                print(
+                    "{} - Skipping (dst not exist) {} -> **{}**".format(
+                        src_block, src_name, dst_name
+                    )
+                )
                 continue
 
             src_node = g.routing.localnames[(src_block.position, src_name)]
             dst_node = g.routing.localnames[(src_block.position, dst_name)]
-            g.routing.create_edge_with_nodes(src_node, dst_node,
-                                             g.switches[switch_type])
+            g.routing.create_edge_with_nodes(
+                src_node, dst_node, g.switches[switch_type]
+            )
 
             xml_id = graph.RoutingGraph._get_xml_id
 
             if entry[1] == 'routing':
-                g.routing.create_edge_with_nodes(dst_node, src_node,
-                                                 g.switches[switch_type])
+                g.routing.create_edge_with_nodes(
+                    dst_node, src_node, g.switches[switch_type]
+                )
 
             dir_str = {
                 'buffer': "->",
@@ -639,11 +652,13 @@ def create_tracks(g, verbose=False):
             }[entry[1]]
 
             print(
-                src_block, src_name, xml_id(src_node),
+                src_block,
+                src_name,
+                xml_id(src_node),
                 dir_str,
-                dst_name, xml_id(dst_node),
+                dst_name,
+                xml_id(dst_node),
             )
-
 
     #############################################################################
     # Block -> Block connections
@@ -667,16 +682,22 @@ def create_tracks(g, verbose=False):
             try:
                 dst_node = g.routing.localnames[(dst_pos, dst_name)]
             except KeyError as e:
-                print(dst_name, "not found on block", delta, "(which is",
-                      dst_pos, ")", e)
+                print(
+                    dst_name, "not found on block", delta, "(which is",
+                    dst_pos, ")", e
+                )
                 continue
 
             dst_block = g.block_grid[dst_pos]
 
-            print("Found {}->{} on {} {} ({})".format(
-                src_name, dst_name, src_block, delta, dst_block))
-            g.routing.create_edge_with_nodes(src_node, dst_node,
-                                             g.switches["short"])
+            print(
+                "Found {}->{} on {} {} ({})".format(
+                    src_name, dst_name, src_block, delta, dst_block
+                )
+            )
+            g.routing.create_edge_with_nodes(
+                src_node, dst_node, g.switches["short"]
+            )
             #g.routing.create_edge_with_nodes(dst_node, src_node,
             #                                 g.switches["short"])
 
@@ -689,7 +710,8 @@ def patch_rr_graph(filename_in, filename_out, verbose=False):
         rr_graph_file=filename_in,
         verbose=verbose,
         clear_fabric=True,
-        sides=side_for)
+        sides=side_for
+    )
     print('Source g loaded')
     print("Grid size: %s" % (g.block_grid.size, ))
     print()
@@ -701,7 +723,8 @@ def patch_rr_graph(filename_in, filename_out, verbose=False):
     if filename_out:
         print('Writing to %s' % filename_out)
         open(filename_out, 'w').write(
-            ET.tostring(g.to_xml(), pretty_print=True).decode('ascii'))
+            ET.tostring(g.to_xml(), pretty_print=True).decode('ascii')
+        )
     else:
         print("Printing")
         print(ET.tostring(g.to_xml(), pretty_print=True).decode('ascii'))
@@ -720,7 +743,8 @@ def main():
     args = parser.parse_args()
 
     patch_rr_graph(
-        args.read_rr_graph, args.write_rr_graph, verbose=args.verbose)
+        args.read_rr_graph, args.write_rr_graph, verbose=args.verbose
+    )
 
 
 if __name__ == "__main__":

@@ -18,14 +18,19 @@ def process(infile, outfile):
     tree = etree.parse(infile)
     root = tree.getroot()
     with open(outfile, "w") as output:
-        output.write('// Automatically generated from %s on %s\n\n' %
-                     (infile, datetime.now().isoformat()))
+        output.write(
+            '// Automatically generated from %s on %s\n\n' %
+            (infile, datetime.now().isoformat())
+        )
         for module in root.getchildren():
             ports = module.xpath('port')
             attrs = module.xpath('attribute')
             output.write(
-                'module %s (%s);\n' % (module.attrib['name'], ', '.join(
-                    [port.attrib['name'] for port in ports])))
+                'module %s (%s);\n' % (
+                    module.attrib['name'],
+                    ', '.join([port.attrib['name'] for port in ports])
+                )
+            )
             for port in ports:
                 output.write(format_port(**dict(port.attrib)))
             if len(attrs): output.write('\n')

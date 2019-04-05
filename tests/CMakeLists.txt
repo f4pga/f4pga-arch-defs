@@ -1,8 +1,8 @@
 set(FULL_BOARDS dummy_ice40_hx1k_tq144 )
 if (NOT DEFINED ENV{CI} OR NOT $ENV{CI})
-list(APPEND FULL_BOARDS dummy_artix7_xc7a50t_test)
+list(APPEND FULL_BOARDS dummy_artix7_xc7a50t-basys3_test)
 endif()
-set(SMALL_BOARDS dummy_testarch_4x4_dummy)
+set(SMALL_BOARDS dummy_testarch_4x4_dummy dummy_testarch_10x10_dummy)
 set(BOARDS ${FULL_BOARDS} ${SMALL_BOARDS})
 
 foreach(BOARD ${BOARDS})
@@ -113,3 +113,5 @@ add_subdirectory(6-led)
 add_subdirectory(6-rot)
 add_subdirectory(7-carry_stress)
 add_subdirectory(9-soc)
+add_subdirectory(9-scalable_proc)
+

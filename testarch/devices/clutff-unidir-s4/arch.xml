@@ -2,6 +2,8 @@
 <architecture xmlns:xi="http://www.w3.org/2001/XInclude">
  <models>
   <xi:include href="../../tiles/clutff/clutff.model.xml" xpointer="xpointer(models/child::node())" />
+  <xi:include href="../../tiles/const/gnd.model.xml" xpointer="xpointer(models/child::node())" />
+  <xi:include href="../../tiles/const/vcc.model.xml" xpointer="xpointer(models/child::node())" />
  </models>
  <layout>
    <xi:include href="../layouts/all.xml" xpointer="xpointer(layout/child::node())" />
@@ -10,6 +12,8 @@
   <xi:include href="../../../vpr/ibuf/ibuf.pb_type.xml"/>
   <xi:include href="../../../vpr/obuf/obuf.pb_type.xml"/>
   <xi:include href="../../tiles/clutff/clutff.pb_type.xml"/>
+  <xi:include href="../../tiles/const/gnd.pb_type.xml"/>
+  <xi:include href="../../tiles/const/vcc.pb_type.xml"/>
  </complexblocklist>
  <directlist>
   <direct name="carry" from_pin="BLK_TI-TILE.COUT" to_pin="BLK_TI-TILE.CIN" x_offset="0" y_offset="1" z_offset="0"/>

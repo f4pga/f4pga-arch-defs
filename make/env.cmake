@@ -26,6 +26,18 @@ function(SETUP_ENV)
   # will cause get_target_property(var env VPR) to return $ENV{VPR}.
   #
   # FIXME: Consider using CMake CACHE variables instead of target properties.
+
+  set(options)
+  set(oneValueArgs MINICONDA3_VERSION)
+  set(multiValueArgs)
+  cmake_parse_arguments(
+      SETUP_ENV
+    "${options}"
+    "${oneValueArgs}"
+    "${multiValueArgs}"
+    ${ARGN}
+  )
+
   add_custom_target(env)
   set(ENV_DIR ${symbiflow-arch-defs_BINARY_DIR}/env)
   add_custom_target(clean_env
@@ -43,7 +55,7 @@ function(SETUP_ENV)
   if(${USE_CONDA})
     set_target_properties(env PROPERTIES USE_CONDA TRUE)
 
-    set(MINICONDA_FILE Miniconda3-latest-Linux-x86_64.sh)
+    set(MINICONDA_FILE Miniconda3-${SETUP_ENV_MINICONDA3_VERSION}-Linux-x86_64.sh)
     set(MINICONDA_URL https://repo.continuum.io/miniconda/${MINICONDA_FILE})
     find_program(WGET wget)
     add_custom_command(
@@ -178,7 +190,7 @@ function(ADD_CONDA_PACKAGE)
 
     add_custom_command(
       OUTPUT ${OUTPUTS}
-      COMMAND ${CONDA_BIN} install -f ${PACKAGE_SPEC}
+      COMMAND ${CONDA_BIN} install --force-reinstall ${PACKAGE_SPEC}
       ${TOUCH_COMMANDS}
       DEPENDS conda ${CONDA_BIN}
       )
@@ -255,6 +267,7 @@ function(ADD_CONDA_PIP)
         ${NAME}
         DEPENDS ${NAME}.pip
         )
+      set_target_properties(env PROPERTIES ${binary_upper}_TARGET ${NAME})
     else()
       set(BIN ${CONDA_DIR}/bin/${NAME})
       add_custom_command(

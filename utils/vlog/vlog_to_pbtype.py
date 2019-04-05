@@ -54,7 +54,8 @@ from yosys.json import YosysJSON
 import xmlinc
 
 parser = argparse.ArgumentParser(
-    description=__doc__.strip(), formatter_class=argparse.RawTextHelpFormatter)
+    description=__doc__.strip(), formatter_class=argparse.RawTextHelpFormatter
+)
 parser.add_argument(
     'infiles',
     metavar='input.v',
@@ -64,19 +65,22 @@ parser.add_argument(
 One or more Verilog input files, that will be passed to Yosys internally.
 They should be enough to generate a flattened representation of the model,
 so that paths through the model can be determined.
-""")
+"""
+)
 parser.add_argument(
     '--top',
     help="""\
 Top level module, will usually be automatically determined from the file name
 %.sim.v
-""")
+"""
+)
 parser.add_argument(
     '--includes',
     help="""\
 Command seperate list of include directories.
 """,
-default="")
+    default=""
+)
 parser.add_argument('-o', help="""\
 Output filename, default 'model.xml'
 """)
@@ -90,8 +94,8 @@ if "o" in args and args.o is not None:
 
 yosys.run.add_define("PB_TYPE")
 if args.includes:
-  for include in args.includes.split(','):
-    yosys.run.add_include(include)
+    for include in args.includes.split(','):
+        yosys.run.add_include(include)
 
 vjson = yosys.run.vlog_to_json(args.infiles, flatten=False, aig=False)
 yj = YosysJSON(vjson)
@@ -104,8 +108,9 @@ else:
         top = wm.group(1).upper()
     else:
         print(
-            "ERROR file name not of format %.sim.v ({}), cannot detect top level. Manually specify the top level module using --top".
-            format(iname))
+            "ERROR file name not of format %.sim.v ({}), cannot detect top level. Manually specify the top level module using --top"
+            .format(iname)
+        )
         sys.exit(1)
 
 tmod = yj.module(top)
@@ -151,11 +156,13 @@ def make_pb_content(mod, xml_parent, mod_pname, is_submode=False):
         source_pin = get_full_pin_name(source)
         dest_pin = get_full_pin_name(dest)
         ic_name = dest_pin.replace(".", "_").replace("[", "_").replace("]", "")
-        dir_xml = ET.SubElement(ic_xml, 'direct', {
-            'name': ic_name,
-            'input': source_pin,
-            'output': dest_pin
-        })
+        dir_xml = ET.SubElement(
+            ic_xml, 'direct', {
+                'name': ic_name,
+                'input': source_pin,
+                'output': dest_pin
+            }
+        )
 
     # Find out whether or not the module we are generating content for is a blackbox
     is_blackbox = (mod.attr("blackbox", 0) == 1)
@@ -176,11 +183,13 @@ def make_pb_content(mod, xml_parent, mod_pname, is_submode=False):
             if wm:
                 pb_type_path = "{}/{}.pb_type.xml".format(
                     module_path,
-                    wm.group(1).lower())
+                    wm.group(1).lower()
+                )
             else:
                 pb_type_path = "{}/pb_type.xml".format(module_path)
             xmlinc.include_xml(
-                parent=xml_parent, href=pb_type_path, outfile=outfile)
+                parent=xml_parent, href=pb_type_path, outfile=outfile
+            )
             # In order to avoid overspecifying interconnect, there are two directions we currently
             # consider. All interconnect going INTO a cell, and interconnect going out of a cell
             # into a top level output - or all outputs if "mode" is used.
@@ -189,13 +198,15 @@ def make_pb_content(mod, xml_parent, mod_pname, is_submode=False):
                 drvs = mod.net_drivers(net)
                 if len(drvs) == 0:
                     print(
-                        "ERROR: pin {}.{} has no driver, interconnect will be missing".
-                        format(pb_name, pin))
+                        "ERROR: pin {}.{} has no driver, interconnect will be missing"
+                        .format(pb_name, pin)
+                    )
                     assert False
                 elif len(drvs) > 1:
                     print(
-                        "ERROR: pin {}.{} has multiple drivers, interconnect will be overspecified".
-                        format(pb_name, pin))
+                        "ERROR: pin {}.{} has multiple drivers, interconnect will be overspecified"
+                        .format(pb_name, pin)
+                    )
                     assert False
                 for drv_cell, drv_pin in drvs:
                     interconn.append(((drv_cell, drv_pin), (cname, pin)))
@@ -221,7 +232,8 @@ def make_pb_content(mod, xml_parent, mod_pname, is_submode=False):
             assert len(
                 splitspec
             ) == 2, 'bad timing specification "{}", must be of format "clock value"'.format(
-                tmgspec)
+                tmgspec
+            )
             attrs = {"port": port, "clock": splitspec[0]}
             if xmltype == "T_clock_to_Q":
                 attrs["max"] = splitspec[1]
@@ -248,21 +260,25 @@ def make_pb_content(mod, xml_parent, mod_pname, is_submode=False):
                 # Single, constant delays
                 inp = attr[len(dly_prefix):]
                 inport = "{}.{}".format(mod_pname, inp)
-                ET.SubElement(xml_parent, "delay_constant", {
-                    "in_port": inport,
-                    "out_port": port,
-                    "max": str(atvalue)
-                })
+                ET.SubElement(
+                    xml_parent, "delay_constant", {
+                        "in_port": inport,
+                        "out_port": port,
+                        "max": str(atvalue)
+                    }
+                )
             elif attr.startswith(dly_mat_prefix):
                 # Constant delay matrices
                 inp = attr[len(dly_mat_prefix):]
                 inport = "{}.{}".format(mod_pname, inp)
                 mat = "\n" + atvalue.replace(";", "\n") + "\n"
-                xml_mat = ET.SubElement(xml_parent, "delay_matrix", {
-                    "in_port": inport,
-                    "out_port": port,
-                    "type": "max"
-                })
+                xml_mat = ET.SubElement(
+                    xml_parent, "delay_matrix", {
+                        "in_port": inport,
+                        "out_port": port,
+                        "type": "max"
+                    }
+                )
                 xml_mat.text = mat
 
 
@@ -298,13 +314,14 @@ def make_pb_type(mod):
         else:
             assert False, "unknown class {}".format(mod_cls)
     elif is_blackbox and not has_modes:
-        pb_xml_attrs["blif_model"] = ".subckt " + mod.attr(
-            "MODEL_NAME", mod.name)
+        pb_xml_attrs["blif_model"
+                     ] = ".subckt " + mod.attr("MODEL_NAME", mod.name)
 
     #TODO: might not always be the case? should be use Verilog `generate`s to detect this?
     pb_xml_attrs["num_pb"] = "1"
     pb_type_xml = ET.Element(
-        "pb_type", pb_xml_attrs, nsmap={'xi': xmlinc.xi_url})
+        "pb_type", pb_xml_attrs, nsmap={'xi': xmlinc.xi_url}
+    )
 
     # Process IOs
     clocks = yosys.run.list_clocks(args.infiles, mod.name)
@@ -333,7 +350,9 @@ def make_pb_type(mod):
                     flatten=False,
                     aig=False,
                     mode=smode,
-                    module_with_mode=mod.name))
+                    module_with_mode=mod.name
+                )
+            )
             mode_mod = mode_yj.module(mod.name)
             make_pb_content(mode_mod, mode_xml, mod_pname, True)
     else:

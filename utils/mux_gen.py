@@ -22,46 +22,54 @@ from lib.asserts import assert_eq
 parser = argparse.ArgumentParser(
     description='Generate a MUX wrapper.',
     fromfile_prefix_chars='@',
-    prefix_chars='-~')
+    prefix_chars='-~'
+)
 
 parser.add_argument(
     '--verbose',
     '--no-verbose',
     action=ActionStoreBool,
     default=os.environ.get('V', '') == '1',
-    help="Print lots of information about the generation.")
+    help="Print lots of information about the generation."
+)
 
 parser.add_argument('--width', type=int, default=8, help="Width of the MUX.")
 
 parser.add_argument(
-    '--data-width', type=int, default=1, help="data width of the MUX.")
+    '--data-width', type=int, default=1, help="data width of the MUX."
+)
 
 parser.add_argument(
     '--type',
     choices=['logic', 'routing'],
     default='logic',
-    help="Type of MUX.")
+    help="Type of MUX."
+)
 
 parser.add_argument(
     '--split-inputs',
     action=ActionStoreBool,
     default=False,
-    help="Split the inputs into separate signals")
+    help="Split the inputs into separate signals"
+)
 
 parser.add_argument(
     '--split-selects',
     action=ActionStoreBool,
     default=False,
-    help="Split the selects into separate signals")
+    help="Split the selects into separate signals"
+)
 
 parser.add_argument(
-    '--name-mux', type=str, default='MUX', help="Name of the mux.")
+    '--name-mux', type=str, default='MUX', help="Name of the mux."
+)
 
 parser.add_argument(
     '--name-input',
     type=str,
     default='I',
-    help="Name of the input values for the mux.")
+    help="Name of the input values for the mux."
+)
 
 parser.name_inputs = parser.add_argument(
     '--name-inputs',
@@ -75,13 +83,15 @@ parser.add_argument(
     '--name-output',
     type=str,
     default='O',
-    help="Name of the output value for the mux.")
+    help="Name of the output value for the mux."
+)
 
 parser.add_argument(
     '--name-select',
     type=str,
     default='S',
-    help="Name of the select parameter for the mux.")
+    help="Name of the select parameter for the mux."
+)
 
 parser.name_selects = parser.add_argument(
     '--name-selects',
@@ -93,8 +103,8 @@ parser.name_selects = parser.add_argument(
 
 parser.add_argument(
     '--order',
-    choices=[''.join(x) for x in itertools.permutations('ios')] +
-    [''.join(x) for x in itertools.permutations('io')],
+    choices=[''.join(x) for x in itertools.permutations('ios')
+             ] + [''.join(x) for x in itertools.permutations('io')],
     default='iso',
     help=
     """Order of the arguments for the MUX. (i - Inputs, o - Output, s - Select)"""
@@ -103,21 +113,26 @@ parser.add_argument(
 parser.add_argument(
     '--outdir',
     default=None,
-    help="""Directory to output generated content too.""")
+    help="""Directory to output generated content too."""
+)
 
 parser.add_argument(
     '--outfilename',
     default=None,
-    help="""Filename to output generated content too.""")
+    help="""Filename to output generated content too."""
+)
 
 parser.add_argument(
-    '--comment', default=None, help="""Add some type of comment to the mux.""")
+    '--comment', default=None, help="""Add some type of comment to the mux."""
+)
 
 parser.add_argument(
-    '--num_pb', default=1, help="""Set the num_pb for the mux.""")
+    '--num_pb', default=1, help="""Set the num_pb for the mux."""
+)
 
 parser.add_argument(
-    '--subckt', default=None, help="""Override the subcircuit name.""")
+    '--subckt', default=None, help="""Override the subcircuit name."""
+)
 
 
 def main(argv):
@@ -157,7 +172,8 @@ def main(argv):
 
     if args.data_width > 1 and not args.split_inputs:
         assert False, "data_width(%d) > 1 requires using split_inputs" % (
-            args.data_width)
+            args.data_width
+        )
 
     if args.name_inputs:
         assert_eq(args.name_input, parser.get_default("name_input"))
@@ -166,7 +182,8 @@ def main(argv):
 
         names = args.name_inputs.split(',')
         assert len(names) == args.width, "%s input names, but %s needed." % (
-            names, args.width)
+            names, args.width
+        )
         args.name_inputs = names
     elif args.split_inputs:
         args.name_inputs = [
@@ -181,9 +198,10 @@ def main(argv):
         args.split_selects = True
 
         names = args.name_selects.split(',')
-        assert len(
-            names) == args.width_bits, "%s select names, but %s needed." % (
-                names, args.width_bits)
+        assert len(names
+                   ) == args.width_bits, "%s select names, but %s needed." % (
+                       names, args.width_bits
+                   )
         args.name_selects = names
     elif args.split_selects:
         args.name_selects = [
@@ -212,7 +230,9 @@ Generated with %s
     sim_filename = '%s.sim.v' % args.outfilename
 
     output_files = [
-        model_xml_filename, pbtype_xml_filename, sim_filename,
+        model_xml_filename,
+        pbtype_xml_filename,
+        sim_filename,
     ]
 
     # ------------------------------------------------------------------------
@@ -224,33 +244,45 @@ Generated with %s
         if i == 'i':
             if args.split_inputs:
                 port_names.extend(
-                    mux_lib.ModulePort(mux_lib.MuxPinType.INPUT,
-                                       args.name_inputs[
-                                           j], 1, '[%i]' % j, args.data_width)
-                    for j in range(args.width))
+                    mux_lib.ModulePort(
+                        mux_lib.MuxPinType.INPUT, args.name_inputs[j], 1,
+                        '[%i]' % j, args.data_width
+                    ) for j in range(args.width)
+                )
             else:
-                # verilog range bounds are inclusive and convention is [<width-1>:0]
+                # verilog range bounds are inclusive and convention is
+                # [<width-1>:0]
                 port_names.append(
-                    mux_lib.ModulePort(mux_lib.MuxPinType.INPUT,
-                                       args.name_input, args.width,
-                                       '[%i:0]' % (args.width - 1)))
+                    mux_lib.ModulePort(
+                        mux_lib.MuxPinType.INPUT, args.name_input, args.width,
+                        '[%i:0]' % (args.width - 1)
+                    )
+                )
         elif i == 's':
             if args.split_selects:
                 port_names.extend(
-                    mux_lib.ModulePort(mux_lib.MuxPinType.SELECT,
-                                       args.name_selects[j], 1, '[%i]' % j)
-                    for j in range(args.width_bits))
+                    mux_lib.ModulePort(
+                        mux_lib.MuxPinType.SELECT, args.name_selects[j], 1,
+                        '[%i]' % j
+                    ) for j in range(args.width_bits)
+                )
             else:
-                # verilog range bounds are inclusive and convention is [<width-1>:0]
+                # verilog range bounds are inclusive and convention is
+                # [<width-1>:0]
                 assert args.name_select is not None
                 port_names.append(
-                    mux_lib.ModulePort(mux_lib.MuxPinType.SELECT,
-                                       args.name_select, args.width_bits,
-                                       '[%i:0]' % (args.width_bits - 1)))
+                    mux_lib.ModulePort(
+                        mux_lib.MuxPinType.SELECT, args.name_select,
+                        args.width_bits, '[%i:0]' % (args.width_bits - 1)
+                    )
+                )
         elif i == 'o':
             port_names.append(
-                mux_lib.ModulePort(mux_lib.MuxPinType.OUTPUT, args.name_output,
-                                   1, '', args.data_width))
+                mux_lib.ModulePort(
+                    mux_lib.MuxPinType.OUTPUT, args.name_output, 1, '',
+                    args.data_width
+                )
+            )
 
     # ------------------------------------------------------------------------
     # Generate the sim.v Verilog module
@@ -272,14 +304,16 @@ Generated with %s
         f.write("/* ")
         f.write("\n * ".join(generated_with.splitlines()))
         f.write("\n */\n\n")
-        f.write('`include "%s/%s/%smux%i/%smux%i.sim.v"\n' % (
-            mux_dir,
-            'logic',
-            '',
-            args.width,
-            '',
-            args.width,
-        ))
+        f.write(
+            '`include "%s/%s/%smux%i/%smux%i.sim.v"\n' % (
+                mux_dir,
+                'logic',
+                '',
+                args.width,
+                '',
+                args.width,
+            )
+        )
         f.write("\n")
         f.write('(* blackbox *) (* CLASS="%s" *)\n' % mux_class)
         f.write("module %s(%s);\n" % (args.name_mux, ", ".join(module_args)))
@@ -297,8 +331,9 @@ Generated with %s
         f.write("\n")
         if args.data_width > 1:
             f.write('\tgenvar\tii;\n')
-            f.write('\tfor(ii=0; ii<%d; ii++) begin: bitmux\n' %
-                    (args.data_width))
+            f.write(
+                '\tfor(ii=0; ii<%d; ii++) begin: bitmux\n' % (args.data_width)
+            )
 
         f.write('\tMUX%s mux (\n' % args.width)
         for i in range(0, args.width):
@@ -378,12 +413,14 @@ Generated with %s
                 ET.SubElement(
                     input_ports, 'port', {
                         'name':
-                        port.name,
+                            port.name,
                         'combinational_sink_ports':
-                        ' '.join(
-                            port.name for port in port_names
-                            if port.pin_type in (mux_lib.MuxPinType.OUTPUT, )),
-                    })
+                            ' '.join(
+                                port.name for port in port_names if
+                                port.pin_type in (mux_lib.MuxPinType.OUTPUT, )
+                            ),
+                    }
+                )
             elif port.pin_type in (mux_lib.MuxPinType.OUTPUT, ):
                 ET.SubElement(output_ports, 'port', {'name': port.name})
 

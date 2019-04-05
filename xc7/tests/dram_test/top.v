@@ -1,7 +1,9 @@
 module top (
     input  clk,
     input rx,
-    output tx
+    output tx,
+    input [15:0] sw,
+    output [15:0] led
 );
     reg nrst = 0;
     wire tx_baud_edge;
@@ -15,6 +17,9 @@ module top (
     wire tx_data_ready;
     wire tx_data_accepted;
     wire [7:0] tx_data;
+
+    assign led[14:0] = sw[14:0];
+    assign led[15] = rx_data_ready_wire ^ sw[15];
 
     UART #(
         .COUNTER(25),

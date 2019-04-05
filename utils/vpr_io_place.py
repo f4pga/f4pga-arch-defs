@@ -10,6 +10,7 @@ HEADER_TEMPLATE = """\
 
 CONSTRAINT_TEMPLATE = '{name:<{nl}} {x: 3} {y: 3} {z: 2}  # {comment}'
 
+
 class IoPlace(object):
     def __init__(self):
         self.constraints = OrderedDict()
@@ -33,30 +34,34 @@ class IoPlace(object):
             net_name = 'out:' + net_name
 
         self.constraints[net_name] = IoConstraint(
-                        name=net_name,
-                        x=loc[0],
-                        y=loc[1],
-                        z=loc[2],
-                        comment=comment,
-                )
+            name=net_name,
+            x=loc[0],
+            y=loc[1],
+            z=loc[2],
+            comment=comment,
+        )
 
     def output_io_place(self, f):
         max_name_length = max(len(c.name) for c in self.constraints.values())
-        print(HEADER_TEMPLATE.format(
-            name="Block Name",
-            nl=max_name_length,
-            s=""
-        ), file=f)
+        print(
+            HEADER_TEMPLATE.format(
+                name="Block Name", nl=max_name_length, s=""
+            ),
+            file=f
+        )
 
         for constraint in self.constraints.values():
-            print(CONSTRAINT_TEMPLATE.format(
+            print(
+                CONSTRAINT_TEMPLATE.format(
                     name=constraint.name,
                     nl=max_name_length,
                     x=constraint.x,
                     y=constraint.y,
                     z=constraint.z,
-                    comment=constraint.comment),
-                  file=f)
+                    comment=constraint.comment
+                ),
+                file=f
+            )
 
     def is_net(self, net):
         return net in self.inputs or net in self.outputs

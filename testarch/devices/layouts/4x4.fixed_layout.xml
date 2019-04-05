@@ -37,8 +37,8 @@
   <row priority="11" starty="0" type="EMPTY"       />
 
   <!-- Corners -->
-  <single priority="13" x="1" y="1" type="EMPTY"   />
-  <single priority="13" x="1" y="8" type="EMPTY"   />
+  <single priority="13" x="1" y="1" type="BLK_TI-GND" />
+  <single priority="13" x="1" y="8" type="BLK_TI-VCC" />
   <single priority="13" x="8" y="8" type="EMPTY"   />
   <single priority="13" x="8" y="1" type="EMPTY"   />
  </fixed_layout>

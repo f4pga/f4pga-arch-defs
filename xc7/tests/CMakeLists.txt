@@ -11,3 +11,5 @@ add_subdirectory(simple_ff)
 add_subdirectory(dram)
 add_subdirectory(bram)
 add_subdirectory(chain_packing)
+add_subdirectory(uart_loopback)
+
