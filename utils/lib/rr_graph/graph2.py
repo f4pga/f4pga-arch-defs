@@ -349,7 +349,7 @@ class Graph(object):
         switch = Switch(**switch_dict)
 
         assert switch.name not in self.switch_name_map
-        self.switch_name_map[switch.name] = switch
+        self.switch_name_map[switch.name] = switch.id
         self.switches.append(switch)
 
         return switch.id

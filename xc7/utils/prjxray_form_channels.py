@@ -37,7 +37,6 @@ import progressbar
 from lib.rr_graph import points
 from lib.rr_graph import tracks
 from lib.rr_graph import graph2
-import sqlite3
 import datetime
 import os
 import os.path
@@ -49,6 +48,9 @@ from prjxray_db_cache import DatabaseCache
 def import_site_type(db, c, site_types, site_type_name):
     assert site_type_name not in site_types
     site_type = db.get_site_type(site_type_name)
+
+    if site_type_name in site_types:
+        return
 
     c.execute("INSERT INTO site_type(name) VALUES (?)", (site_type_name, ))
     site_types[site_type_name] = c.lastrowid
@@ -622,10 +624,12 @@ def insert_tracks(conn, tracks_to_insert):
     short_pkey = c.fetchone()[0]
 
     track_graph_nodes = {}
+    track_pkeys = []
     for node, tracks_list, track_connections, tracks_model in progressbar.progressbar(
             tracks_to_insert):
         c.execute("""INSERT INTO track DEFAULT VALUES""")
         track_pkey = c.lastrowid
+        track_pkeys.append(track_pkey)
 
         c.execute(
             """UPDATE node SET track_pkey = ? WHERE pkey = ?""",
@@ -712,7 +716,9 @@ FROM
             connections = list(
                 tracks_model.get_tracks_for_wire_at_coord((grid_x, grid_y))
             )
-            assert len(connections) > 0
+            assert len(connections) > 0, (
+                wire_pkey, track_pkey, grid_x, grid_y
+            )
             graph_node_pkey = track_graph_node_pkey[connections[0][0]]
 
             wire_to_graph[wire_pkey] = graph_node_pkey
@@ -732,6 +738,15 @@ FROM
     c.execute("""CREATE INDEX graph_edge_tracks ON graph_edge(track_pkey);""")
 
     conn.commit()
+    return track_pkeys
+
+
+def create_track(node, unique_pos):
+    xs, ys = points.decompose_points_into_tracks(unique_pos)
+    tracks_list, track_connections = tracks.make_tracks(xs, ys, unique_pos)
+    tracks_model = tracks.Tracks(tracks_list, track_connections)
+
+    return [node, tracks_list, track_connections, tracks_model]
 
 
 def form_tracks(conn):
@@ -773,17 +788,149 @@ FROM
   """, (node, )):
                 unique_pos.add((grid_x, grid_y))
 
-            xs, ys = points.decompose_points_into_tracks(unique_pos)
-            tracks_list, track_connections = tracks.make_tracks(
-                xs, ys, unique_pos
-            )
-            tracks_model = tracks.Tracks(tracks_list, track_connections)
+            tracks_to_insert.append(create_track(node, unique_pos))
 
-            tracks_to_insert.append(
-                [node, tracks_list, track_connections, tracks_model]
-            )
+    # Create constant tracks
+    vcc_track_to_insert, gnd_track_to_insert = create_constant_tracks(conn)
+    vcc_idx = len(tracks_to_insert)
+    tracks_to_insert.append(vcc_track_to_insert)
+    gnd_idx = len(tracks_to_insert)
+    tracks_to_insert.append(gnd_track_to_insert)
 
-    insert_tracks(conn, tracks_to_insert)
+    track_pkeys = insert_tracks(conn, tracks_to_insert)
+    vcc_track_pkey = track_pkeys[vcc_idx]
+    gnd_track_pkey = track_pkeys[gnd_idx]
+
+    c.execute(
+        """
+INSERT INTO constant_sources(vcc_track_pkey, gnd_track_pkey) VALUES (?, ?)
+        """, (
+            vcc_track_pkey,
+            gnd_track_pkey,
+        )
+    )
+
+    conn.commit()
+
+    connect_hardpins_to_constant_network(conn, vcc_track_pkey, gnd_track_pkey)
+
+
+def connect_hardpins_to_constant_network(conn, vcc_track_pkey, gnd_track_pkey):
+    """ Connect TIEOFF HARD1 and HARD0 pins.
+
+    Update nodes connected to to HARD1 or HARD0 pins to point to the new
+    VCC or GND track.  This should connect the pips to the constant
+    network instead of the TIEOFF site.
+    """
+
+    c = conn.cursor()
+    c.execute("""
+SELECT pkey FROM site_type WHERE name = ?
+""", ("TIEOFF", ))
+    results = c.fetchall()
+    assert len(results) == 1, results
+    tieoff_site_type_pkey = results[0][0]
+
+    c.execute(
+        """
+SELECT pkey FROM site_pin WHERE site_type_pkey = ? and name = ?
+""", (tieoff_site_type_pkey, "HARD1")
+    )
+    vcc_site_pin_pkey = c.fetchone()[0]
+    c.execute(
+        """
+SELECT pkey FROM wire_in_tile WHERE site_pin_pkey = ?
+""", (vcc_site_pin_pkey, )
+    )
+
+    c.execute(
+        """
+SELECT pkey FROM wire_in_tile WHERE site_pin_pkey = ?
+""", (vcc_site_pin_pkey, )
+    )
+
+    c2 = conn.cursor()
+    c2.execute("""BEGIN EXCLUSIVE TRANSACTION;""")
+
+    for (wire_in_tile_pkey, ) in c:
+        c2.execute(
+            """
+UPDATE node SET track_pkey = ? WHERE pkey IN (
+    SELECT node_pkey FROM wire WHERE wire_in_tile_pkey = ?
+)
+            """, (
+                vcc_track_pkey,
+                wire_in_tile_pkey,
+            )
+        )
+
+    c.execute(
+        """
+SELECT pkey FROM site_pin WHERE site_type_pkey = ? and name = ?
+""", (tieoff_site_type_pkey, "HARD0")
+    )
+    gnd_site_pin_pkey = c.fetchone()[0]
+    c.execute(
+        """
+SELECT pkey FROM wire_in_tile WHERE site_pin_pkey = ?
+""", (gnd_site_pin_pkey, )
+    )
+
+    c.execute(
+        """
+SELECT pkey FROM wire_in_tile WHERE site_pin_pkey = ?
+""", (gnd_site_pin_pkey, )
+    )
+    for (wire_in_tile_pkey, ) in c:
+        c2.execute(
+            """
+UPDATE node SET track_pkey = ? WHERE pkey IN (
+    SELECT node_pkey FROM wire WHERE wire_in_tile_pkey = ?
+)
+            """, (
+                gnd_track_pkey,
+                wire_in_tile_pkey,
+            )
+        )
+
+    c2.execute("""COMMIT TRANSACTION""")
+
+
+def create_constant_tracks(conn):
+    """ Create two tracks that go to all TIEOFF sites to route constants.
+
+    Returns (vcc_track_to_insert, gnd_track_to_insert), suitable for insert
+    via insert_tracks function.
+
+    """
+
+    # Make constant track available to all tiles.
+    c = conn.cursor()
+    unique_pos = set()
+    c.execute('SELECT grid_x, grid_y FROM tile')
+    for grid_x, grid_y in c:
+        if grid_x == 0 or grid_y == 0:
+            continue
+        unique_pos.add((grid_x, grid_y))
+
+    c.execute(
+        """
+INSERT INTO node(classification) VALUES (?)
+""", (NodeClassification.CHANNEL.value, )
+    )
+    vcc_node = c.lastrowid
+
+    c.execute(
+        """
+INSERT INTO node(classification) VALUES (?)
+""", (NodeClassification.CHANNEL.value, )
+    )
+    gnd_node = c.lastrowid
+
+    conn.commit()
+
+    return create_track(vcc_node, unique_pos), \
+           create_track(gnd_node, unique_pos)
 
 
 def main():

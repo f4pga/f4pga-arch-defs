@@ -3,7 +3,6 @@
 Functions for dealing with groups of points.
 """
 
-import logging
 import math
 import string
 import sys
@@ -58,7 +57,7 @@ def NP(x, y, *n):
     n = list(n)
     if not n:
         n = ["{}+{}".format(string.ascii_letters[x], string.ascii_letters[y])]
-    return NamedPosition(Position(x, y), n)
+    return NamedPosition(P(x, y), n)
 
 
 class StraightSegment(list):
@@ -749,9 +748,9 @@ def straight_closet(line1, line2):
 
 
 class Point(object):
-    def __init__(self, coord, tracks=2):
+    def __init__(self, coord):
         self.x, self.y = coord
-        self.tracks = tracks
+        self.tracks = 0
 
     def __repr__(self):
         return 'Point(coord=({},{}),tracks={})'.format(
@@ -763,9 +762,15 @@ class Track(object):
     def __init__(self, dim, tracks=None, other_tracks=None, points=[]):
         self.dim = dim
 
-        self.points = list(points)
+        self.points = []
         self.tracks = tracks
         self.other_tracks = other_tracks
+        for p in points:
+            self.add_point(p)
+
+    def add_point(self, p):
+        self.points.append(p)
+        p.tracks += 1
 
     def __repr__(self):
         return 'Track(dim={},points={})'.format(
@@ -773,19 +778,29 @@ class Track(object):
         )
 
 
-def decompose_points_into_tracks(points):
+def decompose_points_into_tracks(
+        points, grid_width=None, grid_height=None, right_only=False
+):
     """ This function takes a bag of points and returns a set of x lines and
         y lines that cover all points, and all lines touch each other.
 
     This is the first step to forming VPR tracks from points.  VPR tracks have
     limited length, whereas this function returns lines of infinite length.
 
+    Args:
+        points: List of (x, y) tuples that are points to be connected into the
+            the track
+        grid_width (int): Optional maximum x dimension
+        grid_height (int): Optional maximum y dimension
+        right_only (bool): Assume that points are only available via pins on
+            the right.  Some arches restrict pins to the right side only.
+
     >>> # Single element
     >>> pos = [(1,0)]
     >>> ret = decompose_points_into_tracks(pos)
     >>> print_tracks(ret)
-    x = [1]
-    y = []
+    x = []
+    y = [0]
 
     >>> # Single horizontal line
     >>> pos = [(1,0), (2,0)]
@@ -803,14 +818,25 @@ def decompose_points_into_tracks(points):
 
     >>> # Cross shape
     >>> pos = [
+    ...         (2,1),
+    ...  (1,2), (2,2), (3, 2),
+    ...         (2,3),
+    ... ]
+    >>> ret = decompose_points_into_tracks(pos)
+    >>> print_tracks(ret)
+    x = [2]
+    y = [2]
+
+    >>> # Cross shape at edge
+    >>> pos = [
     ...         (1,0),
     ...  (0,1), (1,1), (2, 1),
     ...         (1,2),
     ... ]
     >>> ret = decompose_points_into_tracks(pos)
     >>> print_tracks(ret)
-    x = [1]
-    y = [1]
+    x = [0]
+    y = [0]
 
     >>> # Cross with two horizontal bars
     >>> pos = [
@@ -821,8 +847,8 @@ def decompose_points_into_tracks(points):
     ... ]
     >>> ret = decompose_points_into_tracks(pos)
     >>> print_tracks(ret)
-    x = [1]
-    y = [1, 2]
+    x = [0]
+    y = [0, 1]
 
     >>> # Cross with unequal horizontal bars
     >>> pos = [
@@ -833,8 +859,8 @@ def decompose_points_into_tracks(points):
     ... ]
     >>> ret = decompose_points_into_tracks(pos)
     >>> print_tracks(ret)
-    x = [1]
-    y = [1, 2]
+    x = [0]
+    y = [0, 1]
 
     >>> pos = [
     ...           (1,0),
@@ -843,12 +869,12 @@ def decompose_points_into_tracks(points):
     ... ]
     >>> ret = decompose_points_into_tracks(pos)
     >>> print_tracks(ret)
-    x = [1]
-    y = [1]
+    x = [0]
+    y = [0]
 
     >>> # 3 straight lines
     >>> pos = [
-    ...  (0,0), (1,0),
+    ...         (1,0),
     ...  (0,1),          (2,1),
     ...  (0,2), (1,2),
     ...  (0,3), (1,3),   (2,3),
@@ -858,12 +884,12 @@ def decompose_points_into_tracks(points):
     ... ]
     >>> ret = decompose_points_into_tracks(pos)
     >>> print_tracks(ret)
-    x = [0, 1, 2]
-    y = [3]
+    x = [0]
+    y = [0, 3, 5]
 
     >>> # H shaped
     >>> pos = [
-    ...  (0,0),        (2,0),
+    ...                (2,0),
     ...  (0,1),        (2,1),
     ...  (0,2),        (2,2),
     ...  (0,3), (1,3), (2,3),
@@ -871,8 +897,21 @@ def decompose_points_into_tracks(points):
     ... ]
     >>> ret = decompose_points_into_tracks(pos)
     >>> print_tracks(ret)
-    x = [0, 2]
-    y = [3]
+    x = [0]
+    y = [0, 2, 3]
+
+    >>> # H shaped
+    >>> pos = [
+    ...  (1,1),        (3,1),
+    ...  (1,2),        (3,2),
+    ...  (1,3),        (3,3),
+    ...  (1,4), (2,4), (3,4),
+    ...  (1,5),        (3,5),
+    ... ]
+    >>> ret = decompose_points_into_tracks(pos)
+    >>> print_tracks(ret)
+    x = [1, 2]
+    y = [4]
 
     >>> # Corner shape
     >>> pos = [
@@ -881,8 +920,8 @@ def decompose_points_into_tracks(points):
     ... ]
     >>> ret = decompose_points_into_tracks(pos)
     >>> print_tracks(ret)
-    x = [1]
-    y = [1]
+    x = [0]
+    y = []
 
     >>> # Going around corners
     >>> pos = [
@@ -916,7 +955,7 @@ def decompose_points_into_tracks(points):
 
     >>> # Make sure (1,2) isn't in the output...
     >>> pos = [
-    ... (0,0),        (2,0),
+    ...               (2,0),
     ... (0,1), (1,1), (2,1),
     ... (0,2),        (2,2),
     ... (0,3), (1,3), (2,3),
@@ -924,8 +963,8 @@ def decompose_points_into_tracks(points):
     ... ]
     >>> ret = decompose_points_into_tracks(pos)
     >>> print_tracks(ret)
-    x = [0, 2]
-    y = [1, 3]
+    x = [0]
+    y = [0, 2, 3]
 
     >>> pos = [
     ...  (0,16),
@@ -934,7 +973,7 @@ def decompose_points_into_tracks(points):
     >>> ret = decompose_points_into_tracks(pos)
     >>> print_tracks(ret)
     x = [0]
-    y = [17]
+    y = []
 
     >>> pos = [
     ... (68,48), (69,48),
@@ -945,16 +984,22 @@ def decompose_points_into_tracks(points):
     ...          (69,53), (70,53), (71,53), (72,53)]
     >>> ret = decompose_points_into_tracks(pos)
     >>> print_tracks(ret)
-    x = [68, 69]
-    y = [53]
+    x = [68]
+    y = [52]
 
     """
+
     xs, ys = zip(*points)
 
-    x_min = min(xs)
+    x_min = max(0, min(xs) - 1)
     x_max = max(xs)
-    y_min = min(ys)
+    if grid_width is not None:
+        x_max = min(x_max, grid_width - 2)
+
+    y_min = max(0, min(ys) - 1)
     y_max = max(ys)
+    if grid_height is not None:
+        y_max = min(y_max, grid_height - 2)
 
     points = [Point(p) for p in points]
     x_tracks = {}
@@ -965,9 +1010,59 @@ def decompose_points_into_tracks(points):
     for y in range(y_min, y_max + 1):
         y_tracks[y] = Track(dim=y, tracks=y_tracks, other_tracks=x_tracks)
 
+    def on_x_track(p):
+        # x tracks extend from 1 to grid_height - 1
+        if p.y <= 0:
+            return False
+
+        if grid_height is not None and p.y >= grid_height - 2:
+            return False
+
+        return True
+
+    def on_y_track(p):
+        # y tracks extend from 1 to grid_width - 1
+        if p.x <= 0:
+            return False
+
+        if grid_width is not None and p.x >= grid_width - 2:
+            return False
+
+        return True
+
+    def is_corner_point(p):
+        if p.x == 0 and p.y == 0:
+            return True
+
+        if grid_width is not None:
+            assert grid_height is not None
+            if p.x == grid_width - 1 and p.y == 0:
+                return True
+
+            if p.x == 0 and p.y == grid_height - 1:
+                return True
+
+            if p.x == grid_width - 1 and p.y == grid_height - 1:
+                return True
+
+        return False
+
     for p in points:
-        x_tracks[p.x].points.append(p)
-        y_tracks[p.y].points.append(p)
+        # No points in corner
+        assert not is_corner_point(p), p
+
+        if on_x_track(p) and p.x in x_tracks:
+            # The x-1 connection is for left pins.
+            if p.x > 0 and not right_only:
+                x_tracks[p.x - 1].add_point(p)
+            x_tracks[p.x].add_point(p)
+
+        # If all pins are on the right, then the y_tracks are used for cross
+        # bar only, and points are not connected.
+        if on_y_track(p) and not right_only and p.y in y_tracks:
+            if p.y > 0:
+                y_tracks[p.y - 1].add_point(p)
+            y_tracks[p.y].add_point(p)
 
     def try_remove_track(track):
         assert track.dim in track.tracks
@@ -1026,6 +1121,23 @@ def decompose_points_into_tracks(points):
             if try_remove_track(y_track):
                 continue
         break
+
+    # Sanity check results
+    for p in points:
+        on_a_track = False
+        if on_x_track(p):
+            if p.x > 0:
+                on_a_track = on_a_track or p.x - 1 in x_tracks
+
+            on_a_track = on_a_track or p.x in x_tracks
+
+        if on_y_track(p):
+            if p.y > 0:
+                on_a_track = on_a_track or p.y - 1 in y_tracks
+
+            on_a_track = on_a_track or p.y in y_tracks
+
+        assert on_a_track, p
 
     return list(x_tracks.keys()), list(y_tracks.keys())
 

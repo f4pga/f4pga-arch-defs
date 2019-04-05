@@ -15,5 +15,9 @@ opt_clean
 
 setundef -zero -params
 stat
-write_blif -attr -cname -param $::env(OUT_EBLIF)
+write_blif -attr -cname -param \
+ -true VCC VCC \
+ -false GND GND \
+ -undef VCC VCC \
+ $::env(OUT_EBLIF)
 write_verilog $::env(OUT_SYNTH_V)

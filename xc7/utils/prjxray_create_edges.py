@@ -27,12 +27,12 @@ from prjxray.roi import Roi
 import simplejson as json
 import progressbar
 import datetime
-import sqlite3
 import functools
 from collections import namedtuple
 from lib.rr_graph import tracks
 from lib.rr_graph import graph2
 from prjxray.site_type import SitePinDirection
+from prjxray_constant_site_pins import yield_ties_to_wire
 from lib.connection_database import get_track_model
 from lib.rr_graph.graph2 import NodeType
 import multiprocessing
@@ -207,7 +207,9 @@ WHERE
   );""", (wire, tile_type)
         )
 
-        return c.fetchone()[0]
+        result = c.fetchone()
+        assert result is not None, (tile_type, wire)
+        return result[0]
 
     @functools.lru_cache(maxsize=None)
     def find_wire(tile, tile_type, wire):
@@ -413,6 +415,22 @@ def create_find_connector(conn):
 
             return Connector(tracks=get_track_model(conn, track_pkey))
 
+        # Check if this node has a special track.  This is being used to
+        # denote the GND and VCC track connections on TIEOFF HARD0 and HARD1.
+        c.execute(
+            """
+SELECT
+  track_pkey,
+  site_wire_pkey
+FROM
+  node
+WHERE
+  pkey = ?;""", (node_pkey, )
+        )
+        for track_pkey, site_wire_pkey in c:
+            if track_pkey is not None and site_wire_pkey is not None:
+                return Connector(tracks=get_track_model(conn, track_pkey))
+
         # This is not a track, so it must be a site pin.  Make sure the
         # graph_nodes share a type and verify that it is in fact a site pin.
         node_type = graph2.NodeType(graph_nodes[0][2])
@@ -496,9 +514,30 @@ WHERE
     return find_connector
 
 
+def create_const_connectors(conn):
+    c = conn.cursor()
+    c.execute(
+        """
+SELECT vcc_track_pkey, gnd_track_pkey FROM constant_sources;
+    """
+    )
+    vcc_track_pkey, gnd_track_pkey = c.fetchone()
+
+    const_connectors = {}
+    const_connectors[0] = Connector(
+        tracks=get_track_model(conn, gnd_track_pkey)
+    )
+    const_connectors[1] = Connector(
+        tracks=get_track_model(conn, vcc_track_pkey)
+    )
+
+    return const_connectors
+
+
 def make_connection(
         conn, input_only_nodes, output_only_nodes, find_wire, find_pip,
-        find_connector, tile_name, loc, tile_type, pip, switch_pkey
+        find_connector, tile_name, loc, tile_type, pip, switch_pkey,
+        delayless_switch_pkey, const_connectors
 ):
     """ Attempt to connect graph nodes on either side of a pip.
 
@@ -562,7 +601,7 @@ def make_connection(
         loc, sink_connector
     )
 
-    return [
+    edges = [
         (
             src_graph_node_pkey,
             dest_graph_node_pkey,
@@ -572,8 +611,27 @@ def make_connection(
         )
     ]
 
+    # Make additional connections to constant network if the sink needs it.
+    for constant_src in yield_ties_to_wire(pip.net_to):
+        src_graph_node_pkey, dest_graph_node_pkey = const_connectors[
+            constant_src].connect_at(loc, sink_connector)
 
-def mark_track_liveness(conn, pool, input_only_nodes, output_only_nodes):
+        edges.append(
+            (
+                src_graph_node_pkey,
+                dest_graph_node_pkey,
+                delayless_switch_pkey,
+                tile_pkey,
+                None,
+            )
+        )
+
+    return edges
+
+
+def mark_track_liveness(
+        conn, pool, input_only_nodes, output_only_nodes, alive_tracks
+):
     """ Checks tracks for liveness.
 
     Iterates over all graph nodes that are routing tracks and determines if
@@ -583,7 +641,6 @@ def mark_track_liveness(conn, pool, input_only_nodes, output_only_nodes):
         conn (sqlite3.Connection): Connection database
 
     """
-    alive_tracks = set()
 
     c = conn.cursor()
     c2 = conn.cursor()
@@ -675,9 +732,6 @@ WHERE
         if track_pkey not in active_tracks:
             continue
 
-        x_low = max(x_low, 1)
-        y_low = max(y_low, 1)
-
         xs.append(x_low)
         xs.append(x_high)
         ys.append(y_low)
@@ -685,14 +739,14 @@ WHERE
 
         node_type = graph2.NodeType(graph_node_type)
         if node_type == graph2.NodeType.CHANX:
-            assert y_low == y_high
+            assert y_low == y_high, (pkey, track_pkey)
 
             if y_low not in x_tracks:
                 x_tracks[y_low] = []
 
             x_tracks[y_low].append((x_low, x_high, pkey))
         elif node_type == graph2.NodeType.CHANY:
-            assert x_low == x_high
+            assert x_low == x_high, (pkey, track_pkey)
 
             if x_low not in y_tracks:
                 y_tracks[x_low] = []
@@ -757,7 +811,7 @@ WHERE
     num_padding = 0
     capacity = 0
     for chan, channel_model in x_channel_models.items():
-        for ptc, start, end in channel_model.fill_empty(x_min, x_max):
+        for ptc, start, end in channel_model.fill_empty(max(x_min, 1), x_max):
             assert ptc < x_list[chan]
 
             num_padding += 1
@@ -776,7 +830,7 @@ VALUES
             )
 
     for chan, channel_model in y_channel_models.items():
-        for ptc, start, end in channel_model.fill_empty(y_min, y_max):
+        for ptc, start, end in channel_model.fill_empty(max(y_min, 1), y_max):
             assert ptc < y_list[chan]
 
             num_padding += 1
@@ -816,6 +870,58 @@ VALUES
         )
 
     c.execute("""COMMIT TRANSACTION;""")
+
+
+def verify_channels(conn, alive_tracks):
+    """ Verify PTC numbers in channels.
+
+    There is a very specific requirement from VPR for PTC numbers:
+
+    max(chanx.ptc @ (X, Y) < len(chanx @ (X, Y))
+    max(chany.ptc @ (X, Y) < len(chany @ (X, Y))
+
+    And no duplicate PTC's.
+
+    Violation of these requirements results in a check failure during rr graph
+    loading.
+
+    """
+
+    c = conn.cursor()
+
+    chan_ptcs = {}
+
+    for (graph_node_pkey, track_pkey, graph_node_type, x_low, x_high, y_low,
+         y_high, ptc, capacity) in c.execute(
+             """
+    SELECT pkey, track_pkey, graph_node_type, x_low, x_high, y_low, y_high, ptc, capacity FROM
+        graph_node WHERE (graph_node_type = ? or graph_node_type = ?);""",
+             (graph2.NodeType.CHANX.value, graph2.NodeType.CHANY.value)):
+
+        if track_pkey not in alive_tracks and capacity != 0:
+            assert ptc is None, graph_node_pkey
+            continue
+
+        assert ptc is not None, graph_node_pkey
+
+        for x in range(x_low, x_high + 1):
+            for y in range(y_low, y_high + 1):
+                key = (graph_node_type, x, y)
+                if key not in chan_ptcs:
+                    chan_ptcs[key] = []
+
+                chan_ptcs[key].append((graph_node_pkey, ptc))
+
+    for key in chan_ptcs:
+        ptcs = {}
+        for graph_node_pkey, ptc in chan_ptcs[key]:
+            assert ptc not in ptcs, (ptcs[ptc], graph_node_pkey)
+            ptcs[ptc] = graph_node_pkey
+
+        assert max(ptcs) < len(ptcs), key
+        assert len(ptcs) == len(set(ptcs)), key
+        assert min(ptcs) == 0, key
+        assert max(ptcs) == len(ptcs) - 1, key
 
 
 def main():
@@ -884,6 +990,8 @@ def main():
         find_wire = create_find_wire(conn)
         find_connector = create_find_connector(conn)
 
+        const_connectors = create_const_connectors(conn)
+
         print('{} Finding nodes belonging to ROI'.format(now()))
         if use_roi:
             for loc in progressbar.progressbar(grid.tile_locations()):
@@ -893,6 +1001,9 @@ def main():
                 if tile_name in synth_tiles['tiles']:
                     assert len(synth_tiles['tiles'][tile_name]['pins']) == 1
                     for pin in synth_tiles['tiles'][tile_name]['pins']:
+                        if pin['port_type'] not in ['input', 'output']:
+                            continue
+
                         _, _, node_pkey = find_wire(
                             tile_name, gridinfo.tile_type, pin['wire']
                         )
@@ -909,6 +1020,12 @@ def main():
         c = conn.cursor()
         c.execute('SELECT pkey FROM switch WHERE name = ?;', ('routing', ))
         switch_pkey = c.fetchone()[0]
+
+        c.execute(
+            'SELECT pkey FROM switch WHERE name = ?;',
+            ('__vpr_delayless_switch__', )
+        )
+        delayless_switch_pkey = c.fetchone()[0]
 
         edges = []
 
@@ -943,7 +1060,9 @@ def main():
                     loc=loc,
                     tile_type=gridinfo.tile_type,
                     pip=pip,
-                    switch_pkey=switch_pkey
+                    switch_pkey=switch_pkey,
+                    delayless_switch_pkey=delayless_switch_pkey,
+                    const_connectors=const_connectors
                 )
                 if connections:
                     # TODO: Skip duplicate connections, until they have unique
@@ -982,13 +1101,21 @@ def main():
         c.connection.commit()
 
         print('{} Indices created, marking track liveness'.format(now()))
-        mark_track_liveness(conn, pool, input_only_nodes, output_only_nodes)
+
+        alive_tracks = set()
+        mark_track_liveness(
+            conn, pool, input_only_nodes, output_only_nodes, alive_tracks
+        )
 
         print(
             '{} Flushing database back to file "{}"'.format(
                 now(), args.connection_database
             )
         )
+
+    with DatabaseCache(args.connection_database, read_only=True) as conn:
+        verify_channels(conn, alive_tracks)
+        print("{}: Channels verified".format(datetime.datetime.now()))
 
 
 if __name__ == '__main__':

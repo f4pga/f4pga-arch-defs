@@ -1,5 +1,11 @@
 <!-- vim: set ai sw=1 ts=1 sta et: -->
 <models xmlns:xi="http://www.w3.org/2001/XInclude">
+ <model name="NO_DRAM">
+  <input_ports>
+   <port                name="A" />
+  </input_ports>
+  <output_ports/>
+ </model>
  <model name="DPRAM128">
   <input_ports>
    <port is_clock="1"   name="CLK"  />
