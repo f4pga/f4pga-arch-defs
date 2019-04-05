@@ -100,6 +100,14 @@ function(SETUP_ENV)
         ${binary_upper}_TARGET conda
         )
     endforeach()
+
+    get_target_property_required(PIP env PIP)
+    add_custom_target(clean_conda_locks
+        COMMAND ${CMAKE_COMMAND} -E remove -f ${CONDA_BIN}.lock
+        COMMAND ${CMAKE_COMMAND} -E remove -f ${PIP}.lock
+        )
+
+    add_dependencies(clean_locks clean_conda_locks)
   else()
     set_target_properties(env PROPERTIES USE_CONDA FALSE)
     foreach(binary ${MAYBE_CONDA_BINARIES})
@@ -190,7 +198,8 @@ function(ADD_CONDA_PACKAGE)
 
     add_custom_command(
       OUTPUT ${OUTPUTS}
-      COMMAND ${CONDA_BIN} install --force-reinstall ${PACKAGE_SPEC}
+      COMMAND ${CMAKE_COMMAND} -E echo "Taking ${CONDA_BIN}.lock"
+      COMMAND flock ${CONDA_BIN}.lock ${CONDA_BIN} install --force-reinstall ${PACKAGE_SPEC}
       ${TOUCH_COMMANDS}
       DEPENDS conda ${CONDA_BIN}
       )
@@ -258,7 +267,8 @@ function(ADD_CONDA_PIP)
     if(ADD_CONDA_PIP_NO_EXE)
       add_custom_command(
         OUTPUT ${NAME}.pip
-        COMMAND ${PIP} install ${NAME}
+        COMMAND ${CMAKE_COMMAND} -E echo "Taking ${PIP}.lock"
+        COMMAND flock ${PIP}.lock ${PIP} install ${NAME}
         COMMAND ${CMAKE_COMMAND} -E touch ${NAME}.pip
         DEPENDS ${PIP} ${PIP_TARGET}
         )
@@ -272,7 +282,8 @@ function(ADD_CONDA_PIP)
       set(BIN ${CONDA_DIR}/bin/${NAME})
       add_custom_command(
         OUTPUT ${BIN}
-        COMMAND ${PIP} install ${NAME}
+        COMMAND ${CMAKE_COMMAND} -E echo "Taking ${PIP}.lock"
+        COMMAND flock ${PIP}.lock ${PIP} install ${NAME}
         DEPENDS ${PIP} ${PIP_TARGET}
         )
       add_custom_target(
