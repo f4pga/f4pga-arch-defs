@@ -68,11 +68,15 @@ class MostlyReadOnly:
             elif current_value != None:
                 raise AttributeError(
                     "{} is already set to {}, can't be changed".format(
-                        key, current_value))
+                        key, current_value
+                    )
+                )
             return super().__setattr__(key, new_value)
 
         if "_" + key not in self.__class__.__slots__:
-            raise AttributeError("{} not found on {}".format(key, self.__class__))
+            raise AttributeError(
+                "{} not found on {}".format(key, self.__class__)
+            )
 
         self.__setattr__("_" + key, new_value)
 
@@ -94,8 +98,9 @@ class MostlyReadOnly:
             return value
         else:
             raise AttributeError(
-                "Unable to return {}, don't now how to make type {} (from {!r}) read only.".
-                format(key, type(value), value))
+                "Unable to return {}, don't now how to make type {} (from {!r}) read only."
+                .format(key, type(value), value)
+            )
 
     def __repr__(self):
         attribs = []

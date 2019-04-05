@@ -1,7 +1,10 @@
 .PHONY: all env
 
 all: env
-	cd build && make
+	cd build && $(MAKE)
+
+clean:
+	rm -rf build
 
 env:
 	git submodule init

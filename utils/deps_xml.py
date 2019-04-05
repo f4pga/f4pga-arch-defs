@@ -15,11 +15,13 @@ from lib.deps import write_deps
 
 parser = argparse.ArgumentParser()
 parser.add_argument(
-    "inputfile", type=argparse.FileType('r'), help="Input XML file")
+    "inputfile", type=argparse.FileType('r'), help="Input XML file"
+)
 parser.add_argument(
     "--file_per_line",
     action='store_true',
-    help="Output dependencies file per line, rather than Make .d format.")
+    help="Output dependencies file per line, rather than Make .d format."
+)
 
 
 def read_dependencies(inputfile):

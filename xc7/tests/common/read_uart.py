@@ -8,6 +8,7 @@ import struct
 import itertools
 import enum
 
+
 class RamTestState(enum.Enum):
     START = 1
     VERIFY_INIT = 2
@@ -23,6 +24,7 @@ class RamTestState(enum.Enum):
     VERIFY_RANDOM = 12
     RESTART_LOOP = 13
 
+
 Result = namedtuple('Results', 'error_count loop_count')
 Error = namedtuple('Error', 'state address expected_value actual_value')
 
@@ -32,10 +34,11 @@ RESULT_LOG_SIZE = struct.calcsize(RESULT_LOG)
 ERROR_LOG = '<BBHHHBB'
 ERROR_LOG_SIZE = struct.calcsize(ERROR_LOG)
 
+
 def process_buffer(data):
     while data:
         while data:
-            first_char = bytes((data[0],))
+            first_char = bytes((data[0], ))
             if first_char in [b'E', b'L']:
                 break
 
@@ -44,13 +47,15 @@ def process_buffer(data):
         if not data:
             return
 
-        first_char = bytes((data[0],))
+        first_char = bytes((data[0], ))
 
         if first_char == b'L' and len(data) >= RESULT_LOG_SIZE:
             log = bytes(itertools.islice(data, 0, RESULT_LOG_SIZE))
             data.popleft()
 
-            header, error_count, loop_count, cr, lf = struct.unpack(RESULT_LOG, log)
+            header, error_count, loop_count, cr, lf = struct.unpack(
+                RESULT_LOG, log
+            )
 
             if cr == ord('\r') and lf == ord('\n'):
                 yield Result(error_count=error_count, loop_count=loop_count)
@@ -59,7 +64,9 @@ def process_buffer(data):
             log = bytes(itertools.islice(data, 0, ERROR_LOG_SIZE))
             data.popleft()
 
-            header, state, address, expected_value, actual_value, cr, lf = struct.unpack(ERROR_LOG, log)
+            header, state, address, expected_value, actual_value, cr, lf = struct.unpack(
+                ERROR_LOG, log
+            )
 
             if cr == ord('\r') and lf == ord('\n'):
                 try:
@@ -68,14 +75,13 @@ def process_buffer(data):
                     continue
 
                 yield Error(
-                        state=RamTestState(state),
-                        address=hex(address),
-                        expected_value=hex(expected_value),
-                        actual_value=hex(actual_value))
+                    state=RamTestState(state),
+                    address=hex(address),
+                    expected_value=hex(expected_value),
+                    actual_value=hex(actual_value)
+                )
         else:
             return
-
-
 
 
 def main():
@@ -94,9 +100,10 @@ def main():
                 print(log)
     else:
         data = deque()
-        with serial.Serial(port=args.uart, baudrate=args.baudrate, timeout=.200, inter_byte_timeout=.200) as s:
+        with serial.Serial(port=args.uart, baudrate=args.baudrate,
+                           timeout=.200, inter_byte_timeout=.200) as s:
             while True:
-                buf = s.read(10*1024)
+                buf = s.read(10 * 1024)
                 data.extend(buf)
 
                 for log in process_buffer(data):

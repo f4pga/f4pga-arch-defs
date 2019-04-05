@@ -10,7 +10,11 @@ include(make/devices.cmake)
 
 find_package(PythonInterp 3 REQUIRED)
 
-setup_env()
+# Using miniconda3 4.5.4 instead of later (e.g. 4.5.12) because of Python 3.7
+# deprecation warnings in progressbar2 (and possible others).
+setup_env(
+    MINICONDA3_VERSION 4.5.4
+    )
 add_conda_package(
   NAME yosys
   PROVIDES yosys
@@ -22,8 +26,8 @@ add_conda_package(
   )
 add_conda_package(
   NAME vtr
-  PROVIDES vpr genhlc genfasm
-  PACKAGE_SPEC "vtr 7.0.5 6722.1903062051.ga5e0a0ad4"
+  PROVIDES vpr genfasm
+  PACKAGE_SPEC "vtr 7.0.5 7045.1904032321.g1cf4f1b9b"
   )
 add_conda_package(
   NAME libxslt
@@ -49,6 +53,21 @@ add_conda_package(
   NAME iverilog
   PROVIDES iverilog vvp
   )
+
+add_conda_pip(
+  NAME progressbar2
+  NO_EXE
+)
+
+add_conda_pip(
+  NAME simplejson
+  NO_EXE
+)
+
+add_conda_pip(
+  NAME intervaltree
+  NO_EXE
+)
 
 include(make/image_gen.cmake)
 include(make/gen.cmake)
@@ -81,3 +100,23 @@ endif (NOT DEFINED ENV{CI} OR NOT $ENV{CI})
 add_subdirectory(ice40)
 add_subdirectory(testarch)
 add_subdirectory(tests)
+
+get_target_property_required(YAPF env YAPF)
+add_custom_target(
+  check_python
+  DEPENDS conda_yapf
+  )
+add_custom_target(
+  format_python
+  DEPENDS conda_yapf
+  )
+
+add_custom_command(
+  TARGET check_python
+  COMMAND ${symbiflow-arch-defs_SOURCE_DIR}/common/yapf_helper.sh -c -y ${YAPF}
+  )
+
+add_custom_command(
+  TARGET format_python
+  COMMAND ${symbiflow-arch-defs_SOURCE_DIR}/common/yapf_helper.sh -f -y ${YAPF}
+  )

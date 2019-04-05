@@ -17,10 +17,12 @@ from ..asserts import assert_type
 
 from ..rr_graph import Position, P
 
-
 _NamedPosition = namedtuple("NamedPosition", ["pos", "names"])
+
+
 class NamedPosition(_NamedPosition):
     """Class to store a position and a set of names associated with it."""
+
     def __new__(cls, pos, names):
         assert_type(pos, Position)
         assert_type(names, list)
@@ -43,7 +45,8 @@ class NamedPosition(_NamedPosition):
 
     def __str__(self):
         return "NP({},{},{})".format(
-            self.pos.x, self.pos.y,
+            self.pos.x,
+            self.pos.y,
             ",".join(repr(n) for n in self.names),
         )
 
@@ -73,7 +76,8 @@ class StraightSegment(list):
         assert_type(positions, list)
         if direction == StraightSegment.Type.S:
             assert len(positions) == 1, (
-                "Stubs must only have one position not {}".format(positions))
+                "Stubs must only have one position not {}".format(positions)
+            )
         else:
             for p in positions:
                 assert_type(p, (Position, NamedPosition))
@@ -302,8 +306,9 @@ def print_segments(segs):
     for s in segs:
         print(s)
 
+
 def print_conns(conns):
-    for p, joins  in sorted(conns.items()):
+    for p, joins in sorted(conns.items()):
         for (aname, bname) in joins:
             print("{}x{} {}<->{}".format(p.x, p.y, aname, bname))
 
@@ -536,7 +541,9 @@ def decompose_into_straight_lines(positions):
         for np in s:
             assert_type(np, NamedPosition)
             if not is_spine:
-                assert np.pos not in position_used_by, (np.pos, s, position_used_by[np.pos])
+                assert np.pos not in position_used_by, (
+                    np.pos, s, position_used_by[np.pos]
+                )
                 position_used_by[np.pos] = (np, s)
 
         for p, (other_p, other_s) in position_used_by.items():
@@ -551,7 +558,7 @@ def decompose_into_straight_lines(positions):
             assert p not in connections, (p, connections)
 
             current_name = other_p.names[0]
-            new_name = current_name+'_x'
+            new_name = current_name + '_x'
 
             connection_p = npclass(p, [new_name])
             if is_spine:
@@ -591,10 +598,9 @@ def decompose_into_straight_lines(positions):
         corner_name = "{}_to_{}".format(pointa.names[0], pointb.names[0])
         longest.append(npclass(corner_point, [corner_name]))
         longest.sort()
-        other[0].append(npclass(corner_point, [corner_name+"_x"]))
+        other[0].append(npclass(corner_point, [corner_name + "_x"]))
         other[0].sort()
-        connections[corner_point].append((corner_name, corner_name+"_x"))
-
+        connections[corner_point].append((corner_name, corner_name + "_x"))
     """
     # FIXME: Check all the segments are connected together
     for_checking = list(segments['ALL'])
@@ -633,8 +639,7 @@ def decompose_into_straight_lines(positions):
         spine = StraightSegment(StraightSegment.Type.V, [])
         for seg in segments['-']:
             p = pclass(x, seg.y_range()[0])
-            spine.append(npclass(
-                p, names=[seg.get_at(p).first]))
+            spine.append(npclass(p, names=[seg.get_at(p).first]))
         add_segment(spine, True)
 
     elif len(connections) == 0 and len(segments['|']) > 0:
@@ -655,8 +660,7 @@ def decompose_into_straight_lines(positions):
         for seg in segments['|']:
             assert len(seg) > 0, seg
             p = pclass(seg.x_range()[0], y)
-            spine.append(npclass(
-                p, names=[seg.get_at(p).first]))
+            spine.append(npclass(p, names=[seg.get_at(p).first]))
         add_segment(spine, True)
 
     segments['ALL'].sort()
@@ -707,14 +711,13 @@ def straight_ends(positions):
     start = pclass(min(x_pos), min(y_pos))
     end = pclass(max(x_pos), max(y_pos))
 
-    assert start.x == end.x or start.y == end.y, "{} {}".format(
-        start, end)
+    assert start.x == end.x or start.y == end.y, "{} {}".format(start, end)
 
     return start, end
 
 
 def distance(p1, p2):
-    return math.sqrt((p2.x - p1.x)**2+(p2.y - p1.y)**2)
+    return math.sqrt((p2.x - p1.x)**2 + (p2.y - p1.y)**2)
 
 
 def straight_closet(line1, line2):
@@ -744,13 +747,17 @@ def straight_closet(line1, line2):
     assert pb != None, "{} {}".format(line1, line2)
     return pa, pb
 
+
 class Point(object):
     def __init__(self, coord, tracks=2):
         self.x, self.y = coord
         self.tracks = tracks
 
     def __repr__(self):
-        return 'Point(coord=({},{}),tracks={})'.format(self.x, self.y, repr(self.tracks))
+        return 'Point(coord=({},{}),tracks={})'.format(
+            self.x, self.y, repr(self.tracks)
+        )
+
 
 class Track(object):
     def __init__(self, dim, tracks=None, other_tracks=None, points=[]):
@@ -761,7 +768,10 @@ class Track(object):
         self.other_tracks = other_tracks
 
     def __repr__(self):
-        return 'Track(dim={},points={})'.format(repr(self.dim), repr(self.points))
+        return 'Track(dim={},points={})'.format(
+            repr(self.dim), repr(self.points)
+        )
+
 
 def decompose_points_into_tracks(points):
     """ This function takes a bag of points and returns a set of x lines and
@@ -950,9 +960,9 @@ def decompose_points_into_tracks(points):
     x_tracks = {}
     y_tracks = {}
 
-    for x in range(x_min, x_max+1):
+    for x in range(x_min, x_max + 1):
         x_tracks[x] = Track(dim=x, tracks=x_tracks, other_tracks=y_tracks)
-    for y in range(y_min, y_max+1):
+    for y in range(y_min, y_max + 1):
         y_tracks[y] = Track(dim=y, tracks=y_tracks, other_tracks=x_tracks)
 
     for p in points:
@@ -1007,10 +1017,12 @@ def decompose_points_into_tracks(points):
     # Walk each dimension, attempting to removing excess lines from any line,
     # starting with the smallest.
     while True:
-        for x_track in sorted(x_tracks.values(), key=lambda key: len(key.points)):
+        for x_track in sorted(x_tracks.values(),
+                              key=lambda key: len(key.points)):
             if try_remove_track(x_track):
                 continue
-        for y_track in sorted(y_tracks.values(), key=lambda key: len(key.points)):
+        for y_track in sorted(y_tracks.values(),
+                              key=lambda key: len(key.points)):
             if try_remove_track(y_track):
                 continue
         break
@@ -1023,6 +1035,7 @@ def print_tracks(ret):
 
     print('x = {}'.format(x_tracks))
     print('y = {}'.format(y_tracks))
+
 
 def main():
     import doctest

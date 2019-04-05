@@ -2,6 +2,7 @@ from collections import namedtuple
 import pprint
 from enum import Enum
 
+
 class Direction(Enum):
     NO_SIDE = 0
     LEFT = 1
@@ -9,12 +10,15 @@ class Direction(Enum):
     TOP = 3
     BOTTOM = 4
 
+
 Track = namedtuple('Track', 'direction x_low x_high y_low y_high')
+
 
 def print_tracks(tracks):
     pprint.pprint(tracks)
 
-def make_tracks(xs, ys, points):
+
+def make_tracks(xs, ys, points, grid_width=None, grid_height=None):
     """ Give a list of xs columns and ys rows and points, return a list of
         Track's and connections between the tracks.
 
@@ -27,20 +31,20 @@ def make_tracks(xs, ys, points):
         [Track], [(index into track list, index into track list)]
 
     >>> pos = [
-    ... (0,0),        (2,0),
-    ... (0,1), (1,1), (2,1),
-    ... (0,2),        (2,2),
-    ... (0,3), (1,3), (2,3),
-    ... (0,4),        (2,4),
+    ... (1,1),        (3,1),
+    ... (1,2), (2,2), (3,2),
+    ... (1,3),        (3,3),
+    ... (1,4), (2,4), (3,4),
+    ... (1,5),        (3,5),
     ... ]
-    >>> xs = [0, 2]
-    >>> ys = [1, 3]
+    >>> xs = [1, 3]
+    >>> ys = [2, 4]
     >>> tracks, connections = make_tracks(xs, ys, pos)
     >>> print_tracks(tracks)
-    [Track(direction='Y', x_low=0, x_high=0, y_low=0, y_high=4),
-     Track(direction='Y', x_low=2, x_high=2, y_low=0, y_high=4),
-     Track(direction='X', x_low=0, x_high=2, y_low=1, y_high=1),
-     Track(direction='X', x_low=0, x_high=2, y_low=3, y_high=3)]
+    [Track(direction='Y', x_low=1, x_high=1, y_low=1, y_high=5),
+     Track(direction='Y', x_low=3, x_high=3, y_low=1, y_high=5),
+     Track(direction='X', x_low=1, x_high=3, y_low=2, y_high=2),
+     Track(direction='X', x_low=1, x_high=3, y_low=4, y_high=4)]
     >>> print(connections)
     [(3, 0), (2, 0), (2, 1)]
 
@@ -79,24 +83,38 @@ def make_tracks(xs, ys, points):
     x_tracks = []
     y_tracks = []
     for x in xs:
-        tracks.append(Track(
+        y_low = max(y_min, 1)
+        y_high = y_max
+        if grid_height is not None:
+            y_high = min(y_max, grid_height - 2)
+
+        tracks.append(
+            Track(
                 direction='Y',
                 x_low=x,
                 x_high=x,
-                y_low=y_min,
-                y_high=y_max,
-        ))
-        y_tracks.append(len(tracks)-1)
+                y_low=y_low,
+                y_high=y_high,
+            )
+        )
+        y_tracks.append(len(tracks) - 1)
 
     for y in ys:
-        tracks.append(Track(
+        x_low = max(x_min, 1)
+        x_high = x_max
+        if grid_width is not None:
+            x_high = min(x_high, grid_width - 2)
+
+        tracks.append(
+            Track(
                 direction='X',
-                x_low=x_min,
-                x_high=x_max,
+                x_low=x_low,
+                x_high=x_high,
                 y_low=y,
                 y_high=y,
-        ))
-        x_tracks.append(len(tracks)-1)
+            )
+        )
+        x_tracks.append(len(tracks) - 1)
 
     if len(tracks) == 1:
         return tracks, []
@@ -120,6 +138,7 @@ def make_tracks(xs, ys, points):
 
     return tracks, list(connections)
 
+
 class Tracks(object):
     def __init__(self, tracks, track_connections):
         self.tracks = tracks
@@ -130,20 +149,23 @@ class Tracks(object):
         track_connections = {}
 
         for idx, _ in enumerate(self.tracks):
-            track_connections[idx] = set((idx,))
+            track_connections[idx] = set((idx, ))
 
         for conn_a, conn_b in self.track_connections:
             if track_connections[conn_a] is track_connections[conn_b]:
                 continue
 
-            assert self.tracks[conn_a].direction != self.tracks[conn_b].direction
+            assert self.tracks[conn_a].direction != self.tracks[conn_b
+                                                                ].direction
 
             track_connections[conn_a] |= track_connections[conn_b]
 
             for track_idx in track_connections[conn_a]:
                 track_connections[track_idx] = track_connections[conn_a]
 
-        assert len(set(id(s) for s in track_connections.values())) == 1, track_connections
+        assert len(
+            set(id(s) for s in track_connections.values())
+        ) == 1, track_connections
 
     def is_wire_adjacent_to_track(self, idx, coord):
         track = self.tracks[idx]
@@ -151,9 +173,11 @@ class Tracks(object):
 
         if track.direction == 'X':
             pin_top = track.y_low == wire_y
-            pin_bottom = track.y_low == wire_y-1
-            adjacent_channel = ((pin_top or pin_bottom) and (
-                    track.x_low <= wire_x and wire_x <= track.x_high))
+            pin_bottom = track.y_low == wire_y - 1
+            adjacent_channel = (
+                (pin_top or pin_bottom)
+                and (track.x_low <= wire_x and wire_x <= track.x_high)
+            )
 
             if adjacent_channel:
                 if pin_top:
@@ -167,9 +191,11 @@ class Tracks(object):
 
         elif track.direction == 'Y':
             pin_right = track.x_low == wire_x
-            pin_left = track.x_low == wire_x-1
-            adjacent_channel = ((pin_right or pin_left) and (
-                    track.y_low <= wire_y and wire_y <= track.y_high))
+            pin_left = track.x_low == wire_x - 1
+            adjacent_channel = (
+                (pin_right or pin_left)
+                and (track.y_low <= wire_y and wire_y <= track.y_high)
+            )
 
             if adjacent_channel:
                 if pin_right:
@@ -183,8 +209,6 @@ class Tracks(object):
         else:
             assert False, track
 
-
-
     def get_tracks_for_wire_at_coord(self, coord):
         """ Returns which track indicies and direction a wire at a coord can
             be connected too. """
@@ -195,6 +219,7 @@ class Tracks(object):
             pin_dir = self.is_wire_adjacent_to_track(idx, coord)
             if pin_dir != Direction.NO_SIDE:
                 yield (idx, pin_dir)
+
 
 def main():
     import doctest

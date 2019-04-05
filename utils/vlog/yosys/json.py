@@ -136,8 +136,9 @@ class YosysModule:
                     if len(pdata["bits"]) == 1:
                         conn_io.append(port)
                     else:
-                        conn_io.append("{}[{}]".format(
-                            port, pdata["bits"].index(net)))
+                        conn_io.append(
+                            "{}[{}]".format(port, pdata["bits"].index(net))
+                        )
         return conn_io
 
     def conn_ports(self, net, pdir):
@@ -159,8 +160,12 @@ class YosysModule:
                         if len(condata) == 1:
                             conn_ports.append((cell, port))
                         else:
-                            conn_ports.append((cell, "{}[{}]".format(
-                                port, condata.index(net))))
+                            conn_ports.append(
+                                (
+                                    cell,
+                                    "{}[{}]".format(port, condata.index(net))
+                                )
+                            )
         return conn_ports
 
     def net_drivers(self, net):
@@ -215,8 +220,11 @@ class YosysJSON:
     def module(self, module):
         """Get a given module (by name) as a `YosysModule`"""
         if module not in self.data["modules"]:
-            raise KeyError("No yosys module named {} (only have {})".format(
-                module, self.data["modules"].keys()))
+            raise KeyError(
+                "No yosys module named {} (only have {})".format(
+                    module, self.data["modules"].keys()
+                )
+            )
         return YosysModule(module, self.data["modules"][module])
 
     def modules_with_attr(self, attr_name, attr_value):

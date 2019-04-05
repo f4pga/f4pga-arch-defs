@@ -10,24 +10,40 @@ import vpr_io_place
 import csv
 import argparse
 
-parser = argparse.ArgumentParser(description='Convert a PCF file into a VPR io.place file.')
+parser = argparse.ArgumentParser(
+    description='Convert a PCF file into a VPR io.place file.'
+)
 parser.add_argument(
-         "--pcf", '-p', "-P",
-        type=argparse.FileType('r'), required=True,
-        help='PCF input file')
+    "--pcf",
+    '-p',
+    "-P",
+    type=argparse.FileType('r'),
+    required=True,
+    help='PCF input file'
+)
 parser.add_argument(
-        "--blif", '-b',
-        type=argparse.FileType('r'), required=True,
-        help='BLIF / eBLIF file')
+    "--blif",
+    '-b',
+    type=argparse.FileType('r'),
+    required=True,
+    help='BLIF / eBLIF file'
+)
 parser.add_argument(
-        "--map", '-m', "-M",
-        type=argparse.FileType('r'), required=True,
-        help='Pin map CSV file')
+    "--map",
+    '-m',
+    "-M",
+    type=argparse.FileType('r'),
+    required=True,
+    help='Pin map CSV file'
+)
 parser.add_argument(
-        "--output", '-o', "-O",
-        type=argparse.FileType('w'),
-        default=sys.stdout,
-        help='The output io.place file')
+    "--output",
+    '-o',
+    "-O",
+    type=argparse.FileType('w'),
+    default=sys.stdout,
+    help='The output io.place file'
+)
 
 
 def main(argv):

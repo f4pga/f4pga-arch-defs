@@ -34,6 +34,7 @@ def add_include(path):
     """ Add a path to search when reading verilog to the list of includes set in Yosys"""
     includes.append(path)
 
+
 def get_includes():
     """Return a list of include directories, as a list of arguments to pass to Yosys `read_verilog`"""
     return " ".join(["-I" + _ for _ in includes])
@@ -47,8 +48,9 @@ def commands(commands, infiles=[]):
     commands : string of Yosys commands to run
     infiles : list of input files
     """
-    commands = "read_verilog {} {} {}; ".format(get_defines(), get_includes(),
-                                             " ".join(infiles)) + commands
+    commands = "read_verilog {} {} {}; ".format(
+        get_defines(), get_includes(), " ".join(infiles)
+    ) + commands
     params = ["-q", "-p", commands]
     return get_output(params)
 
@@ -65,11 +67,9 @@ def script(script, infiles=[]):
     return get_output(params)
 
 
-def vlog_to_json(infiles,
-                 flatten=False,
-                 aig=False,
-                 mode=None,
-                 module_with_mode=None):
+def vlog_to_json(
+        infiles, flatten=False, aig=False, mode=None, module_with_mode=None
+):
     """
     Convert Verilog to a JSON representation using Yosys
 
@@ -129,7 +129,8 @@ def do_select(infiles, module, expr):
 
     outfile = tempfile.mktemp()
     sel_cmd = "prep -top {} -flatten; cd {}; select -write {} {}".format(
-        module, module, outfile, expr)
+        module, module, outfile, expr
+    )
     commands(sel_cmd, infiles)
     pins = []
     with open(outfile, 'r') as f:
@@ -153,8 +154,9 @@ def get_combinational_sinks(infiles, module, innet):
     module: Name of module to run command on
     innet: Name of input net to find sinks of
     """
-    return do_select(infiles, module, "{} %coe* o:* %i {} %d".format(
-        innet, innet))
+    return do_select(
+        infiles, module, "{} %coe* o:* %i {} %d".format(innet, innet)
+    )
 
 
 def list_clocks(infiles, module):
@@ -180,4 +182,6 @@ def get_clock_assoc_signals(infiles, module, clk):
     return do_select(
         infiles, module,
         "select -list {} %x* i:* o:* %u %i a:ASSOC_CLOCK={} %u {} %d".format(
-            clk, clk, clk))
+            clk, clk, clk
+        )
+    )

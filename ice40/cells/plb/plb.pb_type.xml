@@ -110,7 +110,8 @@
     <input  name="I" num_pins="1"/>
     <output name="O" num_pins="1"/>
     <metadata>
-     <meta name="hlc_property">NegClk # CEN constant 1, SR constant 0</meta>
+      <meta name="hlc_property">NegClk # CEN constant 1, SR constant 0</meta>
+      <meta name="fasm_features">NegClk</meta>
     </metadata>
     <interconnect><direct><port type="input" name="I" /><port type="output" name="O"/></direct></interconnect>
    </pb_type>
@@ -125,6 +126,7 @@
     <output name="O" num_pins="1"/>
     <metadata>
      <meta name="hlc_property">NegClk # CEN in use, SR constant 0</meta>
+     <meta name="fasm_features">NegClk</meta>
     </metadata>
     <interconnect><direct><port type="input" name="I" /><port type="output" name="O"/></direct></interconnect>
    </pb_type>
@@ -139,6 +141,7 @@
     <output name="O" num_pins="1"/>
     <metadata>
      <meta name="hlc_property">NegClk # CEN constant 0, SR in use</meta>
+     <meta name="fasm_features">NegClk</meta>
     </metadata>
     <interconnect><direct><port type="input" name="I" /><port type="output" name="O"/></direct></interconnect>
    </pb_type>
@@ -153,6 +156,7 @@
     <output name="O" num_pins="1"/>
     <metadata>
      <meta name="hlc_property">NegClk # CEN in use, SR in use</meta>
+     <meta name="fasm_features">NegClk</meta>
     </metadata>
     <interconnect><direct><port type="input" name="I" /><port type="output" name="O"/></direct></interconnect>
    </pb_type>
@@ -164,14 +168,26 @@
  </pb_type>
 
  <pb_type name="BLK_IG-LUTFF" num_pb="8">
-  <xi:include href="../lutff/lutff.pb_type.xml" xpointer="xpointer(pb_type/child::node())"/>
+   <xi:include href="../lutff/lutff.pb_type.xml" xpointer="xpointer(pb_type/child::node())"/>
+   <metadata>
+     <meta name="hlc_cell">lutff</meta>
+     <meta name="fasm_prefix">LC_0 LC_1 LC_2 LC_3 LC_4 LC_5 LC_6 LC_7</meta>
+     <meta name="fasm_type">LUT</meta>
+     <meta name="fasm_lut">
+       INIT[15:0] = BLK_LT-LUT
+     </meta>
+   </metadata>
  </pb_type>
 
  <pb_type name="BLK_IG-LC0" num_pb="1">
   <input  name="I" num_pins="1"/>
   <output name="O" num_pins="1"/>
   <interconnect>
-   <direct name="I" input="BLK_IG-LC0.I" output="BLK_IG-LC0.O" />
+   <direct name="I" input="BLK_IG-LC0.I" output="BLK_IG-LC0.O">
+    <metadata>
+     <meta name="fasm_mux">BLK_IG-LC0.I = buffer.lutff_0_lout.lutff_1_in_2</meta>
+    </metadata>
+   </direct>
   </interconnect>
   <metadata>
    <meta name="hlc_property">lutff_0/lout -> lutff_1/in_2</meta>
@@ -182,7 +198,11 @@
   <input  name="I" num_pins="1"/>
   <output name="O" num_pins="1"/>
   <interconnect>
-   <direct name="I" input="BLK_IG-LC1.I" output="BLK_IG-LC1.O" />
+   <direct name="I" input="BLK_IG-LC1.I" output="BLK_IG-LC1.O">
+    <metadata>
+     <meta name="fasm_mux">BLK_IG-LC1.I = buffer.lutff_1_lout.lutff_2_in_2</meta>
+    </metadata>
+   </direct>
   </interconnect>
   <metadata>
    <meta name="hlc_property">lutff_1/lout -> lutff_2/in_2</meta>
@@ -193,7 +213,11 @@
   <input  name="I" num_pins="1"/>
   <output name="O" num_pins="1"/>
   <interconnect>
-   <direct name="I" input="BLK_IG-LC2.I" output="BLK_IG-LC2.O" />
+   <direct name="I" input="BLK_IG-LC2.I" output="BLK_IG-LC2.O">
+    <metadata>
+     <meta name="fasm_mux">BLK_IG-LC2.I = buffer.lutff_2_lout.lutff_3_in_2</meta>
+    </metadata>
+   </direct>
   </interconnect>
   <metadata>
    <meta name="hlc_property">lutff_2/lout -> lutff_3/in_2</meta>
@@ -204,7 +228,11 @@
   <input  name="I" num_pins="1"/>
   <output name="O" num_pins="1"/>
   <interconnect>
-   <direct name="I" input="BLK_IG-LC3.I" output="BLK_IG-LC3.O" />
+   <direct name="I" input="BLK_IG-LC3.I" output="BLK_IG-LC3.O">
+    <metadata>
+     <meta name="fasm_mux">BLK_IG-LC3.I = buffer.lutff_3_lout.lutff_4_in_2</meta>
+    </metadata>
+   </direct>
   </interconnect>
   <metadata>
    <meta name="hlc_property">lutff_3/lout -> lutff_4/in_2</meta>
@@ -215,7 +243,11 @@
   <input  name="I" num_pins="1"/>
   <output name="O" num_pins="1"/>
   <interconnect>
-   <direct name="I" input="BLK_IG-LC4.I" output="BLK_IG-LC4.O" />
+   <direct name="I" input="BLK_IG-LC4.I" output="BLK_IG-LC4.O">
+    <metadata>
+     <meta name="fasm_mux">BLK_IG-LC4.I = buffer.lutff_4_lout.lutff_5_in_2</meta>
+    </metadata>
+   </direct>
   </interconnect>
   <metadata>
    <meta name="hlc_property">lutff_4/lout -> lutff_5/in_2</meta>
@@ -226,7 +258,11 @@
   <input  name="I" num_pins="1"/>
   <output name="O" num_pins="1"/>
   <interconnect>
-   <direct name="I" input="BLK_IG-LC5.I" output="BLK_IG-LC5.O" />
+   <direct name="I" input="BLK_IG-LC5.I" output="BLK_IG-LC5.O">
+    <metadata>
+     <meta name="fasm_mux">BLK_IG-LC5.I = buffer.lutff_5_lout.lutff_6_in_2</meta>
+    </metadata>
+   </direct>
   </interconnect>
   <metadata>
    <meta name="hlc_property">lutff_5/lout -> lutff_6/in_2</meta>
@@ -237,7 +273,11 @@
   <input  name="I" num_pins="1"/>
   <output name="O" num_pins="1"/>
   <interconnect>
-   <direct name="I" input="BLK_IG-LC6.I" output="BLK_IG-LC6.O" />
+   <direct name="I" input="BLK_IG-LC6.I" output="BLK_IG-LC6.O">
+    <metadata>
+     <meta name="fasm_mux">BLK_IG-LC6.I = buffer.lutff_6_lout.lutff_7_in_2</meta>
+    </metadata>
+   </direct>
   </interconnect>
   <metadata>
    <meta name="hlc_property">lutff_6/lout -> lutff_7/in_2</meta>

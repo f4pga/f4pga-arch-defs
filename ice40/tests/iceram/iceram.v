@@ -64,8 +64,8 @@ module memory (
 		 .INIT_D(256'hxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx),
 		 .INIT_E(256'hxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx),
 		 .INIT_F(256'hxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx),
-		 .READ_MODE(32'sd1),
-		 .WRITE_MODE(32'sd1)
+		 .READ_MODE(2'b01),
+		 .WRITE_MODE(2'b01)
 		 )
    mem
      (

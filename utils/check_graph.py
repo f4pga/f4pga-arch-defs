@@ -67,22 +67,30 @@ def inaccessible_sink_node_ids_by_source_node_id(g, filter=""):
     # First convert the graph to a dictionary.
     cyclic_graph = routing_graph_to_dictionary(routing_graph)
 
-    all_source_node_ids = set([
-        int(node.get('id')) for node in routing_graph._xml_parent(graph.RoutingNode)
-        if node.get('type') == 'SOURCE'])
+    all_source_node_ids = set(
+        [
+            int(node.get('id'))
+            for node in routing_graph._xml_parent(graph.RoutingNode)
+            if node.get('type') == 'SOURCE'
+        ]
+    )
     source_node_ids = filter_nodes(all_source_node_ids, g, filter)
 
-    all_sink_node_ids = set([
-        int(node.get('id')) for node in routing_graph._xml_parent(graph.RoutingNode)
-        if node.get('type') == 'SINK'])
+    all_sink_node_ids = set(
+        [
+            int(node.get('id'))
+            for node in routing_graph._xml_parent(graph.RoutingNode)
+            if node.get('type') == 'SINK'
+        ]
+    )
     sink_node_ids = filter_nodes(all_sink_node_ids, g, filter)
 
     inaccessible_by_source_node = {}
     total = len(source_node_ids)
     for index, source_node_id in enumerate(source_node_ids):
         inaccessible_ids = inaccessible_node_ids(
-            cyclic_graph, source_node_id,
-            target_node_ids=sink_node_ids)
+            cyclic_graph, source_node_id, target_node_ids=sink_node_ids
+        )
         if inaccessible_ids:
             inaccessible_by_source_node[source_node_id] = inaccessible_ids
         if index % 100 == 0:
@@ -98,16 +106,20 @@ def check_graph(rr_graph_file, filter):
     g = graph.Graph(rr_graph_file, verbose=True, clear_fabric=False)
     routing_graph = g.routing
     print('Checking if all source nodes connect to all sink nodes.')
-    inaccessible_nodes = inaccessible_sink_node_ids_by_source_node_id(g, filter)
+    inaccessible_nodes = inaccessible_sink_node_ids_by_source_node_id(
+        g, filter
+    )
     if inaccessible_nodes:
         print('FAIL')
         node_map = routing_graph._ids_map(graph.RoutingNode)
         for source_id, sink_ids in inaccessible_nodes.items():
             source_node = graph.RoutingGraphPrinter.node(
-                node_map[source_id], g.block_grid)
+                node_map[source_id], g.block_grid
+            )
             sink_nodes = [
-                graph.RoutingGraphPrinter.node(
-                    node_map[i], g.block_grid) for i in sink_ids]
+                graph.RoutingGraphPrinter.node(node_map[i], g.block_grid)
+                for i in sink_ids
+            ]
 
             print('Node {} does not connect to nodes:.'.format(source_node))
             for n in sink_nodes:

@@ -21,7 +21,6 @@
 # import sys
 # sys.path.insert(0, os.path.abspath('.'))
 
-
 # -- General configuration ------------------------------------------------
 
 # If your documentation needs a minimal Sphinx version, state it here.
@@ -77,7 +76,6 @@ pygments_style = 'sphinx'
 # If true, `todo` and `todoList` produce output, else they produce nothing.
 todo_include_todos = False
 
-
 # -- Options for HTML output ----------------------------------------------
 
 # The theme to use for HTML and HTML Help pages.  See the documentation for
@@ -102,21 +100,20 @@ html_static_path = ['_static']
 # This is required for the alabaster theme
 # refs: http://alabaster.readthedocs.io/en/latest/installation.html#sidebars
 html_sidebars = {
-    '**': [
-        'about.html',
-        'navigation.html',
-        'relations.html',  # needs 'show_related': True theme option to display
-        'searchbox.html',
-        'donate.html',
-    ]
+    '**':
+        [
+            'about.html',
+            'navigation.html',
+            'relations.html',  # needs 'show_related': True theme option to display
+            'searchbox.html',
+            'donate.html',
+        ]
 }
-
 
 # -- Options for HTMLHelp output ------------------------------------------
 
 # Output file base name for HTML help builder.
 htmlhelp_basename = 'symbiflow-arch-defsdoc'
-
 
 # -- Options for LaTeX output ---------------------------------------------
 
@@ -142,20 +139,22 @@ latex_elements = {
 # (source start file, target name, title,
 #  author, documentclass [howto, manual, or own class]).
 latex_documents = [
-    (master_doc, 'symbiflow-arch-defs.tex', 'symbiflow-arch-defs Documentation',
-     'Various', 'manual'),
+    (
+        master_doc, 'symbiflow-arch-defs.tex',
+        'symbiflow-arch-defs Documentation', 'Various', 'manual'
+    ),
 ]
-
 
 # -- Options for manual page output ---------------------------------------
 
 # One entry per manual page. List of tuples
 # (source start file, name, description, authors, manual section).
 man_pages = [
-    (master_doc, 'symbiflow-arch-defs', 'symbiflow-arch-defs Documentation',
-     [author], 1)
+    (
+        master_doc, 'symbiflow-arch-defs', 'symbiflow-arch-defs Documentation',
+        [author], 1
+    )
 ]
-
 
 # -- Options for Texinfo output -------------------------------------------
 
@@ -163,10 +162,9 @@ man_pages = [
 # (source start file, target name, title, author,
 #  dir menu entry, description, category)
 texinfo_documents = [
-    (master_doc, 'symbiflow-arch-defs', 'symbiflow-arch-defs Documentation',
-     author, 'symbiflow-arch-defs', 'One line description of project.',
-     'Miscellaneous'),
+    (
+        master_doc, 'symbiflow-arch-defs', 'symbiflow-arch-defs Documentation',
+        author, 'symbiflow-arch-defs', 'One line description of project.',
+        'Miscellaneous'
+    ),
 ]
-
-
-

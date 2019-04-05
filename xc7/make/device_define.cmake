@@ -5,7 +5,7 @@ add_conda_pip(
 
 function(ADD_XC7_DEVICE_DEFINE_TYPE)
   set(options)
-  set(oneValueArgs ARCH DEVICE ROI_DIR)
+  set(oneValueArgs ARCH DEVICE ROI_DIR ROI_PART NAME)
   set(multiValueArgs TILE_TYPES)
   cmake_parse_arguments(
     ADD_XC7_DEVICE_DEFINE_TYPE
@@ -18,7 +18,26 @@ function(ADD_XC7_DEVICE_DEFINE_TYPE)
   set(ARCH ${ADD_XC7_DEVICE_DEFINE_TYPE_ARCH})
   set(DEVICE ${ADD_XC7_DEVICE_DEFINE_TYPE_DEVICE})
   set(ROI_DIR ${ADD_XC7_DEVICE_DEFINE_TYPE_ROI_DIR})
+  set(ROI_PART ${ADD_XC7_DEVICE_DEFINE_TYPE_ROI_PART})
   set(TILE_TYPES ${ADD_XC7_DEVICE_DEFINE_TYPE_TILE_TYPES})
+  set(NAME ${ADD_XC7_DEVICE_DEFINE_TYPE_NAME})
+
+  add_custom_target(${ARCH}_${DEVICE}_${NAME})
+  set_target_properties(${ARCH}_${DEVICE}_${NAME}
+      PROPERTIES FASM_TO_BIT_EXTRA_ARGS " \
+    --roi ${ROI_DIR}/design.json \
+  ")
+  set_target_properties(${ARCH}_${DEVICE}_${NAME}
+      PROPERTIES BIT_TO_BIN_EXTRA_ARGS " \
+    --bitstream_file ${ROI_DIR}/design.bit \
+    --part_name ${ROI_PART} \
+    --part_file ${PRJXRAY_DB_DIR}/${ARCH}/${ROI_PART}.yaml \
+  ")
+  set_target_properties(${ARCH}_${DEVICE}_${NAME}
+      PROPERTIES BIT_TO_V_EXTRA_ARGS " \
+    --part ${ROI_PART}
+    --connection_database ${CMAKE_CURRENT_BINARY_DIR}/channels.db
+  ")
 
   project_xray_arch(
     PART ${ARCH}
@@ -57,6 +76,9 @@ function(ADD_XC7_DEVICE_DEFINE)
     set(SYNTH_TILES ${CMAKE_CURRENT_SOURCE_DIR}/${DEVICE}-roi-virt/synth_tiles.json)
     get_file_location(SYNTH_TILES_LOCATION ${SYNTH_TILES})
     get_file_location(CHANNELS_LOCATIONS ${CHANNELS})
+
+    # Clear variable before adding deps for next device
+    set(DEVICE_RR_PATCH_DEPS "")
 
     append_file_dependency(DEVICE_RR_PATCH_DEPS ${CHANNELS})
     append_file_dependency(DEVICE_RR_PATCH_DEPS ${SYNTH_TILES})

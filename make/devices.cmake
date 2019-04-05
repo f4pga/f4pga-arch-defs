@@ -819,7 +819,7 @@ function(ADD_FPGA_TARGET)
   if(NOT ${ADD_FPGA_TARGET_NO_SYNTHESIS})
     set(
       COMPLETE_YOSYS_SCRIPT
-      "tcl ${YOSYS_SCRIPT} $<SEMICOLON> write_blif -attr -cname -param ${OUT_EBLIF} $<SEMICOLON> write_verilog ${OUT_SYNTH_V}"
+      "tcl ${YOSYS_SCRIPT}"
     )
 
     add_custom_command(
@@ -830,7 +830,11 @@ function(ADD_FPGA_TARGET)
       COMMAND
         ${CMAKE_COMMAND} -E make_directory ${OUT_LOCAL}
       COMMAND
-        ${CMAKE_COMMAND} -E env symbiflow-arch-defs_SOURCE_DIR=${symbiflow-arch-defs_SOURCE_DIR} ${QUIET_CMD} ${YOSYS} -p "${COMPLETE_YOSYS_SCRIPT}" ${SOURCE_FILES}
+        ${CMAKE_COMMAND} -E env
+          symbiflow-arch-defs_SOURCE_DIR=${symbiflow-arch-defs_SOURCE_DIR}
+          OUT_EBLIF=${OUT_EBLIF}
+          OUT_SYNTH_V=${OUT_SYNTH_V}
+          ${QUIET_CMD} ${YOSYS} -p "${COMPLETE_YOSYS_SCRIPT}" -l ${OUT_EBLIF}.log ${SOURCE_FILES}
       WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
       VERBATIM
     )
@@ -897,38 +901,6 @@ function(ADD_FPGA_TARGET)
     ${VPR_EXTRA_ARGS_LIST}
   )
   list(APPEND VPR_DEPS ${VPR} ${VPR_TARGET} ${QUIET_CMD} ${QUIET_CMD_TARGET})
-
-  get_target_property_required(USE_FASM ${ARCH} USE_FASM)
-
-  if(${USE_FASM})
-    get_target_property_required(GENFASM env GENFASM)
-    get_target_property(GENFASM_TARGET env GENFASM_TARGET)
-    set(
-      GENFASM_CMD
-      ${QUIET_CMD} ${GENFASM}
-      ${DEVICE_MERGED_FILE_LOCATION}
-      ${OUT_EBLIF}
-      --device ${DEVICE_FULL}
-      --read_rr_graph ${OUT_RRXML_REAL_LOCATION}
-      ${VPR_BASE_ARGS_LIST}
-      ${VPR_ARCH_ARGS_LIST}
-      ${VPR_EXTRA_ARGS_LIST}
-    )
-  else()
-    get_target_property_required(GENHLC env GENHLC)
-    get_target_property(GENHLC_TARGET env GENHLC_TARGET)
-    set(
-      GENHLC_CMD
-      ${QUIET_CMD} ${GENHLC}
-      ${DEVICE_MERGED_FILE_LOCATION}
-      ${OUT_EBLIF}
-      --device ${DEVICE_FULL}
-      --read_rr_graph ${OUT_RRXML_REAL_LOCATION}
-      ${VPR_BASE_ARGS_LIST}
-      ${VPR_ARCH_ARGS_LIST}
-      ${VPR_EXTRA_ARGS_LIST}
-    )
-  endif()
 
   # Generate IO constraints file.
   # -------------------------------------------------------------------------
@@ -1056,13 +1028,45 @@ function(ADD_FPGA_TARGET)
     return()
   endif()
 
+  get_target_property_required(USE_FASM ${ARCH} USE_FASM)
+
+  if(${USE_FASM})
+    get_target_property_required(GENFASM env GENFASM)
+    get_target_property(GENFASM_TARGET env GENFASM_TARGET)
+    set(
+      GENFASM_CMD
+      ${QUIET_CMD} ${GENFASM}
+      ${DEVICE_MERGED_FILE_LOCATION}
+      ${OUT_EBLIF}
+      --device ${DEVICE_FULL}
+      --read_rr_graph ${OUT_RRXML_REAL_LOCATION}
+      ${VPR_BASE_ARGS_LIST}
+      ${VPR_ARCH_ARGS_LIST}
+      ${VPR_EXTRA_ARGS_LIST}
+    )
+  else()
+    get_target_property_required(GENHLC env GENHLC)
+    get_target_property(GENHLC_TARGET env GENHLC_TARGET)
+    set(
+      GENHLC_CMD
+      ${QUIET_CMD} ${GENHLC}
+      ${DEVICE_MERGED_FILE_LOCATION}
+      ${OUT_EBLIF}
+      --device ${DEVICE_FULL}
+      --read_rr_graph ${OUT_RRXML_REAL_LOCATION}
+      ${VPR_BASE_ARGS_LIST}
+      ${VPR_ARCH_ARGS_LIST}
+      ${VPR_EXTRA_ARGS_LIST}
+    )
+  endif()
+
   if(${USE_FASM})
     # Generate FASM
     # -------------------------------------------------------------------------
     set(OUT_FASM ${OUT_LOCAL}/${TOP}.fasm)
     add_custom_command(
       OUTPUT ${OUT_FASM}
-      DEPENDS ${OUT_ROUTE} ${OUT_PLACE} ${OUT_IO} ${VPR_DEPS} ${GENHLC_TARGET}
+      DEPENDS ${OUT_ROUTE} ${OUT_PLACE} ${OUT_IO} ${VPR_DEPS} ${GENFASM_TARGET}
       COMMAND ${GENFASM_CMD}
       COMMAND
         ${CMAKE_COMMAND} -E copy ${OUT_LOCAL}/vpr_stdout.log
@@ -1111,6 +1115,12 @@ function(ADD_FPGA_TARGET)
     if(${USE_FASM})
       get_target_property_required(FASM_TO_BIT ${ARCH} FASM_TO_BIT)
       get_target_property_required(FASM_TO_BIT_CMD ${ARCH} FASM_TO_BIT_CMD)
+      if (TARGET ${ARCH}_${DEVICE}_${BOARD})
+        get_target_property(FASM_TO_BIT_EXTRA_ARGS ${ARCH}_${DEVICE}_${BOARD} FASM_TO_BIT_EXTRA_ARGS)
+        if (${FASM_TO_BIT_EXTRA_ARGS} STREQUAL NOTFOUND)
+          set(FASM_TO_BIT_EXTRA_ARGS "")
+        endif()
+      endif()
       get_target_property_required(PYTHON3 env PYTHON3)
       string(CONFIGURE ${FASM_TO_BIT_CMD} FASM_TO_BIT_CMD_FOR_TARGET)
       separate_arguments(
@@ -1137,45 +1147,16 @@ function(ADD_FPGA_TARGET)
 
     add_custom_target(${NAME}_bit ALL DEPENDS ${OUT_BITSTREAM})
 
-    get_target_property_required(NO_BIT_TO_V ${ARCH} NO_BIT_TO_V)
-    if(NOT ${NO_BIT_TO_V})
-        # Generate verilog from bitstream
-        # -------------------------------------------------------------------------
-        set(OUT_BIT_VERILOG ${OUT_LOCAL}/${TOP}_bit.v)
-        get_target_property_required(BIT_TO_V ${ARCH} BIT_TO_V)
-        get_target_property_required(BIT_TO_V_CMD ${ARCH} BIT_TO_V_CMD)
-        string(CONFIGURE ${BIT_TO_V_CMD} BIT_TO_V_CMD_FOR_TARGET)
-        separate_arguments(
-        BIT_TO_V_CMD_FOR_TARGET_LIST UNIX_COMMAND ${BIT_TO_V_CMD_FOR_TARGET}
-        )
-
-        add_custom_command(
-        OUTPUT ${OUT_BIT_VERILOG}
-        COMMAND ${BIT_TO_V_CMD_FOR_TARGET_LIST}
-        DEPENDS ${BIT_TO_V} ${OUT_BITSTREAM}
-        )
-
-        add_custom_target(${NAME}_bit_v DEPENDS ${OUT_BIT_VERILOG})
-        add_output_to_fpga_target(${NAME} BIT_V ${OUT_LOCAL_REL}/${TOP}_bit.v)
-
-        set(AUTOSIM_CYCLES ${ADD_FPGA_TARGET_AUTOSIM_CYCLES})
-        if("${AUTOSIM_CYCLES}" STREQUAL "")
-        set(AUTOSIM_CYCLES 100)
-        endif()
-
-        add_autosim(
-        NAME ${NAME}_autosim_bit
-        TOP ${TOP}
-        ARCH ${ARCH}
-        SOURCES ${OUT_LOCAL_REL}/${TOP}_bit.v
-        CYCLES ${AUTOSIM_CYCLES}
-        )
-    endif()
-
     get_target_property_required(BIN_EXTENSION ${ARCH} BIN_EXTENSION)
     set(OUT_BIN ${OUT_LOCAL}/${TOP}.${BIN_EXTENSION})
     get_target_property_required(BIT_TO_BIN ${ARCH} BIT_TO_BIN)
     get_target_property_required(BIT_TO_BIN_CMD ${ARCH} BIT_TO_BIN_CMD)
+    if (TARGET ${ARCH}_${DEVICE}_${BOARD})
+      get_target_property(BIT_TO_BIN_EXTRA_ARGS ${ARCH}_${DEVICE}_${BOARD} BIT_TO_BIN_EXTRA_ARGS)
+        if (${BIT_TO_BIN_EXTRA_ARGS} STREQUAL NOTFOUND)
+          set(BIT_TO_BIN_EXTRA_ARGS "")
+        endif()
+    endif()
     string(CONFIGURE ${BIT_TO_BIN_CMD} BIT_TO_BIN_CMD_FOR_TARGET)
     separate_arguments(
       BIT_TO_BIN_CMD_FOR_TARGET_LIST UNIX_COMMAND ${BIT_TO_BIN_CMD_FOR_TARGET}
@@ -1206,6 +1187,48 @@ function(ADD_FPGA_TARGET)
       COMMAND ${PROG_CMD_LIST}
       DEPENDS ${OUT_BIN} ${PROG_TOOL}
       )
+
+    get_target_property_required(NO_BIT_TO_V ${ARCH} NO_BIT_TO_V)
+    if(NOT ${NO_BIT_TO_V})
+        # Generate verilog from bitstream
+        # -------------------------------------------------------------------------
+        if (TARGET ${ARCH}_${DEVICE}_${BOARD})
+          get_target_property(BIT_TO_V_EXTRA_ARGS ${ARCH}_${DEVICE}_${BOARD} BIT_TO_V_EXTRA_ARGS)
+          if (${BIT_TO_V_EXTRA_ARGS} STREQUAL NOTFOUND)
+            set(BIT_TO_V_EXTRA_ARGS "")
+          endif()
+        endif()
+
+        set(OUT_BIT_VERILOG ${OUT_LOCAL}/${TOP}_bit.v)
+        get_target_property_required(BIT_TO_V ${ARCH} BIT_TO_V)
+        get_target_property_required(BIT_TO_V_CMD ${ARCH} BIT_TO_V_CMD)
+        string(CONFIGURE ${BIT_TO_V_CMD} BIT_TO_V_CMD_FOR_TARGET)
+        separate_arguments(
+          BIT_TO_V_CMD_FOR_TARGET_LIST UNIX_COMMAND ${BIT_TO_V_CMD_FOR_TARGET}
+        )
+
+        add_custom_command(
+        OUTPUT ${OUT_BIT_VERILOG}
+        COMMAND ${BIT_TO_V_CMD_FOR_TARGET_LIST}
+        DEPENDS ${BIT_TO_V} ${OUT_BITSTREAM} ${OUT_BIN}
+        )
+
+        add_custom_target(${NAME}_bit_v DEPENDS ${OUT_BIT_VERILOG})
+        add_output_to_fpga_target(${NAME} BIT_V ${OUT_LOCAL_REL}/${TOP}_bit.v)
+
+        set(AUTOSIM_CYCLES ${ADD_FPGA_TARGET_AUTOSIM_CYCLES})
+        if("${AUTOSIM_CYCLES}" STREQUAL "")
+        set(AUTOSIM_CYCLES 100)
+        endif()
+
+        add_autosim(
+        NAME ${NAME}_autosim_bit
+        TOP ${TOP}
+        ARCH ${ARCH}
+        SOURCES ${OUT_LOCAL_REL}/${TOP}_bit.v
+        CYCLES ${AUTOSIM_CYCLES}
+        )
+    endif()
 
     get_target_property_required(NO_BIT_TIME ${ARCH} NO_BIT_TIME)
     if(NOT ${NO_BIT_TIME})

@@ -29,6 +29,18 @@ end_section "info.conda.config"
 
 $SPACER
 
+start_section "symbiflow.format" "Check code formatting"
+make check_python
+end_section "symbiflow.format"
+
+$SPACER
+
+start_section "symbiflow.run_python_tests" "Run Python unit tests"
+make test_python
+end_section "symbiflow.run_python_tests"
+
+$SPACER
+
 start_section "symbiflow.build_all_arch_xmls" "Build all arch XMLs."
 make all_merged_arch_xmls
 end_section "symbiflow.build_all_arch_xmls"
@@ -66,15 +78,5 @@ start_section "symbiflow.build_all_demos" "Building all demo bitstreams"
 echo "Supressing some demo bitstreams, as the 8k parts cannot be built on travis."
 make all
 end_section "symbiflow.build_all_demos"
-
-$SPACER
-
-start_section "symbiflow.run_python_tests" "Run Python unit tests"
-# Reset working directory
-cd /home/travis/build/SymbiFlow/symbiflow-arch-defs
-pip install -r ./requirements.txt
-python -m unittest utils.lib.rr_graph.tests.test_channel
-python -m unittest utils.lib.rr_graph.tests.test_graph
-end_section "symbiflow.run_python_tests"
 
 $SPACER
