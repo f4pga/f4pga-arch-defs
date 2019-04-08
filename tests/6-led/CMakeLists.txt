@@ -3,4 +3,5 @@ add_simple_test(
   SOURCES led.v
   BOARDS ${FULL_BOARDS}
   ROUTE_ONLY
+  DEFINES USE_LUT_CONSTANTS=1
   )
