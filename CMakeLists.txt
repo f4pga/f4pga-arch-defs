@@ -198,3 +198,5 @@ add_dependencies(all_demos
     all_ice40_demos
     all_xc7_demos
     )
+
+add_custom_target(docs)
