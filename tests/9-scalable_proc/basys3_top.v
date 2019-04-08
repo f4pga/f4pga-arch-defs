@@ -39,7 +39,7 @@ scalable_proc
 .UART_RX    (ser_rx)
 );
 
-assign leds = {1'b0, 1'b0, !ser_tx, !rst};
+assign leds = {rst, !ser_rx, !ser_tx, !rst};
 
 endmodule
 

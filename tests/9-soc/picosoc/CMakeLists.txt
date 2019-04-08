@@ -43,6 +43,8 @@ add_fpga_target(
   EXPLICIT_ADD_FILE_TARGET
 )
 
+# TODO(#550) Disabled until tile split is complete
+if(0)
 add_fpga_target(
   NAME picosoc_basys3
   BOARD basys3
@@ -57,5 +59,6 @@ add_fpga_target(
   INPUT_IO_FILE basys3.pcf
   EXPLICIT_ADD_FILE_TARGET
 )
+endif()
 
 endif (NOT DEFINED ENV{CI} OR NOT $ENV{CI})
