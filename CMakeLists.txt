@@ -171,7 +171,8 @@ if (NOT DEFINED ENV{CI} OR NOT $ENV{CI})
 add_dependencies(all_7series_demos
     all_arty_bin
     all_basys3_bin
-    all_zybo_bin
+    # TODO(#548) Zybo targets not currently working, so removed from all target.
+    #all_zybo_bin
     )
 endif()
 
@@ -180,6 +181,11 @@ add_dependencies(all_7series
     all_7series_route_tests
     all_7series_demos
     )
+if (NOT DEFINED ENV{CI} OR NOT $ENV{CI})
+add_dependencies(all_7series
+    test_dram_packing
+    )
+endif()
 
 add_custom_target(all_testarch)
 add_dependencies(all_testarch
