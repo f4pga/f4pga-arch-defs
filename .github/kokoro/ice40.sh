@@ -10,9 +10,10 @@ source ${SCRIPT_DIR}/common.sh
 
 echo
 echo "========================================"
-echo "Running tests"
+echo "Running ice40 tests"
 echo "----------------------------------------"
 (
-	make test --output-sync=target --warn-undefined-variables
+	make -j ${MAX_CORES} --output-sync=target --warn-undefined-variables \
+		all_ice40
 )
 echo "----------------------------------------"

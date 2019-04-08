@@ -20,12 +20,9 @@ echo "Memory"
 echo "----------------------------------------"
 cat /proc/meminfo
 echo "----------------------------------------"
-
-echo
-echo "========================================"
-echo "Host files"
-echo "----------------------------------------"
-echo $PWD
-echo "----------------------------------------"
-find . | sort
-echo "----------------------------------------"
+export MEM_GB=$(($(awk '/MemTotal/ {print $2}' /proc/meminfo)/(1024*1024)))
+echo "Memory (GB): $CORES"
+export MEM_CORES=$(($MEM_GB/10))
+echo "Cores (10 GB per): $MEM_CORES"
+export MAX_CORES=$(($MEM_CORES>$CORES?$CORES:$MEM_CORES))
+echo "Max cores: $MAX_CORES"

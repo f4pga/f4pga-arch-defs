@@ -10,10 +10,10 @@ source ${SCRIPT_DIR}/common.sh
 
 echo
 echo "========================================"
-echo "Running testarch tests"
+echo "Running xc7 tests"
 echo "----------------------------------------"
 (
-	make -j ${CORES} --output-sync=target --warn-undefined-variables \
-		testarch
+	make -j ${MAX_CORES} --output-sync=target --warn-undefined-variables \
+		all_xc7
 )
 echo "----------------------------------------"
