@@ -687,6 +687,7 @@ function(ADD_FPGA_TARGET)
   #   [EMIT_CHECK_TESTS EQUIV_CHECK_SCRIPT <yosys to script verify two bitstreams gold and gate>]
   #   [NO_SYNTHESIS]
   #   [ASSERT_USAGE <usage_spec>]
+  #   [DEFINES <definitions>]
   #   )
   # ~~~
   #
@@ -703,6 +704,9 @@ function(ADD_FPGA_TARGET)
   # used to run test benches.
   #
   # If NO_SYNTHESIS is supplied, <source list> must be 1 eblif file.
+  #
+  # DEFINES is a list of environment variables to be defined during Yosys
+  # invocation.
   #
   # Targets generated:
   #
@@ -724,7 +728,7 @@ function(ADD_FPGA_TARGET)
   #
   set(options EXPLICIT_ADD_FILE_TARGET EMIT_CHECK_TESTS NO_SYNTHESIS ROUTE_ONLY)
   set(oneValueArgs NAME TOP BOARD INPUT_IO_FILE EQUIV_CHECK_SCRIPT AUTOSIM_CYCLES ASSERT_USAGE)
-  set(multiValueArgs SOURCES TESTBENCH_SOURCES)
+  set(multiValueArgs SOURCES TESTBENCH_SOURCES DEFINES)
   cmake_parse_arguments(
     ADD_FPGA_TARGET
     "${options}"
@@ -834,6 +838,7 @@ function(ADD_FPGA_TARGET)
           symbiflow-arch-defs_SOURCE_DIR=${symbiflow-arch-defs_SOURCE_DIR}
           OUT_EBLIF=${OUT_EBLIF}
           OUT_SYNTH_V=${OUT_SYNTH_V}
+          ${ADD_FPGA_TARGET_DEFINES}
           ${QUIET_CMD} ${YOSYS} -p "${COMPLETE_YOSYS_SCRIPT}" -l ${OUT_EBLIF}.log ${SOURCE_FILES}
       WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
       VERBATIM
