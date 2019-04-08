@@ -166,6 +166,9 @@ function(PROJECT_XRAY_ARCH)
   set(ROI_ARG "")
   set(ROI_ARG_FOR_CREATE_EDGES "")
 
+  set(SYNTH_TILES_DEPS "")
+  append_file_dependency(SYNTH_TILES_DEPS ${GENERIC_CHANNELS})
+
   if(NOT "${PROJECT_XRAY_ARCH_USE_ROI}" STREQUAL "")
     add_custom_command(
       OUTPUT synth_tiles.json
@@ -177,7 +180,7 @@ function(PROJECT_XRAY_ARCH)
         --synth_tiles ${CMAKE_CURRENT_BINARY_DIR}/synth_tiles.json
       DEPENDS
         ${CREATE_SYNTH_TILES}
-        ${PROJECT_XRAY_ARCH_USE_ROI} ${CMAKE_CURRENT_BINARY_DIR}/channels.db
+        ${PROJECT_XRAY_ARCH_USE_ROI} ${SYNTH_TILES_DEPS}
         ${PYTHON3} ${PYTHON3_TARGET} simplejson intervaltree
         )
 

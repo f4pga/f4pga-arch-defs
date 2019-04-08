@@ -314,7 +314,6 @@ WHERE
                     (track_pkey, ) = c.fetchone()
                 else:
                     assert False, pin['port_type']
-
                 tracks_model, track_nodes = get_track_model(conn, track_pkey)
 
                 option = list(tracks_model.get_tracks_for_wire_at_coord(loc))

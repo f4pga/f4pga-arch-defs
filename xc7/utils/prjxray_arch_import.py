@@ -217,6 +217,10 @@ def main():
         help="""Project X-Ray database to use."""
     )
     parser.add_argument(
+        '--connection_database',
+        help='Database of fabric connectivity',
+        required=True)
+    parser.add_argument(
         '--output-arch',
         nargs='?',
         type=argparse.FileType('w'),

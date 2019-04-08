@@ -535,7 +535,8 @@ SELECT vcc_track_pkey, gnd_track_pkey FROM constant_sources;
 
 def make_connection(
         conn, input_only_nodes, output_only_nodes, loc, tile_pkey,
-        src_wire_pkey, dst_wire_pkey, pip_pkey, switch_pkey, find_connector):
+        src_wire_pkey, dst_wire_pkey, pip_pkey, switch_pkey, delayless_switch_pkey,
+        find_connector, const_connectors):
     """ Attempt to connect graph nodes on either side of a pip.
 
     Args:
@@ -552,7 +553,9 @@ def make_connection(
         pip_pkey (int): Pip being connected.
         switch_pkey (int): Primary key to switch table of switch to be used
             in this connection.
+        delayless_switch_pkey (int): VPR delayless switch pkey
         find_connector (function): Return value from create_find_connector.
+        const_connectors: Constant connector.
 
     Returns:
         None if connection cannot be made, otherwise returns tuple of:
@@ -596,7 +599,7 @@ def make_connection(
         loc, dst_connector
     )
 
-    return [
+    edges = [
         (
             src_graph_node_pkey,
             dst_graph_node_pkey,
@@ -606,7 +609,29 @@ def make_connection(
         )
     ]
 
-def mark_track_liveness(conn, pool, input_only_nodes, output_only_nodes):
+    # Get source wire name
+    src_wire_name = c.execute(
+        "SELECT name FROM wire_in_tile WHERE pkey = (?)", (src_wire_pkey, )
+    ).fetchone()[0]
+
+    # Make additional connections to constant network if the sink needs it.
+    for constant_src in yield_ties_to_wire(src_wire_name):
+        src_graph_node_pkey, dest_graph_node_pkey = const_connectors[
+            constant_src].connect_at(loc, dst_connector)
+
+        edges.append(
+            (
+                src_graph_node_pkey,
+                dest_graph_node_pkey,
+                delayless_switch_pkey,
+                tile_pkey,
+                None,
+            )
+        )
+
+    return edges
+
+def mark_track_liveness(conn, pool, input_only_nodes, output_only_nodes, alive_tracks):
     """ Checks tracks for liveness.
 
     Iterates over all graph nodes that are routing tracks and determines if
@@ -1034,7 +1059,7 @@ def main():
                 connections = make_connection(
                     conn, input_only_nodes, output_only_nodes, loc, tile_pkey,
                     pip_src_wire_pkey, pip_dst_wire_pkey, pip_pkey,
-                    switch_pkey, find_connector)
+                    switch_pkey, delayless_switch_pkey, find_connector, const_connectors)
 
                 if connections:
                     # TODO: Skip duplicate connections, until they have unique
