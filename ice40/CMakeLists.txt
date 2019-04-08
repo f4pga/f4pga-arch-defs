@@ -68,6 +68,7 @@ function(icestorm_setup)
       --clock_modeling route
       --allow_unrelated_clustering off
       --target_ext_pin_util 0.7
+      --router_init_wirelength_abort_threshold 2
     RR_PATCH_TOOL
       ${symbiflow-arch-defs_SOURCE_DIR}/ice40/utils/ice40_import_routing_from_icebox.py
     RR_PATCH_CMD "\${QUIET_CMD} \${CMAKE_COMMAND} -E env ${PYPATH_ARG} \
