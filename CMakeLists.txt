@@ -123,3 +123,72 @@ add_custom_command(
   TARGET format_python
   COMMAND ${symbiflow-arch-defs_SOURCE_DIR}/common/yapf_helper.sh -f -y ${YAPF}
   )
+
+
+add_custom_target(all_ice40_demos)
+add_dependencies(all_ice40_demos
+    all_icevision_bin
+    all_icestick_bin
+    all_hx8k-b-evn_bin
+    all_iceblink40-lp1k_bin
+    all_tinyfpga-bx_bin
+    all_tinyfpga-b2_bin
+    )
+
+add_custom_target(all_ice40_route_tests)
+add_dependencies(all_ice40_route_tests
+    all_dummy_ice40_hx1k_tq144_route
+    all_dummy_ice40_lp1k_qn84_route
+    all_dummy_ice40_hx1k_tq144_route
+    )
+
+if (NOT DEFINED ENV{CI} OR NOT $ENV{CI})
+add_dependencies(all_ice40_route_tests
+    all_dummy_ice40_up5k_sg48_route
+    all_dummy_ice40_lp8k_cm81_route
+    all_dummy_ice40_hx8k_ct256_route
+    )
+endif()
+
+add_custom_target(all_ice40)
+add_dependencies(all_ice40
+    all_ice40_demos
+    all_ice40_route_tests
+    )
+
+add_custom_target(all_7series_route_tests)
+
+
+if (NOT DEFINED ENV{CI} OR NOT $ENV{CI})
+add_dependencies(all_7series_route_tests
+    all_dummy_artix7_xc7a50t-arty_test_route
+    all_dummy_artix7_xc7a50t-basys3_test_route
+    )
+endif()
+
+add_custom_target(all_7series_demos)
+if (NOT DEFINED ENV{CI} OR NOT $ENV{CI})
+add_dependencies(all_7series_demos
+    all_arty_bin
+    all_basys3_bin
+    all_zybo_bin
+    )
+endif()
+
+add_custom_target(all_7series)
+add_dependencies(all_7series
+    all_7series_route_tests
+    all_7series_demos
+    )
+
+add_custom_target(all_testarch)
+add_dependencies(all_testarch
+    all_dummy_testarch_10x10_dummy_route
+    all_dummy_testarch_4x4_dummy_route
+    )
+
+add_custom_target(all_demos)
+add_dependencies(all_demos
+    all_ice40_demos
+    all_7series_demos
+    )
