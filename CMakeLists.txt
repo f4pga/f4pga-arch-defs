@@ -156,19 +156,19 @@ add_dependencies(all_ice40
     all_ice40_route_tests
     )
 
-add_custom_target(all_7series_route_tests)
+add_custom_target(all_xc7_route_tests)
 
 
 if (NOT DEFINED ENV{CI} OR NOT $ENV{CI})
-add_dependencies(all_7series_route_tests
+add_dependencies(all_xc7_route_tests
     all_dummy_artix7_xc7a50t-arty_test_route
     all_dummy_artix7_xc7a50t-basys3_test_route
     )
 endif()
 
-add_custom_target(all_7series_demos)
+add_custom_target(all_xc7_demos)
 if (NOT DEFINED ENV{CI} OR NOT $ENV{CI})
-add_dependencies(all_7series_demos
+add_dependencies(all_xc7_demos
     all_arty_bin
     all_basys3_bin
     # TODO(#548) Zybo targets not currently working, so removed from all target.
@@ -176,13 +176,13 @@ add_dependencies(all_7series_demos
     )
 endif()
 
-add_custom_target(all_7series)
-add_dependencies(all_7series
-    all_7series_route_tests
-    all_7series_demos
+add_custom_target(all_xc7)
+add_dependencies(all_xc7
+    all_xc7_route_tests
+    all_xc7_demos
     )
 if (NOT DEFINED ENV{CI} OR NOT $ENV{CI})
-add_dependencies(all_7series
+add_dependencies(all_xc7
     test_dram_packing
     )
 endif()
@@ -196,5 +196,5 @@ add_dependencies(all_testarch
 add_custom_target(all_demos)
 add_dependencies(all_demos
     all_ice40_demos
-    all_7series_demos
+    all_xc7_demos
     )
