@@ -15,5 +15,6 @@ echo "----------------------------------------"
 (
 	make check_python --output-sync=target --warn-undefined-variables
 	make test_python --output-sync=target --warn-undefined-variables
+	make all --output-sync=target --warn-undefined-variables
 )
 echo "----------------------------------------"
