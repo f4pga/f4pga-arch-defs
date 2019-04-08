@@ -13,6 +13,7 @@ echo "========================================"
 echo "Running tests"
 echo "----------------------------------------"
 (
-	make test --output-sync=target --warn-undefined-variables
+	make check_python --output-sync=target --warn-undefined-variables
+	make test_python --output-sync=target --warn-undefined-variables
 )
 echo "----------------------------------------"
