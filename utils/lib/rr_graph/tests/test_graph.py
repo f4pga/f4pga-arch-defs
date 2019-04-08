@@ -2,8 +2,8 @@
 # Run `python3 -m unittest lib.rr_graph.tests.test_graph`
 import unittest
 
-from lib.rr_graph import graph, P, Size
-from lib.rr_graph.graph import (
+from .. import graph, P, Size
+from ..graph import (
     Pin, PinClass, PinClassDirection, Block, BlockGrid, BlockType, Segment,
     Switch, SwitchType, RoutingGraph, RoutingGraphPrinter, RoutingNodeType
 )
