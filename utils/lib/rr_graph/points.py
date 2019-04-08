@@ -54,6 +54,7 @@ class NamedPosition(_NamedPosition):
 
 
 def NP(x, y, *n):
+    """Syntactic sugar for NamedPosition."""
     n = list(n)
     if not n:
         n = ["{}+{}".format(string.ascii_letters[x], string.ascii_letters[y])]
@@ -62,6 +63,7 @@ def NP(x, y, *n):
 
 class StraightSegment(list):
     class Type(enum.Enum):
+        """ Vertical, Horizontal, Stub"""
         V = '|'
         H = '-'
         S = 'o'
@@ -111,6 +113,7 @@ class StraightSegment(list):
         return min(x_pos), max(x_pos)
 
     def along(self, pos):
+        """Return if position lies along segment"""
         assert len(self) > 0
         assert_type(pos, (NamedPosition, Position))
 
@@ -138,6 +141,9 @@ class StraightSegment(list):
             return False
 
     def replace(self, pos):
+        """Replace point at same x and y. Essentially updating the names.
+        If no match is found, no change is occured and returns False
+        """
         for i, p in enumerate(self):
             if pos.x != p.x or pos.y != p.y:
                 continue
@@ -146,16 +152,22 @@ class StraightSegment(list):
         return False
 
     def append(self, pos):
-        if len(self) == 1:
-            if pos.x == self[0].x:
-                self.direction = StraightSegment.Type.V
-            elif pos.y == self[0].y:
-                self.direction = StraightSegment.Type.H
-            else:
-                assert False, (self, pos)
+        """Add new position. Update direction if needed"""
+        if pos.x == self[0].x:
+            direction = StraightSegment.Type.V
+        elif pos.y == self[0].y:
+            direction = StraightSegment.Type.H
+
+        if self.direction == StraightSegment.Type.S:
+            assert len(self) == 1, "Stub must only have a single point"
+            self.direction = direction
+        assert direction == self.direction, "Can't append in different direction {} {}".format(
+            self.direction, direction
+        )
         list.append(self, pos)
 
     def extend_to(self, pos):
+        """Return point starting at Segment first position and extend for connection to pos"""
         pclass = self[0].pos.__class__
         if self.d == StraightSegment.Type.H:
             return pclass(pos.x, self[0].y)
@@ -170,6 +182,7 @@ class StraightSegment(list):
 
     @property
     def names(self):
+        """Return list of all names of points along segment"""
         names = []
         for npos in self:
             names.extend(n for n in npos.names)
@@ -1147,15 +1160,3 @@ def print_tracks(ret):
 
     print('x = {}'.format(x_tracks))
     print('y = {}'.format(y_tracks))
-
-
-def main():
-    import doctest
-
-    print('Doctest begin')
-    doctest.testmod(optionflags=doctest.ELLIPSIS)
-    print('Doctest end')
-
-
-if __name__ == "__main__":
-    main()
