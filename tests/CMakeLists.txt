@@ -19,6 +19,7 @@ function(add_simple_test)
   #     [ROUTE_ONLY]
   #     [EQUIV_CHECK_SCRIPT <filename of yosys script to prove gold and gate>]
   #     [EXPLICIT_ADD_FILE_TARGET]
+  #     [DEFINES <list of defines>]
   #   )
   # ~~~
   #
@@ -26,7 +27,7 @@ function(add_simple_test)
   # between original source, post-synthesis and post-place and route modules.
   set(options ROUTE_ONLY EXPLICIT_ADD_FILE_TARGET NO_SYNTHESIS)
   set(oneValueArgs NAME EQUIV_CHECK_SCRIPT)
-  set(multiValueArgs SOURCES BOARDS)
+  set(multiValueArgs SOURCES BOARDS DEFINES)
   cmake_parse_arguments(
     ADD_SIMPLE_TEST
     "${options}"
@@ -88,6 +89,7 @@ function(add_simple_test)
       EXPLICIT_ADD_FILE_TARGET
       ${CHECK_TEST_ARGS}
       ${NO_SYNTHESIS_ARG}
+      DEFINES ${ADD_SIMPLE_TEST_DEFINES}
       )
 
     add_dependencies(all_route_tests ${ADD_SIMPLE_TEST_NAME}_${BOARD}_route)
