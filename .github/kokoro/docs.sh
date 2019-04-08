@@ -13,6 +13,7 @@ echo "========================================"
 echo "Doing document generation"
 echo "----------------------------------------"
 (
+	cd build
 	make -j ${CORES} --output-sync=target --warn-undefined-variables \
 		docs
 )

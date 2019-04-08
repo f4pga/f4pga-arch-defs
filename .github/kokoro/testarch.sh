@@ -13,6 +13,7 @@ echo "========================================"
 echo "Running testarch tests"
 echo "----------------------------------------"
 (
+	cd build
 	make -j ${MAX_CORES} --output-sync=target --warn-undefined-variables \
 		all_testarch
 )

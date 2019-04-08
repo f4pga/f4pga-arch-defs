@@ -13,6 +13,7 @@ echo "========================================"
 echo "Running xc7 tests"
 echo "----------------------------------------"
 (
+	cd build
 	make -j ${MAX_CORES} --output-sync=target --warn-undefined-variables \
 		all_xc7
 )
