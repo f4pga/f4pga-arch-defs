@@ -555,6 +555,7 @@ function(DEFINE_BOARD)
   endforeach()
 
   # Target for gathering all targets for a particular board.
+  add_custom_target(all_${DEFINE_BOARD_BOARD}_route)
   add_custom_target(all_${DEFINE_BOARD_BOARD}_bin)
 endfunction()
 
@@ -1015,6 +1016,7 @@ function(ADD_FPGA_TARGET)
     WORKING_DIRECTORY ${OUT_LOCAL}
   )
   add_custom_target(${NAME}_route DEPENDS ${OUT_ROUTE})
+  add_dependencies(all_${BOARD}_route ${NAME}_route)
 
   set(ECHO_ATOM_NETLIST_ORIG ${OUT_LOCAL}/echo/atom_netlist.orig.echo.blif)
   set(ECHO_ATOM_NETLIST_CLEANED ${OUT_LOCAL}/echo/atom_netlist.cleaned.echo.blif)
