@@ -19,7 +19,7 @@ git branch -D $TRAVIS_BRANCH
 CURRENT_GITREV="$(git rev-parse HEAD)"
 git checkout -b $TRAVIS_BRANCH $CURRENT_GITREV
 git tag -l
-git describe --long
+git describe --long --always
 set +x
 $SPACER
 git status -v
