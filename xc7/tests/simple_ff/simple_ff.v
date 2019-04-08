@@ -3,6 +3,8 @@ module top(
 	input [7:0] in,
 	output [7:0] out
 );
+  assign out[7:1] = in[7:1];
+
   FDCE #(
       .INIT(0),
   ) fdse (
