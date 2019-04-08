@@ -14,8 +14,8 @@ echo "Running tests"
 echo "----------------------------------------"
 (
 	cd build
-	make check_python --output-sync=target --warn-undefined-variables
-	make test_python --output-sync=target --warn-undefined-variables
-	make all --output-sync=target --warn-undefined-variables
+	make check_python --output-sync=target
+	make test_python --output-sync=target
+	make all --output-sync=target
 )
 echo "----------------------------------------"
