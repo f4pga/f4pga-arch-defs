@@ -9,6 +9,51 @@ from prjxray_db_cache import DatabaseCache
 from lib.grid_mapping import GridLocMap
 
 
+def find_vbrk_closest_to(grid, roi, loc, loc_in_use):
+    """
+    Finds a VBRK tile (optionally within the ROI) which is located closest
+    to a given location. Checks if such a tile is not already used by
+    another synth tile.
+    :param grid:
+    :param roi:
+    :param loc:
+    :param loc_in_use:
+    :return:
+    """
+
+    loc_best = None
+    min_cost = None
+
+    for tile in grid.tiles():
+        tile_loc = grid.loc_of_tilename(tile)
+
+        # Not a VBRK
+        gridinfo = grid.gridinfo_at_tilename(tile)
+        if 'VBRK' not in gridinfo.tile_type:
+            continue
+
+        # Already used
+        if tile_loc in loc_in_use:
+            continue
+
+        # Not in ROI
+        if roi is not None:
+            if not roi.tile_in_roi(tile_loc):
+                continue
+
+        # Get distance
+        #cost = abs(tile_loc.grid_x - loc.grid_x) + \
+        #       abs(tile_loc.grid_y - loc.grid_y)
+        cost = (tile_loc.grid_x - loc.grid_x) ** 2 + \
+               (tile_loc.grid_y - loc.grid_y) ** 2
+
+        # Find best
+        if min_cost is None or cost < min_cost:
+            min_cost = cost
+            loc_best = GridLoc(tile_loc.grid_x, tile_loc.grid_y)
+
+    return loc_best
+
 def main():
     parser = argparse.ArgumentParser(description="Generate synth_tiles.json")
     parser.add_argument('--db_root', required=True)
@@ -35,30 +80,28 @@ def main():
     with open(args.roi) as f:
         j = json.load(f)
 
+    roi = Roi(
+        db=db,
+        x1=j['info']['GRID_X_MIN'],
+        y1=j['info']['GRID_Y_MIN'],
+        x2=j['info']['GRID_X_MAX'],
+        y2=j['info']['GRID_Y_MAX'],
+    )
+
     # Map ROI coordinates to the target VPR grid
     roi_loc_lo = grid_loc_mapper.get_vpr_loc(
         (j['info']['GRID_X_MIN'], j['info']['GRID_Y_MIN']))
     roi_loc_hi = grid_loc_mapper.get_vpr_loc(
         (j['info']['GRID_X_MAX'], j['info']['GRID_Y_MAX']))
 
-    vbrk_in_use = set()
-
-    roi = Roi(
-        db=db,
-        x1=min([p[0] for p in roi_loc_lo
-                ]),  # One physical grid location may map to more than one
-        y1=min([p[1] for p in roi_loc_lo
-                ]),  # VPR locations. So here we take min and max.
-        x2=max([p[0] for p in roi_loc_hi]),
-        y2=max([p[1] for p in roi_loc_hi]),
-    )
-
     synth_tiles['info'] = {
-        "GRID_X_MIN": roi.x1,
-        "GRID_Y_MIN": roi.y1,
-        "GRID_X_MAX": roi.x2,
-        "GRID_Y_MAX": roi.y2
+        "GRID_X_MIN": min([p[0] for p in roi_loc_lo]),
+        "GRID_Y_MIN": min([p[1] for p in roi_loc_lo]),
+        "GRID_X_MAX": max([p[0] for p in roi_loc_hi]),
+        "GRID_Y_MAX": max([p[1] for p in roi_loc_hi])
     }
+
+    vbrk_loc_in_use = set()
 
     for port in j['ports']:
         if port['name'].startswith('dout['):
@@ -74,17 +117,19 @@ def main():
             assert False, port
 
         tile, wire = port['wire'].split('/')
+        loc = g.loc_of_tilename(tile)
 
-        vbrk_in_use.add(tile)
+        # Mark location as used by a synth tile
+        assert loc not in vbrk_loc_in_use
+        vbrk_loc_in_use.add(loc)
 
         # Map tile location to the VPR grid
-        loc = g.loc_of_tilename(tile)
         vpr_loc = grid_loc_mapper.get_vpr_loc((loc.grid_x, loc.grid_y))
         vpr_loc = vpr_loc[0]  # FIXME: Assuming no split of that tile!
         vpr_loc = GridLoc(vpr_loc[0], vpr_loc[1])
 
         # Make sure connecting wire is not in ROI!
-        if roi.tile_in_roi(vpr_loc):
+        if roi.tile_in_roi(loc):
             # Or if in the ROI, make sure it has no sites.
             gridinfo = g.gridinfo_at_tilename(tile)
             assert len(
@@ -106,44 +151,42 @@ def main():
             }
         )
 
-    # Find two VBRK's in the corner of the fabric to use as the synthetic VCC/
-    # GND source.
-    vbrk_loc = None
-    vbrk_tile = None
-    vbrk2_loc = None
-    vbrk2_tile = None
-    for tile in g.tiles():
-        if tile in vbrk_in_use:
-            continue
+    # Find two VBRK's in the corner of the fabric to use as the synthetic VCC
+    loc_min = GridLoc(g.dims()[0], g.dims()[2])
+    loc_max = GridLoc(g.dims()[1], g.dims()[3])
 
-        loc = g.loc_of_tilename(tile)
-        if not roi.tile_in_roi(loc):
-            continue
+    #print("loc_min:", loc_min, "phy")
+    #print("loc_max:", loc_max, "phy")
 
-        gridinfo = g.gridinfo_at_tilename(tile)
-        if 'VBRK' not in gridinfo.tile_type:
-            continue
+    vcc_loc = find_vbrk_closest_to(g, roi, loc_min, vbrk_loc_in_use)
+    vbrk_loc_in_use.add(vcc_loc)
 
-        assert len(db.get_tile_type(gridinfo.tile_type).get_sites()) == 0, tile
+    gnd_loc = find_vbrk_closest_to(g, roi, loc_max, vbrk_loc_in_use)
+    vbrk_loc_in_use.add(gnd_loc)
 
-        if vbrk_loc is None:
-            vbrk2_loc = vbrk_loc
-            vbrk2_tile = vbrk_tile
-            vbrk_loc = loc
-            vbrk_tile = tile
-        else:
-            if loc.grid_x < vbrk_loc.grid_x and loc.grid_y < vbrk_loc.grid_y or vbrk2_loc is None:
-                vbrk2_loc = vbrk_loc
-                vbrk2_tile = vbrk_tile
-                vbrk_loc = loc
-                vbrk_tile = tile
+    # Get tiles
+    vcc_tile = g.tilename_at_loc(vcc_loc)
+    gnd_tile = g.tilename_at_loc(gnd_loc)
 
-    assert vbrk_loc is not None
-    assert vbrk_tile is not None
-    assert vbrk_tile not in synth_tiles['tiles']
-    synth_tiles['tiles'][vbrk_tile] = {
+    #print("VCC at:", vcc_loc, "phy")
+    #print("GND at:", gnd_loc, "phy")
+
+    # Map those locations to the VPR grid
+    vcc_loc = grid_loc_mapper.get_vpr_loc((vcc_loc.grid_x, vcc_loc.grid_y))
+    vcc_loc = vcc_loc[0]
+    vcc_loc = GridLoc(vcc_loc[0], vcc_loc[1])
+
+    gnd_loc = grid_loc_mapper.get_vpr_loc((gnd_loc.grid_x, gnd_loc.grid_y))
+    gnd_loc = gnd_loc[0]
+    gnd_loc = GridLoc(gnd_loc[0], gnd_loc[1])
+
+    #print("VCC at:", vcc_loc, "vpr")
+    #print("GND at:", gnd_loc, "vpr")
+
+    # Insert tiles
+    synth_tiles['tiles'][vcc_tile] = {
         'loc':
-            vbrk_loc,
+            vcc_loc,
         'pins':
             [
                 {
@@ -155,12 +198,9 @@ def main():
             ],
     }
 
-    assert vbrk2_loc is not None
-    assert vbrk2_tile is not None
-    assert vbrk2_tile not in synth_tiles['tiles']
-    synth_tiles['tiles'][vbrk2_tile] = {
+    synth_tiles['tiles'][gnd_tile] = {
         'loc':
-            vbrk2_loc,
+            gnd_loc,
         'pins':
             [
                 {
@@ -172,6 +212,7 @@ def main():
             ],
     }
 
+    # Save it
     with open(args.synth_tiles, 'w') as f:
         json.dump(synth_tiles, f, indent=2)
 
