@@ -338,6 +338,10 @@ def main():
 
             assert len(synth_tile['pins']) == 1
 
+            # Check location
+            assert vpr_loc.grid_x == synth_tile["loc"]["grid_x"]
+            assert vpr_loc.grid_y == synth_tile["loc"]["grid_y"]
+
             vpr_tile_type = synth_tile_map[synth_tile['pins'][0]['port_type']]
         elif only_emit_roi and not roi.tile_in_roi(vpr_loc):
             # This tile is outside the ROI, skip it.
