@@ -305,20 +305,12 @@ def main():
         with open(args.synth_tiles) as f:
             synth_tiles = json.load(f)
 
-        # Map ROI coordinates to the target VPR grid
-        roi_loc_lo = grid_loc_mapper.get_vpr_loc(
-            (j['info']['GRID_X_MIN'], j['info']['GRID_Y_MIN']))
-        roi_loc_hi = grid_loc_mapper.get_vpr_loc(
-            (j['info']['GRID_X_MAX'], j['info']['GRID_Y_MAX']))
-
         roi = Roi(
             db=db,
-            x1=min([p[0] for p in roi_loc_lo
-                    ]),  # One physical grid location may map to more than one
-            y1=min([p[1] for p in roi_loc_lo
-                    ]),  # VPR locations. So here we take min and max.
-            x2=max([p[0] for p in roi_loc_hi]),
-            y2=max([p[1] for p in roi_loc_hi]),
+            x1=j['info']['GRID_X_MIN'],
+            y1=j['info']['GRID_Y_MIN'],
+            x2=j['info']['GRID_X_MAX'],
+            y2=j['info']['GRID_Y_MAX']
         )
 
         synth_tile_map = add_synthetic_tiles(model_xml, complexblocklist_xml)
@@ -343,7 +335,7 @@ def main():
             assert vpr_loc.grid_y == synth_tile["loc"]["grid_y"]
 
             vpr_tile_type = synth_tile_map[synth_tile['pins'][0]['port_type']]
-        elif only_emit_roi and not roi.tile_in_roi(vpr_loc):
+        elif only_emit_roi and not roi.tile_in_roi(loc):
             # This tile is outside the ROI, skip it.
             continue
         elif gridinfo.tile_type in tile_types:
