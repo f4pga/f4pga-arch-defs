@@ -1,7 +1,7 @@
 #!/bin/bash
 
-source .travis/common.sh
+source .github/travis/common.sh
 set -e
 
 # Git repo fixup
-.travis/git-fixup.sh
+.github/travis/git-fixup.sh
