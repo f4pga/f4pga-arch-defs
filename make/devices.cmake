@@ -442,10 +442,9 @@ function(DEFINE_DEVICE)
         --echo_file on
         --min_route_chan_width_hint 1
         --write_rr_graph ${OUT_RRXML_VIRT}
+        --outfile_prefix ${DEVICE}_${PACKAGE}
         --pack
         --place
-      COMMAND
-        ${CMAKE_COMMAND} -E remove wire.{net,place,route}
       COMMAND
         ${CMAKE_COMMAND} -E copy vpr_stdout.log
         rr_graph_${DEVICE}_${PACKAGE}.virt.out
