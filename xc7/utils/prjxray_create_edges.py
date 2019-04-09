@@ -616,13 +616,15 @@ def make_connection(
 
     # Make additional connections to constant network if the sink needs it.
     for constant_src in yield_ties_to_wire(src_wire_name):
-        src_graph_node_pkey, dest_graph_node_pkey = const_connectors[
+        src_graph_node_pkey, dst_graph_node_pkey = const_connectors[
             constant_src].connect_at(loc, dst_connector)
+
+        #print("SYNTH EDGE: ", src_graph_node_pkey, dst_graph_node_pkey, delayless_switch_pkey, tile_pkey)
 
         edges.append(
             (
                 src_graph_node_pkey,
-                dest_graph_node_pkey,
+                dst_graph_node_pkey,
                 delayless_switch_pkey,
                 tile_pkey,
                 None,
@@ -1082,7 +1084,8 @@ def main():
                     INSERT INTO graph_edge(
                         src_graph_node_pkey, dest_graph_node_pkey, switch_pkey,
                         tile_pkey, pip_in_tile_pkey)  VALUES (?, ?, ?, ?, ?)""",
-                edge)
+                edge
+            )
 
         c.execute("""COMMIT TRANSACTION;""")
 

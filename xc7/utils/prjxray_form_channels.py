@@ -917,7 +917,7 @@ INSERT INTO node(classification) VALUES (?)
            create_track(gnd_node, unique_pos)
 
 
-def file_tile_grid_holes(conn):
+def fill_tile_grid_holes(conn):
     """
     This function fills empty tiles in the grid with NULL tiles.
     :param conn:
@@ -931,6 +931,8 @@ def file_tile_grid_holes(conn):
     # Get NULL tile pkey
     null_pkey = c.execute(
         "SELECT pkey FROM tile_type WHERE name = \"NULL\"").fetchone()[0]
+
+    assert null_pkey is not None
 
     # Fetch all occupied locations
     occupied_locs = c.execute("SELECT grid_x, grid_y FROM tile").fetchall()
@@ -984,13 +986,31 @@ def remap_tile_grid(conn):
     conn.commit()
 
     # Fill holes
-    file_tile_grid_holes(conn)
+    fill_tile_grid_holes(conn)
 
     # Build indices
     c = conn.cursor()
     c.execute("CREATE INDEX tile_type_index ON tile(tile_type_pkey);")
     c.execute("CREATE INDEX tile_name_index ON tile(name);")
     c.execute("CREATE INDEX tile_location_index ON tile(grid_x, grid_y);")
+
+
+def initialize_shift_map(conn, xshift=0, yshift=0):
+
+    cursor = conn.cursor()
+
+    # Clear the table (just in case)
+    cursor.executescript("DELETE FROM grid_loc_map; VACUUM;")
+
+    # Get the physical grid extent
+    extent = grid_mapping.get_phy_grid_extent(conn)
+
+    # Make a one-to-one map
+    for x, y in itertools.product(range(extent[0], extent[2]+1), range(extent[1], extent[3]+1)):
+        cursor.execute("INSERT INTO grid_loc_map VALUES (?, ?, ?, ?);", (x, y, x + xshift, y + yshift))
+
+    cursor.execute("COMMIT TRANSACTION;")
+    cursor.connection.commit()
 
 
 def main():
@@ -1019,19 +1039,19 @@ def main():
 
         grid_mapping.initialize_one_to_one_map(conn)
 
-        # TEST
-        from splitter.grid_splitter import GridSplitter
-        gs = GridSplitter(conn)
-        gs.set_tile_types_to_split(
-            ["CLBLL_L", "CLBLL_R", "CLBLM_L",
-             "CLBLM_R"])  # FIXME: This is just a test.
-        gs.split()
-        # TEST
+        # # TEST
+        # from splitter.grid_splitter import GridSplitter
+        # gs = GridSplitter(conn)
+        # gs.set_tile_types_to_split(
+        #     ["CLBLL_L", "CLBLL_R", "CLBLM_L",
+        #      "CLBLM_R"])  # FIXME: This is just a test.
+        # gs.split()
+        # # TEST
+        initialize_shift_map(conn, 2, 0)
 
         print("{}: Grid map initialized".format(datetime.datetime.now()))
 
         remap_tile_grid(conn)
-        file_tile_grid_holes(conn)
         print("{}: Tile grid remapped".format(datetime.datetime.now()))
         import_nodes(db, conn)
         print("{}: Connections made".format(datetime.datetime.now()))
