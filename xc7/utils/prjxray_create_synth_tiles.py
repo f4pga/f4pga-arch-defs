@@ -153,7 +153,7 @@ def main():
 
     # Find two VBRK's in the corner of the fabric to use as the synthetic VCC
     loc_min = GridLoc(g.dims()[0], g.dims()[2])
-    loc_max = GridLoc(g.dims()[1], g.dims()[3])
+    loc_max = GridLoc(g.dims()[0], g.dims()[3])
 
     #print("loc_min:", loc_min, "phy")
     #print("loc_max:", loc_max, "phy")
