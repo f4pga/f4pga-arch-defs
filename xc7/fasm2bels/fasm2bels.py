@@ -17,6 +17,7 @@ Vivado is roughly:
 """
 
 import argparse
+import csv
 import os.path
 import sqlite3
 import subprocess
@@ -35,6 +36,8 @@ from .connection_db_utils import create_maybe_get_wire, maybe_add_pip, \
         get_tile_type
 from .iob_models import process_iobs
 from .verilog_modeling import Module
+
+from lib.parse_pcf import parse_simple_pcf
 
 
 def null_process(conn, top, tile, tiles):
@@ -113,6 +116,37 @@ def bit2fasm(db_root, db, grid, bit_file, fasm_file, bitread, part):
         )
 
 
+def load_io_sites(db_root, part, pcf):
+    """ Load map of sites to signal names from pcf and part pin definitions.
+
+    Args:
+        db_root (str): Path to database root folder
+        part (str): Part name being targeted.
+        pcf (str): Full path to pcf file for this bitstream.
+
+    Returns:
+        Dict from pad site name to net name.
+
+    """
+    pin_to_signal = {}
+    with open(pcf) as f:
+        for pcf_constraint in parse_simple_pcf(f):
+            assert pcf_constraint.pad not in pin_to_signal, pcf_constraint.pad
+            pin_to_signal[pcf_constraint.pad] = pcf_constraint.net
+
+    site_to_signal = {}
+
+    with open(os.path.join(db_root, '{}_package_pins.csv'.format(part))) as f:
+        for d in csv.DictReader(f):
+            if d['pin'] in pin_to_signal:
+                site_to_signal[d['site']] = pin_to_signal[d['pin']]
+                del pin_to_signal[d['pin']]
+
+    assert len(pin_to_signal) == 0, pin_to_signal.keys()
+
+    return site_to_signal
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument(
@@ -149,9 +183,10 @@ def main():
     )
     parser.add_argument(
         '--part',
-        help="Name of part being targetted, required if --bit_file is provided."
+        help="Name of part being targeted, required if --bit_file is provided."
     )
     parser.add_argument('--top', default="top", help="Root level module name.")
+    parser.add_argument('--pcf', help="Mapping of top-level pins to pads.")
     parser.add_argument('verilog_file', help="Filename of output verilog file")
     parser.add_argument('tcl_file', help="Filename of output tcl script.")
 
@@ -175,6 +210,10 @@ def main():
     maybe_get_wire = create_maybe_get_wire(conn)
 
     top = Module(db, grid, conn, name=args.top)
+    if args.pcf:
+        top.set_site_to_signal(
+            load_io_sites(args.db_root, args.part, args.pcf)
+        )
 
     iostandards = []
 
