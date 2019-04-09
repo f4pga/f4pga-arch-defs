@@ -666,6 +666,43 @@ def merge_exclusive_dicts(dict_a, dict_b):
     dict_a.update(dict_b)
 
 
+def make_bus(wires):
+    """ Combine bus wires into a consecutive bus.
+
+    >>> list(make_bus(['A', 'B']))
+    [('A', None), ('B', None)]
+    >>> list(make_bus(['A[0]', 'A[1]', 'B']))
+    [('A', 2), ('B', None)]
+    >>> list(make_bus(['A[0]', 'A[1]', 'B[0]']))
+    [('A', 2), ('B', 1)]
+
+    """
+    output = {}
+    buses = {}
+
+    for w in wires:
+        idx = w.find('[')
+        if idx != -1:
+            assert w[-1] == ']', w
+
+            bus = w[0:idx]
+            if bus not in buses:
+                buses[bus] = []
+
+            buses[bus].append(int(w[idx + 1:-1]))
+        else:
+            output[w] = None
+
+    for bus, values in buses.items():
+        assert min(values) == 0
+        assert max(values) == len(values) - 1
+        assert len(values) == len(set(values)), (bus, values)
+        output[bus] = max(values)
+
+    for name in sorted(output):
+        yield name, output[name]
+
+
 class Module(object):
     """ Object to model a design. """
 
@@ -701,6 +738,10 @@ class Module(object):
         self.wires = set()
         self.wire_assigns = {}
 
+        # Optional map of site to signal names.
+        # This was originally intended for IPAD and OPAD signal naming.
+        self.site_to_signal = {}
+
     def set_iostandard(self, iostandards):
         """ Set the IOSTANDARD for the design.
 
@@ -721,6 +762,29 @@ class Module(object):
 
         self.iostandard = possible_iostandards.pop()
 
+    def set_site_to_signal(self, site_to_signal):
+        """ Assing site to signal map for top level sites.
+
+        Args:
+            site_to_signal (dict): Site to signal name map
+
+        """
+        self.site_to_signal = site_to_signal
+
+    def _check_top_name(self, tile, site, name):
+        """ Returns top level port name for given tile and site
+
+        Args:
+            tile (str): Tile containing site
+            site (str): Site containing top level pad.
+            name (str): User-defined pad name (e.g. IPAD or OPAD, etc).
+
+        """
+        if site not in self.site_to_signal:
+            return '{}_{}_{}'.format(tile, site, name)
+        else:
+            return self.site_to_signal[site]
+
     def add_top_in_port(self, tile, site, name):
         """ Add a top level input port.
 
@@ -730,8 +794,11 @@ class Module(object):
 
         Returns str of root level port name.
         """
-        port = '{}_{}_{}'.format(tile, site, name)
+
+        port = self._check_top_name(tile, site, name)
+        assert port not in self.root_in
         self.root_in.add(port)
+
         return port
 
     def add_top_out_port(self, tile, site, name):
@@ -743,8 +810,10 @@ class Module(object):
 
         Returns str of root level port name.
         """
-        port = '{}_{}_{}'.format(tile, site, name)
+        port = self._check_top_name(tile, site, name)
+        assert port not in self.root_out
         self.root_out.add(port)
+
         return port
 
     def add_top_inout_port(self, tile, site, name):
@@ -756,8 +825,10 @@ class Module(object):
 
         Returns str of root level port name.
         """
-        port = '{}_{}_{}'.format(tile, site, name)
+        port = self._check_top_name(tile, site, name)
+        assert port not in self.root_inout
         self.root_inout.add(port)
+
         return port
 
     def is_top_level(self, wire):
@@ -824,12 +895,30 @@ class Module(object):
 
         """
         root_module_args = []
-        for in_wire in sorted(self.root_in):
-            root_module_args.append('  input ' + in_wire)
-        for out_wire in sorted(self.root_out):
-            root_module_args.append('  output ' + out_wire)
-        for inout_wire in sorted(self.root_inout):
-            root_module_args.append('  inout ' + inout_wire)
+
+        for in_wire, width in make_bus(self.root_in):
+            if width is None:
+                root_module_args.append('  input ' + in_wire)
+            else:
+                root_module_args.append(
+                    '  input [{}:0] {}'.format(width, in_wire)
+                )
+
+        for out_wire, width in make_bus(self.root_out):
+            if width is None:
+                root_module_args.append('  output ' + out_wire)
+            else:
+                root_module_args.append(
+                    '  output [{}:0] {}'.format(width, out_wire)
+                )
+
+        for inout_wire, width in make_bus(self.root_inout):
+            if width is None:
+                root_module_args.append('  inout ' + inout_wire)
+            else:
+                root_module_args.append(
+                    '  inout [{}:0] {}'.format(width, inout_wire)
+                )
 
         yield 'module {}('.format(self.name)
 
