@@ -12,11 +12,9 @@ assign tx = rx;
 wire ce = ^sw;
 wire reset = &sw;
 
-// 4 FF's with SR tied to GND, and CE tied to VCC
-// 4 FF's with SR tied to input and CE tied to VCC
-// 4 FF's with SR tied to GND and CE tied to input
-// 4 FF's with SR tied to input and CE tied to input
+// 4 FF's of each SR/CE varient to check packing behavior.
 generate for(i = 0; i < 3; i++) begin:ff
+    // Tie SR to GND and CE to VCC
     FDRE #(
         .INIT(0),
     ) vcc_gnd (
@@ -27,6 +25,7 @@ generate for(i = 0; i < 3; i++) begin:ff
         .R(0)
     );
 
+    // Tie SR to GND and CE to signal
     FDRE #(
         .INIT(0),
     ) s_gnd (
@@ -37,6 +36,7 @@ generate for(i = 0; i < 3; i++) begin:ff
         .R(0)
     );
 
+    // Tie SR to signal and CE to signal
     FDRE #(
         .INIT(0),
     ) s_s (
@@ -47,6 +47,7 @@ generate for(i = 0; i < 3; i++) begin:ff
         .R(reset)
     );
 
+    // Tie SR to signal and CE to VCC
     FDRE #(
         .INIT(0),
     ) vcc_s (
