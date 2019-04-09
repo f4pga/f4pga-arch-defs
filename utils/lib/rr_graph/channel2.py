@@ -48,7 +48,7 @@ class Channel(object):
         self.trees = []
         self.tracks = sorted(tracks, key=lambda x: x[1] - x[0])
 
-    def place_track(self, track):
+    def _place_track(self, track):
         """Add track to existing interval tree, if there is room (ie doesn't overlap)
         If track won't fit in any existing tree, allocate a new tree for the track"""
         for idx, tree in enumerate(self.trees):
@@ -64,9 +64,9 @@ class Channel(object):
         )
 
     def pack_tracks(self):
-        """place each track"""
+        """pack all tracks"""
         for track in self.tracks[::-1]:
-            self.place_track(track)
+            self._place_track(track)
 
     def fill_empty(self, min_value, max_value):
         """Generator that yields tracks for any gaps in the channels.
