@@ -56,7 +56,7 @@ function(ADD_XC7_ARCH_DEFINE)
         \${BIT_TO_BIN_EXTRA_ARGS}"
     BIT_TO_V bitread
     BIT_TO_V_CMD "${CMAKE_COMMAND} -E env \
-    PYTHONPATH=${symbiflow-arch-defs_BINARY_DIR}/env/conda/lib/python3.7/site-packages:${PRJXRAY_DIR}:${PRJXRAY_DIR}/third_party/fasm:${symbiflow-arch-defs_SOURCE_DIR}/xc7 \
+    PYTHONPATH=${symbiflow-arch-defs_BINARY_DIR}/env/conda/lib/python3.7/site-packages:${PRJXRAY_DIR}:${PRJXRAY_DIR}/third_party/fasm:${symbiflow-arch-defs_SOURCE_DIR}/xc7:${symbiflow-arch-defs_SOURCE_DIR}/utils \
         \${PYTHON3} -mfasm2bels \
         \${BIT_TO_V_EXTRA_ARGS} \
         --db_root ${PRJXRAY_DB_DIR}/${ARCH} \
@@ -64,6 +64,7 @@ function(ADD_XC7_ARCH_DEFINE)
         --bitread $<TARGET_FILE:bitread> \
         --bit_file \${OUT_BIN} \
         --fasm_file \${OUT_BIN}.fasm \
+        --pcf \${INPUT_IO_FILE} \
         --top \${TOP} \
         \${OUT_BIT_VERILOG} \${OUT_BIT_VERILOG}.tcl"
     NO_BIT_TIME
