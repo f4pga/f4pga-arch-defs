@@ -1220,8 +1220,10 @@ function(ADD_FPGA_TARGET)
         DEPENDS ${BIT_TO_V} ${OUT_BITSTREAM} ${OUT_BIN}
         )
 
-        add_custom_target(${NAME}_bit_v DEPENDS ${OUT_BIT_VERILOG})
+
         add_output_to_fpga_target(${NAME} BIT_V ${OUT_LOCAL_REL}/${TOP}_bit.v)
+        get_file_target(BIT_V_TARGET ${OUT_LOCAL_REL}/${TOP}_bit.v)
+        add_custom_target(${NAME}_bit_v DEPENDS ${BIT_V_TARGET})
 
         set(AUTOSIM_CYCLES ${ADD_FPGA_TARGET_AUTOSIM_CYCLES})
         if("${AUTOSIM_CYCLES}" STREQUAL "")
@@ -1296,7 +1298,7 @@ function(ADD_FPGA_TARGET)
         READ_GOLD "${READ_GOLD} rename ${TOP} gold"
         READ_GATE "read_verilog ${OUT_BIT_VERILOG} $<SEMICOLON> rename ${TOP} gate"
         EQUIV_CHECK_SCRIPT ${ADD_FPGA_TARGET_EQUIV_CHECK_SCRIPT}
-        DEPENDS ${SOURCE_FILES} ${SOURCE_FILES_DEPS} ${OUT_BIT_VERILOG}
+        DEPENDS ${SOURCE_FILES} ${SOURCE_FILES_DEPS} ${BIT_V_TARGET} ${OUT_BIT_VERILOG}
         )
       # Add bit-to-v check tests to all_check_tests.
       add_dependencies(all_check_tests ${NAME}_check_eblif)

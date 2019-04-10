@@ -79,6 +79,10 @@ function(ff_ce_sr_test num_ff)
             ${YOSYS} ${YOSYS_TARGET}
             ff_ce_sr_${num_ff}_bit_v
         )
+
+    add_dependencies(all_ff_ce_sr_test
+        ff_ce_sr_${num_ff}_prove
+        )
 endfunction()
 
 ff_ce_sr_test(3)
