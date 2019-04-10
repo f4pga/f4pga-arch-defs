@@ -549,7 +549,7 @@ def make_connection(
         tile_pkey (int): pkey of the tile in the tile table
         src_wire_pkey (int): pkey of the source wire in the wire table
         dst_wire_pkey (int): pkey of the destination wire in the wire table
-        loc (tuple): Location of tile.
+        loc (tuple): Location of tile in the VPR grid space.
         pip_pkey (int): Pip being connected.
         switch_pkey (int): Primary key to switch table of switch to be used
             in this connection.

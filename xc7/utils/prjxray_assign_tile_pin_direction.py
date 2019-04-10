@@ -307,13 +307,15 @@ def main():
     with DatabaseCache(args.connection_database, read_only=True) as conn:
 
         c = conn.cursor()
+        c2 = conn.cursor()
 
         # List tile wires and site wires
-        tiles = c.execute("SELECT pkey, name FROM tile_type").fetchall()
-        for tile_type_pkey, tile_type in tiles:
+        for tile_type_pkey, tile_type in c2.execute(
+                "SELECT pkey, name FROM tile_type"
+        ):
 
             for wire_name, site_pkey in c.execute(
-                    "SELECT name, site_pkey FROM wire_in_tile WHERE tile_type_pkey = (?)",
+        "SELECT name, site_pkey FROM wire_in_tile WHERE tile_type_pkey = (?)",
                 (tile_type_pkey, )):
 
                 # Tile wire
