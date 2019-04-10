@@ -14,14 +14,7 @@ echo "Running ice40 tests"
 echo "----------------------------------------"
 (
 	cd build
-    make -j ${MAX_CORES} --output-sync=target \
-		ice40_up5k_sg48_rrxml_real \
-		ice40_hx1k_tq144_rrxml_real \
-		ice40_hx8k_ct256_rrxml_real \
-		ice40_lp1k_qn84_rrxml_real \
-		ice40_lp8k_cm81_rrxml_real
-	ls -l ice40/devices/rr_graph*.real.xml
-	make -j ${MAX_CORES} --output-sync=target \
+	VPR_NUM_WORKERS=${CORES} make -j ${MAX_CORES} --output-sync=target \
 		all_ice40
 )
 echo "----------------------------------------"
