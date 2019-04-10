@@ -49,6 +49,36 @@ function(ff_ce_sr_test num_ff)
         testbench_ff_ce_sr_${num_ff}_tb
         testbinch_ff_ce_sr_${num_ff}_tb
         )
+
+    get_target_property_required(YOSYS env YOSYS)
+    get_target_property(YOSYS_TARGET env YOSYS_TARGET)
+
+    # Note that the name of sby will become a directory, so do NOT name it the
+    # same as the add_fpga_target name, otherwise sby will remove that 
+    # directory.
+    add_custom_command(
+        OUTPUT ff_ce_sr_${num_ff}_proof.sby
+        COMMAND ${PYTHON3}
+            ${CMAKE_CURRENT_SOURCE_DIR}/create_sby.py --num_ff ${num_ff} > ff_ce_sr_${num_ff}_proof.sby
+        WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
+        DEPENDS
+            ${PYTHON3} ${PYTHON3_TARGET}
+            ${CMAKE_CURRENT_SOURCE_DIR}/create_sby.py
+        )
+
+    set(SBY
+        ${symbiflow-arch-defs_SOURCE_DIR}/third_party/symbiyosys/sbysrc/sby.py)
+    add_custom_target(
+        ff_ce_sr_${num_ff}_prove
+        COMMAND ${PYTHON3} ${SBY}
+            --yosys ${YOSYS} --abc ${YOSYS}-abc -f ff_ce_sr_${num_ff}_proof.sby
+        WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
+        DEPENDS
+            ff_ce_sr_${num_ff}_proof.sby
+            ${PYTHON3} ${PYTHON3_TARGET}
+            ${YOSYS} ${YOSYS_TARGET}
+            ff_ce_sr_${num_ff}_bit_v
+        )
 endfunction()
 
 ff_ce_sr_test(3)
