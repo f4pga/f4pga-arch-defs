@@ -15,6 +15,10 @@ find_package(PythonInterp 3 REQUIRED)
 # targets to prevent stale locks.
 add_custom_target(clean_locks)
 
+# Add dummy targets for attaching test targets too.
+add_custom_target(all_xc7_tests)
+add_custom_target(all_ice40_tests)
+
 setup_env(
     MINICONDA3_VERSION 4.5.12
     )
@@ -153,6 +157,7 @@ endif()
 add_custom_target(all_ice40)
 add_dependencies(all_ice40
     all_ice40_demos
+    all_ice40_tests
     all_ice40_route_tests
     )
 
@@ -179,6 +184,7 @@ endif()
 add_custom_target(all_xc7)
 add_dependencies(all_xc7
     all_xc7_route_tests
+    all_xc7_tests
     all_xc7_demos
     )
 if (NOT DEFINED ENV{CI} OR NOT $ENV{CI})
