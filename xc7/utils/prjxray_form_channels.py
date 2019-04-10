@@ -827,12 +827,6 @@ SELECT pkey FROM wire_in_tile WHERE site_pin_pkey = ?
 """, (vcc_site_pin_pkey, )
     )
 
-    c.execute(
-        """
-SELECT pkey FROM wire_in_tile WHERE site_pin_pkey = ?
-""", (vcc_site_pin_pkey, )
-    )
-
     c2 = conn.cursor()
     c2.execute("""BEGIN EXCLUSIVE TRANSACTION;""")
 
@@ -917,16 +911,15 @@ INSERT INTO node(classification) VALUES (?)
            create_track(gnd_node, unique_pos)
 
 
-def fill_tile_grid_holes(conn):
+def remap_tile_grid(conn, grid_map):
     """
-    This function fills empty tiles in the grid with NULL tiles.
+    Remaps tiles present in the "phy_tile" table to the "tile" table.
     :param conn:
+    :param grid_map:
     :return:
     """
-    c = conn.cursor()
 
-    # Get the grid extent
-    extent = grid_mapping.get_vpr_grid_extent(conn)
+    c = conn.cursor()
 
     # Get NULL tile pkey
     null_pkey = c.execute(
@@ -934,83 +927,55 @@ def fill_tile_grid_holes(conn):
 
     assert null_pkey is not None
 
-    # Fetch all occupied locations
-    occupied_locs = c.execute("SELECT grid_x, grid_y FROM tile").fetchall()
-
-    # Now loop over the extent and fill missing locations with NULL tiles
-    for x, y in itertools.product(range(extent[0], extent[2] + 1),
-                                  range(extent[1], extent[3] + 1)):
-
-        # Got a non-occupied location
-        if (x, y) not in occupied_locs:
-            tile_name = "NULL_VPR_X%dY%d" % (x, y)
-
-            c.execute(
-                "INSERT INTO tile(name, tile_type_pkey, grid_x, grid_y) VALUES (?, ?, ?, ?)",
-                (tile_name, null_pkey, x, y))
-
-    conn.commit()
-
-
-def remap_tile_grid(conn):
-    """
-    Remaps tiles present in the "phy_tile" table to the "tile" table.
-    :param conn:
-    :return:
-    """
-
-    # Initialize mapper
-    grid_loc_mapper = grid_mapping.GridLocMap(conn)
-
-    # Fetch all locations from the database
-    c = conn.cursor()
+    # Fetch all physical tiles from the database
     tile_data = c.execute(
         "SELECT pkey, name, tile_type_pkey, grid_x, grid_y FROM phy_tile"
     ).fetchall()
 
-    # Convert them one-by-one
+    # Convert them to the new grid one-by-one
     for tile in tile_data:
         phy_loc_x = tile[3]
         phy_loc_y = tile[4]
 
-        # Map
-        vpr_loc = grid_loc_mapper.get_vpr_loc(
-            (phy_loc_x,
-             phy_loc_y))[0]  # For one to many correspondence use the first one
+        # Map location
+        vpr_loc = grid_map.get_vpr_loc((phy_loc_x, phy_loc_y))
 
-        # Insert
+        # Insert the tile into grid
         c.execute(
             "INSERT INTO tile(pkey, name, tile_type_pkey, grid_x, grid_y) VALUES (?, ?, ?, ?, ?)",
-            (tile[0], tile[1], tile[2], vpr_loc[0], vpr_loc[1]))
+            (tile[0], tile[1], tile[2], vpr_loc[0][0], vpr_loc[0][1])
+        )
 
-    conn.commit()
+        # Insert location correspondence (The pkey is the same)
+        c.execute(
+            "INSERT INTO grid_loc_map(phy_tile_pkey, vpr_tile_pkey) VALUES (?, ?)",
+            (tile[0], tile[0])
+        )
 
-    # Fill holes
-    fill_tile_grid_holes(conn)
+        # If one physical location corresponds to more than one VPR location
+        # then fill the space with artificial EMPTY tiles.
+        for i in range(1, len(vpr_loc)):
+            tile_name = "EMPTY_X%dY%d" % (vpr_loc[i][0], vpr_loc[i][1])
+
+            # Insert the tile into grid
+            c.execute(
+                "INSERT INTO tile(name, tile_type_pkey, grid_x, grid_y) VALUES (?, ?, ?, ?, ?)",
+                (tile_name, null_pkey, vpr_loc[i][0], vpr_loc[i][1])
+            )
+
+            # Insert location correspondence
+            new_pkey = c.lastrowid
+            c.execute(
+                "INSERT INTO grid_loc_map(phy_tile_pkey, vpr_tile_pkey) VALUES (?, ?)",
+                (tile[0], new_pkey)
+            )
 
     # Build indices
-    c = conn.cursor()
     c.execute("CREATE INDEX tile_type_index ON tile(tile_type_pkey);")
     c.execute("CREATE INDEX tile_name_index ON tile(name);")
     c.execute("CREATE INDEX tile_location_index ON tile(grid_x, grid_y);")
 
-
-def initialize_shift_map(conn, xshift=0, yshift=0):
-
-    cursor = conn.cursor()
-
-    # Clear the table (just in case)
-    cursor.executescript("DELETE FROM grid_loc_map; VACUUM;")
-
-    # Get the physical grid extent
-    extent = grid_mapping.get_phy_grid_extent(conn)
-
-    # Make a one-to-one map
-    for x, y in itertools.product(range(extent[0], extent[2]+1), range(extent[1], extent[3]+1)):
-        cursor.execute("INSERT INTO grid_loc_map VALUES (?, ?, ?, ?);", (x, y, x + xshift, y + yshift))
-
-    cursor.execute("COMMIT TRANSACTION;")
-    cursor.connection.commit()
+    c.connection.commit()
 
 
 def main():
@@ -1037,7 +1002,9 @@ def main():
         import_grid(db, grid, conn)
         print("{}: Initial database formed".format(datetime.datetime.now()))
 
-        grid_mapping.initialize_one_to_one_map(conn)
+        # Get physical grid extent, generate a test mapping
+        phy_grid_extent = grid_mapping.get_phy_grid_extent(conn)
+        grid_map = grid_mapping.GridLocMap.generate_shift_map(phy_grid_extent, 2, 0)
 
         # # TEST
         # from splitter.grid_splitter import GridSplitter
@@ -1047,11 +1014,9 @@ def main():
         #      "CLBLM_R"])  # FIXME: This is just a test.
         # gs.split()
         # # TEST
-        initialize_shift_map(conn, 2, 0)
 
         print("{}: Grid map initialized".format(datetime.datetime.now()))
-
-        remap_tile_grid(conn)
+        remap_tile_grid(conn, grid_map)
         print("{}: Tile grid remapped".format(datetime.datetime.now()))
         import_nodes(db, conn)
         print("{}: Connections made".format(datetime.datetime.now()))

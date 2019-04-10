@@ -75,7 +75,7 @@ def main():
 
         # The object will read data from the DB so it can live
         # outside the scope of the "with" statement
-        grid_loc_mapper = GridLocMap(conn)
+        grid_loc_mapper = GridLocMap.load_from_database(conn)
 
     with open(args.roi) as f:
         j = json.load(f)

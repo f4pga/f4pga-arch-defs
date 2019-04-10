@@ -6,37 +6,109 @@ import itertools
 
 # =============================================================================
 
+
 class GridLocMap(object):
     """
     This class preforms forward (physical -> VPR) and backward (VPR -> physical)
     grid location mapping.
     """
 
-    def __init__(self, db_conn):
+    def __init__(self, fwd_loc_map, bwd_loc_map):
+        self.fwd_loc_map = fwd_loc_map
+        self.bwd_loc_map = bwd_loc_map
 
-        # Create a database cursor
-        self.db_cursor = db_conn.cursor()
+    @staticmethod
+    def generate_one_to_one_map(extent):
+        """
+        Generates a one-to-one map for specified location range.
+        :param extent:
+        :return:
+        """
 
-        # Get the whole table
-        grid_loc_map = self.db_cursor.execute(
-            "SELECT grid_phy_x, grid_phy_y, grid_vpr_x, grid_vpr_y FROM grid_loc_map"
-        ).fetchall()
+        xmin, ymin, xmax, ymax = extent
+
+        fwd_loc_map = {}
+        bwd_loc_map = {}
+
+        # Make a one-to-one map
+        for x, y in itertools.product(range(xmin, xmax + 1),
+                                      range(ymin, ymax + 1)):
+
+            fwd_loc_map[(x, y)] = [(x, y)]
+            bwd_loc_map[(x, y)] = [(x, y)]
+
+        # Return map object
+        return GridLocMap(fwd_loc_map, bwd_loc_map)
+
+    @staticmethod
+    def generate_shift_map(extent, shift_x, shift_y):
+        """
+        Generates a one-to-one map for specified location range. For debugging
+        purposes.
+        :param extent:
+        :param shift_x:
+        :param shift_y:
+
+        :return:
+        """
+
+        xmin, ymin, xmax, ymax = extent
+
+        fwd_loc_map = {}
+        bwd_loc_map = {}
+
+        # Make a one-to-one map
+        for x, y in itertools.product(range(xmin, xmax + 1),
+                                      range(ymin, ymax + 1)):
+
+            phy_loc = (x, y)
+            vpr_loc = (x + shift_x, y + shift_y)
+
+            fwd_loc_map[phy_loc] = [vpr_loc]
+            bwd_loc_map[vpr_loc] = [phy_loc]
+
+        # Return map object
+        return GridLocMap(fwd_loc_map, bwd_loc_map)
+
+    @staticmethod
+    def load_from_database(conn):
+        """
+        Loads grid location mapping from a SQL database. Returns a GridLocMap
+        object.
+        :param conn:
+        :return:
+        """
+
+        c = conn.cursor()
+
+        # Query the grid map from the database
+        grid_loc_map = c.execute("""
+SELECT phy.grid_x, phy.grid_y, vpr.grid_x, vpr.grid_y
+FROM phy_tile phy
+INNER JOIN grid_loc_map map
+ON phy.pkey = map.phy_tile_pkey
+INNER JOIN tile vpr
+ON vpr.pkey = map.vpr_tile_pkey
+""").fetchall()
 
         # Build maps
-        self.fwd_loc_map = {}
-        self.bwd_loc_map = {}
+        fwd_loc_map = {}
+        bwd_loc_map = {}
 
         for loc_pair in grid_loc_map:
             phy_loc = loc_pair[0:2]
             vpr_loc = loc_pair[2:4]
 
-            if phy_loc not in self.fwd_loc_map.keys():
-                self.fwd_loc_map[phy_loc] = []
-            self.fwd_loc_map[phy_loc].append(vpr_loc)
+            if phy_loc not in fwd_loc_map.keys():
+                fwd_loc_map[phy_loc] = []
+            fwd_loc_map[phy_loc].append(vpr_loc)
 
-            if vpr_loc not in self.bwd_loc_map.keys():
-                self.bwd_loc_map[vpr_loc] = []
-            self.bwd_loc_map[vpr_loc].append(phy_loc)
+            if vpr_loc not in bwd_loc_map.keys():
+                bwd_loc_map[vpr_loc] = []
+            bwd_loc_map[vpr_loc].append(phy_loc)
+
+        # Return map object
+        return GridLocMap(fwd_loc_map, bwd_loc_map)
 
     def get_vpr_loc(self, grid_loc):
         return tuple(self.fwd_loc_map[grid_loc])
@@ -45,6 +117,7 @@ class GridLocMap(object):
         return tuple(self.bwd_loc_map[grid_loc])
 
 # =============================================================================
+
 
 def create_tables(conn):
     """
@@ -57,6 +130,7 @@ def create_tables(conn):
         cursor = conn.cursor()
         cursor.executescript(fp.read())
         conn.commit()
+
 
 def get_phy_grid_extent(conn):
     """
@@ -76,6 +150,7 @@ def get_phy_grid_extent(conn):
 
     return (xmin, ymin, xmax, ymax)
 
+
 def get_vpr_grid_extent(conn):
     """
     Returns a tuple with (xmin, ymin, xmax, ymax) which defines
@@ -94,53 +169,8 @@ def get_vpr_grid_extent(conn):
 
     return (xmin, ymin, xmax, ymax)
 
-def initialize_one_to_one_map(conn):
-    """
-    Initializes a one to one mapping of grid coordinates. The grid must be
-    imported to the database before calling this function.
-    """
-
-    cursor = conn.cursor()
-
-    # Clear the table (just in case)
-    cursor.executescript("DELETE FROM grid_loc_map; VACUUM;")
-
-    # Get the physical grid extent
-    extent = get_phy_grid_extent(conn)
-
-    # Make a one-to-one map
-    for x, y in itertools.product(range(extent[0], extent[2]+1), range(extent[1], extent[3]+1)):
-        cursor.execute("INSERT INTO grid_loc_map VALUES (?, ?, ?, ?);", (x, y, x, y))
-
-    cursor.execute("COMMIT TRANSACTION;")
-    cursor.connection.commit()
-
 # =============================================================================
 
-def main():
-    """
-    When executed adds grid location map table(s) to the database and initializes
-    a "dummy" one-to-one map.
-    """
-
-    # Parse arguments
-    parser = argparse.ArgumentParser()
-    parser.add_argument("--db", type=str, required=True, help="Database file")
-
-    args = parser.parse_args()
-
-    # Open the DB
-    conn = sqlite3.Connection(args.db)
-
-    # Create table
-    create_tables(conn)
-
-    # Initialize one-to-one mapping
-    initialize_one_to_one_map(conn)
-
-    conn.close()
-
-# =============================================================================
 
 if __name__ == "__main__":
     main()

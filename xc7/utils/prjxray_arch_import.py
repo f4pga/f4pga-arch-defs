@@ -243,7 +243,7 @@ def main():
 
         # The object will read data from the DB so it can live
         # outside the scope of the "with" statement
-        grid_loc_mapper = GridLocMap(conn)
+        grid_loc_mapper = GridLocMap.load_from_database(conn)
 
         # Get the VPR grid extent
         vpr_grid_extent = get_vpr_grid_extent(conn)
