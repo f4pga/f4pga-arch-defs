@@ -9,6 +9,8 @@ equiv_make gold gate equiv
 prep -flatten -top equiv
 opt_clean -purge
 opt -full
+equiv_status
 equiv_simple -seq 10
 equiv_induct -seq 10
+equiv_status
 equiv_status -assert
