@@ -1,7 +1,14 @@
 #!/usr/bin/env python3
+"""
+Generates kokoro config files based on template.
+"""
 
 db_full = """\
 # Format: //devtools/kokoro/config/proto/build.proto
+
+# Generated from .github/kokoro/kokoro-cfg.py
+# To regenerate run:
+# cd .github/kokoro/ && python3 kokoro-cfg.py
 
 build_file: "symbiflow-arch-defs-%(kokoro_type)s-%(arch)s/.github/kokoro/%(arch)s.sh"
 
