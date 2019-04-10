@@ -1284,11 +1284,17 @@ function(ADD_FPGA_TARGET)
       message(FATAL_ERROR "EQUIV_CHECK_SCRIPT is required if EMIT_CHECK_TESTS is set.")
     endif()
 
+    set(READ_GOLD "")
+
+    foreach(FILE ${SOURCE_FILES})
+        set(READ_GOLD "${READ_GOLD}${READ_FUNCTION} ${FILE} $<SEMICOLON> ")
+    endforeach()
+
     if(NOT ${NO_BIT_TO_V})
       add_check_test(
         NAME ${NAME}_check
         ARCH ${ARCH}
-        READ_GOLD "${READ_FUNCTION} ${SOURCE_FILES} $<SEMICOLON> rename ${TOP} gold"
+        READ_GOLD "${READ_GOLD} rename ${TOP} gold"
         READ_GATE "read_verilog ${OUT_BIT_VERILOG} $<SEMICOLON> rename ${TOP} gate"
         EQUIV_CHECK_SCRIPT ${ADD_FPGA_TARGET_EQUIV_CHECK_SCRIPT}
         DEPENDS ${SOURCE_FILES} ${SOURCE_FILES_DEPS} ${OUT_BIT_VERILOG}
