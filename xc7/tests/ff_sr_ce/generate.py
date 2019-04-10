@@ -26,36 +26,33 @@ def main():
         k, v = param.split('=')
         params[k] = v
 
-    with open(args.output, 'w') as f_out:
-        with open(args.template) as f:
-            for l in f:
-                m = LOCALPARAM_RE.match(l)
-                m2 = DUMPVARS_RE.match(l)
-                if m:
-                    prefix_ws = m.group(1)
-                    param = m.group(2)
+    with open(args.output, 'w') as f_out, open(args.template) as f:
+        for l in f:
+            m = LOCALPARAM_RE.match(l)
+            m2 = DUMPVARS_RE.match(l)
+            if m:
+                prefix_ws = m.group(1)
+                param = m.group(2)
 
-                    if param in params:
-                        print(
-                            '{}localparam {} = {};'.format(
-                                prefix_ws, param, params[param]
-                            ),
-                            file=f_out
-                        )
-                    else:
-                        print(l.rstrip(), file=f_out)
-                elif m2:
-                    prefix_ws = m2.group(1)
-                    base = os.path.basename(args.output)
-                    root, _ = os.path.splitext(base)
+                if param in params:
                     print(
-                        '{}$dumpfile("testbench_{}.vcd");'.format(
-                            prefix_ws, root
+                        '{}localparam {} = {};'.format(
+                            prefix_ws, param, params[param]
                         ),
                         file=f_out
                     )
                 else:
                     print(l.rstrip(), file=f_out)
+            elif m2:
+                prefix_ws = m2.group(1)
+                base = os.path.basename(args.output)
+                root, _ = os.path.splitext(base)
+                print(
+                    '{}$dumpfile("testbench_{}.vcd");'.format(prefix_ws, root),
+                    file=f_out
+                )
+            else:
+                print(l.rstrip(), file=f_out)
 
 
 if __name__ == "__main__":
