@@ -12,6 +12,7 @@ echo
 echo "========================================"
 echo "Git fetching tags"
 echo "----------------------------------------"
+# Don't fail if there are no tags
 git fetch --tags || true
 echo "----------------------------------------"
 
