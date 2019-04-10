@@ -1,0 +1,11 @@
+read_verilog ff_ce_sr.v
+synth_xilinx
+rename top gold
+read_verilog ff_ce_sr/artix7-xc7a50t-basys3-roi-virt-xc7a50t-basys3-test/top_bit.v
+rename top gate
+equiv_make gold gate equiv
+read_verilog +/xilinx/cells_sim.v
+prep -flatten -top equiv
+equiv_simple -seq 10 equiv
+equiv_induct -seq 10 equiv
+equiv_status -assert
