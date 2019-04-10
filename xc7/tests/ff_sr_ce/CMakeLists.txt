@@ -2,6 +2,7 @@ add_file_target(FILE ff_ce_sr.v SCANNER_TYPE verilog)
 add_file_target(FILE ff_ce_sr_testbench.v SCANNER_TYPE verilog)
 
 add_custom_target(all_ff_ce_sr_test)
+add_dependencies(all_xc7_tests all_ff_ce_sr_test)
 
 function(ff_ce_sr_test num_ff)
     get_target_property_required(PYTHON3 env PYTHON3)
