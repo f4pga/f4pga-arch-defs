@@ -14,7 +14,7 @@ echo "Running xc7 tests"
 echo "----------------------------------------"
 (
 	cd build
-	make -j ${MAX_CORES} --output-sync=target \
+	VPR_NUM_WORKERS=${CORES} make -j ${MAX_CORES} --output-sync=target \
 		all_xc7
 )
 echo "----------------------------------------"
