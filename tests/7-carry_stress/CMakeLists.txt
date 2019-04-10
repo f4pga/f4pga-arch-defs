@@ -1,7 +1,7 @@
 
 get_target_property_required(PYTHON3 env PYTHON3)
 get_target_property(PYTHON3_TARGET env PYTHON3_TARGET)
-foreach(CARRY_DEPTH RANGE 1 32)
+foreach(CARRY_DEPTH 1 2 3 4 7 8 9 15 16 17 31 32)
     set(CARRY_TEST carry_test_${CARRY_DEPTH}_init0.v)
     add_custom_command(
         OUTPUT ${CARRY_TEST}
