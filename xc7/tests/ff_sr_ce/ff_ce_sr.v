@@ -24,18 +24,18 @@ always @(posedge clk) begin
 end
 
 
-assign led[0] = ^Q[7:0];
-assign led[1] = |Q;
-assign led[2] = &Q;
-assign led[3] = Q[0];
-assign led[4] = Q[1];
-assign led[5] = Q[2];
-assign led[6] = Q[3];
-assign led[7] = Q[4];
-assign led[8] = Q[4*NUM_FF-4];
-assign led[9] = Q[4*NUM_FF-3];
-assign led[10] = Q[4*NUM_FF-2];
-assign led[11] = Q[4*NUM_FF-1];
+assign led[0] = Q[0];
+assign led[1] = Q[1];
+assign led[2] = Q[2];
+assign led[3] = Q[3];
+assign led[4] = Q[4];
+assign led[5] = Q[4*NUM_FF-4];
+assign led[6] = Q[4*NUM_FF-3];
+assign led[7] = Q[4*NUM_FF-2];
+assign led[8] = Q[4*NUM_FF-1];
+assign led[9] = ^Q;
+assign led[10] = |Q;
+assign led[11] = &Q;
 assign led[12] = ^sw;
 assign led[13] = |sw;
 assign led[14] = &sw;

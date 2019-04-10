@@ -23,6 +23,11 @@ function(ff_ce_sr_test num_ff)
         DEPENDS ${PYTHON3} ${PYTHON3_TARGET} ff_ce_sr_testbench.v generate.py
         )
     add_file_target(FILE ff_ce_sr_${num_ff}_tb.v GENERATED)
+    get_file_target(TB_SOURCE_TARGET ff_ce_sr_testbench.v)
+    get_file_target(TB_TARGET ff_ce_sr_${num_ff}_tb.v)
+    get_target_property(INCLUDE_FILES ${TB_SOURCE_TARGET} INCLUDE_FILES)
+    set_target_properties(${TB_TARGET} PROPERTIES INCLUDE_FILES
+        ${INCLUDE_FILES})
 
     add_fpga_target(
         NAME ff_ce_sr_${num_ff}
