@@ -200,6 +200,8 @@ function(PROJECT_XRAY_ARCH)
   append_file_dependency(DEPS ${symbiflow-arch-defs_SOURCE_DIR}/xc7/archs/${PART}/pin_assignments.json)
   get_file_location(PIN_ASSIGNMENTS ${symbiflow-arch-defs_SOURCE_DIR}/xc7/archs/${PART}/pin_assignments.json)
 
+  append_file_dependency(DEPS ${GENERIC_CHANNELS})
+
   string(REPLACE ";" "," TILE_TYPES_COMMA "${PROJECT_XRAY_ARCH_TILE_TYPES}")
 
   add_custom_command(
@@ -215,7 +217,7 @@ function(PROJECT_XRAY_ARCH)
       ${ROI_ARG}
     DEPENDS
     ${ARCH_IMPORT}
-    ${DEPS} ${CMAKE_CURRENT_BINARY_DIR}/channels.db
+    ${DEPS}
     ${PYTHON3} ${PYTHON3_TARGET} simplejson
     )
 
