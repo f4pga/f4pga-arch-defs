@@ -2,6 +2,8 @@
 
 [![Build Status](https://travis-ci.org/SymbiFlow/symbiflow-arch-defs.svg?branch=master)](https://travis-ci.org/SymbiFlow/symbiflow-arch-defs)
 
+Testing!
+
 This repo contains documentation of various FPGA architectures, it is currently
 concentrating on;
 
