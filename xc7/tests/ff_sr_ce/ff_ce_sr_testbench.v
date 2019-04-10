@@ -4,15 +4,7 @@ module test;
 
 localparam NUM_FF = 4;
 
-task tbassert(input a, input reg [512:0] s);
-begin
-    if (a==0) begin
-        $display("ASSERT FAILURE: %-s", s);
-        $finish
-    end
-end
-endtask
-
+`include "../../../library/tbassert.v"
 
 reg clk = 0;
 reg rx = 1;
@@ -25,7 +17,9 @@ wire [15:0] led;
 // clock generation
 always #1 clk=~clk;
 
-top (
+always #1 $monitor("%d %d %d %d %d", $time, clk, sw[14], led[0], led[1], led[2], led[3]);
+
+top unt(
     .clk(clk),
     .rx(rx),
     .tx(tx),
@@ -35,7 +29,9 @@ top (
 
 initial begin
 #1.1
-    tbassert(0, "Test")
+    tbassert(clk, "Clock!");
+#1
+    tbassert(!clk, "Clock!");
 #1  $finish;
 end
 
