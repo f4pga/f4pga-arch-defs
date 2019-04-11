@@ -69,14 +69,86 @@
         <output name="VCC" num_pins="1" />
       </pb_type>
       <interconnect>
-        <direct name="CE0" input="CE_VCC[0].VCC" output="CEUSEDMUX.CE_OUT[0]" />
-        <direct name="CE1" input="CE_VCC[1].VCC" output="CEUSEDMUX.CE_OUT[1]" />
-        <direct name="CE2" input="CE_VCC[2].VCC" output="CEUSEDMUX.CE_OUT[2]" />
-        <direct name="CE3" input="CE_VCC[3].VCC" output="CEUSEDMUX.CE_OUT[3]" />
-        <direct name="CE4" input="CE_VCC[4].VCC" output="CEUSEDMUX.CE_OUT[4]" />
-        <direct name="CE5" input="CE_VCC[5].VCC" output="CEUSEDMUX.CE_OUT[5]" />
-        <direct name="CE6" input="CE_VCC[6].VCC" output="CEUSEDMUX.CE_OUT[6]" />
-        <direct name="CE7" input="CE_VCC[7].VCC" output="CEUSEDMUX.CE_OUT[7]" />
+        <direct name="CE0" input="CE_VCC[0].VCC" output="CEUSEDMUX.CE_OUT[0]" >
+          <pack_pattern name="CE_FF_FDRE" in_port="CE_VCC[0].VCC" out_port="CEUSEDMUX.CE_OUT[0]"/>
+          <pack_pattern name="CESR_FF_FDRE" in_port="CE_VCC[0].VCC" out_port="CEUSEDMUX.CE_OUT[0]"/>
+          <pack_pattern name="CE_FF_FDSE" in_port="CE_VCC[0].VCC" out_port="CEUSEDMUX.CE_OUT[0]"/>
+          <pack_pattern name="CESR_FF_FDSE" in_port="CE_VCC[0].VCC" out_port="CEUSEDMUX.CE_OUT[0]"/>
+          <pack_pattern name="CE_FF_FDPE" in_port="CE_VCC[0].VCC" out_port="CEUSEDMUX.CE_OUT[0]"/>
+          <pack_pattern name="CESR_FF_FDPE" in_port="CE_VCC[0].VCC" out_port="CEUSEDMUX.CE_OUT[0]"/>
+          <pack_pattern name="CE_FF_FDCE" in_port="CE_VCC[0].VCC" out_port="CEUSEDMUX.CE_OUT[0]"/>
+          <pack_pattern name="CESR_FF_FDCE" in_port="CE_VCC[0].VCC" out_port="CEUSEDMUX.CE_OUT[0]"/>
+        </direct>
+        <direct name="CE1" input="CE_VCC[1].VCC" output="CEUSEDMUX.CE_OUT[1]" >
+          <pack_pattern name="CE_FF_FDRE" in_port="CE_VCC[1].VCC" out_port="CEUSEDMUX.CE_OUT[1]"/>
+          <pack_pattern name="CESR_FF_FDRE" in_port="CE_VCC[1].VCC" out_port="CEUSEDMUX.CE_OUT[1]"/>
+          <pack_pattern name="CE_FF_FDSE" in_port="CE_VCC[1].VCC" out_port="CEUSEDMUX.CE_OUT[1]"/>
+          <pack_pattern name="CESR_FF_FDSE" in_port="CE_VCC[1].VCC" out_port="CEUSEDMUX.CE_OUT[1]"/>
+          <pack_pattern name="CE_FF_FDPE" in_port="CE_VCC[1].VCC" out_port="CEUSEDMUX.CE_OUT[1]"/>
+          <pack_pattern name="CESR_FF_FDPE" in_port="CE_VCC[1].VCC" out_port="CEUSEDMUX.CE_OUT[1]"/>
+          <pack_pattern name="CE_FF_FDCE" in_port="CE_VCC[1].VCC" out_port="CEUSEDMUX.CE_OUT[1]"/>
+          <pack_pattern name="CESR_FF_FDCE" in_port="CE_VCC[1].VCC" out_port="CEUSEDMUX.CE_OUT[1]"/>
+        </direct>
+        <direct name="CE2" input="CE_VCC[2].VCC" output="CEUSEDMUX.CE_OUT[2]" >
+          <pack_pattern name="CE_FF_FDRE" in_port="CE_VCC[2].VCC" out_port="CEUSEDMUX.CE_OUT[2]"/>
+          <pack_pattern name="CESR_FF_FDRE" in_port="CE_VCC[2].VCC" out_port="CEUSEDMUX.CE_OUT[2]"/>
+          <pack_pattern name="CE_FF_FDSE" in_port="CE_VCC[2].VCC" out_port="CEUSEDMUX.CE_OUT[2]"/>
+          <pack_pattern name="CESR_FF_FDSE" in_port="CE_VCC[2].VCC" out_port="CEUSEDMUX.CE_OUT[2]"/>
+          <pack_pattern name="CE_FF_FDPE" in_port="CE_VCC[2].VCC" out_port="CEUSEDMUX.CE_OUT[2]"/>
+          <pack_pattern name="CESR_FF_FDPE" in_port="CE_VCC[2].VCC" out_port="CEUSEDMUX.CE_OUT[2]"/>
+          <pack_pattern name="CE_FF_FDCE" in_port="CE_VCC[2].VCC" out_port="CEUSEDMUX.CE_OUT[2]"/>
+          <pack_pattern name="CESR_FF_FDCE" in_port="CE_VCC[2].VCC" out_port="CEUSEDMUX.CE_OUT[2]"/>
+        </direct>
+        <direct name="CE3" input="CE_VCC[3].VCC" output="CEUSEDMUX.CE_OUT[3]" >
+          <pack_pattern name="CE_FF_FDRE" in_port="CE_VCC[3].VCC" out_port="CEUSEDMUX.CE_OUT[3]"/>
+          <pack_pattern name="CESR_FF_FDRE" in_port="CE_VCC[3].VCC" out_port="CEUSEDMUX.CE_OUT[3]"/>
+          <pack_pattern name="CE_FF_FDSE" in_port="CE_VCC[3].VCC" out_port="CEUSEDMUX.CE_OUT[3]"/>
+          <pack_pattern name="CESR_FF_FDSE" in_port="CE_VCC[3].VCC" out_port="CEUSEDMUX.CE_OUT[3]"/>
+          <pack_pattern name="CE_FF_FDPE" in_port="CE_VCC[3].VCC" out_port="CEUSEDMUX.CE_OUT[3]"/>
+          <pack_pattern name="CESR_FF_FDPE" in_port="CE_VCC[3].VCC" out_port="CEUSEDMUX.CE_OUT[3]"/>
+          <pack_pattern name="CE_FF_FDCE" in_port="CE_VCC[3].VCC" out_port="CEUSEDMUX.CE_OUT[3]"/>
+          <pack_pattern name="CESR_FF_FDCE" in_port="CE_VCC[3].VCC" out_port="CEUSEDMUX.CE_OUT[3]"/>
+        </direct>
+        <direct name="CE4" input="CE_VCC[4].VCC" output="CEUSEDMUX.CE_OUT[4]" >
+          <pack_pattern name="CE_FF_FDRE" in_port="CE_VCC[4].VCC" out_port="CEUSEDMUX.CE_OUT[4]"/>
+          <pack_pattern name="CESR_FF_FDRE" in_port="CE_VCC[4].VCC" out_port="CEUSEDMUX.CE_OUT[4]"/>
+          <pack_pattern name="CE_FF_FDSE" in_port="CE_VCC[4].VCC" out_port="CEUSEDMUX.CE_OUT[4]"/>
+          <pack_pattern name="CESR_FF_FDSE" in_port="CE_VCC[4].VCC" out_port="CEUSEDMUX.CE_OUT[4]"/>
+          <pack_pattern name="CE_FF_FDPE" in_port="CE_VCC[4].VCC" out_port="CEUSEDMUX.CE_OUT[4]"/>
+          <pack_pattern name="CESR_FF_FDPE" in_port="CE_VCC[4].VCC" out_port="CEUSEDMUX.CE_OUT[4]"/>
+          <pack_pattern name="CE_FF_FDCE" in_port="CE_VCC[4].VCC" out_port="CEUSEDMUX.CE_OUT[4]"/>
+          <pack_pattern name="CESR_FF_FDCE" in_port="CE_VCC[4].VCC" out_port="CEUSEDMUX.CE_OUT[4]"/>
+        </direct>
+        <direct name="CE5" input="CE_VCC[5].VCC" output="CEUSEDMUX.CE_OUT[5]" >
+          <pack_pattern name="CE_FF_FDRE" in_port="CE_VCC[5].VCC" out_port="CEUSEDMUX.CE_OUT[5]"/>
+          <pack_pattern name="CESR_FF_FDRE" in_port="CE_VCC[5].VCC" out_port="CEUSEDMUX.CE_OUT[5]"/>
+          <pack_pattern name="CE_FF_FDSE" in_port="CE_VCC[5].VCC" out_port="CEUSEDMUX.CE_OUT[5]"/>
+          <pack_pattern name="CESR_FF_FDSE" in_port="CE_VCC[5].VCC" out_port="CEUSEDMUX.CE_OUT[5]"/>
+          <pack_pattern name="CE_FF_FDPE" in_port="CE_VCC[5].VCC" out_port="CEUSEDMUX.CE_OUT[5]"/>
+          <pack_pattern name="CESR_FF_FDPE" in_port="CE_VCC[5].VCC" out_port="CEUSEDMUX.CE_OUT[5]"/>
+          <pack_pattern name="CE_FF_FDCE" in_port="CE_VCC[5].VCC" out_port="CEUSEDMUX.CE_OUT[5]"/>
+          <pack_pattern name="CESR_FF_FDCE" in_port="CE_VCC[5].VCC" out_port="CEUSEDMUX.CE_OUT[5]"/>
+        </direct>
+        <direct name="CE6" input="CE_VCC[6].VCC" output="CEUSEDMUX.CE_OUT[6]" >
+          <pack_pattern name="CE_FF_FDRE" in_port="CE_VCC[6].VCC" out_port="CEUSEDMUX.CE_OUT[6]"/>
+          <pack_pattern name="CESR_FF_FDRE" in_port="CE_VCC[6].VCC" out_port="CEUSEDMUX.CE_OUT[6]"/>
+          <pack_pattern name="CE_FF_FDSE" in_port="CE_VCC[6].VCC" out_port="CEUSEDMUX.CE_OUT[6]"/>
+          <pack_pattern name="CESR_FF_FDSE" in_port="CE_VCC[6].VCC" out_port="CEUSEDMUX.CE_OUT[6]"/>
+          <pack_pattern name="CE_FF_FDPE" in_port="CE_VCC[6].VCC" out_port="CEUSEDMUX.CE_OUT[6]"/>
+          <pack_pattern name="CESR_FF_FDPE" in_port="CE_VCC[6].VCC" out_port="CEUSEDMUX.CE_OUT[6]"/>
+          <pack_pattern name="CE_FF_FDCE" in_port="CE_VCC[6].VCC" out_port="CEUSEDMUX.CE_OUT[6]"/>
+          <pack_pattern name="CESR_FF_FDCE" in_port="CE_VCC[6].VCC" out_port="CEUSEDMUX.CE_OUT[6]"/>
+        </direct>
+        <direct name="CE7" input="CE_VCC[7].VCC" output="CEUSEDMUX.CE_OUT[7]" >
+          <pack_pattern name="CE_FF_FDRE" in_port="CE_VCC[7].VCC" out_port="CEUSEDMUX.CE_OUT[7]"/>
+          <pack_pattern name="CESR_FF_FDRE" in_port="CE_VCC[7].VCC" out_port="CEUSEDMUX.CE_OUT[7]"/>
+          <pack_pattern name="CE_FF_FDSE" in_port="CE_VCC[7].VCC" out_port="CEUSEDMUX.CE_OUT[7]"/>
+          <pack_pattern name="CESR_FF_FDSE" in_port="CE_VCC[7].VCC" out_port="CEUSEDMUX.CE_OUT[7]"/>
+          <pack_pattern name="CE_FF_FDPE" in_port="CE_VCC[7].VCC" out_port="CEUSEDMUX.CE_OUT[7]"/>
+          <pack_pattern name="CESR_FF_FDPE" in_port="CE_VCC[7].VCC" out_port="CEUSEDMUX.CE_OUT[7]"/>
+          <pack_pattern name="CE_FF_FDCE" in_port="CE_VCC[7].VCC" out_port="CEUSEDMUX.CE_OUT[7]"/>
+          <pack_pattern name="CESR_FF_FDCE" in_port="CE_VCC[7].VCC" out_port="CEUSEDMUX.CE_OUT[7]"/>
+        </direct>
       </interconnect>
     </mode>
     <mode name="CEUSEDMUX">
@@ -96,14 +168,86 @@
         <output name="GND" num_pins="1" />
       </pb_type>
       <interconnect>
-        <direct name="SR0" input="SR_GND[0].GND" output="SRUSEDMUX.SR_OUT[0]" />
-        <direct name="SR1" input="SR_GND[1].GND" output="SRUSEDMUX.SR_OUT[1]" />
-        <direct name="SR2" input="SR_GND[2].GND" output="SRUSEDMUX.SR_OUT[2]" />
-        <direct name="SR3" input="SR_GND[3].GND" output="SRUSEDMUX.SR_OUT[3]" />
-        <direct name="SR4" input="SR_GND[4].GND" output="SRUSEDMUX.SR_OUT[4]" />
-        <direct name="SR5" input="SR_GND[5].GND" output="SRUSEDMUX.SR_OUT[5]" />
-        <direct name="SR6" input="SR_GND[6].GND" output="SRUSEDMUX.SR_OUT[6]" />
-        <direct name="SR7" input="SR_GND[7].GND" output="SRUSEDMUX.SR_OUT[7]" />
+        <direct name="SR0" input="SR_GND[0].GND" output="SRUSEDMUX.SR_OUT[0]" >
+          <pack_pattern name="SR_FF_FDSE" in_port="SR_GND[0].GND" out_port="SRUSEDMUX.SR_OUT[0]"/>
+          <pack_pattern name="CESR_FF_FDSE" in_port="SR_GND[0].GND" out_port="SRUSEDMUX.SR_OUT[0]"/>
+          <pack_pattern name="SR_FF_FDRE" in_port="SR_GND[0].GND" out_port="SRUSEDMUX.SR_OUT[0]"/>
+          <pack_pattern name="CESR_FF_FDRE" in_port="SR_GND[0].GND" out_port="SRUSEDMUX.SR_OUT[0]"/>
+          <pack_pattern name="SR_FF_FDPE" in_port="SR_GND[0].GND" out_port="SRUSEDMUX.SR_OUT[0]"/>
+          <pack_pattern name="CESR_FF_FDPE" in_port="SR_GND[0].GND" out_port="SRUSEDMUX.SR_OUT[0]"/>
+          <pack_pattern name="SR_FF_FDCE" in_port="SR_GND[0].GND" out_port="SRUSEDMUX.SR_OUT[0]"/>
+          <pack_pattern name="CESR_FF_FDCE" in_port="SR_GND[0].GND" out_port="SRUSEDMUX.SR_OUT[0]"/>
+        </direct>
+        <direct name="SR1" input="SR_GND[1].GND" output="SRUSEDMUX.SR_OUT[1]" >
+          <pack_pattern name="SR_FF_FDSE" in_port="SR_GND[1].GND" out_port="SRUSEDMUX.SR_OUT[1]"/>
+          <pack_pattern name="CESR_FF_FDSE" in_port="SR_GND[1].GND" out_port="SRUSEDMUX.SR_OUT[1]"/>
+          <pack_pattern name="SR_FF_FDRE" in_port="SR_GND[1].GND" out_port="SRUSEDMUX.SR_OUT[1]"/>
+          <pack_pattern name="CESR_FF_FDRE" in_port="SR_GND[1].GND" out_port="SRUSEDMUX.SR_OUT[1]"/>
+          <pack_pattern name="SR_FF_FDPE" in_port="SR_GND[1].GND" out_port="SRUSEDMUX.SR_OUT[1]"/>
+          <pack_pattern name="CESR_FF_FDPE" in_port="SR_GND[1].GND" out_port="SRUSEDMUX.SR_OUT[1]"/>
+          <pack_pattern name="SR_FF_FDCE" in_port="SR_GND[1].GND" out_port="SRUSEDMUX.SR_OUT[1]"/>
+          <pack_pattern name="CESR_FF_FDCE" in_port="SR_GND[1].GND" out_port="SRUSEDMUX.SR_OUT[1]"/>
+        </direct>
+        <direct name="SR2" input="SR_GND[2].GND" output="SRUSEDMUX.SR_OUT[2]" >
+          <pack_pattern name="SR_FF_FDSE" in_port="SR_GND[2].GND" out_port="SRUSEDMUX.SR_OUT[2]"/>
+          <pack_pattern name="CESR_FF_FDSE" in_port="SR_GND[2].GND" out_port="SRUSEDMUX.SR_OUT[2]"/>
+          <pack_pattern name="SR_FF_FDRE" in_port="SR_GND[2].GND" out_port="SRUSEDMUX.SR_OUT[2]"/>
+          <pack_pattern name="CESR_FF_FDRE" in_port="SR_GND[2].GND" out_port="SRUSEDMUX.SR_OUT[2]"/>
+          <pack_pattern name="SR_FF_FDPE" in_port="SR_GND[2].GND" out_port="SRUSEDMUX.SR_OUT[2]"/>
+          <pack_pattern name="CESR_FF_FDPE" in_port="SR_GND[2].GND" out_port="SRUSEDMUX.SR_OUT[2]"/>
+          <pack_pattern name="SR_FF_FDCE" in_port="SR_GND[2].GND" out_port="SRUSEDMUX.SR_OUT[2]"/>
+          <pack_pattern name="CESR_FF_FDCE" in_port="SR_GND[2].GND" out_port="SRUSEDMUX.SR_OUT[2]"/>
+        </direct>
+        <direct name="SR3" input="SR_GND[3].GND" output="SRUSEDMUX.SR_OUT[3]" >
+          <pack_pattern name="SR_FF_FDSE" in_port="SR_GND[3].GND" out_port="SRUSEDMUX.SR_OUT[3]"/>
+          <pack_pattern name="CESR_FF_FDSE" in_port="SR_GND[3].GND" out_port="SRUSEDMUX.SR_OUT[3]"/>
+          <pack_pattern name="SR_FF_FDRE" in_port="SR_GND[3].GND" out_port="SRUSEDMUX.SR_OUT[3]"/>
+          <pack_pattern name="CESR_FF_FDRE" in_port="SR_GND[3].GND" out_port="SRUSEDMUX.SR_OUT[3]"/>
+          <pack_pattern name="SR_FF_FDPE" in_port="SR_GND[3].GND" out_port="SRUSEDMUX.SR_OUT[3]"/>
+          <pack_pattern name="CESR_FF_FDPE" in_port="SR_GND[3].GND" out_port="SRUSEDMUX.SR_OUT[3]"/>
+          <pack_pattern name="SR_FF_FDCE" in_port="SR_GND[3].GND" out_port="SRUSEDMUX.SR_OUT[3]"/>
+          <pack_pattern name="CESR_FF_FDCE" in_port="SR_GND[3].GND" out_port="SRUSEDMUX.SR_OUT[3]"/>
+        </direct>
+        <direct name="SR4" input="SR_GND[4].GND" output="SRUSEDMUX.SR_OUT[4]" >
+          <pack_pattern name="SR_FF_FDSE" in_port="SR_GND[4].GND" out_port="SRUSEDMUX.SR_OUT[4]"/>
+          <pack_pattern name="CESR_FF_FDSE" in_port="SR_GND[4].GND" out_port="SRUSEDMUX.SR_OUT[4]"/>
+          <pack_pattern name="SR_FF_FDRE" in_port="SR_GND[4].GND" out_port="SRUSEDMUX.SR_OUT[4]"/>
+          <pack_pattern name="CESR_FF_FDRE" in_port="SR_GND[4].GND" out_port="SRUSEDMUX.SR_OUT[4]"/>
+          <pack_pattern name="SR_FF_FDPE" in_port="SR_GND[4].GND" out_port="SRUSEDMUX.SR_OUT[4]"/>
+          <pack_pattern name="CESR_FF_FDPE" in_port="SR_GND[4].GND" out_port="SRUSEDMUX.SR_OUT[4]"/>
+          <pack_pattern name="SR_FF_FDCE" in_port="SR_GND[4].GND" out_port="SRUSEDMUX.SR_OUT[4]"/>
+          <pack_pattern name="CESR_FF_FDCE" in_port="SR_GND[4].GND" out_port="SRUSEDMUX.SR_OUT[4]"/>
+        </direct>
+        <direct name="SR5" input="SR_GND[5].GND" output="SRUSEDMUX.SR_OUT[5]" >
+          <pack_pattern name="SR_FF_FDSE" in_port="SR_GND[5].GND" out_port="SRUSEDMUX.SR_OUT[5]"/>
+          <pack_pattern name="CESR_FF_FDSE" in_port="SR_GND[5].GND" out_port="SRUSEDMUX.SR_OUT[5]"/>
+          <pack_pattern name="SR_FF_FDRE" in_port="SR_GND[5].GND" out_port="SRUSEDMUX.SR_OUT[5]"/>
+          <pack_pattern name="CESR_FF_FDRE" in_port="SR_GND[5].GND" out_port="SRUSEDMUX.SR_OUT[5]"/>
+          <pack_pattern name="SR_FF_FDPE" in_port="SR_GND[5].GND" out_port="SRUSEDMUX.SR_OUT[5]"/>
+          <pack_pattern name="CESR_FF_FDPE" in_port="SR_GND[5].GND" out_port="SRUSEDMUX.SR_OUT[5]"/>
+          <pack_pattern name="SR_FF_FDCE" in_port="SR_GND[5].GND" out_port="SRUSEDMUX.SR_OUT[5]"/>
+          <pack_pattern name="CESR_FF_FDCE" in_port="SR_GND[5].GND" out_port="SRUSEDMUX.SR_OUT[5]"/>
+        </direct>
+        <direct name="SR6" input="SR_GND[6].GND" output="SRUSEDMUX.SR_OUT[6]" >
+          <pack_pattern name="SR_FF_FDSE" in_port="SR_GND[6].GND" out_port="SRUSEDMUX.SR_OUT[6]"/>
+          <pack_pattern name="CESR_FF_FDSE" in_port="SR_GND[6].GND" out_port="SRUSEDMUX.SR_OUT[6]"/>
+          <pack_pattern name="SR_FF_FDRE" in_port="SR_GND[6].GND" out_port="SRUSEDMUX.SR_OUT[6]"/>
+          <pack_pattern name="CESR_FF_FDRE" in_port="SR_GND[6].GND" out_port="SRUSEDMUX.SR_OUT[6]"/>
+          <pack_pattern name="SR_FF_FDPE" in_port="SR_GND[6].GND" out_port="SRUSEDMUX.SR_OUT[6]"/>
+          <pack_pattern name="CESR_FF_FDPE" in_port="SR_GND[6].GND" out_port="SRUSEDMUX.SR_OUT[6]"/>
+          <pack_pattern name="SR_FF_FDCE" in_port="SR_GND[6].GND" out_port="SRUSEDMUX.SR_OUT[6]"/>
+          <pack_pattern name="CESR_FF_FDCE" in_port="SR_GND[6].GND" out_port="SRUSEDMUX.SR_OUT[6]"/>
+        </direct>
+        <direct name="SR7" input="SR_GND[7].GND" output="SRUSEDMUX.SR_OUT[7]" >
+          <pack_pattern name="SR_FF_FDSE" in_port="SR_GND[7].GND" out_port="SRUSEDMUX.SR_OUT[7]"/>
+          <pack_pattern name="CESR_FF_FDSE" in_port="SR_GND[7].GND" out_port="SRUSEDMUX.SR_OUT[7]"/>
+          <pack_pattern name="SR_FF_FDRE" in_port="SR_GND[7].GND" out_port="SRUSEDMUX.SR_OUT[7]"/>
+          <pack_pattern name="CESR_FF_FDRE" in_port="SR_GND[7].GND" out_port="SRUSEDMUX.SR_OUT[7]"/>
+          <pack_pattern name="SR_FF_FDPE" in_port="SR_GND[7].GND" out_port="SRUSEDMUX.SR_OUT[7]"/>
+          <pack_pattern name="CESR_FF_FDPE" in_port="SR_GND[7].GND" out_port="SRUSEDMUX.SR_OUT[7]"/>
+          <pack_pattern name="SR_FF_FDCE" in_port="SR_GND[7].GND" out_port="SRUSEDMUX.SR_OUT[7]"/>
+          <pack_pattern name="CESR_FF_FDCE" in_port="SR_GND[7].GND" out_port="SRUSEDMUX.SR_OUT[7]"/>
+        </direct>
       </interconnect>
     </mode>
     <mode name="SRUSEDMUX">
