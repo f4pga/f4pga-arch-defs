@@ -60,6 +60,59 @@
   <!-- CARRY4 logic -->
   <xi:include href="carry/carry0.pb_type.xml" />
 
+  <pb_type name="CEUSEDMUX" num_pb="1" >
+    <input name="CE" num_pins="1" />
+    <output name="CE_OUT" num_pins="8" />
+
+    <mode name="CE_VCC">
+      <pb_type name="CE_VCC" blif_model=".subckt CE_VCC" num_pb="8" >
+        <output name="VCC" num_pins="1" />
+      </pb_type>
+      <interconnect>
+        <direct name="CE0" input="CE_VCC[0].VCC" output="CEUSEDMUX.CE_OUT[0]" />
+        <direct name="CE1" input="CE_VCC[1].VCC" output="CEUSEDMUX.CE_OUT[1]" />
+        <direct name="CE2" input="CE_VCC[2].VCC" output="CEUSEDMUX.CE_OUT[2]" />
+        <direct name="CE3" input="CE_VCC[3].VCC" output="CEUSEDMUX.CE_OUT[3]" />
+        <direct name="CE4" input="CE_VCC[4].VCC" output="CEUSEDMUX.CE_OUT[4]" />
+        <direct name="CE5" input="CE_VCC[5].VCC" output="CEUSEDMUX.CE_OUT[5]" />
+        <direct name="CE6" input="CE_VCC[6].VCC" output="CEUSEDMUX.CE_OUT[6]" />
+        <direct name="CE7" input="CE_VCC[7].VCC" output="CEUSEDMUX.CE_OUT[7]" />
+      </interconnect>
+    </mode>
+    <mode name="CEUSEDMUX">
+      <interconnect>
+        <complete name="CE" input="CEUSEDMUX.CE" output="CEUSEDMUX.CE_OUT" />
+      </interconnect>
+    </mode>
+  </pb_type>
+
+  <pb_type name="SRUSEDMUX" num_pb="1">
+    <input name="SR" num_pins="1" />
+    <output name="SR_OUT" num_pins="8" />
+
+
+    <mode name="SR_GND">
+      <pb_type name="SR_GND" blif_model=".subckt SR_GND" num_pb="8" >
+        <output name="GND" num_pins="1" />
+      </pb_type>
+      <interconnect>
+        <direct name="SR0" input="SR_GND[0].GND" output="SRUSEDMUX.SR_OUT[0]" />
+        <direct name="SR1" input="SR_GND[1].GND" output="SRUSEDMUX.SR_OUT[1]" />
+        <direct name="SR2" input="SR_GND[2].GND" output="SRUSEDMUX.SR_OUT[2]" />
+        <direct name="SR3" input="SR_GND[3].GND" output="SRUSEDMUX.SR_OUT[3]" />
+        <direct name="SR4" input="SR_GND[4].GND" output="SRUSEDMUX.SR_OUT[4]" />
+        <direct name="SR5" input="SR_GND[5].GND" output="SRUSEDMUX.SR_OUT[5]" />
+        <direct name="SR6" input="SR_GND[6].GND" output="SRUSEDMUX.SR_OUT[6]" />
+        <direct name="SR7" input="SR_GND[7].GND" output="SRUSEDMUX.SR_OUT[7]" />
+      </interconnect>
+    </mode>
+    <mode name="SRUSEDMUX">
+      <interconnect>
+        <complete name="SR" input="SRUSEDMUX.SR" output="SRUSEDMUX.SR_OUT" />
+      </interconnect>
+    </mode>
+  </pb_type>
+
   <pb_type name="BEL_BB-CARRY" blif_model=".subckt CARRY" num_pb="3">
     <xi:include href="carry/carry.pb_type.xml"
                 xpointer="xpointer(pb_type/child::node())" />
@@ -306,18 +359,30 @@
 
     <!-- Clock, Clock Enable and Reset -->
     <direct name="CK" input="BLK_IG-COMMON_SLICE.CLK" output="BLK_BB-SLICE_FF.CK"/>
-    <direct name="CE" input="BLK_IG-COMMON_SLICE.CE"  output="BLK_BB-SLICE_FF.CE"/>
-    <direct name="SR" input="BLK_IG-COMMON_SLICE.SR"  output="BLK_BB-SLICE_FF.SR"/>
+
+    <direct name="CE" input="BLK_IG-COMMON_SLICE.CE" output="CEUSEDMUX.CE" >
+      <metadata>
+        <meta name="fasm_mux">
+          BLK_IG-COMMON_SLICE.CE = CEUSEDMUX
+        </meta>
+      </metadata>
+    </direct>
+    <direct name="CE_OUT"
+      input="CEUSEDMUX.CE_OUT"
+      output="BLK_BB-SLICE_FF.CE"
+      />
+
+    <direct name="SR" input="BLK_IG-COMMON_SLICE.SR"  output="SRUSEDMUX.SR" >
+      <metadata>
+        <meta name="fasm_mux">
+          BLK_IG-COMMON_SLICE.SR = SRUSEDMUX
+        </meta>
+      </metadata>
+    </direct>
+    <direct name="SR_OUT"
+      input="SRUSEDMUX.SR_OUT"
+      output="BLK_BB-SLICE_FF.SR"
+      />
 
   </interconnect>
-  <metadata>
-    <meta name="fasm_features">
-      <!-- Because VPR cannot understand muxes that either tied to a  -->
-      <!-- constant or a port, VPR always connects CE and SR.  -->
-      <!-- Once VPR can understand the CEUSEDMUX and SRUSEDMUX, it can choose -->
-      <!-- whether CEUSEDMUX and SRUSEDMUX should be set or not.  -->
-      CEUSEDMUX
-      SRUSEDMUX
-    </meta>
-  </metadata>
 </pb_type>
