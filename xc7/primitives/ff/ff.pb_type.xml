@@ -54,9 +54,15 @@
 
         <interconnect>
           <direct name="D" input="BEL_FF-FDSE_or_FDRE.D" output="BEL_FF-FDSE.D" />
-          <direct name="CE" input="BEL_FF-FDSE_or_FDRE.CE" output="BEL_FF-FDSE.CE" />
+          <direct name="CE" input="BEL_FF-FDSE_or_FDRE.CE" output="BEL_FF-FDSE.CE" >
+            <pack_pattern name="CE_FF_FDSE" in_port="BEL_FF-FDSE_or_FDRE.CE" out_port="BEL_FF-FDSE.CE"/>
+            <pack_pattern name="CESR_FF_FDSE" in_port="BEL_FF-FDSE_or_FDRE.CE" out_port="BEL_FF-FDSE.CE"/>
+          </direct>
           <direct name="C" input="BEL_FF-FDSE_or_FDRE.C" output="BEL_FF-FDSE.C" />
-          <direct name="S" input="BEL_FF-FDSE_or_FDRE.SR" output="BEL_FF-FDSE.S" />
+          <direct name="S" input="BEL_FF-FDSE_or_FDRE.SR" output="BEL_FF-FDSE.S" >
+            <pack_pattern name="SR_FF_FDSE" in_port="BEL_FF-FDSE_or_FDRE.SR" out_port="BEL_FF-FDSE.S"/>
+            <pack_pattern name="CESR_FF_FDSE" in_port="BEL_FF-FDSE_or_FDRE.SR" out_port="BEL_FF-FDSE.S"/>
+          </direct>
           <direct name="Q" input="BEL_FF-FDSE.Q" output="BEL_FF-FDSE_or_FDRE.Q" />
         </interconnect>
       </mode>
@@ -82,9 +88,15 @@
 
         <interconnect>
           <direct name="D" input="BEL_FF-FDSE_or_FDRE.D" output="BEL_FF-FDRE.D" />
-          <direct name="CE" input="BEL_FF-FDSE_or_FDRE.CE" output="BEL_FF-FDRE.CE" />
+          <direct name="CE" input="BEL_FF-FDSE_or_FDRE.CE" output="BEL_FF-FDRE.CE" >
+            <pack_pattern name="CE_FF_FDRE" in_port="BEL_FF-FDSE_or_FDRE.CE" out_port="BEL_FF-FDRE.CE"/>
+            <pack_pattern name="CESR_FF_FDRE" in_port="BEL_FF-FDSE_or_FDRE.CE" out_port="BEL_FF-FDRE.CE"/>
+          </direct>
           <direct name="C" input="BEL_FF-FDSE_or_FDRE.C" output="BEL_FF-FDRE.C" />
-          <direct name="R" input="BEL_FF-FDSE_or_FDRE.SR" output="BEL_FF-FDRE.R" />
+          <direct name="R" input="BEL_FF-FDSE_or_FDRE.SR" output="BEL_FF-FDRE.R" >
+            <pack_pattern name="SR_FF_FDRE" in_port="BEL_FF-FDSE_or_FDRE.SR" out_port="BEL_FF-FDRE.R"/>
+            <pack_pattern name="CESR_FF_FDRE" in_port="BEL_FF-FDSE_or_FDRE.SR" out_port="BEL_FF-FDRE.R"/>
+          </direct>
           <direct name="Q" input="BEL_FF-FDRE.Q" output="BEL_FF-FDSE_or_FDRE.Q" />
         </interconnect>
       </mode>
@@ -137,9 +149,15 @@
 
         <interconnect>
           <direct name="D" input="BEL_FF-FDPE_or_FDCE.D" output="BEL_FF-FDPE.D" />
-          <direct name="CE" input="BEL_FF-FDPE_or_FDCE.CE" output="BEL_FF-FDPE.CE" />
+          <direct name="CE" input="BEL_FF-FDPE_or_FDCE.CE" output="BEL_FF-FDPE.CE" >
+            <pack_pattern name="CE_FF_FDPE" in_port="BEL_FF-FDPE_or_FDCE.CE" out_port="BEL_FF-FDPE.CE"/>
+            <pack_pattern name="CESR_FF_FDPE" in_port="BEL_FF-FDPE_or_FDCE.CE" out_port="BEL_FF-FDPE.CE"/>
+          </direct>
           <direct name="C" input="BEL_FF-FDPE_or_FDCE.C" output="BEL_FF-FDPE.C" />
-          <direct name="PRE" input="BEL_FF-FDPE_or_FDCE.SR" output="BEL_FF-FDPE.PRE" />
+          <direct name="PRE" input="BEL_FF-FDPE_or_FDCE.SR" output="BEL_FF-FDPE.PRE" >
+            <pack_pattern name="SR_FF_FDPE" in_port="BEL_FF-FDPE_or_FDCE.SR" out_port="BEL_FF-FDPE.PRE"/>
+            <pack_pattern name="CESR_FF_FDPE" in_port="BEL_FF-FDPE_or_FDCE.SR" out_port="BEL_FF-FDPE.PRE"/>
+          </direct>
           <direct name="Q" input="BEL_FF-FDPE.Q" output="BEL_FF-FDPE_or_FDCE.Q" />
         </interconnect>
       </mode>
@@ -165,9 +183,15 @@
 
         <interconnect>
           <direct name="D" input="BEL_FF-FDPE_or_FDCE.D" output="BEL_FF-FDCE.D" />
-          <direct name="CE" input="BEL_FF-FDPE_or_FDCE.CE" output="BEL_FF-FDCE.CE" />
+          <direct name="CE" input="BEL_FF-FDPE_or_FDCE.CE" output="BEL_FF-FDCE.CE" >
+            <pack_pattern name="CE_FF_FDCE" in_port="BEL_FF-FDPE_or_FDCE.CE" out_port="BEL_FF-FDCE.CE"/>
+            <pack_pattern name="CESR_FF_FDCE" in_port="BEL_FF-FDPE_or_FDCE.CE" out_port="BEL_FF-FDCE.CE"/>
+          </direct>
           <direct name="C" input="BEL_FF-FDPE_or_FDCE.C" output="BEL_FF-FDCE.C" />
-          <direct name="CLR" input="BEL_FF-FDPE_or_FDCE.SR" output="BEL_FF-FDCE.CLR" />
+          <direct name="CLR" input="BEL_FF-FDPE_or_FDCE.SR" output="BEL_FF-FDCE.CLR" >
+            <pack_pattern name="SR_FF_FDCE" in_port="BEL_FF-FDPE_or_FDCE.SR" out_port="BEL_FF-FDCE.CLR"/>
+            <pack_pattern name="CESR_FF_FDCE" in_port="BEL_FF-FDPE_or_FDCE.SR" out_port="BEL_FF-FDCE.CLR"/>
+          </direct>
           <direct name="Q" input="BEL_FF-FDCE.Q" output="BEL_FF-FDPE_or_FDCE.Q" />
         </interconnect>
       </mode>
