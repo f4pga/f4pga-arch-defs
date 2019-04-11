@@ -126,10 +126,11 @@ class Bel(object):
                     bus_is_output[bus_name] = wire_is_output
                 else:
                     assert bus_is_output[bus_name] == wire_is_output, (
-                        bus_name, wire,
+                        bus_name,
+                        wire,
                         bus_is_output[bus_name],
                         wire_is_output,
-                        )
+                    )
 
                 buses[bus_name][int(address[:-1])] = connection_wire
             else:
