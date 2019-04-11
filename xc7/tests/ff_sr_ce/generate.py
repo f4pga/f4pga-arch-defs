@@ -2,7 +2,7 @@ import argparse
 import os.path
 import re
 
-LOCALPARAM_RE = re.compile(r'^(\s*)localparam\s+([^\s]+)\s*=\s*\d+\s*;\s*$')
+LOCALPARAM_RE = re.compile(r'^(\s*)localparam\s+([^\s]+)\s*=.*$')
 DUMPVARS_RE = re.compile(r'^(\s*)\$dumpfile\([^\)]+\)\s*;\s*$')
 
 
