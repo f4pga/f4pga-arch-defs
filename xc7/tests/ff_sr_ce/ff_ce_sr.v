@@ -7,6 +7,7 @@ module top(
 );
 
 localparam NUM_FF = 4;
+localparam FF_TYPE = "FDRE";
 
 assign tx = rx;
 
@@ -51,47 +52,51 @@ generate for(i = 0; i < NUM_FF; i=i+1) begin:ff
     assign D[4*i+3] = sw[(4*i+3) % 14];
 
     // Tie SR to GND and CE to VCC
-    (* keep *) FDRE #(
-        .INIT(1'b0)
+    (* keep *) FF #(
+        .INIT(1'b0),
+        .FF_TYPE(FF_TYPE)
     ) vcc_gnd (
         .Q(Q[4*i+0]),
         .C(clk),
         .D(D[4*i+0]),
         .CE(1'b1),
-        .R(1'b0)
+        .SR(1'b0)
     );
 
     // Tie SR to GND and CE to signal
-    (* keep *) FDRE #(
-        .INIT(1'b0)
+    (* keep *) FF #(
+        .INIT(1'b0),
+        .FF_TYPE(FF_TYPE)
     ) s_gnd (
         .Q(Q[4*i+1]),
         .C(clk),
         .D(D[4*i+1]),
         .CE(ce),
-        .R(1'b0)
+        .SR(1'b0)
     );
 
     // Tie SR to signal and CE to signal
-    (* keep *) FDRE #(
-        .INIT(1'b0)
+    (* keep *) FF #(
+        .INIT(1'b0),
+        .FF_TYPE(FF_TYPE)
     ) s_s (
         .Q(Q[4*i+2]),
         .C(clk),
         .D(D[4*i+2]),
         .CE(ce),
-        .R(reset)
+        .SR(reset)
     );
 
     // Tie SR to signal and CE to VCC
-    (* keep *) FDRE #(
-        .INIT(0)
+    (* keep *) FF #(
+        .INIT(0),
+        .FF_TYPE(FF_TYPE)
     ) vcc_s (
         .Q(Q[4*i+3]),
         .C(clk),
         .D(D[4*i+3]),
         .CE(1'b1),
-        .R(reset)
+        .SR(reset)
     );
 end endgenerate
 
