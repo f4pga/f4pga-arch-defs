@@ -1,4 +1,26 @@
-""" Script specialize verilog localparam's and $dumpfile directives.
+""" Transform a verilog `local param` values and updates the dumpfile vcd output name;
+
+See example;
+
+.. highlight:: verilog
+    ...
+    localparam NUM_FF = 4;
+    ...
+    $dumpfile("testbench_ff_ce_sr_4_tb.vcd");
+    ...
+
+to
+
+.. highlight:: verilog
+    :emphasize-lines: 3,5
+    ...
+    localparam NUM_FF = 7;
+    ...
+    $dumpfile("testbench_ff_ce_sr_7_tb.vcd");
+    ...
+   
+Useful for generating a number of test cases based a local parameters.
+   
 
 This is useful for generating multiple verilog outputs from a template.
 
