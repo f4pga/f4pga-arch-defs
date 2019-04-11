@@ -54,7 +54,7 @@ function(ff_ce_sr_test num_ff)
     get_target_property(YOSYS_TARGET env YOSYS_TARGET)
 
     # Note that the name of sby will become a directory, so do NOT name it the
-    # same as the add_fpga_target name, otherwise sby will remove that 
+    # same as the add_fpga_target name, otherwise sby will remove that
     # directory.
     add_custom_command(
         OUTPUT ff_ce_sr_${num_ff}_proof.sby
@@ -71,7 +71,10 @@ function(ff_ce_sr_test num_ff)
     add_custom_target(
         ff_ce_sr_${num_ff}_prove
         COMMAND ${PYTHON3} ${SBY}
-            --yosys ${YOSYS} --abc ${YOSYS}-abc -f ff_ce_sr_${num_ff}_proof.sby
+            --yosys ${YOSYS}
+            --abc ${YOSYS}-abc
+            --smtbmc ${YOSYS}-smtbmc
+            -f ff_ce_sr_${num_ff}_proof.sby
         WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
         DEPENDS
             ff_ce_sr_${num_ff}_proof.sby
