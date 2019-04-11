@@ -2,16 +2,36 @@
 // A fracturable 6 input LUT. Can either be;
 //  - 2 * 5 input, 1 output LUT
 //  - 1 * 6 input, 1 output LUT
+(* blackbox *)  (* CLASS="lut" *)
 module {N}LUT(A1, A2, A3, A4, A5, A6, O6, O5);
 
+	(* PORT_CLASS = "lut_in" *)
 	input wire A1;
+	(* PORT_CLASS = "lut_in" *)
 	input wire A2;
+	(* PORT_CLASS = "lut_in" *)
 	input wire A3;
+	(* PORT_CLASS = "lut_in" *)
 	input wire A4;
+	(* PORT_CLASS = "lut_in" *)
 	input wire A5;
+	(* PORT_CLASS = "lut_in" *)
 	input wire A6;
 
+	(* PORT_CLASS = "lut_out" *)
+	(* DELAY_CONST_A1 = "{iopath_A1_O6}" *)
+	(* DELAY_CONST_A2 = "{iopath_A2_O6}" *)
+	(* DELAY_CONST_A3 = "{iopath_A3_O6}" *)
+	(* DELAY_CONST_A4 = "{iopath_A4_O6}" *)
+	(* DELAY_CONST_A5 = "{iopath_A5_O6}" *)
+	(* DELAY_CONST_A6 = "{iopath_A6_O6}" *)
 	output wire O6;
+	(* PORT_CLASS = "lut_out" *)
+	(* DELAY_CONST_A1 = "{iopath_A1_O5}" *)
+	(* DELAY_CONST_A2 = "{iopath_A2_O5}" *)
+	(* DELAY_CONST_A3 = "{iopath_A3_O5}" *)
+	(* DELAY_CONST_A4 = "{iopath_A4_O5}" *)
+	(* DELAY_CONST_A5 = "{iopath_A5_O5}" *)
 	output wire O5;
 
 	parameter [63:0] INIT = 0;
