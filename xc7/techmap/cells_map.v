@@ -1,53 +1,182 @@
 // ============================================================================
 // FFs
 
+module CESR_MUX(input CE, SR, output CE_OUT, SR_OUT);
+
+parameter _TECHMAP_CONSTMSK_CE_ = 0;
+parameter _TECHMAP_CONSTVAL_CE_ = 0;
+parameter _TECHMAP_CONSTMSK_SR_ = 0;
+parameter _TECHMAP_CONSTVAL_SR_ = 0;
+
+localparam CEUSED = _TECHMAP_CONSTMSK_CE_ == 0 || _TECHMAP_CONSTVAL_CE_ == 0;
+localparam SRUSED = _TECHMAP_CONSTMSK_SR_ == 0 || _TECHMAP_CONSTVAL_SR_ == 1;
+
+if(CEUSED) begin
+    assign CE_OUT = CE;
+end else begin
+    CE_VCC ce(
+        .VCC(CE_OUT)
+    );
+end
+
+if(SRUSED) begin
+    assign SR_OUT = SR;
+end else begin
+    SR_GND sr(
+        .GND(SR_OUT)
+    );
+end
+
+endmodule
+
 module FDRE (output reg Q, input C, CE, D, R);
-  parameter [0:0] INIT = 1'b0;
-  FDRE_ZINI #(.ZINI(!|INIT), .IS_C_INVERTED(|0))
-  _TECHMAP_REPLACE_ (.D(D), .Q(Q), .C(C), .CE(CE), .R(R));   
+
+parameter [0:0] INIT = 1'b0;
+
+wire CE_SIG;
+wire SR_SIG;
+
+CESR_MUX cesr_mux(
+    .CE(CE),
+    .SR(R),
+    .CE_OUT(CE_SIG),
+    .SR_OUT(SR_SIG)
+);
+
+FDRE_ZINI #(.ZINI(!|INIT), .IS_C_INVERTED(|0))
+  _TECHMAP_REPLACE_ (.D(D), .Q(Q), .C(C), .CE(CE_SIG), .R(SR_SIG));
+
 endmodule
 
 module FDSE (output reg Q, input C, CE, D, S);
-  parameter [0:0] INIT = 1'b1;
-  FDSE_ZINI #(.ZINI(!|INIT), .IS_C_INVERTED(|0))
-  _TECHMAP_REPLACE_ (.D(D), .Q(Q), .C(C), .CE(CE), .S(S));   
+
+parameter [0:0] INIT = 1'b1;
+
+wire CE_SIG;
+wire SR_SIG;
+
+CESR_MUX cesr_mux(
+    .CE(CE),
+    .SR(S),
+    .CE_OUT(CE_SIG),
+    .SR_OUT(SR_SIG)
+);
+
+FDSE_ZINI #(.ZINI(!|INIT), .IS_C_INVERTED(|0))
+  _TECHMAP_REPLACE_ (.D(D), .Q(Q), .C(C), .CE(CE_SIG), .S(SR_SIG));
+
 endmodule
 
 module FDCE (output reg Q, input C, CE, D, CLR);
-  parameter [0:0] INIT = 1'b0;
-  FDCE_ZINI #(.ZINI(!|INIT), .IS_C_INVERTED(|0))
-  _TECHMAP_REPLACE_ (.D(D), .Q(Q), .C(C), .CE(CE), .CLR(CLR));   
+
+parameter [0:0] INIT = 1'b0;
+
+wire CE_SIG;
+wire SR_SIG;
+
+CESR_MUX cesr_mux(
+    .CE(CE),
+    .SR(CLR),
+    .CE_OUT(CE_SIG),
+    .SR_OUT(SR_SIG)
+);
+
+FDCE_ZINI #(.ZINI(!|INIT), .IS_C_INVERTED(|0))
+  _TECHMAP_REPLACE_ (.D(D), .Q(Q), .C(C), .CE(CE_SIG), .CLR(SR_SIG));
+
 endmodule
 
 module FDPE (output reg Q, input C, CE, D, PRE);
-  parameter [0:0] INIT = 1'b1;
-  FDPE_ZINI #(.ZINI(!|INIT), .IS_C_INVERTED(|0))
-  _TECHMAP_REPLACE_ (.D(D), .Q(Q), .C(C), .CE(CE), .PRE(PRE));   
+parameter [0:0] INIT = 1'b1;
+
+wire CE_SIG;
+wire SR_SIG;
+
+CESR_MUX cesr_mux(
+    .CE(CE),
+    .SR(PRE),
+    .CE_OUT(CE_SIG),
+    .SR_OUT(SR_SIG)
+);
+
+FDPE_ZINI #(.ZINI(!|INIT), .IS_C_INVERTED(|0))
+  _TECHMAP_REPLACE_ (.D(D), .Q(Q), .C(C), .CE(CE_SIG), .PRE(SR_SIG));
+
 endmodule
 
 
 module FDRE_1 (output reg Q, input C, CE, D, R);
-  parameter [0:0] INIT = 1'b0;
-  FDRE_ZINI #(.ZINI(!|INIT), .IS_C_INVERTED(|1))
-  _TECHMAP_REPLACE_ (.D(D), .Q(Q), .C(C), .CE(CE), .R(R));   
+
+parameter [0:0] INIT = 1'b0;
+
+wire CE_SIG;
+wire SR_SIG;
+
+CESR_MUX cesr_mux(
+    .CE(CE),
+    .SR(R),
+    .CE_OUT(CE_SIG),
+    .SR_OUT(SR_SIG)
+);
+
+FDRE_ZINI #(.ZINI(!|INIT), .IS_C_INVERTED(|1))
+  _TECHMAP_REPLACE_ (.D(D), .Q(Q), .C(C), .CE(CE_SIG), .R(SR_SIG));
+
 endmodule
 
 module FDSE_1 (output reg Q, input C, CE, D, S);
-  parameter [0:0] INIT = 1'b1;
-  FDSE_ZINI #(.ZINI(!|INIT), .IS_C_INVERTED(|1))
-  _TECHMAP_REPLACE_ (.D(D), .Q(Q), .C(C), .CE(CE), .S(S));   
+parameter [0:0] INIT = 1'b1;
+
+wire CE_SIG;
+wire SR_SIG;
+
+CESR_MUX cesr_mux(
+    .CE(CE),
+    .SR(S),
+    .CE_OUT(CE_SIG),
+    .SR_OUT(SR_SIG)
+);
+
+FDSE_ZINI #(.ZINI(!|INIT), .IS_C_INVERTED(|1))
+  _TECHMAP_REPLACE_ (.D(D), .Q(Q), .C(C), .CE(CE_SIG), .S(SR_SIG));
+
 endmodule
 
 module FDCE_1 (output reg Q, input C, CE, D, CLR);
-  parameter [0:0] INIT = 1'b0;
-  FDCE_ZINI #(.ZINI(!|INIT), .IS_C_INVERTED(|1))
-  _TECHMAP_REPLACE_ (.D(D), .Q(Q), .C(C), .CE(CE), .CLR(CLR));   
+parameter [0:0] INIT = 1'b0;
+
+wire CE_SIG;
+wire SR_SIG;
+
+CESR_MUX cesr_mux(
+    .CE(CE),
+    .SR(CLR),
+    .CE_OUT(CE_SIG),
+    .SR_OUT(SR_SIG)
+);
+
+FDCE_ZINI #(.ZINI(!|INIT), .IS_C_INVERTED(|1))
+  _TECHMAP_REPLACE_ (.D(D), .Q(Q), .C(C), .CE(CE_SIG), .CLR(SR_SIG));
+
 endmodule
 
 module FDPE_1 (output reg Q, input C, CE, D, PRE);
-  parameter [0:0] INIT = 1'b1;
-  FDPE_ZINI #(.ZINI(!|INIT), .IS_C_INVERTED(|1))
-  _TECHMAP_REPLACE_ (.D(D), .Q(Q), .C(C), .CE(CE), .PRE(PRE));   
+
+parameter [0:0] INIT = 1'b1;
+
+wire CE_SIG;
+wire SR_SIG;
+
+CESR_MUX cesr_mux(
+    .CE(CE),
+    .SR(PRE),
+    .CE_OUT(CE_SIG),
+    .SR_OUT(SR_SIG)
+);
+
+FDPE_ZINI #(.ZINI(!|INIT), .IS_C_INVERTED(|1))
+  _TECHMAP_REPLACE_ (.D(D), .Q(Q), .C(C), .CE(CE_SIG), .PRE(SR_SIG));
+
 endmodule
 
 // ============================================================================
