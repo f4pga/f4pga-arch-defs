@@ -24,7 +24,7 @@ class GridSplitter(object):
             """
 SELECT grid_x, grid_y, 
 ( SELECT name FROM tile_type WHERE tile_type.pkey = phy_tile.tile_type_pkey )
-FROM phy_tile"
+FROM phy_tile
         """
         )
 
@@ -36,6 +36,21 @@ FROM phy_tile"
         Set tile types to split
         """
         self.tile_types_to_split = tile_types
+
+    @staticmethod
+    def append_loc_map(loc_map, src_loc, dst_loc):
+        """
+        Appends a coordinate correspondence to the given location map.
+        :param loc_map:
+        :param src_loc:
+        :param dst_loc:
+        :return:
+        """
+
+        if src_loc not in loc_map.keys():
+            loc_map[src_loc] = [dst_loc]
+        else:
+            loc_map[src_loc].append(dst_loc)
 
     def split(self):
         """
@@ -59,11 +74,25 @@ FROM phy_tile"
                                                     self.grid_extent[2] + 1),
                                               range(self.grid_extent[1],
                                                     self.grid_extent[3] + 1)):
+
+            # Remap the original tile location
             vpr_x = phy_x + sum([phy_x > x for x in columns_to_split])
             vpr_y = phy_y
 
-            fwd_loc_map[(phy_x, phy_y)] = (vpr_x, vpr_y)
-            bwd_loc_map[(vpr_x, vpr_y)] = (phy_x, phy_y)
+            self.append_loc_map(fwd_loc_map, (phy_x, phy_y), (vpr_x, vpr_y))
+            self.append_loc_map(bwd_loc_map, (vpr_x, vpr_y), (phy_x, phy_y))
+
+            # If we are at a column to be split then add a map to the new tile
+            # which is to be the second product of the split
+            if phy_x in columns_to_split:
+
+                self.append_loc_map(
+                    fwd_loc_map, (phy_x, phy_y), (vpr_x + 1, vpr_y)
+                )
+
+                self.append_loc_map(
+                    bwd_loc_map, (vpr_x + 1, vpr_y), (phy_x, phy_y)
+                )
 
         # Return location mapping
         return GridLocMap(fwd_loc_map, bwd_loc_map)

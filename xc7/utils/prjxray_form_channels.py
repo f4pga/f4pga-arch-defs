@@ -946,18 +946,18 @@ def remap_tile_grid(conn, grid_map):
 
         # Map location
         vpr_loc = grid_map.get_vpr_loc((phy_loc_x, phy_loc_y))
-
         # Insert the tile into grid
         c.execute(
-            "INSERT INTO tile(pkey, name, tile_type_pkey, grid_x, grid_y)"
-            "VALUES (?, ?, ?, ?, ?)",
-            (tile[0], tile[1], tile[2], vpr_loc[0][0], vpr_loc[0][1])
+            "INSERT INTO tile(name, tile_type_pkey, grid_x, grid_y)"
+            "VALUES (?, ?, ?, ?)",
+            (tile[1], tile[2], vpr_loc[0][0], vpr_loc[0][1])
         )
 
-        # Insert location correspondence (The pkey is the same)
+        # Insert location correspondence
+        new_pkey = c.lastrowid
         c.execute(
             "INSERT INTO grid_loc_map(phy_tile_pkey, vpr_tile_pkey)"
-            "VALUES (?, ?)", (tile[0], tile[0])
+            "VALUES (?, ?)", (tile[0], new_pkey)
         )
 
         # If one physical location corresponds to more than one VPR location
@@ -968,7 +968,7 @@ def remap_tile_grid(conn, grid_map):
             # Insert the tile into grid
             c.execute(
                 "INSERT INTO tile(name, tile_type_pkey, grid_x, grid_y)"
-                "VALUES (?, ?, ?, ?, ?)",
+                "VALUES (?, ?, ?, ?)",
                 (tile_name, null_pkey, vpr_loc[i][0], vpr_loc[i][1])
             )
 
@@ -1011,20 +1011,22 @@ def main():
         import_grid(db, grid, conn)
         print("{}: Initial database formed".format(datetime.datetime.now()))
 
-        # Get physical grid extent, generate a test mapping
-        phy_grid_extent = grid_mapping.get_phy_grid_extent(conn)
-        grid_map = grid_mapping.GridLocMap.generate_shift_map(
-            phy_grid_extent, 2, 0
-        )
+        # # Get physical grid extent, generate a test mapping
+        # phy_grid_extent = grid_mapping.get_phy_grid_extent(conn)
+        # grid_map = grid_mapping.GridLocMap.generate_shift_map(
+        #     phy_grid_extent, 2, 0
+        # )
 
-        # # TEST
-        # from splitter.grid_splitter import GridSplitter
-        # gs = GridSplitter(conn)
-        # gs.set_tile_types_to_split(
-        #     ["CLBLL_L", "CLBLL_R", "CLBLM_L",
-        #      "CLBLM_R"])  # FIXME: This is just a test.
-        # gs.split()
-        # # TEST
+        # Split CLB tiles into two. This is for testing purpose only. It does
+        # not split CLB into slices but rather into CLB | EMPTY while leaving
+        # the CLB intact.
+        from splitter.grid_splitter import GridSplitter
+
+        gs = GridSplitter(conn)
+        gs.set_tile_types_to_split(
+            ["CLBLL_L", "CLBLL_R", "CLBLM_L", "CLBLM_R"]
+        )
+        grid_map = gs.split()
 
         print("{}: Grid map initialized".format(datetime.datetime.now()))
         remap_tile_grid(conn, grid_map)
