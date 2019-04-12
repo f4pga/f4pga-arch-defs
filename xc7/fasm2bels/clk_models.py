@@ -89,10 +89,12 @@ def process_bufg(conn, top, tile, features):
         bel.parameters['IS_CE1_INVERTED'] = int('ZINV_CE1' not in set_features)
         bel.parameters['IS_S0_INVERTED'] = int('ZINV_S0' not in set_features)
         bel.parameters['IS_S1_INVERTED'] = int('ZINV_S1' not in set_features)
-        bel.parameters['PRESELECT_I0'] = int(
+        bel.parameters['PRESELECT_I0'] = '"TRUE"' if (
             'ZPRESELECT_I0' not in set_features
-        )
-        bel.parameters['PRESELECT_I1'] = int('PRESELECT_I1' in set_features)
+        ) else '"FALSE"'
+        bel.parameters['PRESELECT_I1'] = '"TRUE"' if int(
+            'PRESELECT_I1' in set_features
+        ) else '"FALSE"'
         bel.parameters['INIT_OUT'] = int('INIT_OUT' in set_features)
 
         for sink in ('I0', 'I1', 'S0', 'S1', 'CE0', 'CE1', 'IGNORE0',

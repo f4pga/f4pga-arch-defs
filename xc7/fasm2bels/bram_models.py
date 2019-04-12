@@ -105,7 +105,7 @@ def process_bram_site(top, features, set_features):
 
     RAM_MODE = '"TDP"'
     if 'SDP_READ_WIDTH_36' in set_features:
-        assert 'READ_WIDTH_A_1' in set_features
+        assert 'READ_WIDTH_A_1' in set_features or 'READ_WIDTH_A_18' in set_features
         assert 'READ_WIDTH_B_18' in set_features
         READ_WIDTH_A = 36
         READ_WIDTH_B = 0
