@@ -276,6 +276,7 @@ function(DEFINE_DEVICE_TYPE)
   # Generate a arch.xml for a device.
   #
   set(DEVICE_MERGED_FILE arch.merged.xml)
+  set(DEVICE_TILES_FILE arch.tiles.xml)
   set(DEVICE_UNIQUE_PACK_FILE arch.unique_pack.xml)
   set(DEVICE_MERGED_LINT_FILE arch.merged.lint.html)
 
@@ -285,6 +286,7 @@ function(DEFINE_DEVICE_TYPE)
   append_file_dependency(DEPS ${DEFINE_DEVICE_TYPE_ARCH_XML})
 
   set(MERGE_XML_OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/${DEVICE_MERGED_FILE})
+  set(TILES_XML_OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/${DEVICE_TILES_FILE})
   set(UNIQUE_PACK_OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/${DEVICE_UNIQUE_PACK_FILE})
   set(MERGE_XMLLINT_OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/${DEVICE_MERGED_LINT_FILE})
 
@@ -310,7 +312,8 @@ function(DEFINE_DEVICE_TYPE)
   )
 
   add_file_target(FILE ${DEVICE_MERGED_FILE} GENERATED)
-  append_file_dependency(SPECIALIZE_CARRYCHAINS_DEPS ${DEVICE_MERGED_FILE})
+  add_file_target(FILE ${DEVICE_TILES_FILE} GENERATED)
+  append_file_dependency(SPECIALIZE_CARRYCHAINS_DEPS ${DEVICE_TILES_FILE})
 
   get_target_property_required(PYTHON3 env PYTHON3)
   get_target_property(PYTHON3_TARGET env PYTHON3_TARGET)
@@ -318,11 +321,23 @@ function(DEFINE_DEVICE_TYPE)
   add_custom_command(
       OUTPUT ${UNIQUE_PACK_OUTPUT}
       COMMAND ${PYTHON3} ${SPECIALIZE_CARRYCHAINS}
-      --input_arch_xml ${MERGE_XML_OUTPUT} > ${UNIQUE_PACK_OUTPUT}
+      --input_arch_xml ${TILES_XML_OUTPUT} > ${UNIQUE_PACK_OUTPUT}
       DEPENDS
         ${PYTHON3} ${PYTHON3_TARGET}
         ${SPECIALIZE_CARRYCHAINS}
         ${SPECIALIZE_CARRYCHAINS_DEPS}
+        )
+
+  append_file_dependency(ADD_TILE_DEPS ${DEVICE_MERGED_FILE})
+  set(ADD_TILES ${symbiflow-arch-defs_SOURCE_DIR}/utils/add_tiles.py)
+  add_custom_command(
+    OUTPUT ${TILES_XML_OUTPUT}
+      COMMAND ${PYTHON3} ${ADD_TILES}
+      --input_arch_xml ${MERGE_XML_OUTPUT} > ${TILES_XML_OUTPUT}
+      DEPENDS
+        ${PYTHON3} ${PYTHON3_TARGET}
+        ${ADD_TILES}
+        ${ADD_TILES_DEPS}
         )
 
   add_custom_target(
