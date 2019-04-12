@@ -40,8 +40,8 @@ def handle_direction_connections(conn, direct_connections, edge_assignments):
     # It is expected that all edges_with_mux will lies in a line (e.g. X only or
     # Y only).
     c = conn.cursor()
-    for src_wire_pkey, dest_wire_pkey, pip_in_tile_pkey in progressbar.progressbar(
-            c.execute("""
+    for src_wire_pkey, dest_wire_pkey, pip_in_tile_pkey in \
+            progressbar.progressbar(c.execute("""
 SELECT src_wire_pkey, dest_wire_pkey, pip_in_tile_pkey FROM edge_with_mux;""")
     ):
 
@@ -89,16 +89,16 @@ SELECT node_pkey FROM wire WHERE pkey = ?""", (dest_wire_pkey, )
         # Find the wire connected to the sink.
         dest_wire = list(node_to_site_pins(conn, dest_node_pkey))
         assert len(dest_wire) == 1
-        destination_wire_pkey, dest_tile_pkey, dest_wire_in_tile_pkey = dest_wire[
-            0]
+        destination_wire_pkey, dest_tile_pkey, dest_wire_in_tile_pkey = \
+            dest_wire[0]
 
         c2.execute(
             """
 SELECT tile_type_pkey, grid_x, grid_y FROM tile WHERE pkey = ?;""",
             (dest_tile_pkey, )
         )
-        dest_tile_type_pkey, destination_loc_grid_x, destination_loc_grid_y = c2.fetchone(
-        )
+        dest_tile_type_pkey, destination_loc_grid_x, destination_loc_grid_y = \
+            c2.fetchone()
 
         c2.execute(
             """
@@ -213,8 +213,8 @@ SELECT pkey, name, site_pin_pkey FROM wire_in_tile WHERE pkey = ?;""",
             if site_pin_pkey is None:
                 continue
 
-            for pip_pkey, pip, src_wire_in_tile_pkey, dest_wire_in_tile_pkey in c3.execute(
-                    """
+            for pip_pkey, pip, src_wire_in_tile_pkey, dest_wire_in_tile_pkey \
+                    in c3.execute("""
 SELECT
   pkey,
   name,
@@ -237,8 +237,8 @@ WHERE
                     other_wire_in_tile_pkey = src_wire_in_tile_pkey
 
                 # Need to walk from the wire_in_tile table, to the wire table,
-                # to the node table and get track_pkey.
-                # other_wire_in_tile_pkey -> wire pkey -> node_pkey -> track_pkey
+                # to the node table and get track_pkey. other_wire_in_tile_pkey
+                # -> wire pkey -> node_pkey -> track_pkey
                 c4 = conn.cursor()
                 c4.execute(
                     """
@@ -291,7 +291,8 @@ def main():
     parser.add_argument(
         '--connection_database',
         help='Database of fabric connectivity',
-        required=True)
+        required=True
+    )
     parser.add_argument(
         '--pin_assignments',
         help=
@@ -311,11 +312,10 @@ def main():
 
         # List tile wires and site wires
         for tile_type_pkey, tile_type in c2.execute(
-                "SELECT pkey, name FROM tile_type"
-        ):
+                "SELECT pkey, name FROM tile_type"):
 
             for wire_name, site_pkey in c.execute(
-        "SELECT name, site_pkey FROM wire_in_tile WHERE tile_type_pkey = (?)",
+                    "SELECT name, site_pkey FROM wire_in_tile WHERE tile_type_pkey = (?)",
                 (tile_type_pkey, )):
 
                 # Tile wire
@@ -361,8 +361,8 @@ def main():
         # List of nodes that are channels.
         channel_nodes = []
 
-        # Map of (tile, wire) to track.  This will be used to find channels for pips
-        # that come from EDGES_TO_CHANNEL.
+        # Map of (tile, wire) to track.  This will be used to find channels for
+        # pips that come from EDGES_TO_CHANNEL.
         channel_wires_to_tracks = {}
 
         # Generate track models and verify that wires are either in a channel
@@ -402,7 +402,8 @@ def main():
         # been marked as NULL during channel formation.
         print('{} Handling edges to channels.'.format(now()))
         handle_edges_to_channels(
-            conn, null_tile_wires, edge_assignments, channel_wires_to_tracks)
+            conn, null_tile_wires, edge_assignments, channel_wires_to_tracks
+        )
 
         print('{} Processing edge assignments.'.format(now()))
         final_edge_assignments = {}
@@ -411,8 +412,8 @@ def main():
             (tile_type, wire) = key
             if len(available_pins) == 0:
                 if (tile_type, wire) not in null_tile_wires:
-                    # TODO: Figure out what is going on with these wires.  Appear to
-                    # tile internal connections sometimes?
+                    # TODO: Figure out what is going on with these wires.
+                    #  Appear to tile internal connections sometimes?
                     print((tile_type, wire))
 
                 final_edge_assignments[key] = [tracks.Direction.RIGHT]
@@ -425,7 +426,8 @@ def main():
             if len(pins) > 0:
                 final_edge_assignments[key] = [list(pins)[0]]
             else:
-                # More than 2 pins are required, final the minimal number of pins
+                # More than 2 pins are required, final the minimal number
+                # of pins
                 pins = set()
                 for p in available_pins:
                     pins |= set(p)

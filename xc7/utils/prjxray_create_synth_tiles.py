@@ -54,12 +54,14 @@ def find_vbrk_closest_to(grid, roi, loc, loc_in_use):
 
     return loc_best
 
+
 def main():
     parser = argparse.ArgumentParser(description="Generate synth_tiles.json")
     parser.add_argument('--db_root', required=True)
     parser.add_argument('--roi', required=True)
     parser.add_argument(
-        '--connection_database', help='Connection database', required=True)
+        '--connection_database', help='Connection database', required=True
+    )
     parser.add_argument('--synth_tiles', required=False)
 
     args = parser.parse_args()
@@ -90,9 +92,11 @@ def main():
 
     # Map ROI coordinates to the target VPR grid
     roi_loc_lo = grid_loc_mapper.get_vpr_loc(
-        (j['info']['GRID_X_MIN'], j['info']['GRID_Y_MIN']))
+        (j['info']['GRID_X_MIN'], j['info']['GRID_Y_MIN'])
+    )
     roi_loc_hi = grid_loc_mapper.get_vpr_loc(
-        (j['info']['GRID_X_MAX'], j['info']['GRID_Y_MAX']))
+        (j['info']['GRID_X_MAX'], j['info']['GRID_Y_MAX'])
+    )
 
     synth_tiles['info'] = {
         "GRID_X_MIN": min([p[0] for p in roi_loc_lo]),
@@ -133,7 +137,8 @@ def main():
             # Or if in the ROI, make sure it has no sites.
             gridinfo = g.gridinfo_at_tilename(tile)
             assert len(
-                db.get_tile_type(gridinfo.tile_type).get_sites()) == 0, tile
+                db.get_tile_type(gridinfo.tile_type).get_sites()
+            ) == 0, tile
 
         if tile not in synth_tiles['tiles']:
             synth_tiles['tiles'][tile] = {

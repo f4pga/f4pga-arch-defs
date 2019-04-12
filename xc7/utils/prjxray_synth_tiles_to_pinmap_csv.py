@@ -1,5 +1,6 @@
 #! /usr/bin/env python3
-""" Tool generate convert a synth_tiles.json (describing an ROI) to a pin map CSV usable for pin placement. """
+""" Tool generate convert a synth_tiles.json (describing an ROI) to a pin map
+ CSV usable for pin placement. """
 from __future__ import print_function
 import argparse
 import json

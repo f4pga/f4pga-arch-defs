@@ -8,7 +8,7 @@ import sys
 sys.path.append("../")  # Hackish way...
 
 from prjxray_db_cache import DatabaseCache
-from lib.grid_mapping import get_phy_grid_extent
+from lib.grid_mapping import GridLocMap, get_phy_grid_extent
 
 # =============================================================================
 
@@ -21,8 +21,13 @@ class GridSplitter(object):
 
         # Get the grid from database:
         self.grid = self.db_cursor.execute(
-            "SELECT grid_x, grid_y, ( SELECT name FROM tile_type WHERE tile_type.pkey = phy_tile.tile_type_pkey ) FROM phy_tile"
+            """
+SELECT grid_x, grid_y, 
+( SELECT name FROM tile_type WHERE tile_type.pkey = phy_tile.tile_type_pkey )
+FROM phy_tile"
+        """
         )
+
         # Get the physical grid extent
         self.grid_extent = get_phy_grid_extent(db_conn)
 
@@ -34,7 +39,7 @@ class GridSplitter(object):
 
     def split(self):
         """
-        Do the split
+        Do the split, return GridLocMap object
         """
 
         # Identify grid colums to split
@@ -46,10 +51,10 @@ class GridSplitter(object):
 
         logging.info("Splitting columns: %s" % str(columns_to_split))
 
-        # Clear the grid_loc_map
-        self.db_cursor.executescript("DELETE FROM grid_loc_map; VACUUM;")
-
         # Build an new coordinate mapping
+        fwd_loc_map = {}
+        bwd_loc_map = {}
+
         for phy_x, phy_y in itertools.product(range(self.grid_extent[0],
                                                     self.grid_extent[2] + 1),
                                               range(self.grid_extent[1],
@@ -57,13 +62,11 @@ class GridSplitter(object):
             vpr_x = phy_x + sum([phy_x > x for x in columns_to_split])
             vpr_y = phy_y
 
-            self.db_cursor.execute(
-                "INSERT INTO grid_loc_map VALUES (?, ?, ?, ?);",
-                (phy_x, phy_y, vpr_x, vpr_y))
+            fwd_loc_map[(phy_x, phy_y)] = (vpr_x, vpr_y)
+            bwd_loc_map[(vpr_x, vpr_y)] = (phy_x, phy_y)
 
-        # Commit
-        self.db_cursor.execute("COMMIT TRANSACTION;")
-        self.db_cursor.connection.commit()
+        # Return location mapping
+        return GridLocMap(fwd_loc_map, bwd_loc_map)
 
 
 # =============================================================================
@@ -80,14 +83,16 @@ def main():
         "--connection_database",
         required=True,
         type=str,
-        help="Database of fabric connectivity")
+        help="Database of fabric connectivity"
+    )
     parser.add_argument(
         "--split-tiles",
         required=True,
         type=str,
         nargs="*",
         action="append",
-        help="Tile types to split")
+        help="Tile types to split"
+    )
 
     args = parser.parse_args()
 

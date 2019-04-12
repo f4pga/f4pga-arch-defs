@@ -247,9 +247,7 @@ def import_dummy_tracks(conn, graph, segment_id):
     return num_dummy
 
 
-def create_track_rr_graph(
-        conn, graph, node_mapping, segment_id
-):
+def create_track_rr_graph(conn, graph, node_mapping, segment_id):
     c = conn.cursor()
     c.execute("""SELECT count(*) FROM track;""")
     (num_channels, ) = c.fetchone()
@@ -537,7 +535,8 @@ def main():
     )
     parser.add_argument(
         '--synth_tiles',
-        help='If using an ROI, synthetic tile defintion from prjxray-arch-import'
+        help='If using an ROI, synthetic tile defintion from'
+        ' prjxray-arch-import'
     )
 
     args = parser.parse_args()
@@ -600,9 +599,7 @@ def main():
         # Walk all track graph nodes and add them.
         print('{} Creating tracks'.format(now()))
         segment_id = graph.get_segment_id_from_name('dummy')
-        create_track_rr_graph(
-            conn, graph, node_mapping, segment_id
-        )
+        create_track_rr_graph(conn, graph, node_mapping, segment_id)
 
         # Set of (src, sink, switch_id) tuples that pip edges have been sent to
         # VPR.  VPR cannot handle duplicate paths with the same switch id.

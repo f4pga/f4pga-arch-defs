@@ -31,8 +31,8 @@ class GridLocMap(object):
         bwd_loc_map = {}
 
         # Make a one-to-one map
-        for x, y in itertools.product(range(xmin, xmax + 1),
-                                      range(ymin, ymax + 1)):
+        for x, y in itertools.product(range(xmin, xmax + 1), range(ymin,
+                                                                   ymax + 1)):
 
             fwd_loc_map[(x, y)] = [(x, y)]
             bwd_loc_map[(x, y)] = [(x, y)]
@@ -58,8 +58,8 @@ class GridLocMap(object):
         bwd_loc_map = {}
 
         # Make a one-to-one map
-        for x, y in itertools.product(range(xmin, xmax + 1),
-                                      range(ymin, ymax + 1)):
+        for x, y in itertools.product(range(xmin, xmax + 1), range(ymin,
+                                                                   ymax + 1)):
 
             phy_loc = (x, y)
             vpr_loc = (x + shift_x, y + shift_y)
@@ -82,14 +82,16 @@ class GridLocMap(object):
         c = conn.cursor()
 
         # Query the grid map from the database
-        grid_loc_map = c.execute("""
+        grid_loc_map = c.execute(
+            """
 SELECT phy.grid_x, phy.grid_y, vpr.grid_x, vpr.grid_y
 FROM phy_tile phy
 INNER JOIN grid_loc_map map
 ON phy.pkey = map.phy_tile_pkey
 INNER JOIN tile vpr
 ON vpr.pkey = map.vpr_tile_pkey
-""").fetchall()
+"""
+        ).fetchall()
 
         # Build maps
         fwd_loc_map = {}
@@ -115,6 +117,7 @@ ON vpr.pkey = map.vpr_tile_pkey
 
     def get_phy_loc(self, grid_loc):
         return tuple(self.bwd_loc_map[grid_loc])
+
 
 # =============================================================================
 
@@ -169,9 +172,8 @@ def get_vpr_grid_extent(conn):
 
     return (xmin, ymin, xmax, ymax)
 
-# =============================================================================
 
+# =============================================================================
 
 if __name__ == "__main__":
     main()
-

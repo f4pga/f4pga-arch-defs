@@ -5,8 +5,8 @@ By default this will generate a complete arch XML for all tile types specified.
 If the --use_roi flag is passed, only the tiles within the ROI will be included,
 and synthetic IO pads will be created and connected to the routing fabric.
 The mapping of the pad name to synthetic tile location will be outputted to the
-file specified in the --synth_tiles output argument.  This can be used to generate
-IO placement spefications to target the synthetic IO pads.
+file specified in the --synth_tiles output argument.  This can be used to
+generate IO placement spefications to target the synthetic IO pads.
 
 """
 from __future__ import print_function
@@ -24,8 +24,11 @@ from prjxray.grid_types import GridLoc
 from prjxray_db_cache import DatabaseCache
 from lib.grid_mapping import GridLocMap, get_vpr_grid_extent
 
+
 def create_synth_io_tiles(complexblocklist_xml, pb_name, is_input):
-    """ Creates synthetic IO pad tiles used to connect ROI inputs and outputs to the routing network.
+    """
+    Creates synthetic IO pad tiles used to connect ROI inputs and outputs
+    to the routing network.
     """
     pb_xml = ET.SubElement(
         complexblocklist_xml, 'pb_type', {
@@ -182,8 +185,7 @@ def create_synth_constant_tiles(
 
 
 def add_synthetic_tiles(model_xml, complexblocklist_xml):
-    create_synth_io_tiles(
-        complexblocklist_xml, 'BLK_SY-INPAD', is_input=True)
+    create_synth_io_tiles(complexblocklist_xml, 'BLK_SY-INPAD', is_input=True)
     create_synth_io_tiles(
         complexblocklist_xml, 'BLK_SY-OUTPAD', is_input=False
     )
@@ -219,7 +221,8 @@ def main():
     parser.add_argument(
         '--connection_database',
         help='Database of fabric connectivity',
-        required=True)
+        required=True
+    )
     parser.add_argument(
         '--output-arch',
         nargs='?',
@@ -350,8 +353,8 @@ def main():
         # VBRK tiles are known to have no bitstream data.
         if not is_vbrk and not gridinfo.bits:
             print(
-                '*** WARNING *** Skipping tile {} because it lacks bitstream data.'
-                .format(tile),
+                '*** WARNING *** Skipping tile {} because it lacks bitstream '
+                'data.'.format(tile),
                 file=sys.stderr
             )
 
@@ -361,7 +364,8 @@ def main():
                 'type': vpr_tile_type,
                 'x': str(vpr_loc[0]),
                 'y': str(vpr_loc[1]),
-            })
+            }
+        )
         meta = ET.SubElement(single_xml, 'metadata')
         ET.SubElement(meta, 'meta', {
             'name': 'fasm_prefix',
@@ -470,7 +474,8 @@ def main():
     pin_assignments = json.load(args.pin_assignments)
 
     # Choose smallest distance for block to block connections with multiple
-    # direct_connections.  VPR cannot handle multiple block to block connections.
+    # direct_connections.  VPR cannot handle multiple block to block
+    # connections.
     directs = {}
     for direct in pin_assignments['direct_connections']:
         key = (direct['from_pin'], direct['to_pin'])

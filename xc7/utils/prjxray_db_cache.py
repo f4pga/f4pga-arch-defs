@@ -47,13 +47,15 @@ class DatabaseCache(object):
 
     def __exit__(self, exc_type, exc_value, traceback):
         """
-        Writes back the database to file if the database was open as not read-only
+        Writes back the database to file if the database was open as not
+        read-only
         """
 
         # Write back only if not read-only
         if not self.read_only:
             if self.memory_connection.in_transaction:
-                assert exc_type is not None, "Outstanding transaction, but no exception?"
+                assert exc_type is not None, "Outstanding transaction, " \
+                                             "but no exception?"
                 self.memory_connection.rollback()
 
             print("Dumping database to '{}'".format(self.file_name))

@@ -332,7 +332,8 @@ class Connector(object):
                 if pin_dir in self.pins.edge_map:
                     return self.pins.edge_map[pin_dir], graph_nodes[idx]
         elif self.tracks and other_connector.pins:
-            assert other_connector.pins.site_pin_direction == SitePinDirection.IN
+            assert other_connector.pins.site_pin_direction == \
+                   SitePinDirection.IN
             assert other_connector.pins.x == loc[0]
             assert other_connector.pins.y == loc[1]
 
@@ -343,7 +344,8 @@ class Connector(object):
                         pin_dir]
         elif self.pins and other_connector.pins:
             assert self.pins.site_pin_direction == SitePinDirection.OUT
-            assert other_connector.pins.site_pin_direction == SitePinDirection.IN
+            assert other_connector.pins.site_pin_direction == \
+                   SitePinDirection.IN
 
             if len(self.pins.edge_map) == 1 and len(
                     other_connector.pins.edge_map) == 1:
@@ -394,8 +396,8 @@ def create_find_connector(conn):
         # Find all graph_nodes for this node.
         c.execute(
             """
-        SELECT pkey, track_pkey, graph_node_type, x_low, x_high, y_low, y_high FROM graph_node
-        WHERE node_pkey = ?;""", (node_pkey, )
+        SELECT pkey, track_pkey, graph_node_type, x_low, x_high, y_low, y_high
+        FROM graph_node WHERE node_pkey = ?;""", (node_pkey, )
         )
 
         graph_nodes = c.fetchall()
@@ -535,8 +537,9 @@ SELECT vcc_track_pkey, gnd_track_pkey FROM constant_sources;
 
 def make_connection(
         conn, input_only_nodes, output_only_nodes, loc, tile_pkey,
-        src_wire_pkey, dst_wire_pkey, pip_pkey, switch_pkey, delayless_switch_pkey,
-        find_connector, const_connectors):
+        src_wire_pkey, dst_wire_pkey, pip_pkey, switch_pkey,
+        delayless_switch_pkey, find_connector, const_connectors
+):
     """ Attempt to connect graph nodes on either side of a pip.
 
     Args:
@@ -574,11 +577,13 @@ def make_connection(
 
     # Get node pkeys
     src_node_pkey = c.execute(
-        "SELECT node_pkey FROM wire WHERE tile_pkey = (?) AND wire_in_tile_pkey = (?)",
-        (tile_pkey, src_wire_pkey)).fetchone()[0]
+        "SELECT node_pkey FROM wire WHERE tile_pkey = (?) AND "
+        "wire_in_tile_pkey = (?)", (tile_pkey, src_wire_pkey)
+    ).fetchone()[0]
     dst_node_pkey = c.execute(
-        "SELECT node_pkey FROM wire WHERE tile_pkey = (?) AND wire_in_tile_pkey = (?)",
-        (tile_pkey, dst_wire_pkey)).fetchone()[0]
+        "SELECT node_pkey FROM wire WHERE tile_pkey = (?) AND "
+        "wire_in_tile_pkey = (?)", (tile_pkey, dst_wire_pkey)
+    ).fetchone()[0]
 
     # Skip nodes that are reserved because of ROI
     if src_node_pkey in input_only_nodes:
@@ -619,8 +624,6 @@ def make_connection(
         src_graph_node_pkey, dst_graph_node_pkey = const_connectors[
             constant_src].connect_at(loc, dst_connector)
 
-        #print("SYNTH EDGE: ", src_graph_node_pkey, dst_graph_node_pkey, delayless_switch_pkey, tile_pkey)
-
         edges.append(
             (
                 src_graph_node_pkey,
@@ -633,7 +636,10 @@ def make_connection(
 
     return edges
 
-def mark_track_liveness(conn, pool, input_only_nodes, output_only_nodes, alive_tracks):
+
+def mark_track_liveness(
+        conn, pool, input_only_nodes, output_only_nodes, alive_tracks
+):
     """ Checks tracks for liveness.
 
     Iterates over all graph nodes that are routing tracks and determines if
@@ -717,8 +723,8 @@ def build_channels(conn, pool, active_tracks):
 
     x_tracks = {}
     y_tracks = {}
-    for pkey, track_pkey, graph_node_type, x_low, x_high, y_low, y_high in c.execute(
-            """
+    for pkey, track_pkey, graph_node_type, x_low, x_high, y_low, y_high in \
+            c.execute("""
 SELECT
   pkey,
   track_pkey,
@@ -896,8 +902,9 @@ def verify_channels(conn, alive_tracks):
     for (graph_node_pkey, track_pkey, graph_node_type, x_low, x_high, y_low,
          y_high, ptc, capacity) in c.execute(
              """
-    SELECT pkey, track_pkey, graph_node_type, x_low, x_high, y_low, y_high, ptc, capacity FROM
-        graph_node WHERE (graph_node_type = ? or graph_node_type = ?);""",
+    SELECT pkey, track_pkey, graph_node_type, x_low, x_high, y_low, y_high,
+    ptc, capacity FROM graph_node WHERE 
+    (graph_node_type = ? or graph_node_type = ?);""",
              (graph2.NodeType.CHANX.value, graph2.NodeType.CHANY.value)):
 
         if track_pkey not in alive_tracks and capacity != 0:
@@ -931,15 +938,15 @@ def main():
     parser.add_argument(
         '--connection_database',
         help='Database of fabric connectivity',
-        required=True)
+        required=True
+    )
     parser.add_argument(
-        '--pin_assignments',
-        help='Pin assignments JSON',
-        required=True)
+        '--pin_assignments', help='Pin assignments JSON', required=True
+    )
     parser.add_argument(
         '--synth_tiles',
-        help=
-        'If using an ROI, synthetic tile defintion from prjxray-arch-import')
+        help='If using an ROI, synthetic tile defintion from prjxray-arch-import'
+    )
 
     args = parser.parse_args()
 
@@ -972,7 +979,8 @@ def main():
                 synth_tiles["info"]["GRID_X_MIN"],
                 synth_tiles["info"]["GRID_Y_MIN"],
                 synth_tiles["info"]["GRID_X_MAX"],
-                synth_tiles["info"]["GRID_Y_MAX"])
+                synth_tiles["info"]["GRID_Y_MAX"]
+            )
 
             print('{} generating routing graph for ROI.'.format(now()))
         else:
@@ -994,13 +1002,14 @@ def main():
             c = conn.cursor()
             c2 = conn.cursor()
 
-            for tile_name, tile_type_pkey, grid_x, grid_y in progressbar.progressbar(
-                    c.execute(
+            for tile_name, tile_type_pkey, grid_x, grid_y in\
+                    progressbar.progressbar(c.execute(
                         "SELECT name, tile_type_pkey, grid_x, grid_y FROM tile"
                     )):
                 tile_type = c2.execute(
                     "SELECT name FROM tile_type WHERE pkey = (?)",
-                    (tile_type_pkey, )).fetchone()[0]
+                    (tile_type_pkey, )
+                ).fetchone()[0]
 
                 if tile_name in synth_tiles['tiles']:
                     assert len(synth_tiles['tiles'][tile_name]['pins']) == 1
@@ -1010,7 +1019,8 @@ def main():
                             continue
 
                         _, _, node_pkey = find_wire(
-                            tile_name, tile_type, pin['wire'])
+                            tile_name, tile_type, pin['wire']
+                        )
 
                         if pin['port_type'] == 'input':
                             # This track can output be used as a sink.
@@ -1036,7 +1046,8 @@ def main():
         edge_set = set()
 
         c2 = conn.cursor()
-        for tile_pkey, tile_type_pkey, grid_x, grid_y in progressbar.progressbar(
+        for tile_pkey, tile_type_pkey, grid_x, grid_y in \
+                progressbar.progressbar(
                 c.execute(
                     "SELECT pkey, tile_type_pkey, grid_x, grid_y FROM tile")):
             loc = (grid_x, grid_y)
@@ -1048,8 +1059,10 @@ def main():
                 continue
 
             # Process PIPs
-            for pip_pkey, pip_name, pip_src_wire_pkey, pip_dst_wire_pkey in c2.execute(
-                    "SELECT pkey, name, src_wire_in_tile_pkey, dest_wire_in_tile_pkey FROM pip_in_tile WHERE tile_type_pkey = (?)",
+            for pip_pkey, pip_name, pip_src_wire_pkey, pip_dst_wire_pkey in\
+                    c2.execute("""SELECT pkey, name, src_wire_in_tile_pkey,
+                               dest_wire_in_tile_pkey FROM pip_in_tile WHERE
+                               tile_type_pkey = (?)""",
                 (tile_type_pkey, )):
 
                 # No pseudo pips and bidirectional pips should be present here
@@ -1061,7 +1074,9 @@ def main():
                 connections = make_connection(
                     conn, input_only_nodes, output_only_nodes, loc, tile_pkey,
                     pip_src_wire_pkey, pip_dst_wire_pkey, pip_pkey,
-                    switch_pkey, delayless_switch_pkey, find_connector, const_connectors)
+                    switch_pkey, delayless_switch_pkey, find_connector,
+                    const_connectors
+                )
 
                 if connections:
                     # TODO: Skip duplicate connections, until they have unique
@@ -1092,10 +1107,12 @@ def main():
         print('{} Inserted edges'.format(now()))
 
         c.execute(
-            """CREATE INDEX src_node_index ON graph_edge(src_graph_node_pkey);"""
+            """CREATE INDEX src_node_index ON 
+            graph_edge(src_graph_node_pkey);"""
         )
         c.execute(
-            """CREATE INDEX dest_node_index ON graph_edge(dest_graph_node_pkey);"""
+            """CREATE INDEX dest_node_index ON 
+            graph_edge(dest_graph_node_pkey);"""
         )
         c.connection.commit()
 

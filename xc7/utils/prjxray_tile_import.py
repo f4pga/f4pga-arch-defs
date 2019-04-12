@@ -110,7 +110,10 @@ def main():
         '--fused_sites',
         action='store_true',
         help=
-        "Typically a tile can treat the sites within the tile as independent.  For tiles where this is not true, fused sites only imports 1 primatative for the entire tile, which should be named the same as the tile type."
+        "Typically a tile can treat the sites within the tile as independent."
+        "For tiles where this is not true, fused sites only imports 1"
+        "primatative for the entire tile, which should be named the same as"
+        "the tile type."
     )
 
     args = parser.parse_args()
@@ -150,10 +153,12 @@ def main():
             for site_pin in site.site_pins:
                 site_type_pin = site_type.get_site_pin(site_pin.name)
 
-                if site_type_pin.direction == prjxray.site_type.SitePinDirection.IN:
+                if site_type_pin.direction == \
+                        prjxray.site_type.SitePinDirection.IN:
                     if site_pin.wire is not None:
                         input_wires.add(site_pin.wire)
-                elif site_type_pin.direction == prjxray.site_type.SitePinDirection.OUT:
+                elif site_type_pin.direction == \
+                        prjxray.site_type.SitePinDirection.OUT:
                     if site_pin.wire is not None:
                         output_wires.add(site_pin.wire)
                 else:
@@ -177,10 +182,12 @@ def main():
             for site_pin in site.site_pins:
                 site_type_pin = site_type.get_site_pin(site_pin.name)
 
-                if site_type_pin.direction == prjxray.site_type.SitePinDirection.IN:
+                if site_type_pin.direction == \
+                        prjxray.site_type.SitePinDirection.IN:
                     if site_pin.wire is not None:
                         input_wires.add(site_pin.wire)
-                elif site_type_pin.direction == prjxray.site_type.SitePinDirection.OUT:
+                elif site_type_pin.direction == \
+                        prjxray.site_type.SitePinDirection.OUT:
                     if site_pin.wire is not None:
                         output_wires.add(site_pin.wire)
                 else:
@@ -389,21 +396,25 @@ def main():
                 port = find_port(site_pin.name, site_type_ports[site_instance])
                 if port is None:
                     print(
-                        "*** WARNING *** Didn't find port for name {} for site type {}"
-                        .format(site_pin.name, site.type),
+                        "*** WARNING *** Didn't find port for"
+                        " name {} for site type {}".format(
+                            site_pin.name, site.type
+                        ),
                         file=sys.stderr
                     )
                     continue
 
                 site_type_pin = site_type.get_site_pin(site_pin.name)
 
-                if site_type_pin.direction == prjxray.site_type.SitePinDirection.IN:
+                if site_type_pin.direction == \
+                        prjxray.site_type.SitePinDirection.IN:
                     add_direct(
                         interconnect_xml,
                         input=object_ref(tile_name, site_pin.wire),
                         output=object_ref(site_name, **port)
                     )
-                elif site_type_pin.direction == prjxray.site_type.SitePinDirection.OUT:
+                elif site_type_pin.direction == \
+                        prjxray.site_type.SitePinDirection.OUT:
                     pass
                 else:
                     assert False, site_type_pin.direction
@@ -420,9 +431,11 @@ def main():
 
                 site_type_pin = site_type.get_site_pin(site_pin.name)
 
-                if site_type_pin.direction == prjxray.site_type.SitePinDirection.IN:
+                if site_type_pin.direction == \
+                        prjxray.site_type.SitePinDirection.IN:
                     pass
-                elif site_type_pin.direction == prjxray.site_type.SitePinDirection.OUT:
+                elif site_type_pin.direction == \
+                        prjxray.site_type.SitePinDirection.OUT:
                     add_direct(
                         interconnect_xml,
                         input=object_ref(site_name, **port),
@@ -474,21 +487,25 @@ def main():
                 port = find_port(port_name, ports)
                 if port is None:
                     print(
-                        "*** WARNING *** Didn't find port for name {} for site type {}"
-                        .format(port_name, site.type),
+                        "*** WARNING *** Didn't find port for"
+                        " name {} for site type {}".format(
+                            port_name, site.type
+                        ),
                         file=sys.stderr
                     )
                     continue
 
                 site_type_pin = site_type.get_site_pin(site_pin.name)
 
-                if site_type_pin.direction == prjxray.site_type.SitePinDirection.IN:
+                if site_type_pin.direction == \
+                        prjxray.site_type.SitePinDirection.IN:
                     add_direct(
                         interconnect_xml,
                         input=object_ref(tile_name, site_pin.wire),
                         output=object_ref(site_name, **port)
                     )
-                elif site_type_pin.direction == prjxray.site_type.SitePinDirection.OUT:
+                elif site_type_pin.direction == \
+                        prjxray.site_type.SitePinDirection.OUT:
                     pass
                 else:
                     assert False, site_type_pin.direction
@@ -506,9 +523,11 @@ def main():
 
                 site_type_pin = site_type.get_site_pin(site_pin.name)
 
-                if site_type_pin.direction == prjxray.site_type.SitePinDirection.IN:
+                if site_type_pin.direction == \
+                        prjxray.site_type.SitePinDirection.IN:
                     pass
-                elif site_type_pin.direction == prjxray.site_type.SitePinDirection.OUT:
+                elif site_type_pin.direction == \
+                        prjxray.site_type.SitePinDirection.OUT:
                     add_direct(
                         interconnect_xml,
                         input=object_ref(site_name, **port),

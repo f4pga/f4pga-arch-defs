@@ -152,18 +152,22 @@ WHERE
 
 
 def build_tile_type_indicies(c):
+    c.execute("CREATE INDEX site_pin_index ON site_pin(name, site_type_pkey);")
     c.execute(
-        "CREATE INDEX site_pin_index ON site_pin(name, site_type_pkey);")
+        "CREATE INDEX wire_name_index ON wire_in_tile(name, tile_type_pkey);"
+    )
     c.execute(
-        "CREATE INDEX wire_name_index ON wire_in_tile(name, tile_type_pkey);")
+        "CREATE INDEX wire_site_pin_index ON wire_in_tile(site_pin_pkey);"
+    )
     c.execute(
-        "CREATE INDEX wire_site_pin_index ON wire_in_tile(site_pin_pkey);")
+        "CREATE INDEX pip_tile_type_index ON pip_in_tile(tile_type_pkey);"
+    )
     c.execute(
-        "CREATE INDEX pip_tile_type_index ON pip_in_tile(tile_type_pkey);")
+        "CREATE INDEX src_pip_index ON pip_in_tile(src_wire_in_tile_pkey);"
+    )
     c.execute(
-        "CREATE INDEX src_pip_index ON pip_in_tile(src_wire_in_tile_pkey);")
-    c.execute(
-        "CREATE INDEX dest_pip_index ON pip_in_tile(dest_wire_in_tile_pkey);")
+        "CREATE INDEX dest_pip_index ON pip_in_tile(dest_wire_in_tile_pkey);"
+    )
 
 
 def import_grid(db, grid, conn):
@@ -197,7 +201,8 @@ def import_grid(db, grid, conn):
 INSERT INTO phy_tile(name, tile_type_pkey, grid_x, grid_y)
 VALUES
   (?, ?, ?, ?)""",
-            (tile, tile_types[gridinfo.tile_type], loc.grid_x, loc.grid_y))
+            (tile, tile_types[gridinfo.tile_type], loc.grid_x, loc.grid_y)
+        )
 
     c.connection.commit()
 
@@ -217,8 +222,8 @@ def import_nodes(db, conn):
     for tile_name, tile_pkey, tile_type_pkey in progressbar.progressbar(
             c1.execute("SELECT name, pkey, tile_type_pkey FROM tile")):
         tile_type = c.execute(
-            "SELECT name FROM tile_type WHERE pkey = ?",
-            (tile_type_pkey, )).fetchone()[0]
+            "SELECT name FROM tile_type WHERE pkey = ?", (tile_type_pkey, )
+        ).fetchone()[0]
 
         tiles[tile_name] = (tile_pkey, tile_type_pkey)
 
@@ -367,7 +372,8 @@ SET
       node_pkey INT,
       number_pips INT,
       FOREIGN KEY(node_pkey) REFERENCES node(pkey)
-    );""")
+    );"""
+    )
     c.execute(
         """
 INSERT INTO node_pip_count(node_pkey, number_pips)
@@ -382,7 +388,8 @@ WHERE
   pip_in_tile.src_wire_in_tile_pkey = wire.wire_in_tile_pkey
   OR pip_in_tile.dest_wire_in_tile_pkey = wire.wire_in_tile_pkey)
 GROUP BY
-  wire.node_pkey;""")
+  wire.node_pkey;"""
+    )
     c.execute("CREATE INDEX pip_count_index ON node_pip_count(node_pkey);")
 
     print("{}: Inserting pip counts".format(datetime.datetime.now()))
@@ -561,8 +568,8 @@ LIMIT
             else:
                 edges_to_channel.append(node)
 
-    for nodes, src_wire_pkey, dest_wire_pkey, pip_pkey in progressbar.progressbar(
-            edge_with_mux):
+    for nodes, src_wire_pkey, dest_wire_pkey, pip_pkey in \
+            progressbar.progressbar(edge_with_mux):
         assert len(nodes) == 2
         c.execute(
             """
@@ -609,8 +616,8 @@ def insert_tracks(conn, tracks_to_insert):
 
     track_graph_nodes = {}
     track_pkeys = []
-    for node, tracks_list, track_connections, tracks_model in progressbar.progressbar(
-            tracks_to_insert):
+    for node, tracks_list, track_connections, tracks_model in \
+            progressbar.progressbar(tracks_to_insert):
         c.execute("""INSERT INTO track DEFAULT VALUES""")
         track_pkey = c.lastrowid
         track_pkeys.append(track_pkey)
@@ -669,8 +676,8 @@ VALUES
     conn.commit()
 
     wire_to_graph = {}
-    for node, tracks_list, track_connections, tracks_model in progressbar.progressbar(
-            tracks_to_insert):
+    for node, tracks_list, track_connections, tracks_model in \
+            progressbar.progressbar(tracks_to_insert):
         track_graph_node_pkey = track_graph_nodes[node]
 
         c.execute(
@@ -922,8 +929,8 @@ def remap_tile_grid(conn, grid_map):
     c = conn.cursor()
 
     # Get NULL tile pkey
-    null_pkey = c.execute(
-        "SELECT pkey FROM tile_type WHERE name = \"NULL\"").fetchone()[0]
+    null_pkey = c.execute("SELECT pkey FROM tile_type WHERE name = \"NULL\""
+                          ).fetchone()[0]
 
     assert null_pkey is not None
 
@@ -942,14 +949,15 @@ def remap_tile_grid(conn, grid_map):
 
         # Insert the tile into grid
         c.execute(
-            "INSERT INTO tile(pkey, name, tile_type_pkey, grid_x, grid_y) VALUES (?, ?, ?, ?, ?)",
+            "INSERT INTO tile(pkey, name, tile_type_pkey, grid_x, grid_y)"
+            "VALUES (?, ?, ?, ?, ?)",
             (tile[0], tile[1], tile[2], vpr_loc[0][0], vpr_loc[0][1])
         )
 
         # Insert location correspondence (The pkey is the same)
         c.execute(
-            "INSERT INTO grid_loc_map(phy_tile_pkey, vpr_tile_pkey) VALUES (?, ?)",
-            (tile[0], tile[0])
+            "INSERT INTO grid_loc_map(phy_tile_pkey, vpr_tile_pkey)"
+            "VALUES (?, ?)", (tile[0], tile[0])
         )
 
         # If one physical location corresponds to more than one VPR location
@@ -959,15 +967,16 @@ def remap_tile_grid(conn, grid_map):
 
             # Insert the tile into grid
             c.execute(
-                "INSERT INTO tile(name, tile_type_pkey, grid_x, grid_y) VALUES (?, ?, ?, ?, ?)",
+                "INSERT INTO tile(name, tile_type_pkey, grid_x, grid_y)"
+                "VALUES (?, ?, ?, ?, ?)",
                 (tile_name, null_pkey, vpr_loc[i][0], vpr_loc[i][1])
             )
 
             # Insert location correspondence
             new_pkey = c.lastrowid
             c.execute(
-                "INSERT INTO grid_loc_map(phy_tile_pkey, vpr_tile_pkey) VALUES (?, ?)",
-                (tile[0], new_pkey)
+                "INSERT INTO grid_loc_map(phy_tile_pkey, vpr_tile_pkey)"
+                "VALUES (?, ?)", (tile[0], new_pkey)
             )
 
     # Build indices
@@ -1004,7 +1013,9 @@ def main():
 
         # Get physical grid extent, generate a test mapping
         phy_grid_extent = grid_mapping.get_phy_grid_extent(conn)
-        grid_map = grid_mapping.GridLocMap.generate_shift_map(phy_grid_extent, 2, 0)
+        grid_map = grid_mapping.GridLocMap.generate_shift_map(
+            phy_grid_extent, 2, 0
+        )
 
         # # TEST
         # from splitter.grid_splitter import GridSplitter
