@@ -1,16 +1,6 @@
 import argparse
-import re
 import json
-
-USAGE_PATTERN = re.compile(r'^Netlist +([0-9]+)\sblocks of type: (.*)$')
-
-
-def parse_usage(pack_log):
-    with open(pack_log) as f:
-        for l in f:
-            m = re.match(USAGE_PATTERN, l.strip())
-            if m:
-                yield (m.group(2), int(m.group(1)))
+from lib.parse_usage import parse_usage
 
 
 def main():
