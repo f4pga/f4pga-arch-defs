@@ -103,6 +103,7 @@ class Bel(object):
         """ Output the Verilog to represent this BEL. """
         connections = {}
         buses = {}
+        bus_is_output = {}
 
         for wire, connection in self.connections.items():
             if top.is_top_level(connection):
@@ -119,8 +120,17 @@ class Bel(object):
                 bus_name, address = wire.split('[')
                 assert address[-1] == ']', address
 
+                wire_is_output = wire in self.outputs
                 if bus_name not in buses:
                     buses[bus_name] = {}
+                    bus_is_output[bus_name] = wire_is_output
+                else:
+                    assert bus_is_output[bus_name] == wire_is_output, (
+                        bus_name,
+                        wire,
+                        bus_is_output[bus_name],
+                        wire_is_output,
+                    )
 
                 buses[bus_name][int(address[:-1])] = connection_wire
             else:
@@ -152,12 +162,20 @@ class Bel(object):
                 if wire is None:
                     continue
 
-                yield '{indent}assign {bus_wire}[{idx}] = {wire};'.format(
-                    indent=indent,
-                    bus_wire=bus_wire,
-                    idx=idx,
-                    wire=wire,
-                )
+                if bus_is_output[bus_name]:
+                    yield '{indent}assign {wire} = {bus_wire}[{idx}];'.format(
+                        indent=indent,
+                        bus_wire=bus_wire,
+                        idx=idx,
+                        wire=wire,
+                    )
+                else:
+                    yield '{indent}assign {bus_wire}[{idx}] = {wire};'.format(
+                        indent=indent,
+                        bus_wire=bus_wire,
+                        idx=idx,
+                        wire=wire,
+                    )
 
         for unused_connection in self.unused_connections:
             connections[unused_connection
