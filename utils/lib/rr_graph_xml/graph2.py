@@ -273,7 +273,13 @@ def graph_from_xml(input_xml, progressbar=None):
 
 
 class Graph(object):
-    def __init__(self, input_xml, output_file_name=None, progressbar=None):
+    def __init__(
+            self,
+            input_xml,
+            output_file_name=None,
+            progressbar=None,
+            need_edges=True
+    ):
         if progressbar is None:
             progressbar = lambda x: x
 
@@ -282,6 +288,7 @@ class Graph(object):
         self.output_file_name = output_file_name
 
         graph_input = graph_from_xml(input_xml, progressbar)
+        graph_input['need_edges'] = need_edges
 
         rebase_nodes = []
         for node in graph_input['nodes']:

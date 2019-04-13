@@ -83,7 +83,9 @@ class Graph(object):
     """ Simple object for working with VPR RR graph. This class does not handle
     """
 
-    def __init__(self, switches, segments, block_types, grid, nodes):
+    def __init__(
+            self, switches, segments, block_types, grid, nodes, need_edges=True
+    ):
         self.switches = switches
         self.next_switch_id = max(switch.id for switch in self.switches) + 1
 
@@ -186,6 +188,12 @@ class Graph(object):
             for pin_class_idx, pin_class in enumerate(block_type.pin_class):
                 pin_class_node = self.loc_pin_class_map[
                     (loc.x, loc.y, pin_class_idx)]
+
+                # Skip building IPIN -> SINK and OPIN -> SOURCE graph if edges
+                # are not required.
+                if not need_edges:
+                    continue
+
                 for pin in pin_class.pin:
                     for pin_node, _ in self.loc_pin_map[(loc.x, loc.y,
                                                          pin.ptc)]:
