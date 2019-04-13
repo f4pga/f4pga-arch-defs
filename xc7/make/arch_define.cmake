@@ -60,6 +60,8 @@ function(ADD_XC7_ARCH_DEFINE)
         \${PYTHON3} -mfasm2bels \
         \${BIT_TO_V_EXTRA_ARGS} \
         --db_root ${PRJXRAY_DB_DIR}/${ARCH} \
+        --rr_graph \${OUT_RRXML_VIRT_LOCATION} \
+        --route \${OUT_ROUTE} \
         --iostandard LVCMOS33 \
         --bitread $<TARGET_FILE:bitread> \
         --bit_file \${OUT_BIN} \
