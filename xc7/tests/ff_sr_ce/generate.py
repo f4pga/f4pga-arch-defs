@@ -33,7 +33,7 @@ import re
 #   localparam NUM_FF = 4;
 # group 1 = "   "
 # group 2 = "NUM_FF"
-LOCALPARAM_RE = re.compile(r'^(\s*)localparam\s+([^\s]+)\s*=\s*\d+\s*;\s*$')
+LOCALPARAM_RE = re.compile(r'^(\s*)localparam\s+([^\s]+)\s*=.*$')
 
 # Example:
 #  $dumpfile(...);
