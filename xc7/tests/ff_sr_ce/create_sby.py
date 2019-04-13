@@ -1,6 +1,7 @@
 import argparse
 import sys
 
+
 def write_template(f, num_ff, ff_type):
     template = """
 [options]
@@ -29,14 +30,18 @@ ff_type.v
 """
     print(template.format(num_ff=num_ff, ff_type=ff_type, file=f))
 
+
 def main():
-    parser = argparse.ArgumentParser(description="Creates SymbiYosys project file for proving FF CE/SR.")
+    parser = argparse.ArgumentParser(
+        description="Creates SymbiYosys project file for proving FF CE/SR."
+    )
     parser.add_argument('--num_ff', required=True, type=int)
     parser.add_argument('--ff_type', required=True)
 
     args = parser.parse_args()
 
     write_template(f=sys.stdout, num_ff=args.num_ff, ff_type=args.ff_type)
+
 
 if __name__ == "__main__":
     main()
