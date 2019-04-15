@@ -34,12 +34,22 @@ from .connection_db_utils import get_wire_pkey
 def make_bus(wires):
     """ Combine bus wires into a consecutive bus.
 
+    Args:
+        wires ([str]): Takes list of wire names.
+
+    Returns list of (wire/bus name, max bus wire count).
+
+    If the wire is NOT a bus, then max bus wire count will be None.
+    If the wire was part of a bus, then max bus wire count will be the maximum
+    observed bus index.  It is assumed that all buses will be sized as
+    [max:0].
+
     >>> list(make_bus(['A', 'B']))
     [('A', None), ('B', None)]
     >>> list(make_bus(['A[0]', 'A[1]', 'B']))
-    [('A', 2), ('B', None)]
+    [('A', 1), ('B', None)]
     >>> list(make_bus(['A[0]', 'A[1]', 'B[0]']))
-    [('A', 2), ('B', 1)]
+    [('A', 1), ('B', 0)]
 
     """
     output = {}
@@ -64,6 +74,44 @@ def make_bus(wires):
 
     for name in sorted(output):
         yield name, output[name]
+
+
+def escape_verilog_name(name):
+    """ Transform net names into escaped id and bus selection (if any)
+
+    Args:
+        name (str): Net name
+
+    Returns:
+        Escape verilog name
+
+    >>> escape_verilog_name(
+    ...     '$abc$6513$auto$alumacc.cc:474:replace_alu$1259.B_buf[4]')
+    '\\\\$abc$6513$auto$alumacc.cc:474:replace_alu$1259.B_buf [4]'
+    >>> escape_verilog_name(
+    ...     '$abc$6513$auto$alumacc.cc:474:replace_alu$1259.B_buf[4:0]')
+    '\\\\$abc$6513$auto$alumacc.cc:474:replace_alu$1259.B_buf[4:0] '
+    >>> escape_verilog_name(
+    ...     '$abc$6513$auto$alumacc.cc:474:replace_alu$1259.B_buf[4:0][0]')
+    '\\\\$abc$6513$auto$alumacc.cc:474:replace_alu$1259.B_buf[4:0] [0]'
+    >>> escape_verilog_name(
+    ...     'test')
+    '\\\\test '
+    """
+
+    idx = name.rfind('[')
+    bus_idx = None
+    if idx != -1 and name[-1] == ']':
+        try:
+            bus_idx = int(name[idx + 1:-1])
+        except ValueError:
+            pass
+
+    if bus_idx is None:
+        # Escape whole name
+        return '\\' + name + ' '
+
+    return '\\' + name[:idx] + ' ' + name[idx:]
 
 
 class Bel(object):
@@ -798,25 +846,7 @@ class Module(object):
             if name in self.top_level_signal_nets:
                 return None
 
-            # Transform net names into escaped id and bus selection:
-            # So:
-            # $abc$6513$auto$alumacc.cc:474:replace_alu$1259.B_buf[4]
-            # becomes:
-            # \$abc$6513$auto$alumacc.cc:474:replace_alu$1259.B_buf [4]
-
-            idx = name.rfind('[')
-            bus_idx = None
-            if idx != -1 and name[-1] == ']':
-                try:
-                    bus_idx = int(name[idx + 1:-1])
-                except ValueError:
-                    pass
-
-            if bus_idx is None:
-                # Escape whole name
-                return '\\' + name + ' '
-
-            return '\\' + name[:idx] + ' ' + name[idx:]
+            return escape_verilog_name(name)
         else:
             return None
 
