@@ -278,7 +278,7 @@ class Graph(object):
             input_xml,
             output_file_name=None,
             progressbar=None,
-            need_edges=True
+            build_pin_edges=True
     ):
         if progressbar is None:
             progressbar = lambda x: x
@@ -288,7 +288,7 @@ class Graph(object):
         self.output_file_name = output_file_name
 
         graph_input = graph_from_xml(input_xml, progressbar)
-        graph_input['need_edges'] = need_edges
+        graph_input['build_pin_edges'] = build_pin_edges
 
         rebase_nodes = []
         for node in graph_input['nodes']:
