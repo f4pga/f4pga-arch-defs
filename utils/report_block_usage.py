@@ -5,7 +5,7 @@ from lib.parse_usage import parse_usage
 
 def main():
     parser = argparse.ArgumentParser(
-        description="Converts pack.log into usage numbers."
+        description="Converts VPR pack.log into usage numbers."
     )
     parser.add_argument('pack_log')
     parser.add_argument(
@@ -16,7 +16,7 @@ def main():
         '--no_print_usage',
         action='store_false',
         dest='print_usage',
-        help='Comma seperate block name list with expected usage stats.'
+        help='Disables printing of output.'
     )
 
     args = parser.parse_args()
