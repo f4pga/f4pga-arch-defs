@@ -8,10 +8,16 @@ import textwrap
 import urllib.request
 
 
-def get_goog_sheet():
+SHEETS = {
+    'Yosys': 0,
+    'iCE40': 2076254101,
+    'ECP5': 1996872500,
+    'XC7': 1006733907,
+}
 
+def get_goog_sheet(sheet):
     data = urllib.request.urlopen(
-        "https://docs.google.com/spreadsheets/d/e/2PACX-1vRxRhk3fCxPMh0yUSXorkA_FCdqDguW0JNKV5-Q64Xyi_Q9bI9mCc_Vfaw6DeBHFnd9MKsRZy2SrCgP/pub?output=csv"
+        "https://docs.google.com/spreadsheets/d/e/2PACX-1vRxRhk3fCxPMh0yUSXorkA_FCdqDguW0JNKV5-Q64Xyi_Q9bI9mCc_Vfaw6DeBHFnd9MKsRZy2SrCgP/pub?output=csv&gid={}&single=true".format(SHEETS[sheet]),
     ).read().decode('utf-8')
 
     flipflops = []
@@ -67,6 +73,7 @@ def parse_args():
     parser = argparse.ArgumentParser(
         description='Generate flip flops and such.'
     )
+    parser.add_argument('--sheet', default='Yosys', choices=SHEETS.keys())
     args = parser.parse_args()
 
     return args
@@ -319,7 +326,7 @@ endmodule
 
 def main():
     args = parse_args()
-    flipflops = get_goog_sheet()
+    flipflops = get_goog_sheet(args.sheet)
     for i, ff in sorted(enumerate(flipflops), key=lambda ff: ff[-1]['Name']):
         print(i + 3, "-" * 70)
         print(verilog(ff))
