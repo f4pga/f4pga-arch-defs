@@ -153,13 +153,16 @@ class StraightSegment(list):
 
     def append(self, pos):
         """Add new position. Update direction if needed"""
-        if pos.x == self[0].x:
-            direction = StraightSegment.Type.V
-        elif pos.y == self[0].y:
-            direction = StraightSegment.Type.H
+        if len(self) > 0:
+            if pos.x == self[0].x:
+                direction = StraightSegment.Type.V
+            elif pos.y == self[0].y:
+                direction = StraightSegment.Type.H
+        else:
+            direction = self.direction
 
         if self.direction == StraightSegment.Type.S:
-            assert len(self) == 1, "Stub must only have a single point"
+            assert len(self) <= 1, "Stub must have at most single point"
             self.direction = direction
         assert direction == self.direction, "Can't append in different direction {} {}".format(
             self.direction, direction
