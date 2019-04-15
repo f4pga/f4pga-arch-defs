@@ -1,5 +1,5 @@
 import unittest
-from ..tracks import *
+from ..tracks import Track, Tracks, Direction
 
 
 class TracksTests(unittest.TestCase):
