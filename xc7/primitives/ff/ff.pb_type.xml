@@ -280,7 +280,7 @@
       </metadata>
     </pb_type>
 
-    <interconnect>
+        <interconnect>
       <direct name="CE_TO_LD" input="BLK_BB-SLICE_FF.CE[0:3]" output="BEL_FF-LDPE_or_LDCE.CE" />
       <complete name="C_TO_LD"  input="BLK_BB-SLICE_FF.CK" output="BEL_FF-LDPE_or_LDCE.C" />
       <direct name="SR_TO_LD" input="BLK_BB-SLICE_FF.SR[0:3]" output="BEL_FF-LDPE_or_LDCE.SR" />

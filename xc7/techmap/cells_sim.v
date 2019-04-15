@@ -9,45 +9,16 @@ module SR_GND (output GND);
 wire GND = 0;
 endmodule
 
-module FDRE_ZINI (output reg Q, input C, CE, D, R);
-  parameter [0:0] ZINI = 1'b0;
-  parameter [0:0] IS_C_INVERTED = 1'b0;
-  initial Q <= !ZINI;
-  generate case (|IS_C_INVERTED)
-    1'b0: always @(posedge C) if (R) Q <= 1'b0; else if (CE) Q <= D;
-    1'b1: always @(negedge C) if (R) Q <= 1'b0; else if (CE) Q <= D;
-  endcase endgenerate
-endmodule
+// FF_SYNC mode
+`include "../primitives/ff/fdre_zini.sim.v"
+`include "../primitives/ff/fdse_zini.sim.v"
+// FF_ASYNC mode
+`include "../primitives/ff/fdce_zini.sim.v"
+`include "../primitives/ff/fdpe_zini.sim.v"
+// LATCH mode
+`include "../primitives/ff/ldce_zini.sim.v"
+`include "../primitives/ff/ldpe_zini.sim.v"
 
-module FDSE_ZINI (output reg Q, input C, CE, D, S);
-  parameter [0:0] ZINI = 1'b0;
-  parameter [0:0] IS_C_INVERTED = 1'b0;
-  initial Q <= !ZINI;
-  generate case (|IS_C_INVERTED)
-    1'b0: always @(posedge C) if (S) Q <= 1'b1; else if (CE) Q <= D;
-    1'b1: always @(negedge C) if (S) Q <= 1'b1; else if (CE) Q <= D;
-  endcase endgenerate
-endmodule
-
-module FDCE_ZINI (output reg Q, input C, CE, D, CLR);
-  parameter [0:0] ZINI = 1'b0;
-  parameter [0:0] IS_C_INVERTED = 1'b0;
-  initial Q <= !ZINI;
-  generate case (|IS_C_INVERTED)
-    1'b0: always @(posedge C, posedge CLR) if (CLR) Q <= 1'b0; else if (CE) Q <= D;
-    1'b1: always @(negedge C, posedge CLR) if (CLR) Q <= 1'b0; else if (CE) Q <= D;
-  endcase endgenerate
-endmodule
-
-module FDPE_ZINI (output reg Q, input C, CE, D, PRE);
-  parameter [0:0] ZINI = 1'b0;
-  parameter [0:0] IS_C_INVERTED = 1'b0;
-  initial Q <= !ZINI;
-  generate case (|IS_C_INVERTED)
-    1'b0: always @(posedge C, posedge PRE) if (PRE) Q <= 1'b1; else if (CE) Q <= D;
-    1'b1: always @(negedge C, posedge PRE) if (PRE) Q <= 1'b1; else if (CE) Q <= D;
-  endcase endgenerate
-endmodule
 
 // ============================================================================
 // LUT related muxes
