@@ -163,16 +163,16 @@ WHERE
         ) = c.fetchone()
 
         side = node.loc.side
-        if side == graph2.Direction.LEFT:
+        if side == tracks.Direction.LEFT:
             assert left_graph_node_pkey is not None, (tile_type, pin_name)
             node_mapping[left_graph_node_pkey] = node.id
-        elif side == graph2.Direction.RIGHT:
+        elif side == tracks.Direction.RIGHT:
             assert right_graph_node_pkey is not None, (tile_type, pin_name)
             node_mapping[right_graph_node_pkey] = node.id
-        elif side == graph2.Direction.TOP:
+        elif side == tracks.Direction.TOP:
             assert top_graph_node_pkey is not None, (tile_type, pin_name)
             node_mapping[top_graph_node_pkey] = node.id
-        elif side == graph2.Direction.BOTTOM:
+        elif side == tracks.Direction.BOTTOM:
             assert bottom_graph_node_pkey is not None, (tile_type, pin_name)
             node_mapping[bottom_graph_node_pkey] = node.id
         else:
