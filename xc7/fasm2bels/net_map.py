@@ -2,16 +2,20 @@
 from collections import namedtuple
 from lib.parse_route import find_net_sources
 import re
-"""
-Args:
-    name (str): VPR net name
-    wire_pkey (int): Wire table primary key.  This is unique in the part.
-    tile (str): Name of tile this wire belongs too.  This is redundant
-        information wire_pkey uniquely indentifies the tile.
-    site_pin (str): Name of site pin this wire belongs. This is redundant
-        information wire_pkey uniquely indentifies the site pin.
-"""
-Net = namedtuple('Net', 'name wire_pkey tile site_pin')
+
+
+class Net(namedtuple('Net', 'name wire_pkey tile site_pin')):
+    """
+    Args:
+        name (str): VPR net name
+        wire_pkey (int): Wire table primary key.  This is unique in the part.
+        tile (str): Name of tile this wire belongs too.  This is redundant
+            information wire_pkey uniquely indentifies the tile.
+        site_pin (str): Name of site pin this wire belongs. This is redundant
+            information wire_pkey uniquely indentifies the site pin.
+    """
+    pass
+
 
 # BLK_TI-CLBLL_L.CLBLL_LL_A1[0] -> (CLBLL_L, CLBLL_LL_A1)
 PIN_NAME_TO_PARTS = re.compile(r'^BLK_TI-([^\.]+)\.([^\]]+)\[0\]$')
