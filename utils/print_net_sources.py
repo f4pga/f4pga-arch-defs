@@ -3,7 +3,9 @@ from lib.parse_route import find_net_sources
 
 
 def main():
-    parser = argparse.ArgumentParser(description="")
+    parser = argparse.ArgumentParser(
+        description="Print net names and rr graph node id."
+    )
 
     parser.add_argument('route_file')
 
