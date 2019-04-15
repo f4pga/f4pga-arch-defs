@@ -21,8 +21,13 @@ class GridLocMap(object):
     def generate_one_to_one_map(extent):
         """
         Generates a one-to-one map for specified location range.
-        :param extent:
-        :return:
+
+        Args:
+            extent: A 4-element tuple with the grid extent:
+                xmin, ymin, xmax, ymax
+
+        Returns:
+            A GridLocMap object with the grid mapping.
         """
 
         xmin, ymin, xmax, ymax = extent
@@ -45,11 +50,15 @@ class GridLocMap(object):
         """
         Generates a one-to-one map for specified location range. For debugging
         purposes.
-        :param extent:
-        :param shift_x:
-        :param shift_y:
 
-        :return:
+        Args:
+            extent: A 4-element tuple with the grid extent:
+                xmin, ymin, xmax, ymax
+            shift_x: Grid shift in X axis
+            shift_y: Grid shift in Y axis
+
+        Returns:
+            A GridLocMap object with the grid mapping.
         """
 
         xmin, ymin, xmax, ymax = extent
@@ -75,8 +84,12 @@ class GridLocMap(object):
         """
         Loads grid location mapping from a SQL database. Returns a GridLocMap
         object.
-        :param conn:
-        :return:
+
+        Args:
+            conn: A database connection object
+
+        Returns:
+            A GridLocMap object with the grid mapping.
         """
 
         c = conn.cursor()
@@ -91,7 +104,7 @@ ON phy.pkey = map.phy_tile_pkey
 INNER JOIN tile vpr
 ON vpr.pkey = map.vpr_tile_pkey
 """
-        ).fetchall()
+        )
 
         # Build maps
         fwd_loc_map = {}
@@ -113,26 +126,13 @@ ON vpr.pkey = map.vpr_tile_pkey
         return GridLocMap(fwd_loc_map, bwd_loc_map)
 
     def get_vpr_loc(self, grid_loc):
-        return tuple(self.fwd_loc_map[grid_loc])
+        return self.fwd_loc_map[grid_loc]
 
     def get_phy_loc(self, grid_loc):
-        return tuple(self.bwd_loc_map[grid_loc])
+        return self.bwd_loc_map[grid_loc]
 
 
 # =============================================================================
-
-
-def create_tables(conn):
-    """
-    Creates database tables related to grid location mappings
-    """
-
-    sql_file = os.path.join(os.path.dirname(__file__), "grid_mapping.sql")
-
-    with open(sql_file, "r") as fp:
-        cursor = conn.cursor()
-        cursor.executescript(fp.read())
-        conn.commit()
 
 
 def get_phy_grid_extent(conn):
@@ -151,7 +151,7 @@ def get_phy_grid_extent(conn):
     ymin = min([loc[1] for loc in coords])
     ymax = max([loc[1] for loc in coords])
 
-    return (xmin, ymin, xmax, ymax)
+    return xmin, ymin, xmax, ymax
 
 
 def get_vpr_grid_extent(conn):
@@ -170,7 +170,7 @@ def get_vpr_grid_extent(conn):
     ymin = min([loc[1] for loc in coords])
     ymax = max([loc[1] for loc in coords])
 
-    return (xmin, ymin, xmax, ymax)
+    return xmin, ymin, xmax, ymax
 
 
 # =============================================================================

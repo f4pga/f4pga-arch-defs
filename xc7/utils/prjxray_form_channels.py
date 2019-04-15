@@ -170,6 +170,11 @@ def build_tile_type_indicies(c):
     )
 
 
+def build_phy_tile_grid_indicies(c):
+    c.execute("CREATE INDEX phy_tile_name_index ON phy_tile(name);")
+    c.execute("CREATE INDEX phy_tile_loc_index ON phy_tile(grid_x, grid_y);")
+
+
 def import_grid(db, grid, conn):
     c = conn.cursor()
 
@@ -206,6 +211,8 @@ VALUES
 
     c.connection.commit()
 
+    build_phy_tile_grid_indicies(c)
+
 
 def import_nodes(db, conn):
     # Some nodes are just 1 wire, so start by enumerating all wires.
@@ -220,12 +227,23 @@ def import_nodes(db, conn):
     wires = {}
 
     for tile_name, tile_pkey, tile_type_pkey in progressbar.progressbar(
-            c1.execute("SELECT name, pkey, tile_type_pkey FROM tile")):
+            c1.execute("SELECT name, pkey, tile_type_pkey FROM phy_tile")):
+
+        # Map the pkey of the physical tile to pkey of the VPR tile. Without
+        # the actual tile split this will be ok. Once the split is implemented
+        # this will be changed as stuff related to tile split will most probably
+        # affect code here.
+        vpr_tile_pkey = c.execute(
+            """SELECT pkey FROM tile WHERE pkey = 
+(SELECT vpr_tile_pkey FROM grid_loc_map WHERE phy_tile_pkey = (?))""",
+            (tile_pkey, )
+        ).fetchone()[0]
+
         tile_type = c.execute(
             "SELECT name FROM tile_type WHERE pkey = ?", (tile_type_pkey, )
         ).fetchone()[0]
 
-        tiles[tile_name] = (tile_pkey, tile_type_pkey)
+        tiles[tile_name] = (vpr_tile_pkey, tile_type_pkey)
 
         for wire in db.get_tile_type(tile_type).get_wires():
             # pkey node_pkey tile_pkey wire_in_tile_pkey
@@ -240,7 +258,7 @@ SELECT pkey FROM wire_in_tile WHERE name = ? and tile_type_pkey = ?;""",
                 """
 INSERT INTO wire(tile_pkey, wire_in_tile_pkey)
 VALUES
-  (?, ?);""", (tile_pkey, wire_in_tile_pkey)
+  (?, ?);""", (vpr_tile_pkey, wire_in_tile_pkey)
             )
 
             assert (tile_name, wire) not in tile_wire_map
@@ -1003,7 +1021,6 @@ def main():
     with DatabaseCache(args.connection_database) as conn:
 
         create_tables(conn)
-        grid_mapping.create_tables(conn)
 
         print("{}: About to load database".format(datetime.datetime.now()))
         db = prjxray.db.Database(args.db_root)

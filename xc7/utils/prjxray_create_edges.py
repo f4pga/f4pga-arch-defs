@@ -1072,10 +1072,18 @@ def main():
                 # FIXME: Will require a change here once merged with #537 (!)
 
                 connections = make_connection(
-                    conn, input_only_nodes, output_only_nodes, loc, tile_pkey,
-                    pip_src_wire_pkey, pip_dst_wire_pkey, pip_pkey,
-                    switch_pkey, delayless_switch_pkey, find_connector,
-                    const_connectors
+                    conn=conn,
+                    input_only_nodes=input_only_nodes,
+                    output_only_nodes=output_only_nodes,
+                    loc=loc,
+                    tile_pkey=tile_pkey,
+                    src_wire_pkey=pip_src_wire_pkey,
+                    dst_wire_pkey=pip_dst_wire_pkey,
+                    pip_pkey=pip_pkey,
+                    switch_pkey=switch_pkey,
+                    delayless_switch_pkey=delayless_switch_pkey,
+                    find_connector=find_connector,
+                    const_connectors=const_connectors
                 )
 
                 if connections:

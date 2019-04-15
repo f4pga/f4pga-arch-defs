@@ -262,3 +262,11 @@ CREATE TABLE constant_sources(
     FOREIGN KEY(vcc_track_pkey) REFERENCES track(pkey),
     FOREIGN KEY(gnd_track_pkey) REFERENCES track(pkey)
 );
+
+-- Grid location map.
+CREATE TABLE grid_loc_map(
+    phy_tile_pkey INT,
+    vpr_tile_pkey INT,
+    FOREIGN KEY(phy_tile_pkey) REFERENCES phy_tile(pkey),
+    FOREIGN KEY(vpr_tile_pkey) REFERENCES tile(pkey)
+);

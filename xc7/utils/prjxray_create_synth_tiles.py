@@ -14,11 +14,16 @@ def find_vbrk_closest_to(grid, roi, loc, loc_in_use):
     Finds a VBRK tile (optionally within the ROI) which is located closest
     to a given location. Checks if such a tile is not already used by
     another synth tile.
-    :param grid:
-    :param roi:
-    :param loc:
-    :param loc_in_use:
-    :return:
+
+    Args:
+        grid: A Grid object from the prjxray database
+        roi: A Roi object from the prjxray database or None when ROI not used.
+        loc: A GridLoc with location to find the closest VBRK to.
+        loc_in_use: A set with GridLoc objects which indicate occupied VBRKs
+
+    Returns:
+        A GridLoc with the "best" (closest) VBRK tile location to the given
+        input loc.
     """
 
     loc_best = None
