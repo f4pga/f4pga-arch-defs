@@ -959,7 +959,7 @@ function(ADD_FPGA_TARGET)
   )
 
   if(NOT "${ADD_FPGA_TARGET_ASSERT_USAGE}" STREQUAL "")
-      set(USAGE_UTIL ${symbiflow-arch-defs_SOURCE_DIR}/utils/usage.py)
+      set(USAGE_UTIL ${symbiflow-arch-defs_SOURCE_DIR}/utils/report_block_usage.py)
       add_custom_target(
           ${NAME}_assert_usage
           COMMAND ${PYTHON3} ${USAGE_UTIL}
