@@ -43,7 +43,9 @@
       <interconnect><XXX><port type='input' ...><port type='output' ...></XXX><YYY../></interconnect>
     to
       <interconnect><XXX input='...' output='...'><YYY../></XXX></interconnect>
-    -->
+  -->
+
+  <!-- XXX disable this to have configuration as stated in PR #183
   <xsl:template match="interconnect/*/port[@type='input']">
     <xsl:attribute name="input"><xsl:call-template name="from-pb_type"/>.<xsl:call-template name="port-value"/></xsl:attribute>
   </xsl:template>
@@ -51,6 +53,7 @@
     <xsl:attribute name="name"><xsl:call-template name="from-pb_type"/>-<xsl:call-template name="port-value"/></xsl:attribute>
     <xsl:attribute name="output"><xsl:call-template name="from-pb_type"/>.<xsl:call-template name="port-value"/></xsl:attribute>
   </xsl:template>
+  -->
   <!--
     Convert
       <loc ...><port ...><port ...></loc>

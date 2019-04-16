@@ -152,26 +152,34 @@ def make_pb_content(yj, mod, xml_parent, mod_pname, is_submode=False):
     """Build the pb_type content - child pb_types, timing and direct interconnect,
     but not IO. This may be put directly inside <pb_type>, or inside <mode>."""
 
-    def get_full_pin_name(pin):
+    def get_pin_name(pin):
         cname, cellpin = pin
         if cname != mod.name:
             cname = mod.cell_type(cname)
             cname = mod_pb_name(yj.module(cname))
         else:
             cname = mod_pname
-        return ("{}.{}".format(cname, cellpin))
+        return cname
+
+    def get_cellpin(pin):
+        cname, cellpin = pin
+        return cellpin
 
     def make_direct_conn(ic_xml, source, dest):
-        source_pin = get_full_pin_name(source)
-        dest_pin = get_full_pin_name(dest)
-        ic_name = dest_pin.replace(".", "_").replace("[", "_").replace("]", "")
-        dir_xml = ET.SubElement(
-            ic_xml, 'direct', {
-                'name': ic_name,
-                'input': source_pin,
-                'output': dest_pin
-            }
-        )
+        s_cellpin = get_cellpin(source)
+        d_cellpin = get_cellpin(dest)
+        d_cname = get_pin_name(dest)
+
+        dir_xml = ET.SubElement(ic_xml, 'direct')
+        in_port_xml = ET.SubElement(dir_xml, 'port', {
+            'name': s_cellpin,
+            'type': "input"
+        })
+        out_port_xml = ET.SubElement(dir_xml, 'port', {
+            'name': d_cellpin,
+            'type': "output",
+            'from': d_cname
+        })
 
     # Find out whether or not the module we are generating content for is a blackbox
     is_blackbox = (mod.attr("blackbox", 0) == 1) or not mod.cells
@@ -258,7 +266,7 @@ def make_pb_content(yj, mod, xml_parent, mod_pname, is_submode=False):
             ET.SubElement(xml_parent, xmltype, attrs)
 
     # Process timing
-    for name, width, iodir in mod.ports:
+    for name, width, bits, iodir in mod.ports:
         port = "{}.{}".format(mod_pname, name)
         # Clocked timing
         Tsetup = mod.net_attr(name, "SETUP")
@@ -344,7 +352,7 @@ def make_pb_type(yj, mod):
 
     # Process IOs
     clocks = yosys.run.list_clocks(args.infiles, mod.name)
-    for name, width, iodir in mod.ports:
+    for name, width, bits, iodir in mod.ports:
         ioattrs = {"name": name, "num_pins": str(width)}
         pclass = mod.net_attr(name, "PORT_CLASS")
         if pclass is not None:
@@ -427,7 +435,6 @@ def main(args):
             sys.exit(1)
 
     tmod = yj.module(top)
-    print("cells", tmod.cells)
 
     pb_type_xml = make_pb_type(yj, tmod)
 
