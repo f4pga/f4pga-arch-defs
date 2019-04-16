@@ -25,6 +25,7 @@ import yosys.run
 from yosys.json import YosysJSON
 import xmlinc
 
+
 def is_registered(tmod, bits, iodir, clk):
     """Checks if a specific i/o port is registered
 
@@ -41,14 +42,17 @@ def is_registered(tmod, bits, iodir, clk):
         if tmod.cell_clk_conn(cell) != tmod.port_conns(clk):
             continue
 
-        if iodir == "input" and ((set(bits) & set(tmod.cell_conn_list(cell, "D"))) == set(bits)):
+        if iodir == "input" and (
+            (set(bits) & set(tmod.cell_conn_list(cell, "D"))) == set(bits)):
             return True
-        elif iodir == "output" and ((set(bits) & set(tmod.cell_conn_list(cell, "Q"))) == set(bits)):
+        elif iodir == "output" and (
+            (set(bits) & set(tmod.cell_conn_list(cell, "Q"))) == set(bits)):
             return True
         else:
             continue
 
     return is_reg
+
 
 def is_registered_path(tmod, pin, pout):
     """Checks if a i/o path is sequential. If that is the case
@@ -61,10 +65,13 @@ def is_registered_path(tmod, pin, pout):
         if ctype != "$dff":
             continue
 
-        if tmod.port_conns(pin) == tmod.cell_conn_list(cell, "D") and tmod.port_conns(pout) == tmod.cell_conn_list(cell, "Q"):
-                return True
+        if tmod.port_conns(pin) == tmod.cell_conn_list(
+                cell, "D") and tmod.port_conns(pout) == tmod.cell_conn_list(
+                    cell, "Q"):
+            return True
 
     return False
+
 
 parser = argparse.ArgumentParser(description=__doc__.strip())
 parser.add_argument(

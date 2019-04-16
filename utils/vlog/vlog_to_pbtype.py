@@ -143,7 +143,7 @@ def strip_name(name):
     if '\\' in name:
         ts = name.find('\\')
         tf = name.rfind('\\')
-        return name[ts+1:tf]
+        return name[ts + 1:tf]
     return name
 
 
@@ -170,15 +170,19 @@ def make_pb_content(yj, mod, xml_parent, mod_pname, is_submode=False):
         d_cname = get_pin_name(dest)
 
         dir_xml = ET.SubElement(ic_xml, 'direct')
-        in_port_xml = ET.SubElement(dir_xml, 'port', {
-            'name': s_cellpin,
-            'type': "input"
-        })
-        out_port_xml = ET.SubElement(dir_xml, 'port', {
-            'name': d_cellpin,
-            'type': "output",
-            'from': d_cname
-        })
+        in_port_xml = ET.SubElement(
+            dir_xml, 'port', {
+                'name': s_cellpin,
+                'type': "input"
+            }
+        )
+        out_port_xml = ET.SubElement(
+            dir_xml, 'port', {
+                'name': d_cellpin,
+                'type': "output",
+                'from': d_cname
+            }
+        )
 
     # Find out whether or not the module we are generating content for is a blackbox
     is_blackbox = (mod.attr("blackbox", 0) == 1) or not mod.cells
@@ -213,11 +217,13 @@ def make_pb_content(yj, mod, xml_parent, mod_pname, is_submode=False):
             for pin, net in inp_cons:
                 drvs = mod.net_drivers(net)
                 assert len(drvs) > 0, (
-                    "ERROR: pin {}.{} has no driver, interconnect will be missing\n{}".
-                    format(pb_name, pin, mod))
+                    "ERROR: pin {}.{} has no driver, interconnect will be missing\n{}"
+                    .format(pb_name, pin, mod)
+                )
                 assert len(drvs) < 2, (
-                    "ERROR: pin {}.{} has multiple drivers, interconnect will be overspecified".
-                    format(pb_name, pin))
+                    "ERROR: pin {}.{} has multiple drivers, interconnect will be overspecified"
+                    .format(pb_name, pin)
+                )
                 for drv_cell, drv_pin in drvs:
                     interconn.append(((drv_cell, drv_pin), (cname, pin)))
 
@@ -236,12 +242,12 @@ def make_pb_content(yj, mod, xml_parent, mod_pname, is_submode=False):
             if not drv:
                 continue
             assert len(drv) == 1, (
-                    "ERROR: net {} has multiple drivers {}, interconnect will be over specified".
-                    format(net, drv))
+                "ERROR: net {} has multiple drivers {}, interconnect will be over specified"
+                .format(net, drv)
+            )
             for snk in mod.conn_io(net, "output"):
-                conn = ((mod.name, drv[0]), (mod.name,snk))
+                conn = ((mod.name, drv[0]), (mod.name, snk))
                 interconn.append(conn)
-
 
         ic_xml = ET.SubElement(xml_parent, "interconnect")
         # Process interconnect
@@ -387,9 +393,9 @@ def make_pb_type(yj, mod):
     return pb_type_xml
 
 
-
 parser = argparse.ArgumentParser(
-    description=__doc__.strip(), formatter_class=argparse.RawTextHelpFormatter)
+    description=__doc__.strip(), formatter_class=argparse.RawTextHelpFormatter
+)
 parser.add_argument(
     'infiles',
     metavar='input.v',
@@ -399,20 +405,25 @@ parser.add_argument(
 One or more Verilog input files, that will be passed to Yosys internally.
 They should be enough to generate a flattened representation of the model,
 so that paths through the model can be determined.
-""")
+"""
+)
 parser.add_argument(
     '--top',
     help="""\
 Top level module, will usually be automatically determined from the file name
 %.sim.v
-""")
+"""
+)
 parser.add_argument(
-    '--outfile', '-o',
+    '--outfile',
+    '-o',
     type=argparse.FileType('w'),
     default="pb_type.xml",
     help="""\
 Output filename, default 'model.xml'
-""")
+"""
+)
+
 
 def main(args):
     iname = os.path.basename(args.infiles[0])
@@ -429,15 +440,18 @@ def main(args):
             top = wm.group(1).upper()
         else:
             print(
-                "ERROR file name not of format %.sim.v ({}), cannot detect top level. Manually specify the top level module using --top".
-                format(iname))
+                "ERROR file name not of format %.sim.v ({}), cannot detect top level. Manually specify the top level module using --top"
+                .format(iname)
+            )
             sys.exit(1)
 
     tmod = yj.module(top)
 
     pb_type_xml = make_pb_type(yj, tmod)
 
-    args.outfile.write(ET.tostring(pb_type_xml, pretty_print=True).decode('utf-8'))
+    args.outfile.write(
+        ET.tostring(pb_type_xml, pretty_print=True).decode('utf-8')
+    )
     print("Generated {} from {}".format(args.outfile.name, iname))
     args.outfile.close()
 
