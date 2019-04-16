@@ -51,6 +51,7 @@ add_conda_package(
 add_conda_package(
   NAME yapf
   PROVIDES yapf
+  PACKAGE_SPEC "yapf 0.26.0 py_0"
   )
 add_conda_package(
   NAME nodejs
