@@ -765,6 +765,9 @@ function(ADD_FPGA_TARGET)
   get_target_property_required(
     OUT_RRXML_REAL ${DEVICE} ${PACKAGE}_OUT_RRXML_REAL
   )
+  get_target_property_required(
+    OUT_RRXML_VIRT ${DEVICE} OUT_RRXML_VIRT
+  )
 
   set(NAME ${ADD_FPGA_TARGET_NAME})
   get_target_property_required(DEVICE_FULL_TEMPLATE ${ARCH} DEVICE_FULL_TEMPLATE)
@@ -864,6 +867,7 @@ function(ADD_FPGA_TARGET)
   set(VPR_DEPS "")
   list(APPEND VPR_DEPS ${OUT_EBLIF})
 
+  get_file_location(OUT_RRXML_VIRT_LOCATION ${OUT_RRXML_VIRT})
   get_file_location(OUT_RRXML_REAL_LOCATION ${OUT_RRXML_REAL})
   get_file_location(DEVICE_MERGED_FILE_LOCATION ${DEVICE_MERGED_FILE})
 
@@ -959,7 +963,7 @@ function(ADD_FPGA_TARGET)
   )
 
   if(NOT "${ADD_FPGA_TARGET_ASSERT_USAGE}" STREQUAL "")
-      set(USAGE_UTIL ${symbiflow-arch-defs_SOURCE_DIR}/utils/usage.py)
+      set(USAGE_UTIL ${symbiflow-arch-defs_SOURCE_DIR}/utils/report_block_usage.py)
       add_custom_target(
           ${NAME}_assert_usage
           COMMAND ${PYTHON3} ${USAGE_UTIL}
