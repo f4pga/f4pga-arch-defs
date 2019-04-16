@@ -10,6 +10,8 @@ include(make/devices.cmake)
 
 find_package(PythonInterp 3 REQUIRED)
 
+add_custom_target(test_python)
+
 # Some commands use file locks to prevent incorrect parallel access.
 # All file locks are required to register a clean command with the clean_locks
 # targets to prevent stale locks.
@@ -73,6 +75,11 @@ add_conda_pip(
 
 add_conda_pip(
   NAME intervaltree
+  NO_EXE
+)
+
+add_conda_pip(
+  NAME pdfminer.six
   NO_EXE
 )
 
