@@ -18,7 +18,7 @@ function(V2X)
   # By default V2X implicitly calls ADD_VERILOG_IMAGE_GEN for the input source
   # files.  DO_NOT_APPLY_VERILOG_IMAGE_GEN suppress this default.
   set(options DO_NOT_APPLY_VERILOG_IMAGE_GEN)
-  set(oneValueArgs NAME TOP_MODULE)
+  set(oneValueArgs NAME OUTPUT_NAME TOP_MODULE)
   set(multiValueArgs SRCS)
   cmake_parse_arguments(
     V2X
@@ -38,6 +38,11 @@ function(V2X)
   get_target_property_required(YOSYS env YOSYS)
   get_target_property(YOSYS_TARGET env YOSYS_TARGET)
   list(APPEND DEPENDS_LIST ${YOSYS} ${YOSYS_TARGET})
+
+  set(OUTPUT_NAME ${V2X_NAME})
+  if(NOT ${V2X_OUTPUT_NAME} STREQUAL "")
+      set(OUTPUT_NAME ${V2X_OUTPUT_NAME})
+  endif()
 
   set(REAL_SOURCE_LIST "")
   foreach(SRC ${V2X_SRCS})
@@ -68,7 +73,7 @@ function(V2X)
 
   set(TOP_ARG "")
   if(NOT ${V2X_TOP_MODULE} STREQUAL "")
-    set(TOP_ARG "--top=${TOP_MODULE}")
+    set(TOP_ARG "--top=${V2X_TOP_MODULE}")
   endif()
 
   string(
@@ -85,36 +90,36 @@ function(V2X)
   endif()
 
   add_custom_command(
-    OUTPUT "${V2X_NAME}.pb_type.xml"
+    OUTPUT "${OUTPUT_NAME}.pb_type.xml"
     DEPENDS
       ${DEPENDS_LIST}
       ${symbiflow-arch-defs_SOURCE_DIR}/utils/vlog/vlog_to_pbtype.py
     COMMAND
       ${CMAKE_COMMAND} -E env YOSYS=${YOSYS}  ${PYTHON3} ${symbiflow-arch-defs_SOURCE_DIR}/utils/vlog/vlog_to_pbtype.py ${TOP_ARG}
-      -o ${CMAKE_CURRENT_BINARY_DIR}/${V2X_NAME}.pb_type.xml ${FIRST_SOURCE}
+      -o ${CMAKE_CURRENT_BINARY_DIR}/${OUTPUT_NAME}.pb_type.xml ${FIRST_SOURCE}
       ${INCLUDE_ARG}
     WORKING_DIRECTORY ${symbiflow-arch-defs_SOURCE_DIR}/utils/vlog/
   )
 
-  add_file_target(FILE "${V2X_NAME}.pb_type.xml" GENERATED)
+  add_file_target(FILE "${OUTPUT_NAME}.pb_type.xml" GENERATED)
 
   add_custom_command(
-    OUTPUT "${V2X_NAME}.model.xml"
+    OUTPUT "${OUTPUT_NAME}.model.xml"
     DEPENDS
       ${DEPENDS_LIST}
       ${symbiflow-arch-defs_SOURCE_DIR}/utils/vlog/vlog_to_model.py
     COMMAND
       ${CMAKE_COMMAND} -E env YOSYS=${YOSYS}  ${PYTHON3} ${symbiflow-arch-defs_SOURCE_DIR}/utils/vlog/vlog_to_model.py ${TOP_ARG}
-      -o ${CMAKE_CURRENT_BINARY_DIR}/${V2X_NAME}.model.xml ${FIRST_SOURCE}
+      -o ${CMAKE_CURRENT_BINARY_DIR}/${OUTPUT_NAME}.model.xml ${FIRST_SOURCE}
       ${INCLUDE_ARG}
     WORKING_DIRECTORY ${symbiflow-arch-defs_SOURCE_DIR}/utils/vlog/
   )
 
-  add_file_target(FILE "${V2X_NAME}.model.xml" GENERATED)
+  add_file_target(FILE "${OUTPUT_NAME}.model.xml" GENERATED)
 
   add_custom_target(
     ${V2X_NAME}
-    DEPENDS "${V2X_NAME}.model.xml" "${V2X_NAME}.pb_type.xml"
+    DEPENDS "${OUTPUT_NAME}.model.xml" "${OUTPUT_NAME}.pb_type.xml"
   )
 endfunction(V2X)
 

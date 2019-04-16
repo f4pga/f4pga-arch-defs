@@ -68,7 +68,7 @@ def script(script, infiles=[]):
 
 
 def vlog_to_json(
-        infiles, flatten=False, aig=False, mode=None, module_with_mode=None
+        infiles, top=None, flatten=False, aig=False, mode=None, module_with_mode=None
 ):
     """
     Convert Verilog to a JSON representation using Yosys
@@ -82,6 +82,9 @@ def vlog_to_json(
     module_with_mode : the name of the module to apply `mode` to
     """
     prep_opts = "-flatten" if flatten else ""
+    if top is not None:
+        prep_opts += " -top {}".format(top)
+
     json_opts = "-aig" if aig else ""
     if mode is not None:
         mode_str = 'chparam -set MODE "{}" {}; '.format(mode, module_with_mode)

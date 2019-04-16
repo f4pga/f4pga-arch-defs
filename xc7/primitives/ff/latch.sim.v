@@ -15,10 +15,10 @@ module LATCH(C, CE, SR, D, Q);
 	parameter MODE = "LDPE";
  	generate
 		if (MODE == "LDPE") begin
-			LDPE latch(.G(C), .GE(CE), .PRE(SR), .D(D), .Q(Q));
+			LDPE_ZINI latch(.G(C), .GE(CE), .PRE(SR), .D(D), .Q(Q));
 		end
 		if (MODE == "LDCE") begin
-			LDCE latch(.G(C), .GE(CE), .CLR(SR), .D(D), .Q(Q));
+			LDCE_ZINI latch(.G(C), .GE(CE), .CLR(SR), .D(D), .Q(Q));
 		end
 	endgenerate
 endmodule

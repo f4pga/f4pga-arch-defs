@@ -15,10 +15,10 @@ module FF_SYNC(C, CE, SR, D, Q);
 	parameter MODE = "FDSE";
  	generate
 		if (MODE == "FDSE") begin
-			FDSE ff(.C(C), .CE(CE), .S(SR), .D(D), .Q(Q));
+			FDSE_ZINI ff(.C(C), .CE(CE), .S(SR), .D(D), .Q(Q));
 		end
 		if (MODE == "FDRE") begin
-			FDRE ff(.C(C), .CE(CE), .R(SR), .D(D), .Q(Q));
+			FDRE_ZINI ff(.C(C), .CE(CE), .R(SR), .D(D), .Q(Q));
 		end
 	endgenerate
 endmodule

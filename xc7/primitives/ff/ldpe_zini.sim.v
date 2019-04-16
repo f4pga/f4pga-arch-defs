@@ -11,11 +11,13 @@ module LDPE_ZINI (D, G, GE, PRE, Q);
 	parameter [0:0] ZINI = 1'b0;
 	parameter [0:0] IS_C_INVERTED = 1'b0;
 	parameter [0:0] IS_D_INVERTED = 1'b0;
-	parameter [0:0] IS_S_INVERTED = 1'b0;
+	parameter [0:0] IS_PRE_INVERTED = 1'b0;
 
 	initial Q <= !ZINI;
-	generate case (|IS_C_INVERTED)
-		1'b0: always @(posedge C) if (S == !IS_S_INVERTED) Q <= 1'b1; else if (CE) Q <= D ^ IS_D_INVERTED;
-		1'b1: always @(negedge C) if (S == !IS_S_INVERTED) Q <= 1'b1; else if (CE) Q <= D ^ IS_D_INVERTED;
+	generate case ({|IS_C_INVERTED, |IS_PRE_INVERTED})
+		2'b00: always @(posedge G, posedge PRE) if ( PRE) Q <= 1'b0; else if (GE) Q <= D ^ IS_D_INVERTED;
+		2'b01: always @(posedge G, negedge PRE) if (!PRE) Q <= 1'b0; else if (GE) Q <= D ^ IS_D_INVERTED;
+		2'b10: always @(negedge G, posedge PRE) if ( PRE) Q <= 1'b0; else if (GE) Q <= D ^ IS_D_INVERTED;
+		2'b11: always @(negedge G, negedge PRE) if (!PRE) Q <= 1'b0; else if (GE) Q <= D ^ IS_D_INVERTED;
 	endcase endgenerate
 endmodule

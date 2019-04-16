@@ -65,8 +65,9 @@ if "o" in args and args.o is not None:
 if args.includes:
     for include in args.includes.split(','):
         yosys.run.add_include(include)
+        
 
-aig_json = yosys.run.vlog_to_json(args.infiles, flatten=True, aig=True)
+aig_json = yosys.run.vlog_to_json(args.infiles, args.top, flatten=True, aig=True)
 
 if args.top is not None:
     yj = YosysJSON(aig_json, args.top)

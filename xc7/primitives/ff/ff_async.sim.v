@@ -15,10 +15,10 @@ module FF_ASYNC(C, CE, SR, D, Q);
 	parameter MODE = "FDPE";
  	generate
 		if (MODE == "FDPE") begin
-			FDSE ff(.C(C), .CE(CE), .PRE(SR), .D(D), .Q(Q));
+			FDPE_ZINI ff(.C(C), .CE(CE), .PRE(SR), .D(D), .Q(Q));
 		end
 		if (MODE == "FDCE") begin
-			FDRE ff(.C(C), .CE(CE), .CLR(SR), .D(D), .Q(Q));
+			FDCE_ZINI ff(.C(C), .CE(CE), .CLR(SR), .D(D), .Q(Q));
 		end
 	endgenerate
 endmodule
