@@ -1,6 +1,6 @@
-`include "../dsp_combinational/dsp_comb.sim.v"
+`include "../dsp_combinational/dsp_combinational.sim.v"
 
-module dsp_regi (clk, a, b, m, out);
+module dsp_in_registered (clk, a, b, m, out);
 	localparam DATA_WIDTH = 64;
 
 	input wire clk;
@@ -18,5 +18,5 @@ module dsp_regi (clk, a, b, m, out);
 		q_m <= m;
 	end
 
-	dsp_comb comb (.a(q_a), .b(q_b), .m(q_m), .out(out));
+	dsp_combinational comb (.a(q_a), .b(q_b), .m(q_m), .out(out));
 endmodule

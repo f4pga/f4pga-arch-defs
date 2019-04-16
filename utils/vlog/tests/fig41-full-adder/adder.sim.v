@@ -6,7 +6,14 @@ module adder (
 	input wire b;
 	input wire cin;
 
+	(* DELAY_CONST_a   = "300e-12" *)
+	(* DELAY_CONST_b   = "300e-12" *)
+	(* DELAY_CONST_cin = "300e-12" *)
 	output wire sum;
+
+	(* DELAY_CONST_a   = "300e-12" *)
+	(* DELAY_CONST_b   = "300e-12" *)
+	(* DELAY_CONST_cin =  "10e-12" *)
 	output wire cout;
 
 	// Full adder combinational logic

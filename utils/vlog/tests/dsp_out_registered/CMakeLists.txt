@@ -1,0 +1,1 @@
+v2x_test_both(NAME dsp_out_registered TOP_MODULE dsp_out_registered)
