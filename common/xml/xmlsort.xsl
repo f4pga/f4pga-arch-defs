@@ -15,9 +15,7 @@
 	<xsl:sort select="name( . )"/>
 	<xsl:attribute name="{local-name()}"><xsl:value-of select="normalize-space(.)"/></xsl:attribute>
       </xsl:for-each>
-      <xsl:apply-templates>
-        <xsl:sort select="." />
-      </xsl:apply-templates>
+      <xsl:apply-templates/>
     </xsl:copy>
   </xsl:template>
 
@@ -43,8 +41,7 @@
       <interconnect><XXX><port type='input' ...><port type='output' ...></XXX><YYY../></interconnect>
     to
       <interconnect><XXX input='...' output='...'><YYY../></XXX></interconnect>
-  -->
-
+    -->
   <xsl:template match="interconnect/*/port[@type='input']">
     <xsl:attribute name="input"><xsl:call-template name="from-pb_type"/>.<xsl:call-template name="port-value"/></xsl:attribute>
   </xsl:template>
