@@ -37,7 +37,7 @@ add_conda_package(
 add_conda_package(
   NAME vtr
   PROVIDES vpr genfasm
-  PACKAGE_SPEC "vtr 7.0.5 7045.1904032321.g1cf4f1b9b"
+  PACKAGE_SPEC "vtr 7.0.5 7047.1904161709.g9911b288b"
   )
 add_conda_package(
   NAME libxslt
@@ -54,6 +54,7 @@ add_conda_package(
 add_conda_package(
   NAME yapf
   PROVIDES yapf
+  PACKAGE_SPEC "yapf 0.26.0 py_0"
   )
 add_conda_package(
   NAME nodejs
