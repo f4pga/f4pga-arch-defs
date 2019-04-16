@@ -11,7 +11,10 @@ env:
 	git submodule update --init --recursive
 	mkdir -p build && cd build && cmake ..
 
+build/Makefile:
+	make env
+
 .PHONY: Makefile
 
-%: env
+%: build/Makefile
 	cd build && $(MAKE) $@
