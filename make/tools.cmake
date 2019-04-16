@@ -17,8 +17,8 @@ function(DIFF)
   set(DIFF_FILE_A ${DIFF_GOLDEN})
   set(DIFF_FILE_B ${DIFF_ACTUAL})
 
-  get_file_target(DIFF_FILE_A_TARGET ${DIFF_FILE_A})
-  get_file_target(DIFF_FILE_B_TARGET ${DIFF_FILE_B})
+  append_file_dependency(DIFF_FILE_A_DEP ${DIFF_FILE_A})
+  append_file_dependency(DIFF_FILE_B_DEP ${DIFF_FILE_B})
   get_file_location(DIFF_FILE_A_LOCATION ${DIFF_FILE_A})
   get_file_location(DIFF_FILE_B_LOCATION ${DIFF_FILE_B})
 
@@ -27,13 +27,14 @@ function(DIFF)
     OUTPUT ${DIFF_OUTPUT}
     DEPENDS
       ${DIFF_FILE_A_LOCATION}
-      ${DIFF_FILE_A_TARGET}
+      ${DIFF_FILE_A_DEP}
       ${DIFF_FILE_B_LOCATION}
-      ${DIFF_FILE_B_TARGET}
+      ${DIFF_FILE_B_DEP}
     COMMAND
       diff -u ${DIFF_FILE_A_LOCATION} ${DIFF_FILE_B_LOCATION} > ${DIFF_OUTPUT} || true
     COMMAND
       diff -u ${DIFF_FILE_A_LOCATION} ${DIFF_FILE_B_LOCATION}
+    WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
   )
   add_file_target(FILE ${DIFF_OUTPUT} GENERATED)
   add_custom_target(
