@@ -1,53 +1,182 @@
 // ============================================================================
 // FFs
 
+module CESR_MUX(input CE, SR, output CE_OUT, SR_OUT);
+
+parameter _TECHMAP_CONSTMSK_CE_ = 0;
+parameter _TECHMAP_CONSTVAL_CE_ = 0;
+parameter _TECHMAP_CONSTMSK_SR_ = 0;
+parameter _TECHMAP_CONSTVAL_SR_ = 0;
+
+localparam CEUSED = _TECHMAP_CONSTMSK_CE_ == 0 || _TECHMAP_CONSTVAL_CE_ == 0;
+localparam SRUSED = _TECHMAP_CONSTMSK_SR_ == 0 || _TECHMAP_CONSTVAL_SR_ == 1;
+
+if(CEUSED) begin
+    assign CE_OUT = CE;
+end else begin
+    CE_VCC ce(
+        .VCC(CE_OUT)
+    );
+end
+
+if(SRUSED) begin
+    assign SR_OUT = SR;
+end else begin
+    SR_GND sr(
+        .GND(SR_OUT)
+    );
+end
+
+endmodule
+
 module FDRE (output reg Q, input C, CE, D, R);
-  parameter [0:0] INIT = 1'b0;
-  FDRE_ZINI #(.ZINI(!|INIT), .IS_C_INVERTED(|0))
-  _TECHMAP_REPLACE_ (.D(D), .Q(Q), .C(C), .CE(CE), .R(R));   
+
+parameter [0:0] INIT = 1'b0;
+
+wire CE_SIG;
+wire SR_SIG;
+
+CESR_MUX cesr_mux(
+    .CE(CE),
+    .SR(R),
+    .CE_OUT(CE_SIG),
+    .SR_OUT(SR_SIG)
+);
+
+FDRE_ZINI #(.ZINI(!|INIT), .IS_C_INVERTED(|0))
+  _TECHMAP_REPLACE_ (.D(D), .Q(Q), .C(C), .CE(CE_SIG), .R(SR_SIG));
+
 endmodule
 
 module FDSE (output reg Q, input C, CE, D, S);
-  parameter [0:0] INIT = 1'b1;
-  FDSE_ZINI #(.ZINI(!|INIT), .IS_C_INVERTED(|0))
-  _TECHMAP_REPLACE_ (.D(D), .Q(Q), .C(C), .CE(CE), .S(S));   
+
+parameter [0:0] INIT = 1'b1;
+
+wire CE_SIG;
+wire SR_SIG;
+
+CESR_MUX cesr_mux(
+    .CE(CE),
+    .SR(S),
+    .CE_OUT(CE_SIG),
+    .SR_OUT(SR_SIG)
+);
+
+FDSE_ZINI #(.ZINI(!|INIT), .IS_C_INVERTED(|0))
+  _TECHMAP_REPLACE_ (.D(D), .Q(Q), .C(C), .CE(CE_SIG), .S(SR_SIG));
+
 endmodule
 
 module FDCE (output reg Q, input C, CE, D, CLR);
-  parameter [0:0] INIT = 1'b0;
-  FDCE_ZINI #(.ZINI(!|INIT), .IS_C_INVERTED(|0))
-  _TECHMAP_REPLACE_ (.D(D), .Q(Q), .C(C), .CE(CE), .CLR(CLR));   
+
+parameter [0:0] INIT = 1'b0;
+
+wire CE_SIG;
+wire SR_SIG;
+
+CESR_MUX cesr_mux(
+    .CE(CE),
+    .SR(CLR),
+    .CE_OUT(CE_SIG),
+    .SR_OUT(SR_SIG)
+);
+
+FDCE_ZINI #(.ZINI(!|INIT), .IS_C_INVERTED(|0))
+  _TECHMAP_REPLACE_ (.D(D), .Q(Q), .C(C), .CE(CE_SIG), .CLR(SR_SIG));
+
 endmodule
 
 module FDPE (output reg Q, input C, CE, D, PRE);
-  parameter [0:0] INIT = 1'b1;
-  FDPE_ZINI #(.ZINI(!|INIT), .IS_C_INVERTED(|0))
-  _TECHMAP_REPLACE_ (.D(D), .Q(Q), .C(C), .CE(CE), .PRE(PRE));   
+parameter [0:0] INIT = 1'b1;
+
+wire CE_SIG;
+wire SR_SIG;
+
+CESR_MUX cesr_mux(
+    .CE(CE),
+    .SR(PRE),
+    .CE_OUT(CE_SIG),
+    .SR_OUT(SR_SIG)
+);
+
+FDPE_ZINI #(.ZINI(!|INIT), .IS_C_INVERTED(|0))
+  _TECHMAP_REPLACE_ (.D(D), .Q(Q), .C(C), .CE(CE_SIG), .PRE(SR_SIG));
+
 endmodule
 
 
 module FDRE_1 (output reg Q, input C, CE, D, R);
-  parameter [0:0] INIT = 1'b0;
-  FDRE_ZINI #(.ZINI(!|INIT), .IS_C_INVERTED(|1))
-  _TECHMAP_REPLACE_ (.D(D), .Q(Q), .C(C), .CE(CE), .R(R));   
+
+parameter [0:0] INIT = 1'b0;
+
+wire CE_SIG;
+wire SR_SIG;
+
+CESR_MUX cesr_mux(
+    .CE(CE),
+    .SR(R),
+    .CE_OUT(CE_SIG),
+    .SR_OUT(SR_SIG)
+);
+
+FDRE_ZINI #(.ZINI(!|INIT), .IS_C_INVERTED(|1))
+  _TECHMAP_REPLACE_ (.D(D), .Q(Q), .C(C), .CE(CE_SIG), .R(SR_SIG));
+
 endmodule
 
 module FDSE_1 (output reg Q, input C, CE, D, S);
-  parameter [0:0] INIT = 1'b1;
-  FDSE_ZINI #(.ZINI(!|INIT), .IS_C_INVERTED(|1))
-  _TECHMAP_REPLACE_ (.D(D), .Q(Q), .C(C), .CE(CE), .S(S));   
+parameter [0:0] INIT = 1'b1;
+
+wire CE_SIG;
+wire SR_SIG;
+
+CESR_MUX cesr_mux(
+    .CE(CE),
+    .SR(S),
+    .CE_OUT(CE_SIG),
+    .SR_OUT(SR_SIG)
+);
+
+FDSE_ZINI #(.ZINI(!|INIT), .IS_C_INVERTED(|1))
+  _TECHMAP_REPLACE_ (.D(D), .Q(Q), .C(C), .CE(CE_SIG), .S(SR_SIG));
+
 endmodule
 
 module FDCE_1 (output reg Q, input C, CE, D, CLR);
-  parameter [0:0] INIT = 1'b0;
-  FDCE_ZINI #(.ZINI(!|INIT), .IS_C_INVERTED(|1))
-  _TECHMAP_REPLACE_ (.D(D), .Q(Q), .C(C), .CE(CE), .CLR(CLR));   
+parameter [0:0] INIT = 1'b0;
+
+wire CE_SIG;
+wire SR_SIG;
+
+CESR_MUX cesr_mux(
+    .CE(CE),
+    .SR(CLR),
+    .CE_OUT(CE_SIG),
+    .SR_OUT(SR_SIG)
+);
+
+FDCE_ZINI #(.ZINI(!|INIT), .IS_C_INVERTED(|1))
+  _TECHMAP_REPLACE_ (.D(D), .Q(Q), .C(C), .CE(CE_SIG), .CLR(SR_SIG));
+
 endmodule
 
 module FDPE_1 (output reg Q, input C, CE, D, PRE);
-  parameter [0:0] INIT = 1'b1;
-  FDPE_ZINI #(.ZINI(!|INIT), .IS_C_INVERTED(|1))
-  _TECHMAP_REPLACE_ (.D(D), .Q(Q), .C(C), .CE(CE), .PRE(PRE));   
+
+parameter [0:0] INIT = 1'b1;
+
+wire CE_SIG;
+wire SR_SIG;
+
+CESR_MUX cesr_mux(
+    .CE(CE),
+    .SR(PRE),
+    .CE_OUT(CE_SIG),
+    .SR_OUT(SR_SIG)
+);
+
+FDPE_ZINI #(.ZINI(!|INIT), .IS_C_INVERTED(|1))
+  _TECHMAP_REPLACE_ (.D(D), .Q(Q), .C(C), .CE(CE_SIG), .PRE(SR_SIG));
+
 endmodule
 
 // ============================================================================
@@ -693,6 +822,8 @@ module RAMB18E1 (
 
     parameter _TECHMAP_CONSTMSK_CLKBWRCLK_ = 0;
     parameter _TECHMAP_CONSTVAL_CLKBWRCLK_ = 0;
+    parameter _TECHMAP_CONSTMSK_REGCLKARDRCLK_ = 0;
+    parameter _TECHMAP_CONSTVAL_REGCLKARDRCLK_ = 0;
     parameter _TECHMAP_CONSTMSK_RSTRAMARSTRAM_ = 0;
     parameter _TECHMAP_CONSTVAL_RSTRAMARSTRAM_ = 0;
     parameter _TECHMAP_CONSTMSK_RSTRAMB_ = 0;
@@ -782,7 +913,24 @@ module RAMB18E1 (
         $error("Invalid WRITE_MODE_A", WRITE_MODE_A);
     if(WRITE_MODE_B != "WRITE_FIRST" && WRITE_MODE_B != "NO_CHANGE" && WRITE_MODE_B != "READ_FIRST")
         $error("Invalid WRITE_MODE_B", WRITE_MODE_B);
+
   end
+
+if(RAM_MODE == "SDP" && READ_WIDTH_A == 36) begin
+    localparam EFF_READ_WIDTH_A = 18;
+    localparam EFF_READ_WIDTH_B = 18;
+end else begin
+    localparam EFF_READ_WIDTH_A = READ_WIDTH_A;
+    localparam EFF_READ_WIDTH_B = READ_WIDTH_B;
+end
+
+if(RAM_MODE == "SDP" && WRITE_WIDTH_B == 36) begin
+    localparam EFF_WRITE_WIDTH_A = 18;
+    localparam EFF_WRITE_WIDTH_B = 18;
+end else begin
+    localparam EFF_WRITE_WIDTH_A = WRITE_WIDTH_A;
+    localparam EFF_WRITE_WIDTH_B = WRITE_WIDTH_B;
+end
 
   wire REGCLKA;
   wire REGCLKB;
@@ -794,15 +942,21 @@ module RAMB18E1 (
   wire [3:0] WEA_WIDE = {WEA[1], WEA[1], WEA[0], WEA[0]};
 
 
-  if (DOA_REG)
+  if (DOA_REG) begin
       assign REGCLKA = CLKARDCLK;
-  else
-      assign REGCLKA = 0;
+      localparam ZINV_REGCLKARDRCLK = !IS_CLKARDCLK_INVERTED;
+  end else begin
+      assign REGCLKA = 1'b1;
+      localparam ZINV_REGCLKARDRCLK = 1'b0;
+  end
 
-  if (DOB_REG)
-      assign REGCLKB = CLKARDCLK;
-  else
-      assign REGCLKB = 0;
+  if (DOB_REG) begin
+      assign REGCLKB = CLKBWRCLK;
+      localparam ZINV_REGCLKB = !IS_CLKBWRCLK_INVERTED;
+  end else begin
+      assign REGCLKB = 1'b1;
+      localparam ZINV_REGCLKB = 1'b0;
+  end
 
   RAMB18E1_VPR #(
       .IN_USE(READ_WIDTH_A != 0 || READ_WIDTH_B != 0 || WRITE_WIDTH_A != 0 || WRITE_WIDTH_B != 0),
@@ -895,33 +1049,33 @@ module RAMB18E1 (
       .ZINV_RSTRAMB(!IS_RSTRAMB_INVERTED ^ INV_RSTRAMB),
       .ZINV_RSTREGARSTREG(!IS_RSTREGARSTREG_INVERTED ^ INV_RSTREGARSTREG),
       .ZINV_RSTREGB(!IS_RSTREGB_INVERTED ^ INV_RSTREGB),
-      .ZINV_REGCLKARDRCLK(!IS_CLKARDCLK_INVERTED),
-      .ZINV_REGCLKB(!IS_CLKBWRCLK_INVERTED),
+      .ZINV_REGCLKARDRCLK(ZINV_REGCLKARDRCLK),
+      .ZINV_REGCLKB(ZINV_REGCLKB),
 
       .DOA_REG(DOA_REG),
       .DOB_REG(DOB_REG),
 
-      .READ_WIDTH_A_1(READ_WIDTH_A == 1 || READ_WIDTH_A == 0 || RAM_MODE == "SDP"),
-      .READ_WIDTH_A_2(READ_WIDTH_A == 2 && RAM_MODE != "SDP"),
-      .READ_WIDTH_A_4(READ_WIDTH_A == 4 && RAM_MODE != "SDP"),
-      .READ_WIDTH_A_9(READ_WIDTH_A == 9 && RAM_MODE != "SDP"),
-      .READ_WIDTH_A_18(READ_WIDTH_A == 18 && RAM_MODE != "SDP"),
+      .READ_WIDTH_A_1(EFF_READ_WIDTH_A == 1 || EFF_READ_WIDTH_A == 0),
+      .READ_WIDTH_A_2(EFF_READ_WIDTH_A == 2),
+      .READ_WIDTH_A_4(EFF_READ_WIDTH_A == 4),
+      .READ_WIDTH_A_9(EFF_READ_WIDTH_A == 9),
+      .READ_WIDTH_A_18(EFF_READ_WIDTH_A == 18),
       .SDP_READ_WIDTH_36(READ_WIDTH_A == 36),
-      .READ_WIDTH_B_1((READ_WIDTH_B == 1 || READ_WIDTH_B == 0) && RAM_MODE != "SDP"),
-      .READ_WIDTH_B_2(READ_WIDTH_B == 2),
-      .READ_WIDTH_B_4(READ_WIDTH_B == 4),
-      .READ_WIDTH_B_9(READ_WIDTH_B == 9),
-      .READ_WIDTH_B_18(READ_WIDTH_B == 18 || (READ_WIDTH_A == 36)),
-      .WRITE_WIDTH_A_1((WRITE_WIDTH_A == 1 || WRITE_WIDTH_A == 0) && RAM_MODE != "SDP"),
-      .WRITE_WIDTH_A_2(WRITE_WIDTH_A == 2),
-      .WRITE_WIDTH_A_4(WRITE_WIDTH_A == 4),
-      .WRITE_WIDTH_A_9(WRITE_WIDTH_A == 9),
-      .WRITE_WIDTH_A_18(WRITE_WIDTH_A == 18 || WRITE_WIDTH_B == 36),
-      .WRITE_WIDTH_B_1(WRITE_WIDTH_B == 1 || WRITE_WIDTH_B == 0),
-      .WRITE_WIDTH_B_2(WRITE_WIDTH_B == 2),
-      .WRITE_WIDTH_B_4(WRITE_WIDTH_B == 4),
-      .WRITE_WIDTH_B_9(WRITE_WIDTH_B == 9),
-      .WRITE_WIDTH_B_18(WRITE_WIDTH_B == 18 || WRITE_WIDTH_B == 36),
+      .READ_WIDTH_B_1(EFF_READ_WIDTH_B == 1 || EFF_READ_WIDTH_B == 0),
+      .READ_WIDTH_B_2(EFF_READ_WIDTH_B == 2),
+      .READ_WIDTH_B_4(EFF_READ_WIDTH_B == 4),
+      .READ_WIDTH_B_9(EFF_READ_WIDTH_B == 9),
+      .READ_WIDTH_B_18(EFF_READ_WIDTH_B == 18),
+      .WRITE_WIDTH_A_1(EFF_WRITE_WIDTH_A == 1 || EFF_WRITE_WIDTH_A == 0),
+      .WRITE_WIDTH_A_2(EFF_WRITE_WIDTH_A == 2),
+      .WRITE_WIDTH_A_4(EFF_WRITE_WIDTH_A == 4),
+      .WRITE_WIDTH_A_9(EFF_WRITE_WIDTH_A == 9),
+      .WRITE_WIDTH_A_18(EFF_WRITE_WIDTH_A == 18),
+      .WRITE_WIDTH_B_1(EFF_WRITE_WIDTH_B == 1 || EFF_WRITE_WIDTH_B == 0),
+      .WRITE_WIDTH_B_2(EFF_WRITE_WIDTH_B == 2),
+      .WRITE_WIDTH_B_4(EFF_WRITE_WIDTH_B == 4),
+      .WRITE_WIDTH_B_9(EFF_WRITE_WIDTH_B == 9),
+      .WRITE_WIDTH_B_18(EFF_WRITE_WIDTH_B == 18 || EFF_WRITE_WIDTH_B == 36),
       .SDP_WRITE_WIDTH_36(WRITE_WIDTH_B == 36),
       .WRITE_MODE_A_NO_CHANGE(WRITE_MODE_A == "NO_CHANGE" || (WRITE_MODE_A == "WRITE_FIRST" && RAM_MODE == "SDP")),
       .WRITE_MODE_A_READ_FIRST(WRITE_MODE_A == "READ_FIRST"),
@@ -996,7 +1150,7 @@ module CARRY0(output CO_CHAIN, CO_FABRIC, O, input CI, CI_INIT, DI, S);
     CARRY0_CONST #(
         .CYINIT_AX(1'b0),
         .CYINIT_C0(_TECHMAP_CONSTVAL_CI_INIT_ == 0),
-        .CYINIT_C0(_TECHMAP_CONSTVAL_CI_INIT_ == 1)
+        .CYINIT_C1(_TECHMAP_CONSTVAL_CI_INIT_ == 1)
     ) _TECHMAP_REPLACE_ (
         .CO_CHAIN(CO_CHAIN),
         .CO_FABRIC(CO_FABRIC),

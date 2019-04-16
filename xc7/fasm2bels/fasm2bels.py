@@ -36,7 +36,10 @@ from .connection_db_utils import create_maybe_get_wire, maybe_add_pip, \
         get_tile_type
 from .iob_models import process_iobs
 from .verilog_modeling import Module
+from .net_map import create_net_list
 
+import lib.rr_graph_xml.graph2 as xml_graph2
+from lib.rr_graph_xml.utils import read_xml_file
 from lib.parse_pcf import parse_simple_pcf
 
 
@@ -147,6 +150,20 @@ def load_io_sites(db_root, part, pcf):
     return site_to_signal
 
 
+def load_net_list(conn, rr_graph_file, route_file):
+    xml_graph = xml_graph2.Graph(
+        read_xml_file(rr_graph_file), need_edges=False
+    )
+    graph = xml_graph.graph
+
+    net_map = {}
+    with open(route_file) as f:
+        for net in create_net_list(conn, graph, f):
+            net_map[net.wire_pkey] = net.name
+
+    return net_map
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument(
@@ -187,6 +204,8 @@ def main():
     )
     parser.add_argument('--top', default="top", help="Root level module name.")
     parser.add_argument('--pcf', help="Mapping of top-level pins to pads.")
+    parser.add_argument('--route_file', help="VPR route output file.")
+    parser.add_argument('--rr_graph', help="Real or virt xc7 graph")
     parser.add_argument('verilog_file', help="Filename of output verilog file")
     parser.add_argument('tcl_file', help="Filename of output tcl script.")
 
@@ -214,6 +233,11 @@ def main():
         top.set_site_to_signal(
             load_io_sites(args.db_root, args.part, args.pcf)
         )
+
+    if args.route_file:
+        assert args.rr_graph
+        net_map = load_net_list(conn, args.rr_graph, args.route_file)
+        top.set_net_map(net_map)
 
     iostandards = []
 

@@ -89,7 +89,7 @@ scalable_proc(
   BOARD basys3
   INPUT_IO_FILE basys3.pcf
   ROM_STYLE bram
-  MAX_PROC 5
+  MAX_PROC 8
 )
 
 scalable_proc(

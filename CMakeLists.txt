@@ -10,10 +10,16 @@ include(make/devices.cmake)
 
 find_package(PythonInterp 3 REQUIRED)
 
+add_custom_target(test_python)
+
 # Some commands use file locks to prevent incorrect parallel access.
 # All file locks are required to register a clean command with the clean_locks
 # targets to prevent stale locks.
 add_custom_target(clean_locks)
+
+# Add dummy targets for attaching test targets too.
+add_custom_target(all_xc7_tests)
+add_custom_target(all_ice40_tests)
 
 setup_env(
     MINICONDA3_VERSION 4.5.12
@@ -21,7 +27,7 @@ setup_env(
 add_conda_package(
   NAME yosys
   PROVIDES yosys
-  PACKAGE_SPEC "yosys 0.8 0461.1903060506.g12a8e092"
+  PACKAGE_SPEC "yosys 0.8 0669.1904122152.g2c7e2541"
   )
 add_conda_package(
   NAME openocd
@@ -30,7 +36,7 @@ add_conda_package(
 add_conda_package(
   NAME vtr
   PROVIDES vpr genfasm
-  PACKAGE_SPEC "vtr 7.0.5 7045.1904032321.g1cf4f1b9b"
+  PACKAGE_SPEC "vtr 7.0.5 7047.1904161709.g9911b288b"
   )
 add_conda_package(
   NAME libxslt
@@ -47,6 +53,7 @@ add_conda_package(
 add_conda_package(
   NAME yapf
   PROVIDES yapf
+  PACKAGE_SPEC "yapf 0.26.0 py_0"
   )
 add_conda_package(
   NAME nodejs
@@ -69,6 +76,11 @@ add_conda_pip(
 
 add_conda_pip(
   NAME intervaltree
+  NO_EXE
+)
+
+add_conda_pip(
+  NAME pdfminer.six
   NO_EXE
 )
 
@@ -153,6 +165,7 @@ endif()
 add_custom_target(all_ice40)
 add_dependencies(all_ice40
     all_ice40_demos
+    all_ice40_tests
     all_ice40_route_tests
     )
 
@@ -179,6 +192,7 @@ endif()
 add_custom_target(all_xc7)
 add_dependencies(all_xc7
     all_xc7_route_tests
+    all_xc7_tests
     all_xc7_demos
     )
 if (NOT DEFINED ENV{CI} OR NOT $ENV{CI})

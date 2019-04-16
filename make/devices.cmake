@@ -780,6 +780,9 @@ function(ADD_FPGA_TARGET)
   get_target_property_required(
     OUT_RRXML_REAL ${DEVICE} ${PACKAGE}_OUT_RRXML_REAL
   )
+  get_target_property_required(
+    OUT_RRXML_VIRT ${DEVICE} OUT_RRXML_VIRT
+  )
 
   set(NAME ${ADD_FPGA_TARGET_NAME})
   get_target_property_required(DEVICE_FULL_TEMPLATE ${ARCH} DEVICE_FULL_TEMPLATE)
@@ -879,6 +882,7 @@ function(ADD_FPGA_TARGET)
   set(VPR_DEPS "")
   list(APPEND VPR_DEPS ${OUT_EBLIF})
 
+  get_file_location(OUT_RRXML_VIRT_LOCATION ${OUT_RRXML_VIRT})
   get_file_location(OUT_RRXML_REAL_LOCATION ${OUT_RRXML_REAL})
   get_file_location(DEVICE_MERGED_FILE_LOCATION ${DEVICE_MERGED_FILE})
 
@@ -974,7 +978,7 @@ function(ADD_FPGA_TARGET)
   )
 
   if(NOT "${ADD_FPGA_TARGET_ASSERT_USAGE}" STREQUAL "")
-      set(USAGE_UTIL ${symbiflow-arch-defs_SOURCE_DIR}/utils/usage.py)
+      set(USAGE_UTIL ${symbiflow-arch-defs_SOURCE_DIR}/utils/report_block_usage.py)
       add_custom_target(
           ${NAME}_assert_usage
           COMMAND ${PYTHON3} ${USAGE_UTIL}
@@ -1235,8 +1239,10 @@ function(ADD_FPGA_TARGET)
         DEPENDS ${BIT_TO_V} ${OUT_BITSTREAM} ${OUT_BIN}
         )
 
-        add_custom_target(${NAME}_bit_v DEPENDS ${OUT_BIT_VERILOG})
+
         add_output_to_fpga_target(${NAME} BIT_V ${OUT_LOCAL_REL}/${TOP}_bit.v)
+        get_file_target(BIT_V_TARGET ${OUT_LOCAL_REL}/${TOP}_bit.v)
+        add_custom_target(${NAME}_bit_v DEPENDS ${BIT_V_TARGET})
 
         set(AUTOSIM_CYCLES ${ADD_FPGA_TARGET_AUTOSIM_CYCLES})
         if("${AUTOSIM_CYCLES}" STREQUAL "")
@@ -1311,7 +1317,7 @@ function(ADD_FPGA_TARGET)
         READ_GOLD "${READ_GOLD} rename ${TOP} gold"
         READ_GATE "read_verilog ${OUT_BIT_VERILOG} $<SEMICOLON> rename ${TOP} gate"
         EQUIV_CHECK_SCRIPT ${ADD_FPGA_TARGET_EQUIV_CHECK_SCRIPT}
-        DEPENDS ${SOURCE_FILES} ${SOURCE_FILES_DEPS} ${OUT_BIT_VERILOG}
+        DEPENDS ${SOURCE_FILES} ${SOURCE_FILES_DEPS} ${BIT_V_TARGET} ${OUT_BIT_VERILOG}
         )
       # Add bit-to-v check tests to all_check_tests.
       add_dependencies(all_check_tests ${NAME}_check_eblif)

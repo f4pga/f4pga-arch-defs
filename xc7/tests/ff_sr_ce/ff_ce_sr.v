@@ -7,6 +7,7 @@ module top(
 );
 
 localparam NUM_FF = 4;
+localparam FF_TYPE = "FDRE";
 
 assign tx = rx;
 
@@ -29,10 +30,10 @@ assign led[1] = Q[1];
 assign led[2] = Q[2];
 assign led[3] = Q[3];
 assign led[4] = Q[4];
-assign led[5] = Q[4*NUM_FF-4];
-assign led[6] = Q[4*NUM_FF-3];
-assign led[7] = Q[4*NUM_FF-2];
-assign led[8] = Q[4*NUM_FF-1];
+assign led[5] = Q[4*(NUM_FF-1)+0];
+assign led[6] = Q[4*(NUM_FF-1)+1];
+assign led[7] = Q[4*(NUM_FF-1)+2];
+assign led[8] = Q[4*(NUM_FF-1)+3];
 assign led[9] = ^Q;
 assign led[10] = |Q;
 assign led[11] = &Q;
@@ -51,47 +52,51 @@ generate for(i = 0; i < NUM_FF; i=i+1) begin:ff
     assign D[4*i+3] = sw[(4*i+3) % 14];
 
     // Tie SR to GND and CE to VCC
-    (* keep *) FDRE #(
-        .INIT(1'b0)
+    (* keep *) FF #(
+        .INIT(1'b0),
+        .FF_TYPE(FF_TYPE)
     ) vcc_gnd (
         .Q(Q[4*i+0]),
         .C(clk),
         .D(D[4*i+0]),
         .CE(1'b1),
-        .R(1'b0)
+        .SR(1'b0)
     );
 
     // Tie SR to GND and CE to signal
-    (* keep *) FDRE #(
-        .INIT(1'b0)
+    (* keep *) FF #(
+        .INIT(1'b0),
+        .FF_TYPE(FF_TYPE)
     ) s_gnd (
         .Q(Q[4*i+1]),
         .C(clk),
         .D(D[4*i+1]),
         .CE(ce),
-        .R(1'b0)
+        .SR(1'b0)
     );
 
     // Tie SR to signal and CE to signal
-    (* keep *) FDRE #(
-        .INIT(1'b0)
+    (* keep *) FF #(
+        .INIT(1'b0),
+        .FF_TYPE(FF_TYPE)
     ) s_s (
         .Q(Q[4*i+2]),
         .C(clk),
         .D(D[4*i+2]),
         .CE(ce),
-        .R(reset)
+        .SR(reset)
     );
 
     // Tie SR to signal and CE to VCC
-    (* keep *) FDRE #(
-        .INIT(0)
+    (* keep *) FF #(
+        .INIT(0),
+        .FF_TYPE(FF_TYPE)
     ) vcc_s (
         .Q(Q[4*i+3]),
         .C(clk),
         .D(D[4*i+3]),
         .CE(1'b1),
-        .R(reset)
+        .SR(reset)
     );
 end endgenerate
 

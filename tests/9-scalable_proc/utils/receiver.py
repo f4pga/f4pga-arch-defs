@@ -133,6 +133,9 @@ def main():
                     # Got a match
                     if word == pattern[pat_index][1]:
                         pat_index = (pat_index + 1) % len(pattern)
+                        sync_cnt += 1
+                        if sync_cnt % 1000 == 0:
+                            print('In sync, sync_cnt = {}'.format(sync_cnt))
                     # Got a mismatch
                     else:
                         print(

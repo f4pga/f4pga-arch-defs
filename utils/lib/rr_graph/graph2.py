@@ -3,7 +3,7 @@ and provides simple fast lookup required to build real FPGA rr graph fabrics. ""
 from __future__ import print_function
 from collections import namedtuple
 from enum import Enum
-from .tracks import Track, Direction
+from .tracks import Track
 from lib.rr_graph import channel2
 import progressbar
 
@@ -80,10 +80,21 @@ def process_track(track):
 
 
 class Graph(object):
-    """ Simple object for working with VPR RR graph. This class does not handle
+    """ Simple object for working with VPR RR graph.
+
+    This class does not handle serialization.  A format specific class handles
+    serdes takes.
     """
 
-    def __init__(self, switches, segments, block_types, grid, nodes):
+    def __init__(
+            self,
+            switches,
+            segments,
+            block_types,
+            grid,
+            nodes,
+            build_pin_edges=True
+    ):
         self.switches = switches
         self.next_switch_id = max(switch.id for switch in self.switches) + 1
 
@@ -186,6 +197,12 @@ class Graph(object):
             for pin_class_idx, pin_class in enumerate(block_type.pin_class):
                 pin_class_node = self.loc_pin_class_map[
                     (loc.x, loc.y, pin_class_idx)]
+
+                # Skip building IPIN -> SINK and OPIN -> SOURCE graph if edges
+                # are not required.
+                if not build_pin_edges:
+                    continue
+
                 for pin in pin_class.pin:
                     for pin_node, _ in self.loc_pin_map[(loc.x, loc.y,
                                                          pin.ptc)]:
