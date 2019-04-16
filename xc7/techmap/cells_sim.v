@@ -1,5 +1,13 @@
 // ============================================================================
 // Define FFs required by VPR
+//
+module CE_VCC (output VCC);
+wire VCC = 1;
+endmodule
+
+module SR_GND (output GND);
+wire GND = 0;
+endmodule
 
 module FDRE_ZINI (output reg Q, input C, CE, D, R);
   parameter [0:0] ZINI = 1'b0;
