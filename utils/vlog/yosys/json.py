@@ -49,6 +49,7 @@ class YosysModule:
         """
         clist = []
         for cell, cdata in sorted(self.data["cells"].items()):
+            print(cell, cdata)
             if cell.startswith("$"):
                 continue
             clist.append((cell, cdata["type"]))

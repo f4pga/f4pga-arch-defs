@@ -119,6 +119,7 @@ tmod = yj.module(top)
 def mod_pb_name(mod):
     """Convert a Verilog module to a pb_type name in the format documented here:
     https://github.com/SymbiFlow/symbiflow-arch-defs/#names"""
+    return mod.name
     is_blackbox = (mod.attr("blackbox", 0) == 1)
     modes = mod.attr("MODES", None)
     has_modes = modes is not None
@@ -147,7 +148,7 @@ def strip_name(name):
     return name
 
 
-def make_pb_content(mod, xml_parent, mod_pname, is_submode=False):
+def make_pb_content(yj, mod, xml_parent, mod_pname, is_submode=False):
     """Build the pb_type content - child pb_types, timing and direct interconnect,
     but not IO. This may be put directly inside <pb_type>, or inside <mode>."""
 
@@ -173,7 +174,7 @@ def make_pb_content(mod, xml_parent, mod_pname, is_submode=False):
         )
 
     # Find out whether or not the module we are generating content for is a blackbox
-    is_blackbox = (mod.attr("blackbox", 0) == 1)
+    is_blackbox = (mod.attr("blackbox", 0) == 1) or not mod.cells
 
     # List of entries in format ((from_cell, from_pin), (to_cell, to_pin))
     interconn = []
@@ -204,12 +205,12 @@ def make_pb_content(mod, xml_parent, mod_pname, is_submode=False):
             inp_cons = mod.cell_conns(cname, "input")
             for pin, net in inp_cons:
                 drvs = mod.net_drivers(net)
-                assert len(drvs) > 0, (
-                    "ERROR: pin {}.{} has no driver, interconnect will be missing\n{}".
-                    format(pb_name, pin, mod))
-                assert len(drvs) < 2, (
-                    "ERROR: pin {}.{} has multiple drivers, interconnect will be overspecified".
-                    format(pb_name, pin))
+                #assert len(drvs) > 0, (
+                #    "ERROR: pin {}.{} has no driver, interconnect will be missing\n{}".
+                #    format(pb_name, pin, mod))
+                #assert len(drvs) < 2, (
+                #    "ERROR: pin {}.{} has multiple drivers, interconnect will be overspecified".
+                #    format(pb_name, pin))
                 for drv_cell, drv_pin in drvs:
                     interconn.append(((drv_cell, drv_pin), (cname, pin)))
 
@@ -228,7 +229,7 @@ def make_pb_content(mod, xml_parent, mod_pname, is_submode=False):
             if not drv:
                 continue
             assert len(drv) == 1, (
-                    "ERROR: net {} has multiple drivers {}, interconnect will be overspecified".
+                    "ERROR: net {} has multiple drivers {}, interconnect will be over specified".
                     format(net, drv))
             for snk in mod.conn_io(net, "output"):
                 conn = ((mod.name, drv[0]), (mod.name,snk))
@@ -297,7 +298,7 @@ def make_pb_content(mod, xml_parent, mod_pname, is_submode=False):
                 xml_mat.text = mat
 
 
-def make_pb_type(mod):
+def make_pb_type(yj, mod):
     """Build the pb_type for a given module. mod is the YosysModule object to
     generate."""
 
@@ -309,8 +310,11 @@ def make_pb_type(mod):
     pb_xml_attrs = dict()
     pb_xml_attrs["name"] = mod_pname
     # If we are a blackbox with no modes, then generate a blif_model
-    is_blackbox = (mod.attr("blackbox", 0) == 1)
+    is_blackbox = mod.attr("blackbox", 0) == 1 or not mod.cells
     has_modes = modes is not None
+
+    print("is_blackbox", is_blackbox, "has_modes?", has_modes)
+
     # Process type and class of module
     mod_cls = mod.CLASS
     if mod_cls is not None:
@@ -369,16 +373,69 @@ def make_pb_type(mod):
                 )
             )
             mode_mod = mode_yj.module(mod.name)
-            make_pb_content(mode_mod, mode_xml, mod_pname, True)
+            make_pb_content(yj, mode_mod, mode_xml, mod_pname, True)
     else:
-        make_pb_content(mod, pb_type_xml, mod_pname)
+        make_pb_content(yj, mod, pb_type_xml, mod_pname)
 
     return pb_type_xml
 
 
-pb_type_xml = make_pb_type(tmod)
 
-f = open(outfile, 'w')
-f.write(ET.tostring(pb_type_xml, pretty_print=True).decode('utf-8'))
-f.close()
-print("Generated {} from {}".format(outfile, iname))
+parser = argparse.ArgumentParser(
+    description=__doc__.strip(), formatter_class=argparse.RawTextHelpFormatter)
+parser.add_argument(
+    'infiles',
+    metavar='input.v',
+    type=str,
+    nargs='+',
+    help="""\
+One or more Verilog input files, that will be passed to Yosys internally.
+They should be enough to generate a flattened representation of the model,
+so that paths through the model can be determined.
+""")
+parser.add_argument(
+    '--top',
+    help="""\
+Top level module, will usually be automatically determined from the file name
+%.sim.v
+""")
+parser.add_argument(
+    '--outfile', '-o',
+    type=argparse.FileType('w'),
+    default="pb_type.xml",
+    help="""\
+Output filename, default 'model.xml'
+""")
+
+def main(args):
+    iname = os.path.basename(args.infiles[0])
+
+    yosys.run.add_define("PB_TYPE")
+    vjson = yosys.run.vlog_to_json(args.infiles, flatten=False, aig=False)
+    yj = YosysJSON(vjson)
+
+    if args.top is not None:
+        top = args.top
+    else:
+        wm = re.match(r"([A-Za-z0-9_]+)\.sim\.v", iname)
+        if wm:
+            top = wm.group(1).upper()
+        else:
+            print(
+                "ERROR file name not of format %.sim.v ({}), cannot detect top level. Manually specify the top level module using --top".
+                format(iname))
+            sys.exit(1)
+
+    tmod = yj.module(top)
+    print("cells", tmod.cells)
+
+    pb_type_xml = make_pb_type(yj, tmod)
+
+    args.outfile.write(ET.tostring(pb_type_xml, pretty_print=True).decode('utf-8'))
+    print("Generated {} from {}".format(args.outfile.name, iname))
+    args.outfile.close()
+
+
+if __name__ == "__main__":
+    args = parser.parse_args()
+    sys.exit(main(args))

@@ -1,7 +1,7 @@
 <models xmlns:xi="http://www.w3.org/2001/XInclude">
-  <xi:include href="../dsp_combinational/dsp_comb.model.xml" xpointer="xpointer(models/child::node())"/>
+  <xi:include href="../dsp_combinational/dsp_combinational.model.xml" xpointer="xpointer(models/child::node())"/>
   <!-- https://docs.verilogtorouting.org/en/latest/tutorials/arch/timing_modeling/#mixed-sequential-combinational-block -->
-  <model name="dsp_regio_dualclk">
+  <model name="dsp_inout_registered_dualclk">
     <input_ports>
       <port name="a" combinational_sink_ports="out" clock="iclk"/>
       <port name="b" combinational_sink_ports="out" clock="iclk"/>
