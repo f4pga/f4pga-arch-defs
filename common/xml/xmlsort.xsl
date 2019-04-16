@@ -12,7 +12,7 @@
     <xsl:copy>
       <!-- Sort the attributes by name and remove the xml:base attribute -->
       <xsl:for-each select="@*[name()!='xml:base']">
-	<xsl:sort select="name( . )" order="ascending"/>
+	<xsl:sort select="name( . )"/>
 	<xsl:attribute name="{local-name()}"><xsl:value-of select="normalize-space(.)"/></xsl:attribute>
       </xsl:for-each>
       <xsl:apply-templates>
@@ -45,7 +45,6 @@
       <interconnect><XXX input='...' output='...'><YYY../></XXX></interconnect>
   -->
 
-  <!-- XXX disable this to have configuration as stated in PR #183
   <xsl:template match="interconnect/*/port[@type='input']">
     <xsl:attribute name="input"><xsl:call-template name="from-pb_type"/>.<xsl:call-template name="port-value"/></xsl:attribute>
   </xsl:template>
@@ -53,7 +52,6 @@
     <xsl:attribute name="name"><xsl:call-template name="from-pb_type"/>-<xsl:call-template name="port-value"/></xsl:attribute>
     <xsl:attribute name="output"><xsl:call-template name="from-pb_type"/>.<xsl:call-template name="port-value"/></xsl:attribute>
   </xsl:template>
-  -->
   <!--
     Convert
       <loc ...><port ...><port ...></loc>
