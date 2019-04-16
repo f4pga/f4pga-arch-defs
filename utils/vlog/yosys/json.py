@@ -18,7 +18,8 @@ class YosysModule:
 
     def __str__(self):
         return "YosysModule({},\n{})".format(
-            self.name, pprint.pformat(self.data))
+            self.name, pprint.pformat(self.data)
+        )
 
     @property
     def ports(self):
@@ -34,7 +35,9 @@ class YosysModule:
         """
         plist = []
         for port, pdata in sorted(self.data["ports"].items()):
-            plist.append((port, len(pdata["bits"]), pdata["bits"], pdata["direction"]))
+            plist.append(
+                (port, len(pdata["bits"]), pdata["bits"], pdata["direction"])
+            )
         return plist
 
     @property
@@ -76,7 +79,9 @@ class YosysModule:
     @property
     def nets(self):
         """List the net ids available in the design."""
-        return list(sorted(set(n['bits'][0] for n in self.data["netnames"].values())))
+        return list(
+            sorted(set(n['bits'][0] for n in self.data["netnames"].values()))
+        )
 
     def cell_type(self, cell):
         """Return the type of a given cell"""
@@ -326,4 +331,3 @@ class YosysJSON:
         src = self.module(module).attr("src")
         cpos = src.rfind(":")
         return src[0:cpos]
-

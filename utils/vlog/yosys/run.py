@@ -144,8 +144,7 @@ def do_select(infiles, module, expr, prep=False, flatten=False):
         p = "proc;"
 
     outfile = tempfile.mktemp()
-    sel_cmd = "{} cd {}; select -write {} {}".format(
-        p, module, outfile, expr)
+    sel_cmd = "{} cd {}; select -write {} {}".format(p, module, outfile, expr)
     commands(sel_cmd, infiles)
     pins = []
     with open(outfile, 'r') as f:
@@ -169,8 +168,9 @@ def get_combinational_sinks(infiles, module, innet):
     module: Name of module to run command on
     innet: Name of input net to find sinks of
     """
-    return do_select(infiles, module, "{} %co* o:* %i {} %d".format(
-        innet, innet))
+    return do_select(
+        infiles, module, "{} %co* o:* %i {} %d".format(innet, innet)
+    )
 
 
 def list_clocks(infiles, module):
@@ -183,7 +183,8 @@ def list_clocks(infiles, module):
     """
     return do_select(
         infiles, module,
-        "c:* %x:+[CLK]:+[clk]:+[clock]:+[CLOCK] a:CLOCK=1 %u c:* %d x:* %i")
+        "c:* %x:+[CLK]:+[clk]:+[clock]:+[CLOCK] a:CLOCK=1 %u c:* %d x:* %i"
+    )
 
 
 def get_clock_assoc_signals(infiles, module, clk):
@@ -197,8 +198,9 @@ def get_clock_assoc_signals(infiles, module, clk):
     """
     return do_select(
         infiles, module,
-        "select -list {} %a %co* %x i:* o:* %u %i a:ASSOC_CLOCK={} %u {} %d".format(
-            clk, clk, clk))
+        "select -list {} %a %co* %x i:* o:* %u %i a:ASSOC_CLOCK={} %u {} %d".
+        format(clk, clk, clk)
+    )
 
 
 # Find things which affect the given output
@@ -221,9 +223,8 @@ def get_related_output_for_input(infiles, module, signal):
     clk: Name of clock to find associated signals
     """
     return do_select(
-        infiles, module,
-        "select -list w:*{} %a %co* o:* %i".format(
-            signal))
+        infiles, module, "select -list w:*{} %a %co* o:* %i".format(signal)
+    )
 
 
 def get_related_inputs_for_input(infiles, module, signal):
@@ -235,7 +236,9 @@ def get_related_inputs_for_input(infiles, module, signal):
     module: Name of module to run command on
     clk: Name of clock to find associated signals
     """
-    return [x for x in do_select(
-        infiles, module,
-        "select -list w:*{} %a %co* %x i:* %i".format(
-            signal)) if x != signal]
+    return [
+        x for x in do_select(
+            infiles, module,
+            "select -list w:*{} %a %co* %x i:* %i".format(signal)
+        ) if x != signal
+    ]
