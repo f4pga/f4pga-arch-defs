@@ -23,6 +23,9 @@ function(ADD_XC7_ARCH_DEFINE)
       --place_algorithm bounding_box
       --enable_timing_computations off
       --allow_unrelated_clustering on
+      # TODO: Consider removing round robin packing once tile split and
+      # equivilant tiles are in.
+      --round_robin_prepacking on
     RR_PATCH_TOOL
       ${symbiflow-arch-defs_SOURCE_DIR}/xc7/utils/prjxray_routing_import.py
     RR_PATCH_CMD "${CMAKE_COMMAND} -E env \
