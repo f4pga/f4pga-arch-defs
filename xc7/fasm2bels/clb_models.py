@@ -497,15 +497,15 @@ def process_slice(top, s):
 
                 for idx in range(5):
                     site.add_sink(
-                        ram64, 'A{}'.format(idx), "{}{}".format(lut, idx + 1)
+                        ram32, 'A{}'.format(idx), "{}{}".format(lut, idx + 1)
                     )
                     site.add_sink(
-                        ram64, 'DPRA{}'.format(idx),
+                        ram32, 'DPRA{}'.format(idx),
                         "{}{}".format(minus_one, idx + 1)
                     )
 
-                site.add_sink(ram32, 'SPO', lut + "O6")
-                site.add_sink(ram32, 'DPO', minus_one + "O6")
+                site.add_internal_source(ram32, 'SPO', lut + "O6")
+                site.add_internal_source(ram32, 'DPO', minus_one + "O6")
 
                 ram32.parameters['INIT'] = get_lut_init(
                     s, aparts[0], aparts[1], lut
