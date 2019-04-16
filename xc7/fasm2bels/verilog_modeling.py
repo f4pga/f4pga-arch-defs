@@ -31,6 +31,89 @@ from .make_routes import make_routes, ONE_NET, ZERO_NET, prune_antennas
 from .connection_db_utils import get_wire_pkey
 
 
+def make_bus(wires):
+    """ Combine bus wires into a consecutive bus.
+
+    Args:
+        wires ([str]): Takes list of wire names.
+
+    Returns list of (wire/bus name, max bus wire count).
+
+    If the wire is NOT a bus, then max bus wire count will be None.
+    If the wire was part of a bus, then max bus wire count will be the maximum
+    observed bus index.  It is assumed that all buses will be sized as
+    [max:0].
+
+    >>> list(make_bus(['A', 'B']))
+    [('A', None), ('B', None)]
+    >>> list(make_bus(['A[0]', 'A[1]', 'B']))
+    [('A', 1), ('B', None)]
+    >>> list(make_bus(['A[0]', 'A[1]', 'B[0]']))
+    [('A', 1), ('B', 0)]
+
+    """
+    output = {}
+    buses = {}
+
+    for w in wires:
+        widx = w.rfind('[')
+        if widx != -1 and w[-1] == ']':
+
+            bus = w[0:widx]
+            idx = int(w[widx + 1:-1])
+
+            if bus not in buses:
+                buses[bus] = []
+
+            buses[bus].append(idx)
+        else:
+            output[w] = None
+
+    for bus, values in buses.items():
+        output[bus] = max(values)
+
+    for name in sorted(output):
+        yield name, output[name]
+
+
+def escape_verilog_name(name):
+    """ Transform net names into escaped id and bus selection (if any)
+
+    Args:
+        name (str): Net name
+
+    Returns:
+        Escape verilog name
+
+    >>> escape_verilog_name(
+    ...     '$abc$6513$auto$alumacc.cc:474:replace_alu$1259.B_buf[4]')
+    '\\\\$abc$6513$auto$alumacc.cc:474:replace_alu$1259.B_buf [4]'
+    >>> escape_verilog_name(
+    ...     '$abc$6513$auto$alumacc.cc:474:replace_alu$1259.B_buf[4:0]')
+    '\\\\$abc$6513$auto$alumacc.cc:474:replace_alu$1259.B_buf[4:0] '
+    >>> escape_verilog_name(
+    ...     '$abc$6513$auto$alumacc.cc:474:replace_alu$1259.B_buf[4:0][0]')
+    '\\\\$abc$6513$auto$alumacc.cc:474:replace_alu$1259.B_buf[4:0] [0]'
+    >>> escape_verilog_name(
+    ...     'test')
+    '\\\\test '
+    """
+
+    idx = name.rfind('[')
+    bus_idx = None
+    if idx != -1 and name[-1] == ']':
+        try:
+            bus_idx = int(name[idx + 1:-1])
+        except ValueError:
+            pass
+
+    if bus_idx is None:
+        # Escape whole name
+        return '\\' + name + ' '
+
+    return '\\' + name[:idx] + ' ' + name[idx:]
+
+
 class Bel(object):
     """ Object to model a BEL.
     """
@@ -473,6 +556,12 @@ class Site(object):
             prefix_wire = prefix + '_' + wire
             wires.add(prefix_wire)
             wire_pkey = get_wire_pkey(conn, self.tile, site_pin_map[wire])
+
+            net_name = module.check_for_net_name(wire_pkey)
+            if net_name:
+                wires.add(net_name)
+                wire_assigns[net_name] = prefix_wire
+
             wire_pkey_to_wire[wire_pkey] = prefix_wire
             self.site_wire_to_wire_pkey[wire] = wire_pkey
             unrouted_sources.add(wire_pkey)
@@ -684,43 +773,6 @@ def merge_exclusive_dicts(dict_a, dict_b):
     dict_a.update(dict_b)
 
 
-def make_bus(wires):
-    """ Combine bus wires into a consecutive bus.
-
-    >>> list(make_bus(['A', 'B']))
-    [('A', None), ('B', None)]
-    >>> list(make_bus(['A[0]', 'A[1]', 'B']))
-    [('A', 2), ('B', None)]
-    >>> list(make_bus(['A[0]', 'A[1]', 'B[0]']))
-    [('A', 2), ('B', 1)]
-
-    """
-    output = {}
-    buses = {}
-
-    for w in wires:
-        idx = w.find('[')
-        if idx != -1:
-            assert w[-1] == ']', w
-
-            bus = w[0:idx]
-            if bus not in buses:
-                buses[bus] = []
-
-            buses[bus].append(int(w[idx + 1:-1]))
-        else:
-            output[w] = None
-
-    for bus, values in buses.items():
-        assert min(values) == 0
-        assert max(values) == len(values) - 1
-        assert len(values) == len(set(values)), (bus, values)
-        output[bus] = max(values)
-
-    for name in sorted(output):
-        yield name, output[name]
-
-
 class Module(object):
     """ Object to model a design. """
 
@@ -759,6 +811,10 @@ class Module(object):
         # Optional map of site to signal names.
         # This was originally intended for IPAD and OPAD signal naming.
         self.site_to_signal = {}
+        self.top_level_signal_nets = set()
+
+        # Optional map of wire_pkey for site pin sources to net name.
+        self.net_map = {}
 
     def set_iostandard(self, iostandards):
         """ Set the IOSTANDARD for the design.
@@ -780,6 +836,20 @@ class Module(object):
 
         self.iostandard = possible_iostandards.pop()
 
+    def set_net_map(self, net_map):
+        self.net_map = net_map
+
+    def check_for_net_name(self, wire_pkey):
+        if wire_pkey in self.net_map:
+            # Top-level port names supress net names.
+            name = self.net_map[wire_pkey]
+            if name in self.top_level_signal_nets:
+                return None
+
+            return escape_verilog_name(name)
+        else:
+            return None
+
     def set_site_to_signal(self, site_to_signal):
         """ Assing site to signal map for top level sites.
 
@@ -788,6 +858,7 @@ class Module(object):
 
         """
         self.site_to_signal = site_to_signal
+        self.top_level_signal_nets = set(self.site_to_signal.values())
 
     def _check_top_name(self, tile, site, name):
         """ Returns top level port name for given tile and site
@@ -944,8 +1015,11 @@ class Module(object):
 
         yield '  );'
 
-        for wire in sorted(self.wires):
-            yield '  wire {};'.format(wire)
+        for wire, width in make_bus(self.wires):
+            if width is None:
+                yield '  wire {};'.format(wire)
+            else:
+                yield '  wire [{}:0] {};'.format(width, wire)
 
         for site in self.sites:
             for bel in site.bels:

@@ -45,6 +45,7 @@ function(SETUP_ENV)
     )
   add_custom_target(clean_pip)
   add_custom_target(all_conda)
+  add_custom_target(all_pip)
 
   set(
     MAYBE_CONDA_BINARIES
@@ -297,6 +298,7 @@ function(ADD_CONDA_PIP)
       set_target_properties(env PROPERTIES ${binary_upper}_TARGET ${NAME})
     endif()
 
+    add_dependencies(all_pip ${NAME})
     add_dependencies(all_conda ${NAME})
 
     add_custom_target(
