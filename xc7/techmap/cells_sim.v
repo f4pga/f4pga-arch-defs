@@ -8,6 +8,11 @@ endmodule
 module SR_GND (output GND);
 wire GND = 0;
 endmodule
+endmodule
+
+module SR_GND (output GND);
+wire GND = 0;
+endmodule
 
 // FF_SYNC mode
 `include "../primitives/ff/fdre_zini.sim.v"
