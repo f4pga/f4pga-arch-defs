@@ -300,6 +300,7 @@ function(N_TEMPLATE)
 
   foreach(PREFIX ${N_TEMPLATE_PREFIXES})
     foreach(SRC ${N_TEMPLATE_SRCS})
+      set(REAL_INCLUDE_FILES "")
       string(
         REPLACE
           "ntemplate."
@@ -314,6 +315,28 @@ function(N_TEMPLATE)
           SRC_WITH_PREFIX
           ${SRC_NO_NTEMPLATE}
       )
+      get_file_target(SRC_TARGET_NAME ${SRC})
+      get_target_property(SRC_INCLUDE_FILES ${SRC_TARGET_NAME} INCLUDE_FILES)
+      foreach(INC ${SRC_INCLUDE_FILES})
+        get_filename_component(INC_FILE ${INC} NAME)
+        get_filename_component(INC_DIR ${INC} DIRECTORY)
+        # template all the include files
+        string(
+          REPLACE
+            "ntemplate."
+            ""
+            INC_NO_NTEMPLATE
+            ${INC_FILE}
+        )
+        string(
+          REPLACE
+            "N"
+            ${PREFIX}
+            INC_WITH_PREFIX
+            ${INC_NO_NTEMPLATE}
+        )
+        list(APPEND REAL_INCLUDE_FILES ${INC_DIR}/${INC_WITH_PREFIX})
+      endforeach()
       get_file_location(SRC_LOCATION ${SRC})
       set(DEPS "")
       append_file_dependency(DEPS ${SRC})
@@ -329,7 +352,9 @@ function(N_TEMPLATE)
         WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
       )
 
-      add_file_target(FILE ${SRC_WITH_PREFIX} GENERATED DEPENDS ${SRC})
+      add_file_target(FILE ${SRC_WITH_PREFIX} GENERATED)
+      get_file_target(SRC_TARGET_NAME ${SRC_WITH_PREFIX})
+      set_target_properties(${SRC_TARGET_NAME} PROPERTIES INCLUDE_FILES "${REAL_INCLUDE_FILES}")
 
       list(APPEND OUTPUTS ${SRC_WITH_PREFIX})
 
