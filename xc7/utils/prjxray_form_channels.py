@@ -46,6 +46,9 @@ import lib.grid_mapping as grid_mapping
 
 from prjxray_db_cache import DatabaseCache
 
+from splitter.grid_splitter import GridSplitter
+from splitter.tile_splitter import TileSplitter
+
 
 def import_site_type(db, c, site_types, site_type_name):
     assert site_type_name not in site_types
@@ -214,7 +217,7 @@ VALUES
     build_phy_tile_grid_indicies(c)
 
 
-def import_nodes(db, conn):
+def import_nodes(db, conn, tile_wire_name_map):
     # Some nodes are just 1 wire, so start by enumerating all wires.
 
     c = conn.cursor()
@@ -222,28 +225,26 @@ def import_nodes(db, conn):
     c2 = conn.cursor()
     c2.execute("""BEGIN EXCLUSIVE TRANSACTION;""")
 
-    tiles = {}
     tile_wire_map = {}
     wires = {}
 
     for tile_name, tile_pkey, tile_type_pkey in progressbar.progressbar(
             c1.execute("SELECT name, pkey, tile_type_pkey FROM phy_tile")):
 
-        # Map the pkey of the physical tile to pkey of the VPR tile. Without
-        # the actual tile split this will be ok. Once the split is implemented
-        # this will be changed as stuff related to tile split will most probably
-        # affect code here.
-        vpr_tile_pkey = c.execute(
-            """SELECT pkey FROM tile WHERE pkey = 
-(SELECT vpr_tile_pkey FROM grid_loc_map WHERE phy_tile_pkey = (?))""",
-            (tile_pkey, )
-        ).fetchone()[0]
+        # Map the pkey of the physical tile to pkey of the VPR tile(s).
+        vpr_tile_pkeys = c.execute("""SELECT pkey FROM tile WHERE pkey IN (SELECT vpr_tile_pkey FROM grid_loc_map WHERE phy_tile_pkey = (?))""", (tile_pkey, )).fetchall()
+        vpr_tile_pkeys = [k[0] for k in vpr_tile_pkeys]
+
+        # NOTE:
+        # In this function I need to know which wires from wire_in_tile belong
+        # to which site. As one phy CLB correspond to two VPR SLICEs some wires
+        # must have tile_pkey for SLICE_X0 and others for SLICE_X1. It is
+        # important later when tracks are formed. Location of the tile in VPR
+        # grid is required for track formation.
 
         tile_type = c.execute(
-            "SELECT name FROM tile_type WHERE pkey = ?", (tile_type_pkey, )
+            "SELECT name FROM tile_type WHERE pkey = ?", (tile_type_pkey,)
         ).fetchone()[0]
-
-        tiles[tile_name] = (vpr_tile_pkey, tile_type_pkey)
 
         for wire in db.get_tile_type(tile_type).get_wires():
             # pkey node_pkey tile_pkey wire_in_tile_pkey
@@ -254,42 +255,49 @@ SELECT pkey FROM wire_in_tile WHERE name = ? and tile_type_pkey = ?;""",
             )
             (wire_in_tile_pkey, ) = c.fetchone()
 
-            c2.execute(
-                """
-INSERT INTO wire(tile_pkey, wire_in_tile_pkey)
-VALUES
-  (?, ?);""", (vpr_tile_pkey, wire_in_tile_pkey)
-            )
+            # Loop over all VPR tiles that correspond to the physical tile.
+            for vpr_tile_pkey in vpr_tile_pkeys:
 
-            assert (tile_name, wire) not in tile_wire_map
-            wire_pkey = c2.lastrowid
-            tile_wire_map[(tile_name, wire)] = wire_pkey
-            wires[wire_pkey] = None
+                c2.execute(
+                    """INSERT INTO wire(tile_pkey, wire_in_tile_pkey) VALUES (?, ?);""", (vpr_tile_pkey, wire_in_tile_pkey)
+                )
+
+                wire_pkey = c2.lastrowid
+                wires[wire_pkey] = None
+
+                #assert (tile_name, wire) not in tile_wire_map
+                key = (tile_name, wire)
+                if key not in tile_wire_map:
+                    tile_wire_map[key] = [wire_pkey]
+                else:
+                    tile_wire_map[key].append(wire_pkey)
 
     c2.execute("""COMMIT TRANSACTION;""")
 
     connections = db.connections()
 
     for connection in progressbar.progressbar(connections.get_connections()):
-        a_pkey = tile_wire_map[
+        a_pkeys = tile_wire_map[
             (connection.wire_a.tile, connection.wire_a.wire)]
-        b_pkey = tile_wire_map[
+        b_pkeys = tile_wire_map[
             (connection.wire_b.tile, connection.wire_b.wire)]
 
-        a_node = wires[a_pkey]
-        b_node = wires[b_pkey]
+        for a_pkey, b_pkey in itertools.product(a_pkeys, b_pkeys):
 
-        if a_node is None:
-            a_node = set((a_pkey, ))
+            a_node = wires[a_pkey]
+            b_node = wires[b_pkey]
 
-        if b_node is None:
-            b_node = set((b_pkey, ))
+            if a_node is None:
+                a_node = set((a_pkey, ))
 
-        if a_node is not b_node:
-            a_node |= b_node
+            if b_node is None:
+                b_node = set((b_pkey, ))
 
-            for wire in a_node:
-                wires[wire] = a_node
+            if a_node is not b_node:
+                a_node |= b_node
+
+                for wire in a_node:
+                    wires[wire] = a_node
 
     nodes = {}
     for wire_pkey, node in wires.items():
@@ -936,7 +944,40 @@ INSERT INTO node(classification) VALUES (?)
            create_track(gnd_node, unique_pos)
 
 
-def remap_tile_grid(conn, grid_map):
+def insert_vpr_tile(conn, vpr_tile_name, vpr_tile_loc, vpr_tile_type_pkey, phy_tile_pkey):
+    """
+    Inserts a tile into the VPR tile grid. Adds also location correspondence
+    (through pkeys) to its counterpart in physical tile grid
+
+    Args:
+        conn: Database connection
+        vpr_tile_name: Tile name for VPR
+        vpr_tile_loc: Tile location in VPR grid (tuple)
+        vpr_tile_type_pkey: Tile type pkey
+        phy_tile_pkey: Corresponding tile pkey in the physical grid
+
+    Returns:
+        None
+    """
+
+    c = conn.cursor()
+
+    # Insert the tile into the tile grid
+    c.execute(
+        "INSERT INTO tile(pkey, name, tile_type_pkey, grid_x, grid_y)"
+        "VALUES (?, ?, ?, ?)",
+        (vpr_tile_name, vpr_tile_type_pkey, vpr_tile_loc[0], vpr_tile_loc[1])
+    )
+
+    # Insert location correspondence
+    new_pkey = c.lastrowid
+    c.execute(
+        "INSERT INTO grid_loc_map(phy_tile_pkey, vpr_tile_pkey)"
+        "VALUES (?, ?)", (phy_tile_pkey, new_pkey)
+    )
+
+
+def remap_tile_grid(conn, grid_map, tile_map):
     """
     Remaps tiles present in the "phy_tile" table to the "tile" table.
     :param conn:
@@ -959,43 +1000,46 @@ def remap_tile_grid(conn, grid_map):
 
     # Convert them to the new grid one-by-one
     for tile in tile_data:
+        tile_type_pkey = tile[2]
         phy_loc_x = tile[3]
         phy_loc_y = tile[4]
 
-        # Map location
-        vpr_loc = grid_map.get_vpr_loc((phy_loc_x, phy_loc_y))
-        # Insert the tile into grid
-        c.execute(
-            "INSERT INTO tile(name, tile_type_pkey, grid_x, grid_y)"
-            "VALUES (?, ?, ?, ?)",
-            (tile[1], tile[2], vpr_loc[0][0], vpr_loc[0][1])
-        )
+        # Map location. Possibly one to many
+        vpr_locs = grid_map.get_vpr_loc((phy_loc_x, phy_loc_y))
+        # Sort locations ascending by x. This ensures correct order of split
+        # tiles.
+        vpr_locs = sorted(vpr_locs, key=lambda loc: loc[0])
 
-        # Insert location correspondence
-        new_pkey = c.lastrowid
-        c.execute(
-            "INSERT INTO grid_loc_map(phy_tile_pkey, vpr_tile_pkey)"
-            "VALUES (?, ?)", (tile[0], new_pkey)
-        )
+        # The tile is being split
+        if tile_type_pkey in tile_map.fwd_map:
 
-        # If one physical location corresponds to more than one VPR location
-        # then fill the space with artificial EMPTY tiles.
-        for i in range(1, len(vpr_loc)):
-            tile_name = "EMPTY_X%dY%d" % (vpr_loc[i][0], vpr_loc[i][1])
+            # Insert tile(s) into the VPR grid
+            for vpr_loc, vpr_tile_type_pkey in zip(vpr_locs, tile_map.fwd_map[tile_type_pkey]):
+
+                # Get tile type as string
+                vpr_tile_type = c.execute("SELECT name FROM tile_type WHERE pkey = (?)", (vpr_tile_type_pkey, )).fetchone()[0]
+
+                # Generate new tile name
+                # FIXME: This will be the SLICE name. However it will not match
+                # the Vivado slice name, coordinates will differ.
+                vpr_tile_name = "%s_X%dY%d" % (vpr_tile_type, vpr_loc[0], vpr_loc[1])
+
+                # Insert the tile into grid
+                insert_vpr_tile(conn, vpr_tile_name, vpr_loc, vpr_tile_type_pkey, tile[0])
+
+        # The tile is not being split
+        else:
 
             # Insert the tile into grid
-            c.execute(
-                "INSERT INTO tile(name, tile_type_pkey, grid_x, grid_y)"
-                "VALUES (?, ?, ?, ?)",
-                (tile_name, null_pkey, vpr_loc[i][0], vpr_loc[i][1])
-            )
+            insert_vpr_tile(conn, tile[1], vpr_locs[0], tile_type_pkey, tile[0])
 
-            # Insert location correspondence
-            new_pkey = c.lastrowid
-            c.execute(
-                "INSERT INTO grid_loc_map(phy_tile_pkey, vpr_tile_pkey)"
-                "VALUES (?, ?)", (tile[0], new_pkey)
-            )
+            # If one physical location corresponds to more than one VPR location
+            # then fill the space with artificial EMPTY tiles.
+            for i in range(1, len(vpr_locs)):
+                tile_name = "EMPTY_X%dY%d" % (vpr_locs[i][0], vpr_locs[i][1])
+
+                # Insert the tile into grid
+                insert_vpr_tile(conn, tile_name, vpr_locs[i], null_pkey, tile[0])
 
     # Build indices
     c.execute("CREATE INDEX tile_type_index ON tile(tile_type_pkey);")
@@ -1028,40 +1072,37 @@ def main():
         import_grid(db, grid, conn)
         print("{}: Initial database formed".format(datetime.datetime.now()))
 
-        # # Get physical grid extent, generate a test mapping
-        # phy_grid_extent = grid_mapping.get_phy_grid_extent(conn)
-        # grid_map = grid_mapping.GridLocMap.generate_shift_map(
-        #     phy_grid_extent, 2, 0
-        # )
-
-        # Split CLB tiles into two. This is for testing purpose only. It does
-        # not split CLB into slices but rather into CLB | EMPTY while leaving
-        # the CLB intact.
-        from splitter.grid_splitter import GridSplitter
+        # List of tile types to split
+        tile_types_to_split = ["CLBLL_L", "CLBLL_R", "CLBLM_L", "CLBLM_R"]
 
         gs = GridSplitter(conn)
-        gs.set_tile_types_to_split(
-            ["CLBLL_L", "CLBLL_R", "CLBLM_L", "CLBLM_R"]
-        )
+        gs.set_tile_types_to_split(tile_types_to_split)
+
+        ts = TileSplitter(db, conn)
+        ts.set_tile_types_to_split(tile_types_to_split)
+
         grid_map = gs.split()
+        tile_type_pkey_map, tile_wire_name_map = ts.split()
 
         print("{}: Grid map initialized".format(datetime.datetime.now()))
-        remap_tile_grid(conn, grid_map)
+        remap_tile_grid(conn, grid_map, tile_type_pkey_map)
         print("{}: Tile grid remapped".format(datetime.datetime.now()))
-        import_nodes(db, conn)
+        import_nodes(db, conn, tile_wire_name_map)
         print("{}: Connections made".format(datetime.datetime.now()))
-        count_sites_and_pips_on_nodes(conn)
-        print("{}: Counted sites and pips".format(datetime.datetime.now()))
-        classify_nodes(conn)
-        print("{}: Nodes classified".format(datetime.datetime.now()))
-        form_tracks(conn)
-        print("{}: Tracks formed".format(datetime.datetime.now()))
+        # count_sites_and_pips_on_nodes(conn)
+        # print("{}: Counted sites and pips".format(datetime.datetime.now()))
+        # classify_nodes(conn)
+        # print("{}: Nodes classified".format(datetime.datetime.now()))
+        # form_tracks(conn)
+        # print("{}: Tracks formed".format(datetime.datetime.now()))
+        #
+        # print(
+        #     '{} Flushing database back to file "{}"'.format(
+        #         datetime.datetime.now(), args.connection_database
+        #     )
+        # )
 
-        print(
-            '{} Flushing database back to file "{}"'.format(
-                datetime.datetime.now(), args.connection_database
-            )
-        )
+        print("/\\/\\/\\/\\ FINISHED /\\/\\/\\/\\")
 
 
 if __name__ == '__main__':

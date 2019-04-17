@@ -41,10 +41,6 @@ FROM phy_tile
     def append_loc_map(loc_map, src_loc, dst_loc):
         """
         Appends a coordinate correspondence to the given location map.
-        :param loc_map:
-        :param src_loc:
-        :param dst_loc:
-        :return:
         """
 
         if src_loc not in loc_map.keys():

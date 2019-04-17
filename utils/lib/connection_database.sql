@@ -270,3 +270,12 @@ CREATE TABLE grid_loc_map(
     FOREIGN KEY(phy_tile_pkey) REFERENCES phy_tile(pkey),
     FOREIGN KEY(vpr_tile_pkey) REFERENCES tile(pkey)
 );
+
+-- Tile type map.
+-- Maps physical tiles to VPR tiles. Used for CLB splitting
+CREATE TABLE tile_type_map(
+    phy_tile_type_pkey INT,
+    vpr_tile_type_pkey INT,
+    FOREIGN KEY(phy_tile_type_pkey) REFERENCES tile_type(pkey),
+    FOREIGN KEY(vpr_tile_type_pkey) REFERENCES tile_type(pkey)
+);

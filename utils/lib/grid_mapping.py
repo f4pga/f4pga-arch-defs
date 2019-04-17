@@ -4,6 +4,8 @@ import argparse
 import os
 import itertools
 
+from collections import namedtuple
+
 # =============================================================================
 
 
@@ -131,6 +133,11 @@ ON vpr.pkey = map.vpr_tile_pkey
     def get_phy_loc(self, grid_loc):
         return self.bwd_loc_map[grid_loc]
 
+# =============================================================================
+
+
+# A generic structure for representing forward and backward mapping.
+GenericMap = namedtuple("GenericMap", "fwd_map bwd_map")
 
 # =============================================================================
 
@@ -173,7 +180,4 @@ def get_vpr_grid_extent(conn):
     return xmin, ymin, xmax, ymax
 
 
-# =============================================================================
 
-if __name__ == "__main__":
-    main()
