@@ -31,6 +31,8 @@ function(V2X)
   set(INCLUDES "")
 
   set(DEPENDS_LIST "")
+  set(MODEL_INCLUDE_FILES "")
+  set(PB_TYPE_INCLUDE_FILES "")
   get_target_property_required(PYTHON3 env PYTHON3)
   get_target_property(PYTHON3_TARGET env PYTHON3_TARGET)
   list(APPEND DEPENDS_LIST ${PYTHON3} ${PYTHON3_TARGET})
@@ -60,6 +62,8 @@ function(V2X)
 
       append_file_dependency(DEPENDS_LIST ${INCLUDE_SRC_DIR}/${INCLUDE_ROOT}.model.xml)
       append_file_dependency(DEPENDS_LIST ${INCLUDE_SRC_DIR}/${INCLUDE_ROOT}.pb_type.xml)
+      list(APPEND MODEL_INCLUDE_FILES ${INCLUDE_SRC_DIR}/${INCLUDE_ROOT}.model.xml)
+      list(APPEND PB_TYPE_INCLUDE_FILES ${INCLUDE_SRC_DIR}/${INCLUDE_ROOT}.pb_type.xml)
     endforeach()
   endforeach()
 
@@ -97,6 +101,8 @@ function(V2X)
   )
 
   add_file_target(FILE "${V2X_NAME}.pb_type.xml" GENERATED)
+  get_file_target(SRC_TARGET_NAME "${V2X_NAME}.pb_type.xml")
+  set_target_properties(${SRC_TARGET_NAME} PROPERTIES INCLUDE_FILES "${PB_TYPE_INCLUDE_FILES}")
 
   add_custom_command(
     OUTPUT "${V2X_NAME}.model.xml"
@@ -111,6 +117,8 @@ function(V2X)
   )
 
   add_file_target(FILE "${V2X_NAME}.model.xml" GENERATED)
+  get_file_target(SRC_TARGET_NAME "${V2X_NAME}.model.xml")
+  set_target_properties(${SRC_TARGET_NAME} PROPERTIES INCLUDE_FILES "${MODEL_INCLUDE_FILES}")
 
   add_custom_target(
     ${V2X_NAME}
