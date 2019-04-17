@@ -31,6 +31,8 @@ function(V2X)
   set(INCLUDES "")
 
   set(DEPENDS_LIST "")
+  set(MODEL_INCLUDE_FILES "")
+  set(PB_TYPE_INCLUDE_FILES "")
   get_target_property_required(PYTHON3 env PYTHON3)
   get_target_property(PYTHON3_TARGET env PYTHON3_TARGET)
   list(APPEND DEPENDS_LIST ${PYTHON3} ${PYTHON3_TARGET})
@@ -60,6 +62,8 @@ function(V2X)
 
       append_file_dependency(DEPENDS_LIST ${INCLUDE_SRC_DIR}/${INCLUDE_ROOT}.model.xml)
       append_file_dependency(DEPENDS_LIST ${INCLUDE_SRC_DIR}/${INCLUDE_ROOT}.pb_type.xml)
+      list(APPEND MODEL_INCLUDE_FILES ${INCLUDE_SRC_DIR}/${INCLUDE_ROOT}.model.xml)
+      list(APPEND PB_TYPE_INCLUDE_FILES ${INCLUDE_SRC_DIR}/${INCLUDE_ROOT}.pb_type.xml)
     endforeach()
   endforeach()
 
@@ -97,6 +101,8 @@ function(V2X)
   )
 
   add_file_target(FILE "${V2X_NAME}.pb_type.xml" GENERATED)
+  get_file_target(SRC_TARGET_NAME "${V2X_NAME}.pb_type.xml")
+  set_target_properties(${SRC_TARGET_NAME} PROPERTIES INCLUDE_FILES "${PB_TYPE_INCLUDE_FILES}")
 
   add_custom_command(
     OUTPUT "${V2X_NAME}.model.xml"
@@ -111,6 +117,8 @@ function(V2X)
   )
 
   add_file_target(FILE "${V2X_NAME}.model.xml" GENERATED)
+  get_file_target(SRC_TARGET_NAME "${V2X_NAME}.model.xml")
+  set_target_properties(${SRC_TARGET_NAME} PROPERTIES INCLUDE_FILES "${MODEL_INCLUDE_FILES}")
 
   add_custom_target(
     ${V2X_NAME}
@@ -264,6 +272,38 @@ function(MUX_GEN)
   endif()
 endfunction(MUX_GEN)
 
+function(GET_TEMPLATED_FILENAME var SRC PREFIX)
+  # ~~~
+  # GET_TEMPLATED_FILENAME(
+  #   NAME <name>
+  #   var <calculated templated filename>
+  #   SRC <template file>
+  #   PREFIX <template prefixes>
+  #   )
+  # ~~~
+  #
+  # GET_TEMPLATED_FILENAME calculates file name that from given template and prefix.
+  # The template file should have a form of ntemplate.<rest>.
+  # The function removes the "ntemplate" prefix and converting all N's in file name
+  # to <prefix>.
+  #
+  string(
+    REPLACE
+      "ntemplate."
+      ""
+      SRC_NO_NTEMPLATE
+      ${SRC}
+  )
+  string(
+    REPLACE
+      "N"
+      ${PREFIX}
+      SRC_WITH_PREFIX
+      ${SRC_NO_NTEMPLATE}
+  )
+set(${var} ${SRC_WITH_PREFIX} PARENT_SCOPE)
+endfunction()
+
 function(N_TEMPLATE)
   # ~~~
   # N_TEMPLATE(
@@ -300,20 +340,17 @@ function(N_TEMPLATE)
 
   foreach(PREFIX ${N_TEMPLATE_PREFIXES})
     foreach(SRC ${N_TEMPLATE_SRCS})
-      string(
-        REPLACE
-          "ntemplate."
-          ""
-          SRC_NO_NTEMPLATE
-          ${SRC}
-      )
-      string(
-        REPLACE
-          "N"
-          ${PREFIX}
-          SRC_WITH_PREFIX
-          ${SRC_NO_NTEMPLATE}
-      )
+      set(REAL_INCLUDE_FILES "")
+      get_templated_filename(SRC_WITH_PREFIX ${SRC} ${PREFIX})
+      get_file_target(SRC_TARGET_NAME ${SRC})
+      get_target_property(SRC_INCLUDE_FILES ${SRC_TARGET_NAME} INCLUDE_FILES)
+      foreach(INC ${SRC_INCLUDE_FILES})
+        get_filename_component(INC_FILE ${INC} NAME)
+        get_filename_component(INC_DIR ${INC} DIRECTORY)
+        # template all the include files
+        get_templated_filename(INC_WITH_PREFIX ${INC_FILE} ${PREFIX})
+        list(APPEND REAL_INCLUDE_FILES ${INC_DIR}/${INC_WITH_PREFIX})
+      endforeach()
       get_file_location(SRC_LOCATION ${SRC})
       set(DEPS "")
       append_file_dependency(DEPS ${SRC})
@@ -329,7 +366,9 @@ function(N_TEMPLATE)
         WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
       )
 
-      add_file_target(FILE ${SRC_WITH_PREFIX} GENERATED DEPENDS ${SRC})
+      add_file_target(FILE ${SRC_WITH_PREFIX} GENERATED)
+      get_file_target(SRC_TARGET_NAME ${SRC_WITH_PREFIX})
+      set_target_properties(${SRC_TARGET_NAME} PROPERTIES INCLUDE_FILES "${REAL_INCLUDE_FILES}")
 
       list(APPEND OUTPUTS ${SRC_WITH_PREFIX})
 
