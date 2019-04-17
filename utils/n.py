@@ -26,7 +26,8 @@ def main(args):
 
     template = open(templatepath, "r").read()
     template = re.sub(r'(["\s])ntemplate\.N', r'\1{FN}', template)
-    open(outpath, "w").write(template.format(N=replacement.upper(), FN=replacement))
+    open(outpath,
+         "w").write(template.format(N=replacement.upper(), FN=replacement))
     print(
         "Generated {} from {}".format(os.path.relpath(outpath), templatefile)
     )
