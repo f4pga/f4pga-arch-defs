@@ -328,7 +328,7 @@ function(DEFINE_DEVICE_TYPE)
         ${SPECIALIZE_CARRYCHAINS_DEPS}
         )
 
-  append_file_dependency(ADD_TILE_DEPS ${DEVICE_MERGED_FILE})
+  append_file_dependency(ADD_TILES_DEPS ${DEVICE_MERGED_FILE})
   set(ADD_TILES ${symbiflow-arch-defs_SOURCE_DIR}/utils/add_tiles.py)
   add_custom_command(
     OUTPUT ${TILES_XML_OUTPUT}
