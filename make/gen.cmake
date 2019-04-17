@@ -264,6 +264,38 @@ function(MUX_GEN)
   endif()
 endfunction(MUX_GEN)
 
+function(GET_TEMPLATED_FILENAME var SRC PREFIX)
+  # ~~~
+  # GET_TEMPLATED_FILENAME(
+  #   NAME <name>
+  #   var <calculated templated filename>
+  #   SRC <template file>
+  #   PREFIX <template prefixes>
+  #   )
+  # ~~~
+  #
+  # GET_TEMPLATED_FILENAME calculates file name that from given template and prefix.
+  # The template file should have a form of ntemplate.<rest>.
+  # The function removes the "ntemplate" prefix and converting all N's in file name
+  # to <prefix>.
+  #
+  string(
+    REPLACE
+      "ntemplate."
+      ""
+      SRC_NO_NTEMPLATE
+      ${SRC}
+  )
+  string(
+    REPLACE
+      "N"
+      ${PREFIX}
+      SRC_WITH_PREFIX
+      ${SRC_NO_NTEMPLATE}
+  )
+set(${var} ${SRC_WITH_PREFIX} PARENT_SCOPE)
+endfunction()
+
 function(N_TEMPLATE)
   # ~~~
   # N_TEMPLATE(
@@ -301,40 +333,14 @@ function(N_TEMPLATE)
   foreach(PREFIX ${N_TEMPLATE_PREFIXES})
     foreach(SRC ${N_TEMPLATE_SRCS})
       set(REAL_INCLUDE_FILES "")
-      string(
-        REPLACE
-          "ntemplate."
-          ""
-          SRC_NO_NTEMPLATE
-          ${SRC}
-      )
-      string(
-        REPLACE
-          "N"
-          ${PREFIX}
-          SRC_WITH_PREFIX
-          ${SRC_NO_NTEMPLATE}
-      )
+      get_templated_filename(SRC_WITH_PREFIX ${SRC} ${PREFIX})
       get_file_target(SRC_TARGET_NAME ${SRC})
       get_target_property(SRC_INCLUDE_FILES ${SRC_TARGET_NAME} INCLUDE_FILES)
       foreach(INC ${SRC_INCLUDE_FILES})
         get_filename_component(INC_FILE ${INC} NAME)
         get_filename_component(INC_DIR ${INC} DIRECTORY)
         # template all the include files
-        string(
-          REPLACE
-            "ntemplate."
-            ""
-            INC_NO_NTEMPLATE
-            ${INC_FILE}
-        )
-        string(
-          REPLACE
-            "N"
-            ${PREFIX}
-            INC_WITH_PREFIX
-            ${INC_NO_NTEMPLATE}
-        )
+        get_templated_filename(INC_WITH_PREFIX ${INC_FILE} ${PREFIX})
         list(APPEND REAL_INCLUDE_FILES ${INC_DIR}/${INC_WITH_PREFIX})
       endforeach()
       get_file_location(SRC_LOCATION ${SRC})
