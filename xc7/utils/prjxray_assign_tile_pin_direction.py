@@ -225,8 +225,9 @@ SELECT
 FROM
   pip_in_tile
 WHERE
+  is_directional = 1 AND is_pseudo = 0 AND (
   src_wire_in_tile_pkey = ?
-  OR dest_wire_in_tile_pkey = ?;""", (wire_in_tile_pkey, wire_in_tile_pkey)):
+  OR dest_wire_in_tile_pkey = ?);""", (wire_in_tile_pkey, wire_in_tile_pkey)):
                 assert (
                     src_wire_in_tile_pkey == wire_in_tile_pkey
                     or dest_wire_in_tile_pkey == wire_in_tile_pkey
