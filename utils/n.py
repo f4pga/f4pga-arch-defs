@@ -2,6 +2,7 @@
 
 import os
 import sys
+import re
 
 from lib.asserts import assert_eq
 
@@ -24,7 +25,9 @@ def main(args):
     assert_eq(outname_value, outfile)
 
     template = open(templatepath, "r").read()
-    open(outpath, "w").write(template.format(N=replacement.upper()))
+    template = re.sub(r'(["\s])ntemplate\.N', r'\1{FN}', template)
+    open(outpath,
+         "w").write(template.format(N=replacement.upper(), FN=replacement))
     print(
         "Generated {} from {}".format(os.path.relpath(outpath), templatefile)
     )
