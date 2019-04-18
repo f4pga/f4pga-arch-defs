@@ -43,6 +43,9 @@ function(V2X_GENERIC_TEST)
   diff(NAME ${V2X_GENERIC_TEST_NAME}_${V2X_GENERIC_TEST_TYPE}_diff GOLDEN ${V2X_GENERIC_TEST_NAME}.${V2X_GENERIC_TEST_TYPE}.golden.xml ACTUAL ${V2X_GENERIC_TEST_NAME}.${V2X_GENERIC_TEST_TYPE}.actual.xml)
 
   add_dependencies(all_v2x_tests ${V2X_GENERIC_TEST_NAME}_${V2X_GENERIC_TEST_TYPE}_diff)
+
+  # TODO This has to be completed in order update the golden pb_type/model accordingly
+  add_custom_target(${V2X_GENERIC_TEST_NAME}_update_golden_${V2X_GENERIC_TEST_TYPE})
 endfunction(V2X_GENERIC_TEST)
 
 function(V2X_TEST_MODEL)
