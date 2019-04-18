@@ -1,0 +1,15 @@
+<?xml version="1.0"?>
+<pb_type xmlns:xi="http://www.w3.org/2001/XInclude" name="dsp_partial_registered" num_pb="1">
+  <input name="a" num_pins="32"/>
+  <input name="b" num_pins="32"/>
+  <clock name="clk" num_pins="1"/>
+  <input name="m" num_pins="1"/>
+  <output name="out" num_pins="64"/>
+  <xi:include href="../dsp_combinational/dsp_combinational.pb_type.xml"/>
+  <interconnect>
+    <direct>
+      <port name="m" type="input"/>
+      <port from="dsp_combinational" name="m" type="output"/>
+    </direct>
+  </interconnect>
+</pb_type>

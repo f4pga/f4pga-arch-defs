@@ -1,0 +1,266 @@
+<pb_type xmlns:xi="http://www.w3.org/2001/XInclude" name="dsp_in_registered" num_pb="1">
+  <input name="a" num_pins="32"/>
+  <input name="b" num_pins="32"/>
+  <clock name="clk" num_pins="1"/>
+  <input name="m" num_pins="1"/>
+  <output name="out" num_pins="64"/>
+  <xi:include href="../dsp_combinational/dsp_combinational.pb_type.xml"/>
+  <interconnect>
+    <direct>
+      <port name="out[0]" type="input"/>
+      <port from="dsp_in_registered" name="out[0]" type="output"/>
+    </direct>
+    <direct>
+      <port name="out[1]" type="input"/>
+      <port from="dsp_in_registered" name="out[1]" type="output"/>
+    </direct>
+    <direct>
+      <port name="out[2]" type="input"/>
+      <port from="dsp_in_registered" name="out[2]" type="output"/>
+    </direct>
+    <direct>
+      <port name="out[3]" type="input"/>
+      <port from="dsp_in_registered" name="out[3]" type="output"/>
+    </direct>
+    <direct>
+      <port name="out[4]" type="input"/>
+      <port from="dsp_in_registered" name="out[4]" type="output"/>
+    </direct>
+    <direct>
+      <port name="out[5]" type="input"/>
+      <port from="dsp_in_registered" name="out[5]" type="output"/>
+    </direct>
+    <direct>
+      <port name="out[6]" type="input"/>
+      <port from="dsp_in_registered" name="out[6]" type="output"/>
+    </direct>
+    <direct>
+      <port name="out[7]" type="input"/>
+      <port from="dsp_in_registered" name="out[7]" type="output"/>
+    </direct>
+    <direct>
+      <port name="out[8]" type="input"/>
+      <port from="dsp_in_registered" name="out[8]" type="output"/>
+    </direct>
+    <direct>
+      <port name="out[9]" type="input"/>
+      <port from="dsp_in_registered" name="out[9]" type="output"/>
+    </direct>
+    <direct>
+      <port name="out[10]" type="input"/>
+      <port from="dsp_in_registered" name="out[10]" type="output"/>
+    </direct>
+    <direct>
+      <port name="out[11]" type="input"/>
+      <port from="dsp_in_registered" name="out[11]" type="output"/>
+    </direct>
+    <direct>
+      <port name="out[12]" type="input"/>
+      <port from="dsp_in_registered" name="out[12]" type="output"/>
+    </direct>
+    <direct>
+      <port name="out[13]" type="input"/>
+      <port from="dsp_in_registered" name="out[13]" type="output"/>
+    </direct>
+    <direct>
+      <port name="out[14]" type="input"/>
+      <port from="dsp_in_registered" name="out[14]" type="output"/>
+    </direct>
+    <direct>
+      <port name="out[15]" type="input"/>
+      <port from="dsp_in_registered" name="out[15]" type="output"/>
+    </direct>
+    <direct>
+      <port name="out[16]" type="input"/>
+      <port from="dsp_in_registered" name="out[16]" type="output"/>
+    </direct>
+    <direct>
+      <port name="out[17]" type="input"/>
+      <port from="dsp_in_registered" name="out[17]" type="output"/>
+    </direct>
+    <direct>
+      <port name="out[18]" type="input"/>
+      <port from="dsp_in_registered" name="out[18]" type="output"/>
+    </direct>
+    <direct>
+      <port name="out[19]" type="input"/>
+      <port from="dsp_in_registered" name="out[19]" type="output"/>
+    </direct>
+    <direct>
+      <port name="out[20]" type="input"/>
+      <port from="dsp_in_registered" name="out[20]" type="output"/>
+    </direct>
+    <direct>
+      <port name="out[21]" type="input"/>
+      <port from="dsp_in_registered" name="out[21]" type="output"/>
+    </direct>
+    <direct>
+      <port name="out[22]" type="input"/>
+      <port from="dsp_in_registered" name="out[22]" type="output"/>
+    </direct>
+    <direct>
+      <port name="out[23]" type="input"/>
+      <port from="dsp_in_registered" name="out[23]" type="output"/>
+    </direct>
+    <direct>
+      <port name="out[24]" type="input"/>
+      <port from="dsp_in_registered" name="out[24]" type="output"/>
+    </direct>
+    <direct>
+      <port name="out[25]" type="input"/>
+      <port from="dsp_in_registered" name="out[25]" type="output"/>
+    </direct>
+    <direct>
+      <port name="out[26]" type="input"/>
+      <port from="dsp_in_registered" name="out[26]" type="output"/>
+    </direct>
+    <direct>
+      <port name="out[27]" type="input"/>
+      <port from="dsp_in_registered" name="out[27]" type="output"/>
+    </direct>
+    <direct>
+      <port name="out[28]" type="input"/>
+      <port from="dsp_in_registered" name="out[28]" type="output"/>
+    </direct>
+    <direct>
+      <port name="out[29]" type="input"/>
+      <port from="dsp_in_registered" name="out[29]" type="output"/>
+    </direct>
+    <direct>
+      <port name="out[30]" type="input"/>
+      <port from="dsp_in_registered" name="out[30]" type="output"/>
+    </direct>
+    <direct>
+      <port name="out[31]" type="input"/>
+      <port from="dsp_in_registered" name="out[31]" type="output"/>
+    </direct>
+    <direct>
+      <port name="out[32]" type="input"/>
+      <port from="dsp_in_registered" name="out[32]" type="output"/>
+    </direct>
+    <direct>
+      <port name="out[33]" type="input"/>
+      <port from="dsp_in_registered" name="out[33]" type="output"/>
+    </direct>
+    <direct>
+      <port name="out[34]" type="input"/>
+      <port from="dsp_in_registered" name="out[34]" type="output"/>
+    </direct>
+    <direct>
+      <port name="out[35]" type="input"/>
+      <port from="dsp_in_registered" name="out[35]" type="output"/>
+    </direct>
+    <direct>
+      <port name="out[36]" type="input"/>
+      <port from="dsp_in_registered" name="out[36]" type="output"/>
+    </direct>
+    <direct>
+      <port name="out[37]" type="input"/>
+      <port from="dsp_in_registered" name="out[37]" type="output"/>
+    </direct>
+    <direct>
+      <port name="out[38]" type="input"/>
+      <port from="dsp_in_registered" name="out[38]" type="output"/>
+    </direct>
+    <direct>
+      <port name="out[39]" type="input"/>
+      <port from="dsp_in_registered" name="out[39]" type="output"/>
+    </direct>
+    <direct>
+      <port name="out[40]" type="input"/>
+      <port from="dsp_in_registered" name="out[40]" type="output"/>
+    </direct>
+    <direct>
+      <port name="out[41]" type="input"/>
+      <port from="dsp_in_registered" name="out[41]" type="output"/>
+    </direct>
+    <direct>
+      <port name="out[42]" type="input"/>
+      <port from="dsp_in_registered" name="out[42]" type="output"/>
+    </direct>
+    <direct>
+      <port name="out[43]" type="input"/>
+      <port from="dsp_in_registered" name="out[43]" type="output"/>
+    </direct>
+    <direct>
+      <port name="out[44]" type="input"/>
+      <port from="dsp_in_registered" name="out[44]" type="output"/>
+    </direct>
+    <direct>
+      <port name="out[45]" type="input"/>
+      <port from="dsp_in_registered" name="out[45]" type="output"/>
+    </direct>
+    <direct>
+      <port name="out[46]" type="input"/>
+      <port from="dsp_in_registered" name="out[46]" type="output"/>
+    </direct>
+    <direct>
+      <port name="out[47]" type="input"/>
+      <port from="dsp_in_registered" name="out[47]" type="output"/>
+    </direct>
+    <direct>
+      <port name="out[48]" type="input"/>
+      <port from="dsp_in_registered" name="out[48]" type="output"/>
+    </direct>
+    <direct>
+      <port name="out[49]" type="input"/>
+      <port from="dsp_in_registered" name="out[49]" type="output"/>
+    </direct>
+    <direct>
+      <port name="out[50]" type="input"/>
+      <port from="dsp_in_registered" name="out[50]" type="output"/>
+    </direct>
+    <direct>
+      <port name="out[51]" type="input"/>
+      <port from="dsp_in_registered" name="out[51]" type="output"/>
+    </direct>
+    <direct>
+      <port name="out[52]" type="input"/>
+      <port from="dsp_in_registered" name="out[52]" type="output"/>
+    </direct>
+    <direct>
+      <port name="out[53]" type="input"/>
+      <port from="dsp_in_registered" name="out[53]" type="output"/>
+    </direct>
+    <direct>
+      <port name="out[54]" type="input"/>
+      <port from="dsp_in_registered" name="out[54]" type="output"/>
+    </direct>
+    <direct>
+      <port name="out[55]" type="input"/>
+      <port from="dsp_in_registered" name="out[55]" type="output"/>
+    </direct>
+    <direct>
+      <port name="out[56]" type="input"/>
+      <port from="dsp_in_registered" name="out[56]" type="output"/>
+    </direct>
+    <direct>
+      <port name="out[57]" type="input"/>
+      <port from="dsp_in_registered" name="out[57]" type="output"/>
+    </direct>
+    <direct>
+      <port name="out[58]" type="input"/>
+      <port from="dsp_in_registered" name="out[58]" type="output"/>
+    </direct>
+    <direct>
+      <port name="out[59]" type="input"/>
+      <port from="dsp_in_registered" name="out[59]" type="output"/>
+    </direct>
+    <direct>
+      <port name="out[60]" type="input"/>
+      <port from="dsp_in_registered" name="out[60]" type="output"/>
+    </direct>
+    <direct>
+      <port name="out[61]" type="input"/>
+      <port from="dsp_in_registered" name="out[61]" type="output"/>
+    </direct>
+    <direct>
+      <port name="out[62]" type="input"/>
+      <port from="dsp_in_registered" name="out[62]" type="output"/>
+    </direct>
+    <direct>
+      <port name="out[63]" type="input"/>
+      <port from="dsp_in_registered" name="out[63]" type="output"/>
+    </direct>
+  </interconnect>
+</pb_type>

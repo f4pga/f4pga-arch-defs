@@ -8,12 +8,18 @@ be used before outputting the JSON.
 
 import os, sys
 import json
+import pprint
 
 
 class YosysModule:
     def __init__(self, name, module_data):
         self.name = name
         self.data = module_data
+
+    def __str__(self):
+        return "YosysModule({},\n{})".format(
+            self.name, pprint.pformat(self.data)
+        )
 
     @property
     def ports(self):
@@ -29,7 +35,9 @@ class YosysModule:
         """
         plist = []
         for port, pdata in sorted(self.data["ports"].items()):
-            plist.append((port, len(pdata["bits"]), pdata["direction"]))
+            plist.append(
+                (port, len(pdata["bits"]), pdata["bits"], pdata["direction"])
+            )
         return plist
 
     @property
@@ -40,7 +48,7 @@ class YosysModule:
         Returns a list of tuples:
         -------
         name : str
-        type: str
+        type : str
         """
         clist = []
         for cell, cdata in sorted(self.data["cells"].items()):
@@ -48,6 +56,32 @@ class YosysModule:
                 continue
             clist.append((cell, cdata["type"]))
         return clist
+
+    @property
+    def all_cells(self):
+        """List of cells of a module, including Yosis-internal cells
+
+        Returns a list of tuples:
+        -------
+        name : str
+        type : str
+        """
+        clist = []
+        for cell, cdata in sorted(self.data["cells"].items()):
+            clist.append((cell, cdata["type"]))
+        return clist
+
+    @property
+    def net_names(self):
+        """List the net names avilable in the design."""
+        return self.data["netnames"].keys()
+
+    @property
+    def nets(self):
+        """List the net ids available in the design."""
+        return list(
+            sorted(set(n['bits'][0] for n in self.data["netnames"].values()))
+        )
 
     def cell_type(self, cell):
         """Return the type of a given cell"""
@@ -102,6 +136,17 @@ class YosysModule:
     # specifications are inconsistent in how they are represented in the JSON,
     # it's hard to make any nicer...
 
+    def port_conns(self, port):
+        """The connections of a port
+
+        Returns a list of connections:
+        -------
+        net : int
+        """
+        for pname, pdata in sorted(self.data["ports"].items()):
+            if pname == port:
+                return pdata["bits"]
+
     def cell_conns(self, cell, direction="input"):
         """The connections of a cell in a given direction as a 2-tuple
 
@@ -121,6 +166,38 @@ class YosysModule:
                     for i in range(N):
                         conns.append(("{}[{}]".format(port, i), condata[i]))
         return conns
+
+    def cell_conn_list(self, cell, port):
+        """The connections of a cell in a given port as a list
+
+        Returns a list of connections:
+        -------
+        net : list
+
+        """
+        data = self.data["cells"][cell]
+
+        conns = []
+
+        for cport, condata in sorted(data["connections"].items()):
+            if cport == port:
+                conns = condata
+
+        return conns
+
+    def cell_clk_conn(self, cell):
+        """The clock net related to a given cell
+
+        If exists returns the clock net
+
+        net : list
+        """
+        data = self.data["cells"][cell]
+
+        if "CLK" in data["connections"].keys():
+            return data["connections"]["CLK"]
+        else:
+            return None
 
     def conn_io(self, net, iodir):
         """Returns a list of top level IO matching a direction and connected net number

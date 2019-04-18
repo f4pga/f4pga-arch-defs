@@ -13,6 +13,8 @@ def get_yosys():
 def get_output(params):
     """Run Yosys with given command line parameters, and return stdout as a string"""
     cmd = [get_yosys()] + params
+    if int(os.environ.get("V", "0")):
+        print(cmd)
     return subprocess.check_output(cmd).decode("utf-8")
 
 
@@ -112,7 +114,7 @@ def extract_pin(module, pstr, _regex=re.compile(r"([^/]+)/([^/]+)")):
         return None
 
 
-def do_select(infiles, module, expr):
+def do_select(infiles, module, expr, prep=False, flatten=False):
     """
     Run a Yosys select command (given the expression and input files) on a module
     and return the result as a list of pins
@@ -122,15 +124,27 @@ def do_select(infiles, module, expr):
     infiles: List of Verilog source files to pass to Yosys
     module: Name of module to run command on
     expr: Yosys selector expression for select command
+
+    prep: Run prep command before selecting.
+    flatten: Flatten module when running prep.
     """
-    """TODO: All of these functions involve a fairly large number of calls to Yosys
-    Although performance here is unlikely to be a major priority any time soon,
-    it might be worth investigating better options?"""
+
+    # TODO: All of these functions involve a fairly large number of calls to
+    # Yosys. Although performance here is unlikely to be a major priority any
+    # time soon, it might be worth investigating better options?
+
+    f = ""
+    if flatten:
+        f = "-flatten"
+
+    p = ""
+    if prep:
+        p = "prep -top {} {};".format(module, f)
+    else:
+        p = "proc;"
 
     outfile = tempfile.mktemp()
-    sel_cmd = "prep -top {} -flatten; cd {}; select -write {} {}".format(
-        module, module, outfile, expr
-    )
+    sel_cmd = "{} cd {}; select -write {} {}".format(p, module, outfile, expr)
     commands(sel_cmd, infiles)
     pins = []
     with open(outfile, 'r') as f:
@@ -155,7 +169,7 @@ def get_combinational_sinks(infiles, module, innet):
     innet: Name of input net to find sinks of
     """
     return do_select(
-        infiles, module, "{} %coe* o:* %i {} %d".format(innet, innet)
+        infiles, module, "{} %co* o:* %i {} %d".format(innet, innet)
     )
 
 
@@ -167,7 +181,10 @@ def list_clocks(infiles, module):
     infiles: List of Verilog source files to pass to Yosys
     module: Name of module to run command on
     """
-    return do_select(infiles, module, "c:* %x:+[CLK] a:CLOCK=1 %u c:* %d")
+    return do_select(
+        infiles, module,
+        "c:* %x:+[CLK]:+[clk]:+[clock]:+[CLOCK] a:CLOCK=1 %u c:* %d x:* %i"
+    )
 
 
 def get_clock_assoc_signals(infiles, module, clk):
@@ -181,7 +198,47 @@ def get_clock_assoc_signals(infiles, module, clk):
     """
     return do_select(
         infiles, module,
-        "select -list {} %x* i:* o:* %u %i a:ASSOC_CLOCK={} %u {} %d".format(
-            clk, clk, clk
-        )
+        "select -list {} %a %co* %x i:* o:* %u %i a:ASSOC_CLOCK={} %u {} %d".
+        format(clk, clk, clk)
     )
+
+
+# Find things which affect the given output
+# show w:*D_IN_0 %a %ci*
+
+# Find things which are affected by the given clock.
+# show w:*INPUT_CLK %a %co*
+
+# Find things which are affect by the given signal - combinational only.
+# select -list w:*INPUT_CLK %a %co* %x x:* %i
+
+
+def get_related_output_for_input(infiles, module, signal):
+    """.
+
+    Inputs
+    -------
+    infiles: List of Verilog source files to pass to Yosys
+    module: Name of module to run command on
+    clk: Name of clock to find associated signals
+    """
+    return do_select(
+        infiles, module, "select -list w:*{} %a %co* o:* %i".format(signal)
+    )
+
+
+def get_related_inputs_for_input(infiles, module, signal):
+    """.
+
+    Inputs
+    -------
+    infiles: List of Verilog source files to pass to Yosys
+    module: Name of module to run command on
+    clk: Name of clock to find associated signals
+    """
+    return [
+        x for x in do_select(
+            infiles, module,
+            "select -list w:*{} %a %co* %x i:* %i".format(signal)
+        ) if x != signal
+    ]

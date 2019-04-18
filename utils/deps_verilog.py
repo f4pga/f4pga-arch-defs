@@ -27,7 +27,27 @@ v_include = re.compile(r'`include[ ]*"([^"]*)"|\$readmemb\("(.*)",(.*)\)')
 
 
 def read_dependencies(inputfile):
-    matches = v_include.findall(inputfile.read())
+    """Read the dependencies out of a verilog file.
+
+    >>> list(read_dependencies(StringIO('''
+    ... `include "a.h"
+    ... `include "b.h" /* Cmt
+    ... `include "c.h"
+    ...    */
+    ... `include "d.h" // Cmt
+    ... // `include "e.h"
+    ...   `include "f.h"
+    ... ''')))
+    ['a.h', 'b.h', 'd.h', 'f.h']
+
+    """
+    data = inputfile.read()
+    # Strip out the /* */ comments
+    data = re.sub('/\\*.*\\*/', '', data, flags=re.DOTALL)
+    # Strip out the // comments
+    data = re.sub(r'//[^\n]*', '', data)
+
+    matches = v_include.findall(data)
     for includefile in matches:
         yield includefile[0] + includefile[1]
 
@@ -52,4 +72,7 @@ def main(argv):
 
 
 if __name__ == "__main__":
+    if len(sys.argv) == 1:
+        import doctest
+        doctest.testmod()
     sys.exit(main(sys.argv))

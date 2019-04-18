@@ -37,3 +37,61 @@ function(XML_LINT)
 
 endfunction(XML_LINT)
 
+function(XML_SORT)
+  # ~~~
+  # XML_SORT(
+  # NAME
+  # FILE
+  # OUTPUT
+  # )
+  #
+  # This function provides targets to sort the XML file in input according to the `xmlsrot.xsl` script.
+  # It appends all the dependencies necessary to produce the desired OUTPUT (e.g. verilog to XML translation through the tools).
+  #
+  # NAME is used to give a name to the target.
+  # FILE is the input file that needs to be processed by xmlsort
+  # OUTPUT is the name of the output file
+
+  set(oneValueArgs NAME FILE OUTPUT)
+  cmake_parse_arguments(
+    XML_SORT
+    ""
+    "${oneValueArgs}"
+    ""
+    ${ARGN}
+    )
+
+  set(XML_SORT_XSL ${symbiflow-arch-defs_SOURCE_DIR}/common/xml/xmlsort.xsl)
+
+  get_file_location(XML_SORT_INPUT_LOCATION ${XML_SORT_FILE})
+
+  get_file_target(XML_SORT_INPUT_TARGET ${XML_SORT_FILE})
+  set(DEPS "")
+  append_file_dependency(DEPS ${XML_SORT_FILE})
+
+  get_target_property_required(XSLTPROC env XSLTPROC)
+  get_target_property(XSLTPROC_TARGET env XSLTPROC_TARGET)
+
+  add_custom_command(
+    OUTPUT ${XML_SORT_OUTPUT}
+    DEPENDS
+      ${XML_SORT_XSL}
+      ${XML_SORT_INPUT_LOCATION}
+      ${XML_SORT_INPUT_TARGET}
+      ${DEPS}
+      ${XSLTPROC} ${XSLTPROC_TARGET}
+    COMMAND
+      ${XSLTPROC}
+      --nomkdir
+      --nonet
+      --xinclude
+      --output ${CMAKE_CURRENT_BINARY_DIR}/${XML_SORT_OUTPUT}
+      ${XML_SORT_XSL}
+      ${XML_SORT_INPUT_LOCATION}
+  )
+  add_file_target(FILE ${XML_SORT_OUTPUT} GENERATED)
+  add_custom_target(
+    ${XML_SORT_NAME}
+    DEPENDS ${XML_SORT_OUTPUT}
+  )
+endfunction(XML_SORT)
