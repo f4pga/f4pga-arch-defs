@@ -87,23 +87,18 @@ VALUES
         wires[wire] = c.lastrowid
 
     for pip in tile_type.get_pips():
-        # Psuedo pips are not part of the routing fabric, so don't add them.
-        if pip.is_pseudo:
-            continue
-
-        if not pip.is_directional:
-            continue
 
         c.execute(
             """
 INSERT INTO pip_in_tile(
   name, tile_type_pkey, src_wire_in_tile_pkey,
-  dest_wire_in_tile_pkey
+  dest_wire_in_tile_pkey, can_invert, is_directional, is_pseudo
 )
 VALUES
-  (?, ?, ?, ?)""", (
+  (?, ?, ?, ?, ?, ?, ?)""", (
                 pip.name, tile_types[tile_type_name], wires[pip.net_from],
-                wires[pip.net_to]
+                wires[pip.net_to
+                      ], pip.can_invert, pip.is_directional, pip.is_pseudo
             )
         )
 
@@ -395,8 +390,9 @@ FROM
   pip_in_tile
   INNER JOIN wire
 WHERE
+  pip_in_tile.is_directional = 1 AND pip_in_tile.is_pseudo = 0 AND (
   pip_in_tile.src_wire_in_tile_pkey = wire.wire_in_tile_pkey
-  OR pip_in_tile.dest_wire_in_tile_pkey = wire.wire_in_tile_pkey
+  OR pip_in_tile.dest_wire_in_tile_pkey = wire.wire_in_tile_pkey)
 GROUP BY
   wire.node_pkey;"""
     )
@@ -509,8 +505,9 @@ FROM
   wire_in_node
   INNER JOIN pip_in_tile
 WHERE
+  pip_in_tile.is_directional = 1 AND pip_in_tile.is_pseudo = 0 AND (
   pip_in_tile.src_wire_in_tile_pkey = wire_in_node.wire_in_tile_pkey
-  OR pip_in_tile.dest_wire_in_tile_pkey = wire_in_node.wire_in_tile_pkey
+  OR pip_in_tile.dest_wire_in_tile_pkey = wire_in_node.wire_in_tile_pkey)
 LIMIT
   1;
 """, (node, )
