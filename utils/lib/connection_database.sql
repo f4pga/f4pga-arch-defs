@@ -108,6 +108,9 @@ CREATE TABLE pip_in_tile(
   tile_type_pkey INT,
   src_wire_in_tile_pkey INT,
   dest_wire_in_tile_pkey INT,
+  can_invert BOOLEAN,
+  is_directional BOOLEAN,
+  is_pseudo BOOLEAN,
   FOREIGN KEY(tile_type_pkey) REFERENCES tile_type(pkey),
   FOREIGN KEY(src_wire_in_tile_pkey) REFERENCES wire_in_tile(pkey),
   FOREIGN KEY(dest_wire_in_tile_pkey) REFERENCES wire_in_tile(pkey)

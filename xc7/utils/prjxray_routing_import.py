@@ -411,7 +411,8 @@ def create_get_pip_wire_names(conn):
     def get_pip_wire_names(pip_pkey):
         c.execute(
             """SELECT src_wire_in_tile_pkey, dest_wire_in_tile_pkey
-            FROM pip_in_tile WHERE pkey = ?;""", (pip_pkey, )
+            FROM pip_in_tile WHERE pkey = ? AND is_directional = 1 AND is_pseudo = 0;""",
+            (pip_pkey, )
         )
         src_wire_in_tile_pkey, dest_wire_in_tile_pkey = c.fetchone()
 

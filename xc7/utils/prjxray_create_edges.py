@@ -146,7 +146,8 @@ WHERE
 
 
 def create_find_pip(conn):
-    """ Returns a function that takes (tile_type, pip) and returns pip_in_tile_pkey. """
+    """Returns a function that takes (tile_type, pip) and returns a tuple
+     containing: pip_in_tile_pkey, is_directional, is_pseudo, can_invert"""
     c = conn.cursor()
 
     @functools.lru_cache(maxsize=None)
@@ -154,7 +155,7 @@ def create_find_pip(conn):
         c.execute(
             """
 SELECT
-  pkey
+  pkey, is_directional, is_pseudo, can_invert
 FROM
   pip_in_tile
 WHERE
@@ -171,7 +172,7 @@ WHERE
 
         result = c.fetchone()
         assert result is not None, (tile_type, pip)
-        return result[0]
+        return result
 
     return find_pip
 
@@ -535,14 +536,13 @@ SELECT vcc_track_pkey, gnd_track_pkey FROM constant_sources;
 
 
 def make_connection(
-        conn, input_only_nodes, output_only_nodes, find_wire, find_pip,
+        input_only_nodes, output_only_nodes, find_wire, find_pip,
         find_connector, tile_name, loc, tile_type, pip, switch_pkey,
         delayless_switch_pkey, const_connectors
 ):
     """ Attempt to connect graph nodes on either side of a pip.
 
     Args:
-        conn (sqlite3.Connection): Routing database
         input_only_nodes (set of node_pkey): Nodes that can only be used as
             sinks. This is because a synthetic tile will use this node as a
             source.
@@ -595,7 +595,10 @@ def make_connection(
     if sink_connector is None:
         return
 
-    pip_pkey = find_pip(tile_type, pip.name)
+    pip_pkey, pip_is_directional, pip_is_pseudo, pip_can_invert = \
+        find_pip(tile_type, pip.name)
+
+    assert pip_is_directional, not pip_is_pseudo
 
     src_graph_node_pkey, dest_graph_node_pkey = src_connector.connect_at(
         loc, sink_connector
@@ -1049,8 +1052,9 @@ def main():
                     # TODO: Handle bidirectional pips?
                     continue
 
+                # FIXME: Will require a change here once merged with #537 (!)
+
                 connections = make_connection(
-                    conn=conn,
                     input_only_nodes=input_only_nodes,
                     output_only_nodes=output_only_nodes,
                     find_pip=find_pip,
