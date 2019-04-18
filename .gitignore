@@ -9,3 +9,8 @@ __pycache__/
 # CMake output
 build
 *.orig
+build-*
+
+model.xml
+pb_type.xml
+*.sort.xml

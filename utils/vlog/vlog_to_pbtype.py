@@ -139,33 +139,53 @@ def mod_pb_name(mod):
         return "BLK_IG-" + mod.name
 
 
-def make_pb_content(mod, xml_parent, mod_pname, is_submode=False):
+def strip_name(name):
+    if '\\' in name:
+        ts = name.find('\\')
+        tf = name.rfind('\\')
+        return name[ts + 1:tf]
+    return name
+
+
+def make_pb_content(yj, mod, xml_parent, mod_pname, is_submode=False):
     """Build the pb_type content - child pb_types, timing and direct interconnect,
     but not IO. This may be put directly inside <pb_type>, or inside <mode>."""
 
-    def get_full_pin_name(pin):
+    def get_pin_name(pin):
         cname, cellpin = pin
         if cname != mod.name:
             cname = mod.cell_type(cname)
             cname = mod_pb_name(yj.module(cname))
         else:
             cname = mod_pname
-        return ("{}.{}".format(cname, cellpin))
+        return cname
+
+    def get_cellpin(pin):
+        cname, cellpin = pin
+        return cellpin
 
     def make_direct_conn(ic_xml, source, dest):
-        source_pin = get_full_pin_name(source)
-        dest_pin = get_full_pin_name(dest)
-        ic_name = dest_pin.replace(".", "_").replace("[", "_").replace("]", "")
-        dir_xml = ET.SubElement(
-            ic_xml, 'direct', {
-                'name': ic_name,
-                'input': source_pin,
-                'output': dest_pin
+        s_cellpin = get_cellpin(source)
+        d_cellpin = get_cellpin(dest)
+        d_cname = get_pin_name(dest)
+
+        dir_xml = ET.SubElement(ic_xml, 'direct')
+        in_port_xml = ET.SubElement(
+            dir_xml, 'port', {
+                'name': s_cellpin,
+                'type': "input"
+            }
+        )
+        out_port_xml = ET.SubElement(
+            dir_xml, 'port', {
+                'name': d_cellpin,
+                'type': "output",
+                'from': d_cname
             }
         )
 
     # Find out whether or not the module we are generating content for is a blackbox
-    is_blackbox = (mod.attr("blackbox", 0) == 1)
+    is_blackbox = (mod.attr("blackbox", 0) == 1) or not mod.cells
 
     # List of entries in format ((from_cell, from_pin), (to_cell, to_pin))
     interconn = []
@@ -174,7 +194,7 @@ def make_pb_content(mod, xml_parent, mod_pname, is_submode=False):
     if (not is_blackbox) or is_submode:
         # Process cells. First build the list of cnames.
         for cname, i_of in mod.cells:
-            pb_name = i_of
+            pb_name = strip_name(i_of)
             module_file = yj.get_module_file(i_of)
             module_path = os.path.dirname(module_file)
             module_basename = os.path.basename(module_file)
@@ -196,18 +216,14 @@ def make_pb_content(mod, xml_parent, mod_pname, is_submode=False):
             inp_cons = mod.cell_conns(cname, "input")
             for pin, net in inp_cons:
                 drvs = mod.net_drivers(net)
-                if len(drvs) == 0:
-                    print(
-                        "ERROR: pin {}.{} has no driver, interconnect will be missing"
-                        .format(pb_name, pin)
-                    )
-                    assert False
-                elif len(drvs) > 1:
-                    print(
-                        "ERROR: pin {}.{} has multiple drivers, interconnect will be overspecified"
-                        .format(pb_name, pin)
-                    )
-                    assert False
+                assert len(drvs) > 0, (
+                    "ERROR: pin {}.{} has no driver, interconnect will be missing\n{}"
+                    .format(pb_name, pin, mod)
+                )
+                assert len(drvs) < 2, (
+                    "ERROR: pin {}.{} has multiple drivers, interconnect will be overspecified"
+                    .format(pb_name, pin)
+                )
                 for drv_cell, drv_pin in drvs:
                     interconn.append(((drv_cell, drv_pin), (cname, pin)))
 
@@ -219,6 +235,19 @@ def make_pb_content(mod, xml_parent, mod_pname, is_submode=False):
                         #Only consider outputs from cell to top level IO. Inputs to other cells will be dealt with
                         #in those cells.
                         interconn.append(((cname, pin), (sink_cell, sink_pin)))
+
+        # Direct pin->pin connections
+        for net in mod.nets:
+            drv = mod.conn_io(net, "input")
+            if not drv:
+                continue
+            assert len(drv) == 1, (
+                "ERROR: net {} has multiple drivers {}, interconnect will be over specified"
+                .format(net, drv)
+            )
+            for snk in mod.conn_io(net, "output"):
+                conn = ((mod.name, drv[0]), (mod.name, snk))
+                interconn.append(conn)
 
         ic_xml = ET.SubElement(xml_parent, "interconnect")
         # Process interconnect
@@ -242,7 +271,7 @@ def make_pb_content(mod, xml_parent, mod_pname, is_submode=False):
             ET.SubElement(xml_parent, xmltype, attrs)
 
     # Process timing
-    for name, width, iodir in mod.ports:
+    for name, width, bits, iodir in mod.ports:
         port = "{}.{}".format(mod_pname, name)
         # Clocked timing
         Tsetup = mod.net_attr(name, "SETUP")
@@ -282,7 +311,7 @@ def make_pb_content(mod, xml_parent, mod_pname, is_submode=False):
                 xml_mat.text = mat
 
 
-def make_pb_type(mod):
+def make_pb_type(yj, mod):
     """Build the pb_type for a given module. mod is the YosysModule object to
     generate."""
 
@@ -294,8 +323,11 @@ def make_pb_type(mod):
     pb_xml_attrs = dict()
     pb_xml_attrs["name"] = mod_pname
     # If we are a blackbox with no modes, then generate a blif_model
-    is_blackbox = (mod.attr("blackbox", 0) == 1)
+    is_blackbox = mod.attr("blackbox", 0) == 1 or not mod.cells
     has_modes = modes is not None
+
+    print("is_blackbox", is_blackbox, "has_modes?", has_modes)
+
     # Process type and class of module
     mod_cls = mod.CLASS
     if mod_cls is not None:
@@ -325,7 +357,7 @@ def make_pb_type(mod):
 
     # Process IOs
     clocks = yosys.run.list_clocks(args.infiles, mod.name)
-    for name, width, iodir in mod.ports:
+    for name, width, bits, iodir in mod.ports:
         ioattrs = {"name": name, "num_pins": str(width)}
         pclass = mod.net_attr(name, "PORT_CLASS")
         if pclass is not None:
@@ -354,16 +386,76 @@ def make_pb_type(mod):
                 )
             )
             mode_mod = mode_yj.module(mod.name)
-            make_pb_content(mode_mod, mode_xml, mod_pname, True)
+            make_pb_content(yj, mode_mod, mode_xml, mod_pname, True)
     else:
-        make_pb_content(mod, pb_type_xml, mod_pname)
+        make_pb_content(yj, mod, pb_type_xml, mod_pname)
 
     return pb_type_xml
 
 
-pb_type_xml = make_pb_type(tmod)
+parser = argparse.ArgumentParser(
+    description=__doc__.strip(), formatter_class=argparse.RawTextHelpFormatter
+)
+parser.add_argument(
+    'infiles',
+    metavar='input.v',
+    type=str,
+    nargs='+',
+    help="""\
+One or more Verilog input files, that will be passed to Yosys internally.
+They should be enough to generate a flattened representation of the model,
+so that paths through the model can be determined.
+"""
+)
+parser.add_argument(
+    '--top',
+    help="""\
+Top level module, will usually be automatically determined from the file name
+%.sim.v
+"""
+)
+parser.add_argument(
+    '--outfile',
+    '-o',
+    type=argparse.FileType('w'),
+    default="pb_type.xml",
+    help="""\
+Output filename, default 'model.xml'
+"""
+)
 
-f = open(outfile, 'w')
-f.write(ET.tostring(pb_type_xml, pretty_print=True).decode('utf-8'))
-f.close()
-print("Generated {} from {}".format(outfile, iname))
+
+def main(args):
+    iname = os.path.basename(args.infiles[0])
+
+    yosys.run.add_define("PB_TYPE")
+    vjson = yosys.run.vlog_to_json(args.infiles, flatten=False, aig=False)
+    yj = YosysJSON(vjson)
+
+    if args.top is not None:
+        top = args.top
+    else:
+        wm = re.match(r"([A-Za-z0-9_]+)\.sim\.v", iname)
+        if wm:
+            top = wm.group(1).upper()
+        else:
+            print(
+                "ERROR file name not of format %.sim.v ({}), cannot detect top level. Manually specify the top level module using --top"
+                .format(iname)
+            )
+            sys.exit(1)
+
+    tmod = yj.module(top)
+
+    pb_type_xml = make_pb_type(yj, tmod)
+
+    args.outfile.write(
+        ET.tostring(pb_type_xml, pretty_print=True).decode('utf-8')
+    )
+    print("Generated {} from {}".format(args.outfile.name, iname))
+    args.outfile.close()
+
+
+if __name__ == "__main__":
+    args = parser.parse_args()
+    sys.exit(main(args))

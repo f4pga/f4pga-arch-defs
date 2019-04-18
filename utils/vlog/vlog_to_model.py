@@ -16,7 +16,7 @@ The following Verilog attributes are considered on modules:
     instance. A model will not be generated for the `lut`, `routing` or `flipflop`
     class.
 """
-import argparse, re
+import argparse, re, json
 import os, sys
 
 import lxml.etree as ET
@@ -24,6 +24,54 @@ import lxml.etree as ET
 import yosys.run
 from yosys.json import YosysJSON
 import xmlinc
+
+
+def is_registered(tmod, bits, iodir, clk):
+    """Checks if a specific i/o port is registered
+
+    Returns a boolean value
+    -------
+    is_reg: bool
+    """
+    is_reg = False
+    for cell, ctype in tmod.all_cells:
+        if ctype != "$dff":
+            continue
+
+        # The clock is not related to the given port
+        if tmod.cell_clk_conn(cell) != tmod.port_conns(clk):
+            continue
+
+        if iodir == "input" and (
+            (set(bits) & set(tmod.cell_conn_list(cell, "D"))) == set(bits)):
+            return True
+        elif iodir == "output" and (
+            (set(bits) & set(tmod.cell_conn_list(cell, "Q"))) == set(bits)):
+            return True
+        else:
+            continue
+
+    return is_reg
+
+
+def is_registered_path(tmod, pin, pout):
+    """Checks if a i/o path is sequential. If that is the case
+    no combinational_sink_port is needed
+
+    Returns a boolean value
+    """
+
+    for cell, ctype in tmod.all_cells:
+        if ctype != "$dff":
+            continue
+
+        if tmod.port_conns(pin) == tmod.cell_conn_list(
+                cell, "D") and tmod.port_conns(pout) == tmod.cell_conn_list(
+                    cell, "Q"):
+            return True
+
+    return False
+
 
 parser = argparse.ArgumentParser(description=__doc__.strip())
 parser.add_argument(
@@ -103,7 +151,7 @@ with open(args.infiles[0], 'r') as f:
             continue
         deps_files.add(im.group(1))
 
-if len(deps_files) > 0:
+if True:
     # Has dependencies, not a leaf model
     for df in sorted(deps_files):
         abs_base = os.path.dirname(os.path.abspath(args.infiles[0]))
@@ -126,10 +174,11 @@ if len(deps_files) > 0:
             outfile=outfile,
             xptr="xpointer(models/child::node())"
         )
-else:
+if True:
     # Is a leaf model
     topname = tmod.attr("MODEL_NAME", top)
     modclass = tmod.attr("CLASS", "")
+
     if modclass not in ("lut", "routing", "flipflop"):
         model_xml = ET.SubElement(models_xml, "model", {'name': topname})
         ports = tmod.ports
@@ -138,22 +187,26 @@ else:
         outports_xml = ET.SubElement(model_xml, "output_ports")
 
         clocks = yosys.run.list_clocks(args.infiles, top)
-        clk_sigs = dict()
-        for clk in clocks:
-            clk_sigs[clk] = yosys.run.get_clock_assoc_signals(
-                args.infiles, top, clk
-            )
 
-        for name, width, iodir in ports:
+        for name, width, bits, iodir in ports:
             attrs = dict(name=name)
             sinks = yosys.run.get_combinational_sinks(args.infiles, top, name)
-            if len(sinks) > 0 and iodir == "input":
-                attrs["combinational_sink_ports"] = " ".join(sinks)
+
+            # Removes comb sinks if path from in to out goes through a dff
+            for sink in sinks:
+                if is_registered_path(tmod, name, sink):
+                    sinks.remove(sink)
+
+            # FIXME: Check if ignoring clock for "combination_sink_ports" is a
+            # valid thing to do.
             if name in clocks:
                 attrs["is_clock"] = "1"
-            for clk in clocks:
-                if name in clk_sigs[clk]:
-                    attrs["clock"] = clk
+            else:
+                if len(sinks) > 0 and iodir == "input":
+                    attrs["combinational_sink_ports"] = " ".join(sinks)
+                for clk in clocks:
+                    if is_registered(tmod, bits, iodir, clk):
+                        attrs["clock"] = clk
             if iodir == "input":
                 ET.SubElement(inports_xml, "port", attrs)
             elif iodir == "output":

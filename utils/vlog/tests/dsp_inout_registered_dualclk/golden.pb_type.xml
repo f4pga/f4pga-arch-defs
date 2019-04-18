@@ -1,0 +1,10 @@
+<pb_type xmlns:xi="http://www.w3.org/2001/XInclude" name="dsp_inout_registered_dualclk" num_pb="1">
+  <input name="a" num_pins="32"/>
+  <input name="b" num_pins="32"/>
+  <clock name="iclk" num_pins="1"/>
+  <input name="m" num_pins="1"/>
+  <clock name="oclk" num_pins="1"/>
+  <output name="out" num_pins="64"/>
+  <xi:include href="../dsp_combinational/dsp_combinational.pb_type.xml"/>
+  <interconnect/>
+</pb_type>

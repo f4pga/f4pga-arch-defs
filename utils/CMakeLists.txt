@@ -6,4 +6,6 @@ add_custom_target(
   COMMAND ${PYTEST} --doctest-modules -vv
   WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
 )
+
+add_subdirectory(vlog)
 add_dependencies(test_python test_python_utils)
