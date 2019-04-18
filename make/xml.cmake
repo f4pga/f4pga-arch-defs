@@ -44,6 +44,14 @@ function(XML_SORT)
   # FILE
   # OUTPUT
   # )
+  #
+  # This function provides targets to sort the XML file in input according to the `xmlsrot.xsl` script.
+  # It appends all the dependencies necessary to produce the desired OUTPUT (e.g. verilog to XML translation through the tools).
+  #
+  # NAME is used to give a name to the target.
+  # FILE is the input file that needs to be processed by xmlsort
+  # OUTPUT is the name of the output file
+
   set(oneValueArgs NAME FILE OUTPUT)
   cmake_parse_arguments(
     XML_SORT
@@ -58,7 +66,6 @@ function(XML_SORT)
   get_file_location(XML_SORT_INPUT_LOCATION ${XML_SORT_FILE})
 
   get_file_target(XML_SORT_INPUT_TARGET ${XML_SORT_FILE})
-  get_target_property(INCLUDE_FILES ${XML_SORT_INPUT_TARGET} INCLUDE_FILES)
   set(DEPS "")
   append_file_dependency(DEPS ${XML_SORT_FILE})
 
