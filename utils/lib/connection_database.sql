@@ -279,3 +279,14 @@ CREATE TABLE tile_type_map(
     FOREIGN KEY(phy_tile_type_pkey) REFERENCES tile_type(pkey),
     FOREIGN KEY(vpr_tile_type_pkey) REFERENCES tile_type(pkey)
 );
+
+-- Former site table
+-- Contains entries only for CLB split products. Holds information
+-- which site instance correspond to the new tile. It is necessary to know
+-- that when remapping routing resources.
+CREATE TABLE tile_former_site(
+    vpr_tile_pkey INT,
+    site_pkey INT,
+    FOREIGN KEY(vpr_tile_pkey) REFERENCES tile(pkey),
+    FOREIGN KEY(site_pkey) REFERENCES site(pkey)
+);
