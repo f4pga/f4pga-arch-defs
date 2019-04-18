@@ -5,6 +5,16 @@ function(DIFF)
   # GOLDEN
   # ACTUAL
   # )
+  #
+  # This function provides targets to check the differences between a generated file (ACTUAL) and its golden XML reference (GOLDEN).
+  # If the diff is empty (meaning that the GOLDEN and ACTUAL are consistent) the build is successful, otherwise it ends in a failure.
+  #
+  # NAME name of the target that will be generated.
+  # GOLDEN golden reference file.
+  # ACTUAL generated file that has to be checked with the GOLDEN one.
+  #
+  # Usage: diff(NAME <target_name> GOLDEN <file_name.golden.xml> ACTUAL <file_name.actual.xml>)
+
   set(oneValueArgs NAME GOLDEN ACTUAL)
   cmake_parse_arguments(
     DIFF

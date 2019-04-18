@@ -1,3 +1,6 @@
+# Creating new target to call all the added tests
+add_custom_target(all_v2x_tests ALL)
+
 function(V2X_GENERIC_TEST)
   # ~~~
   # V2X_GENERIC_TEST(
@@ -7,6 +10,18 @@ function(V2X_GENERIC_TEST)
   #   )
   # ~~~
   #
+  # This function is used to create targets to perform a test on generic TYPE (pb_type or model).
+  # There are some tests which require only pb_types XMLs to be checked and others who require only models XMLs to be checked.
+  # Therefore, this function is used to generalize and perform the desired test.
+  #
+  # NAME name of the test.
+  # TOP_MODULE name of the top verilog module that has to be tested.
+  # TYPE type of test that has to be performed (model or pb_type generation).
+  #
+  # In addition it adds the newly created target to the `all_v2x_tests` dependencies. (all tests will be performed with `make all_v2x_tests`)
+  #
+  # Usage: v2x_generic_test(NAME <test_name> TOP_MODULE <top_module.v> TYPE <model|pb_type>) (All fields are required)
+
   set(oneValueArgs NAME TOP_MODULE TYPE)
   cmake_parse_arguments(
     V2X_GENERIC_TEST
@@ -27,9 +42,7 @@ function(V2X_GENERIC_TEST)
 
   diff(NAME ${V2X_GENERIC_TEST_NAME}_${V2X_GENERIC_TEST_TYPE}_diff GOLDEN ${V2X_GENERIC_TEST_NAME}.${V2X_GENERIC_TEST_TYPE}.golden.xml ACTUAL ${V2X_GENERIC_TEST_NAME}.${V2X_GENERIC_TEST_TYPE}.actual.xml)
 
-  # add_dependencies(${NAME}_diff ${V2X_GENERIC_TEST_NAME}_${V2X_GENERIC_TEST_TYPE}_diff)
-  #add_dependencies(all_v2x_tests ${V2X_GENERIC_TEST_NAME}_${V2X_GENERIC_TEST_TYPE}_diff)
-
+  add_dependencies(all_v2x_tests ${V2X_GENERIC_TEST_NAME}_${V2X_GENERIC_TEST_TYPE}_diff)
 endfunction(V2X_GENERIC_TEST)
 
 function(V2X_TEST_MODEL)
@@ -40,6 +53,13 @@ function(V2X_TEST_MODEL)
   #   )
   # ~~~
   #
+  # This function is to test only the model XML generation. It will call V2X_GENERIC_TEST with the field TYPE set to `model`.
+  #
+  # NAME name of the test.
+  # TOP_MODULE name of the top verilog module that has to be tested.
+  #
+  # Usage: v2x_test_model(NAME <test_name> TOP_MODULE <top_module.v>) (All fields are required)
+
   set(oneValueArgs NAME TOP_MODULE TYPE)
   cmake_parse_arguments(
     V2X_TEST_MODEL
@@ -66,6 +86,13 @@ function(V2X_TEST_PB_TYPE)
   #   )
   # ~~~
   #
+  # This function is to test only the pb_type XML generation. It will call V2X_GENERIC_TEST with the field TYPE set to `pb_type`
+  #
+  # NAME name of the test.
+  # TOP_MODULE name of the top verilog module that has to be tested.
+  #
+  # Usage: v2x_test_model(NAME <test_name> TOP_MODULE <top_module.v>) (All fields are required)
+
   set(oneValueArgs NAME TOP_MODULE TYPE)
   cmake_parse_arguments(
     V2X_TEST_PB_TYPE
@@ -92,6 +119,14 @@ function(V2X_TEST_BOTH)
   #   )
   # ~~~
   #
+  # This function is to test both the pb_type XML generation. It will call V2X_GENERIC_TEST multiple times first with the field TYPE set to `pb_type`
+  # then with `model`
+  #
+  # NAME name of the test.
+  # TOP_MODULE name of the top verilog module that has to be tested.
+  #
+  # Usage: v2x_test_model(NAME <test_name> TOP_MODULE <top_module.v>) (All fields are required)
+
   set(oneValueArgs NAME TOP_MODULE TYPE)
   cmake_parse_arguments(
     V2X_TEST_BOTH
