@@ -217,7 +217,7 @@ VALUES
     build_phy_tile_grid_indicies(c)
 
 
-def import_nodes(db, conn, tile_wire_name_map):
+def import_nodes(db, conn, tile_types_to_split, tile_wire_name_map):
     # Some nodes are just 1 wire, so start by enumerating all wires.
 
     c = conn.cursor()
@@ -228,12 +228,11 @@ def import_nodes(db, conn, tile_wire_name_map):
     tile_wire_map = {}
     wires = {}
 
-    for tile_name, tile_pkey, tile_type_pkey in progressbar.progressbar(
-            c1.execute("SELECT name, pkey, tile_type_pkey FROM phy_tile")):
+    for tile_name, tile_pkey, tile_type_pkey, phy_loc_x, phy_loc_y in progressbar.progressbar(
+            c1.execute("SELECT name, pkey, tile_type_pkey, grid_x, grid_y FROM phy_tile")):
 
         # Map the pkey of the physical tile to pkey of the VPR tile(s).
-        vpr_tile_pkeys = c.execute("""SELECT pkey FROM tile WHERE pkey IN (SELECT vpr_tile_pkey FROM grid_loc_map WHERE phy_tile_pkey = (?))""", (tile_pkey, )).fetchall()
-        vpr_tile_pkeys = [k[0] for k in vpr_tile_pkeys]
+        vpr_tile_data = c.execute("""SELECT pkey, grid_x, grid_y FROM tile WHERE pkey IN (SELECT vpr_tile_pkey FROM grid_loc_map WHERE phy_tile_pkey = (?))""", (tile_pkey, )).fetchall()
 
         # NOTE:
         # In this function I need to know which wires from wire_in_tile belong
@@ -256,7 +255,18 @@ SELECT pkey FROM wire_in_tile WHERE name = ? and tile_type_pkey = ?;""",
             (wire_in_tile_pkey, ) = c.fetchone()
 
             # Loop over all VPR tiles that correspond to the physical tile.
-            for vpr_tile_pkey in vpr_tile_pkeys:
+            for vpr_tile_pkey, vpr_loc_x, vpr_loc_y in vpr_tile_data:
+
+                # If the tile is being split check if a wite belongs
+                # to this tile
+                if tile_type in tile_types_to_split:
+                    site_ofs  = (vpr_loc_x - phy_loc_x, vpr_loc_y - phy_loc_y)
+                    site_name = "X%dY%d" % (site_ofs[0], site_ofs[1])
+
+                    # This wire is not relevant for the "part" of split tile
+                    if wire not in tile_wire_name_map[site_name]:
+                        print("Reject %s for %s %s" % (wire, tile_type, site_name))
+                        continue
 
                 c2.execute(
                     """INSERT INTO wire(tile_pkey, wire_in_tile_pkey) VALUES (?, ?);""", (vpr_tile_pkey, wire_in_tile_pkey)
@@ -1006,15 +1016,27 @@ def remap_tile_grid(conn, grid_map, tile_map):
 
         # Map location. Possibly one to many
         vpr_locs = grid_map.get_vpr_loc((phy_loc_x, phy_loc_y))
-        # Sort locations ascending by x. This ensures correct order of split
-        # tiles.
-        vpr_locs = sorted(vpr_locs, key=lambda loc: loc[0])
 
         # The tile is being split
         if tile_type_pkey in tile_map.fwd_map:
 
-            # Insert tile(s) into the VPR grid
-            for vpr_loc, vpr_tile_type_pkey in zip(vpr_locs, tile_map.fwd_map[tile_type_pkey]):
+            # Get base VPR location
+            base_vpr_loc = (
+                min([loc[0] for loc in vpr_locs]),
+                min([loc[1] for loc in vpr_locs])
+            )
+
+            # Get data from tile type map
+            vpr_tile_data = tile_map.fwd_map[tile_type_pkey]
+
+            # Insert tiles into the VPR grid
+            for vpr_tile_type_pkey, loc_ofs in vpr_tile_data:
+
+                # Compute location in the VPR grid
+                vpr_loc = (
+                    base_vpr_loc[0] + loc_ofs[0],
+                    base_vpr_loc[1] + loc_ofs[1],
+                )
 
                 # Get tile type as string
                 vpr_tile_type = c.execute("SELECT name FROM tile_type WHERE pkey = (?)", (vpr_tile_type_pkey, )).fetchone()[0]
@@ -1087,10 +1109,10 @@ def main():
         print("{}: Grid map initialized".format(datetime.datetime.now()))
         remap_tile_grid(conn, grid_map, tile_type_pkey_map)
         print("{}: Tile grid remapped".format(datetime.datetime.now()))
-        import_nodes(db, conn, tile_wire_name_map)
-        print("{}: Connections made".format(datetime.datetime.now()))
-        # count_sites_and_pips_on_nodes(conn)
-        # print("{}: Counted sites and pips".format(datetime.datetime.now()))
+        #import_nodes(db, conn, tile_types_to_split, tile_wire_name_map)
+        #print("{}: Connections made".format(datetime.datetime.now()))
+        #count_sites_and_pips_on_nodes(conn)
+        #print("{}: Counted sites and pips".format(datetime.datetime.now()))
         # classify_nodes(conn)
         # print("{}: Nodes classified".format(datetime.datetime.now()))
         # form_tracks(conn)

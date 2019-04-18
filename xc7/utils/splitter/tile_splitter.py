@@ -21,7 +21,7 @@ class TileSplitter(object):
 
     def get_tile_type_sites(self, tile_type):
         """
-        Returns all site types for a given tile type
+        Returns all site types and their offsets for a given tile type
         """
 
         c = self.sql_db.cursor()
@@ -30,11 +30,30 @@ class TileSplitter(object):
         tile_type_pkey = c.execute("SELECT pkey FROM tile_type WHERE name = (?)", (tile_type,)).fetchone()[0]
 
         # Get sites
-        sites = c.execute("SELECT site_type.name, site.x_coord FROM site INNER JOIN site_type ON site.site_type_pkey = site_type.pkey WHERE site.pkey IN (SELECT site_pkey FROM wire_in_tile WHERE tile_type_pkey = (?) AND site_pkey IS NOT NULL)", (tile_type_pkey, )).fetchall()
+        sites = c.execute("SELECT site_type.name, site. x_coord, y_coord FROM site INNER JOIN site_type ON site.site_type_pkey = site_type.pkey WHERE site.pkey IN (SELECT site_pkey FROM wire_in_tile WHERE tile_type_pkey = (?) AND site_pkey IS NOT NULL)", (tile_type_pkey, )).fetchall()
 
-        # Sort them according to x_coord
-        sites = sorted(sites, key=lambda s: s[1])
-        return [s[0] for s in sites]
+        # Return a list of tuples (site_type, site_ofs)
+        return [(s[0], (s[1], s[2])) for s in sites]
+
+    # def insert_new_tile_types(self):
+    #
+    #     c = self.sql_db.cursor()
+    #
+    #     unique_site_types = set()
+    #
+    #     # For a tile type to split list its sites
+    #     for tile_type in self.tile_types_to_split:
+    #         sites = self.get_tile_type_sites(tile_type)
+    #
+    #         # Process sites
+    #         for site_type, site_ofs in sites:
+    #             unique_site_types.add(site_type)
+    #
+    #             # # Find the site in tile instance in the SQL db
+    #             # site_pkey = c.execute("SELECT pkey FROM site WHERE x_coord = (?) AND y_coord = (?) AND site_type_pkey = (SELECT pkey FROM site_type WHERE name = (?))", (site_ofs[0], site_ofs[1], site_type, )).fetchone()[0]
+    #             # #print(tile_type, site_type, site_ofs, site_pkey)
+    #
+    #             # Reference the site in the new tile type
 
     def get_unique_site_types(self):
         """
@@ -45,12 +64,12 @@ class TileSplitter(object):
 
         for tile_type in self.tile_types_to_split:
             sites = self.get_tile_type_sites(tile_type)
-            for site_type in sites:
+            for site_type, site_ofs in sites:
                 unique_site_types.add(site_type)
 
         return unique_site_types
 
-    def create_new_tile_types(self):
+    def insert_new_tile_types(self):
         """
         Creates new tile types and insets them to the database
         """
@@ -62,7 +81,31 @@ class TileSplitter(object):
         unique_site_types = self.get_unique_site_types()
         for site_type in unique_site_types:
             c.execute("INSERT INTO tile_type(name) VALUES(?)", (site_type, ))
-            print(c.lastrowid, site_type)
+            #print(c.lastrowid, site_type)
+
+
+    # def insert_wires_and_pips(self):
+    #     """
+    #     Inserts wires and pips for new tile types
+    #     """
+    #
+    #     c = self.sql_db.cursor()
+    #
+    #     for tile_type in self.tile_types_to_split:
+    #
+    #         # Get the physical tile type pkey
+    #         tile_type_pkey = c.execute("SELECT pkey FROM tile_type WHERE name = (?)", (tile_type,)).fetchone()[0]
+    #
+    #         # Insert wires
+    #         wires = {}
+    #         for wire in tile_type.get_wires():
+    #
+    #             # Get target tile type for that wire
+    #             vpr_tile_type = self.tile_wire_name_map.fwd_map
+    #
+    #             c.execute("""INSERT INTO wire_in_tile(name, tile_type_pkey) VALUES (?, ?)""", (wire, tile_types[tile_type_name]))
+    #             wires[wire] = c.lastrowid
+
 
     @staticmethod
     def append_to_map(map_dict, map_key, map_item):
@@ -93,8 +136,8 @@ class TileSplitter(object):
         c = self.sql_db.cursor()
 
         # Built tile type map
-        fwd_tile_type_map = {}
-        bwd_tile_type_map = {}
+        fwd_map = {}
+        bwd_map = {}
 
         for tile_type in self.tile_types_to_split:
 
@@ -102,17 +145,20 @@ class TileSplitter(object):
             tile_type_pkey = c.execute("SELECT pkey FROM tile_type WHERE name = (?)", (tile_type,)).fetchone()[0]
 
             # Insert corresponding VPR tile type pkeys
-            fwd_tile_type_map[tile_type_pkey] = []
-            for site_type in self.get_tile_type_sites(tile_type):
+            fwd_map[tile_type_pkey] = []
+            for site_type, site_ofs in self.get_tile_type_sites(tile_type):
 
                 # Get new tile type pkey from site name
                 new_tile_type_pkey = c.execute("SELECT pkey FROM tile_type WHERE name = (?)", (site_type,)).fetchone()[0]
 
-                fwd_tile_type_map[tile_type_pkey].append(new_tile_type_pkey)
-                bwd_tile_type_map[new_tile_type_pkey] = [tile_type_pkey]
+                # Get the site instance pkey from site name and offset
+                #site_pkey = c.execute("SELECT pkey FROM site WHERE x_coord = (?) AND y_coord = (?) AND site_type_pkey = (SELECT pkey FROM site_type WHERE name = (?))", (site_ofs[0], site_ofs[1], site_type, )).fetchone()[0]
+
+                fwd_map[tile_type_pkey].append((new_tile_type_pkey, site_ofs))
+                bwd_map[new_tile_type_pkey] = [tile_type_pkey]
 
         # Return forward and backward mapping.
-        return fwd_tile_type_map, bwd_tile_type_map
+        return fwd_map, bwd_map
 
     def build_tile_wire_names_map(self, tile_type):
         """
@@ -185,21 +231,24 @@ class TileSplitter(object):
         # TODO: I plan to use this class here for generating pb_type XMLs for
         # the arch.xml
 
-        # Create new tile types
-        self.create_new_tile_types()
+        # Insert new tile types
+        self.insert_new_tile_types()
 
-        # Build tile type map
+        # Build tile type pkey map
         fwd_map, bwd_map = self.build_tile_type_pkey_map()
-        tile_type_pkey_map = GenericMap(fwd_map, bwd_map)
+        self.tile_type_pkey_map = GenericMap(fwd_map, bwd_map)
 
         # Build tile wire map
-        tile_wire_name_map = {}
+        self.tile_wire_name_map = {}
         for tile_type in self.tile_types_to_split:
             fwd_map, _ = self.build_tile_wire_names_map(tile_type)
-            tile_wire_name_map[tile_type] = GenericMap(fwd_map, None)
+            self.tile_wire_name_map[tile_type] = GenericMap(fwd_map, None)
+
+        # Insert wires and pips for new tile types
+        #self.insert_wires_and_pips()
 
         # Return the map
-        return tile_type_pkey_map, tile_wire_name_map
+        return self.tile_type_pkey_map, self.tile_wire_name_map
 
 # =============================================================================
 
