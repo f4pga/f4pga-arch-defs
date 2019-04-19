@@ -290,3 +290,14 @@ CREATE TABLE tile_former_site(
     FOREIGN KEY(vpr_tile_pkey) REFERENCES tile(pkey),
     FOREIGN KEY(site_pkey) REFERENCES site(pkey)
 );
+
+-- Pip in tile instance
+-- Relates a pip_in_tile with a concrete tile instance in the VPR grid.
+-- This is necessary as in the VPR we have generic SLICE tiles but pips
+-- inside them are not generic.
+CREATE TABLE pip_in_tile_instance(
+    vpr_tile_pkey INT,
+    pip_in_tile_pkey INT,
+    FOREIGN KEY(vpr_tile_pkey) REFERENCES tile(pkey),
+    FOREIGN KEY(pip_in_tile_pkey) REFERENCES pip_in_tile(pkey)
+);

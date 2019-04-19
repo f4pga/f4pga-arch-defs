@@ -232,6 +232,42 @@ class TileSplitter(object):
         # Return maps
         return fwd_map, None
 
+    def build_tile_pip_names_map(self, tile_type):
+        """
+        Builds a map which binds concrete site instances within a tile type
+        and related pips.
+
+        Args:
+            tile_type: Tile type name
+
+        Returns:
+            Forward and backward of sites and pips
+
+        """
+
+        fwd_map = {}
+        bwd_map = {}
+
+        # Get the tile type object and its site objects
+        tile_type_obj = self.prjxray_db.get_tile_type(tile_type)
+
+        # Loop over all pips
+        for pip_obj in tile_type_obj.get_pips():
+
+            # Check if there is a wire connecting the pip with a site instance
+            for site_obj in tile_type_obj.get_sites():
+                site_wires = [pin.wire for pin in site_obj.site_pins]
+
+                # Got match
+                if pip_obj.net_from in site_wires or \
+                   pip_obj.net_to in site_wires:
+
+                    self.append_to_map(fwd_map, site_obj.name, pip_obj.name)
+                    self.append_to_map(bwd_map, pip_obj.name, site_obj.name)
+
+        # Return maps
+        return fwd_map, bwd_map
+
     def split(self):
         """
         Performs the tile split
@@ -250,17 +286,31 @@ class TileSplitter(object):
         # Build tile wire map
         self.tile_wire_name_map = {}
         for tile_type in self.tile_types_to_split:
-            fwd_map, _ = self.build_tile_wire_names_map(tile_type)
-            self.tile_wire_name_map[tile_type] = GenericMap(fwd_map, None)
+            fwd_map, bwd_map = self.build_tile_wire_names_map(tile_type)
+            self.tile_wire_name_map[tile_type] = GenericMap(fwd_map, bwd_map)
 
             #for k, v in fwd_map.items():
             #    print(tile_type, k, v)
 
-        # Insert wires and pips for new tile types
-        self.insert_new_tile_wires()
+        # Build tile pip map
+        self.tile_pip_name_map = {}
+        for tile_type in self.tile_types_to_split:
+            fwd_map, bwd_map = self.build_tile_pip_names_map(tile_type)
+            self.tile_pip_name_map[tile_type] = GenericMap(fwd_map, bwd_map)
 
-        # Return the map
-        return self.tile_type_pkey_map, self.tile_wire_name_map
+            # print("== FWD ==")
+            # for k, v in fwd_map.items():
+            #     print(tile_type, k, v)
+            #
+            # print("== BWD ==")
+            # for k, v in bwd_map.items():
+            #     print(tile_type, k, v)
+
+        # Insert wires and pips for new tile types
+        #self.insert_new_tile_wires()
+
+        # Return maps
+        return self.tile_type_pkey_map, self.tile_wire_name_map, self.tile_pip_name_map
 
 # =============================================================================
 

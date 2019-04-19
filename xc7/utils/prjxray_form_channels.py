@@ -1023,7 +1023,7 @@ def insert_vpr_tile(conn, vpr_tile_name, vpr_tile_loc, vpr_tile_type_pkey, phy_t
     # Return the VPR tile pkey
     return new_pkey
 
-def remap_tile_grid(conn, grid_map, tile_map):
+def remap_tile_grid(conn, grid_map, tile_map, pip_map):
     """
     Remaps tiles present in the "phy_tile" table to the "tile" table.
     :param conn:
@@ -1045,10 +1045,13 @@ def remap_tile_grid(conn, grid_map, tile_map):
     ).fetchall()
 
     # Convert them to the new grid one-by-one
-    for tile in tile_data:
+    for tile in progressbar.progressbar(tile_data):
         tile_type_pkey = tile[2]
         phy_loc_x = tile[3]
         phy_loc_y = tile[4]
+
+        # Get tile type string
+        tile_type = c.execute("SELECT name FROM tile_type WHERE pkey = (?)", (tile_type_pkey, )).fetchone()[0]
 
         # Map location. Possibly one to many
         vpr_locs = grid_map.get_vpr_loc((phy_loc_x, phy_loc_y))
@@ -1062,11 +1065,12 @@ def remap_tile_grid(conn, grid_map, tile_map):
                 min([loc[1] for loc in vpr_locs])
             )
 
-            # Get data from tile type map
-            vpr_tile_data = tile_map.fwd_map[tile_type_pkey]
+            # Fetch pip_name -> pip_pkey map from the database
+            pip_pkey_map = c.execute("SELECT name, pkey FROM pip_in_tile WHERE tile_type_pkey = (?)", (tile_type_pkey,)).fetchall()
+            pip_pkey_map = {m[0]: m[1] for m in pip_pkey_map}
 
             # Insert tiles into the VPR grid
-            for vpr_tile_type_pkey, loc_ofs in vpr_tile_data:
+            for vpr_tile_type_pkey, loc_ofs in tile_map.fwd_map[tile_type_pkey]:
 
                 # Compute location in the VPR grid
                 vpr_loc = (
@@ -1088,11 +1092,28 @@ def remap_tile_grid(conn, grid_map, tile_map):
                 # Get site instance basing on the new tile type and site
                 # location offset. Here we assume that new tile type is
                 # equal to its former site type.
-                site_pkey = c.execute("SELECT pkey FROM site WHERE x_coord = (?) AND y_coord = (?) AND site_type_pkey = (SELECT pkey FROM site_type WHERE name = (?))", (loc_ofs[0], loc_ofs[1], vpr_tile_type)).fetchone()[0]
+                site_name, site_pkey = c.execute("SELECT name, pkey FROM site WHERE x_coord = (?) AND y_coord = (?) AND site_type_pkey = (SELECT pkey FROM site_type WHERE name = (?))", (loc_ofs[0], loc_ofs[1], vpr_tile_type)).fetchone()
                 assert site_pkey is not None
 
                 # Add entry to the tile_former_site table
                 c.execute("INSERT INTO tile_former_site(vpr_tile_pkey, site_pkey) VALUES (?, ?)", (vpr_tile_pkey, site_pkey))
+
+                # Insert correspondencies to the pip_in_tile_instance table.
+                for pip_name in pip_map[tile_type].fwd_map[site_name]:
+                    #print(pip_name)
+
+                    # FIXME: TODO:
+                    # Skip ppips in a very very hackish way for now.
+                    # All ppips have '->>' in their names
+                    if "->>" in pip_name:
+                        continue
+
+                    # Get pip_in_tile pkey
+                    pip_pkey = pip_pkey_map[pip_name]
+                    assert pip_pkey is not None
+
+                    # Insert
+                    c.execute("INSERT INTO pip_in_tile_instance(vpr_tile_pkey, pip_in_tile_pkey) VALUES (?, ?)", (vpr_tile_pkey, pip_pkey))
 
         # The tile is not being split
         else:
@@ -1114,8 +1135,6 @@ def remap_tile_grid(conn, grid_map, tile_map):
     c.execute("CREATE INDEX tile_location_index ON tile(grid_x, grid_y);")
 
     c.connection.commit()
-
-import pprofile
 
 def main():
     parser = argparse.ArgumentParser()
@@ -1150,10 +1169,10 @@ def main():
         ts.set_tile_types_to_split(tile_types_to_split)
 
         grid_map = gs.split()
-        tile_type_pkey_map, tile_wire_name_map = ts.split()
+        tile_type_pkey_map, tile_wire_name_map, tile_pip_name_map = ts.split()
 
         print("{}: Grid map initialized".format(datetime.datetime.now()))
-        remap_tile_grid(conn, grid_map, tile_type_pkey_map)
+        remap_tile_grid(conn, grid_map, tile_type_pkey_map, tile_pip_name_map)
         print("{}: Tile grid remapped".format(datetime.datetime.now()))
 
         # prof = pprofile.Profile()
