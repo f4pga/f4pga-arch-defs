@@ -1059,17 +1059,21 @@ def main():
                 continue
 
             # Process PIPs
-            for pip_pkey, pip_name, pip_src_wire_pkey, pip_dst_wire_pkey in\
+            for pip_pkey, pip_name, pip_src_wire_pkey, pip_dst_wire_pkey,\
+                is_pseudo, is_directional in \
                     c2.execute("""SELECT pkey, name, src_wire_in_tile_pkey,
-                               dest_wire_in_tile_pkey FROM pip_in_tile WHERE
+                               dest_wire_in_tile_pkey, is_pseudo,
+                               is_directional FROM pip_in_tile WHERE
                                tile_type_pkey = (?)""",
-                (tile_type_pkey, )):
+                               (tile_type_pkey, )):
 
-                # No pseudo pips and bidirectional pips should be present here
-                # as they were skipped during import to the SQLite database
-                # in prjxray_form_channels.py
+                # Skip pseudo pips. They are not part of the routing
+                if is_pseudo:
+                    continue
 
-                # FIXME: Will require a change here once merged with #537 (!)
+                # FIXME: TODO: Handle bi-directional pips
+                if not is_directional:
+                    continue
 
                 connections = make_connection(
                     conn=conn,
