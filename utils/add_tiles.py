@@ -3,12 +3,14 @@ import argparse
 
 TAGS_TO_SWAP = ['fc', 'pinlocations', 'switchblock_locations']
 
+
 def swap_tags(tile, pb_type):
     # Moving tags from top level pb_type to tile
     for child in pb_type:
         if child.tag in TAGS_TO_SWAP:
             pb_type.remove(child)
             tile.append(child)
+
 
 def main():
     parser = argparse.ArgumentParser(
