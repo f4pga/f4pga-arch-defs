@@ -1,5 +1,9 @@
-<pb_type xmlns:xi="http://www.w3.org/2001/XInclude" blif_model=".names" class="lut" name="BEL_01-CONST" num_pb="1">
+<pb_type xmlns:xi="http://www.w3.org/2001/XInclude" blif_model=".names" class="lut" name="CONST" num_pb="1">
   <input name="in" num_pins="0" port_class="lut_in"/>
   <output name="out" num_pins="1" port_class="lut_out"/>
-  <delay_matrix in_port="BEL_01-CONST.in" out_port="BEL_01-CONST.out" type="max">0</delay_matrix>
+  <delay_matrix in_port="CONST.in" out_port="CONST.out" type="max">0</delay_matrix>
+  <metadata>
+   <meta name="type">bel</meta>
+   <meta name="subtype">constant</meta>
+  </metadata>
 </pb_type>

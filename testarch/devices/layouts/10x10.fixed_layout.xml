@@ -20,25 +20,25 @@
     1 ...IIIIIIIIII...
     0 ................
     -->
-    <fill      priority="1" type="BLK_TI-TILE" />
+    <fill      priority="1" type="TILE" />
     <perimeter priority="2" type="EMPTY" />
 
-    <col priority="3" startx="1"  type="BLK_IG-IBUF" />
-    <col priority="3" startx="14" type="BLK_IG-OBUF" />
+    <col priority="3" startx="1"  type="IBUF"  />
+    <col priority="3" startx="14" type="OBUF"  />
 
-    <row priority="4" starty="1"  type="BLK_IG-IBUF" />
-    <row priority="4" starty="14" type="BLK_IG-OBUF" />
+    <row priority="4" starty="1"  type="IBUF"  />
+    <row priority="4" starty="14" type="OBUF"  />
 
-    <col priority="5" startx="2"  type="EMPTY"       />
-    <col priority="5" startx="13" type="EMPTY"       />
+    <col priority="5" startx="2"  type="EMPTY" />
+    <col priority="5" startx="13" type="EMPTY" />
 
-    <row priority="6" starty="2"  type="EMPTY"       />
-    <row priority="6" starty="13" type="EMPTY"       />
+    <row priority="6" starty="2"  type="EMPTY" />
+    <row priority="6" starty="13" type="EMPTY" />
 
     <!-- Corners -->
-    <single priority="7" x="1" y="1"   type="BLK_TI-GND" />
-    <single priority="7" x="1" y="14"  type="BLK_TI-VCC" />
-    <single priority="7" x="14" y="1"  type="EMPTY"  />
-    <single priority="7" x="14" y="14" type="EMPTY"  />
+    <single priority="7" x="1" y="1"   type="GND"   />
+    <single priority="7" x="1" y="14"  type="VCC"   />
+    <single priority="7" x="14" y="1"  type="EMPTY" />
+    <single priority="7" x="14" y="14" type="EMPTY" />
  </fixed_layout>
 </layout>

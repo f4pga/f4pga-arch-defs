@@ -5,7 +5,7 @@
       - 2 * 5 input, 1 output LUT
       - 1 * 6 input, 1 output LUT
   -->
-<pb_type name="BLK_IG-{N}LUT" num_pb="1" xmlns:xi="http://www.w3.org/2001/XInclude">
+<pb_type name="{N}LUT" num_pb="1" xmlns:xi="http://www.w3.org/2001/XInclude">
  <input  name="A1" num_pins="1"/>
  <input  name="A2" num_pins="1"/>
  <input  name="A3" num_pins="1"/>
@@ -16,65 +16,73 @@
  <output name="O6" num_pins="1"/>
 
  <!-- LUT5+LUT5+F6MUX with two outputs -->
- <mode name="BLK_IG-{N}LUT-LUT5_MUX">
-   <pb_type name="BEL_LT-{N}5LUT" num_pb="2" class="lut" blif_model=".names">
+ <mode name="{N}LUT-LUT5_MUX">
+   <pb_type name="{N}5LUT" num_pb="2" class="lut" blif_model=".names">
      <input  name="in"  num_pins="5" port_class="lut_in" />
      <output name="out" num_pins="1" port_class="lut_out" />
-     <delay_matrix type="max" in_port="BEL_LT-{N}5LUT.in" out_port="BEL_LT-{N}5LUT.out">
+     <delay_matrix type="max" in_port="{N}5LUT.in" out_port="{N}5LUT.out">
       0.068e-9
       0.068e-9
       0.068e-9
       0.068e-9
       0.068e-9
      </delay_matrix>
+     <metadata>
+       <meta name="type">bel</meta>
+       <meta name="subtype">lut</meta>
+     </metadata>
    </pb_type>
    <xi:include href="../muxes/f6mux/f6mux.pb_type.xml" />
    <interconnect>
      <!-- LUT5 (upper) -> O6 -->
-     <direct name="{N}LUT_A5_0" input="BLK_IG-{N}LUT.A5" output="BEL_LT-{N}5LUT[0].in[4]"/>
-     <direct name="{N}LUT_A4_0" input="BLK_IG-{N}LUT.A4" output="BEL_LT-{N}5LUT[0].in[3]"/>
-     <direct name="{N}LUT_A3_0" input="BLK_IG-{N}LUT.A3" output="BEL_LT-{N}5LUT[0].in[2]"/>
-     <direct name="{N}LUT_A2_0" input="BLK_IG-{N}LUT.A2" output="BEL_LT-{N}5LUT[0].in[1]"/>
-     <direct name="{N}LUT_A1_0" input="BLK_IG-{N}LUT.A1" output="BEL_LT-{N}5LUT[0].in[0]"/>
+     <direct name="{N}LUT_A5_0" input="{N}LUT.A5" output="{N}5LUT[0].in[4]"/>
+     <direct name="{N}LUT_A4_0" input="{N}LUT.A4" output="{N}5LUT[0].in[3]"/>
+     <direct name="{N}LUT_A3_0" input="{N}LUT.A3" output="{N}5LUT[0].in[2]"/>
+     <direct name="{N}LUT_A2_0" input="{N}LUT.A2" output="{N}5LUT[0].in[1]"/>
+     <direct name="{N}LUT_A1_0" input="{N}LUT.A1" output="{N}5LUT[0].in[0]"/>
 
      <!-- LUT5 (lower) -> O5 -->
-     <direct name="{N}LUT_A5_1" input="BLK_IG-{N}LUT.A5" output="BEL_LT-{N}5LUT[1].in[4]"/>
-     <direct name="{N}LUT_A4_1" input="BLK_IG-{N}LUT.A4" output="BEL_LT-{N}5LUT[1].in[3]"/>
-     <direct name="{N}LUT_A3_1" input="BLK_IG-{N}LUT.A3" output="BEL_LT-{N}5LUT[1].in[2]"/>
-     <direct name="{N}LUT_A2_1" input="BLK_IG-{N}LUT.A2" output="BEL_LT-{N}5LUT[1].in[1]"/>
-     <direct name="{N}LUT_A1_1" input="BLK_IG-{N}LUT.A1" output="BEL_LT-{N}5LUT[1].in[0]"/>
+     <direct name="{N}LUT_A5_1" input="{N}LUT.A5" output="{N}5LUT[1].in[4]"/>
+     <direct name="{N}LUT_A4_1" input="{N}LUT.A4" output="{N}5LUT[1].in[3]"/>
+     <direct name="{N}LUT_A3_1" input="{N}LUT.A3" output="{N}5LUT[1].in[2]"/>
+     <direct name="{N}LUT_A2_1" input="{N}LUT.A2" output="{N}5LUT[1].in[1]"/>
+     <direct name="{N}LUT_A1_1" input="{N}LUT.A1" output="{N}5LUT[1].in[0]"/>
 
      <!-- MUX used for LUT6 -->
-     <direct name="F6MUX_I0" input="BEL_LT-{N}5LUT[0].out" output="BEL_MX-F6MUX.I0">
-      <pack_pattern in_port="BEL_LT-{N}5LUT[0].out" name="LUT5toLUT6" out_port="BEL_MX-F6MUX.I0"/>
-      <pack_pattern in_port="BEL_LT-{N}5LUT[0].out" name="LUT5toLUT7" out_port="BEL_MX-F6MUX.I0"/>
-      <pack_pattern in_port="BEL_LT-{N}5LUT[0].out" name="LUT5toLUT8" out_port="BEL_MX-F6MUX.I0"/>
+     <direct name="F6MUX_I0" input="{N}5LUT[0].out" output="F6MUX.I0">
+      <pack_pattern in_port="{N}5LUT[0].out" name="LUT5toLUT6" out_port="F6MUX.I0"/>
+      <pack_pattern in_port="{N}5LUT[0].out" name="LUT5toLUT7" out_port="F6MUX.I0"/>
+      <pack_pattern in_port="{N}5LUT[0].out" name="LUT5toLUT8" out_port="F6MUX.I0"/>
      </direct>
-     <direct name="F6MUX_I1" input="BEL_LT-{N}5LUT[1].out" output="BEL_MX-F6MUX.I1">
-      <pack_pattern in_port="BEL_LT-{N}5LUT[1].out" name="LUT5toLUT6" out_port="BEL_MX-F6MUX.I1"/>
-      <pack_pattern in_port="BEL_LT-{N}5LUT[1].out" name="LUT5toLUT7" out_port="BEL_MX-F6MUX.I1"/>
-      <pack_pattern in_port="BEL_LT-{N}5LUT[1].out" name="LUT5toLUT8" out_port="BEL_MX-F6MUX.I1"/>
+     <direct name="F6MUX_I1" input="{N}5LUT[1].out" output="F6MUX.I1">
+      <pack_pattern in_port="{N}5LUT[1].out" name="LUT5toLUT6" out_port="F6MUX.I1"/>
+      <pack_pattern in_port="{N}5LUT[1].out" name="LUT5toLUT7" out_port="F6MUX.I1"/>
+      <pack_pattern in_port="{N}5LUT[1].out" name="LUT5toLUT8" out_port="F6MUX.I1"/>
      </direct>
-     <direct name="F6MUX_S"  input="BLK_IG-{N}LUT.A6" output="BEL_MX-F6MUX.S">
+     <direct name="F6MUX_S"  input="{N}LUT.A6" output="F6MUX.S">
      </direct>
 
      <!-- LUT outputs -->
-     <direct name="O5" input="BEL_LT-{N}5LUT[0].out"                output="BLK_IG-{N}LUT.O5">
-      <pack_pattern in_port="BEL_LT-{N}5LUT[0].out" name="LUT5x2"     out_port="BLK_IG-{N}LUT.O5"/>
+     <direct name="O5" input="{N}5LUT[0].out"                output="{N}LUT.O5">
+      <pack_pattern in_port="{N}5LUT[0].out" name="LUT5x2"     out_port="{N}LUT.O5"/>
      </direct>
-     <mux    name="O6" input="BEL_LT-{N}5LUT[1].out BEL_MX-F6MUX.O" output="BLK_IG-{N}LUT.O6">
-      <pack_pattern in_port="BEL_MX-F6MUX.O"        name="LUT5toLUT6" out_port="BLK_IG-{N}LUT.O6"/>
-      <pack_pattern in_port="BEL_MX-F6MUX.O"        name="LUT5toLUT7" out_port="BLK_IG-{N}LUT.O6"/>
-      <pack_pattern in_port="BEL_MX-F6MUX.O"        name="LUT5toLUT8" out_port="BLK_IG-{N}LUT.O6"/>
-      <pack_pattern in_port="BEL_LT-{N}5LUT[1].out" name="LUT5x2"     out_port="BLK_IG-{N}LUT.O6"/>
+     <mux    name="O6" input="{N}5LUT[1].out F6MUX.O" output="{N}LUT.O6">
+      <pack_pattern in_port="F6MUX.O"        name="LUT5toLUT6" out_port="{N}LUT.O6"/>
+      <pack_pattern in_port="F6MUX.O"        name="LUT5toLUT7" out_port="{N}LUT.O6"/>
+      <pack_pattern in_port="F6MUX.O"        name="LUT5toLUT8" out_port="{N}LUT.O6"/>
+      <pack_pattern in_port="{N}5LUT[1].out" name="LUT5x2"     out_port="{N}LUT.O6"/>
      </mux>
    </interconnect>
    <metadata>
      <meta name="fasm_type">SPLIT_LUT</meta>
      <meta name="fasm_lut">
-       {N}LUT.INIT[31:0] = BEL_LT-{N}5LUT[0]
-       {N}LUT.INIT[63:32] = BEL_LT-{N}5LUT[1]
+       {N}LUT.INIT[31:0] = {N}5LUT[0]
+       {N}LUT.INIT[63:32] = {N}5LUT[1]
      </meta>
    </metadata>
  </mode>
+ <metadata>
+   <meta name="type">block</meta>
+   <meta name="subtype">ignore</meta>
+ </metadata>
 </pb_type>

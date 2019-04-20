@@ -8,7 +8,7 @@ There are both Latches (first) and Registers (second) on the output (why!?)
 The RAM has extra bits that can be used for parity (DIP / DOP).
 
   -->
-<pb_type name="BLK_IG-RAMB18E1" num_pb="1" blif_model=".subckt RAMB18E1_VPR">
+<pb_type name="RAMB18E1" num_pb="1" blif_model=".subckt RAMB18E1_VPR">
  <!-- Port A - 16bit wide -->
  <clock  name="CLKARDCLK"     num_pins="1"  />
  <input  name="REGCEAREGCE"   num_pins="1"  />
@@ -24,17 +24,17 @@ The RAM has extra bits that can be used for parity (DIP / DOP).
  <output name="DOADO"         num_pins="16" />
  <output name="DOPADOP"       num_pins="2"  />
 
- <T_setup value="10e-12" port="BLK_IG-RAMB18E1.REGCEAREGCE"  clock="CLKARDCLK" />
- <T_setup value="10e-12" port="BLK_IG-RAMB18E1.REGCLKARDRCLK"  clock="CLKARDCLK" />
- <T_setup value="10e-12" port="BLK_IG-RAMB18E1.ENARDEN"  clock="CLKARDCLK" />
- <T_setup value="10e-12" port="BLK_IG-RAMB18E1.RSTRAMARSTRAM"  clock="CLKARDCLK" />
- <T_setup value="10e-12" port="BLK_IG-RAMB18E1.RSTREGARSTREG"  clock="CLKARDCLK" />
- <T_setup value="10e-12" port="BLK_IG-RAMB18E1.ADDRARDADDR"  clock="CLKARDCLK" />
- <T_setup value="10e-12" port="BLK_IG-RAMB18E1.DIADI"  clock="CLKARDCLK" />
- <T_setup value="10e-12" port="BLK_IG-RAMB18E1.DIPADIP"  clock="CLKARDCLK" />
- <T_setup value="10e-12" port="BLK_IG-RAMB18E1.WEA"  clock="CLKARDCLK" />
- <T_clock_to_Q max="10e-12" port="BLK_IG-RAMB18E1.DOADO"  clock="CLKARDCLK" />
- <T_clock_to_Q max="10e-12" port="BLK_IG-RAMB18E1.DOPADOP"  clock="CLKARDCLK" />
+ <T_setup value="10e-12" port="RAMB18E1.REGCEAREGCE"  clock="CLKARDCLK" />
+ <T_setup value="10e-12" port="RAMB18E1.REGCLKARDRCLK"  clock="CLKARDCLK" />
+ <T_setup value="10e-12" port="RAMB18E1.ENARDEN"  clock="CLKARDCLK" />
+ <T_setup value="10e-12" port="RAMB18E1.RSTRAMARSTRAM"  clock="CLKARDCLK" />
+ <T_setup value="10e-12" port="RAMB18E1.RSTREGARSTREG"  clock="CLKARDCLK" />
+ <T_setup value="10e-12" port="RAMB18E1.ADDRARDADDR"  clock="CLKARDCLK" />
+ <T_setup value="10e-12" port="RAMB18E1.DIADI"  clock="CLKARDCLK" />
+ <T_setup value="10e-12" port="RAMB18E1.DIPADIP"  clock="CLKARDCLK" />
+ <T_setup value="10e-12" port="RAMB18E1.WEA"  clock="CLKARDCLK" />
+ <T_clock_to_Q max="10e-12" port="RAMB18E1.DOADO"  clock="CLKARDCLK" />
+ <T_clock_to_Q max="10e-12" port="RAMB18E1.DOPADOP"  clock="CLKARDCLK" />
 
  <!-- Port B - 16bit wide -->
  <clock  name="CLKBWRCLK"     num_pins="1"  />
@@ -51,17 +51,17 @@ The RAM has extra bits that can be used for parity (DIP / DOP).
  <output name="DOBDO"         num_pins="16" />
  <output name="DOPBDOP"       num_pins="2"  />
 
- <T_setup value="10e-12" port="BLK_IG-RAMB18E1.ENBWREN"  clock="CLKBWRCLK" />
- <T_setup value="10e-12" port="BLK_IG-RAMB18E1.REGCEB"  clock="CLKBWRCLK" />
- <T_setup value="10e-12" port="BLK_IG-RAMB18E1.REGCLKB"  clock="CLKBWRCLK" />
- <T_setup value="10e-12" port="BLK_IG-RAMB18E1.RSTRAMB"  clock="CLKBWRCLK" />
- <T_setup value="10e-12" port="BLK_IG-RAMB18E1.RSTREGB"  clock="CLKBWRCLK" />
- <T_setup value="10e-12" port="BLK_IG-RAMB18E1.ADDRBWRADDR"  clock="CLKBWRCLK" />
- <T_setup value="10e-12" port="BLK_IG-RAMB18E1.DIBDI"  clock="CLKBWRCLK" />
- <T_setup value="10e-12" port="BLK_IG-RAMB18E1.DIPBDIP"  clock="CLKBWRCLK" />
- <T_setup value="10e-12" port="BLK_IG-RAMB18E1.WEBWE"  clock="CLKBWRCLK" />
- <T_clock_to_Q max="10e-12" port="BLK_IG-RAMB18E1.DOBDO"  clock="CLKBWRCLK" />
- <T_clock_to_Q max="10e-12" port="BLK_IG-RAMB18E1.DOPBDOP"  clock="CLKBWRCLK" />
+ <T_setup value="10e-12" port="RAMB18E1.ENBWREN"  clock="CLKBWRCLK" />
+ <T_setup value="10e-12" port="RAMB18E1.REGCEB"  clock="CLKBWRCLK" />
+ <T_setup value="10e-12" port="RAMB18E1.REGCLKB"  clock="CLKBWRCLK" />
+ <T_setup value="10e-12" port="RAMB18E1.RSTRAMB"  clock="CLKBWRCLK" />
+ <T_setup value="10e-12" port="RAMB18E1.RSTREGB"  clock="CLKBWRCLK" />
+ <T_setup value="10e-12" port="RAMB18E1.ADDRBWRADDR"  clock="CLKBWRCLK" />
+ <T_setup value="10e-12" port="RAMB18E1.DIBDI"  clock="CLKBWRCLK" />
+ <T_setup value="10e-12" port="RAMB18E1.DIPBDIP"  clock="CLKBWRCLK" />
+ <T_setup value="10e-12" port="RAMB18E1.WEBWE"  clock="CLKBWRCLK" />
+ <T_clock_to_Q max="10e-12" port="RAMB18E1.DOBDO"  clock="CLKBWRCLK" />
+ <T_clock_to_Q max="10e-12" port="RAMB18E1.DOPBDOP"  clock="CLKBWRCLK" />
 
  <metadata>
    <meta name="fasm_params">
@@ -193,5 +193,7 @@ The RAM has extra bits that can be used for parity (DIP / DOP).
      WRITE_MODE_B_NO_CHANGE = WRITE_MODE_B_NO_CHANGE
      WRITE_MODE_B_READ_FIRST = WRITE_MODE_B_READ_FIRST
    </meta>
+   <meta name="type">bel</meta>
+   <meta name="subtype">memory</meta>
  </metadata>
 </pb_type>

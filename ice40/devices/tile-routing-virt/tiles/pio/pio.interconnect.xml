@@ -1,17 +1,17 @@
 <!-- set: ai sw=1 ts=1 sta et -->
 <interconnect xmlns:xi="http://www.w3.org/2001/XInclude">
 
- <mux name="io[0]/D_OUT_0"   input="BLK_XX-local_g[0].o[0] BLK_XX-local_g[0].o[2] BLK_XX-local_g[0].o[4] BLK_XX-local_g[0].o[6] BLK_XX-local_g[1].o[1] BLK_XX-local_g[1].o[3] BLK_XX-local_g[1].o[5] BLK_XX-local_g[1].o[7]" output="BLK_IG-IO_LOCAL.io_0_D_OUT[0]" />
- <mux name="io[0]/D_OUT_1"   input="BLK_XX-local_g[0].o[1] BLK_XX-local_g[0].o[3] BLK_XX-local_g[1].o[0] BLK_XX-local_g[1].o[2] BLK_XX-local_g[0].o[5] BLK_XX-local_g[0].o[7] BLK_XX-local_g[1].o[4] BLK_XX-local_g[1].o[6]" output="BLK_IG-IO_LOCAL.io_0_D_OUT[1]" />
- <mux name="io[0]/OUT_ENB"   input="BLK_XX-local_g[0].o[1] BLK_XX-local_g[0].o[3] BLK_XX-local_g[1].o[0] BLK_XX-local_g[1].o[2] BLK_XX-local_g[0].o[5] BLK_XX-local_g[0].o[7] BLK_XX-local_g[1].o[4] BLK_XX-local_g[1].o[6]" output="BLK_IG-IO_LOCAL.io_0_OUT_ENB" />
+ <mux name="io[0]/D_OUT_0"   input="local_g[0].o[0] local_g[0].o[2] local_g[0].o[4] local_g[0].o[6] local_g[1].o[1] local_g[1].o[3] local_g[1].o[5] local_g[1].o[7]" output="IO_LOCAL.io_0_D_OUT[0]" />
+ <mux name="io[0]/D_OUT_1"   input="local_g[0].o[1] local_g[0].o[3] local_g[1].o[0] local_g[1].o[2] local_g[0].o[5] local_g[0].o[7] local_g[1].o[4] local_g[1].o[6]" output="IO_LOCAL.io_0_D_OUT[1]" />
+ <mux name="io[0]/OUT_ENB"   input="local_g[0].o[1] local_g[0].o[3] local_g[1].o[0] local_g[1].o[2] local_g[0].o[5] local_g[0].o[7] local_g[1].o[4] local_g[1].o[6]" output="IO_LOCAL.io_0_OUT_ENB" />
 
- <mux name="io[1]/D_OUT_0"   input="BLK_XX-local_g[0].o[1] BLK_XX-local_g[0].o[3] BLK_XX-local_g[0].o[5] BLK_XX-local_g[0].o[7] BLK_XX-local_g[1].o[0] BLK_XX-local_g[1].o[2] BLK_XX-local_g[1].o[4] BLK_XX-local_g[1].o[6]" output="BLK_IG-IO_LOCAL.io_1_D_OUT[0]" />
- <mux name="io[1]/D_OUT_1"   input="BLK_XX-local_g[0].o[0] BLK_XX-local_g[0].o[2] BLK_XX-local_g[1].o[1] BLK_XX-local_g[1].o[3] BLK_XX-local_g[0].o[4] BLK_XX-local_g[0].o[6] BLK_XX-local_g[1].o[5] BLK_XX-local_g[1].o[7]" output="BLK_IG-IO_LOCAL.io_1_D_OUT[1]" />
- <mux name="io[1]/OUT_ENB"   input="BLK_XX-local_g[0].o[0] BLK_XX-local_g[0].o[2] BLK_XX-local_g[1].o[1] BLK_XX-local_g[1].o[3] BLK_XX-local_g[0].o[4] BLK_XX-local_g[0].o[6] BLK_XX-local_g[1].o[5] BLK_XX-local_g[1].o[7]" output="BLK_IG-IO_LOCAL.io_1_OUT_ENB" />
+ <mux name="io[1]/D_OUT_0"   input="local_g[0].o[1] local_g[0].o[3] local_g[0].o[5] local_g[0].o[7] local_g[1].o[0] local_g[1].o[2] local_g[1].o[4] local_g[1].o[6]" output="IO_LOCAL.io_1_D_OUT[0]" />
+ <mux name="io[1]/D_OUT_1"   input="local_g[0].o[0] local_g[0].o[2] local_g[1].o[1] local_g[1].o[3] local_g[0].o[4] local_g[0].o[6] local_g[1].o[5] local_g[1].o[7]" output="IO_LOCAL.io_1_D_OUT[1]" />
+ <mux name="io[1]/OUT_ENB"   input="local_g[0].o[0] local_g[0].o[2] local_g[1].o[1] local_g[1].o[3] local_g[0].o[4] local_g[0].o[6] local_g[1].o[5] local_g[1].o[7]" output="IO_LOCAL.io_1_OUT_ENB" />
 
- <mux name="BLK_XX-io_global/i_cen"   input="BLK_XX-local_g[0].o[2]  BLK_XX-local_g[1].o[2]  BLK_XX-local_g[0].o[5]  BLK_XX-local_g[1].o[5]"                                                                                                      output="BLK_XX-io_global.i_cen" />
- <direct name="BLK_XX-io_global->BLK_IG-PLB_LOCAL.io_global_cen"   input="BLK_XX-io_global.o_cen"   output="BLK_IG-IO_LOCAL.io_global_cen"/>
- <direct name="BLK_XX-io_global->BLK_IG-PLB_LOCAL.io_global_inclk" input="BLK_XX-io_global.o_inclk" output="BLK_IG-IO_LOCAL.io_global_inclk"/>
- <direct name="BLK_XX-io_global->BLK_IG-PLB_LOCAL.io_global_outclk" input="BLK_XX-io_global.o_outclk" output="BLK_IG-IO_LOCAL.io_global_outclk"/>
+ <mux name="io_global/i_cen" input="local_g[0].o[2] local_g[1].o[2] local_g[0].o[5] local_g[1].o[5]"                                                                 output="io_global.i_cen" />
+ <direct name="io_global->PLB_LOCAL.io_global_cen"   input="io_global.o_cen"   output="IO_LOCAL.io_global_cen"/>
+ <direct name="io_global->PLB_LOCAL.io_global_inclk" input="io_global.o_inclk" output="IO_LOCAL.io_global_inclk"/>
+ <direct name="io_global->PLB_LOCAL.io_global_outclk" input="io_global.o_outclk" output="IO_LOCAL.io_global_outclk"/>
 
 </interconnect>

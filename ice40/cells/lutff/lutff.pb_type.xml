@@ -1,5 +1,5 @@
 <!-- set: ai sw=1 ts=1 sta et -->
-<pb_type name="BLK_IG-LUTFF" num_pb="1" xmlns:xi="http://www.w3.org/2001/XInclude">
+<pb_type name="LUTFF" num_pb="1" xmlns:xi="http://www.w3.org/2001/XInclude">
  <!-- LUT -->
  <input  name="I"     num_pins="4"/>
 
@@ -28,21 +28,21 @@
  <xi:include href="../../primitives/sb_carry/sb_carry.pb_type.xml"/>
  <xi:include href="../../primitives/sb_ff/sb_ff.pb_type.xml"/>
 
- <pb_type name="BLK_IG-ENABLE_FF" num_pb="1">
+ <pb_type name="ENABLE_FF" num_pb="1">
   <input  name="I" num_pins="1"/>
   <output name="O" num_pins="1"/>
   <interconnect>
-   <direct name="I" input="BLK_IG-ENABLE_FF.I" output="BLK_IG-ENABLE_FF.O" />
+   <direct name="I" input="ENABLE_FF.I" output="ENABLE_FF.O" />
   </interconnect>
   <metadata>
    <meta name="hlc_property">enable_dff</meta>
   </metadata>
  </pb_type>
- <pb_type name="BLK_IG-DISABLE_FF" num_pb="1">
+ <pb_type name="DISABLE_FF" num_pb="1">
   <input  name="I" num_pins="1"/>
   <output name="O" num_pins="1"/>
   <interconnect>
-   <direct name="I" input="BLK_IG-DISABLE_FF.I" output="BLK_IG-DISABLE_FF.O" />
+   <direct name="I" input="DISABLE_FF.I" output="DISABLE_FF.O" />
   </interconnect>
   <metadata>
    <meta name="hlc_property"># disable_dff</meta>
@@ -51,81 +51,81 @@
 
  <interconnect>
   <!-- LUT -->
-  <direct name="LUT.I[0]" input="BLK_IG-LUTFF.I[0]"                      output="BEL_LT-LUT.in[0]" />
-  <direct name="LUT.I[1]" input="BLK_IG-LUTFF.I[1]"                      output="BEL_LT-LUT.in[1]" />
-  <mux    name="LUT.I[2]" input="BLK_IG-LUTFF.LCIN[0] BLK_IG-LUTFF.I[2]" output="BEL_LT-LUT.in[2]" />
+  <direct name="LUT.I[0]" input="LUTFF.I[0]"               output="LUT.in[0]" />
+  <direct name="LUT.I[1]" input="LUTFF.I[1]"               output="LUT.in[1]" />
+  <mux    name="LUT.I[2]" input="LUTFF.LCIN[0] LUTFF.I[2]" output="LUT.in[2]" />
   <!-- Disable FCIN->I3 mux until https://github.com/verilog-to-routing/vtr-verilog-to-routing/issues/325 is fixed.
-  <mux    name="LUT.I[3]" input="BLK_IG-LUTFF.I[3] BLK_IG-LUTFF.FCIN" output="BEL_LT-LUT.in[3]" /> -->
-  <direct name="LUT.I[3]" input="BLK_IG-LUTFF.I[3]"                      output="BEL_LT-LUT.in[3]" />
-  <direct name="LCOUT"    input="BEL_LT-LUT.out"                         output="BLK_IG-LUTFF.LCOUT" />
+  <mux    name="LUT.I[3]" input="LUTFF.I[3] LUTFF.FCIN" output="LUT.in[3]" /> -->
+  <direct name="LUT.I[3]" input="LUTFF.I[3]"               output="LUT.in[3]" />
+  <direct name="LCOUT"    input="LUT.out"                  output="LUTFF.LCOUT" />
 
   <!-- LUT -->
-  <direct name="FF.PCLK"        input="BLK_IG-LUTFF.PCLK"        output="BEL_FF-SB_FF.PCLK"        />
-  <direct name="FF.NCLK"        input="BLK_IG-LUTFF.NCLK"        output="BEL_FF-SB_FF.NCLK"        />
-  <direct name="FF.PCLK+CEN"    input="BLK_IG-LUTFF.PCLK+CEN"    output="BEL_FF-SB_FF.PCLK+CEN"    />
-  <direct name="FF.NCLK+CEN"    input="BLK_IG-LUTFF.NCLK+CEN"    output="BEL_FF-SB_FF.NCLK+CEN"    />
-  <direct name="FF.PCLK+SR"     input="BLK_IG-LUTFF.PCLK+SR"     output="BEL_FF-SB_FF.PCLK+SR"     />
-  <direct name="FF.NCLK+SR"     input="BLK_IG-LUTFF.NCLK+SR"     output="BEL_FF-SB_FF.NCLK+SR"     />
-  <direct name="FF.PCLK+CEN+SR" input="BLK_IG-LUTFF.PCLK+CEN+SR" output="BEL_FF-SB_FF.PCLK+CEN+SR" />
-  <direct name="FF.NCLK+CEN+SR" input="BLK_IG-LUTFF.NCLK+CEN+SR" output="BEL_FF-SB_FF.NCLK+CEN+SR" />
+  <direct name="FF.PCLK"        input="LUTFF.PCLK"        output="SB_FF.PCLK"        />
+  <direct name="FF.NCLK"        input="LUTFF.NCLK"        output="SB_FF.NCLK"        />
+  <direct name="FF.PCLK+CEN"    input="LUTFF.PCLK+CEN"    output="SB_FF.PCLK+CEN"    />
+  <direct name="FF.NCLK+CEN"    input="LUTFF.NCLK+CEN"    output="SB_FF.NCLK+CEN"    />
+  <direct name="FF.PCLK+SR"     input="LUTFF.PCLK+SR"     output="SB_FF.PCLK+SR"     />
+  <direct name="FF.NCLK+SR"     input="LUTFF.NCLK+SR"     output="SB_FF.NCLK+SR"     />
+  <direct name="FF.PCLK+CEN+SR" input="LUTFF.PCLK+CEN+SR" output="SB_FF.PCLK+CEN+SR" />
+  <direct name="FF.NCLK+CEN+SR" input="LUTFF.NCLK+CEN+SR" output="SB_FF.NCLK+CEN+SR" />
 
-  <direct name="FF.E"           input="BLK_IG-LUTFF.EN"          output="BEL_FF-SB_FF.E"           />
-  <direct name="FF.R"           input="BLK_IG-LUTFF.SR"          output="BEL_FF-SB_FF.R"           />
-  <direct name="FF.S"           input="BLK_IG-LUTFF.SR"          output="BEL_FF-SB_FF.S"           />
-  <direct name="FF.D"           input="BEL_LT-LUT.out"           output="BEL_FF-SB_FF.D"            >
-   <pack_pattern name="LUT+FFA" in_port="BEL_LT-LUT.out" out_port="BEL_FF-SB_FF.D"/>
-   <pack_pattern name="LUT+FFB" in_port="BEL_LT-LUT.out" out_port="BEL_FF-SB_FF.D"/>
-   <pack_pattern name="LUT+FFC" in_port="BEL_LT-LUT.out" out_port="BEL_FF-SB_FF.D"/>
-   <pack_pattern name="LUT+FFD" in_port="BEL_LT-LUT.out" out_port="BEL_FF-SB_FF.D"/>
-   <pack_pattern name="LUT+FFE" in_port="BEL_LT-LUT.out" out_port="BEL_FF-SB_FF.D"/>
-   <pack_pattern name="LUT+FFF" in_port="BEL_LT-LUT.out" out_port="BEL_FF-SB_FF.D"/>
-   <pack_pattern name="LUT+FFG" in_port="BEL_LT-LUT.out" out_port="BEL_FF-SB_FF.D"/>
-   <pack_pattern name="LUT+FFH" in_port="BEL_LT-LUT.out" out_port="BEL_FF-SB_FF.D"/>
-   <pack_pattern name="LUT+FFI" in_port="BEL_LT-LUT.out" out_port="BEL_FF-SB_FF.D"/>
-   <pack_pattern name="LUT+FFJ" in_port="BEL_LT-LUT.out" out_port="BEL_FF-SB_FF.D"/>
-   <pack_pattern name="LUT+FFK" in_port="BEL_LT-LUT.out" out_port="BEL_FF-SB_FF.D"/>
-   <pack_pattern name="LUT+FFL" in_port="BEL_LT-LUT.out" out_port="BEL_FF-SB_FF.D"/>
-   <pack_pattern name="LUT+FFM" in_port="BEL_LT-LUT.out" out_port="BEL_FF-SB_FF.D"/>
-   <pack_pattern name="LUT+FFN" in_port="BEL_LT-LUT.out" out_port="BEL_FF-SB_FF.D"/>
-   <pack_pattern name="LUT+FFO" in_port="BEL_LT-LUT.out" out_port="BEL_FF-SB_FF.D"/>
-   <pack_pattern name="LUT+FFP" in_port="BEL_LT-LUT.out" out_port="BEL_FF-SB_FF.D"/>
-   <pack_pattern name="LUT+FFQ" in_port="BEL_LT-LUT.out" out_port="BEL_FF-SB_FF.D"/>
-   <pack_pattern name="LUT+FFR" in_port="BEL_LT-LUT.out" out_port="BEL_FF-SB_FF.D"/>
-   <pack_pattern name="LUT+FFS" in_port="BEL_LT-LUT.out" out_port="BEL_FF-SB_FF.D"/>
-   <pack_pattern name="LUT+FFT" in_port="BEL_LT-LUT.out" out_port="BEL_FF-SB_FF.D"/>
-   <pack_pattern name="LUT+FFU" in_port="BEL_LT-LUT.out" out_port="BEL_FF-SB_FF.D"/>
+  <direct name="FF.E"           input="LUTFF.EN"          output="SB_FF.E"           />
+  <direct name="FF.R"           input="LUTFF.SR"          output="SB_FF.R"           />
+  <direct name="FF.S"           input="LUTFF.SR"          output="SB_FF.S"           />
+  <direct name="FF.D"           input="LUT.out"           output="SB_FF.D"            >
+   <pack_pattern name="LUT+FFA" in_port="LUT.out" out_port="SB_FF.D"/>
+   <pack_pattern name="LUT+FFB" in_port="LUT.out" out_port="SB_FF.D"/>
+   <pack_pattern name="LUT+FFC" in_port="LUT.out" out_port="SB_FF.D"/>
+   <pack_pattern name="LUT+FFD" in_port="LUT.out" out_port="SB_FF.D"/>
+   <pack_pattern name="LUT+FFE" in_port="LUT.out" out_port="SB_FF.D"/>
+   <pack_pattern name="LUT+FFF" in_port="LUT.out" out_port="SB_FF.D"/>
+   <pack_pattern name="LUT+FFG" in_port="LUT.out" out_port="SB_FF.D"/>
+   <pack_pattern name="LUT+FFH" in_port="LUT.out" out_port="SB_FF.D"/>
+   <pack_pattern name="LUT+FFI" in_port="LUT.out" out_port="SB_FF.D"/>
+   <pack_pattern name="LUT+FFJ" in_port="LUT.out" out_port="SB_FF.D"/>
+   <pack_pattern name="LUT+FFK" in_port="LUT.out" out_port="SB_FF.D"/>
+   <pack_pattern name="LUT+FFL" in_port="LUT.out" out_port="SB_FF.D"/>
+   <pack_pattern name="LUT+FFM" in_port="LUT.out" out_port="SB_FF.D"/>
+   <pack_pattern name="LUT+FFN" in_port="LUT.out" out_port="SB_FF.D"/>
+   <pack_pattern name="LUT+FFO" in_port="LUT.out" out_port="SB_FF.D"/>
+   <pack_pattern name="LUT+FFP" in_port="LUT.out" out_port="SB_FF.D"/>
+   <pack_pattern name="LUT+FFQ" in_port="LUT.out" out_port="SB_FF.D"/>
+   <pack_pattern name="LUT+FFR" in_port="LUT.out" out_port="SB_FF.D"/>
+   <pack_pattern name="LUT+FFS" in_port="LUT.out" out_port="SB_FF.D"/>
+   <pack_pattern name="LUT+FFT" in_port="LUT.out" out_port="SB_FF.D"/>
+   <pack_pattern name="LUT+FFU" in_port="LUT.out" out_port="SB_FF.D"/>
   </direct>
 
-  <direct name="DISABLE_FF" input="BEL_LT-LUT.out" output="BLK_IG-DISABLE_FF.I" />
-  <direct name="ENABLE_FF"  input="BEL_FF-SB_FF.Q" output="BLK_IG-ENABLE_FF.I"  />
+  <direct name="DISABLE_FF" input="LUT.out" output="DISABLE_FF.I" />
+  <direct name="ENABLE_FF"  input="SB_FF.Q" output="ENABLE_FF.I"  />
   <!-- Output -->
-  <mux name="O" input="BLK_IG-DISABLE_FF.O BLK_IG-ENABLE_FF.O" output="BLK_IG-LUTFF.O">
+  <mux name="O" input="DISABLE_FF.O ENABLE_FF.O" output="LUTFF.O">
     <metadata>
       <meta name="fasm_mux">
-	BLK_IG-ENABLE_FF.O  = DffEnable
-	BLK_IG-DISABLE_FF.O = NULL
+	ENABLE_FF.O  = DffEnable
+	DISABLE_FF.O = NULL
       </meta>
     </metadata>
   </mux>
   <!--
-  <direct name="OMUX.LT" input="BLK_IG-ENABLE_FF.O"  output="BEL_RX-RMUX2.LT" />
-  <direct name="OMUX.FF" input="BLK_IG-DISABLE_FF.O" output="BEL_RX-RMUX2.FF" />
-  <direct name="OMUX.O"  input="BEL_RX-RMUX2.O"      output="BLK_IG-LUTFF.O" />
+  <direct name="OMUX.LT" input="ENABLE_FF.O"  output="RMUX2.LT" />
+  <direct name="OMUX.FF" input="DISABLE_FF.O" output="RMUX2.FF" />
+  <direct name="OMUX.O"  input="RMUX2.O"      output="LUTFF.O" />
        -->
 
   <!-- CARRY -->
-  <direct name="SB_CARRY.I0" input="BLK_IG-LUTFF.I[1]" output="SB_CARRY.I0" />
-  <direct name="SB_CARRY.I1" input="BLK_IG-LUTFF.I[2]" output="SB_CARRY.I1" />
+  <direct name="SB_CARRY.I0" input="LUTFF.I[1]" output="SB_CARRY.I0" />
+  <direct name="SB_CARRY.I1" input="LUTFF.I[2]" output="SB_CARRY.I1" />
 
-  <direct name="BLK_IG-LUTFF.FCIN" input="BLK_IG-LUTFF.FCIN" output="SB_CARRY.CI">
-   <pack_pattern name="CARRYCHAIN" in_port="BLK_IG-LUTFF.FCIN" out_port="SB_CARRY.CI" />
+  <direct name="LUTFF.FCIN" input="LUTFF.FCIN" output="SB_CARRY.CI">
+   <pack_pattern name="CARRYCHAIN" in_port="LUTFF.FCIN" out_port="SB_CARRY.CI" />
   </direct>
-  <direct name="BLK_IG-LUTFF.FCOUT" input="SB_CARRY.CO" output="BLK_IG-LUTFF.FCOUT">
-   <pack_pattern name="CARRYCHAIN" in_port="SB_CARRY.CO" out_port="BLK_IG-LUTFF.FCOUT" />
+  <direct name="LUTFF.FCOUT" input="SB_CARRY.CO" output="LUTFF.FCOUT">
+   <pack_pattern name="CARRYCHAIN" in_port="SB_CARRY.CO" out_port="LUTFF.FCOUT" />
   </direct>
   <!--
-  <direct name="BLK_IG-LUTFF.FCIN" input="BLK_IG-LUTFF.FCIN" output="SB_CARRY.CI" />
-  <direct name="BLK_IG-LUTFF.FCOUT" input="SB_CARRY.CO" output="BLK_IG-LUTFF.FCOUT" />
+  <direct name="LUTFF.FCIN" input="LUTFF.FCIN" output="SB_CARRY.CI" />
+  <direct name="LUTFF.FCOUT" input="SB_CARRY.CO" output="LUTFF.FCOUT" />
   -->
 
  </interconnect>

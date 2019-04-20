@@ -1,5 +1,5 @@
 <!-- set: ai sw=1 ts=1 sta et -->
-<pb_type name="BLK_BB-IOB" num_pb="2">
+<pb_type name="IOB" num_pb="2">
  <input name="outpad" num_pins="1"/>
  <output name="inpad" num_pins="1"/>
 
@@ -7,6 +7,10 @@
  <mode name="inpad">
    <pb_type name="inpad" blif_model=".input" num_pb="1">
     <output name="inpad" num_pins="1"/>
+    <metadata>
+     <meta name="type">bel</meta>
+     <meta name="subtype">input</meta>
+    </metadata>
    </pb_type>
    <interconnect>
     <direct name="inpad" input="inpad.inpad" output="IOB.inpad">
@@ -19,6 +23,10 @@
  <mode name="outpad">
   <pb_type name="outpad" blif_model=".output" num_pb="1">
    <input name="outpad" num_pins="1"/>
+   <metadata>
+    <meta name="type">bel</meta>
+    <meta name="subtype">output</meta>
+   </metadata>
   </pb_type>
   <interconnect>
    <direct name="outpad" input="IOB.outpad" output="outpad.outpad">
@@ -26,4 +34,8 @@
    </direct>
   </interconnect>
  </mode>
+ <metadata>
+  <meta name="type">block</meta>
+  <meta name="subtype">ignore</meta>
+ </metadata>
 </pb_type>

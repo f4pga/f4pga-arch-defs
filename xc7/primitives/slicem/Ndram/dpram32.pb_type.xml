@@ -1,4 +1,4 @@
-<pb_type name="BLK_MM-DPRAM32" num_pb="1" blif_model=".subckt DPRAM32">
+<pb_type name="DPRAM32" num_pb="1" blif_model=".subckt DPRAM32">
   <clock  name="CLK" num_pins="1" />
 
   <!-- A1 - Read port -->
@@ -6,14 +6,14 @@
   <output name="O6"  num_pins="1" />
   <output name="O5"  num_pins="1" />
 
-  <delay_matrix type="max" in_port="BLK_MM-DPRAM32.A" out_port="BLK_MM-DPRAM32.O6">
+  <delay_matrix type="max" in_port="DPRAM32.A" out_port="DPRAM32.O6">
     0.068e-9
     0.068e-9
     0.068e-9
     0.068e-9
     0.068e-9
   </delay_matrix>
-  <delay_matrix type="max" in_port="BLK_MM-DPRAM32.A" out_port="BLK_MM-DPRAM32.O5">
+  <delay_matrix type="max" in_port="DPRAM32.A" out_port="DPRAM32.O5">
     0.068e-9
     0.068e-9
     0.068e-9
@@ -27,20 +27,20 @@
   <input  name="DI2" num_pins="1" />
   <input  name="WE"  num_pins="1" />
 
-  <T_setup      value="10e-12" port="BLK_MM-DPRAM32.WA"  clock="CLK" />
-  <T_clock_to_Q   max="10e-12" port="BLK_MM-DPRAM32.WA"  clock="CLK" />
-  <delay_constant max="10e-12" in_port="BLK_MM-DPRAM32.WA"  out_port="BLK_MM-DPRAM32.O6" />
-  <delay_constant max="10e-12" in_port="BLK_MM-DPRAM32.WA"  out_port="BLK_MM-DPRAM32.O5" />
-  <T_setup    value="10e-12" port="BLK_MM-DPRAM32.WE"  clock="CLK" />
-  <T_clock_to_Q   max="10e-12" port="BLK_MM-DPRAM32.WE"  clock="CLK" />
-  <delay_constant max="10e-12" in_port="BLK_MM-DPRAM32.WE"  out_port="BLK_MM-DPRAM32.O6" />
-  <delay_constant max="10e-12" in_port="BLK_MM-DPRAM32.WE"  out_port="BLK_MM-DPRAM32.O5" />
-  <T_setup    value="10e-12" port="BLK_MM-DPRAM32.DI1"  clock="CLK" />
-  <T_clock_to_Q   max="10e-12" port="BLK_MM-DPRAM32.DI1"  clock="CLK" />
-  <delay_constant max="10e-12" in_port="BLK_MM-DPRAM32.DI1"  out_port="BLK_MM-DPRAM32.O6" />
-  <T_setup    value="10e-12" port="BLK_MM-DPRAM32.DI2"  clock="CLK" />
-  <T_clock_to_Q   max="10e-12" port="BLK_MM-DPRAM32.DI2"  clock="CLK" />
-  <delay_constant max="10e-12" in_port="BLK_MM-DPRAM32.DI2"  out_port="BLK_MM-DPRAM32.O5" />
+  <T_setup      value="10e-12" port="DPRAM32.WA"  clock="CLK" />
+  <T_clock_to_Q   max="10e-12" port="DPRAM32.WA"  clock="CLK" />
+  <delay_constant max="10e-12" in_port="DPRAM32.WA"  out_port="DPRAM32.O6" />
+  <delay_constant max="10e-12" in_port="DPRAM32.WA"  out_port="DPRAM32.O5" />
+  <T_setup    value="10e-12" port="DPRAM32.WE"  clock="CLK" />
+  <T_clock_to_Q   max="10e-12" port="DPRAM32.WE"  clock="CLK" />
+  <delay_constant max="10e-12" in_port="DPRAM32.WE"  out_port="DPRAM32.O6" />
+  <delay_constant max="10e-12" in_port="DPRAM32.WE"  out_port="DPRAM32.O5" />
+  <T_setup    value="10e-12" port="DPRAM32.DI1"  clock="CLK" />
+  <T_clock_to_Q   max="10e-12" port="DPRAM32.DI1"  clock="CLK" />
+  <delay_constant max="10e-12" in_port="DPRAM32.DI1"  out_port="DPRAM32.O6" />
+  <T_setup    value="10e-12" port="DPRAM32.DI2"  clock="CLK" />
+  <T_clock_to_Q   max="10e-12" port="DPRAM32.DI2"  clock="CLK" />
+  <delay_constant max="10e-12" in_port="DPRAM32.DI2"  out_port="DPRAM32.O5" />
   <metadata>
     <meta name="fasm_params">
       INIT[31:0] = INIT_00
@@ -50,5 +50,7 @@
       RAM
       SMALL
     </meta>
+    <meta name="type">bel</meta>
+    <meta name="subtype">memory</meta>
   </metadata>
 </pb_type>

@@ -27,6 +27,14 @@ def clog2(x):
     return i
 
 
+def add_metadata(tag, mtype, msubtype):
+    meta_root = ET.SubElement(tag, 'metadata')
+    meta_type = ET.SubElement(meta_root, 'meta', {'key': 'type'})
+    meta_type.text = mtype
+    meta_subtype = ET.SubElement(meta_root, 'meta', {'key': 'subtype'})
+    meta_subtype.text = msubtype
+
+
 class MuxType(Enum):
     LOGIC = 'BEL_MX'
     ROUTING = 'BEL_RX'
@@ -121,25 +129,7 @@ def pb_type_xml(mux_type, mux_name, pins, subckt=None, num_pb=1, comment=""):
     assert isinstance(comment,
                       str), "{} {}".format(type(comment), repr(comment))
 
-    if mux_type == MuxType.LOGIC:
-        if '-' not in mux_name:
-            mux_name = 'BEL_MX-' + mux_name
-        else:
-            assert mux_name.startswith(
-                'BEL_MX-'
-            ), "Provided mux name has type {} but not BEL_MX!".format(
-                mux_name
-            )
-    elif mux_type == MuxType.ROUTING:
-        if '-' not in mux_name:
-            mux_name = 'BEL_RX-' + mux_name
-        else:
-            assert mux_name.startswith(
-                'BEL_RX-'
-            ), "Provided mux name has type {} but not BEL_MX!".format(
-                mux_name
-            )
-    else:
+    if mux_type not in (MuxType.LOGIC, MuxType.ROUTING):
         assert False, "Unknown type {}".format(mux_type)
 
     pb_type_xml = ET.Element(
@@ -174,7 +164,7 @@ def pb_type_xml(mux_type, mux_name, pins, subckt=None, num_pb=1, comment=""):
         else:
             num_pins = port.width
 
-        ET.SubElement(
+        mux = ET.SubElement(
             pb_type_xml,
             port.pin_type.direction(),
             {
@@ -182,6 +172,7 @@ def pb_type_xml(mux_type, mux_name, pins, subckt=None, num_pb=1, comment=""):
                 'num_pins': str(num_pins)
             },
         )
+        add_metadata(mux, 'bel', 'mux')
 
     if mux_type == MuxType.LOGIC:
         for inport in pins:
@@ -216,15 +207,16 @@ def pb_type_xml(mux_type, mux_name, pins, subckt=None, num_pb=1, comment=""):
         ]
         assert len(outputs) == 1
 
-        ET.SubElement(
+        mux = ET.SubElement(
             interconnect,
             'mux',
             {
-                'name': '%s' % (mux_name, ),
+                'name': '%s' % mux_name,
                 'input': " ".join(inputs),
                 'output': outputs[0],
             },
         )
+        add_metadata(mux, 'bel', 'routing')
 
     return pb_type_xml
 
