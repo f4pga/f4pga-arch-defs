@@ -1,5 +1,5 @@
 <!-- set: ai sw=1 ts=1 sta et -->
-<pb_type name="BLK_TL-PIO_B" xmlns:xi="http://www.w3.org/2001/XInclude">
+<pb_type name="PIO_B" xmlns:xi="http://www.w3.org/2001/XInclude">
  <xi:include href="../pio/pio.pb_type.xml" xpointer="xpointer(pb_type/child::node())"/>
  <xi:include href="../pio-tb/pio-tb.pb_type.xml" xpointer="xpointer(pb_type/child::node())"/>
 
@@ -15,145 +15,149 @@
  <interconnect>
   <xi:include href="../pio/pio.interconnect.xml" xpointer="xpointer(interconnect/child::node())"/>
 
-  <mux name="fabout"          input="BLK_XX-local_g[0].o[1] BLK_XX-local_g[0].o[5] BLK_XX-local_g[1].o[0] BLK_XX-local_g[1].o[4] BLK_XX-local_g[0].o[3] BLK_XX-local_g[0].o[7] BLK_XX-local_g[1].o[2] BLK_XX-local_g[1].o[6]" output="BLK_TL-PIO_B.fabout" />
+  <mux name="fabout"             input="local_g[0].o[1] local_g[0].o[5] local_g[1].o[0] local_g[1].o[4] local_g[0].o[3] local_g[0].o[7] local_g[1].o[2] local_g[1].o[6]" output="PIO_B.fabout" />
 
-  <mux name="BLK_XX-io_global/i_inclk" input="BLK_TL-PIO_B.i_glb_netwk[0] BLK_TL-PIO_B.i_glb_netwk[1] BLK_TL-PIO_B.i_glb_netwk[4] BLK_TL-PIO_B.i_glb_netwk[5] BLK_XX-local_g[0].o[0] BLK_XX-local_g[0].o[3] BLK_TL-PIO_B.i_glb_netwk[2] BLK_TL-PIO_B.i_glb_netwk[3] BLK_TL-PIO_B.i_glb_netwk[6] BLK_TL-PIO_B.i_glb_netwk[7] BLK_XX-local_g[1].o[0] BLK_XX-local_g[1].o[3]" output="BLK_XX-io_global.i_inclk" />
-  <mux name="BLK_XX-io_global/i_outclk" input="BLK_TL-PIO_B.i_glb_netwk[0] BLK_TL-PIO_B.i_glb_netwk[1] BLK_TL-PIO_B.i_glb_netwk[4] BLK_TL-PIO_B.i_glb_netwk[5] BLK_XX-local_g[0].o[1] BLK_XX-local_g[0].o[4] BLK_TL-PIO_B.i_glb_netwk[2] BLK_TL-PIO_B.i_glb_netwk[3] BLK_TL-PIO_B.i_glb_netwk[6] BLK_TL-PIO_B.i_glb_netwk[7] BLK_XX-local_g[1].o[1] BLK_XX-local_g[1].o[4]" output="BLK_XX-io_global.i_outclk"/>
+  <mux name="io_global/i_inclk"  input="PIO_B.i_glb_netwk[0] PIO_B.i_glb_netwk[1] PIO_B.i_glb_netwk[4] PIO_B.i_glb_netwk[5] local_g[0].o[0] local_g[0].o[3] PIO_B.i_glb_netwk[2] PIO_B.i_glb_netwk[3] PIO_B.i_glb_netwk[6] PIO_B.i_glb_netwk[7] local_g[1].o[0] local_g[1].o[3]" output="io_global.i_inclk" />
+  <mux name="io_global/i_outclk" input="PIO_B.i_glb_netwk[0] PIO_B.i_glb_netwk[1] PIO_B.i_glb_netwk[4] PIO_B.i_glb_netwk[5] local_g[0].o[1] local_g[0].o[4] PIO_B.i_glb_netwk[2] PIO_B.i_glb_netwk[3] PIO_B.i_glb_netwk[6] PIO_B.i_glb_netwk[7] local_g[1].o[1] local_g[1].o[4]" output="io_global.i_outclk"/>
 
   <!-- Local Tracks -->
-  <mux name="BLK_XX-local_g[0].i[0]" input="BLK_TL-PIO_B.i_span12_vert[8]    BLK_TL-PIO_B.i_neigh_op_tnr[0]   BLK_TL-PIO_B.i_span4_vert[16]    BLK_TL-PIO_B.i_span12_vert[16]   BLK_TL-PIO_B.i_span4_horz_r[0]   BLK_TL-PIO_B.i_span4_vert[24]    BLK_TL-PIO_B.i_neigh_op_tnl[0]   BLK_TL-PIO_B.i_span4_vert[0]     BLK_TL-PIO_B.i_span4_horz_r[8]   BLK_TL-PIO_B.i_span4_vert[32]    BLK_TL-PIO_B.i_neigh_op_top[0]   BLK_TL-PIO_B.i_span4_vert[8]     BLK_TL-PIO_B.i_span12_vert[0]    BLK_TL-PIO_B.i_span4_vert[40]" output="BLK_XX-local_g[0].i[0]" />
-  <mux name="BLK_XX-local_g[0].i[1]" input="BLK_TL-PIO_B.i_neigh_op_tnl[1]   BLK_TL-PIO_B.i_neigh_op_top[1]   BLK_TL-PIO_B.i_span12_vert[9]    BLK_TL-PIO_B.i_span12_vert[17]   BLK_TL-PIO_B.i_span4_vert[1]     BLK_TL-PIO_B.i_span4_vert[9]     BLK_TL-PIO_B.i_neigh_op_tnr[1]   BLK_TL-PIO_B.i_span4_horz_r[1]   BLK_TL-PIO_B.i_span4_horz_r[9]   BLK_TL-PIO_B.i_span12_vert[1]    BLK_TL-PIO_B.i_span4_vert[17]    BLK_TL-PIO_B.i_span4_vert[25]    BLK_TL-PIO_B.i_span4_vert[33]    BLK_TL-PIO_B.i_span4_vert[41]" output="BLK_XX-local_g[0].i[1]" />
-  <mux name="BLK_XX-local_g[0].i[2]" input="BLK_TL-PIO_B.i_span12_vert[10]   BLK_TL-PIO_B.i_neigh_op_tnr[2]   BLK_TL-PIO_B.i_span4_vert[18]    BLK_TL-PIO_B.i_span12_vert[18]   BLK_TL-PIO_B.i_span4_horz_r[2]   BLK_TL-PIO_B.i_span4_vert[26]    BLK_TL-PIO_B.i_neigh_op_tnl[2]   BLK_TL-PIO_B.i_span4_vert[2]     BLK_TL-PIO_B.i_span4_horz_r[10]  BLK_TL-PIO_B.i_span4_vert[34]    BLK_TL-PIO_B.i_neigh_op_top[2]   BLK_TL-PIO_B.i_span4_vert[10]    BLK_TL-PIO_B.i_span12_vert[2]    BLK_TL-PIO_B.i_span4_vert[42]" output="BLK_XX-local_g[0].i[2]" />
-  <mux name="BLK_XX-local_g[0].i[3]" input="BLK_TL-PIO_B.i_neigh_op_tnl[3]   BLK_TL-PIO_B.i_neigh_op_top[3]   BLK_TL-PIO_B.i_span12_vert[11]   BLK_TL-PIO_B.i_span12_vert[19]   BLK_TL-PIO_B.i_span4_vert[3]     BLK_TL-PIO_B.i_span4_vert[11]    BLK_TL-PIO_B.i_neigh_op_tnr[3]   BLK_TL-PIO_B.i_span4_horz_r[3]   BLK_TL-PIO_B.i_span4_horz_r[11]  BLK_TL-PIO_B.i_span12_vert[3]    BLK_TL-PIO_B.i_span4_vert[19]    BLK_TL-PIO_B.i_span4_vert[27]    BLK_TL-PIO_B.i_span4_vert[35]    BLK_TL-PIO_B.i_span4_vert[43]" output="BLK_XX-local_g[0].i[3]" />
-  <mux name="BLK_XX-local_g[0].i[4]" input="BLK_TL-PIO_B.i_span12_vert[12]   BLK_TL-PIO_B.i_neigh_op_tnr[4]   BLK_TL-PIO_B.i_span4_vert[20]    BLK_TL-PIO_B.i_span12_vert[20]   BLK_TL-PIO_B.i_span4_horz_r[4]   BLK_TL-PIO_B.i_span4_vert[28]    BLK_TL-PIO_B.i_neigh_op_tnl[4]   BLK_TL-PIO_B.i_span4_vert[4]     BLK_TL-PIO_B.i_span4_horz_r[12]  BLK_TL-PIO_B.i_span4_vert[36]    BLK_TL-PIO_B.i_neigh_op_top[4]   BLK_TL-PIO_B.i_span4_vert[12]    BLK_TL-PIO_B.i_span12_vert[4]    BLK_TL-PIO_B.i_span4_vert[44]" output="BLK_XX-local_g[0].i[4]" />
-  <mux name="BLK_XX-local_g[0].i[5]" input="BLK_TL-PIO_B.i_neigh_op_tnl[5]   BLK_TL-PIO_B.i_neigh_op_top[5]   BLK_TL-PIO_B.i_span12_vert[13]   BLK_TL-PIO_B.i_span12_vert[21]   BLK_TL-PIO_B.i_span4_vert[5]     BLK_TL-PIO_B.i_span4_vert[13]    BLK_TL-PIO_B.i_neigh_op_tnr[5]   BLK_TL-PIO_B.i_span4_horz_r[5]   BLK_TL-PIO_B.i_span4_horz_r[13]  BLK_TL-PIO_B.i_span12_vert[5]    BLK_TL-PIO_B.i_span4_vert[21]    BLK_TL-PIO_B.i_span4_vert[29]    BLK_TL-PIO_B.i_span4_vert[37]    BLK_TL-PIO_B.i_span4_vert[45]" output="BLK_XX-local_g[0].i[5]" />
-  <mux name="BLK_XX-local_g[0].i[6]" input="BLK_TL-PIO_B.i_span12_vert[14]   BLK_TL-PIO_B.i_neigh_op_tnr[6]   BLK_TL-PIO_B.i_span4_vert[22]    BLK_TL-PIO_B.i_span12_vert[22]   BLK_TL-PIO_B.i_span4_horz_r[6]   BLK_TL-PIO_B.i_span4_vert[30]    BLK_TL-PIO_B.i_neigh_op_tnl[6]   BLK_TL-PIO_B.i_span4_vert[6]     BLK_TL-PIO_B.i_span4_horz_r[14]  BLK_TL-PIO_B.i_span4_vert[38]    BLK_TL-PIO_B.i_neigh_op_top[6]   BLK_TL-PIO_B.i_span4_vert[14]    BLK_TL-PIO_B.i_span12_vert[6]    BLK_TL-PIO_B.i_span4_vert[46]" output="BLK_XX-local_g[0].i[6]" />
-  <mux name="BLK_XX-local_g[0].i[7]" input="BLK_TL-PIO_B.i_neigh_op_tnl[7]   BLK_TL-PIO_B.i_neigh_op_top[7]   BLK_TL-PIO_B.i_span12_vert[15]   BLK_TL-PIO_B.i_span12_vert[23]   BLK_TL-PIO_B.i_span4_vert[7]     BLK_TL-PIO_B.i_span4_vert[15]    BLK_TL-PIO_B.i_neigh_op_tnr[7]   BLK_TL-PIO_B.i_span4_horz_r[7]   BLK_TL-PIO_B.i_span4_horz_r[15]  BLK_TL-PIO_B.i_span12_vert[7]    BLK_TL-PIO_B.i_span4_vert[23]    BLK_TL-PIO_B.i_span4_vert[31]    BLK_TL-PIO_B.i_span4_vert[39]    BLK_TL-PIO_B.i_span4_vert[47]" output="BLK_XX-local_g[0].i[7]" />
+  <mux name="local_g[0].i[0]" input="PIO_B.i_span12_vert[8]    PIO_B.i_neigh_op_tnr[0]   PIO_B.i_span4_vert[16]    PIO_B.i_span12_vert[16]   PIO_B.i_span4_horz_r[0]   PIO_B.i_span4_vert[24]    PIO_B.i_neigh_op_tnl[0]   PIO_B.i_span4_vert[0]     PIO_B.i_span4_horz_r[8]   PIO_B.i_span4_vert[32]    PIO_B.i_neigh_op_top[0]   PIO_B.i_span4_vert[8]     PIO_B.i_span12_vert[0]    PIO_B.i_span4_vert[40]" output="local_g[0].i[0]" />
+  <mux name="local_g[0].i[1]" input="PIO_B.i_neigh_op_tnl[1]   PIO_B.i_neigh_op_top[1]   PIO_B.i_span12_vert[9]    PIO_B.i_span12_vert[17]   PIO_B.i_span4_vert[1]     PIO_B.i_span4_vert[9]     PIO_B.i_neigh_op_tnr[1]   PIO_B.i_span4_horz_r[1]   PIO_B.i_span4_horz_r[9]   PIO_B.i_span12_vert[1]    PIO_B.i_span4_vert[17]    PIO_B.i_span4_vert[25]    PIO_B.i_span4_vert[33]    PIO_B.i_span4_vert[41]" output="local_g[0].i[1]" />
+  <mux name="local_g[0].i[2]" input="PIO_B.i_span12_vert[10]   PIO_B.i_neigh_op_tnr[2]   PIO_B.i_span4_vert[18]    PIO_B.i_span12_vert[18]   PIO_B.i_span4_horz_r[2]   PIO_B.i_span4_vert[26]    PIO_B.i_neigh_op_tnl[2]   PIO_B.i_span4_vert[2]     PIO_B.i_span4_horz_r[10]  PIO_B.i_span4_vert[34]    PIO_B.i_neigh_op_top[2]   PIO_B.i_span4_vert[10]    PIO_B.i_span12_vert[2]    PIO_B.i_span4_vert[42]" output="local_g[0].i[2]" />
+  <mux name="local_g[0].i[3]" input="PIO_B.i_neigh_op_tnl[3]   PIO_B.i_neigh_op_top[3]   PIO_B.i_span12_vert[11]   PIO_B.i_span12_vert[19]   PIO_B.i_span4_vert[3]     PIO_B.i_span4_vert[11]    PIO_B.i_neigh_op_tnr[3]   PIO_B.i_span4_horz_r[3]   PIO_B.i_span4_horz_r[11]  PIO_B.i_span12_vert[3]    PIO_B.i_span4_vert[19]    PIO_B.i_span4_vert[27]    PIO_B.i_span4_vert[35]    PIO_B.i_span4_vert[43]" output="local_g[0].i[3]" />
+  <mux name="local_g[0].i[4]" input="PIO_B.i_span12_vert[12]   PIO_B.i_neigh_op_tnr[4]   PIO_B.i_span4_vert[20]    PIO_B.i_span12_vert[20]   PIO_B.i_span4_horz_r[4]   PIO_B.i_span4_vert[28]    PIO_B.i_neigh_op_tnl[4]   PIO_B.i_span4_vert[4]     PIO_B.i_span4_horz_r[12]  PIO_B.i_span4_vert[36]    PIO_B.i_neigh_op_top[4]   PIO_B.i_span4_vert[12]    PIO_B.i_span12_vert[4]    PIO_B.i_span4_vert[44]" output="local_g[0].i[4]" />
+  <mux name="local_g[0].i[5]" input="PIO_B.i_neigh_op_tnl[5]   PIO_B.i_neigh_op_top[5]   PIO_B.i_span12_vert[13]   PIO_B.i_span12_vert[21]   PIO_B.i_span4_vert[5]     PIO_B.i_span4_vert[13]    PIO_B.i_neigh_op_tnr[5]   PIO_B.i_span4_horz_r[5]   PIO_B.i_span4_horz_r[13]  PIO_B.i_span12_vert[5]    PIO_B.i_span4_vert[21]    PIO_B.i_span4_vert[29]    PIO_B.i_span4_vert[37]    PIO_B.i_span4_vert[45]" output="local_g[0].i[5]" />
+  <mux name="local_g[0].i[6]" input="PIO_B.i_span12_vert[14]   PIO_B.i_neigh_op_tnr[6]   PIO_B.i_span4_vert[22]    PIO_B.i_span12_vert[22]   PIO_B.i_span4_horz_r[6]   PIO_B.i_span4_vert[30]    PIO_B.i_neigh_op_tnl[6]   PIO_B.i_span4_vert[6]     PIO_B.i_span4_horz_r[14]  PIO_B.i_span4_vert[38]    PIO_B.i_neigh_op_top[6]   PIO_B.i_span4_vert[14]    PIO_B.i_span12_vert[6]    PIO_B.i_span4_vert[46]" output="local_g[0].i[6]" />
+  <mux name="local_g[0].i[7]" input="PIO_B.i_neigh_op_tnl[7]   PIO_B.i_neigh_op_top[7]   PIO_B.i_span12_vert[15]   PIO_B.i_span12_vert[23]   PIO_B.i_span4_vert[7]     PIO_B.i_span4_vert[15]    PIO_B.i_neigh_op_tnr[7]   PIO_B.i_span4_horz_r[7]   PIO_B.i_span4_horz_r[15]  PIO_B.i_span12_vert[7]    PIO_B.i_span4_vert[23]    PIO_B.i_span4_vert[31]    PIO_B.i_span4_vert[39]    PIO_B.i_span4_vert[47]" output="local_g[0].i[7]" />
 
 
-  <mux name="BLK_XX-local_g[1].i[0]" input="BLK_TL-PIO_B.i_span12_vert[8]    BLK_TL-PIO_B.i_neigh_op_tnr[0]   BLK_TL-PIO_B.i_span4_vert[16]    BLK_TL-PIO_B.i_span12_vert[16]   BLK_TL-PIO_B.i_span4_horz_r[0]   BLK_TL-PIO_B.i_span4_vert[24]    BLK_TL-PIO_B.i_neigh_op_tnl[0]   BLK_TL-PIO_B.i_span4_vert[0]     BLK_TL-PIO_B.i_span4_horz_r[8]   BLK_TL-PIO_B.i_span4_vert[32]    BLK_TL-PIO_B.i_neigh_op_top[0]   BLK_TL-PIO_B.i_span4_vert[8]     BLK_TL-PIO_B.i_span12_vert[0]    BLK_TL-PIO_B.i_span4_vert[40]" output="BLK_XX-local_g[1].i[0]" />
-  <mux name="BLK_XX-local_g[1].i[1]" input="BLK_TL-PIO_B.i_neigh_op_tnl[1]   BLK_TL-PIO_B.i_neigh_op_top[1]   BLK_TL-PIO_B.i_span12_vert[9]    BLK_TL-PIO_B.i_span12_vert[17]   BLK_TL-PIO_B.i_span4_vert[1]     BLK_TL-PIO_B.i_span4_vert[9]     BLK_TL-PIO_B.i_neigh_op_tnr[1]   BLK_TL-PIO_B.i_span4_horz_r[1]   BLK_TL-PIO_B.i_span4_horz_r[9]   BLK_TL-PIO_B.i_span12_vert[1]    BLK_TL-PIO_B.i_span4_vert[17]    BLK_TL-PIO_B.i_span4_vert[25]    BLK_TL-PIO_B.i_span4_vert[33]    BLK_TL-PIO_B.i_span4_vert[41]" output="BLK_XX-local_g[1].i[1]" />
-  <mux name="BLK_XX-local_g[1].i[2]" input="BLK_TL-PIO_B.i_span12_vert[10]   BLK_TL-PIO_B.i_neigh_op_tnr[2]   BLK_TL-PIO_B.i_span4_vert[18]    BLK_TL-PIO_B.i_span12_vert[18]   BLK_TL-PIO_B.i_span4_horz_r[2]   BLK_TL-PIO_B.i_span4_vert[26]    BLK_TL-PIO_B.i_neigh_op_tnl[2]   BLK_TL-PIO_B.i_span4_vert[2]     BLK_TL-PIO_B.i_span4_horz_r[10]  BLK_TL-PIO_B.i_span4_vert[34]    BLK_TL-PIO_B.i_neigh_op_top[2]   BLK_TL-PIO_B.i_span4_vert[10]    BLK_TL-PIO_B.i_span12_vert[2]    BLK_TL-PIO_B.i_span4_vert[42]" output="BLK_XX-local_g[1].i[2]" />
-  <mux name="BLK_XX-local_g[1].i[3]" input="BLK_TL-PIO_B.i_neigh_op_tnl[3]   BLK_TL-PIO_B.i_neigh_op_top[3]   BLK_TL-PIO_B.i_span12_vert[11]   BLK_TL-PIO_B.i_span12_vert[19]   BLK_TL-PIO_B.i_span4_vert[3]     BLK_TL-PIO_B.i_span4_vert[11]    BLK_TL-PIO_B.i_neigh_op_tnr[3]   BLK_TL-PIO_B.i_span4_horz_r[3]   BLK_TL-PIO_B.i_span4_horz_r[11]  BLK_TL-PIO_B.i_span12_vert[3]    BLK_TL-PIO_B.i_span4_vert[19]    BLK_TL-PIO_B.i_span4_vert[27]    BLK_TL-PIO_B.i_span4_vert[35]    BLK_TL-PIO_B.i_span4_vert[43]" output="BLK_XX-local_g[1].i[3]" />
-  <mux name="BLK_XX-local_g[1].i[4]" input="BLK_TL-PIO_B.i_span12_vert[12]   BLK_TL-PIO_B.i_neigh_op_tnr[4]   BLK_TL-PIO_B.i_span4_vert[20]    BLK_TL-PIO_B.i_span12_vert[20]   BLK_TL-PIO_B.i_span4_horz_r[4]   BLK_TL-PIO_B.i_span4_vert[28]    BLK_TL-PIO_B.i_neigh_op_tnl[4]   BLK_TL-PIO_B.i_span4_vert[4]     BLK_TL-PIO_B.i_span4_horz_r[12]  BLK_TL-PIO_B.i_span4_vert[36]    BLK_TL-PIO_B.i_neigh_op_top[4]   BLK_TL-PIO_B.i_span4_vert[12]    BLK_TL-PIO_B.i_span12_vert[4]    BLK_TL-PIO_B.i_span4_vert[44]" output="BLK_XX-local_g[1].i[4]" />
-  <mux name="BLK_XX-local_g[1].i[5]" input="BLK_TL-PIO_B.i_neigh_op_tnl[5]   BLK_TL-PIO_B.i_neigh_op_top[5]   BLK_TL-PIO_B.i_span12_vert[13]   BLK_TL-PIO_B.i_span12_vert[21]   BLK_TL-PIO_B.i_span4_vert[5]     BLK_TL-PIO_B.i_span4_vert[13]    BLK_TL-PIO_B.i_neigh_op_tnr[5]   BLK_TL-PIO_B.i_span4_horz_r[5]   BLK_TL-PIO_B.i_span4_horz_r[13]  BLK_TL-PIO_B.i_span12_vert[5]    BLK_TL-PIO_B.i_span4_vert[21]    BLK_TL-PIO_B.i_span4_vert[29]    BLK_TL-PIO_B.i_span4_vert[37]    BLK_TL-PIO_B.i_span4_vert[45]" output="BLK_XX-local_g[1].i[5]" />
-  <mux name="BLK_XX-local_g[1].i[6]" input="BLK_TL-PIO_B.i_span12_vert[14]   BLK_TL-PIO_B.i_neigh_op_tnr[6]   BLK_TL-PIO_B.i_span4_vert[22]    BLK_TL-PIO_B.i_span12_vert[22]   BLK_TL-PIO_B.i_span4_horz_r[6]   BLK_TL-PIO_B.i_span4_vert[30]    BLK_TL-PIO_B.i_neigh_op_tnl[6]   BLK_TL-PIO_B.i_span4_vert[6]     BLK_TL-PIO_B.i_span4_horz_r[14]  BLK_TL-PIO_B.i_span4_vert[38]    BLK_TL-PIO_B.i_neigh_op_top[6]   BLK_TL-PIO_B.i_span4_vert[14]    BLK_TL-PIO_B.i_span12_vert[6]    BLK_TL-PIO_B.i_span4_vert[46]" output="BLK_XX-local_g[1].i[6]" />
-  <mux name="BLK_XX-local_g[1].i[7]" input="BLK_TL-PIO_B.i_neigh_op_tnl[7]   BLK_TL-PIO_B.i_neigh_op_top[7]   BLK_TL-PIO_B.i_span12_vert[15]   BLK_TL-PIO_B.i_span12_vert[23]   BLK_TL-PIO_B.i_span4_vert[7]     BLK_TL-PIO_B.i_span4_vert[15]    BLK_TL-PIO_B.i_neigh_op_tnr[7]   BLK_TL-PIO_B.i_span4_horz_r[7]   BLK_TL-PIO_B.i_span4_horz_r[15]  BLK_TL-PIO_B.i_span12_vert[7]    BLK_TL-PIO_B.i_span4_vert[23]    BLK_TL-PIO_B.i_span4_vert[31]    BLK_TL-PIO_B.i_span4_vert[39]    BLK_TL-PIO_B.i_span4_vert[47]" output="BLK_XX-local_g[1].i[7]" />
+  <mux name="local_g[1].i[0]" input="PIO_B.i_span12_vert[8]    PIO_B.i_neigh_op_tnr[0]   PIO_B.i_span4_vert[16]    PIO_B.i_span12_vert[16]   PIO_B.i_span4_horz_r[0]   PIO_B.i_span4_vert[24]    PIO_B.i_neigh_op_tnl[0]   PIO_B.i_span4_vert[0]     PIO_B.i_span4_horz_r[8]   PIO_B.i_span4_vert[32]    PIO_B.i_neigh_op_top[0]   PIO_B.i_span4_vert[8]     PIO_B.i_span12_vert[0]    PIO_B.i_span4_vert[40]" output="local_g[1].i[0]" />
+  <mux name="local_g[1].i[1]" input="PIO_B.i_neigh_op_tnl[1]   PIO_B.i_neigh_op_top[1]   PIO_B.i_span12_vert[9]    PIO_B.i_span12_vert[17]   PIO_B.i_span4_vert[1]     PIO_B.i_span4_vert[9]     PIO_B.i_neigh_op_tnr[1]   PIO_B.i_span4_horz_r[1]   PIO_B.i_span4_horz_r[9]   PIO_B.i_span12_vert[1]    PIO_B.i_span4_vert[17]    PIO_B.i_span4_vert[25]    PIO_B.i_span4_vert[33]    PIO_B.i_span4_vert[41]" output="local_g[1].i[1]" />
+  <mux name="local_g[1].i[2]" input="PIO_B.i_span12_vert[10]   PIO_B.i_neigh_op_tnr[2]   PIO_B.i_span4_vert[18]    PIO_B.i_span12_vert[18]   PIO_B.i_span4_horz_r[2]   PIO_B.i_span4_vert[26]    PIO_B.i_neigh_op_tnl[2]   PIO_B.i_span4_vert[2]     PIO_B.i_span4_horz_r[10]  PIO_B.i_span4_vert[34]    PIO_B.i_neigh_op_top[2]   PIO_B.i_span4_vert[10]    PIO_B.i_span12_vert[2]    PIO_B.i_span4_vert[42]" output="local_g[1].i[2]" />
+  <mux name="local_g[1].i[3]" input="PIO_B.i_neigh_op_tnl[3]   PIO_B.i_neigh_op_top[3]   PIO_B.i_span12_vert[11]   PIO_B.i_span12_vert[19]   PIO_B.i_span4_vert[3]     PIO_B.i_span4_vert[11]    PIO_B.i_neigh_op_tnr[3]   PIO_B.i_span4_horz_r[3]   PIO_B.i_span4_horz_r[11]  PIO_B.i_span12_vert[3]    PIO_B.i_span4_vert[19]    PIO_B.i_span4_vert[27]    PIO_B.i_span4_vert[35]    PIO_B.i_span4_vert[43]" output="local_g[1].i[3]" />
+  <mux name="local_g[1].i[4]" input="PIO_B.i_span12_vert[12]   PIO_B.i_neigh_op_tnr[4]   PIO_B.i_span4_vert[20]    PIO_B.i_span12_vert[20]   PIO_B.i_span4_horz_r[4]   PIO_B.i_span4_vert[28]    PIO_B.i_neigh_op_tnl[4]   PIO_B.i_span4_vert[4]     PIO_B.i_span4_horz_r[12]  PIO_B.i_span4_vert[36]    PIO_B.i_neigh_op_top[4]   PIO_B.i_span4_vert[12]    PIO_B.i_span12_vert[4]    PIO_B.i_span4_vert[44]" output="local_g[1].i[4]" />
+  <mux name="local_g[1].i[5]" input="PIO_B.i_neigh_op_tnl[5]   PIO_B.i_neigh_op_top[5]   PIO_B.i_span12_vert[13]   PIO_B.i_span12_vert[21]   PIO_B.i_span4_vert[5]     PIO_B.i_span4_vert[13]    PIO_B.i_neigh_op_tnr[5]   PIO_B.i_span4_horz_r[5]   PIO_B.i_span4_horz_r[13]  PIO_B.i_span12_vert[5]    PIO_B.i_span4_vert[21]    PIO_B.i_span4_vert[29]    PIO_B.i_span4_vert[37]    PIO_B.i_span4_vert[45]" output="local_g[1].i[5]" />
+  <mux name="local_g[1].i[6]" input="PIO_B.i_span12_vert[14]   PIO_B.i_neigh_op_tnr[6]   PIO_B.i_span4_vert[22]    PIO_B.i_span12_vert[22]   PIO_B.i_span4_horz_r[6]   PIO_B.i_span4_vert[30]    PIO_B.i_neigh_op_tnl[6]   PIO_B.i_span4_vert[6]     PIO_B.i_span4_horz_r[14]  PIO_B.i_span4_vert[38]    PIO_B.i_neigh_op_top[6]   PIO_B.i_span4_vert[14]    PIO_B.i_span12_vert[6]    PIO_B.i_span4_vert[46]" output="local_g[1].i[6]" />
+  <mux name="local_g[1].i[7]" input="PIO_B.i_neigh_op_tnl[7]   PIO_B.i_neigh_op_top[7]   PIO_B.i_span12_vert[15]   PIO_B.i_span12_vert[23]   PIO_B.i_span4_vert[7]     PIO_B.i_span4_vert[15]    PIO_B.i_neigh_op_tnr[7]   PIO_B.i_span4_horz_r[7]   PIO_B.i_span4_horz_r[15]  PIO_B.i_span12_vert[7]    PIO_B.i_span4_vert[23]    PIO_B.i_span4_vert[31]    PIO_B.i_span4_vert[39]    PIO_B.i_span4_vert[47]" output="local_g[1].i[7]" />
 
   <!-- D_IN -> Span4 Horz R -->
-  <mux name="span4_horz_r[0]"  input="BLK_IG-IO_LOCAL.io_0_D_IN[0]" output="BLK_TL-PIO_B.o_span4_horz_r[0]"  />
-  <mux name="span4_horz_r[1]"  input="BLK_IG-IO_LOCAL.io_0_D_IN[1]" output="BLK_TL-PIO_B.o_span4_horz_r[1]"  />
-  <mux name="span4_horz_r[10]" input="BLK_IG-IO_LOCAL.io_1_D_IN[0]" output="BLK_TL-PIO_B.o_span4_horz_r[10]" />
-  <mux name="span4_horz_r[11]" input="BLK_IG-IO_LOCAL.io_1_D_IN[1]" output="BLK_TL-PIO_B.o_span4_horz_r[11]" />
-  <mux name="span4_horz_r[12]" input="BLK_IG-IO_LOCAL.io_0_D_IN[0]" output="BLK_TL-PIO_B.o_span4_horz_r[12]" />
-  <mux name="span4_horz_r[13]" input="BLK_IG-IO_LOCAL.io_0_D_IN[1]" output="BLK_TL-PIO_B.o_span4_horz_r[13]" />
-  <mux name="span4_horz_r[14]" input="BLK_IG-IO_LOCAL.io_1_D_IN[0]" output="BLK_TL-PIO_B.o_span4_horz_r[14]" />
-  <mux name="span4_horz_r[15]" input="BLK_IG-IO_LOCAL.io_1_D_IN[1]" output="BLK_TL-PIO_B.o_span4_horz_r[15]" />
-  <mux name="span4_horz_r[2]"  input="BLK_IG-IO_LOCAL.io_1_D_IN[0]" output="BLK_TL-PIO_B.o_span4_horz_r[2]"  />
-  <mux name="span4_horz_r[3]"  input="BLK_IG-IO_LOCAL.io_1_D_IN[1]" output="BLK_TL-PIO_B.o_span4_horz_r[3]"  />
-  <mux name="span4_horz_r[4]"  input="BLK_IG-IO_LOCAL.io_0_D_IN[0]" output="BLK_TL-PIO_B.o_span4_horz_r[4]"  />
-  <mux name="span4_horz_r[5]"  input="BLK_IG-IO_LOCAL.io_0_D_IN[1]" output="BLK_TL-PIO_B.o_span4_horz_r[5]"  />
-  <mux name="span4_horz_r[6]"  input="BLK_IG-IO_LOCAL.io_1_D_IN[0]" output="BLK_TL-PIO_B.o_span4_horz_r[6]"  />
-  <mux name="span4_horz_r[7]"  input="BLK_IG-IO_LOCAL.io_1_D_IN[1]" output="BLK_TL-PIO_B.o_span4_horz_r[7]"  />
-  <mux name="span4_horz_r[8]"  input="BLK_IG-IO_LOCAL.io_0_D_IN[0]" output="BLK_TL-PIO_B.o_span4_horz_r[8]"  />
-  <mux name="span4_horz_r[9]"  input="BLK_IG-IO_LOCAL.io_0_D_IN[1]" output="BLK_TL-PIO_B.o_span4_horz_r[9]"  />
+  <mux name="span4_horz_r[0]"  input="IO_LOCAL.io_0_D_IN[0]" output="PIO_B.o_span4_horz_r[0]"  />
+  <mux name="span4_horz_r[1]"  input="IO_LOCAL.io_0_D_IN[1]" output="PIO_B.o_span4_horz_r[1]"  />
+  <mux name="span4_horz_r[10]" input="IO_LOCAL.io_1_D_IN[0]" output="PIO_B.o_span4_horz_r[10]" />
+  <mux name="span4_horz_r[11]" input="IO_LOCAL.io_1_D_IN[1]" output="PIO_B.o_span4_horz_r[11]" />
+  <mux name="span4_horz_r[12]" input="IO_LOCAL.io_0_D_IN[0]" output="PIO_B.o_span4_horz_r[12]" />
+  <mux name="span4_horz_r[13]" input="IO_LOCAL.io_0_D_IN[1]" output="PIO_B.o_span4_horz_r[13]" />
+  <mux name="span4_horz_r[14]" input="IO_LOCAL.io_1_D_IN[0]" output="PIO_B.o_span4_horz_r[14]" />
+  <mux name="span4_horz_r[15]" input="IO_LOCAL.io_1_D_IN[1]" output="PIO_B.o_span4_horz_r[15]" />
+  <mux name="span4_horz_r[2]"  input="IO_LOCAL.io_1_D_IN[0]" output="PIO_B.o_span4_horz_r[2]"  />
+  <mux name="span4_horz_r[3]"  input="IO_LOCAL.io_1_D_IN[1]" output="PIO_B.o_span4_horz_r[3]"  />
+  <mux name="span4_horz_r[4]"  input="IO_LOCAL.io_0_D_IN[0]" output="PIO_B.o_span4_horz_r[4]"  />
+  <mux name="span4_horz_r[5]"  input="IO_LOCAL.io_0_D_IN[1]" output="PIO_B.o_span4_horz_r[5]"  />
+  <mux name="span4_horz_r[6]"  input="IO_LOCAL.io_1_D_IN[0]" output="PIO_B.o_span4_horz_r[6]"  />
+  <mux name="span4_horz_r[7]"  input="IO_LOCAL.io_1_D_IN[1]" output="PIO_B.o_span4_horz_r[7]"  />
+  <mux name="span4_horz_r[8]"  input="IO_LOCAL.io_0_D_IN[0]" output="PIO_B.o_span4_horz_r[8]"  />
+  <mux name="span4_horz_r[9]"  input="IO_LOCAL.io_0_D_IN[1]" output="PIO_B.o_span4_horz_r[9]"  />
 
   <!-- D_IN -> Span4 Vert -->
-  <mux name="span4_vert[0]"    input="BLK_IG-IO_LOCAL.io_0_D_IN[0]" output="BLK_TL-PIO_B.o_span4_vert[0]"    />
-  <mux name="span4_vert[10]"   input="BLK_IG-IO_LOCAL.io_0_D_IN[1]" output="BLK_TL-PIO_B.o_span4_vert[10]"   />
-  <mux name="span4_vert[12]"   input="BLK_IG-IO_LOCAL.io_1_D_IN[0]" output="BLK_TL-PIO_B.o_span4_vert[12]"   />
-  <mux name="span4_vert[14]"   input="BLK_IG-IO_LOCAL.io_1_D_IN[1]" output="BLK_TL-PIO_B.o_span4_vert[14]"   />
-  <mux name="span4_vert[16]"   input="BLK_IG-IO_LOCAL.io_0_D_IN[0]" output="BLK_TL-PIO_B.o_span4_vert[16]"   />
-  <mux name="span4_vert[18]"   input="BLK_IG-IO_LOCAL.io_0_D_IN[1]" output="BLK_TL-PIO_B.o_span4_vert[18]"   />
-  <mux name="span4_vert[2]"    input="BLK_IG-IO_LOCAL.io_0_D_IN[1]" output="BLK_TL-PIO_B.o_span4_vert[2]"    />
-  <mux name="span4_vert[20]"   input="BLK_IG-IO_LOCAL.io_1_D_IN[0]" output="BLK_TL-PIO_B.o_span4_vert[20]"   />
-  <mux name="span4_vert[22]"   input="BLK_IG-IO_LOCAL.io_1_D_IN[1]" output="BLK_TL-PIO_B.o_span4_vert[22]"   />
-  <mux name="span4_vert[24]"   input="BLK_IG-IO_LOCAL.io_0_D_IN[0]" output="BLK_TL-PIO_B.o_span4_vert[24]"   />
-  <mux name="span4_vert[26]"   input="BLK_IG-IO_LOCAL.io_0_D_IN[1]" output="BLK_TL-PIO_B.o_span4_vert[26]"   />
-  <mux name="span4_vert[28]"   input="BLK_IG-IO_LOCAL.io_1_D_IN[0]" output="BLK_TL-PIO_B.o_span4_vert[28]"   />
-  <mux name="span4_vert[30]"   input="BLK_IG-IO_LOCAL.io_1_D_IN[1]" output="BLK_TL-PIO_B.o_span4_vert[30]"   />
-  <mux name="span4_vert[32]"   input="BLK_IG-IO_LOCAL.io_0_D_IN[0]" output="BLK_TL-PIO_B.o_span4_vert[32]"   />
-  <mux name="span4_vert[34]"   input="BLK_IG-IO_LOCAL.io_0_D_IN[1]" output="BLK_TL-PIO_B.o_span4_vert[34]"   />
-  <mux name="span4_vert[36]"   input="BLK_IG-IO_LOCAL.io_1_D_IN[0]" output="BLK_TL-PIO_B.o_span4_vert[36]"   />
-  <mux name="span4_vert[38]"   input="BLK_IG-IO_LOCAL.io_1_D_IN[1]" output="BLK_TL-PIO_B.o_span4_vert[38]"   />
-  <mux name="span4_vert[4]"    input="BLK_IG-IO_LOCAL.io_1_D_IN[0]" output="BLK_TL-PIO_B.o_span4_vert[4]"    />
-  <mux name="span4_vert[40]"   input="BLK_IG-IO_LOCAL.io_0_D_IN[0]" output="BLK_TL-PIO_B.o_span4_vert[40]"   />
-  <mux name="span4_vert[42]"   input="BLK_IG-IO_LOCAL.io_0_D_IN[1]" output="BLK_TL-PIO_B.o_span4_vert[42]"   />
-  <mux name="span4_vert[44]"   input="BLK_IG-IO_LOCAL.io_1_D_IN[0]" output="BLK_TL-PIO_B.o_span4_vert[44]"   />
-  <mux name="span4_vert[46]"   input="BLK_IG-IO_LOCAL.io_1_D_IN[1]" output="BLK_TL-PIO_B.o_span4_vert[46]"   />
-  <mux name="span4_vert[6]"    input="BLK_IG-IO_LOCAL.io_1_D_IN[1]" output="BLK_TL-PIO_B.o_span4_vert[6]"    />
-  <mux name="span4_vert[8]"    input="BLK_IG-IO_LOCAL.io_0_D_IN[0]" output="BLK_TL-PIO_B.o_span4_vert[8]"    />
+  <mux name="span4_vert[0]"    input="IO_LOCAL.io_0_D_IN[0]" output="PIO_B.o_span4_vert[0]"    />
+  <mux name="span4_vert[10]"   input="IO_LOCAL.io_0_D_IN[1]" output="PIO_B.o_span4_vert[10]"   />
+  <mux name="span4_vert[12]"   input="IO_LOCAL.io_1_D_IN[0]" output="PIO_B.o_span4_vert[12]"   />
+  <mux name="span4_vert[14]"   input="IO_LOCAL.io_1_D_IN[1]" output="PIO_B.o_span4_vert[14]"   />
+  <mux name="span4_vert[16]"   input="IO_LOCAL.io_0_D_IN[0]" output="PIO_B.o_span4_vert[16]"   />
+  <mux name="span4_vert[18]"   input="IO_LOCAL.io_0_D_IN[1]" output="PIO_B.o_span4_vert[18]"   />
+  <mux name="span4_vert[2]"    input="IO_LOCAL.io_0_D_IN[1]" output="PIO_B.o_span4_vert[2]"    />
+  <mux name="span4_vert[20]"   input="IO_LOCAL.io_1_D_IN[0]" output="PIO_B.o_span4_vert[20]"   />
+  <mux name="span4_vert[22]"   input="IO_LOCAL.io_1_D_IN[1]" output="PIO_B.o_span4_vert[22]"   />
+  <mux name="span4_vert[24]"   input="IO_LOCAL.io_0_D_IN[0]" output="PIO_B.o_span4_vert[24]"   />
+  <mux name="span4_vert[26]"   input="IO_LOCAL.io_0_D_IN[1]" output="PIO_B.o_span4_vert[26]"   />
+  <mux name="span4_vert[28]"   input="IO_LOCAL.io_1_D_IN[0]" output="PIO_B.o_span4_vert[28]"   />
+  <mux name="span4_vert[30]"   input="IO_LOCAL.io_1_D_IN[1]" output="PIO_B.o_span4_vert[30]"   />
+  <mux name="span4_vert[32]"   input="IO_LOCAL.io_0_D_IN[0]" output="PIO_B.o_span4_vert[32]"   />
+  <mux name="span4_vert[34]"   input="IO_LOCAL.io_0_D_IN[1]" output="PIO_B.o_span4_vert[34]"   />
+  <mux name="span4_vert[36]"   input="IO_LOCAL.io_1_D_IN[0]" output="PIO_B.o_span4_vert[36]"   />
+  <mux name="span4_vert[38]"   input="IO_LOCAL.io_1_D_IN[1]" output="PIO_B.o_span4_vert[38]"   />
+  <mux name="span4_vert[4]"    input="IO_LOCAL.io_1_D_IN[0]" output="PIO_B.o_span4_vert[4]"    />
+  <mux name="span4_vert[40]"   input="IO_LOCAL.io_0_D_IN[0]" output="PIO_B.o_span4_vert[40]"   />
+  <mux name="span4_vert[42]"   input="IO_LOCAL.io_0_D_IN[1]" output="PIO_B.o_span4_vert[42]"   />
+  <mux name="span4_vert[44]"   input="IO_LOCAL.io_1_D_IN[0]" output="PIO_B.o_span4_vert[44]"   />
+  <mux name="span4_vert[46]"   input="IO_LOCAL.io_1_D_IN[1]" output="PIO_B.o_span4_vert[46]"   />
+  <mux name="span4_vert[6]"    input="IO_LOCAL.io_1_D_IN[1]" output="PIO_B.o_span4_vert[6]"    />
+  <mux name="span4_vert[8]"    input="IO_LOCAL.io_0_D_IN[0]" output="PIO_B.o_span4_vert[8]"    />
 
   <!-- D_IN -> Span12 Vert -->
-  <mux name="span12_vert[0]"   input="BLK_IG-IO_LOCAL.io_0_D_IN[0]" output="BLK_TL-PIO_B.o_span12_vert[0]"   />
-  <mux name="span12_vert[10]"  input="BLK_IG-IO_LOCAL.io_0_D_IN[1]" output="BLK_TL-PIO_B.o_span12_vert[10]"  />
-  <mux name="span12_vert[12]"  input="BLK_IG-IO_LOCAL.io_1_D_IN[0]" output="BLK_TL-PIO_B.o_span12_vert[12]"  />
-  <mux name="span12_vert[14]"  input="BLK_IG-IO_LOCAL.io_1_D_IN[1]" output="BLK_TL-PIO_B.o_span12_vert[14]"  />
-  <mux name="span12_vert[16]"  input="BLK_IG-IO_LOCAL.io_0_D_IN[0]" output="BLK_TL-PIO_B.o_span12_vert[16]"  />
-  <mux name="span12_vert[18]"  input="BLK_IG-IO_LOCAL.io_0_D_IN[1]" output="BLK_TL-PIO_B.o_span12_vert[18]"  />
-  <mux name="span12_vert[2]"   input="BLK_IG-IO_LOCAL.io_0_D_IN[1]" output="BLK_TL-PIO_B.o_span12_vert[2]"   />
-  <mux name="span12_vert[20]"  input="BLK_IG-IO_LOCAL.io_1_D_IN[0]" output="BLK_TL-PIO_B.o_span12_vert[20]"  />
-  <mux name="span12_vert[22]"  input="BLK_IG-IO_LOCAL.io_1_D_IN[1]" output="BLK_TL-PIO_B.o_span12_vert[22]"  />
-  <mux name="span12_vert[4]"   input="BLK_IG-IO_LOCAL.io_1_D_IN[0]" output="BLK_TL-PIO_B.o_span12_vert[4]"   />
-  <mux name="span12_vert[6]"   input="BLK_IG-IO_LOCAL.io_1_D_IN[1]" output="BLK_TL-PIO_B.o_span12_vert[6]"   />
-  <mux name="span12_vert[8]"   input="BLK_IG-IO_LOCAL.io_0_D_IN[0]" output="BLK_TL-PIO_B.o_span12_vert[8]"   />
+  <mux name="span12_vert[0]"   input="IO_LOCAL.io_0_D_IN[0]" output="PIO_B.o_span12_vert[0]"   />
+  <mux name="span12_vert[10]"  input="IO_LOCAL.io_0_D_IN[1]" output="PIO_B.o_span12_vert[10]"  />
+  <mux name="span12_vert[12]"  input="IO_LOCAL.io_1_D_IN[0]" output="PIO_B.o_span12_vert[12]"  />
+  <mux name="span12_vert[14]"  input="IO_LOCAL.io_1_D_IN[1]" output="PIO_B.o_span12_vert[14]"  />
+  <mux name="span12_vert[16]"  input="IO_LOCAL.io_0_D_IN[0]" output="PIO_B.o_span12_vert[16]"  />
+  <mux name="span12_vert[18]"  input="IO_LOCAL.io_0_D_IN[1]" output="PIO_B.o_span12_vert[18]"  />
+  <mux name="span12_vert[2]"   input="IO_LOCAL.io_0_D_IN[1]" output="PIO_B.o_span12_vert[2]"   />
+  <mux name="span12_vert[20]"  input="IO_LOCAL.io_1_D_IN[0]" output="PIO_B.o_span12_vert[20]"  />
+  <mux name="span12_vert[22]"  input="IO_LOCAL.io_1_D_IN[1]" output="PIO_B.o_span12_vert[22]"  />
+  <mux name="span12_vert[4]"   input="IO_LOCAL.io_1_D_IN[0]" output="PIO_B.o_span12_vert[4]"   />
+  <mux name="span12_vert[6]"   input="IO_LOCAL.io_1_D_IN[1]" output="PIO_B.o_span12_vert[6]"   />
+  <mux name="span12_vert[8]"   input="IO_LOCAL.io_0_D_IN[0]" output="PIO_B.o_span12_vert[8]"   />
 
   <!-- Spans -->
   <!--
-  <direct name="span4_horz_r[0]"  input="BLK_TL-PIO_B.i_span4_horz_l[ ]" output="BLK_TL-PIO_B.o_span4_horz_r[0]" />
-  <direct name="span4_horz_r[1]"  input="BLK_TL-PIO_B.i_span4_horz_l[ ]" output="BLK_TL-PIO_B.o_span4_horz_r[1]" />
-  <direct name="span4_horz_r[2]"  input="BLK_TL-PIO_B.i_span4_horz_l[ ]" output="BLK_TL-PIO_B.o_span4_horz_r[2]" />
-  <direct name="span4_horz_r[3]"  input="BLK_TL-PIO_B.i_span4_horz_l[ ]" output="BLK_TL-PIO_B.o_span4_horz_r[3]" />
+  <direct name="span4_horz_r[0]"  input="PIO_B.i_span4_horz_l[ ]" output="PIO_B.o_span4_horz_r[0]" />
+  <direct name="span4_horz_r[1]"  input="PIO_B.i_span4_horz_l[ ]" output="PIO_B.o_span4_horz_r[1]" />
+  <direct name="span4_horz_r[2]"  input="PIO_B.i_span4_horz_l[ ]" output="PIO_B.o_span4_horz_r[2]" />
+  <direct name="span4_horz_r[3]"  input="PIO_B.i_span4_horz_l[ ]" output="PIO_B.o_span4_horz_r[3]" />
   -->
 
-  <direct name="span4_horz_l[0]"  input="BLK_TL-PIO_B.i_span4_horz_l[0]"  output="BLK_TL-PIO_B.o_span4_horz_r[4]"  />
-  <direct name="span4_horz_l[1]"  input="BLK_TL-PIO_B.i_span4_horz_l[1]"  output="BLK_TL-PIO_B.o_span4_horz_r[5]"  />
-  <direct name="span4_horz_l[2]"  input="BLK_TL-PIO_B.i_span4_horz_l[2]"  output="BLK_TL-PIO_B.o_span4_horz_r[6]"  />
-  <direct name="span4_horz_l[3]"  input="BLK_TL-PIO_B.i_span4_horz_l[3]"  output="BLK_TL-PIO_B.o_span4_horz_r[7]"  />
-  <direct name="span4_horz_l[4]"  input="BLK_TL-PIO_B.i_span4_horz_l[4]"  output="BLK_TL-PIO_B.o_span4_horz_r[8]"  />
-  <direct name="span4_horz_l[5]"  input="BLK_TL-PIO_B.i_span4_horz_l[5]"  output="BLK_TL-PIO_B.o_span4_horz_r[9]"  />
-  <direct name="span4_horz_l[6]"  input="BLK_TL-PIO_B.i_span4_horz_l[6]"  output="BLK_TL-PIO_B.o_span4_horz_r[10]" />
-  <direct name="span4_horz_l[7]"  input="BLK_TL-PIO_B.i_span4_horz_l[7]"  output="BLK_TL-PIO_B.o_span4_horz_r[11]" />
-  <direct name="span4_horz_l[8]"  input="BLK_TL-PIO_B.i_span4_horz_l[8]"  output="BLK_TL-PIO_B.o_span4_horz_r[12]" />
-  <direct name="span4_horz_l[9]"  input="BLK_TL-PIO_B.i_span4_horz_l[9]"  output="BLK_TL-PIO_B.o_span4_horz_r[13]" />
-  <direct name="span4_horz_l[10]" input="BLK_TL-PIO_B.i_span4_horz_l[10]" output="BLK_TL-PIO_B.o_span4_horz_r[14]" />
-  <direct name="span4_horz_l[11]" input="BLK_TL-PIO_B.i_span4_horz_l[11]" output="BLK_TL-PIO_B.o_span4_horz_r[15]" />
+  <direct name="span4_horz_l[0]"  input="PIO_B.i_span4_horz_l[0]"  output="PIO_B.o_span4_horz_r[4]"  />
+  <direct name="span4_horz_l[1]"  input="PIO_B.i_span4_horz_l[1]"  output="PIO_B.o_span4_horz_r[5]"  />
+  <direct name="span4_horz_l[2]"  input="PIO_B.i_span4_horz_l[2]"  output="PIO_B.o_span4_horz_r[6]"  />
+  <direct name="span4_horz_l[3]"  input="PIO_B.i_span4_horz_l[3]"  output="PIO_B.o_span4_horz_r[7]"  />
+  <direct name="span4_horz_l[4]"  input="PIO_B.i_span4_horz_l[4]"  output="PIO_B.o_span4_horz_r[8]"  />
+  <direct name="span4_horz_l[5]"  input="PIO_B.i_span4_horz_l[5]"  output="PIO_B.o_span4_horz_r[9]"  />
+  <direct name="span4_horz_l[6]"  input="PIO_B.i_span4_horz_l[6]"  output="PIO_B.o_span4_horz_r[10]" />
+  <direct name="span4_horz_l[7]"  input="PIO_B.i_span4_horz_l[7]"  output="PIO_B.o_span4_horz_r[11]" />
+  <direct name="span4_horz_l[8]"  input="PIO_B.i_span4_horz_l[8]"  output="PIO_B.o_span4_horz_r[12]" />
+  <direct name="span4_horz_l[9]"  input="PIO_B.i_span4_horz_l[9]"  output="PIO_B.o_span4_horz_r[13]" />
+  <direct name="span4_horz_l[10]" input="PIO_B.i_span4_horz_l[10]" output="PIO_B.o_span4_horz_r[14]" />
+  <direct name="span4_horz_l[11]" input="PIO_B.i_span4_horz_l[11]" output="PIO_B.o_span4_horz_r[15]" />
 
   <!--
-  <direct name="span4_horz_l[12]" input="BLK_TL-PIO_B.i_span4_horz_l[12]" output="BLK_TL-PIO_B.o_span4_horz_r[  ]" />
-  <direct name="span4_horz_l[13]" input="BLK_TL-PIO_B.i_span4_horz_l[13]" output="BLK_TL-PIO_B.o_span4_horz_r[  ]" />
-  <direct name="span4_horz_l[14]" input="BLK_TL-PIO_B.i_span4_horz_l[14]" output="BLK_TL-PIO_B.o_span4_horz_r[  ]" />
-  <direct name="span4_horz_l[15]" input="BLK_TL-PIO_B.i_span4_horz_l[15]" output="BLK_TL-PIO_B.o_span4_horz_r[  ]" />
+  <direct name="span4_horz_l[12]" input="PIO_B.i_span4_horz_l[12]" output="PIO_B.o_span4_horz_r[  ]" />
+  <direct name="span4_horz_l[13]" input="PIO_B.i_span4_horz_l[13]" output="PIO_B.o_span4_horz_r[  ]" />
+  <direct name="span4_horz_l[14]" input="PIO_B.i_span4_horz_l[14]" output="PIO_B.o_span4_horz_r[  ]" />
+  <direct name="span4_horz_l[15]" input="PIO_B.i_span4_horz_l[15]" output="PIO_B.o_span4_horz_r[  ]" />
   -->
 
  </interconnect>
 
  <pinlocations pattern="custom">
   <loc side="left" xoffset="0" yoffset="0">
-   BLK_TL-PIO_B.i_span4_horz_l BLK_TL-PIO_B.o_span4_horz_l
+   PIO_B.i_span4_horz_l PIO_B.o_span4_horz_l
   </loc>
   <loc side="top" xoffset="0" yoffset="0">
-   BLK_TL-PIO_B.i_glb_netwk    BLK_TL-PIO_B.o_glb_netwk
-   BLK_TL-PIO_B.fabout
+   PIO_B.i_glb_netwk    PIO_B.o_glb_netwk
+   PIO_B.fabout
 
-   BLK_TL-PIO_B.i_neigh_op_tnl BLK_TL-PIO_B.o_neigh_op_tnl
-   BLK_TL-PIO_B.i_neigh_op_top BLK_TL-PIO_B.o_neigh_op_top
-   BLK_TL-PIO_B.i_neigh_op_tnr BLK_TL-PIO_B.o_neigh_op_tnr
+   PIO_B.i_neigh_op_tnl PIO_B.o_neigh_op_tnl
+   PIO_B.i_neigh_op_top PIO_B.o_neigh_op_top
+   PIO_B.i_neigh_op_tnr PIO_B.o_neigh_op_tnr
 
-   BLK_TL-PIO_B.i_span4_vert   BLK_TL-PIO_B.o_span4_vert
-   BLK_TL-PIO_B.i_span12_vert  BLK_TL-PIO_B.o_span12_vert
+   PIO_B.i_span4_vert   PIO_B.o_span4_vert
+   PIO_B.i_span12_vert  PIO_B.o_span12_vert
   </loc>
   <loc side="right" xoffset="0" yoffset="0">
-   BLK_TL-PIO_B.i_span4_horz_r BLK_TL-PIO_B.o_span4_horz_r
+   PIO_B.i_span4_horz_r PIO_B.o_span4_horz_r
   </loc>
   <loc side="bottom" xoffset="0" yoffset="0">
-   BLK_TL-PIO_B.i_span4_vert   BLK_TL-PIO_B.o_span4_vert
-   BLK_TL-PIO_B.i_span12_vert  BLK_TL-PIO_B.o_span12_vert
+   PIO_B.i_span4_vert   PIO_B.o_span4_vert
+   PIO_B.i_span12_vert  PIO_B.o_span12_vert
   </loc>
  </pinlocations>
 
  <fc in_type="frac" in_val="0.5" out_type="frac" out_val="1.0">
   <xi:include href="../pio-tb/pio-tb.fc.xml" xpointer="xpointer(fc/child::node())"/>
  </fc>
+ <metadata>
+  <meta name="type">block</meta>
+  <meta name="subtype">tile</meta>
+ </metadata>
 
 </pb_type>

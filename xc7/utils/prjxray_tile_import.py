@@ -244,7 +244,7 @@ def main():
             }
         )
 
-    tile_name = "BLK_TI-{}".format(args.tile)
+    tile_name = args.tile
 
     pb_type_xml = ET.Element(
         'pb_type',

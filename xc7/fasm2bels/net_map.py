@@ -17,8 +17,8 @@ class Net(namedtuple('Net', 'name wire_pkey tile site_pin')):
     pass
 
 
-# BLK_TI-CLBLL_L.CLBLL_LL_A1[0] -> (CLBLL_L, CLBLL_LL_A1)
-PIN_NAME_TO_PARTS = re.compile(r'^BLK_TI-([^\.]+)\.([^\]]+)\[0\]$')
+# CLBLL_L.CLBLL_LL_A1[0] -> (CLBLL_L, CLBLL_LL_A1)
+PIN_NAME_TO_PARTS = re.compile(r'^([^\.]+)\.([^\]]+)\[0\]$')
 
 
 def create_net_list(conn, graph, route_file):
@@ -37,7 +37,7 @@ def create_net_list(conn, graph, route_file):
         pin_name = graph.pin_ptc_to_name_map[(gridloc.block_type_id, node.ptc)]
 
         # Do not add synthetic nets to map.
-        if pin_name.startswith('BLK_SY-'):
+        if pin_name.startswith('SYN-'):
             continue
 
         m = PIN_NAME_TO_PARTS.match(pin_name)

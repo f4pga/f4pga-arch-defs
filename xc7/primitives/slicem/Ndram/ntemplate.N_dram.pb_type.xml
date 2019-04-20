@@ -1,4 +1,4 @@
-<pb_type name="BLK_IG-{N}_DRAM" num_pb="1" xmlns:xi="http://www.w3.org/2001/XInclude">
+<pb_type name="{N}_DRAM" num_pb="1" xmlns:xi="http://www.w3.org/2001/XInclude">
   <clock  name="CLK" num_pins="1" />
   <input  name="A"   num_pins="6" />
   <input  name="WA"  num_pins="8" />
@@ -18,50 +18,54 @@
 
   <!-- TODO: Missing modes: SRL -->
   <mode name="LUT">
-    <pb_type name="BEL_LT-{N}5LUT" num_pb="2" class="lut" blif_model=".names">
+    <pb_type name="{N}5LUT" num_pb="2" class="lut" blif_model=".names">
       <input  name="in"  num_pins="5" port_class="lut_in" />
       <output name="out" num_pins="1" port_class="lut_out" />
-      <delay_matrix type="max" in_port="BEL_LT-{N}5LUT.in" out_port="BEL_LT-{N}5LUT.out">
+      <delay_matrix type="max" in_port="{N}5LUT.in" out_port="{N}5LUT.out">
         0.068e-9
         0.068e-9
         0.068e-9
         0.068e-9
         0.068e-9
       </delay_matrix>
+      <metadata>
+        <meta name="type">bel</meta>
+        <meta name="subtype">lut</meta>
+      </metadata>
     </pb_type>
     <xi:include href="../../common_slice/muxes/f6mux/f6mux.pb_type.xml" />
 
     <interconnect>
       <!-- LUT5 (upper) -> O6 -->
-      <direct name="{N}LUT_A5_0" input="BLK_IG-{N}_DRAM.A[4:0]" output="BEL_LT-{N}5LUT[0].in[4:0]"/>
+      <direct name="{N}LUT_A5_0" input="{N}_DRAM.A[4:0]" output="{N}5LUT[0].in[4:0]"/>
 
       <!-- LUT5 (lower) -> O5 -->
-      <direct name="{N}LUT_A5_1" input="BLK_IG-{N}_DRAM.A[4:0]" output="BEL_LT-{N}5LUT[1].in[4:0]"/>
+      <direct name="{N}LUT_A5_1" input="{N}_DRAM.A[4:0]" output="{N}5LUT[1].in[4:0]"/>
 
       <!-- MUX used for LUT6 -->
-      <direct name="F6MUX_I0" input="BEL_LT-{N}5LUT[0].out" output="BEL_MX-F6MUX.I0">
-        <pack_pattern in_port="BEL_LT-{N}5LUT[0].out" name="LUT5toLUT6" out_port="BEL_MX-F6MUX.I0"/>
+      <direct name="F6MUX_I0" input="{N}5LUT[0].out" output="F6MUX.I0">
+        <pack_pattern in_port="{N}5LUT[0].out" name="LUT5toLUT6" out_port="F6MUX.I0"/>
       </direct>
-      <direct name="F6MUX_I1" input="BEL_LT-{N}5LUT[1].out" output="BEL_MX-F6MUX.I1">
-        <pack_pattern in_port="BEL_LT-{N}5LUT[1].out" name="LUT5toLUT6" out_port="BEL_MX-F6MUX.I1"/>
+      <direct name="F6MUX_I1" input="{N}5LUT[1].out" output="F6MUX.I1">
+        <pack_pattern in_port="{N}5LUT[1].out" name="LUT5toLUT6" out_port="F6MUX.I1"/>
       </direct>
-      <direct name="F6MUX_S"  input="BLK_IG-{N}_DRAM.A[5]" output="BEL_MX-F6MUX.S">
+      <direct name="F6MUX_S"  input="{N}_DRAM.A[5]" output="F6MUX.S">
       </direct>
 
       <!-- LUT outputs -->
-      <direct name="O5" input="BEL_LT-{N}5LUT[0].out"                output="BLK_IG-{N}_DRAM.O5">
-        <pack_pattern in_port="BEL_LT-{N}5LUT[0].out" name="LUT5x2"     out_port="BLK_IG-{N}_DRAM.O5"/>
+      <direct name="O5" input="{N}5LUT[0].out"                output="{N}_DRAM.O5">
+        <pack_pattern in_port="{N}5LUT[0].out" name="LUT5x2"     out_port="{N}_DRAM.O5"/>
       </direct>
-      <mux    name="O6" input="BEL_LT-{N}5LUT[1].out BEL_MX-F6MUX.O" output="BLK_IG-{N}_DRAM.O6">
-        <pack_pattern in_port="BEL_MX-F6MUX.O"        name="LUT5toLUT6" out_port="BLK_IG-{N}_DRAM.O6"/>
-        <pack_pattern in_port="BEL_LT-{N}5LUT[1].out" name="LUT5x2"     out_port="BLK_IG-{N}_DRAM.O6"/>
+      <mux    name="O6" input="{N}5LUT[1].out F6MUX.O" output="{N}_DRAM.O6">
+        <pack_pattern in_port="F6MUX.O"        name="LUT5toLUT6" out_port="{N}_DRAM.O6"/>
+        <pack_pattern in_port="{N}5LUT[1].out" name="LUT5x2"     out_port="{N}_DRAM.O6"/>
       </mux>
     </interconnect>
     <metadata>
       <meta name="fasm_type">SPLIT_LUT</meta>
       <meta name="fasm_lut">
-        INIT[31:0] = BEL_LT-{N}5LUT[0]
-        INIT[63:32] = BEL_LT-{N}5LUT[1]
+        INIT[31:0] = {N}5LUT[0]
+        INIT[63:32] = {N}5LUT[1]
       </meta>
     </metadata>
   </mode>
@@ -73,45 +77,45 @@
       </meta>
     </metadata>
     <interconnect>
-      <direct name="CLK" input="BLK_IG-{N}_DRAM.CLK" output="BLK_MM-SPRAM64.CLK" />
-      <direct name="A" input="BLK_IG-{N}_DRAM.A" output="BLK_MM-SPRAM64.A" />
-      <direct name="WA7" input="BLK_IG-{N}_DRAM.WA[6]" output="BLK_MM-SPRAM64.WA7" />
-      <direct name="WA8" input="BLK_IG-{N}_DRAM.WA[7]" output="BLK_MM-SPRAM64.WA8" />
-      <direct name="{N}I" input="BLK_IG-{N}_DRAM.{N}I" output="BLK_MM-SPRAM64.DI1" />
-      <direct name="WE" input="BLK_IG-{N}_DRAM.WE" output="BLK_MM-SPRAM64.WE" />
+      <direct name="CLK" input="{N}_DRAM.CLK" output="SPRAM64.CLK" />
+      <direct name="A" input="{N}_DRAM.A" output="SPRAM64.A" />
+      <direct name="WA7" input="{N}_DRAM.WA[6]" output="SPRAM64.WA7" />
+      <direct name="WA8" input="{N}_DRAM.WA[7]" output="SPRAM64.WA8" />
+      <direct name="{N}I" input="{N}_DRAM.{N}I" output="SPRAM64.DI1" />
+      <direct name="WE" input="{N}_DRAM.WE" output="SPRAM64.WE" />
 
-      <direct name="O6" input="BLK_MM-SPRAM64.O6" output="BLK_IG-{N}_DRAM.O6" />
-      <direct name="SO6" input="BLK_MM-SPRAM64.O6" output="BLK_IG-{N}_DRAM.SO6" />
+      <direct name="O6" input="SPRAM64.O6" output="{N}_DRAM.O6" />
+      <direct name="SO6" input="SPRAM64.O6" output="{N}_DRAM.SO6" />
     </interconnect>
   </mode>
   <mode name="64_DUAL_PORT">
     <xi:include href="dpram64.pb_type.xml" />
     <interconnect>
-      <direct name="CLK" input="BLK_IG-{N}_DRAM.CLK" output="BLK_MM-DPRAM64.CLK" />
-      <direct name="A" input="BLK_IG-{N}_DRAM.A" output="BLK_MM-DPRAM64.A" />
-      <direct name="WA" input="BLK_IG-{N}_DRAM.WA[5:0]" output="BLK_MM-DPRAM64.WA[5:0]" />
-      <direct name="WA7" input="BLK_IG-{N}_DRAM.WA[6]" output="BLK_MM-DPRAM64.WA7" />
-      <direct name="WA8" input="BLK_IG-{N}_DRAM.WA[7]" output="BLK_MM-DPRAM64.WA8" />
-      <direct name="{N}I" input="BLK_IG-{N}_DRAM.PARENT_DI" output="BLK_MM-DPRAM64.DI1" />
-      <direct name="WE" input="BLK_IG-{N}_DRAM.WE" output="BLK_MM-DPRAM64.WE" />
+      <direct name="CLK" input="{N}_DRAM.CLK" output="DPRAM64.CLK" />
+      <direct name="A" input="{N}_DRAM.A" output="DPRAM64.A" />
+      <direct name="WA" input="{N}_DRAM.WA[5:0]" output="DPRAM64.WA[5:0]" />
+      <direct name="WA7" input="{N}_DRAM.WA[6]" output="DPRAM64.WA7" />
+      <direct name="WA8" input="{N}_DRAM.WA[7]" output="DPRAM64.WA8" />
+      <direct name="{N}I" input="{N}_DRAM.PARENT_DI" output="DPRAM64.DI1" />
+      <direct name="WE" input="{N}_DRAM.WE" output="DPRAM64.WE" />
 
-      <direct name="O6" input="BLK_MM-DPRAM64.O6" output="BLK_IG-{N}_DRAM.O6" />
-      <direct name="DO6" input="BLK_MM-DPRAM64.O6" output="BLK_IG-{N}_DRAM.DO6" />
+      <direct name="O6" input="DPRAM64.O6" output="{N}_DRAM.O6" />
+      <direct name="DO6" input="DPRAM64.O6" output="{N}_DRAM.DO6" />
     </interconnect>
   </mode>
   <mode name="32_DUAL_PORT">
     <xi:include href="dpram32.pb_type.xml" />
     <interconnect>
-      <direct name="CLK" input="BLK_IG-{N}_DRAM.CLK" output="BLK_MM-DPRAM32.CLK" />
-      <direct name="A" input="BLK_IG-{N}_DRAM.A[4:0]" output="BLK_MM-DPRAM32.A[4:0]" />
-      <direct name="WA" input="BLK_IG-{N}_DRAM.WA[4:0]" output="BLK_MM-DPRAM32.WA[4:0]" />
-      <direct name="{N}I" input="BLK_IG-{N}_DRAM.PARENT_DI" output="BLK_MM-DPRAM32.DI1" />
-      <direct name="DI2" input="BLK_IG-{N}_DRAM.DI2" output="BLK_MM-DPRAM32.DI2" />
-      <direct name="WE" input="BLK_IG-{N}_DRAM.WE" output="BLK_MM-DPRAM32.WE" />
+      <direct name="CLK" input="{N}_DRAM.CLK" output="DPRAM32.CLK" />
+      <direct name="A" input="{N}_DRAM.A[4:0]" output="DPRAM32.A[4:0]" />
+      <direct name="WA" input="{N}_DRAM.WA[4:0]" output="DPRAM32.WA[4:0]" />
+      <direct name="{N}I" input="{N}_DRAM.PARENT_DI" output="DPRAM32.DI1" />
+      <direct name="DI2" input="{N}_DRAM.DI2" output="DPRAM32.DI2" />
+      <direct name="WE" input="{N}_DRAM.WE" output="DPRAM32.WE" />
 
-      <direct name="O6" input="BLK_MM-DPRAM32.O6" output="BLK_IG-{N}_DRAM.O6" />
-      <direct name="DO6" input="BLK_MM-DPRAM32.O6" output="BLK_IG-{N}_DRAM.DO6_32" />
-      <direct name="O5" input="BLK_MM-DPRAM32.O5" output="BLK_IG-{N}_DRAM.O5" />
+      <direct name="O6" input="DPRAM32.O6" output="{N}_DRAM.O6" />
+      <direct name="DO6" input="DPRAM32.O6" output="{N}_DRAM.DO6_32" />
+      <direct name="O5" input="DPRAM32.O5" output="{N}_DRAM.O5" />
     </interconnect>
   </mode>
   <mode name="32_SINGLE_PORT">
@@ -122,19 +126,21 @@
       </meta>
     </metadata>
     <interconnect>
-      <direct name="CLK" input="BLK_IG-{N}_DRAM.CLK" output="BLK_MM-SPRAM32.CLK" />
-      <direct name="A" input="BLK_IG-{N}_DRAM.A[4:0]" output="BLK_MM-SPRAM32.A[4:0]" />
-      <direct name="{N}I" input="BLK_IG-{N}_DRAM.{N}I" output="BLK_MM-SPRAM32.DI1" />
-      <direct name="DI2" input="BLK_IG-{N}_DRAM.DI2" output="BLK_MM-SPRAM32.DI2" />
-      <direct name="WE" input="BLK_IG-{N}_DRAM.WE" output="BLK_MM-SPRAM32.WE" />
+      <direct name="CLK" input="{N}_DRAM.CLK" output="SPRAM32.CLK" />
+      <direct name="A" input="{N}_DRAM.A[4:0]" output="SPRAM32.A[4:0]" />
+      <direct name="{N}I" input="{N}_DRAM.{N}I" output="SPRAM32.DI1" />
+      <direct name="DI2" input="{N}_DRAM.DI2" output="SPRAM32.DI2" />
+      <direct name="WE" input="{N}_DRAM.WE" output="SPRAM32.WE" />
 
-      <direct name="O6" input="BLK_MM-SPRAM32.O6" output="BLK_IG-{N}_DRAM.O6" />
-      <direct name="SO6" input="BLK_MM-SPRAM32.O6" output="BLK_IG-{N}_DRAM.SO6_32" />
-      <direct name="O5" input="BLK_MM-SPRAM32.O5" output="BLK_IG-{N}_DRAM.O5" />
+      <direct name="O6" input="SPRAM32.O6" output="{N}_DRAM.O6" />
+      <direct name="SO6" input="SPRAM32.O6" output="{N}_DRAM.SO6_32" />
+      <direct name="O5" input="SPRAM32.O5" output="{N}_DRAM.O5" />
     </interconnect>
   </mode>
 
   <metadata>
     <meta name="fasm_prefix">{N}LUT</meta>
+    <meta name="type">block</meta>
+    <meta name="subtype">ignore</meta>
   </metadata>
 </pb_type>

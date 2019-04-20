@@ -1,5 +1,5 @@
 <!-- Sinlge port 64x1 DRAM.  Used in 64x1 and 256x1 modes. -->
-<pb_type name="BLK_MM-SPRAM64" num_pb="1" blif_model=".subckt SPRAM64">
+<pb_type name="SPRAM64" num_pb="1" blif_model=".subckt SPRAM64">
   <clock  name="CLK" num_pins="1" />
 
   <!-- A - Read/write port -->
@@ -11,7 +11,7 @@
 
   <output name="O6"  num_pins="1" />
 
-  <delay_matrix type="max" in_port="BLK_MM-SPRAM64.A" out_port="BLK_MM-SPRAM64.O6">
+  <delay_matrix type="max" in_port="SPRAM64.A" out_port="SPRAM64.O6">
     0.068e-9
     0.068e-9
     0.068e-9
@@ -20,20 +20,20 @@
     0.068e-9
   </delay_matrix>
 
-  <T_setup      value="10e-12" port="BLK_MM-SPRAM64.A"  clock="CLK" />
-  <T_clock_to_Q   max="10e-12" port="BLK_MM-SPRAM64.A"  clock="CLK" />
-  <T_setup      value="10e-12" port="BLK_MM-SPRAM64.WA7"  clock="CLK" />
-  <T_clock_to_Q   max="10e-12" port="BLK_MM-SPRAM64.WA7"  clock="CLK" />
-  <delay_constant max="10e-12" in_port="BLK_MM-SPRAM64.WA7"  out_port="BLK_MM-SPRAM64.O6" />
-  <T_setup      value="10e-12" port="BLK_MM-SPRAM64.WA8"  clock="CLK" />
-  <T_clock_to_Q   max="10e-12" port="BLK_MM-SPRAM64.WA8"  clock="CLK" />
-  <delay_constant max="10e-12" in_port="BLK_MM-SPRAM64.WA8"  out_port="BLK_MM-SPRAM64.O6" />
-  <T_setup    value="10e-12" port="BLK_MM-SPRAM64.WE"  clock="CLK" />
-  <T_clock_to_Q   max="10e-12" port="BLK_MM-SPRAM64.WE"  clock="CLK" />
-  <delay_constant max="10e-12" in_port="BLK_MM-SPRAM64.WE"  out_port="BLK_MM-SPRAM64.O6" />
-  <T_setup    value="10e-12" port="BLK_MM-SPRAM64.DI1"  clock="CLK" />
-  <T_clock_to_Q   max="10e-12" port="BLK_MM-SPRAM64.DI1"  clock="CLK" />
-  <delay_constant max="10e-12" in_port="BLK_MM-SPRAM64.DI1"  out_port="BLK_MM-SPRAM64.O6" />
+  <T_setup      value="10e-12" port="SPRAM64.A"  clock="CLK" />
+  <T_clock_to_Q   max="10e-12" port="SPRAM64.A"  clock="CLK" />
+  <T_setup      value="10e-12" port="SPRAM64.WA7"  clock="CLK" />
+  <T_clock_to_Q   max="10e-12" port="SPRAM64.WA7"  clock="CLK" />
+  <delay_constant max="10e-12" in_port="SPRAM64.WA7"  out_port="SPRAM64.O6" />
+  <T_setup      value="10e-12" port="SPRAM64.WA8"  clock="CLK" />
+  <T_clock_to_Q   max="10e-12" port="SPRAM64.WA8"  clock="CLK" />
+  <delay_constant max="10e-12" in_port="SPRAM64.WA8"  out_port="SPRAM64.O6" />
+  <T_setup    value="10e-12" port="SPRAM64.WE"  clock="CLK" />
+  <T_clock_to_Q   max="10e-12" port="SPRAM64.WE"  clock="CLK" />
+  <delay_constant max="10e-12" in_port="SPRAM64.WE"  out_port="SPRAM64.O6" />
+  <T_setup    value="10e-12" port="SPRAM64.DI1"  clock="CLK" />
+  <T_clock_to_Q   max="10e-12" port="SPRAM64.DI1"  clock="CLK" />
+  <delay_constant max="10e-12" in_port="SPRAM64.DI1"  out_port="SPRAM64.O6" />
   <metadata>
     <meta name="fasm_params">
       INIT[63:0] = INIT
@@ -41,5 +41,7 @@
     <meta name="fasm_features">
       RAM
     </meta>
+    <meta name="type">bel</meta>
+    <meta name="subtype">memory</meta>
   </metadata>
 </pb_type>

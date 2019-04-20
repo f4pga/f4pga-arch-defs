@@ -103,12 +103,12 @@ for name, pins in icebox.pinloc_db.items():
         if (x, y) in get_corner_tiles(ic):
             return None, {}
         if tt == "RAMB":
-            return "BLK_TL-RAM", metadata
+            return "RAM", metadata
         if tt == "RAMT":
             return SKIP, {}
         if tt.startswith("DSP"):
             if tt.endswith("0"):
-                return "BLK_TL-DSP", metadata
+                return "DSP", metadata
             return SKIP, {}
         if tt == "IO":
             padin = ic.padin_pio_db()
@@ -141,9 +141,9 @@ for name, pins in icebox.pinloc_db.items():
                         metadata.get("hlc_latch_io", ""), name
                     )
                 )
-            return "BLK_TL-PIO", metadata
+            return "PIO", metadata
         if tt == "LOGIC":
-            return "BLK_TL-PLB", metadata
+            return "PLB", metadata
         return None, {}
         assert False, tt
 

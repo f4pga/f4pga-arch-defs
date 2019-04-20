@@ -1,28 +1,36 @@
 <!-- An IO pin found on an FPGA -->
-<pb_type name="BLK_BB-VPR_PAD" capacity="1">
+<pb_type name="VPR_PAD" capacity="1">
  <input name="outpad" num_pins="1"/>
  <output name="inpad" num_pins="1"/>
 
  <!-- IO operating as an input -->
  <mode name="PAD_IS_INPUT">
-   <pb_type name="PAD_IN-INPUT" blif_model=".input" num_pb="1">
-    <output name="inpad" num_pins="1"/>
-   </pb_type>
-   <interconnect>
-    <direct name="INPUT" input="PAD_IN-INPUT.inpad" output="BLK_BB-VPR_PAD.inpad">
-     <delay_constant max="4.243e-11" in_port="PAD_IN-INPUT.inpad" out_port="BLK_BB-VPR_PAD.inpad"/>
-    </direct>
-   </interconnect>
+  <pb_type name="INPUT" blif_model=".input" num_pb="1">
+   <output name="inpad" num_pins="1"/>
+   <metadata>
+    <meta name="type">bel</meta>
+    <meta name="subtype">input</meta>
+   </metadata>
+  </pb_type>
+  <interconnect>
+   <direct name="INPUT" input="INPUT.inpad" output="VPR_PAD.inpad">
+    <delay_constant max="4.243e-11" in_port="INPUT.inpad" out_port="VPR_PAD.inpad"/>
+   </direct>
+  </interconnect>
  </mode>
 
  <!-- IO operating as an output -->
  <mode name="PAD_IS_OUTPUT">
-  <pb_type name="PAD_OT-OUTPUT" blif_model=".output" num_pb="1">
+  <pb_type name="OUTPUT" blif_model=".output" num_pb="1">
    <input name="outpad" num_pins="1"/>
+   <metadata>
+    <meta name="type">bel</meta>
+    <meta name="subtype">output</meta>
+   </metadata>
   </pb_type>
   <interconnect>
-   <direct name="OUTPUT" input="BLK_BB-VPR_PAD.outpad" output="PAD_OT-OUTPUT.outpad">
-    <delay_constant max="1.394e-11" in_port="BLK_BB-VPR_PAD.outpad" out_port="PAD_OT-OUTPUT.outpad"/>
+   <direct name="OUTPUT" input="VPR_PAD.outpad" output="OUTPUT.outpad">
+    <delay_constant max="1.394e-11" in_port="VPR_PAD.outpad" out_port="OUTPUT.outpad"/>
    </direct>
   </interconnect>
  </mode>
@@ -42,6 +50,10 @@
   different pin definitions (one for each side of the FPGA).
  -->
  <pinlocations pattern="custom">
-  <loc side="right">BLK_BB-VPR_PAD.outpad BLK_BB-VPR_PAD.inpad</loc>
+  <loc side="right">VPR_PAD.outpad VPR_PAD.inpad</loc>
  </pinlocations>
+ <metadata>
+  <meta name="type">block</meta>
+  <meta name="subtype">tile</meta>
+ </metadata>
 </pb_type>

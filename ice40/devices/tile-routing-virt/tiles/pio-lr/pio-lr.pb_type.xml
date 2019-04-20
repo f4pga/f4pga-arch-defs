@@ -1,5 +1,5 @@
 <!-- set: ai sw=1 ts=1 sta et -->
-<pb_type name="BLK_TL-PIO_LR" xmlns:xi="http://www.w3.org/2001/XInclude">
+<pb_type name="PIO_LR" xmlns:xi="http://www.w3.org/2001/XInclude">
 
  <!-- Horizontal spans ############################################### -->
  <!-- Span-4 Horizontal -->
@@ -17,4 +17,8 @@
  <input  name="i_span4_vert_b" num_pins="16"/>
  <output name="o_span4_vert_b" num_pins="16"/>
 
+ <metadata>
+  <meta name="type">block</meta>
+  <meta name="subtype">tile</meta>
+ </metadata>
 </pb_type>

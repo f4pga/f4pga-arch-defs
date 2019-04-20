@@ -1,8 +1,8 @@
 <pb_types xmlns:xi="http://www.w3.org/2001/XInclude">
- <pb_type name="BLK_IG-OBUF" capacity="2">
+ <pb_type name="OBUF" capacity="2">
   <xi:include href="../pad/pad.pb_type.xml" xpointer="xpointer(pb_type/child::node())"/>
  </pb_type>
- <pb_type name="BLK_IG-IBUF" capacity="2">
+ <pb_type name="IBUF" capacity="2">
   <xi:include href="../pad/pad.pb_type.xml" xpointer="xpointer(pb_type/child::node())"/>
  </pb_type>
 </pb_types>

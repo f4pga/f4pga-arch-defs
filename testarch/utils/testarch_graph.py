@@ -128,8 +128,8 @@ def create_global_constant_tracks(graph, mux, short, grid_width, grid_height):
         "GND", graph, unique_pos, short, grid_width, grid_height
     )
 
-    vcc_pin = graph.create_pin_name_from_tile_type_and_pin('BLK_TI-VCC', 'VCC')
-    gnd_pin = graph.create_pin_name_from_tile_type_and_pin('BLK_TI-GND', 'GND')
+    vcc_pin = graph.create_pin_name_from_tile_type_and_pin('VCC', 'VCC')
+    gnd_pin = graph.create_pin_name_from_tile_type_and_pin('GND', 'GND')
 
     found_vcc = False
     found_gnd = False
@@ -241,12 +241,10 @@ def connect_blocks_to_tracks(
 
     special_pins = set(
         (
-            graph.create_pin_name_from_tile_type_and_pin(
-                'BLK_TI-TILE', 'COUT'
-            ),
-            graph.create_pin_name_from_tile_type_and_pin('BLK_TI-TILE', 'CIN'),
-            graph.create_pin_name_from_tile_type_and_pin('BLK_TI-VCC', 'VCC'),
-            graph.create_pin_name_from_tile_type_and_pin('BLK_TI-GND', 'GND'),
+            graph.create_pin_name_from_tile_type_and_pin('TILE', 'COUT'),
+            graph.create_pin_name_from_tile_type_and_pin('TILE', 'CIN'),
+            graph.create_pin_name_from_tile_type_and_pin('VCC', 'VCC'),
+            graph.create_pin_name_from_tile_type_and_pin('GND', 'GND'),
         )
     )
 

@@ -125,18 +125,18 @@ def mod_pb_name(mod):
     # Process type and class of module
     mod_cls = mod.CLASS
     if mod_cls == "routing":
-        return "BEL_RX-" + mod.name
+        return mod.name
     elif mod_cls == "mux":
-        return "BEL_MX-" + mod.name
+        return mod.name
     elif mod_cls == "flipflop":
-        return "BEL_FF-" + mod.name
+        return mod.name
     elif mod_cls == "lut":
-        return "BEL_LT-" + mod.name
+        return mod.name
     elif is_blackbox and not has_modes:
-        return "BEL_BB-" + mod.name
+        return mod.name
     else:
         #TODO: other types
-        return "BLK_IG-" + mod.name
+        return mod.name
 
 
 def strip_name(name):

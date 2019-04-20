@@ -12,7 +12,7 @@ affected by the BRAM mode, each site cannot be handled independendly.  For this
 reason, BRAM tiles use a "fused sites" mode to accomidate the cross site logic.
 
   -->
-<pb_type name="BLK_IG-BRAM_L" num_pb="1" xmlns:xi="http://www.w3.org/2001/XInclude">
+<pb_type name="BRAM_X0" num_pb="1" xmlns:xi="http://www.w3.org/2001/XInclude">
  <!-- RAMBFIFO36E1 site pins -->
  <input  name="RAMB36_X0Y0_WEBWEU"         num_pins="8"  />
  <input  name="RAMB36_X0Y0_WEBWEL"         num_pins="8"  />
@@ -185,170 +185,174 @@ reason, BRAM tiles use a "fused sites" mode to accomidate the cross site logic.
  <xi:include href="../bram/bram.pb_type.xml"/>
 
  <interconnect>
-  <direct name="RAMB36_X0Y0_WEBWEU"            input="BLK_IG-BRAM_L.RAMB36_X0Y0_WEBWEU"             output="BLK_IG-BRAM.RAMB36_Y0_WEBWEU" />
-  <direct name="RAMB36_X0Y0_WEBWEL"            input="BLK_IG-BRAM_L.RAMB36_X0Y0_WEBWEL"             output="BLK_IG-BRAM.RAMB36_Y0_WEBWEL" />
-  <direct name="RAMB36_X0Y0_WEAU"              input="BLK_IG-BRAM_L.RAMB36_X0Y0_WEAU"               output="BLK_IG-BRAM.RAMB36_Y0_WEAU" />
-  <direct name="RAMB36_X0Y0_WEAL"              input="BLK_IG-BRAM_L.RAMB36_X0Y0_WEAL"               output="BLK_IG-BRAM.RAMB36_Y0_WEAL" />
+  <direct name="RAMB36_X0Y0_WEBWEU"            input="BRAM_X0.RAMB36_X0Y0_WEBWEU"             output="BRAM.RAMB36_Y0_WEBWEU" />
+  <direct name="RAMB36_X0Y0_WEBWEL"            input="BRAM_X0.RAMB36_X0Y0_WEBWEL"             output="BRAM.RAMB36_Y0_WEBWEL" />
+  <direct name="RAMB36_X0Y0_WEAU"              input="BRAM_X0.RAMB36_X0Y0_WEAU"               output="BRAM.RAMB36_Y0_WEAU" />
+  <direct name="RAMB36_X0Y0_WEAL"              input="BRAM_X0.RAMB36_X0Y0_WEAL"               output="BRAM.RAMB36_Y0_WEAL" />
 
-  <direct name="RAMB36_X0Y0_TSTWROS"           input="BLK_IG-BRAM_L.RAMB36_X0Y0_TSTWROS"            output="BLK_IG-BRAM.RAMB36_Y0_TSTWROS" />
-  <direct name="RAMB36_X0Y0_TSTWRCNTOFF"       input="BLK_IG-BRAM_L.RAMB36_X0Y0_TSTWRCNTOFF"        output="BLK_IG-BRAM.RAMB36_Y0_TSTWRCNTOFF" />
-  <direct name="RAMB36_X0Y0_TSTRDOS"           input="BLK_IG-BRAM_L.RAMB36_X0Y0_TSTRDOS"            output="BLK_IG-BRAM.RAMB36_Y0_TSTRDOS" />
-  <direct name="RAMB36_X0Y0_TSTRDCNTOFF"       input="BLK_IG-BRAM_L.RAMB36_X0Y0_TSTRDCNTOFF"        output="BLK_IG-BRAM.RAMB36_Y0_TSTRDCNTOFF" />
-  <direct name="RAMB36_X0Y0_TSTOFF"            input="BLK_IG-BRAM_L.RAMB36_X0Y0_TSTOFF"             output="BLK_IG-BRAM.RAMB36_Y0_TSTOFF" />
-  <direct name="RAMB36_X0Y0_TSTIN"             input="BLK_IG-BRAM_L.RAMB36_X0Y0_TSTIN"              output="BLK_IG-BRAM.RAMB36_Y0_TSTIN" />
-  <direct name="RAMB36_X0Y0_TSTFLAGIN"         input="BLK_IG-BRAM_L.RAMB36_X0Y0_TSTFLAGIN"          output="BLK_IG-BRAM.RAMB36_Y0_TSTFLAGIN" />
-  <direct name="RAMB36_X0Y0_TSTCNT"            input="BLK_IG-BRAM_L.RAMB36_X0Y0_TSTCNT"             output="BLK_IG-BRAM.RAMB36_Y0_TSTCNT" />
-  <direct name="RAMB36_X0Y0_TSTBRAMRST"        input="BLK_IG-BRAM_L.RAMB36_X0Y0_TSTBRAMRST"         output="BLK_IG-BRAM.RAMB36_Y0_TSTBRAMRST" />
+  <direct name="RAMB36_X0Y0_TSTWROS"           input="BRAM_X0.RAMB36_X0Y0_TSTWROS"            output="BRAM.RAMB36_Y0_TSTWROS" />
+  <direct name="RAMB36_X0Y0_TSTWRCNTOFF"       input="BRAM_X0.RAMB36_X0Y0_TSTWRCNTOFF"        output="BRAM.RAMB36_Y0_TSTWRCNTOFF" />
+  <direct name="RAMB36_X0Y0_TSTRDOS"           input="BRAM_X0.RAMB36_X0Y0_TSTRDOS"            output="BRAM.RAMB36_Y0_TSTRDOS" />
+  <direct name="RAMB36_X0Y0_TSTRDCNTOFF"       input="BRAM_X0.RAMB36_X0Y0_TSTRDCNTOFF"        output="BRAM.RAMB36_Y0_TSTRDCNTOFF" />
+  <direct name="RAMB36_X0Y0_TSTOFF"            input="BRAM_X0.RAMB36_X0Y0_TSTOFF"             output="BRAM.RAMB36_Y0_TSTOFF" />
+  <direct name="RAMB36_X0Y0_TSTIN"             input="BRAM_X0.RAMB36_X0Y0_TSTIN"              output="BRAM.RAMB36_Y0_TSTIN" />
+  <direct name="RAMB36_X0Y0_TSTFLAGIN"         input="BRAM_X0.RAMB36_X0Y0_TSTFLAGIN"          output="BRAM.RAMB36_Y0_TSTFLAGIN" />
+  <direct name="RAMB36_X0Y0_TSTCNT"            input="BRAM_X0.RAMB36_X0Y0_TSTCNT"             output="BRAM.RAMB36_Y0_TSTCNT" />
+  <direct name="RAMB36_X0Y0_TSTBRAMRST"        input="BRAM_X0.RAMB36_X0Y0_TSTBRAMRST"         output="BRAM.RAMB36_Y0_TSTBRAMRST" />
 
-  <direct name="RAMB36_X0Y0_RSTREGBU"          input="BLK_IG-BRAM_L.RAMB36_X0Y0_RSTREGBU"           output="BLK_IG-BRAM.RAMB36_Y0_RSTREGBU" />
-  <direct name="RAMB36_X0Y0_RSTREGBL"          input="BLK_IG-BRAM_L.RAMB36_X0Y0_RSTREGBL"           output="BLK_IG-BRAM.RAMB36_Y0_RSTREGBL" />
-  <direct name="RAMB36_X0Y0_RSTREGARSTREGU"    input="BLK_IG-BRAM_L.RAMB36_X0Y0_RSTREGARSTREGU"     output="BLK_IG-BRAM.RAMB36_Y0_RSTREGARSTREGU" />
-  <direct name="RAMB36_X0Y0_RSTREGARSTREGL"    input="BLK_IG-BRAM_L.RAMB36_X0Y0_RSTREGARSTREGL"     output="BLK_IG-BRAM.RAMB36_Y0_RSTREGARSTREGL" />
-  <direct name="RAMB36_X0Y0_RSTRAMBU"          input="BLK_IG-BRAM_L.RAMB36_X0Y0_RSTRAMBU"           output="BLK_IG-BRAM.RAMB36_Y0_RSTRAMBU" />
-  <direct name="RAMB36_X0Y0_RSTRAMBL"          input="BLK_IG-BRAM_L.RAMB36_X0Y0_RSTRAMBL"           output="BLK_IG-BRAM.RAMB36_Y0_RSTRAMBL" />
-  <direct name="RAMB36_X0Y0_RSTRAMARSTRAMU"    input="BLK_IG-BRAM_L.RAMB36_X0Y0_RSTRAMARSTRAMU"     output="BLK_IG-BRAM.RAMB36_Y0_RSTRAMARSTRAMU" />
-  <direct name="RAMB36_X0Y0_RSTRAMARSTRAMLRST" input="BLK_IG-BRAM_L.RAMB36_X0Y0_RSTRAMARSTRAMLRST"  output="BLK_IG-BRAM.RAMB36_Y0_RSTRAMARSTRAMLRST" />
+  <direct name="RAMB36_X0Y0_RSTREGBU"          input="BRAM_X0.RAMB36_X0Y0_RSTREGBU"           output="BRAM.RAMB36_Y0_RSTREGBU" />
+  <direct name="RAMB36_X0Y0_RSTREGBL"          input="BRAM_X0.RAMB36_X0Y0_RSTREGBL"           output="BRAM.RAMB36_Y0_RSTREGBL" />
+  <direct name="RAMB36_X0Y0_RSTREGARSTREGU"    input="BRAM_X0.RAMB36_X0Y0_RSTREGARSTREGU"     output="BRAM.RAMB36_Y0_RSTREGARSTREGU" />
+  <direct name="RAMB36_X0Y0_RSTREGARSTREGL"    input="BRAM_X0.RAMB36_X0Y0_RSTREGARSTREGL"     output="BRAM.RAMB36_Y0_RSTREGARSTREGL" />
+  <direct name="RAMB36_X0Y0_RSTRAMBU"          input="BRAM_X0.RAMB36_X0Y0_RSTRAMBU"           output="BRAM.RAMB36_Y0_RSTRAMBU" />
+  <direct name="RAMB36_X0Y0_RSTRAMBL"          input="BRAM_X0.RAMB36_X0Y0_RSTRAMBL"           output="BRAM.RAMB36_Y0_RSTRAMBL" />
+  <direct name="RAMB36_X0Y0_RSTRAMARSTRAMU"    input="BRAM_X0.RAMB36_X0Y0_RSTRAMARSTRAMU"     output="BRAM.RAMB36_Y0_RSTRAMARSTRAMU" />
+  <direct name="RAMB36_X0Y0_RSTRAMARSTRAMLRST" input="BRAM_X0.RAMB36_X0Y0_RSTRAMARSTRAMLRST"  output="BRAM.RAMB36_Y0_RSTRAMARSTRAMLRST" />
 
-  <direct name="RAMB36_X0Y0_REGCLKBU"          input="BLK_IG-BRAM_L.RAMB36_X0Y0_REGCLKBU"           output="BLK_IG-BRAM.RAMB36_Y0_REGCLKBU" />
-  <direct name="RAMB36_X0Y0_REGCLKBL"          input="BLK_IG-BRAM_L.RAMB36_X0Y0_REGCLKBL"           output="BLK_IG-BRAM.RAMB36_Y0_REGCLKBL" />
-  <direct name="RAMB36_X0Y0_REGCLKARDRCLKU"    input="BLK_IG-BRAM_L.RAMB36_X0Y0_REGCLKARDRCLKU"     output="BLK_IG-BRAM.RAMB36_Y0_REGCLKARDRCLKU" />
-  <direct name="RAMB36_X0Y0_REGCLKARDRCLKL"    input="BLK_IG-BRAM_L.RAMB36_X0Y0_REGCLKARDRCLKL"     output="BLK_IG-BRAM.RAMB36_Y0_REGCLKARDRCLKL" />
-  <direct name="RAMB36_X0Y0_REGCEBU"           input="BLK_IG-BRAM_L.RAMB36_X0Y0_REGCEBU"            output="BLK_IG-BRAM.RAMB36_Y0_REGCEBU" />
-  <direct name="RAMB36_X0Y0_REGCEBL"           input="BLK_IG-BRAM_L.RAMB36_X0Y0_REGCEBL"            output="BLK_IG-BRAM.RAMB36_Y0_REGCEBL" />
-  <direct name="RAMB36_X0Y0_REGCEAREGCEU"      input="BLK_IG-BRAM_L.RAMB36_X0Y0_REGCEAREGCEU"       output="BLK_IG-BRAM.RAMB36_Y0_REGCEAREGCEU" />
-  <direct name="RAMB36_X0Y0_REGCEAREGCEL"      input="BLK_IG-BRAM_L.RAMB36_X0Y0_REGCEAREGCEL"       output="BLK_IG-BRAM.RAMB36_Y0_REGCEAREGCEL" />
+  <direct name="RAMB36_X0Y0_REGCLKBU"          input="BRAM_X0.RAMB36_X0Y0_REGCLKBU"           output="BRAM.RAMB36_Y0_REGCLKBU" />
+  <direct name="RAMB36_X0Y0_REGCLKBL"          input="BRAM_X0.RAMB36_X0Y0_REGCLKBL"           output="BRAM.RAMB36_Y0_REGCLKBL" />
+  <direct name="RAMB36_X0Y0_REGCLKARDRCLKU"    input="BRAM_X0.RAMB36_X0Y0_REGCLKARDRCLKU"     output="BRAM.RAMB36_Y0_REGCLKARDRCLKU" />
+  <direct name="RAMB36_X0Y0_REGCLKARDRCLKL"    input="BRAM_X0.RAMB36_X0Y0_REGCLKARDRCLKL"     output="BRAM.RAMB36_Y0_REGCLKARDRCLKL" />
+  <direct name="RAMB36_X0Y0_REGCEBU"           input="BRAM_X0.RAMB36_X0Y0_REGCEBU"            output="BRAM.RAMB36_Y0_REGCEBU" />
+  <direct name="RAMB36_X0Y0_REGCEBL"           input="BRAM_X0.RAMB36_X0Y0_REGCEBL"            output="BRAM.RAMB36_Y0_REGCEBL" />
+  <direct name="RAMB36_X0Y0_REGCEAREGCEU"      input="BRAM_X0.RAMB36_X0Y0_REGCEAREGCEU"       output="BRAM.RAMB36_Y0_REGCEAREGCEU" />
+  <direct name="RAMB36_X0Y0_REGCEAREGCEL"      input="BRAM_X0.RAMB36_X0Y0_REGCEAREGCEL"       output="BRAM.RAMB36_Y0_REGCEAREGCEL" />
 
-  <direct name="RAMB36_X0Y0_INJECTDBITERR"     input="BLK_IG-BRAM_L.RAMB36_X0Y0_INJECTDBITERR"      output="BLK_IG-BRAM.RAMB36_Y0_INJECTDBITERR" />
-  <direct name="RAMB36_X0Y0_INJECTSBITERR"     input="BLK_IG-BRAM_L.RAMB36_X0Y0_INJECTSBITERR"      output="BLK_IG-BRAM.RAMB36_Y0_INJECTSBITERR" />
+  <direct name="RAMB36_X0Y0_INJECTDBITERR"     input="BRAM_X0.RAMB36_X0Y0_INJECTDBITERR"      output="BRAM.RAMB36_Y0_INJECTDBITERR" />
+  <direct name="RAMB36_X0Y0_INJECTSBITERR"     input="BRAM_X0.RAMB36_X0Y0_INJECTSBITERR"      output="BRAM.RAMB36_Y0_INJECTSBITERR" />
 
-  <direct name="RAMB36_X0Y0_ENBWRENU"          input="BLK_IG-BRAM_L.RAMB36_X0Y0_ENBWRENU"           output="BLK_IG-BRAM.RAMB36_Y0_ENBWRENU" />
-  <direct name="RAMB36_X0Y0_ENBWRENL"          input="BLK_IG-BRAM_L.RAMB36_X0Y0_ENBWRENL"           output="BLK_IG-BRAM.RAMB36_Y0_ENBWRENL" />
-  <direct name="RAMB36_X0Y0_ENARDENU"          input="BLK_IG-BRAM_L.RAMB36_X0Y0_ENARDENU"           output="BLK_IG-BRAM.RAMB36_Y0_ENARDENU" />
-  <direct name="RAMB36_X0Y0_ENARDENL"          input="BLK_IG-BRAM_L.RAMB36_X0Y0_ENARDENL"           output="BLK_IG-BRAM.RAMB36_Y0_ENARDENL" />
-  <direct name="RAMB36_X0Y0_DIPBDIP"           input="BLK_IG-BRAM_L.RAMB36_X0Y0_DIPBDIP"            output="BLK_IG-BRAM.RAMB36_Y0_DIPBDIP" />
-  <direct name="RAMB36_X0Y0_DIPADIP"           input="BLK_IG-BRAM_L.RAMB36_X0Y0_DIPADIP"            output="BLK_IG-BRAM.RAMB36_Y0_DIPADIP" />
-  <direct name="RAMB36_X0Y0_DIBDI"             input="BLK_IG-BRAM_L.RAMB36_X0Y0_DIBDI"              output="BLK_IG-BRAM.RAMB36_Y0_DIBDI" />
-  <direct name="RAMB36_X0Y0_DIADI"             input="BLK_IG-BRAM_L.RAMB36_X0Y0_DIADI"              output="BLK_IG-BRAM.RAMB36_Y0_DIADI" />
+  <direct name="RAMB36_X0Y0_ENBWRENU"          input="BRAM_X0.RAMB36_X0Y0_ENBWRENU"           output="BRAM.RAMB36_Y0_ENBWRENU" />
+  <direct name="RAMB36_X0Y0_ENBWRENL"          input="BRAM_X0.RAMB36_X0Y0_ENBWRENL"           output="BRAM.RAMB36_Y0_ENBWRENL" />
+  <direct name="RAMB36_X0Y0_ENARDENU"          input="BRAM_X0.RAMB36_X0Y0_ENARDENU"           output="BRAM.RAMB36_Y0_ENARDENU" />
+  <direct name="RAMB36_X0Y0_ENARDENL"          input="BRAM_X0.RAMB36_X0Y0_ENARDENL"           output="BRAM.RAMB36_Y0_ENARDENL" />
+  <direct name="RAMB36_X0Y0_DIPBDIP"           input="BRAM_X0.RAMB36_X0Y0_DIPBDIP"            output="BRAM.RAMB36_Y0_DIPBDIP" />
+  <direct name="RAMB36_X0Y0_DIPADIP"           input="BRAM_X0.RAMB36_X0Y0_DIPADIP"            output="BRAM.RAMB36_Y0_DIPADIP" />
+  <direct name="RAMB36_X0Y0_DIBDI"             input="BRAM_X0.RAMB36_X0Y0_DIBDI"              output="BRAM.RAMB36_Y0_DIBDI" />
+  <direct name="RAMB36_X0Y0_DIADI"             input="BRAM_X0.RAMB36_X0Y0_DIADI"              output="BRAM.RAMB36_Y0_DIADI" />
 
-  <direct name="RAMB36_X0Y0_CLKBWRCLKU"        input="BLK_IG-BRAM_L.RAMB36_X0Y0_CLKBWRCLKU"         output="BLK_IG-BRAM.RAMB36_Y0_CLKBWRCLKU" />
-  <direct name="RAMB36_X0Y0_CLKBWRCLKL"        input="BLK_IG-BRAM_L.RAMB36_X0Y0_CLKBWRCLKL"         output="BLK_IG-BRAM.RAMB36_Y0_CLKBWRCLKL" />
-  <direct name="RAMB36_X0Y0_CLKARDCLKU"        input="BLK_IG-BRAM_L.RAMB36_X0Y0_CLKARDCLKU"         output="BLK_IG-BRAM.RAMB36_Y0_CLKARDCLKU" />
-  <direct name="RAMB36_X0Y0_CLKARDCLKL"        input="BLK_IG-BRAM_L.RAMB36_X0Y0_CLKARDCLKL"         output="BLK_IG-BRAM.RAMB36_Y0_CLKARDCLKL" />
+  <direct name="RAMB36_X0Y0_CLKBWRCLKU"        input="BRAM_X0.RAMB36_X0Y0_CLKBWRCLKU"         output="BRAM.RAMB36_Y0_CLKBWRCLKU" />
+  <direct name="RAMB36_X0Y0_CLKBWRCLKL"        input="BRAM_X0.RAMB36_X0Y0_CLKBWRCLKL"         output="BRAM.RAMB36_Y0_CLKBWRCLKL" />
+  <direct name="RAMB36_X0Y0_CLKARDCLKU"        input="BRAM_X0.RAMB36_X0Y0_CLKARDCLKU"         output="BRAM.RAMB36_Y0_CLKARDCLKU" />
+  <direct name="RAMB36_X0Y0_CLKARDCLKL"        input="BRAM_X0.RAMB36_X0Y0_CLKARDCLKL"         output="BRAM.RAMB36_Y0_CLKARDCLKL" />
 
-  <direct name="RAMB36_X0Y0_CASCADEINA"        input="BLK_IG-BRAM_L.RAMB36_X0Y0_CASCADEINA"         output="BLK_IG-BRAM.RAMB36_Y0_CASCADEINA" />
-  <direct name="RAMB36_X0Y0_CASCADEINB"        input="BLK_IG-BRAM_L.RAMB36_X0Y0_CASCADEINB"         output="BLK_IG-BRAM.RAMB36_Y0_CASCADEINB" />
+  <direct name="RAMB36_X0Y0_CASCADEINA"        input="BRAM_X0.RAMB36_X0Y0_CASCADEINA"         output="BRAM.RAMB36_Y0_CASCADEINA" />
+  <direct name="RAMB36_X0Y0_CASCADEINB"        input="BRAM_X0.RAMB36_X0Y0_CASCADEINB"         output="BRAM.RAMB36_Y0_CASCADEINB" />
 
-  <direct name="RAMB36_X0Y0_ADDRBWRADDRU"      input="BLK_IG-BRAM_L.RAMB36_X0Y0_ADDRBWRADDRU"       output="BLK_IG-BRAM.RAMB36_Y0_ADDRBWRADDRU" />
-  <direct name="RAMB36_X0Y0_ADDRBWRADDRL"      input="BLK_IG-BRAM_L.RAMB36_X0Y0_ADDRBWRADDRL"       output="BLK_IG-BRAM.RAMB36_Y0_ADDRBWRADDRL" />
+  <direct name="RAMB36_X0Y0_ADDRBWRADDRU"      input="BRAM_X0.RAMB36_X0Y0_ADDRBWRADDRU"       output="BRAM.RAMB36_Y0_ADDRBWRADDRU" />
+  <direct name="RAMB36_X0Y0_ADDRBWRADDRL"      input="BRAM_X0.RAMB36_X0Y0_ADDRBWRADDRL"       output="BRAM.RAMB36_Y0_ADDRBWRADDRL" />
 
-  <direct name="RAMB36_X0Y0_ADDRARDADDRU"      input="BLK_IG-BRAM_L.RAMB36_X0Y0_ADDRARDADDRU"       output="BLK_IG-BRAM.RAMB36_Y0_ADDRARDADDRU" />
-  <direct name="RAMB36_X0Y0_ADDRARDADDRL"      input="BLK_IG-BRAM_L.RAMB36_X0Y0_ADDRARDADDRL"       output="BLK_IG-BRAM.RAMB36_Y0_ADDRARDADDRL" />
+  <direct name="RAMB36_X0Y0_ADDRARDADDRU"      input="BRAM_X0.RAMB36_X0Y0_ADDRARDADDRU"       output="BRAM.RAMB36_Y0_ADDRARDADDRU" />
+  <direct name="RAMB36_X0Y0_ADDRARDADDRL"      input="BRAM_X0.RAMB36_X0Y0_ADDRARDADDRL"       output="BRAM.RAMB36_Y0_ADDRARDADDRL" />
 
-  <direct name="RAMB36_X0Y0_WRERR"             input="BLK_IG-BRAM.RAMB36_Y0_WRERR"                  output="BLK_IG-BRAM_L.RAMB36_X0Y0_WRERR" />
-  <direct name="RAMB36_X0Y0_WRCOUNT"           input="BLK_IG-BRAM.RAMB36_Y0_WRCOUNT"                output="BLK_IG-BRAM_L.RAMB36_X0Y0_WRCOUNT" />
+  <direct name="RAMB36_X0Y0_WRERR"             input="BRAM.RAMB36_Y0_WRERR"                  output="BRAM_X0.RAMB36_X0Y0_WRERR" />
+  <direct name="RAMB36_X0Y0_WRCOUNT"           input="BRAM.RAMB36_Y0_WRCOUNT"                output="BRAM_X0.RAMB36_X0Y0_WRCOUNT" />
 
-  <direct name="RAMB36_X0Y0_TSTOUT"            input="BLK_IG-BRAM.RAMB36_Y0_TSTOUT"                 output="BLK_IG-BRAM_L.RAMB36_X0Y0_TSTOUT" />
+  <direct name="RAMB36_X0Y0_TSTOUT"            input="BRAM.RAMB36_Y0_TSTOUT"                 output="BRAM_X0.RAMB36_X0Y0_TSTOUT" />
 
-  <direct name="RAMB36_X0Y0_SBITERR"           input="BLK_IG-BRAM.RAMB36_Y0_SBITERR"                output="BLK_IG-BRAM_L.RAMB36_X0Y0_SBITERR" />
+  <direct name="RAMB36_X0Y0_SBITERR"           input="BRAM.RAMB36_Y0_SBITERR"                output="BRAM_X0.RAMB36_X0Y0_SBITERR" />
 
-  <direct name="RAMB36_X0Y0_RDERR"             input="BLK_IG-BRAM.RAMB36_Y0_RDERR"                  output="BLK_IG-BRAM_L.RAMB36_X0Y0_RDERR" />
-  <direct name="RAMB36_X0Y0_RDCOUNT"           input="BLK_IG-BRAM.RAMB36_Y0_RDCOUNT"                output="BLK_IG-BRAM_L.RAMB36_X0Y0_RDCOUNT" />
+  <direct name="RAMB36_X0Y0_RDERR"             input="BRAM.RAMB36_Y0_RDERR"                  output="BRAM_X0.RAMB36_X0Y0_RDERR" />
+  <direct name="RAMB36_X0Y0_RDCOUNT"           input="BRAM.RAMB36_Y0_RDCOUNT"                output="BRAM_X0.RAMB36_X0Y0_RDCOUNT" />
 
-  <direct name="RAMB36_X0Y0_FULL"              input="BLK_IG-BRAM.RAMB36_Y0_FULL"                   output="BLK_IG-BRAM_L.RAMB36_X0Y0_FULL" />
-  <direct name="RAMB36_X0Y0_EMPTY"             input="BLK_IG-BRAM.RAMB36_Y0_EMPTY"                  output="BLK_IG-BRAM_L.RAMB36_X0Y0_EMPTY" />
+  <direct name="RAMB36_X0Y0_FULL"              input="BRAM.RAMB36_Y0_FULL"                   output="BRAM_X0.RAMB36_X0Y0_FULL" />
+  <direct name="RAMB36_X0Y0_EMPTY"             input="BRAM.RAMB36_Y0_EMPTY"                  output="BRAM_X0.RAMB36_X0Y0_EMPTY" />
 
-  <direct name="RAMB36_X0Y0_ECCPARITY"         input="BLK_IG-BRAM.RAMB36_Y0_ECCPARITY"              output="BLK_IG-BRAM_L.RAMB36_X0Y0_ECCPARITY" />
+  <direct name="RAMB36_X0Y0_ECCPARITY"         input="BRAM.RAMB36_Y0_ECCPARITY"              output="BRAM_X0.RAMB36_X0Y0_ECCPARITY" />
 
-  <direct name="RAMB36_X0Y0_DOPBDOP"           input="BLK_IG-BRAM.RAMB36_Y0_DOPBDOP"                output="BLK_IG-BRAM_L.RAMB36_X0Y0_DOPBDOP" />
-  <direct name="RAMB36_X0Y0_DOPADOP"           input="BLK_IG-BRAM.RAMB36_Y0_DOPADOP"                output="BLK_IG-BRAM_L.RAMB36_X0Y0_DOPADOP" />
+  <direct name="RAMB36_X0Y0_DOPBDOP"           input="BRAM.RAMB36_Y0_DOPBDOP"                output="BRAM_X0.RAMB36_X0Y0_DOPBDOP" />
+  <direct name="RAMB36_X0Y0_DOPADOP"           input="BRAM.RAMB36_Y0_DOPADOP"                output="BRAM_X0.RAMB36_X0Y0_DOPADOP" />
 
-  <direct name="RAMB36_X0Y0_DOBDO"             input="BLK_IG-BRAM.RAMB36_Y0_DOBDO"                  output="BLK_IG-BRAM_L.RAMB36_X0Y0_DOBDO" />
-  <direct name="RAMB36_X0Y0_DOADO"             input="BLK_IG-BRAM.RAMB36_Y0_DOADO"                  output="BLK_IG-BRAM_L.RAMB36_X0Y0_DOADO" />
+  <direct name="RAMB36_X0Y0_DOBDO"             input="BRAM.RAMB36_Y0_DOBDO"                  output="BRAM_X0.RAMB36_X0Y0_DOBDO" />
+  <direct name="RAMB36_X0Y0_DOADO"             input="BRAM.RAMB36_Y0_DOADO"                  output="BRAM_X0.RAMB36_X0Y0_DOADO" />
 
-  <direct name="RAMB36_X0Y0_DBITERR"           input="BLK_IG-BRAM.RAMB36_Y0_DBITERR"                output="BLK_IG-BRAM_L.RAMB36_X0Y0_DBITERR" />
+  <direct name="RAMB36_X0Y0_DBITERR"           input="BRAM.RAMB36_Y0_DBITERR"                output="BRAM_X0.RAMB36_X0Y0_DBITERR" />
 
-  <direct name="RAMB36_X0Y0_CASCADEOUTA"       input="BLK_IG-BRAM.RAMB36_Y0_CASCADEOUTA"            output="BLK_IG-BRAM_L.RAMB36_X0Y0_CASCADEOUTA" />
-  <direct name="RAMB36_X0Y0_CASCADEOUTB"       input="BLK_IG-BRAM.RAMB36_Y0_CASCADEOUTB"            output="BLK_IG-BRAM_L.RAMB36_X0Y0_CASCADEOUTB" />
+  <direct name="RAMB36_X0Y0_CASCADEOUTA"       input="BRAM.RAMB36_Y0_CASCADEOUTA"            output="BRAM_X0.RAMB36_X0Y0_CASCADEOUTA" />
+  <direct name="RAMB36_X0Y0_CASCADEOUTB"       input="BRAM.RAMB36_Y0_CASCADEOUTB"            output="BRAM_X0.RAMB36_X0Y0_CASCADEOUTB" />
 
-  <direct name="RAMB36_X0Y0_ALMOSTFULL"        input="BLK_IG-BRAM.RAMB36_Y0_ALMOSTFULL"             output="BLK_IG-BRAM_L.RAMB36_X0Y0_ALMOSTFULL" />
-  <direct name="RAMB36_X0Y0_ALMOSTEMPTY"       input="BLK_IG-BRAM.RAMB36_Y0_ALMOSTEMPTY"            output="BLK_IG-BRAM_L.RAMB36_X0Y0_ALMOSTEMPTY" />
+  <direct name="RAMB36_X0Y0_ALMOSTFULL"        input="BRAM.RAMB36_Y0_ALMOSTFULL"             output="BRAM_X0.RAMB36_X0Y0_ALMOSTFULL" />
+  <direct name="RAMB36_X0Y0_ALMOSTEMPTY"       input="BRAM.RAMB36_Y0_ALMOSTEMPTY"            output="BRAM_X0.RAMB36_X0Y0_ALMOSTEMPTY" />
 
-  <direct name="RAMB18_X0Y0_WREN"             input="BLK_IG-BRAM_L.RAMB18_X0Y0_WREN"                output="BLK_IG-BRAM.RAMB18_Y0_WREN" />
-  <direct name="RAMB18_X0Y0_WRCLK"            input="BLK_IG-BRAM_L.RAMB18_X0Y0_WRCLK"               output="BLK_IG-BRAM.RAMB18_Y0_WRCLK" />
-  <direct name="RAMB18_X0Y0_WEBWE"            input="BLK_IG-BRAM_L.RAMB18_X0Y0_WEBWE"               output="BLK_IG-BRAM.RAMB18_Y0_WEBWE" />
-  <direct name="RAMB18_X0Y0_WEA"              input="BLK_IG-BRAM_L.RAMB18_X0Y0_WEA"                 output="BLK_IG-BRAM.RAMB18_Y0_WEA" />
+  <direct name="RAMB18_X0Y0_WREN"              input="BRAM_X0.RAMB18_X0Y0_WREN"              output="BRAM.RAMB18_Y0_WREN" />
+  <direct name="RAMB18_X0Y0_WRCLK"             input="BRAM_X0.RAMB18_X0Y0_WRCLK"             output="BRAM.RAMB18_Y0_WRCLK" />
+  <direct name="RAMB18_X0Y0_WEBWE"             input="BRAM_X0.RAMB18_X0Y0_WEBWE"             output="BRAM.RAMB18_Y0_WEBWE" />
+  <direct name="RAMB18_X0Y0_WEA"               input="BRAM_X0.RAMB18_X0Y0_WEA"               output="BRAM.RAMB18_Y0_WEA" />
 
-  <direct name="RAMB18_X0Y0_RSTREGB"          input="BLK_IG-BRAM_L.RAMB18_X0Y0_RSTREGB"             output="BLK_IG-BRAM.RAMB18_Y0_RSTREGB" />
-  <direct name="RAMB18_X0Y0_RSTREG"           input="BLK_IG-BRAM_L.RAMB18_X0Y0_RSTREG"              output="BLK_IG-BRAM.RAMB18_Y0_RSTREG" />
-  <direct name="RAMB18_X0Y0_RSTRAMB"          input="BLK_IG-BRAM_L.RAMB18_X0Y0_RSTRAMB"             output="BLK_IG-BRAM.RAMB18_Y0_RSTRAMB" />
-  <direct name="RAMB18_X0Y0_RST"              input="BLK_IG-BRAM_L.RAMB18_X0Y0_RST"                 output="BLK_IG-BRAM.RAMB18_Y0_RST" />
+  <direct name="RAMB18_X0Y0_RSTREGB"           input="BRAM_X0.RAMB18_X0Y0_RSTREGB"           output="BRAM.RAMB18_Y0_RSTREGB" />
+  <direct name="RAMB18_X0Y0_RSTREG"            input="BRAM_X0.RAMB18_X0Y0_RSTREG"            output="BRAM.RAMB18_Y0_RSTREG" />
+  <direct name="RAMB18_X0Y0_RSTRAMB"           input="BRAM_X0.RAMB18_X0Y0_RSTRAMB"           output="BRAM.RAMB18_Y0_RSTRAMB" />
+  <direct name="RAMB18_X0Y0_RST"               input="BRAM_X0.RAMB18_X0Y0_RST"               output="BRAM.RAMB18_Y0_RST" />
 
-  <direct name="RAMB18_X0Y0_REGCLKB"          input="BLK_IG-BRAM_L.RAMB18_X0Y0_REGCLKB"             output="BLK_IG-BRAM.RAMB18_Y0_REGCLKB" />
-  <direct name="RAMB18_X0Y0_REGCEB"           input="BLK_IG-BRAM_L.RAMB18_X0Y0_REGCEB"              output="BLK_IG-BRAM.RAMB18_Y0_REGCEB" />
-  <direct name="RAMB18_X0Y0_REGCE"            input="BLK_IG-BRAM_L.RAMB18_X0Y0_REGCE"               output="BLK_IG-BRAM.RAMB18_Y0_REGCE" />
-  <direct name="RAMB18_X0Y0_RDRCLK"           input="BLK_IG-BRAM_L.RAMB18_X0Y0_RDRCLK"              output="BLK_IG-BRAM.RAMB18_Y0_RDRCLK" />
-  <direct name="RAMB18_X0Y0_RDEN"             input="BLK_IG-BRAM_L.RAMB18_X0Y0_RDEN"                output="BLK_IG-BRAM.RAMB18_Y0_RDEN" />
-  <direct name="RAMB18_X0Y0_RDCLK"            input="BLK_IG-BRAM_L.RAMB18_X0Y0_RDCLK"               output="BLK_IG-BRAM.RAMB18_Y0_RDCLK" />
+  <direct name="RAMB18_X0Y0_REGCLKB"           input="BRAM_X0.RAMB18_X0Y0_REGCLKB"           output="BRAM.RAMB18_Y0_REGCLKB" />
+  <direct name="RAMB18_X0Y0_REGCEB"            input="BRAM_X0.RAMB18_X0Y0_REGCEB"            output="BRAM.RAMB18_Y0_REGCEB" />
+  <direct name="RAMB18_X0Y0_REGCE"             input="BRAM_X0.RAMB18_X0Y0_REGCE"             output="BRAM.RAMB18_Y0_REGCE" />
+  <direct name="RAMB18_X0Y0_RDRCLK"            input="BRAM_X0.RAMB18_X0Y0_RDRCLK"            output="BRAM.RAMB18_Y0_RDRCLK" />
+  <direct name="RAMB18_X0Y0_RDEN"              input="BRAM_X0.RAMB18_X0Y0_RDEN"              output="BRAM.RAMB18_Y0_RDEN" />
+  <direct name="RAMB18_X0Y0_RDCLK"             input="BRAM_X0.RAMB18_X0Y0_RDCLK"             output="BRAM.RAMB18_Y0_RDCLK" />
 
-  <direct name="RAMB18_X0Y0_DIPBDIP"          input="BLK_IG-BRAM_L.RAMB18_X0Y0_DIPBDIP"             output="BLK_IG-BRAM.RAMB18_Y0_DIPBDIP" />
-  <direct name="RAMB18_X0Y0_DIPADIP"          input="BLK_IG-BRAM_L.RAMB18_X0Y0_DIPADIP"             output="BLK_IG-BRAM.RAMB18_Y0_DIPADIP" />
-  <direct name="RAMB18_X0Y0_DIBDI"            input="BLK_IG-BRAM_L.RAMB18_X0Y0_DIBDI"               output="BLK_IG-BRAM.RAMB18_Y0_DIBDI" />
-  <direct name="RAMB18_X0Y0_DIADI"            input="BLK_IG-BRAM_L.RAMB18_X0Y0_DIADI"               output="BLK_IG-BRAM.RAMB18_Y0_DIADI" />
+  <direct name="RAMB18_X0Y0_DIPBDIP"           input="BRAM_X0.RAMB18_X0Y0_DIPBDIP"           output="BRAM.RAMB18_Y0_DIPBDIP" />
+  <direct name="RAMB18_X0Y0_DIPADIP"           input="BRAM_X0.RAMB18_X0Y0_DIPADIP"           output="BRAM.RAMB18_Y0_DIPADIP" />
+  <direct name="RAMB18_X0Y0_DIBDI"             input="BRAM_X0.RAMB18_X0Y0_DIBDI"             output="BRAM.RAMB18_Y0_DIBDI" />
+  <direct name="RAMB18_X0Y0_DIADI"             input="BRAM_X0.RAMB18_X0Y0_DIADI"             output="BRAM.RAMB18_Y0_DIADI" />
 
-  <direct name="RAMB18_X0Y0_ADDRARDADDR"      input="BLK_IG-BRAM_L.RAMB18_X0Y0_ADDRARDADDR"         output="BLK_IG-BRAM.RAMB18_Y0_ADDRARDADDR" />
-  <direct name="RAMB18_X0Y0_ADDRBWRADDR"      input="BLK_IG-BRAM_L.RAMB18_X0Y0_ADDRBWRADDR"         output="BLK_IG-BRAM.RAMB18_Y0_ADDRBWRADDR" />
-  <direct name="RAMB18_X0Y0_ADDRATIEHIGH"     input="BLK_IG-BRAM_L.RAMB18_X0Y0_ADDRATIEHIGH"        output="BLK_IG-BRAM.RAMB18_Y0_ADDRATIEHIGH" />
-  <direct name="RAMB18_X0Y0_ADDRBTIEHIGH"     input="BLK_IG-BRAM_L.RAMB18_X0Y0_ADDRBTIEHIGH"        output="BLK_IG-BRAM.RAMB18_Y0_ADDRBTIEHIGH" />
+  <direct name="RAMB18_X0Y0_ADDRARDADDR"       input="BRAM_X0.RAMB18_X0Y0_ADDRARDADDR"       output="BRAM.RAMB18_Y0_ADDRARDADDR" />
+  <direct name="RAMB18_X0Y0_ADDRBWRADDR"       input="BRAM_X0.RAMB18_X0Y0_ADDRBWRADDR"       output="BRAM.RAMB18_Y0_ADDRBWRADDR" />
+  <direct name="RAMB18_X0Y0_ADDRATIEHIGH"      input="BRAM_X0.RAMB18_X0Y0_ADDRATIEHIGH"      output="BRAM.RAMB18_Y0_ADDRATIEHIGH" />
+  <direct name="RAMB18_X0Y0_ADDRBTIEHIGH"      input="BRAM_X0.RAMB18_X0Y0_ADDRBTIEHIGH"      output="BRAM.RAMB18_Y0_ADDRBTIEHIGH" />
 
-  <direct name="RAMB18_X0Y0_WRERR"            input="BLK_IG-BRAM.RAMB18_Y0_WRERR"                   output="BLK_IG-BRAM_L.RAMB18_X0Y0_WRERR" />
-  <direct name="RAMB18_X0Y0_WRCOUNT"          input="BLK_IG-BRAM.RAMB18_Y0_WRCOUNT"                 output="BLK_IG-BRAM_L.RAMB18_X0Y0_WRCOUNT" />
-  <direct name="RAMB18_X0Y0_RDERR"            input="BLK_IG-BRAM.RAMB18_Y0_RDERR"                   output="BLK_IG-BRAM_L.RAMB18_X0Y0_RDERR" />
-  <direct name="RAMB18_X0Y0_RDCOUNT"          input="BLK_IG-BRAM.RAMB18_Y0_RDCOUNT"                 output="BLK_IG-BRAM_L.RAMB18_X0Y0_RDCOUNT" />
-  <direct name="RAMB18_X0Y0_FULL"             input="BLK_IG-BRAM.RAMB18_Y0_FULL"                    output="BLK_IG-BRAM_L.RAMB18_X0Y0_FULL" />
-  <direct name="RAMB18_X0Y0_EMPTY"            input="BLK_IG-BRAM.RAMB18_Y0_EMPTY"                   output="BLK_IG-BRAM_L.RAMB18_X0Y0_EMPTY" />
-  <direct name="RAMB18_X0Y0_DOP"              input="BLK_IG-BRAM.RAMB18_Y0_DOP"                     output="BLK_IG-BRAM_L.RAMB18_X0Y0_DOP" />
-  <direct name="RAMB18_X0Y0_DO"               input="BLK_IG-BRAM.RAMB18_Y0_DO"                      output="BLK_IG-BRAM_L.RAMB18_X0Y0_DO" />
-  <direct name="RAMB18_X0Y0_ALMOSTFULL"       input="BLK_IG-BRAM.RAMB18_Y0_ALMOSTFULL"              output="BLK_IG-BRAM_L.RAMB18_X0Y0_ALMOSTFULL" />
-  <direct name="RAMB18_X0Y0_ALMOSTEMPTY"      input="BLK_IG-BRAM.RAMB18_Y0_ALMOSTEMPTY"             output="BLK_IG-BRAM_L.RAMB18_X0Y0_ALMOSTEMPTY" />
+  <direct name="RAMB18_X0Y0_WRERR"             input="BRAM.RAMB18_Y0_WRERR"                  output="BRAM_X0.RAMB18_X0Y0_WRERR" />
+  <direct name="RAMB18_X0Y0_WRCOUNT"           input="BRAM.RAMB18_Y0_WRCOUNT"                output="BRAM_X0.RAMB18_X0Y0_WRCOUNT" />
+  <direct name="RAMB18_X0Y0_RDERR"             input="BRAM.RAMB18_Y0_RDERR"                  output="BRAM_X0.RAMB18_X0Y0_RDERR" />
+  <direct name="RAMB18_X0Y0_RDCOUNT"           input="BRAM.RAMB18_Y0_RDCOUNT"                output="BRAM_X0.RAMB18_X0Y0_RDCOUNT" />
+  <direct name="RAMB18_X0Y0_FULL"              input="BRAM.RAMB18_Y0_FULL"                   output="BRAM_X0.RAMB18_X0Y0_FULL" />
+  <direct name="RAMB18_X0Y0_EMPTY"             input="BRAM.RAMB18_Y0_EMPTY"                  output="BRAM_X0.RAMB18_X0Y0_EMPTY" />
+  <direct name="RAMB18_X0Y0_DOP"               input="BRAM.RAMB18_Y0_DOP"                    output="BRAM_X0.RAMB18_X0Y0_DOP" />
+  <direct name="RAMB18_X0Y0_DO"                input="BRAM.RAMB18_Y0_DO"                     output="BRAM_X0.RAMB18_X0Y0_DO" />
+  <direct name="RAMB18_X0Y0_ALMOSTFULL"        input="BRAM.RAMB18_Y0_ALMOSTFULL"             output="BRAM_X0.RAMB18_X0Y0_ALMOSTFULL" />
+  <direct name="RAMB18_X0Y0_ALMOSTEMPTY"       input="BRAM.RAMB18_Y0_ALMOSTEMPTY"            output="BRAM_X0.RAMB18_X0Y0_ALMOSTEMPTY" />
 
-  <direct name="RAMB18_X0Y1_ENBWREN"          input="BLK_IG-BRAM_L.RAMB18_X0Y1_ENBWREN"             output="BLK_IG-BRAM.RAMB18_Y1_ENBWREN" />
-  <direct name="RAMB18_X0Y1_CLKBWRCLK"        input="BLK_IG-BRAM_L.RAMB18_X0Y1_CLKBWRCLK"           output="BLK_IG-BRAM.RAMB18_Y1_CLKBWRCLK" />
-  <direct name="RAMB18_X0Y1_WEBWE"            input="BLK_IG-BRAM_L.RAMB18_X0Y1_WEBWE"               output="BLK_IG-BRAM.RAMB18_Y1_WEBWE" />
-  <direct name="RAMB18_X0Y1_WEA"              input="BLK_IG-BRAM_L.RAMB18_X0Y1_WEA"                 output="BLK_IG-BRAM.RAMB18_Y1_WEA" />
+  <direct name="RAMB18_X0Y1_ENBWREN"           input="BRAM_X0.RAMB18_X0Y1_ENBWREN"           output="BRAM.RAMB18_Y1_ENBWREN" />
+  <direct name="RAMB18_X0Y1_CLKBWRCLK"         input="BRAM_X0.RAMB18_X0Y1_CLKBWRCLK"         output="BRAM.RAMB18_Y1_CLKBWRCLK" />
+  <direct name="RAMB18_X0Y1_WEBWE"             input="BRAM_X0.RAMB18_X0Y1_WEBWE"             output="BRAM.RAMB18_Y1_WEBWE" />
+  <direct name="RAMB18_X0Y1_WEA"               input="BRAM_X0.RAMB18_X0Y1_WEA"               output="BRAM.RAMB18_Y1_WEA" />
 
-  <direct name="RAMB18_X0Y1_RSTREGB"          input="BLK_IG-BRAM_L.RAMB18_X0Y1_RSTREGB"             output="BLK_IG-BRAM.RAMB18_Y1_RSTREGB" />
-  <direct name="RAMB18_X0Y1_RSTREGARSTREG"    input="BLK_IG-BRAM_L.RAMB18_X0Y1_RSTREGARSTREG"       output="BLK_IG-BRAM.RAMB18_Y1_RSTREGARSTREG" />
-  <direct name="RAMB18_X0Y1_RSTRAMB"          input="BLK_IG-BRAM_L.RAMB18_X0Y1_RSTRAMB"             output="BLK_IG-BRAM.RAMB18_Y1_RSTRAMB" />
-  <direct name="RAMB18_X0Y1_RSTRAMARSTRAM"    input="BLK_IG-BRAM_L.RAMB18_X0Y1_RSTRAMARSTRAM"       output="BLK_IG-BRAM.RAMB18_Y1_RSTRAMARSTRAM" />
+  <direct name="RAMB18_X0Y1_RSTREGB"           input="BRAM_X0.RAMB18_X0Y1_RSTREGB"           output="BRAM.RAMB18_Y1_RSTREGB" />
+  <direct name="RAMB18_X0Y1_RSTREGARSTREG"     input="BRAM_X0.RAMB18_X0Y1_RSTREGARSTREG"     output="BRAM.RAMB18_Y1_RSTREGARSTREG" />
+  <direct name="RAMB18_X0Y1_RSTRAMB"           input="BRAM_X0.RAMB18_X0Y1_RSTRAMB"           output="BRAM.RAMB18_Y1_RSTRAMB" />
+  <direct name="RAMB18_X0Y1_RSTRAMARSTRAM"     input="BRAM_X0.RAMB18_X0Y1_RSTRAMARSTRAM"     output="BRAM.RAMB18_Y1_RSTRAMARSTRAM" />
 
-  <direct name="RAMB18_X0Y1_REGCLKB"          input="BLK_IG-BRAM_L.RAMB18_X0Y1_REGCLKB"             output="BLK_IG-BRAM.RAMB18_Y1_REGCLKB" />
-  <direct name="RAMB18_X0Y1_REGCEB"           input="BLK_IG-BRAM_L.RAMB18_X0Y1_REGCEB"              output="BLK_IG-BRAM.RAMB18_Y1_REGCEB" />
-  <direct name="RAMB18_X0Y1_REGCEAREGCE"      input="BLK_IG-BRAM_L.RAMB18_X0Y1_REGCEAREGCE"         output="BLK_IG-BRAM.RAMB18_Y1_REGCEAREGCE" />
-  <direct name="RAMB18_X0Y1_REGCLKARDRCLK"    input="BLK_IG-BRAM_L.RAMB18_X0Y1_REGCLKARDRCLK"       output="BLK_IG-BRAM.RAMB18_Y1_REGCLKARDRCLK" />
-  <direct name="RAMB18_X0Y1_ENARDEN"          input="BLK_IG-BRAM_L.RAMB18_X0Y1_ENARDEN"             output="BLK_IG-BRAM.RAMB18_Y1_ENARDEN" />
-  <direct name="RAMB18_X0Y1_CLKARDCLK"        input="BLK_IG-BRAM_L.RAMB18_X0Y1_CLKARDCLK"           output="BLK_IG-BRAM.RAMB18_Y1_CLKARDCLK" />
+  <direct name="RAMB18_X0Y1_REGCLKB"           input="BRAM_X0.RAMB18_X0Y1_REGCLKB"           output="BRAM.RAMB18_Y1_REGCLKB" />
+  <direct name="RAMB18_X0Y1_REGCEB"            input="BRAM_X0.RAMB18_X0Y1_REGCEB"            output="BRAM.RAMB18_Y1_REGCEB" />
+  <direct name="RAMB18_X0Y1_REGCEAREGCE"       input="BRAM_X0.RAMB18_X0Y1_REGCEAREGCE"       output="BRAM.RAMB18_Y1_REGCEAREGCE" />
+  <direct name="RAMB18_X0Y1_REGCLKARDRCLK"     input="BRAM_X0.RAMB18_X0Y1_REGCLKARDRCLK"     output="BRAM.RAMB18_Y1_REGCLKARDRCLK" />
+  <direct name="RAMB18_X0Y1_ENARDEN"           input="BRAM_X0.RAMB18_X0Y1_ENARDEN"           output="BRAM.RAMB18_Y1_ENARDEN" />
+  <direct name="RAMB18_X0Y1_CLKARDCLK"         input="BRAM_X0.RAMB18_X0Y1_CLKARDCLK"         output="BRAM.RAMB18_Y1_CLKARDCLK" />
 
-  <direct name="RAMB18_X0Y1_DIPBDIP"          input="BLK_IG-BRAM_L.RAMB18_X0Y1_DIPBDIP"             output="BLK_IG-BRAM.RAMB18_Y1_DIPBDIP" />
-  <direct name="RAMB18_X0Y1_DIPADIP"          input="BLK_IG-BRAM_L.RAMB18_X0Y1_DIPADIP"             output="BLK_IG-BRAM.RAMB18_Y1_DIPADIP" />
-  <direct name="RAMB18_X0Y1_DIBDI"            input="BLK_IG-BRAM_L.RAMB18_X0Y1_DIBDI"               output="BLK_IG-BRAM.RAMB18_Y1_DIBDI" />
-  <direct name="RAMB18_X0Y1_DIADI"            input="BLK_IG-BRAM_L.RAMB18_X0Y1_DIADI"               output="BLK_IG-BRAM.RAMB18_Y1_DIADI" />
+  <direct name="RAMB18_X0Y1_DIPBDIP"           input="BRAM_X0.RAMB18_X0Y1_DIPBDIP"           output="BRAM.RAMB18_Y1_DIPBDIP" />
+  <direct name="RAMB18_X0Y1_DIPADIP"           input="BRAM_X0.RAMB18_X0Y1_DIPADIP"           output="BRAM.RAMB18_Y1_DIPADIP" />
+  <direct name="RAMB18_X0Y1_DIBDI"             input="BRAM_X0.RAMB18_X0Y1_DIBDI"             output="BRAM.RAMB18_Y1_DIBDI" />
+  <direct name="RAMB18_X0Y1_DIADI"             input="BRAM_X0.RAMB18_X0Y1_DIADI"             output="BRAM.RAMB18_Y1_DIADI" />
 
-  <direct name="RAMB18_X0Y1_ADDRARDADDR"      input="BLK_IG-BRAM_L.RAMB18_X0Y1_ADDRARDADDR"         output="BLK_IG-BRAM.RAMB18_Y1_ADDRARDADDR" />
-  <direct name="RAMB18_X0Y1_ADDRBWRADDR"      input="BLK_IG-BRAM_L.RAMB18_X0Y1_ADDRBWRADDR"         output="BLK_IG-BRAM.RAMB18_Y1_ADDRBWRADDR" />
-  <direct name="RAMB18_X0Y1_ADDRATIEHIGH"     input="BLK_IG-BRAM_L.RAMB18_X0Y1_ADDRATIEHIGH"        output="BLK_IG-BRAM.RAMB18_Y1_ADDRATIEHIGH" />
-  <direct name="RAMB18_X0Y1_ADDRBTIEHIGH"     input="BLK_IG-BRAM_L.RAMB18_X0Y1_ADDRBTIEHIGH"        output="BLK_IG-BRAM.RAMB18_Y1_ADDRBTIEHIGH" />
+  <direct name="RAMB18_X0Y1_ADDRARDADDR"       input="BRAM_X0.RAMB18_X0Y1_ADDRARDADDR"       output="BRAM.RAMB18_Y1_ADDRARDADDR" />
+  <direct name="RAMB18_X0Y1_ADDRBWRADDR"       input="BRAM_X0.RAMB18_X0Y1_ADDRBWRADDR"       output="BRAM.RAMB18_Y1_ADDRBWRADDR" />
+  <direct name="RAMB18_X0Y1_ADDRATIEHIGH"      input="BRAM_X0.RAMB18_X0Y1_ADDRATIEHIGH"      output="BRAM.RAMB18_Y1_ADDRATIEHIGH" />
+  <direct name="RAMB18_X0Y1_ADDRBTIEHIGH"      input="BRAM_X0.RAMB18_X0Y1_ADDRBTIEHIGH"      output="BRAM.RAMB18_Y1_ADDRBTIEHIGH" />
 
-  <direct name="RAMB18_X0Y1_WRERR"            input="BLK_IG-BRAM.RAMB18_Y1_WRERR"                   output="BLK_IG-BRAM_L.RAMB18_X0Y1_WRERR" />
-  <direct name="RAMB18_X0Y1_WRCOUNT"          input="BLK_IG-BRAM.RAMB18_Y1_WRCOUNT"                 output="BLK_IG-BRAM_L.RAMB18_X0Y1_WRCOUNT" />
-  <direct name="RAMB18_X0Y1_RDERR"            input="BLK_IG-BRAM.RAMB18_Y1_RDERR"                   output="BLK_IG-BRAM_L.RAMB18_X0Y1_RDERR" />
-  <direct name="RAMB18_X0Y1_RDCOUNT"          input="BLK_IG-BRAM.RAMB18_Y1_RDCOUNT"                 output="BLK_IG-BRAM_L.RAMB18_X0Y1_RDCOUNT" />
-  <direct name="RAMB18_X0Y1_FULL"             input="BLK_IG-BRAM.RAMB18_Y1_FULL"                    output="BLK_IG-BRAM_L.RAMB18_X0Y1_FULL" />
-  <direct name="RAMB18_X0Y1_EMPTY"            input="BLK_IG-BRAM.RAMB18_Y1_EMPTY"                   output="BLK_IG-BRAM_L.RAMB18_X0Y1_EMPTY" />
-  <direct name="RAMB18_X0Y1_DOPADOP"          input="BLK_IG-BRAM.RAMB18_Y1_DOPADOP"                 output="BLK_IG-BRAM_L.RAMB18_X0Y1_DOPADOP" />
-  <direct name="RAMB18_X0Y1_DOPBDOP"          input="BLK_IG-BRAM.RAMB18_Y1_DOPBDOP"                 output="BLK_IG-BRAM_L.RAMB18_X0Y1_DOPBDOP" />
-  <direct name="RAMB18_X0Y1_DOADO"            input="BLK_IG-BRAM.RAMB18_Y1_DOADO"                   output="BLK_IG-BRAM_L.RAMB18_X0Y1_DOADO" />
-  <direct name="RAMB18_X0Y1_DOBDO"            input="BLK_IG-BRAM.RAMB18_Y1_DOBDO"                   output="BLK_IG-BRAM_L.RAMB18_X0Y1_DOBDO" />
-  <direct name="RAMB18_X0Y1_ALMOSTFULL"       input="BLK_IG-BRAM.RAMB18_Y1_ALMOSTFULL"              output="BLK_IG-BRAM_L.RAMB18_X0Y1_ALMOSTFULL" />
-  <direct name="RAMB18_X0Y1_ALMOSTEMPTY"      input="BLK_IG-BRAM.RAMB18_Y1_ALMOSTEMPTY"             output="BLK_IG-BRAM_L.RAMB18_X0Y1_ALMOSTEMPTY" />
+  <direct name="RAMB18_X0Y1_WRERR"             input="BRAM.RAMB18_Y1_WRERR"                  output="BRAM_X0.RAMB18_X0Y1_WRERR" />
+  <direct name="RAMB18_X0Y1_WRCOUNT"           input="BRAM.RAMB18_Y1_WRCOUNT"                output="BRAM_X0.RAMB18_X0Y1_WRCOUNT" />
+  <direct name="RAMB18_X0Y1_RDERR"             input="BRAM.RAMB18_Y1_RDERR"                  output="BRAM_X0.RAMB18_X0Y1_RDERR" />
+  <direct name="RAMB18_X0Y1_RDCOUNT"           input="BRAM.RAMB18_Y1_RDCOUNT"                output="BRAM_X0.RAMB18_X0Y1_RDCOUNT" />
+  <direct name="RAMB18_X0Y1_FULL"              input="BRAM.RAMB18_Y1_FULL"                   output="BRAM_X0.RAMB18_X0Y1_FULL" />
+  <direct name="RAMB18_X0Y1_EMPTY"             input="BRAM.RAMB18_Y1_EMPTY"                  output="BRAM_X0.RAMB18_X0Y1_EMPTY" />
+  <direct name="RAMB18_X0Y1_DOPADOP"           input="BRAM.RAMB18_Y1_DOPADOP"                output="BRAM_X0.RAMB18_X0Y1_DOPADOP" />
+  <direct name="RAMB18_X0Y1_DOPBDOP"           input="BRAM.RAMB18_Y1_DOPBDOP"                output="BRAM_X0.RAMB18_X0Y1_DOPBDOP" />
+  <direct name="RAMB18_X0Y1_DOADO"             input="BRAM.RAMB18_Y1_DOADO"                  output="BRAM_X0.RAMB18_X0Y1_DOADO" />
+  <direct name="RAMB18_X0Y1_DOBDO"             input="BRAM.RAMB18_Y1_DOBDO"                  output="BRAM_X0.RAMB18_X0Y1_DOBDO" />
+  <direct name="RAMB18_X0Y1_ALMOSTFULL"        input="BRAM.RAMB18_Y1_ALMOSTFULL"             output="BRAM_X0.RAMB18_X0Y1_ALMOSTFULL" />
+  <direct name="RAMB18_X0Y1_ALMOSTEMPTY"       input="BRAM.RAMB18_Y1_ALMOSTEMPTY"            output="BRAM_X0.RAMB18_X0Y1_ALMOSTEMPTY" />
  </interconnect>
+ <metadata>
+  <meta name="type">block</meta>
+  <meta name="subtype">ignore</meta>
+ </metadata>
 </pb_type>

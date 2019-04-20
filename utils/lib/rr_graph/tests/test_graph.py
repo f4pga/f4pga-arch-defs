@@ -18,8 +18,7 @@ class TestGraph(unittest.TestCase):
         self.assertEqual(('c', 'd', [1]), graph.parse_net('c.d[1]'))
         self.assertEqual(('c', 'd', [40]), graph.parse_net('c.d[40]'))
         self.assertEqual(
-            ('BLK_BB-VPR_PAD', 'outpad', [0]),
-            graph.parse_net('BLK_BB-VPR_PAD.outpad[0]')
+            ('VPR_PAD', 'outpad', [0]), graph.parse_net('VPR_PAD.outpad[0]')
         )
         # Complex block names
         self.assertEqual(('a.b', 'c', [0]), graph.parse_net('a.b.c[0]'))
@@ -118,15 +117,15 @@ class TestGraph(unittest.TestCase):
 
     def test_blocktype_from_xml(self):
         xml_string = '''
-        <block_type id="1" name="BLK_BB-VPR_PAD" width="2" height="3">
+        <block_type id="1" name="VPR_PAD" width="2" height="3">
             <pin_class type="OUTPUT">
-                <pin ptc="0">BLK_BB-VPR_PAD.outpad[0]</pin>
+                <pin ptc="0">VPR_PAD.outpad[0]</pin>
             </pin_class>
             <pin_class type="OUTPUT">
-                <pin ptc="1">BLK_BB-VPR_PAD.outpad[1]</pin>
+                <pin ptc="1">VPR_PAD.outpad[1]</pin>
             </pin_class>
             <pin_class type="INPUT">
-                <pin ptc="2">BLK_BB-VPR_PAD.inpad[0]</pin>
+                <pin ptc="2">VPR_PAD.inpad[0]</pin>
             </pin_class>
         </block_type>
         '''
@@ -137,13 +136,13 @@ class TestGraph(unittest.TestCase):
 
         # Multiple pins in a single pinclass
         xml_string = '''
-        <block_type id="1" name="BLK_BB-VPR_PAD" width="2" height="3">
+        <block_type id="1" name="VPR_PAD" width="2" height="3">
             <pin_class type="OUTPUT">
-                <pin ptc="0">BLK_BB-VPR_PAD.outpad[0]</pin>
-                <pin ptc="1">BLK_BB-VPR_PAD.outpad[1]</pin>
+                <pin ptc="0">VPR_PAD.outpad[0]</pin>
+                <pin ptc="1">VPR_PAD.outpad[1]</pin>
             </pin_class>
             <pin_class type="INPUT">
-                <pin ptc="2">BLK_BB-VPR_PAD.inpad[0]</pin>
+                <pin ptc="2">VPR_PAD.inpad[0]</pin>
             </pin_class>
         </block_type>
         '''
@@ -154,18 +153,18 @@ class TestGraph(unittest.TestCase):
 
         # Multiple subblocks within a block_type
         xml_string = '''
-        <block_type id="1" name="BLK_BB-VPR_PAD" width="2" height="3">
+        <block_type id="1" name="VPR_PAD" width="2" height="3">
             <pin_class type="OUTPUT">
-                <pin ptc="0">BLK_BB-VPR_PAD[0].outpad[0]</pin>
+                <pin ptc="0">VPR_PAD[0].outpad[0]</pin>
             </pin_class>
             <pin_class type="INPUT">
-                <pin ptc="1">BLK_BB-VPR_PAD[0].inpad[0]</pin>
+                <pin ptc="1">VPR_PAD[0].inpad[0]</pin>
             </pin_class>
             <pin_class type="OUTPUT">
-                <pin ptc="2">BLK_BB-VPR_PAD[1].outpad[0]</pin>
+                <pin ptc="2">VPR_PAD[1].outpad[0]</pin>
             </pin_class>
             <pin_class type="INPUT">
-                <pin ptc="3">BLK_BB-VPR_PAD[1].inpad[0]</pin>
+                <pin ptc="3">VPR_PAD[1].inpad[0]</pin>
             </pin_class>
         </block_type>
         '''
@@ -570,8 +569,8 @@ class TestGraph(unittest.TestCase):
         with self.assertRaises(KeyError):
             g.block_grid[P(4, 4)]
 
-        self.assertEqual(1, g.block_grid.block_types["BLK_IG-IBUF"].id)
-        self.assertEqual('BLK_IG-OBUF', g.block_grid.block_types[2].name)
+        self.assertEqual(1, g.block_grid.block_types["IBUF"].id)
+        self.assertEqual('OBUF', g.block_grid.block_types[2].name)
 
 
 if __name__ == "__main__":

@@ -1,5 +1,5 @@
 <!-- set: ai sw=1 ts=1 sta et -->
-<pb_type name="BLK_TL-PLB" xmlns:xi="http://www.w3.org/2001/XInclude">
+<pb_type name="PLB" xmlns:xi="http://www.w3.org/2001/XInclude">
 
  <clock  name="glb_netwk_0"  num_pins="1"/>
 
@@ -67,54 +67,74 @@
  <!-- ################################################################ -->
  <!-- # Local tracks                                                 # -->
  <!-- ################################################################ -->
- <pb_type name="BLK_XX-local_g" num_pb="4">
+ <pb_type name="local_g" num_pb="4">
   <input  name="i"  num_pins="8"/>
   <output name="o"  num_pins="8"/>
 
   <interconnect>
-   <direct name="i_to_o" input="BLK_XX-local_g.i" output="BLK_XX-local_g.o" />
+   <direct name="i_to_o" input="local_g.i" output="local_g.o" />
   </interconnect>
+  <metadata>
+   <meta name="type">bel</meta>
+   <meta name="subtype">routing</meta>
+  </metadata>
  </pb_type>
 
- <pb_type name="BLK_XX-glb2local" num_pb="4">
+ <pb_type name="glb2local" num_pb="4">
   <input  name="i" num_pins="1"/>
   <output name="o" num_pins="1"/>
   <interconnect>
-   <direct name="i_to_o" input="BLK_XX-glb2local.i" output="BLK_XX-glb2local.o" />
+   <direct name="i_to_o" input="glb2local.i" output="glb2local.o" />
   </interconnect>
+  <metadata>
+   <meta name="type">bel</meta>
+   <meta name="subtype">routing</meta>
+  </metadata>
  </pb_type>
 
- <pb_type name="BLK_XX-glb_netwk" num_pb="8">
+ <pb_type name="glb_netwk" num_pb="8">
   <input  name="i" num_pins="1"/>
   <output name="o" num_pins="1"/>
   <interconnect>
-   <direct name="i_to_o" input="BLK_XX-glb_netwk.i" output="BLK_XX-glb_netwk.o" />
+   <direct name="i_to_o" input="glb_netwk.i" output="glb_netwk.o" />
   </interconnect>
+  <metadata>
+   <meta name="type">bel</meta>
+   <meta name="subtype">routing</meta>
+  </metadata>
  </pb_type>
 
- <pb_type name="BLK_XX-carry_in_mux" num_pb="1">
+ <pb_type name="carry_in_mux" num_pb="1">
   <input  name="i" num_pins="1"/>
   <output name="o" num_pins="1"/>
   <interconnect>
-   <mux name="i_to_o" input="BLK_XX-carry_in_mux.i" output="BLK_XX-carry_in_mux.o">
-    <pack_pattern name="CARRYCHAIN" in_port="BLK_XX-carry_in_mux.i" out_port="BLK_XX-carry_in_mux.o" />
+   <mux name="i_to_o" input="carry_in_mux.i" output="carry_in_mux.o">
+    <pack_pattern name="CARRYCHAIN" in_port="carry_in_mux.i" out_port="carry_in_mux.o" />
    </mux>
   </interconnect>
+  <metadata>
+   <meta name="type">bel</meta>
+   <meta name="subtype">routing</meta>
+  </metadata>
  </pb_type>
 
  <!-- ################################################################ -->
  <!-- # Logic units                                                  # -->
  <!-- ################################################################ -->
 
- <pb_type name="BEL_BB-lutff_global" num_pb="1">
+ <pb_type name="lutff_global" num_pb="1">
   <input name="i_cen"  num_pins="1" /><output name="o_cen"  num_pins="1" />
   <clock name="i_clk" num_pins="1" /><output name="o_clk" num_pins="1" />
   <input name="i_s_r"  num_pins="1" /><output name="o_s_r"  num_pins="1" />
   <interconnect>
-   <direct name="EN"  input="BEL_BB-lutff_global.i_cen"  output="BEL_BB-lutff_global.o_cen"/>
-   <direct name="CLK" input="BEL_BB-lutff_global.i_clk" output="BEL_BB-lutff_global.o_clk"/>
-   <direct name="SR"  input="BEL_BB-lutff_global.i_s_r"  output="BEL_BB-lutff_global.o_s_r"/>
+   <direct name="EN"  input="lutff_global.i_cen"  output="lutff_global.o_cen"/>
+   <direct name="CLK" input="lutff_global.i_clk" output="lutff_global.o_clk"/>
+   <direct name="SR"  input="lutff_global.i_s_r"  output="lutff_global.o_s_r"/>
   </interconnect>
+  <metadata>
+   <meta name="type">bel</meta>
+   <meta name="subtype">blackbox</meta>
+  </metadata>
  </pb_type>
 
  <xi:include href="../../../../cells/plb/plb.pb_type.xml"/>
@@ -125,33 +145,33 @@
   <!-- ################################################################ -->
 
   <!-- Span-4 Vertical -->
-  <direct name="sp4_v_t"   input="BLK_TL-PLB.i_sp4_v_t"   output="BLK_TL-PLB.o_sp4_v_t" />
-  <direct name="sp4_v_b"   input="BLK_TL-PLB.i_sp4_v_b"   output="BLK_TL-PLB.o_sp4_v_b" />
+  <direct name="sp4_v_t"   input="PLB.i_sp4_v_t"   output="PLB.o_sp4_v_t" />
+  <direct name="sp4_v_b"   input="PLB.i_sp4_v_b"   output="PLB.o_sp4_v_b" />
 
   <!-- Span-4 Right Vertical
-  <direct name="sp4_r_v_b" input="BLK_TL-PLB.i_sp4_r_v_b" output="BLK_TL-PLB.o_sp4_r_v_b" />
-  <direct name="sp4_l_v_b" input="BLK_TL-PLB.i_sp4_l_v_b" output="BLK_TL-PLB.o_sp4_l_v_b" />
+  <direct name="sp4_r_v_b" input="PLB.i_sp4_r_v_b" output="PLB.o_sp4_r_v_b" />
+  <direct name="sp4_l_v_b" input="PLB.i_sp4_l_v_b" output="PLB.o_sp4_l_v_b" />
        -->
 
   <!-- Span-12 Vertical -->
-  <direct name="sp12_v_t"  input="BLK_TL-PLB.i_sp12_v_t"  output="BLK_TL-PLB.o_sp12_v_t" />
-  <direct name="sp12_v_b"  input="BLK_TL-PLB.i_sp12_v_b"  output="BLK_TL-PLB.o_sp12_v_b" />
+  <direct name="sp12_v_t"  input="PLB.i_sp12_v_t"  output="PLB.o_sp12_v_t" />
+  <direct name="sp12_v_b"  input="PLB.i_sp12_v_b"  output="PLB.o_sp12_v_b" />
 
   <!-- ================================================================ -->
 
   <!-- Span-4 Horizontal -->
-  <direct name="sp4_h_r"   input="BLK_TL-PLB.i_sp4_h_r"   output="BLK_TL-PLB.o_sp4_h_r" />
-  <direct name="sp4_h_l"   input="BLK_TL-PLB.i_sp4_h_l"   output="BLK_TL-PLB.o_sp4_h_l" />
+  <direct name="sp4_h_r"   input="PLB.i_sp4_h_r"   output="PLB.o_sp4_h_r" />
+  <direct name="sp4_h_l"   input="PLB.i_sp4_h_l"   output="PLB.o_sp4_h_l" />
 
   <!-- Span-12 Horizontal -->
-  <direct name="sp12_h_r"  input="BLK_TL-PLB.i_sp12_h_r"  output="BLK_TL-PLB.o_sp12_h_r" />
-  <direct name="sp12_h_l"  input="BLK_TL-PLB.i_sp12_h_l"  output="BLK_TL-PLB.o_sp12_h_l" />
+  <direct name="sp12_h_r"  input="PLB.i_sp12_h_r"  output="PLB.o_sp12_h_r" />
+  <direct name="sp12_h_l"  input="PLB.i_sp12_h_l"  output="PLB.o_sp12_h_l" />
 
   <!-- ================================================================ -->
 
   <!-- Span-4 Right Vertical
-  <direct name="sp4_l_v_b io sp4_v_b" input="BLK_TL-PLB.i_sp4_l_v_b" output="BLK_TL-PLB.o_sp4_v_b"   />
-  <direct name="sp4_l_v_b oi sp4_v_b" input="BLK_TL-PLB.i_sp4_v_b"   output="BLK_TL-PLB.o_sp4_l_v_b" />
+  <direct name="sp4_l_v_b io sp4_v_b" input="PLB.i_sp4_l_v_b" output="PLB.o_sp4_v_b"   />
+  <direct name="sp4_l_v_b oi sp4_v_b" input="PLB.i_sp4_v_b"   output="PLB.o_sp4_l_v_b" />
        -->
 
   <!-- ################################################################ -->
@@ -159,319 +179,319 @@
   <!-- ################################################################ -->
 
   <!-- Global Networks -> glb2Local Tracks -->
-  <mux name="BLK_XX-glb2local[0]" input="BLK_TL-PLB.i_glb_netwk[0] BLK_TL-PLB.i_glb_netwk[1] BLK_TL-PLB.i_glb_netwk[2] BLK_TL-PLB.i_glb_netwk[3] BLK_TL-PLB.i_glb_netwk[4] BLK_TL-PLB.i_glb_netwk[5] BLK_TL-PLB.i_glb_netwk[6] BLK_TL-PLB.i_glb_netwk[7]" output="BLK_XX-glb2local[0].i" />
-  <mux name="BLK_XX-glb2local[1]" input="BLK_TL-PLB.i_glb_netwk[0] BLK_TL-PLB.i_glb_netwk[1] BLK_TL-PLB.i_glb_netwk[2] BLK_TL-PLB.i_glb_netwk[3] BLK_TL-PLB.i_glb_netwk[4] BLK_TL-PLB.i_glb_netwk[5] BLK_TL-PLB.i_glb_netwk[6] BLK_TL-PLB.i_glb_netwk[7]" output="BLK_XX-glb2local[1].i" />
-  <mux name="BLK_XX-glb2local[2]" input="BLK_TL-PLB.i_glb_netwk[0] BLK_TL-PLB.i_glb_netwk[1] BLK_TL-PLB.i_glb_netwk[2] BLK_TL-PLB.i_glb_netwk[3] BLK_TL-PLB.i_glb_netwk[4] BLK_TL-PLB.i_glb_netwk[5] BLK_TL-PLB.i_glb_netwk[6] BLK_TL-PLB.i_glb_netwk[7]" output="BLK_XX-glb2local[2].i" />
-  <mux name="BLK_XX-glb2local[3]" input="BLK_TL-PLB.i_glb_netwk[0] BLK_TL-PLB.i_glb_netwk[1] BLK_TL-PLB.i_glb_netwk[2] BLK_TL-PLB.i_glb_netwk[3] BLK_TL-PLB.i_glb_netwk[4] BLK_TL-PLB.i_glb_netwk[5] BLK_TL-PLB.i_glb_netwk[6] BLK_TL-PLB.i_glb_netwk[7]" output="BLK_XX-glb2local[3].i" />
+  <mux name="glb2local[0]" input="PLB.i_glb_netwk[0] PLB.i_glb_netwk[1] PLB.i_glb_netwk[2] PLB.i_glb_netwk[3] PLB.i_glb_netwk[4] PLB.i_glb_netwk[5] PLB.i_glb_netwk[6] PLB.i_glb_netwk[7]" output="glb2local[0].i" />
+  <mux name="glb2local[1]" input="PLB.i_glb_netwk[0] PLB.i_glb_netwk[1] PLB.i_glb_netwk[2] PLB.i_glb_netwk[3] PLB.i_glb_netwk[4] PLB.i_glb_netwk[5] PLB.i_glb_netwk[6] PLB.i_glb_netwk[7]" output="glb2local[1].i" />
+  <mux name="glb2local[2]" input="PLB.i_glb_netwk[0] PLB.i_glb_netwk[1] PLB.i_glb_netwk[2] PLB.i_glb_netwk[3] PLB.i_glb_netwk[4] PLB.i_glb_netwk[5] PLB.i_glb_netwk[6] PLB.i_glb_netwk[7]" output="glb2local[2].i" />
+  <mux name="glb2local[3]" input="PLB.i_glb_netwk[0] PLB.i_glb_netwk[1] PLB.i_glb_netwk[2] PLB.i_glb_netwk[3] PLB.i_glb_netwk[4] PLB.i_glb_netwk[5] PLB.i_glb_netwk[6] PLB.i_glb_netwk[7]" output="glb2local[3].i" />
 
   <!-- XXXX -> Local Tracks
-    BLK_TL-PLB.i_sp4_r_v_b[24] BLK_TL-PLB.i_sp4_r_v_b[35]  BLK_TL-PLB.i_neigh_op_bot[0] BLK_TL-PLB.i_neigh_op_bnr[0] BLK_TL-PLB.i_neigh_op_top[0] BLK_TL-PLB.i_neigh_op_lft[0]
-    BLK_TL-PLB.i_sp4_r_v_b[25] BLK_TL-PLB.i_sp4_r_v_b[34]  BLK_TL-PLB.i_neigh_op_bot[1] BLK_TL-PLB.i_neigh_op_bnr[1] BLK_TL-PLB.i_neigh_op_top[1] BLK_TL-PLB.i_neigh_op_lft[1]
-    BLK_TL-PLB.i_sp4_r_v_b[26] BLK_TL-PLB.i_sp4_r_v_b[33]  BLK_TL-PLB.i_neigh_op_bot[2] BLK_TL-PLB.i_neigh_op_bnr[2] BLK_TL-PLB.i_neigh_op_top[2] BLK_TL-PLB.i_neigh_op_lft[2]
-    BLK_TL-PLB.i_sp4_r_v_b[27] BLK_TL-PLB.i_sp4_r_v_b[32]  BLK_TL-PLB.i_neigh_op_bot[3] BLK_TL-PLB.i_neigh_op_bnr[3] BLK_TL-PLB.i_neigh_op_top[3] BLK_TL-PLB.i_neigh_op_lft[3]
-    glb2local[0].o             BLK_TL-PLB.i_sp4_r_v_b[28]  BLK_TL-PLB.i_neigh_op_bot[4] BLK_TL-PLB.i_neigh_op_bnr[4] BLK_TL-PLB.i_neigh_op_top[4] BLK_TL-PLB.i_neigh_op_lft[4]
-    glb2local[1].o             BLK_TL-PLB.i_sp4_r_v_b[29]  BLK_TL-PLB.i_neigh_op_bot[5] BLK_TL-PLB.i_neigh_op_bnr[5] BLK_TL-PLB.i_neigh_op_top[5] BLK_TL-PLB.i_neigh_op_lft[5]
-    glb2local[2].o             BLK_TL-PLB.i_sp4_r_v_b[30]  BLK_TL-PLB.i_neigh_op_bot[6] BLK_TL-PLB.i_neigh_op_bnr[6] BLK_TL-PLB.i_neigh_op_top[6] BLK_TL-PLB.i_neigh_op_lft[6]
-    glb2local[3].o             BLK_TL-PLB.i_sp4_r_v_b[31]  BLK_TL-PLB.i_neigh_op_bot[7] BLK_TL-PLB.i_neigh_op_bnr[7] BLK_TL-PLB.i_neigh_op_top[7] BLK_TL-PLB.i_neigh_op_lft[7]
+    PLB.i_sp4_r_v_b[24] PLB.i_sp4_r_v_b[35]  PLB.i_neigh_op_bot[0] PLB.i_neigh_op_bnr[0] PLB.i_neigh_op_top[0] PLB.i_neigh_op_lft[0]
+    PLB.i_sp4_r_v_b[25] PLB.i_sp4_r_v_b[34]  PLB.i_neigh_op_bot[1] PLB.i_neigh_op_bnr[1] PLB.i_neigh_op_top[1] PLB.i_neigh_op_lft[1]
+    PLB.i_sp4_r_v_b[26] PLB.i_sp4_r_v_b[33]  PLB.i_neigh_op_bot[2] PLB.i_neigh_op_bnr[2] PLB.i_neigh_op_top[2] PLB.i_neigh_op_lft[2]
+    PLB.i_sp4_r_v_b[27] PLB.i_sp4_r_v_b[32]  PLB.i_neigh_op_bot[3] PLB.i_neigh_op_bnr[3] PLB.i_neigh_op_top[3] PLB.i_neigh_op_lft[3]
+    glb2local[0].o      PLB.i_sp4_r_v_b[28]  PLB.i_neigh_op_bot[4] PLB.i_neigh_op_bnr[4] PLB.i_neigh_op_top[4] PLB.i_neigh_op_lft[4]
+    glb2local[1].o      PLB.i_sp4_r_v_b[29]  PLB.i_neigh_op_bot[5] PLB.i_neigh_op_bnr[5] PLB.i_neigh_op_top[5] PLB.i_neigh_op_lft[5]
+    glb2local[2].o      PLB.i_sp4_r_v_b[30]  PLB.i_neigh_op_bot[6] PLB.i_neigh_op_bnr[6] PLB.i_neigh_op_top[6] PLB.i_neigh_op_lft[6]
+    glb2local[3].o      PLB.i_sp4_r_v_b[31]  PLB.i_neigh_op_bot[7] PLB.i_neigh_op_bnr[7] PLB.i_neigh_op_top[7] PLB.i_neigh_op_lft[7]
 
-    BLK_TL-PLB.i_sp4_r_v_b[0]  BLK_TL-PLB.i_sp4_r_v_b[24]  BLK_TL-PLB.i_neigh_op_bot[0] BLK_TL-PLB.i_neigh_op_bnr[0] BLK_TL-PLB.i_neigh_op_top[0] BLK_TL-PLB.i_neigh_op_lft[0]
-    BLK_TL-PLB.i_sp4_r_v_b[1]  BLK_TL-PLB.i_sp4_r_v_b[25]  BLK_TL-PLB.i_neigh_op_bot[1] BLK_TL-PLB.i_neigh_op_bnr[1] BLK_TL-PLB.i_neigh_op_top[1] BLK_TL-PLB.i_neigh_op_lft[1]
-    BLK_TL-PLB.i_sp4_r_v_b[2]  BLK_TL-PLB.i_sp4_r_v_b[26]  BLK_TL-PLB.i_neigh_op_bot[2] BLK_TL-PLB.i_neigh_op_bnr[2] BLK_TL-PLB.i_neigh_op_top[2] BLK_TL-PLB.i_neigh_op_lft[2]
-    BLK_TL-PLB.i_sp4_r_v_b[3]  BLK_TL-PLB.i_sp4_r_v_b[27]  BLK_TL-PLB.i_neigh_op_bot[3] BLK_TL-PLB.i_neigh_op_bnr[3] BLK_TL-PLB.i_neigh_op_top[3] BLK_TL-PLB.i_neigh_op_lft[3]
-    BLK_TL-PLB.i_sp4_r_v_b[4]  BLK_TL-PLB.i_sp4_r_v_b[28]  BLK_TL-PLB.i_neigh_op_bot[4] BLK_TL-PLB.i_neigh_op_bnr[4] BLK_TL-PLB.i_neigh_op_top[4] BLK_TL-PLB.i_neigh_op_lft[4]
-    BLK_TL-PLB.i_sp4_r_v_b[5]  BLK_TL-PLB.i_sp4_r_v_b[29]  BLK_TL-PLB.i_neigh_op_bot[5] BLK_TL-PLB.i_neigh_op_bnr[5] BLK_TL-PLB.i_neigh_op_top[5] BLK_TL-PLB.i_neigh_op_lft[5]
-    BLK_TL-PLB.i_sp4_r_v_b[6]  BLK_TL-PLB.i_sp4_r_v_b[30]  BLK_TL-PLB.i_neigh_op_bot[6] BLK_TL-PLB.i_neigh_op_bnr[6] BLK_TL-PLB.i_neigh_op_top[6] BLK_TL-PLB.i_neigh_op_lft[6]
-    BLK_TL-PLB.i_sp4_r_v_b[7]  BLK_TL-PLB.i_sp4_r_v_b[31]  BLK_TL-PLB.i_neigh_op_bot[7] BLK_TL-PLB.i_neigh_op_bnr[7] BLK_TL-PLB.i_neigh_op_top[7] BLK_TL-PLB.i_neigh_op_lft[7]
+    PLB.i_sp4_r_v_b[0]  PLB.i_sp4_r_v_b[24]  PLB.i_neigh_op_bot[0] PLB.i_neigh_op_bnr[0] PLB.i_neigh_op_top[0] PLB.i_neigh_op_lft[0]
+    PLB.i_sp4_r_v_b[1]  PLB.i_sp4_r_v_b[25]  PLB.i_neigh_op_bot[1] PLB.i_neigh_op_bnr[1] PLB.i_neigh_op_top[1] PLB.i_neigh_op_lft[1]
+    PLB.i_sp4_r_v_b[2]  PLB.i_sp4_r_v_b[26]  PLB.i_neigh_op_bot[2] PLB.i_neigh_op_bnr[2] PLB.i_neigh_op_top[2] PLB.i_neigh_op_lft[2]
+    PLB.i_sp4_r_v_b[3]  PLB.i_sp4_r_v_b[27]  PLB.i_neigh_op_bot[3] PLB.i_neigh_op_bnr[3] PLB.i_neigh_op_top[3] PLB.i_neigh_op_lft[3]
+    PLB.i_sp4_r_v_b[4]  PLB.i_sp4_r_v_b[28]  PLB.i_neigh_op_bot[4] PLB.i_neigh_op_bnr[4] PLB.i_neigh_op_top[4] PLB.i_neigh_op_lft[4]
+    PLB.i_sp4_r_v_b[5]  PLB.i_sp4_r_v_b[29]  PLB.i_neigh_op_bot[5] PLB.i_neigh_op_bnr[5] PLB.i_neigh_op_top[5] PLB.i_neigh_op_lft[5]
+    PLB.i_sp4_r_v_b[6]  PLB.i_sp4_r_v_b[30]  PLB.i_neigh_op_bot[6] PLB.i_neigh_op_bnr[6] PLB.i_neigh_op_top[6] PLB.i_neigh_op_lft[6]
+    PLB.i_sp4_r_v_b[7]  PLB.i_sp4_r_v_b[31]  PLB.i_neigh_op_bot[7] PLB.i_neigh_op_bnr[7] PLB.i_neigh_op_top[7] PLB.i_neigh_op_lft[7]
 
-    BLK_TL-PLB.i_sp4_r_v_b[8]  BLK_TL-PLB.i_sp4_r_v_b[32]  BLK_TL-PLB.i_neigh_op_tnr[0] BLK_TL-PLB.i_neigh_op_tnl[0] BLK_TL-PLB.i_neigh_op_bnl[0] BLK_TL-PLB.i_neigh_op_rgt[0]
-    BLK_TL-PLB.i_sp4_r_v_b[9]  BLK_TL-PLB.i_sp4_r_v_b[33]  BLK_TL-PLB.i_neigh_op_tnr[1] BLK_TL-PLB.i_neigh_op_tnl[1] BLK_TL-PLB.i_neigh_op_bnl[1] BLK_TL-PLB.i_neigh_op_rgt[1]
-    BLK_TL-PLB.i_sp4_r_v_b[10] BLK_TL-PLB.i_sp4_r_v_b[34]  BLK_TL-PLB.i_neigh_op_tnr[2] BLK_TL-PLB.i_neigh_op_tnl[2] BLK_TL-PLB.i_neigh_op_bnl[2] BLK_TL-PLB.i_neigh_op_rgt[2]
-    BLK_TL-PLB.i_sp4_r_v_b[11] BLK_TL-PLB.i_sp4_r_v_b[35]  BLK_TL-PLB.i_neigh_op_tnr[3] BLK_TL-PLB.i_neigh_op_tnl[3] BLK_TL-PLB.i_neigh_op_bnl[3] BLK_TL-PLB.i_neigh_op_rgt[3]
-    BLK_TL-PLB.i_sp4_r_v_b[12] BLK_TL-PLB.i_sp4_r_v_b[36]  BLK_TL-PLB.i_neigh_op_tnr[4] BLK_TL-PLB.i_neigh_op_tnl[4] BLK_TL-PLB.i_neigh_op_bnl[4] BLK_TL-PLB.i_neigh_op_rgt[4]
-    BLK_TL-PLB.i_sp4_r_v_b[13] BLK_TL-PLB.i_sp4_r_v_b[37]  BLK_TL-PLB.i_neigh_op_tnr[5] BLK_TL-PLB.i_neigh_op_tnl[5] BLK_TL-PLB.i_neigh_op_bnl[5] BLK_TL-PLB.i_neigh_op_rgt[5]
-    BLK_TL-PLB.i_sp4_r_v_b[14] BLK_TL-PLB.i_sp4_r_v_b[38]  BLK_TL-PLB.i_neigh_op_tnr[6] BLK_TL-PLB.i_neigh_op_tnl[6] BLK_TL-PLB.i_neigh_op_bnl[6] BLK_TL-PLB.i_neigh_op_rgt[6]
-    BLK_TL-PLB.i_sp4_r_v_b[15] BLK_TL-PLB.i_sp4_r_v_b[39]  BLK_TL-PLB.i_neigh_op_tnr[7] BLK_TL-PLB.i_neigh_op_tnl[7] BLK_TL-PLB.i_neigh_op_bnl[7] BLK_TL-PLB.i_neigh_op_rgt[7]
+    PLB.i_sp4_r_v_b[8]  PLB.i_sp4_r_v_b[32]  PLB.i_neigh_op_tnr[0] PLB.i_neigh_op_tnl[0] PLB.i_neigh_op_bnl[0] PLB.i_neigh_op_rgt[0]
+    PLB.i_sp4_r_v_b[9]  PLB.i_sp4_r_v_b[33]  PLB.i_neigh_op_tnr[1] PLB.i_neigh_op_tnl[1] PLB.i_neigh_op_bnl[1] PLB.i_neigh_op_rgt[1]
+    PLB.i_sp4_r_v_b[10] PLB.i_sp4_r_v_b[34]  PLB.i_neigh_op_tnr[2] PLB.i_neigh_op_tnl[2] PLB.i_neigh_op_bnl[2] PLB.i_neigh_op_rgt[2]
+    PLB.i_sp4_r_v_b[11] PLB.i_sp4_r_v_b[35]  PLB.i_neigh_op_tnr[3] PLB.i_neigh_op_tnl[3] PLB.i_neigh_op_bnl[3] PLB.i_neigh_op_rgt[3]
+    PLB.i_sp4_r_v_b[12] PLB.i_sp4_r_v_b[36]  PLB.i_neigh_op_tnr[4] PLB.i_neigh_op_tnl[4] PLB.i_neigh_op_bnl[4] PLB.i_neigh_op_rgt[4]
+    PLB.i_sp4_r_v_b[13] PLB.i_sp4_r_v_b[37]  PLB.i_neigh_op_tnr[5] PLB.i_neigh_op_tnl[5] PLB.i_neigh_op_bnl[5] PLB.i_neigh_op_rgt[5]
+    PLB.i_sp4_r_v_b[14] PLB.i_sp4_r_v_b[38]  PLB.i_neigh_op_tnr[6] PLB.i_neigh_op_tnl[6] PLB.i_neigh_op_bnl[6] PLB.i_neigh_op_rgt[6]
+    PLB.i_sp4_r_v_b[15] PLB.i_sp4_r_v_b[39]  PLB.i_neigh_op_tnr[7] PLB.i_neigh_op_tnl[7] PLB.i_neigh_op_bnl[7] PLB.i_neigh_op_rgt[7]
 
-    BLK_TL-PLB.i_sp4_r_v_b[16] BLK_TL-PLB.i_sp4_r_v_b[40]  BLK_TL-PLB.i_neigh_op_tnr[0] BLK_TL-PLB.i_neigh_op_tnl[0] BLK_TL-PLB.i_neigh_op_bnl[0] BLK_TL-PLB.i_neigh_op_rgt[0]
-    BLK_TL-PLB.i_sp4_r_v_b[17] BLK_TL-PLB.i_sp4_r_v_b[41]  BLK_TL-PLB.i_neigh_op_tnr[1] BLK_TL-PLB.i_neigh_op_tnl[1] BLK_TL-PLB.i_neigh_op_bnl[1] BLK_TL-PLB.i_neigh_op_rgt[1]
-    BLK_TL-PLB.i_sp4_r_v_b[18] BLK_TL-PLB.i_sp4_r_v_b[42]  BLK_TL-PLB.i_neigh_op_tnr[2] BLK_TL-PLB.i_neigh_op_tnl[2] BLK_TL-PLB.i_neigh_op_bnl[2] BLK_TL-PLB.i_neigh_op_rgt[2]
-    BLK_TL-PLB.i_sp4_r_v_b[19] BLK_TL-PLB.i_sp4_r_v_b[43]  BLK_TL-PLB.i_neigh_op_tnr[3] BLK_TL-PLB.i_neigh_op_tnl[3] BLK_TL-PLB.i_neigh_op_bnl[3] BLK_TL-PLB.i_neigh_op_rgt[3]
-    BLK_TL-PLB.i_sp4_r_v_b[20] BLK_TL-PLB.i_sp4_r_v_b[44]  BLK_TL-PLB.i_neigh_op_tnr[4] BLK_TL-PLB.i_neigh_op_tnl[4] BLK_TL-PLB.i_neigh_op_bnl[4] BLK_TL-PLB.i_neigh_op_rgt[4]
-    BLK_TL-PLB.i_sp4_r_v_b[21] BLK_TL-PLB.i_sp4_r_v_b[45]  BLK_TL-PLB.i_neigh_op_tnr[5] BLK_TL-PLB.i_neigh_op_tnl[5] BLK_TL-PLB.i_neigh_op_bnl[5] BLK_TL-PLB.i_neigh_op_rgt[5]
-    BLK_TL-PLB.i_sp4_r_v_b[22] BLK_TL-PLB.i_sp4_r_v_b[46]  BLK_TL-PLB.i_neigh_op_tnr[6] BLK_TL-PLB.i_neigh_op_tnl[6] BLK_TL-PLB.i_neigh_op_bnl[6] BLK_TL-PLB.i_neigh_op_rgt[6]
-    BLK_TL-PLB.i_sp4_r_v_b[23] BLK_TL-PLB.i_sp4_r_v_b[47]  BLK_TL-PLB.i_neigh_op_tnr[7] BLK_TL-PLB.i_neigh_op_tnl[7] BLK_TL-PLB.i_neigh_op_bnl[7] BLK_TL-PLB.i_neigh_op_rgt[7]
+    PLB.i_sp4_r_v_b[16] PLB.i_sp4_r_v_b[40]  PLB.i_neigh_op_tnr[0] PLB.i_neigh_op_tnl[0] PLB.i_neigh_op_bnl[0] PLB.i_neigh_op_rgt[0]
+    PLB.i_sp4_r_v_b[17] PLB.i_sp4_r_v_b[41]  PLB.i_neigh_op_tnr[1] PLB.i_neigh_op_tnl[1] PLB.i_neigh_op_bnl[1] PLB.i_neigh_op_rgt[1]
+    PLB.i_sp4_r_v_b[18] PLB.i_sp4_r_v_b[42]  PLB.i_neigh_op_tnr[2] PLB.i_neigh_op_tnl[2] PLB.i_neigh_op_bnl[2] PLB.i_neigh_op_rgt[2]
+    PLB.i_sp4_r_v_b[19] PLB.i_sp4_r_v_b[43]  PLB.i_neigh_op_tnr[3] PLB.i_neigh_op_tnl[3] PLB.i_neigh_op_bnl[3] PLB.i_neigh_op_rgt[3]
+    PLB.i_sp4_r_v_b[20] PLB.i_sp4_r_v_b[44]  PLB.i_neigh_op_tnr[4] PLB.i_neigh_op_tnl[4] PLB.i_neigh_op_bnl[4] PLB.i_neigh_op_rgt[4]
+    PLB.i_sp4_r_v_b[21] PLB.i_sp4_r_v_b[45]  PLB.i_neigh_op_tnr[5] PLB.i_neigh_op_tnl[5] PLB.i_neigh_op_bnl[5] PLB.i_neigh_op_rgt[5]
+    PLB.i_sp4_r_v_b[22] PLB.i_sp4_r_v_b[46]  PLB.i_neigh_op_tnr[6] PLB.i_neigh_op_tnl[6] PLB.i_neigh_op_bnl[6] PLB.i_neigh_op_rgt[6]
+    PLB.i_sp4_r_v_b[23] PLB.i_sp4_r_v_b[47]  PLB.i_neigh_op_tnr[7] PLB.i_neigh_op_tnl[7] PLB.i_neigh_op_bnl[7] PLB.i_neigh_op_rgt[7]
        -->
-  <mux name="local_g0[0]" input="                       BLK_IG-PLB_LOCAL.O0   BLK_TL-PLB.i_sp4_v_b[0]  BLK_TL-PLB.i_sp4_v_b[8]  BLK_TL-PLB.i_sp4_v_b[16]                                                     BLK_TL-PLB.i_sp4_h_r[0]  BLK_TL-PLB.i_sp4_h_r[8]  BLK_TL-PLB.i_sp4_h_r[16]                                                     BLK_TL-PLB.i_sp12_h_r[0] BLK_TL-PLB.i_sp12_h_r[8]  BLK_TL-PLB.i_sp12_h_r[16]" output="BLK_XX-local_g[0].i[0]" />
-  <mux name="local_g0[1]" input="                       BLK_IG-PLB_LOCAL.O1   BLK_TL-PLB.i_sp4_v_b[1]  BLK_TL-PLB.i_sp4_v_b[9]  BLK_TL-PLB.i_sp4_v_b[17]                                                     BLK_TL-PLB.i_sp4_h_r[1]  BLK_TL-PLB.i_sp4_h_r[9]  BLK_TL-PLB.i_sp4_h_r[17]                                                     BLK_TL-PLB.i_sp12_h_r[1] BLK_TL-PLB.i_sp12_h_r[9]  BLK_TL-PLB.i_sp12_h_r[17]" output="BLK_XX-local_g[0].i[1]" />
-  <mux name="local_g0[2]" input="                       BLK_IG-PLB_LOCAL.O2   BLK_TL-PLB.i_sp4_v_b[2]  BLK_TL-PLB.i_sp4_v_b[10] BLK_TL-PLB.i_sp4_v_b[18]                                                     BLK_TL-PLB.i_sp4_h_r[2]  BLK_TL-PLB.i_sp4_h_r[10] BLK_TL-PLB.i_sp4_h_r[18]                                                     BLK_TL-PLB.i_sp12_h_r[2] BLK_TL-PLB.i_sp12_h_r[10] BLK_TL-PLB.i_sp12_h_r[18]" output="BLK_XX-local_g[0].i[2]" />
-  <mux name="local_g0[3]" input="                       BLK_IG-PLB_LOCAL.O3   BLK_TL-PLB.i_sp4_v_b[3]  BLK_TL-PLB.i_sp4_v_b[11] BLK_TL-PLB.i_sp4_v_b[19]                                                     BLK_TL-PLB.i_sp4_h_r[3]  BLK_TL-PLB.i_sp4_h_r[11] BLK_TL-PLB.i_sp4_h_r[19]                                                     BLK_TL-PLB.i_sp12_h_r[3] BLK_TL-PLB.i_sp12_h_r[11] BLK_TL-PLB.i_sp12_h_r[19]" output="BLK_XX-local_g[0].i[3]" />
-  <mux name="local_g0[4]" input="BLK_XX-glb2local[0].o  BLK_IG-PLB_LOCAL.O4   BLK_TL-PLB.i_sp4_v_b[4]  BLK_TL-PLB.i_sp4_v_b[12] BLK_TL-PLB.i_sp4_v_b[20]                                                     BLK_TL-PLB.i_sp4_h_r[4]  BLK_TL-PLB.i_sp4_h_r[12] BLK_TL-PLB.i_sp4_h_r[20]                                                     BLK_TL-PLB.i_sp12_h_r[4] BLK_TL-PLB.i_sp12_h_r[12] BLK_TL-PLB.i_sp12_h_r[20]" output="BLK_XX-local_g[0].i[4]" />
-  <mux name="local_g0[5]" input="BLK_XX-glb2local[1].o  BLK_IG-PLB_LOCAL.O5   BLK_TL-PLB.i_sp4_v_b[5]  BLK_TL-PLB.i_sp4_v_b[13] BLK_TL-PLB.i_sp4_v_b[21]                                                     BLK_TL-PLB.i_sp4_h_r[5]  BLK_TL-PLB.i_sp4_h_r[13] BLK_TL-PLB.i_sp4_h_r[21]                                                     BLK_TL-PLB.i_sp12_h_r[5] BLK_TL-PLB.i_sp12_h_r[13] BLK_TL-PLB.i_sp12_h_r[21]" output="BLK_XX-local_g[0].i[5]" />
-  <mux name="local_g0[6]" input="BLK_XX-glb2local[2].o  BLK_IG-PLB_LOCAL.O6   BLK_TL-PLB.i_sp4_v_b[6]  BLK_TL-PLB.i_sp4_v_b[14] BLK_TL-PLB.i_sp4_v_b[22]                                                     BLK_TL-PLB.i_sp4_h_r[6]  BLK_TL-PLB.i_sp4_h_r[14] BLK_TL-PLB.i_sp4_h_r[22]                                                     BLK_TL-PLB.i_sp12_h_r[6] BLK_TL-PLB.i_sp12_h_r[14] BLK_TL-PLB.i_sp12_h_r[22]" output="BLK_XX-local_g[0].i[6]" />
-  <mux name="local_g0[7]" input="BLK_XX-glb2local[3].o  BLK_IG-PLB_LOCAL.O7   BLK_TL-PLB.i_sp4_v_b[7]  BLK_TL-PLB.i_sp4_v_b[15] BLK_TL-PLB.i_sp4_v_b[23]                                                     BLK_TL-PLB.i_sp4_h_r[7]  BLK_TL-PLB.i_sp4_h_r[15] BLK_TL-PLB.i_sp4_h_r[23]                                                     BLK_TL-PLB.i_sp12_h_r[7] BLK_TL-PLB.i_sp12_h_r[15] BLK_TL-PLB.i_sp12_h_r[23]" output="BLK_XX-local_g[0].i[7]" />
+  <mux name="local_g0[0]" input="                PLB_LOCAL.O0   PLB.i_sp4_v_b[0]  PLB.i_sp4_v_b[8]  PLB.i_sp4_v_b[16]                                     PLB.i_sp4_h_r[0]  PLB.i_sp4_h_r[8]  PLB.i_sp4_h_r[16]                                       PLB.i_sp12_h_r[0] PLB.i_sp12_h_r[8]  PLB.i_sp12_h_r[16]" output="local_g[0].i[0]" />
+  <mux name="local_g0[1]" input="                PLB_LOCAL.O1   PLB.i_sp4_v_b[1]  PLB.i_sp4_v_b[9]  PLB.i_sp4_v_b[17]                                     PLB.i_sp4_h_r[1]  PLB.i_sp4_h_r[9]  PLB.i_sp4_h_r[17]                                       PLB.i_sp12_h_r[1] PLB.i_sp12_h_r[9]  PLB.i_sp12_h_r[17]" output="local_g[0].i[1]" />
+  <mux name="local_g0[2]" input="                PLB_LOCAL.O2   PLB.i_sp4_v_b[2]  PLB.i_sp4_v_b[10] PLB.i_sp4_v_b[18]                                     PLB.i_sp4_h_r[2]  PLB.i_sp4_h_r[10] PLB.i_sp4_h_r[18]                                       PLB.i_sp12_h_r[2] PLB.i_sp12_h_r[10] PLB.i_sp12_h_r[18]" output="local_g[0].i[2]" />
+  <mux name="local_g0[3]" input="                PLB_LOCAL.O3   PLB.i_sp4_v_b[3]  PLB.i_sp4_v_b[11] PLB.i_sp4_v_b[19]                                     PLB.i_sp4_h_r[3]  PLB.i_sp4_h_r[11] PLB.i_sp4_h_r[19]                                       PLB.i_sp12_h_r[3] PLB.i_sp12_h_r[11] PLB.i_sp12_h_r[19]" output="local_g[0].i[3]" />
+  <mux name="local_g0[4]" input="glb2local[0].o  PLB_LOCAL.O4   PLB.i_sp4_v_b[4]  PLB.i_sp4_v_b[12] PLB.i_sp4_v_b[20]                                     PLB.i_sp4_h_r[4]  PLB.i_sp4_h_r[12] PLB.i_sp4_h_r[20]                                       PLB.i_sp12_h_r[4] PLB.i_sp12_h_r[12] PLB.i_sp12_h_r[20]" output="local_g[0].i[4]" />
+  <mux name="local_g0[5]" input="glb2local[1].o  PLB_LOCAL.O5   PLB.i_sp4_v_b[5]  PLB.i_sp4_v_b[13] PLB.i_sp4_v_b[21]                                     PLB.i_sp4_h_r[5]  PLB.i_sp4_h_r[13] PLB.i_sp4_h_r[21]                                       PLB.i_sp12_h_r[5] PLB.i_sp12_h_r[13] PLB.i_sp12_h_r[21]" output="local_g[0].i[5]" />
+  <mux name="local_g0[6]" input="glb2local[2].o  PLB_LOCAL.O6   PLB.i_sp4_v_b[6]  PLB.i_sp4_v_b[14] PLB.i_sp4_v_b[22]                                     PLB.i_sp4_h_r[6]  PLB.i_sp4_h_r[14] PLB.i_sp4_h_r[22]                                       PLB.i_sp12_h_r[6] PLB.i_sp12_h_r[14] PLB.i_sp12_h_r[22]" output="local_g[0].i[6]" />
+  <mux name="local_g0[7]" input="glb2local[3].o  PLB_LOCAL.O7   PLB.i_sp4_v_b[7]  PLB.i_sp4_v_b[15] PLB.i_sp4_v_b[23]                                     PLB.i_sp4_h_r[7]  PLB.i_sp4_h_r[15] PLB.i_sp4_h_r[23]                                       PLB.i_sp12_h_r[7] PLB.i_sp12_h_r[15] PLB.i_sp12_h_r[23]" output="local_g[0].i[7]" />
 
-  <mux name="local_g1[0]" input="                       BLK_IG-PLB_LOCAL.O0   BLK_TL-PLB.i_sp4_v_b[0]  BLK_TL-PLB.i_sp4_v_b[8]  BLK_TL-PLB.i_sp4_v_b[16]                                                     BLK_TL-PLB.i_sp4_h_r[0]  BLK_TL-PLB.i_sp4_h_r[8]  BLK_TL-PLB.i_sp4_h_r[16]                                                     BLK_TL-PLB.i_sp12_h_r[0] BLK_TL-PLB.i_sp12_h_r[8]  BLK_TL-PLB.i_sp12_h_r[16]" output="BLK_XX-local_g[1].i[0]" />
-  <mux name="local_g1[1]" input="                       BLK_IG-PLB_LOCAL.O1   BLK_TL-PLB.i_sp4_v_b[1]  BLK_TL-PLB.i_sp4_v_b[9]  BLK_TL-PLB.i_sp4_v_b[17]                                                     BLK_TL-PLB.i_sp4_h_r[1]  BLK_TL-PLB.i_sp4_h_r[9]  BLK_TL-PLB.i_sp4_h_r[17]                                                     BLK_TL-PLB.i_sp12_h_r[1] BLK_TL-PLB.i_sp12_h_r[9]  BLK_TL-PLB.i_sp12_h_r[17]" output="BLK_XX-local_g[1].i[1]" />
-  <mux name="local_g1[2]" input="                       BLK_IG-PLB_LOCAL.O2   BLK_TL-PLB.i_sp4_v_b[2]  BLK_TL-PLB.i_sp4_v_b[10] BLK_TL-PLB.i_sp4_v_b[18]                                                     BLK_TL-PLB.i_sp4_h_r[2]  BLK_TL-PLB.i_sp4_h_r[10] BLK_TL-PLB.i_sp4_h_r[18]                                                     BLK_TL-PLB.i_sp12_h_r[2] BLK_TL-PLB.i_sp12_h_r[10] BLK_TL-PLB.i_sp12_h_r[18]" output="BLK_XX-local_g[1].i[2]" />
-  <mux name="local_g1[3]" input="                       BLK_IG-PLB_LOCAL.O3   BLK_TL-PLB.i_sp4_v_b[3]  BLK_TL-PLB.i_sp4_v_b[11] BLK_TL-PLB.i_sp4_v_b[19]                                                     BLK_TL-PLB.i_sp4_h_r[3]  BLK_TL-PLB.i_sp4_h_r[11] BLK_TL-PLB.i_sp4_h_r[19]                                                     BLK_TL-PLB.i_sp12_h_r[3] BLK_TL-PLB.i_sp12_h_r[11] BLK_TL-PLB.i_sp12_h_r[19]" output="BLK_XX-local_g[1].i[3]" />
-  <mux name="local_g1[4]" input="                       BLK_IG-PLB_LOCAL.O4   BLK_TL-PLB.i_sp4_v_b[4]  BLK_TL-PLB.i_sp4_v_b[12] BLK_TL-PLB.i_sp4_v_b[20]                                                     BLK_TL-PLB.i_sp4_h_r[4]  BLK_TL-PLB.i_sp4_h_r[12] BLK_TL-PLB.i_sp4_h_r[20]                                                     BLK_TL-PLB.i_sp12_h_r[4] BLK_TL-PLB.i_sp12_h_r[12] BLK_TL-PLB.i_sp12_h_r[20]" output="BLK_XX-local_g[1].i[4]" />
-  <mux name="local_g1[5]" input="                       BLK_IG-PLB_LOCAL.O5   BLK_TL-PLB.i_sp4_v_b[5]  BLK_TL-PLB.i_sp4_v_b[21] BLK_TL-PLB.i_sp4_v_b[13]                                                     BLK_TL-PLB.i_sp4_h_r[5]  BLK_TL-PLB.i_sp4_h_r[13] BLK_TL-PLB.i_sp4_h_r[21]                                                     BLK_TL-PLB.i_sp12_h_r[5] BLK_TL-PLB.i_sp12_h_r[13] BLK_TL-PLB.i_sp12_h_r[21]" output="BLK_XX-local_g[1].i[5]" />
-  <mux name="local_g1[6]" input="                       BLK_IG-PLB_LOCAL.O6   BLK_TL-PLB.i_sp4_v_b[6]  BLK_TL-PLB.i_sp4_v_b[14] BLK_TL-PLB.i_sp4_v_b[22]                                                     BLK_TL-PLB.i_sp4_h_r[6]  BLK_TL-PLB.i_sp4_h_r[14] BLK_TL-PLB.i_sp4_h_r[22]                                                     BLK_TL-PLB.i_sp12_h_r[6] BLK_TL-PLB.i_sp12_h_r[14] BLK_TL-PLB.i_sp12_h_r[22]" output="BLK_XX-local_g[1].i[6]" />
-  <mux name="local_g1[7]" input="                       BLK_IG-PLB_LOCAL.O7   BLK_TL-PLB.i_sp4_v_b[7]  BLK_TL-PLB.i_sp4_v_b[15] BLK_TL-PLB.i_sp4_v_b[23]                                                     BLK_TL-PLB.i_sp4_h_r[7]  BLK_TL-PLB.i_sp4_h_r[15] BLK_TL-PLB.i_sp4_h_r[23]                                                     BLK_TL-PLB.i_sp12_h_r[7] BLK_TL-PLB.i_sp12_h_r[15] BLK_TL-PLB.i_sp12_h_r[23]" output="BLK_XX-local_g[1].i[7]" />
+  <mux name="local_g1[0]" input="                PLB_LOCAL.O0   PLB.i_sp4_v_b[0]  PLB.i_sp4_v_b[8]  PLB.i_sp4_v_b[16]                                     PLB.i_sp4_h_r[0]  PLB.i_sp4_h_r[8]  PLB.i_sp4_h_r[16]                                       PLB.i_sp12_h_r[0] PLB.i_sp12_h_r[8]  PLB.i_sp12_h_r[16]" output="local_g[1].i[0]" />
+  <mux name="local_g1[1]" input="                PLB_LOCAL.O1   PLB.i_sp4_v_b[1]  PLB.i_sp4_v_b[9]  PLB.i_sp4_v_b[17]                                     PLB.i_sp4_h_r[1]  PLB.i_sp4_h_r[9]  PLB.i_sp4_h_r[17]                                       PLB.i_sp12_h_r[1] PLB.i_sp12_h_r[9]  PLB.i_sp12_h_r[17]" output="local_g[1].i[1]" />
+  <mux name="local_g1[2]" input="                PLB_LOCAL.O2   PLB.i_sp4_v_b[2]  PLB.i_sp4_v_b[10] PLB.i_sp4_v_b[18]                                     PLB.i_sp4_h_r[2]  PLB.i_sp4_h_r[10] PLB.i_sp4_h_r[18]                                       PLB.i_sp12_h_r[2] PLB.i_sp12_h_r[10] PLB.i_sp12_h_r[18]" output="local_g[1].i[2]" />
+  <mux name="local_g1[3]" input="                PLB_LOCAL.O3   PLB.i_sp4_v_b[3]  PLB.i_sp4_v_b[11] PLB.i_sp4_v_b[19]                                     PLB.i_sp4_h_r[3]  PLB.i_sp4_h_r[11] PLB.i_sp4_h_r[19]                                       PLB.i_sp12_h_r[3] PLB.i_sp12_h_r[11] PLB.i_sp12_h_r[19]" output="local_g[1].i[3]" />
+  <mux name="local_g1[4]" input="                PLB_LOCAL.O4   PLB.i_sp4_v_b[4]  PLB.i_sp4_v_b[12] PLB.i_sp4_v_b[20]                                     PLB.i_sp4_h_r[4]  PLB.i_sp4_h_r[12] PLB.i_sp4_h_r[20]                                       PLB.i_sp12_h_r[4] PLB.i_sp12_h_r[12] PLB.i_sp12_h_r[20]" output="local_g[1].i[4]" />
+  <mux name="local_g1[5]" input="                PLB_LOCAL.O5   PLB.i_sp4_v_b[5]  PLB.i_sp4_v_b[21] PLB.i_sp4_v_b[13]                                     PLB.i_sp4_h_r[5]  PLB.i_sp4_h_r[13] PLB.i_sp4_h_r[21]                                       PLB.i_sp12_h_r[5] PLB.i_sp12_h_r[13] PLB.i_sp12_h_r[21]" output="local_g[1].i[5]" />
+  <mux name="local_g1[6]" input="                PLB_LOCAL.O6   PLB.i_sp4_v_b[6]  PLB.i_sp4_v_b[14] PLB.i_sp4_v_b[22]                                     PLB.i_sp4_h_r[6]  PLB.i_sp4_h_r[14] PLB.i_sp4_h_r[22]                                       PLB.i_sp12_h_r[6] PLB.i_sp12_h_r[14] PLB.i_sp12_h_r[22]" output="local_g[1].i[6]" />
+  <mux name="local_g1[7]" input="                PLB_LOCAL.O7   PLB.i_sp4_v_b[7]  PLB.i_sp4_v_b[15] PLB.i_sp4_v_b[23]                                     PLB.i_sp4_h_r[7]  PLB.i_sp4_h_r[15] PLB.i_sp4_h_r[23]                                       PLB.i_sp12_h_r[7] PLB.i_sp12_h_r[15] PLB.i_sp12_h_r[23]" output="local_g[1].i[7]" />
 
-  <mux name="local_g2[0]" input="                       BLK_IG-PLB_LOCAL.O0                                                     BLK_TL-PLB.i_sp4_v_b[24] BLK_TL-PLB.i_sp4_v_b[32] BLK_TL-PLB.i_sp4_v_b[40]                                                     BLK_TL-PLB.i_sp4_h_r[24] BLK_TL-PLB.i_sp4_h_r[32] BLK_TL-PLB.i_sp4_h_r[40]   BLK_TL-PLB.i_sp12_v_b[0] BLK_TL-PLB.i_sp12_v_b[8]  BLK_TL-PLB.i_sp12_v_b[16]" output="BLK_XX-local_g[2].i[0]" />
-  <mux name="local_g2[1]" input="                       BLK_IG-PLB_LOCAL.O1                                                     BLK_TL-PLB.i_sp4_v_b[25] BLK_TL-PLB.i_sp4_v_b[33] BLK_TL-PLB.i_sp4_v_b[41]                                                     BLK_TL-PLB.i_sp4_h_r[25] BLK_TL-PLB.i_sp4_h_r[33] BLK_TL-PLB.i_sp4_h_r[41]   BLK_TL-PLB.i_sp12_v_b[1] BLK_TL-PLB.i_sp12_v_b[9]  BLK_TL-PLB.i_sp12_v_b[17]" output="BLK_XX-local_g[2].i[1]" />
-  <mux name="local_g2[2]" input="                       BLK_IG-PLB_LOCAL.O2                                                     BLK_TL-PLB.i_sp4_v_b[26] BLK_TL-PLB.i_sp4_v_b[34] BLK_TL-PLB.i_sp4_v_b[42]                                                     BLK_TL-PLB.i_sp4_h_r[26] BLK_TL-PLB.i_sp4_h_r[34] BLK_TL-PLB.i_sp4_h_r[42]   BLK_TL-PLB.i_sp12_v_b[2] BLK_TL-PLB.i_sp12_v_b[10] BLK_TL-PLB.i_sp12_v_b[18]" output="BLK_XX-local_g[2].i[2]" />
-  <mux name="local_g2[3]" input="                       BLK_IG-PLB_LOCAL.O3                                                     BLK_TL-PLB.i_sp4_v_b[27] BLK_TL-PLB.i_sp4_v_b[35] BLK_TL-PLB.i_sp4_v_b[43]                                                     BLK_TL-PLB.i_sp4_h_r[27] BLK_TL-PLB.i_sp4_h_r[35] BLK_TL-PLB.i_sp4_h_r[43]   BLK_TL-PLB.i_sp12_v_b[3] BLK_TL-PLB.i_sp12_v_b[11] BLK_TL-PLB.i_sp12_v_b[19]" output="BLK_XX-local_g[2].i[3]" />
-  <mux name="local_g2[4]" input="                       BLK_IG-PLB_LOCAL.O4                                                     BLK_TL-PLB.i_sp4_v_b[28] BLK_TL-PLB.i_sp4_v_b[36] BLK_TL-PLB.i_sp4_v_b[44]                                                     BLK_TL-PLB.i_sp4_h_r[28] BLK_TL-PLB.i_sp4_h_r[36] BLK_TL-PLB.i_sp4_h_r[44]   BLK_TL-PLB.i_sp12_v_b[4] BLK_TL-PLB.i_sp12_v_b[12] BLK_TL-PLB.i_sp12_v_b[20]" output="BLK_XX-local_g[2].i[4]" />
-  <mux name="local_g2[5]" input="                       BLK_IG-PLB_LOCAL.O5                                                     BLK_TL-PLB.i_sp4_v_b[29] BLK_TL-PLB.i_sp4_v_b[37] BLK_TL-PLB.i_sp4_v_b[45]                                                     BLK_TL-PLB.i_sp4_h_r[29] BLK_TL-PLB.i_sp4_h_r[37] BLK_TL-PLB.i_sp4_h_r[45]   BLK_TL-PLB.i_sp12_v_b[5] BLK_TL-PLB.i_sp12_v_b[13] BLK_TL-PLB.i_sp12_v_b[21]" output="BLK_XX-local_g[2].i[5]" />
-  <mux name="local_g2[6]" input="                       BLK_IG-PLB_LOCAL.O6                                                     BLK_TL-PLB.i_sp4_v_b[30] BLK_TL-PLB.i_sp4_v_b[38] BLK_TL-PLB.i_sp4_v_b[46]                                                     BLK_TL-PLB.i_sp4_h_r[30] BLK_TL-PLB.i_sp4_h_r[38] BLK_TL-PLB.i_sp4_h_r[46]   BLK_TL-PLB.i_sp12_v_b[6] BLK_TL-PLB.i_sp12_v_b[14] BLK_TL-PLB.i_sp12_v_b[22]" output="BLK_XX-local_g[2].i[6]" />
-  <mux name="local_g2[7]" input="                       BLK_IG-PLB_LOCAL.O7                                                     BLK_TL-PLB.i_sp4_v_b[31] BLK_TL-PLB.i_sp4_v_b[39] BLK_TL-PLB.i_sp4_v_b[47]                                                     BLK_TL-PLB.i_sp4_h_r[31] BLK_TL-PLB.i_sp4_h_r[39] BLK_TL-PLB.i_sp4_h_r[47]   BLK_TL-PLB.i_sp12_v_b[7] BLK_TL-PLB.i_sp12_v_b[15] BLK_TL-PLB.i_sp12_v_b[23]" output="BLK_XX-local_g[2].i[7]" />
+  <mux name="local_g2[0]" input="                PLB_LOCAL.O0                                       PLB.i_sp4_v_b[24] PLB.i_sp4_v_b[32] PLB.i_sp4_v_b[40]                                     PLB.i_sp4_h_r[24] PLB.i_sp4_h_r[32] PLB.i_sp4_h_r[40]   PLB.i_sp12_v_b[0] PLB.i_sp12_v_b[8]  PLB.i_sp12_v_b[16]" output="local_g[2].i[0]" />
+  <mux name="local_g2[1]" input="                PLB_LOCAL.O1                                       PLB.i_sp4_v_b[25] PLB.i_sp4_v_b[33] PLB.i_sp4_v_b[41]                                     PLB.i_sp4_h_r[25] PLB.i_sp4_h_r[33] PLB.i_sp4_h_r[41]   PLB.i_sp12_v_b[1] PLB.i_sp12_v_b[9]  PLB.i_sp12_v_b[17]" output="local_g[2].i[1]" />
+  <mux name="local_g2[2]" input="                PLB_LOCAL.O2                                       PLB.i_sp4_v_b[26] PLB.i_sp4_v_b[34] PLB.i_sp4_v_b[42]                                     PLB.i_sp4_h_r[26] PLB.i_sp4_h_r[34] PLB.i_sp4_h_r[42]   PLB.i_sp12_v_b[2] PLB.i_sp12_v_b[10] PLB.i_sp12_v_b[18]" output="local_g[2].i[2]" />
+  <mux name="local_g2[3]" input="                PLB_LOCAL.O3                                       PLB.i_sp4_v_b[27] PLB.i_sp4_v_b[35] PLB.i_sp4_v_b[43]                                     PLB.i_sp4_h_r[27] PLB.i_sp4_h_r[35] PLB.i_sp4_h_r[43]   PLB.i_sp12_v_b[3] PLB.i_sp12_v_b[11] PLB.i_sp12_v_b[19]" output="local_g[2].i[3]" />
+  <mux name="local_g2[4]" input="                PLB_LOCAL.O4                                       PLB.i_sp4_v_b[28] PLB.i_sp4_v_b[36] PLB.i_sp4_v_b[44]                                     PLB.i_sp4_h_r[28] PLB.i_sp4_h_r[36] PLB.i_sp4_h_r[44]   PLB.i_sp12_v_b[4] PLB.i_sp12_v_b[12] PLB.i_sp12_v_b[20]" output="local_g[2].i[4]" />
+  <mux name="local_g2[5]" input="                PLB_LOCAL.O5                                       PLB.i_sp4_v_b[29] PLB.i_sp4_v_b[37] PLB.i_sp4_v_b[45]                                     PLB.i_sp4_h_r[29] PLB.i_sp4_h_r[37] PLB.i_sp4_h_r[45]   PLB.i_sp12_v_b[5] PLB.i_sp12_v_b[13] PLB.i_sp12_v_b[21]" output="local_g[2].i[5]" />
+  <mux name="local_g2[6]" input="                PLB_LOCAL.O6                                       PLB.i_sp4_v_b[30] PLB.i_sp4_v_b[38] PLB.i_sp4_v_b[46]                                     PLB.i_sp4_h_r[30] PLB.i_sp4_h_r[38] PLB.i_sp4_h_r[46]   PLB.i_sp12_v_b[6] PLB.i_sp12_v_b[14] PLB.i_sp12_v_b[22]" output="local_g[2].i[6]" />
+  <mux name="local_g2[7]" input="                PLB_LOCAL.O7                                       PLB.i_sp4_v_b[31] PLB.i_sp4_v_b[39] PLB.i_sp4_v_b[47]                                     PLB.i_sp4_h_r[31] PLB.i_sp4_h_r[39] PLB.i_sp4_h_r[47]   PLB.i_sp12_v_b[7] PLB.i_sp12_v_b[15] PLB.i_sp12_v_b[23]" output="local_g[2].i[7]" />
 
-  <mux name="local_g3[0]" input="                       BLK_IG-PLB_LOCAL.O0                                                     BLK_TL-PLB.i_sp4_v_b[24] BLK_TL-PLB.i_sp4_v_b[32] BLK_TL-PLB.i_sp4_v_b[40]                                                     BLK_TL-PLB.i_sp4_h_r[24] BLK_TL-PLB.i_sp4_h_r[32] BLK_TL-PLB.i_sp4_h_r[40]   BLK_TL-PLB.i_sp12_v_b[0] BLK_TL-PLB.i_sp12_v_b[8]  BLK_TL-PLB.i_sp12_v_b[16]" output="BLK_XX-local_g[3].i[0]" />
-  <mux name="local_g3[1]" input="                       BLK_IG-PLB_LOCAL.O1                                                     BLK_TL-PLB.i_sp4_v_b[25] BLK_TL-PLB.i_sp4_v_b[33] BLK_TL-PLB.i_sp4_v_b[41]                                                     BLK_TL-PLB.i_sp4_h_r[25] BLK_TL-PLB.i_sp4_h_r[33] BLK_TL-PLB.i_sp4_h_r[41]   BLK_TL-PLB.i_sp12_v_b[1] BLK_TL-PLB.i_sp12_v_b[9]  BLK_TL-PLB.i_sp12_v_b[17]" output="BLK_XX-local_g[3].i[1]" />
-  <mux name="local_g3[2]" input="                       BLK_IG-PLB_LOCAL.O2                                                     BLK_TL-PLB.i_sp4_v_b[26] BLK_TL-PLB.i_sp4_v_b[34] BLK_TL-PLB.i_sp4_v_b[42]                                                     BLK_TL-PLB.i_sp4_h_r[26] BLK_TL-PLB.i_sp4_h_r[34] BLK_TL-PLB.i_sp4_h_r[42]   BLK_TL-PLB.i_sp12_v_b[2] BLK_TL-PLB.i_sp12_v_b[10] BLK_TL-PLB.i_sp12_v_b[18]" output="BLK_XX-local_g[3].i[2]" />
-  <mux name="local_g3[3]" input="                       BLK_IG-PLB_LOCAL.O3                                                     BLK_TL-PLB.i_sp4_v_b[27] BLK_TL-PLB.i_sp4_v_b[35] BLK_TL-PLB.i_sp4_v_b[43]                                                     BLK_TL-PLB.i_sp4_h_r[27] BLK_TL-PLB.i_sp4_h_r[35] BLK_TL-PLB.i_sp4_h_r[43]   BLK_TL-PLB.i_sp12_v_b[3] BLK_TL-PLB.i_sp12_v_b[11] BLK_TL-PLB.i_sp12_v_b[19]" output="BLK_XX-local_g[3].i[3]" />
-  <mux name="local_g3[4]" input="                       BLK_IG-PLB_LOCAL.O4                                                     BLK_TL-PLB.i_sp4_v_b[28] BLK_TL-PLB.i_sp4_v_b[36] BLK_TL-PLB.i_sp4_v_b[44]                                                     BLK_TL-PLB.i_sp4_h_r[28] BLK_TL-PLB.i_sp4_h_r[36] BLK_TL-PLB.i_sp4_h_r[44]   BLK_TL-PLB.i_sp12_v_b[4] BLK_TL-PLB.i_sp12_v_b[12] BLK_TL-PLB.i_sp12_v_b[20]" output="BLK_XX-local_g[3].i[4]" />
-  <mux name="local_g3[5]" input="                       BLK_IG-PLB_LOCAL.O5                                                     BLK_TL-PLB.i_sp4_v_b[29] BLK_TL-PLB.i_sp4_v_b[37] BLK_TL-PLB.i_sp4_v_b[45]                                                     BLK_TL-PLB.i_sp4_h_r[29] BLK_TL-PLB.i_sp4_h_r[37] BLK_TL-PLB.i_sp4_h_r[45]   BLK_TL-PLB.i_sp12_v_b[5] BLK_TL-PLB.i_sp12_v_b[13] BLK_TL-PLB.i_sp12_v_b[21]" output="BLK_XX-local_g[3].i[5]" />
-  <mux name="local_g3[6]" input="                       BLK_IG-PLB_LOCAL.O6                                                     BLK_TL-PLB.i_sp4_v_b[30] BLK_TL-PLB.i_sp4_v_b[38] BLK_TL-PLB.i_sp4_v_b[46]                                                     BLK_TL-PLB.i_sp4_h_r[30] BLK_TL-PLB.i_sp4_h_r[38] BLK_TL-PLB.i_sp4_h_r[46]   BLK_TL-PLB.i_sp12_v_b[6] BLK_TL-PLB.i_sp12_v_b[14] BLK_TL-PLB.i_sp12_v_b[22]" output="BLK_XX-local_g[3].i[6]" />
-  <mux name="local_g3[7]" input="                       BLK_IG-PLB_LOCAL.O7                                                     BLK_TL-PLB.i_sp4_v_b[31] BLK_TL-PLB.i_sp4_v_b[39] BLK_TL-PLB.i_sp4_v_b[47]                                                     BLK_TL-PLB.i_sp4_h_r[31] BLK_TL-PLB.i_sp4_h_r[39] BLK_TL-PLB.i_sp4_h_r[47]   BLK_TL-PLB.i_sp12_v_b[7] BLK_TL-PLB.i_sp12_v_b[15] BLK_TL-PLB.i_sp12_v_b[23]" output="BLK_XX-local_g[3].i[7]" />
+  <mux name="local_g3[0]" input="                PLB_LOCAL.O0                                       PLB.i_sp4_v_b[24] PLB.i_sp4_v_b[32] PLB.i_sp4_v_b[40]                                     PLB.i_sp4_h_r[24] PLB.i_sp4_h_r[32] PLB.i_sp4_h_r[40]   PLB.i_sp12_v_b[0] PLB.i_sp12_v_b[8]  PLB.i_sp12_v_b[16]" output="local_g[3].i[0]" />
+  <mux name="local_g3[1]" input="                PLB_LOCAL.O1                                       PLB.i_sp4_v_b[25] PLB.i_sp4_v_b[33] PLB.i_sp4_v_b[41]                                     PLB.i_sp4_h_r[25] PLB.i_sp4_h_r[33] PLB.i_sp4_h_r[41]   PLB.i_sp12_v_b[1] PLB.i_sp12_v_b[9]  PLB.i_sp12_v_b[17]" output="local_g[3].i[1]" />
+  <mux name="local_g3[2]" input="                PLB_LOCAL.O2                                       PLB.i_sp4_v_b[26] PLB.i_sp4_v_b[34] PLB.i_sp4_v_b[42]                                     PLB.i_sp4_h_r[26] PLB.i_sp4_h_r[34] PLB.i_sp4_h_r[42]   PLB.i_sp12_v_b[2] PLB.i_sp12_v_b[10] PLB.i_sp12_v_b[18]" output="local_g[3].i[2]" />
+  <mux name="local_g3[3]" input="                PLB_LOCAL.O3                                       PLB.i_sp4_v_b[27] PLB.i_sp4_v_b[35] PLB.i_sp4_v_b[43]                                     PLB.i_sp4_h_r[27] PLB.i_sp4_h_r[35] PLB.i_sp4_h_r[43]   PLB.i_sp12_v_b[3] PLB.i_sp12_v_b[11] PLB.i_sp12_v_b[19]" output="local_g[3].i[3]" />
+  <mux name="local_g3[4]" input="                PLB_LOCAL.O4                                       PLB.i_sp4_v_b[28] PLB.i_sp4_v_b[36] PLB.i_sp4_v_b[44]                                     PLB.i_sp4_h_r[28] PLB.i_sp4_h_r[36] PLB.i_sp4_h_r[44]   PLB.i_sp12_v_b[4] PLB.i_sp12_v_b[12] PLB.i_sp12_v_b[20]" output="local_g[3].i[4]" />
+  <mux name="local_g3[5]" input="                PLB_LOCAL.O5                                       PLB.i_sp4_v_b[29] PLB.i_sp4_v_b[37] PLB.i_sp4_v_b[45]                                     PLB.i_sp4_h_r[29] PLB.i_sp4_h_r[37] PLB.i_sp4_h_r[45]   PLB.i_sp12_v_b[5] PLB.i_sp12_v_b[13] PLB.i_sp12_v_b[21]" output="local_g[3].i[5]" />
+  <mux name="local_g3[6]" input="                PLB_LOCAL.O6                                       PLB.i_sp4_v_b[30] PLB.i_sp4_v_b[38] PLB.i_sp4_v_b[46]                                     PLB.i_sp4_h_r[30] PLB.i_sp4_h_r[38] PLB.i_sp4_h_r[46]   PLB.i_sp12_v_b[6] PLB.i_sp12_v_b[14] PLB.i_sp12_v_b[22]" output="local_g[3].i[6]" />
+  <mux name="local_g3[7]" input="                PLB_LOCAL.O7                                       PLB.i_sp4_v_b[31] PLB.i_sp4_v_b[39] PLB.i_sp4_v_b[47]                                     PLB.i_sp4_h_r[31] PLB.i_sp4_h_r[39] PLB.i_sp4_h_r[47]   PLB.i_sp12_v_b[7] PLB.i_sp12_v_b[15] PLB.i_sp12_v_b[23]" output="local_g[3].i[7]" />
 
   <!-- LUTFF.O   to Span-4 Vertical -->
-  <mux name="BLK_IG-PLB_LOCAL.O0->sp4_v_b[0]"  input="BLK_IG-PLB_LOCAL.O0" output="BLK_TL-PLB.o_sp4_v_b[0]"  />
-  <mux name="BLK_IG-PLB_LOCAL.O0->sp4_v_b[16]" input="BLK_IG-PLB_LOCAL.O0" output="BLK_TL-PLB.o_sp4_v_b[16]" />
-  <mux name="BLK_IG-PLB_LOCAL.O0->sp4_v_b[32]" input="BLK_IG-PLB_LOCAL.O0" output="BLK_TL-PLB.o_sp4_v_b[32]" />
-  <mux name="BLK_IG-PLB_LOCAL.O1->sp4_v_b[18]" input="BLK_IG-PLB_LOCAL.O1" output="BLK_TL-PLB.o_sp4_v_b[18]" />
-  <mux name="BLK_IG-PLB_LOCAL.O1->sp4_v_b[2]"  input="BLK_IG-PLB_LOCAL.O1" output="BLK_TL-PLB.o_sp4_v_b[2]"  />
-  <mux name="BLK_IG-PLB_LOCAL.O1->sp4_v_b[34]" input="BLK_IG-PLB_LOCAL.O1" output="BLK_TL-PLB.o_sp4_v_b[34]" />
-  <mux name="BLK_IG-PLB_LOCAL.O2->sp4_v_b[20]" input="BLK_IG-PLB_LOCAL.O2" output="BLK_TL-PLB.o_sp4_v_b[20]" />
-  <mux name="BLK_IG-PLB_LOCAL.O2->sp4_v_b[36]" input="BLK_IG-PLB_LOCAL.O2" output="BLK_TL-PLB.o_sp4_v_b[36]" />
-  <mux name="BLK_IG-PLB_LOCAL.O2->sp4_v_b[4]"  input="BLK_IG-PLB_LOCAL.O2" output="BLK_TL-PLB.o_sp4_v_b[4]"  />
-  <mux name="BLK_IG-PLB_LOCAL.O3->sp4_v_b[22]" input="BLK_IG-PLB_LOCAL.O3" output="BLK_TL-PLB.o_sp4_v_b[22]" />
-  <mux name="BLK_IG-PLB_LOCAL.O3->sp4_v_b[38]" input="BLK_IG-PLB_LOCAL.O3" output="BLK_TL-PLB.o_sp4_v_b[38]" />
-  <mux name="BLK_IG-PLB_LOCAL.O3->sp4_v_b[6]"  input="BLK_IG-PLB_LOCAL.O3" output="BLK_TL-PLB.o_sp4_v_b[6]"  />
-  <mux name="BLK_IG-PLB_LOCAL.O4->sp4_v_b[24]" input="BLK_IG-PLB_LOCAL.O4" output="BLK_TL-PLB.o_sp4_v_b[24]" />
-  <mux name="BLK_IG-PLB_LOCAL.O4->sp4_v_b[40]" input="BLK_IG-PLB_LOCAL.O4" output="BLK_TL-PLB.o_sp4_v_b[40]" />
-  <mux name="BLK_IG-PLB_LOCAL.O4->sp4_v_b[8]"  input="BLK_IG-PLB_LOCAL.O4" output="BLK_TL-PLB.o_sp4_v_b[8]"  />
-  <mux name="BLK_IG-PLB_LOCAL.O5->sp4_v_b[10]" input="BLK_IG-PLB_LOCAL.O5" output="BLK_TL-PLB.o_sp4_v_b[10]" />
-  <mux name="BLK_IG-PLB_LOCAL.O5->sp4_v_b[26]" input="BLK_IG-PLB_LOCAL.O5" output="BLK_TL-PLB.o_sp4_v_b[26]" />
-  <mux name="BLK_IG-PLB_LOCAL.O5->sp4_v_b[42]" input="BLK_IG-PLB_LOCAL.O5" output="BLK_TL-PLB.o_sp4_v_b[42]" />
-  <mux name="BLK_IG-PLB_LOCAL.O6->sp4_v_b[12]" input="BLK_IG-PLB_LOCAL.O6" output="BLK_TL-PLB.o_sp4_v_b[12]" />
-  <mux name="BLK_IG-PLB_LOCAL.O6->sp4_v_b[28]" input="BLK_IG-PLB_LOCAL.O6" output="BLK_TL-PLB.o_sp4_v_b[28]" />
-  <mux name="BLK_IG-PLB_LOCAL.O6->sp4_v_b[44]" input="BLK_IG-PLB_LOCAL.O6" output="BLK_TL-PLB.o_sp4_v_b[44]" />
-  <mux name="BLK_IG-PLB_LOCAL.O7->sp4_v_b[14]" input="BLK_IG-PLB_LOCAL.O7" output="BLK_TL-PLB.o_sp4_v_b[14]" />
-  <mux name="BLK_IG-PLB_LOCAL.O7->sp4_v_b[30]" input="BLK_IG-PLB_LOCAL.O7" output="BLK_TL-PLB.o_sp4_v_b[30]" />
-  <mux name="BLK_IG-PLB_LOCAL.O7->sp4_v_b[46]" input="BLK_IG-PLB_LOCAL.O7" output="BLK_TL-PLB.o_sp4_v_b[46]" />
+  <mux name="PLB_LOCAL.O0->sp4_v_b[0]"  input="PLB_LOCAL.O0" output="PLB.o_sp4_v_b[0]"  />
+  <mux name="PLB_LOCAL.O0->sp4_v_b[16]" input="PLB_LOCAL.O0" output="PLB.o_sp4_v_b[16]" />
+  <mux name="PLB_LOCAL.O0->sp4_v_b[32]" input="PLB_LOCAL.O0" output="PLB.o_sp4_v_b[32]" />
+  <mux name="PLB_LOCAL.O1->sp4_v_b[18]" input="PLB_LOCAL.O1" output="PLB.o_sp4_v_b[18]" />
+  <mux name="PLB_LOCAL.O1->sp4_v_b[2]"  input="PLB_LOCAL.O1" output="PLB.o_sp4_v_b[2]"  />
+  <mux name="PLB_LOCAL.O1->sp4_v_b[34]" input="PLB_LOCAL.O1" output="PLB.o_sp4_v_b[34]" />
+  <mux name="PLB_LOCAL.O2->sp4_v_b[20]" input="PLB_LOCAL.O2" output="PLB.o_sp4_v_b[20]" />
+  <mux name="PLB_LOCAL.O2->sp4_v_b[36]" input="PLB_LOCAL.O2" output="PLB.o_sp4_v_b[36]" />
+  <mux name="PLB_LOCAL.O2->sp4_v_b[4]"  input="PLB_LOCAL.O2" output="PLB.o_sp4_v_b[4]"  />
+  <mux name="PLB_LOCAL.O3->sp4_v_b[22]" input="PLB_LOCAL.O3" output="PLB.o_sp4_v_b[22]" />
+  <mux name="PLB_LOCAL.O3->sp4_v_b[38]" input="PLB_LOCAL.O3" output="PLB.o_sp4_v_b[38]" />
+  <mux name="PLB_LOCAL.O3->sp4_v_b[6]"  input="PLB_LOCAL.O3" output="PLB.o_sp4_v_b[6]"  />
+  <mux name="PLB_LOCAL.O4->sp4_v_b[24]" input="PLB_LOCAL.O4" output="PLB.o_sp4_v_b[24]" />
+  <mux name="PLB_LOCAL.O4->sp4_v_b[40]" input="PLB_LOCAL.O4" output="PLB.o_sp4_v_b[40]" />
+  <mux name="PLB_LOCAL.O4->sp4_v_b[8]"  input="PLB_LOCAL.O4" output="PLB.o_sp4_v_b[8]"  />
+  <mux name="PLB_LOCAL.O5->sp4_v_b[10]" input="PLB_LOCAL.O5" output="PLB.o_sp4_v_b[10]" />
+  <mux name="PLB_LOCAL.O5->sp4_v_b[26]" input="PLB_LOCAL.O5" output="PLB.o_sp4_v_b[26]" />
+  <mux name="PLB_LOCAL.O5->sp4_v_b[42]" input="PLB_LOCAL.O5" output="PLB.o_sp4_v_b[42]" />
+  <mux name="PLB_LOCAL.O6->sp4_v_b[12]" input="PLB_LOCAL.O6" output="PLB.o_sp4_v_b[12]" />
+  <mux name="PLB_LOCAL.O6->sp4_v_b[28]" input="PLB_LOCAL.O6" output="PLB.o_sp4_v_b[28]" />
+  <mux name="PLB_LOCAL.O6->sp4_v_b[44]" input="PLB_LOCAL.O6" output="PLB.o_sp4_v_b[44]" />
+  <mux name="PLB_LOCAL.O7->sp4_v_b[14]" input="PLB_LOCAL.O7" output="PLB.o_sp4_v_b[14]" />
+  <mux name="PLB_LOCAL.O7->sp4_v_b[30]" input="PLB_LOCAL.O7" output="PLB.o_sp4_v_b[30]" />
+  <mux name="PLB_LOCAL.O7->sp4_v_b[46]" input="PLB_LOCAL.O7" output="PLB.o_sp4_v_b[46]" />
 
   <!--
-  <mux name="mux_sp12_v_b[1]"  input="BLK_TL-PLB.i_sp12_v_b[1]"  output="BLK_TL-PLB.o_sp4_v_b[12]" />
-  <mux name="mux_sp12_v_b[11]" input="BLK_TL-PLB.i_sp12_v_b[11]" output="BLK_TL-PLB.o_sp4_v_b[17]" />
-  <mux name="mux_sp12_v_b[13]" input="BLK_TL-PLB.i_sp12_v_b[13]" output="BLK_TL-PLB.o_sp4_v_b[18]" />
-  <mux name="mux_sp12_v_b[15]" input="BLK_TL-PLB.i_sp12_v_b[15]" output="BLK_TL-PLB.o_sp4_v_b[19]" />
-  <mux name="mux_sp12_v_b[17]" input="BLK_TL-PLB.i_sp12_v_b[17]" output="BLK_TL-PLB.o_sp4_v_b[20]" />
-  <mux name="mux_sp12_v_b[19]" input="BLK_TL-PLB.i_sp12_v_b[19]" output="BLK_TL-PLB.o_sp4_v_b[21]" />
-  <mux name="mux_sp12_v_b[21]" input="BLK_TL-PLB.i_sp12_v_b[21]" output="BLK_TL-PLB.o_sp4_v_b[22]" />
-  <mux name="mux_sp12_v_b[23]" input="BLK_TL-PLB.i_sp12_v_b[23]" output="BLK_TL-PLB.o_sp4_v_b[23]" />
-  <mux name="mux_sp12_v_b[3]"  input="BLK_TL-PLB.i_sp12_v_b[3]"  output="BLK_TL-PLB.o_sp4_v_b[13]" />
-  <mux name="mux_sp12_v_b[5]"  input="BLK_TL-PLB.i_sp12_v_b[5]"  output="BLK_TL-PLB.o_sp4_v_b[14]" />
-  <mux name="mux_sp12_v_b[7]"  input="BLK_TL-PLB.i_sp12_v_b[7]"  output="BLK_TL-PLB.o_sp4_v_b[15]" />
-  <mux name="mux_sp12_v_b[9]"  input="BLK_TL-PLB.i_sp12_v_b[9]"  output="BLK_TL-PLB.o_sp4_v_b[16]" />
+  <mux name="mux_sp12_v_b[1]"  input="PLB.i_sp12_v_b[1]"  output="PLB.o_sp4_v_b[12]" />
+  <mux name="mux_sp12_v_b[11]" input="PLB.i_sp12_v_b[11]" output="PLB.o_sp4_v_b[17]" />
+  <mux name="mux_sp12_v_b[13]" input="PLB.i_sp12_v_b[13]" output="PLB.o_sp4_v_b[18]" />
+  <mux name="mux_sp12_v_b[15]" input="PLB.i_sp12_v_b[15]" output="PLB.o_sp4_v_b[19]" />
+  <mux name="mux_sp12_v_b[17]" input="PLB.i_sp12_v_b[17]" output="PLB.o_sp4_v_b[20]" />
+  <mux name="mux_sp12_v_b[19]" input="PLB.i_sp12_v_b[19]" output="PLB.o_sp4_v_b[21]" />
+  <mux name="mux_sp12_v_b[21]" input="PLB.i_sp12_v_b[21]" output="PLB.o_sp4_v_b[22]" />
+  <mux name="mux_sp12_v_b[23]" input="PLB.i_sp12_v_b[23]" output="PLB.o_sp4_v_b[23]" />
+  <mux name="mux_sp12_v_b[3]"  input="PLB.i_sp12_v_b[3]"  output="PLB.o_sp4_v_b[13]" />
+  <mux name="mux_sp12_v_b[5]"  input="PLB.i_sp12_v_b[5]"  output="PLB.o_sp4_v_b[14]" />
+  <mux name="mux_sp12_v_b[7]"  input="PLB.i_sp12_v_b[7]"  output="PLB.o_sp4_v_b[15]" />
+  <mux name="mux_sp12_v_b[9]"  input="PLB.i_sp12_v_b[9]"  output="PLB.o_sp4_v_b[16]" />
   -->
 
   <!-- LUTFF.O   to Span-4 Right Vertical
-  <mux name="BLK_IG-PLB_LOCAL.O0->sp4_r_v_b[1]"  input="BLK_IG-PLB_LOCAL.O0" output="BLK_TL-PLB.o_sp4_r_v_b[1]"  />
-  <mux name="BLK_IG-PLB_LOCAL.O0->sp4_r_v_b[17]" input="BLK_IG-PLB_LOCAL.O0" output="BLK_TL-PLB.o_sp4_r_v_b[17]" />
-  <mux name="BLK_IG-PLB_LOCAL.O0->sp4_r_v_b[33]" input="BLK_IG-PLB_LOCAL.O0" output="BLK_TL-PLB.o_sp4_r_v_b[33]" />
-  <mux name="BLK_IG-PLB_LOCAL.O1->sp4_r_v_b[19]" input="BLK_IG-PLB_LOCAL.O1" output="BLK_TL-PLB.o_sp4_r_v_b[19]" />
-  <mux name="BLK_IG-PLB_LOCAL.O1->sp4_r_v_b[3]"  input="BLK_IG-PLB_LOCAL.O1" output="BLK_TL-PLB.o_sp4_r_v_b[3]"  />
-  <mux name="BLK_IG-PLB_LOCAL.O1->sp4_r_v_b[35]" input="BLK_IG-PLB_LOCAL.O1" output="BLK_TL-PLB.o_sp4_r_v_b[35]" />
-  <mux name="BLK_IG-PLB_LOCAL.O2->sp4_r_v_b[21]" input="BLK_IG-PLB_LOCAL.O2" output="BLK_TL-PLB.o_sp4_r_v_b[21]" />
-  <mux name="BLK_IG-PLB_LOCAL.O2->sp4_r_v_b[37]" input="BLK_IG-PLB_LOCAL.O2" output="BLK_TL-PLB.o_sp4_r_v_b[37]" />
-  <mux name="BLK_IG-PLB_LOCAL.O2->sp4_r_v_b[5] " input="BLK_IG-PLB_LOCAL.O2" output="BLK_TL-PLB.o_sp4_r_v_b[5] " />
-  <mux name="BLK_IG-PLB_LOCAL.O3->sp4_r_v_b[23]" input="BLK_IG-PLB_LOCAL.O3" output="BLK_TL-PLB.o_sp4_r_v_b[23]" />
-  <mux name="BLK_IG-PLB_LOCAL.O3->sp4_r_v_b[39]" input="BLK_IG-PLB_LOCAL.O3" output="BLK_TL-PLB.o_sp4_r_v_b[39]" />
-  <mux name="BLK_IG-PLB_LOCAL.O3->sp4_r_v_b[7] " input="BLK_IG-PLB_LOCAL.O3" output="BLK_TL-PLB.o_sp4_r_v_b[7] " />
-  <mux name="BLK_IG-PLB_LOCAL.O4->sp4_r_v_b[25]" input="BLK_IG-PLB_LOCAL.O4" output="BLK_TL-PLB.o_sp4_r_v_b[25]" />
-  <mux name="BLK_IG-PLB_LOCAL.O4->sp4_r_v_b[41]" input="BLK_IG-PLB_LOCAL.O4" output="BLK_TL-PLB.o_sp4_r_v_b[41]" />
-  <mux name="BLK_IG-PLB_LOCAL.O4->sp4_r_v_b[9]"  input="BLK_IG-PLB_LOCAL.O4" output="BLK_TL-PLB.o_sp4_r_v_b[9]"  />
-  <mux name="BLK_IG-PLB_LOCAL.O5->sp4_r_v_b[11]" input="BLK_IG-PLB_LOCAL.O5" output="BLK_TL-PLB.o_sp4_r_v_b[11]" />
-  <mux name="BLK_IG-PLB_LOCAL.O5->sp4_r_v_b[27]" input="BLK_IG-PLB_LOCAL.O5" output="BLK_TL-PLB.o_sp4_r_v_b[27]" />
-  <mux name="BLK_IG-PLB_LOCAL.O5->sp4_r_v_b[43]" input="BLK_IG-PLB_LOCAL.O5" output="BLK_TL-PLB.o_sp4_r_v_b[43]" />
-  <mux name="BLK_IG-PLB_LOCAL.O6->sp4_r_v_b[13]" input="BLK_IG-PLB_LOCAL.O6" output="BLK_TL-PLB.o_sp4_r_v_b[13]" />
-  <mux name="BLK_IG-PLB_LOCAL.O6->sp4_r_v_b[29]" input="BLK_IG-PLB_LOCAL.O6" output="BLK_TL-PLB.o_sp4_r_v_b[29]" />
-  <mux name="BLK_IG-PLB_LOCAL.O6->sp4_r_v_b[45]" input="BLK_IG-PLB_LOCAL.O6" output="BLK_TL-PLB.o_sp4_r_v_b[45]" />
-  <mux name="BLK_IG-PLB_LOCAL.O7->sp4_r_v_b[15]" input="BLK_IG-PLB_LOCAL.O7" output="BLK_TL-PLB.o_sp4_r_v_b[15]" />
-  <mux name="BLK_IG-PLB_LOCAL.O7->sp4_r_v_b[31]" input="BLK_IG-PLB_LOCAL.O7" output="BLK_TL-PLB.o_sp4_r_v_b[31]" />
-  <mux name="BLK_IG-PLB_LOCAL.O7->sp4_r_v_b[47]" input="BLK_IG-PLB_LOCAL.O7" output="BLK_TL-PLB.o_sp4_r_v_b[47]" />
+  <mux name="PLB_LOCAL.O0->sp4_r_v_b[1]"  input="PLB_LOCAL.O0" output="PLB.o_sp4_r_v_b[1]"  />
+  <mux name="PLB_LOCAL.O0->sp4_r_v_b[17]" input="PLB_LOCAL.O0" output="PLB.o_sp4_r_v_b[17]" />
+  <mux name="PLB_LOCAL.O0->sp4_r_v_b[33]" input="PLB_LOCAL.O0" output="PLB.o_sp4_r_v_b[33]" />
+  <mux name="PLB_LOCAL.O1->sp4_r_v_b[19]" input="PLB_LOCAL.O1" output="PLB.o_sp4_r_v_b[19]" />
+  <mux name="PLB_LOCAL.O1->sp4_r_v_b[3]"  input="PLB_LOCAL.O1" output="PLB.o_sp4_r_v_b[3]"  />
+  <mux name="PLB_LOCAL.O1->sp4_r_v_b[35]" input="PLB_LOCAL.O1" output="PLB.o_sp4_r_v_b[35]" />
+  <mux name="PLB_LOCAL.O2->sp4_r_v_b[21]" input="PLB_LOCAL.O2" output="PLB.o_sp4_r_v_b[21]" />
+  <mux name="PLB_LOCAL.O2->sp4_r_v_b[37]" input="PLB_LOCAL.O2" output="PLB.o_sp4_r_v_b[37]" />
+  <mux name="PLB_LOCAL.O2->sp4_r_v_b[5] " input="PLB_LOCAL.O2" output="PLB.o_sp4_r_v_b[5] " />
+  <mux name="PLB_LOCAL.O3->sp4_r_v_b[23]" input="PLB_LOCAL.O3" output="PLB.o_sp4_r_v_b[23]" />
+  <mux name="PLB_LOCAL.O3->sp4_r_v_b[39]" input="PLB_LOCAL.O3" output="PLB.o_sp4_r_v_b[39]" />
+  <mux name="PLB_LOCAL.O3->sp4_r_v_b[7] " input="PLB_LOCAL.O3" output="PLB.o_sp4_r_v_b[7] " />
+  <mux name="PLB_LOCAL.O4->sp4_r_v_b[25]" input="PLB_LOCAL.O4" output="PLB.o_sp4_r_v_b[25]" />
+  <mux name="PLB_LOCAL.O4->sp4_r_v_b[41]" input="PLB_LOCAL.O4" output="PLB.o_sp4_r_v_b[41]" />
+  <mux name="PLB_LOCAL.O4->sp4_r_v_b[9]"  input="PLB_LOCAL.O4" output="PLB.o_sp4_r_v_b[9]"  />
+  <mux name="PLB_LOCAL.O5->sp4_r_v_b[11]" input="PLB_LOCAL.O5" output="PLB.o_sp4_r_v_b[11]" />
+  <mux name="PLB_LOCAL.O5->sp4_r_v_b[27]" input="PLB_LOCAL.O5" output="PLB.o_sp4_r_v_b[27]" />
+  <mux name="PLB_LOCAL.O5->sp4_r_v_b[43]" input="PLB_LOCAL.O5" output="PLB.o_sp4_r_v_b[43]" />
+  <mux name="PLB_LOCAL.O6->sp4_r_v_b[13]" input="PLB_LOCAL.O6" output="PLB.o_sp4_r_v_b[13]" />
+  <mux name="PLB_LOCAL.O6->sp4_r_v_b[29]" input="PLB_LOCAL.O6" output="PLB.o_sp4_r_v_b[29]" />
+  <mux name="PLB_LOCAL.O6->sp4_r_v_b[45]" input="PLB_LOCAL.O6" output="PLB.o_sp4_r_v_b[45]" />
+  <mux name="PLB_LOCAL.O7->sp4_r_v_b[15]" input="PLB_LOCAL.O7" output="PLB.o_sp4_r_v_b[15]" />
+  <mux name="PLB_LOCAL.O7->sp4_r_v_b[31]" input="PLB_LOCAL.O7" output="PLB.o_sp4_r_v_b[31]" />
+  <mux name="PLB_LOCAL.O7->sp4_r_v_b[47]" input="PLB_LOCAL.O7" output="PLB.o_sp4_r_v_b[47]" />
        -->
 
   <!-- LUTFF.O   to Span-4 Horizontal -->
-  <mux name="BLK_IG-PLB_LOCAL.O0->sp4_h_r[0]"  input="BLK_IG-PLB_LOCAL.O0" output="BLK_TL-PLB.o_sp4_h_r[0]"  />
-  <mux name="BLK_IG-PLB_LOCAL.O0->sp4_h_r[16]" input="BLK_IG-PLB_LOCAL.O0" output="BLK_TL-PLB.o_sp4_h_r[16]" />
-  <mux name="BLK_IG-PLB_LOCAL.O0->sp4_h_r[32]" input="BLK_IG-PLB_LOCAL.O0" output="BLK_TL-PLB.o_sp4_h_r[32]" />
-  <mux name="BLK_IG-PLB_LOCAL.O1->sp4_h_r[18]" input="BLK_IG-PLB_LOCAL.O1" output="BLK_TL-PLB.o_sp4_h_r[18]" />
-  <mux name="BLK_IG-PLB_LOCAL.O1->sp4_h_r[2]"  input="BLK_IG-PLB_LOCAL.O1" output="BLK_TL-PLB.o_sp4_h_r[2]"  />
-  <mux name="BLK_IG-PLB_LOCAL.O1->sp4_h_r[34]" input="BLK_IG-PLB_LOCAL.O1" output="BLK_TL-PLB.o_sp4_h_r[34]" />
-  <mux name="BLK_IG-PLB_LOCAL.O2->sp4_h_r[20]" input="BLK_IG-PLB_LOCAL.O2" output="BLK_TL-PLB.o_sp4_h_r[20]" />
-  <mux name="BLK_IG-PLB_LOCAL.O2->sp4_h_r[36]" input="BLK_IG-PLB_LOCAL.O2" output="BLK_TL-PLB.o_sp4_h_r[36]" />
-  <mux name="BLK_IG-PLB_LOCAL.O2->sp4_h_r[4]"  input="BLK_IG-PLB_LOCAL.O2" output="BLK_TL-PLB.o_sp4_h_r[4]"  />
-  <mux name="BLK_IG-PLB_LOCAL.O3->sp4_h_r[22]" input="BLK_IG-PLB_LOCAL.O3" output="BLK_TL-PLB.o_sp4_h_r[22]" />
-  <mux name="BLK_IG-PLB_LOCAL.O3->sp4_h_r[38]" input="BLK_IG-PLB_LOCAL.O3" output="BLK_TL-PLB.o_sp4_h_r[38]" />
-  <mux name="BLK_IG-PLB_LOCAL.O3->sp4_h_r[6]"  input="BLK_IG-PLB_LOCAL.O3" output="BLK_TL-PLB.o_sp4_h_r[6]"  />
-  <mux name="BLK_IG-PLB_LOCAL.O4->sp4_h_r[24]" input="BLK_IG-PLB_LOCAL.O4" output="BLK_TL-PLB.o_sp4_h_r[24]" />
-  <mux name="BLK_IG-PLB_LOCAL.O4->sp4_h_r[40]" input="BLK_IG-PLB_LOCAL.O4" output="BLK_TL-PLB.o_sp4_h_r[40]" />
-  <mux name="BLK_IG-PLB_LOCAL.O4->sp4_h_r[8]"  input="BLK_IG-PLB_LOCAL.O4" output="BLK_TL-PLB.o_sp4_h_r[8]"  />
-  <mux name="BLK_IG-PLB_LOCAL.O5->sp4_h_r[10]" input="BLK_IG-PLB_LOCAL.O5" output="BLK_TL-PLB.o_sp4_h_r[10]" />
-  <mux name="BLK_IG-PLB_LOCAL.O5->sp4_h_r[26]" input="BLK_IG-PLB_LOCAL.O5" output="BLK_TL-PLB.o_sp4_h_r[26]" />
-  <mux name="BLK_IG-PLB_LOCAL.O5->sp4_h_r[42]" input="BLK_IG-PLB_LOCAL.O5" output="BLK_TL-PLB.o_sp4_h_r[42]" />
-  <mux name="BLK_IG-PLB_LOCAL.O6->sp4_h_r[12]" input="BLK_IG-PLB_LOCAL.O6" output="BLK_TL-PLB.o_sp4_h_r[12]" />
-  <mux name="BLK_IG-PLB_LOCAL.O6->sp4_h_r[28]" input="BLK_IG-PLB_LOCAL.O6" output="BLK_TL-PLB.o_sp4_h_r[28]" />
-  <mux name="BLK_IG-PLB_LOCAL.O6->sp4_h_r[44]" input="BLK_IG-PLB_LOCAL.O6" output="BLK_TL-PLB.o_sp4_h_r[44]" />
-  <mux name="BLK_IG-PLB_LOCAL.O7->sp4_h_r[14]" input="BLK_IG-PLB_LOCAL.O7" output="BLK_TL-PLB.o_sp4_h_r[14]" />
-  <mux name="BLK_IG-PLB_LOCAL.O7->sp4_h_r[30]" input="BLK_IG-PLB_LOCAL.O7" output="BLK_TL-PLB.o_sp4_h_r[30]" />
-  <mux name="BLK_IG-PLB_LOCAL.O7->sp4_h_r[46]" input="BLK_IG-PLB_LOCAL.O7" output="BLK_TL-PLB.o_sp4_h_r[46]" />
+  <mux name="PLB_LOCAL.O0->sp4_h_r[0]"  input="PLB_LOCAL.O0" output="PLB.o_sp4_h_r[0]"  />
+  <mux name="PLB_LOCAL.O0->sp4_h_r[16]" input="PLB_LOCAL.O0" output="PLB.o_sp4_h_r[16]" />
+  <mux name="PLB_LOCAL.O0->sp4_h_r[32]" input="PLB_LOCAL.O0" output="PLB.o_sp4_h_r[32]" />
+  <mux name="PLB_LOCAL.O1->sp4_h_r[18]" input="PLB_LOCAL.O1" output="PLB.o_sp4_h_r[18]" />
+  <mux name="PLB_LOCAL.O1->sp4_h_r[2]"  input="PLB_LOCAL.O1" output="PLB.o_sp4_h_r[2]"  />
+  <mux name="PLB_LOCAL.O1->sp4_h_r[34]" input="PLB_LOCAL.O1" output="PLB.o_sp4_h_r[34]" />
+  <mux name="PLB_LOCAL.O2->sp4_h_r[20]" input="PLB_LOCAL.O2" output="PLB.o_sp4_h_r[20]" />
+  <mux name="PLB_LOCAL.O2->sp4_h_r[36]" input="PLB_LOCAL.O2" output="PLB.o_sp4_h_r[36]" />
+  <mux name="PLB_LOCAL.O2->sp4_h_r[4]"  input="PLB_LOCAL.O2" output="PLB.o_sp4_h_r[4]"  />
+  <mux name="PLB_LOCAL.O3->sp4_h_r[22]" input="PLB_LOCAL.O3" output="PLB.o_sp4_h_r[22]" />
+  <mux name="PLB_LOCAL.O3->sp4_h_r[38]" input="PLB_LOCAL.O3" output="PLB.o_sp4_h_r[38]" />
+  <mux name="PLB_LOCAL.O3->sp4_h_r[6]"  input="PLB_LOCAL.O3" output="PLB.o_sp4_h_r[6]"  />
+  <mux name="PLB_LOCAL.O4->sp4_h_r[24]" input="PLB_LOCAL.O4" output="PLB.o_sp4_h_r[24]" />
+  <mux name="PLB_LOCAL.O4->sp4_h_r[40]" input="PLB_LOCAL.O4" output="PLB.o_sp4_h_r[40]" />
+  <mux name="PLB_LOCAL.O4->sp4_h_r[8]"  input="PLB_LOCAL.O4" output="PLB.o_sp4_h_r[8]"  />
+  <mux name="PLB_LOCAL.O5->sp4_h_r[10]" input="PLB_LOCAL.O5" output="PLB.o_sp4_h_r[10]" />
+  <mux name="PLB_LOCAL.O5->sp4_h_r[26]" input="PLB_LOCAL.O5" output="PLB.o_sp4_h_r[26]" />
+  <mux name="PLB_LOCAL.O5->sp4_h_r[42]" input="PLB_LOCAL.O5" output="PLB.o_sp4_h_r[42]" />
+  <mux name="PLB_LOCAL.O6->sp4_h_r[12]" input="PLB_LOCAL.O6" output="PLB.o_sp4_h_r[12]" />
+  <mux name="PLB_LOCAL.O6->sp4_h_r[28]" input="PLB_LOCAL.O6" output="PLB.o_sp4_h_r[28]" />
+  <mux name="PLB_LOCAL.O6->sp4_h_r[44]" input="PLB_LOCAL.O6" output="PLB.o_sp4_h_r[44]" />
+  <mux name="PLB_LOCAL.O7->sp4_h_r[14]" input="PLB_LOCAL.O7" output="PLB.o_sp4_h_r[14]" />
+  <mux name="PLB_LOCAL.O7->sp4_h_r[30]" input="PLB_LOCAL.O7" output="PLB.o_sp4_h_r[30]" />
+  <mux name="PLB_LOCAL.O7->sp4_h_r[46]" input="PLB_LOCAL.O7" output="PLB.o_sp4_h_r[46]" />
 
   <!--
-  <mux name="mux_sp12_h_r[0]"  input="BLK_TL-PLB.i_sp12_h_r[0]"  output="BLK_TL-PLB.o_sp4_h_r[12]" />
-  <mux name="mux_sp12_h_r[10]" input="BLK_TL-PLB.i_sp12_h_r[10]" output="BLK_TL-PLB.o_sp4_h_r[17]" />
-  <mux name="mux_sp12_h_r[12]" input="BLK_TL-PLB.i_sp12_h_r[12]" output="BLK_TL-PLB.o_sp4_h_r[18]" />
-  <mux name="mux_sp12_h_r[14]" input="BLK_TL-PLB.i_sp12_h_r[14]" output="BLK_TL-PLB.o_sp4_h_r[19]" />
-  <mux name="mux_sp12_h_r[16]" input="BLK_TL-PLB.i_sp12_h_r[16]" output="BLK_TL-PLB.o_sp4_h_r[20]" />
-  <mux name="mux_sp12_h_r[18]" input="BLK_TL-PLB.i_sp12_h_r[18]" output="BLK_TL-PLB.o_sp4_h_r[21]" />
-  <mux name="mux_sp12_h_r[2]"  input="BLK_TL-PLB.i_sp12_h_r[2]"  output="BLK_TL-PLB.o_sp4_h_r[13]" />
-  <mux name="mux_sp12_h_r[20]" input="BLK_TL-PLB.i_sp12_h_r[20]" output="BLK_TL-PLB.o_sp4_h_r[22]" />
-  <mux name="mux_sp12_h_r[22]" input="BLK_TL-PLB.i_sp12_h_r[22]" output="BLK_TL-PLB.o_sp4_h_r[23]" />
-  <mux name="mux_sp12_h_r[4]"  input="BLK_TL-PLB.i_sp12_h_r[4]"  output="BLK_TL-PLB.o_sp4_h_r[14]" />
-  <mux name="mux_sp12_h_r[6]"  input="BLK_TL-PLB.i_sp12_h_r[6]"  output="BLK_TL-PLB.o_sp4_h_r[15]" />
-  <mux name="mux_sp12_h_r[8]"  input="BLK_TL-PLB.i_sp12_h_r[8]"  output="BLK_TL-PLB.o_sp4_h_r[16]" />
+  <mux name="mux_sp12_h_r[0]"  input="PLB.i_sp12_h_r[0]"  output="PLB.o_sp4_h_r[12]" />
+  <mux name="mux_sp12_h_r[10]" input="PLB.i_sp12_h_r[10]" output="PLB.o_sp4_h_r[17]" />
+  <mux name="mux_sp12_h_r[12]" input="PLB.i_sp12_h_r[12]" output="PLB.o_sp4_h_r[18]" />
+  <mux name="mux_sp12_h_r[14]" input="PLB.i_sp12_h_r[14]" output="PLB.o_sp4_h_r[19]" />
+  <mux name="mux_sp12_h_r[16]" input="PLB.i_sp12_h_r[16]" output="PLB.o_sp4_h_r[20]" />
+  <mux name="mux_sp12_h_r[18]" input="PLB.i_sp12_h_r[18]" output="PLB.o_sp4_h_r[21]" />
+  <mux name="mux_sp12_h_r[2]"  input="PLB.i_sp12_h_r[2]"  output="PLB.o_sp4_h_r[13]" />
+  <mux name="mux_sp12_h_r[20]" input="PLB.i_sp12_h_r[20]" output="PLB.o_sp4_h_r[22]" />
+  <mux name="mux_sp12_h_r[22]" input="PLB.i_sp12_h_r[22]" output="PLB.o_sp4_h_r[23]" />
+  <mux name="mux_sp12_h_r[4]"  input="PLB.i_sp12_h_r[4]"  output="PLB.o_sp4_h_r[14]" />
+  <mux name="mux_sp12_h_r[6]"  input="PLB.i_sp12_h_r[6]"  output="PLB.o_sp4_h_r[15]" />
+  <mux name="mux_sp12_h_r[8]"  input="PLB.i_sp12_h_r[8]"  output="PLB.o_sp4_h_r[16]" />
   -->
 
   <!-- LUTFF.O   to Span-12 Vertical -->
-  <mux name="BLK_IG-PLB_LOCAL.O0->sp12_v_b[0]"  input="BLK_IG-PLB_LOCAL.O0" output="BLK_TL-PLB.o_sp12_v_b[0]"  />
-  <mux name="BLK_IG-PLB_LOCAL.O0->sp12_v_b[16]" input="BLK_IG-PLB_LOCAL.O0" output="BLK_TL-PLB.o_sp12_v_b[16]" />
-  <mux name="BLK_IG-PLB_LOCAL.O1->sp12_v_b[18]" input="BLK_IG-PLB_LOCAL.O1" output="BLK_TL-PLB.o_sp12_v_b[18]" />
-  <mux name="BLK_IG-PLB_LOCAL.O1->sp12_v_b[2]"  input="BLK_IG-PLB_LOCAL.O1" output="BLK_TL-PLB.o_sp12_v_b[2]"  />
-  <mux name="BLK_IG-PLB_LOCAL.O2->sp12_v_b[20]" input="BLK_IG-PLB_LOCAL.O2" output="BLK_TL-PLB.o_sp12_v_b[20]" />
-  <mux name="BLK_IG-PLB_LOCAL.O2->sp12_v_b[4]"  input="BLK_IG-PLB_LOCAL.O2" output="BLK_TL-PLB.o_sp12_v_b[4]"  />
-  <mux name="BLK_IG-PLB_LOCAL.O3->sp12_v_b[22]" input="BLK_IG-PLB_LOCAL.O3" output="BLK_TL-PLB.o_sp12_v_b[22]" />
-  <mux name="BLK_IG-PLB_LOCAL.O3->sp12_v_b[6]"  input="BLK_IG-PLB_LOCAL.O3" output="BLK_TL-PLB.o_sp12_v_b[6]"  />
-  <mux name="BLK_IG-PLB_LOCAL.O4->sp12_v_b[8]"  input="BLK_IG-PLB_LOCAL.O4" output="BLK_TL-PLB.o_sp12_v_b[8]"  />
-  <mux name="BLK_IG-PLB_LOCAL.O5->sp12_v_b[10]" input="BLK_IG-PLB_LOCAL.O5" output="BLK_TL-PLB.o_sp12_v_b[10]" />
-  <mux name="BLK_IG-PLB_LOCAL.O6->sp12_v_b[12]" input="BLK_IG-PLB_LOCAL.O6" output="BLK_TL-PLB.o_sp12_v_b[12]" />
-  <mux name="BLK_IG-PLB_LOCAL.O7->sp12_v_b[14]" input="BLK_IG-PLB_LOCAL.O7" output="BLK_TL-PLB.o_sp12_v_b[14]" />
+  <mux name="PLB_LOCAL.O0->sp12_v_b[0]"  input="PLB_LOCAL.O0" output="PLB.o_sp12_v_b[0]"  />
+  <mux name="PLB_LOCAL.O0->sp12_v_b[16]" input="PLB_LOCAL.O0" output="PLB.o_sp12_v_b[16]" />
+  <mux name="PLB_LOCAL.O1->sp12_v_b[18]" input="PLB_LOCAL.O1" output="PLB.o_sp12_v_b[18]" />
+  <mux name="PLB_LOCAL.O1->sp12_v_b[2]"  input="PLB_LOCAL.O1" output="PLB.o_sp12_v_b[2]"  />
+  <mux name="PLB_LOCAL.O2->sp12_v_b[20]" input="PLB_LOCAL.O2" output="PLB.o_sp12_v_b[20]" />
+  <mux name="PLB_LOCAL.O2->sp12_v_b[4]"  input="PLB_LOCAL.O2" output="PLB.o_sp12_v_b[4]"  />
+  <mux name="PLB_LOCAL.O3->sp12_v_b[22]" input="PLB_LOCAL.O3" output="PLB.o_sp12_v_b[22]" />
+  <mux name="PLB_LOCAL.O3->sp12_v_b[6]"  input="PLB_LOCAL.O3" output="PLB.o_sp12_v_b[6]"  />
+  <mux name="PLB_LOCAL.O4->sp12_v_b[8]"  input="PLB_LOCAL.O4" output="PLB.o_sp12_v_b[8]"  />
+  <mux name="PLB_LOCAL.O5->sp12_v_b[10]" input="PLB_LOCAL.O5" output="PLB.o_sp12_v_b[10]" />
+  <mux name="PLB_LOCAL.O6->sp12_v_b[12]" input="PLB_LOCAL.O6" output="PLB.o_sp12_v_b[12]" />
+  <mux name="PLB_LOCAL.O7->sp12_v_b[14]" input="PLB_LOCAL.O7" output="PLB.o_sp12_v_b[14]" />
 
   <!-- LUTFF.O   to Span-12 Horizontal -->
-  <mux name="BLK_IG-PLB_LOCAL.O0->sp12_h_r[8]"  input="BLK_IG-PLB_LOCAL.O0" output="BLK_TL-PLB.o_sp12_h_r[8]"  />
-  <mux name="BLK_IG-PLB_LOCAL.O1->sp12_h_r[10]" input="BLK_IG-PLB_LOCAL.O1" output="BLK_TL-PLB.o_sp12_h_r[10]" />
-  <mux name="BLK_IG-PLB_LOCAL.O2->sp12_h_r[12]" input="BLK_IG-PLB_LOCAL.O2" output="BLK_TL-PLB.o_sp12_h_r[12]" />
-  <mux name="BLK_IG-PLB_LOCAL.O3->sp12_h_r[14]" input="BLK_IG-PLB_LOCAL.O3" output="BLK_TL-PLB.o_sp12_h_r[14]" />
-  <mux name="BLK_IG-PLB_LOCAL.O4->sp12_h_r[0]"  input="BLK_IG-PLB_LOCAL.O4" output="BLK_TL-PLB.o_sp12_h_r[0]"  />
-  <mux name="BLK_IG-PLB_LOCAL.O4->sp12_h_r[16]" input="BLK_IG-PLB_LOCAL.O4" output="BLK_TL-PLB.o_sp12_h_r[16]" />
-  <mux name="BLK_IG-PLB_LOCAL.O5->sp12_h_r[18]" input="BLK_IG-PLB_LOCAL.O5" output="BLK_TL-PLB.o_sp12_h_r[18]" />
-  <mux name="BLK_IG-PLB_LOCAL.O5->sp12_h_r[2]"  input="BLK_IG-PLB_LOCAL.O5" output="BLK_TL-PLB.o_sp12_h_r[2]"  />
-  <mux name="BLK_IG-PLB_LOCAL.O6->sp12_h_r[20]" input="BLK_IG-PLB_LOCAL.O6" output="BLK_TL-PLB.o_sp12_h_r[20]" />
-  <mux name="BLK_IG-PLB_LOCAL.O6->sp12_h_r[4]"  input="BLK_IG-PLB_LOCAL.O6" output="BLK_TL-PLB.o_sp12_h_r[4]"  />
-  <mux name="BLK_IG-PLB_LOCAL.O7->sp12_h_r[22]" input="BLK_IG-PLB_LOCAL.O7" output="BLK_TL-PLB.o_sp12_h_r[22]" />
-  <mux name="BLK_IG-PLB_LOCAL.O7->sp12_h_r[6]"  input="BLK_IG-PLB_LOCAL.O7" output="BLK_TL-PLB.o_sp12_h_r[6]"  />
+  <mux name="PLB_LOCAL.O0->sp12_h_r[8]"  input="PLB_LOCAL.O0" output="PLB.o_sp12_h_r[8]"  />
+  <mux name="PLB_LOCAL.O1->sp12_h_r[10]" input="PLB_LOCAL.O1" output="PLB.o_sp12_h_r[10]" />
+  <mux name="PLB_LOCAL.O2->sp12_h_r[12]" input="PLB_LOCAL.O2" output="PLB.o_sp12_h_r[12]" />
+  <mux name="PLB_LOCAL.O3->sp12_h_r[14]" input="PLB_LOCAL.O3" output="PLB.o_sp12_h_r[14]" />
+  <mux name="PLB_LOCAL.O4->sp12_h_r[0]"  input="PLB_LOCAL.O4" output="PLB.o_sp12_h_r[0]"  />
+  <mux name="PLB_LOCAL.O4->sp12_h_r[16]" input="PLB_LOCAL.O4" output="PLB.o_sp12_h_r[16]" />
+  <mux name="PLB_LOCAL.O5->sp12_h_r[18]" input="PLB_LOCAL.O5" output="PLB.o_sp12_h_r[18]" />
+  <mux name="PLB_LOCAL.O5->sp12_h_r[2]"  input="PLB_LOCAL.O5" output="PLB.o_sp12_h_r[2]"  />
+  <mux name="PLB_LOCAL.O6->sp12_h_r[20]" input="PLB_LOCAL.O6" output="PLB.o_sp12_h_r[20]" />
+  <mux name="PLB_LOCAL.O6->sp12_h_r[4]"  input="PLB_LOCAL.O6" output="PLB.o_sp12_h_r[4]"  />
+  <mux name="PLB_LOCAL.O7->sp12_h_r[22]" input="PLB_LOCAL.O7" output="PLB.o_sp12_h_r[22]" />
+  <mux name="PLB_LOCAL.O7->sp12_h_r[6]"  input="PLB_LOCAL.O7" output="PLB.o_sp12_h_r[6]"  />
 
   <!-- Span-4 Vertical -->
   <!-- ================================================================ -->
   <!--
-  <direct name="sp4_v_b[0]"  input="BLK_TL-PLB.i_sp4_v_t[  ]" output="BLK_TL-PLB.o_sp4_v_b[1]"  />
-  <direct name="sp4_v_b[1]"  input="BLK_TL-PLB.i_sp4_v_t[  ]" output="BLK_TL-PLB.o_sp4_v_b[0]"  />
-  <direct name="sp4_v_b[2]"  input="BLK_TL-PLB.i_sp4_v_t[  ]" output="BLK_TL-PLB.o_sp4_v_b[3]"  />
-  <direct name="sp4_v_b[3]"  input="BLK_TL-PLB.i_sp4_v_t[  ]" output="BLK_TL-PLB.o_sp4_v_b[2]"  />
-  <direct name="sp4_v_b[4]"  input="BLK_TL-PLB.i_sp4_v_t[  ]" output="BLK_TL-PLB.o_sp4_v_b[5]"  />
-  <direct name="sp4_v_b[5]"  input="BLK_TL-PLB.i_sp4_v_t[  ]" output="BLK_TL-PLB.o_sp4_v_b[4]"  />
-  <direct name="sp4_v_b[6]"  input="BLK_TL-PLB.i_sp4_v_t[  ]" output="BLK_TL-PLB.o_sp4_v_b[7]"  />
-  <direct name="sp4_v_b[7]"  input="BLK_TL-PLB.i_sp4_v_t[  ]" output="BLK_TL-PLB.o_sp4_v_b[6]"  />
-  <direct name="sp4_v_b[8]"  input="BLK_TL-PLB.i_sp4_v_t[  ]" output="BLK_TL-PLB.o_sp4_v_b[9]"  />
-  <direct name="sp4_v_b[9]"  input="BLK_TL-PLB.i_sp4_v_t[  ]" output="BLK_TL-PLB.o_sp4_v_b[8]"  />
-  <direct name="sp4_v_b[10]" input="BLK_TL-PLB.i_sp4_v_t[  ]" output="BLK_TL-PLB.o_sp4_v_b[11]" />
-  <direct name="sp4_v_b[11]" input="BLK_TL-PLB.i_sp4_v_t[  ]" output="BLK_TL-PLB.o_sp4_v_b[10]" />
+  <direct name="sp4_v_b[0]"  input="PLB.i_sp4_v_t[  ]" output="PLB.o_sp4_v_b[1]"  />
+  <direct name="sp4_v_b[1]"  input="PLB.i_sp4_v_t[  ]" output="PLB.o_sp4_v_b[0]"  />
+  <direct name="sp4_v_b[2]"  input="PLB.i_sp4_v_t[  ]" output="PLB.o_sp4_v_b[3]"  />
+  <direct name="sp4_v_b[3]"  input="PLB.i_sp4_v_t[  ]" output="PLB.o_sp4_v_b[2]"  />
+  <direct name="sp4_v_b[4]"  input="PLB.i_sp4_v_t[  ]" output="PLB.o_sp4_v_b[5]"  />
+  <direct name="sp4_v_b[5]"  input="PLB.i_sp4_v_t[  ]" output="PLB.o_sp4_v_b[4]"  />
+  <direct name="sp4_v_b[6]"  input="PLB.i_sp4_v_t[  ]" output="PLB.o_sp4_v_b[7]"  />
+  <direct name="sp4_v_b[7]"  input="PLB.i_sp4_v_t[  ]" output="PLB.o_sp4_v_b[6]"  />
+  <direct name="sp4_v_b[8]"  input="PLB.i_sp4_v_t[  ]" output="PLB.o_sp4_v_b[9]"  />
+  <direct name="sp4_v_b[9]"  input="PLB.i_sp4_v_t[  ]" output="PLB.o_sp4_v_b[8]"  />
+  <direct name="sp4_v_b[10]" input="PLB.i_sp4_v_t[  ]" output="PLB.o_sp4_v_b[11]" />
+  <direct name="sp4_v_b[11]" input="PLB.i_sp4_v_t[  ]" output="PLB.o_sp4_v_b[10]" />
    -->
-  <direct name="sp4_v_t[0]"  input="BLK_TL-PLB.i_sp4_v_t[0]"  output="BLK_TL-PLB.o_sp4_v_b[13]" />
-  <direct name="sp4_v_t[1]"  input="BLK_TL-PLB.i_sp4_v_t[1]"  output="BLK_TL-PLB.o_sp4_v_b[12]" />
-  <direct name="sp4_v_t[2]"  input="BLK_TL-PLB.i_sp4_v_t[2]"  output="BLK_TL-PLB.o_sp4_v_b[15]" />
-  <direct name="sp4_v_t[3]"  input="BLK_TL-PLB.i_sp4_v_t[3]"  output="BLK_TL-PLB.o_sp4_v_b[14]" />
-  <direct name="sp4_v_t[4]"  input="BLK_TL-PLB.i_sp4_v_t[4]"  output="BLK_TL-PLB.o_sp4_v_b[17]" />
-  <direct name="sp4_v_t[5]"  input="BLK_TL-PLB.i_sp4_v_t[5]"  output="BLK_TL-PLB.o_sp4_v_b[16]" />
-  <direct name="sp4_v_t[6]"  input="BLK_TL-PLB.i_sp4_v_t[6]"  output="BLK_TL-PLB.o_sp4_v_b[19]" />
-  <direct name="sp4_v_t[7]"  input="BLK_TL-PLB.i_sp4_v_t[7]"  output="BLK_TL-PLB.o_sp4_v_b[18]" />
-  <direct name="sp4_v_t[8]"  input="BLK_TL-PLB.i_sp4_v_t[8]"  output="BLK_TL-PLB.o_sp4_v_b[21]" />
-  <direct name="sp4_v_t[9]"  input="BLK_TL-PLB.i_sp4_v_t[9]"  output="BLK_TL-PLB.o_sp4_v_b[20]" />
-  <direct name="sp4_v_t[10]" input="BLK_TL-PLB.i_sp4_v_t[10]" output="BLK_TL-PLB.o_sp4_v_b[23]" />
-  <direct name="sp4_v_t[11]" input="BLK_TL-PLB.i_sp4_v_t[11]" output="BLK_TL-PLB.o_sp4_v_b[22]" />
-  <direct name="sp4_v_t[12]" input="BLK_TL-PLB.i_sp4_v_t[12]" output="BLK_TL-PLB.o_sp4_v_b[25]" />
-  <direct name="sp4_v_t[13]" input="BLK_TL-PLB.i_sp4_v_t[13]" output="BLK_TL-PLB.o_sp4_v_b[24]" />
-  <direct name="sp4_v_t[14]" input="BLK_TL-PLB.i_sp4_v_t[14]" output="BLK_TL-PLB.o_sp4_v_b[27]" />
-  <direct name="sp4_v_t[15]" input="BLK_TL-PLB.i_sp4_v_t[15]" output="BLK_TL-PLB.o_sp4_v_b[26]" />
-  <direct name="sp4_v_t[16]" input="BLK_TL-PLB.i_sp4_v_t[16]" output="BLK_TL-PLB.o_sp4_v_b[29]" />
-  <direct name="sp4_v_t[17]" input="BLK_TL-PLB.i_sp4_v_t[17]" output="BLK_TL-PLB.o_sp4_v_b[28]" />
-  <direct name="sp4_v_t[18]" input="BLK_TL-PLB.i_sp4_v_t[18]" output="BLK_TL-PLB.o_sp4_v_b[31]" />
-  <direct name="sp4_v_t[19]" input="BLK_TL-PLB.i_sp4_v_t[19]" output="BLK_TL-PLB.o_sp4_v_b[30]" />
-  <direct name="sp4_v_t[20]" input="BLK_TL-PLB.i_sp4_v_t[20]" output="BLK_TL-PLB.o_sp4_v_b[33]" />
-  <direct name="sp4_v_t[21]" input="BLK_TL-PLB.i_sp4_v_t[21]" output="BLK_TL-PLB.o_sp4_v_b[32]" />
-  <direct name="sp4_v_t[22]" input="BLK_TL-PLB.i_sp4_v_t[22]" output="BLK_TL-PLB.o_sp4_v_b[35]" />
-  <direct name="sp4_v_t[23]" input="BLK_TL-PLB.i_sp4_v_t[23]" output="BLK_TL-PLB.o_sp4_v_b[34]" />
-  <direct name="sp4_v_t[24]" input="BLK_TL-PLB.i_sp4_v_t[24]" output="BLK_TL-PLB.o_sp4_v_b[37]" />
-  <direct name="sp4_v_t[25]" input="BLK_TL-PLB.i_sp4_v_t[25]" output="BLK_TL-PLB.o_sp4_v_b[36]" />
-  <direct name="sp4_v_t[26]" input="BLK_TL-PLB.i_sp4_v_t[26]" output="BLK_TL-PLB.o_sp4_v_b[39]" />
-  <direct name="sp4_v_t[27]" input="BLK_TL-PLB.i_sp4_v_t[27]" output="BLK_TL-PLB.o_sp4_v_b[38]" />
-  <direct name="sp4_v_t[28]" input="BLK_TL-PLB.i_sp4_v_t[28]" output="BLK_TL-PLB.o_sp4_v_b[41]" />
-  <direct name="sp4_v_t[29]" input="BLK_TL-PLB.i_sp4_v_t[29]" output="BLK_TL-PLB.o_sp4_v_b[40]" />
-  <direct name="sp4_v_t[30]" input="BLK_TL-PLB.i_sp4_v_t[30]" output="BLK_TL-PLB.o_sp4_v_b[43]" />
-  <direct name="sp4_v_t[31]" input="BLK_TL-PLB.i_sp4_v_t[31]" output="BLK_TL-PLB.o_sp4_v_b[42]" />
-  <direct name="sp4_v_t[32]" input="BLK_TL-PLB.i_sp4_v_t[32]" output="BLK_TL-PLB.o_sp4_v_b[45]" />
-  <direct name="sp4_v_t[33]" input="BLK_TL-PLB.i_sp4_v_t[33]" output="BLK_TL-PLB.o_sp4_v_b[44]" />
-  <direct name="sp4_v_t[34]" input="BLK_TL-PLB.i_sp4_v_t[34]" output="BLK_TL-PLB.o_sp4_v_b[47]" />
-  <direct name="sp4_v_t[35]" input="BLK_TL-PLB.i_sp4_v_t[35]" output="BLK_TL-PLB.o_sp4_v_b[46]" />
+  <direct name="sp4_v_t[0]"  input="PLB.i_sp4_v_t[0]"  output="PLB.o_sp4_v_b[13]" />
+  <direct name="sp4_v_t[1]"  input="PLB.i_sp4_v_t[1]"  output="PLB.o_sp4_v_b[12]" />
+  <direct name="sp4_v_t[2]"  input="PLB.i_sp4_v_t[2]"  output="PLB.o_sp4_v_b[15]" />
+  <direct name="sp4_v_t[3]"  input="PLB.i_sp4_v_t[3]"  output="PLB.o_sp4_v_b[14]" />
+  <direct name="sp4_v_t[4]"  input="PLB.i_sp4_v_t[4]"  output="PLB.o_sp4_v_b[17]" />
+  <direct name="sp4_v_t[5]"  input="PLB.i_sp4_v_t[5]"  output="PLB.o_sp4_v_b[16]" />
+  <direct name="sp4_v_t[6]"  input="PLB.i_sp4_v_t[6]"  output="PLB.o_sp4_v_b[19]" />
+  <direct name="sp4_v_t[7]"  input="PLB.i_sp4_v_t[7]"  output="PLB.o_sp4_v_b[18]" />
+  <direct name="sp4_v_t[8]"  input="PLB.i_sp4_v_t[8]"  output="PLB.o_sp4_v_b[21]" />
+  <direct name="sp4_v_t[9]"  input="PLB.i_sp4_v_t[9]"  output="PLB.o_sp4_v_b[20]" />
+  <direct name="sp4_v_t[10]" input="PLB.i_sp4_v_t[10]" output="PLB.o_sp4_v_b[23]" />
+  <direct name="sp4_v_t[11]" input="PLB.i_sp4_v_t[11]" output="PLB.o_sp4_v_b[22]" />
+  <direct name="sp4_v_t[12]" input="PLB.i_sp4_v_t[12]" output="PLB.o_sp4_v_b[25]" />
+  <direct name="sp4_v_t[13]" input="PLB.i_sp4_v_t[13]" output="PLB.o_sp4_v_b[24]" />
+  <direct name="sp4_v_t[14]" input="PLB.i_sp4_v_t[14]" output="PLB.o_sp4_v_b[27]" />
+  <direct name="sp4_v_t[15]" input="PLB.i_sp4_v_t[15]" output="PLB.o_sp4_v_b[26]" />
+  <direct name="sp4_v_t[16]" input="PLB.i_sp4_v_t[16]" output="PLB.o_sp4_v_b[29]" />
+  <direct name="sp4_v_t[17]" input="PLB.i_sp4_v_t[17]" output="PLB.o_sp4_v_b[28]" />
+  <direct name="sp4_v_t[18]" input="PLB.i_sp4_v_t[18]" output="PLB.o_sp4_v_b[31]" />
+  <direct name="sp4_v_t[19]" input="PLB.i_sp4_v_t[19]" output="PLB.o_sp4_v_b[30]" />
+  <direct name="sp4_v_t[20]" input="PLB.i_sp4_v_t[20]" output="PLB.o_sp4_v_b[33]" />
+  <direct name="sp4_v_t[21]" input="PLB.i_sp4_v_t[21]" output="PLB.o_sp4_v_b[32]" />
+  <direct name="sp4_v_t[22]" input="PLB.i_sp4_v_t[22]" output="PLB.o_sp4_v_b[35]" />
+  <direct name="sp4_v_t[23]" input="PLB.i_sp4_v_t[23]" output="PLB.o_sp4_v_b[34]" />
+  <direct name="sp4_v_t[24]" input="PLB.i_sp4_v_t[24]" output="PLB.o_sp4_v_b[37]" />
+  <direct name="sp4_v_t[25]" input="PLB.i_sp4_v_t[25]" output="PLB.o_sp4_v_b[36]" />
+  <direct name="sp4_v_t[26]" input="PLB.i_sp4_v_t[26]" output="PLB.o_sp4_v_b[39]" />
+  <direct name="sp4_v_t[27]" input="PLB.i_sp4_v_t[27]" output="PLB.o_sp4_v_b[38]" />
+  <direct name="sp4_v_t[28]" input="PLB.i_sp4_v_t[28]" output="PLB.o_sp4_v_b[41]" />
+  <direct name="sp4_v_t[29]" input="PLB.i_sp4_v_t[29]" output="PLB.o_sp4_v_b[40]" />
+  <direct name="sp4_v_t[30]" input="PLB.i_sp4_v_t[30]" output="PLB.o_sp4_v_b[43]" />
+  <direct name="sp4_v_t[31]" input="PLB.i_sp4_v_t[31]" output="PLB.o_sp4_v_b[42]" />
+  <direct name="sp4_v_t[32]" input="PLB.i_sp4_v_t[32]" output="PLB.o_sp4_v_b[45]" />
+  <direct name="sp4_v_t[33]" input="PLB.i_sp4_v_t[33]" output="PLB.o_sp4_v_b[44]" />
+  <direct name="sp4_v_t[34]" input="PLB.i_sp4_v_t[34]" output="PLB.o_sp4_v_b[47]" />
+  <direct name="sp4_v_t[35]" input="PLB.i_sp4_v_t[35]" output="PLB.o_sp4_v_b[46]" />
   <!--
-  <direct name="sp4_v_t[36]" input="BLK_TL-PLB.i_sp4_v_t[36]" output="BLK_TL-PLB.o_sp4_v_b[  ]" />
-  <direct name="sp4_v_t[37]" input="BLK_TL-PLB.i_sp4_v_t[37]" output="BLK_TL-PLB.o_sp4_v_b[  ]" />
-  <direct name="sp4_v_t[38]" input="BLK_TL-PLB.i_sp4_v_t[38]" output="BLK_TL-PLB.o_sp4_v_b[  ]" />
-  <direct name="sp4_v_t[39]" input="BLK_TL-PLB.i_sp4_v_t[39]" output="BLK_TL-PLB.o_sp4_v_b[  ]" />
-  <direct name="sp4_v_t[40]" input="BLK_TL-PLB.i_sp4_v_t[40]" output="BLK_TL-PLB.o_sp4_v_b[  ]" />
-  <direct name="sp4_v_t[41]" input="BLK_TL-PLB.i_sp4_v_t[41]" output="BLK_TL-PLB.o_sp4_v_b[  ]" />
-  <direct name="sp4_v_t[42]" input="BLK_TL-PLB.i_sp4_v_t[42]" output="BLK_TL-PLB.o_sp4_v_b[  ]" />
-  <direct name="sp4_v_t[43]" input="BLK_TL-PLB.i_sp4_v_t[43]" output="BLK_TL-PLB.o_sp4_v_b[  ]" />
-  <direct name="sp4_v_t[44]" input="BLK_TL-PLB.i_sp4_v_t[44]" output="BLK_TL-PLB.o_sp4_v_b[  ]" />
-  <direct name="sp4_v_t[45]" input="BLK_TL-PLB.i_sp4_v_t[45]" output="BLK_TL-PLB.o_sp4_v_b[  ]" />
-  <direct name="sp4_v_t[46]" input="BLK_TL-PLB.i_sp4_v_t[46]" output="BLK_TL-PLB.o_sp4_v_b[  ]" />
-  <direct name="sp4_v_t[47]" input="BLK_TL-PLB.i_sp4_v_t[47]" output="BLK_TL-PLB.o_sp4_v_b[  ]" />
+  <direct name="sp4_v_t[36]" input="PLB.i_sp4_v_t[36]" output="PLB.o_sp4_v_b[  ]" />
+  <direct name="sp4_v_t[37]" input="PLB.i_sp4_v_t[37]" output="PLB.o_sp4_v_b[  ]" />
+  <direct name="sp4_v_t[38]" input="PLB.i_sp4_v_t[38]" output="PLB.o_sp4_v_b[  ]" />
+  <direct name="sp4_v_t[39]" input="PLB.i_sp4_v_t[39]" output="PLB.o_sp4_v_b[  ]" />
+  <direct name="sp4_v_t[40]" input="PLB.i_sp4_v_t[40]" output="PLB.o_sp4_v_b[  ]" />
+  <direct name="sp4_v_t[41]" input="PLB.i_sp4_v_t[41]" output="PLB.o_sp4_v_b[  ]" />
+  <direct name="sp4_v_t[42]" input="PLB.i_sp4_v_t[42]" output="PLB.o_sp4_v_b[  ]" />
+  <direct name="sp4_v_t[43]" input="PLB.i_sp4_v_t[43]" output="PLB.o_sp4_v_b[  ]" />
+  <direct name="sp4_v_t[44]" input="PLB.i_sp4_v_t[44]" output="PLB.o_sp4_v_b[  ]" />
+  <direct name="sp4_v_t[45]" input="PLB.i_sp4_v_t[45]" output="PLB.o_sp4_v_b[  ]" />
+  <direct name="sp4_v_t[46]" input="PLB.i_sp4_v_t[46]" output="PLB.o_sp4_v_b[  ]" />
+  <direct name="sp4_v_t[47]" input="PLB.i_sp4_v_t[47]" output="PLB.o_sp4_v_b[  ]" />
    -->
 
   <!-- Span-12 Vertical -->
   <!-- ================================================================ -->
   <!--
-  <direct name="sp12_v_b[0]"  input="BLK_TL-PLB.i_sp12_v_t[  ]" output="BLK_TL-PLB.o_sp12_v_b[1]"  />
-  <direct name="sp12_v_b[1]"  input="BLK_TL-PLB.i_sp12_v_t[  ]" output="BLK_TL-PLB.o_sp12_v_b[0]"  />
+  <direct name="sp12_v_b[0]"  input="PLB.i_sp12_v_t[  ]" output="PLB.o_sp12_v_b[1]"  />
+  <direct name="sp12_v_b[1]"  input="PLB.i_sp12_v_t[  ]" output="PLB.o_sp12_v_b[0]"  />
    -->
-  <direct name="sp12_v_t[0]"  input="BLK_TL-PLB.i_sp12_v_t[0]"  output="BLK_TL-PLB.o_sp12_v_b[3]"  />
-  <direct name="sp12_v_t[1]"  input="BLK_TL-PLB.i_sp12_v_t[1]"  output="BLK_TL-PLB.o_sp12_v_b[2]"  />
-  <direct name="sp12_v_t[2]"  input="BLK_TL-PLB.i_sp12_v_t[2]"  output="BLK_TL-PLB.o_sp12_v_b[5]"  />
-  <direct name="sp12_v_t[3]"  input="BLK_TL-PLB.i_sp12_v_t[3]"  output="BLK_TL-PLB.o_sp12_v_b[4]"  />
-  <direct name="sp12_v_t[4]"  input="BLK_TL-PLB.i_sp12_v_t[4]"  output="BLK_TL-PLB.o_sp12_v_b[7]"  />
-  <direct name="sp12_v_t[5]"  input="BLK_TL-PLB.i_sp12_v_t[5]"  output="BLK_TL-PLB.o_sp12_v_b[6]"  />
-  <direct name="sp12_v_t[6]"  input="BLK_TL-PLB.i_sp12_v_t[6]"  output="BLK_TL-PLB.o_sp12_v_b[9]"  />
-  <direct name="sp12_v_t[7]"  input="BLK_TL-PLB.i_sp12_v_t[7]"  output="BLK_TL-PLB.o_sp12_v_b[8]"  />
-  <direct name="sp12_v_t[8]"  input="BLK_TL-PLB.i_sp12_v_t[8]"  output="BLK_TL-PLB.o_sp12_v_b[11]" />
-  <direct name="sp12_v_t[9]"  input="BLK_TL-PLB.i_sp12_v_t[9]"  output="BLK_TL-PLB.o_sp12_v_b[10]" />
-  <direct name="sp12_v_t[10]" input="BLK_TL-PLB.i_sp12_v_t[10]" output="BLK_TL-PLB.o_sp12_v_b[13]" />
-  <direct name="sp12_v_t[11]" input="BLK_TL-PLB.i_sp12_v_t[11]" output="BLK_TL-PLB.o_sp12_v_b[12]" />
-  <direct name="sp12_v_t[12]" input="BLK_TL-PLB.i_sp12_v_t[12]" output="BLK_TL-PLB.o_sp12_v_b[15]" />
-  <direct name="sp12_v_t[13]" input="BLK_TL-PLB.i_sp12_v_t[13]" output="BLK_TL-PLB.o_sp12_v_b[14]" />
-  <direct name="sp12_v_t[14]" input="BLK_TL-PLB.i_sp12_v_t[14]" output="BLK_TL-PLB.o_sp12_v_b[17]" />
-  <direct name="sp12_v_t[15]" input="BLK_TL-PLB.i_sp12_v_t[15]" output="BLK_TL-PLB.o_sp12_v_b[16]" />
-  <direct name="sp12_v_t[16]" input="BLK_TL-PLB.i_sp12_v_t[16]" output="BLK_TL-PLB.o_sp12_v_b[19]" />
-  <direct name="sp12_v_t[17]" input="BLK_TL-PLB.i_sp12_v_t[17]" output="BLK_TL-PLB.o_sp12_v_b[18]" />
-  <direct name="sp12_v_t[18]" input="BLK_TL-PLB.i_sp12_v_t[18]" output="BLK_TL-PLB.o_sp12_v_b[21]" />
-  <direct name="sp12_v_t[19]" input="BLK_TL-PLB.i_sp12_v_t[19]" output="BLK_TL-PLB.o_sp12_v_b[20]" />
-  <direct name="sp12_v_t[20]" input="BLK_TL-PLB.i_sp12_v_t[20]" output="BLK_TL-PLB.o_sp12_v_b[23]" />
-  <direct name="sp12_v_t[21]" input="BLK_TL-PLB.i_sp12_v_t[21]" output="BLK_TL-PLB.o_sp12_v_b[22]" />
+  <direct name="sp12_v_t[0]"  input="PLB.i_sp12_v_t[0]"  output="PLB.o_sp12_v_b[3]"  />
+  <direct name="sp12_v_t[1]"  input="PLB.i_sp12_v_t[1]"  output="PLB.o_sp12_v_b[2]"  />
+  <direct name="sp12_v_t[2]"  input="PLB.i_sp12_v_t[2]"  output="PLB.o_sp12_v_b[5]"  />
+  <direct name="sp12_v_t[3]"  input="PLB.i_sp12_v_t[3]"  output="PLB.o_sp12_v_b[4]"  />
+  <direct name="sp12_v_t[4]"  input="PLB.i_sp12_v_t[4]"  output="PLB.o_sp12_v_b[7]"  />
+  <direct name="sp12_v_t[5]"  input="PLB.i_sp12_v_t[5]"  output="PLB.o_sp12_v_b[6]"  />
+  <direct name="sp12_v_t[6]"  input="PLB.i_sp12_v_t[6]"  output="PLB.o_sp12_v_b[9]"  />
+  <direct name="sp12_v_t[7]"  input="PLB.i_sp12_v_t[7]"  output="PLB.o_sp12_v_b[8]"  />
+  <direct name="sp12_v_t[8]"  input="PLB.i_sp12_v_t[8]"  output="PLB.o_sp12_v_b[11]" />
+  <direct name="sp12_v_t[9]"  input="PLB.i_sp12_v_t[9]"  output="PLB.o_sp12_v_b[10]" />
+  <direct name="sp12_v_t[10]" input="PLB.i_sp12_v_t[10]" output="PLB.o_sp12_v_b[13]" />
+  <direct name="sp12_v_t[11]" input="PLB.i_sp12_v_t[11]" output="PLB.o_sp12_v_b[12]" />
+  <direct name="sp12_v_t[12]" input="PLB.i_sp12_v_t[12]" output="PLB.o_sp12_v_b[15]" />
+  <direct name="sp12_v_t[13]" input="PLB.i_sp12_v_t[13]" output="PLB.o_sp12_v_b[14]" />
+  <direct name="sp12_v_t[14]" input="PLB.i_sp12_v_t[14]" output="PLB.o_sp12_v_b[17]" />
+  <direct name="sp12_v_t[15]" input="PLB.i_sp12_v_t[15]" output="PLB.o_sp12_v_b[16]" />
+  <direct name="sp12_v_t[16]" input="PLB.i_sp12_v_t[16]" output="PLB.o_sp12_v_b[19]" />
+  <direct name="sp12_v_t[17]" input="PLB.i_sp12_v_t[17]" output="PLB.o_sp12_v_b[18]" />
+  <direct name="sp12_v_t[18]" input="PLB.i_sp12_v_t[18]" output="PLB.o_sp12_v_b[21]" />
+  <direct name="sp12_v_t[19]" input="PLB.i_sp12_v_t[19]" output="PLB.o_sp12_v_b[20]" />
+  <direct name="sp12_v_t[20]" input="PLB.i_sp12_v_t[20]" output="PLB.o_sp12_v_b[23]" />
+  <direct name="sp12_v_t[21]" input="PLB.i_sp12_v_t[21]" output="PLB.o_sp12_v_b[22]" />
   <!--
-  <direct name="sp12_v_t[22]" input="BLK_TL-PLB.i_sp12_v_t[22]" output="BLK_TL-PLB.o_sp12_v_b[  ]" />
-  <direct name="sp12_v_t[23]" input="BLK_TL-PLB.i_sp12_v_t[23]" output="BLK_TL-PLB.o_sp12_v_b[  ]" />
+  <direct name="sp12_v_t[22]" input="PLB.i_sp12_v_t[22]" output="PLB.o_sp12_v_b[  ]" />
+  <direct name="sp12_v_t[23]" input="PLB.i_sp12_v_t[23]" output="PLB.o_sp12_v_b[  ]" />
    -->
 
   <!-- ################################################################ -->
@@ -479,68 +499,68 @@
   <!-- Span-4 Horizontal -->
   <!-- ================================================================ -->
   <!--
-  <direct name="sp4_h_r[0]"  input="BLK_TL-PLB.i_sp4_h_l[  ]" output="BLK_TL-PLB.o_sp4_h_r[1]"  />
-  <direct name="sp4_h_r[1]"  input="BLK_TL-PLB.i_sp4_h_l[  ]" output="BLK_TL-PLB.o_sp4_h_r[0]"  />
-  <direct name="sp4_h_r[2]"  input="BLK_TL-PLB.i_sp4_h_l[  ]" output="BLK_TL-PLB.o_sp4_h_r[3]"  />
-  <direct name="sp4_h_r[3]"  input="BLK_TL-PLB.i_sp4_h_l[  ]" output="BLK_TL-PLB.o_sp4_h_r[2]"  />
-  <direct name="sp4_h_r[4]"  input="BLK_TL-PLB.i_sp4_h_l[  ]" output="BLK_TL-PLB.o_sp4_h_r[5]"  />
-  <direct name="sp4_h_r[5]"  input="BLK_TL-PLB.i_sp4_h_l[  ]" output="BLK_TL-PLB.o_sp4_h_r[4]"  />
-  <direct name="sp4_h_r[6]"  input="BLK_TL-PLB.i_sp4_h_l[  ]" output="BLK_TL-PLB.o_sp4_h_r[7]"  />
-  <direct name="sp4_h_r[7]"  input="BLK_TL-PLB.i_sp4_h_l[  ]" output="BLK_TL-PLB.o_sp4_h_r[6]"  />
-  <direct name="sp4_h_r[8]"  input="BLK_TL-PLB.i_sp4_h_l[  ]" output="BLK_TL-PLB.o_sp4_h_r[9]"  />
-  <direct name="sp4_h_r[9]"  input="BLK_TL-PLB.i_sp4_h_l[  ]" output="BLK_TL-PLB.o_sp4_h_r[8]"  />
-  <direct name="sp4_h_r[10]" input="BLK_TL-PLB.i_sp4_h_l[  ]" output="BLK_TL-PLB.o_sp4_h_r[11]" />
-  <direct name="sp4_h_r[11]" input="BLK_TL-PLB.i_sp4_h_l[  ]" output="BLK_TL-PLB.o_sp4_h_r[10]" />
+  <direct name="sp4_h_r[0]"  input="PLB.i_sp4_h_l[  ]" output="PLB.o_sp4_h_r[1]"  />
+  <direct name="sp4_h_r[1]"  input="PLB.i_sp4_h_l[  ]" output="PLB.o_sp4_h_r[0]"  />
+  <direct name="sp4_h_r[2]"  input="PLB.i_sp4_h_l[  ]" output="PLB.o_sp4_h_r[3]"  />
+  <direct name="sp4_h_r[3]"  input="PLB.i_sp4_h_l[  ]" output="PLB.o_sp4_h_r[2]"  />
+  <direct name="sp4_h_r[4]"  input="PLB.i_sp4_h_l[  ]" output="PLB.o_sp4_h_r[5]"  />
+  <direct name="sp4_h_r[5]"  input="PLB.i_sp4_h_l[  ]" output="PLB.o_sp4_h_r[4]"  />
+  <direct name="sp4_h_r[6]"  input="PLB.i_sp4_h_l[  ]" output="PLB.o_sp4_h_r[7]"  />
+  <direct name="sp4_h_r[7]"  input="PLB.i_sp4_h_l[  ]" output="PLB.o_sp4_h_r[6]"  />
+  <direct name="sp4_h_r[8]"  input="PLB.i_sp4_h_l[  ]" output="PLB.o_sp4_h_r[9]"  />
+  <direct name="sp4_h_r[9]"  input="PLB.i_sp4_h_l[  ]" output="PLB.o_sp4_h_r[8]"  />
+  <direct name="sp4_h_r[10]" input="PLB.i_sp4_h_l[  ]" output="PLB.o_sp4_h_r[11]" />
+  <direct name="sp4_h_r[11]" input="PLB.i_sp4_h_l[  ]" output="PLB.o_sp4_h_r[10]" />
    -->
-  <direct name="sp4_h_l[0]"  input="BLK_TL-PLB.i_sp4_h_l[0]"  output="BLK_TL-PLB.o_sp4_h_r[13]" />
-  <direct name="sp4_h_l[1]"  input="BLK_TL-PLB.i_sp4_h_l[1]"  output="BLK_TL-PLB.o_sp4_h_r[12]" />
-  <direct name="sp4_h_l[2]"  input="BLK_TL-PLB.i_sp4_h_l[2]"  output="BLK_TL-PLB.o_sp4_h_r[15]" />
-  <direct name="sp4_h_l[3]"  input="BLK_TL-PLB.i_sp4_h_l[3]"  output="BLK_TL-PLB.o_sp4_h_r[14]" />
-  <direct name="sp4_h_l[4]"  input="BLK_TL-PLB.i_sp4_h_l[4]"  output="BLK_TL-PLB.o_sp4_h_r[17]" />
-  <direct name="sp4_h_l[5]"  input="BLK_TL-PLB.i_sp4_h_l[5]"  output="BLK_TL-PLB.o_sp4_h_r[16]" />
-  <direct name="sp4_h_l[6]"  input="BLK_TL-PLB.i_sp4_h_l[6]"  output="BLK_TL-PLB.o_sp4_h_r[19]" />
-  <direct name="sp4_h_l[7]"  input="BLK_TL-PLB.i_sp4_h_l[7]"  output="BLK_TL-PLB.o_sp4_h_r[18]" />
-  <direct name="sp4_h_l[8]"  input="BLK_TL-PLB.i_sp4_h_l[8]"  output="BLK_TL-PLB.o_sp4_h_r[21]" />
-  <direct name="sp4_h_l[9]"  input="BLK_TL-PLB.i_sp4_h_l[9]"  output="BLK_TL-PLB.o_sp4_h_r[20]" />
-  <direct name="sp4_h_l[10]" input="BLK_TL-PLB.i_sp4_h_l[10]" output="BLK_TL-PLB.o_sp4_h_r[23]" />
-  <direct name="sp4_h_l[11]" input="BLK_TL-PLB.i_sp4_h_l[11]" output="BLK_TL-PLB.o_sp4_h_r[22]" />
-  <direct name="sp4_h_l[12]" input="BLK_TL-PLB.i_sp4_h_l[12]" output="BLK_TL-PLB.o_sp4_h_r[25]" />
-  <direct name="sp4_h_l[13]" input="BLK_TL-PLB.i_sp4_h_l[13]" output="BLK_TL-PLB.o_sp4_h_r[24]" />
-  <direct name="sp4_h_l[14]" input="BLK_TL-PLB.i_sp4_h_l[14]" output="BLK_TL-PLB.o_sp4_h_r[27]" />
-  <direct name="sp4_h_l[15]" input="BLK_TL-PLB.i_sp4_h_l[15]" output="BLK_TL-PLB.o_sp4_h_r[26]" />
-  <direct name="sp4_h_l[16]" input="BLK_TL-PLB.i_sp4_h_l[16]" output="BLK_TL-PLB.o_sp4_h_r[29]" />
-  <direct name="sp4_h_l[17]" input="BLK_TL-PLB.i_sp4_h_l[17]" output="BLK_TL-PLB.o_sp4_h_r[28]" />
-  <direct name="sp4_h_l[18]" input="BLK_TL-PLB.i_sp4_h_l[18]" output="BLK_TL-PLB.o_sp4_h_r[31]" />
-  <direct name="sp4_h_l[19]" input="BLK_TL-PLB.i_sp4_h_l[19]" output="BLK_TL-PLB.o_sp4_h_r[30]" />
-  <direct name="sp4_h_l[20]" input="BLK_TL-PLB.i_sp4_h_l[20]" output="BLK_TL-PLB.o_sp4_h_r[33]" />
-  <direct name="sp4_h_l[21]" input="BLK_TL-PLB.i_sp4_h_l[21]" output="BLK_TL-PLB.o_sp4_h_r[32]" />
-  <direct name="sp4_h_l[22]" input="BLK_TL-PLB.i_sp4_h_l[22]" output="BLK_TL-PLB.o_sp4_h_r[35]" />
-  <direct name="sp4_h_l[23]" input="BLK_TL-PLB.i_sp4_h_l[23]" output="BLK_TL-PLB.o_sp4_h_r[34]" />
-  <direct name="sp4_h_l[24]" input="BLK_TL-PLB.i_sp4_h_l[24]" output="BLK_TL-PLB.o_sp4_h_r[37]" />
-  <direct name="sp4_h_l[25]" input="BLK_TL-PLB.i_sp4_h_l[25]" output="BLK_TL-PLB.o_sp4_h_r[36]" />
-  <direct name="sp4_h_l[26]" input="BLK_TL-PLB.i_sp4_h_l[26]" output="BLK_TL-PLB.o_sp4_h_r[39]" />
-  <direct name="sp4_h_l[27]" input="BLK_TL-PLB.i_sp4_h_l[27]" output="BLK_TL-PLB.o_sp4_h_r[38]" />
-  <direct name="sp4_h_l[28]" input="BLK_TL-PLB.i_sp4_h_l[28]" output="BLK_TL-PLB.o_sp4_h_r[41]" />
-  <direct name="sp4_h_l[29]" input="BLK_TL-PLB.i_sp4_h_l[29]" output="BLK_TL-PLB.o_sp4_h_r[40]" />
-  <direct name="sp4_h_l[30]" input="BLK_TL-PLB.i_sp4_h_l[30]" output="BLK_TL-PLB.o_sp4_h_r[43]" />
-  <direct name="sp4_h_l[31]" input="BLK_TL-PLB.i_sp4_h_l[31]" output="BLK_TL-PLB.o_sp4_h_r[42]" />
-  <direct name="sp4_h_l[32]" input="BLK_TL-PLB.i_sp4_h_l[32]" output="BLK_TL-PLB.o_sp4_h_r[45]" />
-  <direct name="sp4_h_l[33]" input="BLK_TL-PLB.i_sp4_h_l[33]" output="BLK_TL-PLB.o_sp4_h_r[44]" />
-  <direct name="sp4_h_l[34]" input="BLK_TL-PLB.i_sp4_h_l[34]" output="BLK_TL-PLB.o_sp4_h_r[47]" />
-  <direct name="sp4_h_l[35]" input="BLK_TL-PLB.i_sp4_h_l[35]" output="BLK_TL-PLB.o_sp4_h_r[46]" />
+  <direct name="sp4_h_l[0]"  input="PLB.i_sp4_h_l[0]"  output="PLB.o_sp4_h_r[13]" />
+  <direct name="sp4_h_l[1]"  input="PLB.i_sp4_h_l[1]"  output="PLB.o_sp4_h_r[12]" />
+  <direct name="sp4_h_l[2]"  input="PLB.i_sp4_h_l[2]"  output="PLB.o_sp4_h_r[15]" />
+  <direct name="sp4_h_l[3]"  input="PLB.i_sp4_h_l[3]"  output="PLB.o_sp4_h_r[14]" />
+  <direct name="sp4_h_l[4]"  input="PLB.i_sp4_h_l[4]"  output="PLB.o_sp4_h_r[17]" />
+  <direct name="sp4_h_l[5]"  input="PLB.i_sp4_h_l[5]"  output="PLB.o_sp4_h_r[16]" />
+  <direct name="sp4_h_l[6]"  input="PLB.i_sp4_h_l[6]"  output="PLB.o_sp4_h_r[19]" />
+  <direct name="sp4_h_l[7]"  input="PLB.i_sp4_h_l[7]"  output="PLB.o_sp4_h_r[18]" />
+  <direct name="sp4_h_l[8]"  input="PLB.i_sp4_h_l[8]"  output="PLB.o_sp4_h_r[21]" />
+  <direct name="sp4_h_l[9]"  input="PLB.i_sp4_h_l[9]"  output="PLB.o_sp4_h_r[20]" />
+  <direct name="sp4_h_l[10]" input="PLB.i_sp4_h_l[10]" output="PLB.o_sp4_h_r[23]" />
+  <direct name="sp4_h_l[11]" input="PLB.i_sp4_h_l[11]" output="PLB.o_sp4_h_r[22]" />
+  <direct name="sp4_h_l[12]" input="PLB.i_sp4_h_l[12]" output="PLB.o_sp4_h_r[25]" />
+  <direct name="sp4_h_l[13]" input="PLB.i_sp4_h_l[13]" output="PLB.o_sp4_h_r[24]" />
+  <direct name="sp4_h_l[14]" input="PLB.i_sp4_h_l[14]" output="PLB.o_sp4_h_r[27]" />
+  <direct name="sp4_h_l[15]" input="PLB.i_sp4_h_l[15]" output="PLB.o_sp4_h_r[26]" />
+  <direct name="sp4_h_l[16]" input="PLB.i_sp4_h_l[16]" output="PLB.o_sp4_h_r[29]" />
+  <direct name="sp4_h_l[17]" input="PLB.i_sp4_h_l[17]" output="PLB.o_sp4_h_r[28]" />
+  <direct name="sp4_h_l[18]" input="PLB.i_sp4_h_l[18]" output="PLB.o_sp4_h_r[31]" />
+  <direct name="sp4_h_l[19]" input="PLB.i_sp4_h_l[19]" output="PLB.o_sp4_h_r[30]" />
+  <direct name="sp4_h_l[20]" input="PLB.i_sp4_h_l[20]" output="PLB.o_sp4_h_r[33]" />
+  <direct name="sp4_h_l[21]" input="PLB.i_sp4_h_l[21]" output="PLB.o_sp4_h_r[32]" />
+  <direct name="sp4_h_l[22]" input="PLB.i_sp4_h_l[22]" output="PLB.o_sp4_h_r[35]" />
+  <direct name="sp4_h_l[23]" input="PLB.i_sp4_h_l[23]" output="PLB.o_sp4_h_r[34]" />
+  <direct name="sp4_h_l[24]" input="PLB.i_sp4_h_l[24]" output="PLB.o_sp4_h_r[37]" />
+  <direct name="sp4_h_l[25]" input="PLB.i_sp4_h_l[25]" output="PLB.o_sp4_h_r[36]" />
+  <direct name="sp4_h_l[26]" input="PLB.i_sp4_h_l[26]" output="PLB.o_sp4_h_r[39]" />
+  <direct name="sp4_h_l[27]" input="PLB.i_sp4_h_l[27]" output="PLB.o_sp4_h_r[38]" />
+  <direct name="sp4_h_l[28]" input="PLB.i_sp4_h_l[28]" output="PLB.o_sp4_h_r[41]" />
+  <direct name="sp4_h_l[29]" input="PLB.i_sp4_h_l[29]" output="PLB.o_sp4_h_r[40]" />
+  <direct name="sp4_h_l[30]" input="PLB.i_sp4_h_l[30]" output="PLB.o_sp4_h_r[43]" />
+  <direct name="sp4_h_l[31]" input="PLB.i_sp4_h_l[31]" output="PLB.o_sp4_h_r[42]" />
+  <direct name="sp4_h_l[32]" input="PLB.i_sp4_h_l[32]" output="PLB.o_sp4_h_r[45]" />
+  <direct name="sp4_h_l[33]" input="PLB.i_sp4_h_l[33]" output="PLB.o_sp4_h_r[44]" />
+  <direct name="sp4_h_l[34]" input="PLB.i_sp4_h_l[34]" output="PLB.o_sp4_h_r[47]" />
+  <direct name="sp4_h_l[35]" input="PLB.i_sp4_h_l[35]" output="PLB.o_sp4_h_r[46]" />
   <!--
-  <direct name="sp4_h_l[36]" input="BLK_TL-PLB.i_sp4_h_l[36]" output="BLK_TL-PLB.o_sp4_h_r[  ]" />
-  <direct name="sp4_h_l[37]" input="BLK_TL-PLB.i_sp4_h_l[37]" output="BLK_TL-PLB.o_sp4_h_r[  ]" />
-  <direct name="sp4_h_l[38]" input="BLK_TL-PLB.i_sp4_h_l[38]" output="BLK_TL-PLB.o_sp4_h_r[  ]" />
-  <direct name="sp4_h_l[39]" input="BLK_TL-PLB.i_sp4_h_l[39]" output="BLK_TL-PLB.o_sp4_h_r[  ]" />
-  <direct name="sp4_h_l[40]" input="BLK_TL-PLB.i_sp4_h_l[40]" output="BLK_TL-PLB.o_sp4_h_r[  ]" />
-  <direct name="sp4_h_l[41]" input="BLK_TL-PLB.i_sp4_h_l[41]" output="BLK_TL-PLB.o_sp4_h_r[  ]" />
-  <direct name="sp4_h_l[42]" input="BLK_TL-PLB.i_sp4_h_l[42]" output="BLK_TL-PLB.o_sp4_h_r[  ]" />
-  <direct name="sp4_h_l[43]" input="BLK_TL-PLB.i_sp4_h_l[43]" output="BLK_TL-PLB.o_sp4_h_r[  ]" />
-  <direct name="sp4_h_l[44]" input="BLK_TL-PLB.i_sp4_h_l[44]" output="BLK_TL-PLB.o_sp4_h_r[  ]" />
-  <direct name="sp4_h_l[45]" input="BLK_TL-PLB.i_sp4_h_l[45]" output="BLK_TL-PLB.o_sp4_h_r[  ]" />
-  <direct name="sp4_h_l[46]" input="BLK_TL-PLB.i_sp4_h_l[46]" output="BLK_TL-PLB.o_sp4_h_r[  ]" />
-  <direct name="sp4_h_l[47]" input="BLK_TL-PLB.i_sp4_h_l[47]" output="BLK_TL-PLB.o_sp4_h_r[  ]" />
+  <direct name="sp4_h_l[36]" input="PLB.i_sp4_h_l[36]" output="PLB.o_sp4_h_r[  ]" />
+  <direct name="sp4_h_l[37]" input="PLB.i_sp4_h_l[37]" output="PLB.o_sp4_h_r[  ]" />
+  <direct name="sp4_h_l[38]" input="PLB.i_sp4_h_l[38]" output="PLB.o_sp4_h_r[  ]" />
+  <direct name="sp4_h_l[39]" input="PLB.i_sp4_h_l[39]" output="PLB.o_sp4_h_r[  ]" />
+  <direct name="sp4_h_l[40]" input="PLB.i_sp4_h_l[40]" output="PLB.o_sp4_h_r[  ]" />
+  <direct name="sp4_h_l[41]" input="PLB.i_sp4_h_l[41]" output="PLB.o_sp4_h_r[  ]" />
+  <direct name="sp4_h_l[42]" input="PLB.i_sp4_h_l[42]" output="PLB.o_sp4_h_r[  ]" />
+  <direct name="sp4_h_l[43]" input="PLB.i_sp4_h_l[43]" output="PLB.o_sp4_h_r[  ]" />
+  <direct name="sp4_h_l[44]" input="PLB.i_sp4_h_l[44]" output="PLB.o_sp4_h_r[  ]" />
+  <direct name="sp4_h_l[45]" input="PLB.i_sp4_h_l[45]" output="PLB.o_sp4_h_r[  ]" />
+  <direct name="sp4_h_l[46]" input="PLB.i_sp4_h_l[46]" output="PLB.o_sp4_h_r[  ]" />
+  <direct name="sp4_h_l[47]" input="PLB.i_sp4_h_l[47]" output="PLB.o_sp4_h_r[  ]" />
    -->
 
   <!-- ################################################################ -->
@@ -548,156 +568,156 @@
   <!-- Span-12 Horizontal -->
   <!-- ================================================================ -->
   <!--
-  <direct name="sp12_h_r[0]"  input="BLK_TL-PLB.i_sp12_h_l[  ]" output="BLK_TL-PLB.o_sp12_h_r[1]"  />
-  <direct name="sp12_h_r[1]"  input="BLK_TL-PLB.i_sp12_h_l[  ]" output="BLK_TL-PLB.o_sp12_h_r[0]"  />
+  <direct name="sp12_h_r[0]"  input="PLB.i_sp12_h_l[  ]" output="PLB.o_sp12_h_r[1]"  />
+  <direct name="sp12_h_r[1]"  input="PLB.i_sp12_h_l[  ]" output="PLB.o_sp12_h_r[0]"  />
    -->
-  <direct name="sp12_h_l[0]"  input="BLK_TL-PLB.i_sp12_h_l[0]"  output="BLK_TL-PLB.o_sp12_h_r[3]"  />
-  <direct name="sp12_h_l[1]"  input="BLK_TL-PLB.i_sp12_h_l[1]"  output="BLK_TL-PLB.o_sp12_h_r[2]"  />
-  <direct name="sp12_h_l[2]"  input="BLK_TL-PLB.i_sp12_h_l[2]"  output="BLK_TL-PLB.o_sp12_h_r[5]"  />
-  <direct name="sp12_h_l[3]"  input="BLK_TL-PLB.i_sp12_h_l[3]"  output="BLK_TL-PLB.o_sp12_h_r[4]"  />
-  <direct name="sp12_h_l[4]"  input="BLK_TL-PLB.i_sp12_h_l[4]"  output="BLK_TL-PLB.o_sp12_h_r[7]"  />
-  <direct name="sp12_h_l[5]"  input="BLK_TL-PLB.i_sp12_h_l[5]"  output="BLK_TL-PLB.o_sp12_h_r[6]"  />
-  <direct name="sp12_h_l[6]"  input="BLK_TL-PLB.i_sp12_h_l[6]"  output="BLK_TL-PLB.o_sp12_h_r[9]"  />
-  <direct name="sp12_h_l[7]"  input="BLK_TL-PLB.i_sp12_h_l[7]"  output="BLK_TL-PLB.o_sp12_h_r[8]"  />
-  <direct name="sp12_h_l[8]"  input="BLK_TL-PLB.i_sp12_h_l[8]"  output="BLK_TL-PLB.o_sp12_h_r[11]" />
-  <direct name="sp12_h_l[9]"  input="BLK_TL-PLB.i_sp12_h_l[9]"  output="BLK_TL-PLB.o_sp12_h_r[10]" />
-  <direct name="sp12_h_l[10]" input="BLK_TL-PLB.i_sp12_h_l[10]" output="BLK_TL-PLB.o_sp12_h_r[13]" />
-  <direct name="sp12_h_l[11]" input="BLK_TL-PLB.i_sp12_h_l[11]" output="BLK_TL-PLB.o_sp12_h_r[12]" />
-  <direct name="sp12_h_l[12]" input="BLK_TL-PLB.i_sp12_h_l[12]" output="BLK_TL-PLB.o_sp12_h_r[15]" />
-  <direct name="sp12_h_l[13]" input="BLK_TL-PLB.i_sp12_h_l[13]" output="BLK_TL-PLB.o_sp12_h_r[14]" />
-  <direct name="sp12_h_l[14]" input="BLK_TL-PLB.i_sp12_h_l[14]" output="BLK_TL-PLB.o_sp12_h_r[17]" />
-  <direct name="sp12_h_l[15]" input="BLK_TL-PLB.i_sp12_h_l[15]" output="BLK_TL-PLB.o_sp12_h_r[16]" />
-  <direct name="sp12_h_l[16]" input="BLK_TL-PLB.i_sp12_h_l[16]" output="BLK_TL-PLB.o_sp12_h_r[19]" />
-  <direct name="sp12_h_l[17]" input="BLK_TL-PLB.i_sp12_h_l[17]" output="BLK_TL-PLB.o_sp12_h_r[18]" />
-  <direct name="sp12_h_l[18]" input="BLK_TL-PLB.i_sp12_h_l[18]" output="BLK_TL-PLB.o_sp12_h_r[21]" />
-  <direct name="sp12_h_l[19]" input="BLK_TL-PLB.i_sp12_h_l[19]" output="BLK_TL-PLB.o_sp12_h_r[20]" />
-  <direct name="sp12_h_l[20]" input="BLK_TL-PLB.i_sp12_h_l[20]" output="BLK_TL-PLB.o_sp12_h_r[23]" />
-  <direct name="sp12_h_l[21]" input="BLK_TL-PLB.i_sp12_h_l[21]" output="BLK_TL-PLB.o_sp12_h_r[22]" />
+  <direct name="sp12_h_l[0]"  input="PLB.i_sp12_h_l[0]"  output="PLB.o_sp12_h_r[3]"  />
+  <direct name="sp12_h_l[1]"  input="PLB.i_sp12_h_l[1]"  output="PLB.o_sp12_h_r[2]"  />
+  <direct name="sp12_h_l[2]"  input="PLB.i_sp12_h_l[2]"  output="PLB.o_sp12_h_r[5]"  />
+  <direct name="sp12_h_l[3]"  input="PLB.i_sp12_h_l[3]"  output="PLB.o_sp12_h_r[4]"  />
+  <direct name="sp12_h_l[4]"  input="PLB.i_sp12_h_l[4]"  output="PLB.o_sp12_h_r[7]"  />
+  <direct name="sp12_h_l[5]"  input="PLB.i_sp12_h_l[5]"  output="PLB.o_sp12_h_r[6]"  />
+  <direct name="sp12_h_l[6]"  input="PLB.i_sp12_h_l[6]"  output="PLB.o_sp12_h_r[9]"  />
+  <direct name="sp12_h_l[7]"  input="PLB.i_sp12_h_l[7]"  output="PLB.o_sp12_h_r[8]"  />
+  <direct name="sp12_h_l[8]"  input="PLB.i_sp12_h_l[8]"  output="PLB.o_sp12_h_r[11]" />
+  <direct name="sp12_h_l[9]"  input="PLB.i_sp12_h_l[9]"  output="PLB.o_sp12_h_r[10]" />
+  <direct name="sp12_h_l[10]" input="PLB.i_sp12_h_l[10]" output="PLB.o_sp12_h_r[13]" />
+  <direct name="sp12_h_l[11]" input="PLB.i_sp12_h_l[11]" output="PLB.o_sp12_h_r[12]" />
+  <direct name="sp12_h_l[12]" input="PLB.i_sp12_h_l[12]" output="PLB.o_sp12_h_r[15]" />
+  <direct name="sp12_h_l[13]" input="PLB.i_sp12_h_l[13]" output="PLB.o_sp12_h_r[14]" />
+  <direct name="sp12_h_l[14]" input="PLB.i_sp12_h_l[14]" output="PLB.o_sp12_h_r[17]" />
+  <direct name="sp12_h_l[15]" input="PLB.i_sp12_h_l[15]" output="PLB.o_sp12_h_r[16]" />
+  <direct name="sp12_h_l[16]" input="PLB.i_sp12_h_l[16]" output="PLB.o_sp12_h_r[19]" />
+  <direct name="sp12_h_l[17]" input="PLB.i_sp12_h_l[17]" output="PLB.o_sp12_h_r[18]" />
+  <direct name="sp12_h_l[18]" input="PLB.i_sp12_h_l[18]" output="PLB.o_sp12_h_r[21]" />
+  <direct name="sp12_h_l[19]" input="PLB.i_sp12_h_l[19]" output="PLB.o_sp12_h_r[20]" />
+  <direct name="sp12_h_l[20]" input="PLB.i_sp12_h_l[20]" output="PLB.o_sp12_h_r[23]" />
+  <direct name="sp12_h_l[21]" input="PLB.i_sp12_h_l[21]" output="PLB.o_sp12_h_r[22]" />
   <!--
-  <direct name="sp12_h_l[22]" input="BLK_TL-PLB.i_sp12_h_l[22]" output="BLK_TL-PLB.o_sp12_h_r[  ]" />
-  <direct name="sp12_h_l[23]" input="BLK_TL-PLB.i_sp12_h_l[23]" output="BLK_TL-PLB.o_sp12_h_r[  ]" />
+  <direct name="sp12_h_l[22]" input="PLB.i_sp12_h_l[22]" output="PLB.o_sp12_h_r[  ]" />
+  <direct name="sp12_h_l[23]" input="PLB.i_sp12_h_l[23]" output="PLB.o_sp12_h_r[  ]" />
    -->
 
   <!-- ################################################################ -->
   <!-- # Internal Logic tracks                                        # -->
   <!-- ################################################################ -->
   <!-- Carry chain -->
-  <direct name="carry_in" input="BLK_TL-PLB.carry_in" output="BLK_XX-carry_in_mux.i">
-   <pack_pattern name="CARRYCHAIN" in_port="BLK_TL-PLB.carry_in" out_port="BLK_XX-carry_in_mux.i"/>
+  <direct name="carry_in" input="PLB.carry_in" output="carry_in_mux.i">
+   <pack_pattern name="CARRYCHAIN" in_port="PLB.carry_in" out_port="carry_in_mux.i"/>
   </direct>
-  <direct name="BLK_XX-carry_in_mux" input="BLK_XX-carry_in_mux.o" output="BLK_IG-PLB_LOCAL.FCIN">
-   <pack_pattern name="CARRYCHAIN" in_port="BLK_XX-carry_in_mux.o" out_port="BLK_IG-PLB_LOCAL.FCIN"/>
+  <direct name="carry_in_mux" input="carry_in_mux.o" output="PLB_LOCAL.FCIN">
+   <pack_pattern name="CARRYCHAIN" in_port="carry_in_mux.o" out_port="PLB_LOCAL.FCIN"/>
   </direct>
-  <direct name="carry_out" input="BLK_IG-PLB_LOCAL.FCOUT" output="BLK_TL-PLB.carry_out">
-   <pack_pattern name="CARRYCHAIN" in_port="BLK_IG-PLB_LOCAL.FCOUT" out_port="BLK_TL-PLB.carry_out"/>
+  <direct name="carry_out" input="PLB_LOCAL.FCOUT" output="PLB.carry_out">
+   <pack_pattern name="CARRYCHAIN" in_port="PLB_LOCAL.FCOUT" out_port="PLB.carry_out"/>
   </direct>
 
   <!-- Logic Unit 0 inputs -->
-  <mux name="BLK_IG-PLB_LOCAL.I0[0]" input="BLK_XX-local_g[0].o[0] BLK_XX-local_g[2].o[0] BLK_XX-local_g[1].o[1] BLK_XX-local_g[3].o[1] BLK_XX-local_g[0].o[2] BLK_XX-local_g[2].o[2] BLK_XX-local_g[1].o[3] BLK_XX-local_g[3].o[3] BLK_XX-local_g[0].o[4] BLK_XX-local_g[2].o[4] BLK_XX-local_g[1].o[5] BLK_XX-local_g[3].o[5] BLK_XX-local_g[0].o[6] BLK_XX-local_g[2].o[6] BLK_XX-local_g[1].o[7] BLK_XX-local_g[3].o[7]                        " output="BLK_IG-PLB_LOCAL.I0[0]" />
-  <mux name="BLK_IG-PLB_LOCAL.I0[1]" input="BLK_XX-local_g[0].o[1] BLK_XX-local_g[0].o[3] BLK_XX-local_g[0].o[5] BLK_XX-local_g[0].o[7] BLK_XX-local_g[2].o[1] BLK_XX-local_g[2].o[3] BLK_XX-local_g[2].o[5] BLK_XX-local_g[2].o[7] BLK_XX-local_g[1].o[0] BLK_XX-local_g[1].o[2] BLK_XX-local_g[1].o[4] BLK_XX-local_g[1].o[6] BLK_XX-local_g[3].o[0] BLK_XX-local_g[3].o[2] BLK_XX-local_g[3].o[4] BLK_XX-local_g[3].o[6]                        " output="BLK_IG-PLB_LOCAL.I0[1]" />
-  <mux name="BLK_IG-PLB_LOCAL.I0[2]" input="BLK_XX-local_g[0].o[0] BLK_XX-local_g[0].o[2] BLK_XX-local_g[1].o[1] BLK_XX-local_g[1].o[3] BLK_XX-local_g[2].o[0] BLK_XX-local_g[2].o[2] BLK_XX-local_g[3].o[1] BLK_XX-local_g[3].o[3] BLK_XX-local_g[0].o[4] BLK_XX-local_g[0].o[6] BLK_XX-local_g[1].o[5] BLK_XX-local_g[1].o[7] BLK_XX-local_g[2].o[4] BLK_XX-local_g[2].o[6] BLK_XX-local_g[3].o[5] BLK_XX-local_g[3].o[7]                        " output="BLK_IG-PLB_LOCAL.I0[2]" />
-  <mux name="BLK_IG-PLB_LOCAL.I0[3]" input="BLK_XX-local_g[0].o[3] BLK_XX-local_g[1].o[0] BLK_XX-local_g[1].o[2] BLK_XX-local_g[2].o[1] BLK_XX-local_g[2].o[3] BLK_XX-local_g[3].o[0] BLK_XX-local_g[3].o[2] BLK_XX-local_g[0].o[5] BLK_XX-local_g[0].o[7] BLK_XX-local_g[1].o[4] BLK_XX-local_g[1].o[6] BLK_XX-local_g[2].o[5] BLK_XX-local_g[2].o[7] BLK_XX-local_g[3].o[4] BLK_XX-local_g[3].o[6]                        BLK_XX-carry_in_mux.o  " output="BLK_IG-PLB_LOCAL.I0[3]" />
+  <mux name="PLB_LOCAL.I0[0]"     input="local_g[0].o[0] local_g[2].o[0] local_g[1].o[1] local_g[3].o[1] local_g[0].o[2] local_g[2].o[2] local_g[1].o[3] local_g[3].o[3] local_g[0].o[4] local_g[2].o[4] local_g[1].o[5] local_g[3].o[5] local_g[0].o[6] local_g[2].o[6] local_g[1].o[7] local_g[3].o[7]                 " output="PLB_LOCAL.I0[0]" />
+  <mux name="PLB_LOCAL.I0[1]"     input="local_g[0].o[1] local_g[0].o[3] local_g[0].o[5] local_g[0].o[7] local_g[2].o[1] local_g[2].o[3] local_g[2].o[5] local_g[2].o[7] local_g[1].o[0] local_g[1].o[2] local_g[1].o[4] local_g[1].o[6] local_g[3].o[0] local_g[3].o[2] local_g[3].o[4] local_g[3].o[6]                 " output="PLB_LOCAL.I0[1]" />
+  <mux name="PLB_LOCAL.I0[2]"     input="local_g[0].o[0] local_g[0].o[2] local_g[1].o[1] local_g[1].o[3] local_g[2].o[0] local_g[2].o[2] local_g[3].o[1] local_g[3].o[3] local_g[0].o[4] local_g[0].o[6] local_g[1].o[5] local_g[1].o[7] local_g[2].o[4] local_g[2].o[6] local_g[3].o[5] local_g[3].o[7]                 " output="PLB_LOCAL.I0[2]" />
+  <mux name="PLB_LOCAL.I0[3]"     input="local_g[0].o[3] local_g[1].o[0] local_g[1].o[2] local_g[2].o[1] local_g[2].o[3] local_g[3].o[0] local_g[3].o[2] local_g[0].o[5] local_g[0].o[7] local_g[1].o[4] local_g[1].o[6] local_g[2].o[5] local_g[2].o[7] local_g[3].o[4] local_g[3].o[6]                 carry_in_mux.o  " output="PLB_LOCAL.I0[3]" />
   <!-- Logic Unit 1 inputs -->
-  <mux name="BLK_IG-PLB_LOCAL.I1[0]" input="BLK_XX-local_g[0].o[1] BLK_XX-local_g[2].o[1] BLK_XX-local_g[1].o[0] BLK_XX-local_g[3].o[0] BLK_XX-local_g[0].o[3] BLK_XX-local_g[2].o[3] BLK_XX-local_g[1].o[2] BLK_XX-local_g[3].o[2] BLK_XX-local_g[0].o[5] BLK_XX-local_g[2].o[5] BLK_XX-local_g[1].o[4] BLK_XX-local_g[3].o[4] BLK_XX-local_g[0].o[7] BLK_XX-local_g[2].o[7] BLK_XX-local_g[1].o[6] BLK_XX-local_g[3].o[6]                        " output="BLK_IG-PLB_LOCAL.I1[0]" />
-  <mux name="BLK_IG-PLB_LOCAL.I1[1]" input="BLK_XX-local_g[0].o[0] BLK_XX-local_g[0].o[2] BLK_XX-local_g[0].o[4] BLK_XX-local_g[0].o[6] BLK_XX-local_g[2].o[0] BLK_XX-local_g[2].o[2] BLK_XX-local_g[2].o[4] BLK_XX-local_g[2].o[6] BLK_XX-local_g[1].o[1] BLK_XX-local_g[1].o[3] BLK_XX-local_g[1].o[5] BLK_XX-local_g[1].o[7] BLK_XX-local_g[3].o[1] BLK_XX-local_g[3].o[3] BLK_XX-local_g[3].o[5] BLK_XX-local_g[3].o[7]                        " output="BLK_IG-PLB_LOCAL.I1[1]" />
-  <mux name="BLK_IG-PLB_LOCAL.I1[2]" input="BLK_XX-local_g[0].o[1] BLK_XX-local_g[0].o[3] BLK_XX-local_g[1].o[0] BLK_XX-local_g[1].o[2] BLK_XX-local_g[2].o[1] BLK_XX-local_g[2].o[3] BLK_XX-local_g[3].o[0] BLK_XX-local_g[3].o[2] BLK_XX-local_g[0].o[5] BLK_XX-local_g[0].o[7] BLK_XX-local_g[1].o[4] BLK_XX-local_g[1].o[6] BLK_XX-local_g[2].o[5] BLK_XX-local_g[2].o[7] BLK_XX-local_g[3].o[4] BLK_XX-local_g[3].o[6]                        " output="BLK_IG-PLB_LOCAL.I1[2]" />
-  <mux name="BLK_IG-PLB_LOCAL.I1[3]" input="BLK_XX-local_g[0].o[2] BLK_XX-local_g[1].o[1] BLK_XX-local_g[1].o[3] BLK_XX-local_g[2].o[0] BLK_XX-local_g[2].o[2] BLK_XX-local_g[3].o[1] BLK_XX-local_g[3].o[3] BLK_XX-local_g[0].o[4] BLK_XX-local_g[0].o[6] BLK_XX-local_g[1].o[5] BLK_XX-local_g[1].o[7] BLK_XX-local_g[2].o[4] BLK_XX-local_g[2].o[6] BLK_XX-local_g[3].o[5] BLK_XX-local_g[3].o[7]                        BLK_IG-PLB_LOCAL.FCOUT0" output="BLK_IG-PLB_LOCAL.I1[3]" />
+  <mux name="PLB_LOCAL.I1[0]"     input="local_g[0].o[1] local_g[2].o[1] local_g[1].o[0] local_g[3].o[0] local_g[0].o[3] local_g[2].o[3] local_g[1].o[2] local_g[3].o[2] local_g[0].o[5] local_g[2].o[5] local_g[1].o[4] local_g[3].o[4] local_g[0].o[7] local_g[2].o[7] local_g[1].o[6] local_g[3].o[6]                 " output="PLB_LOCAL.I1[0]" />
+  <mux name="PLB_LOCAL.I1[1]"     input="local_g[0].o[0] local_g[0].o[2] local_g[0].o[4] local_g[0].o[6] local_g[2].o[0] local_g[2].o[2] local_g[2].o[4] local_g[2].o[6] local_g[1].o[1] local_g[1].o[3] local_g[1].o[5] local_g[1].o[7] local_g[3].o[1] local_g[3].o[3] local_g[3].o[5] local_g[3].o[7]                 " output="PLB_LOCAL.I1[1]" />
+  <mux name="PLB_LOCAL.I1[2]"     input="local_g[0].o[1] local_g[0].o[3] local_g[1].o[0] local_g[1].o[2] local_g[2].o[1] local_g[2].o[3] local_g[3].o[0] local_g[3].o[2] local_g[0].o[5] local_g[0].o[7] local_g[1].o[4] local_g[1].o[6] local_g[2].o[5] local_g[2].o[7] local_g[3].o[4] local_g[3].o[6]                 " output="PLB_LOCAL.I1[2]" />
+  <mux name="PLB_LOCAL.I1[3]"     input="local_g[0].o[2] local_g[1].o[1] local_g[1].o[3] local_g[2].o[0] local_g[2].o[2] local_g[3].o[1] local_g[3].o[3] local_g[0].o[4] local_g[0].o[6] local_g[1].o[5] local_g[1].o[7] local_g[2].o[4] local_g[2].o[6] local_g[3].o[5] local_g[3].o[7]                 PLB_LOCAL.FCOUT0" output="PLB_LOCAL.I1[3]" />
   <!-- Logic Unit 2 inputs -->
-  <mux name="BLK_IG-PLB_LOCAL.I2[0]" input="BLK_XX-local_g[0].o[0] BLK_XX-local_g[2].o[0] BLK_XX-local_g[1].o[1] BLK_XX-local_g[3].o[1] BLK_XX-local_g[0].o[2] BLK_XX-local_g[2].o[2] BLK_XX-local_g[1].o[3] BLK_XX-local_g[3].o[3] BLK_XX-local_g[0].o[4] BLK_XX-local_g[2].o[4] BLK_XX-local_g[1].o[5] BLK_XX-local_g[3].o[5] BLK_XX-local_g[0].o[6] BLK_XX-local_g[2].o[6] BLK_XX-local_g[1].o[7] BLK_XX-local_g[3].o[7]                        " output="BLK_IG-PLB_LOCAL.I2[0]" />
-  <mux name="BLK_IG-PLB_LOCAL.I2[1]" input="BLK_XX-local_g[0].o[1] BLK_XX-local_g[0].o[3] BLK_XX-local_g[0].o[5] BLK_XX-local_g[0].o[7] BLK_XX-local_g[2].o[1] BLK_XX-local_g[2].o[3] BLK_XX-local_g[2].o[5] BLK_XX-local_g[2].o[7] BLK_XX-local_g[1].o[0] BLK_XX-local_g[1].o[2] BLK_XX-local_g[1].o[4] BLK_XX-local_g[1].o[6] BLK_XX-local_g[3].o[0] BLK_XX-local_g[3].o[2] BLK_XX-local_g[3].o[4] BLK_XX-local_g[3].o[6]                        " output="BLK_IG-PLB_LOCAL.I2[1]" />
-  <mux name="BLK_IG-PLB_LOCAL.I2[2]" input="BLK_XX-local_g[0].o[0] BLK_XX-local_g[0].o[2] BLK_XX-local_g[1].o[1] BLK_XX-local_g[1].o[3] BLK_XX-local_g[2].o[0] BLK_XX-local_g[2].o[2] BLK_XX-local_g[3].o[1] BLK_XX-local_g[3].o[3] BLK_XX-local_g[0].o[4] BLK_XX-local_g[0].o[6] BLK_XX-local_g[1].o[5] BLK_XX-local_g[1].o[7] BLK_XX-local_g[2].o[4] BLK_XX-local_g[2].o[6] BLK_XX-local_g[3].o[5] BLK_XX-local_g[3].o[7]                        " output="BLK_IG-PLB_LOCAL.I2[2]" />
-  <mux name="BLK_IG-PLB_LOCAL.I2[3]" input="BLK_XX-local_g[0].o[3] BLK_XX-local_g[1].o[0] BLK_XX-local_g[1].o[2] BLK_XX-local_g[2].o[1] BLK_XX-local_g[2].o[3] BLK_XX-local_g[3].o[0] BLK_XX-local_g[3].o[2] BLK_XX-local_g[0].o[5] BLK_XX-local_g[0].o[7] BLK_XX-local_g[1].o[4] BLK_XX-local_g[1].o[6] BLK_XX-local_g[2].o[5] BLK_XX-local_g[2].o[7] BLK_XX-local_g[3].o[4] BLK_XX-local_g[3].o[6]                        BLK_IG-PLB_LOCAL.FCOUT1" output="BLK_IG-PLB_LOCAL.I2[3]" />
+  <mux name="PLB_LOCAL.I2[0]"     input="local_g[0].o[0] local_g[2].o[0] local_g[1].o[1] local_g[3].o[1] local_g[0].o[2] local_g[2].o[2] local_g[1].o[3] local_g[3].o[3] local_g[0].o[4] local_g[2].o[4] local_g[1].o[5] local_g[3].o[5] local_g[0].o[6] local_g[2].o[6] local_g[1].o[7] local_g[3].o[7]                 " output="PLB_LOCAL.I2[0]" />
+  <mux name="PLB_LOCAL.I2[1]"     input="local_g[0].o[1] local_g[0].o[3] local_g[0].o[5] local_g[0].o[7] local_g[2].o[1] local_g[2].o[3] local_g[2].o[5] local_g[2].o[7] local_g[1].o[0] local_g[1].o[2] local_g[1].o[4] local_g[1].o[6] local_g[3].o[0] local_g[3].o[2] local_g[3].o[4] local_g[3].o[6]                 " output="PLB_LOCAL.I2[1]" />
+  <mux name="PLB_LOCAL.I2[2]"     input="local_g[0].o[0] local_g[0].o[2] local_g[1].o[1] local_g[1].o[3] local_g[2].o[0] local_g[2].o[2] local_g[3].o[1] local_g[3].o[3] local_g[0].o[4] local_g[0].o[6] local_g[1].o[5] local_g[1].o[7] local_g[2].o[4] local_g[2].o[6] local_g[3].o[5] local_g[3].o[7]                 " output="PLB_LOCAL.I2[2]" />
+  <mux name="PLB_LOCAL.I2[3]"     input="local_g[0].o[3] local_g[1].o[0] local_g[1].o[2] local_g[2].o[1] local_g[2].o[3] local_g[3].o[0] local_g[3].o[2] local_g[0].o[5] local_g[0].o[7] local_g[1].o[4] local_g[1].o[6] local_g[2].o[5] local_g[2].o[7] local_g[3].o[4] local_g[3].o[6]                 PLB_LOCAL.FCOUT1" output="PLB_LOCAL.I2[3]" />
   <!-- Logic Unit 3 inputs -->
-  <mux name="BLK_IG-PLB_LOCAL.I3[0]" input="BLK_XX-local_g[0].o[1] BLK_XX-local_g[2].o[1] BLK_XX-local_g[1].o[0] BLK_XX-local_g[3].o[0] BLK_XX-local_g[0].o[3] BLK_XX-local_g[2].o[3] BLK_XX-local_g[1].o[2] BLK_XX-local_g[3].o[2] BLK_XX-local_g[0].o[5] BLK_XX-local_g[2].o[5] BLK_XX-local_g[1].o[4] BLK_XX-local_g[3].o[4] BLK_XX-local_g[0].o[7] BLK_XX-local_g[2].o[7] BLK_XX-local_g[1].o[6] BLK_XX-local_g[3].o[6]                        " output="BLK_IG-PLB_LOCAL.I3[0]" />
-  <mux name="BLK_IG-PLB_LOCAL.I3[1]" input="BLK_XX-local_g[0].o[0] BLK_XX-local_g[0].o[2] BLK_XX-local_g[0].o[4] BLK_XX-local_g[0].o[6] BLK_XX-local_g[2].o[0] BLK_XX-local_g[2].o[2] BLK_XX-local_g[2].o[4] BLK_XX-local_g[2].o[6] BLK_XX-local_g[1].o[1] BLK_XX-local_g[1].o[3] BLK_XX-local_g[1].o[5] BLK_XX-local_g[1].o[7] BLK_XX-local_g[3].o[1] BLK_XX-local_g[3].o[3] BLK_XX-local_g[3].o[5] BLK_XX-local_g[3].o[7]                        " output="BLK_IG-PLB_LOCAL.I3[1]" />
-  <mux name="BLK_IG-PLB_LOCAL.I3[2]" input="BLK_XX-local_g[0].o[1] BLK_XX-local_g[0].o[3] BLK_XX-local_g[1].o[0] BLK_XX-local_g[1].o[2] BLK_XX-local_g[2].o[1] BLK_XX-local_g[2].o[3] BLK_XX-local_g[3].o[0] BLK_XX-local_g[3].o[2] BLK_XX-local_g[0].o[5] BLK_XX-local_g[0].o[7] BLK_XX-local_g[1].o[4] BLK_XX-local_g[1].o[6] BLK_XX-local_g[2].o[5] BLK_XX-local_g[2].o[7] BLK_XX-local_g[3].o[4] BLK_XX-local_g[3].o[6]                        " output="BLK_IG-PLB_LOCAL.I3[2]" />
-  <mux name="BLK_IG-PLB_LOCAL.I3[3]" input="BLK_XX-local_g[0].o[2] BLK_XX-local_g[1].o[1] BLK_XX-local_g[1].o[3] BLK_XX-local_g[2].o[0] BLK_XX-local_g[2].o[2] BLK_XX-local_g[3].o[1] BLK_XX-local_g[3].o[3] BLK_XX-local_g[0].o[4] BLK_XX-local_g[0].o[6] BLK_XX-local_g[1].o[5] BLK_XX-local_g[1].o[7] BLK_XX-local_g[2].o[4] BLK_XX-local_g[2].o[6] BLK_XX-local_g[3].o[5] BLK_XX-local_g[3].o[7]                        BLK_IG-PLB_LOCAL.FCOUT2" output="BLK_IG-PLB_LOCAL.I3[3]" />
+  <mux name="PLB_LOCAL.I3[0]"     input="local_g[0].o[1] local_g[2].o[1] local_g[1].o[0] local_g[3].o[0] local_g[0].o[3] local_g[2].o[3] local_g[1].o[2] local_g[3].o[2] local_g[0].o[5] local_g[2].o[5] local_g[1].o[4] local_g[3].o[4] local_g[0].o[7] local_g[2].o[7] local_g[1].o[6] local_g[3].o[6]                 " output="PLB_LOCAL.I3[0]" />
+  <mux name="PLB_LOCAL.I3[1]"     input="local_g[0].o[0] local_g[0].o[2] local_g[0].o[4] local_g[0].o[6] local_g[2].o[0] local_g[2].o[2] local_g[2].o[4] local_g[2].o[6] local_g[1].o[1] local_g[1].o[3] local_g[1].o[5] local_g[1].o[7] local_g[3].o[1] local_g[3].o[3] local_g[3].o[5] local_g[3].o[7]                 " output="PLB_LOCAL.I3[1]" />
+  <mux name="PLB_LOCAL.I3[2]"     input="local_g[0].o[1] local_g[0].o[3] local_g[1].o[0] local_g[1].o[2] local_g[2].o[1] local_g[2].o[3] local_g[3].o[0] local_g[3].o[2] local_g[0].o[5] local_g[0].o[7] local_g[1].o[4] local_g[1].o[6] local_g[2].o[5] local_g[2].o[7] local_g[3].o[4] local_g[3].o[6]                 " output="PLB_LOCAL.I3[2]" />
+  <mux name="PLB_LOCAL.I3[3]"     input="local_g[0].o[2] local_g[1].o[1] local_g[1].o[3] local_g[2].o[0] local_g[2].o[2] local_g[3].o[1] local_g[3].o[3] local_g[0].o[4] local_g[0].o[6] local_g[1].o[5] local_g[1].o[7] local_g[2].o[4] local_g[2].o[6] local_g[3].o[5] local_g[3].o[7]                 PLB_LOCAL.FCOUT2" output="PLB_LOCAL.I3[3]" />
   <!-- Logic Unit 4 inputs -->
-  <mux name="BLK_IG-PLB_LOCAL.I4[0]" input="BLK_XX-local_g[0].o[0] BLK_XX-local_g[2].o[0] BLK_XX-local_g[1].o[1] BLK_XX-local_g[3].o[1] BLK_XX-local_g[0].o[2] BLK_XX-local_g[2].o[2] BLK_XX-local_g[1].o[3] BLK_XX-local_g[3].o[3] BLK_XX-local_g[0].o[4] BLK_XX-local_g[2].o[4] BLK_XX-local_g[1].o[5] BLK_XX-local_g[3].o[5] BLK_XX-local_g[0].o[6] BLK_XX-local_g[2].o[6] BLK_XX-local_g[1].o[7] BLK_XX-local_g[3].o[7]                        " output="BLK_IG-PLB_LOCAL.I4[0]" />
-  <mux name="BLK_IG-PLB_LOCAL.I4[1]" input="BLK_XX-local_g[0].o[1] BLK_XX-local_g[0].o[3] BLK_XX-local_g[0].o[5] BLK_XX-local_g[0].o[7] BLK_XX-local_g[2].o[1] BLK_XX-local_g[2].o[3] BLK_XX-local_g[2].o[5] BLK_XX-local_g[2].o[7] BLK_XX-local_g[1].o[0] BLK_XX-local_g[1].o[2] BLK_XX-local_g[1].o[4] BLK_XX-local_g[1].o[6] BLK_XX-local_g[3].o[0] BLK_XX-local_g[3].o[2] BLK_XX-local_g[3].o[4] BLK_XX-local_g[3].o[6]                        " output="BLK_IG-PLB_LOCAL.I4[1]" />
-  <mux name="BLK_IG-PLB_LOCAL.I4[2]" input="BLK_XX-local_g[0].o[0] BLK_XX-local_g[0].o[2] BLK_XX-local_g[1].o[1] BLK_XX-local_g[1].o[3] BLK_XX-local_g[2].o[0] BLK_XX-local_g[2].o[2] BLK_XX-local_g[3].o[1] BLK_XX-local_g[3].o[3] BLK_XX-local_g[0].o[4] BLK_XX-local_g[0].o[6] BLK_XX-local_g[1].o[5] BLK_XX-local_g[1].o[7] BLK_XX-local_g[2].o[4] BLK_XX-local_g[2].o[6] BLK_XX-local_g[3].o[5] BLK_XX-local_g[3].o[7]                        " output="BLK_IG-PLB_LOCAL.I4[2]" />
-  <mux name="BLK_IG-PLB_LOCAL.I4[3]" input="BLK_XX-local_g[0].o[3] BLK_XX-local_g[1].o[0] BLK_XX-local_g[1].o[2] BLK_XX-local_g[2].o[1] BLK_XX-local_g[2].o[3] BLK_XX-local_g[3].o[0] BLK_XX-local_g[3].o[2] BLK_XX-local_g[0].o[5] BLK_XX-local_g[0].o[7] BLK_XX-local_g[1].o[4] BLK_XX-local_g[1].o[6] BLK_XX-local_g[2].o[5] BLK_XX-local_g[2].o[7] BLK_XX-local_g[3].o[4] BLK_XX-local_g[3].o[6]                        BLK_IG-PLB_LOCAL.FCOUT3" output="BLK_IG-PLB_LOCAL.I4[3]" />
+  <mux name="PLB_LOCAL.I4[0]"     input="local_g[0].o[0] local_g[2].o[0] local_g[1].o[1] local_g[3].o[1] local_g[0].o[2] local_g[2].o[2] local_g[1].o[3] local_g[3].o[3] local_g[0].o[4] local_g[2].o[4] local_g[1].o[5] local_g[3].o[5] local_g[0].o[6] local_g[2].o[6] local_g[1].o[7] local_g[3].o[7]                 " output="PLB_LOCAL.I4[0]" />
+  <mux name="PLB_LOCAL.I4[1]"     input="local_g[0].o[1] local_g[0].o[3] local_g[0].o[5] local_g[0].o[7] local_g[2].o[1] local_g[2].o[3] local_g[2].o[5] local_g[2].o[7] local_g[1].o[0] local_g[1].o[2] local_g[1].o[4] local_g[1].o[6] local_g[3].o[0] local_g[3].o[2] local_g[3].o[4] local_g[3].o[6]                 " output="PLB_LOCAL.I4[1]" />
+  <mux name="PLB_LOCAL.I4[2]"     input="local_g[0].o[0] local_g[0].o[2] local_g[1].o[1] local_g[1].o[3] local_g[2].o[0] local_g[2].o[2] local_g[3].o[1] local_g[3].o[3] local_g[0].o[4] local_g[0].o[6] local_g[1].o[5] local_g[1].o[7] local_g[2].o[4] local_g[2].o[6] local_g[3].o[5] local_g[3].o[7]                 " output="PLB_LOCAL.I4[2]" />
+  <mux name="PLB_LOCAL.I4[3]"     input="local_g[0].o[3] local_g[1].o[0] local_g[1].o[2] local_g[2].o[1] local_g[2].o[3] local_g[3].o[0] local_g[3].o[2] local_g[0].o[5] local_g[0].o[7] local_g[1].o[4] local_g[1].o[6] local_g[2].o[5] local_g[2].o[7] local_g[3].o[4] local_g[3].o[6]                 PLB_LOCAL.FCOUT3" output="PLB_LOCAL.I4[3]" />
   <!-- Logic Unit 5 inputs -->
-  <mux name="BLK_IG-PLB_LOCAL.I5[0]" input="BLK_XX-local_g[0].o[1] BLK_XX-local_g[2].o[1] BLK_XX-local_g[1].o[0] BLK_XX-local_g[3].o[0] BLK_XX-local_g[0].o[3] BLK_XX-local_g[2].o[3] BLK_XX-local_g[1].o[2] BLK_XX-local_g[3].o[2] BLK_XX-local_g[0].o[5] BLK_XX-local_g[2].o[5] BLK_XX-local_g[1].o[4] BLK_XX-local_g[3].o[4] BLK_XX-local_g[0].o[7] BLK_XX-local_g[2].o[7] BLK_XX-local_g[1].o[6] BLK_XX-local_g[3].o[6]                        " output="BLK_IG-PLB_LOCAL.I5[0]" />
-  <mux name="BLK_IG-PLB_LOCAL.I5[1]" input="BLK_XX-local_g[0].o[0] BLK_XX-local_g[0].o[2] BLK_XX-local_g[0].o[4] BLK_XX-local_g[0].o[6] BLK_XX-local_g[2].o[0] BLK_XX-local_g[2].o[2] BLK_XX-local_g[2].o[4] BLK_XX-local_g[2].o[6] BLK_XX-local_g[1].o[1] BLK_XX-local_g[1].o[3] BLK_XX-local_g[1].o[5] BLK_XX-local_g[1].o[7] BLK_XX-local_g[3].o[1] BLK_XX-local_g[3].o[3] BLK_XX-local_g[3].o[5] BLK_XX-local_g[3].o[7]                        " output="BLK_IG-PLB_LOCAL.I5[1]" />
-  <mux name="BLK_IG-PLB_LOCAL.I5[2]" input="BLK_XX-local_g[0].o[1] BLK_XX-local_g[0].o[3] BLK_XX-local_g[1].o[0] BLK_XX-local_g[1].o[2] BLK_XX-local_g[2].o[1] BLK_XX-local_g[2].o[3] BLK_XX-local_g[3].o[0] BLK_XX-local_g[3].o[2] BLK_XX-local_g[0].o[5] BLK_XX-local_g[0].o[7] BLK_XX-local_g[1].o[4] BLK_XX-local_g[1].o[6] BLK_XX-local_g[2].o[5] BLK_XX-local_g[2].o[7] BLK_XX-local_g[3].o[4] BLK_XX-local_g[3].o[6]                        " output="BLK_IG-PLB_LOCAL.I5[2]" />
-  <mux name="BLK_IG-PLB_LOCAL.I5[3]" input="BLK_XX-local_g[0].o[2] BLK_XX-local_g[1].o[1] BLK_XX-local_g[1].o[3] BLK_XX-local_g[2].o[0] BLK_XX-local_g[2].o[2] BLK_XX-local_g[3].o[1] BLK_XX-local_g[3].o[3] BLK_XX-local_g[0].o[4] BLK_XX-local_g[0].o[6] BLK_XX-local_g[1].o[5] BLK_XX-local_g[1].o[7] BLK_XX-local_g[2].o[4] BLK_XX-local_g[2].o[6] BLK_XX-local_g[3].o[5] BLK_XX-local_g[3].o[7]                        BLK_IG-PLB_LOCAL.FCOUT4" output="BLK_IG-PLB_LOCAL.I5[3]" />
+  <mux name="PLB_LOCAL.I5[0]"     input="local_g[0].o[1] local_g[2].o[1] local_g[1].o[0] local_g[3].o[0] local_g[0].o[3] local_g[2].o[3] local_g[1].o[2] local_g[3].o[2] local_g[0].o[5] local_g[2].o[5] local_g[1].o[4] local_g[3].o[4] local_g[0].o[7] local_g[2].o[7] local_g[1].o[6] local_g[3].o[6]                 " output="PLB_LOCAL.I5[0]" />
+  <mux name="PLB_LOCAL.I5[1]"     input="local_g[0].o[0] local_g[0].o[2] local_g[0].o[4] local_g[0].o[6] local_g[2].o[0] local_g[2].o[2] local_g[2].o[4] local_g[2].o[6] local_g[1].o[1] local_g[1].o[3] local_g[1].o[5] local_g[1].o[7] local_g[3].o[1] local_g[3].o[3] local_g[3].o[5] local_g[3].o[7]                 " output="PLB_LOCAL.I5[1]" />
+  <mux name="PLB_LOCAL.I5[2]"     input="local_g[0].o[1] local_g[0].o[3] local_g[1].o[0] local_g[1].o[2] local_g[2].o[1] local_g[2].o[3] local_g[3].o[0] local_g[3].o[2] local_g[0].o[5] local_g[0].o[7] local_g[1].o[4] local_g[1].o[6] local_g[2].o[5] local_g[2].o[7] local_g[3].o[4] local_g[3].o[6]                 " output="PLB_LOCAL.I5[2]" />
+  <mux name="PLB_LOCAL.I5[3]"     input="local_g[0].o[2] local_g[1].o[1] local_g[1].o[3] local_g[2].o[0] local_g[2].o[2] local_g[3].o[1] local_g[3].o[3] local_g[0].o[4] local_g[0].o[6] local_g[1].o[5] local_g[1].o[7] local_g[2].o[4] local_g[2].o[6] local_g[3].o[5] local_g[3].o[7]                 PLB_LOCAL.FCOUT4" output="PLB_LOCAL.I5[3]" />
   <!-- Logic Unit 6 inputs -->
-  <mux name="BLK_IG-PLB_LOCAL.I6[0]" input="BLK_XX-local_g[0].o[0] BLK_XX-local_g[2].o[0] BLK_XX-local_g[1].o[1] BLK_XX-local_g[3].o[1] BLK_XX-local_g[0].o[2] BLK_XX-local_g[2].o[2] BLK_XX-local_g[1].o[3] BLK_XX-local_g[3].o[3] BLK_XX-local_g[0].o[4] BLK_XX-local_g[2].o[4] BLK_XX-local_g[1].o[5] BLK_XX-local_g[3].o[5] BLK_XX-local_g[0].o[6] BLK_XX-local_g[2].o[6] BLK_XX-local_g[1].o[7] BLK_XX-local_g[3].o[7]                        " output="BLK_IG-PLB_LOCAL.I6[0]" />
-  <mux name="BLK_IG-PLB_LOCAL.I6[1]" input="BLK_XX-local_g[0].o[1] BLK_XX-local_g[0].o[3] BLK_XX-local_g[0].o[5] BLK_XX-local_g[0].o[7] BLK_XX-local_g[2].o[1] BLK_XX-local_g[2].o[3] BLK_XX-local_g[2].o[5] BLK_XX-local_g[2].o[7] BLK_XX-local_g[1].o[0] BLK_XX-local_g[1].o[2] BLK_XX-local_g[1].o[4] BLK_XX-local_g[1].o[6] BLK_XX-local_g[3].o[0] BLK_XX-local_g[3].o[2] BLK_XX-local_g[3].o[4] BLK_XX-local_g[3].o[6]                        " output="BLK_IG-PLB_LOCAL.I6[1]" />
-  <mux name="BLK_IG-PLB_LOCAL.I6[2]" input="BLK_XX-local_g[0].o[0] BLK_XX-local_g[0].o[2] BLK_XX-local_g[1].o[1] BLK_XX-local_g[1].o[3] BLK_XX-local_g[2].o[0] BLK_XX-local_g[2].o[2] BLK_XX-local_g[3].o[1] BLK_XX-local_g[3].o[3] BLK_XX-local_g[0].o[4] BLK_XX-local_g[0].o[6] BLK_XX-local_g[1].o[5] BLK_XX-local_g[1].o[7] BLK_XX-local_g[2].o[4] BLK_XX-local_g[2].o[6] BLK_XX-local_g[3].o[5] BLK_XX-local_g[3].o[7]                        " output="BLK_IG-PLB_LOCAL.I6[2]" />
-  <mux name="BLK_IG-PLB_LOCAL.I6[3]" input="BLK_XX-local_g[0].o[3] BLK_XX-local_g[1].o[0] BLK_XX-local_g[1].o[2] BLK_XX-local_g[2].o[1] BLK_XX-local_g[2].o[3] BLK_XX-local_g[3].o[0] BLK_XX-local_g[3].o[2] BLK_XX-local_g[0].o[5] BLK_XX-local_g[0].o[7] BLK_XX-local_g[1].o[4] BLK_XX-local_g[1].o[6] BLK_XX-local_g[2].o[5] BLK_XX-local_g[2].o[7] BLK_XX-local_g[3].o[4] BLK_XX-local_g[3].o[6]                        BLK_IG-PLB_LOCAL.FCOUT5" output="BLK_IG-PLB_LOCAL.I6[3]" />
+  <mux name="PLB_LOCAL.I6[0]"     input="local_g[0].o[0] local_g[2].o[0] local_g[1].o[1] local_g[3].o[1] local_g[0].o[2] local_g[2].o[2] local_g[1].o[3] local_g[3].o[3] local_g[0].o[4] local_g[2].o[4] local_g[1].o[5] local_g[3].o[5] local_g[0].o[6] local_g[2].o[6] local_g[1].o[7] local_g[3].o[7]                 " output="PLB_LOCAL.I6[0]" />
+  <mux name="PLB_LOCAL.I6[1]"     input="local_g[0].o[1] local_g[0].o[3] local_g[0].o[5] local_g[0].o[7] local_g[2].o[1] local_g[2].o[3] local_g[2].o[5] local_g[2].o[7] local_g[1].o[0] local_g[1].o[2] local_g[1].o[4] local_g[1].o[6] local_g[3].o[0] local_g[3].o[2] local_g[3].o[4] local_g[3].o[6]                 " output="PLB_LOCAL.I6[1]" />
+  <mux name="PLB_LOCAL.I6[2]"     input="local_g[0].o[0] local_g[0].o[2] local_g[1].o[1] local_g[1].o[3] local_g[2].o[0] local_g[2].o[2] local_g[3].o[1] local_g[3].o[3] local_g[0].o[4] local_g[0].o[6] local_g[1].o[5] local_g[1].o[7] local_g[2].o[4] local_g[2].o[6] local_g[3].o[5] local_g[3].o[7]                 " output="PLB_LOCAL.I6[2]" />
+  <mux name="PLB_LOCAL.I6[3]"     input="local_g[0].o[3] local_g[1].o[0] local_g[1].o[2] local_g[2].o[1] local_g[2].o[3] local_g[3].o[0] local_g[3].o[2] local_g[0].o[5] local_g[0].o[7] local_g[1].o[4] local_g[1].o[6] local_g[2].o[5] local_g[2].o[7] local_g[3].o[4] local_g[3].o[6]                 PLB_LOCAL.FCOUT5" output="PLB_LOCAL.I6[3]" />
   <!-- Logic Unit 7 inputs -->
-  <mux name="BLK_IG-PLB_LOCAL.I7[0]" input="BLK_XX-local_g[0].o[1] BLK_XX-local_g[2].o[1] BLK_XX-local_g[1].o[0] BLK_XX-local_g[3].o[0] BLK_XX-local_g[0].o[3] BLK_XX-local_g[2].o[3] BLK_XX-local_g[1].o[2] BLK_XX-local_g[3].o[2] BLK_XX-local_g[0].o[5] BLK_XX-local_g[2].o[5] BLK_XX-local_g[1].o[4] BLK_XX-local_g[3].o[4] BLK_XX-local_g[0].o[7] BLK_XX-local_g[2].o[7] BLK_XX-local_g[1].o[6] BLK_XX-local_g[3].o[6]                        " output="BLK_IG-PLB_LOCAL.I7[0]" />
-  <mux name="BLK_IG-PLB_LOCAL.I7[1]" input="BLK_XX-local_g[0].o[0] BLK_XX-local_g[0].o[2] BLK_XX-local_g[0].o[4] BLK_XX-local_g[0].o[6] BLK_XX-local_g[2].o[0] BLK_XX-local_g[2].o[2] BLK_XX-local_g[2].o[4] BLK_XX-local_g[2].o[6] BLK_XX-local_g[1].o[1] BLK_XX-local_g[1].o[3] BLK_XX-local_g[1].o[5] BLK_XX-local_g[1].o[7] BLK_XX-local_g[3].o[1] BLK_XX-local_g[3].o[3] BLK_XX-local_g[3].o[5] BLK_XX-local_g[3].o[7]                        " output="BLK_IG-PLB_LOCAL.I7[1]" />
-  <mux name="BLK_IG-PLB_LOCAL.I7[2]" input="BLK_XX-local_g[0].o[1] BLK_XX-local_g[0].o[3] BLK_XX-local_g[1].o[0] BLK_XX-local_g[1].o[2] BLK_XX-local_g[2].o[1] BLK_XX-local_g[2].o[3] BLK_XX-local_g[3].o[0] BLK_XX-local_g[3].o[2] BLK_XX-local_g[0].o[5] BLK_XX-local_g[0].o[7] BLK_XX-local_g[1].o[4] BLK_XX-local_g[1].o[6] BLK_XX-local_g[2].o[5] BLK_XX-local_g[2].o[7] BLK_XX-local_g[3].o[4] BLK_XX-local_g[3].o[6]                        " output="BLK_IG-PLB_LOCAL.I7[2]" />
-  <mux name="BLK_IG-PLB_LOCAL.I7[3]" input="BLK_XX-local_g[0].o[2] BLK_XX-local_g[1].o[1] BLK_XX-local_g[1].o[3] BLK_XX-local_g[2].o[0] BLK_XX-local_g[2].o[2] BLK_XX-local_g[3].o[1] BLK_XX-local_g[3].o[3] BLK_XX-local_g[0].o[4] BLK_XX-local_g[0].o[6] BLK_XX-local_g[1].o[5] BLK_XX-local_g[1].o[7] BLK_XX-local_g[2].o[4] BLK_XX-local_g[2].o[6] BLK_XX-local_g[3].o[5] BLK_XX-local_g[3].o[7]                        BLK_IG-PLB_LOCAL.FCOUT6" output="BLK_IG-PLB_LOCAL.I7[3]" />
+  <mux name="PLB_LOCAL.I7[0]"     input="local_g[0].o[1] local_g[2].o[1] local_g[1].o[0] local_g[3].o[0] local_g[0].o[3] local_g[2].o[3] local_g[1].o[2] local_g[3].o[2] local_g[0].o[5] local_g[2].o[5] local_g[1].o[4] local_g[3].o[4] local_g[0].o[7] local_g[2].o[7] local_g[1].o[6] local_g[3].o[6]                 " output="PLB_LOCAL.I7[0]" />
+  <mux name="PLB_LOCAL.I7[1]"     input="local_g[0].o[0] local_g[0].o[2] local_g[0].o[4] local_g[0].o[6] local_g[2].o[0] local_g[2].o[2] local_g[2].o[4] local_g[2].o[6] local_g[1].o[1] local_g[1].o[3] local_g[1].o[5] local_g[1].o[7] local_g[3].o[1] local_g[3].o[3] local_g[3].o[5] local_g[3].o[7]                 " output="PLB_LOCAL.I7[1]" />
+  <mux name="PLB_LOCAL.I7[2]"     input="local_g[0].o[1] local_g[0].o[3] local_g[1].o[0] local_g[1].o[2] local_g[2].o[1] local_g[2].o[3] local_g[3].o[0] local_g[3].o[2] local_g[0].o[5] local_g[0].o[7] local_g[1].o[4] local_g[1].o[6] local_g[2].o[5] local_g[2].o[7] local_g[3].o[4] local_g[3].o[6]                 " output="PLB_LOCAL.I7[2]" />
+  <mux name="PLB_LOCAL.I7[3]"     input="local_g[0].o[2] local_g[1].o[1] local_g[1].o[3] local_g[2].o[0] local_g[2].o[2] local_g[3].o[1] local_g[3].o[3] local_g[0].o[4] local_g[0].o[6] local_g[1].o[5] local_g[1].o[7] local_g[2].o[4] local_g[2].o[6] local_g[3].o[5] local_g[3].o[7]                 PLB_LOCAL.FCOUT6" output="PLB_LOCAL.I7[3]" />
   <!-- Logic Global -->
-  <mux name="lutff_global/i_cen"  input="BLK_XX-local_g[0].o[2] BLK_XX-local_g[1].o[3] BLK_XX-local_g[2].o[2] BLK_XX-local_g[3].o[3] BLK_XX-glb_netwk[1].o BLK_XX-glb_netwk[3].o BLK_XX-glb_netwk[5].o BLK_XX-glb_netwk[7].o" output="BEL_BB-lutff_global.i_cen" />
-  <mux name="lutff_global/i_s_r"  input="BLK_XX-local_g[0].o[4] BLK_XX-local_g[1].o[5] BLK_XX-local_g[2].o[4] BLK_XX-local_g[3].o[5] BLK_XX-glb_netwk[0].o BLK_XX-glb_netwk[2].o BLK_XX-glb_netwk[4].o BLK_XX-glb_netwk[6].o" output="BEL_BB-lutff_global.i_s_r" />
+  <mux name="lutff_global/i_cen"  input="local_g[0].o[2] local_g[1].o[3] local_g[2].o[2] local_g[3].o[3] glb_netwk[1].o glb_netwk[3].o glb_netwk[5].o glb_netwk[7].o" output="lutff_global.i_cen" />
+  <mux name="lutff_global/i_s_r"  input="local_g[0].o[4] local_g[1].o[5] local_g[2].o[4] local_g[3].o[5] glb_netwk[0].o glb_netwk[2].o glb_netwk[4].o glb_netwk[6].o" output="lutff_global.i_s_r" />
   <!--
-  <mux name="lutff_global/i_clk" input="local_g[0].o[0] local_g[1].o[1] local_g[2].o[0] local_g[3].o[1] glb_netwk[0].o glb_netwk[1].o glb_netwk[2].o glb_netwk[3].o glb_netwk[4].o glb_netwk[5].o glb_netwk[6].o glb_netwk[7].o" output="BEL_BB-lutff_global._CLK" />
+  <mux name="lutff_global/i_clk" input="local_g[0].o[0] local_g[1].o[1] local_g[2].o[0] local_g[3].o[1] glb_netwk[0].o glb_netwk[1].o glb_netwk[2].o glb_netwk[3].o glb_netwk[4].o glb_netwk[5].o glb_netwk[6].o glb_netwk[7].o" output="lutff_global._CLK" />
   -->
-  <mux name="lutff_global/i_clk" input="BLK_TL-PLB.glb_netwk_0" output="BEL_BB-lutff_global.i_clk" />
-  <direct name="BEL_BB-lutff_global->BLK_IG-PLB_LOCAL.EN" input="BEL_BB-lutff_global.o_cen" output="BLK_IG-PLB_LOCAL.EN" />
+  <mux name="lutff_global/i_clk" input="PLB.glb_netwk_0" output="lutff_global.i_clk" />
+  <direct name="lutff_global->PLB_LOCAL.EN" input="lutff_global.o_cen" output="PLB_LOCAL.EN" />
   <!--
-  <direct name="BEL_BB-lutff_global->BLK_IG-PLB_LOCAL.CLK" input="BEL_BB-lutff_global.o_clk" output="BLK_IG-PLB_LOCAL.CLK" />
+  <direct name="lutff_global->PLB_LOCAL.CLK" input="lutff_global.o_clk" output="PLB_LOCAL.CLK" />
   -->
-  <direct name="BEL_BB-lutff_global->BLK_IG-PLB_LOCAL.CLK" input="BEL_BB-lutff_global.o_clk" output="BLK_IG-PLB_LOCAL.CLK" />
-  <direct name="BEL_BB-lutff_global->BLK_IG-PLB_LOCAL.SR" input="BEL_BB-lutff_global.o_s_r" output="BLK_IG-PLB_LOCAL.SR" />
+  <direct name="lutff_global->PLB_LOCAL.CLK" input="lutff_global.o_clk" output="PLB_LOCAL.CLK" />
+  <direct name="lutff_global->PLB_LOCAL.SR"  input="lutff_global.o_s_r" output="PLB_LOCAL.SR" />
  </interconnect>
 
  <pinlocations pattern="custom">
   <!-- ##
-   BLK_TL-PLB.o_neigh_op_tnr BLK_TL-PLB.i_neigh_op_tnr
-   BLK_TL-PLB.o_neigh_op_top BLK_TL-PLB.i_neigh_op_top
-   BLK_TL-PLB.o_neigh_op_tnl BLK_TL-PLB.i_neigh_op_tnl
+   PLB.o_neigh_op_tnr PLB.i_neigh_op_tnr
+   PLB.o_neigh_op_top PLB.i_neigh_op_top
+   PLB.o_neigh_op_tnl PLB.i_neigh_op_tnl
        -->
   <loc side="top" xoffset="0" yoffset="0">
-   BLK_TL-PLB.glb_netwk_0
+   PLB.glb_netwk_0
 
-   BLK_TL-PLB.i_glb_netwk
-   BLK_TL-PLB.o_glb_netwk
+   PLB.i_glb_netwk
+   PLB.o_glb_netwk
 
-   BLK_TL-PLB.carry_out
+   PLB.carry_out
 
-   BLK_TL-PLB.i_sp4_v_t
-   BLK_TL-PLB.o_sp4_v_t
-   BLK_TL-PLB.i_sp12_v_t
-   BLK_TL-PLB.o_sp12_v_t
+   PLB.i_sp4_v_t
+   PLB.o_sp4_v_t
+   PLB.i_sp12_v_t
+   PLB.o_sp12_v_t
   </loc>
   <!-- ##
-   BLK_TL-PLB.i_sp4_r_v_b    BLK_TL-PLB.o_sp4_r_v_b
-   BLK_TL-PLB.i_neigh_op_rgt BLK_TL-PLB.o_neigh_op_rgt
+   PLB.i_sp4_r_v_b    PLB.o_sp4_r_v_b
+   PLB.i_neigh_op_rgt PLB.o_neigh_op_rgt
        -->
   <loc side="right" xoffset="0" yoffset="0">
-   BLK_TL-PLB.i_sp4_h_r
-   BLK_TL-PLB.o_sp4_h_r
-   BLK_TL-PLB.i_sp12_h_r
-   BLK_TL-PLB.o_sp12_h_r
+   PLB.i_sp4_h_r
+   PLB.o_sp4_h_r
+   PLB.i_sp12_h_r
+   PLB.o_sp12_h_r
   </loc>
   <!-- ##
-   BLK_TL-PLB.i_neigh_op_bnr BLK_TL-PLB.o_neigh_op_bnr
-   BLK_TL-PLB.i_neigh_op_bot BLK_TL-PLB.o_neigh_op_bot
-   BLK_TL-PLB.i_neigh_op_bnl BLK_TL-PLB.o_neigh_op_bnl
+   PLB.i_neigh_op_bnr PLB.o_neigh_op_bnr
+   PLB.i_neigh_op_bot PLB.o_neigh_op_bot
+   PLB.i_neigh_op_bnl PLB.o_neigh_op_bnl
        -->
   <loc side="bottom" xoffset="0" yoffset="0">
-   BLK_TL-PLB.carry_in
+   PLB.carry_in
 
-   BLK_TL-PLB.i_sp4_v_b
-   BLK_TL-PLB.o_sp4_v_b
-   BLK_TL-PLB.i_sp12_v_b
-   BLK_TL-PLB.o_sp12_v_b
+   PLB.i_sp4_v_b
+   PLB.o_sp4_v_b
+   PLB.i_sp12_v_b
+   PLB.o_sp12_v_b
   </loc>
   <!-- ##
-   BLK_TL-PLB.i_sp4_l_v_b    BLK_TL-PLB.o_sp4_l_v_b
-   BLK_TL-PLB.o_neigh_op_lft BLK_TL-PLB.i_neigh_op_lft
+   PLB.i_sp4_l_v_b    PLB.o_sp4_l_v_b
+   PLB.o_neigh_op_lft PLB.i_neigh_op_lft
        -->
   <loc side="left" xoffset="0" yoffset="0">
-   BLK_TL-PLB.i_sp4_h_l
-   BLK_TL-PLB.o_sp4_h_l
-   BLK_TL-PLB.i_sp12_h_l
-   BLK_TL-PLB.o_sp12_h_l
+   PLB.i_sp4_h_l
+   PLB.o_sp4_h_l
+   PLB.i_sp12_h_l
+   PLB.o_sp12_h_l
   </loc>
  </pinlocations>
  <switchblock_locations pattern="external_full_internal_straight"/>
@@ -745,5 +765,7 @@
   <fc_override fc_type="frac" fc_val="0.0" port_name="i_neigh_op_tnl" /><fc_override fc_type="frac" fc_val="0.0" port_name="o_neigh_op_tnl" />
        -->
  </fc>
-
+ <metadata>
+  <meta name="type">tile</meta>
+ </metadata>
 </pb_type>
