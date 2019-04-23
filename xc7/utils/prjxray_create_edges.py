@@ -535,6 +535,30 @@ SELECT vcc_track_pkey, gnd_track_pkey FROM constant_sources;
     return const_connectors
 
 
+def get_node_from_wire(conn, tile_pkey, wire_pkey):
+    """
+    Returns node_pkey from the wire table given tile_pkey and wire_pkey
+
+    Args:
+        conn: Database connection
+        tile_pkey: Tile pkey
+        wire_pkey: Wire pkey
+
+    Returns: Node pkey
+
+    """
+
+    c = conn.cursor()
+
+    node_pkey = c.execute(
+        "SELECT node_pkey FROM wire WHERE tile_pkey = (?) AND "
+        "wire_in_tile_pkey = (?)", (tile_pkey, wire_pkey)
+    ).fetchone()
+
+    assert node_pkey is not None
+    return node_pkey[0]
+
+
 def make_connection(
         conn, input_only_nodes, output_only_nodes, loc, tile_pkey,
         src_wire_pkey, dst_wire_pkey, pip_pkey, switch_pkey,
@@ -576,14 +600,8 @@ def make_connection(
     c = conn.cursor()
 
     # Get node pkeys
-    src_node_pkey = c.execute(
-        "SELECT node_pkey FROM wire WHERE tile_pkey = (?) AND "
-        "wire_in_tile_pkey = (?)", (tile_pkey, src_wire_pkey)
-    ).fetchone()[0]
-    dst_node_pkey = c.execute(
-        "SELECT node_pkey FROM wire WHERE tile_pkey = (?) AND "
-        "wire_in_tile_pkey = (?)", (tile_pkey, dst_wire_pkey)
-    ).fetchone()[0]
+    src_node_pkey = get_node_from_wire(conn, tile_pkey, src_wire_pkey)
+    dst_node_pkey = get_node_from_wire(conn, tile_pkey, dst_wire_pkey)
 
     # Skip nodes that are reserved because of ROI
     if src_node_pkey in input_only_nodes:
