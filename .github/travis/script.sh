@@ -35,6 +35,12 @@ end_section "symbiflow.format"
 
 $SPACER
 
+start_section "symbiflow.run_v2x_tests" "Run v2x unit tests"
+make all_v2x_tests
+end_section "symbiflow.run_v2x_tests"
+
+$SPACER
+
 start_section "symbiflow.run_python_tests" "Run Python unit tests"
 make test_python
 end_section "symbiflow.run_python_tests"
