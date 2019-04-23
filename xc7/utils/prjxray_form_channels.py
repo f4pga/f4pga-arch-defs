@@ -1020,7 +1020,6 @@ def insert_vpr_tile(conn, vpr_tile_name, vpr_tile_loc, vpr_tile_type_pkey, site_
         "VALUES (?, ?)", (phy_tile_pkey, new_pkey)
     )
 
-
     # Return the VPR tile pkey
     return new_pkey
 
@@ -1096,7 +1095,7 @@ def remap_tile_grid(conn, grid_map, tile_map, pip_map):
                 # Insert the tile into grid
                 vpr_tile_pkey = insert_vpr_tile(conn, vpr_tile_name, vpr_loc, vpr_tile_type_pkey, site_remap_pkey, tile[0])
 
-                # Insert correspondencies to the pip_in_tile_instance table.
+                # Insert correspondencies to the pip table.
                 for pip_name in pip_map[tile_type].fwd_map[site_name]:
                     #print(pip_name)
 
@@ -1111,21 +1110,29 @@ def remap_tile_grid(conn, grid_map, tile_map, pip_map):
                     assert pip_pkey is not None
 
                     # Insert
-                    c.execute("INSERT INTO pip_in_tile_instance(vpr_tile_pkey, pip_in_tile_pkey) VALUES (?, ?)", (vpr_tile_pkey, pip_pkey))
+                    c.execute("INSERT INTO pip(vpr_tile_pkey, pip_in_tile_pkey) VALUES (?, ?)", (vpr_tile_pkey, pip_pkey))
 
         # The tile is not being split
         else:
 
             # Insert the tile into grid
-            insert_vpr_tile(conn, tile[1], vpr_locs[0], tile_type_pkey, None, tile[0])
+            vpr_tile_pkey = insert_vpr_tile(conn, tile[1], vpr_locs[0], tile_type_pkey, None, tile[0])
 
-            # If one physical location corresponds to more than one VPR location
-            # then fill the space with artificial EMPTY tiles.
-            for i in range(1, len(vpr_locs)):
-                tile_name = "EMPTY_X%dY%d" % (vpr_locs[i][0], vpr_locs[i][1])
+            # Get all pip pkeys for that tile type
+            pip_pkeys = c.execute("SELECT pkey FROM pip_in_tile WHERE tile_type_pkey = (?)", (tile_type_pkey, )).fetchall()
 
-                # Insert the tile into grid
-                insert_vpr_tile(conn, tile_name, vpr_locs[i], null_pkey, None, tile[0])
+            # Insert them to the pip table
+            for pip_pkey, in pip_pkeys:
+                c.execute("INSERT INTO pip(vpr_tile_pkey, pip_in_tile_pkey) VALUES (?, ?)", (vpr_tile_pkey, pip_pkey))
+
+
+            # # If one physical location corresponds to more than one VPR location
+            # # then fill the space with artificial EMPTY tiles.
+            # for i in range(1, len(vpr_locs)):
+            #     tile_name = "EMPTY_X%dY%d" % (vpr_locs[i][0], vpr_locs[i][1])
+            #
+            #     # Insert the tile into grid
+            #     insert_vpr_tile(conn, tile_name, vpr_locs[i], null_pkey, None, tile[0])
 
     # Build indices
     c.execute("CREATE INDEX tile_type_index ON tile(tile_type_pkey);")
