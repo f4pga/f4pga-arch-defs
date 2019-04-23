@@ -270,7 +270,7 @@ SELECT pkey FROM wire_in_tile WHERE name = ? AND tile_type_pkey = ?;""",
                     # Get site instance name(s) relevant to the wire
                     wire_site_name = tile_wire_name_map[tile_type].fwd_map[wire]
                     # Get site instance name relevant to the tile
-                    tile_site_name = c.execute("SELECT name FROM site WHERE pkey = (SELECT site_pkey FROM tile_former_site WHERE vpr_tile_pkey = (?))", (vpr_tile_pkey,)).fetchone()[0]
+                    tile_site_name = c.execute("SELECT name FROM site WHERE pkey = (SELECT site_remap_pkey FROM tile WHERE pkey = (?))", (vpr_tile_pkey,)).fetchone()[0]
 
                     # Compare, if the former site of the tile is not relevant
                     # to the wire then do not add it.
@@ -987,7 +987,7 @@ INSERT INTO node(classification) VALUES (?)
            create_track(gnd_node, unique_pos)
 
 
-def insert_vpr_tile(conn, vpr_tile_name, vpr_tile_loc, vpr_tile_type_pkey, phy_tile_pkey):
+def insert_vpr_tile(conn, vpr_tile_name, vpr_tile_loc, vpr_tile_type_pkey, site_remap_pkey, phy_tile_pkey):
     """
     Inserts a tile into the VPR tile grid. Adds also location correspondence
     (through pkeys) to its counterpart in physical tile grid
@@ -997,6 +997,7 @@ def insert_vpr_tile(conn, vpr_tile_name, vpr_tile_loc, vpr_tile_type_pkey, phy_t
         vpr_tile_name: Tile name for VPR
         vpr_tile_loc: Tile location in VPR grid (tuple)
         vpr_tile_type_pkey: Tile type pkey
+        site_pkey: Site instance pkey to which the split tile part correspond to
         phy_tile_pkey: Corresponding tile pkey in the physical grid
 
     Returns:
@@ -1007,9 +1008,9 @@ def insert_vpr_tile(conn, vpr_tile_name, vpr_tile_loc, vpr_tile_type_pkey, phy_t
 
     # Insert the tile into the tile grid
     c.execute(
-        "INSERT INTO tile(pkey, name, tile_type_pkey, grid_x, grid_y)"
-        "VALUES (?, ?, ?, ?)",
-        (vpr_tile_name, vpr_tile_type_pkey, vpr_tile_loc[0], vpr_tile_loc[1])
+        "INSERT INTO tile(name, tile_type_pkey, grid_x, grid_y, site_remap_pkey)"
+        "VALUES (?, ?, ?, ?, ?)",
+        (vpr_tile_name, vpr_tile_type_pkey, vpr_tile_loc[0], vpr_tile_loc[1], site_remap_pkey)
     )
 
     # Insert location correspondence
@@ -1081,22 +1082,19 @@ def remap_tile_grid(conn, grid_map, tile_map, pip_map):
                 # Get tile type as string
                 vpr_tile_type = c.execute("SELECT name FROM tile_type WHERE pkey = (?)", (vpr_tile_type_pkey, )).fetchone()[0]
 
+                # Get site instance basing on the new tile type and site
+                # location offset. Here we assume that new tile type is
+                # equal to its former site type.
+                site_name, site_remap_pkey = c.execute("SELECT name, pkey FROM site WHERE x_coord = (?) AND y_coord = (?) AND site_type_pkey = (SELECT pkey FROM site_type WHERE name = (?))", (loc_ofs[0], loc_ofs[1], vpr_tile_type)).fetchone()
+                assert site_remap_pkey is not None
+
                 # Generate new tile name
                 # FIXME: This will be the SLICE name. However it will not match
                 # FIXME: the Vivado slice name, coordinates will differ.
                 vpr_tile_name = "%s_X%dY%d" % (vpr_tile_type, vpr_loc[0], vpr_loc[1])
 
                 # Insert the tile into grid
-                vpr_tile_pkey = insert_vpr_tile(conn, vpr_tile_name, vpr_loc, vpr_tile_type_pkey, tile[0])
-
-                # Get site instance basing on the new tile type and site
-                # location offset. Here we assume that new tile type is
-                # equal to its former site type.
-                site_name, site_pkey = c.execute("SELECT name, pkey FROM site WHERE x_coord = (?) AND y_coord = (?) AND site_type_pkey = (SELECT pkey FROM site_type WHERE name = (?))", (loc_ofs[0], loc_ofs[1], vpr_tile_type)).fetchone()
-                assert site_pkey is not None
-
-                # Add entry to the tile_former_site table
-                c.execute("INSERT INTO tile_former_site(vpr_tile_pkey, site_pkey) VALUES (?, ?)", (vpr_tile_pkey, site_pkey))
+                vpr_tile_pkey = insert_vpr_tile(conn, vpr_tile_name, vpr_loc, vpr_tile_type_pkey, site_remap_pkey, tile[0])
 
                 # Insert correspondencies to the pip_in_tile_instance table.
                 for pip_name in pip_map[tile_type].fwd_map[site_name]:
@@ -1119,7 +1117,7 @@ def remap_tile_grid(conn, grid_map, tile_map, pip_map):
         else:
 
             # Insert the tile into grid
-            insert_vpr_tile(conn, tile[1], vpr_locs[0], tile_type_pkey, tile[0])
+            insert_vpr_tile(conn, tile[1], vpr_locs[0], tile_type_pkey, None, tile[0])
 
             # If one physical location corresponds to more than one VPR location
             # then fill the space with artificial EMPTY tiles.
@@ -1127,7 +1125,7 @@ def remap_tile_grid(conn, grid_map, tile_map, pip_map):
                 tile_name = "EMPTY_X%dY%d" % (vpr_locs[i][0], vpr_locs[i][1])
 
                 # Insert the tile into grid
-                insert_vpr_tile(conn, tile_name, vpr_locs[i], null_pkey, tile[0])
+                insert_vpr_tile(conn, tile_name, vpr_locs[i], null_pkey, None, tile[0])
 
     # Build indices
     c.execute("CREATE INDEX tile_type_index ON tile(tile_type_pkey);")

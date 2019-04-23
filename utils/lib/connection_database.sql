@@ -66,9 +66,11 @@ CREATE TABLE tile(
   pkey INTEGER PRIMARY KEY,
   name TEXT,
   tile_type_pkey INT,
+  site_remap_pkey INT,
   grid_x INT,
   grid_y INT,
   FOREIGN KEY(tile_type_pkey) REFERENCES tile_type(pkey)
+  FOREIGN KEY(site_remap_pkey) REFERENCES site(pkey)
 );
 
 -- Site pin table, contains names of pins and their direction, along
@@ -278,17 +280,6 @@ CREATE TABLE tile_type_map(
     vpr_tile_type_pkey INT,
     FOREIGN KEY(phy_tile_type_pkey) REFERENCES tile_type(pkey),
     FOREIGN KEY(vpr_tile_type_pkey) REFERENCES tile_type(pkey)
-);
-
--- Former site table
--- Contains entries only for CLB split products. Holds information
--- which site instance correspond to the new tile. It is necessary to know
--- that when remapping routing resources.
-CREATE TABLE tile_former_site(
-    vpr_tile_pkey INT,
-    site_pkey INT,
-    FOREIGN KEY(vpr_tile_pkey) REFERENCES tile(pkey),
-    FOREIGN KEY(site_pkey) REFERENCES site(pkey)
 );
 
 -- Pip in tile instance
