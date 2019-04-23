@@ -1,8 +1,12 @@
 ## CMake build system
-## Variables
+
+### Variables
 
 * `USE_CONDA` - Whether to rely on conda to supply external binaries (e.g. yosys, vpr).
-* `VPR_BASE_ARGS` - Base VPR arguments used during pack, place and route. [Default arguments](make/devices.cmake#L454).
+
+* `VPR_BASE_ARGS` - Base VPR arguments used during pack, place and route.
+  [Default arguments](common/cmake/devices.cmake#L454).
+
 * `VPR_EXTRA_ARGS` - Additional arguments to pass to VPR during pack, place and route.
 
 To set CMake variable, use the -D flag during the configuration process.  Example:
@@ -18,13 +22,17 @@ make
 The CMake system in symbiflow-arch-defs uses the following hierarchy:
 
 * `ARCH` - Architecture is the high level grouping of a set of "similar" FPGA
-  types. An example would be the "Lattice iCE40 Series" (ice40) or the "Xilinx Artix 7 Series" (artix7).
+  types. An example would be the "Lattice iCE40 Series" (ice40) or the "Xilinx
+  Artix 7 Series" (artix7).
+
 * `DEVICE_TYPE` - A type of device.  This is defined as an `ARCH` and the
   arch.xml which defines the units with this device type.
-* `DEVICE` - A specific instance of a `DEVICE_TYPE`.  A device definition is
-   a `DEVICE_TYPE`, a `PACKAGE` list, and IO map definitions for each package
-   if needed.  Each `DEVICE` should coorispond with a layout definition within
-   the `DEVICE_TYPE`.
+
+* `DEVICE` - A specific instance of a `DEVICE_TYPE`.  A device definition is a
+  `DEVICE_TYPE`, a `PACKAGE` list, and IO map definitions for each package if
+  needed.  Each `DEVICE` should correspond with a layout definition within the
+  `DEVICE_TYPE`.
+
 * `BOARD` - A specific `DEVICE` and `PACKAGE` instance, along with a
   `PROG_TOOL`/`PROG_CMD` (e.g. commands to program a specified board).
 
@@ -36,18 +44,18 @@ the normal `ADD_EXECUTABLE` target you would use with a C project.
 `ADD_FPGA_TARGET` will create the targets needed to take a design from Verilog
 to bitstream through the synthesis, place and route, bitstream and potentially
 even programming. The required arguments are the `BOARD` and input files see
-[`ADD_FPGA_TARGET` documentation](make/devices.cmake#L559) for further
+[`ADD_FPGA_TARGET` documentation](common/cmake/devices.cmake#L559) for further
 information on other target configuration options.
 
 If you want to target multiple boards, `ADD_FPGA_TARGET_BOARDS` exists
 that will call `ADD_FPGA_TARGET` correctly for each board you request.  See
-[`ADD_FPGA_TARGET_BOARDS` documentation](make/devices.cmake#L458).
+[`ADD_FPGA_TARGET_BOARDS` documentation](common/cmake/devices.cmake#L458).
 
 #### Note on `ADD_FILE_TARGET` and `ADD_FPGA_BOARD`
 
 All source files in the symbiflow-arch-defs are required to have a file target
 associated with them.  This is done via
-[`ADD_FILE_TARGET`](make/file_targets.cmake#L193).  By default
+[`ADD_FILE_TARGET`](common/cmake/file_targets.cmake#L193).  By default
 `ADD_FPGA_TARGET` and `ADD_FPGA_TARGET_BOARDS` will both implicitly invoke
 `ADD_FILE_TARGET` for you.  This handles the common case where input sources
 are not generated files.  However, if you are using generated files, then you
@@ -66,8 +74,8 @@ Note that the input path must be current source dir relative, not absolute,
 and not relative to the cmake current binary dir.  Also note that CMake cannot
 take depedendencies during build time, so for generated files you must supply
 the dependencies for the target.  See
-[`APPEND_FILE_DEPENDENCY`](make/file_targets.cmake#L79) for adding depedencies
-to other file targets.
+[`APPEND_FILE_DEPENDENCY`](common/cmake/file_targets.cmake#L79) for adding
+dependencies to other file targets.
 
 It is generally suggested that all source forms within
 symbiflow-arch-defs are file targets, but it is required for verilog files
