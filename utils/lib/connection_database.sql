@@ -44,6 +44,16 @@ CREATE TABLE tile_type(
   name TEXT
 );
 
+-- VPR tile type table.
+-- Relates tile types from the tile_type table with their names as they
+-- appear in the VPR
+CREATE TABLE vpr_tile_type(
+  pkey INTEGER PRIMARY KEY,
+  tile_type_pkey INT,
+  name TEXT,
+  FOREIGN KEY(tile_type_pkey) REFERENCES tile_type(pkey)
+);
+
 -- Site type table, used to track site_type using a pkey, and provide
 -- the site_type_pkey <-> name mapping.
 CREATE TABLE site_type(
@@ -66,11 +76,11 @@ CREATE TABLE tile(
   pkey INTEGER PRIMARY KEY,
   name TEXT,
   tile_type_pkey INT,
-  site_remap_pkey INT,
+  vpr_tile_type_pkey INT,
   grid_x INT,
   grid_y INT,
   FOREIGN KEY(tile_type_pkey) REFERENCES tile_type(pkey)
-  FOREIGN KEY(site_remap_pkey) REFERENCES site(pkey)
+  FOREIGN KEY(vpr_tile_type_pkey) REFERENCES vpr_tile_type(pkey)
 );
 
 -- Site pin table, contains names of pins and their direction, along
@@ -280,15 +290,4 @@ CREATE TABLE tile_type_map(
     vpr_tile_type_pkey INT,
     FOREIGN KEY(phy_tile_type_pkey) REFERENCES tile_type(pkey),
     FOREIGN KEY(vpr_tile_type_pkey) REFERENCES tile_type(pkey)
-);
-
--- Pip in tile instance
--- Relates a pip_in_tile with a concrete tile instance in the VPR grid.
--- This is necessary as in the VPR we have generic SLICE tiles but pips
--- inside them are not generic.
-CREATE TABLE pip(
-    vpr_tile_pkey INT,
-    pip_in_tile_pkey INT,
-    FOREIGN KEY(vpr_tile_pkey) REFERENCES tile(pkey),
-    FOREIGN KEY(pip_in_tile_pkey) REFERENCES pip_in_tile(pkey)
 );

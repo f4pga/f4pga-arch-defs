@@ -12,106 +12,13 @@ class TileSplitter(object):
         self.sql_db = sql_db
 
         self.tile_types_to_split = []
+        self.tile_site_pkeys = {}
 
     def set_tile_types_to_split(self, tile_types):
         """
         Set tile types to split
         """
         self.tile_types_to_split = tile_types
-
-    def get_tile_type_sites(self, tile_type):
-        """
-        Returns all site types and their offsets for a given tile type
-        """
-
-        c = self.sql_db.cursor()
-
-        # Get the tile type pkey
-        tile_type_pkey = c.execute("SELECT pkey FROM tile_type WHERE name = (?)", (tile_type,)).fetchone()[0]
-
-        # Get sites
-        sites = c.execute("SELECT site_type.name, site. x_coord, y_coord FROM site INNER JOIN site_type ON site.site_type_pkey = site_type.pkey WHERE site.pkey IN (SELECT site_pkey FROM wire_in_tile WHERE tile_type_pkey = (?) AND site_pkey IS NOT NULL)", (tile_type_pkey, )).fetchall()
-
-        # Return a list of tuples (site_type, site_ofs)
-        return [(s[0], (s[1], s[2])) for s in sites]
-
-    def get_unique_site_types(self):
-        """
-        Returns unique site types among all considered tile types
-        """
-
-        unique_site_types = set()
-
-        for tile_type in self.tile_types_to_split:
-            sites = self.get_tile_type_sites(tile_type)
-            for site_type, site_ofs in sites:
-                unique_site_types.add(site_type)
-
-        return unique_site_types
-
-    def insert_new_tile_types(self):
-        """
-        Creates new tile types and insets them to the database
-        """
-
-        c = self.sql_db.cursor()
-
-        # Identify all unique site types for tiles being split and insert them
-        # as new tile types.
-        unique_site_types = self.get_unique_site_types()
-        for site_type in unique_site_types:
-            c.execute("INSERT INTO tile_type(name) VALUES(?)", (site_type, ))
-            #print(c.lastrowid, site_type)
-
-
-    # def insert_wires_and_pips(self):
-    #     """
-    #     Inserts wires and pips for new tile types
-    #     """
-    #
-    #     c = self.sql_db.cursor()
-    #
-    #     for tile_type in self.tile_types_to_split:
-    #
-    #         # Get the physical tile type pkey
-    #         tile_type_pkey = c.execute("SELECT pkey FROM tile_type WHERE name = (?)", (tile_type,)).fetchone()[0]
-    #
-    #         # Insert wires
-    #         wires = {}
-    #         for wire in tile_type.get_wires():
-    #
-    #             # Get target tile type for that wire
-    #             vpr_tile_type = self.tile_wire_name_map.fwd_map
-    #
-    #             c.execute("""INSERT INTO wire_in_tile(name, tile_type_pkey) VALUES (?, ?)""", (wire, tile_types[tile_type_name]))
-    #             wires[wire] = c.lastrowid
-
-    def insert_new_tile_wires(self):
-        """
-        Insert wires relevant to split tiles to the wire_in_tile table.
-        """
-
-        c = self.sql_db.cursor()
-
-        for phy_tile_type_pkey, vpr_tile_data in self.tile_type_pkey_map.fwd_map.items():
-            vpr_tile_type_pkey = vpr_tile_data[0]
-            site_ofs = vpr_tile_data[1]
-
-
-
-        # # For every wire in tile being split
-        # for phy_tile_type, fwd_map in self.tile_wire_name_map.items():
-        #
-        #     # Get the physical tile type pkey
-        #     phy_tile_type_pkey = c.execute("SELECT pkey FROM tile_type WHERE name = (?)", (phy_tile_type,)).fetchone()[0]
-        #
-        #     for wire, wire_site_name in fwd_map.items():
-        #
-        #         # Match wire_site_name with tile_site_name
-        #         for xxx in self.tile_type_pkey_map
-
-
-
 
     @staticmethod
     def append_to_map(map_dict, map_key, map_item):
@@ -123,9 +30,6 @@ class TileSplitter(object):
             map_dict:
             map_key:
             map_item:
-
-        Returns:
-
         """
 
         if map_key not in map_dict:
@@ -133,197 +37,310 @@ class TileSplitter(object):
         else:
             map_dict[map_key].append(map_item)
 
-    def build_tile_type_pkey_map(self):
+    @staticmethod
+    def append_to_unique_map(map_dict, map_key, map_item):
         """
-        Builds a forward and backward correspondence map of tile types
-        as pkeys.
+        Basically adds a item to a dictionary but also checks whether there
+        isn't anything different already there.
+
+        Args:
+            map_dict:
+            map_key:
+            map_item:
+        """
+
+        if map_key not in map_dict:
+            map_dict[map_key] = map_item
+
+        elif map_dict[map_key] != map_item:
+            raise RuntimeError("A map entry for '{}' already exists".format(str(map_key)))
+
+    def get_tile_type_sites(self, tile_type_pkey):
+        """
+        Returns all site types and their offsets for a given tile type
         """
 
         c = self.sql_db.cursor()
 
-        # Built tile type map
+        # Get tile type sites
+        sites = c.execute("SELECT site_type.name, site.name, site.x_coord, site.y_coord, site.pkey FROM site INNER JOIN site_type ON site.site_type_pkey = site_type.pkey WHERE site.pkey IN (SELECT site_pkey FROM wire_in_tile WHERE tile_type_pkey = (?) AND site_pkey IS NOT NULL)", (tile_type_pkey,)).fetchall()
+
+        # Sort sites by X coordinate
+        sites = sorted(sites, key=lambda s: s[2])
+        sites = [(s[0], s[1], (s[2], s[3]), s[4]) for s in sites]
+
+        return sites
+
+    def build_pip_wire_map(self, tile_type_pkey):
+        """
+        Generates two dictionaries. The first is indexed with src wire pkeys
+        while holding dst wire pkeys, the other vice versa.
+        Also generates third dictionary indexed by wire pkeys which holds
+        pip pkeys.
+
+        Args:
+            tile_type_pkey:
+
+        Returns: pip_src_to_dst, pip_dst_to_src, wire_pip_map
+        """
+
+        c = self.sql_db.cursor()
+
+        # Build pip wire map
+        pip_src_to_dst = {}
+        pip_dst_to_src = {}
+        wire_pip_map = {}
+
+        for pip_pkey, src_wire_in_tile_pkey, dst_wire_in_tile_pkey in c.execute("SELECT pkey, src_wire_in_tile_pkey, dest_wire_in_tile_pkey FROM pip_in_tile WHERE tile_type_pkey = (?)", (tile_type_pkey,)):
+
+            pip_src_to_dst[src_wire_in_tile_pkey] = dst_wire_in_tile_pkey
+            pip_dst_to_src[dst_wire_in_tile_pkey] = src_wire_in_tile_pkey
+
+            if pip_pkey is not None:
+                self.append_to_map(wire_pip_map, src_wire_in_tile_pkey, pip_pkey)
+                self.append_to_map(wire_pip_map, dst_wire_in_tile_pkey, pip_pkey)
+
+        # Remove repetitions from the map
+        for key in wire_pip_map.keys():
+            val = list(set(wire_pip_map[key]))
+            wire_pip_map[key] = val
+
+        return pip_src_to_dst, pip_dst_to_src, wire_pip_map
+
+    def build_site_wire_and_pip_map(self, tile_type_pkey):
+        """
+        Generates wire to site and pip to site maps
+
+        Args:
+            tile_type_pkey:
+
+        Returns: site_wire_map, site_pip_map
+        """
+
+        c = self.sql_db.cursor()
+
+        # Get sites and their pkeys
+        sites = self.get_tile_type_sites(tile_type_pkey)
+        site_pkeys = [s[3] for s in sites]
+
+        site_wire_map = {}
+        site_pip_map = {}
+
+        # Build pip wire maps
+        pip_src_to_dst, pip_dst_to_src, wire_pip_map = self.build_pip_wire_map(tile_type_pkey)
+
+        # Iterate over all tile wires
+        for wire_pkey, wire_site_pkey in c.execute("SELECT pkey, site_pkey FROM wire_in_tile WHERE tile_type_pkey = (?)", (tile_type_pkey, )):
+            is_free = True
+
+            # The wire goes directly to a site
+            if wire_site_pkey in site_pkeys:
+                is_free = False
+                self.append_to_unique_map(site_wire_map, wire_pkey, wire_site_pkey)
+
+            # The wire does go to a pip(s)
+            if wire_pkey in wire_pip_map.keys():
+                is_free = False
+                for pip_pkey in wire_pip_map[wire_pkey]:
+
+                    # Get wire which is on the other side of that pip
+                    other_wire_pkey = None
+                    if wire_pkey in pip_src_to_dst.keys():
+                        other_wire_pkey = pip_src_to_dst[wire_pkey]
+                    if wire_pkey in pip_dst_to_src.keys():
+                        other_wire_pkey = pip_dst_to_src[wire_pkey]
+
+                    assert other_wire_pkey is not None
+
+                    # Check if the other wire goes to a site
+                    c2 = self.sql_db.cursor()
+                    other_wire_site_pkey = c2.execute("SELECT site_pkey FROM wire_in_tile WHERE pkey = (?)", (other_wire_pkey,)).fetchone()
+
+                    assert other_wire_site_pkey is not None
+                    other_wire_site_pkey = other_wire_site_pkey[0]
+
+                    if other_wire_site_pkey is not None:
+
+                        # Append to maps
+                        self.append_to_unique_map(site_wire_map, wire_pkey, other_wire_site_pkey)
+                        self.append_to_unique_map(site_pip_map,  pip_pkey,  other_wire_site_pkey)
+
+            # This is a "free" wire which does not go to neither to a site
+            # not to a pip.
+            if is_free:
+                self.append_to_unique_map(site_wire_map, wire_pkey, None)
+
+        # Return maps
+        return site_wire_map, site_pip_map
+
+    # .........................................................................
+
+    def split_tiles(self):
+        """
+        Splits the tiles by generating new tile types and inserting them into
+        the database.
+
+        Returns:
+        """
+
+        c = self.sql_db.cursor()
+
         fwd_map = {}
         bwd_map = {}
 
+        # For each tile to split
         for tile_type in self.tile_types_to_split:
 
-            # Get the physical tile type pkey
+            # Get tile type pkey
             tile_type_pkey = c.execute("SELECT pkey FROM tile_type WHERE name = (?)", (tile_type,)).fetchone()[0]
 
-            # Insert corresponding VPR tile type pkeys
-            fwd_map[tile_type_pkey] = []
-            for site_type, site_ofs in self.get_tile_type_sites(tile_type):
+            # Get sites
+            sites = self.get_tile_type_sites(tile_type_pkey)
 
-                # Get new tile type pkey from site name
-                new_tile_type_pkey = c.execute("SELECT pkey FROM tile_type WHERE name = (?)", (site_type,)).fetchone()[0]
+            # Generate new tile types
+            for site_type, site_name, site_loc, site_pkey in sites:
+                new_tile_type = "{}_{}_{}".format(tile_type, site_type, site_name)
 
-                # Get the site instance pkey from site name and offset
-                #site_pkey = c.execute("SELECT pkey FROM site WHERE x_coord = (?) AND y_coord = (?) AND site_type_pkey = (SELECT pkey FROM site_type WHERE name = (?))", (site_ofs[0], site_ofs[1], site_type, )).fetchone()[0]
+                # Insert new tile type
+                c.execute("INSERT INTO tile_type(name) VALUES (?)", (new_tile_type, ))
+                new_tile_type_pkey = c.lastrowid
 
-                fwd_map[tile_type_pkey].append((new_tile_type_pkey, site_ofs))
-                bwd_map[new_tile_type_pkey] = [tile_type_pkey]
+                # Insert new tile type as it should appear in the VPR
+                c.execute("INSERT INTO vpr_tile_type(name, tile_type_pkey) VALUES (?, ?)", (site_type, new_tile_type_pkey))
+                vpr_tile_pkey = c.lastrowid
 
-        # Return forward and backward mapping.
-        return fwd_map, bwd_map
+                print("{} -> {} -> {}".format(tile_type, new_tile_type, site_type))
 
-    def build_tile_wire_names_map(self, tile_type):
+                # Tile type map
+                self.append_to_map(fwd_map, tile_type, new_tile_type)
+                self.append_to_map(bwd_map, new_tile_type, tile_type)
+
+                # Internal map with tile to site type and site loc.
+                self.append_to_map(self.tile_site_pkeys, tile_type, (new_tile_type_pkey, vpr_tile_pkey, site_pkey))
+
+        return GenericMap(fwd_map, bwd_map)
+
+    def remap_tile_wires_and_pips(self):
         """
-        Builds a map which holds information about which wires are relevant
-        for particular site (new tile type). Wires which do not have any
-        sites/pips are included for all sites.
-
-        Args:
-            tile_type: Tile type string
+        Remaps tile wires from CLBs to corresponding SLICEs
 
         Returns:
-
         """
 
-        #print(tile_type)
+        c  = self.sql_db.cursor()
+        c2 = self.sql_db.cursor()
 
-        fwd_map = {}
+        # Initialize pkey maps for wires and pips
+        wire_pkey_map = {}
+        pip_pkey_map  = {}
 
-        # Get the tile type object and its site objects
-        tile_type_obj = self.prjxray_db.get_tile_type(tile_type)
-        site_objs = tile_type_obj.get_sites()
+        # For each tile to split
+        for tile_type in self.tile_types_to_split:
 
-        # Get list of all site wires
-        site_wires = {}
-        for site_obj in site_objs:
-            site_wires[site_obj.name] = [pin.wire for pin in site_obj.site_pins]
+            # Get tile type pkey
+            tile_type_pkey = c.execute("SELECT pkey FROM tile_type WHERE name = (?)", (tile_type,)).fetchone()[0]
 
-        # Loop through all tile wires
-        for wire in tile_type_obj.get_wires():
-            wire_info = tile_type_obj.get_wire_info(wire, allow_pseudo=False)
-            #print(wire, wire_info.pips, wire_info.sites)
+            # Build site wire and pip map
+            site_wire_map, site_pip_map = self.build_site_wire_and_pip_map(tile_type_pkey)
+            # DEBUG
+            #self._debug_dump_wire_and_pip_map(tile_type_pkey, site_wire_map, site_pip_map)
 
-            # The wire has no pips and sites. It is a passthrough one which
-            # should appear in all new tile types after CLB split.
-            if len(wire_info.pips) == 0 and len(wire_info.sites) == 0:
-                for site_obj in site_objs:
-                    self.append_to_map(fwd_map, wire, site_obj.name)
+            # Copy tile wires to new tile types
+            for new_tile_type_pkey, vpr_tile_pkey, site_pkey in self.tile_site_pkeys[tile_type]:
 
-            # The wire is relevant to a particular site(s) and pip(s).
-            else:
+                # Remap all tile wires relevant to the new_tile_type_pkey, when doing this create a map for pkeys.
+                itr = c.execute("SELECT pkey, name, site_pin_pkey FROM wire_in_tile WHERE tile_type_pkey = (?)", (tile_type_pkey,))
+                for pkey, name, site_pin_pkey in itr:
 
-                # The wire goes directly to site(s)
-                for site_name, site_pin in wire_info.sites:
-                    self.append_to_map(fwd_map, wire, site_name)
+                    # The wire is relevant to a site
+                    if site_wire_map[pkey] == site_pkey:
+                        #print("{}->{} wire {}:{} -> site {}".format(tile_type_pkey, new_tile_type_pkey, pkey, name, site_pkey))
 
-                # The wire goes to a pip(s)
-                for pip_name in wire_info.pips:
-                    pip_obj = tile_type_obj.get_pip_by_name(pip_name)
+                        c2.execute("INSERT INTO wire_in_tile(name, tile_type_pkey, site_pkey, site_pin_pkey) VALUES (?, ?, ?, ?)",
+                                   (name, new_tile_type_pkey, site_pkey, site_pin_pkey))
 
-                    # If the pip is connected to a site then the wire
-                    # is also relevant for that site
-                    for site_name, wires in site_wires.items():
+                        self.append_to_map(wire_pkey_map, pkey, c2.lastrowid)
 
-                        # FIXME: It is assumed here that there can be only one
-                        # pip between a tile wire and a site. This is true
-                        # for 7-series CLBs.
+                    # This is a free wire
+                    elif site_wire_map[pkey] is None:
+                        #print("{}->{} wire {}:{} -> site {}".format(tile_type_pkey, new_tile_type_pkey, pkey, name, site_pkey))
 
-                        if pip_obj.net_to in wires or \
-                           pip_obj.net_from in wires:
-                            self.append_to_map(fwd_map, wire, site_name)
+                        c2.execute("INSERT INTO wire_in_tile(name, tile_type_pkey, site_pkey, site_pin_pkey) VALUES (?, ?, ?, ?)",
+                                   (name, new_tile_type_pkey, None, None))
 
-            # Remove duplicates
-            fwd_map[wire] = list(set(fwd_map[wire]))
+                        self.append_to_map(wire_pkey_map, pkey, c2.lastrowid)
 
-        # Return maps
-        return fwd_map, None
+                # Remap all tile pips
+                itr = c.execute("SELECT pkey, name, src_wire_in_tile_pkey, dest_wire_in_tile_pkey, can_invert, is_directional, is_pseudo FROM pip_in_tile WHERE tile_type_pkey = (?)", (tile_type_pkey,))
+                for pkey, name, src_wire_in_tile_pkey, dest_wire_in_tile_pkey, can_invert, is_directional, is_pseudo in itr:
 
-    def build_tile_pip_names_map(self, tile_type):
-        """
-        Builds a map which binds concrete site instances within a tile type
-        and related pips.
+                    # We haven't remapped this pip
+                    if pkey not in site_pip_map.keys():
+                        raise RuntimeError("The pip '{}' (pkey={}) has not been remapped".format(name, pkey))
 
-        Args:
-            tile_type: Tile type name
+                    # The pip is relevant to a site
+                    if site_pip_map[pkey] == site_pkey:
 
-        Returns:
-            Forward and backward of sites and pips
+                        # There may not be multiple wire correspondencies for
+                        # wires that go to a pip. Multiple correspondencies are
+                        # only allowed for "free" wires.
+                        src_wire = wire_pkey_map[src_wire_in_tile_pkey]
+                        dst_wire = wire_pkey_map[dest_wire_in_tile_pkey]
 
-        """
+                        assert len(src_wire) == 1
+                        assert len(dst_wire) == 1
 
-        fwd_map = {}
-        bwd_map = {}
+                        c2.execute("INSERT INTO pip_in_tile(name, tile_type_pkey, src_wire_in_tile_pkey, dest_wire_in_tile_pkey, can_invert, is_directional, is_pseudo) VALUES(?, ?, ?, ?, ?, ?, ?)",
+                                   (name, new_tile_type_pkey, src_wire[0], dst_wire[0], can_invert, is_directional, is_pseudo))
 
-        # Get the tile type object and its site objects
-        tile_type_obj = self.prjxray_db.get_tile_type(tile_type)
+                        self.append_to_unique_map(pip_pkey_map, pkey, c2.lastrowid)
 
-        # Loop over all pips
-        for pip_obj in tile_type_obj.get_pips():
-
-            # Check if there is a wire connecting the pip with a site instance
-            for site_obj in tile_type_obj.get_sites():
-                site_wires = [pin.wire for pin in site_obj.site_pins]
-
-                # Got match
-                if pip_obj.net_from in site_wires or \
-                   pip_obj.net_to in site_wires:
-
-                    self.append_to_map(fwd_map, site_obj.name, pip_obj.name)
-                    self.append_to_map(bwd_map, pip_obj.name, site_obj.name)
-
-        # Return maps
-        return fwd_map, bwd_map
+    # .........................................................................
 
     def split(self):
         """
         Performs the tile split
         """
 
-        # TODO: I plan to use this class here for generating pb_type XMLs for
-        # the arch.xml
+        # Split the tiles
+        tile_type_map = self.split_tiles()
 
-        # Insert new tile types
-        self.insert_new_tile_types()
+        # Remap tile wires and pips
+        self.remap_tile_wires_and_pips()
 
-        # Build tile type pkey map
-        fwd_map, bwd_map = self.build_tile_type_pkey_map()
-        self.tile_type_pkey_map = GenericMap(fwd_map, bwd_map)
+        return tile_type_map
 
-        # Build tile wire map
-        self.tile_wire_name_map = {}
-        for tile_type in self.tile_types_to_split:
-            fwd_map, bwd_map = self.build_tile_wire_names_map(tile_type)
-            self.tile_wire_name_map[tile_type] = GenericMap(fwd_map, bwd_map)
+    # .........................................................................
 
-            #for k, v in fwd_map.items():
-            #    print(tile_type, k, v)
+    def _debug_dump_wire_and_pip_map(self, tile_type_pkey, site_wire_map, site_pip_map):
 
-        # Build tile pip map
-        self.tile_pip_name_map = {}
-        for tile_type in self.tile_types_to_split:
-            fwd_map, bwd_map = self.build_tile_pip_names_map(tile_type)
-            self.tile_pip_name_map[tile_type] = GenericMap(fwd_map, bwd_map)
+        c = self.sql_db.cursor()
 
-            # print("== FWD ==")
-            # for k, v in fwd_map.items():
-            #     print(tile_type, k, v)
-            #
-            # print("== BWD ==")
-            # for k, v in bwd_map.items():
-            #     print(tile_type, k, v)
+        # Get tile type string
+        tile_type = c.execute("SELECT name FROM tile_type WHERE pkey = (?)", (tile_type_pkey,)).fetchone()[0]
 
-        # Insert wires and pips for new tile types
-        #self.insert_new_tile_wires()
+        print("== wire and pip map for '{}' ==".format(tile_type))
 
-        # Return maps
-        return self.tile_type_pkey_map, self.tile_wire_name_map, self.tile_pip_name_map
+        # Site wires
+        print("Wires:")
+        for wire_pkey, site_pkey in site_wire_map.items():
+            wire = c.execute("SELECT name FROM wire_in_tile WHERE pkey = (?)", (wire_pkey,)).fetchone()[0]
 
-# =============================================================================
+            # Site relevant wire
+            if site_pkey is not None:
+                site = c.execute("SELECT name FROM site WHERE pkey = (?)", (site_pkey,)).fetchone()[0]
+                print(" {} {}.{}".format(site, tile_type, wire))
 
+            # Free wire
+            else:
+                print(" ALL {}.{}".format(tile_type, wire))
 
-if __name__ == "__main__":
+        # Site pips
+        print("Pips:")
+        for pip_pkey, site_pkey in site_pip_map.items():
 
-    db = "/home/mkurc/Repos/google-symbiflow-arch-defs/build/xc7/archs/artix7/devices/xc7a50t-basys3-roi-virt/channels.db"
-    db_conn = sqlite3.Connection(db)
+            # Query texts
+            pip  = c.execute("SELECT name FROM pip_in_tile WHERE pkey = (?)", (pip_pkey,)).fetchone()[0]
+            site = c.execute("SELECT name FROM site WHERE pkey = (?)", (site_pkey,)).fetchone()[0]
 
-    ts = TileSplitter(db_conn)
-    ts.set_tile_types_to_split(["CLBLL_L", "CLBLL_R", "CLBLM_L", "CLBLM_R"])
-
-    ts.split()
-
-    #for x in ts.get_unique_site_types():
-    #    print(x)
+            print(" {} {}".format(site, pip))
