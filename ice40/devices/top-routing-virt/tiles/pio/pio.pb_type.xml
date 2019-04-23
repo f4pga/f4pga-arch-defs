@@ -1,5 +1,5 @@
 <!-- set: ai sw=1 ts=1 sta et -->
-<pb_type name="BLK_TL-PIO" capacity="2" xmlns:xi="http://www.w3.org/2001/XInclude">
+<pb_type name="PIO" capacity="2" xmlns:xi="http://www.w3.org/2001/XInclude">
  <!-- SB_IO inputs   -->
  <output name="D_IN" num_pins="2"/>
 
@@ -22,14 +22,17 @@
    <input name="D_OUT" num_pins="2"/>
    <pb_type name="output" blif_model=".output" num_pb="1">
     <input name="outpad" num_pins="1"/>
+    <metadata>
+     <meta name="type">bel</meta>
+     <meta name="subtype">output</meta>
+    </metadata>
    </pb_type>
    <interconnect>
     <mux name="D_OUT" input="PAD.D_OUT[0]" output="output.outpad"/>
    </interconnect>
    <metadata>
-    <meta name="hlc_property">disable_pull_up</meta>
-    <meta name="hlc_property">output_pin_type = simple_output_pin</meta>
-    <meta name="hlc_property">input_pin_type = simple_input_pin</meta>
+    <meta name="type">block</meta>
+    <meta name="subtype">ignore</meta>
    </metadata>
   </pb_type>
 
@@ -40,7 +43,7 @@
      <port type="output" name="D_OUT[0]" from="PAD" />
      <metadata>
        <meta name="fasm_mux">
-	 BLK_TL-PIO.D_OUT[0] = SimpleOutput
+	 PIO.D_OUT[0] = SimpleOutput
        </meta>
      </metadata>
    </direct>
@@ -49,7 +52,7 @@
      <port type="output" name="D_OUT[1]" from="PAD" />
      <metadata>
        <meta name="fasm_mux">
-	 BLK_TL-PIO.D_OUT[1] = SimpleOutput
+	 PIO.D_OUT[1] = SimpleOutput
        </meta>
      </metadata>
    </direct>
@@ -63,15 +66,18 @@
    <output name="PIN"  num_pins="1"/>
    <pb_type name="input" blif_model=".input" num_pb="1">
     <output name="inpad" num_pins="1"/>
+    <metadata>
+     <meta name="type">bel</meta>
+     <meta name="subtype">input</meta>
+    </metadata>
    </pb_type>
    <interconnect>
     <direct><port type="input" name="inpad" from="input" /><port type="output" name="D_IN[0]" from="PAD" /></direct>
     <direct><port type="input" name="inpad" from="input" /><port type="output" name="PIN" from="PAD" /></direct>
    </interconnect>
    <metadata>
-    <meta name="hlc_property">disable_pull_up</meta>
-    <meta name="hlc_property">enable_input</meta>
-    <meta name="hlc_property">input_pin_type = simple_input_pin</meta>
+    <meta name="type">block</meta>
+    <meta name="subtype">ignore</meta>
    </metadata>
   </pb_type>
 
@@ -100,22 +106,21 @@
 
  </mode>
 
- <metadata>
-  <meta name="hlc_cell">io</meta>
-  <meta name="hlc_tile">io_tile</meta>
- </metadata>
-
  <pinlocations pattern="custom">
   <loc side="right" xoffset="0" yoffset="0">
-   BLK_TL-PIO.D_IN
-   BLK_TL-PIO.D_OUT
-   BLK_TL-PIO.OUT_ENB
-   BLK_TL-PIO.CEN
-   BLK_TL-PIO.INCLK
-   BLK_TL-PIO.OUTCLK
-   BLK_TL-PIO.LATCH
-   BLK_TL-PIO.PACKAGE_PIN
+   PIO.D_IN
+   PIO.D_OUT
+   PIO.OUT_ENB
+   PIO.CEN
+   PIO.INCLK
+   PIO.OUTCLK
+   PIO.LATCH
+   PIO.PACKAGE_PIN
   </loc>
  </pinlocations>
  <fc in_type="frac" in_val="1.0" out_type="frac" out_val="1.0" />
+ <metadata>
+  <meta name="type">block</meta>
+  <meta name="subtype">tile</meta>
+ </metadata>
 </pb_type>

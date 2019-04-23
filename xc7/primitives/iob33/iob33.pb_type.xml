@@ -1,5 +1,5 @@
 <!-- set: ai sw=1 ts=1 sta et -->
-<pb_type name="BLK_BB-IOB33" num_pb="1">
+<pb_type name="IOB33" num_pb="1">
  <input name="O" num_pins="1"/>
  <input name="PU_INT_EN" num_pins="1"/>
  <input name="T" num_pins="1"/>
@@ -21,23 +21,35 @@
 
  <!-- IO operating as an input -->
  <mode name="inpad">
-   <pb_type name="inpad" blif_model=".input" num_pb="1">
-    <output name="inpad" num_pins="1"/>
-   </pb_type>
-   <interconnect>
-     <direct name="inpad_to_PADOUT" input="inpad.inpad" output="BLK_BB-IOB33.PADOUT"/>
-     <direct name="inpad_to_I" input="inpad.inpad" output="BLK_BB-IOB33.I"/>
-   </interconnect>
+  <pb_type name="inpad" blif_model=".input" num_pb="1">
+   <output name="inpad" num_pins="1"/>
+   <metadata>
+    <meta name="type">bel</meta>
+    <meta name="subtype">input</meta>
+   </metadata>
+  </pb_type>
+  <interconnect>
+    <direct name="inpad_to_PADOUT" input="inpad.inpad" output="IOB33.PADOUT"/>
+    <direct name="inpad_to_I" input="inpad.inpad" output="IOB33.I"/>
+  </interconnect>
  </mode>
 
  <!-- IO operating as an output -->
  <mode name="outpad">
   <pb_type name="outpad" blif_model=".output" num_pb="1">
    <input name="outpad" num_pins="1"/>
+   <metadata>
+    <meta name="type">bel</meta>
+    <meta name="subtype">output</meta>
+   </metadata>
   </pb_type>
   <interconnect>
-    <direct name="O_to_output" input="BLK_BB-IOB33.O" output="outpad.outpad"/>
-    <direct name="output_feedback" input="BLK_BB-IOB33.O" output="BLK_BB-IOB33.O_OUT"/>
+    <direct name="O_to_output" input="IOB33.O" output="outpad.outpad"/>
+    <direct name="output_feedback" input="IOB33.O" output="IOB33.O_OUT"/>
   </interconnect>
  </mode>
+ <metadata>
+  <meta name="type">block</meta>
+  <meta name="subtype">ignore</meta>
+ </metadata>
 </pb_type>

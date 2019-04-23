@@ -1,5 +1,5 @@
 <!-- set: ai sw=1 ts=1 sta et -->
-<pb_type name="BLK_IG-IO_LOCAL" num_pb="1" xmlns:xi="http://www.w3.org/2001/XInclude">
+<pb_type name="IO_LOCAL" num_pb="1" xmlns:xi="http://www.w3.org/2001/XInclude">
  <!-- SB_IO inputs -->
  <output name="io_0_D_IN"       num_pins="2"/>
  <output name="io_1_D_IN"       num_pins="2"/>
@@ -17,28 +17,32 @@
  <clock name="io_global_outclk" num_pins="1"/>
  <input name="io_global_latch"  num_pins="1"/>
 
- <pb_type name="BLK_IG-IO" num_pb="2">
+ <pb_type name="IO" num_pb="2">
   <xi:include href="../../primitives/sb_io/sb_io.pb_type.xml" xpointer="xpointer(pb_type/child::node())"/>
  </pb_type>
 
  <interconnect>
-  <direct name="io_0_D_IN"         input="BLK_IG-IO[0].D_IN"                output="BLK_IG-IO_LOCAL.io_0_D_IN" />
-  <direct name="io_1_D_IN"         input="BLK_IG-IO[1].D_IN"                output="BLK_IG-IO_LOCAL.io_1_D_IN" />
+  <direct name="io_0_D_IN"         input="IO[0].D_IN"                output="IO_LOCAL.io_0_D_IN" />
+  <direct name="io_1_D_IN"         input="IO[1].D_IN"                output="IO_LOCAL.io_1_D_IN" />
 
-  <direct name="io_0_D_OUT"        input="BLK_IG-IO_LOCAL.io_0_D_OUT"       output="BLK_IG-IO[0].D_OUT"        />
-  <direct name="io_1_D_OUT"        input="BLK_IG-IO_LOCAL.io_1_D_OUT"       output="BLK_IG-IO[1].D_OUT"        />
+  <direct name="io_0_D_OUT"        input="IO_LOCAL.io_0_D_OUT"       output="IO[0].D_OUT"        />
+  <direct name="io_1_D_OUT"        input="IO_LOCAL.io_1_D_OUT"       output="IO[1].D_OUT"        />
 
-  <direct name="io_0_OUT_ENB"      input="BLK_IG-IO_LOCAL.io_0_OUT_ENB"     output="BLK_IG-IO[0].OUT_ENB"      />
-  <direct name="io_1_OUT_ENB"      input="BLK_IG-IO_LOCAL.io_1_OUT_ENB"     output="BLK_IG-IO[1].OUT_ENB"      />
+  <direct name="io_0_OUT_ENB"      input="IO_LOCAL.io_0_OUT_ENB"     output="IO[0].OUT_ENB"      />
+  <direct name="io_1_OUT_ENB"      input="IO_LOCAL.io_1_OUT_ENB"     output="IO[1].OUT_ENB"      />
 
-  <direct name="io_global_cen0"    input="BLK_IG-IO_LOCAL.io_global_cen"    output="BLK_IG-IO[0].CEN"          />
-  <direct name="io_global_cen1"    input="BLK_IG-IO_LOCAL.io_global_cen"    output="BLK_IG-IO[1].CEN"          />
-  <direct name="io_global_inclk0"  input="BLK_IG-IO_LOCAL.io_global_inclk"  output="BLK_IG-IO[0].INCLK"        />
-  <direct name="io_global_inclk1"  input="BLK_IG-IO_LOCAL.io_global_inclk"  output="BLK_IG-IO[1].INCLK"        />
-  <direct name="io_global_outclk0" input="BLK_IG-IO_LOCAL.io_global_outclk" output="BLK_IG-IO[0].OUTCLK"       />
-  <direct name="io_global_outclk1" input="BLK_IG-IO_LOCAL.io_global_outclk" output="BLK_IG-IO[1].OUTCLK"       />
-  <direct name="io_global_latch0"  input="BLK_IG-IO_LOCAL.io_global_latch"  output="BLK_IG-IO[0].LATCH"        />
-  <direct name="io_global_latch1"  input="BLK_IG-IO_LOCAL.io_global_latch"  output="BLK_IG-IO[1].LATCH"        />
+  <direct name="io_global_cen0"    input="IO_LOCAL.io_global_cen"    output="IO[0].CEN"          />
+  <direct name="io_global_cen1"    input="IO_LOCAL.io_global_cen"    output="IO[1].CEN"          />
+  <direct name="io_global_inclk0"  input="IO_LOCAL.io_global_inclk"  output="IO[0].INCLK"        />
+  <direct name="io_global_inclk1"  input="IO_LOCAL.io_global_inclk"  output="IO[1].INCLK"        />
+  <direct name="io_global_outclk0" input="IO_LOCAL.io_global_outclk" output="IO[0].OUTCLK"       />
+  <direct name="io_global_outclk1" input="IO_LOCAL.io_global_outclk" output="IO[1].OUTCLK"       />
+  <direct name="io_global_latch0"  input="IO_LOCAL.io_global_latch"  output="IO[0].LATCH"        />
+  <direct name="io_global_latch1"  input="IO_LOCAL.io_global_latch"  output="IO[1].LATCH"        />
  </interconnect>
+ <metadata>
+  <meta name="type">block</meta>
+  <meta name="subtype">ignore</meta>
+ </metadata>
 
 </pb_type>

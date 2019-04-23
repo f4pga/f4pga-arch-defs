@@ -11,40 +11,57 @@
  <!-- ################################################################ -->
  <!-- # Local tracks                                                 # -->
  <!-- ################################################################ -->
- <pb_type name="BLK_XX-local_g" num_pb="2">
+ <pb_type name="local_g" num_pb="2">
   <input  name="i"  num_pins="8"/>
   <output name="o"  num_pins="8"/>
 
   <interconnect>
-   <direct name="i_to_o" input="BLK_XX-local_g.i" output="BLK_XX-local_g.o" />
+   <direct name="i_to_o" input="local_g.i" output="local_g.o" />
   </interconnect>
+  <metadata>
+   <meta name="type">block</meta>
+   <meta name="subtype">ignore</meta>
+  </metadata>
  </pb_type>
 
- <pb_type name="BLK_XX-glb_netwk" num_pb="8">
+ <pb_type name="glb_netwk" num_pb="8">
   <input  name="i" num_pins="1"/>
   <output name="o" num_pins="1"/>
   <interconnect>
-   <direct name="i_to_o" input="BLK_XX-glb_netwk.i" output="BLK_XX-glb_netwk.o" />
+   <direct name="i_to_o" input="glb_netwk.i" output="glb_netwk.o" />
   </interconnect>
+  <metadata>
+   <meta name="type">block</meta>
+   <meta name="subtype">ignore</meta>
+  </metadata>
  </pb_type>
 
  <!-- ################################################################ -->
  <!-- # IO units                                                     # -->
  <!-- ################################################################ -->
 
- <pb_type name="BLK_XX-io_global" num_pb="1">
+ <pb_type name="io_global" num_pb="1">
   <input name="i_cen" num_pins="1" /><output name="o_cen" num_pins="1" />
   <clock name="i_inclk" num_pins="1" /><output name="o_inclk" num_pins="1" />
   <clock name="i_outclk" num_pins="1" /><output name="o_outclk" num_pins="1" />
   <input name="i_latch" num_pins="1" /><output name="o_latch" num_pins="1" />
   <interconnect>
-   <direct name="EN" input="BLK_XX-io_global.i_cen" output="BLK_XX-io_global.o_cen"/>
-   <direct name="ICLK" input="BLK_XX-io_global.i_inclk" output="BLK_XX-io_global.o_inclk"/>
-   <direct name="OCLK" input="BLK_XX-io_global.i_outclk" output="BLK_XX-io_global.o_outclk"/>
-   <direct name="io_global_latch" input="BLK_XX-io_global.i_latch" output="BLK_XX-io_global.o_latch"/>
+   <direct name="EN" input="io_global.i_cen" output="io_global.o_cen"/>
+   <direct name="ICLK" input="io_global.i_inclk" output="io_global.o_inclk"/>
+   <direct name="OCLK" input="io_global.i_outclk" output="io_global.o_outclk"/>
+   <direct name="io_global_latch" input="io_global.i_latch" output="io_global.o_latch"/>
   </interconnect>
+  <metadata>
+   <meta name="type">block</meta>
+   <meta name="subtype">ignore</meta>
+  </metadata>
  </pb_type>
 
  <xi:include href="../../../../cells/io_local/io_local.pb_type.xml"/>
+
+ <metadata>
+  <meta name="type">block</meta>
+  <meta name="subtype">tile</meta>
+ </metadata>
 
 </pb_type>

@@ -6,7 +6,7 @@
 
      It is 8 x (SB_CARRY + SB_LUT4 + FF)
   -->
-<pb_type name="BLK_TL-PLB" xmlns:xi="http://www.w3.org/2001/XInclude">
+<pb_type name="PLB" xmlns:xi="http://www.w3.org/2001/XInclude">
  <!-- LUT inputs -->
  <input  name="lutff_0/in"       num_pins="4"/>
  <input  name="lutff_1/in"       num_pins="4"/>
@@ -36,77 +36,77 @@
  <input  name="FCIN"   num_pins="1"/>
  <output name="FCOUT"  num_pins="1"/>
 
- <!-- A BLK_IG-PLB contains the same 'cell' repeated 8 times. -->
- <pb_type name="BLK_IG-PLB" num_pb="1">
+ <!-- A PLB contains the same 'cell' repeated 8 times. -->
+ <pb_type name="PLB_CELLS" num_pb="1">
   <xi:include href="../../../../cells/plb/plb.pb_type.xml" xpointer="xpointer(pb_type/child::node())"/>
  </pb_type>
 
  <interconnect>
   <!-- LUT inputs -->
-  <direct><port type="input" name="lutff_0/in"/><port type="output" name="I0" from="BLK_IG-PLB"/></direct>
-  <direct><port type="input" name="lutff_1/in"/><port type="output" name="I1" from="BLK_IG-PLB"/></direct>
-  <direct><port type="input" name="lutff_2/in"/><port type="output" name="I2" from="BLK_IG-PLB"/></direct>
-  <direct><port type="input" name="lutff_3/in"/><port type="output" name="I3" from="BLK_IG-PLB"/></direct>
-  <direct><port type="input" name="lutff_4/in"/><port type="output" name="I4" from="BLK_IG-PLB"/></direct>
-  <direct><port type="input" name="lutff_5/in"/><port type="output" name="I5" from="BLK_IG-PLB"/></direct>
-  <direct><port type="input" name="lutff_6/in"/><port type="output" name="I6" from="BLK_IG-PLB"/></direct>
-  <direct><port type="input" name="lutff_7/in"/><port type="output" name="I7" from="BLK_IG-PLB"/></direct>
+  <direct><port type="input" name="lutff_0/in"/><port type="output" name="I0" from="PLB_CELLS"/></direct>
+  <direct><port type="input" name="lutff_1/in"/><port type="output" name="I1" from="PLB_CELLS"/></direct>
+  <direct><port type="input" name="lutff_2/in"/><port type="output" name="I2" from="PLB_CELLS"/></direct>
+  <direct><port type="input" name="lutff_3/in"/><port type="output" name="I3" from="PLB_CELLS"/></direct>
+  <direct><port type="input" name="lutff_4/in"/><port type="output" name="I4" from="PLB_CELLS"/></direct>
+  <direct><port type="input" name="lutff_5/in"/><port type="output" name="I5" from="PLB_CELLS"/></direct>
+  <direct><port type="input" name="lutff_6/in"/><port type="output" name="I6" from="PLB_CELLS"/></direct>
+  <direct><port type="input" name="lutff_7/in"/><port type="output" name="I7" from="PLB_CELLS"/></direct>
 
   <!-- D flip-flop controls -->
-  <direct><port type="input" name="lutff_global/clk"/><port type="output" name="CLK" from="BLK_IG-PLB"/></direct>
-  <direct><port type="input" name="lutff_global/s_r"/><port type="output" name="SR" from="BLK_IG-PLB"/></direct>
-  <direct><port type="input" name="lutff_global/cen"/><port type="output" name="EN" from="BLK_IG-PLB"/></direct>
+  <direct><port type="input" name="lutff_global/clk"/><port type="output" name="CLK" from="PLB_CELLS"/></direct>
+  <direct><port type="input" name="lutff_global/s_r"/><port type="output" name="SR"  from="PLB_CELLS"/></direct>
+  <direct><port type="input" name="lutff_global/cen"/><port type="output" name="EN"  from="PLB_CELLS"/></direct>
 
   <!-- D flip-flop outputs -->
-  <direct><port type="input" name="O0" from="BLK_IG-PLB" /><port type="output" name="lutff_0/out" from="BLK_TL-PLB"/></direct>
-  <direct><port type="input" name="O1" from="BLK_IG-PLB" /><port type="output" name="lutff_1/out" from="BLK_TL-PLB"/></direct>
-  <direct><port type="input" name="O2" from="BLK_IG-PLB" /><port type="output" name="lutff_2/out" from="BLK_TL-PLB"/></direct>
-  <direct><port type="input" name="O3" from="BLK_IG-PLB" /><port type="output" name="lutff_3/out" from="BLK_TL-PLB"/></direct>
-  <direct><port type="input" name="O4" from="BLK_IG-PLB" /><port type="output" name="lutff_4/out" from="BLK_TL-PLB"/></direct>
-  <direct><port type="input" name="O5" from="BLK_IG-PLB" /><port type="output" name="lutff_5/out" from="BLK_TL-PLB"/></direct>
-  <direct><port type="input" name="O6" from="BLK_IG-PLB" /><port type="output" name="lutff_6/out" from="BLK_TL-PLB"/></direct>
-  <direct><port type="input" name="O7" from="BLK_IG-PLB" /><port type="output" name="lutff_7/out" from="BLK_TL-PLB"/></direct>
+  <direct><port type="input" name="O0" from="PLB_CELLS" /><port type="output" name="lutff_0/out"/></direct>
+  <direct><port type="input" name="O1" from="PLB_CELLS" /><port type="output" name="lutff_1/out"/></direct>
+  <direct><port type="input" name="O2" from="PLB_CELLS" /><port type="output" name="lutff_2/out"/></direct>
+  <direct><port type="input" name="O3" from="PLB_CELLS" /><port type="output" name="lutff_3/out"/></direct>
+  <direct><port type="input" name="O4" from="PLB_CELLS" /><port type="output" name="lutff_4/out"/></direct>
+  <direct><port type="input" name="O5" from="PLB_CELLS" /><port type="output" name="lutff_5/out"/></direct>
+  <direct><port type="input" name="O6" from="PLB_CELLS" /><port type="output" name="lutff_6/out"/></direct>
+  <direct><port type="input" name="O7" from="PLB_CELLS" /><port type="output" name="lutff_7/out"/></direct>
 
   <!-- Fast Carry chain
-  <direct><port type="input" name="FCIN"/><port type="output" name="FCIN" from="BLK_IG-PLB" /></direct>
-  <direct><port type="input" name="FCOUT" from="BLK_IG-PLB" /><port type="output" name="FCOUT"/></direct>
+  <direct><port type="input" name="FCIN"/><port type="output" name="FCIN" from="PLB_CELLS" /></direct>
+  <direct><port type="input" name="FCOUT" from="PLB_CELLS" /><port type="output" name="FCOUT"/></direct>
        -->
   <direct>
-   <port type="input" name="FCIN"/><port type="output" name="FCIN" from="BLK_IG-PLB" />
+   <port type="input" name="FCIN"/><port type="output" name="FCIN" from="PLB_CELLS" />
   </direct>
   <direct>
-   <port type="input" name="FCOUT" from="BLK_IG-PLB" /><port type="output" name="FCOUT"/>
+   <port type="input" name="FCOUT" from="PLB_CELLS" /><port type="output" name="FCOUT"/>
   </direct>
 
  </interconnect>
  <pinlocations pattern="custom">
   <loc side="right" xoffset="0" yoffset="0">
-   BLK_TL-PLB.lutff_0/in
-   BLK_TL-PLB.lutff_1/in
-   BLK_TL-PLB.lutff_2/in
-   BLK_TL-PLB.lutff_3/in
-   BLK_TL-PLB.lutff_4/in
-   BLK_TL-PLB.lutff_5/in
-   BLK_TL-PLB.lutff_6/in
-   BLK_TL-PLB.lutff_7/in
+   PLB.lutff_0/in
+   PLB.lutff_1/in
+   PLB.lutff_2/in
+   PLB.lutff_3/in
+   PLB.lutff_4/in
+   PLB.lutff_5/in
+   PLB.lutff_6/in
+   PLB.lutff_7/in
 
-   BLK_TL-PLB.lutff_global/clk
-   BLK_TL-PLB.lutff_global/cen
-   BLK_TL-PLB.lutff_global/s_r
-   BLK_TL-PLB.lutff_0/out
-   BLK_TL-PLB.lutff_1/out
-   BLK_TL-PLB.lutff_2/out
-   BLK_TL-PLB.lutff_3/out
-   BLK_TL-PLB.lutff_4/out
-   BLK_TL-PLB.lutff_5/out
-   BLK_TL-PLB.lutff_6/out
-   BLK_TL-PLB.lutff_7/out
+   PLB.lutff_global/clk
+   PLB.lutff_global/cen
+   PLB.lutff_global/s_r
+   PLB.lutff_0/out
+   PLB.lutff_1/out
+   PLB.lutff_2/out
+   PLB.lutff_3/out
+   PLB.lutff_4/out
+   PLB.lutff_5/out
+   PLB.lutff_6/out
+   PLB.lutff_7/out
   </loc>
   <loc side="top" xoffset="0" yoffset="0">
-   BLK_TL-PLB.FCIN
+   PLB.FCIN
   </loc>
   <loc side="bottom" xoffset="0" yoffset="0">
-   BLK_TL-PLB.FCOUT
+   PLB.FCOUT
   </loc>
  </pinlocations>
 
@@ -118,6 +118,7 @@
   <fc_override fc_type="frac" fc_val="0.0" port_name="FCIN"  />
  </fc>
  <metadata>
-  <meta name="hlc_tile">logic_tile</meta>
+  <meta name="type">block</meta>
+  <meta name="subtype">tile</meta>
  </metadata>
 </pb_type>

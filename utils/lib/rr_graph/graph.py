@@ -94,8 +94,8 @@ def parse_net(
     ('c', 'd', [1])
     >>> parse_net('c.d[40]')
     ('c', 'd', [40])
-    >>> parse_net('BLK_BB-VPR_PAD.outpad[0]')
-    ('BLK_BB-VPR_PAD', 'outpad', [0])
+    >>> parse_net('VPR_PAD.outpad[0]')
+    ('VPR_PAD', 'outpad', [0])
 
     Fully specified with more complex block names
     >>> parse_net('a.b.c[0]')
@@ -116,8 +116,8 @@ def parse_net(
     ('c', 'd', [8, 9, 10, 11])
 
     Net with no pin index.
-    >>> parse_net('BLK_BB-VPR_PAD.outpad')
-    ('BLK_BB-VPR_PAD', 'outpad', None)
+    >>> parse_net('VPR_PAD.outpad')
+    ('VPR_PAD', 'outpad', None)
 
     Net with no block
     >>> parse_net('outpad[10]')
@@ -728,21 +728,21 @@ class BlockType(MostlyReadOnly):
         """
 
         >>> xml_string = '''
-        ... <block_type id="1" name="BLK_BB-VPR_PAD" width="2" height="3">
+        ... <block_type id="1" name="VPR_PAD" width="2" height="3">
         ...   <pin_class type="OUTPUT">
-        ...     <pin ptc="0">BLK_BB-VPR_PAD.outpad[0]</pin>
+        ...     <pin ptc="0">VPR_PAD.outpad[0]</pin>
         ...   </pin_class>
         ...   <pin_class type="OUTPUT">
-        ...     <pin ptc="1">BLK_BB-VPR_PAD.outpad[1]</pin>
+        ...     <pin ptc="1">VPR_PAD.outpad[1]</pin>
         ...   </pin_class>
         ...   <pin_class type="INPUT">
-        ...     <pin ptc="2">BLK_BB-VPR_PAD.inpad[0]</pin>
+        ...     <pin ptc="2">VPR_PAD.inpad[0]</pin>
         ...   </pin_class>
         ... </block_type>
         ... '''
         >>> bt = BlockType.from_xml(None, ET.fromstring(xml_string))
         >>> bt # doctest: +ELLIPSIS
-        BlockType(graph=None, id=1, name='BLK_BB-VPR_PAD', size=Size(w=2, h=3), pin_classes=[...], pins_index={...})
+        BlockType(graph=None, id=1, name='VPR_PAD', size=Size(w=2, h=3), pin_classes=[...], pins_index={...})
         >>> len(bt.pin_classes)
         3
         >>> bt.pin_classes[0].direction
@@ -750,31 +750,31 @@ class BlockType(MostlyReadOnly):
         >>> bt.pin_classes[0] # doctest: +ELLIPSIS
         PinClass(block_type=BlockType(), direction='output', pins=[...])
         >>> bt.pin_classes[0].pins[0]
-        Pin(pin_class=PinClass(), port_name='outpad', port_index=0, block_type_name='BLK_BB-VPR_PAD', block_type_subblk=None, block_type_index=0, side=None)
+        Pin(pin_class=PinClass(), port_name='outpad', port_index=0, block_type_name='VPR_PAD', block_type_subblk=None, block_type_index=0, side=None)
         >>> bt.pin_classes[1].direction
         'output'
         >>> bt.pin_classes[1].pins[0]
-        Pin(pin_class=PinClass(), port_name='outpad', port_index=1, block_type_name='BLK_BB-VPR_PAD', block_type_subblk=None, block_type_index=1, side=None)
+        Pin(pin_class=PinClass(), port_name='outpad', port_index=1, block_type_name='VPR_PAD', block_type_subblk=None, block_type_index=1, side=None)
         >>> bt.pin_classes[2].direction
         'input'
         >>> bt.pin_classes[2].pins[0]
-        Pin(pin_class=PinClass(), port_name='inpad', port_index=0, block_type_name='BLK_BB-VPR_PAD', block_type_subblk=None, block_type_index=2, side=None)
+        Pin(pin_class=PinClass(), port_name='inpad', port_index=0, block_type_name='VPR_PAD', block_type_subblk=None, block_type_index=2, side=None)
 
         Multiple pins in a single pinclass.
         >>> xml_string = '''
-        ... <block_type id="1" name="BLK_BB-VPR_PAD" width="2" height="3">
+        ... <block_type id="1" name="VPR_PAD" width="2" height="3">
         ...   <pin_class type="OUTPUT">
-        ...     <pin ptc="0">BLK_BB-VPR_PAD.outpad[0]</pin>
-        ...     <pin ptc="1">BLK_BB-VPR_PAD.outpad[1]</pin>
+        ...     <pin ptc="0">VPR_PAD.outpad[0]</pin>
+        ...     <pin ptc="1">VPR_PAD.outpad[1]</pin>
         ...   </pin_class>
         ...   <pin_class type="INPUT">
-        ...     <pin ptc="2">BLK_BB-VPR_PAD.inpad[0]</pin>
+        ...     <pin ptc="2">VPR_PAD.inpad[0]</pin>
         ...   </pin_class>
         ... </block_type>
         ... '''
         >>> bt = BlockType.from_xml(None, ET.fromstring(xml_string))
         >>> bt # doctest: +ELLIPSIS
-        BlockType(graph=None, id=1, name='BLK_BB-VPR_PAD', size=Size(w=2, h=3), pin_classes=[...], pins_index={...}, ports_index={...})
+        BlockType(graph=None, id=1, name='VPR_PAD', size=Size(w=2, h=3), pin_classes=[...], pins_index={...}, ports_index={...})
         >>> bt.pin_classes[0] # doctest: +ELLIPSIS
         PinClass(block_type=BlockType(), direction='output', pins=[...])
         >>> len(bt.pins_index)
@@ -786,33 +786,33 @@ class BlockType(MostlyReadOnly):
         >>> len(bt.pin_classes[1].pins)
         1
         >>> bt.pin_classes[0].pins[0]
-        Pin(pin_class=PinClass(), port_name='outpad', port_index=0, block_type_name='BLK_BB-VPR_PAD', block_type_subblk=None, block_type_index=0, side=None)
+        Pin(pin_class=PinClass(), port_name='outpad', port_index=0, block_type_name='VPR_PAD', block_type_subblk=None, block_type_index=0, side=None)
         >>> bt.pin_classes[0].pins[1]
-        Pin(pin_class=PinClass(), port_name='outpad', port_index=1, block_type_name='BLK_BB-VPR_PAD', block_type_subblk=None, block_type_index=1, side=None)
+        Pin(pin_class=PinClass(), port_name='outpad', port_index=1, block_type_name='VPR_PAD', block_type_subblk=None, block_type_index=1, side=None)
         >>> bt.pin_classes[1].pins[0]
-        Pin(pin_class=PinClass(), port_name='inpad', port_index=0, block_type_name='BLK_BB-VPR_PAD', block_type_subblk=None, block_type_index=2, side=None)
+        Pin(pin_class=PinClass(), port_name='inpad', port_index=0, block_type_name='VPR_PAD', block_type_subblk=None, block_type_index=2, side=None)
         >>>
 
         Multiple subblocks within a block_type
         >>> xml_string = '''
-        ... <block_type id="1" name="BLK_BB-VPR_PAD" width="2" height="3">
+        ... <block_type id="1" name="VPR_PAD" width="2" height="3">
         ...   <pin_class type="OUTPUT">
-        ...     <pin ptc="0">BLK_BB-VPR_PAD[0].outpad[0]</pin>
+        ...     <pin ptc="0">VPR_PAD[0].outpad[0]</pin>
         ...   </pin_class>
         ...   <pin_class type="INPUT">
-        ...     <pin ptc="1">BLK_BB-VPR_PAD[0].inpad[0]</pin>
+        ...     <pin ptc="1">VPR_PAD[0].inpad[0]</pin>
         ...   </pin_class>
         ...   <pin_class type="OUTPUT">
-        ...     <pin ptc="2">BLK_BB-VPR_PAD[1].outpad[0]</pin>
+        ...     <pin ptc="2">VPR_PAD[1].outpad[0]</pin>
         ...   </pin_class>
         ...   <pin_class type="INPUT">
-        ...     <pin ptc="3">BLK_BB-VPR_PAD[1].inpad[0]</pin>
+        ...     <pin ptc="3">VPR_PAD[1].inpad[0]</pin>
         ...   </pin_class>
         ... </block_type>
         ... '''
         >>> bt = BlockType.from_xml(None, ET.fromstring(xml_string))
         >>> bt # doctest: +ELLIPSIS
-        BlockType(graph=None, id=1, name='BLK_BB-VPR_PAD', size=Size(w=2, h=3), pin_classes=[...], pins_index={...}, ports_index={...})
+        BlockType(graph=None, id=1, name='VPR_PAD', size=Size(w=2, h=3), pin_classes=[...], pins_index={...}, ports_index={...})
         >>> bt.pin_classes[0] # doctest: +ELLIPSIS
         PinClass(block_type=BlockType(), direction='output', pins=[...])
         >>> len(bt.pins_index)
@@ -821,13 +821,13 @@ class BlockType(MostlyReadOnly):
         4
         >>> # All the pin classes should only have one pin
         >>> bt.pin_classes[0].pins
-        (Pin(pin_class=PinClass(), port_name='outpad', port_index=0, block_type_name='BLK_BB-VPR_PAD', block_type_subblk=0, block_type_index=0, side=None),)
+        (Pin(pin_class=PinClass(), port_name='outpad', port_index=0, block_type_name='VPR_PAD', block_type_subblk=0, block_type_index=0, side=None),)
         >>> bt.pin_classes[1].pins
-        (Pin(pin_class=PinClass(), port_name='inpad', port_index=0, block_type_name='BLK_BB-VPR_PAD', block_type_subblk=0, block_type_index=1, side=None),)
+        (Pin(pin_class=PinClass(), port_name='inpad', port_index=0, block_type_name='VPR_PAD', block_type_subblk=0, block_type_index=1, side=None),)
         >>> bt.pin_classes[2].pins
-        (Pin(pin_class=PinClass(), port_name='outpad', port_index=0, block_type_name='BLK_BB-VPR_PAD', block_type_subblk=1, block_type_index=2, side=None),)
+        (Pin(pin_class=PinClass(), port_name='outpad', port_index=0, block_type_name='VPR_PAD', block_type_subblk=1, block_type_index=2, side=None),)
         >>> bt.pin_classes[3].pins
-        (Pin(pin_class=PinClass(), port_name='inpad', port_index=0, block_type_name='BLK_BB-VPR_PAD', block_type_subblk=1, block_type_index=3, side=None),)
+        (Pin(pin_class=PinClass(), port_name='inpad', port_index=0, block_type_name='VPR_PAD', block_type_subblk=1, block_type_index=3, side=None),)
         """
         assert block_type_node.tag == "block_type", block_type_node
         block_type_id = int(block_type_node.attrib['id'])
@@ -2575,21 +2575,21 @@ class Graph:
         Traceback (most recent call last):
             ...
         KeyError: P(x=4, y=4)
-        >>> g.block_grid.block_types["BLK_IG-IBUF"]
-        BlockType(graph=..., id=1, name='BLK_IG-IBUF', size=Size(w=1, h=1), ...)
+        >>> g.block_grid.block_types["IBUF"]
+        BlockType(graph=..., id=1, name='IBUF', size=Size(w=1, h=1), ...)
         >>> g.block_grid.block_types[2]
-        BlockType(graph=..., id=2, name='BLK_IG-OBUF', size=Size(w=1, h=1), ...)
+        BlockType(graph=..., id=2, name='OBUF', size=Size(w=1, h=1), ...)
         >>> for block in g.block_grid.blocks_for(row=1):
         ...     print(block.position, block.block_type.name)
-        P(x=0, y=1) BLK_IG-IBUF
-        P(x=1, y=1) BLK_TI-TILE
-        P(x=2, y=1) BLK_IG-OBUF
+        P(x=0, y=1) IBUF
+        P(x=1, y=1) TILE
+        P(x=2, y=1) OBUF
         P(x=3, y=1) EMPTY
         >>> for bt in g.block_grid.block_types_for(row=1):
         ...     print(bt.name)
-        BLK_IG-IBUF
-        BLK_TI-TILE
-        BLK_IG-OBUF
+        IBUF
+        TILE
+        OBUF
         EMPTY
 
         """
@@ -3209,22 +3209,22 @@ def simple_test_graph(**kwargs):
     <block_types>
         <block_type id="0" name="EMPTY" width="1" height="1">
         </block_type>
-        <block_type id="1" name="BLK_IG-IBUF" width="1" height="1">
+        <block_type id="1" name="IBUF" width="1" height="1">
             <pin_class type="OUTPUT">
-                <pin ptc="0">BLK_IG-IBUF.I[0]</pin>
+                <pin ptc="0">IBUF.I[0]</pin>
             </pin_class>
         </block_type>
-        <block_type id="2" name="BLK_IG-OBUF" width="1" height="1">
+        <block_type id="2" name="OBUF" width="1" height="1">
             <pin_class type="INPUT">
-                <pin ptc="0">BLK_IG-OBUF.O[0]</pin>
+                <pin ptc="0">OBUF.O[0]</pin>
             </pin_class>
         </block_type>
-        <block_type id="3" name="BLK_TI-TILE" width="1" height="1">
+        <block_type id="3" name="TILE" width="1" height="1">
             <pin_class type="INPUT">
-                <pin ptc="0">BLK_TI-TILE.IN[0]</pin>
+                <pin ptc="0">TILE.IN[0]</pin>
             </pin_class>
             <pin_class type="OUTPUT">
-                <pin ptc="1">BLK_TI-TILE.OUT[0]</pin>
+                <pin ptc="1">TILE.OUT[0]</pin>
             </pin_class>
         </block_type>
     </block_types>

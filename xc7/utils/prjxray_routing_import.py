@@ -79,8 +79,8 @@ def check_feature(feature):
     return feature
 
 
-# BLK_TI-CLBLL_L.CLBLL_LL_A1[0] -> (CLBLL_L, CLBLL_LL_A1)
-PIN_NAME_TO_PARTS = re.compile(r'^BLK_TI-([^\.]+)\.([^\]]+)\[0\]$')
+# CLBLL_L.CLBLL_LL_A1[0] -> (CLBLL_L, CLBLL_LL_A1)
+PIN_NAME_TO_PARTS = re.compile(r'^([^\.]+)\.([^\]]+)\[0\]$')
 
 
 def import_graph_nodes(conn, graph, node_mapping):
@@ -97,7 +97,7 @@ def import_graph_nodes(conn, graph, node_mapping):
             (gridloc.block_type_id, node.loc.ptc)]
 
         # Synthetic blocks are handled below.
-        if pin_name.startswith('BLK_SY-'):
+        if pin_name.startswith('SYN-'):
             continue
 
         m = PIN_NAME_TO_PARTS.match(pin_name)
@@ -333,16 +333,16 @@ WHERE
                 assert len(option) > 0, (pin, len(option))
 
                 if pin['port_type'] == 'input':
-                    tile_type = 'BLK_SY-OUTPAD'
+                    tile_type = 'SYN-OUTPAD'
                     wire = 'outpad'
                 elif pin['port_type'] == 'output':
-                    tile_type = 'BLK_SY-INPAD'
+                    tile_type = 'SYN-INPAD'
                     wire = 'inpad'
                 elif pin['port_type'] == 'VCC':
-                    tile_type = 'BLK_SY-VCC'
+                    tile_type = 'SYN-VCC'
                     wire = 'VCC'
                 elif pin['port_type'] == 'GND':
-                    tile_type = 'BLK_SY-GND'
+                    tile_type = 'SYN-GND'
                     wire = 'GND'
                 else:
                     assert False, pin

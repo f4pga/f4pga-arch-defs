@@ -375,48 +375,48 @@ def add_pin_aliases(g, ic):
     """Create icebox local names from the architecture pin names."""
     name_rr2local = {}
 
-    # BLK_TL-PLB - http://www.clifford.at/icestorm/logic_tile.html
-    name_rr2local['BLK_TL-PLB.lutff_global/s_r[0]'] = 'lutff_global/s_r'
-    name_rr2local['BLK_TL-PLB.lutff_global/clk[0]'] = 'lutff_global/clk'
-    name_rr2local['BLK_TL-PLB.lutff_global/cen[0]'] = 'lutff_global/cen'
+    # PLB - http://www.clifford.at/icestorm/logic_tile.html
+    name_rr2local['PLB.lutff_global/s_r[0]'] = 'lutff_global/s_r'
+    name_rr2local['PLB.lutff_global/clk[0]'] = 'lutff_global/clk'
+    name_rr2local['PLB.lutff_global/cen[0]'] = 'lutff_global/cen'
     # FIXME: these two are wrong I think, but don't worry about carry for now
-    #name_rr2local['BLK_TL-PLB.FCIN[0]'] = 'lutff_0/cin'
-    #name_rr2local['BLK_TL-PLB.FCOUT[0]'] = 'lutff_7/cout'
-    #name_rr2local['BLK_TL-PLB.lutff_0_cin[0]'] = 'lutff_0/cin'
-    #name_rr2local['BLK_TL-PLB.lutff_7_cout[0]'] = 'lutff_7/cout'
+    #name_rr2local['PLB.FCIN[0]'] = 'lutff_0/cin'
+    #name_rr2local['PLB.FCOUT[0]'] = 'lutff_7/cout'
+    #name_rr2local['PLB.lutff_0_cin[0]'] = 'lutff_0/cin'
+    #name_rr2local['PLB.lutff_7_cout[0]'] = 'lutff_7/cout'
     for luti in range(8):
-        name_rr2local['BLK_TL-PLB.lutff_{}/out[0]'.format(luti)
+        name_rr2local['PLB.lutff_{}/out[0]'.format(luti)
                       ] = 'lutff_{}/out'.format(luti)
         for lut_input in range(4):
-            name_rr2local['BLK_TL-PLB.lutff_{}/in[{}]'.format(luti, lut_input)
+            name_rr2local['PLB.lutff_{}/in[{}]'.format(luti, lut_input)
                           ] = 'lutff_{}/in_{}'.format(luti, lut_input)
 
-    name_rr2local['BLK_TL-PLB.FCOUT[0]'] = 'lutff_0/cout'
+    name_rr2local['PLB.FCOUT[0]'] = 'lutff_0/cout'
 
-    # BLK_TL-PIO - http://www.clifford.at/icestorm/io_tile.html
+    # PIO - http://www.clifford.at/icestorm/io_tile.html
     for blocki in range(2):
-        name_rr2local['BLK_TL-PIO.[{}]LATCH[0]'.format(blocki)
+        name_rr2local['PIO.[{}]LATCH[0]'.format(blocki)
                       ] = 'io_{}/latch'.format(blocki)
-        name_rr2local['BLK_TL-PIO.[{}]OUTCLK[0]'.format(blocki)
+        name_rr2local['PIO.[{}]OUTCLK[0]'.format(blocki)
                       ] = 'io_{}/outclk'.format(blocki)
-        name_rr2local['BLK_TL-PIO.[{}]CEN[0]'.format(blocki)
+        name_rr2local['PIO.[{}]CEN[0]'.format(blocki)
                       ] = 'io_{}/cen'.format(blocki)
-        name_rr2local['BLK_TL-PIO.[{}]INCLK[0]'.format(blocki)
+        name_rr2local['PIO.[{}]INCLK[0]'.format(blocki)
                       ] = 'io_{}/inclk'.format(blocki)
-        name_rr2local['BLK_TL-PIO.[{}]D_IN[0]'.format(blocki)
+        name_rr2local['PIO.[{}]D_IN[0]'.format(blocki)
                       ] = 'io_{}/D_IN_0'.format(blocki)
-        name_rr2local['BLK_TL-PIO.[{}]D_IN[1]'.format(blocki)
+        name_rr2local['PIO.[{}]D_IN[1]'.format(blocki)
                       ] = 'io_{}/D_IN_1'.format(blocki)
-        name_rr2local['BLK_TL-PIO.[{}]D_OUT[0]'.format(blocki)
+        name_rr2local['PIO.[{}]D_OUT[0]'.format(blocki)
                       ] = 'io_{}/D_OUT_0'.format(blocki)
-        name_rr2local['BLK_TL-PIO.[{}]D_OUT[1]'.format(blocki)
+        name_rr2local['PIO.[{}]D_OUT[1]'.format(blocki)
                       ] = 'io_{}/D_OUT_1'.format(blocki)
-        name_rr2local['BLK_TL-PIO.[{}]OUT_ENB[0]'.format(blocki)
+        name_rr2local['PIO.[{}]OUT_ENB[0]'.format(blocki)
                       ] = 'io_{}/OUT_ENB'.format(blocki)
-        name_rr2local['BLK_TL-PIO.[{}]PACKAGE_PIN[0]'.format(blocki)
+        name_rr2local['PIO.[{}]PACKAGE_PIN[0]'.format(blocki)
                       ] = 'io_{}/pin'.format(blocki)
 
-    # BLK_TL-RAM - http://www.clifford.at/icestorm/ram_tile.html
+    # RAM - http://www.clifford.at/icestorm/ram_tile.html
     for top_bottom in 'BT':
         # rdata, wdata, and mask ranges are the same based on Top/Bottom
         if top_bottom == 'T':
@@ -430,10 +430,10 @@ def add_pin_aliases(g, ic):
 
         def add_ram_pin(rw, sig, ind=None):
             if ind is None:
-                name_rr2local['BLK_TL-RAM.{}{}[{}]'.format(rw, sig, 0)
+                name_rr2local['RAM.{}{}[{}]'.format(rw, sig, 0)
                               ] = 'ram/{}{}'.format(rw, sig)
             else:
-                name_rr2local['BLK_TL-RAM.{}{}[{}]'.format(rw, sig, ind)
+                name_rr2local['RAM.{}{}[{}]'.format(rw, sig, ind)
                               ] = 'ram/{}{}_{}'.format(rw, sig, ind)
 
         add_ram_pin(rw, 'CLK')
@@ -448,7 +448,7 @@ def add_pin_aliases(g, ic):
             add_ram_pin('W', 'DATA', ind)
             add_ram_pin('', 'MASK', ind)
 
-    # BLK_TL-RAM
+    # RAM
     for top_bottom in 'BT':
         # rdata, wdata, and mask ranges are the same based on Top/Bottom
         if top_bottom == 'T':
@@ -462,10 +462,10 @@ def add_pin_aliases(g, ic):
 
         def add_ram_pin(rw, sig, ind=None):
             if ind is None:
-                name_rr2local['BLK_TL-RAM.{}{}[{}]'.format(rw, sig, 0)
+                name_rr2local['RAM.{}{}[{}]'.format(rw, sig, 0)
                               ] = 'ram/{}{}'.format(rw, sig)
             else:
-                name_rr2local['BLK_TL-RAM.{}{}[{}]'.format(rw, sig, ind)
+                name_rr2local['RAM.{}{}[{}]'.format(rw, sig, ind)
                               ] = 'ram/{}{}_{}'.format(rw, sig, ind)
 
         add_ram_pin(rw, 'CLK')

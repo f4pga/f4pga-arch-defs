@@ -2,7 +2,7 @@
 <!-- A diagram for the iCE40 PLB "Block RAM" is shown in;
       http://www.latticesemi.com/~/media/LatticeSemi/Documents/DataSheets/iCE/iCE40LPHXFamilyDataSheet.pdf
   -->
-<pb_type name="BLK_TL-RAM" height="2" xmlns:xi="http://www.w3.org/2001/XInclude">
+<pb_type name="RAM" height="2" xmlns:xi="http://www.w3.org/2001/XInclude">
  <!-- Read port -->
  <output name="RDATA" num_pins="16"/>
  <input  name="RADDR"  num_pins="11"/>
@@ -121,29 +121,29 @@
  <pinlocations pattern="custom">
   <!-- RAM Tile -->
    <loc side="right" xoffset="0" yoffset="1">
-   BLK_TL-RAM.RDATA[8:15]
-   BLK_TL-RAM.MASK[8:15]
-   BLK_TL-RAM.WDATA[8:15]
-   BLK_TL-RAM.RADDR
-   BLK_TL-RAM.RCLKE
-   BLK_TL-RAM.RCLK
-   BLK_TL-RAM.RE
+   RAM.RDATA[8:15]
+   RAM.MASK[8:15]
+   RAM.WDATA[8:15]
+   RAM.RADDR
+   RAM.RCLKE
+   RAM.RCLK
+   RAM.RE
   </loc>
   <loc side="right" xoffset="0" yoffset="0">
-   BLK_TL-RAM.RDATA[0:7]
-   BLK_TL-RAM.MASK[0:7]
-   BLK_TL-RAM.WDATA[0:7]
-   BLK_TL-RAM.WADDR
-   BLK_TL-RAM.WCLKE
-   BLK_TL-RAM.WCLK
-   BLK_TL-RAM.WE
+   RAM.RDATA[0:7]
+   RAM.MASK[0:7]
+   RAM.WDATA[0:7]
+   RAM.WADDR
+   RAM.WCLKE
+   RAM.WCLK
+   RAM.WE
   </loc>
  </pinlocations>
 
-  <switchblock_locations pattern="external_full_internal_straight"/>
+ <switchblock_locations pattern="external_full_internal_straight"/>
  <metadata>
-   <meta name="hlc_tile" x_offset="0" y_offset="1">ramt_tile</meta>
-   <meta name="hlc_tile" x_offset="0" y_offset="0">ramb_tile</meta>
+   <meta name="type">block</meta>
+   <meta name="subtype">tile</meta>
  </metadata>
 </pb_type>
 <!-- End RAM -->
