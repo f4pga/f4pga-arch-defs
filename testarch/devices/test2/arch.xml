@@ -8,20 +8,20 @@
  <layout>
   <fixed_layout name="2x4" width="9" height="6">
 
-   <col type="EMPTY"          startx="0" priority="10" />
-   <col type="BLK_BB-VPR_PAD" startx="1" priority="10" />
-   <col type="EMPTY"          startx="2" priority="10" />
+   <col type="EMPTY"   startx="0" priority="10" />
+   <col type="VPR_PAD" startx="1" priority="10" />
+   <col type="EMPTY"   startx="2" priority="10" />
 
-   <col type="BLK_TI-TILE"    startx="3" priority="10" />
-   <col type="BLK_TI-TILE"    startx="4" priority="10" />
-   <col type="BLK_TI-TILE"    startx="5" priority="10" />
+   <col type="TILE"    startx="3" priority="10" />
+   <col type="TILE"    startx="4" priority="10" />
+   <col type="TILE"    startx="5" priority="10" />
 
-   <col type="EMPTY"          startx="6" priority="10" />
-   <col type="BLK_BB-VPR_PAD" startx="7" priority="10" />
-   <col type="EMPTY"          startx="8" priority="10" />
+   <col type="EMPTY"   startx="6" priority="10" />
+   <col type="VPR_PAD" startx="7" priority="10" />
+   <col type="EMPTY"   startx="8" priority="10" />
 
-   <row type="EMPTY"          starty="0" priority="11" />
-   <row type="EMPTY"          starty="5" priority="11" />
+   <row type="EMPTY"   starty="0" priority="11" />
+   <row type="EMPTY"   starty="5" priority="11" />
 
   </fixed_layout>
  </layout>
@@ -56,24 +56,24 @@
 
  <directlist>
   <!-- Top inputs -->
-  <direct name="00" from_pin="BLK_TI-TILE.OUT[3:3]" to_pin="BLK_TI-TILE.IN[2:2]"   x_offset="-1" y_offset="-1" z_offset="0"/>
-  <direct name="01" from_pin="BLK_TI-TILE.OUT[3:3]" to_pin="BLK_TI-TILE.IN[1:1]"   x_offset="0"  y_offset="-1" z_offset="0"/>
-  <direct name="02" from_pin="BLK_TI-TILE.OUT[3:3]" to_pin="BLK_TI-TILE.IN[0:0]"   x_offset="1"  y_offset="-1" z_offset="0"/>
+  <direct name="00" from_pin="TILE.OUT[3:3]" to_pin="TILE.IN[2:2]"   x_offset="-1" y_offset="-1" z_offset="0"/>
+  <direct name="01" from_pin="TILE.OUT[3:3]" to_pin="TILE.IN[1:1]"   x_offset="0"  y_offset="-1" z_offset="0"/>
+  <direct name="02" from_pin="TILE.OUT[3:3]" to_pin="TILE.IN[0:0]"   x_offset="1"  y_offset="-1" z_offset="0"/>
 
   <!-- Right inputs -->
-  <direct name="03" from_pin="BLK_TI-TILE.OUT[1:1]" to_pin="BLK_TI-TILE.IN[8:8]"   x_offset="1"  y_offset="-1" z_offset="0"/>
-  <direct name="04" from_pin="BLK_TI-TILE.OUT[1:1]" to_pin="BLK_TI-TILE.IN[7:7]"   x_offset="1"  y_offset="0"  z_offset="0"/>
-  <direct name="05" from_pin="BLK_TI-TILE.OUT[1:1]" to_pin="BLK_TI-TILE.IN[6:6]"   x_offset="1"  y_offset="1"  z_offset="0"/>
+  <direct name="03" from_pin="TILE.OUT[1:1]" to_pin="TILE.IN[8:8]"   x_offset="1"  y_offset="-1" z_offset="0"/>
+  <direct name="04" from_pin="TILE.OUT[1:1]" to_pin="TILE.IN[7:7]"   x_offset="1"  y_offset="0"  z_offset="0"/>
+  <direct name="05" from_pin="TILE.OUT[1:1]" to_pin="TILE.IN[6:6]"   x_offset="1"  y_offset="1"  z_offset="0"/>
 
   <!-- Bottom inputs -->
-  <direct name="06" from_pin="BLK_TI-TILE.OUT[0:0]" to_pin="BLK_TI-TILE.IN[11:11]" x_offset="-1" y_offset="1"  z_offset="0"/>
-  <direct name="07" from_pin="BLK_TI-TILE.OUT[0:0]" to_pin="BLK_TI-TILE.IN[10:10]" x_offset="0"  y_offset="1"  z_offset="0"/>
-  <direct name="08" from_pin="BLK_TI-TILE.OUT[0:0]" to_pin="BLK_TI-TILE.IN[9:9]"   x_offset="1"  y_offset="1"  z_offset="0"/>
+  <direct name="06" from_pin="TILE.OUT[0:0]" to_pin="TILE.IN[11:11]" x_offset="-1" y_offset="1"  z_offset="0"/>
+  <direct name="07" from_pin="TILE.OUT[0:0]" to_pin="TILE.IN[10:10]" x_offset="0"  y_offset="1"  z_offset="0"/>
+  <direct name="08" from_pin="TILE.OUT[0:0]" to_pin="TILE.IN[9:9]"   x_offset="1"  y_offset="1"  z_offset="0"/>
 
   <!-- Left inputs -->
-  <direct name="09" from_pin="BLK_TI-TILE.OUT[2:2]" to_pin="BLK_TI-TILE.IN[5:5]"   x_offset="-1" y_offset="-1" z_offset="0"/>
-  <direct name="10" from_pin="BLK_TI-TILE.OUT[2:2]" to_pin="BLK_TI-TILE.IN[4:4]"   x_offset="-1" y_offset="0"  z_offset="0"/>
-  <direct name="11" from_pin="BLK_TI-TILE.OUT[2:2]" to_pin="BLK_TI-TILE.IN[3:3]"   x_offset="-1" y_offset="1"  z_offset="0"/>
+  <direct name="09" from_pin="TILE.OUT[2:2]" to_pin="TILE.IN[5:5]"   x_offset="-1" y_offset="-1" z_offset="0"/>
+  <direct name="10" from_pin="TILE.OUT[2:2]" to_pin="TILE.IN[4:4]"   x_offset="-1" y_offset="0"  z_offset="0"/>
+  <direct name="11" from_pin="TILE.OUT[2:2]" to_pin="TILE.IN[3:3]"   x_offset="-1" y_offset="1"  z_offset="0"/>
 
  </directlist>
 </architecture>

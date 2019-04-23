@@ -10,43 +10,52 @@
 
  <!-- IO operating as an input -->
  <mode name="PAD_IS_INPUT">
-  <pb_type name="PAD_IN-INPUT" num_pb="1">
+  <pb_type name="INPUT" num_pb="1">
    <output name="D_IN" num_pins="2"/>
    <pb_type name="input" blif_model=".input" num_pb="1">
     <output name="inpad" num_pins="1"/>
    </pb_type>
    <interconnect>
-    <mux><port type="input" from="input" name="inpad"/><port type="output" from="PAD_IN-INPUT" name="D_IN[0]"/></mux>
-    <mux><port type="input" from="input" name="inpad"/><port type="output" from="PAD_IN-INPUT" name="D_IN[1]"/></mux>
+    <mux><port type="input" from="input" name="inpad"/><port type="output" from="INPUT" name="D_IN[0]"/></mux>
+    <mux><port type="input" from="input" name="inpad"/><port type="output" from="INPUT" name="D_IN[1]"/></mux>
    </interconnect>
+   <metadata>
+    <meta name="type">bel</meta>
+    <meta name="subtype">input</meta>
+   </metadata>
   </pb_type>
   <interconnect>
-   <direct><port type="input" from="PAD_IN-INPUT" name="D_IN"/><port type="output" name="D_IN"/></direct>
+   <direct><port type="input" from="INPUT" name="D_IN"/><port type="output" name="D_IN"/></direct>
   </interconnect>
  </mode>
 
  <!-- IO operating as an output -->
  <mode name="PAD_IS_OUTPUT">
-  <pb_type name="PAD_IN-OUTPUT" num_pb="1">
+  <pb_type name="OUTPUT" num_pb="1">
    <input name="D_OUT" num_pins="2"/>
    <pb_type name="output" blif_model=".output" num_pb="1">
     <input name="outpad" num_pins="1"/>
    </pb_type>
    <interconnect>
     <mux>
-     <port type="input"  from="PAD_IN-OUTPUT" name="D_OUT[0]"/>
-     <port type="input"  from="PAD_IN-OUTPUT" name="D_OUT[1]"/>
+     <port type="input"  from="OUTPUT" name="D_OUT[0]"/>
+     <port type="input"  from="OUTPUT" name="D_OUT[1]"/>
      <port type="output" from="output" name="outpad"/>
     </mux>
    </interconnect>
+   <metadata>
+    <meta name="type">bel</meta>
+    <meta name="subtype">output</meta>
+   </metadata>
   </pb_type>
   <interconnect>
-   <direct><port type="input" name="D_OUT"/><port type="output" from="PAD_IN-OUTPUT" name="D_OUT"/></direct>
+   <direct><port type="input" name="D_OUT"/><port type="output" from="OUTPUT" name="D_OUT"/></direct>
   </interconnect>
  </mode>
 
  <metadata>
-  <meta name="hlc_name">io</meta>
+  <meta name="type">block</meta>
+  <meta name="subtype">tile</meta>
  </metadata>
 
 </pb_type>

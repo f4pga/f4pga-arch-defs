@@ -58,7 +58,7 @@ def main():
     pb_type_xml = ET.Element(
         'pb_type',
         {
-            'name': 'BLK_DU-{}'.format(args.site_type),
+            'name': 'DUMMY-{}'.format(args.site_type),
         },
     )
 

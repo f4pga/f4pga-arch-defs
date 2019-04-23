@@ -575,9 +575,9 @@ def create_tracks(g, verbose=False):
         print()
         # --------------------------------------------------------
 
-        if tname == "BLK_TL-PLB":
+        if tname == "PLB":
             tracks = plb_tracks
-        elif tname.startswith("BLK_TL-PIO"):
+        elif tname.startswith("PIO"):
             tracks = io_tracks
 
         for d in tracks:

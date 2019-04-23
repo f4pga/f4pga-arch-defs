@@ -177,22 +177,20 @@ def create_synth_constant_tiles(
 
 
 def add_synthetic_tiles(model_xml, complexblocklist_xml):
-    create_synth_io_tiles(complexblocklist_xml, 'BLK_SY-INPAD', is_input=True)
-    create_synth_io_tiles(
-        complexblocklist_xml, 'BLK_SY-OUTPAD', is_input=False
+    create_synth_io_tiles(complexblocklist_xml, 'SYN-INPAD', is_input=True)
+    create_synth_io_tiles(complexblocklist_xml, 'SYN-OUTPAD', is_input=False)
+    create_synth_constant_tiles(
+        model_xml, complexblocklist_xml, 'SYN-VCC', 'VCC'
     )
     create_synth_constant_tiles(
-        model_xml, complexblocklist_xml, 'BLK_SY-VCC', 'VCC'
-    )
-    create_synth_constant_tiles(
-        model_xml, complexblocklist_xml, 'BLK_SY-GND', 'GND'
+        model_xml, complexblocklist_xml, 'SYN-GND', 'GND'
     )
 
     return {
-        'output': 'BLK_SY-INPAD',
-        'input': 'BLK_SY-OUTPAD',
-        'VCC': 'BLK_SY-VCC',
-        'GND': 'BLK_SY-GND',
+        'output': 'SYN-INPAD',
+        'input': 'SYN-OUTPAD',
+        'VCC': 'SYN-VCC',
+        'GND': 'SYN-GND',
     }
 
 
@@ -311,7 +309,7 @@ def main():
             continue
         elif gridinfo.tile_type in tile_types:
             # We want to import this tile type.
-            vpr_tile_type = 'BLK_TI-{}'.format(gridinfo.tile_type)
+            vpr_tile_type = gridinfo.tile_type
         else:
             # We don't want this tile
             continue
@@ -473,9 +471,9 @@ def main():
                         direct['x_offset'], direct['y_offset']
                     ),
                 'from_pin':
-                    'BLK_TI-' + direct['from_pin'],
+                    direct['from_pin'],
                 'to_pin':
-                    'BLK_TI-' + direct['to_pin'],
+                    direct['to_pin'],
                 'x_offset':
                     str(direct['x_offset']),
                 'y_offset':

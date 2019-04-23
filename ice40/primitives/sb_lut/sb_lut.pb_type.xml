@@ -1,6 +1,6 @@
 <!-- set: ai sw=1 ts=1 sta et -->
 <!-- 4 input LUT found in the ICE40 -->
-<pb_type name="BEL_LT-LUT" num_pb="1">
+<pb_type name="LUT" num_pb="1">
  <input  name="in" num_pins="4" />
  <output name="out" num_pins="1" />
  <!--
@@ -8,62 +8,74 @@
     through the LUT.
  -->
  <mode name="VPR_LUT4">
-  <pb_type name="BLK_IG-LUT4" num_pb="1" class="lut" blif_model=".names">
+  <pb_type name="LUT4" num_pb="1" class="lut" blif_model=".names">
    <input  name="in"  num_pins="4" port_class="lut_in" />
    <output name="out" num_pins="1" port_class="lut_out" />
-   <delay_matrix type="max" in_port="BLK_IG-LUT4.in" out_port="BLK_IG-LUT4.out">
+   <delay_matrix type="max" in_port="LUT4.in" out_port="LUT4.out">
     10e-12
     10e-12
     10e-12
     10e-12
    </delay_matrix>
+   <metadata>
+    <meta name="type">block</meta>
+    <meta name="subtype">ignore</meta>
+   </metadata>
   </pb_type>
   <interconnect>
-   <direct><port type="input" name="in"/><port type="output" from="BLK_IG-LUT4" name="in"/></direct>
-   <direct><port type="input" from="BLK_IG-LUT4" name="out"/><port type="output" name="out"/>
-    <pack_pattern name="LUT+FFA" in_port="BLK_IG-LUT4.out" out_port="BEL_LT-LUT.out"/>
-    <pack_pattern name="LUT+FFB" in_port="BLK_IG-LUT4.out" out_port="BEL_LT-LUT.out"/>
-    <pack_pattern name="LUT+FFC" in_port="BLK_IG-LUT4.out" out_port="BEL_LT-LUT.out"/>
-    <pack_pattern name="LUT+FFD" in_port="BLK_IG-LUT4.out" out_port="BEL_LT-LUT.out"/>
-    <pack_pattern name="LUT+FFE" in_port="BLK_IG-LUT4.out" out_port="BEL_LT-LUT.out"/>
-    <pack_pattern name="LUT+FFF" in_port="BLK_IG-LUT4.out" out_port="BEL_LT-LUT.out"/>
-    <pack_pattern name="LUT+FFG" in_port="BLK_IG-LUT4.out" out_port="BEL_LT-LUT.out"/>
-    <pack_pattern name="LUT+FFH" in_port="BLK_IG-LUT4.out" out_port="BEL_LT-LUT.out"/>
-    <pack_pattern name="LUT+FFI" in_port="BLK_IG-LUT4.out" out_port="BEL_LT-LUT.out"/>
-    <pack_pattern name="LUT+FFJ" in_port="BLK_IG-LUT4.out" out_port="BEL_LT-LUT.out"/>
-    <pack_pattern name="LUT+FFK" in_port="BLK_IG-LUT4.out" out_port="BEL_LT-LUT.out"/>
-    <pack_pattern name="LUT+FFL" in_port="BLK_IG-LUT4.out" out_port="BEL_LT-LUT.out"/>
-    <pack_pattern name="LUT+FFM" in_port="BLK_IG-LUT4.out" out_port="BEL_LT-LUT.out"/>
-    <pack_pattern name="LUT+FFN" in_port="BLK_IG-LUT4.out" out_port="BEL_LT-LUT.out"/>
-    <pack_pattern name="LUT+FFO" in_port="BLK_IG-LUT4.out" out_port="BEL_LT-LUT.out"/>
-    <pack_pattern name="LUT+FFP" in_port="BLK_IG-LUT4.out" out_port="BEL_LT-LUT.out"/>
-    <pack_pattern name="LUT+FFQ" in_port="BLK_IG-LUT4.out" out_port="BEL_LT-LUT.out"/>
-    <pack_pattern name="LUT+FFR" in_port="BLK_IG-LUT4.out" out_port="BEL_LT-LUT.out"/>
-    <pack_pattern name="LUT+FFS" in_port="BLK_IG-LUT4.out" out_port="BEL_LT-LUT.out"/>
-    <pack_pattern name="LUT+FFT" in_port="BLK_IG-LUT4.out" out_port="BEL_LT-LUT.out"/>
-    <pack_pattern name="LUT+FFU" in_port="BLK_IG-LUT4.out" out_port="BEL_LT-LUT.out"/>
+   <direct><port type="input" name="in"/><port type="output" from="LUT4" name="in"/></direct>
+   <direct><port type="input" from="LUT4" name="out"/><port type="output" name="out"/>
+    <pack_pattern name="LUT+FFA" in_port="LUT4.out" out_port="LUT.out"/>
+    <pack_pattern name="LUT+FFB" in_port="LUT4.out" out_port="LUT.out"/>
+    <pack_pattern name="LUT+FFC" in_port="LUT4.out" out_port="LUT.out"/>
+    <pack_pattern name="LUT+FFD" in_port="LUT4.out" out_port="LUT.out"/>
+    <pack_pattern name="LUT+FFE" in_port="LUT4.out" out_port="LUT.out"/>
+    <pack_pattern name="LUT+FFF" in_port="LUT4.out" out_port="LUT.out"/>
+    <pack_pattern name="LUT+FFG" in_port="LUT4.out" out_port="LUT.out"/>
+    <pack_pattern name="LUT+FFH" in_port="LUT4.out" out_port="LUT.out"/>
+    <pack_pattern name="LUT+FFI" in_port="LUT4.out" out_port="LUT.out"/>
+    <pack_pattern name="LUT+FFJ" in_port="LUT4.out" out_port="LUT.out"/>
+    <pack_pattern name="LUT+FFK" in_port="LUT4.out" out_port="LUT.out"/>
+    <pack_pattern name="LUT+FFL" in_port="LUT4.out" out_port="LUT.out"/>
+    <pack_pattern name="LUT+FFM" in_port="LUT4.out" out_port="LUT.out"/>
+    <pack_pattern name="LUT+FFN" in_port="LUT4.out" out_port="LUT.out"/>
+    <pack_pattern name="LUT+FFO" in_port="LUT4.out" out_port="LUT.out"/>
+    <pack_pattern name="LUT+FFP" in_port="LUT4.out" out_port="LUT.out"/>
+    <pack_pattern name="LUT+FFQ" in_port="LUT4.out" out_port="LUT.out"/>
+    <pack_pattern name="LUT+FFR" in_port="LUT4.out" out_port="LUT.out"/>
+    <pack_pattern name="LUT+FFS" in_port="LUT4.out" out_port="LUT.out"/>
+    <pack_pattern name="LUT+FFT" in_port="LUT4.out" out_port="LUT.out"/>
+    <pack_pattern name="LUT+FFU" in_port="LUT4.out" out_port="LUT.out"/>
    </direct>
   </interconnect>
  </mode>
  <mode name="SB_LUT4">
-  <pb_type name="BLK_IG-SB_LUT4" num_pb="1" blif_model=".subckt SB_LUT4">
+  <pb_type name="SB_LUT4" num_pb="1" blif_model=".subckt SB_LUT4">
    <input  name="I0" num_pins="1" />
    <input  name="I1" num_pins="1" />
    <input  name="I2" num_pins="1" />
    <input  name="I3" num_pins="1" />
    <output name="O"  num_pins="1" />
-   <delay_constant max="10e-12" in_port="BLK_IG-SB_LUT4.I0" out_port="BLK_IG-SB_LUT4.O"/>
-   <delay_constant max="10e-12" in_port="BLK_IG-SB_LUT4.I1" out_port="BLK_IG-SB_LUT4.O"/>
-   <delay_constant max="10e-12" in_port="BLK_IG-SB_LUT4.I2" out_port="BLK_IG-SB_LUT4.O"/>
-   <delay_constant max="10e-12" in_port="BLK_IG-SB_LUT4.I3" out_port="BLK_IG-SB_LUT4.O"/>
+   <delay_constant max="10e-12" in_port="SB_LUT4.I0" out_port="SB_LUT4.O"/>
+   <delay_constant max="10e-12" in_port="SB_LUT4.I1" out_port="SB_LUT4.O"/>
+   <delay_constant max="10e-12" in_port="SB_LUT4.I2" out_port="SB_LUT4.O"/>
+   <delay_constant max="10e-12" in_port="SB_LUT4.I3" out_port="SB_LUT4.O"/>
+   <metadata>
+    <meta name="type">block</meta>
+    <meta name="subtype">ignore</meta>
+   </metadata>
   </pb_type>
   <interconnect>
-   <direct><port type="input" name="in[0]"/><port type="output" from="BLK_IG-SB_LUT4" name="I0"/></direct>
-   <direct><port type="input" name="in[1]"/><port type="output" from="BLK_IG-SB_LUT4" name="I1"/></direct>
-   <direct><port type="input" name="in[2]"/><port type="output" from="BLK_IG-SB_LUT4" name="I2"/></direct>
-   <direct><port type="input" name="in[3]"/><port type="output" from="BLK_IG-SB_LUT4" name="I3"/></direct>
-   <direct><port type="input" from="BLK_IG-SB_LUT4" name="O"/><port type="output" name="out"/>
+   <direct><port type="input" name="in[0]"/><port type="output" from="SB_LUT4" name="I0"/></direct>
+   <direct><port type="input" name="in[1]"/><port type="output" from="SB_LUT4" name="I1"/></direct>
+   <direct><port type="input" name="in[2]"/><port type="output" from="SB_LUT4" name="I2"/></direct>
+   <direct><port type="input" name="in[3]"/><port type="output" from="SB_LUT4" name="I3"/></direct>
+   <direct><port type="input" from="SB_LUT4" name="O"/><port type="output" name="out"/>
    </direct>
   </interconnect>
  </mode>
+ <metadata>
+  <meta name="type">bel</meta>
+  <meta name="subtype">lut</meta>
+ </metadata>
 </pb_type>
