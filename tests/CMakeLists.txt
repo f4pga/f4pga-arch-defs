@@ -49,7 +49,7 @@ function(add_simple_test)
 
   if("${EQUIV_CHECK_SCRIPT}" STREQUAL "")
     set(EQUIV_CHECK_SCRIPT
-      ${symbiflow-arch-defs_SOURCE_DIR}/yosys/miter_and_tempinduct.ys)
+      ${symbiflow-arch-defs_SOURCE_DIR}/common/yosys/miter_and_tempinduct.ys)
   endif()
 
   set(CHECK_TEST_ARGS "")
