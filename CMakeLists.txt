@@ -2,12 +2,12 @@ cmake_minimum_required(VERSION 3.3)
 project(symbiflow-arch-defs)
 enable_testing()
 
-include(make/util.cmake)
-include(make/env.cmake)
-include(make/file_targets.cmake)
-include(make/xml.cmake)
-include(make/devices.cmake)
-include(make/tools.cmake)
+include(common/cmake/util.cmake)
+include(common/cmake/env.cmake)
+include(common/cmake/file_targets.cmake)
+include(common/cmake/xml.cmake)
+include(common/cmake/devices.cmake)
+include(common/cmake/tools.cmake)
 
 find_package(PythonInterp 3 REQUIRED)
 
@@ -85,8 +85,8 @@ add_conda_pip(
   NO_EXE
 )
 
-include(make/image_gen.cmake)
-include(make/gen.cmake)
+include(common/cmake/image_gen.cmake)
+include(common/cmake/gen.cmake)
 
 add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/third_party/prjxray)
 
