@@ -3,7 +3,7 @@
 module dff (d, clk, q);
 	input wire d;
 	input wire clk;
-	output wire q;
+	output reg q;
 
 	always @ ( posedge clk ) begin
 		q <= d;
