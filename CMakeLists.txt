@@ -110,8 +110,9 @@ add_custom_target(all_xml_lint)
 add_custom_target(all_vpr_test_pbtype)
 
 add_subdirectory(common)
-add_subdirectory(utils)
 add_subdirectory(vpr)
+# FIXME: utils tests depend on targets from vpr
+add_subdirectory(utils)
 add_subdirectory(library)
 # Disable 7-series support in CI because it consumes too much memory.
 if (NOT DEFINED ENV{CI} OR NOT $ENV{CI})
