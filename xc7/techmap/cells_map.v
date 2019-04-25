@@ -351,7 +351,7 @@ module RAM128X1D (
 
     DPRAM128 #(
         .INIT(INIT[63:0]),
-        .IS_WCLK_INVERTED(1'b0),
+        .IS_WCLK_INVERTED(IS_WCLK_INVERTED),
         .HIGH_WA7_SELECT(0)
     ) ram2 (
         .DI1(D),
@@ -365,7 +365,7 @@ module RAM128X1D (
 
     DPRAM128 #(
         .INIT(INIT[127:64]),
-        .IS_WCLK_INVERTED(1'b0),
+        .IS_WCLK_INVERTED(IS_WCLK_INVERTED),
         .HIGH_WA7_SELECT(0)
     ) ram3 (
         .DI1(D),
@@ -494,7 +494,7 @@ module RAM32X1D (
 
     SPRAM32 #(
         .INIT_00(INIT),
-        .IS_WCLK_INVERTED(1'b0)
+        .IS_WCLK_INVERTED(IS_WCLK_INVERTED)
     ) ram0 (
         .DI1(D),
         .A(WA),
@@ -504,7 +504,7 @@ module RAM32X1D (
     );
     DPRAM32 #(
         .INIT_00(INIT),
-        .IS_WCLK_INVERTED(1'b0)
+        .IS_WCLK_INVERTED(IS_WCLK_INVERTED)
     ) ram1 (
         .DI1(D),
         .A(DPRA),
