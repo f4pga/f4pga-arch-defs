@@ -1,4 +1,5 @@
 add_subdirectory(buf)
+add_subdirectory(mem)
 add_subdirectory(const)
 add_subdirectory(ff)
 add_subdirectory(ibuf)
