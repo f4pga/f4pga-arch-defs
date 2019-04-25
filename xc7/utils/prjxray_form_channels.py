@@ -32,6 +32,7 @@ prjxray_assign_tile_pin_direction.
 """
 
 import argparse
+import itertools
 import prjxray.db
 import progressbar
 from lib.rr_graph import points
@@ -47,6 +48,8 @@ from prjxray_db_cache import DatabaseCache
 
 from splitter.grid_splitter import GridSplitter
 from splitter.tile_splitter import TileSplitter
+
+import pprofile
 
 def import_site_type(db, c, site_types, site_type_name):
     assert site_type_name not in site_types
@@ -221,76 +224,65 @@ def import_nodes(db, conn):
     c = conn.cursor()
     c1 = conn.cursor()
     c2 = conn.cursor()
-    c2.execute("""BEGIN EXCLUSIVE TRANSACTION;""")
 
-    tiles = {}
+    c3 = conn.cursor()
+    c3.execute("""BEGIN EXCLUSIVE TRANSACTION;""")
+
     tile_wire_map = {}
     wires = {}
 
-    for tile_name, tile_pkey, tile_type_pkey in progressbar.progressbar(
-            c1.execute("SELECT name, pkey, tile_type_pkey FROM phy_tile")):
+    # Loop over all physical tiles
+    for tile_name, tile_pkey, tile_type_pkey in progressbar.progressbar(c.execute("SELECT name, pkey, tile_type_pkey FROM phy_tile")):
 
-        # Map the pkey of the physical tile to pkey of the VPR tile. Without
-        # the actual tile split this will be ok. Once the split is implemented
-        # this will be changed as stuff related to tile split will most probably
-        # affect code here.
-        vpr_tile_pkey = c.execute(
-            """SELECT pkey FROM tile WHERE pkey = 
-(SELECT vpr_tile_pkey FROM grid_loc_map WHERE phy_tile_pkey = (?))""",
-            (tile_pkey, )
-        ).fetchone()[0]
+        # Loop over corresponding VPR tiles
+        for vpr_tile_name, vpr_tile_pkey, vpr_tile_type_pkey in c1.execute("SELECT name, pkey, tile_type_pkey FROM tile WHERE pkey IN (SELECT vpr_tile_pkey FROM grid_loc_map WHERE phy_tile_pkey = (?))", (tile_pkey, )):
 
-        tile_type = c.execute(
-            "SELECT name FROM tile_type WHERE pkey = ?", (tile_type_pkey, )
-        ).fetchone()[0]
+            # Loop over all VPR tile wires
+            for wire_name, wire_in_tile_pkey in c2.execute("SELECT name, pkey FROM wire_in_tile WHERE tile_type_pkey = (?)", (vpr_tile_type_pkey, )):
 
-        tiles[tile_name] = (vpr_tile_pkey, tile_type_pkey)
+                # Insert wire instance
+                c3.execute("INSERT INTO wire(tile_pkey, wire_in_tile_pkey) VALUES (?, ?);""", (vpr_tile_pkey, wire_in_tile_pkey))
 
-        for wire in db.get_tile_type(tile_type).get_wires():
-            # pkey node_pkey tile_pkey wire_in_tile_pkey
-            c.execute(
-                """
-SELECT pkey FROM wire_in_tile WHERE name = ? and tile_type_pkey = ?;""",
-                (wire, tile_type_pkey)
-            )
-            (wire_in_tile_pkey, ) = c.fetchone()
+                wire_pkey = c3.lastrowid
+                wires[wire_pkey] = None
 
-            c2.execute(
-                """
-INSERT INTO wire(tile_pkey, wire_in_tile_pkey)
-VALUES
-  (?, ?);""", (vpr_tile_pkey, wire_in_tile_pkey)
-            )
+                # Now it is allowed to have multiple instances of the same wire
+                # for a given (physical tile, wire) key. This is because some
+                # wires of a CLB should be present in both SLICEs.
+                key = (tile_name, wire_name)
+                try:
+                    tile_wire_map[key].append(wire_pkey)
+                except KeyError:
+                    tile_wire_map[key] = [wire_pkey]
 
-            assert (tile_name, wire) not in tile_wire_map
-            wire_pkey = c2.lastrowid
-            tile_wire_map[(tile_name, wire)] = wire_pkey
-            wires[wire_pkey] = None
-
-    c2.execute("""COMMIT TRANSACTION;""")
+    c3.execute("""COMMIT TRANSACTION;""")
 
     connections = db.connections()
 
     for connection in progressbar.progressbar(connections.get_connections()):
-        a_pkey = tile_wire_map[
+        a_pkeys = tile_wire_map[
             (connection.wire_a.tile, connection.wire_a.wire)]
-        b_pkey = tile_wire_map[
+        b_pkeys = tile_wire_map[
             (connection.wire_b.tile, connection.wire_b.wire)]
 
-        a_node = wires[a_pkey]
-        b_node = wires[b_pkey]
+        all_pkeys = a_pkeys + b_pkeys
 
-        if a_node is None:
-            a_node = set((a_pkey, ))
+        for a_pkey, b_pkey in itertools.combinations(all_pkeys, 2):
 
-        if b_node is None:
-            b_node = set((b_pkey, ))
+            a_node = wires[a_pkey]
+            b_node = wires[b_pkey]
 
-        if a_node is not b_node:
-            a_node |= b_node
+            if a_node is None:
+                a_node = set((a_pkey, ))
 
-            for wire in a_node:
-                wires[wire] = a_node
+            if b_node is None:
+                b_node = set((b_pkey, ))
+
+            if a_node is not b_node:
+                a_node |= b_node
+
+                for wire in a_node:
+                    wires[wire] = a_node
 
     nodes = {}
     for wire_pkey, node in wires.items():
@@ -355,7 +347,11 @@ FROM
     )
 
     # Nodes are only expected to have 1 site
-    assert c.fetchone()[0] == 1
+    #assert c.fetchone()[0] == 1
+    count = c.fetchone()[0]
+    if count != 1:
+        print(count)
+    assert count == 1
 
     print("{}: Assigning site wires for nodes".format(datetime.datetime.now()))
     c.execute(
@@ -1031,6 +1027,55 @@ def remap_tile_grid(conn, grid_map, tile_type_map):
     c.connection.commit()
 
 
+# def remap_wires(conn, wire_pkey_map):
+#     """
+#     Remaps entries in the wire table which are relevant to physical tiles
+#     so that they become relevant to VPR tiles.
+#
+#     Args:
+#         conn:
+#         wire_pkey_map:
+#
+#     Returns:
+#     """
+#
+#     c = conn.cursor()
+#     c1 = conn.cursor()
+#     c2 = conn.cursor()
+#
+#     c2.execute("BEGIN EXCLUSIVE TRANSACTION")
+#
+#     # FIXME: This function seems to be very inefficient. No idea how to
+#     # fix it right now.
+#
+#     # Iterate over wire in tiles to be remapped
+#     for wire_in_tile_pkey, vpr_wire_in_tile_pkeys in progressbar.progressbar(wire_pkey_map.items()):
+#         num_vpr_wire_in_tile_pkeys = len(vpr_wire_in_tile_pkeys)
+#
+#         # Iterate over wire instances to be remapped
+#         for wire_data in c.execute("SELECT * FROM wire WHERE wire_in_tile_pkey = (?)", (wire_in_tile_pkey, )):
+#             wire_pkey = wire_data[0]
+#             tile_pkey = wire_data[2]
+#
+#             # Iterate over corresponding VPR tiles
+#             # FIXME: Reasonable comment why j = i % something...
+#             for i, vpr_tile_pkey in enumerate(c1.execute("SELECT vpr_tile_pkey FROM grid_loc_map WHERE phy_tile_pkey = (?)", (tile_pkey, ))):
+#                 j = i % num_vpr_wire_in_tile_pkeys
+#
+#                 # Insert
+#                 c2.execute("INSERT INTO wire(node_pkey, tile_pkey, wire_in_tile_pkey, graph_node_pkey, top_graph_node_pkey, bottom_graph_node_pkey, left_graph_node_pkey, right_graph_node_pkey) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
+#                            (wire_data[1], vpr_tile_pkey[0], vpr_wire_in_tile_pkeys[j], wire_data[4], wire_data[5], wire_data[6], wire_data[7], wire_data[8]))
+#
+#                 #print("{},{} -> {}.{}".format(tile_pkey, wire_in_tile_pkey, vpr_tile_pkey, vpr_wire_in_tile_pkey))
+#
+#             # Delete the wire
+#             c2.execute("DELETE FROM wire WHERE pkey = (?)", (wire_pkey, ))
+#
+#     c2.execute("COMMIT TRANSACTION")
+
+# .............................................................................
+
+
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument(
@@ -1064,19 +1109,19 @@ def main():
         ts.set_tile_types_to_split(tile_types_to_split)
 
         grid_map = gs.split()
-        tile_type_map = ts.split()
+        tile_type_map, wire_pkey_map, pip_pkey_map = ts.split()
 
         print("{}: Grid map initialized".format(datetime.datetime.now()))
         remap_tile_grid(conn, grid_map, tile_type_map)
         print("{}: Tile grid remapped".format(datetime.datetime.now()))
-        # import_nodes(db, conn)
-        # print("{}: Connections made".format(datetime.datetime.now()))
-        # count_sites_and_pips_on_nodes(conn)
-        # print("{}: Counted sites and pips".format(datetime.datetime.now()))
-        # classify_nodes(conn)
-        # print("{}: Nodes classified".format(datetime.datetime.now()))
-        # form_tracks(conn)
-        # print("{}: Tracks formed".format(datetime.datetime.now()))
+        import_nodes(db, conn)
+        print("{}: Connections made".format(datetime.datetime.now()))
+        count_sites_and_pips_on_nodes(conn)
+        print("{}: Counted sites and pips".format(datetime.datetime.now()))
+        classify_nodes(conn)
+        print("{}: Nodes classified".format(datetime.datetime.now()))
+        form_tracks(conn)
+        print("{}: Tracks formed".format(datetime.datetime.now()))
 
         print(
             '{} Flushing database back to file "{}"'.format(

@@ -173,6 +173,93 @@ class TileSplitter(object):
         # Return maps
         return site_wire_map, site_pip_map
 
+    def remap_tile_wires_and_pips(self):
+        """
+        Remaps tile wires from CLBs to corresponding SLICEs
+
+        Returns: wire_pkey_map, pip_pkey_map
+        """
+
+        c  = self.sql_db.cursor()
+        c2 = self.sql_db.cursor()
+
+        # Initialize pkey maps for wires and pips
+        wire_pkey_map = {}
+        pip_pkey_map  = {}
+
+        # For each tile to split
+        for tile_type in self.tile_types_to_split:
+
+            # Get tile type pkey
+            tile_type_pkey = c.execute("SELECT pkey FROM tile_type WHERE name = (?)", (tile_type,)).fetchone()[0]
+
+            # Build site wire and pip map
+            site_wire_map, site_pip_map = self.build_site_wire_and_pip_map(tile_type_pkey)
+            # DEBUG
+            #self._debug_dump_wire_and_pip_map(tile_type_pkey, site_wire_map, site_pip_map)
+
+            # Copy tile wires to new tile types
+            for new_tile_type_pkey, vpr_tile_pkey, site_pkey in self.tile_site_pkeys[tile_type]:
+
+                # Remap all tile wires relevant to the new_tile_type_pkey, when doing this create a map for pkeys.
+                itr = c.execute("SELECT pkey, name, site_pkey, site_pin_pkey FROM wire_in_tile WHERE tile_type_pkey = (?)", (tile_type_pkey,))
+                for pkey, name, wire_site_pkey, wire_site_pin_pkey in itr:
+
+                    # The wire is relevant to a site
+                    if site_wire_map[pkey] == site_pkey:
+                        #print("{}->{} wire {}:{} -> site {}".format(tile_type_pkey, new_tile_type_pkey, pkey, name, site_pkey))
+
+                        c2.execute("INSERT INTO wire_in_tile(name, tile_type_pkey, site_pkey, site_pin_pkey) VALUES (?, ?, ?, ?)",
+                                   (name, new_tile_type_pkey, wire_site_pkey, wire_site_pin_pkey))
+
+                        self.append_to_map(wire_pkey_map, pkey, c2.lastrowid)
+
+                    # This is a free wire
+                    elif site_wire_map[pkey] is None:
+                        #print("{}->{} wire {}:{} -> site {}".format(tile_type_pkey, new_tile_type_pkey, pkey, name, site_pkey))
+
+                        assert wire_site_pkey is None
+                        assert wire_site_pin_pkey is None
+
+                        c2.execute("INSERT INTO wire_in_tile(name, tile_type_pkey, site_pkey, site_pin_pkey) VALUES (?, ?, ?, ?)",
+                                   (name, new_tile_type_pkey, None, None))
+
+                        self.append_to_map(wire_pkey_map, pkey, c2.lastrowid)
+
+                # Remap all tile pips
+                itr = c.execute("SELECT pkey, name, src_wire_in_tile_pkey, dest_wire_in_tile_pkey, can_invert, is_directional, is_pseudo FROM pip_in_tile WHERE tile_type_pkey = (?)", (tile_type_pkey,))
+                for pkey, name, src_wire_in_tile_pkey, dest_wire_in_tile_pkey, can_invert, is_directional, is_pseudo in itr:
+
+                    # We haven't remapped this pip
+                    if pkey not in site_pip_map.keys():
+                        raise RuntimeError("The pip '{}' (pkey={}) has not been remapped".format(name, pkey))
+
+                    # The pip is relevant to a site
+                    if site_pip_map[pkey] == site_pkey:
+
+                        # There may not be multiple wire correspondencies for
+                        # wires that go to a pip. Multiple correspondencies are
+                        # only allowed for "free" wires.
+                        src_wire = wire_pkey_map[src_wire_in_tile_pkey]
+                        dst_wire = wire_pkey_map[dest_wire_in_tile_pkey]
+
+                        assert len(src_wire) == 1
+                        assert len(dst_wire) == 1
+
+                        c2.execute("INSERT INTO pip_in_tile(name, tile_type_pkey, src_wire_in_tile_pkey, dest_wire_in_tile_pkey, can_invert, is_directional, is_pseudo) VALUES(?, ?, ?, ?, ?, ?, ?)",
+                                   (name, new_tile_type_pkey, src_wire[0], dst_wire[0], can_invert, is_directional, is_pseudo))
+
+                        self.append_to_unique_map(pip_pkey_map, pkey, c2.lastrowid)
+
+        # Return wire and pip pkey map
+        return wire_pkey_map, pip_pkey_map
+
+    def import_tile_wire_and_pip_pkey_map(self, wire_pkey_map, pip_pkey_map):
+        # Do we need those maps in the SQL db? If so then most content of such
+        # tables will be one-to-one pkey correspondence of the same pkeys. Only
+        # a few will be different.
+        pass
+
     # .........................................................................
 
     def split_tiles(self):
@@ -220,81 +307,6 @@ class TileSplitter(object):
 
         return GenericMap(fwd_map, bwd_map)
 
-    def remap_tile_wires_and_pips(self):
-        """
-        Remaps tile wires from CLBs to corresponding SLICEs
-
-        Returns:
-        """
-
-        c  = self.sql_db.cursor()
-        c2 = self.sql_db.cursor()
-
-        # Initialize pkey maps for wires and pips
-        wire_pkey_map = {}
-        pip_pkey_map  = {}
-
-        # For each tile to split
-        for tile_type in self.tile_types_to_split:
-
-            # Get tile type pkey
-            tile_type_pkey = c.execute("SELECT pkey FROM tile_type WHERE name = (?)", (tile_type,)).fetchone()[0]
-
-            # Build site wire and pip map
-            site_wire_map, site_pip_map = self.build_site_wire_and_pip_map(tile_type_pkey)
-            # DEBUG
-            #self._debug_dump_wire_and_pip_map(tile_type_pkey, site_wire_map, site_pip_map)
-
-            # Copy tile wires to new tile types
-            for new_tile_type_pkey, vpr_tile_pkey, site_pkey in self.tile_site_pkeys[tile_type]:
-
-                # Remap all tile wires relevant to the new_tile_type_pkey, when doing this create a map for pkeys.
-                itr = c.execute("SELECT pkey, name, site_pin_pkey FROM wire_in_tile WHERE tile_type_pkey = (?)", (tile_type_pkey,))
-                for pkey, name, site_pin_pkey in itr:
-
-                    # The wire is relevant to a site
-                    if site_wire_map[pkey] == site_pkey:
-                        #print("{}->{} wire {}:{} -> site {}".format(tile_type_pkey, new_tile_type_pkey, pkey, name, site_pkey))
-
-                        c2.execute("INSERT INTO wire_in_tile(name, tile_type_pkey, site_pkey, site_pin_pkey) VALUES (?, ?, ?, ?)",
-                                   (name, new_tile_type_pkey, site_pkey, site_pin_pkey))
-
-                        self.append_to_map(wire_pkey_map, pkey, c2.lastrowid)
-
-                    # This is a free wire
-                    elif site_wire_map[pkey] is None:
-                        #print("{}->{} wire {}:{} -> site {}".format(tile_type_pkey, new_tile_type_pkey, pkey, name, site_pkey))
-
-                        c2.execute("INSERT INTO wire_in_tile(name, tile_type_pkey, site_pkey, site_pin_pkey) VALUES (?, ?, ?, ?)",
-                                   (name, new_tile_type_pkey, None, None))
-
-                        self.append_to_map(wire_pkey_map, pkey, c2.lastrowid)
-
-                # Remap all tile pips
-                itr = c.execute("SELECT pkey, name, src_wire_in_tile_pkey, dest_wire_in_tile_pkey, can_invert, is_directional, is_pseudo FROM pip_in_tile WHERE tile_type_pkey = (?)", (tile_type_pkey,))
-                for pkey, name, src_wire_in_tile_pkey, dest_wire_in_tile_pkey, can_invert, is_directional, is_pseudo in itr:
-
-                    # We haven't remapped this pip
-                    if pkey not in site_pip_map.keys():
-                        raise RuntimeError("The pip '{}' (pkey={}) has not been remapped".format(name, pkey))
-
-                    # The pip is relevant to a site
-                    if site_pip_map[pkey] == site_pkey:
-
-                        # There may not be multiple wire correspondencies for
-                        # wires that go to a pip. Multiple correspondencies are
-                        # only allowed for "free" wires.
-                        src_wire = wire_pkey_map[src_wire_in_tile_pkey]
-                        dst_wire = wire_pkey_map[dest_wire_in_tile_pkey]
-
-                        assert len(src_wire) == 1
-                        assert len(dst_wire) == 1
-
-                        c2.execute("INSERT INTO pip_in_tile(name, tile_type_pkey, src_wire_in_tile_pkey, dest_wire_in_tile_pkey, can_invert, is_directional, is_pseudo) VALUES(?, ?, ?, ?, ?, ?, ?)",
-                                   (name, new_tile_type_pkey, src_wire[0], dst_wire[0], can_invert, is_directional, is_pseudo))
-
-                        self.append_to_unique_map(pip_pkey_map, pkey, c2.lastrowid)
-
     # .........................................................................
 
     def split(self):
@@ -306,9 +318,9 @@ class TileSplitter(object):
         tile_type_map = self.split_tiles()
 
         # Remap tile wires and pips
-        self.remap_tile_wires_and_pips()
+        wire_pkey_map, pip_pkey_map = self.remap_tile_wires_and_pips()
 
-        return tile_type_map
+        return tile_type_map, wire_pkey_map, pip_pkey_map
 
     # .........................................................................
 

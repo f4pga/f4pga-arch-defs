@@ -314,6 +314,11 @@ def main():
         for tile_type_pkey, tile_type in c2.execute(
                 "SELECT pkey, name FROM tile_type"):
 
+            # FIXME: This is a HACK for now. Porobably need to store the info
+            # in the db.
+            if tile_type in ["CLBLL_L", "CLBLL_R", "CLBLM_L", "CLBLM_R"]:
+                continue
+
             for wire_name, site_pkey in c.execute(
                     "SELECT name, site_pkey FROM wire_in_tile WHERE tile_type_pkey = (?)",
                 (tile_type_pkey, )):
