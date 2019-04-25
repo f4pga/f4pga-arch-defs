@@ -10,9 +10,9 @@ module dsp_in_registered (clk, a, b, m, out);
 	input wire m;
 	output wire [DATA_WIDTH-1:0] out;
 
-	reg [DATA_WIDTH/2-1:0] q_a;
-	reg [DATA_WIDTH/2-1:0] q_b;
-	reg q_m;
+	wire [DATA_WIDTH/2-1:0] q_a;
+	wire [DATA_WIDTH/2-1:0] q_b;
+	wire q_m;
 
 	genvar i;
 
