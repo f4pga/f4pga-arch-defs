@@ -151,25 +151,36 @@ def make_pb_content(yj, mod, xml_parent, mod_pname, is_submode=False):
     """Build the pb_type content - child pb_types, timing and direct interconnect,
     but not IO. This may be put directly inside <pb_type>, or inside <mode>."""
 
-    def get_full_pin_name(pin):
+    def get_pin_name(pin):
         cname, cellpin = pin
         if cname != mod.name:
             cname = mod.cell_type(cname)
             cname = mod_pb_name(yj.module(cname))
         else:
             cname = mod_pname
-        return ("{}.{}".format(cname, cellpin))
+        return cname
 
-    def make_direct_conn(ic_xml, src, dst):
-        src_pin = get_full_pin_name(src)
-        dst_pin = get_full_pin_name(dst)
-        dc_name = dst_pin.replace(".", "_").replace("[", "_").replace("]", "")
+    def get_cellpin(pin):
+        cname, cellpin = pin
+        return cellpin
 
-        dir_xml = ET.SubElement(
-            ic_xml, 'direct', {
-                'name': dc_name,
-                'input': src_pin,
-                'output': dst_pin
+    def make_direct_conn(ic_xml, source, dest):
+        s_cellpin = get_cellpin(source)
+        d_cellpin = get_cellpin(dest)
+        d_cname = get_pin_name(dest)
+
+        dir_xml = ET.SubElement(ic_xml, 'direct')
+        in_port_xml = ET.SubElement(
+            dir_xml, 'port', {
+                'name': s_cellpin,
+                'type': "input"
+            }
+        )
+        out_port_xml = ET.SubElement(
+            dir_xml, 'port', {
+                'name': d_cellpin,
+                'type': "output",
+                'from': d_cname
             }
         )
 
