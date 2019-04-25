@@ -11,7 +11,7 @@ add_subdirectory(simple_pll)
 # Tests from the VtR timing tutorial
 add_subdirectory(fig41-full-adder)
 add_subdirectory(fig42-dff)
-#add_subdirectory(fig43-single_port_ram_mixed)
+add_subdirectory(fig43-single_port_ram_mixed)
 #add_subdirectory(fig44-single_port_ram_seq)
 #add_subdirectory(fig45-single_port_ram_seq_comb)
 #add_subdirectory(fig46-multiclock_dual_port_ram)
