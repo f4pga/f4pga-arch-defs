@@ -151,27 +151,45 @@ def make_pb_content(yj, mod, xml_parent, mod_pname, is_submode=False):
     """Build the pb_type content - child pb_types, timing and direct interconnect,
     but not IO. This may be put directly inside <pb_type>, or inside <mode>."""
 
-    def get_full_pin_name(pin):
+    def get_module_name(pin):
+        """Returns the name of the module relative to the pin and a boolean that indicates whether
+        the module is a cell (True) or the top one (False)"""
         cname, cellpin = pin
         if cname != mod.name:
             cname = mod.cell_type(cname)
-            cname = mod_pb_name(yj.module(cname))
+            return mod_pb_name(yj.module(cname)), True
         else:
-            cname = mod_pname
-        return ("{}.{}".format(cname, cellpin))
+            return mod_pname, False
+
+    def get_cellpin(pin):
+        cname, cellpin = pin
+        return cellpin
+
+    def create_port(pin_name, mod_name, is_cell, direction):
+        """Returns a dictionary containing the port definition. If the module is a cell, the port
+        contains the 'from' attribute."""
+        port = dict()
+        port['name'] = pin_name
+        port['type'] = direction
+
+        if is_cell:
+            port['from'] = mod_name
+
+        return port
 
     def make_direct_conn(ic_xml, src, dst):
-        src_pin = get_full_pin_name(src)
-        dst_pin = get_full_pin_name(dst)
-        dc_name = dst_pin.replace(".", "_").replace("[", "_").replace("]", "")
+        s_cellpin = get_cellpin(src)
+        d_cellpin = get_cellpin(dst)
+        s_cname, s_is_cell = get_module_name(src)
+        d_cname, d_is_cell = get_module_name(dst)
 
-        dir_xml = ET.SubElement(
-            ic_xml, 'direct', {
-                'name': dc_name,
-                'input': src_pin,
-                'output': dst_pin
-            }
-        )
+        s_port = create_port(s_cellpin, s_cname, s_is_cell, "input")
+        d_port = create_port(d_cellpin, d_cname, d_is_cell, "output")
+
+        dir_xml = ET.SubElement(ic_xml, 'direct')
+
+        s_port_xml = ET.SubElement(dir_xml, 'port', s_port)
+        d_port_xml = ET.SubElement(dir_xml, 'port', d_port)
 
     # Find out whether or not the module we are generating content for is a blackbox
     is_blackbox = (mod.attr("blackbox", 0) == 1) or not mod.cells

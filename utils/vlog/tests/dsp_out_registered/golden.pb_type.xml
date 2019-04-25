@@ -1,4 +1,3 @@
-<?xml version="1.0"?>
 <pb_type xmlns:xi="http://www.w3.org/2001/XInclude" name="dsp_out_registered" num_pb="1">
   <input name="a" num_pins="32"/>
   <input name="b" num_pins="32"/>
@@ -7,70 +6,265 @@
   <output name="out" num_pins="64"/>
   <xi:include href="../dsp_combinational/dsp_combinational.pb_type.xml"/>
   <interconnect>
-    <direct input="dsp_out_registered.a[0]" name="dsp_combinational_a_0" output="dsp_combinational.a[0]"/>
-    <direct input="dsp_out_registered.a[1]" name="dsp_combinational_a_1" output="dsp_combinational.a[1]"/>
-    <direct input="dsp_out_registered.a[2]" name="dsp_combinational_a_2" output="dsp_combinational.a[2]"/>
-    <direct input="dsp_out_registered.a[3]" name="dsp_combinational_a_3" output="dsp_combinational.a[3]"/>
-    <direct input="dsp_out_registered.a[4]" name="dsp_combinational_a_4" output="dsp_combinational.a[4]"/>
-    <direct input="dsp_out_registered.a[5]" name="dsp_combinational_a_5" output="dsp_combinational.a[5]"/>
-    <direct input="dsp_out_registered.a[6]" name="dsp_combinational_a_6" output="dsp_combinational.a[6]"/>
-    <direct input="dsp_out_registered.a[7]" name="dsp_combinational_a_7" output="dsp_combinational.a[7]"/>
-    <direct input="dsp_out_registered.a[8]" name="dsp_combinational_a_8" output="dsp_combinational.a[8]"/>
-    <direct input="dsp_out_registered.a[9]" name="dsp_combinational_a_9" output="dsp_combinational.a[9]"/>
-    <direct input="dsp_out_registered.a[10]" name="dsp_combinational_a_10" output="dsp_combinational.a[10]"/>
-    <direct input="dsp_out_registered.a[11]" name="dsp_combinational_a_11" output="dsp_combinational.a[11]"/>
-    <direct input="dsp_out_registered.a[12]" name="dsp_combinational_a_12" output="dsp_combinational.a[12]"/>
-    <direct input="dsp_out_registered.a[13]" name="dsp_combinational_a_13" output="dsp_combinational.a[13]"/>
-    <direct input="dsp_out_registered.a[14]" name="dsp_combinational_a_14" output="dsp_combinational.a[14]"/>
-    <direct input="dsp_out_registered.a[15]" name="dsp_combinational_a_15" output="dsp_combinational.a[15]"/>
-    <direct input="dsp_out_registered.a[16]" name="dsp_combinational_a_16" output="dsp_combinational.a[16]"/>
-    <direct input="dsp_out_registered.a[17]" name="dsp_combinational_a_17" output="dsp_combinational.a[17]"/>
-    <direct input="dsp_out_registered.a[18]" name="dsp_combinational_a_18" output="dsp_combinational.a[18]"/>
-    <direct input="dsp_out_registered.a[19]" name="dsp_combinational_a_19" output="dsp_combinational.a[19]"/>
-    <direct input="dsp_out_registered.a[20]" name="dsp_combinational_a_20" output="dsp_combinational.a[20]"/>
-    <direct input="dsp_out_registered.a[21]" name="dsp_combinational_a_21" output="dsp_combinational.a[21]"/>
-    <direct input="dsp_out_registered.a[22]" name="dsp_combinational_a_22" output="dsp_combinational.a[22]"/>
-    <direct input="dsp_out_registered.a[23]" name="dsp_combinational_a_23" output="dsp_combinational.a[23]"/>
-    <direct input="dsp_out_registered.a[24]" name="dsp_combinational_a_24" output="dsp_combinational.a[24]"/>
-    <direct input="dsp_out_registered.a[25]" name="dsp_combinational_a_25" output="dsp_combinational.a[25]"/>
-    <direct input="dsp_out_registered.a[26]" name="dsp_combinational_a_26" output="dsp_combinational.a[26]"/>
-    <direct input="dsp_out_registered.a[27]" name="dsp_combinational_a_27" output="dsp_combinational.a[27]"/>
-    <direct input="dsp_out_registered.a[28]" name="dsp_combinational_a_28" output="dsp_combinational.a[28]"/>
-    <direct input="dsp_out_registered.a[29]" name="dsp_combinational_a_29" output="dsp_combinational.a[29]"/>
-    <direct input="dsp_out_registered.a[30]" name="dsp_combinational_a_30" output="dsp_combinational.a[30]"/>
-    <direct input="dsp_out_registered.a[31]" name="dsp_combinational_a_31" output="dsp_combinational.a[31]"/>
-    <direct input="dsp_out_registered.b[0]" name="dsp_combinational_b_0" output="dsp_combinational.b[0]"/>
-    <direct input="dsp_out_registered.b[1]" name="dsp_combinational_b_1" output="dsp_combinational.b[1]"/>
-    <direct input="dsp_out_registered.b[2]" name="dsp_combinational_b_2" output="dsp_combinational.b[2]"/>
-    <direct input="dsp_out_registered.b[3]" name="dsp_combinational_b_3" output="dsp_combinational.b[3]"/>
-    <direct input="dsp_out_registered.b[4]" name="dsp_combinational_b_4" output="dsp_combinational.b[4]"/>
-    <direct input="dsp_out_registered.b[5]" name="dsp_combinational_b_5" output="dsp_combinational.b[5]"/>
-    <direct input="dsp_out_registered.b[6]" name="dsp_combinational_b_6" output="dsp_combinational.b[6]"/>
-    <direct input="dsp_out_registered.b[7]" name="dsp_combinational_b_7" output="dsp_combinational.b[7]"/>
-    <direct input="dsp_out_registered.b[8]" name="dsp_combinational_b_8" output="dsp_combinational.b[8]"/>
-    <direct input="dsp_out_registered.b[9]" name="dsp_combinational_b_9" output="dsp_combinational.b[9]"/>
-    <direct input="dsp_out_registered.b[10]" name="dsp_combinational_b_10" output="dsp_combinational.b[10]"/>
-    <direct input="dsp_out_registered.b[11]" name="dsp_combinational_b_11" output="dsp_combinational.b[11]"/>
-    <direct input="dsp_out_registered.b[12]" name="dsp_combinational_b_12" output="dsp_combinational.b[12]"/>
-    <direct input="dsp_out_registered.b[13]" name="dsp_combinational_b_13" output="dsp_combinational.b[13]"/>
-    <direct input="dsp_out_registered.b[14]" name="dsp_combinational_b_14" output="dsp_combinational.b[14]"/>
-    <direct input="dsp_out_registered.b[15]" name="dsp_combinational_b_15" output="dsp_combinational.b[15]"/>
-    <direct input="dsp_out_registered.b[16]" name="dsp_combinational_b_16" output="dsp_combinational.b[16]"/>
-    <direct input="dsp_out_registered.b[17]" name="dsp_combinational_b_17" output="dsp_combinational.b[17]"/>
-    <direct input="dsp_out_registered.b[18]" name="dsp_combinational_b_18" output="dsp_combinational.b[18]"/>
-    <direct input="dsp_out_registered.b[19]" name="dsp_combinational_b_19" output="dsp_combinational.b[19]"/>
-    <direct input="dsp_out_registered.b[20]" name="dsp_combinational_b_20" output="dsp_combinational.b[20]"/>
-    <direct input="dsp_out_registered.b[21]" name="dsp_combinational_b_21" output="dsp_combinational.b[21]"/>
-    <direct input="dsp_out_registered.b[22]" name="dsp_combinational_b_22" output="dsp_combinational.b[22]"/>
-    <direct input="dsp_out_registered.b[23]" name="dsp_combinational_b_23" output="dsp_combinational.b[23]"/>
-    <direct input="dsp_out_registered.b[24]" name="dsp_combinational_b_24" output="dsp_combinational.b[24]"/>
-    <direct input="dsp_out_registered.b[25]" name="dsp_combinational_b_25" output="dsp_combinational.b[25]"/>
-    <direct input="dsp_out_registered.b[26]" name="dsp_combinational_b_26" output="dsp_combinational.b[26]"/>
-    <direct input="dsp_out_registered.b[27]" name="dsp_combinational_b_27" output="dsp_combinational.b[27]"/>
-    <direct input="dsp_out_registered.b[28]" name="dsp_combinational_b_28" output="dsp_combinational.b[28]"/>
-    <direct input="dsp_out_registered.b[29]" name="dsp_combinational_b_29" output="dsp_combinational.b[29]"/>
-    <direct input="dsp_out_registered.b[30]" name="dsp_combinational_b_30" output="dsp_combinational.b[30]"/>
-    <direct input="dsp_out_registered.b[31]" name="dsp_combinational_b_31" output="dsp_combinational.b[31]"/>
-    <direct input="dsp_out_registered.m" name="dsp_combinational_m" output="dsp_combinational.m"/>
+    <direct>
+      <port name="a[0]" type="input"/>
+      <port from="dsp_combinational" name="a[0]" type="output"/>
+    </direct>
+    <direct>
+      <port name="a[1]" type="input"/>
+      <port from="dsp_combinational" name="a[1]" type="output"/>
+    </direct>
+    <direct>
+      <port name="a[2]" type="input"/>
+      <port from="dsp_combinational" name="a[2]" type="output"/>
+    </direct>
+    <direct>
+      <port name="a[3]" type="input"/>
+      <port from="dsp_combinational" name="a[3]" type="output"/>
+    </direct>
+    <direct>
+      <port name="a[4]" type="input"/>
+      <port from="dsp_combinational" name="a[4]" type="output"/>
+    </direct>
+    <direct>
+      <port name="a[5]" type="input"/>
+      <port from="dsp_combinational" name="a[5]" type="output"/>
+    </direct>
+    <direct>
+      <port name="a[6]" type="input"/>
+      <port from="dsp_combinational" name="a[6]" type="output"/>
+    </direct>
+    <direct>
+      <port name="a[7]" type="input"/>
+      <port from="dsp_combinational" name="a[7]" type="output"/>
+    </direct>
+    <direct>
+      <port name="a[8]" type="input"/>
+      <port from="dsp_combinational" name="a[8]" type="output"/>
+    </direct>
+    <direct>
+      <port name="a[9]" type="input"/>
+      <port from="dsp_combinational" name="a[9]" type="output"/>
+    </direct>
+    <direct>
+      <port name="a[10]" type="input"/>
+      <port from="dsp_combinational" name="a[10]" type="output"/>
+    </direct>
+    <direct>
+      <port name="a[11]" type="input"/>
+      <port from="dsp_combinational" name="a[11]" type="output"/>
+    </direct>
+    <direct>
+      <port name="a[12]" type="input"/>
+      <port from="dsp_combinational" name="a[12]" type="output"/>
+    </direct>
+    <direct>
+      <port name="a[13]" type="input"/>
+      <port from="dsp_combinational" name="a[13]" type="output"/>
+    </direct>
+    <direct>
+      <port name="a[14]" type="input"/>
+      <port from="dsp_combinational" name="a[14]" type="output"/>
+    </direct>
+    <direct>
+      <port name="a[15]" type="input"/>
+      <port from="dsp_combinational" name="a[15]" type="output"/>
+    </direct>
+    <direct>
+      <port name="a[16]" type="input"/>
+      <port from="dsp_combinational" name="a[16]" type="output"/>
+    </direct>
+    <direct>
+      <port name="a[17]" type="input"/>
+      <port from="dsp_combinational" name="a[17]" type="output"/>
+    </direct>
+    <direct>
+      <port name="a[18]" type="input"/>
+      <port from="dsp_combinational" name="a[18]" type="output"/>
+    </direct>
+    <direct>
+      <port name="a[19]" type="input"/>
+      <port from="dsp_combinational" name="a[19]" type="output"/>
+    </direct>
+    <direct>
+      <port name="a[20]" type="input"/>
+      <port from="dsp_combinational" name="a[20]" type="output"/>
+    </direct>
+    <direct>
+      <port name="a[21]" type="input"/>
+      <port from="dsp_combinational" name="a[21]" type="output"/>
+    </direct>
+    <direct>
+      <port name="a[22]" type="input"/>
+      <port from="dsp_combinational" name="a[22]" type="output"/>
+    </direct>
+    <direct>
+      <port name="a[23]" type="input"/>
+      <port from="dsp_combinational" name="a[23]" type="output"/>
+    </direct>
+    <direct>
+      <port name="a[24]" type="input"/>
+      <port from="dsp_combinational" name="a[24]" type="output"/>
+    </direct>
+    <direct>
+      <port name="a[25]" type="input"/>
+      <port from="dsp_combinational" name="a[25]" type="output"/>
+    </direct>
+    <direct>
+      <port name="a[26]" type="input"/>
+      <port from="dsp_combinational" name="a[26]" type="output"/>
+    </direct>
+    <direct>
+      <port name="a[27]" type="input"/>
+      <port from="dsp_combinational" name="a[27]" type="output"/>
+    </direct>
+    <direct>
+      <port name="a[28]" type="input"/>
+      <port from="dsp_combinational" name="a[28]" type="output"/>
+    </direct>
+    <direct>
+      <port name="a[29]" type="input"/>
+      <port from="dsp_combinational" name="a[29]" type="output"/>
+    </direct>
+    <direct>
+      <port name="a[30]" type="input"/>
+      <port from="dsp_combinational" name="a[30]" type="output"/>
+    </direct>
+    <direct>
+      <port name="a[31]" type="input"/>
+      <port from="dsp_combinational" name="a[31]" type="output"/>
+    </direct>
+    <direct>
+      <port name="b[0]" type="input"/>
+      <port from="dsp_combinational" name="b[0]" type="output"/>
+    </direct>
+    <direct>
+      <port name="b[1]" type="input"/>
+      <port from="dsp_combinational" name="b[1]" type="output"/>
+    </direct>
+    <direct>
+      <port name="b[2]" type="input"/>
+      <port from="dsp_combinational" name="b[2]" type="output"/>
+    </direct>
+    <direct>
+      <port name="b[3]" type="input"/>
+      <port from="dsp_combinational" name="b[3]" type="output"/>
+    </direct>
+    <direct>
+      <port name="b[4]" type="input"/>
+      <port from="dsp_combinational" name="b[4]" type="output"/>
+    </direct>
+    <direct>
+      <port name="b[5]" type="input"/>
+      <port from="dsp_combinational" name="b[5]" type="output"/>
+    </direct>
+    <direct>
+      <port name="b[6]" type="input"/>
+      <port from="dsp_combinational" name="b[6]" type="output"/>
+    </direct>
+    <direct>
+      <port name="b[7]" type="input"/>
+      <port from="dsp_combinational" name="b[7]" type="output"/>
+    </direct>
+    <direct>
+      <port name="b[8]" type="input"/>
+      <port from="dsp_combinational" name="b[8]" type="output"/>
+    </direct>
+    <direct>
+      <port name="b[9]" type="input"/>
+      <port from="dsp_combinational" name="b[9]" type="output"/>
+    </direct>
+    <direct>
+      <port name="b[10]" type="input"/>
+      <port from="dsp_combinational" name="b[10]" type="output"/>
+    </direct>
+    <direct>
+      <port name="b[11]" type="input"/>
+      <port from="dsp_combinational" name="b[11]" type="output"/>
+    </direct>
+    <direct>
+      <port name="b[12]" type="input"/>
+      <port from="dsp_combinational" name="b[12]" type="output"/>
+    </direct>
+    <direct>
+      <port name="b[13]" type="input"/>
+      <port from="dsp_combinational" name="b[13]" type="output"/>
+    </direct>
+    <direct>
+      <port name="b[14]" type="input"/>
+      <port from="dsp_combinational" name="b[14]" type="output"/>
+    </direct>
+    <direct>
+      <port name="b[15]" type="input"/>
+      <port from="dsp_combinational" name="b[15]" type="output"/>
+    </direct>
+    <direct>
+      <port name="b[16]" type="input"/>
+      <port from="dsp_combinational" name="b[16]" type="output"/>
+    </direct>
+    <direct>
+      <port name="b[17]" type="input"/>
+      <port from="dsp_combinational" name="b[17]" type="output"/>
+    </direct>
+    <direct>
+      <port name="b[18]" type="input"/>
+      <port from="dsp_combinational" name="b[18]" type="output"/>
+    </direct>
+    <direct>
+      <port name="b[19]" type="input"/>
+      <port from="dsp_combinational" name="b[19]" type="output"/>
+    </direct>
+    <direct>
+      <port name="b[20]" type="input"/>
+      <port from="dsp_combinational" name="b[20]" type="output"/>
+    </direct>
+    <direct>
+      <port name="b[21]" type="input"/>
+      <port from="dsp_combinational" name="b[21]" type="output"/>
+    </direct>
+    <direct>
+      <port name="b[22]" type="input"/>
+      <port from="dsp_combinational" name="b[22]" type="output"/>
+    </direct>
+    <direct>
+      <port name="b[23]" type="input"/>
+      <port from="dsp_combinational" name="b[23]" type="output"/>
+    </direct>
+    <direct>
+      <port name="b[24]" type="input"/>
+      <port from="dsp_combinational" name="b[24]" type="output"/>
+    </direct>
+    <direct>
+      <port name="b[25]" type="input"/>
+      <port from="dsp_combinational" name="b[25]" type="output"/>
+    </direct>
+    <direct>
+      <port name="b[26]" type="input"/>
+      <port from="dsp_combinational" name="b[26]" type="output"/>
+    </direct>
+    <direct>
+      <port name="b[27]" type="input"/>
+      <port from="dsp_combinational" name="b[27]" type="output"/>
+    </direct>
+    <direct>
+      <port name="b[28]" type="input"/>
+      <port from="dsp_combinational" name="b[28]" type="output"/>
+    </direct>
+    <direct>
+      <port name="b[29]" type="input"/>
+      <port from="dsp_combinational" name="b[29]" type="output"/>
+    </direct>
+    <direct>
+      <port name="b[30]" type="input"/>
+      <port from="dsp_combinational" name="b[30]" type="output"/>
+    </direct>
+    <direct>
+      <port name="b[31]" type="input"/>
+      <port from="dsp_combinational" name="b[31]" type="output"/>
+    </direct>
+    <direct>
+      <port name="m" type="input"/>
+      <port from="dsp_combinational" name="m" type="output"/>
+    </direct>
   </interconnect>
 </pb_type>
