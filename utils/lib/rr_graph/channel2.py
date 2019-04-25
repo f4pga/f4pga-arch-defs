@@ -44,7 +44,12 @@ class Channel(object):
     """
 
     def __init__(self, tracks):
-        """tracks is a list of 3 element tuples that are (min, max, idx)"""
+        """
+        
+        Attributes
+        ----------
+        tracks : list of tuples of (min, max, idx)
+        """
         self.trees = []
         self.tracks = sorted(tracks, key=lambda x: x[1] - x[0])
 

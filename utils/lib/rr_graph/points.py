@@ -142,7 +142,7 @@ class StraightSegment(list):
 
     def replace(self, pos):
         """Replace point at same x and y. Essentially updating the names.
-        If no match is found, no change is occured and returns False
+        If no match is found, list remains unmodified and the function returns False.
         """
         for i, p in enumerate(self):
             if pos.x != p.x or pos.y != p.y:
