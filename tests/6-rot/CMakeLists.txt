@@ -3,7 +3,7 @@ add_simple_test(
   SOURCES rot.v
   BOARDS ${BOARDS}
   EQUIV_CHECK_SCRIPT
-      ${symbiflow-arch-defs_SOURCE_DIR}/yosys/miter_and_tempinduct_skip_1.ys
+      ${symbiflow-arch-defs_SOURCE_DIR}/common/yosys/miter_and_tempinduct_skip_1.ys
   DEFINES USE_LUT_CONSTANTS=1
   )
 
