@@ -20,7 +20,7 @@ import sys
 import lxml.etree as ET
 
 
-def create_synth_io_tiles(complexblocklist_xml, pb_name, is_input):
+def create_synth_io_tiles(complexblocklist_xml, tiles_xml, pb_name, is_input):
     """ Creates synthetic IO pad tiles used to connect ROI inputs and outputs to the routing network.
     """
     pb_xml = ET.SubElement(
@@ -31,6 +31,21 @@ def create_synth_io_tiles(complexblocklist_xml, pb_name, is_input):
 
     ET.SubElement(
         pb_xml, 'fc', {
+            'in_type': 'abs',
+            'in_val': '2',
+            'out_type': 'abs',
+            'out_val': '2',
+        }
+    )
+
+    tile_xml = ET.SubElement(
+        tiles_xml, 'tile', {
+            'name': pb_name,
+        }
+    )
+
+    ET.SubElement(
+        tile_xml, 'fc', {
             'in_type': 'abs',
             'in_val': '2',
             'out_type': 'abs',
@@ -96,7 +111,7 @@ def create_synth_io_tiles(complexblocklist_xml, pb_name, is_input):
 
 
 def create_synth_constant_tiles(
-        model_xml, complexblocklist_xml, pb_name, signal
+        model_xml, complexblocklist_xml, tiles_xml, pb_name, signal
 ):
     """ Creates synthetic constant tile generates some constant signal.
 
@@ -111,6 +126,21 @@ def create_synth_constant_tiles(
 
     ET.SubElement(
         pb_xml, 'fc', {
+            'in_type': 'abs',
+            'in_val': '2',
+            'out_type': 'abs',
+            'out_val': '2',
+        }
+    )
+
+    tile_xml = ET.SubElement(
+        tiles_xml, 'tile', {
+            'name': pb_name,
+        }
+    )
+
+    ET.SubElement(
+        tile_xml, 'fc', {
             'in_type': 'abs',
             'in_val': '2',
             'out_type': 'abs',
@@ -176,14 +206,14 @@ def create_synth_constant_tiles(
     })
 
 
-def add_synthetic_tiles(model_xml, complexblocklist_xml):
-    create_synth_io_tiles(complexblocklist_xml, 'SYN-INPAD', is_input=True)
-    create_synth_io_tiles(complexblocklist_xml, 'SYN-OUTPAD', is_input=False)
+def add_synthetic_tiles(model_xml, complexblocklist_xml, tiles_xml):
+    create_synth_io_tiles(complexblocklist_xml, tiles_xml, 'SYN-INPAD', is_input=True)
+    create_synth_io_tiles(complexblocklist_xml, tiles_xml, 'SYN-OUTPAD', is_input=False)
     create_synth_constant_tiles(
-        model_xml, complexblocklist_xml, 'SYN-VCC', 'VCC'
+        model_xml, complexblocklist_xml, tiles_xml, 'SYN-VCC', 'VCC'
     )
     create_synth_constant_tiles(
-        model_xml, complexblocklist_xml, 'SYN-GND', 'GND'
+        model_xml, complexblocklist_xml, tiles_xml, 'SYN-GND', 'GND'
     )
 
     return {
@@ -230,6 +260,7 @@ def main():
 
     tile_model = "../../tiles/{0}/{0}.model.xml"
     tile_pbtype = "../../tiles/{0}/{0}.pb_type.xml"
+    tile_tile = "../../tiles/{0}/{0}.tile.xml"
 
     xi_url = "http://www.w3.org/2001/XInclude"
     ET.register_namespace('xi', xi_url)
@@ -247,6 +278,14 @@ def main():
             model_xml, xi_include, {
                 'href': tile_model.format(tile_type.lower()),
                 'xpointer': "xpointer(models/child::node())",
+            }
+        )
+
+    tiles_xml = ET.SubElement(arch_xml, 'tiles')
+    for tile_type in tile_types:
+        ET.SubElement(
+            tiles_xml, xi_include, {
+                'href': tile_tile.format(tile_type.lower()),
             }
         )
 
@@ -292,7 +331,7 @@ def main():
             y2=j['info']['GRID_Y_MAX'],
         )
 
-        synth_tile_map = add_synthetic_tiles(model_xml, complexblocklist_xml)
+        synth_tile_map = add_synthetic_tiles(model_xml, complexblocklist_xml, tiles_xml)
 
     for loc in g.tile_locations():
         gridinfo = g.gridinfo_at_loc(loc)

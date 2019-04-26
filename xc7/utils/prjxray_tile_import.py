@@ -97,6 +97,14 @@ def main():
     )
 
     parser.add_argument(
+        '--output-tile',
+        nargs='?',
+        type=argparse.FileType('w'),
+        default=sys.stdout,
+        help="""File to write the output too."""
+    )
+
+    parser.add_argument(
         '--pin_assignments', required=True, type=argparse.FileType('r')
     )
 
@@ -244,6 +252,61 @@ def main():
             }
         )
 
+    def add_pinlocations(xml, fc_xml, pin_assignments, tile):
+        pinlocations_xml = ET.SubElement(
+            xml, 'pinlocations', {
+                'pattern': 'custom',
+            }
+        )
+
+        if len(input_wires) > 0 or len(output_wires) > 0:
+            sides = {}
+            for pin in input_wires | output_wires:
+                for side in pin_assignments['pin_directions'][tile][pin]:
+                    if side not in sides:
+                        sides[side] = []
+
+                    sides[side].append(object_ref(tile_name, pin))
+
+            for side, pins in sides.items():
+                ET.SubElement(pinlocations_xml, 'loc', {
+                    'side': side.lower(),
+                }).text = ' '.join(pins)
+
+        direct_pins = set()
+        for direct in pin_assignments['direct_connections']:
+            if direct['from_pin'].split('.')[0] == tile:
+                direct_pins.add(direct['from_pin'].split('.')[1])
+
+            if direct['to_pin'].split('.')[0] == tile:
+                direct_pins.add(direct['to_pin'].split('.')[1])
+
+        for fc_override in direct_pins:
+            ET.SubElement(
+                fc_xml, 'fc_override', {
+                    'fc_type': 'frac',
+                    'fc_val': '0.0',
+                    'port_name': fc_override,
+                }
+            )
+
+    def add_switchblock_locations(xml):
+        ET.SubElement(xml, 'switchblock_locations', {
+            'pattern': 'all',
+        })
+
+    def add_fc(xml):
+        fc_xml = ET.SubElement(
+            xml, 'fc', {
+                'in_type': 'abs',
+                'in_val': '2',
+                'out_type': 'abs',
+                'out_val': '2',
+            }
+        )
+
+        return fc_xml
+
     tile_name = args.tile
 
     pb_type_xml = ET.Element(
@@ -254,14 +317,8 @@ def main():
         nsmap={'xi': xi_url},
     )
 
-    fc_xml = ET.SubElement(
-        pb_type_xml, 'fc', {
-            'in_type': 'abs',
-            'in_val': '2',
-            'out_type': 'abs',
-            'out_val': '2',
-        }
-    )
+    # Adding Fc to pb_type
+    fc_xml = add_fc(pb_type_xml)
 
     interconnect_xml = ET.Element('interconnect')
 
@@ -519,53 +576,37 @@ def main():
 
     pb_type_xml.append(interconnect_xml)
 
-    ET.SubElement(pb_type_xml, 'switchblock_locations', {
-        'pattern': 'all',
-    })
+    pin_assignments = json.load(args.pin_assignments)
 
-    pinlocations_xml = ET.SubElement(
-        pb_type_xml, 'pinlocations', {
-            'pattern': 'custom',
-        }
-    )
+    add_pinlocations(pb_type_xml, fc_xml, pin_assignments, args.tile)
 
-    if len(input_wires) > 0 or len(output_wires) > 0:
-        pin_assignments = json.load(args.pin_assignments)
-
-        sides = {}
-        for pin in input_wires | output_wires:
-            for side in pin_assignments['pin_directions'][args.tile][pin]:
-                if side not in sides:
-                    sides[side] = []
-
-                sides[side].append(object_ref(tile_name, pin))
-
-        for side, pins in sides.items():
-            ET.SubElement(pinlocations_xml, 'loc', {
-                'side': side.lower(),
-            }).text = ' '.join(pins)
-
-    direct_pins = set()
-    for direct in pin_assignments['direct_connections']:
-        if direct['from_pin'].split('.')[0] == args.tile:
-            direct_pins.add(direct['from_pin'].split('.')[1])
-
-        if direct['to_pin'].split('.')[0] == args.tile:
-            direct_pins.add(direct['to_pin'].split('.')[1])
-
-    for fc_override in direct_pins:
-        ET.SubElement(
-            fc_xml, 'fc_override', {
-                'fc_type': 'frac',
-                'fc_val': '0.0',
-                'port_name': fc_override,
-            }
-        )
+    add_switchblock_locations(pb_type_xml)
 
     pb_type_str = ET.tostring(pb_type_xml, pretty_print=True).decode('utf-8')
     args.output_pb_type.write(pb_type_str)
     args.output_pb_type.close()
 
+    ##########################################################################
+    # Generate the tile.xml file                                             #
+    ##########################################################################
+
+    tile_xml = ET.Element(
+        'tile',
+        {
+            'name': tile_name,
+        },
+        nsmap={'xi': xi_url},
+    )
+
+    fc_xml = add_fc(tile_xml)
+
+    add_pinlocations(tile_xml, fc_xml, pin_assignments, args.tile)
+
+    add_switchblock_locations(tile_xml)
+
+    tile_str = ET.tostring(tile_xml, pretty_print=True).decode('utf-8')
+    args.output_tile.write(tile_str)
+    args.output_tile.close()
 
 if __name__ == '__main__':
     main()
