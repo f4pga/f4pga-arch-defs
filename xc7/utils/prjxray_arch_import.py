@@ -204,26 +204,56 @@ def add_synthetic_tiles(model_xml, complexblocklist_xml):
     }
 
 
-def load_vpr_tile_type_map(conn):
-    """
-    Loads database tile type to VPR tile type map. Used for mapping
-    eg. CLBLL_L_SLICEL_X0Y0 to generic SLICEL.
+def load_tile_type_map(conn):
 
-    Args:
-        conn: SQL database connection
+    c  = conn.cursor()
+    c1 = conn.cursor()
 
-    Returns:
-    """
+    tile_type_map = {}
 
-    vpr_tile_type_map = {}
+    # Loop over all tile type correspondencies (as pkeys)
+    for phy_tile_type_pkey, vpr_tile_type_pkey in c.execute("SELECT * FROM tile_type_map"):
 
-    # Fetch data
-    c = conn.cursor()
-    for db_tile_type, vpr_tile_type in c.execute("SELECT tile_type.name, vpr_tile_type.name FROM vpr_tile_type INNER JOIN tile_type ON vpr_tile_type.tile_type_pkey = tile_type.pkey"):
-        vpr_tile_type_map[db_tile_type] = vpr_tile_type
+        # Get tile types as strings.
+        (phy_tile_type, ) = c1.execute("SELECT name FROM tile_type WHERE pkey = (?)", (phy_tile_type_pkey, )).fetchone()
+        (vpr_tile_type, ) = c1.execute("SELECT name FROM tile_type WHERE pkey = (?)", (vpr_tile_type_pkey, )).fetchone()
 
-    return vpr_tile_type_map
+        # Get the VPR tile alias
+        (vpr_tile_type_alias, ) = c1.execute("SELECT name FROM tile_type_alias WHERE tile_type_pkey = (?)", (vpr_tile_type_pkey, )).fetchone()
 
+        print("{} -> {} -> {}".format(phy_tile_type, vpr_tile_type, vpr_tile_type_alias))
+
+        # Store
+        if phy_tile_type not in tile_type_map.keys():
+            tile_type_map[phy_tile_type] = []
+
+        tile_type_map[phy_tile_type].append((vpr_tile_type, vpr_tile_type_alias))
+
+    return tile_type_map
+
+
+def remap_tile_types(tile_types, tile_type_map):
+
+    new_tile_types = []
+
+    # Remap
+    for tile_type in tile_types:
+
+        # Not in map, leave as is
+        if tile_type not in tile_type_map.keys():
+            new_tile_types.append(tile_type)
+
+        # Do remap (alias). Here we assume that one physical tile has always
+        # the same VPR alias !
+        else:
+            new_tile_types.append(tile_type_map[tile_type][0][1])
+
+    # Remove duplicates
+    new_tile_types = tuple(set(new_tile_types))
+
+    return new_tile_types
+
+# =============================================================================
 
 def main():
     mydir = os.path.dirname(__file__)
@@ -262,6 +292,16 @@ def main():
 
     args = parser.parse_args()
 
+    tile_types = args.tile_types.split(',')
+
+    # FIXME: HACK - always import CLBs
+    tile_types = set(tile_types)
+    tile_types |= set(["CLBLL_L", "CLBLL_R", "CLBLM_L", "CLBLM_R"])
+    tile_types = tuple(tile_types)
+
+    tile_model = "../../tiles/{0}/{0}.model.xml"
+    tile_pbtype = "../../tiles/{0}/{0}.pb_type.xml"
+
     # Initialize grid mapper
     with DatabaseCache(args.connection_database, read_only=True) as conn:
 
@@ -272,15 +312,11 @@ def main():
         # Get the VPR grid extent
         vpr_grid_extent = get_vpr_grid_extent(conn)
 
-        tile_types = args.tile_types.split(',')
+        # Load tile type map
+        tile_type_map = load_tile_type_map(conn)
 
-        # FIXME: HACK - always import CLBs
-        tile_types  = set(tile_types)
-        tile_types |= set(["CLBLL_L", "CLBLL_R", "CLBLM_L", "CLBLM_R"])
-        tile_types  = tuple(tile_types)
-
-        tile_model = "../../tiles/{0}/{0}.model.xml"
-        tile_pbtype = "../../tiles/{0}/{0}.pb_type.xml"
+        # Remap tile types that are to be imported
+        tile_types = remap_tile_types(tile_types, tile_type_map)
 
         xi_url = "http://www.w3.org/2001/XInclude"
         ET.register_namespace('xi', xi_url)
@@ -356,7 +392,7 @@ def main():
 
             # Get physical tile name and type string
             (phy_tile_name, ) = c1.execute("SELECT name FROM phy_tile WHERE grid_x = (?) AND grid_y = (?)", (phy_loc[0], phy_loc[1])).fetchone()
-            (phy_tile_type, ) = c1.execute("SELECT name FROM tile_type WHERE pkey = (SELECT tile_type_pkey FROM phy_tile WHERE grid_x = (?) AND grid_y = (?))", (phy_loc[0], phy_loc[1])).fetchone()
+            #(phy_tile_type, ) = c1.execute("SELECT name FROM tile_type WHERE pkey = (SELECT tile_type_pkey FROM phy_tile WHERE grid_x = (?) AND grid_y = (?))", (phy_loc[0], phy_loc[1])).fetchone()
 
             # Get VPR tile type string
             (vpr_tile_type, ) = c1.execute("SELECT name FROM tile_type WHERE pkey = (?)", (vpr_tile_type_pkey, )).fetchone()
@@ -382,7 +418,7 @@ def main():
             elif only_emit_roi and not roi.tile_in_roi(phy_loc):
                 # This tile is outside the ROI, skip it.
                 continue
-            elif phy_tile_type in tile_types:
+            elif arch_tile_type in tile_types:
                 # We want to import this tile type.
                 vpr_tile_type = 'BLK_TI-{}'.format(arch_tile_type)
             else:
@@ -535,8 +571,10 @@ def main():
         _, direct = min(direct, key=lambda v: v[0])
 
         if direct['from_pin'].split('.')[0] not in tile_types:
+            print("SKIP: ", direct)
             continue
         if direct['to_pin'].split('.')[0] not in tile_types:
+            print("SKIP: ", direct)
             continue
 
         if direct['x_offset'] == 0 and direct['y_offset'] == 0:
