@@ -307,6 +307,23 @@ class TileSplitter(object):
 
         return GenericMap(fwd_map, bwd_map)
 
+    def import_tile_type_map(self, tile_type_map):
+        """
+        Imports tile type map to the database
+        """
+        c = self.sql_db.cursor()
+
+        for phy_tile_type, vpr_tile_types in tile_type_map.fwd_map.items():
+            for vpr_tile_type in vpr_tile_types:
+
+                # Get pkeys from names
+                (phy_tile_type_pkey, ) = c.execute("SELECT pkey FROM tile_type WHERE name = (?)", (phy_tile_type, )).fetchone()
+                (vpr_tile_type_pkey, ) = c.execute("SELECT pkey FROM tile_type WHERE name = (?)", (vpr_tile_type, )).fetchone()
+
+                # Insert binding
+                c.execute("INSERT INTO tile_type_map(phy_tile_type_pkey, vpr_tile_type_pkey) VALUES (?, ?)",
+                          (phy_tile_type_pkey, vpr_tile_type_pkey))
+
     # .........................................................................
 
     def split(self):
@@ -316,6 +333,9 @@ class TileSplitter(object):
 
         # Split the tiles
         tile_type_map = self.split_tiles()
+
+        # Import the tile type map
+        self.import_tile_type_map(tile_type_map)
 
         # Remap tile wires and pips
         wire_pkey_map, pip_pkey_map = self.remap_tile_wires_and_pips()
