@@ -38,11 +38,9 @@ def create_synth_io_tiles(complexblocklist_xml, tiles_xml, pb_name, is_input):
         }
     )
 
-    tile_xml = ET.SubElement(
-        tiles_xml, 'tile', {
-            'name': pb_name,
-        }
-    )
+    tile_xml = ET.SubElement(tiles_xml, 'tile', {
+        'name': pb_name,
+    })
 
     ET.SubElement(
         tile_xml, 'fc', {
@@ -133,11 +131,9 @@ def create_synth_constant_tiles(
         }
     )
 
-    tile_xml = ET.SubElement(
-        tiles_xml, 'tile', {
-            'name': pb_name,
-        }
-    )
+    tile_xml = ET.SubElement(tiles_xml, 'tile', {
+        'name': pb_name,
+    })
 
     ET.SubElement(
         tile_xml, 'fc', {
@@ -207,8 +203,12 @@ def create_synth_constant_tiles(
 
 
 def add_synthetic_tiles(model_xml, complexblocklist_xml, tiles_xml):
-    create_synth_io_tiles(complexblocklist_xml, tiles_xml, 'SYN-INPAD', is_input=True)
-    create_synth_io_tiles(complexblocklist_xml, tiles_xml, 'SYN-OUTPAD', is_input=False)
+    create_synth_io_tiles(
+        complexblocklist_xml, tiles_xml, 'SYN-INPAD', is_input=True
+    )
+    create_synth_io_tiles(
+        complexblocklist_xml, tiles_xml, 'SYN-OUTPAD', is_input=False
+    )
     create_synth_constant_tiles(
         model_xml, complexblocklist_xml, tiles_xml, 'SYN-VCC', 'VCC'
     )
@@ -331,7 +331,9 @@ def main():
             y2=j['info']['GRID_Y_MAX'],
         )
 
-        synth_tile_map = add_synthetic_tiles(model_xml, complexblocklist_xml, tiles_xml)
+        synth_tile_map = add_synthetic_tiles(
+            model_xml, complexblocklist_xml, tiles_xml
+        )
 
     for loc in g.tile_locations():
         gridinfo = g.gridinfo_at_loc(loc)

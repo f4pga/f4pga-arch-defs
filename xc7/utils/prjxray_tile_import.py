@@ -269,9 +269,11 @@ def main():
                     sides[side].append(object_ref(tile_name, pin))
 
             for side, pins in sides.items():
-                ET.SubElement(pinlocations_xml, 'loc', {
-                    'side': side.lower(),
-                }).text = ' '.join(pins)
+                ET.SubElement(
+                    pinlocations_xml, 'loc', {
+                        'side': side.lower(),
+                    }
+                ).text = ' '.join(pins)
 
         direct_pins = set()
         for direct in pin_assignments['direct_connections']:
@@ -607,6 +609,7 @@ def main():
     tile_str = ET.tostring(tile_xml, pretty_print=True).decode('utf-8')
     args.output_tile.write(tile_str)
     args.output_tile.close()
+
 
 if __name__ == '__main__':
     main()
