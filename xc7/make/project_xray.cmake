@@ -97,6 +97,7 @@ function(PROJECT_XRAY_TILE)
     --pin_assignments ${PIN_ASSIGNMENTS}
     --output-pb-type ${CMAKE_CURRENT_BINARY_DIR}/${TILE}.pb_type.xml
     --output-model ${CMAKE_CURRENT_BINARY_DIR}/${TILE}.model.xml
+    --output-tile ${CMAKE_CURRENT_BINARY_DIR}/${TILE}.tile.xml
     ${FUSED_SITES_ARGS}
     DEPENDS
     ${TILE_IMPORT}
