@@ -1,5 +1,0 @@
-project_xray_tile(
-  PART zynq7
-  TILE CLBLL_R
-  SITE_TYPES SLICEL/SLICEL0 SLICEL/SLICEL1
-  )

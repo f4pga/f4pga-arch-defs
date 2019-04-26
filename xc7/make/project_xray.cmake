@@ -48,7 +48,7 @@ endfunction()
 
 function(PROJECT_XRAY_TILE)
   set(options FUSED_SITES)
-  set(oneValueArgs PART TILE)
+  set(oneValueArgs PART TILE ALIAS)
   set(multiValueArgs SITE_TYPES)
   cmake_parse_arguments(
     PROJECT_XRAY_TILE
@@ -58,7 +58,13 @@ function(PROJECT_XRAY_TILE)
     ${ARGN}
   )
 
-  string(TOLOWER ${PROJECT_XRAY_TILE_TILE} TILE)
+  if(PROJECT_XRAY_TILE_ALIAS)
+    string(TOLOWER ${PROJECT_XRAY_TILE_TILE}  TILE)
+    string(TOLOWER ${PROJECT_XRAY_TILE_ALIAS} ALIAS)
+  else()
+    string(TOLOWER ${PROJECT_XRAY_TILE_TILE}  TILE)
+    set(ALIAS ${TILE})
+  endif()
 
   get_target_property_required(PYTHON3 env PYTHON3)
   get_target_property(PYTHON3_TARGET env PYTHON3_TARGET)
@@ -87,7 +93,7 @@ function(PROJECT_XRAY_TILE)
   endif()
 
   add_custom_command(
-    OUTPUT ${TILE}.pb_type.xml ${TILE}.model.xml
+    OUTPUT ${ALIAS}.pb_type.xml ${ALIAS}.model.xml
     COMMAND ${CMAKE_COMMAND} -E env PYTHONPATH=${PRJXRAY_DIR}:${symbiflow-arch-defs_SOURCE_DIR}/utils
     ${PYTHON3} ${TILE_IMPORT}
     --part ${PROJECT_XRAY_TILE_PART}
@@ -95,8 +101,8 @@ function(PROJECT_XRAY_TILE)
     --site_directory ${symbiflow-arch-defs_BINARY_DIR}/xc7/primitives
     --site_types ${SITE_TYPES_COMMA}
     --pin_assignments ${PIN_ASSIGNMENTS}
-    --output-pb-type ${CMAKE_CURRENT_BINARY_DIR}/${TILE}.pb_type.xml
-    --output-model ${CMAKE_CURRENT_BINARY_DIR}/${TILE}.model.xml
+    --output-pb-type ${CMAKE_CURRENT_BINARY_DIR}/${ALIAS}.pb_type.xml
+    --output-model ${CMAKE_CURRENT_BINARY_DIR}/${ALIAS}.model.xml
     ${FUSED_SITES_ARGS}
     DEPENDS
     ${TILE_IMPORT}
@@ -104,18 +110,18 @@ function(PROJECT_XRAY_TILE)
       ${PYTHON3} ${PYTHON3_TARGET} simplejson
     )
 
-  add_file_target(FILE ${TILE}.pb_type.xml GENERATED)
-  get_file_target(PB_TYPE_TARGET ${TILE}.pb_type.xml)
+  add_file_target(FILE ${ALIAS}.pb_type.xml GENERATED)
+  get_file_target(PB_TYPE_TARGET ${ALIAS}.pb_type.xml)
   set_target_properties(${PB_TYPE_TARGET} PROPERTIES INCLUDE_FILES "${PB_TYPE_INCLUDE_FILES}")
 
-  get_file_target(MODEL_TARGET ${TILE}.model.xml)
+  get_file_target(MODEL_TARGET ${ALIAS}.model.xml)
   add_custom_target(${MODEL_TARGET})
 
   # Linearize the dependency to prevent double builds.
   add_dependencies(${MODEL_TARGET} ${PB_TYPE_TARGET})
   set_target_properties(${MODEL_TARGET} PROPERTIES
       INCLUDE_FILES "${MODEL_INCLUDE_FILES}"
-      LOCATION ${CMAKE_CURRENT_BINARY_DIR}/${TILE}.model.xml
+      LOCATION ${CMAKE_CURRENT_BINARY_DIR}/${ALIAS}.model.xml
       )
 endfunction()
 
