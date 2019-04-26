@@ -44,10 +44,18 @@ class Channel(object):
     """
 
     def __init__(self, tracks):
+        """
+        
+        Attributes
+        ----------
+        tracks : list of tuples of (min, max, idx)
+        """
         self.trees = []
         self.tracks = sorted(tracks, key=lambda x: x[1] - x[0])
 
-    def place_track(self, track):
+    def _place_track(self, track):
+        """Add track to existing interval tree, if there is room (ie doesn't overlap)
+        If track won't fit in any existing tree, allocate a new tree for the track"""
         for idx, tree in enumerate(self.trees):
             if not tree.overlaps(track[0], track[1] + 1):
                 tree.add(
@@ -61,10 +69,13 @@ class Channel(object):
         )
 
     def pack_tracks(self):
+        """pack all tracks"""
         for track in self.tracks[::-1]:
-            self.place_track(track)
+            self._place_track(track)
 
     def fill_empty(self, min_value, max_value):
+        """Generator that yields tracks for any gaps in the channels.
+        """
         for idx, tree in enumerate(self.trees):
             tracks = sorted(tree.items(), key=lambda x: x[0])
 

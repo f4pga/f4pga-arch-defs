@@ -11,6 +11,7 @@ class Direction(Enum):
     BOTTOM = 4
 
 
+# Track (aka Channel) is a wire that runs from one position to another along X or Y axis
 Track = namedtuple('Track', 'direction x_low x_high y_low y_high')
 
 
@@ -150,6 +151,9 @@ def make_tracks(xs, ys, points, grid_width=None, grid_height=None):
 
 
 class Tracks(object):
+    """Tracks groups tracks and their connections (AKA Node).
+    """
+
     def __init__(self, tracks, track_connections):
         self.tracks = tracks
         self.track_connections = track_connections
@@ -178,6 +182,9 @@ class Tracks(object):
         ) == 1, track_connections
 
     def is_wire_adjacent_to_track(self, idx, coord):
+        """returns direction if wire at coord is adjacent to track at index idx
+        returns NO_SIDE if not adjacent.
+        """
         track = self.tracks[idx]
         wire_x, wire_y = coord
 
@@ -220,8 +227,9 @@ class Tracks(object):
             assert False, track
 
     def get_tracks_for_wire_at_coord(self, coord):
-        """ Returns which track indicies and direction a wire at a coord can
-            be connected too. """
+        """Returns which track indicies and direction a wire at a coord can
+        be connected too.
+        """
 
         wire_x, wire_y = coord
 
