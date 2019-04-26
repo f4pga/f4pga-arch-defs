@@ -457,7 +457,12 @@ def main(args):
     pb_type_xml = make_pb_type(yj, tmod)
 
     args.outfile.write(
-        ET.tostring(pb_type_xml, pretty_print=True, encoding="utf-8", xml_declaration=True).decode('utf-8')
+        ET.tostring(
+            pb_type_xml,
+            pretty_print=True,
+            encoding="utf-8",
+            xml_declaration=True
+        ).decode('utf-8')
     )
     print("Generated {} from {}".format(args.outfile.name, iname))
     args.outfile.close()
