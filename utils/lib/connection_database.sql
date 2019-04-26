@@ -44,10 +44,10 @@ CREATE TABLE tile_type(
   name TEXT
 );
 
--- VPR tile type table.
--- Relates tile types from the tile_type table with their names as they
--- appear in the VPR
-CREATE TABLE vpr_tile_type(
+-- Tile type alias.
+-- Used to make generic tile types from specific ones when generating
+-- architecture definition for the VPR
+CREATE TABLE tile_type_alias(
   pkey INTEGER PRIMARY KEY,
   tile_type_pkey INT,
   name TEXT,
@@ -76,11 +76,11 @@ CREATE TABLE tile(
   pkey INTEGER PRIMARY KEY,
   name TEXT,
   tile_type_pkey INT,
-  vpr_tile_type_pkey INT,
+  tile_type_alias_pkey INT,
   grid_x INT,
   grid_y INT,
   FOREIGN KEY(tile_type_pkey) REFERENCES tile_type(pkey)
-  FOREIGN KEY(vpr_tile_type_pkey) REFERENCES vpr_tile_type(pkey)
+  FOREIGN KEY(tile_type_alias_pkey) REFERENCES tile_type_alias(pkey)
 );
 
 -- Site pin table, contains names of pins and their direction, along

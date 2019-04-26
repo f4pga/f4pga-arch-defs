@@ -292,8 +292,8 @@ class TileSplitter(object):
                 c.execute("INSERT INTO tile_type(name) VALUES (?)", (new_tile_type, ))
                 new_tile_type_pkey = c.lastrowid
 
-                # Insert new tile type as it should appear in the VPR
-                c.execute("INSERT INTO vpr_tile_type(name, tile_type_pkey) VALUES (?, ?)", (site_type, new_tile_type_pkey))
+                # Insert new tile type alias
+                c.execute("INSERT INTO tile_type_alias(name, tile_type_pkey) VALUES (?, ?)", (site_type, new_tile_type_pkey))
                 vpr_tile_pkey = c.lastrowid
 
                 print("{} -> {} -> {}".format(tile_type, new_tile_type, site_type))

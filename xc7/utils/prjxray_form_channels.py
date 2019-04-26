@@ -246,6 +246,7 @@ def import_nodes(db, conn):
                 wire_pkey = c3.lastrowid
                 wires[wire_pkey] = None
 
+
                 # Now it is allowed to have multiple instances of the same wire
                 # for a given (physical tile, wire) key. This is because some
                 # wires of a CLB should be present in both SLICEs.
@@ -995,22 +996,24 @@ def remap_tile_grid(conn, grid_map, tile_type_map):
 
         # The tile is being split
         if tile_type in tile_type_map.fwd_map.keys():
-
             # Insert split products
             for vpr_loc, vpr_tile_type in zip(vpr_locs, tile_type_map.fwd_map[tile_type]):
 
                 # Get the VPR tile type pkey
-                vpr_tile_type_pkey = c.execute("SELECT pkey FROM tile_type WHERE name = (?)", (vpr_tile_type, )).fetchone()[0]
-                # Get the VPR tile type name (generic)
-                generic_tile_type  = c.execute("SELECT name FROM vpr_tile_type WHERE tile_type_pkey = (?)", (vpr_tile_type_pkey, )).fetchone()[0]
+                (vpr_tile_type_pkey, ) = c.execute("SELECT pkey FROM tile_type WHERE name = (?)", (vpr_tile_type, )).fetchone()
+                # Get the VPR tile type alias
+                (tile_type_alias_pkey, tile_type_alias, ) = c.execute("SELECT pkey, name FROM tile_type_alias WHERE tile_type_pkey = (?)", (vpr_tile_type_pkey, )).fetchone()
 
                 # Generate new tile name
                 # FIXME: This will be the SLICE name. However it will not match
                 # FIXME: the Vivado slice name, coordinates will differ.
-                vpr_tile_name = "%s_X%dY%d" % (generic_tile_type, vpr_loc[0], vpr_loc[1])
+                vpr_tile_name = "%s_X%dY%d" % (tile_type_alias, vpr_loc[0], vpr_loc[1])
 
                 # Insert the tile into grid
-                insert_vpr_tile(conn, vpr_tile_name, vpr_loc, vpr_tile_type_pkey, tile_pkey)
+                vpr_tile_pkey = insert_vpr_tile(conn, vpr_tile_name, vpr_loc, vpr_tile_type_pkey, tile_pkey)
+
+                # Bind to tile type alias
+                c.execute("UPDATE tile SET tile_type_alias_pkey = (?) WHERE pkey = (?)", (tile_type_alias_pkey, vpr_tile_pkey))
 
         # The tile is not being split
         else:
