@@ -1,4 +1,4 @@
-<?xml version="1.0"?>
+<?xml version='1.0' encoding='utf-8'?>
 <pb_type xmlns:xi="http://www.w3.org/2001/XInclude" name="dsp_out_registered" num_pb="1">
   <input name="a" num_pins="32"/>
   <input name="b" num_pins="32"/>
