@@ -63,10 +63,21 @@ def NP(x, y, *n):
 
 class StraightSegment(list):
     class Type(enum.Enum):
-        """ Vertical, Horizontal, Stub"""
+        """Category of straight segment
+
+        Vertical - all points have same x value
+        Horizontal - all point have same y value
+        Stub - single point, no direction yet.
+        """
+
         V = '|'
+        V__doc__ = 'Vertical'
+
         H = '-'
+        H__doc__ = 'Horizontal'
+
         S = 'o'
+        S__doc__ = 'Stub'
 
         def __repr__(self):
             return 'StraightSegment.Type.' + self.name

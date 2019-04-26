@@ -1,6 +1,3 @@
-
-
-
 ## Summary of datastructures
 
 TODO: reduce duplication
