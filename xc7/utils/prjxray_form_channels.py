@@ -157,7 +157,7 @@ def build_tile_type_indicies(c):
     c.execute(
         "CREATE INDEX wire_site_pin_index ON wire_in_tile(site_pin_pkey);"
     )
-    c.execute("CREATE INDEX tile_type_index ON tile(tile_type_pkey);")
+    c.execute("CREATE INDEX tile_type_index ON phy_tile(tile_type_pkey);")
     c.execute(
         "CREATE INDEX pip_tile_type_index ON pip_in_tile(tile_type_pkey);"
     )
@@ -170,11 +170,11 @@ def build_tile_type_indicies(c):
 
 
 def build_other_indicies(c):
-    c.execute("CREATE INDEX tile_name_index ON tile(name);")
-    c.execute("CREATE INDEX tile_location_index ON tile(grid_x, grid_y);")
+    c.execute("CREATE INDEX phy_tile_name_index ON phy_tile(name);")
+    c.execute("CREATE INDEX phy_tile_location_index ON phy_tile(grid_x, grid_y);")
 
 
-def import_grid(db, grid, conn):
+def import_phy_grid(db, grid, conn):
     c = conn.cursor()
 
     tile_types = {}
@@ -202,7 +202,7 @@ def import_grid(db, grid, conn):
         # tile: pkey name tile_type_pkey grid_x grid_y
         c.execute(
             """
-INSERT INTO tile(name, tile_type_pkey, grid_x, grid_y)
+INSERT INTO phy_tile(name, tile_type_pkey, grid_x, grid_y)
 VALUES
   (?, ?, ?, ?)""",
             (tile, tile_types[gridinfo.tile_type], loc.grid_x, loc.grid_y)
@@ -219,7 +219,6 @@ def import_nodes(db, grid, conn):
     c2 = conn.cursor()
     c2.execute("""BEGIN EXCLUSIVE TRANSACTION;""")
 
-    tiles = {}
     tile_wire_map = {}
     wires = {}
     for tile in progressbar.progressbar(grid.tiles()):
@@ -227,11 +226,10 @@ def import_nodes(db, grid, conn):
         tile_type = db.get_tile_type(gridinfo.tile_type)
 
         c.execute(
-            """SELECT pkey, tile_type_pkey FROM tile WHERE name = ?;""",
+            """SELECT pkey, tile_type_pkey FROM phy_tile WHERE name = ?;""",
             (tile, )
         )
-        tile_pkey, tile_type_pkey = c.fetchone()
-        tiles[tile] = (tile_pkey, tile_type_pkey)
+        phy_tile_pkey, tile_type_pkey = c.fetchone()
 
         for wire in tile_type.get_wires():
             # pkey node_pkey tile_pkey wire_in_tile_pkey
@@ -244,9 +242,9 @@ SELECT pkey FROM wire_in_tile WHERE name = ? and tile_type_pkey = ?;""",
 
             c2.execute(
                 """
-INSERT INTO wire(tile_pkey, wire_in_tile_pkey)
+INSERT INTO wire(phy_tile_pkey, wire_in_tile_pkey)
 VALUES
-  (?, ?);""", (tile_pkey, wire_in_tile_pkey)
+  (?, ?);""", (phy_tile_pkey, wire_in_tile_pkey)
             )
 
             assert (tile, wire) not in tile_wire_map
@@ -310,7 +308,7 @@ VALUES
     del wires
 
     c.execute("CREATE INDEX wire_in_tile_index ON wire(wire_in_tile_pkey);")
-    c.execute("CREATE INDEX wire_index ON wire(tile_pkey, wire_in_tile_pkey);")
+    c.execute("CREATE INDEX wire_index ON wire(phy_tile_pkey, wire_in_tile_pkey);")
     c.execute("CREATE INDEX wire_node_index ON wire(node_pkey);")
 
     c.connection.commit()
@@ -483,11 +481,11 @@ WHERE
             c.execute(
                 """
 WITH wire_in_node(
-  wire_pkey, tile_pkey, wire_in_tile_pkey
+  wire_pkey, phy_tile_pkey, wire_in_tile_pkey
 ) AS (
   SELECT
     wire.pkey,
-    wire.tile_pkey,
+    wire.phy_tile_pkey,
     wire.wire_in_tile_pkey
   FROM
     wire
@@ -500,7 +498,7 @@ SELECT
   pip_in_tile.dest_wire_in_tile_pkey,
   wire_in_node.wire_pkey,
   wire_in_node.wire_in_tile_pkey,
-  wire_in_node.tile_pkey
+  wire_in_node.phy_tile_pkey
 FROM
   wire_in_node
   INNER JOIN pip_in_tile
@@ -515,7 +513,7 @@ LIMIT
 
             (
                 pip_pkey, src_wire_in_tile_pkey, dest_wire_in_tile_pkey,
-                wire_in_node_pkey, wire_in_tile_pkey, tile_pkey
+                wire_in_node_pkey, wire_in_tile_pkey, phy_tile_pkey
             ) = c.fetchone()
             assert c.fetchone() is None, node
 
@@ -533,13 +531,13 @@ LIMIT
                 """
             SELECT node_pkey FROM wire WHERE
                 wire_in_tile_pkey = ? AND
-                tile_pkey = ?;
-                """, (other_wire, tile_pkey)
+                phy_tile_pkey = ?;
+                """, (other_wire, phy_tile_pkey)
             )
 
             (other_node_pkey, ) = c.fetchone()
             assert c.fetchone() is None
-            assert other_node_pkey is not None, (other_wire, tile_pkey)
+            assert other_node_pkey is not None, (other_wire, phy_tile_pkey)
 
             c.execute(
                 """
@@ -773,7 +771,7 @@ WITH wires_from_node(wire_pkey, tile_pkey) AS (
   FROM
     wire
   WHERE
-    node_pkey = ?
+    node_pkey = ? AND tile_pkey IS NOT NULL
 )
 SELECT
   wires_from_node.wire_pkey,
@@ -893,6 +891,47 @@ UPDATE node SET track_pkey = ? WHERE pkey IN (
     c2.execute("""COMMIT TRANSACTION""")
 
 
+def create_vpr_grid(conn):
+    c = conn.cursor()
+    c3 = conn.cursor()
+
+    c2 = conn.cursor()
+    c2.execute("""BEGIN EXCLUSIVE TRANSACTION;""")
+
+    for phy_tile_pkey, tile_type_pkey, grid_x, grid_y in progressbar.progressbar(c.execute("""
+        SELECT pkey, tile_type_pkey, grid_x, grid_y FROM phy_tile;
+        """)):
+        c2.execute("""
+INSERT INTO tile(phy_tile_pkey, tile_type_pkey, grid_x, grid_y) VALUES (
+    ?, ?, ?, ?)""", (phy_tile_pkey, tile_type_pkey, grid_x+3, grid_y+3))
+
+        tile_pkey = c2.lastrowid
+
+        c2.execute("""
+INSERT INTO tile_map(tile_pkey, phy_tile_pkey) VALUES (
+    ?, ?)""", (tile_pkey, phy_tile_pkey))
+
+        for (wire_in_tile_pkey,) in c3.execute("""
+            SELECT pkey FROM wire_in_tile WHERE tile_type_pkey = ?;""",
+                (tile_type_pkey,)):
+            c2.execute("""
+UPDATE
+    wire
+SET
+    tile_pkey = ?
+WHERE
+    phy_tile_pkey = ?
+AND
+    wire_in_tile_pkey = ?
+    ;""", (tile_pkey, phy_tile_pkey, wire_in_tile_pkey))
+
+    c2.execute("CREATE INDEX tile_location_index ON tile(grid_x, grid_y);")
+    c2.execute("CREATE INDEX tile_wire_index ON wire(wire_in_tile_pkey, tile_pkey);")
+    c2.execute("CREATE INDEX tile_to_phy_map ON tile_map(tile_pkey);")
+    c2.execute("CREATE INDEX phy_to_tile_map ON tile_map(phy_tile_pkey);")
+    c2.execute("""COMMIT TRANSACTION;""")
+
+
 def create_constant_tracks(conn):
     """ Create two tracks that go to all TIEOFF sites to route constants.
 
@@ -950,13 +989,15 @@ def main():
         print("{}: About to load database".format(datetime.datetime.now()))
         db = prjxray.db.Database(args.db_root)
         grid = db.grid()
-        import_grid(db, grid, conn)
+        import_phy_grid(db, grid, conn)
         print("{}: Initial database formed".format(datetime.datetime.now()))
         import_nodes(db, grid, conn)
         print("{}: Connections made".format(datetime.datetime.now()))
         count_sites_and_pips_on_nodes(conn)
         print("{}: Counted sites and pips".format(datetime.datetime.now()))
         classify_nodes(conn)
+        print("{}: Create VPR grid".format(datetime.datetime.now()))
+        create_vpr_grid(conn)
         print("{}: Nodes classified".format(datetime.datetime.now()))
         form_tracks(conn)
         print("{}: Tracks formed".format(datetime.datetime.now()))

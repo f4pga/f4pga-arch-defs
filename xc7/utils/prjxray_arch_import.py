@@ -13,11 +13,14 @@ from __future__ import print_function
 import argparse
 import prjxray.db
 from prjxray.roi import Roi
+from prjxray import grid_types
 import os.path
 import simplejson as json
 import sys
 
 import lxml.etree as ET
+
+from prjxray_db_cache import DatabaseCache
 
 
 def create_synth_io_tiles(complexblocklist_xml, pb_name, is_input):
@@ -223,6 +226,7 @@ def main():
     parser.add_argument('--use_roi', required=False)
     parser.add_argument('--device', required=True)
     parser.add_argument('--synth_tiles', required=False)
+    parser.add_argument('--connection_database', required=True)
 
     args = parser.parse_args()
 
@@ -261,21 +265,12 @@ def main():
     layout_xml = ET.SubElement(arch_xml, 'layout')
     db = prjxray.db.Database(os.path.join(prjxray_db, args.part))
     g = db.grid()
-    x_min, x_max, y_min, y_max = g.dims()
-
-    name = '{}-test'.format(args.device)
-    fixed_layout_xml = ET.SubElement(
-        layout_xml, 'fixed_layout', {
-            'name': name,
-            'height': str(y_max + 2),
-            'width': str(x_max + 2),
-        }
-    )
 
     only_emit_roi = False
 
     synth_tiles = {}
     synth_tiles['tiles'] = {}
+    synth_loc_map = {}
     if args.use_roi:
         only_emit_roi = True
         with open(args.use_roi) as f:
@@ -294,48 +289,98 @@ def main():
 
         synth_tile_map = add_synthetic_tiles(model_xml, complexblocklist_xml)
 
-    for loc in g.tile_locations():
-        gridinfo = g.gridinfo_at_loc(loc)
-        tile = g.tilename_at_loc(loc)
+        for _, tile_info in synth_tiles['tiles'].items():
+            assert tuple(tile_info['loc']) not in synth_loc_map
+            synth_loc_map[tuple(tile_info['loc'])] = tile_info
 
-        if tile in synth_tiles['tiles']:
-            synth_tile = synth_tiles['tiles'][tile]
+    with DatabaseCache(args.connection_database, read_only=True) as conn:
+        c = conn.cursor()
+        c2 = conn.cursor()
+        c3 = conn.cursor()
 
-            assert len(synth_tile['pins']) == 1
+        # Find the grid extent.
+        y_max = 0
+        x_max = 0
+        for grid_x, grid_y in c.execute("SELECT grid_x, grid_y FROM tile"):
+            x_max = max(grid_x+2, x_max)
+            y_max = max(grid_y+2, y_max)
 
-            vpr_tile_type = synth_tile_map[synth_tile['pins'][0]['port_type']]
-        elif only_emit_roi and not roi.tile_in_roi(loc):
-            # This tile is outside the ROI, skip it.
-            continue
-        elif gridinfo.tile_type in tile_types:
-            # We want to import this tile type.
-            vpr_tile_type = gridinfo.tile_type
-        else:
-            # We don't want this tile
-            continue
-
-        is_vbrk = gridinfo.tile_type.find('VBRK') != -1
-
-        # VBRK tiles are known to have no bitstream data.
-        if not is_vbrk and not gridinfo.bits:
-            print(
-                '*** WARNING *** Skipping tile {} because it lacks bitstream data.'
-                .format(tile),
-                file=sys.stderr
-            )
-
-        single_xml = ET.SubElement(
-            fixed_layout_xml, 'single', {
-                'priority': '1',
-                'type': vpr_tile_type,
-                'x': str(loc[0]),
-                'y': str(loc[1]),
+        name = '{}-test'.format(args.device)
+        fixed_layout_xml = ET.SubElement(
+            layout_xml, 'fixed_layout', {
+                'name': name,
+                'height': str(y_max),
+                'width': str(x_max),
             }
         )
-        meta = ET.SubElement(single_xml, 'metadata')
-        ET.SubElement(meta, 'meta', {
-            'name': 'fasm_prefix',
-        }).text = tile
+
+        for tile_pkey, grid_x, grid_y, phy_tile_pkey, tile_type_pkey in c.execute("SELECT pkey, grid_x, grid_y, phy_tile_pkey, tile_type_pkey FROM tile"):
+            phy_tiles = []
+            phy_locs = []
+            for (phy_tile_pkey,) in c2.execute("SELECT phy_tile_pkey FROM tile_map WHERE tile_pkey = ?",
+                    (tile_pkey,)):
+                phy_tiles.append(phy_tile_pkey)
+                c3.execute("SELECT grid_x, grid_y FROM phy_tile WHERE pkey = ?",
+                        (phy_tile_pkey,))
+                loc = c3.fetchone()
+                phy_locs.append(grid_types.GridLoc(*loc))
+
+            c2.execute("SELECT name FROM tile_type WHERE pkey = ?", (
+                tile_type_pkey,))
+            vpr_tile_type = c2.fetchone()[0]
+
+            if (grid_x, grid_y) in synth_loc_map:
+                synth_tile = synth_loc_map[(grid_x, grid_y)]
+
+                assert len(synth_tile['pins']) == 1
+
+                vpr_tile_type = synth_tile_map[synth_tile['pins'][0]['port_type']]
+            else:
+                if only_emit_roi:
+                    if not any(roi.tile_in_roi(loc) for loc in phy_locs):
+                        # This tile is outside the ROI, skip it.
+                        continue
+
+                if vpr_tile_type not in tile_types:
+                    # We don't want this tile
+                    continue
+
+            prefix_tile = None
+            for loc in phy_locs:
+                gridinfo = g.gridinfo_at_loc(loc)
+                tile = g.tilename_at_loc(loc)
+                is_vbrk = gridinfo.tile_type.find('VBRK') != -1
+
+                # VBRK tiles are known to have no bitstream data.
+                if not is_vbrk and not gridinfo.bits:
+                    print(
+                        '*** WARNING *** Skipping tile {} because it lacks bitstream data.'
+                        .format(tile),
+                        file=sys.stderr
+                    )
+
+                if not gridinfo.bits:
+                    # Each VPR tile can only have one prefix.
+                    # If this assumption is violated, a more dramatic
+                    # restructing is required.
+                    assert prefix_tile is None, (tile, gridinfo, prefix_tile)
+                    prefix_tile = tile
+
+            if len(phy_locs) == 1 and prefix_tile is None:
+                prefix_tile = g.tilename_at_loc(phy_locs[0])
+
+            single_xml = ET.SubElement(
+                fixed_layout_xml, 'single', {
+                    'priority': '1',
+                    'type': vpr_tile_type,
+                    'x': str(grid_x),
+                    'y': str(grid_y),
+                }
+            )
+            meta = ET.SubElement(single_xml, 'metadata')
+            ET.SubElement(meta, 'meta', {
+                'name': 'fasm_prefix',
+            }).text = prefix_tile
 
     device_xml = ET.SubElement(arch_xml, 'device')
 

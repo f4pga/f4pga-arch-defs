@@ -167,8 +167,8 @@ SELECT pkey, classification FROM node WHERE classification != ?;
         reason = NodeClassification(classification)
 
         if reason == NodeClassification.NULL:
-            for (_, tile_type, wire) in yield_wire_info_from_node(conn,
-                                                                  node_pkey):
+            for (tile_type, wire) in yield_wire_info_from_node(
+                    conn, node_pkey):
                 null_tile_wires.add((tile_type, wire))
 
         if reason != NodeClassification.EDGES_TO_CHANNEL:
@@ -181,9 +181,9 @@ SELECT tile_pkey, wire_in_tile_pkey FROM wire WHERE node_pkey = ?;""",
             c3 = conn.cursor()
             c3.execute(
                 """
-SELECT name, grid_x, grid_y FROM tile WHERE pkey = ?;""", (tile_pkey, )
+SELECT grid_x, grid_y FROM tile WHERE pkey = ?;""", (tile_pkey, )
             )
-            (tile, grid_x, grid_y) = c3.fetchone()
+            (grid_x, grid_y) = c3.fetchone()
 
             c3.execute(
                 """
@@ -344,8 +344,8 @@ def main():
     """, (NodeClassification.CHANNEL.value, ))):
             reason = NodeClassification(classification)
 
-            for (tile, tile_type,
-                 wire) in yield_wire_info_from_node(conn, node_pkey):
+            for (tile_type, wire) in yield_wire_info_from_node(
+                    conn, node_pkey):
                 key = (tile_type, wire)
 
                 # Sometimes nodes in particular tile instances are disconnected,
@@ -356,7 +356,7 @@ def main():
                     else:
                         other_reason = wires_not_in_channels[key]
                         assert reason == other_reason, (
-                            tile, wire, reason, other_reason
+                            tile_type, wire, reason, other_reason
                         )
 
                 if key in wires_in_tile_types:
@@ -381,10 +381,9 @@ def main():
             channel_nodes.append(tracks_model)
             channel_wires_to_tracks[track_pkey] = tracks_model
 
-            for (tile, tile_type,
-                 wire) in yield_wire_info_from_node(conn, node_pkey):
-                tileinfo = grid.gridinfo_at_tilename(tile)
-                key = (tileinfo.tile_type, wire)
+            for (tile_type, wire) in yield_wire_info_from_node(
+                    conn, node_pkey):
+                key = (tile_type, wire)
                 # Make sure all wires in channels always are in channels
                 assert key not in wires_not_in_channels
 

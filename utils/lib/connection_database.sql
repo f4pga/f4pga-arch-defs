@@ -51,8 +51,8 @@ CREATE TABLE site_type(
   name TEXT
 );
 
--- Tile table, contains type and name of tile and location in grid.
-CREATE TABLE tile(
+-- Physical tile table, contains type and name of tile and location in the prjxray grid.
+CREATE TABLE phy_tile(
   pkey INTEGER PRIMARY KEY,
   name TEXT,
   tile_type_pkey INT,
@@ -81,6 +81,37 @@ CREATE TABLE site(
   y_coord INT,
   site_type_pkey INT,
   FOREIGN KEY(site_type_pkey) REFERENCES site_type(pkey)
+);
+
+-- Logical tile table, contains tile type and location within the VPR grid.
+--
+-- Note: A logical tile represents a placeable location of exactly one
+-- physical tile type or exactly one site type.
+--
+-- If the logical tile represents a physical tile type, tile_type_pkey will be
+-- set to the tile type this logical tile represents.  If the logical tile
+-- represents a site type, then site_pkey will be set.
+--
+-- In both cases, phy_tile_pkey will be set to the tile location within the
+-- physical grid location of that site or tile type.
+CREATE TABLE tile(
+  pkey INTEGER PRIMARY KEY,
+  phy_tile_pkey INT,
+  site_pkey INT,
+  tile_type_pkey INT,
+  grid_x INT,
+  grid_y INT,
+  FOREIGN KEY(phy_tile_pkey) REFERENCES phy_tile(pkey),
+  FOREIGN KEY(site_pkey) REFERENCES site(pkey),
+  FOREIGN KEY(tile_type_pkey) REFERENCES tile_type(pkey)
+);
+
+-- Bimap between physical and logical grids.
+CREATE TABLE tile_map(
+  tile_pkey INT,
+  phy_tile_pkey INT,
+  FOREIGN KEY(tile_pkey) REFERENCES tile(pkey),
+  FOREIGN KEY(phy_tile_pkey) REFERENCES phy_tile(pkey)
 );
 
 -- Table of tile type wires. This table is the of uninstanced tile type
@@ -183,9 +214,15 @@ CREATE TABLE graph_node(
 --
 -- If the wire is a member of a routing node, then graph_node_pkey will be
 -- set to the graph_node this wire is a member of.
+--
+-- The wire has two columns for tile location.  phy_tile_pkey points to the
+-- physical prjxray tile that contains this wire.  If this wire belongs to a
+-- site pin, then tile_pkey will be set to the tile the wires IPIN or OPIN
+-- node.
 CREATE TABLE wire(
   pkey INTEGER PRIMARY KEY,
   node_pkey INT,
+  phy_tile_pkey INT,
   tile_pkey INT,
   wire_in_tile_pkey INT,
   graph_node_pkey INT,
@@ -194,12 +231,13 @@ CREATE TABLE wire(
   left_graph_node_pkey INT,
   right_graph_node_pkey INT,
   FOREIGN KEY(node_pkey) REFERENCES node(pkey),
+  FOREIGN KEY(phy_tile_pkey) REFERENCES phy_tile(pkey),
   FOREIGN KEY(tile_pkey) REFERENCES tile(pkey),
-  FOREIGN KEY(wire_in_tile_pkey) REFERENCES wire_in_grid(pkey)
-  FOREIGN KEY(graph_node_pkey) REFERENCES graph_node(pkey)
-  FOREIGN KEY(top_graph_node_pkey) REFERENCES graph_node(pkey)
-  FOREIGN KEY(bottom_graph_node_pkey) REFERENCES graph_node(pkey)
-  FOREIGN KEY(left_graph_node_pkey) REFERENCES graph_node(pkey)
+  FOREIGN KEY(wire_in_tile_pkey) REFERENCES wire_in_tile(pkey),
+  FOREIGN KEY(graph_node_pkey) REFERENCES graph_node(pkey),
+  FOREIGN KEY(top_graph_node_pkey) REFERENCES graph_node(pkey),
+  FOREIGN KEY(bottom_graph_node_pkey) REFERENCES graph_node(pkey),
+  FOREIGN KEY(left_graph_node_pkey) REFERENCES graph_node(pkey),
   FOREIGN KEY(right_graph_node_pkey) REFERENCES graph_node(pkey)
 );
 
@@ -215,12 +253,12 @@ CREATE TABLE graph_edge(
   dest_graph_node_pkey INT,
   switch_pkey INT,
   track_pkey INT,
-  tile_pkey INT,
+  phy_tile_pkey INT,
   pip_in_tile_pkey INT,
   FOREIGN KEY(src_graph_node_pkey) REFERENCES graph_node(pkey),
   FOREIGN KEY(dest_graph_node_pkey) REFERENCES graph_node(pkey)
   FOREIGN KEY(track_pkey) REFERENCES track(pkey)
-  FOREIGN KEY(tile_pkey) REFERENCES tile(pkey)
+  FOREIGN KEY(phy_tile_pkey) REFERENCES phy_tile(pkey)
   FOREIGN KEY(pip_in_tile_pkey) REFERENCES pip(pkey)
 );
 

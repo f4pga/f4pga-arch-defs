@@ -142,7 +142,9 @@ WHERE
                 (gridloc[0], gridloc[1])
             )
 
-            (tile_pkey, ) = c.fetchone()
+            result = c.fetchone()
+            assert result is not None, (tile_type, gridloc)
+            (tile_pkey, ) = result
             tile_loc_to_pkey[gridloc] = tile_pkey
         else:
             tile_pkey = tile_loc_to_pkey[gridloc]
@@ -291,16 +293,13 @@ def add_synthetic_edges(conn, graph, node_mapping, grid, synth_tiles):
     c = conn.cursor()
     delayless_switch = graph.get_switch_id('__vpr_delayless_switch__')
 
-    for loc in grid.tile_locations():
-        tile_name = grid.tilename_at_loc(loc)
-
-        if tile_name in synth_tiles['tiles']:
-            assert len(synth_tiles['tiles'][tile_name]['pins']) == 1
-            for pin in synth_tiles['tiles'][tile_name]['pins']:
-                if pin['port_type'] in ['input', 'output']:
-                    wire_pkey = get_wire_pkey(conn, tile_name, pin['wire'])
-                    c.execute(
-                        """
+    for tile_name, synth_tile in synth_tiles['tiles'].items():
+        assert len(synth_tile['pins']) == 1
+        for pin in synth_tile['pins']:
+            if pin['port_type'] in ['input', 'output']:
+                wire_pkey = get_wire_pkey(conn, tile_name, pin['wire'])
+                c.execute(
+                    """
 SELECT
   track_pkey
 FROM
@@ -313,64 +312,63 @@ WHERE
       wire
     WHERE
       pkey = ?
-  );""", (wire_pkey, )
-                    )
-                    (track_pkey, ) = c.fetchone()
-                    assert track_pkey is not None, (
-                        tile_name, pin['wire'], wire_pkey
-                    )
-                elif pin['port_type'] == 'VCC':
-                    c.execute('SELECT vcc_track_pkey FROM constant_sources')
-                    (track_pkey, ) = c.fetchone()
-                elif pin['port_type'] == 'GND':
-                    c.execute('SELECT gnd_track_pkey FROM constant_sources')
-                    (track_pkey, ) = c.fetchone()
-                else:
-                    assert False, pin['port_type']
-                tracks_model, track_nodes = get_track_model(conn, track_pkey)
-
-                option = list(tracks_model.get_tracks_for_wire_at_coord(loc))
-                assert len(option) > 0, (pin, len(option))
-
-                if pin['port_type'] == 'input':
-                    tile_type = 'SYN-OUTPAD'
-                    wire = 'outpad'
-                elif pin['port_type'] == 'output':
-                    tile_type = 'SYN-INPAD'
-                    wire = 'inpad'
-                elif pin['port_type'] == 'VCC':
-                    tile_type = 'SYN-VCC'
-                    wire = 'VCC'
-                elif pin['port_type'] == 'GND':
-                    tile_type = 'SYN-GND'
-                    wire = 'GND'
-                else:
-                    assert False, pin
-
-                track_node = track_nodes[option[0][0]]
-                assert track_node in node_mapping, (track_node, track_pkey)
-                pin_name = graph.create_pin_name_from_tile_type_and_pin(
-                    tile_type, wire
+  );""", (wire_pkey, ))
+                (track_pkey, ) = c.fetchone()
+                assert track_pkey is not None, (
+                    tile_name, pin['wire'], wire_pkey
                 )
+            elif pin['port_type'] == 'VCC':
+                c.execute('SELECT vcc_track_pkey FROM constant_sources')
+                (track_pkey, ) = c.fetchone()
+            elif pin['port_type'] == 'GND':
+                c.execute('SELECT gnd_track_pkey FROM constant_sources')
+                (track_pkey, ) = c.fetchone()
+            else:
+                assert False, pin['port_type']
+            tracks_model, track_nodes = get_track_model(conn, track_pkey)
 
-                pin_node = graph.get_nodes_for_pin(loc, pin_name)
+            option = list(tracks_model.get_tracks_for_wire_at_coord(synth_tile['loc']))
+            assert len(option) > 0, (pin, len(option))
 
-                if pin['port_type'] == 'input':
-                    graph.add_edge(
-                        src_node=node_mapping[track_node],
-                        sink_node=pin_node[0][0],
-                        switch_id=delayless_switch,
-                        name='synth_{}_{}'.format(tile_name, pin['wire']),
-                    )
-                elif pin['port_type'] in ['VCC', 'GND', 'output']:
-                    graph.add_edge(
-                        src_node=pin_node[0][0],
-                        sink_node=node_mapping[track_node],
-                        switch_id=delayless_switch,
-                        name='synth_{}_{}'.format(tile_name, pin['wire']),
-                    )
-                else:
-                    assert False, pin
+            if pin['port_type'] == 'input':
+                tile_type = 'SYN-OUTPAD'
+                wire = 'outpad'
+            elif pin['port_type'] == 'output':
+                tile_type = 'SYN-INPAD'
+                wire = 'inpad'
+            elif pin['port_type'] == 'VCC':
+                tile_type = 'SYN-VCC'
+                wire = 'VCC'
+            elif pin['port_type'] == 'GND':
+                tile_type = 'SYN-GND'
+                wire = 'GND'
+            else:
+                assert False, pin
+
+            track_node = track_nodes[option[0][0]]
+            assert track_node in node_mapping, (track_node, track_pkey)
+            pin_name = graph.create_pin_name_from_tile_type_and_pin(
+                tile_type, wire
+            )
+
+            pin_node = graph.get_nodes_for_pin(tuple(synth_tile['loc']), pin_name)
+
+            if pin['port_type'] == 'input':
+                graph.add_edge(
+                    src_node=node_mapping[track_node],
+                    sink_node=pin_node[0][0],
+                    switch_id=delayless_switch,
+                    name='synth_{}_{}'.format(tile_name, pin['wire']),
+                )
+            elif pin['port_type'] in ['VCC', 'GND', 'output']:
+                graph.add_edge(
+                    src_node=pin_node[0][0],
+                    sink_node=node_mapping[track_node],
+                    switch_id=delayless_switch,
+                    name='synth_{}_{}'.format(tile_name, pin['wire']),
+                )
+            else:
+                assert False, pin
 
 
 def get_switch_name(conn, graph, switch_name_map, switch_pkey):
@@ -396,7 +394,7 @@ def create_get_tile_name(conn):
     def get_tile_name(tile_pkey):
         c.execute(
             """
-        SELECT name FROM tile WHERE pkey = ?;
+        SELECT name FROM phy_tile WHERE pkey = ?;
         """, (tile_pkey, )
         )
         return c.fetchone()[0]
@@ -452,13 +450,13 @@ def import_graph_edges(conn, graph, node_mapping):
 
     print('{} Importing edges from database.'.format(now()))
     with progressbar.ProgressBar(max_value=num_edges) as bar:
-        for idx, (src_graph_node, dest_graph_node, switch_pkey, tile_pkey,
+        for idx, (src_graph_node, dest_graph_node, switch_pkey, phy_tile_pkey,
                   pip_pkey) in enumerate(c.execute("""
 SELECT
   src_graph_node_pkey,
   dest_graph_node_pkey,
   switch_pkey,
-  tile_pkey,
+  phy_tile_pkey,
   pip_in_tile_pkey
 FROM
   graph_edge;
@@ -470,7 +468,7 @@ FROM
                 continue
 
             if pip_pkey is not None:
-                tile_name = get_tile_name(tile_pkey)
+                tile_name = get_tile_name(phy_tile_pkey)
                 src_net, dest_net = get_pip_wire_names(pip_pkey)
 
                 pip_name = '{}.{}.{}'.format(tile_name, dest_net, src_net)
