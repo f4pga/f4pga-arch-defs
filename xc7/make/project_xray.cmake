@@ -49,7 +49,7 @@ endfunction()
 function(PROJECT_XRAY_TILE)
   set(options FUSED_SITES)
   set(oneValueArgs PART TILE)
-  set(multiValueArgs SITE_TYPES)
+  set(multiValueArgs SITE_TYPES EQUIVALENT_TILES PIN_PREFIX)
   cmake_parse_arguments(
     PROJECT_XRAY_TILE
     "${options}"
@@ -63,7 +63,7 @@ function(PROJECT_XRAY_TILE)
   get_target_property_required(PYTHON3 env PYTHON3)
   get_target_property(PYTHON3_TARGET env PYTHON3_TARGET)
 
-  set(TILE_IMPORT ${symbiflow-arch-defs_SOURCE_DIR}/xc7/utils/prjxray_tile_import.py)
+  set(TILE_TYPE_IMPORT ${symbiflow-arch-defs_SOURCE_DIR}/xc7/utils/prjxray_tile_import.py)
   get_project_xray_dependencies(DEPS ${PROJECT_XRAY_TILE_PART} ${TILE})
 
   set(PART ${PROJECT_XRAY_TILE_PART})
@@ -89,7 +89,7 @@ function(PROJECT_XRAY_TILE)
   add_custom_command(
     OUTPUT ${TILE}.pb_type.xml ${TILE}.model.xml
     COMMAND ${CMAKE_COMMAND} -E env PYTHONPATH=${PRJXRAY_DIR}:${symbiflow-arch-defs_SOURCE_DIR}/utils
-    ${PYTHON3} ${TILE_IMPORT}
+    ${PYTHON3} ${TILE_TYPE_IMPORT}
     --part ${PROJECT_XRAY_TILE_PART}
     --tile ${PROJECT_XRAY_TILE_TILE}
     --site_directory ${symbiflow-arch-defs_BINARY_DIR}/xc7/primitives
@@ -97,10 +97,9 @@ function(PROJECT_XRAY_TILE)
     --pin_assignments ${PIN_ASSIGNMENTS}
     --output-pb-type ${CMAKE_CURRENT_BINARY_DIR}/${TILE}.pb_type.xml
     --output-model ${CMAKE_CURRENT_BINARY_DIR}/${TILE}.model.xml
-    --output-tile ${CMAKE_CURRENT_BINARY_DIR}/${TILE}.tile.xml
     ${FUSED_SITES_ARGS}
     DEPENDS
-    ${TILE_IMPORT}
+    ${TILE_TYPE_IMPORT}
       ${DEPS}
       ${PYTHON3} ${PYTHON3_TARGET} simplejson
     )
@@ -118,6 +117,39 @@ function(PROJECT_XRAY_TILE)
       INCLUDE_FILES "${MODEL_INCLUDE_FILES}"
       LOCATION ${CMAKE_CURRENT_BINARY_DIR}/${TILE}.model.xml
       )
+
+  # tile tags
+  set(TILE_IMPORT ${symbiflow-arch-defs_SOURCE_DIR}/xc7/utils/prjxray_tile_type_import.py)
+  get_project_xray_dependencies(DEPS ${PROJECT_XRAY_TILE_PART} ${TILE})
+
+  foreach(EQUIVALENT_TILE ${PROJECT_XRAY_TILE_EQUIVALENT_TILES})
+    string(TOLOWER ${EQUIVALENT_TILE} EQUIVALENT_TILE_LOWER)
+    append_file_dependency(TILES_DEPS ${symbiflow-arch-defs_SOURCE_DIR}/xc7/archs/${PART}/tiles/${EQUIVALENT_TILE_LOWER}/${EQUIVALENT_TILE_LOWER}.pb_type.xml)
+    list(APPEND EQUIVALENT_TILES_INCLUDE_FILES ${symbiflow-arch-defs_SOURCE_DIR}/xc7/archs/${PART}/tiles/${EQUIVALENT_TILE_LOWER}/${EQUIVALENT_TILE_LOWER}.pb_type.xml)
+  endforeach()
+  string(REPLACE ";" "," EQUIVALENT_TILES_COMMA "${PROJECT_XRAY_TILE_EQUIVALENT_TILES}")
+  string(REPLACE ";" "," PIN_PREFIX_COMMA "${PROJECT_XRAY_TILE_PIN_PREFIX}")
+
+  add_file_target(FILE ${TILE}.tile.xml GENERATED)
+  get_file_target(TILE_TARGET ${TILE}.tile.xml)
+  set_target_properties(${TILE_TARGET} PROPERTIES INCLUDE_FILES "${EQUIVALENT_TILES_INCLUDE_FILES}")
+
+  add_custom_command(
+    OUTPUT ${TILE}.tile.xml
+    COMMAND ${CMAKE_COMMAND} -E env PYTHONPATH=${PRJXRAY_DIR}:${symbiflow-arch-defs_SOURCE_DIR}/utils
+    ${PYTHON3} ${TILE_IMPORT}
+    --part ${PROJECT_XRAY_TILE_PART}
+    --tile ${PROJECT_XRAY_TILE_TILE}
+    --tiles-directory ${symbiflow-arch-defs_BINARY_DIR}/xc7/archs/${PART}/tiles
+    --equivalent-tiles=${EQUIVALENT_TILES_COMMA}
+    --pin-prefix=${PIN_PREFIX_COMMA}
+    --output-tile ${CMAKE_CURRENT_BINARY_DIR}/${TILE}.tile.xml
+    --pin_assignments ${PIN_ASSIGNMENTS}
+    DEPENDS
+    ${TILE_IMPORT}
+      ${TILES_DEPS}
+      ${PYTHON3} ${PYTHON3_TARGET} simplejson
+    )
 endfunction()
 
 function(PROJECT_XRAY_ARCH)
@@ -148,8 +180,10 @@ function(PROJECT_XRAY_ARCH)
     string(TOLOWER ${TILE_TYPE} TILE_TYPE_LOWER)
     set(PB_TYPE_XML ${symbiflow-arch-defs_SOURCE_DIR}/xc7/archs/${PART}/tiles/${TILE_TYPE_LOWER}/${TILE_TYPE_LOWER}.pb_type.xml)
     set(MODEL_XML ${symbiflow-arch-defs_SOURCE_DIR}/xc7/archs/${PART}/tiles/${TILE_TYPE_LOWER}/${TILE_TYPE_LOWER}.model.xml)
+    set(TILE_XML ${symbiflow-arch-defs_SOURCE_DIR}/xc7/archs/${PART}/tiles/${TILE_TYPE_LOWER}/${TILE_TYPE_LOWER}.tile.xml)
     append_file_dependency(DEPS ${PB_TYPE_XML})
     append_file_dependency(DEPS ${MODEL_XML})
+    append_file_dependency(DEPS ${TILE_XML})
 
     get_file_target(PB_TYPE_TARGET ${PB_TYPE_XML})
     get_target_property(INCLUDE_FILES ${PB_TYPE_TARGET} INCLUDE_FILES)
@@ -158,6 +192,10 @@ function(PROJECT_XRAY_ARCH)
     get_file_target(MODEL_TARGET ${MODEL_XML})
     get_target_property(INCLUDE_FILES ${MODEL_TARGET} INCLUDE_FILES)
     list(APPEND ARCH_INCLUDE_FILES ${MODEL_XML} ${INCLUDE_FILES})
+
+    get_file_target(TILE_TARGET ${TILE_XML})
+    get_target_property(INCLUDE_FILES ${TILE_TARGET} INCLUDE_FILES)
+    list(APPEND ARCH_INCLUDE_FILES ${TILE_XML} ${INCLUDE_FILES})
   endforeach()
 
   set(ROI_ARG "")
