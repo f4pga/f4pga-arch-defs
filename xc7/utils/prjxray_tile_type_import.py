@@ -63,7 +63,8 @@ def main():
 
     parser.add_argument(
         '--pin-prefix',
-        help="""Comma separated list of prefix translation pairs for equivalent tiles.""",
+        help=
+        """Comma separated list of prefix translation pairs for equivalent tiles.""",
     )
 
     parser.add_argument(
@@ -78,7 +79,6 @@ def main():
         '--pin_assignments', required=True, type=argparse.FileType('r')
     )
 
-
     args = parser.parse_args()
 
     tile_name = args.tile
@@ -87,7 +87,7 @@ def main():
     ET.register_namespace('xi', xi_url)
 
     # Macros used to select relevant port names
-    IN_PORT_TAG  = ['input', 'clock']
+    IN_PORT_TAG = ['input', 'clock']
     OUT_PORT_TAG = ['output']
 
     ##########################################################################
@@ -192,9 +192,7 @@ def main():
         if not equivalent_tiles:
             return
 
-        equivalent_tiles_xml = ET.SubElement(xml,
-            'equivalent_tiles'
-        )
+        equivalent_tiles_xml = ET.SubElement(xml, 'equivalent_tiles')
 
         pin_prefix_dict = dict()
         for prefix in pin_prefix.split(','):
@@ -202,20 +200,28 @@ def main():
             pin_prefix_dict[prefix[0]] = prefix[1]
 
         for eq_tile in equivalent_tiles.split(','):
-            eq_pb_type_xml = ET.parse("{}/{tile}/{tile}.pb_type.xml".format(args.tiles_directory, tile=eq_tile.lower()))
+            eq_pb_type_xml = ET.parse(
+                "{}/{tile}/{tile}.pb_type.xml".format(
+                    args.tiles_directory, tile=eq_tile.lower()
+                )
+            )
             root = eq_pb_type_xml.getroot()
 
             eq_input_wires, eq_output_wires = get_ports_from_xml(root)
 
-            mode_xml = ET.SubElement(equivalent_tiles_xml, 'mode', {'name' : eq_tile})
+            mode_xml = ET.SubElement(
+                equivalent_tiles_xml, 'mode', {'name': eq_tile}
+            )
             for port, port_name, pin in input_wires | output_wires:
                 from_port = port
-                to_port = get_equivalent_port(port_name, pin, pin_prefix_dict, eq_input_wires | eq_output_wires)
+                to_port = get_equivalent_port(
+                    port_name, pin, pin_prefix_dict,
+                    eq_input_wires | eq_output_wires
+                )
                 assert to_port is not None, "Could not find the equivalent port."
 
-                port_xml = ET.SubElement(mode_xml,
-                    'map',
-                    {
+                port_xml = ET.SubElement(
+                    mode_xml, 'map', {
                         'from': from_port,
                         'to': to_port
                     }
@@ -225,7 +231,11 @@ def main():
     # Generate the tile.xml file                                             #
     ##########################################################################
 
-    pb_type_xml = ET.parse("{}/{tile}/{tile}.pb_type.xml".format(args.tiles_directory, tile=tile_name.lower()))
+    pb_type_xml = ET.parse(
+        "{}/{tile}/{tile}.pb_type.xml".format(
+            args.tiles_directory, tile=tile_name.lower()
+        )
+    )
     pb_type_root = pb_type_xml.getroot()
 
     input_wires, output_wires = get_ports_from_xml(pb_type_root)
