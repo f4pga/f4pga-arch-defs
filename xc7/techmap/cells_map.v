@@ -272,7 +272,7 @@ module RAM128X1S (
 
     wire [5:0] A = {A5, A4, A3, A2, A1, A0};
 
-    // SPRAM128 is used here because RAM128X1S only consumes half of the
+    // SPRAM64_for_RAM128X1S is used here because RAM128X1S only consumes half of the
     // slice, but WA7USED is slice wide.  The packer should be able to pack two
     // RAM128X1S in a slice, but it should not be able to pack RAM128X1S and
     // a RAM64X1[SD]. It is unclear if RAM32X1[SD] or RAM32X2S can be packed
@@ -280,7 +280,7 @@ module RAM128X1S (
     //
     // Note that a RAM128X1D does not require [SD]PRAM128 because it consumes
     // the entire slice.
-    SPRAM128 #(
+    SPRAM64_for_RAM128X1S #(
         .INIT(INIT[63:0]),
         .IS_WCLK_INVERTED(IS_WCLK_INVERTED),
         .HIGH_WA7_SELECT(0)
@@ -293,7 +293,7 @@ module RAM128X1S (
         .O6(low_lut_o6)
     );
 
-    DPRAM128 #(
+    DPRAM64_for_RAM128X1D #(
         .INIT(INIT[127:64]),
         .IS_WCLK_INVERTED(IS_WCLK_INVERTED),
         .HIGH_WA7_SELECT(1)
@@ -322,7 +322,7 @@ module RAM128X1D (
     wire blut_o6;
     wire alut_o6;
 
-    SPRAM128 #(
+    SPRAM64_for_RAM128X1S #(
         .INIT(INIT[63:0]),
         .IS_WCLK_INVERTED(IS_WCLK_INVERTED),
         .HIGH_WA7_SELECT(0)
@@ -335,7 +335,7 @@ module RAM128X1D (
         .O6(dlut_o6)
     );
 
-    DPRAM128 #(
+    DPRAM64_for_RAM128X1D #(
         .INIT(INIT[127:64]),
         .IS_WCLK_INVERTED(IS_WCLK_INVERTED),
         .HIGH_WA7_SELECT(1)
@@ -349,7 +349,7 @@ module RAM128X1D (
         .O6(clut_o6)
     );
 
-    DPRAM128 #(
+    DPRAM64_for_RAM128X1D #(
         .INIT(INIT[63:0]),
         .IS_WCLK_INVERTED(IS_WCLK_INVERTED),
         .HIGH_WA7_SELECT(0)
@@ -363,7 +363,7 @@ module RAM128X1D (
         .O6(blut_o6)
     );
 
-    DPRAM128 #(
+    DPRAM64_for_RAM128X1D #(
         .INIT(INIT[127:64]),
         .IS_WCLK_INVERTED(IS_WCLK_INVERTED),
         .HIGH_WA7_SELECT(0)
