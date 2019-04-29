@@ -6,7 +6,7 @@
   </input_ports>
   <output_ports/>
  </model>
- <model name="DPRAM128">
+ <model name="DPRAM64_for_RAM128X1D">
   <input_ports>
    <port is_clock="1"   name="CLK"  />
    <port clock="CLK"    name="WE"  combinational_sink_ports="O6" />
@@ -20,7 +20,7 @@
    <port                name="O6" />
   </output_ports>
  </model>
- <model name="SPRAM128">
+ <model name="SPRAM64_for_RAM128X1S">
   <input_ports>
    <port is_clock="1"   name="CLK"  />
    <port clock="CLK"    name="WE"  combinational_sink_ports="O6" />
