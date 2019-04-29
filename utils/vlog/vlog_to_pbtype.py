@@ -155,7 +155,9 @@ def make_pb_content(yj, mod, xml_parent, mod_pname, is_submode=False):
         """Returns the name of the module relative to the pin and a boolean that indicates whether
         the module is a cell (True) or the top one (False)"""
         cname, cellpin = pin
-        if cname != mod.name:
+        if cname.startswith("$"):
+            return cname, True
+        elif cname != mod.name:
             cname = mod.cell_type(cname)
             return mod_pb_name(yj.module(cname)), True
         else:
