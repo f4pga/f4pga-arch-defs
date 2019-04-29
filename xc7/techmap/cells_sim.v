@@ -87,7 +87,7 @@ endmodule
 // ============================================================================
 // Distributed RAMs
 
-module DPRAM128 (
+module DPRAM64_for_RAM128X1D (
   output O6,
   input  DI1, CLK, WE, WA7,
   input [5:0] A, WA
@@ -104,7 +104,7 @@ module DPRAM128 (
   always @(posedge clk) if (WE & (WA7 == HIGH_WA7_SELECT)) mem[WA] <= DI1;
 endmodule
 
-module SPRAM128 (
+module SPRAM64_for_RAM128X1S (
   output O6,
   input  DI1, CLK, WE, WA7,
   input [5:0] A
