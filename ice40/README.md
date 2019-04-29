@@ -25,3 +25,28 @@
     - [`tiles/pio`](tiles/pio) - IO tiles, called `PIO`s
     - [`tiles/block_ram`](tiles/block_ram) - Block Ram tiles, which don't
       really have a name.
+
+## Status
+ - BELs
+   - [ ] LUT+FF
+     - [X] LUT
+     - [X] FF modes (need to test all modes)
+     - [ ] Carry chains
+   - [ ] IO
+     - [X] Simple Input
+     - [X] Simple Output
+     - [ ] Tri-state
+     - [ ] LVDS
+     - [ ] Global Buffer
+   - [X] RAM40_4K
+   - [ ] DSP
+   - [ ] PLL
+   - [ ] iCEGATE
+   - [ ] Warmboot
+ - Routing
+   - [ ] ColBuf (currently all are turned on)
+   - [ ] Global
+   - [ ] Negihborhood
+ - Timing
+   - [ ] BEL
+   - [ ] Routing
