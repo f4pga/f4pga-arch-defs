@@ -301,9 +301,9 @@
 
         <!-- Direct DI1 inputs -->
         <direct name="DI" input="SLICEM_MODES.DI" output="D_DRAM.DI1" />
-        <direct name="CI" input="SLICEM_MODES.CI" output="C_DRAM.CI" />
-        <direct name="BI" input="SLICEM_MODES.BI" output="B_DRAM.BI" />
-        <direct name="AI" input="SLICEM_MODES.AI" output="A_DRAM.AI" />
+        <direct name="CI" input="SLICEM_MODES.CI" output="C_DRAM.DI1" />
+        <direct name="BI" input="SLICEM_MODES.BI" output="B_DRAM.DI1" />
+        <direct name="AI" input="SLICEM_MODES.AI" output="A_DRAM.DI1" />
 
         <!-- Parent DI1 inputs -->
         <direct name="P_CI" input="SLICEM_MODES.DI" output="C_DRAM.PARENT_DI" />
@@ -540,9 +540,9 @@
 
         <!-- Direct DI1 inputs -->
         <direct name="DI" input="SLICEM_MODES.DI" output="D_DRAM128.DI1" />
-        <direct name="CI" input="SLICEM_MODES.CI" output="C_DRAM128.CI" />
-        <direct name="BI" input="SLICEM_MODES.BI" output="B_DRAM128.BI" />
-        <direct name="AI" input="SLICEM_MODES.AI" output="A_DRAM128.AI" />
+        <direct name="CI" input="SLICEM_MODES.CI" output="C_DRAM128.DI1" />
+        <direct name="BI" input="SLICEM_MODES.BI" output="B_DRAM128.DI1" />
+        <direct name="AI" input="SLICEM_MODES.AI" output="A_DRAM128.DI1" />
 
         <!-- Parent DI1 inputs -->
         <direct name="P_CI" input="SLICEM_MODES.DI" output="C_DRAM128.PARENT_DI" />

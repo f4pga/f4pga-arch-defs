@@ -22,31 +22,31 @@
   </interconnect>
  </mode>
  <mode name="64_SINGLE_PORT">
-   <xi:include href="spram64.pb_type.xml" />
+   <xi:include href="dpram64.pb_type.xml" />
    <interconnect>
-     <direct name="CLK" input="D_DRAM.CLK" output="SPRAM64.CLK" />
-     <direct name="A" input="D_DRAM.A" output="SPRAM64.A" />
-     <direct name="WA7" input="D_DRAM.WA7" output="SPRAM64.WA7" />
-     <direct name="WA8" input="D_DRAM.WA8" output="SPRAM64.WA8" />
-     <direct name="DI" input="D_DRAM.DI1" output="SPRAM64.DI1" />
-     <direct name="WE" input="D_DRAM.WE" output="SPRAM64.WE" />
+     <direct name="CLK" input="D_DRAM.CLK" output="DPRAM64.CLK" />
+     <direct name="A" input="D_DRAM.A" output="DPRAM64.A" />
+     <direct name="WA" input="D_DRAM.A" output="DPRAM64.WA" />
+     <direct name="WA7" input="D_DRAM.WA7" output="DPRAM64.WA7" />
+     <direct name="WA8" input="D_DRAM.WA8" output="DPRAM64.WA8" />
+     <direct name="DI" input="D_DRAM.DI1" output="DPRAM64.DI" />
+     <direct name="WE" input="D_DRAM.WE" output="DPRAM64.WE" />
 
-     <direct name="O6" input="SPRAM64.O6" output="D_DRAM.O6" />
-     <direct name="SO6" input="SPRAM64.O6" output="D_DRAM.SO6" />
+     <direct name="O6" input="DPRAM64.O" output="D_DRAM.O6" />
+     <direct name="SO6" input="DPRAM64.O" output="D_DRAM.SO6" />
    </interconnect>
  </mode>
  <mode name="32_SINGLE_PORT">
-   <xi:include href="spram32.pb_type.xml" />
+   <xi:include href="dpram32.pb_type.xml" />
    <interconnect>
-     <direct name="CLK" input="D_DRAM.CLK" output="SPRAM32.CLK" />
-     <direct name="A" input="D_DRAM.A[4:0]" output="SPRAM32.A[4:0]" />
-     <direct name="DI1" input="D_DRAM.DI1" output="SPRAM32.DI1" />
-     <direct name="DI2" input="D_DRAM.DI2" output="SPRAM32.DI2" />
-     <direct name="WE" input="D_DRAM.WE" output="SPRAM32.WE" />
+     <direct name="CLK" input="D_DRAM.CLK" output="DPRAM32.CLK" />
+     <direct name="A" input="D_DRAM.A[4:0]" output="DPRAM32.A[4:0]" />
+     <direct name="WA" input="D_DRAM.A[4:0]" output="DPRAM32.WA[4:0]" />
+     <direct name="DI" input="D_DRAM.DI2" output="DPRAM32.DI" />
+     <direct name="WE" input="D_DRAM.WE" output="DPRAM32.WE" />
 
-     <direct name="O6" input="SPRAM32.O6" output="D_DRAM.O6" />
-     <direct name="O5" input="SPRAM32.O5" output="D_DRAM.O5" />
-     <direct name="SO6_32" input="SPRAM32.O6" output="D_DRAM.SO6_32" />
+     <direct name="O6" input="DPRAM32.O" output="D_DRAM.O6" />
+     <direct name="SO6_32" input="DPRAM32.O" output="D_DRAM.SO6_32" />
    </interconnect>
  </mode>
 

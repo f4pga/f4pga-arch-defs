@@ -3,17 +3,9 @@
 
   <!-- A1 - Read port -->
   <input  name="A"   num_pins="5" />
-  <output name="O6"  num_pins="1" />
-  <output name="O5"  num_pins="1" />
+  <output name="O"  num_pins="1" />
 
-  <delay_matrix type="max" in_port="DPRAM32.A" out_port="DPRAM32.O6">
-    0.068e-9
-    0.068e-9
-    0.068e-9
-    0.068e-9
-    0.068e-9
-  </delay_matrix>
-  <delay_matrix type="max" in_port="DPRAM32.A" out_port="DPRAM32.O5">
+  <delay_matrix type="max" in_port="DPRAM32.A" out_port="DPRAM32.O">
     0.068e-9
     0.068e-9
     0.068e-9
@@ -23,24 +15,18 @@
 
   <!-- B1 - Write Port -->
   <input  name="WA"  num_pins="5" />
-  <input  name="DI1" num_pins="1" />
-  <input  name="DI2" num_pins="1" />
+  <input  name="DI" num_pins="1" />
   <input  name="WE"  num_pins="1" />
 
   <T_setup      value="10e-12" port="DPRAM32.WA"  clock="CLK" />
   <T_clock_to_Q   max="10e-12" port="DPRAM32.WA"  clock="CLK" />
-  <delay_constant max="10e-12" in_port="DPRAM32.WA"  out_port="DPRAM32.O6" />
-  <delay_constant max="10e-12" in_port="DPRAM32.WA"  out_port="DPRAM32.O5" />
+  <delay_constant max="10e-12" in_port="DPRAM32.WA"  out_port="DPRAM32.O" />
   <T_setup    value="10e-12" port="DPRAM32.WE"  clock="CLK" />
   <T_clock_to_Q   max="10e-12" port="DPRAM32.WE"  clock="CLK" />
-  <delay_constant max="10e-12" in_port="DPRAM32.WE"  out_port="DPRAM32.O6" />
-  <delay_constant max="10e-12" in_port="DPRAM32.WE"  out_port="DPRAM32.O5" />
-  <T_setup    value="10e-12" port="DPRAM32.DI1"  clock="CLK" />
-  <T_clock_to_Q   max="10e-12" port="DPRAM32.DI1"  clock="CLK" />
-  <delay_constant max="10e-12" in_port="DPRAM32.DI1"  out_port="DPRAM32.O6" />
-  <T_setup    value="10e-12" port="DPRAM32.DI2"  clock="CLK" />
-  <T_clock_to_Q   max="10e-12" port="DPRAM32.DI2"  clock="CLK" />
-  <delay_constant max="10e-12" in_port="DPRAM32.DI2"  out_port="DPRAM32.O5" />
+  <delay_constant max="10e-12" in_port="DPRAM32.WE"  out_port="DPRAM32.O" />
+  <T_setup    value="10e-12" port="DPRAM32.DI"  clock="CLK" />
+  <T_clock_to_Q   max="10e-12" port="DPRAM32.DI"  clock="CLK" />
+  <delay_constant max="10e-12" in_port="DPRAM32.DI"  out_port="DPRAM32.O" />
   <metadata>
     <meta name="fasm_params">
       INIT[31:0] = INIT_00
