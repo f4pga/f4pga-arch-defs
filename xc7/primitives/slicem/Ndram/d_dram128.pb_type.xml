@@ -8,15 +8,15 @@
   <output name="O6"  num_pins="1" />
 
  <mode name="128_SINGLE_PORT">
-   <xi:include href="spram128.pb_type.xml" />
+   <xi:include href="spram64_for_ram128x1s.pb_type.xml" />
    <interconnect>
-     <direct name="CLK" input="D_DRAM128.CLK" output="SPRAM128.CLK" />
-     <direct name="A" input="D_DRAM128.A" output="SPRAM128.A" />
-     <direct name="WA7" input="D_DRAM128.WA7" output="SPRAM128.WA7" />
-     <direct name="DI" input="D_DRAM128.DI1" output="SPRAM128.DI1" />
-     <direct name="WE" input="D_DRAM128.WE" output="SPRAM128.WE" />
+     <direct name="CLK" input="D_DRAM128.CLK" output="SPRAM64_for_RAM128X1S.CLK" />
+     <direct name="A" input="D_DRAM128.A" output="SPRAM64_for_RAM128X1S.A" />
+     <direct name="WA7" input="D_DRAM128.WA7" output="SPRAM64_for_RAM128X1S.WA7" />
+     <direct name="DI" input="D_DRAM128.DI1" output="SPRAM64_for_RAM128X1S.DI1" />
+     <direct name="WE" input="D_DRAM128.WE" output="SPRAM64_for_RAM128X1S.WE" />
 
-     <direct name="O6" input="SPRAM128.O6" output="D_DRAM128.O6" />
+     <direct name="O6" input="SPRAM64_for_RAM128X1S.O6" output="D_DRAM128.O6" />
    </interconnect>
  </mode>
 
