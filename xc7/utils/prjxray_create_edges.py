@@ -24,6 +24,7 @@ fill empty spaces.  This is required by VPR to allocate the right data.
 import argparse
 import prjxray.db
 from prjxray.roi import Roi
+from prjxray import grid_types
 import simplejson as json
 import progressbar
 import datetime
@@ -213,19 +214,21 @@ WHERE
         return result[0]
 
     @functools.lru_cache(maxsize=None)
-    def find_wire(tile, tile_type, wire):
+    def find_wire(phy_tile, tile_type, wire):
         """ Finds a wire in the database.
 
         Args:
-            tile (str): Tile name
+            phy_tile (str): Physical tile name
             tile_type (str): Type of tile name
             wire (str): Wire name
 
         Returns:
-            Tuple (wire_pkey, tile_pkey, node_pkey), where:
+            Tuple (wire_pkey, phy_tile_pkey, node_pkey), where:
                 wire_pkey (int): Primary key of wire table
-                tile_pkey (int): Primary key of tile table that contains this
-                    wire.
+                tile_pkey (int): Primary key of VPR tile row that contains
+                    this wire.
+                phy_tile_pkey (int): Primary key of physical tile row that 
+                    contains this wire.
                 node_pkey (int): Primary key of node table that is the node
                     this wire belongs too.
         """
@@ -236,22 +239,25 @@ WHERE
 SELECT
   pkey,
   tile_pkey,
+  phy_tile_pkey,
   node_pkey
 FROM
   wire
 WHERE
   wire_in_tile_pkey = ?
-  AND tile_pkey = (
+  AND phy_tile_pkey = (
     SELECT
       pkey
     FROM
-      tile
+      phy_tile
     WHERE
       name = ?
-  );""", (wire_in_tile_pkey, tile)
+  );""", (wire_in_tile_pkey, phy_tile)
         )
 
-        return c.fetchone()
+        result = c.fetchone()
+        assert result is not None, (phy_tile, tile_type, wire, wire_in_tile_pkey)
+        return result
 
     return find_wire
 
@@ -536,8 +542,8 @@ SELECT vcc_track_pkey, gnd_track_pkey FROM constant_sources;
 
 
 def make_connection(
-        input_only_nodes, output_only_nodes, find_wire, find_pip,
-        find_connector, tile_name, loc, tile_type, pip, switch_pkey,
+        conn, input_only_nodes, output_only_nodes, find_wire, find_pip,
+        find_connector, tile_name, tile_type, pip, switch_pkey,
         delayless_switch_pkey, const_connectors
 ):
     """ Attempt to connect graph nodes on either side of a pip.
@@ -553,7 +559,6 @@ def make_connection(
         find_pip (function): Return value from create_find_pip.
         find_connector (function): Return value from create_find_connector.
         tile_name (str): Name of tile pip belongs too.
-        loc (prjxray.grid_types.GridLoc): Location of tile.
         pip (prjxray.tile.Pip): Pip being connected.
         switch_pkey (int): Primary key to switch table of switch to be used
             in this connection.
@@ -566,19 +571,25 @@ def make_connection(
                 destination.
             switch_pkey (int) - Primary key into switch table of switch used
                 in connection.
-            tile_pkey (int) - Primary key into table of parent tile of pip.
+            phy_tile_pkey (int) - Primary key into table of parent physical
+                tile of the pip.
             pip_pkey (int) - Primary key into pip_in_tile table for this pip.
 
     """
 
-    src_wire_pkey, tile_pkey, src_node_pkey = find_wire(
+    src_wire_pkey, tile_pkey, phy_tile_pkey, src_node_pkey = find_wire(
         tile_name, tile_type, pip.net_from
     )
-    sink_wire_pkey, tile_pkey2, sink_node_pkey = find_wire(
+    sink_wire_pkey, tile_pkey2, phy_tile_pkey2, sink_node_pkey = find_wire(
         tile_name, tile_type, pip.net_to
     )
 
+    assert phy_tile_pkey == phy_tile_pkey2
     assert tile_pkey == tile_pkey2
+
+    c = conn.cursor()
+    c.execute("SELECT grid_x, grid_y FROM tile WHERE pkey = ?", (tile_pkey,))
+    loc = grid_types.GridLoc(*c.fetchone())
 
     # Skip nodes that are reserved because of ROI
     if src_node_pkey in input_only_nodes:
@@ -609,7 +620,7 @@ def make_connection(
             src_graph_node_pkey,
             dest_graph_node_pkey,
             switch_pkey,
-            tile_pkey,
+            phy_tile_pkey,
             pip_pkey,
         )
     ]
@@ -624,7 +635,7 @@ def make_connection(
                 src_graph_node_pkey,
                 dest_graph_node_pkey,
                 delayless_switch_pkey,
-                tile_pkey,
+                phy_tile_pkey,
                 None,
             )
         )
@@ -1007,7 +1018,7 @@ def main():
                         if pin['port_type'] not in ['input', 'output']:
                             continue
 
-                        _, _, node_pkey = find_wire(
+                        _, _, _, node_pkey = find_wire(
                             tile_name, gridinfo.tile_type, pin['wire']
                         )
 
@@ -1055,13 +1066,13 @@ def main():
                 # FIXME: Will require a change here once merged with #537 (!)
 
                 connections = make_connection(
+                    conn=conn,
                     input_only_nodes=input_only_nodes,
                     output_only_nodes=output_only_nodes,
                     find_pip=find_pip,
                     find_wire=find_wire,
                     find_connector=find_connector,
                     tile_name=tile_name,
-                    loc=loc,
                     tile_type=gridinfo.tile_type,
                     pip=pip,
                     switch_pkey=switch_pkey,
@@ -1086,9 +1097,9 @@ def main():
         for edge in progressbar.progressbar(edges):
             c.execute(
                 """
-                    INSERT INTO graph_edge(
-                        src_graph_node_pkey, dest_graph_node_pkey, switch_pkey,
-                        tile_pkey, pip_in_tile_pkey)  VALUES (?, ?, ?, ?, ?)""",
+                INSERT INTO graph_edge(
+                    src_graph_node_pkey, dest_graph_node_pkey, switch_pkey,
+                    phy_tile_pkey, pip_in_tile_pkey) VALUES (?, ?, ?, ?, ?)""",
                 edge
             )
 

@@ -162,17 +162,24 @@ function(PROJECT_XRAY_ARCH)
   set(ROI_ARG "")
   set(ROI_ARG_FOR_CREATE_EDGES "")
 
+  set(GENERIC_CHANNELS
+      ${symbiflow-arch-defs_SOURCE_DIR}/xc7/archs/${PART}/channels.db)
+  get_file_location(GENERIC_CHANNELS_LOCATION ${GENERIC_CHANNELS})
+
   if(NOT "${PROJECT_XRAY_ARCH_USE_ROI}" STREQUAL "")
+    set(SYNTH_DEPS "")
+    append_file_dependency(SYNTH_DEPS ${GENERIC_CHANNELS})
     add_custom_command(
       OUTPUT synth_tiles.json
       COMMAND ${CMAKE_COMMAND} -E env PYTHONPATH=${PRJXRAY_DIR}:${symbiflow-arch-defs_SOURCE_DIR}/utils
       ${PYTHON3} ${CREATE_SYNTH_TILES}
         --db_root ${PRJXRAY_DB_DIR}/${PART}/
+        --connection_database ${GENERIC_CHANNELS_LOCATION}
         --roi ${PROJECT_XRAY_ARCH_USE_ROI}
         --synth_tiles ${CMAKE_CURRENT_BINARY_DIR}/synth_tiles.json
       DEPENDS
         ${CREATE_SYNTH_TILES}
-        ${PROJECT_XRAY_ARCH_USE_ROI}
+        ${PROJECT_XRAY_ARCH_USE_ROI} ${SYNTH_DEPS}
         ${PYTHON3} ${PYTHON3_TARGET} simplejson intervaltree
         )
 
@@ -190,6 +197,7 @@ function(PROJECT_XRAY_ARCH)
   endif()
 
   append_file_dependency(DEPS ${symbiflow-arch-defs_SOURCE_DIR}/xc7/archs/${PART}/pin_assignments.json)
+  append_file_dependency(DEPS ${GENERIC_CHANNELS})
   get_file_location(PIN_ASSIGNMENTS ${symbiflow-arch-defs_SOURCE_DIR}/xc7/archs/${PART}/pin_assignments.json)
 
   string(REPLACE ";" "," TILE_TYPES_COMMA "${PROJECT_XRAY_ARCH_TILE_TYPES}")
@@ -199,6 +207,7 @@ function(PROJECT_XRAY_ARCH)
     COMMAND ${CMAKE_COMMAND} -E env PYTHONPATH=${PRJXRAY_DIR}:${symbiflow-arch-defs_SOURCE_DIR}/utils
     ${PYTHON3} ${ARCH_IMPORT}
       --part ${PROJECT_XRAY_ARCH_PART}
+      --connection_database ${GENERIC_CHANNELS_LOCATION}
       --output-arch ${CMAKE_CURRENT_BINARY_DIR}/arch.xml
       --tile-types "${TILE_TYPES_COMMA}"
       --pin_assignments ${PIN_ASSIGNMENTS}
@@ -218,7 +227,6 @@ function(PROJECT_XRAY_ARCH)
       ${symbiflow-arch-defs_SOURCE_DIR}/xc7/archs/${PART}/channels.db)
   append_file_dependency(CHANNELS_DEPS ${GENERIC_CHANNELS})
   append_file_dependency(CHANNELS_DEPS ${symbiflow-arch-defs_SOURCE_DIR}/xc7/archs/${PART}/pin_assignments.json)
-  get_file_location(GENERIC_CHANNELS_LOCATION ${GENERIC_CHANNELS})
   list(APPEND CHANNELS_DEPS ${PRJXRAY_DB_DIR}/${PART}/tilegrid.json)
   list(APPEND CHANNELS_DEPS ${PRJXRAY_DB_DIR}/${PART}/tileconn.json)
 
