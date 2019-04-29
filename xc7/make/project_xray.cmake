@@ -127,9 +127,11 @@ function(PROJECT_XRAY_TILE)
     append_file_dependency(TILES_DEPS ${symbiflow-arch-defs_SOURCE_DIR}/xc7/archs/${PART}/tiles/${EQUIVALENT_TILE_LOWER}/${EQUIVALENT_TILE_LOWER}.pb_type.xml)
     list(APPEND EQUIVALENT_TILES_INCLUDE_FILES ${symbiflow-arch-defs_SOURCE_DIR}/xc7/archs/${PART}/tiles/${EQUIVALENT_TILE_LOWER}/${EQUIVALENT_TILE_LOWER}.pb_type.xml)
   endforeach()
+  append_file_dependency(TILES_DEPS ${symbiflow-arch-defs_SOURCE_DIR}/xc7/archs/${PART}/tiles/${TILE}/${TILE}.pb_type.xml)
+  list(APPEND EQUIVALENT_TILES_INCLUDE_FILES ${symbiflow-arch-defs_SOURCE_DIR}/xc7/archs/${PART}/tiles/${TILE}/${TILE}.pb_type.xml)
+
   string(REPLACE ";" "," EQUIVALENT_TILES_COMMA "${PROJECT_XRAY_TILE_EQUIVALENT_TILES}")
   string(REPLACE ";" "," PIN_PREFIX_COMMA "${PROJECT_XRAY_TILE_PIN_PREFIX}")
-
   add_file_target(FILE ${TILE}.tile.xml GENERATED)
   get_file_target(TILE_TARGET ${TILE}.tile.xml)
   set_target_properties(${TILE_TARGET} PROPERTIES INCLUDE_FILES "${EQUIVALENT_TILES_INCLUDE_FILES}")
