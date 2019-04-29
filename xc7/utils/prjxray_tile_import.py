@@ -240,7 +240,7 @@ def main():
     args.output_model.close()
 
     ##########################################################################
-    # Generate the pb_type.xml file                                          #
+    # Utility functions for pb_type                                          #
     ##########################################################################
 
     def add_direct(xml, input, output):
@@ -308,6 +308,10 @@ def main():
         )
 
         return fc_xml
+
+    ##########################################################################
+    # Generate the pb_type.xml file                                          #
+    ##########################################################################
 
     tile_name = args.tile
 
@@ -377,8 +381,6 @@ def main():
             site_prefix = '{}_X{}'.format(site.type, site.x)
 
             site_instance = site_type_instances[site.type][cells_idx[idx]]
-
-            print(site_prefix, site_instance)
 
             site_type_path = site_pbtype.format(
                 site.type.lower(), site_instance.lower()
@@ -578,37 +580,14 @@ def main():
 
     pb_type_xml.append(interconnect_xml)
 
+    # FIXME: These can be deleted when conda VPR supports equivalent tiles
     pin_assignments = json.load(args.pin_assignments)
-
     add_pinlocations(pb_type_xml, fc_xml, pin_assignments, args.tile)
-
     add_switchblock_locations(pb_type_xml)
 
     pb_type_str = ET.tostring(pb_type_xml, pretty_print=True).decode('utf-8')
     args.output_pb_type.write(pb_type_str)
     args.output_pb_type.close()
-
-    ##########################################################################
-    # Generate the tile.xml file                                             #
-    ##########################################################################
-
-    tile_xml = ET.Element(
-        'tile',
-        {
-            'name': tile_name,
-        },
-        nsmap={'xi': xi_url},
-    )
-
-    fc_xml = add_fc(tile_xml)
-
-    add_pinlocations(tile_xml, fc_xml, pin_assignments, args.tile)
-
-    add_switchblock_locations(tile_xml)
-
-    tile_str = ET.tostring(tile_xml, pretty_print=True).decode('utf-8')
-    args.output_tile.write(tile_str)
-    args.output_tile.close()
 
 
 if __name__ == '__main__':
