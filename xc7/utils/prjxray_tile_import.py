@@ -76,6 +76,12 @@ def main():
 
     parser.add_argument('--tile', help="""Tile to generate for""")
 
+    parser.add_argument('--tile-alias',
+        type=str,
+        default=None,
+        help="""Tile type alias (def. None)"""
+        )
+
     parser.add_argument(
         '--site_directory', help="""Diretory where sites are defined"""
     )
@@ -117,6 +123,9 @@ def main():
     )
 
     args = parser.parse_args()
+
+    # for k, v in vars(args).items():
+    #     print(k, "=", v)
 
     db = prjxray.db.Database(os.path.join(prjxray_db, args.part))
 
@@ -175,6 +184,15 @@ def main():
                 ),
                 file=sys.stderr
             )
+
+        # print("Input wires:")
+        # for w in input_wires:
+        #     print(" ", w)
+        #
+        # print("Output wires:")
+        # for w in output_wires:
+        #     print(" ", w)
+
     else:
         for site in tile.get_sites():
             site_type = db.get_site_type(site.type)
@@ -251,7 +269,10 @@ def main():
             }
         )
 
-    tile_name = "BLK_TI-{}".format(args.tile)
+    if args.tile_alias is not None:
+        tile_name = "BLK_TI-{}".format(args.tile_alias)
+    else:
+        tile_name = "BLK_TI-{}".format(args.tile)
 
     pb_type_xml = ET.Element(
         'pb_type',
@@ -307,18 +328,19 @@ def main():
     cell_names = {}
 
     if not args.fused_sites:
+
+        tile_sites = [
+            site for site in tile.get_sites() if site.type not in ignored_site_types
+        ]
+
         site_type_count = {}
-        site_prefixes = {}
         cells_idx = []
 
         site_type_ports = {}
-        for idx, site in enumerate(tile.get_sites()):
-            if site.type in ignored_site_types:
-                continue
+        for idx, site in enumerate(tile_sites):
 
             if site.type not in site_type_count:
                 site_type_count[site.type] = 0
-                site_prefixes[site.type] = []
 
             cells_idx.append(site_type_count[site.type])
             site_type_count[site.type] += 1
@@ -326,7 +348,7 @@ def main():
 
             site_instance = site_type_instances[site.type][cells_idx[idx]]
 
-            print(site_prefix, site_instance)
+            #print(site_prefix, site_instance)
 
             site_type_path = site_pbtype.format(
                 site.type.lower(), site_instance.lower()
@@ -377,9 +399,7 @@ def main():
                     }
                 )
 
-        for idx, site in enumerate(tile.get_sites()):
-            if site.type in ignored_site_types:
-                continue
+        for idx, site in enumerate(tile_sites):
 
             site_idx = cells_idx[idx]
             site_instance = site_type_instances[site.type][site_idx]
@@ -548,12 +568,25 @@ def main():
         }
     )
 
+    # FIXME: Hard coded hack
+    if   args.tile == "CLBLM_L" and "SLICEL" in args.site_types:
+        assignment_tile_type = "CLBLM_L_SLICEL_X1Y0"
+    elif args.tile == "CLBLM_L" and "SLICEM" in args.site_types:
+        assignment_tile_type = "CLBLM_L_SLICEM_X0Y0"
+    elif args.tile == "CLBLM_R" and "SLICEL" in args.site_types:
+        assignment_tile_type = "CLBLM_R_SLICEL_X1Y0"
+    elif args.tile == "CLBLM_R" and "SLICEM" in args.site_types:
+        assignment_tile_type = "CLBLM_R_SLICEM_X0Y0"
+    else:
+        assignment_tile_type = args.tile
+
+
     if len(input_wires) > 0 or len(output_wires) > 0:
         pin_assignments = json.load(args.pin_assignments)
 
         sides = {}
         for pin in input_wires | output_wires:
-            for side in pin_assignments['pin_directions'][args.tile][pin]:
+            for side in pin_assignments['pin_directions'][assignment_tile_type][pin]:
                 if side not in sides:
                     sides[side] = []
 
@@ -566,10 +599,10 @@ def main():
 
     direct_pins = set()
     for direct in pin_assignments['direct_connections']:
-        if direct['from_pin'].split('.')[0] == args.tile:
+        if direct['from_pin'].split('.')[0] == assignment_tile_type:
             direct_pins.add(direct['from_pin'].split('.')[1])
 
-        if direct['to_pin'].split('.')[0] == args.tile:
+        if direct['to_pin'].split('.')[0] == assignment_tile_type:
             direct_pins.add(direct['to_pin'].split('.')[1])
 
     for fc_override in direct_pins:
