@@ -4,9 +4,13 @@
 module dsp_in_registered (clk, a, b, m, out);
 	localparam DATA_WIDTH = 64;
 
+	(* CLOCK *)
 	input wire clk;
+	(* ASSOC_CLOCK="clk" *)
 	input wire [DATA_WIDTH/2-1:0] a;
+	(* ASSOC_CLOCK="clk" *)
 	input wire [DATA_WIDTH/2-1:0] b;
+	(* ASSOC_CLOCK="clk" *)
 	input wire m;
 	output wire [DATA_WIDTH-1:0] out;
 

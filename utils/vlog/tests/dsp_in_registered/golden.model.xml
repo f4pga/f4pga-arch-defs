@@ -3,8 +3,8 @@
   <xi:include href="../fig42-dff/dff.model.xml" xpointer="xpointer(models/child::node())"/>
   <model name="dsp_in_registered">
     <input_ports>
-      <port combinational_sink_ports="out" name="a"/>
-      <port combinational_sink_ports="out" name="b"/>
+      <port clock="clk" combinational_sink_ports="out" name="a"/>
+      <port clock="clk" combinational_sink_ports="out" name="b"/>
       <port is_clock="1" name="clk"/>
       <port clock="clk" combinational_sink_ports="out" name="m"/>
     </input_ports>
