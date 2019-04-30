@@ -209,7 +209,8 @@ def load_tile_type_map(conn):
     c  = conn.cursor()
     c1 = conn.cursor()
 
-    tile_type_map = {}
+    fwd_tile_type_map = {}
+    bwd_tile_type_map = {}
 
     # Loop over all tile type correspondencies (as pkeys)
     for phy_tile_type_pkey, vpr_tile_type_pkey in c.execute("SELECT * FROM tile_type_map"):
@@ -224,12 +225,14 @@ def load_tile_type_map(conn):
         print("{} -> {} -> {}".format(phy_tile_type, vpr_tile_type, vpr_tile_type_alias))
 
         # Store
-        if phy_tile_type not in tile_type_map.keys():
-            tile_type_map[phy_tile_type] = []
+        if phy_tile_type not in fwd_tile_type_map.keys():
+            fwd_tile_type_map[phy_tile_type] = []
 
-        tile_type_map[phy_tile_type].append((vpr_tile_type, vpr_tile_type_alias))
+        fwd_tile_type_map[phy_tile_type].append((vpr_tile_type, vpr_tile_type_alias))
 
-    return tile_type_map
+        bwd_tile_type_map[vpr_tile_type] = (phy_tile_type, vpr_tile_type_alias)
+
+    return fwd_tile_type_map, bwd_tile_type_map
 
 
 def remap_tile_types(tile_types, tile_type_map):
@@ -313,10 +316,10 @@ def main():
         vpr_grid_extent = get_vpr_grid_extent(conn)
 
         # Load tile type map
-        tile_type_map = load_tile_type_map(conn)
+        fwd_tile_type_map, bwd_tile_type_map = load_tile_type_map(conn)
 
         # Remap tile types that are to be imported
-        tile_types = remap_tile_types(tile_types, tile_type_map)
+        tile_types = remap_tile_types(tile_types, fwd_tile_type_map)
 
         xi_url = "http://www.w3.org/2001/XInclude"
         ET.register_namespace('xi', xi_url)
@@ -567,30 +570,60 @@ def main():
             (abs(direct['x_offset']) + abs(direct['y_offset']), direct)
         )
 
+    written_directs = set()
+
     for direct in directs.values():
         _, direct = min(direct, key=lambda v: v[0])
 
-        if direct['from_pin'].split('.')[0] not in tile_types:
-            print("SKIP: ", direct)
+        # Get tile and pin name
+        src_tile_pin = direct['from_pin'].split('.')
+        dst_tile_pin = direct['to_pin'].split('.')
+
+        # Get tile name alias
+        src_tile_alias = src_tile_pin[0]
+        if src_tile_alias in bwd_tile_type_map.keys():
+            src_tile_alias = bwd_tile_type_map[src_tile_alias][1]  # Alias
+
+        dst_tile_alias = dst_tile_pin[0]
+        if dst_tile_alias in bwd_tile_type_map.keys():
+            dst_tile_alias = bwd_tile_type_map[dst_tile_alias][1]  # Alias
+
+        # Check if we are actually importing that tile. If not then skip this
+        # connection
+        if src_tile_alias not in tile_types:
+            #print("SKIP: ", direct)
             continue
-        if direct['to_pin'].split('.')[0] not in tile_types:
-            print("SKIP: ", direct)
+        if dst_tile_alias not in tile_types:
+            #print("SKIP: ", direct)
             continue
 
         if direct['x_offset'] == 0 and direct['y_offset'] == 0:
             continue
 
+        # Source and destination pin names
+        src_pin = 'BLK_TI-' + src_tile_alias + "." + src_tile_pin[1]
+        dst_pin = 'BLK_TI-' + dst_tile_alias + "." + dst_tile_pin[1]
+
+        # Check if such a connection is not already present
+        key = (src_pin, dst_pin)
+
+        if key in written_directs:
+            continue
+
+        written_directs.add(key)
+
+        # Write the element
         ET.SubElement(
             directlist_xml, 'direct', {
                 'name':
                     '{}_to_{}_dx_{}_dy_{}'.format(
-                        direct['from_pin'], direct['to_pin'],
+                        src_pin, dst_pin,
                         direct['x_offset'], direct['y_offset']
                     ),
                 'from_pin':
-                    'BLK_TI-' + direct['from_pin'],
+                    src_pin,
                 'to_pin':
-                    'BLK_TI-' + direct['to_pin'],
+                    dst_pin,
                 'x_offset':
                     str(direct['x_offset']),
                 'y_offset':
