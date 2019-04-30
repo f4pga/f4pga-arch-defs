@@ -1,0 +1,1 @@
+v2x_test_model(NAME multiple_inputs_named_clk TOP_MODULE block)
