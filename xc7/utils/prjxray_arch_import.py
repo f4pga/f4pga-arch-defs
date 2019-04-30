@@ -294,16 +294,16 @@ def main():
 
     tile_types = args.tile_types.split(',')
 
-    # FIXME: HACK - always import CLBs
-    tile_types = set(tile_types)
-    tile_types |= set(["CLBLL_L", "CLBLL_R", "CLBLM_L", "CLBLM_R"])
-    tile_types = tuple(tile_types)
-
     tile_model = "../../tiles/{0}/{0}.model.xml"
     tile_pbtype = "../../tiles/{0}/{0}.pb_type.xml"
 
     # Initialize grid mapper
     with DatabaseCache(args.connection_database, read_only=True) as conn:
+
+        # FIXME: Always import tile types
+        tile_types = set(tile_types)
+        tile_types |= set(["CLBLL_L", "CLBLL_R", "CLBLM_L", "CLBLM_R"])
+        tile_types = tuple(tile_types)
 
         # The object will read data from the DB so it can live
         # outside the scope of the "with" statement

@@ -310,15 +310,20 @@ def main():
         c = conn.cursor()
         c2 = conn.cursor()
 
+        # Get a list of tile types to split
+        tile_types_to_split = [row[0] for row in c.execute("""
+            SELECT name FROM tile_type
+            INNER JOIN tile_types_to_split ON
+            tile_types_to_split.tile_type_pkey = tile_type.pkey""")
+            ]
+
         # List tile wires and site wires
         for tile_type_pkey, tile_type in c2.execute(
                 "SELECT pkey, name FROM tile_type"):
 
-            # FIXME: This is a HACK for now. Porobably need to store the info
-            # in the db.
-            #if tile_type in ["CLBLL_L", "CLBLL_R", "CLBLM_L", "CLBLM_R"]:
-            #    continue
-            if tile_type in ["CLBLM_L", "CLBLM_R"]:
+            # This tile type has been split and is no longer present in the
+            # VPR grid. Skip it
+            if tile_type in tile_types_to_split:
                 continue
 
             for wire_name, site_pkey in c.execute(

@@ -305,6 +305,9 @@ class TileSplitter(object):
                 # Internal map with tile to site type and site loc.
                 self.append_to_map(self.tile_site_pkeys, tile_type, (new_tile_type_pkey, vpr_tile_pkey, site_pkey))
 
+            # Insert the tile type to the tile_types_to_split table
+            c.execute("INSERT INTO tile_types_to_split(tile_type_pkey) VALUES (?)", (tile_type_pkey, ))
+
         return GenericMap(fwd_map, bwd_map)
 
     def import_tile_type_map(self, tile_type_map):
