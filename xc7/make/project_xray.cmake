@@ -63,6 +63,7 @@ function(PROJECT_XRAY_TILE)
     string(TOLOWER ${PROJECT_XRAY_TILE_ALIAS} ALIAS)
   else()
     string(TOLOWER ${PROJECT_XRAY_TILE_TILE}  TILE)
+    set(PROJECT_XRAY_TILE_ALIAS ${PROJECT_XRAY_TILE_TILE})
     set(ALIAS ${TILE})
   endif()
 
@@ -98,6 +99,7 @@ function(PROJECT_XRAY_TILE)
     ${PYTHON3} ${TILE_IMPORT}
     --part ${PROJECT_XRAY_TILE_PART}
     --tile ${PROJECT_XRAY_TILE_TILE}
+    --tile-alias ${PROJECT_XRAY_TILE_ALIAS}
     --site_directory ${symbiflow-arch-defs_BINARY_DIR}/xc7/primitives
     --site_types ${SITE_TYPES_COMMA}
     --pin_assignments ${PIN_ASSIGNMENTS}
@@ -148,8 +150,8 @@ function(PROJECT_XRAY_ARCH)
   set(CREATE_EDGES ${symbiflow-arch-defs_SOURCE_DIR}/xc7/utils/prjxray_create_edges.py)
   set(DEPS ${PRJXRAY_DB_DIR}/${PART}/tilegrid.json)
 
-  # FIXME: This will add dependency on SLICE
-  set(DEP_TILE_TYPES ${PROJECT_XRAY_ARCH_TILE_TYPES} "SLICEL" "SLICEM")
+  # FIXME: This will add dependency on SLICE and CLBLL
+  set(DEP_TILE_TYPES ${PROJECT_XRAY_ARCH_TILE_TYPES} "SLICEL" "SLICEM" "CLBLL_L" "CLBLL_R")
 
   set(ARCH_INCLUDE_FILES "")
   foreach(TILE_TYPE ${DEP_TILE_TYPES})

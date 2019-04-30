@@ -316,7 +316,9 @@ def main():
 
             # FIXME: This is a HACK for now. Porobably need to store the info
             # in the db.
-            if tile_type in ["CLBLL_L", "CLBLL_R", "CLBLM_L", "CLBLM_R"]:
+            #if tile_type in ["CLBLL_L", "CLBLL_R", "CLBLM_L", "CLBLM_R"]:
+            #    continue
+            if tile_type in ["CLBLM_L", "CLBLM_R"]:
                 continue
 
             for wire_name, site_pkey in c.execute(

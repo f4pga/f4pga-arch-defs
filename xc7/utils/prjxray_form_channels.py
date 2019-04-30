@@ -1103,7 +1103,8 @@ def main():
         print("{}: Initial database formed".format(datetime.datetime.now()))
 
         # List of tile types to split FIXME: Hard coded !
-        tile_types_to_split = ["CLBLL_L", "CLBLL_R", "CLBLM_L", "CLBLM_R"]
+        #tile_types_to_split = ["CLBLL_L", "CLBLL_R", "CLBLM_L", "CLBLM_R"]
+        tile_types_to_split = ["CLBLM_L", "CLBLM_R"]
 
         gs = GridSplitter(conn)
         gs.set_tile_types_to_split(tile_types_to_split)
