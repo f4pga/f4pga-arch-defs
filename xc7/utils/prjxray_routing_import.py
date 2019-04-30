@@ -158,20 +158,36 @@ WHERE
         #print(" ", left_graph_node_pkey, right_graph_node_pkey, top_graph_node_pkey, bottom_graph_node_pkey)
 
         side = node.loc.side
-        if side == tracks.Direction.LEFT:
-            assert left_graph_node_pkey is not None, (tile_type, pin_name)
-            node_mapping[left_graph_node_pkey] = node.id
-        elif side == tracks.Direction.RIGHT:
-            assert right_graph_node_pkey is not None, (tile_type, pin_name)
-            node_mapping[right_graph_node_pkey] = node.id
-        elif side == tracks.Direction.TOP:
-            assert top_graph_node_pkey is not None, (tile_type, pin_name)
-            node_mapping[top_graph_node_pkey] = node.id
-        elif side == tracks.Direction.BOTTOM:
-            assert bottom_graph_node_pkey is not None, (tile_type, pin_name)
-            node_mapping[bottom_graph_node_pkey] = node.id
-        else:
-            assert False, side
+
+        # FIXME: This is gonna be VERY wrong...
+        node_idx = None
+        if left_graph_node_pkey is not None:
+            node_idx = left_graph_node_pkey
+        if right_graph_node_pkey is not None:
+            node_idx = right_graph_node_pkey
+        if top_graph_node_pkey is not None:
+            node_idx = top_graph_node_pkey
+        if bottom_graph_node_pkey is not None:
+            node_idx = bottom_graph_node_pkey
+
+        assert node_idx is not None, (tile_type, pin_name)
+
+        node_mapping[node_idx] = node.id
+
+        # if side == tracks.Direction.LEFT:
+        #     assert left_graph_node_pkey is not None, (tile_type, pin_name)
+        #     node_mapping[left_graph_node_pkey] = node.id
+        # elif side == tracks.Direction.RIGHT:
+        #     assert right_graph_node_pkey is not None, (tile_type, pin_name)
+        #     node_mapping[right_graph_node_pkey] = node.id
+        # elif side == tracks.Direction.TOP:
+        #     assert top_graph_node_pkey is not None, (tile_type, pin_name)
+        #     node_mapping[top_graph_node_pkey] = node.id
+        # elif side == tracks.Direction.BOTTOM:
+        #     assert bottom_graph_node_pkey is not None, (tile_type, pin_name)
+        #     node_mapping[bottom_graph_node_pkey] = node.id
+        # else:
+        #     assert False, side
 
 
 def import_tracks(conn, alive_tracks, node_mapping, graph, segment_id):
@@ -416,7 +432,7 @@ def create_get_pip_wire_names(conn):
     return get_pip_wire_names
 
 
-def import_graph_edges(conn, graph, node_mapping):
+def import_graph_edges(conn, graph, node_mapping, tile_name_map):
     # First yield existing edges
     print('{} Importing existing edges.'.format(now()))
     for edge in graph.edges:
@@ -456,7 +472,10 @@ FROM
                 tile_name = get_tile_name(tile_pkey)
                 src_net, dest_net = get_pip_wire_names(pip_pkey)
 
-                pip_name = '{}.{}.{}'.format(tile_name, dest_net, src_net)
+                # Map the tile name to a physical tile
+                phy_tile_name = tile_name_map[tile_name]
+
+                pip_name = '{}.{}.{}'.format(phy_tile_name, dest_net, src_net)
             else:
                 pip_name = None
 
@@ -516,6 +535,29 @@ def yield_nodes(nodes):
 
             if idx % 1024 == 0:
                 bar.update(idx)
+
+
+def build_tile_name_map(conn):
+    """
+    Builds a name map which maps VPR tiles to physical tiles.
+    """
+
+    tile_name_map = {}
+
+    c = conn.cursor()
+    c2 = conn.cursor()
+
+    # Loop over all VPR tiles
+    for vpr_tile_name, vpr_tile_pkey in c.execute("SELECT name, pkey FROM tile"):
+
+        # Get physical tile name. There will always be one-to-one
+        # correspondence
+        (phy_tile_name, ) = c2.execute("SELECT name FROM phy_tile WHERE pkey = (SELECT phy_tile_pkey FROM grid_loc_map WHERE vpr_tile_pkey = (?))", (vpr_tile_pkey, )).fetchone()
+
+        # Store it
+        tile_name_map[vpr_tile_name] = phy_tile_name
+
+    return tile_name_map
 
 
 def main():
@@ -587,6 +629,10 @@ def main():
 
     with DatabaseCache(args.connection_database, True) as conn:
 
+        # Build a map of tile names. Will be used when generating FASM
+        # features
+        tile_name_map = build_tile_name_map(conn)
+
         # Mapping of graph_node.pkey to rr node id.
         node_mapping = {}
 
@@ -618,7 +664,7 @@ def main():
 
             xml_graph.serialize_nodes(yield_nodes(xml_graph.graph.nodes))
             xml_graph.serialize_edges(
-                import_graph_edges(conn, graph, node_mapping)
+                import_graph_edges(conn, graph, node_mapping, tile_name_map)
             )
 
 
