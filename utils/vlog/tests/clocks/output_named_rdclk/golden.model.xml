@@ -6,7 +6,7 @@
       <port name="b"/>
     </input_ports>
     <output_ports>
-      <port name="rdclk" is_clock="1"/>
+      <port name="o" is_clock="1"/>
     </output_ports>
   </model>
 </models>
