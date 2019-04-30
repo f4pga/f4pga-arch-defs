@@ -100,8 +100,15 @@ def import_graph_nodes(conn, graph, node_mapping):
         m = PIN_NAME_TO_PARTS.match(pin_name)
         assert m is not None, pin_name
 
-        tile_type = m.group(1)
         pin = m.group(2)
+
+        # Get tile pkey and tile name
+        if gridloc not in tile_loc_to_pkey:
+            (tile_pkey, tile_type_pkey,) = c.execute("SELECT pkey, tile_type_pkey FROM tile WHERE grid_x = (?) AND grid_y = (?)", (gridloc[0], gridloc[1])).fetchone()
+            (tile_type,) = c.execute("SELECT name FROM tile_type WHERE pkey = (?)", (tile_type_pkey,)).fetchone()
+            tile_loc_to_pkey[gridloc] = (tile_pkey, tile_type)
+        else:
+            tile_pkey, tile_type = tile_loc_to_pkey[gridloc]
 
         key = (tile_type, pin)
 
@@ -132,18 +139,6 @@ WHERE
         else:
             wire_in_tile_pkey = tile_type_wire_to_pkey[key]
 
-        if gridloc not in tile_loc_to_pkey:
-            c.execute(
-                """
-            SELECT pkey FROM tile WHERE grid_x = ? AND grid_y = ?;""",
-                (gridloc[0], gridloc[1])
-            )
-
-            (tile_pkey, ) = c.fetchone()
-            tile_loc_to_pkey[gridloc] = tile_pkey
-        else:
-            tile_pkey = tile_loc_to_pkey[gridloc]
-
         c.execute(
             """
         SELECT
@@ -158,6 +153,9 @@ WHERE
             top_graph_node_pkey, bottom_graph_node_pkey, left_graph_node_pkey,
             right_graph_node_pkey
         ) = c.fetchone()
+
+        #print(wire_in_tile_pkey, tile_pkey, tile_type, gridloc, pin_name, node.loc.side)
+        #print(" ", left_graph_node_pkey, right_graph_node_pkey, top_graph_node_pkey, bottom_graph_node_pkey)
 
         side = node.loc.side
         if side == tracks.Direction.LEFT:
