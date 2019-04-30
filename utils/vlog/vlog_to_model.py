@@ -207,6 +207,9 @@ if True:
                 for clk in clocks:
                     if is_registered(tmod, bits, iodir, clk):
                         attrs["clock"] = clk
+                assoc_clk = tmod.net_attr(name, "ASSOC_CLOCK")
+                if assoc_clk is not None:
+                    attrs["clock"] = assoc_clk
             if iodir == "input":
                 ET.SubElement(inports_xml, "port", attrs)
             elif iodir == "output":
