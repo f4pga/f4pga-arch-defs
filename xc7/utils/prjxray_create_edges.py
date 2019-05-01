@@ -47,9 +47,8 @@ def add_graph_nodes_for_pins(conn, tile_type, wire, pin_directions):
     """ Adds graph_node rows for each pin on a wire in a tile. """
 
     (wire_in_tile_pkeys, site_pin_pkey) = get_wire_in_tile_from_pin_name(
-            conn=conn,
-            tile_type_str=tile_type,
-            wire_str=wire)
+        conn=conn, tile_type_str=tile_type, wire_str=wire
+    )
 
     # Determine if this should be an IPIN or OPIN based on the site_pin
     # direction.
@@ -79,7 +78,8 @@ def add_graph_nodes_for_pins(conn, tile_type, wire, pin_directions):
         c.execute(
             """
             SELECT pkey, node_pkey, tile_pkey
-                FROM wire WHERE wire_in_tile_pkey = ?;""", (wire_in_tile_pkey, )
+                FROM wire WHERE wire_in_tile_pkey = ?;""",
+            (wire_in_tile_pkey, )
         )
 
         c3 = conn.cursor()
@@ -87,7 +87,8 @@ def add_graph_nodes_for_pins(conn, tile_type, wire, pin_directions):
         for wire_pkey, node_pkey, tile_pkey in c:
             c3.execute(
                 """
-                SELECT grid_x, grid_y FROM tile WHERE pkey = ?;""", (tile_pkey, )
+                SELECT grid_x, grid_y FROM tile WHERE pkey = ?;""",
+                (tile_pkey, )
             )
 
             grid_x, grid_y = c3.fetchone()
@@ -112,7 +113,9 @@ def add_graph_nodes_for_pins(conn, tile_type, wire, pin_directions):
                 )
 
                 updates.append(
-                    '{}_graph_node_pkey = ?'.format(pin_direction.name.lower())
+                    '{}_graph_node_pkey = ?'.format(
+                        pin_direction.name.lower()
+                    )
                 )
                 values.append(c2.lastrowid)
 
@@ -239,7 +242,9 @@ WHERE
         )
 
         result = c.fetchone()
-        assert result is not None, (phy_tile, tile_type, wire, wire_in_tile_pkey)
+        assert result is not None, (
+            phy_tile, tile_type, wire, wire_in_tile_pkey
+        )
         return result
 
     return find_wire
@@ -571,7 +576,7 @@ def make_connection(
     assert tile_pkey == tile_pkey2
 
     c = conn.cursor()
-    c.execute("SELECT grid_x, grid_y FROM tile WHERE pkey = ?", (tile_pkey,))
+    c.execute("SELECT grid_x, grid_y FROM tile WHERE pkey = ?", (tile_pkey, ))
     loc = grid_types.GridLoc(*c.fetchone())
 
     # Skip nodes that are reserved because of ROI

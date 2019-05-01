@@ -197,6 +197,7 @@ WHERE
             FIND_WIRE_WITH_SITE_PIN, (node_pkey, )):
         yield wire_pkey, tile_pkey, wire_in_tile_pkey
 
+
 def get_pin_name_of_wire(conn, wire_pkey):
     """ Returns pin name of wire.
 
@@ -206,26 +207,34 @@ def get_pin_name_of_wire(conn, wire_pkey):
 
     """
     c = conn.cursor()
-    c.execute("""
+    c.execute(
+        """
 SELECT wire_in_tile_pkey, tile_pkey FROM wire WHERE pkey = ?
-        """, (wire_pkey,))
+        """, (wire_pkey, )
+    )
     wire_in_tile_pkey, tile_pkey = c.fetchone()
 
-    c.execute("""
+    c.execute(
+        """
 SELECT site_as_tile_pkey FROM tile WHERE pkey = ?
-        """, (tile_pkey,))
+        """, (tile_pkey, )
+    )
     site_as_tile_pkey = c.fetchone()[0]
 
     if site_as_tile_pkey is not None:
-        c.execute("""
+        c.execute(
+            """
 SELECT name FROM site_pin WHERE pkey = (
     SELECT site_pin_pkey FROM wire_in_tile WHERE pkey = ?
-    )""", (wire_in_tile_pkey,))
+    )""", (wire_in_tile_pkey, )
+        )
         return c.fetchone()[0]
     else:
-        c.execute("""
+        c.execute(
+            """
 SELECT name FROM wire_in_tile WHERE pkey = ?;
-    """, (wire_in_tile_pkey,))
+    """, (wire_in_tile_pkey, )
+        )
         return c.fetchone()[0]
 
 
@@ -240,7 +249,8 @@ def get_wire_in_tile_from_pin_name(conn, tile_type_str, wire_str):
 SELECT site_pkey FROM site_as_tile WHERE parent_tile_type_pkey = (
     SELECT pkey FROM tile_type WHERE name = ?
 );
-        """, (tile_type_str,));
+        """, (tile_type_str, )
+    )
     result = c.fetchone()
     wire_is_pin = result is not None
 
@@ -249,7 +259,7 @@ SELECT site_pkey FROM site_as_tile WHERE parent_tile_type_pkey = (
         # on the site pin name, rather than the wire name.
         site_pkey = result[0]
         c.execute(
-        """
+            """
 SELECT
     pkey,
     site_pin_pkey,
@@ -268,10 +278,11 @@ WHERE
                 )
         AND
             name = ?
-    );""", (site_pkey, wire_str))
+    );""", (site_pkey, wire_str)
+        )
     else:
         c.execute(
-        """
+            """
 SELECT
   pkey,
   site_pin_pkey,
@@ -289,7 +300,7 @@ WHERE
       name = ?
   );
 """, (wire_str, tile_type_str)
-    )
+        )
 
     wire_in_tile_pkeys = {}
     the_site_pin_pkey = None
@@ -297,7 +308,9 @@ WHERE
         wire_in_tile_pkeys[site_pkey] = wire_in_tile_pkey
 
         if the_site_pin_pkey is not None:
-            assert the_site_pin_pkey == site_pin_pkey, (tile_type_str, wire_str)
+            assert the_site_pin_pkey == site_pin_pkey, (
+                tile_type_str, wire_str
+            )
         else:
             the_site_pin_pkey = site_pin_pkey
 

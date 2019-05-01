@@ -159,21 +159,23 @@ SELECT pkey, classification FROM node WHERE classification != ?;
         reason = NodeClassification(classification)
 
         if reason == NodeClassification.NULL:
-            for (tile_type, wire) in yield_wire_info_from_node(
-                    conn, node_pkey):
+            for (tile_type, wire) in yield_wire_info_from_node(conn,
+                                                               node_pkey):
                 null_tile_wires.add((tile_type, wire))
 
         if reason != NodeClassification.EDGES_TO_CHANNEL:
             continue
 
         c2 = conn.cursor()
-        for wire_pkey, tile_pkey, wire_in_tile_pkey in c2.execute("""
+        for wire_pkey, tile_pkey, wire_in_tile_pkey in c2.execute(
+                """
 SELECT pkey, tile_pkey, wire_in_tile_pkey FROM wire WHERE node_pkey = ?;""",
-                                                       (node_pkey, )):
+            (node_pkey, )):
             c3 = conn.cursor()
             c3.execute(
                 """
-SELECT site_as_tile_pkey, grid_x, grid_y FROM tile WHERE pkey = ?;""", (tile_pkey, )
+SELECT site_as_tile_pkey, grid_x, grid_y FROM tile WHERE pkey = ?;""",
+                (tile_pkey, )
             )
             (site_as_tile_pkey, grid_x, grid_y) = c3.fetchone()
 
@@ -201,15 +203,20 @@ WHERE
 SELECT name, site_pin_pkey FROM wire_in_tile WHERE pkey = ?;""",
                 (wire_in_tile_pkey, )
             )
-            (wire_name, site_pin_pkey,) = c3.fetchone()
+            (
+                wire_name,
+                site_pin_pkey,
+            ) = c3.fetchone()
 
             # This node has no site pin, don't need to assign pin direction.
             if site_pin_pkey is None:
                 continue
 
             if site_as_tile_pkey is not None:
-                c3.execute("""SELECT name FROM site_pin WHERE pkey = ?;""",
-                        (site_pin_pkey,))
+                c3.execute(
+                    """SELECT name FROM site_pin WHERE pkey = ?;""",
+                    (site_pin_pkey, )
+                )
                 wire = c3.fetchone()[0]
             else:
                 wire = wire_name
@@ -261,7 +268,9 @@ WHERE
                 )
                 result = c4.fetchone()
                 assert result is not None, (
-                    wire_pkey, pip_pkey, tile_pkey, wire_in_tile_pkey, other_wire_in_tile_pkey)
+                    wire_pkey, pip_pkey, tile_pkey, wire_in_tile_pkey,
+                    other_wire_in_tile_pkey
+                )
                 (track_pkey, classification) = result
 
                 # Some pips do connect to a track at all, e.g. null node
@@ -324,13 +333,18 @@ def main():
         for site_pkey, tile_type_pkey in c.execute("""
             SELECT site_pkey, tile_type_pkey FROM site_as_tile;
             """):
-            c2.execute("SELECT name FROM tile_type WHERE pkey = ?", (tile_type_pkey,))
+            c2.execute(
+                "SELECT name FROM tile_type WHERE pkey = ?",
+                (tile_type_pkey, )
+            )
             split_tile_types.add(c2.fetchone()[0])
 
-            c2.execute("""
+            c2.execute(
+                """
 SELECT name FROM site_type WHERE pkey = (
     SELECT site_type_pkey FROM site WHERE pkey = ?
-    );""", (site_pkey,))
+    );""", (site_pkey, )
+            )
             site_type_name = c2.fetchone()[0]
             sites_as_tiles.add(site_type_name)
 
@@ -376,8 +390,8 @@ SELECT name FROM site_type WHERE pkey = (
     """, (NodeClassification.CHANNEL.value, ))):
             reason = NodeClassification(classification)
 
-            for (tile_type, wire) in yield_wire_info_from_node(
-                    conn, node_pkey):
+            for (tile_type, wire) in yield_wire_info_from_node(conn,
+                                                               node_pkey):
                 key = (tile_type, wire)
 
                 # Sometimes nodes in particular tile instances are disconnected,
@@ -413,8 +427,8 @@ SELECT name FROM site_type WHERE pkey = (
             channel_nodes.append(tracks_model)
             channel_wires_to_tracks[track_pkey] = tracks_model
 
-            for (tile_type, wire) in yield_wire_info_from_node(
-                    conn, node_pkey):
+            for (tile_type, wire) in yield_wire_info_from_node(conn,
+                                                               node_pkey):
                 key = (tile_type, wire)
                 # Make sure all wires in channels always are in channels
                 assert key not in wires_not_in_channels
