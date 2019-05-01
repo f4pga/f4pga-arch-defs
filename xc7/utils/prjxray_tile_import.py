@@ -22,8 +22,15 @@ import re
 
 import lxml.etree as ET
 
+XI_URL = "http://www.w3.org/2001/XInclude"
+XI_INCLUDE = "{%s}include" % XI_URL
 
 def prefix_name(tile):
+    """ Add tile prefix.
+
+    This avoids namespace collision when embedding a site (e.g. SLICEL) as a
+    tile.
+    """
     return 'BLK-TL-' + tile
 
 
@@ -61,6 +68,20 @@ def object_ref(pb_name, pin_name, pin_idx=None):
 
 
 def parse_site_type_instance(site_types):
+    """ Convert site_types argument into map.
+
+    Parameters
+    ----------
+    site_types : str
+
+    Returns
+    -------
+    site_type_instances : map of str to list of str
+        Maps site type to array of site type instances.  First instance of
+        site should use first element, second instance should use second
+        element, etc.
+
+    """
     site_type_instances = {}
     for s in site_types.split(','):
         site_type, site_type_instance = s.split('/')
@@ -72,8 +93,146 @@ def parse_site_type_instance(site_types):
 
     return site_type_instances
 
+def add_direct(xml, input, output):
+    """ Add a direct tag to the interconnect_xml. """
+    ET.SubElement(
+        xml, 'direct', {
+            'name': '{}_to_{}'.format(input, output),
+            'input': input,
+            'output': output
+        }
+    )
+
+
+def write_xml(f, xml):
+    """ Writes XML to disk. """
+    pb_type_str = ET.tostring(xml, pretty_print=True).decode('utf-8')
+    f.write(pb_type_str)
+    f.close()
+
+
+class ModelXml(object):
+    """ Simple model.xml writter. """
+    def __init__(self, f, site_directory):
+        self.f = f
+        self.model_xml = ET.Element(
+            'models',
+            nsmap={'xi': XI_URL},
+        )
+        self.site_model = site_directory + "/{0}/{1}.model.xml"
+
+    def add_model_include(self, site_type, instance_name):
+        ET.SubElement(
+            self.model_xml, XI_INCLUDE, {
+                'href':
+                    self.site_model.format(
+                        site_type.lower(), instance_name.lower()
+                    ),
+                'xpointer':
+                    "xpointer(models/child::node())"
+            }
+        )
+
+    def write_model(self):
+        write_xml(self.f, self.model_xml)
+
+
+def start_pb_type(tile_name, f_pin_assignments, input_wires, output_wires):
+    """ Starts a pb_type by adding input, clock and output tags. """
+    pb_type_xml = ET.Element(
+        'pb_type',
+        {
+            'name': prefix_name(tile_name),
+        },
+        nsmap={'xi': XI_URL},
+    )
+
+    pb_type_xml.append(ET.Comment(" Tile Inputs "))
+
+    # Input definitions for the TILE
+    for name in sorted(input_wires):
+        input_type = 'input'
+
+        if 'CLK' in name:
+            input_type = 'clock'
+
+        ET.SubElement(
+            pb_type_xml,
+            input_type,
+            {
+                'name': name,
+                'num_pins': '1'
+            },
+        )
+
+    pb_type_xml.append(ET.Comment(" Tile Outputs "))
+    for name in sorted(output_wires):
+        # Output definitions for the TILE
+        ET.SubElement(
+            pb_type_xml,
+            'output',
+            {
+                'name': name,
+                'num_pins': '1'
+            },
+        )
+
+    pinlocations_xml = ET.SubElement(
+        pb_type_xml, 'pinlocations', {
+            'pattern': 'custom',
+        }
+    )
+
+    pin_assignments = json.load(f_pin_assignments)
+
+    sides = {}
+    for pin in input_wires | output_wires:
+        for side in pin_assignments['pin_directions'][tile_name][pin]:
+            if side not in sides:
+                sides[side] = []
+
+            sides[side].append(object_ref(prefix_name(tile_name), pin))
+
+    for side, pins in sides.items():
+        ET.SubElement(pinlocations_xml, 'loc', {
+            'side': side.lower(),
+        }).text = ' '.join(pins)
+    direct_pins = set()
+    for direct in pin_assignments['direct_connections']:
+        if direct['from_pin'].split('.')[0] == tile_name:
+            direct_pins.add(direct['from_pin'].split('.')[1])
+
+        if direct['to_pin'].split('.')[0] == tile_name:
+            direct_pins.add(direct['to_pin'].split('.')[1])
+
+    fc_xml = ET.SubElement(
+        pb_type_xml, 'fc', {
+            'in_type': 'abs',
+            'in_val': '2',
+            'out_type': 'abs',
+            'out_val': '2',
+        }
+    )
+    for fc_override in direct_pins:
+        ET.SubElement(
+            fc_xml, 'fc_override', {
+                'fc_type': 'frac',
+                'fc_val': '0.0',
+                'port_name': fc_override,
+            }
+        )
+
+    pb_type_xml.append(ET.Comment(" Internal Sites "))
+
+    return pb_type_xml
 
 def import_tile(db, args):
+    """ Create a root-level pb_type with the pin names that match tile wires.
+
+    This will either have 1 intermediate pb_type per site, or 1 large site
+    for the entire tile if args.fused_sites is set to true.
+    """
+
     tile = db.get_tile_type(args.tile)
 
     # Wires sink to a site within the tile are input wires.
@@ -136,33 +295,13 @@ def import_tile(db, args):
                 else:
                     assert False, site_type_pin.direction
 
-    site_model = args.site_directory + "/{0}/{1}.model.xml"
     site_pbtype = args.site_directory + "/{0}/{1}.pb_type.xml"
-
-    xi_url = "http://www.w3.org/2001/XInclude"
-    ET.register_namespace('xi', xi_url)
-    xi_include = "{%s}include" % xi_url
 
     ##########################################################################
     # Generate the model.xml file                                            #
     ##########################################################################
 
-    model_xml = ET.Element(
-        'models',
-        nsmap={'xi': xi_url},
-    )
-
-    def add_model_include(site_type, instance_name):
-        ET.SubElement(
-            model_xml, xi_include, {
-                'href':
-                    site_model.format(
-                        site_type.lower(), instance_name.lower()
-                    ),
-                'xpointer':
-                    "xpointer(models/child::node())"
-            }
-        )
+    model = ModelXml(f=args.output_model, site_directory=args.site_directory)
 
     if not args.fused_sites:
         site_types = set(site.type for site in tile.get_sites())
@@ -171,83 +310,24 @@ def import_tile(db, args):
                 continue
 
             for instance in site_type_instances[site_type]:
-                add_model_include(site_type, instance)
+                model.add_model_include(site_type, instance)
     else:
         fused_site_name = args.tile.lower()
 
-        add_model_include(fused_site_name, fused_site_name)
+        model.add_model_include(fused_site_name, fused_site_name)
 
-    model_str = ET.tostring(model_xml, pretty_print=True).decode('utf-8')
-    args.output_model.write(model_str)
-    args.output_model.close()
+    model.write_model()
 
     ##########################################################################
     # Generate the pb_type.xml file                                          #
     ##########################################################################
-
-    def add_direct(xml, input, output):
-        ET.SubElement(
-            xml, 'direct', {
-                'name': '{}_to_{}'.format(input, output),
-                'input': input,
-                'output': output
-            }
-        )
-
     tile_name = args.tile
 
-    pb_type_xml = ET.Element(
-        'pb_type',
-        {
-            'name': prefix_name(tile_name),
-        },
-        nsmap={'xi': xi_url},
-    )
-
-    fc_xml = ET.SubElement(
-        pb_type_xml, 'fc', {
-            'in_type': 'abs',
-            'in_val': '2',
-            'out_type': 'abs',
-            'out_val': '2',
-        }
-    )
-
-    interconnect_xml = ET.Element('interconnect')
-
-    pb_type_xml.append(ET.Comment(" Tile Inputs "))
-
-    # Input definitions for the TILE
-    for name in sorted(input_wires):
-        input_type = 'input'
-
-        if 'CLK' in name:
-            input_type = 'clock'
-
-        ET.SubElement(
-            pb_type_xml,
-            input_type,
-            {
-                'name': name,
-                'num_pins': '1'
-            },
-        )
-
-    pb_type_xml.append(ET.Comment(" Tile Outputs "))
-    for name in sorted(output_wires):
-        # Output definitions for the TILE
-        ET.SubElement(
-            pb_type_xml,
-            'output',
-            {
-                'name': name,
-                'num_pins': '1'
-            },
-        )
-
-    pb_type_xml.append(ET.Comment(" Internal Sites "))
+    pb_type_xml = start_pb_type(tile_name, args.pin_assignments, input_wires, output_wires)
 
     cell_names = {}
+
+    interconnect_xml = ET.Element('interconnect')
 
     if not args.fused_sites:
         site_type_count = {}
@@ -296,7 +376,7 @@ def import_tile(db, args):
             attrib = dict(root_element.attrib)
             include_xml = ET.SubElement(pb_type_xml, 'pb_type', attrib)
             ET.SubElement(
-                include_xml, xi_include, {
+                include_xml, XI_INCLUDE, {
                     'href':
                         site_type_path,
                     'xpointer':
@@ -314,7 +394,7 @@ def import_tile(db, args):
             # Import pb_type metadata if it exists.
             if any(child.tag == 'metadata' for child in root_element):
                 ET.SubElement(
-                    metadata_xml, xi_include, {
+                    metadata_xml, XI_INCLUDE, {
                         'href': site_type_path,
                         'xpointer': "xpointer(pb_type/metadata/child::node())",
                     }
@@ -404,7 +484,7 @@ def import_tile(db, args):
         attrib = dict(root_element.attrib)
         include_xml = ET.SubElement(pb_type_xml, 'pb_type', attrib)
         ET.SubElement(
-            include_xml, xi_include, {
+            include_xml, XI_INCLUDE, {
                 'href': site_type_path,
                 'xpointer': "xpointer(pb_type/child::node())",
             }
@@ -481,51 +561,12 @@ def import_tile(db, args):
         'pattern': 'all',
     })
 
-    pinlocations_xml = ET.SubElement(
-        pb_type_xml, 'pinlocations', {
-            'pattern': 'custom',
-        }
-    )
-
-    if len(input_wires) > 0 or len(output_wires) > 0:
-        pin_assignments = json.load(args.pin_assignments)
-
-        sides = {}
-        for pin in input_wires | output_wires:
-            for side in pin_assignments['pin_directions'][args.tile][pin]:
-                if side not in sides:
-                    sides[side] = []
-
-                sides[side].append(object_ref(prefix_name(tile_name), pin))
-
-        for side, pins in sides.items():
-            ET.SubElement(pinlocations_xml, 'loc', {
-                'side': side.lower(),
-            }).text = ' '.join(pins)
-
-    direct_pins = set()
-    for direct in pin_assignments['direct_connections']:
-        if direct['from_pin'].split('.')[0] == args.tile:
-            direct_pins.add(direct['from_pin'].split('.')[1])
-
-        if direct['to_pin'].split('.')[0] == args.tile:
-            direct_pins.add(direct['to_pin'].split('.')[1])
-
-    for fc_override in direct_pins:
-        ET.SubElement(
-            fc_xml, 'fc_override', {
-                'fc_type': 'frac',
-                'fc_val': '0.0',
-                'port_name': fc_override,
-            }
-        )
-
-    pb_type_str = ET.tostring(pb_type_xml, pretty_print=True).decode('utf-8')
-    args.output_pb_type.write(pb_type_str)
-    args.output_pb_type.close()
+    write_xml(args.output_pb_type, pb_type_xml)
 
 
 def import_site_as_tile(db, args):
+    """ Create a root-level pb_type with the same pin names as a site type.
+    """
     site_type = db.get_site_type(args.tile)
 
     # Wires sink to a site within the tile are input wires.
@@ -549,118 +590,35 @@ def import_site_as_tile(db, args):
         else:
             assert False, site_type_pin.direction
 
-    site_model = args.site_directory + "/{0}/{1}.model.xml"
-    site_pbtype = args.site_directory + "/{0}/{1}.pb_type.xml"
-
-    xi_url = "http://www.w3.org/2001/XInclude"
-    ET.register_namespace('xi', xi_url)
-    xi_include = "{%s}include" % xi_url
 
     ##########################################################################
     # Generate the model.xml file                                            #
     ##########################################################################
-
-    model_xml = ET.Element(
-        'models',
-        nsmap={'xi': xi_url},
-    )
-
-    def add_model_include(site_type, instance_name):
-        ET.SubElement(
-            model_xml, xi_include, {
-                'href':
-                    site_model.format(
-                        site_type.lower(), instance_name.lower()
-                    ),
-                'xpointer':
-                    "xpointer(models/child::node())"
-            }
-        )
-
-    add_model_include(args.tile, site_type_instances[args.tile][0])
-
-    model_str = ET.tostring(model_xml, pretty_print=True).decode('utf-8')
-    args.output_model.write(model_str)
-    args.output_model.close()
+    model = ModelXml(f=args.output_model, site_directory=args.site_directory)
+    model.add_model_include(args.tile, site_type_instances[args.tile][0])
+    model.write_model()
 
     ##########################################################################
     # Generate the pb_type.xml file                                          #
     ##########################################################################
 
-    def add_direct(xml, input, output):
-        ET.SubElement(
-            xml, 'direct', {
-                'name': '{}_to_{}'.format(input, output),
-                'input': input,
-                'output': output
-            }
-        )
-
     tile_name = args.tile
-
-    pb_type_xml = ET.Element(
-        'pb_type',
-        {
-            'name': prefix_name(tile_name),
-        },
-        nsmap={'xi': xi_url},
-    )
-
-    fc_xml = ET.SubElement(
-        pb_type_xml, 'fc', {
-            'in_type': 'abs',
-            'in_val': '2',
-            'out_type': 'abs',
-            'out_val': '2',
-        }
-    )
-
-    interconnect_xml = ET.Element('interconnect')
-
-    pb_type_xml.append(ET.Comment(" Tile Inputs "))
-
-    # Input definitions for the TILE
-    for name in sorted(input_wires):
-        input_type = 'input'
-
-        if 'CLK' in name:
-            input_type = 'clock'
-
-        ET.SubElement(
-            pb_type_xml,
-            input_type,
-            {
-                'name': name,
-                'num_pins': '1'
-            },
-        )
-
-    pb_type_xml.append(ET.Comment(" Tile Outputs "))
-    for name in sorted(output_wires):
-        # Output definitions for the TILE
-        ET.SubElement(
-            pb_type_xml,
-            'output',
-            {
-                'name': name,
-                'num_pins': '1'
-            },
-        )
-
-    pb_type_xml.append(ET.Comment(" Internal Sites "))
+    pb_type_xml = start_pb_type(tile_name, args.pin_assignments, input_wires, output_wires)
 
     site = args.tile
     site_instance = site_type_instances[args.tile][0]
 
+    site_pbtype = args.site_directory + "/{0}/{1}.pb_type.xml"
     site_type_path = site_pbtype.format(site.lower(), site_instance.lower())
+    ET.SubElement(pb_type_xml, XI_INCLUDE, {
+        'href': site_type_path,
+    })
 
     cell_pb_type = ET.ElementTree()
     root_element = cell_pb_type.parse(site_type_path)
     site_name = root_element.attrib['name']
 
-    ET.SubElement(pb_type_xml, xi_include, {
-        'href': site_type_path,
-    })
+    interconnect_xml = ET.Element('interconnect')
 
     interconnect_xml.append(ET.Comment(" Tile->Site "))
     for site_pin in sorted(site_type.get_site_pins()):
@@ -696,48 +654,7 @@ def import_site_as_tile(db, args):
         'pattern': 'all',
     })
 
-    pinlocations_xml = ET.SubElement(
-        pb_type_xml, 'pinlocations', {
-            'pattern': 'custom',
-        }
-    )
-
-    if len(input_wires) > 0 or len(output_wires) > 0:
-        pin_assignments = json.load(args.pin_assignments)
-
-        sides = {}
-        for pin in input_wires | output_wires:
-            for side in pin_assignments['pin_directions'][args.tile][pin]:
-                if side not in sides:
-                    sides[side] = []
-
-                sides[side].append(object_ref(prefix_name(tile_name), pin))
-
-        for side, pins in sides.items():
-            ET.SubElement(pinlocations_xml, 'loc', {
-                'side': side.lower(),
-            }).text = ' '.join(pins)
-
-    direct_pins = set()
-    for direct in pin_assignments['direct_connections']:
-        if direct['from_pin'].split('.')[0] == args.tile:
-            direct_pins.add(direct['from_pin'].split('.')[1])
-
-        if direct['to_pin'].split('.')[0] == args.tile:
-            direct_pins.add(direct['to_pin'].split('.')[1])
-
-    for fc_override in direct_pins:
-        ET.SubElement(
-            fc_xml, 'fc_override', {
-                'fc_type': 'frac',
-                'fc_val': '0.0',
-                'port_name': fc_override,
-            }
-        )
-
-    pb_type_str = ET.tostring(pb_type_xml, pretty_print=True).decode('utf-8')
-    args.output_pb_type.write(pb_type_str)
-    args.output_pb_type.close()
+    write_xml(args.output_pb_type, pb_type_xml)
 
 
 def main():
@@ -805,6 +722,7 @@ def main():
 
     db = prjxray.db.Database(os.path.join(prjxray_db, args.part))
 
+    ET.register_namespace('xi', XI_URL)
     if args.site_as_tile:
         assert not args.fused_sites
         import_site_as_tile(db, args)
