@@ -178,6 +178,150 @@ def create_synth_constant_tiles(
         'name': pin_name,
     })
 
+def get_phy_tiles(conn, tile_pkey):
+    """ Returns the locations of all physical tiles for specified tile. """
+    c = conn.cursor()
+    c2 = conn.cursor()
+
+    phy_locs = []
+    for (phy_tile_pkey, ) in c.execute(
+            "SELECT phy_tile_pkey FROM tile_map WHERE tile_pkey = ?",
+        (tile_pkey, )):
+        c2.execute(
+            "SELECT grid_x, grid_y FROM phy_tile WHERE pkey = ?",
+            (phy_tile_pkey, )
+        )
+        loc = c2.fetchone()
+        phy_locs.append(grid_types.GridLoc(*loc))
+
+    return phy_locs
+
+
+def is_in_roi(conn, roi, tile_pkey):
+    """ Returns if the specified tile is in the ROI. """
+    phy_locs = get_phy_tiles(conn, tile_pkey)
+    return any(roi.tile_in_roi(loc) for loc in phy_locs)
+
+
+def get_tile_prefix(conn, g, tile_pkey, site_as_tile_pkey):
+    """ Returns tile prefix of specified tile. """
+    phy_locs = get_phy_tiles(conn, tile_pkey)
+
+    prefix_tile = None
+
+    # If this tile has multiples phy_tile's, make sure only one has bitstream
+    # data, otherwise the tile split was invalid.
+    for loc in phy_locs:
+        gridinfo = g.gridinfo_at_loc(loc)
+        tile = g.tilename_at_loc(loc)
+        is_vbrk = gridinfo.tile_type.find('VBRK') != -1
+
+        # VBRK tiles are known to have no bitstream data.
+        if not is_vbrk and not gridinfo.bits:
+            print(
+                '*** WARNING *** Tile {} appears to be missing bitstream data.'
+                .format(tile),
+                file=sys.stderr
+            )
+
+        if not gridinfo.bits:
+            # Each VPR tile can only have one prefix.
+            # If this assumption is violated, a more dramatic
+            # restructing is required.
+            assert prefix_tile is None, (tile, gridinfo, prefix_tile)
+            prefix_tile = tile
+
+    if len(phy_locs) == 1 and prefix_tile is None:
+        prefix_tile = g.tilename_at_loc(phy_locs[0])
+
+    # If this tile is site_as_tile, add an additional prefix of the site that
+    # is embedded in the tile.
+    c = conn.cursor()
+    if site_as_tile_pkey is not None:
+        c.execute(
+            "SELECT site_pkey FROM site_as_tile WHERE pkey = ?",
+            (site_as_tile_pkey, )
+        )
+        site_pkey = c.fetchone()[0]
+
+        c.execute(
+            """
+            SELECT site_type_pkey, x_coord FROM site WHERE pkey = ?
+            """, (site_pkey, )
+        )
+        site_type_pkey, x = c.fetchone()
+
+        c.execute(
+            "SELECT name FROM site_type WHERE pkey = ?",
+            (site_type_pkey, )
+        )
+        site_type_name = c.fetchone()[0]
+
+        prefix_tile = '{}.{}_X{}'.format(
+            prefix_tile, site_type_name, x
+        )
+
+    return prefix_tile
+
+def get_tiles(conn, g, roi, synth_loc_map, synth_tile_map, tile_types):
+    """ Yields tiles in grid.
+
+    Yields
+    ------
+    vpr_tile_type : str
+        VPR tile type at this grid location.
+    grid_x, grid_y : int
+        Grid coordinate of tile
+    prefix_tile : str
+        Prefix for this tile.
+
+    """
+    c = conn.cursor()
+    c2 = conn.cursor()
+
+    only_emit_roi = roi is not None
+
+    for tile_pkey, grid_x, grid_y, phy_tile_pkey, tile_type_pkey, site_as_tile_pkey in c.execute(
+            """
+        SELECT pkey, grid_x, grid_y, phy_tile_pkey, tile_type_pkey, site_as_tile_pkey FROM tile
+        """):
+
+        # Just output synth tiles, no additional processing is required here.
+        if (grid_x, grid_y) in synth_loc_map:
+            synth_tile = synth_loc_map[(grid_x, grid_y)]
+
+            assert len(synth_tile['pins']) == 1
+
+            vpr_tile_type = synth_tile_map[synth_tile['pins'][0]
+                                            ['port_type']]
+
+            # Synth tiles have no bits, but there needs to be a prefix, so
+            # use the original tile name.
+            c2.execute("SELECT name FROM phy_tile WHERE pkey = ?", (phy_tile_pkey,))
+            prefix_tile = c2.fetchone()[0]
+
+            yield vpr_tile_type, grid_x, grid_y, prefix_tile
+            continue
+
+        c2.execute(
+            "SELECT name FROM tile_type WHERE pkey = ?",
+            (tile_type_pkey, )
+        )
+        tile_type = c2.fetchone()[0]
+        if tile_type not in tile_types:
+            # We don't want this tile
+            continue
+
+        if only_emit_roi and not is_in_roi(conn, roi, tile_pkey):
+            # Tile is outside ROI, skip it
+            continue
+
+        vpr_tile_type = 'BLK-TL-' + tile_type
+
+        prefix_tile = get_tile_prefix(conn, g, tile_pkey, site_as_tile_pkey)
+
+        yield vpr_tile_type, grid_x, grid_y, prefix_tile
+
 
 def add_synthetic_tiles(model_xml, complexblocklist_xml):
     create_synth_io_tiles(complexblocklist_xml, 'SYN-INPAD', is_input=True)
@@ -266,13 +410,11 @@ def main():
     db = prjxray.db.Database(os.path.join(prjxray_db, args.part))
     g = db.grid()
 
-    only_emit_roi = False
-
     synth_tiles = {}
     synth_tiles['tiles'] = {}
     synth_loc_map = {}
+    roi = None
     if args.use_roi:
-        only_emit_roi = True
         with open(args.use_roi) as f:
             j = json.load(f)
 
@@ -295,8 +437,6 @@ def main():
 
     with DatabaseCache(args.connection_database, read_only=True) as conn:
         c = conn.cursor()
-        c2 = conn.cursor()
-        c3 = conn.cursor()
 
         # Find the grid extent.
         y_max = 0
@@ -314,96 +454,13 @@ def main():
             }
         )
 
-        for tile_pkey, grid_x, grid_y, phy_tile_pkey, tile_type_pkey, site_as_tile_pkey in c.execute(
-                """
-            SELECT pkey, grid_x, grid_y, phy_tile_pkey, tile_type_pkey, site_as_tile_pkey FROM tile
-            """):
-            phy_tiles = []
-            phy_locs = []
-            for (phy_tile_pkey, ) in c2.execute(
-                    "SELECT phy_tile_pkey FROM tile_map WHERE tile_pkey = ?",
-                (tile_pkey, )):
-                phy_tiles.append(phy_tile_pkey)
-                c3.execute(
-                    "SELECT grid_x, grid_y FROM phy_tile WHERE pkey = ?",
-                    (phy_tile_pkey, )
-                )
-                loc = c3.fetchone()
-                phy_locs.append(grid_types.GridLoc(*loc))
-
-            if (grid_x, grid_y) in synth_loc_map:
-                synth_tile = synth_loc_map[(grid_x, grid_y)]
-
-                assert len(synth_tile['pins']) == 1
-
-                vpr_tile_type = synth_tile_map[synth_tile['pins'][0]
-                                               ['port_type']]
-            else:
-                c2.execute(
-                    "SELECT name FROM tile_type WHERE pkey = ?",
-                    (tile_type_pkey, )
-                )
-                tile_type = c2.fetchone()[0]
-
-                if only_emit_roi:
-                    if not any(roi.tile_in_roi(loc) for loc in phy_locs):
-                        # This tile is outside the ROI, skip it.
-                        continue
-
-                if tile_type not in tile_types:
-                    # We don't want this tile
-                    continue
-
-                vpr_tile_type = 'BLK-TL-' + tile_type
-
-            prefix_tile = None
-            for loc in phy_locs:
-                gridinfo = g.gridinfo_at_loc(loc)
-                tile = g.tilename_at_loc(loc)
-                is_vbrk = gridinfo.tile_type.find('VBRK') != -1
-
-                # VBRK tiles are known to have no bitstream data.
-                if not is_vbrk and not gridinfo.bits:
-                    print(
-                        '*** WARNING *** Skipping tile {} because it lacks bitstream data.'
-                        .format(tile),
-                        file=sys.stderr
-                    )
-
-                if not gridinfo.bits:
-                    # Each VPR tile can only have one prefix.
-                    # If this assumption is violated, a more dramatic
-                    # restructing is required.
-                    assert prefix_tile is None, (tile, gridinfo, prefix_tile)
-                    prefix_tile = tile
-
-            if len(phy_locs) == 1 and prefix_tile is None:
-                prefix_tile = g.tilename_at_loc(phy_locs[0])
-
-            if site_as_tile_pkey is not None:
-                c2.execute(
-                    "SELECT site_pkey FROM site_as_tile WHERE pkey = ?",
-                    (site_as_tile_pkey, )
-                )
-                site_pkey = c2.fetchone()[0]
-
-                c2.execute(
-                    """
-                    SELECT site_type_pkey, x_coord FROM site WHERE pkey = ?
-                    """, (site_pkey, )
-                )
-                site_type_pkey, x = c2.fetchone()
-
-                c2.execute(
-                    "SELECT name FROM site_type WHERE pkey = ?",
-                    (site_type_pkey, )
-                )
-                site_type_name = c2.fetchone()[0]
-
-                prefix_tile = '{}.{}_X{}'.format(
-                    prefix_tile, site_type_name, x
-                )
-
+        for vpr_tile_type, grid_x, grid_y, prefix_tile in get_tiles(
+                conn=conn,
+                g=g, roi=roi,
+                synth_loc_map=synth_loc_map,
+                synth_tile_map=synth_tile_map,
+                tile_types=tile_types,
+                ):
             single_xml = ET.SubElement(
                 fixed_layout_xml, 'single', {
                     'priority': '1',

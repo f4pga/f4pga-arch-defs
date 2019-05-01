@@ -42,7 +42,6 @@ import datetime
 import os
 import os.path
 from lib.connection_database import NodeClassification, create_tables
-import pickle
 
 from prjxray_db_cache import DatabaseCache
 
@@ -933,12 +932,14 @@ SELECT dest_wire_in_tile_pkey FROM pip_in_tile WHERE
 
 
 def create_vpr_grid(conn):
+    """ Create VPR grid from prjxray grid. """
     c = conn.cursor()
     c3 = conn.cursor()
 
     c2 = conn.cursor()
     c2.execute("""BEGIN EXCLUSIVE TRANSACTION;""")
 
+    # Insert synthetic tile types for CLB sites.
     c2.execute('INSERT INTO tile_type(name) VALUES ("SLICEL");')
     slicel_tile_type_pkey = c2.lastrowid
 
@@ -957,8 +958,11 @@ def create_vpr_grid(conn):
         'CLBLM_R': tile_splitter.grid.EAST,
     }
 
-    tile_to_tile_type_pkeys = {}
 
+    # Create initial grid using sites and locations from phy_tile's
+    # Also build up tile_to_tile_type_pkeys, which is a map from original
+    # tile_type_pkey, to array of split tile type pkeys, (e.g. SLICEL/SLICEM).
+    tile_to_tile_type_pkeys = {}
     grid_loc_map = {}
     for phy_tile_pkey, tile_type_pkey, grid_x, grid_y in progressbar.progressbar(
             c.execute("""
@@ -1033,16 +1037,6 @@ def create_vpr_grid(conn):
         c.execute('SELECT pkey FROM tile_type WHERE name = ?;', (tile_type, ))
         tile_type_pkey = c.fetchone()[0]
         tile_types[tile_type] = tile_type_pkey
-
-    pickle.dump(
-        dict(
-            grid_loc_map=grid_loc_map,
-            empty_tile_type_pkey=empty_tile_type_pkey,
-            tiles_to_split=tiles_to_split,
-            tile_to_tile_type_pkeys=tile_to_tile_type_pkeys,
-            tile_types=tile_types,
-        ), open('test.pickle', 'wb')
-    )
 
     vpr_grid = tile_splitter.grid.Grid(
         grid_loc_map=grid_loc_map, empty_tile_type_pkey=empty_tile_type_pkey
@@ -1142,7 +1136,7 @@ WHERE
     c2.execute("""BEGIN EXCLUSIVE TRANSACTION;""")
 
     # At this point all wires have a tile_pkey that corrisponds to the old root
-    # tile.  Wires belonging to sites need reassigned to their respective
+    # tile.  Wires belonging to sites need to be reassigned to their respective
     # tiles.
     for (grid_x, grid_y), tile in new_grid.items():
         c3.execute(
@@ -1158,6 +1152,7 @@ WHERE
             )
             tile_type_pkey = c3.fetchone()[0]
 
+            # Find all wires that belong to the new tile location.
             for wire_pkey, wire_in_tile_pkey in c3.execute("""
 WITH wires(wire_pkey, wire_in_tile_pkey) AS (
     SELECT
@@ -1178,7 +1173,7 @@ ON
 WHERE
     wire_in_tile.site_pkey = ?
     ;""", (site.phy_tile_pkey, site.site_pkey)):
-                # This pip belongs to the site at this tile, reassign tile_pkey.
+                # Move the wire to the new tile_pkey.
                 c2.execute(
                     """
 UPDATE
