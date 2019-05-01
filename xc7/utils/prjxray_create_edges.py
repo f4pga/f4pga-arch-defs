@@ -34,7 +34,7 @@ from lib.rr_graph import tracks
 from lib.rr_graph import graph2
 from prjxray.site_type import SitePinDirection
 from prjxray_constant_site_pins import yield_ties_to_wire
-from lib.connection_database import get_track_model
+from lib.connection_database import get_track_model, get_wire_in_tile_from_pin_name
 from lib.rr_graph.graph2 import NodeType
 import multiprocessing
 
@@ -46,33 +46,14 @@ now = datetime.datetime.now
 def add_graph_nodes_for_pins(conn, tile_type, wire, pin_directions):
     """ Adds graph_node rows for each pin on a wire in a tile. """
 
-    # Find the generic wire_in_tile_pkey for the specified tile_type name and
-    # wire name.
-    c = conn.cursor()
-    c.execute(
-        """
-SELECT
-  pkey,
-  site_pin_pkey
-FROM
-  wire_in_tile
-WHERE
-  name = ?
-  and tile_type_pkey = (
-    SELECT
-      pkey
-    FROM
-      tile_type
-    WHERE
-      name = ?
-  );
-""", (wire, tile_type)
-    )
-
-    (wire_in_tile_pkey, site_pin_pkey) = c.fetchone()
+    (wire_in_tile_pkeys, site_pin_pkey) = get_wire_in_tile_from_pin_name(
+            conn=conn,
+            tile_type_str=tile_type,
+            wire_str=wire)
 
     # Determine if this should be an IPIN or OPIN based on the site_pin
     # direction.
+    c = conn.cursor()
     c.execute(
         """
         SELECT direction FROM site_pin WHERE pkey = ?;""", (site_pin_pkey, )
@@ -90,57 +71,59 @@ WHERE
     else:
         assert False, pin_direction
 
-    # Find all instances of this specific wire.
-    c.execute(
-        """
-        SELECT pkey, node_pkey, tile_pkey
-            FROM wire WHERE wire_in_tile_pkey = ?;""", (wire_in_tile_pkey, )
-    )
-
     c2 = conn.cursor()
-    c3 = conn.cursor()
     c2.execute("""BEGIN EXCLUSIVE TRANSACTION;""")
 
-    for wire_pkey, node_pkey, tile_pkey in c:
-        c3.execute(
+    for wire_in_tile_pkey in wire_in_tile_pkeys.values():
+        # Find all instances of this specific wire.
+        c.execute(
             """
-            SELECT grid_x, grid_y FROM tile WHERE pkey = ?;""", (tile_pkey, )
+            SELECT pkey, node_pkey, tile_pkey
+                FROM wire WHERE wire_in_tile_pkey = ?;""", (wire_in_tile_pkey, )
         )
 
-        grid_x, grid_y = c3.fetchone()
+        c3 = conn.cursor()
 
-        updates = []
-        values = []
+        for wire_pkey, node_pkey, tile_pkey in c:
+            c3.execute(
+                """
+                SELECT grid_x, grid_y FROM tile WHERE pkey = ?;""", (tile_pkey, )
+            )
 
-        # Insert a graph_node per pin_direction.
-        for pin_direction in pin_directions:
+            grid_x, grid_y = c3.fetchone()
+
+            updates = []
+            values = []
+
+            # Insert a graph_node per pin_direction.
+            for pin_direction in pin_directions:
+                c2.execute(
+                    """
+                INSERT INTO graph_node(
+                    graph_node_type, node_pkey, x_low, x_high, y_low, y_high)
+                    VALUES (?, ?, ?, ?, ?, ?)""", (
+                        node_type.value,
+                        node_pkey,
+                        grid_x,
+                        grid_x,
+                        grid_y,
+                        grid_y,
+                    )
+                )
+
+                updates.append(
+                    '{}_graph_node_pkey = ?'.format(pin_direction.name.lower())
+                )
+                values.append(c2.lastrowid)
+
+            # Update the wire with the graph_nodes in each direction, if
+            # applicable.
             c2.execute(
                 """
-            INSERT INTO graph_node(
-                graph_node_type, node_pkey, x_low, x_high, y_low, y_high)
-                VALUES (?, ?, ?, ?, ?, ?)""", (
-                    node_type.value,
-                    node_pkey,
-                    grid_x,
-                    grid_x,
-                    grid_y,
-                    grid_y,
-                )
+                UPDATE wire SET {updates} WHERE pkey = ?;""".format(
+                    updates=','.join(updates)
+                ), values + [wire_pkey]
             )
-
-            updates.append(
-                '{}_graph_node_pkey = ?'.format(pin_direction.name.lower())
-            )
-            values.append(c2.lastrowid)
-
-        # Update the wire with the graph_nodes in each direction, if
-        # applicable.
-        c2.execute(
-            """
-            UPDATE wire SET {updates} WHERE pkey = ?;""".format(
-                updates=','.join(updates)
-            ), values + [wire_pkey]
-        )
 
     c2.execute("""COMMIT TRANSACTION;""")
     c2.connection.commit()
@@ -227,7 +210,7 @@ WHERE
                 wire_pkey (int): Primary key of wire table
                 tile_pkey (int): Primary key of VPR tile row that contains
                     this wire.
-                phy_tile_pkey (int): Primary key of physical tile row that 
+                phy_tile_pkey (int): Primary key of physical tile row that
                     contains this wire.
                 node_pkey (int): Primary key of node table that is the node
                     this wire belongs too.

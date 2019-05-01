@@ -25,7 +25,8 @@ from prjxray.roi import Roi
 import prjxray.grid as grid
 from lib.rr_graph import graph2
 from lib.rr_graph import tracks
-from lib.connection_database import get_wire_pkey, get_track_model
+from lib.connection_database import get_wire_pkey, get_track_model, \
+        get_wire_in_tile_from_pin_name
 import lib.rr_graph_xml.graph2 as xml_graph2
 from lib.rr_graph_xml.utils import read_xml_file
 from prjxray_constant_site_pins import feature_when_routed
@@ -85,7 +86,6 @@ PIN_NAME_TO_PARTS = re.compile(r'^([^\.]+)\.([^\]]+)\[0\]$')
 
 def import_graph_nodes(conn, graph, node_mapping):
     c = conn.cursor()
-    tile_type_wire_to_pkey = {}
     tile_loc_to_pkey = {}
 
     for node in graph.nodes:
@@ -104,36 +104,30 @@ def import_graph_nodes(conn, graph, node_mapping):
         assert m is not None, pin_name
 
         tile_type = m.group(1)
+        assert tile_type.startswith('BLK-TL-')
+        tile_type = tile_type[7:]
+
         pin = m.group(2)
 
-        key = (tile_type, pin)
+        (wire_in_tile_pkeys, _) = get_wire_in_tile_from_pin_name(
+                conn=conn,
+                tile_type_str=tile_type,
+                wire_str=pin)
 
-        if key not in tile_type_wire_to_pkey:
-            c.execute(
-                """
-SELECT
-  pkey
-FROM
-  wire_in_tile
-WHERE
-  tile_type_pkey = (
-    SELECT
-      pkey
-    FROM
-      tile_type
-    WHERE
-      name = ?
-  )
-  AND name = ?;""", (tile_type, pin)
-            )
+        c.execute("""
+SELECT site_as_tile_pkey FROM tile WHERE grid_x = ? AND grid_y = ?;
+        """,  (node.loc.x_low, node.loc.y_low))
+        site_as_tile_pkey = c.fetchone()[0]
 
-            result = c.fetchone()
-            assert result is not None, (tile_type, pin)
-            (wire_in_tile_pkey, ) = result
-
-            tile_type_wire_to_pkey[key] = wire_in_tile_pkey
+        if site_as_tile_pkey is not None:
+            c.execute("""
+SELECT site_pkey FROM site_as_tile WHERE pkey = ?;
+                """, (site_as_tile_pkey,))
+            site_pkey = c.fetchone()[0]
+            wire_in_tile_pkey = wire_in_tile_pkeys[site_pkey]
         else:
-            wire_in_tile_pkey = tile_type_wire_to_pkey[key]
+            assert len(wire_in_tile_pkeys) == 1
+            _, wire_in_tile_pkey = wire_in_tile_pkeys.popitem()
 
         if gridloc not in tile_loc_to_pkey:
             c.execute(
@@ -159,10 +153,12 @@ WHERE
             (wire_in_tile_pkey, tile_pkey)
         )
 
+        result = c.fetchone()
+        assert result is not None, (wire_in_tile_pkey, tile_pkey)
         (
             top_graph_node_pkey, bottom_graph_node_pkey, left_graph_node_pkey,
             right_graph_node_pkey
-        ) = c.fetchone()
+        ) = result
 
         side = node.loc.side
         if side == tracks.Direction.LEFT:

@@ -83,27 +83,28 @@ CREATE TABLE site(
   FOREIGN KEY(site_type_pkey) REFERENCES site_type(pkey)
 );
 
+-- For tile's that are the site, this table mapes
+CREATE TABLE site_as_tile(
+  pkey INTEGER PRIMARY KEY,
+  parent_tile_type_pkey INT,
+  tile_type_pkey INT,
+  site_pkey INT,
+  FOREIGN KEY(parent_tile_type_pkey) REFERENCES tile_type(pkey),
+  FOREIGN KEY(tile_type_pkey) REFERENCES tile_type(pkey),
+  FOREIGN KEY(site_pkey) REFERENCES site(pkey)
+);
+
 -- Logical tile table, contains tile type and location within the VPR grid.
---
--- Note: A logical tile represents a placeable location of exactly one
--- physical tile type or exactly one site type.
---
--- If the logical tile represents a physical tile type, tile_type_pkey will be
--- set to the tile type this logical tile represents.  If the logical tile
--- represents a site type, then site_pkey will be set.
---
--- In both cases, phy_tile_pkey will be set to the tile location within the
--- physical grid location of that site or tile type.
 CREATE TABLE tile(
   pkey INTEGER PRIMARY KEY,
   phy_tile_pkey INT,
-  site_pkey INT,
   tile_type_pkey INT,
+  site_as_tile_pkey INT,
   grid_x INT,
   grid_y INT,
   FOREIGN KEY(phy_tile_pkey) REFERENCES phy_tile(pkey),
-  FOREIGN KEY(site_pkey) REFERENCES site(pkey),
-  FOREIGN KEY(tile_type_pkey) REFERENCES tile_type(pkey)
+  FOREIGN KEY(tile_type_pkey) REFERENCES tile_type(pkey),
+  FOREIGN KEY(site_as_tile_pkey) REFERENCES site_as_tile(pkey)
 );
 
 -- Bimap between physical and logical grids.

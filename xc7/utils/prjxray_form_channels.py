@@ -34,6 +34,7 @@ prjxray_assign_tile_pin_direction.
 import argparse
 import prjxray.db
 import progressbar
+import tile_splitter.grid
 from lib.rr_graph import points
 from lib.rr_graph import tracks
 from lib.rr_graph import graph2
@@ -41,6 +42,7 @@ import datetime
 import os
 import os.path
 from lib.connection_database import NodeClassification, create_tables
+import pickle
 
 from prjxray_db_cache import DatabaseCache
 
@@ -891,6 +893,37 @@ UPDATE node SET track_pkey = ? WHERE pkey IN (
     c2.execute("""COMMIT TRANSACTION""")
 
 
+def traverse_pip(conn, wire_in_tile_pkey):
+    """ Given a generic wire, find (if any) the wire on the other side of a pip.
+
+    Returns None if no wire or pip connects to this wire.
+
+    """
+    c = conn.cursor()
+
+    c.execute("""
+SELECT src_wire_in_tile_pkey FROM pip_in_tile WHERE
+    is_directional = 1 AND is_pseudo = 0 AND
+    dest_wire_in_tile_pkey = ?
+    ;""", (wire_in_tile_pkey,))
+
+    result = c.fetchone()
+    if result is not None:
+        return result[0]
+
+    c.execute("""
+SELECT dest_wire_in_tile_pkey FROM pip_in_tile WHERE
+    is_directional = 1 AND is_pseudo = 0 AND
+    src_wire_in_tile_pkey = ?
+    ;""", (wire_in_tile_pkey,))
+
+    result = c.fetchone()
+    if result is not None:
+        return result[0]
+
+    return None
+
+
 def create_vpr_grid(conn):
     c = conn.cursor()
     c3 = conn.cursor()
@@ -898,23 +931,229 @@ def create_vpr_grid(conn):
     c2 = conn.cursor()
     c2.execute("""BEGIN EXCLUSIVE TRANSACTION;""")
 
+    c2.execute('INSERT INTO tile_type(name) VALUES ("SLICEL");')
+    slicel_tile_type_pkey = c2.lastrowid
+
+    c2.execute('INSERT INTO tile_type(name) VALUES ("SLICEM");')
+    slicem_tile_type_pkey = c2.lastrowid
+
+    slice_types = {
+        'SLICEL': slicel_tile_type_pkey,
+        'SLICEM': slicem_tile_type_pkey,
+    }
+
+    tiles_to_split = {
+            'CLBLL_L': tile_splitter.grid.WEST,
+            'CLBLL_R': tile_splitter.grid.EAST,
+            'CLBLM_L': tile_splitter.grid.WEST,
+            'CLBLM_R': tile_splitter.grid.EAST,
+            }
+
+    tile_to_tile_type_pkeys = {}
+
+    grid_loc_map = {}
     for phy_tile_pkey, tile_type_pkey, grid_x, grid_y in progressbar.progressbar(c.execute("""
         SELECT pkey, tile_type_pkey, grid_x, grid_y FROM phy_tile;
         """)):
-        c2.execute("""
+
+        c3.execute("SELECT name FROM tile_type WHERE pkey = ?;", (
+            tile_type_pkey,))
+        tile_type_name = c3.fetchone()[0]
+
+        sites = []
+        site_pkeys = set()
+        for (site_pkey,) in c3.execute("""
+            SELECT site_pkey FROM wire_in_tile WHERE tile_type_pkey = ? AND site_pkey IS NOT NULL;""",
+                (tile_type_pkey,)):
+            site_pkeys.add(site_pkey)
+
+        for site_pkey in site_pkeys:
+            c3.execute("""
+                SELECT x_coord, y_coord, site_type_pkey
+                FROM site WHERE pkey = ?;""",
+                (site_pkey,))
+            result = c3.fetchone()
+            assert result is not None, (tile_type_pkey, site_pkey)
+            x, y, site_type_pkey = result
+
+            c3.execute("SELECT name FROM site_type WHERE pkey = ?;", (
+                (site_type_pkey,)))
+            site_type_name = c3.fetchone()[0]
+
+            sites.append(tile_splitter.grid.Site(
+                name=site_type_name,
+                phy_tile_pkey=phy_tile_pkey,
+                tile_type_pkey=tile_type_pkey,
+                site_type_pkey=site_type_pkey,
+                site_pkey=site_pkey, x=x, y=y))
+
+        sites = sorted(sites, key=lambda s: (s.x, s.y))
+
+        if tile_type_name in tiles_to_split:
+            tile_type_pkeys = []
+            for site in sites:
+                tile_type_pkeys.append(slice_types[site.name])
+
+            if tile_type_name in tile_to_tile_type_pkeys:
+                assert tile_to_tile_type_pkeys[tile_type_name] == \
+                        tile_type_pkeys, (tile_type_name,)
+            else:
+                tile_to_tile_type_pkeys[tile_type_name] = tile_type_pkeys
+
+        grid_loc_map[(grid_x, grid_y)] = tile_splitter.grid.Tile(
+                root_phy_tile_pkeys=[phy_tile_pkey],
+                phy_tile_pkeys=[phy_tile_pkey],
+                tile_type_pkey=tile_type_pkey,
+                sites=sites)
+
+    c.execute('SELECT pkey FROM tile_type WHERE name = "NULL";')
+    empty_tile_type_pkey = c.fetchone()[0]
+
+    tile_types = {}
+    for tile_type, split_direction in tiles_to_split.items():
+        c.execute('SELECT pkey FROM tile_type WHERE name = ?;', (tile_type,))
+        tile_type_pkey = c.fetchone()[0]
+        tile_types[tile_type] = tile_type_pkey
+
+    pickle.dump(dict(
+        grid_loc_map=grid_loc_map,
+        empty_tile_type_pkey=empty_tile_type_pkey,
+        tiles_to_split=tiles_to_split,
+        tile_to_tile_type_pkeys=tile_to_tile_type_pkeys,
+        tile_types=tile_types,
+        ), open('test.pickle', 'wb'))
+
+    vpr_grid = tile_splitter.grid.Grid(
+            grid_loc_map=grid_loc_map,
+            empty_tile_type_pkey=empty_tile_type_pkey)
+
+    for tile_type, split_direction in tiles_to_split.items():
+        vpr_grid.split_tile_type(
+                tile_type_pkey=tile_types[tile_type],
+                tile_type_pkeys=tile_to_tile_type_pkeys[tile_type],
+                split_direction=split_direction)
+
+    new_grid = vpr_grid.output_grid()
+    # Create tile rows for each tile in the VPR grid.  As provide map entries
+    # to physical grid and alias map from split tile type to original tile
+    # type.
+    for (grid_x, grid_y), tile in new_grid.items():
+        # TODO: Merging of tiles isn't supported yet, so don't handle multiple
+        # phy_tile_pkeys yet. The phy_tile_pkey to add to the new VPR tile
+        # should be the tile to use on the FASM prefix.
+        assert len(tile.phy_tile_pkeys) == 1
+        assert len(tile.root_phy_tile_pkeys) in [0, 1], len(tile.root_phy_tile_pkeys)
+
+        if tile.split_sites:
+            assert len(tile.sites) == 1
+            c2.execute("""
+SELECT pkey, parent_tile_type_pkey FROM site_as_tile WHERE tile_type_pkey = ? AND site_pkey = ?""", (
+                tile.sites[0].tile_type_pkey, tile.sites[0].site_pkey))
+            result = c2.fetchone()
+
+            if result is None:
+                c2.execute("""
+INSERT INTO
+    site_as_tile(parent_tile_type_pkey, tile_type_pkey, site_pkey)
+VALUES
+    (?, ?, ?);""", (
+                    tile.tile_type_pkey,
+                    tile.sites[0].tile_type_pkey,
+                    tile.sites[0].site_pkey
+                   ))
+                site_as_tile_pkey = c2.lastrowid
+            else:
+                site_as_tile_pkey, parent_tile_type_pkey = result
+                assert parent_tile_type_pkey == tile.tile_type_pkey
+
+            # Mark that this tile is split by setting the site_as_tile_pkey.
+            c2.execute("""
+INSERT INTO tile(phy_tile_pkey, tile_type_pkey, site_as_tile_pkey, grid_x, grid_y) VALUES (
+        ?, ?, ?, ?, ?)""", (
+            tile.phy_tile_pkeys[0], tile.tile_type_pkey,
+            site_as_tile_pkey, grid_x, grid_y))
+        else:
+            c2.execute("""
 INSERT INTO tile(phy_tile_pkey, tile_type_pkey, grid_x, grid_y) VALUES (
-    ?, ?, ?, ?)""", (phy_tile_pkey, tile_type_pkey, grid_x+3, grid_y+3))
+        ?, ?, ?, ?)""", (
+            tile.phy_tile_pkeys[0], tile.tile_type_pkey, grid_x, grid_y))
 
         tile_pkey = c2.lastrowid
 
-        c2.execute("""
-INSERT INTO tile_map(tile_pkey, phy_tile_pkey) VALUES (
-    ?, ?)""", (tile_pkey, phy_tile_pkey))
-
-        for (wire_in_tile_pkey,) in c3.execute("""
-            SELECT pkey FROM wire_in_tile WHERE tile_type_pkey = ?;""",
-                (tile_type_pkey,)):
+        # Build the phy_tile <-> tile map.
+        for phy_tile_pkey in tile.phy_tile_pkeys:
             c2.execute("""
+INSERT INTO tile_map(tile_pkey, phy_tile_pkey) VALUES (?, ?)
+                """, (tile_pkey, phy_tile_pkey))
+
+        # First assign all wires at the root_phy_tile_pkeys to this tile_pkey.
+        # This ensures all wires, (including wires without sites) have a home.
+        for root_phy_tile_pkey in tile.root_phy_tile_pkeys:
+            c2.execute("""
+UPDATE
+    wire
+SET
+    tile_pkey = ?
+WHERE
+    phy_tile_pkey = ?
+    ;""", (tile_pkey, root_phy_tile_pkey))
+
+    c2.execute("CREATE INDEX tile_location_index ON tile(grid_x, grid_y);")
+    c2.execute("CREATE INDEX tile_to_phy_map ON tile_map(tile_pkey);")
+    c2.execute("CREATE INDEX phy_to_tile_map ON tile_map(phy_tile_pkey);")
+    c2.execute("""COMMIT TRANSACTION;""")
+
+    c2.execute("""BEGIN EXCLUSIVE TRANSACTION;""")
+
+    # At this point all wires have a tile_pkey that corrisponds to the old root
+    # tile.  Wires belonging to sites need reassigned to their respective
+    # tiles.
+    for (grid_x, grid_y), tile in new_grid.items():
+        c3.execute("SELECT pkey FROM tile WHERE grid_x = ? AND grid_y = ?;",
+                (grid_x, grid_y))
+        tile_pkey = c3.fetchone()[0]
+
+        for site in tile.sites:
+            c3.execute("SELECT tile_type_pkey FROM phy_tile WHERE pkey = ?;",
+                    (site.phy_tile_pkey,))
+            tile_type_pkey = c3.fetchone()[0]
+
+            for wire_pkey, wire_in_tile_pkey in c3.execute("""
+WITH wires(wire_pkey, wire_in_tile_pkey) AS (
+    SELECT
+        pkey, wire_in_tile_pkey
+    FROM
+        wire
+    WHERE
+        phy_tile_pkey = ?
+)
+SELECT
+    wires.wire_pkey, wires.wire_in_tile_pkey
+FROM
+    wires
+INNER JOIN
+    wire_in_tile
+ON
+    wire_in_tile.pkey = wires.wire_in_tile_pkey
+WHERE
+    wire_in_tile.site_pkey = ?
+    ;""", (site.phy_tile_pkey, site.site_pkey)):
+                # This pip belongs to the site at this tile, reassign tile_pkey.
+                c2.execute("""
+UPDATE
+    wire
+SET
+    tile_pkey = ?
+WHERE
+    pkey = ?;""", (tile_pkey, wire_pkey,))
+
+                # Wires connected to the site via a pip require traversing the
+                # pip.
+                other_wire_in_tile_pkey = traverse_pip(conn, wire_in_tile_pkey)
+                if other_wire_in_tile_pkey is not None:
+                    # A wire was found connected to the site via pip, reassign
+                    # tile_pkey.
+                    c2.execute("""
 UPDATE
     wire
 SET
@@ -923,12 +1162,10 @@ WHERE
     phy_tile_pkey = ?
 AND
     wire_in_tile_pkey = ?
-    ;""", (tile_pkey, phy_tile_pkey, wire_in_tile_pkey))
+    ;""", (tile_pkey, site.phy_tile_pkey, other_wire_in_tile_pkey))
 
-    c2.execute("CREATE INDEX tile_location_index ON tile(grid_x, grid_y);")
+    # Now that final wire <-> tile assignments are made, create the index.
     c2.execute("CREATE INDEX tile_wire_index ON wire(wire_in_tile_pkey, tile_pkey);")
-    c2.execute("CREATE INDEX tile_to_phy_map ON tile_map(tile_pkey);")
-    c2.execute("CREATE INDEX phy_to_tile_map ON tile_map(phy_tile_pkey);")
     c2.execute("""COMMIT TRANSACTION;""")
 
 

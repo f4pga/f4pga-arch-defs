@@ -314,7 +314,9 @@ def main():
             }
         )
 
-        for tile_pkey, grid_x, grid_y, phy_tile_pkey, tile_type_pkey in c.execute("SELECT pkey, grid_x, grid_y, phy_tile_pkey, tile_type_pkey FROM tile"):
+        for tile_pkey, grid_x, grid_y, phy_tile_pkey, tile_type_pkey, site_as_tile_pkey in c.execute("""
+            SELECT pkey, grid_x, grid_y, phy_tile_pkey, tile_type_pkey, site_as_tile_pkey FROM tile
+            """):
             phy_tiles = []
             phy_locs = []
             for (phy_tile_pkey,) in c2.execute("SELECT phy_tile_pkey FROM tile_map WHERE tile_pkey = ?",
@@ -325,10 +327,6 @@ def main():
                 loc = c3.fetchone()
                 phy_locs.append(grid_types.GridLoc(*loc))
 
-            c2.execute("SELECT name FROM tile_type WHERE pkey = ?", (
-                tile_type_pkey,))
-            vpr_tile_type = c2.fetchone()[0]
-
             if (grid_x, grid_y) in synth_loc_map:
                 synth_tile = synth_loc_map[(grid_x, grid_y)]
 
@@ -336,14 +334,20 @@ def main():
 
                 vpr_tile_type = synth_tile_map[synth_tile['pins'][0]['port_type']]
             else:
+                c2.execute("SELECT name FROM tile_type WHERE pkey = ?", (
+                    tile_type_pkey,))
+                tile_type = c2.fetchone()[0]
+
                 if only_emit_roi:
                     if not any(roi.tile_in_roi(loc) for loc in phy_locs):
                         # This tile is outside the ROI, skip it.
                         continue
 
-                if vpr_tile_type not in tile_types:
+                if tile_type not in tile_types:
                     # We don't want this tile
                     continue
+
+                vpr_tile_type = 'BLK-TL-' + tile_type
 
             prefix_tile = None
             for loc in phy_locs:
@@ -368,6 +372,23 @@ def main():
 
             if len(phy_locs) == 1 and prefix_tile is None:
                 prefix_tile = g.tilename_at_loc(phy_locs[0])
+
+            if site_as_tile_pkey is not None:
+                c2.execute("SELECT site_pkey FROM site_as_tile WHERE pkey = ?", (
+                    site_as_tile_pkey,))
+                site_pkey = c2.fetchone()[0]
+
+                c2.execute("""
+                    SELECT site_type_pkey, x_coord FROM site WHERE pkey = ?
+                    """, (site_pkey,))
+                site_type_pkey, x = c2.fetchone()
+
+                c2.execute("SELECT name FROM site_type WHERE pkey = ?", (
+                    site_type_pkey,))
+                site_type_name = c2.fetchone()[0]
+
+                prefix_tile = '{}.{}_X{}'.format(
+                        prefix_tile, site_type_name, x)
 
             single_xml = ET.SubElement(
                 fixed_layout_xml, 'single', {
@@ -516,9 +537,9 @@ def main():
                         direct['x_offset'], direct['y_offset']
                     ),
                 'from_pin':
-                    direct['from_pin'],
+                    'BLK-TL-' + direct['from_pin'],
                 'to_pin':
-                    direct['to_pin'],
+                    'BLK-TL-' + direct['to_pin'],
                 'x_offset':
                     str(direct['x_offset']),
                 'y_offset':

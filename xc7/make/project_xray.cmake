@@ -47,7 +47,7 @@ function(PROJECT_XRAY_DUMMY_SITE)
 endfunction()
 
 function(PROJECT_XRAY_TILE)
-  set(options FUSED_SITES)
+  set(options FUSED_SITES SITE_AS_TILE)
   set(oneValueArgs PART TILE)
   set(multiValueArgs SITE_TYPES)
   cmake_parse_arguments(
@@ -84,6 +84,9 @@ function(PROJECT_XRAY_TILE)
   set(FUSED_SITES_ARGS "")
   if(PROJECT_XRAY_TILE_FUSED_SITES)
       set(FUSED_SITES_ARGS "--fused_sites")
+  endif()
+  if(PROJECT_XRAY_TILE_SITE_AS_TILE)
+      set(FUSED_SITES_ARGS "--site_as_tile")
   endif()
 
   add_custom_command(
