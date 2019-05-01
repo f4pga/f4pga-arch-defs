@@ -18,7 +18,7 @@ arch_name  - (sdfcelltype, [pin_map ] )
 """
 
 _arch_to_sdf = {
-    'BLK_IG-LUT4': ('LogicCell40', [
+    'LUT4': ('LogicCell40', [
         pin_map('in0', 'in[0]', False),
         pin_map('in1', 'in[1]', False),
         pin_map('in2', 'in[2]', False),
@@ -26,7 +26,7 @@ _arch_to_sdf = {
         pin_map('lcout', 'out', False)
     ]
     ),
-    'BLK_IG-SB_LUT4': ('LogicCell40', [
+    'SB_LUT4': ('LogicCell40', [
         pin_map('in0', 'I0', False),
         pin_map('in1', 'I1', False),
         pin_map('in2', 'I2', False),
@@ -188,7 +188,7 @@ def main():
     args = parser.parse_args()
     timing = sdf_parse(args.read_sdf.read())
 
-    tree = ET.parse(args.read_arch_xml)
+    tree = ET.parse(args.read_arch_xml, ET.XMLParser(remove_blank_text=True))
 
     scale = get_scale(timing['header']['timescale'])
     #logging.info('sdf scale set to', scale)
@@ -234,6 +234,7 @@ def main():
     # remove all existing tags and warn on them
 
     # iterate over existing arch and update/add delay tags
+    #root = tree.getroot()
     for el in tree.iter():
         if el.tag == 'pb_type':
             pb_name = el.attrib['name']
@@ -259,7 +260,8 @@ def main():
                                    'port': '{}.{}'.format(pb_name, topin.arch),
                                    'value': get_pessimistic(timing)
                         }
-                        hold_setup_el = ET.SubElement(el, 'T_hold', attribs)
+                        hold_setup_el = ET.SubElement(el, 'T_{}'.format(timing['type']), attribs)
+                        # hold_setup_el.tail = '\n'
                         logging.info(ET.tostring(hold_setup_el))
                     elif timing['type'] == 'iopath':
                         topin = try_translate_pin(pin_table, timing, 'to_pin')
@@ -272,20 +274,22 @@ def main():
                             'max': get_pessimistic(timing)
                             }
                             iopath_el = ET.SubElement(el, 'T_clock_to_Q', attribs)
+                            # iopath_el.tail = '\n'
                         else:
                             attribs = {'in_port': '{}.{}'.format(pb_name, frompin.arch),
                             'out_port': '{}.{}'.format(pb_name, topin.arch),
                             'max': get_pessimistic(timing)
                             }
                             iopath_el = ET.SubElement(el, 'delay_constant', attribs)
+                            # iopath_el.tail = '\n'
                         logging.info(ET.tostring(iopath_el))
                     elif timing['type'] == 'recovery':
                         pass
                     elif timing['type'] == 'removal':
                         pass
-                    # T_clock_to_Q
 
-    tree.write(args.write_arch_xml.name)
+    xml_str = ET.tostring(tree, pretty_print=True).decode('utf-8')
+    args.write_arch_xml.write(xml_str)
 
 if __name__ == '__main__':
     main()
