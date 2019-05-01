@@ -1,11 +1,13 @@
 """ Grid splitting model with connection database back references. """
 from enum import Enum
 
+
 class Direction(Enum):
     NORTH = 1
     SOUTH = 2
     EAST = 3
     WEST = 4
+
 
 NORTH = Direction.NORTH
 SOUTH = Direction.SOUTH
@@ -17,10 +19,12 @@ OPPOSITE_DIRECTIONS = {
     SOUTH: NORTH,
     EAST: WEST,
     WEST: EAST,
-    }
+}
+
 
 def opposite_direction(direction):
     return OPPOSITE_DIRECTIONS[direction]
+
 
 # Right handed coordinate system, N/S in y, E/W in x, E is x-positive,
 # S is y-positive.
@@ -29,7 +33,7 @@ DIRECTION_OFFSET = {
     SOUTH: [0, 1],
     EAST: [1, 0],
     WEST: [-1, 0],
-    }
+}
 
 
 def coordinate_in_direction(coord, direction):
@@ -45,7 +49,10 @@ def coordinate_in_direction(coord, direction):
 
 
 class Site(object):
-    def __init__(self, name, phy_tile_pkey, tile_type_pkey, site_type_pkey, site_pkey, x, y):
+    def __init__(
+            self, name, phy_tile_pkey, tile_type_pkey, site_type_pkey,
+            site_pkey, x, y
+    ):
         self.name = name
         self.phy_tile_pkey = phy_tile_pkey
         self.tile_type_pkey = tile_type_pkey
@@ -54,8 +61,11 @@ class Site(object):
         self.x = x
         self.y = y
 
+
 class Tile(object):
-    def __init__(self, root_phy_tile_pkeys, phy_tile_pkeys, tile_type_pkey, sites):
+    def __init__(
+            self, root_phy_tile_pkeys, phy_tile_pkeys, tile_type_pkey, sites
+    ):
         self.root_phy_tile_pkeys = root_phy_tile_pkeys
         self.phy_tile_pkeys = phy_tile_pkeys
         self.tile_type_pkey = tile_type_pkey
@@ -65,14 +75,17 @@ class Tile(object):
 
     def link_neighboor_in_direction(self, other_tile, direction_to_other_tile):
         if direction_to_other_tile in self.neighboors:
-            assert id(self.neighboors[direction_to_other_tile]) == id(other_tile), (
-                self.neighboors, direction_to_other_tile,
-                )
+            assert id(self.neighboors[direction_to_other_tile]
+                      ) == id(other_tile), (
+                          self.neighboors,
+                          direction_to_other_tile,
+                      )
         self.neighboors[direction_to_other_tile] = other_tile
 
         direction_to_this_tile = opposite_direction(direction_to_other_tile)
         if direction_to_this_tile in other_tile.neighboors:
-            assert id(other_tile.neighboors[direction_to_this_tile]) == id(self)
+            assert id(other_tile.neighboors[direction_to_this_tile]
+                      ) == id(self)
 
         other_tile.neighboors[direction_to_this_tile] = self
 
@@ -112,8 +125,8 @@ def check_grid_loc(grid_loc_map):
     max_x = max(xs)
     max_y = max(ys)
 
-    for x in range(max_x+1):
-        for y in range(max_y+1):
+    for x in range(max_x + 1):
+        for y in range(max_y + 1):
             assert (x, y) in grid_loc_map, (x, y)
 
 
@@ -123,10 +136,14 @@ def build_mesh(current, visited, loc, grid_loc_map):
     for direction in (SOUTH, EAST):
         new_loc = coordinate_in_direction(loc, direction)
         if new_loc in grid_loc_map:
-            current.link_neighboor_in_direction(grid_loc_map[new_loc], direction)
+            current.link_neighboor_in_direction(
+                grid_loc_map[new_loc], direction
+            )
             if id(grid_loc_map[new_loc]) not in visited:
                 visited.add(id(grid_loc_map[new_loc]))
-                build_mesh(grid_loc_map[new_loc], visited, new_loc, grid_loc_map)
+                build_mesh(
+                    grid_loc_map[new_loc], visited, new_loc, grid_loc_map
+                )
 
 
 class Grid(object):
@@ -151,7 +168,6 @@ class Grid(object):
         for _ in range(y):
             right_of_row = right_of_row.neighboors[SOUTH]
 
-
     def split_tile(self, tile, tile_type_pkeys, split_direction):
         assert len(tile.sites) == len(tile_type_pkeys)
 
@@ -165,12 +181,12 @@ class Grid(object):
             if idx + 1 > len(tile_type_pkeys):
                 break
 
-        for tile, site, new_tile_type_pkey  in zip(new_tiles, sites, tile_type_pkeys):
+        for tile, site, new_tile_type_pkey in zip(new_tiles, sites,
+                                                  tile_type_pkeys):
             assert tile.tile_type_pkey == self.empty_tile_type_pkey
             tile.tile_type_pkey = new_tile_type_pkey
             tile.sites = [site]
             tile.split_sites = True
-
 
     def insert_empty_column(self, top_of_column, insert_in_direction):
         assert NORTH not in top_of_column.neighboors
@@ -178,10 +194,11 @@ class Grid(object):
         empty_tiles = []
         for tile in top_of_column.walk_in_direction(SOUTH):
             empty_tile = Tile(
-                    root_phy_tile_pkeys=[],
-                    phy_tile_pkeys=tile.phy_tile_pkeys,
-                    tile_type_pkey=self.empty_tile_type_pkey,
-                    sites=[])
+                root_phy_tile_pkeys=[],
+                phy_tile_pkeys=tile.phy_tile_pkeys,
+                tile_type_pkey=self.empty_tile_type_pkey,
+                sites=[]
+            )
             empty_tiles.append(empty_tile)
 
             tile.insert_in_direction(empty_tile, insert_in_direction)
@@ -191,15 +208,18 @@ class Grid(object):
 
         self.check_grid()
 
-
-    def split_column(self, top_of_column, tile_type_pkey, tile_type_pkeys, split_direction):
+    def split_column(
+            self, top_of_column, tile_type_pkey, tile_type_pkeys,
+            split_direction
+    ):
         # Find how many empty tiles are required to support the split
         num_cols_to_insert = 0
         for tile in top_of_column.walk_in_direction(SOUTH):
             if tile.tile_type_pkey != tile_type_pkey:
                 continue
 
-            for idx, tile_in_split in enumerate(tile.walk_in_direction(split_direction)):
+            for idx, tile_in_split in enumerate(
+                    tile.walk_in_direction(split_direction)):
                 if idx == 0:
                     continue
                 else:
@@ -218,7 +238,9 @@ class Grid(object):
 
             self.split_tile(tile, tile_type_pkeys, split_direction)
 
-    def split_tile_type(self, tile_type_pkey, tile_type_pkeys, split_direction):
+    def split_tile_type(
+            self, tile_type_pkey, tile_type_pkeys, split_direction
+    ):
         tiles_seen = set()
         tiles = []
         top_of_columns_to_split = []
@@ -248,7 +270,9 @@ class Grid(object):
         assert len(tile_type_pkeys) == num_sites_to_split
 
         for top_of_column in top_of_columns_to_split:
-            self.split_column(top_of_column, tile_type_pkey, tile_type_pkeys, split_direction)
+            self.split_column(
+                top_of_column, tile_type_pkey, tile_type_pkeys, split_direction
+            )
 
     def output_grid(self):
         grid_loc_map = {}

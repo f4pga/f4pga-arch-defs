@@ -22,6 +22,7 @@ import re
 
 import lxml.etree as ET
 
+
 def prefix_name(tile):
     return 'BLK-TL-' + tile
 
@@ -58,6 +59,7 @@ def object_ref(pb_name, pin_name, pin_idx=None):
 
     return '{}.{}{}'.format(pb_name, pin_name, pin_addr)
 
+
 def parse_site_type_instance(site_types):
     site_type_instances = {}
     for s in site_types.split(','):
@@ -69,6 +71,7 @@ def parse_site_type_instance(site_types):
         site_type_instances[site_type].append(site_type_instance)
 
     return site_type_instances
+
 
 def import_tile(db, args):
     tile = db.get_tile_type(args.tile)
@@ -347,7 +350,9 @@ def import_tile(db, args):
                 if site_type_pin.direction == prjxray.site_type.SitePinDirection.IN:
                     add_direct(
                         interconnect_xml,
-                        input=object_ref(prefix_name(tile_name), site_pin.wire),
+                        input=object_ref(
+                            prefix_name(tile_name), site_pin.wire
+                        ),
                         output=object_ref(site_name, **port)
                     )
                 elif site_type_pin.direction == prjxray.site_type.SitePinDirection.OUT:
@@ -373,7 +378,9 @@ def import_tile(db, args):
                     add_direct(
                         interconnect_xml,
                         input=object_ref(site_name, **port),
-                        output=object_ref(prefix_name(tile_name), site_pin.wire),
+                        output=object_ref(
+                            prefix_name(tile_name), site_pin.wire
+                        ),
                     )
                 else:
                     assert False, site_type_pin.direction
@@ -432,7 +439,9 @@ def import_tile(db, args):
                 if site_type_pin.direction == prjxray.site_type.SitePinDirection.IN:
                     add_direct(
                         interconnect_xml,
-                        input=object_ref(prefix_name(tile_name), site_pin.wire),
+                        input=object_ref(
+                            prefix_name(tile_name), site_pin.wire
+                        ),
                         output=object_ref(site_name, **port)
                     )
                 elif site_type_pin.direction == prjxray.site_type.SitePinDirection.OUT:
@@ -459,7 +468,9 @@ def import_tile(db, args):
                     add_direct(
                         interconnect_xml,
                         input=object_ref(site_name, **port),
-                        output=object_ref(prefix_name(tile_name), site_pin.wire),
+                        output=object_ref(
+                            prefix_name(tile_name), site_pin.wire
+                        ),
                     )
                 else:
                     assert False, site_type_pin.direction
@@ -641,19 +652,15 @@ def import_site_as_tile(db, args):
     site = args.tile
     site_instance = site_type_instances[args.tile][0]
 
-    site_type_path = site_pbtype.format(
-        site.lower(), site_instance.lower()
-    )
+    site_type_path = site_pbtype.format(site.lower(), site_instance.lower())
 
     cell_pb_type = ET.ElementTree()
     root_element = cell_pb_type.parse(site_type_path)
     site_name = root_element.attrib['name']
 
-    ET.SubElement(
-        pb_type_xml, xi_include, {
-            'href': site_type_path,
-        }
-    )
+    ET.SubElement(pb_type_xml, xi_include, {
+        'href': site_type_path,
+    })
 
     interconnect_xml.append(ET.Comment(" Tile->Site "))
     for site_pin in sorted(site_type.get_site_pins()):
@@ -777,7 +784,8 @@ def main():
         '--pin_assignments', required=True, type=argparse.FileType('r')
     )
     parser.add_argument(
-        '--site_as_tile', action='store_true',
+        '--site_as_tile',
+        action='store_true',
     )
 
     parser.add_argument(
@@ -802,7 +810,6 @@ def main():
         import_site_as_tile(db, args)
     else:
         import_tile(db, args)
-
 
 
 if __name__ == '__main__':

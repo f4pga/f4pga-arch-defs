@@ -13,19 +13,20 @@ def map_tile_to_vpr_coord(conn, tile):
 
     """
     c = conn.cursor()
-    c.execute("SELECT pkey FROM phy_tile WHERE name = ?;", (tile,))
+    c.execute("SELECT pkey FROM phy_tile WHERE name = ?;", (tile, ))
     phy_tile_pkey = c.fetchone()[0]
 
     # It is expected that this tile has only one logical location,
     # because why split a tile with no sites?
-    c.execute("SELECT tile_pkey FROM tile_map WHERE phy_tile_pkey = ?",
-            (phy_tile_pkey,))
+    c.execute(
+        "SELECT tile_pkey FROM tile_map WHERE phy_tile_pkey = ?",
+        (phy_tile_pkey, )
+    )
     mapped_tiles = c.fetchall()
     assert len(mapped_tiles) == 1, tile
     tile_pkey = mapped_tiles[0][0]
 
-    c.execute("SELECT grid_x, grid_y FROM tile WHERE pkey = ?",
-            (tile_pkey,))
+    c.execute("SELECT grid_x, grid_y FROM tile WHERE pkey = ?", (tile_pkey, ))
     grid_x, grid_y = c.fetchone()
 
     return grid_x, grid_y
@@ -98,11 +99,16 @@ def main():
 
             synth_tiles['tiles'][tile]['pins'].append(
                 {
-                    'roi_name': port['name'].replace('[', '_').replace(']', '_'),
-                    'wire': wire,
-                    'pad': port['pin'],
-                    'port_type': port_type,
-                    'is_clock': is_clock,
+                    'roi_name':
+                        port['name'].replace('[', '_').replace(']', '_'),
+                    'wire':
+                        wire,
+                    'pad':
+                        port['pin'],
+                    'port_type':
+                        port_type,
+                    'is_clock':
+                        is_clock,
                 }
             )
 
@@ -124,7 +130,9 @@ def main():
             if 'VBRK' not in gridinfo.tile_type:
                 continue
 
-            assert len(db.get_tile_type(gridinfo.tile_type).get_sites()) == 0, tile
+            assert len(
+                db.get_tile_type(gridinfo.tile_type).get_sites()
+            ) == 0, tile
 
             if vbrk_loc is None:
                 vbrk2_loc = vbrk_loc

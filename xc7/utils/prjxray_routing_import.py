@@ -110,19 +110,22 @@ def import_graph_nodes(conn, graph, node_mapping):
         pin = m.group(2)
 
         (wire_in_tile_pkeys, _) = get_wire_in_tile_from_pin_name(
-                conn=conn,
-                tile_type_str=tile_type,
-                wire_str=pin)
+            conn=conn, tile_type_str=tile_type, wire_str=pin
+        )
 
-        c.execute("""
+        c.execute(
+            """
 SELECT site_as_tile_pkey FROM tile WHERE grid_x = ? AND grid_y = ?;
-        """,  (node.loc.x_low, node.loc.y_low))
+        """, (node.loc.x_low, node.loc.y_low)
+        )
         site_as_tile_pkey = c.fetchone()[0]
 
         if site_as_tile_pkey is not None:
-            c.execute("""
+            c.execute(
+                """
 SELECT site_pkey FROM site_as_tile WHERE pkey = ?;
-                """, (site_as_tile_pkey,))
+                """, (site_as_tile_pkey, )
+            )
             site_pkey = c.fetchone()[0]
             wire_in_tile_pkey = wire_in_tile_pkeys[site_pkey]
         else:
@@ -308,7 +311,8 @@ WHERE
       wire
     WHERE
       pkey = ?
-  );""", (wire_pkey, ))
+  );""", (wire_pkey, )
+                )
                 (track_pkey, ) = c.fetchone()
                 assert track_pkey is not None, (
                     tile_name, pin['wire'], wire_pkey
@@ -323,7 +327,9 @@ WHERE
                 assert False, pin['port_type']
             tracks_model, track_nodes = get_track_model(conn, track_pkey)
 
-            option = list(tracks_model.get_tracks_for_wire_at_coord(synth_tile['loc']))
+            option = list(
+                tracks_model.get_tracks_for_wire_at_coord(synth_tile['loc'])
+            )
             assert len(option) > 0, (pin, len(option))
 
             if pin['port_type'] == 'input':
@@ -347,7 +353,9 @@ WHERE
                 tile_type, wire
             )
 
-            pin_node = graph.get_nodes_for_pin(tuple(synth_tile['loc']), pin_name)
+            pin_node = graph.get_nodes_for_pin(
+                tuple(synth_tile['loc']), pin_name
+            )
 
             if pin['port_type'] == 'input':
                 graph.add_edge(

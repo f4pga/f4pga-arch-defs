@@ -302,8 +302,8 @@ def main():
         y_max = 0
         x_max = 0
         for grid_x, grid_y in c.execute("SELECT grid_x, grid_y FROM tile"):
-            x_max = max(grid_x+2, x_max)
-            y_max = max(grid_y+2, y_max)
+            x_max = max(grid_x + 2, x_max)
+            y_max = max(grid_y + 2, y_max)
 
         name = '{}-test'.format(args.device)
         fixed_layout_xml = ET.SubElement(
@@ -314,16 +314,20 @@ def main():
             }
         )
 
-        for tile_pkey, grid_x, grid_y, phy_tile_pkey, tile_type_pkey, site_as_tile_pkey in c.execute("""
+        for tile_pkey, grid_x, grid_y, phy_tile_pkey, tile_type_pkey, site_as_tile_pkey in c.execute(
+                """
             SELECT pkey, grid_x, grid_y, phy_tile_pkey, tile_type_pkey, site_as_tile_pkey FROM tile
             """):
             phy_tiles = []
             phy_locs = []
-            for (phy_tile_pkey,) in c2.execute("SELECT phy_tile_pkey FROM tile_map WHERE tile_pkey = ?",
-                    (tile_pkey,)):
+            for (phy_tile_pkey, ) in c2.execute(
+                    "SELECT phy_tile_pkey FROM tile_map WHERE tile_pkey = ?",
+                (tile_pkey, )):
                 phy_tiles.append(phy_tile_pkey)
-                c3.execute("SELECT grid_x, grid_y FROM phy_tile WHERE pkey = ?",
-                        (phy_tile_pkey,))
+                c3.execute(
+                    "SELECT grid_x, grid_y FROM phy_tile WHERE pkey = ?",
+                    (phy_tile_pkey, )
+                )
                 loc = c3.fetchone()
                 phy_locs.append(grid_types.GridLoc(*loc))
 
@@ -332,10 +336,13 @@ def main():
 
                 assert len(synth_tile['pins']) == 1
 
-                vpr_tile_type = synth_tile_map[synth_tile['pins'][0]['port_type']]
+                vpr_tile_type = synth_tile_map[synth_tile['pins'][0]
+                                               ['port_type']]
             else:
-                c2.execute("SELECT name FROM tile_type WHERE pkey = ?", (
-                    tile_type_pkey,))
+                c2.execute(
+                    "SELECT name FROM tile_type WHERE pkey = ?",
+                    (tile_type_pkey, )
+                )
                 tile_type = c2.fetchone()[0]
 
                 if only_emit_roi:
@@ -374,21 +381,28 @@ def main():
                 prefix_tile = g.tilename_at_loc(phy_locs[0])
 
             if site_as_tile_pkey is not None:
-                c2.execute("SELECT site_pkey FROM site_as_tile WHERE pkey = ?", (
-                    site_as_tile_pkey,))
+                c2.execute(
+                    "SELECT site_pkey FROM site_as_tile WHERE pkey = ?",
+                    (site_as_tile_pkey, )
+                )
                 site_pkey = c2.fetchone()[0]
 
-                c2.execute("""
+                c2.execute(
+                    """
                     SELECT site_type_pkey, x_coord FROM site WHERE pkey = ?
-                    """, (site_pkey,))
+                    """, (site_pkey, )
+                )
                 site_type_pkey, x = c2.fetchone()
 
-                c2.execute("SELECT name FROM site_type WHERE pkey = ?", (
-                    site_type_pkey,))
+                c2.execute(
+                    "SELECT name FROM site_type WHERE pkey = ?",
+                    (site_type_pkey, )
+                )
                 site_type_name = c2.fetchone()[0]
 
                 prefix_tile = '{}.{}_X{}'.format(
-                        prefix_tile, site_type_name, x)
+                    prefix_tile, site_type_name, x
+                )
 
             single_xml = ET.SubElement(
                 fixed_layout_xml, 'single', {
@@ -399,9 +413,11 @@ def main():
                 }
             )
             meta = ET.SubElement(single_xml, 'metadata')
-            ET.SubElement(meta, 'meta', {
-                'name': 'fasm_prefix',
-            }).text = prefix_tile
+            ET.SubElement(
+                meta, 'meta', {
+                    'name': 'fasm_prefix',
+                }
+            ).text = prefix_tile
 
     device_xml = ET.SubElement(arch_xml, 'device')
 
