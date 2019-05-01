@@ -183,7 +183,7 @@ def main():
 
     parser.add_argument('-v', type=bool, help='verbose output')
 
-    logging.basicConfig(level=logging.INFO)
+    logging.basicConfig(level=logging.WARNING)
 
     args = parser.parse_args()
     timing = sdf_parse(args.read_sdf.read())
