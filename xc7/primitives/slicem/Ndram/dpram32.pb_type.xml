@@ -1,4 +1,4 @@
-<pb_type name="DPRAM32" num_pb="1" blif_model=".subckt DPRAM32">
+<pb_type name="DPRAM32" num_pb="2" blif_model=".subckt DPRAM32">
   <clock  name="CLK" num_pins="1" />
 
   <!-- A1 - Read port -->
