@@ -2,15 +2,15 @@
 <models>
   <model name="block">
     <input_ports>
-      <port name="a"  clock="c1"    combinational_sink_ports="o1"   />
-      <port name="b"  clock="c1 c2" combinational_sink_ports="o2 o1"/>
-      <port name="c"  clock="c2"    combinational_sink_ports="o2"   />
-      <port name="c1" is_clock="1" />
-      <port name="c2" is_clock="1" />
+      <port clock="c1" combinational_sink_ports="o1" name="a"/>
+      <port clock="c2 c1" combinational_sink_ports="o2 o1" name="b"/>
+      <port clock="c2" combinational_sink_ports="o2" name="c"/>
+      <port is_clock="1" name="c1"/>
+      <port is_clock="1" name="c2"/>
     </input_ports>
     <output_ports>
-      <port name="o1" clock="c1" />
-      <port name="o2" clock="c2" />
+      <port clock="c1" name="o1"/>
+      <port clock="c2" name="o2"/>
     </output_ports>
   </model>
 </models>
