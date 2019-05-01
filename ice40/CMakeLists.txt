@@ -24,7 +24,7 @@ function(icestorm_setup)
 
   add_thirdparty_package(
     NAME fasm
-    BUILD_INSTALL_COMMAND "cd ${symbiflow-arch-defs_SOURCE_DIR}/third_party/fasm && ${PYTHON3} setup.py install"
+    BUILD_INSTALL_COMMAND "cd ${symbiflow-arch-defs_SOURCE_DIR}/third_party/fasm && ${PYTHON3} setup.py develop"
     PROVIDES fasm
     )
 
@@ -34,6 +34,19 @@ function(icestorm_setup)
   add_custom_target(
     fasm2asc_deps
     DEPENDS numpy ${FASM_TARGET} ${FASM2ASC}
+    )
+
+  add_thirdparty_package(
+    NAME sdf_timing
+    BUILD_INSTALL_COMMAND "cd ${symbiflow-arch-defs_SOURCE_DIR}/third_party/python-sdf-timing && ${PYTHON3} setup.py develop"
+    PROVIDES sdf_timing
+    )
+
+  get_target_property(SDF_TIMING_TARGET env SDF_TIMING_TARGET)
+  set(ICE40_IMPORT_TIMING ${symbiflow-arch-defs_SOURCE_DIR}/ice40/utils/ice40_import_bel_timing.py)
+  add_custom_target(
+    ice40_import_timing_deps
+    DEPENDS ${ICE40_IMPORT_TIMING} ${SDF_TIMING_TARGET}
     )
 
   get_target_property_required(PKG-CONFIG env PKG-CONFIG)
