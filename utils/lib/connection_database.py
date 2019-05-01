@@ -196,3 +196,111 @@ WHERE
     for wire_pkey, tile_pkey, wire_in_tile_pkey in c.execute(
             FIND_WIRE_WITH_SITE_PIN, (node_pkey, )):
         yield wire_pkey, tile_pkey, wire_in_tile_pkey
+
+def get_pin_name_of_wire(conn, wire_pkey):
+    """ Returns pin name of wire.
+
+    For unsplit tiles, this is the name of the wire.
+    For split tiles with only 1 site, this is the name of the site pin connected
+    to this wire.
+
+    """
+    c = conn.cursor()
+    c.execute("""
+SELECT wire_in_tile_pkey, tile_pkey FROM wire WHERE pkey = ?
+        """, (wire_pkey,))
+    wire_in_tile_pkey, tile_pkey = c.fetchone()
+
+    c.execute("""
+SELECT site_as_tile_pkey FROM tile WHERE pkey = ?
+        """, (tile_pkey,))
+    site_as_tile_pkey = c.fetchone()[0]
+
+    if site_as_tile_pkey is not None:
+        c.execute("""
+SELECT name FROM site_pin WHERE pkey = (
+    SELECT site_pin_pkey FROM wire_in_tile WHERE pkey = ?
+    )""", (wire_in_tile_pkey,))
+        return c.fetchone()[0]
+    else:
+        c.execute("""
+SELECT name FROM wire_in_tile WHERE pkey = ?;
+    """, (wire_in_tile_pkey,))
+        return c.fetchone()[0]
+
+
+def get_wire_in_tile_from_pin_name(conn, tile_type_str, wire_str):
+    # Find the generic wire_in_tile_pkey for the specified tile_type name and
+    # wire name.
+    c = conn.cursor()
+
+    # Find if this tile_type is a split tile.
+    c.execute(
+        """
+SELECT site_pkey FROM site_as_tile WHERE parent_tile_type_pkey = (
+    SELECT pkey FROM tile_type WHERE name = ?
+);
+        """, (tile_type_str,));
+    result = c.fetchone()
+    wire_is_pin = result is not None
+
+    if wire_is_pin:
+        # This tile is a split tile, lookup for the wire_in_tile_pkey is based
+        # on the site pin name, rather than the wire name.
+        site_pkey = result[0]
+        c.execute(
+        """
+SELECT
+    pkey,
+    site_pin_pkey,
+    site_pkey
+FROM
+    wire_in_tile
+WHERE
+    site_pin_pkey = (
+        SELECT
+            pkey
+        FROM
+            site_pin
+        WHERE
+            site_type_pkey = (
+                SELECT site_type_pkey FROM site WHERE pkey = ?
+                )
+        AND
+            name = ?
+    );""", (site_pkey, wire_str))
+    else:
+        c.execute(
+        """
+SELECT
+  pkey,
+  site_pin_pkey,
+  site_pkey
+FROM
+  wire_in_tile
+WHERE
+  name = ?
+  and tile_type_pkey = (
+    SELECT
+      pkey
+    FROM
+      tile_type
+    WHERE
+      name = ?
+  );
+""", (wire_str, tile_type_str)
+    )
+
+    wire_in_tile_pkeys = {}
+    the_site_pin_pkey = None
+    for wire_in_tile_pkey, site_pin_pkey, site_pkey in c:
+        wire_in_tile_pkeys[site_pkey] = wire_in_tile_pkey
+
+        if the_site_pin_pkey is not None:
+            assert the_site_pin_pkey == site_pin_pkey, (tile_type_str, wire_str)
+        else:
+            the_site_pin_pkey = site_pin_pkey
+
+    assert the_site_pin_pkey is not None, (tile_type_str, wire_str)
+
+    return wire_in_tile_pkeys, the_site_pin_pkey
