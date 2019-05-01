@@ -36,6 +36,16 @@ OPPOSITE_DIRECTIONS = {
 
 def opposite_direction(direction):
     """ Return opposite direction of given direction.
+
+    >>> opposite_direction(NORTH)
+    <Direction.SOUTH: 2>
+    >>> opposite_direction(SOUTH)
+    <Direction.NORTH: 1>
+    >>> opposite_direction(EAST)
+    <Direction.WEST: 4>
+    >>> opposite_direction(WEST)
+    <Direction.EAST: 3>
+
     """
     return OPPOSITE_DIRECTIONS[direction]
 
