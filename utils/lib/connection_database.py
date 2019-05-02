@@ -349,7 +349,8 @@ WHERE
           pkey = ?
       )
       AND name = ?
-  );""", (site_pkey, wire_str))
+  );""", (site_pkey, wire_str)
+        )
     else:
         c.execute(
             """

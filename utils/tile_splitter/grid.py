@@ -113,7 +113,8 @@ def coordinate_in_direction(coord, direction):
         return x, y
 
 
-class Site(namedtuple('Site', ('name', 'phy_tile_pkey', 'tile_type_pkey', 'site_type_pkey', 'site_pkey', 'x', 'y'))):
+class Site(namedtuple('Site', ('name', 'phy_tile_pkey', 'tile_type_pkey',
+                               'site_type_pkey', 'site_pkey', 'x', 'y'))):
     """ Object to hold back reference information for a site. """
     pass
 
@@ -179,6 +180,7 @@ class Tile(object):
         Invariant: Underlying linked link must not be circular.
 
     """
+
     def __init__(
             self, root_phy_tile_pkeys, phy_tile_pkeys, tile_type_pkey, sites
     ):
@@ -341,6 +343,7 @@ class Grid(object):
         tile_type_pkey to use when creating new empty tiles during tile splits.
 
     """
+
     def __init__(self, grid_loc_map, empty_tile_type_pkey):
         # Make sure initial grid is sane
         check_grid_loc(grid_loc_map)

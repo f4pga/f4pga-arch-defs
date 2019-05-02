@@ -958,7 +958,6 @@ def create_vpr_grid(conn):
         'CLBLM_R': tile_splitter.grid.EAST,
     }
 
-
     # Create initial grid using sites and locations from phy_tile's
     # Also build up tile_to_tile_type_pkeys, which is a map from original
     # tile_type_pkey, to array of split tile type pkeys, (e.g. SLICEL/SLICEM).

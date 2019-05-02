@@ -45,42 +45,58 @@ def create_net_list(conn, graph, route_file):
 
         pin = m.group(2)
 
-        c.execute("""
+        c.execute(
+            """
         SELECT site_as_tile_pkey, phy_tile_pkey FROM tile WHERE grid_x = ? AND grid_y = ?
-        """, (node.x_low, node.y_low))
+        """, (node.x_low, node.y_low)
+        )
         site_as_tile_pkey, phy_tile_pkey = c.fetchone()
 
-        c.execute("""
+        c.execute(
+            """
         SELECT name, tile_type_pkey FROM phy_tile WHERE pkey = ?
-            """,
-            (phy_tile_pkey,))
+            """, (phy_tile_pkey, )
+        )
         tile_name, tile_type_pkey = c.fetchone()
 
         if site_as_tile_pkey is None:
-            c.execute("""
+            c.execute(
+                """
 SELECT
   pkey, site_pkey
 FROM
   wire_in_tile
 WHERE
   tile_type_pkey = ? AND name = ?;""", (tile_type_pkey, pin)
-        )
+            )
             result = c.fetchone()
             assert result is not None, (tile_name, pin, node, tile_type_pkey)
             wire_in_tile_pkey, site_pkey = result
         else:
-            c.execute("SELECT site_pkey FROM site_as_tile WHERE pkey = ?", (
-                site_as_tile_pkey,))
+            c.execute(
+                "SELECT site_pkey FROM site_as_tile WHERE pkey = ?",
+                (site_as_tile_pkey, )
+            )
             site_pkey = c.fetchone()[0]
 
-            c.execute("""
+            c.execute(
+                """
               SELECT pkey FROM site_pin WHERE name = ? AND site_type_pkey = (
                 SELECT site_type_pkey FROM site WHERE pkey = ?
-              );""", (pin, site_pkey,))
+              );""", (
+                    pin,
+                    site_pkey,
+                )
+            )
             site_pin_pkey = c.fetchone()[0]
 
-            c.execute("""SELECT pkey FROM wire_in_tile WHERE site_pin_pkey = ? AND tile_type_pkey = ?""",
-                    (site_pin_pkey, tile_type_pkey,))
+            c.execute(
+                """SELECT pkey FROM wire_in_tile WHERE site_pin_pkey = ? AND tile_type_pkey = ?""",
+                (
+                    site_pin_pkey,
+                    tile_type_pkey,
+                )
+            )
             wire_in_tile_pkey = c.fetchone()[0]
 
         c.execute(
