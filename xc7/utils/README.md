@@ -33,3 +33,4 @@ This script needs to be called for each different tile that has to be generated.
 `prjxray_tile_type_import.py` generates the `tile` definition. It is located in a different script as it relies on the `pb_type` definitions.
 In fact, each `tile` can be associated to other tiles which are defined `equivalent`. In this case, the `tile.xml` definition must include the pin mapping between the two equivalent tiles.
 The pin mapping is created with the information included in the `pb_type.xml` of both the tiles, hence the `tile.xml` generation can be performed only when all the `pb_type.xml` definitions have been produced.
+`pb_type.xml` are parsed to extract the pin connections of the equivalent tiles that are used to generate the pin mapping when producing `tile.xml` definitions.
