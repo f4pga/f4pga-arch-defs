@@ -44,11 +44,11 @@ def get_output(params):
     retcode = p.wait()
 
     msg = ""
-    msg += "stdout" + "="*75 + "\n"
+    msg += "stdout" + "=" * 75 + "\n"
     msg += stdout + "\n"
-    msg += "stderr" + "-"*75 + "\n"
+    msg += "stderr" + "-" * 75 + "\n"
     msg += stderr + "\n"
-    msg += "="*75 + "\n"
+    msg += "=" * 75 + "\n"
     msg += "Return Code: {}".format(retcode)
 
     if verbose:
