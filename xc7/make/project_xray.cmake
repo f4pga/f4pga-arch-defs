@@ -88,7 +88,7 @@ function(PROJECT_XRAY_TILE)
   get_target_property_required(PYTHON3 env PYTHON3)
   get_target_property(PYTHON3_TARGET env PYTHON3_TARGET)
 
-  set(TILE_TYPE_IMPORT ${symbiflow-arch-defs_SOURCE_DIR}/xc7/utils/prjxray_tile_import.py)
+  set(TILE_IMPORT ${symbiflow-arch-defs_SOURCE_DIR}/xc7/utils/prjxray_tile_import.py)
   get_project_xray_dependencies(DEPS ${PROJECT_XRAY_TILE_PART} ${TILE})
 
   set(PART ${PROJECT_XRAY_TILE_PART})
@@ -114,7 +114,7 @@ function(PROJECT_XRAY_TILE)
   add_custom_command(
     OUTPUT ${TILE}.pb_type.xml ${TILE}.model.xml
     COMMAND ${CMAKE_COMMAND} -E env PYTHONPATH=${PRJXRAY_DIR}:${symbiflow-arch-defs_SOURCE_DIR}/utils
-    ${PYTHON3} ${TILE_TYPE_IMPORT}
+    ${PYTHON3} ${TILE_IMPORT}
     --part ${PROJECT_XRAY_TILE_PART}
     --tile ${PROJECT_XRAY_TILE_TILE}
     --site_directory ${symbiflow-arch-defs_BINARY_DIR}/xc7/primitives
@@ -144,7 +144,7 @@ function(PROJECT_XRAY_TILE)
       )
 
   # tile tags
-  set(TILE_IMPORT ${symbiflow-arch-defs_SOURCE_DIR}/xc7/utils/prjxray_tile_type_import.py)
+  set(TILE_TYPE_IMPORT ${symbiflow-arch-defs_SOURCE_DIR}/xc7/utils/prjxray_tile_type_import.py)
   get_project_xray_dependencies(DEPS ${PROJECT_XRAY_TILE_PART} ${TILE})
 
   foreach(EQUIVALENT_TILE ${PROJECT_XRAY_TILE_EQUIVALENT_TILES})
@@ -164,7 +164,7 @@ function(PROJECT_XRAY_TILE)
   add_custom_command(
     OUTPUT ${TILE}.tile.xml
     COMMAND ${CMAKE_COMMAND} -E env PYTHONPATH=${PRJXRAY_DIR}:${symbiflow-arch-defs_SOURCE_DIR}/utils
-    ${PYTHON3} ${TILE_IMPORT}
+    ${PYTHON3} ${TILE_TYPE_IMPORT}
     --part ${PROJECT_XRAY_TILE_PART}
     --tile ${PROJECT_XRAY_TILE_TILE}
     --tiles-directory ${symbiflow-arch-defs_BINARY_DIR}/xc7/archs/${PART}/tiles
