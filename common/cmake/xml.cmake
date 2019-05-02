@@ -45,7 +45,7 @@ function(XML_SORT)
   # OUTPUT
   # )
   #
-  # This function provides targets to sort the XML file in input according to the `xmlsrot.xsl` script.
+  # This function provides targets to sort the XML file in input according to the `xmlsort.xsl` script.
   # It appends all the dependencies necessary to produce the desired OUTPUT (e.g. verilog to XML translation through the tools).
   #
   # NAME is used to give a name to the target.
