@@ -228,8 +228,6 @@ class YosysModule:
         """
         conn_ports = []
         for cell in sorted(self.data["cells"].keys()):
-            if cell.startswith("$"):
-                continue
             cdata = self.data["cells"][cell]
             for port, condata in sorted(cdata["connections"].items()):
                 if cdata["port_directions"][port] == pdir:
