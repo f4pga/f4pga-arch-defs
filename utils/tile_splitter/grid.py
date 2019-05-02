@@ -512,7 +512,7 @@ class Grid(object):
                 if idx == 0:
                     continue
                 else:
-                    if tile.tile_type_pkey != self.empty_tile_type_pkey:
+                    if tile_in_split.tile_type_pkey != self.empty_tile_type_pkey:
                         num_cols_to_insert = max(num_cols_to_insert, idx)
 
                     if idx + 1 >= len(tile_type_pkeys):
