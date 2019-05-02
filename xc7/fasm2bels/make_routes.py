@@ -226,7 +226,9 @@ class Net(object):
                 phy_tile_pkey,
                 wire_in_tile_pkey,
             ) = c.fetchone()
-            c.execute("SELECT name FROM phy_tile WHERE pkey = ?", (phy_tile_pkey, ))
+            c.execute(
+                "SELECT name FROM phy_tile WHERE pkey = ?", (phy_tile_pkey, )
+            )
             tile_name = c.fetchone()[0]
             c.execute(
                 "SELECT name FROM wire_in_tile WHERE pkey = ?",
@@ -245,7 +247,8 @@ class Net(object):
                 wire_in_tile_pkey, phy_tile_pkey = c.fetchone()
 
                 c.execute(
-                    "SELECT name FROM phy_tile WHERE pkey = ?", (phy_tile_pkey, )
+                    "SELECT name FROM phy_tile WHERE pkey = ?",
+                    (phy_tile_pkey, )
                 )
                 (tile_name, ) = c.fetchone()
 
@@ -632,7 +635,9 @@ def make_routes(
             )
             name, tile_type_pkey = c.fetchone()
 
-            c.execute("SELECT name FROM phy_tile WHERE pkey = ?", (phy_tile_pkey, ))
+            c.execute(
+                "SELECT name FROM phy_tile WHERE pkey = ?", (phy_tile_pkey, )
+            )
             tile = c.fetchone()[0]
 
             print('//', wire_pkey, tile, name)

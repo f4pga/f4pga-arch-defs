@@ -178,6 +178,7 @@ def create_synth_constant_tiles(
         'name': pin_name,
     })
 
+
 def get_phy_tiles(conn, tile_pkey):
     """ Returns the locations of all physical tiles for specified tile. """
     c = conn.cursor()
@@ -252,16 +253,14 @@ def get_tile_prefix(conn, g, tile_pkey, site_as_tile_pkey):
         site_type_pkey, x = c.fetchone()
 
         c.execute(
-            "SELECT name FROM site_type WHERE pkey = ?",
-            (site_type_pkey, )
+            "SELECT name FROM site_type WHERE pkey = ?", (site_type_pkey, )
         )
         site_type_name = c.fetchone()[0]
 
-        prefix_tile = '{}.{}_X{}'.format(
-            prefix_tile, site_type_name, x
-        )
+        prefix_tile = '{}.{}_X{}'.format(prefix_tile, site_type_name, x)
 
     return prefix_tile
+
 
 def get_tiles(conn, g, roi, synth_loc_map, synth_tile_map, tile_types):
     """ Yields tiles in grid.
@@ -292,20 +291,20 @@ def get_tiles(conn, g, roi, synth_loc_map, synth_tile_map, tile_types):
 
             assert len(synth_tile['pins']) == 1
 
-            vpr_tile_type = synth_tile_map[synth_tile['pins'][0]
-                                            ['port_type']]
+            vpr_tile_type = synth_tile_map[synth_tile['pins'][0]['port_type']]
 
             # Synth tiles have no bits, but there needs to be a prefix, so
             # use the original tile name.
-            c2.execute("SELECT name FROM phy_tile WHERE pkey = ?", (phy_tile_pkey,))
+            c2.execute(
+                "SELECT name FROM phy_tile WHERE pkey = ?", (phy_tile_pkey, )
+            )
             prefix_tile = c2.fetchone()[0]
 
             yield vpr_tile_type, grid_x, grid_y, prefix_tile
             continue
 
         c2.execute(
-            "SELECT name FROM tile_type WHERE pkey = ?",
-            (tile_type_pkey, )
+            "SELECT name FROM tile_type WHERE pkey = ?", (tile_type_pkey, )
         )
         tile_type = c2.fetchone()[0]
         if tile_type not in tile_types:
@@ -456,11 +455,12 @@ def main():
 
         for vpr_tile_type, grid_x, grid_y, prefix_tile in get_tiles(
                 conn=conn,
-                g=g, roi=roi,
+                g=g,
+                roi=roi,
                 synth_loc_map=synth_loc_map,
                 synth_tile_map=synth_tile_map,
                 tile_types=tile_types,
-                ):
+        ):
             single_xml = ET.SubElement(
                 fixed_layout_xml, 'single', {
                     'priority': '1',

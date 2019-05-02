@@ -7,7 +7,8 @@ def create_maybe_get_wire(conn):
     @functools.lru_cache(maxsize=None)
     def get_tile_type_pkey(tile):
         c.execute(
-            'SELECT pkey, tile_type_pkey FROM phy_tile WHERE name = ?', (tile, )
+            'SELECT pkey, tile_type_pkey FROM phy_tile WHERE name = ?',
+            (tile, )
         )
         return c.fetchone()
 

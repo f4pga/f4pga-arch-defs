@@ -25,6 +25,7 @@ import lxml.etree as ET
 XI_URL = "http://www.w3.org/2001/XInclude"
 XI_INCLUDE = "{%s}include" % XI_URL
 
+
 def prefix_name(tile):
     """ Add tile prefix.
 
@@ -93,6 +94,7 @@ def parse_site_type_instance(site_types):
 
     return site_type_instances
 
+
 def add_direct(xml, input, output):
     """ Add a direct tag to the interconnect_xml. """
     ET.SubElement(
@@ -113,6 +115,7 @@ def write_xml(f, xml):
 
 class ModelXml(object):
     """ Simple model.xml writter. """
+
     def __init__(self, f, site_directory):
         self.f = f
         self.model_xml = ET.Element(
@@ -226,6 +229,7 @@ def start_pb_type(tile_name, f_pin_assignments, input_wires, output_wires):
 
     return pb_type_xml
 
+
 def import_tile(db, args):
     """ Create a root-level pb_type with the pin names that match tile wires.
 
@@ -323,7 +327,9 @@ def import_tile(db, args):
     ##########################################################################
     tile_name = args.tile
 
-    pb_type_xml = start_pb_type(tile_name, args.pin_assignments, input_wires, output_wires)
+    pb_type_xml = start_pb_type(
+        tile_name, args.pin_assignments, input_wires, output_wires
+    )
 
     cell_names = {}
 
@@ -590,7 +596,6 @@ def import_site_as_tile(db, args):
         else:
             assert False, site_type_pin.direction
 
-
     ##########################################################################
     # Generate the model.xml file                                            #
     ##########################################################################
@@ -603,7 +608,9 @@ def import_site_as_tile(db, args):
     ##########################################################################
 
     tile_name = args.tile
-    pb_type_xml = start_pb_type(tile_name, args.pin_assignments, input_wires, output_wires)
+    pb_type_xml = start_pb_type(
+        tile_name, args.pin_assignments, input_wires, output_wires
+    )
 
     site = args.tile
     site_instance = site_type_instances[args.tile][0]
