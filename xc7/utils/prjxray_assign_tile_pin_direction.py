@@ -167,17 +167,20 @@ SELECT pkey, classification FROM node WHERE classification != ?;
             continue
 
         c2 = conn.cursor()
-        for wire_pkey, tile_pkey, wire_in_tile_pkey in c2.execute(
-                """
-SELECT pkey, tile_pkey, wire_in_tile_pkey FROM wire WHERE node_pkey = ?;""",
-            (node_pkey, )):
+        for wire_pkey, tile_pkey, wire_in_tile_pkey in c2.execute("""
+SELECT
+    pkey, tile_pkey, wire_in_tile_pkey
+FROM
+    wire
+WHERE
+    node_pkey = ?;
+    """, (node_pkey, )):
             c3 = conn.cursor()
             c3.execute(
                 """
-SELECT site_as_tile_pkey, grid_x, grid_y FROM tile WHERE pkey = ?;""",
-                (tile_pkey, )
+SELECT grid_x, grid_y FROM tile WHERE pkey = ?;""", (tile_pkey, )
             )
-            (site_as_tile_pkey, grid_x, grid_y) = c3.fetchone()
+            (grid_x, grid_y) = c3.fetchone()
 
             c3.execute(
                 """
@@ -198,28 +201,10 @@ WHERE
             )
             (tile_type, ) = c3.fetchone()
 
-            c3.execute(
-                """
-SELECT name, site_pin_pkey FROM wire_in_tile WHERE pkey = ?;""",
-                (wire_in_tile_pkey, )
-            )
-            (
-                wire_name,
-                site_pin_pkey,
-            ) = c3.fetchone()
-
-            # This node has no site pin, don't need to assign pin direction.
-            if site_pin_pkey is None:
+            wire = get_pin_name_of_wire(conn, wire_pkey)
+            if wire is None:
+                # This node has no site pin, don't need to assign pin direction.
                 continue
-
-            if site_as_tile_pkey is not None:
-                c3.execute(
-                    """SELECT name FROM site_pin WHERE pkey = ?;""",
-                    (site_pin_pkey, )
-                )
-                wire = c3.fetchone()[0]
-            else:
-                wire = wire_name
 
             for pip_pkey, pip, src_wire_in_tile_pkey, dest_wire_in_tile_pkey in c3.execute(
                     """
@@ -298,6 +283,67 @@ WHERE
                     edge_assignments[(tile_type, wire)].append(available_pins)
 
 
+def initialize_edge_assignments(db, conn):
+    """ Create initial edge_assignments map. """
+    c = conn.cursor()
+    c2 = conn.cursor()
+
+    edge_assignments = {}
+    wires_in_tile_types = set()
+
+    # First find out which tile types were split during VPR grid formation.
+    # These tile types should not get edge assignments directly, instead
+    # their sites will get edge assignements.
+    sites_as_tiles = set()
+    split_tile_types = set()
+    for site_pkey, tile_type_pkey in c.execute("""
+        SELECT site_pkey, tile_type_pkey FROM site_as_tile;
+        """):
+        c2.execute(
+            "SELECT name FROM tile_type WHERE pkey = ?", (tile_type_pkey, )
+        )
+        split_tile_types.add(c2.fetchone()[0])
+
+        c2.execute(
+            """
+SELECT name FROM site_type WHERE pkey = (
+    SELECT site_type_pkey FROM site WHERE pkey = ?
+    );""", (site_pkey, )
+        )
+        site_type_name = c2.fetchone()[0]
+        sites_as_tiles.add(site_type_name)
+
+    # Initialize edge assignments for split tiles
+    for site_type in sites_as_tiles:
+        site_obj = db.get_site_type(site_type)
+        for site_pin in site_obj.get_site_pins():
+            key = (site_type, site_pin)
+            assert key not in edge_assignments, key
+
+            edge_assignments[key] = []
+
+    for tile_type in db.get_tile_types():
+        # Skip tile types that are split tiles
+        if tile_type in split_tile_types:
+            continue
+
+        type_obj = db.get_tile_type(tile_type)
+
+        for wire in type_obj.get_wires():
+            wires_in_tile_types.add((tile_type, wire))
+
+        for site in type_obj.get_sites():
+            for site_pin in site.site_pins:
+                if site_pin.wire is None:
+                    continue
+
+                key = (tile_type, site_pin.wire)
+                assert key not in edge_assignments, key
+                edge_assignments[key] = []
+
+    return edge_assignments, wires_in_tile_types
+
+
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument(
@@ -321,60 +367,12 @@ def main():
 
     edge_assignments = {}
 
-    wires_in_tile_types = set()
-
     with DatabaseCache(args.connection_database, read_only=True) as conn:
-
         c = conn.cursor()
-        c2 = conn.cursor()
 
-        sites_as_tiles = set()
-        split_tile_types = set()
-        for site_pkey, tile_type_pkey in c.execute("""
-            SELECT site_pkey, tile_type_pkey FROM site_as_tile;
-            """):
-            c2.execute(
-                "SELECT name FROM tile_type WHERE pkey = ?",
-                (tile_type_pkey, )
-            )
-            split_tile_types.add(c2.fetchone()[0])
-
-            c2.execute(
-                """
-SELECT name FROM site_type WHERE pkey = (
-    SELECT site_type_pkey FROM site WHERE pkey = ?
-    );""", (site_pkey, )
-            )
-            site_type_name = c2.fetchone()[0]
-            sites_as_tiles.add(site_type_name)
-
-        for site_type in sites_as_tiles:
-            site_obj = db.get_site_type(site_type)
-            for site_pin in site_obj.get_site_pins():
-                key = (site_type, site_pin)
-                assert key not in edge_assignments, key
-
-                edge_assignments[key] = []
-
-        print(sites_as_tiles, split_tile_types)
-
-        for tile_type in db.get_tile_types():
-            if tile_type in split_tile_types:
-                continue
-
-            type_obj = db.get_tile_type(tile_type)
-
-            for wire in type_obj.get_wires():
-                wires_in_tile_types.add((tile_type, wire))
-
-            for site in type_obj.get_sites():
-                for site_pin in site.site_pins:
-                    if site_pin.wire is None:
-                        continue
-
-                    key = (tile_type, site_pin.wire)
-                    assert key not in edge_assignments, key
-                    edge_assignments[key] = []
+        edge_assignments, wires_in_tile_types = initialize_edge_assignments(
+            db, conn
+        )
 
         direct_connections = set()
         print('{} Processing direct connections.'.format(now()))

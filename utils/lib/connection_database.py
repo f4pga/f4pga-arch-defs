@@ -224,6 +224,7 @@ def get_pin_name_of_wire(conn, wire_pkey):
     For unsplit tiles, this is the name of the wire.
     For split tiles with only 1 site, this is the name of the site pin o
     connected to this wire.
+    For wires that are not a pin, returns None.
 
     Parameters
     ----------
@@ -236,6 +237,7 @@ def get_pin_name_of_wire(conn, wire_pkey):
     -------
     pin : str
         VPR pin name for given wire_pkey.
+        Returns none if this wire is not a pin.
 
     """
     c = conn.cursor()
@@ -253,21 +255,23 @@ SELECT site_as_tile_pkey FROM tile WHERE pkey = ?
     )
     site_as_tile_pkey = c.fetchone()[0]
 
+    c.execute(
+        """
+SELECT name, site_pin_pkey FROM wire_in_tile WHERE pkey = ?;
+    """, (wire_in_tile_pkey, )
+    )
+    wire_name, site_pin_pkey = c.fetchone()
+
+    if site_pin_pkey is None:
+        return None
+
     if site_as_tile_pkey is not None:
         c.execute(
-            """
-SELECT name FROM site_pin WHERE pkey = (
-    SELECT site_pin_pkey FROM wire_in_tile WHERE pkey = ?
-    )""", (wire_in_tile_pkey, )
+            "SELECT name FROM site_pin WHERE pkey = ?", (site_pin_pkey, )
         )
         return c.fetchone()[0]
     else:
-        c.execute(
-            """
-SELECT name FROM wire_in_tile WHERE pkey = ?;
-    """, (wire_in_tile_pkey, )
-        )
-        return c.fetchone()[0]
+        return wire_name
 
 
 def get_wire_in_tile_from_pin_name(conn, tile_type_str, wire_str):
