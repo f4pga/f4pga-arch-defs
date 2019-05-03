@@ -94,7 +94,7 @@ Top level module, will usually be automatically determined from the file name
 parser.add_argument(
     '--includes',
     help="""\
-Command seperate list of include directories.
+Comma separate list of include directories.
 """,
     default=""
 )
