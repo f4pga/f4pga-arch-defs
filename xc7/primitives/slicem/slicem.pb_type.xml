@@ -305,7 +305,7 @@
           <metadata>
             <meta name="fasm_mux">
               SLICEM_MODES.DI = NULL
-              SLICEM_MODES.CI = CDI1MUX.CI
+              SLICEM_MODES.CI = DI1MUX.CI
             </meta>
           </metadata>
         </mux>
@@ -313,16 +313,17 @@
           <metadata>
             <meta name="fasm_mux">
               SLICEM_MODES.DI = NULL
-              SLICEM_MODES.BI = BDI1MUX.BI
+              SLICEM_MODES.BI = DI1MUX.BI
             </meta>
           </metadata>
         </mux>
+        <!-- TODO: ensure BLUT.DI1MUX is set correctly for SLICEM_MODES.DI/BI -->
         <mux name="ADI1MUX" input="SLICEM_MODES.DI SLICEM_MODES.BI SLICEM_MODES.AI" output="A_DRAM.DI1">
           <metadata>
             <meta name="fasm_mux">
               SLICEM_MODES.DI = NULL
-              SLICEM_MODES.BI = BDI1MUX.BI
-              SLICEM_MODES.AI = ADI1MUX.AI
+              SLICEM_MODES.BI = NULL
+              SLICEM_MODES.AI = DI1MUX.AI
             </meta>
           </metadata>
         </mux>
@@ -562,11 +563,6 @@
         <direct name="BI" input="SLICEM_MODES.BI" output="B_DRAM128.DI1" />
         <direct name="AI" input="SLICEM_MODES.AI" output="A_DRAM128.DI1" />
 
-        <!-- Parent DI1 inputs -->
-        <direct name="P_CI" input="SLICEM_MODES.DI" output="C_DRAM128.PARENT_DI" />
-        <direct name="P_BI" input="SLICEM_MODES.DI" output="B_DRAM128.PARENT_DI" />
-        <direct name="P_AI" input="B_DRAM128.DI_OUT" output="A_DRAM128.PARENT_DI" />
-
         <!-- WE inputs -->
         <direct name="CE_TO_WE_MUX" input="SLICEM_MODES.CE"  output="WE_MUX.CE"/>
         <direct name="WE_TO_WE_MUX" input="SLICEM_MODES.WE"  output="WE_MUX.WE"/>
@@ -582,21 +578,23 @@
         <direct name="AO6" input="A_DRAM128.O6"   output="SLICEM_MODES.AO6" />
 
         <!-- F7AMUX inputs -->
-        <mux name="F7AMUX_I0" input="B_DRAM128.DO6 B_DRAM128.SO6"   output="F7AMUX.I0">
-          <pack_pattern in_port="B_DRAM128.SO6" name="DRAM128" out_port="F7AMUX.I0"/>
-          <pack_pattern in_port="B_DRAM128.DO6" name="DRAM128_D" out_port="F7AMUX.I0"/>
+        <mux name="F7AMUX_I0" input="B_DRAM128.DO6"   output="F7AMUX.I0">
+          <pack_pattern in_port="B_DRAM128.DO6" name="DRAM128" out_port="F7AMUX.I0"/>
+          <pack_pattern in_port="B_DRAM128.DO6" name="DRAM128_DP" out_port="F7AMUX.I0"/>
         </mux>
         <direct name="F7AMUX_I1" input="A_DRAM128.DO6"   output="F7AMUX.I1">
           <pack_pattern in_port="A_DRAM128.DO6" name="DRAM128" out_port="F7AMUX.I1"/>
-          <pack_pattern in_port="A_DRAM128.DO6" name="DRAM128_D" out_port="F7AMUX.I1"/>
+          <pack_pattern in_port="A_DRAM128.DO6" name="DRAM128_DP" out_port="F7AMUX.I1"/>
         </direct>
         <direct name="F7AMUX_S"  input="SLICEM_MODES.AX" output="F7AMUX.S" />
         <!-- F7BMUX inputs -->
         <direct name="F7BMUX_I0" input="D_DRAM128.O6"   output="F7BMUX.I0">
           <pack_pattern in_port="D_DRAM128.O6" name="DRAM128" out_port="F7BMUX.I0"/>
+          <pack_pattern in_port="D_DRAM128.O6" name="DRAM128_DP" out_port="F7BMUX.I0"/>
         </direct>
         <direct name="F7BMUX_I1" input="C_DRAM128.DO6"   output="F7BMUX.I1">
           <pack_pattern in_port="C_DRAM128.DO6" name="DRAM128" out_port="F7BMUX.I1"/>
+          <pack_pattern in_port="C_DRAM128.DO6" name="DRAM128_DP" out_port="F7BMUX.I1"/>
         </direct>
         <direct name="F7BMUX_S"  input="SLICEM_MODES.CX" output="F7BMUX.S" />
 
