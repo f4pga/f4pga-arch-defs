@@ -70,8 +70,8 @@ def add_graph_nodes_for_pins(conn, tile_type, wire, pin_directions):
     else:
         assert False, pin_direction
 
-    c2 = conn.cursor()
-    c2.execute("""BEGIN EXCLUSIVE TRANSACTION;""")
+    write_cur = conn.cursor()
+    write_cur.execute("""BEGIN EXCLUSIVE TRANSACTION;""")
 
     for wire_in_tile_pkey in wire_in_tile_pkeys.values():
         # Find all instances of this specific wire.
@@ -98,7 +98,7 @@ def add_graph_nodes_for_pins(conn, tile_type, wire, pin_directions):
 
             # Insert a graph_node per pin_direction.
             for pin_direction in pin_directions:
-                c2.execute(
+                write_cur.execute(
                     """
                 INSERT INTO graph_node(
                     graph_node_type, node_pkey, x_low, x_high, y_low, y_high)
@@ -117,19 +117,19 @@ def add_graph_nodes_for_pins(conn, tile_type, wire, pin_directions):
                         pin_direction.name.lower()
                     )
                 )
-                values.append(c2.lastrowid)
+                values.append(write_cur.lastrowid)
 
             # Update the wire with the graph_nodes in each direction, if
             # applicable.
-            c2.execute(
+            write_cur.execute(
                 """
                 UPDATE wire SET {updates} WHERE pkey = ?;""".format(
                     updates=','.join(updates)
                 ), values + [wire_pkey]
             )
 
-    c2.execute("""COMMIT TRANSACTION;""")
-    c2.connection.commit()
+    write_cur.execute("""COMMIT TRANSACTION;""")
+    write_cur.connection.commit()
 
 
 def create_find_pip(conn):
@@ -645,7 +645,7 @@ def mark_track_liveness(
     """
 
     c = conn.cursor()
-    c2 = conn.cursor()
+    write_cur = conn.cursor()
     for graph_node_pkey, node_pkey, track_pkey in c.execute("""
 SELECT
   pkey,
@@ -662,17 +662,17 @@ WHERE
             alive_tracks.add(track_pkey)
             continue
 
-        c2.execute(
+        write_cur.execute(
             """SELECT count(switch_pkey) FROM graph_edge WHERE
             src_graph_node_pkey = ?;""", (graph_node_pkey, )
         )
-        src_count = c2.fetchone()[0]
+        src_count = write_cur.fetchone()[0]
 
-        c2.execute(
+        write_cur.execute(
             """SELECT count(switch_pkey) FROM graph_edge WHERE
             dest_graph_node_pkey = ?;""", (graph_node_pkey, )
         )
-        sink_count = c2.fetchone()[0]
+        sink_count = write_cur.fetchone()[0]
 
         if src_count > 0 and sink_count > 0:
             alive_tracks.add(track_pkey)
@@ -685,13 +685,13 @@ WHERE
         )
     )
 
-    c2.execute("""BEGIN EXCLUSIVE TRANSACTION;""")
+    write_cur.execute("""BEGIN EXCLUSIVE TRANSACTION;""")
     for (track_pkey, ) in c.execute("""SELECT pkey FROM track;"""):
-        c2.execute(
+        write_cur.execute(
             "UPDATE track SET alive = ? WHERE pkey = ?;",
             (track_pkey in alive_tracks, track_pkey)
         )
-    c2.execute("""COMMIT TRANSACTION;""")
+    write_cur.execute("""COMMIT TRANSACTION;""")
 
     print('{} Track aliveness committed'.format(now()))
 
@@ -710,14 +710,14 @@ def direction_to_enum(pin):
 
 
 def build_channels(conn, pool, active_tracks):
-    c = conn.cursor()
+    write_cur = conn.cursor()
 
     xs = []
     ys = []
 
     x_tracks = {}
     y_tracks = {}
-    for pkey, track_pkey, graph_node_type, x_low, x_high, y_low, y_high in c.execute(
+    for pkey, track_pkey, graph_node_type, x_low, x_high, y_low, y_high in write_cur.execute(
             """
 SELECT
   pkey,
@@ -773,7 +773,7 @@ WHERE
             graph2.process_track, (y_tracks[x], )
         )
 
-    c.execute("""BEGIN EXCLUSIVE TRANSACTION;""")
+    write_cur.execute("""BEGIN EXCLUSIVE TRANSACTION;""")
 
     for y in progressbar.progressbar(range(max(x_tracks) + 1)):
         if y in x_tracks:
@@ -783,7 +783,7 @@ WHERE
 
             for idx, tree in enumerate(x_channel_models[y].trees):
                 for i in tree:
-                    c.execute(
+                    write_cur.execute(
                         'UPDATE graph_node SET ptc = ? WHERE pkey = ?;',
                         (idx, i[2])
                     )
@@ -798,7 +798,7 @@ WHERE
 
             for idx, tree in enumerate(y_channel_models[x].trees):
                 for i in tree:
-                    c.execute(
+                    write_cur.execute(
                         'UPDATE graph_node SET ptc = ? WHERE pkey = ?;',
                         (idx, i[2])
                     )
@@ -817,7 +817,7 @@ WHERE
             assert ptc < x_list[chan]
 
             num_padding += 1
-            c.execute(
+            write_cur.execute(
                 """
 INSERT INTO graph_node(
   graph_node_type, x_low, x_high, y_low,
@@ -836,7 +836,7 @@ VALUES
             assert ptc < y_list[chan]
 
             num_padding += 1
-            c.execute(
+            write_cur.execute(
                 """
 INSERT INTO graph_node(
   graph_node_type, x_low, x_high, y_low,
@@ -852,7 +852,7 @@ VALUES
 
     print('Number padding nodes {}'.format(num_padding))
 
-    c.execute(
+    write_cur.execute(
         """
     INSERT INTO channel(chan_width_max, x_min, x_max, y_min, y_max) VALUES
         (?, ?, ?, ?, ?);""",
@@ -860,18 +860,18 @@ VALUES
     )
 
     for idx, info in enumerate(x_list):
-        c.execute(
+        write_cur.execute(
             """
         INSERT INTO x_list(idx, info) VALUES (?, ?);""", (idx, info)
         )
 
     for idx, info in enumerate(y_list):
-        c.execute(
+        write_cur.execute(
             """
         INSERT INTO y_list(idx, info) VALUES (?, ?);""", (idx, info)
         )
 
-    c.execute("""COMMIT TRANSACTION;""")
+    write_cur.execute("""COMMIT TRANSACTION;""")
 
 
 def verify_channels(conn, alive_tracks):
@@ -1019,15 +1019,17 @@ def main():
                         else:
                             assert False, pin
 
-        c = conn.cursor()
-        c.execute('SELECT pkey FROM switch WHERE name = ?;', ('routing', ))
-        switch_pkey = c.fetchone()[0]
+        write_cur = conn.cursor()
+        write_cur.execute(
+            'SELECT pkey FROM switch WHERE name = ?;', ('routing', )
+        )
+        switch_pkey = write_cur.fetchone()[0]
 
-        c.execute(
+        write_cur.execute(
             'SELECT pkey FROM switch WHERE name = ?;',
             ('__vpr_delayless_switch__', )
         )
-        delayless_switch_pkey = c.fetchone()[0]
+        delayless_switch_pkey = write_cur.fetchone()[0]
 
         edges = []
 
@@ -1081,9 +1083,9 @@ def main():
 
         print('{} Created {} edges, inserting'.format(now(), len(edges)))
 
-        c.execute("""BEGIN EXCLUSIVE TRANSACTION;""")
+        write_cur.execute("""BEGIN EXCLUSIVE TRANSACTION;""")
         for edge in progressbar.progressbar(edges):
-            c.execute(
+            write_cur.execute(
                 """
                 INSERT INTO graph_edge(
                     src_graph_node_pkey, dest_graph_node_pkey, switch_pkey,
@@ -1091,17 +1093,17 @@ def main():
                 edge
             )
 
-        c.execute("""COMMIT TRANSACTION;""")
+        write_cur.execute("""COMMIT TRANSACTION;""")
 
         print('{} Inserted edges'.format(now()))
 
-        c.execute(
+        write_cur.execute(
             """CREATE INDEX src_node_index ON graph_edge(src_graph_node_pkey);"""
         )
-        c.execute(
+        write_cur.execute(
             """CREATE INDEX dest_node_index ON graph_edge(dest_graph_node_pkey);"""
         )
-        c.connection.commit()
+        write_cur.connection.commit()
 
         print('{} Indices created, marking track liveness'.format(now()))
 
