@@ -2,16 +2,11 @@
   <clock  name="CLK" num_pins="1" />
   <input  name="A"   num_pins="6" />
   <input  name="WA"  num_pins="7" />
-  <input  name="{N}I"  num_pins="1" />
-  <!-- The PARENT_DI is the DI used when in dual port mode.  For CLUT and BLUT
-       this is SLICEM.DI. For ALUT this is BLUT.DI_OUT. -->
-  <input  name="PARENT_DI" num_pins="1" />
+  <input  name="DI1"  num_pins="1" />
   <input  name="WE"  num_pins="1" />
 
   <output name="DO6"  num_pins="1" />
-  <output name="SO6"  num_pins="1" />
   <output name="O6"  num_pins="1" />
-  <output name="DI_OUT" num_pins="1" />
 
  <mode name="128_DUAL_PORT">
    <xi:include href="dpram64_for_ram128x1d.pb_type.xml" />
@@ -20,31 +15,11 @@
      <direct name="A" input="{N}_DRAM128.A" output="DPRAM64_for_RAM128X1D.A" />
      <direct name="WA" input="{N}_DRAM128.WA[5:0]" output="DPRAM64_for_RAM128X1D.WA[5:0]" />
      <direct name="WA7" input="{N}_DRAM128.WA[6]" output="DPRAM64_for_RAM128X1D.WA7" />
-     <direct name="{N}I" input="{N}_DRAM128.PARENT_DI" output="DPRAM64_for_RAM128X1D.DI1" />
+     <direct name="DI" input="{N}_DRAM128.DI1" output="DPRAM64_for_RAM128X1D.DI" />
      <direct name="WE" input="{N}_DRAM128.WE" output="DPRAM64_for_RAM128X1D.WE" />
 
-     <direct name="DO6" input="DPRAM64_for_RAM128X1D.O6" output="{N}_DRAM128.DO6" />
-     <direct name="O6" input="DPRAM64_for_RAM128X1D.O6" output="{N}_DRAM128.O6" />
-     <direct name="DI_OUT" input="{N}_DRAM128.PARENT_DI" output="{N}_DRAM128.DI_OUT" />
-   </interconnect>
- </mode>
- <mode name="128_SINGLE_PORT">
-   <xi:include href="spram64_for_ram128x1s.pb_type.xml" />
-   <metadata>
-    <meta name="fasm_features">
-      DI1MUX.{N}I
-    </meta>
-   </metadata>
-   <interconnect>
-     <direct name="CLK" input="{N}_DRAM128.CLK" output="SPRAM64_for_RAM128X1S.CLK" />
-     <direct name="A" input="{N}_DRAM128.A" output="SPRAM64_for_RAM128X1S.A" />
-     <direct name="WA7" input="{N}_DRAM128.WA[6]" output="SPRAM64_for_RAM128X1S.WA7" />
-     <direct name="{N}I" input="{N}_DRAM128.{N}I" output="SPRAM64_for_RAM128X1S.DI1" />
-     <direct name="WE" input="{N}_DRAM128.WE" output="SPRAM64_for_RAM128X1S.WE" />
-
-     <direct name="SO6" input="SPRAM64_for_RAM128X1S.O6" output="{N}_DRAM128.SO6" />
-     <direct name="O6" input="SPRAM64_for_RAM128X1S.O6" output="{N}_DRAM128.O6" />
-     <direct name="DI_OUT" input="{N}_DRAM128.{N}I" output="{N}_DRAM128.DI_OUT" />
+     <direct name="DO6" input="DPRAM64_for_RAM128X1D.O" output="{N}_DRAM128.DO6" />
+     <direct name="O6" input="DPRAM64_for_RAM128X1D.O" output="{N}_DRAM128.O6" />
    </interconnect>
  </mode>
  <metadata>

@@ -9,83 +9,43 @@
  <model name="DPRAM64_for_RAM128X1D">
   <input_ports>
    <port is_clock="1"   name="CLK"  />
-   <port clock="CLK"    name="WE"  combinational_sink_ports="O6" />
-   <port clock="CLK"    name="DI1" combinational_sink_ports="O6" />
-   <port clock="CLK"    name="WA"  combinational_sink_ports="O6" />
-   <port clock="CLK"    name="WA7" combinational_sink_ports="O6" />
+   <port clock="CLK"    name="WE"  combinational_sink_ports="O" />
+   <port clock="CLK"    name="DI"  combinational_sink_ports="O" />
+   <port clock="CLK"    name="WA"  combinational_sink_ports="O" />
+   <port clock="CLK"    name="WA7" combinational_sink_ports="O" />
 
-   <port                name="A"   combinational_sink_ports="O6" />
+   <port                name="A"   combinational_sink_ports="O" />
   </input_ports>
   <output_ports>
-   <port                name="O6" />
-  </output_ports>
- </model>
- <model name="SPRAM64_for_RAM128X1S">
-  <input_ports>
-   <port is_clock="1"   name="CLK"  />
-   <port clock="CLK"    name="WE"  combinational_sink_ports="O6" />
-   <port clock="CLK"    name="DI1" combinational_sink_ports="O6" />
-   <port clock="CLK"    name="A"   combinational_sink_ports="O6" />
-   <port clock="CLK"    name="WA7" combinational_sink_ports="O6" />
-  </input_ports>
-  <output_ports>
-   <port                name="O6" />
+   <port                name="O" />
   </output_ports>
  </model>
  <model name="DPRAM64">
   <input_ports>
    <port is_clock="1"   name="CLK"  />
-   <port clock="CLK"    name="WE"  combinational_sink_ports="O6" />
-   <port clock="CLK"    name="DI1" combinational_sink_ports="O6" />
-   <port clock="CLK"    name="WA"  combinational_sink_ports="O6" />
-   <port clock="CLK"    name="WA7" combinational_sink_ports="O6" />
-   <port clock="CLK"    name="WA8" combinational_sink_ports="O6" />
+   <port clock="CLK"    name="WE"  combinational_sink_ports="O" />
+   <port clock="CLK"    name="DI"  combinational_sink_ports="O" />
+   <port clock="CLK"    name="WA"  combinational_sink_ports="O" />
+   <port clock="CLK"    name="WA7" combinational_sink_ports="O" />
+   <port clock="CLK"    name="WA8" combinational_sink_ports="O" />
 
-   <port                name="A"   combinational_sink_ports="O6" />
+   <port                name="A"   combinational_sink_ports="O" />
   </input_ports>
   <output_ports>
-   <port                name="O6" />
-  </output_ports>
- </model>
- <model name="SPRAM64">
-  <input_ports>
-   <port is_clock="1"   name="CLK"  />
-   <port clock="CLK"    name="WE"  combinational_sink_ports="O6" />
-   <port clock="CLK"    name="DI1" combinational_sink_ports="O6" />
-   <port clock="CLK"    name="A"   combinational_sink_ports="O6" />
-   <port clock="CLK"    name="WA7" combinational_sink_ports="O6" />
-   <port clock="CLK"    name="WA8" combinational_sink_ports="O6" />
-  </input_ports>
-  <output_ports>
-   <port                name="O6" />
+   <port                name="O" />
   </output_ports>
  </model>
  <model name="DPRAM32">
   <input_ports>
    <port is_clock="1"   name="CLK"  />
-   <port clock="CLK"    name="WE"  combinational_sink_ports="O6 O5" />
-   <port clock="CLK"    name="DI1" combinational_sink_ports="O6" />
-   <port clock="CLK"    name="DI2" combinational_sink_ports="O5" />
-   <port clock="CLK"    name="WA"  combinational_sink_ports="O6 O5" />
+   <port clock="CLK"    name="WE"  combinational_sink_ports="O" />
+   <port clock="CLK"    name="DI"  combinational_sink_ports="O" />
+   <port clock="CLK"    name="WA"  combinational_sink_ports="O" />
 
-   <port                name="A"   combinational_sink_ports="O6 O5" />
+   <port                name="A"   combinational_sink_ports="O" />
   </input_ports>
   <output_ports>
-   <port                name="O6" />
-   <port                name="O5" />
-  </output_ports>
- </model>
- <model name="SPRAM32">
-  <input_ports>
-   <port is_clock="1"   name="CLK"  />
-   <port clock="CLK"    name="WE"  combinational_sink_ports="O6 O5" />
-   <port clock="CLK"    name="DI1" combinational_sink_ports="O6" />
-   <port clock="CLK"    name="DI2" combinational_sink_ports="O5" />
-   <port clock="CLK"    name="A"   combinational_sink_ports="O6 O5" />
-  </input_ports>
-  <output_ports>
-   <port                name="O6" />
-   <port                name="O5" />
+   <port                name="O" />
   </output_ports>
  </model>
 </models>
