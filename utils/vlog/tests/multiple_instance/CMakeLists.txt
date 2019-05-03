@@ -1,0 +1,1 @@
+v2x_test_both(NAME multiple_instance TOP_MODULE multiple_instance)
