@@ -191,7 +191,7 @@
       <xi:include href="../common_slice/muxes/f7amux/f7amux.pb_type.xml"/>
       <xi:include href="../common_slice/muxes/f7bmux/f7bmux.pb_type.xml"/>
       <xi:include href="../common_slice/muxes/f8mux/f8mux.pb_type.xml"/>
-      <pb_type name="DRAM_8_OUTPUT_STUB" blif_model=".subckt DRAM_8_OUTPUT_STUB" num_pb="2">
+      <pb_type name="DRAM_8_OUTPUT_STUB" blif_model=".subckt DRAM_8_OUTPUT_STUB" num_pb="1">
         <xi:include href="dram_8_output_stub.pb_type.xml"
                     xpointer="xpointer(pb_type/child::node())" />
         <metadata>

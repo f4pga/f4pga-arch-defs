@@ -599,103 +599,103 @@ module RAM32M (
         .INIT_00(INIT_A[63:32]),
         .IS_WCLK_INVERTED(IS_WCLK_INVERTED)
     ) ram_a1 (
-         .D(DOA_TO_STUB[1]),
+         .DI(DIA[1]),
          .A(ADDRA),
          .WA(ADDRD),
-         .WCLK(WCLK),
+         .CLK(WCLK),
          .WE(WE),
-         .O(DIA[1])
+         .O(DOA_TO_STUB[1])
     );
 
     DPRAM32 #(
         .INIT_00(INIT_A[31:0]),
         .IS_WCLK_INVERTED(IS_WCLK_INVERTED)
     ) ram_a0 (
-         .D(DOA_TO_STUB[0]),
+         .DI(DIA[0]),
          .A(ADDRA),
          .WA(ADDRD),
-         .WCLK(WCLK),
+         .CLK(WCLK),
          .WE(WE),
-         .O(DIA[0])
+         .O(DOA_TO_STUB[0])
     );
 
     DPRAM32 #(
         .INIT_00(INIT_B[63:32]),
         .IS_WCLK_INVERTED(IS_WCLK_INVERTED)
     ) ram_b1 (
-         .D(DOB_TO_STUB[1]),
+         .DI(DIB[1]),
          .A(ADDRB),
          .WA(ADDRD),
-         .WCLK(WCLK),
+         .CLK(WCLK),
          .WE(WE),
-         .O(DIB[1])
+         .O(DOB_TO_STUB[1])
     );
 
     DPRAM32 #(
         .INIT_00(INIT_B[31:0]),
         .IS_WCLK_INVERTED(IS_WCLK_INVERTED)
     ) ram_b0 (
-         .D(DOB_TO_STUB[0]),
+         .DI(DIB[0]),
          .A(ADDRB),
          .WA(ADDRD),
-         .WCLK(WCLK),
+         .CLK(WCLK),
          .WE(WE),
-         .O(DIB[0])
+         .O(DOB_TO_STUB[0])
     );
 
     DPRAM32 #(
         .INIT_00(INIT_C[63:32]),
         .IS_WCLK_INVERTED(IS_WCLK_INVERTED)
     ) ram_c1 (
-         .D(DOC_TO_STUB[1]),
+         .DI(DIC[1]),
          .A(ADDRC),
          .WA(ADDRD),
-         .WCLK(WCLK),
+         .CLK(WCLK),
          .WE(WE),
-         .O(DIC[1])
+         .O(DOC_TO_STUB[1])
     );
 
     DPRAM32 #(
         .INIT_00(INIT_C[31:0]),
         .IS_WCLK_INVERTED(IS_WCLK_INVERTED)
     ) ram_c0 (
-         .D(DOC_TO_STUB[0]),
+         .DI(DIC[0]),
          .A(ADDRC),
          .WA(ADDRD),
-         .WCLK(WCLK),
+         .CLK(WCLK),
          .WE(WE),
-         .O(DIC[0])
+         .O(DOC_TO_STUB[0])
     );
 
     DPRAM32 #(
         .INIT_00(INIT_D[63:32]),
         .IS_WCLK_INVERTED(IS_WCLK_INVERTED)
     ) ram_d1 (
-         .D(DOD_TO_STUB[1]),
+         .DI(DID[1]),
          .A(ADDRD),
          .WA(ADDRD),
-         .WCLK(WCLK),
+         .CLK(WCLK),
          .WE(WE),
-         .O(DID[1])
+         .O(DOD_TO_STUB[1])
     );
 
     DPRAM32 #(
         .INIT_00(INIT_D[31:0]),
         .IS_WCLK_INVERTED(IS_WCLK_INVERTED)
     ) ram_d0 (
-         .D(DOD_TO_STUB[0]),
+         .DI(DID[0]),
          .A(ADDRD),
          .WA(ADDRD),
-         .WCLK(WCLK),
+         .CLK(WCLK),
          .WE(WE),
-         .O(DID[0])
+         .O(DOD_TO_STUB[0])
     );
 
     DRAM_8_OUTPUT_STUB stub (
         .DOD1(DOD_TO_STUB[1]), .DOD1_OUT(DOD[1]),
         .DOC1(DOC_TO_STUB[1]), .DOC1_OUT(DOC[1]),
         .DOB1(DOB_TO_STUB[1]), .DOB1_OUT(DOB[1]),
-        .DOA1(DOA_TO_STUB[1]), .DOA1_OUT(DOA[1])
+        .DOA1(DOA_TO_STUB[1]), .DOA1_OUT(DOA[1]),
         .DOD0(DOD_TO_STUB[0]), .DOD0_OUT(DOD[0]),
         .DOC0(DOC_TO_STUB[0]), .DOC0_OUT(DOC[0]),
         .DOB0(DOB_TO_STUB[0]), .DOB0_OUT(DOB[0]),
