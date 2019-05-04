@@ -588,6 +588,103 @@ module RAM32M (
     parameter [63:0] INIT_B = 64'bx;
     parameter [63:0] INIT_C = 64'bx;
     parameter [63:0] INIT_D = 64'bx;
+    parameter IS_WCLK_INVERTED = 0;
+
+    DPRAM32 #(
+        .INIT_00(INIT_A[63:32]),
+        .IS_WCLK_INVERTED(IS_WCLK_INVERTED)
+    ) ram_a1 (
+         .D(DOA[1]),
+         .A(ADDRA),
+         .WA(ADDRD),
+         .WCLK(WCLK),
+         .WE(WE),
+         .O(DIA[1])
+    );
+
+    DPRAM32 #(
+        .INIT_00(INIT_A[31:0]),
+        .IS_WCLK_INVERTED(IS_WCLK_INVERTED)
+    ) ram_a0 (
+         .D(DOA[0]),
+         .A(ADDRA),
+         .WA(ADDRD),
+         .WCLK(WCLK),
+         .WE(WE),
+         .O(DIA[0])
+    );
+
+    DPRAM32 #(
+        .INIT_00(INIT_B[63:32]),
+        .IS_WCLK_INVERTED(IS_WCLK_INVERTED)
+    ) ram_b1 (
+         .D(DOB[1]),
+         .A(ADDRB),
+         .WA(ADDRD),
+         .WCLK(WCLK),
+         .WE(WE),
+         .O(DIB[1])
+    );
+
+    DPRAM32 #(
+        .INIT_00(INIT_B[31:0]),
+        .IS_WCLK_INVERTED(IS_WCLK_INVERTED)
+    ) ram_b0 (
+         .D(DOB[0]),
+         .A(ADDRB),
+         .WA(ADDRD),
+         .WCLK(WCLK),
+         .WE(WE),
+         .O(DIB[0])
+    );
+
+    DPRAM32 #(
+        .INIT_00(INIT_C[63:32]),
+        .IS_WCLK_INVERTED(IS_WCLK_INVERTED)
+    ) ram_c1 (
+         .D(DOC[1]),
+         .A(ADDRC),
+         .WA(ADDRD),
+         .WCLK(WCLK),
+         .WE(WE),
+         .O(DIC[1])
+    );
+
+    DPRAM32 #(
+        .INIT_00(INIT_C[31:0]),
+        .IS_WCLK_INVERTED(IS_WCLK_INVERTED)
+    ) ram_c0 (
+         .D(DOC[0]),
+         .A(ADDRC),
+         .WA(ADDRD),
+         .WCLK(WCLK),
+         .WE(WE),
+         .O(DIC[0])
+    );
+
+    DPRAM32 #(
+        .INIT_00(INIT_D[63:32]),
+        .IS_WCLK_INVERTED(IS_WCLK_INVERTED)
+    ) ram_d1 (
+         .D(DOD[1]),
+         .A(ADDRD),
+         .WA(ADDRD),
+         .WCLK(WCLK),
+         .WE(WE),
+         .O(DID[1])
+    );
+
+    DPRAM32 #(
+        .INIT_00(INIT_D[31:0]),
+        .IS_WCLK_INVERTED(IS_WCLK_INVERTED)
+    ) ram_d0 (
+         .D(DOD[0]),
+         .A(ADDRD),
+         .WA(ADDRD),
+         .WCLK(WCLK),
+         .WE(WE),
+         .O(DID[0])
+    );
 
 endmodule
 
