@@ -1,0 +1,75 @@
+[
+  {
+    "type": ".*SLICEL.*",
+    "color": "#008000"
+  },
+  {
+    "type": ".*SLICEM.*",
+    "color": "#00C000"
+  },
+  {
+    "type": ".*CLBLL_[LR]",
+    "color": "#800000"
+  },
+  {
+    "type": ".*CLBLM_[LR]",
+    "color": "#C00000"
+  },
+  {
+    "type": ".*INT_[LR]",
+    "color": "#0000E0"
+  },
+  {
+    "type": ".*HCLK_.*",
+    "color": "#C0C000"
+  },
+  {
+    "type": ".*BRAM_[LR]",
+    "color": "#C08040"
+  },
+  {
+    "type": ".*VBRK",
+    "color": "#804020"
+  },
+  {
+    "type": ".*BRKH_.*",
+    "color": "#404000"
+  },
+  {
+    "type": ".*VFRAME",
+    "color": "#804020"
+  },
+  {
+    "type": ".*VPR.*",
+    "color": "#C000C0"
+  },
+  {
+    "type": ".*PCIE_.*",
+    "color": "#80C000"
+  },
+  {
+    "type": ".*DSP_R",
+    "color": "#800080"
+  },
+  {
+    "type": ".*IOB.*",
+    "color": "#0080C0"
+  },
+
+  {
+    "type": "BLK_SY-INPAD",
+    "color": "#D0FFD0"
+  },
+  {
+    "type": "BLK_SY-OUTPAD",
+    "color": "#FFD0D0"
+  },
+  {
+    "type": "BLK_SY-GND",
+    "color": "#8080FF"
+  },
+  {
+    "type": "BLK_SY-VCC",
+    "color": "#FF8080"
+  }
+]
