@@ -346,30 +346,30 @@
 
         <!-- 32 bits, upper half, interleaved -->
         <direct name="SPO_0" input="D_DRAM.SO6_32" output="DRAM_2_OUTPUT_STUB[0].SPO">
-          <pack_pattern in_port="D_DRAM.SO6_32" name="DRAM_DP_32" out_port="DRAM_2_OUTPUT_STUB[0].SPO" />
+          <pack_pattern in_port="D_DRAM.SO6_32" name="DRAM_DP_32_HI" out_port="DRAM_2_OUTPUT_STUB[0].SPO" />
         </direct>
         <direct name="DPO_0" input="C_DRAM.DO6_32" output="DRAM_2_OUTPUT_STUB[0].DPO">
-          <pack_pattern in_port="C_DRAM.DO6_32" name="DRAM_DP_32" out_port="DRAM_2_OUTPUT_STUB[0].DPO" />
+          <pack_pattern in_port="C_DRAM.DO6_32" name="DRAM_DP_32_HI" out_port="DRAM_2_OUTPUT_STUB[0].DPO" />
         </direct>
         <direct name="SPO_1" input="D_DRAM.SO5_32" output="DRAM_2_OUTPUT_STUB[1].SPO">
-          <pack_pattern in_port="D_DRAM.SO5_32" name="DRAM_DP_32" out_port="DRAM_2_OUTPUT_STUB[1].SPO" />
+          <pack_pattern in_port="D_DRAM.SO5_32" name="DRAM_DP_32_HI" out_port="DRAM_2_OUTPUT_STUB[1].SPO" />
         </direct>
         <direct name="DPO_1" input="C_DRAM.DO5_32" output="DRAM_2_OUTPUT_STUB[1].DPO">
-          <pack_pattern in_port="C_DRAM.DO5_32" name="DRAM_DP_32" out_port="DRAM_2_OUTPUT_STUB[1].DPO" />
+          <pack_pattern in_port="C_DRAM.DO5_32" name="DRAM_DP_32_HI" out_port="DRAM_2_OUTPUT_STUB[1].DPO" />
         </direct>
 
         <!-- 32 bits, lower half, interleaved -->
         <direct name="SPO_2" input="B_DRAM.DO6_32" output="DRAM_2_OUTPUT_STUB[2].SPO">
-          <pack_pattern in_port="B_DRAM.DO6_32" name="DRAM_DP_32" out_port="DRAM_2_OUTPUT_STUB[2].SPO" />
+          <pack_pattern in_port="B_DRAM.DO6_32" name="DRAM_DP_32_LO" out_port="DRAM_2_OUTPUT_STUB[2].SPO" />
         </direct>
         <direct name="DPO_2" input="A_DRAM.DO6_32" output="DRAM_2_OUTPUT_STUB[2].DPO">
-          <pack_pattern in_port="A_DRAM.DO6_32" name="DRAM_DP_32" out_port="DRAM_2_OUTPUT_STUB[2].DPO" />
+          <pack_pattern in_port="A_DRAM.DO6_32" name="DRAM_DP_32_LO" out_port="DRAM_2_OUTPUT_STUB[2].DPO" />
         </direct>
         <direct name="SPO_3" input="B_DRAM.DO5_32" output="DRAM_2_OUTPUT_STUB[3].SPO">
-          <pack_pattern in_port="B_DRAM.DO5_32" name="DRAM_DP_32" out_port="DRAM_2_OUTPUT_STUB[3].SPO" />
+          <pack_pattern in_port="B_DRAM.DO5_32" name="DRAM_DP_32_LO" out_port="DRAM_2_OUTPUT_STUB[3].SPO" />
         </direct>
         <direct name="DPO_3" input="A_DRAM.DO5_32" output="DRAM_2_OUTPUT_STUB[3].DPO">
-          <pack_pattern in_port="A_DRAM.DO5_32" name="DRAM_DP_32" out_port="DRAM_2_OUTPUT_STUB[3].DPO" />
+          <pack_pattern in_port="A_DRAM.DO5_32" name="DRAM_DP_32_LO" out_port="DRAM_2_OUTPUT_STUB[3].DPO" />
         </direct>
 
         <!-- 64 bits -->
@@ -412,7 +412,6 @@
           <pack_pattern  in_port="A_DRAM.DO6" name="DRAM_QP" out_port="DRAM_4_OUTPUT_STUB[1].DOA" />
         </direct>
 
-        <!-- fix this -->
         <mux name="DO6" input="D_DRAM.O6 DRAM_2_OUTPUT_STUB[0].SPO_OUT DRAM_2_OUTPUT_STUB[4].SPO_OUT DRAM_4_OUTPUT_STUB[0].DOD_OUT DRAM_4_OUTPUT_STUB[1].DOD_OUT"
              output="SLICEM_MODES.DO6" />
         <mux name="DO5" input="D_DRAM.O5 DRAM_2_OUTPUT_STUB[1].SPO_OUT"
