@@ -263,8 +263,16 @@ def make_pb_content(yj, mod, xml_parent, mod_pname, is_submode=False):
                 # num_pb value
                 with open(pb_type_path, 'r') as inc_xml:
                     xml_inc = ET.fromstring(inc_xml.read().encode('utf-8'))
-                    xml_inc.attrib['num_pb'] = str(cells[i_of]['count'] + 1)
-                    xml_parent.append(xml_inc)
+                    inc_attrib = xml_inc.attrib
+                    inc_attrib['num_pb'] = str(cells[i_of]['count'] + 1)
+
+                inc_pb_type = ET.SubElement(xml_parent, 'pb_type', inc_attrib)
+                xmlinc.include_xml(
+                    parent=inc_pb_type,
+                    href=pb_type_path,
+                    outfile=outfile,
+                    xptr="xpointer(pb_type/child::node())"
+                )
 
             # In order to avoid overspecifying interconnect, there are two directions we currently
             # consider. All interconnect going INTO a cell, and interconnect going out of a cell
