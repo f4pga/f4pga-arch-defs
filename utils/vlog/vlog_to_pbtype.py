@@ -258,9 +258,14 @@ def make_pb_content(yj, mod, xml_parent, mod_pname, is_submode=False):
                     )
                 else:
                     pb_type_path = "{}/pb_type.xml".format(module_path)
-                xmlinc.include_xml(
-                    parent=xml_parent, href=pb_type_path, outfile=outfile
-                )
+
+                # inlude contents of the included pb_type, but update it's
+                # num_pb value
+                with open(pb_type_path, 'r') as inc_xml:
+                    xml_inc = ET.fromstring(inc_xml.read().encode('utf-8'))
+                    xml_inc.attrib['num_pb'] = str(cells[i_of]['count'] + 1)
+                    xml_parent.append(xml_inc)
+
             # In order to avoid overspecifying interconnect, there are two directions we currently
             # consider. All interconnect going INTO a cell, and interconnect going out of a cell
             # into a top level output - or all outputs if "mode" is used.
@@ -420,12 +425,12 @@ def make_pb_type(yj, mod):
         pb_xml_attrs["blif_model"
                      ] = ".subckt " + mod.attr("MODEL_NAME", mod.name)
 
-    #TODO: might not always be the case? should be use Verilog `generate`s to detect this?
+    # set num_pb to 1, it will be updated if this pb_type
+    # will be included by another one
     pb_xml_attrs["num_pb"] = "1"
     pb_type_xml = ET.Element(
         "pb_type", pb_xml_attrs, nsmap={'xi': xmlinc.xi_url}
     )
-
     # Process IOs
     clocks = yosys.run.list_clocks(args.infiles, mod.name)
     for name, width, bits, iodir in mod.ports:
