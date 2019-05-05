@@ -1,5 +1,3 @@
-//`include "../../../../vpr/ff/vpr_ff.sim.v"
-
 (* blackbox *)
 module dff (d, clk, q);
 	input wire d;
@@ -9,13 +7,6 @@ module dff (d, clk, q);
 	always @ ( posedge clk ) begin
 		q <= d;
 	end
-	/*
-        VPR_FF ff(
-                .D(d),
-                .clk(clk),
-                .Q(q),
-        );
-	*/
 
 `ifndef YOSYS
 	specify
