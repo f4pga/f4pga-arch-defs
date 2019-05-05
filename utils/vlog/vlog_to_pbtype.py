@@ -51,7 +51,9 @@ import lxml.etree as ET
 
 import yosys.run
 from yosys.json import YosysJSON
-import xmlinc
+
+sys.path.insert(0, "..")
+from lib import xmlinc
 
 parser = argparse.ArgumentParser(
     description=__doc__.strip(), formatter_class=argparse.RawTextHelpFormatter
