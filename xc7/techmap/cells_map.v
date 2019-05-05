@@ -704,71 +704,78 @@ module RAM32M (
 
 endmodule
 
-//module RAM64M (
-//  output DOA, DOB, DOC, DOD,
-//  input DIA, DIB, DIC, DID,
-//  input [5:0] ADDRA, ADDRB, ADDRC, ADDRD,
-//  input WE, WCLK
-//);
-//    parameter [63:0] INIT_A = 64'bx;
-//    parameter [63:0] INIT_B = 64'bx;
-//    parameter [63:0] INIT_C = 64'bx;
-//    parameter [63:0] INIT_D = 64'bx;
-//    parameter IS_WCLK_INVERTED = 0;
-//
-//    parameter _TECHMAP_BITS_CONNMAP_ = 0;
-//    parameter _TECHMAP_CONNMAP_DIA_ = 0;
-//    parameter _TECHMAP_CONNMAP_DIB_ = 0;
-//    parameter _TECHMAP_CONNMAP_DIC_ = 0;
-//    parameter _TECHMAP_CONNMAP_DID_ = 0;
-//    parameter _TECHMAP_CONNMAP_ADDRA_ = 0;
-//    parameter _TECHMAP_CONNMAP_ADDRB_ = 0;
-//    parameter _TECHMAP_CONNMAP_ADDRC_ = 0;
-//    parameter _TECHMAP_CONNMAP_ADDRD_ = 0;
-//
-//    wire COMMON_DI_PORT = (_TECHMAP_CONNMAP_DIA_ == _TECHMAP_CONNMAP_DIB_) &
-//        (_TECHMAP_CONNMAP_DIA_ == _TECHMAP_CONNMAP_DIB_) &
-//        (_TECHMAP_CONNMAP_DIA_ == _TECHMAP_CONNMAP_DID_);
-//
-//    wire COMMON_ADDR_PORT = (_TECHMAP_CONNMAP_ADDRA_ == _TECHMAP_CONNMAP_ADDRB_) &
-//        (_TECHMAP_CONNMAP_ADDRA_ == _TECHMAP_CONNMAP_ADDRC_) &
-//        (_TECHMAP_CONNMAP_ADDRA_ == _TECHMAP_CONNMAP_ADDRD_);
-//
-//    wire DOD_TO_STUB;
-//    wire DOC_TO_STUB;
-//    wire DOB_TO_STUB;
-//    wire DOA_TO_STUB;
-//
-//    wire GROUNDED_DID_PORT = (_TECHMAP_CONNMAP_DID_ == 0);
-//
-//    if(!GROUNDED_DID_PORT) begin
-//        DPRAM64 #(
-//            .INIT(INIT_D),
-//            .IS_WCLK_INVERTED(IS_WCLK_INVERTED)
-//        ) dram1 (
-//            .DI(DID_IN),
-//            .A(ADDRD),
-//            .CLK(WCLK),
-//            .WE(WE),
-//            .O(DOD_TO_STUB)
-//        );
-//    end
-//
-//    if(!GROUNDED_DID_PORT) begin
-//        DRAM_4_OUTPUT_STUB stub (
-//            .DOD(DOD_TO_STUB), .DOD_OUT(DOD),
-//            .DOC(DOC_TO_STUB), .DOC_OUT(DOC),
-//            .DOB(DOB_TO_STUB), .DOB_OUT(DOB),
-//            .DOA(DOA_TO_STUB), .DOA_OUT(DOA)
-//        );
-//    end else begin
-//        DRAM_4_OUTPUT_STUB stub (
-//            .DOC(DOC_TO_STUB), .DOC_OUT(DOC),
-//            .DOB(DOB_TO_STUB), .DOB_OUT(DOB),
-//            .DOA(DOA_TO_STUB), .DOA_OUT(DOA)
-//        );
-//    end
-//endmodule
+module RAM64M (
+  output DOA, DOB, DOC, DOD,
+  input DIA, DIB, DIC, DID,
+  input [5:0] ADDRA, ADDRB, ADDRC, ADDRD,
+  input WE, WCLK
+);
+    parameter [63:0] INIT_A = 64'bx;
+    parameter [63:0] INIT_B = 64'bx;
+    parameter [63:0] INIT_C = 64'bx;
+    parameter [63:0] INIT_D = 64'bx;
+    parameter IS_WCLK_INVERTED = 0;
+
+    wire DOD_TO_STUB;
+    wire DOC_TO_STUB;
+    wire DOB_TO_STUB;
+    wire DOA_TO_STUB;
+
+    DPRAM64 #(
+        .INIT(INIT_D),
+        .IS_WCLK_INVERTED(IS_WCLK_INVERTED)
+    ) dram_d (
+        .DI(DID),
+        .A(ADDRD),
+        .WA(ADDRD),
+        .CLK(WCLK),
+        .WE(WE),
+        .O(DOD_TO_STUB)
+    );
+
+    DPRAM64 #(
+        .INIT(INIT_C),
+        .IS_WCLK_INVERTED(IS_WCLK_INVERTED)
+    ) dram_c (
+        .DI(DIC),
+        .A(ADDRC),
+        .WA(ADDRD),
+        .CLK(WCLK),
+        .WE(WE),
+        .O(DOC_TO_STUB)
+    );
+
+    DPRAM64 #(
+        .INIT(INIT_B),
+        .IS_WCLK_INVERTED(IS_WCLK_INVERTED)
+    ) dram_b (
+        .DI(DIB),
+        .A(ADDRB),
+        .WA(ADDRD),
+        .CLK(WCLK),
+        .WE(WE),
+        .O(DOB_TO_STUB)
+    );
+
+    DPRAM64 #(
+        .INIT(INIT_A),
+        .IS_WCLK_INVERTED(IS_WCLK_INVERTED)
+    ) dram_a (
+        .DI(DIA),
+        .A(ADDRA),
+        .WA(ADDRD),
+        .CLK(WCLK),
+        .WE(WE),
+        .O(DOA_TO_STUB)
+    );
+
+    DRAM_4_OUTPUT_STUB stub (
+        .DOD(DOD_TO_STUB), .DOD_OUT(DOD),
+        .DOC(DOC_TO_STUB), .DOC_OUT(DOC),
+        .DOB(DOB_TO_STUB), .DOB_OUT(DOB),
+        .DOA(DOA_TO_STUB), .DOA_OUT(DOA)
+    );
+endmodule
 
 module RAM64X1D (
   output DPO, SPO,
