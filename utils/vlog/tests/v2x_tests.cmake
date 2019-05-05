@@ -81,7 +81,6 @@ function(V2X_TEST_MODEL)
   set(TOP_MODULE ${V2X_TEST_MODEL_TOP_MODULE})
 
   set(SRC ${NAME}.sim.v)
-  add_file_target(FILE ${SRC} SCANNER_TYPE verilog)
   v2x(NAME ${NAME} SRCS ${SRC} TOP_MODULE ${TOP_MODULE})
 
   v2x_generic_test(NAME ${NAME} TOP_MODULE ${TOP_MODULE} TYPE model)
@@ -117,7 +116,6 @@ function(V2X_TEST_PB_TYPE)
   set(TOP_MODULE ${V2X_TEST_MODEL_TOP_MODULE})
 
   set(SRC ${NAME}.sim.v)
-  add_file_target(FILE ${SRC} SCANNER_TYPE verilog)
   v2x(NAME ${NAME} SRCS ${SRC} TOP_MODULE ${TOP_MODULE})
 
   v2x_generic_test(NAME ${NAME} TOP_MODULE ${TOP_MODULE} TYPE pb_type)
@@ -154,7 +152,6 @@ function(V2X_TEST_BOTH)
   set(TOP_MODULE ${V2X_TEST_BOTH_TOP_MODULE})
 
   set(SRC ${NAME}.sim.v)
-  add_file_target(FILE ${SRC} SCANNER_TYPE verilog)
   v2x(NAME ${NAME} SRCS ${SRC} TOP_MODULE ${TOP_MODULE})
 
   v2x_generic_test(NAME ${NAME} TOP_MODULE ${MODULE} TYPE pb_type)
