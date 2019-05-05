@@ -1,23 +1,13 @@
 <?xml version='1.0' encoding='utf-8'?>
 <pb_type xmlns:xi="http://www.w3.org/2001/XInclude" name="multiple_instance" num_pb="1">
-  <input name="a" num_pins="64"/>
-  <input name="b" num_pins="64"/>
-  <input name="cin" num_pins="64"/>
+  <input  name="a"    num_pins="64"/>
+  <input  name="b"    num_pins="64"/>
+  <input  name="cin"  num_pins="64"/>
   <output name="cout" num_pins="64"/>
-  <output name="sum" num_pins="64"/>
+  <output name="sum"  num_pins="64"/>
   <pb_type blif_model=".subckt adder" name="adder" num_pb="64">
-  <input name="a" num_pins="1"/>
-  <input name="b" num_pins="1"/>
-  <input name="cin" num_pins="1"/>
-  <output name="cout" num_pins="1"/>
-  <output name="sum" num_pins="1"/>
-  <delay_constant in_port="adder.a" max="300e-12" out_port="adder.cout"/>
-  <delay_constant in_port="adder.b" max="300e-12" out_port="adder.cout"/>
-  <delay_constant in_port="adder.cin" max="10e-12" out_port="adder.cout"/>
-  <delay_constant in_port="adder.a" max="300e-12" out_port="adder.sum"/>
-  <delay_constant in_port="adder.b" max="300e-12" out_port="adder.sum"/>
-  <delay_constant in_port="adder.cin" max="300e-12" out_port="adder.sum"/>
-</pb_type>
+    <xi:include href="../fig41-full-adder/adder.pb_type.xml" xpointer="xpointer(pb_type/child::node())" />
+  </pb_type>
   <interconnect>
     <direct>
       <port name="a[0]" type="input"/>
