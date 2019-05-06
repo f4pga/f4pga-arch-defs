@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 
+
 def flatten(ports, reverse=False):
     """Convert port + width into individual pins.
 
