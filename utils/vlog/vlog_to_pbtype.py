@@ -41,6 +41,9 @@ The following are allowed on ports:
 
     - `(* PORT_CLASS="clock" *)` : specify the VPR "port_class"
 
+    - `(* FASM_xxxx *)` : All attributes with names starting from "FASM_" will
+        be converted do metadata entries with corresponding lowercase names.
+
 The Verilog define "PB_TYPE" is set during generation.
 """
 
@@ -398,6 +401,19 @@ def make_pb_content(yj, mod, xml_parent, mod_pname, is_submode=False):
                     }
                 )
                 xml_mat.text = mat
+
+    # Append metadata
+    metadata = {}
+
+    for attr, value in mod.module_attrs.items():
+        if attr.startswith("FASM_"):
+            metadata[attr.lower()] = value
+
+    if len(metadata):
+        xml_metadata = ET.SubElement(xml_parent, 'metadata')
+        for key, value in metadata.items():
+            xml_meta = ET.SubElement(xml_metadata, "meta", {"name": key})
+            xml_meta.text = value
 
 
 def make_pb_type(yj, mod):
