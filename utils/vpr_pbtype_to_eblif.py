@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-
 """
 Generate an eblif file targetting a given pb_type.xml file.
 Used for testing a leaf pb_type can be placed and routed with Verilog to
@@ -59,9 +58,13 @@ parser.add_argument('--pb_type', '-p', help="""\
 pb_type.xml file
 """)
 
-parser.add_argument('--output', '-o', help="""\
+parser.add_argument(
+    '--output',
+    '-o',
+    help="""\
 Output filename, default '<name>.test.eblif'
-""")
+"""
+)
 
 
 def main(args):
@@ -71,7 +74,9 @@ def main(args):
     pbtype_xml.xinclude()
 
     pbtype_leaf = find_leaf(pbtype_xml.getroot())
-    assert pbtype_leaf is not None, "Unable to find leaf <pb_type> tag in {}".format(args.pb_type)
+    assert pbtype_leaf is not None, "Unable to find leaf <pb_type> tag in {}".format(
+        args.pb_type
+    )
 
     pbtype_name, clocks, inputs, outputs = ports(pbtype_leaf)
     iname = os.path.basename(args.pb_type)

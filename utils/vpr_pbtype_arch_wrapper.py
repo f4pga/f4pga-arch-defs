@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-
 """
 Tool for generate an arch.xml file which includes pb_type.xml and model.xml
 files for testing with Verilog to Routing.
@@ -20,7 +19,6 @@ import lxml.etree as ET
 from lib import xmlinc
 from lib.flatten import flatten
 from lib.pb_type import ports, Port
-
 
 FILEDIR_PATH = os.path.abspath(os.path.join(os.path.dirname(__file__)))
 TEMPLATE_PATH = os.path.abspath(
@@ -143,7 +141,10 @@ def grid_generate(inputs: List[str], outputs: List[str]) -> GridDict:
     return tiles
 
 
-def arch_xml(outfile: str, name: str, clocks: List[Port], inputs: List[Port], outputs: List[Port]):
+def arch_xml(
+        outfile: str, name: str, clocks: List[Port], inputs: List[Port],
+        outputs: List[Port]
+):
     """Generate an arch.xml file which wraps a pb_type."""
 
     assert name != "TILE", "name ({}) must not be TILE".format(name)
@@ -204,7 +205,7 @@ def arch_xml(outfile: str, name: str, clocks: List[Port], inputs: List[Port], ou
             }
         )
 
-    theight = 1 #max(len(finputs), len(foutputs))
+    theight = 1  #max(len(finputs), len(foutputs))
 
     cbl = root.find("complexblocklist")
     tile = ET.SubElement(
@@ -234,25 +235,29 @@ def arch_xml(outfile: str, name: str, clocks: List[Port], inputs: List[Port], ou
     ilocs = []
     olocs = []
     for i in range(0, theight):
-        ilocs.append(ET.SubElement(
-            ploc,
-            "loc",
-            {
-                "side": "left",
-                "xoffset": "0",
-                "yoffset": str(i)
-            },
-        ))
+        ilocs.append(
+            ET.SubElement(
+                ploc,
+                "loc",
+                {
+                    "side": "left",
+                    "xoffset": "0",
+                    "yoffset": str(i)
+                },
+            )
+        )
         ilocs[i].text = ""
-        olocs.append(ET.SubElement(
-            ploc,
-            "loc",
-            {
-                "side": "right",
-                "xoffset": "0",
-                "yoffset": str(i)
-            },
-        ))
+        olocs.append(
+            ET.SubElement(
+                ploc,
+                "loc",
+                {
+                    "side": "right",
+                    "xoffset": "0",
+                    "yoffset": str(i)
+                },
+            )
+        )
         olocs[i].text = ""
 
     # Clock pins
@@ -344,9 +349,11 @@ parser.add_argument('--pb_type', '-p', help="""\
 pb_type.xml file
 """)
 
-parser.add_argument('--output', '-o', help="""\
+parser.add_argument(
+    '--output', '-o', help="""\
 Output filename, default '<name>.arch.xml'
-""")
+"""
+)
 
 
 def main(args):
