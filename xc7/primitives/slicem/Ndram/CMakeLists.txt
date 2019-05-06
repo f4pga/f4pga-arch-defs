@@ -1,9 +1,6 @@
 add_file_target(FILE dpram32.pb_type.xml SCANNER_TYPE xml)
-add_file_target(FILE spram32.pb_type.xml SCANNER_TYPE xml)
 add_file_target(FILE dpram64.pb_type.xml SCANNER_TYPE xml)
-add_file_target(FILE spram64.pb_type.xml SCANNER_TYPE xml)
-add_file_target(FILE dpram128.pb_type.xml SCANNER_TYPE xml)
-add_file_target(FILE spram128.pb_type.xml SCANNER_TYPE xml)
+add_file_target(FILE dpram64_for_ram128x1d.pb_type.xml SCANNER_TYPE xml)
 
 add_file_target(FILE ntemplate.N_dram.pb_type.xml SCANNER_TYPE xml)
 add_file_target(FILE ntemplate.N_dram128.pb_type.xml SCANNER_TYPE xml)

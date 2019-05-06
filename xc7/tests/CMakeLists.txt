@@ -13,4 +13,4 @@ add_subdirectory(bram)
 add_subdirectory(chain_packing)
 add_subdirectory(uart_loopback)
 add_subdirectory(ff_sr_ce)
-
+add_subdirectory(dram_shifter)

@@ -199,7 +199,7 @@
           <meta name="subtype">blackbox</meta>
         </metadata>
       </pb_type>
-      <pb_type name="DRAM_2_OUTPUT_STUB" blif_model=".subckt DRAM_2_OUTPUT_STUB" num_pb="4">
+      <pb_type name="DRAM_2_OUTPUT_STUB" blif_model=".subckt DRAM_2_OUTPUT_STUB" num_pb="6">
         <xi:include href="dram_2_output_stub.pb_type.xml"
                     xpointer="xpointer(pb_type/child::node())" />
         <metadata>
@@ -299,36 +299,34 @@
         <direct name="B_WA8" input="SLICEM_MODES.WA8"  output="B_DRAM.WA[7]" />
         <direct name="A_WA8" input="SLICEM_MODES.WA8"  output="A_DRAM.WA[7]" />
 
-        <!-- Direct DI1 inputs -->
-        <direct name="DI" input="SLICEM_MODES.DI" output="D_DRAM.DI1" />
-        <direct name="CI" input="SLICEM_MODES.CI" output="C_DRAM.CI" />
-        <direct name="BI" input="SLICEM_MODES.BI" output="B_DRAM.BI" />
-        <direct name="AI" input="SLICEM_MODES.AI" output="A_DRAM.AI" />
-
-        <!-- Parent DI1 inputs -->
-        <direct name="P_CI" input="SLICEM_MODES.DI" output="C_DRAM.PARENT_DI" />
-        <direct name="P_BI" input="SLICEM_MODES.DI" output="B_DRAM.PARENT_DI" />
-
-        <!-- This isn't quiet right.  SLICEM_MODES.DI is used if and only if
-             B_DRAM is in dual-port mode, and SLICEM_MODES.BI is used if and
-             only if B_DRAM is in single-port mode.
-
-             Synthesis should only emit A_DRAM.PARENT_DI connection that match
-             with the B_DRAM mode.
-
-             The reason this isn't modelled in VPR is that VPR cannot handle
-             mode based pure edges (e.g. input -> output without touching a
-             block). If VPR is modified to handle mode-based pure connections,
-             then this can be fully modelled in a mode based connection,
-             rather than a simple mux.
-
-             It is worth noting that if B_DRAM only have 1 single port mode,
-             this issue wouldn't arise, but that would require creating
-             B_DRAM32 and another top level model for 32-bit DRAMs,
-             which would duplicate SLICEM_MODES more than would otherwise be
-             required.
-             -->
-        <mux name="P_AI" input="SLICEM_MODES.DI SLICEM_MODES.BI" output="A_DRAM.PARENT_DI" />
+        <!-- DI1 inputs -->
+        <direct name="D_DI1" input="SLICEM_MODES.DI" output="D_DRAM.DI1" />
+        <mux name="CDI1MUX" input="SLICEM_MODES.DI SLICEM_MODES.CI" output="C_DRAM.DI1">
+          <metadata>
+            <meta name="fasm_mux">
+              SLICEM_MODES.DI = NULL
+              SLICEM_MODES.CI = DI1MUX.CI
+            </meta>
+          </metadata>
+        </mux>
+        <mux name="BDI1MUX" input="SLICEM_MODES.DI SLICEM_MODES.BI" output="B_DRAM.DI1">
+          <metadata>
+            <meta name="fasm_mux">
+              SLICEM_MODES.DI = NULL
+              SLICEM_MODES.BI = DI1MUX.BI
+            </meta>
+          </metadata>
+        </mux>
+        <!-- TODO: ensure BLUT.DI1MUX is set correctly for SLICEM_MODES.DI/BI -->
+        <mux name="ADI1MUX" input="SLICEM_MODES.DI SLICEM_MODES.BI SLICEM_MODES.AI" output="A_DRAM.DI1">
+          <metadata>
+            <meta name="fasm_mux">
+              SLICEM_MODES.DI = NULL
+              SLICEM_MODES.BI = NULL
+              SLICEM_MODES.AI = DI1MUX.AI
+            </meta>
+          </metadata>
+        </mux>
 
         <!-- DI2 inputs -->
         <direct name="D_DI2" input="SLICEM_MODES.DX" output="D_DRAM.DI2" />
@@ -346,30 +344,46 @@
 
         <!-- Outputs -->
 
+        <!-- 32 bits, upper half, interleaved -->
         <direct name="SPO_0" input="D_DRAM.SO6_32" output="DRAM_2_OUTPUT_STUB[0].SPO">
-          <pack_pattern in_port="D_DRAM.SO6_32" name="DRAM_DP_32" out_port="DRAM_2_OUTPUT_STUB[0].SPO" />
+          <pack_pattern in_port="D_DRAM.SO6_32" name="DRAM_DP_32_HI" out_port="DRAM_2_OUTPUT_STUB[0].SPO" />
         </direct>
         <direct name="DPO_0" input="C_DRAM.DO6_32" output="DRAM_2_OUTPUT_STUB[0].DPO">
-          <pack_pattern in_port="C_DRAM.DO6_32" name="DRAM_DP_32" out_port="DRAM_2_OUTPUT_STUB[0].DPO" />
+          <pack_pattern in_port="C_DRAM.DO6_32" name="DRAM_DP_32_HI" out_port="DRAM_2_OUTPUT_STUB[0].DPO" />
         </direct>
-        <direct name="SPO_1" input="B_DRAM.SO6_32" output="DRAM_2_OUTPUT_STUB[1].SPO">
-          <pack_pattern in_port="B_DRAM.SO6_32" name="DRAM_DP_32" out_port="DRAM_2_OUTPUT_STUB[1].SPO" />
+        <direct name="SPO_1" input="D_DRAM.SO5_32" output="DRAM_2_OUTPUT_STUB[1].SPO">
+          <pack_pattern in_port="D_DRAM.SO5_32" name="DRAM_DP_32_HI" out_port="DRAM_2_OUTPUT_STUB[1].SPO" />
         </direct>
-        <direct name="DPO_1" input="A_DRAM.DO6_32" output="DRAM_2_OUTPUT_STUB[1].DPO">
-          <pack_pattern in_port="A_DRAM.DO6_32" name="DRAM_DP_32" out_port="DRAM_2_OUTPUT_STUB[1].DPO" />
+        <direct name="DPO_1" input="C_DRAM.DO5_32" output="DRAM_2_OUTPUT_STUB[1].DPO">
+          <pack_pattern in_port="C_DRAM.DO5_32" name="DRAM_DP_32_HI" out_port="DRAM_2_OUTPUT_STUB[1].DPO" />
         </direct>
 
-        <direct name="SPO_2" input="D_DRAM.SO6" output="DRAM_2_OUTPUT_STUB[2].SPO">
-          <pack_pattern in_port="D_DRAM.SO6" name="DRAM_DP" out_port="DRAM_2_OUTPUT_STUB[2].SPO" />
+        <!-- 32 bits, lower half, interleaved -->
+        <direct name="SPO_2" input="B_DRAM.DO6_32" output="DRAM_2_OUTPUT_STUB[2].SPO">
+          <pack_pattern in_port="B_DRAM.DO6_32" name="DRAM_DP_32_LO" out_port="DRAM_2_OUTPUT_STUB[2].SPO" />
         </direct>
-        <direct name="DPO_2" input="C_DRAM.DO6" output="DRAM_2_OUTPUT_STUB[2].DPO">
-          <pack_pattern in_port="C_DRAM.DO6" name="DRAM_DP" out_port="DRAM_2_OUTPUT_STUB[2].DPO" />
+        <direct name="DPO_2" input="A_DRAM.DO6_32" output="DRAM_2_OUTPUT_STUB[2].DPO">
+          <pack_pattern in_port="A_DRAM.DO6_32" name="DRAM_DP_32_LO" out_port="DRAM_2_OUTPUT_STUB[2].DPO" />
         </direct>
-        <direct name="SPO_3" input="B_DRAM.SO6" output="DRAM_2_OUTPUT_STUB[3].SPO">
-          <pack_pattern in_port="B_DRAM.SO6" name="DRAM_DP" out_port="DRAM_2_OUTPUT_STUB[3].SPO" />
+        <direct name="SPO_3" input="B_DRAM.DO5_32" output="DRAM_2_OUTPUT_STUB[3].SPO">
+          <pack_pattern in_port="B_DRAM.DO5_32" name="DRAM_DP_32_LO" out_port="DRAM_2_OUTPUT_STUB[3].SPO" />
         </direct>
-        <direct name="DPO_3" input="A_DRAM.DO6" output="DRAM_2_OUTPUT_STUB[3].DPO">
-          <pack_pattern in_port="A_DRAM.DO6" name="DRAM_DP" out_port="DRAM_2_OUTPUT_STUB[3].DPO" />
+        <direct name="DPO_3" input="A_DRAM.DO5_32" output="DRAM_2_OUTPUT_STUB[3].DPO">
+          <pack_pattern in_port="A_DRAM.DO5_32" name="DRAM_DP_32_LO" out_port="DRAM_2_OUTPUT_STUB[3].DPO" />
+        </direct>
+
+        <!-- 64 bits -->
+        <direct name="SPO_4" input="D_DRAM.SO6" output="DRAM_2_OUTPUT_STUB[4].SPO">
+          <pack_pattern in_port="D_DRAM.SO6" name="DRAM_DP" out_port="DRAM_2_OUTPUT_STUB[4].SPO" />
+        </direct>
+        <direct name="DPO_4" input="C_DRAM.DO6" output="DRAM_2_OUTPUT_STUB[4].DPO">
+          <pack_pattern in_port="C_DRAM.DO6" name="DRAM_DP" out_port="DRAM_2_OUTPUT_STUB[4].DPO" />
+        </direct>
+        <direct name="SPO_5" input="B_DRAM.DO6" output="DRAM_2_OUTPUT_STUB[5].SPO">
+          <pack_pattern in_port="B_DRAM.DO6" name="DRAM_DP" out_port="DRAM_2_OUTPUT_STUB[5].SPO" />
+        </direct>
+        <direct name="DPO_5" input="A_DRAM.DO6" output="DRAM_2_OUTPUT_STUB[5].DPO">
+          <pack_pattern in_port="A_DRAM.DO6" name="DRAM_DP" out_port="DRAM_2_OUTPUT_STUB[5].DPO" />
         </direct>
 
         <direct name="DOD32" input="D_DRAM.SO6_32" output="DRAM_4_OUTPUT_STUB[0].DOD">
@@ -398,21 +412,25 @@
           <pack_pattern  in_port="A_DRAM.DO6" name="DRAM_QP" out_port="DRAM_4_OUTPUT_STUB[1].DOA" />
         </direct>
 
-        <mux    name="DO6" input="D_DRAM.O6 DRAM_2_OUTPUT_STUB[0].SPO_OUT DRAM_2_OUTPUT_STUB[2].SPO_OUT DRAM_4_OUTPUT_STUB[0].DOD_OUT DRAM_4_OUTPUT_STUB[1].DOD_OUT"
-                output="SLICEM_MODES.DO6" />
-        <direct name="DO5" input="D_DRAM.O5"   output="SLICEM_MODES.DO5" />
+        <mux name="DO6" input="D_DRAM.O6 DRAM_2_OUTPUT_STUB[0].SPO_OUT DRAM_2_OUTPUT_STUB[4].SPO_OUT DRAM_4_OUTPUT_STUB[0].DOD_OUT DRAM_4_OUTPUT_STUB[1].DOD_OUT"
+             output="SLICEM_MODES.DO6" />
+        <mux name="DO5" input="D_DRAM.O5 DRAM_2_OUTPUT_STUB[1].SPO_OUT"
+             output="SLICEM_MODES.DO5" />
 
-        <mux    name="CO6" input="C_DRAM.O6 DRAM_2_OUTPUT_STUB[0].DPO_OUT DRAM_2_OUTPUT_STUB[2].DPO_OUT DRAM_4_OUTPUT_STUB[0].DOC_OUT DRAM_4_OUTPUT_STUB[1].DOC_OUT"
-                output="SLICEM_MODES.CO6" />
-        <direct name="CO5" input="C_DRAM.O5"   output="SLICEM_MODES.CO5" />
+        <mux name="CO6" input="C_DRAM.O6 DRAM_2_OUTPUT_STUB[0].DPO_OUT DRAM_2_OUTPUT_STUB[4].DPO_OUT DRAM_4_OUTPUT_STUB[0].DOC_OUT DRAM_4_OUTPUT_STUB[1].DOC_OUT"
+             output="SLICEM_MODES.CO6" />
+        <mux name="CO5" input="C_DRAM.O5 DRAM_2_OUTPUT_STUB[1].DPO_OUT"
+             output="SLICEM_MODES.CO5" />
 
-        <mux    name="BO6" input="B_DRAM.O6 DRAM_2_OUTPUT_STUB[1].SPO_OUT DRAM_2_OUTPUT_STUB[3].SPO_OUT DRAM_4_OUTPUT_STUB[0].DOB_OUT DRAM_4_OUTPUT_STUB[1].DOB_OUT"
-                output="SLICEM_MODES.BO6" />
-        <direct name="BO5" input="B_DRAM.O5"   output="SLICEM_MODES.BO5" />
+        <mux name="BO6" input="B_DRAM.O6 DRAM_2_OUTPUT_STUB[2].SPO_OUT DRAM_2_OUTPUT_STUB[5].SPO_OUT DRAM_4_OUTPUT_STUB[0].DOB_OUT DRAM_4_OUTPUT_STUB[1].DOB_OUT"
+             output="SLICEM_MODES.BO6" />
+        <mux name="BO5" input="B_DRAM.O5 DRAM_2_OUTPUT_STUB[3].SPO_OUT"
+             output="SLICEM_MODES.BO5" />
 
-        <mux    name="AO6" input="A_DRAM.O6 DRAM_2_OUTPUT_STUB[1].DPO_OUT DRAM_2_OUTPUT_STUB[3].DPO_OUT DRAM_4_OUTPUT_STUB[0].DOA_OUT DRAM_4_OUTPUT_STUB[1].DOA_OUT"
-                output="SLICEM_MODES.AO6" />
-        <direct name="AO5" input="A_DRAM.O5"   output="SLICEM_MODES.AO5" />
+        <mux name="AO6" input="A_DRAM.O6 DRAM_2_OUTPUT_STUB[2].DPO_OUT DRAM_2_OUTPUT_STUB[5].DPO_OUT DRAM_4_OUTPUT_STUB[0].DOA_OUT DRAM_4_OUTPUT_STUB[1].DOA_OUT"
+             output="SLICEM_MODES.AO6" />
+        <mux name="AO5" input="A_DRAM.O5 DRAM_2_OUTPUT_STUB[3].DPO_OUT"
+             output="SLICEM_MODES.AO5" />
 
         <!-- F7AMUX inputs -->
         <direct name="F7AMUX_I0" input="B_DRAM.DO6"   output="F7AMUX.I0">
@@ -540,14 +558,9 @@
 
         <!-- Direct DI1 inputs -->
         <direct name="DI" input="SLICEM_MODES.DI" output="D_DRAM128.DI1" />
-        <direct name="CI" input="SLICEM_MODES.CI" output="C_DRAM128.CI" />
-        <direct name="BI" input="SLICEM_MODES.BI" output="B_DRAM128.BI" />
-        <direct name="AI" input="SLICEM_MODES.AI" output="A_DRAM128.AI" />
-
-        <!-- Parent DI1 inputs -->
-        <direct name="P_CI" input="SLICEM_MODES.DI" output="C_DRAM128.PARENT_DI" />
-        <direct name="P_BI" input="SLICEM_MODES.DI" output="B_DRAM128.PARENT_DI" />
-        <direct name="P_AI" input="B_DRAM128.DI_OUT" output="A_DRAM128.PARENT_DI" />
+        <direct name="CI" input="SLICEM_MODES.CI" output="C_DRAM128.DI1" />
+        <direct name="BI" input="SLICEM_MODES.BI" output="B_DRAM128.DI1" />
+        <direct name="AI" input="SLICEM_MODES.AI" output="A_DRAM128.DI1" />
 
         <!-- WE inputs -->
         <direct name="CE_TO_WE_MUX" input="SLICEM_MODES.CE"  output="WE_MUX.CE"/>
@@ -564,21 +577,23 @@
         <direct name="AO6" input="A_DRAM128.O6"   output="SLICEM_MODES.AO6" />
 
         <!-- F7AMUX inputs -->
-        <mux name="F7AMUX_I0" input="B_DRAM128.DO6 B_DRAM128.SO6"   output="F7AMUX.I0">
-          <pack_pattern in_port="B_DRAM128.SO6" name="DRAM128" out_port="F7AMUX.I0"/>
-          <pack_pattern in_port="B_DRAM128.DO6" name="DRAM128_D" out_port="F7AMUX.I0"/>
+        <mux name="F7AMUX_I0" input="B_DRAM128.DO6"   output="F7AMUX.I0">
+          <pack_pattern in_port="B_DRAM128.DO6" name="DRAM128" out_port="F7AMUX.I0"/>
+          <pack_pattern in_port="B_DRAM128.DO6" name="DRAM128_DP" out_port="F7AMUX.I0"/>
         </mux>
         <direct name="F7AMUX_I1" input="A_DRAM128.DO6"   output="F7AMUX.I1">
           <pack_pattern in_port="A_DRAM128.DO6" name="DRAM128" out_port="F7AMUX.I1"/>
-          <pack_pattern in_port="A_DRAM128.DO6" name="DRAM128_D" out_port="F7AMUX.I1"/>
+          <pack_pattern in_port="A_DRAM128.DO6" name="DRAM128_DP" out_port="F7AMUX.I1"/>
         </direct>
         <direct name="F7AMUX_S"  input="SLICEM_MODES.AX" output="F7AMUX.S" />
         <!-- F7BMUX inputs -->
         <direct name="F7BMUX_I0" input="D_DRAM128.O6"   output="F7BMUX.I0">
           <pack_pattern in_port="D_DRAM128.O6" name="DRAM128" out_port="F7BMUX.I0"/>
+          <pack_pattern in_port="D_DRAM128.O6" name="DRAM128_DP" out_port="F7BMUX.I0"/>
         </direct>
         <direct name="F7BMUX_I1" input="C_DRAM128.DO6"   output="F7BMUX.I1">
           <pack_pattern in_port="C_DRAM128.DO6" name="DRAM128" out_port="F7BMUX.I1"/>
+          <pack_pattern in_port="C_DRAM128.DO6" name="DRAM128_DP" out_port="F7BMUX.I1"/>
         </direct>
         <direct name="F7BMUX_S"  input="SLICEM_MODES.CX" output="F7BMUX.S" />
 

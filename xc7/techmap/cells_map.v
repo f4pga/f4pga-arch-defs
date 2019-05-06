@@ -272,7 +272,7 @@ module RAM128X1S (
 
     wire [5:0] A = {A5, A4, A3, A2, A1, A0};
 
-    // SPRAM128 is used here because RAM128X1S only consumes half of the
+    // DPRAM64_for_RAM128X1D is used here because RAM128X1S only consumes half of the
     // slice, but WA7USED is slice wide.  The packer should be able to pack two
     // RAM128X1S in a slice, but it should not be able to pack RAM128X1S and
     // a RAM64X1[SD]. It is unclear if RAM32X1[SD] or RAM32X2S can be packed
@@ -280,31 +280,32 @@ module RAM128X1S (
     //
     // Note that a RAM128X1D does not require [SD]PRAM128 because it consumes
     // the entire slice.
-    SPRAM128 #(
+    DPRAM64_for_RAM128X1D #(
         .INIT(INIT[63:0]),
         .IS_WCLK_INVERTED(IS_WCLK_INVERTED),
         .HIGH_WA7_SELECT(0)
     ) ram0 (
-        .DI1(D),
-        .A(A),
-        .WA7(A6),
-        .CLK(WCLK),
-        .WE(WE),
-        .O6(low_lut_o6)
-    );
-
-    DPRAM128 #(
-        .INIT(INIT[127:64]),
-        .IS_WCLK_INVERTED(IS_WCLK_INVERTED),
-        .HIGH_WA7_SELECT(1)
-    ) ram1 (
-        .DI1(D),
+        .DI(D),
         .A(A),
         .WA(A),
         .WA7(A6),
         .CLK(WCLK),
         .WE(WE),
-        .O6(high_lut_o6)
+        .O(low_lut_o6)
+    );
+
+    DPRAM64_for_RAM128X1D #(
+        .INIT(INIT[127:64]),
+        .IS_WCLK_INVERTED(IS_WCLK_INVERTED),
+        .HIGH_WA7_SELECT(1)
+    ) ram1 (
+        .DI(D),
+        .A(A),
+        .WA(A),
+        .WA7(A6),
+        .CLK(WCLK),
+        .WE(WE),
+        .O(high_lut_o6)
     );
 
     MUXF7 ram_f7_mux (.O(O), .I0(low_lut_o6), .I1(high_lut_o6), .S(A6));
@@ -322,59 +323,60 @@ module RAM128X1D (
     wire blut_o6;
     wire alut_o6;
 
-    SPRAM128 #(
+    DPRAM64_for_RAM128X1D #(
         .INIT(INIT[63:0]),
         .IS_WCLK_INVERTED(IS_WCLK_INVERTED),
         .HIGH_WA7_SELECT(0)
     ) ram0 (
-        .DI1(D),
+        .DI(D),
         .A(A[5:0]),
+        .WA(A[5:0]),
         .WA7(A[6]),
         .CLK(WCLK),
         .WE(WE),
-        .O6(dlut_o6)
+        .O(dlut_o6)
     );
 
-    DPRAM128 #(
+    DPRAM64_for_RAM128X1D #(
         .INIT(INIT[127:64]),
         .IS_WCLK_INVERTED(IS_WCLK_INVERTED),
         .HIGH_WA7_SELECT(1)
     ) ram1 (
-        .DI1(D),
+        .DI(D),
         .A(A[5:0]),
         .WA(A[5:0]),
         .WA7(A[6]),
         .CLK(WCLK),
         .WE(WE),
-        .O6(clut_o6)
+        .O(clut_o6)
     );
 
-    DPRAM128 #(
+    DPRAM64_for_RAM128X1D #(
         .INIT(INIT[63:0]),
-        .IS_WCLK_INVERTED(1'b0),
+        .IS_WCLK_INVERTED(IS_WCLK_INVERTED),
         .HIGH_WA7_SELECT(0)
     ) ram2 (
-        .DI1(D),
+        .DI(D),
         .A(DPRA[5:0]),
         .WA(A[5:0]),
         .WA7(A[6]),
         .CLK(WCLK),
         .WE(WE),
-        .O6(blut_o6)
+        .O(blut_o6)
     );
 
-    DPRAM128 #(
+    DPRAM64_for_RAM128X1D #(
         .INIT(INIT[127:64]),
-        .IS_WCLK_INVERTED(1'b0),
+        .IS_WCLK_INVERTED(IS_WCLK_INVERTED),
         .HIGH_WA7_SELECT(0)
     ) ram3 (
-        .DI1(D),
+        .DI(D),
         .A(DPRA[5:0]),
         .WA(A[5:0]),
         .WA7(A[6]),
         .CLK(WCLK),
         .WE(WE),
-        .O6(alut_o6)
+        .O(alut_o6)
     );
 
     wire SPO_FORCE;
@@ -402,7 +404,7 @@ module RAM256X1S (
     wire f7b_o;
     wire f7a_o;
 
-    SPRAM64 #(
+    DPRAM64 #(
         .INIT(INIT[63:0]),
         .IS_WCLK_INVERTED(IS_WCLK_INVERTED),
         .WA7USED(1),
@@ -410,13 +412,14 @@ module RAM256X1S (
         .HIGH_WA7_SELECT(0),
         .HIGH_WA8_SELECT(0)
     ) ram0 (
-        .DI1(D),
+        .DI(D),
         .A(A[5:0]),
+        .WA(A[5:0]),
         .WA7(A[6]),
         .WA8(A[7]),
         .CLK(WCLK),
         .WE(WE),
-        .O6(dlut_o6)
+        .O(dlut_o6)
     );
 
     DPRAM64 #(
@@ -427,14 +430,14 @@ module RAM256X1S (
         .HIGH_WA7_SELECT(1),
         .HIGH_WA8_SELECT(0)
     ) ram1 (
-        .DI1(D),
+        .DI(D),
         .A(A[5:0]),
         .WA(A[5:0]),
         .WA7(A[6]),
         .WA8(A[7]),
         .CLK(WCLK),
         .WE(WE),
-        .O6(clut_o6)
+        .O(clut_o6)
     );
 
     DPRAM64 #(
@@ -445,14 +448,14 @@ module RAM256X1S (
         .HIGH_WA7_SELECT(0),
         .HIGH_WA8_SELECT(1)
     ) ram2 (
-        .DI1(D),
+        .DI(D),
         .A(A[5:0]),
         .WA(A[5:0]),
         .WA7(A[6]),
         .WA8(A[7]),
         .CLK(WCLK),
         .WE(WE),
-        .O6(blut_o6)
+        .O(blut_o6)
     );
 
     DPRAM64 #(
@@ -463,14 +466,14 @@ module RAM256X1S (
         .HIGH_WA7_SELECT(1),
         .HIGH_WA8_SELECT(1)
     ) ram3 (
-        .DI1(D),
+        .DI(D),
         .A(A[5:0]),
         .WA(A[5:0]),
         .WA7(A[6]),
         .WA8(A[7]),
         .CLK(WCLK),
         .WE(WE),
-        .O6(alut_o6)
+        .O(alut_o6)
     );
 
     MUXF7 f7b_mux (.O(f7b_o), .I0(dlut_o6), .I1(clut_o6), .S(A[6]));
@@ -492,26 +495,27 @@ module RAM32X1D (
 
     wire SPO_FORCE, DPO_FORCE;
 
-    SPRAM32 #(
+    DPRAM32 #(
         .INIT_00(INIT),
-        .IS_WCLK_INVERTED(1'b0)
+        .IS_WCLK_INVERTED(IS_WCLK_INVERTED)
     ) ram0 (
-        .DI1(D),
+        .DI(D),
         .A(WA),
+        .WA(WA),
         .CLK(WCLK),
         .WE(WE),
-        .O6(SPO_FORCE)
+        .O(SPO_FORCE)
     );
     DPRAM32 #(
         .INIT_00(INIT),
-        .IS_WCLK_INVERTED(1'b0)
+        .IS_WCLK_INVERTED(IS_WCLK_INVERTED)
     ) ram1 (
-        .DI1(D),
+        .DI(D),
         .A(DPRA),
         .WA(WA),
         .CLK(WCLK),
         .WE(WE),
-        .O6(DPO_FORCE)
+        .O(DPO_FORCE)
     );
 
     DRAM_2_OUTPUT_STUB stub (
@@ -527,15 +531,16 @@ module RAM32X1S (
     parameter [31:0] INIT = 32'bx;
     parameter IS_WCLK_INVERTED = 0;
 
-    SPRAM32 #(
+    DPRAM32 #(
         .INIT_00(INIT),
         .IS_WCLK_INVERTED(IS_WCLK_INVERTED)
     ) dram_S (
-        .DI1(D),
+        .DI(D),
         .A({A4, A3, A2, A1, A0}),
+        .WA({A4, A3, A2, A1, A0}),
         .CLK(WCLK),
         .WE(WE),
-        .O6(O)
+        .O(O)
     );
 endmodule
 
@@ -548,18 +553,28 @@ module RAM32X2S (
     parameter [31:0] INIT_01 = 32'bx;
     parameter IS_WCLK_INVERTED = 0;
 
-    SPRAM32 #(
+    DPRAM32 #(
         .INIT_00(INIT_00),
-        .INIT_01(INIT_01),
         .IS_WCLK_INVERTED(IS_WCLK_INVERTED)
-    ) dram_S (
-        .DI1(D0),
-        .DI2(D1),
+    ) ram0 (
+        .DI(D0),
         .A({A4, A3, A2, A1, A0}),
+        .WA({A4, A3, A2, A1, A0}),
         .CLK(WCLK),
         .WE(WE),
-        .O5(O1),
-        .O6(O0)
+        .O(O0)
+    );
+
+    DPRAM32 #(
+        .INIT_00(INIT_01),
+        .IS_WCLK_INVERTED(IS_WCLK_INVERTED)
+    ) ram1 (
+        .DI(D1),
+        .A({A4, A3, A2, A1, A0}),
+        .WA({A4, A3, A2, A1, A0}),
+        .CLK(WCLK),
+        .WE(WE),
+        .O(O1),
     );
 endmodule
 
@@ -614,15 +629,15 @@ endmodule
 //    wire GROUNDED_DID_PORT = (_TECHMAP_CONNMAP_DID_ == 0);
 //
 //    if(!GROUNDED_DID_PORT) begin
-//        SPRAM64 #(
+//        DPRAM64 #(
 //            .INIT(INIT_D),
 //            .IS_WCLK_INVERTED(IS_WCLK_INVERTED)
 //        ) dram1 (
-//            .DI1(DID_IN),
+//            .DI(DID_IN),
 //            .A(ADDRD),
 //            .CLK(WCLK),
 //            .WE(WE),
-//            .O6(DOD_TO_STUB)
+//            .O(DOD_TO_STUB)
 //        );
 //    end
 //
@@ -655,26 +670,27 @@ module RAM64X1D (
     wire [5:0] DPRA = {DPRA5, DPRA4, DPRA3, DPRA2, DPRA1, DPRA0};
     wire SPO_FORCE, DPO_FORCE;
 
-    SPRAM64 #(
+    DPRAM64 #(
         .INIT(INIT),
         .IS_WCLK_INVERTED(IS_WCLK_INVERTED)
     ) dram1 (
-        .DI1(D),
+        .DI(D),
         .A(WA),
+        .WA(WA),
         .CLK(WCLK),
         .WE(WE),
-        .O6(SPO_FORCE)
+        .O(SPO_FORCE)
     );
     DPRAM64 #(
         .INIT(INIT),
         .IS_WCLK_INVERTED(IS_WCLK_INVERTED)
     ) dram0 (
-        .DI1(D),
+        .DI(D),
         .A(DPRA),
         .WA(WA),
         .CLK(WCLK),
         .WE(WE),
-        .O6(DPO_FORCE)
+        .O(DPO_FORCE)
     );
 
     DRAM_2_OUTPUT_STUB stub (
@@ -690,15 +706,16 @@ module RAM64X1S (
     parameter [63:0] INIT = 64'bx;
     parameter IS_WCLK_INVERTED = 0;
 
-    SPRAM64 #(
+    DPRAM64 #(
         .INIT(INIT),
         .IS_WCLK_INVERTED(IS_WCLK_INVERTED)
-    ) dram_S (
-        .DI1(D),
+    ) dram0 (
+        .DI(D),
         .A({A5, A4, A3, A2, A1, A0}),
+        .WA({A5, A4, A3, A2, A1, A0}),
         .CLK(WCLK),
         .WE(WE),
-        .O6(O)
+        .O(O)
     );
 endmodule
 
