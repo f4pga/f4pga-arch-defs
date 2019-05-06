@@ -6,6 +6,7 @@ include(common/cmake/util.cmake)
 include(common/cmake/env.cmake)
 include(common/cmake/file_targets.cmake)
 include(common/cmake/xml.cmake)
+include(common/cmake/v2x.cmake)
 include(common/cmake/devices.cmake)
 include(common/cmake/tools.cmake)
 

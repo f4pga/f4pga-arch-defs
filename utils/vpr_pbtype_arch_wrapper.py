@@ -13,13 +13,13 @@ import subprocess
 import sys
 import tempfile
 
-from typing import Dict, Sequence, Tuple
+from typing import List, Dict, Sequence, Tuple
 
 import lxml.etree as ET
 
 from lib import xmlinc
 from lib.flatten import flatten
-from lib.pb_type import ports
+from lib.pb_type import ports, Port
 
 
 FILEDIR_PATH = os.path.abspath(os.path.join(os.path.dirname(__file__)))
@@ -30,7 +30,6 @@ TEMPLATE_PATH = os.path.abspath(
 XPos = int
 YPos = int
 GridDict = Dict[Tuple[XPos, YPos], str]
-Port = Tuple[str, int]
 
 
 def grid_new(width: int, height: int) -> GridDict:
@@ -91,7 +90,7 @@ def grid_format(tiles: GridDict) -> str:
     return "".join(s[:-1])
 
 
-def grid_place_in_column(tiles: GridDict, x: int, values: List[str]):
+def grid_place_in_column(tiles: GridDict, x: XPos, values: List[str]):
     """Place a list of types centered vertical in a given column.
 
     Modifies the grid dictionary in place.
@@ -191,7 +190,7 @@ def arch_xml(outfile: str, name: str, clocks: List[Port], inputs: List[Port], ou
             t = 'OBUF'
         elif v == 'T':
             # FIXME: Is this needed?
-            if y != 1:
+            if y > 2:
                 continue
             t = 'TILE'
         else:
@@ -205,7 +204,7 @@ def arch_xml(outfile: str, name: str, clocks: List[Port], inputs: List[Port], ou
             }
         )
 
-    theight = max(len(finputs), len(foutputs))
+    theight = 1 #max(len(finputs), len(foutputs))
 
     cbl = root.find("complexblocklist")
     tile = ET.SubElement(
@@ -232,6 +231,30 @@ def arch_xml(outfile: str, name: str, clocks: List[Port], inputs: List[Port], ou
         "interconnect",
     )
 
+    ilocs = []
+    olocs = []
+    for i in range(0, theight):
+        ilocs.append(ET.SubElement(
+            ploc,
+            "loc",
+            {
+                "side": "left",
+                "xoffset": "0",
+                "yoffset": str(i)
+            },
+        ))
+        ilocs[i].text = ""
+        olocs.append(ET.SubElement(
+            ploc,
+            "loc",
+            {
+                "side": "right",
+                "xoffset": "0",
+                "yoffset": str(i)
+            },
+        ))
+        olocs[i].text = ""
+
     # Clock pins
     for s, d in flatten(clocks):
         input_tag = ET.SubElement(
@@ -254,16 +277,7 @@ def arch_xml(outfile: str, name: str, clocks: List[Port], inputs: List[Port], ou
         )
 
         for i in range(0, theight):
-            nloc = ET.SubElement(
-                ploc,
-                "loc",
-                {
-                    "side": "left",
-                    "xoffset": "0",
-                    "yoffset": str(i)
-                },
-            )
-            nloc.text = s
+            ilocs[i].text += "TILE.{} ".format(s)
 
     # Input Pins
     for s, d in flatten(inputs):
@@ -287,16 +301,7 @@ def arch_xml(outfile: str, name: str, clocks: List[Port], inputs: List[Port], ou
         )
 
         for i in range(0, theight):
-            nloc = ET.SubElement(
-                ploc,
-                "loc",
-                {
-                    "side": "left",
-                    "xoffset": "0",
-                    "yoffset": str(i)
-                },
-            )
-            nloc.text = s
+            ilocs[i].text += "TILE.{} ".format(s)
 
     # Output Pins
     for d, s in flatten(outputs):
@@ -319,16 +324,7 @@ def arch_xml(outfile: str, name: str, clocks: List[Port], inputs: List[Port], ou
             },
         )
         for i in range(0, theight):
-            nloc = ET.SubElement(
-                ploc,
-                "loc",
-                {
-                    "side": "right",
-                    "xoffset": "0",
-                    "yoffset": str(i)
-                },
-            )
-            nloc.text = d
+            olocs[i].text += "TILE.{} ".format(d)
 
     return tree
 
@@ -356,7 +352,8 @@ Output filename, default '<name>.arch.xml'
 def main(args):
     args = parser.parse_args(args)
 
-    clocks, inputs, outputs = ports(args.pb_type)
+    pbtype_xml = ET.parse(args.pb_type)
+    pbtype_name, clocks, inputs, outputs = ports(pbtype_xml.getroot())
     iname = os.path.basename(args.pb_type)
 
     outfile = "{}.arch.xml".format(iname)
