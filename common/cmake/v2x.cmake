@@ -145,17 +145,16 @@ function(VPR_TEST_PBTYPE)
   get_target_property_required(PYTHON3 env PYTHON3)
   get_target_property(PYTHON3_TARGET env PYTHON3_TARGET)
 
-  get_file_target(PBTYPE_TARGET_NAME "${VPR_TEST_PBTYPE_NAME}.pb_type.xml")
-  get_file_target(MODEL_TARGET_NAME "${VPR_TEST_PBTYPE_NAME}.model.xml")
-
+  set(DEPENDS_ARCH "")
+  append_file_dependency(DEPENDS_ARCH "${symbiflow-arch-defs_SOURCE_DIR}/utils/template.arch.xml")
+  append_file_dependency(DEPENDS_ARCH "${VPR_TEST_PBTYPE_NAME}.pb_type.xml")
+  append_file_dependency(DEPENDS_ARCH "${VPR_TEST_PBTYPE_NAME}.model.xml")
   add_custom_command(
     OUTPUT "${VPR_TEST_PBTYPE_NAME}.arch.xml"
     DEPENDS
       ${PYTHON3_TARGET}
-      ${CMAKE_CURRENT_BINARY_DIR}/${VPR_TEST_PBTYPE_NAME}.pb_type.xml ${PBTYPE_TARGET_NAME}
-      ${CMAKE_CURRENT_BINARY_DIR}/${VPR_TEST_PBTYPE_NAME}.model.xml ${MODEL_TARGET_NAME}
       ${symbiflow-arch-defs_SOURCE_DIR}/utils/vpr_pbtype_arch_wrapper.py
-      ${symbiflow-arch-defs_SOURCE_DIR}/utils/template.arch.xml
+      ${DEPENDS_ARCH}
     COMMAND
       ${PYTHON3} ${symbiflow-arch-defs_SOURCE_DIR}/utils/vpr_pbtype_arch_wrapper.py
       --pb_type ${CMAKE_CURRENT_BINARY_DIR}/${VPR_TEST_PBTYPE_NAME}.pb_type.xml
@@ -164,12 +163,14 @@ function(VPR_TEST_PBTYPE)
   )
   add_file_target(FILE "${VPR_TEST_PBTYPE_NAME}.arch.xml" GENERATED)
 
+  set(DEPENDS_EBLIF "")
+  append_file_dependency(DEPENDS_EBLIF "${VPR_TEST_PBTYPE_NAME}.pb_type.xml")
   add_custom_command(
     OUTPUT "${VPR_TEST_PBTYPE_NAME}.test.eblif"
     DEPENDS
       ${PYTHON3_TARGET}
-      ${CMAKE_CURRENT_BINARY_DIR}/${VPR_TEST_PBTYPE_NAME}.pb_type.xml ${PBTYPE_TARGET_NAME}
       ${symbiflow-arch-defs_SOURCE_DIR}/utils/vpr_pbtype_to_eblif.py
+      ${DEPENDS_EBLIF}
     COMMAND
       ${PYTHON3} ${symbiflow-arch-defs_SOURCE_DIR}/utils/vpr_pbtype_to_eblif.py
       --pb_type ${CMAKE_CURRENT_BINARY_DIR}/${VPR_TEST_PBTYPE_NAME}.pb_type.xml
@@ -188,17 +189,19 @@ function(VPR_TEST_PBTYPE)
   get_target_property(VPR_TARGET env VPR_TARGET)
   get_target_property_required(QUIET_CMD env QUIET_CMD)
   get_target_property(QUIET_CMD_TARGET env QUIET_CMD_TARGET)
-
   set(OUT_LOCAL_REL test_${VPR_TEST_PBTYPE_NAME})
   set(OUT_LOCAL ${CMAKE_CURRENT_BINARY_DIR}/${OUT_LOCAL_REL})
+
+  set(DEPENDS_TEST "")
+  append_file_dependency(DEPENDS_TEST ${VPR_TEST_PBTYPE_NAME}.arch.merged.xml)
+  append_file_dependency(DEPENDS_TEST ${VPR_TEST_PBTYPE_NAME}.test.eblif)
   add_custom_command(
     OUTPUT
       ${OUT_LOCAL_REL}/vpr.stdout
     DEPENDS
-      ${VPR_TEST_PBTYPE_NAME}.arch.merged.xml
-      ${VPR_TEST_PBTYPE_NAME}.test.eblif
       ${QUIET_CMD} ${QUIET_CMD_TARGET}
       ${VPR} ${VPR_TARGET}
+      ${DEPENDS_TEST}
     COMMAND
       ${CMAKE_COMMAND} -E make_directory ${OUT_LOCAL}
     COMMAND
