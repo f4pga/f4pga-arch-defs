@@ -11,7 +11,7 @@ add_fpga_target(
   BOARD basys3
   INPUT_IO_FILE dram_8_32x1s.pcf
   SOURCES dram_8_32x1s.v
-  ASSERT_USAGE SYN-OUTPAD=8,SYN-INPAD=11,CLBLM_R=1
+  ASSERT_USAGE SYN-OUTPAD=8,SYN-INPAD=11,BLK-TL-SLICEM=1
   )
 
 add_fpga_target(
