@@ -63,7 +63,7 @@ function(PROJECT_XRAY_TILE)
   get_target_property_required(PYTHON3 env PYTHON3)
   get_target_property(PYTHON3_TARGET env PYTHON3_TARGET)
 
-  set(TILE_TYPE_IMPORT ${symbiflow-arch-defs_SOURCE_DIR}/xc7/utils/prjxray_tile_import.py)
+  set(TILE_IMPORT ${symbiflow-arch-defs_SOURCE_DIR}/xc7/utils/prjxray_tile_import.py)
   get_project_xray_dependencies(DEPS ${PROJECT_XRAY_TILE_PART} ${TILE})
 
   set(PART ${PROJECT_XRAY_TILE_PART})
@@ -89,7 +89,7 @@ function(PROJECT_XRAY_TILE)
   add_custom_command(
     OUTPUT ${TILE}.pb_type.xml ${TILE}.model.xml
     COMMAND ${CMAKE_COMMAND} -E env PYTHONPATH=${PRJXRAY_DIR}:${symbiflow-arch-defs_SOURCE_DIR}/utils
-    ${PYTHON3} ${TILE_TYPE_IMPORT}
+    ${PYTHON3} ${TILE_IMPORT}
     --part ${PROJECT_XRAY_TILE_PART}
     --tile ${PROJECT_XRAY_TILE_TILE}
     --site_directory ${symbiflow-arch-defs_BINARY_DIR}/xc7/primitives
@@ -99,7 +99,7 @@ function(PROJECT_XRAY_TILE)
     --output-model ${CMAKE_CURRENT_BINARY_DIR}/${TILE}.model.xml
     ${FUSED_SITES_ARGS}
     DEPENDS
-    ${TILE_TYPE_IMPORT}
+    ${TILE_IMPORT}
       ${DEPS}
       ${PYTHON3} ${PYTHON3_TARGET} simplejson
     )
@@ -119,7 +119,7 @@ function(PROJECT_XRAY_TILE)
       )
 
   # tile tags
-  set(TILE_IMPORT ${symbiflow-arch-defs_SOURCE_DIR}/xc7/utils/prjxray_tile_type_import.py)
+  set(PHYSICAL_TILE_IMPORT ${symbiflow-arch-defs_SOURCE_DIR}/xc7/utils/prjxray_physical_tile_import.py)
   get_project_xray_dependencies(DEPS ${PROJECT_XRAY_TILE_PART} ${TILE})
 
   foreach(EQUIVALENT_TILE ${PROJECT_XRAY_TILE_EQUIVALENT_TILES})
@@ -131,7 +131,6 @@ function(PROJECT_XRAY_TILE)
   list(APPEND EQUIVALENT_TILES_INCLUDE_FILES ${symbiflow-arch-defs_SOURCE_DIR}/xc7/archs/${PART}/tiles/${TILE}/${TILE}.pb_type.xml)
 
   string(REPLACE ";" "," EQUIVALENT_TILES_COMMA "${PROJECT_XRAY_TILE_EQUIVALENT_TILES}")
-  string(REPLACE ";" "," PIN_PREFIX_COMMA "${PROJECT_XRAY_TILE_PIN_PREFIX}")
   add_file_target(FILE ${TILE}.tile.xml GENERATED)
   get_file_target(TILE_TARGET ${TILE}.tile.xml)
   set_target_properties(${TILE_TARGET} PROPERTIES INCLUDE_FILES "${EQUIVALENT_TILES_INCLUDE_FILES}")
@@ -139,7 +138,7 @@ function(PROJECT_XRAY_TILE)
   add_custom_command(
     OUTPUT ${TILE}.tile.xml
     COMMAND ${CMAKE_COMMAND} -E env PYTHONPATH=${PRJXRAY_DIR}:${symbiflow-arch-defs_SOURCE_DIR}/utils
-    ${PYTHON3} ${TILE_IMPORT}
+    ${PYTHON3} ${PHYSICAL_TILE_IMPORT}
     --part ${PROJECT_XRAY_TILE_PART}
     --tile ${PROJECT_XRAY_TILE_TILE}
     --tiles-directory ${symbiflow-arch-defs_BINARY_DIR}/xc7/archs/${PART}/tiles
@@ -148,7 +147,7 @@ function(PROJECT_XRAY_TILE)
     --output-tile ${CMAKE_CURRENT_BINARY_DIR}/${TILE}.tile.xml
     --pin_assignments ${PIN_ASSIGNMENTS}
     DEPENDS
-    ${TILE_IMPORT}
+    ${PHYSICAL_TILE_IMPORT}
       ${TILES_DEPS}
       ${PYTHON3} ${PYTHON3_TARGET} simplejson
     )
