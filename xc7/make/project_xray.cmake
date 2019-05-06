@@ -47,6 +47,31 @@ function(PROJECT_XRAY_DUMMY_SITE)
 endfunction()
 
 function(PROJECT_XRAY_TILE)
+  #
+  # This function is used to create targets to generate pb_type, model and tile XML definitions.
+  #
+  # PART name of the part that is considered (e.g. artix7, zynq7, etc.)
+  # TILE name of the tile that has to be generated (e.g. CLBLM_R, BRAM_L, etc.)
+  # SITE_TYPES list of sites contained in the considered tile (e.g. CLBLM_R contains a SLICEM and SLICEL sites)
+  # EQUIVALENT_TILES list of tiles equivalent to the considered one (e.g. CLBLL_R is equivalent to CLBLM_R and CLBLM_L)
+  # PIN_PREFIX translation pattern between prefixes of two equivalent tiles. This is needed as CLBLLs and CLBLMs have different
+  #            pin prefixes for the same pin.
+  #            Example: The same pin "A" has a different prefix between CLBLLs and CLBLMs: CLBLL_L_A --> CLBLM_M_A.
+  #                     In this example the PIN_PREFIX is: CLBLL_L/CLBLM_M CLBLL_LL/CLBLM_L. The first refers to the
+  #                     current tile and the second to the equivalent one.
+  #
+  # Usage:
+  # ~~~
+  # project_xray_tile(
+  #   PART <part_name>
+  #   TILE <tile_name>
+  #   SITE_TYPES <site_name_1> <site_name_2> ...
+  #   EQUIVALENT_TILES <equivalent_tile_name_1> <equivalent_tile_name_2> ...
+  #   PIN_PREFIX <pin_prefix_translation_1> <pin_prefix_translation_2> ...
+  #   FUSED_SITES (option)
+  #   )
+  # ~~~
+
   set(options FUSED_SITES)
   set(oneValueArgs PART TILE)
   set(multiValueArgs SITE_TYPES EQUIVALENT_TILES PIN_PREFIX)
