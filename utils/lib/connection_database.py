@@ -222,7 +222,7 @@ def get_pin_name_of_wire(conn, wire_pkey):
     """ Returns pin name of wire.
 
     For unsplit tiles, this is the name of the wire.
-    For split tiles with only 1 site, this is the name of the site pin o
+    For split tiles with only 1 site, this is the name of the site pin
     connected to this wire.
     For wires that are not a pin, returns None.
 

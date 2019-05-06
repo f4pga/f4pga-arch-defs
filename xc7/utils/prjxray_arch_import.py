@@ -21,6 +21,7 @@ import sys
 import lxml.etree as ET
 
 from prjxray_db_cache import DatabaseCache
+from prjxray_tile_import import add_vpr_tile_prefix
 
 
 def create_synth_io_tiles(complexblocklist_xml, pb_name, is_input):
@@ -204,11 +205,11 @@ def is_in_roi(conn, roi, tile_pkey):
     return any(roi.tile_in_roi(loc) for loc in phy_locs)
 
 
-def get_tile_prefix(conn, g, tile_pkey, site_as_tile_pkey):
-    """ Returns tile prefix of specified tile. """
+def get_fasm_tile_prefix(conn, g, tile_pkey, site_as_tile_pkey):
+    """ Returns FASM prefix of specified tile. """
     phy_locs = get_phy_tiles(conn, tile_pkey)
 
-    prefix_tile = None
+    tile_prefix = None
 
     # If this tile has multiples phy_tile's, make sure only one has bitstream
     # data, otherwise the tile split was invalid.
@@ -229,11 +230,11 @@ def get_tile_prefix(conn, g, tile_pkey, site_as_tile_pkey):
             # Each VPR tile can only have one prefix.
             # If this assumption is violated, a more dramatic
             # restructing is required.
-            assert prefix_tile is None, (tile, gridinfo, prefix_tile)
-            prefix_tile = tile
+            assert tile_prefix is None, (tile, gridinfo, tile_prefix)
+            tile_prefix = tile
 
-    if len(phy_locs) == 1 and prefix_tile is None:
-        prefix_tile = g.tilename_at_loc(phy_locs[0])
+    if len(phy_locs) == 1 and tile_prefix is None:
+        tile_prefix = g.tilename_at_loc(phy_locs[0])
 
     # If this tile is site_as_tile, add an additional prefix of the site that
     # is embedded in the tile.
@@ -257,9 +258,9 @@ def get_tile_prefix(conn, g, tile_pkey, site_as_tile_pkey):
         )
         site_type_name = c.fetchone()[0]
 
-        prefix_tile = '{}.{}_X{}'.format(prefix_tile, site_type_name, x)
+        tile_prefix = '{}.{}_X{}'.format(tile_prefix, site_type_name, x)
 
-    return prefix_tile
+    return tile_prefix
 
 
 def get_tiles(conn, g, roi, synth_loc_map, synth_tile_map, tile_types):
@@ -271,8 +272,8 @@ def get_tiles(conn, g, roi, synth_loc_map, synth_tile_map, tile_types):
         VPR tile type at this grid location.
     grid_x, grid_y : int
         Grid coordinate of tile
-    prefix_tile : str
-        Prefix for this tile.
+    fasm_tile_prefix : str
+        FASM prefix for this tile.
 
     """
     c = conn.cursor()
@@ -298,9 +299,9 @@ def get_tiles(conn, g, roi, synth_loc_map, synth_tile_map, tile_types):
             c2.execute(
                 "SELECT name FROM phy_tile WHERE pkey = ?", (phy_tile_pkey, )
             )
-            prefix_tile = c2.fetchone()[0]
+            fasm_tile_prefix = c2.fetchone()[0]
 
-            yield vpr_tile_type, grid_x, grid_y, prefix_tile
+            yield vpr_tile_type, grid_x, grid_y, fasm_tile_prefix
             continue
 
         c2.execute(
@@ -315,11 +316,13 @@ def get_tiles(conn, g, roi, synth_loc_map, synth_tile_map, tile_types):
             # Tile is outside ROI, skip it
             continue
 
-        vpr_tile_type = 'BLK-TL-' + tile_type
+        vpr_tile_type = add_vpr_tile_prefix(tile_type)
 
-        prefix_tile = get_tile_prefix(conn, g, tile_pkey, site_as_tile_pkey)
+        fasm_tile_prefix = get_fasm_tile_prefix(
+            conn, g, tile_pkey, site_as_tile_pkey
+        )
 
-        yield vpr_tile_type, grid_x, grid_y, prefix_tile
+        yield vpr_tile_type, grid_x, grid_y, fasm_tile_prefix
 
 
 def add_synthetic_tiles(model_xml, complexblocklist_xml):
@@ -453,7 +456,7 @@ def main():
             }
         )
 
-        for vpr_tile_type, grid_x, grid_y, prefix_tile in get_tiles(
+        for vpr_tile_type, grid_x, grid_y, fasm_tile_prefix in get_tiles(
                 conn=conn,
                 g=g,
                 roi=roi,
@@ -474,7 +477,7 @@ def main():
                 meta, 'meta', {
                     'name': 'fasm_prefix',
                 }
-            ).text = prefix_tile
+            ).text = fasm_tile_prefix
 
     device_xml = ET.SubElement(arch_xml, 'device')
 
@@ -610,9 +613,9 @@ def main():
                         direct['x_offset'], direct['y_offset']
                     ),
                 'from_pin':
-                    'BLK-TL-' + direct['from_pin'],
+                    add_vpr_tile_prefix(direct['from_pin']),
                 'to_pin':
-                    'BLK-TL-' + direct['to_pin'],
+                    add_vpr_tile_prefix(direct['to_pin']),
                 'x_offset':
                     str(direct['x_offset']),
                 'y_offset':

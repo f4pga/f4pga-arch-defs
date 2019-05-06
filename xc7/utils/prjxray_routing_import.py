@@ -30,6 +30,7 @@ from lib.connection_database import get_wire_pkey, get_track_model, \
 import lib.rr_graph_xml.graph2 as xml_graph2
 from lib.rr_graph_xml.utils import read_xml_file
 from prjxray_constant_site_pins import feature_when_routed
+from prjxray_tile_import import remove_vpr_tile_prefix
 import simplejson as json
 import progressbar
 import datetime
@@ -104,8 +105,7 @@ def import_graph_nodes(conn, graph, node_mapping):
         assert m is not None, pin_name
 
         tile_type = m.group(1)
-        assert tile_type.startswith('BLK-TL-')
-        tile_type = tile_type[7:]
+        tile_type = remove_vpr_tile_prefix(tile_type)
 
         pin = m.group(2)
 
