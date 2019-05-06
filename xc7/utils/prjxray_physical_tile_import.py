@@ -29,18 +29,13 @@ XI_URL = "http://www.w3.org/2001/XInclude"
 PORT_TAGS = ['input', 'output', 'clock']
 
 
-# FIXME: For now the prefix is not used as PR https://github.com/SymbiFlow/symbiflow-arch-defs/pull/665
-#        is not yet merged.
-def prefix_name(tile, active=False):
+def prefix_name(tile):
     """ Add tile prefix.
 
     This avoids namespace collision when embedding a site (e.g. SLICEL) as a
     tile.
     """
-    if active:
-        return 'BLK-TL-' + tile
-
-    return tile
+    return 'BLK-TL-' + tile
 
 
 def object_ref(pb_name, pin_name, pin_idx=None):
