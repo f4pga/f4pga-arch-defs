@@ -457,7 +457,7 @@ def main(args):
     else:
         wm = re.match(r"([A-Za-z0-9_]+)\.sim\.v", iname)
         if wm:
-            top = wm.group(1).upper()
+            top = wm.group(1)
         else:
             print(
                 "ERROR file name not of format %.sim.v ({}), cannot detect top level. Manually specify the top level module using --top"
