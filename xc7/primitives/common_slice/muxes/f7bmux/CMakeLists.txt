@@ -1,13 +1,2 @@
-mux_gen(
-  NAME f7bmux
-  COMMENT "F7BMUX is used to create a LUT7 from two LUT6s."
-  MUX_NAME F7BMUX
-  SUBCKT MUXF7
-  INPUTS I0,I1
-  OUTPUT O
-  SELECTS S
-  SPLIT_INPUTS 1
-  SPLIT_SELECTS 1
-  TYPE logic
-  WIDTH 2
-)
+add_file_target(FILE f7bmux.sim.v SCANNER_TYPE verilog)
+v2x(NAME f7bmux SRCS f7bmux.sim.v)
