@@ -20,6 +20,7 @@ import sys
 import prjxray.db
 import os.path
 import simplejson as json
+import prjxray_tile_import as tile_import
 
 import lxml.etree as ET
 
@@ -27,23 +28,6 @@ XI_URL = "http://www.w3.org/2001/XInclude"
 
 # Macros used to select relevant port names
 PORT_TAGS = ['input', 'output', 'clock']
-
-
-def prefix_name(tile):
-    """ Add tile prefix.
-
-    This avoids namespace collision when embedding a site (e.g. SLICEL) as a
-    tile.
-    """
-    return 'BLK-TL-' + tile
-
-
-def object_ref(pb_name, pin_name, pin_idx=None):
-    pin_addr = ''
-    if pin_idx is not None:
-        pin_addr = '[{}]'.format(pin_idx)
-
-    return '{}.{}{}'.format(pb_name, pin_name, pin_addr)
 
 
 def import_physical_tile(args):
@@ -67,65 +51,6 @@ def import_physical_tile(args):
 
         return ports
 
-    def add_pinlocations(xml, fc_xml, pin_assignments, tile):
-        """ Adds the pin locations.
-
-        It requires the ports of the physical tile which are retrieved
-        by the pb_type.xml definition.
-        """
-        pinlocations_xml = ET.SubElement(
-            xml, 'pinlocations', {
-                'pattern': 'custom',
-            }
-        )
-
-        sides = {}
-        for port in ports:
-            for side in pin_assignments['pin_directions'][tile][port]:
-                if side not in sides:
-                    sides[side] = []
-
-                sides[side].append(object_ref(prefix_name(tile_name), port))
-
-        for side, pins in sides.items():
-            ET.SubElement(pinlocations_xml, 'loc', {
-                'side': side.lower(),
-            }).text = ' '.join(pins)
-
-        direct_pins = set()
-        for direct in pin_assignments['direct_connections']:
-            if direct['from_pin'].split('.')[0] == tile:
-                direct_pins.add(direct['from_pin'].split('.')[1])
-
-            if direct['to_pin'].split('.')[0] == tile:
-                direct_pins.add(direct['to_pin'].split('.')[1])
-
-        for fc_override in direct_pins:
-            ET.SubElement(
-                fc_xml, 'fc_override', {
-                    'fc_type': 'frac',
-                    'fc_val': '0.0',
-                    'port_name': fc_override,
-                }
-            )
-
-    def add_switchblock_locations(xml):
-        ET.SubElement(xml, 'switchblock_locations', {
-            'pattern': 'all',
-        })
-
-    def add_fc(xml):
-        fc_xml = ET.SubElement(
-            xml, 'fc', {
-                'in_type': 'abs',
-                'in_val': '2',
-                'out_type': 'abs',
-                'out_val': '2',
-            }
-        )
-
-        return fc_xml
-
     def add_equivalent_tiles(xml, equivalent_tiles):
         """ Used to add to the <tile> tag the equivalent tiles associated with it."""
 
@@ -143,7 +68,7 @@ def import_physical_tile(args):
             root = eq_pb_type_xml.getroot()
 
             mode_xml = ET.SubElement(
-                equivalent_tiles_xml, 'mode', {'name': prefix_name(eq_tile)}
+                equivalent_tiles_xml, 'mode', {'name': tile_import.add_vpr_tile_prefix(eq_tile)}
             )
 
             for port in ports:
@@ -172,7 +97,7 @@ def import_physical_tile(args):
     tile_xml = ET.Element(
         'tile',
         {
-            'name': prefix_name(tile_name),
+            'name': tile_import.add_vpr_tile_prefix(tile_name),
         },
         nsmap={'xi': XI_URL},
     )
@@ -180,12 +105,12 @@ def import_physical_tile(args):
     equivalent_tiles = args.equivalent_tiles
     add_equivalent_tiles(tile_xml, equivalent_tiles)
 
-    fc_xml = add_fc(tile_xml)
+    fc_xml = tile_import.add_fc(tile_xml)
 
     pin_assignments = json.load(args.pin_assignments)
-    add_pinlocations(tile_xml, fc_xml, pin_assignments, tile_name)
+    tile_import.add_pinlocations(tile_name, tile_xml, fc_xml, pin_assignments, ports)
 
-    add_switchblock_locations(tile_xml)
+    tile_import.add_switchblock_locations(tile_xml)
 
     tile_str = ET.tostring(tile_xml, pretty_print=True).decode('utf-8')
     args.output_tile.write(tile_str)
