@@ -178,7 +178,7 @@ function(VPR_TEST_PBTYPE)
   )
   add_file_target(FILE "${VPR_TEST_PBTYPE_NAME}.test.eblif" GENERATED)
 
-  xml_sort(
+  xml_canonicalize_merge(
     NAME ${VPR_TEST_PBTYPE_NAME}_arch_merged
     FILE ${VPR_TEST_PBTYPE_NAME}.arch.xml
     OUTPUT ${VPR_TEST_PBTYPE_NAME}.arch.merged.xml

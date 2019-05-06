@@ -37,9 +37,9 @@ function(XML_LINT)
 
 endfunction(XML_LINT)
 
-function(XML_SORT)
+function(XML_CANONICALIZE_MERGE)
   # ~~~
-  # XML_SORT(
+  # XML_CANONICALIZE_MERGE(
   # NAME
   # FILE
   # OUTPUT
@@ -54,30 +54,30 @@ function(XML_SORT)
 
   set(oneValueArgs NAME FILE OUTPUT)
   cmake_parse_arguments(
-    XML_SORT
+    XML_CANONICALIZE_MERGE
     ""
     "${oneValueArgs}"
     ""
     ${ARGN}
     )
 
-  set(XML_SORT_XSL ${symbiflow-arch-defs_SOURCE_DIR}/common/xml/xmlsort.xsl)
+  set(XML_CANONICALIZE_MERGE_XSL ${symbiflow-arch-defs_SOURCE_DIR}/common/xml/xmlsort.xsl)
 
-  get_file_location(XML_SORT_INPUT_LOCATION ${XML_SORT_FILE})
+  get_file_location(XML_CANONICALIZE_MERGE_INPUT_LOCATION ${XML_CANONICALIZE_MERGE_FILE})
 
-  get_file_target(XML_SORT_INPUT_TARGET ${XML_SORT_FILE})
+  get_file_target(XML_CANONICALIZE_MERGE_INPUT_TARGET ${XML_CANONICALIZE_MERGE_FILE})
   set(DEPS "")
-  append_file_dependency(DEPS ${XML_SORT_FILE})
+  append_file_dependency(DEPS ${XML_CANONICALIZE_MERGE_FILE})
 
   get_target_property_required(XSLTPROC env XSLTPROC)
   get_target_property(XSLTPROC_TARGET env XSLTPROC_TARGET)
 
   add_custom_command(
-    OUTPUT ${XML_SORT_OUTPUT}
+    OUTPUT ${XML_CANONICALIZE_MERGE_OUTPUT}
     DEPENDS
-      ${XML_SORT_XSL}
-      ${XML_SORT_INPUT_LOCATION}
-      ${XML_SORT_INPUT_TARGET}
+      ${XML_CANONICALIZE_MERGE_XSL}
+      ${XML_CANONICALIZE_MERGE_INPUT_LOCATION}
+      ${XML_CANONICALIZE_MERGE_INPUT_TARGET}
       ${DEPS}
       ${XSLTPROC} ${XSLTPROC_TARGET}
     COMMAND
@@ -85,13 +85,13 @@ function(XML_SORT)
       --nomkdir
       --nonet
       --xinclude
-      --output ${CMAKE_CURRENT_BINARY_DIR}/${XML_SORT_OUTPUT}
-      ${XML_SORT_XSL}
-      ${XML_SORT_INPUT_LOCATION}
+      --output ${CMAKE_CURRENT_BINARY_DIR}/${XML_CANONICALIZE_MERGE_OUTPUT}
+      ${XML_CANONICALIZE_MERGE_XSL}
+      ${XML_CANONICALIZE_MERGE_INPUT_LOCATION}
   )
-  add_file_target(FILE ${XML_SORT_OUTPUT} GENERATED)
+  add_file_target(FILE ${XML_CANONICALIZE_MERGE_OUTPUT} GENERATED)
   add_custom_target(
-    ${XML_SORT_NAME}
-    DEPENDS ${XML_SORT_OUTPUT}
+    ${XML_CANONICALIZE_MERGE_NAME}
+    DEPENDS ${XML_CANONICALIZE_MERGE_OUTPUT}
   )
-endfunction(XML_SORT)
+endfunction(XML_CANONICALIZE_MERGE)
