@@ -4,9 +4,24 @@
 -- Terms:
 --  grid - A 2D matrix of tiles
 --
---  tile - A location within the grid.  A tile is always of a partial
+--  phy_tile - A location with the physical grid.  A tile is always of a
+--         particular tile type.  The tile type specifies what wires, pips and
+--         sites a tile contains.
+--
+--         The physical grid is defined by the underlying hardware, and has
+--         expliotable regularity.  However it is not ideal to place using this
+--         grid, as there are various empty tiles to match the hardware (e.g.
+--         VBRK tiles).
+--
+--  tile - A location within the VPR grid.  A tile is always of a partial
 --         tile type.  The tile type specifies what wires, pips and
 --         sites a tile contains.
+--
+--         The VRP grid may have one phy_tile split across two tiles (e.g.
+--         CLBLL_L) or may combine multiple phy_tile's into one (e.g. INT_L
+--         into the tile to it's left.
+--
+--         This table contains the information on the grid output to arch.xml.
 --
 --  wires - A partial net within a tile.  It may start or end at a site pins
 --          or a pip, or can connect to wires in other tiles.
@@ -51,8 +66,8 @@ CREATE TABLE site_type(
   name TEXT
 );
 
--- Tile table, contains type and name of tile and location in grid.
-CREATE TABLE tile(
+-- Physical tile table, contains type and name of tile and location in the prjxray grid.
+CREATE TABLE phy_tile(
   pkey INTEGER PRIMARY KEY,
   name TEXT,
   tile_type_pkey INT,
@@ -81,6 +96,66 @@ CREATE TABLE site(
   y_coord INT,
   site_type_pkey INT,
   FOREIGN KEY(site_type_pkey) REFERENCES site_type(pkey)
+);
+
+-- This table provides a reference of synthetic tile types generated to
+-- support tile splits.  When a tile is split, each contained site becomes a
+-- new tile type, which is keyed in this table as the "parent_tile_type_pkey".
+--
+-- The tile_type and site that the parent_tile_type_pkey was generated
+-- from is within the "tile_type_pkey" and "site_pkey".
+--
+-- All tile rows that are split tiles will set site_as_tile_pkey to point to
+-- a row in this table mapping the synthetic tile_type back to the original
+-- tile type and site that was used to generate it.
+CREATE TABLE site_as_tile(
+  pkey INTEGER PRIMARY KEY,
+  parent_tile_type_pkey INT,
+  tile_type_pkey INT,
+  site_pkey INT,
+  FOREIGN KEY(parent_tile_type_pkey) REFERENCES tile_type(pkey),
+  FOREIGN KEY(tile_type_pkey) REFERENCES tile_type(pkey),
+  FOREIGN KEY(site_pkey) REFERENCES site(pkey)
+);
+
+-- Logical tile table, contains tile type and location within the VPR grid.
+--
+-- For tiles that represent split tiles, site_as_tile_pkey indicates the
+-- original tile_type and site that was used to generate this tile.
+--
+-- phy_tile_pkey refers to the physical tile that is responsible for holding
+-- the configuration of this tile.  When multiple tiles are merged, it is only
+-- legal if only one of the tiles being merged has bitstream output, and that
+-- physical tile should be referenced here.
+--
+-- If it is neccesary to determine where tiles without bitstream output ended
+-- up, the tile_map table can be used.
+CREATE TABLE tile(
+  pkey INTEGER PRIMARY KEY,
+  phy_tile_pkey INT,
+  tile_type_pkey INT,
+  site_as_tile_pkey INT,
+  grid_x INT,
+  grid_y INT,
+  FOREIGN KEY(phy_tile_pkey) REFERENCES phy_tile(pkey),
+  FOREIGN KEY(tile_type_pkey) REFERENCES tile_type(pkey),
+  FOREIGN KEY(site_as_tile_pkey) REFERENCES site_as_tile(pkey)
+);
+
+-- Bimap between physical and logical grids.
+--
+-- All rows in the tile and phy_tile tables appear at least once.
+--
+-- Both tile_pkey's and phy_tile_pkey's may be repeated depending on what
+-- operatations were performed to form the VPR grid. Generally speaking, a tile
+-- split will cause multiple instances of a phy_tile_pkey to appear in this
+-- table.  A tile merge will cause multiple instances of a tile_pkey to appear
+-- in this table.
+CREATE TABLE tile_map(
+  tile_pkey INT,
+  phy_tile_pkey INT,
+  FOREIGN KEY(tile_pkey) REFERENCES tile(pkey),
+  FOREIGN KEY(phy_tile_pkey) REFERENCES phy_tile(pkey)
 );
 
 -- Table of tile type wires. This table is the of uninstanced tile type
@@ -183,9 +258,18 @@ CREATE TABLE graph_node(
 --
 -- If the wire is a member of a routing node, then graph_node_pkey will be
 -- set to the graph_node this wire is a member of.
+--
+-- The wire has two columns for tile location.  phy_tile_pkey points to the
+-- physical prjxray tile that contains this wire.  The tile_pkey points to the
+-- VPR tile that contains this wire.
+--
+-- Do note that unless this wire is connected to a IPIN or OPIN, VPR does not
+-- model exact tile locations for wires.  Instead the wire will have been
+-- lumped into a CHANX or CHANY node.
 CREATE TABLE wire(
   pkey INTEGER PRIMARY KEY,
   node_pkey INT,
+  phy_tile_pkey INT,
   tile_pkey INT,
   wire_in_tile_pkey INT,
   graph_node_pkey INT,
@@ -194,12 +278,13 @@ CREATE TABLE wire(
   left_graph_node_pkey INT,
   right_graph_node_pkey INT,
   FOREIGN KEY(node_pkey) REFERENCES node(pkey),
+  FOREIGN KEY(phy_tile_pkey) REFERENCES phy_tile(pkey),
   FOREIGN KEY(tile_pkey) REFERENCES tile(pkey),
-  FOREIGN KEY(wire_in_tile_pkey) REFERENCES wire_in_grid(pkey)
-  FOREIGN KEY(graph_node_pkey) REFERENCES graph_node(pkey)
-  FOREIGN KEY(top_graph_node_pkey) REFERENCES graph_node(pkey)
-  FOREIGN KEY(bottom_graph_node_pkey) REFERENCES graph_node(pkey)
-  FOREIGN KEY(left_graph_node_pkey) REFERENCES graph_node(pkey)
+  FOREIGN KEY(wire_in_tile_pkey) REFERENCES wire_in_tile(pkey),
+  FOREIGN KEY(graph_node_pkey) REFERENCES graph_node(pkey),
+  FOREIGN KEY(top_graph_node_pkey) REFERENCES graph_node(pkey),
+  FOREIGN KEY(bottom_graph_node_pkey) REFERENCES graph_node(pkey),
+  FOREIGN KEY(left_graph_node_pkey) REFERENCES graph_node(pkey),
   FOREIGN KEY(right_graph_node_pkey) REFERENCES graph_node(pkey)
 );
 
@@ -215,12 +300,12 @@ CREATE TABLE graph_edge(
   dest_graph_node_pkey INT,
   switch_pkey INT,
   track_pkey INT,
-  tile_pkey INT,
+  phy_tile_pkey INT,
   pip_in_tile_pkey INT,
   FOREIGN KEY(src_graph_node_pkey) REFERENCES graph_node(pkey),
   FOREIGN KEY(dest_graph_node_pkey) REFERENCES graph_node(pkey)
   FOREIGN KEY(track_pkey) REFERENCES track(pkey)
-  FOREIGN KEY(tile_pkey) REFERENCES tile(pkey)
+  FOREIGN KEY(phy_tile_pkey) REFERENCES phy_tile(pkey)
   FOREIGN KEY(pip_in_tile_pkey) REFERENCES pip(pkey)
 );
 

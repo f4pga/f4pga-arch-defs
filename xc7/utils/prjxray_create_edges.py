@@ -24,6 +24,7 @@ fill empty spaces.  This is required by VPR to allocate the right data.
 import argparse
 import prjxray.db
 from prjxray.roi import Roi
+from prjxray import grid_types
 import simplejson as json
 import progressbar
 import datetime
@@ -33,7 +34,7 @@ from lib.rr_graph import tracks
 from lib.rr_graph import graph2
 from prjxray.site_type import SitePinDirection
 from prjxray_constant_site_pins import yield_ties_to_wire
-from lib.connection_database import get_track_model
+from lib.connection_database import get_track_model, get_wire_in_tile_from_pin_name
 from lib.rr_graph.graph2 import NodeType
 import multiprocessing
 
@@ -45,33 +46,13 @@ now = datetime.datetime.now
 def add_graph_nodes_for_pins(conn, tile_type, wire, pin_directions):
     """ Adds graph_node rows for each pin on a wire in a tile. """
 
-    # Find the generic wire_in_tile_pkey for the specified tile_type name and
-    # wire name.
-    c = conn.cursor()
-    c.execute(
-        """
-SELECT
-  pkey,
-  site_pin_pkey
-FROM
-  wire_in_tile
-WHERE
-  name = ?
-  and tile_type_pkey = (
-    SELECT
-      pkey
-    FROM
-      tile_type
-    WHERE
-      name = ?
-  );
-""", (wire, tile_type)
+    (wire_in_tile_pkeys, site_pin_pkey) = get_wire_in_tile_from_pin_name(
+        conn=conn, tile_type_str=tile_type, wire_str=wire
     )
-
-    (wire_in_tile_pkey, site_pin_pkey) = c.fetchone()
 
     # Determine if this should be an IPIN or OPIN based on the site_pin
     # direction.
+    c = conn.cursor()
     c.execute(
         """
         SELECT direction FROM site_pin WHERE pkey = ?;""", (site_pin_pkey, )
@@ -89,60 +70,66 @@ WHERE
     else:
         assert False, pin_direction
 
-    # Find all instances of this specific wire.
-    c.execute(
-        """
-        SELECT pkey, node_pkey, tile_pkey
-            FROM wire WHERE wire_in_tile_pkey = ?;""", (wire_in_tile_pkey, )
-    )
+    write_cur = conn.cursor()
+    write_cur.execute("""BEGIN EXCLUSIVE TRANSACTION;""")
 
-    c2 = conn.cursor()
-    c3 = conn.cursor()
-    c2.execute("""BEGIN EXCLUSIVE TRANSACTION;""")
-
-    for wire_pkey, node_pkey, tile_pkey in c:
-        c3.execute(
+    for wire_in_tile_pkey in wire_in_tile_pkeys.values():
+        # Find all instances of this specific wire.
+        c.execute(
             """
-            SELECT grid_x, grid_y FROM tile WHERE pkey = ?;""", (tile_pkey, )
+            SELECT pkey, node_pkey, tile_pkey
+                FROM wire WHERE wire_in_tile_pkey = ?;""",
+            (wire_in_tile_pkey, )
         )
 
-        grid_x, grid_y = c3.fetchone()
+        c3 = conn.cursor()
 
-        updates = []
-        values = []
-
-        # Insert a graph_node per pin_direction.
-        for pin_direction in pin_directions:
-            c2.execute(
+        for wire_pkey, node_pkey, tile_pkey in c:
+            c3.execute(
                 """
-            INSERT INTO graph_node(
-                graph_node_type, node_pkey, x_low, x_high, y_low, y_high)
-                VALUES (?, ?, ?, ?, ?, ?)""", (
-                    node_type.value,
-                    node_pkey,
-                    grid_x,
-                    grid_x,
-                    grid_y,
-                    grid_y,
+                SELECT grid_x, grid_y FROM tile WHERE pkey = ?;""",
+                (tile_pkey, )
+            )
+
+            grid_x, grid_y = c3.fetchone()
+
+            updates = []
+            values = []
+
+            # Insert a graph_node per pin_direction.
+            for pin_direction in pin_directions:
+                write_cur.execute(
+                    """
+                INSERT INTO graph_node(
+                    graph_node_type, node_pkey, x_low, x_high, y_low, y_high)
+                    VALUES (?, ?, ?, ?, ?, ?)""", (
+                        node_type.value,
+                        node_pkey,
+                        grid_x,
+                        grid_x,
+                        grid_y,
+                        grid_y,
+                    )
                 )
+
+                updates.append(
+                    '{}_graph_node_pkey = ?'.format(
+                        pin_direction.name.lower()
+                    )
+                )
+                values.append(write_cur.lastrowid)
+
+            # Update the wire with the graph_nodes in each direction, if
+            # applicable.
+            write_cur.execute(
+                """
+                UPDATE wire SET {updates} WHERE pkey = ?;""".format(
+                    updates=','.join(updates)
+                ), values + [wire_pkey]
             )
 
-            updates.append(
-                '{}_graph_node_pkey = ?'.format(pin_direction.name.lower())
-            )
-            values.append(c2.lastrowid)
-
-        # Update the wire with the graph_nodes in each direction, if
-        # applicable.
-        c2.execute(
-            """
-            UPDATE wire SET {updates} WHERE pkey = ?;""".format(
-                updates=','.join(updates)
-            ), values + [wire_pkey]
-        )
-
-    c2.execute("""COMMIT TRANSACTION;""")
-    c2.connection.commit()
+    write_cur.execute("""COMMIT TRANSACTION;""")
+    write_cur.connection.commit()
 
 
 def create_find_pip(conn):
@@ -213,19 +200,21 @@ WHERE
         return result[0]
 
     @functools.lru_cache(maxsize=None)
-    def find_wire(tile, tile_type, wire):
+    def find_wire(phy_tile, tile_type, wire):
         """ Finds a wire in the database.
 
         Args:
-            tile (str): Tile name
+            phy_tile (str): Physical tile name
             tile_type (str): Type of tile name
             wire (str): Wire name
 
         Returns:
-            Tuple (wire_pkey, tile_pkey, node_pkey), where:
+            Tuple (wire_pkey, phy_tile_pkey, node_pkey), where:
                 wire_pkey (int): Primary key of wire table
-                tile_pkey (int): Primary key of tile table that contains this
-                    wire.
+                tile_pkey (int): Primary key of VPR tile row that contains
+                    this wire.
+                phy_tile_pkey (int): Primary key of physical tile row that
+                    contains this wire.
                 node_pkey (int): Primary key of node table that is the node
                     this wire belongs too.
         """
@@ -236,22 +225,27 @@ WHERE
 SELECT
   pkey,
   tile_pkey,
+  phy_tile_pkey,
   node_pkey
 FROM
   wire
 WHERE
   wire_in_tile_pkey = ?
-  AND tile_pkey = (
+  AND phy_tile_pkey = (
     SELECT
       pkey
     FROM
-      tile
+      phy_tile
     WHERE
       name = ?
-  );""", (wire_in_tile_pkey, tile)
+  );""", (wire_in_tile_pkey, phy_tile)
         )
 
-        return c.fetchone()
+        result = c.fetchone()
+        assert result is not None, (
+            phy_tile, tile_type, wire, wire_in_tile_pkey
+        )
+        return result
 
     return find_wire
 
@@ -536,8 +530,8 @@ SELECT vcc_track_pkey, gnd_track_pkey FROM constant_sources;
 
 
 def make_connection(
-        input_only_nodes, output_only_nodes, find_wire, find_pip,
-        find_connector, tile_name, loc, tile_type, pip, switch_pkey,
+        conn, input_only_nodes, output_only_nodes, find_wire, find_pip,
+        find_connector, tile_name, tile_type, pip, switch_pkey,
         delayless_switch_pkey, const_connectors
 ):
     """ Attempt to connect graph nodes on either side of a pip.
@@ -553,7 +547,6 @@ def make_connection(
         find_pip (function): Return value from create_find_pip.
         find_connector (function): Return value from create_find_connector.
         tile_name (str): Name of tile pip belongs too.
-        loc (prjxray.grid_types.GridLoc): Location of tile.
         pip (prjxray.tile.Pip): Pip being connected.
         switch_pkey (int): Primary key to switch table of switch to be used
             in this connection.
@@ -566,19 +559,25 @@ def make_connection(
                 destination.
             switch_pkey (int) - Primary key into switch table of switch used
                 in connection.
-            tile_pkey (int) - Primary key into table of parent tile of pip.
+            phy_tile_pkey (int) - Primary key into table of parent physical
+                tile of the pip.
             pip_pkey (int) - Primary key into pip_in_tile table for this pip.
 
     """
 
-    src_wire_pkey, tile_pkey, src_node_pkey = find_wire(
+    src_wire_pkey, tile_pkey, phy_tile_pkey, src_node_pkey = find_wire(
         tile_name, tile_type, pip.net_from
     )
-    sink_wire_pkey, tile_pkey2, sink_node_pkey = find_wire(
+    sink_wire_pkey, tile_pkey2, phy_tile_pkey2, sink_node_pkey = find_wire(
         tile_name, tile_type, pip.net_to
     )
 
+    assert phy_tile_pkey == phy_tile_pkey2
     assert tile_pkey == tile_pkey2
+
+    c = conn.cursor()
+    c.execute("SELECT grid_x, grid_y FROM tile WHERE pkey = ?", (tile_pkey, ))
+    loc = grid_types.GridLoc(*c.fetchone())
 
     # Skip nodes that are reserved because of ROI
     if src_node_pkey in input_only_nodes:
@@ -609,7 +608,7 @@ def make_connection(
             src_graph_node_pkey,
             dest_graph_node_pkey,
             switch_pkey,
-            tile_pkey,
+            phy_tile_pkey,
             pip_pkey,
         )
     ]
@@ -624,7 +623,7 @@ def make_connection(
                 src_graph_node_pkey,
                 dest_graph_node_pkey,
                 delayless_switch_pkey,
-                tile_pkey,
+                phy_tile_pkey,
                 None,
             )
         )
@@ -646,7 +645,7 @@ def mark_track_liveness(
     """
 
     c = conn.cursor()
-    c2 = conn.cursor()
+    write_cur = conn.cursor()
     for graph_node_pkey, node_pkey, track_pkey in c.execute("""
 SELECT
   pkey,
@@ -663,17 +662,17 @@ WHERE
             alive_tracks.add(track_pkey)
             continue
 
-        c2.execute(
+        write_cur.execute(
             """SELECT count(switch_pkey) FROM graph_edge WHERE
             src_graph_node_pkey = ?;""", (graph_node_pkey, )
         )
-        src_count = c2.fetchone()[0]
+        src_count = write_cur.fetchone()[0]
 
-        c2.execute(
+        write_cur.execute(
             """SELECT count(switch_pkey) FROM graph_edge WHERE
             dest_graph_node_pkey = ?;""", (graph_node_pkey, )
         )
-        sink_count = c2.fetchone()[0]
+        sink_count = write_cur.fetchone()[0]
 
         if src_count > 0 and sink_count > 0:
             alive_tracks.add(track_pkey)
@@ -686,13 +685,13 @@ WHERE
         )
     )
 
-    c2.execute("""BEGIN EXCLUSIVE TRANSACTION;""")
+    write_cur.execute("""BEGIN EXCLUSIVE TRANSACTION;""")
     for (track_pkey, ) in c.execute("""SELECT pkey FROM track;"""):
-        c2.execute(
+        write_cur.execute(
             "UPDATE track SET alive = ? WHERE pkey = ?;",
             (track_pkey in alive_tracks, track_pkey)
         )
-    c2.execute("""COMMIT TRANSACTION;""")
+    write_cur.execute("""COMMIT TRANSACTION;""")
 
     print('{} Track aliveness committed'.format(now()))
 
@@ -711,14 +710,14 @@ def direction_to_enum(pin):
 
 
 def build_channels(conn, pool, active_tracks):
-    c = conn.cursor()
+    write_cur = conn.cursor()
 
     xs = []
     ys = []
 
     x_tracks = {}
     y_tracks = {}
-    for pkey, track_pkey, graph_node_type, x_low, x_high, y_low, y_high in c.execute(
+    for pkey, track_pkey, graph_node_type, x_low, x_high, y_low, y_high in write_cur.execute(
             """
 SELECT
   pkey,
@@ -774,7 +773,7 @@ WHERE
             graph2.process_track, (y_tracks[x], )
         )
 
-    c.execute("""BEGIN EXCLUSIVE TRANSACTION;""")
+    write_cur.execute("""BEGIN EXCLUSIVE TRANSACTION;""")
 
     for y in progressbar.progressbar(range(max(x_tracks) + 1)):
         if y in x_tracks:
@@ -784,7 +783,7 @@ WHERE
 
             for idx, tree in enumerate(x_channel_models[y].trees):
                 for i in tree:
-                    c.execute(
+                    write_cur.execute(
                         'UPDATE graph_node SET ptc = ? WHERE pkey = ?;',
                         (idx, i[2])
                     )
@@ -799,7 +798,7 @@ WHERE
 
             for idx, tree in enumerate(y_channel_models[x].trees):
                 for i in tree:
-                    c.execute(
+                    write_cur.execute(
                         'UPDATE graph_node SET ptc = ? WHERE pkey = ?;',
                         (idx, i[2])
                     )
@@ -818,7 +817,7 @@ WHERE
             assert ptc < x_list[chan]
 
             num_padding += 1
-            c.execute(
+            write_cur.execute(
                 """
 INSERT INTO graph_node(
   graph_node_type, x_low, x_high, y_low,
@@ -837,7 +836,7 @@ VALUES
             assert ptc < y_list[chan]
 
             num_padding += 1
-            c.execute(
+            write_cur.execute(
                 """
 INSERT INTO graph_node(
   graph_node_type, x_low, x_high, y_low,
@@ -853,7 +852,7 @@ VALUES
 
     print('Number padding nodes {}'.format(num_padding))
 
-    c.execute(
+    write_cur.execute(
         """
     INSERT INTO channel(chan_width_max, x_min, x_max, y_min, y_max) VALUES
         (?, ?, ?, ?, ?);""",
@@ -861,18 +860,18 @@ VALUES
     )
 
     for idx, info in enumerate(x_list):
-        c.execute(
+        write_cur.execute(
             """
         INSERT INTO x_list(idx, info) VALUES (?, ?);""", (idx, info)
         )
 
     for idx, info in enumerate(y_list):
-        c.execute(
+        write_cur.execute(
             """
         INSERT INTO y_list(idx, info) VALUES (?, ?);""", (idx, info)
         )
 
-    c.execute("""COMMIT TRANSACTION;""")
+    write_cur.execute("""COMMIT TRANSACTION;""")
 
 
 def verify_channels(conn, alive_tracks):
@@ -1007,7 +1006,7 @@ def main():
                         if pin['port_type'] not in ['input', 'output']:
                             continue
 
-                        _, _, node_pkey = find_wire(
+                        _, _, _, node_pkey = find_wire(
                             tile_name, gridinfo.tile_type, pin['wire']
                         )
 
@@ -1020,15 +1019,17 @@ def main():
                         else:
                             assert False, pin
 
-        c = conn.cursor()
-        c.execute('SELECT pkey FROM switch WHERE name = ?;', ('routing', ))
-        switch_pkey = c.fetchone()[0]
+        write_cur = conn.cursor()
+        write_cur.execute(
+            'SELECT pkey FROM switch WHERE name = ?;', ('routing', )
+        )
+        switch_pkey = write_cur.fetchone()[0]
 
-        c.execute(
+        write_cur.execute(
             'SELECT pkey FROM switch WHERE name = ?;',
             ('__vpr_delayless_switch__', )
         )
-        delayless_switch_pkey = c.fetchone()[0]
+        delayless_switch_pkey = write_cur.fetchone()[0]
 
         edges = []
 
@@ -1055,13 +1056,13 @@ def main():
                 # FIXME: Will require a change here once merged with #537 (!)
 
                 connections = make_connection(
+                    conn=conn,
                     input_only_nodes=input_only_nodes,
                     output_only_nodes=output_only_nodes,
                     find_pip=find_pip,
                     find_wire=find_wire,
                     find_connector=find_connector,
                     tile_name=tile_name,
-                    loc=loc,
                     tile_type=gridinfo.tile_type,
                     pip=pip,
                     switch_pkey=switch_pkey,
@@ -1082,27 +1083,27 @@ def main():
 
         print('{} Created {} edges, inserting'.format(now(), len(edges)))
 
-        c.execute("""BEGIN EXCLUSIVE TRANSACTION;""")
+        write_cur.execute("""BEGIN EXCLUSIVE TRANSACTION;""")
         for edge in progressbar.progressbar(edges):
-            c.execute(
+            write_cur.execute(
                 """
-                    INSERT INTO graph_edge(
-                        src_graph_node_pkey, dest_graph_node_pkey, switch_pkey,
-                        tile_pkey, pip_in_tile_pkey)  VALUES (?, ?, ?, ?, ?)""",
+                INSERT INTO graph_edge(
+                    src_graph_node_pkey, dest_graph_node_pkey, switch_pkey,
+                    phy_tile_pkey, pip_in_tile_pkey) VALUES (?, ?, ?, ?, ?)""",
                 edge
             )
 
-        c.execute("""COMMIT TRANSACTION;""")
+        write_cur.execute("""COMMIT TRANSACTION;""")
 
         print('{} Inserted edges'.format(now()))
 
-        c.execute(
+        write_cur.execute(
             """CREATE INDEX src_node_index ON graph_edge(src_graph_node_pkey);"""
         )
-        c.execute(
+        write_cur.execute(
             """CREATE INDEX dest_node_index ON graph_edge(dest_graph_node_pkey);"""
         )
-        c.connection.commit()
+        write_cur.connection.commit()
 
         print('{} Indices created, marking track liveness'.format(now()))
 

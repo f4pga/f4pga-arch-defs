@@ -7,13 +7,14 @@ def create_maybe_get_wire(conn):
     @functools.lru_cache(maxsize=None)
     def get_tile_type_pkey(tile):
         c.execute(
-            'SELECT pkey, tile_type_pkey FROM tile WHERE name = ?', (tile, )
+            'SELECT pkey, tile_type_pkey FROM phy_tile WHERE name = ?',
+            (tile, )
         )
         return c.fetchone()
 
     @functools.lru_cache(maxsize=None)
     def maybe_get_wire(tile, wire):
-        tile_pkey, tile_type_pkey = get_tile_type_pkey(tile)
+        phy_tile_pkey, tile_type_pkey = get_tile_type_pkey(tile)
 
         c.execute(
             'SELECT pkey FROM wire_in_tile WHERE tile_type_pkey = ? and name = ?',
@@ -28,8 +29,8 @@ def create_maybe_get_wire(conn):
         wire_in_tile_pkey = result[0]
 
         c.execute(
-            'SELECT pkey FROM wire WHERE tile_pkey = ? AND wire_in_tile_pkey = ?',
-            (tile_pkey, wire_in_tile_pkey)
+            'SELECT pkey FROM wire WHERE phy_tile_pkey = ? AND wire_in_tile_pkey = ?',
+            (phy_tile_pkey, wire_in_tile_pkey)
         )
 
         return c.fetchone()[0]
@@ -72,13 +73,13 @@ def get_wires_in_node(conn, node_pkey):
         yield row[0]
 
 
-def get_wire(conn, tile_pkey, wire_in_tile_pkey):
+def get_wire(conn, phy_tile_pkey, wire_in_tile_pkey):
     c = conn.cursor()
     c.execute(
-        "SELECT pkey FROM wire WHERE wire_in_tile_pkey = ? AND tile_pkey = ?;",
+        "SELECT pkey FROM wire WHERE wire_in_tile_pkey = ? AND phy_tile_pkey = ?;",
         (
             wire_in_tile_pkey,
-            tile_pkey,
+            phy_tile_pkey,
         )
     )
     return c.fetchone()[0]
@@ -90,7 +91,7 @@ def get_tile_type(conn, tile_name):
     c.execute(
         """
 SELECT name FROM tile_type WHERE pkey = (
-    SELECT tile_type_pkey FROM tile WHERE name = ?);""", (tile_name, )
+    SELECT tile_type_pkey FROM phy_tile WHERE name = ?);""", (tile_name, )
     )
 
     return c.fetchone()[0]
@@ -100,12 +101,12 @@ def get_wire_pkey(conn, tile_name, wire):
     c = conn.cursor()
     c.execute(
         """
-WITH selected_tile(tile_pkey, tile_type_pkey) AS (
+WITH selected_tile(phy_tile_pkey, tile_type_pkey) AS (
   SELECT
     pkey,
     tile_type_pkey
   FROM
-    tile
+    phy_tile
   WHERE
     name = ?
 )
@@ -114,9 +115,9 @@ SELECT
 FROM
   wire
 WHERE
-  wire.tile_pkey = (
+  wire.phy_tile_pkey = (
     SELECT
-      selected_tile.tile_pkey
+      selected_tile.phy_tile_pkey
     FROM
       selected_tile
   )
