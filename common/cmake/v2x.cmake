@@ -118,81 +118,104 @@ function(V2X)
   get_file_target(SRC_TARGET_NAME "${V2X_NAME}.model.xml")
   set_target_properties(${SRC_TARGET_NAME} PROPERTIES INCLUDE_FILES "${MODEL_INCLUDE_FILES}")
 
-  add_custom_command(
-    OUTPUT "${V2X_NAME}.arch.xml"
-    DEPENDS
-      ${CMAKE_CURRENT_BINARY_DIR}/${V2X_NAME}.model.xml
-      ${CMAKE_CURRENT_BINARY_DIR}/${V2X_NAME}.pb_type.xml
-      ${symbiflow-arch-defs_SOURCE_DIR}/utils/vpr_pbtype_arch_wrapper.py
-      ${symbiflow-arch-defs_SOURCE_DIR}/utils/template.arch.xml
-    COMMAND
-      ${CMAKE_COMMAND} -E env YOSYS=${YOSYS}  ${PYTHON3} ${symbiflow-arch-defs_SOURCE_DIR}/utils/vpr_pbtype_arch_wrapper.py
-      --pb_type ${CMAKE_CURRENT_BINARY_DIR}/${V2X_NAME}.pb_type.xml
-      --model   ${CMAKE_CURRENT_BINARY_DIR}/${V2X_NAME}.model.xml
-      --output  ${CMAKE_CURRENT_BINARY_DIR}/${V2X_NAME}.arch.xml
-    WORKING_DIRECTORY ${symbiflow-arch-defs_SOURCE_DIR}/utils/vlog/
-  )
-  add_file_target(FILE "${V2X_NAME}.arch.xml" GENERATED)
-
-  add_custom_command(
-    OUTPUT "${V2X_NAME}.test.eblif"
-    DEPENDS
-      ${DEPENDS_LIST}
-      ${symbiflow-arch-defs_SOURCE_DIR}/utils/vlog/vlog_to_test_eblif.py
-    COMMAND
-      ${CMAKE_COMMAND} -E env YOSYS=${YOSYS}  ${PYTHON3} ${symbiflow-arch-defs_SOURCE_DIR}/utils/vlog/vlog_to_test_eblif.py ${TOP_ARG}
-      -o ${CMAKE_CURRENT_BINARY_DIR}/${V2X_NAME}.test.eblif ${FIRST_SOURCE}
-      ${INCLUDE_ARG}
-    WORKING_DIRECTORY ${symbiflow-arch-defs_SOURCE_DIR}/utils/vlog/
-  )
-  add_file_target(FILE "${V2X_NAME}.test.eblif" GENERATED)
-
-  xml_sort(
-    NAME ${V2X_NAME}_arch_merged
-    FILE ${V2X_NAME}.arch.xml
-    OUTPUT ${V2X_NAME}.arch.merged.xml
-  )
-
-  get_target_property_required(VPR env VPR)
-  get_target_property(VPR_TARGET env VPR_TARGET)
-
-  add_custom_command(
-    OUTPUT
-      ${V2X_NAME}.vpr.stdout
-    DEPENDS
-      ${V2X_NAME}.arch.merged.xml
-      ${V2X_NAME}.test.eblif
-      ${QUIET_CMD} ${QUIET_CMD_TARGET}
-      ${VPR} ${VPR_TARGET}
-    COMMAND
-      ${QUIET_CMD} ${VPR} ${V2X_NAME}.arch.merged.xml
-      ${V2X_NAME}.test.eblif
-      --route_chan_width 100
-      --min_route_chan_width_hint 1
-      --outfile_prefix ${V2X_NAME}
-      --pack
-      --place
-      --route
-    COMMAND
-      ${CMAKE_COMMAND} -E copy vpr_stdout.log
-      ${V2X_NAME}.vpr.stdout
-    WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
-  )
-  add_file_target(FILE "${V2X_NAME}.vpr.stdout" GENERATED)
-  add_custom_target(
-    ${V2X_NAME}_arch_test
-    DEPENDS
-     "${V2X_NAME}.vpr.stdout"
-  )
-
   add_custom_target(
     ${V2X_NAME}
     DEPENDS
         "${V2X_NAME}.model.xml"
         "${V2X_NAME}.pb_type.xml"
-        "${V2X_NAME}.arch.xml"
-        "${V2X_NAME}.test.eblif"
-        "${V2X_NAME}.vpr.stdout"
   )
 
 endfunction(V2X)
+
+function(VPR_TEST_PBTYPE)
+  # ~~~
+  # VPR_TEST_PBTYPE(NAME <name>)
+  # ~~~
+  #
+  # Run the pb_type.xml file through vpr to check it is valid.
+  set(oneValueArgs NAME)
+  cmake_parse_arguments(
+    VPR_TEST_PBTYPE
+    ""
+    "${oneValueArgs}"
+    ""
+    ${ARGN}
+  )
+
+  get_target_property_required(PYTHON3 env PYTHON3)
+  get_target_property(PYTHON3_TARGET env PYTHON3_TARGET)
+
+  get_file_target(PBTYPE_TARGET_NAME "${VPR_TEST_PBTYPE_NAME}.pb_type.xml")
+  get_file_target(MODEL_TARGET_NAME "${VPR_TEST_PBTYPE_NAME}.model.xml")
+
+  add_custom_command(
+    OUTPUT "${VPR_TEST_PBTYPE_NAME}.arch.xml"
+    DEPENDS
+      ${PYTHON3_TARGET}
+      ${CMAKE_CURRENT_BINARY_DIR}/${VPR_TEST_PBTYPE_NAME}.pb_type.xml ${PBTYPE_TARGET_NAME}
+      ${CMAKE_CURRENT_BINARY_DIR}/${VPR_TEST_PBTYPE_NAME}.model.xml ${MODEL_TARGET_NAME}
+      ${symbiflow-arch-defs_SOURCE_DIR}/utils/vpr_pbtype_arch_wrapper.py
+      ${symbiflow-arch-defs_SOURCE_DIR}/utils/template.arch.xml
+    COMMAND
+      ${PYTHON3} ${symbiflow-arch-defs_SOURCE_DIR}/utils/vpr_pbtype_arch_wrapper.py
+      --pb_type ${CMAKE_CURRENT_BINARY_DIR}/${VPR_TEST_PBTYPE_NAME}.pb_type.xml
+      --output  ${CMAKE_CURRENT_BINARY_DIR}/${VPR_TEST_PBTYPE_NAME}.arch.xml
+    WORKING_DIRECTORY ${symbiflow-arch-defs_SOURCE_DIR}/utils
+  )
+  add_file_target(FILE "${VPR_TEST_PBTYPE_NAME}.arch.xml" GENERATED)
+
+  add_custom_command(
+    OUTPUT "${VPR_TEST_PBTYPE_NAME}.test.eblif"
+    DEPENDS
+      ${PYTHON3_TARGET}
+      ${CMAKE_CURRENT_BINARY_DIR}/${VPR_TEST_PBTYPE_NAME}.pb_type.xml ${PBTYPE_TARGET_NAME}
+      ${symbiflow-arch-defs_SOURCE_DIR}/utils/vpr_pbtype_to_eblif.py
+    COMMAND
+      ${PYTHON3} ${symbiflow-arch-defs_SOURCE_DIR}/utils/vpr_pbtype_to_eblif.py
+      --pb_type ${CMAKE_CURRENT_BINARY_DIR}/${VPR_TEST_PBTYPE_NAME}.pb_type.xml
+      --output  ${CMAKE_CURRENT_BINARY_DIR}/${VPR_TEST_PBTYPE_NAME}.test.eblif
+    WORKING_DIRECTORY ${symbiflow-arch-defs_SOURCE_DIR}/utils
+  )
+  add_file_target(FILE "${VPR_TEST_PBTYPE_NAME}.test.eblif" GENERATED)
+
+  xml_sort(
+    NAME ${VPR_TEST_PBTYPE_NAME}_arch_merged
+    FILE ${VPR_TEST_PBTYPE_NAME}.arch.xml
+    OUTPUT ${VPR_TEST_PBTYPE_NAME}.arch.merged.xml
+  )
+
+  get_target_property_required(VPR env VPR)
+  get_target_property(VPR_TARGET env VPR_TARGET)
+
+  set(OUT_LOCAL_REL test_${VPR_TEST_PBTYPE_NAME})
+  set(OUT_LOCAL ${CMAKE_CURRENT_BINARY_DIR}/${OUT_LOCAL_REL})
+  add_custom_command(
+    OUTPUT
+      ${OUT_LOCAL_REL}/vpr.stdout
+    DEPENDS
+      ${VPR_TEST_PBTYPE_NAME}.arch.merged.xml
+      ${VPR_TEST_PBTYPE_NAME}.test.eblif
+      ${QUIET_CMD} ${QUIET_CMD_TARGET}
+      ${VPR} ${VPR_TARGET}
+    COMMAND
+      ${CMAKE_COMMAND} -E make_directory ${OUT_LOCAL}
+    COMMAND
+      ${CMAKE_COMMAND} -E chdir ${OUT_LOCAL}
+      ${QUIET_CMD} ${VPR}
+      ${CMAKE_CURRENT_BINARY_DIR}/${VPR_TEST_PBTYPE_NAME}.arch.merged.xml
+      ${CMAKE_CURRENT_BINARY_DIR}/${VPR_TEST_PBTYPE_NAME}.test.eblif
+      --echo_file on
+      --pack
+      --place
+      --route
+      --disp on
+    WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
+  )
+  add_file_target(FILE "${OUT_LOCAL_REL}/vpr.stdout" GENERATED)
+
+  add_custom_target(
+    test_${VPR_TEST_PBTYPE_NAME}
+    DEPENDS
+        "${OUT_LOCAL_REL}/vpr.stdout"
+  )
+endfunction(VPR_TEST_PBTYPE)

@@ -14,13 +14,15 @@ import subprocess
 import sys
 import tempfile
 
+from typing import List
+
 import lxml.etree as ET
 
 from lib.flatten import flatten
-from lib.pb_type import ports
+from lib.pb_type import Port, ports, find_leaf
 
 
-def blif(name, inputs, outputs):
+def blif(name: str, inputs: List[Port], outputs: List[Port]) -> str:
     """
     >>> print(blif('mod', ['A', 'B'], ['C', 'D']))
     .model top
@@ -65,15 +67,21 @@ Output filename, default '<name>.test.eblif'
 def main(args):
     args = parser.parse_args(args)
 
-    clocks, inputs, outputs = ports(args.pb_type)
+    pbtype_xml = ET.parse(args.pb_type)
+    pbtype_xml.xinclude()
+
+    pbtype_leaf = find_leaf(pbtype_xml.getroot())
+    assert pbtype_leaf is not None, "Unable to find leaf <pb_type> tag in {}".format(args.pb_type)
+
+    pbtype_name, clocks, inputs, outputs = ports(pbtype_leaf)
     iname = os.path.basename(args.pb_type)
 
     outfile = "{}.test.eblif".format(iname)
-    if "o" in args and args.o is not None:
-        outfile = args.o
+    if args.output is not None:
+        outfile = args.output
     outfile = os.path.abspath(outfile)
 
-    eblif = blif(top, inputs, outputs)
+    eblif = blif(pbtype_name, inputs, outputs)
     with open(outfile, "w") as f:
         f.write(eblif)
 

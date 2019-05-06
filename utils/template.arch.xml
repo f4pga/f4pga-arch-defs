@@ -2,19 +2,46 @@
 <architecture xmlns:xi="http://www.w3.org/2001/XInclude">
  <models><!-- model.xml file will be included here --></models>
 
- <complexblocklist><!-- pb_type.xml file will be included here --></complexblocklist>
+ <complexblocklist>
+   <pb_type name="IBUF">
+     <output name="I" num_pins="1" />
+     <pb_type name="PIN"  blif_model=".input" num_pb="1">
+	<output name="inpad" num_pins="1" />
+     </pb_type>
+     <interconnect>
+	<direct name="P" input="PIN.inpad" output="IBUF.I" />
+     </interconnect>
+     <pinlocations pattern="custom">
+        <loc side="right" xoffset="0" yoffset="0">IBUF.I</loc>
+     </pinlocations>
+   </pb_type>
+   <pb_type name="OBUF">
+     <input name="O" num_pins="1" />
+     <pb_type name="PIN"  blif_model=".output" num_pb="1">
+	<input name="outpad" num_pins="1" />
+     </pb_type>
+     <interconnect>
+	<direct name="P" input="OBUF.O" output="PIN.outpad" />
+     </interconnect>
+     <pinlocations pattern="custom">
+        <loc side="left" xoffset="0" yoffset="0">OBUF.O</loc>
+     </pinlocations>
+   </pb_type>
+   <!-- pb_type.xml file will be included here -->
+ </complexblocklist>
 
  <layout><!-- layout will be auto generated here --></layout>
 
  <device>
   <sizing R_minW_nmos="6065.520020" R_minW_pmos="18138.500000" />
   <area grid_logic_tile_area="14813.392"/>
-  <connection_block input_switch_name="1"/>
+  <connection_block input_switch_name="mux"/>
   <switch_block type="wilton" fs="3"/>
   <chan_width_distr>
    <x distr="uniform" peak="1.000000"/>
    <y distr="uniform" peak="1.000000"/>
   </chan_width_distr>
+  <default_fc in_type="frac" in_val="1.0" out_type="frac" out_val="1.0"/>
  </device>
 
  <switchlist>
