@@ -25,10 +25,12 @@ from prjxray.roi import Roi
 import prjxray.grid as grid
 from lib.rr_graph import graph2
 from lib.rr_graph import tracks
-from lib.connection_database import get_wire_pkey, get_track_model
+from lib.connection_database import get_wire_pkey, get_track_model, \
+        get_wire_in_tile_from_pin_name
 import lib.rr_graph_xml.graph2 as xml_graph2
 from lib.rr_graph_xml.utils import read_xml_file
 from prjxray_constant_site_pins import feature_when_routed
+from prjxray_tile_import import remove_vpr_tile_prefix
 import simplejson as json
 import progressbar
 import datetime
@@ -84,8 +86,7 @@ PIN_NAME_TO_PARTS = re.compile(r'^([^\.]+)\.([^\]]+)\[0\]$')
 
 
 def import_graph_nodes(conn, graph, node_mapping):
-    c = conn.cursor()
-    tile_type_wire_to_pkey = {}
+    cur = conn.cursor()
     tile_loc_to_pkey = {}
 
     for node in graph.nodes:
@@ -104,50 +105,48 @@ def import_graph_nodes(conn, graph, node_mapping):
         assert m is not None, pin_name
 
         tile_type = m.group(1)
+        tile_type = remove_vpr_tile_prefix(tile_type)
+
         pin = m.group(2)
 
-        key = (tile_type, pin)
+        (wire_in_tile_pkeys, _) = get_wire_in_tile_from_pin_name(
+            conn=conn, tile_type_str=tile_type, wire_str=pin
+        )
 
-        if key not in tile_type_wire_to_pkey:
-            c.execute(
+        cur.execute(
+            """
+SELECT site_as_tile_pkey FROM tile WHERE grid_x = ? AND grid_y = ?;
+        """, (node.loc.x_low, node.loc.y_low)
+        )
+        site_as_tile_pkey = cur.fetchone()[0]
+
+        if site_as_tile_pkey is not None:
+            cur.execute(
                 """
-SELECT
-  pkey
-FROM
-  wire_in_tile
-WHERE
-  tile_type_pkey = (
-    SELECT
-      pkey
-    FROM
-      tile_type
-    WHERE
-      name = ?
-  )
-  AND name = ?;""", (tile_type, pin)
+SELECT site_pkey FROM site_as_tile WHERE pkey = ?;
+                """, (site_as_tile_pkey, )
             )
-
-            result = c.fetchone()
-            assert result is not None, (tile_type, pin)
-            (wire_in_tile_pkey, ) = result
-
-            tile_type_wire_to_pkey[key] = wire_in_tile_pkey
+            site_pkey = cur.fetchone()[0]
+            wire_in_tile_pkey = wire_in_tile_pkeys[site_pkey]
         else:
-            wire_in_tile_pkey = tile_type_wire_to_pkey[key]
+            assert len(wire_in_tile_pkeys) == 1
+            _, wire_in_tile_pkey = wire_in_tile_pkeys.popitem()
 
         if gridloc not in tile_loc_to_pkey:
-            c.execute(
+            cur.execute(
                 """
             SELECT pkey FROM tile WHERE grid_x = ? AND grid_y = ?;""",
                 (gridloc[0], gridloc[1])
             )
 
-            (tile_pkey, ) = c.fetchone()
+            result = cur.fetchone()
+            assert result is not None, (tile_type, gridloc)
+            (tile_pkey, ) = result
             tile_loc_to_pkey[gridloc] = tile_pkey
         else:
             tile_pkey = tile_loc_to_pkey[gridloc]
 
-        c.execute(
+        cur.execute(
             """
         SELECT
             top_graph_node_pkey, bottom_graph_node_pkey,
@@ -157,10 +156,12 @@ WHERE
             (wire_in_tile_pkey, tile_pkey)
         )
 
+        result = cur.fetchone()
+        assert result is not None, (wire_in_tile_pkey, tile_pkey)
         (
             top_graph_node_pkey, bottom_graph_node_pkey, left_graph_node_pkey,
             right_graph_node_pkey
-        ) = c.fetchone()
+        ) = result
 
         side = node.loc.side
         if side == tracks.Direction.LEFT:
@@ -180,21 +181,21 @@ WHERE
 
 
 def is_track_alive(conn, tile_pkey, roi, synth_tiles):
-    c = conn.cursor()
-    c.execute(
+    cur = conn.cursor()
+    cur.execute(
         """SELECT name, grid_x, grid_y FROM tile WHERE pkey = ?;""",
         (tile_pkey, )
     )
-    tile, grid_x, grid_y = c.fetchone()
+    tile, grid_x, grid_y = cur.fetchone()
 
     return roi.tile_in_roi(grid.GridLoc(grid_x=grid_x, grid_y=grid_y)
                            ) or tile in synth_tiles['tiles']
 
 
 def import_tracks(conn, alive_tracks, node_mapping, graph, segment_id):
-    c2 = conn.cursor()
+    cur = conn.cursor()
     for (graph_node_pkey, track_pkey, graph_node_type, x_low, x_high, y_low,
-         y_high, ptc) in c2.execute("""
+         y_high, ptc) in cur.execute("""
     SELECT pkey, track_pkey, graph_node_type, x_low, x_high, y_low, y_high, ptc FROM
         graph_node WHERE track_pkey IS NOT NULL;"""):
         if track_pkey not in alive_tracks:
@@ -225,11 +226,11 @@ def import_tracks(conn, alive_tracks, node_mapping, graph, segment_id):
 
 
 def import_dummy_tracks(conn, graph, segment_id):
-    c2 = conn.cursor()
+    cur = conn.cursor()
 
     num_dummy = 0
     for (graph_node_pkey, track_pkey, graph_node_type, x_low, x_high, y_low,
-         y_high, ptc) in c2.execute(
+         y_high, ptc) in cur.execute(
              """
     SELECT pkey, track_pkey, graph_node_type, x_low, x_high, y_low, y_high, ptc FROM
         graph_node WHERE (graph_node_type = ? or graph_node_type = ?) and capacity = 0;""",
@@ -265,13 +266,14 @@ def import_dummy_tracks(conn, graph, segment_id):
 def create_track_rr_graph(
         conn, graph, node_mapping, use_roi, roi, synth_tiles, segment_id
 ):
-    c = conn.cursor()
-    c.execute("""SELECT count(*) FROM track;""")
-    (num_channels, ) = c.fetchone()
+    cur = conn.cursor()
+    cur.execute("""SELECT count(*) FROM track;""")
+    (num_channels, ) = cur.fetchone()
 
     print('{} Import alive tracks'.format(now()))
     alive_tracks = set()
-    for (track_pkey, ) in c.execute("SELECT pkey FROM track WHERE alive = 1;"):
+    for (track_pkey,
+         ) in cur.execute("SELECT pkey FROM track WHERE alive = 1;"):
         alive_tracks.add(track_pkey)
 
     print('{} Importing alive tracks'.format(now()))
@@ -288,19 +290,16 @@ def create_track_rr_graph(
 
 
 def add_synthetic_edges(conn, graph, node_mapping, grid, synth_tiles):
-    c = conn.cursor()
+    cur = conn.cursor()
     delayless_switch = graph.get_switch_id('__vpr_delayless_switch__')
 
-    for loc in grid.tile_locations():
-        tile_name = grid.tilename_at_loc(loc)
-
-        if tile_name in synth_tiles['tiles']:
-            assert len(synth_tiles['tiles'][tile_name]['pins']) == 1
-            for pin in synth_tiles['tiles'][tile_name]['pins']:
-                if pin['port_type'] in ['input', 'output']:
-                    wire_pkey = get_wire_pkey(conn, tile_name, pin['wire'])
-                    c.execute(
-                        """
+    for tile_name, synth_tile in synth_tiles['tiles'].items():
+        assert len(synth_tile['pins']) == 1
+        for pin in synth_tile['pins']:
+            if pin['port_type'] in ['input', 'output']:
+                wire_pkey = get_wire_pkey(conn, tile_name, pin['wire'])
+                cur.execute(
+                    """
 SELECT
   track_pkey
 FROM
@@ -314,73 +313,77 @@ WHERE
     WHERE
       pkey = ?
   );""", (wire_pkey, )
-                    )
-                    (track_pkey, ) = c.fetchone()
-                    assert track_pkey is not None, (
-                        tile_name, pin['wire'], wire_pkey
-                    )
-                elif pin['port_type'] == 'VCC':
-                    c.execute('SELECT vcc_track_pkey FROM constant_sources')
-                    (track_pkey, ) = c.fetchone()
-                elif pin['port_type'] == 'GND':
-                    c.execute('SELECT gnd_track_pkey FROM constant_sources')
-                    (track_pkey, ) = c.fetchone()
-                else:
-                    assert False, pin['port_type']
-                tracks_model, track_nodes = get_track_model(conn, track_pkey)
-
-                option = list(tracks_model.get_tracks_for_wire_at_coord(loc))
-                assert len(option) > 0, (pin, len(option))
-
-                if pin['port_type'] == 'input':
-                    tile_type = 'SYN-OUTPAD'
-                    wire = 'outpad'
-                elif pin['port_type'] == 'output':
-                    tile_type = 'SYN-INPAD'
-                    wire = 'inpad'
-                elif pin['port_type'] == 'VCC':
-                    tile_type = 'SYN-VCC'
-                    wire = 'VCC'
-                elif pin['port_type'] == 'GND':
-                    tile_type = 'SYN-GND'
-                    wire = 'GND'
-                else:
-                    assert False, pin
-
-                track_node = track_nodes[option[0][0]]
-                assert track_node in node_mapping, (track_node, track_pkey)
-                pin_name = graph.create_pin_name_from_tile_type_and_pin(
-                    tile_type, wire
                 )
+                (track_pkey, ) = cur.fetchone()
+                assert track_pkey is not None, (
+                    tile_name, pin['wire'], wire_pkey
+                )
+            elif pin['port_type'] == 'VCC':
+                cur.execute('SELECT vcc_track_pkey FROM constant_sources')
+                (track_pkey, ) = cur.fetchone()
+            elif pin['port_type'] == 'GND':
+                cur.execute('SELECT gnd_track_pkey FROM constant_sources')
+                (track_pkey, ) = cur.fetchone()
+            else:
+                assert False, pin['port_type']
+            tracks_model, track_nodes = get_track_model(conn, track_pkey)
 
-                pin_node = graph.get_nodes_for_pin(loc, pin_name)
+            option = list(
+                tracks_model.get_tracks_for_wire_at_coord(synth_tile['loc'])
+            )
+            assert len(option) > 0, (pin, len(option))
 
-                if pin['port_type'] == 'input':
-                    graph.add_edge(
-                        src_node=node_mapping[track_node],
-                        sink_node=pin_node[0][0],
-                        switch_id=delayless_switch,
-                        name='synth_{}_{}'.format(tile_name, pin['wire']),
-                    )
-                elif pin['port_type'] in ['VCC', 'GND', 'output']:
-                    graph.add_edge(
-                        src_node=pin_node[0][0],
-                        sink_node=node_mapping[track_node],
-                        switch_id=delayless_switch,
-                        name='synth_{}_{}'.format(tile_name, pin['wire']),
-                    )
-                else:
-                    assert False, pin
+            if pin['port_type'] == 'input':
+                tile_type = 'SYN-OUTPAD'
+                wire = 'outpad'
+            elif pin['port_type'] == 'output':
+                tile_type = 'SYN-INPAD'
+                wire = 'inpad'
+            elif pin['port_type'] == 'VCC':
+                tile_type = 'SYN-VCC'
+                wire = 'VCC'
+            elif pin['port_type'] == 'GND':
+                tile_type = 'SYN-GND'
+                wire = 'GND'
+            else:
+                assert False, pin
+
+            track_node = track_nodes[option[0][0]]
+            assert track_node in node_mapping, (track_node, track_pkey)
+            pin_name = graph.create_pin_name_from_tile_type_and_pin(
+                tile_type, wire
+            )
+
+            pin_node = graph.get_nodes_for_pin(
+                tuple(synth_tile['loc']), pin_name
+            )
+
+            if pin['port_type'] == 'input':
+                graph.add_edge(
+                    src_node=node_mapping[track_node],
+                    sink_node=pin_node[0][0],
+                    switch_id=delayless_switch,
+                    name='synth_{}_{}'.format(tile_name, pin['wire']),
+                )
+            elif pin['port_type'] in ['VCC', 'GND', 'output']:
+                graph.add_edge(
+                    src_node=pin_node[0][0],
+                    sink_node=node_mapping[track_node],
+                    switch_id=delayless_switch,
+                    name='synth_{}_{}'.format(tile_name, pin['wire']),
+                )
+            else:
+                assert False, pin
 
 
 def get_switch_name(conn, graph, switch_name_map, switch_pkey):
     assert switch_pkey is not None
     if switch_pkey not in switch_name_map:
-        c2 = conn.cursor()
-        c2.execute(
+        cur = conn.cursor()
+        cur.execute(
             """SELECT name FROM switch WHERE pkey = ?;""", (switch_pkey, )
         )
-        (switch_name, ) = c2.fetchone()
+        (switch_name, ) = cur.fetchone()
         switch_id = graph.get_switch_id(switch_name)
         switch_name_map[switch_pkey] = switch_id
     else:
@@ -390,43 +393,43 @@ def get_switch_name(conn, graph, switch_name_map, switch_pkey):
 
 
 def create_get_tile_name(conn):
-    c = conn.cursor()
+    cur = conn.cursor()
 
     @functools.lru_cache(maxsize=None)
     def get_tile_name(tile_pkey):
-        c.execute(
+        cur.execute(
             """
-        SELECT name FROM tile WHERE pkey = ?;
+        SELECT name FROM phy_tile WHERE pkey = ?;
         """, (tile_pkey, )
         )
-        return c.fetchone()[0]
+        return cur.fetchone()[0]
 
     return get_tile_name
 
 
 def create_get_pip_wire_names(conn):
-    c = conn.cursor()
+    cur = conn.cursor()
 
     @functools.lru_cache(maxsize=None)
     def get_pip_wire_names(pip_pkey):
-        c.execute(
+        cur.execute(
             """SELECT src_wire_in_tile_pkey, dest_wire_in_tile_pkey
             FROM pip_in_tile WHERE pkey = ? AND is_directional = 1 AND is_pseudo = 0;""",
             (pip_pkey, )
         )
-        src_wire_in_tile_pkey, dest_wire_in_tile_pkey = c.fetchone()
+        src_wire_in_tile_pkey, dest_wire_in_tile_pkey = cur.fetchone()
 
-        c.execute(
+        cur.execute(
             """SELECT name FROM wire_in_tile WHERE pkey = ?;""",
             (src_wire_in_tile_pkey, )
         )
-        (src_net, ) = c.fetchone()
+        (src_net, ) = cur.fetchone()
 
-        c.execute(
+        cur.execute(
             """SELECT name FROM wire_in_tile WHERE pkey = ?;""",
             (dest_wire_in_tile_pkey, )
         )
-        (dest_net, ) = c.fetchone()
+        (dest_net, ) = cur.fetchone()
 
         return (src_net, dest_net)
 
@@ -440,10 +443,10 @@ def import_graph_edges(conn, graph, node_mapping):
         yield (edge.src_node, edge.sink_node, edge.switch_id, None)
 
     # Then yield edges from database.
-    c = conn.cursor()
+    cur = conn.cursor()
 
-    c.execute("SELECT count() FROM graph_edge;" "")
-    (num_edges, ) = c.fetchone()
+    cur.execute("SELECT count() FROM graph_edge;" "")
+    (num_edges, ) = cur.fetchone()
 
     get_tile_name = create_get_tile_name(conn)
     get_pip_wire_names = create_get_pip_wire_names(conn)
@@ -452,13 +455,13 @@ def import_graph_edges(conn, graph, node_mapping):
 
     print('{} Importing edges from database.'.format(now()))
     with progressbar.ProgressBar(max_value=num_edges) as bar:
-        for idx, (src_graph_node, dest_graph_node, switch_pkey, tile_pkey,
-                  pip_pkey) in enumerate(c.execute("""
+        for idx, (src_graph_node, dest_graph_node, switch_pkey, phy_tile_pkey,
+                  pip_pkey) in enumerate(cur.execute("""
 SELECT
   src_graph_node_pkey,
   dest_graph_node_pkey,
   switch_pkey,
-  tile_pkey,
+  phy_tile_pkey,
   pip_in_tile_pkey
 FROM
   graph_edge;
@@ -470,7 +473,7 @@ FROM
                 continue
 
             if pip_pkey is not None:
-                tile_name = get_tile_name(tile_pkey)
+                tile_name = get_tile_name(phy_tile_pkey)
                 src_net, dest_net = get_pip_wire_names(pip_pkey)
 
                 pip_name = '{}.{}.{}'.format(tile_name, dest_net, src_net)
@@ -497,22 +500,22 @@ FROM
 
 
 def create_channels(conn):
-    c = conn.cursor()
+    cur = conn.cursor()
 
-    c.execute(
+    cur.execute(
         """
     SELECT chan_width_max, x_min, x_max, y_min, y_max FROM channel;"""
     )
-    chan_width_max, x_min, x_max, y_min, y_max = c.fetchone()
+    chan_width_max, x_min, x_max, y_min, y_max = cur.fetchone()
 
-    c.execute('SELECT idx, info FROM x_list;')
+    cur.execute('SELECT idx, info FROM x_list;')
     x_list = []
-    for idx, info in c:
+    for idx, info in cur:
         x_list.append(graph2.ChannelList(idx, info))
 
-    c.execute('SELECT idx, info FROM y_list;')
+    cur.execute('SELECT idx, info FROM y_list;')
     y_list = []
-    for idx, info in c:
+    for idx, info in cur:
         y_list.append(graph2.ChannelList(idx, info))
 
     return graph2.Channels(

@@ -43,8 +43,8 @@ def main():
         for pin in synth_tile['pins']:
             assert pin['pad'] not in pads
             pads.add(pin['pad'])
-            x = synth_tile['loc']['grid_x']
-            y = synth_tile['loc']['grid_y']
+            x = synth_tile['loc'][0]
+            y = synth_tile['loc'][1]
             writer.writerow(
                 dict(
                     name=pin['pad'],

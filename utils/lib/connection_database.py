@@ -39,12 +39,12 @@ def get_wire_pkey(conn, tile_name, wire):
     c = conn.cursor()
     c.execute(
         """
-WITH selected_tile(tile_pkey, tile_type_pkey) AS (
+WITH selected_tile(phy_tile_pkey, tile_type_pkey) AS (
   SELECT
     pkey,
     tile_type_pkey
   FROM
-    tile
+    phy_tile
   WHERE
     name = ?
 )
@@ -53,9 +53,9 @@ SELECT
 FROM
   wire
 WHERE
-  wire.tile_pkey = (
+  wire.phy_tile_pkey = (
     SELECT
-      selected_tile.tile_pkey
+      selected_tile.phy_tile_pkey
     FROM
       selected_tile
   )
@@ -126,11 +126,31 @@ def get_track_model(conn, track_pkey):
 
 
 def yield_wire_info_from_node(conn, node_pkey):
+    """ Yield tile types and wires attached to specified node.
+
+    Parameters
+    ----------
+    conn : sqlite3.Connection
+        Connection database object.
+    node_pkey : int
+        Primary key into node table
+
+    Yields
+    -------
+    tile_type : str
+        Name of tile type for wire being yielded.
+    wire : str
+        Name of wire for wire being yielded.
+
+    Note: This function yields the prjxray tile_type and wire name.  This
+    function does NOT tile_type's and wire names coorsponding to the VPR tiles.
+
+    """
     c2 = conn.cursor()
-    for tile, tile_type, wire in c2.execute("""
-WITH wires_in_node(tile_pkey, wire_in_tile_pkey) AS (
+    for tile_type, wire in c2.execute("""
+WITH wires_in_node(phy_tile_pkey, wire_in_tile_pkey) AS (
   SELECT
-    tile_pkey,
+    phy_tile_pkey,
     wire_in_tile_pkey
   FROM
     wire
@@ -138,36 +158,33 @@ WITH wires_in_node(tile_pkey, wire_in_tile_pkey) AS (
     node_pkey = ?
 ),
 tile_for_wire(
-  wire_in_tile_pkey, tile_name, tile_type_pkey
+  wire_in_tile_pkey, tile_type_pkey
 ) AS (
   SELECT
     wires_in_node.wire_in_tile_pkey,
-    tile.name,
-    tile.tile_type_pkey
+    phy_tile.tile_type_pkey
   FROM
-    tile
-    INNER JOIN wires_in_node ON tile.pkey = wires_in_node.tile_pkey
+    phy_tile
+    INNER JOIN wires_in_node ON phy_tile.pkey = wires_in_node.phy_tile_pkey
 ),
 tile_type_for_wire(
-  wire_in_tile_pkey, tile_name, tile_type_name
+  wire_in_tile_pkey, tile_type_name
 ) AS (
   SELECT
     tile_for_wire.wire_in_tile_pkey,
-    tile_for_wire.tile_name,
     tile_type.name
   FROM
     tile_type
     INNER JOIN tile_for_wire ON tile_type.pkey = tile_for_wire.tile_type_pkey
 )
 SELECT
-  tile_type_for_wire.tile_name,
   tile_type_for_wire.tile_type_name,
   wire_in_tile.name
 FROM
   wire_in_tile
   INNER JOIN tile_type_for_wire ON tile_type_for_wire.wire_in_tile_pkey = wire_in_tile.pkey;
     """, (node_pkey, )):
-        yield tile, tile_type, wire
+        yield tile_type, wire
 
 
 def node_to_site_pins(conn, node_pkey):
@@ -199,3 +216,179 @@ WHERE
     for wire_pkey, tile_pkey, wire_in_tile_pkey in c.execute(
             FIND_WIRE_WITH_SITE_PIN, (node_pkey, )):
         yield wire_pkey, tile_pkey, wire_in_tile_pkey
+
+
+def get_pin_name_of_wire(conn, wire_pkey):
+    """ Returns pin name of wire.
+
+    For unsplit tiles, this is the name of the wire.
+    For split tiles with only 1 site, this is the name of the site pin
+    connected to this wire.
+    For wires that are not a pin, returns None.
+
+    Parameters
+    ----------
+    conn : sqlite3.Connection
+        Connection database object.
+    wire_pkey : int
+        Primary key into wire table
+
+    Returns
+    -------
+    pin : str
+        VPR pin name for given wire_pkey.
+        Returns none if this wire is not a pin.
+
+    """
+    c = conn.cursor()
+    c.execute(
+        """
+SELECT wire_in_tile_pkey, tile_pkey FROM wire WHERE pkey = ?
+        """, (wire_pkey, )
+    )
+    wire_in_tile_pkey, tile_pkey = c.fetchone()
+
+    c.execute(
+        """
+SELECT site_as_tile_pkey FROM tile WHERE pkey = ?
+        """, (tile_pkey, )
+    )
+    site_as_tile_pkey = c.fetchone()[0]
+
+    c.execute(
+        """
+SELECT name, site_pin_pkey FROM wire_in_tile WHERE pkey = ?;
+    """, (wire_in_tile_pkey, )
+    )
+    wire_name, site_pin_pkey = c.fetchone()
+
+    if site_pin_pkey is None:
+        return None
+
+    if site_as_tile_pkey is not None:
+        c.execute(
+            "SELECT name FROM site_pin WHERE pkey = ?", (site_pin_pkey, )
+        )
+        return c.fetchone()[0]
+    else:
+        return wire_name
+
+
+def get_wire_in_tile_from_pin_name(conn, tile_type_str, wire_str):
+    """ Returns wire_in_tile rows match specified tile type and pin name.
+
+    Because a split tile type can appear in multiple tiles (e.g. SLICEL in
+    CLBLL_L, CLBLL_R, etc), multiple wire_in_tile rows may be returned. The
+    site table primary key disambiguates which row to use.
+
+    Parameters
+    ----------
+    conn : sqlite3.Connection
+        Connection database object.
+    tile_type_str : str
+        Name of tile_type this pin belongs to.
+    wire_str : str
+        Name of pin to get wire_in_tile rows for.
+
+    Returns
+    -------
+    wire_in_tile_pkeys : dict of int to int
+        Map of site table primary keys to wire_in_tile primary keys.  Unsplit
+        tiles will always have only one dictionary entry.  Split tiles may have
+        more than one.
+    site_pin_pkey : int
+        Row into site_pin table for this pin.
+
+    """
+    # Find the generic wire_in_tile_pkey for the specified tile_type name and
+    # wire name.
+    c = conn.cursor()
+
+    # Find if this tile_type is a split tile.
+    c.execute(
+        """
+SELECT
+  site_pkey
+FROM
+  site_as_tile
+WHERE
+  parent_tile_type_pkey = (
+    SELECT
+      pkey
+    FROM
+      tile_type
+    WHERE
+      name = ?
+  );
+        """, (tile_type_str, )
+    )
+    result = c.fetchone()
+    wire_is_pin = result is not None
+
+    if wire_is_pin:
+        # This tile is a split tile, lookup for the wire_in_tile_pkey is based
+        # on the site pin name, rather than the wire name.
+        site_pkey = result[0]
+        c.execute(
+            """
+SELECT
+  pkey,
+  site_pin_pkey,
+  site_pkey
+FROM
+  wire_in_tile
+WHERE
+  site_pin_pkey = (
+    SELECT
+      pkey
+    FROM
+      site_pin
+    WHERE
+      site_type_pkey = (
+        SELECT
+          site_type_pkey
+        FROM
+          site
+        WHERE
+          pkey = ?
+      )
+      AND name = ?
+  );""", (site_pkey, wire_str)
+        )
+    else:
+        c.execute(
+            """
+SELECT
+  pkey,
+  site_pin_pkey,
+  site_pkey
+FROM
+  wire_in_tile
+WHERE
+  name = ?
+  and tile_type_pkey = (
+    SELECT
+      pkey
+    FROM
+      tile_type
+    WHERE
+      name = ?
+  );
+""", (wire_str, tile_type_str)
+        )
+
+    wire_in_tile_pkeys = {}
+    the_site_pin_pkey = None
+    for wire_in_tile_pkey, site_pin_pkey, site_pkey in c:
+        wire_in_tile_pkeys[site_pkey] = wire_in_tile_pkey
+
+        if the_site_pin_pkey is not None:
+            assert the_site_pin_pkey == site_pin_pkey, (
+                tile_type_str, wire_str
+            )
+        else:
+            the_site_pin_pkey = site_pin_pkey
+
+    assert the_site_pin_pkey is not None, (tile_type_str, wire_str)
+
+    return wire_in_tile_pkeys, the_site_pin_pkey
