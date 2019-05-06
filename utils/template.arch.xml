@@ -3,6 +3,7 @@
  <models><!-- model.xml file will be included here --></models>
 
  <complexblocklist>
+   <!-- input buffer -->
    <pb_type name="IBUF">
      <output name="I" num_pins="1" />
      <pb_type name="PIN"  blif_model=".input" num_pb="1">
@@ -15,6 +16,7 @@
         <loc side="right" xoffset="0" yoffset="0">IBUF.I</loc>
      </pinlocations>
    </pb_type>
+   <!-- output buffer -->
    <pb_type name="OBUF">
      <input name="O" num_pins="1" />
      <pb_type name="PIN"  blif_model=".output" num_pb="1">

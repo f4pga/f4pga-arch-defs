@@ -28,12 +28,14 @@ def blif(name: str, inputs: List[Port], outputs: List[Port]) -> str:
     .inputs A B
     .outputs C D
     .subckt mod A=A B=B C=C D=D
+    .cname mod
     .end
     >>> print(blif('mod', [('A', 2)], [('C', 2)]))
     .model top
     .inputs A0 A1
     .outputs C0 C1
     .subckt mod A[0]=A0 A[1]=A1 C[0]=C0 C[1]=C1
+    .cname mod
     .end
     """
     inputs = list(flatten(inputs))
@@ -44,10 +46,11 @@ def blif(name: str, inputs: List[Port], outputs: List[Port]) -> str:
 .inputs {inputs}
 .outputs {outputs}
 .subckt {name} {iomap}
+.cname {name}
 .end""".format(
         name=name,
         inputs=" ".join(s for s, d in inputs),
-        outputs=" ".join(s for s, d in outputs),
+        outputs=" ".join(d for d, s in outputs),
         iomap=" ".join("{}={}".format(d, s) for s, d in inputs + outputs),
     )
 
