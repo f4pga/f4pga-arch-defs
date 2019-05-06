@@ -2,6 +2,9 @@
 """
 Tool for generate an arch.xml file which includes pb_type.xml and model.xml
 files for testing with Verilog to Routing.
+
+Primarily used by the vpr_test_pbtype cmake function (which is automatically part
+of v2x_test_both cmake function).
 """
 
 import argparse

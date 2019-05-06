@@ -3,6 +3,9 @@
 Generate an eblif file targetting a given pb_type.xml file.
 Used for testing a leaf pb_type can be placed and routed with Verilog to
 Routing.
+
+Primarily used by the vpr_test_pbtype cmake function (which is automatically part
+of v2x_test_both cmake function).
 """
 
 import argparse
