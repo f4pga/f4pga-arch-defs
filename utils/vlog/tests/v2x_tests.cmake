@@ -1,9 +1,9 @@
 # Creating new target to call all the added tests
 add_custom_target(all_v2x_tests ALL)
 
-function(V2X_GENERIC_TEST)
+function(V2X_TEST_GENERIC)
   # ~~~
-  # V2X_GENERIC_TEST(
+  # V2X_TEST_GENERIC(
   #   NAME name
   #   TYPE pb_type | model
   #   )
@@ -18,19 +18,19 @@ function(V2X_GENERIC_TEST)
   #
   # In addition it adds the newly created target to the `all_v2x_tests` dependencies. (all tests will be performed with `make all_v2x_tests`)
   #
-  # Usage: v2x_generic_test(NAME <test_name> TYPE <model|pb_type>) (All fields are required)
+  # Usage: v2x_test_generic(NAME <test_name> TYPE <model|pb_type>) (All fields are required)
 
   set(oneValueArgs NAME TYPE)
   cmake_parse_arguments(
-    V2X_GENERIC_TEST
+    V2X_TEST_GENERIC
     "${options}"
     "${oneValueArgs}"
     "${multiValueArgs}"
     ${ARGN}
   )
 
-  set(TYPE ${V2X_GENERIC_TEST_TYPE})
-  set(NAME ${V2X_GENERIC_TEST_NAME})
+  set(TYPE ${V2X_TEST_GENERIC_TYPE})
+  set(NAME ${V2X_TEST_GENERIC_NAME})
 
   # pb_type checking
   set(GOLDEN_XML golden.${TYPE}.xml)
@@ -51,7 +51,7 @@ function(V2X_GENERIC_TEST)
     POST_BUILD
     COMMAND cp ${ACTUAL_XML} ${CMAKE_CURRENT_SOURCE_DIR}/golden.${TYPE}.xml
     )
-endfunction(V2X_GENERIC_TEST)
+endfunction(V2X_TEST_GENERIC)
 
 function(V2X_TEST_MODEL)
   # ~~~
@@ -61,7 +61,7 @@ function(V2X_TEST_MODEL)
   #   )
   # ~~~
   #
-  # This function is to test only the model XML generation. It will call V2X_GENERIC_TEST with the field TYPE set to `model`.
+  # This function is to test only the model XML generation. It will call V2X_TEST_GENERIC with the field TYPE set to `model`.
   #
   # NAME name of the test.
   # TOP_MODULE name of the top verilog module that has to be tested.
@@ -83,7 +83,7 @@ function(V2X_TEST_MODEL)
   set(SRC ${NAME}.sim.v)
   v2x(NAME ${NAME} SRCS ${SRC} TOP_MODULE ${TOP_MODULE})
 
-  v2x_generic_test(NAME ${NAME} TOP_MODULE ${TOP_MODULE} TYPE model)
+  v2x_test_generic(NAME ${NAME} TOP_MODULE ${TOP_MODULE} TYPE model)
 
   add_custom_target(${NAME}_diff ALL DEPENDS ${NAME}_model_diff)
 endfunction(V2X_TEST_MODEL)
@@ -96,7 +96,7 @@ function(V2X_TEST_PB_TYPE)
   #   )
   # ~~~
   #
-  # This function is to test only the pb_type XML generation. It will call V2X_GENERIC_TEST with the field TYPE set to `pb_type`
+  # This function is to test only the pb_type XML generation. It will call V2X_TEST_GENERIC with the field TYPE set to `pb_type`
   #
   # NAME name of the test.
   # TOP_MODULE name of the top verilog module that has to be tested.
@@ -118,7 +118,7 @@ function(V2X_TEST_PB_TYPE)
   set(SRC ${NAME}.sim.v)
   v2x(NAME ${NAME} SRCS ${SRC} TOP_MODULE ${TOP_MODULE})
 
-  v2x_generic_test(NAME ${NAME} TOP_MODULE ${TOP_MODULE} TYPE pb_type)
+  v2x_test_generic(NAME ${NAME} TOP_MODULE ${TOP_MODULE} TYPE pb_type)
 
   add_custom_target(${NAME}_diff ALL DEPENDS ${NAME}_pb_type_diff)
 endfunction(V2X_TEST_PB_TYPE)
@@ -131,7 +131,7 @@ function(V2X_TEST_BOTH)
   #   )
   # ~~~
   #
-  # This function is to test both the pb_type XML generation. It will call V2X_GENERIC_TEST multiple times first with the field TYPE set to `pb_type`
+  # This function is to test both the pb_type XML generation. It will call V2X_TEST_GENERIC multiple times first with the field TYPE set to `pb_type`
   # then with `model`
   #
   # NAME name of the test.
@@ -154,8 +154,8 @@ function(V2X_TEST_BOTH)
   set(SRC ${NAME}.sim.v)
   v2x(NAME ${NAME} SRCS ${SRC} TOP_MODULE ${TOP_MODULE})
 
-  v2x_generic_test(NAME ${NAME} TOP_MODULE ${MODULE} TYPE pb_type)
-  v2x_generic_test(NAME ${NAME} TOP_MODULE ${TOP_MODULE} TYPE model)
+  v2x_test_generic(NAME ${NAME} TOP_MODULE ${MODULE} TYPE pb_type)
+  v2x_test_generic(NAME ${NAME} TOP_MODULE ${TOP_MODULE} TYPE model)
   vpr_test_pbtype(NAME ${NAME})
 
   add_custom_target(${NAME}_diff ALL DEPENDS ${NAME}_pb_type_diff ${NAME}_model_diff)
