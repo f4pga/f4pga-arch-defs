@@ -7,6 +7,14 @@ add_fpga_target(
   )
 
 add_fpga_target(
+  NAME dram_8_32x1s
+  BOARD basys3
+  INPUT_IO_FILE dram_8_32x1s.pcf
+  SOURCES dram_8_32x1s.v
+  ASSERT_USAGE SYN-OUTPAD=8,SYN-INPAD=11,CLBLM_R=1
+  )
+
+add_fpga_target(
   NAME dram_4_32x2s
   BOARD basys3
   INPUT_IO_FILE dram_4_32x2s.pcf
@@ -47,13 +55,13 @@ add_fpga_target(
   )
 
 # TODO(#549) RAM128X1D is no longer packing.
-#add_fpga_target(
-#  NAME dram_1_128x1d
-#  BOARD basys3
-#  INPUT_IO_FILE dram_1_128x1d.pcf
-#  SOURCES dram_1_128x1d.v
-#  ASSERT_USAGE SYN-OUTPAD=2,SYN-INPAD=17,CLBLM_R=1
-#  )
+add_fpga_target(
+  NAME dram_1_128x1d
+  BOARD basys3
+  INPUT_IO_FILE dram_1_128x1d.pcf
+  SOURCES dram_1_128x1d.v
+  ASSERT_USAGE SYN-OUTPAD=2,SYN-INPAD=17,CLBLM_R=1
+  )
 
 add_fpga_target(
   NAME dram_1_256x1s

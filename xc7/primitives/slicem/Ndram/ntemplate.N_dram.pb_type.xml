@@ -2,17 +2,13 @@
   <clock  name="CLK" num_pins="1" />
   <input  name="A"   num_pins="6" />
   <input  name="WA"  num_pins="8" />
-  <input  name="{N}I"  num_pins="1" />
-  <!-- The PARENT_DI is the DI used when in dual port mode.  For CLUT and BLUT
-       this is SLICEM.DI. For ALUT this is BLUT.DI_OUT. -->
-  <input  name="PARENT_DI" num_pins="1" />
+  <input  name="DI1"  num_pins="1" />
   <input  name="DI2"  num_pins="1" />
   <input  name="WE"  num_pins="1" />
 
   <output name="DO6"  num_pins="1" />
   <output name="DO6_32"  num_pins="1" />
-  <output name="SO6"  num_pins="1" />
-  <output name="SO6_32"  num_pins="1" />
+  <output name="DO5_32"  num_pins="1" />
   <output name="O6"  num_pins="1" />
   <output name="O5"  num_pins="1" />
 
@@ -69,25 +65,6 @@
       </meta>
     </metadata>
   </mode>
-  <mode name="64_SINGLE_PORT">
-    <xi:include href="spram64.pb_type.xml" />
-    <metadata>
-      <meta name="fasm_features">
-        DI1MUX.{N}I
-      </meta>
-    </metadata>
-    <interconnect>
-      <direct name="CLK" input="{N}_DRAM.CLK" output="SPRAM64.CLK" />
-      <direct name="A" input="{N}_DRAM.A" output="SPRAM64.A" />
-      <direct name="WA7" input="{N}_DRAM.WA[6]" output="SPRAM64.WA7" />
-      <direct name="WA8" input="{N}_DRAM.WA[7]" output="SPRAM64.WA8" />
-      <direct name="{N}I" input="{N}_DRAM.{N}I" output="SPRAM64.DI1" />
-      <direct name="WE" input="{N}_DRAM.WE" output="SPRAM64.WE" />
-
-      <direct name="O6" input="SPRAM64.O6" output="{N}_DRAM.O6" />
-      <direct name="SO6" input="SPRAM64.O6" output="{N}_DRAM.SO6" />
-    </interconnect>
-  </mode>
   <mode name="64_DUAL_PORT">
     <xi:include href="dpram64.pb_type.xml" />
     <interconnect>
@@ -96,45 +73,35 @@
       <direct name="WA" input="{N}_DRAM.WA[5:0]" output="DPRAM64.WA[5:0]" />
       <direct name="WA7" input="{N}_DRAM.WA[6]" output="DPRAM64.WA7" />
       <direct name="WA8" input="{N}_DRAM.WA[7]" output="DPRAM64.WA8" />
-      <direct name="{N}I" input="{N}_DRAM.PARENT_DI" output="DPRAM64.DI1" />
+      <direct name="DI" input="{N}_DRAM.DI1" output="DPRAM64.DI" />
       <direct name="WE" input="{N}_DRAM.WE" output="DPRAM64.WE" />
 
-      <direct name="O6" input="DPRAM64.O6" output="{N}_DRAM.O6" />
-      <direct name="DO6" input="DPRAM64.O6" output="{N}_DRAM.DO6" />
+      <direct name="O6" input="DPRAM64.O" output="{N}_DRAM.O6" />
+      <direct name="DO6" input="DPRAM64.O" output="{N}_DRAM.DO6" />
     </interconnect>
   </mode>
   <mode name="32_DUAL_PORT">
     <xi:include href="dpram32.pb_type.xml" />
     <interconnect>
-      <direct name="CLK" input="{N}_DRAM.CLK" output="DPRAM32.CLK" />
-      <direct name="A" input="{N}_DRAM.A[4:0]" output="DPRAM32.A[4:0]" />
-      <direct name="WA" input="{N}_DRAM.WA[4:0]" output="DPRAM32.WA[4:0]" />
-      <direct name="{N}I" input="{N}_DRAM.PARENT_DI" output="DPRAM32.DI1" />
-      <direct name="DI2" input="{N}_DRAM.DI2" output="DPRAM32.DI2" />
-      <direct name="WE" input="{N}_DRAM.WE" output="DPRAM32.WE" />
+      <!-- upper -->
+      <direct name="CLK_U" input="{N}_DRAM.CLK" output="DPRAM32[1].CLK" />
+      <direct name="A_U" input="{N}_DRAM.A[4:0]" output="DPRAM32[1].A[4:0]" />
+      <direct name="WA_U" input="{N}_DRAM.WA[4:0]" output="DPRAM32[1].WA[4:0]" />
+      <direct name="DI2" input="{N}_DRAM.DI2" output="DPRAM32[1].DI" />
+      <direct name="WE_U" input="{N}_DRAM.WE" output="DPRAM32[1].WE" />
 
-      <direct name="O6" input="DPRAM32.O6" output="{N}_DRAM.O6" />
-      <direct name="DO6" input="DPRAM32.O6" output="{N}_DRAM.DO6_32" />
-      <direct name="O5" input="DPRAM32.O5" output="{N}_DRAM.O5" />
-    </interconnect>
-  </mode>
-  <mode name="32_SINGLE_PORT">
-    <xi:include href="spram32.pb_type.xml" />
-    <metadata>
-      <meta name="fasm_features">
-        DI1MUX.{N}I
-      </meta>
-    </metadata>
-    <interconnect>
-      <direct name="CLK" input="{N}_DRAM.CLK" output="SPRAM32.CLK" />
-      <direct name="A" input="{N}_DRAM.A[4:0]" output="SPRAM32.A[4:0]" />
-      <direct name="{N}I" input="{N}_DRAM.{N}I" output="SPRAM32.DI1" />
-      <direct name="DI2" input="{N}_DRAM.DI2" output="SPRAM32.DI2" />
-      <direct name="WE" input="{N}_DRAM.WE" output="SPRAM32.WE" />
+      <direct name="O6" input="DPRAM32[1].O" output="{N}_DRAM.O6" />
+      <direct name="DO6" input="DPRAM32[1].O" output="{N}_DRAM.DO6_32" />
 
-      <direct name="O6" input="SPRAM32.O6" output="{N}_DRAM.O6" />
-      <direct name="SO6" input="SPRAM32.O6" output="{N}_DRAM.SO6_32" />
-      <direct name="O5" input="SPRAM32.O5" output="{N}_DRAM.O5" />
+      <!-- lower -->
+      <direct name="CLK_L" input="{N}_DRAM.CLK" output="DPRAM32[0].CLK" />
+      <direct name="A_L" input="{N}_DRAM.A[4:0]" output="DPRAM32[0].A[4:0]" />
+      <direct name="WA_L" input="{N}_DRAM.WA[4:0]" output="DPRAM32[0].WA[4:0]" />
+      <direct name="DI" input="{N}_DRAM.DI1" output="DPRAM32[0].DI" />
+      <direct name="WE_L" input="{N}_DRAM.WE" output="DPRAM32[0].WE" />
+
+      <direct name="O5" input="DPRAM32[0].O" output="{N}_DRAM.O5" />
+      <direct name="DO5" input="DPRAM32[0].O" output="{N}_DRAM.DO5_32" />
     </interconnect>
   </mode>
 

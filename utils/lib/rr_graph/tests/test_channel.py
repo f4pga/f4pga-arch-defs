@@ -2,7 +2,7 @@
 # Run `python3 -m unittest utils.lib.rr_graph.tests.test_channel`
 import unittest
 
-from lib.rr_graph.channel import Track, ChannelGrid
+from ..channel import Track, ChannelGrid
 
 
 class TestGraph(unittest.TestCase):

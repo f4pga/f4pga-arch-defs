@@ -44,7 +44,7 @@ function(V2X_GENERIC_TEST)
 
   add_dependencies(all_v2x_tests ${NAME}_${TYPE}_diff)
 
-  # TODO This has to be completed in order update the golden pb_type/model accordingly
+  # update golden model/pb_type target
   add_custom_target(${NAME}_update_golden_${TYPE})
   add_custom_command(
     TARGET ${NAME}_update_golden_${TYPE}

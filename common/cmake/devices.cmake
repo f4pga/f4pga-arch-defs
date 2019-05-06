@@ -279,37 +279,17 @@ function(DEFINE_DEVICE_TYPE)
   set(DEVICE_UNIQUE_PACK_FILE arch.unique_pack.xml)
   set(DEVICE_MERGED_LINT_FILE arch.merged.lint.html)
 
-  set(MERGE_XML_XSL ${symbiflow-arch-defs_SOURCE_DIR}/common/xml/xmlsort.xsl)
-
-  get_file_location(MERGE_XML_INPUT ${DEFINE_DEVICE_TYPE_ARCH_XML})
-  append_file_dependency(DEPS ${DEFINE_DEVICE_TYPE_ARCH_XML})
-
   set(MERGE_XML_OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/${DEVICE_MERGED_FILE})
   set(UNIQUE_PACK_OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/${DEVICE_UNIQUE_PACK_FILE})
   set(MERGE_XMLLINT_OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/${DEVICE_MERGED_LINT_FILE})
 
-  get_target_property_required(XSLTPROC env XSLTPROC)
-  get_target_property(XSLTPROC_TARGET env XSLTPROC_TARGET)
-  set(ARCH_SCHEMA ${symbiflow-arch-defs_SOURCE_DIR}/common/xml/fpga_architecture.xsd)
-
-  add_custom_command(
-    OUTPUT ${MERGE_XML_OUTPUT}
-    DEPENDS
-      ${MERGE_XML_XSL}
-      ${DEPS}
-      ${XSLTPROC} ${XSLTPROC_TARGET}
-    COMMAND
-      ${CMAKE_COMMAND} -E make_directory
-      ${CMAKE_CURRENT_BINARY_DIR}/${OUT_DEVICE_DIR}
-    COMMAND
-      ${XSLTPROC}
-      --nomkdir
-      --nonet
-      --xinclude
-      --output ${MERGE_XML_OUTPUT} ${MERGE_XML_XSL} ${MERGE_XML_INPUT}
+  xml_sort(
+    NAME ${DEFINE_DEVICE_TYPE_ARCH}_${DEFINE_DEVICE_TYPE_DEVICE_TYPE}_arch_merged
+    FILE ${DEFINE_DEVICE_TYPE_ARCH_XML}
+    OUTPUT ${DEVICE_MERGED_FILE}
+    DIR ${OUT_DEVICE_DIR}
   )
 
-  add_file_target(FILE ${DEVICE_MERGED_FILE} GENERATED)
   append_file_dependency(SPECIALIZE_CARRYCHAINS_DEPS ${DEVICE_MERGED_FILE})
 
   get_target_property_required(PYTHON3 env PYTHON3)
@@ -323,23 +303,25 @@ function(DEFINE_DEVICE_TYPE)
         ${PYTHON3} ${PYTHON3_TARGET}
         ${SPECIALIZE_CARRYCHAINS}
         ${SPECIALIZE_CARRYCHAINS_DEPS}
-        )
+  )
+  add_file_target(FILE ${DEVICE_UNIQUE_PACK_FILE} GENERATED)
 
   add_custom_target(
     ${DEFINE_DEVICE_TYPE_ARCH}_${DEFINE_DEVICE_TYPE_DEVICE_TYPE}_arch
     DEPENDS ${UNIQUE_PACK_OUTPUT}
   )
-  add_dependencies(all_merged_arch_xmls
-    ${DEFINE_DEVICE_TYPE_ARCH}_${DEFINE_DEVICE_TYPE_DEVICE_TYPE}_arch)
+  add_dependencies(
+    all_merged_arch_xmls
+    ${DEFINE_DEVICE_TYPE_ARCH}_${DEFINE_DEVICE_TYPE_DEVICE_TYPE}_arch
+  )
 
+  set(ARCH_SCHEMA ${symbiflow-arch-defs_SOURCE_DIR}/common/xml/fpga_architecture.xsd)
   xml_lint(
     NAME ${DEFINE_DEVICE_TYPE_ARCH}_${DEFINE_DEVICE_TYPE_DEVICE_TYPE}_arch_lint
     FILE ${UNIQUE_PACK_OUTPUT}
     LINT_OUTPUT ${MERGE_XMLLINT_OUTPUT}
     SCHEMA ${ARCH_SCHEMA}
-    )
-
-  add_file_target(FILE ${DEVICE_UNIQUE_PACK_FILE} GENERATED)
+  )
 
   set_target_properties(
     ${DEFINE_DEVICE_TYPE_DEVICE_TYPE}

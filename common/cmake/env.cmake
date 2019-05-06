@@ -63,6 +63,7 @@ function(SETUP_ENV)
       OUTPUT ${ENV_DIR}/${MINICONDA_FILE}
       COMMAND ${CMAKE_COMMAND} -E make_directory ${ENV_DIR}
       COMMAND ${WGET} ${MINICONDA_URL} -O ${ENV_DIR}/${MINICONDA_FILE}
+      COMMAND ${CMAKE_COMMAND} -E touch ${ENV_DIR}/${MINICONDA_FILE}
       DEPENDS ${WGET})
     set(CONDA_DIR ${ENV_DIR}/conda)
     set_target_properties(env PROPERTIES CONDA_DIR ${CONDA_DIR})
