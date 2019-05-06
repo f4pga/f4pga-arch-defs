@@ -7,5 +7,7 @@ add_custom_target(
   WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
 )
 
+add_file_target(FILE "template.arch.xml" SCANNER_TYPE xml)
+
 add_subdirectory(vlog)
 add_dependencies(test_python test_python_utils)
