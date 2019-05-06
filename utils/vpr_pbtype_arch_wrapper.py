@@ -124,20 +124,19 @@ def grid_generate(inputs: List[str], outputs: List[str]) -> GridDict:
     """Generate a grid dict to fit a set of inputs and outputs.
 
     Generates a 5 width grid with following columns;
-     Column 0 - padding
-     Column 1 - One input tile per input pins.
-     Column 2 - padding
-     Column 3 - A single tile.
-     Column 4 - padding
-     Column 5 - One output tile per output pins.
+     Column 0 - One input tile per input pins.
+     Column 1 - padding
+     Column 2 - A single tile.
+     Column 3 - padding
+     Column 4 - One output tile per output pins.
 
     """
     height = max(len(inputs), len(outputs)) + 2
-    width = len(['.', 'I', '.', 'T', '.', 'O', '.'])
+    width = len(['I', '.', 'T', '.', 'O'])
     tiles = grid_new(width, height)
-    grid_place_in_column(tiles, 1, ['I'] * len(inputs))
-    grid_place_in_column(tiles, 3, ['T'] * (height - 2))
-    grid_place_in_column(tiles, 5, ['O'] * len(outputs))
+    grid_place_in_column(tiles, 0, ['I'] * len(inputs))
+    grid_place_in_column(tiles, 2, ['T'] * (height - 2))
+    grid_place_in_column(tiles, 4, ['O'] * len(outputs))
     return tiles
 
 
@@ -174,9 +173,12 @@ def arch_xml(
         layouts,
         "fixed_layout",
         {
-            "name": name,
-            "width": str(width),
-            "height": str(height)
+            "name": "device",
+            # FIXME: See https://github.com/verilog-to-routing/vtr-verilog-to-routing/issues/277
+            #"width":  str(width),
+            #"height":  str(height),
+            "width":  str(max(width, height)),
+            "height":  str(max(width, height)),
         },
     )
     l.append(ET.Comment('\n' + grid_format(tiles) + '\n'))
@@ -191,7 +193,7 @@ def arch_xml(
             t = 'OBUF'
         elif v == 'T':
             # FIXME: Is this needed?
-            if y > 2:
+            if y > 1:
                 continue
             t = 'TILE'
         else:
@@ -205,7 +207,7 @@ def arch_xml(
             }
         )
 
-    theight = 1  #max(len(finputs), len(foutputs))
+    theight = max(len(finputs), len(foutputs))
 
     cbl = root.find("complexblocklist")
     tile = ET.SubElement(

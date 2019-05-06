@@ -186,6 +186,8 @@ function(VPR_TEST_PBTYPE)
 
   get_target_property_required(VPR env VPR)
   get_target_property(VPR_TARGET env VPR_TARGET)
+  get_target_property_required(QUIET_CMD env QUIET_CMD)
+  get_target_property(QUIET_CMD_TARGET env QUIET_CMD_TARGET)
 
   set(OUT_LOCAL_REL test_${VPR_TEST_PBTYPE_NAME})
   set(OUT_LOCAL ${CMAKE_CURRENT_BINARY_DIR}/${OUT_LOCAL_REL})
@@ -208,7 +210,8 @@ function(VPR_TEST_PBTYPE)
       --pack
       --place
       --route
-      --disp on
+      --device device
+      --target_ext_pin_util 1.0,1.0
     WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
   )
   add_file_target(FILE "${OUT_LOCAL_REL}/vpr.stdout" GENERATED)
