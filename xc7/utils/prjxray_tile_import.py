@@ -25,14 +25,27 @@ import lxml.etree as ET
 XI_URL = "http://www.w3.org/2001/XInclude"
 XI_INCLUDE = "{%s}include" % XI_URL
 
+VPR_TILE_PREFIX = 'BLK-TL-'
 
-def prefix_name(tile):
+
+def add_vpr_tile_prefix(tile):
     """ Add tile prefix.
 
     This avoids namespace collision when embedding a site (e.g. SLICEL) as a
     tile.
     """
-    return 'BLK-TL-' + tile
+    return VPR_TILE_PREFIX + tile
+
+
+def remove_vpr_tile_prefix(name):
+    """ Removes tile prefix.
+
+    Raises
+    ------
+    Assert error if name does not start with VPR_TILE_PREFIX
+    """
+    assert name.startswith(VPR_TILE_PREFIX)
+    return name[len(VPR_TILE_PREFIX):]
 
 
 def find_port(pin_name, ports):
@@ -145,7 +158,7 @@ def start_pb_type(tile_name, f_pin_assignments, input_wires, output_wires):
     pb_type_xml = ET.Element(
         'pb_type',
         {
-            'name': prefix_name(tile_name),
+            'name': add_vpr_tile_prefix(tile_name),
         },
         nsmap={'xi': XI_URL},
     )
@@ -194,7 +207,7 @@ def start_pb_type(tile_name, f_pin_assignments, input_wires, output_wires):
             if side not in sides:
                 sides[side] = []
 
-            sides[side].append(object_ref(prefix_name(tile_name), pin))
+            sides[side].append(object_ref(add_vpr_tile_prefix(tile_name), pin))
 
     for side, pins in sides.items():
         ET.SubElement(pinlocations_xml, 'loc', {
@@ -435,7 +448,7 @@ def import_tile(db, args):
                     add_direct(
                         interconnect_xml,
                         input=object_ref(
-                            prefix_name(tile_name), site_pin.wire
+                            add_vpr_tile_prefix(tile_name), site_pin.wire
                         ),
                         output=object_ref(site_name, **port)
                     )
@@ -463,7 +476,7 @@ def import_tile(db, args):
                         interconnect_xml,
                         input=object_ref(site_name, **port),
                         output=object_ref(
-                            prefix_name(tile_name), site_pin.wire
+                            add_vpr_tile_prefix(tile_name), site_pin.wire
                         ),
                     )
                 else:
@@ -524,7 +537,7 @@ def import_tile(db, args):
                     add_direct(
                         interconnect_xml,
                         input=object_ref(
-                            prefix_name(tile_name), site_pin.wire
+                            add_vpr_tile_prefix(tile_name), site_pin.wire
                         ),
                         output=object_ref(site_name, **port)
                     )
@@ -553,7 +566,7 @@ def import_tile(db, args):
                         interconnect_xml,
                         input=object_ref(site_name, **port),
                         output=object_ref(
-                            prefix_name(tile_name), site_pin.wire
+                            add_vpr_tile_prefix(tile_name), site_pin.wire
                         ),
                     )
                 else:
@@ -631,7 +644,7 @@ def import_site_as_tile(db, args):
         if site_type_pin.direction == prjxray.site_type.SitePinDirection.IN:
             add_direct(
                 interconnect_xml,
-                input=object_ref(prefix_name(tile_name), site_pin),
+                input=object_ref(add_vpr_tile_prefix(tile_name), site_pin),
                 output=object_ref(site_name, site_pin)
             )
         elif site_type_pin.direction == prjxray.site_type.SitePinDirection.OUT:
@@ -648,7 +661,7 @@ def import_site_as_tile(db, args):
             add_direct(
                 interconnect_xml,
                 input=object_ref(site_name, site_pin),
-                output=object_ref(prefix_name(tile_name), site_pin),
+                output=object_ref(add_vpr_tile_prefix(tile_name), site_pin),
             )
         else:
             assert False, site_type_pin.direction
