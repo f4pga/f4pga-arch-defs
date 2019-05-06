@@ -56,68 +56,6 @@ import yosys.run
 from yosys.json import YosysJSON
 import xmlinc
 
-parser = argparse.ArgumentParser(
-    description=__doc__.strip(), formatter_class=argparse.RawTextHelpFormatter
-)
-parser.add_argument(
-    'infiles',
-    metavar='input.v',
-    type=str,
-    nargs='+',
-    help="""\
-One or more Verilog input files, that will be passed to Yosys internally.
-They should be enough to generate a flattened representation of the model,
-so that paths through the model can be determined.
-"""
-)
-parser.add_argument(
-    '--top',
-    help="""\
-Top level module, will usually be automatically determined from the file name
-%.sim.v
-"""
-)
-parser.add_argument(
-    '--includes',
-    help="""\
-Command seperate list of include directories.
-""",
-    default=""
-)
-parser.add_argument('-o', help="""\
-Output filename, default 'model.xml'
-""")
-
-args = parser.parse_args()
-iname = os.path.basename(args.infiles[0])
-
-outfile = "pb_type.xml"
-if "o" in args and args.o is not None:
-    outfile = args.o
-
-yosys.run.add_define("PB_TYPE")
-if args.includes:
-    for include in args.includes.split(','):
-        yosys.run.add_include(include)
-
-vjson = yosys.run.vlog_to_json(args.infiles, flatten=False, aig=False)
-yj = YosysJSON(vjson)
-
-if args.top is not None:
-    top = args.top
-else:
-    wm = re.match(r"([A-Za-z0-9_]+)\.sim\.v", iname)
-    if wm:
-        top = wm.group(1).upper()
-    else:
-        print(
-            "ERROR file name not of format %.sim.v ({}), cannot detect top level. Manually specify the top level module using --top"
-            .format(iname)
-        )
-        sys.exit(1)
-
-tmod = yj.module(top)
-
 INVALID_INSTANCE = -1
 
 
@@ -152,7 +90,7 @@ def strip_name(name):
     return name
 
 
-def make_pb_content(yj, mod, xml_parent, mod_pname, is_submode=False):
+def make_pb_content(yj, mod, outfile, xml_parent, mod_pname, is_submode=False):
     """Build the pb_type content - child pb_types, timing and direct interconnect,
     but not IO. This may be put directly inside <pb_type>, or inside <mode>."""
 
@@ -412,7 +350,7 @@ def make_pb_content(yj, mod, xml_parent, mod_pname, is_submode=False):
             xml_meta.text = value
 
 
-def make_pb_type(yj, mod):
+def make_pb_type(yj, mod, outfile):
     """Build the pb_type for a given module. mod is the YosysModule object to
     generate."""
 
@@ -487,51 +425,28 @@ def make_pb_type(yj, mod):
                 )
             )
             mode_mod = mode_yj.module(mod.name)
-            make_pb_content(yj, mode_mod, mode_xml, mod_pname, True)
+            make_pb_content(yj, mode_mod, outfile, mode_xml, mod_pname, True)
     else:
-        make_pb_content(yj, mod, pb_type_xml, mod_pname)
+        make_pb_content(yj, mod, outfile, pb_type_xml, mod_pname)
 
     return pb_type_xml
-
-
-parser = argparse.ArgumentParser(
-    description=__doc__.strip(), formatter_class=argparse.RawTextHelpFormatter
-)
-parser.add_argument(
-    'infiles',
-    metavar='input.v',
-    type=str,
-    nargs='+',
-    help="""\
-One or more Verilog input files, that will be passed to Yosys internally.
-They should be enough to generate a flattened representation of the model,
-so that paths through the model can be determined.
-"""
-)
-parser.add_argument(
-    '--top',
-    help="""\
-Top level module, will usually be automatically determined from the file name
-%.sim.v
-"""
-)
-parser.add_argument(
-    '--outfile',
-    '-o',
-    type=argparse.FileType('w'),
-    default="pb_type.xml",
-    help="""\
-Output filename, default 'model.xml'
-"""
-)
 
 
 def main(args):
     iname = os.path.basename(args.infiles[0])
 
     yosys.run.add_define("PB_TYPE")
+
+    if args.includes:
+        for include in args.includes.split(','):
+            yosys.run.add_include(include)
+
     vjson = yosys.run.vlog_to_json(args.infiles, flatten=False, aig=False)
     yj = YosysJSON(vjson)
+
+    if args.dump_json:
+        import json
+        print(json.dumps(yj.data, sort_keys=True, indent=1))
 
     if args.top is not None:
         top = args.top
@@ -548,20 +463,73 @@ def main(args):
 
     tmod = yj.module(top)
 
-    pb_type_xml = make_pb_type(yj, tmod)
+    outfile = "pb_type.xml"
+    if args.outfile is not None:
+        outfile = args.outfile
 
-    args.outfile.write(
-        ET.tostring(
-            pb_type_xml,
-            pretty_print=True,
-            encoding="utf-8",
-            xml_declaration=True
-        ).decode('utf-8')
-    )
-    print("Generated {} from {}".format(args.outfile.name, iname))
-    args.outfile.close()
+    pb_type_xml = make_pb_type(yj, tmod, outfile)
+
+    with open(outfile, "w") as fp:
+        fp.write(
+            ET.tostring(
+                pb_type_xml,
+                pretty_print=True,
+                encoding="utf-8",
+                xml_declaration=True
+            ).decode('utf-8')
+        )
+
+        print("Generated {} from {}".format(outfile, iname))
 
 
 if __name__ == "__main__":
+
+    parser = argparse.ArgumentParser(
+        description=__doc__.strip(),
+        formatter_class=argparse.RawTextHelpFormatter
+    )
+
+    parser.add_argument(
+        'infiles',
+        metavar='input.v',
+        type=str,
+        nargs='+',
+        help="""\
+    One or more Verilog input files, that will be passed to Yosys internally.
+    They should be enough to generate a flattened representation of the model,
+    so that paths through the model can be determined.
+    """
+    )
+
+    parser.add_argument(
+        '--includes',
+        help="""\
+    Command seperate list of include directories.
+    """,
+        default=""
+    )
+
+    parser.add_argument(
+        '--top',
+        help="""\
+    Top level module, will usually be automatically determined from the file
+    name %.sim.v
+    """
+    )
+
+    parser.add_argument(
+        '--outfile',
+        '-o',
+        type=str,
+        default=None,
+        help="""\
+    Output filename
+    """
+    )
+
+    parser.add_argument('--dump-json', action="store_true",
+                        help="Prints Yosys JSON"
+                        )
+
     args = parser.parse_args()
     sys.exit(main(args))
