@@ -2,7 +2,31 @@ add_subdirectory(tiles)
 
 add_file_target(FILE arch.xml SCANNER_TYPE xml)
 
-set(SDF_FILE ${CMAKE_SOURCE_DIR}/timings_hx1k.sdf)
+get_target_property_required(CONDA_DIR env CONDA_DIR)
+get_target_property_required(PYTHON3 env PYTHON3)
+
+set(ICEBOX_TIMING ${symbiflow-arch-defs_SOURCE_DIR}/third_party/icestorm/icefuzz/timings.py)
+set(CLEAN_ICEBOX_TIMING cleaned_timing.txt)
+set(TIMING_TXT_FILE ${CONDA_DIR}/share/icebox/timings_hx1k.txt)
+set(SDF_FILE timings_hx1k.sdf)
+
+add_custom_command(
+  OUTPUT ${CLEAN_ICEBOX_TIMING}
+  COMMAND grep -v \\* ${TIMING_TXT_FILE} > ${CLEAN_ICEBOX_TIMING}
+  DEPENDS ${TIMING_TXT_FILE} thirdparty_icestorm
+  )
+
+add_custom_command(
+  OUTPUT ${SDF_FILE}
+  COMMAND ${PYTHON3} ${ICEBOX_TIMING} -t ${CLEAN_ICEBOX_TIMING} -s > ${SDF_FILE}
+  DEPENDS ${ICEBOX_TIMING} ${CLEAN_ICEBOX_TIMING}
+  )
+
+add_custom_target(
+  sdf_target
+  DEPENDS ${SDF_FILE}
+  )
+
 set(TIMING_IMPORT_CMD "${CMAKE_SOURCE_DIR}/ice40/utils/ice40_import_bel_timing.py --read_sdf ${SDF_FILE} --write_arch_xml /dev/stdout --read_arch_xml")
 
 define_device_type(
@@ -13,4 +37,4 @@ define_device_type(
   SCRIPTS ${TIMING_IMPORT_CMD}
   )
 
-add_dependencies(ice40_top-routing-virt_arch  ice40_import_timing_deps)
+add_dependencies(ice40_top-routing-virt_arch  ice40_import_timing_deps sdf_target)
