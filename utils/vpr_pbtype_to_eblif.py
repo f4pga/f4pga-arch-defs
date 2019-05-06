@@ -1,5 +1,11 @@
 #!/usr/bin/env python3
 
+"""
+Generate an eblif file targetting a given pb_type.xml file.
+Used for testing a leaf pb_type can be placed and routed with Verilog to
+Routing.
+"""
+
 import argparse
 import math
 import os
@@ -45,18 +51,7 @@ def blif(name, inputs, outputs):
     )
 
 
-parser = argparse.ArgumentParser()
-__doc___ = """\
-Generate an arch.xml file which includes pb_type.xml and model.xml files for
-testing with Verilog to Routing.
-"""
-
-parser = argparse.ArgumentParser()
-__doc___ = """\
-Generate an eblif file targetting a given pb_type.xml file.
-Used for testing a leaf pb_type can be placed and routed with Verilog to
-Routing.
-"""
+parser = argparse.ArgumentParser(description=__doc__)
 
 parser.add_argument('--pb_type', '-p', help="""\
 pb_type.xml file

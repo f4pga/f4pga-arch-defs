@@ -1,5 +1,10 @@
 #!/usr/bin/env python3
 
+"""
+Tool for generate an arch.xml file which includes pb_type.xml and model.xml
+files for testing with Verilog to Routing.
+"""
+
 import argparse
 import math
 import os
@@ -7,6 +12,8 @@ import os.path
 import subprocess
 import sys
 import tempfile
+
+from typing import Dict, Sequence, Tuple
 
 import lxml.etree as ET
 
@@ -20,9 +27,14 @@ TEMPLATE_PATH = os.path.abspath(
     os.path.join(FILEDIR_PATH, "template.arch.xml")
 )
 
+XPos = int
+YPos = int
+GridDict = Dict[Tuple[XPos, YPos], str]
+Port = Tuple[str, int]
 
-def grid_new(width, height):
-    # Generate an empty grid
+
+def grid_new(width: int, height: int) -> GridDict:
+    """Generate an empty grid dictionary."""
     tiles = {}
     for x in range(width):
         for y in range(0, height):
@@ -31,14 +43,16 @@ def grid_new(width, height):
 
 
 # ABCDEFGHIJKLMNOPQRSTUVWXYZ
-def grid_size(tiles):
+def grid_size(tiles: GridDict) -> Tuple[XPos, YPos]:
+    """Get width and height for a grid dictionary."""
     width = max(x for x, _ in tiles.keys()) + 1
     height = max(y for _, y in tiles.keys()) + 1
     return (width, height)
 
 
-def grid_format(tiles):
-    """
+def grid_format(tiles: GridDict) -> str:
+    """Print a nicely formatted string from grid dictionary.
+
     >>> print(grid_format({
     ...  (0, 0): "A", (1, 0): "B", (2, 0): "C",
     ...  (0, 1): "X", (1, 1): "Y", (2, 1): "Z",
@@ -77,10 +91,13 @@ def grid_format(tiles):
     return "".join(s[:-1])
 
 
-def grid_insert(tiles, x, values):
-    """
+def grid_place_in_column(tiles: GridDict, x: int, values: List[str]):
+    """Place a list of types centered vertical in a given column.
+
+    Modifies the grid dictionary in place.
+
     >>> t = grid_new(5, 4)
-    >>> grid_insert(t, 1, ['I'])
+    >>> grid_place_in_column(t, 1, ['I'])
     >>> print(grid_format(t))
        01234
      0 .....
@@ -89,8 +106,8 @@ def grid_insert(tiles, x, values):
      3 .....
 
     >>> t = grid_new(5, 4)
-    >>> grid_insert(t, 1, ['I', 'I'])
-    >>> grid_insert(t, 3, ['O'])
+    >>> grid_place_in_column(t, 1, ['I', 'I'])
+    >>> grid_place_in_column(t, 3, ['O'])
     >>> print(grid_format(t))
        01234
      0 .....
@@ -106,17 +123,30 @@ def grid_insert(tiles, x, values):
         tiles[(x, start + i)] = values[i]
 
 
-def grid_generate(inputs, outputs):
+def grid_generate(inputs: List[str], outputs: List[str]) -> GridDict:
+    """Generate a grid dict to fit a set of inputs and outputs.
+
+    Generates a 5 width grid with following columns;
+     Column 0 - padding
+     Column 1 - One input tile per input pins.
+     Column 2 - padding
+     Column 3 - A single tile.
+     Column 4 - padding
+     Column 5 - One output tile per output pins.
+
+    """
     height = max(len(inputs), len(outputs)) + 2
     width = len(['.', 'I', '.', 'T', '.', 'O', '.'])
     tiles = grid_new(width, height)
-    grid_insert(tiles, 1, ['I'] * len(inputs))
-    grid_insert(tiles, 3, ['T'] * (height - 2))
-    grid_insert(tiles, 5, ['O'] * len(outputs))
+    grid_place_in_column(tiles, 1, ['I'] * len(inputs))
+    grid_place_in_column(tiles, 3, ['T'] * (height - 2))
+    grid_place_in_column(tiles, 5, ['O'] * len(outputs))
     return tiles
 
 
-def arch_xml(outfile, name, clocks, inputs, outputs):
+def arch_xml(outfile: str, name: str, clocks: List[Port], inputs: List[Port], outputs: List[Port]):
+    """Generate an arch.xml file which wraps a pb_type."""
+
     assert name != "TILE", "name ({}) must not be TILE".format(name)
     assert os.path.exists(TEMPLATE_PATH), TEMPLATE_PATH
     tree = ET.parse(TEMPLATE_PATH)
@@ -304,6 +334,7 @@ def arch_xml(outfile, name, clocks, inputs, outputs):
 
 
 def pretty_xml(xml):
+    """Use xmllint to prettify the XML output."""
     with tempfile.NamedTemporaryFile(suffix=".xml", mode="wb") as f:
         xml.write(f, pretty_print=False)
         f.flush()
@@ -311,11 +342,7 @@ def pretty_xml(xml):
     return output.decode('utf-8')
 
 
-parser = argparse.ArgumentParser()
-__doc___ = """\
-Generate an arch.xml file which includes pb_type.xml and model.xml files for
-testing with Verilog to Routing.
-"""
+parser = argparse.ArgumentParser(description=__doc__)
 
 parser.add_argument('--pb_type', '-p', help="""\
 pb_type.xml file
