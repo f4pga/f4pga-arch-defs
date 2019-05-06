@@ -258,7 +258,10 @@ def start_pb_type(tile_name, f_pin_assignments, input_wires, output_wires):
     fc_xml = add_fc(pb_type_xml)
 
     pin_assignments = json.load(f_pin_assignments)
-    add_pinlocations(tile_name, pb_type_xml, fc_xml, pin_assignments, input_wires | output_wires)
+    add_pinlocations(
+        tile_name, pb_type_xml, fc_xml, pin_assignments,
+        input_wires | output_wires
+    )
 
     pb_type_xml.append(ET.Comment(" Internal Sites "))
 
