@@ -28,6 +28,7 @@ XI_URL = "http://www.w3.org/2001/XInclude"
 # Macros used to select relevant port names
 PORT_TAGS = ['input', 'output', 'clock']
 
+
 # FIXME: For now the prefix is not used as PR https://github.com/SymbiFlow/symbiflow-arch-defs/pull/665
 #        is not yet merged.
 def prefix_name(tile, active=False):
@@ -56,6 +57,7 @@ def import_physical_tile(args):
     This created the actual tile.xml definition of the tile which will be
     merged in the arch.xml.
     """
+
     ##########################################################################
     # Utility functions to create tile tag.                                  #
     ##########################################################################
@@ -91,11 +93,9 @@ def import_physical_tile(args):
                 sides[side].append(object_ref(prefix_name(tile_name), port))
 
         for side, pins in sides.items():
-            ET.SubElement(
-                pinlocations_xml, 'loc', {
-                    'side': side.lower(),
-                }
-            ).text = ' '.join(pins)
+            ET.SubElement(pinlocations_xml, 'loc', {
+                'side': side.lower(),
+            }).text = ' '.join(pins)
 
         direct_pins = set()
         for direct in pin_assignments['direct_connections']:
@@ -130,7 +130,6 @@ def import_physical_tile(args):
         )
 
         return fc_xml
-
 
     def add_equivalent_tiles(xml, equivalent_tiles):
         """ Used to add to the <tile> tag the equivalent tiles associated with it."""
