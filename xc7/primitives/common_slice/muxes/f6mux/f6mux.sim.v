@@ -1,5 +1,5 @@
 (* blackbox *)
-module F6MUX(I0, I1, S, OUT);
+module F6MUX(I0, I1, S, O);
 
 	input wire I0;
 	input wire I1;
@@ -7,8 +7,8 @@ module F6MUX(I0, I1, S, OUT);
 	(* DELAY_CONST_I0 = "{{iopath_A1_6}}" *)
 	(* DELAY_CONST_I1 = "{{iopath_A1_6}}" *)
 	(* DELAY_CONST_S = "{{iopath_A1_6}}" *)
-	output wire OUT;
+	output wire O;
 
-	assign OUT = S ? I1 : I0;
+	assign O = S ? I1 : I0;
 
 endmodule

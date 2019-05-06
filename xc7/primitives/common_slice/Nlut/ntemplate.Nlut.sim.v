@@ -30,7 +30,7 @@ module {N}LUT(A1, A2, A3, A4, A5, A6, O6, O5);
 	F6MUX F6MUX_0 (.I0(upper_O),
 		       .I1(lower_O),
 		       .S(A6),
-		       .OUT(O6));
+		       .O(O6));
 
 endmodule
 
