@@ -68,7 +68,6 @@ function(PROJECT_XRAY_TILE)
   #   )
   # ~~~
 
-  set(options FUSED_SITES)
   set(options FUSED_SITES SITE_AS_TILE)
   set(oneValueArgs PART TILE)
   set(multiValueArgs SITE_TYPES EQUIVALENT_TILES)
