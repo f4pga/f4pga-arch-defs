@@ -68,7 +68,8 @@ def import_physical_tile(args):
             root = eq_pb_type_xml.getroot()
 
             mode_xml = ET.SubElement(
-                equivalent_tiles_xml, 'mode', {'name': tile_import.add_vpr_tile_prefix(eq_tile)}
+                equivalent_tiles_xml, 'mode',
+                {'name': tile_import.add_vpr_tile_prefix(eq_tile)}
             )
 
             for port in ports:
@@ -108,7 +109,9 @@ def import_physical_tile(args):
     fc_xml = tile_import.add_fc(tile_xml)
 
     pin_assignments = json.load(args.pin_assignments)
-    tile_import.add_pinlocations(tile_name, tile_xml, fc_xml, pin_assignments, ports)
+    tile_import.add_pinlocations(
+        tile_name, tile_xml, fc_xml, pin_assignments, ports
+    )
 
     tile_import.add_switchblock_locations(tile_xml)
 
