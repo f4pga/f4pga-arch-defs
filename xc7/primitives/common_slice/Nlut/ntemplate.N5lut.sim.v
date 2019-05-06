@@ -5,7 +5,7 @@ module {N}5LUT(in, out);
 	input wire [4:0] in;
 
 	(* PORT_CLASS = "lut_out" *)
-	(* DELAY_MATRIX_in = "{{iopath_A1_O5}}; {{iopath_A2_O5}}; {{iopath_A3_O5}}; {{iopath_A4_O5}}; {{iopath_A5_O5}};" *)
+	(* DELAY_MATRIX_in = "1e-11; 1e-11; 1e-11; 1e-11; 1e-11;"/*"{{iopath_A1_O5}}; {{iopath_A2_O5}}; {{iopath_A3_O5}}; {{iopath_A4_O5}}; {{iopath_A5_O5}};"*/ *)
 	output wire out;
 
 	parameter [63:0] INIT = 0;
