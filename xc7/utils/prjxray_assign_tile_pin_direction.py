@@ -21,7 +21,7 @@ import simplejson as json
 from lib.rr_graph import tracks
 from lib.connection_database import (
     NodeClassification, yield_wire_info_from_node, get_track_model,
-    node_to_site_pins
+    node_to_site_pins, get_pin_name_of_wire
 )
 from prjxray_constant_site_pins import yield_ties_to_wire
 import progressbar
@@ -75,11 +75,7 @@ SELECT name FROM tile_type WHERE pkey = ?""", (src_tile_type_pkey, )
         )
         (source_tile_type, ) = c2.fetchone()
 
-        c2.execute(
-            """
-SELECT name FROM wire_in_tile WHERE pkey = ?""", (src_wire_in_tile_pkey, )
-        )
-        (source_wire, ) = c2.fetchone()
+        source_wire = get_pin_name_of_wire(conn, source_wire_pkey)
 
         # Get the node that is attached to the sink.
         c2.execute(
@@ -108,11 +104,7 @@ SELECT name FROM tile_type WHERE pkey = ?""", (dest_tile_type_pkey, )
         )
         (destination_tile_type, ) = c2.fetchone()
 
-        c2.execute(
-            """
-SELECT name FROM wire_in_tile WHERE pkey = ?""", (dest_wire_in_tile_pkey, )
-        )
-        (destination_wire, ) = c2.fetchone()
+        destination_wire = get_pin_name_of_wire(conn, destination_wire_pkey)
 
         direct_connections.add(
             DirectConnection(
@@ -167,23 +159,28 @@ SELECT pkey, classification FROM node WHERE classification != ?;
         reason = NodeClassification(classification)
 
         if reason == NodeClassification.NULL:
-            for (_, tile_type, wire) in yield_wire_info_from_node(conn,
-                                                                  node_pkey):
+            for (tile_type, wire) in yield_wire_info_from_node(conn,
+                                                               node_pkey):
                 null_tile_wires.add((tile_type, wire))
 
         if reason != NodeClassification.EDGES_TO_CHANNEL:
             continue
 
         c2 = conn.cursor()
-        for tile_pkey, wire_in_tile_pkey in c2.execute("""
-SELECT tile_pkey, wire_in_tile_pkey FROM wire WHERE node_pkey = ?;""",
-                                                       (node_pkey, )):
+        for wire_pkey, tile_pkey, wire_in_tile_pkey in c2.execute("""
+SELECT
+    pkey, tile_pkey, wire_in_tile_pkey
+FROM
+    wire
+WHERE
+    node_pkey = ?;
+    """, (node_pkey, )):
             c3 = conn.cursor()
             c3.execute(
                 """
-SELECT name, grid_x, grid_y FROM tile WHERE pkey = ?;""", (tile_pkey, )
+SELECT grid_x, grid_y FROM tile WHERE pkey = ?;""", (tile_pkey, )
             )
-            (tile, grid_x, grid_y) = c3.fetchone()
+            (grid_x, grid_y) = c3.fetchone()
 
             c3.execute(
                 """
@@ -204,15 +201,9 @@ WHERE
             )
             (tile_type, ) = c3.fetchone()
 
-            c3.execute(
-                """
-SELECT pkey, name, site_pin_pkey FROM wire_in_tile WHERE pkey = ?;""",
-                (wire_in_tile_pkey, )
-            )
-            (wire_in_tile_pkey, wire, site_pin_pkey) = c3.fetchone()
-
-            # This node has no site pin, don't need to assign pin direction.
-            if site_pin_pkey is None:
+            wire = get_pin_name_of_wire(conn, wire_pkey)
+            if wire is None:
+                # This node has no site pin, don't need to assign pin direction.
                 continue
 
             for pip_pkey, pip, src_wire_in_tile_pkey, dest_wire_in_tile_pkey in c3.execute(
@@ -260,7 +251,12 @@ WHERE
       AND wire_in_tile_pkey = ?
   );""", (tile_pkey, other_wire_in_tile_pkey)
                 )
-                (track_pkey, classification) = c4.fetchone()
+                result = c4.fetchone()
+                assert result is not None, (
+                    wire_pkey, pip_pkey, tile_pkey, wire_in_tile_pkey,
+                    other_wire_in_tile_pkey
+                )
+                (track_pkey, classification) = result
 
                 # Some pips do connect to a track at all, e.g. null node
                 if track_pkey is None:
@@ -287,6 +283,67 @@ WHERE
                     edge_assignments[(tile_type, wire)].append(available_pins)
 
 
+def initialize_edge_assignments(db, conn):
+    """ Create initial edge_assignments map. """
+    c = conn.cursor()
+    c2 = conn.cursor()
+
+    edge_assignments = {}
+    wires_in_tile_types = set()
+
+    # First find out which tile types were split during VPR grid formation.
+    # These tile types should not get edge assignments directly, instead
+    # their sites will get edge assignements.
+    sites_as_tiles = set()
+    split_tile_types = set()
+    for site_pkey, tile_type_pkey in c.execute("""
+        SELECT site_pkey, tile_type_pkey FROM site_as_tile;
+        """):
+        c2.execute(
+            "SELECT name FROM tile_type WHERE pkey = ?", (tile_type_pkey, )
+        )
+        split_tile_types.add(c2.fetchone()[0])
+
+        c2.execute(
+            """
+SELECT name FROM site_type WHERE pkey = (
+    SELECT site_type_pkey FROM site WHERE pkey = ?
+    );""", (site_pkey, )
+        )
+        site_type_name = c2.fetchone()[0]
+        sites_as_tiles.add(site_type_name)
+
+    # Initialize edge assignments for split tiles
+    for site_type in sites_as_tiles:
+        site_obj = db.get_site_type(site_type)
+        for site_pin in site_obj.get_site_pins():
+            key = (site_type, site_pin)
+            assert key not in edge_assignments, key
+
+            edge_assignments[key] = []
+
+    for tile_type in db.get_tile_types():
+        # Skip tile types that are split tiles
+        if tile_type in split_tile_types:
+            continue
+
+        type_obj = db.get_tile_type(tile_type)
+
+        for wire in type_obj.get_wires():
+            wires_in_tile_types.add((tile_type, wire))
+
+        for site in type_obj.get_sites():
+            for site_pin in site.site_pins:
+                if site_pin.wire is None:
+                    continue
+
+                key = (tile_type, site_pin.wire)
+                assert key not in edge_assignments, key
+                edge_assignments[key] = []
+
+    return edge_assignments, wires_in_tile_types
+
+
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument(
@@ -307,28 +364,15 @@ def main():
     args = parser.parse_args()
 
     db = prjxray.db.Database(args.db_root)
-    grid = db.grid()
 
     edge_assignments = {}
 
-    wires_in_tile_types = set()
-
-    for tile_type in db.get_tile_types():
-        type_obj = db.get_tile_type(tile_type)
-
-        for wire in type_obj.get_wires():
-            wires_in_tile_types.add((tile_type, wire))
-
-        for site in type_obj.get_sites():
-            for site_pin in site.site_pins:
-                if site_pin.wire is None:
-                    continue
-
-                key = (tile_type, site_pin.wire)
-                assert key not in edge_assignments, key
-                edge_assignments[key] = []
-
     with DatabaseCache(args.connection_database, read_only=True) as conn:
+        c = conn.cursor()
+
+        edge_assignments, wires_in_tile_types = initialize_edge_assignments(
+            db, conn
+        )
 
         direct_connections = set()
         print('{} Processing direct connections.'.format(now()))
@@ -344,8 +388,8 @@ def main():
     """, (NodeClassification.CHANNEL.value, ))):
             reason = NodeClassification(classification)
 
-            for (tile, tile_type,
-                 wire) in yield_wire_info_from_node(conn, node_pkey):
+            for (tile_type, wire) in yield_wire_info_from_node(conn,
+                                                               node_pkey):
                 key = (tile_type, wire)
 
                 # Sometimes nodes in particular tile instances are disconnected,
@@ -356,7 +400,7 @@ def main():
                     else:
                         other_reason = wires_not_in_channels[key]
                         assert reason == other_reason, (
-                            tile, wire, reason, other_reason
+                            tile_type, wire, reason, other_reason
                         )
 
                 if key in wires_in_tile_types:
@@ -381,10 +425,9 @@ def main():
             channel_nodes.append(tracks_model)
             channel_wires_to_tracks[track_pkey] = tracks_model
 
-            for (tile, tile_type,
-                 wire) in yield_wire_info_from_node(conn, node_pkey):
-                tileinfo = grid.gridinfo_at_tilename(tile)
-                key = (tileinfo.tile_type, wire)
+            for (tile_type, wire) in yield_wire_info_from_node(conn,
+                                                               node_pkey):
+                key = (tile_type, wire)
                 # Make sure all wires in channels always are in channels
                 assert key not in wires_not_in_channels
 
