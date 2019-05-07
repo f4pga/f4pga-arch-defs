@@ -1,0 +1,1 @@
+v2x_test_both(NAME fasm_features_ic_direct TOP_MODULE fasm_features_ic_direct)

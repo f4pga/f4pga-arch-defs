@@ -97,6 +97,26 @@ def strip_name(name):
     return name
 
 
+def update_attributes(attrs, new_attrs, ignore_list=()):
+    """
+    Updates one dictionary with elements from another. Prints message
+    when a conflict occurs.
+    """
+
+    for key, value in new_attrs.items():
+
+        if key in ignore_list:
+            continue
+
+        if key not in attrs:
+            attrs[key] = value
+        elif attrs[key] != value:
+            print("Attribute conflict (!): '{}'='{}' vs '{}".format(
+                  key, attrs[key], value))
+
+    return attrs
+
+
 def make_metadata(xml_parent, module_attrs, mode=None, all_modes=None):
     """
     Generates the XML <metadata> tag and fills it in according to the module
@@ -197,6 +217,8 @@ def make_pb_content(yj, mod, outfile, xml_parent, mod_pname, submode=None, all_s
         s_port_xml = ET.SubElement(dir_xml, 'port', s_port)
         d_port_xml = ET.SubElement(dir_xml, 'port', d_port)
 
+        return dir_xml
+
     # Find out whether or not the module we are generating content for is a blackbox
     is_blackbox = (mod.attr("blackbox", 0) == 1) or not mod.cells
 
@@ -279,6 +301,11 @@ def make_pb_content(yj, mod, outfile, xml_parent, mod_pname, submode=None, all_s
             # into a top level output - or all outputs if "mode" is used.
             inp_cons = mod.cell_conns(cname, "input")
             for pin, net in inp_cons:
+
+                net_attrs = {}
+                for net_name in mod.net_names_by_id(net):
+                    update_attributes(net_attrs, mod.net_attrs(net_name), ("src"))
+
                 drvs = mod.net_drivers(net)
                 assert len(drvs) > 0, (
                     "ERROR: pin {}.{} has no driver, interconnect will be missing\n{}"
@@ -302,6 +329,8 @@ def make_pb_content(yj, mod, outfile, xml_parent, mod_pname, submode=None, all_s
                             drive_instance = cells[drv_cell_type][drv_cell]
                     interconn.append(
                         (
+                            "direct",
+                            net_attrs,
                             (drv_cell, drv_pin), (cname, pin), drive_instance,
                             instance
                         )
@@ -309,21 +338,32 @@ def make_pb_content(yj, mod, outfile, xml_parent, mod_pname, submode=None, all_s
 
             out_cons = mod.cell_conns(cname, "output")
             for pin, net in out_cons:
+
+                net_attrs = {}
+                for net_name in mod.net_names_by_id(net):
+                    update_attributes(net_attrs, mod.net_attrs(net_name), ("src"))
+
                 sinks = mod.net_sinks(net)
                 for sink_cell, sink_pin in sinks:
-                    if sink_cell != mod.name:
-                        continue
-                    # Only consider outputs from cell to top level IO. Inputs to other cells will be dealt with
-                    # in those cells.
-                    interconn.append(
-                        (
-                            (cname, pin), (sink_cell, sink_pin), instance,
-                            INVALID_INSTANCE
+                    if sink_cell == mod.name:
+                        #Only consider outputs from cell to top level IO. Inputs to other cells will be dealt with
+                        #in those cells.
+                        interconn.append(
+                            (
+                                "direct",
+                                net_attrs,
+                                (cname, pin), (sink_cell, sink_pin), instance,
+                                INVALID_INSTANCE
+                            )
                         )
-                    )
 
         # Direct pin->pin connections
         for net in mod.nets:
+
+            net_attrs = {}
+            for net_name in mod.net_names_by_id(net):
+                update_attributes(net_attrs, mod.net_attrs(net_name), ("src"))
+
             drv = mod.conn_io(net, "input")
             if not drv:
                 continue
@@ -332,13 +372,26 @@ def make_pb_content(yj, mod, outfile, xml_parent, mod_pname, submode=None, all_s
                 .format(net, drv)
             )
             for snk in mod.conn_io(net, "output"):
-                conn = ((mod.name, drv[0]), (mod.name, snk))
+                conn = ("direct", net_attrs, (mod.name, drv[0]), (mod.name, snk), INVALID_INSTANCE, INVALID_INSTANCE)
                 interconn.append(conn)
 
         ic_xml = ET.SubElement(xml_parent, "interconnect")
+
         # Process interconnect
-        for source, dest, src_instance, dst_instance in interconn:
-            make_direct_conn(ic_xml, source, dest, src_instance, dst_instance)
+        for type, attrs, source, dest, src_instance, dst_instance in interconn:
+
+            # Write connection
+            if type == "direct":
+                conn_xml = make_direct_conn(ic_xml, source, dest, src_instance, dst_instance)
+            elif type == "mux":
+                print("MUX not supported yet!")  # TODO:
+                continue
+            else:
+                print("Unknown connection type '{}'".format(type))
+                continue
+
+            # Write metadata
+            make_metadata(conn_xml, attrs, submode, all_submodes)
 
     def process_clocked_tmg(tmgspec, port, xmltype, xml_parent):
         """Add a suitable timing spec if necessary to the pb_type"""

@@ -81,6 +81,11 @@ class YosysModule:
             sorted(set(n['bits'][0] for n in self.data["netnames"].values()))
         )
 
+    def net_names_by_id(self, net):
+        """Returns module net names given its id"""
+        names = [name for name, data in self.data["netnames"].items() if net in data["bits"]]
+        return names
+
     def cell_type(self, cell):
         """Return the type of a given cell"""
         for cname, cdata in self.data["cells"].items():
