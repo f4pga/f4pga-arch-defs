@@ -153,7 +153,7 @@ function(GET_VERILOG_INCLUDES var file)
     if(NOT "${INCLUDE}" STREQUAL "")
       get_filename_component(
         ABS_PATH_TO_INCLUDE
-        ${CMAKE_CURRENT_SOURCE_DIR}/${INCLUDE}
+        ${INCLUDE}
         ABSOLUTE
         BASE_DIR
         ${symbiflow-arch-defs_SOURCE_DIR}
