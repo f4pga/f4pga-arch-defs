@@ -54,14 +54,14 @@ def read_dependencies(inputfile):
 
 def main(argv):
     args = parser.parse_args(argv[1:])
+    inputpath = os.path.abspath(args.inputfile.name)
+    inputdir = os.path.dirname(inputpath)
 
     if args.file_per_line:
         for dep in read_dependencies(args.inputfile):
-            print(dep)
+            print(os.path.abspath(os.path.join(inputdir, dep)))
     else:
         data = StringIO()
-        inputpath = os.path.abspath(args.inputfile.name)
-        inputdir = os.path.dirname(inputpath)
         for includefile in read_dependencies(args.inputfile):
             add_dependency(
                 data, inputpath,
