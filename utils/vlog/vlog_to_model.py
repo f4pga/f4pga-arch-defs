@@ -152,7 +152,7 @@ with open(args.infiles[0], 'r') as f:
             continue
         deps_files.add(im.group(1))
 
-if True:
+if len(deps_files) > 0:
     # Has dependencies, not a leaf model
     for df in sorted(deps_files):
         abs_base = os.path.dirname(os.path.abspath(args.infiles[0]))
@@ -175,7 +175,7 @@ if True:
             outfile=outfile,
             xptr="xpointer(models/child::node())"
         )
-if True:
+else:
     # Is a leaf model
     topname = tmod.attr("MODEL_NAME", top)
     modclass = tmod.attr("CLASS", "")
