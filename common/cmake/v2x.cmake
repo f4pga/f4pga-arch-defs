@@ -133,12 +133,14 @@ function(VPR_TEST_PBTYPE)
   # ~~~
   #
   # Run the pb_type.xml file through vpr to check it is valid.
+  set(options)
   set(oneValueArgs NAME)
+  set(multiValueArgs)
   cmake_parse_arguments(
     VPR_TEST_PBTYPE
-    ""
+    "${options}"
     "${oneValueArgs}"
-    ""
+    "${multiValueArgs}"
     ${ARGN}
   )
 

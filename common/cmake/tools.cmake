@@ -14,13 +14,15 @@ function(DIFF)
   # ACTUAL generated file that has to be checked with the GOLDEN one.
   #
   # Usage: diff(NAME <target_name> GOLDEN <file_name.golden.xml> ACTUAL <file_name.actual.xml>)
-
+  set(options)
   set(oneValueArgs NAME GOLDEN ACTUAL)
+  set(multiValueArgs)
+
   cmake_parse_arguments(
     DIFF
-    ""
+    "${options}"
     "${oneValueArgs}"
-    ""
+    "${multiValueArgs}"
     ${ARGN}
     )
 
