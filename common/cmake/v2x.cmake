@@ -224,4 +224,7 @@ function(VPR_TEST_PBTYPE)
     DEPENDS
         "${OUT_LOCAL_REL}/vpr.stdout"
   )
+
+  add_dependencies(all_vpr_test_pbtype test_${VPR_TEST_PBTYPE_NAME})
+
 endfunction(VPR_TEST_PBTYPE)

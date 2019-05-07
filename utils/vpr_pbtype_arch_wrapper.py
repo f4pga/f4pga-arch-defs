@@ -21,7 +21,7 @@ import lxml.etree as ET
 
 from lib import xmlinc
 from lib.flatten import flatten
-from lib.pb_type import ports, Port
+from lib.pb_type import ports, find_leaf, Port
 
 FILEDIR_PATH = os.path.abspath(os.path.join(os.path.dirname(__file__)))
 TEMPLATE_PATH = os.path.abspath(
@@ -143,19 +143,10 @@ def grid_generate(input_pins: List[str], output_pins: List[str]) -> GridDict:
     return tiles
 
 
-def arch_xml(
-        outfile: str, name: str, clocks: List[Port], inputs: List[Port],
-        outputs: List[Port]
-):
-    """Generate an arch.xml file which wraps a pb_type."""
+def layout_xml(arch_xml: ET.Element, pbtype_xml: ET.Element):
+    """Generate a `<layout>` with IBUF and OBUF to match given pb_type."""
 
-    assert name != "TILE", "name ({}) must not be TILE".format(name)
-    assert os.path.exists(TEMPLATE_PATH), TEMPLATE_PATH
-    tree = ET.parse(TEMPLATE_PATH)
-    root = tree.getroot()
-
-    dirpath = os.path.dirname(outfile)
-    print(dirpath)
+    pbtype_name, clocks, inputs, outputs = ports(pbtype_xml)
 
     finputs = [s for s, d in flatten(clocks + inputs)]
     foutputs = [s for s, d in flatten(outputs)]
@@ -163,15 +154,7 @@ def arch_xml(
     tiles = grid_generate(finputs, foutputs)
     width, height = grid_size(tiles)
 
-    mod = root.find("models")
-    xmlinc.include_xml(
-        mod,
-        os.path.join(dirpath, "{}.model.xml".format(name)),
-        outfile,
-        xptr="xpointer(models/child::node())",
-    )
-
-    layouts = root.find("layout")
+    layouts = arch_xml.find("layout")
     l = ET.SubElement(
         layouts,
         "fixed_layout",
@@ -210,36 +193,44 @@ def arch_xml(
             }
         )
 
-    theight = max(len(finputs), len(foutputs))
+    return max(len(finputs), len(foutputs))
 
-    cbl = root.find("complexblocklist")
+
+def tile_xml(
+        arch_xml: ET.Element, pbtype_xml: ET.Element, outfile: str,
+        tile_height: int
+):
+    """Generate a top level pb_type containing given pb_type."""
+
+    name, clocks, inputs, outputs = ports(pbtype_xml)
+    assert name != "TILE", "name ({}) must not be TILE".format(name)
+
+    cbl = arch_xml.find("complexblocklist")
     tile = ET.SubElement(
         cbl,
         "pb_type",
         {
             "name": "TILE",
             "width": "1",
-            "height": str(theight)
+            "height": str(tile_height)
         },
     )
+    dirpath = os.path.dirname(outfile)
     xmlinc.include_xml(
         tile,
         os.path.join(dirpath, "{}.pb_type.xml".format(name)),
         outfile,
     )
+
+    # Pin locations
     ploc = ET.SubElement(
         tile,
         "pinlocations",
         {"pattern": "custom"},
     )
-    connect = ET.SubElement(
-        tile,
-        "interconnect",
-    )
-
     ilocs = []
     olocs = []
-    for i in range(0, theight):
+    for i in range(0, tile_height):
         ilocs.append(
             ET.SubElement(
                 ploc,
@@ -265,6 +256,12 @@ def arch_xml(
         )
         olocs[i].text = ""
 
+    # Interconnect
+    connect = ET.SubElement(
+        tile,
+        "interconnect",
+    )
+
     # Clock pins
     for s, d in flatten(clocks):
         input_tag = ET.SubElement(
@@ -286,7 +283,7 @@ def arch_xml(
             },
         )
 
-        for i in range(0, theight):
+        for i in range(0, tile_height):
             ilocs[i].text += "TILE.{} ".format(s)
 
     # Input Pins
@@ -310,7 +307,7 @@ def arch_xml(
             },
         )
 
-        for i in range(0, theight):
+        for i in range(0, tile_height):
             ilocs[i].text += "TILE.{} ".format(s)
 
     # Output Pins
@@ -333,10 +330,10 @@ def arch_xml(
                 "output": "TILE.{}".format(d),
             },
         )
-        for i in range(0, theight):
+        for i in range(0, tile_height):
             olocs[i].text += "TILE.{} ".format(d)
 
-    return tree
+    return name
 
 
 def pretty_xml(xml):
@@ -364,18 +361,39 @@ Output filename, default '<name>.arch.xml'
 def main(args):
     args = parser.parse_args(args)
 
-    pbtype_xml = ET.parse(args.pb_type)
-    pbtype_name, clocks, inputs, outputs = ports(pbtype_xml.getroot())
     iname = os.path.basename(args.pb_type)
-
     outfile = "{}.arch.xml".format(iname)
     if args.output is not None:
         outfile = args.output
     outfile = os.path.abspath(outfile)
 
-    xml = arch_xml(outfile, pbtype_name, clocks, inputs, outputs)
+    pbtype_xml = ET.parse(args.pb_type)
+    pbtype_xml.xinclude()
+
+    assert os.path.exists(TEMPLATE_PATH), TEMPLATE_PATH
+    arch_tree = ET.parse(TEMPLATE_PATH)
+    arch_root = arch_tree.getroot()
+
+    pbtype_root = pbtype_xml.getroot()
+    pbtype_leaf = find_leaf(pbtype_xml.getroot())
+    assert pbtype_leaf is not None, "Unable to find leaf <pb_type> tag in {}".format(
+        args.pb_type
+    )
+
+    tile_height = layout_xml(arch_root, pbtype_leaf)
+    tname = tile_xml(arch_root, pbtype_root, outfile, tile_height)
+
+    dirpath = os.path.dirname(outfile)
+    models = arch_root.find("models")
+    xmlinc.include_xml(
+        models,
+        os.path.join(dirpath, "{}.model.xml".format(tname)),
+        outfile,
+        xptr="xpointer(models/child::node())",
+    )
+
     with open(outfile, 'w') as f:
-        f.write(pretty_xml(xml))
+        f.write(pretty_xml(arch_tree))
 
     return 0
 
