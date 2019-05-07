@@ -1,0 +1,48 @@
+<?xml version='1.0' encoding='utf-8'?>
+<pb_type xmlns:xi="http://www.w3.org/2001/XInclude" name="fasm_features_child" num_pb="1">
+  <input name="I0" num_pins="1"/>
+  <input name="I1" num_pins="1"/>
+  <output name="O0" num_pins="1"/>
+  <output name="O1" num_pins="1"/>
+  <pb_type blif_model=".subckt and_gate" name="and_gate" num_pb="1">
+    <xi:include href="../common/and_gate.pb_type.xml" xpointer="xpointer(pb_type/child::node())"/>
+    <metadata>
+      <meta name="fasm_prefix">THIS_IS_THE_AND_GATE</meta>
+    </metadata>
+  </pb_type>
+  <pb_type blif_model=".subckt xor_gate" name="xor_gate" num_pb="1">
+    <xi:include href="../common/xor_gate.pb_type.xml" xpointer="xpointer(pb_type/child::node())"/>
+    <metadata>
+      <meta name="fasm_features">FEATURE_A FEATURE_B</meta>
+    </metadata>
+  </pb_type>
+  <interconnect>
+    <direct>
+      <port name="I0" type="input"/>
+      <port from="and_gate" name="I0" type="output"/>
+    </direct>
+    <direct>
+      <port name="I1" type="input"/>
+      <port from="and_gate" name="I1" type="output"/>
+    </direct>
+    <direct>
+      <port from="and_gate" name="O" type="input"/>
+      <port name="O0" type="output"/>
+    </direct>
+    <direct>
+      <port name="I0" type="input"/>
+      <port from="xor_gate" name="I0" type="output"/>
+    </direct>
+    <direct>
+      <port name="I1" type="input"/>
+      <port from="xor_gate" name="I1" type="output"/>
+    </direct>
+    <direct>
+      <port from="xor_gate" name="O" type="input"/>
+      <port name="O1" type="output"/>
+    </direct>
+  </interconnect>
+  <metadata>
+    <meta name="fasm_prefix">TOP_FASM_PREFIX</meta>
+  </metadata>
+</pb_type>
