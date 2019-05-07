@@ -1,5 +1,6 @@
 //`include "../../../../vpr/ff/vpr_ff.sim.v"
 
+(* blackbox *)
 module dff (d, clk, q);
 	input wire d;
 	input wire clk;

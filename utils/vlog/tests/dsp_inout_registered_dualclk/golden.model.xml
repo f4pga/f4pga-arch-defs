@@ -1,5 +1,6 @@
 <models xmlns:xi="http://www.w3.org/2001/XInclude">
   <xi:include href="../dsp_combinational/dsp_combinational.model.xml" xpointer="xpointer(models/child::node())"/>
+  <xi:include href="../fig42-dff/dff.model.xml" xpointer="xpointer(models/child::node())"/>
   <model name="dsp_inout_registered_dualclk">
     <input_ports>
       <port clock="oclk iclk" combinational_sink_ports="out" name="a"/>
