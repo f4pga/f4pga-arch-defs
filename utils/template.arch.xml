@@ -51,7 +51,7 @@
  </switchlist>
 
  <segmentlist>
-  <segment name="local" length="1" freq="1.000000" type="bidir" Rmetal="101" Cmetal="22.5e-15">
+  <segment name="local" length="1" freq="1.000000" type="unidir" Rmetal="101" Cmetal="22.5e-15">
    <sb type="pattern">1 1</sb>
    <cb type="pattern">1</cb>
    <wire_switch name="mux"/>
