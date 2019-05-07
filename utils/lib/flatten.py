@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
 
-def flatten(ports, reverse=False):
+def flatten(ports):
     """Convert port + width into individual pins.
 
     >>> print(list(flatten(['A', ('B', 1), ('C', 2)])))
@@ -20,7 +20,4 @@ def flatten(ports, reverse=False):
             for i in range(0, bits):
                 src = "{}{}".format(n, i)
                 dst = "{}[{}]".format(n, i)
-                if reverse:
-                    yield (dst, src)
-                else:
-                    yield (src, dst)
+                yield (src, dst)
