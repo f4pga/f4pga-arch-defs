@@ -1,14 +1,3 @@
 <models xmlns:xi="http://www.w3.org/2001/XInclude">
   <xi:include href="../fig41-full-adder/adder.model.xml" xpointer="xpointer(models/child::node())"/>
-  <model name="multiple_instance">
-    <input_ports>
-      <port combinational_sink_ports="sum cout" name="a"/>
-      <port combinational_sink_ports="sum cout" name="b"/>
-      <port combinational_sink_ports="sum cout" name="cin"/>
-    </input_ports>
-    <output_ports>
-      <port name="cout"/>
-      <port name="sum"/>
-    </output_ports>
-  </model>
 </models>
