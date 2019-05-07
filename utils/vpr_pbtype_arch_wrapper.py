@@ -180,8 +180,8 @@ def arch_xml(
             # FIXME: See https://github.com/verilog-to-routing/vtr-verilog-to-routing/issues/277
             #"width":  str(width),
             #"height":  str(height),
-            "width":  str(max(width, height)),
-            "height":  str(max(width, height)),
+            "width": str(max(width, height)),
+            "height": str(max(width, height)),
         },
     )
     l.append(ET.Comment('\n' + grid_format(tiles) + '\n'))
