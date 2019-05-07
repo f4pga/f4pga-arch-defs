@@ -44,6 +44,11 @@ The following are allowed on ports:
     - `(* FASM_xxxx *)` : All attributes with names starting from "FASM_" will
         be converted do metadata entries with corresponding lowercase names.
 
+    - `(* FASM_xxxx_mmmm *)` : If there are modes and an attribute name begins
+       with "FASM" and ends with an upper case mode name, then it is applied
+       only for the matching mode. The base attribute name with mode name
+       removed is converted to lowercase "fasm_xxxx"
+
 The Verilog define "PB_TYPE" is set during generation.
 """
 
@@ -90,7 +95,7 @@ def strip_name(name):
     return name
 
 
-def make_metadata(xml_parent, module_attrs):
+def make_metadata(xml_parent, module_attrs, mode=None, all_modes=None):
     """
     Generates the XML <metadata> tag and fills it in according to the module
     attributes given.
@@ -98,10 +103,34 @@ def make_metadata(xml_parent, module_attrs):
 
     metadata = {}
 
+    # Find attributes beginning with "FASM_"
     for attr, value in module_attrs.items():
         if attr.startswith("FASM_"):
-            metadata[attr.lower()] = value
 
+            # We have modes
+            if mode is not None:
+                is_mode_attr = False
+
+                # Check if the attribute is relevant to a mode (any mode)
+                for m in all_modes:
+                    if attr.endswith("_" + m.upper()):
+                        is_mode_attr = True
+
+                        # Append it if relevant for current mode, skip otherwise
+                        if m == mode:
+                            name = attr.rsplit("_", 1)[0]
+                            metadata[name.lower()] = value
+                            break
+
+                # This attribute is not mode relevant so add it as it is common
+                if not is_mode_attr:
+                    metadata[attr.lower()] = value
+
+            # We do not have modes
+            else:
+                metadata[attr.lower()] = value
+
+    # Store the metadata in XML (if any)
     if len(metadata):
         xml_metadata = ET.SubElement(xml_parent, 'metadata')
         for key, value in metadata.items():
@@ -109,7 +138,7 @@ def make_metadata(xml_parent, module_attrs):
             xml_meta.text = value
 
 
-def make_pb_content(yj, mod, outfile, xml_parent, mod_pname, is_submode=False):
+def make_pb_content(yj, mod, outfile, xml_parent, mod_pname, submode=None, all_submodes=None):
     """Build the pb_type content - child pb_types, timing and direct interconnect,
     but not IO. This may be put directly inside <pb_type>, or inside <mode>."""
 
@@ -187,7 +216,7 @@ def make_pb_content(yj, mod, outfile, xml_parent, mod_pname, is_submode=False):
             cells[i_of][cname] = 0
 
     # Blackbox modules don't have inner cells or interconnect (but do still have timing)
-    if (not is_blackbox) or is_submode:
+    if (not is_blackbox) or submode is not None:
         # Process cells. First build the list of cnames.
         processed_cells = list()
         for cname, i_of in mod.cells:
@@ -238,7 +267,9 @@ def make_pb_content(yj, mod, outfile, xml_parent, mod_pname, is_submode=False):
                 # Append metadata
                 make_metadata(
                     inc_pb_type,
-                    mod.data["cells"][cname]["attributes"]
+                    mod.data["cells"][cname]["attributes"],
+                    submode,
+                    all_submodes
                 )
 
             # In order to avoid overspecifying interconnect, there are two directions we currently
@@ -362,7 +393,7 @@ def make_pb_content(yj, mod, outfile, xml_parent, mod_pname, is_submode=False):
                 xml_mat.text = mat
 
     # Append metadata
-    make_metadata(xml_parent, mod.module_attrs)
+    make_metadata(xml_parent, mod.module_attrs, submode, all_submodes)
 
 def make_pb_type(yj, mod, outfile):
     """Build the pb_type for a given module. mod is the YosysModule object to
@@ -371,6 +402,7 @@ def make_pb_type(yj, mod, outfile):
     modes = mod.attr("MODES", None)
     if modes is not None:
         modes = modes.split(";")
+        modes = [mode.strip() for mode in modes]
     mod_pname = mod_pb_name(mod)
 
     pb_xml_attrs = dict()
@@ -426,26 +458,25 @@ def make_pb_type(yj, mod, outfile):
 
     if has_modes:
         for mode in modes:
-            smode = mode.strip()
-            mode_xml = ET.SubElement(pb_type_xml, "mode", {"name": smode})
+            mode_xml = ET.SubElement(pb_type_xml, "mode", {"name": mode})
             # Rerun Yosys with mode parameter
             mode_yj = YosysJSON(
                 yosys.run.vlog_to_json(
                     args.infiles,
                     flatten=False,
                     aig=False,
-                    mode=smode,
+                    mode=mode,
                     module_with_mode=mod.name
                 )
             )
 
             if args.dump_json:
                 import json
-                print("Mode '{}'".format(smode))
+                print("Mode '{}'".format(mode))
                 print(json.dumps(mode_yj.data, sort_keys=True, indent=1))
 
             mode_mod = mode_yj.module(mod.name)
-            make_pb_content(yj, mode_mod, outfile, mode_xml, mod_pname, True)
+            make_pb_content(yj, mode_mod, outfile, mode_xml, mod_pname, mode, modes)
     else:
         make_pb_content(yj, mod, outfile, pb_type_xml, mod_pname)
 
