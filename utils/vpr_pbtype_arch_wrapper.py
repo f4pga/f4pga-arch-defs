@@ -123,8 +123,8 @@ def grid_place_in_column(tiles: GridDict, x: XPos, values: List[str]):
         tiles[(x, start + i)] = values[i]
 
 
-def grid_generate(inputs: List[str], outputs: List[str]) -> GridDict:
-    """Generate a grid dict to fit a set of inputs and outputs.
+def grid_generate(input_pins: List[str], output_pins: List[str]) -> GridDict:
+    """Generate a grid dict to fit a set of input_pins and output_pins.
 
     Generates a 5 width grid with following columns;
      Column 0 - One input tile per input pins.
@@ -134,12 +134,12 @@ def grid_generate(inputs: List[str], outputs: List[str]) -> GridDict:
      Column 4 - One output tile per output pins.
 
     """
-    height = max(len(inputs), len(outputs)) + 2
+    height = max(len(input_pins), len(output_pins)) + 2
     width = len(['I', '.', 'T', '.', 'O'])
     tiles = grid_new(width, height)
-    grid_place_in_column(tiles, 0, ['I'] * len(inputs))
+    grid_place_in_column(tiles, 0, ['I'] * len(input_pins))
     grid_place_in_column(tiles, 2, ['T'] * (height - 2))
-    grid_place_in_column(tiles, 4, ['O'] * len(outputs))
+    grid_place_in_column(tiles, 4, ['O'] * len(output_pins))
     return tiles
 
 
