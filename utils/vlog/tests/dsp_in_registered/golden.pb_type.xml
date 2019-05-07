@@ -6,7 +6,9 @@
   <input name="m" num_pins="1"/>
   <output name="out" num_pins="64"/>
   <xi:include href="../dsp_combinational/dsp_combinational.pb_type.xml"/>
-  <xi:include href="../fig42-dff/dff.pb_type.xml"/>
+  <pb_type blif_model=".subckt dff" name="dff" num_pb="65">
+    <xi:include href="../fig42-dff/dff.pb_type.xml" xpointer="xpointer(pb_type/child::node())"/>
+  </pb_type>
   <interconnect>
     <direct>
       <port from="dff[0]" name="q" type="input"/>

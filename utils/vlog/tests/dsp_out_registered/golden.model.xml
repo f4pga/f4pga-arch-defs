@@ -1,5 +1,6 @@
 <models xmlns:xi="http://www.w3.org/2001/XInclude">
   <xi:include href="../dsp_combinational/dsp_combinational.model.xml" xpointer="xpointer(models/child::node())"/>
+  <xi:include href="../fig42-dff/dff.model.xml" xpointer="xpointer(models/child::node())"/>
   <!-- https://docs.verilogtorouting.org/en/latest/tutorials/arch/timing_modeling/#mixed-sequential-combinational-block -->
   <model name="dsp_out_registered">
     <input_ports>
