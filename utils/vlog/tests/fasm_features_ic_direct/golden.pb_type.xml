@@ -1,0 +1,58 @@
+<?xml version='1.0' encoding='utf-8'?>
+<pb_type xmlns:xi="http://www.w3.org/2001/XInclude" name="fasm_features_ic_direct" num_pb="1">
+  <input name="INP0" num_pins="1"/>
+  <input name="INP1" num_pins="1"/>
+  <output name="OUT0" num_pins="1"/>
+  <output name="OUT1" num_pins="1"/>
+  <output name="OUT2" num_pins="1"/>
+  <output name="OUT3" num_pins="1"/>
+  <pb_type blif_model=".subckt and_gate" name="and_gate" num_pb="1">
+    <xi:include href="../common/and_gate.pb_type.xml" xpointer="xpointer(pb_type/child::node())"/>
+  </pb_type>
+  <pb_type blif_model=".subckt xor_gate" name="xor_gate" num_pb="1">
+    <xi:include href="../common/xor_gate.pb_type.xml" xpointer="xpointer(pb_type/child::node())"/>
+  </pb_type>
+  <interconnect>
+    <direct>
+      <port name="INP0" type="input"/>
+      <port from="and_gate" name="I0" type="output"/>
+    </direct>
+    <direct>
+      <port name="INP1" type="input"/>
+      <port from="and_gate" name="I1" type="output"/>
+    </direct>
+    <direct>
+      <port from="and_gate" name="O" type="input"/>
+      <port name="OUT0" type="output"/>
+      <metadata>
+        <meta name="fasm_mux">out0_fasm_mux</meta>
+      </metadata>
+    </direct>
+    <direct>
+      <port name="INP0" type="input"/>
+      <port from="xor_gate" name="I0" type="output"/>
+    </direct>
+    <direct>
+      <port name="INP1" type="input"/>
+      <port from="xor_gate" name="I1" type="output"/>
+    </direct>
+    <direct>
+      <port from="xor_gate" name="O" type="input"/>
+      <port name="OUT1" type="output"/>
+      <metadata>
+        <meta name="fasm_mux">out1_fasm_mux</meta>
+      </metadata>
+    </direct>
+    <direct>
+      <port name="INP0" type="input"/>
+      <port name="OUT2" type="output"/>
+      <metadata>
+        <meta name="fasm_mux">out2_fasm_mux</meta>
+      </metadata>
+    </direct>
+    <direct>
+      <port name="INP1" type="input"/>
+      <port name="OUT3" type="output"/>
+    </direct>
+  </interconnect>
+</pb_type>
