@@ -147,6 +147,9 @@ function(VPR_TEST_PBTYPE)
   get_target_property_required(PYTHON3 env PYTHON3)
   get_target_property(PYTHON3_TARGET env PYTHON3_TARGET)
 
+  get_target_property_required(XMLLINT env XMLLINT)
+  get_target_property(XMLLINT_TARGET env XMLLINT_TARGET)
+
   set(DEPENDS_ARCH "")
   append_file_dependency(DEPENDS_ARCH "${symbiflow-arch-defs_SOURCE_DIR}/utils/template.arch.xml")
   append_file_dependency(DEPENDS_ARCH "${VPR_TEST_PBTYPE_NAME}.pb_type.xml")
@@ -154,7 +157,8 @@ function(VPR_TEST_PBTYPE)
   add_custom_command(
     OUTPUT "${VPR_TEST_PBTYPE_NAME}.arch.xml"
     DEPENDS
-      ${PYTHON3_TARGET}
+      ${PYTHON3} ${PYTHON3_TARGET}
+      ${XMLLINT} ${XMLLINT_TARGET}
       ${symbiflow-arch-defs_SOURCE_DIR}/utils/vpr_pbtype_arch_wrapper.py
       ${DEPENDS_ARCH}
     COMMAND
@@ -170,7 +174,8 @@ function(VPR_TEST_PBTYPE)
   add_custom_command(
     OUTPUT "${VPR_TEST_PBTYPE_NAME}.test.eblif"
     DEPENDS
-      ${PYTHON3_TARGET}
+      ${PYTHON3} ${PYTHON3_TARGET}
+      ${XMLLINT} ${XMLLINT_TARGET}
       ${symbiflow-arch-defs_SOURCE_DIR}/utils/vpr_pbtype_to_eblif.py
       ${DEPENDS_EBLIF}
     COMMAND
