@@ -24,6 +24,7 @@ function(ADD_XC7_ARCH_DEFINE)
       --enable_timing_computations off
       --allow_unrelated_clustering on
       --clustering_pin_feasibility_filter off
+      --disable_check_route on
     RR_PATCH_TOOL
       ${symbiflow-arch-defs_SOURCE_DIR}/xc7/utils/prjxray_routing_import.py
     RR_PATCH_CMD "${CMAKE_COMMAND} -E env \
