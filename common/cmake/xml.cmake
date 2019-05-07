@@ -6,12 +6,14 @@ function(XML_LINT)
   # LINT_OUTPUT
   # SCHEMA
   # )
+  set(options)
   set(oneValueArgs NAME FILE LINT_OUTPUT SCHEMA)
+  set(multiValueArgs)
   cmake_parse_arguments(
     XML_LINT
-    ""
+    "${options}"
     "${oneValueArgs}"
-    ""
+    "${multiValueArgs}"
     ${ARGN}
     )
 
@@ -52,12 +54,14 @@ function(XML_CANONICALIZE_MERGE)
   # FILE is the input file that needs to be processed by xmlsort
   # OUTPUT is the name of the output file
 
+  set(options)
   set(oneValueArgs NAME FILE OUTPUT)
+  set(multiValueArgs)
   cmake_parse_arguments(
     XML_CANONICALIZE_MERGE
-    ""
+    "${options}"
     "${oneValueArgs}"
-    ""
+    "${multiValueArgs}"
     ${ARGN}
     )
 
