@@ -106,6 +106,9 @@ add_custom_target(all_rrgraph_xmls)
 # Target to lint all xml files.
 add_custom_target(all_xml_lint)
 
+# Target to validate pbtype files using vpr
+add_custom_target(all_vpr_test_pbtype)
+
 add_subdirectory(common)
 add_subdirectory(utils)
 add_subdirectory(vpr)
