@@ -1,0 +1,14 @@
+<models xmlns:xi="http://www.w3.org/2001/XInclude">
+  <xi:include href="../common/and_gate.model.xml" xpointer="xpointer(models/child::node())"/>
+  <xi:include href="../common/xor_gate.model.xml" xpointer="xpointer(models/child::node())"/>
+  <model name="fasm_features_child">
+    <input_ports>
+      <port name="I0"/>
+      <port name="I1"/>
+    </input_ports>
+    <output_ports>
+      <port name="O0"/>
+      <port name="O1"/>
+    </output_ports>
+  </model>
+</models>

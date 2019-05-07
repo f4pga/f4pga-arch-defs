@@ -1,0 +1,8 @@
+<?xml version='1.0' encoding='utf-8'?>
+<pb_type xmlns:xi="http://www.w3.org/2001/XInclude" blif_model=".subckt xor_gate" name="xor_gate" num_pb="1">
+  <input name="I0" num_pins="1"/>
+  <input name="I1" num_pins="1"/>
+  <output name="O" num_pins="1"/>
+  <delay_constant in_port="xor_gate.I0" max="300e-12" out_port="xor_gate.O"/>
+  <delay_constant in_port="xor_gate.I1" max="300e-12" out_port="xor_gate.O"/>
+</pb_type>

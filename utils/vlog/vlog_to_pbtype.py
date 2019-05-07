@@ -90,6 +90,25 @@ def strip_name(name):
     return name
 
 
+def make_metadata(xml_parent, module_attrs):
+    """
+    Generates the XML <metadata> tag and fills it in according to the module
+    attributes given.
+    """
+
+    metadata = {}
+
+    for attr, value in module_attrs.items():
+        if attr.startswith("FASM_"):
+            metadata[attr.lower()] = value
+
+    if len(metadata):
+        xml_metadata = ET.SubElement(xml_parent, 'metadata')
+        for key, value in metadata.items():
+            xml_meta = ET.SubElement(xml_metadata, "meta", {"name": key})
+            xml_meta.text = value
+
+
 def make_pb_content(yj, mod, outfile, xml_parent, mod_pname, is_submode=False):
     """Build the pb_type content - child pb_types, timing and direct interconnect,
     but not IO. This may be put directly inside <pb_type>, or inside <mode>."""
@@ -216,6 +235,12 @@ def make_pb_content(yj, mod, outfile, xml_parent, mod_pname, is_submode=False):
                     xptr="xpointer(pb_type/child::node())"
                 )
 
+                # Append metadata
+                make_metadata(
+                    inc_pb_type,
+                    mod.data["cells"][cname]["attributes"]
+                )
+
             # In order to avoid overspecifying interconnect, there are two directions we currently
             # consider. All interconnect going INTO a cell, and interconnect going out of a cell
             # into a top level output - or all outputs if "mode" is used.
@@ -337,18 +362,7 @@ def make_pb_content(yj, mod, outfile, xml_parent, mod_pname, is_submode=False):
                 xml_mat.text = mat
 
     # Append metadata
-    metadata = {}
-
-    for attr, value in mod.module_attrs.items():
-        if attr.startswith("FASM_"):
-            metadata[attr.lower()] = value
-
-    if len(metadata):
-        xml_metadata = ET.SubElement(xml_parent, 'metadata')
-        for key, value in metadata.items():
-            xml_meta = ET.SubElement(xml_metadata, "meta", {"name": key})
-            xml_meta.text = value
-
+    make_metadata(xml_parent, mod.module_attrs)
 
 def make_pb_type(yj, mod, outfile):
     """Build the pb_type for a given module. mod is the YosysModule object to
@@ -424,6 +438,12 @@ def make_pb_type(yj, mod, outfile):
                     module_with_mode=mod.name
                 )
             )
+
+            if args.dump_json:
+                import json
+                print("Mode '{}'".format(smode))
+                print(json.dumps(mode_yj.data, sort_keys=True, indent=1))
+
             mode_mod = mode_yj.module(mod.name)
             make_pb_content(yj, mode_mod, outfile, mode_xml, mod_pname, True)
     else:

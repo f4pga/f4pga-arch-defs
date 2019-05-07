@@ -1,0 +1,6 @@
+add_file_target(FILE and_gate.model.xml SCANNER_TYPE xml)
+add_file_target(FILE and_gate.pb_type.xml SCANNER_TYPE xml)
+add_file_target(FILE and_gate.sim.v SCANNER_TYPE verilog)
+add_file_target(FILE xor_gate.model.xml SCANNER_TYPE xml)
+add_file_target(FILE xor_gate.pb_type.xml SCANNER_TYPE xml)
+add_file_target(FILE xor_gate.sim.v SCANNER_TYPE verilog)
