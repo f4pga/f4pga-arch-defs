@@ -109,8 +109,11 @@ def update_attributes(attrs, new_attrs, ignore_list=()):
         if key not in attrs:
             attrs[key] = value
         elif attrs[key] != value:
-            print("Attribute conflict (!): '{}'='{}' vs '{}".format(
-                  key, attrs[key], value))
+            print(
+                "Attribute conflict (!): '{}'='{}' vs '{}".format(
+                    key, attrs[key], value
+                )
+            )
 
     return attrs
 
@@ -158,7 +161,10 @@ def make_metadata(xml_parent, module_attrs, mode=None, all_modes=None):
             xml_meta.text = value
 
 
-def make_pb_content(yj, mod, outfile, xml_parent, mod_pname, submode=None, all_submodes=None):
+def make_pb_content(
+        yj, mod, outfile, xml_parent, mod_pname, submode=None,
+        all_submodes=None
+):
     """Build the pb_type content - child pb_types, timing and direct interconnect,
     but not IO. This may be put directly inside <pb_type>, or inside <mode>."""
 
@@ -288,10 +294,8 @@ def make_pb_content(yj, mod, outfile, xml_parent, mod_pname, submode=None, all_s
 
                 # Append metadata
                 make_metadata(
-                    inc_pb_type,
-                    mod.data["cells"][cname]["attributes"],
-                    submode,
-                    all_submodes
+                    inc_pb_type, mod.data["cells"][cname]["attributes"],
+                    submode, all_submodes
                 )
 
             # In order to avoid overspecifying interconnect, there are two directions we currently
@@ -302,7 +306,9 @@ def make_pb_content(yj, mod, outfile, xml_parent, mod_pname, submode=None, all_s
 
                 net_attrs = {}
                 for net_name in mod.net_names_by_id(net):
-                    update_attributes(net_attrs, mod.net_attrs(net_name), ("src"))
+                    update_attributes(
+                        net_attrs, mod.net_attrs(net_name), ("src")
+                    )
 
                 drvs = mod.net_drivers(net)
                 assert len(drvs) > 0, (
@@ -326,10 +332,8 @@ def make_pb_content(yj, mod, outfile, xml_parent, mod_pname, submode=None, all_s
                             drive_instance = cells[drv_cell_type][drv_cell]
                     interconn.append(
                         (
-                            "direct",
-                            net_attrs,
-                            (drv_cell, drv_pin), (cname, pin), drive_instance,
-                            instance
+                            "direct", net_attrs, (drv_cell, drv_pin),
+                            (cname, pin), drive_instance, instance
                         )
                     )
 
@@ -338,7 +342,9 @@ def make_pb_content(yj, mod, outfile, xml_parent, mod_pname, submode=None, all_s
 
                 net_attrs = {}
                 for net_name in mod.net_names_by_id(net):
-                    update_attributes(net_attrs, mod.net_attrs(net_name), ("src"))
+                    update_attributes(
+                        net_attrs, mod.net_attrs(net_name), ("src")
+                    )
 
                 sinks = mod.net_sinks(net)
                 for sink_cell, sink_pin in sinks:
@@ -347,10 +353,9 @@ def make_pb_content(yj, mod, outfile, xml_parent, mod_pname, submode=None, all_s
                         #in those cells.
                         interconn.append(
                             (
-                                "direct",
-                                net_attrs,
-                                (cname, pin), (sink_cell, sink_pin), instance,
-                                INVALID_INSTANCE
+                                "direct", net_attrs, (cname, pin),
+                                (sink_cell,
+                                 sink_pin), instance, INVALID_INSTANCE
                             )
                         )
 
@@ -369,7 +374,10 @@ def make_pb_content(yj, mod, outfile, xml_parent, mod_pname, submode=None, all_s
                 .format(net, drv)
             )
             for snk in mod.conn_io(net, "output"):
-                conn = ("direct", net_attrs, (mod.name, drv[0]), (mod.name, snk), INVALID_INSTANCE, INVALID_INSTANCE)
+                conn = (
+                    "direct", net_attrs, (mod.name, drv[0]), (mod.name, snk),
+                    INVALID_INSTANCE, INVALID_INSTANCE
+                )
                 interconn.append(conn)
 
         ic_xml = ET.SubElement(xml_parent, "interconnect")
@@ -379,7 +387,9 @@ def make_pb_content(yj, mod, outfile, xml_parent, mod_pname, submode=None, all_s
 
             # Write connection
             if type == "direct":
-                conn_xml = make_direct_conn(ic_xml, source, dest, src_instance, dst_instance)
+                conn_xml = make_direct_conn(
+                    ic_xml, source, dest, src_instance, dst_instance
+                )
             elif type == "mux":
                 print("MUX not supported yet!")  # TODO:
                 continue
@@ -448,6 +458,7 @@ def make_pb_content(yj, mod, outfile, xml_parent, mod_pname, submode=None, all_s
 
     # Append metadata
     make_metadata(xml_parent, mod.module_attrs, submode, all_submodes)
+
 
 def make_pb_type(yj, mod, outfile):
     """Build the pb_type for a given module. mod is the YosysModule object to
@@ -530,7 +541,9 @@ def make_pb_type(yj, mod, outfile):
                 print(json.dumps(mode_yj.data, sort_keys=True, indent=1))
 
             mode_mod = mode_yj.module(mod.name)
-            make_pb_content(yj, mode_mod, outfile, mode_xml, mod_pname, mode, modes)
+            make_pb_content(
+                yj, mode_mod, outfile, mode_xml, mod_pname, mode, modes
+            )
     else:
         make_pb_content(yj, mod, outfile, pb_type_xml, mod_pname)
 
@@ -632,9 +645,9 @@ if __name__ == "__main__":
     """
     )
 
-    parser.add_argument('--dump-json', action="store_true",
-                        help="Prints Yosys JSON"
-                        )
+    parser.add_argument(
+        '--dump-json', action="store_true", help="Prints Yosys JSON"
+    )
 
     args = parser.parse_args()
     sys.exit(main(args))
