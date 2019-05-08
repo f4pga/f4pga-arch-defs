@@ -52,7 +52,7 @@ module top (
     assign tx = rx;  // TODO(#658): Remove this work-around
 
     wire [8:0]        addr;
-    wire              ram_out;
+    wire [15:0]       ram_out;
     wire              ram_in;
 
     RAM_SHIFTER #(
@@ -64,13 +64,13 @@ module top (
         .in(sw),
         .out(led),
         .addr(addr),
-        .ram_out(ram_out),
+        .ram_out(| ram_out),
         .ram_in(ram_in)
     );
 
     ram0 ram(
         .wrclk(clk),
-        .di(ram_in),
+        .di({16{ram_in}}),
         .wren(1'b1),
         .wraddr({sw[0], addr}),
         .rdclk(clk),
