@@ -193,7 +193,9 @@ else:
     modclass = tmod.attr("CLASS", "")
 
     if modclass not in ("lut", "routing", "flipflop"):
-        model_xml = ET.SubElement(models_xml, "model", {'name': topname})
+        model_xml = ET.SubElement(
+            models_xml, "model", {'name': topname}
+        )
         ports = tmod.ports
 
         inports_xml = ET.SubElement(model_xml, "input_ports")

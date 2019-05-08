@@ -289,27 +289,51 @@ Generated with %s
         f.write("/* ")
         f.write("\n * ".join(generated_with.splitlines()))
         f.write("\n */\n\n")
-        f.write(
-            '`include "%s/%s/%smux%i/%smux%i.sim.v"\n' % (
-                mux_dir,
-                'logic',
-                '',
-                args.width,
-                '',
-                args.width,
-            )
-        )
+        f.write("`default_nettype none\n")
         f.write("\n")
-        f.write('(* whitebox *) (* CLASS="%s" *)\n' % mux_class)
-        f.write("module %s(%s);\n" % (args.name_mux, ", ".join(module_args)))
+
+        if args.type != 'routing':
+            f.write(
+                '`include "%s/%s/%smux%i/%smux%i.sim.v"\n' % (
+                    mux_dir,
+                    'logic',
+                    '',
+                    args.width,
+                    '',
+                    args.width,
+                )
+            )
+        f.write("\n")
+        f.write('(* CLASS="%s" *)\n' % mux_class)
+
+        if args.type == 'routing':
+            modes = [
+                port.name
+                for port in port_names
+                if port.pin_type in (mux_lib.MuxPinType.INPUT, )
+            ]
+            outputs = [
+                port.name
+                for port in port_names
+                if port.pin_type in (mux_lib.MuxPinType.OUTPUT, )
+            ]
+            assert len(
+                outputs
+            ) == 1, "FIXME: routing muxes should only have 1 output."
+            f.write('(* MODES="%s" *)\n' % "; ".join(modes))
+
+        f.write('(* whitebox *)\n')
+        f.write(
+            "module %s(%s);\n" %
+            (args.name_mux.upper(), ", ".join(module_args))
+        )
         previous_type = None
         for port in port_names:
             if previous_type != port.pin_type:
                 f.write("\n")
                 previous_type = port.pin_type
             if args.type == 'routing' and port.pin_type == mux_lib.MuxPinType.SELECT:
-                f.write(port.getParameterString())
-                continue
+                f.write('\tparameter [0:0] MODE = "";\n')
             else:
                 f.write(port.getDefinition())
 
@@ -320,49 +344,70 @@ Generated with %s
                 '\tfor(ii=0; ii<%d; ii++) begin: bitmux\n' % (args.data_width)
             )
 
-        f.write('\tMUX%s mux (\n' % args.width)
-        for i in range(0, args.width):
-            j = 0
-            for port in port_names:
-                if port.pin_type != mux_lib.MuxPinType.INPUT:
-                    continue
-                if j + port.width <= i:
-                    j += port.width
-                    continue
-                break
+        if args.type == 'logic':
+            f.write('\tMUX%s mux (\n' % args.width)
+            for i in range(0, args.width):
+                j = 0
+                for port in port_names:
+                    if port.pin_type != mux_lib.MuxPinType.INPUT:
+                        continue
+                    if j + port.width <= i:
+                        j += port.width
+                        continue
+                    break
 
-            if port.width == 1:
-                if args.data_width > 1:
-                    f.write('\t\t.I%i(%s[ii]),\n' % (i, port.name))
+                if port.width == 1:
+                    if args.data_width > 1:
+                        f.write('\t\t.I%i(%s[ii]),\n' % (i, port.name))
+                    else:
+                        f.write('\t\t.I%i(%s),\n' % (i, port.name))
                 else:
-                    f.write('\t\t.I%i(%s),\n' % (i, port.name))
-            else:
-                f.write('\t\t.I%i(%s[%i]),\n' % (i, port.name, i - j))
+                    f.write('\t\t.I%i(%s[%i]),\n' % (i, port.name, i - j))
 
-        for i in range(0, args.width_bits):
-            j = 0
+            for i in range(0, args.width_bits):
+                j = 0
+                for port in port_names:
+                    if port.pin_type != mux_lib.MuxPinType.SELECT:
+                        continue
+                    if j + port.width < i:
+                        j += port.width
+                        continue
+                    break
+
+                if port.width == 1:
+                    f.write('\t\t.S%i(%s),\n' % (i, port.name))
+                else:
+                    f.write('\t\t.S%i(%s[%i]),\n' % (i, port.name, i - j))
+
             for port in port_names:
-                if port.pin_type != mux_lib.MuxPinType.SELECT:
-                    continue
-                if j + port.width < i:
-                    j += port.width
+                if port.pin_type != mux_lib.MuxPinType.OUTPUT:
                     continue
                 break
-
-            if port.width == 1:
-                f.write('\t\t.S%i(%s),\n' % (i, port.name))
+            assert_eq(port.width, 1)
+            if args.data_width > 1:
+                f.write('\t\t.O(%s[ii])\n\t);\n' % port.name)
             else:
-                f.write('\t\t.S%i(%s[%i]),\n' % (i, port.name, i - j))
+                f.write('\t\t.O(%s)\n\t);\n' % port.name)
 
-        for port in port_names:
-            if port.pin_type != mux_lib.MuxPinType.OUTPUT:
-                continue
-            break
-        assert_eq(port.width, 1)
-        if args.data_width > 1:
-            f.write('\t\t.O(%s[ii])\n\t);\n' % port.name)
-        else:
-            f.write('\t\t.O(%s)\n\t);\n' % port.name)
+        elif args.type == 'routing':
+            f.write('\tgenerate\n')
+            for i, mode in enumerate(modes):
+                f.write(
+                    '\t\t%s ( MODE == "%s" )\n' %
+                    (('if', 'else if')[i > 0], mode)
+                )
+                f.write('\t\tbegin:SELECT_%s\n' % mode)
+                f.write('\t\t\tassign %s = %s;\n' % (outputs[0], mode))
+                f.write('\t\tend\n')
+            f.write('\t\telse\n')
+            f.write('\t\tbegin\n')
+            #f.write('\t\t\tassign %s = INVALID;\n' % (outputs[0],));
+            f.write(
+                '\t\t\t//$error("%s: Invalid routing value %%s (options are: %s)", MODE);\n'
+                % (args.name_mux, ", ".join(modes))
+            )
+            f.write('\t\tend\n')
+            f.write('\tendgenerate\n')
 
         if args.data_width > 1:
             f.write('end\n')
