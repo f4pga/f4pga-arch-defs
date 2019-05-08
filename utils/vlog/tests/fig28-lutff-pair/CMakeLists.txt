@@ -1,0 +1,5 @@
+add_subdirectory(lut)
+add_subdirectory(ff)
+add_subdirectory(omux)
+add_file_target(FILE pair.sim.v SCANNER_TYPE verilog)
+v2x_test_both(NAME pair TOP_MODULE pair)

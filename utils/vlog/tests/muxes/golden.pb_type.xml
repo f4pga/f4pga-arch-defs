@@ -1,0 +1,65 @@
+<?xml version='1.0' encoding='utf-8'?>
+<pb_type xmlns:xi="http://www.w3.org/2001/XInclude" name="USE_MUX" num_pb="1">
+  <input name="a" num_pins="1"/>
+  <input name="b" num_pins="1"/>
+  <input name="c" num_pins="1"/>
+  <output name="o1" num_pins="1"/>
+  <output name="o2" num_pins="1"/>
+  <pb_type blif_model=".subckt logicbox" name="lboxa" num_pb="1">
+    <xi:include href="../logicbox/logicbox.pb_type.xml" xpointer="xpointer(pb_type/child::node())"/>
+  </pb_type>
+  <pb_type blif_model=".subckt logicbox" name="lboxb" num_pb="1">
+    <xi:include href="../logicbox/logicbox.pb_type.xml" xpointer="xpointer(pb_type/child::node())"/>
+  </pb_type>
+  <pb_type blif_model=".subckt logicbox" name="lboxc" num_pb="1">
+    <xi:include href="../logicbox/logicbox.pb_type.xml" xpointer="xpointer(pb_type/child::node())"/>
+  </pb_type>
+  <interconnect>
+    <direct>
+      <port name="a" type="input"/>
+      <port from="lboxa" name="I" type="output"/>
+    </direct>
+    <direct>
+      <port name="b" type="input"/>
+      <port from="lboxb" name="I" type="output"/>
+    </direct>
+    <direct>
+      <port name="c" type="input"/>
+      <port from="lboxc" name="I" type="output"/>
+    </direct>
+    <mux name="mux1">
+      <port from="lboxa" name="O" type="input">
+        <metadata>
+          <meta name="fasm_mux">I0</meta>
+        </metadata>
+      </port>
+      <port from="lboxb" name="O" type="input">
+        <metadata>
+          <meta name="fasm_mux">I1</meta>
+        </metadata>
+      </port>
+      <port name="o1" type="output"/>
+      <metadata>
+        <meta name="type">bel</meta>
+        <meta name="subtype">routing</meta>
+      </metadata>
+    </mux>
+    <mux name="mux2">
+      <port from="lboxa" name="O" type="input">
+        <metadata>
+          <meta name="fasm_mux">I0</meta>
+        </metadata>
+      </port>
+      <port from="lboxc" name="O" type="input">
+        <metadata>
+          <meta name="fasm_mux">I1</meta>
+        </metadata>
+      </port>
+      <port name="o2" type="output"/>
+      <metadata>
+        <meta name="type">bel</meta>
+        <meta name="subtype">routing</meta>
+      </metadata>
+    </mux>
+  </interconnect>
+</pb_type>

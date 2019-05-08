@@ -122,8 +122,9 @@ function(V2X)
   get_file_target(SRC_TARGET_NAME "${V2X_NAME}.model.xml")
   set_target_properties(${SRC_TARGET_NAME} PROPERTIES INCLUDE_FILES "${MODEL_INCLUDE_FILES}")
 
+  get_rel_target(REL_V2X_NAME v2x ${V2X_NAME})
   add_custom_target(
-    ${V2X_NAME}
+    ${REL_V2X_NAME}
     DEPENDS
         "${V2X_NAME}.model.xml"
         "${V2X_NAME}.pb_type.xml"
@@ -159,10 +160,10 @@ function(VPR_TEST_PB_TYPE)
 
   set(DEPENDS_ARCH "")
   append_file_dependency(DEPENDS_ARCH "${symbiflow-arch-defs_SOURCE_DIR}/utils/template.arch.xml")
-  append_file_dependency(DEPENDS_ARCH "${VPR_TEST_PB_TYPE_TOP_MODULE}.pb_type.xml")
-  append_file_dependency(DEPENDS_ARCH "${VPR_TEST_PB_TYPE_TOP_MODULE}.model.xml")
+  append_file_dependency(DEPENDS_ARCH "${VPR_TEST_PB_TYPE_NAME}.pb_type.xml")
+  append_file_dependency(DEPENDS_ARCH "${VPR_TEST_PB_TYPE_NAME}.model.xml")
   add_custom_command(
-    OUTPUT "${VPR_TEST_PB_TYPE_TOP_MODULE}.arch.xml"
+    OUTPUT "${VPR_TEST_PB_TYPE_NAME}.arch.xml"
     DEPENDS
       ${PYTHON3} ${PYTHON3_TARGET}
       ${XMLLINT} ${XMLLINT_TARGET}
@@ -170,17 +171,17 @@ function(VPR_TEST_PB_TYPE)
       ${DEPENDS_ARCH}
     COMMAND
       ${PYTHON3} ${symbiflow-arch-defs_SOURCE_DIR}/utils/vpr_pbtype_arch_wrapper.py
-      --pb_type ${CMAKE_CURRENT_BINARY_DIR}/${VPR_TEST_PB_TYPE_TOP_MODULE}.pb_type.xml
-      --output  ${CMAKE_CURRENT_BINARY_DIR}/${VPR_TEST_PB_TYPE_TOP_MODULE}.arch.xml
+      --pb_type ${CMAKE_CURRENT_BINARY_DIR}/${VPR_TEST_PB_TYPE_NAME}.pb_type.xml
+      --output  ${CMAKE_CURRENT_BINARY_DIR}/${VPR_TEST_PB_TYPE_NAME}.arch.xml
       --xmllint ${XMLLINT}
     WORKING_DIRECTORY ${symbiflow-arch-defs_SOURCE_DIR}/utils
   )
-  add_file_target(FILE "${VPR_TEST_PB_TYPE_TOP_MODULE}.arch.xml" GENERATED)
+  add_file_target(FILE "${VPR_TEST_PB_TYPE_NAME}.arch.xml" GENERATED)
 
   set(DEPENDS_EBLIF "")
-  append_file_dependency(DEPENDS_EBLIF "${VPR_TEST_PB_TYPE_TOP_MODULE}.pb_type.xml")
+  append_file_dependency(DEPENDS_EBLIF "${VPR_TEST_PB_TYPE_NAME}.pb_type.xml")
   add_custom_command(
-    OUTPUT "${VPR_TEST_PB_TYPE_TOP_MODULE}.test.eblif"
+    OUTPUT "${VPR_TEST_PB_TYPE_NAME}.test.eblif"
     DEPENDS
       ${PYTHON3} ${PYTHON3_TARGET}
       ${XMLLINT} ${XMLLINT_TARGET}
@@ -188,28 +189,28 @@ function(VPR_TEST_PB_TYPE)
       ${DEPENDS_EBLIF}
     COMMAND
       ${PYTHON3} ${symbiflow-arch-defs_SOURCE_DIR}/utils/vpr_pbtype_to_eblif.py
-      --pb_type ${CMAKE_CURRENT_BINARY_DIR}/${VPR_TEST_PB_TYPE_TOP_MODULE}.pb_type.xml
-      --output  ${CMAKE_CURRENT_BINARY_DIR}/${VPR_TEST_PB_TYPE_TOP_MODULE}.test.eblif
+      --pb_type ${CMAKE_CURRENT_BINARY_DIR}/${VPR_TEST_PB_TYPE_NAME}.pb_type.xml
+      --output  ${CMAKE_CURRENT_BINARY_DIR}/${VPR_TEST_PB_TYPE_NAME}.test.eblif
     WORKING_DIRECTORY ${symbiflow-arch-defs_SOURCE_DIR}/utils
   )
-  add_file_target(FILE "${VPR_TEST_PB_TYPE_TOP_MODULE}.test.eblif" GENERATED)
+  add_file_target(FILE "${VPR_TEST_PB_TYPE_NAME}.test.eblif" GENERATED)
 
   xml_canonicalize_merge(
-    NAME ${VPR_TEST_PB_TYPE_TOP_MODULE}_arch_merged
-    FILE ${VPR_TEST_PB_TYPE_TOP_MODULE}.arch.xml
-    OUTPUT ${VPR_TEST_PB_TYPE_TOP_MODULE}.arch.merged.xml
+    NAME ${VPR_TEST_PB_TYPE_NAME}_arch_merged
+    FILE ${VPR_TEST_PB_TYPE_NAME}.arch.xml
+    OUTPUT ${VPR_TEST_PB_TYPE_NAME}.arch.merged.xml
   )
 
   get_target_property_required(VPR env VPR)
   get_target_property(VPR_TARGET env VPR_TARGET)
   get_target_property_required(QUIET_CMD env QUIET_CMD)
   get_target_property(QUIET_CMD_TARGET env QUIET_CMD_TARGET)
-  set(OUT_LOCAL_REL test_${VPR_TEST_PB_TYPE_TOP_MODULE})
+  set(OUT_LOCAL_REL test_${VPR_TEST_PB_TYPE_NAME})
   set(OUT_LOCAL ${CMAKE_CURRENT_BINARY_DIR}/${OUT_LOCAL_REL})
 
   set(DEPENDS_TEST "")
-  append_file_dependency(DEPENDS_TEST ${VPR_TEST_PB_TYPE_TOP_MODULE}.arch.merged.xml)
-  append_file_dependency(DEPENDS_TEST ${VPR_TEST_PB_TYPE_TOP_MODULE}.test.eblif)
+  append_file_dependency(DEPENDS_TEST ${VPR_TEST_PB_TYPE_NAME}.arch.merged.xml)
+  append_file_dependency(DEPENDS_TEST ${VPR_TEST_PB_TYPE_NAME}.test.eblif)
   add_custom_command(
     OUTPUT
       ${OUT_LOCAL_REL}/vpr.stdout
@@ -222,8 +223,8 @@ function(VPR_TEST_PB_TYPE)
     COMMAND
       ${CMAKE_COMMAND} -E chdir ${OUT_LOCAL}
       ${QUIET_CMD} ${VPR}
-      ${CMAKE_CURRENT_BINARY_DIR}/${VPR_TEST_PB_TYPE_TOP_MODULE}.arch.merged.xml
-      ${CMAKE_CURRENT_BINARY_DIR}/${VPR_TEST_PB_TYPE_TOP_MODULE}.test.eblif
+      ${CMAKE_CURRENT_BINARY_DIR}/${VPR_TEST_PB_TYPE_NAME}.arch.merged.xml
+      ${CMAKE_CURRENT_BINARY_DIR}/${VPR_TEST_PB_TYPE_NAME}.test.eblif
       --echo_file on
       --pack
       --place
@@ -234,12 +235,13 @@ function(VPR_TEST_PB_TYPE)
   )
   add_file_target(FILE "${OUT_LOCAL_REL}/vpr.stdout" GENERATED)
 
+  get_rel_target(VPR_TEST_REL_NAME test ${VPR_TEST_PB_TYPE_NAME})
   add_custom_target(
-    test_${VPR_TEST_PB_TYPE_NAME}
+    ${VPR_TEST_REL_NAME}
     DEPENDS
         "${OUT_LOCAL_REL}/vpr.stdout"
   )
 
-  add_dependencies(all_vpr_test_pbtype test_${VPR_TEST_PB_TYPE_TOP_MODULE})
+  add_dependencies(all_vpr_test_pbtype ${VPR_TEST_REL_NAME})
 
 endfunction(VPR_TEST_PB_TYPE)

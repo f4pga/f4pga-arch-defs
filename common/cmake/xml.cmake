@@ -31,11 +31,13 @@ function(XML_LINT)
     --schema ${XML_LINT_SCHEMA}
     ${XML_LINT_FILE} 2>&1 |  head -n10 && exit "$$\{PIPESTATUS[0]\}" '
     )
+
+  get_rel_target(REL_XML_LINT_NAME lint ${XML_LINT_NAME})
   add_custom_target(
-    ${XML_LINT_NAME}
+    ${REL_XML_LINT_NAME}
     DEPENDS ${XML_LINT_LINT_OUTPUT}
     )
-  add_dependencies(all_xml_lint ${XML_LINT_NAME})
+  add_dependencies(all_xml_lint ${REL_XML_LINT_NAME})
 
 endfunction(XML_LINT)
 
@@ -106,8 +108,10 @@ function(XML_CANONICALIZE_MERGE)
       > ${CMAKE_CURRENT_BINARY_DIR}/${XML_CANONICALIZE_MERGE_OUTPUT}
   )
   add_file_target(FILE ${XML_CANONICALIZE_MERGE_OUTPUT} GENERATED)
+
+  get_rel_target(REL_XML_CANONICALIZE_MERGE_FILE merge ${XML_CANONICALIZE_MERGE_FILE})
   add_custom_target(
-    ${XML_CANONICALIZE_MERGE_NAME}
+    ${REL_XML_CANONICALIZE_MERGE_FILE}
     DEPENDS ${XML_CANONICALIZE_MERGE_OUTPUT}
-  )
+    )
 endfunction(XML_CANONICALIZE_MERGE)

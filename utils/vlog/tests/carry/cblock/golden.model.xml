@@ -1,0 +1,12 @@
+<models xmlns:xi="http://www.w3.org/2001/XInclude">
+  <model name="cblock">
+    <input_ports>
+      <port name="CIN"/>
+      <port name="I"/>
+    </input_ports>
+    <output_ports>
+      <port name="COUT"/>
+      <port name="O"/>
+    </output_ports>
+  </model>
+</models>

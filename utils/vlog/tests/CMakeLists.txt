@@ -1,8 +1,14 @@
 include(v2x_tests.cmake)
 
+add_subdirectory(logicbox)
+add_subdirectory(muxes)
+add_subdirectory(clocks)
+
+add_subdirectory(carry)
+add_subdirectory(fig28-lutff-pair)
+
 add_subdirectory(fig41-full-adder)
 add_subdirectory(fig42-dff)
-add_subdirectory(clocks)
 add_subdirectory(dsp_combinational)
 # FIXME: Output is incorrectly marked as being clocked.
 #add_subdirectory(dsp_in_registered)

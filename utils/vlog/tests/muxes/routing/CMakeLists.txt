@@ -1,0 +1,9 @@
+mux_gen(
+  NAME rmux
+  INPUTS I0,I1
+  MUX_NAME RMUX
+  OUTPUT O
+  SPLIT_INPUTS 1
+  TYPE routing
+  WIDTH 2
+)

@@ -1,0 +1,11 @@
+<?xml version='1.0' encoding='utf-8'?>
+<pb_type xmlns:xi="http://www.w3.org/2001/XInclude" blif_model=".subckt cblock" name="CBLOCK" num_pb="1">
+  <input name="CIN" num_pins="1">
+    <pack_pattern name="C" type="carry"/>
+  </input>
+  <input name="I" num_pins="4"/>
+  <output name="COUT" num_pins="1">
+    <pack_pattern name="C" type="carry"/>
+  </output>
+  <output name="O" num_pins="1"/>
+</pb_type>
