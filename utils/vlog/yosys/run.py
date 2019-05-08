@@ -4,18 +4,63 @@ import tempfile, json
 import yosys.utils
 
 
+def get_verbose():
+    """Return if in verbose mode."""
+    verbose = 0
+    for e in ["V", "VERBOSE"]:
+        if e not in os.environ:
+            continue
+        verbose = int(os.environ[e])
+        break
+    return verbose > 0
+
+
 def get_yosys():
     """Return how to execute Yosys: the value of $YOSYS if set, otherwise just
     `yosys`."""
     return os.getenv("YOSYS", "yosys")
 
 
+def get_yosys_common_args():
+    return ["-e", "wire '[^']*' is assigned in a block", "-q"]
+
+
 def get_output(params):
     """Run Yosys with given command line parameters, and return stdout as a string"""
-    cmd = [get_yosys()] + params
-    if int(os.environ.get("V", "0")):
+
+    verbose = get_verbose()
+
+    cmd = [get_yosys()] + get_yosys_common_args() + params
+    if verbose:
         print(cmd)
-    return subprocess.check_output(cmd).decode("utf-8")
+
+    p = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+
+    # Get the output
+    stdout, stderr = p.communicate()
+    stdout = stdout.decode("utf-8")
+    stderr = stderr.decode("utf-8")
+
+    retcode = p.wait()
+
+    msg = ""
+    msg += "stdout" + "=" * 75 + "\n"
+    msg += stdout + "\n"
+    msg += "stderr" + "-" * 75 + "\n"
+    msg += stderr + "\n"
+    msg += "=" * 75 + "\n"
+    msg += "Return Code: {}".format(retcode)
+
+    if verbose:
+        print(msg)
+
+    if retcode != 0:
+        emsg = ""
+        emsg += "Failed to run {}".join(" ".join(cmd)) + "\n"
+        emsg += msg
+
+        raise subprocess.CalledProcessError(retcode, cmd, emsg)
+    return stdout
 
 
 defines = []
