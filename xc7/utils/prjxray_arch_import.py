@@ -520,6 +520,50 @@ def main():
                 }
             ).text = fasm_tile_prefix
 
+        switchlist_xml = ET.SubElement(arch_xml, 'switchlist')
+
+        for name, internal_capacitance, drive_resistance, intrinsic_delay, \
+                switch_type in c.execute("""
+SELECT
+    name,
+    internal_capacitance,
+    drive_resistance,
+    intrinsic_delay,
+    switch_type
+FROM
+    switch;"""):
+            attrib = {
+                    'type': switch_type,
+                    'name': name,
+                    "R": str(drive_resistance),
+                    "Cin": str(0),
+                    "Cout": str(0),
+                    "Tdel": str(intrinsic_delay),
+                }
+
+            if internal_capacitance != 0:
+                attrib["Cinternal"] = str(internal_capacitance)
+
+            if False:
+                attrib["mux_trans_size"] = str(0)
+                attrib["buf_size"] = str(0)
+
+            ET.SubElement(switchlist_xml, 'switch', attrib)
+
+    ET.SubElement(
+        switchlist_xml, 'switch', {
+            'type': 'mux',
+            'name': 'buffer',
+            "R": "551",
+            "Cin": ".77e-15",
+            "Cout": "4e-15",
+            "Tdel": "6.8e-12",
+            "mux_trans_size": "2.630740",
+            "buf_size": "27.645901"
+        }
+    )
+
+
     device_xml = ET.SubElement(arch_xml, 'device')
 
     ET.SubElement(
@@ -555,43 +599,6 @@ def main():
         }
     )
 
-    switchlist_xml = ET.SubElement(arch_xml, 'switchlist')
-
-    ET.SubElement(
-        switchlist_xml, 'switch', {
-            'type': 'mux',
-            'name': 'routing',
-            "R": "551",
-            "Cin": ".77e-15",
-            "Cout": "4e-15",
-            "Tdel": "6.8e-12",
-            "mux_trans_size": "2.630740",
-            "buf_size": "27.645901"
-        }
-    )
-    ET.SubElement(
-        switchlist_xml, 'switch', {
-            'type': 'mux',
-            'name': 'buffer',
-            "R": "551",
-            "Cin": ".77e-15",
-            "Cout": "4e-15",
-            "Tdel": "6.8e-12",
-            "mux_trans_size": "2.630740",
-            "buf_size": "27.645901"
-        }
-    )
-    ET.SubElement(
-        switchlist_xml, 'switch', {
-            'type': 'short',
-            'name': 'short',
-            "R": "0",
-            "Cin": "0",
-            "Cout": "0",
-            "Tdel": "0",
-        }
-    )
-
     segmentlist_xml = ET.SubElement(arch_xml, 'segmentlist')
 
     # VPR requires a segment, so add one.
@@ -606,10 +613,10 @@ def main():
         }
     )
     ET.SubElement(dummy_xml, 'wire_switch', {
-        'name': 'routing',
+        'name': 'buffer',
     })
     ET.SubElement(dummy_xml, 'opin_switch', {
-        'name': 'routing',
+        'name': 'buffer',
     })
     ET.SubElement(dummy_xml, 'sb', {
         'type': 'pattern',
