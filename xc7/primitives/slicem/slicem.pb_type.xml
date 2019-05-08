@@ -191,6 +191,14 @@
       <xi:include href="../common_slice/muxes/f7amux/f7amux.pb_type.xml"/>
       <xi:include href="../common_slice/muxes/f7bmux/f7bmux.pb_type.xml"/>
       <xi:include href="../common_slice/muxes/f8mux/f8mux.pb_type.xml"/>
+      <pb_type name="DRAM_8_OUTPUT_STUB" blif_model=".subckt DRAM_8_OUTPUT_STUB" num_pb="1">
+        <xi:include href="dram_8_output_stub.pb_type.xml"
+                    xpointer="xpointer(pb_type/child::node())" />
+        <metadata>
+          <meta name="type">bel</meta>
+          <meta name="subtype">blackbox</meta>
+        </metadata>
+      </pb_type>
       <pb_type name="DRAM_4_OUTPUT_STUB" blif_model=".subckt DRAM_4_OUTPUT_STUB" num_pb="2">
         <xi:include href="dram_4_output_stub.pb_type.xml"
                     xpointer="xpointer(pb_type/child::node())" />
@@ -412,24 +420,50 @@
           <pack_pattern  in_port="A_DRAM.DO6" name="DRAM_QP" out_port="DRAM_4_OUTPUT_STUB[1].DOA" />
         </direct>
 
-        <mux name="DO6" input="D_DRAM.O6 DRAM_2_OUTPUT_STUB[0].SPO_OUT DRAM_2_OUTPUT_STUB[4].SPO_OUT DRAM_4_OUTPUT_STUB[0].DOD_OUT DRAM_4_OUTPUT_STUB[1].DOD_OUT"
+        <direct name="DOD32_HI" input="D_DRAM.SO6_32" output="DRAM_8_OUTPUT_STUB.DOD1">
+          <pack_pattern  in_port="D_DRAM.SO6_32" name="DRAM_8O_32" out_port="DRAM_8_OUTPUT_STUB.DOD1" />
+        </direct>
+        <direct name="DOC32_HI" input="C_DRAM.DO6_32" output="DRAM_8_OUTPUT_STUB.DOC1">
+          <pack_pattern  in_port="C_DRAM.DO6_32" name="DRAM_8O_32" out_port="DRAM_8_OUTPUT_STUB.DOC1" />
+        </direct>
+        <direct name="DOB32_HI" input="B_DRAM.DO6_32" output="DRAM_8_OUTPUT_STUB.DOB1">
+          <pack_pattern  in_port="B_DRAM.DO6_32" name="DRAM_8O_32" out_port="DRAM_8_OUTPUT_STUB.DOB1" />
+        </direct>
+        <direct name="DOA32_HI" input="A_DRAM.DO6_32" output="DRAM_8_OUTPUT_STUB.DOA1">
+          <pack_pattern  in_port="A_DRAM.DO6_32" name="DRAM_8O_32" out_port="DRAM_8_OUTPUT_STUB.DOA1" />
+        </direct>
+
+        <direct name="DOD32_LO" input="D_DRAM.SO5_32" output="DRAM_8_OUTPUT_STUB.DOD0">
+          <pack_pattern  in_port="D_DRAM.SO5_32" name="DRAM_8O_32" out_port="DRAM_8_OUTPUT_STUB.DOD0" />
+        </direct>
+        <direct name="DOC32_LO" input="C_DRAM.DO5_32" output="DRAM_8_OUTPUT_STUB.DOC0">
+          <pack_pattern  in_port="C_DRAM.DO5_32" name="DRAM_8O_32" out_port="DRAM_8_OUTPUT_STUB.DOC0" />
+        </direct>
+        <direct name="DOB32_LO" input="B_DRAM.DO5_32" output="DRAM_8_OUTPUT_STUB.DOB0">
+          <pack_pattern  in_port="B_DRAM.DO5_32" name="DRAM_8O_32" out_port="DRAM_8_OUTPUT_STUB.DOB0" />
+        </direct>
+        <direct name="DOA32_LO" input="A_DRAM.DO5_32" output="DRAM_8_OUTPUT_STUB.DOA0">
+          <pack_pattern  in_port="A_DRAM.DO5_32" name="DRAM_8O_32" out_port="DRAM_8_OUTPUT_STUB.DOA0" />
+        </direct>
+
+        <mux name="DO6" input="D_DRAM.O6 DRAM_2_OUTPUT_STUB[0].SPO_OUT DRAM_2_OUTPUT_STUB[4].SPO_OUT DRAM_4_OUTPUT_STUB[0].DOD_OUT DRAM_4_OUTPUT_STUB[1].DOD_OUT DRAM_8_OUTPUT_STUB.DOD1_OUT"
              output="SLICEM_MODES.DO6" />
-        <mux name="DO5" input="D_DRAM.O5 DRAM_2_OUTPUT_STUB[1].SPO_OUT"
+        <mux name="DO5" input="D_DRAM.O5 DRAM_2_OUTPUT_STUB[1].SPO_OUT DRAM_8_OUTPUT_STUB.DOD0_OUT"
              output="SLICEM_MODES.DO5" />
 
-        <mux name="CO6" input="C_DRAM.O6 DRAM_2_OUTPUT_STUB[0].DPO_OUT DRAM_2_OUTPUT_STUB[4].DPO_OUT DRAM_4_OUTPUT_STUB[0].DOC_OUT DRAM_4_OUTPUT_STUB[1].DOC_OUT"
+        <mux name="CO6" input="C_DRAM.O6 DRAM_2_OUTPUT_STUB[0].DPO_OUT DRAM_2_OUTPUT_STUB[4].DPO_OUT DRAM_4_OUTPUT_STUB[0].DOC_OUT DRAM_4_OUTPUT_STUB[1].DOC_OUT DRAM_8_OUTPUT_STUB.DOC1_OUT"
              output="SLICEM_MODES.CO6" />
-        <mux name="CO5" input="C_DRAM.O5 DRAM_2_OUTPUT_STUB[1].DPO_OUT"
+        <mux name="CO5" input="C_DRAM.O5 DRAM_2_OUTPUT_STUB[1].DPO_OUT DRAM_8_OUTPUT_STUB.DOC0_OUT"
              output="SLICEM_MODES.CO5" />
 
-        <mux name="BO6" input="B_DRAM.O6 DRAM_2_OUTPUT_STUB[2].SPO_OUT DRAM_2_OUTPUT_STUB[5].SPO_OUT DRAM_4_OUTPUT_STUB[0].DOB_OUT DRAM_4_OUTPUT_STUB[1].DOB_OUT"
+        <mux name="BO6" input="B_DRAM.O6 DRAM_2_OUTPUT_STUB[2].SPO_OUT DRAM_2_OUTPUT_STUB[5].SPO_OUT DRAM_4_OUTPUT_STUB[0].DOB_OUT DRAM_4_OUTPUT_STUB[1].DOB_OUT DRAM_8_OUTPUT_STUB.DOB1_OUT"
              output="SLICEM_MODES.BO6" />
-        <mux name="BO5" input="B_DRAM.O5 DRAM_2_OUTPUT_STUB[3].SPO_OUT"
+        <mux name="BO5" input="B_DRAM.O5 DRAM_2_OUTPUT_STUB[3].SPO_OUT DRAM_8_OUTPUT_STUB.DOB0_OUT"
              output="SLICEM_MODES.BO5" />
 
-        <mux name="AO6" input="A_DRAM.O6 DRAM_2_OUTPUT_STUB[2].DPO_OUT DRAM_2_OUTPUT_STUB[5].DPO_OUT DRAM_4_OUTPUT_STUB[0].DOA_OUT DRAM_4_OUTPUT_STUB[1].DOA_OUT"
+        <mux name="AO6" input="A_DRAM.O6 DRAM_2_OUTPUT_STUB[2].DPO_OUT DRAM_2_OUTPUT_STUB[5].DPO_OUT DRAM_4_OUTPUT_STUB[0].DOA_OUT DRAM_4_OUTPUT_STUB[1].DOA_OUT DRAM_8_OUTPUT_STUB.DOA1_OUT"
              output="SLICEM_MODES.AO6" />
-        <mux name="AO5" input="A_DRAM.O5 DRAM_2_OUTPUT_STUB[3].DPO_OUT"
+        <mux name="AO5" input="A_DRAM.O5 DRAM_2_OUTPUT_STUB[3].DPO_OUT DRAM_8_OUTPUT_STUB.DOA0_OUT"
              output="SLICEM_MODES.AO5" />
 
         <!-- F7AMUX inputs -->
