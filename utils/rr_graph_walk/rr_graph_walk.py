@@ -282,10 +282,15 @@ def main():
         "--rr_graph", type=str, required=True, help="Routing graph XML file"
     )
     parser.add_argument(
-        "-s", type=int, required=True, help="Start node id (required)"
+        "-s",
+        "--start_inode",
+        type=int,
+        required=True,
+        help="Start node id (required)"
     )
     parser.add_argument(
         "-e",
+        "--end_inode",
         type=int,
         default=-1,
         help="End node id. If not specified then all reachable"
