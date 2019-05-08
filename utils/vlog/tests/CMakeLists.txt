@@ -20,3 +20,5 @@ add_subdirectory(fasm_features)
 add_subdirectory(fasm_features_child)
 add_subdirectory(fasm_features_modes)
 #add_subdirectory(fasm_features_ic_direct)
+add_subdirectory(fasm_features_array)
+

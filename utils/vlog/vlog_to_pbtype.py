@@ -110,10 +110,41 @@ def update_attributes(attrs, new_attrs, ignore_list=()):
             attrs[key] = value
         elif attrs[key] != value:
             print(
-                "Attribute conflict (!): '{}'='{}' vs '{}".format(
+                "Attribute conflict (!): '{}'='{}' vs '{}'".format(
                     key, attrs[key], value
                 )
             )
+
+    return attrs
+
+
+def merge_attributes(attrs, new_attrs, ignore_list=()):
+    """
+    Merges attributes from new_attrs to attrs. Basically concatenates strings
+    (separates them with space) from two dicts.
+    """
+
+    for key, value in new_attrs.items():
+
+        if key in ignore_list:
+            continue
+
+        # New key
+        if key not in attrs:
+            attrs[key] = value
+
+        # Existing key, concatenate
+        else:
+
+            # Concatenate only strings
+            if not isinstance(attrs[key], str) and not isinstance(value, str):
+                print(
+                    "Not concatenating non-string attribute: '{}'='{}' + '{}'".
+                    format(key, attrs[key], value)
+                )
+                continue
+
+            attrs[key] += " " + value
 
     return attrs
 
@@ -230,6 +261,7 @@ def make_pb_content(
     interconn = []
 
     # Determine multiple instances of the same cell:
+    cells_attrib = dict()
     cells = dict()
     for cname, i_of in mod.cells:
         if i_of in cells:
@@ -237,11 +269,18 @@ def make_pb_content(
             cells[i_of]['is_multi_instance'] = True
             # assign unique instance number
             cells[i_of][cname] = cells[i_of]['count']
+            # Merge cell attributes
+            merge_attributes(
+                cells_attrib[i_of], mod.data["cells"][cname]["attributes"],
+                ("src", "module_not_derived")
+            )
         else:
             cells[i_of] = dict()
             cells[i_of]['is_multi_instance'] = False
             cells[i_of]['count'] = 0
             cells[i_of][cname] = 0
+            # Strore cell attributes
+            cells_attrib[i_of] = mod.data["cells"][cname]["attributes"]
 
     # Blackbox modules don't have inner cells or interconnect (but do still have timing)
     if (not is_blackbox) or submode is not None:
@@ -294,8 +333,7 @@ def make_pb_content(
 
                 # Append metadata
                 make_metadata(
-                    inc_pb_type, mod.data["cells"][cname]["attributes"],
-                    submode, all_submodes
+                    inc_pb_type, cells_attrib[i_of], submode, all_submodes
                 )
 
             # In order to avoid overspecifying interconnect, there are two directions we currently
