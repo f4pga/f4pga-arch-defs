@@ -1,5 +1,6 @@
 `ifndef DSP_COMB
 `define DSP_COMB
+(* blackbox *)
 module dsp_combinational (
 	a, b, m,
 	out
