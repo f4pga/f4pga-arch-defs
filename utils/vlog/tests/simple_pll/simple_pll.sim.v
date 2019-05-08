@@ -1,5 +1,5 @@
 /* Simple model of a PLL which divides the input block by 64 */
-module simple_pll (in_clock, out_clock);
+module SIMPLE_PLL (in_clock, out_clock);
 
 	input wire in_clock;
 

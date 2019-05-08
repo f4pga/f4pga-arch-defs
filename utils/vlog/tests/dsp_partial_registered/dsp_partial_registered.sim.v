@@ -2,7 +2,7 @@
 `include "../dsp_combinational/dsp_combinational.sim.v"
 
 /* DSP Block with register on only some inputs */
-module dsp_partial_registered (clk, a, b, m, out);
+module DSP_PARTIAL_REGISTERED (clk, a, b, m, out);
 	localparam DATA_WIDTH = 64;
 
 	input wire clk;
@@ -17,10 +17,10 @@ module dsp_partial_registered (clk, a, b, m, out);
 
 	genvar i;
 	for (i=0; i<DATA_WIDTH/2; i=i+1) begin: dffs_gen
-		dff q_a_ff(.d(a[i]), .q(q_a[i]), .clk(clk));
-		dff q_b_ff(.d(b[i]), .q(q_b[i]), .clk(clk));
+		DFF q_a_ff(.d(a[i]), .q(q_a[i]), .clk(clk));
+		DFF q_b_ff(.d(b[i]), .q(q_b[i]), .clk(clk));
 	end
 
 	/* Combinational Logic */
-	dsp_combinational comb (.a(q_a), .b(q_b), .m(m), .out(out));
+	DSP_COMBINATIONAL comb (.a(q_a), .b(q_b), .m(m), .out(out));
 endmodule
