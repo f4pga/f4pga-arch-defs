@@ -70,14 +70,24 @@ add_fpga_target(
   ASSERT_USAGE SYN-OUTPAD=1,SYN-INPAD=11,BLK-TL-SLICEM=1
   )
 
+add_fpga_target(
+  NAME dram_1_32m
+  BOARD basys3
+  INPUT_IO_FILE dram_1_32m.pcf
+  SOURCES dram_1_32m.v
+  ASSERT_USAGE SYN-OUTPAD=8,SYN-INPAD=17,CLBLM_R=1
+  )
+
 add_custom_target(test_dram_packing)
 add_dependencies(test_dram_packing
     dram_4_32x1s_bin  dram_4_32x1s_assert_usage
+    dram_8_32x1s_bin  dram_8_32x1s_assert_usage
     dram_2_32x1d_bin  dram_2_32x1d_assert_usage
     dram_4_32x2s_bin  dram_4_32x2s_assert_usage
     dram_2_64x1d_bin  dram_2_64x1d_assert_usage
     dram_4_64x1s_bin  dram_4_64x1s_assert_usage
     dram_2_128x1s_bin dram_2_128x1s_assert_usage
-    #dram_1_128x1d_bin dram_1_128x1d_assert_usage
+    dram_1_128x1d_bin dram_1_128x1d_assert_usage
     dram_1_256x1s_bin dram_1_256x1s_assert_usage
+    dram_1_32m_bin    dram_1_32m_assert_usage
     )
