@@ -2,10 +2,8 @@ include(v2x_tests.cmake)
 
 # Functional testing
 add_subdirectory(clocks)
-add_subdirectory(multiple_instance)
 
 # Simple design tests
-add_subdirectory(single_port_rom_mixed)
 add_subdirectory(simple_pll)
 
 # Tests from the VtR timing tutorial
@@ -15,6 +13,12 @@ add_subdirectory(fig43-single_port_ram_mixed)
 #add_subdirectory(fig44-single_port_ram_seq)
 #add_subdirectory(fig45-single_port_ram_seq_comb)
 #add_subdirectory(fig46-multiclock_dual_port_ram)
+
+# FIXME: Should be in the functional testing section but depends on tests from
+# the VtR timing tutorial.
+add_subdirectory(multiple_instance)
+# FIXME: Where should this be?
+add_subdirectory(single_port_rom_mixed)
 
 # Tests which demonstrate DSP style systems
 add_subdirectory(dsp_combinational)
