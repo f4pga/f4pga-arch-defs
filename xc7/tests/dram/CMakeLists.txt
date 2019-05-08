@@ -75,7 +75,7 @@ add_fpga_target(
   BOARD basys3
   INPUT_IO_FILE dram_1_32m.pcf
   SOURCES dram_1_32m.v
-  ASSERT_USAGE SYN-OUTPAD=8,SYN-INPAD=17,CLBLM_R=1
+  ASSERT_USAGE SYN-OUTPAD=8,SYN-INPAD=17,BLK-TL-SLICEM=1
   )
 
 add_fpga_target(
@@ -83,7 +83,7 @@ add_fpga_target(
   BOARD basys3
   INPUT_IO_FILE dram_1_64m.pcf
   SOURCES dram_1_64m.v
-  ASSERT_USAGE SYN-OUTPAD=4,SYN-INPAD=17,CLBLM_R=1
+  ASSERT_USAGE SYN-OUTPAD=4,SYN-INPAD=17,BLK-TL-SLICEM=1
   )
 
 add_custom_target(test_dram_packing)
