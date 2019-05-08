@@ -1,5 +1,5 @@
 (* whitebox *)
-module adder (
+module ADDER (
 	a, b, cin,
 	sum, cout
 );
@@ -40,4 +40,3 @@ module adder (
 	endspecify
 `endif
 endmodule
-
