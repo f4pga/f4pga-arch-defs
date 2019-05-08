@@ -336,12 +336,12 @@ def tile_xml(
     return name
 
 
-def pretty_xml(xml):
+def pretty_xml(xml, xmllint):
     """Use xmllint to prettify the XML output."""
     with tempfile.NamedTemporaryFile(suffix=".xml", mode="wb") as f:
         xml.write(f, pretty_print=False)
         f.flush()
-        output = subprocess.check_output(["xmllint", "--pretty", "1", f.name])
+        output = subprocess.check_output([xmllint, "--pretty", "1", f.name])
     return output.decode('utf-8')
 
 
@@ -350,6 +350,12 @@ parser = argparse.ArgumentParser(description=__doc__)
 parser.add_argument('--pb_type', '-p', help="""\
 pb_type.xml file
 """)
+
+parser.add_argument(
+    '--xmllint', default='xmllint', help="""\
+Location of the xmllint binary to use. Defaults to finding in users path.
+"""
+)
 
 parser.add_argument(
     '--output', '-o', help="""\
@@ -393,7 +399,7 @@ def main(args):
     )
 
     with open(outfile, 'w') as f:
-        f.write(pretty_xml(arch_tree))
+        f.write(pretty_xml(arch_tree, xmllint=args.xmllint))
 
     return 0
 
