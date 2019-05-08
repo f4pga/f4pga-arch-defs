@@ -26,32 +26,31 @@ from yosys.json import YosysJSON
 import xmlinc
 
 
-def is_registered(tmod, bits, iodir, clk):
-    """Checks if a specific i/o port is registered
+def is_clock_assoc(infiles, module, clk, port, direction):
+    """Checks if a specific port is associated with a clk clock
 
     Returns a boolean value
     -------
-    is_reg: bool
+    is_clock_assoc: bool
     """
-    is_reg = False
-    for cell, ctype in tmod.all_cells:
-        if ctype != "$dff":
-            continue
+    clock_assoc_signals = yosys.run.get_clock_assoc_signals(
+        infiles, module, clk
+    )
 
-        # The clock is not related to the given port
-        if tmod.cell_clk_conn(cell) != tmod.port_conns(clk):
-            continue
-
-        if iodir == "input" and (
-            (set(bits) & set(tmod.cell_conn_list(cell, "D"))) == set(bits)):
+    if direction == "input":
+        assoc_outputs = yosys.run.get_related_output_for_input(
+            infiles, module, port
+        )
+        for out in assoc_outputs:
+            if out in clock_assoc_signals:
+                return True
+    elif direction == "output":
+        if port in clock_assoc_signals:
             return True
-        elif iodir == "output" and (
-            (set(bits) & set(tmod.cell_conn_list(cell, "Q"))) == set(bits)):
-            return True
-        else:
-            continue
+    else:
+        assert False, "Bidirectional ports are not supported yet"
 
-    return is_reg
+    return False
 
 
 def is_registered_path(tmod, pin, pout):
@@ -202,11 +201,14 @@ if True:
             if name in clocks:
                 attrs["is_clock"] = "1"
             else:
+                clks = list()
                 if len(sinks) > 0 and iodir == "input":
                     attrs["combinational_sink_ports"] = " ".join(sinks)
                 for clk in clocks:
-                    if is_registered(tmod, bits, iodir, clk):
-                        attrs["clock"] = clk
+                    if is_clock_assoc(args.infiles, top, clk, name, iodir):
+                        clks.append(clk)
+                    if clks:
+                        attrs["clock"] = " ".join(clks)
             if iodir == "input":
                 ET.SubElement(inports_xml, "port", attrs)
             elif iodir == "output":
