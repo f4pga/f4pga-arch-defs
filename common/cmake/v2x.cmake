@@ -165,6 +165,7 @@ function(VPR_TEST_PBTYPE)
       ${PYTHON3} ${symbiflow-arch-defs_SOURCE_DIR}/utils/vpr_pbtype_arch_wrapper.py
       --pb_type ${CMAKE_CURRENT_BINARY_DIR}/${VPR_TEST_PBTYPE_NAME}.pb_type.xml
       --output  ${CMAKE_CURRENT_BINARY_DIR}/${VPR_TEST_PBTYPE_NAME}.arch.xml
+      --xmllint ${XMLLINT}
     WORKING_DIRECTORY ${symbiflow-arch-defs_SOURCE_DIR}/utils
   )
   add_file_target(FILE "${VPR_TEST_PBTYPE_NAME}.arch.xml" GENERATED)
