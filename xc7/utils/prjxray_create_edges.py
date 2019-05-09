@@ -481,6 +481,7 @@ FROM graph_node WHERE pkey = ?""", (
         return site_pin_switch_pkey, site_pin_graph_node_pkey
 
     def get_edge_with_mux_switch(self, src_wire_pkey, pip_pkey, dest_wire_pkey):
+        """ Return switch_pkey for EDGE_WITH_MUX instance. """
         cur = self.conn.cursor()
 
         cur.execute("""
