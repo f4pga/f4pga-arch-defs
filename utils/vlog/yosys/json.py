@@ -9,6 +9,7 @@ be used before outputting the JSON.
 import os, sys
 import json
 import pprint
+import re
 
 
 class YosysModule:

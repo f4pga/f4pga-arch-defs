@@ -151,6 +151,52 @@ def merge_attributes(attrs, new_attrs, ignore_list=()):
     return attrs
 
 
+def is_there_item_matching_re(container, regex):
+    """
+    Checks whether a container has an item matching given regex expression.
+    """
+
+    for value in container:
+        if re.match(regex, value):
+            return True
+
+    return False
+
+
+def check_metadata(mod_cls, metadata):
+    """
+    Checks whether the metadata of a module is sane
+    """
+    print(mod_cls, metadata)
+
+    # The "lut" class requires FASM_LUT and FASM_TYPE
+    if mod_cls == "lut":
+        if not is_there_item_matching_re(metadata.keys(), "^fasm_lut.*"):
+            print(
+                "ERROR, for CLASS = 'lut' the FASM_LUT attribute is required!"
+            )
+            exit(-1)
+        if not is_there_item_matching_re(metadata.keys(), "^fasm_type.*"):
+            print("ERROR, CLASS = 'lut' the FASM_TYPE attribute is required!")
+            exit(-1)
+
+    # The "FASM_LUT" can be only specified on "CLASS" = "lut"
+    if mod_cls != "lut" and is_there_item_matching_re(metadata.keys(),
+                                                      "^fasm_lut.*"):
+        print(
+            "ERROR, the FASM_LUT attribute can only be specified on CLASS = 'lut'!"
+        )
+        exit(-1)
+
+    # The "FASM_TYPE" can be only specified on "CLASS" = "lut"
+    if mod_cls != "lut" and is_there_item_matching_re(metadata.keys(),
+                                                      "^fasm_type.*"):
+        print(
+            "ERROR, the FASM_TYPE attribute can only be specified on CLASS = 'lut'!"
+        )
+        exit(-1)
+
+
 def make_metadata(
         xml_parent, xml_metadata_inc, module_attrs, mode=None, all_modes=None
 ):
@@ -202,6 +248,12 @@ def make_metadata(
 
             # Merge it
             merge_attributes(metadata, metadata_inc)
+
+        # Check metadata
+        if "CLASS" in module_attrs.keys():
+            check_metadata(module_attrs["CLASS"], metadata)
+        else:
+            check_metadata(None, metadata)
 
         # Output metadata
         xml_metadata = ET.SubElement(xml_parent, 'metadata')
