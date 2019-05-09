@@ -1,0 +1,12 @@
+<?xml version='1.0' encoding='utf-8'?>
+<pb_type xmlns:xi="http://www.w3.org/2001/XInclude" blif_model=".names" class="lut" name="fasm_features_lut" num_pb="1">
+  <input name="I0" num_pins="1"/>
+  <input name="I1" num_pins="1"/>
+  <input name="I2" num_pins="1"/>
+  <input name="I3" num_pins="1"/>
+  <output name="O" num_pins="1"/>
+  <metadata>
+    <meta name="fasm_type">LUT</meta>
+    <meta name="fasm_lut">FASM_FEATURES_LUT.INIT[1:0] = XLUT[0] FASM_FEATURES_LUT.INIT[3:2] = XLUT[1]</meta>
+  </metadata>
+</pb_type>
