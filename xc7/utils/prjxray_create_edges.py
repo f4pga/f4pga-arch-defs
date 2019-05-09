@@ -291,12 +291,42 @@ class Connector(object):
         assert (self.pins is not None) ^ (self.tracks is not None)
 
     def get_pip_switch(self, src_wire_pkey, pip_pkey, dest_wire_pkey, switch_pkey):
+        """ Return the switch_pkey for the given connection.
+
+        Selects either normal or backward switch from pip, or if switch is
+        already known, returns known switch.
+
+        It is not valid to provide a switch and provide src/dest/pip arguments.
+
+        Arguments
+        ---------
+        src_wire_pkey : int
+            Source wire row primary key.  May be None if switch_pkey is not
+            None.
+        pip_pkey : int
+            Pip connecting source to destination wire.  May be None if
+            switch_pkey is not None.
+        dest_wire_pkey : int
+            Destination wire row primary key.  May be None if switch_pkey
+            is not None.
+        switch_pkey : Int
+            Switch row primary key, can be used if switch_pkey is already
+            known (e.g. synthetic edge).  If switch_pkey is not None, other
+            arguments should be None to avoid ambiguity.
+
+        Returns
+        -------
+        Switch row primary key to connect through specified pip.
+
+        """
         if switch_pkey is not None:
             # Handle cases where the switch is supplied, rather than looked up.
             assert src_wire_pkey is None
             assert dest_wire_pkey is None
             assert pip_pkey is None
             return switch_pkey
+        else:
+            assert switch_pkey is None
 
         cur = self.conn.cursor()
 
@@ -323,6 +353,58 @@ class Connector(object):
             return backward_switch_pkey
 
     def find_wire_node(self, wire_pkey, graph_node_pkey, track_graph_node_pkey):
+        """ Find/create graph node for site pin.
+
+        In order to support site pin timing modelling, an additional node
+        is required to support the timing model.  This function returns that
+        node, along with the switch that should be used to connect the
+        IPIN/OPIN to that node. See diagram for details.
+
+        Arguments
+        ---------
+        wire_pkey : int
+            Wire primary key to a wire attached to a site pin.
+        graph_node_pkey : int
+            Graph node primary key that represents which IPIN/OPIN node is
+            being used to connect the site pin to the routing graph.
+        track_graph_node_pkey : int
+            Graph node primary key that represents the first routing node this
+            site pin connects too.  See diagram for details.
+
+        Returns
+        -------
+        site_pin_switch_pkey : int
+            Switch primary key to the switch to connect IPIN/OPIN node to
+            new site pin wire node.  See diagram for details.
+        site_pin_graph_node_pkey : int
+            Graph node primary key that represents site pin wire node.
+            See diagram for details.
+
+        Diagram:
+
+         Site pin
+            +
+            |  tile wire #1  +---+ tile wire #2
+            +>-------------->+pip+--------------->
+            |                +---+
+            +
+
+            +----+           +-----+            +-----+
+            |OPIN+--edge #1->+CHAN1+--edge #2-->+CHAN2|->
+            +----+           +-----+            +-----+
+
+        The timing information from the site pin is encoded in edge #1.
+        The timing information from tile wire #1 is encoded in CHAN1.
+        The timing information from pip is encoded in edge #2.
+        The remaining timing information is encoded in edges and channels
+        as expected.
+
+        This function returns edge #1 as the site_pin_switch_pkey.
+        This function returns CHAN1 as site_pin_graph_node_pkey.
+
+        The diagram for an IPIN is the same, except reverse all the arrows.
+
+        """
         cur = self.conn.cursor()
 
         cur.execute("""
