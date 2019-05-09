@@ -321,13 +321,11 @@ CREATE TABLE graph_edge(
   track_pkey INT,
   phy_tile_pkey INT,
   pip_in_tile_pkey INT,
-  site_pin_timing_pkey INT,
   FOREIGN KEY(src_graph_node_pkey) REFERENCES graph_node(pkey),
-  FOREIGN KEY(dest_graph_node_pkey) REFERENCES graph_node(pkey)
+  FOREIGN KEY(dest_graph_node_pkey) REFERENCES graph_node(pkey),
   FOREIGN KEY(track_pkey) REFERENCES track(pkey),
   FOREIGN KEY(phy_tile_pkey) REFERENCES phy_tile(pkey),
-  FOREIGN KEY(pip_in_tile_pkey) REFERENCES pip(pkey),
-  FOREIGN KEY(site_pin_timing_pkey) REFERENCES site_pin_timing(pkey)
+  FOREIGN KEY(pip_in_tile_pkey) REFERENCES pip(pkey)
 );
 
 -- channel, x_list and y_list are direct mappings of the channel object
