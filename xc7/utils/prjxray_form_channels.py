@@ -75,6 +75,13 @@ VALUES
 
 
 def create_get_switch(conn):
+    """ Returns functions to get or create switches with various timing.
+
+    Every switch that requires different timing is given it's own switch
+    in VPR.  get_switch returns a switch a pip.  get_switch_timing returns
+    a switch given a particular timing.
+
+    """
     write_cur = conn.cursor()
 
     pip_cache = {}
@@ -84,6 +91,28 @@ def create_get_switch(conn):
     pip_cache[(False, 0.0, 0.0, 0.0)] = write_cur.fetchone()[0]
 
     def get_switch_timing(is_pass_transistor, delay, internal_capacitance, drive_resistance):
+        """ Return a switch that matches provided timing.
+
+        Arguments
+        ---------
+        is_pass_transistor : bool-like
+            If true, this switch should be represented as a "pass_gate".
+
+        delay : float or convertable to float
+            Intrinsic delay through switch (seconds)
+
+        internal_capacitance : float or convertable to float
+            Internal capacitance to switch (Farads).
+
+        drive_resistance : float or convertable to float
+            Drive resistance from switch (Ohms).
+
+        Returns
+        -------
+        switch_pkey : int
+            Switch primary key that represents provided arguments.
+
+        """
         key = (bool(is_pass_transistor), float(delay),
                 float(drive_resistance), float(internal_capacitance))
 
@@ -104,13 +133,27 @@ VALUES
     (?, ?, ?, ?, ?)""", (name, internal_capacitance, drive_resistance, delay, switch_type)
                 )
             pip_cache[key] = write_cur.lastrowid
-            print(name, key, write_cur.lastrowid)
 
             write_cur.connection.commit()
 
         return pip_cache[key]
 
     def get_switch(pip, pip_timing):
+        """ Return switch_pkey for given pip timing.
+
+        Arguments
+        ---------
+        pip : tile.Pip object
+            Pip being modelled
+        pip_timing : tile.PipTiming object
+            Pip timing being modelled
+
+        Returns
+        -------
+        switch_pkey : int
+            Switch primary key that represents provided arguments.
+
+        """
         delay = 0.0
         drive_resistance = 0.0
         internal_capacitance = 0.0
@@ -560,7 +603,11 @@ def check_edge_with_mux_timing(conn, get_switch_timing, src_wire_pkey,
         dest_wire_pkey, pip_pkey):
     """ Check if edge with mux timing can be "lumped" into the switch.
 
-    For now, simply assert that the timing on this path is 0 delay.
+    Returns
+    -------
+    switch_pkey : int
+        Switch primary key to model EDGE_WITH_MUX connection.
+
     """
 
     cur = conn.cursor()
@@ -845,6 +892,16 @@ VALUES
 
 
 def get_node_rc(conn, node_pkey):
+    """ Returns capacitance and resistance for given node.
+
+    Returns
+    -------
+    capacitance : float
+        Node capacitance (Farads)
+    resistance : float
+        Node resistance (Ohms)
+
+    """
     capacitance = 0
     resistance = 0
 

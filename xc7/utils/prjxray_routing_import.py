@@ -622,8 +622,8 @@ SELECT
     switch_type
 FROM
     switch;"""):
-            # Add back short switch, which is unused in arch xml, so is not
-            # emitted in rrgraph XML.
+            # Add back missing switchs, which were unused in arch xml, and so
+            # were not  emitted in rrgraph XML.
             #
             # TODO: This can be removed once
             # https://github.com/verilog-to-routing/vtr-verilog-to-routing/issues/354
