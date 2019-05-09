@@ -4,16 +4,24 @@
   <input name="I1" num_pins="1"/>
   <output name="O0" num_pins="1"/>
   <output name="O1" num_pins="1"/>
+  <output name="O2" num_pins="1"/>
   <pb_type blif_model=".subckt and_gate" name="and_gate" num_pb="1">
-    <xi:include href="../common/and_gate.pb_type.xml" xpointer="xpointer(pb_type/child::node())"/>
+    <xi:include href="../common/and_gate.pb_type.xml" xpointer="xpointer(pb_type/child::node()[local-name()!='metadata'])"/>
     <metadata>
       <meta name="fasm_prefix">THIS_IS_THE_AND_GATE</meta>
     </metadata>
   </pb_type>
   <pb_type blif_model=".subckt xor_gate" name="xor_gate" num_pb="1">
-    <xi:include href="../common/xor_gate.pb_type.xml" xpointer="xpointer(pb_type/child::node())"/>
+    <xi:include href="../common/xor_gate.pb_type.xml" xpointer="xpointer(pb_type/child::node()[local-name()!='metadata'])"/>
     <metadata>
       <meta name="fasm_features">FEATURE_A FEATURE_B</meta>
+    </metadata>
+  </pb_type>
+  <pb_type blif_model=".subckt nand_gate" name="nand_gate" num_pb="1">
+    <xi:include href="../common/nand_gate.pb_type.xml" xpointer="xpointer(pb_type/child::node()[local-name()!='metadata'])"/>
+    <metadata>
+      <meta name="fasm_features">FEATURE_C FEATURE_D NAND_GATE_INCLUDED_FASM_FEATURES</meta>
+      <meta name="fasm_prefix">THIS_IS_THE_NAND_GATE</meta>
     </metadata>
   </pb_type>
   <interconnect>
@@ -40,6 +48,18 @@
     <direct>
       <port from="xor_gate" name="O" type="input"/>
       <port name="O1" type="output"/>
+    </direct>
+    <direct>
+      <port name="I0" type="input"/>
+      <port from="nand_gate" name="I0" type="output"/>
+    </direct>
+    <direct>
+      <port name="I1" type="input"/>
+      <port from="nand_gate" name="I1" type="output"/>
+    </direct>
+    <direct>
+      <port from="nand_gate" name="O" type="input"/>
+      <port name="O2" type="output"/>
     </direct>
   </interconnect>
   <metadata>

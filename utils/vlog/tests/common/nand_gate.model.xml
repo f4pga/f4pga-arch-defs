@@ -1,0 +1,12 @@
+<models xmlns:xi="http://www.w3.org/2001/XInclude">
+  <!-- https://docs.verilogtorouting.org/en/latest/tutorials/arch/timing_modeling/#sequential-block-no-internal-paths -->
+  <model name="nand_gate">
+    <input_ports>
+      <port name="I0" combinational_sink_ports="O"/>
+      <port name="I0" combinational_sink_ports="O"/>
+    </input_ports>
+    <output_ports>
+      <port name="O"/>
+    </output_ports>
+  </model>
+</models>

@@ -120,7 +120,40 @@ def update_attributes(attrs, new_attrs, ignore_list=()):
     return attrs
 
 
-def make_metadata(xml_parent, module_attrs, mode=None, all_modes=None):
+def merge_attributes(attrs, new_attrs, ignore_list=()):
+    """
+    Merges attributes from new_attrs to attrs. Basically concatenates strings
+    (separates them with space) from two dicts.
+    """
+
+    for key, value in new_attrs.items():
+
+        if key in ignore_list:
+            continue
+
+            # New key
+        if key not in attrs:
+            attrs[key] = value
+
+            # Existing key, concatenate
+        else:
+
+            # Concatenate only strings
+            if not isinstance(attrs[key], str) and not isinstance(value, str):
+                print(
+                    "Not concatenating non-string attribute: '{}'='{}' + '{}'".
+                    format(key, attrs[key], value)
+                )
+                continue
+
+            attrs[key] += " " + value
+
+    return attrs
+
+
+def make_metadata(
+        xml_parent, xml_metadata_inc, module_attrs, mode=None, all_modes=None
+):
     """
     Generates the XML <metadata> tag and fills it in according to the module
     attributes given.
@@ -156,8 +189,23 @@ def make_metadata(xml_parent, module_attrs, mode=None, all_modes=None):
                 metadata[attr.lower()] = value
 
     # Store the metadata in XML (if any)
-    if len(metadata):
+    if len(metadata) or xml_metadata_inc is not None:
+
+        # Merge metadata
+        if xml_metadata_inc is not None:
+
+            # Get metadata from the included xml
+            metadata_inc = {}
+            for meta in xml_metadata_inc.findall("meta"):
+                key = meta.get("name")
+                metadata_inc[key] = meta.text
+
+            # Merge it
+            merge_attributes(metadata, metadata_inc)
+
+        # Output metadata
         xml_metadata = ET.SubElement(xml_parent, 'metadata')
+
         for key, value in metadata.items():
             xml_meta = ET.SubElement(xml_metadata, "meta", {"name": key})
             xml_meta.text = value
@@ -285,19 +333,22 @@ def make_pb_content(
                     xml_inc = ET.fromstring(inc_xml.read().encode('utf-8'))
                     inc_attrib = xml_inc.attrib
                     inc_attrib['num_pb'] = str(cells[i_of]['count'] + 1)
+                    inc_metadata_xml = xml_inc.find("metadata")
 
                 inc_pb_type = ET.SubElement(xml_parent, 'pb_type', inc_attrib)
                 xmlinc.include_xml(
                     parent=inc_pb_type,
                     href=pb_type_path,
                     outfile=outfile,
-                    xptr="xpointer(pb_type/child::node())"
+                    xptr=
+                    "xpointer(pb_type/child::node()[local-name()!='metadata'])"
                 )
 
-                # Append metadata
+                # Append/merge metadata
                 make_metadata(
-                    inc_pb_type, mod.data["cells"][cname]["attributes"],
-                    submode, all_submodes
+                    inc_pb_type, inc_metadata_xml,
+                    mod.data["cells"][cname]["attributes"], submode,
+                    all_submodes
                 )
 
             # In order to avoid overspecifying interconnect, there are two directions we currently
@@ -401,7 +452,7 @@ def make_pb_content(
                 continue
 
             # Write metadata
-            make_metadata(conn_xml, attrs, submode, all_submodes)
+            make_metadata(conn_xml, None, attrs, submode, all_submodes)
 
     def process_clocked_tmg(tmgspec, port, xmltype, xml_parent):
         """Add a suitable timing spec if necessary to the pb_type"""
@@ -460,7 +511,7 @@ def make_pb_content(
                 xml_mat.text = mat
 
     # Append metadata
-    make_metadata(xml_parent, mod.module_attrs, submode, all_submodes)
+    make_metadata(xml_parent, None, mod.module_attrs, submode, all_submodes)
 
 
 def make_pb_type(yj, mod, outfile):
