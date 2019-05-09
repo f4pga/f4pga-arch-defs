@@ -37,4 +37,7 @@ define_device_type(
   SCRIPTS ${TIMING_IMPORT_CMD}
   )
 
-add_dependencies(ice40_top-routing-virt_arch  ice40_import_timing_deps sdf_target)
+add_dependencies(ice40_top-routing-virt_arch ice40_import_timing_deps sdf_target)
+get_target_property_required(VIRT_DEVICE_MERGED_FILE top-routing-virt DEVICE_MERGED_FILE)
+get_file_target(DEVICE_MERGED_FILE_TARGET ${VIRT_DEVICE_MERGED_FILE})
+add_dependencies(${DEVICE_MERGED_FILE_TARGET} ice40_import_timing_deps sdf_target)
