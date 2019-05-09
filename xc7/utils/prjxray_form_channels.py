@@ -42,6 +42,7 @@ from lib.rr_graph import tracks
 from lib.rr_graph import graph2
 import datetime
 import os
+import sys
 import os.path
 from lib.connection_database import NodeClassification, create_tables
 
@@ -284,6 +285,11 @@ WHERE
                     capacitance = site_pin.timing.capacitance / 1e6
                 else:
                     assert False, site_pin
+            else:
+                # Use min value instead of 0 to prevent
+                # VPR from freaking out over a zero net delay.
+                intrinsic_delay = 2**-126
+
 
             site_pin_switch_pkey = get_switch_timing(
                 is_pass_transistor=False,

@@ -5,6 +5,11 @@ from lib.rr_graph import tracks
 import lxml.etree as ET
 import contextlib
 
+# Set to True once
+# https://github.com/verilog-to-routing/vtr-verilog-to-routing/compare/c_internal
+# is merged and included in VTR conda.
+VPR_HAS_C_INTERNAL_SUPPORT = False
+
 
 def serialize_nodes(xf, nodes):
     """ Serialize list of Node objects to XML.
@@ -397,8 +402,10 @@ class Graph(object):
                     'Cin': str(switch.timing.c_in),
                     'Cout': str(switch.timing.c_out),
                     'Tdel': str(switch.timing.t_del),
-                    'Cinternal': str(switch.timing.c_internal),
                 }
+
+            if VPR_HAS_C_INTERNAL_SUPPORT:
+                attrib['Cinternal'] = str(switch.timing.c_internal)
 
             ET.SubElement(switch_xml, 'timing', attrib)
 
