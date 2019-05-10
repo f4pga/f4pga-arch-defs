@@ -35,6 +35,11 @@ function(ADD_VIVADO_TARGET)
   )
 
   set(NAME ${ADD_VIVADO_TARGET_NAME})
+  if(NOT DEFINED ENV{XRAY_VIVADO_SETTINGS})
+      message( WARNING "Vivado targets for ${NAME} not emitted, XRAY_VIVADO_SETTINGS env var must be set to point to Vivado settings.sh" )
+      return()
+  endif()
+
 
   get_target_property_required(BITSTREAM ${ADD_VIVADO_TARGET_PARENT_NAME} BIN)
   get_target_property_required(BIT_VERILOG ${ADD_VIVADO_TARGET_PARENT_NAME} BIT_V)
@@ -59,10 +64,6 @@ function(ADD_VIVADO_TARGET)
 
   get_target_property_required(PYTHON3 env PYTHON3)
   get_target_property(PYTHON3_TARGET env PYTHON3_TARGET)
-
-  if(NOT DEFINED ENV{XRAY_VIVADO_SETTINGS})
-      message( FATAL_ERROR "XRAY_VIVADO_SETTINGS must be set to a Vivado settings.sh" )
-  endif()
 
   set(CREATE_RUNME ${symbiflow-arch-defs_SOURCE_DIR}/xc7/utils/vivado_create_runme.py)
   add_custom_command(
