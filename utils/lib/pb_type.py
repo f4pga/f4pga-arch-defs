@@ -1,13 +1,18 @@
 #!/usr/bin/env python3
 """Functions for working with pb_type.xml files."""
 
-from typing import Tuple, List
+from typing import Tuple, List, Union
 
 import lxml.etree as ET
 
-Name = str
-Width = int
-Port = Tuple[Name, Width]
+PortName = str
+PortWidth = int
+
+SinglePinPort = PortName
+MultiPinPort = Tuple[PortName, PortWidth]
+
+Port = Union[SinglePinPort, MultiPinPort]
+
 ClockPort = Port
 InputPort = Port
 OutputPort = Port
