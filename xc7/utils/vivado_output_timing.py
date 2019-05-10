@@ -4,13 +4,13 @@ design checkpoint.
 import argparse
 
 
-def create_runme(f_out, args):
+def create_output_timing(f_out, args):
     print(
         """
-report_timing_summary
-
 source {util_tcl}
 write_timing_info timing_{name}.json5
+
+report_timing_summary
 """.format(name=args.name, util_tcl=args.util_tcl),
         file=f_out
     )
@@ -25,7 +25,7 @@ def main():
 
     args = parser.parse_args()
     with open(args.output_tcl, 'w') as f:
-        create_runme(f, args)
+        create_output_timing(f, args)
 
 
 if __name__ == "__main__":
