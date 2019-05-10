@@ -34,10 +34,20 @@ run 1us
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
 
-    parser.add_argument('--top', required=True)
-    parser.add_argument('--clock_pins', required=True)
-    parser.add_argument('--clock_periods', required=True)
-    parser.add_argument('--output_tcl', required=True)
+    parser.add_argument('--top', help="Top-level module name.", required=True)
+    parser.add_argument(
+        '--clock_pins',
+        help="Semi-colon seperated list of clock pins.",
+        required=True
+    )
+    parser.add_argument(
+        '--clock_periods',
+        help="Semi-colon seperated list of clock periods (in ns).",
+        required=True
+    )
+    parser.add_argument(
+        '--output_tcl', help="Filename of output TCL file.", required=True
+    )
 
     args = parser.parse_args()
     with open(args.output_tcl, 'w') as f:

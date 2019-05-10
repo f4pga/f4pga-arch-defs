@@ -19,9 +19,17 @@ report_timing_summary
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
 
-    parser.add_argument('--name', required=True)
-    parser.add_argument('--util_tcl', required=True)
-    parser.add_argument('--output_tcl', required=True)
+    parser.add_argument(
+        '--name', help="Name to postfix outputs.", required=True
+    )
+    parser.add_argument(
+        '--util_tcl',
+        help="Path to TCL script containing timing utilities.",
+        required=True
+    )
+    parser.add_argument(
+        '--output_tcl', help="Filename of output TCL file.", required=True
+    )
 
     args = parser.parse_args()
     with open(args.output_tcl, 'w') as f:
