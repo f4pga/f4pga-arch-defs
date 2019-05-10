@@ -18,3 +18,29 @@ ROM generation procedure:
  - Run the `hex2progmem.py` script and give it the HEX file as the first argument.
 
 Now the `progmem.v` is re-generated with the new firmware code.
+
+#### Expected output
+
+The current firmware produces the following output on the basys3 platform:
+
+ - First four leds (LD0, LD1, LD2, LD3) blinking at a regular rate from left to right.
+ - An UART output looking as follows (baud rate must be set to 115200):
+
+```
+Terminal ready
+Press ENTER to continue..
+Press ENTER to continue..
+Press ENTER to continue..
+Press ENTER to continue..
+
+ ____  _          ____         ____
+|  _ \(_) ___ ___/ ___|  ___  / ___|
+| |_) | |/ __/ _ \___ \ / _ \| |
+|  __/| | (_| (_) |__) | (_) | |___
+|_|   |_|\___\___/____/ \___/ \____|
+
+
+  [9] Run simplistic benchmark
+
+Command>
+```
