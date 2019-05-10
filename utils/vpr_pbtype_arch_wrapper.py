@@ -42,7 +42,6 @@ def grid_new(width: int, height: int) -> GridDict:
     return tiles
 
 
-# ABCDEFGHIJKLMNOPQRSTUVWXYZ
 def grid_size(tiles: GridDict) -> Tuple[XPos, YPos]:
     """Get width and height for a grid dictionary."""
     width = max(x for x, _ in tiles.keys()) + 1
