@@ -87,11 +87,15 @@ def create_get_switch(conn):
 
     pip_cache = {}
 
-    write_cur.execute("SELECT pkey FROM switch WHERE name = ?", (
-        "__vpr_delayless_switch__",))
+    write_cur.execute(
+        "SELECT pkey FROM switch WHERE name = ?",
+        ("__vpr_delayless_switch__", )
+    )
     pip_cache[(False, 0.0, 0.0, 0.0)] = write_cur.fetchone()[0]
 
-    def get_switch_timing(is_pass_transistor, delay, internal_capacitance, drive_resistance):
+    def get_switch_timing(
+            is_pass_transistor, delay, internal_capacitance, drive_resistance
+    ):
         """ Return a switch that matches provided timing.
 
         Arguments
@@ -114,8 +118,10 @@ def create_get_switch(conn):
             Switch primary key that represents provided arguments.
 
         """
-        key = (bool(is_pass_transistor), float(delay),
-                float(drive_resistance), float(internal_capacitance))
+        key = (
+            bool(is_pass_transistor), float(delay), float(drive_resistance),
+            float(internal_capacitance)
+        )
 
         if key not in pip_cache:
             name = 'routing'
@@ -124,15 +130,19 @@ def create_get_switch(conn):
                 name = 'pass_transistor'
                 switch_type = 'pass_gate'
 
-
             name = '{}_R{}_C{}_Tdel{}'.format(
-                    name, drive_resistance, internal_capacitance, delay)
+                name, drive_resistance, internal_capacitance, delay
+            )
 
-            write_cur.execute("""
+            write_cur.execute(
+                """
 INSERT INTO switch(name, internal_capacitance, drive_resistance, intrinsic_delay, switch_type)
 VALUES
-    (?, ?, ?, ?, ?)""", (name, internal_capacitance, drive_resistance, delay, switch_type)
+    (?, ?, ?, ?, ?)""", (
+                    name, internal_capacitance, drive_resistance, delay,
+                    switch_type
                 )
+            )
             pip_cache[key] = write_cur.lastrowid
 
             write_cur.connection.commit()
@@ -176,14 +186,16 @@ VALUES
                 drive_resistance = pip_timing.drive_resistance / 1e3
 
         return get_switch_timing(
-                pip.is_pass_transistor, delay, internal_capacitance,
-                drive_resistance)
-
+            pip.is_pass_transistor, delay, internal_capacitance,
+            drive_resistance
+        )
 
     return get_switch, get_switch_timing
 
 
-def import_tile_type(db, write_cur, tile_types, site_types, tile_type_name, get_switch):
+def import_tile_type(
+        db, write_cur, tile_types, site_types, tile_type_name, get_switch
+):
     assert tile_type_name not in tile_types
     tile_type = db.get_tile_type(tile_type_name)
 
@@ -275,7 +287,8 @@ WHERE
                 # This conservative on slack timing, but not on hold timing.
                 #
                 # nanosecond -> seconds
-                intrinsic_delay = site_pin.timing.delays[PvtCorner.SLOW].max / 1e9
+                intrinsic_delay = site_pin.timing.delays[PvtCorner.SLOW
+                                                         ].max / 1e9
 
                 if isinstance(site_pin.timing, prjxray.tile.OutpinTiming):
                     # milliOhms -> Ohms
@@ -290,13 +303,12 @@ WHERE
                 # VPR from freaking out over a zero net delay.
                 intrinsic_delay = 2**-126
 
-
             site_pin_switch_pkey = get_switch_timing(
                 is_pass_transistor=False,
                 delay=intrinsic_delay,
                 internal_capacitance=capacitance,
                 drive_resistance=drive_resistance,
-                )
+            )
 
             write_cur.execute(
                 """
@@ -309,8 +321,8 @@ SET
 WHERE
   name = ?
   and tile_type_pkey = ?;""", (
-                    site_pkey, site_pin_pkey, site_pin_switch_pkey, site_pin.wire,
-                    tile_types[tile_type_name]
+                    site_pkey, site_pin_pkey, site_pin_switch_pkey,
+                    site_pin.wire, tile_types[tile_type_name]
                 )
             )
 
@@ -605,8 +617,10 @@ WHERE
 
     cur.connection.commit()
 
-def check_edge_with_mux_timing(conn, get_switch_timing, src_wire_pkey,
-        dest_wire_pkey, pip_pkey):
+
+def check_edge_with_mux_timing(
+        conn, get_switch_timing, src_wire_pkey, dest_wire_pkey, pip_pkey
+):
     """ Check if edge with mux timing can be "lumped" into the switch.
 
     Returns
@@ -618,91 +632,108 @@ def check_edge_with_mux_timing(conn, get_switch_timing, src_wire_pkey,
 
     cur = conn.cursor()
 
-    cur.execute("""
+    cur.execute(
+        """
 SELECT site_pin_switch_pkey, resistance, capacitance FROM wire_in_tile WHERE pkey = (
     SELECT wire_in_tile_pkey FROM wire WHERE pkey = ?
-    )""", (src_wire_pkey,))
+    )""", (src_wire_pkey, )
+    )
 
-    src_site_pin_switch_pkey, src_wire_resistance, src_wire_capacitance = cur.fetchone()
+    src_site_pin_switch_pkey, src_wire_resistance, src_wire_capacitance = cur.fetchone(
+    )
 
     assert src_wire_resistance == 0, src_wire_pkey
 
-    cur.execute("""
+    cur.execute(
+        """
 SELECT intrinsic_delay, drive_resistance FROM switch WHERE pkey = ?
-        """, (src_site_pin_switch_pkey,))
-    src_site_pin_intrinsic_delay, src_site_pin_drive_resistance = cur.fetchone()
+        """, (src_site_pin_switch_pkey, )
+    )
+    src_site_pin_intrinsic_delay, src_site_pin_drive_resistance = cur.fetchone(
+    )
 
-    cur.execute("""
+    cur.execute(
+        """
 SELECT site_pin_switch_pkey, resistance, capacitance FROM wire_in_tile WHERE pkey = (
     SELECT wire_in_tile_pkey FROM wire WHERE pkey = ?
-    )""", (dest_wire_pkey,))
+    )""", (dest_wire_pkey, )
+    )
 
-    dest_site_pin_switch_pkey, dest_wire_resistance, dest_wire_capacitance = cur.fetchone()
+    dest_site_pin_switch_pkey, dest_wire_resistance, dest_wire_capacitance = cur.fetchone(
+    )
 
     assert dest_wire_resistance == 0, dest_wire_pkey
 
-    cur.execute("""
+    cur.execute(
+        """
 SELECT intrinsic_delay, internal_capacitance FROM switch WHERE pkey = ?
-        """, (dest_site_pin_switch_pkey,))
+        """, (dest_site_pin_switch_pkey, )
+    )
     dest_site_pin_intrinsic_delay, dest_site_pin_capacitance = cur.fetchone()
 
-    cur.execute("""
-SELECT name, switch_pkey FROM pip_in_tile WHERE pkey = ?""", (pip_pkey,))
+    cur.execute(
+        """
+SELECT name, switch_pkey FROM pip_in_tile WHERE pkey = ?""", (pip_pkey, )
+    )
     pip_name, switch_pkey = cur.fetchone()
 
-    cur.execute("""
+    cur.execute(
+        """
 SELECT name, intrinsic_delay, internal_capacitance, drive_resistance, switch_type FROM switch WHERE pkey = ?
-        """, (switch_pkey,))
-    (switch_name, switch_intrinsic_delay, switch_internal_capacitance, switch_drive_resistance,
-            switch_type) = cur.fetchone()
+        """, (switch_pkey, )
+    )
+    (
+        switch_name, switch_intrinsic_delay, switch_internal_capacitance,
+        switch_drive_resistance, switch_type
+    ) = cur.fetchone()
 
     assert switch_type in ["mux", "pass_gate"], (switch_pkey, switch_type)
 
     zero_delay_to_switch = src_site_pin_drive_resistance == 0 or (
-            switch_internal_capacitance == 0 and
-            src_wire_capacitance == 0
-            )
+        switch_internal_capacitance == 0 and src_wire_capacitance == 0
+    )
     zero_delay_from_switch = switch_drive_resistance == 0 or (
-            dest_wire_capacitance == 0 and
-            dest_site_pin_capacitance == 0
-            )
+        dest_wire_capacitance == 0 and dest_site_pin_capacitance == 0
+    )
 
     if zero_delay_to_switch and zero_delay_from_switch and \
             src_site_pin_intrinsic_delay == 0 and \
             dest_site_pin_intrinsic_delay == 0:
         return get_switch_timing(
-                is_pass_transistor=False,
-                delay=switch_intrinsic_delay,
-                internal_capacitance=0,
-                drive_resistance=0,
-                )
+            is_pass_transistor=False,
+            delay=switch_intrinsic_delay,
+            internal_capacitance=0,
+            drive_resistance=0,
+        )
 
     if switch_type == "mux":
-        switch_delay  = src_site_pin_intrinsic_delay
-        switch_delay += src_site_pin_drive_resistance * (switch_internal_capacitance + src_wire_capacitance)
+        switch_delay = src_site_pin_intrinsic_delay
+        switch_delay += src_site_pin_drive_resistance * (
+            switch_internal_capacitance + src_wire_capacitance
+        )
         switch_delay += switch_intrinsic_delay
-        switch_delay += switch_drive_resistance * (dest_wire_capacitance + dest_site_pin_capacitance)
+        switch_delay += switch_drive_resistance * (
+            dest_wire_capacitance + dest_site_pin_capacitance
+        )
         switch_delay += dest_site_pin_intrinsic_delay
     else:
         assert switch_type == "pass_gate"
         assert switch_intrinsic_delay == 0
         assert switch_drive_resistance == 0
 
-        switch_delay  = src_site_pin_intrinsic_delay
+        switch_delay = src_site_pin_intrinsic_delay
         switch_delay += src_site_pin_drive_resistance * (
-                src_wire_capacitance +
-                switch_internal_capacitance +
-                dest_wire_capacitance +
-                dest_site_pin_capacitance
-                )
+            src_wire_capacitance + switch_internal_capacitance +
+            dest_wire_capacitance + dest_site_pin_capacitance
+        )
         switch_delay += dest_site_pin_intrinsic_delay
 
     return get_switch_timing(
-            is_pass_transistor=False,
-            delay=switch_delay,
-            internal_capacitance=0,
-            drive_resistance=0
-            )
+        is_pass_transistor=False,
+        delay=switch_delay,
+        internal_capacitance=0,
+        drive_resistance=0
+    )
 
 
 def classify_nodes(conn, get_switch_timing):
@@ -857,8 +888,9 @@ LIMIT
             edge_with_mux):
         assert len(nodes) == 2
 
-        switch_pkey = check_edge_with_mux_timing(conn, get_switch_timing, src_wire_pkey,
-                dest_wire_pkey, pip_pkey)
+        switch_pkey = check_edge_with_mux_timing(
+            conn, get_switch_timing, src_wire_pkey, dest_wire_pkey, pip_pkey
+        )
         write_cur.execute(
             """
         UPDATE node SET classification = ?
@@ -915,7 +947,7 @@ def get_node_rc(conn, node_pkey):
     for wire_cap, wire_res in cur.execute("""
 SELECT capacitance, resistance FROM wire_in_tile WHERE pkey IN (
     SELECT wire_in_tile_pkey FROM wire WHERE node_pkey = ?
-    );""", (node_pkey,)):
+    );""", (node_pkey, )):
         capacitance += wire_cap
         resistance += wire_res
 
@@ -964,8 +996,8 @@ INSERT INTO graph_node(
 VALUES
   (?, ?, ?, ?, ?, ?, ?, 1, ?, ?)""", (
                     node_type.value, track_pkey, node, track.x_low,
-                    track.x_high, track.y_low, track.y_high,
-                    capacitance, resistance
+                    track.x_high, track.y_low, track.y_high, capacitance,
+                    resistance
                 )
             )
             track_graph_node_pkey.append(write_cur.lastrowid)

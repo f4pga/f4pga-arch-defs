@@ -398,11 +398,11 @@ class Graph(object):
 
         if switch.timing:
             attrib = {
-                    'R': str(switch.timing.r),
-                    'Cin': str(switch.timing.c_in),
-                    'Cout': str(switch.timing.c_out),
-                    'Tdel': str(switch.timing.t_del),
-                }
+                'R': str(switch.timing.r),
+                'Cin': str(switch.timing.c_in),
+                'Cout': str(switch.timing.c_out),
+                'Tdel': str(switch.timing.t_del),
+            }
 
             if VPR_HAS_C_INTERNAL_SUPPORT:
                 attrib['Cinternal'] = str(switch.timing.c_internal)
