@@ -4,8 +4,8 @@ timing in the architecture file.
 
 import argparse
 from sdf_timing.sdfparse import parse as sdf_parse
+from sdf_timing.utils import get_scale
 import lxml.etree as ET
-import re
 import logging
 from collections import namedtuple
 
@@ -128,44 +128,6 @@ _arch_to_sdf = {
 }
 
 
-def get_scale(timescale):
-    """Convert sdf timescale to scale factor
-
-    >>> get_scale('1.0 fs')
-    1e-15
-
-    >>> get_scale('1ps')
-    1e-12
-
-    >>> get_scale('10 ns')
-    1e-08
-
-    >>> get_scale('10.0 us')
-    9.999999999999999e-06
-
-    >>> get_scale('100.0ms')
-    0.1
-
-    >>> get_scale('100 s')
-    100.0
-
-    """
-    mm = re.match(r'(10{0,2})(\.0)? *([munpf]?s)', timescale)
-    sc_lut = {
-        's': 1.0,
-        'ms': 1e-3,
-        'us': 1e-6,
-        'ns': 1e-9,
-        'ps': 1e-12,
-        'fs': 1e-15,
-    }
-    ret = None
-    if mm:
-        base, _, sc = mm.groups()
-        ret = int(base) * sc_lut[sc]
-    return ret
-
-
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument(
@@ -193,7 +155,7 @@ def main():
 
     tree = ET.parse(args.read_arch_xml, ET.XMLParser(remove_blank_text=True))
 
-    scale = get_scale(timing['header']['timescale'])
+    scale = get_scale_seconds(timing['header']['timescale'])
     #logging.info('sdf scale set to', scale)
 
     # flatten cells to list of max
