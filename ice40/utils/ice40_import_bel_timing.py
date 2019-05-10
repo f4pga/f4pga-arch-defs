@@ -4,7 +4,7 @@ timing in the architecture file.
 
 import argparse
 from sdf_timing.sdfparse import parse as sdf_parse
-from sdf_timing.utils import get_scale
+from sdf_timing.utils import get_scale_seconds
 import lxml.etree as ET
 import logging
 from collections import namedtuple
