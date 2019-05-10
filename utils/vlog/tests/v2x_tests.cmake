@@ -156,7 +156,7 @@ function(V2X_TEST_BOTH)
 
   v2x_test_generic(NAME ${NAME} TOP_MODULE ${MODULE} TYPE pb_type)
   v2x_test_generic(NAME ${NAME} TOP_MODULE ${TOP_MODULE} TYPE model)
-  vpr_test_pbtype(NAME ${NAME})
+  vpr_test_pb_type(NAME ${NAME} TOP_MODULE ${TOP_MODULE})
   add_dependencies(all_v2x_tests test_${NAME})
 
   add_custom_target(${NAME}_diff ALL DEPENDS ${NAME}_pb_type_diff ${NAME}_model_diff)
