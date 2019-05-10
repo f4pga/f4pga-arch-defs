@@ -5,10 +5,7 @@
   <output name="O" num_pins="1"/>
   <mode name="AND">
     <pb_type blif_model=".subckt and_gate" name="and_gate" num_pb="1">
-      <xi:include href="../common/and_gate.pb_type.xml" xpointer="xpointer(pb_type/child::node())"/>
-      <metadata>
-        <meta name="fasm_prefix">THIS_IS_THE_AND_GATE</meta>
-      </metadata>
+      <xi:include href="../common/and_gate.pb_type.xml" xpointer="xpointer(pb_type/child::node()[local-name()!='metadata'])"/>
     </pb_type>
     <interconnect>
       <direct>
@@ -25,16 +22,12 @@
       </direct>
     </interconnect>
     <metadata>
-      <meta name="fasm_features">COMMON_FASM_FEATURES_FOR_ALL_MODES</meta>
-      <meta name="fasm_prefix">TOP_FASM_PREFIX_FOR_AND</meta>
+      <meta name="fasm_features">FASM_FEATURE_FOR_AND</meta>
     </metadata>
   </mode>
   <mode name="XOR">
     <pb_type blif_model=".subckt xor_gate" name="xor_gate" num_pb="1">
-      <xi:include href="../common/xor_gate.pb_type.xml" xpointer="xpointer(pb_type/child::node())"/>
-      <metadata>
-        <meta name="fasm_features">THIS_IS_THE_XOR_GATE</meta>
-      </metadata>
+      <xi:include href="../common/xor_gate.pb_type.xml" xpointer="xpointer(pb_type/child::node()[local-name()!='metadata'])"/>
     </pb_type>
     <interconnect>
       <direct>
@@ -51,8 +44,7 @@
       </direct>
     </interconnect>
     <metadata>
-      <meta name="fasm_features">COMMON_FASM_FEATURES_FOR_ALL_MODES</meta>
-      <meta name="fasm_prefix">TOP_FASM_PREFIX_FOR_XOR</meta>
+      <meta name="fasm_features">FASM_FEATURE_FOR_XOR</meta>
     </metadata>
   </mode>
 </pb_type>

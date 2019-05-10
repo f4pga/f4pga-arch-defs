@@ -17,7 +17,6 @@ module fasm_features_child (I0, I1, O0, O1, O2);
  xor_gate gate2(I0, I1, O1);
 
  (* FASM_PREFIX = "THIS_IS_THE_NAND_GATE" *)
- (* FASM_FEATURES = "FEATURE_C FEATURE_D" *)
  nand_gate gate3(I0, I1, O2);
 
 endmodule

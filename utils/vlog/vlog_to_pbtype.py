@@ -97,7 +97,7 @@ def strip_name(name):
     return name
 
 
-def update_attributes(attrs, new_attrs, ignore_list=()):
+def update_attributes(attrs, new_attrs, concatenate=False, ignore_list=()):
     """
     Updates one dictionary with elements from another. Prints message
     when a conflict occurs.
@@ -108,45 +108,34 @@ def update_attributes(attrs, new_attrs, ignore_list=()):
         if key in ignore_list:
             continue
 
-        if key not in attrs:
-            attrs[key] = value
-        elif attrs[key] != value:
-            print(
-                "Attribute conflict (!): '{}'='{}' vs '{}".format(
-                    key, attrs[key], value
-                )
-            )
-
-    return attrs
-
-
-def merge_attributes(attrs, new_attrs, ignore_list=()):
-    """
-    Merges attributes from new_attrs to attrs. Basically concatenates strings
-    (separates them with space) from two dicts.
-    """
-
-    for key, value in new_attrs.items():
-
-        if key in ignore_list:
-            continue
-
-            # New key
+        # New key
         if key not in attrs:
             attrs[key] = value
 
-            # Existing key, concatenate
+        # Existing key
         else:
 
-            # Concatenate only strings
-            if not isinstance(attrs[key], str) and not isinstance(value, str):
-                print(
-                    "Not concatenating non-string attribute: '{}'='{}' + '{}'".
-                    format(key, attrs[key], value)
-                )
-                continue
+            # Concatenate
+            if concatenate:
 
-            attrs[key] += " " + value
+                # Concatenate only strings
+                if not isinstance(attrs[key], str) and not isinstance(value,
+                                                                      str):
+                    print(
+                        "Cannot concatenate non-string attribute (!): '{}'='{}' + '{}'"
+                        .format(key, attrs[key], value)
+                    )
+                    continue
+
+                attrs[key] += " " + value
+
+            # Do not merge, throw an error
+            elif attrs[key] != value:
+                print(
+                    "ERROR, attribute conflict (!): '{}'='{}' vs '{}".format(
+                        key, attrs[key], value
+                    )
+                )
 
     return attrs
 
@@ -246,8 +235,8 @@ def make_metadata(
                 key = meta.get("name")
                 metadata_inc[key] = meta.text
 
-            # Merge it
-            merge_attributes(metadata, metadata_inc)
+            # Update
+            update_attributes(metadata, metadata_inc, concatenate=False)
 
         # Check metadata
         if "CLASS" in module_attrs.keys():
@@ -412,7 +401,7 @@ def make_pb_content(
                 net_attrs = {}
                 for net_name in mod.net_names_by_id(net):
                     update_attributes(
-                        net_attrs, mod.net_attrs(net_name), ("src")
+                        net_attrs, mod.net_attrs(net_name), False, ("src")
                     )
 
                 drvs = mod.net_drivers(net)
@@ -449,7 +438,7 @@ def make_pb_content(
                 net_attrs = {}
                 for net_name in mod.net_names_by_id(net):
                     update_attributes(
-                        net_attrs, mod.net_attrs(net_name), ("src")
+                        net_attrs, mod.net_attrs(net_name), False, ("src")
                     )
 
                 sinks = mod.net_sinks(net)
@@ -470,7 +459,9 @@ def make_pb_content(
 
             net_attrs = {}
             for net_name in mod.net_names_by_id(net):
-                update_attributes(net_attrs, mod.net_attrs(net_name), ("src"))
+                update_attributes(
+                    net_attrs, mod.net_attrs(net_name), False, ("src")
+                )
 
             drv = mod.conn_io(net, "input")
             if not drv:
