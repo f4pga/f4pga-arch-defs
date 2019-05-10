@@ -232,11 +232,13 @@ FROM
         )
         assert graph_node_pkey not in node_mapping
         node_mapping[graph_node_pkey] = graph.add_track(
-            track=track, segment_id=segment_id, ptc=ptc,
+            track=track,
+            segment_id=segment_id,
+            ptc=ptc,
             timing=graph2.NodeTiming(
                 r=resistance,
                 c=capacitance,
-                )
+            )
         )
 
 
@@ -644,7 +646,7 @@ FROM
                             c_out=0.0,
                             c_internal=internal_capacitance,
                             t_del=intrinsic_delay,
-                            ),
+                        ),
                         sizing=graph2.SwitchSizing(
                             mux_trans_size=0,
                             buf_size=0,

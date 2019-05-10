@@ -44,8 +44,8 @@ def handle_direction_connections(conn, direct_connections, edge_assignments):
     c = conn.cursor()
     for src_wire_pkey, dest_wire_pkey, pip_in_tile_pkey, switch_pkey in progressbar.progressbar(
             c.execute("""
-SELECT src_wire_pkey, dest_wire_pkey, pip_in_tile_pkey, switch_pkey FROM edge_with_mux;""")
-    ):
+SELECT src_wire_pkey, dest_wire_pkey, pip_in_tile_pkey, switch_pkey FROM edge_with_mux;"""
+                      )):
 
         c2 = conn.cursor()
 
@@ -106,8 +106,10 @@ SELECT name FROM tile_type WHERE pkey = ?""", (dest_tile_type_pkey, )
 
         destination_wire = get_pin_name_of_wire(conn, destination_wire_pkey)
 
-        c2.execute("SELECT name FROM switch WHERE pkey = ?""", (
-            switch_pkey,))
+        c2.execute(
+            "SELECT name FROM switch WHERE pkey = ?"
+            "", (switch_pkey, )
+        )
         switch_name = c2.fetchone()[0]
 
         direct_connections.add(

@@ -533,13 +533,13 @@ SELECT
 FROM
     switch;"""):
             attrib = {
-                    'type': switch_type,
-                    'name': name,
-                    "R": str(drive_resistance),
-                    "Cin": str(0),
-                    "Cout": str(0),
-                    "Tdel": str(intrinsic_delay),
-                }
+                'type': switch_type,
+                'name': name,
+                "R": str(drive_resistance),
+                "Cin": str(0),
+                "Cout": str(0),
+                "Tdel": str(intrinsic_delay),
+            }
 
             if internal_capacitance != 0:
                 attrib["Cinternal"] = str(internal_capacitance)
@@ -562,7 +562,6 @@ FROM
             "buf_size": "27.645901"
         }
     )
-
 
     device_xml = ET.SubElement(arch_xml, 'device')
 
