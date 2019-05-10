@@ -49,7 +49,8 @@ route_design
 write_checkpoint -force design_{name}.dcp
 write_bitstream -force design_{name}.bit
 save_project_as -force design_{name}.xpr
-""".format(name=args.name),
+report_timing_summary
+""".format(name=args.name, ),
         file=f_out
     )
 

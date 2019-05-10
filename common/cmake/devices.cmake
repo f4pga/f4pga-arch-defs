@@ -1164,7 +1164,7 @@ function(ADD_FPGA_TARGET)
       )
 
     add_custom_target(${NAME}_bin DEPENDS ${OUT_BIN})
-    add_output_to_fpga_target(${NAME} BIN ${OUT_LOCAL_REL}/${TOP}.bin)
+    add_output_to_fpga_target(${NAME} BIN ${OUT_LOCAL_REL}/${TOP}.${BIN_EXTENSION})
     add_dependencies(all_${BOARD}_bin ${NAME}_bin)
 
     get_target_property(PROG_TOOL ${BOARD} PROG_TOOL)

@@ -36,6 +36,7 @@ function(ADD_VIVADO_TARGET)
 
   set(NAME ${ADD_VIVADO_TARGET_NAME})
 
+  get_target_property_required(BITSTREAM ${ADD_VIVADO_TARGET_PARENT_NAME} BIN)
   get_target_property_required(BIT_VERILOG ${ADD_VIVADO_TARGET_PARENT_NAME} BIT_V)
   get_target_property_required(TOP ${ADD_VIVADO_TARGET_PARENT_NAME} TOP)
   get_target_property_required(BOARD ${ADD_VIVADO_TARGET_PARENT_NAME} BOARD)
@@ -80,7 +81,7 @@ function(ADD_VIVADO_TARGET)
         ${CREATE_RUNME}
         )
 
-    set(CREATE_SIM ${symbiflow-arch-defs_SOURCE_DIR}/xc7/utils/vivado_create_sim.py)
+  set(CREATE_SIM ${symbiflow-arch-defs_SOURCE_DIR}/xc7/utils/vivado_create_sim.py)
   add_custom_command(
       OUTPUT ${NAME}_sim.tcl
       COMMAND ${PYTHON3} ${CREATE_SIM}
@@ -93,12 +94,28 @@ function(ADD_VIVADO_TARGET)
         ${CREATE_SIM}
         )
 
+  set(CREATE_OUTPUT_TIMING
+    ${symbiflow-arch-defs_SOURCE_DIR}/xc7/utils/vivado_output_timing.py)
+  add_custom_command(
+      OUTPUT ${NAME}_output_timing.tcl
+      COMMAND ${PYTHON3} ${CREATE_OUTPUT_TIMING}
+        --name ${NAME}
+        --output_tcl ${CMAKE_CURRENT_BINARY_DIR}/${NAME}_output_timing.tcl
+        --util_tcl ${symbiflow-arch-defs_SOURCE_DIR}/xc7/utils/timing_utils.tcl
+      DEPENDS
+        ${PYTHON3_TARGET} ${PYTHON3}
+        ${CREATE_OUTPUT_TIMING}
+        )
+
   # Run Vivado in the same directory as VPR was run, this ensures a unique
   # directory, and presents Vivado filename collisions.
   get_filename_component(WORK_DIR ${BIT_VERILOG} DIRECTORY)
 
   add_custom_command(
-    OUTPUT ${WORK_DIR}/design_${NAME}.dcp ${WORK_DIR}/design_${NAME}.xpr
+    OUTPUT
+        ${WORK_DIR}/design_${NAME}.dcp
+        ${WORK_DIR}/design_${NAME}.xpr
+        ${WORK_DIR}/design_${NAME}.bit
     COMMAND ${CMAKE_COMMAND} -E remove -f ${WORK_DIR}/design_${NAME}.dcp
     COMMAND ${CMAKE_COMMAND} -E remove -f ${WORK_DIR}/design_${NAME}.xpr
     COMMAND ${PRJXRAY_DIR}/utils/vivado.sh -mode batch -source
@@ -130,5 +147,45 @@ function(ADD_VIVADO_TARGET)
       DEPENDS ${WORK_DIR}/design_${NAME}.xpr ${NAME}_sim.tcl
       )
 
+  add_custom_command(
+      OUTPUT ${WORK_DIR}/timing_${NAME}.json5
+      COMMAND ${PRJXRAY_DIR}/utils/vivado.sh
+        design_${NAME}.dcp
+        -mode batch
+        -source ${CMAKE_CURRENT_BINARY_DIR}/${NAME}_output_timing.tcl
+        > ${CMAKE_CURRENT_BINARY_DIR}/${WORK_DIR}/vivado_timing.stdout.log
+      WORKING_DIRECTORY ${WORK_DIR}
+      DEPENDS ${NAME}_output_timing.tcl ${WORK_DIR}/design_${NAME}.dcp
+      )
+
+  add_custom_command(
+      OUTPUT ${WORK_DIR}/design_${NAME}.bit.fasm
+      COMMAND
+      ${CMAKE_COMMAND} -E env PYTHONPATH=${PRJXRAY_DIR}:${PRJXRAY_DIR}/third_party/fasm
+        ${PRJXRAY_DIR}/utils/bit2fasm.py
+          --part ${PART}
+          --db-root ${PRJXRAY_DB_DIR}/${ARCH}
+          --bitread $<TARGET_FILE:bitread>
+          ${CMAKE_CURRENT_BINARY_DIR}/${WORK_DIR}/design_${NAME}.bit
+          > ${CMAKE_CURRENT_BINARY_DIR}/${WORK_DIR}/design_${NAME}.bit.fasm
+      WORKING_DIRECTORY ${WORK_DIR}
+      DEPENDS
+        ${PYTHON3} ${PYTHON3_TARGET}
+        ${WORK_DIR}/design_${NAME}.bit
+      )
+
+  get_file_location(BITSTREAM_LOCATION ${BITSTREAM})
+
   add_custom_target(${NAME} DEPENDS ${WORK_DIR}/design_${NAME}.dcp)
+  add_custom_target(${NAME}_timing DEPENDS ${WORK_DIR}/timing_${NAME}.json5)
+  add_custom_target(${NAME}_fasm DEPENDS ${WORK_DIR}/design_${NAME}.bit.fasm)
+  add_custom_target(${NAME}_diff_fasm
+      COMMAND diff -u
+        ${BITSTREAM_LOCATION}.fasm
+        ${CMAKE_CURRENT_BINARY_DIR}/${WORK_DIR}/design_${NAME}.bit.fasm
+      DEPENDS
+        ${DEPS}
+        ${BITSTREAM_LOCATION}.fasm
+        ${CMAKE_CURRENT_BINARY_DIR}/${WORK_DIR}/design_${NAME}.bit.fasm
+      )
 endfunction()
