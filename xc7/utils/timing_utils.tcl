@@ -1,4 +1,12 @@
 proc write_timing_info {filename} {
+    # Writes timing data in JSON5 format to filename.
+    #
+    # Timing data is array of net objects, containing:
+    #  - Node layout for each net
+    #  - Route taking for each net
+    #  - Interconnect delays from opin to each ipin
+    #  - Slack and hold timing information for each ipin that has a timing
+    #    path.
     set fp [open $filename w]
     puts $fp "\["
 
