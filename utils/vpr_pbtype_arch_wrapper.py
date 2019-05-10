@@ -352,7 +352,9 @@ pb_type.xml file
 """)
 
 parser.add_argument(
-    '--xmllint', default='xmllint', help="""\
+    '--xmllint',
+    default='xmllint',
+    help="""\
 Location of the xmllint binary to use. Defaults to finding in users path.
 """
 )
