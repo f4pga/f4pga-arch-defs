@@ -1,7 +1,0 @@
-<pb_type name="COUTUSED" num_pb="1">
-  <input name="IN" num_pins="1"/>
-  <output name="OUT" num_pins="1"/>
-  <interconnect>
-    <mux input="COUTUSED.IN" name="_COUTUSED" output="COUTUSED.OUT"/>
-  </interconnect>
-</pb_type>
