@@ -52,9 +52,9 @@ def blif(name: str, inputs: List[Port], outputs: List[Port]) -> str:
 .cname {name}
 .end""".format(
         name=name,
-        inputs=" ".join(s for s, d in inputs),
-        outputs=" ".join(d for d, s in outputs),
-        iomap=" ".join("{}={}".format(d, s) for s, d in inputs + outputs),
+        inputs=" ".join(d for s, d in inputs),
+        outputs=" ".join(s for d, s in outputs),
+        iomap=" ".join("{}={}".format(s, d) for s, d in inputs + outputs),
     )
 
 

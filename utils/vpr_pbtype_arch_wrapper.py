@@ -148,8 +148,8 @@ def layout_xml(arch_xml: ET.Element, pbtype_xml: ET.Element):
 
     pbtype_name, clocks, inputs, outputs = ports(pbtype_xml)
 
-    finputs = [s for s, d in flatten(clocks + inputs)]
-    foutputs = [s for s, d in flatten(outputs)]
+    finputs = [d for s, d in flatten(clocks + inputs)]
+    foutputs = [d for s, d in flatten(outputs)]
 
     tiles = grid_generate(finputs, foutputs)
     width, height = grid_size(tiles)
@@ -263,7 +263,7 @@ def tile_xml(
     )
 
     # Clock pins
-    for s, d in flatten(clocks):
+    for d, s in flatten(clocks):
         input_tag = ET.SubElement(
             tile,
             "clock",
@@ -287,7 +287,7 @@ def tile_xml(
             ilocs[i].text += "TILE.{} ".format(s)
 
     # Input Pins
-    for s, d in flatten(inputs):
+    for d, s in flatten(inputs):
         input_tag = ET.SubElement(
             tile,
             "input",
@@ -311,7 +311,7 @@ def tile_xml(
             ilocs[i].text += "TILE.{} ".format(s)
 
     # Output Pins
-    for d, s in flatten(outputs):
+    for s, d in flatten(outputs):
         output_tag = ET.SubElement(
             tile,
             "output",
