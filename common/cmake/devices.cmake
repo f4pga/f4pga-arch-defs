@@ -760,6 +760,10 @@ function(ADD_FPGA_TARGET)
 
   # Create target to handle all output paths of off
   add_custom_target(${NAME})
+  set_target_properties(${NAME} PROPERTIES
+      TOP ${TOP}
+      BOARD ${BOARD}
+      )
   set(VPR_ROUTE_CHAN_WIDTH 100)
   set(VPR_ROUTE_CHAN_MINWIDTH_HINT ${VPR_ROUTE_CHAN_WIDTH})
 

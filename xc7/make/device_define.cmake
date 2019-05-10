@@ -24,6 +24,9 @@ function(ADD_XC7_DEVICE_DEFINE_TYPE)
 
   add_custom_target(${ARCH}_${DEVICE}_${NAME})
   set_target_properties(${ARCH}_${DEVICE}_${NAME}
+      PROPERTIES PART ${ROI_PART}
+      )
+  set_target_properties(${ARCH}_${DEVICE}_${NAME}
       PROPERTIES FASM_TO_BIT_EXTRA_ARGS " \
     --roi ${ROI_DIR}/design.json \
   ")
