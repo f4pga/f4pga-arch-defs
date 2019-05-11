@@ -25,7 +25,8 @@ from lib.pb_type import Port, ports, find_leaf
 
 
 def blif(name: str, inputs: List[Port], outputs: List[Port]) -> str:
-    """
+    """Generate a blif for a device with set of input and output ports.
+
     >>> print(blif('mod', ['A', 'B'], ['C', 'D']))
     .model top
     .inputs A B
