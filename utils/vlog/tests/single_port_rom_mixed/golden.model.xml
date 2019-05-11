@@ -1,0 +1,11 @@
+<models xmlns:xi="http://www.w3.org/2001/XInclude">
+  <model name="single_port_rom_mixed">
+    <input_ports>
+      <port clock="clk" combinational_sink_ports="out" name="addr"/>
+      <port is_clock="1" name="clk"/>
+    </input_ports>
+    <output_ports>
+      <port clock="clk" name="out"/>
+    </output_ports>
+  </model>
+</models>
