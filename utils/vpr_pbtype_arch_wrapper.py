@@ -91,7 +91,7 @@ def grid_format(tiles: GridDict) -> str:
 
 
 def grid_place_in_column(tiles: GridDict, x: XPos, values: List[str]):
-    """Place a list of types centered vertical in a given column.
+    """Place a list of values into grid centered vertical in a given column.
 
     Modifies the grid dictionary in place.
 
@@ -132,6 +132,11 @@ def grid_generate(input_pins: List[str], output_pins: List[str]) -> GridDict:
      Column 3 - padding
      Column 4 - One output tile per output pins.
 
+    Returns
+    -------
+    GridDict
+        Generate a grid dict to fit a set of input_pins and output_pins.
+
     """
     height = max(len(input_pins), len(output_pins)) + 2
     width = len(['I', '.', 'T', '.', 'O'])
@@ -142,8 +147,16 @@ def grid_generate(input_pins: List[str], output_pins: List[str]) -> GridDict:
     return tiles
 
 
-def layout_xml(arch_xml: ET.Element, pbtype_xml: ET.Element):
-    """Generate a `<layout>` with IBUF and OBUF to match given pb_type."""
+def layout_xml(arch_xml: ET.Element, pbtype_xml: ET.Element) -> int:
+    """Generate a `<layout>` with IBUF and OBUF to match given pb_type.
+
+    Modifies the giving architecture XML in place.
+
+    Returns
+    -------
+    int
+        The height of the new layout.
+    """
 
     pbtype_name, clocks, inputs, outputs = ports(pbtype_xml)
 
@@ -199,8 +212,15 @@ def tile_xml(
         arch_xml: ET.Element, pbtype_xml: ET.Element, outfile: str,
         tile_height: int
 ):
-    """Generate a top level pb_type containing given pb_type."""
+    """Generate a top level pb_type containing given pb_type.
 
+    Modifies the giving architecture XML in place.
+
+    Returns
+    -------
+    str
+        The name of the top level pb_type (the tile).
+    """
     name, clocks, inputs, outputs = ports(pbtype_xml)
     assert name != "TILE", "name ({}) must not be TILE".format(name)
 
@@ -335,8 +355,23 @@ def tile_xml(
     return name
 
 
-def pretty_xml(xml, xmllint):
-    """Use xmllint to prettify the XML output."""
+def pretty_xml(xml: ET.Element, xmllint: str="/usr/bin/xmllint") -> str:
+    """Use xmllint to prettify the XML output.
+
+    Parameters
+    ----------
+    xml
+        XML to be prettified
+
+    xmllint
+        Path to the xmllint binary to use for doing the prettifying.
+
+
+    Returns
+    -------
+    str
+        Returns the prettified XML as a string
+    """
     with tempfile.NamedTemporaryFile(suffix=".xml", mode="wb") as f:
         xml.write(f, pretty_print=False)
         f.flush()
