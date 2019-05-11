@@ -5,6 +5,7 @@ from typing import Tuple, List, Union
 
 import lxml.etree as ET
 
+PBTypeName = str
 PortName = str
 PortWidth = int
 
@@ -32,8 +33,9 @@ def find_leaf(root: ET.Element):
                 return pbtype_tag
 
 
-def ports(pbtype_tag: ET.Element, assert_leaf=False
-          ) -> Tuple[Name, List[ClockPort], List[InputPort], List[OutputPort]]:
+def ports(
+        pbtype_tag: ET.Element, assert_leaf=False
+) -> Tuple[PBTypeName, List[ClockPort], List[InputPort], List[OutputPort]]:
     """Get the clock, input and output pins from a leaf pb_type.
 
     Returns
