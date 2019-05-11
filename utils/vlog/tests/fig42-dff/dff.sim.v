@@ -1,7 +1,10 @@
 (* blackbox *)
 module dff (d, clk, q);
+	(* SETUP="clk 10e-12" *)
+	(* HOLD="clk 10e-12" *)
 	input wire d;
 	input wire clk;
+	(* CLK_TO_Q="clk 10e-12" *)
 	output reg q;
 
 	always @ ( posedge clk ) begin
