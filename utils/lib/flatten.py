@@ -8,7 +8,9 @@ SinglePinPortPinName = str  # "PortName" -- Will not have square brackets
 MultiPinPortPinName = str  # "PortName[PinIndex]"
 
 
-def flatten(ports: List[Port]) -> Tuple[Union[SinglePinPortPinName, MultiPinPortPinName], SinglePinPortPinName]:
+def flatten(ports: List[Port]
+            ) -> Tuple[Union[SinglePinPortPinName, MultiPinPortPinName],
+                       SinglePinPortPinName]:
     """Mapping from pins a list of ports to individual width ports pins.
 
     Parameters

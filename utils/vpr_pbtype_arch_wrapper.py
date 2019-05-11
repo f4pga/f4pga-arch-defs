@@ -355,7 +355,7 @@ def tile_xml(
     return name
 
 
-def pretty_xml(xml: ET.Element, xmllint: str="/usr/bin/xmllint") -> str:
+def pretty_xml(xml: ET.Element, xmllint: str = "/usr/bin/xmllint") -> str:
     """Use xmllint to prettify the XML output.
 
     Parameters
