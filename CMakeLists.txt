@@ -6,6 +6,7 @@ include(common/cmake/util.cmake)
 include(common/cmake/env.cmake)
 include(common/cmake/file_targets.cmake)
 include(common/cmake/xml.cmake)
+include(common/cmake/v2x.cmake)
 include(common/cmake/devices.cmake)
 include(common/cmake/tools.cmake)
 
@@ -104,6 +105,9 @@ add_custom_target(all_rrgraph_xmls)
 
 # Target to lint all xml files.
 add_custom_target(all_xml_lint)
+
+# Target to validate pbtype files using vpr
+add_custom_target(all_vpr_test_pbtype)
 
 add_subdirectory(common)
 add_subdirectory(utils)

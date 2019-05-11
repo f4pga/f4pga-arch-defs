@@ -51,7 +51,9 @@ import lxml.etree as ET
 
 import yosys.run
 from yosys.json import YosysJSON
-import xmlinc
+
+sys.path.insert(0, "..")
+from lib import xmlinc
 
 parser = argparse.ArgumentParser(
     description=__doc__.strip(), formatter_class=argparse.RawTextHelpFormatter
@@ -290,6 +292,7 @@ def make_pb_content(yj, mod, xml_parent, mod_pname, is_submode=False):
                     .format(pb_name, pin)
                 )
                 for drv_cell, drv_pin in drvs:
+                    print(pin, net, drv_cell, drv_pin)
                     # check if we're driven by multi instance cell
                     drive_instance = INVALID_INSTANCE
                     drv_cell_type = [
@@ -311,15 +314,16 @@ def make_pb_content(yj, mod, xml_parent, mod_pname, is_submode=False):
             for pin, net in out_cons:
                 sinks = mod.net_sinks(net)
                 for sink_cell, sink_pin in sinks:
-                    if sink_cell == mod.name:
-                        #Only consider outputs from cell to top level IO. Inputs to other cells will be dealt with
-                        #in those cells.
-                        interconn.append(
-                            (
-                                (cname, pin), (sink_cell, sink_pin), instance,
-                                INVALID_INSTANCE
-                            )
+                    if sink_cell != mod.name:
+                        continue
+                    # Only consider outputs from cell to top level IO. Inputs to other cells will be dealt with
+                    # in those cells.
+                    interconn.append(
+                        (
+                            (cname, pin), (sink_cell, sink_pin), instance,
+                            INVALID_INSTANCE
                         )
+                    )
 
         # Direct pin->pin connections
         for net in mod.nets:
