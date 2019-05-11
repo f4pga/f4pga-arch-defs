@@ -1,4 +1,4 @@
-module single_port_ram_mixed (addr, clk, out);
+module single_port_rom_mixed (addr, clk, out);
 	localparam ADDR_WIDTH = 9;
 	localparam DATA_WIDTH = 64;
 
