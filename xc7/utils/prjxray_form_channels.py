@@ -47,7 +47,6 @@ from lib.connection_database import NodeClassification, create_tables
 
 from prjxray_db_cache import DatabaseCache
 
-
 SINGLE_PRECISION_FLOAT_MIN = 2**-126
 
 
