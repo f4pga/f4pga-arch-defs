@@ -3,14 +3,14 @@
   <xi:include href="../common/xor_gate.model.xml" xpointer="xpointer(models/child::node())"/>
   <model name="fasm_features_ic_direct">
     <input_ports>
-      <port combinational_sink_ports="OUT2" name="INP0"/>
-      <port combinational_sink_ports="OUT3" name="INP1"/>
+      <port combinational_sink_ports="O2" name="I0"/>
+      <port combinational_sink_ports="O3" name="I1"/>
     </input_ports>
     <output_ports>
-      <port name="OUT0"/>
-      <port name="OUT1"/>
-      <port name="OUT2"/>
-      <port name="OUT3"/>
+      <port name="O0"/>
+      <port name="O1"/>
+      <port name="O2"/>
+      <port name="O3"/>
     </output_ports>
   </model>
 </models>
