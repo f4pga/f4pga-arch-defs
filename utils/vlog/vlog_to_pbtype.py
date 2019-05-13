@@ -191,11 +191,7 @@ def check_metadata(mod_cls, metadata):
 def check_fasm_attr(attr, is_instance, is_net):
 
     KNOWN_FASM_ATTRS = (
-        "FASM_PREFIX",
-        "FASM_FEATURES",
-        "FASM_TYPE",
-        "FASM_LUT",
-        "FASM_MUX",
+        "FASM_PREFIX", "FASM_FEATURES", "FASM_TYPE", "FASM_LUT", "FASM_MUX",
         "FASM_PARAMS"
     )
 
@@ -206,12 +202,16 @@ def check_fasm_attr(attr, is_instance, is_net):
 
     # FASM_PARAMS can only be applied on a module
     if attr == "FASM_PARAMS" and is_instance:
-        print("ERROR, the FASM_PARAMS attribute can only be specified on a module, not its instance")
+        print(
+            "ERROR, the FASM_PARAMS attribute can only be specified on a module, not its instance"
+        )
         exit(-1)
 
     # FASM_PREFIX can only be applied on a module instance
     if attr == "FASM_PREFIX" and not is_instance:
-        print("ERROR, the FASM_PREFIX attribute can only be specified on a module instance, not its definition")
+        print(
+            "ERROR, the FASM_PREFIX attribute can only be specified on a module instance, not its definition"
+        )
         exit(-1)
 
     # FASM_MUX is legal only on net
@@ -226,13 +226,18 @@ def check_fasm_attr(attr, is_instance, is_net):
 
 
 def make_metadata(
-        xml_parent, xml_metadata_inc, module_attrs, is_instance=False, is_net=False, mode=None, all_modes=None
+        xml_parent,
+        xml_metadata_inc,
+        module_attrs,
+        is_instance=False,
+        is_net=False,
+        mode=None,
+        all_modes=None
 ):
     """
     Generates the XML <metadata> tag and fills it in according to the module
     attributes given.
     """
-
 
     metadata = {}
 
@@ -411,7 +416,10 @@ def make_pb_content(
             if not pbtype_already_included:
                 wm = re.match(r"([A-Za-z0-9_]+)\.sim\.v", module_basename)
                 if wm:
-                    pb_type_path = os.path.join(module_path, "{}.pb_type.xml".format(wm.group(1).lower()))
+                    pb_type_path = os.path.join(
+                        module_path,
+                        "{}.pb_type.xml".format(wm.group(1).lower())
+                    )
                 else:
                     pb_type_path = os.path.join(module_path, "pb_type.xml")
 
@@ -435,8 +443,7 @@ def make_pb_content(
                 # Append/merge metadata
                 make_metadata(
                     inc_pb_type, inc_metadata_xml,
-                    mod.data["cells"][cname]["attributes"],
-                    True, False,
+                    mod.data["cells"][cname]["attributes"], True, False,
                     submode, all_submodes
                 )
 
@@ -469,8 +476,8 @@ def make_pb_content(
                             drive_instance = cells[drv_cell_type][drv_cell]
                     interconn.append(
                         (
-                            "direct", {}, (drv_cell, drv_pin),
-                            (cname, pin), drive_instance, instance
+                            "direct", {}, (drv_cell, drv_pin), (cname, pin),
+                            drive_instance, instance
                         )
                     )
 
@@ -537,7 +544,9 @@ def make_pb_content(
                 continue
 
             # Write metadata
-            make_metadata(conn_xml, None, attrs, False, True, submode, all_submodes)
+            make_metadata(
+                conn_xml, None, attrs, False, True, submode, all_submodes
+            )
 
     def process_clocked_tmg(tmgspec, port, xmltype, xml_parent):
         """Add a suitable timing spec if necessary to the pb_type"""
@@ -596,7 +605,9 @@ def make_pb_content(
                 xml_mat.text = mat
 
     # Append metadata
-    make_metadata(xml_parent, None, mod.module_attrs, False, False, submode, all_submodes)
+    make_metadata(
+        xml_parent, None, mod.module_attrs, False, False, submode, all_submodes
+    )
 
 
 def make_pb_type(infiles, dump_json, yj, mod, outfile):
