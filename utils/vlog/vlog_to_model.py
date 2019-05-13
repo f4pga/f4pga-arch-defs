@@ -24,7 +24,7 @@ import lxml.etree as ET
 import yosys.run
 from yosys.json import YosysJSON
 
-sys.path.insert(0, "..")
+sys.path.append(os.path.realpath(os.path.join(__file__, "../../")))
 from lib import xmlinc
 
 
