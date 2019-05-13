@@ -2,13 +2,15 @@
 <models>
  <model name="RAMB36E1_PRIM">
   <input_ports>
-   <!-- Port A - 16bit wide -->
+   <!-- Port A - 32bit wide -->
    <port is_clock="1"        name="CLKARDCLKU"     />
    <port is_clock="1"        name="CLKARDCLKL"     />
    <port clock="CLKARDCLKL"   name="ENARDENU"       />
    <port clock="CLKARDCLKL"   name="ENARDENL"       />
    <port clock="CLKARDCLKL"   name="REGCEAREGCEU"   />
    <port clock="CLKARDCLKL"   name="REGCEAREGCEL"   />
+   <port clock="CLKARDCLKL"   name="REGCLKARDRCLKU" />
+   <port clock="CLKARDCLKL"   name="REGCLKARDRCLKL" />
    <port clock="CLKARDCLKL"   name="RSTRAMARSTRAMU" />
    <port clock="CLKARDCLKL"   name="RSTRAMARSTRAMLRST" />
    <port clock="CLKARDCLKL"   name="RSTREGARSTREGU" />
@@ -20,13 +22,15 @@
    <port clock="CLKARDCLKL"   name="WEAU"           />
    <port clock="CLKARDCLKL"   name="WEAL"           />
 
-   <!-- Port B - 16bit wide -->
+   <!-- Port B - 32bit wide -->
    <port is_clock="1"        name="CLKBWRCLKU"     />
    <port is_clock="1"        name="CLKBWRCLKL"     />
    <port clock="CLKBWRCLKL"   name="ENBWRENU"       />
    <port clock="CLKBWRCLKL"   name="ENBWRENL"       />
    <port clock="CLKBWRCLKL"   name="REGCEBU"        />
    <port clock="CLKBWRCLKL"   name="REGCEBL"        />
+   <port clock="CLKBWRCLKL"   name="REGCLKBU"       />
+   <port clock="CLKBWRCLKL"   name="REGCLKBL"       />
    <port clock="CLKBWRCLKL"   name="RSTRAMBU"       />
    <port clock="CLKBWRCLKL"   name="RSTRAMBL"       />
    <port clock="CLKBWRCLKL"   name="RSTREGBU"       />
@@ -43,11 +47,11 @@
    <port  name="CASCADEINB"    />
   </input_ports>
   <output_ports>
-   <!-- Port A - 16bit wide -->
+   <!-- Port A - 32bit wide -->
    <port clock="CLKARDCLKL" name="DOADO"   />
    <port clock="CLKARDCLKL" name="DOPADOP" />
 
-   <!-- Port B - 16bit wide -->
+   <!-- Port B - 32bit wide -->
    <port clock="CLKBWRCLKL" name="DOBDO"   />
    <port clock="CLKBWRCLKL" name="DOPBDOP" />
 
