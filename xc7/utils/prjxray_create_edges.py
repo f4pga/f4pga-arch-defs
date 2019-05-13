@@ -554,10 +554,26 @@ AND
     ):
         """ Connect two Connector objects at a location within the grid.
 
-        Args:
-            loc (prjxray.grid_types.GridLoc): Location within grid to make
-                connection.
-            other_connector (Connector): Destination connection.
+        Arguments
+        ---------
+        loc : prjxray.grid_types.GridLoc
+            Location within grid to make connection.
+        other_connector : Connector
+            Destination connection.
+        src_wire_pkey : int
+            Source wire pkey of pip being connected.  Must be None if
+            switch_pkey is not None. Used for switch_pkey lookup if needed.
+        dest_wire_pkey : int
+            Destination wire pkey of pip being connected.  Must be None if
+            switch_pkey is not None. Used for switch_pkey lookup if needed.
+        pip_pkey : int
+            Pip pkey of pip being connected.  Must be None if switch_pkey is
+            not None. Used for switch_pkey lookup if needed.
+        switch_pkey : int
+            Switch pkey for edge being added.  If None, src_wire_pkey,
+            dest_wire_pkey, pip_pkey are used to lookup switch_pkey. If not
+            None, switch_pkey is used as the switch along the edge.
+            Must be None if src_wire_pkey/dest_wire_pkey/pip_pkey is not None.
 
         Returns:
             Tuple of (src_graph_node_pkey, dest_graph_node_pkey)
