@@ -31,6 +31,8 @@ def find_leaf(root: ET.Element):
         if 'blif_model' in pbtype_tag.attrib:
             if '.subckt' in pbtype_tag.attrib['blif_model']:
                 return pbtype_tag
+            if pbtype_tag.attrib["blif_model"] == ".names":
+                return pbtype_tag
 
 
 def ports(
