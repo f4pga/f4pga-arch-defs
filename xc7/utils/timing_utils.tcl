@@ -105,5 +105,10 @@ proc write_timing_info {filename} {
 
     puts $fp "\]"
     close $fp
+
 }
 
+proc output_timing {timing_json} {
+    write_timing_info $timing_json
+    report_timing_summary
+}
