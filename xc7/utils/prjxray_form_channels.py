@@ -42,11 +42,13 @@ from lib.rr_graph import tracks
 from lib.rr_graph import graph2
 import datetime
 import os
-import sys
 import os.path
 from lib.connection_database import NodeClassification, create_tables
 
 from prjxray_db_cache import DatabaseCache
+
+
+SINGLE_PRECISION_FLOAT_MIN = 2**-126
 
 
 def import_site_type(db, write_cur, site_types, site_type_name):
@@ -301,7 +303,10 @@ WHERE
             else:
                 # Use min value instead of 0 to prevent
                 # VPR from freaking out over a zero net delay.
-                intrinsic_delay = 2**-126
+                #
+                # Note this is the single precision float minimum, because VPR
+                # uses single precision, not double precision.
+                intrinsic_delay = SINGLE_PRECISION_FLOAT_MIN
 
             site_pin_switch_pkey = get_switch_timing(
                 is_pass_transistor=False,
