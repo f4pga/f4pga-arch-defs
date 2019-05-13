@@ -99,8 +99,10 @@ def strip_name(name):
 
 def update_attributes(attrs, new_attrs, concatenate=False, ignore_list=()):
     """
-    Updates one dictionary with elements from another. Prints message
-    when a conflict occurs.
+    Updates one dictionary with elements from another. Ignores keys specified
+    in the ignore_list. When concatenate is False and conflicting values are
+    found an error is thrown. Otherwise values are concatenated with space as
+    a separator.
     """
 
     for key, value in new_attrs.items():
@@ -132,10 +134,11 @@ def update_attributes(attrs, new_attrs, concatenate=False, ignore_list=()):
             # Do not merge, throw an error
             elif attrs[key] != value:
                 print(
-                    "ERROR, attribute conflict (!): '{}'='{}' vs '{}".format(
+                    "ERROR, attribute conflict (!): '{}'='{}' vs '{}'".format(
                         key, attrs[key], value
                     )
                 )
+                exit(-1)
 
     return attrs
 
@@ -186,13 +189,41 @@ def check_metadata(mod_cls, metadata):
         exit(-1)
 
 
+def check_fasm_attr(attr, is_instance):
+
+    KNOWN_FASM_ATTRS = (
+        "FASM_PREFIX",
+        "FASM_FEATURES",
+        "FASM_TYPE",
+        "FASM_LUT",
+        #"FASM_MUX",  # Not supported yet so treat as illegal.
+        "FASM_PARAMS"
+    )
+
+    # Check if name of the attribute is legal
+    if attr not in KNOWN_FASM_ATTRS:
+        print("ERROR, illegal FASM attribute '{}'".format(attr))
+        exit(-1)
+
+    # FASM_PARAMS can only be applied on a module
+    if attr == "FASM_PARAMS" and is_instance:
+        print("ERROR, the FASM_PARAMS attribute can only be specified on a module, not its instance")
+        exit(-1)
+
+    # FASM_PREFIX can only be applied on a module instance
+    if attr == "FASM_PREFIX" and not is_instance:
+        print("ERROR, the FASM_PREFIX attribute can only be specified on a module instance, not its definition")
+        exit(-1)
+
+
 def make_metadata(
-        xml_parent, xml_metadata_inc, module_attrs, mode=None, all_modes=None
+        xml_parent, xml_metadata_inc, module_attrs, is_instance=False, mode=None, all_modes=None
 ):
     """
     Generates the XML <metadata> tag and fills it in according to the module
     attributes given.
     """
+
 
     metadata = {}
 
@@ -212,15 +243,25 @@ def make_metadata(
                         # Append it if relevant for current mode, skip otherwise
                         if m == mode:
                             name = attr.rsplit("_", 1)[0]
+
+                            # Check
+                            check_fasm_attr(name, is_instance)
+                            # Store
                             metadata[name.lower()] = value
                             break
 
                 # This attribute is not mode relevant so add it as it is common
                 if not is_mode_attr:
+                    # Check
+                    check_fasm_attr(attr, is_instance)
+                    # Store
                     metadata[attr.lower()] = value
 
             # We do not have modes
             else:
+                # Check
+                check_fasm_attr(attr, is_instance)
+                # Store directly
                 metadata[attr.lower()] = value
 
     # Store the metadata in XML (if any)
@@ -235,7 +276,7 @@ def make_metadata(
                 key = meta.get("name")
                 metadata_inc[key] = meta.text
 
-            # Update
+            # Update, throw an error on duplicate
             update_attributes(metadata, metadata_inc, concatenate=False)
 
         # Check metadata
@@ -361,12 +402,9 @@ def make_pb_content(
             if not pbtype_already_included:
                 wm = re.match(r"([A-Za-z0-9_]+)\.sim\.v", module_basename)
                 if wm:
-                    pb_type_path = "{}/{}.pb_type.xml".format(
-                        module_path,
-                        wm.group(1).lower()
-                    )
+                    pb_type_path = os.path.join(module_path, "{}.pb_type.xml".format(wm.group(1).lower()))
                 else:
-                    pb_type_path = "{}/pb_type.xml".format(module_path)
+                    pb_type_path = os.path.join(module_path, "pb_type.xml")
 
                 # inlude contents of the included pb_type, but update it's
                 # num_pb value
@@ -388,8 +426,9 @@ def make_pb_content(
                 # Append/merge metadata
                 make_metadata(
                     inc_pb_type, inc_metadata_xml,
-                    mod.data["cells"][cname]["attributes"], submode,
-                    all_submodes
+                    mod.data["cells"][cname]["attributes"],
+                    True,
+                    submode, all_submodes
                 )
 
             # In order to avoid overspecifying interconnect, there are two directions we currently
@@ -495,7 +534,7 @@ def make_pb_content(
                 continue
 
             # Write metadata
-            make_metadata(conn_xml, None, attrs, submode, all_submodes)
+            make_metadata(conn_xml, None, attrs, False, submode, all_submodes)
 
     def process_clocked_tmg(tmgspec, port, xmltype, xml_parent):
         """Add a suitable timing spec if necessary to the pb_type"""
@@ -554,10 +593,10 @@ def make_pb_content(
                 xml_mat.text = mat
 
     # Append metadata
-    make_metadata(xml_parent, None, mod.module_attrs, submode, all_submodes)
+    make_metadata(xml_parent, None, mod.module_attrs, False, submode, all_submodes)
 
 
-def make_pb_type(yj, mod, outfile):
+def make_pb_type(infiles, dump_json, yj, mod, outfile):
     """Build the pb_type for a given module. mod is the YosysModule object to
     generate."""
 
@@ -603,7 +642,7 @@ def make_pb_type(yj, mod, outfile):
         "pb_type", pb_xml_attrs, nsmap={'xi': xmlinc.xi_url}
     )
     # Process IOs
-    clocks = yosys.run.list_clocks(args.infiles, mod.name)
+    clocks = yosys.run.list_clocks(infiles, mod.name)
     for name, width, bits, iodir in mod.ports:
         ioattrs = {"name": name, "num_pins": str(width)}
         pclass = mod.net_attr(name, "PORT_CLASS")
@@ -624,7 +663,7 @@ def make_pb_type(yj, mod, outfile):
             # Rerun Yosys with mode parameter
             mode_yj = YosysJSON(
                 yosys.run.vlog_to_json(
-                    args.infiles,
+                    infiles,
                     flatten=False,
                     aig=False,
                     mode=mode,
@@ -632,7 +671,7 @@ def make_pb_type(yj, mod, outfile):
                 )
             )
 
-            if args.dump_json:
+            if dump_json:
                 import json
                 print("Mode '{}'".format(mode))
                 print(json.dumps(mode_yj.data, sort_keys=True, indent=1))
@@ -682,7 +721,7 @@ def main(args):
     if args.outfile is not None:
         outfile = args.outfile
 
-    pb_type_xml = make_pb_type(yj, tmod, outfile)
+    pb_type_xml = make_pb_type(args.infiles, args.dump_json, yj, tmod, outfile)
 
     with open(outfile, "w") as fp:
         fp.write(
