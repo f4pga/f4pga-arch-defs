@@ -474,7 +474,6 @@ def make_pb_content(
                     .format(pb_name, pin)
                 )
                 for drv_cell, drv_pin in drvs:
-                    print(pin, net, drv_cell, drv_pin)
                     # check if we're driven by multi instance cell
                     drive_instance = INVALID_INSTANCE
                     drv_cell_type = [
