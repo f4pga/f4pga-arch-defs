@@ -3,7 +3,7 @@
   <model name="nand_gate">
     <input_ports>
       <port name="I0" combinational_sink_ports="O"/>
-      <port name="I0" combinational_sink_ports="O"/>
+      <port name="I1" combinational_sink_ports="O"/>
     </input_ports>
     <output_ports>
       <port name="O"/>
