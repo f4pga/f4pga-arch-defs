@@ -41,13 +41,24 @@ The following are allowed on ports:
 
     - `(* PORT_CLASS="clock" *)` : specify the VPR "port_class"
 
-    - `(* FASM_xxxx *)` : All attributes with names starting from "FASM_" will
-        be converted do metadata entries with corresponding lowercase names.
+    - `(* FASM_PREFIX *)` : Allowed only on module instances. Gets converted
+        to "fasm_prefix" metadata tags
 
-    - `(* FASM_xxxx_mmmm *)` : If there are modes and an attribute name begins
-       with "FASM" and ends with an upper case mode name, then it is applied
-       only for the matching mode. The base attribute name with mode name
-       removed is converted to lowercase "fasm_xxxx"
+    - `(* FASM_PARAMS *)` : Allowed only on module definitions. Gets converted
+        to "fasm_params" metadata tags
+
+    - `(* FASM_FEATURES *)` : Gets converted to the "fasm_features" metadata
+        tag.
+
+    - `(* FASM_MUX *)` : Can be specified on a net which is an output of the
+        top level module. Gets converted to the "fasm_mux" metadata tag
+        for the corresponding direct connection in the interconnect.
+
+    -  If there are modes and an attribute name begins with "FASM" and ends
+       with an upper case mode name, then it is applied only for the matching
+       mode. The base attribute name with mode name removed is converted to
+       lowercase. For example FASM_FEATURES_XOR will be converted to
+       "fasm_features" metadata tag but only for mode XOR.
 
 The Verilog define "PB_TYPE" is set during generation.
 """
