@@ -47,11 +47,11 @@ function(XML_CANONICALIZE_MERGE)
   # OUTPUT
   # )
   #
-  # This function provides targets to sort the XML file in input according to the `xmlsort.xsl` script.
+  # This function provides targets to sort the XML file in input according to the `convert_and_merge_composable_fpga_architecture.xsl` script.
   # It appends all the dependencies necessary to produce the desired OUTPUT (e.g. verilog to XML translation through the tools).
   #
   # NAME is used to give a name to the target.
-  # FILE is the input file that needs to be processed by xmlsort
+  # FILE is the input file that needs to be processed by xsl script.
   # OUTPUT is the name of the output file
 
   set(options)
@@ -65,7 +65,7 @@ function(XML_CANONICALIZE_MERGE)
     ${ARGN}
     )
 
-  set(XML_CANONICALIZE_MERGE_XSL ${symbiflow-arch-defs_SOURCE_DIR}/common/xml/xmlsort.xsl)
+  set(XML_CANONICALIZE_MERGE_XSL ${symbiflow-arch-defs_SOURCE_DIR}/common/xml/convert_and_merge_composable_fpga_architecture.xsl)
 
   get_file_location(XML_CANONICALIZE_MERGE_INPUT_LOCATION ${XML_CANONICALIZE_MERGE_FILE})
 
