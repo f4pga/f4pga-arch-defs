@@ -8,7 +8,7 @@ There are both Latches (first) and Registers (second) on the output (why!?)
 The RAM has extra bits that can be used for parity (DIP / DOP).
 
 This is the top level site model.  Because the 3 sites with the BRAM are
-affected by the BRAM mode, each site cannot be handled independendly.  For this
+affected by the BRAM mode, each site cannot be handled independently.  For this
 reason, BRAM tiles use a "fused sites" mode to accomidate the cross site logic.
 
   -->
