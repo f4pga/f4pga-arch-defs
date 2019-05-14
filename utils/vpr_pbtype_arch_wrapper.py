@@ -158,7 +158,7 @@ def layout_xml(arch_xml: ET.Element, pbtype_xml: ET.Element) -> int:
         The height of the new layout.
     """
 
-    pbtype_name, clocks, inputs, outputs = ports(pbtype_xml)
+    pbtype_name, clocks, inputs, outputs, carry = ports(pbtype_xml)
 
     finputs = [d for s, d in flatten(clocks + inputs)]
     foutputs = [d for s, d in flatten(outputs)]
@@ -221,7 +221,7 @@ def tile_xml(
     str
         The name of the top level pb_type (the tile).
     """
-    name, clocks, inputs, outputs = ports(pbtype_xml)
+    name, clocks, inputs, outputs, carry = ports(pbtype_xml)
     assert name != "TILE", "name ({}) must not be TILE".format(name)
 
     cbl = arch_xml.find("complexblocklist")
