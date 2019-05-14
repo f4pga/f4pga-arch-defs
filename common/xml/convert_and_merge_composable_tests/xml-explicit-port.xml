@@ -1,0 +1,6 @@
+<?xml version="1.0"?>
+<xml>
+  <port name="port-name" />
+  <port name="port-name" bit="8" />
+  <port name="port-name" bit_msb="8" bit_lsb="4" />
+</xml>

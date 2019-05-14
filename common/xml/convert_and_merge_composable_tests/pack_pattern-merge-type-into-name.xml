@@ -1,0 +1,13 @@
+<?xml version="1.0"?>
+<xml>
+ <pb_type>
+  <direct>
+   <pack_pattern name="B" type="carry" />
+  </direct>
+  <mux>
+   <pack_pattern name="A" type="pack">
+    <innertag />
+   </pack_pattern>
+  </mux>
+ </pb_type>
+</xml>
