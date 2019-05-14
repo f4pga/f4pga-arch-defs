@@ -85,7 +85,8 @@ def main(args):
         args.pb_type
     )
 
-    pbtype_name, clocks, inputs, outputs = ports(pbtype_leaf)
+    pbtype_name, clocks, inputs, outputs, carry = ports(pbtype_leaf)
+    pbtype_subckt = pbtype_leaf.attrib['blif_model'][len('.subckt '):]
     iname = os.path.basename(args.pb_type)
 
     outfile = "{}.test.eblif".format(iname)
