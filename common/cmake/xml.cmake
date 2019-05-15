@@ -45,6 +45,7 @@ function(XML_CANONICALIZE_MERGE)
   # NAME
   # FILE
   # OUTPUT
+  # {EXTRA_ARGUMENTS}
   # )
   #
   # This function provides targets to sort the XML file in input according to the `convert_and_merge_composable_fpga_architecture.xsl` script.
@@ -53,10 +54,11 @@ function(XML_CANONICALIZE_MERGE)
   # NAME is used to give a name to the target.
   # FILE is the input file that needs to be processed by xsl script.
   # OUTPUT is the name of the output file
+  # EXTRA_ARGUMENTS is the extra arguments to give to xsltproc when running the xsl script.
 
   set(options)
   set(oneValueArgs NAME FILE OUTPUT)
-  set(multiValueArgs)
+  set(multiValueArgs EXTRA_ARGUMENTS)
   cmake_parse_arguments(
     XML_CANONICALIZE_MERGE
     "${options}"
@@ -89,6 +91,7 @@ function(XML_CANONICALIZE_MERGE)
       --nomkdir
       --nonet
       --xinclude
+      ${XML_CANONICALIZE_MERGE_EXTRA_ARGUMENTS}
       --output ${CMAKE_CURRENT_BINARY_DIR}/${XML_CANONICALIZE_MERGE_OUTPUT}
       ${XML_CANONICALIZE_MERGE_XSL}
       ${XML_CANONICALIZE_MERGE_INPUT_LOCATION}

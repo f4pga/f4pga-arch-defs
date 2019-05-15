@@ -1,4 +1,9 @@
 <?xml version="1.0"?>
+<!-- Clean up attributes
+   * Normalize space around attributes on a tag
+   * Sort the attributes by name
+   * Strip xml:base attribute
+  -->
 <xml>
  <tag b="1"  c="123"  x="abc" />
  <tag c="1"  d="123"  x="abc" />
