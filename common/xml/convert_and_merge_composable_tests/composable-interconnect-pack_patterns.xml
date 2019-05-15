@@ -59,24 +59,12 @@ This example below is connected as follows;
     <direct>
      <port type="input"                name="ia1" />
      <port type="output" from="childa" name="i1"  />
-     <pack_pattern name="A1">
-      <port type="input"                name="ia1" />
-      <port type="output" from="childa" name="i1"  />
-     </pack_pattern>
     </direct>
     <!-- Mux parent -> child -->
     <mux name="childa-input-i2">
      <port type="input"                name="ia2" />
      <port type="input"                name="ia3" />
      <port type="output" from="childa" name="i2"  />
-     <pack_pattern name="A2">
-      <port type="input"                name="ia2" />
-      <port type="output" from="childa" name="i2"  />
-     </pack_pattern>
-     <pack_pattern name="A3">
-      <port type="input"                name="ia3" />
-      <port type="output" from="childa" name="i2"  />
-     </pack_pattern>
     </mux>
     <!-- Direct parent -> child -->
     <direct>

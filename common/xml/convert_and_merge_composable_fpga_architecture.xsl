@@ -65,10 +65,16 @@
        <pack_pattern name="yyy-xxx"
     -->
   <xsl:template match="pack_pattern/@type"/>
-  <xsl:template match="pack_pattern/@name">
+  <xsl:template match="pack_pattern[@type]/@name">
     <xsl:attribute name="name">
       <xsl:value-of select="../@type"/>-<xsl:value-of select="../@name"/>
     </xsl:attribute>
+  </xsl:template>
+  <xsl:template match="pack_pattern[not(@type)]/@name">
+    <xsl:copy />
+  </xsl:template>
+  <xsl:template match="pack_pattern/*">
+    <xsl:copy />
   </xsl:template>
 
   <!-- Prefix in_port / out_port values with the parent name. -->
@@ -95,14 +101,14 @@
 
   <!--
     Convert
-      <interconnect><direct><pack_pattern><port type='input' ...><port type='output' ...></pack_pattern></direct><YYY../></interconnect>
+      <interconnect><xxx><pack_pattern><port type='input' ...><port type='output' ...></pack_pattern></xxx><YYY../></interconnect>
     to
-      <interconnect><direct><pack_pattern in_port="XXXX" out_port="XXXX" /></direct></interconnect>
+      <interconnect><xxx><pack_pattern in_port="XXXX" out_port="XXXX" /></xxx></interconnect>
     -->
-  <xsl:template match="interconnect/direct/pack_pattern/port[@type='input']">
+  <xsl:template match="pack_pattern/port[@type='input']">
     <xsl:attribute name="in_port"><xsl:call-template name="from-pb_type"/>.<xsl:call-template name="port-value"/></xsl:attribute>
   </xsl:template>
-  <xsl:template match="interconnect/direct/pack_pattern/port[@type='output']">
+  <xsl:template match="pack_pattern/port[@type='output']">
     <xsl:attribute name="out_port"><xsl:call-template name="from-pb_type"/>.<xsl:call-template name="port-value"/></xsl:attribute>
   </xsl:template>
 
@@ -112,25 +118,22 @@
     to
       <interconnect><mux input='in1 in2' name='xxx-xxx' output='...'><YYY../></mux></interconnect>
     -->
+  <xsl:template match="interconnect/mux/port"></xsl:template>
   <xsl:template match="interconnect/mux">
     <xsl:copy>
-      <xsl:attribute name="name">
-        <xsl:value-of select="@name" />
-      </xsl:attribute>
       <xsl:attribute name="input">
         <xsl:for-each select="port[@type='input']">
-	        <xsl:call-template name="from-pb_type"/>.<xsl:call-template name="port-value"/>
+          <xsl:call-template name="from-pb_type"/>.<xsl:call-template name="port-value"/>
           <xsl:if test="position() != last()"><xsl:text> </xsl:text></xsl:if>
         </xsl:for-each>
-        <xsl:value-of select="@input" />
       </xsl:attribute>
       <xsl:attribute name="output">
         <xsl:for-each select="port[@type='output']">
-	        <xsl:call-template name="from-pb_type"/>.<xsl:call-template name="port-value"/>
-          <xsl:if test="position() != last()"><xsl:text> </xsl:text></xsl:if>
+          <xsl:call-template name="from-pb_type"/>.<xsl:call-template name="port-value"/>
         </xsl:for-each>
-        <xsl:value-of select="@output" />
       </xsl:attribute>
+      <xsl:for-each select="@*"><xsl:copy /></xsl:for-each>
+      <xsl:apply-templates/>
       <xsl:if test="*/metadata">
         <metadata>
           <!-- The fasm_mux metadata attribute needs special handling. -->
@@ -138,8 +141,8 @@
             <meta name="fasm_mux">
               <xsl:for-each select="port[@type='input']"><xsl:text>
                 </xsl:text><xsl:call-template name="from-pb_type"/>.<xsl:call-template name="port-value"/><xsl:text> : </xsl:text><xsl:value-of select="metadata/meta[@name='fasm_mux']" />
-	            </xsl:for-each><xsl:text>
-          </xsl:text>
+              </xsl:for-each><xsl:text>
+            </xsl:text>
             </meta>
           </xsl:if>
           <xsl:for-each select="metadata">
@@ -149,6 +152,7 @@
       </xsl:if>
     </xsl:copy>
   </xsl:template>
+  <xsl:template match="interconnect/mux/metadata"></xsl:template>
 
   <!--
     Convert
