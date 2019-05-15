@@ -2,10 +2,17 @@
 <xml>
   <pb_type name="parent">
     <input name="i" width="2"/>
-    <loc>
-      parent.o
-      parent.i[0]
-      parent.i[1]
-    </loc>
+    <pinlocations>
+      <loc>
+        parent.o
+        parent.i[0]
+        parent.i[1]
+      </loc>
+    </pinlocations>
+    <random>
+      <loc>
+        <port name="o"/>
+      </loc>
+    </random>
   </pb_type>
 </xml>

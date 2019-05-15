@@ -8,10 +8,17 @@
 <xml>
  <pb_type name="parent">
   <input name="i" width="2" />
-  <loc>
-   <port name="o" />
-   <port name="i" bit="0" />
-   <port name="i" bit="1" />
-  </loc>
+  <pinlocations>
+   <loc>
+    <port name="o" />
+    <port name="i" bit="0" />
+    <port name="i" bit="1" />
+   </loc>
+  </pinlocations>
+  <random>
+   <loc>
+    <port name="o" />
+   </loc>
+  </random>
  </pb_type>
 </xml>
