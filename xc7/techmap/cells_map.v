@@ -1250,50 +1250,63 @@ end
   );
 endmodule
 
-module CARRY0(output CO_CHAIN, CO_FABRIC, O, input CI, CI_INIT, DI, S);
-  parameter CYINIT_FABRIC = 0;
-  parameter _TECHMAP_CONSTMSK_CI_INIT_ = 0;
-  parameter _TECHMAP_CONSTVAL_CI_INIT_ = 0;
+module CARRY4_COUT(output [3:0] CO, O, output COUT, input CI, CYINIT, input [3:0] DI, S);
+  parameter _TECHMAP_CONSTMSK_CI_ = 1;
+  parameter _TECHMAP_CONSTVAL_CI_ = 1'b0;
+  parameter _TECHMAP_CONSTMSK_CYINIT_ = 1;
+  parameter _TECHMAP_CONSTVAL_CYINIT_ = 1'b0;
 
-  // Only connect CI_INIT for non-constant signals.
-  wire CI_INIT_INNER;
-  if(_TECHMAP_CONSTMSK_CI_INIT_ == 0 && CYINIT_FABRIC) begin
-    CARRY0_CONST #(
+  localparam [0:0] IS_CI_ZERO = (
+      _TECHMAP_CONSTMSK_CI_ == 1 && _TECHMAP_CONSTVAL_CI_ == 0 &&
+      _TECHMAP_CONSTMSK_CYINIT_ == 1 && _TECHMAP_CONSTVAL_CYINIT_ == 0);
+  localparam [0:0] IS_CI_ONE = (
+      _TECHMAP_CONSTMSK_CI_ == 1 && _TECHMAP_CONSTVAL_CI_ == 0 &&
+      _TECHMAP_CONSTMSK_CYINIT_ == 1 && _TECHMAP_CONSTVAL_CYINIT_ == 1);
+  localparam [0:0] IS_CYINIT_FABRIC = _TECHMAP_CONSTMSK_CYINIT_ == 0;
+  localparam [0:0] IS_CI_DISCONNECTED = _TECHMAP_CONSTMSK_CI_ == 1 &&
+    _TECHMAP_CONSTVAL_CI_ != 1;
+  localparam [0:0] IS_CYINIT_DISCONNECTED = _TECHMAP_CONSTMSK_CYINIT_ == 1 &&
+    _TECHMAP_CONSTVAL_CYINIT_ != 1;
+
+  wire [1023:0] _TECHMAP_DO_ = "proc; clean";
+
+  if(IS_CYINIT_FABRIC) begin
+    CARRY4_VPR #(
         .CYINIT_AX(1'b1),
         .CYINIT_C0(1'b0),
         .CYINIT_C1(1'b0)
     ) _TECHMAP_REPLACE_ (
-        .CO_CHAIN(CO_CHAIN),
-        .CO_FABRIC(CO_FABRIC),
+        .CO_CHAIN(COUT),
+        .CO_FABRIC(CO),
         .O(O),
-        .CI_INIT(CI_INIT),
+        .CYINIT(CYINIT),
         .DI(DI),
         .S(S)
     );
-  end else if(!CYINIT_FABRIC) begin
-    CARRY0_CONST #(
+  end else if(IS_CI_ZERO || IS_CI_ONE) begin
+    CARRY4_VPR #(
         .CYINIT_AX(1'b0),
-        .CYINIT_C0(1'b0),
-        .CYINIT_C1(1'b0)
+        .CYINIT_C0(IS_CI_ZERO),
+        .CYINIT_C1(IS_CI_ONE)
     ) _TECHMAP_REPLACE_ (
-        .CO_CHAIN(CO_CHAIN),
-        .CO_FABRIC(CO_FABRIC),
+        .CO_CHAIN(COUT),
+        .CO_FABRIC(CO),
         .O(O),
-        .CI(CI),
         .DI(DI),
         .S(S)
     );
   end else begin
-    CARRY0_CONST #(
+    CARRY4_VPR #(
         .CYINIT_AX(1'b0),
-        .CYINIT_C0(_TECHMAP_CONSTVAL_CI_INIT_ == 0),
-        .CYINIT_C1(_TECHMAP_CONSTVAL_CI_INIT_ == 1)
+        .CYINIT_C0(1'b0),
+        .CYINIT_C1(1'b0)
     ) _TECHMAP_REPLACE_ (
-        .CO_CHAIN(CO_CHAIN),
-        .CO_FABRIC(CO_FABRIC),
+        .CO_CHAIN(COUT),
+        .CO_FABRIC(CO),
         .O(O),
         .DI(DI),
-        .S(S)
+        .S(S),
+        .CIN(CI)
     );
   end
 endmodule

@@ -58,7 +58,7 @@
   <xi:include href="../ff/ff.pb_type.xml" />
 
   <!-- CARRY4 logic -->
-  <xi:include href="carry/carry0.pb_type.xml" />
+  <xi:include href="carry/carry4_vpr.pb_type.xml" />
 
   <pb_type name="CEUSEDMUX" num_pb="1" >
     <input name="CE" num_pins="1" />
@@ -257,10 +257,6 @@
     </mode>
   </pb_type>
 
-  <pb_type name="CARRY" blif_model=".subckt CARRY" num_pb="3">
-    <xi:include href="carry/carry.pb_type.xml"
-                xpointer="xpointer(pb_type/child::node())" />
-  </pb_type>
   <interconnect>
     <!-- 5FF MUXs -->
     <mux name="D5FFMUX" input="COMMON_SLICE.DX COMMON_SLICE.DO5" output="SLICE_FF.D5[3]" >
@@ -298,7 +294,7 @@
 
     <!-- [A-D]MUX -->
     <mux name="DOUTMUX"
-      input="COMMON_SLICE.AMC31 SLICE_FF.Q5[3] CARRY[2].O CARRY[2].CO_FABRIC COMMON_SLICE.DO6 COMMON_SLICE.DO5"
+      input="COMMON_SLICE.AMC31 SLICE_FF.Q5[3] CARRY4_VPR.O[3] CARRY4_VPR.CO_FABRIC[3] COMMON_SLICE.DO6 COMMON_SLICE.DO5"
       output="COMMON_SLICE.DMUX">
       <metadata>
         <meta name="fasm_mux">
@@ -307,13 +303,13 @@
           SLICE_FF.Q5[3] = DOUTMUX.D5Q
           COMMON_SLICE.DO5 = DOUTMUX.O5
           COMMON_SLICE.DO6 = DOUTMUX.O6
-          CARRY[2].CO_FABRIC = DOUTMUX.CY
-          CARRY[2].O = DOUTMUX.XOR
+          CARRY4_VPR.CO_FABRIC[3] = DOUTMUX.CY
+          CARRY4_VPR.O[3] = DOUTMUX.XOR
         </meta>
       </metadata>
     </mux>
     <mux name="COUTMUX"
-      input="SLICE_FF.Q5[2] CARRY[1].O CARRY[1].CO_FABRIC COMMON_SLICE.CO6 COMMON_SLICE.CO5 COMMON_SLICE.F7BMUX_O"
+      input="SLICE_FF.Q5[2] CARRY4_VPR.O[2] CARRY4_VPR.CO_FABRIC[2] COMMON_SLICE.CO6 COMMON_SLICE.CO5 COMMON_SLICE.F7BMUX_O"
       output="COMMON_SLICE.CMUX" >
       <metadata>
         <meta name="fasm_mux">
@@ -321,13 +317,13 @@
           COMMON_SLICE.F7BMUX_O = COUTMUX.F7
           COMMON_SLICE.CO5 = COUTMUX.O5
           COMMON_SLICE.CO6 = COUTMUX.O6
-          CARRY[1].CO_FABRIC = COUTMUX.CY
-          CARRY[1].O = COUTMUX.XOR
+          CARRY4_VPR.CO_FABRIC[2] = COUTMUX.CY
+          CARRY4_VPR.O[2] = COUTMUX.XOR
         </meta>
       </metadata>
     </mux>
     <mux name="BOUTMUX"
-      input="SLICE_FF.Q5[1] CARRY[0].O CARRY[0].CO_FABRIC COMMON_SLICE.BO6 COMMON_SLICE.BO5 COMMON_SLICE.F8MUX_O"
+      input="SLICE_FF.Q5[1] CARRY4_VPR.O[1] CARRY4_VPR.CO_FABRIC[1] COMMON_SLICE.BO6 COMMON_SLICE.BO5 COMMON_SLICE.F8MUX_O"
       output="COMMON_SLICE.BMUX" >
       <metadata>
         <meta name="fasm_mux">
@@ -335,13 +331,13 @@
           COMMON_SLICE.F8MUX_O = BOUTMUX.F8
           COMMON_SLICE.BO5 = BOUTMUX.O5
           COMMON_SLICE.BO6 = BOUTMUX.O6
-          CARRY[0].CO_FABRIC = BOUTMUX.CY
-          CARRY[0].O = BOUTMUX.XOR
+          CARRY4_VPR.CO_FABRIC[1] = BOUTMUX.CY
+          CARRY4_VPR.O[1] = BOUTMUX.XOR
         </meta>
       </metadata>
     </mux>
     <mux name="AOUTMUX"
-      input="SLICE_FF.Q5[0] CARRY0.O CARRY0.CO_FABRIC COMMON_SLICE.AO6 COMMON_SLICE.AO5 COMMON_SLICE.F7AMUX_O"
+      input="SLICE_FF.Q5[0] CARRY4_VPR.O[0] CARRY4_VPR.CO_FABRIC[0] COMMON_SLICE.AO6 COMMON_SLICE.AO5 COMMON_SLICE.F7AMUX_O"
       output="COMMON_SLICE.AMUX" >
       <metadata>
         <meta name="fasm_mux">
@@ -349,28 +345,28 @@
           COMMON_SLICE.F7AMUX_O = AOUTMUX.F7
           COMMON_SLICE.AO5 = AOUTMUX.O5
           COMMON_SLICE.AO6 = AOUTMUX.O6
-          CARRY0.CO_FABRIC = AOUTMUX.CY
-          CARRY0.O = AOUTMUX.XOR
+          CARRY4_VPR.CO_FABRIC[0] = AOUTMUX.CY
+          CARRY4_VPR.O[0] = AOUTMUX.XOR
         </meta>
       </metadata>
     </mux>
 
     <!-- [A-D]FFMUX -->
     <mux name="DFFMUX"
-      input="CARRY[2].O CARRY[2].CO_FABRIC COMMON_SLICE.DO6 COMMON_SLICE.DO5 COMMON_SLICE.DX"
+      input="CARRY4_VPR.O[3] CARRY4_VPR.CO_FABRIC[3] COMMON_SLICE.DO6 COMMON_SLICE.DO5 COMMON_SLICE.DX"
       output="SLICE_FF.D[3]" >
       <metadata>
         <meta name="fasm_mux">
           COMMON_SLICE.DX = DFFMUX.DX
           COMMON_SLICE.DO5 = DFFMUX.O5
           COMMON_SLICE.DO6 = DFFMUX.O6
-          CARRY[2].CO_FABRIC = DFFMUX.CY
-          CARRY[2].O = DFFMUX.XOR
+          CARRY4_VPR.CO_FABRIC[3] = DFFMUX.CY
+          CARRY4_VPR.O[3] = DFFMUX.XOR
         </meta>
       </metadata>
     </mux>
     <mux name="CFFMUX"
-      input="CARRY[1].O CARRY[1].CO_FABRIC COMMON_SLICE.CO6 COMMON_SLICE.CO5 COMMON_SLICE.CX COMMON_SLICE.F7BMUX_O"
+      input="CARRY4_VPR.O[2] CARRY4_VPR.CO_FABRIC[2] COMMON_SLICE.CO6 COMMON_SLICE.CO5 COMMON_SLICE.CX COMMON_SLICE.F7BMUX_O"
       output="SLICE_FF.D[2]" >
       <metadata>
         <meta name="fasm_mux">
@@ -378,13 +374,13 @@
           COMMON_SLICE.F7BMUX_O = CFFMUX.F7
           COMMON_SLICE.CO5 = CFFMUX.O5
           COMMON_SLICE.CO6 = CFFMUX.O6
-          CARRY[1].CO_FABRIC = CFFMUX.CY
-          CARRY[1].O = CFFMUX.XOR
+          CARRY4_VPR.CO_FABRIC[2] = CFFMUX.CY
+          CARRY4_VPR.O[2] = CFFMUX.XOR
         </meta>
       </metadata>
     </mux>
     <mux name="BFFMUX"
-      input="CARRY[0].O CARRY[0].CO_FABRIC COMMON_SLICE.BO6 COMMON_SLICE.BO5 COMMON_SLICE.BX COMMON_SLICE.F8MUX_O"
+      input="CARRY4_VPR.O[1] CARRY4_VPR.CO_FABRIC[1] COMMON_SLICE.BO6 COMMON_SLICE.BO5 COMMON_SLICE.BX COMMON_SLICE.F8MUX_O"
       output="SLICE_FF.D[1]" >
       <metadata>
         <meta name="fasm_mux">
@@ -392,13 +388,13 @@
           COMMON_SLICE.F8MUX_O = BFFMUX.F8
           COMMON_SLICE.BO5 = BFFMUX.O5
           COMMON_SLICE.BO6 = BFFMUX.O6
-          CARRY[0].CO_FABRIC = BFFMUX.CY
-          CARRY[0].O = BFFMUX.XOR
+          CARRY4_VPR.CO_FABRIC[1] = BFFMUX.CY
+          CARRY4_VPR.O[1] = BFFMUX.XOR
         </meta>
       </metadata>
     </mux>
     <mux name="AFFMUX"
-      input="CARRY0.O CARRY0.CO_FABRIC COMMON_SLICE.AO6 COMMON_SLICE.AO5 COMMON_SLICE.AX COMMON_SLICE.F7AMUX_O"
+      input="CARRY4_VPR.O[0] CARRY4_VPR.CO_FABRIC[0] COMMON_SLICE.AO6 COMMON_SLICE.AO5 COMMON_SLICE.AX COMMON_SLICE.F7AMUX_O"
       output="SLICE_FF.D[0]" >
       <metadata>
         <meta name="fasm_mux">
@@ -406,8 +402,8 @@
           COMMON_SLICE.F7AMUX_O = AFFMUX.F7
           COMMON_SLICE.AO5 = AFFMUX.O5
           COMMON_SLICE.AO6 = AFFMUX.O6
-          CARRY0.CO_FABRIC = AFFMUX.CY
-          CARRY0.O = AFFMUX.XOR
+          CARRY4_VPR.CO_FABRIC[0] = AFFMUX.CY
+          CARRY4_VPR.O[0] = AFFMUX.XOR
         </meta>
       </metadata>
     </mux>
@@ -429,7 +425,7 @@
     <!-- Carry initialization -->
     <direct name="PRECYINIT_MUX"
       input="COMMON_SLICE.AX"
-      output="CARRY0.CI_INIT">
+      output="CARRY4_VPR.CYINIT">
       <metadata>
         <meta name="fasm_mux">
           COMMON_SLICE.AX = PRECYINIT.AX
@@ -437,8 +433,8 @@
       </metadata>
     </direct>>
 
-    <direct name="CIN_TO_CARRY0" input="COMMON_SLICE.CIN" output="CARRY0.CI" >
-      <pack_pattern name="CARRYCHAIN" in_port="COMMON_SLICE.CIN" out_port="CARRY0.CI"/>
+    <direct name="CIN_TO_CARRY0" input="COMMON_SLICE.CIN" output="CARRY4_VPR.CIN" >
+      <pack_pattern name="CARRYCHAIN" in_port="COMMON_SLICE.CIN" out_port="CARRY4_VPR.CIN"/>
       <metadata>
         <meta name="fasm_mux">
           COMMON_SLICE.CIN = PRECYINIT.CIN
@@ -446,25 +442,14 @@
       </metadata>
     </direct>
 
-    <!-- Tile internal carry -->
-    <direct name="CARRY0_TO_CARRY1"    input="CARRY0.CO_CHAIN"   output="CARRY[0].CI"      >
-      <pack_pattern name="CARRYCHAIN" in_port="CARRY0.CO_CHAIN" out_port="CARRY[0].CI"/>
-    </direct>
-    <direct name="CARRY1_TO_CARRY2"    input="CARRY[0].CO_CHAIN"   output="CARRY[1].CI"      >
-      <pack_pattern name="CARRYCHAIN" in_port="CARRY[0].CO_CHAIN" out_port="CARRY[1].CI"/>
-    </direct>
-    <direct name="CARRY2_TO_CARRY3"    input="CARRY[1].CO_CHAIN"   output="CARRY[2].CI"      >
-      <pack_pattern name="CARRYCHAIN" in_port="CARRY[1].CO_CHAIN" out_port="CARRY[2].CI"/>
-   </direct>
-
     <!-- Carry selects -->
-    <direct name="CARRY_S3" input="COMMON_SLICE.DO6" output="CARRY[2].S" />
-    <direct name="CARRY_S2" input="COMMON_SLICE.CO6" output="CARRY[1].S" />
-    <direct name="CARRY_S1" input="COMMON_SLICE.BO6" output="CARRY[0].S" />
-    <direct name="CARRY_S0" input="COMMON_SLICE.AO6" output="CARRY0.S" />
+    <direct name="CARRY_S3" input="COMMON_SLICE.DO6" output="CARRY4_VPR.S[3]" />
+    <direct name="CARRY_S2" input="COMMON_SLICE.CO6" output="CARRY4_VPR.S[2]" />
+    <direct name="CARRY_S1" input="COMMON_SLICE.BO6" output="CARRY4_VPR.S[1]" />
+    <direct name="CARRY_S0" input="COMMON_SLICE.AO6" output="CARRY4_VPR.S[0]" />
 
     <!-- Carry MUXCY.DI -->
-    <mux name="CARRY_DI3" input="COMMON_SLICE.DO5 COMMON_SLICE.DX" output="CARRY[2].DI" >
+    <mux name="CARRY_DI3" input="COMMON_SLICE.DO5 COMMON_SLICE.DX" output="CARRY4_VPR.DI[3]" >
       <metadata>
         <meta name="fasm_mux">
           COMMON_SLICE.DO5 = CARRY4.DCY0
@@ -472,7 +457,7 @@
         </meta>
       </metadata>
     </mux>
-    <mux name="CARRY_DI2" input="COMMON_SLICE.CO5 COMMON_SLICE.CX" output="CARRY[1].DI" >
+    <mux name="CARRY_DI2" input="COMMON_SLICE.CO5 COMMON_SLICE.CX" output="CARRY4_VPR.DI[2]" >
       <metadata>
         <meta name="fasm_mux">
           COMMON_SLICE.CO5 = CARRY4.CCY0
@@ -480,7 +465,7 @@
         </meta>
       </metadata>
     </mux>
-    <mux name="CARRY_DI1" input="COMMON_SLICE.BO5 COMMON_SLICE.BX" output="CARRY[0].DI" >
+    <mux name="CARRY_DI1" input="COMMON_SLICE.BO5 COMMON_SLICE.BX" output="CARRY4_VPR.DI[1]" >
       <metadata>
         <meta name="fasm_mux">
           COMMON_SLICE.BO5 = CARRY4.BCY0
@@ -488,7 +473,7 @@
         </meta>
       </metadata>
     </mux>
-    <mux name="CARRY_DI0" input="COMMON_SLICE.AO5 COMMON_SLICE.AX" output="CARRY0.DI" >
+    <mux name="CARRY_DI0" input="COMMON_SLICE.AO5 COMMON_SLICE.AX" output="CARRY4_VPR.DI[0]" >
       <metadata>
         <meta name="fasm_mux">
           COMMON_SLICE.AO5 = CARRY4.ACY0
@@ -497,8 +482,8 @@
       </metadata>
     </mux>
 
-    <direct name="COUT" input="CARRY[2].CO_CHAIN" output="COMMON_SLICE.COUT" >
-      <pack_pattern name="CARRYCHAIN" in_port="CARRY[2].CO_CHAIN" out_port="COMMON_SLICE.COUT"/>
+    <direct name="COUT" input="CARRY4_VPR.CO_CHAIN" output="COMMON_SLICE.COUT" >
+      <pack_pattern name="CARRYCHAIN" in_port="CARRY4_VPR.CO_CHAIN" out_port="COMMON_SLICE.COUT"/>
     </direct>
 
     <!-- Clock, Clock Enable and Reset -->

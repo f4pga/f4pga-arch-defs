@@ -9,7 +9,6 @@
       <port name="GND" />
     </output_ports>
   </model>
-  <xi:include href="carry/carry.model.xml"         xpointer="xpointer(models/child::node())" />
-  <xi:include href="carry/carry0.model.xml"        xpointer="xpointer(models/child::node())" />
+  <xi:include href="carry/carry4_vpr.model.xml"    xpointer="xpointer(models/child::node())" />
   <xi:include href="../ff/ff.model.xml"            xpointer="xpointer(models/child::node())" />
 </models>

@@ -1,18 +1,9 @@
 add_file_target(
-  FILE carry.sim.v
+  FILE carry4_vpr.sim.v
   SCANNER_TYPE verilog
   )
 
 v2x(
-  NAME carry
-  SRCS carry.sim.v
+  NAME carry4_vpr
+  SRCS carry4_vpr.sim.v
 )
-
-add_file_target(
-  FILE carry0.pb_type.xml
-  SCANNER_TYPE xml
-  )
-add_file_target(
-  FILE carry0.model.xml
-  SCANNER_TYPE xml
-  )
