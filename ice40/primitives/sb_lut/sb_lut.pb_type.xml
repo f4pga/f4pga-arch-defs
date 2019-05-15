@@ -25,27 +25,27 @@
   <interconnect>
    <direct><port type="input" name="in"/><port type="output" from="LUT4" name="in"/></direct>
    <direct><port type="input" from="LUT4" name="out"/><port type="output" name="out"/>
-    <pack_pattern name="LUT+FFA" in_port="LUT4.out" out_port="LUT.out"/>
-    <pack_pattern name="LUT+FFB" in_port="LUT4.out" out_port="LUT.out"/>
-    <pack_pattern name="LUT+FFC" in_port="LUT4.out" out_port="LUT.out"/>
-    <pack_pattern name="LUT+FFD" in_port="LUT4.out" out_port="LUT.out"/>
-    <pack_pattern name="LUT+FFE" in_port="LUT4.out" out_port="LUT.out"/>
-    <pack_pattern name="LUT+FFF" in_port="LUT4.out" out_port="LUT.out"/>
-    <pack_pattern name="LUT+FFG" in_port="LUT4.out" out_port="LUT.out"/>
-    <pack_pattern name="LUT+FFH" in_port="LUT4.out" out_port="LUT.out"/>
-    <pack_pattern name="LUT+FFI" in_port="LUT4.out" out_port="LUT.out"/>
-    <pack_pattern name="LUT+FFJ" in_port="LUT4.out" out_port="LUT.out"/>
-    <pack_pattern name="LUT+FFK" in_port="LUT4.out" out_port="LUT.out"/>
-    <pack_pattern name="LUT+FFL" in_port="LUT4.out" out_port="LUT.out"/>
-    <pack_pattern name="LUT+FFM" in_port="LUT4.out" out_port="LUT.out"/>
-    <pack_pattern name="LUT+FFN" in_port="LUT4.out" out_port="LUT.out"/>
-    <pack_pattern name="LUT+FFO" in_port="LUT4.out" out_port="LUT.out"/>
-    <pack_pattern name="LUT+FFP" in_port="LUT4.out" out_port="LUT.out"/>
-    <pack_pattern name="LUT+FFQ" in_port="LUT4.out" out_port="LUT.out"/>
-    <pack_pattern name="LUT+FFR" in_port="LUT4.out" out_port="LUT.out"/>
-    <pack_pattern name="LUT+FFS" in_port="LUT4.out" out_port="LUT.out"/>
-    <pack_pattern name="LUT+FFT" in_port="LUT4.out" out_port="LUT.out"/>
-    <pack_pattern name="LUT+FFU" in_port="LUT4.out" out_port="LUT.out"/>
+    <pack_pattern name="LUT+FFA"/>
+    <pack_pattern name="LUT+FFB"/>
+    <pack_pattern name="LUT+FFC"/>
+    <pack_pattern name="LUT+FFD"/>
+    <pack_pattern name="LUT+FFE"/>
+    <pack_pattern name="LUT+FFF"/>
+    <pack_pattern name="LUT+FFG"/>
+    <pack_pattern name="LUT+FFH"/>
+    <pack_pattern name="LUT+FFI"/>
+    <pack_pattern name="LUT+FFJ"/>
+    <pack_pattern name="LUT+FFK"/>
+    <pack_pattern name="LUT+FFL"/>
+    <pack_pattern name="LUT+FFM"/>
+    <pack_pattern name="LUT+FFN"/>
+    <pack_pattern name="LUT+FFO"/>
+    <pack_pattern name="LUT+FFP"/>
+    <pack_pattern name="LUT+FFQ"/>
+    <pack_pattern name="LUT+FFR"/>
+    <pack_pattern name="LUT+FFS"/>
+    <pack_pattern name="LUT+FFT"/>
+    <pack_pattern name="LUT+FFU"/>
    </direct>
   </interconnect>
  </mode>
@@ -56,10 +56,10 @@
    <input  name="I2" num_pins="1" />
    <input  name="I3" num_pins="1" />
    <output name="O"  num_pins="1" />
-   <delay_constant max="10e-12" in_port="SB_LUT4.I0" out_port="SB_LUT4.O"/>
-   <delay_constant max="10e-12" in_port="SB_LUT4.I1" out_port="SB_LUT4.O"/>
-   <delay_constant max="10e-12" in_port="SB_LUT4.I2" out_port="SB_LUT4.O"/>
-   <delay_constant max="10e-12" in_port="SB_LUT4.I3" out_port="SB_LUT4.O"/>
+   <delay_constant max="10e-12" in_port="I0" out_port="O"/>
+   <delay_constant max="10e-12" in_port="I1" out_port="O"/>
+   <delay_constant max="10e-12" in_port="I2" out_port="O"/>
+   <delay_constant max="10e-12" in_port="I3" out_port="O"/>
    <metadata>
     <meta name="type">block</meta>
     <meta name="subtype">ignore</meta>
