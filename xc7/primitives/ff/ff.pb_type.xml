@@ -44,10 +44,10 @@
           <clock  name="C" num_pins="1"/>
           <input  name="S" num_pins="1"/>
           <output name="Q" num_pins="1"/>
-          <T_setup    value="10e-12" port="FDSE.D" clock="C" />
-          <T_setup    value="10e-12" port="FDSE.CE" clock="C" />
-          <T_setup    value="10e-12" port="FDSE.S" clock="C" />
-          <T_clock_to_Q max="10e-12" port="FDSE.Q" clock="C" />
+          <T_setup    value="10e-12" port="D" clock="C" />
+          <T_setup    value="10e-12" port="CE" clock="C" />
+          <T_setup    value="10e-12" port="S" clock="C" />
+          <T_clock_to_Q max="10e-12" port="Q" clock="C" />
 
           <metadata>
             <meta name="fasm_params">
@@ -61,13 +61,13 @@
         <interconnect>
           <direct name="D" input="FDSE_or_FDRE.D" output="FDSE.D" />
           <direct name="CE" input="FDSE_or_FDRE.CE" output="FDSE.CE" >
-            <pack_pattern name="CE_FF_FDSE" in_port="FDSE_or_FDRE.CE" out_port="FDSE.CE"/>
-            <pack_pattern name="CESR_FF_FDSE" in_port="FDSE_or_FDRE.CE" out_port="FDSE.CE"/>
+            <pack_pattern name="CE_FF_FDSE"/>
+            <pack_pattern name="CESR_FF_FDSE"/>
           </direct>
           <direct name="C" input="FDSE_or_FDRE.C" output="FDSE.C" />
           <direct name="S" input="FDSE_or_FDRE.SR" output="FDSE.S" >
-            <pack_pattern name="SR_FF_FDSE" in_port="FDSE_or_FDRE.SR" out_port="FDSE.S"/>
-            <pack_pattern name="CESR_FF_FDSE" in_port="FDSE_or_FDRE.SR" out_port="FDSE.S"/>
+            <pack_pattern name="SR_FF_FDSE"/>
+            <pack_pattern name="CESR_FF_FDSE"/>
           </direct>
           <direct name="Q" input="FDSE.Q" output="FDSE_or_FDRE.Q" />
         </interconnect>
@@ -79,10 +79,10 @@
           <clock  name="C" num_pins="1"/>
           <input  name="R" num_pins="1"/>
           <output name="Q" num_pins="1"/>
-          <T_setup    value="10e-12" port="FDRE.D" clock="C" />
-          <T_setup    value="10e-12" port="FDRE.CE" clock="C" />
-          <T_setup    value="10e-12" port="FDRE.R" clock="C" />
-          <T_clock_to_Q max="10e-12" port="FDRE.Q" clock="C" />
+          <T_setup    value="10e-12" port="D" clock="C" />
+          <T_setup    value="10e-12" port="CE" clock="C" />
+          <T_setup    value="10e-12" port="R" clock="C" />
+          <T_clock_to_Q max="10e-12" port="Q" clock="C" />
 
           <metadata>
             <meta name="fasm_params">
@@ -97,13 +97,13 @@
         <interconnect>
           <direct name="D" input="FDSE_or_FDRE.D" output="FDRE.D" />
           <direct name="CE" input="FDSE_or_FDRE.CE" output="FDRE.CE" >
-            <pack_pattern name="CE_FF_FDRE" in_port="FDSE_or_FDRE.CE" out_port="FDRE.CE"/>
-            <pack_pattern name="CESR_FF_FDRE" in_port="FDSE_or_FDRE.CE" out_port="FDRE.CE"/>
+            <pack_pattern name="CE_FF_FDRE"/>
+            <pack_pattern name="CESR_FF_FDRE"/>
           </direct>
           <direct name="C" input="FDSE_or_FDRE.C" output="FDRE.C" />
           <direct name="R" input="FDSE_or_FDRE.SR" output="FDRE.R" >
-            <pack_pattern name="SR_FF_FDRE" in_port="FDSE_or_FDRE.SR" out_port="FDRE.R"/>
-            <pack_pattern name="CESR_FF_FDRE" in_port="FDSE_or_FDRE.SR" out_port="FDRE.R"/>
+            <pack_pattern name="SR_FF_FDRE"/>
+            <pack_pattern name="CESR_FF_FDRE"/>
           </direct>
           <direct name="Q" input="FDRE.Q" output="FDSE_or_FDRE.Q" />
         </interconnect>
@@ -145,10 +145,10 @@
           <clock  name="C" num_pins="1"/>
           <input  name="PRE" num_pins="1"/>
           <output name="Q" num_pins="1"/>
-          <T_setup    value="10e-12" port="FDPE.D" clock="C" />
-          <T_setup    value="10e-12" port="FDPE.CE" clock="C" />
-          <T_setup    value="10e-12" port="FDPE.PRE" clock="C" />
-          <T_clock_to_Q max="10e-12" port="FDPE.Q" clock="C" />
+          <T_setup    value="10e-12" port="D" clock="C" />
+          <T_setup    value="10e-12" port="CE" clock="C" />
+          <T_setup    value="10e-12" port="PRE" clock="C" />
+          <T_clock_to_Q max="10e-12" port="Q" clock="C" />
 
           <metadata>
             <meta name="fasm_params">
@@ -162,13 +162,13 @@
         <interconnect>
           <direct name="D" input="FDPE_or_FDCE.D" output="FDPE.D" />
           <direct name="CE" input="FDPE_or_FDCE.CE" output="FDPE.CE" >
-            <pack_pattern name="CE_FF_FDPE" in_port="FDPE_or_FDCE.CE" out_port="FDPE.CE"/>
-            <pack_pattern name="CESR_FF_FDPE" in_port="FDPE_or_FDCE.CE" out_port="FDPE.CE"/>
+            <pack_pattern name="CE_FF_FDPE"/>
+            <pack_pattern name="CESR_FF_FDPE"/>
           </direct>
           <direct name="C" input="FDPE_or_FDCE.C" output="FDPE.C" />
           <direct name="PRE" input="FDPE_or_FDCE.SR" output="FDPE.PRE" >
-            <pack_pattern name="SR_FF_FDPE" in_port="FDPE_or_FDCE.SR" out_port="FDPE.PRE"/>
-            <pack_pattern name="CESR_FF_FDPE" in_port="FDPE_or_FDCE.SR" out_port="FDPE.PRE"/>
+            <pack_pattern name="SR_FF_FDPE"/>
+            <pack_pattern name="CESR_FF_FDPE"/>
           </direct>
           <direct name="Q" input="FDPE.Q" output="FDPE_or_FDCE.Q" />
         </interconnect>
@@ -180,10 +180,10 @@
           <clock  name="C" num_pins="1"/>
           <input  name="CLR" num_pins="1"/>
           <output name="Q" num_pins="1"/>
-          <T_setup    value="10e-12" port="FDCE.D" clock="C" />
-          <T_setup    value="10e-12" port="FDCE.CE" clock="C" />
-          <T_setup    value="10e-12" port="FDCE.CLR" clock="C" />
-          <T_clock_to_Q max="10e-12" port="FDCE.Q" clock="C" />
+          <T_setup    value="10e-12" port="D" clock="C" />
+          <T_setup    value="10e-12" port="CE" clock="C" />
+          <T_setup    value="10e-12" port="CLR" clock="C" />
+          <T_clock_to_Q max="10e-12" port="Q" clock="C" />
 
           <metadata>
             <meta name="fasm_params">
@@ -198,13 +198,13 @@
         <interconnect>
           <direct name="D" input="FDPE_or_FDCE.D" output="FDCE.D" />
           <direct name="CE" input="FDPE_or_FDCE.CE" output="FDCE.CE" >
-            <pack_pattern name="CE_FF_FDCE" in_port="FDPE_or_FDCE.CE" out_port="FDCE.CE"/>
-            <pack_pattern name="CESR_FF_FDCE" in_port="FDPE_or_FDCE.CE" out_port="FDCE.CE"/>
+            <pack_pattern name="CE_FF_FDCE"/>
+            <pack_pattern name="CESR_FF_FDCE"/>
           </direct>
           <direct name="C" input="FDPE_or_FDCE.C" output="FDCE.C" />
           <direct name="CLR" input="FDPE_or_FDCE.SR" output="FDCE.CLR" >
-            <pack_pattern name="SR_FF_FDCE" in_port="FDPE_or_FDCE.SR" out_port="FDCE.CLR"/>
-            <pack_pattern name="CESR_FF_FDCE" in_port="FDPE_or_FDCE.SR" out_port="FDCE.CLR"/>
+            <pack_pattern name="SR_FF_FDCE"/>
+            <pack_pattern name="CESR_FF_FDCE"/>
           </direct>
           <direct name="Q" input="FDCE.Q" output="FDPE_or_FDCE.Q" />
         </interconnect>
@@ -243,10 +243,10 @@
           <clock  name="G" num_pins="1"/>
           <input  name="PRE" num_pins="1"/>
           <output name="Q" num_pins="1"/>
-          <T_setup    value="10e-12" port="LDPE.D" clock="G" />
-          <T_setup    value="10e-12" port="LDPE.GE" clock="G" />
-          <T_setup    value="10e-12" port="LDPE.PRE" clock="G" />
-          <T_clock_to_Q max="10e-12" port="LDPE.Q" clock="G" />
+          <T_setup    value="10e-12" port="D" clock="G" />
+          <T_setup    value="10e-12" port="GE" clock="G" />
+          <T_setup    value="10e-12" port="PRE" clock="G" />
+          <T_clock_to_Q max="10e-12" port="Q" clock="G" />
 
           <metadata>
             <meta name="fasm_params">
@@ -272,10 +272,10 @@
           <clock  name="G" num_pins="1"/>
           <input  name="CLR" num_pins="1"/>
           <output name="Q" num_pins="1"/>
-          <T_setup    value="10e-12" port="LDCE.D" clock="G" />
-          <T_setup    value="10e-12" port="LDCE.GE" clock="G" />
-          <T_setup    value="10e-12" port="LDCE.CLR" clock="G" />
-          <T_clock_to_Q max="10e-12" port="LDCE.Q" clock="G" />
+          <T_setup    value="10e-12" port="D" clock="G" />
+          <T_setup    value="10e-12" port="GE" clock="G" />
+          <T_setup    value="10e-12" port="CLR" clock="G" />
+          <T_clock_to_Q max="10e-12" port="Q" clock="G" />
 
           <metadata>
             <meta name="fasm_params">

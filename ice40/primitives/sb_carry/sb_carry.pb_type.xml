@@ -5,9 +5,9 @@
  <input  name="CI" num_pins="1"/>
  <input  name="I0" num_pins="1"/>
  <output name="CO" num_pins="1"/>
- <delay_constant max="10e-12" in_port="SB_CARRY.CI" out_port="SB_CARRY.CO"/>
- <delay_constant max="10e-12" in_port="SB_CARRY.I1" out_port="SB_CARRY.CO"/>
- <delay_constant max="10e-12" in_port="SB_CARRY.I0" out_port="SB_CARRY.CO"/>
+ <delay_constant max="10e-12" in_port="CI" out_port="CO"/>
+ <delay_constant max="10e-12" in_port="I1" out_port="CO"/>
+ <delay_constant max="10e-12" in_port="I0" out_port="CO"/>
  <metadata>
   <meta name="hlc_property">enable_carry</meta>
  </metadata>

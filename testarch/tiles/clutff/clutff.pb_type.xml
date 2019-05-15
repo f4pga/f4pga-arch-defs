@@ -12,8 +12,8 @@
   <input  name="CIN"  num_pins="1"/>
   <input  name="LIN"  num_pins="1"/>
   <output name="COUT" num_pins="1"/>
-  <delay_constant max="0.068e-9" min="0.068e-9" in_port="CARRY.CIN" out_port="CARRY.COUT"/>
-  <delay_constant max="0.068e-9" min="0.068e-9" in_port="CARRY.LIN" out_port="CARRY.COUT"/>
+  <delay_constant max="0.068e-9" min="0.068e-9" in_port="CIN" out_port="COUT"/>
+  <delay_constant max="0.068e-9" min="0.068e-9" in_port="LIN" out_port="COUT"/>
   <metadata>
    <meta name="type">bel</meta>
    <meta name="subtype">blackbox</meta>

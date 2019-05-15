@@ -1,86 +1,86 @@
 <?xml version='1.0' encoding='utf-8'?>
 <pb_type xmlns:xi="http://www.w3.org/2001/XInclude" blif_model=".subckt CARRY4_VPR" name="CARRY4_VPR" num_pb="1">
-  <input name="CIN" num_pins="1"/>
-  <output name="CO_CHAIN" num_pins="1"/>
+  <input  name="CIN"        num_pins="1"/>
+  <output name="CO_CHAIN"   num_pins="1"/>
   <output name="CO_FABRIC0" num_pins="1"/>
   <output name="CO_FABRIC1" num_pins="1"/>
   <output name="CO_FABRIC2" num_pins="1"/>
   <output name="CO_FABRIC3" num_pins="1"/>
-  <input name="CYINIT" num_pins="1"/>
-  <input name="DI0" num_pins="1"/>
-  <input name="DI1" num_pins="1"/>
-  <input name="DI2" num_pins="1"/>
-  <input name="DI3" num_pins="1"/>
-  <output name="O0" num_pins="1"/>
-  <output name="O1" num_pins="1"/>
-  <output name="O2" num_pins="1"/>
-  <output name="O3" num_pins="1"/>
-  <input name="S0" num_pins="1"/>
-  <input name="S1" num_pins="1"/>
-  <input name="S2" num_pins="1"/>
-  <input name="S3" num_pins="1"/>
-  <delay_constant in_port="CARRY4_VPR.CIN" max="0.114e-9" out_port="CARRY4_VPR.CO_CHAIN"/>
-  <delay_constant in_port="CARRY4_VPR.CYINIT" max="0.580e-9" out_port="CARRY4_VPR.CO_CHAIN"/>
-  <delay_constant in_port="CARRY4_VPR.DI0" max="0.456e-9" out_port="CARRY4_VPR.CO_CHAIN"/>
-  <delay_constant in_port="CARRY4_VPR.DI1" max="0.443e-9" out_port="CARRY4_VPR.CO_CHAIN"/>
-  <delay_constant in_port="CARRY4_VPR.DI2" max="0.324e-9" out_port="CARRY4_VPR.CO_CHAIN"/>
-  <delay_constant in_port="CARRY4_VPR.DI3" max="0.327e-9" out_port="CARRY4_VPR.CO_CHAIN"/>
-  <delay_constant in_port="CARRY4_VPR.S0" max="0.508e-9" out_port="CARRY4_VPR.CO_CHAIN"/>
-  <delay_constant in_port="CARRY4_VPR.S1" max="0.528e-9" out_port="CARRY4_VPR.CO_CHAIN"/>
-  <delay_constant in_port="CARRY4_VPR.S2" max="0.376e-9" out_port="CARRY4_VPR.CO_CHAIN"/>
-  <delay_constant in_port="CARRY4_VPR.S3" max="0.380e-9" out_port="CARRY4_VPR.CO_CHAIN"/>
-  <delay_constant in_port="CARRY4_VPR.CIN" max="0.293e-9" out_port="CARRY4_VPR.CO_FABRIC0"/>
-  <delay_constant in_port="CARRY4_VPR.CYINIT" max="0.578e-9" out_port="CARRY4_VPR.CO_FABRIC0"/>
-  <delay_constant in_port="CARRY4_VPR.DI0" max="0.329e-9" out_port="CARRY4_VPR.CO_FABRIC0"/>
-  <delay_constant in_port="CARRY4_VPR.S0" max="0.340e-9" out_port="CARRY4_VPR.CO_FABRIC0"/>
-  <delay_constant in_port="CARRY4_VPR.CIN" max="0.178e-9" out_port="CARRY4_VPR.CO_FABRIC1"/>
-  <delay_constant in_port="CARRY4_VPR.CYINIT" max="0.529e-9" out_port="CARRY4_VPR.CO_FABRIC1"/>
-  <delay_constant in_port="CARRY4_VPR.DI0" max="0.396e-9" out_port="CARRY4_VPR.CO_FABRIC1"/>
-  <delay_constant in_port="CARRY4_VPR.DI1" max="0.376e-9" out_port="CARRY4_VPR.CO_FABRIC1"/>
-  <delay_constant in_port="CARRY4_VPR.S0" max="0.433e-9" out_port="CARRY4_VPR.CO_FABRIC1"/>
-  <delay_constant in_port="CARRY4_VPR.S1" max="0.469e-9" out_port="CARRY4_VPR.CO_FABRIC1"/>
-  <delay_constant in_port="CARRY4_VPR.CIN" max="0.250e-9" out_port="CARRY4_VPR.CO_FABRIC2"/>
-  <delay_constant in_port="CARRY4_VPR.CYINIT" max="0.617e-9" out_port="CARRY4_VPR.CO_FABRIC2"/>
-  <delay_constant in_port="CARRY4_VPR.DI0" max="0.474e-9" out_port="CARRY4_VPR.CO_FABRIC2"/>
-  <delay_constant in_port="CARRY4_VPR.DI1" max="0.459e-9" out_port="CARRY4_VPR.CO_FABRIC2"/>
-  <delay_constant in_port="CARRY4_VPR.DI2" max="0.289e-9" out_port="CARRY4_VPR.CO_FABRIC2"/>
-  <delay_constant in_port="CARRY4_VPR.S0" max="0.512e-9" out_port="CARRY4_VPR.CO_FABRIC2"/>
-  <delay_constant in_port="CARRY4_VPR.S1" max="0.548e-9" out_port="CARRY4_VPR.CO_FABRIC2"/>
-  <delay_constant in_port="CARRY4_VPR.S2" max="0.292e-9" out_port="CARRY4_VPR.CO_FABRIC2"/>
-  <delay_constant in_port="CARRY4_VPR.CIN" max="0.114e-9" out_port="CARRY4_VPR.CO_FABRIC3"/>
-  <delay_constant in_port="CARRY4_VPR.CYINIT" max="0.580e-9" out_port="CARRY4_VPR.CO_FABRIC3"/>
-  <delay_constant in_port="CARRY4_VPR.DI0" max="0.456e-9" out_port="CARRY4_VPR.CO_FABRIC3"/>
-  <delay_constant in_port="CARRY4_VPR.DI1" max="0.443e-9" out_port="CARRY4_VPR.CO_FABRIC3"/>
-  <delay_constant in_port="CARRY4_VPR.DI2" max="0.324e-9" out_port="CARRY4_VPR.CO_FABRIC3"/>
-  <delay_constant in_port="CARRY4_VPR.DI3" max="0.327e-9" out_port="CARRY4_VPR.CO_FABRIC3"/>
-  <delay_constant in_port="CARRY4_VPR.S0" max="0.508e-9" out_port="CARRY4_VPR.CO_FABRIC3"/>
-  <delay_constant in_port="CARRY4_VPR.S1" max="0.528e-9" out_port="CARRY4_VPR.CO_FABRIC3"/>
-  <delay_constant in_port="CARRY4_VPR.S2" max="0.376e-9" out_port="CARRY4_VPR.CO_FABRIC3"/>
-  <delay_constant in_port="CARRY4_VPR.S3" max="0.380e-9" out_port="CARRY4_VPR.CO_FABRIC3"/>
-  <delay_constant in_port="CARRY4_VPR.CIN" max="0.235e-9" out_port="CARRY4_VPR.O0"/>
-  <delay_constant in_port="CARRY4_VPR.CYINIT" max="0.491e-9" out_port="CARRY4_VPR.O0"/>
-  <delay_constant in_port="CARRY4_VPR.S0" max="0.223e-9" out_port="CARRY4_VPR.O0"/>
-  <delay_constant in_port="CARRY4_VPR.CIN" max="0.348e-9" out_port="CARRY4_VPR.O1"/>
-  <delay_constant in_port="CARRY4_VPR.CYINIT" max="0.613e-9" out_port="CARRY4_VPR.O1"/>
-  <delay_constant in_port="CARRY4_VPR.DI0" max="0.337e-9" out_port="CARRY4_VPR.O1"/>
-  <delay_constant in_port="CARRY4_VPR.S0" max="0.400e-9" out_port="CARRY4_VPR.O1"/>
-  <delay_constant in_port="CARRY4_VPR.S1" max="0.205e-9" out_port="CARRY4_VPR.O1"/>
-  <delay_constant in_port="CARRY4_VPR.CIN" max="0.256e-9" out_port="CARRY4_VPR.O2"/>
-  <delay_constant in_port="CARRY4_VPR.CYINIT" max="0.600e-9" out_port="CARRY4_VPR.O2"/>
-  <delay_constant in_port="CARRY4_VPR.DI0" max="0.486e-9" out_port="CARRY4_VPR.O2"/>
-  <delay_constant in_port="CARRY4_VPR.DI1" max="0.471e-9" out_port="CARRY4_VPR.O2"/>
-  <delay_constant in_port="CARRY4_VPR.S0" max="0.523e-9" out_port="CARRY4_VPR.O2"/>
-  <delay_constant in_port="CARRY4_VPR.S1" max="0.558e-9" out_port="CARRY4_VPR.O2"/>
-  <delay_constant in_port="CARRY4_VPR.S2" max="0.226e-9" out_port="CARRY4_VPR.O2"/>
-  <delay_constant in_port="CARRY4_VPR.CIN" max="0.329e-9" out_port="CARRY4_VPR.O3"/>
-  <delay_constant in_port="CARRY4_VPR.CYINIT" max="0.657e-9" out_port="CARRY4_VPR.O3"/>
-  <delay_constant in_port="CARRY4_VPR.DI0" max="0.545e-9" out_port="CARRY4_VPR.O3"/>
-  <delay_constant in_port="CARRY4_VPR.DI1" max="0.532e-9" out_port="CARRY4_VPR.O3"/>
-  <delay_constant in_port="CARRY4_VPR.DI2" max="0.372e-9" out_port="CARRY4_VPR.O3"/>
-  <delay_constant in_port="CARRY4_VPR.S0" max="0.582e-9" out_port="CARRY4_VPR.O3"/>
-  <delay_constant in_port="CARRY4_VPR.S1" max="0.618e-9" out_port="CARRY4_VPR.O3"/>
-  <delay_constant in_port="CARRY4_VPR.S2" max="0.330e-9" out_port="CARRY4_VPR.O3"/>
-  <delay_constant in_port="CARRY4_VPR.S3" max="0.227e-9" out_port="CARRY4_VPR.O3"/>
+  <input  name="CYINIT"     num_pins="1"/>
+  <input  name="DI0"        num_pins="1"/>
+  <input  name="DI1"        num_pins="1"/>
+  <input  name="DI2"        num_pins="1"/>
+  <input  name="DI3"        num_pins="1"/>
+  <output name="O0"         num_pins="1"/>
+  <output name="O1"         num_pins="1"/>
+  <output name="O2"         num_pins="1"/>
+  <output name="O3"         num_pins="1"/>
+  <input  name="S0"         num_pins="1"/>
+  <input  name="S1"         num_pins="1"/>
+  <input  name="S2"         num_pins="1"/>
+  <input  name="S3"         num_pins="1"/>
+  <delay_constant in_port="CIN"    max="0.114e-9" out_port="CO_CHAIN"/>
+  <delay_constant in_port="CYINIT" max="0.580e-9" out_port="CO_CHAIN"/>
+  <delay_constant in_port="DI0"    max="0.456e-9" out_port="CO_CHAIN"/>
+  <delay_constant in_port="DI1"    max="0.443e-9" out_port="CO_CHAIN"/>
+  <delay_constant in_port="DI2"    max="0.324e-9" out_port="CO_CHAIN"/>
+  <delay_constant in_port="DI3"    max="0.327e-9" out_port="CO_CHAIN"/>
+  <delay_constant in_port="S0"     max="0.508e-9" out_port="CO_CHAIN"/>
+  <delay_constant in_port="S1"     max="0.528e-9" out_port="CO_CHAIN"/>
+  <delay_constant in_port="S2"     max="0.376e-9" out_port="CO_CHAIN"/>
+  <delay_constant in_port="S3"     max="0.380e-9" out_port="CO_CHAIN"/>
+  <delay_constant in_port="CIN"    max="0.293e-9" out_port="CO_FABRIC0"/>
+  <delay_constant in_port="CYINIT" max="0.578e-9" out_port="CO_FABRIC0"/>
+  <delay_constant in_port="DI0"    max="0.329e-9" out_port="CO_FABRIC0"/>
+  <delay_constant in_port="S0"     max="0.340e-9" out_port="CO_FABRIC0"/>
+  <delay_constant in_port="CIN"    max="0.178e-9" out_port="CO_FABRIC1"/>
+  <delay_constant in_port="CYINIT" max="0.529e-9" out_port="CO_FABRIC1"/>
+  <delay_constant in_port="DI0"    max="0.396e-9" out_port="CO_FABRIC1"/>
+  <delay_constant in_port="DI1"    max="0.376e-9" out_port="CO_FABRIC1"/>
+  <delay_constant in_port="S0"     max="0.433e-9" out_port="CO_FABRIC1"/>
+  <delay_constant in_port="S1"     max="0.469e-9" out_port="CO_FABRIC1"/>
+  <delay_constant in_port="CIN"    max="0.250e-9" out_port="CO_FABRIC2"/>
+  <delay_constant in_port="CYINIT" max="0.617e-9" out_port="CO_FABRIC2"/>
+  <delay_constant in_port="DI0"    max="0.474e-9" out_port="CO_FABRIC2"/>
+  <delay_constant in_port="DI1"    max="0.459e-9" out_port="CO_FABRIC2"/>
+  <delay_constant in_port="DI2"    max="0.289e-9" out_port="CO_FABRIC2"/>
+  <delay_constant in_port="S0"     max="0.512e-9" out_port="CO_FABRIC2"/>
+  <delay_constant in_port="S1"     max="0.548e-9" out_port="CO_FABRIC2"/>
+  <delay_constant in_port="S2"     max="0.292e-9" out_port="CO_FABRIC2"/>
+  <delay_constant in_port="CIN"    max="0.114e-9" out_port="CO_FABRIC3"/>
+  <delay_constant in_port="CYINIT" max="0.580e-9" out_port="CO_FABRIC3"/>
+  <delay_constant in_port="DI0"    max="0.456e-9" out_port="CO_FABRIC3"/>
+  <delay_constant in_port="DI1"    max="0.443e-9" out_port="CO_FABRIC3"/>
+  <delay_constant in_port="DI2"    max="0.324e-9" out_port="CO_FABRIC3"/>
+  <delay_constant in_port="DI3"    max="0.327e-9" out_port="CO_FABRIC3"/>
+  <delay_constant in_port="S0"     max="0.508e-9" out_port="CO_FABRIC3"/>
+  <delay_constant in_port="S1"     max="0.528e-9" out_port="CO_FABRIC3"/>
+  <delay_constant in_port="S2"     max="0.376e-9" out_port="CO_FABRIC3"/>
+  <delay_constant in_port="S3"     max="0.380e-9" out_port="CO_FABRIC3"/>
+  <delay_constant in_port="CIN"    max="0.235e-9" out_port="O0"/>
+  <delay_constant in_port="CYINIT" max="0.491e-9" out_port="O0"/>
+  <delay_constant in_port="S0"     max="0.223e-9" out_port="O0"/>
+  <delay_constant in_port="CIN"    max="0.348e-9" out_port="O1"/>
+  <delay_constant in_port="CYINIT" max="0.613e-9" out_port="O1"/>
+  <delay_constant in_port="DI0"    max="0.337e-9" out_port="O1"/>
+  <delay_constant in_port="S0"     max="0.400e-9" out_port="O1"/>
+  <delay_constant in_port="S1"     max="0.205e-9" out_port="O1"/>
+  <delay_constant in_port="CIN"    max="0.256e-9" out_port="O2"/>
+  <delay_constant in_port="CYINIT" max="0.600e-9" out_port="O2"/>
+  <delay_constant in_port="DI0"    max="0.486e-9" out_port="O2"/>
+  <delay_constant in_port="DI1"    max="0.471e-9" out_port="O2"/>
+  <delay_constant in_port="S0"     max="0.523e-9" out_port="O2"/>
+  <delay_constant in_port="S1"     max="0.558e-9" out_port="O2"/>
+  <delay_constant in_port="S2"     max="0.226e-9" out_port="O2"/>
+  <delay_constant in_port="CIN"    max="0.329e-9" out_port="O3"/>
+  <delay_constant in_port="CYINIT" max="0.657e-9" out_port="O3"/>
+  <delay_constant in_port="DI0"    max="0.545e-9" out_port="O3"/>
+  <delay_constant in_port="DI1"    max="0.532e-9" out_port="O3"/>
+  <delay_constant in_port="DI2"    max="0.372e-9" out_port="O3"/>
+  <delay_constant in_port="S0"     max="0.582e-9" out_port="O3"/>
+  <delay_constant in_port="S1"     max="0.618e-9" out_port="O3"/>
+  <delay_constant in_port="S2"     max="0.330e-9" out_port="O3"/>
+  <delay_constant in_port="S3"     max="0.227e-9" out_port="O3"/>
   <metadata>
     <meta name="fasm_params">
       PRECYINIT.C0 = CYINIT_C0

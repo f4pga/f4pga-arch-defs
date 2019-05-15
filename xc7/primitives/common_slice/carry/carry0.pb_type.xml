@@ -1,22 +1,22 @@
 <pb_type xmlns:xi="http://www.w3.org/2001/XInclude" blif_model=".subckt CARRY0_CONST" name="CARRY0" num_pb="1">
-  <input name="CI" num_pins="1"/>
-  <input name="CI_INIT" num_pins="1"/>
-  <output name="CO_CHAIN" num_pins="1"/>
+  <input  name="CI"        num_pins="1"/>
+  <input  name="CI_INIT"   num_pins="1"/>
+  <output name="CO_CHAIN"  num_pins="1"/>
   <output name="CO_FABRIC" num_pins="1"/>
-  <input name="DI" num_pins="1"/>
-  <output name="O" num_pins="1"/>
-  <input name="S" num_pins="1"/>
-  <delay_constant in_port="CARRY0.CI" max="10e-12" out_port="CARRY0.CO_CHAIN"/>
-  <delay_constant in_port="CARRY0.CI_INIT" max="10e-12" out_port="CARRY0.CO_CHAIN"/>
-  <delay_constant in_port="CARRY0.DI" max="10e-12" out_port="CARRY0.CO_CHAIN"/>
-  <delay_constant in_port="CARRY0.S" max="10e-12" out_port="CARRY0.CO_CHAIN"/>
-  <delay_constant in_port="CARRY0.CI" max="10e-12" out_port="CARRY0.CO_FABRIC"/>
-  <delay_constant in_port="CARRY0.CI_INIT" max="10e-12" out_port="CARRY0.CO_FABRIC"/>
-  <delay_constant in_port="CARRY0.DI" max="10e-12" out_port="CARRY0.CO_FABRIC"/>
-  <delay_constant in_port="CARRY0.S" max="10e-12" out_port="CARRY0.CO_FABRIC"/>
-  <delay_constant in_port="CARRY0.CI" max="10e-12" out_port="CARRY0.O"/>
-  <delay_constant in_port="CARRY0.CI_INIT" max="10e-12" out_port="CARRY0.O"/>
-  <delay_constant in_port="CARRY0.S" max="10e-12" out_port="CARRY0.O"/>
+  <input  name="DI"        num_pins="1"/>
+  <output name="O"         num_pins="1"/>
+  <input  name="S"         num_pins="1"/>
+  <delay_constant in_port="CI"      max="10e-12" out_port="CO_CHAIN"/>
+  <delay_constant in_port="CI_INIT" max="10e-12" out_port="CO_CHAIN"/>
+  <delay_constant in_port="DI"      max="10e-12" out_port="CO_CHAIN"/>
+  <delay_constant in_port="S"       max="10e-12" out_port="CO_CHAIN"/>
+  <delay_constant in_port="CI"      max="10e-12" out_port="CO_FABRIC"/>
+  <delay_constant in_port="CI_INIT" max="10e-12" out_port="CO_FABRIC"/>
+  <delay_constant in_port="DI"      max="10e-12" out_port="CO_FABRIC"/>
+  <delay_constant in_port="S"       max="10e-12" out_port="CO_FABRIC"/>
+  <delay_constant in_port="CI"      max="10e-12" out_port="O"/>
+  <delay_constant in_port="CI_INIT" max="10e-12" out_port="O"/>
+  <delay_constant in_port="S"       max="10e-12" out_port="O"/>
   <metadata>
     <meta name="fasm_params">
       PRECYINIT.C0 = CYINIT_C0

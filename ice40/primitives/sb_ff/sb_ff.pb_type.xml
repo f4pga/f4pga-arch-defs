@@ -22,8 +22,8 @@
    <clock  name="clk" num_pins="1" port_class="clock" />
    <input  name="D"   num_pins="1" port_class="D"     />
    <output name="Q"   num_pins="1" port_class="Q"     />
-   <T_setup    value="10e-12" port="VPR_FF.D" clock="clk"/>
-   <T_clock_to_Q max="10e-12" port="VPR_FF.Q" clock="clk"/>
+   <T_setup    value="10e-12" port="D" clock="clk"/>
+   <T_clock_to_Q max="10e-12" port="Q" clock="clk"/>
    <metadata>
     <meta name="hlc_property"># VPR_FF - $_DFF_P_</meta>
    </metadata>
@@ -31,7 +31,7 @@
   <interconnect>
    <direct><port type="input" name="PCLK"/><port type="output" from="VPR_FF" name="clk"/></direct>
    <direct><port type="input" name="D"/><port type="output" from="VPR_FF" name="D"/>
-    <pack_pattern name="LUT+FFA" in_port="SB_FF.D" out_port="VPR_FF.D" />
+    <pack_pattern name="LUT+FFA"/>
    </direct>
    <direct><port type="input" from="VPR_FF" name="Q" /><port type="output" name="Q"/></direct>
   </interconnect>
@@ -43,8 +43,8 @@
    <clock  name="C" num_pins="1"/>
    <input  name="D" num_pins="1"/>
    <output name="Q" num_pins="1"/>
-   <T_setup    value="10e-12" port="SB_DFF.D" clock="C"/>
-   <T_clock_to_Q max="10e-12" port="SB_DFF.Q" clock="C"/>
+   <T_setup    value="10e-12" port="D" clock="C"/>
+   <T_clock_to_Q max="10e-12" port="Q" clock="C"/>
    <metadata>
     <meta name="hlc_property">
         # - SB_DFF - $_DFF_P_
@@ -58,7 +58,7 @@
   <interconnect>
    <direct><port type="input" name="PCLK"/><port type="output" from="SB_DFF" name="C"/></direct>
    <direct><port type="input" name="D"/><port type="output" from="SB_DFF" name="D"/>
-    <pack_pattern name="LUT+FFB" in_port="SB_FF.D" out_port="SB_DFF.D" />
+    <pack_pattern name="LUT+FFB"/>
    </direct>
    <direct><port type="input" from="SB_DFF" name="Q" /><port type="output" name="Q"/></direct>
   </interconnect>
@@ -71,9 +71,9 @@
    <input  name="E" num_pins="1"/>
    <input  name="D" num_pins="1"/>
    <output name="Q" num_pins="1"/>
-   <T_setup    value="10e-12" port="SB_DFFE.E" clock="C"/>
-   <T_setup    value="10e-12" port="SB_DFFE.D" clock="C"/>
-   <T_clock_to_Q max="10e-12" port="SB_DFFE.Q" clock="C"/>
+   <T_setup    value="10e-12" port="E" clock="C"/>
+   <T_setup    value="10e-12" port="D" clock="C"/>
+   <T_clock_to_Q max="10e-12" port="Q" clock="C"/>
    <metadata>
     <meta name="hlc_property">
         # - SB_DFFE - $_DFFE_PN_
@@ -88,7 +88,7 @@
    <direct><port type="input" name="PCLK+CEN"/><port type="output" from="SB_DFFE" name="C"/></direct>
    <direct><port type="input" name="E"/><port type="output" from="SB_DFFE" name="E"/></direct>
    <direct><port type="input" name="D"/><port type="output" from="SB_DFFE" name="D"/>
-    <pack_pattern name="LUT+FFC" in_port="SB_FF.D" out_port="SB_DFFE.D" />
+    <pack_pattern name="LUT+FFC"/>
    </direct>
    <direct><port type="input" from="SB_DFFE" name="Q" /><port type="output" name="Q"/></direct>
   </interconnect>
@@ -102,10 +102,10 @@
    <input  name="R" num_pins="1"/>
    <input  name="D" num_pins="1"/>
    <output name="Q" num_pins="1"/>
-   <T_setup    value="10e-12" port="SB_DFFER.E" clock="C"/>
-   <T_setup    value="10e-12" port="SB_DFFER.R" clock="C"/>
-   <T_setup    value="10e-12" port="SB_DFFER.D" clock="C"/>
-   <T_clock_to_Q max="10e-12" port="SB_DFFER.Q" clock="C"/>
+   <T_setup    value="10e-12" port="E" clock="C"/>
+   <T_setup    value="10e-12" port="R" clock="C"/>
+   <T_setup    value="10e-12" port="D" clock="C"/>
+   <T_clock_to_Q max="10e-12" port="Q" clock="C"/>
    <metadata>
     <meta name="hlc_property">
         # - SB_DFFER - $_DFFE_PN0
@@ -124,7 +124,7 @@
    <direct><port type="input" name="E"/><port type="output" from="SB_DFFER" name="E"/></direct>
    <direct><port type="input" name="R"/><port type="output" from="SB_DFFER" name="R"/></direct>
    <direct><port type="input" name="D"/><port type="output" from="SB_DFFER" name="D"/>
-    <pack_pattern name="LUT+FFD" in_port="SB_FF.D" out_port="SB_DFFER.D" />
+    <pack_pattern name="LUT+FFD"/>
    </direct>
    <direct><port type="input" from="SB_DFFER" name="Q" /><port type="output" name="Q"/></direct>
   </interconnect>
@@ -138,10 +138,10 @@
    <input  name="S" num_pins="1"/>
    <input  name="D" num_pins="1"/>
    <output name="Q" num_pins="1"/>
-   <T_setup    value="10e-12" port="SB_DFFES.E" clock="C"/>
-   <T_setup    value="10e-12" port="SB_DFFES.S" clock="C"/>
-   <T_setup    value="10e-12" port="SB_DFFES.D" clock="C"/>
-   <T_clock_to_Q max="10e-12" port="SB_DFFES.Q" clock="C"/>
+   <T_setup    value="10e-12" port="E" clock="C"/>
+   <T_setup    value="10e-12" port="S" clock="C"/>
+   <T_setup    value="10e-12" port="D" clock="C"/>
+   <T_clock_to_Q max="10e-12" port="Q" clock="C"/>
    <metadata>
     <meta name="hlc_property">
         # SB_DFFES - $_DFFE_PN1
@@ -161,7 +161,7 @@
    <direct><port type="input" name="E"/><port type="output" from="SB_DFFES" name="E"/></direct>
    <direct><port type="input" name="S"/><port type="output" from="SB_DFFES" name="S"/></direct>
    <direct><port type="input" name="D"/><port type="output" from="SB_DFFES" name="D"/>
-    <pack_pattern name="LUT+FFE" in_port="SB_FF.D" out_port="SB_DFFES.D" />
+    <pack_pattern name="LUT+FFE"/>
    </direct>
    <direct><port type="input" from="SB_DFFES" name="Q" /><port type="output" name="Q"/></direct>
   </interconnect>
@@ -175,10 +175,10 @@
    <input  name="R" num_pins="1"/>
    <input  name="D" num_pins="1"/>
    <output name="Q" num_pins="1"/>
-   <T_setup    value="10e-12" port="SB_DFFESR.E" clock="C"/>
-   <T_setup    value="10e-12" port="SB_DFFESR.R" clock="C"/>
-   <T_setup    value="10e-12" port="SB_DFFESR.D" clock="C"/>
-   <T_clock_to_Q max="10e-12" port="SB_DFFESR.Q" clock="C"/>
+   <T_setup    value="10e-12" port="E" clock="C"/>
+   <T_setup    value="10e-12" port="R" clock="C"/>
+   <T_setup    value="10e-12" port="D" clock="C"/>
+   <T_clock_to_Q max="10e-12" port="Q" clock="C"/>
    <metadata>
     <meta name="hlc_property">
         # - SB_DFFESR
@@ -194,7 +194,7 @@
    <direct><port type="input" name="E"/><port type="output" from="SB_DFFESR" name="E"/></direct>
    <direct><port type="input" name="R"/><port type="output" from="SB_DFFESR" name="R"/></direct>
    <direct><port type="input" name="D"/><port type="output" from="SB_DFFESR" name="D"/>
-    <pack_pattern name="LUT+FFF" in_port="SB_FF.D" out_port="SB_DFFESR.D" />
+    <pack_pattern name="LUT+FFF"/>
    </direct>
    <direct><port type="input" from="SB_DFFESR" name="Q" /><port type="output" name="Q"/></direct>
   </interconnect>
@@ -208,10 +208,10 @@
    <input  name="S" num_pins="1"/>
    <input  name="D" num_pins="1"/>
    <output name="Q" num_pins="1"/>
-   <T_setup    value="10e-12" port="SB_DFFESS.E" clock="C"/>
-   <T_setup    value="10e-12" port="SB_DFFESS.S" clock="C"/>
-   <T_setup    value="10e-12" port="SB_DFFESS.D" clock="C"/>
-   <T_clock_to_Q max="10e-12" port="SB_DFFESS.Q" clock="C"/>
+   <T_setup    value="10e-12" port="E" clock="C"/>
+   <T_setup    value="10e-12" port="S" clock="C"/>
+   <T_setup    value="10e-12" port="D" clock="C"/>
+   <T_clock_to_Q max="10e-12" port="Q" clock="C"/>
    <metadata>
     <meta name="hlc_property">
         # - SB_DFFESS
@@ -230,7 +230,7 @@
    <direct><port type="input" name="E"/><port type="output" from="SB_DFFESS" name="E"/></direct>
    <direct><port type="input" name="S"/><port type="output" from="SB_DFFESS" name="S"/></direct>
    <direct><port type="input" name="D"/><port type="output" from="SB_DFFESS" name="D"/>
-    <pack_pattern name="LUT+FFG" in_port="SB_FF.D" out_port="SB_DFFESS.D" />
+    <pack_pattern name="LUT+FFG"/>
    </direct>
    <direct><port type="input" from="SB_DFFESS" name="Q" /><port type="output" name="Q"/></direct>
   </interconnect>
@@ -243,9 +243,9 @@
    <input  name="R" num_pins="1"/>
    <input  name="D" num_pins="1"/>
    <output name="Q" num_pins="1"/>
-   <T_setup    value="10e-12" port="SB_DFFR.R" clock="C"/>
-   <T_setup    value="10e-12" port="SB_DFFR.D" clock="C"/>
-   <T_clock_to_Q max="10e-12" port="SB_DFFR.Q" clock="C"/>
+   <T_setup    value="10e-12" port="R" clock="C"/>
+   <T_setup    value="10e-12" port="D" clock="C"/>
+   <T_clock_to_Q max="10e-12" port="Q" clock="C"/>
    <metadata>
     <meta name="hlc_property">
         # - SB_DFFR
@@ -263,7 +263,7 @@
    <direct><port type="input" name="PCLK+SR"/><port type="output" from="SB_DFFR" name="C"/></direct>
    <direct><port type="input" name="S"/><port type="output" from="SB_DFFR" name="R"/></direct>
    <direct><port type="input" name="D"/><port type="output" from="SB_DFFR" name="D"/>
-    <pack_pattern name="LUT+FFH" in_port="SB_FF.D" out_port="SB_DFFR.D" />
+    <pack_pattern name="LUT+FFH"/>
    </direct>
    <direct><port type="input" from="SB_DFFR" name="Q" /><port type="output" name="Q"/></direct>
   </interconnect>
@@ -276,9 +276,9 @@
    <input  name="S" num_pins="1"/>
    <input  name="D" num_pins="1"/>
    <output name="Q" num_pins="1"/>
-   <T_setup    value="10e-12" port="SB_DFFS.S" clock="C"/>
-   <T_setup    value="10e-12" port="SB_DFFS.D" clock="C"/>
-   <T_clock_to_Q max="10e-12" port="SB_DFFS.Q" clock="C"/>
+   <T_setup    value="10e-12" port="S" clock="C"/>
+   <T_setup    value="10e-12" port="D" clock="C"/>
+   <T_clock_to_Q max="10e-12" port="Q" clock="C"/>
    <metadata>
     <meta name="hlc_property">
         # - SB_DFFS
@@ -297,7 +297,7 @@
    <direct><port type="input" name="PCLK+SR"/><port type="output" from="SB_DFFS" name="C"/></direct>
    <direct><port type="input" name="S"/><port type="output" from="SB_DFFS" name="S"/></direct>
    <direct><port type="input" name="D"/><port type="output" from="SB_DFFS" name="D"/>
-    <pack_pattern name="LUT+FFI" in_port="SB_FF.D" out_port="SB_DFFS.D" />
+    <pack_pattern name="LUT+FFI"/>
    </direct>
    <direct><port type="input" from="SB_DFFS" name="Q" /><port type="output" name="Q"/></direct>
   </interconnect>
@@ -310,9 +310,9 @@
    <input  name="R" num_pins="1"/>
    <input  name="D" num_pins="1"/>
    <output name="Q" num_pins="1"/>
-   <T_setup    value="10e-12" port="SB_DFFSR.R" clock="C"/>
-   <T_setup    value="10e-12" port="SB_DFFSR.D" clock="C"/>
-   <T_clock_to_Q max="10e-12" port="SB_DFFSR.Q" clock="C"/>
+   <T_setup    value="10e-12" port="R" clock="C"/>
+   <T_setup    value="10e-12" port="D" clock="C"/>
+   <T_clock_to_Q max="10e-12" port="Q" clock="C"/>
    <metadata>
     <meta name="hlc_property">
         # - SB_DFFSR
@@ -327,7 +327,7 @@
    <direct><port type="input" name="PCLK+SR"/><port type="output" from="SB_DFFSR" name="C"/></direct>
    <direct><port type="input" name="S"/><port type="output" from="SB_DFFSR" name="R"/></direct>
    <direct><port type="input" name="D"/><port type="output" from="SB_DFFSR" name="D"/>
-    <pack_pattern name="LUT+FFJ" in_port="SB_FF.D" out_port="SB_DFFSR.D" />
+    <pack_pattern name="LUT+FFJ"/>
    </direct>
    <direct><port type="input" from="SB_DFFSR" name="Q" /><port type="output" name="Q"/></direct>
   </interconnect>
@@ -340,9 +340,9 @@
    <input  name="S" num_pins="1"/>
    <input  name="D" num_pins="1"/>
    <output name="Q" num_pins="1"/>
-   <T_setup    value="10e-12" port="SB_DFFSS.S" clock="C"/>
-   <T_setup    value="10e-12" port="SB_DFFSS.D" clock="C"/>
-   <T_clock_to_Q max="10e-12" port="SB_DFFSS.Q" clock="C"/>
+   <T_setup    value="10e-12" port="S" clock="C"/>
+   <T_setup    value="10e-12" port="D" clock="C"/>
+   <T_clock_to_Q max="10e-12" port="Q" clock="C"/>
    <metadata>
     <meta name="hlc_property">
         # - SB_DFFSS
@@ -360,7 +360,7 @@
    <direct><port type="input" name="PCLK+SR"/><port type="output" from="SB_DFFSS" name="C"/></direct>
    <direct><port type="input" name="S"/><port type="output" from="SB_DFFSS" name="S"/></direct>
    <direct><port type="input" name="D"/><port type="output" from="SB_DFFSS" name="D"/>
-    <pack_pattern name="LUT+FFK" in_port="SB_FF.D" out_port="SB_DFFSS.D" />
+    <pack_pattern name="LUT+FFK"/>
    </direct>
    <direct><port type="input" from="SB_DFFSS" name="Q" /><port type="output" name="Q"/></direct>
   </interconnect>
@@ -372,8 +372,8 @@
    <clock  name="C" num_pins="1"/>
    <input  name="D" num_pins="1"/>
    <output name="Q" num_pins="1"/>
-   <T_setup    value="10e-12" port="SB_DFFN.D" clock="C"/>
-   <T_clock_to_Q max="10e-12" port="SB_DFFN.Q" clock="C"/>
+   <T_setup    value="10e-12" port="D" clock="C"/>
+   <T_clock_to_Q max="10e-12" port="Q" clock="C"/>
    <metadata>
     <meta name="hlc_property">
         # - SB_DFFN
@@ -390,7 +390,7 @@
   <interconnect>
    <direct><port type="input" name="NCLK"/><port type="output" from="SB_DFFN" name="C" /></direct>
    <direct><port type="input" name="D"/><port type="output" from="SB_DFFN" name="D" />
-    <pack_pattern name="LUT+FFL" in_port="SB_FF.D" out_port="SB_DFFN.D" />
+    <pack_pattern name="LUT+FFL"/>
    </direct>
    <direct><port type="input" from="SB_DFFN" name="Q" /><port type="output" name="Q"/></direct>
   </interconnect>
@@ -403,9 +403,9 @@
    <input  name="E" num_pins="1"/>
    <input  name="D" num_pins="1"/>
    <output name="Q" num_pins="1"/>
-   <T_setup    value="10e-12" port="SB_DFFNE.E" clock="C"/>
-   <T_setup    value="10e-12" port="SB_DFFNE.D" clock="C"/>
-   <T_clock_to_Q max="10e-12" port="SB_DFFNE.Q" clock="C"/>
+   <T_setup    value="10e-12" port="E" clock="C"/>
+   <T_setup    value="10e-12" port="D" clock="C"/>
+   <T_clock_to_Q max="10e-12" port="Q" clock="C"/>
    <metadata>
     <meta name="hlc_property">
         # - SB_DFFNE
@@ -423,7 +423,7 @@
    <direct><port type="input" name="NCLK+CEN"/><port type="output" from="SB_DFFNE" name="C"/></direct>
    <direct><port type="input" name="E"/><port type="output" from="SB_DFFNE" name="E"/></direct>
    <direct><port type="input" name="D"/><port type="output" from="SB_DFFNE" name="D"/>
-    <pack_pattern name="LUT+FFM" in_port="SB_FF.D" out_port="SB_DFFNE.D" />
+    <pack_pattern name="LUT+FFM"/>
    </direct>
    <direct><port type="input" from="SB_DFFNE" name="Q" /><port type="output" name="Q"/></direct>
   </interconnect>
@@ -437,10 +437,10 @@
    <input  name="R" num_pins="1"/>
    <input  name="D" num_pins="1"/>
    <output name="Q" num_pins="1"/>
-   <T_setup    value="10e-12" port="SB_DFFNER.E" clock="C"/>
-   <T_setup    value="10e-12" port="SB_DFFNER.R" clock="C"/>
-   <T_setup    value="10e-12" port="SB_DFFNER.D" clock="C"/>
-   <T_clock_to_Q max="10e-12" port="SB_DFFNER.Q" clock="C"/>
+   <T_setup    value="10e-12" port="E" clock="C"/>
+   <T_setup    value="10e-12" port="R" clock="C"/>
+   <T_setup    value="10e-12" port="D" clock="C"/>
+   <T_clock_to_Q max="10e-12" port="Q" clock="C"/>
    <metadata>
     <meta name="hlc_property">
         # - SB_DFFNER
@@ -459,7 +459,7 @@
    <direct><port type="input" name="E"/><port type="output" from="SB_DFFNER" name="E"/></direct>
    <direct><port type="input" name="R"/><port type="output" from="SB_DFFNER" name="R"/></direct>
    <direct><port type="input" name="D"/><port type="output" from="SB_DFFNER" name="D"/>
-    <pack_pattern name="LUT+FFN" in_port="SB_FF.D" out_port="SB_DFFNER.D" />
+    <pack_pattern name="LUT+FFN"/>
    </direct>
    <direct><port type="input" from="SB_DFFNER" name="Q" /><port type="output" name="Q"/></direct>
   </interconnect>
@@ -473,10 +473,10 @@
    <input  name="R" num_pins="1"/>
    <input  name="D" num_pins="1"/>
    <output name="Q" num_pins="1"/>
-   <T_setup    value="10e-12" port="SB_DFFNES.E" clock="C"/>
-   <T_setup    value="10e-12" port="SB_DFFNES.R" clock="C"/>
-   <T_setup    value="10e-12" port="SB_DFFNES.D" clock="C"/>
-   <T_clock_to_Q max="10e-12" port="SB_DFFNES.Q" clock="C"/>
+   <T_setup    value="10e-12" port="E" clock="C"/>
+   <T_setup    value="10e-12" port="R" clock="C"/>
+   <T_setup    value="10e-12" port="D" clock="C"/>
+   <T_clock_to_Q max="10e-12" port="Q" clock="C"/>
    <metadata>
     <meta name="hlc_property">
         # - SB_DFFNES
@@ -496,7 +496,7 @@
    <direct><port type="input" name="E"/><port type="output" from="SB_DFFNES" name="E"/></direct>
    <direct><port type="input" name="R"/><port type="output" from="SB_DFFNES" name="R"/></direct>
    <direct><port type="input" name="D"/><port type="output" from="SB_DFFNES" name="D"/>
-    <pack_pattern name="LUT+FFO" in_port="SB_FF.D" out_port="SB_DFFNES.D" />
+    <pack_pattern name="LUT+FFO"/>
    </direct>
    <direct><port type="input" from="SB_DFFNES" name="Q" /><port type="output" name="Q"/></direct>
   </interconnect>
@@ -510,10 +510,10 @@
    <input  name="R" num_pins="1"/>
    <input  name="D" num_pins="1"/>
    <output name="Q" num_pins="1"/>
-   <T_setup    value="10e-12" port="SB_DFFNESR.E" clock="C"/>
-   <T_setup    value="10e-12" port="SB_DFFNESR.R" clock="C"/>
-   <T_setup    value="10e-12" port="SB_DFFNESR.D" clock="C"/>
-   <T_clock_to_Q max="10e-12" port="SB_DFFNESR.Q" clock="C"/>
+   <T_setup    value="10e-12" port="E" clock="C"/>
+   <T_setup    value="10e-12" port="R" clock="C"/>
+   <T_setup    value="10e-12" port="D" clock="C"/>
+   <T_clock_to_Q max="10e-12" port="Q" clock="C"/>
    <metadata>
     <meta name="hlc_property">
         # - SB_DFFNESR
@@ -532,7 +532,7 @@
    <direct><port type="input" name="E"/><port type="output" from="SB_DFFNESR" name="E"/></direct>
    <direct><port type="input" name="R"/><port type="output" from="SB_DFFNESR" name="R"/></direct>
    <direct><port type="input" name="D"/><port type="output" from="SB_DFFNESR" name="D"/>
-    <pack_pattern name="LUT+FFP" in_port="SB_FF.D" out_port="SB_DFFNESR.D" />
+    <pack_pattern name="LUT+FFP"/>
    </direct>
    <direct><port type="input" from="SB_DFFNESR" name="Q" /><port type="output" name="Q"/></direct>
   </interconnect>
@@ -546,10 +546,10 @@
    <input  name="S" num_pins="1"/>
    <input  name="D" num_pins="1"/>
    <output name="Q" num_pins="1"/>
-   <T_setup    value="10e-12" port="SB_DFFNESS.E" clock="C"/>
-   <T_setup    value="10e-12" port="SB_DFFNESS.S" clock="C"/>
-   <T_setup    value="10e-12" port="SB_DFFNESS.D" clock="C"/>
-   <T_clock_to_Q max="10e-12" port="SB_DFFNESS.Q" clock="C"/>
+   <T_setup    value="10e-12" port="E" clock="C"/>
+   <T_setup    value="10e-12" port="S" clock="C"/>
+   <T_setup    value="10e-12" port="D" clock="C"/>
+   <T_clock_to_Q max="10e-12" port="Q" clock="C"/>
    <metadata>
     <meta name="hlc_property">
         # - SB_DFFNESS
@@ -568,7 +568,7 @@
    <direct><port type="input" name="E"/><port type="output" from="SB_DFFNESS" name="E"/></direct>
    <direct><port type="input" name="S"/><port type="output" from="SB_DFFNESS" name="S"/></direct>
    <direct><port type="input" name="D"/><port type="output" from="SB_DFFNESS" name="D"/>
-    <pack_pattern name="LUT+FFQ" in_port="SB_FF.D" out_port="SB_DFFNESS.D" />
+    <pack_pattern name="LUT+FFQ"/>
    </direct>
    <direct><port type="input" from="SB_DFFNESS" name="Q" /><port type="output" name="Q"/></direct>
   </interconnect>
@@ -581,9 +581,9 @@
    <input  name="R" num_pins="1"/>
    <input  name="D" num_pins="1"/>
    <output name="Q" num_pins="1"/>
-   <T_setup    value="10e-12" port="SB_DFFNR.R" clock="C"/>
-   <T_setup    value="10e-12" port="SB_DFFNR.D" clock="C"/>
-   <T_clock_to_Q max="10e-12" port="SB_DFFNR.Q" clock="C"/>
+   <T_setup    value="10e-12" port="R" clock="C"/>
+   <T_setup    value="10e-12" port="D" clock="C"/>
+   <T_clock_to_Q max="10e-12" port="Q" clock="C"/>
    <metadata>
     <meta name="hlc_property">
         # - SB_DFFNR
@@ -601,7 +601,7 @@
    <direct><port type="input" name="NCLK+SR"/><port type="output" from="SB_DFFNR" name="C"/></direct>
    <direct><port type="input" name="S"/><port type="output" from="SB_DFFNR" name="R"/></direct>
    <direct><port type="input" name="D"/><port type="output" from="SB_DFFNR" name="D"/>
-    <pack_pattern name="LUT+FFR" in_port="SB_FF.D" out_port="SB_DFFNR.D" />
+    <pack_pattern name="LUT+FFR"/>
    </direct>
    <direct><port type="input" from="SB_DFFNR" name="Q" /><port type="output" name="Q"/></direct>
   </interconnect>
@@ -614,9 +614,9 @@
    <input  name="S" num_pins="1"/>
    <input  name="D" num_pins="1"/>
    <output name="Q" num_pins="1"/>
-   <T_setup    value="10e-12" port="SB_DFFNS.S" clock="C"/>
-   <T_setup    value="10e-12" port="SB_DFFNS.D" clock="C"/>
-   <T_clock_to_Q max="10e-12" port="SB_DFFNS.Q" clock="C"/>
+   <T_setup    value="10e-12" port="S" clock="C"/>
+   <T_setup    value="10e-12" port="D" clock="C"/>
+   <T_clock_to_Q max="10e-12" port="Q" clock="C"/>
    <metadata>
     <meta name="hlc_property">
         # - SB_DFFNS
@@ -635,7 +635,7 @@
    <direct><port type="input" name="NCLK+SR"/><port type="output" from="SB_DFFNS" name="C"/></direct>
    <direct><port type="input" name="S"/><port type="output" from="SB_DFFNS" name="S"/></direct>
    <direct><port type="input" name="D"/><port type="output" from="SB_DFFNS" name="D"/>
-    <pack_pattern name="LUT+FFS" in_port="SB_FF.D" out_port="SB_DFFNS.D" />
+    <pack_pattern name="LUT+FFS"/>
    </direct>
    <direct><port type="input" from="SB_DFFNS" name="Q" /><port type="output" name="Q"/></direct>
   </interconnect>
@@ -648,9 +648,9 @@
    <input  name="R" num_pins="1"/>
    <input  name="D" num_pins="1"/>
    <output name="Q" num_pins="1"/>
-   <T_setup    value="10e-12" port="SB_DFFNSR.R" clock="C"/>
-   <T_setup    value="10e-12" port="SB_DFFNSR.D" clock="C"/>
-   <T_clock_to_Q max="10e-12" port="SB_DFFNSR.Q" clock="C"/>
+   <T_setup    value="10e-12" port="R" clock="C"/>
+   <T_setup    value="10e-12" port="D" clock="C"/>
+   <T_clock_to_Q max="10e-12" port="Q" clock="C"/>
    <metadata>
     <meta name="hlc_property">
         # - SB_DFFNSR
@@ -665,7 +665,7 @@
    <direct><port type="input" name="NCLK+SR"/><port type="output" from="SB_DFFNSR" name="C"/></direct>
    <direct><port type="input" name="S"/><port type="output" from="SB_DFFNSR" name="R"/></direct>
    <direct><port type="input" name="D"/><port type="output" from="SB_DFFNSR" name="D"/>
-    <pack_pattern name="LUT+FFT" in_port="SB_FF.D" out_port="SB_DFFNSR.D" />
+    <pack_pattern name="LUT+FFT"/>
    </direct>
    <direct><port type="input" from="SB_DFFNSR" name="Q" /><port type="output" name="Q"/></direct>
   </interconnect>
@@ -678,9 +678,9 @@
    <input  name="S" num_pins="1"/>
    <input  name="D" num_pins="1"/>
    <output name="Q" num_pins="1"/>
-   <T_setup    value="10e-12" port="SB_DFFNSS.S" clock="C"/>
-   <T_setup    value="10e-12" port="SB_DFFNSS.D" clock="C"/>
-   <T_clock_to_Q max="10e-12" port="SB_DFFNSS.Q" clock="C"/>
+   <T_setup    value="10e-12" port="S" clock="C"/>
+   <T_setup    value="10e-12" port="D" clock="C"/>
+   <T_clock_to_Q max="10e-12" port="Q" clock="C"/>
    <metadata>
     <meta name="hlc_property">
         # - SB_DFFNSS
@@ -698,7 +698,7 @@
    <direct><port type="input" name="NCLK+SR"/><port type="output" from="SB_DFFNSS" name="C"/></direct>
    <direct><port type="input" name="S"/><port type="output" from="SB_DFFNSS" name="S"/></direct>
    <direct><port type="input" name="D"/><port type="output" from="SB_DFFNSS" name="D"/>
-    <pack_pattern name="LUT+FFU" in_port="SB_FF.D" out_port="SB_DFFNSS.D" />
+    <pack_pattern name="LUT+FFU"/>
    </direct>
    <direct><port type="input" from="SB_DFFNSS" name="Q" /><port type="output" name="Q"/></direct>
   </interconnect>

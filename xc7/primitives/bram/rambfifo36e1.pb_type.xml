@@ -120,22 +120,22 @@ The RAM has extra bits that can be used for parity (DIP / DOP).
    <output name="DOADO"             num_pins="32" />
    <output name="DOPADOP"           num_pins="4"  />
 
-   <T_setup value="10e-12" port="RAMB36E1.REGCEAREGCEU"  clock="CLKARDCLKL" />
-   <T_setup value="10e-12" port="RAMB36E1.REGCEAREGCEL"  clock="CLKARDCLKL" />
-   <T_setup value="10e-12" port="RAMB36E1.ENARDENU"  clock="CLKARDCLKL" />
-   <T_setup value="10e-12" port="RAMB36E1.ENARDENL"  clock="CLKARDCLKL" />
-   <T_setup value="10e-12" port="RAMB36E1.RSTRAMARSTRAMU"  clock="CLKARDCLKL" />
-   <T_setup value="10e-12" port="RAMB36E1.RSTRAMARSTRAMLRST"  clock="CLKARDCLKL" />
-   <T_setup value="10e-12" port="RAMB36E1.RSTREGARSTREGU"  clock="CLKARDCLKL" />
-   <T_setup value="10e-12" port="RAMB36E1.RSTREGARSTREGL"  clock="CLKARDCLKL" />
-   <T_setup value="10e-12" port="RAMB36E1.ADDRARDADDRU"  clock="CLKARDCLKL" />
-   <T_setup value="10e-12" port="RAMB36E1.ADDRARDADDRL"  clock="CLKARDCLKL" />
-   <T_setup value="10e-12" port="RAMB36E1.DIADI"  clock="CLKARDCLKL" />
-   <T_setup value="10e-12" port="RAMB36E1.DIPADIP"  clock="CLKARDCLKL" />
-   <T_setup value="10e-12" port="RAMB36E1.WEAU"  clock="CLKARDCLKL" />
-   <T_setup value="10e-12" port="RAMB36E1.WEAL"  clock="CLKARDCLKL" />
-   <T_clock_to_Q max="10e-12" port="RAMB36E1.DOADO"  clock="CLKARDCLKL" />
-   <T_clock_to_Q max="10e-12" port="RAMB36E1.DOPADOP"  clock="CLKARDCLKL" />
+   <T_setup    value="10e-12" port="REGCEAREGCEU"      clock="CLKARDCLKL" />
+   <T_setup    value="10e-12" port="REGCEAREGCEL"      clock="CLKARDCLKL" />
+   <T_setup    value="10e-12" port="ENARDENU"          clock="CLKARDCLKL" />
+   <T_setup    value="10e-12" port="ENARDENL"          clock="CLKARDCLKL" />
+   <T_setup    value="10e-12" port="RSTRAMARSTRAMU"    clock="CLKARDCLKL" />
+   <T_setup    value="10e-12" port="RSTRAMARSTRAMLRST" clock="CLKARDCLKL" />
+   <T_setup    value="10e-12" port="RSTREGARSTREGU"    clock="CLKARDCLKL" />
+   <T_setup    value="10e-12" port="RSTREGARSTREGL"    clock="CLKARDCLKL" />
+   <T_setup    value="10e-12" port="ADDRARDADDRU"      clock="CLKARDCLKL" />
+   <T_setup    value="10e-12" port="ADDRARDADDRL"      clock="CLKARDCLKL" />
+   <T_setup    value="10e-12" port="DIADI"             clock="CLKARDCLKL" />
+   <T_setup    value="10e-12" port="DIPADIP"           clock="CLKARDCLKL" />
+   <T_setup    value="10e-12" port="WEAU"              clock="CLKARDCLKL" />
+   <T_setup    value="10e-12" port="WEAL"              clock="CLKARDCLKL" />
+   <T_clock_to_Q max="10e-12" port="DOADO"             clock="CLKARDCLKL" />
+   <T_clock_to_Q max="10e-12" port="DOPADOP"           clock="CLKARDCLKL" />
 
    <!-- Port B - 32bit wide -->
    <clock  name="CLKBWRCLKU"     num_pins="1"  />
@@ -157,22 +157,22 @@ The RAM has extra bits that can be used for parity (DIP / DOP).
    <output name="DOBDO"          num_pins="32" />
    <output name="DOPBDOP"        num_pins="4"  />
 
-   <T_setup value="10e-12" port="RAMB36E1.ENBWRENU"  clock="CLKBWRCLKL" />
-   <T_setup value="10e-12" port="RAMB36E1.ENBWRENL"  clock="CLKBWRCLKL" />
-   <T_setup value="10e-12" port="RAMB36E1.REGCEBU"  clock="CLKBWRCLKL" />
-   <T_setup value="10e-12" port="RAMB36E1.REGCEBL"  clock="CLKBWRCLKL" />
-   <T_setup value="10e-12" port="RAMB36E1.RSTRAMBU"  clock="CLKBWRCLKL" />
-   <T_setup value="10e-12" port="RAMB36E1.RSTRAMBL"  clock="CLKBWRCLKL" />
-   <T_setup value="10e-12" port="RAMB36E1.RSTREGBU"  clock="CLKBWRCLKL" />
-   <T_setup value="10e-12" port="RAMB36E1.RSTREGBL"  clock="CLKBWRCLKL" />
-   <T_setup value="10e-12" port="RAMB36E1.ADDRBWRADDRU"  clock="CLKBWRCLKL" />
-   <T_setup value="10e-12" port="RAMB36E1.ADDRBWRADDRL"  clock="CLKBWRCLKL" />
-   <T_setup value="10e-12" port="RAMB36E1.DIBDI"  clock="CLKBWRCLKL" />
-   <T_setup value="10e-12" port="RAMB36E1.DIPBDIP"  clock="CLKBWRCLKL" />
-   <T_setup value="10e-12" port="RAMB36E1.WEBWEU"  clock="CLKBWRCLKL" />
-   <T_setup value="10e-12" port="RAMB36E1.WEBWEL"  clock="CLKBWRCLKL" />
-   <T_clock_to_Q max="10e-12" port="RAMB36E1.DOBDO"  clock="CLKBWRCLKL" />
-   <T_clock_to_Q max="10e-12" port="RAMB36E1.DOPBDOP"  clock="CLKBWRCLKL" />
+   <T_setup    value="10e-12" port="ENBWRENU"     clock="CLKBWRCLKL" />
+   <T_setup    value="10e-12" port="ENBWRENL"     clock="CLKBWRCLKL" />
+   <T_setup    value="10e-12" port="REGCEBU"      clock="CLKBWRCLKL" />
+   <T_setup    value="10e-12" port="REGCEBL"      clock="CLKBWRCLKL" />
+   <T_setup    value="10e-12" port="RSTRAMBU"     clock="CLKBWRCLKL" />
+   <T_setup    value="10e-12" port="RSTRAMBL"     clock="CLKBWRCLKL" />
+   <T_setup    value="10e-12" port="RSTREGBU"     clock="CLKBWRCLKL" />
+   <T_setup    value="10e-12" port="RSTREGBL"     clock="CLKBWRCLKL" />
+   <T_setup    value="10e-12" port="ADDRBWRADDRU" clock="CLKBWRCLKL" />
+   <T_setup    value="10e-12" port="ADDRBWRADDRL" clock="CLKBWRCLKL" />
+   <T_setup    value="10e-12" port="DIBDI"        clock="CLKBWRCLKL" />
+   <T_setup    value="10e-12" port="DIPBDIP"      clock="CLKBWRCLKL" />
+   <T_setup    value="10e-12" port="WEBWEU"       clock="CLKBWRCLKL" />
+   <T_setup    value="10e-12" port="WEBWEL"       clock="CLKBWRCLKL" />
+   <T_clock_to_Q max="10e-12" port="DOBDO"        clock="CLKBWRCLKL" />
+   <T_clock_to_Q max="10e-12" port="DOPBDOP"      clock="CLKBWRCLKL" />
 
    <input  name="CASCADEINA"    num_pins="1"  />
    <input  name="CASCADEINB"    num_pins="1"  />
