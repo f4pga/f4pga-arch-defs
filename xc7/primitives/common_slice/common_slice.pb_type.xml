@@ -297,7 +297,7 @@
     </mux>
 
     <!-- [A-D]MUX -->
-    <mux name="DMUX"
+    <mux name="DOUTMUX"
       input="COMMON_SLICE.AMC31 SLICE_FF.Q5[3] CARRY[2].O CARRY[2].CO_FABRIC COMMON_SLICE.DO6 COMMON_SLICE.DO5"
       output="COMMON_SLICE.DMUX">
       <metadata>
@@ -312,7 +312,7 @@
         </meta>
       </metadata>
     </mux>
-    <mux name="CMUX"
+    <mux name="COUTMUX"
       input="SLICE_FF.Q5[2] CARRY[1].O CARRY[1].CO_FABRIC COMMON_SLICE.CO6 COMMON_SLICE.CO5 COMMON_SLICE.F7BMUX_O"
       output="COMMON_SLICE.CMUX" >
       <metadata>
@@ -326,7 +326,7 @@
         </meta>
       </metadata>
     </mux>
-    <mux name="BMUX"
+    <mux name="BOUTMUX"
       input="SLICE_FF.Q5[1] CARRY[0].O CARRY[0].CO_FABRIC COMMON_SLICE.BO6 COMMON_SLICE.BO5 COMMON_SLICE.F8MUX_O"
       output="COMMON_SLICE.BMUX" >
       <metadata>
@@ -340,7 +340,7 @@
         </meta>
       </metadata>
     </mux>
-    <mux name="AMUX"
+    <mux name="AOUTMUX"
       input="SLICE_FF.Q5[0] CARRY0.O CARRY0.CO_FABRIC COMMON_SLICE.AO6 COMMON_SLICE.AO5 COMMON_SLICE.F7AMUX_O"
       output="COMMON_SLICE.AMUX" >
       <metadata>
