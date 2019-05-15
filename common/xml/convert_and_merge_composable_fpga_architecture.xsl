@@ -13,12 +13,19 @@
     </xsl:choose>
   </xsl:template>
 
-  <!-- template-function: Convert
+  <!-- template-function: Called to convert
      * <port name=XXX> 				to XXX
      * <port name=XXX bit=Y> 			to XXX[Y]
      * <port name=XXX bit_msb=M bit_lsb=L>	to XXX[M:L]
     -->
   <xsl:template name="port-value"><xsl:value-of select="@name"/><xsl:choose><xsl:when test="@bit">[<xsl:value-of select="@bit"/>]</xsl:when><xsl:when test="@bit-msb">[<xsl:value-of select="@bit-msb"/>:<xsl:value-of select="@bit-lsb"/>]</xsl:when><xsl:otherwise></xsl:otherwise></xsl:choose></xsl:template>
+
+  <!-- Testing matcher for the port-value template function -->
+  <xsl:template match="port-value-test/port">
+    <xsl:attribute name="o">
+      <xsl:call-template name="port-value"/>
+    </xsl:attribute>
+  </xsl:template>
 
   <!-- Root match -->
   <xsl:template match="/">
@@ -118,7 +125,7 @@
       </xsl:attribute>
       <xsl:attribute name="output">
         <xsl:for-each select="port[@type='output']">
-	  <xsl:call-template name="from-pb_type"/>.<xsl:call-template name="port-value"/>
+	        <xsl:call-template name="from-pb_type"/>.<xsl:call-template name="port-value"/>
           <xsl:if test="position() != last()"><xsl:text> </xsl:text></xsl:if>
         </xsl:for-each>
       </xsl:attribute>
@@ -163,7 +170,15 @@
     </models>
   </xsl:template>
 
-  <xsl:template match="text()|comment()|processing-instruction()">
+  <xsl:param name="strip_comments" select="''" />
+  <xsl:template match="comment()">
+    <xsl:choose>
+      <xsl:when test="$strip_comments"></xsl:when>
+	    <xsl:otherwise><xsl:copy /></xsl:otherwise>
+    </xsl:choose>
+  </xsl:template>
+
+  <xsl:template match="text()|processing-instruction()">
     <xsl:copy/>
   </xsl:template>
 

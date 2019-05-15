@@ -2,10 +2,10 @@
 <xml>
   <pb_type>
     <direct>
-      <pack_pattern name="carry-B"/>
+      <pack_pattern name="chain-B"/>
     </direct>
     <mux>
-      <pack_pattern name="pack-A">
+      <pack_pattern name="molecule-A">
         <innertag/>
       </pack_pattern>
     </mux>
