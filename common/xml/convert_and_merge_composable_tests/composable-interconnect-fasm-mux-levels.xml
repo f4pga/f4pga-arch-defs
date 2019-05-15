@@ -31,12 +31,12 @@
     </port>
     <port type="input" name="b" from="blockb">
      <metadata>
-      <meta name="fasm_mux">b1</meta>
+      <meta name="fasm_mux">b1.l1</meta>
      </metadata>
     </port>
     <port type="input" name="c" from="blockc[0]">
      <metadata>
-      <meta name="fasm_mux">c0</meta>
+      <meta name="fasm_mux">c0.l1</meta>
      </metadata>
     </port>
     <port type="input" name="c" from="blockc[1]">
