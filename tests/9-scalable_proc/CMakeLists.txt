@@ -100,4 +100,18 @@ scalable_proc(
   MAX_PROC 3
 )
 
+add_vivado_target(
+    NAME top_bram_n3_vivado
+    PARENT_NAME top_bram_n3
+    CLOCK_PINS clk
+    CLOCK_PERIODS 10.0
+    )
+
+add_vivado_target(
+    NAME top_dram_n3_vivado
+    PARENT_NAME top_dram_n3
+    CLOCK_PINS clk
+    CLOCK_PERIODS 10.0
+    )
+
 endif (NOT DEFINED ENV{CI} OR NOT $ENV{CI})
