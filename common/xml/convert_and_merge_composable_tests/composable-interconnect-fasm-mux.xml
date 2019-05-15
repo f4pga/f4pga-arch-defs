@@ -1,4 +1,6 @@
 <?xml version="1.0"?>
+<!-- Test the special handling around the fasm_mux metadata when using
+     composable interconnects. -->
 <xml>
  <pb_type name="parent">
   <input name="i0" />
