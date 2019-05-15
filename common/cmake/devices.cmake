@@ -759,6 +759,10 @@ function(ADD_FPGA_TARGET)
 
   # Create target to handle all output paths of off
   add_custom_target(${NAME})
+  set_target_properties(${NAME} PROPERTIES
+      TOP ${TOP}
+      BOARD ${BOARD}
+      )
   set(VPR_ROUTE_CHAN_WIDTH 100)
   set(VPR_ROUTE_CHAN_MINWIDTH_HINT ${VPR_ROUTE_CHAN_WIDTH})
 
@@ -1159,7 +1163,7 @@ function(ADD_FPGA_TARGET)
       )
 
     add_custom_target(${NAME}_bin DEPENDS ${OUT_BIN})
-    add_output_to_fpga_target(${NAME} BIN ${OUT_LOCAL_REL}/${TOP}.bin)
+    add_output_to_fpga_target(${NAME} BIN ${OUT_LOCAL_REL}/${TOP}.${BIN_EXTENSION})
     add_dependencies(all_${BOARD}_bin ${NAME}_bin)
 
     get_target_property(PROG_TOOL ${BOARD} PROG_TOOL)
