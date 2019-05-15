@@ -30,17 +30,6 @@ module CARRY4_VPR(O, CO_CHAIN, CO_FABRIC, CYINIT, CIN, DI, S);
 
   wire [4:0] CI;
 
-  wire CI_COMBINE;
-  if(CYINIT_AX) begin
-    assign CI_COMBINE = CI_INIT;
-  end else if(CYINIT_C0) begin
-    assign CI_COMBINE = 0;
-  end else if(CYINIT_C1) begin
-    assign CI_COMBINE = 1;
-  end else begin
-    assign CI_COMBINE = CI;
-  end
-
   assign CI[0] = (CYINIT & CYINIT_AX) | CYINIT_C1 | (CIN & (!CYINIT_AX && !CYINIT_C0 && !CYINIT_C1));
 
   genvar i;
