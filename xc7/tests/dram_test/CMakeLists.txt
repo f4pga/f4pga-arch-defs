@@ -26,4 +26,11 @@ foreach(type 64x1d 32m 64m)
       SOURCES ${SYNTH_V}
       CYCLES 3000
       )
+
+  add_vivado_target(
+      NAME dram_test_${type}_vivado
+      PARENT_NAME dram_test_${type}
+      CLOCK_PINS clk
+      CLOCK_PERIODS 10.0
+      )
 endforeach()
