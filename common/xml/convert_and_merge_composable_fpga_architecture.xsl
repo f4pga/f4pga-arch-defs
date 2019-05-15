@@ -154,12 +154,12 @@
     to
       <loc ...>BLOCK.PORT BLOCK.PORT</loc>
     -->
-  <xsl:template match="loc/port"><xsl:text>
-      </xsl:text><xsl:call-template name="from-pb_type"/>.<xsl:call-template name="port-value"/>
+  <xsl:template match="pinlocations/loc/port"><xsl:text>
+        </xsl:text><xsl:call-template name="from-pb_type"/>.<xsl:call-template name="port-value"/>
   </xsl:template>
-  <xsl:template match="loc/port[last()]"><xsl:text>
-      </xsl:text><xsl:call-template name="from-pb_type"/>.<xsl:call-template name="port-value"/><xsl:text>
-    </xsl:text>
+  <xsl:template match="pinlocations/loc/port[last()]"><xsl:text>
+        </xsl:text><xsl:call-template name="from-pb_type"/>.<xsl:call-template name="port-value"/><xsl:text>
+      </xsl:text>
   </xsl:template>
 
   <!-- Remove duplicate model nodes -->
