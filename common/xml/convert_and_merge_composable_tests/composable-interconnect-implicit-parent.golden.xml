@@ -20,12 +20,17 @@
       <output name="o"/>
     </pb_type>
     <interconnect>
-      <direct input="parent.ia1" name="childa-i1" output="childa.i1"/>
-      <mux name="childa-input-i2" input="parent.ia2 parent.ia3" output="childa.i2"/>
+      <direct input="parent.ia1" name="childa-i1" output="childa.i1">
+        <pack_pattern name="A1" in_port="parent.ia1" out_port="childa.i1"/>
+      </direct>
+      <mux input="parent.ia2 parent.ia3" output="childa.i2" name="childa-input-i2">
+        <pack_pattern name="A2" in_port="parent.ia2" out_port="childa.i2"/>
+        <pack_pattern name="A3" in_port="parent.ia3" out_port="childa.i2"/>
+      </mux>
       <direct input="childa.o" name="parent-o0" output="parent.o0"/>
       <direct input="childa.o" name="childb-i" output="childb.i"/>
-      <mux name="childc-input" input="childa.o childb.o" output="childc.i"/>
-      <mux name="output" input="childa.o childb.o childc.o" output="parent.o1"/>
+      <mux input="childa.o childb.o" output="childc.i" name="childc-input"/>
+      <mux input="childa.o childb.o childc.o" output="parent.o1" name="output"/>
     </interconnect>
   </pb_type>
 </xml>
