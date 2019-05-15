@@ -37,7 +37,7 @@
 `include "../common_slice/routing/Nused/cused.sim.v"
 `include "../common_slice/routing/Nused/dused.sim.v"
 
-`include "../common_slice/carry/carry.sim.v"
+`include "../common_slice/carry/carry4_vpr.sim.v"
 
 `include "../common_slice/routing/clkinv/clkinv.sim.v"
 
