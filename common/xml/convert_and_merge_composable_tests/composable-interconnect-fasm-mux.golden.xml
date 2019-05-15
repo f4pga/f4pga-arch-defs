@@ -13,9 +13,9 @@
       <mux name="mux1" input="parent.i0 parent.i1" output="child.i">
         <metadata>
           <meta name="fasm_mux">
-            parent.i0 : a1
-            parent.i1 : b1
-        </meta>
+                parent.i0 : a1
+                parent.i1 : b1
+          </meta>
           <meta name="fasm_name">fasm_name</meta>
         </metadata>
       </mux>

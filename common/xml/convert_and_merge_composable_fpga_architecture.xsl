@@ -119,7 +119,7 @@
       </xsl:attribute>
       <xsl:attribute name="input">
         <xsl:for-each select="port[@type='input']">
-	  <xsl:call-template name="from-pb_type"/>.<xsl:call-template name="port-value"/>
+	        <xsl:call-template name="from-pb_type"/>.<xsl:call-template name="port-value"/>
           <xsl:if test="position() != last()"><xsl:text> </xsl:text></xsl:if>
         </xsl:for-each>
       </xsl:attribute>
@@ -129,17 +129,22 @@
           <xsl:if test="position() != last()"><xsl:text> </xsl:text></xsl:if>
         </xsl:for-each>
       </xsl:attribute>
-      <metadata>
-        <meta name="fasm_mux">
-          <xsl:for-each select="port[@type='input']"><xsl:text>
-            </xsl:text><xsl:call-template name="from-pb_type"/>.<xsl:call-template name="port-value"/><xsl:text> : </xsl:text><xsl:value-of select="metadata/meta[@name='fasm_mux']" />
-	    </xsl:for-each><xsl:text>
-        </xsl:text>
-        </meta>
-        <xsl:for-each select="metadata">
-          <xsl:apply-templates/>
-        </xsl:for-each>
-      </metadata>
+      <xsl:if test="*/metadata">
+        <metadata>
+          <!-- The fasm_mux metadata attribute needs special handling. -->
+          <xsl:if test="*/metadata/meta[@name='fasm_mux']">
+            <meta name="fasm_mux">
+              <xsl:for-each select="port[@type='input']"><xsl:text>
+                </xsl:text><xsl:call-template name="from-pb_type"/>.<xsl:call-template name="port-value"/><xsl:text> : </xsl:text><xsl:value-of select="metadata/meta[@name='fasm_mux']" />
+	            </xsl:for-each><xsl:text>
+          </xsl:text>
+            </meta>
+          </xsl:if>
+          <xsl:for-each select="metadata">
+            <xsl:apply-templates/>
+          </xsl:for-each>
+        </metadata>
+      </xsl:if>
     </xsl:copy>
   </xsl:template>
 
