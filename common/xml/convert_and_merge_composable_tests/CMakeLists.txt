@@ -8,6 +8,7 @@ xsl_golden_test(NAME "composable-loc-implicit-parent")
 xsl_golden_test(NAME "explicit-port")
 xsl_golden_test(NAME "pack_pattern-merge-type-into-name")
 xsl_golden_test(NAME "pack_pattern-strip-from-pb_type-ports")
+xsl_golden_test(NAME "preserve-interconnect")
 # Test everything used together in one big file
 add_file_target(FILE "full-test-inner.xml" SCANNER_TYPE xml)
 xsl_golden_test(NAME "full-test")

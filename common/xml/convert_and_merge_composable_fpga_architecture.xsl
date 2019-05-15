@@ -122,12 +122,14 @@
 	        <xsl:call-template name="from-pb_type"/>.<xsl:call-template name="port-value"/>
           <xsl:if test="position() != last()"><xsl:text> </xsl:text></xsl:if>
         </xsl:for-each>
+        <xsl:value-of select="@input" />
       </xsl:attribute>
       <xsl:attribute name="output">
         <xsl:for-each select="port[@type='output']">
 	        <xsl:call-template name="from-pb_type"/>.<xsl:call-template name="port-value"/>
           <xsl:if test="position() != last()"><xsl:text> </xsl:text></xsl:if>
         </xsl:for-each>
+        <xsl:value-of select="@output" />
       </xsl:attribute>
       <xsl:if test="*/metadata">
         <metadata>
