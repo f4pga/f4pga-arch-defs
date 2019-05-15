@@ -17,9 +17,29 @@ NC='\033[0m' # No Color
 
 SPACER="echo -e ${GRAY} - ${NC}"
 
+if ! declare -F travis_nanoseconds &>/dev/null; then
+function travis_nanoseconds() {
+	return 0;
+}
+fi
 export -f travis_nanoseconds
+if ! declare -F travis_fold &>/dev/null; then
+function travis_fold() {
+	return 0;
+}
+fi
 export -f travis_fold
+if ! declare -F travis_time_start &>/dev/null; then
+function travis_time_start() {
+	return 0;
+}
+fi
 export -f travis_time_start
+if ! declare -F travis_time_finish &>/dev/null; then
+function travis_time_finish() {
+	return 0;
+}
+fi
 export -f travis_time_finish
 if [ -z "$DATESTR" ]; then
 	if [ -z "$DATESHORT" ]; then
@@ -30,6 +50,12 @@ if [ -z "$DATESTR" ]; then
 		echo "Setting short date string of $DATESTR"
 	fi
 fi
+
+function run_section() {
+	start_section $1 "$2 ($3)"
+	$3
+	end_section $1
+}
 
 function start_section() {
 	travis_fold start "$1"

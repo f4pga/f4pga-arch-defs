@@ -5,16 +5,14 @@ set -e
 
 $SPACER
 
-start_section "symbiflow.configure_cmake" "Configuring CMake"
+start_section "symbiflow.configure_cmake" "Configuring CMake (make env)"
 make env
 cd build
 end_section "symbiflow.configure_cmake"
 
 $SPACER
 
-start_section "symbiflow.conda" "Setting up basic ${YELLOW}conda environment${NC}"
-make all_conda
-end_section "symbiflow.conda"
+run_section "symbiflow.conda" "Setting up basic ${YELLOW}conda environment${NC}" "make all_conda"
 
 $SPACER
 
@@ -29,60 +27,46 @@ end_section "info.conda.config"
 
 $SPACER
 
-start_section "symbiflow.format" "Check code formatting"
-make check_python
-end_section "symbiflow.format"
+run_section "symbiflow.format" "Check code formatting" "make check_python"
 
 $SPACER
 
-start_section "symbiflow.run_v2x_tests" "Run v2x unit tests"
-make all_v2x_tests
-end_section "symbiflow.run_v2x_tests"
+run_section "symbiflow.run_v2x_tests" "Run v2x unit tests" "make all_v2x_tests"
 
 $SPACER
 
-start_section "symbiflow.run_python_tests" "Run Python unit tests"
-make test_python
-end_section "symbiflow.run_python_tests"
+run_section "symbiflow.run_python_tests" "Run Python unit tests" "make test_python"
 
 $SPACER
 
-start_section "symbiflow.build_all_arch_xmls" "Build all arch XMLs."
-make all_merged_arch_xmls
-end_section "symbiflow.build_all_arch_xmls"
+run_section "symbiflow.build_all_arch_xmls" "Build all arch XMLs" "make all_merged_arch_xmls"
 
 $SPACER
 
+echo "Suppressing all_rrgraph_xmls generation, as the 8k parts cannot be built on travis."
 start_section "symbiflow.build_all_rrgraph_xmls" "Build all rrgraph XMLs."
-echo "Supressing all_rrgraph_xmls generatation, as the 8k parts cannot be built on travis."
 #make all_rrgraph_xmls
 end_section "symbiflow.build_all_rrgraph_xmls"
 
 $SPACER
 
-start_section "symbiflow.route_all_tests" "Complete all routing tests"
-make all_route_tests
-end_section "symbiflow.route_all_tests"
+run_section "symbiflow.route_all_tests" "Complete all routing tests" "make all_route_tests"
 
 $SPACER
 
-start_section "symbiflow.xmllint_all_tests" "Complete all xmllint"
-echo "Supressing some xml linting, as the 5k/8k parts cannot be built on travis."
-make all_xml_lint
-end_section "symbiflow.xmllint_all"
+echo "Suppressing some xml linting, as the 5k/8k parts cannot be built on travis."
+run_section "symbiflow.xmllint_all" "Complete all xmllint" "make all_xml_lint"
 
 $SPACER
 
-start_section "symbiflow.run_check_tests" "Complete all equivilence tests"
 # TODO: Check tests are broken, yosys regression?
+#start_section "symbiflow.run_check_tests" "Complete all equivalence tests"
 #make all_check_tests
-end_section "symbiflow.run_check_tests"
+#end_section "symbiflow.run_check_tests"
 
 $SPACER
 
-start_section "symbiflow.build_all_demos" "Building all demo bitstreams"
-echo "Supressing some demo bitstreams, as the 8k parts cannot be built on travis."
-make all
-end_section "symbiflow.build_all_demos"
+echo "Suppressing some demo bitstreams, as the 8k parts cannot be built on travis."
+run_section "symbiflow.build_all_demos" "Building all demo bitstreams" "make all"
 
 $SPACER
