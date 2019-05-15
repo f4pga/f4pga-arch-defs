@@ -11,7 +11,7 @@
   <pb_type name="LUT4" num_pb="1" class="lut" blif_model=".names">
    <input  name="in"  num_pins="4" port_class="lut_in" />
    <output name="out" num_pins="1" port_class="lut_out" />
-   <delay_matrix type="max" in_port="LUT4.in" out_port="LUT4.out">
+   <delay_matrix type="max" in_port="in" out_port="out">
     10e-12
     10e-12
     10e-12
