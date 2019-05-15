@@ -1217,7 +1217,7 @@ end
       .WRITE_MODE_A_NO_CHANGE(WRITE_MODE_A == "NO_CHANGE" || (WRITE_MODE_A == "WRITE_FIRST" && RAM_MODE == "SDP")),
       .WRITE_MODE_A_READ_FIRST(WRITE_MODE_A == "READ_FIRST"),
       .WRITE_MODE_B_NO_CHANGE(WRITE_MODE_B == "NO_CHANGE" || (WRITE_MODE_B == "WRITE_FIRST" && RAM_MODE == "SDP")),
-      .WRITE_MODE_B_READ_FIRST(WRITE_MODE_B == "READ_FIRST"),
+      .WRITE_MODE_B_READ_FIRST(WRITE_MODE_B == "READ_FIRST")
   ) _TECHMAP_REPLACE_ (
     .CLKARDCLK(CLKARDCLK),
     .REGCLKARDRCLK(REGCLKA),
@@ -1277,11 +1277,23 @@ module CARRY4_COUT(output [3:0] CO, O, output COUT, input CI, CYINIT, input [3:0
         .CYINIT_C1(1'b0)
     ) _TECHMAP_REPLACE_ (
         .CO_CHAIN(COUT),
-        .CO_FABRIC(CO),
-        .O(O),
+        .CO_FABRIC0(CO[0]),
+        .CO_FABRIC1(CO[1]),
+        .CO_FABRIC2(CO[2]),
+        .CO_FABRIC3(CO[3]),
+        .O0(O[0]),
+        .O1(O[1]),
+        .O2(O[2]),
+        .O3(O[3]),
         .CYINIT(CYINIT),
-        .DI(DI),
-        .S(S)
+        .DI0(DI[0]),
+        .DI1(DI[1]),
+        .DI2(DI[2]),
+        .DI3(DI[3]),
+        .S0(S[0]),
+        .S1(S[1]),
+        .S2(S[2]),
+        .S3(S[3])
     );
   end else if(IS_CI_ZERO || IS_CI_ONE) begin
     CARRY4_VPR #(
@@ -1290,10 +1302,22 @@ module CARRY4_COUT(output [3:0] CO, O, output COUT, input CI, CYINIT, input [3:0
         .CYINIT_C1(IS_CI_ONE)
     ) _TECHMAP_REPLACE_ (
         .CO_CHAIN(COUT),
-        .CO_FABRIC(CO),
-        .O(O),
-        .DI(DI),
-        .S(S)
+        .CO_FABRIC0(CO[0]),
+        .CO_FABRIC1(CO[1]),
+        .CO_FABRIC2(CO[2]),
+        .CO_FABRIC3(CO[3]),
+        .O0(O[0]),
+        .O1(O[1]),
+        .O2(O[2]),
+        .O3(O[3]),
+        .DI0(DI[0]),
+        .DI1(DI[1]),
+        .DI2(DI[2]),
+        .DI3(DI[3]),
+        .S0(S[0]),
+        .S1(S[1]),
+        .S2(S[2]),
+        .S3(S[3])
     );
   end else begin
     CARRY4_VPR #(
@@ -1302,10 +1326,22 @@ module CARRY4_COUT(output [3:0] CO, O, output COUT, input CI, CYINIT, input [3:0
         .CYINIT_C1(1'b0)
     ) _TECHMAP_REPLACE_ (
         .CO_CHAIN(COUT),
-        .CO_FABRIC(CO),
-        .O(O),
-        .DI(DI),
-        .S(S),
+        .CO_FABRIC0(CO[0]),
+        .CO_FABRIC1(CO[1]),
+        .CO_FABRIC2(CO[2]),
+        .CO_FABRIC3(CO[3]),
+        .O0(O[0]),
+        .O1(O[1]),
+        .O2(O[2]),
+        .O3(O[3]),
+        .DI0(DI[0]),
+        .DI1(DI[1]),
+        .DI2(DI[2]),
+        .DI3(DI[3]),
+        .S0(S[0]),
+        .S1(S[1]),
+        .S2(S[2]),
+        .S3(S[3]),
         .CIN(CI)
     );
   end
