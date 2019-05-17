@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 """ Tool for sanity checking rrgraph CHAN PTC's.
 """
 import lxml.etree as ET
@@ -47,32 +48,35 @@ def check_ptc(xml):
         if not all((starts_at_zero, ends_at_max_val, all_values_present)):
             sorted_nodes = sorted(zip(ptcs, nodes), key=lambda x: x[0])
             for idx, (ptc, node) in enumerate(sorted_nodes):
-                if idx != ptc:
-                    if idx > 1:
-                        raise ValueError(
-                            """Gap in ptc value for type = {node_type} @ ({x}, {y})
+                if idx == ptc:
+                    continue
+
+                if idx > 1:
+                    raise ValueError(
+                        """\
+Gap in ptc value for type = {node_type} @ ({x}, {y})
 Expect PTC = {idx}, found {ptc}
 Current node is id = {cur_node}
 Previous node is id = {prev_node}""".format(
-                                x=x,
-                                y=y,
-                                node_type=node_type,
-                                idx=idx,
-                                ptc=ptc,
-                                cur_node=node,
-                                prev_node=sorted_nodes[idx - 1][1],
-                            )
+                            x=x,
+                            y=y,
+                            node_type=node_type,
+                            idx=idx,
+                            ptc=ptc,
+                            cur_node=node,
+                            prev_node=sorted_nodes[idx - 1][1],
                         )
-                    else:
-                        raise ValueError(
-                            "Lowest ptc is {ptc} for type = {node_type} @ ({x}, {y})"
-                            .format(
-                                x=x,
-                                y=y,
-                                node_type=node_type,
-                                ptc=ptc,
-                            )
+                    )
+                else:
+                    raise ValueError(
+                        "Lowest ptc is {ptc} for type = {node_type} @ ({x}, {y})"
+                        .format(
+                            x=x,
+                            y=y,
+                            node_type=node_type,
+                            ptc=ptc,
                         )
+                    )
 
 
 def main():
