@@ -250,7 +250,7 @@ function(DEFINE_DEVICE_TYPE)
   # Defines a device type with the specified architecture.  ARCH_XML argument
   # must be a file target (see ADD_FILE_TARGET).
   #
-  # optional SCTIPTs can be run after the standard flow to augment the
+  # optional SCRIPTs can be run after the standard flow to augment the
   # final arch xml. The name and script must be provided and each
   # script will be run as `cmd input > output`
   #
@@ -332,7 +332,7 @@ function(DEFINE_DEVICE_TYPE)
       message(STATUS "device_type adding script")
       add_custom_command(
 	OUTPUT ${TEMP_TARGET}
-	COMMAND ${CMD_W_ARGS} ${FINAL_FILE} > ${TEMP_TARGET}
+	COMMAND ${CMD_W_ARGS} < ${FINAL_FILE} > ${TEMP_TARGET}
 	DEPENDS
         ${PYTHON3} ${PYTHON3_TARGET}
 	${CMD} ${FINAL_TARGET}
