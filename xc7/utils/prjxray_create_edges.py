@@ -311,7 +311,7 @@ class Connector(object):
         dest_wire_pkey : int
             Destination wire row primary key.  May be None if switch_pkey
             is not None.
-        switch_pkey : Int
+        switch_pkey : int
             Switch row primary key, can be used if switch_pkey is already
             known (e.g. synthetic edge).  If switch_pkey is not None, other
             arguments should be None to avoid ambiguity.
@@ -334,9 +334,15 @@ class Connector(object):
 
         cur.execute(
             """
-        SELECT src_wire_in_tile_pkey, dest_wire_in_tile_pkey, switch_pkey, backward_switch_pkey
-        FROM pip_in_tile WHERE pkey = ?
-            """, (pip_pkey, )
+SELECT
+  src_wire_in_tile_pkey,
+  dest_wire_in_tile_pkey,
+  switch_pkey,
+  backward_switch_pkey
+FROM
+  pip_in_tile
+WHERE
+  pkey = ?""", (pip_pkey, )
         )
         pip_src_wire_in_tile_pkey, pip_dest_wire_in_tile_pkey, switch_pkey, backward_switch_pkey = cur.fetchone(
         )
@@ -393,12 +399,11 @@ class Connector(object):
 
         Diagram:
 
-         Site pin
-            +
-            |  tile wire #1  +---+ tile wire #2
-            +>-------------->+pip+--------------->
-            |                +---+
-            +
+           --+
+             |    tile wire #1  +-----+ tile wire #2
+             +==>-------------->+ pip +--------------->
+             | ^-Site pin       +-----+
+           --+
 
             +----+           +-----+            +-----+
             |OPIN+--edge #1->+CHAN1+--edge #2-->+CHAN2|->
@@ -436,9 +441,19 @@ FROM wire WHERE pkey = ?""", (wire_pkey, )
 
         cur.execute(
             """
-SELECT site_pin_switch_pkey FROM wire_in_tile WHERE pkey = (
-    SELECT wire_in_tile_pkey FROM wire WHERE pkey = ?
-            )""", (wire_pkey, )
+SELECT
+  site_pin_switch_pkey
+FROM
+  wire_in_tile
+WHERE
+  pkey = (
+    SELECT
+      wire_in_tile_pkey
+    FROM
+      wire
+    WHERE
+      pkey = ?
+  )""", (wire_pkey, )
         )
         site_pin_switch_pkey = cur.fetchone()[0]
 
@@ -613,6 +628,7 @@ AND
                     # Site pin -> Interconnect is modelled as:
                     #
                     # OPIN -> edge (Site pin) -> Wire CHAN -> edge (PIP) -> Interconnect CHAN node
+                    #
                     src_node = self.pins.edge_map[pin_dir]
                     dest_track_node = graph_nodes[idx]
                     site_pin_switch_pkey, src_wire_node = self.find_wire_node(
@@ -636,6 +652,7 @@ AND
                     # Interconnect -> Site pin is modelled as:
                     #
                     # Interconnect CHAN node -> edge (PIP) -> Wire CHAN -> edge (Site pin) -> IPIN
+                    #
                     src_track_node = graph_nodes[idx]
                     dest_node = other_connector.pins.edge_map[pin_dir]
                     site_pin_switch_pkey, dest_wire_node = self.find_wire_node(
