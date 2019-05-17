@@ -46,7 +46,7 @@ Channels = namedtuple(
     'Channels', 'chan_width_max x_min y_min x_max y_max x_list y_list'
 )
 
-SwitchTiming = namedtuple('SwitchTiming', 'r c_in c_out t_del')
+SwitchTiming = namedtuple('SwitchTiming', 'r c_in c_out c_internal t_del')
 SwitchSizing = namedtuple('SwitchSizing', 'mux_trans_size buf_size')
 Switch = namedtuple('Switch', 'id name type timing sizing')
 

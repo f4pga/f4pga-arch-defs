@@ -158,6 +158,16 @@ CREATE TABLE tile_map(
   FOREIGN KEY(phy_tile_pkey) REFERENCES phy_tile(pkey)
 );
 
+-- Table of switches.
+CREATE TABLE switch(
+  pkey INTEGER PRIMARY KEY,
+  name TEXT,
+  internal_capacitance REAL,
+  drive_resistance REAL,
+  intrinsic_delay REAL,
+  switch_type TEXT
+);
+
 -- Table of tile type wires. This table is the of uninstanced tile type
 -- wires. Site pins wires will reference their site and site pin rows in
 -- the site and site_pin tables.
@@ -169,9 +179,13 @@ CREATE TABLE wire_in_tile(
   tile_type_pkey INT,
   site_pkey INT,
   site_pin_pkey INT,
+  capacitance REAL,
+  resistance REAL,
+  site_pin_switch_pkey INT,
   FOREIGN KEY(tile_type_pkey) REFERENCES tile_type(pkey),
   FOREIGN KEY(site_pkey) REFERENCES site(pkey),
-  FOREIGN KEY(site_pin_pkey) REFERENCES site_pin(pkey)
+  FOREIGN KEY(site_pin_pkey) REFERENCES site_pin(pkey),
+  FOREIGN KEY(site_pin_switch_pkey) REFERENCES switch(pkey)
 );
 
 -- Table of tile type pips.  This table is the table of uninstanced pips.
@@ -186,9 +200,14 @@ CREATE TABLE pip_in_tile(
   can_invert BOOLEAN,
   is_directional BOOLEAN,
   is_pseudo BOOLEAN,
+  is_pass_transistor BOOLEAN,
+  switch_pkey INT,
+  backward_switch_pkey INT,
   FOREIGN KEY(tile_type_pkey) REFERENCES tile_type(pkey),
   FOREIGN KEY(src_wire_in_tile_pkey) REFERENCES wire_in_tile(pkey),
-  FOREIGN KEY(dest_wire_in_tile_pkey) REFERENCES wire_in_tile(pkey)
+  FOREIGN KEY(dest_wire_in_tile_pkey) REFERENCES wire_in_tile(pkey),
+  FOREIGN KEY(switch_pkey) REFERENCES switch(pkey),
+  FOREIGN KEY(backward_switch_pkey) REFERENCES switch(pkey)
 );
 
 -- Table of tracks. alive is a flag used during routing import to indicate
@@ -224,9 +243,11 @@ CREATE TABLE edge_with_mux(
   src_wire_pkey INT,
   dest_wire_pkey INT,
   pip_in_tile_pkey INT,
+  switch_pkey INT,
   FOREIGN KEY(src_wire_pkey) REFERENCES wire(pkey),
   FOREIGN KEY(dest_wire_pkey) REFERENCES wire(pkey),
-  FOREIGN KEY(pip_in_tile_pkey) REFERENCES pip_in_tile(pkey)
+  FOREIGN KEY(pip_in_tile_pkey) REFERENCES pip_in_tile(pkey),
+  FOREIGN KEY(switch_pkey) REFERENCES switch(pkey)
 );
 
 -- Table of graph nodes.  This is a direction mapping of an VPR rr_node
@@ -242,6 +263,8 @@ CREATE TABLE graph_node(
   y_high INT,
   ptc INT,
   capacity INT,
+  capacitance REAL,
+  resistance REAL,
   FOREIGN KEY(track_pkey) REFERENCES track(pkey),
   FOREIGN KEY(node_pkey) REFERENCES node(pkey)
 );
@@ -277,6 +300,7 @@ CREATE TABLE wire(
   bottom_graph_node_pkey INT,
   left_graph_node_pkey INT,
   right_graph_node_pkey INT,
+  site_pin_graph_node_pkey INT,
   FOREIGN KEY(node_pkey) REFERENCES node(pkey),
   FOREIGN KEY(phy_tile_pkey) REFERENCES phy_tile(pkey),
   FOREIGN KEY(tile_pkey) REFERENCES tile(pkey),
@@ -285,13 +309,8 @@ CREATE TABLE wire(
   FOREIGN KEY(top_graph_node_pkey) REFERENCES graph_node(pkey),
   FOREIGN KEY(bottom_graph_node_pkey) REFERENCES graph_node(pkey),
   FOREIGN KEY(left_graph_node_pkey) REFERENCES graph_node(pkey),
-  FOREIGN KEY(right_graph_node_pkey) REFERENCES graph_node(pkey)
-);
-
--- Table of switches.
-CREATE TABLE switch(
-  pkey INTEGER PRIMARY KEY,
-  name TEXT
+  FOREIGN KEY(right_graph_node_pkey) REFERENCES graph_node(pkey),
+  FOREIGN KEY(site_pin_graph_node_pkey) REFERENCES graph_node(pkey)
 );
 
 -- Table of graph edges.
@@ -303,9 +322,9 @@ CREATE TABLE graph_edge(
   phy_tile_pkey INT,
   pip_in_tile_pkey INT,
   FOREIGN KEY(src_graph_node_pkey) REFERENCES graph_node(pkey),
-  FOREIGN KEY(dest_graph_node_pkey) REFERENCES graph_node(pkey)
-  FOREIGN KEY(track_pkey) REFERENCES track(pkey)
-  FOREIGN KEY(phy_tile_pkey) REFERENCES phy_tile(pkey)
+  FOREIGN KEY(dest_graph_node_pkey) REFERENCES graph_node(pkey),
+  FOREIGN KEY(track_pkey) REFERENCES track(pkey),
+  FOREIGN KEY(phy_tile_pkey) REFERENCES phy_tile(pkey),
   FOREIGN KEY(pip_in_tile_pkey) REFERENCES pip(pkey)
 );
 
