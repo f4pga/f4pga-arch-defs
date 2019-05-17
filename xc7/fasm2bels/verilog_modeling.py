@@ -118,7 +118,7 @@ class Bel(object):
     """ Object to model a BEL.
     """
 
-    def __init__(self, module, name=None, keep=True):
+    def __init__(self, module, name=None, keep=True, priority=0):
         """ Construct Bel object.
 
         module (str): Exact tech library name to instance during synthesis.
@@ -129,6 +129,7 @@ class Bel(object):
             unique.
         keep (bool): Controls if KEEP, DONT_TOUCH constraints are added to this
             instance.
+        priority (int): LOC priority.
 
         """
         self.module = module
@@ -145,6 +146,8 @@ class Bel(object):
         self.keep = keep
         self.bel = None
         self.nets = None
+        self.net_names = {}
+        self.priority = priority
 
     def set_prefix(self, prefix):
         """ Set the prefix used for wire and BEL naming.
@@ -175,12 +178,21 @@ class Bel(object):
         else:
             return s
 
+    def get_prefixed_name(self):
+        return self._prefix_things(self.name)
+
     def get_cell(self):
         """ Get the cell name of this BEL.
 
         Should only be called after set_prefix has been invoked (if set_prefix
         will be called)."""
-        return self._prefix_things(self.name)
+        if len(self.net_names) == 1:
+            return tuple(self.net_names.values())[0].replace(' ', '') + self._prefix_things(self.name)
+        elif len(self.net_names) > 1:
+            # TODO: Handle this case better
+            return self._prefix_things(self.name)
+        else:
+            return self._prefix_things(self.name)
 
     def output_verilog(self, top, indent='  '):
         """ Output the Verilog to represent this BEL. """
@@ -274,10 +286,10 @@ class Bel(object):
                 comment.append('KEEP')
                 comment.append('DONT_TOUCH')
 
-            comment.append('LOC = "{site}"'.format(site=self.site))
+            #if self.bel:
+            #    comment.append('BEL = "{bel}"'.format(bel=self.bel))
 
-            if self.bel:
-                comment.append('BEL = "{bel}"'.format(bel=self.bel))
+            #comment.append('LOC = "{site}"'.format(site=self.site))
 
             yield '{indent}(* {comment} *)'.format(
                 indent=indent, comment=', '.join(comment)
@@ -303,6 +315,10 @@ class Bel(object):
             yield ',\n'.join(connections[port] for port in sorted(connections))
 
         yield '{indent});'.format(indent=indent)
+
+    def add_net_name(self, pin, net_name):
+        assert pin not in self.net_names
+        self.net_names[pin] = net_name
 
 
 class Site(object):
@@ -570,6 +586,12 @@ class Site(object):
 
             if source_bel is not None:
                 source_bels[wire_pkey] = source_bel
+
+                if net_name:
+                    bel, bel_pin = source_bel
+                    bel.add_net_name(bel_pin, net_name)
+
+
 
         shorted_nets = {}
 
@@ -1022,7 +1044,7 @@ class Module(object):
                 yield '  wire [{}:0] {};'.format(width, wire)
 
         for site in self.sites:
-            for bel in site.bels:
+            for bel in sorted(site.bels, key=lambda bel: bel.priority):
                 yield ''
                 for l in bel.output_verilog(self, indent='  '):
                     yield l
@@ -1034,15 +1056,12 @@ class Module(object):
 
     def output_bel_locations(self):
         """ Yields lines of tcl that will assign set the location of BELs. """
-        for bel in self.get_bels():
+        for bel in sorted(self.get_bels(), key=lambda bel: bel.priority):
             yield """
-set cell [get_cells {cell}]
+set cell [get_cells *{cell}]
 if {{ $cell == {{}} }} {{
     error "Failed to find cell!"
-}}
-set_property LOC [get_sites {site}] $cell""".format(
-                cell=bel.get_cell(), site=bel.site
-            )
+}}""".format(cell=bel.get_prefixed_name())
 
             if bel.bel is not None:
                 yield """
@@ -1050,6 +1069,11 @@ set_property BEL "[get_property SITE_TYPE [get_sites {site}]].{bel}" $cell""".fo
                     site=bel.site,
                     bel=bel.bel,
                 )
+
+            yield """
+set_property LOC [get_sites {site}] $cell""".format(
+                cell=bel.get_prefixed_name(), site=bel.site
+            )
 
     def output_nets(self):
         """ Yields lines of tcl that will assign the exact routing path for nets.
@@ -1074,7 +1098,7 @@ set_property BEL "[get_property SITE_TYPE [get_sites {site}]].{bel}" $cell""".fo
                 bel, pin = self.source_bels[net_wire_pkey]
 
                 yield """
-set pin [get_pins {cell}/{pin}]
+set pin [get_pins *{cell}/{pin}]
 if {{ $pin == {{}} }} {{
     error "Failed to find pin!"
 }}
@@ -1083,7 +1107,7 @@ if {{ $net == {{}} }} {{
     error "Failed to find net!"
 }}
 """.format(
-                    cell=bel.get_cell(),
+                    cell=bel.get_prefixed_name(),
                     pin=pin,
                 )
 
