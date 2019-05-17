@@ -5,6 +5,11 @@ from lib.rr_graph import tracks
 import lxml.etree as ET
 import contextlib
 
+# Set to True once
+# https://github.com/verilog-to-routing/vtr-verilog-to-routing/compare/c_internal
+# is merged and included in VTR conda.
+VPR_HAS_C_INTERNAL_SUPPORT = False
+
 
 def serialize_nodes(xf, nodes):
     """ Serialize list of Node objects to XML.
@@ -100,11 +105,7 @@ def serialize_edges(xf, edges):
 
 
 def enum_from_string(enum_type, s):
-    for e in enum_type:
-        if e.name == s.upper():
-            return e
-
-    assert False, (enum_type, s)
+    return enum_type[s.upper()]
 
 
 def graph_from_xml(input_xml, progressbar=None):
@@ -120,6 +121,7 @@ def graph_from_xml(input_xml, progressbar=None):
                 r=float(timing_xml.attrib['R']),
                 c_in=float(timing_xml.attrib['Cin']),
                 c_out=float(timing_xml.attrib['Cout']),
+                c_internal=float(timing_xml.attrib.get('Cinternal', 0)),
                 t_del=float(timing_xml.attrib['Tdel']),
             )
         else:
@@ -395,14 +397,17 @@ class Graph(object):
         )
 
         if switch.timing:
-            ET.SubElement(
-                switch_xml, 'timing', {
-                    'R': str(switch.timing.r),
-                    'Cin': str(switch.timing.c_in),
-                    'Cout': str(switch.timing.c_out),
-                    'Tdel': str(switch.timing.t_del),
-                }
-            )
+            attrib = {
+                'R': str(switch.timing.r),
+                'Cin': str(switch.timing.c_in),
+                'Cout': str(switch.timing.c_out),
+                'Tdel': str(switch.timing.t_del),
+            }
+
+            if VPR_HAS_C_INTERNAL_SUPPORT:
+                attrib['Cinternal'] = str(switch.timing.c_internal)
+
+            ET.SubElement(switch_xml, 'timing', attrib)
 
         ET.SubElement(
             switch_xml, 'sizing', {

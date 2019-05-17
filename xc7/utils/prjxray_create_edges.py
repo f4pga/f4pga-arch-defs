@@ -269,7 +269,7 @@ class Connector(object):
 
     """
 
-    def __init__(self, pins=None, tracks=None):
+    def __init__(self, conn, pins=None, tracks=None):
         """ Create a Connector object.
 
         Provide either pins or tracks, not both or neither.
@@ -285,22 +285,316 @@ class Connector(object):
                 connection_database.get_track_model, which builds the Tracks
                 models and the graph node list.
         """
+        self.conn = conn
         self.pins = pins
         self.tracks = tracks
         assert (self.pins is not None) ^ (self.tracks is not None)
 
-    def connect_at(self, loc, other_connector):
+    def get_pip_switch(
+            self, src_wire_pkey, pip_pkey, dest_wire_pkey, switch_pkey
+    ):
+        """ Return the switch_pkey for the given connection.
+
+        Selects either normal or backward switch from pip, or if switch is
+        already known, returns known switch.
+
+        It is not valid to provide a switch and provide src/dest/pip arguments.
+
+        Arguments
+        ---------
+        src_wire_pkey : int
+            Source wire row primary key.  May be None if switch_pkey is not
+            None.
+        pip_pkey : int
+            Pip connecting source to destination wire.  May be None if
+            switch_pkey is not None.
+        dest_wire_pkey : int
+            Destination wire row primary key.  May be None if switch_pkey
+            is not None.
+        switch_pkey : int
+            Switch row primary key, can be used if switch_pkey is already
+            known (e.g. synthetic edge).  If switch_pkey is not None, other
+            arguments should be None to avoid ambiguity.
+
+        Returns
+        -------
+        Switch row primary key to connect through specified pip.
+
+        """
+        if switch_pkey is not None:
+            # Handle cases where the switch is supplied, rather than looked up.
+            assert src_wire_pkey is None
+            assert dest_wire_pkey is None
+            assert pip_pkey is None
+            return switch_pkey
+        else:
+            assert switch_pkey is None
+
+        cur = self.conn.cursor()
+
+        cur.execute(
+            """
+SELECT
+  src_wire_in_tile_pkey,
+  dest_wire_in_tile_pkey,
+  switch_pkey,
+  backward_switch_pkey
+FROM
+  pip_in_tile
+WHERE
+  pkey = ?""", (pip_pkey, )
+        )
+        pip_src_wire_in_tile_pkey, pip_dest_wire_in_tile_pkey, switch_pkey, backward_switch_pkey = cur.fetchone(
+        )
+
+        cur.execute(
+            "SELECT wire_in_tile_pkey FROM wire WHERE pkey = ?",
+            (src_wire_pkey, )
+        )
+        src_wire_in_tile_pkey = cur.fetchone()[0]
+
+        cur.execute(
+            "SELECT wire_in_tile_pkey FROM wire WHERE pkey = ?",
+            (dest_wire_pkey, )
+        )
+        dest_wire_in_tile_pkey = cur.fetchone()[0]
+
+        if src_wire_in_tile_pkey == pip_src_wire_in_tile_pkey:
+            assert dest_wire_in_tile_pkey == pip_dest_wire_in_tile_pkey
+            return switch_pkey
+        else:
+            assert src_wire_in_tile_pkey == pip_dest_wire_in_tile_pkey
+            assert dest_wire_in_tile_pkey == pip_src_wire_in_tile_pkey
+            return backward_switch_pkey
+
+    def find_wire_node(
+            self, wire_pkey, graph_node_pkey, track_graph_node_pkey
+    ):
+        """ Find/create graph node for site pin.
+
+        In order to support site pin timing modelling, an additional node
+        is required to support the timing model.  This function returns that
+        node, along with the switch that should be used to connect the
+        IPIN/OPIN to that node. See diagram for details.
+
+        Arguments
+        ---------
+        wire_pkey : int
+            Wire primary key to a wire attached to a site pin.
+        graph_node_pkey : int
+            Graph node primary key that represents which IPIN/OPIN node is
+            being used to connect the site pin to the routing graph.
+        track_graph_node_pkey : int
+            Graph node primary key that represents the first routing node this
+            site pin connects too.  See diagram for details.
+
+        Returns
+        -------
+        site_pin_switch_pkey : int
+            Switch primary key to the switch to connect IPIN/OPIN node to
+            new site pin wire node.  See diagram for details.
+        site_pin_graph_node_pkey : int
+            Graph node primary key that represents site pin wire node.
+            See diagram for details.
+
+        Diagram:
+
+           --+
+             |    tile wire #1  +-----+ tile wire #2
+             +==>-------------->+ pip +--------------->
+             | ^-Site pin       +-----+
+           --+
+
+            +----+           +-----+            +-----+
+            |OPIN+--edge #1->+CHAN1+--edge #2-->+CHAN2|->
+            +----+           +-----+            +-----+
+
+        The timing information from the site pin is encoded in edge #1.
+        The timing information from tile wire #1 is encoded in CHAN1.
+        The timing information from pip is encoded in edge #2.
+        The remaining timing information is encoded in edges and channels
+        as expected.
+
+        This function returns edge #1 as the site_pin_switch_pkey.
+        This function returns CHAN1 as site_pin_graph_node_pkey.
+
+        The diagram for an IPIN is the same, except reverse all the arrows.
+
+        """
+        cur = self.conn.cursor()
+
+        cur.execute(
+            """
+SELECT
+    node_pkey,
+    top_graph_node_pkey,
+    bottom_graph_node_pkey,
+    right_graph_node_pkey,
+    left_graph_node_pkey,
+    site_pin_graph_node_pkey
+FROM wire WHERE pkey = ?""", (wire_pkey, )
+        )
+        values = cur.fetchone()
+        node_pkey = values[0]
+        edge_nodes = values[1:5]
+        site_pin_graph_node_pkey = values[5]
+
+        cur.execute(
+            """
+SELECT
+  site_pin_switch_pkey
+FROM
+  wire_in_tile
+WHERE
+  pkey = (
+    SELECT
+      wire_in_tile_pkey
+    FROM
+      wire
+    WHERE
+      pkey = ?
+  )""", (wire_pkey, )
+        )
+        site_pin_switch_pkey = cur.fetchone()[0]
+
+        assert graph_node_pkey in edge_nodes
+
+        if site_pin_graph_node_pkey is None:
+            capacitance = 0
+            resistance = 0
+            for wire_cap, wire_res in cur.execute("""
+SELECT wire_in_tile.capacitance, wire_in_tile.resistance
+FROM wire_in_tile
+WHERE pkey IN (
+    SELECT wire_in_tile_pkey FROM wire WHERE node_pkey = ?
+)""", (node_pkey, )):
+                capacitance += wire_cap
+                resistance + wire_res
+
+            # This node does not exist, create it now
+            write_cur = self.conn.cursor()
+            write_cur.execute("INSERT INTO track DEFAULT VALUES")
+            new_track_pkey = write_cur.lastrowid
+
+            write_cur.execute(
+                """
+INSERT INTO
+    graph_node(
+        graph_node_type,
+        node_pkey,
+        x_low,
+        x_high,
+        y_low,
+        y_high,
+        capacity,
+        capacitance,
+        resistance,
+        track_pkey)
+SELECT
+    graph_node_type,
+    ?,
+    x_low,
+    x_high,
+    y_low,
+    y_high,
+    capacity,
+    ?,
+    ?,
+    ?
+FROM graph_node WHERE pkey = ?""", (
+                    node_pkey,
+                    capacitance,
+                    resistance,
+                    new_track_pkey,
+                    track_graph_node_pkey,
+                )
+            )
+            site_pin_graph_node_pkey = write_cur.lastrowid
+
+            write_cur.connection.commit()
+
+        return site_pin_switch_pkey, site_pin_graph_node_pkey
+
+    def get_edge_with_mux_switch(
+            self, src_wire_pkey, pip_pkey, dest_wire_pkey
+    ):
+        """ Return switch_pkey for EDGE_WITH_MUX instance. """
+        cur = self.conn.cursor()
+
+        cur.execute(
+            """
+SELECT site_wire_pkey FROM node WHERE pkey = (
+    SELECT node_pkey FROM wire WHERE pkey = ?
+    );""", (src_wire_pkey, )
+        )
+        src_site_wire_pkey = cur.fetchone()[0]
+
+        cur.execute(
+            """
+SELECT site_wire_pkey FROM node WHERE pkey = (
+    SELECT node_pkey FROM wire WHERE pkey = ?
+    );""", (dest_wire_pkey, )
+        )
+        dest_site_wire_pkey = cur.fetchone()[0]
+
+        cur.execute(
+            """
+SELECT switch_pkey FROM edge_with_mux WHERE
+    src_wire_pkey = ?
+AND
+    dest_wire_pkey = ?
+AND
+    pip_in_tile_pkey = ?""", (
+                src_site_wire_pkey,
+                dest_site_wire_pkey,
+                pip_pkey,
+            )
+        )
+        result = cur.fetchone()
+        assert result is not None, (
+            src_site_wire_pkey,
+            dest_site_wire_pkey,
+            pip_pkey,
+        )
+        return result[0]
+
+    def connect_at(
+            self,
+            loc,
+            other_connector,
+            src_wire_pkey=None,
+            dest_wire_pkey=None,
+            pip_pkey=None,
+            switch_pkey=None
+    ):
         """ Connect two Connector objects at a location within the grid.
 
-        Args:
-            loc (prjxray.grid_types.GridLoc): Location within grid to make
-                connection.
-            other_connector (Connector): Destination connection.
+        Arguments
+        ---------
+        loc : prjxray.grid_types.GridLoc
+            Location within grid to make connection.
+        other_connector : Connector
+            Destination connection.
+        src_wire_pkey : int
+            Source wire pkey of pip being connected.  Must be None if
+            switch_pkey is not None. Used for switch_pkey lookup if needed.
+        dest_wire_pkey : int
+            Destination wire pkey of pip being connected.  Must be None if
+            switch_pkey is not None. Used for switch_pkey lookup if needed.
+        pip_pkey : int
+            Pip pkey of pip being connected.  Must be None if switch_pkey is
+            not None. Used for switch_pkey lookup if needed.
+        switch_pkey : int
+            Switch pkey for edge being added.  If None, src_wire_pkey,
+            dest_wire_pkey, pip_pkey are used to lookup switch_pkey. If not
+            None, switch_pkey is used as the switch along the edge.
+            Must be None if src_wire_pkey/dest_wire_pkey/pip_pkey is not None.
 
         Returns:
             Tuple of (src_graph_node_pkey, dest_graph_node_pkey)
 
         """
+
         if self.tracks and other_connector.tracks:
             tracks_model, graph_nodes = self.tracks
             idx1 = None
@@ -317,7 +611,12 @@ class Connector(object):
 
             assert idx2 is not None
 
-            return graph_nodes[idx1], other_graph_nodes[idx2]
+            switch_pkey = self.get_pip_switch(
+                src_wire_pkey, pip_pkey, dest_wire_pkey, switch_pkey
+            )
+
+            yield graph_nodes[idx1], switch_pkey, other_graph_nodes[idx2]
+            return
         elif self.pins and other_connector.tracks:
             assert self.pins.site_pin_direction == SitePinDirection.OUT
             assert self.pins.x == loc.grid_x
@@ -326,7 +625,22 @@ class Connector(object):
             tracks_model, graph_nodes = other_connector.tracks
             for idx, pin_dir in tracks_model.get_tracks_for_wire_at_coord(loc):
                 if pin_dir in self.pins.edge_map:
-                    return self.pins.edge_map[pin_dir], graph_nodes[idx]
+                    # Site pin -> Interconnect is modelled as:
+                    #
+                    # OPIN -> edge (Site pin) -> Wire CHAN -> edge (PIP) -> Interconnect CHAN node
+                    #
+                    src_node = self.pins.edge_map[pin_dir]
+                    dest_track_node = graph_nodes[idx]
+                    site_pin_switch_pkey, src_wire_node = self.find_wire_node(
+                        src_wire_pkey, src_node, dest_track_node
+                    )
+
+                    switch_pkey = self.get_pip_switch(
+                        src_wire_pkey, pip_pkey, dest_wire_pkey, switch_pkey
+                    )
+                    yield (src_node, site_pin_switch_pkey, src_wire_node)
+                    yield (src_wire_node, switch_pkey, dest_track_node)
+                    return
         elif self.tracks and other_connector.pins:
             assert other_connector.pins.site_pin_direction == SitePinDirection.IN
             assert other_connector.pins.x == loc.grid_x
@@ -335,27 +649,48 @@ class Connector(object):
             tracks_model, graph_nodes = self.tracks
             for idx, pin_dir in tracks_model.get_tracks_for_wire_at_coord(loc):
                 if pin_dir in other_connector.pins.edge_map:
-                    return graph_nodes[idx], other_connector.pins.edge_map[
-                        pin_dir]
+                    # Interconnect -> Site pin is modelled as:
+                    #
+                    # Interconnect CHAN node -> edge (PIP) -> Wire CHAN -> edge (Site pin) -> IPIN
+                    #
+                    src_track_node = graph_nodes[idx]
+                    dest_node = other_connector.pins.edge_map[pin_dir]
+                    site_pin_switch_pkey, dest_wire_node = self.find_wire_node(
+                        dest_wire_pkey, dest_node, src_track_node
+                    )
+
+                    switch_pkey = self.get_pip_switch(
+                        src_wire_pkey, pip_pkey, dest_wire_pkey, switch_pkey
+                    )
+                    yield (src_track_node, switch_pkey, dest_wire_node)
+                    yield (dest_wire_node, site_pin_switch_pkey, dest_node)
+                    return
+
         elif self.pins and other_connector.pins:
             assert self.pins.site_pin_direction == SitePinDirection.OUT
             assert other_connector.pins.site_pin_direction == SitePinDirection.IN
 
+            switch_pkey = self.get_edge_with_mux_switch(
+                src_wire_pkey, pip_pkey, dest_wire_pkey
+            )
+
             if len(self.pins.edge_map) == 1 and len(
                     other_connector.pins.edge_map) == 1:
                 # If there is only one choice, make it.
-                return list(self.pins.edge_map.values())[0], list(
-                    other_connector.pins.edge_map.values()
-                )[0]
+                src_node = list(self.pins.edge_map.values())[0]
+                dest_node = list(other_connector.pins.edge_map.values())[0]
+
+                yield (src_node, switch_pkey, dest_node)
+                return
 
             for pin_dir in self.pins.edge_map:
                 if OPPOSITE_DIRECTIONS[pin_dir
                                        ] in other_connector.pins.edge_map:
-                    return (
-                        self.pins.edge_map[pin_dir],
-                        other_connector.pins.edge_map[
-                            OPPOSITE_DIRECTIONS[pin_dir]],
-                    )
+                    src_node = self.pins.edge_map[pin_dir]
+                    dest_node = other_connector.pins.edge_map[
+                        OPPOSITE_DIRECTIONS[pin_dir]]
+                    yield (src_node, switch_pkey, dest_node)
+                    return
 
         assert False, (
             self.tracks, self.pins, other_connector.tracks,
@@ -408,7 +743,9 @@ def create_find_connector(conn):
             for node in graph_nodes:
                 assert node[1] == track_pkey
 
-            return Connector(tracks=get_track_model(conn, track_pkey))
+            return Connector(
+                conn=conn, tracks=get_track_model(conn, track_pkey)
+            )
 
         # Check if this node has a special track.  This is being used to
         # denote the GND and VCC track connections on TIEOFF HARD0 and HARD1.
@@ -424,7 +761,9 @@ WHERE
         )
         for track_pkey, site_wire_pkey in c:
             if track_pkey is not None and site_wire_pkey is not None:
-                return Connector(tracks=get_track_model(conn, track_pkey))
+                return Connector(
+                    conn=conn, tracks=get_track_model(conn, track_pkey)
+                )
 
         # This is not a track, so it must be a site pin.  Make sure the
         # graph_nodes share a type and verify that it is in fact a site pin.
@@ -498,6 +837,7 @@ WHERE
             assert pkey in edge_map.values(), (pkey, edge_map)
 
         return Connector(
+            conn=conn,
             pins=Pins(
                 edge_map=edge_map,
                 x=x,
@@ -520,10 +860,10 @@ SELECT vcc_track_pkey, gnd_track_pkey FROM constant_sources;
 
     const_connectors = {}
     const_connectors[0] = Connector(
-        tracks=get_track_model(conn, gnd_track_pkey)
+        conn=conn, tracks=get_track_model(conn, gnd_track_pkey)
     )
     const_connectors[1] = Connector(
-        tracks=get_track_model(conn, vcc_track_pkey)
+        conn=conn, tracks=get_track_model(conn, vcc_track_pkey)
     )
 
     return const_connectors
@@ -531,8 +871,8 @@ SELECT vcc_track_pkey, gnd_track_pkey FROM constant_sources;
 
 def make_connection(
         conn, input_only_nodes, output_only_nodes, find_wire, find_pip,
-        find_connector, tile_name, tile_type, pip, switch_pkey,
-        delayless_switch_pkey, const_connectors
+        find_connector, tile_name, tile_type, pip, delayless_switch_pkey,
+        const_connectors
 ):
     """ Attempt to connect graph nodes on either side of a pip.
 
@@ -599,36 +939,25 @@ def make_connection(
 
     assert pip_is_directional, not pip_is_pseudo
 
-    src_graph_node_pkey, dest_graph_node_pkey = src_connector.connect_at(
-        loc, sink_connector
-    )
-
-    edges = [
-        (
-            src_graph_node_pkey,
-            dest_graph_node_pkey,
-            switch_pkey,
-            phy_tile_pkey,
-            pip_pkey,
+    for src_graph_node_pkey, switch_pkey, dest_graph_node_pkey in src_connector.connect_at(
+            pip_pkey=pip_pkey, src_wire_pkey=src_wire_pkey,
+            dest_wire_pkey=sink_wire_pkey, loc=loc,
+            other_connector=sink_connector):
+        yield (
+            src_graph_node_pkey, dest_graph_node_pkey, switch_pkey,
+            phy_tile_pkey, pip_pkey
         )
-    ]
 
     # Make additional connections to constant network if the sink needs it.
     for constant_src in yield_ties_to_wire(pip.net_to):
-        src_graph_node_pkey, dest_graph_node_pkey = const_connectors[
-            constant_src].connect_at(loc, sink_connector)
-
-        edges.append(
-            (
-                src_graph_node_pkey,
-                dest_graph_node_pkey,
-                delayless_switch_pkey,
-                phy_tile_pkey,
-                None,
+        for src_graph_node_pkey, switch_pkey, dest_graph_node_pkey in const_connectors[
+                constant_src].connect_at(switch_pkey=delayless_switch_pkey,
+                                         loc=loc,
+                                         other_connector=sink_connector):
+            yield (
+                src_graph_node_pkey, dest_graph_node_pkey, switch_pkey,
+                phy_tile_pkey, None
             )
-        )
-
-    return edges
 
 
 def mark_track_liveness(
@@ -1021,11 +1350,6 @@ def main():
 
         write_cur = conn.cursor()
         write_cur.execute(
-            'SELECT pkey FROM switch WHERE name = ?;', ('routing', )
-        )
-        switch_pkey = write_cur.fetchone()[0]
-
-        write_cur.execute(
             'SELECT pkey FROM switch WHERE name = ?;',
             ('__vpr_delayless_switch__', )
         )
@@ -1065,7 +1389,6 @@ def main():
                     tile_name=tile_name,
                     tile_type=gridinfo.tile_type,
                     pip=pip,
-                    switch_pkey=switch_pkey,
                     delayless_switch_pkey=delayless_switch_pkey,
                     const_connectors=const_connectors
                 )

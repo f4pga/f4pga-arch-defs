@@ -195,9 +195,20 @@ def is_track_alive(conn, tile_pkey, roi, synth_tiles):
 def import_tracks(conn, alive_tracks, node_mapping, graph, segment_id):
     cur = conn.cursor()
     for (graph_node_pkey, track_pkey, graph_node_type, x_low, x_high, y_low,
-         y_high, ptc) in cur.execute("""
-    SELECT pkey, track_pkey, graph_node_type, x_low, x_high, y_low, y_high, ptc FROM
-        graph_node WHERE track_pkey IS NOT NULL;"""):
+         y_high, ptc, capacitance, resistance) in cur.execute("""
+SELECT
+    pkey,
+    track_pkey,
+    graph_node_type,
+    x_low,
+    x_high,
+    y_low,
+    y_high,
+    ptc,
+    capacitance,
+    resistance
+FROM
+    graph_node WHERE track_pkey IS NOT NULL;"""):
         if track_pkey not in alive_tracks:
             continue
 
@@ -221,7 +232,13 @@ def import_tracks(conn, alive_tracks, node_mapping, graph, segment_id):
         )
         assert graph_node_pkey not in node_mapping
         node_mapping[graph_node_pkey] = graph.add_track(
-            track=track, segment_id=segment_id, ptc=ptc
+            track=track,
+            segment_id=segment_id,
+            ptc=ptc,
+            timing=graph2.NodeTiming(
+                r=resistance,
+                c=capacitance,
+            )
         )
 
 
@@ -592,32 +609,50 @@ def main():
 
     graph = xml_graph.graph
 
-    # Add back short switch, which is unused in arch xml, so is not emitted in
-    # rrgraph XML.
-    #
-    # TODO: This can be removed once
-    # https://github.com/verilog-to-routing/vtr-verilog-to-routing/issues/354
-    # is fixed.
-    try:
-        graph.get_switch_id('short')
-    except KeyError:
-        xml_graph.add_switch(
-            graph2.Switch(
-                id=None,
-                name='short',
-                type=graph2.SwitchType.SHORT,
-                timing=None,
-                sizing=graph2.SwitchSizing(
-                    mux_trans_size=0,
-                    buf_size=0,
-                ),
-            )
-        )
-
     tool_version = input_rr_graph.getroot().attrib['tool_version']
     tool_comment = input_rr_graph.getroot().attrib['tool_comment']
 
     with DatabaseCache(args.connection_database, True) as conn:
+        cur = conn.cursor()
+        for name, internal_capacitance, drive_resistance, intrinsic_delay, \
+                switch_type in cur.execute("""
+SELECT
+    name,
+    internal_capacitance,
+    drive_resistance,
+    intrinsic_delay,
+    switch_type
+FROM
+    switch;"""):
+            # Add back missing switchs, which were unused in arch xml, and so
+            # were not  emitted in rrgraph XML.
+            #
+            # TODO: This can be removed once
+            # https://github.com/verilog-to-routing/vtr-verilog-to-routing/issues/354
+            # is fixed.
+
+            try:
+                graph.get_switch_id(name)
+                continue
+            except KeyError:
+                xml_graph.add_switch(
+                    graph2.Switch(
+                        id=None,
+                        name=name,
+                        type=graph2.SwitchType[switch_type.upper()],
+                        timing=graph2.SwitchTiming(
+                            r=drive_resistance,
+                            c_in=0.0,
+                            c_out=0.0,
+                            c_internal=internal_capacitance,
+                            t_del=intrinsic_delay,
+                        ),
+                        sizing=graph2.SwitchSizing(
+                            mux_trans_size=0,
+                            buf_size=0,
+                        ),
+                    )
+                )
 
         # Mapping of graph_node.pkey to rr node id.
         node_mapping = {}

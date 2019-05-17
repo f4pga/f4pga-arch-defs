@@ -2,13 +2,18 @@ import unittest
 
 from copy import deepcopy
 
-from ..graph2 import *
+from ..graph2 import SwitchTiming, SwitchSizing, Switch, SwitchType, \
+        Graph, SegmentTiming, Segment, PinClass, Pin, PinType, \
+        BlockType, GridLoc, NodeTiming, NodeSegment, Node, NodeType, \
+        NodeDirection, NodeLoc
 from ..tracks import Track, Direction
 
 
 class Graph2Tests(unittest.TestCase):
     def setUp(self):
-        switch_timing = SwitchTiming(r=0, c_in=1, c_out=2, t_del=0)
+        switch_timing = SwitchTiming(
+            r=0, c_in=1, c_out=2, t_del=0, c_internal=0
+        )
         switch_sizing = SwitchSizing(mux_trans_size=0, buf_size=1)
         delayless = Switch(
             id=0,
@@ -21,7 +26,9 @@ class Graph2Tests(unittest.TestCase):
         self.graph = Graph([delayless], [], [], [], [])
 
     def test_init(self):
-        switch_timing = SwitchTiming(r=0, c_in=1, c_out=2, t_del=0)
+        switch_timing = SwitchTiming(
+            r=0, c_in=1, c_out=2, t_del=0, c_internal=0
+        )
         switch_sizing = SwitchSizing(mux_trans_size=0, buf_size=1)
         self.switches = [
             Switch(
@@ -187,7 +194,7 @@ class Graph2Tests(unittest.TestCase):
 
         trk = Track(direction='Y', x_low=2, x_high=2, y_low=1, y_high=3)
         segment_id = -1
-        node_id = self.graph.add_track(trk, segment_id)
+        self.graph.add_track(trk, segment_id)
 
         with self.assertRaises(AssertionError):
             self.graph.check_ptc()
@@ -228,7 +235,9 @@ class Graph2Tests(unittest.TestCase):
 
 class Graph2MediumTests(unittest.TestCase):
     def setUp(self):
-        switch_timing = SwitchTiming(r=0, c_in=1, c_out=2, t_del=0)
+        switch_timing = SwitchTiming(
+            r=0, c_in=1, c_out=2, t_del=0, c_internal=0
+        )
         switch_sizing = SwitchSizing(mux_trans_size=0, buf_size=1)
         self.switches = [
             Switch(
