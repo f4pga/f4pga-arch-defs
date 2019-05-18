@@ -99,6 +99,15 @@
     <xsl:attribute name="output"><xsl:call-template name="from-pb_type"/>.<xsl:call-template name="port-value"/></xsl:attribute>
   </xsl:template>
 
+  <xsl:template match="direct/pack_pattern">
+    <xsl:copy>
+      <xsl:attribute name="in_port"><xsl:value-of select="../@input" /></xsl:attribute>
+      <xsl:attribute name="out_port"><xsl:value-of select="../@output" /></xsl:attribute>
+      <xsl:apply-templates select="@*"></xsl:apply-templates>
+    </xsl:copy>
+    <xsl:apply-templates/>
+  </xsl:template>
+
   <!--
     Convert
       <interconnect><xxx><pack_pattern><port type='input' ...><port type='output' ...></pack_pattern></xxx><YYY../></interconnect>
