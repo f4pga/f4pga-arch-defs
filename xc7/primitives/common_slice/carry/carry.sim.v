@@ -1,4 +1,4 @@
-(*blackbox*)
+(* whitebox *)
 module CARRY(O, CO_CHAIN, CO_FABRIC, CI, DI, S);
   (* DELAY_CONST_CI="10e-12" *)
   (* DELAY_CONST_S="10e-12" *)
