@@ -21,11 +21,11 @@
      <input  name="in"  num_pins="5" port_class="lut_in" />
      <output name="out" num_pins="1" port_class="lut_out" />
      <delay_matrix type="max" in_port="in" out_port="out">
-      0.068e-9
-      0.068e-9
-      0.068e-9
-      0.068e-9
-      0.068e-9
+      {{iopath_A1_O5}}
+      {{iopath_A2_O5}}
+      {{iopath_A3_O5}}
+      {{iopath_A4_O5}}
+      {{iopath_A5_O5}}
      </delay_matrix>
      <metadata>
        <meta name="type">bel</meta>
