@@ -276,10 +276,12 @@ function(DEFINE_DEVICE_TYPE)
   # Generate a arch.xml for a device.
   #
   set(DEVICE_MERGED_FILE arch.merged.xml)
+  set(DEVICE_TIMING_FILE arch.timings.xml)
   set(DEVICE_UNIQUE_PACK_FILE arch.unique_pack.xml)
   set(DEVICE_MERGED_LINT_FILE arch.merged.lint.html)
 
   set(MERGE_XML_OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/${DEVICE_MERGED_FILE})
+  set(TIMINGS_XML_OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/${DEVICE_TIMING_FILE})
   set(UNIQUE_PACK_OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/${DEVICE_UNIQUE_PACK_FILE})
   set(MERGE_XMLLINT_OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/${DEVICE_MERGED_LINT_FILE})
 
@@ -289,15 +291,38 @@ function(DEFINE_DEVICE_TYPE)
     OUTPUT ${DEVICE_MERGED_FILE}
   )
 
-  append_file_dependency(SPECIALIZE_CARRYCHAINS_DEPS ${DEVICE_MERGED_FILE})
+  append_file_dependency(UPDATE_ARCH_TIMINGS_DEPS ${DEVICE_MERGED_FILE})
+
+  set(SDF_TIMING_DIRECTORY ${symbiflow-arch-defs_SOURCE_DIR}/third_party/prjxray-db/${DEFINE_DEVICE_TYPE_ARCH}/timings)
+  set(UPDATE_ARCH_TIMINGS ${symbiflow-arch-defs_SOURCE_DIR}/utils/update_arch_timings.py)
+  set(PYTHON_SDF_TIMING_DIR ${symbiflow-arch-defs_SOURCE_DIR}/third_party/python-sdf-timing)
 
   get_target_property_required(PYTHON3 env PYTHON3)
   get_target_property(PYTHON3_TARGET env PYTHON3_TARGET)
+
+  add_custom_command(
+    OUTPUT ${TIMINGS_XML_OUTPUT}
+    COMMAND ${CMAKE_COMMAND} -E env PYTHONPATH=${PYTHON_SDF_TIMING_DIR}
+    ${PYTHON3} ${UPDATE_ARCH_TIMINGS}
+    --input_arch ${DEVICE_MERGED_FILE}
+    --sdf_dir ${SDF_TIMING_DIRECTORY}
+    --out_arch ${TIMINGS_XML_OUTPUT}
+    DEPENDS
+      ${PYTHON3} ${PYTHON3_TARGET}
+      ${UPDATE_ARCH_TIMINGS}
+      ${UPDATE_ARCH_TIMINGS_DEPS}
+      ${SDF_TIMING_DIRECTORY}
+      ply
+  )
+  add_file_target(FILE ${DEVICE_TIMING_FILE} GENERATED)
+
+  append_file_dependency(SPECIALIZE_CARRYCHAINS_DEPS ${DEVICE_TIMING_FILE})
+
   set(SPECIALIZE_CARRYCHAINS ${symbiflow-arch-defs_SOURCE_DIR}/utils/specialize_carrychains.py)
   add_custom_command(
       OUTPUT ${UNIQUE_PACK_OUTPUT}
       COMMAND ${PYTHON3} ${SPECIALIZE_CARRYCHAINS}
-      --input_arch_xml ${MERGE_XML_OUTPUT} > ${UNIQUE_PACK_OUTPUT}
+      --input_arch_xml ${TIMINGS_XML_OUTPUT} > ${UNIQUE_PACK_OUTPUT}
       DEPENDS
         ${PYTHON3} ${PYTHON3_TARGET}
         ${SPECIALIZE_CARRYCHAINS}
