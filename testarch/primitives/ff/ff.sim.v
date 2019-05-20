@@ -1,4 +1,4 @@
-(* blackbox *) (* CLASS="flipflop" *)
+(* whitebox *) (* CLASS="flipflop" *)
 module FF(clk, D, Q);
 
 	(* PORT_CLASS = "clock" *)
