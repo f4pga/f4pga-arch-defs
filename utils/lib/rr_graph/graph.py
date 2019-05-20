@@ -1289,7 +1289,7 @@ class Switch(MostlyReadOnly):
         Switch(id=0, name='buffer', type=<SwitchType.MUX: 'mux'>, timing=SwitchTiming(R=551.0, Cin=7.70000012e-16, Cout=4.00000001e-15, Tdel=4.00000001e-15), sizing=SwitchSizing(mux_trans_size=2.63073993, buf_size=27.6459007))
         >>> print(ET.tostring(sw.to_xml(None), pretty_print=True).decode('utf-8').strip())
         <switch id="0" name="buffer" type="mux">
-          <timing Cin="7.70000012e-16" Cout="4.00000001e-15" R="551.0" Tdel="4.00000001e-15"/>
+          <timing Cin="7.70000012e-16" Cinternal="0" Cout="4.00000001e-15" R="551.0" Tdel="4.00000001e-15"/>
           <sizing buf_size="27.6459007" mux_trans_size="2.63073993"/>
         </switch>
         """
