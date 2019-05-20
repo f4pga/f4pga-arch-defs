@@ -1,4 +1,4 @@
-(* blackbox *)
+(* whitebox *)
 module TIEOFF(
 	HARD0, HARD1
 );
