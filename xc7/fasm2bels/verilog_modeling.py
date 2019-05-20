@@ -187,7 +187,9 @@ class Bel(object):
         Should only be called after set_prefix has been invoked (if set_prefix
         will be called)."""
         if len(self.net_names) == 1:
-            return tuple(self.net_names.values())[0].replace(' ', '') + self._prefix_things(self.name)
+            return tuple(
+                self.net_names.values()
+            )[0].replace(' ', '') + self._prefix_things(self.name)
         elif len(self.net_names) > 1:
             # TODO: Handle this case better
             return self._prefix_things(self.name)
@@ -590,8 +592,6 @@ class Site(object):
                 if net_name:
                     bel, bel_pin = source_bel
                     bel.add_net_name(bel_pin, net_name)
-
-
 
         shorted_nets = {}
 
