@@ -12,6 +12,7 @@ def remove_site_number(site):
         site = site[:-len(str(number.group()))]
     return site
 
+
 def get_cell_type(bel, site):
     if bel.endswith("5LUT") and site == "SLICEL":
         return "LUT5"
@@ -19,6 +20,7 @@ def get_cell_type(bel, site):
         return "LUT_OR_MEM5LRAM"
 
     return None
+
 
 def find_timings(timings, bel, site):
 
@@ -49,6 +51,7 @@ def find_timings(timings, bel, site):
 
     return bel_timings
 
+
 def get_pb_type_chain(node):
     pb_types = []
     while True:
@@ -62,13 +65,18 @@ def get_pb_type_chain(node):
 
         node = parent
 
+
 def main():
 
     parser = argparse.ArgumentParser()
 
-    parser.add_argument('--input_arch', required=True, help="Input arch.xml file")
+    parser.add_argument(
+        '--input_arch', required=True, help="Input arch.xml file"
+    )
     parser.add_argument('--sdf_dir', required=True, help="SDF files directory")
-    parser.add_argument('--out_arch', required=True, help="Output arch.xml file")
+    parser.add_argument(
+        '--out_arch', required=True, help="Output arch.xml file"
+    )
 
     args = parser.parse_args()
 
@@ -104,6 +112,7 @@ def main():
     #for dm in root_element.iter('delay_constant'):
     #    pb_chain = get_pb_type_chain(dm)
     #    print("found delay for", pb_chain)
+
 
 if __name__ == "__main__":
     main()
