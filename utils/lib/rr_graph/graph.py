@@ -1247,6 +1247,7 @@ class Switch(MostlyReadOnly):
                 "R": str(self._timing.R),
                 "Cin": str(self._timing.Cin),
                 "Cout": str(self._timing.Cout),
+                "Cinternal": "0",
                 "Tdel": str(self._timing.Tdel),
             }
         )
