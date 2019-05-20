@@ -129,7 +129,9 @@ class Bel(object):
             unique.
         keep (bool): Controls if KEEP, DONT_TOUCH constraints are added to this
             instance.
-        priority (int): LOC priority.
+        priority (int): Priority for assigning LOC attributes.  Lower priority
+            means LOC is set first.  LOC priority should be set to allow
+            assignment without blocking later elements.
 
         """
         self.module = module
@@ -191,7 +193,8 @@ class Bel(object):
                 self.net_names.values()
             )[0].replace(' ', '') + self._prefix_things(self.name)
         elif len(self.net_names) > 1:
-            # TODO: Handle this case better
+            # TODO: Come up with a better method for choosing the name when
+            # multiple options.
             return self._prefix_things(self.name)
         else:
             return self._prefix_things(self.name)
@@ -288,10 +291,8 @@ class Bel(object):
                 comment.append('KEEP')
                 comment.append('DONT_TOUCH')
 
-            #if self.bel:
-            #    comment.append('BEL = "{bel}"'.format(bel=self.bel))
-
-            #comment.append('LOC = "{site}"'.format(site=self.site))
+            if self.bel:
+                comment.append('BEL = "{bel}"'.format(bel=self.bel))
 
             yield '{indent}(* {comment} *)'.format(
                 indent=indent, comment=', '.join(comment)
@@ -319,6 +320,9 @@ class Bel(object):
         yield '{indent});'.format(indent=indent)
 
     def add_net_name(self, pin, net_name):
+        """ Add name of net attached to this pin.
+
+        """
         assert pin not in self.net_names
         self.net_names[pin] = net_name
 
@@ -1057,20 +1061,20 @@ class Module(object):
     def output_bel_locations(self):
         """ Yields lines of tcl that will assign set the location of BELs. """
         for bel in sorted(self.get_bels(), key=lambda bel: bel.priority):
-            yield """
+            yield """\
 set cell [get_cells *{cell}]
 if {{ $cell == {{}} }} {{
     error "Failed to find cell!"
 }}""".format(cell=bel.get_prefixed_name())
 
             if bel.bel is not None:
-                yield """
+                yield """\
 set_property BEL "[get_property SITE_TYPE [get_sites {site}]].{bel}" $cell""".format(
                     site=bel.site,
                     bel=bel.bel,
                 )
 
-            yield """
+            yield """\
 set_property LOC [get_sites {site}] $cell""".format(
                 cell=bel.get_prefixed_name(), site=bel.site
             )
