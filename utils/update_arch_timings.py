@@ -13,40 +13,31 @@ def remove_site_number(site):
     return site
 
 
-def get_cell_type(bel, site):
-    if bel.endswith("5LUT") and site == "SLICEL":
-        return "LUT5"
-    if bel.endswith("5LUT") and site == "SLICEM":
-        return "LUT_OR_MEM5LRAM"
+def get_cell_type_and_instance(bel, location, site, bels):
+    if site not in bels:
+        return None, None
+    if bel not in bels[site]:
+        return None, None
+    if location not in bels[site][bel]:
+        return None, None
 
-    return None
+    celltype = bels[site][bel][location]['celltype']
+    instance = bels[site][bel][location]['instance']
+
+    return celltype, instance
 
 
-def find_timings(timings, bel, site):
-
+def find_timings(timings, bel, location, site, bels):
     separator = "/"
-    celltype = get_cell_type(bel, site)
-    if celltype is None:
+    celltype, instance = get_cell_type_and_instance(bel, location, site, bels)
+    if (celltype is None) or (instance is None):
         return None
-
-    cells = timings['cells'][celltype]
-    cellsite = None
-    for cell in cells:
-        if (site in cell.split(separator)) and (bel in cell.split(separator)):
-            cellsite = cell
-            break
-        if site == cell:
-            cellsite = site
-            # do not break here as we may still find more precise
-            # site/bel location
-    if cellsite is None:
-        return None
-
     bel_timings = dict()
-    for delay in cells[cellsite]:
-        if not cells[cellsite][delay]['is_absolute']:
+    cell = timings['cells'][celltype][instance]
+    for delay in cell:
+        if not cell[delay]['is_absolute']:
             continue
-        entry = cells[cellsite][delay]['delay_paths']['slow']['max']
+        entry = cell[delay]['delay_paths']['slow']['max']
         bel_timings[delay] = float(entry) * get_scale_seconds('1 ns')
 
     return bel_timings
@@ -67,7 +58,6 @@ def get_pb_type_chain(node):
 
 
 def main():
-
     parser = argparse.ArgumentParser()
 
     parser.add_argument(
@@ -77,11 +67,21 @@ def main():
     parser.add_argument(
         '--out_arch', required=True, help="Output arch.xml file"
     )
+    parser.add_argument(
+        '--bels_map',
+        required=True,
+        help="VPR <-> timing info bels mapping json file"
+    )
 
     args = parser.parse_args()
 
     arch_xml = ET.ElementTree()
     root_element = arch_xml.parse(args.input_arch)
+
+    # read bels json
+    import json
+    with open(args.bels_map, 'r') as fp:
+        bels = json.load(fp)
 
     timings = dict()
     files = os.listdir(args.sdf_dir)
@@ -99,8 +99,9 @@ def main():
     for dm in root_element.iter('delay_matrix'):
         pb_chain = get_pb_type_chain(dm)
         bel = pb_chain[-1]
+        location = pb_chain[-2]
         site = remove_site_number(pb_chain[1])
-        bel_timings = find_timings(timings, bel, site)
+        bel_timings = find_timings(timings, bel, location, site, bels)
         if bel_timings is None:
             continue
 

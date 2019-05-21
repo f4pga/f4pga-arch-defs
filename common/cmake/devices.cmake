@@ -300,6 +300,8 @@ function(DEFINE_DEVICE_TYPE)
   set(SDF_TIMING_DIRECTORY ${symbiflow-arch-defs_SOURCE_DIR}/third_party/prjxray-db/${DEFINE_DEVICE_TYPE_ARCH}/timings)
   set(UPDATE_ARCH_TIMINGS ${symbiflow-arch-defs_SOURCE_DIR}/utils/update_arch_timings.py)
   set(PYTHON_SDF_TIMING_DIR ${symbiflow-arch-defs_SOURCE_DIR}/third_party/python-sdf-timing)
+  #XXX: this file should be moved to some architecture specific directory
+  set(BELS_MAP ${symbiflow-arch-defs_SOURCE_DIR}/utils/bels.json)
 
   get_target_property_required(PYTHON3 env PYTHON3)
   get_target_property(PYTHON3_TARGET env PYTHON3_TARGET)
@@ -311,12 +313,14 @@ function(DEFINE_DEVICE_TYPE)
       ${PYTHON3} ${UPDATE_ARCH_TIMINGS}
       --input_arch ${DEVICE_MERGED_FILE}
       --sdf_dir ${SDF_TIMING_DIRECTORY}
+      --bels_map ${BELS_MAP}
       --out_arch ${TIMINGS_XML_OUTPUT}
       DEPENDS
         ${PYTHON3} ${PYTHON3_TARGET}
         ${UPDATE_ARCH_TIMINGS}
         ${UPDATE_ARCH_TIMINGS_DEPS}
         ${SDF_TIMING_DIRECTORY}
+        ${BELS_MAP}
         ply
     )
     add_file_target(FILE ${DEVICE_TIMING_FILE} GENERATED)
