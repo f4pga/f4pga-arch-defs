@@ -2,6 +2,7 @@ import lxml.etree as ET
 import argparse
 from sdf_timing import sdfparse
 from sdf_timing.utils import get_scale_seconds
+from lib.pb_type import get_pb_type_chain
 import re
 import os
 
@@ -41,20 +42,6 @@ def find_timings(timings, bel, location, site, bels):
         bel_timings[delay] = float(entry) * get_scale_seconds('1 ns')
 
     return bel_timings
-
-
-def get_pb_type_chain(node):
-    pb_types = []
-    while True:
-        parent = node.getparent()
-
-        if parent is None:
-            return list(reversed(pb_types))
-
-        if parent.tag == 'pb_type':
-            pb_types.append(parent.attrib['name'])
-
-        node = parent
 
 
 def main():

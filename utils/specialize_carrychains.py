@@ -1,19 +1,6 @@
 import lxml.etree as ET
 import argparse
-
-
-def get_pb_type_chain(node):
-    pb_types = []
-    while True:
-        parent = node.getparent()
-
-        if parent is None:
-            return list(reversed(pb_types))
-
-        if parent.tag == 'pb_type':
-            pb_types.append(parent.attrib['name'])
-
-        node = parent
+from lib.pb_type import get_pb_type_chain
 
 
 def specialized_chain_name(pat):
