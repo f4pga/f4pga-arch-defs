@@ -188,12 +188,22 @@ def pb_type_xml(mux_type, mux_name, pins, subckt=None, num_pb=1, comment=""):
             for outport in pins:
                 if outport.pin_type not in (MuxPinType.OUTPUT, ):
                     continue
+                if inport.name.startswith('I'):
+                    delay_inport = inport.name[1]
+                else:
+                    # if it is not IX it must be S
+                    delay_inport = "S0"
+                # XXX: temporary workaroud
+                if mux_name == "F6MUX":
+                    maxdel = "10e-12"
+                else:
+                    maxdel = "{{iopath_{}_OUT}}".format(delay_inport)
 
                 ET.SubElement(
                     pb_type_xml,
                     'delay_constant',
                     {
-                        'max': "10e-12",
+                        'max': maxdel,
                         'in_port': "%s" % inport.name,
                         'out_port': "%s" % outport.name,
                     },
