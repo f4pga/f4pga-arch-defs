@@ -8,7 +8,7 @@ import contextlib
 # Set to True once
 # https://github.com/verilog-to-routing/vtr-verilog-to-routing/compare/c_internal
 # is merged and included in VTR conda.
-VPR_HAS_C_INTERNAL_SUPPORT = False
+VPR_HAS_C_INTERNAL_SUPPORT = True
 
 
 def serialize_nodes(xf, nodes):
