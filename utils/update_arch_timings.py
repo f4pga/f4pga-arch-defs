@@ -56,6 +56,16 @@ def mergedicts(source, destination):
     return destination
 
 
+def get_bel_timings(element, timings, bels):
+    pb_chain = get_pb_type_chain(element)
+    if len(pb_chain) == 1:
+        return None
+    bel = pb_chain[-1]
+    location = pb_chain[-2]
+    site = remove_site_number(pb_chain[1])
+    return find_timings(timings, bel, location, site, bels)
+
+
 def main():
     parser = argparse.ArgumentParser()
 
@@ -92,22 +102,19 @@ def main():
             mergedicts(tmp, timings)
 
     for dm in root_element.iter('delay_matrix'):
-        pb_chain = get_pb_type_chain(dm)
-        bel = pb_chain[-1]
-        location = pb_chain[-2]
-        site = remove_site_number(pb_chain[1])
-        bel_timings = find_timings(timings, bel, location, site, bels)
+        bel_timings = get_bel_timings(dm, timings, bels)
         if bel_timings is None:
             continue
-
         dm.text = dm.text.format(**bel_timings)
+
+    for dc in root_element.iter('delay_constant'):
+        bel_timings = get_bel_timings(dc, timings, bels)
+        if bel_timings is None:
+            continue
+        dc.attrib['max'] = dc.attrib['max'].format(**bel_timings)
 
     with open(args.out_arch, 'wb') as fp:
         fp.write(ET.tostring(arch_xml))
-
-    #for dm in root_element.iter('delay_constant'):
-    #    pb_chain = get_pb_type_chain(dm)
-    #    print("found delay for", pb_chain)
 
 
 if __name__ == "__main__":
