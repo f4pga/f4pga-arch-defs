@@ -53,6 +53,7 @@ function(ADD_XC7_DEVICE_DEFINE_TYPE)
     DEVICE_TYPE ${DEVICE}-roi-virt
     ARCH ${ARCH}
     ARCH_XML arch.xml
+    UPDATE_TIMINGS
     )
 endfunction()
 
