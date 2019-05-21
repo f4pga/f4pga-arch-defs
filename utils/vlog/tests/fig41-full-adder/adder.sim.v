@@ -1,4 +1,4 @@
-(* blackbox *)
+(* whitebox *)
 module adder (
 	a, b, cin,
 	sum, cout

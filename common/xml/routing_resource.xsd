@@ -38,6 +38,7 @@
   <xs:complexType name="timing">
     <xs:attribute name="R" type="xs:double"/>
     <xs:attribute name="Cin" type="xs:double"/>
+    <xs:attribute name="Cinternal" type="xs:double"/>
     <xs:attribute name="Cout" type="xs:double"/>
     <xs:attribute name="Tdel" type="xs:double"/>
   </xs:complexType>

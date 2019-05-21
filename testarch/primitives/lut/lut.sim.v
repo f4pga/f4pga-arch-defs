@@ -1,4 +1,4 @@
-(* blackbox *)  (* CLASS="lut" *)
+(* whitebox *)  (* CLASS="lut" *)
 module LUT (in, out);
 	parameter [15:0] INIT = 16'hDEAD;
 

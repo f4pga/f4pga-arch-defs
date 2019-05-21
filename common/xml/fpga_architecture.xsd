@@ -272,6 +272,7 @@
     <xs:attribute name="name" type="xs:string" use="required"/>
     <xs:attribute name="R" type="xs:double" use="required"/>
     <xs:attribute name="Cin" type="xs:double" use="required"/>
+    <xs:attribute name="Cinternal" type="xs:double"/>
     <xs:attribute name="Cout" type="xs:double"/>
     <xs:attribute name="Tdel" type="xs:double"/>
     <xs:attribute name="buf_size" type="buf_size" default="auto"/>

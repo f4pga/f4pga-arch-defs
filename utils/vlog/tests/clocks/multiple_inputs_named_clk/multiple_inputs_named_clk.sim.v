@@ -2,7 +2,7 @@
  * `input wire rdclk` and `input wire wrclk` should be detected as a clock
  * despite this being a black box module.
  */
-(* blackbox *)
+(* whitebox *)
 module block(a, rdclk, b, wrclk, c, o);
 	input wire a;
 	input wire rdclk;

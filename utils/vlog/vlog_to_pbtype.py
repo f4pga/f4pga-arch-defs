@@ -120,10 +120,27 @@ tmod = yj.module(top)
 INVALID_INSTANCE = -1
 
 
+def is_mod_blackbox(mod):
+    """ Returns true if module is annotated with blackbox (or equivilant).
+
+    Yosys supports 3 attributes that denote blackbox behavior:
+
+    "blackbox" - Blackbox with no internal wiring
+    "whitebox" - Blackbox with internal connections and timing.
+    "lib_whitebox" - Like "whitebox" when read with "-lib", otherwise
+        attribute is removed.
+
+    """
+
+    return (mod.attr("lib_whitebox", 0) == 1) or \
+           (mod.attr("whitebox", 0) == 1) or \
+           (mod.attr("blackbox", 0) == 1)
+
+
 def mod_pb_name(mod):
     """Convert a Verilog module to a pb_type name in the format documented here:
     https://github.com/SymbiFlow/symbiflow-arch-defs/#names"""
-    is_blackbox = (mod.attr("blackbox", 0) == 1)
+
     modes = mod.attr("MODES", None)
     has_modes = modes is not None
     # Process type and class of module
@@ -136,7 +153,7 @@ def mod_pb_name(mod):
         return mod.name
     elif mod_cls == "lut":
         return mod.name
-    elif is_blackbox and not has_modes:
+    elif is_mod_blackbox(mod) and not has_modes:
         return mod.name
     else:
         #TODO: other types
@@ -209,7 +226,7 @@ def make_pb_content(yj, mod, xml_parent, mod_pname, is_submode=False):
         d_port_xml = ET.SubElement(dir_xml, 'port', d_port)
 
     # Find out whether or not the module we are generating content for is a blackbox
-    is_blackbox = (mod.attr("blackbox", 0) == 1) or not mod.cells
+    is_blackbox = is_mod_blackbox(mod) or not mod.cells
 
     # List of entries in format ((from_cell, from_pin), (to_cell, to_pin))
     interconn = []
@@ -412,7 +429,7 @@ def make_pb_type(yj, mod):
     pb_xml_attrs = dict()
     pb_xml_attrs["name"] = mod_pname
     # If we are a blackbox with no modes, then generate a blif_model
-    is_blackbox = mod.attr("blackbox", 0) == 1 or not mod.cells
+    is_blackbox = is_mod_blackbox(mod) or not mod.cells
     has_modes = modes is not None
 
     print("is_blackbox", is_blackbox, "has_modes?", has_modes)
