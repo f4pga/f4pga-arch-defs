@@ -669,6 +669,7 @@ function(ADD_FPGA_TARGET)
   #   [NO_SYNTHESIS]
   #   [ASSERT_USAGE <usage_spec>]
   #   [DEFINES <definitions>]
+  #   [SDC_FILE <sdc file>]
   #   )
   # ~~~
   #
@@ -689,6 +690,8 @@ function(ADD_FPGA_TARGET)
   # DEFINES is a list of environment variables to be defined during Yosys
   # invocation.
   #
+  # SDC_FILE can be supplied to provide a SDC constraints file to the flow.
+  #
   # Targets generated:
   #
   # * <name>_eblif - Generated eblif file.
@@ -708,7 +711,7 @@ function(ADD_FPGA_TARGET)
   # * ${TOP}.${BITSTREAM_EXTENSION} - Bitstream for target.
   #
   set(options EXPLICIT_ADD_FILE_TARGET EMIT_CHECK_TESTS NO_SYNTHESIS ROUTE_ONLY)
-  set(oneValueArgs NAME TOP BOARD INPUT_IO_FILE EQUIV_CHECK_SCRIPT AUTOSIM_CYCLES ASSERT_USAGE)
+  set(oneValueArgs NAME TOP BOARD INPUT_IO_FILE EQUIV_CHECK_SCRIPT AUTOSIM_CYCLES ASSERT_USAGE SDC_FILE)
   set(multiValueArgs SOURCES TESTBENCH_SOURCES DEFINES)
   cmake_parse_arguments(
     ADD_FPGA_TARGET
@@ -883,6 +886,15 @@ function(ADD_FPGA_TARGET)
   separate_arguments(
     VPR_ARCH_ARGS_LIST UNIX_COMMAND "${VPR_ARCH_ARGS}"
     )
+
+  if(NOT "${ADD_FPGA_TARGET_SDC_FILE}" STREQUAL "")
+    append_file_dependency(VPR_DEPS ${ADD_FPGA_TARGET_SDC_FILE})
+    get_file_location(SDC_LOCATION ${ADD_FPGA_TARGET_SDC_FILE})
+    set(SDC_ARG --sdc_file ${SDC_LOCATION})
+  else()
+    set(SDC_ARG "")
+  endif()
+
   set(
     VPR_CMD
     ${QUIET_CMD} ${VPR}
@@ -893,6 +905,7 @@ function(ADD_FPGA_TARGET)
     ${VPR_BASE_ARGS_LIST}
     ${VPR_ARCH_ARGS_LIST}
     ${VPR_EXTRA_ARGS_LIST}
+    ${SDC_ARG}
   )
   list(APPEND VPR_DEPS ${VPR} ${VPR_TARGET} ${QUIET_CMD} ${QUIET_CMD_TARGET})
 

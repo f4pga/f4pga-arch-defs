@@ -13,6 +13,7 @@ foreach(type 64x1d 32m 64m)
     NAME dram_test_${type}
     BOARD basys3
     INPUT_IO_FILE ../common/basys3.pcf
+    SDC_FILE ../common/basys3.sdc
     SOURCES ${UART_SOURCES} ${symbiflow-arch-defs_SOURCE_DIR}/library/lfsr.v ${SOURCES} dram_test_${type}.v
     EXPLICIT_ADD_FILE_TARGET
     )
