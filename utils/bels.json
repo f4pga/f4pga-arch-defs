@@ -23,6 +23,24 @@
                 "celltype": "LUT5",
                 "instance": "SLICEL/D5LUT"
             }
+        },
+        "F7AMUX":{
+            "COMMON_LUT_AND_F78MUX":{
+                "celltype": "SELMUX2_1",
+                "instance": "SLICEL/F7AMUX"
+            }
+        },
+        "F7BMUX":{
+            "COMMON_LUT_AND_F78MUX":{
+                "celltype": "SELMUX2_1",
+                "instance": "SLICEL/F7BMUX"
+            }
+        },
+        "F8MUX":{
+            "COMMON_LUT_AND_F78MUX":{
+                "celltype": "SELMUX2_1",
+                "instance": "SLICEL/F8MUX"
+            }
         }
     },
     "SLICEM": {
@@ -118,6 +136,36 @@
             "D_DRAM128":{
                 "celltype": "LUT_OR_MEM6LRAM",
                 "instance": "SLICEM/D6LUT"
+            }
+        },
+        "F7AMUX":{
+            "SLICEM_MODES":{
+                "celltype": "SELMUX2_1",
+                "instance": "SLICEM/F7AMUX"
+            },
+            "COMMON_LUT_AND_F78MUX":{
+                "celltype": "SELMUX2_1",
+                "instance": "SLICEM/F7AMUX"
+            }
+        },
+        "F7BMUX":{
+            "SLICEM_MODES":{
+                "celltype": "SELMUX2_1",
+                "instance": "SLICEM/F7BMUX"
+            },
+            "COMMON_LUT_AND_F78MUX":{
+                "celltype": "SELMUX2_1",
+                "instance": "SLICEM/F7BMUX"
+            }
+        },
+        "F8MUX":{
+            "SLICEM_MODES":{
+                "celltype": "SELMUX2_1",
+                "instance": "SLICEM/F8MUX"
+            },
+            "COMMON_LUT_AND_F78MUX":{
+                "celltype": "SELMUX2_1",
+                "instance": "SLICEM/F8MUX"
             }
         }
     }
