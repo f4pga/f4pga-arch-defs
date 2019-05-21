@@ -71,3 +71,5 @@ function end_section() {
 }
 
 export PATH=$PWD/env/conda/bin:$PATH
+export CC=gcc-6
+export CXX=g++-6

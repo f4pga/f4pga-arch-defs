@@ -135,8 +135,10 @@ function(ADD_VIVADO_TARGET)
       DEPENDS ${WORK_DIR}/design_${NAME}.xpr ${NAME}_sim.tcl
       )
 
+  set(CLEAN_JSON5 ${symbiflow-arch-defs_SOURCE_DIR}/utils/clean_json5.py)
+  get_target_property(PYJSON5_TARGET env PYJSON5_TARGET)
   add_custom_command(
-      OUTPUT ${WORK_DIR}/timing_${NAME}.json5
+      OUTPUT ${WORK_DIR}/timing_${NAME}.json
       COMMAND ${PRJXRAY_DIR}/utils/vivado.sh
         design_${NAME}.dcp
         -mode batch
@@ -146,8 +148,13 @@ function(ADD_VIVADO_TARGET)
             ${symbiflow-arch-defs_SOURCE_DIR}/xc7/utils/timing_utils.tcl
             ${CMAKE_CURRENT_BINARY_DIR}/${WORK_DIR}/timing_${NAME}.json5
         > ${CMAKE_CURRENT_BINARY_DIR}/${WORK_DIR}/vivado_timing.stdout.log
+      COMMAND ${PYTHON3} ${CLEAN_JSON5}
+        < ${CMAKE_CURRENT_BINARY_DIR}/${WORK_DIR}/timing_${NAME}.json5
+        > ${CMAKE_CURRENT_BINARY_DIR}/${WORK_DIR}/timing_${NAME}.json
       WORKING_DIRECTORY ${WORK_DIR}
-      DEPENDS ${WORK_DIR}/design_${NAME}.dcp
+      DEPENDS
+        ${WORK_DIR}/design_${NAME}.dcp
+        ${PYTHON3} ${PYTHON3_TARGET} ${PYJSON5_TARGET}
       )
 
   add_custom_command(
@@ -169,7 +176,7 @@ function(ADD_VIVADO_TARGET)
   get_file_location(BITSTREAM_LOCATION ${BITSTREAM})
 
   add_custom_target(${NAME} DEPENDS ${WORK_DIR}/design_${NAME}.dcp)
-  add_custom_target(${NAME}_timing DEPENDS ${WORK_DIR}/timing_${NAME}.json5)
+  add_custom_target(${NAME}_timing DEPENDS ${WORK_DIR}/timing_${NAME}.json)
   add_custom_target(${NAME}_fasm DEPENDS ${WORK_DIR}/design_${NAME}.bit.fasm)
   add_custom_target(${NAME}_diff_fasm
       COMMAND diff -u
