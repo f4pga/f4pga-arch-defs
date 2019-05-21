@@ -330,6 +330,7 @@ def main():
 
     # The route callback
     def route_callback(graph, route):
+        nonlocal target_reached
 
         # Get endpoint
         endpoint = graph.nodes[route[-1]]
@@ -342,7 +343,7 @@ def main():
 
         # If we are looking for a particular target node then do not save/print
         # other routes.
-        if args.e >= 0 and endpoint.id != args.e:
+        if args.end_inode >= 0 and endpoint.id != args.end_inode:
             return True
 
         # Save the route
@@ -353,34 +354,34 @@ def main():
             print_route(graph, route)
 
         # Hit anything
-        if args.e < 0:
-            main.target_reached = True
+        if args.end_inode < 0:
+            target_reached = True
 
         # Hit target, stop
-        if args.e == endpoint.id:
-            main.target_reached = True
+        if args.end_inode == endpoint.id:
+            target_reached = True
             return False
 
         return True
 
     # Determine walk direction
-    node = rr_graph.nodes[args.s]
+    node = rr_graph.nodes[args.start_inode]
 
     if node.type == "SOURCE" or node.type == "OPIN":
         walk_direction = +1
-        print("Walking forward from %d" % args.s, end="")
+        print("Walking forward from %d" % args.start_inode, end="")
 
     if node.type == "SINK" or node.type == "IPIN":
         walk_direction = -1
-        print("Walking backward from %d" % args.s, end="")
+        print("Walking backward from %d" % args.start_inode, end="")
 
-    if args.e >= 0:
-        print(" to %d..." % args.e)
+    if args.end_inode >= 0:
+        print(" to %d..." % args.end_inode)
     else:
         print("...")
 
     # Start the walk
-    rr_graph.walk(args.s, route_callback, walk_direction)
+    rr_graph.walk(args.start_inode, route_callback, walk_direction)
 
     # Check if we have reached the target
     if not target_reached:
