@@ -26,62 +26,17 @@ class RoutingGraph(object):
 
     def __init__(self, xml_file):
 
-        # Load and parse the XML
-        print("Loading XML file...")
-        parser = ET.XMLParser(remove_comments=True)
-        xml_tree = objectify.parse(xml_file, parser=parser)
-        xml_root = xml_tree.getroot()
-
         self.nodes = {}
 
         self.edges_from = {}
         self.edges_to = {}
 
-        # Import nodes
-        self._import_nodes(xml_root)
-        # Import edges
-        self._import_edges(xml_root)
+        # Load and parse the routing graph
+        self._load_and_parse_rr_graph(xml_file)
 
-        del xml_root
-        del xml_tree
-        del parser
-        gc.collect()
-
-    def _import_nodes(self, xml_root):
+    def _load_and_parse_rr_graph(self, xml_file):
         """
-        Imports nodes from XML file
-        """
-
-        print("Importing nodes...")
-
-        # Find the "rr_nodes" section
-        xml_rr_nodes = xml_root.find("rr_nodes")
-        assert (xml_rr_nodes is not None)
-
-        # Parse nodes
-        for xml_node in progressbar(xml_rr_nodes):
-            assert xml_node.tag == "node"
-
-            # Find the "loc" tag
-            xml_loc = xml_node.find("loc")
-
-            node = RoutingGraph.Node(
-                id=int(xml_node.get("id")),
-                type=xml_node.get("type"),
-                xlow=int(xml_loc.get("xlow")),
-                ylow=int(xml_loc.get("ylow")),
-                xhigh=int(xml_loc.get("xhigh")),
-                yhigh=int(xml_loc.get("yhigh"))
-            )
-
-            self.nodes[node.id] = node
-
-        del xml_rr_nodes
-        gc.collect()
-
-    def _import_edges(self, xml_root):
-        """
-        Imports edges from XML file
+        Loads the routing graph, extracts nodes and edges from the XML.
         """
 
         def append_edge(edge_dict, key_node, target_node):
@@ -90,27 +45,75 @@ class RoutingGraph(object):
             else:
                 edge_dict[key_node].append(target_node)
 
-        print("Importing edges...")
+        print("Loading and parsing XML file...")
 
-        # Find the "rr_edges" section
-        xml_rr_edges = xml_root.find("rr_edges")
-        assert (xml_rr_edges is not None)
+        # Load and initialize parser
+        parser = ET.iterparse(xml_file, events=("start", "end"))
+        parser = iter(parser)
 
-        # Parse edges
-        edge_count = 0
-        for xml_edge in progressbar(xml_rr_edges):
-            assert xml_edge.tag == "edge"
+        # Parse
+        expect_nodes = False
+        expect_edges = False
 
-            src_node = int(xml_edge.get("src_node"))
-            dst_node = int(xml_edge.get("sink_node"))
+        for event, element in progressbar(parser):
 
-            append_edge(self.edges_from, src_node, dst_node)
-            append_edge(self.edges_to, dst_node, src_node)
+            # Start
+            if event == "start":
 
-            edge_count += 1
+                # Begin "rr_nodes"
+                if element.tag == "rr_nodes":
+                    expect_nodes = True
+                # Begin "rr_edges"
+                if element.tag == "rr_edges":
+                    expect_edges = True
 
-        del xml_rr_edges
+            # End
+            elif event == "end":
+
+                # End "rr_nodes"
+                if element.tag == "rr_nodes":
+                    expect_nodes = False
+                # End "rr_edges"
+                if element.tag == "rr_edges":
+                    expect_edges = False
+
+                # Got a complete node element
+                if expect_nodes and element.tag == "node":
+
+                    # Find the "loc" tag
+                    xml_loc = element.find("loc")
+
+                    # Append the node
+                    node = RoutingGraph.Node(
+                        id=int(element.get("id")),
+                        type=element.get("type"),
+                        xlow=int(xml_loc.get("xlow")),
+                        ylow=int(xml_loc.get("ylow")),
+                        xhigh=int(xml_loc.get("xhigh")),
+                        yhigh=int(xml_loc.get("yhigh"))
+                    )
+                    self.nodes[node.id] = node
+
+                # Got a complete edge element
+                if expect_edges and element.tag == "edge":
+                    src_node = int(element.get("src_node"))
+                    dst_node = int(element.get("sink_node"))
+
+                    # Append edge
+                    append_edge(self.edges_from, src_node, dst_node)
+                    append_edge(self.edges_to, dst_node, src_node)
+
+                # Clear the element
+                if element.tag != "loc":
+                    element.clear()
+
+        # Clean up
+        del parser
         gc.collect()
+
+        print(
+            "{} nodes, {} edges".format(len(self.nodes), len(self.edges_from))
+        )
 
     def node_to_string(self, node_id):
         """
