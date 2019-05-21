@@ -44,6 +44,18 @@ def find_timings(timings, bel, location, site, bels):
     return bel_timings
 
 
+def mergedicts(source, destination):
+    for key, value in source.items():
+        if isinstance(value, dict):
+            # get node or create one
+            node = destination.setdefault(key, {})
+            mergedicts(value, node)
+        else:
+            destination[key] = value
+
+    return destination
+
+
 def main():
     parser = argparse.ArgumentParser()
 
@@ -77,11 +89,7 @@ def main():
             continue
         with open(args.sdf_dir + '/' + f, 'r') as fp:
             tmp = sdfparse.parse(fp.read())
-            if 'cells' in timings:
-                if 'cells' in tmp:
-                    timings['cells'].update(tmp['cells'])
-            else:
-                timings.update(tmp)
+            mergedicts(tmp, timings)
 
     for dm in root_element.iter('delay_matrix'):
         pb_chain = get_pb_type_chain(dm)
