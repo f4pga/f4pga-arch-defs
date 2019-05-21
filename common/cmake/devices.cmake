@@ -242,6 +242,7 @@ function(DEFINE_DEVICE_TYPE)
   #   DEVICE_TYPE <device_type>
   #   ARCH <arch>
   #   ARCH_XML <arch.xml>
+  #   [UPDATE_TIMINGS]
   #   )
   # ~~~
   #
@@ -250,7 +251,10 @@ function(DEFINE_DEVICE_TYPE)
   #
   # DEFINE_DEVICE_TYPE defines a dummy target <arch>_<device_type>_arch that
   # will build the merged architecture file for the device type.
-  set(options)
+  #
+  # If UPDATE_TIMINGS is set merged arch.xml file will be processed to inject
+  # timing values using data from prjxray-db/$ARCH/timigs/*sdf files
+  set(options UPDATE_TIMINGS)
   set(oneValueArgs DEVICE_TYPE ARCH ARCH_XML)
   set(multiValueArgs)
   cmake_parse_arguments(
@@ -300,29 +304,35 @@ function(DEFINE_DEVICE_TYPE)
   get_target_property_required(PYTHON3 env PYTHON3)
   get_target_property(PYTHON3_TARGET env PYTHON3_TARGET)
 
-  add_custom_command(
-    OUTPUT ${TIMINGS_XML_OUTPUT}
-    COMMAND ${CMAKE_COMMAND} -E env PYTHONPATH=${PYTHON_SDF_TIMING_DIR}
-    ${PYTHON3} ${UPDATE_ARCH_TIMINGS}
-    --input_arch ${DEVICE_MERGED_FILE}
-    --sdf_dir ${SDF_TIMING_DIRECTORY}
-    --out_arch ${TIMINGS_XML_OUTPUT}
-    DEPENDS
-      ${PYTHON3} ${PYTHON3_TARGET}
-      ${UPDATE_ARCH_TIMINGS}
-      ${UPDATE_ARCH_TIMINGS_DEPS}
-      ${SDF_TIMING_DIRECTORY}
-      ply
-  )
-  add_file_target(FILE ${DEVICE_TIMING_FILE} GENERATED)
+  if(${DEFINE_DEVICE_TYPE_UPDATE_TIMINGS})
+    add_custom_command(
+      OUTPUT ${TIMINGS_XML_OUTPUT}
+      COMMAND ${CMAKE_COMMAND} -E env PYTHONPATH=${PYTHON_SDF_TIMING_DIR}
+      ${PYTHON3} ${UPDATE_ARCH_TIMINGS}
+      --input_arch ${DEVICE_MERGED_FILE}
+      --sdf_dir ${SDF_TIMING_DIRECTORY}
+      --out_arch ${TIMINGS_XML_OUTPUT}
+      DEPENDS
+        ${PYTHON3} ${PYTHON3_TARGET}
+        ${UPDATE_ARCH_TIMINGS}
+        ${UPDATE_ARCH_TIMINGS_DEPS}
+        ${SDF_TIMING_DIRECTORY}
+        ply
+    )
+    add_file_target(FILE ${DEVICE_TIMING_FILE} GENERATED)
+    append_file_dependency(SPECIALIZE_CARRYCHAINS_DEPS ${DEVICE_TIMING_FILE})
+    set(SPECIALIZE_CARRY_CHAINS_INPUT ${TIMINGS_XML_OUTPUT})
+  else()
+    append_file_dependency(SPECIALIZE_CARRYCHAINS_DEPS ${DEVICE_MERGED_FILE})
+    set(SPECIALIZE_CARRY_CHAINS_INPUT ${MERGE_XML_OUTPUT})
+  endif()
 
-  append_file_dependency(SPECIALIZE_CARRYCHAINS_DEPS ${DEVICE_TIMING_FILE})
 
   set(SPECIALIZE_CARRYCHAINS ${symbiflow-arch-defs_SOURCE_DIR}/utils/specialize_carrychains.py)
   add_custom_command(
       OUTPUT ${UNIQUE_PACK_OUTPUT}
       COMMAND ${PYTHON3} ${SPECIALIZE_CARRYCHAINS}
-      --input_arch_xml ${TIMINGS_XML_OUTPUT} > ${UNIQUE_PACK_OUTPUT}
+      --input_arch_xml ${SPECIALIZE_CARRY_CHAINS_INPUT} > ${UNIQUE_PACK_OUTPUT}
       DEPENDS
         ${PYTHON3} ${PYTHON3_TARGET}
         ${SPECIALIZE_CARRYCHAINS}
