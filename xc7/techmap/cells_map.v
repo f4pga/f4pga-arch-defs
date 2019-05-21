@@ -1217,7 +1217,7 @@ end
       .WRITE_MODE_A_NO_CHANGE(WRITE_MODE_A == "NO_CHANGE" || (WRITE_MODE_A == "WRITE_FIRST" && RAM_MODE == "SDP")),
       .WRITE_MODE_A_READ_FIRST(WRITE_MODE_A == "READ_FIRST"),
       .WRITE_MODE_B_NO_CHANGE(WRITE_MODE_B == "NO_CHANGE" || (WRITE_MODE_B == "WRITE_FIRST" && RAM_MODE == "SDP")),
-      .WRITE_MODE_B_READ_FIRST(WRITE_MODE_B == "READ_FIRST"),
+      .WRITE_MODE_B_READ_FIRST(WRITE_MODE_B == "READ_FIRST")
   ) _TECHMAP_REPLACE_ (
     .CLKARDCLK(CLKARDCLK),
     .REGCLKARDRCLK(REGCLKA),
@@ -1250,50 +1250,99 @@ end
   );
 endmodule
 
-module CARRY0(output CO_CHAIN, CO_FABRIC, O, input CI, CI_INIT, DI, S);
-  parameter CYINIT_FABRIC = 0;
-  parameter _TECHMAP_CONSTMSK_CI_INIT_ = 0;
-  parameter _TECHMAP_CONSTVAL_CI_INIT_ = 0;
+module CARRY4_COUT(output [3:0] CO, O, output COUT, input CI, CYINIT, input [3:0] DI, S);
+  parameter _TECHMAP_CONSTMSK_CI_ = 1;
+  parameter _TECHMAP_CONSTVAL_CI_ = 1'b0;
+  parameter _TECHMAP_CONSTMSK_CYINIT_ = 1;
+  parameter _TECHMAP_CONSTVAL_CYINIT_ = 1'b0;
 
-  // Only connect CI_INIT for non-constant signals.
-  wire CI_INIT_INNER;
-  if(_TECHMAP_CONSTMSK_CI_INIT_ == 0 && CYINIT_FABRIC) begin
-    CARRY0_CONST #(
+  localparam [0:0] IS_CI_ZERO = (
+      _TECHMAP_CONSTMSK_CI_ == 1 && _TECHMAP_CONSTVAL_CI_ == 0 &&
+      _TECHMAP_CONSTMSK_CYINIT_ == 1 && _TECHMAP_CONSTVAL_CYINIT_ == 0);
+  localparam [0:0] IS_CI_ONE = (
+      _TECHMAP_CONSTMSK_CI_ == 1 && _TECHMAP_CONSTVAL_CI_ == 0 &&
+      _TECHMAP_CONSTMSK_CYINIT_ == 1 && _TECHMAP_CONSTVAL_CYINIT_ == 1);
+  localparam [0:0] IS_CYINIT_FABRIC = _TECHMAP_CONSTMSK_CYINIT_ == 0;
+  localparam [0:0] IS_CI_DISCONNECTED = _TECHMAP_CONSTMSK_CI_ == 1 &&
+    _TECHMAP_CONSTVAL_CI_ != 1;
+  localparam [0:0] IS_CYINIT_DISCONNECTED = _TECHMAP_CONSTMSK_CYINIT_ == 1 &&
+    _TECHMAP_CONSTVAL_CYINIT_ != 1;
+
+  wire [1023:0] _TECHMAP_DO_ = "proc; clean";
+
+  if(IS_CYINIT_FABRIC) begin
+    CARRY4_VPR #(
         .CYINIT_AX(1'b1),
         .CYINIT_C0(1'b0),
         .CYINIT_C1(1'b0)
     ) _TECHMAP_REPLACE_ (
-        .CO_CHAIN(CO_CHAIN),
-        .CO_FABRIC(CO_FABRIC),
-        .O(O),
-        .CI_INIT(CI_INIT),
-        .DI(DI),
-        .S(S)
+        .CO_CHAIN(COUT),
+        .CO_FABRIC0(CO[0]),
+        .CO_FABRIC1(CO[1]),
+        .CO_FABRIC2(CO[2]),
+        .CO_FABRIC3(CO[3]),
+        .O0(O[0]),
+        .O1(O[1]),
+        .O2(O[2]),
+        .O3(O[3]),
+        .CYINIT(CYINIT),
+        .DI0(DI[0]),
+        .DI1(DI[1]),
+        .DI2(DI[2]),
+        .DI3(DI[3]),
+        .S0(S[0]),
+        .S1(S[1]),
+        .S2(S[2]),
+        .S3(S[3])
     );
-  end else if(!CYINIT_FABRIC) begin
-    CARRY0_CONST #(
+  end else if(IS_CI_ZERO || IS_CI_ONE) begin
+    CARRY4_VPR #(
+        .CYINIT_AX(1'b0),
+        .CYINIT_C0(IS_CI_ZERO),
+        .CYINIT_C1(IS_CI_ONE)
+    ) _TECHMAP_REPLACE_ (
+        .CO_CHAIN(COUT),
+        .CO_FABRIC0(CO[0]),
+        .CO_FABRIC1(CO[1]),
+        .CO_FABRIC2(CO[2]),
+        .CO_FABRIC3(CO[3]),
+        .O0(O[0]),
+        .O1(O[1]),
+        .O2(O[2]),
+        .O3(O[3]),
+        .DI0(DI[0]),
+        .DI1(DI[1]),
+        .DI2(DI[2]),
+        .DI3(DI[3]),
+        .S0(S[0]),
+        .S1(S[1]),
+        .S2(S[2]),
+        .S3(S[3])
+    );
+  end else begin
+    CARRY4_VPR #(
         .CYINIT_AX(1'b0),
         .CYINIT_C0(1'b0),
         .CYINIT_C1(1'b0)
     ) _TECHMAP_REPLACE_ (
-        .CO_CHAIN(CO_CHAIN),
-        .CO_FABRIC(CO_FABRIC),
-        .O(O),
-        .CI(CI),
-        .DI(DI),
-        .S(S)
-    );
-  end else begin
-    CARRY0_CONST #(
-        .CYINIT_AX(1'b0),
-        .CYINIT_C0(_TECHMAP_CONSTVAL_CI_INIT_ == 0),
-        .CYINIT_C1(_TECHMAP_CONSTVAL_CI_INIT_ == 1)
-    ) _TECHMAP_REPLACE_ (
-        .CO_CHAIN(CO_CHAIN),
-        .CO_FABRIC(CO_FABRIC),
-        .O(O),
-        .DI(DI),
-        .S(S)
+        .CO_CHAIN(COUT),
+        .CO_FABRIC0(CO[0]),
+        .CO_FABRIC1(CO[1]),
+        .CO_FABRIC2(CO[2]),
+        .CO_FABRIC3(CO[3]),
+        .O0(O[0]),
+        .O1(O[1]),
+        .O2(O[2]),
+        .O3(O[3]),
+        .DI0(DI[0]),
+        .DI1(DI[1]),
+        .DI2(DI[2]),
+        .DI3(DI[3]),
+        .S0(S[0]),
+        .S1(S[1]),
+        .S2(S[2]),
+        .S3(S[3]),
+        .CIN(CI)
     );
   end
 endmodule

@@ -1,6 +1,6 @@
 `ifndef VPR_FF
 `define VPR_FF
-(* blackbox *) (* CLASS="flipflop" *)
+(* whitebox *) (* CLASS="flipflop" *)
 module VPR_FF (D, Q, clk);
 
 (* PORT_CLASS = "D" *)

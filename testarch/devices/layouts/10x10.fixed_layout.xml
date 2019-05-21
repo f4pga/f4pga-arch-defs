@@ -29,11 +29,15 @@
     <row priority="4" starty="1"  type="IBUF"  />
     <row priority="4" starty="14" type="OBUF"  />
 
+    <col priority="5" startx="0"  type="EMPTY" />
     <col priority="5" startx="2"  type="EMPTY" />
     <col priority="5" startx="13" type="EMPTY" />
+    <col priority="5" startx="15" type="EMPTY" />
 
+    <row priority="6" starty="0" type="EMPTY" />
     <row priority="6" starty="2"  type="EMPTY" />
     <row priority="6" starty="13" type="EMPTY" />
+    <row priority="6" starty="15" type="EMPTY" />
 
     <!-- Corners -->
     <single priority="7" x="1" y="1"   type="GND"   />

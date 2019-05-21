@@ -1,4 +1,4 @@
-(* blackbox *)
+(* whitebox *)
 module dff (d, clk, q);
 	input wire d;
 	input wire clk;
