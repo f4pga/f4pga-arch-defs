@@ -20,8 +20,6 @@ function(ADD_XC7_ARCH_DEFINE)
     CELLS_SIM ${YOSYS_DATADIR}/xilinx/cells_sim.v ${symbiflow-arch-defs_SOURCE_DIR}/xc7/techmap/cells_sim.v
     VPR_ARCH_ARGS
       --clock_modeling route
-      --place_algorithm bounding_box
-      --enable_timing_computations off
       --allow_unrelated_clustering on
       --clustering_pin_feasibility_filter off
       --disable_check_route on
