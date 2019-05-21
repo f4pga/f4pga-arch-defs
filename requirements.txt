@@ -4,3 +4,4 @@ lxml
 hdlparse
 progressbar2
 simplejson
+pyjson5
