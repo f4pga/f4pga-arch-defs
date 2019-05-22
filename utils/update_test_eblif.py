@@ -2,8 +2,10 @@
 
 import sys
 
+
 def remove_brackets(port):
     return (port.replace("[", "")).replace("]", "")
+
 
 def process_line(line, inputs, outputs):
 
@@ -20,6 +22,7 @@ def process_line(line, inputs, outputs):
         newline.append("=".join(port))
 
     return " ".join(newline)
+
 
 def main(argv):
 
@@ -58,14 +61,13 @@ def main(argv):
     for port in outputs:
         newoutputs.append(remove_brackets(port))
 
-
     with open(outfile, "w") as fp:
-       fp.write(".model {}\n".format(model))
-       fp.write(".inputs {}\n".format(" ".join(newinputs)))
-       fp.write(".outputs {}\n".format(" ".join(newoutputs)))
-       for line in body:
-           fp.write("{}\n".format(line))
+        fp.write(".model {}\n".format(model))
+        fp.write(".inputs {}\n".format(" ".join(newinputs)))
+        fp.write(".outputs {}\n".format(" ".join(newoutputs)))
+        for line in body:
+            fp.write("{}\n".format(line))
+
 
 if __name__ == "__main__":
     sys.exit(main(sys.argv))
-
