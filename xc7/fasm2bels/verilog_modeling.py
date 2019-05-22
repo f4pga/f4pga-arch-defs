@@ -388,8 +388,9 @@ class Bel(object):
         if len(eblif_cnames) > 0:
             # Always post-fix with the programatic name to allow for easier
             # cell lookup via something like "*{name}"
-            return escape_verilog_name('_'.join(eblif_cnames) +
-                    self._prefix_things(self.name))
+            return escape_verilog_name(
+                '_'.join(eblif_cnames) + self._prefix_things(self.name)
+            )
         else:
             return self._prefix_things(self.name)
 
@@ -543,7 +544,9 @@ class Bel(object):
         if parameters:
             yield ',\n'.join(parameters)
 
-        yield '{indent}) {name} ('.format(indent=indent, name=self.get_cell(top))
+        yield '{indent}) {name} ('.format(
+            indent=indent, name=self.get_cell(top)
+        )
 
         if connections:
             yield ',\n'.join(
@@ -1439,7 +1442,6 @@ set_property FIXED_ROUTE {fixed_route} $net
             Output from eblif.parse_blif
 
         """
-
         """ Example subckt from eblif.parse_blif:
 
         # > parse_eblif['subckt'][3]
@@ -1464,7 +1466,8 @@ set_property FIXED_ROUTE {fixed_route} $net
 
                 pin, index = pin_to_wire_and_idx(port)
 
-                self.cname_map[(pin, index, escape_verilog_name(net))] = subckt['cname'][0]
+                self.cname_map[(pin, index,
+                                escape_verilog_name(net))] = subckt['cname'][0]
 
     def lookup_cname(self, pin, idx, net):
         return self.cname_map.get((pin, idx, net))
