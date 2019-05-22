@@ -24,11 +24,11 @@
       <mux input="blocka.a blockb.b blockc[0].c blockc[1].c" name="outmux" output="blocko.i">
         <metadata>
           <meta name="fasm_mux">
-                blocka.a : a1
-                blockb.b : b1.l1
-                blockc[0].c : c0.l1
-                blockc[1].c : c1
-            </meta>
+blocka.a : a1
+blockb.b : b1.l1
+blockc[0].c : c0.l1
+blockc[1].c : c1
+</meta>
           <meta name="fasm_name">fasm_name</meta>
         </metadata>
       </mux>

@@ -75,15 +75,14 @@
       </xsl:attribute>
       <xsl:for-each select="@*"><xsl:copy /></xsl:for-each>
       <xsl:apply-templates/>
-      <xsl:if test="*/metadata">
+      <xsl:if test="metadata">
         <metadata>
           <!-- The fasm_mux metadata attribute needs special handling. -->
           <xsl:if test="*/metadata/meta[@name='fasm_mux']">
-            <meta name="fasm_mux">
-              <xsl:for-each select="port[@type='input']"><xsl:text>
-                </xsl:text><xsl:call-template name="from-pb_type"/>.<xsl:call-template name="port-value"/><xsl:text> : </xsl:text><xsl:value-of select="metadata/meta[@name='fasm_mux']" />
-              </xsl:for-each><xsl:text>
-            </xsl:text>
+            <meta name="fasm_mux"><xsl:text>&#xa;</xsl:text>
+              <xsl:for-each select="port[@type='input']">
+                <xsl:call-template name="from-pb_type"/>.<xsl:call-template name="port-value"/><xsl:text> : </xsl:text><xsl:value-of select="metadata/meta[@name='fasm_mux']" /><xsl:text>&#xa;</xsl:text>
+              </xsl:for-each>
             </meta>
           </xsl:if>
           <xsl:for-each select="metadata">
