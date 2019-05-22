@@ -1,0 +1,27 @@
+<models xmlns:xi="http://www.w3.org/2001/XInclude">
+  <model name="carry4_vpr">
+    <input_ports>
+      <port name="CIN"/>
+      <port name="CYINIT"/>
+      <port name="DI0"/>
+      <port name="DI1"/>
+      <port name="DI2"/>
+      <port name="DI3"/>
+      <port name="S0"/>
+      <port name="S1"/>
+      <port name="S2"/>
+      <port name="S3"/>
+    </input_ports>
+    <output_ports>
+      <port name="CO_CHAIN"/>
+      <port name="CO_FABRIC0"/>
+      <port name="CO_FABRIC1"/>
+      <port name="CO_FABRIC2"/>
+      <port name="CO_FABRIC3"/>
+      <port name="O0"/>
+      <port name="O1"/>
+      <port name="O2"/>
+      <port name="O3"/>
+    </output_ports>
+  </model>
+</models>

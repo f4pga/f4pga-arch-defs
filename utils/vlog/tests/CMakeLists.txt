@@ -19,3 +19,5 @@ add_subdirectory(dsp_combinational)
 #add_subdirectory(dsp_modes)
 add_subdirectory(simple_pll)
 add_subdirectory(multiple_instance)
+
+add_subdirectory(timing_logic)
