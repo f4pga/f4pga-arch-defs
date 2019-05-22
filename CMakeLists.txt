@@ -86,6 +86,11 @@ add_conda_pip(
   NO_EXE
 )
 
+add_conda_pip(
+  NAME pyjson5
+  NO_EXE
+)
+
 include(common/cmake/image_gen.cmake)
 include(common/cmake/gen.cmake)
 
