@@ -1,8 +1,7 @@
 <?xml version="1.0"?>
 <xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform" version="1.0">
 
-  <xsl:output method="xml" indent="yes"/>
-  <xsl:strip-space elements="*"/>
+  <xsl:include href="identity.xsl" />
 
   <!-- template-function: Allow from attribute which gives you a relative to a given pb_type -->
   <xsl:template name="from-pb_type">
@@ -14,9 +13,9 @@
   </xsl:template>
 
   <!-- template-function: Called to convert
-     * <port name=XXX> 				to XXX
-     * <port name=XXX bit=Y> 			to XXX[Y]
-     * <port name=XXX bit_msb=M bit_lsb=L>	to XXX[M:L]
+     * <port name=XXX>                      to XXX
+     * <port name=XXX bit=Y>                to XXX[Y]
+     * <port name=XXX bit_msb=M bit_lsb=L>  to XXX[M:L]
     -->
   <xsl:template name="port-value"><xsl:value-of select="@name"/><xsl:choose><xsl:when test="@bit">[<xsl:value-of select="@bit"/>]</xsl:when><xsl:when test="@bit-msb">[<xsl:value-of select="@bit-msb"/>:<xsl:value-of select="@bit-lsb"/>]</xsl:when><xsl:otherwise></xsl:otherwise></xsl:choose></xsl:template>
 
@@ -27,62 +26,17 @@
     </xsl:attribute>
   </xsl:template>
 
-  <!-- Root match -->
-  <xsl:template match="/">
-    <xsl:apply-templates/>
-  </xsl:template>
-
-  <!-- Normalize space around attributes on a tag -->
-  <xsl:template match="@*">
-    <xsl:copy>
-      <xsl:value-of select="normalize-space( . )" />
-    </xsl:copy>
-  </xsl:template>
-
-  <!-- Sort the attributes by name -->
-  <xsl:template match="*">
-    <xsl:copy>
-      <xsl:apply-templates select="@*" >
-	<xsl:sort select="name()"/>
-      </xsl:apply-templates>
-      <xsl:apply-templates/>
-    </xsl:copy>
-  </xsl:template>
-
-  <!-- Strip xml:base attribute -->
-  <xsl:template match="@xml:base"/>
-
-  <!--
-    Strip pack_pattern's from input/output tags on pb_types.
-    -->
-  <xsl:template match="pb_type/input/pack_pattern"/>
-  <xsl:template match="pb_type/output/pack_pattern"/>
-
   <!--
     Convert
-       <pack_pattern name="xxx" type="yyy
+      <interconnect><xxx><pack_pattern><port type='input' ...><port type='output' ...></pack_pattern></xxx><YYY../></interconnect>
     to
-       <pack_pattern name="yyy-xxx"
+      <interconnect><xxx><pack_pattern in_port="XXXX" out_port="XXXX" /></xxx></interconnect>
     -->
-  <xsl:template match="pack_pattern/@type"/>
-  <xsl:template match="pack_pattern[@type]/@name">
-    <xsl:attribute name="name">
-      <xsl:value-of select="../@type"/>-<xsl:value-of select="../@name"/>
-    </xsl:attribute>
+  <xsl:template match="pack_pattern/port[@type='input']">
+    <xsl:attribute name="in_port"><xsl:call-template name="from-pb_type"/>.<xsl:call-template name="port-value"/></xsl:attribute>
   </xsl:template>
-  <xsl:template match="pack_pattern[not(@type)]/@name">
-    <xsl:copy />
-  </xsl:template>
-  <xsl:template match="pack_pattern/*">
-    <xsl:copy />
-  </xsl:template>
-
-  <!-- Prefix in_port / out_port values with the parent name. -->
-  <xsl:template match="@out_port">
-    <xsl:attribute name="out_port"><xsl:call-template name="from-pb_type"/>.<xsl:value-of select="."/></xsl:attribute>
-  </xsl:template>
-  <xsl:template match="@in_port">
-    <xsl:attribute name="in_port"><xsl:call-template name="from-pb_type"/>.<xsl:value-of select="."/></xsl:attribute>
+  <xsl:template match="pack_pattern/port[@type='output']">
+    <xsl:attribute name="out_port"><xsl:call-template name="from-pb_type"/>.<xsl:call-template name="port-value"/></xsl:attribute>
   </xsl:template>
 
   <!--
@@ -97,28 +51,6 @@
   <xsl:template match="interconnect/direct/port[@type='output']">
     <xsl:attribute name="name"><xsl:call-template name="from-pb_type"/>-<xsl:call-template name="port-value"/></xsl:attribute>
     <xsl:attribute name="output"><xsl:call-template name="from-pb_type"/>.<xsl:call-template name="port-value"/></xsl:attribute>
-  </xsl:template>
-
-  <xsl:template match="direct/pack_pattern">
-    <xsl:copy>
-      <xsl:attribute name="in_port"><xsl:value-of select="../@input" /></xsl:attribute>
-      <xsl:attribute name="out_port"><xsl:value-of select="../@output" /></xsl:attribute>
-      <xsl:apply-templates select="@*"></xsl:apply-templates>
-    </xsl:copy>
-    <xsl:apply-templates/>
-  </xsl:template>
-
-  <!--
-    Convert
-      <interconnect><xxx><pack_pattern><port type='input' ...><port type='output' ...></pack_pattern></xxx><YYY../></interconnect>
-    to
-      <interconnect><xxx><pack_pattern in_port="XXXX" out_port="XXXX" /></xxx></interconnect>
-    -->
-  <xsl:template match="pack_pattern/port[@type='input']">
-    <xsl:attribute name="in_port"><xsl:call-template name="from-pb_type"/>.<xsl:call-template name="port-value"/></xsl:attribute>
-  </xsl:template>
-  <xsl:template match="pack_pattern/port[@type='output']">
-    <xsl:attribute name="out_port"><xsl:call-template name="from-pb_type"/>.<xsl:call-template name="port-value"/></xsl:attribute>
   </xsl:template>
 
   <!--
@@ -175,31 +107,6 @@
   <xsl:template match="pinlocations/loc/port[last()]"><xsl:text>
         </xsl:text><xsl:call-template name="from-pb_type"/>.<xsl:call-template name="port-value"/><xsl:text>
       </xsl:text>
-  </xsl:template>
-
-  <!-- Remove duplicate model nodes -->
-  <xsl:key name="model-by-name" match="model" use="@name" />
-  <xsl:template match="models">
-    <models>
-      <xsl:for-each select="model[count(. | key('model-by-name', @name)[1]) = 1]">
-        <xsl:copy>
-          <xsl:attribute name="name"><xsl:value-of select="@name"/></xsl:attribute>
-          <xsl:apply-templates/>
-        </xsl:copy>
-      </xsl:for-each>
-    </models>
-  </xsl:template>
-
-  <xsl:param name="strip_comments" select="''" />
-  <xsl:template match="comment()">
-    <xsl:choose>
-      <xsl:when test="$strip_comments"></xsl:when>
-	    <xsl:otherwise><xsl:copy /></xsl:otherwise>
-    </xsl:choose>
-  </xsl:template>
-
-  <xsl:template match="text()|processing-instruction()">
-    <xsl:copy/>
   </xsl:template>
 
 </xsl:stylesheet>

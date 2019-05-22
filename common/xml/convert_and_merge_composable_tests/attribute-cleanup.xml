@@ -5,9 +5,9 @@
    * Strip xml:base attribute
   -->
 <xml>
- <tag b="1"  c="123"  x="abc" />
- <tag c="1"  d="123"  x="abc" />
+ <tag b="1"  c="123"  x=' abc' />
+ <tag c="1"  d=" 123 "  x="abc" />
  <tag>
-  <innertag   a2="2"   b1="abc"    a1="2">Hello</innertag>
+  <innertag   a2=" 2 "   b1="abc   "    a1="2">Hello</innertag>
  </tag>
 </xml>
