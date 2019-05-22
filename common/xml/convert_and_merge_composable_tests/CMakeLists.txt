@@ -1,6 +1,7 @@
 include("xsl_tests.cmake")
 # Test individual parts of the transform
 xsl_golden_test(NAME "attribute-cleanup")
+xsl_golden_test(NAME "composable-interconnect-existing-fasm-mux")
 xsl_golden_test(NAME "composable-interconnect-fasm-mux")
 xsl_golden_test(NAME "composable-interconnect-fasm-mux-levels")
 xsl_golden_test(NAME "composable-interconnect-implicit-parent")
