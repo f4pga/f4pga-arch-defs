@@ -2,7 +2,6 @@
 <xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform" version="1.0">
 
   <xsl:include href="identity.xsl" />
-
   <!-- template-function: Allow from attribute which gives you a relative to a given pb_type -->
   <xsl:template name="from-pb_type">
     <xsl:choose>
@@ -74,9 +73,8 @@
         </xsl:for-each>
       </xsl:attribute>
       <xsl:for-each select="@*"><xsl:copy /></xsl:for-each>
-      <xsl:apply-templates/>
       <xsl:if test="metadata">
-        <metadata>
+        <metadata><xsl:text>&#xa;</xsl:text>
           <!-- The fasm_mux metadata attribute needs special handling. -->
           <xsl:if test="*/metadata/meta[@name='fasm_mux']">
             <meta name="fasm_mux"><xsl:text>&#xa;</xsl:text>
@@ -88,8 +86,9 @@
           <xsl:for-each select="metadata">
             <xsl:apply-templates/>
           </xsl:for-each>
-        </metadata>
+        </metadata><xsl:text>&#xa;</xsl:text>
       </xsl:if>
+      <xsl:apply-templates/>
     </xsl:copy>
   </xsl:template>
   <xsl:template match="interconnect/mux/metadata"></xsl:template>
@@ -100,12 +99,14 @@
     to
       <loc ...>BLOCK.PORT BLOCK.PORT</loc>
     -->
-  <xsl:template match="pinlocations/loc/port"><xsl:text>
-        </xsl:text><xsl:call-template name="from-pb_type"/>.<xsl:call-template name="port-value"/>
+  <xsl:template match="pinlocations/loc/port">
+    <xsl:text>&#xa;</xsl:text>
+    <xsl:call-template name="from-pb_type"/>.<xsl:call-template name="port-value"/>
   </xsl:template>
-  <xsl:template match="pinlocations/loc/port[last()]"><xsl:text>
-        </xsl:text><xsl:call-template name="from-pb_type"/>.<xsl:call-template name="port-value"/><xsl:text>
-      </xsl:text>
+  <xsl:template match="pinlocations/loc/port[last()]">
+    <xsl:text>&#xa;</xsl:text>
+    <xsl:call-template name="from-pb_type"/>.<xsl:call-template name="port-value"/>
+    <xsl:text>&#xa;</xsl:text>
   </xsl:template>
 
 </xsl:stylesheet>
