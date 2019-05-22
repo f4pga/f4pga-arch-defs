@@ -10,7 +10,7 @@ module multiple_instance (a, b, cin, cout, sum);
 
 	genvar i;
 	for(i=0; i<DATA_WIDTH; i=i+1) begin:gentest
-		adder comb (.a(a[i]), .b(b[i]), .cin(cin[i]), .cout(cout[i]), .sum(sum[i]));
+		ADDER comb (.a(a[i]), .b(b[i]), .cin(cin[i]), .cout(cout[i]), .sum(sum[i]));
 	end
 
 endmodule

@@ -1,5 +1,5 @@
 (* blackbox *)
-module adder (
+module ADDER (
 	a, b, cin,
 	sum, cout
 );
