@@ -91,8 +91,9 @@ WHERE
             site_pin_pkey = c.fetchone()[0]
 
             c.execute(
-                """SELECT pkey FROM wire_in_tile WHERE site_pin_pkey = ? AND tile_type_pkey = ?""",
+                """SELECT pkey FROM wire_in_tile WHERE site_pkey = ? AND site_pin_pkey = ? AND tile_type_pkey = ?""",
                 (
+                    site_pkey,
                     site_pin_pkey,
                     tile_type_pkey,
                 )
