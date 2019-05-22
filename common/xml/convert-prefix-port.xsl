@@ -16,13 +16,13 @@
   </xsl:template>
 
   <!-- Prefix in_port / out_port values with the parent name. -->
-  <xsl:template match="@out_port">
+  <xsl:template match="@out_port[not(contains(.,'.'))]">
     <xsl:attribute name="out_port"><xsl:call-template name="parent-pb_type"/>.<xsl:value-of select="."/></xsl:attribute>
   </xsl:template>
-  <xsl:template match="@in_port">
+  <xsl:template match="@in_port[not(contains(.,'.'))]">
     <xsl:attribute name="in_port"><xsl:call-template name="parent-pb_type"/>.<xsl:value-of select="."/></xsl:attribute>
   </xsl:template>
-  <xsl:template match="@port">
+  <xsl:template match="@port[not(contains(.,'.'))]">
     <xsl:attribute name="port"><xsl:call-template name="parent-pb_type"/>.<xsl:value-of select="."/></xsl:attribute>
   </xsl:template>
 

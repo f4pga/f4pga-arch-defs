@@ -4,10 +4,10 @@
     <input name="i" width="2"/>
     <pinlocations>
       <loc>
-        parent.o
-        parent.i[0]
-        parent.i[1]
-      </loc>
+parent.o
+parent.i[0]
+parent.i[1]
+</loc>
     </pinlocations>
     <random>
       <loc>

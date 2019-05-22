@@ -28,6 +28,15 @@
      </meta>
         </metadata>
       </mux>
+      <mux input="COMMON_SLICE.AO5 COMMON_SLICE.AX" name="CARRY_DI0" output="CARRY4_VPR.DI0">
+        <metadata>
+          <meta name="fasm_mux">
+      COMMON_SLICE.AO5 = CARRY4.ACY0
+      COMMON_SLICE.AX = NULL
+     </meta>
+        </metadata>
+        <delay_constant in_port="COMMON_SLICE.AX" max=".105e-9" out_port="CARRY4_VPR.DI0"/>
+      </mux>
     </interconnect>
   </pb_type>
 </xml>

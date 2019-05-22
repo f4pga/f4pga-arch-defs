@@ -11,6 +11,7 @@
     <xsl:copy>
       <xsl:value-of select="normalize-space( . )" />
     </xsl:copy>
+    <xsl:apply-templates/>
   </xsl:template>
 
   <!-- Sort the attributes by name -->
