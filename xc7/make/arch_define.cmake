@@ -69,6 +69,7 @@ function(ADD_XC7_ARCH_DEFINE)
         --bit_file \${OUT_BIN} \
         --fasm_file \${OUT_BIN}.fasm \
         --pcf \${INPUT_IO_FILE} \
+        --eblif \${OUT_EBLIF} \
         --top \${TOP} \
         \${OUT_BIT_VERILOG} \${OUT_BIT_VERILOG}.tcl"
     NO_BIT_TIME
