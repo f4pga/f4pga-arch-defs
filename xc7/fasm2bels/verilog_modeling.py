@@ -30,6 +30,7 @@ import functools
 from .make_routes import make_routes, ONE_NET, ZERO_NET, prune_antennas
 from .connection_db_utils import get_wire_pkey
 
+
 def pin_to_wire_and_idx(pin):
     """ Break pin name into wire name and vector index.
 
@@ -58,7 +59,7 @@ def pin_to_wire_and_idx(pin):
         return (pin, None)
     else:
         assert pin[-1] == ']'
-        return (pin[:idx], int(pin[idx+1:-1]))
+        return (pin[:idx], int(pin[idx + 1:-1]))
 
 
 def make_bus(wires):
@@ -182,6 +183,7 @@ class ConnectionModel(object):
 
 class Constant(ConnectionModel):
     """ Represents a boolean constant, e.g. 1'b0 or 1'b1. """
+
     def __init__(self, value):
         assert value in [0, 1]
         self.value = value
@@ -198,6 +200,7 @@ class Constant(ConnectionModel):
 
 class Wire(ConnectionModel):
     """ Represents a single wire connection. """
+
     def __init__(self, wire):
         self.wire = wire
 
@@ -225,11 +228,14 @@ class Bus(ConnectionModel):
     wires : list of Constant or Wire objects.
 
     """
+
     def __init__(self, wires):
         self.wires = wires
 
     def to_string(self, net_map=None):
-        return '{' + ', '.join(wire.to_string(net_map=net_map) for wire in self.wires[::-1]) + '}'
+        return '{' + ', '.join(
+            wire.to_string(net_map=net_map) for wire in self.wires[::-1]
+        ) + '}'
 
     def __repr__(self):
         return 'Bus({})'.format(repr(self.wires))
@@ -242,6 +248,7 @@ class Bus(ConnectionModel):
 
 class NoConnect(ConnectionModel):
     """ Represents an unconnected port. """
+
     def __init__(self):
         pass
 
@@ -293,6 +300,7 @@ def flatten_wires(wire, wire_assigns, wire_name_net_map):
             return "1'b{}".format(wire)
         else:
             return wire
+
 
 class Bel(object):
     """ Object to model a BEL. """
@@ -433,7 +441,7 @@ class Bel(object):
 
         for bus_name, bus in buses.items():
             prefix_bus_name = self._prefix_things(bus_name)
-            num_elements = max(bus.keys())+1
+            num_elements = max(bus.keys()) + 1
             bus_wires = [None for _ in range(num_elements)]
             for idx, wire in bus.items():
                 bus_wires[idx] = wire
@@ -487,7 +495,8 @@ class Bel(object):
                 if key in self.net_names:
                     if wire in net_map:
                         assert self.net_names[key] == net_map[wire], (
-                                key, self.net_names[key], net_map[wire])
+                            key, self.net_names[key], net_map[wire]
+                        )
                     else:
                         net_map[wire] = self.net_names[key]
 
@@ -530,7 +539,10 @@ class Bel(object):
         yield '{indent}) {name} ('.format(indent=indent, name=self.get_cell())
 
         if connections:
-            yield ',\n'.join('.{}({})'.format(port, connections[port].to_string(net_map)) for port in sorted(connections))
+            yield ',\n'.join(
+                '.{}({})'.format(port, connections[port].to_string(net_map))
+                for port in sorted(connections)
+            )
 
         yield '{indent});'.format(indent=indent)
 
@@ -1272,12 +1284,15 @@ class Module(object):
                 bel.make_net_map(top=self, net_map=self.wire_name_net_map)
 
         for lhs, rhs in self.wire_assigns.items():
-            self.wire_name_net_map[lhs] = flatten_wires(rhs, self.wire_assigns, self.wire_name_net_map)
+            self.wire_name_net_map[lhs] = flatten_wires(
+                rhs, self.wire_assigns, self.wire_name_net_map
+            )
 
         for site in self.sites:
             for bel in sorted(site.bels, key=lambda bel: bel.priority):
                 yield ''
-                for l in bel.output_verilog(top=self, net_map=self.wire_name_net_map, indent='  '):
+                for l in bel.output_verilog(
+                        top=self, net_map=self.wire_name_net_map, indent='  '):
                     yield l
 
         for lhs, rhs in self.wire_name_net_map.items():
