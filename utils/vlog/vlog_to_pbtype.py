@@ -54,68 +54,182 @@ from yosys.json import YosysJSON
 
 sys.path.insert(0, "..")
 from lib import xmlinc
+from sdf_timing import sdfparse
 
-parser = argparse.ArgumentParser(
-    description=__doc__.strip(), formatter_class=argparse.RawTextHelpFormatter
-)
-parser.add_argument(
-    'infiles',
-    metavar='input.v',
-    type=str,
-    nargs='+',
-    help="""\
-One or more Verilog input files, that will be passed to Yosys internally.
-They should be enough to generate a flattened representation of the model,
-so that paths through the model can be determined.
-"""
-)
-parser.add_argument(
-    '--top',
-    help="""\
-Top level module, will usually be automatically determined from the file name
-%.sim.v
-"""
-)
-parser.add_argument(
-    '--includes',
-    help="""\
-Command seperate list of include directories.
-""",
-    default=""
-)
-parser.add_argument('-o', help="""\
-Output filename, default 'model.xml'
-""")
 
-args = parser.parse_args()
-iname = os.path.basename(args.infiles[0])
+def make_timings(pb_type_xml, sdf_file_name, sdf_cell_name=None, sdf_inst_name=None, sdf_variant="slow"):
+    """
+    Loads timings from a given SDF file and converts them to appropriate
+    statements within pb_type XML.
 
-outfile = "pb_type.xml"
-if "o" in args and args.o is not None:
-    outfile = args.o
+    If sdf_cell_name is None then the function tries to find in SDF cell with
+    name equal to the pb_type name.
 
-yosys.run.add_define("PB_TYPE")
-if args.includes:
-    for include in args.includes.split(','):
-        yosys.run.add_include(include)
+    If sdf_inst_name is None and there is only one instance of that cell in SDF
+    then that one is taken.
+    """
 
-vjson = yosys.run.vlog_to_json(args.infiles, flatten=False, aig=False)
-yj = YosysJSON(vjson)
+    def parse_timescale(timescale_str):
+        """
+        Parses a timescale expression and returns its numerical value
+        """
+        match = re.match("([0-9]+)(fs|ps|ns|us|ms|s?)$", timescale_str)
 
-if args.top is not None:
-    top = args.top
-else:
-    wm = re.match(r"([A-Za-z0-9_]+)\.sim\.v", iname)
-    if wm:
-        top = wm.group(1).upper()
-    else:
-        print(
-            "ERROR file name not of format %.sim.v ({}), cannot detect top level. Manually specify the top level module using --top"
-            .format(iname)
-        )
-        sys.exit(1)
+        base = float(match.group(1))
+        suffix = match.group(2)
 
-tmod = yj.module(top)
+        if suffix == "fs":
+            base *= 1e-15
+        elif suffix == "ps":
+            base *= 1e-12
+        elif suffix == "ns":
+            base *= 1e-9
+        elif suffix == "us":
+            base *= 1e-6
+        elif suffix == "ms":
+            base *= 1e-3
+
+        return base
+
+    def pin_list(xml_tag):
+        """
+        Returns a pin list generated from <pb_type> port definition. When the
+        num_pb > 1 ports are named as nameX where X is the pin index.
+        """
+        name = xml_tag.get("name")
+        numb = int(xml_tag.get("num_pins"))
+        if numb == 1:
+            return [name]
+        else:
+            return ["{}{}".format(name, i) for i in range(numb)]
+
+    # Load the SDF
+    with open(sdf_file_name, "r") as fp:
+        sdf = sdfparse.parse(fp.read())
+
+    # Get timescale
+    scale = parse_timescale(sdf["header"]["timescale"])
+
+    # Get pb name
+    pb_name = pb_type_xml.get("name")
+
+    # Get pb ports (inputs, clocks, outputs)
+    pb_inputs = []
+    for xml_tag in pb_type_xml.findall("input"):
+        pb_inputs.extend(pin_list(xml_tag))
+    pb_clocks = []
+    for xml_tag in pb_type_xml.findall("clock"):
+        pb_clocks.extend(pin_list(xml_tag))
+    pb_outputs = []
+    for xml_tag in pb_type_xml.findall("output"):
+        pb_outputs.extend(pin_list(xml_tag))
+
+    # Try automatically matching the pb_name to SDF cell name
+    if sdf_cell_name is None:
+        sdf_cell_name = pb_name.upper()
+
+    if sdf_cell_name not in sdf["cells"].keys():
+        print("ERROR, cell name '{}' not found in the SDF file!".format(sdf_cell_name))
+        return pb_type_xml
+
+    # Get the SDF timing info for a particular CELL/INSTANCE
+    try:
+        sdf_cell = sdf["cells"][sdf_cell_name]
+    except KeyError:
+        print("ERROR, the SDF file does not contain data for cell '{}'".format(sdf_cell_name))
+        exit(-1)
+
+    # If the instance is not specified and there is only one in the SDF than
+    # take this one
+    if sdf_inst_name is None:
+
+        if len(sdf_cell.keys()) > 1:
+            print("ERROR, multiple instances for cell '{}' and instance not given".format(sdf_cell_name))
+            exit(-1)
+
+        sdf_inst_name = next(iter(sdf_cell.keys()), None)
+
+    try:
+        sdf_timing = sdf_cell[sdf_inst_name]
+    except KeyError:
+        print("ERROR, the SDF file does not contain data for cell instance '{}'".format(sdf_inst_name))
+        exit(-1)
+
+    # Process SDF timing entires
+    for key, sdf_timing in sdf_timing.items():
+
+        sdf_inp = sdf_timing["from_pin"]
+        sdf_out = sdf_timing["to_pin"]
+
+        assert sdf_timing["is_incremental"] == False
+        assert sdf_timing["is_cond"] == False
+
+        # IOPATH delay
+        if sdf_timing["type"] == "iopath":
+
+            assert sdf_timing["is_absolute"] == True
+
+            # Find pins
+            pb_inp = sdf_inp if sdf_inp in pb_inputs else None
+            pb_clk = sdf_inp if sdf_inp in pb_clocks else None
+            pb_out = sdf_out if sdf_out in pb_outputs else None
+
+            # Cannot match SDF to <pb_type>
+            if (pb_inp is None and pb_clk is None) or pb_out is None:
+                print("Cannot match pins ({} -> {}) for SDF timing entry:".format(sdf_inp, sdf_out))
+                print(" ", sdf_timing)
+                continue
+
+            # "delay_constant"
+            if pb_clk is None:
+                xml_tag = ET.SubElement(pb_type_xml, "delay_constant")
+                xml_tag.set("in_port",  "{}.{}".format(pb_name, pb_inp))
+                xml_tag.set("out_port", "{}.{}".format(pb_name, pb_out))
+                for var in ("min", "max"):
+                    xml_tag.set(var, "{:.3e}".format(sdf_timing["delay_paths"][sdf_variant][var] * scale))
+
+            # "T_clock_to_Q"
+            else:
+                xml_tag = ET.SubElement(pb_type_xml, "T_clock_to_Q")
+                xml_tag.set("clock",  "{}.{}".format(pb_name, pb_clk))
+                xml_tag.set("port", "{}.{}".format(pb_name, pb_out))
+                for var in ("min", "max"):
+                    xml_tag.set(var, "{:.3e}".format(sdf_timing["delay_paths"][sdf_variant][var] * scale))
+
+        # SETUP / HOLD delay
+        elif sdf_timing["type"] in ("setup", "hold"):
+
+            assert sdf_timing["is_absolute"] == False
+
+            # Find pins
+            pb_inp = sdf_out if sdf_out in pb_inputs else None
+            pb_clk = sdf_inp if sdf_inp in pb_clocks else None
+
+            # Cannot match SDF to <pb_type>
+            if pb_inp is None or pb_clk is None:
+                print("Cannot match pins ({}, {}) for SDF timing entry:".format(sdf_inp, sdf_out))
+                print(" ", sdf_timing)
+                continue
+
+            xml_tag = ET.SubElement(pb_type_xml, "T_{}".format(sdf_timing["type"]))
+            xml_tag.set("clock", "{}.{}".format(pb_name, pb_clk))
+            xml_tag.set("port", "{}.{}".format(pb_name, pb_inp))
+
+            # The VPR supports only one value so the "max" is chosen
+            xml_tag.set("value", "{:.3e}".format(sdf_timing["delay_paths"]["nominal"]["max"] * scale))
+
+        # RECOVERY / REMOVAL delay
+        elif sdf_timing["type"] in ("recovery", "removal"):
+            # Not supported in VPR so ignored
+            pass
+
+        # Something else
+        else:
+            print("ERROR, unsupported timing type '{}'".format(sdf_timing["type"]))
+            print(" ", sdf_timing)
+
+    return pb_type_xml
+
 
 INVALID_INSTANCE = -1
 
@@ -530,8 +644,37 @@ Output filename, default 'model.xml'
 """
 )
 
+parser.add_argument(
+    '--includes',
+    help="""\
+Command seperate list of include directories.
+""",
+    default=""
+)
+
+parser.add_argument(
+    '--sdf',
+    type=str,
+    default=None,
+    help="""SDF file name for timing import"""
+)
+
+parser.add_argument(
+    '--sdf-cell',
+    type=str,
+    default=None,
+    help="""SDF cell type to import timing from. If not given then inferred automatically"""
+)
+
+parser.add_argument(
+    '--sdf-instance',
+    type=str,
+    default=None,
+    help="""SDF cell instance to import timing from. If not given then inferred automatically"""
+)
 
 def main(args):
+
     iname = os.path.basename(args.infiles[0])
 
     yosys.run.add_define("PB_TYPE")
@@ -554,6 +697,10 @@ def main(args):
     tmod = yj.module(top)
 
     pb_type_xml = make_pb_type(yj, tmod)
+
+    # Inject timings
+    if args.sdf is not None:
+        pb_type_xml = make_timings(pb_type_xml, args.sdf, args.sdf_cell, args.sdf_instance)
 
     args.outfile.write(
         ET.tostring(
