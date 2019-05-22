@@ -10,4 +10,6 @@
   <delay_constant max="300e-12" in_port="a" out_port="sum"/>
   <delay_constant max="300e-12" in_port="b" out_port="sum"/>
   <delay_constant max="300e-12" in_port="cin" out_port="sum"/>
+  <T_setup clock="clk" port="a" value="10e-12"/>
+  <T_clock_to_Q clock="clk" max="10e-12" port="cout"/>
 </pb_type>

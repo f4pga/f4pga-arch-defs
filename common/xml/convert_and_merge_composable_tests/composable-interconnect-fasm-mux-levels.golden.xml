@@ -21,7 +21,7 @@
       <output name="o"/>
     </pb_type>
     <interconnect>
-      <mux input="blocka.a blockb.b blockc[0].c blockc[1].c" output="blocko.i" name="outmux">
+      <mux input="blocka.a blockb.b blockc[0].c blockc[1].c" name="outmux" output="blocko.i">
         <metadata>
           <meta name="fasm_mux">
                 blocka.a : a1

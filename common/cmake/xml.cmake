@@ -39,6 +39,25 @@ function(XML_LINT)
 
 endfunction(XML_LINT)
 
+set(XML_CANONICALIZE_MERGE_SH
+  common/xml/convert_and_merge_composable_fpga_architecture.sh
+  )
+set(XML_CANONICALIZE_MERGE_FILES
+  ${XML_CANONICALIZE_MERGE_SH}
+  common/xml/identity.xsl
+  common/xml/convert-port-tag.xsl
+  common/xml/convert-prefix-port.xsl
+  common/xml/pack-patterns.xsl
+  common/xml/remove-duplicate-models.xsl
+  common/xml/attribute-fixes.xsl
+  )
+
+set(XML_CANONICALIZE_DEPS "")
+foreach(SRC ${XML_CANONICALIZE_MERGE_FILES})
+  add_file_target(FILE ${SRC})
+  append_file_dependency(XML_CANONICALIZE_DEPS ${SRC})
+endforeach()
+
 function(XML_CANONICALIZE_MERGE)
   # ~~~
   # XML_CANONICALIZE_MERGE(
@@ -67,34 +86,22 @@ function(XML_CANONICALIZE_MERGE)
     ${ARGN}
     )
 
-  set(XML_CANONICALIZE_MERGE_XSL ${symbiflow-arch-defs_SOURCE_DIR}/common/xml/convert_and_merge_composable_fpga_architecture.xsl)
-
-  get_file_location(XML_CANONICALIZE_MERGE_INPUT_LOCATION ${XML_CANONICALIZE_MERGE_FILE})
-
-  get_file_target(XML_CANONICALIZE_MERGE_INPUT_TARGET ${XML_CANONICALIZE_MERGE_FILE})
-  set(DEPS "")
-  append_file_dependency(DEPS ${XML_CANONICALIZE_MERGE_FILE})
-
   get_target_property_required(XSLTPROC env XSLTPROC)
   get_target_property(XSLTPROC_TARGET env XSLTPROC_TARGET)
+
+  set(DEPS "")
+  append_file_dependency(DEPS ${XML_CANONICALIZE_MERGE_FILE})
 
   add_custom_command(
     OUTPUT ${XML_CANONICALIZE_MERGE_OUTPUT}
     DEPENDS
-      ${XML_CANONICALIZE_MERGE_XSL}
-      ${XML_CANONICALIZE_MERGE_INPUT_LOCATION}
-      ${XML_CANONICALIZE_MERGE_INPUT_TARGET}
-      ${DEPS}
+      ${XML_CANONICALIZE_DEPS} ${DEPS}
       ${XSLTPROC} ${XSLTPROC_TARGET}
     COMMAND
-      ${XSLTPROC}
-      --nomkdir
-      --nonet
-      --xinclude
-      ${XML_CANONICALIZE_MERGE_EXTRA_ARGUMENTS}
-      --output ${CMAKE_CURRENT_BINARY_DIR}/${XML_CANONICALIZE_MERGE_OUTPUT}
-      ${XML_CANONICALIZE_MERGE_XSL}
-      ${XML_CANONICALIZE_MERGE_INPUT_LOCATION}
+      ${CMAKE_COMMAND} -E env XSLTPROC="${XSLTPROC}" XSLTPROC_PARAMS="${XML_CANONICALIZE_MERGE_EXTRA_ARGUMENTS}"
+      ${symbiflow-arch-defs_SOURCE_DIR}/${XML_CANONICALIZE_MERGE_SH}
+      ${XML_CANONICALIZE_MERGE_FILE}
+      > ${CMAKE_CURRENT_BINARY_DIR}/${XML_CANONICALIZE_MERGE_OUTPUT}
   )
   add_file_target(FILE ${XML_CANONICALIZE_MERGE_OUTPUT} GENERATED)
   add_custom_target(
