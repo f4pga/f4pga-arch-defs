@@ -557,7 +557,10 @@ FROM
             "R": "551",
             "Cin": ".77e-15",
             "Cout": "4e-15",
-            "Tdel": "6.8e-12",
+            # TODO: This value should be the "typical" pip switch delay from
+            # This value is the dominate term in the inter-cluster delay
+            # estimate.
+            "Tdel": "0.178e-9",
             "mux_trans_size": "2.630740",
             "buf_size": "27.645901"
         }
