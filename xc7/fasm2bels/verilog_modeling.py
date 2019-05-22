@@ -30,6 +30,36 @@ import functools
 from .make_routes import make_routes, ONE_NET, ZERO_NET, prune_antennas
 from .connection_db_utils import get_wire_pkey
 
+def pin_to_wire_and_idx(pin):
+    """ Break pin name into wire name and vector index.
+
+    Arguments
+    ---------
+    pin : str
+        Pin name, with optional vector index.
+
+    Returns
+    -------
+    wire : str
+        Wire name
+    idx : int
+        Vector index
+
+    >>> pin_to_wire_and_idx('A')
+    ('A', None)
+    >>> pin_to_wire_and_idx('A[0]')
+    ('A', 0)
+    >>> pin_to_wire_and_idx('A[1]')
+    ('A', 1)
+
+    """
+    idx = pin.find('[')
+    if idx == -1:
+        return (pin, None)
+    else:
+        assert pin[-1] == ']'
+        return (pin[:idx], int(pin[idx+1:-1]))
+
 
 def make_bus(wires):
     """ Combine bus wires into a consecutive bus.
@@ -114,9 +144,158 @@ def escape_verilog_name(name):
     return '\\' + name[:idx] + ' ' + name[idx:]
 
 
-class Bel(object):
-    """ Object to model a BEL.
+class ConnectionModel(object):
+    """ Constant, Wire, Bus and NoConnect objects represent a small interface
+    for Verilog module instance connection descriptions.
     """
+
+    def to_string(self, net_map=None):
+        """ Returns the string representing this models connection in verilog.
+
+        Arguments
+        ---------
+        net_map : map of str to str
+            Optional wire renaming map.  If present, leaf wires should be
+            renamed through the map.
+
+        Returns
+        -------
+        str representing valid Verilog to model the connect by this object.
+
+        """
+        pass
+
+    def iter_wires(self):
+        """ Iterates over wires present on this object.
+
+        Yields
+        ------
+        Vector index : int
+            Is None for scalar connections, otherwise an integer that
+            represents the index into the vector.
+        Connection : str
+            Verilog representing this connection.
+
+        """
+        pass
+
+
+class Constant(ConnectionModel):
+    """ Represents a boolean constant, e.g. 1'b0 or 1'b1. """
+    def __init__(self, value):
+        assert value in [0, 1]
+        self.value = value
+
+    def to_string(self, net_map=None):
+        return "1'b{}".format(self.value)
+
+    def __repr__(self):
+        return 'Constant({})'.format(self.value)
+
+    def iter_wires(self):
+        return iter([])
+
+
+class Wire(ConnectionModel):
+    """ Represents a single wire connection. """
+    def __init__(self, wire):
+        self.wire = wire
+
+    def to_string(self, net_map=None):
+        if net_map is None:
+            return self.wire
+        else:
+            if self.wire in net_map:
+                return net_map[self.wire]
+            else:
+                return self.wire
+
+    def __repr__(self):
+        return 'Wire({})'.format(repr(self.wire))
+
+    def iter_wires(self):
+        yield (None, self.wire)
+
+
+class Bus(ConnectionModel):
+    """ Represents a vector wire connection.
+
+    Arguments
+    ---------
+    wires : list of Constant or Wire objects.
+
+    """
+    def __init__(self, wires):
+        self.wires = wires
+
+    def to_string(self, net_map=None):
+        return '{' + ', '.join(wire.to_string(net_map=net_map) for wire in self.wires[::-1]) + '}'
+
+    def __repr__(self):
+        return 'Bus({})'.format(repr(self.wires))
+
+    def iter_wires(self):
+        for idx, wire in enumerate(self.wires):
+            for _, real_wire in wire.iter_wires():
+                yield (idx, real_wire)
+
+
+class NoConnect(ConnectionModel):
+    """ Represents an unconnected port. """
+    def __init__(self):
+        pass
+
+    def to_string(self, net_map=None):
+        return ''
+
+    def __repr__(self):
+        return 'NoConnect()'
+
+    def iter_wires(self):
+        return iter([])
+
+
+def flatten_wires(wire, wire_assigns, wire_name_net_map):
+    """ Given a wire, return the source net name (or constant string).
+
+    Arguments
+    ---------
+    wire : str
+        Wire to translate to source
+    wire_assigns : dict of str to str
+        Map of wires to their parents.  Equivilant to assign statements in
+        verilog.  Example:
+
+        assign A = B;
+
+        would be represented as:
+
+        {
+            'A': 'B'
+        }
+    wire_name_net_map : dict of str to str
+        Some wires have net names that originate from the post-synth eblif.
+        This maps programatic net names (e.g. CLBLL_L_X12Y110_SLICE_X16Y110_BO5)
+        to these post-synth eblif names.
+
+    """
+
+    while True:
+        if wire not in wire_assigns:
+            break
+
+        wire = wire_assigns[wire]
+
+    if wire in wire_name_net_map:
+        return wire_name_net_map[wire]
+    else:
+        if wire in [0, 1]:
+            return "1'b{}".format(wire)
+        else:
+            return wire
+
+class Bel(object):
+    """ Object to model a BEL. """
 
     def __init__(self, module, name=None, keep=True, priority=0):
         """ Construct Bel object.
@@ -199,20 +378,29 @@ class Bel(object):
         else:
             return self._prefix_things(self.name)
 
-    def output_verilog(self, top, indent='  '):
-        """ Output the Verilog to represent this BEL. """
+    def create_connections(self, top):
+        """ Create connection model for this BEL.
+
+        Returns
+        -------
+        dead_wires : list of str
+            List of wires that represents unconnected input or output wires
+            in vectors on this BEL.
+        connections : map of str to ConnectionModel
+
+        """
         connections = {}
         buses = {}
         bus_is_output = {}
 
         for wire, connection in self.connections.items():
             if top.is_top_level(connection):
-                connection_wire = connection
+                connection_wire = Wire(connection)
             elif connection in [0, 1]:
-                connection_wire = connection
+                connection_wire = Constant(connection)
             else:
                 if connection is not None:
-                    connection_wire = self._prefix_things(connection)
+                    connection_wire = Wire(self._prefix_things(connection))
                 else:
                     connection_wire = None
 
@@ -232,56 +420,83 @@ class Bel(object):
                         wire_is_output,
                     )
 
-                buses[bus_name][int(address[:-1])] = connection_wire
+                if connection_wire is not None:
+                    buses[bus_name][int(address[:-1])] = connection_wire
+                else:
+                    buses[bus_name][int(address[:-1])] = None
             else:
-                connections[wire
-                            ] = '{indent}{indent}.{wire}({connection})'.format(
-                                indent=indent,
-                                wire=wire,
-                                connection=connection_wire
-                            )
+                if connection_wire is None:
+                    connection_wire = NoConnect()
+                connections[wire] = connection_wire
 
-        yield ''
+        dead_wires = []
 
         for bus_name, bus in buses.items():
-            bus_wire = self._prefix_things(bus_name)
-            connections[bus_name
-                        ] = '{indent}{indent}.{bus_name}({bus_wire})'.format(
-                            indent=indent,
-                            bus_name=bus_name,
-                            bus_wire=bus_wire,
-                        )
-
-            yield '{indent}wire [{width_n1}:0] {bus_wire};'.format(
-                indent=indent,
-                bus_wire=bus_wire,
-                width_n1=max(bus.keys()),
-            )
-
+            prefix_bus_name = self._prefix_things(bus_name)
+            num_elements = max(bus.keys())+1
+            bus_wires = [None for _ in range(num_elements)]
             for idx, wire in bus.items():
-                if wire is None:
-                    continue
+                bus_wires[idx] = wire
 
-                if bus_is_output[bus_name]:
-                    yield '{indent}assign {wire} = {bus_wire}[{idx}];'.format(
-                        indent=indent,
-                        bus_wire=bus_wire,
-                        idx=idx,
-                        wire=wire,
-                    )
-                else:
-                    yield '{indent}assign {bus_wire}[{idx}] = {wire};'.format(
-                        indent=indent,
-                        bus_wire=bus_wire,
-                        idx=idx,
-                        wire=wire,
-                    )
+            for idx, wire in enumerate(bus_wires):
+                if wire is None:
+                    dead_wire = '_{}_{}_'.format(prefix_bus_name, idx)
+                    dead_wires.append(dead_wire)
+                    bus_wires[idx] = Wire(dead_wire)
+
+            connections[bus_name] = Bus(bus_wires)
 
         for unused_connection in self.unused_connections:
-            connections[unused_connection
-                        ] = '{indent}{indent}.{connection}()'.format(
-                            indent=indent, connection=unused_connection
-                        )
+            connections[unused_connection] = NoConnect()
+
+        return dead_wires, connections
+
+    def make_net_map(self, top, net_map):
+        """ Create a mapping of programatic net names to VPR net names.
+
+        By default nets are named:
+
+        {tile}_{site}_{pin}{pin idx}
+
+        For example:
+
+        CLBLL_L_X12Y110_SLICE_X16Y110_BO5
+
+        This scheme unambiguously names a connection in the design.  Initially
+        all nets and BELs are defined using this scheme to provide a simple
+        unambiguous way to refer to wires in the design.
+
+        However the parent design maybe have assigned wires net names from the,
+        e.g. "\$auto$alumacc.cc:474:replace_alu$1273.CO_CHAIN [1]". This
+        function builds the association between these two schemes using the
+        pin to net mapping created via Bel.add_net_name. Bel.add_net_name is
+        called during site integration to associate Bel pins with net names
+        via the wire primary key table in the connection database.
+
+        During verilog output, the net map can be used to translate the
+        programatic names back to the net names from the eblif used during
+        place and route.
+
+        """
+        _, connections = self.create_connections(top)
+
+        for pin, connection in connections.items():
+            for idx, wire in connection.iter_wires():
+                key = (pin, idx)
+
+                if key in self.net_names:
+                    if wire in net_map:
+                        assert self.net_names[key] == net_map[wire], (
+                                key, self.net_names[key], net_map[wire])
+                    else:
+                        net_map[wire] = self.net_names[key]
+
+    def output_verilog(self, top, net_map, indent='  '):
+        """ Output the Verilog to represent this BEL. """
+        dead_wires, connections = self.create_connections(top)
+
+        for dead_wire in dead_wires:
+            yield '{indent}wire {wire};'.format(indent=indent, wire=dead_wire)
 
         yield ''
 
@@ -315,16 +530,15 @@ class Bel(object):
         yield '{indent}) {name} ('.format(indent=indent, name=self.get_cell())
 
         if connections:
-            yield ',\n'.join(connections[port] for port in sorted(connections))
+            yield ',\n'.join('.{}({})'.format(port, connections[port].to_string(net_map)) for port in sorted(connections))
 
         yield '{indent});'.format(indent=indent)
 
     def add_net_name(self, pin, net_name):
-        """ Add name of net attached to this pin.
-
-        """
+        """ Add name of net attached to this pin ."""
         assert pin not in self.net_names
-        self.net_names[pin] = net_name
+        key = pin_to_wire_and_idx(pin)
+        self.net_names[key] = net_name
 
 
 class Site(object):
@@ -555,6 +769,7 @@ class Site(object):
         wire_pkey_to_wire = {}
         source_bels = {}
         wire_assigns = {}
+        net_map = {}
 
         for wire in self.internal_sources:
             prefix_wire = prefix + '_' + wire
@@ -582,7 +797,7 @@ class Site(object):
             net_name = module.check_for_net_name(wire_pkey)
             if net_name:
                 wires.add(net_name)
-                wire_assigns[net_name] = prefix_wire
+                net_map[prefix_wire] = net_name
 
             wire_pkey_to_wire[wire_pkey] = prefix_wire
             self.site_wire_to_wire_pkey[wire] = wire_pkey
@@ -632,6 +847,7 @@ class Site(object):
             source_bels=source_bels,
             wire_assigns=wire_assigns,
             shorted_nets=shorted_nets,
+            net_map=net_map,
         )
 
     def check_site(self):
@@ -840,7 +1056,8 @@ class Module(object):
         self.top_level_signal_nets = set()
 
         # Optional map of wire_pkey for site pin sources to net name.
-        self.net_map = {}
+        self.wire_pkey_net_map = {}
+        self.wire_name_net_map = {}
 
     def set_iostandard(self, iostandards):
         """ Set the IOSTANDARD for the design.
@@ -863,12 +1080,12 @@ class Module(object):
         self.iostandard = possible_iostandards.pop()
 
     def set_net_map(self, net_map):
-        self.net_map = net_map
+        self.wire_pkey_net_map = net_map
 
     def check_for_net_name(self, wire_pkey):
-        if wire_pkey in self.net_map:
+        if wire_pkey in self.wire_pkey_net_map:
             # Top-level port names supress net names.
-            name = self.net_map[wire_pkey]
+            name = self.wire_pkey_net_map[wire_pkey]
             if name in self.top_level_signal_nets:
                 return None
 
@@ -972,6 +1189,9 @@ class Module(object):
         merge_exclusive_dicts(
             self.shorted_nets, integrated_site['shorted_nets']
         )
+        merge_exclusive_dicts(
+            self.wire_name_net_map, integrated_site['net_map']
+        )
 
         self.sites.append(site)
 
@@ -1048,12 +1268,19 @@ class Module(object):
                 yield '  wire [{}:0] {};'.format(width, wire)
 
         for site in self.sites:
-            for bel in sorted(site.bels, key=lambda bel: bel.priority):
-                yield ''
-                for l in bel.output_verilog(self, indent='  '):
-                    yield l
+            for bel in site.bels:
+                bel.make_net_map(top=self, net_map=self.wire_name_net_map)
 
         for lhs, rhs in self.wire_assigns.items():
+            self.wire_name_net_map[lhs] = flatten_wires(rhs, self.wire_assigns, self.wire_name_net_map)
+
+        for site in self.sites:
+            for bel in sorted(site.bels, key=lambda bel: bel.priority):
+                yield ''
+                for l in bel.output_verilog(top=self, net_map=self.wire_name_net_map, indent='  '):
+                    yield l
+
+        for lhs, rhs in self.wire_name_net_map.items():
             yield '  assign {} = {};'.format(lhs, rhs)
 
         yield 'endmodule'
