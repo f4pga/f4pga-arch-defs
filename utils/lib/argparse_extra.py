@@ -109,4 +109,6 @@ class ActionStoreBool(argparse.Action):
 
 if __name__ == "__main__":
     import doctest
-    doctest.testmod()
+    failure_count, test_count = doctest.testmod()
+    assert test_count > 0
+    assert failure_count == 0, "Doctests failed!"
