@@ -57,7 +57,9 @@ from lib import xmlinc
 from sdf_timing import sdfparse
 
 
-def make_timings(pb_type_xml, sdf_file_name, sdf_cell_paths=None, sdf_variant="slow"):
+def make_timings(
+        pb_type_xml, sdf_file_name, sdf_cell_paths=None, sdf_variant="slow"
+):
     """
     Loads timings from a given SDF file and converts them to appropriate
     statements within pb_type XML.
@@ -108,13 +110,18 @@ def make_timings(pb_type_xml, sdf_file_name, sdf_cell_paths=None, sdf_variant="s
                 sdf_inst_name = None
             # Both cell name and instance path given
             else:
-                sdf_inst_name, sdf_cell_name = sdf_cell_path.rsplit("/", maxsplit=1)
+                sdf_inst_name, sdf_cell_name = sdf_cell_path.rsplit(
+                    "/", maxsplit=1
+                )
 
             # Get the SDF timing info for a particular CELL/INSTANCE
             try:
                 sdf_cell = sdf["cells"][sdf_cell_name]
             except KeyError:
-                print("ERROR, the SDF file does not contain data for cell '{}'".format(sdf_cell_path))
+                print(
+                    "ERROR, the SDF file does not contain data for cell '{}'".
+                    format(sdf_cell_path)
+                )
                 continue
 
             # Collect
@@ -185,25 +192,36 @@ def make_timings(pb_type_xml, sdf_file_name, sdf_cell_paths=None, sdf_variant="s
 
             # Cannot match SDF to <pb_type>
             if (pb_inp is None and pb_clk is None) or pb_out is None:
-                print("Cannot match pins ({} -> {}) for SDF timing entry:".format(sdf_inp, sdf_out))
+                print(
+                    "Cannot match pins ({} -> {}) for SDF timing entry:".
+                    format(sdf_inp, sdf_out)
+                )
                 print(" ", sdf_timing)
                 continue
 
             # "delay_constant"
             if pb_clk is None:
                 xml_tag = ET.SubElement(pb_type_xml, "delay_constant")
-                xml_tag.set("in_port",  "{}.{}".format(pb_name, pb_inp))
+                xml_tag.set("in_port", "{}.{}".format(pb_name, pb_inp))
                 xml_tag.set("out_port", "{}.{}".format(pb_name, pb_out))
                 for var in ("min", "max"):
-                    xml_tag.set(var, "{:.3e}".format(sdf_timing["delay_paths"][sdf_variant][var] * scale))
+                    xml_tag.set(
+                        var, "{:.3e}".format(
+                            sdf_timing["delay_paths"][sdf_variant][var] * scale
+                        )
+                    )
 
             # "T_clock_to_Q"
             else:
                 xml_tag = ET.SubElement(pb_type_xml, "T_clock_to_Q")
-                xml_tag.set("clock",  "{}.{}".format(pb_name, pb_clk))
+                xml_tag.set("clock", "{}.{}".format(pb_name, pb_clk))
                 xml_tag.set("port", "{}.{}".format(pb_name, pb_out))
                 for var in ("min", "max"):
-                    xml_tag.set(var, "{:.3e}".format(sdf_timing["delay_paths"][sdf_variant][var] * scale))
+                    xml_tag.set(
+                        var, "{:.3e}".format(
+                            sdf_timing["delay_paths"][sdf_variant][var] * scale
+                        )
+                    )
 
         # SETUP / HOLD or RECOVERY / REMOVAL delay
         elif sdf_timing["type"] in ("setup", "hold", "recovery", "removal"):
@@ -223,20 +241,34 @@ def make_timings(pb_type_xml, sdf_file_name, sdf_cell_paths=None, sdf_variant="s
 
             # Cannot match SDF to <pb_type>
             if pb_inp is None or pb_clk is None:
-                print("Cannot match pins ({}, {}) for SDF timing entry:".format(sdf_inp, sdf_out))
+                print(
+                    "Cannot match pins ({}, {}) for SDF timing entry:".format(
+                        sdf_inp, sdf_out
+                    )
+                )
                 print(" ", sdf_timing)
                 continue
 
-            xml_tag = ET.SubElement(pb_type_xml, "T_{}".format(tag_map[sdf_timing["type"]]))
+            xml_tag = ET.SubElement(
+                pb_type_xml, "T_{}".format(tag_map[sdf_timing["type"]])
+            )
             xml_tag.set("clock", "{}.{}".format(pb_name, pb_clk))
             xml_tag.set("port", "{}.{}".format(pb_name, pb_inp))
 
             # The VPR supports only one value so the "max" is chosen
-            xml_tag.set("value", "{:.3e}".format(sdf_timing["delay_paths"]["nominal"]["max"] * scale))
+            xml_tag.set(
+                "value", "{:.3e}".format(
+                    sdf_timing["delay_paths"]["nominal"]["max"] * scale
+                )
+            )
 
         # Something else
         else:
-            print("ERROR, unsupported timing type '{}'".format(sdf_timing["type"]))
+            print(
+                "ERROR, unsupported timing type '{}'".format(
+                    sdf_timing["type"]
+                )
+            )
             print(" ", sdf_timing)
 
     return pb_type_xml
@@ -675,8 +707,10 @@ parser.add_argument(
     type=str,
     nargs="*",
     default=None,
-    help="""SDF cell paths(s) to import timings from. If not given then inferred automatically"""
+    help=
+    """SDF cell paths(s) to import timings from. If not given then inferred automatically"""
 )
+
 
 def main(args):
 
