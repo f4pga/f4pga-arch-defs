@@ -57,7 +57,7 @@ from lib import xmlinc
 from sdf_timing import sdfparse
 
 
-def make_timings(pb_type_xml, sdf_file_name, sdf_cell_name=None, sdf_inst_name=None, sdf_variant="slow"):
+def make_timings(pb_type_xml, sdf_file_name, sdf_cell_path=None, sdf_variant="slow"):
     """
     Loads timings from a given SDF file and converts them to appropriate
     statements within pb_type XML.
@@ -123,6 +123,18 @@ def make_timings(pb_type_xml, sdf_file_name, sdf_cell_name=None, sdf_inst_name=N
     pb_outputs = []
     for xml_tag in pb_type_xml.findall("output"):
         pb_outputs.extend(pin_list(xml_tag))
+
+    # No cell path given
+    if sdf_cell_path is None:
+        sdf_cell_name = None
+        sdf_inst_name = None
+    # Only cell name given
+    elif "/" not in sdf_cell_path:
+        sdf_cell_name = sdf_cell_path
+        sdf_inst_name = None
+    # Both cell name and instance path given
+    else:
+        sdf_inst_name, sdf_cell_name = sdf_cell_path.rsplit("/", maxsplit=1)
 
     # Try automatically matching the pb_name to SDF cell name
     if sdf_cell_name is None:
@@ -196,8 +208,15 @@ def make_timings(pb_type_xml, sdf_file_name, sdf_cell_name=None, sdf_inst_name=N
                 for var in ("min", "max"):
                     xml_tag.set(var, "{:.3e}".format(sdf_timing["delay_paths"][sdf_variant][var] * scale))
 
-        # SETUP / HOLD delay
-        elif sdf_timing["type"] in ("setup", "hold"):
+        # SETUP / HOLD or RECOVERY / REMOVAL delay
+        elif sdf_timing["type"] in ("setup", "hold", "recovery", "removal"):
+
+            tag_map = {
+                "setup": "setup",
+                "hold": "hold",
+                "recovery": "setup",
+                "removal": "hold",
+            }
 
             assert sdf_timing["is_absolute"] == False
 
@@ -211,17 +230,12 @@ def make_timings(pb_type_xml, sdf_file_name, sdf_cell_name=None, sdf_inst_name=N
                 print(" ", sdf_timing)
                 continue
 
-            xml_tag = ET.SubElement(pb_type_xml, "T_{}".format(sdf_timing["type"]))
+            xml_tag = ET.SubElement(pb_type_xml, "T_{}".format(tag_map[sdf_timing["type"]]))
             xml_tag.set("clock", "{}.{}".format(pb_name, pb_clk))
             xml_tag.set("port", "{}.{}".format(pb_name, pb_inp))
 
             # The VPR supports only one value so the "max" is chosen
             xml_tag.set("value", "{:.3e}".format(sdf_timing["delay_paths"]["nominal"]["max"] * scale))
-
-        # RECOVERY / REMOVAL delay
-        elif sdf_timing["type"] in ("recovery", "removal"):
-            # Not supported in VPR so ignored
-            pass
 
         # Something else
         else:
@@ -666,13 +680,6 @@ parser.add_argument(
     help="""SDF cell type to import timing from. If not given then inferred automatically"""
 )
 
-parser.add_argument(
-    '--sdf-instance',
-    type=str,
-    default=None,
-    help="""SDF cell instance to import timing from. If not given then inferred automatically"""
-)
-
 def main(args):
 
     iname = os.path.basename(args.infiles[0])
@@ -700,7 +707,7 @@ def main(args):
 
     # Inject timings
     if args.sdf is not None:
-        pb_type_xml = make_timings(pb_type_xml, args.sdf, args.sdf_cell, args.sdf_instance)
+        pb_type_xml = make_timings(pb_type_xml, args.sdf, args.sdf_cell)
 
     with open(args.outfile, "w") as fp:
         fp.write(
