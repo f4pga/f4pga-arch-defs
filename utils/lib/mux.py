@@ -223,4 +223,6 @@ def pb_type_xml(mux_type, mux_name, pins, subckt=None, num_pb=1, comment=""):
 
 if __name__ == "__main__":
     import doctest
-    doctest.testmod()
+    failure_count, test_count = doctest.testmod()
+    assert test_count > 0
+    assert failure_count == 0, "Doctests failed!"
