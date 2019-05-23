@@ -58,7 +58,8 @@ from sdf_timing import sdfparse
 
 
 def make_timings(
-        pb_type_xml, sdf_file_name, sdf_cell_paths=None, sdf_variant="slow"
+        pb_type_xml, sdf_file_name, sdf_cell_paths=None, insert_values=False,
+        sdf_variant="slow"
 ):
     """
     Loads timings from a given SDF file and converts them to appropriate
@@ -204,6 +205,15 @@ def make_timings(
                 xml_tag = ET.SubElement(pb_type_xml, "delay_constant")
                 xml_tag.set("in_port", "{}.{}".format(pb_name, pb_inp))
                 xml_tag.set("out_port", "{}.{}".format(pb_name, pb_out))
+
+            # "T_clock_to_Q"
+            else:
+                xml_tag = ET.SubElement(pb_type_xml, "T_clock_to_Q")
+                xml_tag.set("clock", "{}.{}".format(pb_name, pb_clk))
+                xml_tag.set("port", "{}.{}".format(pb_name, pb_out))
+
+            # Insert timing value
+            if insert_values:
                 for var in ("min", "max"):
                     xml_tag.set(
                         var, "{:.3e}".format(
@@ -211,17 +221,10 @@ def make_timings(
                         )
                     )
 
-            # "T_clock_to_Q"
+            # Insert template
             else:
-                xml_tag = ET.SubElement(pb_type_xml, "T_clock_to_Q")
-                xml_tag.set("clock", "{}.{}".format(pb_name, pb_clk))
-                xml_tag.set("port", "{}.{}".format(pb_name, pb_out))
                 for var in ("min", "max"):
-                    xml_tag.set(
-                        var, "{:.3e}".format(
-                            sdf_timing["delay_paths"][sdf_variant][var] * scale
-                        )
-                    )
+                    xml_tag.set(var, "{" + key + "}")  # TODO: Handle min and max
 
         # SETUP / HOLD or RECOVERY / REMOVAL delay
         elif sdf_timing["type"] in ("setup", "hold", "recovery", "removal"):
@@ -255,12 +258,18 @@ def make_timings(
             xml_tag.set("clock", "{}.{}".format(pb_name, pb_clk))
             xml_tag.set("port", "{}.{}".format(pb_name, pb_inp))
 
-            # The VPR supports only one value so the "max" is chosen
-            xml_tag.set(
-                "value", "{:.3e}".format(
-                    sdf_timing["delay_paths"]["nominal"]["max"] * scale
+            # Insert timing value
+            if insert_values:
+                # The VPR supports only one value so the "max" is chosen
+                xml_tag.set(
+                    "value", "{:.3e}".format(
+                        sdf_timing["delay_paths"]["nominal"]["max"] * scale
+                    )
                 )
-            )
+
+            # Insert template
+            else:
+                xml_tag.set("value", "{" + key + "}")
 
         # Something else
         else:
@@ -703,6 +712,12 @@ parser.add_argument(
 )
 
 parser.add_argument(
+    '--sdf-use-timings',
+    action="store_true",
+    help="""Import timing values from SDF instead of inserting tags"""
+)
+
+parser.add_argument(
     '--sdf-cells',
     type=str,
     nargs="*",
@@ -739,7 +754,7 @@ def main(args):
 
     # Timings
     if args.sdf is not None:
-        pb_type_xml = make_timings(pb_type_xml, args.sdf, args.sdf_cells)
+        pb_type_xml = make_timings(pb_type_xml, args.sdf, args.sdf_cells, args.sdf_use_timings)
 
     with open(args.outfile, "w") as fp:
         fp.write(
