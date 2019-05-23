@@ -282,7 +282,7 @@ def strip_name(name):
     return name
 
 
-def make_pb_content(yj, mod, xml_parent, mod_pname, is_submode=False):
+def make_pb_content(outfile, yj, mod, xml_parent, mod_pname, is_submode=False):
     """Build the pb_type content - child pb_types, timing and direct interconnect,
     but not IO. This may be put directly inside <pb_type>, or inside <mode>."""
 
@@ -531,7 +531,7 @@ def make_pb_content(yj, mod, xml_parent, mod_pname, is_submode=False):
                 xml_mat.text = mat
 
 
-def make_pb_type(yj, mod):
+def make_pb_type(outfile, yj, mod):
     """Build the pb_type for a given module. mod is the YosysModule object to
     generate."""
 
@@ -606,9 +606,9 @@ def make_pb_type(yj, mod):
                 )
             )
             mode_mod = mode_yj.module(mod.name)
-            make_pb_content(yj, mode_mod, mode_xml, mod_pname, True)
+            make_pb_content(outfile, yj, mode_mod, mode_xml, mod_pname, True)
     else:
-        make_pb_content(yj, mod, pb_type_xml, mod_pname)
+        make_pb_content(outfile, yj, mod, pb_type_xml, mod_pname)
 
     return pb_type_xml
 
@@ -637,7 +637,7 @@ Top level module, will usually be automatically determined from the file name
 parser.add_argument(
     '--outfile',
     '-o',
-    type=argparse.FileType('w'),
+    type=str,
     default="pb_type.xml",
     help="""\
 Output filename, default 'model.xml'
@@ -696,22 +696,23 @@ def main(args):
 
     tmod = yj.module(top)
 
-    pb_type_xml = make_pb_type(yj, tmod)
+    pb_type_xml = make_pb_type(args.outfile, yj, tmod)
 
     # Inject timings
     if args.sdf is not None:
         pb_type_xml = make_timings(pb_type_xml, args.sdf, args.sdf_cell, args.sdf_instance)
 
-    args.outfile.write(
-        ET.tostring(
-            pb_type_xml,
-            pretty_print=True,
-            encoding="utf-8",
-            xml_declaration=True
-        ).decode('utf-8')
-    )
-    print("Generated {} from {}".format(args.outfile.name, iname))
-    args.outfile.close()
+    with open(args.outfile, "w") as fp:
+        fp.write(
+            ET.tostring(
+                pb_type_xml,
+                pretty_print=True,
+                encoding="utf-8",
+                xml_declaration=True
+            ).decode('utf-8')
+        )
+
+    print("Generated {} from {}".format(args.outfile, iname))
 
 
 if __name__ == "__main__":

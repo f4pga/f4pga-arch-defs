@@ -1,22 +1,22 @@
 <?xml version='1.0' encoding='utf-8'?>
-<pb_type xmlns:xi="http://www.w3.org/2001/XInclude" blif_model=".subckt carry4_vpr" name="CARRY4_VPR" num_pb="1">
+<pb_type xmlns:xi="http://www.w3.org/2001/XInclude" blif_model=".subckt carry4_vpr" name="carry4_vpr" num_pb="1">
   <input name="CIN" num_pins="1"/>
-  <input name="CYINIT" num_pins="1"/>
-  <input name="DI0" num_pins="1"/>
-  <input name="DI1" num_pins="1"/>
-  <input name="DI2" num_pins="1"/>
-  <input name="DI3" num_pins="1"/>
-  <input name="S0" num_pins="1"/>
-  <input name="S1" num_pins="1"/>
-  <input name="S2" num_pins="1"/>
-  <input name="S3" num_pins="1"/>
   <output name="CO_CHAIN" num_pins="1"/>
   <output name="CO_FABRIC0" num_pins="1"/>
   <output name="CO_FABRIC1" num_pins="1"/>
   <output name="CO_FABRIC2" num_pins="1"/>
   <output name="CO_FABRIC3" num_pins="1"/>
+  <input name="CYINIT" num_pins="1"/>
+  <input name="DI0" num_pins="1"/>
+  <input name="DI1" num_pins="1"/>
+  <input name="DI2" num_pins="1"/>
+  <input name="DI3" num_pins="1"/>
   <output name="O0" num_pins="1"/>
   <output name="O1" num_pins="1"/>
   <output name="O2" num_pins="1"/>
   <output name="O3" num_pins="1"/>
+  <input name="S0" num_pins="1"/>
+  <input name="S1" num_pins="1"/>
+  <input name="S2" num_pins="1"/>
+  <input name="S3" num_pins="1"/>
 </pb_type>
