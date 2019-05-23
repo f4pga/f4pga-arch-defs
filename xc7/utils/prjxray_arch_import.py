@@ -551,7 +551,9 @@ FROM
             ET.SubElement(switchlist_xml, 'switch', attrib)
 
     ET.SubElement(
-        switchlist_xml, 'switch', {
+        switchlist_xml,
+        'switch',
+        {
             'type': 'mux',
             'name': 'buffer',
             "R": "551",
