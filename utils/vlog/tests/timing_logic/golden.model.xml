@@ -1,16 +1,16 @@
 <models xmlns:xi="http://www.w3.org/2001/XInclude">
   <model name="carry4_vpr">
     <input_ports>
-      <port name="CIN"/>
-      <port name="CYINIT"/>
-      <port name="DI0"/>
-      <port name="DI1"/>
-      <port name="DI2"/>
-      <port name="DI3"/>
-      <port name="S0"/>
-      <port name="S1"/>
-      <port name="S2"/>
-      <port name="S3"/>
+      <port combinational_sink_ports="CO_CHAIN CO_FABRIC3 CO_FABRIC2 CO_FABRIC1 CO_FABRIC0 O3 O2 O1 O0" name="CIN"/>
+      <port combinational_sink_ports="CO_CHAIN CO_FABRIC3 CO_FABRIC2 CO_FABRIC1 CO_FABRIC0 O3 O2 O1 O0" name="CYINIT"/>
+      <port combinational_sink_ports="CO_CHAIN CO_FABRIC3 CO_FABRIC2 CO_FABRIC1 CO_FABRIC0 O3 O2 O1" name="DI0"/>
+      <port combinational_sink_ports="CO_CHAIN CO_FABRIC3 CO_FABRIC2 CO_FABRIC1 O3 O2" name="DI1"/>
+      <port combinational_sink_ports="CO_CHAIN CO_FABRIC3 CO_FABRIC2 O3" name="DI2"/>
+      <port combinational_sink_ports="CO_CHAIN CO_FABRIC3" name="DI3"/>
+      <port combinational_sink_ports="CO_CHAIN CO_FABRIC3 CO_FABRIC2 CO_FABRIC1 CO_FABRIC0 O3 O2 O1 O0" name="S0"/>
+      <port combinational_sink_ports="CO_CHAIN CO_FABRIC3 CO_FABRIC2 CO_FABRIC1 O3 O2 O1" name="S1"/>
+      <port combinational_sink_ports="CO_CHAIN CO_FABRIC3 CO_FABRIC2 O3 O2" name="S2"/>
+      <port combinational_sink_ports="CO_CHAIN CO_FABRIC3 O3" name="S3"/>
     </input_ports>
     <output_ports>
       <port name="CO_CHAIN"/>

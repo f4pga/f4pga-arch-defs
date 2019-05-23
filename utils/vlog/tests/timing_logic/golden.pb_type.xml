@@ -19,4 +19,22 @@
   <input name="S1" num_pins="1"/>
   <input name="S2" num_pins="1"/>
   <input name="S3" num_pins="1"/>
+  <delay_constant in_port="carry4_vpr.CIN" out_port="carry4_vpr.O0" min="1.500e-13" max="2.220e-13"/>
+  <delay_constant in_port="carry4_vpr.CIN" out_port="carry4_vpr.O1" min="2.690e-13" max="3.340e-13"/>
+  <delay_constant in_port="carry4_vpr.CIN" out_port="carry4_vpr.O2" min="1.920e-13" max="2.390e-13"/>
+  <delay_constant in_port="carry4_vpr.CIN" out_port="carry4_vpr.O3" min="2.520e-13" max="3.130e-13"/>
+  <delay_constant in_port="carry4_vpr.CYINIT" out_port="carry4_vpr.O0" min="3.880e-13" max="4.820e-13"/>
+  <delay_constant in_port="carry4_vpr.CYINIT" out_port="carry4_vpr.O1" min="4.820e-13" max="5.980e-13"/>
+  <delay_constant in_port="carry4_vpr.CYINIT" out_port="carry4_vpr.O2" min="4.710e-13" max="5.840e-13"/>
+  <delay_constant in_port="carry4_vpr.CYINIT" out_port="carry4_vpr.O3" min="5.180e-13" max="6.420e-13"/>
+  <delay_constant in_port="carry4_vpr.S0" out_port="carry4_vpr.O0" min="1.700e-13" max="2.230e-13"/>
+  <delay_constant in_port="carry4_vpr.S0" out_port="carry4_vpr.O1" min="3.040e-13" max="4.000e-13"/>
+  <delay_constant in_port="carry4_vpr.S0" out_port="carry4_vpr.O2" min="3.980e-13" max="5.230e-13"/>
+  <delay_constant in_port="carry4_vpr.S0" out_port="carry4_vpr.O3" min="4.420e-13" max="5.820e-13"/>
+  <delay_constant in_port="carry4_vpr.S1" out_port="carry4_vpr.O1" min="1.560e-13" max="2.050e-13"/>
+  <delay_constant in_port="carry4_vpr.S1" out_port="carry4_vpr.O2" min="4.240e-13" max="5.580e-13"/>
+  <delay_constant in_port="carry4_vpr.S1" out_port="carry4_vpr.O3" min="4.700e-13" max="6.180e-13"/>
+  <delay_constant in_port="carry4_vpr.S2" out_port="carry4_vpr.O2" min="1.710e-13" max="2.260e-13"/>
+  <delay_constant in_port="carry4_vpr.S2" out_port="carry4_vpr.O3" min="2.510e-13" max="3.300e-13"/>
+  <delay_constant in_port="carry4_vpr.S3" out_port="carry4_vpr.O3" min="1.720e-13" max="2.270e-13"/>
 </pb_type>

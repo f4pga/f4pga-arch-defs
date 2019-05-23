@@ -128,6 +128,8 @@ function(V2X_TEST_BOTH)
   # V2X_TEST_BOTH(
   #   NAME name
   #   TOP_MODULE name
+  #   SDF_FILE <sdf file>
+  #   SDF_CELL <sdf cell path>
   #   )
   # ~~~
   #
@@ -139,7 +141,7 @@ function(V2X_TEST_BOTH)
   #
   # Usage: v2x_test_model(NAME <test_name> TOP_MODULE <top_module.v>) (All fields are required)
 
-  set(oneValueArgs NAME TOP_MODULE)
+  set(oneValueArgs NAME TOP_MODULE SDF_FILE SDF_CELL)
   cmake_parse_arguments(
     V2X_TEST_BOTH
     "${options}"
@@ -152,7 +154,19 @@ function(V2X_TEST_BOTH)
   set(TOP_MODULE ${V2X_TEST_BOTH_TOP_MODULE})
 
   set(SRC ${NAME}.sim.v)
-  v2x(NAME ${NAME} SRCS ${SRC} TOP_MODULE ${TOP_MODULE})
+  if(DEFINED V2X_TEST_BOTH_SDF_FILE)
+
+    # FIXME
+    set(TIMING_PATH ${symbiflow-arch-defs_SOURCE_DIR}/third_party/prjxray-db/artix7/timings/)
+
+    set(V2X_PB_TYPE_EXTRA_ARGS "")
+    list(APPEND V2X_PB_TYPE_EXTRA_ARGS --sdf ${TIMING_PATH}/${V2X_TEST_BOTH_SDF_FILE})
+    list(APPEND V2X_PB_TYPE_EXTRA_ARGS --sdf-cell ${V2X_TEST_BOTH_SDF_CELL})
+
+    v2x(NAME ${NAME} SRCS ${SRC} TOP_MODULE ${TOP_MODULE} V2X_PB_TYPE_EXTRA_ARGS ${V2X_PB_TYPE_EXTRA_ARGS})
+  else()
+    v2x(NAME ${NAME} SRCS ${SRC} TOP_MODULE ${TOP_MODULE})
+  endif()
 
   v2x_test_generic(NAME ${NAME} TOP_MODULE ${MODULE} TYPE pb_type)
   v2x_test_generic(NAME ${NAME} TOP_MODULE ${TOP_MODULE} TYPE model)
