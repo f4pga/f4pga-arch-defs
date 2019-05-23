@@ -370,19 +370,27 @@ class Bel(object):
     def get_prefixed_name(self):
         return self._prefix_things(self.name)
 
-    def get_cell(self):
+    def get_cell(self, top):
         """ Get the cell name of this BEL.
 
         Should only be called after set_prefix has been invoked (if set_prefix
         will be called)."""
-        if len(self.net_names) == 1:
-            return tuple(
-                self.net_names.values()
-            )[0].replace(' ', '') + self._prefix_things(self.name)
-        elif len(self.net_names) > 1:
-            # TODO: Come up with a better method for choosing the name when
-            # multiple options.
-            return self._prefix_things(self.name)
+
+        # The .cname property will be associated with some pin/net combinations
+        # Use this name if present.
+
+        eblif_cnames = set()
+        for ((pin, idx), net) in self.net_names.items():
+            cname = top.lookup_cname(pin, idx, net)
+            if cname is not None:
+                eblif_cnames.add(cname)
+
+        if len(eblif_cnames) > 0:
+            # Always post-fix with the programatic name to allow for easier
+            # cell lookup via something like "*{name}"
+            return escape_verilog_name(
+                '_'.join(eblif_cnames) + self._prefix_things(self.name)
+            )
         else:
             return self._prefix_things(self.name)
 
@@ -536,7 +544,9 @@ class Bel(object):
         if parameters:
             yield ',\n'.join(parameters)
 
-        yield '{indent}) {name} ('.format(indent=indent, name=self.get_cell())
+        yield '{indent}) {name} ('.format(
+            indent=indent, name=self.get_cell(top)
+        )
 
         if connections:
             yield ',\n'.join(
@@ -1071,6 +1081,10 @@ class Module(object):
         self.wire_pkey_net_map = {}
         self.wire_name_net_map = {}
 
+        # Map of (subckt pin, vector index (None for scale), and net) to
+        # .cname value.
+        self.cname_map = {}
+
     def set_iostandard(self, iostandards):
         """ Set the IOSTANDARD for the design.
 
@@ -1418,3 +1432,42 @@ set_property FIXED_ROUTE {fixed_route} $net
         sink_wire = self.wire_pkey_to_wire[wire_pkey]
         if sink_wire in self.wire_assigns:
             del self.wire_assigns[sink_wire]
+
+    def add_to_cname_map(self, parsed_eblif):
+        """ Create a map from subckt (pin, index, net) to cnames.
+
+        Arguments
+        ---------
+        parsed_eblif
+            Output from eblif.parse_blif
+
+        """
+        """ Example subckt from eblif.parse_blif:
+
+        # > parse_eblif['subckt'][3]
+        {'args': ['MUXF6',
+                'I0=$abc$6342$auto$blifparse.cc:492:parse_blif$6343.T0',
+                'I1=$abc$6342$auto$blifparse.cc:492:parse_blif$6343.T1',
+                'O=$abc$6342$auto$dff2dffe.cc:175:make_patterns_logic$1556',
+                'S=$abc$6342$new_n472_'],
+        'cname': ['$abc$6342$auto$blifparse.cc:492:parse_blif$6343.fpga_mux_0'],
+        'data': [],
+        'type': 'subckt'}
+
+        """
+        for subckt in parsed_eblif['subckt']:
+            if 'cname' not in subckt:
+                continue
+
+            assert len(subckt['cname']) == 1
+
+            for arg in subckt['args'][1:]:
+                port, net = arg.split('=')
+
+                pin, index = pin_to_wire_and_idx(port)
+
+                self.cname_map[(pin, index,
+                                escape_verilog_name(net))] = subckt['cname'][0]
+
+    def lookup_cname(self, pin, idx, net):
+        return self.cname_map.get((pin, idx, net))
