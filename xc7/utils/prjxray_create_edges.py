@@ -937,7 +937,7 @@ def make_connection(
     pip_pkey, pip_is_directional, pip_is_pseudo, pip_can_invert = \
         find_pip(tile_type, pip.name)
 
-    assert pip_is_directional, not pip_is_pseudo
+    assert not pip_is_pseudo
 
     for src_graph_node_pkey, switch_pkey, dest_graph_node_pkey in src_connector.connect_at(
             pip_pkey=pip_pkey, src_wire_pkey=src_wire_pkey,
@@ -945,8 +945,18 @@ def make_connection(
             other_connector=sink_connector):
         yield (
             src_graph_node_pkey, dest_graph_node_pkey, switch_pkey,
-            phy_tile_pkey, pip_pkey
+            phy_tile_pkey, pip_pkey, False
         )
+
+    if not pip_is_directional:
+        for src_graph_node_pkey, switch_pkey, dest_graph_node_pkey in sink_connector.connect_at(
+                pip_pkey=pip_pkey, src_wire_pkey=sink_wire_pkey,
+                dest_wire_pkey=src_wire_pkey, loc=loc,
+                other_connector=src_connector):
+            yield (
+                src_graph_node_pkey, dest_graph_node_pkey, switch_pkey,
+                phy_tile_pkey, pip_pkey, True
+            )
 
     # Make additional connections to constant network if the sink needs it.
     for constant_src in yield_ties_to_wire(pip.net_to):
@@ -956,7 +966,7 @@ def make_connection(
                                          other_connector=sink_connector):
             yield (
                 src_graph_node_pkey, dest_graph_node_pkey, switch_pkey,
-                phy_tile_pkey, None
+                phy_tile_pkey, None, False
             )
 
 
@@ -1373,12 +1383,6 @@ def main():
                 if pip.is_pseudo:
                     continue
 
-                if not pip.is_directional:
-                    # TODO: Handle bidirectional pips?
-                    continue
-
-                # FIXME: Will require a change here once merged with #537 (!)
-
                 connections = make_connection(
                     conn=conn,
                     input_only_nodes=input_only_nodes,
@@ -1392,9 +1396,8 @@ def main():
                     delayless_switch_pkey=delayless_switch_pkey,
                     const_connectors=const_connectors
                 )
+
                 if connections:
-                    # TODO: Skip duplicate connections, until they have unique
-                    # switches
                     for connection in connections:
                         key = tuple(connection[0:3])
                         if key in edge_set:
@@ -1412,7 +1415,7 @@ def main():
                 """
                 INSERT INTO graph_edge(
                     src_graph_node_pkey, dest_graph_node_pkey, switch_pkey,
-                    phy_tile_pkey, pip_in_tile_pkey) VALUES (?, ?, ?, ?, ?)""",
+                    phy_tile_pkey, pip_in_tile_pkey, backward) VALUES (?, ?, ?, ?, ?, ?)""",
                 edge
             )
 
