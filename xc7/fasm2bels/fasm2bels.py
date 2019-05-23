@@ -41,6 +41,7 @@ from .net_map import create_net_list
 import lib.rr_graph_xml.graph2 as xml_graph2
 from lib.rr_graph_xml.utils import read_xml_file
 from lib.parse_pcf import parse_simple_pcf
+import eblif
 
 
 def null_process(conn, top, tile, tiles):
@@ -206,6 +207,7 @@ def main():
     parser.add_argument('--pcf', help="Mapping of top-level pins to pads.")
     parser.add_argument('--route_file', help="VPR route output file.")
     parser.add_argument('--rr_graph', help="Real or virt xc7 graph")
+    parser.add_argument('--eblif', help="EBLIF file used to generate design")
     parser.add_argument('verilog_file', help="Filename of output verilog file")
     parser.add_argument('tcl_file', help="Filename of output tcl script.")
 
@@ -238,6 +240,12 @@ def main():
         assert args.rr_graph
         net_map = load_net_list(conn, args.rr_graph, args.route_file)
         top.set_net_map(net_map)
+
+    if args.eblif:
+        with open(args.eblif) as f:
+            parsed_eblif = eblif.parse_blif(f)
+
+        top.add_to_cname_map(parsed_eblif)
 
     iostandards = []
 
