@@ -321,6 +321,7 @@ CREATE TABLE graph_edge(
   track_pkey INT,
   phy_tile_pkey INT,
   pip_in_tile_pkey INT,
+  backward BOOLEAN,
   FOREIGN KEY(src_graph_node_pkey) REFERENCES graph_node(pkey),
   FOREIGN KEY(dest_graph_node_pkey) REFERENCES graph_node(pkey),
   FOREIGN KEY(track_pkey) REFERENCES track(pkey),

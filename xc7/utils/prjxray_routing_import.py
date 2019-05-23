@@ -431,7 +431,7 @@ def create_get_pip_wire_names(conn):
     def get_pip_wire_names(pip_pkey):
         cur.execute(
             """SELECT src_wire_in_tile_pkey, dest_wire_in_tile_pkey
-            FROM pip_in_tile WHERE pkey = ? AND is_directional = 1 AND is_pseudo = 0;""",
+            FROM pip_in_tile WHERE pkey = ? AND is_pseudo = 0;""",
             (pip_pkey, )
         )
         src_wire_in_tile_pkey, dest_wire_in_tile_pkey = cur.fetchone()
@@ -473,13 +473,14 @@ def import_graph_edges(conn, graph, node_mapping):
     print('{} Importing edges from database.'.format(now()))
     with progressbar.ProgressBar(max_value=num_edges) as bar:
         for idx, (src_graph_node, dest_graph_node, switch_pkey, phy_tile_pkey,
-                  pip_pkey) in enumerate(cur.execute("""
+                  pip_pkey, backward) in enumerate(cur.execute("""
 SELECT
   src_graph_node_pkey,
   dest_graph_node_pkey,
   switch_pkey,
   phy_tile_pkey,
-  pip_in_tile_pkey
+  pip_in_tile_pkey,
+  backward
 FROM
   graph_edge;
                 """)):
@@ -493,7 +494,10 @@ FROM
                 tile_name = get_tile_name(phy_tile_pkey)
                 src_net, dest_net = get_pip_wire_names(pip_pkey)
 
-                pip_name = '{}.{}.{}'.format(tile_name, dest_net, src_net)
+                if not backward:
+                    pip_name = '{}.{}.{}'.format(tile_name, dest_net, src_net)
+                else:
+                    pip_name = '{}.{}.{}'.format(tile_name, src_net, dest_net)
             else:
                 pip_name = None
 
