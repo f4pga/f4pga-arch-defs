@@ -7,7 +7,7 @@ get_target_property_required(PYTHON3 env PYTHON3)
 
 set(ICEBOX_TIMING ${symbiflow-arch-defs_SOURCE_DIR}/third_party/icestorm/icefuzz/timings.py)
 set(CLEAN_ICEBOX_TIMING cleaned_timing.txt)
-set(TIMING_TXT_FILE ${CONDA_DIR}/share/icebox/timings_hx1k.txt)
+set(TIMING_TXT_FILE ${ICEBOX_SHARE}/timings_hx1k.txt)
 set(SDF_FILE timings_hx1k.sdf)
 
 add_custom_command(
