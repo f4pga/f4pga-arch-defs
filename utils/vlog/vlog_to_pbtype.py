@@ -102,28 +102,32 @@ def make_timings(
 
         collected_timings = {}
 
+        # Get separator
+        separator = "/"
+        if "divider" in sdf["header"].keys():
+            separator = sdf["header"]["divider"]
+
         # For each path
         for sdf_cell_path in sdf_cell_paths:
 
             # Only cell name given
-            if "/" not in sdf_cell_path:
+            if separator not in sdf_cell_path:
                 sdf_cell_name = sdf_cell_path
                 sdf_inst_name = None
             # Both cell name and instance path given
             else:
                 sdf_inst_name, sdf_cell_name = sdf_cell_path.rsplit(
-                    "/", maxsplit=1
+                    separator, maxsplit=1
                 )
 
             # Get the SDF timing info for a particular CELL/INSTANCE
-            try:
+            if sdf_cell_name in sdf["cells"].keys():
                 sdf_cell = sdf["cells"][sdf_cell_name]
-            except KeyError:
+            else:
                 print(
                     "ERROR, the SDF file does not contain data for cell '{}'".
                     format(sdf_cell_path)
                 )
-                continue
 
             # Collect
             collected_timings.update(sdf_cell[sdf_inst_name])
@@ -175,11 +179,18 @@ def make_timings(
     # Process SDF timing entires
     for key, sdf_timing in sdf_timings.items():
 
+        if sdf_timing["is_incremental"] == True:
+            print("ERROR, incremental timings are not supported!")
+            print(" ", sdf_timing)
+            continue
+
+        if sdf_timing["is_cond"] == True:
+            print("ERROR, conditional timings are not supported!")
+            print(" ", sdf_timing)
+            continue
+
         sdf_inp = sdf_timing["from_pin"]
         sdf_out = sdf_timing["to_pin"]
-
-        assert sdf_timing["is_incremental"] == False
-        assert sdf_timing["is_cond"] == False
 
         # IOPATH delay
         if sdf_timing["type"] == "iopath":
