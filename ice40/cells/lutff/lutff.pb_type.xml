@@ -73,27 +73,27 @@
   <direct name="FF.R"           input="LUTFF.SR"          output="SB_FF.R"           />
   <direct name="FF.S"           input="LUTFF.SR"          output="SB_FF.S"           />
   <direct name="FF.D"           input="LUT.out"           output="SB_FF.D"            >
-   <pack_pattern name="LUT+FFA" in_port="LUT.out" out_port="SB_FF.D"/>
-   <pack_pattern name="LUT+FFB" in_port="LUT.out" out_port="SB_FF.D"/>
-   <pack_pattern name="LUT+FFC" in_port="LUT.out" out_port="SB_FF.D"/>
-   <pack_pattern name="LUT+FFD" in_port="LUT.out" out_port="SB_FF.D"/>
-   <pack_pattern name="LUT+FFE" in_port="LUT.out" out_port="SB_FF.D"/>
-   <pack_pattern name="LUT+FFF" in_port="LUT.out" out_port="SB_FF.D"/>
-   <pack_pattern name="LUT+FFG" in_port="LUT.out" out_port="SB_FF.D"/>
-   <pack_pattern name="LUT+FFH" in_port="LUT.out" out_port="SB_FF.D"/>
-   <pack_pattern name="LUT+FFI" in_port="LUT.out" out_port="SB_FF.D"/>
-   <pack_pattern name="LUT+FFJ" in_port="LUT.out" out_port="SB_FF.D"/>
-   <pack_pattern name="LUT+FFK" in_port="LUT.out" out_port="SB_FF.D"/>
-   <pack_pattern name="LUT+FFL" in_port="LUT.out" out_port="SB_FF.D"/>
-   <pack_pattern name="LUT+FFM" in_port="LUT.out" out_port="SB_FF.D"/>
-   <pack_pattern name="LUT+FFN" in_port="LUT.out" out_port="SB_FF.D"/>
-   <pack_pattern name="LUT+FFO" in_port="LUT.out" out_port="SB_FF.D"/>
-   <pack_pattern name="LUT+FFP" in_port="LUT.out" out_port="SB_FF.D"/>
-   <pack_pattern name="LUT+FFQ" in_port="LUT.out" out_port="SB_FF.D"/>
-   <pack_pattern name="LUT+FFR" in_port="LUT.out" out_port="SB_FF.D"/>
-   <pack_pattern name="LUT+FFS" in_port="LUT.out" out_port="SB_FF.D"/>
-   <pack_pattern name="LUT+FFT" in_port="LUT.out" out_port="SB_FF.D"/>
-   <pack_pattern name="LUT+FFU" in_port="LUT.out" out_port="SB_FF.D"/>
+   <pack_pattern name="LUT+FFA"><port type="input" from="LUT" name="out"/><port type="output" from="SB_FF" name="D"/></pack_pattern>
+   <pack_pattern name="LUT+FFB"><port type="input" from="LUT" name="out"/><port type="output" from="SB_FF" name="D"/></pack_pattern>
+   <pack_pattern name="LUT+FFC"><port type="input" from="LUT" name="out"/><port type="output" from="SB_FF" name="D"/></pack_pattern>
+   <pack_pattern name="LUT+FFD"><port type="input" from="LUT" name="out"/><port type="output" from="SB_FF" name="D"/></pack_pattern>
+   <pack_pattern name="LUT+FFE"><port type="input" from="LUT" name="out"/><port type="output" from="SB_FF" name="D"/></pack_pattern>
+   <pack_pattern name="LUT+FFF"><port type="input" from="LUT" name="out"/><port type="output" from="SB_FF" name="D"/></pack_pattern>
+   <pack_pattern name="LUT+FFG"><port type="input" from="LUT" name="out"/><port type="output" from="SB_FF" name="D"/></pack_pattern>
+   <pack_pattern name="LUT+FFH"><port type="input" from="LUT" name="out"/><port type="output" from="SB_FF" name="D"/></pack_pattern>
+   <pack_pattern name="LUT+FFI"><port type="input" from="LUT" name="out"/><port type="output" from="SB_FF" name="D"/></pack_pattern>
+   <pack_pattern name="LUT+FFJ"><port type="input" from="LUT" name="out"/><port type="output" from="SB_FF" name="D"/></pack_pattern>
+   <pack_pattern name="LUT+FFK"><port type="input" from="LUT" name="out"/><port type="output" from="SB_FF" name="D"/></pack_pattern>
+   <pack_pattern name="LUT+FFL"><port type="input" from="LUT" name="out"/><port type="output" from="SB_FF" name="D"/></pack_pattern>
+   <pack_pattern name="LUT+FFM"><port type="input" from="LUT" name="out"/><port type="output" from="SB_FF" name="D"/></pack_pattern>
+   <pack_pattern name="LUT+FFN"><port type="input" from="LUT" name="out"/><port type="output" from="SB_FF" name="D"/></pack_pattern>
+   <pack_pattern name="LUT+FFO"><port type="input" from="LUT" name="out"/><port type="output" from="SB_FF" name="D"/></pack_pattern>
+   <pack_pattern name="LUT+FFP"><port type="input" from="LUT" name="out"/><port type="output" from="SB_FF" name="D"/></pack_pattern>
+   <pack_pattern name="LUT+FFQ"><port type="input" from="LUT" name="out"/><port type="output" from="SB_FF" name="D"/></pack_pattern>
+   <pack_pattern name="LUT+FFR"><port type="input" from="LUT" name="out"/><port type="output" from="SB_FF" name="D"/></pack_pattern>
+   <pack_pattern name="LUT+FFS"><port type="input" from="LUT" name="out"/><port type="output" from="SB_FF" name="D"/></pack_pattern>
+   <pack_pattern name="LUT+FFT"><port type="input" from="LUT" name="out"/><port type="output" from="SB_FF" name="D"/></pack_pattern>
+   <pack_pattern name="LUT+FFU"><port type="input" from="LUT" name="out"/><port type="output" from="SB_FF" name="D"/></pack_pattern>
   </direct>
 
   <direct name="DISABLE_FF" input="LUT.out" output="DISABLE_FF.I" />
@@ -118,10 +118,10 @@
   <direct name="SB_CARRY.I1" input="LUTFF.I[2]" output="SB_CARRY.I1" />
 
   <direct name="LUTFF.FCIN" input="LUTFF.FCIN" output="SB_CARRY.CI">
-   <pack_pattern name="CARRYCHAIN" in_port="LUTFF.FCIN" out_port="SB_CARRY.CI" />
+   <pack_pattern name="CARRYCHAIN"/>
   </direct>
   <direct name="LUTFF.FCOUT" input="SB_CARRY.CO" output="LUTFF.FCOUT">
-   <pack_pattern name="CARRYCHAIN" in_port="SB_CARRY.CO" out_port="LUTFF.FCOUT" />
+   <pack_pattern name="CARRYCHAIN"/>
   </direct>
   <!--
   <direct name="LUTFF.FCIN" input="LUTFF.FCIN" output="SB_CARRY.CI" />

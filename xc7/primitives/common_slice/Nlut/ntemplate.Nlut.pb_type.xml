@@ -20,7 +20,7 @@
    <pb_type name="{N}5LUT" num_pb="2" class="lut" blif_model=".names">
      <input  name="in"  num_pins="5" port_class="lut_in" />
      <output name="out" num_pins="1" port_class="lut_out" />
-     <delay_matrix type="max" in_port="{N}5LUT.in" out_port="{N}5LUT.out">
+     <delay_matrix type="max" in_port="in" out_port="out">
       0.068e-9
       0.068e-9
       0.068e-9

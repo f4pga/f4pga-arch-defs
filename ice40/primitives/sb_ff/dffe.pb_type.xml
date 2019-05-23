@@ -14,9 +14,9 @@
    <clock  name="C" num_pins="1"/>
    <input  name="E" num_pins="1"/>
    <input  name="D" num_pins="1"/>
-   <T_clock_to_Q max="10e-12" port="SB_DFFE.Q" clock="C"/>
-   <T_setup    value="10e-12" port="SB_DFFE.E" clock="C"/>
-   <T_setup    value="10e-12" port="SB_DFFE.D" clock="C"/>
+   <T_clock_to_Q max="10e-12" port="Q" clock="C"/>
+   <T_setup    value="10e-12" port="E" clock="C"/>
+   <T_setup    value="10e-12" port="D" clock="C"/>
   </pb_type>
   <interconnect>
    <direct><port type="input" from="SB_DFFE" name="Q"/><port type="output" name="Q"/></direct>

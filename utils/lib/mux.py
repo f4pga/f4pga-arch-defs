@@ -188,8 +188,8 @@ def pb_type_xml(mux_type, mux_name, pins, subckt=None, num_pb=1, comment=""):
                     'delay_constant',
                     {
                         'max': "10e-12",
-                        'in_port': "%s.%s" % (mux_name, inport.name),
-                        'out_port': "%s.%s" % (mux_name, outport.name),
+                        'in_port': "%s" % inport.name,
+                        'out_port': "%s" % outport.name,
                     },
                 )
     elif mux_type == MuxType.ROUTING:

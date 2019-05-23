@@ -14,7 +14,7 @@
    </pb_type>
    <interconnect>
     <direct name="inpad" input="inpad.inpad" output="IOB.inpad">
-     <delay_constant max="4.243e-11" in_port="inpad.inpad" out_port="IOB.inpad"/>
+     <delay_constant max="4.243e-11" in_port="inpad" out_port="inpad"/>
     </direct>
    </interconnect>
  </mode>
@@ -30,7 +30,7 @@
   </pb_type>
   <interconnect>
    <direct name="outpad" input="IOB.outpad" output="outpad.outpad">
-    <delay_constant max="1.394e-11" in_port="IOB.outpad" out_port="outpad.outpad"/>
+    <delay_constant max="1.394e-11" in_port="outpad" out_port="outpad"/>
    </direct>
   </interconnect>
  </mode>

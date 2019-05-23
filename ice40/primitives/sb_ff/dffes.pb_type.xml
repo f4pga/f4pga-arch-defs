@@ -15,10 +15,10 @@
    <input  name="E" num_pins="1"/>
    <input  name="R" num_pins="1"/>
    <input  name="D" num_pins="1"/>
-   <T_clock_to_Q max="10e-12" port="SB_DFFESR.Q" clock="C"/>
-   <T_setup    value="10e-12" port="SB_DFFESR.E" clock="C"/>
-   <T_setup    value="10e-12" port="SB_DFFESR.S" clock="C"/>
-   <T_setup    value="10e-12" port="SB_DFFESR.D" clock="C"/>
+   <T_clock_to_Q max="10e-12" port="Q" clock="C"/>
+   <T_setup    value="10e-12" port="E" clock="C"/>
+   <T_setup    value="10e-12" port="S" clock="C"/>
+   <T_setup    value="10e-12" port="D" clock="C"/>
   </pb_type>
   <interconnect>
    <direct><port type="input" from="SB_DFFESR" name="Q"/><port type="output" name="Q"/></direct>
@@ -37,10 +37,10 @@
    <input  name="E" num_pins="1"/>
    <input  name="R" num_pins="1"/>
    <input  name="D" num_pins="1"/>
-   <T_clock_to_Q max="10e-12" port="SB_DFFER.Q" clock="C"/>
-   <T_setup    value="10e-12" port="SB_DFFER.E" clock="C"/>
-   <T_setup    value="10e-12" port="SB_DFFER.R" clock="C"/>
-   <T_setup    value="10e-12" port="SB_DFFER.D" clock="C"/>
+   <T_clock_to_Q max="10e-12" port="Q" clock="C"/>
+   <T_setup    value="10e-12" port="E" clock="C"/>
+   <T_setup    value="10e-12" port="R" clock="C"/>
+   <T_setup    value="10e-12" port="D" clock="C"/>
   </pb_type>
   <interconnect>
    <direct><port type="input" from="SB_DFFER" name="Q"/><port type="output" name="Q"/></direct>
@@ -59,10 +59,10 @@
    <input  name="E" num_pins="1"/>
    <input  name="S" num_pins="1"/>
    <input  name="D" num_pins="1"/>
-   <T_clock_to_Q max="10e-12" port="SB_DFFESS.Q" clock="C"/>
-   <T_setup    value="10e-12" port="SB_DFFESS.E" clock="C"/>
-   <T_setup    value="10e-12" port="SB_DFFESS.S" clock="C"/>
-   <T_setup    value="10e-12" port="SB_DFFESS.D" clock="C"/>
+   <T_clock_to_Q max="10e-12" port="Q" clock="C"/>
+   <T_setup    value="10e-12" port="E" clock="C"/>
+   <T_setup    value="10e-12" port="S" clock="C"/>
+   <T_setup    value="10e-12" port="D" clock="C"/>
   </pb_type>
   <interconnect>
    <direct><port type="input" from="SB_DFFESS" name="Q"/><port type="output" name="Q"/></direct>
@@ -81,10 +81,10 @@
    <input  name="E" num_pins="1"/>
    <input  name="S" num_pins="1"/>
    <input  name="D" num_pins="1"/>
-   <T_clock_to_Q max="10e-12" port="SB_DFFES.Q" clock="C"/>
-   <T_setup    value="10e-12" port="SB_DFFES.E" clock="C"/>
-   <T_setup    value="10e-12" port="SB_DFFES.R" clock="C"/>
-   <T_setup    value="10e-12" port="SB_DFFES.D" clock="C"/>
+   <T_clock_to_Q max="10e-12" port="Q" clock="C"/>
+   <T_setup    value="10e-12" port="E" clock="C"/>
+   <T_setup    value="10e-12" port="R" clock="C"/>
+   <T_setup    value="10e-12" port="D" clock="C"/>
   </pb_type>
   <interconnect>
    <direct><port type="input" from="SB_DFFES" name="Q"/><port type="output" name="Q"/></direct>

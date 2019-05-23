@@ -3,7 +3,7 @@
   <input name="b" num_pins="32"/>
   <input name="m" num_pins="1"/>
   <output name="out" num_pins="64"/>
-  <delay_constant in_port="dsp_combinational.a" max="30e-12" out_port="dsp_combinational.out"/>
-  <delay_constant in_port="dsp_combinational.b" max="30e-12" out_port="dsp_combinational.out"/>
-  <delay_constant in_port="dsp_combinational.m" max="10e-12" out_port="dsp_combinational.out"/>
+  <delay_constant in_port="a" max="30e-12" out_port="out"/>
+  <delay_constant in_port="b" max="30e-12" out_port="out"/>
+  <delay_constant in_port="m" max="10e-12" out_port="out"/>
 </pb_type>

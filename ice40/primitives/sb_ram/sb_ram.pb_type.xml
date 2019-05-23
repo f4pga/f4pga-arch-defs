@@ -43,38 +43,38 @@
        <input  name="WDATA"  num_pins="16"/>
 
        <!-- Read port timing -->
-       <T_setup value="50e-12" port="SB_RAM256x16.RDATA" clock="RCLK"/>
-       <T_setup value="50e-12" port="SB_RAM256x16.RCLKE" clock="RCLK"/>
-       <T_setup value="50e-12" port="SB_RAM256x16.RE"    clock="RCLK"/>
-       <T_setup value="50e-12" port="SB_RAM256x16.RADDR" clock="RCLK"/>
+       <T_setup value="50e-12" port="RDATA" clock="RCLK"/>
+       <T_setup value="50e-12" port="RCLKE" clock="RCLK"/>
+       <T_setup value="50e-12" port="RE"    clock="RCLK"/>
+       <T_setup value="50e-12" port="RADDR" clock="RCLK"/>
 
-       <T_clock_to_Q max="200e-12" port="SB_RAM256x16.RDATA" clock="RCLK"/>
-       <T_clock_to_Q max="200e-12" port="SB_RAM256x16.RCLKE" clock="RCLK"/>
-       <T_clock_to_Q max="200e-12" port="SB_RAM256x16.RE"    clock="RCLK"/>
-       <T_clock_to_Q max="200e-12" port="SB_RAM256x16.RADDR" clock="RCLK"/>
+       <T_clock_to_Q max="200e-12" port="RDATA" clock="RCLK"/>
+       <T_clock_to_Q max="200e-12" port="RCLKE" clock="RCLK"/>
+       <T_clock_to_Q max="200e-12" port="RE"    clock="RCLK"/>
+       <T_clock_to_Q max="200e-12" port="RADDR" clock="RCLK"/>
 
-       <delay_constant max="740e-12" in_port="SB_RAM256x16.RCLKE" out_port="SB_RAM256x16.RDATA"/>
-       <delay_constant max="740e-12" in_port="SB_RAM256x16.RE"    out_port="SB_RAM256x16.RDATA"/>
-       <delay_constant max="740e-12" in_port="SB_RAM256x16.RADDR" out_port="SB_RAM256x16.RDATA"/>
+       <delay_constant max="740e-12" in_port="RCLKE" out_port="RDATA"/>
+       <delay_constant max="740e-12" in_port="RE"    out_port="RDATA"/>
+       <delay_constant max="740e-12" in_port="RADDR" out_port="RDATA"/>
 
        <!-- Write port timing -->
-       <T_setup value="50e-12" port="SB_RAM256x16.WCLKE" clock="WCLK"/>
-       <T_setup value="50e-12" port="SB_RAM256x16.WE"    clock="WCLK"/>
-       <T_setup value="50e-12" port="SB_RAM256x16.WADDR" clock="WCLK"/>
-       <T_setup value="50e-12" port="SB_RAM256x16.MASK"  clock="WCLK"/>
-       <T_setup value="50e-12" port="SB_RAM256x16.WDATA" clock="WCLK"/>
+       <T_setup value="50e-12" port="WCLKE" clock="WCLK"/>
+       <T_setup value="50e-12" port="WE"    clock="WCLK"/>
+       <T_setup value="50e-12" port="WADDR" clock="WCLK"/>
+       <T_setup value="50e-12" port="MASK"  clock="WCLK"/>
+       <T_setup value="50e-12" port="WDATA" clock="WCLK"/>
 
-       <T_clock_to_Q max="200e-12" port="SB_RAM256x16.WCLKE" clock="WCLK"/>
-       <T_clock_to_Q max="200e-12" port="SB_RAM256x16.WE"    clock="WCLK"/>
-       <T_clock_to_Q max="200e-12" port="SB_RAM256x16.WADDR" clock="WCLK"/>
-       <T_clock_to_Q max="200e-12" port="SB_RAM256x16.MASK"  clock="WCLK"/>
-       <T_clock_to_Q max="200e-12" port="SB_RAM256x16.WDATA" clock="WCLK"/>
+       <T_clock_to_Q max="200e-12" port="WCLKE" clock="WCLK"/>
+       <T_clock_to_Q max="200e-12" port="WE"    clock="WCLK"/>
+       <T_clock_to_Q max="200e-12" port="WADDR" clock="WCLK"/>
+       <T_clock_to_Q max="200e-12" port="MASK"  clock="WCLK"/>
+       <T_clock_to_Q max="200e-12" port="WDATA" clock="WCLK"/>
 
-       <delay_constant max="740e-12" in_port="SB_RAM256x16.WCLKE" out_port="SB_RAM256x16.RDATA"/>
-       <delay_constant max="740e-12" in_port="SB_RAM256x16.WE"    out_port="SB_RAM256x16.RDATA"/>
-       <delay_constant max="740e-12" in_port="SB_RAM256x16.WADDR" out_port="SB_RAM256x16.RDATA"/>
-       <delay_constant max="740e-12" in_port="SB_RAM256x16.MASK"  out_port="SB_RAM256x16.RDATA"/>
-       <delay_constant max="740e-12" in_port="SB_RAM256x16.WDATA" out_port="SB_RAM256x16.RDATA"/>
+       <delay_constant max="740e-12" in_port="WCLKE" out_port="RDATA"/>
+       <delay_constant max="740e-12" in_port="WE"    out_port="RDATA"/>
+       <delay_constant max="740e-12" in_port="WADDR" out_port="RDATA"/>
+       <delay_constant max="740e-12" in_port="MASK"  out_port="RDATA"/>
+       <delay_constant max="740e-12" in_port="WDATA" out_port="RDATA"/>
 
        <metadata>
          <meta name="fasm_params">
