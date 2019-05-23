@@ -1,0 +1,1 @@
+add_subdirectory(convert_and_merge_composable_tests)

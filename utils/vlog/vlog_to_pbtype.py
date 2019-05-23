@@ -378,7 +378,7 @@ def make_pb_content(yj, mod, xml_parent, mod_pname, is_submode=False):
 
     # Process timing
     for name, width, bits, iodir in mod.ports:
-        port = "{}.{}".format(mod_pname, name)
+        port = "{}".format(name)
         # Clocked timing
         Tsetup = mod.net_attr(name, "SETUP")
         Thold = mod.net_attr(name, "HOLD")
@@ -394,7 +394,7 @@ def make_pb_content(yj, mod, xml_parent, mod_pname, is_submode=False):
             if attr.startswith(dly_prefix):
                 # Single, constant delays
                 inp = attr[len(dly_prefix):]
-                inport = "{}.{}".format(mod_pname, inp)
+                inport = "{}".format(inp)
                 ET.SubElement(
                     xml_parent, "delay_constant", {
                         "in_port": inport,
@@ -405,7 +405,7 @@ def make_pb_content(yj, mod, xml_parent, mod_pname, is_submode=False):
             elif attr.startswith(dly_mat_prefix):
                 # Constant delay matrices
                 inp = attr[len(dly_mat_prefix):]
-                inport = "{}.{}".format(mod_pname, inp)
+                inport = "{}".format(inp)
                 mat = "\n" + atvalue.replace(";", "\n") + "\n"
                 xml_mat = ET.SubElement(
                     xml_parent, "delay_matrix", {

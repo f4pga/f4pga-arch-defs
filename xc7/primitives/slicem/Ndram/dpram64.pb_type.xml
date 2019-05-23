@@ -3,10 +3,10 @@
   <clock  name="CLK" num_pins="1" />
 
   <!-- A1 - Read port -->
-  <input  name="A"   num_pins="6" />
-  <output name="O"  num_pins="1" />
+  <input  name="A" num_pins="6" />
+  <output name="O" num_pins="1" />
 
-  <delay_matrix type="max" in_port="DPRAM64.A" out_port="DPRAM64.O">
+  <delay_matrix type="max" in_port="A" out_port="O">
     0.068e-9
     0.068e-9
     0.068e-9
@@ -19,24 +19,28 @@
   <input  name="WA"  num_pins="6" />
   <input  name="WA7" num_pins="1" />
   <input  name="WA8" num_pins="1" />
-  <input  name="DI" num_pins="1" />
+  <input  name="DI"  num_pins="1" />
   <input  name="WE"  num_pins="1" />
 
-  <T_setup      value="10e-12" port="DPRAM64.WA"  clock="CLK" />
-  <T_clock_to_Q   max="10e-12" port="DPRAM64.WA"  clock="CLK" />
-  <delay_constant max="10e-12" in_port="DPRAM64.WA"  out_port="DPRAM64.O" />
-  <T_setup      value="10e-12" port="DPRAM64.WA7"  clock="CLK" />
-  <T_clock_to_Q   max="10e-12" port="DPRAM64.WA7"  clock="CLK" />
-  <delay_constant max="10e-12" in_port="DPRAM64.WA7"  out_port="DPRAM64.O" />
-  <T_setup      value="10e-12" port="DPRAM64.WA8"  clock="CLK" />
-  <T_clock_to_Q   max="10e-12" port="DPRAM64.WA8"  clock="CLK" />
-  <delay_constant max="10e-12" in_port="DPRAM64.WA8"  out_port="DPRAM64.O" />
-  <T_setup    value="10e-12" port="DPRAM64.WE"  clock="CLK" />
-  <T_clock_to_Q   max="10e-12" port="DPRAM64.WE"  clock="CLK" />
-  <delay_constant max="10e-12" in_port="DPRAM64.WE"  out_port="DPRAM64.O" />
-  <T_setup    value="10e-12" port="DPRAM64.DI"  clock="CLK" />
-  <T_clock_to_Q   max="10e-12" port="DPRAM64.DI"  clock="CLK" />
-  <delay_constant max="10e-12" in_port="DPRAM64.DI"  out_port="DPRAM64.O" />
+  <T_setup      value="10e-12" port="WA"     clock="CLK"  />
+  <T_clock_to_Q   max="10e-12" port="WA"     clock="CLK"  />
+  <delay_constant max="10e-12" in_port="WA"  out_port="O" />
+
+  <T_setup      value="10e-12" port="WA7"    clock="CLK"  />
+  <T_clock_to_Q   max="10e-12" port="WA7"    clock="CLK"  />
+  <delay_constant max="10e-12" in_port="WA7" out_port="O" />
+
+  <T_setup      value="10e-12" port="WA8"    clock="CLK"  />
+  <T_clock_to_Q   max="10e-12" port="WA8"    clock="CLK"  />
+  <delay_constant max="10e-12" in_port="WA8" out_port="O" />
+
+  <T_setup      value="10e-12" port="WE"     clock="CLK"  />
+  <T_clock_to_Q   max="10e-12" port="WE"     clock="CLK"  />
+  <delay_constant max="10e-12" in_port="WE"  out_port="O" />
+
+  <T_setup      value="10e-12" port="DI"     clock="CLK"  />
+  <T_clock_to_Q   max="10e-12" port="DI"     clock="CLK"  />
+  <delay_constant max="10e-12" in_port="DI"  out_port="O" />
   <metadata>
     <meta name="fasm_params">
       INIT[63:0] = INIT

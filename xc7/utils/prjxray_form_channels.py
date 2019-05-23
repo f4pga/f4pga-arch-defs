@@ -586,7 +586,7 @@ FROM
   pip_in_tile
   INNER JOIN wire
 WHERE
-  pip_in_tile.is_directional = 1 AND pip_in_tile.is_pseudo = 0 AND (
+  pip_in_tile.is_pseudo = 0 AND (
   pip_in_tile.src_wire_in_tile_pkey = wire.wire_in_tile_pkey
   OR pip_in_tile.dest_wire_in_tile_pkey = wire.wire_in_tile_pkey)
 GROUP BY
@@ -819,7 +819,7 @@ FROM
   wire_in_node
   INNER JOIN pip_in_tile
 WHERE
-  pip_in_tile.is_directional = 1 AND pip_in_tile.is_pseudo = 0 AND (
+  pip_in_tile.is_pseudo = 0 AND (
   pip_in_tile.src_wire_in_tile_pkey = wire_in_node.wire_in_tile_pkey
   OR pip_in_tile.dest_wire_in_tile_pkey = wire_in_node.wire_in_tile_pkey)
 LIMIT
@@ -1258,7 +1258,7 @@ def traverse_pip(conn, wire_in_tile_pkey):
     cur.execute(
         """
 SELECT src_wire_in_tile_pkey FROM pip_in_tile WHERE
-    is_directional = 1 AND is_pseudo = 0 AND
+    is_pseudo = 0 AND
     dest_wire_in_tile_pkey = ?
     ;""", (wire_in_tile_pkey, )
     )
@@ -1270,7 +1270,7 @@ SELECT src_wire_in_tile_pkey FROM pip_in_tile WHERE
     cur.execute(
         """
 SELECT dest_wire_in_tile_pkey FROM pip_in_tile WHERE
-    is_directional = 1 AND is_pseudo = 0 AND
+    is_pseudo = 0 AND
     src_wire_in_tile_pkey = ?
     ;""", (wire_in_tile_pkey, )
     )
