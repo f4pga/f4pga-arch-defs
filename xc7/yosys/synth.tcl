@@ -4,6 +4,8 @@ yosys -import
 # Some of symbiflow expects eblifs with only one module.
 synth_xilinx -vpr -flatten -nosrl
 
+write_verilog $::env(OUT_SYNTH_V).premap.v
+
 # Map Xilinx tech library to 7-series VPR tech library.
 read_verilog -lib $::env(symbiflow-arch-defs_SOURCE_DIR)/xc7/techmap/cells_sim.v
 techmap -map  $::env(symbiflow-arch-defs_SOURCE_DIR)/xc7/techmap/cells_map.v
