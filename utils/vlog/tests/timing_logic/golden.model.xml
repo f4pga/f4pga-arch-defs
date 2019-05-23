@@ -1,23 +1,22 @@
 <models xmlns:xi="http://www.w3.org/2001/XInclude">
   <model name="carry4_vpr">
     <input_ports>
-      <port combinational_sink_ports="CO_CHAIN CO_FABRIC3 CO_FABRIC2 CO_FABRIC1 CO_FABRIC0 O3 O2 O1 O0" name="CIN"/>
-      <port combinational_sink_ports="CO_CHAIN CO_FABRIC3 CO_FABRIC2 CO_FABRIC1 CO_FABRIC0 O3 O2 O1 O0" name="CYINIT"/>
-      <port combinational_sink_ports="CO_CHAIN CO_FABRIC3 CO_FABRIC2 CO_FABRIC1 CO_FABRIC0 O3 O2 O1" name="DI0"/>
-      <port combinational_sink_ports="CO_CHAIN CO_FABRIC3 CO_FABRIC2 CO_FABRIC1 O3 O2" name="DI1"/>
-      <port combinational_sink_ports="CO_CHAIN CO_FABRIC3 CO_FABRIC2 O3" name="DI2"/>
-      <port combinational_sink_ports="CO_CHAIN CO_FABRIC3" name="DI3"/>
-      <port combinational_sink_ports="CO_CHAIN CO_FABRIC3 CO_FABRIC2 CO_FABRIC1 CO_FABRIC0 O3 O2 O1 O0" name="S0"/>
-      <port combinational_sink_ports="CO_CHAIN CO_FABRIC3 CO_FABRIC2 CO_FABRIC1 O3 O2 O1" name="S1"/>
-      <port combinational_sink_ports="CO_CHAIN CO_FABRIC3 CO_FABRIC2 O3 O2" name="S2"/>
-      <port combinational_sink_ports="CO_CHAIN CO_FABRIC3 O3" name="S3"/>
+      <port combinational_sink_ports="CO3 CO2 CO1 CO0 O3 O2 O1 O0" name="CIN"/>
+      <port combinational_sink_ports="CO3 CO2 CO1 CO0 O3 O2 O1 O0" name="CYINIT"/>
+      <port combinational_sink_ports="CO3 CO2 CO1 CO0 O3 O2 O1" name="DI0"/>
+      <port combinational_sink_ports="CO3 CO2 CO1 O3 O2" name="DI1"/>
+      <port combinational_sink_ports="CO3 CO2 O3" name="DI2"/>
+      <port combinational_sink_ports="CO3" name="DI3"/>
+      <port combinational_sink_ports="CO3 CO2 CO1 CO0 O3 O2 O1 O0" name="S0"/>
+      <port combinational_sink_ports="CO3 CO2 CO1 O3 O2 O1" name="S1"/>
+      <port combinational_sink_ports="CO3 CO2 O3 O2" name="S2"/>
+      <port combinational_sink_ports="CO3 O3" name="S3"/>
     </input_ports>
     <output_ports>
-      <port name="CO_CHAIN"/>
-      <port name="CO_FABRIC0"/>
-      <port name="CO_FABRIC1"/>
-      <port name="CO_FABRIC2"/>
-      <port name="CO_FABRIC3"/>
+      <port name="CO0"/>
+      <port name="CO1"/>
+      <port name="CO2"/>
+      <port name="CO3"/>
       <port name="O0"/>
       <port name="O1"/>
       <port name="O2"/>

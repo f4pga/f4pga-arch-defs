@@ -57,7 +57,7 @@ from lib import xmlinc
 from sdf_timing import sdfparse
 
 
-def make_timings(pb_type_xml, sdf_file_name, sdf_cell_path=None, sdf_variant="slow"):
+def make_timings(pb_type_xml, sdf_file_name, sdf_cell_paths=None, sdf_variant="slow"):
     """
     Loads timings from a given SDF file and converts them to appropriate
     statements within pb_type XML.
@@ -90,6 +90,37 @@ def make_timings(pb_type_xml, sdf_file_name, sdf_cell_path=None, sdf_variant="sl
             base *= 1e-3
 
         return base
+
+    def collect_timings(sdf, sdf_cell_paths):
+        """
+        Collects timings for multiple cells which paths are given in the path
+        list.
+        """
+
+        collected_timings = {}
+
+        # For each path
+        for sdf_cell_path in sdf_cell_paths:
+
+            # Only cell name given
+            if "/" not in sdf_cell_path:
+                sdf_cell_name = sdf_cell_path
+                sdf_inst_name = None
+            # Both cell name and instance path given
+            else:
+                sdf_inst_name, sdf_cell_name = sdf_cell_path.rsplit("/", maxsplit=1)
+
+            # Get the SDF timing info for a particular CELL/INSTANCE
+            try:
+                sdf_cell = sdf["cells"][sdf_cell_name]
+            except KeyError:
+                print("ERROR, the SDF file does not contain data for cell '{}'".format(sdf_cell_path))
+                continue
+
+            # Collect
+            collected_timings.update(sdf_cell[sdf_inst_name])
+
+        return collected_timings
 
     def pin_list(xml_tag):
         """
@@ -124,51 +155,17 @@ def make_timings(pb_type_xml, sdf_file_name, sdf_cell_path=None, sdf_variant="sl
     for xml_tag in pb_type_xml.findall("output"):
         pb_outputs.extend(pin_list(xml_tag))
 
-    # No cell path given
-    if sdf_cell_path is None:
-        sdf_cell_name = None
-        sdf_inst_name = None
-    # Only cell name given
-    elif "/" not in sdf_cell_path:
-        sdf_cell_name = sdf_cell_path
-        sdf_inst_name = None
-    # Both cell name and instance path given
-    else:
-        sdf_inst_name, sdf_cell_name = sdf_cell_path.rsplit("/", maxsplit=1)
+    # No cell path given, try using the pb_name
+    if sdf_cell_paths is None:
+        sdf_cell_paths = (pb_name.upper())
 
-    # Try automatically matching the pb_name to SDF cell name
-    if sdf_cell_name is None:
-        sdf_cell_name = pb_name.upper()
-
-    if sdf_cell_name not in sdf["cells"].keys():
-        print("ERROR, cell name '{}' not found in the SDF file!".format(sdf_cell_name))
-        return pb_type_xml
-
-    # Get the SDF timing info for a particular CELL/INSTANCE
-    try:
-        sdf_cell = sdf["cells"][sdf_cell_name]
-    except KeyError:
-        print("ERROR, the SDF file does not contain data for cell '{}'".format(sdf_cell_name))
-        exit(-1)
-
-    # If the instance is not specified and there is only one in the SDF than
-    # take this one
-    if sdf_inst_name is None:
-
-        if len(sdf_cell.keys()) > 1:
-            print("ERROR, multiple instances for cell '{}' and instance not given".format(sdf_cell_name))
-            exit(-1)
-
-        sdf_inst_name = next(iter(sdf_cell.keys()), None)
-
-    try:
-        sdf_timing = sdf_cell[sdf_inst_name]
-    except KeyError:
-        print("ERROR, the SDF file does not contain data for cell instance '{}'".format(sdf_inst_name))
+    # Collect timings for given paths
+    sdf_timings = collect_timings(sdf, sdf_cell_paths)
+    if len(sdf_timings) == 0:
         exit(-1)
 
     # Process SDF timing entires
-    for key, sdf_timing in sdf_timing.items():
+    for key, sdf_timing in sdf_timings.items():
 
         sdf_inp = sdf_timing["from_pin"]
         sdf_out = sdf_timing["to_pin"]
@@ -674,10 +671,11 @@ parser.add_argument(
 )
 
 parser.add_argument(
-    '--sdf-cell',
+    '--sdf-cells',
     type=str,
+    nargs="*",
     default=None,
-    help="""SDF cell type to import timing from. If not given then inferred automatically"""
+    help="""SDF cell paths(s) to import timings from. If not given then inferred automatically"""
 )
 
 def main(args):
@@ -705,9 +703,9 @@ def main(args):
 
     pb_type_xml = make_pb_type(args.outfile, yj, tmod)
 
-    # Inject timings
+    # Timings
     if args.sdf is not None:
-        pb_type_xml = make_timings(pb_type_xml, args.sdf, args.sdf_cell)
+        pb_type_xml = make_timings(pb_type_xml, args.sdf, args.sdf_cells)
 
     with open(args.outfile, "w") as fp:
         fp.write(

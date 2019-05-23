@@ -141,7 +141,8 @@ function(V2X_TEST_BOTH)
   #
   # Usage: v2x_test_model(NAME <test_name> TOP_MODULE <top_module.v>) (All fields are required)
 
-  set(oneValueArgs NAME TOP_MODULE SDF_FILE SDF_CELL)
+  set(oneValueArgs NAME TOP_MODULE SDF_FILE)
+  set(multiValueArgs SDF_CELLS)
   cmake_parse_arguments(
     V2X_TEST_BOTH
     "${options}"
@@ -161,7 +162,7 @@ function(V2X_TEST_BOTH)
 
     set(V2X_PB_TYPE_EXTRA_ARGS "")
     list(APPEND V2X_PB_TYPE_EXTRA_ARGS --sdf ${TIMING_PATH}/${V2X_TEST_BOTH_SDF_FILE})
-    list(APPEND V2X_PB_TYPE_EXTRA_ARGS --sdf-cell ${V2X_TEST_BOTH_SDF_CELL})
+    list(APPEND V2X_PB_TYPE_EXTRA_ARGS --sdf-cells ${V2X_TEST_BOTH_SDF_CELLS})
 
     v2x(NAME ${NAME} SRCS ${SRC} TOP_MODULE ${TOP_MODULE} V2X_PB_TYPE_EXTRA_ARGS ${V2X_PB_TYPE_EXTRA_ARGS})
   else()

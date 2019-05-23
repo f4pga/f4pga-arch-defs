@@ -1,11 +1,10 @@
 <?xml version='1.0' encoding='utf-8'?>
 <pb_type xmlns:xi="http://www.w3.org/2001/XInclude" blif_model=".subckt carry4_vpr" name="carry4_vpr" num_pb="1">
   <input name="CIN" num_pins="1"/>
-  <output name="CO_CHAIN" num_pins="1"/>
-  <output name="CO_FABRIC0" num_pins="1"/>
-  <output name="CO_FABRIC1" num_pins="1"/>
-  <output name="CO_FABRIC2" num_pins="1"/>
-  <output name="CO_FABRIC3" num_pins="1"/>
+  <output name="CO0" num_pins="1"/>
+  <output name="CO1" num_pins="1"/>
+  <output name="CO2" num_pins="1"/>
+  <output name="CO3" num_pins="1"/>
   <input name="CYINIT" num_pins="1"/>
   <input name="DI0" num_pins="1"/>
   <input name="DI1" num_pins="1"/>
@@ -19,22 +18,56 @@
   <input name="S1" num_pins="1"/>
   <input name="S2" num_pins="1"/>
   <input name="S3" num_pins="1"/>
+  <delay_constant in_port="carry4_vpr.CIN" out_port="carry4_vpr.CO0" min="2.060e-13" max="2.710e-13"/>
+  <delay_constant in_port="carry4_vpr.CIN" out_port="carry4_vpr.CO1" min="1.270e-13" max="1.570e-13"/>
+  <delay_constant in_port="carry4_vpr.CIN" out_port="carry4_vpr.CO2" min="1.840e-13" max="2.280e-13"/>
+  <delay_constant in_port="carry4_vpr.CIN" out_port="carry4_vpr.CO3" min="9.200e-14" max="1.140e-13"/>
   <delay_constant in_port="carry4_vpr.CIN" out_port="carry4_vpr.O0" min="1.500e-13" max="2.220e-13"/>
   <delay_constant in_port="carry4_vpr.CIN" out_port="carry4_vpr.O1" min="2.690e-13" max="3.340e-13"/>
   <delay_constant in_port="carry4_vpr.CIN" out_port="carry4_vpr.O2" min="1.920e-13" max="2.390e-13"/>
   <delay_constant in_port="carry4_vpr.CIN" out_port="carry4_vpr.O3" min="2.520e-13" max="3.130e-13"/>
+  <delay_constant in_port="carry4_vpr.CYINIT" out_port="carry4_vpr.CO0" min="4.320e-13" max="5.360e-13"/>
+  <delay_constant in_port="carry4_vpr.CYINIT" out_port="carry4_vpr.CO1" min="3.980e-13" max="4.940e-13"/>
+  <delay_constant in_port="carry4_vpr.CYINIT" out_port="carry4_vpr.CO2" min="4.770e-13" max="5.920e-13"/>
+  <delay_constant in_port="carry4_vpr.CYINIT" out_port="carry4_vpr.CO3" min="4.670e-13" max="5.800e-13"/>
   <delay_constant in_port="carry4_vpr.CYINIT" out_port="carry4_vpr.O0" min="3.880e-13" max="4.820e-13"/>
   <delay_constant in_port="carry4_vpr.CYINIT" out_port="carry4_vpr.O1" min="4.820e-13" max="5.980e-13"/>
   <delay_constant in_port="carry4_vpr.CYINIT" out_port="carry4_vpr.O2" min="4.710e-13" max="5.840e-13"/>
   <delay_constant in_port="carry4_vpr.CYINIT" out_port="carry4_vpr.O3" min="5.180e-13" max="6.420e-13"/>
+  <delay_constant in_port="carry4_vpr.S0" out_port="carry4_vpr.CO0" min="2.580e-13" max="3.400e-13"/>
+  <delay_constant in_port="carry4_vpr.S0" out_port="carry4_vpr.CO1" min="3.290e-13" max="4.330e-13"/>
+  <delay_constant in_port="carry4_vpr.S0" out_port="carry4_vpr.CO2" min="3.890e-13" max="5.120e-13"/>
+  <delay_constant in_port="carry4_vpr.S0" out_port="carry4_vpr.CO3" min="3.860e-13" max="5.080e-13"/>
   <delay_constant in_port="carry4_vpr.S0" out_port="carry4_vpr.O0" min="1.700e-13" max="2.230e-13"/>
   <delay_constant in_port="carry4_vpr.S0" out_port="carry4_vpr.O1" min="3.040e-13" max="4.000e-13"/>
   <delay_constant in_port="carry4_vpr.S0" out_port="carry4_vpr.O2" min="3.980e-13" max="5.230e-13"/>
   <delay_constant in_port="carry4_vpr.S0" out_port="carry4_vpr.O3" min="4.420e-13" max="5.820e-13"/>
+  <delay_constant in_port="carry4_vpr.S1" out_port="carry4_vpr.CO1" min="3.560e-13" max="4.690e-13"/>
+  <delay_constant in_port="carry4_vpr.S1" out_port="carry4_vpr.CO2" min="4.170e-13" max="5.480e-13"/>
+  <delay_constant in_port="carry4_vpr.S1" out_port="carry4_vpr.CO3" min="4.010e-13" max="5.280e-13"/>
   <delay_constant in_port="carry4_vpr.S1" out_port="carry4_vpr.O1" min="1.560e-13" max="2.050e-13"/>
   <delay_constant in_port="carry4_vpr.S1" out_port="carry4_vpr.O2" min="4.240e-13" max="5.580e-13"/>
   <delay_constant in_port="carry4_vpr.S1" out_port="carry4_vpr.O3" min="4.700e-13" max="6.180e-13"/>
+  <delay_constant in_port="carry4_vpr.S2" out_port="carry4_vpr.CO2" min="2.220e-13" max="2.920e-13"/>
+  <delay_constant in_port="carry4_vpr.S2" out_port="carry4_vpr.CO3" min="2.860e-13" max="3.760e-13"/>
   <delay_constant in_port="carry4_vpr.S2" out_port="carry4_vpr.O2" min="1.710e-13" max="2.260e-13"/>
   <delay_constant in_port="carry4_vpr.S2" out_port="carry4_vpr.O3" min="2.510e-13" max="3.300e-13"/>
+  <delay_constant in_port="carry4_vpr.S3" out_port="carry4_vpr.CO3" min="2.890e-13" max="3.800e-13"/>
   <delay_constant in_port="carry4_vpr.S3" out_port="carry4_vpr.O3" min="1.720e-13" max="2.270e-13"/>
+  <delay_constant in_port="carry4_vpr.DI0" out_port="carry4_vpr.CO0" min="3.060e-13" max="3.790e-13"/>
+  <delay_constant in_port="carry4_vpr.DI0" out_port="carry4_vpr.CO1" min="3.750e-13" max="4.650e-13"/>
+  <delay_constant in_port="carry4_vpr.DI0" out_port="carry4_vpr.CO2" min="4.350e-13" max="5.400e-13"/>
+  <delay_constant in_port="carry4_vpr.DI0" out_port="carry4_vpr.CO3" min="4.240e-13" max="5.260e-13"/>
+  <delay_constant in_port="carry4_vpr.DI0" out_port="carry4_vpr.O1" min="3.280e-13" max="4.070e-13"/>
+  <delay_constant in_port="carry4_vpr.DI0" out_port="carry4_vpr.O2" min="4.480e-13" max="5.560e-13"/>
+  <delay_constant in_port="carry4_vpr.DI0" out_port="carry4_vpr.O3" min="4.960e-13" max="6.150e-13"/>
+  <delay_constant in_port="carry4_vpr.DI1" out_port="carry4_vpr.CO1" min="3.590e-13" max="4.450e-13"/>
+  <delay_constant in_port="carry4_vpr.DI1" out_port="carry4_vpr.CO2" min="4.190e-13" max="5.200e-13"/>
+  <delay_constant in_port="carry4_vpr.DI1" out_port="carry4_vpr.CO3" min="4.090e-13" max="5.070e-13"/>
+  <delay_constant in_port="carry4_vpr.DI1" out_port="carry4_vpr.O2" min="4.330e-13" max="5.370e-13"/>
+  <delay_constant in_port="carry4_vpr.DI1" out_port="carry4_vpr.O3" min="4.810e-13" max="5.960e-13"/>
+  <delay_constant in_port="carry4_vpr.DI2" out_port="carry4_vpr.CO2" min="2.870e-13" max="3.560e-13"/>
+  <delay_constant in_port="carry4_vpr.DI2" out_port="carry4_vpr.CO3" min="3.210e-13" max="3.980e-13"/>
+  <delay_constant in_port="carry4_vpr.DI2" out_port="carry4_vpr.O3" min="3.530e-13" max="4.380e-13"/>
+  <delay_constant in_port="carry4_vpr.DI3" out_port="carry4_vpr.CO3" min="3.100e-13" max="3.850e-13"/>
 </pb_type>

@@ -1,4 +1,4 @@
-module carry4_vpr (O0, O1, O2, O3, CO_CHAIN, CO_FABRIC0, CO_FABRIC1, CO_FABRIC2, CO_FABRIC3, CYINIT, CIN, DI0, DI1, DI2, DI3, S0, S1, S2, S3);
+module carry4_vpr (O0, O1, O2, O3, /*CO_CHAIN,*/ CO0, CO1, CO2, CO3, CYINIT, CIN, DI0, DI1, DI2, DI3, S0, S1, S2, S3);
   parameter CYINIT_AX = 1'b0;
   parameter CYINIT_C0 = 1'b0;
   parameter CYINIT_C1 = 1'b0;
@@ -7,11 +7,11 @@ module carry4_vpr (O0, O1, O2, O3, CO_CHAIN, CO_FABRIC0, CO_FABRIC1, CO_FABRIC2,
   output wire O1;
   output wire O2;
   output wire O3;
-  output wire CO_FABRIC0;
-  output wire CO_FABRIC1;
-  output wire CO_FABRIC2;
-  output wire CO_FABRIC3;
-  output wire CO_CHAIN;
+  output wire CO0;
+  output wire CO1;
+  output wire CO2;
+  output wire CO3;
+  //output wire CO_CHAIN;
 
   input wire DI0, DI1, DI2, DI3;
   input wire S0, S1, S2, S3;
@@ -31,15 +31,15 @@ module carry4_vpr (O0, O1, O2, O3, CO_CHAIN, CO_FABRIC0, CO_FABRIC1, CO_FABRIC2,
   assign CI3 = S2 ? CI2 : DI2;
   assign CI4 = S3 ? CI3 : DI3;
 
-  assign CO_FABRIC0 = CI1;
-  assign CO_FABRIC1 = CI2;
-  assign CO_FABRIC2 = CI3;
-  assign CO_FABRIC3 = CI4;
+  assign CO0 = CI1;
+  assign CO1 = CI2;
+  assign CO2 = CI3;
+  assign CO3 = CI4;
 
   assign O0 = CI0 ^ S0;
   assign O1 = CI1 ^ S1;
   assign O2 = CI2 ^ S2;
   assign O3 = CI3 ^ S3;
 
-  assign CO_CHAIN = CO_FABRIC3;
+  //assign CO_CHAIN = CO3;
 endmodule
