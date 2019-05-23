@@ -157,8 +157,7 @@ function(V2X_TEST_BOTH)
   set(SRC ${NAME}.sim.v)
   if(DEFINED V2X_TEST_BOTH_SDF_FILE)
 
-    # FIXME
-    set(TIMING_PATH ${symbiflow-arch-defs_SOURCE_DIR}/third_party/prjxray-db/artix7/timings/)
+    set(TIMING_PATH ${symbiflow-arch-defs_SOURCE_DIR}/third_party/)
 
     set(V2X_PB_TYPE_EXTRA_ARGS "")
     list(APPEND V2X_PB_TYPE_EXTRA_ARGS --sdf ${TIMING_PATH}/${V2X_TEST_BOTH_SDF_FILE})
