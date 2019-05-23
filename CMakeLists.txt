@@ -12,7 +12,11 @@ include(common/cmake/tools.cmake)
 
 find_package(PythonInterp 3 REQUIRED)
 
-add_custom_target(test_python)
+add_custom_target(
+   test_python
+   DEPENDS
+      conda_pytest all_pip
+   )
 
 # Some commands use file locks to prevent incorrect parallel access.
 # All file locks are required to register a clean command with the clean_locks
