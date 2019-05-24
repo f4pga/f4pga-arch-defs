@@ -240,6 +240,7 @@ function(ADD_CONDA_PIP)
   # ~~~
   # ADD_CONDA_PIP(
   #   NAME <name>
+  #   [URL] <url>
   #   [NO_EXE]
   #   )
   # ~~~
@@ -247,8 +248,9 @@ function(ADD_CONDA_PIP)
   # Installs an executable via conda PIP.  This generates two env properties.
   # <name> is set to the path to the executable. <name>_TARGET is set to the
   # target that will invoke pip if not already installed.
+  # If the URL is given then the installation is done from that URL.
   set(options NO_EXE)
-  set(oneValueArgs NAME)
+  set(oneValueArgs NAME URL)
   set(multiValueArgs)
   cmake_parse_arguments(
     ADD_CONDA_PIP
@@ -259,6 +261,13 @@ function(ADD_CONDA_PIP)
   )
 
   set(NAME ${ADD_CONDA_PIP_NAME})
+
+  if(DEFINED ADD_CONDA_PIP_URL)
+    set(INSTALL_NAME ${ADD_CONDA_PIP_URL})
+  else()
+    set(INSTALL_NAME ${NAME})
+  endif()
+
   get_target_property_required(USE_CONDA env USE_CONDA)
   string(TOUPPER ${NAME} binary_upper)
   if(${USE_CONDA})
@@ -270,7 +279,7 @@ function(ADD_CONDA_PIP)
       add_custom_command(
         OUTPUT ${NAME}.pip
         COMMAND ${CMAKE_COMMAND} -E echo "Taking ${PIP}.lock"
-        COMMAND flock ${PIP}.lock ${PIP} install ${NAME}
+        COMMAND flock ${PIP}.lock ${PIP} install ${INSTALL_NAME}
         COMMAND ${CMAKE_COMMAND} -E touch ${NAME}.pip
         DEPENDS ${PIP} ${PIP_TARGET}
         )
@@ -285,7 +294,7 @@ function(ADD_CONDA_PIP)
       add_custom_command(
         OUTPUT ${BIN}
         COMMAND ${CMAKE_COMMAND} -E echo "Taking ${PIP}.lock"
-        COMMAND flock ${PIP}.lock ${PIP} install ${NAME}
+        COMMAND flock ${PIP}.lock ${PIP} install ${INSTALL_NAME}
         DEPENDS ${PIP} ${PIP_TARGET}
         )
       add_custom_target(

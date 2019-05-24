@@ -100,7 +100,8 @@ add_conda_pip(
 )
 
 add_conda_pip(
-  NAME ply
+  NAME sdf-timing
+  URL git+https://github.com/SymbiFlow/python-sdf-timing.git@dfcefc5
   NO_EXE
 )
 

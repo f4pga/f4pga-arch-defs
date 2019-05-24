@@ -38,8 +38,7 @@ function(V2X)
   get_target_property(PYTHON3_TARGET env PYTHON3_TARGET)
   list(APPEND DEPENDS_LIST ${PYTHON3} ${PYTHON3_TARGET})
 
-  list(APPEND DEPENDS_LIST ${PYTHON3} ply)
-  set(PYTHON_SDF_TIMING_DIR ${symbiflow-arch-defs_SOURCE_DIR}/third_party/python-sdf-timing)
+  list(APPEND DEPENDS_LIST ${PYTHON3} sdf-timing)
 
   get_target_property_required(YOSYS env YOSYS)
   get_target_property(YOSYS_TARGET env YOSYS_TARGET)
@@ -98,7 +97,7 @@ function(V2X)
       ${DEPENDS_LIST}
       ${symbiflow-arch-defs_SOURCE_DIR}/utils/vlog/vlog_to_pbtype.py
     COMMAND
-      ${CMAKE_COMMAND} -E env YOSYS=${YOSYS} PYTHONPATH=${PYTHON_SDF_TIMING_DIR} ${PYTHON3} ${symbiflow-arch-defs_SOURCE_DIR}/utils/vlog/vlog_to_pbtype.py ${TOP_ARG} ${V2X_PB_TYPE_EXTRA_ARGS}
+      ${CMAKE_COMMAND} -E env YOSYS=${YOSYS} ${PYTHON3} ${symbiflow-arch-defs_SOURCE_DIR}/utils/vlog/vlog_to_pbtype.py ${TOP_ARG} ${V2X_PB_TYPE_EXTRA_ARGS}
       -o ${CMAKE_CURRENT_BINARY_DIR}/${V2X_NAME}.pb_type.xml ${FIRST_SOURCE}
       ${INCLUDE_ARG}
     WORKING_DIRECTORY ${symbiflow-arch-defs_SOURCE_DIR}/utils/vlog/
