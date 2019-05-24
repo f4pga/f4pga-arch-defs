@@ -40,6 +40,18 @@ class YosysModule:
             )
         return plist
 
+    def get_port_net_attrs(self, port):
+        """
+        Returns a dict of attributes of a net connected to the given port. Returns
+        an empty dict if the port is not connected to any net.
+        """
+        assert port in self.data["ports"].keys()
+
+        if port in self.data["netnames"].keys():
+            return self.data["netnames"][port]["attributes"]
+        else:
+            return {}
+
     @property
     def cells(self):
         """List of cells of a module, excluding Yosys-internal cells

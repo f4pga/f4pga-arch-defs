@@ -46,6 +46,7 @@ The Verilog define "PB_TYPE" is set during generation.
 
 import os, sys
 import argparse, re
+import itertools
 
 import lxml.etree as ET
 
@@ -58,8 +59,23 @@ from sdf_timing import sdfparse
 from sdf_timing import utils as sdf_utils
 
 
+def get_mod_port_net_attrs(module):
+    """
+    Generates a dict indexed by port names with attributes of nets connected
+    to them.
+    """
+
+    port_attrs = {}
+
+    for port in module.data["ports"].keys():
+        port_attrs[port] = module.get_port_net_attrs(port)
+
+    return port_attrs
+
+
 def make_timings(
         pb_type_xml,
+        port_attrs,
         sdf_file_name,
         sdf_cell_paths=None,
         insert_values=False,
@@ -116,17 +132,69 @@ def make_timings(
 
         return collected_timings
 
-    def pin_list(xml_tag):
+    def get_pin_sdf_name(port_name, port_attrs):
+        """
+        Get SDF alias of a pin
+        """
+
+        # We have alias
+        if "SDF_ALIAS" in port_attrs[port_name].keys():
+            return port_attrs[port_name]["SDF_ALIAS"]
+
+        return port_name
+
+    def pin_list(port_attrs, xml_tag):
         """
         Returns a pin list generated from <pb_type> port definition. When the
-        num_pb > 1 ports are named as nameX where X is the pin index.
+        num_pb > 1 ports are named as nameX where X is the pin index. Each pin
+        is associated with its SDF alias name.
         """
-        name = xml_tag.get("name")
-        numb = int(xml_tag.get("num_pins"))
-        if numb == 1:
-            return [name]
+        pin_count = int(xml_tag.get("num_pins"))
+        if pin_count == 1:
+            pin_names = [xml_tag.get("name")]
         else:
-            return ["{}{}".format(name, i) for i in range(numb)]
+            pin_names = [
+                "{}{}".format(xml_tag.get("name"), i)
+                for i in range(pin_count)
+            ]
+
+        pins = {name: get_pin_sdf_name(name, port_attrs) for name in pin_names}
+        return pins
+
+    def insert_minmax(xml_tag, sdf_tag, sdf_timing):
+        """
+        Inserts a min,max timing tag to an XML element
+        """
+        # Insert timing values
+        if insert_values:
+            for var in ("min", "max"):
+                xml_tag.set(
+                    var, "{:.3e}".format(
+                        sdf_timing["delay_paths"][sdf_variant][var] * scale
+                    )
+                )
+        # Insert template
+        else:
+            for var in ("min", "max"):
+                xml_tag.set(
+                    var, "{" + sdf_tag + "}"
+                )  # TODO: Handle min and max
+
+    def insert_single(xml_tag, sdf_tag, sdf_timing):
+        """
+        Inserts a single timing tag to an XML element
+        """
+        # Insert timing value
+        if insert_values:
+            # The VPR supports only one value so the "max" is chosen
+            xml_tag.set(
+                "value", "{:.3e}".format(
+                    sdf_timing["delay_paths"]["nominal"]["max"] * scale
+                )
+            )
+        # Insert template
+        else:
+            xml_tag.set("value", "{" + sdf_tag + "}")
 
     # Load the SDF
     with open(sdf_file_name, "r") as fp:
@@ -139,15 +207,20 @@ def make_timings(
     pb_name = pb_type_xml.get("name")
 
     # Get pb ports (inputs, clocks, outputs)
-    pb_inputs = []
+    pb_inputs = {}
     for xml_tag in pb_type_xml.findall("input"):
-        pb_inputs.extend(pin_list(xml_tag))
-    pb_clocks = []
+        pb_inputs.update(pin_list(port_attrs, xml_tag))
+    pb_clocks = {}
     for xml_tag in pb_type_xml.findall("clock"):
-        pb_clocks.extend(pin_list(xml_tag))
-    pb_outputs = []
+        pb_clocks.update(pin_list(port_attrs, xml_tag))
+    pb_outputs = {}
     for xml_tag in pb_type_xml.findall("output"):
-        pb_outputs.extend(pin_list(xml_tag))
+        pb_outputs.update(pin_list(port_attrs, xml_tag))
+
+    # DEBUG
+    for d in (pb_inputs, pb_clocks, pb_outputs):
+        for k, v in d.items():
+            print(k, v)
 
     # No cell path given, try using the pb_name
     if sdf_cell_paths is None:
@@ -177,15 +250,19 @@ def make_timings(
         # IOPATH delay
         if sdf_timing["type"] == "iopath":
 
-            assert sdf_timing["is_absolute"] == True
+            if sdf_timing["is_absolute"] != True:
+                print("ERROR, only absolute IOPATH timings are supported!")
+                print(" ", sdf_timing)
+                continue
 
             # Find pins
-            pb_inp = sdf_inp if sdf_inp in pb_inputs else None
-            pb_clk = sdf_inp if sdf_inp in pb_clocks else None
-            pb_out = sdf_out if sdf_out in pb_outputs else None
+            pb_inp_list = [k for k, v in pb_inputs.items() if v == sdf_inp]
+            pb_clk_list = [k for k, v in pb_clocks.items() if v == sdf_inp]
+            pb_out_list = [k for k, v in pb_outputs.items() if v == sdf_out]
 
             # Cannot match SDF to <pb_type>
-            if (pb_inp is None and pb_clk is None) or pb_out is None:
+            if (len(pb_inp_list) == 0
+                    and len(pb_clk_list) == 0) or len(pb_out_list) == 0:
                 print(
                     "Cannot match pins ({} -> {}) for SDF timing entry:".
                     format(sdf_inp, sdf_out)
@@ -194,35 +271,32 @@ def make_timings(
                 continue
 
             # "delay_constant"
-            if pb_clk is None:
-                xml_tag = ET.SubElement(pb_type_xml, "delay_constant")
-                xml_tag.set("in_port", "{}.{}".format(pb_name, pb_inp))
-                xml_tag.set("out_port", "{}.{}".format(pb_name, pb_out))
+            if len(pb_clk_list) == 0:
+                for pb_inp, pb_out in itertools.product(pb_inp_list,
+                                                        pb_out_list):
+                    xml_tag = ET.SubElement(pb_type_xml, "delay_constant")
+                    xml_tag.set("in_port", "{}.{}".format(pb_name, pb_inp))
+                    xml_tag.set("out_port", "{}.{}".format(pb_name, pb_out))
+                    insert_minmax(xml_tag, key, sdf_timing)
 
             # "T_clock_to_Q"
             else:
-                xml_tag = ET.SubElement(pb_type_xml, "T_clock_to_Q")
-                xml_tag.set("clock", "{}.{}".format(pb_name, pb_clk))
-                xml_tag.set("port", "{}.{}".format(pb_name, pb_out))
-
-            # Insert timing value
-            if insert_values:
-                for var in ("min", "max"):
-                    xml_tag.set(
-                        var, "{:.3e}".format(
-                            sdf_timing["delay_paths"][sdf_variant][var] * scale
-                        )
-                    )
-
-            # Insert template
-            else:
-                for var in ("min", "max"):
-                    xml_tag.set(
-                        var, "{" + key + "}"
-                    )  # TODO: Handle min and max
+                for pb_clk, pb_out in itertools.product(pb_clk_list,
+                                                        pb_out_list):
+                    xml_tag = ET.SubElement(pb_type_xml, "T_clock_to_Q")
+                    xml_tag.set("clock", "{}.{}".format(pb_name, pb_clk))
+                    xml_tag.set("port", "{}.{}".format(pb_name, pb_out))
+                    insert_minmax(xml_tag, key, sdf_timing)
 
         # SETUP / HOLD or RECOVERY / REMOVAL delay
         elif sdf_timing["type"] in ("setup", "hold", "recovery", "removal"):
+
+            if sdf_timing["is_absolute"] == True:
+                print(
+                    "ERROR, absolute SETUP,HOLD,RECOVERY and REMOVAL timings are not supported!"
+                )
+                print(" ", sdf_timing)
+                continue
 
             tag_map = {
                 "setup": "setup",
@@ -231,14 +305,12 @@ def make_timings(
                 "removal": "hold",
             }
 
-            assert sdf_timing["is_absolute"] == False
-
             # Find pins
-            pb_inp = sdf_out if sdf_out in pb_inputs else None
-            pb_clk = sdf_inp if sdf_inp in pb_clocks else None
+            pb_inp_list = [k for k, v in pb_inputs.items() if v == sdf_out]
+            pb_clk_list = [k for k, v in pb_clocks.items() if v == sdf_inp]
 
             # Cannot match SDF to <pb_type>
-            if pb_inp is None or pb_clk is None:
+            if len(pb_inp_list) == 0 or len(pb_clk_list) == 0:
                 print(
                     "Cannot match pins ({}, {}) for SDF timing entry:".format(
                         sdf_inp, sdf_out
@@ -247,24 +319,14 @@ def make_timings(
                 print(" ", sdf_timing)
                 continue
 
-            xml_tag = ET.SubElement(
-                pb_type_xml, "T_{}".format(tag_map[sdf_timing["type"]])
-            )
-            xml_tag.set("clock", "{}.{}".format(pb_name, pb_clk))
-            xml_tag.set("port", "{}.{}".format(pb_name, pb_inp))
+            for pb_inp, pb_clk in itertools.product(pb_inp_list, pb_clk_list):
 
-            # Insert timing value
-            if insert_values:
-                # The VPR supports only one value so the "max" is chosen
-                xml_tag.set(
-                    "value", "{:.3e}".format(
-                        sdf_timing["delay_paths"]["nominal"]["max"] * scale
-                    )
+                xml_tag = ET.SubElement(
+                    pb_type_xml, "T_{}".format(tag_map[sdf_timing["type"]])
                 )
-
-            # Insert template
-            else:
-                xml_tag.set("value", "{" + key + "}")
+                xml_tag.set("clock", "{}.{}".format(pb_name, pb_clk))
+                xml_tag.set("port", "{}.{}".format(pb_name, pb_inp))
+                insert_single(xml_tag, key, sdf_timing)
 
         # Something else
         else:
@@ -749,8 +811,10 @@ def main(args):
 
     # Timings
     if args.sdf is not None:
+        tmod_port_attrs = get_mod_port_net_attrs(tmod)
         pb_type_xml = make_timings(
-            pb_type_xml, args.sdf, args.sdf_cells, args.sdf_use_timings
+            pb_type_xml, tmod_port_attrs, args.sdf, args.sdf_cells,
+            args.sdf_use_timings
         )
 
     with open(args.outfile, "w") as fp:
