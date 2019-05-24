@@ -8,6 +8,138 @@ import lxml.etree as ET
 import pb_type
 
 
+class TestFindLeafBlifAttribute(unittest.TestCase):
+    def test_not_found(self):
+        xml = ET.parse(StringIO("""\
+<pb_type name="top" num_pb="1"></pb_type>
+"""))
+        self.assertIsNone(pb_type.find_leaf(xml.getroot()))
+
+    def test_top_subckt(self):
+        xml = ET.parse(StringIO("""\
+<pb_type name="top" num_pb="1" blif_model=".subckt abc"></pb_type>
+"""))
+        r = xml.getroot()
+        self.assertIs(r, pb_type.find_leaf(r))
+
+    def test_top_lut(self):
+        xml = ET.parse(StringIO("""\
+<pb_type name="top" num_pb="1" blif_model=".names"></pb_type>
+"""))
+        r = xml.getroot()
+        self.assertIs(r, pb_type.find_leaf(r))
+
+    def test_prefix_spaces(self):
+        xml = ET.parse(StringIO("""\
+<pb_type name="top" num_pb="1" blif_model="   .subckt abc"></pb_type>
+"""))
+        r = xml.getroot()
+        self.assertIs(r, pb_type.find_leaf(r))
+
+    def test_suffix_spaces(self):
+        xml = ET.parse(StringIO("""\
+<pb_type name="top" num_pb="1" blif_model=".subckt abc   "></pb_type>
+"""))
+        r = xml.getroot()
+        self.assertIs(r, pb_type.find_leaf(r))
+
+    def test_leaf_subckt(self):
+        xml = ET.parse(StringIO("""\
+<pb_type name="top" num_pb="1">
+  <pb_type name="middle" num_pb="1">
+    <pb_type name="leaf" num_pb="1" blif_model=".subckt abc">
+    </pb_type>
+  </pb_type>
+</pb_type>
+"""))
+        r = xml.getroot()
+        leaf = xml.find("//pb_type[@name='leaf']")
+        assert leaf is not None
+        self.assertIs(leaf, pb_type.find_leaf(r))
+
+    def test_leaf_lut(self):
+        xml = ET.parse(StringIO("""\
+<pb_type name="top" num_pb="1">
+  <pb_type name="middle" num_pb="1">
+    <pb_type name="leaf" num_pb="1" blif_model=".names">
+    </pb_type>
+  </pb_type>
+</pb_type>
+"""))
+        r = xml.getroot()
+        leaf = xml.find("//pb_type[@name='leaf']")
+        assert leaf is not None
+        self.assertIs(leaf, pb_type.find_leaf(r))
+
+
+class TestFindLeafBlifTag(unittest.TestCase):
+    def test_top_subckt(self):
+        xml = ET.parse(StringIO("""\
+<pb_type name="top" num_pb="1">
+  <blif_model>.subckt abc</blif_model>
+</pb_type>
+"""))
+        r = xml.getroot()
+        self.assertIs(r, pb_type.find_leaf(r))
+
+    def test_top_lut(self):
+        xml = ET.parse(StringIO("""\
+<pb_type name="top" num_pb="1">
+  <blif_model>.names</blif_model>
+</pb_type>
+"""))
+        r = xml.getroot()
+        self.assertIs(r, pb_type.find_leaf(r))
+
+    def test_prefix_spaces(self):
+        xml = ET.parse(StringIO("""\
+<pb_type name="top" num_pb="1">
+  <blif_model>   .subckt abc</blif_model>
+</pb_type>
+"""))
+        r = xml.getroot()
+        self.assertIs(r, pb_type.find_leaf(r))
+
+    def test_suffix_spaces(self):
+        xml = ET.parse(StringIO("""\
+<pb_type name="top" num_pb="1">
+  <blif_model>.subckt abc   </blif_model>
+</pb_type>
+"""))
+        r = xml.getroot()
+        self.assertIs(r, pb_type.find_leaf(r))
+
+    def test_leaf_subckt(self):
+        xml = ET.parse(StringIO("""\
+<pb_type name="top" num_pb="1">
+  <pb_type name="middle" num_pb="1">
+    <pb_type name="leaf" num_pb="1">
+      <blif_model>.subckt abc</blif_model>
+    </pb_type>
+  </pb_type>
+</pb_type>
+"""))
+        r = xml.getroot()
+        leaf = xml.find("//pb_type[@name='leaf']")
+        assert leaf is not None
+        self.assertIs(leaf, pb_type.find_leaf(r))
+
+    def test_leaf_lut(self):
+        xml = ET.parse(StringIO("""\
+<pb_type name="top" num_pb="1">
+  <pb_type name="middle" num_pb="1">
+    <pb_type name="leaf" num_pb="1" blif_model=".names">
+    </pb_type>
+  </pb_type>
+</pb_type>
+"""))
+        r = xml.getroot()
+        leaf = xml.find("//pb_type[@name='leaf']")
+        assert leaf is not None
+        self.assertIs(leaf, pb_type.find_leaf(r))
+
+
+
 class TestPorts(unittest.TestCase):
     def test_simple(self):
         xml = ET.parse(StringIO("""\

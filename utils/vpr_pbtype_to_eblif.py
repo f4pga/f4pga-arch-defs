@@ -21,7 +21,7 @@ from typing import List
 import lxml.etree as ET
 
 from lib.flatten import flatten
-from lib.pb_type import Port, ports, find_leaf
+from lib.pb_type import Port, ports, get_blif_model, find_leaf
 
 
 def blif(
@@ -124,9 +124,9 @@ def main(args):
     assert pbtype_leaf is not None, "Unable to find leaf <pb_type> tag in {}".format(
         args.pb_type
     )
+    blif_model = get_blif_model(pbtype_leaf)
 
-    blif_model, clocks, inputs, outputs, carry = ports(pbtype_leaf)
-    blif_model = str(pbtype_leaf.attrib['blif_model']).strip()
+    _, clocks, inputs, outputs, carry = ports(pbtype_leaf)
 
     if blif_model.startswith(SUBCKT):
         name = blif_model[len(SUBCKT):].strip()
