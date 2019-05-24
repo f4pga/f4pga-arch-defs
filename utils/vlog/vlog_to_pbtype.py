@@ -59,7 +59,10 @@ from sdf_timing import utils as sdf_utils
 
 
 def make_timings(
-        pb_type_xml, sdf_file_name, sdf_cell_paths=None, insert_values=False,
+        pb_type_xml,
+        sdf_file_name,
+        sdf_cell_paths=None,
+        insert_values=False,
         sdf_variant="slow"
 ):
     """
@@ -214,7 +217,9 @@ def make_timings(
             # Insert template
             else:
                 for var in ("min", "max"):
-                    xml_tag.set(var, "{" + key + "}")  # TODO: Handle min and max
+                    xml_tag.set(
+                        var, "{" + key + "}"
+                    )  # TODO: Handle min and max
 
         # SETUP / HOLD or RECOVERY / REMOVAL delay
         elif sdf_timing["type"] in ("setup", "hold", "recovery", "removal"):
@@ -744,7 +749,9 @@ def main(args):
 
     # Timings
     if args.sdf is not None:
-        pb_type_xml = make_timings(pb_type_xml, args.sdf, args.sdf_cells, args.sdf_use_timings)
+        pb_type_xml = make_timings(
+            pb_type_xml, args.sdf, args.sdf_cells, args.sdf_use_timings
+        )
 
     with open(args.outfile, "w") as fp:
         fp.write(
