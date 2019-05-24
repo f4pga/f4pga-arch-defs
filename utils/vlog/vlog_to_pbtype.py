@@ -270,8 +270,8 @@ def make_timings(
                 for pb_inp, pb_out in itertools.product(pb_inp_list,
                                                         pb_out_list):
                     xml_tag = ET.SubElement(pb_type_xml, "delay_constant")
-                    xml_tag.set("in_port", "{}.{}".format(pb_name, pb_inp))
-                    xml_tag.set("out_port", "{}.{}".format(pb_name, pb_out))
+                    xml_tag.set("in_port", pb_inp)
+                    xml_tag.set("out_port", pb_out)
                     insert_minmax(xml_tag, key, sdf_timing)
 
             # "T_clock_to_Q"
@@ -279,8 +279,8 @@ def make_timings(
                 for pb_clk, pb_out in itertools.product(pb_clk_list,
                                                         pb_out_list):
                     xml_tag = ET.SubElement(pb_type_xml, "T_clock_to_Q")
-                    xml_tag.set("clock", "{}.{}".format(pb_name, pb_clk))
-                    xml_tag.set("port", "{}.{}".format(pb_name, pb_out))
+                    xml_tag.set("clock", pb_clk)
+                    xml_tag.set("port", pb_out)
                     insert_minmax(xml_tag, key, sdf_timing)
 
         # SETUP / HOLD or RECOVERY / REMOVAL delay
@@ -319,8 +319,8 @@ def make_timings(
                 xml_tag = ET.SubElement(
                     pb_type_xml, "T_{}".format(tag_map[sdf_timing["type"]])
                 )
-                xml_tag.set("clock", "{}.{}".format(pb_name, pb_clk))
-                xml_tag.set("port", "{}.{}".format(pb_name, pb_inp))
+                xml_tag.set("clock", pb_clk)
+                xml_tag.set("port", pb_inp)
                 insert_single(xml_tag, key, sdf_timing)
 
         # Something else
