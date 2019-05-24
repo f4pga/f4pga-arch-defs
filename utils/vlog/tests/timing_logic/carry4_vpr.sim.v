@@ -1,4 +1,4 @@
-module carry4_vpr (O0, O1, O2, O3, /*CO_CHAIN,*/ CO0, CO1, CO2, CO3, CYINIT, CIN, DI0, DI1, DI2, DI3, S0, S1, S2, S3);
+module carry4_vpr (O0, O1, O2, O3, CO_CHAIN, CO0, CO1, CO2, CO3, CYINIT, CIN, DI0, DI1, DI2, DI3, S0, S1, S2, S3);
   parameter CYINIT_AX = 1'b0;
   parameter CYINIT_C0 = 1'b0;
   parameter CYINIT_C1 = 1'b0;
@@ -11,7 +11,8 @@ module carry4_vpr (O0, O1, O2, O3, /*CO_CHAIN,*/ CO0, CO1, CO2, CO3, CYINIT, CIN
   output wire CO1;
   output wire CO2;
   output wire CO3;
-  //output wire CO_CHAIN;
+  (* SDF_ALIAS = "CO3" *)
+  output wire CO_CHAIN;
 
   input wire DI0, DI1, DI2, DI3;
   input wire S0, S1, S2, S3;
@@ -41,5 +42,6 @@ module carry4_vpr (O0, O1, O2, O3, /*CO_CHAIN,*/ CO0, CO1, CO2, CO3, CYINIT, CIN
   assign O2 = CI2 ^ S2;
   assign O3 = CI3 ^ S3;
 
-  //assign CO_CHAIN = CO3;
+  assign CO_CHAIN = CO3;
+
 endmodule
