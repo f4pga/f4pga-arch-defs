@@ -1,0 +1,13 @@
+<models xmlns:xi="http://www.w3.org/2001/XInclude">
+  <model name="fdse">
+    <input_ports>
+      <port clock="CLK" combinational_sink_ports="OUT" name="CE"/>
+      <port is_clock="1" name="CLK"/>
+      <port clock="CLK" combinational_sink_ports="OUT" name="DIN"/>
+      <port clock="CLK" combinational_sink_ports="OUT" name="S"/>
+    </input_ports>
+    <output_ports>
+      <port clock="CLK" name="OUT"/>
+    </output_ports>
+  </model>
+</models>

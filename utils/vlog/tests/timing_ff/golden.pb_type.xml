@@ -1,0 +1,11 @@
+<?xml version='1.0' encoding='utf-8'?>
+<pb_type xmlns:xi="http://www.w3.org/2001/XInclude" blif_model=".subckt fdse" name="fdse" num_pb="1">
+  <input name="CE" num_pins="1"/>
+  <clock name="CLK" num_pins="1"/>
+  <input name="DIN" num_pins="1"/>
+  <output name="OUT" num_pins="1"/>
+  <input name="S" num_pins="1"/>
+  <T_clock_to_Q clock="fdse.CLK" port="fdse.OUT" min="2.440e-13" max="3.030e-13"/>
+  <T_hold clock="fdse.CLK" port="fdse.CE" value="-9.000e-15"/>
+  <T_setup clock="fdse.CLK" port="fdse.CE" value="1.090e-13"/>
+</pb_type>
