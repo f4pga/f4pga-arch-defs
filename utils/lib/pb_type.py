@@ -21,6 +21,18 @@ OutputPort = Port
 CarryName = str
 
 
+def get_blif_model(pbtype_tag: ET.Element):
+    model = ""
+    blif_model = pbtype_tag.find("blif_model")
+    if blif_model is not None:
+        model = blif_model.text
+    if 'blif_model' in pbtype_tag.attrib:
+        model = pbtype_tag.attrib['blif_model']
+    model = model.strip()
+    if model:
+        return model
+
+
 def find_leaf(root: ET.Element):
     """Find first leaf pb_type tag (otherwise None)."""
 
@@ -30,12 +42,8 @@ def find_leaf(root: ET.Element):
         yield from root.findall(".//pb_type")
 
     for pbtype_tag in all_pbtype_tags(root):
-        if 'blif_model' in pbtype_tag.attrib:
-            model_str = str(pbtype_tag.attrib['blif_model']).strip()
-            if model_str.startswith('.subckt'):
-                return pbtype_tag
-            if model_str == ".names":
-                return pbtype_tag
+        if get_blif_model(pbtype_tag):
+            return pbtype_tag
 
 
 def ports(
