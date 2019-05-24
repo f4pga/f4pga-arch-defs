@@ -1,11 +1,7 @@
 get_target_property_required(UART_SOURCES uart_library SOURCES)
 
-list(APPEND SOURCES ../common/error_output_logic.v)
-foreach(file rom_test.v top.v)
-    add_file_target(FILE ${file} SCANNER_TYPE verilog)
-    list(APPEND SOURCES ${file})
-endforeach()
-
+list(APPEND SOURCES ../common/error_output_logic.v ../common/rom_test.v top.v)
+add_file_target(FILE top.v SCANNER_TYPE verilog)
 
 add_fpga_target(
   NAME bram_init_test
