@@ -7,10 +7,10 @@
   <input name="d" num_pins="4"/>
   <output name="cout" num_pins="1"/>
   <output name="sum" num_pins="8"/>
-  <pb_type blif_model=".subckt adder" name="comba" num_pb="4">
+  <pb_type name="comba" num_pb="4">
     <xi:include href="full-test-inner.xml" xpointer="xpointer(pb_type/child::node())"/>
   </pb_type>
-  <pb_type blif_model=".subckt adder" name="combb" num_pb="4">
+  <pb_type name="combb" num_pb="4">
     <xi:include href="full-test-inner.xml" xpointer="xpointer(pb_type/child::node())"/>
   </pb_type>
   <interconnect>
