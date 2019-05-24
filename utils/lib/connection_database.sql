@@ -168,6 +168,14 @@ CREATE TABLE switch(
   switch_type TEXT
 );
 
+-- Table of segments.
+-- VPR's map lookahead uses segments to determine "wire types".  Each
+-- significantly different interconnect type should have a segment.
+CREATE TABLE segment(
+    pkey INTEGER PRIMARY KEY,
+    name TEXT
+);
+
 -- Table of tile type wires. This table is the of uninstanced tile type
 -- wires. Site pins wires will reference their site and site pin rows in
 -- the site and site_pin tables.
@@ -214,7 +222,9 @@ CREATE TABLE pip_in_tile(
 -- whether this a particular track is connected and should be imported.
 CREATE TABLE track(
   pkey INTEGER PRIMARY KEY,
-  alive BOOL
+  alive BOOL,
+  segment_pkey INT,
+  FOREIGN KEY(segment_pkey) REFERENCES segment_pkey(pkey)
 );
 
 -- Table of nodes.  Provides the concrete relation for connected wire
