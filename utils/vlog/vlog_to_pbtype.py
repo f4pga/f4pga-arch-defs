@@ -217,11 +217,6 @@ def make_timings(
     for xml_tag in pb_type_xml.findall("output"):
         pb_outputs.update(pin_list(port_attrs, xml_tag))
 
-    # DEBUG
-    for d in (pb_inputs, pb_clocks, pb_outputs):
-        for k, v in d.items():
-            print(k, v)
-
     # No cell path given, try using the pb_name
     if sdf_cell_paths is None:
         sdf_cell_paths = (pb_name.upper())
