@@ -55,6 +55,7 @@ from yosys.json import YosysJSON
 sys.path.insert(0, "..")
 from lib import xmlinc
 from sdf_timing import sdfparse
+from sdf_timing import utils as sdf_utils
 
 
 def make_timings(
@@ -71,28 +72,6 @@ def make_timings(
     If sdf_inst_name is None and there is only one instance of that cell in SDF
     then that one is taken.
     """
-
-    def parse_timescale(timescale_str):
-        """
-        Parses a timescale expression and returns its numerical value
-        """
-        match = re.match("([0-9]+)(fs|ps|ns|us|ms|s?)$", timescale_str)
-
-        base = float(match.group(1))
-        suffix = match.group(2)
-
-        if suffix == "fs":
-            base *= 1e-15
-        elif suffix == "ps":
-            base *= 1e-12
-        elif suffix == "ns":
-            base *= 1e-9
-        elif suffix == "us":
-            base *= 1e-6
-        elif suffix == "ms":
-            base *= 1e-3
-
-        return base
 
     def collect_timings(sdf, sdf_cell_paths):
         """
@@ -151,7 +130,7 @@ def make_timings(
         sdf = sdfparse.parse(fp.read())
 
     # Get timescale
-    scale = parse_timescale(sdf["header"]["timescale"])
+    scale = sdf_utils.get_scale_seconds(sdf["header"]["timescale"])
 
     # Get pb name
     pb_name = pb_type_xml.get("name")
