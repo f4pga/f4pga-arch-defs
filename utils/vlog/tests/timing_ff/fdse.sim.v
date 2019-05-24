@@ -3,6 +3,7 @@ module fdse (DIN, CE, CLK, S, OUT);
  input  wire DIN;
  input  wire CE;
  input  wire CLK;
+ (* SDF_ALIAS = "SR" *)
  input  wire S;
  (* SDF_ALIAS = "Q" *)
  output reg  OUT;
