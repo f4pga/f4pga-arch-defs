@@ -1,8 +1,6 @@
 get_target_property_required(UART_SOURCES uart_library SOURCES)
 
-list(APPEND SOURCES ../common/error_output_logic.v)
-add_file_target(FILE ram_test.v SCANNER_TYPE verilog)
-list(APPEND SOURCES ram_test.v)
+list(APPEND SOURCES ../common/error_output_logic.v ../common/ram_test.v)
 
 get_target_property_required(DEVICE basys3 DEVICE)
 get_target_property_required(ARCH ${DEVICE} ARCH)
