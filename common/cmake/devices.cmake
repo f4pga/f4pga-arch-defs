@@ -802,6 +802,7 @@ function(ADD_FPGA_TARGET)
   # Generate BLIF as start of vpr input.
   #
   set(OUT_EBLIF ${OUT_LOCAL}/${TOP}.eblif)
+  set(OUT_EBLIF_REL ${OUT_LOCAL_REL}/${TOP}.eblif)
   set(OUT_SYNTH_V ${OUT_LOCAL}/${TOP}_synth.v)
 
   set(SOURCE_FILES_DEPS "")
@@ -834,7 +835,7 @@ function(ADD_FPGA_TARGET)
       WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
       VERBATIM
     )
-    add_file_target(FILE ${OUT_SYNTH_V} GENERATED)
+    add_output_to_fpga_target(${NAME} EBLIF ${OUT_EBLIF_REL})
     add_output_to_fpga_target(${NAME} SYNTH_V
         ${OUT_LOCAL_REL}/${TOP}_synth.v)
   else()
@@ -845,6 +846,7 @@ function(ADD_FPGA_TARGET)
         ${CMAKE_COMMAND} -E make_directory ${OUT_LOCAL}
       COMMAND ${CMAKE_COMMAND} -E copy ${SOURCE_FILES} ${OUT_EBLIF}
       )
+    add_output_to_fpga_target(${NAME} EBLIF ${OUT_EBLIF_REL})
   endif()
 
   add_custom_target(${NAME}_eblif DEPENDS ${OUT_EBLIF})
@@ -853,17 +855,13 @@ function(ADD_FPGA_TARGET)
   set(OUT_ROUTE ${OUT_LOCAL}/${TOP}.route)
 
   set(VPR_DEPS "")
-  list(APPEND VPR_DEPS ${OUT_EBLIF})
 
   get_file_location(OUT_RRXML_VIRT_LOCATION ${OUT_RRXML_VIRT})
   get_file_location(OUT_RRXML_REAL_LOCATION ${OUT_RRXML_REAL})
   get_file_location(DEVICE_MERGED_FILE_LOCATION ${DEVICE_MERGED_FILE})
 
   foreach(SRC ${DEVICE_MERGED_FILE} ${OUT_RRXML_REAL})
-    get_file_location(SRC_LOCATION ${SRC})
-    get_file_target(SRC_TARGET ${SRC})
-    list(APPEND VPR_DEPS ${SRC_LOCATION})
-    list(APPEND VPR_DEPS ${SRC_TARGET})
+    append_file_dependency(VPR_DEPS ${SRC})
   endforeach()
 
   get_target_property_required(VPR env VPR)
@@ -908,44 +906,50 @@ function(ADD_FPGA_TARGET)
     ${SDC_ARG}
   )
   list(APPEND VPR_DEPS ${VPR} ${VPR_TARGET} ${QUIET_CMD} ${QUIET_CMD_TARGET})
+  append_file_dependency(VPR_DEPS ${OUT_EBLIF_REL})
 
   # Generate IO constraints file.
   # -------------------------------------------------------------------------
-  set(OUT_IO "")
   set(FIX_PINS_ARG "")
+
   if(NOT ${ADD_FPGA_TARGET_INPUT_IO_FILE} STREQUAL "")
     get_target_property_required(NO_PINS ${ARCH} NO_PINS)
     if(${NO_PINS})
       message(FATAL_ERROR "Arch ${ARCH} does not currently support pin constraints.")
     endif()
-    get_file_location(INPUT_IO_FILE ${ADD_FPGA_TARGET_INPUT_IO_FILE})
-    get_file_target(INPUT_IO_FILE_TARGET ${ADD_FPGA_TARGET_INPUT_IO_FILE})
     get_target_property_required(PLACE_TOOL ${ARCH} PLACE_TOOL)
     get_target_property_required(PYTHON3 env PYTHON3)
     get_target_property_required(PLACE_TOOL_CMD ${ARCH} PLACE_TOOL_CMD)
     get_target_property_required(PINMAP_FILE ${DEVICE} ${PACKAGE}_PINMAP)
-    get_file_location(PINMAP ${PINMAP_FILE})
-    get_file_target(PINMAP_TARGET ${PINMAP_FILE})
+
+
+    # Add complete dependency chain
+    set(IO_DEPS ${VPR_DEPS})
+    append_file_dependency(IO_DEPS ${ADD_FPGA_TARGET_INPUT_IO_FILE})
+    append_file_dependency(IO_DEPS ${PINMAP_FILE})
+
+
+    # Set variables for the string(CONFIGURE) below.
     set(OUT_IO ${OUT_LOCAL}/${TOP}_io.place)
+    set(OUT_IO_REL ${OUT_LOCAL_REL}/${TOP}_io.place)
+    get_file_location(INPUT_IO_FILE ${ADD_FPGA_TARGET_INPUT_IO_FILE})
+    get_file_location(PINMAP ${PINMAP_FILE})
     string(CONFIGURE ${PLACE_TOOL_CMD} PLACE_TOOL_CMD_FOR_TARGET)
     separate_arguments(
       PLACE_TOOL_CMD_FOR_TARGET_LIST UNIX_COMMAND ${PLACE_TOOL_CMD_FOR_TARGET}
     )
+
     add_custom_command(
       OUTPUT ${OUT_IO}
-      DEPENDS
-        ${OUT_EBLIF}
-        ${INPUT_IO_FILE}
-        ${INPUT_IO_FILE_TARGET}
-        ${PINMAP}
-        ${PINMAP_TARGET}
-        ${VPR_DEPS}
+      DEPENDS ${IO_DEPS}
       COMMAND ${PLACE_TOOL_CMD_FOR_TARGET_LIST} --out ${OUT_IO}
       WORKING_DIRECTORY ${OUT_LOCAL}
     )
 
-    set(FIX_PINS_ARG --fix_pins ${OUT_IO})
+    add_output_to_fpga_target(${NAME} IO_PLACE ${OUT_IO_REL})
+    append_file_dependency(VPR_DEPS ${OUT_IO_REL})
 
+    set(FIX_PINS_ARG --fix_pins ${OUT_IO})
   endif()
 
   # Generate packing.
@@ -953,7 +957,7 @@ function(ADD_FPGA_TARGET)
   set(OUT_NET ${OUT_LOCAL}/${TOP}.net)
   add_custom_command(
     OUTPUT ${OUT_NET} ${OUT_LOCAL}/pack.log
-    DEPENDS ${OUT_EBLIF} ${OUT_IO} ${VPR_DEPS}
+    DEPENDS ${VPR_DEPS}
     COMMAND ${VPR_CMD} --pack
     COMMAND
       ${CMAKE_COMMAND} -E copy ${OUT_LOCAL}/vpr_stdout.log ${OUT_LOCAL}/pack.log
@@ -974,7 +978,7 @@ function(ADD_FPGA_TARGET)
   set(ECHO_OUT_NET ${OUT_LOCAL}/echo/${TOP}.net)
   add_custom_command(
     OUTPUT ${ECHO_OUT_NET}
-    DEPENDS ${OUT_EBLIF} ${OUT_IO} ${VPR_DEPS}
+    DEPENDS ${VPR_DEPS}
     COMMAND ${CMAKE_COMMAND} -E make_directory ${OUT_LOCAL}/echo
     COMMAND cd ${OUT_LOCAL}/echo && ${VPR_CMD} --pack_verbosity 3 --echo_file on --pack
     COMMAND
@@ -986,7 +990,7 @@ function(ADD_FPGA_TARGET)
   set(OUT_PLACE ${OUT_LOCAL}/${TOP}.place)
   add_custom_command(
     OUTPUT ${OUT_PLACE}
-    DEPENDS ${OUT_NET} ${OUT_IO} ${VPR_DEPS}
+    DEPENDS ${OUT_NET} ${VPR_DEPS}
     COMMAND ${VPR_CMD} ${FIX_PINS_ARG} --place
     COMMAND
       ${CMAKE_COMMAND} -E copy ${OUT_LOCAL}/vpr_stdout.log
@@ -997,7 +1001,7 @@ function(ADD_FPGA_TARGET)
   set(ECHO_OUT_PLACE ${OUT_LOCAL}/echo/${TOP}.place)
   add_custom_command(
     OUTPUT ${ECHO_OUT_PLACE}
-    DEPENDS ${ECHO_OUT_NET} ${OUT_IO} ${VPR_DEPS}
+    DEPENDS ${ECHO_OUT_NET} ${VPR_DEPS}
     COMMAND ${VPR_CMD} ${FIX_PINS_ARG} --echo_file on --place
     COMMAND
       ${CMAKE_COMMAND} -E copy ${OUT_LOCAL}/echo/vpr_stdout.log
@@ -1009,7 +1013,7 @@ function(ADD_FPGA_TARGET)
   # -------------------------------------------------------------------------
   add_custom_command(
     OUTPUT ${OUT_ROUTE}
-    DEPENDS ${OUT_PLACE} ${OUT_IO} ${VPR_DEPS}
+    DEPENDS ${OUT_PLACE} ${VPR_DEPS}
     COMMAND ${VPR_CMD} --route
     COMMAND
       ${CMAKE_COMMAND} -E copy ${OUT_LOCAL}/vpr_stdout.log
@@ -1023,7 +1027,7 @@ function(ADD_FPGA_TARGET)
   set(ECHO_ATOM_NETLIST_CLEANED ${OUT_LOCAL}/echo/atom_netlist.cleaned.echo.blif)
   add_custom_command(
     OUTPUT ${ECHO_ATOM_NETLIST_ORIG} ${ECHO_ATOM_NETLIST_CLEANED}
-    DEPENDS ${ECHO_OUT_PLACE} ${ECHO_OUT_IO} ${VPR_DEPS} ${ECHO_DIRECTORY_TARGET}
+    DEPENDS ${ECHO_OUT_PLACE} ${VPR_DEPS} ${ECHO_DIRECTORY_TARGET}
     COMMAND ${VPR_CMD} --echo_file on --route
     COMMAND
       ${CMAKE_COMMAND} -E copy ${OUT_LOCAL}/echo/vpr_stdout.log
@@ -1074,7 +1078,7 @@ function(ADD_FPGA_TARGET)
     set(OUT_FASM ${OUT_LOCAL}/${TOP}.fasm)
     add_custom_command(
       OUTPUT ${OUT_FASM}
-      DEPENDS ${OUT_ROUTE} ${OUT_PLACE} ${OUT_IO} ${VPR_DEPS} ${GENFASM_TARGET}
+      DEPENDS ${OUT_ROUTE} ${OUT_PLACE} ${VPR_DEPS} ${GENFASM_TARGET}
       COMMAND ${GENFASM_CMD}
       COMMAND
         ${CMAKE_COMMAND} -E copy ${OUT_LOCAL}/vpr_stdout.log
@@ -1088,7 +1092,7 @@ function(ADD_FPGA_TARGET)
     set(OUT_HLC ${OUT_LOCAL}/${TOP}.hlc)
     add_custom_command(
       OUTPUT ${OUT_HLC}
-      DEPENDS ${OUT_ROUTE} ${OUT_PLACE} ${OUT_IO} ${VPR_DEPS} ${GENHLC_TARGET}
+      DEPENDS ${OUT_ROUTE} ${OUT_PLACE} ${VPR_DEPS} ${GENHLC_TARGET}
       COMMAND ${GENHLC_CMD}
       COMMAND
         ${CMAKE_COMMAND} -E copy ${OUT_LOCAL}/vpr_stdout.log
@@ -1105,7 +1109,7 @@ function(ADD_FPGA_TARGET)
   set(OUT_POST_SYNTHESIS_BLIF ${OUT_LOCAL}/top_post_synthesis.blif)
   add_custom_command(
     OUTPUT ${OUT_ANALYSIS} ${OUT_POST_SYNTHESIS_V} ${OUT_POST_SYNTHESIS_BLIF}
-    DEPENDS ${OUT_ROUTE} ${OUT_IO} ${VPR_DEPS}
+    DEPENDS ${OUT_ROUTE} ${VPR_DEPS}
     COMMAND ${VPR_CMD} --analysis --gen_post_synthesis_netlist on
     COMMAND ${CMAKE_COMMAND} -E copy ${OUT_LOCAL}/vpr_stdout.log
         ${OUT_LOCAL}/analysis.log
