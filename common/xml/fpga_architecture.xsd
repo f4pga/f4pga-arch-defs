@@ -584,6 +584,41 @@
     <xs:attribute name="name" type="xs:string" use="required"/>
   </xs:complexType>
 
+  <xs:complexType name="map">
+    <xs:attribute name="from" type="xs:string" use="required"/>
+    <xs:attribute name="to" type="xs:string" use="required"/>
+    <xs:attribute name="num_pins" type="xs:string"/>
+  </xs:complexType>
+
+  <xs:complexType name="tile_mode">
+    <xs:choice maxOccurs="unbounded" minOccurs="0">
+      <xs:element name="map" type="map"/>
+    </xs:choice>
+    <xs:attribute name="name" type="xs:string" use="required"/>
+  </xs:complexType>
+
+  <xs:complexType name="equivalent_tiles">
+    <xs:choice maxOccurs="unbounded" minOccurs="0">
+      <xs:element name="mode" type="tile_mode"/>
+    </xs:choice>
+  </xs:complexType>
+
+  <xs:complexType name="tile">
+    <xs:choice maxOccurs="unbounded" minOccurs="0">
+      <xs:element name="equivalent_tiles" type="equivalent_tiles"/>
+      <xs:element name="pinlocations" type="pinlocations"/>
+      <xs:element name="fc" type="fc"/>
+      <xs:element name="switchblock_locations" type="switchblock_locations"/>
+    </xs:choice>
+    <xs:attribute name="name" type="xs:string" use="required"/>
+  </xs:complexType>
+
+  <xs:complexType name="tiles">
+    <xs:sequence>
+      <xs:element name="tile" type="tile" maxOccurs="unbounded"/>
+    </xs:sequence>
+  </xs:complexType>
+
   <xs:complexType name="pb_type">
     <xs:choice maxOccurs="unbounded" minOccurs="0">
       <xs:element name="pb_type" type="pb_type"/>
@@ -792,6 +827,7 @@
         <xs:element name="power" type="global_power"/>
         <xs:element name="clocks" type="clocks"/>
         <xs:element name="directlist" type="directlist"/>
+        <xs:element name="tiles" type="tiles"/>
         <xs:element name="complexblocklist" type="complexblocklist"/>
       </xs:choice>
     </xs:complexType>
