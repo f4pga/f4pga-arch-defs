@@ -44,7 +44,7 @@ def blif(
     .cname mod
     .end
     """
-    inputs = list(flatten(clocks))+list(flatten(inputs))
+    inputs = list(flatten(clocks)) + list(flatten(inputs))
     outputs = list(flatten(outputs))
 
     return """\
