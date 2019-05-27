@@ -10,62 +10,88 @@ import pb_type
 
 class TestFindLeafBlifAttribute(unittest.TestCase):
     def test_not_found(self):
-        xml = ET.parse(StringIO("""\
+        xml = ET.parse(
+            StringIO("""\
 <pb_type name="top" num_pb="1"></pb_type>
-"""))
+""")
+        )
         self.assertIsNone(pb_type.find_leaf(xml.getroot()))
 
     def test_top_subckt(self):
-        xml = ET.parse(StringIO("""\
+        xml = ET.parse(
+            StringIO(
+                """\
 <pb_type name="top" num_pb="1" blif_model=".subckt abc"></pb_type>
-"""))
+"""
+            )
+        )
         r = xml.getroot()
         self.assertIs(r, pb_type.find_leaf(r))
 
     def test_top_lut(self):
-        xml = ET.parse(StringIO("""\
+        xml = ET.parse(
+            StringIO(
+                """\
 <pb_type name="top" num_pb="1" blif_model=".names"></pb_type>
-"""))
+"""
+            )
+        )
         r = xml.getroot()
         self.assertIs(r, pb_type.find_leaf(r))
 
     def test_prefix_spaces(self):
-        xml = ET.parse(StringIO("""\
+        xml = ET.parse(
+            StringIO(
+                """\
 <pb_type name="top" num_pb="1" blif_model="   .subckt abc"></pb_type>
-"""))
+"""
+            )
+        )
         r = xml.getroot()
         self.assertIs(r, pb_type.find_leaf(r))
 
     def test_suffix_spaces(self):
-        xml = ET.parse(StringIO("""\
+        xml = ET.parse(
+            StringIO(
+                """\
 <pb_type name="top" num_pb="1" blif_model=".subckt abc   "></pb_type>
-"""))
+"""
+            )
+        )
         r = xml.getroot()
         self.assertIs(r, pb_type.find_leaf(r))
 
     def test_leaf_subckt(self):
-        xml = ET.parse(StringIO("""\
+        xml = ET.parse(
+            StringIO(
+                """\
 <pb_type name="top" num_pb="1">
   <pb_type name="middle" num_pb="1">
     <pb_type name="leaf" num_pb="1" blif_model=".subckt abc">
     </pb_type>
   </pb_type>
 </pb_type>
-"""))
+"""
+            )
+        )
         r = xml.getroot()
         leaf = xml.find("//pb_type[@name='leaf']")
         assert leaf is not None
         self.assertIs(leaf, pb_type.find_leaf(r))
 
     def test_leaf_lut(self):
-        xml = ET.parse(StringIO("""\
+        xml = ET.parse(
+            StringIO(
+                """\
 <pb_type name="top" num_pb="1">
   <pb_type name="middle" num_pb="1">
     <pb_type name="leaf" num_pb="1" blif_model=".names">
     </pb_type>
   </pb_type>
 </pb_type>
-"""))
+"""
+            )
+        )
         r = xml.getroot()
         leaf = xml.find("//pb_type[@name='leaf']")
         assert leaf is not None
@@ -74,43 +100,61 @@ class TestFindLeafBlifAttribute(unittest.TestCase):
 
 class TestFindLeafBlifTag(unittest.TestCase):
     def test_top_subckt(self):
-        xml = ET.parse(StringIO("""\
+        xml = ET.parse(
+            StringIO(
+                """\
 <pb_type name="top" num_pb="1">
   <blif_model>.subckt abc</blif_model>
 </pb_type>
-"""))
+"""
+            )
+        )
         r = xml.getroot()
         self.assertIs(r, pb_type.find_leaf(r))
 
     def test_top_lut(self):
-        xml = ET.parse(StringIO("""\
+        xml = ET.parse(
+            StringIO(
+                """\
 <pb_type name="top" num_pb="1">
   <blif_model>.names</blif_model>
 </pb_type>
-"""))
+"""
+            )
+        )
         r = xml.getroot()
         self.assertIs(r, pb_type.find_leaf(r))
 
     def test_prefix_spaces(self):
-        xml = ET.parse(StringIO("""\
+        xml = ET.parse(
+            StringIO(
+                """\
 <pb_type name="top" num_pb="1">
   <blif_model>   .subckt abc</blif_model>
 </pb_type>
-"""))
+"""
+            )
+        )
         r = xml.getroot()
         self.assertIs(r, pb_type.find_leaf(r))
 
     def test_suffix_spaces(self):
-        xml = ET.parse(StringIO("""\
+        xml = ET.parse(
+            StringIO(
+                """\
 <pb_type name="top" num_pb="1">
   <blif_model>.subckt abc   </blif_model>
 </pb_type>
-"""))
+"""
+            )
+        )
         r = xml.getroot()
         self.assertIs(r, pb_type.find_leaf(r))
 
     def test_leaf_subckt(self):
-        xml = ET.parse(StringIO("""\
+        xml = ET.parse(
+            StringIO(
+                """\
 <pb_type name="top" num_pb="1">
   <pb_type name="middle" num_pb="1">
     <pb_type name="leaf" num_pb="1">
@@ -118,36 +162,45 @@ class TestFindLeafBlifTag(unittest.TestCase):
     </pb_type>
   </pb_type>
 </pb_type>
-"""))
+"""
+            )
+        )
         r = xml.getroot()
         leaf = xml.find("//pb_type[@name='leaf']")
         assert leaf is not None
         self.assertIs(leaf, pb_type.find_leaf(r))
 
     def test_leaf_lut(self):
-        xml = ET.parse(StringIO("""\
+        xml = ET.parse(
+            StringIO(
+                """\
 <pb_type name="top" num_pb="1">
   <pb_type name="middle" num_pb="1">
     <pb_type name="leaf" num_pb="1" blif_model=".names">
     </pb_type>
   </pb_type>
 </pb_type>
-"""))
+"""
+            )
+        )
         r = xml.getroot()
         leaf = xml.find("//pb_type[@name='leaf']")
         assert leaf is not None
         self.assertIs(leaf, pb_type.find_leaf(r))
 
 
-
 class TestPorts(unittest.TestCase):
     def test_simple(self):
-        xml = ET.parse(StringIO("""\
+        xml = ET.parse(
+            StringIO(
+                """\
 <pb_type name="AUSED" num_pb="1">
   <input name="I0" num_pins="1"/>
   <output name="O" num_pins="1"/>
 </pb_type>
-"""))
+"""
+            )
+        )
         name, clocks, inputs, outputs, carry = pb_type.ports(xml.getroot())
 
         self.assertEqual("AUSED", name)
@@ -157,13 +210,17 @@ class TestPorts(unittest.TestCase):
         self.assertDictEqual(carry, {})
 
     def test_clock(self):
-        xml = ET.parse(StringIO("""\
+        xml = ET.parse(
+            StringIO(
+                """\
 <pb_type name="DFF" num_pb="1">
   <clock name="C" num_pins="1"/>
   <input name="D" num_pins="1"/>
   <output name="Q" num_pins="1"/>
 </pb_type>
-"""))
+"""
+            )
+        )
         name, clocks, inputs, outputs, carry = pb_type.ports(xml.getroot())
 
         self.assertEqual("DFF", name)
@@ -173,7 +230,9 @@ class TestPorts(unittest.TestCase):
         self.assertDictEqual(carry, {})
 
     def test_width(self):
-        xml = ET.parse(StringIO("""\
+        xml = ET.parse(
+            StringIO(
+                """\
 <pb_type name="XXX" num_pb="1">
   <clock  name="C1" num_pins="2"/>
   <clock  name="C2" num_pins="4"/>
@@ -183,7 +242,9 @@ class TestPorts(unittest.TestCase):
   <output name="Q1" num_pins="7"/>
   <output name="Q2" num_pins="9"/>
 </pb_type>
-"""))
+"""
+            )
+        )
         name, clocks, inputs, outputs, carry = pb_type.ports(xml.getroot())
 
         self.assertEqual("XXX", name)
@@ -193,7 +254,9 @@ class TestPorts(unittest.TestCase):
         self.assertDictEqual(carry, {})
 
     def test_carry(self):
-        xml = ET.parse(StringIO("""\
+        xml = ET.parse(
+            StringIO(
+                """\
 <pb_type name="XXX" num_pb="1">
   <input  name="D1" num_pins="1">
     <pack_pattern type="carry" name="C1" />
@@ -206,7 +269,9 @@ class TestPorts(unittest.TestCase):
     <pack_pattern type="carry" name="C1" />
   </output>
 </pb_type>
-"""))
+"""
+            )
+        )
         name, clocks, inputs, outputs, carry = pb_type.ports(xml.getroot())
 
         self.assertEqual("XXX", name)
@@ -216,7 +281,9 @@ class TestPorts(unittest.TestCase):
         self.assertDictEqual(carry, {'C1': ('D1', 'Q2')})
 
     def test_morecarry(self):
-        xml = ET.parse(StringIO("""\
+        xml = ET.parse(
+            StringIO(
+                """\
 <pb_type name="XXX" num_pb="1">
   <input  name="D1" num_pins="1">
     <pack_pattern type="carry" name="C1" />
@@ -235,7 +302,9 @@ class TestPorts(unittest.TestCase):
     <pack_pattern type="carry" name="C1" />
   </output>
 </pb_type>
-"""))
+"""
+            )
+        )
         name, clocks, inputs, outputs, carry = pb_type.ports(xml.getroot())
 
         self.assertEqual("XXX", name)
