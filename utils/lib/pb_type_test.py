@@ -2,7 +2,7 @@
 
 import unittest
 
-from pb_type import xps, find_leaf, ports
+from .pb_type import xps, find_leaf, ports
 
 
 class TestFindLeafBlifAttribute(unittest.TestCase):
