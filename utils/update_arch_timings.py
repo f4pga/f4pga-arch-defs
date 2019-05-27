@@ -36,9 +36,10 @@ def find_timings(timings, bel, location, site, bels):
     bel_timings = dict()
     cell = timings['cells'][celltype][instance]
     for delay in cell:
-        if not cell[delay]['is_absolute']:
-            continue
-        entry = cell[delay]['delay_paths']['slow']['max']
+        if cell[delay]['is_absolute']:
+            entry = cell[delay]['delay_paths']['slow']['max']
+        elif cell[delay]['is_timing_check']:
+            entry = cell[delay]['delay_paths']['nominal']['max']
         bel_timings[delay] = float(entry) * get_scale_seconds('1 ns')
 
     return bel_timings
@@ -101,6 +102,9 @@ def main():
             tmp = sdfparse.parse(fp.read())
             mergedicts(tmp, timings)
 
+    with open("/tmp/dump.json", 'w') as fp:
+        json.dump(timings, fp, indent=4)
+
     for dm in root_element.iter('delay_matrix'):
         bel_timings = get_bel_timings(dm, timings, bels)
         if bel_timings is None:
@@ -112,6 +116,18 @@ def main():
         if bel_timings is None:
             continue
         dc.attrib['max'] = dc.attrib['max'].format(**bel_timings)
+
+    for tq in root_element.iter('T_clock_to_Q'):
+        bel_timings = get_bel_timings(tq, timings, bels)
+        if bel_timings is None:
+            continue
+        tq.attrib['max'] = tq.attrib['max'].format(**bel_timings)
+
+    for ts in root_element.iter('T_setup'):
+        bel_timings = get_bel_timings(ts, timings, bels)
+        if bel_timings is None:
+            continue
+        ts.attrib['value'] = ts.attrib['value'].format(**bel_timings)
 
     with open(args.out_arch, 'wb') as fp:
         fp.write(ET.tostring(arch_xml))
