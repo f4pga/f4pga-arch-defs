@@ -27,13 +27,14 @@ def find_leaf(root: ET.Element):
     def all_pbtype_tags(root):
         if root.tag == "pb_type":
             yield root
-        yield from root.findall("pb_type")
+        yield from root.findall(".//pb_type")
 
     for pbtype_tag in all_pbtype_tags(root):
         if 'blif_model' in pbtype_tag.attrib:
-            if '.subckt' in pbtype_tag.attrib['blif_model']:
+            model_str = str(pbtype_tag.attrib['blif_model']).strip()
+            if model_str.startswith('.subckt'):
                 return pbtype_tag
-            if pbtype_tag.attrib["blif_model"] == ".names":
+            if model_str == ".names":
                 return pbtype_tag
 
 

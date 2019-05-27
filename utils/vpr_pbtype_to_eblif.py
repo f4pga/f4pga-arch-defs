@@ -111,6 +111,8 @@ Output filename, default '<name>.test.eblif'
 """
 )
 
+SUBCKT = '.subckt '
+
 
 def main(args):
     args = parser.parse_args(args)
@@ -124,12 +126,12 @@ def main(args):
     )
 
     blif_model, clocks, inputs, outputs, carry = ports(pbtype_leaf)
-    blif_model = pbtype_leaf.attrib['blif_model']
+    blif_model = str(pbtype_leaf.attrib['blif_model']).strip()
 
-    if 'subckt' in blif_model:
-        name = blif_model[len('.subckt '):]
+    if blif_model.startswith(SUBCKT):
+        name = blif_model[len(SUBCKT):].strip()
         outputf = blif
-    elif '.names' in blif_model:
+    elif blif_model == '.names':
         name = 'lut{}'.format(len(inputs))
         outputf = lut
     else:
