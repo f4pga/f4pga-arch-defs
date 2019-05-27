@@ -20,11 +20,20 @@ from progressbar import progressbar
 
 
 class RoutingGraph(object):
+    """
+    A class which represent the routing graph and allows traversing it.
+    """
 
     Node = namedtuple("Node", "id type xlow ylow xhigh yhigh")
     WalkContext = namedtuple("WalkContext", "node_id depth")
 
     def __init__(self, xml_file):
+        """
+        Constructs the graph given a VPR routing graph file
+
+        Args:
+            xml_file: Name of the XML file with the graph.
+        """
 
         self.nodes = {}
 
@@ -37,6 +46,9 @@ class RoutingGraph(object):
     def _load_and_parse_rr_graph(self, xml_file):
         """
         Loads the routing graph, extracts nodes and edges from the XML.
+
+        Args:
+            xml_file: Name of the XML file with the graph.
         """
 
         def append_edge(edge_dict, key_node, target_node):
@@ -118,6 +130,12 @@ class RoutingGraph(object):
     def node_to_string(self, node_id):
         """
         Converts node information to string
+
+        Args:
+            node_id: Numerical identifier of a graph node
+
+        Returns:
+            String with a pretty node description
         """
 
         node = self.nodes[node_id]
@@ -129,6 +147,14 @@ class RoutingGraph(object):
     def verify_route(self, route, walk_direction):
         """
         Checks wheter a given route is valid
+
+        Args:
+            route: Route as a sequence of node ids
+            walk_direction: Direction of the route. When > 0 its along graph
+                edges direction, when < 0 its the opposite direction.
+
+        Returns:
+            True or False
         """
 
         visited_nodes = set()
@@ -175,7 +201,17 @@ class RoutingGraph(object):
 
     def walk(self, start_node_id, route_callback, walk_direction):
         """
-        Walk the routing graph
+        Walk the routing graph from a given starting node id.
+
+        Args:
+            start_node_id: Identifier of the starting node. It should be
+                a SOURCE/OPIN or SINK/IPIN.
+            walk_direction: Direction of the route. When > 0 its SOURCE to
+                SINK, when < 0 it is SINK to SOURCE.
+            route_callback: A callback function to be called on every
+                route found starting from the start node id and ending on
+                a graph leaf. If the function returns False then the walk
+                stops, if returns true then the walk continues.
         """
 
         # Copy all nodes. A node is removed from this set once visited.
@@ -251,6 +287,10 @@ class RoutingGraph(object):
 def print_route(graph, route):
     """
     Print given route with detailed node informations
+
+    Args:
+        graph: A RoutingGraph object
+        route: A route as a sequence of node ids
     """
 
     for id in route:
@@ -261,6 +301,10 @@ def print_route(graph, route):
 def save_route(route, fp):
     """
     Save the route to a file (only node indices)
+
+    Args:
+        route: A route as a sequence of node ids
+        fp: Open file object
     """
 
     for id in route:
@@ -274,6 +318,12 @@ def save_route(route, fp):
 
 
 def main():
+    """
+    The main.
+
+    Returns:
+        None
+    """
 
     # Parse arguments
     parser = argparse.ArgumentParser(
