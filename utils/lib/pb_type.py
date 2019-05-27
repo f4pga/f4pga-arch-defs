@@ -2,6 +2,7 @@
 """Functions for working with pb_type.xml files."""
 
 from typing import Dict, Tuple, List, Union
+from io import StringIO
 
 import lxml.etree as ET
 
@@ -21,7 +22,26 @@ OutputPort = Port
 CarryName = str
 
 
-def get_blif_model(pbtype_tag: ET.Element):
+def xps(s):
+    """XML Parse String (internal helper function)."""
+    return ET.parse(StringIO(s)).getroot()
+
+
+def get_blif_model(pbtype_tag: ET.Element) -> str:
+    """Get the blif_model string.
+
+    Supports both `blif_model` attribute and `<blif_model>` tag.
+
+    >>> print(get_blif_model(xps('''<pb_type />''')))
+    None
+    >>> get_blif_model(xps('''<pb_type blif_model="hello"/>'''))
+    'hello'
+    >>> get_blif_model(xps('''\\
+    ...   <pb_type><blif_model>hello</blif_model></pb_type>
+    ... '''))
+    'hello'
+    """
+
     model = ""
     blif_model = pbtype_tag.find("blif_model")
     if blif_model is not None:
@@ -33,7 +53,7 @@ def get_blif_model(pbtype_tag: ET.Element):
         return model
 
 
-def find_leaf(root: ET.Element):
+def find_leaf(root: ET.Element) -> ET.Element:
     """Find first leaf pb_type tag (otherwise None)."""
 
     def all_pbtype_tags(root):
