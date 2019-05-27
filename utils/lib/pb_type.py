@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Functions for working with pb_type.xml files."""
 
-from typing import Tuple, List, Union
+from typing import Dict, Tuple, List, Union
 
 import lxml.etree as ET
 
@@ -17,6 +17,8 @@ Port = Union[SinglePinPort, MultiPinPort]
 ClockPort = Port
 InputPort = Port
 OutputPort = Port
+
+CarryName = str
 
 
 def find_leaf(root: ET.Element):
@@ -37,8 +39,9 @@ def find_leaf(root: ET.Element):
 
 def ports(
         pbtype_tag: ET.Element, assert_leaf=False
-) -> Tuple[PBTypeName, List[ClockPort], List[InputPort], List[OutputPort]]:
-    """Get the clock, input and output pins from a leaf pb_type.
+) -> Tuple[PBTypeName, List[ClockPort], List[InputPort], List[OutputPort],
+           Dict[CarryName, Tuple[InputPort, OutputPort]]]:
+    """Get the clock, input and output pins from a pb_type.
 
     Returns
     -------
@@ -108,4 +111,7 @@ def ports(
             (output_tag.attrib['name'], int(output_tag.attrib['num_pins']))
         )
 
-    return pbtype_name, clocks, inputs, outputs, carry
+    return pbtype_name, clocks, inputs, outputs, {
+        k: tuple(v)
+        for k, v in carry.items()
+    }
