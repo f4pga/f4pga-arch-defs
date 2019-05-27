@@ -219,8 +219,6 @@
                 "celltype": "SELMUX2_1",
                 "instance": "SLICEM/F8MUX"
             }
-<<<<<<< HEAD
-=======
         },
         "FDSE":{
             "FF_FDSE_or_FDRE":{
