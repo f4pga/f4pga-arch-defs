@@ -60,14 +60,22 @@ def ports(
         )
 
     carry = {}
+
     def set_carry(name, in_port=None, out_port=None):
         if name not in carry:
             carry[name] = [None, None]
         if in_port is not None:
-            assert carry[name][0] is None, "Can't set {}: Carry {} in port already {}".format(in_port, name, carry[name][0])
+            assert carry[name][
+                0] is None, "Can't set {}: Carry {} in port already {}".format(
+                    in_port, name, carry[name][0]
+                )
             carry[name][0] = in_port
         if out_port is not None:
-            assert carry[name][-1] is None, "Can't set {}: Carry {} out port already {}".format(out_port, name, carry[name][-1])
+            assert carry[name][
+                -1
+            ] is None, "Can't set {}: Carry {} out port already {}".format(
+                out_port, name, carry[name][-1]
+            )
             carry[name][-1] = out_port
 
     inputs = []
