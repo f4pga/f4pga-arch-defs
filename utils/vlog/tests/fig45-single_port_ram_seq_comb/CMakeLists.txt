@@ -1,0 +1,1 @@
+v2x_test_model(NAME single_port_ram_seq_comb TOP_MODULE single_port_ram_seq_comb)

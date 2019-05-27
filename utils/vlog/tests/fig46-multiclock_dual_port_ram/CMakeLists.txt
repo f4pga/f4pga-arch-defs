@@ -1,0 +1,1 @@
+v2x_test_model(NAME multiclock_dual_port_ram TOP_MODULE multiclock_dual_port_ram)

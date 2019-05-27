@@ -1,0 +1,2 @@
+add_file_target(FILE single_port_rom_mixed.sim.v SCANNER_TYPE verilog)
+v2x_test_model(NAME single_port_rom_mixed TOP_MODULE single_port_rom_mixed)

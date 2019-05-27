@@ -1,0 +1,14 @@
+<models xmlns:xi="http://www.w3.org/2001/XInclude">
+  <!-- https://docs.verilogtorouting.org/en/latest/tutorials/arch/timing_modeling/#sequential-block-with-internal-paths-and-combinational-input -->
+  <model name="single_port_ram_seq_comb">
+    <input_ports>
+      <port name="we" combinational_sink_ports="out"/>
+      <port name="addr" clock="clk" combinational_sink_ports="out"/>
+      <port name="data" clock="clk" combinational_sink_ports="out"/>
+      <port name="clk" is_clock="1"/>
+    </input_ports>
+    <output_ports>
+      <port name="out" clock="clk"/>
+    </output_ports>
+  </model>
+</models>

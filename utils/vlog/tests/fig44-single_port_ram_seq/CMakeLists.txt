@@ -1,0 +1,1 @@
+v2x_test_model(NAME single_port_ram_seq TOP_MODULE single_port_ram_seq)
