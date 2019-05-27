@@ -29,9 +29,9 @@ def clog2(x):
 
 def add_metadata(tag, mtype, msubtype):
     meta_root = ET.SubElement(tag, 'metadata')
-    meta_type = ET.SubElement(meta_root, 'meta', {'key': 'type'})
+    meta_type = ET.SubElement(meta_root, 'meta', {'name': 'type'})
     meta_type.text = mtype
-    meta_subtype = ET.SubElement(meta_root, 'meta', {'key': 'subtype'})
+    meta_subtype = ET.SubElement(meta_root, 'meta', {'name': 'subtype'})
     meta_subtype.text = msubtype
 
 
