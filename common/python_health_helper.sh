@@ -18,17 +18,23 @@ run() {
   }
 
 lint_file() {
-  run "$1 $2" "lint failed on $2"
+  cmd=$1
+  file=$2
+  run "$cmd $file" "lint failed on $file"
   return $?
 }
 
 check_file() {
-  run "$1 -d $2 > /dev/null" "yapf needs to reformat $2"
+  cmd=$1
+  file=$2
+  run "$cmd -d $file > /dev/null" "yapf needs to reformat $file"
   return $?
 }
 
 format_file() {
-  run "$1 -i $2" "yapf failed to format $2"
+  cmd=$1
+  file=$2
+  run "$cmd -i $file" "yapf failed to format $file"
   return $?
 }
 
