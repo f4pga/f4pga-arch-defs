@@ -140,7 +140,13 @@ def pb_type_xml(mux_type, mux_name, pins, subckt=None, num_pb=1, comment=""):
     )
 
     if mux_type == MuxType.LOGIC:
-        pb_type_xml.attrib['blif_model'] = '.subckt %s' % subckt
+        add_metadata(pb_type_xml, 'bel', 'mux')
+    else:
+        add_metadata(pb_type_xml, 'bel', 'routing')
+
+    if mux_type == MuxType.LOGIC:
+        model = ET.SubElement(pb_type_xml, "blif_model")
+        model.text = '.subckt {}'.format(subckt)
     else:
         assert not subckt, "Provided subckt={} for non-logic mux!".format(
             subckt
