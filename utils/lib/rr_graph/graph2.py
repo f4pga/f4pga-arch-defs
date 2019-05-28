@@ -1,5 +1,7 @@
 """ rr graph library that is not tied to the underlying serialization format
-and provides simple fast lookup required to build real FPGA rr graph fabrics. """
+and provides simple fast lookup required to build real FPGA rr graph fabrics.
+"""
+
 from __future__ import print_function
 from collections import namedtuple
 from enum import Enum
@@ -9,6 +11,9 @@ import progressbar
 
 
 class SwitchType(Enum):
+    """Enumeration of allowed VPR switch type
+    See: https://vtr-verilog-to-routing.readthedocs.io/en/latest/vpr/file_formats.html#tag-switches-switch
+    """  # noqa: E501
     INVALID_SWITCH_TYPE = 0
     MUX = 1
     TRISTATE = 2
@@ -18,6 +23,9 @@ class SwitchType(Enum):
 
 
 class NodeType(Enum):
+    """VPR Node type. This is a superset of Type in channel.py
+    See: https://vtr-verilog-to-routing.readthedocs.io/en/latest/vpr/file_formats.html#tag-nodes-node
+    """  # noqa: E501
     INVALID_NODE_TYPE = 0
     CHANX = 1
     CHANY = 2
@@ -28,6 +36,9 @@ class NodeType(Enum):
 
 
 class NodeDirection(Enum):
+    """VPR Node Direction. This is a superset of Direction in channel.py
+    See: https://vtr-verilog-to-routing.readthedocs.io/en/latest/vpr/file_formats.html#tag-nodes-node
+    """  # noqa: E501
     NO_DIR = 0
     INC_DIR = 1
     DEC_DIR = 2
@@ -35,41 +46,118 @@ class NodeDirection(Enum):
 
 
 class PinType(Enum):
+    """ Enum for PinClass type
+    See: https://vtr-verilog-to-routing.readthedocs.io/en/latest/vpr/file_formats.html#tag-blocks-pin_class
+    """  # noqa: E501
     NONE = 0
     OPEN = 1
     OUTPUT = 2
     INPUT = 3
 
 
-ChannelList = namedtuple('ChannelList', 'index info')
-Channels = namedtuple(
-    'Channels', 'chan_width_max x_min y_min x_max y_max x_list y_list'
-)
+class ChannelList(namedtuple('ChannelList', 'index info')):
+    """VPR `x_list` and `y_list` tags in the channels
+    """
 
-SwitchTiming = namedtuple('SwitchTiming', 'r c_in c_out c_internal t_del')
-SwitchSizing = namedtuple('SwitchSizing', 'mux_trans_size buf_size')
-Switch = namedtuple('Switch', 'id name type timing sizing')
 
-SegmentTiming = namedtuple('SegmentTiming', 'r_per_meter c_per_meter')
-Segment = namedtuple('Segment', 'id name timing')
+class Channels(namedtuple(
+        'Channels', 'chan_width_max x_min y_min x_max y_max x_list y_list')):
+    """Encapsulation for VPR channels tag
+    See: https://vtr-verilog-to-routing.readthedocs.io/en/latest/vpr/file_formats.html#tag-channel-channel
+    """  # noqa: E501
 
-Pin = namedtuple('Pin', 'ptc name')
-PinClass = namedtuple('PinClass', 'type pin')
-BlockType = namedtuple('BlockType', 'id name width height pin_class')
 
-GridLoc = namedtuple('GridLoc', 'x y block_type_id width_offset height_offset')
-NodeTiming = namedtuple('NodeTiming', 'r c')
-NodeLoc = namedtuple('NodeLoc', 'x_low y_low x_high y_high side ptc')
-NodeMetadata = namedtuple(
-    'NodeMetadata', 'name x_offset y_offset z_offset value'
-)
-NodeSegment = namedtuple('NodeSegment', 'segment_id')
-Node = namedtuple(
-    'Node', 'id type direction capacity loc timing metadata segment'
-)
-Edge = namedtuple('Edge', 'src_node sink_node switch_id metadata')
+class SwitchTiming(namedtuple('SwitchTiming',
+                              'r c_in c_out c_internal t_del')):
+    """Encapsulation for timing attributes of a VPR switch
+    see: https://vtr-verilog-to-routing.readthedocs.io/en/latest/arch/reference.html#switches
+    """
 
-GraphInput = namedtuple('GraphInput', 'switches segments block_types grid')
+
+class SwitchSizing(namedtuple('SwitchSizing', 'mux_trans_size buf_size')):
+    """Encapsulation for sizing attributes of a VPR switch
+    see: https://vtr-verilog-to-routing.readthedocs.io/en/latest/arch/reference.html#switches
+    """
+
+
+class Switch(namedtuple('Switch', 'id name type timing sizing')):
+    """Encapsulate VPR switch tag. Contains SwitchTiming and SwitchSizing tuples.
+    see: https://vtr-verilog-to-routing.readthedocs.io/en/latest/arch/reference.html#switches
+    """
+
+
+class SegmentTiming(namedtuple('SegmentTiming', 'r_per_meter c_per_meter')):
+    """Encapsulation for timing attributes of a VPR segment.
+    see: https://vtr-verilog-to-routing.readthedocs.io/en/latest/arch/reference.html#wire-segments
+    """
+
+
+class Segment(namedtuple('Segment', 'id name timing')):
+    """Encapsulate VPR segment tag. Contains SegmentTiming to encapsulate the timing attributes
+    see: https://vtr-verilog-to-routing.readthedocs.io/en/latest/arch/reference.html#wire-segments
+    """
+
+
+class Pin(namedtuple('Pin', 'ptc name')):
+    """Encapsulation for VPR Pin tag
+    See: https://vtr-verilog-to-routing.readthedocs.io/en/latest/vpr/file_formats.html#tag-blocks-pin
+    """  # noqa: E501
+
+
+class PinClass(namedtuple('PinClass', 'type pin')):
+    """
+    See: https://vtr-verilog-to-routing.readthedocs.io/en/latest/vpr/file_formats.html#tag-blocks-pin_class
+    """  # noqa: E501
+
+
+class BlockType(namedtuple('BlockType', 'id name width height pin_class')):
+    """
+    See: https://vtr-verilog-to-routing.readthedocs.io/en/latest/vpr/file_formats.html#tag-blocks-block_type
+    """  # noqa: E501
+
+
+class GridLoc(namedtuple('GridLoc',
+                         'x y block_type_id width_offset height_offset')):
+    """
+    """
+
+
+class NodeTiming(namedtuple('NodeTiming', 'r c')):
+    """https://vtr-verilog-to-routing.readthedocs.io/en/latest/vpr/file_formats.html#tag-nodes-timing
+    """
+
+
+class NodeLoc(namedtuple('NodeLoc', 'x_low y_low x_high y_high side ptc')):
+    """https://vtr-verilog-to-routing.readthedocs.io/en/latest/vpr/file_formats.html#tag-nodes-loc
+    """
+
+
+class NodeMetadata(namedtuple('NodeMetadata',
+                              'name x_offset y_offset z_offset value')):
+    """https://vtr-verilog-to-routing.readthedocs.io/en/latest/arch/reference.html#architecture-metadata
+    """
+
+
+class NodeSegment(namedtuple('NodeSegment', 'segment_id')):
+    """https://vtr-verilog-to-routing.readthedocs.io/en/latest/vpr/file_formats.html#tag-nodes-segment
+    """
+
+
+class Node(namedtuple(
+        'Node', 'id type direction capacity loc timing metadata segment')):
+    """https://vtr-verilog-to-routing.readthedocs.io/en/latest/vpr/file_formats.html#tag-nodes-node
+    """
+
+
+class Edge(namedtuple('Edge', 'src_node sink_node switch_id metadata')):
+    """https://vtr-verilog-to-routing.readthedocs.io/en/latest/vpr/file_formats.html#tag-edges-edge
+    """
+
+
+class GraphInput(namedtuple('GraphInput',
+                            'switches segments block_types grid')):
+    """Top level encapsulation of input Graph
+    """
 
 
 def process_track(track):

@@ -60,6 +60,9 @@ class Track(_Track):
     """
 
     class Type(enum.Enum):
+        """
+        subset of NodeType in graph2
+        """
         # Horizontal routing
         X = 'CHANX'
         # Vertical routing
