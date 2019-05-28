@@ -57,6 +57,10 @@ add_conda_package(
   PROVIDES pytest
   )
 add_conda_package(
+  NAME flake8
+  PROVIDES flake8
+  )
+add_conda_package(
   NAME yapf
   PROVIDES yapf
   PACKAGE_SPEC "yapf 0.26.0 py_0"
@@ -131,23 +135,24 @@ add_subdirectory(testarch)
 add_subdirectory(tests)
 
 get_target_property_required(YAPF env YAPF)
+get_target_property_required(YAPF_TARGET env YAPF_TARGET)
 add_custom_target(
   check_python
-  DEPENDS conda_yapf
+  DEPENDS ${YAPF_TARGET}
+  COMMAND ${symbiflow-arch-defs_SOURCE_DIR}/common/python_health_helper.sh -c -y ${YAPF}
   )
 add_custom_target(
   format_python
-  DEPENDS conda_yapf
+  DEPENDS ${YAPF_TARGET}
+  COMMAND ${symbiflow-arch-defs_SOURCE_DIR}/common/python_health_helper.sh -f -y ${YAPF}
   )
 
-add_custom_command(
-  TARGET check_python
-  COMMAND ${symbiflow-arch-defs_SOURCE_DIR}/common/yapf_helper.sh -c -y ${YAPF}
-  )
-
-add_custom_command(
-  TARGET format_python
-  COMMAND ${symbiflow-arch-defs_SOURCE_DIR}/common/yapf_helper.sh -f -y ${YAPF}
+get_target_property_required(FLAKE8 env FLAKE8)
+get_target_property_required(FLAKE8_TARGET env FLAKE8_TARGET)
+add_custom_target(
+  lint_python
+  DEPENDS ${FLAKE8_TARGET}
+  COMMAND ${symbiflow-arch-defs_SOURCE_DIR}/common/python_health_helper.sh -l -p "${FLAKE8} --exit-zero"
   )
 
 

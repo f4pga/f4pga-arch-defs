@@ -4,7 +4,7 @@ usage() {
   if [ -n "$1" ]; then
     echo "$1" > /dev/stderr;
   fi
-  echo "Usage: $0 -y <yapf_exec> [-c] [-f]" > /dev/stderr
+  echo "Usage: $0 -y <yapf_exec> -p lint_program<> [-l|-c|-f]" > /dev/stderr
   exit 1
 }
 
@@ -17,21 +17,34 @@ run() {
   return $res
   }
 
+lint_file() {
+  cmd=$1
+  file=$2
+  run "$cmd $file" "lint failed on $file"
+  return $?
+}
+
 check_file() {
-  run "$1 -d $2 > /dev/null" "yapf needs to reformat $2"
+  cmd=$1
+  file=$2
+  run "$cmd -d $file > /dev/null" "yapf needs to reformat $file"
   return $?
 }
 
 format_file() {
-  run "$1 -i $2" "yapf failed to format $2"
+  cmd=$1
+  file=$2
+  run "$cmd -i $file" "yapf failed to format $file"
   return $?
 }
 
-do_check=0;
-do_format=0;
+do_check=0
+do_format=0
+do_lint=0
 
-YAPF=yapf
-while getopts "cfy:" opt; do
+yapf_exec=yapf
+lint_exec=pyflakes
+while getopts "lcfy:p:" opt; do
   case $opt in
     c)
       do_check=1;
@@ -40,7 +53,13 @@ while getopts "cfy:" opt; do
       do_format=1;
       ;;
     y)
-      YAPF=$OPTARG
+      yapf_exec=$OPTARG
+      ;;
+    p)
+      lint_exec=$OPTARG
+      ;;
+    l)
+      do_lint=1;
       ;;
     *)
       usage
@@ -53,7 +72,7 @@ if [ -n "$*" ]; then
   usage "leftover args: '$*'"
 fi
 
-if [ $do_check == $do_format ]; then
+if (( do_check + do_format + do_lint != 1 )); then
   usage "Provide exactly one option"
 fi
 
@@ -63,10 +82,13 @@ ret=0
 TOP_DIR=`git rev-parse --show-toplevel`
 for file in $(git ls-tree --full-tree --name-only -r HEAD | grep "\.py$"); do
   if [ $do_check != 0 ]; then
-    check_file $YAPF $TOP_DIR/$file;
+    check_file $yapf_exec $TOP_DIR/$file;
     res=$?
   elif [ $do_format != 0 ]; then
-    format_file $YAPF $TOP_DIR/$file;
+    format_file "$yapf_exec" $TOP_DIR/$file;
+    res=$?
+  elif [ $do_lint != 0 ]; then
+    lint_file "$lint_exec" $TOP_DIR/$file;
     res=$?
   fi;
 
