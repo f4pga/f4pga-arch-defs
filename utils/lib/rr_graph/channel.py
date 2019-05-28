@@ -22,21 +22,21 @@ Specifically:
 import pprint
 import enum
 import io
-from collections import namedtuple, OrderedDict
+from collections import namedtuple
 import lxml.etree as ET
 
 from . import Position
 from . import Size
-
-# FIXME: doctests and static_property are not playing nice together.
-#from . import static_property
-static_property = property
 
 from . import node_pos, single_element
 from ..asserts import assert_eq
 from ..asserts import assert_len_eq
 from ..asserts import assert_type
 from ..asserts import assert_type_or_none
+
+# FIXME: doctests and static_property are not playing nice together.
+# from . import static_property
+static_property = property
 
 
 class ChannelNotStraight(TypeError):
@@ -314,12 +314,12 @@ class Track(_Track):
         """
         if self.name:
             idx_str = ""
-            if self.idx != None:
+            if self.idx is not None:
                 idx_str = ",{}".format(self.idx)
             return "T({}{})".format(self.name, idx_str)
 
         idx_str = ""
-        if self.idx != None:
+        if self.idx is not None:
             idx_str = ", {}".format(self.idx)
         return "T(({},{}), ({},{}){})".format(
             self.start.x, self.start.y, self.end.x, self.end.y, idx_str
@@ -340,7 +340,7 @@ class Track(_Track):
         'ABC@5'
         """
         idx_str = ""
-        if self.idx != None:
+        if self.idx is not None:
             idx_str = " @{}".format(self.idx)
         if self.name:
             return "{}{}".format(self.name, idx_str[1:])
@@ -481,8 +481,8 @@ class ChannelGrid(dict):
         """
         A channel must go between switchboxes (where channels can cross)
         Channels are upper right of tile
-        Therefore, the first position in a channel cannot have a track because there is no proceeding switchbox
-        """
+        Therefore, the first position in a channel cannot have a track because
+        there is no proceeding switchbox"""
         if msg:
             msg = msg + ': '
         # Gross error out of grid
@@ -586,7 +586,7 @@ class ChannelGrid(dict):
         >>> g[(8,6)]
         [None, None, None, None]
         """
-        assert t.idx == None
+        assert t.idx is None
         force_idx = idx
 
         self.validate_pos(t.start, 'start')
@@ -601,14 +601,14 @@ class ChannelGrid(dict):
             else:
                 t.type_hint = self.chan_type
 
-        l = self.track_slice(t)
-        assert_len_eq(l)
+        c = self.track_slice(t)
+        assert_len_eq(c)
 
         # Find start and end
         s, e = min(t.start0, t.end0), max(t.start0, t.end0)
         assert e >= s, (e, '>=', s)
-        assert s < len(l), (s, '<', len(l), l)
-        assert e < len(l), (e + 1, '<', len(l), l)
+        assert s < len(c), (s, '<', len(c), c)
+        assert e < len(c), (e + 1, '<', len(c), c)
 
         # Find a idx that this channel fits.
         # Normally start at first channel (0) unless forcing to a specific channel
@@ -616,11 +616,11 @@ class ChannelGrid(dict):
         while True:
             # Check each position if the track can fit
             # Expanding channel width as required index grows
-            for p in l[s:e + 1]:
+            for p in c[s:e + 1]:
                 while len(p) < max_idx + 1:
                     p.append(None)
                 # Can't place here?
-                if p[max_idx] != None:
+                if p[max_idx] is not None:
                     # Grow track width
                     if force_idx is not None:
                         raise IndexError(
@@ -633,14 +633,14 @@ class ChannelGrid(dict):
                 break
 
         # Make sure everything has the same length.
-        for p in l:
+        for p in c:
             while len(p) < max_idx + 1:
                 p.append(None)
-        assert_len_eq(l)
+        assert_len_eq(c)
 
         t = t.new_idx(max_idx)
         assert t.idx == max_idx
-        for p in l[s:e + 1]:
+        for p in c[s:e + 1]:
             p[t.idx] = t
         return t
 
@@ -700,7 +700,9 @@ class ChannelGrid(dict):
         row: global row location
         col: column of output
         c: character showing occupation along a track
-        Channel width may vary across tiles, but all columns within that region should have the same length
+
+        Channel width may vary across tiles, but all columns within that region
+        should have the same length
         """
         rows = []
         for y in range(0, self.height):
@@ -770,7 +772,7 @@ class ChannelGrid(dict):
                             p("|", end="")
                     p("  ", end="")
                 p("")
-                #p("|*|")
+                # p("|*|")
         else:
             assert False
 
@@ -850,8 +852,8 @@ class ChannelGrid(dict):
     def assert_full(self):
         """Assert all allocated channels are fully occupied"""
         self.check()
-        #occupied, net = self.density()
-        #print("Occupied %d / %d" % (occupied, net))
+        # occupied, net = self.density()
+        # print("Occupied %d / %d" % (occupied, net))
         for pos, ti, t in self.foreach_track():
             assert t is not None, 'Unoccupied Position(x=%d, y=%d) track=%d' % (
                 pos.x, pos.y, ti
@@ -868,13 +870,13 @@ class Channels:
 
     def create_diag_track(self, start, end, segment_id, idx=None):
         # Actually these can be tuple as well
-        #assert_type(start, Pos)
-        #assert_type(end, Pos)
+        # assert_type(start, Pos)
+        # assert_type(end, Pos)
 
         # Create track(s)
         try:
             return (self.create_xy_track(start, end, segment_id, idx=idx), )
-        except ChannelNotStraight as _e:
+        except ChannelNotStraight:
             assert idx is None, idx
             corner = (start.x, end.y)
             ta = self.create_xy_track(start, corner, segment_id)[0]
@@ -895,8 +897,8 @@ class Channels:
         idx: None to automatically allocate
         """
         # Actually these can be tuple as well
-        #assert_type(start, Pos)
-        #assert_type(end, Pos)
+        # assert_type(start, Pos)
+        # assert_type(end, Pos)
 
         # Create track(s)
         # Will throw exception if not straight
@@ -917,9 +919,9 @@ class Channels:
         }[t.type](
             t, idx=idx
         )
-        #print('create %s %s to %s idx %s' % (t.type, start, end, idx))
+        # print('create %s %s to %s idx %s' % (t.type, start, end, idx))
 
-        assert t.idx != None
+        assert t.idx is not None
         if typeh:
             assert t.type == typeh, (t.type.value, typeh)
         return t
@@ -956,14 +958,14 @@ class Channels:
             loc = single_element(node_xml, 'loc')
             idx = int(loc.get('ptc'))
             pos_low, pos_high = node_pos(node_xml)
-            #print('Importing %s @ %s:%s :: %d' % (ntype, pos_low, pos_high, idx))
+            # print('Importing %s @ %s:%s :: %d' % (ntype, pos_low, pos_high, idx))
 
             segment_xml = single_element(node_xml, 'segment')
             segment_id = int(segment_xml.get('segment_id'))
 
             # idx will get assigned when adding to track
             try:
-                _track = self.create_xy_track(
+                self.create_xy_track(
                     pos_low,
                     pos_high,
                     segment_id,
@@ -973,7 +975,7 @@ class Channels:
                     typeh=ntype_e,
                     direction=direction
                 )
-            except:
+            except Exception:
                 print("Bad XML: %s" % (ET.tostring(node_xml)))
                 raise
 
