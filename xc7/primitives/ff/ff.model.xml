@@ -45,24 +45,24 @@
   </model>
   <model name="LDPE_ZINI">
     <input_ports>
-      <port name="G"  is_clock="1" />
-      <port name="GE" clock="G" />
-      <port name="PRE"  clock="G" />
-      <port name="D"  clock="G" />
+      <port name="G" combinational_sink_ports="Q" is_clock="1" />
+      <port name="GE" combinational_sink_ports="Q" />
+      <port name="PRE" combinational_sink_ports="Q" />
+      <port name="D" clock="G" />
     </input_ports>
     <output_ports>
-      <port name="Q" clock="G"  />
+      <port name="Q" />
     </output_ports>
   </model>
   <model name="LDCE_ZINI">
     <input_ports>
-      <port name="G"  is_clock="1" />
-      <port name="GE" clock="G" />
-      <port name="CLR"  clock="G" />
-      <port name="D"  clock="G" />
+      <port name="G" combinational_sink_ports="Q" is_clock="1" />
+      <port name="GE" combinational_sink_ports="Q" />
+      <port name="CLR" combinational_sink_ports="Q" />
+      <port name="D" clock="G" />
     </input_ports>
     <output_ports>
-      <port name="Q" clock="G"  />
+      <port name="Q" />
     </output_ports>
   </model>
   <model name="NO_FF">
