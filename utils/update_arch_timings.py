@@ -8,6 +8,8 @@ import os
 
 
 def mergedicts(source, destination):
+    """This function recursively merges two dictionaries:
+       `source` into `destination"""
     for key, value in source.items():
         if isinstance(value, dict):
             # get node or create one
@@ -20,6 +22,9 @@ def mergedicts(source, destination):
 
 
 def remove_site_number(site):
+    """Some sites are numbered in the VPR arch definitions.
+       This happens for e.g. SLICE0. This function removes
+       trailing numbers from the name"""
     number = re.search(r'\d+$', site)
     if number is not None:
         site = site[:-len(str(number.group()))]
@@ -27,6 +32,11 @@ def remove_site_number(site):
 
 
 def get_cell_types_and_instance(bel, location, site, bels):
+    """This function searches for a bel type and instance
+       translation between VPR and Vivado. The translation
+       is defined in the `bels` dictionary. If translation
+       is found celltypes list and bel instance is returned,
+       `None` otherwise"""
     if site not in bels:
         return None, None
     if bel not in bels[site]:
@@ -41,6 +51,9 @@ def get_cell_types_and_instance(bel, location, site, bels):
 
 
 def find_timings(timings, bel, location, site, bels):
+    """This function returns all the timings associated with
+       the selected `bel` in `location` and `site`. If timings
+       are not found, `None` is returned"""
     separator = "/"
     celltype, instance = get_cell_types_and_instance(bel, location, site, bels)
     if (celltype is None) or (instance is None):
@@ -60,6 +73,9 @@ def find_timings(timings, bel, location, site, bels):
 
 
 def get_bel_timings(element, timings, bels):
+    """This function returnes all the timings for an arch.xml
+       `element`. It determines the bel location by traversing
+       the pb_type chain"""
     pb_chain = get_pb_type_chain(element)
     if len(pb_chain) == 1:
         return None
