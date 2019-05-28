@@ -7,44 +7,6 @@ import re
 import os
 
 
-def remove_site_number(site):
-    number = re.search(r'\d+$', site)
-    if number is not None:
-        site = site[:-len(str(number.group()))]
-    return site
-
-
-def get_cell_type_and_instance(bel, location, site, bels):
-    if site not in bels:
-        return None, None
-    if bel not in bels[site]:
-        return None, None
-    if location not in bels[site][bel]:
-        return None, None
-
-    celltype = bels[site][bel][location]['celltype']
-    instance = bels[site][bel][location]['instance']
-
-    return celltype, instance
-
-
-def find_timings(timings, bel, location, site, bels):
-    separator = "/"
-    celltype, instance = get_cell_type_and_instance(bel, location, site, bels)
-    if (celltype is None) or (instance is None):
-        return None
-    bel_timings = dict()
-    cell = timings['cells'][celltype][instance]
-    for delay in cell:
-        if cell[delay]['is_absolute']:
-            entry = cell[delay]['delay_paths']['slow']['max']
-        elif cell[delay]['is_timing_check']:
-            entry = cell[delay]['delay_paths']['nominal']['max']
-        bel_timings[delay] = float(entry) * get_scale_seconds('1 ns')
-
-    return bel_timings
-
-
 def mergedicts(source, destination):
     for key, value in source.items():
         if isinstance(value, dict):
@@ -55,6 +17,46 @@ def mergedicts(source, destination):
             destination[key] = value
 
     return destination
+
+
+def remove_site_number(site):
+    number = re.search(r'\d+$', site)
+    if number is not None:
+        site = site[:-len(str(number.group()))]
+    return site
+
+
+def get_cell_types_and_instance(bel, location, site, bels):
+    if site not in bels:
+        return None, None
+    if bel not in bels[site]:
+        return None, None
+    if location not in bels[site][bel]:
+        return None, None
+
+    celltypes = (bels[site][bel][location]['celltype']).split()
+    instance = bels[site][bel][location]['instance']
+
+    return celltypes, instance
+
+
+def find_timings(timings, bel, location, site, bels):
+    separator = "/"
+    celltype, instance = get_cell_types_and_instance(bel, location, site, bels)
+    if (celltype is None) or (instance is None):
+        return None
+    bel_timings = dict()
+    cell = dict()
+    for ct in celltype:
+        cell = mergedicts(timings['cells'][ct][instance], cell)
+    for delay in cell:
+        if cell[delay]['is_absolute']:
+            entry = cell[delay]['delay_paths']['slow']['max']
+        elif cell[delay]['is_timing_check']:
+            entry = cell[delay]['delay_paths']['nominal']['max']
+        bel_timings[delay] = float(entry) * get_scale_seconds('1 ns')
+
+    return bel_timings
 
 
 def get_bel_timings(element, timings, bels):
