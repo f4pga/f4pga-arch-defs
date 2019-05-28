@@ -21,20 +21,22 @@ from typing import List
 import lxml.etree as ET
 
 from lib.flatten import flatten
-from lib.pb_type import Port, ports, find_leaf
+from lib.pb_type import Port, ports, get_blif_model, find_leaf
 
 
-def blif(name: str, inputs: List[Port], outputs: List[Port]) -> str:
-    """Generate a blif for a device with set of input and output ports.
+def blif(
+        name: str, clocks: List[Port], inputs: List[Port], outputs: List[Port]
+) -> str:
+    """Generate an eblif for a subckt with set of input and output ports.
 
-    >>> print(blif('mod', ['A', 'B'], ['C', 'D']))
+    >>> print(blif('mod', ['A'], ['B'], ['C', 'D']))
     .model top
     .inputs A B
     .outputs C D
     .subckt mod A=A B=B C=C D=D
     .cname mod
     .end
-    >>> print(blif('mod', [('A', 2)], [('C', 2)]))
+    >>> print(blif('mod', [], [('A', 2)], [('C', 2)]))
     .model top
     .inputs A0 A1
     .outputs C0 C1
@@ -42,7 +44,7 @@ def blif(name: str, inputs: List[Port], outputs: List[Port]) -> str:
     .cname mod
     .end
     """
-    inputs = list(flatten(inputs))
+    inputs = list(flatten(clocks)) + list(flatten(inputs))
     outputs = list(flatten(outputs))
 
     return """\
@@ -56,6 +58,42 @@ def blif(name: str, inputs: List[Port], outputs: List[Port]) -> str:
         inputs=" ".join(d for s, d in inputs),
         outputs=" ".join(s for d, s in outputs),
         iomap=" ".join("{}={}".format(s, d) for s, d in inputs + outputs),
+    )
+
+
+def lut(
+        name: str, clocks: List[Port], inputs: List[Port], outputs: List[Port]
+) -> str:
+    """Generate am eblif for a lut with set of input and output ports.
+
+    >>> print(lut('mod', [], ['A', 'B'], ['D']))
+    .model top
+    .inputs A B
+    .outputs D
+    .names A B D
+    .end
+    >>> print(lut('mod', [], [('A', 2)], [('D', 1)]))
+    .model top
+    .inputs A0 A1
+    .outputs D
+    .names A0 A1 D
+    .end
+    """
+    assert not clocks, "LUTs don't have clocks: {}".format(clocks)
+    inputs = list(flatten(inputs))
+    outputs = list(flatten(outputs))
+
+    assert len(outputs) == 1
+
+    return """\
+.model top
+.inputs {inputs}
+.outputs {outputs}
+.names {iomap}
+.end""".format(
+        inputs=" ".join(d for s, d in inputs),
+        outputs=" ".join(s for d, s in outputs),
+        iomap=" ".join("{}".format(d) for s, d in inputs + outputs),
     )
 
 
@@ -73,6 +111,8 @@ Output filename, default '<name>.test.eblif'
 """
 )
 
+SUBCKT = '.subckt '
+
 
 def main(args):
     args = parser.parse_args(args)
@@ -84,8 +124,19 @@ def main(args):
     assert pbtype_leaf is not None, "Unable to find leaf <pb_type> tag in {}".format(
         args.pb_type
     )
+    blif_model = get_blif_model(pbtype_leaf)
 
-    pbtype_name, clocks, inputs, outputs = ports(pbtype_leaf)
+    _, clocks, inputs, outputs, carry = ports(pbtype_leaf)
+
+    if blif_model.startswith(SUBCKT):
+        name = blif_model[len(SUBCKT):].strip()
+        outputf = blif
+    elif blif_model == '.names':
+        name = 'lut{}'.format(len(inputs))
+        outputf = lut
+    else:
+        raise TypeError("Unknown blif_model {}".format(blif_model))
+
     iname = os.path.basename(args.pb_type)
 
     outfile = "{}.test.eblif".format(iname)
@@ -93,7 +144,7 @@ def main(args):
         outfile = args.output
     outfile = os.path.abspath(outfile)
 
-    eblif = blif(pbtype_name, inputs, outputs)
+    eblif = outputf(name, clocks, inputs, outputs)
     with open(outfile, "w") as f:
         f.write(eblif)
 
