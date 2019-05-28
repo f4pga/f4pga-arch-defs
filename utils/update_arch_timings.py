@@ -131,6 +131,12 @@ def main():
             continue
         ts.attrib['value'] = ts.attrib['value'].format(**bel_timings)
 
+    for th in root_element.iter('T_hold'):
+        bel_timings = get_bel_timings(th, timings, bels)
+        if bel_timings is None:
+            continue
+        th.attrib['value'] = ts.attrib['value'].format(**bel_timings)
+
     with open(args.out_arch, 'wb') as fp:
         fp.write(ET.tostring(arch_xml))
 
