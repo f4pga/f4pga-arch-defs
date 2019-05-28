@@ -1,5 +1,5 @@
 import unittest
-from ..points import *
+from ..points import NamedPosition, StraightSegment, Position, NP
 
 
 class NamedPositionTests(unittest.TestCase):
@@ -11,7 +11,7 @@ class NamedPositionTests(unittest.TestCase):
 
     def test_nonstr(self):
         with self.assertRaises(TypeError):
-            namedpos = NamedPosition(Position(0, 1), ["name1", "name2", 2])
+            NamedPosition(Position(0, 1), ["name1", "name2", 2])
 
     def test_first(self):
         namedpos = NamedPosition(Position(0, 1), ["name1", "name2"])
