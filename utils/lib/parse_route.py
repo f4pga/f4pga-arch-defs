@@ -25,15 +25,15 @@ def find_net_sources(f):
 
     """
     net = None
-    for l in f:
-        tokens = l.strip().split()
+    for e in f:
+        tokens = e.strip().split()
         if not tokens:
             continue
         elif tokens[0][0] == '#':
             continue
         elif tokens[0] == 'Net':
             net = format_name(tokens[2])
-        elif l == "\n\nUsed in local cluster only, reserved one CLB pin\n\n":
+        elif e == "\n\nUsed in local cluster only, reserved one CLB pin\n\n":
             continue
         else:
             if net is not None:

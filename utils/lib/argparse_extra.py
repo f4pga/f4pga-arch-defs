@@ -20,7 +20,7 @@ class ActionStoreBool(argparse.Action):
     True
     >>> parser.parse_args(['--arg', 'no']).arg
     False
-    >>> 
+    >>>
 
     Use like this for a default on argument which can be turned off;
     >>> parser = argparse.ArgumentParser()
@@ -37,7 +37,7 @@ class ActionStoreBool(argparse.Action):
     True
     >>> parser.parse_args(['--arg', 'no']).arg
     False
-    >>> 
+    >>>
 
     Converts the following (in can capitalization) to `True`:
         * yes
