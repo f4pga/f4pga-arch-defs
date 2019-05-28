@@ -32,7 +32,6 @@
   <metadata>
     <meta name="fasm_params">
       INIT[31:0] = INIT_00
-      INIT[63:32] = INIT_01
     </meta>
     <meta name="fasm_features">
       RAM
