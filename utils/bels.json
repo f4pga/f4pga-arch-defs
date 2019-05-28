@@ -41,6 +41,58 @@
                 "celltype": "SELMUX2_1",
                 "instance": "SLICEL/F8MUX"
             }
+        },
+        "FDSE":{
+            "FF_FDSE_or_FDRE":{
+                "celltype": "FF_INIT FF_INIT_QH",
+                "instance": "SLICEL"
+            },
+            "REG_FDSE_or_FDRE":{
+                "celltype": "REG_INIT_FF REG_INIT_FF_QH",
+                "instance": "SLICEL"
+            }
+        },
+        "FDRE":{
+            "FF_FDSE_or_FDRE":{
+                "celltype": "FF_INIT FF_INIT_QL",
+                "instance": "SLICEL"
+            },
+            "REG_FDSE_or_FDRE":{
+                "celltype": "REG_INIT_FF REG_INIT_FF_QL",
+                "instance": "SLICEL"
+            }
+        },
+        "FDPE":{
+            "FF_FDPE_or_FDCE":{
+                "celltype": "FF_INIT FF_INIT_QH",
+                "instance": "SLICEL"
+            },
+            "REG_FDPE_or_FDCE":{
+                "celltype": "REG_INIT_FF REG_INIT_FF_QH",
+                "instance": "SLICEL"
+            }
+        },
+        "FDCE":{
+            "FF_FDPE_or_FDCE":{
+                "celltype": "FF_INIT FF_INIT_QL",
+                "instance": "SLICEL"
+            },
+            "REG_FDPE_or_FDCE":{
+                "celltype": "REG_INIT_FF REG_INIT_FF_QL",
+                "instance": "SLICEL"
+            }
+        },
+        "LDPE":{
+            "LDPE_or_LDCE":{
+                "celltype": "REG_INIT_LAT REG_INIT_LAT_LOGIC_AND",
+                "instance": "SLICEL"
+            }
+        },
+        "LDCE":{
+            "LDPE_or_LDCE":{
+                "celltype": "REG_INIT_LAT REG_INIT_LAT_LOGIC_AND",
+                "instance": "SLICEL"
+            }
         }
     },
     "SLICEM": {
@@ -166,6 +218,60 @@
             "COMMON_LUT_AND_F78MUX":{
                 "celltype": "SELMUX2_1",
                 "instance": "SLICEM/F8MUX"
+            }
+<<<<<<< HEAD
+=======
+        },
+        "FDSE":{
+            "FF_FDSE_or_FDRE":{
+                "celltype": "FF_INIT FF_INIT_QH",
+                "instance": "SLICEM"
+            },
+            "REG_FDSE_or_FDRE":{
+                "celltype": "REG_INIT_FF REG_INIT_FF_QH",
+                "instance": "SLICEM"
+            }
+        },
+        "FDRE":{
+            "FF_FDSE_or_FDRE":{
+                "celltype": "FF_INIT FF_INIT_QL",
+                "instance": "SLICEM"
+            },
+            "REG_FDSE_or_FDRE":{
+                "celltype": "REG_INIT_FF REG_INIT_FF_QL",
+                "instance": "SLICEM"
+            }
+        },
+        "FDPE":{
+            "FF_FDPE_or_FDCE":{
+                "celltype": "FF_INIT FF_INIT_QH",
+                "instance": "SLICEM"
+            },
+            "REG_FDPE_or_FDCE":{
+                "celltype": "REG_INIT_FF REG_INIT_FF_QH",
+                "instance": "SLICEM"
+            }
+        },
+        "FDCE":{
+            "FF_FDPE_or_FDCE":{
+                "celltype": "FF_INIT FF_INIT_QL",
+                "instance": "SLICEM"
+            },
+            "REG_FDPE_or_FDCE":{
+                "celltype": "REG_INIT_FF REG_INIT_FF_QL",
+                "instance": "SLICEM"
+            }
+        },
+        "LDPE":{
+            "LDPE_or_LDCE":{
+                "celltype": "REG_INIT_LAT REG_INIT_LAT_LOGIC_AND",
+                "instance": "SLICEM"
+            }
+        },
+        "LDCE":{
+            "LDPE_or_LDCE":{
+                "celltype": "REG_INIT_LAT REG_INIT_LAT_LOGIC_AND",
+                "instance": "SLICEM"
             }
         }
     }
