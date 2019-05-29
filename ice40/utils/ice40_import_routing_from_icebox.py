@@ -842,9 +842,7 @@ def add_track_with_lines(g, ic, segment, lines, connections, hlc_name_f):
     logging.debug("Created track %s from sections: %s", segment.name, lines)
     for line in lines:
         istart, iend = points.straight_ends([p.pos for p in line])
-        logging.debug(
-            "  %s>%s (%s)", istart, iend, line
-        )
+        logging.debug("  %s>%s (%s)", istart, iend, line)
     for ipos, joins in sorted(connections.items()):
         for name_a, name_b in joins:
             logging.debug("  %s %s<->%s", ipos, name_a, name_b)
@@ -1033,7 +1031,6 @@ def add_tracks(g, ic, all_group_segments, segtype_filter=None):
 def add_edges(g, ic):
     """Adding edges to the rr_graph from icebox edges."""
     for ipos in list(tiles(ic)):
-
         """
         # FIXME: If IO type, connect PACKAGE_PIN_I and PACKAGE_PIN_O manually...
         tile_type = ic.tile_type(*ipos)

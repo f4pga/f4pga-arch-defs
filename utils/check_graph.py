@@ -2,7 +2,6 @@
 
 import argparse
 import re
-from lxml import etree
 from lib.rr_graph import graph
 
 

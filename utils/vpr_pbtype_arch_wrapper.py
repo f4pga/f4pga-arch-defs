@@ -15,13 +15,13 @@ import subprocess
 import sys
 import tempfile
 
-from typing import List, Dict, Sequence, Tuple
+from typing import List, Dict, Tuple
 
 import lxml.etree as ET
 
 from lib import xmlinc
 from lib.flatten import flatten
-from lib.pb_type import ports, find_leaf, Port
+from lib.pb_type import ports, find_leaf
 
 FILEDIR_PATH = os.path.abspath(os.path.join(os.path.dirname(__file__)))
 TEMPLATE_PATH = os.path.abspath(
@@ -173,8 +173,8 @@ def layout_xml(arch_xml: ET.Element, pbtype_xml: ET.Element) -> int:
         {
             "name": "device",
             # FIXME: See https://github.com/verilog-to-routing/vtr-verilog-to-routing/issues/277
-            #"width":  str(width),
-            #"height":  str(height),
+            # "width":  str(width),
+            # "height":  str(height),
             "width": str(max(width, height)),
             "height": str(max(width, height)),
         },
@@ -283,7 +283,7 @@ def tile_xml(
 
     # Clock pins
     for d, s in flatten(clocks):
-        input_tag = ET.SubElement(
+        ET.SubElement(
             tile,
             "clock",
             {
@@ -307,7 +307,7 @@ def tile_xml(
 
     # Input Pins
     for d, s in flatten(inputs):
-        input_tag = ET.SubElement(
+        ET.SubElement(
             tile,
             "input",
             {
@@ -331,7 +331,7 @@ def tile_xml(
 
     # Output Pins
     for s, d in flatten(outputs):
-        output_tag = ET.SubElement(
+        ET.SubElement(
             tile,
             "output",
             {

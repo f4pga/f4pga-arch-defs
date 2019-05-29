@@ -41,6 +41,8 @@ function(V2X)
   get_target_property(YOSYS_TARGET env YOSYS_TARGET)
   list(APPEND DEPENDS_LIST ${YOSYS} ${YOSYS_TARGET})
 
+  set(PYUTILS_PATH ${symbiflow-arch-defs_SOURCE_DIR}/utils)
+
   set(REAL_SOURCE_LIST "")
   foreach(SRC ${V2X_SRCS})
     if(NOT "${SRC}" MATCHES "\\.sim\\.v$")
@@ -94,7 +96,8 @@ function(V2X)
       ${DEPENDS_LIST}
       ${symbiflow-arch-defs_SOURCE_DIR}/utils/vlog/vlog_to_pbtype.py
     COMMAND
-      ${CMAKE_COMMAND} -E env YOSYS=${YOSYS}  ${PYTHON3} ${symbiflow-arch-defs_SOURCE_DIR}/utils/vlog/vlog_to_pbtype.py ${TOP_ARG}
+    ${CMAKE_COMMAND} -E env YOSYS=${YOSYS} PYTHONPATH=${PYUTILS_PATH}
+      ${PYTHON3} ${symbiflow-arch-defs_SOURCE_DIR}/utils/vlog/vlog_to_pbtype.py ${TOP_ARG}
       -o ${CMAKE_CURRENT_BINARY_DIR}/${V2X_NAME}.pb_type.xml ${FIRST_SOURCE}
       ${INCLUDE_ARG}
     WORKING_DIRECTORY ${symbiflow-arch-defs_SOURCE_DIR}/utils/vlog/
@@ -109,7 +112,8 @@ function(V2X)
       ${DEPENDS_LIST}
       ${symbiflow-arch-defs_SOURCE_DIR}/utils/vlog/vlog_to_model.py
     COMMAND
-      ${CMAKE_COMMAND} -E env YOSYS=${YOSYS}  ${PYTHON3} ${symbiflow-arch-defs_SOURCE_DIR}/utils/vlog/vlog_to_model.py ${TOP_ARG}
+    ${CMAKE_COMMAND} -E env YOSYS=${YOSYS} PYTHONPATH=${PYUTILS_PATH}
+      ${PYTHON3} ${symbiflow-arch-defs_SOURCE_DIR}/utils/vlog/vlog_to_model.py ${TOP_ARG}
       -o ${CMAKE_CURRENT_BINARY_DIR}/${V2X_NAME}.model.xml ${FIRST_SOURCE}
       ${INCLUDE_ARG}
     WORKING_DIRECTORY ${symbiflow-arch-defs_SOURCE_DIR}/utils/vlog/

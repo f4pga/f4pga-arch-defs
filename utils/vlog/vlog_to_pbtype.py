@@ -28,7 +28,8 @@ The following are allowed on nets within modules (TODO: use proper Verilog timin
 
     - `(* CLK_TO_Q="clk 10e-12" *)` : specify clock-to-output time for a given clock
 
-    - `(* DELAY_CONST_{input}="30e-12" *)` : specify a constant max delay from an input (applied to the output)
+    - `(* DELAY_CONST_{input}="30e-12" *)` : specify a constant max delay from an input,
+       applied to the output
 
     - `(* DELAY_MATRIX_{input}="30e-12 35e-12; 20e-12 25e-12; ..." *)` : specify a VPR
         delay matrix (semicolons indicate rows). In this format columns specify
@@ -44,15 +45,16 @@ The following are allowed on ports:
 The Verilog define "PB_TYPE" is set during generation.
 """
 
-import os, sys
-import argparse, re
+import argparse
+import os
+import re
+import sys
 
 import lxml.etree as ET
 
 import yosys.run
 from yosys.json import YosysJSON
 
-sys.path.insert(0, "..")
 from lib import xmlinc
 
 parser = argparse.ArgumentParser(
@@ -110,8 +112,8 @@ else:
         top = wm.group(1).upper()
     else:
         print(
-            "ERROR file name not of format %.sim.v ({}), cannot detect top level. Manually specify the top level module using --top"
-            .format(iname)
+            """ERROR file name not of format %.sim.v ({}), cannot detect top level.
+            Manually specify the top level module using --top""".format(iname)
         )
         sys.exit(1)
 
@@ -156,7 +158,7 @@ def mod_pb_name(mod):
     elif is_mod_blackbox(mod) and not has_modes:
         return mod.name
     else:
-        #TODO: other types
+        # TODO: other types
         return mod.name
 
 
@@ -222,8 +224,8 @@ def make_pb_content(yj, mod, xml_parent, mod_pname, is_submode=False):
 
         dir_xml = ET.SubElement(ic_xml, 'direct')
 
-        s_port_xml = ET.SubElement(dir_xml, 'port', s_port)
-        d_port_xml = ET.SubElement(dir_xml, 'port', d_port)
+        ET.SubElement(dir_xml, 'port', s_port)
+        ET.SubElement(dir_xml, 'port', d_port)
 
     # Find out whether or not the module we are generating content for is a blackbox
     is_blackbox = is_mod_blackbox(mod) or not mod.cells
@@ -333,8 +335,8 @@ def make_pb_content(yj, mod, xml_parent, mod_pname, is_submode=False):
                 for sink_cell, sink_pin in sinks:
                     if sink_cell != mod.name:
                         continue
-                    # Only consider outputs from cell to top level IO. Inputs to other cells will be dealt with
-                    # in those cells.
+                    # Only consider outputs from cell to top level IO. Inputs to
+                    # other cells will be dealt with in those cells.
                     interconn.append(
                         (
                             (cname, pin), (sink_cell, sink_pin), instance,
@@ -546,8 +548,9 @@ def main(args):
             top = wm.group(1).upper()
         else:
             print(
-                "ERROR file name not of format %.sim.v ({}), cannot detect top level. Manually specify the top level module using --top"
-                .format(iname)
+                """ERROR file name not of format %.sim.v ({}), cannot detect top level.
+                Manually specify the top level module using --top""".
+                format(iname)
             )
             sys.exit(1)
 
