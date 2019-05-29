@@ -46,7 +46,7 @@ class NodeDirection(Enum):
 
 
 class PinType(Enum):
-    """ Enum for PinClass type
+    """Enum for PinClass type
     See: https://vtr-verilog-to-routing.readthedocs.io/en/latest/vpr/file_formats.html#tag-blocks-pin_class
     """  # noqa: E501
     NONE = 0
@@ -105,13 +105,13 @@ class Pin(namedtuple('Pin', 'ptc name')):
 
 
 class PinClass(namedtuple('PinClass', 'type pin')):
-    """
+    """Encapsulation for VPR PinClass tag
     See: https://vtr-verilog-to-routing.readthedocs.io/en/latest/vpr/file_formats.html#tag-blocks-pin_class
     """  # noqa: E501
 
 
 class BlockType(namedtuple('BlockType', 'id name width height pin_class')):
-    """
+    """Encapsulation for VPR BlockType tag
     See: https://vtr-verilog-to-routing.readthedocs.io/en/latest/vpr/file_formats.html#tag-blocks-block_type
     """  # noqa: E501
 
