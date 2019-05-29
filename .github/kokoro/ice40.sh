@@ -11,7 +11,9 @@ echo "Running ice40 tests"
 echo "----------------------------------------"
 (
 	cd build
-	VPR_NUM_WORKERS=${CORES} make -j ${MAX_CORES} --output-sync=target \
-		all_ice40
+	export VPR_NUM_WORKERS=${CORES}
+	export MAKE_ARGS="-j${MAX_CORES} --output-sync=target"
+	# Run as many tests as we can.    Rerun individually on failure.
+	make -k ${MAKE_ARGS} all_ice40 || make all_ice40
 )
 echo "----------------------------------------"
