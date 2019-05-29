@@ -3,9 +3,9 @@ import unittest
 from copy import deepcopy
 
 from ..graph2 import SwitchTiming, SwitchSizing, Switch, SwitchType, \
-        Graph, SegmentTiming, Segment, PinClass, Pin, PinType, \
-        BlockType, GridLoc, NodeTiming, NodeSegment, Node, NodeType, \
-        NodeDirection, NodeLoc
+    Graph, SegmentTiming, Segment, PinClass, Pin, PinType, \
+    BlockType, GridLoc, NodeTiming, NodeSegment, Node, NodeType, \
+    NodeDirection, NodeLoc
 from ..tracks import Track, Direction
 
 

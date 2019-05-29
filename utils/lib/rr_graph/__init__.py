@@ -113,7 +113,7 @@ class Offset(Size):
     pass
 
 
-O = Offset
+O = Offset  # noqa: E741
 
 
 def single_element(parent, name):

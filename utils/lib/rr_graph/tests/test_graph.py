@@ -5,7 +5,7 @@ import unittest
 from .. import graph, P, Size
 from ..graph import (
     Pin, PinClass, PinClassDirection, Block, BlockGrid, BlockType, Segment,
-    Switch, SwitchType, RoutingGraph, RoutingGraphPrinter, RoutingNodeType
+    Switch, SwitchType, RoutingGraph, RoutingGraphPrinter
 )
 
 import lxml.etree as ET
@@ -75,11 +75,11 @@ class TestGraph(unittest.TestCase):
         c1 = PinClass(block_type=bt, direction=PinClassDirection.OUTPUT)
         c2 = PinClass(block_type=bt, direction=PinClassDirection.OUTPUT)
         c3 = PinClass(block_type=bt, direction=PinClassDirection.OUTPUT)
-        p0 = Pin(pin_class=c1, port_name="P1", port_index=0)
-        p1 = Pin(pin_class=c2, port_name="P1", port_index=1)
-        p2 = Pin(pin_class=c2, port_name="P1", port_index=2)
-        p3 = Pin(pin_class=c2, port_name="P1", port_index=3)
-        p4 = Pin(pin_class=c3, port_name="P2", port_index=0)
+        Pin(pin_class=c1, port_name="P1", port_index=0)
+        Pin(pin_class=c2, port_name="P1", port_index=1)
+        Pin(pin_class=c2, port_name="P1", port_index=2)
+        Pin(pin_class=c2, port_name="P1", port_index=3)
+        Pin(pin_class=c3, port_name="P2", port_index=0)
         self.assertEqual('P1[0]', c1.port_name)
         self.assertEqual('P1[3:1]', c2.port_name)
         self.assertEqual('P2[0]', c3.port_name)
