@@ -12,6 +12,7 @@ add_thirdparty_package(
   NAME sdf_timing
   BUILD_INSTALL_COMMAND "cd ${symbiflow-arch-defs_SOURCE_DIR}/third_party/python-sdf-timing && ${PYTHON3} setup.py develop"
   PROVIDES sdf_timing
+  DEPENDS ${PYTHON3_TARGET}
 )
 
 get_target_property(SDF_TIMING_TARGET env SDF_TIMING_TARGET)
