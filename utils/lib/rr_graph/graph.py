@@ -48,7 +48,6 @@ from types import MappingProxyType
 import lxml.etree as ET
 
 from . import Position
-from . import P
 from . import Size
 from . import Offset
 from . import node_pos, single_element
@@ -348,7 +347,7 @@ class Pin(MostlyReadOnly):
         >>> str(pin)
         'bt[3](None)->outpad[2]'
 
-        """
+        """  # noqa: E501
         assert_type(text, str)
         block_type_name, port_name, pins = parse_net(text.strip())
         assert pins is not None, text.strip()
@@ -398,7 +397,7 @@ class Pin(MostlyReadOnly):
         'bt(1)->outpad[2]'
         >>> pin.ptc
         1
-        """
+        """  # noqa: E501
         assert pin_node.tag == "pin"
         block_type_index = int(pin_node.attrib["ptc"])
 
@@ -565,7 +564,7 @@ class PinClass(MostlyReadOnly):
         Pin(pin_class=PinClass(), port_name='b', port_index=6, block_type_name='a', block_type_subblk=None, block_type_index=3, side=None)
         >>> pc.pins[2]
         Pin(pin_class=PinClass(), port_name='b', port_index=7, block_type_name='a', block_type_subblk=None, block_type_index=4, side=None)
-        """
+        """  # noqa: E501
         assert_eq(pin_class_node.tag, "pin_class")
         assert "type" in pin_class_node.attrib
         class_direction = getattr(
@@ -606,11 +605,11 @@ class PinClass(MostlyReadOnly):
         if pin.pin_class is not None:
             assert_eq(pin.pin_class, self)
 
-        #if pin.port_name is not None:
-        #    assert_eq(pin.port_name, self.port_name)
+        # if pin.port_name is not None:
+        #     assert_eq(pin.port_name, self.port_name)
 
-        #if pin.port_index is not None:
-        #    assert_not_in(pin.port_index, self.ports_index)
+        # if pin.port_index is not None:
+        #     assert_not_in(pin.port_index, self.ports_index)
 
         if pin.block_type_name is not None:
             assert_eq(pin._block_type_name, self.block_type_name)
@@ -622,11 +621,11 @@ class PinClass(MostlyReadOnly):
 
         self._pins.append(pin)
 
-        #if pin.port_name is None:
-        #    pin._port_name = self.port_name
+        # if pin.port_name is None:
+        #     pin._port_name = self.port_name
 
-        #if pin.port_index is None:
-        #    pin._port_index = dict_next_id(self.block_type._ports[self.port_name])
+        # if pin.port_index is None:
+        #     pin._port_index = dict_next_id(self.block_type._ports[self.port_name])
 
         if pin.block_type_name is None:
             pin._block_type_name = self.block_type_name
@@ -717,7 +716,7 @@ class BlockType(MostlyReadOnly):
         if not extra:
             return "BlockType({name})".format(name=self.name)
         else:
-            return "in 0x{graph_id:x} (pin_classes=[{pin_class_num} classes] pins_index=[{pins_index_num} pins])".format(
+            return "in 0x{graph_id:x} (pin_classes=[{pin_class_num} classes] pins_index=[{pins_index_num} pins])".format(  # noqa: E501
                 graph_id=id(self._graph),
                 pin_class_num=len(self.pin_classes),
                 pins_index_num=len(self.pins_index)
@@ -828,7 +827,7 @@ class BlockType(MostlyReadOnly):
         (Pin(pin_class=PinClass(), port_name='outpad', port_index=0, block_type_name='VPR_PAD', block_type_subblk=1, block_type_index=2, side=None),)
         >>> bt.pin_classes[3].pins
         (Pin(pin_class=PinClass(), port_name='inpad', port_index=0, block_type_name='VPR_PAD', block_type_subblk=1, block_type_index=3, side=None),)
-        """
+        """  # noqa: E501
         assert block_type_node.tag == "block_type", block_type_node
         block_type_id = int(block_type_node.attrib['id'])
         block_type_name = block_type_node.attrib['name'].strip()
@@ -844,7 +843,7 @@ class BlockType(MostlyReadOnly):
         return bt
 
     def _could_add_pin(self, pin):
-        if pin.block_type_index != None:
+        if pin.block_type_index is not None:
             if pin.block_type_index in self._pins_index:
                 assert_is(pin, self._pins_index[pin.block_type_index])
 
@@ -986,7 +985,7 @@ class Block(MostlyReadOnly):
         >>> bl2 = Block.from_xml(g, ET.fromstring(xml_string))
         >>> bl2 # doctest: +ELLIPSIS
         Block(graph=BG(0x...), block_type=BlockType(), position=P(x=2, y=5), offset=Offset(w=1, h=2))
-        """
+        """  # noqa: E501
         assert grid_loc_node.tag == "grid_loc"
 
         block_type_id = int(grid_loc_node.attrib["block_type_id"])
@@ -1035,7 +1034,6 @@ class BlockGrid:
         if block_type.id is None:
             block_type.id = self.block_types._next_id()
 
-        bid = block_type.id
         self.block_types.add(block_type)
 
     def add_block(self, block):
@@ -1156,7 +1154,7 @@ class Segment(MostlyReadOnly):
         ... '''
         >>> Segment.from_xml(ET.fromstring(xml_string))
         Segment(id=0, name='span', timing=SegmentTiming(R_per_meter=101.0, C_per_meter=2.25000005e-14))
-        """
+        """  # noqa: E501
         assert_type(segment_xml, ET._Element)
         seg_id = int(segment_xml.get('id'))
         name = segment_xml.get('name')
@@ -1292,7 +1290,7 @@ class Switch(MostlyReadOnly):
           <timing Cin="7.70000012e-16" Cinternal="0" Cout="4.00000001e-15" R="551.0" Tdel="4.00000001e-15"/>
           <sizing buf_size="27.6459007" mux_trans_size="2.63073993"/>
         </switch>
-        """
+        """  # noqa: E501
         assert_type(switch_xml, ET._Element)
         sw_id = int(switch_xml.attrib.get('id'))
         sw_type = SwitchType(switch_xml.attrib.get('type'))
@@ -2035,8 +2033,8 @@ class RoutingGraph:
             ids2element[new_node_id] = xml_node
 
         # FIXME: Make sure the node is included on the XML parent.
-        #if node_id is None:
-        #   pass
+        # if node_id is None:
+        #    pass
         if not existing:
             parent = self._xml_parent(xml_type)
             parent.append(xml_node)
@@ -2255,7 +2253,7 @@ class RoutingGraph:
         ['0 X000Y000[00].SRC--> ->>- 1 X000Y000[00].R-PIN>', '1 X000Y000[00].R-PIN> ->>- 2 X000Y000<-00->X000Y010']
         >>> [RoutingGraphPrinter.edge(r, e) for e in r.edges_for_node(r.get_node_by_id(2))]
         ['1 X000Y000[00].R-PIN> ->>- 2 X000Y000<-00->X000Y010', '2 X000Y000<-00->X000Y010 ->>- 3 X000Y010[00].L-PIN<']
-        """
+        """  # noqa: E501
         return [
             self.get_edge_by_id(i)
             for i in self.edges_for_allnodes()[self._get_xml_id(xml_node)]
@@ -2307,7 +2305,7 @@ class RoutingGraph:
             'capacity': str(capacity),
         }
         if ntype.track:
-            assert direction != None
+            assert direction is not None
             attrib['direction'] = direction.value
         elif not ntype.pin_class:
             assert low == high, (low, high)
@@ -2396,7 +2394,7 @@ class RoutingGraph:
         1 X000Y000[00].R-PIN> b'<node capacity="1" id="1" type="OPIN"><loc ptc="0" side="RIGHT" xhigh="0" xlow="0" yhigh="0" ylow="0"/><timing C="0" R="0"/></node>'
           ->
         4 X000Y010[00].SINK-< b'<node capacity="1" id="4" type="SINK"><loc ptc="0" xhigh="0" xlow="0" yhigh="10" ylow="10"/><timing C="0" R="0"/></node>'
-        """
+        """  # noqa: E501
 
         id2node = self.id2element[RoutingNode]
         assert src_node_id in id2node, src_node_id
@@ -2739,7 +2737,7 @@ class Graph:
         else:
             assert False, "Unknown dir of {}.{}".format(pin, pin.pin_class)
 
-        assert pin_node != None, pin_node
+        assert pin_node is not None, pin_node
 
         if self.verbose:
             print(
@@ -2769,7 +2767,7 @@ class Graph:
         --------
         """
         assert_type(track, Track)
-        assert track.idx != None
+        assert track.idx is not None
 
         track_node = self.routing.create_node(
             track.start,
@@ -2967,7 +2965,7 @@ class Graph:
                         except KeyError:
                             continue
 
-                        assert node != None, "{}:{} not found at {}\n{}".format(
+                        assert node is not None, "{}:{} not found at {}\n{}".format(
                             block, pin.name, list(block.positions),
                             self.routing.localnames
                         )
@@ -2980,8 +2978,6 @@ class Graph:
 
     def to_xml(self):
         """Return an ET object representing this rr_graph"""
-        #et = ET.fromstring('<rr_graph tool_name="g.py" tool_version="dev" tool_comment="Generated from black magic" />')
-        #return et
         self.set_tooling("g.py", "dev", "Generated from black magic")
 
         # <rr_nodes>, <rr_edges>, and <switches> should be good as is
@@ -3120,9 +3116,9 @@ def simple_test_block_grid():
     # Create a block type with one input and one output pin
     bt = BlockType(g=bg, id=0, name="DUALBLK")
     pci = PinClass(block_type=bt, direction=PinClassDirection.INPUT)
-    pi = Pin(pin_class=pci, port_name="A", port_index=0)
+    Pin(pin_class=pci, port_name="A", port_index=0)
     pco = PinClass(block_type=bt, direction=PinClassDirection.OUTPUT)
-    po = Pin(pin_class=pco, port_name="B", port_index=0)
+    Pin(pin_class=pco, port_name="B", port_index=0)
 
     # Create a block type with one input class with 4 pins
     bt = BlockType(g=bg, id=1, name="INBLOCK")
@@ -3346,7 +3342,7 @@ def simple_test_graph(**kwargs):
         <edge src_node="14" sink_node="7" switch_id="0"/>
     </rr_edges>
 </rr_graph>
-"""
+"""  # noqa: E501
     return Graph(io.StringIO(xml_str), **kwargs)
 
 
