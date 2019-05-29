@@ -1,11 +1,16 @@
 <?xml version='1.0' encoding='utf-8'?>
-<pb_type xmlns:xi="http://www.w3.org/2001/XInclude" blif_model=".subckt fdse" name="fdse" num_pb="1">
+<pb_type xmlns:xi="http://www.w3.org/2001/XInclude" blif_model=".subckt fdce" name="fdce" num_pb="1">
   <input name="CE" num_pins="1"/>
   <clock name="CLK" num_pins="1"/>
   <input name="DIN" num_pins="1"/>
   <output name="OUT" num_pins="1"/>
   <input name="S" num_pins="1"/>
-  <T_clock_to_Q clock="fdse.CLK" port="fdse.OUT" min="2.440e-13" max="3.030e-13"/>
-  <T_hold clock="fdse.CLK" port="fdse.CE" value="-9.000e-15"/>
-  <T_setup clock="fdse.CLK" port="fdse.CE" value="1.090e-13"/>
+  <T_clock_to_Q clock="CLK" port="OUT" min="2.440e-10" max="3.030e-10"/>
+  <T_hold clock="CLK" port="CE" value="-9.000e-12"/>
+  <T_hold clock="CLK" port="DIN" value="2.250e-10"/>
+  <T_setup clock="CLK" port="CE" value="1.090e-10"/>
+  <T_setup clock="CLK" port="DIN" value="-4.600e-11"/>
+  <delay_constant in_port="S" out_port="OUT" min="6.160e-10" max="7.640e-10"/>
+  <T_setup clock="CLK" port="S" value="4.040e-10"/>
+  <T_hold clock="CLK" port="S" value="-2.480e-10"/>
 </pb_type>

@@ -1,5 +1,4 @@
-module fdse (DIN, CE, CLK, S, OUT);
- (* SDF_ALIAS = "D" *)
+module fdce (DIN, CE, CLK, S, OUT);
  input  wire DIN;
  input  wire CE;
  input  wire CLK;

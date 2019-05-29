@@ -1,5 +1,5 @@
 <models xmlns:xi="http://www.w3.org/2001/XInclude">
-  <model name="fdse">
+  <model name="fdce">
     <input_ports>
       <port clock="CLK" combinational_sink_ports="OUT" name="CE"/>
       <port is_clock="1" name="CLK"/>
