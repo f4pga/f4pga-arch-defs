@@ -1,13 +1,11 @@
 get_target_property_required(PYTEST env PYTEST)
-
-set(PYTHON_SDF_TIMING_DIR ${symbiflow-arch-defs_SOURCE_DIR}/third_party/python-sdf-timing)
+get_target_property_required(SDF_TIMING_TARGET env SDF_TIMING_TARGET)
 
 add_custom_target(
   test_python_utils
   DEPENDS
-    conda_pytest all_pip
-  COMMAND ${CMAKE_COMMAND} -E env PYTHONPATH=${PYTHON_SDF_TIMING_DIR}
-  ${PYTEST} --doctest-modules -vv
+    conda_pytest all_pip ${SDF_TIMING_TARGET}
+  COMMAND ${PYTEST} --doctest-modules -vv
   WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
 )
 
