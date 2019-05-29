@@ -205,11 +205,9 @@ class Tile(object):
             Direction to connect other tile.
         """
         if direction_to_other_tile in self.neighboors:
-            assert id(self.neighboors[direction_to_other_tile]
-                      ) == id(other_tile), (
-                          self.neighboors,
-                          direction_to_other_tile,
-                      )
+            assert id(
+                self.neighboors[direction_to_other_tile]
+            ) == id(other_tile), (self.neighboors, direction_to_other_tile)
         self.neighboors[direction_to_other_tile] = other_tile
 
         direction_to_this_tile = opposite_direction(direction_to_other_tile)

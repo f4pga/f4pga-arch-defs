@@ -1,12 +1,7 @@
 #!/usr/bin/env python3
 
 import lib.rr_graph.graph as graph
-import lib.rr_graph.channel as channel
-from lib.rr_graph import Position
-
-import sys
 import lxml.etree as ET
-import os
 
 
 def main():

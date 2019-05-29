@@ -8,8 +8,6 @@ Excludes the files in the top level .excludes file.
 import argparse
 import fnmatch
 import os.path
-import re
-import subprocess
 import sys
 
 from lib.argparse_extra import ActionStoreBool
