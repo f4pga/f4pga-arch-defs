@@ -45,13 +45,13 @@
           <clock  name="C"  num_pins="1"/>
           <input  name="S"  num_pins="1"/>
           <output name="Q"  num_pins="1"/>
-          <T_setup   value="{setup_CLK_DIN}"   port="D"  clock="C" />
-          <T_setup   value="{setup_CLK_CE}"    port="CE" clock="C" />
-          <T_setup   value="{recovery_CLK_SR}" port="S"  clock="C" />
-          <T_hold    value="{hold_CLK_DIN}"    port="D"  clock="C" />
-          <T_hold    value="{hold_CLK_CE}"     port="CE" clock="C" />
-          <T_hold    value="{removal_CLK_SR}"  port="S"  clock="C" />
-          <T_clock_to_Q max="{iopath_CLK_Q}"   port="Q"  clock="C" />
+          <T_setup    value="{setup_CLK_DIN}"   port="D"  clock="C" />
+          <T_setup    value="{setup_CLK_CE}"    port="CE" clock="C" />
+          <T_setup    value="{recovery_CLK_SR}" port="S"  clock="C" />
+          <T_hold     value="{hold_CLK_DIN}"    port="D"  clock="C" />
+          <T_hold     value="{hold_CLK_CE}"     port="CE" clock="C" />
+          <T_hold     value="{removal_CLK_SR}"  port="S"  clock="C" />
+          <T_clock_to_Q max="{iopath_CLK_Q}"    port="Q"  clock="C" />
           <metadata>
             <meta name="fasm_params">
               ZINI = ZINI
@@ -82,13 +82,13 @@
           <clock  name="C"  num_pins="1"/>
           <input  name="R"  num_pins="1"/>
           <output name="Q"  num_pins="1"/>
-          <T_setup   value="{setup_CLK_DIN}"   port="D"  clock="C" />
-          <T_setup   value="{setup_CLK_CE}"    port="CE" clock="C" />
-          <T_setup   value="{recovery_CLK_SR}" port="R"  clock="C" />
-          <T_hold    value="{hold_CLK_DIN}"    port="D"  clock="C" />
-          <T_hold    value="{hold_CLK_CE}"     port="CE" clock="C" />
-          <T_hold    value="{removal_CLK_SR}"  port="R"  clock="C" />
-          <T_clock_to_Q max="{iopath_CLK_Q}"   port="Q"  clock="C" />
+          <T_setup    value="{setup_CLK_DIN}"   port="D"  clock="C" />
+          <T_setup    value="{setup_CLK_CE}"    port="CE" clock="C" />
+          <T_setup    value="{recovery_CLK_SR}" port="R"  clock="C" />
+          <T_hold     value="{hold_CLK_DIN}"    port="D"  clock="C" />
+          <T_hold     value="{hold_CLK_CE}"     port="CE" clock="C" />
+          <T_hold     value="{removal_CLK_SR}"  port="R"  clock="C" />
+          <T_clock_to_Q max="{iopath_CLK_Q}"    port="Q"  clock="C" />
           <metadata>
             <meta name="fasm_params">
               ZINI = ZINI
@@ -134,13 +134,13 @@
           <clock  name="C"  num_pins="1"/>
           <input  name="S"  num_pins="1"/>
           <output name="Q"  num_pins="1"/>
-          <T_setup   value="{setup_CLK_DIN}"   port="D"  clock="C" />
-          <T_setup   value="{setup_CLK_CE}"    port="CE" clock="C" />
-          <T_setup   value="{recovery_CLK_SR}" port="S"  clock="C" />
-          <T_hold    value="{hold_CLK_DIN}"    port="D"  clock="C" />
-          <T_hold    value="{hold_CLK_CE}"     port="CE" clock="C" />
-          <T_hold    value="{removal_CLK_SR}"  port="S"  clock="C" />
-          <T_clock_to_Q max="{iopath_CLK_Q}"   port="Q"  clock="C" />
+          <T_setup    value="{setup_CLK_DIN}"   port="D"  clock="C" />
+          <T_setup    value="{setup_CLK_CE}"    port="CE" clock="C" />
+          <T_setup    value="{recovery_CLK_SR}" port="S"  clock="C" />
+          <T_hold     value="{hold_CLK_DIN}"    port="D"  clock="C" />
+          <T_hold     value="{hold_CLK_CE}"     port="CE" clock="C" />
+          <T_hold     value="{removal_CLK_SR}"  port="S"  clock="C" />
+          <T_clock_to_Q max="{iopath_CLK_Q}"    port="Q"  clock="C" />
           <metadata>
             <meta name="fasm_params">
               ZINI = ZINI
@@ -166,18 +166,18 @@
 
       <mode name="FDRE">
         <pb_type name="FDRE" num_pb="1" blif_model=".subckt FDRE_ZINI">
-          <input  name="D" num_pins="1"/>
+          <input  name="D"  num_pins="1"/>
           <input  name="CE" num_pins="1"/>
-          <clock  name="C" num_pins="1"/>
-          <input  name="R" num_pins="1"/>
-          <output name="Q" num_pins="1"/>
-          <T_setup   value="{setup_CLK_DIN}"   port="D"  clock="C" />
-          <T_setup   value="{setup_CLK_CE}"    port="CE" clock="C" />
-          <T_setup   value="{recovery_CLK_SR}" port="R"  clock="C" />
-          <T_hold    value="{hold_CLK_DIN}"    port="D"  clock="C" />
-          <T_hold    value="{hold_CLK_CE}"     port="CE" clock="C" />
-          <T_hold    value="{removal_CLK_SR}"  port="R"  clock="C" />
-          <T_clock_to_Q max="{iopath_CLK_Q}"   port="Q"  clock="C" />
+          <clock  name="C"  num_pins="1"/>
+          <input  name="R"  num_pins="1"/>
+          <output name="Q"  num_pins="1"/>
+          <T_setup    value="{setup_CLK_DIN}"   port="D"  clock="C" />
+          <T_setup    value="{setup_CLK_CE}"    port="CE" clock="C" />
+          <T_setup    value="{recovery_CLK_SR}" port="R"  clock="C" />
+          <T_hold     value="{hold_CLK_DIN}"    port="D"  clock="C" />
+          <T_hold     value="{hold_CLK_CE}"     port="CE" clock="C" />
+          <T_hold     value="{removal_CLK_SR}"  port="R"  clock="C" />
+          <T_clock_to_Q max="{iopath_CLK_Q}"    port="Q"  clock="C" />
           <metadata>
             <meta name="fasm_params">
               ZINI = ZINI
@@ -242,13 +242,13 @@
           <clock  name="C"   num_pins="1"/>
           <input  name="PRE" num_pins="1"/>
           <output name="Q"   num_pins="1"/>
-          <T_setup   value="{setup_CLK_DIN}"   port="D"   clock="C" />
-          <T_setup   value="{setup_CLK_CE}"    port="CE"  clock="C" />
-          <T_setup   value="{recovery_CLK_SR}" port="PRE" clock="C" />
-          <T_hold    value="{hold_CLK_DIN}"    port="D"   clock="C" />
-          <T_hold    value="{hold_CLK_CE}"     port="CE"  clock="C" />
-          <T_hold    value="{removal_CLK_SR}"  port="PRE" clock="C" />
-          <T_clock_to_Q max="{iopath_CLK_Q}"   port="Q"   clock="C" />
+          <T_setup    value="{setup_CLK_DIN}"   port="D"   clock="C" />
+          <T_setup    value="{setup_CLK_CE}"    port="CE"  clock="C" />
+          <T_setup    value="{recovery_CLK_SR}" port="PRE" clock="C" />
+          <T_hold     value="{hold_CLK_DIN}"    port="D"   clock="C" />
+          <T_hold     value="{hold_CLK_CE}"     port="CE"  clock="C" />
+          <T_hold     value="{removal_CLK_SR}"  port="PRE" clock="C" />
+          <T_clock_to_Q max="{iopath_CLK_Q}"    port="Q"   clock="C" />
           <metadata>
             <meta name="fasm_params">
               ZINI = ZINI
@@ -279,13 +279,13 @@
           <clock  name="C"   num_pins="1"/>
           <input  name="CLR" num_pins="1"/>
           <output name="Q"   num_pins="1"/>
-          <T_setup   value="{setup_CLK_DIN}"   port="D"   clock="C" />
-          <T_setup   value="{setup_CLK_CE}"    port="CE"  clock="C" />
-          <T_setup   value="{recovery_CLK_SR}" port="CLR" clock="C" />
-          <T_hold    value="{hold_CLK_DIN}"    port="D"   clock="C" />
-          <T_hold    value="{hold_CLK_CE}"     port="CE"  clock="C" />
-          <T_hold    value="{removal_CLK_SR}"  port="CLR" clock="C" />
-          <T_clock_to_Q max="{iopath_CLK_Q}"   port="Q"   clock="C" />
+          <T_setup    value="{setup_CLK_DIN}"   port="D"   clock="C" />
+          <T_setup    value="{setup_CLK_CE}"    port="CE"  clock="C" />
+          <T_setup    value="{recovery_CLK_SR}" port="CLR" clock="C" />
+          <T_hold     value="{hold_CLK_DIN}"    port="D"   clock="C" />
+          <T_hold     value="{hold_CLK_CE}"     port="CE"  clock="C" />
+          <T_hold     value="{removal_CLK_SR}"  port="CLR" clock="C" />
+          <T_clock_to_Q max="{iopath_CLK_Q}"    port="Q"   clock="C" />
           <metadata>
             <meta name="fasm_params">
               ZINI = ZINI
@@ -331,13 +331,13 @@
           <clock  name="C"   num_pins="1"/>
           <input  name="PRE" num_pins="1"/>
           <output name="Q"   num_pins="1"/>
-          <T_setup   value="{setup_CLK_DIN}"   port="D"   clock="C" />
-          <T_setup   value="{setup_CLK_CE}"    port="CE"  clock="C" />
-          <T_setup   value="{recovery_CLK_SR}" port="PRE" clock="C" />
-          <T_hold    value="{hold_CLK_DIN}"    port="D"   clock="C" />
-          <T_hold    value="{hold_CLK_CE}"     port="CE"  clock="C" />
-          <T_hold    value="{removal_CLK_SR}"  port="PRE" clock="C" />
-          <T_clock_to_Q max="{iopath_CLK_Q}"   port="Q"   clock="C" />
+          <T_setup    value="{setup_CLK_DIN}"   port="D"   clock="C" />
+          <T_setup    value="{setup_CLK_CE}"    port="CE"  clock="C" />
+          <T_setup    value="{recovery_CLK_SR}" port="PRE" clock="C" />
+          <T_hold     value="{hold_CLK_DIN}"    port="D"   clock="C" />
+          <T_hold     value="{hold_CLK_CE}"     port="CE"  clock="C" />
+          <T_hold     value="{removal_CLK_SR}"  port="PRE" clock="C" />
+          <T_clock_to_Q max="{iopath_CLK_Q}"    port="Q"   clock="C" />
           <metadata>
             <meta name="fasm_params">
               ZINI = ZINI
@@ -368,13 +368,13 @@
           <clock  name="C"   num_pins="1"/>
           <input  name="CLR" num_pins="1"/>
           <output name="Q"   num_pins="1"/>
-          <T_setup   value="{setup_CLK_DIN}"   port="D"   clock="C" />
-          <T_setup   value="{setup_CLK_CE}"    port="CE"  clock="C" />
-          <T_setup   value="{recovery_CLK_SR}" port="CLR" clock="C" />
-          <T_hold    value="{hold_CLK_DIN}"    port="D"   clock="C" />
-          <T_hold    value="{hold_CLK_CE}"     port="CE"  clock="C" />
-          <T_hold    value="{removal_CLK_SR}"  port="CLR" clock="C" />
-          <T_clock_to_Q max="{iopath_CLK_Q}"   port="Q"   clock="C" />
+          <T_setup    value="{setup_CLK_DIN}"   port="D"   clock="C" />
+          <T_setup    value="{setup_CLK_CE}"    port="CE"  clock="C" />
+          <T_setup    value="{recovery_CLK_SR}" port="CLR" clock="C" />
+          <T_hold     value="{hold_CLK_DIN}"    port="D"   clock="C" />
+          <T_hold     value="{hold_CLK_CE}"     port="CE"  clock="C" />
+          <T_hold     value="{removal_CLK_SR}"  port="CLR" clock="C" />
+          <T_clock_to_Q max="{iopath_CLK_Q}"    port="Q"   clock="C" />
           <metadata>
             <meta name="fasm_params">
               ZINI = ZINI
