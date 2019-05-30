@@ -61,24 +61,24 @@
   <delay_constant in_port="S3" out_port="CO3" min="2.890e-13" max="3.800e-13"/>
   <delay_constant in_port="S3" out_port="CO_CHAIN" min="2.890e-13" max="3.800e-13"/>
   <delay_constant in_port="S3" out_port="O3" min="1.720e-13" max="2.270e-13"/>
-  <delay_constant in_port="DI0" out_port="CO0" min="3.060e-13" max="3.790e-13"/>
-  <delay_constant in_port="DI0" out_port="CO1" min="3.750e-13" max="4.650e-13"/>
-  <delay_constant in_port="DI0" out_port="CO2" min="4.350e-13" max="5.400e-13"/>
-  <delay_constant in_port="DI0" out_port="CO3" min="4.240e-13" max="5.260e-13"/>
-  <delay_constant in_port="DI0" out_port="CO_CHAIN" min="4.240e-13" max="5.260e-13"/>
-  <delay_constant in_port="DI0" out_port="O1" min="3.280e-13" max="4.070e-13"/>
-  <delay_constant in_port="DI0" out_port="O2" min="4.480e-13" max="5.560e-13"/>
-  <delay_constant in_port="DI0" out_port="O3" min="4.960e-13" max="6.150e-13"/>
-  <delay_constant in_port="DI1" out_port="CO1" min="3.590e-13" max="4.450e-13"/>
-  <delay_constant in_port="DI1" out_port="CO2" min="4.190e-13" max="5.200e-13"/>
-  <delay_constant in_port="DI1" out_port="CO3" min="4.090e-13" max="5.070e-13"/>
-  <delay_constant in_port="DI1" out_port="CO_CHAIN" min="4.090e-13" max="5.070e-13"/>
-  <delay_constant in_port="DI1" out_port="O2" min="4.330e-13" max="5.370e-13"/>
-  <delay_constant in_port="DI1" out_port="O3" min="4.810e-13" max="5.960e-13"/>
-  <delay_constant in_port="DI2" out_port="CO2" min="2.870e-13" max="3.560e-13"/>
-  <delay_constant in_port="DI2" out_port="CO3" min="3.210e-13" max="3.980e-13"/>
-  <delay_constant in_port="DI2" out_port="CO_CHAIN" min="3.210e-13" max="3.980e-13"/>
-  <delay_constant in_port="DI2" out_port="O3" min="3.530e-13" max="4.380e-13"/>
-  <delay_constant in_port="DI3" out_port="CO3" min="3.100e-13" max="3.850e-13"/>
-  <delay_constant in_port="DI3" out_port="CO_CHAIN" min="3.100e-13" max="3.850e-13"/>
+  <delay_constant in_port="DI0" out_port="CO0" min="2.500e-13" max="3.290e-13"/>
+  <delay_constant in_port="DI0" out_port="CO1" min="3.010e-13" max="3.960e-13"/>
+  <delay_constant in_port="DI0" out_port="CO2" min="3.600e-13" max="4.740e-13"/>
+  <delay_constant in_port="DI0" out_port="CO3" min="3.460e-13" max="4.560e-13"/>
+  <delay_constant in_port="DI0" out_port="CO_CHAIN" min="3.460e-13" max="4.560e-13"/>
+  <delay_constant in_port="DI0" out_port="O1" min="2.560e-13" max="3.370e-13"/>
+  <delay_constant in_port="DI0" out_port="O2" min="3.690e-13" max="4.860e-13"/>
+  <delay_constant in_port="DI0" out_port="O3" min="4.140e-13" max="5.450e-13"/>
+  <delay_constant in_port="DI1" out_port="CO1" min="2.860e-13" max="3.760e-13"/>
+  <delay_constant in_port="DI1" out_port="CO2" min="3.490e-13" max="4.590e-13"/>
+  <delay_constant in_port="DI1" out_port="CO3" min="3.360e-13" max="4.430e-13"/>
+  <delay_constant in_port="DI1" out_port="CO_CHAIN" min="3.360e-13" max="4.430e-13"/>
+  <delay_constant in_port="DI1" out_port="O2" min="3.580e-13" max="4.710e-13"/>
+  <delay_constant in_port="DI1" out_port="O3" min="4.040e-13" max="5.320e-13"/>
+  <delay_constant in_port="DI2" out_port="CO2" min="2.190e-13" max="2.890e-13"/>
+  <delay_constant in_port="DI2" out_port="CO3" min="2.460e-13" max="3.240e-13"/>
+  <delay_constant in_port="DI2" out_port="CO_CHAIN" min="2.460e-13" max="3.240e-13"/>
+  <delay_constant in_port="DI2" out_port="O3" min="2.820e-13" max="3.720e-13"/>
+  <delay_constant in_port="DI3" out_port="CO3" min="2.480e-13" max="3.270e-13"/>
+  <delay_constant in_port="DI3" out_port="CO_CHAIN" min="2.480e-13" max="3.270e-13"/>
 </pb_type>
