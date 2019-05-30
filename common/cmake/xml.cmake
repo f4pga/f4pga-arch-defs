@@ -47,6 +47,7 @@ set(XML_CANONICALIZE_MERGE_FILES
   common/xml/identity.xsl
   common/xml/convert-port-tag.xsl
   common/xml/convert-prefix-port.xsl
+  common/xml/convert-pb_type-attributes.xsl
   common/xml/pack-patterns.xsl
   common/xml/remove-duplicate-models.xsl
   common/xml/attribute-fixes.xsl

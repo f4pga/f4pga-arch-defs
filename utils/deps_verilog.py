@@ -74,5 +74,7 @@ def main(argv):
 if __name__ == "__main__":
     if len(sys.argv) == 1:
         import doctest
-        doctest.testmod()
+        failure_count, test_count = doctest.testmod()
+        assert test_count > 0
+        assert failure_count == 0, "Doctests failed!"
     sys.exit(main(sys.argv))

@@ -29,9 +29,9 @@ def clog2(x):
 
 def add_metadata(tag, mtype, msubtype):
     meta_root = ET.SubElement(tag, 'metadata')
-    meta_type = ET.SubElement(meta_root, 'meta', {'key': 'type'})
+    meta_type = ET.SubElement(meta_root, 'meta', {'name': 'type'})
     meta_type.text = mtype
-    meta_subtype = ET.SubElement(meta_root, 'meta', {'key': 'subtype'})
+    meta_subtype = ET.SubElement(meta_root, 'meta', {'name': 'subtype'})
     meta_subtype.text = msubtype
 
 
@@ -140,7 +140,13 @@ def pb_type_xml(mux_type, mux_name, pins, subckt=None, num_pb=1, comment=""):
     )
 
     if mux_type == MuxType.LOGIC:
-        pb_type_xml.attrib['blif_model'] = '.subckt %s' % subckt
+        add_metadata(pb_type_xml, 'bel', 'mux')
+    else:
+        add_metadata(pb_type_xml, 'bel', 'routing')
+
+    if mux_type == MuxType.LOGIC:
+        model = ET.SubElement(pb_type_xml, "blif_model")
+        model.text = '.subckt {}'.format(subckt)
     else:
         assert not subckt, "Provided subckt={} for non-logic mux!".format(
             subckt
@@ -223,4 +229,6 @@ def pb_type_xml(mux_type, mux_name, pins, subckt=None, num_pb=1, comment=""):
 
 if __name__ == "__main__":
     import doctest
-    doctest.testmod()
+    failure_count, test_count = doctest.testmod()
+    assert test_count > 0
+    assert failure_count == 0, "Doctests failed!"

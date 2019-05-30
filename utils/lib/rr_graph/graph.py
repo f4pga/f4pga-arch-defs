@@ -3387,7 +3387,9 @@ def main():
     import doctest
 
     print('Doctest begin')
-    doctest.testmod(optionflags=doctest.ELLIPSIS)
+    failure_count, test_count = doctest.testmod(optionflags=doctest.ELLIPSIS)
+    assert test_count > 0
+    assert failure_count == 0, "Doctests failed!"
     print('Doctest end')
 
 
