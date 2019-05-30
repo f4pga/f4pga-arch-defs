@@ -93,6 +93,12 @@
                 "celltype": "REG_INIT_LAT REG_INIT_LAT_LOGIC_AND",
                 "instance": "SLICEL"
             }
+        },
+        "CARRY4_VPR":{
+            "COMMON_SLICE":{
+                "celltype": "CARRY4 CARRY4_O5",
+                "instance": "SLICEL"
+            }
         }
     },
     "SLICEM": {
@@ -269,6 +275,12 @@
         "LDCE":{
             "LDPE_or_LDCE":{
                 "celltype": "REG_INIT_LAT REG_INIT_LAT_LOGIC_AND",
+                "instance": "SLICEM"
+            }
+        },
+        "CARRY4_VPR":{
+            "COMMON_SLICE":{
+                "celltype": "CARRY4 CARRY4_O5",
                 "instance": "SLICEM"
             }
         }
