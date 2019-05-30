@@ -242,6 +242,8 @@ function(DEFINE_DEVICE_TYPE)
   #   DEVICE_TYPE <device_type>
   #   ARCH <arch>
   #   ARCH_XML <arch.xml>
+  #   [SCRIPT_OUTPUT_NAME]
+  #   [SCRIPTS]
   #   )
   # ~~~
   #
@@ -250,9 +252,12 @@ function(DEFINE_DEVICE_TYPE)
   #
   # DEFINE_DEVICE_TYPE defines a dummy target <arch>_<device_type>_arch that
   # will build the merged architecture file for the device type.
-  set(options)
+  #
+  # If UPDATE_TIMINGS is set merged arch.xml file will be processed to inject
+  # timing values using data from prjxray-db/$ARCH/timigs/*sdf files
+  set(options UPDATE_TIMINGS)
   set(oneValueArgs DEVICE_TYPE ARCH ARCH_XML)
-  set(multiValueArgs)
+  set(multiValueArgs SCRIPT_OUTPUT_NAME SCRIPTS)
   cmake_parse_arguments(
     DEFINE_DEVICE_TYPE
     "${options}"
@@ -277,11 +282,11 @@ function(DEFINE_DEVICE_TYPE)
   #
   set(DEVICE_MERGED_FILE arch.merged.xml)
   set(DEVICE_UNIQUE_PACK_FILE arch.unique_pack.xml)
-  set(DEVICE_MERGED_LINT_FILE arch.merged.lint.html)
+  set(DEVICE_LINT_FILE arch.lint.html)
 
   set(MERGE_XML_OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/${DEVICE_MERGED_FILE})
   set(UNIQUE_PACK_OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/${DEVICE_UNIQUE_PACK_FILE})
-  set(MERGE_XMLLINT_OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/${DEVICE_MERGED_LINT_FILE})
+  set(XMLLINT_OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/${DEVICE_LINT_FILE})
 
   xml_canonicalize_merge(
     NAME ${DEFINE_DEVICE_TYPE_ARCH}_${DEFINE_DEVICE_TYPE_DEVICE_TYPE}_arch_merged
@@ -289,15 +294,16 @@ function(DEFINE_DEVICE_TYPE)
     OUTPUT ${DEVICE_MERGED_FILE}
   )
 
-  append_file_dependency(SPECIALIZE_CARRYCHAINS_DEPS ${DEVICE_MERGED_FILE})
-
   get_target_property_required(PYTHON3 env PYTHON3)
   get_target_property(PYTHON3_TARGET env PYTHON3_TARGET)
+
+  append_file_dependency(SPECIALIZE_CARRYCHAINS_DEPS ${DEVICE_MERGED_FILE})
+
   set(SPECIALIZE_CARRYCHAINS ${symbiflow-arch-defs_SOURCE_DIR}/utils/specialize_carrychains.py)
   add_custom_command(
       OUTPUT ${UNIQUE_PACK_OUTPUT}
       COMMAND ${PYTHON3} ${SPECIALIZE_CARRYCHAINS}
-      --input_arch_xml ${MERGE_XML_OUTPUT} > ${UNIQUE_PACK_OUTPUT}
+      --input_arch_xml ${MERGE_XML_OUTPUT} > ${DEVICE_UNIQUE_PACK_FILE}
       DEPENDS
         ${PYTHON3} ${PYTHON3_TARGET}
         ${SPECIALIZE_CARRYCHAINS}
@@ -305,9 +311,34 @@ function(DEFINE_DEVICE_TYPE)
   )
   add_file_target(FILE ${DEVICE_UNIQUE_PACK_FILE} GENERATED)
 
+  set(FINAL_OUTPUT ${DEVICE_UNIQUE_PACK_FILE})
+
+  # for each script generate next chain of deps
+  if (DEFINE_DEVICE_TYPE_SCRIPTS)
+    list(LENGTH ${DEFINE_DEVICE_TYPE_SCRIPTS} SCRIPT_LEN)
+    message(STATUS "script_len ${SCRIPT_LEN} ${DEFINE_DEVICE_TYPE_SCRIPTS}")
+    foreach(SCRIPT_IND RANGE ${SCRIPT_LEN})
+      list(GET DEFINE_DEVICE_TYPE_SCRIPT_OUTPUT_NAME ${SCRIPT_IND} OUTPUT_NAME)
+      list(GET DEFINE_DEVICE_TYPE_SCRIPTS ${SCRIPT_IND} SCRIPT)
+      separate_arguments(CMD_W_ARGS UNIX_COMMAND ${SCRIPT})
+      list(GET CMD_W_ARGS 0 CMD)
+      set(TEMP_TARGET arch.${OUTPUT_NAME}.xml)
+      message(STATUS "device_type adding script")
+      add_custom_command(
+	OUTPUT ${TEMP_TARGET}
+	COMMAND ${PYTHON3} ${CMD_W_ARGS} ${FINAL_OUTPUT} > ${TEMP_TARGET}
+	DEPENDS
+        ${PYTHON3} ${PYTHON3_TARGET}
+	${CMD} ${FINAL_OUTPUT}
+	)
+      set(FINAL_OUTPUT ${TEMP_TARGET})
+      add_file_target(FILE ${FINAL_OUTPUT} GENERATED)
+    endforeach(SCRIPT_IND RANGE ${SCRIPT_LEN})
+  endif (DEFINE_DEVICE_TYPE_SCRIPTS)
+
   add_custom_target(
     ${DEFINE_DEVICE_TYPE_ARCH}_${DEFINE_DEVICE_TYPE_DEVICE_TYPE}_arch
-    DEPENDS ${UNIQUE_PACK_OUTPUT}
+    DEPENDS ${FINAL_OUTPUT}
   )
   add_dependencies(
     all_merged_arch_xmls
@@ -317,15 +348,15 @@ function(DEFINE_DEVICE_TYPE)
   set(ARCH_SCHEMA ${symbiflow-arch-defs_SOURCE_DIR}/common/xml/fpga_architecture.xsd)
   xml_lint(
     NAME ${DEFINE_DEVICE_TYPE_ARCH}_${DEFINE_DEVICE_TYPE_DEVICE_TYPE}_arch_lint
-    FILE ${UNIQUE_PACK_OUTPUT}
-    LINT_OUTPUT ${MERGE_XMLLINT_OUTPUT}
+    FILE ${FINAL_OUTPUT}
+    LINT_OUTPUT ${XMLLINT_OUTPUT}
     SCHEMA ${ARCH_SCHEMA}
   )
 
   set_target_properties(
     ${DEFINE_DEVICE_TYPE_DEVICE_TYPE}
     PROPERTIES
-    DEVICE_MERGED_FILE ${CMAKE_CURRENT_SOURCE_DIR}/${DEVICE_UNIQUE_PACK_FILE}
+    DEVICE_MERGED_FILE ${CMAKE_CURRENT_SOURCE_DIR}/${FINAL_OUTPUT}
   )
 
 endfunction()

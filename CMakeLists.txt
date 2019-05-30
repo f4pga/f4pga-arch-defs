@@ -99,6 +99,21 @@ add_conda_pip(
   NO_EXE
 )
 
+add_conda_pip(
+  NAME ply
+  NO_EXE
+)
+
+get_target_property_required(PYTHON3 env PYTHON3)
+get_target_property(PYTHON3_TARGET env PYTHON3_TARGET)
+
+add_thirdparty_package(
+	NAME sdf_timing
+	BUILD_INSTALL_COMMAND "cd ${symbiflow-arch-defs_SOURCE_DIR}/third_party/python-sdf-timing && ${PYTHON3} setup.py develop"
+	PROVIDES sdf_timing
+  DEPENDS ${PYTHON3_TARGET}
+)
+
 include(common/cmake/image_gen.cmake)
 include(common/cmake/gen.cmake)
 

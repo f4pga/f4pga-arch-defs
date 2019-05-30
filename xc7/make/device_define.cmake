@@ -49,11 +49,24 @@ function(ADD_XC7_DEVICE_DEFINE_TYPE)
     USE_ROI ${ROI_DIR}/design.json
     )
 
+  set(SDF_TIMING_DIRECTORY ${PRJXRAY_DB_DIR}/${ARCH}/timings)
+  set(UPDATE_ARCH_TIMINGS ${symbiflow-arch-defs_SOURCE_DIR}/utils/update_arch_timings.py)
+  set(PYTHON_SDF_TIMING_DIR ${symbiflow-arch-defs_SOURCE_DIR}/third_party/python-sdf-timing)
+  set(BELS_MAP ${symbiflow-arch-defs_SOURCE_DIR}/xc7/bels.json)
+
+  set(TIMING_IMPORT "${UPDATE_ARCH_TIMINGS} --sdf_dir ${SDF_TIMING_DIRECTORY} --bels_map ${BELS_MAP} --out_arch /dev/stdout --input_arch")
+
   define_device_type(
     DEVICE_TYPE ${DEVICE}-roi-virt
     ARCH ${ARCH}
     ARCH_XML arch.xml
+    SCRIPT_OUTPUT_NAME timing
+    SCRIPTS ${TIMING_IMPORT}
     )
+  add_dependencies(${ARCH}_${DEVICE}-roi-virt_arch arch_import_timing_deps)
+  get_target_property_required(VIRT_DEVICE_MERGED_FILE ${DEVICE}-roi-virt DEVICE_MERGED_FILE)
+  get_file_target(DEVICE_MERGED_FILE_TARGET ${VIRT_DEVICE_MERGED_FILE})
+  add_dependencies(${DEVICE_MERGED_FILE_TARGET} arch_import_timing_deps)
 endfunction()
 
 function(ADD_XC7_DEVICE_DEFINE)

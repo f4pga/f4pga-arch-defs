@@ -144,3 +144,17 @@ def ports(
         k: tuple(v)
         for k, v in carry.items()
     }
+
+
+def get_pb_type_chain(node):
+    pb_types = []
+    while True:
+        parent = node.getparent()
+
+        if parent is None:
+            return list(reversed(pb_types))
+
+        if parent.tag == 'pb_type':
+            pb_types.append(parent.attrib['name'])
+
+        node = parent

@@ -1,9 +1,10 @@
 get_target_property_required(PYTEST env PYTEST)
+get_target_property_required(SDF_TIMING_TARGET env SDF_TIMING_TARGET)
 
 add_custom_target(
   test_python_utils
   DEPENDS
-    conda_pytest all_pip
+    conda_pytest all_pip ${SDF_TIMING_TARGET}
   COMMAND ${PYTEST} --doctest-modules -vv
   WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
 )
