@@ -1,0 +1,538 @@
+[
+ {
+  "color": "#FFFFFF",
+  "type": "DUMMY_TILE_0"
+ },
+ {
+  "color": "#FFFFFF",
+  "type": "DUMMY_TILE_8"
+ },
+ {
+  "color": "#FFFFFF",
+  "type": "DUMMY_TILE_1"
+ },
+ {
+  "color": "#888888",
+  "type": "BANKREF0"
+ },
+ {
+  "color": "#88FF88",
+  "type": "PIOT0"
+ },
+ {
+  "color": "#FFFFFF",
+  "type": "DUMMY_TILE_A"
+ },
+ {
+  "color": "#88FF88",
+  "type": "PIOT1"
+ },
+ {
+  "color": "#888888",
+  "type": "TMID_0"
+ },
+ {
+  "color": "#888888",
+  "type": "TMID_1"
+ },
+ {
+  "color": "#888888",
+  "type": "BANKREF1"
+ },
+ {
+  "color": "#888888",
+  "type": "BANKREF7A"
+ },
+ {
+  "color": "#FF8888",
+  "type": "CIB_LR_S"
+ },
+ {
+  "color": "#FF8888",
+  "type": "CIB"
+ },
+ {
+  "color": "#88FFFF",
+  "type": "PICT0"
+ },
+ {
+  "color": "#DDDDDD",
+  "type": "TAP_DRIVE_CIB"
+ },
+ {
+  "color": "#88FFFF",
+  "type": "PICT1"
+ },
+ {
+  "color": "#888888",
+  "type": "BANKREF2A"
+ },
+ {
+  "color": "#88FFFF",
+  "type": "PICL0"
+ },
+ {
+  "color": "#FF8888",
+  "type": "CIB_LR"
+ },
+ {
+  "color": "#8888FF",
+  "type": "PLC2"
+ },
+ {
+  "color": "#DDDDDD",
+  "type": "TAP_DRIVE"
+ },
+ {
+  "color": "#88FFFF",
+  "type": "PICR0"
+ },
+ {
+  "color": "#88FFFF",
+  "type": "PICL1"
+ },
+ {
+  "color": "#88FFFF",
+  "type": "PICR1"
+ },
+ {
+  "color": "#88FFFF",
+  "type": "PICL2"
+ },
+ {
+  "color": "#88FFFF",
+  "type": "PICR2"
+ },
+ {
+  "color": "#88FFFF",
+  "type": "PICL1_DQS0"
+ },
+ {
+  "color": "#88FFFF",
+  "type": "PICR1_DQS0"
+ },
+ {
+  "color": "#88FFFF",
+  "type": "PICL2_DQS1"
+ },
+ {
+  "color": "#88FFFF",
+  "type": "PICR2_DQS1"
+ },
+ {
+  "color": "#88FFFF",
+  "type": "PICL0_DQS2"
+ },
+ {
+  "color": "#88FFFF",
+  "type": "PICR0_DQS2"
+ },
+ {
+  "color": "#88FFFF",
+  "type": "PICL1_DQS3"
+ },
+ {
+  "color": "#88FFFF",
+  "type": "PICR1_DQS3"
+ },
+ {
+  "color": "#FFFFFF",
+  "type": "DUMMY_TILE_7"
+ },
+ {
+  "color": "#888888",
+  "type": "MIB_CIB_LR"
+ },
+ {
+  "color": "#888888",
+  "type": "MIB_CIB_LRC"
+ },
+ {
+  "color": "#FFFFFF",
+  "type": "DUMMY_TILE_S"
+ },
+ {
+  "color": "#FFFFFF",
+  "type": "DUMMY_TILE_T"
+ },
+ {
+  "color": "#FF8888",
+  "type": "CIB_DSP"
+ },
+ {
+  "color": "#888888",
+  "type": "DDRDLL_ULA"
+ },
+ {
+  "color": "#FFFF88",
+  "type": "DSP_SPINE_UL1"
+ },
+ {
+  "color": "#FFFF88",
+  "type": "MIB2_DSP0"
+ },
+ {
+  "color": "#FFFF88",
+  "type": "MIB_DSP0"
+ },
+ {
+  "color": "#FFFFFF",
+  "type": "DUMMY_TILE_E"
+ },
+ {
+  "color": "#FFFFFF",
+  "type": "DUMMY_TILE_F"
+ },
+ {
+  "color": "#FFFF88",
+  "type": "MIB2_DSP1"
+ },
+ {
+  "color": "#FFFF88",
+  "type": "MIB_DSP1"
+ },
+ {
+  "color": "#FFFF88",
+  "type": "MIB2_DSP2"
+ },
+ {
+  "color": "#FFFF88",
+  "type": "MIB_DSP2"
+ },
+ {
+  "color": "#FFFF88",
+  "type": "MIB2_DSP3"
+ },
+ {
+  "color": "#FFFF88",
+  "type": "MIB_DSP3"
+ },
+ {
+  "color": "#FFFF88",
+  "type": "MIB2_DSP4"
+ },
+ {
+  "color": "#FFFF88",
+  "type": "MIB_DSP4"
+ },
+ {
+  "color": "#FFFF88",
+  "type": "MIB2_DSP5"
+ },
+ {
+  "color": "#FFFF88",
+  "type": "MIB_DSP5"
+ },
+ {
+  "color": "#FFFF88",
+  "type": "MIB2_DSP6"
+ },
+ {
+  "color": "#FFFF88",
+  "type": "MIB_DSP6"
+ },
+ {
+  "color": "#FFFF88",
+  "type": "MIB2_DSP7"
+ },
+ {
+  "color": "#FFFF88",
+  "type": "MIB_DSP7"
+ },
+ {
+  "color": "#FFFF88",
+  "type": "MIB2_DSP8"
+ },
+ {
+  "color": "#FFFF88",
+  "type": "MIB_DSP8"
+ },
+ {
+  "color": "#FFFF88",
+  "type": "DSP_SPINE_UL0"
+ },
+ {
+  "color": "#888888",
+  "type": "CMUX_UL_0"
+ },
+ {
+  "color": "#FFFF88",
+  "type": "DSP_CMUX_UL"
+ },
+ {
+  "color": "#888888",
+  "type": "CMUX_UR_0"
+ },
+ {
+  "color": "#FFFF88",
+  "type": "DSP_CMUX_UR"
+ },
+ {
+  "color": "#FFFF88",
+  "type": "DSP_SPINE_UR0"
+ },
+ {
+  "color": "#FFFF88",
+  "type": "DSP_SPINE_UR1"
+ },
+ {
+  "color": "#FFFFFF",
+  "type": "DUMMY_TILE_6"
+ },
+ {
+  "color": "#888888",
+  "type": "DDRDLL_URA"
+ },
+ {
+  "color": "#888888",
+  "type": "MIB_CIB_LRC_A"
+ },
+ {
+  "color": "#888888",
+  "type": "MIB_CIB_LR_A"
+ },
+ {
+  "color": "#FF8888",
+  "type": "CIB_EBR"
+ },
+ {
+  "color": "#888888",
+  "type": "ECLK_L"
+ },
+ {
+  "color": "#888888",
+  "type": "LMID_0"
+ },
+ {
+  "color": "#FF88FF",
+  "type": "MIB_EBR0"
+ },
+ {
+  "color": "#FF88FF",
+  "type": "MIB_EBR1"
+ },
+ {
+  "color": "#FF88FF",
+  "type": "MIB_EBR2"
+ },
+ {
+  "color": "#FF88FF",
+  "type": "MIB_EBR3"
+ },
+ {
+  "color": "#FF88FF",
+  "type": "MIB_EBR4"
+ },
+ {
+  "color": "#FF88FF",
+  "type": "MIB_EBR5"
+ },
+ {
+  "color": "#FF88FF",
+  "type": "MIB_EBR6"
+ },
+ {
+  "color": "#FF88FF",
+  "type": "MIB_EBR7"
+ },
+ {
+  "color": "#FF88FF",
+  "type": "MIB_EBR8"
+ },
+ {
+  "color": "#888888",
+  "type": "VIQ_BUF"
+ },
+ {
+  "color": "#888888",
+  "type": "RMID_0"
+ },
+ {
+  "color": "#888888",
+  "type": "ECLK_R"
+ },
+ {
+  "color": "#888888",
+  "type": "DDRDLL_LL"
+ },
+ {
+  "color": "#FF88FF",
+  "type": "EBR_SPINE_LL3"
+ },
+ {
+  "color": "#FF88FF",
+  "type": "EBR_SPINE_LL0"
+ },
+ {
+  "color": "#888888",
+  "type": "EBR_CMUX_LL_25K"
+ },
+ {
+  "color": "#888888",
+  "type": "CMUX_LL_0"
+ },
+ {
+  "color": "#888888",
+  "type": "CMUX_LR_0"
+ },
+ {
+  "color": "#888888",
+  "type": "EBR_CMUX_LR_25K"
+ },
+ {
+  "color": "#FF88FF",
+  "type": "EBR_SPINE_LR0"
+ },
+ {
+  "color": "#FF88FF",
+  "type": "EBR_SPINE_LR1"
+ },
+ {
+  "color": "#888888",
+  "type": "DDRDLL_LR"
+ },
+ {
+  "color": "#FF8888",
+  "type": "CIB_PLL2"
+ },
+ {
+  "color": "#FF8888",
+  "type": "CIB_PLL3"
+ },
+ {
+  "color": "#FF8888",
+  "type": "CIB_EFB0"
+ },
+ {
+  "color": "#FF8888",
+  "type": "CIB_EFB1"
+ },
+ {
+  "color": "#888888",
+  "type": "VCIB_DCU0"
+ },
+ {
+  "color": "#888888",
+  "type": "VCIB_DCUA"
+ },
+ {
+  "color": "#888888",
+  "type": "VCIB_DCUB"
+ },
+ {
+  "color": "#888888",
+  "type": "VCIB_DCUC"
+ },
+ {
+  "color": "#888888",
+  "type": "VCIB_DCUD"
+ },
+ {
+  "color": "#888888",
+  "type": "VCIB_DCUF"
+ },
+ {
+  "color": "#888888",
+  "type": "VCIB_DCU3"
+ },
+ {
+  "color": "#888888",
+  "type": "VCIB_DCU2"
+ },
+ {
+  "color": "#888888",
+  "type": "VCIB_DCUG"
+ },
+ {
+  "color": "#888888",
+  "type": "VCIB_DCUH"
+ },
+ {
+  "color": "#888888",
+  "type": "VCIB_DCUI"
+ },
+ {
+  "color": "#888888",
+  "type": "VCIB_DCU1"
+ },
+ {
+  "color": "#888888",
+  "type": "MIB_CIB_LX"
+ },
+ {
+  "color": "#888888",
+  "type": "BANKREF6"
+ },
+ {
+  "color": "#888888",
+  "type": "PLL0_LL"
+ },
+ {
+  "color": "#888888",
+  "type": "BANKREF8"
+ },
+ {
+  "color": "#888888",
+  "type": "EFB0_PICB0"
+ },
+ {
+  "color": "#888888",
+  "type": "EFB1_PICB1"
+ },
+ {
+  "color": "#888888",
+  "type": "EFB2_PICB0"
+ },
+ {
+  "color": "#888888",
+  "type": "EFB3_PICB1"
+ },
+ {
+  "color": "#88FFFF",
+  "type": "PICB0"
+ },
+ {
+  "color": "#88FFFF",
+  "type": "PICB1"
+ },
+ {
+  "color": "#888888",
+  "type": "SPICB0"
+ },
+ {
+  "color": "#888888",
+  "type": "DTR"
+ },
+ {
+  "color": "#888888",
+  "type": "POR"
+ },
+ {
+  "color": "#888888",
+  "type": "OSC"
+ },
+ {
+  "color": "#888888",
+  "type": "BMID_0V"
+ },
+ {
+  "color": "#888888",
+  "type": "BMID_2V"
+ },
+ {
+  "color": "#888888",
+  "type": "PLL1_LR"
+ },
+ {
+  "color": "#888888",
+  "type": "PLL0_LR"
+ },
+ {
+  "color": "#888888",
+  "type": "BANKREF3"
+ },
+ {
+  "color": "#888888",
+  "type": "MIB_CIB_RX"
+ }
+]
