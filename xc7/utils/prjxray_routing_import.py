@@ -36,6 +36,7 @@ import progressbar
 import datetime
 import re
 import functools
+import pickle
 
 from prjxray_db_cache import DatabaseCache
 
@@ -571,6 +572,11 @@ def main():
         '--write_rr_graph', required=True, help='Output rr_graph file'
     )
     parser.add_argument(
+        '--write_rr_node_map',
+        required=True,
+        help='Output map of graph_node_pkey to rr inode file'
+    )
+    parser.add_argument(
         '--connection_database',
         help='Database of fabric connectivity',
         required=True
@@ -693,6 +699,11 @@ FROM
             xml_graph.serialize_edges(
                 import_graph_edges(conn, graph, node_mapping)
             )
+
+        print('{} Writing node map.'.format(now()))
+        with open(args.write_rr_node_map, 'wb') as f:
+            pickle.dump(node_mapping, f)
+        print('{} Done writing node map.'.format(now()))
 
 
 if __name__ == '__main__':
