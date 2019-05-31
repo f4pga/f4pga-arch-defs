@@ -1264,6 +1264,75 @@ def verify_channels(conn, alive_tracks):
         assert min(ptcs) == 0, key
         assert max(ptcs) == len(ptcs) - 1, key
 
+def walk_and_mark_segment(conn, write_cur, graph_node_pkey, forward, segment_pkey):
+    cur = conn.cursor()
+
+    cur.execute("""SELECT graph_node_type FROM graph_node WHERE pkey = ?""", (
+        graph_node_pkey,))
+    graph_node_type = NodeType(cur.fetchone()[0])
+    if graph_node_type in [NodeType.CHANX, NodeType.CHANY]:
+        cur.execute("SELECT track_pkey FROM graph_node WHERE pkey = ?",
+                (graph_node_pkey,))
+        track_pkey = cur.fetchone()[0]
+        assert track_pkey is not None
+
+        write_cur.execute("UPDATE track SET segment_pkey = ? WHERE pkey = ?",
+                (segment_pkey, track_pkey,))
+
+    if forward:
+        cur.execute("""
+SELECT dest_graph_node_pkey FROM graph_edge WHERE src_graph_node_pkey = ?
+""", (graph_node_pkey,))
+        next_nodes = cur.fetchall()
+    else:
+        cur.execute("""
+SELECT src_graph_node_pkey FROM graph_edge WHERE dest_graph_node_pkey = ?
+""", (graph_node_pkey,))
+        next_nodes = cur.fetchall()
+
+    if len(next_nodes) == 1:
+        walk_and_mark_segment(conn, write_cur, next_nodes[0][0], forward, segment_pkey)
+
+
+def annotate_pin_feeds(conn):
+    """ Identifies and annotates pin feed channels.
+
+    Some channels are simply paths from IPIN's or OPIN's.  Set
+    pin_classification to either IPIN_FEED or OPIN_FEED.  During track creation
+    if these nodes are not given a specific segment, they will be assigned as
+    INPINFEED or OUTPINFEED.
+    """
+    write_cur = conn.cursor()
+    cur = conn.cursor()
+
+    cur.execute("SELECT pkey FROM segment WHERE name = ?", ("INPINFEED",))
+    inpinfeed_pkey = cur.fetchone()[0]
+
+    cur.execute("SELECT pkey FROM segment WHERE name = ?", ("OUTPINFEED",))
+    outpinfeed_pkey = cur.fetchone()[0]
+
+    write_cur.execute("""BEGIN EXCLUSIVE TRANSACTION;""")
+
+    # Walk from OPIN's first.
+    for (graph_node_pkey,) in cur.execute("""
+SELECT graph_node.pkey
+FROM graph_node
+WHERE graph_node.graph_node_type = ?
+        """, (NodeType.OPIN.value,)):
+        walk_and_mark_segment(conn, write_cur, graph_node_pkey, forward=True,
+                segment_pkey=outpinfeed_pkey)
+
+    # Walk from IPIN's next.
+    for (graph_node_pkey,) in cur.execute("""
+SELECT graph_node.pkey
+FROM graph_node
+WHERE graph_node.graph_node_type = ?
+        """, (NodeType.IPIN.value,)):
+        walk_and_mark_segment(conn, write_cur, graph_node_pkey, forward=False,
+                segment_pkey=inpinfeed_pkey)
+
+    write_cur.execute("""COMMIT TRANSACTION;""")
+
 
 def main():
     parser = argparse.ArgumentParser()
@@ -1437,6 +1506,8 @@ def main():
         mark_track_liveness(
             conn, pool, input_only_nodes, output_only_nodes, alive_tracks
         )
+
+        annotate_pin_feeds(conn)
 
         print(
             '{} Flushing database back to file "{}"'.format(

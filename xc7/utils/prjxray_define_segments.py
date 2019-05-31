@@ -6,21 +6,22 @@ from prjxray.db import Database
 import re
 
 
-def add_segment_wires(db, tile, wires):
+def add_segment_wires(db, tile, wires, segments):
     """ Adds to the set segment wires. """
     tile = db.get_tile_type(tile)
 
     for pip in tile.get_pips():
         # Ignore wires that sink to a site
-        if 'IMUX' in pip.net_to:
+        if 'GCLK' in pip.net_to:
+            segments['CLKFEED'].add(pip.net_to)
             continue
-        if 'CTRL' in pip.net_to:
-            continue
-        if 'CLK' in pip.net_to:
-            continue
-        if re.match('BYP[0-7]', pip.net_to):
-            continue
-        if re.match('FAN[0-7]', pip.net_to):
+
+        elif 'IMUX' in pip.net_to or \
+           'CTRL' in pip.net_to or \
+           'CLK' in pip.net_to or \
+           re.match('BYP[0-7]', pip.net_to) or \
+           re.match('FAN[0-7]', pip.net_to):
+            segments['INPINFEED'].add(pip.net_to)
             continue
 
         wires.add(pip.net_to)
@@ -28,7 +29,7 @@ def add_segment_wires(db, tile, wires):
             wires.add(pip.net_from)
 
 
-def reduce_wires_to_segments(wires):
+def reduce_wires_to_segments(wires, segments):
     """ Reduce wire names to segment definitions.
 
     For purposes of creating the routing heuristic, it is assumed that if two
@@ -39,8 +40,6 @@ def reduce_wires_to_segments(wires):
     This may apply to the local fanout wires like GFAN0 or FAN_BOUNCE0.
 
     """
-    segments = {}
-
     WIRE_PARTS = re.compile('^(.*?)([0-9]+)$')
 
     for wire in wires:
@@ -49,11 +48,9 @@ def reduce_wires_to_segments(wires):
 
         segment = m.group(1)
         if segment not in segments:
-            segments[segment] = []
+            segments[segment] = set()
 
-        segments[segment].append(wire)
-
-    return segments
+        segments[segment].add(wire)
 
 def get_segments(db):
     """ Return segment approximation for device.
@@ -67,10 +64,16 @@ def get_segments(db):
     """
     wires = set()
 
-    for tile in ['INT_L', 'INT_R']:
-        add_segment_wires(db, tile, wires)
+    segments = {
+            'INPINFEED': set(),
+            'CLKFEED': set(),
+            'OUTPINFEED': set(),
+            }
 
-    segments = reduce_wires_to_segments(wires)
+    for tile in ['INT_L', 'INT_R']:
+        add_segment_wires(db, tile, wires, segments)
+
+    reduce_wires_to_segments(wires, segments)
 
     return segments
 
@@ -128,11 +131,11 @@ def main():
 
     segments = get_segments(db)
 
-    for segment, wires in segments.items():
+    for segment in sorted(segments):
         print('Segment = {}'.format(segment))
         print('Wires:')
 
-        for wire in wires:
+        for wire in sorted(segments[segment]):
             print('  {}'.format(wire))
 
 if __name__ == '__main__':

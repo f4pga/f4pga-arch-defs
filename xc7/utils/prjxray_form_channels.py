@@ -1630,7 +1630,7 @@ INSERT INTO node(classification) VALUES (?)
 def import_segments(conn, db):
     write_cur = conn.cursor()
 
-    default_segment = "local_segment"
+    default_segment = "unknown"
     segments = SegmentWireMap(default_segment=default_segment, db=db)
 
     if default_segment not in segments.get_segments():

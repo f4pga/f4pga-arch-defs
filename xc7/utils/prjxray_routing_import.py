@@ -192,8 +192,9 @@ def is_track_alive(conn, tile_pkey, roi, synth_tiles):
                            ) or tile in synth_tiles['tiles']
 
 
-def import_tracks(conn, alive_tracks, node_mapping, graph, segment_id):
+def import_tracks(conn, alive_tracks, node_mapping, graph, default_segment_id):
     cur = conn.cursor()
+    cur2 = conn.cursor()
     for (graph_node_pkey, track_pkey, graph_node_type, x_low, x_high, y_low,
          y_high, ptc, capacitance, resistance) in cur.execute("""
 SELECT
@@ -211,6 +212,17 @@ FROM
     graph_node WHERE track_pkey IS NOT NULL;"""):
         if track_pkey not in alive_tracks:
             continue
+
+        cur2.execute("""
+SELECT name FROM segment WHERE pkey = (
+    SELECT segment_pkey FROM track WHERE pkey = ?
+)""", (track_pkey,))
+        result = cur2.fetchone()
+        if result is not None:
+            segment_name = result[0]
+            segment_id = graph.get_segment_id_from_name(segment_name)
+        else:
+            segment_id = default_segment_id
 
         node_type = graph2.NodeType(graph_node_type)
 
