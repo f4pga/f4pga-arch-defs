@@ -24,13 +24,10 @@ ERROR_OUTPUT_LOGIC #(
     .actual_data({1'b0}),
     .tx_data_accepted(rx),
     .tx_data_ready(led[8]),
-    .tx_data(led[7:0]),
-    .count_shift_done_out(led[9]),
-    .address_shift_done_out(led[10]),
-    .data_shift_done_out(led[11])
+    .tx_data(led[7:0])
 );
 
-assign led[15:12] = sw[15:12];
+assign led[15:9] = sw[15:9];
 assign tx = sw[0];
 
 endmodule
