@@ -1,6 +1,6 @@
 module ERROR_OUTPUT_LOGIC #(
-    parameter DATA_WIDTH = 1,
-    parameter ADDR_WIDTH = 6
+    parameter [7:0] DATA_WIDTH = 1,
+    parameter [7:0] ADDR_WIDTH = 6
 ) (
     input rst,
     input clk,
@@ -25,6 +25,11 @@ module ERROR_OUTPUT_LOGIC #(
 
     reg [7:0] error_count;
     reg [7:0] output_shift;
+
+    wire [7:0] next_output_shift = output_shift + 8;
+    wire count_shift_done = next_output_shift >= 8'd16;
+    wire address_shift_done = next_output_shift >= ADDR_WIDTH;
+    wire data_shift_done = next_output_shift >= DATA_WIDTH;
 
     reg loop_ready;
     reg [7:0] latched_error_count;
@@ -54,6 +59,7 @@ module ERROR_OUTPUT_LOGIC #(
             tx_data_ready <= 0;
             tx_data <= 8'b0;
             loop_count <= 0;
+            loop_ready <= 0;
         end else begin
 
             if(error_detected) begin
@@ -112,25 +118,25 @@ module ERROR_OUTPUT_LOGIC #(
                         tx_data <= (latched_loop_count >> output_shift);
                         tx_data_ready <= 1;
 
-                        if(output_shift + 8 >= 16) begin
+                        if(count_shift_done) begin
                             output_shift <= 0;
                             loop_ready <= 0;
                             state <= CR;
                         end else begin
-                            output_shift <= output_shift + 8;
+                            output_shift <= next_output_shift;
                         end
                     end
                 end
                 CR: begin
                     if(!tx_data_ready) begin
-                        tx_data <= "\r";
+                        tx_data <= 8'h0D; // "\r"
                         tx_data_ready <= 1;
                         state <= LF;
                     end
                 end
                 LF: begin
                     if(!tx_data_ready) begin
-                        tx_data <= "\n";
+                        tx_data <= 8'h0A; // "\n"
                         tx_data_ready <= 1;
                         state <= START;
                     end
@@ -155,11 +161,11 @@ module ERROR_OUTPUT_LOGIC #(
                         tx_data <= (reg_error_address >> output_shift);
                         tx_data_ready <= 1;
 
-                        if(output_shift + 8 >= ADDR_WIDTH) begin
+                        if(address_shift_done) begin
                             output_shift <= 0;
                             state <= ERROR_EXPECTED_DATA;
                         end else begin
-                            output_shift <= output_shift + 8;
+                            output_shift <= next_output_shift;
                         end
                     end
                 end
@@ -168,11 +174,11 @@ module ERROR_OUTPUT_LOGIC #(
                         tx_data <= (reg_expected_data >> output_shift);
                         tx_data_ready <= 1;
 
-                        if(output_shift + 8 >= DATA_WIDTH) begin
+                        if(data_shift_done) begin
                             output_shift <= 0;
                             state <= ERROR_ACTUAL_DATA;
                         end else begin
-                            output_shift <= output_shift + 8;
+                            output_shift <= next_output_shift;
                         end
                     end
                 end
@@ -181,7 +187,7 @@ module ERROR_OUTPUT_LOGIC #(
                         tx_data <= (reg_actual_data >> output_shift);
                         tx_data_ready <= 1;
 
-                        if(output_shift + 8 >= DATA_WIDTH) begin
+                        if(data_shift_done) begin
                             state <= CR;
                             reg_error_detected <= 0;
                         end else begin

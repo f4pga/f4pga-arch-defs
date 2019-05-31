@@ -33,7 +33,7 @@ setup_env(
 add_conda_package(
   NAME yosys
   PROVIDES yosys
-  PACKAGE_SPEC "yosys 0.8_1059_g996d4e82 20190516_233014"
+  PACKAGE_SPEC "yosys 0.8_1161_g8d943b4c 20190531_112316"
   )
 add_conda_package(
   NAME openocd
@@ -42,7 +42,7 @@ add_conda_package(
 add_conda_package(
   NAME vtr
   PROVIDES vpr genfasm
-  PACKAGE_SPEC "vtr 7.0.5_7303_g567188a0c 20190516_233014"
+  PACKAGE_SPEC "vtr 7.0.5_7464_g2e7e9ef93 20190531_112316"
   )
 add_conda_package(
   NAME libxslt
@@ -97,6 +97,21 @@ add_conda_pip(
 add_conda_pip(
   NAME pyjson5
   NO_EXE
+)
+
+add_conda_pip(
+  NAME ply
+  NO_EXE
+)
+
+get_target_property_required(PYTHON3 env PYTHON3)
+get_target_property(PYTHON3_TARGET env PYTHON3_TARGET)
+
+add_thirdparty_package(
+	NAME sdf_timing
+	BUILD_INSTALL_COMMAND "cd ${symbiflow-arch-defs_SOURCE_DIR}/third_party/python-sdf-timing && ${PYTHON3} setup.py develop"
+	PROVIDES sdf_timing
+  DEPENDS ${PYTHON3_TARGET}
 )
 
 include(common/cmake/image_gen.cmake)

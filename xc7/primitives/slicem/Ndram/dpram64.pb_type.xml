@@ -7,12 +7,12 @@
   <output name="O" num_pins="1" />
 
   <delay_matrix type="max" in_port="A" out_port="O">
-    0.068e-9
-    0.068e-9
-    0.068e-9
-    0.068e-9
-    0.068e-9
-    0.068e-9
+    {iopath_A1_O6}
+    {iopath_A2_O6}
+    {iopath_A3_O6}
+    {iopath_A4_O6}
+    {iopath_A5_O6}
+    {iopath_A6_O6}
   </delay_matrix>
 
   <!-- B1 - Write Port -->

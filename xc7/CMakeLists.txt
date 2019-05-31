@@ -5,6 +5,13 @@ set(PRJXRAY_DB_DIR
   ${symbiflow-arch-defs_SOURCE_DIR}/third_party/prjxray-db
   CACHE PATH "Path to prjxray database files")
 
+get_target_property_required(SDF_TIMING_TARGET env SDF_TIMING_TARGET)
+set(ARCH_IMPORT_TIMING ${symbiflow-arch-defs_SOURCE_DIR}/utils/update_arch_timings.py)
+add_custom_target(
+	arch_import_timing_deps
+  DEPENDS ${ARCH_IMPORT_TIMING} ${SDF_TIMING_TARGET}
+)
+
 include(arch.cmake)
 
 get_target_property_required(PYTEST env PYTEST)
