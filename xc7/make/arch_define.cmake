@@ -32,7 +32,9 @@ function(ADD_XC7_ARCH_DEFINE)
         \${PYTHON3} \${RR_PATCH_TOOL} \
         --db_root ${PRJXRAY_DB_DIR}/${ARCH} \
         --read_rr_graph \${OUT_RRXML_VIRT} \
-        --write_rr_graph \${OUT_RRXML_REAL}"
+        --write_rr_graph \${OUT_RRXML_REAL} \
+        --write_rr_node_map \${OUT_RRXML_REAL}.node_map.pickle
+        "
     PLACE_TOOL
       ${symbiflow-arch-defs_SOURCE_DIR}/xc7/utils/prjxray_create_ioplace.py
     PLACE_TOOL_CMD "${CMAKE_COMMAND} -E env \
