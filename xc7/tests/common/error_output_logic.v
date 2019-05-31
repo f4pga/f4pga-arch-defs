@@ -129,14 +129,14 @@ module ERROR_OUTPUT_LOGIC #(
                 end
                 CR: begin
                     if(!tx_data_ready) begin
-                        tx_data <= 8'h0D;
+                        tx_data <= 8'h0D; // "\r"
                         tx_data_ready <= 1;
                         state <= LF;
                     end
                 end
                 LF: begin
                     if(!tx_data_ready) begin
-                        tx_data <= 8'h0A;
+                        tx_data <= 8'h0A; // "\n"
                         tx_data_ready <= 1;
                         state <= START;
                     end
