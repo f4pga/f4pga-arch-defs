@@ -30,7 +30,7 @@ module LFSR (
     );
     parameter POLY = 1;
 
-    reg [{depth}-1:0] r;
+    reg [{depth}-1:0] r = 1;
     assign out = r;
     wire f;
     assign f = ^(POLY & ~r);
