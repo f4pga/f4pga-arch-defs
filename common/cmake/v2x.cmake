@@ -38,7 +38,7 @@ function(V2X)
   get_target_property(PYTHON3_TARGET env PYTHON3_TARGET)
   list(APPEND DEPENDS_LIST ${PYTHON3} ${PYTHON3_TARGET})
 
-  list(APPEND DEPENDS_LIST ${PYTHON3} sdf-timing)
+  list(APPEND DEPENDS_LIST ${PYTHON3} sdf_timing)
 
   get_target_property_required(YOSYS env YOSYS)
   get_target_property(YOSYS_TARGET env YOSYS_TARGET)

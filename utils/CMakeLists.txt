@@ -1,8 +1,6 @@
 get_target_property_required(PYTEST env PYTEST)
 get_target_property_required(SDF_TIMING_TARGET env SDF_TIMING_TARGET)
 
-set(PYTHON_SDF_TIMING_DIR ${symbiflow-arch-defs_SOURCE_DIR}/third_party/python-sdf-timing)
-
 add_custom_target(
   test_python_utils
   DEPENDS
