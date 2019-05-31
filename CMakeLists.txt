@@ -33,7 +33,7 @@ setup_env(
 add_conda_package(
   NAME yosys
   PROVIDES yosys
-  PACKAGE_SPEC "yosys 0.8_1059_g996d4e82 20190516_233014"
+  PACKAGE_SPEC "yosys 0.8_1161_g8d943b4c 20190531_112316"
   )
 add_conda_package(
   NAME openocd

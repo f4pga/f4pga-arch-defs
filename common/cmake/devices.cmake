@@ -1308,6 +1308,12 @@ function(ADD_FPGA_TARGET)
       SOURCES ${ADD_FPGA_TARGET_SOURCES} ${TESTBENCH}
       )
 
+    add_testbench(
+      NAME testbench_synth_${TESTBENCH_NAME}
+      ARCH ${ARCH}
+      SOURCES ${OUT_LOCAL_REL}/${TOP}_synth.v ${TESTBENCH}
+      )
+
     if(NOT ${NO_BIT_TO_V})
       add_testbench(
         NAME testbinch_${TESTBENCH_NAME}
