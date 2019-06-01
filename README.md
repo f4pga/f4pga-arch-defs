@@ -89,3 +89,9 @@ make
  * [wavedrom](https://wavedrom.com/)
    Tool for generating waveform / timing diagrams.
 
+## Resource Requirements
+
+To run examples provided, please make sure these resources are available:
+ * Memory: 5.5G
+ * Disk space: 20G
+
