@@ -188,6 +188,8 @@ if len(deps_files) > 0:
 else:
     # Is a leaf model
     topname = tmod.attr("MODEL_NAME", top)
+    assert topname == topname.upper(
+    ), "Leaf model names should be all uppercase!"
     modclass = tmod.attr("CLASS", "")
 
     if modclass not in ("lut", "routing", "flipflop"):
