@@ -365,6 +365,8 @@ def make_pb_type(yj, mod):
     if modes is not None:
         modes = modes.split(";")
     mod_pname = mod_pb_name(mod)
+    assert mod_pname == mod_pname.upper(
+    ), "pb_type name should be all uppercase. {}".format(mod_pname)
 
     pb_xml_attrs = dict()
     pb_xml_attrs["name"] = mod_pname
@@ -375,6 +377,9 @@ def make_pb_type(yj, mod):
     print("is_blackbox", is_blackbox, "has_modes?", has_modes)
 
     # Process type and class of module
+    model_name = mod.attr("MODEL_NAME", mod.name)
+    assert model_name == model_name.upper(
+    ), "Model name should be uppercase. {}".format(model_name)
     mod_cls = mod.CLASS
     if mod_cls is not None:
         if mod_cls == "lut":
@@ -392,8 +397,7 @@ def make_pb_type(yj, mod):
         else:
             assert False, "unknown class {}".format(mod_cls)
     elif is_blackbox and not has_modes:
-        pb_xml_attrs["blif_model"
-                     ] = ".subckt " + mod.attr("MODEL_NAME", mod.name)
+        pb_xml_attrs["blif_model"] = ".subckt " + model_name
 
     # set num_pb to 1, it will be updated if this pb_type
     # will be included by another one
@@ -502,6 +506,9 @@ def main(args):
                 format(iname)
             )
             sys.exit(1)
+
+    assert top == top.upper(
+    ), "Top module name should be all uppercase. {}".format(top)
 
     tmod = yj.module(top)
 
