@@ -1264,7 +1264,8 @@ def verify_channels(conn, alive_tracks):
         assert min(ptcs) == 0, key
         assert max(ptcs) == len(ptcs) - 1, key
 
-def walk_and_mark_segment(conn, write_cur, graph_node_pkey, forward, segment_pkey):
+def walk_and_mark_segment(conn, write_cur, graph_node_pkey, forward,
+        segment_pkey, unknown_pkey):
     cur = conn.cursor()
 
     cur.execute("""SELECT graph_node_type FROM graph_node WHERE pkey = ?""", (
@@ -1276,8 +1277,13 @@ def walk_and_mark_segment(conn, write_cur, graph_node_pkey, forward, segment_pke
         track_pkey = cur.fetchone()[0]
         assert track_pkey is not None
 
-        write_cur.execute("UPDATE track SET segment_pkey = ? WHERE pkey = ?",
-                (segment_pkey, track_pkey,))
+        cur.execute("SELECT segment_pkey FROM track WHERE pkey = ?",
+                (track_pkey,))
+        old_segment_pkey = cur.fetchone()[0]
+        if old_segment_pkey == unknown_pkey:
+            write_cur.execute(
+                    "UPDATE track SET segment_pkey = ? WHERE pkey = ?",
+                    (segment_pkey, track_pkey,))
 
     if forward:
         cur.execute("""
@@ -1291,7 +1297,8 @@ SELECT src_graph_node_pkey FROM graph_edge WHERE dest_graph_node_pkey = ?
         next_nodes = cur.fetchall()
 
     if len(next_nodes) == 1:
-        walk_and_mark_segment(conn, write_cur, next_nodes[0][0], forward, segment_pkey)
+        walk_and_mark_segment(conn, write_cur, next_nodes[0][0], forward,
+                segment_pkey, unknown_pkey)
 
 
 def annotate_pin_feeds(conn):
@@ -1304,6 +1311,9 @@ def annotate_pin_feeds(conn):
     """
     write_cur = conn.cursor()
     cur = conn.cursor()
+
+    cur.execute("SELECT pkey FROM segment WHERE name = ?", ("unknown",))
+    unknown_pkey = cur.fetchone()[0]
 
     cur.execute("SELECT pkey FROM segment WHERE name = ?", ("INPINFEED",))
     inpinfeed_pkey = cur.fetchone()[0]
@@ -1320,7 +1330,7 @@ FROM graph_node
 WHERE graph_node.graph_node_type = ?
         """, (NodeType.OPIN.value,)):
         walk_and_mark_segment(conn, write_cur, graph_node_pkey, forward=True,
-                segment_pkey=outpinfeed_pkey)
+                segment_pkey=outpinfeed_pkey, unknown_pkey=unknown_pkey)
 
     # Walk from IPIN's next.
     for (graph_node_pkey,) in cur.execute("""
@@ -1329,7 +1339,7 @@ FROM graph_node
 WHERE graph_node.graph_node_type = ?
         """, (NodeType.IPIN.value,)):
         walk_and_mark_segment(conn, write_cur, graph_node_pkey, forward=False,
-                segment_pkey=inpinfeed_pkey)
+                segment_pkey=inpinfeed_pkey, unknown_pkey=unknown_pkey)
 
     write_cur.execute("""COMMIT TRANSACTION;""")
 
