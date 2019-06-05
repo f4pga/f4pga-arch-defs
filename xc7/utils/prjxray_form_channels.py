@@ -291,10 +291,10 @@ WHERE
                 intrinsic_delay = site_pin.timing.delays[PvtCorner.SLOW
                                                          ].max / 1e9
 
-                if isinstance(site_pin.timing, prjxray.tile.OutpinTiming):
+                if isinstance(site_pin.timing, prjxray.tile.OutPinTiming):
                     # milliOhms -> Ohms
                     drive_resistance = site_pin.timing.drive_resistance / 1e3
-                elif isinstance(site_pin.timing, prjxray.tile.InpinTiming):
+                elif isinstance(site_pin.timing, prjxray.tile.InPinTiming):
                     # microFarads -> Farads
                     capacitance = site_pin.timing.capacitance / 1e6
                 else:
