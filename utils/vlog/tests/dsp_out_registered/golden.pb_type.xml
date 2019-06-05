@@ -5,10 +5,10 @@
   <clock name="clk" num_pins="1"/>
   <input name="m" num_pins="1"/>
   <output name="out" num_pins="64"/>
-  <pb_type blif_model=".subckt dsp_combinational" name="dsp_combinational" num_pb="1">
+  <pb_type blif_model=".subckt DSP_COMBINATIONAL" name="dsp_combinational" num_pb="1">
     <xi:include href="../dsp_combinational/dsp_combinational.pb_type.xml" xpointer="xpointer(pb_type/child::node())"/>
   </pb_type>
-  <pb_type blif_model=".subckt dff" name="dff" num_pb="64">
+  <pb_type blif_model=".subckt DFF" name="dff" num_pb="64">
     <xi:include href="../fig42-dff/dff.pb_type.xml" xpointer="xpointer(pb_type/child::node())"/>
   </pb_type>
   <interconnect>
