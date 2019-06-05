@@ -38,46 +38,46 @@
     <T_clock_to_Q clock="clk" max="10e-12" port="combb.cout"/>
   </pb_type>
   <interconnect>
-    <direct input="MULTIPLE_INSTANCE.a[3]" name="comba[3]-a" output="comba[3].a"/>
-    <direct input="MULTIPLE_INSTANCE.b[3]" name="comba[3]-b" output="comba[3].b"/>
-    <direct input="MULTIPLE_INSTANCE.cin" name="comba[0]-cin" output="comba[0].cin"/>
-    <direct input="MULTIPLE_INSTANCE.cin" name="comba[1]-cin" output="comba[1].cin"/>
-    <direct input="MULTIPLE_INSTANCE.cin" name="comba[2]-cin" output="comba[2].cin"/>
-    <direct input="MULTIPLE_INSTANCE.cin" name="comba[3]-cin" output="comba[3].cin"/>
+    <direct input="combb[3].cout" name="MULTIPLE_INSTANCE-cout" output="MULTIPLE_INSTANCE.cout"/>
+    <direct input="comba[0].sum" name="MULTIPLE_INSTANCE-sum[0]" output="MULTIPLE_INSTANCE.sum[0]"/>
+    <direct input="comba[1].sum" name="MULTIPLE_INSTANCE-sum[1]" output="MULTIPLE_INSTANCE.sum[1]"/>
+    <direct input="comba[2].sum" name="MULTIPLE_INSTANCE-sum[2]" output="MULTIPLE_INSTANCE.sum[2]"/>
     <direct input="comba[3].sum" name="MULTIPLE_INSTANCE-sum[3]" output="MULTIPLE_INSTANCE.sum[3]"/>
+    <direct input="combb[0].sum" name="MULTIPLE_INSTANCE-sum[4]" output="MULTIPLE_INSTANCE.sum[4]"/>
+    <direct input="combb[1].sum" name="MULTIPLE_INSTANCE-sum[5]" output="MULTIPLE_INSTANCE.sum[5]"/>
+    <direct input="combb[2].sum" name="MULTIPLE_INSTANCE-sum[6]" output="MULTIPLE_INSTANCE.sum[6]"/>
+    <direct input="combb[3].sum" name="MULTIPLE_INSTANCE-sum[7]" output="MULTIPLE_INSTANCE.sum[7]"/>
     <direct input="MULTIPLE_INSTANCE.a[0]" name="comba[0]-a" output="comba[0].a"/>
     <direct input="MULTIPLE_INSTANCE.b[0]" name="comba[0]-b" output="comba[0].b"/>
-    <direct input="comba[0].sum" name="MULTIPLE_INSTANCE-sum[0]" output="MULTIPLE_INSTANCE.sum[0]"/>
+    <direct input="MULTIPLE_INSTANCE.cin" name="comba[0]-cin" output="comba[0].cin"/>
     <direct input="MULTIPLE_INSTANCE.a[1]" name="comba[1]-a" output="comba[1].a"/>
     <direct input="MULTIPLE_INSTANCE.b[1]" name="comba[1]-b" output="comba[1].b"/>
-    <direct input="comba[1].sum" name="MULTIPLE_INSTANCE-sum[1]" output="MULTIPLE_INSTANCE.sum[1]"/>
+    <direct input="MULTIPLE_INSTANCE.cin" name="comba[1]-cin" output="comba[1].cin"/>
     <direct input="MULTIPLE_INSTANCE.a[2]" name="comba[2]-a" output="comba[2].a"/>
     <direct input="MULTIPLE_INSTANCE.b[2]" name="comba[2]-b" output="comba[2].b"/>
-    <direct input="comba[2].sum" name="MULTIPLE_INSTANCE-sum[2]" output="MULTIPLE_INSTANCE.sum[2]"/>
+    <direct input="MULTIPLE_INSTANCE.cin" name="comba[2]-cin" output="comba[2].cin"/>
+    <direct input="MULTIPLE_INSTANCE.a[3]" name="comba[3]-a" output="comba[3].a"/>
+    <direct input="MULTIPLE_INSTANCE.b[3]" name="comba[3]-b" output="comba[3].b"/>
+    <direct input="MULTIPLE_INSTANCE.cin" name="comba[3]-cin" output="comba[3].cin"/>
     <direct input="MULTIPLE_INSTANCE.c[0]" name="combb[0]-a" output="combb[0].a"/>
     <direct input="MULTIPLE_INSTANCE.d[0]" name="combb[0]-b" output="combb[0].b"/>
     <direct input="comba[0].cout" name="combb[0]-cin" output="combb[0].cin">
       <pack_pattern in_port="comba[0].cout" name="carry-ADDER" out_port="combb[0].cin"/>
     </direct>
-    <direct input="combb[0].sum" name="MULTIPLE_INSTANCE-sum[4]" output="MULTIPLE_INSTANCE.sum[4]"/>
     <direct input="MULTIPLE_INSTANCE.c[1]" name="combb[1]-a" output="combb[1].a"/>
     <direct input="MULTIPLE_INSTANCE.d[1]" name="combb[1]-b" output="combb[1].b"/>
     <direct input="comba[1].cout" name="combb[1]-cin" output="combb[1].cin">
       <pack_pattern in_port="comba[1].cout" name="carry-ADDER" out_port="combb[1].cin"/>
     </direct>
-    <direct input="combb[1].sum" name="MULTIPLE_INSTANCE-sum[5]" output="MULTIPLE_INSTANCE.sum[5]"/>
     <direct input="MULTIPLE_INSTANCE.c[2]" name="combb[2]-a" output="combb[2].a"/>
     <direct input="MULTIPLE_INSTANCE.d[2]" name="combb[2]-b" output="combb[2].b"/>
     <direct input="comba[2].cout" name="combb[2]-cin" output="combb[2].cin">
       <pack_pattern in_port="comba[2].cout" name="carry-ADDER" out_port="combb[2].cin"/>
     </direct>
-    <direct input="combb[2].sum" name="MULTIPLE_INSTANCE-sum[6]" output="MULTIPLE_INSTANCE.sum[6]"/>
     <direct input="MULTIPLE_INSTANCE.c[3]" name="combb[3]-a" output="combb[3].a"/>
     <direct input="MULTIPLE_INSTANCE.d[3]" name="combb[3]-b" output="combb[3].b"/>
     <direct input="comba[3].cout" name="combb[3]-cin" output="combb[3].cin">
       <pack_pattern in_port="comba[3].cout" name="carry-ADDER" out_port="combb[3].cin"/>
     </direct>
-    <direct input="combb[3].cout" name="MULTIPLE_INSTANCE-cout" output="MULTIPLE_INSTANCE.cout"/>
-    <direct input="combb[3].sum" name="MULTIPLE_INSTANCE-sum[7]" output="MULTIPLE_INSTANCE.sum[7]"/>
   </interconnect>
 </pb_type>

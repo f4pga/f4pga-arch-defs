@@ -1,11 +1,11 @@
 <?xml version="1.0"?>
 <pb_type xmlns:xi="http://www.w3.org/2001/XInclude" name="top" num_pb="1">
-  <pb_type blif_model=".subckt random" class="lut" name="top_inner" num_pb="1">
-    <other_tag/>
-  </pb_type>
   <pb_type name="middle" num_pb="1">
     <pb_type blif_model=".subckt random" class="lut" name="middle_inner" num_pb="1">
       <other_tag/>
     </pb_type>
+  </pb_type>
+  <pb_type blif_model=".subckt random" class="lut" name="top_inner" num_pb="1">
+    <other_tag/>
   </pb_type>
 </pb_type>
