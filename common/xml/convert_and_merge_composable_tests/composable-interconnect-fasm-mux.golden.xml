@@ -9,7 +9,6 @@
       <output name="o"/>
     </pb_type>
     <interconnect>
-      <direct input="child.o" name="parent-o" output="parent.o"/>
       <mux input="parent.i0 parent.i1" name="mux1" output="child.i">
         <metadata>
           <meta name="fasm_mux">
@@ -19,6 +18,7 @@ parent.i1 : b1
           <meta name="fasm_name">fasm_name</meta>
         </metadata>
       </mux>
+      <direct input="child.o" name="parent-o" output="parent.o"/>
     </interconnect>
   </pb_type>
 </xml>
