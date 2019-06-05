@@ -1,4 +1,4 @@
-<pb_type xmlns:xi="http://www.w3.org/2001/XInclude" name="dsp_combinational" blif_model=".subckt dsp_combinational" num_pb="1">
+<pb_type xmlns:xi="http://www.w3.org/2001/XInclude" name="DSP_COMBINATIONAL" blif_model=".subckt DSP_COMBINATIONAL" num_pb="1">
   <input name="a" num_pins="32"/>
   <input name="b" num_pins="32"/>
   <input name="m" num_pins="1"/>

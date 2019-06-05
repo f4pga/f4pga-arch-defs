@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <models>
-  <model name="block">
+  <model name="BLOCK">
     <input_ports>
       <port clock="c1" combinational_sink_ports="o1" name="a"/>
       <port clock="c2 c1" combinational_sink_ports="o2 o1" name="b"/>
