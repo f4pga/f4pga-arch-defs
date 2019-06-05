@@ -35,10 +35,20 @@ function(V2X_TEST_GENERIC)
   # pb_type checking
   set(GOLDEN_XML golden.${TYPE}.xml)
   add_file_target(FILE ${GOLDEN_XML} SCANNER_TYPE xml)
-  xml_canonicalize_merge(NAME ${NAME}_${TYPE}_golden_sort FILE ${GOLDEN_XML} OUTPUT ${NAME}.${TYPE}.golden.xml)
+  xml_canonicalize_merge(
+    NAME ${NAME}_${TYPE}_golden_sort
+    FILE ${GOLDEN_XML}
+    OUTPUT ${NAME}.${TYPE}.golden.xml
+    EXTRA_ARGUMENTS "-param" "strip_comments" "1"
+    )
 
   set(ACTUAL_XML ${NAME}.${TYPE}.xml)
-  xml_canonicalize_merge(NAME ${NAME}_${TYPE}_actual_sort FILE ${ACTUAL_XML} OUTPUT ${NAME}.${TYPE}.actual.xml)
+  xml_canonicalize_merge(
+    NAME ${NAME}_${TYPE}_actual_sort
+    FILE ${ACTUAL_XML}
+    OUTPUT ${NAME}.${TYPE}.actual.xml
+    EXTRA_ARGUMENTS "-param" "strip_comments" "1"
+    )
 
   diff(NAME ${NAME}_${TYPE}_diff GOLDEN ${NAME}.${TYPE}.golden.xml ACTUAL ${NAME}.${TYPE}.actual.xml)
 
