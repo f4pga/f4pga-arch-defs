@@ -73,7 +73,7 @@ parser.name_inputs = parser.add_argument(
     '--name-inputs',
     type=str,
     default=None,
-    help=
+    help=  # noqa: E251
     "Comma deliminator list for the name of each input to the mux (implies --split-inputs)."
 )
 
@@ -95,16 +95,16 @@ parser.name_selects = parser.add_argument(
     '--name-selects',
     type=str,
     default=None,
-    help=
+    help=  # noqa: E251
     "Comma deliminator list for the name of each select to the mux (implies --split-selects)."
 )
 
 parser.add_argument(
     '--order',
-    choices=[''.join(x) for x in itertools.permutations('ios')
-             ] + [''.join(x) for x in itertools.permutations('io')],
+    choices=[''.join(x) for x in itertools.permutations('ios')] +
+    [''.join(x) for x in itertools.permutations('io')],
     default='iso',
-    help=
+    help=  # noqa: E251
     """Order of the arguments for the MUX. (i - Inputs, o - Output, s - Select)"""
 )
 

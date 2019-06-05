@@ -52,7 +52,7 @@ def main(argv):
     args = parser.parse_args(argv[1:])
 
     if not args.verbose:
-        stderr = lambda *args, **kw: None
+        stderr = lambda *args, **kw: None  # noqa: E731
 
     stderr("Top level directory:", TOPDIR)
 
