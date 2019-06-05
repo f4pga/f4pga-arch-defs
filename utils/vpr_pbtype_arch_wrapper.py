@@ -237,7 +237,7 @@ def tile_xml(
     dirpath = os.path.dirname(outfile)
     xmlinc.include_xml(
         tile,
-        os.path.join(dirpath, "{}.pb_type.xml".format(name)),
+        os.path.join(dirpath, "{}.pb_type.xml".format(name.lower())),
         outfile,
     )
 
@@ -429,7 +429,7 @@ def main(args):
     models = arch_root.find("models")
     xmlinc.include_xml(
         models,
-        os.path.join(dirpath, "{}.model.xml".format(tname)),
+        os.path.join(dirpath, "{}.model.xml".format(tname.lower())),
         outfile,
         xptr="xpointer(models/child::node())",
     )
