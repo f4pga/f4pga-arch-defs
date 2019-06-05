@@ -167,7 +167,7 @@ def layout_xml(arch_xml: ET.Element, pbtype_xml: ET.Element) -> int:
     width, height = grid_size(tiles)
 
     layouts = arch_xml.find("layout")
-    l = ET.SubElement(
+    layout = ET.SubElement(
         layouts,
         "fixed_layout",
         {
@@ -179,7 +179,7 @@ def layout_xml(arch_xml: ET.Element, pbtype_xml: ET.Element) -> int:
             "height": str(max(width, height)),
         },
     )
-    l.append(ET.Comment('\n' + grid_format(tiles) + '\n'))
+    layout.append(ET.Comment('\n' + grid_format(tiles) + '\n'))
 
     for x, y in tiles.keys():
         v = tiles[(x, y)]
@@ -197,7 +197,7 @@ def layout_xml(arch_xml: ET.Element, pbtype_xml: ET.Element) -> int:
         else:
             raise Exception("Unknown tile type {}".format(v))
         ET.SubElement(
-            l, "single", {
+            layout, "single", {
                 "type": t,
                 "priority": "1",
                 "x": str(x),
