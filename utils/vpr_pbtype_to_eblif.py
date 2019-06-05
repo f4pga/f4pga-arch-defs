@@ -9,12 +9,9 @@ of v2x_test_both cmake function).
 """
 
 import argparse
-import math
 import os
 import os.path
-import subprocess
 import sys
-import tempfile
 
 from typing import List
 

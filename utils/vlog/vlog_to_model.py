@@ -16,15 +16,16 @@ The following Verilog attributes are considered on modules:
     instance. A model will not be generated for the `lut`, `routing` or `flipflop`
     class.
 """
-import argparse, re, json
-import os, sys
+import argparse
+import os
+import re
+import sys
 
 import lxml.etree as ET
 
 import yosys.run
 from yosys.json import YosysJSON
 
-sys.path.insert(0, "..")
 from lib import xmlinc
 
 
@@ -126,14 +127,16 @@ else:
         top = wm.group(1).upper()
     else:
         print(
-            "ERROR file name not of format %.sim.v ({}), cannot detect top level. Manually specify the top level module using --top"
+            """ERROR file name not of format %.sim.v ({}), cannot detect top level.
+            Manually specify the top level module using --top"""
         ).format(iname)
         sys.exit(1)
     yj = YosysJSON(aig_json, top)
 
 if top is None:
     print(
-        "ERROR: more than one module in design, cannot detect top level. Manually specify the top level module using --top"
+        """ERROR: more than one module in design, cannot detect top level.
+        Manually specify the top level module using --top"""
     )
     sys.exit(1)
 

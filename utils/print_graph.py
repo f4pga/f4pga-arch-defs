@@ -19,7 +19,7 @@ def print_grid(g):
     bg = g.block_grid
     grid = bg.size
 
-    #print('Grid %dw x %dh' % (grid.width, grid.height))
+    # print('Grid %dw x %dh' % (grid.width, grid.height))
     col_widths = []
     for x in range(0, grid.width):
         col_widths.append(

@@ -156,13 +156,17 @@ def pb_type_xml(mux_type, mux_name, pins, subckt=None, num_pb=1, comment=""):
         pb_type_xml.append(ET.Comment(comment))
 
     for port in pins:
-        #assert port.index < port.width, (
-        #    "Pin index {} >= width {} for pin {} {}".format(port.index, port.width, port.name, port.pin_type))
+        # assert port.index < port.width, (
+        #     "Pin index {} >= width {} for pin {} {}".format(
+        #         port.index, port.width, port.name, port.pin_type
+        #     )
+        # )
         if mux_type == MuxType.ROUTING and port.pin_type == MuxPinType.SELECT:
             continue
 
-        assert port.width == 1 or port.data_width == 1, 'Only one of width(%d) or data_width(%d) may > 1 for pin %s' % (
-            port.width, port.data_width, port.name
+        assert port.width == 1 or port.data_width == 1, (
+            'Only one of width(%d) or data_width(%d) may > 1 for pin %s' %
+            (port.width, port.data_width, port.name)
         )
 
         if port.width == 1 and port.data_width > 1:

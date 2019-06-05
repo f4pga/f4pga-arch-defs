@@ -1,6 +1,9 @@
 #!/usr/bin/env python3
-import os, subprocess, re
-import tempfile, json
+import json
+import os
+import re
+import subprocess
+import tempfile
 import yosys.utils
 
 
@@ -73,7 +76,8 @@ def add_define(defname):
 
 
 def get_defines():
-    """Return a list of set Verilog defines, as a list of arguments to pass to Yosys `read_verilog`"""
+    """Return a list of set Verilog defines, as a list of arguments to pass to Yosys
+`read_verilog`"""
     return " ".join(["-D" + _ for _ in defines])
 
 
@@ -83,7 +87,8 @@ def add_include(path):
 
 
 def get_includes():
-    """Return a list of include directories, as a list of arguments to pass to Yosys `read_verilog`"""
+    """Return a list of include directories, as a list of arguments to pass to Yosys
+`read_verilog`"""
     return " ".join(["-I" + _ for _ in includes])
 
 

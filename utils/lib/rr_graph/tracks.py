@@ -191,9 +191,8 @@ class Tracks(object):
         if track.direction == 'X':
             pin_top = track.y_low == wire_y
             pin_bottom = track.y_low == wire_y - 1
-            adjacent_channel = (
-                (pin_top or pin_bottom)
-                and (track.x_low <= wire_x and wire_x <= track.x_high)
+            adjacent_channel = (pin_top or pin_bottom) and (
+                track.x_low <= wire_x and wire_x <= track.x_high
             )
 
             if adjacent_channel:
@@ -209,9 +208,8 @@ class Tracks(object):
         elif track.direction == 'Y':
             pin_right = track.x_low == wire_x
             pin_left = track.x_low == wire_x - 1
-            adjacent_channel = (
-                (pin_right or pin_left)
-                and (track.y_low <= wire_y and wire_y <= track.y_high)
+            adjacent_channel = (pin_right or pin_left) and (
+                track.y_low <= wire_y and wire_y <= track.y_high
             )
 
             if adjacent_channel:

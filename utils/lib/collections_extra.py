@@ -65,7 +65,7 @@ class MostlyReadOnly:
             current_value = getattr(self, key[1:])
             if new_value == current_value:
                 return
-            elif current_value != None:
+            elif current_value is not None:
                 raise AttributeError(
                     "{} is already set to {}, can't be changed".format(
                         key, current_value
