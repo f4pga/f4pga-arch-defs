@@ -57,7 +57,6 @@ from yosys.json import YosysJSON
 
 from lib import xmlinc
 
-
 INVALID_INSTANCE = -1
 
 
@@ -400,8 +399,19 @@ def make_pb_type(yj, mod):
     # will be included by another one
     pb_xml_attrs["num_pb"] = "1"
     pb_type_xml = ET.Element(
-        "pb_type", pb_xml_attrs, nsmap={'xi': xmlinc.xi_url}
+        "pb_type", {
+            "num_pb": "1",
+            "name": mod_pname
+        },
+        nsmap={'xi': xmlinc.xi_url}
     )
+
+    if 'blif_model' in pb_attrs:
+        ET.SubElement(pb_type_xml, "blif_model",
+                      {}).text = pb_attrs["blif_model"]
+    if 'class' in pb_attrs:
+        ET.SubElement(pb_type_xml, "pb_class", {}).text = pb_attrs["class"]
+
     # Process IOs
     clocks = yosys.run.list_clocks(args.infiles, mod.name)
     for name, width, bits, iodir in mod.ports:
