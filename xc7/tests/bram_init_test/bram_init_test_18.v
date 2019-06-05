@@ -1,15 +1,14 @@
 module ram0(
     // Read port
     input rdclk,
-    input [8:0] rdaddr,
-    output reg [31:0] do);
+    input [9:0] rdaddr,
+    output reg [15:0] do);
 
-    (* ram_style = "block" *) reg [31:0] ram[0:511];
-
+    (* ram_style = "block" *) reg [15:0] ram[0:1023];
 
     genvar i;
     generate
-        for(i=0; i<512; i=i+1)
+        for (i=0; i<1024; i=i+1)
         begin
             initial begin
                 ram[i] <= i;
@@ -61,29 +60,29 @@ module top (
         .rx_data_ready(rx_data_ready_wire)
     );
 
-    wire [8:0] read_address;
-    wire [31:0] read_data;
+    wire [9:0] read_address;
+    wire [15:0] read_data;
 
-    wire [8:0] rom_read_address;
-    reg [31:0] rom_read_data;
+    wire [9:0] rom_read_address;
+    reg [15:0] rom_read_data;
 
     always @(posedge clk) begin
-        rom_read_data[8:0] <= rom_read_address;
-        rom_read_data[31:9] <= 1'b0;
+        rom_read_data[9:0] <= rom_read_address;
+        rom_read_data[15:10] <= 1'b0;
     end
 
     wire loop_complete;
     wire error_detected;
     wire [7:0] error_state;
-    wire [8:0] error_address;
-    wire [31:0] expected_data;
-    wire [31:0] actual_data;
+    wire [9:0] error_address;
+    wire [15:0] expected_data;
+    wire [15:0] actual_data;
 
     ROM_TEST #(
-        .ADDR_WIDTH(9),
-        .DATA_WIDTH(32),
+        .ADDR_WIDTH(10),
+        .DATA_WIDTH(16),
         .ADDRESS_STEP(1),
-        .MAX_ADDRESS(511)
+        .MAX_ADDRESS(1023)
     ) dram_test (
         .rst(!nrst),
         .clk(clk),
@@ -103,7 +102,7 @@ module top (
     );
 
     ram0 #(
-    ) bram(
+    ) bram (
         // Read port
         .rdclk(clk),
         .rdaddr(read_address),
@@ -111,9 +110,9 @@ module top (
     );
 
     ERROR_OUTPUT_LOGIC #(
-        .DATA_WIDTH(32),
-        .ADDR_WIDTH(9)
-    ) output_logic(
+        .DATA_WIDTH(16),
+        .ADDR_WIDTH(10)
+    ) output_logic (
         .clk(clk),
         .rst(!nrst),
         .loop_complete(loop_complete),

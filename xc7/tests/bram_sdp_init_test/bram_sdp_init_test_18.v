@@ -1,12 +1,6 @@
 module ram0(
-    // Write port
-    input wrclk,
-    input [31:0] di,
-    input wren,
-    input [8:0] wraddr,
     // Read port
     input rdclk,
-    input rden,
     input [8:0] rdaddr,
     output reg [31:0] do);
 
@@ -15,7 +9,7 @@ module ram0(
 
     genvar i;
     generate
-        for(i=0; i<1024; i=i+1)
+        for (i=0; i<512; i=i+1)
         begin
             initial begin
                 ram[i] <= i;
@@ -23,22 +17,14 @@ module ram0(
         end
     endgenerate
 
-    always @ (posedge wrclk) begin
-        if(wren == 1) begin
-            ram[wraddr] <= di;
-        end
-    end
-
     always @ (posedge rdclk) begin
-        if(rden == 1) begin
-            do <= ram[rdaddr];
-        end
+        do <= ram[rdaddr];
     end
 
 endmodule
 
 module top (
-    input  clk,
+    input clk,
     input rx,
     output tx,
     input [15:0] sw,
@@ -75,12 +61,8 @@ module top (
         .rx_data_ready(rx_data_ready_wire)
     );
 
-    wire [8:0] write_address;
     wire [8:0] read_address;
     wire [31:0] read_data;
-    wire [31:0] write_data;
-    wire write_enable;
-    wire read_enable = !write_enable;
 
     wire [8:0] rom_read_address;
     reg [31:0] rom_read_data;
@@ -97,23 +79,17 @@ module top (
     wire [31:0] expected_data;
     wire [31:0] actual_data;
 
-    RAM_TEST #(
-        .ADDR_WIDTH(10),
+    ROM_TEST #(
+        .ADDR_WIDTH(9),
         .DATA_WIDTH(32),
-        .IS_DUAL_PORT(1),
         .ADDRESS_STEP(1),
-        .MAX_ADDRESS(511),
-        .LFSR_WIDTH(32),
-        .LFSR_POLY(32'h90000001)
+        .MAX_ADDRESS(511)
     ) dram_test (
         .rst(!nrst),
         .clk(clk),
         // Memory connection
         .read_data(read_data),
-        .write_data(write_data),
-        .write_enable(write_enable),
         .read_address(read_address),
-        .write_address(write_address),
         // INIT ROM connection
         .rom_read_data(rom_read_data),
         .rom_read_address(rom_read_address),
@@ -127,23 +103,17 @@ module top (
     );
 
     ram0 #(
-    ) bram(
-        // Write port
-        .wrclk(clk),
-        .di(write_data),
-        .wren(write_enable),
-        .wraddr(write_address),
+    ) bram (
         // Read port
         .rdclk(clk),
-        .rden(read_enable),
         .rdaddr(read_address),
         .do(read_data)
     );
 
     ERROR_OUTPUT_LOGIC #(
         .DATA_WIDTH(32),
-        .ADDR_WIDTH(10)
-    ) output_logic(
+        .ADDR_WIDTH(9)
+    ) output_logic (
         .clk(clk),
         .rst(!nrst),
         .loop_complete(loop_complete),
