@@ -15,13 +15,13 @@ import subprocess
 import sys
 import tempfile
 
-from typing import List, Dict, Sequence, Tuple
+from typing import List, Dict, Tuple
 
 import lxml.etree as ET
 
 from lib import xmlinc
 from lib.flatten import flatten
-from lib.pb_type import ports, find_leaf, Port
+from lib.pb_type import ports, find_leaf
 
 FILEDIR_PATH = os.path.abspath(os.path.join(os.path.dirname(__file__)))
 TEMPLATE_PATH = os.path.abspath(
@@ -167,19 +167,19 @@ def layout_xml(arch_xml: ET.Element, pbtype_xml: ET.Element) -> int:
     width, height = grid_size(tiles)
 
     layouts = arch_xml.find("layout")
-    l = ET.SubElement(
+    layout = ET.SubElement(
         layouts,
         "fixed_layout",
         {
             "name": "device",
             # FIXME: See https://github.com/verilog-to-routing/vtr-verilog-to-routing/issues/277
-            #"width":  str(width),
-            #"height":  str(height),
+            # "width":  str(width),
+            # "height":  str(height),
             "width": str(max(width, height)),
             "height": str(max(width, height)),
         },
     )
-    l.append(ET.Comment('\n' + grid_format(tiles) + '\n'))
+    layout.append(ET.Comment('\n' + grid_format(tiles) + '\n'))
 
     for x, y in tiles.keys():
         v = tiles[(x, y)]
@@ -197,7 +197,7 @@ def layout_xml(arch_xml: ET.Element, pbtype_xml: ET.Element) -> int:
         else:
             raise Exception("Unknown tile type {}".format(v))
         ET.SubElement(
-            l, "single", {
+            layout, "single", {
                 "type": t,
                 "priority": "1",
                 "x": str(x),
@@ -283,7 +283,7 @@ def tile_xml(
 
     # Clock pins
     for d, s in flatten(clocks):
-        input_tag = ET.SubElement(
+        ET.SubElement(
             tile,
             "clock",
             {
@@ -307,7 +307,7 @@ def tile_xml(
 
     # Input Pins
     for d, s in flatten(inputs):
-        input_tag = ET.SubElement(
+        ET.SubElement(
             tile,
             "input",
             {
@@ -331,7 +331,7 @@ def tile_xml(
 
     # Output Pins
     for s, d in flatten(outputs):
-        output_tag = ET.SubElement(
+        ET.SubElement(
             tile,
             "output",
             {

@@ -9,7 +9,6 @@ import sys
 import time
 
 from lib import argparse_extra
-from lib.asserts import assert_eq
 
 parser = argparse.ArgumentParser()
 parser.add_argument(

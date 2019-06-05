@@ -9,8 +9,6 @@ import argparse
 import fnmatch
 import logging
 import os.path
-import re
-import subprocess
 import sys
 
 from lib.argparse_extra import ActionStoreBool

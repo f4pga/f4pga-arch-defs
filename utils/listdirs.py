@@ -8,8 +8,6 @@ Excludes the files in the top level .excludes file.
 import argparse
 import fnmatch
 import os.path
-import re
-import subprocess
 import sys
 
 from lib.argparse_extra import ActionStoreBool
@@ -54,7 +52,7 @@ def main(argv):
     args = parser.parse_args(argv[1:])
 
     if not args.verbose:
-        stderr = lambda *args, **kw: None
+        stderr = lambda *args, **kw: None  # noqa: E731
 
     stderr("Top level directory:", TOPDIR)
 

@@ -6,7 +6,6 @@ and/or in AIG format. In any case, at minimum `proc` and usually `prep` should
 be used before outputting the JSON.
 """
 
-import os, sys
 import json
 import pprint
 
@@ -124,7 +123,6 @@ class YosysModule:
 
     def net_attr(self, netname, attr, defval=None):
         """Get an attribute of a given net (specified by name), or defval is not set"""
-        pnet = None
         if attr in self.net_attrs(netname):
             return self.net_attrs(netname)[attr]
         else:
