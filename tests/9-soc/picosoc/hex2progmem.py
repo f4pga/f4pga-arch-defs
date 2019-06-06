@@ -11,7 +11,7 @@ then injected to a template file and as a result a new verilog file is written.
 The verilog template file name is hard coded as "progmem.v.template". The
 output file with the ROM is named "progmem.v".
 
-Important! The script assumes that the firmware is placed at 0x00100000 address 
+Important! The script assumes that the firmware is placed at 0x00100000 address
 and will convert to verilog content beginning at that address only !
 
 """
