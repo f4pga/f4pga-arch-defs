@@ -14,8 +14,16 @@ echo "Running tests"
 echo "----------------------------------------"
 (
 	cd build
+	echo
+	echo "make check_python"
 	make check_python --output-sync=target
+
+	echo
+	echo "make test_python"
 	make test_python --output-sync=target
+
+	echo
+	echo "make all"
 	make all --output-sync=target
 )
 echo "----------------------------------------"
