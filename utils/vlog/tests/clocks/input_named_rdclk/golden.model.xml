@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <models>
-  <model name="block">
+  <model name="BLOCK">
     <input_ports>
       <port name="a"/>
       <port name="rdclk" is_clock="1" />

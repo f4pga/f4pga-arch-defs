@@ -3,7 +3,7 @@
  * attribute.
  */
 (* whitebox *)
-module block(a, b, o);
+module BLOCK(a, b, o);
 	(* CLOCK *)
 	input wire a;
 	input wire b;

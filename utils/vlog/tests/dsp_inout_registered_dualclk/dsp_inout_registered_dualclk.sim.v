@@ -2,7 +2,7 @@
 `include "../dsp_combinational/dsp_combinational.sim.v"
 
 /* DSP Block with register on both the inputs and the output, which use different clocks */
-module dsp_inout_registered_dualclk (iclk, oclk, a, b, m, out);
+module DSP_INOUT_REGISTERED_DUALCLK (iclk, oclk, a, b, m, out);
 	localparam DATA_WIDTH = 64;
 
 	input wire iclk;
@@ -19,20 +19,20 @@ module dsp_inout_registered_dualclk (iclk, oclk, a, b, m, out);
 
 	genvar i;
 	for (i=0; i<DATA_WIDTH/2; i=i+1) begin: input_dffs_gen
-		dff q_a_ff(.d(a[i]), .q(q_a[i]), .clk(iclk));
-		dff q_b_ff(.d(b[i]), .q(q_b[i]), .clk(iclk));
+		DFF q_a_ff(.d(a[i]), .q(q_a[i]), .clk(iclk));
+		DFF q_b_ff(.d(b[i]), .q(q_b[i]), .clk(iclk));
 	end
-	dff m_ff(.d(m), .q(q_m), .clk(iclk));
+	DFF m_ff(.d(m), .q(q_m), .clk(iclk));
 
 	/* Combinational logic */
 	wire [DATA_WIDTH-1:0] c_out;
-	dsp_combinational comb (.a(q_a), .b(q_b), .m(q_m), .out(c_out));
+	DSP_COMBINATIONAL comb (.a(q_a), .b(q_b), .m(q_m), .out(c_out));
 
 	/* Output register on oclk */
 	wire [DATA_WIDTH-1:0] q_out;
 	genvar j;
 	for (j=0; j<DATA_WIDTH; j=j+1) begin: output_dffs_gen
-		dff q_out_ff(.d(c_out[j]), .q(q_out[j]), .clk(oclk));
+		DFF q_out_ff(.d(c_out[j]), .q(q_out[j]), .clk(oclk));
 	end
 
 	assign out = q_out;

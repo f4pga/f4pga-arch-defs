@@ -1,5 +1,5 @@
 <models xmlns:xi="http://www.w3.org/2001/XInclude">
-  <model name="simple_pll">
+  <model name="SIMPLE_PLL">
     <input_ports>
       <port name="in_clock" is_clock="1"/>
     </input_ports>

@@ -118,25 +118,32 @@ if args.includes:
 
 aig_json = yosys.run.vlog_to_json(args.infiles, flatten=True, aig=True)
 
+top = None
 if args.top is not None:
-    yj = YosysJSON(aig_json, args.top)
-    top = yj.top
+    top = args.top.upper()
 else:
-    wm = re.match(r"([A-Za-z0-9_]+)\.sim\.v", iname)
-    if wm:
-        top = wm.group(1).upper()
+    yj = YosysJSON(aig_json)
+    if yj.top is not None:
+        top = yj.top
     else:
-        print(
-            """ERROR file name not of format %.sim.v ({}), cannot detect top level.
-            Manually specify the top level module using --top"""
-        ).format(iname)
-        sys.exit(1)
-    yj = YosysJSON(aig_json, top)
+        wm = re.match(r"([A-Za-z0-9_]+)\.sim\.v", iname)
+        if wm:
+            top = wm.group(1).upper()
+        else:
+            print(
+                """\
+ERROR file name not of format %.sim.v ({}), cannot detect top level.
+Manually specify the top level module using --top"""
+            ).format(iname)
+            sys.exit(1)
 
+assert top is not None
+yj = YosysJSON(aig_json, top)
 if top is None:
     print(
-        """ERROR: more than one module in design, cannot detect top level.
-        Manually specify the top level module using --top"""
+        """\
+ERROR: more than one module in design, cannot detect top level.
+Manually specify the top level module using --top"""
     )
     sys.exit(1)
 
@@ -181,6 +188,8 @@ if len(deps_files) > 0:
 else:
     # Is a leaf model
     topname = tmod.attr("MODEL_NAME", top)
+    assert topname == topname.upper(
+    ), "Leaf model names should be all uppercase!"
     modclass = tmod.attr("CLASS", "")
 
     if modclass not in ("lut", "routing", "flipflop"):

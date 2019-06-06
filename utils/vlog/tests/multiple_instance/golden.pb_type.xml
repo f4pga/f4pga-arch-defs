@@ -1,1293 +1,209 @@
 <?xml version='1.0' encoding='utf-8'?>
-<pb_type xmlns:xi="http://www.w3.org/2001/XInclude" name="multiple_instance" num_pb="1">
-  <input  name="a"    num_pins="64"/>
-  <input  name="b"    num_pins="64"/>
-  <input  name="cin"  num_pins="64"/>
-  <output name="cout" num_pins="64"/>
-  <output name="sum"  num_pins="64"/>
-  <pb_type blif_model=".subckt adder" name="adder" num_pb="64">
-    <xi:include href="../fig41-full-adder/adder.pb_type.xml" xpointer="xpointer(pb_type/child::node())" />
+<pb_type xmlns:xi="http://www.w3.org/2001/XInclude" name="MULTIPLE_INSTANCE" num_pb="1">
+  <input  name="a"    num_pins="4"/>
+  <!-- FIXME: Current hack to work around lack of carry -->
+  <output name="a2b"  num_pins="4"/>
+  <input  name="b"    num_pins="4"/>
+  <input  name="c"    num_pins="4"/>
+  <!-- FIXME: cin/cout should be marked as carry -->
+  <input  name="cin"  num_pins="4"/>
+  <output name="cout" num_pins="4"/>
+  <input  name="d"    num_pins="4"/>
+  <output name="sum"  num_pins="8"/>
+  <pb_type blif_model=".subckt ADDER" name="adder" num_pb="8">
+    <xi:include href="../fig41-full-adder/adder.pb_type.xml" xpointer="xpointer(pb_type/child::node())"/>
   </pb_type>
   <interconnect>
+
+    <!-- 1st - a+b -> sum -->
     <direct>
-      <port name="a[0]" type="input"/>
-      <port from="adder[0]" name="a" type="output"/>
+      <port                 name="a[0]"   type="input"  />
+      <port from="adder[2]" name="a"      type="output" />
     </direct>
     <direct>
-      <port name="b[0]" type="input"/>
-      <port from="adder[0]" name="b" type="output"/>
+      <port                 name="b[0]"   type="input"  />
+      <port from="adder[2]" name="b"      type="output" />
     </direct>
     <direct>
-      <port name="cin[0]" type="input"/>
-      <port from="adder[0]" name="cin" type="output"/>
+      <port from="adder[2]" name="sum"    type="input"  />
+      <port                 name="sum[0]" type="output" />
     </direct>
+
+    <!-- 2nd - a+b -> sum -->
     <direct>
-      <port from="adder[0]" name="cout" type="input"/>
-      <port name="cout[0]" type="output"/>
+      <port                 name="a[1]"   type="input"  />
+      <port from="adder[4]" name="a"      type="output" />
     </direct>
     <direct>
-      <port from="adder[0]" name="sum" type="input"/>
-      <port name="sum[0]" type="output"/>
+      <port                 name="b[1]"   type="input"  />
+      <port from="adder[4]" name="b"      type="output" />
     </direct>
     <direct>
-      <port name="a[10]" type="input"/>
-      <port from="adder[1]" name="a" type="output"/>
+      <port from="adder[4]" name="sum"    type="input"  />
+      <port                 name="sum[1]" type="output" />
     </direct>
+
+    <!-- 3rd - a+b -> sum -->
     <direct>
-      <port name="b[10]" type="input"/>
-      <port from="adder[1]" name="b" type="output"/>
+      <port                 name="a[2]"   type="input"/>
+      <port from="adder[6]" name="a"      type="output"/>
     </direct>
     <direct>
-      <port name="cin[10]" type="input"/>
-      <port from="adder[1]" name="cin" type="output"/>
+      <port                 name="b[2]"   type="input"/>
+      <port from="adder[6]" name="b"      type="output"/>
     </direct>
     <direct>
-      <port from="adder[1]" name="cout" type="input"/>
-      <port name="cout[10]" type="output"/>
+      <port from="adder[6]" name="sum"    type="input"/>
+      <port                 name="sum[2]" type="output"/>
     </direct>
+
+    <!-- 4th - a+b -> sum -->
     <direct>
-      <port from="adder[1]" name="sum" type="input"/>
-      <port name="sum[10]" type="output"/>
+      <port                 name="a[3]"   type="input"  />
+      <port from="adder[0]" name="a"      type="output" />
     </direct>
     <direct>
-      <port name="a[11]" type="input"/>
-      <port from="adder[2]" name="a" type="output"/>
+      <port                 name="b[3]"   type="input"  />
+      <port from="adder[0]" name="b"      type="output" />
     </direct>
     <direct>
-      <port name="b[11]" type="input"/>
-      <port from="adder[2]" name="b" type="output"/>
+      <port from="adder[0]" name="sum"    type="input"  />
+      <port                 name="sum[3]" type="output" />
     </direct>
+
+    <!-- 1st - c+d -> sum -->
     <direct>
-      <port name="cin[11]" type="input"/>
-      <port from="adder[2]" name="cin" type="output"/>
+      <port                 name="c[0]"   type="input"/>
+      <port from="adder[3]" name="a"      type="output"/>
     </direct>
     <direct>
-      <port from="adder[2]" name="cout" type="input"/>
-      <port name="cout[11]" type="output"/>
+      <port                 name="d[0]"   type="input"/>
+      <port from="adder[3]" name="b"      type="output"/>
     </direct>
     <direct>
-      <port from="adder[2]" name="sum" type="input"/>
-      <port name="sum[11]" type="output"/>
+      <port from="adder[3]" name="sum"    type="input"/>
+      <port                 name="sum[4]" type="output"/>
     </direct>
+
+    <!-- 2nd - c+d -> sum -->
     <direct>
-      <port name="a[12]" type="input"/>
-      <port from="adder[3]" name="a" type="output"/>
+      <port                 name="c[1]"   type="input"/>
+      <port from="adder[5]" name="a"      type="output"/>
     </direct>
     <direct>
-      <port name="b[12]" type="input"/>
-      <port from="adder[3]" name="b" type="output"/>
+      <port                 name="d[1]"   type="input"/>
+      <port from="adder[5]" name="b"      type="output"/>
     </direct>
     <direct>
-      <port name="cin[12]" type="input"/>
-      <port from="adder[3]" name="cin" type="output"/>
+      <port from="adder[5]" name="sum"    type="input"/>
+      <port                 name="sum[5]" type="output"/>
     </direct>
+
+    <!-- 3rd - c+d -> sum -->
     <direct>
-      <port from="adder[3]" name="cout" type="input"/>
-      <port name="cout[12]" type="output"/>
+      <port                 name="c[2]"   type="input"/>
+      <port from="adder[7]" name="a"      type="output"/>
     </direct>
     <direct>
-      <port from="adder[3]" name="sum" type="input"/>
-      <port name="sum[12]" type="output"/>
+      <port                 name="d[2]"   type="input"/>
+      <port from="adder[7]" name="b"      type="output"/>
     </direct>
     <direct>
-      <port name="a[13]" type="input"/>
-      <port from="adder[4]" name="a" type="output"/>
+      <port from="adder[7]" name="sum"    type="input"/>
+      <port                 name="sum[6]" type="output"/>
     </direct>
+
+    <!-- 4th - c+d -> sum -->
     <direct>
-      <port name="b[13]" type="input"/>
-      <port from="adder[4]" name="b" type="output"/>
+      <port                 name="c[3]"   type="input"/>
+      <port from="adder[1]" name="a"      type="output"/>
     </direct>
     <direct>
-      <port name="cin[13]" type="input"/>
-      <port from="adder[4]" name="cin" type="output"/>
+      <port                 name="d[3]"   type="input"/>
+      <port from="adder[1]" name="b"      type="output"/>
     </direct>
     <direct>
-      <port from="adder[4]" name="cout" type="input"/>
-      <port name="cout[13]" type="output"/>
+      <port from="adder[1]" name="sum"    type="input"/>
+      <port                 name="sum[7]" type="output"/>
     </direct>
+
+    <!-- Carry chains -->
+
+    <!-- FIXME: Hack until carries work -->
     <direct>
-      <port from="adder[4]" name="sum" type="input"/>
-      <port name="sum[13]" type="output"/>
+      <port from="adder[2]" name="cout"   type="input"  />
+      <port                 name="a2b[0]" type="output" />
     </direct>
     <direct>
-      <port name="a[14]" type="input"/>
-      <port from="adder[5]" name="a" type="output"/>
+      <port from="adder[4]" name="cout"   type="input"  />
+      <port                 name="a2b[1]" type="output" />
     </direct>
     <direct>
-      <port name="b[14]" type="input"/>
-      <port from="adder[5]" name="b" type="output"/>
+      <port from="adder[6]" name="cout"   type="input"  />
+      <port                 name="a2b[2]" type="output" />
     </direct>
     <direct>
-      <port name="cin[14]" type="input"/>
-      <port from="adder[5]" name="cin" type="output"/>
+      <port from="adder[0]" name="cout"    type="input"  />
+      <port                 name="a2b[3]"  type="output" />
     </direct>
+
+
+    <!-- cin -> 1st a+b -> 1st c+d -> cout -->
     <direct>
-      <port from="adder[5]" name="cout" type="input"/>
-      <port name="cout[14]" type="output"/>
+      <port                 name="cin[0]"  type="input"  />
+      <port from="adder[2]" name="cin"     type="output" />
     </direct>
     <direct>
-      <port from="adder[5]" name="sum" type="input"/>
-      <port name="sum[14]" type="output"/>
+      <port from="adder[2]" name="cout"    type="input"  />
+      <port from="adder[3]" name="cin"     type="output" />
     </direct>
     <direct>
-      <port name="a[15]" type="input"/>
-      <port from="adder[6]" name="a" type="output"/>
+      <port from="adder[3]" name="cout"    type="input"  />
+      <port                 name="cout[0]" type="output" />
     </direct>
+
+    <!-- cin -> 2nd a+b -> 2nd c+d -> cout -->
     <direct>
-      <port name="b[15]" type="input"/>
-      <port from="adder[6]" name="b" type="output"/>
+      <port                 name="cin[1]"  type="input"  />
+      <port from="adder[4]" name="cin"     type="output" />
     </direct>
     <direct>
-      <port name="cin[15]" type="input"/>
-      <port from="adder[6]" name="cin" type="output"/>
+      <port from="adder[4]" name="cout"    type="input"  />
+      <port from="adder[5]" name="cin"     type="output" />
     </direct>
     <direct>
-      <port from="adder[6]" name="cout" type="input"/>
-      <port name="cout[15]" type="output"/>
+      <port from="adder[5]" name="cout"    type="input"  />
+      <port                 name="cout[1]" type="output" />
     </direct>
+
+    <!-- cin -> 3rd a+b -> 3rd c+d -> cout -->
     <direct>
-      <port from="adder[6]" name="sum" type="input"/>
-      <port name="sum[15]" type="output"/>
+      <port                 name="cin[2]"  type="input"  />
+      <port from="adder[6]" name="cin"     type="output" />
     </direct>
     <direct>
-      <port name="a[16]" type="input"/>
-      <port from="adder[7]" name="a" type="output"/>
+      <port from="adder[6]" name="cout"    type="input"  />
+      <port from="adder[7]" name="cin"     type="output" />
     </direct>
     <direct>
-      <port name="b[16]" type="input"/>
-      <port from="adder[7]" name="b" type="output"/>
+      <port from="adder[7]" name="cout"    type="input"  />
+      <port                 name="cout[2]" type="output" />
     </direct>
+
+    <!-- cin -> 4th a+b -> 4th c+d -> cout -->
     <direct>
-      <port name="cin[16]" type="input"/>
-      <port from="adder[7]" name="cin" type="output"/>
+      <port                 name="cin[3]"  type="input"  />
+      <port from="adder[0]" name="cin"     type="output" />
     </direct>
     <direct>
-      <port from="adder[7]" name="cout" type="input"/>
-      <port name="cout[16]" type="output"/>
+      <port from="adder[0]" name="cout"    type="input"  />
+      <port from="adder[1]" name="cin"     type="output" />
     </direct>
     <direct>
-      <port from="adder[7]" name="sum" type="input"/>
-      <port name="sum[16]" type="output"/>
+      <port from="adder[1]" name="cout"    type="input"  />
+      <port                 name="cout[3]" type="output" />
     </direct>
-    <direct>
-      <port name="a[17]" type="input"/>
-      <port from="adder[8]" name="a" type="output"/>
-    </direct>
-    <direct>
-      <port name="b[17]" type="input"/>
-      <port from="adder[8]" name="b" type="output"/>
-    </direct>
-    <direct>
-      <port name="cin[17]" type="input"/>
-      <port from="adder[8]" name="cin" type="output"/>
-    </direct>
-    <direct>
-      <port from="adder[8]" name="cout" type="input"/>
-      <port name="cout[17]" type="output"/>
-    </direct>
-    <direct>
-      <port from="adder[8]" name="sum" type="input"/>
-      <port name="sum[17]" type="output"/>
-    </direct>
-    <direct>
-      <port name="a[18]" type="input"/>
-      <port from="adder[9]" name="a" type="output"/>
-    </direct>
-    <direct>
-      <port name="b[18]" type="input"/>
-      <port from="adder[9]" name="b" type="output"/>
-    </direct>
-    <direct>
-      <port name="cin[18]" type="input"/>
-      <port from="adder[9]" name="cin" type="output"/>
-    </direct>
-    <direct>
-      <port from="adder[9]" name="cout" type="input"/>
-      <port name="cout[18]" type="output"/>
-    </direct>
-    <direct>
-      <port from="adder[9]" name="sum" type="input"/>
-      <port name="sum[18]" type="output"/>
-    </direct>
-    <direct>
-      <port name="a[19]" type="input"/>
-      <port from="adder[10]" name="a" type="output"/>
-    </direct>
-    <direct>
-      <port name="b[19]" type="input"/>
-      <port from="adder[10]" name="b" type="output"/>
-    </direct>
-    <direct>
-      <port name="cin[19]" type="input"/>
-      <port from="adder[10]" name="cin" type="output"/>
-    </direct>
-    <direct>
-      <port from="adder[10]" name="cout" type="input"/>
-      <port name="cout[19]" type="output"/>
-    </direct>
-    <direct>
-      <port from="adder[10]" name="sum" type="input"/>
-      <port name="sum[19]" type="output"/>
-    </direct>
-    <direct>
-      <port name="a[1]" type="input"/>
-      <port from="adder[11]" name="a" type="output"/>
-    </direct>
-    <direct>
-      <port name="b[1]" type="input"/>
-      <port from="adder[11]" name="b" type="output"/>
-    </direct>
-    <direct>
-      <port name="cin[1]" type="input"/>
-      <port from="adder[11]" name="cin" type="output"/>
-    </direct>
-    <direct>
-      <port from="adder[11]" name="cout" type="input"/>
-      <port name="cout[1]" type="output"/>
-    </direct>
-    <direct>
-      <port from="adder[11]" name="sum" type="input"/>
-      <port name="sum[1]" type="output"/>
-    </direct>
-    <direct>
-      <port name="a[20]" type="input"/>
-      <port from="adder[12]" name="a" type="output"/>
-    </direct>
-    <direct>
-      <port name="b[20]" type="input"/>
-      <port from="adder[12]" name="b" type="output"/>
-    </direct>
-    <direct>
-      <port name="cin[20]" type="input"/>
-      <port from="adder[12]" name="cin" type="output"/>
-    </direct>
-    <direct>
-      <port from="adder[12]" name="cout" type="input"/>
-      <port name="cout[20]" type="output"/>
-    </direct>
-    <direct>
-      <port from="adder[12]" name="sum" type="input"/>
-      <port name="sum[20]" type="output"/>
-    </direct>
-    <direct>
-      <port name="a[21]" type="input"/>
-      <port from="adder[13]" name="a" type="output"/>
-    </direct>
-    <direct>
-      <port name="b[21]" type="input"/>
-      <port from="adder[13]" name="b" type="output"/>
-    </direct>
-    <direct>
-      <port name="cin[21]" type="input"/>
-      <port from="adder[13]" name="cin" type="output"/>
-    </direct>
-    <direct>
-      <port from="adder[13]" name="cout" type="input"/>
-      <port name="cout[21]" type="output"/>
-    </direct>
-    <direct>
-      <port from="adder[13]" name="sum" type="input"/>
-      <port name="sum[21]" type="output"/>
-    </direct>
-    <direct>
-      <port name="a[22]" type="input"/>
-      <port from="adder[14]" name="a" type="output"/>
-    </direct>
-    <direct>
-      <port name="b[22]" type="input"/>
-      <port from="adder[14]" name="b" type="output"/>
-    </direct>
-    <direct>
-      <port name="cin[22]" type="input"/>
-      <port from="adder[14]" name="cin" type="output"/>
-    </direct>
-    <direct>
-      <port from="adder[14]" name="cout" type="input"/>
-      <port name="cout[22]" type="output"/>
-    </direct>
-    <direct>
-      <port from="adder[14]" name="sum" type="input"/>
-      <port name="sum[22]" type="output"/>
-    </direct>
-    <direct>
-      <port name="a[23]" type="input"/>
-      <port from="adder[15]" name="a" type="output"/>
-    </direct>
-    <direct>
-      <port name="b[23]" type="input"/>
-      <port from="adder[15]" name="b" type="output"/>
-    </direct>
-    <direct>
-      <port name="cin[23]" type="input"/>
-      <port from="adder[15]" name="cin" type="output"/>
-    </direct>
-    <direct>
-      <port from="adder[15]" name="cout" type="input"/>
-      <port name="cout[23]" type="output"/>
-    </direct>
-    <direct>
-      <port from="adder[15]" name="sum" type="input"/>
-      <port name="sum[23]" type="output"/>
-    </direct>
-    <direct>
-      <port name="a[24]" type="input"/>
-      <port from="adder[16]" name="a" type="output"/>
-    </direct>
-    <direct>
-      <port name="b[24]" type="input"/>
-      <port from="adder[16]" name="b" type="output"/>
-    </direct>
-    <direct>
-      <port name="cin[24]" type="input"/>
-      <port from="adder[16]" name="cin" type="output"/>
-    </direct>
-    <direct>
-      <port from="adder[16]" name="cout" type="input"/>
-      <port name="cout[24]" type="output"/>
-    </direct>
-    <direct>
-      <port from="adder[16]" name="sum" type="input"/>
-      <port name="sum[24]" type="output"/>
-    </direct>
-    <direct>
-      <port name="a[25]" type="input"/>
-      <port from="adder[17]" name="a" type="output"/>
-    </direct>
-    <direct>
-      <port name="b[25]" type="input"/>
-      <port from="adder[17]" name="b" type="output"/>
-    </direct>
-    <direct>
-      <port name="cin[25]" type="input"/>
-      <port from="adder[17]" name="cin" type="output"/>
-    </direct>
-    <direct>
-      <port from="adder[17]" name="cout" type="input"/>
-      <port name="cout[25]" type="output"/>
-    </direct>
-    <direct>
-      <port from="adder[17]" name="sum" type="input"/>
-      <port name="sum[25]" type="output"/>
-    </direct>
-    <direct>
-      <port name="a[26]" type="input"/>
-      <port from="adder[18]" name="a" type="output"/>
-    </direct>
-    <direct>
-      <port name="b[26]" type="input"/>
-      <port from="adder[18]" name="b" type="output"/>
-    </direct>
-    <direct>
-      <port name="cin[26]" type="input"/>
-      <port from="adder[18]" name="cin" type="output"/>
-    </direct>
-    <direct>
-      <port from="adder[18]" name="cout" type="input"/>
-      <port name="cout[26]" type="output"/>
-    </direct>
-    <direct>
-      <port from="adder[18]" name="sum" type="input"/>
-      <port name="sum[26]" type="output"/>
-    </direct>
-    <direct>
-      <port name="a[27]" type="input"/>
-      <port from="adder[19]" name="a" type="output"/>
-    </direct>
-    <direct>
-      <port name="b[27]" type="input"/>
-      <port from="adder[19]" name="b" type="output"/>
-    </direct>
-    <direct>
-      <port name="cin[27]" type="input"/>
-      <port from="adder[19]" name="cin" type="output"/>
-    </direct>
-    <direct>
-      <port from="adder[19]" name="cout" type="input"/>
-      <port name="cout[27]" type="output"/>
-    </direct>
-    <direct>
-      <port from="adder[19]" name="sum" type="input"/>
-      <port name="sum[27]" type="output"/>
-    </direct>
-    <direct>
-      <port name="a[28]" type="input"/>
-      <port from="adder[20]" name="a" type="output"/>
-    </direct>
-    <direct>
-      <port name="b[28]" type="input"/>
-      <port from="adder[20]" name="b" type="output"/>
-    </direct>
-    <direct>
-      <port name="cin[28]" type="input"/>
-      <port from="adder[20]" name="cin" type="output"/>
-    </direct>
-    <direct>
-      <port from="adder[20]" name="cout" type="input"/>
-      <port name="cout[28]" type="output"/>
-    </direct>
-    <direct>
-      <port from="adder[20]" name="sum" type="input"/>
-      <port name="sum[28]" type="output"/>
-    </direct>
-    <direct>
-      <port name="a[29]" type="input"/>
-      <port from="adder[21]" name="a" type="output"/>
-    </direct>
-    <direct>
-      <port name="b[29]" type="input"/>
-      <port from="adder[21]" name="b" type="output"/>
-    </direct>
-    <direct>
-      <port name="cin[29]" type="input"/>
-      <port from="adder[21]" name="cin" type="output"/>
-    </direct>
-    <direct>
-      <port from="adder[21]" name="cout" type="input"/>
-      <port name="cout[29]" type="output"/>
-    </direct>
-    <direct>
-      <port from="adder[21]" name="sum" type="input"/>
-      <port name="sum[29]" type="output"/>
-    </direct>
-    <direct>
-      <port name="a[2]" type="input"/>
-      <port from="adder[22]" name="a" type="output"/>
-    </direct>
-    <direct>
-      <port name="b[2]" type="input"/>
-      <port from="adder[22]" name="b" type="output"/>
-    </direct>
-    <direct>
-      <port name="cin[2]" type="input"/>
-      <port from="adder[22]" name="cin" type="output"/>
-    </direct>
-    <direct>
-      <port from="adder[22]" name="cout" type="input"/>
-      <port name="cout[2]" type="output"/>
-    </direct>
-    <direct>
-      <port from="adder[22]" name="sum" type="input"/>
-      <port name="sum[2]" type="output"/>
-    </direct>
-    <direct>
-      <port name="a[30]" type="input"/>
-      <port from="adder[23]" name="a" type="output"/>
-    </direct>
-    <direct>
-      <port name="b[30]" type="input"/>
-      <port from="adder[23]" name="b" type="output"/>
-    </direct>
-    <direct>
-      <port name="cin[30]" type="input"/>
-      <port from="adder[23]" name="cin" type="output"/>
-    </direct>
-    <direct>
-      <port from="adder[23]" name="cout" type="input"/>
-      <port name="cout[30]" type="output"/>
-    </direct>
-    <direct>
-      <port from="adder[23]" name="sum" type="input"/>
-      <port name="sum[30]" type="output"/>
-    </direct>
-    <direct>
-      <port name="a[31]" type="input"/>
-      <port from="adder[24]" name="a" type="output"/>
-    </direct>
-    <direct>
-      <port name="b[31]" type="input"/>
-      <port from="adder[24]" name="b" type="output"/>
-    </direct>
-    <direct>
-      <port name="cin[31]" type="input"/>
-      <port from="adder[24]" name="cin" type="output"/>
-    </direct>
-    <direct>
-      <port from="adder[24]" name="cout" type="input"/>
-      <port name="cout[31]" type="output"/>
-    </direct>
-    <direct>
-      <port from="adder[24]" name="sum" type="input"/>
-      <port name="sum[31]" type="output"/>
-    </direct>
-    <direct>
-      <port name="a[32]" type="input"/>
-      <port from="adder[25]" name="a" type="output"/>
-    </direct>
-    <direct>
-      <port name="b[32]" type="input"/>
-      <port from="adder[25]" name="b" type="output"/>
-    </direct>
-    <direct>
-      <port name="cin[32]" type="input"/>
-      <port from="adder[25]" name="cin" type="output"/>
-    </direct>
-    <direct>
-      <port from="adder[25]" name="cout" type="input"/>
-      <port name="cout[32]" type="output"/>
-    </direct>
-    <direct>
-      <port from="adder[25]" name="sum" type="input"/>
-      <port name="sum[32]" type="output"/>
-    </direct>
-    <direct>
-      <port name="a[33]" type="input"/>
-      <port from="adder[26]" name="a" type="output"/>
-    </direct>
-    <direct>
-      <port name="b[33]" type="input"/>
-      <port from="adder[26]" name="b" type="output"/>
-    </direct>
-    <direct>
-      <port name="cin[33]" type="input"/>
-      <port from="adder[26]" name="cin" type="output"/>
-    </direct>
-    <direct>
-      <port from="adder[26]" name="cout" type="input"/>
-      <port name="cout[33]" type="output"/>
-    </direct>
-    <direct>
-      <port from="adder[26]" name="sum" type="input"/>
-      <port name="sum[33]" type="output"/>
-    </direct>
-    <direct>
-      <port name="a[34]" type="input"/>
-      <port from="adder[27]" name="a" type="output"/>
-    </direct>
-    <direct>
-      <port name="b[34]" type="input"/>
-      <port from="adder[27]" name="b" type="output"/>
-    </direct>
-    <direct>
-      <port name="cin[34]" type="input"/>
-      <port from="adder[27]" name="cin" type="output"/>
-    </direct>
-    <direct>
-      <port from="adder[27]" name="cout" type="input"/>
-      <port name="cout[34]" type="output"/>
-    </direct>
-    <direct>
-      <port from="adder[27]" name="sum" type="input"/>
-      <port name="sum[34]" type="output"/>
-    </direct>
-    <direct>
-      <port name="a[35]" type="input"/>
-      <port from="adder[28]" name="a" type="output"/>
-    </direct>
-    <direct>
-      <port name="b[35]" type="input"/>
-      <port from="adder[28]" name="b" type="output"/>
-    </direct>
-    <direct>
-      <port name="cin[35]" type="input"/>
-      <port from="adder[28]" name="cin" type="output"/>
-    </direct>
-    <direct>
-      <port from="adder[28]" name="cout" type="input"/>
-      <port name="cout[35]" type="output"/>
-    </direct>
-    <direct>
-      <port from="adder[28]" name="sum" type="input"/>
-      <port name="sum[35]" type="output"/>
-    </direct>
-    <direct>
-      <port name="a[36]" type="input"/>
-      <port from="adder[29]" name="a" type="output"/>
-    </direct>
-    <direct>
-      <port name="b[36]" type="input"/>
-      <port from="adder[29]" name="b" type="output"/>
-    </direct>
-    <direct>
-      <port name="cin[36]" type="input"/>
-      <port from="adder[29]" name="cin" type="output"/>
-    </direct>
-    <direct>
-      <port from="adder[29]" name="cout" type="input"/>
-      <port name="cout[36]" type="output"/>
-    </direct>
-    <direct>
-      <port from="adder[29]" name="sum" type="input"/>
-      <port name="sum[36]" type="output"/>
-    </direct>
-    <direct>
-      <port name="a[37]" type="input"/>
-      <port from="adder[30]" name="a" type="output"/>
-    </direct>
-    <direct>
-      <port name="b[37]" type="input"/>
-      <port from="adder[30]" name="b" type="output"/>
-    </direct>
-    <direct>
-      <port name="cin[37]" type="input"/>
-      <port from="adder[30]" name="cin" type="output"/>
-    </direct>
-    <direct>
-      <port from="adder[30]" name="cout" type="input"/>
-      <port name="cout[37]" type="output"/>
-    </direct>
-    <direct>
-      <port from="adder[30]" name="sum" type="input"/>
-      <port name="sum[37]" type="output"/>
-    </direct>
-    <direct>
-      <port name="a[38]" type="input"/>
-      <port from="adder[31]" name="a" type="output"/>
-    </direct>
-    <direct>
-      <port name="b[38]" type="input"/>
-      <port from="adder[31]" name="b" type="output"/>
-    </direct>
-    <direct>
-      <port name="cin[38]" type="input"/>
-      <port from="adder[31]" name="cin" type="output"/>
-    </direct>
-    <direct>
-      <port from="adder[31]" name="cout" type="input"/>
-      <port name="cout[38]" type="output"/>
-    </direct>
-    <direct>
-      <port from="adder[31]" name="sum" type="input"/>
-      <port name="sum[38]" type="output"/>
-    </direct>
-    <direct>
-      <port name="a[39]" type="input"/>
-      <port from="adder[32]" name="a" type="output"/>
-    </direct>
-    <direct>
-      <port name="b[39]" type="input"/>
-      <port from="adder[32]" name="b" type="output"/>
-    </direct>
-    <direct>
-      <port name="cin[39]" type="input"/>
-      <port from="adder[32]" name="cin" type="output"/>
-    </direct>
-    <direct>
-      <port from="adder[32]" name="cout" type="input"/>
-      <port name="cout[39]" type="output"/>
-    </direct>
-    <direct>
-      <port from="adder[32]" name="sum" type="input"/>
-      <port name="sum[39]" type="output"/>
-    </direct>
-    <direct>
-      <port name="a[3]" type="input"/>
-      <port from="adder[33]" name="a" type="output"/>
-    </direct>
-    <direct>
-      <port name="b[3]" type="input"/>
-      <port from="adder[33]" name="b" type="output"/>
-    </direct>
-    <direct>
-      <port name="cin[3]" type="input"/>
-      <port from="adder[33]" name="cin" type="output"/>
-    </direct>
-    <direct>
-      <port from="adder[33]" name="cout" type="input"/>
-      <port name="cout[3]" type="output"/>
-    </direct>
-    <direct>
-      <port from="adder[33]" name="sum" type="input"/>
-      <port name="sum[3]" type="output"/>
-    </direct>
-    <direct>
-      <port name="a[40]" type="input"/>
-      <port from="adder[34]" name="a" type="output"/>
-    </direct>
-    <direct>
-      <port name="b[40]" type="input"/>
-      <port from="adder[34]" name="b" type="output"/>
-    </direct>
-    <direct>
-      <port name="cin[40]" type="input"/>
-      <port from="adder[34]" name="cin" type="output"/>
-    </direct>
-    <direct>
-      <port from="adder[34]" name="cout" type="input"/>
-      <port name="cout[40]" type="output"/>
-    </direct>
-    <direct>
-      <port from="adder[34]" name="sum" type="input"/>
-      <port name="sum[40]" type="output"/>
-    </direct>
-    <direct>
-      <port name="a[41]" type="input"/>
-      <port from="adder[35]" name="a" type="output"/>
-    </direct>
-    <direct>
-      <port name="b[41]" type="input"/>
-      <port from="adder[35]" name="b" type="output"/>
-    </direct>
-    <direct>
-      <port name="cin[41]" type="input"/>
-      <port from="adder[35]" name="cin" type="output"/>
-    </direct>
-    <direct>
-      <port from="adder[35]" name="cout" type="input"/>
-      <port name="cout[41]" type="output"/>
-    </direct>
-    <direct>
-      <port from="adder[35]" name="sum" type="input"/>
-      <port name="sum[41]" type="output"/>
-    </direct>
-    <direct>
-      <port name="a[42]" type="input"/>
-      <port from="adder[36]" name="a" type="output"/>
-    </direct>
-    <direct>
-      <port name="b[42]" type="input"/>
-      <port from="adder[36]" name="b" type="output"/>
-    </direct>
-    <direct>
-      <port name="cin[42]" type="input"/>
-      <port from="adder[36]" name="cin" type="output"/>
-    </direct>
-    <direct>
-      <port from="adder[36]" name="cout" type="input"/>
-      <port name="cout[42]" type="output"/>
-    </direct>
-    <direct>
-      <port from="adder[36]" name="sum" type="input"/>
-      <port name="sum[42]" type="output"/>
-    </direct>
-    <direct>
-      <port name="a[43]" type="input"/>
-      <port from="adder[37]" name="a" type="output"/>
-    </direct>
-    <direct>
-      <port name="b[43]" type="input"/>
-      <port from="adder[37]" name="b" type="output"/>
-    </direct>
-    <direct>
-      <port name="cin[43]" type="input"/>
-      <port from="adder[37]" name="cin" type="output"/>
-    </direct>
-    <direct>
-      <port from="adder[37]" name="cout" type="input"/>
-      <port name="cout[43]" type="output"/>
-    </direct>
-    <direct>
-      <port from="adder[37]" name="sum" type="input"/>
-      <port name="sum[43]" type="output"/>
-    </direct>
-    <direct>
-      <port name="a[44]" type="input"/>
-      <port from="adder[38]" name="a" type="output"/>
-    </direct>
-    <direct>
-      <port name="b[44]" type="input"/>
-      <port from="adder[38]" name="b" type="output"/>
-    </direct>
-    <direct>
-      <port name="cin[44]" type="input"/>
-      <port from="adder[38]" name="cin" type="output"/>
-    </direct>
-    <direct>
-      <port from="adder[38]" name="cout" type="input"/>
-      <port name="cout[44]" type="output"/>
-    </direct>
-    <direct>
-      <port from="adder[38]" name="sum" type="input"/>
-      <port name="sum[44]" type="output"/>
-    </direct>
-    <direct>
-      <port name="a[45]" type="input"/>
-      <port from="adder[39]" name="a" type="output"/>
-    </direct>
-    <direct>
-      <port name="b[45]" type="input"/>
-      <port from="adder[39]" name="b" type="output"/>
-    </direct>
-    <direct>
-      <port name="cin[45]" type="input"/>
-      <port from="adder[39]" name="cin" type="output"/>
-    </direct>
-    <direct>
-      <port from="adder[39]" name="cout" type="input"/>
-      <port name="cout[45]" type="output"/>
-    </direct>
-    <direct>
-      <port from="adder[39]" name="sum" type="input"/>
-      <port name="sum[45]" type="output"/>
-    </direct>
-    <direct>
-      <port name="a[46]" type="input"/>
-      <port from="adder[40]" name="a" type="output"/>
-    </direct>
-    <direct>
-      <port name="b[46]" type="input"/>
-      <port from="adder[40]" name="b" type="output"/>
-    </direct>
-    <direct>
-      <port name="cin[46]" type="input"/>
-      <port from="adder[40]" name="cin" type="output"/>
-    </direct>
-    <direct>
-      <port from="adder[40]" name="cout" type="input"/>
-      <port name="cout[46]" type="output"/>
-    </direct>
-    <direct>
-      <port from="adder[40]" name="sum" type="input"/>
-      <port name="sum[46]" type="output"/>
-    </direct>
-    <direct>
-      <port name="a[47]" type="input"/>
-      <port from="adder[41]" name="a" type="output"/>
-    </direct>
-    <direct>
-      <port name="b[47]" type="input"/>
-      <port from="adder[41]" name="b" type="output"/>
-    </direct>
-    <direct>
-      <port name="cin[47]" type="input"/>
-      <port from="adder[41]" name="cin" type="output"/>
-    </direct>
-    <direct>
-      <port from="adder[41]" name="cout" type="input"/>
-      <port name="cout[47]" type="output"/>
-    </direct>
-    <direct>
-      <port from="adder[41]" name="sum" type="input"/>
-      <port name="sum[47]" type="output"/>
-    </direct>
-    <direct>
-      <port name="a[48]" type="input"/>
-      <port from="adder[42]" name="a" type="output"/>
-    </direct>
-    <direct>
-      <port name="b[48]" type="input"/>
-      <port from="adder[42]" name="b" type="output"/>
-    </direct>
-    <direct>
-      <port name="cin[48]" type="input"/>
-      <port from="adder[42]" name="cin" type="output"/>
-    </direct>
-    <direct>
-      <port from="adder[42]" name="cout" type="input"/>
-      <port name="cout[48]" type="output"/>
-    </direct>
-    <direct>
-      <port from="adder[42]" name="sum" type="input"/>
-      <port name="sum[48]" type="output"/>
-    </direct>
-    <direct>
-      <port name="a[49]" type="input"/>
-      <port from="adder[43]" name="a" type="output"/>
-    </direct>
-    <direct>
-      <port name="b[49]" type="input"/>
-      <port from="adder[43]" name="b" type="output"/>
-    </direct>
-    <direct>
-      <port name="cin[49]" type="input"/>
-      <port from="adder[43]" name="cin" type="output"/>
-    </direct>
-    <direct>
-      <port from="adder[43]" name="cout" type="input"/>
-      <port name="cout[49]" type="output"/>
-    </direct>
-    <direct>
-      <port from="adder[43]" name="sum" type="input"/>
-      <port name="sum[49]" type="output"/>
-    </direct>
-    <direct>
-      <port name="a[4]" type="input"/>
-      <port from="adder[44]" name="a" type="output"/>
-    </direct>
-    <direct>
-      <port name="b[4]" type="input"/>
-      <port from="adder[44]" name="b" type="output"/>
-    </direct>
-    <direct>
-      <port name="cin[4]" type="input"/>
-      <port from="adder[44]" name="cin" type="output"/>
-    </direct>
-    <direct>
-      <port from="adder[44]" name="cout" type="input"/>
-      <port name="cout[4]" type="output"/>
-    </direct>
-    <direct>
-      <port from="adder[44]" name="sum" type="input"/>
-      <port name="sum[4]" type="output"/>
-    </direct>
-    <direct>
-      <port name="a[50]" type="input"/>
-      <port from="adder[45]" name="a" type="output"/>
-    </direct>
-    <direct>
-      <port name="b[50]" type="input"/>
-      <port from="adder[45]" name="b" type="output"/>
-    </direct>
-    <direct>
-      <port name="cin[50]" type="input"/>
-      <port from="adder[45]" name="cin" type="output"/>
-    </direct>
-    <direct>
-      <port from="adder[45]" name="cout" type="input"/>
-      <port name="cout[50]" type="output"/>
-    </direct>
-    <direct>
-      <port from="adder[45]" name="sum" type="input"/>
-      <port name="sum[50]" type="output"/>
-    </direct>
-    <direct>
-      <port name="a[51]" type="input"/>
-      <port from="adder[46]" name="a" type="output"/>
-    </direct>
-    <direct>
-      <port name="b[51]" type="input"/>
-      <port from="adder[46]" name="b" type="output"/>
-    </direct>
-    <direct>
-      <port name="cin[51]" type="input"/>
-      <port from="adder[46]" name="cin" type="output"/>
-    </direct>
-    <direct>
-      <port from="adder[46]" name="cout" type="input"/>
-      <port name="cout[51]" type="output"/>
-    </direct>
-    <direct>
-      <port from="adder[46]" name="sum" type="input"/>
-      <port name="sum[51]" type="output"/>
-    </direct>
-    <direct>
-      <port name="a[52]" type="input"/>
-      <port from="adder[47]" name="a" type="output"/>
-    </direct>
-    <direct>
-      <port name="b[52]" type="input"/>
-      <port from="adder[47]" name="b" type="output"/>
-    </direct>
-    <direct>
-      <port name="cin[52]" type="input"/>
-      <port from="adder[47]" name="cin" type="output"/>
-    </direct>
-    <direct>
-      <port from="adder[47]" name="cout" type="input"/>
-      <port name="cout[52]" type="output"/>
-    </direct>
-    <direct>
-      <port from="adder[47]" name="sum" type="input"/>
-      <port name="sum[52]" type="output"/>
-    </direct>
-    <direct>
-      <port name="a[53]" type="input"/>
-      <port from="adder[48]" name="a" type="output"/>
-    </direct>
-    <direct>
-      <port name="b[53]" type="input"/>
-      <port from="adder[48]" name="b" type="output"/>
-    </direct>
-    <direct>
-      <port name="cin[53]" type="input"/>
-      <port from="adder[48]" name="cin" type="output"/>
-    </direct>
-    <direct>
-      <port from="adder[48]" name="cout" type="input"/>
-      <port name="cout[53]" type="output"/>
-    </direct>
-    <direct>
-      <port from="adder[48]" name="sum" type="input"/>
-      <port name="sum[53]" type="output"/>
-    </direct>
-    <direct>
-      <port name="a[54]" type="input"/>
-      <port from="adder[49]" name="a" type="output"/>
-    </direct>
-    <direct>
-      <port name="b[54]" type="input"/>
-      <port from="adder[49]" name="b" type="output"/>
-    </direct>
-    <direct>
-      <port name="cin[54]" type="input"/>
-      <port from="adder[49]" name="cin" type="output"/>
-    </direct>
-    <direct>
-      <port from="adder[49]" name="cout" type="input"/>
-      <port name="cout[54]" type="output"/>
-    </direct>
-    <direct>
-      <port from="adder[49]" name="sum" type="input"/>
-      <port name="sum[54]" type="output"/>
-    </direct>
-    <direct>
-      <port name="a[55]" type="input"/>
-      <port from="adder[50]" name="a" type="output"/>
-    </direct>
-    <direct>
-      <port name="b[55]" type="input"/>
-      <port from="adder[50]" name="b" type="output"/>
-    </direct>
-    <direct>
-      <port name="cin[55]" type="input"/>
-      <port from="adder[50]" name="cin" type="output"/>
-    </direct>
-    <direct>
-      <port from="adder[50]" name="cout" type="input"/>
-      <port name="cout[55]" type="output"/>
-    </direct>
-    <direct>
-      <port from="adder[50]" name="sum" type="input"/>
-      <port name="sum[55]" type="output"/>
-    </direct>
-    <direct>
-      <port name="a[56]" type="input"/>
-      <port from="adder[51]" name="a" type="output"/>
-    </direct>
-    <direct>
-      <port name="b[56]" type="input"/>
-      <port from="adder[51]" name="b" type="output"/>
-    </direct>
-    <direct>
-      <port name="cin[56]" type="input"/>
-      <port from="adder[51]" name="cin" type="output"/>
-    </direct>
-    <direct>
-      <port from="adder[51]" name="cout" type="input"/>
-      <port name="cout[56]" type="output"/>
-    </direct>
-    <direct>
-      <port from="adder[51]" name="sum" type="input"/>
-      <port name="sum[56]" type="output"/>
-    </direct>
-    <direct>
-      <port name="a[57]" type="input"/>
-      <port from="adder[52]" name="a" type="output"/>
-    </direct>
-    <direct>
-      <port name="b[57]" type="input"/>
-      <port from="adder[52]" name="b" type="output"/>
-    </direct>
-    <direct>
-      <port name="cin[57]" type="input"/>
-      <port from="adder[52]" name="cin" type="output"/>
-    </direct>
-    <direct>
-      <port from="adder[52]" name="cout" type="input"/>
-      <port name="cout[57]" type="output"/>
-    </direct>
-    <direct>
-      <port from="adder[52]" name="sum" type="input"/>
-      <port name="sum[57]" type="output"/>
-    </direct>
-    <direct>
-      <port name="a[58]" type="input"/>
-      <port from="adder[53]" name="a" type="output"/>
-    </direct>
-    <direct>
-      <port name="b[58]" type="input"/>
-      <port from="adder[53]" name="b" type="output"/>
-    </direct>
-    <direct>
-      <port name="cin[58]" type="input"/>
-      <port from="adder[53]" name="cin" type="output"/>
-    </direct>
-    <direct>
-      <port from="adder[53]" name="cout" type="input"/>
-      <port name="cout[58]" type="output"/>
-    </direct>
-    <direct>
-      <port from="adder[53]" name="sum" type="input"/>
-      <port name="sum[58]" type="output"/>
-    </direct>
-    <direct>
-      <port name="a[59]" type="input"/>
-      <port from="adder[54]" name="a" type="output"/>
-    </direct>
-    <direct>
-      <port name="b[59]" type="input"/>
-      <port from="adder[54]" name="b" type="output"/>
-    </direct>
-    <direct>
-      <port name="cin[59]" type="input"/>
-      <port from="adder[54]" name="cin" type="output"/>
-    </direct>
-    <direct>
-      <port from="adder[54]" name="cout" type="input"/>
-      <port name="cout[59]" type="output"/>
-    </direct>
-    <direct>
-      <port from="adder[54]" name="sum" type="input"/>
-      <port name="sum[59]" type="output"/>
-    </direct>
-    <direct>
-      <port name="a[5]" type="input"/>
-      <port from="adder[55]" name="a" type="output"/>
-    </direct>
-    <direct>
-      <port name="b[5]" type="input"/>
-      <port from="adder[55]" name="b" type="output"/>
-    </direct>
-    <direct>
-      <port name="cin[5]" type="input"/>
-      <port from="adder[55]" name="cin" type="output"/>
-    </direct>
-    <direct>
-      <port from="adder[55]" name="cout" type="input"/>
-      <port name="cout[5]" type="output"/>
-    </direct>
-    <direct>
-      <port from="adder[55]" name="sum" type="input"/>
-      <port name="sum[5]" type="output"/>
-    </direct>
-    <direct>
-      <port name="a[60]" type="input"/>
-      <port from="adder[56]" name="a" type="output"/>
-    </direct>
-    <direct>
-      <port name="b[60]" type="input"/>
-      <port from="adder[56]" name="b" type="output"/>
-    </direct>
-    <direct>
-      <port name="cin[60]" type="input"/>
-      <port from="adder[56]" name="cin" type="output"/>
-    </direct>
-    <direct>
-      <port from="adder[56]" name="cout" type="input"/>
-      <port name="cout[60]" type="output"/>
-    </direct>
-    <direct>
-      <port from="adder[56]" name="sum" type="input"/>
-      <port name="sum[60]" type="output"/>
-    </direct>
-    <direct>
-      <port name="a[61]" type="input"/>
-      <port from="adder[57]" name="a" type="output"/>
-    </direct>
-    <direct>
-      <port name="b[61]" type="input"/>
-      <port from="adder[57]" name="b" type="output"/>
-    </direct>
-    <direct>
-      <port name="cin[61]" type="input"/>
-      <port from="adder[57]" name="cin" type="output"/>
-    </direct>
-    <direct>
-      <port from="adder[57]" name="cout" type="input"/>
-      <port name="cout[61]" type="output"/>
-    </direct>
-    <direct>
-      <port from="adder[57]" name="sum" type="input"/>
-      <port name="sum[61]" type="output"/>
-    </direct>
-    <direct>
-      <port name="a[62]" type="input"/>
-      <port from="adder[58]" name="a" type="output"/>
-    </direct>
-    <direct>
-      <port name="b[62]" type="input"/>
-      <port from="adder[58]" name="b" type="output"/>
-    </direct>
-    <direct>
-      <port name="cin[62]" type="input"/>
-      <port from="adder[58]" name="cin" type="output"/>
-    </direct>
-    <direct>
-      <port from="adder[58]" name="cout" type="input"/>
-      <port name="cout[62]" type="output"/>
-    </direct>
-    <direct>
-      <port from="adder[58]" name="sum" type="input"/>
-      <port name="sum[62]" type="output"/>
-    </direct>
-    <direct>
-      <port name="a[63]" type="input"/>
-      <port from="adder[59]" name="a" type="output"/>
-    </direct>
-    <direct>
-      <port name="b[63]" type="input"/>
-      <port from="adder[59]" name="b" type="output"/>
-    </direct>
-    <direct>
-      <port name="cin[63]" type="input"/>
-      <port from="adder[59]" name="cin" type="output"/>
-    </direct>
-    <direct>
-      <port from="adder[59]" name="cout" type="input"/>
-      <port name="cout[63]" type="output"/>
-    </direct>
-    <direct>
-      <port from="adder[59]" name="sum" type="input"/>
-      <port name="sum[63]" type="output"/>
-    </direct>
-    <direct>
-      <port name="a[6]" type="input"/>
-      <port from="adder[60]" name="a" type="output"/>
-    </direct>
-    <direct>
-      <port name="b[6]" type="input"/>
-      <port from="adder[60]" name="b" type="output"/>
-    </direct>
-    <direct>
-      <port name="cin[6]" type="input"/>
-      <port from="adder[60]" name="cin" type="output"/>
-    </direct>
-    <direct>
-      <port from="adder[60]" name="cout" type="input"/>
-      <port name="cout[6]" type="output"/>
-    </direct>
-    <direct>
-      <port from="adder[60]" name="sum" type="input"/>
-      <port name="sum[6]" type="output"/>
-    </direct>
-    <direct>
-      <port name="a[7]" type="input"/>
-      <port from="adder[61]" name="a" type="output"/>
-    </direct>
-    <direct>
-      <port name="b[7]" type="input"/>
-      <port from="adder[61]" name="b" type="output"/>
-    </direct>
-    <direct>
-      <port name="cin[7]" type="input"/>
-      <port from="adder[61]" name="cin" type="output"/>
-    </direct>
-    <direct>
-      <port from="adder[61]" name="cout" type="input"/>
-      <port name="cout[7]" type="output"/>
-    </direct>
-    <direct>
-      <port from="adder[61]" name="sum" type="input"/>
-      <port name="sum[7]" type="output"/>
-    </direct>
-    <direct>
-      <port name="a[8]" type="input"/>
-      <port from="adder[62]" name="a" type="output"/>
-    </direct>
-    <direct>
-      <port name="b[8]" type="input"/>
-      <port from="adder[62]" name="b" type="output"/>
-    </direct>
-    <direct>
-      <port name="cin[8]" type="input"/>
-      <port from="adder[62]" name="cin" type="output"/>
-    </direct>
-    <direct>
-      <port from="adder[62]" name="cout" type="input"/>
-      <port name="cout[8]" type="output"/>
-    </direct>
-    <direct>
-      <port from="adder[62]" name="sum" type="input"/>
-      <port name="sum[8]" type="output"/>
-    </direct>
-    <direct>
-      <port name="a[9]" type="input"/>
-      <port from="adder[63]" name="a" type="output"/>
-    </direct>
-    <direct>
-      <port name="b[9]" type="input"/>
-      <port from="adder[63]" name="b" type="output"/>
-    </direct>
-    <direct>
-      <port name="cin[9]" type="input"/>
-      <port from="adder[63]" name="cin" type="output"/>
-    </direct>
-    <direct>
-      <port from="adder[63]" name="cout" type="input"/>
-      <port name="cout[9]" type="output"/>
-    </direct>
-    <direct>
-      <port from="adder[63]" name="sum" type="input"/>
-      <port name="sum[9]" type="output"/>
-    </direct>
+
+
   </interconnect>
 </pb_type>

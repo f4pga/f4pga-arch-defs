@@ -1,7 +1,7 @@
 `ifndef DSP_COMB
 `define DSP_COMB
 (* whitebox *)
-module dsp_combinational (
+module DSP_COMBINATIONAL (
 	a, b, m,
 	out
 );
