@@ -15,6 +15,10 @@ addons:
      - inkscape
      - make
 
+env:
+  global:
+    - MAKEFLAGS="-j 2"
+
 before_install:
  - source ./.github/travis/common.sh
 
