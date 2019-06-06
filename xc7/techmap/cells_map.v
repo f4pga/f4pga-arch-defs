@@ -1380,36 +1380,30 @@ module RAMB36E1 (
 
   initial begin
     _TECHMAP_FAIL_ <= 0;
-    if(READ_WIDTH_A != 0
-        && READ_WIDTH_A != 1
-        && READ_WIDTH_A != 4
-        && READ_WIDTH_A != 9
-        && READ_WIDTH_A != 18
-        && READ_WIDTH_A != 36
-        && READ_WIDTH_A != 72)
+
+  `define INVALID_WIDTH(x) \
+          ((x) != 0 \
+        && (x) != 1 \
+        && (x) != 2 \
+        && (x) != 4 \
+        && (x) != 9 \
+        && (x) != 18 \
+        && (x) != 36)
+  `define INVALID_WIDTH_WIDE(x) \
+     (`INVALID_WIDTH(x) \
+        && (x) != 72)
+
+    if(`INVALID_WIDTH_WIDE(READ_WIDTH_A))
         $error("Invalid READ_WIDTH_A: ", READ_WIDTH_A);
-    if(READ_WIDTH_B != 0
-        && READ_WIDTH_B != 1
-        && READ_WIDTH_B != 4
-        && READ_WIDTH_B != 9
-        && READ_WIDTH_B != 18
-        && READ_WIDTH_B != 36)
+    if(`INVALID_WIDTH(READ_WIDTH_B))
         $error("Invalid READ_WIDTH_B: ", READ_WIDTH_B);
-    if(WRITE_WIDTH_A != 0
-        && WRITE_WIDTH_A != 1
-        && WRITE_WIDTH_A != 4
-        && WRITE_WIDTH_A != 9
-        && WRITE_WIDTH_A != 18
-        && WRITE_WIDTH_A != 36)
+    if(`INVALID_WIDTH(WRITE_WIDTH_A))
         $error("Invalid WRITE_WIDTH_A: ", WRITE_WIDTH_A);
-    if(WRITE_WIDTH_B != 0
-        && WRITE_WIDTH_B != 1
-        && WRITE_WIDTH_B != 4
-        && WRITE_WIDTH_B != 9
-        && WRITE_WIDTH_B != 18
-        && WRITE_WIDTH_B != 36
-        && WRITE_WIDTH_B != 72)
+    if(`INVALID_WIDTH_WIDE(WRITE_WIDTH_B))
         $error("Invalid WRITE_WIDTH_B: ", WRITE_WIDTH_B);
+
+    `undef INVALID_WIDTH
+    `undef INVALID_WIDTH_WIDE
 
     if(READ_WIDTH_A > 36 && RAM_MODE != "SDP") begin
         $error("READ_WIDTH_A > 36 requires SDP mode.");
@@ -1426,7 +1420,7 @@ module RAMB36E1 (
 
   end
 
-if(RAM_MODE == "SDP" && READ_WIDTH_A == 72) begin
+if(RAM_MODE == "SDP" && READ_WIDTH_A > 36) begin
     localparam EFF_READ_WIDTH_A = 36;
     localparam EFF_READ_WIDTH_B = 36;
 end else begin
@@ -1434,7 +1428,7 @@ end else begin
     localparam EFF_READ_WIDTH_B = READ_WIDTH_B;
 end
 
-if(RAM_MODE == "SDP" && WRITE_WIDTH_B == 72) begin
+if(RAM_MODE == "SDP" && WRITE_WIDTH_B > 36) begin
     localparam EFF_WRITE_WIDTH_A = 36;
     localparam EFF_WRITE_WIDTH_B = 36;
 end else begin
@@ -1531,13 +1525,13 @@ end
       .``name``_18(EFF_``name`` == 36)
 
       `WIDTH_PARAM(READ_WIDTH_A),
-      .SDP_READ_WIDTH_36(READ_WIDTH_A == 72),
+      .SDP_READ_WIDTH_36(READ_WIDTH_A > 36),
       `WIDTH_PARAM(READ_WIDTH_B),
       `WIDTH_PARAM(WRITE_WIDTH_A),
       `WIDTH_PARAM(WRITE_WIDTH_B),
       `undef WIDTH_PARAM
 
-      .SDP_WRITE_WIDTH_36(WRITE_WIDTH_B == 72),
+      .SDP_WRITE_WIDTH_36(WRITE_WIDTH_B > 36),
       .WRITE_MODE_A_NO_CHANGE(WRITE_MODE_A == "NO_CHANGE" || (WRITE_MODE_A == "WRITE_FIRST" && RAM_MODE == "SDP")),
       .WRITE_MODE_A_READ_FIRST(WRITE_MODE_A == "READ_FIRST"),
       .WRITE_MODE_B_NO_CHANGE(WRITE_MODE_B == "NO_CHANGE" || (WRITE_MODE_B == "WRITE_FIRST" && RAM_MODE == "SDP")),
