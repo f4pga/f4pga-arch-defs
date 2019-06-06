@@ -27,9 +27,9 @@
         <pack_pattern in_port="parent.ia2" name="A2" out_port="childa.i2"/>
         <pack_pattern in_port="parent.ia3" name="A3" out_port="childa.i2"/>
       </mux>
-      <direct input="childa.o" name="parent-o0" output="parent.o0"/>
       <direct input="childa.o" name="childb-i" output="childb.i"/>
       <mux input="childa.o childb.o" name="childc-input" output="childc.i"/>
+      <direct input="childa.o" name="parent-o0" output="parent.o0"/>
       <mux input="childa.o childb.o childc.o" name="output" output="parent.o1"/>
     </interconnect>
   </pb_type>
