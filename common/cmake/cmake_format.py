@@ -48,7 +48,7 @@ additional_commands = {
             "SRCS": "+",
             "TOP_MODULE": "*",
         },
-    },
+    },  # noqa: E122
     "mux_gen":
         {
             "flags": [
