@@ -156,17 +156,18 @@ def main():
     tree = ET.parse(args.read_arch_xml, ET.XMLParser(remove_blank_text=True))
 
     scale = get_scale_seconds(timing['header']['timescale'])
-    #logging.info('sdf scale set to', scale)
+    # logging.info('sdf scale set to', scale)
 
     # flatten cells to list of max
     flat_timing = dict()
     for cell_name, cell in timing['cells'].items():
         flat_timing[cell_name] = []
         for instance_key, instance in cell.items():
-            assert instance_key == '*', \
-               'For iCE40 expect only wildcard instance {} in cell {}'.format(
-                   instance_key, cell_name
-               )
+            assert (
+                instance_key == '*'
+            ), "For iCE40 expect only wildcard instance {} in cell {}".format(
+                instance_key, cell_name
+            )
             for _, path in instance.items():
                 flat_timing[cell_name].append(path)
 
@@ -199,7 +200,7 @@ def main():
     # remove all existing tags and warn on them
 
     # iterate over existing arch and update/add delay tags
-    #root = tree.getroot()
+    # root = tree.getroot()
     for el in tree.iter('pb_type'):
         pb_name = el.attrib['name']
         # insert timing tags from SDF file
