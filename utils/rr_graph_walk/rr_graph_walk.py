@@ -9,10 +9,8 @@ import sys
 import argparse
 import gc
 from collections import namedtuple
-from copy import deepcopy
 
 import lxml.etree as ET
-import lxml.objectify as objectify
 
 from progressbar import progressbar
 
@@ -277,7 +275,7 @@ class RoutingGraph(object):
                 res = route_callback(self, route)
 
                 # Stop walk
-                if res != True:
+                if not res:
                     return
 
 
@@ -390,7 +388,7 @@ def main():
 
         # Check if we hit CHANX/CHANY if we do not want to output them then
         # skip those routes.
-        if args.chan_too != True:
+        if not args.chan_too:
             if endpoint.type == "CHANX" or endpoint.type == "CHANY":
                 return True
 
@@ -403,7 +401,7 @@ def main():
         save_route(route, route_file)
 
         # Print the route
-        if args.print == True:
+        if args.print:
             print_route(graph, route)
 
         # Hit anything

@@ -167,7 +167,7 @@ get_target_property_required(FLAKE8_TARGET env FLAKE8_TARGET)
 add_custom_target(
   lint_python
   DEPENDS ${FLAKE8_TARGET}
-  COMMAND ${symbiflow-arch-defs_SOURCE_DIR}/common/python_health_helper.sh -l -p "${FLAKE8} --exit-zero"
+  COMMAND ${symbiflow-arch-defs_SOURCE_DIR}/common/python_health_helper.sh -l -p "${FLAKE8}"
   )
 
 
