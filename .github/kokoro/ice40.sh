@@ -7,7 +7,7 @@ source ${SCRIPT_DIR}/common.sh
 
 echo
 echo "========================================"
-echo "Running ice40 tests"
+echo "Running ice40 tests (make all_ice40)"
 echo "----------------------------------------"
 (
 	cd build
