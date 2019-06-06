@@ -57,68 +57,6 @@ from yosys.json import YosysJSON
 
 from lib import xmlinc
 
-parser = argparse.ArgumentParser(
-    description=__doc__.strip(), formatter_class=argparse.RawTextHelpFormatter
-)
-parser.add_argument(
-    'infiles',
-    metavar='input.v',
-    type=str,
-    nargs='+',
-    help="""\
-One or more Verilog input files, that will be passed to Yosys internally.
-They should be enough to generate a flattened representation of the model,
-so that paths through the model can be determined.
-"""
-)
-parser.add_argument(
-    '--top',
-    help="""\
-Top level module, will usually be automatically determined from the file name
-%.sim.v
-"""
-)
-parser.add_argument(
-    '--includes',
-    help="""\
-Command seperate list of include directories.
-""",
-    default=""
-)
-parser.add_argument('-o', help="""\
-Output filename, default 'model.xml'
-""")
-
-args = parser.parse_args()
-iname = os.path.basename(args.infiles[0])
-
-outfile = "pb_type.xml"
-if "o" in args and args.o is not None:
-    outfile = args.o
-
-yosys.run.add_define("PB_TYPE")
-if args.includes:
-    for include in args.includes.split(','):
-        yosys.run.add_include(include)
-
-vjson = yosys.run.vlog_to_json(args.infiles, flatten=False, aig=False)
-yj = YosysJSON(vjson)
-
-if args.top is not None:
-    top = args.top
-else:
-    wm = re.match(r"([A-Za-z0-9_]+)\.sim\.v", iname)
-    if wm:
-        top = wm.group(1).upper()
-    else:
-        print(
-            """ERROR file name not of format %.sim.v ({}), cannot detect top level.
-            Manually specify the top level module using --top""".format(iname)
-        )
-        sys.exit(1)
-
-tmod = yj.module(top)
-
 INVALID_INSTANCE = -1
 
 
@@ -170,7 +108,7 @@ def strip_name(name):
     return name
 
 
-def make_pb_content(yj, mod, xml_parent, mod_pname, is_submode=False):
+def make_pb_content(outfile, yj, mod, xml_parent, mod_pname, is_submode=False):
     """Build the pb_type content - child pb_types, timing and direct interconnect,
     but not IO. This may be put directly inside <pb_type>, or inside <mode>."""
 
@@ -203,7 +141,7 @@ def make_pb_content(yj, mod, xml_parent, mod_pname, is_submode=False):
         port['type'] = direction
 
         if is_cell:
-            port['from'] = mod_name
+            port['from'] = mod_name.lower()
 
         return port
 
@@ -252,7 +190,7 @@ def make_pb_content(yj, mod, xml_parent, mod_pname, is_submode=False):
         # Process cells. First build the list of cnames.
         processed_cells = list()
         for cname, i_of in mod.cells:
-            pb_name = strip_name(i_of)
+            pb_name = strip_name(i_of).lower()
             pbtype_already_included = False
             if i_of in processed_cells:
                 # do not emit xml include for every instance of multi instace cell
@@ -283,10 +221,9 @@ def make_pb_content(yj, mod, xml_parent, mod_pname, is_submode=False):
 
                 # inlude contents of the included pb_type, but update it's
                 # num_pb value
-                with open(pb_type_path, 'r') as inc_xml:
-                    xml_inc = ET.fromstring(inc_xml.read().encode('utf-8'))
-                    inc_attrib = xml_inc.attrib
-                    inc_attrib['num_pb'] = str(cells[i_of]['count'] + 1)
+                inc_attrib = {}
+                inc_attrib['name'] = pb_name
+                inc_attrib['num_pb'] = str(cells[i_of]['count'] + 1)
 
                 inc_pb_type = ET.SubElement(xml_parent, 'pb_type', inc_attrib)
                 xmlinc.include_xml(
@@ -419,7 +356,7 @@ def make_pb_content(yj, mod, xml_parent, mod_pname, is_submode=False):
                 xml_mat.text = mat
 
 
-def make_pb_type(yj, mod):
+def make_pb_type(outfile, yj, mod):
     """Build the pb_type for a given module. mod is the YosysModule object to
     generate."""
 
@@ -427,9 +364,10 @@ def make_pb_type(yj, mod):
     if modes is not None:
         modes = modes.split(";")
     mod_pname = mod_pb_name(mod)
+    assert mod_pname == mod_pname.upper(
+    ), "pb_type name should be all uppercase. {}".format(mod_pname)
 
-    pb_xml_attrs = dict()
-    pb_xml_attrs["name"] = mod_pname
+    pb_attrs = dict()
     # If we are a blackbox with no modes, then generate a blif_model
     is_blackbox = is_mod_blackbox(mod) or not mod.cells
     has_modes = modes is not None
@@ -437,32 +375,45 @@ def make_pb_type(yj, mod):
     print("is_blackbox", is_blackbox, "has_modes?", has_modes)
 
     # Process type and class of module
+    model_name = mod.attr("MODEL_NAME", mod.name)
+    assert model_name == model_name.upper(
+    ), "Model name should be uppercase. {}".format(model_name)
     mod_cls = mod.CLASS
     if mod_cls is not None:
         if mod_cls == "lut":
-            pb_xml_attrs["blif_model"] = ".names"
-            pb_xml_attrs["class"] = "lut"
+            pb_attrs["blif_model"] = ".names"
+            pb_attrs["class"] = "lut"
         elif mod_cls == "routing":
-            # TODO: pb_xml_attrs["class"] = "routing"
+            # TODO: pb_attrs["class"] = "routing"
             pass
         elif mod_cls == "mux":
             # TODO: ?
             pass
         elif mod_cls == "flipflop":
-            pb_xml_attrs["blif_model"] = ".latch"
-            pb_xml_attrs["class"] = "flipflop"
+            pb_attrs["blif_model"] = ".latch"
+            pb_attrs["class"] = "flipflop"
         else:
             assert False, "unknown class {}".format(mod_cls)
     elif is_blackbox and not has_modes:
-        pb_xml_attrs["blif_model"
-                     ] = ".subckt " + mod.attr("MODEL_NAME", mod.name)
+        pb_attrs["blif_model"] = ".subckt " + model_name
 
     # set num_pb to 1, it will be updated if this pb_type
     # will be included by another one
-    pb_xml_attrs["num_pb"] = "1"
     pb_type_xml = ET.Element(
-        "pb_type", pb_xml_attrs, nsmap={'xi': xmlinc.xi_url}
+        "pb_type", {
+            "num_pb": "1",
+            "name": mod_pname
+        },
+        nsmap={'xi': xmlinc.xi_url}
     )
+
+    if 'blif_model' in pb_attrs:
+        ET.SubElement(pb_type_xml, "blif_model",
+                      {}).text = pb_attrs["blif_model"]
+
+    if 'class' in pb_attrs:
+        ET.SubElement(pb_type_xml, "pb_class", {}).text = pb_attrs["class"]
+
     # Process IOs
     clocks = yosys.run.list_clocks(args.infiles, mod.name)
     for name, width, bits, iodir in mod.ports:
@@ -494,9 +445,9 @@ def make_pb_type(yj, mod):
                 )
             )
             mode_mod = mode_yj.module(mod.name)
-            make_pb_content(yj, mode_mod, mode_xml, mod_pname, True)
+            make_pb_content(outfile, yj, mode_mod, mode_xml, mod_pname, True)
     else:
-        make_pb_content(yj, mod, pb_type_xml, mod_pname)
+        make_pb_content(outfile, yj, mod, pb_type_xml, mod_pname)
 
     return pb_type_xml
 
@@ -528,7 +479,7 @@ parser.add_argument(
     type=argparse.FileType('w'),
     default="pb_type.xml",
     help="""\
-Output filename, default 'model.xml'
+Output filename.
 """
 )
 
@@ -541,7 +492,7 @@ def main(args):
     yj = YosysJSON(vjson)
 
     if args.top is not None:
-        top = args.top
+        top = args.top.upper()
     else:
         wm = re.match(r"([A-Za-z0-9_]+)\.sim\.v", iname)
         if wm:
@@ -554,9 +505,12 @@ def main(args):
             )
             sys.exit(1)
 
+    assert top == top.upper(
+    ), "Top module name should be all uppercase. {}".format(top)
+
     tmod = yj.module(top)
 
-    pb_type_xml = make_pb_type(yj, tmod)
+    pb_type_xml = make_pb_type(args.outfile.name, yj, tmod)
 
     args.outfile.write(
         ET.tostring(

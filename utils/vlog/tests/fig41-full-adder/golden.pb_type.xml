@@ -1,4 +1,4 @@
-<pb_type xmlns:xi="http://www.w3.org/2001/XInclude" name="adder" blif_model=".subckt adder" num_pb="1">
+<pb_type xmlns:xi="http://www.w3.org/2001/XInclude" name="ADDER" blif_model=".subckt ADDER" num_pb="1">
   <input name="a" num_pins="1"/>
   <input name="b" num_pins="1"/>
   <input name="cin" num_pins="1"/>

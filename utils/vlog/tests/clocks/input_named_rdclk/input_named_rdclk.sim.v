@@ -3,7 +3,7 @@
  * box module.
  */
 (* whitebox *)
-module block(rdclk, a, o);
+module BLOCK(rdclk, a, o);
 	input wire rdclk;
 	input wire a;
 	output wire o;

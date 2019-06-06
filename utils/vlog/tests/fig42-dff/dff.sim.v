@@ -1,5 +1,5 @@
 (* whitebox *)
-module dff (d, clk, q);
+module DFF (d, clk, q);
 	input wire d;
 	input wire clk;
 	output reg q;

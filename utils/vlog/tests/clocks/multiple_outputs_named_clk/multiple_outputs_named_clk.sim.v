@@ -3,7 +3,7 @@
  * despite this being a black box module.
  */
 (* whitebox *)
-module block(a, b, rdclk, o, wrclk);
+module BLOCK(a, b, rdclk, o, wrclk);
 	input wire a;
 	input wire b;
 	output wire rdclk;
