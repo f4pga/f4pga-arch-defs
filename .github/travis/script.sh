@@ -31,6 +31,10 @@ run_section "symbiflow.format" "Check code formatting" "make check_python"
 
 $SPACER
 
+run_section "symbiflow.lint" "Check code style" "make lint_python"
+
+$SPACER
+
 run_section "symbiflow.run_v2x_tests" "Run v2x unit tests" "make all_v2x_tests"
 
 $SPACER
