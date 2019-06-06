@@ -54,7 +54,6 @@ def find_timings(timings, bel, location, site, bels):
     """This function returns all the timings associated with
        the selected `bel` in `location` and `site`. If timings
        are not found, `None` is returned"""
-    separator = "/"
     celltype, instance = get_cell_types_and_instance(bel, location, site, bels)
     if (celltype is None) or (instance is None):
         return None
