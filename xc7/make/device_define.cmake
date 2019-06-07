@@ -54,7 +54,7 @@ function(ADD_XC7_DEVICE_DEFINE_TYPE)
   set(PYTHON_SDF_TIMING_DIR ${symbiflow-arch-defs_SOURCE_DIR}/third_party/python-sdf-timing)
   set(BELS_MAP ${symbiflow-arch-defs_SOURCE_DIR}/xc7/bels.json)
 
-  set(TIMING_IMPORT "${UPDATE_ARCH_TIMINGS} --sdf_dir ${SDF_TIMING_DIRECTORY} --bels_map ${BELS_MAP} --out_arch /dev/stdout --input_arch /dev/stdin")
+  set(TIMING_IMPORT "${PYTHON3} ${UPDATE_ARCH_TIMINGS} --sdf_dir ${SDF_TIMING_DIRECTORY} --bels_map ${BELS_MAP} --out_arch /dev/stdout --input_arch /dev/stdin")
 
   define_device_type(
     DEVICE_TYPE ${DEVICE}-roi-virt
