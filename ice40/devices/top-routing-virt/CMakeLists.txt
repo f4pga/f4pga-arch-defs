@@ -27,12 +27,8 @@ add_custom_target(
   sdf_target
   DEPENDS ${SDF_FILE}
   )
-
-set(TIMING_IMPORT_CMD "${PYTHON3} ${CMAKE_SOURCE_DIR}/ice40/utils/ice40_import_bel_timing.py --read_sdf ${SDF_FILE} --write_arch_xml /dev/stdout --read_arch_xml /dev/stdin")
-add_custom_target(
-  ice40_import_timing_deps
-  DEPENDS ${TIMING_IMPORT_CMD} ${PYTHON3} ${PYTHON3_TARGET}
-  )
+get_target_property_required(ICE40_IMPORT_TIMING ice40_import_timing_deps ICE40_IMPORT_TIMING)
+set(TIMING_IMPORT_CMD "${PYTHON3} ${ICE40_IMPORT_TIMING} --read_sdf ${SDF_FILE} --write_arch_xml /dev/stdout --read_arch_xml /dev/stdin")
 
 define_device_type(
   DEVICE_TYPE top-routing-virt

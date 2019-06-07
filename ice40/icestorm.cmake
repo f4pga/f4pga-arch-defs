@@ -1,5 +1,6 @@
 function(icestorm_setup)
   get_target_property_required(PYTHON3 env PYTHON3)
+  get_target_property_required(PYTHON3_TARGET env PYTHON3_TARGET)
 
   set(ICESTORM_SRC ${symbiflow-arch-defs_SOURCE_DIR}/third_party/icestorm CACHE PATH "Path to icestorm repository")
   set(PYUTILS_PATH ${symbiflow-arch-defs_SOURCE_DIR}/utils:${symbiflow-arch-defs_SOURCE_DIR}/ice40/utils/fasm_icebox)
@@ -26,6 +27,7 @@ function(icestorm_setup)
     NAME fasm
     BUILD_INSTALL_COMMAND "cd ${symbiflow-arch-defs_SOURCE_DIR}/third_party/fasm && ${PYTHON3} setup.py develop"
     PROVIDES fasm
+    DEPENDS ${PYTHON3} ${PYTHON3_TARGET}
     )
 
   get_target_property(FASM_TARGET env FASM_TARGET)
@@ -33,14 +35,18 @@ function(icestorm_setup)
   set(FASM2ASC ${symbiflow-arch-defs_SOURCE_DIR}/ice40/utils/fasm_icebox/fasm2asc.py)
   add_custom_target(
     fasm2asc_deps
-    DEPENDS numpy ${FASM_TARGET} ${FASM2ASC}
+    DEPENDS numpy ${FASM_TARGET} ${FASM2ASC} ${PYTHON3} ${PYTHON3_TARGET}
     )
 
   get_target_property(SDF_TIMING_TARGET env SDF_TIMING_TARGET)
-  set(ICE40_IMPORT_TIMING ${symbiflow-arch-defs_SOURCE_DIR}/ice40/utils/ice40_import_bel_timing.py)
   add_custom_target(
     ice40_import_timing_deps
-    DEPENDS ${ICE40_IMPORT_TIMING} ${SDF_TIMING_TARGET}
+    DEPENDS ${ICE40_IMPORT_TIMING} ${SDF_TIMING_TARGET} ${PYTHON3} ${PYTHON3_TARGET}
+    )
+
+  set_target_properties(
+    ice40_import_timing_deps
+    PROPERTIES ICE40_IMPORT_TIMING ${symbiflow-arch-defs_SOURCE_DIR}/ice40/utils/ice40_import_bel_timing.py
     )
 
   get_target_property_required(PKG-CONFIG env PKG-CONFIG)
@@ -66,7 +72,6 @@ function(icestorm_setup)
   get_target_property_required(ICEBOX env ICEBOX)
   get_filename_component(ICEBOX_PATH ${ICEBOX} DIRECTORY)
   set(ICEBOX_SHARE ${ICEBOX_PATH}/../share/icebox CACHE PATH "")
-  message("elms ${ICEBOX_PATH} ${ICEBOX_SHARE}")
 
   set(PYPATH_ARG "PYTHONPATH=\${ICEBOX_PATH}:${PYUTILS_PATH}")
   define_arch(
