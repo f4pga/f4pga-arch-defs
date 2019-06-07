@@ -182,8 +182,9 @@ class GridVisualizer(object):
 
             # Load the grid
             db_tiles = c.execute(
-            "SELECT pkey, name, tile_type_pkey, grid_x, grid_y FROM %s" % \
-            (db_table)).fetchall() # They say that it is insecure..
+                "SELECT pkey, name, tile_type_pkey, grid_x, grid_y FROM %s" %
+                (db_table)
+            ).fetchall()  # They say that it is insecure..
 
             # Load tile types
             db_tile_types = c.execute("SELECT pkey, name FROM tile_type"
