@@ -51,6 +51,32 @@ if [ -z "$DATESTR" ]; then
 	fi
 fi
 
+function make_target() {
+  target=$1
+
+  if [ ! -v MAKE_JOBS ]; then
+    export MAKE_JOBS=$(nproc)
+    echo "Setting MAKE_JOBS to $MAKE_JOBS"
+  fi;
+
+  export VPR_NUM_WORKERS=${MAKE_JOBS}
+
+  start_section "symbiflow.$target" "$2"
+  make_status=0
+  make -k -j${MAKE_JOBS} $target || make_status=$?
+  end_section "symbiflow.$target"
+
+  # When the build fails, produce the failure output in a clear way
+  if [ ${MAKE_JOBS} -ne 1 -a $make_status -ne 0 ]; then
+    start_section "symbiflow.failure" "${RED}Build failure output..${NC}"
+    make -j1 $target
+    end_section "symbiflow.failure"
+    exit 1
+  else
+    return $make_status
+  fi
+}
+
 function run_section() {
 	start_section $1 "$2 ($3)"
 	$3
