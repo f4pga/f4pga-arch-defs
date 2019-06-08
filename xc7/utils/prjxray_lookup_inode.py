@@ -63,13 +63,14 @@ SELECT name FROM phy_tile WHERE pkey = ?
         )
         tile = cur2.fetchone()[0]
 
-        wires.append((tile, wire))
+        wires.append((tile, wire, wire_pkey))
 
     print('rr inode: {}'.format(args.inode))
     print('NodeType: {}'.format(graph_node_type))
+    print('graph_node_pkey: {}'.format(graph_node_pkey))
     print('Wires ({}):'.format(len(wires)))
-    for tile, wire in wires:
-        print('  {}/{}'.format(tile, wire))
+    for tile, wire, wire_pkey in wires:
+        print('  {}/{} ({})'.format(tile, wire, wire_pkey))
 
 
 if __name__ == "__main__":

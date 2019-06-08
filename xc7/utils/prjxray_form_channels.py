@@ -49,6 +49,8 @@ from prjxray_db_cache import DatabaseCache
 from prjxray_define_segments import SegmentWireMap
 
 SINGLE_PRECISION_FLOAT_MIN = 2**-126
+VCC_NET = 'VCC_NET'
+GND_NET = 'GND_NET'
 
 
 def import_site_type(db, write_cur, site_types, site_type_name):
@@ -983,10 +985,8 @@ def insert_tracks(conn, segments, tracks_to_insert):
 
     track_graph_nodes = {}
     track_pkeys = []
-    for node, tracks_list, track_connections, tracks_model in progressbar.progressbar(
+    for node, tracks_list, track_connections, tracks_model, segment_pkey in progressbar.progressbar(
             tracks_to_insert):
-        segment_pkey = get_segment_for_node(conn, segments, node)
-
         write_cur.execute("""INSERT INTO track(segment_pkey) VALUES (?)""",
                 (segment_pkey,))
         track_pkey = write_cur.lastrowid
@@ -1053,7 +1053,7 @@ VALUES
     conn.commit()
 
     wire_to_graph = {}
-    for node, tracks_list, track_connections, tracks_model in progressbar.progressbar(
+    for node, tracks_list, track_connections, tracks_model, _ in progressbar.progressbar(
             tracks_to_insert):
         track_graph_node_pkey = track_graph_nodes[node]
 
@@ -1162,14 +1162,26 @@ FROM
   """, (node, )):
                 unique_pos.add((grid_x, grid_y))
 
-            tracks_to_insert.append(create_track(node, unique_pos))
+
+            segment_pkey = get_segment_for_node(conn, segments, node)
+
+            tracks_to_insert.append(create_track(node, unique_pos) + [segment_pkey])
 
     # Create constant tracks
     vcc_track_to_insert, gnd_track_to_insert = create_constant_tracks(conn)
+
+    cur.execute("SELECT pkey FROM segment WHERE name = ?",
+            (VCC_NET,))
+    vcc_segment_pkey = cur.fetchone()[0]
+
+    cur.execute("SELECT pkey FROM segment WHERE name = ?",
+            (GND_NET,))
+    gnd_segment_pkey = cur.fetchone()[0]
+
     vcc_idx = len(tracks_to_insert)
-    tracks_to_insert.append(vcc_track_to_insert)
+    tracks_to_insert.append(vcc_track_to_insert + [vcc_segment_pkey])
     gnd_idx = len(tracks_to_insert)
-    tracks_to_insert.append(gnd_track_to_insert)
+    tracks_to_insert.append(gnd_track_to_insert + [gnd_segment_pkey])
 
     track_pkeys = insert_tracks(conn, segments, tracks_to_insert)
     vcc_track_pkey = track_pkeys[vcc_idx]
@@ -1184,6 +1196,16 @@ INSERT INTO constant_sources(vcc_track_pkey, gnd_track_pkey) VALUES (?, ?)
             gnd_track_pkey,
         )
     )
+
+    write_cur.execute("""
+INSERT INTO phy_tile(name, grid_x, grid_y) VALUES (?, ?, ?)
+        """, ("CONSTANT_SOURCE", 0, 0))
+    zero_phy_tile_pkey = write_cur.lastrowid
+
+    write_cur.execute("UPDATE track SET canon_phy_tile_pkey = ? WHERE pkey = ?",
+            (zero_phy_tile_pkey, vcc_track_pkey,))
+    write_cur.execute("UPDATE track SET canon_phy_tile_pkey = ? WHERE pkey = ?",
+            (zero_phy_tile_pkey, gnd_track_pkey,))
 
     conn.commit()
 
@@ -1633,10 +1655,11 @@ def import_segments(conn, db):
     default_segment = "unknown"
     segments = SegmentWireMap(default_segment=default_segment, db=db)
 
-    if default_segment not in segments.get_segments():
-        write_cur.execute("""
-    INSERT INTO segment(name) VALUES (?)
-            """, (default_segment,))
+    for extra_segment in [default_segment, VCC_NET, GND_NET]:
+        if extra_segment not in segments.get_segments():
+            write_cur.execute("""
+INSERT INTO segment(name) VALUES (?)
+            """, (extra_segment,))
 
     for segment in segments.get_segments():
         write_cur.execute("""
