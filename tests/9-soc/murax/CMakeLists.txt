@@ -8,6 +8,7 @@ add_file_target(FILE Murax.v SCANNER_TYPE verilog)
 add_file_target(FILE basys3_toplevel.v SCANNER_TYPE verilog)
 add_file_target(FILE hx8k-b-evn.pcf)
 add_file_target(FILE basys3.pcf)
+add_file_target(FILE basys3.sdc)
 
 if (NOT DEFINED ENV{CI} OR NOT $ENV{CI})
 add_fpga_target(
@@ -28,6 +29,7 @@ add_fpga_target(
     basys3_toplevel.v
     Murax.v
   INPUT_IO_FILE basys3.pcf
+  SDC_FILE basys3.sdc
   EXPLICIT_ADD_FILE_TARGET
 )
 endif (NOT DEFINED ENV{CI} OR NOT $ENV{CI})

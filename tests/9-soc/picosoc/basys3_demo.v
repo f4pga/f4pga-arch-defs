@@ -17,19 +17,6 @@
  *
  */
 
-module clk_div (
-	input clk_in,
-	output clk_out
-);
-	initial begin
-		clk_out <= 0;
-	end
-
-	always @(posedge clk_in) begin
-		clk_out <= ~clk_out;
-	end
-endmodule
-
 module basys3_demo (
 	input clk,
 
@@ -42,23 +29,9 @@ module basys3_demo (
 	reg [5:0] reset_cnt = 0;
 	wire resetn = &reset_cnt;
 
-	always @(posedge clk_out[N_CLK_DIV-1]) begin
+	always @(posedge clk) begin
 		reset_cnt <= reset_cnt + !resetn;
 	end
-
-   /*
-	SB_IO #(
-		.PIN_TYPE(6'b 1010_01),
-		.PULLUP(1'b 0)
-	) flash_io_buf [3:0] (
-		.PACKAGE_PIN({flash_io3, flash_io2, flash_io1, flash_io0}),
-		.OUTPUT_ENABLE({flash_io3_oe, flash_io2_oe, flash_io1_oe, flash_io0_oe}),
-		.D_OUT_0({flash_io3_do, flash_io2_do, flash_io1_do, flash_io0_do}),
-		.D_IN_0({flash_io3_di, flash_io2_di, flash_io1_di, flash_io0_di})
-	);
-	*/
-
-	localparam integer N_CLK_DIV = 2;
 
 	wire        iomem_valid;
 	reg         iomem_ready;
@@ -68,11 +41,10 @@ module basys3_demo (
 	reg  [31:0] iomem_rdata;
 
 	reg [31:0] gpio;
-	reg [N_CLK_DIV-1:0] clk_out;
 
 	assign leds = gpio[3:0];
 
-	always @(posedge clk_out[N_CLK_DIV-1]) begin
+	always @(posedge clk) begin
 		if (!resetn) begin
 			gpio <= 0;
 		end else begin
@@ -89,7 +61,7 @@ module basys3_demo (
 	end
 
 	picosoc_noflash soc (
-		.clk          (clk_out[N_CLK_DIV-1]),
+		.clk          (clk),
 		.resetn       (resetn      ),
 
 		.ser_tx       (ser_tx      ),
@@ -106,8 +78,5 @@ module basys3_demo (
 		.iomem_wdata  (iomem_wdata ),
 		.iomem_rdata  (iomem_rdata )
 	);
-
-	clk_div clk_div_0 (.clk_in(clk), .clk_out(clk_out[0]));
-	clk_div clk_div_1 (.clk_in(clk_out[0]), .clk_out(clk_out[1]));
 
 endmodule
