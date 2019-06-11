@@ -1,5 +1,5 @@
 get_target_property_required(PYTEST env PYTEST)
-get_target_property_required(SDF_TIMING_TARGET env SDF_TIMING_TARGET)
+get_target_property(SDF_TIMING_TARGET env SDF_TIMING_TARGET)
 
 add_custom_target(
   test_python_utils
