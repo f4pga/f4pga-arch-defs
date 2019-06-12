@@ -5,3 +5,5 @@ hdlparse
 progressbar2
 simplejson
 pyjson5
+svgwrite
+cairosvg
