@@ -108,9 +108,9 @@ get_target_property_required(PYTHON3 env PYTHON3)
 get_target_property(PYTHON3_TARGET env PYTHON3_TARGET)
 
 add_thirdparty_package(
-	NAME sdf_timing
-	BUILD_INSTALL_COMMAND "cd ${symbiflow-arch-defs_SOURCE_DIR}/third_party/python-sdf-timing && ${PYTHON3} setup.py develop"
-	PROVIDES sdf_timing
+  NAME sdf_timing
+  BUILD_INSTALL_COMMAND "cd ${symbiflow-arch-defs_SOURCE_DIR}/third_party/python-sdf-timing && ${PYTHON3} setup.py develop"
+  NO_EXE
   DEPENDS ${PYTHON3_TARGET}
 )
 

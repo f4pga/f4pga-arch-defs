@@ -327,7 +327,8 @@ function(ADD_THIRDPARTY_PACKAGE)
   # ~~~
   # ADD_THIRDPARTY_PACKAGE(
   #   NAME <name>
-  #   PROVIDES <exe list>
+  #   [NO_EXE]
+  #   [PROVIDES <exe list>]
   #   [BUILD_INSTALL_COMMAND <build_install command>]
   #   [DEPENDS <dependencies>]
   #   )
@@ -339,7 +340,7 @@ function(ADD_THIRDPARTY_PACKAGE)
   # in PROVIDES list. <name> is set to the path the executable.  <name>_TARGET
   # is set to the target that will invoke conda.
   #
-  set(options)
+  set(options NO_EXE)
   set(oneValueArgs NAME BUILD_INSTALL_COMMAND)
   set(multiValueArgs PROVIDES DEPENDS)
   cmake_parse_arguments(
@@ -366,10 +367,15 @@ function(ADD_THIRDPARTY_PACKAGE)
     set(TOUCH_COMMANDS "")
     get_target_property_required(PREFIX env CONDA_DIR)
 
-    foreach(OUTPUT ${ADD_THIRDPARTY_PACKAGE_PROVIDES})
-      list(APPEND OUTPUTS ${PREFIX}/bin/${OUTPUT})
-      list(APPEND TOUCH_COMMANDS COMMAND ${CMAKE_COMMAND} -E touch_nocreate ${PREFIX}/bin/${OUTPUT})
-    endforeach()
+    if(${ADD_THIRDPARTY_PACKAGE_NO_EXE})
+      list(APPEND OUTPUTS ${PREFIX}/bin/${ADD_THIRDPARTY_PACKAGE_NAME}.install)
+      list(APPEND TOUCH_COMMANDS COMMAND ${CMAKE_COMMAND} -E touch ${PREFIX}/bin/${ADD_THIRDPARTY_PACKAGE_NAME}.install)
+    else()
+      foreach(OUTPUT ${ADD_THIRDPARTY_PACKAGE_PROVIDES})
+        list(APPEND OUTPUTS ${PREFIX}/bin/${OUTPUT})
+        list(APPEND TOUCH_COMMANDS COMMAND ${CMAKE_COMMAND} -E touch_nocreate ${PREFIX}/bin/${OUTPUT})
+      endforeach()
+    endif()
 
     add_custom_command(
       OUTPUT ${OUTPUTS}
@@ -378,8 +384,9 @@ function(ADD_THIRDPARTY_PACKAGE)
       DEPENDS ${ADD_THIRDPARTY_PACKAGE_DEPENDS}
       )
 
-    set(TARGET thirdparty_${NAME})
-    add_custom_target(${TARGET} DEPENDS ${OUTPUTS})
+    add_custom_target(${NAME} DEPENDS ${OUTPUTS})
+    string(TOUPPER ${NAME} name_upper)
+    set_target_properties(env PROPERTIES ${name_upper}_TARGET ${NAME})
 
     foreach(OUTPUT ${ADD_THIRDPARTY_PACKAGE_PROVIDES})
       string(TOUPPER ${OUTPUT} binary_upper)
@@ -387,24 +394,26 @@ function(ADD_THIRDPARTY_PACKAGE)
       replace_with_env_if_set(${binary_upper})
       set_target_properties(env PROPERTIES
         ${binary_upper} ${${binary_upper}}
-        ${binary_upper}_TARGET ${TARGET})
+        ${binary_upper}_TARGET ${NAME})
     endforeach()
   else()
-  # if command not provide, just look the provides
-    foreach(OUTPUT ${ADD_THIRDPARTY_PACKAGE_PROVIDES})
-      string(TOUPPER ${OUTPUT} binary_upper)
-      if(DEFINED ENV{${binary_upper}})
-        set(${binary_upper} $ENV{${binary_upper}})
-      else()
-        find_program(${binary_upper} ${OUTPUT})
-      endif()
-      if(NOT ${binary_upper})
-        message(FATAL_ERROR "Could not find program ${OUTPUT}.")
-      endif()
-      set_target_properties(env PROPERTIES
-        ${binary_upper} ${${binary_upper}}
-        ${binary_upper}_TARGET "")
-    endforeach()
+    if(NOT ${ADD_THIRDPARTY_PACKAGE_NO_EXE})
+      # if command not provide, just look the provides
+      foreach(OUTPUT ${ADD_THIRDPARTY_PACKAGE_PROVIDES})
+        string(TOUPPER ${OUTPUT} binary_upper)
+        if(DEFINED ENV{${binary_upper}})
+          set(${binary_upper} $ENV{${binary_upper}})
+        else()
+          find_program(${binary_upper} ${OUTPUT})
+        endif()
+        if(NOT ${binary_upper})
+          message(FATAL_ERROR "Could not find program ${OUTPUT}.")
+        endif()
+        set_target_properties(env PROPERTIES
+          ${binary_upper} ${${binary_upper}}
+          ${binary_upper}_TARGET "")
+      endforeach()
+    endif()
   endif()
 
 endfunction(ADD_THIRDPARTY_PACKAGE)
