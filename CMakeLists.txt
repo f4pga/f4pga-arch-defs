@@ -78,29 +78,32 @@ add_conda_pip(
   NAME progressbar2
   NO_EXE
 )
-
 add_conda_pip(
   NAME simplejson
   NO_EXE
 )
-
 add_conda_pip(
   NAME intervaltree
   NO_EXE
 )
-
 add_conda_pip(
   NAME pdfminer.six
   NO_EXE
 )
-
 add_conda_pip(
   NAME pyjson5
   NO_EXE
 )
-
 add_conda_pip(
   NAME ply
+  NO_EXE
+)
+add_conda_pip(
+  NAME svgwrite
+  NO_EXE
+)
+add_conda_pip(
+  NAME cairosvg
   NO_EXE
 )
 
