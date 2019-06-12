@@ -54,8 +54,8 @@ add_fpga_target(
     simpleuart.v
     progmem.v
   SDC_FILE ${symbiflow-arch-defs_SOURCE_DIR}/xc7/tests/common/basys3.sdc
+  INPUT_IO_FILE ${symbiflow-arch-defs_SOURCE_DIR}/xc7/tests/common/basys3.pcf
   TESTBENCH_SOURCES basys3_demo_tb.v
-  INPUT_IO_FILE basys3.pcf
   EXPLICIT_ADD_FILE_TARGET
 )
 

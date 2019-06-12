@@ -1372,7 +1372,9 @@ if {{ $net == {{}} }} {{
                 )
 
             yield """
-set_property FIXED_ROUTE {fixed_route} $net
+set route_with_dummy {fixed_route}
+regsub -all {{{{}}}} $route_with_dummy "" route
+set_property FIXED_ROUTE $route $net
 """.format(
                 fixed_route=' '.
                 join(net.make_fixed_route(self.conn, self.wire_pkey_to_wire))

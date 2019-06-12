@@ -99,7 +99,7 @@ def output_builder(fixed_route):
         else:
             yield i
 
-    yield ']'
+    yield ' {} ]'
 
 
 class Net(object):
@@ -308,7 +308,7 @@ class Net(object):
 
                 yield ')'
 
-            yield ']'
+            yield '{} ]'
 
 
 def create_check_for_default(db, conn):

@@ -20,10 +20,11 @@
 module basys3_demo (
 	input clk,
 
-	output ser_tx,
-	input ser_rx,
+	output tx,
+	input rx,
 
-	output [3:0] leds
+    input [15:0] sw,
+	output [15:0] led
 );
 
 	reg [5:0] reset_cnt = 0;
@@ -42,7 +43,7 @@ module basys3_demo (
 
 	reg [31:0] gpio;
 
-	assign leds = gpio[3:0];
+	assign led = gpio[15:0];
 
 	always @(posedge clk) begin
 		if (!resetn) begin
@@ -51,7 +52,7 @@ module basys3_demo (
 			iomem_ready <= 0;
 			if (iomem_valid && !iomem_ready && iomem_addr[31:24] == 8'h 03) begin
 				iomem_ready <= 1;
-				iomem_rdata <= gpio;
+				iomem_rdata <= {sw, gpio[15:0]};
 				if (iomem_wstrb[0]) gpio[ 7: 0] <= iomem_wdata[ 7: 0];
 				if (iomem_wstrb[1]) gpio[15: 8] <= iomem_wdata[15: 8];
 				if (iomem_wstrb[2]) gpio[23:16] <= iomem_wdata[23:16];
@@ -64,8 +65,8 @@ module basys3_demo (
 		.clk          (clk),
 		.resetn       (resetn      ),
 
-		.ser_tx       (ser_tx      ),
-		.ser_rx       (ser_rx      ),
+		.ser_tx       (tx),
+		.ser_rx       (rx),
 
 		.irq_5        (1'b0        ),
 		.irq_6        (1'b0        ),

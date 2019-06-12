@@ -1016,19 +1016,19 @@ module RAMB18E1 (
         && READ_WIDTH_A != 18
         && READ_WIDTH_A != 36
         && READ_WIDTH_A != 72)
-        $error("Invalid READ_WIDTH_A: ", READ_WIDTH_A);
+        _TECHMAP_FAIL <= 1;
     if(READ_WIDTH_B != 0
         && READ_WIDTH_B != 1
         && READ_WIDTH_B != 4
         && READ_WIDTH_B != 9
         && READ_WIDTH_B != 18)
-        $error("Invalid READ_WIDTH_B: ", READ_WIDTH_B);
+        _TECHMAP_FAIL <= 1;
     if(WRITE_WIDTH_A != 0
         && WRITE_WIDTH_A != 1
         && WRITE_WIDTH_A != 4
         && WRITE_WIDTH_A != 9
         && WRITE_WIDTH_A != 18)
-        $error("Invalid WRITE_WIDTH_A: ", WRITE_WIDTH_A);
+        _TECHMAP_FAIL <= 1;
     if(WRITE_WIDTH_B != 0
         && WRITE_WIDTH_B != 1
         && WRITE_WIDTH_B != 4
@@ -1036,20 +1036,20 @@ module RAMB18E1 (
         && WRITE_WIDTH_B != 18
         && WRITE_WIDTH_B != 36
         && WRITE_WIDTH_B != 72)
-        $error("Invalid WRITE_WIDTH_B: ", WRITE_WIDTH_B);
+        _TECHMAP_FAIL <= 1;
 
     if(READ_WIDTH_A > 18 && RAM_MODE != "SDP") begin
-        $error("READ_WIDTH_A > 18 requires SDP mode.");
+        _TECHMAP_FAIL <= 1;
     end
 
     if(WRITE_WIDTH_B > 18 && RAM_MODE != "SDP") begin
-        $error("WRITE_WIDTH_B > 18 requires SDP mode.");
+        _TECHMAP_FAIL <= 1;
     end
 
     if(WRITE_MODE_A != "WRITE_FIRST" && WRITE_MODE_A != "NO_CHANGE" && WRITE_MODE_A != "READ_FIRST")
-        $error("Invalid WRITE_MODE_A", WRITE_MODE_A);
+        _TECHMAP_FAIL <= 1;
     if(WRITE_MODE_B != "WRITE_FIRST" && WRITE_MODE_B != "NO_CHANGE" && WRITE_MODE_B != "READ_FIRST")
-        $error("Invalid WRITE_MODE_B", WRITE_MODE_B);
+        _TECHMAP_FAIL <= 1;
 
   end
 
