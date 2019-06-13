@@ -40,6 +40,7 @@ function(SETUP_ENV)
 
   add_custom_target(env)
   set(ENV_DIR ${symbiflow-arch-defs_BINARY_DIR}/env)
+  set(REL_ENV_DIR env)
   add_custom_target(clean_env
     COMMAND ${CMAKE_COMMAND} -E remove_directory ${ENV_DIR}
     )
@@ -75,6 +76,10 @@ function(SETUP_ENV)
       list(APPEND OUTPUTS ${CONDA_DIR}/bin/${BINARY})
     endforeach()
 
+    add_file_target(FILE ${REL_ENV_DIR}/${MINICONDA_FILE} GENERATED)
+    set(DEPS "")
+    append_file_dependency(DEPS ${REL_ENV_DIR}/${MINICONDA_FILE})
+
     add_custom_command(
       OUTPUT ${OUTPUTS}
       COMMAND sh ${ENV_DIR}/${MINICONDA_FILE} -p ${CONDA_DIR} -b -f
@@ -86,12 +91,15 @@ function(SETUP_ENV)
       COMMAND ${CONDA_BIN} config --add channels conda-forge
       COMMAND ${CONDA_BIN} install lxml
       COMMAND ${CMAKE_COMMAND} -E touch_nocreate ${CONDA_BIN}
-      DEPENDS ${ENV_DIR}/${MINICONDA_FILE}
+      DEPENDS ${DEPS}
       )
 
+    add_file_target(FILE ${REL_ENV_DIR}/conda/bin/conda GENERATED)
+    append_file_dependency(DEPS ${REL_ENV_DIR}/conda/bin/conda)
+
     add_custom_target(
-      conda DEPENDS ${CONDA_BIN}
-      )
+      conda DEPENDS ${DEPS}
+     )
 
     foreach(binary ${MAYBE_CONDA_BINARIES})
       string(TOUPPER ${binary} binary_upper)
@@ -179,7 +187,7 @@ function(ADD_CONDA_PACKAGE)
     if(${ADD_CONDA_PACKAGE_NO_EXE})
       list(LENGTH "${ADD_CONDA_PACKAGE_PROVIDES}" PROVIDES_LENGTH)
       if (NOT ${PROVIDES_LENGTH} EQUAL "0")
-	message(FATAL_ERROR "for NO_EXE ${ADD_CONDA_PACKAGE_NAME} do not set PROVIDE")
+        message(FATAL_ERROR "for NO_EXE ${ADD_CONDA_PACKAGE_NAME} do not set PROVIDE")
       endif()
       set(ADD_CONDA_PACKAGE_PROVIDES ${ADD_CONDA_PACKAGE_NAME})
 
@@ -187,8 +195,8 @@ function(ADD_CONDA_PACKAGE)
       list(APPEND TOUCH_COMMANDS COMMAND ${CMAKE_COMMAND} -E touch ${ADD_CONDA_PACKAGE_NAME}.conda)
     else()
       foreach(OUTPUT ${ADD_CONDA_PACKAGE_PROVIDES})
-	list(APPEND OUTPUTS ${CONDA_DIR}/bin/${OUTPUT})
-	list(APPEND TOUCH_COMMANDS COMMAND ${CMAKE_COMMAND} -E touch_nocreate ${CONDA_DIR}/bin/${OUTPUT})
+        list(APPEND OUTPUTS ${CONDA_DIR}/bin/${OUTPUT})
+        list(APPEND TOUCH_COMMANDS COMMAND ${CMAKE_COMMAND} -E touch_nocreate ${CONDA_DIR}/bin/${OUTPUT})
       endforeach()
     endif()
 
