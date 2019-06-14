@@ -92,7 +92,6 @@ if True:
     ])
     plb_tracks.extend([
         # Span 4 Vertical
-        Track(name="sp04_v----", type="space", aliases=()),
         Track(name="sp04_v[00]", type="span4", aliases=(               "sp4_v_b[1]",  )),
         Track(name="sp04_v[01]", type="span4", aliases=(               "sp4_v_b[0]",  )),
         Track(name="sp04_v[02]", type="span4", aliases=(               "sp4_v_b[3]",  )),
@@ -154,7 +153,6 @@ if True:
         Track(name="sp04_v[58]", type="span4", aliases=("sp4_v_t[46]",                )),
         Track(name="sp04_v[59]", type="span4", aliases=("sp4_v_t[47]",                )),
         # Span 4 Right Vertical
-        Track(name="sp04_rv----", type="space", aliases=()),
         Track(name="sp04_rv[00]", type="span4", aliases=("sp4_r_v_b[0]",  )),
         Track(name="sp04_rv[01]", type="span4", aliases=("sp4_r_v_b[1]",  )),
         Track(name="sp04_rv[02]", type="span4", aliases=("sp4_r_v_b[2]",  )),
@@ -204,7 +202,6 @@ if True:
         Track(name="sp04_rv[46]", type="span4", aliases=("sp4_r_v_b[46]", )),
         Track(name="sp04_rv[47]", type="span4", aliases=("sp4_r_v_b[47]", )),
         # Span 12 Vertical
-        Track(name="sp12_v----", type="space", aliases=()),
         Track(name="sp12_v[00]", type="span12", aliases=(                "sp12_v_b[1]",  )),
         Track(name="sp12_v[01]", type="span12", aliases=(                "sp12_v_b[0]",  )),
         Track(name="sp12_v[02]", type="span12", aliases=("sp12_v_t[0]",  "sp12_v_b[3]",  )),
@@ -232,7 +229,6 @@ if True:
         Track(name="sp12_v[24]", type="span12", aliases=("sp12_v_t[22]",                 )),
         Track(name="sp12_v[25]", type="span12", aliases=("sp12_v_t[23]",                 )),
         # Span 4 Horizontal
-        Track(name="sp04_h----", type="space", aliases=()),
         Track(name="sp04_h[00]", type="span4", aliases=(               "sp4_h_r[1]",  )),
         Track(name="sp04_h[01]", type="span4", aliases=(               "sp4_h_r[0]",  )),
         Track(name="sp04_h[02]", type="span4", aliases=(               "sp4_h_r[3]",  )),
@@ -294,7 +290,6 @@ if True:
         Track(name="sp04_h[58]", type="span4", aliases=("sp4_h_l[46]",                )),
         Track(name="sp04_h[59]", type="span4", aliases=("sp4_h_l[47]",                )),
         # Span 12 Horizontal
-        Track(name="sp12_h----", type="space", aliases=()),
         Track(name="sp12_h[00]", type="span12", aliases=(                "sp12_h_r[1]",  )),
         Track(name="sp12_h[01]", type="span12", aliases=(                "sp12_h_r[0]",  )),
         Track(name="sp12_h[02]", type="span12", aliases=("sp12_h_l[0]",  "sp12_h_r[3]",  )),
@@ -334,7 +329,6 @@ if True:
     #span4_vert_t_{12,13,14,15}
     io_tracks = [
         Track(name="fabout", type="local", aliases=("fabout[0]", )),
-        Track(name="sp4_h----", type="space", aliases=()),
         Track(name="sp4_h[00]", type="span4", aliases=(                    "span4_horz_r[0]",  )),
         Track(name="sp4_h[01]", type="span4", aliases=(                    "span4_horz_r[1]",  )),
         Track(name="sp4_h[02]", type="span4", aliases=(                    "span4_horz_r[2]",  )),
@@ -355,7 +349,6 @@ if True:
         Track(name="sp4_h[17]", type="span4", aliases=("span4_horz_l[13]",                     )),
         Track(name="sp4_h[18]", type="span4", aliases=("span4_horz_l[14]",                     )),
         Track(name="sp4_h[19]", type="span4", aliases=("span4_horz_l[15]",                     )),
-        Track(name="sp4_v----", type="space", aliases=()),
         Track(name="sp4_v[00]", type="span4", aliases=(                    "span4_vert_t[0]",  )),
         Track(name="sp4_v[01]", type="span4", aliases=(                    "span4_vert_t[1]",  )),
         Track(name="sp4_v[02]", type="span4", aliases=(                    "span4_vert_t[2]",  )),
@@ -380,9 +373,6 @@ if True:
 
     #span4_horz_{0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,41,42,43,44,45,46,47}
     io_tracks.extend([
-        Track(name="sp4_v_term---", type="space", aliases=()),
-        Track(name="sp4_h_term---", type="space", aliases=()),
-    ])
     for i in range(0, 48):
         io_tracks.extend([
             Track(name="sp4_v_term[%02i]" % i, type="span4", aliases=("span4_vert[%s]" % i, "sp4_v_t[%s]" % i, "sp4_v_b[%s]" % i)),
@@ -390,10 +380,6 @@ if True:
         ])
 
     #span12_horz_{0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23}
-    io_tracks.extend([
-        Track(name="sp12_v_term---", type="space", aliases=()),
-        Track(name="sp12_h_term---", type="space", aliases=()),
-    ])
     for i in range(0, 24):
         io_tracks.extend([
             Track(name="sp12_v_term[%02i]" % i, type="span12", aliases=("span12_vert[%s]" % i, "sp12_v_t[%s]" % i, "sp12_v_b[%s]" % i)),
@@ -449,9 +435,7 @@ mappings.append(("FCOUT[0]", CompassDir.N, "FCIN[0]"))
 
 
 def segment_type(g, d):
-    if d.type == "space":
-        s_type = g.segments["dummy"]
-    elif d.type == 'span4':
+    if d.type == 'span4':
         s_type = g.segments["span4"]
     elif d.type == 'span12':
         s_type = g.segments["span12"]
@@ -537,7 +521,6 @@ def create_tracks(g, verbose=False):
     # Internal Block wires
     #############################################################################
     segment_global = g.segments["global"]
-    segment_dummy = g.segments["dummy"]
     segment_local = g.segments["local"]
 
     for block in g.block_grid:
@@ -567,13 +550,6 @@ def create_tracks(g, verbose=False):
             print("{} - {}".format(block, g_n))
 
             g.routing.localnames.add(begin, g_n, _track_node)
-
-        # Padding ------------------------------------------------
-        track, _track_node = g.create_xy_track(
-            begin, end, segment_dummy, typeh=type_y, direction=bi_dir
-        )
-        print()
-        # --------------------------------------------------------
 
         if tname == "PLB":
             tracks = plb_tracks
