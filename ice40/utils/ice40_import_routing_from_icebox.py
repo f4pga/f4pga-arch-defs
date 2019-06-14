@@ -527,36 +527,9 @@ def add_pin_aliases(g, ic):
                 g.routing.localnames.add(vpos, localname, node)
 
 
-def add_dummy_tracks(g, ic):
-    """Add a single dummy track to every channel."""
-    dummy = g.segments["dummy"]
-    for x in range(-2, ic.max_x + 2):
-        istart = PositionIcebox(x, 0)
-        iend = PositionIcebox(x, ic.max_y)
-        track, track_node = g.create_xy_track(
-            pos_icebox2vpr(istart),
-            pos_icebox2vpr(iend),
-            segment=dummy,
-            direction=channel.Track.Direction.BI,
-            capacity=0
-        )
-    for y in range(-2, ic.max_y + 2):
-        istart = PositionIcebox(0, y)
-        iend = PositionIcebox(ic.max_x, y)
-        track, track_node = g.create_xy_track(
-            pos_icebox2vpr(istart),
-            pos_icebox2vpr(iend),
-            segment=dummy,
-            direction=channel.Track.Direction.BI,
-            capacity=0
-        )
-
-
 # FIXME: Currently unused.
 def add_global_tracks(g, ic):
     """Add the global tracks to every channel."""
-    add_dummy_tracks(g, ic)
-
     GLOBAL_SPINE_ROW = ic.max_x // 2
     GLOBAL_BUF = "GLOBAL_BUFFER_OUTPUT"
     padin_db = ic.padin_pio_db()
@@ -989,8 +962,6 @@ def add_track_with_localnames(g, ic, segment, connections, lines):
 
 def add_tracks(g, ic, all_group_segments, segtype_filter=None):
     """Adding tracks from icebox segment groups."""
-    add_dummy_tracks(g, ic)
-
     for group in sorted(all_group_segments):
         positions = {}
         for x, y, netname in group:
@@ -1294,11 +1265,6 @@ def main(part, read_rr_graph, write_rr_graph):
     add_edges(g, ic)
     print()
     print_nodes_edges(g)
-    print()
-    print('Padding channels')
-    print('=' * 80)
-    dummy_segment = g.segments['dummy']
-    g.pad_channels(dummy_segment.id)
     print()
     print('Saving')
     open(write_rr_graph, 'w').write(
