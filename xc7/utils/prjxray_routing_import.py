@@ -259,11 +259,7 @@ def create_track_rr_graph(
     print('{} Importing alive tracks'.format(now()))
     import_tracks(conn, alive_tracks, node_mapping, graph, segment_id)
 
-    print(
-        'original {} final {}'.format(
-            num_channels, len(alive_tracks)
-        )
-    )
+    print('original {} final {}'.format(num_channels, len(alive_tracks)))
 
 
 def add_synthetic_edges(conn, graph, node_mapping, grid, synth_tiles):
