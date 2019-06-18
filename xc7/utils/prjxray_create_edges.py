@@ -1149,48 +1149,6 @@ WHERE
     x_max = max(xs)
     y_max = max(ys)
 
-    num_padding = 0
-    capacity = 0
-    for chan, channel_model in x_channel_models.items():
-        for ptc, start, end in channel_model.fill_empty(max(x_min, 1), x_max):
-            assert ptc < x_list[chan]
-
-            num_padding += 1
-            write_cur.execute(
-                """
-INSERT INTO graph_node(
-  graph_node_type, x_low, x_high, y_low,
-  y_high, capacity, ptc
-)
-VALUES
-  (?, ?, ?, ?, ?, ?, ?);
-                """, (
-                    graph2.NodeType.CHANX.value, start, end, chan, chan,
-                    capacity, ptc
-                )
-            )
-
-    for chan, channel_model in y_channel_models.items():
-        for ptc, start, end in channel_model.fill_empty(max(y_min, 1), y_max):
-            assert ptc < y_list[chan]
-
-            num_padding += 1
-            write_cur.execute(
-                """
-INSERT INTO graph_node(
-  graph_node_type, x_low, x_high, y_low,
-  y_high, capacity, ptc
-)
-VALUES
-  (?, ?, ?, ?, ?, ?, ?);
-                """, (
-                    graph2.NodeType.CHANY.value, chan, chan, start, end,
-                    capacity, ptc
-                )
-            )
-
-    print('Number padding nodes {}'.format(num_padding))
-
     write_cur.execute(
         """
     INSERT INTO channel(chan_width_max, x_min, x_max, y_min, y_max) VALUES
@@ -1215,15 +1173,9 @@ VALUES
 
 def verify_channels(conn, alive_tracks):
     """ Verify PTC numbers in channels.
+    No duplicate PTC's.
 
-    There is a very specific requirement from VPR for PTC numbers:
-
-    max(chanx.ptc @ (X, Y) < len(chanx @ (X, Y))
-    max(chany.ptc @ (X, Y) < len(chany @ (X, Y))
-
-    And no duplicate PTC's.
-
-    Violation of these requirements results in a check failure during rr graph
+    Violation of this requirement results in a check failure during rr graph
     loading.
 
     """
@@ -1258,11 +1210,6 @@ def verify_channels(conn, alive_tracks):
         for graph_node_pkey, ptc in chan_ptcs[key]:
             assert ptc not in ptcs, (ptcs[ptc], graph_node_pkey)
             ptcs[ptc] = graph_node_pkey
-
-        assert max(ptcs) < len(ptcs), key
-        assert len(ptcs) == len(set(ptcs)), key
-        assert min(ptcs) == 0, key
-        assert max(ptcs) == len(ptcs) - 1, key
 
 
 def main():
