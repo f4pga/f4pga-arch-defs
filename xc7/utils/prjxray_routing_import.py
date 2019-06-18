@@ -243,44 +243,6 @@ FROM
         )
 
 
-def import_dummy_tracks(conn, graph, segment_id):
-    cur = conn.cursor()
-
-    num_dummy = 0
-    for (graph_node_pkey, track_pkey, graph_node_type, x_low, x_high, y_low,
-         y_high, ptc) in cur.execute(
-             """
-    SELECT pkey, track_pkey, graph_node_type, x_low, x_high, y_low, y_high, ptc FROM
-        graph_node WHERE (graph_node_type = ? or graph_node_type = ?) and capacity = 0;""",
-             (graph2.NodeType.CHANX.value, graph2.NodeType.CHANY.value)):
-
-        node_type = graph2.NodeType(graph_node_type)
-
-        if node_type == graph2.NodeType.CHANX:
-            direction = 'X'
-            x_low = x_low
-        elif node_type == graph2.NodeType.CHANY:
-            direction = 'Y'
-            y_low = y_low
-        else:
-            assert False, node_type
-
-        track = tracks.Track(
-            direction=direction,
-            x_low=x_low,
-            x_high=x_high,
-            y_low=y_low,
-            y_high=y_high,
-        )
-
-        graph.add_track(
-            track=track, segment_id=segment_id, capacity=0, ptc=ptc
-        )
-        num_dummy += 1
-
-    return num_dummy
-
-
 def create_track_rr_graph(
         conn, graph, node_mapping, use_roi, roi, synth_tiles, segment_id
 ):
@@ -297,14 +259,7 @@ def create_track_rr_graph(
     print('{} Importing alive tracks'.format(now()))
     import_tracks(conn, alive_tracks, node_mapping, graph, segment_id)
 
-    print('{} Importing dummy tracks'.format(now()))
-    num_dummy = import_dummy_tracks(conn, graph, segment_id)
-
-    print(
-        'original {} final {} dummy {}'.format(
-            num_channels, len(alive_tracks), num_dummy
-        )
-    )
+    print('original {} final {}'.format(num_channels, len(alive_tracks)))
 
 
 def add_synthetic_edges(conn, graph, node_mapping, grid, synth_tiles):

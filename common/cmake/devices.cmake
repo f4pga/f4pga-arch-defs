@@ -322,14 +322,12 @@ function(DEFINE_DEVICE_TYPE)
   # for each script generate next chain of deps
   if (DEFINE_DEVICE_TYPE_SCRIPTS)
     list(LENGTH ${DEFINE_DEVICE_TYPE_SCRIPTS} SCRIPT_LEN)
-    message(STATUS "script_len ${SCRIPT_LEN} ${DEFINE_DEVICE_TYPE_SCRIPTS}")
     foreach(SCRIPT_IND RANGE ${SCRIPT_LEN})
       list(GET DEFINE_DEVICE_TYPE_SCRIPT_OUTPUT_NAME ${SCRIPT_IND} OUTPUT_NAME)
       list(GET DEFINE_DEVICE_TYPE_SCRIPTS ${SCRIPT_IND} SCRIPT)
       separate_arguments(CMD_W_ARGS UNIX_COMMAND ${SCRIPT})
       list(GET CMD_W_ARGS 0 CMD)
       set(TEMP_TARGET arch.${OUTPUT_NAME}.xml)
-      message(STATUS "device_type adding script")
       add_custom_command(
 	OUTPUT ${TEMP_TARGET}
 	COMMAND ${CMD_W_ARGS} < ${FINAL_FILE} > ${TEMP_TARGET}

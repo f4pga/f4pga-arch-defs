@@ -14,51 +14,18 @@
 
   <!-- TODO: Missing modes: SRL -->
   <mode name="LUT">
-    <pb_type name="{N}5LUT" num_pb="2" class="lut" blif_model=".names">
-      <input  name="in"  num_pins="5" port_class="lut_in" />
-      <output name="out" num_pins="1" port_class="lut_out" />
-      <delay_matrix type="max" in_port="in" out_port="out">
-        {{iopath_A1_O5}}
-        {{iopath_A2_O5}}
-        {{iopath_A3_O5}}
-        {{iopath_A4_O5}}
-        {{iopath_A5_O5}}
-      </delay_matrix>
-      <metadata>
-        <meta name="type">bel</meta>
-        <meta name="subtype">lut</meta>
-      </metadata>
-    </pb_type>
-    <xi:include href="../../common_slice/muxes/f6mux/f6mux.pb_type.xml" />
-
+    <xi:include href="../../common_slice/Nlut/ntemplate.Nlut.pb_type.xml" />
     <interconnect>
-      <!-- LUT5 (upper) -> O6 -->
-      <direct name="{N}LUT_A5_0" input="{N}_DRAM.A[4:0]" output="{N}5LUT[0].in[4:0]"/>
+      <direct name="A1" input="{N}_DRAM.A[0]" output="{N}LUT.A1"/>
+      <direct name="A2" input="{N}_DRAM.A[1]" output="{N}LUT.A2"/>
+      <direct name="A3" input="{N}_DRAM.A[2]" output="{N}LUT.A3"/>
+      <direct name="A4" input="{N}_DRAM.A[3]" output="{N}LUT.A4"/>
+      <direct name="A5" input="{N}_DRAM.A[4]" output="{N}LUT.A5"/>
+      <direct name="A6" input="{N}_DRAM.A[5]" output="{N}LUT.A6"/>
 
-      <!-- LUT5 (lower) -> O5 -->
-      <direct name="{N}LUT_A5_1" input="{N}_DRAM.A[4:0]" output="{N}5LUT[1].in[4:0]"/>
-
-      <!-- MUX used for LUT6 -->
-      <direct name="F6MUX_I0" input="{N}5LUT[0].out" output="F6MUX.I0"><pack_pattern name="LUT5toLUT6"/></direct>
-      <direct name="F6MUX_I1" input="{N}5LUT[1].out" output="F6MUX.I1"><pack_pattern name="LUT5toLUT6"/></direct>
-      <direct name="F6MUX_S"  input="{N}_DRAM.A[5]"  output="F6MUX.S"></direct>
-
-      <!-- LUT outputs -->
-      <direct name="O5" input="{N}5LUT[0].out" output="{N}_DRAM.O5">
-        <pack_pattern name="LUT5x2"/>
-      </direct>
-      <mux    name="O6" input="{N}5LUT[1].out F6MUX.O" output="{N}_DRAM.O6">
-        <pack_pattern in_port="F6MUX.O"        name="LUT5toLUT6" out_port="{N}_DRAM.O6"/>
-        <pack_pattern in_port="{N}5LUT[1].out" name="LUT5x2"     out_port="{N}_DRAM.O6"/>
-      </mux>
+      <direct name="O5" input="{N}LUT.O5" output="{N}_DRAM.O5"/>
+      <direct name="O6" input="{N}LUT.O6" output="{N}_DRAM.O6"/>
     </interconnect>
-    <metadata>
-      <meta name="fasm_type">SPLIT_LUT</meta>
-      <meta name="fasm_lut">
-        INIT[31:0] = {N}5LUT[0]
-        INIT[63:32] = {N}5LUT[1]
-      </meta>
-    </metadata>
   </mode>
   <mode name="64_DUAL_PORT">
     <xi:include href="dpram64.pb_type.xml" />
@@ -74,6 +41,9 @@
       <direct name="O6"    input="DPRAM64.O"        output="{N}_DRAM.O6"        />
       <direct name="DO6"   input="DPRAM64.O"        output="{N}_DRAM.DO6"       />
     </interconnect>
+    <metadata>
+      <meta name="fasm_prefix">{N}LUT</meta>
+    </metadata>
   </mode>
   <mode name="32_DUAL_PORT">
     <xi:include href="dpram32.pb_type.xml" />
@@ -98,10 +68,11 @@
       <direct name="O5"    input="DPRAM32[0].O"     output="{N}_DRAM.O5"        />
       <direct name="DO5"   input="DPRAM32[0].O"     output="{N}_DRAM.DO5_32"    />
     </interconnect>
+    <metadata>
+      <meta name="fasm_prefix">{N}LUT</meta>
+    </metadata>
   </mode>
-
   <metadata>
-    <meta name="fasm_prefix">{N}LUT</meta>
     <meta name="type">block</meta>
     <meta name="subtype">ignore</meta>
   </metadata>
