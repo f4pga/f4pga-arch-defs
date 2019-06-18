@@ -7,7 +7,7 @@ source ${SCRIPT_DIR}/common.sh
 
 echo
 echo "========================================"
-echo "Running xc7 tests"
+echo "Running xc7 tests (make all_xc7)"
 echo "----------------------------------------"
 (
 	cd build

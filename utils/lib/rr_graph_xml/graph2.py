@@ -131,7 +131,7 @@ def enum_from_string(enum_type, s):
 
 def graph_from_xml(input_xml, progressbar=None):
     if progressbar is None:
-        progressbar = lambda x: x
+        progressbar = lambda x: x  # noqa: E731
 
     switches = []
     for switch in input_xml.find('switches').iter('switch'):
@@ -306,7 +306,7 @@ class Graph(object):
             build_pin_edges=True
     ):
         if progressbar is None:
-            progressbar = lambda x: x
+            progressbar = lambda x: x  # noqa: E731
 
         self.input_xml = input_xml
         self.progressbar = progressbar

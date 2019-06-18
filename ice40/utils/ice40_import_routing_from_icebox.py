@@ -56,8 +56,9 @@ This doc: https://docs.google.com/document/d/1kTehDgse8GA2af5HoQ9Ntr41uNL_NJ43Cj
 I think is based on CW's naming but has some divergences
 
 Some terminology clarification:
--A VPR "track" is a specific net that can be connected to in the global fabric
--Icestorm docs primarily talk about "wires" which generally refer to a concept how how these nets are used per tile
+ - A VPR "track" is a specific net that can be connected to in the global fabric
+ - Icestorm docs primarily talk about "wires" which generally refer to a concept
+   how these nets are used per tile
 That is, we take the Icestorm tile wire pattern and convert it to VPR tracks
 
 Other resources:
@@ -71,12 +72,8 @@ Then add globals, then neighbourhood
 # Python libs
 import logging
 import operator
-import os.path
-import re
 import sys
-from collections import namedtuple, OrderedDict, defaultdict
-from functools import reduce
-from os.path import commonprefix
+from collections import defaultdict
 
 # Third party libs
 import lxml.etree as ET
@@ -90,8 +87,6 @@ import lib.rr_graph.channel as channel
 import lib.rr_graph.graph as graph
 import lib.rr_graph.points as points
 from lib.rr_graph import Offset
-from lib.asserts import assert_eq
-from lib.asserts import assert_not_in
 from lib.asserts import assert_type
 
 NP = points.NamedPosition
@@ -353,7 +348,7 @@ def init(device_name, read_rr_graph):
     global ic
     ic = icebox.iceconfig()
     {
-        #'t4':  ic.setup_empty_t4,
+        # 't4':  ic.setup_empty_t4,
         '8k': ic.setup_empty_8k,
         '5k': ic.setup_empty_5k,
         '1k': ic.setup_empty_1k,
@@ -380,10 +375,10 @@ def add_pin_aliases(g, ic):
     name_rr2local['PLB.lutff_global/clk[0]'] = 'lutff_global/clk'
     name_rr2local['PLB.lutff_global/cen[0]'] = 'lutff_global/cen'
     # FIXME: these two are wrong I think, but don't worry about carry for now
-    #name_rr2local['PLB.FCIN[0]'] = 'lutff_0/cin'
-    #name_rr2local['PLB.FCOUT[0]'] = 'lutff_7/cout'
-    #name_rr2local['PLB.lutff_0_cin[0]'] = 'lutff_0/cin'
-    #name_rr2local['PLB.lutff_7_cout[0]'] = 'lutff_7/cout'
+    # name_rr2local['PLB.FCIN[0]'] = 'lutff_0/cin'
+    # name_rr2local['PLB.FCOUT[0]'] = 'lutff_7/cout'
+    # name_rr2local['PLB.lutff_0_cin[0]'] = 'lutff_0/cin'
+    # name_rr2local['PLB.lutff_7_cout[0]'] = 'lutff_7/cout'
     for luti in range(8):
         name_rr2local['PLB.lutff_{}/out[0]'.format(luti)
                       ] = 'lutff_{}/out'.format(luti)
@@ -532,36 +527,9 @@ def add_pin_aliases(g, ic):
                 g.routing.localnames.add(vpos, localname, node)
 
 
-def add_dummy_tracks(g, ic):
-    """Add a single dummy track to every channel."""
-    dummy = g.segments["dummy"]
-    for x in range(-2, ic.max_x + 2):
-        istart = PositionIcebox(x, 0)
-        iend = PositionIcebox(x, ic.max_y)
-        track, track_node = g.create_xy_track(
-            pos_icebox2vpr(istart),
-            pos_icebox2vpr(iend),
-            segment=dummy,
-            direction=channel.Track.Direction.BI,
-            capacity=0
-        )
-    for y in range(-2, ic.max_y + 2):
-        istart = PositionIcebox(0, y)
-        iend = PositionIcebox(ic.max_x, y)
-        track, track_node = g.create_xy_track(
-            pos_icebox2vpr(istart),
-            pos_icebox2vpr(iend),
-            segment=dummy,
-            direction=channel.Track.Direction.BI,
-            capacity=0
-        )
-
-
 # FIXME: Currently unused.
 def add_global_tracks(g, ic):
     """Add the global tracks to every channel."""
-    add_dummy_tracks(g, ic)
-
     GLOBAL_SPINE_ROW = ic.max_x // 2
     GLOBAL_BUF = "GLOBAL_BUFFER_OUTPUT"
     padin_db = ic.padin_pio_db()
@@ -847,9 +815,7 @@ def add_track_with_lines(g, ic, segment, lines, connections, hlc_name_f):
     logging.debug("Created track %s from sections: %s", segment.name, lines)
     for line in lines:
         istart, iend = points.straight_ends([p.pos for p in line])
-        logging.debug(
-            "  %s>%s (%s)", istart, iend, line
-        )  #{n for p, n in named_positions})
+        logging.debug("  %s>%s (%s)", istart, iend, line)
     for ipos, joins in sorted(connections.items()):
         for name_a, name_b in joins:
             logging.debug("  %s %s<->%s", ipos, name_a, name_b)
@@ -875,17 +841,6 @@ def add_track_with_lines(g, ic, segment, lines, connections, hlc_name_f):
         track_node.set_metadata(
             "hlc_coord", "{},{}".format(*istart), offset=Offset(0, 0)
         )
-        # FIXME: Add offset for iend
-
-        # <metadata>
-        #   <meta name="hlc_name">{PI( 0, 1): 'io_1/D_IN_0', PI( 1, 1): 'neigh_op_lft_2,neigh_op_lft_6'}</meta>
-        # </metadata>
-        #
-        # <metadata>
-        #   <meta name="hlc_name" x_offset="0" y_offset="1">io_1/D_IN_0</meta>
-        #   <meta name="hlc_name" x_offset="1" y_offset="1">neigh_op_lft_2</meta>
-        #   <meta name="hlc_name" x_offset="1" y_offset="1">neigh_op_lft_6</meta>
-        # </metadata>
 
         track_fmt = format_node(g, track_node)
         logging.debug(
@@ -960,7 +915,8 @@ def add_track_with_globalname(g, ic, segment, connections, lines, globalname):
 
 
 def add_track_with_localnames(g, ic, segment, connections, lines):
-    """Add tracks to the rr_graph from lines, connections, using local names (from the positions)."""
+    """Add tracks to the rr_graph from lines, connections, using local names (from the positions).
+    """
 
     def hlc_name_f(line, pos):
         for npos in line:
@@ -1006,8 +962,6 @@ def add_track_with_localnames(g, ic, segment, connections, lines):
 
 def add_tracks(g, ic, all_group_segments, segtype_filter=None):
     """Adding tracks from icebox segment groups."""
-    add_dummy_tracks(g, ic)
-
     for group in sorted(all_group_segments):
         positions = {}
         for x, y, netname in group:
@@ -1048,41 +1002,43 @@ def add_tracks(g, ic, all_group_segments, segtype_filter=None):
 def add_edges(g, ic):
     """Adding edges to the rr_graph from icebox edges."""
     for ipos in list(tiles(ic)):
+        """
+        # FIXME: If IO type, connect PACKAGE_PIN_I and PACKAGE_PIN_O manually...
         tile_type = ic.tile_type(*ipos)
         vpos = pos_icebox2vpr(ipos)
 
-        # FIXME: If IO type, connect PACKAGE_PIN_I and PACKAGE_PIN_O manually...
-        ##        if tile_type == "IO":
-        ##            vpr_pio_pos = vpos
-        ##            vpr_pin_pos = pos_icebox2vprpin(ipos)
-        ##            print(tile_type, "pio:", ipos, vpos, "pin:", vpr_pin_pos)
-        ##            if "EMPTY" in g.block_grid[vpr_pin_pos].block_type.name:
-        ##                continue
-        ##
-        ##            print("PIO localnames:", g.routing.localnames[vpr_pio_pos])
-        ##            print("PIN localnames:", g.routing.localnames[vpr_pin_pos])
-        ##            for i in [0, 1]:
-        ##                # pio -> pin
-        ##                pio_iname = "O[{}]".format(i)
-        ##                src_inode = g.routing.localnames[(vpr_pio_pos, pio_iname)]
-        ##                pin_iname = "[{}]O[0]".format(i)
-        ##                dst_inode = g.routing.localnames[(vpr_pin_pos, pin_iname)]
-        ##                edgei = g.routing.create_edge_with_nodes(
-        ##                    src_inode, dst_inode, switch=g.switches["short"])
-        ##                print(vpr_pio_pos, pio_iname, format_node(g, src_inode),
-        ##                      vpr_pin_pos, pin_iname, format_node(g, dst_inode),
-        ##                      edgei)
-        ##
-        ##                # pin -> pio
-        ##                pin_oname = "[{}]I[0]".format(i)
-        ##                src_onode = g.routing.localnames[(vpr_pin_pos, pin_oname)]
-        ##                pio_oname = "I[{}]".format(i)
-        ##                dst_onode = g.routing.localnames[(vpr_pio_pos, pio_oname)]
-        ##                edgeo = g.routing.create_edge_with_nodes(
-        ##                    src_onode, dst_onode, switch=g.switches["short"])
-        ##                print(vpr_pin_pos, pin_oname, format_node(g, src_onode),
-        ##                      vpr_pio_pos, pio_oname, format_node(g, dst_onode),
-        ##                      edgeo)
+        if tile_type == "IO":
+            vpr_pio_pos = vpos
+            vpr_pin_pos = pos_icebox2vprpin(ipos)
+            print(tile_type, "pio:", ipos, vpos, "pin:", vpr_pin_pos)
+            if "EMPTY" in g.block_grid[vpr_pin_pos].block_type.name:
+                continue
+
+            print("PIO localnames:", g.routing.localnames[vpr_pio_pos])
+            print("PIN localnames:", g.routing.localnames[vpr_pin_pos])
+            for i in [0, 1]:
+                # pio -> pin
+                pio_iname = "O[{}]".format(i)
+                src_inode = g.routing.localnames[(vpr_pio_pos, pio_iname)]
+                pin_iname = "[{}]O[0]".format(i)
+                dst_inode = g.routing.localnames[(vpr_pin_pos, pin_iname)]
+                edgei = g.routing.create_edge_with_nodes(
+                    src_inode, dst_inode, switch=g.switches["short"])
+                print(vpr_pio_pos, pio_iname, format_node(g, src_inode),
+                      vpr_pin_pos, pin_iname, format_node(g, dst_inode),
+                      edgei)
+
+                # pin -> pio
+                pin_oname = "[{}]I[0]".format(i)
+                src_onode = g.routing.localnames[(vpr_pin_pos, pin_oname)]
+                pio_oname = "I[{}]".format(i)
+                dst_onode = g.routing.localnames[(vpr_pio_pos, pio_oname)]
+                edgeo = g.routing.create_edge_with_nodes(
+                    src_onode, dst_onode, switch=g.switches["short"])
+                print(vpr_pin_pos, pin_oname, format_node(g, src_onode),
+                      vpr_pio_pos, pio_oname, format_node(g, dst_onode),
+                      edgeo)
+        """
 
         for entry in ic.tile_db(*ipos):
 
@@ -1098,7 +1054,7 @@ def add_edges(g, ic):
                 )
 
             if not ic.tile_has_entry(*ipos, entry):
-                #skip('Non-existent edge!')
+                # skip('Non-existent edge!')
                 continue
 
             switch_type = entry[1]
@@ -1301,7 +1257,7 @@ def main(part, read_rr_graph, write_rr_graph):
     add_tracks(g, ic, segments, segtype_filter="neigh")
     add_tracks(g, ic, segments, segtype_filter="span4")
     add_tracks(g, ic, segments, segtype_filter="span12")
-    #add_global_tracks(g, ic)
+    # add_global_tracks(g, ic)
 
     print()
     print('Adding edges')
@@ -1309,11 +1265,6 @@ def main(part, read_rr_graph, write_rr_graph):
     add_edges(g, ic)
     print()
     print_nodes_edges(g)
-    print()
-    print('Padding channels')
-    print('=' * 80)
-    dummy_segment = g.segments['dummy']
-    g.pad_channels(dummy_segment.id)
     print()
     print('Saving')
     open(write_rr_graph, 'w').write(

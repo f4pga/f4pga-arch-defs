@@ -23,7 +23,7 @@ def main():
     parser.add_argument(
         '--filter',
         required=True,
-        help=
+        help=  # noqa: E251
         "Python regular expression used to filter the complete path to pack.log files."
     )
 

@@ -12,7 +12,7 @@ end_section "symbiflow.configure_cmake"
 
 $SPACER
 
-run_section "symbiflow.conda" "Setting up basic ${YELLOW}conda environment${NC}" "make all_conda"
+make_target all_conda "Setting up basic ${YELLOW}conda environment${NC}"
 
 $SPACER
 
@@ -27,19 +27,23 @@ end_section "info.conda.config"
 
 $SPACER
 
-run_section "symbiflow.format" "Check code formatting" "make check_python"
+make_target check_python "Check code formatting"
 
 $SPACER
 
-run_section "symbiflow.run_v2x_tests" "Run v2x unit tests" "make all_v2x_tests"
+make_target lint_python "Check code style"
 
 $SPACER
 
-run_section "symbiflow.run_python_tests" "Run Python unit tests" "make test_python"
+make_target all_v2x_tests "Run v2x unit tests"
 
 $SPACER
 
-run_section "symbiflow.build_all_arch_xmls" "Build all arch XMLs" "make all_merged_arch_xmls"
+make_target test_python "Run Python unit tests"
+
+$SPACER
+
+make_target all_merged_arch_xmls "Build all arch XMLs"
 
 $SPACER
 
@@ -50,12 +54,12 @@ end_section "symbiflow.build_all_rrgraph_xmls"
 
 $SPACER
 
-run_section "symbiflow.route_all_tests" "Complete all routing tests" "make all_route_tests"
+make_target all_route_tests "Complete all routing tests"
 
 $SPACER
 
 echo "Suppressing some xml linting, as the 5k/8k parts cannot be built on travis."
-run_section "symbiflow.xmllint_all" "Complete all xmllint" "make all_xml_lint"
+make_target all_xml_lint "Complete all xmllint"
 
 $SPACER
 
@@ -67,6 +71,6 @@ $SPACER
 $SPACER
 
 echo "Suppressing some demo bitstreams, as the 8k parts cannot be built on travis."
-run_section "symbiflow.build_all_demos" "Building all demo bitstreams" "make all"
+make_target all "Building all demo bitstreams"
 
 $SPACER

@@ -40,6 +40,7 @@ function(SETUP_ENV)
 
   add_custom_target(env)
   set(ENV_DIR ${symbiflow-arch-defs_BINARY_DIR}/env)
+  set(REL_ENV_DIR env)
   add_custom_target(clean_env
     COMMAND ${CMAKE_COMMAND} -E remove_directory ${ENV_DIR}
     )
@@ -75,6 +76,10 @@ function(SETUP_ENV)
       list(APPEND OUTPUTS ${CONDA_DIR}/bin/${BINARY})
     endforeach()
 
+    add_file_target(FILE ${REL_ENV_DIR}/${MINICONDA_FILE} GENERATED)
+    set(DEPS "")
+    append_file_dependency(DEPS ${REL_ENV_DIR}/${MINICONDA_FILE})
+
     add_custom_command(
       OUTPUT ${OUTPUTS}
       COMMAND sh ${ENV_DIR}/${MINICONDA_FILE} -p ${CONDA_DIR} -b -f
@@ -86,12 +91,15 @@ function(SETUP_ENV)
       COMMAND ${CONDA_BIN} config --add channels conda-forge
       COMMAND ${CONDA_BIN} install lxml
       COMMAND ${CMAKE_COMMAND} -E touch_nocreate ${CONDA_BIN}
-      DEPENDS ${ENV_DIR}/${MINICONDA_FILE}
+      DEPENDS ${DEPS}
       )
 
+    add_file_target(FILE ${REL_ENV_DIR}/conda/bin/conda GENERATED)
+    append_file_dependency(DEPS ${REL_ENV_DIR}/conda/bin/conda)
+
     add_custom_target(
-      conda DEPENDS ${CONDA_BIN}
-      )
+      conda DEPENDS ${DEPS}
+     )
 
     foreach(binary ${MAYBE_CONDA_BINARIES})
       string(TOUPPER ${binary} binary_upper)
@@ -179,7 +187,7 @@ function(ADD_CONDA_PACKAGE)
     if(${ADD_CONDA_PACKAGE_NO_EXE})
       list(LENGTH "${ADD_CONDA_PACKAGE_PROVIDES}" PROVIDES_LENGTH)
       if (NOT ${PROVIDES_LENGTH} EQUAL "0")
-	message(FATAL_ERROR "for NO_EXE ${ADD_CONDA_PACKAGE_NAME} do not set PROVIDE")
+        message(FATAL_ERROR "for NO_EXE ${ADD_CONDA_PACKAGE_NAME} do not set PROVIDE")
       endif()
       set(ADD_CONDA_PACKAGE_PROVIDES ${ADD_CONDA_PACKAGE_NAME})
 
@@ -187,8 +195,8 @@ function(ADD_CONDA_PACKAGE)
       list(APPEND TOUCH_COMMANDS COMMAND ${CMAKE_COMMAND} -E touch ${ADD_CONDA_PACKAGE_NAME}.conda)
     else()
       foreach(OUTPUT ${ADD_CONDA_PACKAGE_PROVIDES})
-	list(APPEND OUTPUTS ${CONDA_DIR}/bin/${OUTPUT})
-	list(APPEND TOUCH_COMMANDS COMMAND ${CMAKE_COMMAND} -E touch_nocreate ${CONDA_DIR}/bin/${OUTPUT})
+        list(APPEND OUTPUTS ${CONDA_DIR}/bin/${OUTPUT})
+        list(APPEND TOUCH_COMMANDS COMMAND ${CMAKE_COMMAND} -E touch_nocreate ${CONDA_DIR}/bin/${OUTPUT})
       endforeach()
     endif()
 
@@ -327,7 +335,8 @@ function(ADD_THIRDPARTY_PACKAGE)
   # ~~~
   # ADD_THIRDPARTY_PACKAGE(
   #   NAME <name>
-  #   PROVIDES <exe list>
+  #   [NO_EXE]
+  #   [PROVIDES <exe list>]
   #   [BUILD_INSTALL_COMMAND <build_install command>]
   #   [DEPENDS <dependencies>]
   #   )
@@ -339,7 +348,7 @@ function(ADD_THIRDPARTY_PACKAGE)
   # in PROVIDES list. <name> is set to the path the executable.  <name>_TARGET
   # is set to the target that will invoke conda.
   #
-  set(options)
+  set(options NO_EXE)
   set(oneValueArgs NAME BUILD_INSTALL_COMMAND)
   set(multiValueArgs PROVIDES DEPENDS)
   cmake_parse_arguments(
@@ -366,10 +375,15 @@ function(ADD_THIRDPARTY_PACKAGE)
     set(TOUCH_COMMANDS "")
     get_target_property_required(PREFIX env CONDA_DIR)
 
-    foreach(OUTPUT ${ADD_THIRDPARTY_PACKAGE_PROVIDES})
-      list(APPEND OUTPUTS ${PREFIX}/bin/${OUTPUT})
-      list(APPEND TOUCH_COMMANDS COMMAND ${CMAKE_COMMAND} -E touch_nocreate ${PREFIX}/bin/${OUTPUT})
-    endforeach()
+    if(${ADD_THIRDPARTY_PACKAGE_NO_EXE})
+      list(APPEND OUTPUTS ${PREFIX}/bin/${ADD_THIRDPARTY_PACKAGE_NAME}.install)
+      list(APPEND TOUCH_COMMANDS COMMAND ${CMAKE_COMMAND} -E touch ${PREFIX}/bin/${ADD_THIRDPARTY_PACKAGE_NAME}.install)
+    else()
+      foreach(OUTPUT ${ADD_THIRDPARTY_PACKAGE_PROVIDES})
+        list(APPEND OUTPUTS ${PREFIX}/bin/${OUTPUT})
+        list(APPEND TOUCH_COMMANDS COMMAND ${CMAKE_COMMAND} -E touch_nocreate ${PREFIX}/bin/${OUTPUT})
+      endforeach()
+    endif()
 
     add_custom_command(
       OUTPUT ${OUTPUTS}
@@ -378,8 +392,9 @@ function(ADD_THIRDPARTY_PACKAGE)
       DEPENDS ${ADD_THIRDPARTY_PACKAGE_DEPENDS}
       )
 
-    set(TARGET thirdparty_${NAME})
-    add_custom_target(${TARGET} DEPENDS ${OUTPUTS})
+    add_custom_target(${NAME} DEPENDS ${OUTPUTS})
+    string(TOUPPER ${NAME} name_upper)
+    set_target_properties(env PROPERTIES ${name_upper}_TARGET ${NAME})
 
     foreach(OUTPUT ${ADD_THIRDPARTY_PACKAGE_PROVIDES})
       string(TOUPPER ${OUTPUT} binary_upper)
@@ -387,24 +402,26 @@ function(ADD_THIRDPARTY_PACKAGE)
       replace_with_env_if_set(${binary_upper})
       set_target_properties(env PROPERTIES
         ${binary_upper} ${${binary_upper}}
-        ${binary_upper}_TARGET ${TARGET})
+        ${binary_upper}_TARGET ${NAME})
     endforeach()
   else()
-  # if command not provide, just look the provides
-    foreach(OUTPUT ${ADD_THIRDPARTY_PACKAGE_PROVIDES})
-      string(TOUPPER ${OUTPUT} binary_upper)
-      if(DEFINED ENV{${binary_upper}})
-        set(${binary_upper} $ENV{${binary_upper}})
-      else()
-        find_program(${binary_upper} ${OUTPUT})
-      endif()
-      if(NOT ${binary_upper})
-        message(FATAL_ERROR "Could not find program ${OUTPUT}.")
-      endif()
-      set_target_properties(env PROPERTIES
-        ${binary_upper} ${${binary_upper}}
-        ${binary_upper}_TARGET "")
-    endforeach()
+    if(NOT ${ADD_THIRDPARTY_PACKAGE_NO_EXE})
+      # if command not provide, just look the provides
+      foreach(OUTPUT ${ADD_THIRDPARTY_PACKAGE_PROVIDES})
+        string(TOUPPER ${OUTPUT} binary_upper)
+        if(DEFINED ENV{${binary_upper}})
+          set(${binary_upper} $ENV{${binary_upper}})
+        else()
+          find_program(${binary_upper} ${OUTPUT})
+        endif()
+        if(NOT ${binary_upper})
+          message(FATAL_ERROR "Could not find program ${OUTPUT}.")
+        endif()
+        set_target_properties(env PROPERTIES
+          ${binary_upper} ${${binary_upper}}
+          ${binary_upper}_TARGET "")
+      endforeach()
+    endif()
   endif()
 
 endfunction(ADD_THIRDPARTY_PACKAGE)

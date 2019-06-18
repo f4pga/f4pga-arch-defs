@@ -2,7 +2,7 @@
   <!-- https://docs.verilogtorouting.org/en/latest/tutorials/arch/timing_modeling/#mixed-sequential-combinational-block -->
   <xi:include href="../dsp_combinational/dsp_combinational.model.xml" xpointer="xpointer(models/child::node())"/>
   <xi:include href="../fig42-dff/dff.model.xml" xpointer="xpointer(models/child::node())"/>
-  <model name="dsp_partial_registered">
+  <model name="DSP_PARTIAL_REGISTERED">
     <input_ports>
       <port name="a" combinational_sink_ports="out" clock="clk"/>
       <port name="b" combinational_sink_ports="out" clock="clk"/>

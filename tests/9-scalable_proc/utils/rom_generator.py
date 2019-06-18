@@ -109,7 +109,7 @@ assign {addr} = I_ADR; // FIXME: Hard coded !
 """
 
     ram64x1d = """
-RAM64X1D # 
+RAM64X1D #
 (
 .INIT   ({init})
 )
@@ -161,15 +161,12 @@ def generate_explicit_dram(rom_data, dram_size_bits=6):
     # whole data set. It has to be an integer multiply of the DRAM size.
     mem_height = int(math.ceil(len(rom_data) / dram_size))
 
-    assert (
-        mem_height == 1
-    )  # FIXME: Only one row works -> 64 words. Need more time to code hierarchical muxes to join them.
+    # FIXME: Only one row works -> 64 words. Need more time to code hierarchical
+    # muxes to join them.
+    assert (mem_height == 1)
 
     sys.stderr.write("dram_size  = %d\n" % dram_size)
     sys.stderr.write("mem_height = %d\n" % mem_height)
-
-    # Generate the module heading
-    verilog_code = ""
 
     # Generate "rows" of DRAMs
     dram_code = ""

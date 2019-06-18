@@ -1,0 +1,450 @@
+[
+ {
+  "color": "#AAAAAA",
+  "type": "NULL"
+ },
+ {
+  "color": "#EEEEEE",
+  "type": "T_TERM_INT"
+ },
+ {
+  "color": "#22FF22",
+  "type": "TERM_CMT"
+ },
+ {
+  "color": "#66FF66",
+  "type": "CLK_TERM"
+ },
+ {
+  "color": "#DDDDDD",
+  "type": "LIOB33_SING"
+ },
+ {
+  "color": "#DDDDDD",
+  "type": "LIOI3_SING"
+ },
+ {
+  "color": "#EEEEEE",
+  "type": "L_TERM_INT"
+ },
+ {
+  "color": "#DDDDDD",
+  "type": "IO_INT_INTERFACE_L"
+ },
+ {
+  "color": "#AAAAFF",
+  "type": "INT_L"
+ },
+ {
+  "color": "#AAAAFF",
+  "type": "INT_R"
+ },
+ {
+  "color": "#FFAAFF",
+  "type": "INT_INTERFACE_R"
+ },
+ {
+  "color": "#22FF22",
+  "type": "CMT_PMV"
+ },
+ {
+  "color": "#AAAAAA",
+  "type": "VBRK"
+ },
+ {
+  "color": "#FFFFAA",
+  "type": "CLBLL_L"
+ },
+ {
+  "color": "#FFAAAA",
+  "type": "CLBLM_R"
+ },
+ {
+  "color": "#AAFFFF",
+  "type": "BRAM_INT_INTERFACE_L"
+ },
+ {
+  "color": "#FFAAAA",
+  "type": "CLBLM_L"
+ },
+ {
+  "color": "#FFFFAA",
+  "type": "CLBLL_R"
+ },
+ {
+  "color": "#EEEEEE",
+  "type": "VFRAME"
+ },
+ {
+  "color": "#FFAAFF",
+  "type": "INT_INTERFACE_L"
+ },
+ {
+  "color": "#66FF66",
+  "type": "CLK_FEED"
+ },
+ {
+  "color": "#EEEEEE",
+  "type": "GTP_INT_INTERFACE"
+ },
+ {
+  "color": "#EEEEEE",
+  "type": "R_TERM_INT_GTX"
+ },
+ {
+  "color": "#AAAAAA",
+  "type": "VBRK_EXT"
+ },
+ {
+  "color": "#DDDDDD",
+  "type": "LIOB33"
+ },
+ {
+  "color": "#DDDDDD",
+  "type": "LIOI3"
+ },
+ {
+  "color": "#AAFFFF",
+  "type": "BRAM_L"
+ },
+ {
+  "color": "#FFAAFF",
+  "type": "DSP_R"
+ },
+ {
+  "color": "#FFAAFF",
+  "type": "DSP_L"
+ },
+ {
+  "color": "#EEEEEE",
+  "type": "GTP_CHANNEL_3"
+ },
+ {
+  "color": "#DDDDDD",
+  "type": "LIOI3_TBYTESRC"
+ },
+ {
+  "color": "#22FF22",
+  "type": "CMT_FIFO_R"
+ },
+ {
+  "color": "#22FF22",
+  "type": "CMT_TOP_R_UPPER_T"
+ },
+ {
+  "color": "#DDDDDD",
+  "type": "LIOI3_TBYTETERM"
+ },
+ {
+  "color": "#66FF66",
+  "type": "CLK_BUFG_REBUF"
+ },
+ {
+  "color": "#EEEEEE",
+  "type": "GTP_CHANNEL_2"
+ },
+ {
+  "color": "#22FF22",
+  "type": "CMT_TOP_R_UPPER_B"
+ },
+ {
+  "color": "#DDDDDD",
+  "type": "HCLK_IOB"
+ },
+ {
+  "color": "#DDDDDD",
+  "type": "HCLK_IOI3"
+ },
+ {
+  "color": "#66FF66",
+  "type": "HCLK_TERM"
+ },
+ {
+  "color": "#66FF66",
+  "type": "HCLK_INT_INTERFACE"
+ },
+ {
+  "color": "#AAFFAA",
+  "type": "HCLK_L"
+ },
+ {
+  "color": "#AAFFAA",
+  "type": "HCLK_R"
+ },
+ {
+  "color": "#66FF66",
+  "type": "HCLK_FIFO_L"
+ },
+ {
+  "color": "#66FF66",
+  "type": "HCLK_CMT"
+ },
+ {
+  "color": "#AAAAAA",
+  "type": "HCLK_VBRK"
+ },
+ {
+  "color": "#66FF66",
+  "type": "HCLK_CLB"
+ },
+ {
+  "color": "#66FF66",
+  "type": "HCLK_BRAM"
+ },
+ {
+  "color": "#66FF66",
+  "type": "HCLK_DSP_R"
+ },
+ {
+  "color": "#66FF66",
+  "type": "HCLK_VFRAME"
+ },
+ {
+  "color": "#66FF66",
+  "type": "CLK_HROW_TOP_R"
+ },
+ {
+  "color": "#66FF66",
+  "type": "HCLK_L_BOT_UTURN"
+ },
+ {
+  "color": "#66FF66",
+  "type": "HCLK_R_BOT_UTURN"
+ },
+ {
+  "color": "#66FF66",
+  "type": "HCLK_DSP_L"
+ },
+ {
+  "color": "#66FF66",
+  "type": "HCLK_GTX"
+ },
+ {
+  "color": "#66FF66",
+  "type": "HCLK_TERM_GTX"
+ },
+ {
+  "color": "#EEEEEE",
+  "type": "PCIE_INT_INTERFACE_R"
+ },
+ {
+  "color": "#EEEEEE",
+  "type": "PCIE_NULL"
+ },
+ {
+  "color": "#EEEEEE",
+  "type": "PCIE_INT_INTERFACE_L"
+ },
+ {
+  "color": "#EEEEEE",
+  "type": "GTP_COMMON"
+ },
+ {
+  "color": "#EEEEEE",
+  "type": "PCIE_TOP"
+ },
+ {
+  "color": "#22FF22",
+  "type": "CMT_TOP_R_LOWER_T"
+ },
+ {
+  "color": "#EEEEEE",
+  "type": "GTP_CHANNEL_1"
+ },
+ {
+  "color": "#EEEEEE",
+  "type": "PCIE_BOT"
+ },
+ {
+  "color": "#22FF22",
+  "type": "CMT_TOP_R_LOWER_B"
+ },
+ {
+  "color": "#EEEEEE",
+  "type": "GTP_CHANNEL_0"
+ },
+ {
+  "color": "#AAAAAA",
+  "type": "BRKH_INT"
+ },
+ {
+  "color": "#AAAAAA",
+  "type": "BRKH_CMT"
+ },
+ {
+  "color": "#AAAAAA",
+  "type": "BRKH_CLB"
+ },
+ {
+  "color": "#AAAAAA",
+  "type": "BRKH_BRAM"
+ },
+ {
+  "color": "#AAAAAA",
+  "type": "BRKH_DSP_R"
+ },
+ {
+  "color": "#AAAAAA",
+  "type": "BRKH_B_TERM_INT"
+ },
+ {
+  "color": "#AAAAAA",
+  "type": "BRKH_CLK"
+ },
+ {
+  "color": "#AAAAAA",
+  "type": "BRKH_TERM_INT"
+ },
+ {
+  "color": "#AAAAAA",
+  "type": "BRKH_DSP_L"
+ },
+ {
+  "color": "#AAAAAA",
+  "type": "BRKH_GTX"
+ },
+ {
+  "color": "#DDDDFF",
+  "type": "INT_FEEDTHRU_1"
+ },
+ {
+  "color": "#DDDDFF",
+  "type": "INT_FEEDTHRU_2"
+ },
+ {
+  "color": "#AAFFFF",
+  "type": "BRAM_INT_INTERFACE_R"
+ },
+ {
+  "color": "#22FF22",
+  "type": "CMT_PMV_L"
+ },
+ {
+  "color": "#DDDDDD",
+  "type": "IO_INT_INTERFACE_R"
+ },
+ {
+  "color": "#EEEEEE",
+  "type": "R_TERM_INT"
+ },
+ {
+  "color": "#DDDDDD",
+  "type": "RIOI3_SING"
+ },
+ {
+  "color": "#DDDDDD",
+  "type": "RIOB33_SING"
+ },
+ {
+  "color": "#DDDDDD",
+  "type": "RIOI3"
+ },
+ {
+  "color": "#DDDDDD",
+  "type": "RIOB33"
+ },
+ {
+  "color": "#EEEEEE",
+  "type": "MONITOR_TOP"
+ },
+ {
+  "color": "#AAFFFF",
+  "type": "BRAM_R"
+ },
+ {
+  "color": "#22FF22",
+  "type": "CMT_FIFO_L"
+ },
+ {
+  "color": "#DDDDDD",
+  "type": "RIOI3_TBYTESRC"
+ },
+ {
+  "color": "#22FF22",
+  "type": "CMT_TOP_L_UPPER_T"
+ },
+ {
+  "color": "#DDDDDD",
+  "type": "RIOI3_TBYTETERM"
+ },
+ {
+  "color": "#EEEEEE",
+  "type": "MONITOR_MID"
+ },
+ {
+  "color": "#22FF22",
+  "type": "CMT_TOP_L_UPPER_B"
+ },
+ {
+  "color": "#EEEEEE",
+  "type": "MONITOR_BOT"
+ },
+ {
+  "color": "#66FF66",
+  "type": "HCLK_FEEDTHRU_1"
+ },
+ {
+  "color": "#66FF66",
+  "type": "HCLK_FEEDTHRU_2"
+ },
+ {
+  "color": "#66FF66",
+  "type": "HCLK_CMT_L"
+ },
+ {
+  "color": "#22FF22",
+  "type": "CMT_TOP_L_LOWER_T"
+ },
+ {
+  "color": "#22FF22",
+  "type": "CMT_TOP_L_LOWER_B"
+ },
+ {
+  "color": "#66FF66",
+  "type": "CLK_BUFG_TOP_R"
+ },
+ {
+  "color": "#66FF66",
+  "type": "CLK_BUFG_BOT_R"
+ },
+ {
+  "color": "#66FF66",
+  "type": "CLK_MTBF2"
+ },
+ {
+  "color": "#66FF66",
+  "type": "CLK_PMV2"
+ },
+ {
+  "color": "#EEEEEE",
+  "type": "CFG_CENTER_TOP"
+ },
+ {
+  "color": "#66FF66",
+  "type": "CLK_PMV2_SVT"
+ },
+ {
+  "color": "#EEEEEE",
+  "type": "CFG_CENTER_MID"
+ },
+ {
+  "color": "#66FF66",
+  "type": "CLK_HROW_BOT_R"
+ },
+ {
+  "color": "#DDDDDD",
+  "type": "CLK_PMVIOB"
+ },
+ {
+  "color": "#EEEEEE",
+  "type": "CFG_CENTER_BOT"
+ },
+ {
+  "color": "#66FF66",
+  "type": "CLK_PMV"
+ },
+ {
+  "color": "#EEEEEE",
+  "type": "B_TERM_INT"
+ }
+]

@@ -7,7 +7,7 @@ source ${SCRIPT_DIR}/common.sh
 
 echo
 echo "========================================"
-echo "Running testarch tests"
+echo "Running testarch tests (make all_testarch)"
 echo "----------------------------------------"
 (
 	cd build

@@ -97,10 +97,11 @@ def ports(
         if name not in carry:
             carry[name] = [None, None]
         if in_port is not None:
-            assert carry[name][
-                0] is None, "Can't set {}: Carry {} in port already {}".format(
+            assert carry[name][0] is None, (
+                "Can't set {}: Carry {} in port already {}".format(
                     in_port, name, carry[name][0]
                 )
+            )
             carry[name][0] = in_port
         if out_port is not None:
             assert carry[name][

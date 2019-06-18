@@ -90,7 +90,7 @@ def get_track_model(conn, track_pkey):
     for idx, (pkey, graph_node_type, x_low, x_high, y_low,
               y_high) in enumerate(c2.execute("""
     SELECT pkey, graph_node_type, x_low, x_high, y_low, y_high
-        FROM graph_node WHERE track_pkey = ?""", (track_pkey, ))):
+      FROM graph_node WHERE track_pkey = ?""", (track_pkey, ))):
         node_type = graph2.NodeType(graph_node_type)
         if node_type == graph2.NodeType.CHANX:
             direction = 'X'

@@ -433,3 +433,113 @@ module RAMB18E1_VPR (
 	parameter WRITE_MODE_B_NO_CHANGE = 1'b0;
 	parameter WRITE_MODE_B_READ_FIRST = 1'b0;
 endmodule
+
+module RAMB36E1_PRIM (
+        input CLKARDCLKU,           input CLKARDCLKL,
+        input CLKBWRCLKU,           input CLKBWRCLKL,
+        input ENARDENU,             input ENARDENL,
+        input ENBWRENU,             input ENBWRENL,
+        input REGCLKARDRCLKU,       input REGCLKARDRCLKL,
+        input REGCEAREGCEU,         input REGCEAREGCEL,
+        input REGCEBU,              input REGCEBL,
+        input REGCLKBU,             input REGCLKBK,
+        input RSTRAMARSTRAMU,       input RSTRAMARSTRAMLRST,
+        input RSTRAMBU,             input RSTRAMBL,
+        input RSTREGARSTREGU,       input RSTREGARSTREGL,
+        input RSTREGBU,             input RSTREGBL,
+
+        input [14:0] ADDRBWRADDRU,  input [15:0] ADDRBWRADDRL,
+        input [14:0] ADDRARDADDRU,  input [15:0] ADDRARDADDRL,
+        input [31:0] DIADI,
+        input [31:0] DIBDI,
+        input [3:0] DIPADIP,
+        input [3:0] DIPBDIP,
+        input [3:0] WEAU,           input [3:0] WEAL,
+        input [7:0] WEBWEU,         input [7:0] WEBWEL,
+
+        output [31:0] DOADO,
+        output [31:0] DOBDO,
+        output [3:0] DOPADOP,
+        output [3:0] DOPBDOP
+);
+        parameter IN_USE = 1'b0;
+
+        parameter ZINIT_A = 36'h0;
+        parameter ZINIT_B = 36'h0;
+
+        parameter ZSRVAL_A = 36'h0;
+        parameter ZSRVAL_B = 36'h0;
+
+        `define INIT_BLOCK(pre) \
+        parameter ``pre``0 = 256'h0000000000000000000000000000000000000000000000000000000000000000; \
+        parameter ``pre``1 = 256'h0000000000000000000000000000000000000000000000000000000000000000; \
+        parameter ``pre``2 = 256'h0000000000000000000000000000000000000000000000000000000000000000; \
+        parameter ``pre``3 = 256'h0000000000000000000000000000000000000000000000000000000000000000; \
+        parameter ``pre``4 = 256'h0000000000000000000000000000000000000000000000000000000000000000; \
+        parameter ``pre``5 = 256'h0000000000000000000000000000000000000000000000000000000000000000; \
+        parameter ``pre``6 = 256'h0000000000000000000000000000000000000000000000000000000000000000; \
+        parameter ``pre``7 = 256'h0000000000000000000000000000000000000000000000000000000000000000; \
+        parameter ``pre``8 = 256'h0000000000000000000000000000000000000000000000000000000000000000; \
+        parameter ``pre``9 = 256'h0000000000000000000000000000000000000000000000000000000000000000; \
+        parameter ``pre``A = 256'h0000000000000000000000000000000000000000000000000000000000000000; \
+        parameter ``pre``B = 256'h0000000000000000000000000000000000000000000000000000000000000000; \
+        parameter ``pre``C = 256'h0000000000000000000000000000000000000000000000000000000000000000; \
+        parameter ``pre``D = 256'h0000000000000000000000000000000000000000000000000000000000000000; \
+        parameter ``pre``E = 256'h0000000000000000000000000000000000000000000000000000000000000000; \
+        parameter ``pre``F = 256'h0000000000000000000000000000000000000000000000000000000000000000
+
+        `INIT_BLOCK(INITP_0);
+        `INIT_BLOCK(INIT_1);
+        `INIT_BLOCK(INIT_2);
+        `INIT_BLOCK(INIT_3);
+        `INIT_BLOCK(INIT_4);
+        `INIT_BLOCK(INIT_5);
+        `INIT_BLOCK(INIT_6);
+        `INIT_BLOCK(INIT_7);
+        `undef INIT_BLOCK
+
+        parameter ZINV_CLKARDCLK = 1'b1;
+        parameter ZINV_CLKBWRCLK = 1'b1;
+        parameter ZINV_ENARDEN = 1'b1;
+        parameter ZINV_ENBWREN = 1'b1;
+        parameter ZINV_RSTRAMARSTRAM = 1'b1;
+        parameter ZINV_RSTRAMB = 1'b1;
+        parameter ZINV_RSTREGARSTREG = 1'b1;
+        parameter ZINV_RSTREGB = 1'b1;
+        parameter ZINV_REGCLKARDRCLK = 1'b1;
+        parameter ZINV_REGCLKB = 1'b1;
+
+        parameter DOA_REG = 1'b0;
+        parameter DOB_REG = 1'b0;
+
+        parameter integer SDP_READ_WIDTH_72 = 1'b0;
+        parameter integer READ_WIDTH_A_36 = 1'b0;
+        parameter integer READ_WIDTH_A_18 = 1'b0;
+        parameter integer READ_WIDTH_A_9 = 1'b0;
+        parameter integer READ_WIDTH_A_4 = 1'b0;
+        parameter integer READ_WIDTH_A_2 = 1'b0;
+        parameter integer READ_WIDTH_A_1 = 1'b1;
+        parameter integer READ_WIDTH_B_18 = 1'b0;
+        parameter integer READ_WIDTH_B_9 = 1'b0;
+        parameter integer READ_WIDTH_B_4 = 1'b0;
+        parameter integer READ_WIDTH_B_2 = 1'b0;
+        parameter integer READ_WIDTH_B_1 = 1'b1;
+
+        parameter integer SDP_WRITE_WIDTH_72 = 1'b0;
+        parameter integer WRITE_WIDTH_A_36 = 1'b0;
+        parameter integer WRITE_WIDTH_A_18 = 1'b0;
+        parameter integer WRITE_WIDTH_A_9 = 1'b0;
+        parameter integer WRITE_WIDTH_A_4 = 1'b0;
+        parameter integer WRITE_WIDTH_A_2 = 1'b0;
+        parameter integer WRITE_WIDTH_A_1 = 1'b1;
+        parameter integer WRITE_WIDTH_B_18 = 1'b0;
+        parameter integer WRITE_WIDTH_B_9 = 1'b0;
+        parameter integer WRITE_WIDTH_B_4 = 1'b0;
+        parameter integer WRITE_WIDTH_B_2 = 1'b0;
+        parameter integer WRITE_WIDTH_B_1 = 1'b1;
+
+        parameter WRITE_MODE_A_NO_CHANGE = 1'b0;
+        parameter WRITE_MODE_A_READ_FIRST = 1'b0;
+        parameter WRITE_MODE_B_NO_CHANGE = 1'b0;
+        parameter WRITE_MODE_B_READ_FIRST = 1'b0;
+endmodule

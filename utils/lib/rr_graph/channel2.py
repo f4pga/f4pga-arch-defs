@@ -45,7 +45,7 @@ class Channel(object):
 
     def __init__(self, tracks):
         """
-        
+
         Attributes
         ----------
         tracks : list of tuples of (min, max, idx)

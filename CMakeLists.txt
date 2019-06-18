@@ -3,8 +3,8 @@ project(symbiflow-arch-defs)
 enable_testing()
 
 include(common/cmake/util.cmake)
-include(common/cmake/env.cmake)
 include(common/cmake/file_targets.cmake)
+include(common/cmake/env.cmake)
 include(common/cmake/xml.cmake)
 include(common/cmake/v2x.cmake)
 include(common/cmake/devices.cmake)
@@ -42,7 +42,7 @@ add_conda_package(
 add_conda_package(
   NAME vtr
   PROVIDES vpr genfasm
-  PACKAGE_SPEC "vtr 7.0.5_7464_g2e7e9ef93 20190531_112316"
+  PACKAGE_SPEC "vtr 7.0.5_7423_g43cfd5baf 20190618_143837"
   )
 add_conda_package(
   NAME libxslt
@@ -78,29 +78,32 @@ add_conda_pip(
   NAME progressbar2
   NO_EXE
 )
-
 add_conda_pip(
   NAME simplejson
   NO_EXE
 )
-
 add_conda_pip(
   NAME intervaltree
   NO_EXE
 )
-
 add_conda_pip(
   NAME pdfminer.six
   NO_EXE
 )
-
 add_conda_pip(
   NAME pyjson5
   NO_EXE
 )
-
 add_conda_pip(
   NAME ply
+  NO_EXE
+)
+add_conda_pip(
+  NAME svgwrite
+  NO_EXE
+)
+add_conda_pip(
+  NAME cairosvg
   NO_EXE
 )
 
@@ -108,9 +111,9 @@ get_target_property_required(PYTHON3 env PYTHON3)
 get_target_property(PYTHON3_TARGET env PYTHON3_TARGET)
 
 add_thirdparty_package(
-	NAME sdf_timing
-	BUILD_INSTALL_COMMAND "cd ${symbiflow-arch-defs_SOURCE_DIR}/third_party/python-sdf-timing && ${PYTHON3} setup.py develop"
-	PROVIDES sdf_timing
+  NAME sdf_timing
+  BUILD_INSTALL_COMMAND "cd ${symbiflow-arch-defs_SOURCE_DIR}/third_party/python-sdf-timing && ${PYTHON3} setup.py develop"
+  NO_EXE
   DEPENDS ${PYTHON3_TARGET}
 )
 
@@ -167,7 +170,7 @@ get_target_property_required(FLAKE8_TARGET env FLAKE8_TARGET)
 add_custom_target(
   lint_python
   DEPENDS ${FLAKE8_TARGET}
-  COMMAND ${symbiflow-arch-defs_SOURCE_DIR}/common/python_health_helper.sh -l -p "${FLAKE8} --exit-zero"
+  COMMAND ${symbiflow-arch-defs_SOURCE_DIR}/common/python_health_helper.sh -l -p "${FLAKE8}"
   )
 
 

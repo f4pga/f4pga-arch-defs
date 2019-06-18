@@ -51,6 +51,7 @@ set(XML_CANONICALIZE_MERGE_FILES
   common/xml/pack-patterns.xsl
   common/xml/remove-duplicate-models.xsl
   common/xml/attribute-fixes.xsl
+  common/xml/sort-tags.xsl
   )
 
 set(XML_CANONICALIZE_DEPS "")

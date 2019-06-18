@@ -1,6 +1,6 @@
 <models xmlns:xi="http://www.w3.org/2001/XInclude">
   <!-- https://docs.verilogtorouting.org/en/latest/tutorials/arch/timing_modeling/#sequential-block-no-internal-paths -->
-  <model name="dsp_combinational">
+  <model name="DSP_COMBINATIONAL">
     <input_ports>
       <port name="a" combinational_sink_ports="out"/>
       <port name="b" combinational_sink_ports="out"/>

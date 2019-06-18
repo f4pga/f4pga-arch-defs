@@ -8,10 +8,8 @@ MUXes come in two types,
 """
 
 import argparse
-import io
 import itertools
 import lxml.etree as ET
-import math
 import os
 import sys
 
@@ -75,7 +73,7 @@ parser.name_inputs = parser.add_argument(
     '--name-inputs',
     type=str,
     default=None,
-    help=
+    help=  # noqa: E251
     "Comma deliminator list for the name of each input to the mux (implies --split-inputs)."
 )
 
@@ -97,16 +95,16 @@ parser.name_selects = parser.add_argument(
     '--name-selects',
     type=str,
     default=None,
-    help=
+    help=  # noqa: E251
     "Comma deliminator list for the name of each select to the mux (implies --split-selects)."
 )
 
 parser.add_argument(
     '--order',
-    choices=[''.join(x) for x in itertools.permutations('ios')
-             ] + [''.join(x) for x in itertools.permutations('io')],
+    choices=[''.join(x) for x in itertools.permutations('ios')] +
+    [''.join(x) for x in itertools.permutations('io')],
     default='iso',
-    help=
+    help=  # noqa: E251
     """Order of the arguments for the MUX. (i - Inputs, o - Output, s - Select)"""
 )
 
@@ -136,8 +134,6 @@ parser.add_argument(
 
 
 def main(argv):
-    call_args = list(argv)
-
     args = parser.parse_args()
 
     def output_block(name, s):
@@ -168,7 +164,6 @@ def main(argv):
 
     mydir = normpath(os.path.dirname(mypath), to=outdir)
     mux_dir = normpath(os.path.join(mydir, '..', 'vpr', 'muxes'), to=outdir)
-    buf_dir = normpath(os.path.join(mydir, '..', 'vpr', 'buf'), to=outdir)
 
     if args.data_width > 1 and not args.split_inputs:
         assert False, "data_width(%d) > 1 requires using split_inputs" % (
@@ -198,10 +193,9 @@ def main(argv):
         args.split_selects = True
 
         names = args.name_selects.split(',')
-        assert len(names
-                   ) == args.width_bits, "%s select names, but %s needed." % (
-                       names, args.width_bits
-                   )
+        assert len(names) == args.width_bits, (
+            "%s select names, but %s needed." % (names, args.width_bits)
+        )
         args.name_selects = names
     elif args.split_selects:
         args.name_selects = [
@@ -228,12 +222,6 @@ Generated with %s
     model_xml_filename = '%s.model.xml' % args.outfilename
     pbtype_xml_filename = '%s.pb_type.xml' % args.outfilename
     sim_filename = '%s.sim.v' % args.outfilename
-
-    output_files = [
-        model_xml_filename,
-        pbtype_xml_filename,
-        sim_filename,
-    ]
 
     # ------------------------------------------------------------------------
     # Work out the port and their names
@@ -288,8 +276,6 @@ Generated with %s
     # Generate the sim.v Verilog module
     # ------------------------------------------------------------------------
 
-    defs = {'i': 'input wire', 's': 'input wire', 'o': 'output wire'}
-
     sim_pathname = os.path.join(outdir, sim_filename)
     with open(sim_pathname, "w") as f:
         module_args = []
@@ -298,7 +284,6 @@ Generated with %s
                 continue
             module_args.append(port.name)
 
-        mux_prefix = {'logic': '', 'routing': 'r'}[args.type]
         mux_class = {'logic': 'mux', 'routing': 'routing'}[args.type]
 
         f.write("/* ")

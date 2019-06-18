@@ -1,4 +1,4 @@
-module block(c1, c2, a, b, c, o1, o2);
+module BLOCK(c1, c2, a, b, c, o1, o2);
 	input wire c1;
 	input wire c2;
 	input wire a;

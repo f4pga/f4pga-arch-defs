@@ -2,7 +2,7 @@
  * `input wire a` should be detected as a clock because it drives the flip
  * flop.
  */
-module block(a, b, c, d);
+module BLOCK(a, b, c, d);
 	input wire a;
 	input wire b;
 	input wire c;

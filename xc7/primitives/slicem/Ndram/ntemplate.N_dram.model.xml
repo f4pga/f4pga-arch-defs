@@ -1,5 +1,6 @@
 <!-- vim: set ai sw=1 ts=1 sta et: -->
 <models xmlns:xi="http://www.w3.org/2001/XInclude">
+ <xi:include href="../../common_slice/Nlut/ntemplate.Nlut.model.xml" xpointer="xpointer(models/child::node())"/>
  <model name="NO_DRAM">
   <input_ports>
    <port                name="A" />

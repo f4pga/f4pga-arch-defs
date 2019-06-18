@@ -189,8 +189,8 @@ class StraightSegment(list):
             return pclass(self[0].x, pos.y)
         elif self.d == StraightSegment.Type.S:
             return pclass(self[0].x, pos.y)
-            #assert pos.x == self[0].x or pos.y == self[0].y, (pos, self)
-            #return pclass(*pos)
+            # assert pos.x == self[0].x or pos.y == self[0].y, (pos, self)
+            # return pclass(*pos)
         assert self.d != StraightSegment.Type.S, self
         assert False, self
 
@@ -542,7 +542,7 @@ def decompose_into_straight_lines(positions):
     >>> print_conns(conns)
     1x16 span4_horz_l_12_to_span4_vert_t_12<->span4_horz_l_12_to_span4_vert_t_12_x
 
-    """
+    """ # noqa: 501
     assert len(positions) > 0, positions
     for pos in positions:
         assert_type(pos, NamedPosition)
@@ -593,7 +593,7 @@ def decompose_into_straight_lines(positions):
                 s.append(connection_p)
             connections[p].append((current_name, new_name))
         s.sort()
-        #print(s)
+        # print(s)
         segments['ALL'].append(s)
         segments[s.d.value].append(s)
 
@@ -617,8 +617,8 @@ def decompose_into_straight_lines(positions):
                 longest, seg = seg, longest
             other.append(seg)
 
-        #assert len(other) == 1, (longest, other)
-        #assert len(longest) > 1, (longest, other)
+        # assert len(other) == 1, (longest, other)
+        # assert len(longest) > 1, (longest, other)
         pointa, pointb = straight_closet(longest, other[0])
         corner_point = longest.extend_to(pointb)
         corner_name = "{}_to_{}".format(pointa.names[0], pointb.names[0])
@@ -769,8 +769,8 @@ def straight_closet(line1, line2):
                 pa, pb = p1, p2
                 min_d = d
 
-    assert pa != None, "{} {}".format(line1, line2)
-    assert pb != None, "{} {}".format(line1, line2)
+    assert pa is not None, "{} {}".format(line1, line2)
+    assert pb is not None, "{} {}".format(line1, line2)
     return pa, pb
 
 

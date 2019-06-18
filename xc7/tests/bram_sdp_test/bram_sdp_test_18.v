@@ -1,15 +1,21 @@
 module ram0(
+    // Write port
+    input wrclk,
+    input [31:0] di,
+    input wren,
+    input [8:0] wraddr,
     // Read port
     input rdclk,
-    input [9:0] rdaddr,
-    output reg [15:0] do);
+    input rden,
+    input [8:0] rdaddr,
+    output reg [31:0] do);
 
-    (* ram_style = "block" *) reg [15:0] ram[0:1023];
+    (* ram_style = "block" *) reg [31:0] ram[0:511];
 
 
     genvar i;
     generate
-        for(i=0; i<1024; i=i+1)
+        for (i=0; i<1024; i=i+1)
         begin
             initial begin
                 ram[i] <= i;
@@ -17,14 +23,22 @@ module ram0(
         end
     endgenerate
 
+    always @ (posedge wrclk) begin
+        if (wren == 1) begin
+            ram[wraddr] <= di;
+        end
+    end
+
     always @ (posedge rdclk) begin
-        do <= ram[rdaddr];
+        if (rden == 1) begin
+            do <= ram[rdaddr];
+        end
     end
 
 endmodule
 
 module top (
-    input clk,
+    input  clk,
     input rx,
     output tx,
     input [15:0] sw,
@@ -61,35 +75,45 @@ module top (
         .rx_data_ready(rx_data_ready_wire)
     );
 
-    wire [9:0] read_address;
-    wire [15:0] read_data;
+    wire [8:0] write_address;
+    wire [8:0] read_address;
+    wire [31:0] read_data;
+    wire [31:0] write_data;
+    wire write_enable;
+    wire read_enable = !write_enable;
 
-    wire [9:0] rom_read_address;
-    reg [15:0] rom_read_data;
+    wire [8:0] rom_read_address;
+    reg [31:0] rom_read_data;
 
     always @(posedge clk) begin
-        rom_read_data[9:0] <= rom_read_address;
-        rom_read_data[15:10] <= 1'b0;
+        rom_read_data[8:0] <= rom_read_address;
+        rom_read_data[31:9] <= 1'b0;
     end
 
     wire loop_complete;
     wire error_detected;
     wire [7:0] error_state;
-    wire [9:0] error_address;
-    wire [15:0] expected_data;
-    wire [15:0] actual_data;
+    wire [8:0] error_address;
+    wire [31:0] expected_data;
+    wire [31:0] actual_data;
 
-    ROM_TEST #(
+    RAM_TEST #(
         .ADDR_WIDTH(10),
-        .DATA_WIDTH(16),
+        .DATA_WIDTH(32),
+        .IS_DUAL_PORT(1),
         .ADDRESS_STEP(1),
-        .MAX_ADDRESS(1023)
+        .MAX_ADDRESS(511),
+        .LFSR_WIDTH(32),
+        .LFSR_POLY(32'h90000001)
     ) dram_test (
         .rst(!nrst),
         .clk(clk),
         // Memory connection
         .read_data(read_data),
+        .write_data(write_data),
+        .write_enable(write_enable),
         .read_address(read_address),
+        .write_address(write_address),
         // INIT ROM connection
         .rom_read_data(rom_read_data),
         .rom_read_address(rom_read_address),
@@ -103,17 +127,23 @@ module top (
     );
 
     ram0 #(
-    ) bram(
+    ) bram (
+        // Write port
+        .wrclk(clk),
+        .di(write_data),
+        .wren(write_enable),
+        .wraddr(write_address),
         // Read port
         .rdclk(clk),
+        .rden(read_enable),
         .rdaddr(read_address),
         .do(read_data)
     );
 
     ERROR_OUTPUT_LOGIC #(
-        .DATA_WIDTH(16),
+        .DATA_WIDTH(32),
         .ADDR_WIDTH(10)
-    ) output_logic(
+    ) output_logic (
         .clk(clk),
         .rst(!nrst),
         .loop_complete(loop_complete),
