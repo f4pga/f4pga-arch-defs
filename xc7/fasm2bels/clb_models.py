@@ -383,7 +383,7 @@ def process_slice(top, s):
             del lut_modes['D']
 
             if lut_modes['B'] == 'RAM128X1S':
-                ram128 = Bel('RAM128X1S', name='RAM128X1S_AB', priority=3)
+                ram128 = Bel('RAM128X1S', name='RAM128X1S_AB', priority=4)
                 site.add_sink(ram128, 'WE', WE)
                 site.add_sink(ram128, 'WCLK', "CLK")
                 site.add_sink(ram128, 'D', "BI")
@@ -452,14 +452,16 @@ def process_slice(top, s):
             del lut_modes['C']
             del lut_modes['D']
 
-        for lut in 'BD':
+        for priority, lut in zip([4, 3], 'BD'):
             minus_one = chr(ord(lut) - 1)
 
             if lut_modes[lut] == 'RAM64X1D':
                 assert lut_modes[minus_one] == lut_modes[lut]
 
                 ram64 = Bel(
-                    'RAM64X1D', name='RAM64X1D_' + minus_one + lut, priority=3
+                    'RAM64X1D',
+                    name='RAM64X1D_' + minus_one + lut,
+                    priority=priority
                 )
                 ram64.set_bel(minus_one + '6LUT')
 
@@ -492,7 +494,9 @@ def process_slice(top, s):
                 del lut_modes[minus_one]
             elif lut_modes[lut] == 'RAM32X1D':
                 ram32 = Bel(
-                    'RAM32X1D', name='RAM32X1D_' + minus_one + lut, priority=3
+                    'RAM32X1D',
+                    name='RAM32X1D_' + minus_one + lut,
+                    priority=priority
                 )
 
                 site.add_sink(ram32, 'WE', WE)
@@ -521,7 +525,7 @@ def process_slice(top, s):
                 del lut_modes[lut]
                 del lut_modes[minus_one]
 
-        for lut in 'ABCD':
+        for priority, lut in zip([6, 5, 4, 3], 'ABCD'):
             if lut not in lut_modes:
                 continue
 
@@ -532,7 +536,9 @@ def process_slice(top, s):
                 )
                 site.add_bel(luts[lut])
             elif lut_modes[lut] == 'RAM64X1S':
-                ram64 = Bel('RAM64X1S', name='RAM64X1S_' + lut, priority=3)
+                ram64 = Bel(
+                    'RAM64X1S', name='RAM64X1S_' + lut, priority=priority
+                )
 
                 site.add_sink(ram64, 'WE', WE)
                 site.add_sink(ram64, 'WCLK', "CLK")
@@ -551,7 +557,9 @@ def process_slice(top, s):
 
                 site.add_bel(ram64)
             elif lut_modes[lut] == 'RAM32X2S':
-                ram32 = Bel('RAM32X1S', name='RAM32X1S_' + lut, priority=3)
+                ram32 = Bel(
+                    'RAM32X1S', name='RAM32X1S_' + lut, priority=priority
+                )
 
                 site.add_sink(ram32, 'WE', WE)
                 site.add_sink(ram32, 'WCLK', "CLK")
@@ -584,7 +592,7 @@ def process_slice(top, s):
                 bel_type = 'MUXF7'
                 opin = 'O'
 
-            f7amux = Bel(bel_type, 'MUXF7A', priority=4)
+            f7amux = Bel(bel_type, 'MUXF7A', priority=7)
             f7amux.set_bel('F7AMUX')
 
             site.connect_internal(f7amux, 'I0', 'BO6')
@@ -601,7 +609,7 @@ def process_slice(top, s):
                 bel_type = 'MUXF7'
                 opin = 'O'
 
-            f7bmux = Bel(bel_type, 'MUXF7B', priority=4)
+            f7bmux = Bel(bel_type, 'MUXF7B', priority=7)
             f7bmux.set_bel('F7BMUX')
 
             site.connect_internal(f7bmux, 'I0', 'DO6')
@@ -618,7 +626,7 @@ def process_slice(top, s):
                 bel_type = 'MUXF8'
                 opin = 'O'
 
-            f8mux = Bel(bel_type, priority=4)
+            f8mux = Bel(bel_type, priority=7)
 
             site.connect_internal(f8mux, 'I0', 'F7BMUX_O')
             site.connect_internal(f8mux, 'I1', 'F7AMUX_O')
