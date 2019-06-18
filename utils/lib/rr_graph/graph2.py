@@ -143,8 +143,53 @@ class NodeSegment(namedtuple('NodeSegment', 'segment_id')):
     """
 
 
+class CanonicalLoc(namedtuple('CanonicalLoc', 'x y')):
+    """ Canonical location of channel node.
+
+    The canonical location of the node is an unambigous location for the given
+    node in the "canonical grid".  For example, on an L-shaped wire, the
+    canonical location is the location of the input edge.
+
+    """
+    pass
+
+
+class ConnectionBox(namedtuple('ConnectionBox', 'x y id')):
+    """ Connection box location and definition.
+
+    The connection box location is the place in the "canonical grid" where
+    a IPIN is connected too. This allows lookahead from a routing channel
+    to the IPIN connection box, which uses the regular interconnect fabric.
+
+    Attributes
+    ----------
+    x, y : int
+        Canonical location of connection box for IPIN.
+    id : int
+        0-based index into ConnectionBoxes.boxes vector of connection box names.
+
+    """
+    pass
+
+
+class ConnectionBoxes(namedtuple('ConnectionBoxes', 'x_dim y_dim boxes')):
+    """ Definition of the canonical routing grid.
+
+    Attributes
+    ----------
+    x_dim, y_dim : int
+        Dimensions of the canonical grid.  All ConnectionBox and CanonicalLoc
+        coordinates should be [0, x_dim), [0, y_dim).
+    boxes : list of str
+        List of names for connection boxes.
+    """
+    pass
+
+
 class Node(namedtuple(
-        'Node', 'id type direction capacity loc timing metadata segment')):
+        'Node',
+        'id type direction capacity loc timing metadata segment canonical_loc connection_box'
+)):
     """https://vtr-verilog-to-routing.readthedocs.io/en/latest/vpr/file_formats.html#tag-nodes-node
     """
 
@@ -213,6 +258,9 @@ class Graph(object):
         self.tracks = []
         self.nodes = nodes
         self.edges = []
+
+        self.connection_boxes = []
+        self.connection_box_map = {}
 
         # Map of (x, y) to GridLoc definitions.
         self.loc_map = {}
@@ -309,9 +357,43 @@ class Graph(object):
                         else:
                             assert False, (loc, pin_class)
 
+    def maybe_add_connection_box(self, box):
+        """ Get id for connection box name.
+
+        If connection box was not declared previously, assign an id for it.
+
+        Arugments
+        ---------
+        box : str
+            Name of connection box.
+        """
+        if box not in self.connection_box_map:
+            idx = len(self.connection_boxes)
+            self.connection_boxes.append(box)
+            self.connection_box_map[box] = idx
+            return idx
+        else:
+            return self.connection_box_map[box]
+
+    def create_connection_box_object(self, x_dim, y_dim):
+        """ Create ConnectionBoxes object defining canonical grid. """
+        return ConnectionBoxes(
+            x_dim=x_dim,
+            y_dim=y_dim,
+            boxes=tuple(self.connection_boxes),
+        )
+
     def _create_node(
-            self, type, direction, loc, segment, timing, capacity=1,
-            metadata=None
+            self,
+            type,
+            direction,
+            loc,
+            segment,
+            timing,
+            capacity=1,
+            metadata=None,
+            canonical_loc=None,
+            connection_box=None,
     ):
 
         if timing is None:
@@ -329,7 +411,9 @@ class Graph(object):
                 loc=loc,
                 timing=timing,
                 metadata=metadata,
-                segment=segment
+                segment=segment,
+                canonical_loc=canonical_loc,
+                connection_box=connection_box,
             )
         )
 
@@ -349,7 +433,9 @@ class Graph(object):
             timing=None,
             name=None,
             ptc=None,
-            direction=NodeDirection.BI_DIR
+            direction=NodeDirection.BI_DIR,
+            canonical_loc=None,
+            connection_box=None,
     ):
         """Take a Track and add node to the graph with supplimental data"""
 
@@ -389,6 +475,8 @@ class Graph(object):
                 timing=timing,
                 segment=NodeSegment(segment_id=segment_id),
                 metadata=metadata,
+                canonical_loc=canonical_loc,
+                connection_box=connection_box,
             )
         )
 

@@ -550,6 +550,56 @@ FROM
 
             ET.SubElement(switchlist_xml, 'switch', attrib)
 
+        segmentlist_xml = ET.SubElement(arch_xml, 'segmentlist')
+
+        # VPR requires a segment, so add one.
+        dummy_xml = ET.SubElement(
+            segmentlist_xml, 'segment', {
+                'name': 'dummy',
+                'length': '2',
+                'freq': '1.0',
+                'type': 'bidir',
+                'Rmetal': '0',
+                'Cmetal': '0',
+            }
+        )
+        ET.SubElement(dummy_xml, 'wire_switch', {
+            'name': 'buffer',
+        })
+        ET.SubElement(dummy_xml, 'opin_switch', {
+            'name': 'buffer',
+        })
+        ET.SubElement(dummy_xml, 'sb', {
+            'type': 'pattern',
+        }).text = ' '.join('1' for _ in range(3))
+        ET.SubElement(dummy_xml, 'cb', {
+            'type': 'pattern',
+        }).text = ' '.join('1' for _ in range(2))
+
+        for (name, length) in c.execute("SELECT name, length FROM segment"):
+            segment_xml = ET.SubElement(
+                segmentlist_xml, 'segment', {
+                    'name': name,
+                    'length': str(length),
+                    'freq': '1.0',
+                    'type': 'bidir',
+                    'Rmetal': '0',
+                    'Cmetal': '0',
+                }
+            )
+            ET.SubElement(segment_xml, 'wire_switch', {
+                'name': 'buffer',
+            })
+            ET.SubElement(segment_xml, 'opin_switch', {
+                'name': 'buffer',
+            })
+            ET.SubElement(segment_xml, 'sb', {
+                'type': 'pattern',
+            }).text = ' '.join('1' for _ in range(length + 1))
+            ET.SubElement(segment_xml, 'cb', {
+                'type': 'pattern',
+            }).text = ' '.join('1' for _ in range(length))
+
     ET.SubElement(
         switchlist_xml,
         'switch',
@@ -602,32 +652,6 @@ FROM
             'peak': '1.0',
         }
     )
-
-    segmentlist_xml = ET.SubElement(arch_xml, 'segmentlist')
-
-    # VPR requires a segment, so add one.
-    dummy_xml = ET.SubElement(
-        segmentlist_xml, 'segment', {
-            'name': 'dummy',
-            'length': '12',
-            'freq': '1.0',
-            'type': 'bidir',
-            'Rmetal': '101',
-            'Cmetal': '22.5e-15',
-        }
-    )
-    ET.SubElement(dummy_xml, 'wire_switch', {
-        'name': 'buffer',
-    })
-    ET.SubElement(dummy_xml, 'opin_switch', {
-        'name': 'buffer',
-    })
-    ET.SubElement(dummy_xml, 'sb', {
-        'type': 'pattern',
-    }).text = ' '.join('1' for _ in range(13))
-    ET.SubElement(dummy_xml, 'cb', {
-        'type': 'pattern',
-    }).text = ' '.join('1' for _ in range(12))
 
     directlist_xml = ET.SubElement(arch_xml, 'directlist')
 
