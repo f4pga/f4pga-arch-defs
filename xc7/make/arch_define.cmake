@@ -25,7 +25,6 @@ function(ADD_XC7_ARCH_DEFINE)
       --place_delay_model delta_override
       --router_lookahead connection_box_map
       --strict_checks off
-      --astar_fac 0.6
     RR_PATCH_TOOL
       ${symbiflow-arch-defs_SOURCE_DIR}/xc7/utils/prjxray_routing_import.py
     RR_PATCH_CMD "${CMAKE_COMMAND} -E env \
