@@ -1372,11 +1372,16 @@ if {{ $net == {{}} }} {{
                 )
 
             yield """
-set_property FIXED_ROUTE {fixed_route} $net
+set route_with_dummy {fixed_route}
 """.format(
                 fixed_route=' '.
                 join(net.make_fixed_route(self.conn, self.wire_pkey_to_wire))
             )
+
+            # Remove extra {} elements required to construct 1-length lists.
+            yield """\
+regsub -all {{}} $route_with_dummy "" route
+set_property FIXED_ROUTE $route $net"""
 
     def get_bels(self):
         """ Yield a list of Bel objects in the module. """

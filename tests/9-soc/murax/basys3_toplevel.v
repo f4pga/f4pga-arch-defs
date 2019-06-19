@@ -4,7 +4,8 @@ module toplevel(
     input   io_mainClk,
     output  io_uart_txd,
     input   io_uart_rxd,
-    output [7:0] io_led
+    input [15:0] sw,
+    output [15:0] io_led
   );
 
   wire [31:0] io_gpioA_read;
@@ -18,7 +19,8 @@ module toplevel(
   wire io_uart_txd;
   wire io_uart_rxd;
 
-  assign io_led = io_gpioA_write[7 : 0];
+  assign io_led = io_gpioA_write[15: 0];
+  assign io_gpioA_read[15:0] = sw;
 
   Murax murax (
     .io_asyncReset(0),
