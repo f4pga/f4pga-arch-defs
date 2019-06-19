@@ -75,6 +75,7 @@ function(SCALABLE_PROC)
      NAME ${TOP_NAME}
      BOARD ${SCALABLE_PROC_BOARD}
      INPUT_IO_FILE ${SCALABLE_PROC_INPUT_IO_FILE}
+     SDC_FILE ${symbiflow-arch-defs_SOURCE_DIR}/xc7/tests/common/basys3.sdc
      SOURCES
        ${ROM_FILE} processing_unit.v simpleuart.v scalable_proc.v
        ${VERILOG_TOP}
