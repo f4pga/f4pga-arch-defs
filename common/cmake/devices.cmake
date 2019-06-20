@@ -252,7 +252,7 @@ function(DEFINE_DEVICE_TYPE)
   #
   # optional SCRIPTs can be run after the standard flow to augment the
   # final arch xml. The name and script must be provided and each
-  # script will be run as `cmd input > output`
+  # script will be run as `cmd < input > output`
   #
   # DEFINE_DEVICE_TYPE defines a dummy target <arch>_<device_type>_arch that
   # will build the merged architecture file for the device type.
