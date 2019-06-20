@@ -270,17 +270,6 @@ function(DEFINE_DEVICE_TYPE)
     ${ARGN}
   )
 
-  add_custom_target(${DEFINE_DEVICE_TYPE_DEVICE_TYPE})
-  foreach(ARG ARCH)
-    if("${DEFINE_DEVICE_TYPE_${ARG}}" STREQUAL "")
-      message(FATAL_ERROR "Required argument ${ARG} is the empty string.")
-    endif()
-    set_target_properties(
-      ${DEFINE_DEVICE_TYPE_DEVICE_TYPE}
-      PROPERTIES ${ARG} ${DEFINE_DEVICE_TYPE_${ARG}}
-    )
-  endforeach()
-
   #
   # Generate a arch.xml for a device.
   #
@@ -360,12 +349,28 @@ function(DEFINE_DEVICE_TYPE)
     SCHEMA ${ARCH_SCHEMA}
   )
 
+  append_file_dependency(FINAL_DEPS ${FINAL_OUTPUT})
+
+  add_custom_target(
+    ${DEFINE_DEVICE_TYPE_DEVICE_TYPE}
+    DEPENDS ${FINAL_DEPS}
+    )
+
+  foreach(ARG ARCH)
+    if("${DEFINE_DEVICE_TYPE_${ARG}}" STREQUAL "")
+      message(FATAL_ERROR "Required argument ${ARG} is the empty string.")
+    endif()
+    set_target_properties(
+      ${DEFINE_DEVICE_TYPE_DEVICE_TYPE}
+      PROPERTIES ${ARG} ${DEFINE_DEVICE_TYPE_${ARG}}
+    )
+  endforeach()
+
   set_target_properties(
     ${DEFINE_DEVICE_TYPE_DEVICE_TYPE}
     PROPERTIES
     DEVICE_MERGED_FILE ${CMAKE_CURRENT_SOURCE_DIR}/${FINAL_OUTPUT}
     )
-  add_dependencies(${DEFINE_DEVICE_TYPE_DEVICE_TYPE} ${FINAL_TARGET})
 
 endfunction()
 
@@ -894,7 +899,7 @@ function(ADD_FPGA_TARGET)
   set(OUT_ROUTE ${OUT_LOCAL}/${TOP}.route)
 
   set(VPR_DEPS "")
-  list(APPEND VPR_DEPS ${OUT_EBLIF})
+  append_file_dependency(VPR_DEPS ${OUT_EBLIF_REL})
   list(APPEND VPR_DEPS ${DEFINE_DEVICE_DEVICE_TYPE})
 
   get_file_location(OUT_RRXML_VIRT_LOCATION ${OUT_RRXML_VIRT})

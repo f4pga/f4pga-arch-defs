@@ -115,7 +115,7 @@ add_thirdparty_package(
   BUILD_INSTALL_COMMAND "cd ${symbiflow-arch-defs_SOURCE_DIR}/third_party/python-sdf-timing && ${PYTHON3} setup.py develop"
   NO_EXE
   DEPENDS ${PYTHON3_TARGET}
-  )
+)
 
 include(common/cmake/image_gen.cmake)
 include(common/cmake/gen.cmake)
