@@ -30,7 +30,7 @@ function(icestorm_setup)
     DEPENDS ${PYTHON3} ${PYTHON3_TARGET}
     )
 
-  get_target_property(FASM_TARGET env FASM_TARGET)
+  get_target_property_required(FASM_TARGET env FASM_TARGET)
 
   set(FASM2ASC ${symbiflow-arch-defs_SOURCE_DIR}/ice40/utils/fasm_icebox/fasm2asc.py)
   add_custom_target(
@@ -38,7 +38,7 @@ function(icestorm_setup)
     DEPENDS numpy ${FASM_TARGET} ${FASM2ASC} ${PYTHON3} ${PYTHON3_TARGET}
     )
 
-  get_target_property(SDF_TIMING_TARGET env SDF_TIMING_TARGET)
+  get_target_property_required(SDF_TIMING_TARGET env SDF_TIMING_TARGET)
   add_custom_target(
     ice40_import_timing_deps
     DEPENDS ${ICE40_IMPORT_TIMING} ${SDF_TIMING_TARGET} ${PYTHON3} ${PYTHON3_TARGET}
@@ -83,6 +83,7 @@ function(icestorm_setup)
       --allow_unrelated_clustering off
       --target_ext_pin_util 0.7
       --router_init_wirelength_abort_threshold 2
+      --congested_routing_iteration_threshold 0.8
     RR_PATCH_TOOL
       ${symbiflow-arch-defs_SOURCE_DIR}/ice40/utils/ice40_import_routing_from_icebox.py
     RR_PATCH_CMD "\${QUIET_CMD} \${CMAKE_COMMAND} -E env ${PYPATH_ARG} \
