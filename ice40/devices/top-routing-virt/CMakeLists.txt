@@ -13,19 +13,15 @@ set(TIMING_TXT_FILE ${ICEBOX_SHARE}/timings_hx1k.txt)
 set(SDF_FILE timings_hx1k.sdf)
 
 add_custom_command(
-  OUTPUT ${CLEAN_ICEBOX_TIMING}
-  COMMAND grep -v \\* ${TIMING_TXT_FILE} > ${CLEAN_ICEBOX_TIMING}
-  DEPENDS ${TIMING_TXT_FILE} ${ICESTORM_TARGET}
-  )
-
-add_custom_command(
   OUTPUT ${SDF_FILE}
+  COMMAND grep -v \\* ${TIMING_TXT_FILE} > ${CLEAN_ICEBOX_TIMING}
   COMMAND ${PYTHON3} ${ICEBOX_TIMING} -t ${CLEAN_ICEBOX_TIMING} -s > ${SDF_FILE}
-  DEPENDS ${ICEBOX_TIMING} ${CLEAN_ICEBOX_TIMING} ${PYTHON3} ${PYTHON3_TARGET}
+  BYPRODUCTS ${CLEAN_ICEBOX_TIMING}
+  DEPENDS ${TIMING_TXT_FILE} ${ICESTORM_TARGET} ${ICEBOX_TIMING} ${PYTHON3} ${PYTHON3_TARGET}
   )
 
 add_custom_target(
-  sdf_target
+  ice40_sdf_target
   DEPENDS ${SDF_FILE}
   )
 get_target_property_required(ICE40_IMPORT_TIMING ice40_import_timing_deps ICE40_IMPORT_TIMING)
@@ -39,7 +35,7 @@ define_device_type(
   SCRIPTS ${TIMING_IMPORT_CMD}
   )
 
-add_dependencies(ice40_top-routing-virt_arch ice40_import_timing_deps sdf_target)
+add_dependencies(ice40_top-routing-virt_arch ice40_import_timing_deps ice40_sdf_target)
 get_target_property_required(VIRT_DEVICE_MERGED_FILE top-routing-virt DEVICE_MERGED_FILE)
 get_file_target(DEVICE_MERGED_FILE_TARGET ${VIRT_DEVICE_MERGED_FILE})
-add_dependencies(${DEVICE_MERGED_FILE_TARGET} ice40_import_timing_deps sdf_target)
+add_dependencies(${DEVICE_MERGED_FILE_TARGET} ice40_import_timing_deps ice40_sdf_target)
