@@ -1,0 +1,7 @@
+tb.v
+#cells_sim.v
+
+../srl_tester.v
+../lfsr8_11d.v
+
+#/home/mkurc/Repos/google-prjxray-yosys/techlibs/xilinx/cells_sim.v

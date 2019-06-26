@@ -1711,3 +1711,35 @@ module CARRY4_COUT(output [3:0] CO, O, output COUT, input CI, CYINIT, input [3:0
     );
   end
 endmodule
+
+// ============================================================================
+// SRLs
+
+module SRLC32E (
+  output Q,
+  output Q31,
+  input [4:0] A,
+  input CE, CLK, D
+);
+  parameter [31:0] INIT = 32'h00000000;
+  parameter [0:0] IS_CLK_INVERTED = 1'b0;
+
+  // TODO: Either we do not have bits for SRL initialization or those are
+  // the same bits as for LUTs/DRAMs.
+  SRL32 _TECHMAP_REPLACE_
+  (
+  .CLK(CLK),
+  .CE(CE),
+  .A6(A[4]),
+  .A5(A[3]),
+  .A4(A[2]),
+  .A3(A[1]),
+  .A2(A[0]),
+  .A1(1'd1),
+  .DI1(D),
+  .O6(Q),
+  .MC31(Q31)
+  );
+
+endmodule
+

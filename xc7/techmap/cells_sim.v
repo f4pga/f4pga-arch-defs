@@ -545,3 +545,19 @@ module RAMB36E1_PRIM (
         parameter WRITE_MODE_B_NO_CHANGE = 1'b0;
         parameter WRITE_MODE_B_READ_FIRST = 1'b0;
 endmodule
+
+// ============================================================================
+// SRLs
+
+// SRL32
+(* blackbox *)
+module SRL32
+(
+input  CLK, CE, A6, A5, A4, A3, A2, A1, DI1,
+output O6, MC31
+);
+
+// TODO: Fill it in with a simulation model.
+
+endmodule
+
