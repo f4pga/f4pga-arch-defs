@@ -183,6 +183,34 @@
 
       </interconnect>
     </mode>
+    <mode name="SRLs">
+      <!-- Only SRL32 for A6LUT! -->
+      <xi:include href="srl/srl32_or_2xsrl16.pb_type.xml"/>
+
+      <interconnect>
+        <direct name="1" input="SLICEM_MODES.CLK" output="SRL32_OR_2XSRL16.CLK"/>
+        <direct name="2" input="SLICEM_MODES.CE" output="SRL32_OR_2XSRL16.WE"/> <!-- FIXME: HACK -->
+        <direct name="3" input="SLICEM_MODES.A1" output="SRL32_OR_2XSRL16.A1"/>
+        <direct name="4" input="SLICEM_MODES.A2" output="SRL32_OR_2XSRL16.A2"/>
+        <direct name="5" input="SLICEM_MODES.A3" output="SRL32_OR_2XSRL16.A3"/>
+        <direct name="6" input="SLICEM_MODES.A4" output="SRL32_OR_2XSRL16.A4"/>
+        <direct name="7" input="SLICEM_MODES.A5" output="SRL32_OR_2XSRL16.A5"/>
+        <direct name="8" input="SLICEM_MODES.A6" output="SRL32_OR_2XSRL16.A6"/>
+        <direct name="9" input="SLICEM_MODES.AI" output="SRL32_OR_2XSRL16.DI1"/> <!-- FIXME: HACK -->
+        <direct name="A" input="SLICEM_MODES.AX" output="SRL32_OR_2XSRL16.DI2"/> <!-- FIXME: HACK -->
+        <direct name="B" input="SRL32_OR_2XSRL16.O5" output="SLICEM_MODES.AO5"/>
+        <direct name="C" input="SRL32_OR_2XSRL16.O6" output="SLICEM_MODES.AO6"/>
+      </interconnect>
+      <metadata>
+        <meta name="fasm_features">
+          ALUT.SRL
+          WEMUX.CE
+          ALUT.DI1MUX.AI
+          BLUT.DI1MUX.DI_CMC31
+          CLUT.DI1MUX.DI_DMC31
+        </meta>
+      </metadata>
+    </mode>
     <mode name="DRAMs">
       <xi:include href="Ndram/d_dram.pb_type.xml"/>
       <xi:include href="Ndram/c_dram.pb_type.xml"/>
@@ -641,6 +669,18 @@
         <mux name="F7AMUX_O"   input="F7AMUX.O DRAM_2_OUTPUT_STUB.DPO_OUT" output="SLICEM_MODES.F7AMUX_O" />
         <mux name="F7BMUX_O"   input="F7BMUX.O DRAM_2_OUTPUT_STUB.SPO_OUT" output="SLICEM_MODES.F7BMUX_O" />
       </interconnect>
+
+      
+      <!-- The DLUT must be in RAM-mode for any of the RAM's to work.
+           As a corollary, a DRAM requires the clock, so only turn on the
+           DRAM if the clock is also connected.
+      -->
+      <metadata>
+        <meta name="fasm_mux">
+          SLICEM.CLK = DLUT.RAM
+        </meta>
+      </metadata>
+
     </mode>
     <metadata>
       <meta name="type">block</meta>
@@ -686,17 +726,7 @@
     <direct name="A5" input="SLICEM.A5" output="SLICEM_MODES.A5" />
     <direct name="A6" input="SLICEM.A6" output="SLICEM_MODES.A6" />
 
-    <direct name="CK2" input="SLICEM.CLK" output="SLICEM_MODES.CLK">
-        <!-- The DLUT must be in RAM-mode for any of the RAM's to work.
-             As a corollary, a DRAM requires the clock, so only turn on the
-             DRAM if the clock is also connected.
-        -->
-      <metadata>
-        <meta name="fasm_mux">
-          SLICEM.CLK = DLUT.RAM
-        </meta>
-      </metadata>
-    </direct>
+    <direct name="CK2" input="SLICEM.CLK" output="SLICEM_MODES.CLK"/>
     <direct name="CE2" input="SLICEM.CE"  output="SLICEM_MODES.CE"/>
     <direct name="WE2" input="SLICEM.WE"  output="SLICEM_MODES.WE"/>
 
