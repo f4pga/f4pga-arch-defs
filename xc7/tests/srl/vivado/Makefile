@@ -18,5 +18,6 @@ clean:
 	rm -f *.edif
 	rm -rf impl_only
 	rm -rf synth_impl
-	rm -rf *.log
+	rm -f *.log
+	rm -rf .Xil
 

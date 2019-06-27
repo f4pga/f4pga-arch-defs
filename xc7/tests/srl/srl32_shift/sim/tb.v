@@ -8,7 +8,7 @@ initial begin
     $dumpfile("tb.vcd");
     $dumpvars(0, tb);
 
-    #10000 $finish();
+    #100000 $finish();
 end
 
 // ============================================================================
@@ -25,32 +25,44 @@ initial begin
 end
 
 // ============================================================================
-wire       srl_d;
-wire       srl_q;
-wire       srl_ce;
-wire [4:0] srl_a;
+
+reg [1:0] ps_cnt  = 0;
+wire      ps_tick = (ps_cnt == 0);
+
+always @(posedge CLK)
+    ps_cnt <= ps_cnt + 1;
+
+// ============================================================================
+// SRL
+wire        srl_sh;
+wire [4:0]  srl_a;
+wire        srl_d;
+wire        srl_q;
 
 SRLC32E srl
 (
 .CLK    (CLK),
-.CE     (srl_ce),
-.D      (srl_d),
-.Q      (srl_q),
+.CE     (srl_sh),
 .A      (srl_a),
-.Q31    ()
+.D      (srl_d),
+.Q      (srl_q)
 );
 
-srl_tester dut
+// ============================================================================
+// DUT
+
+srl_shift_tester dut
 (
 .clk    (CLK),
 .rst    (RST),
+.ce     (ps_tick),
 
-.delay  (8),
-
+.srl_sh (srl_sh),
+.srl_a  (srl_a),
 .srl_d  (srl_d),
 .srl_q  (srl_q),
-.srl_ce (srl_ce),
-.srl_a  (srl_a)
+
+.error  ()
 );
 
 // ============================================================================

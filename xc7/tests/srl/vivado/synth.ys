@@ -1,5 +1,4 @@
 read_verilog ../basys3_top.v
-read_verilog ../lfsr8_11d.v
 read_verilog ../rom.v
 read_verilog ../srl_tester.v
 
