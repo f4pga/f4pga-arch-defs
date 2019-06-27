@@ -557,6 +557,9 @@ input  CLK, CE, A6, A5, A4, A3, A2, A1, DI1,
 output O6, MC31
 );
 
+parameter [31:0] INIT_00 = 32'h00000000;
+parameter [ 0:0] IS_CLK_INVERTED = 1'b0;
+
 // TODO: Fill it in with a simulation model.
 
 endmodule
