@@ -1,6 +1,0 @@
-read_verilog ../basys3_top.v
-read_verilog ../rom.v
-read_verilog ../srl_tester.v
-
-synth_xilinx -nosrl -edif basys3_top.edif
-

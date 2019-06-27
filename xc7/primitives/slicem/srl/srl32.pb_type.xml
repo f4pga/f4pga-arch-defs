@@ -23,4 +23,10 @@
   <T_clock_to_Q port="O6" clock="CLK" max="1e-11"/>
   <T_clock_to_Q port="MC31" clock="CLK" max="1e-11"/>
 
+  <metadata>
+    <meta name="fasm_params">
+      INIT[63:0] = INIT_00
+    </meta>
+  </metadata>
+
 </pb_type>

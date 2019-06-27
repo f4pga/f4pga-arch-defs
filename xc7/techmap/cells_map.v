@@ -1724,9 +1724,28 @@ module SRLC32E (
   parameter [31:0] INIT = 32'h00000000;
   parameter [0:0] IS_CLK_INVERTED = 1'b0;
 
-  // TODO: Either we do not have bits for SRL initialization or those are
-  // the same bits as for LUTs/DRAMs.
-  SRL32 _TECHMAP_REPLACE_
+  // Duplicate bits of the init parameter to match the actual INIT data
+  // representation.
+  function [63:0] duplicate_bits;
+    input [31:0] bits;
+    integer i;
+    begin
+      for (i=0; i<32; i=i+1) begin
+        duplicate_bits[2*i+0] = bits[i];
+        duplicate_bits[2*i+1] = bits[i];
+      end
+    end
+  endfunction
+
+  localparam [63:0] INIT_00 = duplicate_bits(INIT);
+
+  // Substitute
+  SRL32 #
+  (
+  .INIT_00(INIT_00),
+  .IS_CLK_INVERTED(IS_CLK_INVERTED)
+  )
+  _TECHMAP_REPLACE_
   (
   .CLK(CLK),
   .CE(CE),

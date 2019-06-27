@@ -32,4 +32,9 @@
 
   <!-- TODO: Mode for 2x SRL16 -->
 
+  <metadata>
+    <meta name="fasm_prefix">
+      {N}LUT
+    </meta>
+  </metadata>
 </pb_type>
