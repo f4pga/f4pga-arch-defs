@@ -1,0 +1,35 @@
+<pb_type name="{N}SRL" num_pb="1" xmlns:xi="http://www.w3.org/2001/XInclude">
+  <clock  name="CLK" num_pins="1"/>
+  <input  name="WE" num_pins="1"/>
+  <input  name="A1" num_pins="1"/>
+  <input  name="A2" num_pins="1"/>
+  <input  name="A3" num_pins="1"/>
+  <input  name="A4" num_pins="1"/>
+  <input  name="A5" num_pins="1"/>
+  <input  name="A6" num_pins="1"/>
+  <input  name="DI1" num_pins="1"/>
+  <input  name="DI2" num_pins="1"/>
+  <output name="O5" num_pins="1"/>
+  <output name="O6" num_pins="1"/>
+  <output name="MC31" num_pins="1"/>
+
+  <mode name="SRL32">
+    <xi:include href="srl32.pb_type.xml" />
+    <interconnect>
+      <direct name="CLK" input="{N}SRL.CLK" output="SRL32.CLK"/>
+      <direct name="WE" input="{N}SRL.WE" output="SRL32.CE"/>
+      <direct name="DI1" input="{N}SRL.DI1" output="SRL32.DI1"/>
+      <direct name="A1" input="{N}SRL.A1" output="SRL32.A1"/>
+      <direct name="A2" input="{N}SRL.A2" output="SRL32.A2"/>
+      <direct name="A3" input="{N}SRL.A3" output="SRL32.A3"/>
+      <direct name="A4" input="{N}SRL.A4" output="SRL32.A4"/>
+      <direct name="A5" input="{N}SRL.A5" output="SRL32.A5"/>
+      <direct name="A6" input="{N}SRL.A6" output="SRL32.A6"/>
+      <direct name="O6" input="SRL32.O6" output="{N}SRL.O6"/>
+      <direct name="MC31" input="SRL32.MC31" output="{N}SRL.MC31"/>
+    </interconnect>
+  </mode>
+
+  <!-- TODO: Mode for 2x SRL16 -->
+
+</pb_type>
