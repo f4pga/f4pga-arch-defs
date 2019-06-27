@@ -184,30 +184,82 @@
       </interconnect>
     </mode>
     <mode name="SRLs">
-      <!-- Only SRL32 for A6LUT! -->
-      <xi:include href="srl/srl32_or_2xsrl16.pb_type.xml"/>
+
+      <xi:include href="srl/a_srl.pb_type.xml"/>
+      <xi:include href="srl/b_srl.pb_type.xml"/>
+      <xi:include href="srl/c_srl.pb_type.xml"/>
+      <xi:include href="srl/d_srl.pb_type.xml"/>
 
       <interconnect>
-        <direct name="1" input="SLICEM_MODES.CLK" output="SRL32_OR_2XSRL16.CLK"/>
-        <direct name="2" input="SLICEM_MODES.CE" output="SRL32_OR_2XSRL16.WE"/> <!-- FIXME: HACK -->
-        <direct name="3" input="SLICEM_MODES.A1" output="SRL32_OR_2XSRL16.A1"/>
-        <direct name="4" input="SLICEM_MODES.A2" output="SRL32_OR_2XSRL16.A2"/>
-        <direct name="5" input="SLICEM_MODES.A3" output="SRL32_OR_2XSRL16.A3"/>
-        <direct name="6" input="SLICEM_MODES.A4" output="SRL32_OR_2XSRL16.A4"/>
-        <direct name="7" input="SLICEM_MODES.A5" output="SRL32_OR_2XSRL16.A5"/>
-        <direct name="8" input="SLICEM_MODES.A6" output="SRL32_OR_2XSRL16.A6"/>
-        <direct name="9" input="SLICEM_MODES.AI" output="SRL32_OR_2XSRL16.DI1"/> <!-- FIXME: HACK -->
-        <direct name="A" input="SLICEM_MODES.AX" output="SRL32_OR_2XSRL16.DI2"/> <!-- FIXME: HACK -->
-        <direct name="B" input="SRL32_OR_2XSRL16.O5" output="SLICEM_MODES.AO5"/>
-        <direct name="C" input="SRL32_OR_2XSRL16.O6" output="SLICEM_MODES.AO6"/>
+
+        <!-- A SRL -->
+        <direct name="SLICEM_MODES.CLK_to_A_SRL.CLK" input="SLICEM_MODES.CLK" output="ASRL.CLK"/>
+        <direct name="SLICEM_MODES.CE_to_A_SRL.WE" input="SLICEM_MODES.CE" output="ASRL.WE"/> <!-- FIXME: HACK -->
+        <direct name="SLICEM_MODES.A1_to_A_SRL.A1" input="SLICEM_MODES.A1" output="ASRL.A1"/>
+        <direct name="SLICEM_MODES.A2_to_A_SRL.A2" input="SLICEM_MODES.A2" output="ASRL.A2"/>
+        <direct name="SLICEM_MODES.A3_to_A_SRL.A3" input="SLICEM_MODES.A3" output="ASRL.A3"/>
+        <direct name="SLICEM_MODES.A4_to_A_SRL.A4" input="SLICEM_MODES.A4" output="ASRL.A4"/>
+        <direct name="SLICEM_MODES.A5_to_A_SRL.A5" input="SLICEM_MODES.A5" output="ASRL.A5"/>
+        <direct name="SLICEM_MODES.A6_to_A_SRL.A6" input="SLICEM_MODES.A6" output="ASRL.A6"/>
+        <direct name="SLICEM_MODES.AI_to_A_SRL.DI1" input="SLICEM_MODES.AI" output="ASRL.DI1"/> <!-- FIXME: HACK -->
+        <direct name="SLICEM_MODES.AX_to_A_SRL.DI2" input="SLICEM_MODES.AX" output="ASRL.DI2"/> <!-- FIXME: HACK -->
+        <direct name="A_SRL.O5_to_SLICEM_MODES.AO5" input="ASRL.O5" output="SLICEM_MODES.AO5"/>
+        <direct name="A_SRL.O6_to_SLICEM_MODES.AO6" input="ASRL.O6" output="SLICEM_MODES.AO6"/>
+
+        <!-- B SRL -->
+        <direct name="SLICEM_MODES.CLK_to_B_SRL.CLK" input="SLICEM_MODES.CLK" output="BSRL.CLK"/>
+        <direct name="SLICEM_MODES.CE_to_B_SRL.WE" input="SLICEM_MODES.CE" output="BSRL.WE"/> <!-- FIXME: HACK -->
+        <direct name="SLICEM_MODES.B1_to_B_SRL.A1" input="SLICEM_MODES.B1" output="BSRL.A1"/>
+        <direct name="SLICEM_MODES.B2_to_B_SRL.A2" input="SLICEM_MODES.B2" output="BSRL.A2"/>
+        <direct name="SLICEM_MODES.B3_to_B_SRL.A3" input="SLICEM_MODES.B3" output="BSRL.A3"/>
+        <direct name="SLICEM_MODES.B4_to_B_SRL.A4" input="SLICEM_MODES.B4" output="BSRL.A4"/>
+        <direct name="SLICEM_MODES.B5_to_B_SRL.A5" input="SLICEM_MODES.B5" output="BSRL.A5"/>
+        <direct name="SLICEM_MODES.B6_to_B_SRL.A6" input="SLICEM_MODES.B6" output="BSRL.A6"/>
+        <direct name="SLICEM_MODES.BI_to_B_SRL.DI1" input="SLICEM_MODES.BI" output="BSRL.DI1"/> <!-- FIXME: HACK -->
+        <direct name="SLICEM_MODES.BX_to_B_SRL.DI2" input="SLICEM_MODES.BX" output="BSRL.DI2"/> <!-- FIXME: HACK -->
+        <direct name="B_SRL.O5_to_SLICEM_MODES.BO5" input="BSRL.O5" output="SLICEM_MODES.BO5"/>
+        <direct name="B_SRL.O6_to_SLICEM_MODES.BO6" input="BSRL.O6" output="SLICEM_MODES.BO6"/>
+
+        <!-- C SRL -->
+        <direct name="SLICEM_MODES.CLK_to_C_SRL.CLK" input="SLICEM_MODES.CLK" output="CSRL.CLK"/>
+        <direct name="SLICEM_MODES.CE_to_C_SRL.WE" input="SLICEM_MODES.CE" output="CSRL.WE"/> <!-- FIXME: HACK -->
+        <direct name="SLICEM_MODES.C1_to_C_SRL.A1" input="SLICEM_MODES.C1" output="CSRL.A1"/>
+        <direct name="SLICEM_MODES.C2_to_C_SRL.A2" input="SLICEM_MODES.C2" output="CSRL.A2"/>
+        <direct name="SLICEM_MODES.C3_to_C_SRL.A3" input="SLICEM_MODES.C3" output="CSRL.A3"/>
+        <direct name="SLICEM_MODES.C4_to_C_SRL.A4" input="SLICEM_MODES.C4" output="CSRL.A4"/>
+        <direct name="SLICEM_MODES.C5_to_C_SRL.A5" input="SLICEM_MODES.C5" output="CSRL.A5"/>
+        <direct name="SLICEM_MODES.C6_to_C_SRL.A6" input="SLICEM_MODES.C6" output="CSRL.A6"/>
+        <direct name="SLICEM_MODES.CI_to_C_SRL.DI1" input="SLICEM_MODES.CI" output="CSRL.DI1"/> <!-- FIXME: HACK -->
+        <direct name="SLICEM_MODES.CX_to_C_SRL.DI2" input="SLICEM_MODES.CX" output="CSRL.DI2"/> <!-- FIXME: HACK -->
+        <direct name="C_SRL.O5_to_SLICEM_MODES.CO5" input="CSRL.O5" output="SLICEM_MODES.CO5"/>
+        <direct name="C_SRL.O6_to_SLICEM_MODES.CO6" input="CSRL.O6" output="SLICEM_MODES.CO6"/>
+
+        <!-- D SRL -->
+        <direct name="SLICEM_MODES.CLK_to_D_SRL.CLK" input="SLICEM_MODES.CLK" output="DSRL.CLK"/>
+        <direct name="SLICEM_MODES.CE_to_D_SRL.WE" input="SLICEM_MODES.CE" output="DSRL.WE"/> <!-- FIXME: HACK -->
+        <direct name="SLICEM_MODES.D1_to_D_SRL.A1" input="SLICEM_MODES.D1" output="DSRL.A1"/>
+        <direct name="SLICEM_MODES.D2_to_D_SRL.A2" input="SLICEM_MODES.D2" output="DSRL.A2"/>
+        <direct name="SLICEM_MODES.D3_to_D_SRL.A3" input="SLICEM_MODES.D3" output="DSRL.A3"/>
+        <direct name="SLICEM_MODES.D4_to_D_SRL.A4" input="SLICEM_MODES.D4" output="DSRL.A4"/>
+        <direct name="SLICEM_MODES.D5_to_D_SRL.A5" input="SLICEM_MODES.D5" output="DSRL.A5"/>
+        <direct name="SLICEM_MODES.D6_to_D_SRL.A6" input="SLICEM_MODES.D6" output="DSRL.A6"/>
+        <direct name="SLICEM_MODES.DI_to_D_SRL.DI1" input="SLICEM_MODES.DI" output="DSRL.DI1"/> <!-- FIXME: HACK -->
+        <direct name="SLICEM_MODES.DX_to_D_SRL.DI2" input="SLICEM_MODES.DX" output="DSRL.DI2"/> <!-- FIXME: HACK -->
+        <direct name="D_SRL.O5_to_SLICEM_MODES.DO5" input="DSRL.O5" output="SLICEM_MODES.DO5"/>
+        <direct name="D_SRL.O6_to_SLICEM_MODES.DO6" input="DSRL.O6" output="SLICEM_MODES.DO6"/>
+
       </interconnect>
+
       <metadata>
         <meta name="fasm_features">
           ALUT.SRL
+          BLUT.SRL
+          CLUT.SRL
+          DLUT.SRL
           WEMUX.CE
           ALUT.DI1MUX.AI
-          BLUT.DI1MUX.DI_CMC31
-          CLUT.DI1MUX.DI_DMC31
+          BLUT.DI1MUX.BI
+          CLUT.DI1MUX.CI
         </meta>
       </metadata>
     </mode>
