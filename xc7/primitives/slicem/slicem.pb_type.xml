@@ -185,16 +185,20 @@
     </mode>
     <mode name="SRLs">
 
+      <!-- SRLs -->
       <xi:include href="srl/a_srl.pb_type.xml"/>
       <xi:include href="srl/b_srl.pb_type.xml"/>
       <xi:include href="srl/c_srl.pb_type.xml"/>
       <xi:include href="srl/d_srl.pb_type.xml"/>
 
+      <!-- WEMUX -->
+      <xi:include href="wemux.pb_type.xml"/>
+
       <interconnect>
 
         <!-- A SRL -->
         <direct name="SLICEM_MODES.CLK_to_A_SRL.CLK" input="SLICEM_MODES.CLK" output="ASRL.CLK"/>
-        <direct name="SLICEM_MODES.CE_to_A_SRL.WE" input="SLICEM_MODES.CE" output="ASRL.WE"/> <!-- FIXME: HACK -->
+        <direct name="WE_MUX_to_A_SRL.WE" input="WE_MUX.WE_OUT" output="ASRL.WE"/>
         <direct name="SLICEM_MODES.A1_to_A_SRL.A1" input="SLICEM_MODES.A1" output="ASRL.A1"/>
         <direct name="SLICEM_MODES.A2_to_A_SRL.A2" input="SLICEM_MODES.A2" output="ASRL.A2"/>
         <direct name="SLICEM_MODES.A3_to_A_SRL.A3" input="SLICEM_MODES.A3" output="ASRL.A3"/>
@@ -208,7 +212,7 @@
 
         <!-- B SRL -->
         <direct name="SLICEM_MODES.CLK_to_B_SRL.CLK" input="SLICEM_MODES.CLK" output="BSRL.CLK"/>
-        <direct name="SLICEM_MODES.CE_to_B_SRL.WE" input="SLICEM_MODES.CE" output="BSRL.WE"/> <!-- FIXME: HACK -->
+        <direct name="WE_MUX_to_B_SRL.WE" input="WE_MUX.WE_OUT" output="BSRL.WE"/>
         <direct name="SLICEM_MODES.B1_to_B_SRL.A1" input="SLICEM_MODES.B1" output="BSRL.A1"/>
         <direct name="SLICEM_MODES.B2_to_B_SRL.A2" input="SLICEM_MODES.B2" output="BSRL.A2"/>
         <direct name="SLICEM_MODES.B3_to_B_SRL.A3" input="SLICEM_MODES.B3" output="BSRL.A3"/>
@@ -222,7 +226,7 @@
 
         <!-- C SRL -->
         <direct name="SLICEM_MODES.CLK_to_C_SRL.CLK" input="SLICEM_MODES.CLK" output="CSRL.CLK"/>
-        <direct name="SLICEM_MODES.CE_to_C_SRL.WE" input="SLICEM_MODES.CE" output="CSRL.WE"/> <!-- FIXME: HACK -->
+        <direct name="WE_MUX_to_C_SRL.WE" input="WE_MUX.WE_OUT" output="CSRL.WE"/>
         <direct name="SLICEM_MODES.C1_to_C_SRL.A1" input="SLICEM_MODES.C1" output="CSRL.A1"/>
         <direct name="SLICEM_MODES.C2_to_C_SRL.A2" input="SLICEM_MODES.C2" output="CSRL.A2"/>
         <direct name="SLICEM_MODES.C3_to_C_SRL.A3" input="SLICEM_MODES.C3" output="CSRL.A3"/>
@@ -236,7 +240,7 @@
 
         <!-- D SRL -->
         <direct name="SLICEM_MODES.CLK_to_D_SRL.CLK" input="SLICEM_MODES.CLK" output="DSRL.CLK"/>
-        <direct name="SLICEM_MODES.CE_to_D_SRL.WE" input="SLICEM_MODES.CE" output="DSRL.WE"/> <!-- FIXME: HACK -->
+        <direct name="WE_MUX_to_D_SRL.WE" input="WE_MUX.WE_OUT" output="DSRL.WE"/>
         <direct name="SLICEM_MODES.D1_to_D_SRL.A1" input="SLICEM_MODES.D1" output="DSRL.A1"/>
         <direct name="SLICEM_MODES.D2_to_D_SRL.A2" input="SLICEM_MODES.D2" output="DSRL.A2"/>
         <direct name="SLICEM_MODES.D3_to_D_SRL.A3" input="SLICEM_MODES.D3" output="DSRL.A3"/>
@@ -248,6 +252,10 @@
         <direct name="D_SRL.O5_to_SLICEM_MODES.DO5" input="DSRL.O5" output="SLICEM_MODES.DO5"/>
         <direct name="D_SRL.O6_to_SLICEM_MODES.DO6" input="DSRL.O6" output="SLICEM_MODES.DO6"/>
 
+        <!-- WE/CE inputs -->
+        <direct name="SLICEM_MODES.CE_to_WE_MUX.CE" input="SLICEM_MODES.CE" output="WE_MUX.CE"/>
+        <direct name="SLICEM_MODES.WE_to_WE_MUX.WE" input="SLICEM_MODES.WE" output="WE_MUX.WE"/>
+
       </interconnect>
 
       <metadata>
@@ -256,7 +264,6 @@
           BLUT.SRL
           CLUT.SRL
           DLUT.SRL
-          WEMUX.CE
           ALUT.DI1MUX.AI
           BLUT.DI1MUX.BI
           CLUT.DI1MUX.CI
@@ -296,27 +303,7 @@
         </metadata>
       </pb_type>
 
-      <pb_type name="WE_MUX" num_pb="1">
-        <input name="CE" num_pins="1"/>
-        <input name="WE" num_pins="1"/>
-
-        <output name="WE_OUT"   num_pins="1"/>
-
-        <interconnect>
-          <mux name="WE_MUX" input="WE_MUX.CE WE_MUX.WE"  output="WE_MUX.WE_OUT">
-            <metadata>
-              <meta name="fasm_mux">
-                WE_MUX.CE = WEMUX.CE
-                WE_MUX.WE = NULL
-              </meta>
-            </metadata>
-          </mux>
-        </interconnect>
-        <metadata>
-          <meta name="type">bel</meta>
-          <meta name="subtype">routing</meta>
-        </metadata>
-      </pb_type>
+      <xi:include href="wemux.pb_type.xml"/>
 
       <interconnect>
         <direct name="AMEMCLK" input="SLICEM_MODES.CLK" output="A_DRAM.CLK"/>

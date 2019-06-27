@@ -1,6 +1,8 @@
 add_subdirectory(Ndram)
 add_subdirectory(srl)
 
+add_file_target(FILE wemux.pb_type.xml SCANNER_TYPE xml)
+
 add_file_target(FILE dram_2_output_stub.sim.v SCANNER_TYPE verilog)
 add_file_target(FILE dram_4_output_stub.sim.v SCANNER_TYPE verilog)
 add_file_target(FILE dram_8_output_stub.sim.v SCANNER_TYPE verilog)
