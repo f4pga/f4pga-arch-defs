@@ -317,12 +317,13 @@ function(DEFINE_DEVICE_TYPE)
       separate_arguments(CMD_W_ARGS UNIX_COMMAND ${SCRIPT})
       list(GET CMD_W_ARGS 0 CMD)
       set(TEMP_TARGET arch.${OUTPUT_NAME}.xml)
+      set(DEPS ${PYTHON3} ${PYTHON3_TARGET} ${CMD})
+      append_file_dependency(DEPS ${FINAL_OUTPUT})
+
       add_custom_command(
 	OUTPUT ${TEMP_TARGET}
 	COMMAND ${CMD_W_ARGS} < ${FINAL_FILE} > ${TEMP_TARGET}
-	DEPENDS
-        ${PYTHON3} ${PYTHON3_TARGET}
-	${CMD} ${FINAL_TARGET}
+	DEPENDS ${DEPS}
 	)
 
       add_file_target(FILE ${TEMP_TARGET} GENERATED)
