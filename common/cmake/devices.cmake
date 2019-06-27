@@ -922,17 +922,19 @@ function(ADD_FPGA_TARGET)
     set(VPR_ARCH_ARGS "")
   endif()
 
-  set(OUT_NOISY_WARNINGS ${OUT_LOCAL}/noisy_warnings.log)
   separate_arguments(
     VPR_BASE_ARGS_LIST UNIX_COMMAND "${VPR_BASE_ARGS}"
     )
   list(APPEND VPR_BASE_ARGS_LIST --route_chan_width ${ROUTE_CHAN_WIDTH})
-  list(APPEND VPR_BASE_ARGS_LIST --suppress_warnings ${OUT_NOISY_WARNINGS},sum_pin_class:check_unbuffered_edges:load_rr_indexed_data_T_values:check_rr_node:trans_per_R)
   separate_arguments(
     VPR_EXTRA_ARGS_LIST UNIX_COMMAND "${VPR_EXTRA_ARGS}"
     )
+
+  # Setting noisy warnings log file if needed.
+  set(OUT_NOISY_WARNINGS ${OUT_LOCAL}/noisy_warnings.log)
+  string(CONFIGURE ${VPR_ARCH_ARGS} VPR_ARCH_ARGS_EXPANDED)
   separate_arguments(
-    VPR_ARCH_ARGS_LIST UNIX_COMMAND "${VPR_ARCH_ARGS}"
+    VPR_ARCH_ARGS_LIST UNIX_COMMAND "${VPR_ARCH_ARGS_EXPANDED}"
     )
 
   if(NOT "${ADD_FPGA_TARGET_SDC_FILE}" STREQUAL "")
