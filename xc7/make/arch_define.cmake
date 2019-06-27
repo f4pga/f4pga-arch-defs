@@ -18,16 +18,17 @@ function(ADD_XC7_ARCH_DEFINE)
     YOSYS_SCRIPT ${YOSYS_SCRIPT}
     DEVICE_FULL_TEMPLATE \${DEVICE}-\${PACKAGE}
     CELLS_SIM ${YOSYS_DATADIR}/xilinx/cells_sim.v ${symbiflow-arch-defs_SOURCE_DIR}/xc7/techmap/cells_sim.v
-    VPR_ARCH_ARGS
-      --clock_modeling route
-      --place_algorithm bounding_box
-      --enable_timing_computations off
-      --allow_unrelated_clustering on
-      --clustering_pin_feasibility_filter off
-      --disable_check_route on
-      --strict_checks off
-      --allow_dangling_combinational_nodes on
-      --disable_errors check_unbuffered_edges:check_route
+    VPR_ARCH_ARGS "\
+      --clock_modeling route \
+      --place_algorithm bounding_box \
+      --enable_timing_computations off \
+      --allow_unrelated_clustering on \
+      --clustering_pin_feasibility_filter off \
+      --disable_check_route on \
+      --strict_checks off \
+      --allow_dangling_combinational_nodes on \
+      --disable_errors check_unbuffered_edges:check_route \
+      --suppress_warnings \${OUT_NOISY_WARNINGS},sum_pin_class:check_unbuffered_edges:load_rr_indexed_data_T_values:check_rr_node:trans_per_R"
     RR_PATCH_TOOL
       ${symbiflow-arch-defs_SOURCE_DIR}/xc7/utils/prjxray_routing_import.py
     RR_PATCH_CMD "${CMAKE_COMMAND} -E env \
