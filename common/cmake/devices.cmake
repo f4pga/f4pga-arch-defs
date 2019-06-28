@@ -929,8 +929,12 @@ function(ADD_FPGA_TARGET)
   separate_arguments(
     VPR_EXTRA_ARGS_LIST UNIX_COMMAND "${VPR_EXTRA_ARGS}"
     )
+
+  # Setting noisy warnings log file if needed.
+  set(OUT_NOISY_WARNINGS ${OUT_LOCAL}/noisy_warnings.log)
+  string(CONFIGURE ${VPR_ARCH_ARGS} VPR_ARCH_ARGS_EXPANDED)
   separate_arguments(
-    VPR_ARCH_ARGS_LIST UNIX_COMMAND "${VPR_ARCH_ARGS}"
+    VPR_ARCH_ARGS_LIST UNIX_COMMAND "${VPR_ARCH_ARGS_EXPANDED}"
     )
 
   if(NOT "${ADD_FPGA_TARGET_SDC_FILE}" STREQUAL "")
