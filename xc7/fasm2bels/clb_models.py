@@ -43,6 +43,29 @@ def create_lut(site, lut):
     return bel
 
 
+def get_srl32_init(features, tile_name, slice_name, srl):
+
+    lut_init = get_lut_init(features, tile_name, slice_name, srl)
+    bits = lut_init.replace("64'b", "")
+
+    return "32'b{}".format(bits[::2])
+
+
+def create_srl32(site, srl):
+    bel = Bel('SRLC32E', srl + 'SRL', priority=3)
+    bel.set_bel(srl + '6LUT')
+
+    site.add_sink(bel, 'CLK', 'CLK')
+    site.add_sink(bel, 'D', '{}I'.format(srl))
+
+    for idx in range(5):
+        site.add_sink(bel, 'A[{}]'.format(idx), '{}{}'.format(srl, idx + 2))
+
+    site.add_internal_source(bel, 'Q', srl + 'O6')
+
+    return bel
+
+
 def decode_dram(site):
     """ Decode the modes of each LUT in the slice based on set features.
 
@@ -240,8 +263,6 @@ def cleanup_slice(top, site):
 def process_slice(top, s):
     """ Convert SLICE features in Bel and Site objects.
 
-    Note: Does not handle SRL option.
-
     """
     """
     Available options:
@@ -308,23 +329,44 @@ def process_slice(top, s):
         assert mlut
     else:
         for row in 'ABC':
-            assert not site.has_feature('{}LUT.RAM')
-
-    # SRL not currently supported
-    for row in 'ABCD':
-        assert not site.has_feature('{}LUT.SRL')
+            assert not site.has_feature('{}LUT.RAM'.format(row))
 
     muxes = set(('F7AMUX', 'F7BMUX', 'F8MUX'))
 
     luts = {}
+    srls = {}
     # Add BELs for LUTs/RAMs
     if not site.has_feature('DLUT.RAM'):
-        for lut in 'ABCD':
-            luts[lut] = create_lut(site, lut)
-            luts[lut].parameters['INIT'] = get_lut_init(
-                s, aparts[0], aparts[1], lut
-            )
-            site.add_bel(luts[lut])
+        for row in 'ABCD':
+
+            # SRL
+            if site.has_feature('{}LUT.SRL'.format(row)):
+
+                # Cannot have both SRL and DRAM
+                assert not site.has_feature('{}LUT.RAM'.format(row))
+
+                # SRL32
+                if not site.has_feature('{}LUT.SMALL'.format(row)):
+                    srls[row] = create_srl32(site, row)
+                    srls[row].parameters['INIT'] = get_srl32_init(
+                        s, aparts[0], aparts[1], row
+                    )
+
+                    site.add_sink(srls[row], 'CE', WE)
+
+                    site.add_bel(srls[row])
+
+                # 2x SRL16
+                else:
+                    assert False, "SRL16 not supported yet!"
+
+            # LUT
+            else:
+                luts[row] = create_lut(site, row)
+                luts[row].parameters['INIT'] = get_lut_init(
+                    s, aparts[0], aparts[1], row
+                )
+                site.add_bel(luts[row])
     else:
         # DRAM is active.  Determine what BELs are in use.
         lut_modes = decode_dram(site)
@@ -643,6 +685,9 @@ def process_slice(top, s):
         if site.has_feature(lut + 'O6'):
             can_have_carry4 = False
             break
+
+    if len(srls) != 0:
+        can_have_carry4 = False
 
     if can_have_carry4:
         bel = Bel('CARRY4', priority=1)
