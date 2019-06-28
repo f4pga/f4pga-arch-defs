@@ -78,12 +78,12 @@ function(icestorm_setup)
     ARCH ice40
     YOSYS_SCRIPT ${symbiflow-arch-defs_SOURCE_DIR}/ice40/yosys/synth.tcl
     DEVICE_FULL_TEMPLATE \${DEVICE}-\${PACKAGE}
-    VPR_ARCH_ARGS
-      --clock_modeling route
-      --allow_unrelated_clustering off
-      --target_ext_pin_util 0.7
-      --router_init_wirelength_abort_threshold 2
-      --congested_routing_iteration_threshold 0.8
+    VPR_ARCH_ARGS "\
+      --clock_modeling route \
+      --allow_unrelated_clustering off \
+      --target_ext_pin_util 0.7 \
+      --router_init_wirelength_abort_threshold 2 \
+      --congested_routing_iteration_threshold 0.8"
     RR_PATCH_TOOL
       ${symbiflow-arch-defs_SOURCE_DIR}/ice40/utils/ice40_import_routing_from_icebox.py
     RR_PATCH_CMD "\${QUIET_CMD} \${CMAKE_COMMAND} -E env ${PYPATH_ARG} \
