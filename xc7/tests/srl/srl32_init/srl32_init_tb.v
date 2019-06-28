@@ -1,6 +1,9 @@
 `timescale 1 ns / 1 ps
+`default_nettype none
 
-module tb ();
+module test;
+
+`include "../../../../library/tbassert.v"
 
 // ============================================================================
 
@@ -25,45 +28,30 @@ initial begin
 end
 
 // ============================================================================
-
-reg [1:0] ps_cnt  = 0;
-wire      ps_tick = (ps_cnt == 0);
-
-always @(posedge CLK)
-    ps_cnt <= ps_cnt + 1;
-
-// ============================================================================
-// SRL
-wire        srl_sh;
-wire [4:0]  srl_a;
-wire        srl_d;
-wire        srl_q;
-
-SRLC32E srl
-(
-.CLK    (CLK),
-.CE     (srl_sh),
-.A      (srl_a),
-.D      (srl_d),
-.Q      (srl_q)
-);
-
-// ============================================================================
 // DUT
+localparam SRL_COUNT = 1;
 
-srl_shift_tester dut
+wire [15:0] led;
+wire error;
+
+top #
+(
+.PRESCALER  (4),
+.SRL_COUNT  (SRL_COUNT)
+)
+dut
 (
 .clk    (CLK),
-.rst    (RST),
-.ce     (ps_tick),
-
-.srl_sh (srl_sh),
-.srl_a  (srl_a),
-.srl_d  (srl_d),
-.srl_q  (srl_q),
-
-.error  ()
+.rx     (1'b1),
+.tx     (),
+.sw     (16'd0),
+.led    (led)
 );
+
+assign error = |led[SRL_COUNT-1:0];
+
+always @(posedge CLK)
+    tbassert(error == 1'd0);
 
 // ============================================================================
 

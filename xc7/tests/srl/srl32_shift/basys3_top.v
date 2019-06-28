@@ -10,6 +10,7 @@ output wire [15:0]  led
 );
 
 parameter SRL_COUNT = 1;
+parameter PRESCALER = 1000000;
 
 // UART loopback
 assign tx = rx;
@@ -28,8 +29,6 @@ assign rst = rst_sr[0];
 
 // ============================================================================
 // Clock prescaler
-localparam PRESCALER = 1000000;
-
 reg [32:0]  ps_cnt  = 0;
 wire        ps_tick = ps_cnt[32];
 
@@ -103,7 +102,7 @@ assign led[SRL_COUNT-1:0] = (sw[1]) ? error_lat : error;
 genvar j;
 generate if (SRL_COUNT < 13)
  for (j = SRL_COUNT; j <= 13; j = j + 1)
-     assign led[j] = led[15];
+     assign led[j] = led[SRL_COUNT-1];
 endgenerate
 
 assign led[14] = srl_q[0];

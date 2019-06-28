@@ -10,6 +10,7 @@ output wire [15:0] led
 );
 
 parameter SRL_COUNT = 14;
+parameter PRESCALER = 1000000;
 
 // Uart loopback
 assign tx = rx;
@@ -28,7 +29,6 @@ assign rst = rst_sr[0];
 
 // ============================================================================
 // Clock prescaler
-localparam PRESCALER = 1000000;
 
 reg [32:0]  ps_cnt  = 0;
 wire        ps_tick = ps_cnt[32];
