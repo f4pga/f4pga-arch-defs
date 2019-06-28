@@ -1,7 +1,0 @@
-tb.v
-
-../../common/srl_shift_tester.v
-../../common/rom.v
-
-../../common/cells_sim.v
-
