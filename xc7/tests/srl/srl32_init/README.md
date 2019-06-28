@@ -6,9 +6,9 @@ to input D so the data is looped.
 
 This test works on the Basys3 board.
 
-LED[7]   - Just blinks to verify if the design is alive.
-LED[6]   - Shows random data from the output of one SRL32.
-LED[5:0] - Individual error indicators for all tested SRL32s.
+LED[15]   - Just blinks to verify if the design is alive.
+LED[14]   - Shows random data from the output of one SRL32.
+LED[13:0] - Individual error indicators for all tested SRL32s.
 
 SW[0]    - Reset.
 SW[1]    - Chooses between latched and non-latched error indication.

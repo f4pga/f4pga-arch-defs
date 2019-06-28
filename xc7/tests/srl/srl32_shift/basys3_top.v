@@ -1,10 +1,18 @@
 module top
 (
-input  wire        clk,
+input  wire         clk,
 
-input  wire [7:0]  sw,
-output wire [7:0]  led
+input  wire         rx,
+output wire         tx,
+
+input  wire [15:0]  sw,
+output wire [15:0]  led
 );
+
+parameter SRL_COUNT = 1;
+
+// UART loopback
+assign tx = rx;
 
 // ============================================================================
 // Reset
@@ -41,18 +49,17 @@ always @(posedge clk)
     else if (ps_tick)
         blink_cnt <= blink_cnt + 1;
 
-assign led[7] = blink_cnt[3];
 
 // ============================================================================
 // SRL32 testers
 
 wire sim_error = sw[2];
 
-wire [5:0] srl_q;
-wire [5:0] error;
+wire [SRL_COUNT-1:0] srl_q;
+wire [SRL_COUNT-1:0] error;
 
 genvar i;
-generate for(i=0; i<6; i=i+1) begin
+generate for(i=0; i<SRL_COUNT; i=i+1) begin
   wire [4:0] srl_a;
   wire       srl_d;
   wire       srl_sh;
@@ -83,7 +90,7 @@ end endgenerate
 // ============================================================================
 
 // Error latch
-reg [5:0] error_lat = 0;
+reg [SRL_COUNT-1:0] error_lat = 0;
 always @(posedge clk)
     if (rst)
         error_lat <= 0;
@@ -91,8 +98,16 @@ always @(posedge clk)
         error_lat <= error_lat | error;
 
 // LEDs
-assign led[5:0] = (sw[1]) ? error_lat[5:0] : error[5:0];
-assign led[6]   = srl_q[0];
+assign led[SRL_COUNT-1:0] = (sw[1]) ? error_lat : error;
+
+genvar j;
+generate if (SRL_COUNT < 13)
+ for (j = SRL_COUNT; j <= 13; j = j + 1)
+     assign led[j] = led[15];
+endgenerate
+
+assign led[14] = srl_q[0];
+assign led[15] = blink_cnt[3] ^ |sw[15:3];
 
 endmodule
 
