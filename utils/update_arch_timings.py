@@ -51,13 +51,19 @@ def get_cell_types_and_instance(bel, location, site, bels):
     return celltypes, instance
 
 
-def find_timings(timings, bel, location, site, bels):
+def find_timings(timings, bel, location, site, bels, routing=False):
     """This function returns all the timings associated with
        the selected `bel` in `location` and `site`. If timings
        are not found, `None` is returned"""
-    celltype, instance = get_cell_types_and_instance(bel, location, site, bels)
-    if (celltype is None) or (instance is None):
-        return None
+    if routing:
+        celltype = [bel]
+        instance = site
+    else:
+        celltype, instance = get_cell_types_and_instance(
+            bel, location, site, bels
+        )
+        if (celltype is None) or (instance is None):
+            return None
     bel_timings = dict()
     cell = dict()
     for ct in celltype:
@@ -73,16 +79,23 @@ def find_timings(timings, bel, location, site, bels):
 
 
 def get_bel_timings(element, timings, bels):
-    """This function returnes all the timings for an arch.xml
+    """This function returns all the timings for an arch.xml
        `element`. It determines the bel location by traversing
        the pb_type chain"""
     pb_chain = get_pb_type_chain(element)
     if len(pb_chain) == 1:
         return None
-    bel = pb_chain[-1]
+
+    if 'max' in element.attrib and element.attrib['max'].startswith(
+            '{interconnect'):
+        bel = 'ROUTING_BEL'
+    else:
+        bel = pb_chain[-1]
     location = pb_chain[-2]
     site = remove_site_number(pb_chain[1])
-    return find_timings(timings, bel, location, site, bels)
+    return find_timings(
+        timings, bel, location, site, bels, bel == 'ROUTING_BEL'
+    )
 
 
 def main():
