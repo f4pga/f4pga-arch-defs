@@ -24,17 +24,27 @@ The RAM has extra bits that can be used for parity (DIP / DOP).
  <output name="DOADO"         num_pins="16" />
  <output name="DOPADOP"       num_pins="2"  />
 
- <T_setup    value="10e-12" port="REGCEAREGCE"    clock="CLKARDCLK" />
- <T_setup    value="10e-12" port="REGCLKARDRCLK"  clock="CLKARDCLK" />
- <T_setup    value="10e-12" port="ENARDEN"        clock="CLKARDCLK" />
- <T_setup    value="10e-12" port="RSTRAMARSTRAM"  clock="CLKARDCLK" />
- <T_setup    value="10e-12" port="RSTREGARSTREG"  clock="CLKARDCLK" />
- <T_setup    value="10e-12" port="ADDRARDADDR"    clock="CLKARDCLK" />
- <T_setup    value="10e-12" port="DIADI"          clock="CLKARDCLK" />
- <T_setup    value="10e-12" port="DIPADIP"        clock="CLKARDCLK" />
- <T_setup    value="10e-12" port="WEA"            clock="CLKARDCLK" />
- <T_clock_to_Q max="10e-12" port="DOADO"          clock="CLKARDCLK" />
- <T_clock_to_Q max="10e-12" port="DOPADOP"        clock="CLKARDCLK" />
+ <T_setup    value="{setup_CLKARDCLKU_ENARDENU}"    port="ENARDEN"        clock="CLKARDCLK" />
+ <T_hold     value="{hold_CLKARDCLKU_ENARDENU}"     port="ENARDEN"        clock="CLKARDCLK" />
+ <T_setup    value="{setup_CLKARDCLKL_REGCEAL}"     port="REGCEAREGCE"    clock="CLKARDCLK" />
+ <T_hold     value="{hold_CLKARDCLKL_REGCEAL}"      port="REGCEAREGCE"    clock="CLKARDCLK" />
+ <T_setup    value="{setup_CLKARDCLKU_RSTRAMAU}"    port="RSTRAMARSTRAM"  clock="CLKARDCLK" />
+ <T_hold     value="{hold_CLKARDCLKU_RSTRAMAU}"     port="RSTRAMARSTRAM"  clock="CLKARDCLK" />
+ <T_setup    value="{setup_CLKARDCLKU_RSTREGAU}"    port="RSTREGARSTREG"  clock="CLKARDCLK" />
+ <T_hold     value="{hold_CLKARDCLKU_RSTREGAU}"     port="RSTREGARSTREG"  clock="CLKARDCLK" />
+ <T_setup    value="{setup_CLKARDCLKU_ADDRAU}"      port="ADDRARDADDR"    clock="CLKARDCLK" />
+ <T_hold     value="{hold_CLKARDCLKU_ADDRAU}"       port="ADDRARDADDR"    clock="CLKARDCLK" />
+ <T_setup    value="{setup_CLKARDCLKU_DIADIU}"      port="DIADI"          clock="CLKARDCLK" />
+ <T_hold     value="{hold_CLKARDCLKU_DIADIU}"       port="DIADI"          clock="CLKARDCLK" />
+ <T_setup    value="{setup_CLKARDCLKU_DIPADIPU}"    port="DIPADIP"        clock="CLKARDCLK" />
+ <T_hold     value="{hold_CLKARDCLKU_DIPADIPU}"     port="DIPADIP"        clock="CLKARDCLK" />
+ <T_setup    value="{setup_CLKARDCLKU_WEAU}"        port="WEA"            clock="CLKARDCLK" />
+ <T_hold     value="{hold_CLKARDCLKU_WEAU}"         port="WEA"            clock="CLKARDCLK" />
+ <T_clock_to_Q max="{iopath_CLKARDCLKU_DOADOU}"     port="DOADO"          clock="CLKARDCLK" />
+ <T_clock_to_Q max="{iopath_CLKARDCLKU_DOPADOPU}"   port="DOPADOP"        clock="CLKARDCLK" />
+
+ <!-- Fake timing values as there is no database entry for these i/o -->
+ <T_setup    value="10e-12"                         port="REGCLKARDRCLK"  clock="CLKARDCLK" />
 
  <!-- Port B - 16bit wide -->
  <clock  name="CLKBWRCLK"     num_pins="1"  />
@@ -51,17 +61,27 @@ The RAM has extra bits that can be used for parity (DIP / DOP).
  <output name="DOBDO"         num_pins="16" />
  <output name="DOPBDOP"       num_pins="2"  />
 
- <T_setup    value="10e-12" port="ENBWREN"     clock="CLKBWRCLK" />
- <T_setup    value="10e-12" port="REGCEB"      clock="CLKBWRCLK" />
- <T_setup    value="10e-12" port="REGCLKB"     clock="CLKBWRCLK" />
- <T_setup    value="10e-12" port="RSTRAMB"     clock="CLKBWRCLK" />
- <T_setup    value="10e-12" port="RSTREGB"     clock="CLKBWRCLK" />
- <T_setup    value="10e-12" port="ADDRBWRADDR" clock="CLKBWRCLK" />
- <T_setup    value="10e-12" port="DIBDI"       clock="CLKBWRCLK" />
- <T_setup    value="10e-12" port="DIPBDIP"     clock="CLKBWRCLK" />
- <T_setup    value="10e-12" port="WEBWE"       clock="CLKBWRCLK" />
- <T_clock_to_Q max="10e-12" port="DOBDO"       clock="CLKBWRCLK" />
- <T_clock_to_Q max="10e-12" port="DOPBDOP"     clock="CLKBWRCLK" />
+ <T_setup    value="{setup_CLKBWRCLKU_ENBWRENU}"    port="ENBWREN"     clock="CLKBWRCLK" />
+ <T_hold     value="{hold_CLKBWRCLKU_ENBWRENU}"     port="ENBWREN"     clock="CLKBWRCLK" />
+ <T_setup    value="{setup_CLKBWRCLKU_REGCEBU}"     port="REGCEB"      clock="CLKBWRCLK" />
+ <T_hold     value="{hold_CLKBWRCLKU_REGCEBU}"      port="REGCEB"      clock="CLKBWRCLK" />
+ <T_setup    value="{setup_CLKBWRCLKU_RSTRAMBU}"    port="RSTRAMB"     clock="CLKBWRCLK" />
+ <T_hold     value="{hold_CLKBWRCLKU_RSTRAMBU}"     port="RSTRAMB"     clock="CLKBWRCLK" />
+ <T_setup    value="{setup_CLKBWRCLKU_RSTREGBU}"    port="RSTREGB"     clock="CLKBWRCLK" />
+ <T_hold     value="{hold_CLKBWRCLKU_RSTREGBU}"     port="RSTREGB"     clock="CLKBWRCLK" />
+ <T_setup    value="{setup_CLKBWRCLKU_ADDRBU}"      port="ADDRBWRADDR" clock="CLKBWRCLK" />
+ <T_hold     value="{hold_CLKBWRCLKU_ADDRBU}"       port="ADDRBWRADDR" clock="CLKBWRCLK" />
+ <T_setup    value="{setup_CLKBWRCLKU_DIBDIU}"      port="DIBDI"       clock="CLKBWRCLK" />
+ <T_hold     value="{hold_CLKBWRCLKU_DIBDIU}"       port="DIBDI"       clock="CLKBWRCLK" />
+ <T_setup    value="{setup_CLKBWRCLKU_DIPBDIPU}"    port="DIPBDIP"     clock="CLKBWRCLK" />
+ <T_hold     value="{hold_CLKBWRCLKU_DIPBDIPU}"     port="DIPBDIP"     clock="CLKBWRCLK" />
+ <T_setup    value="{setup_CLKBWRCLKU_WEBU}"        port="WEBWE"       clock="CLKBWRCLK" />
+ <T_hold     value="{hold_CLKBWRCLKU_WEBU}"         port="WEBWE"       clock="CLKBWRCLK" />
+ <T_clock_to_Q max="{iopath_CLKBWRCLKU_DOBDOU}"     port="DOBDO"       clock="CLKBWRCLK" />
+ <T_clock_to_Q max="{iopath_CLKBWRCLKU_DOPBDOPU}"   port="DOPBDOP"     clock="CLKBWRCLK" />
+
+ <!-- Fake timing values as there is no database entry for these i/o -->
+ <T_setup    value="10e-12"                         port="REGCLKB"     clock="CLKBWRCLK" />
 
  <metadata>
    <meta name="fasm_params">
