@@ -99,6 +99,12 @@
                 "celltype": "CARRY4 CARRY4_O5",
                 "instance": "SLICEL"
             }
+        },
+        "ROUTING_BEL": {
+            "SLICEL0" : {
+                "celltype": "ROUTING_BEL",
+                "instance": "SLICEL/AMUX SLICEL/BMUX SLICEL/CMUX SLICEL/DMUX"
+            }
         }
     },
     "SLICEM": {
@@ -282,6 +288,12 @@
             "COMMON_SLICE":{
                 "celltype": "CARRY4 CARRY4_O5",
                 "instance": "SLICEM"
+            }
+        },
+        "ROUTING_BEL": {
+            "SLICEM" : {
+                "celltype": "ROUTING_BEL",
+                "instance": "SLICEM/AMUX SLICEM/BMUX SLICEM/CMUX SLICEM/DMUX"
             }
         }
     },

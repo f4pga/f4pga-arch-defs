@@ -51,23 +51,18 @@ def get_cell_types_and_instance(bel, location, site, bels):
     return celltypes, instance
 
 
-def find_timings(timings, bel, location, site, bels, routing=False):
+def find_timings(timings, bel, location, site, bels):
     """This function returns all the timings associated with
        the selected `bel` in `location` and `site`. If timings
        are not found, `None` is returned"""
-    if routing:
-        celltype = [bel]
-        instance = site
-    else:
-        celltype, instance = get_cell_types_and_instance(
-            bel, location, site, bels
-        )
-        if (celltype is None) or (instance is None):
-            return None
+    celltype, instance = get_cell_types_and_instance(bel, location, site, bels)
+    if (celltype is None) or (instance is None):
+        return None
     bel_timings = dict()
     cell = dict()
     for ct in celltype:
-        cell = mergedicts(timings['cells'][ct][instance], cell)
+        for inst in instance.split():
+            cell = mergedicts(timings['cells'][ct][inst], cell)
     for delay in cell:
         if cell[delay]['is_absolute']:
             entry = cell[delay]['delay_paths']['slow']['max']
@@ -93,9 +88,7 @@ def get_bel_timings(element, timings, bels):
         bel = pb_chain[-1]
     location = pb_chain[-2]
     site = remove_site_number(pb_chain[1])
-    return find_timings(
-        timings, bel, location, site, bels, bel == 'ROUTING_BEL'
-    )
+    return find_timings(timings, bel, location, site, bels)
 
 
 def main():
