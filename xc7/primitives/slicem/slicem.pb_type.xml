@@ -191,6 +191,11 @@
       <xi:include href="srl/c_srl.pb_type.xml"/>
       <xi:include href="srl/d_srl.pb_type.xml"/>
 
+      <!-- DI1MUXes -->
+      <xi:include href="Nd1imux/ad1imux.pb_type.xml"/>
+      <xi:include href="Nd1imux/bd1imux.pb_type.xml"/>
+      <xi:include href="Nd1imux/cd1imux.pb_type.xml"/>
+
       <!-- WEMUX -->
       <xi:include href="wemux.pb_type.xml"/>
 
@@ -205,8 +210,8 @@
         <direct name="SLICEM_MODES.A4_to_A_SRL.A4" input="SLICEM_MODES.A4" output="ASRL.A4"/>
         <direct name="SLICEM_MODES.A5_to_A_SRL.A5" input="SLICEM_MODES.A5" output="ASRL.A5"/>
         <direct name="SLICEM_MODES.A6_to_A_SRL.A6" input="SLICEM_MODES.A6" output="ASRL.A6"/>
-        <direct name="SLICEM_MODES.AI_to_A_SRL.DI1" input="SLICEM_MODES.AI" output="ASRL.DI1"/> <!-- FIXME: HACK -->
-        <direct name="SLICEM_MODES.AX_to_A_SRL.DI2" input="SLICEM_MODES.AX" output="ASRL.DI2"/> <!-- FIXME: HACK -->
+        <direct name="ADI1MUX.O_to_A_SRL.DI1" input="ADI1MUX.O" output="ASRL.DI1"/>
+        <direct name="SLICEM_MODES.AX_to_A_SRL.DI2" input="SLICEM_MODES.AX" output="ASRL.DI2"/>
         <direct name="A_SRL.O5_to_SLICEM_MODES.AO5" input="ASRL.O5" output="SLICEM_MODES.AO5"/>
         <direct name="A_SRL.O6_to_SLICEM_MODES.AO6" input="ASRL.O6" output="SLICEM_MODES.AO6"/>
 
@@ -219,8 +224,8 @@
         <direct name="SLICEM_MODES.B4_to_B_SRL.A4" input="SLICEM_MODES.B4" output="BSRL.A4"/>
         <direct name="SLICEM_MODES.B5_to_B_SRL.A5" input="SLICEM_MODES.B5" output="BSRL.A5"/>
         <direct name="SLICEM_MODES.B6_to_B_SRL.A6" input="SLICEM_MODES.B6" output="BSRL.A6"/>
-        <direct name="SLICEM_MODES.BI_to_B_SRL.DI1" input="SLICEM_MODES.BI" output="BSRL.DI1"/> <!-- FIXME: HACK -->
-        <direct name="SLICEM_MODES.BX_to_B_SRL.DI2" input="SLICEM_MODES.BX" output="BSRL.DI2"/> <!-- FIXME: HACK -->
+        <direct name="BDI1MUX.O_to_BSRL.DI1" input="BDI1MUX.O" output="BSRL.DI1"/>
+        <direct name="SLICEM_MODES.BX_to_B_SRL.DI2" input="SLICEM_MODES.BX" output="BSRL.DI2"/>
         <direct name="B_SRL.O5_to_SLICEM_MODES.BO5" input="BSRL.O5" output="SLICEM_MODES.BO5"/>
         <direct name="B_SRL.O6_to_SLICEM_MODES.BO6" input="BSRL.O6" output="SLICEM_MODES.BO6"/>
 
@@ -233,8 +238,8 @@
         <direct name="SLICEM_MODES.C4_to_C_SRL.A4" input="SLICEM_MODES.C4" output="CSRL.A4"/>
         <direct name="SLICEM_MODES.C5_to_C_SRL.A5" input="SLICEM_MODES.C5" output="CSRL.A5"/>
         <direct name="SLICEM_MODES.C6_to_C_SRL.A6" input="SLICEM_MODES.C6" output="CSRL.A6"/>
-        <direct name="SLICEM_MODES.CI_to_C_SRL.DI1" input="SLICEM_MODES.CI" output="CSRL.DI1"/> <!-- FIXME: HACK -->
-        <direct name="SLICEM_MODES.CX_to_C_SRL.DI2" input="SLICEM_MODES.CX" output="CSRL.DI2"/> <!-- FIXME: HACK -->
+        <direct name="CDI1MUX.O_to_C_SRL.DI1" input="CDI1MUX.O" output="CSRL.DI1"/>
+        <direct name="SLICEM_MODES.CX_to_C_SRL.DI2" input="SLICEM_MODES.CX" output="CSRL.DI2"/>
         <direct name="C_SRL.O5_to_SLICEM_MODES.CO5" input="CSRL.O5" output="SLICEM_MODES.CO5"/>
         <direct name="C_SRL.O6_to_SLICEM_MODES.CO6" input="CSRL.O6" output="SLICEM_MODES.CO6"/>
 
@@ -247,14 +252,29 @@
         <direct name="SLICEM_MODES.D4_to_D_SRL.A4" input="SLICEM_MODES.D4" output="DSRL.A4"/>
         <direct name="SLICEM_MODES.D5_to_D_SRL.A5" input="SLICEM_MODES.D5" output="DSRL.A5"/>
         <direct name="SLICEM_MODES.D6_to_D_SRL.A6" input="SLICEM_MODES.D6" output="DSRL.A6"/>
-        <direct name="SLICEM_MODES.DI_to_D_SRL.DI1" input="SLICEM_MODES.DI" output="DSRL.DI1"/> <!-- FIXME: HACK -->
-        <direct name="SLICEM_MODES.DX_to_D_SRL.DI2" input="SLICEM_MODES.DX" output="DSRL.DI2"/> <!-- FIXME: HACK -->
+        <direct name="SLICEM_MODES.DI_to_D_SRL.DI1" input="SLICEM_MODES.DI" output="DSRL.DI1"/>
+        <direct name="SLICEM_MODES.DX_to_D_SRL.DI2" input="SLICEM_MODES.DX" output="DSRL.DI2"/>
         <direct name="D_SRL.O5_to_SLICEM_MODES.DO5" input="DSRL.O5" output="SLICEM_MODES.DO5"/>
         <direct name="D_SRL.O6_to_SLICEM_MODES.DO6" input="DSRL.O6" output="SLICEM_MODES.DO6"/>
 
         <!-- WE/CE inputs -->
         <direct name="SLICEM_MODES.CE_to_WE_MUX.CE" input="SLICEM_MODES.CE" output="WE_MUX.CE"/>
         <direct name="SLICEM_MODES.WE_to_WE_MUX.WE" input="SLICEM_MODES.WE" output="WE_MUX.WE"/>
+
+        <!-- ADI1MUX -->
+        <direct name="BSRL.MC31_to_ADI1MUX.BMC31" input="BSRL.MC31" output="ADI1MUX.BMC31"/>
+        <direct name="BDI1MUX.O_to_ADI1MUX.BDI1" input="BDI1MUX.O" output="ADI1MUX.BDI1"/>
+        <direct name="SLICEM_MODES.AI_to_ADI1MUX.AI" input="SLICEM_MODES.AI" output="ADI1MUX.AI"/>
+        
+        <!-- BDI1MUX -->
+        <direct name="SLICEM_MODES.DI_to_BDI1MUX.DI" input="SLICEM_MODES.DI" output="BDI1MUX.DI"/>
+        <direct name="CSRL.MC31_to_BDI1MUX.CMC31" input="CSRL.MC31" output="BDI1MUX.CMC31"/>
+        <direct name="SLICEM_MODES.BI_to_BDI1MUX.BI" input="SLICEM_MODES.BI" output="BDI1MUX.BI"/>
+        
+        <!-- CDI1MUX -->
+        <direct name="DSRL.MC31_to_CDI1MUX.DMC31" input="DSRL.MC31" output="CDI1MUX.DMC31"/>
+        <direct name="SLICEM_MODES.DI_to_CDI1MUX.DI" input="SLICEM_MODES.DI" output="CDI1MUX.DI"/>
+        <direct name="SLICEM_MODES.CI_to_CDI1MUX.CI" input="SLICEM_MODES.CI" output="CDI1MUX.CI"/>
 
       </interconnect>
 
@@ -264,9 +284,6 @@
           BLUT.SRL
           CLUT.SRL
           DLUT.SRL
-          ALUT.DI1MUX.AI
-          BLUT.DI1MUX.BI
-          CLUT.DI1MUX.CI
         </meta>
       </metadata>
     </mode>
