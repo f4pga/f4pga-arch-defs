@@ -251,3 +251,8 @@ add_dependencies(all_demos
     )
 
 add_custom_target(docs)
+
+add_custom_target(print_qor
+    COMMAND ${PYTHON3} ${symbiflow-arch-defs_SOURCE_DIR}/utils/print_qor.py ${symbiflow-arch-defs_BINARY_DIR}
+    DEPENDS ${PYTHON3_TARGET}
+    )
