@@ -1737,27 +1737,21 @@ module SRLC32E (
     end
   endfunction
 
-  localparam [63:0] INIT_00 = duplicate_bits(INIT);
+  localparam [63:0] INIT_VPR = duplicate_bits(INIT);
 
   // Substitute
-  SRL32 #
+  SRLC32E_VPR #
   (
-  .INIT_00(INIT_00),
-  .IS_CLK_INVERTED(IS_CLK_INVERTED)
+  .INIT(INIT_VPR)
   )
   _TECHMAP_REPLACE_
   (
   .CLK(CLK),
   .CE(CE),
-  .A6(A[4]),
-  .A5(A[3]),
-  .A4(A[2]),
-  .A3(A[1]),
-  .A2(A[0]),
-  .A1(1'd1),
-  .DI1(D),
-  .O6(Q),
-  .MC31(Q31)
+  .A(A),
+  .D(D),
+  .Q(Q),
+  .Q31(Q31)
   );
 
 endmodule
