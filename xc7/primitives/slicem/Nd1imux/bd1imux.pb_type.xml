@@ -1,0 +1,24 @@
+<pb_type name="BDI1MUX" num_pb="1">
+  <input name="DI" num_pins="1"/>
+  <input name="CMC31" num_pins="1"/>
+  <input name="BI" num_pins="1"/>
+  <output name="O" num_pins="1"/>
+
+  <interconnect>
+    <mux name="BDI1MUX" input="BDI1MUX.DI BDI1MUX.CMC31 BDI1MUX.BI" output="BDI1MUX.O">
+      <metadata>
+        <meta name="fasm_mux">
+          BDI1MUX.DI = NULL
+          BDI1MUX.CMC31 = NULL
+          BDI1MUX.BI = BLUT.DI1MUX.BI
+        </meta>
+      </metadata>
+    </mux>
+  </interconnect>
+  
+  <metadata>
+    <meta name="type">bel</meta>
+    <meta name="subtype">routing</meta>
+  </metadata>
+</pb_type>
+
