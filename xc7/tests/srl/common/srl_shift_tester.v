@@ -1,6 +1,6 @@
 module srl_shift_tester #
 (
-parameter [255:0] ROM_CONTENT = 256'hFE1AB3FE7610D3D205D9A526C103C40F6477E986F53C53FA663A9CE45E851D30,
+parameter [511:0] ROM_CONTENT = 512'h0833D855BF064C540DFD9FFFB51E402AC1839A048A68620BD94EB15E67C8FE9DDA32A47EA170107BB10665E6A59D3CE2359205CDFD5E598E490BBA776C334DB9,
 parameter         SRL_LENGTH  = 32
 )
 (
@@ -18,7 +18,7 @@ output reg  error
 
 // ============================================================================
 // ROM
-wire [7:0] rom_adr;
+wire [8:0] rom_adr;
 wire       rom_dat;
 
 ROM #(.CONTENT(ROM_CONTENT)) rom
@@ -58,8 +58,8 @@ always @(posedge clk)
         rom_dat_2 <= rom_dat;
 
 // Address counter
-reg [7:0] rom_adr_1 = 0;
-reg [7:0] rom_adr_2 = 0;
+reg [8:0] rom_adr_1 = 0;
+reg [8:0] rom_adr_2 = 0;
 
 always @(posedge clk)
     if (rst)
@@ -79,7 +79,7 @@ assign srl_a = delay;
 assign srl_d = rom_dat_1;
 
 // Delay change
-wire delay_chg = (phase == 2'd1 && rom_adr_1 == 8'hFF);
+wire delay_chg = (phase == 2'd1 && rom_adr_1 == 9'h1FF);
 
 always @(posedge clk)
     if (delay_chg) delay <= delay + 1;
