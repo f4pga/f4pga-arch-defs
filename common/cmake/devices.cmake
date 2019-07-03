@@ -250,6 +250,10 @@ function(DEFINE_DEVICE_TYPE)
   # Defines a device type with the specified architecture.  ARCH_XML argument
   # must be a file target (see ADD_FILE_TARGET).
   #
+  # optional SCRIPTs can be run after the standard flow to augment the
+  # final arch xml. The name and script must be provided and each
+  # script will be run as `cmd < input > output`
+  #
   # DEFINE_DEVICE_TYPE defines a dummy target <arch>_<device_type>_arch that
   # will build the merged architecture file for the device type.
   #
@@ -265,17 +269,6 @@ function(DEFINE_DEVICE_TYPE)
     "${multiValueArgs}"
     ${ARGN}
   )
-
-  add_custom_target(${DEFINE_DEVICE_TYPE_DEVICE_TYPE})
-  foreach(ARG ARCH)
-    if("${DEFINE_DEVICE_TYPE_${ARG}}" STREQUAL "")
-      message(FATAL_ERROR "Required argument ${ARG} is the empty string.")
-    endif()
-    set_target_properties(
-      ${DEFINE_DEVICE_TYPE_DEVICE_TYPE}
-      PROPERTIES ${ARG} ${DEFINE_DEVICE_TYPE_${ARG}}
-    )
-  endforeach()
 
   #
   # Generate a arch.xml for a device.
@@ -309,8 +302,10 @@ function(DEFINE_DEVICE_TYPE)
         ${SPECIALIZE_CARRYCHAINS}
         ${SPECIALIZE_CARRYCHAINS_DEPS}
   )
-  add_file_target(FILE ${DEVICE_UNIQUE_PACK_FILE} GENERATED)
 
+  add_file_target(FILE ${DEVICE_UNIQUE_PACK_FILE} GENERATED)
+  get_file_target(FINAL_TARGET ${DEVICE_UNIQUE_PACK_FILE})
+  get_file_location(FINAL_FILE ${DEVICE_UNIQUE_PACK_FILE})
   set(FINAL_OUTPUT ${DEVICE_UNIQUE_PACK_FILE})
 
   # for each script generate next chain of deps
@@ -322,21 +317,25 @@ function(DEFINE_DEVICE_TYPE)
       separate_arguments(CMD_W_ARGS UNIX_COMMAND ${SCRIPT})
       list(GET CMD_W_ARGS 0 CMD)
       set(TEMP_TARGET arch.${OUTPUT_NAME}.xml)
+      set(DEPS ${PYTHON3} ${PYTHON3_TARGET} ${CMD})
+      append_file_dependency(DEPS ${FINAL_OUTPUT})
+
       add_custom_command(
 	OUTPUT ${TEMP_TARGET}
-	COMMAND ${PYTHON3} ${CMD_W_ARGS} ${FINAL_OUTPUT} > ${TEMP_TARGET}
-	DEPENDS
-        ${PYTHON3} ${PYTHON3_TARGET}
-	${CMD} ${FINAL_OUTPUT}
+	COMMAND ${CMD_W_ARGS} < ${FINAL_FILE} > ${TEMP_TARGET}
+	DEPENDS ${DEPS}
 	)
+
+      add_file_target(FILE ${TEMP_TARGET} GENERATED)
+      get_file_target(FINAL_TARGET ${TEMP_TARGET})
+      get_file_location(FINAL_FILE ${TEMP_TARGET})
       set(FINAL_OUTPUT ${TEMP_TARGET})
-      add_file_target(FILE ${FINAL_OUTPUT} GENERATED)
     endforeach(SCRIPT_IND RANGE ${SCRIPT_LEN})
   endif (DEFINE_DEVICE_TYPE_SCRIPTS)
 
   add_custom_target(
     ${DEFINE_DEVICE_TYPE_ARCH}_${DEFINE_DEVICE_TYPE_DEVICE_TYPE}_arch
-    DEPENDS ${FINAL_OUTPUT}
+    DEPENDS ${FINAL_TARGET}
   )
   add_dependencies(
     all_merged_arch_xmls
@@ -346,16 +345,33 @@ function(DEFINE_DEVICE_TYPE)
   set(ARCH_SCHEMA ${symbiflow-arch-defs_SOURCE_DIR}/common/xml/fpga_architecture.xsd)
   xml_lint(
     NAME ${DEFINE_DEVICE_TYPE_ARCH}_${DEFINE_DEVICE_TYPE_DEVICE_TYPE}_arch_lint
-    FILE ${FINAL_OUTPUT}
+    FILE ${FINAL_FILE}
     LINT_OUTPUT ${XMLLINT_OUTPUT}
     SCHEMA ${ARCH_SCHEMA}
   )
+
+  append_file_dependency(FINAL_DEPS ${FINAL_OUTPUT})
+
+  add_custom_target(
+    ${DEFINE_DEVICE_TYPE_DEVICE_TYPE}
+    DEPENDS ${FINAL_DEPS}
+    )
+
+  foreach(ARG ARCH)
+    if("${DEFINE_DEVICE_TYPE_${ARG}}" STREQUAL "")
+      message(FATAL_ERROR "Required argument ${ARG} is the empty string.")
+    endif()
+    set_target_properties(
+      ${DEFINE_DEVICE_TYPE_DEVICE_TYPE}
+      PROPERTIES ${ARG} ${DEFINE_DEVICE_TYPE_${ARG}}
+    )
+  endforeach()
 
   set_target_properties(
     ${DEFINE_DEVICE_TYPE_DEVICE_TYPE}
     PROPERTIES
     DEVICE_MERGED_FILE ${CMAKE_CURRENT_SOURCE_DIR}/${FINAL_OUTPUT}
-  )
+    )
 
 endfunction()
 
@@ -443,11 +459,12 @@ function(DEFINE_DEVICE)
         ${symbiflow-arch-defs_SOURCE_DIR}/common/wire.eblif
         ${DEVICE_MERGED_FILE} ${DEVICE_MERGED_FILE_TARGET}
         ${QUIET_CMD} ${QUIET_CMD_TARGET}
-        ${VPR} ${VPR_TARGET}
+        ${VPR} ${VPR_TARGET} ${DEFINE_DEVICE_DEVICE_TYPE}
       COMMAND
         ${QUIET_CMD} ${VPR} ${DEVICE_MERGED_FILE}
         --device ${DEVICE_FULL}
         ${symbiflow-arch-defs_SOURCE_DIR}/common/wire.eblif
+        --place_algorithm bounding_box
         --route_chan_width 6
         --echo_file on
         --min_route_chan_width_hint 1
@@ -883,6 +900,8 @@ function(ADD_FPGA_TARGET)
   set(OUT_ROUTE ${OUT_LOCAL}/${TOP}.route)
 
   set(VPR_DEPS "")
+  append_file_dependency(VPR_DEPS ${OUT_EBLIF_REL})
+  list(APPEND VPR_DEPS ${DEFINE_DEVICE_DEVICE_TYPE})
 
   get_file_location(OUT_RRXML_VIRT_LOCATION ${OUT_RRXML_VIRT})
   get_file_location(OUT_RRXML_REAL_LOCATION ${OUT_RRXML_REAL})
@@ -909,8 +928,12 @@ function(ADD_FPGA_TARGET)
   separate_arguments(
     VPR_EXTRA_ARGS_LIST UNIX_COMMAND "${VPR_EXTRA_ARGS}"
     )
+
+  # Setting noisy warnings log file if needed.
+  set(OUT_NOISY_WARNINGS ${OUT_LOCAL}/noisy_warnings.log)
+  string(CONFIGURE ${VPR_ARCH_ARGS} VPR_ARCH_ARGS_EXPANDED)
   separate_arguments(
-    VPR_ARCH_ARGS_LIST UNIX_COMMAND "${VPR_ARCH_ARGS}"
+    VPR_ARCH_ARGS_LIST UNIX_COMMAND "${VPR_ARCH_ARGS_EXPANDED}"
     )
 
   if(NOT "${ADD_FPGA_TARGET_SDC_FILE}" STREQUAL "")

@@ -15,5 +15,6 @@ echo "----------------------------------------"
 	export MAKE_ARGS="-j${MAX_CORES} --output-sync=target"
 	# Run as many tests as we can.  Rerun individually on failure.
 	make -k ${MAKE_ARGS} all_xc7 || make all_xc7
+	make print_qor > xc7_qor.csv
 )
 echo "----------------------------------------"

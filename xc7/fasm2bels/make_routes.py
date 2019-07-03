@@ -99,7 +99,9 @@ def output_builder(fixed_route):
         else:
             yield i
 
-    yield ']'
+    # TCL cannot express 1-length list, so add an additional element to
+    # prevent TCL from collapsing the 1-length list.
+    yield ' {} ]'
 
 
 class Net(object):
@@ -308,7 +310,9 @@ class Net(object):
 
                 yield ')'
 
-            yield ']'
+            # TCL cannot express 1-length list, so add an additional element
+            # to prevent TCL from collapsing the 1-length list.
+            yield '{} ]'
 
 
 def create_check_for_default(db, conn):

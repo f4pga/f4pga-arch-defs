@@ -42,7 +42,7 @@ add_conda_package(
 add_conda_package(
   NAME vtr
   PROVIDES vpr genfasm
-  PACKAGE_SPEC "vtr 7.0.5_7423_g43cfd5baf 20190618_143837"
+  PACKAGE_SPEC "vtr 7.0.5_7452_g893663cd9 20190626_102931"
   )
 add_conda_package(
   NAME libxslt
@@ -251,3 +251,8 @@ add_dependencies(all_demos
     )
 
 add_custom_target(docs)
+
+add_custom_target(print_qor
+    COMMAND ${PYTHON3} ${symbiflow-arch-defs_SOURCE_DIR}/utils/print_qor.py ${symbiflow-arch-defs_BINARY_DIR}
+    DEPENDS ${PYTHON3_TARGET}
+    )
