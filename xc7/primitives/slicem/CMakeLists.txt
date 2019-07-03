@@ -1,5 +1,4 @@
 add_subdirectory(Ndram)
-add_subdirectory(Nd1imux)
 add_subdirectory(srl)
 
 add_file_target(FILE wemux.pb_type.xml SCANNER_TYPE xml)
