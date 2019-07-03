@@ -11,12 +11,6 @@
   <pb_type name="LUT4" num_pb="1" class="lut" blif_model=".names">
    <input  name="in"  num_pins="4" port_class="lut_in" />
    <output name="out" num_pins="1" port_class="lut_out" />
-   <delay_matrix type="max" in_port="in" out_port="out">
-    10e-12
-    10e-12
-    10e-12
-    10e-12
-   </delay_matrix>
    <metadata>
     <meta name="type">block</meta>
     <meta name="subtype">ignore</meta>
@@ -56,10 +50,6 @@
    <input  name="I2" num_pins="1" />
    <input  name="I3" num_pins="1" />
    <output name="O"  num_pins="1" />
-   <delay_constant max="10e-12" in_port="I0" out_port="O"/>
-   <delay_constant max="10e-12" in_port="I1" out_port="O"/>
-   <delay_constant max="10e-12" in_port="I2" out_port="O"/>
-   <delay_constant max="10e-12" in_port="I3" out_port="O"/>
    <metadata>
     <meta name="type">block</meta>
     <meta name="subtype">ignore</meta>
