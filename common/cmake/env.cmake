@@ -209,7 +209,7 @@ function(ADD_CONDA_PACKAGE)
     add_custom_command(
       OUTPUT ${OUTPUTS}
       COMMAND ${CMAKE_COMMAND} -E echo "Taking ${CONDA_BIN}.lock"
-      COMMAND flock ${CONDA_BIN}.lock ${CONDA_BIN} install --force-reinstall ${PACKAGE_SPEC}
+      COMMAND flock ${CONDA_BIN}.lock ${CONDA_BIN} install --force ${PACKAGE_SPEC}
       ${TOUCH_COMMANDS}
       DEPENDS conda ${CONDA_BIN}
       )
