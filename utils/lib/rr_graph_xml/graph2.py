@@ -345,9 +345,12 @@ class Graph(object):
         return ret
 
     def start_serialize_to_xml(
-            self, tool_version, tool_comment, channels_obj,
+            self,
+            tool_version,
+            tool_comment,
+            channels_obj,
             connection_box_obj=None
-            ):
+    ):
         assert self.exit_stack is not None
         assert self.xf is not None
 
@@ -398,14 +401,14 @@ class Graph(object):
                     'x_dim': str(connection_box_obj.x_dim),
                     'y_dim': str(connection_box_obj.y_dim),
                     'num_boxes': str(len(connection_box_obj.boxes)),
-                }):
+            }):
                 for idx, box in enumerate(connection_box_obj.boxes):
                     el = ET.Element(
-                            'connection_box', {
-                                'id': str(idx),
-                                'name': box,
-                                }
-                            )
+                        'connection_box', {
+                            'id': str(idx),
+                            'name': box,
+                        }
+                    )
                     self.xf.write(el)
 
         self.xf.write(self.input_xml.find('switches'))

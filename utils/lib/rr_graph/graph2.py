@@ -156,7 +156,9 @@ class ConnectionBoxes(namedtuple('ConnectionBoxes', 'x_dim y_dim boxes')):
 
 
 class Node(namedtuple(
-        'Node', 'id type direction capacity loc timing metadata segment canonical_loc connection_box')):
+        'Node',
+        'id type direction capacity loc timing metadata segment canonical_loc connection_box'
+)):
     """https://vtr-verilog-to-routing.readthedocs.io/en/latest/vpr/file_formats.html#tag-nodes-node
     """
 
@@ -335,13 +337,19 @@ class Graph(object):
 
     def create_connection_box_object(self, x_dim, y_dim):
         return ConnectionBoxes(
-                x_dim=x_dim,
-                y_dim=y_dim,
-                boxes=tuple(self.connection_boxes),
-                )
+            x_dim=x_dim,
+            y_dim=y_dim,
+            boxes=tuple(self.connection_boxes),
+        )
 
     def _create_node(
-            self, type, direction, loc, segment, timing, capacity=1,
+            self,
+            type,
+            direction,
+            loc,
+            segment,
+            timing,
+            capacity=1,
             metadata=None,
             canonical_loc=None,
             connection_box=None,

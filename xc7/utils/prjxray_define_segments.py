@@ -52,6 +52,7 @@ def reduce_wires_to_segments(wires, segments):
 
         segments[segment].add(wire)
 
+
 def get_segments(db):
     """ Return segment approximation for device.
 
@@ -65,10 +66,10 @@ def get_segments(db):
     wires = set()
 
     segments = {
-            'INPINFEED': set(),
-            'CLKFEED': set(),
-            'OUTPINFEED': set(),
-            }
+        'INPINFEED': set(),
+        'CLKFEED': set(),
+        'OUTPINFEED': set(),
+    }
 
     for tile in ['INT_L', 'INT_R']:
         add_segment_wires(db, tile, wires, segments)
@@ -76,6 +77,7 @@ def get_segments(db):
     reduce_wires_to_segments(wires, segments)
 
     return segments
+
 
 class SegmentWireMap(object):
     """ SegmentWireMap provides a way to map node wires to segments.
@@ -88,6 +90,7 @@ class SegmentWireMap(object):
     specialized lookahead entries, and should be given their own segment.
 
     """
+
     def __init__(self, default_segment, db):
         self.default_segment = default_segment
         self.segments = get_segments(db)
@@ -137,6 +140,7 @@ def main():
 
         for wire in sorted(segments[segment]):
             print('  {}'.format(wire))
+
 
 if __name__ == '__main__':
     main()

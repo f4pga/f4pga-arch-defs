@@ -964,16 +964,22 @@ SELECT capacitance, resistance FROM wire_in_tile WHERE pkey IN (
 def get_segment_for_node(conn, segments, node_pkey):
     cur = conn.cursor()
 
-    cur.execute("""
+    cur.execute(
+        """
 SELECT name FROM wire_in_tile WHERE pkey IN (
     SELECT wire_in_tile_pkey FROM wire WHERE node_pkey = ?
-);""", (node_pkey,))
+);""", (node_pkey, )
+    )
 
-    segment_name = segments.get_segment_for_wires(wire for (wire,) in cur.fetchall())
+    segment_name = segments.get_segment_for_wires(
+        wire for (wire, ) in cur.fetchall()
+    )
 
-    cur.execute("""
+    cur.execute(
+        """
 SELECT pkey FROM segment WHERE name = ?
-    """, (segment_name,))
+    """, (segment_name, )
+    )
 
     return cur.fetchone()[0]
 
@@ -987,8 +993,9 @@ def insert_tracks(conn, segments, tracks_to_insert):
     track_pkeys = []
     for node, tracks_list, track_connections, tracks_model, segment_pkey in progressbar.progressbar(
             tracks_to_insert):
-        write_cur.execute("""INSERT INTO track(segment_pkey) VALUES (?)""",
-                (segment_pkey,))
+        write_cur.execute(
+            """INSERT INTO track(segment_pkey) VALUES (?)""", (segment_pkey, )
+        )
         track_pkey = write_cur.lastrowid
         track_pkeys.append(track_pkey)
 
@@ -1162,20 +1169,19 @@ FROM
   """, (node, )):
                 unique_pos.add((grid_x, grid_y))
 
-
             segment_pkey = get_segment_for_node(conn, segments, node)
 
-            tracks_to_insert.append(create_track(node, unique_pos) + [segment_pkey])
+            tracks_to_insert.append(
+                create_track(node, unique_pos) + [segment_pkey]
+            )
 
     # Create constant tracks
     vcc_track_to_insert, gnd_track_to_insert = create_constant_tracks(conn)
 
-    cur.execute("SELECT pkey FROM segment WHERE name = ?",
-            (VCC_NET,))
+    cur.execute("SELECT pkey FROM segment WHERE name = ?", (VCC_NET, ))
     vcc_segment_pkey = cur.fetchone()[0]
 
-    cur.execute("SELECT pkey FROM segment WHERE name = ?",
-            (GND_NET,))
+    cur.execute("SELECT pkey FROM segment WHERE name = ?", (GND_NET, ))
     gnd_segment_pkey = cur.fetchone()[0]
 
     vcc_idx = len(tracks_to_insert)
@@ -1197,15 +1203,25 @@ INSERT INTO constant_sources(vcc_track_pkey, gnd_track_pkey) VALUES (?, ?)
         )
     )
 
-    write_cur.execute("""
+    write_cur.execute(
+        """
 INSERT INTO phy_tile(name, grid_x, grid_y) VALUES (?, ?, ?)
-        """, ("CONSTANT_SOURCE", 0, 0))
+        """, ("CONSTANT_SOURCE", 0, 0)
+    )
     zero_phy_tile_pkey = write_cur.lastrowid
 
-    write_cur.execute("UPDATE track SET canon_phy_tile_pkey = ? WHERE pkey = ?",
-            (zero_phy_tile_pkey, vcc_track_pkey,))
-    write_cur.execute("UPDATE track SET canon_phy_tile_pkey = ? WHERE pkey = ?",
-            (zero_phy_tile_pkey, gnd_track_pkey,))
+    write_cur.execute(
+        "UPDATE track SET canon_phy_tile_pkey = ? WHERE pkey = ?", (
+            zero_phy_tile_pkey,
+            vcc_track_pkey,
+        )
+    )
+    write_cur.execute(
+        "UPDATE track SET canon_phy_tile_pkey = ? WHERE pkey = ?", (
+            zero_phy_tile_pkey,
+            gnd_track_pkey,
+        )
+    )
 
     conn.commit()
 
@@ -1657,18 +1673,20 @@ def import_segments(conn, db):
 
     for extra_segment in [default_segment, VCC_NET, GND_NET]:
         if extra_segment not in segments.get_segments():
-            write_cur.execute("""
+            write_cur.execute(
+                """
 INSERT INTO segment(name) VALUES (?)
-            """, (extra_segment,))
+            """, (extra_segment, )
+            )
 
     for segment in segments.get_segments():
-        write_cur.execute("""
+        write_cur.execute(
+            """
 INSERT INTO segment(name) VALUES (?)
-            """, (segment,))
+            """, (segment, )
+        )
 
-    write_cur.execute(
-        "CREATE INDEX segment_name_map ON segment(name);"
-    )
+    write_cur.execute("CREATE INDEX segment_name_map ON segment(name);")
     conn.commit()
 
     return segments

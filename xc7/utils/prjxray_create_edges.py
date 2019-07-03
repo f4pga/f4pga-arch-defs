@@ -512,9 +512,14 @@ FROM graph_node WHERE pkey = ?""", (
             )
             site_pin_graph_node_pkey = write_cur.lastrowid
 
-            write_cur.execute("""
+            write_cur.execute(
+                """
 UPDATE wire SET site_pin_graph_node_pkey = ?
-WHERE pkey = ?""", (site_pin_graph_node_pkey, wire_pkey,))
+WHERE pkey = ?""", (
+                    site_pin_graph_node_pkey,
+                    wire_pkey,
+                )
+            )
 
             write_cur.connection.commit()
 
@@ -1216,20 +1221,27 @@ def verify_channels(conn, alive_tracks):
             assert ptc not in ptcs, (ptcs[ptc], graph_node_pkey)
             ptcs[ptc] = graph_node_pkey
 
+
 def print_node(conn, node_pkey):
     cur = conn.cursor()
     cur2 = conn.cursor()
-    cur.execute("""SELECT pkey FROM wire WHERE node_pkey = ?
-        """, (node_pkey,))
-    for (wire_pkey,) in cur:
-        cur2.execute("""SELECT name FROM wire_in_tile WHERE pkey = (
+    cur.execute(
+        """SELECT pkey FROM wire WHERE node_pkey = ?
+        """, (node_pkey, )
+    )
+    for (wire_pkey, ) in cur:
+        cur2.execute(
+            """SELECT name FROM wire_in_tile WHERE pkey = (
             SELECT wire_in_tile_pkey FROM wire WHERE pkey = ?
-            )""", (wire_pkey,))
+            )""", (wire_pkey, )
+        )
         wire_name = cur2.fetchone()[0]
 
-        cur2.execute("""SELECT name FROM phy_tile WHERE pkey = (
+        cur2.execute(
+            """SELECT name FROM phy_tile WHERE pkey = (
             SELECT phy_tile_pkey FROM wire WHERE pkey = ?
-            )""", (wire_pkey,))
+            )""", (wire_pkey, )
+        )
         tile_name = cur2.fetchone()[0]
         print(' {}/{}'.format(tile_name, wire_name))
 
@@ -1237,43 +1249,58 @@ def print_node(conn, node_pkey):
 def print_graph_node(conn, graph_node_pkey):
     cur = conn.cursor()
     cur2 = conn.cursor()
-    cur.execute("""SELECT pkey FROM wire WHERE node_pkey = (
+    cur.execute(
+        """SELECT pkey FROM wire WHERE node_pkey = (
         SELECT node_pkey FROM graph_node WHERE pkey = ?
-        )""", (graph_node_pkey,))
-    for (wire_pkey,) in cur:
-        cur2.execute("""SELECT name FROM wire_in_tile WHERE pkey = (
+        )""", (graph_node_pkey, )
+    )
+    for (wire_pkey, ) in cur:
+        cur2.execute(
+            """SELECT name FROM wire_in_tile WHERE pkey = (
             SELECT wire_in_tile_pkey FROM wire WHERE pkey = ?
-            )""", (wire_pkey,))
+            )""", (wire_pkey, )
+        )
         wire_name = cur2.fetchone()[0]
 
-        cur2.execute("""SELECT name FROM phy_tile WHERE pkey = (
+        cur2.execute(
+            """SELECT name FROM phy_tile WHERE pkey = (
             SELECT phy_tile_pkey FROM wire WHERE pkey = ?
-            )""", (wire_pkey,))
+            )""", (wire_pkey, )
+        )
         tile_name = cur2.fetchone()[0]
         print(' {}/{}'.format(tile_name, wire_name))
 
 
-def set_pin_connection(conn, write_cur, pin_graph_node_pkey, forward,
-        graph_node_pkey, tracks):
+def set_pin_connection(
+        conn, write_cur, pin_graph_node_pkey, forward, graph_node_pkey, tracks
+):
     cur = conn.cursor()
     cur2 = conn.cursor()
-    cur.execute("""SELECT node_pkey, graph_node_type FROM graph_node WHERE pkey = ?""", (
-        pin_graph_node_pkey,))
+    cur.execute(
+        """SELECT node_pkey, graph_node_type FROM graph_node WHERE pkey = ?""",
+        (pin_graph_node_pkey, )
+    )
     pin_node_pkey, graph_node_type = cur.fetchone()
 
     source_wires = []
-    cur.execute("""SELECT pkey FROM wire WHERE node_pkey = (
+    cur.execute(
+        """SELECT pkey FROM wire WHERE node_pkey = (
         SELECT node_pkey FROM graph_node WHERE pkey = ?
-        )""", (graph_node_pkey,))
-    for (wire_pkey,) in cur:
+        )""", (graph_node_pkey, )
+    )
+    for (wire_pkey, ) in cur:
         if forward:
-            cur2.execute("""SELECT count() FROM pip_in_tile WHERE src_wire_in_tile_pkey = (
+            cur2.execute(
+                """SELECT count() FROM pip_in_tile WHERE src_wire_in_tile_pkey = (
                 SELECT wire_in_tile_pkey FROM wire WHERE pkey = ?
-                )""", (wire_pkey,))
+                )""", (wire_pkey, )
+            )
         else:
-            cur2.execute("""SELECT count() FROM pip_in_tile WHERE dest_wire_in_tile_pkey = (
+            cur2.execute(
+                """SELECT count() FROM pip_in_tile WHERE dest_wire_in_tile_pkey = (
                 SELECT wire_in_tile_pkey FROM wire WHERE pkey = ?
-                )""", (wire_pkey,))
+                )""", (wire_pkey, )
+            )
 
         has_pip = cur2.fetchone()[0]
         if has_pip:
@@ -1285,53 +1312,77 @@ def set_pin_connection(conn, write_cur, pin_graph_node_pkey, forward,
     assert len(source_wires) <= 1
 
     if len(source_wires) == 1:
-        cur.execute("SELECT phy_tile_pkey FROM wire WHERE pkey = ?", (
-            source_wires[0],))
+        cur.execute(
+            "SELECT phy_tile_pkey FROM wire WHERE pkey = ?",
+            (source_wires[0], )
+        )
         phy_tile_pkey = cur.fetchone()[0]
         for track_pkey in tracks:
-            write_cur.execute("UPDATE track SET canon_phy_tile_pkey = ? WHERE pkey = ?", (
-                phy_tile_pkey, track_pkey,))
+            write_cur.execute(
+                "UPDATE track SET canon_phy_tile_pkey = ? WHERE pkey = ?", (
+                    phy_tile_pkey,
+                    track_pkey,
+                )
+            )
 
         if not forward:
             assert NodeType(graph_node_type) == NodeType.IPIN
             source_wire_pkey = source_wires[0]
-            write_cur.execute("""
+            write_cur.execute(
+                """
 UPDATE graph_node SET connection_box_wire_pkey = ? WHERE pkey = ?
-            """, (source_wire_pkey, pin_graph_node_pkey,))
+            """, (
+                    source_wire_pkey,
+                    pin_graph_node_pkey,
+                )
+            )
 
 
-def walk_and_mark_segment(conn, write_cur, graph_node_pkey, forward,
-        segment_pkey, unknown_pkey, pin_graph_node_pkey,
-        tracks):
+def walk_and_mark_segment(
+        conn, write_cur, graph_node_pkey, forward, segment_pkey, unknown_pkey,
+        pin_graph_node_pkey, tracks
+):
     cur = conn.cursor()
 
-    cur.execute("""SELECT graph_node_type FROM graph_node WHERE pkey = ?""", (
-        graph_node_pkey,))
+    cur.execute(
+        """SELECT graph_node_type FROM graph_node WHERE pkey = ?""",
+        (graph_node_pkey, )
+    )
     graph_node_type = NodeType(cur.fetchone()[0])
     if graph_node_type in [NodeType.CHANX, NodeType.CHANY]:
-        cur.execute("SELECT track_pkey FROM graph_node WHERE pkey = ?",
-                (graph_node_pkey,))
+        cur.execute(
+            "SELECT track_pkey FROM graph_node WHERE pkey = ?",
+            (graph_node_pkey, )
+        )
         track_pkey = cur.fetchone()[0]
         assert track_pkey is not None
 
-        cur.execute("SELECT segment_pkey FROM track WHERE pkey = ?",
-                (track_pkey,))
+        cur.execute(
+            "SELECT segment_pkey FROM track WHERE pkey = ?", (track_pkey, )
+        )
         old_segment_pkey = cur.fetchone()[0]
         if old_segment_pkey == unknown_pkey or old_segment_pkey is None:
             tracks.append(track_pkey)
             write_cur.execute(
-                    "UPDATE track SET segment_pkey = ? WHERE pkey = ?",
-                    (segment_pkey, track_pkey,))
+                "UPDATE track SET segment_pkey = ? WHERE pkey = ?", (
+                    segment_pkey,
+                    track_pkey,
+                )
+            )
 
     if forward:
-        cur.execute("""
+        cur.execute(
+            """
 SELECT dest_graph_node_pkey FROM graph_edge WHERE src_graph_node_pkey = ?
-""", (graph_node_pkey,))
+""", (graph_node_pkey, )
+        )
         next_nodes = cur.fetchall()
     else:
-        cur.execute("""
+        cur.execute(
+            """
 SELECT src_graph_node_pkey FROM graph_edge WHERE dest_graph_node_pkey = ?
-""", (graph_node_pkey,))
+""", (graph_node_pkey, )
+        )
         next_nodes = cur.fetchall()
 
     next_node = None
@@ -1345,13 +1396,18 @@ SELECT src_graph_node_pkey FROM graph_edge WHERE dest_graph_node_pkey = ?
         # Some nodes simply lead to GND/VCC tieoff pins, these should not
         # stop the walk, as they are not relevant to connection box.
         next_non_tieoff_nodes = []
-        for (next_graph_node_pkey,) in next_nodes:
-            cur.execute("""
+        for (next_graph_node_pkey, ) in next_nodes:
+            cur.execute(
+                """
 SELECT count() FROM constant_sources WHERE
     vcc_track_pkey = (SELECT track_pkey FROM graph_node WHERE pkey = ?)
 OR
     gnd_track_pkey = (SELECT track_pkey FROM graph_node WHERE pkey = ?)
-    """, (next_graph_node_pkey, next_graph_node_pkey,))
+    """, (
+                    next_graph_node_pkey,
+                    next_graph_node_pkey,
+                )
+            )
             if cur.fetchone()[0] == 0:
                 next_non_tieoff_nodes.append(next_graph_node_pkey)
 
@@ -1362,30 +1418,39 @@ OR
             next_node = next_non_tieoff_nodes[0]
 
     if next_node is not None:
-        walk_and_mark_segment(conn, write_cur, next_node, forward,
-                segment_pkey, unknown_pkey, pin_graph_node_pkey, tracks)
+        walk_and_mark_segment(
+            conn, write_cur, next_node, forward, segment_pkey, unknown_pkey,
+            pin_graph_node_pkey, tracks
+        )
     else:
         set_pin_connection(
-                conn=conn, write_cur=write_cur,
-                pin_graph_node_pkey=pin_graph_node_pkey,
-                forward=forward,
-                graph_node_pkey=graph_node_pkey,
-                tracks=tracks)
+            conn=conn,
+            write_cur=write_cur,
+            pin_graph_node_pkey=pin_graph_node_pkey,
+            forward=forward,
+            graph_node_pkey=graph_node_pkey,
+            tracks=tracks
+        )
 
 
 def active_graph_node(conn, graph_node_pkey, forward):
     cur = conn.cursor()
 
     if forward:
-        cur.execute("""
+        cur.execute(
+            """
 SELECT count(*) FROM graph_edge WHERE src_graph_node_pkey = ? LIMIT 1
-            """, (graph_node_pkey,))
+            """, (graph_node_pkey, )
+        )
     else:
-        cur.execute("""
+        cur.execute(
+            """
 SELECT count(*) FROM graph_edge WHERE dest_graph_node_pkey = ? LIMIT 1
-            """, (graph_node_pkey,))
+            """, (graph_node_pkey, )
+        )
 
     return cur.fetchone()[0] > 0
+
 
 def annotate_pin_feeds(conn):
     """ Identifies and annotates pin feed channels.
@@ -1398,13 +1463,13 @@ def annotate_pin_feeds(conn):
     write_cur = conn.cursor()
     cur = conn.cursor()
 
-    cur.execute("SELECT pkey FROM segment WHERE name = ?", ("unknown",))
+    cur.execute("SELECT pkey FROM segment WHERE name = ?", ("unknown", ))
     unknown_pkey = cur.fetchone()[0]
 
-    cur.execute("SELECT pkey FROM segment WHERE name = ?", ("INPINFEED",))
+    cur.execute("SELECT pkey FROM segment WHERE name = ?", ("INPINFEED", ))
     inpinfeed_pkey = cur.fetchone()[0]
 
-    cur.execute("SELECT pkey FROM segment WHERE name = ?", ("OUTPINFEED",))
+    cur.execute("SELECT pkey FROM segment WHERE name = ?", ("OUTPINFEED", ))
     outpinfeed_pkey = cur.fetchone()[0]
 
     write_cur.execute("""BEGIN EXCLUSIVE TRANSACTION;""")
@@ -1414,31 +1479,41 @@ def annotate_pin_feeds(conn):
 SELECT graph_node.pkey, graph_node.node_pkey
 FROM graph_node
 WHERE graph_node.graph_node_type = ?
-        """, (NodeType.OPIN.value,)):
+        """, (NodeType.OPIN.value, )):
         if not active_graph_node(conn, graph_node_pkey, forward=True):
             continue
 
-        walk_and_mark_segment(conn, write_cur, graph_node_pkey, forward=True,
-                segment_pkey=outpinfeed_pkey, unknown_pkey=unknown_pkey,
-                pin_graph_node_pkey=graph_node_pkey,
-                tracks=list(),
-                )
+        walk_and_mark_segment(
+            conn,
+            write_cur,
+            graph_node_pkey,
+            forward=True,
+            segment_pkey=outpinfeed_pkey,
+            unknown_pkey=unknown_pkey,
+            pin_graph_node_pkey=graph_node_pkey,
+            tracks=list(),
+        )
 
     # Walk from IPIN's next.
-    for (graph_node_pkey,) in cur.execute("""
+    for (graph_node_pkey, ) in cur.execute("""
 SELECT graph_node.pkey
 FROM graph_node
 WHERE graph_node.graph_node_type = ?
-        """, (NodeType.IPIN.value,)):
+        """, (NodeType.IPIN.value, )):
 
         if not active_graph_node(conn, graph_node_pkey, forward=False):
             continue
 
-        walk_and_mark_segment(conn, write_cur, graph_node_pkey, forward=False,
-                segment_pkey=inpinfeed_pkey, unknown_pkey=unknown_pkey,
-                pin_graph_node_pkey=graph_node_pkey,
-                tracks=list(),
-                )
+        walk_and_mark_segment(
+            conn,
+            write_cur,
+            graph_node_pkey,
+            forward=False,
+            segment_pkey=inpinfeed_pkey,
+            unknown_pkey=unknown_pkey,
+            pin_graph_node_pkey=graph_node_pkey,
+            tracks=list(),
+        )
 
     write_cur.execute("""COMMIT TRANSACTION;""")
 
@@ -1453,37 +1528,44 @@ def set_track_canonical_loc(conn):
 
     cur.execute("SELECT pkey FROM track WHERE alive")
     tracks = cur.fetchall()
-    for (track_pkey,) in progressbar.progressbar(tracks):
+    for (track_pkey, ) in progressbar.progressbar(tracks):
         source_wires = []
-        for (wire_pkey,) in cur2.execute("""
+        for (wire_pkey, ) in cur2.execute("""
 SELECT pkey FROM wire WHERE node_pkey IN (
     SELECT pkey FROM node WHERE track_pkey = ?
-    )""", (track_pkey,)):
-            cur3.execute("""
+    )""", (track_pkey, )):
+            cur3.execute(
+                """
 SELECT count(*)
 FROM pip_in_tile
 WHERE
     dest_wire_in_tile_pkey = (SELECT wire_in_tile_pkey FROM wire WHERE pkey = ?)
 LIMIT 1
-    """, (wire_pkey,))
+    """, (wire_pkey, )
+            )
             pips_to_wire = cur3.fetchone()[0]
             if pips_to_wire > 0:
-                cur3.execute("""
+                cur3.execute(
+                    """
 SELECT grid_x, grid_y FROM phy_tile WHERE pkey = (
     SELECT phy_tile_pkey FROM wire WHERE pkey = ?
-                    )""", (wire_pkey,))
+                    )""", (wire_pkey, )
+                )
                 grid_x, grid_y = cur3.fetchone()
                 source_wires.append(((grid_x, grid_y), wire_pkey))
 
         if len(source_wires) > 0:
             source_wire_pkey = min(source_wires, key=lambda x: x[0])[1]
-            write_cur.execute("""
+            write_cur.execute(
+                """
 UPDATE track
 SET canon_phy_tile_pkey = (SELECT phy_tile_pkey FROM wire WHERE pkey = ?)
 WHERE pkey = ?
-            """, (source_wire_pkey, track_pkey))
+            """, (source_wire_pkey, track_pkey)
+            )
 
     write_cur.execute("""COMMIT TRANSACTION;""")
+
 
 def compute_segment_lengths(conn):
     cur = conn.cursor()
@@ -1495,7 +1577,7 @@ def compute_segment_lengths(conn):
 
     write_cur.execute("""BEGIN EXCLUSIVE TRANSACTION;""")
 
-    for (segment_pkey,) in cur.execute("SELECT pkey FROM segment"):
+    for (segment_pkey, ) in cur.execute("SELECT pkey FROM segment"):
         segment_length = 1
 
         # Get all tracks with this segment
@@ -1505,13 +1587,15 @@ WHERE
     canon_phy_tile_pkey IS NOT NULL
 AND
     segment_pkey = ?
-        """, (segment_pkey,)):
-            cur4.execute("SELECT grid_x, grid_y FROM phy_tile WHERE pkey = ?",
-                    (src_phy_tile_pkey,))
+        """, (segment_pkey, )):
+            cur4.execute(
+                "SELECT grid_x, grid_y FROM phy_tile WHERE pkey = ?",
+                (src_phy_tile_pkey, )
+            )
             src_x, src_y = cur4.fetchone()
 
             # Get tiles downstream of this track.
-            for (dest_phy_tile_pkey,) in cur3.execute("""
+            for (dest_phy_tile_pkey, ) in cur3.execute("""
 SELECT DISTINCT canon_phy_tile_pkey FROM track WHERE pkey IN (
     SELECT track_pkey FROM graph_node WHERE pkey IN (
         SELECT dest_graph_node_pkey FROM graph_edge WHERE src_graph_node_pkey = (
@@ -1519,21 +1603,30 @@ SELECT DISTINCT canon_phy_tile_pkey FROM track WHERE pkey IN (
         )
     )
 ) AND canon_phy_tile_pkey IS NOT NULL
-            """, (track_pkey,)):
+            """, (track_pkey, )):
                 if src_phy_tile_pkey == dest_phy_tile_pkey:
                     continue
 
-                cur4.execute("SELECT grid_x, grid_y FROM phy_tile WHERE pkey = ?",
-                    (dest_phy_tile_pkey,))
+                cur4.execute(
+                    "SELECT grid_x, grid_y FROM phy_tile WHERE pkey = ?",
+                    (dest_phy_tile_pkey, )
+                )
                 dest_x, dest_y = cur4.fetchone()
 
-                segment_length = max(segment_length,
-                        abs(dest_x-src_x)+abs(dest_y-src_y))
+                segment_length = max(
+                    segment_length,
+                    abs(dest_x - src_x) + abs(dest_y - src_y)
+                )
 
-        write_cur.execute("UPDATE segment SET length = ? WHERE pkey = ?",
-                (segment_length, segment_pkey,))
+        write_cur.execute(
+            "UPDATE segment SET length = ? WHERE pkey = ?", (
+                segment_length,
+                segment_pkey,
+            )
+        )
 
     write_cur.execute("""COMMIT TRANSACTION;""")
+
 
 def main():
     parser = argparse.ArgumentParser()

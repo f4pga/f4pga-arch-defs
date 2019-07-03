@@ -595,11 +595,10 @@ FROM
             })
             ET.SubElement(segment_xml, 'sb', {
                 'type': 'pattern',
-            }).text = ' '.join('1' for _ in range(length+1))
+            }).text = ' '.join('1' for _ in range(length + 1))
             ET.SubElement(segment_xml, 'cb', {
                 'type': 'pattern',
             }).text = ' '.join('1' for _ in range(length))
-
 
     ET.SubElement(
         switchlist_xml,
