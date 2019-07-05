@@ -9,3 +9,11 @@ add_fpga_target(
   TESTBENCH_SOURCES srl32_init_tb.v
   EXPLICIT_ADD_FILE_TARGET
   )
+
+add_vivado_target(
+  NAME srl32_init_vivado
+  PARENT_NAME srl32_init
+  CLOCK_PINS clk
+  CLOCK_PERIODS 10.0
+  )
+

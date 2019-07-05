@@ -9,8 +9,13 @@ input  wire [15:0] sw,
 output wire [15:0] led
 );
 
-parameter SRL_COUNT = 14;
+parameter SRL_COUNT = 4;
+
+`ifdef SIMULATION
+parameter PRESCALER = 4;
+`else
 parameter PRESCALER = 1000000;
+`endif
 
 // Uart loopback
 assign tx = rx;
@@ -38,17 +43,6 @@ always @(posedge clk)
         ps_cnt <= PRESCALER - 2;
     else
         ps_cnt <= ps_cnt - 1;
-
-// ============================================================================
-// Led blinker
-reg [3:0] blink_cnt = 0;
-
-always @(posedge clk)
-    if (rst)
-        blink_cnt <= 0;
-    else if (ps_tick)
-        blink_cnt <= blink_cnt + 1;
-
 
 // ============================================================================
 // SRL32 testers
@@ -105,17 +99,22 @@ always @(posedge clk)
     else
         error_lat <= error_lat | error;
 
+// ============================================================================
+
+wire net_0;
+LUT2 #(.INIT(4'd0)) lut_0 (.I0(1'b0), .I1(|sw), .O(net_0));
+
 // LEDs
-assign led[SRL_COUNT-1:0] = (sw[1]) ? error_lat : error;
-
 genvar j;
-generate if (SRL_COUNT < 13)
- for (j = SRL_COUNT; j <= 13; j = j + 1)
-     assign led[j] = led[15];
-endgenerate
-
-assign led[14] = srl_q[0];
-assign led[15] = blink_cnt[3];
+generate for(j=0; j<8; j=j+1) begin
+  if (j < SRL_COUNT) begin
+    assign led[j  ] = (sw[1]) ? error_lat[j] : error[j];
+    assign led[j+8] = srl_q[j];
+  end else begin
+    assign led[j  ] = net_0;
+    assign led[j+8] = net_0;
+  end
+end endgenerate
 
 endmodule
 

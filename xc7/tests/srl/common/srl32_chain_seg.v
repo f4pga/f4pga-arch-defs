@@ -5,12 +5,12 @@ module srl32_chain_seg #
 parameter           N = 1 // Numbers of SRL32s in chain (from 1 to 4!)
 )
 (
-input  wire         CLK,
-input  wire         CE,
-input  wire         D,
-input  wire [3+N:0] A,
-output wire         Q,
-output wire         Q31
+input  wire CLK,
+input  wire CE,
+input  wire D,
+input  wire [4+$clog2(N):0] A,
+output wire Q,
+output wire Q31
 );
 
 // ============================================================================
@@ -54,7 +54,7 @@ generate if(N >= 2) begin
 
     // F7BMUX
     (* KEEP, DONT_TOUCH, BEL="F7BMUX" *)
-    MUXF7 muxf7
+    MUXF7 muxf7b
     (
     .I0     (srl_q[0]),
     .I1     (srl_q[1]),
@@ -69,7 +69,7 @@ generate if(N >= 3) begin
     
     // F7AMUX
     (* KEEP, DONT_TOUCH, BEL="F7AMUX" *)
-    MUXF7 muxf7
+    MUXF7 muxf7a
     (
     .I0     (srl_q[2]),
     .I1     (srl_q[3]),

@@ -9,10 +9,11 @@ input  wire [15:0]  sw,
 output wire [15:0]  led
 );
 
-parameter SRLS_IN_CHAIN = 2;
-parameter CHAIN_COUNT   = 1;
-
+`ifdef SIMULATION
+parameter PRESCALER = 4;
+`else
 parameter PRESCALER = 1000000;
+`endif
 
 // UART loopback
 assign tx = rx;
@@ -41,31 +42,20 @@ always @(posedge clk)
         ps_cnt <= ps_cnt - 1;
 
 // ============================================================================
-// Led blinker
-reg [3:0] blink_cnt = 0;
-
-always @(posedge clk)
-    if (rst)
-        blink_cnt <= 0;
-    else if (ps_tick)
-        blink_cnt <= blink_cnt + 1;
-
-
-// ============================================================================
 // SRL32 testers
 
 wire sim_error = sw[2];
 
-wire [CHAIN_COUNT-1:0] srl_q;
-wire [CHAIN_COUNT-1:0] error;
+wire [3:0] srl_q;
+wire [3:0] error;
 
 genvar i;
-generate for(i=0; i<CHAIN_COUNT; i=i+1) begin
+generate for(i=0; i<4; i=i+1) begin
   wire [6:0] srl_a;
   wire       srl_d;
   wire       srl_sh;
 
-  srl_shift_tester #(.SRL_LENGTH(32 * SRLS_IN_CHAIN)) tester
+  srl_shift_tester #(.SRL_LENGTH(32 * (i+1))) tester
   (
   .clk      (clk),
   .rst      (rst),
@@ -77,7 +67,7 @@ generate for(i=0; i<CHAIN_COUNT; i=i+1) begin
   .error    (error[i])
   );
 
-  srl32_chain_seg #(.N(SRLS_IN_CHAIN)) chain_seg
+  srl32_chain_seg #(.N(i+1)) chain_seg
   (
   .CLK      (clk),
   .CE       (srl_sh),
@@ -91,24 +81,29 @@ end endgenerate
 // ============================================================================
 
 // Error latch
-reg [CHAIN_COUNT-1:0] error_lat = 0;
+reg [3:0] error_lat = 0;
 always @(posedge clk)
     if (rst)
         error_lat <= 0;
     else
         error_lat <= error_lat | error;
 
+// ============================================================================
+
+wire net_0;
+LUT2 #(.INIT(4'd0)) lut_0 (.I0(1'b0), .I1(|sw), .O(net_0));
+
 // LEDs
-assign led[CHAIN_COUNT-1:0] = (sw[1]) ? error_lat : error;
-
 genvar j;
-generate if (CHAIN_COUNT < 13)
- for (j = CHAIN_COUNT; j <= 13; j = j + 1)
-     assign led[j] = led[CHAIN_COUNT-1];
-endgenerate
-
-assign led[14] = srl_q[0];
-assign led[15] = blink_cnt[3] ^ |sw[15:3];
+generate for(j=0; j<8; j=j+1) begin
+  if (j < 4) begin
+    assign led[j  ] = (sw[1]) ? error_lat[j] : error[j];
+    assign led[j+8] = srl_q[j];
+  end else begin
+    assign led[j  ] = net_0;
+    assign led[j+8] = net_0;
+  end
+end endgenerate
 
 endmodule
 
