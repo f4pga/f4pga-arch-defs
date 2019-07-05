@@ -290,14 +290,6 @@
 
       </interconnect>
 
-      <metadata>
-        <meta name="fasm_features">
-          ALUT.SRL
-          BLUT.SRL
-          CLUT.SRL
-          DLUT.SRL
-        </meta>
-      </metadata>
     </mode>
     <mode name="DRAMs">
       <xi:include href="Ndram/d_dram.pb_type.xml"/>
