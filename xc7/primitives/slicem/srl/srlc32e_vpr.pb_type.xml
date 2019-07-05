@@ -17,6 +17,9 @@
     <meta name="fasm_params">
       INIT[63:0] = INIT
     </meta>
+    <meta name="fasm_features">
+      SRL
+    </meta>
   </metadata>
 
 </pb_type>
