@@ -54,7 +54,6 @@ always @(posedge clk)
 
 wire sim_error = sw[2];
 
-wire [SRL_COUNT-1:0] srl_q;
 wire [SRL_COUNT-1:0] srl_q31;
 wire [SRL_COUNT-1:0] error;
 
@@ -64,14 +63,18 @@ generate for(i=0; i<SRL_COUNT; i=i+1) begin
   wire       srl_d;
   wire       srl_sh;
 
-  srl_shift_tester tester
+  srl_shift_tester #
+  (
+  .FIXED_DELAY (32)
+  )
+  tester
   (
   .clk      (clk),
   .rst      (rst),
   .ce       (ps_tick),
   .srl_sh   (srl_sh),
   .srl_d    (srl_d),
-  .srl_q    (srl_q[i] ^ sim_error),
+  .srl_q    (srl_q31[i] ^ sim_error),
   .srl_a    (srl_a),
   .error    (error[i])
   );
@@ -82,7 +85,6 @@ generate for(i=0; i<SRL_COUNT; i=i+1) begin
   .CE       (srl_sh),
   .A        (srl_a),
   .D        (srl_d),
-  .Q        (srl_q[i]),
   .Q31      (srl_q31[i])
   );
 
@@ -107,7 +109,7 @@ generate if (SRL_COUNT < 13)
      assign led[j] = led[SRL_COUNT-1];
 endgenerate
 
-assign led[14] = srl_q[0];
+assign led[14] = srl_q31[0];
 assign led[15] = blink_cnt[3] ^ |sw[15:3];
 
 endmodule

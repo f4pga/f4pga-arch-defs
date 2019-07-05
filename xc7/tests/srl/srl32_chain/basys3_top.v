@@ -9,7 +9,9 @@ input  wire [15:0]  sw,
 output wire [15:0]  led
 );
 
-parameter SRL_COUNT = 14;
+parameter SRLS_IN_CHAIN = 2;
+parameter CHAIN_COUNT   = 1;
+
 parameter PRESCALER = 1000000;
 
 // UART loopback
@@ -54,17 +56,16 @@ always @(posedge clk)
 
 wire sim_error = sw[2];
 
-wire [SRL_COUNT-1:0] srl_q;
-wire [SRL_COUNT-1:0] srl_q31;
-wire [SRL_COUNT-1:0] error;
+wire [CHAIN_COUNT-1:0] srl_q;
+wire [CHAIN_COUNT-1:0] error;
 
 genvar i;
-generate for(i=0; i<SRL_COUNT; i=i+1) begin
-  wire [4:0] srl_a;
+generate for(i=0; i<CHAIN_COUNT; i=i+1) begin
+  wire [6:0] srl_a;
   wire       srl_d;
   wire       srl_sh;
 
-  srl_shift_tester tester
+  srl_shift_tester #(.SRL_LENGTH(32 * SRLS_IN_CHAIN)) tester
   (
   .clk      (clk),
   .rst      (rst),
@@ -76,14 +77,13 @@ generate for(i=0; i<SRL_COUNT; i=i+1) begin
   .error    (error[i])
   );
 
-  SRLC32E srl
+  srl32_chain_seg #(.N(SRLS_IN_CHAIN)) chain_seg
   (
   .CLK      (clk),
   .CE       (srl_sh),
   .A        (srl_a),
   .D        (srl_d),
-  .Q        (srl_q[i]),
-  .Q31      (srl_q31[i])
+  .Q        (srl_q[i])
   );
 
 end endgenerate
@@ -91,7 +91,7 @@ end endgenerate
 // ============================================================================
 
 // Error latch
-reg [SRL_COUNT-1:0] error_lat = 0;
+reg [CHAIN_COUNT-1:0] error_lat = 0;
 always @(posedge clk)
     if (rst)
         error_lat <= 0;
@@ -99,12 +99,12 @@ always @(posedge clk)
         error_lat <= error_lat | error;
 
 // LEDs
-assign led[SRL_COUNT-1:0] = (sw[1]) ? error_lat : error;
+assign led[CHAIN_COUNT-1:0] = (sw[1]) ? error_lat : error;
 
 genvar j;
-generate if (SRL_COUNT < 13)
- for (j = SRL_COUNT; j <= 13; j = j + 1)
-     assign led[j] = led[SRL_COUNT-1];
+generate if (CHAIN_COUNT < 13)
+ for (j = CHAIN_COUNT; j <= 13; j = j + 1)
+     assign led[j] = led[CHAIN_COUNT-1];
 endgenerate
 
 assign led[14] = srl_q[0];
