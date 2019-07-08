@@ -298,7 +298,7 @@
           <pack_pattern in_port="BSRL.O6" name="LUT5toLUT7" out_port="F7AMUX.I0"/>
           <pack_pattern in_port="BSRL.O6" name="LUT5toLUT8" out_port="F7AMUX.I0"/>
         </direct>
-        <direct name="F7AMUX_I1" input="BSRL.O6"   output="F7AMUX.I1">
+        <direct name="F7AMUX_I1" input="ASRL.O6"   output="F7AMUX.I1">
           <pack_pattern in_port="ASRL.O6" name="LUT5toLUT7" out_port="F7AMUX.I1"/>
           <pack_pattern in_port="ASRL.O6" name="LUT5toLUT8" out_port="F7AMUX.I1"/>
         </direct>
