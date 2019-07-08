@@ -33,7 +33,7 @@ ROM #(.CONTENT(ROM_CONTENT)) rom
 // Control
 localparam SRL_BITS = $clog2(SRL_LENGTH);
 
-reg [SRL_BITS-1:0] delay = FIXED_DELAY;
+reg [SRL_BITS-1:0] delay = FIXED_DELAY - 1;
 reg [1:0] phase = 0;
 
 always @(posedge clk)
