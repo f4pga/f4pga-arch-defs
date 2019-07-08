@@ -310,9 +310,8 @@
       <delay_constant in_port="COMMON_SLICE.DO6" max="{interconnect_d6lut_dmux}" out_port="COMMON_SLICE.DMUX" />
       <delay_constant in_port="COMMON_SLICE.DO5" max="{interconnect_d5lut_dmux}" out_port="COMMON_SLICE.DMUX" />
       <metadata>
-        <!-- TODO: Test that this mux defaults to AMC31 -->
         <meta name="fasm_mux">
-          COMMON_SLICE.AMC31 = NONE
+          COMMON_SLICE.AMC31 = DOUTMUX.AMC31
           SLICE_FF.Q5[3] = DOUTMUX.D5Q
           COMMON_SLICE.DO5 = DOUTMUX.O5
           COMMON_SLICE.DO6 = DOUTMUX.O6
