@@ -260,8 +260,8 @@
   <interconnect>
     <!-- 5FF MUXs -->
     <mux name="D5FFMUX" input="COMMON_SLICE.DX COMMON_SLICE.DO5" output="SLICE_FF.D5[3]" >
-      <delay_constant in_port="COMMON_SLICE.DX"  max="{interconnect_d5lut_d5ffl}" out_port="SLICE_FF.D5[3]" />
-      <delay_constant in_port="COMMON_SLICE.DO5" max="{interconnect_dx_d5ffl}"    out_port="SLICE_FF.D5[3]" />
+      <delay_constant in_port="COMMON_SLICE.DX"  max="{interconnect_dx_d5ffl}" out_port="SLICE_FF.D5[3]" />
+      <delay_constant in_port="COMMON_SLICE.DO5" max="{interconnect_d5lut_d5ffl}"    out_port="SLICE_FF.D5[3]" />
       <metadata>
         <meta name="fasm_mux">
           COMMON_SLICE.DO5 = D5FFMUX.IN_A
@@ -270,8 +270,8 @@
       </metadata>
     </mux>
     <mux name="C5FFMUX" input="COMMON_SLICE.CX COMMON_SLICE.CO5" output="SLICE_FF.D5[2]" >
-      <delay_constant in_port="COMMON_SLICE.CX"  max="{interconnect_c5lut_c5ffl}" out_port="SLICE_FF.D5[2]" />
-      <delay_constant in_port="COMMON_SLICE.CO5" max="{interconnect_cx_c5ffl}"    out_port="SLICE_FF.D5[2]" />
+      <delay_constant in_port="COMMON_SLICE.CX"  max="{interconnect_cx_c5ffl}" out_port="SLICE_FF.D5[2]" />
+      <delay_constant in_port="COMMON_SLICE.CO5" max="{interconnect_c5lut_c5ffl}"    out_port="SLICE_FF.D5[2]" />
       <metadata>
         <meta name="fasm_mux">
           COMMON_SLICE.CO5 = C5FFMUX.IN_A
@@ -280,8 +280,8 @@
       </metadata>
     </mux>
     <mux name="B5FFMUX" input="COMMON_SLICE.BX COMMON_SLICE.BO5" output="SLICE_FF.D5[1]" >
-      <delay_constant in_port="COMMON_SLICE.BX"  max="{interconnect_b5lut_b5ffl}" out_port="SLICE_FF.D5[1]" />
-      <delay_constant in_port="COMMON_SLICE.BO5" max="{interconnect_bx_b5ffl}"    out_port="SLICE_FF.D5[1]" />
+      <delay_constant in_port="COMMON_SLICE.BX"  max="{interconnect_bx_b5ffl}" out_port="SLICE_FF.D5[1]" />
+      <delay_constant in_port="COMMON_SLICE.BO5" max="{interconnect_b5lut_b5ffl}"    out_port="SLICE_FF.D5[1]" />
       <metadata>
         <meta name="fasm_mux">
           COMMON_SLICE.BO5 = B5FFMUX.IN_A
@@ -290,8 +290,8 @@
       </metadata>
     </mux>
     <mux name="A5FFMUX" input="COMMON_SLICE.AX COMMON_SLICE.AO5" output="SLICE_FF.D5[0]" >
-      <delay_constant in_port="COMMON_SLICE.AX"  max="{interconnect_a5lut_a5ffl}" out_port="SLICE_FF.D5[0]" />
-      <delay_constant in_port="COMMON_SLICE.AO5" max="{interconnect_ax_a5ffl}"    out_port="SLICE_FF.D5[0]" />
+      <delay_constant in_port="COMMON_SLICE.AX"  max="{interconnect_ax_a5ffl}" out_port="SLICE_FF.D5[0]" />
+      <delay_constant in_port="COMMON_SLICE.AO5" max="{interconnect_a5lut_a5ffl}"    out_port="SLICE_FF.D5[0]" />
       <metadata>
         <meta name="fasm_mux">
           COMMON_SLICE.AO5 = A5FFMUX.IN_A
