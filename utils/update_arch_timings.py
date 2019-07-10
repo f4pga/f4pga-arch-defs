@@ -61,7 +61,8 @@ def find_timings(timings, bel, location, site, bels):
     bel_timings = dict()
     cell = dict()
     for ct in celltype:
-        cell = mergedicts(timings['cells'][ct][instance], cell)
+        for inst in instance.split():
+            cell = mergedicts(timings['cells'][ct][inst], cell)
     for delay in cell:
         if cell[delay]['is_absolute']:
             entry = cell[delay]['delay_paths']['slow']['max']
@@ -73,13 +74,18 @@ def find_timings(timings, bel, location, site, bels):
 
 
 def get_bel_timings(element, timings, bels):
-    """This function returnes all the timings for an arch.xml
+    """This function returns all the timings for an arch.xml
        `element`. It determines the bel location by traversing
        the pb_type chain"""
     pb_chain = get_pb_type_chain(element)
     if len(pb_chain) == 1:
         return None
-    bel = pb_chain[-1]
+
+    if 'max' in element.attrib and element.attrib['max'].startswith(
+            '{interconnect'):
+        bel = 'ROUTING_BEL'
+    else:
+        bel = pb_chain[-1]
     location = pb_chain[-2]
     site = remove_site_number(pb_chain[1])
     return find_timings(timings, bel, location, site, bels)
