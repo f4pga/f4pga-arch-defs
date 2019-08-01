@@ -1,0 +1,18 @@
+<!-- vim: set ai sw=1 ts=1 sta et: -->
+<models xmlns:xi="http://www.w3.org/2001/XInclude">
+ <model name="BUFGCTRL_VPR">
+  <input_ports>
+   <port name="CE0" />
+   <port name="CE1" />
+   <port name="I0" is_clock="1"/>
+   <port name="I1" is_clock="1"/>
+   <port name="IGNORE0" />
+   <port name="IGNORE1" />
+   <port name="S0" />
+   <port name="S1" />
+  </input_ports>
+  <output_ports>
+   <port name="O" is_clock="1" />
+  </output_ports>
+ </model>
+</models>
