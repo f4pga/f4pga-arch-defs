@@ -1,0 +1,28 @@
+<!-- Model of BUFG group in BUFG_CLK_TOP/BOT -->
+<pb_type name="BUFHCE{N}" num_pb="1" xmlns:xi="http://www.w3.org/2001/XInclude">
+  <output name="O" num_pins="1"/>
+  <input name="CE" num_pins="1"/>
+  <clock name="I" num_pins="1"/>
+  <mode name="EMPTY">
+    <pb_type name="empty" blif_model=".latch" num_pb="1" />
+    <interconnect />
+  </mode>
+  <mode name="BUFHCE">
+    <pb_type name="BUFHCE_VPR" blif_model=".subckt BUFHCE_VPR" num_pb="1">
+      <output name="O" num_pins="1"/>
+      <input name="CE" num_pins="1"/>
+      <clock name="I" num_pins="1"/>
+    </pb_type>
+    <interconnect>
+      <direct name="O" input="BUFHCE_VPR.O" output="BUFHCE{N}.O"/>
+      <direct name="CE" input="BUFHCE{N}.CE" output="BUFHCE_VPR.CE"/>
+      <direct name="I" input="BUFHCE{N}.I" output="BUFHCE_VPR.I"/>
+    </interconnect>
+    <metadata>
+      <meta name="fasm_features">
+        IN_USE
+        ZINV_CE
+      </meta>
+    </metadata>
+  </mode>
+</pb_type>

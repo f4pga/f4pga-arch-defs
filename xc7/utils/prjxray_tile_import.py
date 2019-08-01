@@ -390,7 +390,11 @@ def import_tile(db, args):
 
             cells_idx.append(site_type_count[site.type])
             site_type_count[site.type] += 1
-            site_prefix = '{}_X{}'.format(site.type, site.x)
+
+            if not args.both_site_coords:
+                site_prefix = '{}_X{}'.format(site.type, site.x)
+            else:
+                site_prefix = '{}.{}_X{}Y{}'.format(site.type, site.type, site.x, site.y)
 
             site_instance = site_type_instances[site.type][cells_idx[idx]]
 
@@ -1377,6 +1381,13 @@ def main():
 
     parser.add_argument(
         '--site_directory', help="""Diretory where sites are defined"""
+    )
+
+    parser.add_argument(
+        '--both_site_coords',
+        action="store_true",
+        default=False,
+        help="""Use both site coordinates for the fasm prefix."""
     )
 
     parser.add_argument(

@@ -1890,12 +1890,13 @@ module SRL16E (
 endmodule
 
 // ============================================================================
+<<<<<<< HEAD
 // IO
 
 module IBUF (
   input I,
   output O
-);
+  );
 
    INBUF_VPR _TECHMAP_REPLACE_ (
      .PAD(I),
@@ -1907,11 +1908,46 @@ endmodule
 module OBUF (
   input I,
   output O
-);
+  );
 
    OUTBUF_VPR _TECHMAP_REPLACE_ (
      .IN(I),
      .OUT(O)
    );
+
+endmodule
+
+// ============================================================================
+// Clock Buffers
+
+module BUFG (
+  input I,
+  output O
+  );
+
+  BUFGCTRL_VPR _TECHMAP_REPLACE_ (
+  .O(O),
+  .CE0(1),
+  .CE1(0),
+  .I0(I),
+  .I1(1),
+  .IGNORE0(0),
+  .IGNORE1(1),
+  .S0(1),
+  .S1(0)
+  );
+
+endmodule
+
+module BUFHCE (
+  input I,
+  output O
+  );
+
+  BUFHCE_VPR _TECHMAP_REPLACE_ (
+  .O(O),
+  .I(I),
+  .CE(1)
+  );
 
 endmodule
