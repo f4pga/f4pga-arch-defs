@@ -50,13 +50,14 @@ function(icestorm_setup)
     )
 
   get_target_property_required(PKG-CONFIG env PKG-CONFIG)
-  get_target_property_required(PKG-CONFIG_TARGET env PKG-CONFIG_TARGET)
+  get_target_property(PKG-CONFIG_TARGET env PKG-CONFIG_TARGET)
+  get_target_property(LIBUSB_TARGET env LIBUSB_TARGET)
 
   add_thirdparty_package(
     NAME icestorm
-    PROVIDES iceprog icebox_hlc2asc icebox_vlog icepack icetime icebox
-    BUILD_INSTALL_COMMAND "make -C ${ICESTORM_SRC} ${ICESTORM_PREFIX} PKG_CONFIG=${PKG-CONFIG} install"
-    DEPENDS ${LIBFTDI_TARGET} ${PKG-CONFIG_TARGET}
+    PROVIDES iceprog icebox_hlc2asc icebox_vlog icepack icetime
+    BUILD_INSTALL_COMMAND "make -C ${ICESTORM_SRC} clean && make -C ${ICESTORM_SRC} ${ICESTORM_PREFIX} PKG_CONFIG=${PKG-CONFIG} install"
+    DEPENDS ${LIBFTDI_TARGET} ${PKG-CONFIG} ${PKG-CONFIG_TARGET} ${LIBUSB_TARGET}
     )
 
   get_target_property_required(ICEBOX_VLOG env ICEBOX_VLOG)
@@ -69,8 +70,7 @@ function(icestorm_setup)
   get_target_property(ICETIME_TARGET env ICETIME_TARGET)
   get_target_property(ICEBOX_HLC2ASC_TARGET env ICEBOX_HLC2ASC_TARGET)
 
-  get_target_property_required(ICEBOX env ICEBOX)
-  get_filename_component(ICEBOX_PATH ${ICEBOX} DIRECTORY)
+  get_filename_component(ICEBOX_PATH ${ICEBOX_VLOG} DIRECTORY)
   set(ICEBOX_SHARE ${ICEBOX_PATH}/../share/icebox CACHE PATH "")
 
   set(PYPATH_ARG "PYTHONPATH=\${ICEBOX_PATH}:${PYUTILS_PATH}")
