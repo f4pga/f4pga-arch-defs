@@ -42,7 +42,7 @@ import enum
 import io
 import re
 
-from collections import namedtuple
+from collections import namedtuple, OrderedDict
 from types import MappingProxyType
 
 import lxml.etree as ET
@@ -1232,30 +1232,36 @@ class Switch(MostlyReadOnly):
     def to_xml(self, parent_node):
         sw_node = ET.Element(
             "switch",
-            attrib={
-                "id": str(self._id),
-                "name": self._name,
-                "type": self._type.value,
-            }
+            attrib=OrderedDict(
+                (
+                    ("id", str(self._id)),
+                    ("name", self._name),
+                    ("type", self._type.value),
+                )
+            )
         )
         ET.SubElement(
             sw_node,
             "timing",
-            attrib={
-                "R": str(self._timing.R),
-                "Cin": str(self._timing.Cin),
-                "Cout": str(self._timing.Cout),
-                "Cinternal": "0",
-                "Tdel": str(self._timing.Tdel),
-            }
+            attrib=OrderedDict(
+                (
+                    ("R", str(self._timing.R)),
+                    ("Cin", str(self._timing.Cin)),
+                    ("Cout", str(self._timing.Cout)),
+                    ("Cinternal", "0"),
+                    ("Tdel", str(self._timing.Tdel)),
+                )
+            )
         )
         ET.SubElement(
             sw_node,
             "sizing",
-            attrib={
-                "mux_trans_size": str(self._sizing.mux_trans_size),
-                "buf_size": str(self._sizing.buf_size),
-            }
+            attrib=OrderedDict(
+                (
+                    ("mux_trans_size", str(self._sizing.mux_trans_size)),
+                    ("buf_size", str(self._sizing.buf_size)),
+                )
+            ),
         )
         if parent_node is not None:
             parent_node.append(sw_node)
@@ -1287,8 +1293,8 @@ class Switch(MostlyReadOnly):
         Switch(id=0, name='buffer', type=<SwitchType.MUX: 'mux'>, timing=SwitchTiming(R=551.0, Cin=7.70000012e-16, Cout=4.00000001e-15, Tdel=4.00000001e-15), sizing=SwitchSizing(mux_trans_size=2.63073993, buf_size=27.6459007))
         >>> print(ET.tostring(sw.to_xml(None), pretty_print=True).decode('utf-8').strip())
         <switch id="0" name="buffer" type="mux">
-          <timing Cin="7.70000012e-16" Cinternal="0" Cout="4.00000001e-15" R="551.0" Tdel="4.00000001e-15"/>
-          <sizing buf_size="27.6459007" mux_trans_size="2.63073993"/>
+          <timing R="551.0" Cin="7.70000012e-16" Cout="4.00000001e-15" Cinternal="0" Tdel="4.00000001e-15"/>
+          <sizing mux_trans_size="2.63073993" buf_size="27.6459007"/>
         </switch>
         """  # noqa: E501
         assert_type(switch_xml, ET._Element)
@@ -1876,7 +1882,7 @@ class RoutingGraph:
         ':-('
         >>> e1.set_metadata("test", "123")
         >>> print(ET.tostring(e1, pretty_print=True).decode().strip())
-        <edge sink_node="1" src_node="0" switch_id="0" id="4">
+        <edge src_node="0" sink_node="1" switch_id="0" id="4">
           <metadata>
             <meta name="test">123</meta>
           </metadata>
@@ -1892,7 +1898,7 @@ class RoutingGraph:
         Traceback (most recent call last):
             ...
         ValueError: No metadata not_found on
-        <edge sink_node="1" src_node="0" switch_id="0" id="4">
+        <edge src_node="0" sink_node="1" switch_id="0" id="4">
           <metadata>
             <meta name="test">234</meta>
           </metadata>
@@ -1905,9 +1911,9 @@ class RoutingGraph:
         ':-('
         >>> n1.set_metadata("test", "123")
         >>> print(ET.tostring(n1, pretty_print=True).decode().strip())
-        <node capacity="1" id="0" type="SOURCE">
-          <loc ptc="0" xhigh="0" xlow="0" yhigh="0" ylow="0"/>
-          <timing C="0" R="0"/>
+        <node id="0" type="SOURCE" capacity="1">
+          <loc xlow="0" ylow="0" xhigh="0" yhigh="0" ptc="0"/>
+          <timing R="0" C="0"/>
           <metadata>
             <meta name="test">123</meta>
           </metadata>
@@ -2299,11 +2305,13 @@ class RoutingGraph:
             ntype = RoutingNodeType[ntype]
 
         # <node>
-        attrib = {
-            'id': str(self._next_id(RoutingNode)),
-            'type': ntype.value,
-            'capacity': str(capacity),
-        }
+        attrib = OrderedDict(
+            (
+                ('id', str(self._next_id(RoutingNode))),
+                ('type', ntype.value),
+                ('capacity', str(capacity)),
+            )
+        )
         if ntype.track:
             assert direction is not None
             attrib['direction'] = direction.value
@@ -2384,16 +2392,16 @@ class RoutingGraph:
         Traceback (most recent call last):
           ...
         TypeError: RoutingNodeType.SOURCE -> RoutingNodeType.CHANX not valid, Only SOURCE -> OPIN is valid
-        0 X000Y000[00].SRC--> b'<node capacity="1" id="0" type="SOURCE"><loc ptc="0" xhigh="0" xlow="0" yhigh="0" ylow="0"/><timing C="0" R="0"/></node>'
+        0 X000Y000[00].SRC--> b'<node id="0" type="SOURCE" capacity="1"><loc xlow="0" ylow="0" xhigh="0" yhigh="0" ptc="0"/><timing R="0" C="0"/></node>'
           ->
-        2 X000Y000<-00->X000Y010 b'<node capacity="1" direction="BI_DIR" id="2" type="CHANX"><loc ptc="0" xhigh="0" xlow="0" yhigh="10" ylow="0"/><timing C="1" R="1"/><segment segment_id="0"/></node>'
+        2 X000Y000<-00->X000Y010 b'<node id="2" type="CHANX" capacity="1" direction="BI_DIR"><loc xlow="0" ylow="0" xhigh="0" yhigh="10" ptc="0"/><timing R="1" C="1"/><segment segment_id="0"/></node>'
         >>> r.create_edge_with_ids(1, 4, sw)
         Traceback (most recent call last):
           ...
         TypeError: RoutingNodeType.OPIN -> RoutingNodeType.SINK not valid, Only OPIN -> IPIN, CHANX, CHANY (IE A sink) is valid
-        1 X000Y000[00].R-PIN> b'<node capacity="1" id="1" type="OPIN"><loc ptc="0" side="RIGHT" xhigh="0" xlow="0" yhigh="0" ylow="0"/><timing C="0" R="0"/></node>'
+        1 X000Y000[00].R-PIN> b'<node id="1" type="OPIN" capacity="1"><loc xlow="0" ylow="0" xhigh="0" yhigh="0" ptc="0" side="RIGHT"/><timing R="0" C="0"/></node>'
           ->
-        4 X000Y010[00].SINK-< b'<node capacity="1" id="4" type="SINK"><loc ptc="0" xhigh="0" xlow="0" yhigh="10" ylow="10"/><timing C="0" R="0"/></node>'
+        4 X000Y010[00].SINK-< b'<node id="4" type="SINK" capacity="1"><loc xlow="0" ylow="10" xhigh="0" yhigh="10" ptc="0"/><timing R="0" C="0"/></node>'
         """  # noqa: E501
 
         id2node = self.id2element[RoutingNode]
@@ -2470,11 +2478,13 @@ class RoutingGraph:
         assert_type(switch, Switch)
 
         edge = RoutingEdge(
-            attrib={
-                'src_node': str(src_node_id),
-                'sink_node': str(sink_node_id),
-                'switch_id': str(switch.id)
-            }
+            attrib=OrderedDict(
+                (
+                    ('src_node',
+                     str(src_node_id)), ('sink_node', str(sink_node_id)),
+                    ('switch_id', str(switch.id))
+                )
+            )
         )
 
         for offset, values in metadata.items():
