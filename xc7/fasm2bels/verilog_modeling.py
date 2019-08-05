@@ -513,7 +513,9 @@ class Bel(object):
         dead_wires, connections = self.create_connections(top)
 
         for dead_wire in dead_wires:
-            yield '{indent}wire {wire};'.format(indent=indent, wire=dead_wire)
+            yield '{indent}wire [0:0] {wire};'.format(
+                indent=indent, wire=dead_wire
+            )
 
         yield ''
 
@@ -1289,7 +1291,7 @@ class Module(object):
 
         for wire, width in make_bus(self.wires):
             if width is None:
-                yield '  wire {};'.format(wire)
+                yield '  wire [0:0] {};'.format(wire)
             else:
                 yield '  wire [{}:0] {};'.format(width, wire)
 
