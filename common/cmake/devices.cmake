@@ -471,6 +471,7 @@ function(DEFINE_DEVICE)
         --device ${DEVICE_FULL}
         ${symbiflow-arch-defs_SOURCE_DIR}/common/wire.eblif
         --place_algorithm bounding_box
+        --enable_timing_computations off
         --route_chan_width 6
         --echo_file on
         --min_route_chan_width_hint 1

@@ -28,7 +28,7 @@ add_custom_target(all_xc7_tests)
 add_custom_target(all_ice40_tests)
 
 setup_env(
-    MINICONDA3_VERSION 4.5.12
+    MINICONDA3_VERSION 4.7.10
     )
 add_conda_package(
   NAME yosys
@@ -39,10 +39,11 @@ add_conda_package(
   NAME openocd
   PROVIDES openocd
   )
+
 add_conda_package(
   NAME vtr
   PROVIDES vpr genfasm
-  PACKAGE_SPEC "vtr 7.0.5_8139_ged1d247f0 20190806_00413"
+  PACKAGE_SPEC "vtr 7.0.5_8141_g81aae8453 20190806_192800"
   )
 add_conda_package(
   NAME libxslt

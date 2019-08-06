@@ -513,7 +513,9 @@ class Bel(object):
         dead_wires, connections = self.create_connections(top)
 
         for dead_wire in dead_wires:
-            yield '{indent}wire [0:0] {wire};'.format(indent=indent, wire=dead_wire)
+            yield '{indent}wire [0:0] {wire};'.format(
+                indent=indent, wire=dead_wire
+            )
 
         yield ''
 
