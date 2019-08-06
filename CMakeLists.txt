@@ -28,7 +28,7 @@ add_custom_target(all_xc7_tests)
 add_custom_target(all_ice40_tests)
 
 setup_env(
-    MINICONDA3_VERSION 4.5.12
+    MINICONDA3_VERSION 4.7.10
     )
 add_conda_package(
   NAME yosys
@@ -36,22 +36,9 @@ add_conda_package(
   PACKAGE_SPEC "yosys 0.8_1161_g8d943b4c 20190531_112316"
   )
 add_conda_package(
-  NAME libusb
-  NO_EXE
-  PACKAGE_SPEC "libusb 1.0.20"
-  )
-add_conda_package(
   NAME openocd
   PROVIDES openocd
   )
-
-# Force a specific version of libusb, libusb 1.0.22 is broken.
-get_target_property_required(USE_CONDA env USE_CONDA)
-if(${USE_CONDA})
-    get_target_property_required(LIBUSB_TARGET env LIBUSB_TARGET)
-    get_target_property_required(OPENOCD_TARGET env OPENOCD_TARGET)
-    add_dependencies(${OPENOCD_TARGET} ${LIBUSB_TARGET})
-endif()
 
 add_conda_package(
   NAME vtr
