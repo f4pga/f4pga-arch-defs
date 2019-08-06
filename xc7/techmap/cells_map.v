@@ -1070,12 +1070,44 @@ end
   wire REGCLKA;
   wire REGCLKB;
 
-  wire [7:0] WEBWE_WIDE = {
-      WEBWE[3], WEBWE[3], WEBWE[2], WEBWE[2],
-      WEBWE[1], WEBWE[1], WEBWE[0], WEBWE[0]};
+  wire [7:0] WEBWE_WIDE;
+  wire [3:0] WEA_WIDE;
 
-  wire [3:0] WEA_WIDE = {WEA[1], WEA[1], WEA[0], WEA[0]};
+  if(WRITE_WIDTH_A < 18) begin
+      assign WEA_WIDE[3] = WEA[0];
+      assign WEA_WIDE[2] = WEA[0];
+      assign WEA_WIDE[1] = WEA[0];
+      assign WEA_WIDE[0] = WEA[0];
+  end else if(WRITE_WIDTH_A == 18) begin
+      assign WEA_WIDE[3] = WEA[1];
+      assign WEA_WIDE[2] = WEA[1];
+      assign WEA_WIDE[1] = WEA[0];
+      assign WEA_WIDE[0] = WEA[0];
+  end
 
+  if(WRITE_WIDTH_B < 18) begin
+      assign WEBWE_WIDE[7:4] = 4'b0;
+      assign WEBWE_WIDE[3] = WEBWE[0];
+      assign WEBWE_WIDE[2] = WEBWE[0];
+      assign WEBWE_WIDE[1] = WEBWE[0];
+      assign WEBWE_WIDE[0] = WEBWE[0];
+  end else if(WRITE_WIDTH_B == 18) begin
+      assign WEBWE_WIDE[7:4] = 4'b0;
+      assign WEBWE_WIDE[3] = WEBWE[1];
+      assign WEBWE_WIDE[2] = WEBWE[1];
+      assign WEBWE_WIDE[1] = WEBWE[0];
+      assign WEBWE_WIDE[0] = WEBWE[0];
+  end else begin
+      assign WEA_WIDE[3:0] = 4'b0;
+      assign WEBWE_WIDE[7] = WEBWE[3];
+      assign WEBWE_WIDE[6] = WEBWE[3];
+      assign WEBWE_WIDE[5] = WEBWE[2];
+      assign WEBWE_WIDE[4] = WEBWE[2];
+      assign WEBWE_WIDE[3] = WEBWE[1];
+      assign WEBWE_WIDE[2] = WEBWE[1];
+      assign WEBWE_WIDE[1] = WEBWE[0];
+      assign WEBWE_WIDE[0] = WEBWE[0];
+  end
 
   if (DOA_REG) begin
       assign REGCLKA = CLKARDCLK;
