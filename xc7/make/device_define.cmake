@@ -114,7 +114,7 @@ function(ADD_XC7_DEVICE_DEFINE)
         --clock_modeling route
         --place_delay_model delta_override
         --router_lookahead connection_box_map
-        --disable_errors check_unbuffered_edges:check_route
+        --disable_errors check_unbuffered_edges:check_route:check_place
         --suppress_warnings sum_pin_class:check_unbuffered_edges:load_rr_indexed_data_T_values:check_rr_node:trans_per_R
         --route_chan_width 500
       )
