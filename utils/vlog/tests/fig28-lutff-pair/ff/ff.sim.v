@@ -1,4 +1,4 @@
-(* blackbox *)
+(* whitebox *)
 module DFF (CLK, D, Q);
 
 	input wire CLK;
@@ -9,6 +9,7 @@ module DFF (CLK, D, Q);
 	input wire D;
 
 	output reg Q;
+	(* ASSOC_CLOCK="CLK" *)
 
 	always @ ( posedge CLK ) begin
 		Q <= D;
