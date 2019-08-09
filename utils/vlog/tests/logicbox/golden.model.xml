@@ -1,7 +1,7 @@
 <models xmlns:xi="http://www.w3.org/2001/XInclude">
   <model name="LOGICBOX">
     <input_ports>
-      <port name="I"/>
+      <port combinational_sink_ports="O" name="I"/>
     </input_ports>
     <output_ports>
       <port name="O"/>
