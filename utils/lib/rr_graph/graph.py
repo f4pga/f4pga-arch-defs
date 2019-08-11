@@ -1766,9 +1766,6 @@ def _set_metadata(parent_node, key, value, offset=None):
         metadata = ET.SubElement(parent_node, "metadata")
 
     attribs = [("name", key)]
-    if offset:
-        attribs.append(("x_offset", str(offset.width)))
-        attribs.append(("y_offset", str(offset.height)))
 
     metanode = None
     for node in metadata.iterfind("./meta"):
