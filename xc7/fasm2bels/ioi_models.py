@@ -1,4 +1,4 @@
-from .verilog_modeling import Bel, Site
+from .verilog_modeling import Site  # , Bel
 
 
 def get_ioi_site(db, grid, tile, site):
@@ -31,7 +31,7 @@ def process_idelay(top, features):
 def process_ilogic(top, features):
 
     aparts = features[0].feature.split('.')
-    tile_name = aparts[0]
+    # tile_name = aparts[0]
     ioi_site = get_ioi_site(top.db, top.grid, aparts[0], aparts[1])
 
     site = Site(features, ioi_site)
@@ -46,7 +46,7 @@ def process_ilogic(top, features):
 def process_ologic(top, features):
 
     aparts = features[0].feature.split('.')
-    tile_name = aparts[0]
+    # tile_name = aparts[0]
     ioi_site = get_ioi_site(top.db, top.grid, aparts[0], aparts[1])
 
     site = Site(features, ioi_site)
