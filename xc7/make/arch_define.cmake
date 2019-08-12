@@ -70,7 +70,6 @@ function(ADD_XC7_ARCH_DEFINE)
         --db_root ${PRJXRAY_DB_DIR}/${ARCH} \
         --rr_graph \${OUT_RRXML_VIRT_LOCATION} \
         --route \${OUT_ROUTE} \
-        --iostandard LVCMOS33 \
         --bitread $<TARGET_FILE:bitread> \
         --bit_file \${OUT_BIN} \
         --fasm_file \${OUT_BIN}.fasm \
