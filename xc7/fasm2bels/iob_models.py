@@ -98,6 +98,47 @@ def process_iob(top, iob):
     INTERMDISABLE_USED = site.has_feature('INTERMDISABLE.I')
     IBUFDISABLE_USED = site.has_feature('IBUFDISABLE.I')
 
+    # Collect all IOSTANDARD+DRIVE and IOSTANDARD+SLEW. Collect also possible
+    # input IOSTANDARDS.
+    iostd_drive = {}
+    iostd_slew  = {}
+    iostd_in = set()
+
+    for feature in site.set_features:
+        parts = feature.split(".")
+
+        if "DRIVE" in parts:
+            idx = parts.index("DRIVE")
+
+            drives = [int(s[1:]) for s in parts[idx+1].split("_")]
+            iostds = [s for s in parts[idx-1].split("_")]
+
+            for ios in iostds:
+                if ios not in iostd_drive.keys():
+                    iostd_drive[ios] = set()
+                for drv in drives:
+                    iostd_drive[ios].add(drv)
+
+        if "SLEW" in parts:
+            idx = parts.index("SLEW")
+
+            slew = parts[idx+1]
+            iostds = [s for s in parts[idx-1].split("_")]
+
+            for ios in iostds:
+                if ios not in iostd_slew.keys():
+                    iostd_slew[ios] = slew
+
+        if "IN" in parts or "IN_ONLY" in parts:
+            iostd_in |= set([s for s in parts[-2].split("_")])
+
+    # Possible output configurations
+    iostd_out = []
+    for iostd in set(list(iostd_drive.keys())) | set(list(iostd_slew.keys())):
+        if iostd in iostd_drive and iostd in iostd_slew:
+            for drive in iostd_drive[iostd]:
+                iostd_out.append((iostd, drive, iostd_slew[iostd],))
+
     # Buffer direction
     is_input  = has_feature_with_part(site, "IN") or has_feature_with_part(site, "IN_ONLY")
     is_inout  = has_feature_with_part(site, "IN") and has_feature_with_part(site, "DRIVE")
@@ -107,6 +148,11 @@ def process_iob(top, iob):
 
     # Input only
     if is_input:
+
+        # TEST
+        print(site.site.name)
+        for x in iostd_in:
+            print("", x)
 
         # Options are:
         # IBUF, IBUF_IBUFDISABLE, IBUF_INTERMDISABLE
@@ -178,6 +224,12 @@ def process_iob(top, iob):
 
     # Output
     elif is_output:
+
+        # TEST
+        print(site.site.name)
+        for x in iostd_out:
+            print("", x)
+
         # TODO: Could be a OBUFT?
         bel = Bel('OBUF')
         top_wire = top.add_top_out_port(tile_name, iob_site.name, 'OPAD')
