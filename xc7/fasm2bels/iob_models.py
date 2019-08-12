@@ -61,62 +61,34 @@ def get_iob_site(db, grid, tile, site):
     return iob_site, iologic_tile, ilogic_site, ologic_site
 
 
-def get_drive(iostandard, drive):
-    """ Returns the drive strength given the IOSTANDARD and drive feature str.
+def has_feature_with_part(site, part):
     """
-    parts = drive.split('.')
+    Returns True when a given site has a feature which contains a particular
+    part.
+    """
+    for feature in site.set_features:
+        parts = feature.split(".")
+        if part in parts:
+            return True
 
-    drive = parts[-1]
-    assert drive[0] == 'I', drive
-
-    if '_' not in drive:
-        return int(drive[1:])
-    else:
-        assert iostandard in ['LVCMOS18', 'LVCMOS33', 'LVTTL']
-        drives = sorted([int(d[1:]) for d in drive.split('_')])
-
-        if iostandard == 'LVCMOS18':
-            return min(drives)
-
-        if drives == [12, 16]:
-            if iostandard == 'LVCMOS33':
-                return 12
-            else:
-                return 16
-        elif drives == [8, 12]:
-            return 8
+    return False
 
 
-def add_output_parameters(bel, site):
-    """ Adds parameters required for output IOB BELs. """
-    assert 'IOSTANDARD' in bel.parameters
+def has_feature_containing(site, substr):
+    """
+    Returns True when a given site has a feature which contains a given substring.
+    """
+    for feature in site.set_features:
+        if substr in feature:
+            return True
 
-    if site.has_feature('SLEW.FAST'):
-        bel.parameters['SLEW'] = '"FAST"'
-    elif site.has_feature('SLEW.SLOW'):
-        bel.parameters['SLEW'] = '"SLOW"'
-    else:
-        assert False
-
-    drive = None
-    for f in site.set_features:
-        if 'DRIVE' in f:
-            assert drive is None
-            drive = f
-            break
-
-    iostandard = bel.parameters['IOSTANDARD']
-    assert iostandard[0] == '"'
-    assert iostandard[-1] == '"'
-    assert iostandard[1:-1] in drive
-
-    bel.parameters['DRIVE'] = get_drive(iostandard[1:-1], drive)
+    return False
 
 
 def process_iob(top, iob):
-    assert top.iostandard is not None
 
     aparts = iob[0].feature.split('.')
+    tile_name = aparts[0]
     iob_site, iologic_tile, ilogic_site, ologic_site = get_iob_site(
         top.db, top.grid, aparts[0], aparts[1]
     )
@@ -126,21 +98,20 @@ def process_iob(top, iob):
     INTERMDISABLE_USED = site.has_feature('INTERMDISABLE.I')
     IBUFDISABLE_USED = site.has_feature('IBUFDISABLE.I')
 
+    # Buffer direction
+    is_input  = has_feature_with_part(site, "IN") or has_feature_with_part(site, "IN_ONLY")
+    is_inout  = has_feature_with_part(site, "IN") and has_feature_with_part(site, "DRIVE")
+    is_output = not has_feature_with_part(site, "IN") and has_feature_with_part(site, "DRIVE")
+
     top_wire = None
-    ilogic_active = False
-    ologic_active = False
 
-    if site.has_feature('IN_ONLY'):
-        if not site.has_feature('ZINV_D'):
-            return
-
-        ilogic_active = True
+    # Input only
+    if is_input:
 
         # Options are:
         # IBUF, IBUF_IBUFDISABLE, IBUF_INTERMDISABLE
         if INTERMDISABLE_USED:
             bel = Bel('IBUF_INTERMDISABLE')
-
             site.add_sink(bel, 'INTERMDISABLE', 'INTERMDISABLE')
 
             if IBUFDISABLE_USED:
@@ -151,24 +122,21 @@ def process_iob(top, iob):
         elif IBUFDISABLE_USED:
             bel = Bel('IBUF_IBUFDISABLE')
             site.add_sink(bel, 'IBUFDISABLE', 'IBUFDISABLE')
+
         else:
             bel = Bel('IBUF')
 
-        top_wire = top.add_top_in_port(aparts[0], iob_site.name, 'IPAD')
+        top_wire = top.add_top_in_port(tile_name, iob_site.name, 'IPAD')
         bel.connections['I'] = top_wire
 
         # Note this looks weird, but the BEL pin is O, and the site wire is
         # called I, so it is in fact correct.
         site.add_source(bel, bel_pin='O', source='I')
 
-        bel.parameters['IOSTANDARD'] = '"{}"'.format(top.iostandard)
-
         site.add_bel(bel)
-    elif site.has_feature('INOUT'):
-        assert site.has_feature('ZINV_D')
 
-        ilogic_active = True
-        ologic_active = True
+    # Tri-state
+    elif is_inout:
 
         # Options are:
         # IOBUF or IOBUF_INTERMDISABLE
@@ -187,7 +155,7 @@ def process_iob(top, iob):
         else:
             bel = Bel('IOBUF')
 
-        top_wire = top.add_top_inout_port(aparts[0], iob_site.name, 'IOPAD')
+        top_wire = top.add_top_inout_port(tile_name, iob_site.name, 'IOPAD')
         bel.connections['IO'] = top_wire
 
         # Note this looks weird, but the BEL pin is O, and the site wire is
@@ -200,37 +168,40 @@ def process_iob(top, iob):
         # called O, so it is in fact correct.
         site.add_sink(bel, bel_pin='I', sink='O')
 
-        bel.parameters['IOSTANDARD'] = '"{}"'.format(top.iostandard)
-
-        add_output_parameters(bel, site)
+        # Slew rate
+        if has_feature_containing(site, "SLEW.FAST"):
+            bel.parameters["SLEW"] = '"FAST"'
+        else:
+            bel.parameters["SLEW"] = '"SLOW"'
 
         site.add_site(bel)
-    else:
-        has_output = False
-        for f in site.set_features:
-            if 'DRIVE' in f:
-                has_output = True
-                break
 
-        if not has_output:
-            # Naked pull options are not supported
-            assert site.has_feature('PULLTYPE.PULLDOWN')
+    # Output
+    elif is_output:
+        # TODO: Could be a OBUFT?
+        bel = Bel('OBUF')
+        top_wire = top.add_top_out_port(tile_name, iob_site.name, 'OPAD')
+        bel.connections['O'] = top_wire
+
+        # Note this looks weird, but the BEL pin is I, and the site wire
+        # is called O, so it is in fact correct.
+        site.add_sink(bel, bel_pin='I', sink='O')
+
+        # Slew rate
+        if has_feature_containing(site, "SLEW.FAST"):
+            bel.parameters["SLEW"] = '"FAST"'
         else:
-            # TODO: Could be a OBUFT?
-            bel = Bel('OBUF')
-            top_wire = top.add_top_out_port(aparts[0], iob_site.name, 'OPAD')
-            bel.connections['O'] = top_wire
+            bel.parameters["SLEW"] = '"SLOW"'
 
-            # Note this looks weird, but the BEL pin is I, and the site wire
-            # is called O, so it is in fact correct.
-            site.add_sink(bel, bel_pin='I', sink='O')
+        site.add_bel(bel)
 
-            bel.parameters['IOSTANDARD'] = '"{}"'.format(top.iostandard)
+    # Neither
+    else:
+        # Naked pull options are not supported
+        assert site.has_feature('PULLTYPE.PULLDOWN')
+        
 
-            add_output_parameters(bel, site)
-            site.add_bel(bel)
-            ologic_active = True
-
+    # Pull
     if top_wire is not None:
         if site.has_feature('PULLTYPE.PULLDOWN'):
             bel = Bel('PULLDOWN')
@@ -246,22 +217,6 @@ def process_iob(top, iob):
             site.add_bel(bel)
 
     top.add_site(site)
-
-    if ilogic_active:
-        # TODO: Handle IDDR or ISERDES
-        site = Site(iob, tile=iologic_tile, site=ilogic_site)
-        site.sources['O'] = None
-        site.sinks['D'] = []
-        site.outputs['O'] = 'D'
-        top.add_site(site)
-
-    if ologic_active:
-        # TODO: Handle ODDR or OSERDES
-        site = Site(iob, tile=iologic_tile, site=ologic_site)
-        site.sources['OQ'] = None
-        site.sinks['D1'] = []
-        site.outputs['OQ'] = 'D1'
-        top.add_site(site)
 
 
 def process_iobs(conn, top, tile, features):
