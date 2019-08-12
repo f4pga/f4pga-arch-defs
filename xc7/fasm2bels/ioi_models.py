@@ -1,5 +1,6 @@
 from .verilog_modeling import Bel, Site
 
+
 def get_ioi_site(db, grid, tile, site):
     """
     Returns a prxjray.tile.Site object for given ILOGIC/OLOGIC/IDELAY site.
@@ -10,7 +11,7 @@ def get_ioi_site(db, grid, tile, site):
 
     site_type, site_y = site.split("_")
 
-    sites = tile_type.get_instance_sites(gridinfo) 
+    sites = tile_type.get_instance_sites(gridinfo)
     sites = [s for s in sites if site_type in s.name]
     sites.sort(key=lambda s: s.y)
 
@@ -26,8 +27,9 @@ def process_idelay(top, features):
     # TODO: Support IDELAY
     pass
 
+
 def process_ilogic(top, features):
-    
+
     aparts = features[0].feature.split('.')
     tile_name = aparts[0]
     ioi_site = get_ioi_site(top.db, top.grid, aparts[0], aparts[1])
@@ -61,11 +63,11 @@ def process_ioi(conn, top, tile, features):
     idelay = {
         "0": [],
         "1": [],
-    }    
+    }
     ilogic = {
         "0": [],
         "1": [],
-    }    
+    }
     ologic = {
         "0": [],
         "1": [],
@@ -92,4 +94,3 @@ def process_ioi(conn, top, tile, features):
     for features in ologic.values():
         if len(features):
             process_ologic(top, features)
-

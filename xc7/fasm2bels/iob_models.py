@@ -85,7 +85,9 @@ def has_feature_containing(site, substr):
     return False
 
 
-def append_obuf_iostandard_params(top, site, bel, possible_iostandards, slew="SLOW"):
+def append_obuf_iostandard_params(
+        top, site, bel, possible_iostandards, slew="SLOW"
+):
     """
     Appends IOSTANDARD, DRIVE and SLEW parameters to the bel. Those parameters
     have to be explicitly provided in the top.iostandard_defs dict. If parameters
@@ -103,7 +105,10 @@ def append_obuf_iostandard_params(top, site, bel, possible_iostandards, slew="SL
         # Check if this is possible according to decoded fasm
         is_valid = (iostandard, drive, slew) in possible_iostandards
         if not is_valid:
-            print("IOSTANDARD+DRIVE+SLEW settings provided for {} do not match their counterparts decoded from the fasm".format(site.site.name))
+            print(
+                "IOSTANDARD+DRIVE+SLEW settings provided for {} do not match their counterparts decoded from the fasm"
+                .format(site.site.name)
+            )
             return
 
         bel.parameters["IOSTANDARD"] = '"{}"'.format(iostandard)
@@ -128,7 +133,10 @@ def append_ibuf_iostandard_params(top, site, bel, possible_iostandards):
         # Check if this is possible according to decoded fasm
         is_valid = iostandard in possible_iostandards
         if not is_valid:
-            print("IOSTANDARD setting provided for {} do not match its counterpart decoded from the fasm".format(site.site.name))
+            print(
+                "IOSTANDARD setting provided for {} do not match its counterpart decoded from the fasm"
+                .format(site.site.name)
+            )
             return
 
         bel.parameters["IOSTANDARD"] = '"{}"'.format(iostandard)
@@ -153,7 +161,7 @@ def process_iob(top, iob):
     # Collect all IOSTANDARD+DRIVE and IOSTANDARD+SLEW. Collect also possible
     # input IOSTANDARDS.
     iostd_drive = {}
-    iostd_slew  = {}
+    iostd_slew = {}
     iostd_in = set()
 
     for feature in site.set_features:
@@ -162,8 +170,8 @@ def process_iob(top, iob):
         if "DRIVE" in parts:
             idx = parts.index("DRIVE")
 
-            drives = [int(s[1:]) for s in parts[idx+1].split("_")]
-            iostds = [s for s in parts[idx-1].split("_")]
+            drives = [int(s[1:]) for s in parts[idx + 1].split("_")]
+            iostds = [s for s in parts[idx - 1].split("_")]
 
             for ios in iostds:
                 if ios not in iostd_drive.keys():
@@ -174,8 +182,8 @@ def process_iob(top, iob):
         if "SLEW" in parts:
             idx = parts.index("SLEW")
 
-            slew = parts[idx+1]
-            iostds = [s for s in parts[idx-1].split("_")]
+            slew = parts[idx + 1]
+            iostds = [s for s in parts[idx - 1].split("_")]
 
             for ios in iostds:
                 if ios not in iostd_slew.keys():
@@ -189,12 +197,23 @@ def process_iob(top, iob):
     for iostd in set(list(iostd_drive.keys())) | set(list(iostd_slew.keys())):
         if iostd in iostd_drive and iostd in iostd_slew:
             for drive in iostd_drive[iostd]:
-                iostd_out.append((iostd, drive, iostd_slew[iostd],))
+                iostd_out.append((
+                    iostd,
+                    drive,
+                    iostd_slew[iostd],
+                ))
 
     # Buffer direction
-    is_input  = has_feature_with_part(site, "IN") or has_feature_with_part(site, "IN_ONLY")
-    is_inout  = has_feature_with_part(site, "IN") and has_feature_with_part(site, "DRIVE")
-    is_output = not has_feature_with_part(site, "IN") and has_feature_with_part(site, "DRIVE")
+    is_input = has_feature_with_part(site, "IN") or has_feature_with_part(
+        site, "IN_ONLY"
+    )
+    is_inout = has_feature_with_part(site, "IN") and has_feature_with_part(
+        site, "DRIVE"
+    )
+    is_output = not has_feature_with_part(site,
+                                          "IN") and has_feature_with_part(
+                                              site, "DRIVE"
+                                          )
 
     top_wire = None
 
@@ -289,7 +308,6 @@ def process_iob(top, iob):
     else:
         # Naked pull options are not supported
         assert site.has_feature('PULLTYPE.PULLDOWN')
-        
 
     # Pull
     if top_wire is not None:
