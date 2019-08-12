@@ -35,6 +35,7 @@ from .clk_models import process_hrow, process_bufg
 from .connection_db_utils import create_maybe_get_wire, maybe_add_pip, \
         get_tile_type
 from .iob_models import process_iobs
+from .ioi_models import process_ioi
 from .verilog_modeling import Module
 from .net_map import create_net_list
 
@@ -47,7 +48,6 @@ import eblif
 def null_process(conn, top, tile, tiles):
     pass
 
-
 PROCESS_TILE = {
     'CLBLL_L': process_clb,
     'CLBLL_R': process_clb,
@@ -59,6 +59,14 @@ PROCESS_TILE = {
     'RIOB33': process_iobs,
     'LIOB33_SING': process_iobs,
     'RIOB33_SING': process_iobs,
+    'LIOI3': process_ioi,
+    'RIOI3': process_ioi,
+    'LIOI3_SING': process_ioi,
+    'RIOI3_SING': process_ioi,
+    'LIOI3_TBYTESRC': process_ioi,
+    'RIOI3_TBYTESRC': process_ioi,
+    'LIOI3_TBYTETERM': process_ioi,
+    'RIOI3_TBYTETERM': process_ioi,
     'HCLK_L': null_process,
     'HCLK_R': null_process,
     'CLK_BUFG_REBUF': null_process,
