@@ -106,8 +106,10 @@ def append_obuf_iostandard_params(
         is_valid = (iostandard, drive, slew) in possible_iostandards
         if not is_valid:
             print(
-                "IOSTANDARD+DRIVE+SLEW settings provided for {} do not match their counterparts decoded from the fasm"
-                .format(site.site.name)
+                "IOSTANDARD+DRIVE+SLEW settings provided for {} do not match"
+                "their counterparts decoded from the fasm".format(
+                    site.site.name
+                )
             )
             return
 
@@ -134,8 +136,8 @@ def append_ibuf_iostandard_params(top, site, bel, possible_iostandards):
         is_valid = iostandard in possible_iostandards
         if not is_valid:
             print(
-                "IOSTANDARD setting provided for {} do not match its counterpart decoded from the fasm"
-                .format(site.site.name)
+                "IOSTANDARD setting provided for {} do not match"
+                "its counterpart decoded from the fasm".format(site.site.name)
             )
             return
 
@@ -210,10 +212,8 @@ def process_iob(top, iob):
     is_inout = has_feature_with_part(site, "IN") and has_feature_with_part(
         site, "DRIVE"
     )
-    is_output = not has_feature_with_part(site,
-                                          "IN") and has_feature_with_part(
-                                              site, "DRIVE"
-                                          )
+    is_output = not has_feature_with_part(site, "IN") and \
+        has_feature_with_part(site, "DRIVE")
 
     top_wire = None
 
