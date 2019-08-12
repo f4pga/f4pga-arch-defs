@@ -85,7 +85,59 @@ def has_feature_containing(site, substr):
     return False
 
 
+def append_obuf_iostandard_params(top, site, bel, possible_iostandards, slew="SLOW"):
+    """
+    Appends IOSTANDARD, DRIVE and SLEW parameters to the bel. Those parameters
+    have to be explicitly provided in the top.iostandard_defs dict. If parameters
+    from the dict contradicts those decoded from fasm, an error is printed.
+    """
+
+    # Check if we have external information about the IOSTANDARD and DRIVE of
+    # that site
+    if site.site.name in top.iostandard_defs:
+        iostd_def = top.iostandard_defs[site.site.name]
+
+        iostandard = iostd_def["IOSTANDARD"]
+        drive = iostd_def["DRIVE"]
+
+        # Check if this is possible according to decoded fasm
+        is_valid = (iostandard, drive, slew) in possible_iostandards
+        if not is_valid:
+            print("IOSTANDARD+DRIVE+SLEW settings provided for {} do not match their counterparts decoded from the fasm".format(site.site.name))
+            return
+
+        bel.parameters["IOSTANDARD"] = '"{}"'.format(iostandard)
+        bel.parameters["DRIVE"] = '"{}"'.format(drive)
+
+    # Slew rate
+    bel.parameters["SLEW"] = '"{}"'.format(slew)
+
+
+def append_ibuf_iostandard_params(top, site, bel, possible_iostandards):
+    """
+    Appends IOSTANDARD parameter to the bel. The parameter has to be explicitly
+    provided in the top.iostandard_defs dict. If the parameter from the dict
+    contradicts the one decoded from fasm, an error is printed.
+    """
+
+    # Check if we have external information about the IOSTANDARD
+    if site.site.name in top.iostandard_defs:
+        iostd_def = top.iostandard_defs[site.site.name]
+        iostandard = iostd_def["IOSTANDARD"]
+
+        # Check if this is possible according to decoded fasm
+        is_valid = iostandard in possible_iostandards
+        if not is_valid:
+            print("IOSTANDARD setting provided for {} do not match its counterpart decoded from the fasm".format(site.site.name))
+            return
+
+        bel.parameters["IOSTANDARD"] = '"{}"'.format(iostandard)
+
+
 def process_iob(top, iob):
+    """
+    Processes an IOB
+    """
 
     aparts = iob[0].feature.split('.')
     tile_name = aparts[0]
@@ -149,11 +201,6 @@ def process_iob(top, iob):
     # Input only
     if is_input:
 
-        # TEST
-        print(site.site.name)
-        for x in iostd_in:
-            print("", x)
-
         # Options are:
         # IBUF, IBUF_IBUFDISABLE, IBUF_INTERMDISABLE
         if INTERMDISABLE_USED:
@@ -178,6 +225,8 @@ def process_iob(top, iob):
         # Note this looks weird, but the BEL pin is O, and the site wire is
         # called I, so it is in fact correct.
         site.add_source(bel, bel_pin='O', source='I')
+
+        append_ibuf_iostandard_params(top, site, bel, iostd_in)
 
         site.add_bel(bel)
 
@@ -214,21 +263,13 @@ def process_iob(top, iob):
         # called O, so it is in fact correct.
         site.add_sink(bel, bel_pin='I', sink='O')
 
-        # Slew rate
-        if has_feature_containing(site, "SLEW.FAST"):
-            bel.parameters["SLEW"] = '"FAST"'
-        else:
-            bel.parameters["SLEW"] = '"SLOW"'
+        slew = "FAST" if has_feature_containing(site, "SLEW.FAST") else "SLOW"
+        append_obuf_iostandard_params(top, site, bel, iostd_out, slew)
 
         site.add_site(bel)
 
     # Output
     elif is_output:
-
-        # TEST
-        print(site.site.name)
-        for x in iostd_out:
-            print("", x)
 
         # TODO: Could be a OBUFT?
         bel = Bel('OBUF')
@@ -239,11 +280,8 @@ def process_iob(top, iob):
         # is called O, so it is in fact correct.
         site.add_sink(bel, bel_pin='I', sink='O')
 
-        # Slew rate
-        if has_feature_containing(site, "SLEW.FAST"):
-            bel.parameters["SLEW"] = '"FAST"'
-        else:
-            bel.parameters["SLEW"] = '"SLOW"'
+        slew = "FAST" if has_feature_containing(site, "SLEW.FAST") else "SLOW"
+        append_obuf_iostandard_params(top, site, bel, iostd_out, slew)
 
         site.add_bel(bel)
 

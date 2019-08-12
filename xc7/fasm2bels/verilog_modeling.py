@@ -1044,7 +1044,7 @@ class Module(object):
 
     def __init__(self, db, grid, conn, name="top"):
         self.name = name
-        self.iostandard = None
+        self.iostandard_defs = {}
         self.db = db
         self.grid = grid
         self.conn = conn
@@ -1087,25 +1087,8 @@ class Module(object):
         # .cname value.
         self.cname_map = {}
 
-    def set_iostandard(self, iostandards):
-        """ Set the IOSTANDARD for the design.
-
-        iostandards (list of list of str): Takes a list of IOSTANDARD
-            possibilities and selects the unique one.  Having no valid or
-            multiple valid IOSTANDARDs is an error.
-        """
-        possible_iostandards = set(iostandards[0])
-
-        for l in iostandards:
-            possible_iostandards &= set(l)
-
-        if len(possible_iostandards) != 1:
-            raise RuntimeError(
-                'Ambigous IOSTANDARD, must specify possibilities: {}'.
-                format(possible_iostandards)
-            )
-
-        self.iostandard = possible_iostandards.pop()
+    def set_iostandard_defs(self, defs):
+        self.iostandard_defs = defs
 
     def set_net_map(self, net_map):
         self.wire_pkey_net_map = net_map
