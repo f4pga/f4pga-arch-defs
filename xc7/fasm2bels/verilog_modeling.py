@@ -1409,12 +1409,17 @@ set_property FIXED_ROUTE $route $net"""
             for _, other_source_wire in self.wire_assigns.items():
                 assert source_wire != other_source_wire, source_wire
 
-            self.unrouted_sources.remove(wire_pkey)
-            del self.source_bels[wire_pkey]
-
-        # Remove the sinks from the wires, wire assigns, and net
+        # Remove the sources and sinks from the wires, wire assigns, and net
+        for wire_pkey in removed_sources:
+            self.remove_source(wire_pkey)
         for wire_pkey in removed_sinks:
             self.remove_sink(wire_pkey)
+
+    def remove_source(self, wire_pkey):
+        self.unrouted_sources.remove(wire_pkey)
+        del self.source_bels[wire_pkey]
+        self.wires.remove(self.wire_pkey_to_wire[wire_pkey])
+        source_wire = self.wire_pkey_to_wire[wire_pkey]
 
     def remove_sink(self, wire_pkey):
         self.unrouted_sinks.remove(wire_pkey)
@@ -1422,6 +1427,38 @@ set_property FIXED_ROUTE $route $net"""
         sink_wire = self.wire_pkey_to_wire[wire_pkey]
         if sink_wire in self.wire_assigns:
             del self.wire_assigns[sink_wire]
+
+    def prune_unconnected_ports(self):
+        """
+        Identifies and removes unconnected top level ports
+        """
+
+        # Checks whether a top level port is connected to any bel
+        def is_connected_to_bel(port):
+            for site in self.sites:
+                for bel in site.bels:
+                    for bel_pin, conn in bel.connections.items():
+                        if conn == port:
+                            return True
+            return False
+
+        # Check whether a top level port is used in assign
+        def is_used(port):
+            if port in self.wire_assigns:
+                return True
+            for other_wire in self.wire_assigns.values():
+                if other_wire == port:
+                    return True
+            return False
+
+        # Remove
+        for l in (self.root_in, self.root_out, self.root_inout):
+            to_remove = set()
+            for port in l:
+                if not is_connected_to_bel(port) and not is_used(port):
+                    to_remove.add(port)
+            for port in to_remove:
+                l.remove(port)
 
     def add_to_cname_map(self, parsed_eblif):
         """ Create a map from subckt (pin, index, net) to cnames.

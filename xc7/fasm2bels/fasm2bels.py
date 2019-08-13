@@ -282,6 +282,8 @@ def main():
 
     top.make_routes(allow_orphan_sinks=args.allow_orphan_sinks)
 
+    top.prune_unconnected_ports()
+
     with open(args.verilog_file, 'w') as f:
         for l in top.output_verilog():
             print(l, file=f)

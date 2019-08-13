@@ -155,6 +155,11 @@ def process_iob(top, iob):
         top.db, top.grid, aparts[0], aparts[1]
     )
 
+    # It seems that this IOB is always configured as an input at least in
+    # Artix7. So skip it here.
+    if iob_site.name == "IOB_X0Y44":
+        return
+
     site = Site(iob, iob_site)
 
     INTERMDISABLE_USED = site.has_feature('INTERMDISABLE.I')
