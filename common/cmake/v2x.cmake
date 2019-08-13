@@ -179,19 +179,22 @@ function(VPR_TEST_PB_TYPE)
   add_file_target(FILE "${VPR_TEST_PB_TYPE_NAME}.arch.xml" GENERATED)
 
   set(DEPENDS_EBLIF "")
-  append_file_dependency(DEPENDS_EBLIF "${VPR_TEST_PB_TYPE_NAME}.pb_type.xml")
+  append_file_dependency(DEPENDS_EBLIF "${VPR_TEST_PB_TYPE_NAME}.sim.v")
+
+  set(PB_TYPE_VERILOG "${VPR_TEST_PB_TYPE_NAME}.sim.v")
+  set(YOSYS_OUTPUT_BLIF "${VPR_TEST_PB_TYPE_NAME}.test.eblif")
+
+  get_target_property_required(YOSYS env YOSYS)
+  get_target_property(YOSYS_TARGET env YOSYS_TARGET)
   add_custom_command(
-    OUTPUT "${VPR_TEST_PB_TYPE_NAME}.test.eblif"
+    OUTPUT "${YOSYS_OUTPUT_BLIF}"
     DEPENDS
-      ${PYTHON3} ${PYTHON3_TARGET}
-      ${XMLLINT} ${XMLLINT_TARGET}
-      ${symbiflow-arch-defs_SOURCE_DIR}/utils/vpr_pbtype_to_eblif.py
-      ${DEPENDS_EBLIF}
+      ${YOSYS} ${YOSYS_TARGET}
+      ${DEPENS_EBLIF}
     COMMAND
-      ${PYTHON3} ${symbiflow-arch-defs_SOURCE_DIR}/utils/vpr_pbtype_to_eblif.py
-      --pb_type ${CMAKE_CURRENT_BINARY_DIR}/${VPR_TEST_PB_TYPE_NAME}.pb_type.xml
-      --output  ${CMAKE_CURRENT_BINARY_DIR}/${VPR_TEST_PB_TYPE_NAME}.test.eblif
-    WORKING_DIRECTORY ${symbiflow-arch-defs_SOURCE_DIR}/utils
+      ${YOSYS} -p "read_verilog ${PB_TYPE_VERILOG}\; proc\; opt\; write_blif ${YOSYS_OUTPUT_BLIF}"
+    WORKING_DIRECTORY
+      ${CMAKE_CURRENT_BINARY_DIR}
   )
   add_file_target(FILE "${VPR_TEST_PB_TYPE_NAME}.test.eblif" GENERATED)
 
