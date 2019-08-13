@@ -1,5 +1,5 @@
 <?xml version='1.0' encoding='utf-8'?>
-<pb_type xmlns:xi="http://www.w3.org/2001/XInclude" blif_model=".subckt cblock" name="CBLOCK" num_pb="1">
+<pb_type xmlns:xi="http://www.w3.org/2001/XInclude" blif_model=".subckt CBLOCK" name="CBLOCK" num_pb="1">
   <input name="CIN" num_pins="1">
     <pack_pattern name="C" type="carry"/>
   </input>
@@ -8,4 +8,12 @@
     <pack_pattern name="C" type="carry"/>
   </output>
   <output name="O" num_pins="1"/>
+  <delay_constant in_port="CBLOCK.CIN" max="30e-12" out_port="CBLOCK.COUT"/>
+  <delay_matrix in_port="CBLOCK.I" out_port="CBLOCK.COUT" type="max">
+30e-12 30e-12 30e-12 30e-12
+</delay_matrix>
+  <delay_constant in_port="CBLOCK.CIN" max="30e-12" out_port="CBLOCK.O"/>
+  <delay_matrix in_port="CBLOCK.I" out_port="CBLOCK.O" type="max">
+30e-12 30e-12 30e-12 30e-12
+</delay_matrix>
 </pb_type>
