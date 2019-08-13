@@ -215,6 +215,9 @@ def process_iob(top, iob):
     is_output = not has_feature_with_part(site, "IN") and \
         has_feature_with_part(site, "DRIVE")
 
+    # Sanity check. Can be only one or neither of them
+    assert (is_input + is_inout + is_output) <= 1
+
     top_wire = None
 
     # Input only
