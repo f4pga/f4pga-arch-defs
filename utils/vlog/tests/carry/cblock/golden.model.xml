@@ -1,8 +1,8 @@
 <models xmlns:xi="http://www.w3.org/2001/XInclude">
-  <model name="cblock">
+  <model name="CBLOCK">
     <input_ports>
-      <port name="CIN"/>
-      <port name="I"/>
+      <port combinational_sink_ports="COUT O" name="CIN"/>
+      <port combinational_sink_ports="COUT O" name="I"/>
     </input_ports>
     <output_ports>
       <port name="COUT"/>
