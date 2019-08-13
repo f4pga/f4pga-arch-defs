@@ -420,7 +420,7 @@ def main(args):
         args.pb_type
     )
 
-    tile_height = layout_xml(arch_root, pbtype_leaf)
+    tile_height = layout_xml(arch_root, pbtype_root)
     tname = tile_xml(arch_root, pbtype_root, outfile, tile_height)
 
     dirpath = os.path.dirname(outfile)
