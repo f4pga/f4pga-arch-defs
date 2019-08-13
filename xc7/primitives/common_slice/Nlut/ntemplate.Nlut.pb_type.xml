@@ -27,6 +27,13 @@
       {{iopath_A4_O5}}
       {{iopath_A5_O5}}
      </delay_matrix>
+     <delay_matrix type="min" in_port="in" out_port="out">
+      {{iopath_A1_O5}}
+      {{iopath_A2_O5}}
+      {{iopath_A3_O5}}
+      {{iopath_A4_O5}}
+      {{iopath_A5_O5}}
+     </delay_matrix>
      <metadata>
        <meta name="type">bel</meta>
        <meta name="subtype">lut</meta>
