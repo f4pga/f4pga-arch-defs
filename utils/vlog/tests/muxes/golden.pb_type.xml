@@ -5,13 +5,13 @@
   <input name="c" num_pins="1"/>
   <output name="o1" num_pins="1"/>
   <output name="o2" num_pins="1"/>
-  <pb_type blif_model=".subckt logicbox" name="lboxa" num_pb="1">
+  <pb_type blif_model=".subckt LOGICBOX" name="lboxa" num_pb="1">
     <xi:include href="../logicbox/logicbox.pb_type.xml" xpointer="xpointer(pb_type/child::node())"/>
   </pb_type>
-  <pb_type blif_model=".subckt logicbox" name="lboxb" num_pb="1">
+  <pb_type blif_model=".subckt LOGICBOX" name="lboxb" num_pb="1">
     <xi:include href="../logicbox/logicbox.pb_type.xml" xpointer="xpointer(pb_type/child::node())"/>
   </pb_type>
-  <pb_type blif_model=".subckt logicbox" name="lboxc" num_pb="1">
+  <pb_type blif_model=".subckt LOGICBOX" name="lboxc" num_pb="1">
     <xi:include href="../logicbox/logicbox.pb_type.xml" xpointer="xpointer(pb_type/child::node())"/>
   </pb_type>
   <interconnect>
