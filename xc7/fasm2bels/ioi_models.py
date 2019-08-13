@@ -24,8 +24,15 @@ def get_ioi_site(db, grid, tile, site):
 
 
 def process_idelay(top, features):
+
+    aparts = features[0].feature.split('.')
+    # tile_name = aparts[0]
+    ioi_site = get_ioi_site(top.db, top.grid, aparts[0], aparts[1])
+
+    site = Site(features, ioi_site)
+
     # TODO: Support IDELAY
-    pass
+    assert not site.has_feature("IN_USE")
 
 
 def process_ilogic(top, features):
