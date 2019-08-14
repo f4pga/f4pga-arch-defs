@@ -51,7 +51,7 @@ def get_cell_types_and_instance(bel, location, site, bels):
     return celltypes, instance
 
 
-def find_timings(timings, bel, location, site, bels):
+def find_timings(timings, bel, location, site, bels, corner, speed_type):
     """This function returns all the timings associated with
        the selected `bel` in `location` and `site`. If timings
        are not found, `None` is returned"""
@@ -65,15 +65,15 @@ def find_timings(timings, bel, location, site, bels):
             cell = mergedicts(timings['cells'][ct][inst], cell)
     for delay in cell:
         if cell[delay]['is_absolute']:
-            entry = cell[delay]['delay_paths']['slow']['max']
+            entry = cell[delay]['delay_paths'][corner.lower()][speed_type]
         elif cell[delay]['is_timing_check']:
-            entry = cell[delay]['delay_paths']['nominal']['max']
+            entry = cell[delay]['delay_paths']['nominal'][speed_type]
         bel_timings[delay] = float(entry) * get_scale_seconds('1 ns')
 
     return bel_timings
 
 
-def get_bel_timings(element, timings, bels):
+def get_bel_timings(element, timings, bels, corner, speed_type):
     """This function returns all the timings for an arch.xml
        `element`. It determines the bel location by traversing
        the pb_type chain"""
@@ -88,7 +88,7 @@ def get_bel_timings(element, timings, bels):
         bel = pb_chain[-1]
     location = pb_chain[-2]
     site = remove_site_number(pb_chain[1])
-    return find_timings(timings, bel, location, site, bels)
+    return find_timings(timings, bel, location, site, bels, corner, speed_type)
 
 
 def main():
@@ -130,31 +130,46 @@ def main():
         json.dump(timings, fp, indent=4)
 
     for dm in root_element.iter('delay_matrix'):
-        bel_timings = get_bel_timings(dm, timings, bels)
+        if dm.attrib['type'] == 'max':
+            bel_timings = get_bel_timings(dm, timings, bels, 'SLOW', 'max')
+        elif dm.attrib['type'] == 'min':
+            bel_timings = get_bel_timings(dm, timings, bels, 'FAST', 'min')
+        else:
+            assert dm.attrib['type']
+
         if bel_timings is None:
             continue
+
         dm.text = dm.text.format(**bel_timings)
 
     for dc in root_element.iter('delay_constant'):
-        bel_timings = get_bel_timings(dc, timings, bels)
-        if bel_timings is None:
-            continue
-        dc.attrib['max'] = dc.attrib['max'].format(**bel_timings)
+        format_s = dc.attrib['max']
+        max_tim = get_bel_timings(dc, timings, bels, 'SLOW', 'max')
+        if max_tim is not None:
+            dc.attrib['max'] = format_s.format(**max_tim)
+
+        min_tim = get_bel_timings(dc, timings, bels, 'FAST', 'min')
+        if min_tim is not None:
+            dc.attrib['min'] = format_s.format(**min_tim)
 
     for tq in root_element.iter('T_clock_to_Q'):
-        bel_timings = get_bel_timings(tq, timings, bels)
-        if bel_timings is None:
-            continue
-        tq.attrib['max'] = tq.attrib['max'].format(**bel_timings)
+        format_s = tq.attrib['max']
+        max_tim = get_bel_timings(tq, timings, bels, 'SLOW', 'max')
+        if max_tim is not None:
+            tq.attrib['max'] = format_s.format(**max_tim)
+
+        min_tim = get_bel_timings(tq, timings, bels, 'FAST', 'min')
+        if min_tim is not None:
+            tq.attrib['min'] = format_s.format(**min_tim)
 
     for ts in root_element.iter('T_setup'):
-        bel_timings = get_bel_timings(ts, timings, bels)
+        bel_timings = get_bel_timings(ts, timings, bels, 'SLOW', 'max')
         if bel_timings is None:
             continue
         ts.attrib['value'] = ts.attrib['value'].format(**bel_timings)
 
     for th in root_element.iter('T_hold'):
-        bel_timings = get_bel_timings(th, timings, bels)
+        bel_timings = get_bel_timings(th, timings, bels, 'FAST', 'min')
         if bel_timings is None:
             continue
         th.attrib['value'] = ts.attrib['value'].format(**bel_timings)
