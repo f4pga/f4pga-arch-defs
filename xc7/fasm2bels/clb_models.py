@@ -669,18 +669,18 @@ def process_slice(top, s):
 
         if site.has_feature('PRECYINIT.AX'):
             site.add_sink(bel, 'CYINIT', 'AX')
-            bel.unused_connections.add('CI')
+            bel.connections['CI'] = 0
 
         elif site.has_feature('PRECYINIT.C0'):
             bel.connections['CYINIT'] = 0
-            bel.unused_connections.add('CI')
+            bel.connections['CI'] = 0
 
         elif site.has_feature('PRECYINIT.C1'):
             bel.connections['CYINIT'] = 1
-            bel.unused_connections.add('CI')
+            bel.connections['CI'] = 0
 
         elif site.has_feature('PRECYINIT.CIN'):
-            bel.unused_connections.add('CYINIT')
+            bel.connections['CYINIT'] = 0
             site.add_sink(bel, 'CI', 'CIN')
 
         else:
