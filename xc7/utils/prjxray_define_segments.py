@@ -14,6 +14,7 @@ def add_segment_wires(db, tile, wires, segments):
         # Ignore wires that sink to a site
         if 'GCLK' in pip.net_to:
             segments['CLKFEED'].add(pip.net_to)
+            segments['HCLK_COLUMNS'].add(pip.net_from)
             continue
 
         elif 'IMUX' in pip.net_to or \
@@ -69,6 +70,11 @@ def get_segments(db):
         'INPINFEED': set(),
         'CLKFEED': set(),
         'OUTPINFEED': set(),
+        'BRAM_CASCADE': set(),
+        'BRAM_IMUX': set(),
+        'HCLK_COLUMNS': set(),
+        'HCLK_ROWS': set(),
+        'HCLK_ROW_TO_COLUMN': set(),
     }
 
     for tile in ['INT_L', 'INT_R']:
@@ -77,6 +83,12 @@ def get_segments(db):
     reduce_wires_to_segments(wires, segments)
 
     return segments
+
+
+GCLK_MATCH = re.compile('GCLK_(L_)?B[0-9]+')
+LOGIC_OUT_MATCH = re.compile('LOGIC_OUTS')
+BRAM_CASCADE = re.compile('BRAM_CASC(OUT|IN|INBOT)_')
+HCLK_R2C_MATCH = re.compile('HCLK_CK_(OUTIN|INOUT)')
 
 
 class SegmentWireMap(object):
@@ -101,18 +113,38 @@ class SegmentWireMap(object):
                 assert wire not in self.wire_to_segment
                 self.wire_to_segment[wire] = segment
 
-    def get_segment_for_wire(self, wire):
-        if wire in self.wire_to_segment:
-            return self.default_segment
-        else:
-            return self.wire_to_segment[wire]
-
     def get_segment_for_wires(self, wires):
+        wires = list(wires)
         segments = set()
 
+        # BRAM_IMUX cannot use INPINFEED because it doesn't obey typically
+        # connection box definitions.
+        is_bram_imux = False
         for wire in wires:
-            if wire in self.wire_to_segment:
+            if 'BRAM_IMUX' in wire:
+                is_bram_imux = True
+                break
+
+        for wire in wires:
+            if wire in self.wire_to_segment and not is_bram_imux:
                 segments.add(self.wire_to_segment[wire])
+
+            m = LOGIC_OUT_MATCH.match(wire)
+            if m is not None:
+                segments.add('OUTPINFEED')
+
+            m = BRAM_CASCADE.search(wire)
+            if m is not None:
+                segments.add('BRAM_CASCADE')
+
+            if 'CK_BUFHCLK' in wire:
+                segments.add('HCLK_ROWS')
+
+            if HCLK_R2C_MATCH.match(wire):
+                segments.add('HCLK_ROW_TO_COLUMN')
+
+            if wire.startswith('BRAM_IMUX'):
+                segments.add('BRAM_IMUX')
 
         assert len(segments) <= 1, (wires, segments)
         if len(segments) == 1:
