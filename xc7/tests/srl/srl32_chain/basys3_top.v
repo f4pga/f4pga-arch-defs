@@ -9,11 +9,7 @@ input  wire [15:0]  sw,
 output wire [15:0]  led
 );
 
-`ifdef SIMULATION
-parameter PRESCALER = 4;
-`else
-parameter PRESCALER = 1000000;
-`endif
+parameter PRESCALER = 4; //100000;
 
 // UART loopback
 assign tx = rx;
@@ -55,6 +51,10 @@ generate for(i=0; i<4; i=i+1) begin
   wire       srl_d;
   wire       srl_sh;
 
+  localparam SITE = (i==0) ?   "SLICE_X2Y100" :
+                    (i==1) ?   "SLICE_X2Y101" :
+                    (i==2) ?   "SLICE_X2Y102" : "SLICE_X2Y103";
+
   srl_shift_tester #(.SRL_LENGTH(32 * (i+1))) tester
   (
   .clk      (clk),
@@ -67,7 +67,7 @@ generate for(i=0; i<4; i=i+1) begin
   .error    (error[i])
   );
 
-  srl32_chain_seg #(.N(i+1)) chain_seg
+  srl32_chain_seg  #(.SITE(SITE), .N(i+1)) chain_seg
   (
   .CLK      (clk),
   .CE       (srl_sh),

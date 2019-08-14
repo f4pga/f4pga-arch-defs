@@ -2,7 +2,8 @@
 // required MUXF7s and MUX8.
 module srl32_chain_seg #
 (
-parameter           N = 1 // Numbers of SRL32s in chain (from 1 to 4!)
+parameter           N = 1,      // Numbers of SRL32s in chain (from 1 to 4!)
+parameter           SITE = ""   // Site to LOC all bels to
 )
 (
 input  wire CLK,
@@ -26,7 +27,7 @@ assign srl_d[0] = D;
 genvar i;
 generate for(i=0; i<N; i=i+1) begin
 
-    (* KEEP, DONT_TOUCH *)
+    (* LOC=SITE, KEEP, DONT_TOUCH *)
     SRLC32E srl
     (
     .CLK    (CLK),
@@ -49,11 +50,24 @@ wire f7bmux_o;
 wire f7amux_o;
 wire f8mux_o;
 
-// F7BMUX
-generate if(N >= 2) begin
+generate
+
+  if (N == 2) begin
+
+    // F7AMUX
+    (* LOC=SITE, BEL="F7AMUX", KEEP, DONT_TOUCH *)
+    MUXF7 muxf7a
+    (
+    .I0     (srl_q[0]),
+    .I1     (srl_q[1]),
+    .S      (A[5]),
+    .O      (f7amux_o)
+    );
+
+  end else if (N >= 3) begin
 
     // F7BMUX
-    (* KEEP, DONT_TOUCH, BEL="F7BMUX" *)
+    (* LOC=SITE, BEL="F7BMUX", KEEP, DONT_TOUCH *)
     MUXF7 muxf7b
     (
     .I0     (srl_q[0]),
@@ -62,23 +76,34 @@ generate if(N >= 2) begin
     .O      (f7bmux_o)
     );
 
-end endgenerate
+    if (N == 3) begin
 
-// F7AMUX, F8MUX
-generate if(N >= 3) begin
-    
-    // F7AMUX
-    (* KEEP, DONT_TOUCH, BEL="F7AMUX" *)
-    MUXF7 muxf7a
-    (
-    .I0     (srl_q[2]),
-    .I1     (srl_q[3]),
-    .S      (A[5]),
-    .O      (f7amux_o)
-    );
+      // F7AMUX
+      (* LOC=SITE, BEL="F7AMUX", KEEP, DONT_TOUCH *)
+      MUXF7 muxf7a
+      (
+      .I0     (srl_q[2]),
+      .I1     (),
+      .S      (A[5]),
+      .O      (f7amux_o)
+      );
+
+    end else if (N == 4) begin
+
+      // F7AMUX
+      (* LOC=SITE, BEL="F7AMUX", KEEP, DONT_TOUCH *)
+      MUXF7 muxf7a
+      (
+      .I0     (srl_q[2]),
+      .I1     (srl_q[3]),
+      .S      (A[5]),
+      .O      (f7amux_o)
+      );
+
+    end
 
     // F8MUX
-    (* KEEP, DONT_TOUCH, BEL="F8MUX" *)
+    (* LOC=SITE, BEL="F8MUX", KEEP, DONT_TOUCH *)
     MUXF8 muxf8
     (
     .I0     (f7bmux_o),
@@ -87,13 +112,15 @@ generate if(N >= 3) begin
     .O      (f8mux_o)
     );
 
-end endgenerate
+  end
+
+endgenerate
 
 // ============================================================================
 // Output assignment
 
 assign Q =  (N == 1) ? srl_q[0] : 
-            (N == 2) ? f7bmux_o : f8mux_o;
+            (N == 2) ? f7amux_o : f8mux_o;
 
 assign Q31 = srl_q31[N-1];
 

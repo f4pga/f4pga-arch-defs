@@ -10,7 +10,7 @@ input  wire rst,
 input  wire ce,
 
 output reg  srl_sh,
-output wire [SRL_BITS:0] srl_a,
+output wire [$clog2(SRL_LENGTH)-1:0] srl_a,
 output wire srl_d,
 input  wire srl_q,
 
@@ -31,11 +31,11 @@ ROM #(.CONTENT(ROM_CONTENT)) rom
 
 // ============================================================================
 // Control
-localparam SRL_BITS = $clog2(SRL_LENGTH);
 
-reg [SRL_BITS-1:0] delay = FIXED_DELAY - 1;
-reg [1:0] phase = 0;
+reg [$clog2(SRL_LENGTH)-1:0] delay;
+reg [1:0] phase;
 
+initial phase <= 0;
 always @(posedge clk)
     if (rst)
         phase <= 2'b11;
@@ -82,8 +82,9 @@ assign srl_d = rom_dat_1;
 // Delay change
 wire delay_chg = (FIXED_DELAY == 0) && (phase == 2'd1 && rom_adr_1 == 9'h1FF);
 
+initial delay <= FIXED_DELAY - 1;
 always @(posedge clk)
-    if (delay_chg) delay <= delay + 1;
+    if (delay_chg) delay <= (delay == (SRL_LENGTH - 1)) ? 0 : (delay + 1);
 
 // ============================================================================
 // Error check
