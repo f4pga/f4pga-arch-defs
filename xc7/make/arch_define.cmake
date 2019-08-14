@@ -28,8 +28,10 @@ function(ADD_XC7_ARCH_DEFINE)
       --allow_dangling_combinational_nodes on \
       --disable_errors check_unbuffered_edges:check_route:check_place \
       --astar_fac 0.75 \
-      --bb_factor 100 \
-      --routing_budgets_algorithm minimax \
+      --bb_factor 10 \
+      --routing_budgets_algorithm scale_delay \
+      --incremental_reroute_delay_ripup on \
+      --router_max_convergence_count 3 \
       --congested_routing_iteration_threshold 0.25 \
       --suppress_warnings \${OUT_NOISY_WARNINGS},sum_pin_class:check_unbuffered_edges:load_rr_indexed_data_T_values:check_rr_node:trans_per_R"
     RR_PATCH_TOOL
