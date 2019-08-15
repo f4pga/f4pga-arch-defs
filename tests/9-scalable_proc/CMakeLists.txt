@@ -35,10 +35,9 @@ function(SCALABLE_PROC)
     BOARD
     INPUT_IO_FILE
     ROM_STYLE
-    MAX_PROC
-
   )
-  set(multiValueArgs)
+  set(multiValueArgs
+    NUM_PROCESSING_UNITS)
   cmake_parse_arguments(
       SCALABLE_PROC
     "${options}"
@@ -50,7 +49,7 @@ function(SCALABLE_PROC)
   set(ROM_STYLE ${SCALABLE_PROC_ROM_STYLE})
   set(ROM_FILE rom_${ROM_STYLE}.v)
 
-  foreach(NUM_PROCESSING_UNITS RANGE 1 ${SCALABLE_PROC_MAX_PROC})
+  foreach(NUM_PROCESSING_UNITS ${SCALABLE_PROC_NUM_PROCESSING_UNITS})
     set(VERILOG_TOP basys3_top_${ROM_STYLE}_n${NUM_PROCESSING_UNITS}.v)
     set(TOP_NAME top_${ROM_STYLE}_n${NUM_PROCESSING_UNITS})
 
@@ -90,7 +89,7 @@ scalable_proc(
   BOARD basys3
   INPUT_IO_FILE basys3.pcf
   ROM_STYLE bram
-  MAX_PROC 8
+  NUM_PROCESSING_UNITS 1 3 8
 )
 
 scalable_proc(
@@ -98,7 +97,7 @@ scalable_proc(
   BOARD basys3
   INPUT_IO_FILE basys3.pcf
   ROM_STYLE dram
-  MAX_PROC 3
+  NUM_PROCESSING_UNITS 1 3
 )
 
 add_vivado_target(
