@@ -1609,6 +1609,12 @@ end
   );
 endmodule // RAMB36E1
 
+module CARRY_COUT_PLUG(input CIN, output COUT);
+
+assign COUT = CIN;
+
+endmodule
+
 module CARRY4_COUT(output [3:0] CO, O, output COUT, input CI, CYINIT, input [3:0] DI, S);
   parameter _TECHMAP_CONSTMSK_CI_ = 1;
   parameter _TECHMAP_CONSTVAL_CI_ = 1'b0;
