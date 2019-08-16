@@ -44,6 +44,19 @@ now = datetime.datetime.now
 
 HCLK_CK_BUFHCLK_REGEX = re.compile('HCLK_CK_BUFHCLK[0-9]+')
 CASCOUT_REGEX = re.compile('BRAM_CASCOUT_ADDR((?:BWR)|(?:ARD))ADDRU([0-9]+)')
+CONNECTION_BOX_FILTER = re.compile('([^0-9]+)[0-9]*')
+
+
+def reduce_connection_box(box):
+    box = CONNECTION_BOX_FILTER.match(box).group(1)
+
+    if 'BRAM_ADDR' in box:
+        box = 'IMUX'
+
+    if box.endswith('_L'):
+        box = box.replace('_L', '')
+
+    return box
 
 
 def check_feature(feature):
@@ -147,7 +160,7 @@ def import_graph_nodes(conn, graph, node_mapping, connection_box_map):
                 node_idx,
                 node.loc.x_low,
                 node.loc.y_low,
-                box_id=graph.maybe_add_connection_box('SYN')
+                box_id=graph.maybe_add_connection_box('IMUX')
             )
             continue
 
@@ -615,7 +628,7 @@ SELECT pkey, tile_type_pkey, name FROM wire_in_tile WHERE pkey IN (
     connection_box_map = {}
     for wire_in_tile_pkey, tile_type_pkey, wire_name in cur:
         connection_box_map[wire_in_tile_pkey] = graph.maybe_add_connection_box(
-            wire_name
+            reduce_connection_box(wire_name)
         )
 
     return connection_box_map
