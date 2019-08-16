@@ -59,7 +59,7 @@ module top (
         .IS_DUAL_PORT(1),
         .ADDRESS_STEP(1),
         // 64-bit LUT memories are 0-63
-        .MAX_ADDRESS(63),
+        .MAX_ADDRESS(63)
     ) dram_test (
         .rst(!nrst),
         .clk(clk),
@@ -81,6 +81,8 @@ module top (
         .actual_data(actual_data)
     );
 
+    wire [0:0] read_data_pre_ff;
+
     RAM64X1D #(
         .INIT(64'b01101001_10010110_10010110_01101001_10010110_01101001_01101001_10010110)
     ) dram(
@@ -97,9 +99,17 @@ module top (
         .DPRA2(read_address[2]),
         .DPRA1(read_address[1]),
         .DPRA0(read_address[0]),
-        .DPO(read_data[0]),
+        .DPO(read_data_pre_ff[0]),
         .D(write_data[0]),
         .WE(write_enable)
+    );
+
+    FDRE ram_reg(
+        .D(read_data_pre_ff),
+        .Q(read_data[0]),
+        .C(clk),
+        .CE(1),
+        .R(0)
     );
 
     ERROR_OUTPUT_LOGIC #(

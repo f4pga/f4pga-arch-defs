@@ -28,7 +28,7 @@ module LFSR (
     input clk,
     output [{depth}-1:0] out
     );
-    parameter POLY = 1;
+    parameter POLY = 1'b101;
 
     reg [{depth}-1:0] r = 1;
     assign out = r;
