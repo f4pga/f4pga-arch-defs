@@ -22,6 +22,7 @@ import os.path
 import sqlite3
 import subprocess
 import tempfile
+import json
 
 import fasm
 import fasm.output
@@ -35,6 +36,7 @@ from .clk_models import process_hrow, process_bufg
 from .connection_db_utils import create_maybe_get_wire, maybe_add_pip, \
         get_tile_type
 from .iob_models import process_iobs
+from .ioi_models import process_ioi
 from .verilog_modeling import Module
 from .net_map import create_net_list
 
@@ -59,6 +61,14 @@ PROCESS_TILE = {
     'RIOB33': process_iobs,
     'LIOB33_SING': process_iobs,
     'RIOB33_SING': process_iobs,
+    'LIOI3': process_ioi,
+    'RIOI3': process_ioi,
+    'LIOI3_SING': process_ioi,
+    'RIOI3_SING': process_ioi,
+    'LIOI3_TBYTESRC': process_ioi,
+    'RIOI3_TBYTESRC': process_ioi,
+    'LIOI3_TBYTETERM': process_ioi,
+    'RIOI3_TBYTETERM': process_ioi,
     'HCLK_L': null_process,
     'HCLK_R': null_process,
     'CLK_BUFG_REBUF': null_process,
@@ -183,9 +193,14 @@ def main():
         help="Allow sinks to have no connection."
     )
     parser.add_argument(
-        '--iostandard',
+        '--prune-unconnected-ports',
+        action='store_true',
+        help="Prune top-level I/O ports that are not connected to any logic."
+    )
+    parser.add_argument(
+        '--iostandard_defs',
         help=
-        "Specify IOSTANDARD to use in event of no clear IOSTANDARD from FASM file."
+        "Specify a JSON file defining IOSTANDARD and DRIVE parameters for each IOB site"
     )
     parser.add_argument(
         '--fasm_file',
@@ -247,18 +262,9 @@ def main():
 
         top.add_to_cname_map(parsed_eblif)
 
-    iostandards = []
-
-    if args.iostandard:
-        iostandards.append([args.iostandard])
-
     for fasm_line in fasm.parse_fasm_filename(args.fasm_file):
         if not fasm_line.set_feature:
             continue
-
-        possible_iostandards = find_io_standards(fasm_line.set_feature.feature)
-        if possible_iostandards is not None:
-            iostandards.append(possible_iostandards)
 
         parts = fasm_line.set_feature.feature.split('.')
         tile = parts[0]
@@ -271,12 +277,18 @@ def main():
         if len(parts) == 3:
             maybe_add_pip(top, maybe_get_wire, fasm_line.set_feature)
 
-    top.set_iostandard(iostandards)
+    if args.iostandard_defs:
+        with open(args.iostandard_defs) as fp:
+            defs = json.load(fp)
+            top.set_iostandard_defs(defs)
 
     for tile, tile_features in tiles.items():
         process_tile(top, tile, tile_features)
 
     top.make_routes(allow_orphan_sinks=args.allow_orphan_sinks)
+
+    if args.prune_unconnected_ports:
+        top.prune_unconnected_ports()
 
     with open(args.verilog_file, 'w') as f:
         for l in top.output_verilog():
