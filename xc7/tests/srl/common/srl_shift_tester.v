@@ -84,7 +84,10 @@ wire delay_chg = (FIXED_DELAY == 0) && (phase == 2'd1 && rom_adr_1 == 9'h1FF);
 
 initial delay <= FIXED_DELAY - 1;
 always @(posedge clk)
-    if (delay_chg) delay <= (delay == (SRL_LENGTH - 1)) ? 0 : (delay + 1);
+    if (rst)
+        delay <= FIXED_DELAY - 1;
+    else if (delay_chg)
+        delay <= (delay == (SRL_LENGTH - 1)) ? 0 : (delay + 1);
 
 // ============================================================================
 // Error check
