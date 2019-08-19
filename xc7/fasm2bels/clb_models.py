@@ -354,6 +354,11 @@ def process_slice(top, s):
 
                     site.add_sink(srls[row], 'CE', WE)
 
+                    if row == 'A' and site.has_feature('DOUTMUX.MC31'):
+                        site.add_internal_source(srls[row], 'Q31', 'AMC31')
+                    if row == 'A' and site.has_feature('DFFMUX.MC31'):
+                        site.add_internal_source(srls[row], 'Q31', 'AMC31')
+
                     site.add_bel(srls[row])
 
                 # 2x SRL16
@@ -774,6 +779,9 @@ def process_slice(top, s):
         elif lut == 'B' and site.has_feature('BFFMUX.F8'):
             site.connect_internal(ff, 'D', 'F8MUX_O')
 
+        elif lut == 'D' and site.has_feature('DFFMUX.MC31'):
+            site.connect_internal(ff, 'D', 'AMC31')
+
         elif site.has_feature('{}FFMUX.O5'.format(lut)):
             site.connect_internal(ff, 'D', lut + 'O5')
 
@@ -840,6 +848,9 @@ def process_slice(top, s):
             site.add_output_from_internal(output_wire, lut + '_XOR')
         else:
             continue
+
+    if site.has_feature('DOUTMUX.MC31'):
+        site.add_output_from_internal('DMUX', 'AMC31')
 
     site.set_post_route_cleanup_function(cleanup_slice)
     top.add_site(site)
