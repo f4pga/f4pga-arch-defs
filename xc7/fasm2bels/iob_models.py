@@ -89,9 +89,10 @@ def append_obuf_iostandard_params(
         top, site, bel, possible_iostandards, slew="SLOW"
 ):
     """
-    Appends IOSTANDARD, DRIVE and SLEW parameters to the bel. Those parameters
-    have to be explicitly provided in the top.iostandard_defs dict. If parameters
-    from the dict contradicts those decoded from fasm, an error is printed.
+    Appends IOSTANDARD, DRIVE and SLEW parameters to the bel. The IOSTANDARD
+    and DRIVE parameters have to be explicitly provided in the
+    top.iostandard_defs dict. If parameters from the dict contradicts those
+    decoded from fasm, an error is printed.
     """
 
     # Check if we have external information about the IOSTANDARD and DRIVE of

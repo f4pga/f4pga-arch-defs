@@ -193,6 +193,11 @@ def main():
         help="Allow sinks to have no connection."
     )
     parser.add_argument(
+        '--prune-unconnected-ports',
+        action='store_true',
+        help="Prune top-level I/O ports that are not connected to any logic."
+    )
+    parser.add_argument(
         '--iostandard_defs',
         help=
         "Specify a JSON file defining IOSTANDARD and DRIVE parameters for each IOB site"
@@ -282,7 +287,8 @@ def main():
 
     top.make_routes(allow_orphan_sinks=args.allow_orphan_sinks)
 
-    top.prune_unconnected_ports()
+    if args.prune_unconnected_ports:
+        top.prune_unconnected_ports()
 
     with open(args.verilog_file, 'w') as f:
         for l in top.output_verilog():

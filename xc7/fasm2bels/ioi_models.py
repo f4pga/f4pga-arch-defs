@@ -44,6 +44,10 @@ def process_ilogic(top, features):
     site = Site(features, ioi_site)
 
     # TODO: Support IDDR, ISERDES etc
+    assert not site.has_feature("IDDR_OR_ISERDES.IN_USE")
+    assert not site.has_feature("ISERDES.IN_USE")
+    assert not site.has_feature("IDELAY.IN_USE")
+
     site.sources['O'] = None
     site.sinks['D'] = []
     site.outputs['O'] = 'D'
@@ -59,6 +63,8 @@ def process_ologic(top, features):
     site = Site(features, ioi_site)
 
     # TODO: Support OSERDES etc.
+    assert not site.has_feature("OSERDES.IN_USE")
+
     site.sources['OQ'] = None
     site.sinks['D1'] = []
     site.outputs['OQ'] = 'D1'
