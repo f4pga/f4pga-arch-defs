@@ -24,7 +24,7 @@ from lib.connection_database import (
     node_to_site_pins, get_pin_name_of_wire
 )
 from prjxray_constant_site_pins import yield_ties_to_wire
-import progressbar
+from lib import progressbar_utils
 import datetime
 
 from prjxray_db_cache import DatabaseCache
@@ -42,7 +42,7 @@ def handle_direction_connections(conn, direct_connections, edge_assignments):
     # It is expected that all edges_with_mux will lies in a line (e.g. X only or
     # Y only).
     c = conn.cursor()
-    for src_wire_pkey, dest_wire_pkey, pip_in_tile_pkey, switch_pkey in progressbar.progressbar(
+    for src_wire_pkey, dest_wire_pkey, pip_in_tile_pkey, switch_pkey in progressbar_utils.progressbar(
             c.execute("""
 SELECT src_wire_pkey, dest_wire_pkey, pip_in_tile_pkey, switch_pkey FROM edge_with_mux;"""
                       )):
@@ -159,7 +159,8 @@ SELECT vcc_track_pkey, gnd_track_pkey FROM constant_sources;
         1: vcc_track_pkey,
     }
 
-    for node_pkey, classification in progressbar.progressbar(c.execute("""
+    for node_pkey, classification in progressbar_utils.progressbar(c.execute(
+            """
 SELECT pkey, classification FROM node WHERE classification != ?;
 """, (NodeClassification.CHANNEL.value, ))):
         reason = NodeClassification(classification)
@@ -389,7 +390,8 @@ def main():
         wires_not_in_channels = {}
         c = conn.cursor()
         print('{} Processing non-channel nodes.'.format(now()))
-        for node_pkey, classification in progressbar.progressbar(c.execute("""
+        for node_pkey, classification in progressbar_utils.progressbar(
+                c.execute("""
     SELECT pkey, classification FROM node WHERE classification != ?;
     """, (NodeClassification.CHANNEL.value, ))):
             reason = NodeClassification(classification)
@@ -422,7 +424,8 @@ def main():
         # Generate track models and verify that wires are either in a channel
         # or not in a channel.
         print('{} Creating models from tracks.'.format(now()))
-        for node_pkey, track_pkey in progressbar.progressbar(c.execute("""
+        for node_pkey, track_pkey in progressbar_utils.progressbar(c.execute(
+                """
     SELECT pkey, track_pkey FROM node WHERE classification = ?;
     """, (NodeClassification.CHANNEL.value, ))):
             assert track_pkey is not None
@@ -461,7 +464,7 @@ def main():
 
         print('{} Processing edge assignments.'.format(now()))
         final_edge_assignments = {}
-        for key, available_pins in progressbar.progressbar(
+        for key, available_pins in progressbar_utils.progressbar(
                 edge_assignments.items()):
             (tile_type, wire) = key
             if len(available_pins) == 0:
@@ -522,7 +525,7 @@ def main():
                 )
 
         pin_directions = {}
-        for key, pins in progressbar.progressbar(
+        for key, pins in progressbar_utils.progressbar(
                 final_edge_assignments.items()):
             (tile_type, wire) = key
             if tile_type not in pin_directions:
