@@ -10,12 +10,7 @@ output wire [15:0]  led
 );
 
 parameter SRL_COUNT = 4;
-
-`ifdef SIMULATION
-parameter PRESCALER = 4;
-`else
-parameter PRESCALER = 1000000;
-`endif
+parameter PRESCALER = 4; // 100000
 
 // UART loopback
 assign tx = rx;
