@@ -71,8 +71,8 @@ generate for(i=0; i<SRL_COUNT; i=i+1) begin
   (
   .CLK      (clk),
   .CE       (srl_sh),
-  .A        (srl_a),
-  .D        (5'd0),
+  .A        (5'd0),
+  .D        (srl_d),
   .Q31      (srl_q31[i])
   );
 
