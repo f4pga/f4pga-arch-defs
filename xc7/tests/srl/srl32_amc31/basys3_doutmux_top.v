@@ -10,12 +10,7 @@ output wire [15:0]  led
 );
 
 parameter SRL_COUNT = 4;
-
-`ifdef SIMULATION
 parameter PRESCALER = 4;
-`else
-parameter PRESCALER = 1000000;
-`endif
 
 // UART loopback
 assign tx = rx;
@@ -53,7 +48,6 @@ wire [SRL_COUNT-1:0] error;
 
 genvar i;
 generate for(i=0; i<SRL_COUNT; i=i+1) begin
-  wire [4:0] srl_a;
   wire       srl_d;
   wire       srl_sh;
 
@@ -69,7 +63,7 @@ generate for(i=0; i<SRL_COUNT; i=i+1) begin
   .srl_sh   (srl_sh),
   .srl_d    (srl_d),
   .srl_q    (srl_q31[i] ^ sim_error),
-  .srl_a    (srl_a),
+  .srl_a    (),
   .error    (error[i])
   );
 
@@ -78,7 +72,7 @@ generate for(i=0; i<SRL_COUNT; i=i+1) begin
   .CLK      (clk),
   .CE       (srl_sh),
   .A        (srl_a),
-  .D        (srl_d),
+  .D        (5'd0),
   .Q31      (srl_q31[i])
   );
 
@@ -97,7 +91,7 @@ always @(posedge clk)
 // ============================================================================
 
 wire net_0;
-LUT2 #(.INIT(4'd0)) lut_0 (.I0(1'b0), .I1(|sw), .O(net_0));
+LUT2 #(.INIT(4'hC)) lut_0 (.I0(1'b0), .I1(1'b0), .O(net_0));
 
 // LEDs
 genvar j;
