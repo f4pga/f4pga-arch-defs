@@ -104,6 +104,7 @@ function(MUX_GEN)
     APPEND
       OUTPUTS
       "${MUX_GEN_NAME}.sim.v"
+      "${MUX_GEN_NAME}.techmap.v"
       "${MUX_GEN_NAME}.pb_type.xml"
       "${MUX_GEN_NAME}.model.xml"
   )
@@ -121,6 +122,7 @@ function(MUX_GEN)
   )
 
   add_file_target(FILE "${MUX_GEN_NAME}.sim.v" GENERATED)
+  add_file_target(FILE "${MUX_GEN_NAME}.techmap.v" GENERATED)
   add_file_target(FILE "${MUX_GEN_NAME}.pb_type.xml" GENERATED)
   add_file_target(FILE "${MUX_GEN_NAME}.model.xml" GENERATED)
 

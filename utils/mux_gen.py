@@ -273,9 +273,62 @@ Generated with %s
             )
 
     # ------------------------------------------------------------------------
+    # Generate the techmap Verilog module
+    # ------------------------------------------------------------------------
+    techmap_filename = '%s.techmap.v' % args.outfilename
+    techmap_pathname = os.path.join(outdir, techmap_filename)
+    if args.type == 'routing':
+        with open(techmap_pathname, "w") as f:
+            module_args = []
+            for port in port_names:
+                if args.type == 'routing' and port.pin_type == mux_lib.MuxPinType.SELECT:
+                    continue
+                module_args.append(port.name)
+
+            f.write("/* ")
+            f.write("\n * ".join(generated_with.splitlines()))
+            f.write("\n */\n\n")
+
+            f.write(
+                "module %s(%s);\n" %
+                (args.name_mux.upper(), ", ".join(module_args))
+            )
+            f.write('\tparameter MODE = "";\n')
+
+            modes = [
+                port.name
+                for port in port_names
+                if port.pin_type in (mux_lib.MuxPinType.INPUT, )
+            ]
+
+            outputs = [
+                port.name
+                for port in port_names
+                if port.pin_type in (mux_lib.MuxPinType.OUTPUT, )
+            ]
+            for port in port_names:
+                if port.pin_type != mux_lib.MuxPinType.SELECT:
+                    f.write(port.getDefinition())
+
+            f.write('\tgenerate\n')
+            for i, mode in enumerate(modes):
+                f.write(
+                    '\t\t%s ( MODE == "%s" )\n' %
+                    (('if', 'else if')[i > 0], mode)
+                )
+                f.write('\t\tbegin\n')
+                f.write('\t\t\tassign %s = %s;\n' % (outputs[0], mode))
+                f.write('\t\tend\n')
+            f.write('\t\telse\n')
+            f.write('\t\tbegin\n')
+            f.write('\t\t\twire _TECHMAP_FAIL_ = 1;\n');
+            f.write('\t\tend\n')
+            f.write("\tendgenerate\n")
+            f.write("endmodule")
+
+    # ------------------------------------------------------------------------
     # Generate the sim.v Verilog module
     # ------------------------------------------------------------------------
-
     sim_pathname = os.path.join(outdir, sim_filename)
     with open(sim_pathname, "w") as f:
         module_args = []
@@ -333,7 +386,7 @@ Generated with %s
                 f.write("\n")
                 previous_type = port.pin_type
             if args.type == 'routing' and port.pin_type == mux_lib.MuxPinType.SELECT:
-                f.write('\tparameter [0:0] MODE = "";\n')
+                f.write('\tparameter MODE = "";\n')
             else:
                 f.write(port.getDefinition())
 
