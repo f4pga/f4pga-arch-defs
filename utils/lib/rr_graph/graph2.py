@@ -7,7 +7,7 @@ from collections import namedtuple
 from enum import Enum
 from .tracks import Track
 from lib.rr_graph import channel2
-import progressbar
+from lib import progressbar_utils
 
 
 class SwitchType(Enum):
@@ -539,7 +539,7 @@ class Graph(object):
                     process_track, (y_tracks[x], )
                 )
 
-        for y in progressbar.progressbar(range(max(x_tracks) + 1)):
+        for y in progressbar_utils.progressbar(range(max(x_tracks) + 1)):
             if y in x_tracks:
                 if pool is None:
                     x_channel_models[y] = process_track(x_tracks[y])
@@ -553,7 +553,7 @@ class Graph(object):
             else:
                 x_list.append(0)
 
-        for x in progressbar.progressbar(range(max(y_tracks) + 1)):
+        for x in progressbar_utils.progressbar(range(max(y_tracks) + 1)):
             if x in y_tracks:
                 if pool is None:
                     y_channel_models[x] = process_track(y_tracks[x])
