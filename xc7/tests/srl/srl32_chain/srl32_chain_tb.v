@@ -35,8 +35,8 @@ top dut
 
 assign error = led[7:0];
 
-//always @(posedge clk)
-//  tbassert((|error == 0), error);
+always @(posedge clk)
+  tbassert((|error == 0), error);
 
 // ============================================================================
 
