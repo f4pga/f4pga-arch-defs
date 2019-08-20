@@ -627,9 +627,39 @@ def process_slice(top, s):
             else:
                 assert False, lut_modes[lut]
 
+    # Detect SRL chains
+    srl_chains = set()
+
+    if "D" in srls and "C" in srls and site.has_feature('CLUT.DI1MUX.DI_DMC31'):
+        srl_chains.add("DC")        
+
+    if "C" in srls and "B" in srls and site.has_feature('BLUT.DI1MUX.DI_CMC31'):
+        srl_chains.add("CB")
+        
+    if "B" in srls and "A" in srls and site.has_feature('ALUT.DI1MUX.BDI1_BMC31'):
+        srl_chains.add("BA")
+
+
+    # SRL chain connections
+    if "DC" in srl_chains:
+        site.add_internal_source(srls['D'], 'Q31', 'DMC31')
+        srls['C'].connections['D'] = 'DMC31'
+    
+    if "CB" in srl_chains:
+        site.add_internal_source(srls['C'], 'Q31', 'CMC31')
+        srls['B'].connections['D'] = 'CMC31'
+        
+    if "BA" in srl_chains:
+        site.add_internal_source(srls['B'], 'Q31', 'BMC31')
+        srls['A'].connections['D'] = 'BMC31'
+
     need_f8 = site.has_feature('BFFMUX.F8') or site.has_feature('BOUTMUX.F8')
     need_f7a = site.has_feature('AFFMUX.F7') or site.has_feature('AOUTMUX.F7')
     need_f7b = site.has_feature('CFFMUX.F7') or site.has_feature('COUTMUX.F7')
+
+    if need_f8:
+        need_f7a = True
+        need_f7b = True
 
     for mux in sorted(muxes):
         if mux == 'F7AMUX':
