@@ -20,7 +20,7 @@ module PAIR (
 	wire ff_out;
 	DFF ff (.CLK(CLK), .D(lut_out), .Q(ff_out));
 
-	parameter [0:0] FF_BYPASS = "";
+	parameter FF_BYPASS = "F";
 	OMUX #(.MODE(FF_BYPASS)) mux(.L(lut_out), .F(ff_out), .O(O));
 
 endmodule
