@@ -6,7 +6,7 @@ Upon object creation the database is "backed up" to memory. All subsequent
 operations are then pefromed on this copy which yields in performance increase.
 """
 import sqlite3
-from progressbar.bar import ProgressBar
+from lib.progressbar_utils import ProgressBar
 
 # =============================================================================
 

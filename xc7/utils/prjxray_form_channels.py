@@ -35,7 +35,7 @@ import argparse
 import prjxray.db
 import prjxray.tile
 from prjxray.timing import PvtCorner
-import progressbar
+from lib import progressbar_utils
 import tile_splitter.grid
 from lib.rr_graph import points
 from lib.rr_graph import tracks
@@ -415,7 +415,7 @@ def import_nodes(db, grid, conn):
 
     tile_wire_map = {}
     wires = {}
-    for tile in progressbar.progressbar(grid.tiles()):
+    for tile in progressbar_utils.progressbar(grid.tiles()):
         gridinfo = grid.gridinfo_at_tilename(tile)
         tile_type = db.get_tile_type(gridinfo.tile_type)
 
@@ -450,7 +450,8 @@ VALUES
 
     connections = db.connections()
 
-    for connection in progressbar.progressbar(connections.get_connections()):
+    for connection in progressbar_utils.progressbar(
+            connections.get_connections()):
         a_pkey = tile_wire_map[
             (connection.wire_a.tile, connection.wire_a.wire)]
         b_pkey = tile_wire_map[
@@ -481,7 +482,7 @@ VALUES
         nodes[id(node)] = node
 
     wires_assigned = set()
-    for node in progressbar.progressbar(nodes.values()):
+    for node in progressbar_utils.progressbar(nodes.values()):
         write_cur.execute("""INSERT INTO node(number_pips) VALUES (0);""")
         node_pkey = write_cur.lastrowid
 
@@ -781,7 +782,7 @@ WHERE
   AND site_wire_pkey IS NOT NULL;"""
     )
     num_nodes = cur.fetchone()[0]
-    with progressbar.ProgressBar(max_value=num_nodes) as bar:
+    with progressbar_utils.ProgressBar(max_value=num_nodes) as bar:
         bar.update(0)
         for idx, (node, site_wire_pkey) in enumerate(cur.execute("""
 SELECT
@@ -888,7 +889,7 @@ LIMIT
             else:
                 edges_to_channel.append(node)
 
-    for nodes, src_wire_pkey, dest_wire_pkey, pip_pkey in progressbar.progressbar(
+    for nodes, src_wire_pkey, dest_wire_pkey, pip_pkey in progressbar_utils.progressbar(
             edge_with_mux):
         assert len(nodes) == 2
 
@@ -909,7 +910,7 @@ VALUES
   (?, ?, ?, ?);""", (src_wire_pkey, dest_wire_pkey, pip_pkey, switch_pkey)
         )
 
-    for node in progressbar.progressbar(edges_to_channel):
+    for node in progressbar_utils.progressbar(edges_to_channel):
         write_cur.execute(
             """
         UPDATE node SET classification = ?
@@ -919,7 +920,7 @@ VALUES
             )
         )
 
-    for null_node in progressbar.progressbar(null_nodes):
+    for null_node in progressbar_utils.progressbar(null_nodes):
         write_cur.execute(
             """
         UPDATE node SET classification = ?
@@ -965,7 +966,7 @@ def insert_tracks(conn, tracks_to_insert):
 
     track_graph_nodes = {}
     track_pkeys = []
-    for node, tracks_list, track_connections, tracks_model in progressbar.progressbar(
+    for node, tracks_list, track_connections, tracks_model in progressbar_utils.progressbar(
             tracks_to_insert):
         write_cur.execute("""INSERT INTO track DEFAULT VALUES""")
         track_pkey = write_cur.lastrowid
@@ -1032,7 +1033,7 @@ VALUES
     conn.commit()
 
     wire_to_graph = {}
-    for node, tracks_list, track_connections, tracks_model in progressbar.progressbar(
+    for node, tracks_list, track_connections, tracks_model in progressbar_utils.progressbar(
             tracks_to_insert):
         track_graph_node_pkey = track_graph_nodes[node]
 
@@ -1070,7 +1071,7 @@ FROM
 
             wire_to_graph[wire_pkey] = graph_node_pkey
 
-    for wire_pkey, graph_node_pkey in progressbar.progressbar(
+    for wire_pkey, graph_node_pkey in progressbar_utils.progressbar(
             wire_to_graph.items()):
         write_cur.execute(
             """
@@ -1112,7 +1113,7 @@ def form_tracks(conn):
     num_nodes = cur.fetchone()[0]
 
     tracks_to_insert = []
-    with progressbar.ProgressBar(max_value=num_nodes) as bar:
+    with progressbar_utils.ProgressBar(max_value=num_nodes) as bar:
         bar.update(0)
         cur2 = conn.cursor()
         for idx, (node, ) in enumerate(cur.execute("""
@@ -1314,7 +1315,7 @@ def create_vpr_grid(conn):
     # tile_type_pkey, to array of split tile type pkeys, (e.g. SLICEL/SLICEM).
     tile_to_tile_type_pkeys = {}
     grid_loc_map = {}
-    for phy_tile_pkey, tile_type_pkey, grid_x, grid_y in progressbar.progressbar(
+    for phy_tile_pkey, tile_type_pkey, grid_x, grid_y in progressbar_utils.progressbar(
             cur.execute("""
         SELECT pkey, tile_type_pkey, grid_x, grid_y FROM phy_tile;
         """)):
