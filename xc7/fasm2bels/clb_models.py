@@ -630,25 +630,27 @@ def process_slice(top, s):
     # Detect SRL chains
     srl_chains = set()
 
-    if "D" in srls and "C" in srls and site.has_feature('CLUT.DI1MUX.DI_DMC31'):
-        srl_chains.add("DC")        
+    if "D" in srls and "C" in srls and site.has_feature('CLUT.DI1MUX.DI_DMC31'
+                                                        ):
+        srl_chains.add("DC")
 
-    if "C" in srls and "B" in srls and site.has_feature('BLUT.DI1MUX.DI_CMC31'):
+    if "C" in srls and "B" in srls and site.has_feature('BLUT.DI1MUX.DI_CMC31'
+                                                        ):
         srl_chains.add("CB")
-        
-    if "B" in srls and "A" in srls and site.has_feature('ALUT.DI1MUX.BDI1_BMC31'):
-        srl_chains.add("BA")
 
+    if "B" in srls and "A" in srls and site.has_feature(
+            'ALUT.DI1MUX.BDI1_BMC31'):
+        srl_chains.add("BA")
 
     # SRL chain connections
     if "DC" in srl_chains:
         site.add_internal_source(srls['D'], 'Q31', 'DMC31')
         srls['C'].connections['D'] = 'DMC31'
-    
+
     if "CB" in srl_chains:
         site.add_internal_source(srls['C'], 'Q31', 'CMC31')
         srls['B'].connections['D'] = 'CMC31'
-        
+
     if "BA" in srl_chains:
         site.add_internal_source(srls['B'], 'Q31', 'BMC31')
         srls['A'].connections['D'] = 'BMC31'
