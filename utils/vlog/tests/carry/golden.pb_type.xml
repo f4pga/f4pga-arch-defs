@@ -6,10 +6,10 @@
   <output name="COUT" num_pins="1"/>
   <output name="O0" num_pins="1"/>
   <output name="O1" num_pins="1"/>
-  <pb_type blif_model=".subckt CBLOCK" name="cblock0" num_pb="1">
+  <pb_type name="cblock0" num_pb="1">
     <xi:include href="cblock/cblock.pb_type.xml" xpointer="xpointer(pb_type/child::node())"/>
   </pb_type>
-  <pb_type blif_model=".subckt CBLOCK" name="cblock1" num_pb="1">
+  <pb_type name="cblock1" num_pb="1">
     <xi:include href="cblock/cblock.pb_type.xml" xpointer="xpointer(pb_type/child::node())"/>
   </pb_type>
   <interconnect>
