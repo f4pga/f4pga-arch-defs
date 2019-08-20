@@ -10,13 +10,12 @@ module SRL16E (
 
   reg [15:0] r = INIT;
   assign Q = r[{A3,A2,A1,A0}];
-  generate
-    if (IS_CLK_INVERTED) begin
+  generate begin
+    if (IS_CLK_INVERTED)
       always @(negedge CLK) if (CE) r <= { r[14:0], D };
-    end
     else
-        always @(posedge CLK) if (CE) r <= { r[14:0], D };
-  endgenerate
+      always @(posedge CLK) if (CE) r <= { r[14:0], D };
+  end endgenerate
 endmodule
 
 module SRLC32E (
@@ -31,11 +30,11 @@ module SRLC32E (
   reg [31:0] r = INIT;
   assign Q31 = r[31];
   assign Q = r[A];
-  generate
+  generate begin
     if (IS_CLK_INVERTED) begin
       always @(negedge CLK) if (CE) r <= { r[30:0], D };
-    end
-    else
+    end else begin
       always @(posedge CLK) if (CE) r <= { r[30:0], D };
-  endgenerate
+    end
+  end endgenerate
 endmodule
