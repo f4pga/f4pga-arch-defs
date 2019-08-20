@@ -32,7 +32,7 @@ from lib.rr_graph_xml.utils import read_xml_file
 from prjxray_constant_site_pins import feature_when_routed
 from prjxray_tile_import import remove_vpr_tile_prefix
 import simplejson as json
-import progressbar
+from lib import progressbar_utils
 import datetime
 import re
 import functools
@@ -533,7 +533,7 @@ def import_graph_edges(conn, graph, node_mapping):
     switch_name_map = {}
 
     print('{} Importing edges from database.'.format(now()))
-    with progressbar.ProgressBar(max_value=num_edges) as bar:
+    with progressbar_utils.ProgressBar(max_value=num_edges) as bar:
         for idx, (src_graph_node, dest_graph_node, switch_pkey, phy_tile_pkey,
                   pip_pkey, backward) in enumerate(cur.execute("""
 SELECT
@@ -635,7 +635,7 @@ SELECT pkey, tile_type_pkey, name FROM wire_in_tile WHERE pkey IN (
 
 
 def yield_nodes(nodes):
-    with progressbar.ProgressBar(max_value=len(nodes)) as bar:
+    with progressbar_utils.ProgressBar(max_value=len(nodes)) as bar:
         for idx, node in enumerate(nodes):
             yield node
 
@@ -707,7 +707,7 @@ def main():
 
     xml_graph = xml_graph2.Graph(
         input_rr_graph,
-        progressbar=progressbar.progressbar,
+        progressbar=progressbar_utils.progressbar,
         output_file_name=args.write_rr_graph,
     )
 

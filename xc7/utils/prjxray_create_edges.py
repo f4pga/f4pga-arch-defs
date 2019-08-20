@@ -26,7 +26,7 @@ import prjxray.db
 from prjxray.roi import Roi
 from prjxray import grid_types
 import simplejson as json
-import progressbar
+from lib import progressbar_utils
 import datetime
 import functools
 from collections import namedtuple
@@ -1124,7 +1124,7 @@ WHERE
 
     write_cur.execute("""BEGIN EXCLUSIVE TRANSACTION;""")
 
-    for y in progressbar.progressbar(range(max(x_tracks) + 1)):
+    for y in progressbar_utils.progressbar(range(max(x_tracks) + 1)):
         if y in x_tracks:
             x_channel_models[y] = x_channel_models[y].get()
 
@@ -1139,7 +1139,7 @@ WHERE
         else:
             x_list.append(0)
 
-    for x in progressbar.progressbar(range(max(y_tracks) + 1)):
+    for x in progressbar_utils.progressbar(range(max(y_tracks) + 1)):
         if x in y_tracks:
             y_channel_models[x] = y_channel_models[x].get()
 
@@ -1544,7 +1544,7 @@ def set_track_canonical_loc(conn):
 
     cur.execute("SELECT pkey FROM track WHERE alive")
     tracks = cur.fetchall()
-    for (track_pkey, ) in progressbar.progressbar(tracks):
+    for (track_pkey, ) in progressbar_utils.progressbar(tracks):
         source_wires = []
         for (wire_pkey, ) in cur2.execute("""
 SELECT pkey FROM wire WHERE node_pkey IN (
@@ -1680,7 +1680,7 @@ def main():
             for wire in wire_map.keys():
                 tile_wires.append((tile_type, wire))
 
-        for tile_type, wire in progressbar.progressbar(tile_wires):
+        for tile_type, wire in progressbar_utils.progressbar(tile_wires):
             pins = [
                 direction_to_enum(pin)
                 for pin in pin_assignments['pin_directions'][tile_type][wire]
@@ -1715,7 +1715,7 @@ def main():
 
         print('{} Finding nodes belonging to ROI'.format(now()))
         if use_roi:
-            for loc in progressbar.progressbar(grid.tile_locations()):
+            for loc in progressbar_utils.progressbar(grid.tile_locations()):
                 gridinfo = grid.gridinfo_at_loc(loc)
                 tile_name = grid.tilename_at_loc(loc)
 
@@ -1749,7 +1749,7 @@ def main():
 
         edge_set = set()
 
-        for loc in progressbar.progressbar(grid.tile_locations()):
+        for loc in progressbar_utils.progressbar(grid.tile_locations()):
             gridinfo = grid.gridinfo_at_loc(loc)
             tile_name = grid.tilename_at_loc(loc)
 
@@ -1790,7 +1790,7 @@ def main():
         print('{} Created {} edges, inserting'.format(now(), len(edges)))
 
         write_cur.execute("""BEGIN EXCLUSIVE TRANSACTION;""")
-        for edge in progressbar.progressbar(edges):
+        for edge in progressbar_utils.progressbar(edges):
             write_cur.execute(
                 """
                 INSERT INTO graph_edge(
