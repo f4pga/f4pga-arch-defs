@@ -1,5 +1,4 @@
 add_subdirectory(common)
-add_subdirectory(srl32_simple)
 add_subdirectory(srl32_shift)
 add_subdirectory(srl32_init)
 add_subdirectory(srl32_chain)
