@@ -1711,3 +1711,48 @@ module CARRY4_COUT(output [3:0] CO, O, output COUT, input CI, CYINIT, input [3:0
     );
   end
 endmodule
+
+// ============================================================================
+// SRLs
+
+module SRLC32E (
+  output Q,
+  output Q31,
+  input [4:0] A,
+  input CE, CLK, D
+);
+  parameter [31:0] INIT = 32'h00000000;
+  parameter [0:0] IS_CLK_INVERTED = 1'b0;
+
+  // Duplicate bits of the init parameter to match the actual INIT data
+  // representation.
+  function [63:0] duplicate_bits;
+    input [31:0] bits;
+    integer i;
+    begin
+      for (i=0; i<32; i=i+1) begin
+        duplicate_bits[2*i+0] = bits[i];
+        duplicate_bits[2*i+1] = bits[i];
+      end
+    end
+  endfunction
+
+  localparam [63:0] INIT_VPR = duplicate_bits(INIT);
+
+  // Substitute
+  SRLC32E_VPR #
+  (
+  .INIT(INIT_VPR)
+  )
+  _TECHMAP_REPLACE_
+  (
+  .CLK(CLK),
+  .CE(CE),
+  .A(A),
+  .D(D),
+  .Q(Q),
+  .Q31(Q31)
+  );
+
+endmodule
+

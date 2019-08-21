@@ -1,0 +1,23 @@
+<pb_type name="WE_MUX" num_pb="1">
+  <input name="CE" num_pins="1"/>
+  <input name="WE" num_pins="1"/>
+
+  <output name="WE_OUT" num_pins="1"/>
+
+  <interconnect>
+    <mux name="WE_MUX" input="WE_MUX.CE WE_MUX.WE" output="WE_MUX.WE_OUT">
+      <metadata>
+        <meta name="fasm_mux">
+          WE_MUX.CE = WEMUX.CE
+          WE_MUX.WE = NULL
+        </meta>
+      </metadata>
+    </mux>
+  </interconnect>
+  
+  <metadata>
+    <meta name="type">bel</meta>
+    <meta name="subtype">routing</meta>
+  </metadata>
+</pb_type>
+
