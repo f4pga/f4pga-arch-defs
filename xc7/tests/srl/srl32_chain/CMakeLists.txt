@@ -18,7 +18,7 @@ add_vivado_target(
   )
 
 add_dependencies(all_xc7_tests
-  testbench_srl32_chain
-  testbench_synth_srl32_chain
+  testbench_srl32_chain_tb
+  testbench_synth_srl32_chain_tb
   testbinch_srl32_chain_tb
 )
