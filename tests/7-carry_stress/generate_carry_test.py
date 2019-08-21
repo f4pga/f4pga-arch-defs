@@ -35,7 +35,7 @@ module LFSR (
     wire f;
     assign f = ^(POLY & ~r);
     always @( posedge clk)
-      r <= {{r[{depth}-1:1], ~f}};
+      r <= {{r[{depth}-2:0], ~f}};
 endmodule"""
 
 
