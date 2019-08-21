@@ -19,6 +19,7 @@ function(ADD_XC7_ARCH_DEFINE)
     DEVICE_FULL_TEMPLATE \${DEVICE}-\${PACKAGE}
     CELLS_SIM ${YOSYS_DATADIR}/xilinx/cells_sim.v ${symbiflow-arch-defs_SOURCE_DIR}/xc7/techmap/cells_sim.v
     VPR_ARCH_ARGS "\
+      --max_criticality 0.75 \
       --clock_modeling route \
       --place_delay_model delta_override \
       --router_lookahead connection_box_map \
