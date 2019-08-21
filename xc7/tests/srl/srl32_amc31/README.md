@@ -11,5 +11,5 @@ LED[13:0] - Individual error indicators for all tested SRL32s.
 
 SW[0]    - Reset.
 SW[1]    - Chooses between latched and non-latched error indication.
-SW[2]    - Forces and error on all SRL32s.
+SW[2]    - Forces an error on all SRL32s.
 

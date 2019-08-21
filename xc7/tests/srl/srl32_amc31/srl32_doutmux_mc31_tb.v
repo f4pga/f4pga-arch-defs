@@ -1,6 +1,10 @@
 `timescale 1 ns / 1 ps
 `default_nettype none
 
+`ifndef VCDFILE
+`define VCDFILE "testbench_srl32_doutmux_mc31_tb.vcd"
+`endif
+
 module tb;
 
 `include "../../../../library/tbassert.v"
@@ -12,9 +16,7 @@ initial clk <= 1'd0;
 always #5 clk <= !clk;
 
 initial begin
-//  $dumpfile("testbench_srl32_mc31_doutmux_tb.vcd");
-//  $dumpfile("testbench_synth_srl32_mc31_doutmux_tb.vcd");
-  $dumpfile("testbinch_srl32_doutmux_mc31_tb.vcd");
+  $dumpfile(`VCDFILE);
   $dumpvars;
   #10000 $finish();
 end
