@@ -2,6 +2,7 @@
 from __future__ import print_function
 import argparse
 import csv
+import json
 import sys
 import vpr_io_place
 from lib.parse_pcf import parse_simple_pcf
@@ -42,6 +43,20 @@ def main():
         default=sys.stdout,
         help='The output io.place file'
     )
+    parser.add_argument(
+        "--iostandard_defs", help='(optional) Output IOSTANDARD def file'
+    )
+    parser.add_argument(
+        "--iostandard",
+        default="LVCMOS33",
+        help='IOSTANDARD to use for pins',
+    )
+    parser.add_argument(
+        "--drive",
+        type=int,
+        default=12,
+        help='Drive to use for pins',
+    )
 
     args = parser.parse_args()
 
@@ -53,10 +68,16 @@ def main():
 
     for pin_map_entry in csv.DictReader(args.map):
         pad_map[pin_map_entry['name']] = (
-            int(pin_map_entry['x']),
-            int(pin_map_entry['y']),
-            int(pin_map_entry['z']),
+            (
+                int(pin_map_entry['x']),
+                int(pin_map_entry['y']),
+                int(pin_map_entry['z']),
+            ),
+            pin_map_entry['is_output'],
+            pin_map_entry['iob'],
         )
+
+    iostandard_defs = {}
 
     for pcf_constraint in parse_simple_pcf(args.pcf):
         if not io_place.is_net(pcf_constraint.net):
@@ -81,13 +102,28 @@ def main():
             )
             sys.exit(1)
 
+        loc, is_output, iob = pad_map[pcf_constraint.pad]
         io_place.constrain_net(
             net_name=pcf_constraint.net,
-            loc=pad_map[pcf_constraint.pad],
+            loc=loc,
             comment=pcf_constraint.line_str
         )
 
+        if is_output:
+            iostandard_defs[iob] = {
+                'DRIVE': args.drive,
+                'IOSTANDARD': args.iostandard,
+            }
+        else:
+            iostandard_defs[iob] = {
+                'IOSTANDARD': args.iostandard,
+            }
+
     io_place.output_io_place(args.output)
+
+    if args.iostandard_defs:
+        with open(args.iostandard_defs, 'w') as f:
+            json.dump(iostandard_defs, f, indent=2)
 
 
 if __name__ == '__main__':

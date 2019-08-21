@@ -59,4 +59,11 @@ add_fpga_target(
   EXPLICIT_ADD_FILE_TARGET
 )
 
+add_vivado_target(
+    NAME picosoc_basys3_vivado
+    PARENT_NAME picosoc_basys3
+    CLOCK_PINS clk
+    CLOCK_PERIODS 20.0
+    )
+
 endif (NOT DEFINED ENV{CI} OR NOT $ENV{CI})
