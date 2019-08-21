@@ -17,3 +17,8 @@ add_vivado_target(
   CLOCK_PERIODS 10.0
   )
 
+add_dependencies(all_xc7_tests
+  testbench_srl32_init_tb
+  testbench_synth_srl32_init_tb
+  testbinch_srl32_init_tb
+)

@@ -35,3 +35,12 @@ add_vivado_target(
 #  CLOCK_PERIODS 10.0
 #  )
 
+add_dependencies(all_xc7_tests
+  testbench_srl32_doutmux_mc31_tb
+  testbench_synth_srl32_doutmux_mc31_tb
+  testbinch_srl32_doutmux_mc31_tb
+#  testbench_srl32_dffmux_mc31_tb
+#  testbench_synth_srl32_dffmux_mc31_tb
+#  testbinch_srl32_dffmux_mc31_tb
+)
+
