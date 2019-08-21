@@ -229,9 +229,9 @@ endif()
 
 add_custom_target(all_xc7)
 add_dependencies(all_xc7
+    all_xc7_demos
     all_xc7_route_tests
     all_xc7_tests
-    all_xc7_demos
     )
 if (NOT DEFINED ENV{CI} OR NOT $ENV{CI})
 add_dependencies(all_xc7
