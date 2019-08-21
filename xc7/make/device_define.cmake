@@ -72,7 +72,7 @@ endfunction()
 function(ADD_XC7_DEVICE_DEFINE)
   set(options)
   set(oneValueArgs ARCH)
-  set(multiValueArgs DEVICES)
+  set(multiValueArgs DEVICES PARTS)
   cmake_parse_arguments(
     ADD_XC7_DEVICE_DEFINE
      "${options}"
@@ -83,8 +83,14 @@ function(ADD_XC7_DEVICE_DEFINE)
 
   set(ARCH ${ADD_XC7_DEVICE_DEFINE_ARCH})
   set(DEVICES ${ADD_XC7_DEVICE_DEFINE_DEVICES})
+  set(PARTS ${ADD_XC7_DEVICE_DEFINE_PARTS})
 
-  foreach(DEVICE ${DEVICES})
+  list(LENGTH DEVICES DEVICE_COUNT)
+  math(EXPR DEVICE_COUNT_N_1 "${DEVICE_COUNT} - 1")
+  foreach(INDEX RANGE ${DEVICE_COUNT_N_1})
+    list(GET DEVICES ${INDEX} DEVICE)
+    list(GET PARTS ${INDEX} PART)
+
     add_subdirectory(${DEVICE}-roi-virt)
 
     # SYNTH_TILES used in ROI.
@@ -122,6 +128,7 @@ function(ADD_XC7_DEVICE_DEFINE)
       OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/${PINMAP_CSV}
       COMMAND ${PYTHON3} ${SYNTH_TILES_TO_PINMAP_CSV}
         --synth_tiles ${SYNTH_TILES_LOCATION}
+        --package_pins ${PRJXRAY_DB_DIR}/${ARCH}/${PART}_package_pins.csv
         --output ${CMAKE_CURRENT_BINARY_DIR}/${PINMAP_CSV}
         DEPENDS ${PINMAP_CSV_DEPS}
         )

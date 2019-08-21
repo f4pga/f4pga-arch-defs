@@ -156,16 +156,7 @@ def process_bram_site(top, features, set_features):
         WRITE_WIDTH_A = 0
         WRITE_WIDTH_B = 36
         RAM_MODE = '"SDP"'
-        wea_width = 0
-        wea_spacing = 1
-        webwe_width = 4
-        webwe_spacing = 1
     else:
-        wea_width = 1
-        wea_spacing = 4
-        webwe_width = 1
-        webwe_spacing = 4
-
         if 'WRITE_WIDTH_A_1' in set_features:
             WRITE_WIDTH_A = 1
         elif 'WRITE_WIDTH_A_2' in set_features:
@@ -176,8 +167,6 @@ def process_bram_site(top, features, set_features):
             WRITE_WIDTH_A = 9
         elif 'WRITE_WIDTH_A_18' in set_features:
             WRITE_WIDTH_A = 18
-            wea_width = 2
-            wea_spacing = 2
         else:
             assert False
 
@@ -190,9 +179,6 @@ def process_bram_site(top, features, set_features):
         elif 'WRITE_WIDTH_B_9' in set_features:
             WRITE_WIDTH_B = 9
         elif 'WRITE_WIDTH_B_18' in set_features:
-            webwe_width = 2
-            webwe_spacing = 2
-
             WRITE_WIDTH_B = 18
         else:
             assert False
@@ -307,15 +293,23 @@ def process_bram_site(top, features, set_features):
 
     # TODO: Add RAMB36 support.
     # In RAMB36, WEA and WEBWE don't double up like this
-    for input_wire, width, spacing in [
-        ("WEA", wea_width, wea_spacing),
-        ("WEBWE", webwe_width, webwe_spacing),
-    ]:
-        for idx in range(0, width * spacing, spacing):
-            wire_name = make_wire('{}{}'.format(input_wire, idx))
-            site.add_sink(
-                bel, '{}[{}]'.format(input_wire, idx // spacing), wire_name
-            )
+    if WRITE_WIDTH_A < 18:
+        site.add_sink(bel, "WEA[0]", "WEA0")
+    else:
+        site.add_sink(bel, "WEA[0]", "WEA0")
+        site.add_sink(bel, "WEA[1]", "WEA2")
+
+    if WRITE_WIDTH_B < 18:
+        site.add_sink(bel, "WEBWE[0]", "WEBWE0")
+    elif WRITE_WIDTH_B == 18:
+        site.add_sink(bel, "WEBWE[0]", "WEBWE0")
+        site.add_sink(bel, "WEBWE[1]", "WEBWE2")
+    else:
+        assert WRITE_WIDTH_B == 36
+        site.add_sink(bel, "WEBWE[0]", "WEBWE0")
+        site.add_sink(bel, "WEBWE[1]", "WEBWE2")
+        site.add_sink(bel, "WEBWE[2]", "WEBWE4")
+        site.add_sink(bel, "WEBWE[3]", "WEBWE6")
 
     for output_wire, width in [
         ('DOADO', 16),
