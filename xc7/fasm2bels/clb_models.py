@@ -48,6 +48,8 @@ def get_srl32_init(features, tile_name, slice_name, srl):
     lut_init = get_lut_init(features, tile_name, slice_name, srl)
     bits = lut_init.replace("64'b", "")
 
+    assert bits[1::2] == bits[::2]
+
     return "32'b{}".format(bits[::2])
 
 
