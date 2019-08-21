@@ -45,6 +45,7 @@ function(ADD_XC7_ARCH_DEFINE)
     PYTHONPATH=${symbiflow-arch-defs_SOURCE_DIR}/utils \
     \${PYTHON3} \${PLACE_TOOL} \
         --map \${PINMAP} \
+        --iostandard_defs \${OUT_EBLIF}.iostandard.json \
         --blif \${OUT_EBLIF} \
         --pcf \${INPUT_IO_FILE}"
     BITSTREAM_EXTENSION frames
@@ -70,6 +71,7 @@ function(ADD_XC7_ARCH_DEFINE)
         --db_root ${PRJXRAY_DB_DIR}/${ARCH} \
         --rr_graph \${OUT_RRXML_VIRT_LOCATION} \
         --route \${OUT_ROUTE} \
+        --iostandard_defs \${OUT_EBLIF}.iostandard.json \
         --bitread $<TARGET_FILE:bitread> \
         --bit_file \${OUT_BIN} \
         --fasm_file \${OUT_BIN}.fasm \
