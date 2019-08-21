@@ -23,12 +23,25 @@ def main():
         default=sys.stdout,
         help='The output pin map CSV file'
     )
+    parser.add_argument(
+        "--package_pins",
+        type=argparse.FileType('r'),
+        required=True,
+        help='Map listing relationship between pads and sites.',
+    )
 
     args = parser.parse_args()
 
+    pin_to_iob = {}
+    for l in csv.DictReader(args.package_pins):
+        assert l['pin'] not in pin_to_iob
+        pin_to_iob[l['pin']] = l['site']
+
     synth_tiles = json.load(args.synth_tiles)
 
-    fieldnames = ['name', 'x', 'y', 'z', 'is_clock', 'is_input', 'is_output']
+    fieldnames = [
+        'name', 'x', 'y', 'z', 'is_clock', 'is_input', 'is_output', 'iob'
+    ]
     writer = csv.DictWriter(args.output, fieldnames=fieldnames)
 
     pads = set()
@@ -42,6 +55,10 @@ def main():
         assert len(synth_tile['pins']) == 1
         for pin in synth_tile['pins']:
             assert pin['pad'] not in pads
+
+            if pin['pad'] not in pin_to_iob:
+                continue
+
             pads.add(pin['pad'])
             x = synth_tile['loc'][0]
             y = synth_tile['loc'][1]
@@ -54,6 +71,7 @@ def main():
                     is_clock=1 if pin['is_clock'] else 0,
                     is_input=0 if pin['port_type'] == 'input' else 1,
                     is_output=0 if pin['port_type'] == 'output' else 1,
+                    iob=pin_to_iob[pin['pad']],
                 )
             )
 
