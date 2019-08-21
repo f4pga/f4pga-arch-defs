@@ -43,6 +43,31 @@ def create_lut(site, lut):
     return bel
 
 
+def get_srl32_init(features, tile_name, slice_name, srl):
+
+    lut_init = get_lut_init(features, tile_name, slice_name, srl)
+    bits = lut_init.replace("64'b", "")
+
+    assert bits[1::2] == bits[::2]
+
+    return "32'b{}".format(bits[::2])
+
+
+def create_srl32(site, srl):
+    bel = Bel('SRLC32E', srl + 'SRL', priority=3)
+    bel.set_bel(srl + '6LUT')
+
+    site.add_sink(bel, 'CLK', 'CLK')
+    site.add_sink(bel, 'D', '{}I'.format(srl))
+
+    for idx in range(5):
+        site.add_sink(bel, 'A[{}]'.format(idx), '{}{}'.format(srl, idx + 2))
+
+    site.add_internal_source(bel, 'Q', srl + 'O6')
+
+    return bel
+
+
 def decode_dram(site):
     """ Decode the modes of each LUT in the slice based on set features.
 
@@ -240,8 +265,6 @@ def cleanup_slice(top, site):
 def process_slice(top, s):
     """ Convert SLICE features in Bel and Site objects.
 
-    Note: Does not handle SRL option.
-
     """
     """
     Available options:
@@ -308,23 +331,49 @@ def process_slice(top, s):
         assert mlut
     else:
         for row in 'ABC':
-            assert not site.has_feature('{}LUT.RAM')
-
-    # SRL not currently supported
-    for row in 'ABCD':
-        assert not site.has_feature('{}LUT.SRL')
+            assert not site.has_feature('{}LUT.RAM'.format(row))
 
     muxes = set(('F7AMUX', 'F7BMUX', 'F8MUX'))
 
     luts = {}
+    srls = {}
     # Add BELs for LUTs/RAMs
     if not site.has_feature('DLUT.RAM'):
-        for lut in 'ABCD':
-            luts[lut] = create_lut(site, lut)
-            luts[lut].parameters['INIT'] = get_lut_init(
-                s, aparts[0], aparts[1], lut
-            )
-            site.add_bel(luts[lut])
+        for row in 'ABCD':
+
+            # SRL
+            if site.has_feature('{}LUT.SRL'.format(row)):
+
+                # Cannot have both SRL and DRAM
+                assert not site.has_feature('{}LUT.RAM'.format(row))
+
+                # SRL32
+                if not site.has_feature('{}LUT.SMALL'.format(row)):
+                    srls[row] = create_srl32(site, row)
+                    srls[row].parameters['INIT'] = get_srl32_init(
+                        s, aparts[0], aparts[1], row
+                    )
+
+                    site.add_sink(srls[row], 'CE', WE)
+
+                    if row == 'A' and site.has_feature('DOUTMUX.MC31'):
+                        site.add_internal_source(srls[row], 'Q31', 'AMC31')
+                    if row == 'A' and site.has_feature('DFFMUX.MC31'):
+                        site.add_internal_source(srls[row], 'Q31', 'AMC31')
+
+                    site.add_bel(srls[row])
+
+                # 2x SRL16
+                else:
+                    assert False, "SRL16 not supported yet!"
+
+            # LUT
+            else:
+                luts[row] = create_lut(site, row)
+                luts[row].parameters['INIT'] = get_lut_init(
+                    s, aparts[0], aparts[1], row
+                )
+                site.add_bel(luts[row])
     else:
         # DRAM is active.  Determine what BELs are in use.
         lut_modes = decode_dram(site)
@@ -580,9 +629,41 @@ def process_slice(top, s):
             else:
                 assert False, lut_modes[lut]
 
+    # Detect SRL chains
+    srl_chains = set()
+
+    if "D" in srls and "C" in srls and site.has_feature('CLUT.DI1MUX.DI_DMC31'
+                                                        ):
+        srl_chains.add("DC")
+
+    if "C" in srls and "B" in srls and site.has_feature('BLUT.DI1MUX.DI_CMC31'
+                                                        ):
+        srl_chains.add("CB")
+
+    if "B" in srls and "A" in srls and site.has_feature(
+            'ALUT.DI1MUX.BDI1_BMC31'):
+        srl_chains.add("BA")
+
+    # SRL chain connections
+    if "DC" in srl_chains:
+        site.add_internal_source(srls['D'], 'Q31', 'DMC31')
+        srls['C'].connections['D'] = 'DMC31'
+
+    if "CB" in srl_chains:
+        site.add_internal_source(srls['C'], 'Q31', 'CMC31')
+        srls['B'].connections['D'] = 'CMC31'
+
+    if "BA" in srl_chains:
+        site.add_internal_source(srls['B'], 'Q31', 'BMC31')
+        srls['A'].connections['D'] = 'BMC31'
+
     need_f8 = site.has_feature('BFFMUX.F8') or site.has_feature('BOUTMUX.F8')
     need_f7a = site.has_feature('AFFMUX.F7') or site.has_feature('AOUTMUX.F7')
     need_f7b = site.has_feature('CFFMUX.F7') or site.has_feature('COUTMUX.F7')
+
+    if need_f8:
+        need_f7a = True
+        need_f7b = True
 
     for mux in sorted(muxes):
         if mux == 'F7AMUX':
@@ -643,6 +724,9 @@ def process_slice(top, s):
         if site.has_feature(lut + 'O6'):
             can_have_carry4 = False
             break
+
+    if len(srls) != 0:
+        can_have_carry4 = False
 
     if can_have_carry4:
         bel = Bel('CARRY4', priority=1)
@@ -729,6 +813,9 @@ def process_slice(top, s):
         elif lut == 'B' and site.has_feature('BFFMUX.F8'):
             site.connect_internal(ff, 'D', 'F8MUX_O')
 
+        elif lut == 'D' and site.has_feature('DFFMUX.MC31'):
+            site.connect_internal(ff, 'D', 'AMC31')
+
         elif site.has_feature('{}FFMUX.O5'.format(lut)):
             site.connect_internal(ff, 'D', lut + 'O5')
 
@@ -795,6 +882,9 @@ def process_slice(top, s):
             site.add_output_from_internal(output_wire, lut + '_XOR')
         else:
             continue
+
+    if site.has_feature('DOUTMUX.MC31'):
+        site.add_output_from_internal('DMUX', 'AMC31')
 
     site.set_post_route_cleanup_function(cleanup_slice)
     top.add_site(site)

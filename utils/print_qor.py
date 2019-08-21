@@ -4,6 +4,7 @@ import argparse
 import csv
 import os
 import sys
+import subprocess
 
 
 def scan_runtime(fname):
@@ -54,9 +55,21 @@ def main():
     args = parser.parse_args()
 
     fields = [
-        "path", "pack time (sec)", "place time (sec)", "route time (sec)",
-        "Fmax (MHz)", "t_crit (ns)"
+        "path",
+        "pack time (sec)",
+        "place time (sec)",
+        "route time (sec)",
+        "t_crit (ns)",
+        "Fmax (MHz)",
     ]
+
+    print(
+        ''.join(
+            subprocess.
+            getoutput('git show --oneline -s --decorate --color=never')
+        ),
+        file=sys.stdout
+    )
     w = csv.DictWriter(sys.stdout, fields)
     w.writeheader()
     for root, dirs, files in os.walk(args.build_dir):
@@ -71,7 +84,7 @@ def main():
             d['route time (sec)'] = scan_runtime(
                 os.path.join(root, 'route.log')
             )
-            d['Fmax (MHz)'], d['t_crit (ns)'] = scan_critical(
+            d['t_crit (ns)'], d['Fmax (MHz)'] = scan_critical(
                 os.path.join(root, 'route.log')
             )
 

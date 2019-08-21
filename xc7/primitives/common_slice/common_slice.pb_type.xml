@@ -310,9 +310,8 @@
       <delay_constant in_port="COMMON_SLICE.DO6" max="{interconnect_d6lut_dmux}" out_port="COMMON_SLICE.DMUX" />
       <delay_constant in_port="COMMON_SLICE.DO5" max="{interconnect_d5lut_dmux}" out_port="COMMON_SLICE.DMUX" />
       <metadata>
-        <!-- TODO: Test that this mux defaults to AMC31 -->
         <meta name="fasm_mux">
-          COMMON_SLICE.AMC31 = NONE
+          COMMON_SLICE.AMC31 = DOUTMUX.MC31
           SLICE_FF.Q5[3] = DOUTMUX.D5Q
           COMMON_SLICE.DO5 = DOUTMUX.O5
           COMMON_SLICE.DO6 = DOUTMUX.O6
@@ -381,7 +380,7 @@
 
     <!-- [A-D]FFMUX -->
     <mux name="DFFMUX"
-      input="CARRY4_VPR.O3 CARRY4_VPR.CO_FABRIC3 COMMON_SLICE.DO6 COMMON_SLICE.DO5 COMMON_SLICE.DX"
+      input="COMMON_SLICE.AMC31 CARRY4_VPR.O3 CARRY4_VPR.CO_FABRIC3 COMMON_SLICE.DO6 COMMON_SLICE.DO5 COMMON_SLICE.DX"
       output="SLICE_FF.D[3]" >
       <delay_constant in_port="COMMON_SLICE.DX" max="{interconnect_dx_dff}" out_port="SLICE_FF.D[3]" />
       <delay_constant in_port="COMMON_SLICE.DO5" max="{interconnect_d5lut_dff}" out_port="SLICE_FF.D[3]" />
@@ -390,6 +389,7 @@
       <delay_constant in_port="CARRY4_VPR.O3" max="{interconnect_carry4_o3_dff}" out_port="SLICE_FF.D[3]" />
       <metadata>
         <meta name="fasm_mux">
+          COMMON_SLICE.AMC31 = DFFMUX.MC31
           COMMON_SLICE.DX = DFFMUX.DX
           COMMON_SLICE.DO5 = DFFMUX.O5
           COMMON_SLICE.DO6 = DFFMUX.O6
