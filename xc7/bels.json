@@ -120,6 +120,24 @@
             "D_DRAM128":
                 ["LUT_OR_MEM6LRAM.SLICEM/D6LUT"]
         },
+        "SRLC32E_VPR":{
+            "ASRL":{
+                "celltype": "LUT_OR_MEM6SHFREG LUT_OR_MEM6LRAM",
+                "instance": "SLICEM/A6LUT SLICEM"
+            },
+            "BSRL":{
+                "celltype": "LUT_OR_MEM6SHFREG LUT_OR_MEM6LRAM",
+                "instance": "SLICEM/B6LUT SLICEM"
+            },
+            "CSRL":{
+                "celltype": "LUT_OR_MEM6SHFREG LUT_OR_MEM6LRAM",
+                "instance": "SLICEM/C6LUT SLICEM"
+            },
+            "DSRL":{
+                "celltype": "LUT_OR_MEM6SHFREG LUT_OR_MEM6LRAM",
+                "instance": "SLICEM/D6LUT SLICEM"
+            }
+        },
         "F7AMUX":{
             "SLICEM_MODES":
                 ["SELMUX2_1.SLICEM/F7AMUX"],
