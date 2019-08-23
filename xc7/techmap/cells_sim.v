@@ -588,7 +588,7 @@ output Q, Q15
   parameter [15:0] INIT = 16'd0;
   parameter [0:0] IS_CLK_INVERTED = 1'b0;
 
-  reg [15:0] r = 0;// = INIT;
+  reg [15:0] r = INIT;
 
   assign Q15 = r[15];
   assign Q = r[{A3,A2,A1,A0}];
