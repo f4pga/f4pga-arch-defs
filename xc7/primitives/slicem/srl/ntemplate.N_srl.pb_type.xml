@@ -32,28 +32,29 @@
   </mode>
 
   <mode name="2xSRL16">
-    <xi:include href="srlc16e_vpr.pb_type.xml"/>
+    <xi:include href="srlc16e_vpr_0.pb_type.xml"/>
+    <xi:include href="srlc16e_vpr_1.pb_type.xml"/>
     <interconnect>
-      <direct name="CLK_0" input="{N}SRL.CLK" output="SRLC16E_VPR[0].CLK"/>
-      <direct name="WE_0" input="{N}SRL.WE" output="SRLC16E_VPR[0].CE"/>
-      <direct name="DI1" input="{N}SRL.DI1" output="SRLC16E_VPR[0].D"/>
-      <direct name="A2_0" input="{N}SRL.A2" output="SRLC16E_VPR[0].A0"/>
-      <direct name="A3_0" input="{N}SRL.A3" output="SRLC16E_VPR[0].A1"/>
-      <direct name="A4_0" input="{N}SRL.A4" output="SRLC16E_VPR[0].A2"/>
-      <direct name="A5_0" input="{N}SRL.A5" output="SRLC16E_VPR[0].A3"/>
-      <direct name="O5" input="SRLC16E_VPR[0].Q" output="{N}SRL.O5"/>
+      <direct name="CLK_0" input="{N}SRL.CLK" output="SRLC16E_VPR_0.CLK"/>
+      <direct name="WE_0" input="{N}SRL.WE" output="SRLC16E_VPR_0.CE"/>
+      <direct name="DI1" input="{N}SRL.DI1" output="SRLC16E_VPR_0.D"/>
+      <direct name="A2_0" input="{N}SRL.A2" output="SRLC16E_VPR_0.A0"/>
+      <direct name="A3_0" input="{N}SRL.A3" output="SRLC16E_VPR_0.A1"/>
+      <direct name="A4_0" input="{N}SRL.A4" output="SRLC16E_VPR_0.A2"/>
+      <direct name="A5_0" input="{N}SRL.A5" output="SRLC16E_VPR_0.A3"/>
+      <direct name="O5" input="SRLC16E_VPR_0.Q" output="{N}SRL.O5"/>
 
-      <direct name="CLK_1" input="{N}SRL.CLK" output="SRLC16E_VPR[1].CLK"/>
-      <direct name="WE_1" input="{N}SRL.WE" output="SRLC16E_VPR[1].CE"/>
-      <direct name="DI2" input="{N}SRL.DI2" output="SRLC16E_VPR[1].D"/>
-      <direct name="A2_1" input="{N}SRL.A2" output="SRLC16E_VPR[1].A0"/>
-      <direct name="A3_1" input="{N}SRL.A3" output="SRLC16E_VPR[1].A1"/>
-      <direct name="A4_1" input="{N}SRL.A4" output="SRLC16E_VPR[1].A2"/>
-      <direct name="A5_1" input="{N}SRL.A5" output="SRLC16E_VPR[1].A3"/>
-      <direct name="O6" input="SRLC16E_VPR[1].Q" output="{N}SRL.O6">
+      <direct name="CLK_1" input="{N}SRL.CLK" output="SRLC16E_VPR_1.CLK"/>
+      <direct name="WE_1" input="{N}SRL.WE" output="SRLC16E_VPR_1.CE"/>
+      <direct name="DI2" input="{N}SRL.DI2" output="SRLC16E_VPR_1.D"/>
+      <direct name="A2_1" input="{N}SRL.A2" output="SRLC16E_VPR_1.A0"/>
+      <direct name="A3_1" input="{N}SRL.A3" output="SRLC16E_VPR_1.A1"/>
+      <direct name="A4_1" input="{N}SRL.A4" output="SRLC16E_VPR_1.A2"/>
+      <direct name="A5_1" input="{N}SRL.A5" output="SRLC16E_VPR_1.A3"/>
+      <direct name="O6" input="SRLC16E_VPR_1.Q" output="{N}SRL.O6">
 <!--        <pack_pattern out_port="{N}SRL.O6" name="SRL_x2" in_port="SRLC16E_VPR[1].Q"/> -->
       </direct>
-      <direct name="MC31" input="SRLC16E_VPR[1].Q15" output="{N}SRL.MC31"/>
+      <direct name="MC31" input="SRLC16E_VPR_1.Q15" output="{N}SRL.MC31"/>
     </interconnect>
   </mode>
 

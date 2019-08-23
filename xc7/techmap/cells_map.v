@@ -1761,29 +1761,29 @@ module SRL16E (
   input A0, A1, A2, A3,
   input CE, CLK, D
 );
-  parameter [15:0] INIT = 32'h00000000;
+  parameter [15:0] INIT = 16'h0000;
   parameter [ 0:0] IS_CLK_INVERTED = 1'b0;
 
   // Duplicate bits of the init parameter to match the actual INIT data
   // representation.
-//  function [63:0] duplicate_bits;
-//    input [31:0] bits;
-//    integer i;
-//    begin
-//      for (i=0; i<32; i=i+1) begin
-//        duplicate_bits[2*i+0] = bits[i];
-//        duplicate_bits[2*i+1] = bits[i];
-//      end
-//    end
-//  endfunction
+  function [31:0] duplicate_bits;
+    input [15:0] bits;
+    integer i;
+    begin
+      for (i=0; i<15; i=i+1) begin
+        duplicate_bits[2*i+0] = bits[i];
+        duplicate_bits[2*i+1] = bits[i];
+      end
+    end
+  endfunction
 
-//  localparam [63:0] INIT_VPR = duplicate_bits(INIT);
+  localparam [31:0] INIT_VPR = duplicate_bits(INIT);
 
   // Substitute
-  SRLC16E_VPR// #
-//  (
-//  .INIT(INIT_VPR)
-//  )
+  SRLC16E_VPR #
+  (
+  .INIT(INIT_VPR)
+  )
   _TECHMAP_REPLACE_
   (
   .CLK(CLK),

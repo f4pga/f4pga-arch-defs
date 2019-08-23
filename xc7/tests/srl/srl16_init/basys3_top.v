@@ -1,18 +1,18 @@
 module top
 (
-input  wire         clk,
+input  wire        clk,
 
-input  wire         rx,
-output wire         tx,
+input  wire        rx,
+output wire        tx,
 
-input  wire [15:0]  sw,
-output wire [15:0]  led
+input  wire [15:0] sw,
+output wire [15:0] led
 );
 
 parameter SRL_COUNT = 4;
-parameter PRESCALER = 4; //100000;
+parameter PRESCALER = 100000;
 
-// UART loopback
+// Uart loopback
 assign tx = rx;
 
 // ============================================================================
@@ -29,6 +29,7 @@ assign rst = rst_sr[0];
 
 // ============================================================================
 // Clock prescaler
+
 reg [32:0]  ps_cnt  = 0;
 wire        ps_tick = ps_cnt[32];
 
@@ -52,7 +53,12 @@ generate for(i=0; i<SRL_COUNT; i=i+1) begin
   wire       srl_d;
   wire       srl_sh;
 
-  srl_shift_tester #(.SRL_LENGTH(16)) tester
+  srl_init_tester #
+  (
+  .PATTERN    (16'h28DB),
+  .SRL_LENGTH (16)
+  )
+  tester
   (
   .clk      (clk),
   .rst      (rst),
@@ -64,7 +70,11 @@ generate for(i=0; i<SRL_COUNT; i=i+1) begin
   .error    (error[i])
   );
 
-  SRL16E srl
+  SRL16E #
+  (
+  .INIT     (16'h28DB)
+  )
+  srl
   (
   .CLK      (clk),
   .CE       (srl_sh),
@@ -81,7 +91,7 @@ end endgenerate
 // ============================================================================
 
 // Error latch
-reg [SRL_COUNT-1:0] error_lat = 0;
+reg [SRL_COUNT:0] error_lat = 0;
 always @(posedge clk)
     if (rst)
         error_lat <= 0;
@@ -91,7 +101,7 @@ always @(posedge clk)
 // ============================================================================
 
 wire net_0;
-LUT2 #(.INIT(4'hC)) lut_0 (.I0(1'b0), .I1(1'b0), .O(net_0));
+LUT2 #(.INIT(4'd0)) lut_0 (.I0(1'b0), .I1(|sw), .O(net_0));
 
 // LEDs
 genvar j;

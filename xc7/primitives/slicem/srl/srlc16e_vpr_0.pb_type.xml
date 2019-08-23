@@ -1,0 +1,31 @@
+<pb_type name="SRLC16E_VPR_0" num_pb="1" blif_model=".subckt SRLC16E_VPR" xmlns:xi="http://www.w3.org/2001/XInclude">
+  <clock name="CLK" num_pins="1"/>
+  <input name="CE" num_pins="1"/>  
+  <input name="A0" num_pins="1"/>  
+  <input name="A1" num_pins="1"/>  
+  <input name="A2" num_pins="1"/>  
+  <input name="A3" num_pins="1"/>  
+  <input name="D" num_pins="1"/>  
+  <output name="Q" num_pins="1"/>
+  <output name="Q15" num_pins="1"/>
+
+  <T_setup port="CE" clock="CLK" value="1e-11"/>
+  <T_setup port="A0" clock="CLK" value="1e-11"/>
+  <T_setup port="A1" clock="CLK" value="1e-11"/>
+  <T_setup port="A2" clock="CLK" value="1e-11"/>
+  <T_setup port="A3" clock="CLK" value="1e-11"/>
+  <T_setup port="D" clock="CLK" value="1e-11"/>
+
+  <T_clock_to_Q port="Q" clock="CLK" max="1e-11"/>
+  <T_clock_to_Q port="Q15" clock="CLK" max="1e-11"/>
+
+  <metadata>
+    <meta name="fasm_params">
+      INIT[63:32] = INIT
+    </meta>
+    <meta name="fasm_features">
+      SRL
+      SMALL
+    </meta>
+  </metadata>
+</pb_type>
