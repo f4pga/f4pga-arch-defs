@@ -25,7 +25,9 @@
       <direct name="A5" input="{N}SRL.A5" output="SRLC32E_VPR.A[3]"/>
       <direct name="A6" input="{N}SRL.A6" output="SRLC32E_VPR.A[4]"/>
       <direct name="O6" input="SRLC32E_VPR.Q" output="{N}SRL.O6">
-<!--        <pack_pattern out_port="{N}SRL.O6" name="SRL_x2" in_port="SRLC32E_VPR.Q"/> -->
+        <pack_pattern out_port="{N}SRL.O6" name="SRL_x2" in_port="SRLC32E_VPR.Q"/>
+        <pack_pattern out_port="{N}SRL.O6" name="SRL_x3" in_port="SRLC32E_VPR.Q"/>
+        <pack_pattern out_port="{N}SRL.O6" name="SRL_x4" in_port="SRLC32E_VPR.Q"/>
       </direct>
       <direct name="MC31" input="SRLC32E_VPR.Q31" output="{N}SRL.MC31"/>
     </interconnect>
@@ -51,9 +53,7 @@
       <direct name="A3_1" input="{N}SRL.A3" output="SRLC16E_VPR_1.A1"/>
       <direct name="A4_1" input="{N}SRL.A4" output="SRLC16E_VPR_1.A2"/>
       <direct name="A5_1" input="{N}SRL.A5" output="SRLC16E_VPR_1.A3"/>
-      <direct name="O6" input="SRLC16E_VPR_1.Q" output="{N}SRL.O6">
-<!--        <pack_pattern out_port="{N}SRL.O6" name="SRL_x2" in_port="SRLC16E_VPR[1].Q"/> -->
-      </direct>
+      <direct name="O6" input="SRLC16E_VPR_1.Q" output="{N}SRL.O6"/>
       <direct name="MC31" input="SRLC16E_VPR_1.Q15" output="{N}SRL.MC31"/>
     </interconnect>
   </mode>
