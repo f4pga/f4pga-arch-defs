@@ -1,0 +1,19 @@
+<!-- vim: set ai sw=1 ts=1 sta et: -->
+<models xmlns:xi="http://www.w3.org/2001/XInclude">
+ <model name="SRLC16E_VPR">
+  <input_ports>
+   <port name="CLK" is_clock="1"/>
+   <port name="CE" clock="CLK"/>
+   <port name="A0" clock="CLK"/>
+   <port name="A1" clock="CLK"/>
+   <port name="A2" clock="CLK"/>
+   <port name="A3" clock="CLK"/>
+   <port name="D" clock="CLK"/>
+  </input_ports>
+  <output_ports>
+   <port name="Q" clock="CLK"/>
+   <port name="Q15" clock="CLK"/>
+  </output_ports>
+ </model>
+</models>
+
