@@ -1756,8 +1756,8 @@ module SRLC32E (
 
 endmodule
 
-module SRL16E (
-  output Q,
+module SRLC16E (
+  output Q, Q15,
   input A0, A1, A2, A3,
   input CE, CLK, D
 );
@@ -1783,6 +1783,35 @@ module SRL16E (
   SRLC16E_VPR #
   (
   .INIT(INIT_VPR)
+  )
+  _TECHMAP_REPLACE_
+  (
+  .CLK(CLK),
+  .CE(CE),
+  .A0(A0),
+  .A1(A1),
+  .A2(A2),
+  .A3(A3),
+  .D(D),
+  .Q(Q),
+  .Q15(Q15)
+  );
+
+endmodule
+
+module SRL16E (
+  output Q,
+  input A0, A1, A2, A3,
+  input CE, CLK, D
+);
+  parameter [15:0] INIT = 16'h0000;
+  parameter [ 0:0] IS_CLK_INVERTED = 1'b0;
+
+  // Substitute
+  SRLC16E #
+  (
+  .INIT(INIT),
+  .IS_CLK_INVERTED(IS_CLK_INVERTED)
   )
   _TECHMAP_REPLACE_
   (
