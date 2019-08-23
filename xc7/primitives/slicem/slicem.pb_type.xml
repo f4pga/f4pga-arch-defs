@@ -295,39 +295,39 @@
 
         <!-- F7AMUX inputs -->
         <direct name="F7AMUX_I0" input="BSRL.O6"   output="F7AMUX.I0">
-          <pack_pattern in_port="BSRL.O6" name="SRL_x2" out_port="F7AMUX.I0"/>
+<!--          <pack_pattern in_port="BSRL.O6" name="SRL_x2" out_port="F7AMUX.I0"/>
           <pack_pattern in_port="BSRL.O6" name="SRL_x3" out_port="F7AMUX.I0"/>
-          <pack_pattern in_port="BSRL.O6" name="SRL_x4" out_port="F7AMUX.I0"/>
+          <pack_pattern in_port="BSRL.O6" name="SRL_x4" out_port="F7AMUX.I0"/> -->
         </direct>
         <direct name="F7AMUX_I1" input="ASRL.O6"   output="F7AMUX.I1">
-          <pack_pattern in_port="ASRL.O6" name="SRL_x2" out_port="F7AMUX.I1"/>
-          <pack_pattern in_port="ASRL.O6" name="SRL_x4" out_port="F7AMUX.I1"/>
+<!--          <pack_pattern in_port="ASRL.O6" name="SRL_x2" out_port="F7AMUX.I1"/>
+          <pack_pattern in_port="ASRL.O6" name="SRL_x4" out_port="F7AMUX.I1"/> -->
         </direct>
 
         <direct name="F7AMUX_S"  input="SLICEM_MODES.AX" output="F7AMUX.S" />
 
         <!-- F7BMUX inputs -->
         <direct name="F7BMUX_I0" input="DSRL.O6"   output="F7BMUX.I0">
-          <pack_pattern in_port="DSRL.O6" name="SRL_x2" out_port="F7BMUX.I0"/>
+<!--          <pack_pattern in_port="DSRL.O6" name="SRL_x2" out_port="F7BMUX.I0"/>
           <pack_pattern in_port="DSRL.O6" name="SRL_x3" out_port="F7BMUX.I0"/>
-          <pack_pattern in_port="DSRL.O6" name="SRL_x4" out_port="F7BMUX.I0"/>
+          <pack_pattern in_port="DSRL.O6" name="SRL_x4" out_port="F7BMUX.I0"/> -->
         </direct>
         <direct name="F7BMUX_I1" input="CSRL.O6"   output="F7BMUX.I1">
-          <pack_pattern in_port="CSRL.O6" name="SRL_x2" out_port="F7BMUX.I1"/>
+<!--          <pack_pattern in_port="CSRL.O6" name="SRL_x2" out_port="F7BMUX.I1"/>
           <pack_pattern in_port="CSRL.O6" name="SRL_x3" out_port="F7BMUX.I1"/>
-          <pack_pattern in_port="CSRL.O6" name="SRL_x4" out_port="F7BMUX.I1"/>
+          <pack_pattern in_port="CSRL.O6" name="SRL_x4" out_port="F7BMUX.I1"/> -->
         </direct>
 
         <direct name="F7BMUX_S"  input="SLICEM_MODES.CX" output="F7BMUX.S" />
 
         <!-- F8MUX inputs -->
         <direct name="F8MUX_I0"  input="F7BMUX.O"  output="F8MUX.I0">
-          <pack_pattern in_port="F7BMUX.O" name="SRL_x3" out_port="F8MUX.I0"/>
-          <pack_pattern in_port="F7BMUX.O" name="SRL_x4" out_port="F8MUX.I0"/>
+<!--          <pack_pattern in_port="F7BMUX.O" name="SRL_x3" out_port="F8MUX.I0"/>
+          <pack_pattern in_port="F7BMUX.O" name="SRL_x4" out_port="F8MUX.I0"/> -->
         </direct>
         <direct name="F8MUX_I1"  input="F7AMUX.O"  output="F8MUX.I1">
-          <pack_pattern in_port="F7AMUX.O" name="SRL_x3" out_port="F8MUX.I1"/>
-          <pack_pattern in_port="F7AMUX.O" name="SRL_x4" out_port="F8MUX.I1"/>
+<!--          <pack_pattern in_port="F7AMUX.O" name="SRL_x3" out_port="F8MUX.I1"/>
+          <pack_pattern in_port="F7AMUX.O" name="SRL_x4" out_port="F8MUX.I1"/> -->
         </direct>
 
         <direct name="F8MUX_S"   input="SLICEM_MODES.BX" output="F8MUX.S" />
