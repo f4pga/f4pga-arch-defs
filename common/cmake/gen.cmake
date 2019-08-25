@@ -104,10 +104,17 @@ function(MUX_GEN)
     APPEND
       OUTPUTS
       "${MUX_GEN_NAME}.sim.v"
-      "${MUX_GEN_NAME}.techmap.v"
       "${MUX_GEN_NAME}.pb_type.xml"
       "${MUX_GEN_NAME}.model.xml"
   )
+
+  if("${MUX_GEN_TYPE}" STREQUAL "routing")
+    list(
+      APPEND
+        OUTPUTS
+        "${MUX_GEN_NAME}.techmap.v"
+    )
+  endif()
 
   get_target_property_required(PYTHON3 env PYTHON3)
   get_target_property(PYTHON3_TARGET env PYTHON3_TARGET)
@@ -122,7 +129,9 @@ function(MUX_GEN)
   )
 
   add_file_target(FILE "${MUX_GEN_NAME}.sim.v" GENERATED)
-  add_file_target(FILE "${MUX_GEN_NAME}.techmap.v" GENERATED)
+  if("${MUX_GEN_TYPE}" STREQUAL "routing")
+    add_file_target(FILE "${MUX_GEN_NAME}.techmap.v" GENERATED)
+  endif()
   add_file_target(FILE "${MUX_GEN_NAME}.pb_type.xml" GENERATED)
   add_file_target(FILE "${MUX_GEN_NAME}.model.xml" GENERATED)
 
