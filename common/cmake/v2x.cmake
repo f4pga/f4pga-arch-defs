@@ -180,8 +180,11 @@ function(VPR_TEST_PB_TYPE)
 
   set(DEPENDS_EBLIF "")
   append_file_dependency(DEPENDS_EBLIF "${VPR_TEST_PB_TYPE_NAME}.sim.v")
+  set(TECHMAP_DEP "")
+  append_file_dependency(TECHMAP_DEP "${VPR_TEST_PB_TYPE_NAME}.techmap.merged.v")
 
   set(PB_TYPE_VERILOG "${VPR_TEST_PB_TYPE_NAME}.sim.v")
+  set(PB_TYPE_TECHMAP "${VPR_TEST_PB_TYPE_NAME}.techmap.merged.v")
   set(YOSYS_OUTPUT_BLIF "${VPR_TEST_PB_TYPE_NAME}.test.eblif")
 
   get_target_property_required(YOSYS env YOSYS)
@@ -190,9 +193,9 @@ function(VPR_TEST_PB_TYPE)
     OUTPUT "${YOSYS_OUTPUT_BLIF}"
     DEPENDS
       ${YOSYS} ${YOSYS_TARGET}
-      ${DEPENS_EBLIF}
+      ${DEPENS_EBLIF} ${TECHMAP_DEP}
     COMMAND
-      ${YOSYS} -p "read_verilog ${PB_TYPE_VERILOG}\; proc\; opt\; write_blif ${YOSYS_OUTPUT_BLIF}"
+      ${YOSYS} -p "read_verilog ${PB_TYPE_VERILOG}\; techmap -map ${PB_TYPE_TECHMAP}\; proc\; opt\; write_blif ${YOSYS_OUTPUT_BLIF}"
     WORKING_DIRECTORY
       ${CMAKE_CURRENT_BINARY_DIR}
   )

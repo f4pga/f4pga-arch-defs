@@ -154,10 +154,12 @@ function(V2X_TEST_BOTH)
   #
   # NAME name of the test.
   # TOP_MODULE name of the top verilog module that has to be tested.
+  # TECHMAPS [optional] list of techmaps files to be used when synthesizing the design
   #
   # Usage: v2x_test_model(NAME <test_name> TOP_MODULE <top_module.v>) (All fields are required)
 
   set(oneValueArgs NAME TOP_MODULE)
+  set(multiValueArgs TECHMAPS)
   cmake_parse_arguments(
     V2X_TEST_BOTH
     "${options}"
@@ -171,6 +173,41 @@ function(V2X_TEST_BOTH)
 
   set(SRC ${NAME}.sim.v)
   v2x(NAME ${NAME} SRCS ${SRC} TOP_MODULE ${TOP_MODULE})
+
+  set(MERGED_TECHMAP_FILE "${NAME}.techmap.merged.v")
+  set(MERGED_TECHMAP "${MERGED_TECHMAP_FILE}")
+  set(TECHMAP_INPUT "")
+  set(TECHMAP_DEPS "")
+  foreach(MAP ${V2X_TEST_BOTH_TECHMAPS})
+    list(
+      APPEND
+      TECHMAP_INPUT
+      ${MAP}
+    )
+    append_file_dependency(TECHMAP_DEPS ${MAP})
+  endforeach()
+
+  if(NOT ${TECHMAP_INPUT} STREQUAL "")
+    add_custom_command(
+      OUTPUT "${MERGED_TECHMAP}"
+      DEPENDS ${TECHMAP_DEPS}
+      COMMAND
+      cat ${TECHMAP_INPUT} > ${MERGED_TECHMAP}
+      WORKING_DIRECTORY
+        ${CMAKE_CURRENT_BINARY_DIR}
+    )
+  else()
+    # if there are no techmaps to merge, create an empty .v file so Yosys is happy
+    add_custom_command(
+      OUTPUT "${MERGED_TECHMAP}"
+      COMMAND
+        touch ${MERGED_TECHMAP}
+      WORKING_DIRECTORY
+        ${CMAKE_CURRENT_BINARY_DIR}
+    )
+  endif()
+
+  add_file_target(FILE "${MERGED_TECHMAP}" GENERATED)
 
   v2x_test_generic(NAME ${NAME} TYPE pb_type)
   v2x_test_generic(NAME ${NAME} TYPE model)
