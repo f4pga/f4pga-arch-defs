@@ -1,4 +1,4 @@
-`include "lut/lut.sim.v"
+`include "lut/lut4.sim.v"
 `include "ff/ff.sim.v"
 `include "omux/omux.sim.v"
 
