@@ -11,6 +11,8 @@
   <T_setup port="D" clock="CLK" value="{setup_CLK_DI1}"/>
   <T_hold port="D" clock="CLK" value="{hold_CLK_DI1}"/>
 
+  <!-- Physically inputs A2-A6 of a LUT in SRL32 mode are used. Hence
+       timings for those inputs are selected here -->      
   <delay_matrix type="min" in_port="A" out_port="Q">
     {iopath_A2_O6}
     {iopath_A3_O6}
