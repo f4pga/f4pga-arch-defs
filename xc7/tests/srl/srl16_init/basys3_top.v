@@ -10,7 +10,7 @@ output wire [15:0] led
 );
 
 parameter SRL_COUNT = 4;
-parameter PRESCALER = 100000;
+parameter PRESCALER = 4; //100000;
 
 // Uart loopback
 assign tx = rx;

@@ -68,6 +68,47 @@ def create_srl32(site, srl):
     return bel
 
 
+def get_srl16_init(features, tile_name, slice_name, srl):
+    """
+    Decodes SRL16 INIT parameter. Returns two initialization strings, each one
+    for one of two SRL16s.
+    """
+
+    lut_init = get_lut_init(features, tile_name, slice_name, srl)
+    bits = lut_init.replace("64'b", "")
+
+    assert bits[1::2] == bits[::2]
+
+    srl_init = bits[::2]
+    return "16'b{}".format(srl_init[:16]), "16'b{}".format(srl_init[16:])
+
+
+def create_srl16(site, srl, srl_type, part):
+    """
+    Create an instance of SRL16 bel. Either for "x6LUT" or for "x5LUT"
+    depending on the part parameter.
+    """
+
+    assert part == '5' or part == '6'
+
+    bel = Bel(srl_type, srl + part + 'SRL', priority=3)
+    bel.set_bel(srl + part + 'LUT')
+
+    site.add_sink(bel, 'CLK', 'CLK')
+
+    if part == '5':
+        site.add_sink(bel, 'D', '{}I'.format(srl))
+    if part == '6':
+        site.add_sink(bel, 'D', '{}X'.format(srl))
+
+    for idx in range(4):
+        site.add_sink(bel, 'A{}'.format(idx), '{}{}'.format(srl, idx + 2))
+
+    site.add_internal_source(bel, 'Q', srl + 'O' + part)
+
+    return bel
+
+
 def decode_dram(site):
     """ Decode the modes of each LUT in the slice based on set features.
 
@@ -349,23 +390,65 @@ def process_slice(top, s):
 
                 # SRL32
                 if not site.has_feature('{}LUT.SMALL'.format(row)):
-                    srls[row] = create_srl32(site, row)
-                    srls[row].parameters['INIT'] = get_srl32_init(
+                    srl = create_srl32(site, row)
+                    srl.parameters['INIT'] = get_srl32_init(
                         s, aparts[0], aparts[1], row
                     )
 
-                    site.add_sink(srls[row], 'CE', WE)
+                    site.add_sink(srl, 'CE', WE)
 
                     if row == 'A' and site.has_feature('DOUTMUX.MC31'):
-                        site.add_internal_source(srls[row], 'Q31', 'AMC31')
+                        site.add_internal_source(srl, 'Q31', 'AMC31')
                     if row == 'A' and site.has_feature('DFFMUX.MC31'):
-                        site.add_internal_source(srls[row], 'Q31', 'AMC31')
+                        site.add_internal_source(srl, 'Q31', 'AMC31')
 
-                    site.add_bel(srls[row])
+                    site.add_bel(srl)
+                    srls[row] = (srl, )
 
                 # 2x SRL16
                 else:
-                    assert False, "SRL16 not supported yet!"
+
+                    srls[row] = []
+                    init = get_srl16_init(s, aparts[0], aparts[1], row)
+
+                    for i, part in enumerate(['5', '6']):
+
+                        # Determine whether to use SRL16E or SRLC16E
+                        srl_type = 'SRL16E'
+                        use_mc31 = False
+
+                        if part == '6':
+
+                            if row == 'A' and site.has_feature('DOUTMUX.MC31'):
+                                srl_type = 'SRLC16E'
+                                use_mc31 = True
+                            if row == 'A' and site.has_feature('DFFMUX.MC31'):
+                                srl_type = 'SRLC16E'
+                                use_mc31 = True
+
+                            if row == 'D' and site.has_feature(
+                                    'CLUT.DI1MUX.DI_DMC31'):
+                                srl_type = 'SRLC16E'
+                            if row == 'C' and site.has_feature(
+                                    'BLUT.DI1MUX.DI_CMC31'):
+                                srl_type = 'SRLC16E'
+                            if row == 'B' and site.has_feature(
+                                    'ALUT.DI1MUX.DI_BMC31'):
+                                srl_type = 'SRLC16E'
+
+                        # Create the SRL
+                        srl = create_srl16(site, row, srl_type, part)
+                        srl.parameters['INIT'] = init[i]
+
+                        site.add_sink(srl, 'CE', WE)
+
+                        if use_mc31 and srl_type == 'SRLC16E':
+                            site.add_internal_source(srl, 'Q15', 'AMC31')
+
+                        site.add_bel(srl)
+                        srls[row].append(srl)
+
+                    srls[row] = tuple(srls[row])
 
             # LUT
             else:
@@ -647,15 +730,15 @@ def process_slice(top, s):
     # SRL chain connections
     if "DC" in srl_chains:
         site.add_internal_source(srls['D'], 'Q31', 'DMC31')
-        srls['C'].connections['D'] = 'DMC31'
+        srls['C'][0].connections['D'] = 'DMC31'
 
     if "CB" in srl_chains:
         site.add_internal_source(srls['C'], 'Q31', 'CMC31')
-        srls['B'].connections['D'] = 'CMC31'
+        srls['B'][0].connections['D'] = 'CMC31'
 
     if "BA" in srl_chains:
         site.add_internal_source(srls['B'], 'Q31', 'BMC31')
-        srls['A'].connections['D'] = 'BMC31'
+        srls['A'][0].connections['D'] = 'BMC31'
 
     need_f8 = site.has_feature('BFFMUX.F8') or site.has_feature('BOUTMUX.F8')
     need_f7a = site.has_feature('AFFMUX.F7') or site.has_feature('AOUTMUX.F7')
