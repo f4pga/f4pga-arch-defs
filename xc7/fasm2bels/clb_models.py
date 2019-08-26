@@ -728,17 +728,17 @@ def process_slice(top, s):
         srl_chains.add("BA")
 
     # SRL chain connections
-    if "DC" in srl_chains:
-        site.add_internal_source(srls['D'], 'Q31', 'DMC31')
-        srls['C'][0].connections['D'] = 'DMC31'
+    for chain in srl_chains:
+        src = chain[0]
+        dst = chain[1]
 
-    if "CB" in srl_chains:
-        site.add_internal_source(srls['C'], 'Q31', 'CMC31')
-        srls['B'][0].connections['D'] = 'CMC31'
+        if site.has_feature("{}LUT.SMALL".format(src)):
+            q = "Q15"
+        else:
+            q = "Q31"
 
-    if "BA" in srl_chains:
-        site.add_internal_source(srls['B'], 'Q31', 'BMC31')
-        srls['A'][0].connections['D'] = 'BMC31'
+        site.add_internal_source(srls[src][-1], q, '{}MC31'.format(src))
+        srls[dst][0].connections['D'] = '{}MC31'.format(src)
 
     need_f8 = site.has_feature('BFFMUX.F8') or site.has_feature('BOUTMUX.F8')
     need_f7a = site.has_feature('AFFMUX.F7') or site.has_feature('AOUTMUX.F7')
