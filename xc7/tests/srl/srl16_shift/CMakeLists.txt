@@ -20,5 +20,5 @@ add_vivado_target(
 add_dependencies(all_xc7_tests
   testbench_srl16_shift_tb
   testbench_synth_srl16_shift_tb
-  #testbinch_srl16_shift_tb
+  testbinch_srl16_shift_tb
 )
