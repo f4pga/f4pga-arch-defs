@@ -1,8 +1,6 @@
 <?xml version='1.0' encoding='utf-8'?>
 <pb_type xmlns:xi="http://www.w3.org/2001/XInclude" name="MULTIPLE_INSTANCE" num_pb="1">
   <input  name="a"    num_pins="4"/>
-  <!-- FIXME: Current hack to work around lack of carry -->
-  <output name="a2b"  num_pins="4"/>
   <input  name="b"    num_pins="4"/>
   <input  name="c"    num_pins="4"/>
   <!-- FIXME: cin/cout should be marked as carry -->
@@ -131,25 +129,6 @@
     </direct>
 
     <!-- Carry chains -->
-
-    <!-- FIXME: Hack until carries work -->
-    <direct>
-      <port from="comb_apb[0]" name="cout"   type="input"  />
-      <port                    name="a2b[0]" type="output" />
-    </direct>
-    <direct>
-      <port from="comb_apb[1]" name="cout"   type="input"  />
-      <port                    name="a2b[1]" type="output" />
-    </direct>
-    <direct>
-      <port from="comb_apb[2]" name="cout"   type="input"  />
-      <port                    name="a2b[2]" type="output" />
-    </direct>
-    <direct>
-      <port from="comb_apb[3]" name="cout"    type="input"  />
-      <port                    name="a2b[3]"  type="output" />
-    </direct>
-
 
     <!-- cin -> 1st a+b -> 1st c+d -> cout -->
     <direct>
