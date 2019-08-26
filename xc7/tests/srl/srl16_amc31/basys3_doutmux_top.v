@@ -1,5 +1,7 @@
 // The SRLC16E is not present in Yosys' lib. There is only SRL16E
+`ifndef __ICARUS__
 `include "../common/srlc16e.v"
+`endif
 
 module top
 (
