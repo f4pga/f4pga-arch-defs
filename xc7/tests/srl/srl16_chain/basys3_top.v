@@ -11,8 +11,8 @@ output wire [15:0]  led
 
 parameter PRESCALER = 4; //100000;
 
-// UART loopback
-assign tx = rx;
+// UART loopback + switches to avoid unused inputs
+assign tx = rx || (|sw);
 
 // ============================================================================
 // Reset
@@ -83,7 +83,7 @@ generate for(i=0; i<8; i=i+1) begin
   .BEGIN_WITH_SRL16 ((j==0) || (i>=8)),
   .END_WITH_SRL16   ((j==0) || (i< 8)),
   .NUM_SRL32        (j),
-  .SITE             (SITE),
+  .SITE             (SITE)
   )
   chain_seg
   (
@@ -107,19 +107,11 @@ always @(posedge clk)
 
 // ============================================================================
 
-wire net_0;
-LUT2 #(.INIT(4'hC)) lut_0 (.I0(|sw), .I1(1'b0), .O(net_0));
-
 // LEDs
 genvar j;
 generate for(j=0; j<8; j=j+1) begin
-  if (j < 8) begin
-    assign led[j  ] = (sw[1]) ? error_lat[j] : error[j];
-    assign led[j+8] = srl_q[j];
-  end else begin
-    assign led[j  ] = net_0;
-    assign led[j+8] = net_0;
-  end
+  assign led[j  ] = (sw[1]) ? error_lat[j] : error[j];
+  assign led[j+8] = srl_q[j];
 end endgenerate
 
 endmodule
