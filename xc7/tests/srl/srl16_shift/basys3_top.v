@@ -91,7 +91,7 @@ always @(posedge clk)
 // ============================================================================
 
 wire net_0;
-LUT2 #(.INIT(4'hC)) lut_0 (.I0(1'b0), .I1(1'b0), .O(net_0));
+LUT2 #(.INIT(4'hC)) lut_0 (.I0(|sw), .I1(1'b0), .O(net_0));
 
 // LEDs
 genvar j;
