@@ -4,7 +4,7 @@
 `include "srlc16e.v"
 `endif
 
-odule srl_chain_mixed #
+module srl_chain_mixed #
 (
 parameter [0:0] BEGIN_WITH_SRL16 = 0,   // Start with SRL16.
 parameter [1:0] NUM_SRL32        = 0,   // SRL32 count in the middle.
