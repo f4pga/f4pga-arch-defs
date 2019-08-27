@@ -456,11 +456,12 @@ def get_list_name_and_length(l: List[str]) -> Tuple[str, int]:
         l[0], l
     )
     list_name = l[0][:l[0].rfind('[')]
+    sl = sorted(l, key=len)
     for i in range(0, len(l)):
         expected_item = "{}[{}]".format(list_name, i)
-        assert expected_item == l[
+        assert expected_item == sl[
             i], "index {} expected: {} != actual: {}\n{}".format(
-                i, expected_item, l[i], l
+                i, expected_item, sl[i], sl
             )
     return list_name, len(l)
 
