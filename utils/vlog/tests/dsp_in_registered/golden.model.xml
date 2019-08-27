@@ -1,15 +1,4 @@
 <models xmlns:xi="http://www.w3.org/2001/XInclude">
   <xi:include href="../dsp_combinational/dsp_combinational.model.xml" xpointer="xpointer(models/child::node())"/>
   <xi:include href="../fig42-dff/dff.model.xml" xpointer="xpointer(models/child::node())"/>
-  <model name="DSP_IN_REGISTERED">
-    <input_ports>
-      <port clock="clk" combinational_sink_ports="out" name="a"/>
-      <port clock="clk" combinational_sink_ports="out" name="b"/>
-      <port is_clock="1" name="clk"/>
-      <port clock="clk" combinational_sink_ports="out" name="m"/>
-    </input_ports>
-    <output_ports>
-      <port name="out"/>
-    </output_ports>
-  </model>
 </models>
