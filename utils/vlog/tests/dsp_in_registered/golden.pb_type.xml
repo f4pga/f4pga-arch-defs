@@ -537,262 +537,522 @@
     <direct>
       <port name="Q" type="input" from="q_a_ff[0]"/>
       <port name="a[0]" type="output" from="comb"/>
+      <pack_pattern name="DFF2DSP" type="pack">
+        <port name="Q" type="input" from="q_a_ff[0]"/>
+        <port name="a[0]" type="output" from="comb"/>
+      </pack_pattern>
     </direct>
     <direct>
       <port name="Q" type="input" from="q_a_ff[1]"/>
       <port name="a[1]" type="output" from="comb"/>
+      <pack_pattern name="DFF2DSP" type="pack">
+        <port name="Q" type="input" from="q_a_ff[1]"/>
+        <port name="a[1]" type="output" from="comb"/>
+      </pack_pattern>
     </direct>
     <direct>
       <port name="Q" type="input" from="q_a_ff[2]"/>
       <port name="a[2]" type="output" from="comb"/>
+      <pack_pattern name="DFF2DSP" type="pack">
+        <port name="Q" type="input" from="q_a_ff[2]"/>
+        <port name="a[2]" type="output" from="comb"/>
+      </pack_pattern>
     </direct>
     <direct>
       <port name="Q" type="input" from="q_a_ff[3]"/>
       <port name="a[3]" type="output" from="comb"/>
+      <pack_pattern name="DFF2DSP" type="pack">
+        <port name="Q" type="input" from="q_a_ff[3]"/>
+        <port name="a[3]" type="output" from="comb"/>
+      </pack_pattern>
     </direct>
     <direct>
       <port name="Q" type="input" from="q_a_ff[4]"/>
       <port name="a[4]" type="output" from="comb"/>
+      <pack_pattern name="DFF2DSP" type="pack">
+        <port name="Q" type="input" from="q_a_ff[4]"/>
+        <port name="a[4]" type="output" from="comb"/>
+      </pack_pattern>
     </direct>
     <direct>
       <port name="Q" type="input" from="q_a_ff[5]"/>
       <port name="a[5]" type="output" from="comb"/>
+      <pack_pattern name="DFF2DSP" type="pack">
+        <port name="Q" type="input" from="q_a_ff[5]"/>
+        <port name="a[5]" type="output" from="comb"/>
+      </pack_pattern>
     </direct>
     <direct>
       <port name="Q" type="input" from="q_a_ff[6]"/>
       <port name="a[6]" type="output" from="comb"/>
+      <pack_pattern name="DFF2DSP" type="pack">
+        <port name="Q" type="input" from="q_a_ff[6]"/>
+        <port name="a[6]" type="output" from="comb"/>
+      </pack_pattern>
     </direct>
     <direct>
       <port name="Q" type="input" from="q_a_ff[7]"/>
       <port name="a[7]" type="output" from="comb"/>
+      <pack_pattern name="DFF2DSP" type="pack">
+        <port name="Q" type="input" from="q_a_ff[7]"/>
+        <port name="a[7]" type="output" from="comb"/>
+      </pack_pattern>
     </direct>
     <direct>
       <port name="Q" type="input" from="q_a_ff[8]"/>
       <port name="a[8]" type="output" from="comb"/>
+      <pack_pattern name="DFF2DSP" type="pack">
+        <port name="Q" type="input" from="q_a_ff[8]"/>
+        <port name="a[8]" type="output" from="comb"/>
+      </pack_pattern>
     </direct>
     <direct>
       <port name="Q" type="input" from="q_a_ff[9]"/>
       <port name="a[9]" type="output" from="comb"/>
+      <pack_pattern name="DFF2DSP" type="pack">
+        <port name="Q" type="input" from="q_a_ff[9]"/>
+        <port name="a[9]" type="output" from="comb"/>
+      </pack_pattern>
     </direct>
     <direct>
       <port name="Q" type="input" from="q_a_ff[10]"/>
       <port name="a[10]" type="output" from="comb"/>
+      <pack_pattern name="DFF2DSP" type="pack">
+        <port name="Q" type="input" from="q_a_ff[10]"/>
+        <port name="a[10]" type="output" from="comb"/>
+      </pack_pattern>
     </direct>
     <direct>
       <port name="Q" type="input" from="q_a_ff[11]"/>
       <port name="a[11]" type="output" from="comb"/>
+      <pack_pattern name="DFF2DSP" type="pack">
+        <port name="Q" type="input" from="q_a_ff[11]"/>
+        <port name="a[11]" type="output" from="comb"/>
+      </pack_pattern>
     </direct>
     <direct>
       <port name="Q" type="input" from="q_a_ff[12]"/>
       <port name="a[12]" type="output" from="comb"/>
+      <pack_pattern name="DFF2DSP" type="pack">
+        <port name="Q" type="input" from="q_a_ff[12]"/>
+        <port name="a[12]" type="output" from="comb"/>
+      </pack_pattern>
     </direct>
     <direct>
       <port name="Q" type="input" from="q_a_ff[13]"/>
       <port name="a[13]" type="output" from="comb"/>
+      <pack_pattern name="DFF2DSP" type="pack">
+        <port name="Q" type="input" from="q_a_ff[13]"/>
+        <port name="a[13]" type="output" from="comb"/>
+      </pack_pattern>
     </direct>
     <direct>
       <port name="Q" type="input" from="q_a_ff[14]"/>
       <port name="a[14]" type="output" from="comb"/>
+      <pack_pattern name="DFF2DSP" type="pack">
+        <port name="Q" type="input" from="q_a_ff[14]"/>
+        <port name="a[14]" type="output" from="comb"/>
+      </pack_pattern>
     </direct>
     <direct>
       <port name="Q" type="input" from="q_a_ff[15]"/>
       <port name="a[15]" type="output" from="comb"/>
+      <pack_pattern name="DFF2DSP" type="pack">
+        <port name="Q" type="input" from="q_a_ff[15]"/>
+        <port name="a[15]" type="output" from="comb"/>
+      </pack_pattern>
     </direct>
     <direct>
       <port name="Q" type="input" from="q_a_ff[16]"/>
       <port name="a[16]" type="output" from="comb"/>
+      <pack_pattern name="DFF2DSP" type="pack">
+        <port name="Q" type="input" from="q_a_ff[16]"/>
+        <port name="a[16]" type="output" from="comb"/>
+      </pack_pattern>
     </direct>
     <direct>
       <port name="Q" type="input" from="q_a_ff[17]"/>
       <port name="a[17]" type="output" from="comb"/>
+      <pack_pattern name="DFF2DSP" type="pack">
+        <port name="Q" type="input" from="q_a_ff[17]"/>
+        <port name="a[17]" type="output" from="comb"/>
+      </pack_pattern>
     </direct>
     <direct>
       <port name="Q" type="input" from="q_a_ff[18]"/>
       <port name="a[18]" type="output" from="comb"/>
+      <pack_pattern name="DFF2DSP" type="pack">
+        <port name="Q" type="input" from="q_a_ff[18]"/>
+        <port name="a[18]" type="output" from="comb"/>
+      </pack_pattern>
     </direct>
     <direct>
       <port name="Q" type="input" from="q_a_ff[19]"/>
       <port name="a[19]" type="output" from="comb"/>
+      <pack_pattern name="DFF2DSP" type="pack">
+        <port name="Q" type="input" from="q_a_ff[19]"/>
+        <port name="a[19]" type="output" from="comb"/>
+      </pack_pattern>
     </direct>
     <direct>
       <port name="Q" type="input" from="q_a_ff[20]"/>
       <port name="a[20]" type="output" from="comb"/>
+      <pack_pattern name="DFF2DSP" type="pack">
+        <port name="Q" type="input" from="q_a_ff[20]"/>
+        <port name="a[20]" type="output" from="comb"/>
+      </pack_pattern>
     </direct>
     <direct>
       <port name="Q" type="input" from="q_a_ff[21]"/>
       <port name="a[21]" type="output" from="comb"/>
+      <pack_pattern name="DFF2DSP" type="pack">
+        <port name="Q" type="input" from="q_a_ff[21]"/>
+        <port name="a[21]" type="output" from="comb"/>
+      </pack_pattern>
     </direct>
     <direct>
       <port name="Q" type="input" from="q_a_ff[22]"/>
       <port name="a[22]" type="output" from="comb"/>
+      <pack_pattern name="DFF2DSP" type="pack">
+        <port name="Q" type="input" from="q_a_ff[22]"/>
+        <port name="a[22]" type="output" from="comb"/>
+      </pack_pattern>
     </direct>
     <direct>
       <port name="Q" type="input" from="q_a_ff[23]"/>
       <port name="a[23]" type="output" from="comb"/>
+      <pack_pattern name="DFF2DSP" type="pack">
+        <port name="Q" type="input" from="q_a_ff[23]"/>
+        <port name="a[23]" type="output" from="comb"/>
+      </pack_pattern>
     </direct>
     <direct>
       <port name="Q" type="input" from="q_a_ff[24]"/>
       <port name="a[24]" type="output" from="comb"/>
+      <pack_pattern name="DFF2DSP" type="pack">
+        <port name="Q" type="input" from="q_a_ff[24]"/>
+        <port name="a[24]" type="output" from="comb"/>
+      </pack_pattern>
     </direct>
     <direct>
       <port name="Q" type="input" from="q_a_ff[25]"/>
       <port name="a[25]" type="output" from="comb"/>
+      <pack_pattern name="DFF2DSP" type="pack">
+        <port name="Q" type="input" from="q_a_ff[25]"/>
+        <port name="a[25]" type="output" from="comb"/>
+      </pack_pattern>
     </direct>
     <direct>
       <port name="Q" type="input" from="q_a_ff[26]"/>
       <port name="a[26]" type="output" from="comb"/>
+      <pack_pattern name="DFF2DSP" type="pack">
+        <port name="Q" type="input" from="q_a_ff[26]"/>
+        <port name="a[26]" type="output" from="comb"/>
+      </pack_pattern>
     </direct>
     <direct>
       <port name="Q" type="input" from="q_a_ff[27]"/>
       <port name="a[27]" type="output" from="comb"/>
+      <pack_pattern name="DFF2DSP" type="pack">
+        <port name="Q" type="input" from="q_a_ff[27]"/>
+        <port name="a[27]" type="output" from="comb"/>
+      </pack_pattern>
     </direct>
     <direct>
       <port name="Q" type="input" from="q_a_ff[28]"/>
       <port name="a[28]" type="output" from="comb"/>
+      <pack_pattern name="DFF2DSP" type="pack">
+        <port name="Q" type="input" from="q_a_ff[28]"/>
+        <port name="a[28]" type="output" from="comb"/>
+      </pack_pattern>
     </direct>
     <direct>
       <port name="Q" type="input" from="q_a_ff[29]"/>
       <port name="a[29]" type="output" from="comb"/>
+      <pack_pattern name="DFF2DSP" type="pack">
+        <port name="Q" type="input" from="q_a_ff[29]"/>
+        <port name="a[29]" type="output" from="comb"/>
+      </pack_pattern>
     </direct>
     <direct>
       <port name="Q" type="input" from="q_a_ff[30]"/>
       <port name="a[30]" type="output" from="comb"/>
+      <pack_pattern name="DFF2DSP" type="pack">
+        <port name="Q" type="input" from="q_a_ff[30]"/>
+        <port name="a[30]" type="output" from="comb"/>
+      </pack_pattern>
     </direct>
     <direct>
       <port name="Q" type="input" from="q_a_ff[31]"/>
       <port name="a[31]" type="output" from="comb"/>
+      <pack_pattern name="DFF2DSP" type="pack">
+        <port name="Q" type="input" from="q_a_ff[31]"/>
+        <port name="a[31]" type="output" from="comb"/>
+      </pack_pattern>
     </direct>
     <direct>
       <port name="Q" type="input" from="q_b_ff[0]"/>
       <port name="b[0]" type="output" from="comb"/>
+      <pack_pattern name="DFF2DSP" type="pack">
+        <port name="Q" type="input" from="q_b_ff[0]"/>
+        <port name="b[0]" type="output" from="comb"/>
+      </pack_pattern>
     </direct>
     <direct>
       <port name="Q" type="input" from="q_b_ff[1]"/>
       <port name="b[1]" type="output" from="comb"/>
+      <pack_pattern name="DFF2DSP" type="pack">
+        <port name="Q" type="input" from="q_b_ff[1]"/>
+        <port name="b[1]" type="output" from="comb"/>
+      </pack_pattern>
     </direct>
     <direct>
       <port name="Q" type="input" from="q_b_ff[2]"/>
       <port name="b[2]" type="output" from="comb"/>
+      <pack_pattern name="DFF2DSP" type="pack">
+        <port name="Q" type="input" from="q_b_ff[2]"/>
+        <port name="b[2]" type="output" from="comb"/>
+      </pack_pattern>
     </direct>
     <direct>
       <port name="Q" type="input" from="q_b_ff[3]"/>
       <port name="b[3]" type="output" from="comb"/>
+      <pack_pattern name="DFF2DSP" type="pack">
+        <port name="Q" type="input" from="q_b_ff[3]"/>
+        <port name="b[3]" type="output" from="comb"/>
+      </pack_pattern>
     </direct>
     <direct>
       <port name="Q" type="input" from="q_b_ff[4]"/>
       <port name="b[4]" type="output" from="comb"/>
+      <pack_pattern name="DFF2DSP" type="pack">
+        <port name="Q" type="input" from="q_b_ff[4]"/>
+        <port name="b[4]" type="output" from="comb"/>
+      </pack_pattern>
     </direct>
     <direct>
       <port name="Q" type="input" from="q_b_ff[5]"/>
       <port name="b[5]" type="output" from="comb"/>
+      <pack_pattern name="DFF2DSP" type="pack">
+        <port name="Q" type="input" from="q_b_ff[5]"/>
+        <port name="b[5]" type="output" from="comb"/>
+      </pack_pattern>
     </direct>
     <direct>
       <port name="Q" type="input" from="q_b_ff[6]"/>
       <port name="b[6]" type="output" from="comb"/>
+      <pack_pattern name="DFF2DSP" type="pack">
+        <port name="Q" type="input" from="q_b_ff[6]"/>
+        <port name="b[6]" type="output" from="comb"/>
+      </pack_pattern>
     </direct>
     <direct>
       <port name="Q" type="input" from="q_b_ff[7]"/>
       <port name="b[7]" type="output" from="comb"/>
+      <pack_pattern name="DFF2DSP" type="pack">
+        <port name="Q" type="input" from="q_b_ff[7]"/>
+        <port name="b[7]" type="output" from="comb"/>
+      </pack_pattern>
     </direct>
     <direct>
       <port name="Q" type="input" from="q_b_ff[8]"/>
       <port name="b[8]" type="output" from="comb"/>
+      <pack_pattern name="DFF2DSP" type="pack">
+        <port name="Q" type="input" from="q_b_ff[8]"/>
+        <port name="b[8]" type="output" from="comb"/>
+      </pack_pattern>
     </direct>
     <direct>
       <port name="Q" type="input" from="q_b_ff[9]"/>
       <port name="b[9]" type="output" from="comb"/>
+      <pack_pattern name="DFF2DSP" type="pack">
+        <port name="Q" type="input" from="q_b_ff[9]"/>
+        <port name="b[9]" type="output" from="comb"/>
+      </pack_pattern>
     </direct>
     <direct>
       <port name="Q" type="input" from="q_b_ff[10]"/>
       <port name="b[10]" type="output" from="comb"/>
+      <pack_pattern name="DFF2DSP" type="pack">
+        <port name="Q" type="input" from="q_b_ff[10]"/>
+        <port name="b[10]" type="output" from="comb"/>
+      </pack_pattern>
     </direct>
     <direct>
       <port name="Q" type="input" from="q_b_ff[11]"/>
       <port name="b[11]" type="output" from="comb"/>
+      <pack_pattern name="DFF2DSP" type="pack">
+        <port name="Q" type="input" from="q_b_ff[11]"/>
+        <port name="b[11]" type="output" from="comb"/>
+      </pack_pattern>
     </direct>
     <direct>
       <port name="Q" type="input" from="q_b_ff[12]"/>
       <port name="b[12]" type="output" from="comb"/>
+      <pack_pattern name="DFF2DSP" type="pack">
+        <port name="Q" type="input" from="q_b_ff[12]"/>
+        <port name="b[12]" type="output" from="comb"/>
+      </pack_pattern>
     </direct>
     <direct>
       <port name="Q" type="input" from="q_b_ff[13]"/>
       <port name="b[13]" type="output" from="comb"/>
+      <pack_pattern name="DFF2DSP" type="pack">
+        <port name="Q" type="input" from="q_b_ff[13]"/>
+        <port name="b[13]" type="output" from="comb"/>
+      </pack_pattern>
     </direct>
     <direct>
       <port name="Q" type="input" from="q_b_ff[14]"/>
       <port name="b[14]" type="output" from="comb"/>
+      <pack_pattern name="DFF2DSP" type="pack">
+        <port name="Q" type="input" from="q_b_ff[14]"/>
+        <port name="b[14]" type="output" from="comb"/>
+      </pack_pattern>
     </direct>
     <direct>
       <port name="Q" type="input" from="q_b_ff[15]"/>
       <port name="b[15]" type="output" from="comb"/>
+      <pack_pattern name="DFF2DSP" type="pack">
+        <port name="Q" type="input" from="q_b_ff[15]"/>
+        <port name="b[15]" type="output" from="comb"/>
+      </pack_pattern>
     </direct>
     <direct>
       <port name="Q" type="input" from="q_b_ff[16]"/>
       <port name="b[16]" type="output" from="comb"/>
+      <pack_pattern name="DFF2DSP" type="pack">
+        <port name="Q" type="input" from="q_b_ff[16]"/>
+        <port name="b[16]" type="output" from="comb"/>
+      </pack_pattern>
     </direct>
     <direct>
       <port name="Q" type="input" from="q_b_ff[17]"/>
       <port name="b[17]" type="output" from="comb"/>
+      <pack_pattern name="DFF2DSP" type="pack">
+        <port name="Q" type="input" from="q_b_ff[17]"/>
+        <port name="b[17]" type="output" from="comb"/>
+      </pack_pattern>
     </direct>
     <direct>
       <port name="Q" type="input" from="q_b_ff[18]"/>
       <port name="b[18]" type="output" from="comb"/>
+      <pack_pattern name="DFF2DSP" type="pack">
+        <port name="Q" type="input" from="q_b_ff[18]"/>
+        <port name="b[18]" type="output" from="comb"/>
+      </pack_pattern>
     </direct>
     <direct>
       <port name="Q" type="input" from="q_b_ff[19]"/>
       <port name="b[19]" type="output" from="comb"/>
+      <pack_pattern name="DFF2DSP" type="pack">
+        <port name="Q" type="input" from="q_b_ff[19]"/>
+        <port name="b[19]" type="output" from="comb"/>
+      </pack_pattern>
     </direct>
     <direct>
       <port name="Q" type="input" from="q_b_ff[20]"/>
       <port name="b[20]" type="output" from="comb"/>
+      <pack_pattern name="DFF2DSP" type="pack">
+        <port name="Q" type="input" from="q_b_ff[20]"/>
+        <port name="b[20]" type="output" from="comb"/>
+      </pack_pattern>
     </direct>
     <direct>
       <port name="Q" type="input" from="q_b_ff[21]"/>
       <port name="b[21]" type="output" from="comb"/>
+      <pack_pattern name="DFF2DSP" type="pack">
+        <port name="Q" type="input" from="q_b_ff[21]"/>
+        <port name="b[21]" type="output" from="comb"/>
+      </pack_pattern>
     </direct>
     <direct>
       <port name="Q" type="input" from="q_b_ff[22]"/>
       <port name="b[22]" type="output" from="comb"/>
+      <pack_pattern name="DFF2DSP" type="pack">
+        <port name="Q" type="input" from="q_b_ff[22]"/>
+        <port name="b[22]" type="output" from="comb"/>
+      </pack_pattern>
     </direct>
     <direct>
       <port name="Q" type="input" from="q_b_ff[23]"/>
       <port name="b[23]" type="output" from="comb"/>
+      <pack_pattern name="DFF2DSP" type="pack">
+        <port name="Q" type="input" from="q_b_ff[23]"/>
+        <port name="b[23]" type="output" from="comb"/>
+      </pack_pattern>
     </direct>
     <direct>
       <port name="Q" type="input" from="q_b_ff[24]"/>
       <port name="b[24]" type="output" from="comb"/>
+      <pack_pattern name="DFF2DSP" type="pack">
+        <port name="Q" type="input" from="q_b_ff[24]"/>
+        <port name="b[24]" type="output" from="comb"/>
+      </pack_pattern>
     </direct>
     <direct>
       <port name="Q" type="input" from="q_b_ff[25]"/>
       <port name="b[25]" type="output" from="comb"/>
+      <pack_pattern name="DFF2DSP" type="pack">
+        <port name="Q" type="input" from="q_b_ff[25]"/>
+        <port name="b[25]" type="output" from="comb"/>
+      </pack_pattern>
     </direct>
     <direct>
       <port name="Q" type="input" from="q_b_ff[26]"/>
       <port name="b[26]" type="output" from="comb"/>
+      <pack_pattern name="DFF2DSP" type="pack">
+        <port name="Q" type="input" from="q_b_ff[26]"/>
+        <port name="b[26]" type="output" from="comb"/>
+      </pack_pattern>
     </direct>
     <direct>
       <port name="Q" type="input" from="q_b_ff[27]"/>
       <port name="b[27]" type="output" from="comb"/>
+      <pack_pattern name="DFF2DSP" type="pack">
+        <port name="Q" type="input" from="q_b_ff[27]"/>
+        <port name="b[27]" type="output" from="comb"/>
+      </pack_pattern>
     </direct>
     <direct>
       <port name="Q" type="input" from="q_b_ff[28]"/>
       <port name="b[28]" type="output" from="comb"/>
+      <pack_pattern name="DFF2DSP" type="pack">
+        <port name="Q" type="input" from="q_b_ff[28]"/>
+        <port name="b[28]" type="output" from="comb"/>
+      </pack_pattern>
     </direct>
     <direct>
       <port name="Q" type="input" from="q_b_ff[29]"/>
       <port name="b[29]" type="output" from="comb"/>
+      <pack_pattern name="DFF2DSP" type="pack">
+        <port name="Q" type="input" from="q_b_ff[29]"/>
+        <port name="b[29]" type="output" from="comb"/>
+      </pack_pattern>
     </direct>
     <direct>
       <port name="Q" type="input" from="q_b_ff[30]"/>
       <port name="b[30]" type="output" from="comb"/>
+      <pack_pattern name="DFF2DSP" type="pack">
+        <port name="Q" type="input" from="q_b_ff[30]"/>
+        <port name="b[30]" type="output" from="comb"/>
+      </pack_pattern>
     </direct>
     <direct>
       <port name="Q" type="input" from="q_b_ff[31]"/>
       <port name="b[31]" type="output" from="comb"/>
+      <pack_pattern name="DFF2DSP" type="pack">
+        <port name="Q" type="input" from="q_b_ff[31]"/>
+        <port name="b[31]" type="output" from="comb"/>
+      </pack_pattern>
     </direct>
     <direct>
       <port name="Q" type="input" from="m_ff"/>
       <port name="m" type="output" from="comb"/>
+      <pack_pattern name="DFF2DSP" type="pack">
+        <port name="Q" type="input" from="m_ff"/>
+        <port name="m" type="output" from="comb"/>
+      </pack_pattern>
     </direct>
     <direct>
       <port name="out[0]" type="input" from="comb"/>
