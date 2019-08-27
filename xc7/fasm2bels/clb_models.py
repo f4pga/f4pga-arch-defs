@@ -250,57 +250,101 @@ def cleanup_slice(top, site):
 
     """
     carry4 = site.maybe_get_bel('CARRY4')
+    if carry4 is not None:
 
-    if carry4 is None:
-        return
+        # Simplest check is if the CARRY4 has output in used by either the OUTMUX
+        # or the FFMUX, if any of these muxes are enable, CARRY4 must remain.
+        co_in_use = [False for _ in range(4)]
+        o_in_use = [False for _ in range(4)]
+        for idx, lut in enumerate('ABCD'):
+            if site.has_feature('{}FFMUX.XOR'.format(lut)):
+                o_in_use[idx] = True
 
-    # Simplest check is if the CARRY4 has output in used by either the OUTMUX
-    # or the FFMUX, if any of these muxes are enable, CARRY4 must remain.
-    co_in_use = [False for _ in range(4)]
-    o_in_use = [False for _ in range(4)]
-    for idx, lut in enumerate('ABCD'):
-        if site.has_feature('{}FFMUX.XOR'.format(lut)):
-            o_in_use[idx] = True
+            if site.has_feature('{}FFMUX.CY'.format(lut)):
+                co_in_use[idx] = True
 
-        if site.has_feature('{}FFMUX.CY'.format(lut)):
+            if site.has_feature('{}OUTMUX.XOR'.format(lut)):
+                o_in_use[idx] = True
+
+            if site.has_feature('{}OUTMUX.CY'.format(lut)):
+                co_in_use[idx] = True
+
+        # No outputs in the SLICE use CARRY4, check if the COUT line is in use.
+        for sink in top.find_sinks_from_source(site, 'COUT'):
             co_in_use[idx] = True
-
-        if site.has_feature('{}OUTMUX.XOR'.format(lut)):
-            o_in_use[idx] = True
-
-        if site.has_feature('{}OUTMUX.CY'.format(lut)):
-            co_in_use[idx] = True
-
-    # No outputs in the SLICE use CARRY4, check if the COUT line is in use.
-    for sink in top.find_sinks_from_source(site, 'COUT'):
-        co_in_use[idx] = True
-        break
-
-    for idx in [3, 2, 1, 0]:
-        if co_in_use[idx] or o_in_use[idx]:
-            for odx in range(idx):
-                co_in_use[odx] = True
-                o_in_use[odx] = True
-
             break
 
-    if not any(co_in_use) and not any(o_in_use):
-        # No outputs in use, remove entire BEL
-        top.remove_bel(site, carry4)
-    else:
-        for idx in range(4):
-            if not o_in_use[idx] and not co_in_use[idx]:
-                sink_wire_pkey = site.remove_internal_sink(
-                    carry4, 'S[{}]'.format(idx)
-                )
-                if sink_wire_pkey is not None:
-                    top.remove_sink(sink_wire_pkey)
+        for idx in [3, 2, 1, 0]:
+            if co_in_use[idx] or o_in_use[idx]:
+                for odx in range(idx):
+                    co_in_use[odx] = True
+                    o_in_use[odx] = True
 
-                sink_wire_pkey = site.remove_internal_sink(
-                    carry4, 'DI[{}]'.format(idx)
-                )
-                if sink_wire_pkey is not None:
-                    top.remove_sink(sink_wire_pkey)
+                break
+
+        if not any(co_in_use) and not any(o_in_use):
+            # No outputs in use, remove entire BEL
+            top.remove_bel(site, carry4)
+        else:
+            for idx in range(4):
+                if not o_in_use[idx] and not co_in_use[idx]:
+                    sink_wire_pkey = site.remove_internal_sink(
+                        carry4, 'S[{}]'.format(idx)
+                    )
+                    if sink_wire_pkey is not None:
+                        top.remove_sink(sink_wire_pkey)
+
+                    sink_wire_pkey = site.remove_internal_sink(
+                        carry4, 'DI[{}]'.format(idx)
+                    )
+                    if sink_wire_pkey is not None:
+                        top.remove_sink(sink_wire_pkey)
+
+    # Remove unused SRL16
+    for i, row in enumerate("ABCD"):
+
+        # n5SRL, check O5
+        srl = site.maybe_get_bel("{}5SRL".format(row))
+        if srl is not None:
+
+            if not site.has_feature("{}OUTMUX.O5".format(row)) and \
+               not site.has_feature("{}FFMUX.O5".format(row)):
+                top.remove_bel(site, srl)
+
+        # n6SRL, check O6 and MC31
+        srl = site.maybe_get_bel("{}6SRL".format(row))
+        if srl is not None:
+
+            # nOUTMUX, nFFMUX
+            noutmux_o6_used = site.has_feature("{}OUTMUX.O6".format(row))
+            nffmux_o6_used = site.has_feature("{}FFMUX.O6".format(row))
+
+            # nUSED
+            nused_used = True
+            sinks = list(top.find_sinks_from_source(site, row))
+            if len(sinks) == 0:
+                nused_used = False
+
+            # n7MUX
+            f7nmux_used = True
+            if row in "AB" and site.maybe_get_bel("F7AMUX") is None:
+                f7nmux_used = False
+            if row in "CD" and site.maybe_get_bel("F7BMUX") is None:
+                f7nmux_used = False
+
+            # A6SRL MC31 output
+            if row == "A":
+                mc31_used = site.has_feature("DOUTMUX.MC31") or \
+                    site.has_feature("DFFMUX.MC31")
+            else:
+                mc31_used = False
+
+            # Remove if necessary
+            anything_used = nused_used or noutmux_o6_used or nffmux_o6_used or\
+                f7nmux_used or mc31_used
+
+            if not anything_used:
+                top.remove_bel(site, srl)
 
 
 def process_slice(top, s):
@@ -445,7 +489,7 @@ def process_slice(top, s):
                         if use_mc31 and srl_type == 'SRLC16E':
                             site.add_internal_source(srl, 'Q15', 'AMC31')
 
-                        site.add_bel(srl)
+                        site.add_bel(srl, name="{}{}SRL".format(row, part))
                         srls[row].append(srl)
 
                     srls[row] = tuple(srls[row])
