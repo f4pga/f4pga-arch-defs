@@ -1,11 +1,19 @@
 (* whitebox *)
-module DFF (d, clk, q);
-	input wire d;
-	input wire clk;
-	output reg q;
+module DFF (D, CLK, Q);
 
-	always @ ( posedge clk ) begin
-		q <= d;
+	input wire CLK;
+
+	(* SETUP="CLK 10e-12" *)
+	(* HOLD="CLK 10e-12" *)
+	(* CLK_TO_Q="CLK 10e-12" *)
+	input wire D;
+
+	(* CLK_TO_Q="CLK 10e-12" *)
+	output reg Q;
+	(* ASSOC_CLOCK="CLK" *)
+
+	always @ ( posedge CLK ) begin
+		Q <= D;
 	end
 
 `ifndef YOSYS
