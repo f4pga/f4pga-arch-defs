@@ -12,15 +12,13 @@ module DSP_OUT_REGISTERED (clk, a, b, m, out);
 	output wire [DATA_WIDTH-1:0] out;
 
 	/* Combinational logic */
+	(* pack="DSP-DFF" *)
 	wire [DATA_WIDTH-1:0] c_out;
 	DSP_COMBINATIONAL comb (.a(a), .b(b), .m(m), .out(c_out));
 
 	/* Output register on clk */
-	wire [DATA_WIDTH-1:0] q_out;
 	genvar j;
 	for (j=0; j<DATA_WIDTH; j=j+1) begin: output_dffs_gen
-		DFF q_out_ff(.d(c_out[j]), .q(q_out[j]), .clk(clk));
+		DFF q_out_ff(.D(c_out[j]), .Q(out[j]), .CLK(clk));
 	end
-
-	assign out = q_out;
 endmodule
