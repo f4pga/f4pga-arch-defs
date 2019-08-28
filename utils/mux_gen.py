@@ -321,7 +321,7 @@ Generated with %s
                 f.write('\t\tend\n')
             f.write('\t\telse\n')
             f.write('\t\tbegin\n')
-            f.write('\t\t\twire _TECHMAP_FAIL_ = 1;\n');
+            f.write('\t\t\twire _TECHMAP_FAIL_ = 1;\n')
             f.write('\t\tend\n')
             f.write("\tendgenerate\n")
             f.write("endmodule")
