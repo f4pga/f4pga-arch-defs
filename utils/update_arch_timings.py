@@ -46,7 +46,7 @@ def gen_all_possibilities(pattern):
     """
 
     # Match the regex
-    match = re.match("(.*)\[([A-Za-z0-9]+)\](.*)", pattern)
+    match = re.match(r"(.*)\[([A-Za-z0-9]+)\](.*)", pattern)
 
     # Generate combinations
     if match is not None:
