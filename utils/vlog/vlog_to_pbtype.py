@@ -69,7 +69,7 @@ def normalize_pb_name(pb_name):
     if pb_name is None:
         return None
 
-    index = re.search(r'\[[0-9]+\]', pb_name)
+    index = re.search(r'\[[0-9]+\](?!$)', pb_name)
     normalized_name = pb_name.replace('.', '_')
     if index is not None:
         normalized_name = normalized_name.replace(
