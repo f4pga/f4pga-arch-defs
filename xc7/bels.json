@@ -1,314 +1,192 @@
 {
     "SLICEL": {
         "A5LUT": {
-            "ALUT":{
-                "celltype": "LUT5",
-                "instance": "SLICEL/A5LUT"
-            }
+            "ALUT": ["LUT5.SLICEL/A5LUT"]
         },
         "B5LUT": {
-            "BLUT":{
-                "celltype": "LUT5",
-                "instance": "SLICEL/B5LUT"
-            }
+            "BLUT": ["LUT5.SLICEL/B5LUT"]
         },
         "C5LUT": {
-            "CLUT":{
-                "celltype": "LUT5",
-                "instance": "SLICEL/C5LUT"
-            }
+            "CLUT": ["LUT5.SLICEL/C5LUT"]
         },
         "D5LUT": {
-            "DLUT":{
-                "celltype": "LUT5",
-                "instance": "SLICEL/D5LUT"
-            }
+            "DLUT": ["LUT5.SLICEL/D5LUT"]
         },
         "F7AMUX":{
-            "COMMON_LUT_AND_F78MUX":{
-                "celltype": "SELMUX2_1",
-                "instance": "SLICEL/F7AMUX"
-            }
+            "COMMON_LUT_AND_F78MUX":
+                ["SELMUX2_1.SLICEL/F7AMUX"]
         },
         "F7BMUX":{
-            "COMMON_LUT_AND_F78MUX":{
-                "celltype": "SELMUX2_1",
-                "instance": "SLICEL/F7BMUX"
-            }
+            "COMMON_LUT_AND_F78MUX":
+                ["SELMUX2_1.SLICEL/F7BMUX"]
         },
         "F8MUX":{
-            "COMMON_LUT_AND_F78MUX":{
-                "celltype": "SELMUX2_1",
-                "instance": "SLICEL/F8MUX"
-            }
+            "COMMON_LUT_AND_F78MUX":
+                ["SELMUX2_1.SLICEL/F8MUX"]
         },
         "FDSE":{
-            "FF_FDSE_or_FDRE":{
-                "celltype": "FF_INIT FF_INIT_QH",
-                "instance": "SLICEL"
-            },
-            "REG_FDSE_or_FDRE":{
-                "celltype": "REG_INIT_FF REG_INIT_FF_QH",
-                "instance": "SLICEL"
-            }
+            "FF_FDSE_or_FDRE":
+                ["FF_INIT.SLICEL", "FF_INIT_QH.SLICEL"],
+            "REG_FDSE_or_FDRE":
+                ["REG_INIT_FF.SLICEL", "REG_INIT_FF_QH.SLICEL"]
         },
         "FDRE":{
-            "FF_FDSE_or_FDRE":{
-                "celltype": "FF_INIT FF_INIT_QL",
-                "instance": "SLICEL"
-            },
-            "REG_FDSE_or_FDRE":{
-                "celltype": "REG_INIT_FF REG_INIT_FF_QL",
-                "instance": "SLICEL"
-            }
+            "FF_FDSE_or_FDRE":
+                ["FF_INIT.SLICEL", "FF_INIT_QL.SLICEL"],
+            "REG_FDSE_or_FDRE":
+                ["REG_INIT_FF.SLICEL", "REG_INIT_FF_QL.SLICEL"]
         },
         "FDPE":{
-            "FF_FDPE_or_FDCE":{
-                "celltype": "FF_INIT FF_INIT_QH",
-                "instance": "SLICEL"
-            },
-            "REG_FDPE_or_FDCE":{
-                "celltype": "REG_INIT_FF REG_INIT_FF_QH",
-                "instance": "SLICEL"
-            }
+            "FF_FDPE_or_FDCE":
+                ["FF_INIT.SLICEL", "FF_INIT_QH.SLICEL"],
+            "REG_FDPE_or_FDCE":
+                ["REG_INIT_FF.SLICEL", "REG_INIT_FF_QH.SLICEL"]
         },
         "FDCE":{
-            "FF_FDPE_or_FDCE":{
-                "celltype": "FF_INIT FF_INIT_QL",
-                "instance": "SLICEL"
-            },
-            "REG_FDPE_or_FDCE":{
-                "celltype": "REG_INIT_FF REG_INIT_FF_QL",
-                "instance": "SLICEL"
-            }
+            "FF_FDPE_or_FDCE":
+                ["FF_INIT.SLICEL", "FF_INIT_QL.SLICEL"],
+            "REG_FDPE_or_FDCE":
+                ["REG_INIT_FF.SLICEL", "REG_INIT_FF_QL.SLICEL"]
         },
         "LDPE":{
-            "LDPE_or_LDCE":{
-                "celltype": "REG_INIT_LAT REG_INIT_LAT_LOGIC_AND",
-                "instance": "SLICEL"
-            }
+            "LDPE_or_LDCE":
+                ["REG_INIT_LAT_LOGIC_AND.SLICEL", "REG_INIT_LAT.SLICEL"]
         },
         "LDCE":{
-            "LDPE_or_LDCE":{
-                "celltype": "REG_INIT_LAT REG_INIT_LAT_LOGIC_AND",
-                "instance": "SLICEL"
-            }
+            "LDPE_or_LDCE":
+                ["REG_INIT_LAT_LOGIC_AND.SLICEL", "REG_INIT_LAT.SLICEL"]
         },
         "CARRY4_VPR":{
-            "COMMON_SLICE":{
-                "celltype": "CARRY4 CARRY4_O5",
-                "instance": "SLICEL"
-            }
+            "COMMON_SLICE":
+                ["CARRY4.SLICEL", "CARRY4_O5.SLICEL"]
         },
         "ROUTING_BEL": {
-            "SLICEL0" : {
-                "celltype": "ROUTING_BEL",
-                "instance": "SLICEL/AMUX SLICEL/BMUX SLICEL/CMUX SLICEL/DMUX SLICEL/AFF SLICEL/BFF SLICEL/CFF SLICEL/DFF SLICEL/A SLICEL/B SLICEL/C SLICEL/D SLICEL/COUT SLICEL/CARRY4 SLICEL/D5FFL SLICEL/C5FFL SLICEL/B5FFL SLICEL/A5FFL"
-            }
+            "SLICEL0":
+                ["ROUTING_BEL.SLICEL/[ABCD]MUX", "ROUTING_BEL.SLICEL/[ABCD]FF", "ROUTING_BEL.SLICEL/[ABCD]", "ROUTING_BEL.SLICEL/COUT", "ROUTING_BEL.SLICEL/CARRY4", "ROUTING_BEL.SLICEL/[ABCD]5FFL"]
         }
     },
     "SLICEM": {
         "A5LUT": {
-            "ALUT":{
-                "celltype": "LUT_OR_MEM5LRAM",
-                "instance": "SLICEM/A5LUT"
-            },
-            "A_DRAM":{
-                "celltype": "LUT_OR_MEM5LRAM",
-                "instance": "SLICEM/A5LUT"
-            }
+            "ALUT":
+                ["LUT_OR_MEM5LRAM.SLICEM/A5LUT"],
+            "A_DRAM":
+                ["LUT_OR_MEM5LRAM.SLICEM/A5LUT"]
         },
         "B5LUT": {
-            "BLUT":{
-                "celltype": "LUT_OR_MEM5LRAM",
-                "instance": "SLICEM/B5LUT"
-            },
-            "B_DRAM":{
-                "celltype": "LUT_OR_MEM5LRAM",
-                "instance": "SLICEM/B5LUT"
-            }
+            "BLUT":
+                ["LUT_OR_MEM5LRAM.SLICEM/B5LUT"],
+            "B_DRAM":
+                ["LUT_OR_MEM5LRAM.SLICEM/B5LUT"]
         },
         "C5LUT": {
-            "CLUT":{
-                "celltype": "LUT_OR_MEM5LRAM",
-                "instance": "SLICEM/C5LUT"
-            },
-            "C_DRAM":{
-                "celltype": "LUT_OR_MEM5LRAM",
-                "instance": "SLICEM/C5LUT"
-            }
+            "CLUT":
+                ["LUT_OR_MEM5LRAM.SLICEM/C5LUT"],
+            "C_DRAM":
+                ["LUT_OR_MEM5LRAM.SLICEM/C5LUT"]
         },
         "D5LUT": {
-            "DLUT":{
-                "celltype": "LUT_OR_MEM5LRAM",
-                "instance": "SLICEM/D5LUT"
-            },
-            "D_DRAM":{
-                "celltype": "LUT_OR_MEM5LRAM",
-                "instance": "SLICEM/D5LUT"
-            }
+            "DLUT":
+                ["LUT_OR_MEM5LRAM.SLICEM/D5LUT"],
+            "D_DRAM":
+                ["LUT_OR_MEM5LRAM.SLICEM/D5LUT"]
         },
         "DPRAM32": {
-            "A_DRAM":{
-                "celltype": "LUT_OR_MEM5LRAM",
-                "instance": "SLICEM/A5LUT"
-            },
-            "B_DRAM":{
-                "celltype": "LUT_OR_MEM5LRAM",
-                "instance": "SLICEM/B5LUT"
-            },
-            "C_DRAM":{
-                "celltype": "LUT_OR_MEM5LRAM",
-                "instance": "SLICEM/C5LUT"
-            },
-            "D_DRAM":{
-                "celltype": "LUT_OR_MEM5LRAM",
-                "instance": "SLICEM/D5LUT"
-            }
+            "A_DRAM":
+                ["LUT_OR_MEM5LRAM.SLICEM/A5LUT"],
+            "B_DRAM":
+                ["LUT_OR_MEM5LRAM.SLICEM/B5LUT"],
+            "C_DRAM":
+                ["LUT_OR_MEM5LRAM.SLICEM/C5LUT"],
+            "D_DRAM":
+                ["LUT_OR_MEM5LRAM.SLICEM/D5LUT"]
         },
         "DPRAM64": {
-            "A_DRAM":{
-                "celltype": "LUT_OR_MEM6LRAM",
-                "instance": "SLICEM/A6LUT"
-            },
-            "B_DRAM":{
-                "celltype": "LUT_OR_MEM6LRAM",
-                "instance": "SLICEM/B6LUT"
-            },
-            "C_DRAM":{
-                "celltype": "LUT_OR_MEM6LRAM",
-                "instance": "SLICEM/C6LUT"
-            },
-            "D_DRAM":{
-                "celltype": "LUT_OR_MEM6LRAM",
-                "instance": "SLICEM/D6LUT"
-            }
+            "A_DRAM":
+                ["LUT_OR_MEM6LRAM.SLICEM/A6LUT"],
+            "B_DRAM":
+                ["LUT_OR_MEM6LRAM.SLICEM/B6LUT"],
+            "C_DRAM":
+                ["LUT_OR_MEM6LRAM.SLICEM/C6LUT"],
+            "D_DRAM":
+                ["LUT_OR_MEM6LRAM.SLICEM/D6LUT"]
         },
         "DPRAM64_for_RAM128X1D": {
-            "A_DRAM128":{
-                "celltype": "LUT_OR_MEM6LRAM",
-                "instance": "SLICEM/A6LUT"
-            },
-            "B_DRAM128":{
-                "celltype": "LUT_OR_MEM6LRAM",
-                "instance": "SLICEM/B6LUT"
-            },
-            "C_DRAM128":{
-                "celltype": "LUT_OR_MEM6LRAM",
-                "instance": "SLICEM/C6LUT"
-            },
-            "D_DRAM128":{
-                "celltype": "LUT_OR_MEM6LRAM",
-                "instance": "SLICEM/D6LUT"
-            }
+            "A_DRAM128":
+                ["LUT_OR_MEM6LRAM.SLICEM/A6LUT"],
+            "B_DRAM128":
+                ["LUT_OR_MEM6LRAM.SLICEM/B6LUT"],
+            "C_DRAM128":
+                ["LUT_OR_MEM6LRAM.SLICEM/C6LUT"],
+            "D_DRAM128":
+                ["LUT_OR_MEM6LRAM.SLICEM/D6LUT"]
         },
         "F7AMUX":{
-            "SLICEM_MODES":{
-                "celltype": "SELMUX2_1",
-                "instance": "SLICEM/F7AMUX"
-            },
-            "COMMON_LUT_AND_F78MUX":{
-                "celltype": "SELMUX2_1",
-                "instance": "SLICEM/F7AMUX"
-            }
+            "SLICEM_MODES":
+                ["SELMUX2_1.SLICEM/F7AMUX"],
+            "COMMON_LUT_AND_F78MUX":
+                ["SELMUX2_1.SLICEM/F7AMUX"]
         },
         "F7BMUX":{
-            "SLICEM_MODES":{
-                "celltype": "SELMUX2_1",
-                "instance": "SLICEM/F7BMUX"
-            },
-            "COMMON_LUT_AND_F78MUX":{
-                "celltype": "SELMUX2_1",
-                "instance": "SLICEM/F7BMUX"
-            }
+            "SLICEM_MODES":
+                ["SELMUX2_1.SLICEM/F7BMUX"],
+            "COMMON_LUT_AND_F78MUX":
+                ["SELMUX2_1.SLICEM/F7BMUX"]
         },
         "F8MUX":{
-            "SLICEM_MODES":{
-                "celltype": "SELMUX2_1",
-                "instance": "SLICEM/F8MUX"
-            },
-            "COMMON_LUT_AND_F78MUX":{
-                "celltype": "SELMUX2_1",
-                "instance": "SLICEM/F8MUX"
-            }
+            "SLICEM_MODES":
+                ["SELMUX2_1.SLICEM/F8MUX"],
+            "COMMON_LUT_AND_F78MUX":
+                ["SELMUX2_1.SLICEM/F8MUX"]
         },
         "FDSE":{
-            "FF_FDSE_or_FDRE":{
-                "celltype": "FF_INIT FF_INIT_QH",
-                "instance": "SLICEM"
-            },
-            "REG_FDSE_or_FDRE":{
-                "celltype": "REG_INIT_FF REG_INIT_FF_QH",
-                "instance": "SLICEM"
-            }
+            "FF_FDSE_or_FDRE":
+                ["FF_INIT.SLICEM", "FF_INIT_QH.SLICEM"],
+            "REG_FDSE_or_FDRE":
+                ["REG_INIT_FF.SLICEM", "REG_INIT_FF_QH.SLICEM"]
         },
         "FDRE":{
-            "FF_FDSE_or_FDRE":{
-                "celltype": "FF_INIT FF_INIT_QL",
-                "instance": "SLICEM"
-            },
-            "REG_FDSE_or_FDRE":{
-                "celltype": "REG_INIT_FF REG_INIT_FF_QL",
-                "instance": "SLICEM"
-            }
+            "FF_FDSE_or_FDRE":
+                ["FF_INIT.SLICEM", "FF_INIT_QL.SLICEM"],
+            "REG_FDSE_or_FDRE":
+                ["REG_INIT_FF.SLICEM", "REG_INIT_FF_QL.SLICEM"]
         },
         "FDPE":{
-            "FF_FDPE_or_FDCE":{
-                "celltype": "FF_INIT FF_INIT_QH",
-                "instance": "SLICEM"
-            },
-            "REG_FDPE_or_FDCE":{
-                "celltype": "REG_INIT_FF REG_INIT_FF_QH",
-                "instance": "SLICEM"
-            }
+            "FF_FDPE_or_FDCE":
+                ["FF_INIT.SLICEM", "FF_INIT_QH.SLICEM"],
+            "REG_FDPE_or_FDCE":
+                ["REG_INIT_FF.SLICEM", "REG_INIT_FF_QH.SLICEM"]
         },
         "FDCE":{
-            "FF_FDPE_or_FDCE":{
-                "celltype": "FF_INIT FF_INIT_QL",
-                "instance": "SLICEM"
-            },
-            "REG_FDPE_or_FDCE":{
-                "celltype": "REG_INIT_FF REG_INIT_FF_QL",
-                "instance": "SLICEM"
-            }
+            "FF_FDPE_or_FDCE":
+                ["FF_INIT.SLICEM", "FF_INIT_QL.SLICEM"],
+            "REG_FDPE_or_FDCE":
+                ["REG_INIT_FF.SLICEM", "REG_INIT_FF_QL.SLICEM"]
         },
         "LDPE":{
-            "LDPE_or_LDCE":{
-                "celltype": "REG_INIT_LAT REG_INIT_LAT_LOGIC_AND",
-                "instance": "SLICEM"
-            }
+            "LDPE_or_LDCE":
+                ["REG_INIT_LAT_LOGIC_AND.SLICEM", "REG_INIT_LAT.SLICEM"]
         },
         "LDCE":{
-            "LDPE_or_LDCE":{
-                "celltype": "REG_INIT_LAT REG_INIT_LAT_LOGIC_AND",
-                "instance": "SLICEM"
-            }
+            "LDPE_or_LDCE":
+                ["REG_INIT_LAT_LOGIC_AND.SLICEM", "REG_INIT_LAT.SLICEM"]
         },
         "CARRY4_VPR":{
-            "COMMON_SLICE":{
-                "celltype": "CARRY4 CARRY4_O5",
-                "instance": "SLICEM"
-            }
+            "COMMON_SLICE":
+                ["CARRY4.SLICEM", "CARRY4_O5.SLICEM"]
         },
         "ROUTING_BEL": {
-            "SLICEM" : {
-                "celltype": "ROUTING_BEL",
-                "instance": "SLICEM/AMUX SLICEM/BMUX SLICEM/CMUX SLICEM/DMUX SLICEM/AFF SLICEM/BFF SLICEM/CFF SLICEM/DFF SLICEM/A SLICEM/B SLICEM/C SLICEM/D SLICEM/COUT SLICEM/CARRY4 SLICEM/D5FFL SLICEM/C5FFL SLICEM/B5FFL SLICEM/A5FFL"
-            }
+            "SLICEM":
+                ["ROUTING_BEL.SLICEM/[ABCD]MUX", "ROUTING_BEL.SLICEM/[ABCD]FF", "ROUTING_BEL.SLICEM/[ABCD]", "ROUTING_BEL.SLICEM/COUT", "ROUTING_BEL.SLICEM/CARRY4", "ROUTING_BEL.SLICEM/[ABCD]5FFL"]
         }
     },
-    "BRAM_X" : {
-        "RAMB36E1":{
-            "RAMBFIFO36E1":{
-                "celltype": "RAMBFIFO36E1 RAMBFIFO36E1_DOA_REG_U_1 RAMBFIFO36E1_DOB_REG_U_1 RAMBFIFO36E1_ISFIFO_FALSE RAMBFIFO36E1RAM_MODE_RAMB18TDP_U_WRITE_MODE_U_RF_EN_ECC_READ_FALSE_EN_ECC_WRITE_FALSE RAMBFIFO36E1RAM_MODE_U_RAMB18TDP_U_DOA_REG_U_1_EN_ECC_READ_FALSE RAMBFIFO36E1RAM_MODE_U_RAMB18TDP_U_DOB_REG_U_1_EN_ECC_READ_FALSE",
-                "instance": "RAMBFIFO36E1"
-            }
+    "BRAM_X": {
+        "RAMB36E1": {
+            "RAMBFIFO36E1" :
+                ["RAMBFIFO36E1.RAMBFIFO36E1", "RAMBFIFO36E1_DOA_REG_U_1.RAMBFIFO36E1", "RAMBFIFO36E1_DOB_REG_U_1.RAMBFIFO36E1", "RAMBFIFO36E1_ISFIFO_FALSE.RAMBFIFO36E1", "RAMBFIFO36E1RAM_MODE_RAMB18TDP_U_WRITE_MODE_U_RF_EN_ECC_READ_FALSE_EN_ECC_WRITE_FALSE.RAMBFIFO36E1", "RAMBFIFO36E1RAM_MODE_U_RAMB18TDP_U_DOA_REG_U_1_EN_ECC_READ_FALSE.RAMBFIFO36E1", "RAMBFIFO36E1RAM_MODE_U_RAMB18TDP_U_DOB_REG_U_1_EN_ECC_READ_FALSE.RAMBFIFO36E1"]
         },
-        "RAMB18E1":{
-            "BRAM":{
-                "celltype": "RAMBFIFO36E1 RAMBFIFO36E1_DOA_REG_U_1 RAMBFIFO36E1_DOB_REG_U_1 RAMBFIFO36E1_ISFIFO_FALSE RAMBFIFO36E1RAM_MODE_RAMB18TDP_U_WRITE_MODE_U_RF_EN_ECC_READ_FALSE_EN_ECC_WRITE_FALSE RAMBFIFO36E1RAM_MODE_U_RAMB18TDP_U_DOA_REG_U_1_EN_ECC_READ_FALSE RAMBFIFO36E1RAM_MODE_U_RAMB18TDP_U_DOB_REG_U_1_EN_ECC_READ_FALSE",
-                "instance": "RAMBFIFO36E1"
-            }
+        "RAMB18E1": {
+            "BRAM" :
+                ["RAMBFIFO36E1.RAMBFIFO36E1", "RAMBFIFO36E1_DOA_REG_U_1.RAMBFIFO36E1", "RAMBFIFO36E1_DOB_REG_U_1.RAMBFIFO36E1", "RAMBFIFO36E1_ISFIFO_FALSE.RAMBFIFO36E1", "RAMBFIFO36E1RAM_MODE_RAMB18TDP_U_WRITE_MODE_U_RF_EN_ECC_READ_FALSE_EN_ECC_WRITE_FALSE.RAMBFIFO36E1", "RAMBFIFO36E1RAM_MODE_U_RAMB18TDP_U_DOA_REG_U_1_EN_ECC_READ_FALSE.RAMBFIFO36E1", "RAMBFIFO36E1RAM_MODE_U_RAMB18TDP_U_DOB_REG_U_1_EN_ECC_READ_FALSE.RAMBFIFO36E1"]
         }
     }
 }
