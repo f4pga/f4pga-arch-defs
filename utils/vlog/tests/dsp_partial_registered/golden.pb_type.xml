@@ -1,15 +1,1489 @@
-<?xml version="1.0"?>
-<pb_type xmlns:xi="http://www.w3.org/2001/XInclude" name="dsp_partial_registered" num_pb="1">
+<?xml version='1.0' encoding='utf-8'?>
+<pb_type xmlns:xi="http://www.w3.org/2001/XInclude" num_pb="1" name="DSP_PARTIAL_REGISTERED">
+  <clock name="clk" num_pins="1"/>
   <input name="a" num_pins="32"/>
   <input name="b" num_pins="32"/>
-  <clock name="clk" num_pins="1"/>
   <input name="m" num_pins="1"/>
   <output name="out" num_pins="64"/>
-  <xi:include href="../dsp_combinational/dsp_combinational.pb_type.xml"/>
+  <pb_type num_pb="1" name="comb">
+    <xi:include href="../dsp_combinational/dsp_combinational.pb_type.xml" xpointer="xpointer(pb_type/child::node())"/>
+  </pb_type>
+  <pb_type num_pb="1" name="dffs_gen_q_a_ff_0">
+    <xi:include href="../fig42-dff/dff.pb_type.xml" xpointer="xpointer(pb_type/child::node())"/>
+  </pb_type>
+  <pb_type num_pb="1" name="dffs_gen_q_b_ff_0">
+    <xi:include href="../fig42-dff/dff.pb_type.xml" xpointer="xpointer(pb_type/child::node())"/>
+  </pb_type>
+  <pb_type num_pb="1" name="dffs_gen_q_a_ff_10">
+    <xi:include href="../fig42-dff/dff.pb_type.xml" xpointer="xpointer(pb_type/child::node())"/>
+  </pb_type>
+  <pb_type num_pb="1" name="dffs_gen_q_b_ff_10">
+    <xi:include href="../fig42-dff/dff.pb_type.xml" xpointer="xpointer(pb_type/child::node())"/>
+  </pb_type>
+  <pb_type num_pb="1" name="dffs_gen_q_a_ff_11">
+    <xi:include href="../fig42-dff/dff.pb_type.xml" xpointer="xpointer(pb_type/child::node())"/>
+  </pb_type>
+  <pb_type num_pb="1" name="dffs_gen_q_b_ff_11">
+    <xi:include href="../fig42-dff/dff.pb_type.xml" xpointer="xpointer(pb_type/child::node())"/>
+  </pb_type>
+  <pb_type num_pb="1" name="dffs_gen_q_a_ff_12">
+    <xi:include href="../fig42-dff/dff.pb_type.xml" xpointer="xpointer(pb_type/child::node())"/>
+  </pb_type>
+  <pb_type num_pb="1" name="dffs_gen_q_b_ff_12">
+    <xi:include href="../fig42-dff/dff.pb_type.xml" xpointer="xpointer(pb_type/child::node())"/>
+  </pb_type>
+  <pb_type num_pb="1" name="dffs_gen_q_a_ff_13">
+    <xi:include href="../fig42-dff/dff.pb_type.xml" xpointer="xpointer(pb_type/child::node())"/>
+  </pb_type>
+  <pb_type num_pb="1" name="dffs_gen_q_b_ff_13">
+    <xi:include href="../fig42-dff/dff.pb_type.xml" xpointer="xpointer(pb_type/child::node())"/>
+  </pb_type>
+  <pb_type num_pb="1" name="dffs_gen_q_a_ff_14">
+    <xi:include href="../fig42-dff/dff.pb_type.xml" xpointer="xpointer(pb_type/child::node())"/>
+  </pb_type>
+  <pb_type num_pb="1" name="dffs_gen_q_b_ff_14">
+    <xi:include href="../fig42-dff/dff.pb_type.xml" xpointer="xpointer(pb_type/child::node())"/>
+  </pb_type>
+  <pb_type num_pb="1" name="dffs_gen_q_a_ff_15">
+    <xi:include href="../fig42-dff/dff.pb_type.xml" xpointer="xpointer(pb_type/child::node())"/>
+  </pb_type>
+  <pb_type num_pb="1" name="dffs_gen_q_b_ff_15">
+    <xi:include href="../fig42-dff/dff.pb_type.xml" xpointer="xpointer(pb_type/child::node())"/>
+  </pb_type>
+  <pb_type num_pb="1" name="dffs_gen_q_a_ff_16">
+    <xi:include href="../fig42-dff/dff.pb_type.xml" xpointer="xpointer(pb_type/child::node())"/>
+  </pb_type>
+  <pb_type num_pb="1" name="dffs_gen_q_b_ff_16">
+    <xi:include href="../fig42-dff/dff.pb_type.xml" xpointer="xpointer(pb_type/child::node())"/>
+  </pb_type>
+  <pb_type num_pb="1" name="dffs_gen_q_a_ff_17">
+    <xi:include href="../fig42-dff/dff.pb_type.xml" xpointer="xpointer(pb_type/child::node())"/>
+  </pb_type>
+  <pb_type num_pb="1" name="dffs_gen_q_b_ff_17">
+    <xi:include href="../fig42-dff/dff.pb_type.xml" xpointer="xpointer(pb_type/child::node())"/>
+  </pb_type>
+  <pb_type num_pb="1" name="dffs_gen_q_a_ff_18">
+    <xi:include href="../fig42-dff/dff.pb_type.xml" xpointer="xpointer(pb_type/child::node())"/>
+  </pb_type>
+  <pb_type num_pb="1" name="dffs_gen_q_b_ff_18">
+    <xi:include href="../fig42-dff/dff.pb_type.xml" xpointer="xpointer(pb_type/child::node())"/>
+  </pb_type>
+  <pb_type num_pb="1" name="dffs_gen_q_a_ff_19">
+    <xi:include href="../fig42-dff/dff.pb_type.xml" xpointer="xpointer(pb_type/child::node())"/>
+  </pb_type>
+  <pb_type num_pb="1" name="dffs_gen_q_b_ff_19">
+    <xi:include href="../fig42-dff/dff.pb_type.xml" xpointer="xpointer(pb_type/child::node())"/>
+  </pb_type>
+  <pb_type num_pb="1" name="dffs_gen_q_a_ff_1">
+    <xi:include href="../fig42-dff/dff.pb_type.xml" xpointer="xpointer(pb_type/child::node())"/>
+  </pb_type>
+  <pb_type num_pb="1" name="dffs_gen_q_b_ff_1">
+    <xi:include href="../fig42-dff/dff.pb_type.xml" xpointer="xpointer(pb_type/child::node())"/>
+  </pb_type>
+  <pb_type num_pb="1" name="dffs_gen_q_a_ff_20">
+    <xi:include href="../fig42-dff/dff.pb_type.xml" xpointer="xpointer(pb_type/child::node())"/>
+  </pb_type>
+  <pb_type num_pb="1" name="dffs_gen_q_b_ff_20">
+    <xi:include href="../fig42-dff/dff.pb_type.xml" xpointer="xpointer(pb_type/child::node())"/>
+  </pb_type>
+  <pb_type num_pb="1" name="dffs_gen_q_a_ff_21">
+    <xi:include href="../fig42-dff/dff.pb_type.xml" xpointer="xpointer(pb_type/child::node())"/>
+  </pb_type>
+  <pb_type num_pb="1" name="dffs_gen_q_b_ff_21">
+    <xi:include href="../fig42-dff/dff.pb_type.xml" xpointer="xpointer(pb_type/child::node())"/>
+  </pb_type>
+  <pb_type num_pb="1" name="dffs_gen_q_a_ff_22">
+    <xi:include href="../fig42-dff/dff.pb_type.xml" xpointer="xpointer(pb_type/child::node())"/>
+  </pb_type>
+  <pb_type num_pb="1" name="dffs_gen_q_b_ff_22">
+    <xi:include href="../fig42-dff/dff.pb_type.xml" xpointer="xpointer(pb_type/child::node())"/>
+  </pb_type>
+  <pb_type num_pb="1" name="dffs_gen_q_a_ff_23">
+    <xi:include href="../fig42-dff/dff.pb_type.xml" xpointer="xpointer(pb_type/child::node())"/>
+  </pb_type>
+  <pb_type num_pb="1" name="dffs_gen_q_b_ff_23">
+    <xi:include href="../fig42-dff/dff.pb_type.xml" xpointer="xpointer(pb_type/child::node())"/>
+  </pb_type>
+  <pb_type num_pb="1" name="dffs_gen_q_a_ff_24">
+    <xi:include href="../fig42-dff/dff.pb_type.xml" xpointer="xpointer(pb_type/child::node())"/>
+  </pb_type>
+  <pb_type num_pb="1" name="dffs_gen_q_b_ff_24">
+    <xi:include href="../fig42-dff/dff.pb_type.xml" xpointer="xpointer(pb_type/child::node())"/>
+  </pb_type>
+  <pb_type num_pb="1" name="dffs_gen_q_a_ff_25">
+    <xi:include href="../fig42-dff/dff.pb_type.xml" xpointer="xpointer(pb_type/child::node())"/>
+  </pb_type>
+  <pb_type num_pb="1" name="dffs_gen_q_b_ff_25">
+    <xi:include href="../fig42-dff/dff.pb_type.xml" xpointer="xpointer(pb_type/child::node())"/>
+  </pb_type>
+  <pb_type num_pb="1" name="dffs_gen_q_a_ff_26">
+    <xi:include href="../fig42-dff/dff.pb_type.xml" xpointer="xpointer(pb_type/child::node())"/>
+  </pb_type>
+  <pb_type num_pb="1" name="dffs_gen_q_b_ff_26">
+    <xi:include href="../fig42-dff/dff.pb_type.xml" xpointer="xpointer(pb_type/child::node())"/>
+  </pb_type>
+  <pb_type num_pb="1" name="dffs_gen_q_a_ff_27">
+    <xi:include href="../fig42-dff/dff.pb_type.xml" xpointer="xpointer(pb_type/child::node())"/>
+  </pb_type>
+  <pb_type num_pb="1" name="dffs_gen_q_b_ff_27">
+    <xi:include href="../fig42-dff/dff.pb_type.xml" xpointer="xpointer(pb_type/child::node())"/>
+  </pb_type>
+  <pb_type num_pb="1" name="dffs_gen_q_a_ff_28">
+    <xi:include href="../fig42-dff/dff.pb_type.xml" xpointer="xpointer(pb_type/child::node())"/>
+  </pb_type>
+  <pb_type num_pb="1" name="dffs_gen_q_b_ff_28">
+    <xi:include href="../fig42-dff/dff.pb_type.xml" xpointer="xpointer(pb_type/child::node())"/>
+  </pb_type>
+  <pb_type num_pb="1" name="dffs_gen_q_a_ff_29">
+    <xi:include href="../fig42-dff/dff.pb_type.xml" xpointer="xpointer(pb_type/child::node())"/>
+  </pb_type>
+  <pb_type num_pb="1" name="dffs_gen_q_b_ff_29">
+    <xi:include href="../fig42-dff/dff.pb_type.xml" xpointer="xpointer(pb_type/child::node())"/>
+  </pb_type>
+  <pb_type num_pb="1" name="dffs_gen_q_a_ff_2">
+    <xi:include href="../fig42-dff/dff.pb_type.xml" xpointer="xpointer(pb_type/child::node())"/>
+  </pb_type>
+  <pb_type num_pb="1" name="dffs_gen_q_b_ff_2">
+    <xi:include href="../fig42-dff/dff.pb_type.xml" xpointer="xpointer(pb_type/child::node())"/>
+  </pb_type>
+  <pb_type num_pb="1" name="dffs_gen_q_a_ff_30">
+    <xi:include href="../fig42-dff/dff.pb_type.xml" xpointer="xpointer(pb_type/child::node())"/>
+  </pb_type>
+  <pb_type num_pb="1" name="dffs_gen_q_b_ff_30">
+    <xi:include href="../fig42-dff/dff.pb_type.xml" xpointer="xpointer(pb_type/child::node())"/>
+  </pb_type>
+  <pb_type num_pb="1" name="dffs_gen_q_a_ff_31">
+    <xi:include href="../fig42-dff/dff.pb_type.xml" xpointer="xpointer(pb_type/child::node())"/>
+  </pb_type>
+  <pb_type num_pb="1" name="dffs_gen_q_b_ff_31">
+    <xi:include href="../fig42-dff/dff.pb_type.xml" xpointer="xpointer(pb_type/child::node())"/>
+  </pb_type>
+  <pb_type num_pb="1" name="dffs_gen_q_a_ff_3">
+    <xi:include href="../fig42-dff/dff.pb_type.xml" xpointer="xpointer(pb_type/child::node())"/>
+  </pb_type>
+  <pb_type num_pb="1" name="dffs_gen_q_b_ff_3">
+    <xi:include href="../fig42-dff/dff.pb_type.xml" xpointer="xpointer(pb_type/child::node())"/>
+  </pb_type>
+  <pb_type num_pb="1" name="dffs_gen_q_a_ff_4">
+    <xi:include href="../fig42-dff/dff.pb_type.xml" xpointer="xpointer(pb_type/child::node())"/>
+  </pb_type>
+  <pb_type num_pb="1" name="dffs_gen_q_b_ff_4">
+    <xi:include href="../fig42-dff/dff.pb_type.xml" xpointer="xpointer(pb_type/child::node())"/>
+  </pb_type>
+  <pb_type num_pb="1" name="dffs_gen_q_a_ff_5">
+    <xi:include href="../fig42-dff/dff.pb_type.xml" xpointer="xpointer(pb_type/child::node())"/>
+  </pb_type>
+  <pb_type num_pb="1" name="dffs_gen_q_b_ff_5">
+    <xi:include href="../fig42-dff/dff.pb_type.xml" xpointer="xpointer(pb_type/child::node())"/>
+  </pb_type>
+  <pb_type num_pb="1" name="dffs_gen_q_a_ff_6">
+    <xi:include href="../fig42-dff/dff.pb_type.xml" xpointer="xpointer(pb_type/child::node())"/>
+  </pb_type>
+  <pb_type num_pb="1" name="dffs_gen_q_b_ff_6">
+    <xi:include href="../fig42-dff/dff.pb_type.xml" xpointer="xpointer(pb_type/child::node())"/>
+  </pb_type>
+  <pb_type num_pb="1" name="dffs_gen_q_a_ff_7">
+    <xi:include href="../fig42-dff/dff.pb_type.xml" xpointer="xpointer(pb_type/child::node())"/>
+  </pb_type>
+  <pb_type num_pb="1" name="dffs_gen_q_b_ff_7">
+    <xi:include href="../fig42-dff/dff.pb_type.xml" xpointer="xpointer(pb_type/child::node())"/>
+  </pb_type>
+  <pb_type num_pb="1" name="dffs_gen_q_a_ff_8">
+    <xi:include href="../fig42-dff/dff.pb_type.xml" xpointer="xpointer(pb_type/child::node())"/>
+  </pb_type>
+  <pb_type num_pb="1" name="dffs_gen_q_b_ff_8">
+    <xi:include href="../fig42-dff/dff.pb_type.xml" xpointer="xpointer(pb_type/child::node())"/>
+  </pb_type>
+  <pb_type num_pb="1" name="dffs_gen_q_a_ff_9">
+    <xi:include href="../fig42-dff/dff.pb_type.xml" xpointer="xpointer(pb_type/child::node())"/>
+  </pb_type>
+  <pb_type num_pb="1" name="dffs_gen_q_b_ff_9">
+    <xi:include href="../fig42-dff/dff.pb_type.xml" xpointer="xpointer(pb_type/child::node())"/>
+  </pb_type>
   <interconnect>
     <direct>
+      <port name="Q" type="input" from="dffs_gen_q_a_ff_0"/>
+      <port name="a[0]" type="output" from="comb"/>
+      <pack_pattern name="DFF-DSP" type="pack">
+        <port name="Q" type="input" from="dffs_gen_q_a_ff_0"/>
+        <port name="a[0]" type="output" from="comb"/>
+      </pack_pattern>
+    </direct>
+    <direct>
+      <port name="Q" type="input" from="dffs_gen_q_a_ff_1"/>
+      <port name="a[1]" type="output" from="comb"/>
+      <pack_pattern name="DFF-DSP" type="pack">
+        <port name="Q" type="input" from="dffs_gen_q_a_ff_1"/>
+        <port name="a[1]" type="output" from="comb"/>
+      </pack_pattern>
+    </direct>
+    <direct>
+      <port name="Q" type="input" from="dffs_gen_q_a_ff_2"/>
+      <port name="a[2]" type="output" from="comb"/>
+      <pack_pattern name="DFF-DSP" type="pack">
+        <port name="Q" type="input" from="dffs_gen_q_a_ff_2"/>
+        <port name="a[2]" type="output" from="comb"/>
+      </pack_pattern>
+    </direct>
+    <direct>
+      <port name="Q" type="input" from="dffs_gen_q_a_ff_3"/>
+      <port name="a[3]" type="output" from="comb"/>
+      <pack_pattern name="DFF-DSP" type="pack">
+        <port name="Q" type="input" from="dffs_gen_q_a_ff_3"/>
+        <port name="a[3]" type="output" from="comb"/>
+      </pack_pattern>
+    </direct>
+    <direct>
+      <port name="Q" type="input" from="dffs_gen_q_a_ff_4"/>
+      <port name="a[4]" type="output" from="comb"/>
+      <pack_pattern name="DFF-DSP" type="pack">
+        <port name="Q" type="input" from="dffs_gen_q_a_ff_4"/>
+        <port name="a[4]" type="output" from="comb"/>
+      </pack_pattern>
+    </direct>
+    <direct>
+      <port name="Q" type="input" from="dffs_gen_q_a_ff_5"/>
+      <port name="a[5]" type="output" from="comb"/>
+      <pack_pattern name="DFF-DSP" type="pack">
+        <port name="Q" type="input" from="dffs_gen_q_a_ff_5"/>
+        <port name="a[5]" type="output" from="comb"/>
+      </pack_pattern>
+    </direct>
+    <direct>
+      <port name="Q" type="input" from="dffs_gen_q_a_ff_6"/>
+      <port name="a[6]" type="output" from="comb"/>
+      <pack_pattern name="DFF-DSP" type="pack">
+        <port name="Q" type="input" from="dffs_gen_q_a_ff_6"/>
+        <port name="a[6]" type="output" from="comb"/>
+      </pack_pattern>
+    </direct>
+    <direct>
+      <port name="Q" type="input" from="dffs_gen_q_a_ff_7"/>
+      <port name="a[7]" type="output" from="comb"/>
+      <pack_pattern name="DFF-DSP" type="pack">
+        <port name="Q" type="input" from="dffs_gen_q_a_ff_7"/>
+        <port name="a[7]" type="output" from="comb"/>
+      </pack_pattern>
+    </direct>
+    <direct>
+      <port name="Q" type="input" from="dffs_gen_q_a_ff_8"/>
+      <port name="a[8]" type="output" from="comb"/>
+      <pack_pattern name="DFF-DSP" type="pack">
+        <port name="Q" type="input" from="dffs_gen_q_a_ff_8"/>
+        <port name="a[8]" type="output" from="comb"/>
+      </pack_pattern>
+    </direct>
+    <direct>
+      <port name="Q" type="input" from="dffs_gen_q_a_ff_9"/>
+      <port name="a[9]" type="output" from="comb"/>
+      <pack_pattern name="DFF-DSP" type="pack">
+        <port name="Q" type="input" from="dffs_gen_q_a_ff_9"/>
+        <port name="a[9]" type="output" from="comb"/>
+      </pack_pattern>
+    </direct>
+    <direct>
+      <port name="Q" type="input" from="dffs_gen_q_a_ff_10"/>
+      <port name="a[10]" type="output" from="comb"/>
+      <pack_pattern name="DFF-DSP" type="pack">
+        <port name="Q" type="input" from="dffs_gen_q_a_ff_10"/>
+        <port name="a[10]" type="output" from="comb"/>
+      </pack_pattern>
+    </direct>
+    <direct>
+      <port name="Q" type="input" from="dffs_gen_q_a_ff_11"/>
+      <port name="a[11]" type="output" from="comb"/>
+      <pack_pattern name="DFF-DSP" type="pack">
+        <port name="Q" type="input" from="dffs_gen_q_a_ff_11"/>
+        <port name="a[11]" type="output" from="comb"/>
+      </pack_pattern>
+    </direct>
+    <direct>
+      <port name="Q" type="input" from="dffs_gen_q_a_ff_12"/>
+      <port name="a[12]" type="output" from="comb"/>
+      <pack_pattern name="DFF-DSP" type="pack">
+        <port name="Q" type="input" from="dffs_gen_q_a_ff_12"/>
+        <port name="a[12]" type="output" from="comb"/>
+      </pack_pattern>
+    </direct>
+    <direct>
+      <port name="Q" type="input" from="dffs_gen_q_a_ff_13"/>
+      <port name="a[13]" type="output" from="comb"/>
+      <pack_pattern name="DFF-DSP" type="pack">
+        <port name="Q" type="input" from="dffs_gen_q_a_ff_13"/>
+        <port name="a[13]" type="output" from="comb"/>
+      </pack_pattern>
+    </direct>
+    <direct>
+      <port name="Q" type="input" from="dffs_gen_q_a_ff_14"/>
+      <port name="a[14]" type="output" from="comb"/>
+      <pack_pattern name="DFF-DSP" type="pack">
+        <port name="Q" type="input" from="dffs_gen_q_a_ff_14"/>
+        <port name="a[14]" type="output" from="comb"/>
+      </pack_pattern>
+    </direct>
+    <direct>
+      <port name="Q" type="input" from="dffs_gen_q_a_ff_15"/>
+      <port name="a[15]" type="output" from="comb"/>
+      <pack_pattern name="DFF-DSP" type="pack">
+        <port name="Q" type="input" from="dffs_gen_q_a_ff_15"/>
+        <port name="a[15]" type="output" from="comb"/>
+      </pack_pattern>
+    </direct>
+    <direct>
+      <port name="Q" type="input" from="dffs_gen_q_a_ff_16"/>
+      <port name="a[16]" type="output" from="comb"/>
+      <pack_pattern name="DFF-DSP" type="pack">
+        <port name="Q" type="input" from="dffs_gen_q_a_ff_16"/>
+        <port name="a[16]" type="output" from="comb"/>
+      </pack_pattern>
+    </direct>
+    <direct>
+      <port name="Q" type="input" from="dffs_gen_q_a_ff_17"/>
+      <port name="a[17]" type="output" from="comb"/>
+      <pack_pattern name="DFF-DSP" type="pack">
+        <port name="Q" type="input" from="dffs_gen_q_a_ff_17"/>
+        <port name="a[17]" type="output" from="comb"/>
+      </pack_pattern>
+    </direct>
+    <direct>
+      <port name="Q" type="input" from="dffs_gen_q_a_ff_18"/>
+      <port name="a[18]" type="output" from="comb"/>
+      <pack_pattern name="DFF-DSP" type="pack">
+        <port name="Q" type="input" from="dffs_gen_q_a_ff_18"/>
+        <port name="a[18]" type="output" from="comb"/>
+      </pack_pattern>
+    </direct>
+    <direct>
+      <port name="Q" type="input" from="dffs_gen_q_a_ff_19"/>
+      <port name="a[19]" type="output" from="comb"/>
+      <pack_pattern name="DFF-DSP" type="pack">
+        <port name="Q" type="input" from="dffs_gen_q_a_ff_19"/>
+        <port name="a[19]" type="output" from="comb"/>
+      </pack_pattern>
+    </direct>
+    <direct>
+      <port name="Q" type="input" from="dffs_gen_q_a_ff_20"/>
+      <port name="a[20]" type="output" from="comb"/>
+      <pack_pattern name="DFF-DSP" type="pack">
+        <port name="Q" type="input" from="dffs_gen_q_a_ff_20"/>
+        <port name="a[20]" type="output" from="comb"/>
+      </pack_pattern>
+    </direct>
+    <direct>
+      <port name="Q" type="input" from="dffs_gen_q_a_ff_21"/>
+      <port name="a[21]" type="output" from="comb"/>
+      <pack_pattern name="DFF-DSP" type="pack">
+        <port name="Q" type="input" from="dffs_gen_q_a_ff_21"/>
+        <port name="a[21]" type="output" from="comb"/>
+      </pack_pattern>
+    </direct>
+    <direct>
+      <port name="Q" type="input" from="dffs_gen_q_a_ff_22"/>
+      <port name="a[22]" type="output" from="comb"/>
+      <pack_pattern name="DFF-DSP" type="pack">
+        <port name="Q" type="input" from="dffs_gen_q_a_ff_22"/>
+        <port name="a[22]" type="output" from="comb"/>
+      </pack_pattern>
+    </direct>
+    <direct>
+      <port name="Q" type="input" from="dffs_gen_q_a_ff_23"/>
+      <port name="a[23]" type="output" from="comb"/>
+      <pack_pattern name="DFF-DSP" type="pack">
+        <port name="Q" type="input" from="dffs_gen_q_a_ff_23"/>
+        <port name="a[23]" type="output" from="comb"/>
+      </pack_pattern>
+    </direct>
+    <direct>
+      <port name="Q" type="input" from="dffs_gen_q_a_ff_24"/>
+      <port name="a[24]" type="output" from="comb"/>
+      <pack_pattern name="DFF-DSP" type="pack">
+        <port name="Q" type="input" from="dffs_gen_q_a_ff_24"/>
+        <port name="a[24]" type="output" from="comb"/>
+      </pack_pattern>
+    </direct>
+    <direct>
+      <port name="Q" type="input" from="dffs_gen_q_a_ff_25"/>
+      <port name="a[25]" type="output" from="comb"/>
+      <pack_pattern name="DFF-DSP" type="pack">
+        <port name="Q" type="input" from="dffs_gen_q_a_ff_25"/>
+        <port name="a[25]" type="output" from="comb"/>
+      </pack_pattern>
+    </direct>
+    <direct>
+      <port name="Q" type="input" from="dffs_gen_q_a_ff_26"/>
+      <port name="a[26]" type="output" from="comb"/>
+      <pack_pattern name="DFF-DSP" type="pack">
+        <port name="Q" type="input" from="dffs_gen_q_a_ff_26"/>
+        <port name="a[26]" type="output" from="comb"/>
+      </pack_pattern>
+    </direct>
+    <direct>
+      <port name="Q" type="input" from="dffs_gen_q_a_ff_27"/>
+      <port name="a[27]" type="output" from="comb"/>
+      <pack_pattern name="DFF-DSP" type="pack">
+        <port name="Q" type="input" from="dffs_gen_q_a_ff_27"/>
+        <port name="a[27]" type="output" from="comb"/>
+      </pack_pattern>
+    </direct>
+    <direct>
+      <port name="Q" type="input" from="dffs_gen_q_a_ff_28"/>
+      <port name="a[28]" type="output" from="comb"/>
+      <pack_pattern name="DFF-DSP" type="pack">
+        <port name="Q" type="input" from="dffs_gen_q_a_ff_28"/>
+        <port name="a[28]" type="output" from="comb"/>
+      </pack_pattern>
+    </direct>
+    <direct>
+      <port name="Q" type="input" from="dffs_gen_q_a_ff_29"/>
+      <port name="a[29]" type="output" from="comb"/>
+      <pack_pattern name="DFF-DSP" type="pack">
+        <port name="Q" type="input" from="dffs_gen_q_a_ff_29"/>
+        <port name="a[29]" type="output" from="comb"/>
+      </pack_pattern>
+    </direct>
+    <direct>
+      <port name="Q" type="input" from="dffs_gen_q_a_ff_30"/>
+      <port name="a[30]" type="output" from="comb"/>
+      <pack_pattern name="DFF-DSP" type="pack">
+        <port name="Q" type="input" from="dffs_gen_q_a_ff_30"/>
+        <port name="a[30]" type="output" from="comb"/>
+      </pack_pattern>
+    </direct>
+    <direct>
+      <port name="Q" type="input" from="dffs_gen_q_a_ff_31"/>
+      <port name="a[31]" type="output" from="comb"/>
+      <pack_pattern name="DFF-DSP" type="pack">
+        <port name="Q" type="input" from="dffs_gen_q_a_ff_31"/>
+        <port name="a[31]" type="output" from="comb"/>
+      </pack_pattern>
+    </direct>
+    <direct>
+      <port name="Q" type="input" from="dffs_gen_q_b_ff_0"/>
+      <port name="b[0]" type="output" from="comb"/>
+      <pack_pattern name="DFF-DSP" type="pack">
+        <port name="Q" type="input" from="dffs_gen_q_b_ff_0"/>
+        <port name="b[0]" type="output" from="comb"/>
+      </pack_pattern>
+    </direct>
+    <direct>
+      <port name="Q" type="input" from="dffs_gen_q_b_ff_1"/>
+      <port name="b[1]" type="output" from="comb"/>
+      <pack_pattern name="DFF-DSP" type="pack">
+        <port name="Q" type="input" from="dffs_gen_q_b_ff_1"/>
+        <port name="b[1]" type="output" from="comb"/>
+      </pack_pattern>
+    </direct>
+    <direct>
+      <port name="Q" type="input" from="dffs_gen_q_b_ff_2"/>
+      <port name="b[2]" type="output" from="comb"/>
+      <pack_pattern name="DFF-DSP" type="pack">
+        <port name="Q" type="input" from="dffs_gen_q_b_ff_2"/>
+        <port name="b[2]" type="output" from="comb"/>
+      </pack_pattern>
+    </direct>
+    <direct>
+      <port name="Q" type="input" from="dffs_gen_q_b_ff_3"/>
+      <port name="b[3]" type="output" from="comb"/>
+      <pack_pattern name="DFF-DSP" type="pack">
+        <port name="Q" type="input" from="dffs_gen_q_b_ff_3"/>
+        <port name="b[3]" type="output" from="comb"/>
+      </pack_pattern>
+    </direct>
+    <direct>
+      <port name="Q" type="input" from="dffs_gen_q_b_ff_4"/>
+      <port name="b[4]" type="output" from="comb"/>
+      <pack_pattern name="DFF-DSP" type="pack">
+        <port name="Q" type="input" from="dffs_gen_q_b_ff_4"/>
+        <port name="b[4]" type="output" from="comb"/>
+      </pack_pattern>
+    </direct>
+    <direct>
+      <port name="Q" type="input" from="dffs_gen_q_b_ff_5"/>
+      <port name="b[5]" type="output" from="comb"/>
+      <pack_pattern name="DFF-DSP" type="pack">
+        <port name="Q" type="input" from="dffs_gen_q_b_ff_5"/>
+        <port name="b[5]" type="output" from="comb"/>
+      </pack_pattern>
+    </direct>
+    <direct>
+      <port name="Q" type="input" from="dffs_gen_q_b_ff_6"/>
+      <port name="b[6]" type="output" from="comb"/>
+      <pack_pattern name="DFF-DSP" type="pack">
+        <port name="Q" type="input" from="dffs_gen_q_b_ff_6"/>
+        <port name="b[6]" type="output" from="comb"/>
+      </pack_pattern>
+    </direct>
+    <direct>
+      <port name="Q" type="input" from="dffs_gen_q_b_ff_7"/>
+      <port name="b[7]" type="output" from="comb"/>
+      <pack_pattern name="DFF-DSP" type="pack">
+        <port name="Q" type="input" from="dffs_gen_q_b_ff_7"/>
+        <port name="b[7]" type="output" from="comb"/>
+      </pack_pattern>
+    </direct>
+    <direct>
+      <port name="Q" type="input" from="dffs_gen_q_b_ff_8"/>
+      <port name="b[8]" type="output" from="comb"/>
+      <pack_pattern name="DFF-DSP" type="pack">
+        <port name="Q" type="input" from="dffs_gen_q_b_ff_8"/>
+        <port name="b[8]" type="output" from="comb"/>
+      </pack_pattern>
+    </direct>
+    <direct>
+      <port name="Q" type="input" from="dffs_gen_q_b_ff_9"/>
+      <port name="b[9]" type="output" from="comb"/>
+      <pack_pattern name="DFF-DSP" type="pack">
+        <port name="Q" type="input" from="dffs_gen_q_b_ff_9"/>
+        <port name="b[9]" type="output" from="comb"/>
+      </pack_pattern>
+    </direct>
+    <direct>
+      <port name="Q" type="input" from="dffs_gen_q_b_ff_10"/>
+      <port name="b[10]" type="output" from="comb"/>
+      <pack_pattern name="DFF-DSP" type="pack">
+        <port name="Q" type="input" from="dffs_gen_q_b_ff_10"/>
+        <port name="b[10]" type="output" from="comb"/>
+      </pack_pattern>
+    </direct>
+    <direct>
+      <port name="Q" type="input" from="dffs_gen_q_b_ff_11"/>
+      <port name="b[11]" type="output" from="comb"/>
+      <pack_pattern name="DFF-DSP" type="pack">
+        <port name="Q" type="input" from="dffs_gen_q_b_ff_11"/>
+        <port name="b[11]" type="output" from="comb"/>
+      </pack_pattern>
+    </direct>
+    <direct>
+      <port name="Q" type="input" from="dffs_gen_q_b_ff_12"/>
+      <port name="b[12]" type="output" from="comb"/>
+      <pack_pattern name="DFF-DSP" type="pack">
+        <port name="Q" type="input" from="dffs_gen_q_b_ff_12"/>
+        <port name="b[12]" type="output" from="comb"/>
+      </pack_pattern>
+    </direct>
+    <direct>
+      <port name="Q" type="input" from="dffs_gen_q_b_ff_13"/>
+      <port name="b[13]" type="output" from="comb"/>
+      <pack_pattern name="DFF-DSP" type="pack">
+        <port name="Q" type="input" from="dffs_gen_q_b_ff_13"/>
+        <port name="b[13]" type="output" from="comb"/>
+      </pack_pattern>
+    </direct>
+    <direct>
+      <port name="Q" type="input" from="dffs_gen_q_b_ff_14"/>
+      <port name="b[14]" type="output" from="comb"/>
+      <pack_pattern name="DFF-DSP" type="pack">
+        <port name="Q" type="input" from="dffs_gen_q_b_ff_14"/>
+        <port name="b[14]" type="output" from="comb"/>
+      </pack_pattern>
+    </direct>
+    <direct>
+      <port name="Q" type="input" from="dffs_gen_q_b_ff_15"/>
+      <port name="b[15]" type="output" from="comb"/>
+      <pack_pattern name="DFF-DSP" type="pack">
+        <port name="Q" type="input" from="dffs_gen_q_b_ff_15"/>
+        <port name="b[15]" type="output" from="comb"/>
+      </pack_pattern>
+    </direct>
+    <direct>
+      <port name="Q" type="input" from="dffs_gen_q_b_ff_16"/>
+      <port name="b[16]" type="output" from="comb"/>
+      <pack_pattern name="DFF-DSP" type="pack">
+        <port name="Q" type="input" from="dffs_gen_q_b_ff_16"/>
+        <port name="b[16]" type="output" from="comb"/>
+      </pack_pattern>
+    </direct>
+    <direct>
+      <port name="Q" type="input" from="dffs_gen_q_b_ff_17"/>
+      <port name="b[17]" type="output" from="comb"/>
+      <pack_pattern name="DFF-DSP" type="pack">
+        <port name="Q" type="input" from="dffs_gen_q_b_ff_17"/>
+        <port name="b[17]" type="output" from="comb"/>
+      </pack_pattern>
+    </direct>
+    <direct>
+      <port name="Q" type="input" from="dffs_gen_q_b_ff_18"/>
+      <port name="b[18]" type="output" from="comb"/>
+      <pack_pattern name="DFF-DSP" type="pack">
+        <port name="Q" type="input" from="dffs_gen_q_b_ff_18"/>
+        <port name="b[18]" type="output" from="comb"/>
+      </pack_pattern>
+    </direct>
+    <direct>
+      <port name="Q" type="input" from="dffs_gen_q_b_ff_19"/>
+      <port name="b[19]" type="output" from="comb"/>
+      <pack_pattern name="DFF-DSP" type="pack">
+        <port name="Q" type="input" from="dffs_gen_q_b_ff_19"/>
+        <port name="b[19]" type="output" from="comb"/>
+      </pack_pattern>
+    </direct>
+    <direct>
+      <port name="Q" type="input" from="dffs_gen_q_b_ff_20"/>
+      <port name="b[20]" type="output" from="comb"/>
+      <pack_pattern name="DFF-DSP" type="pack">
+        <port name="Q" type="input" from="dffs_gen_q_b_ff_20"/>
+        <port name="b[20]" type="output" from="comb"/>
+      </pack_pattern>
+    </direct>
+    <direct>
+      <port name="Q" type="input" from="dffs_gen_q_b_ff_21"/>
+      <port name="b[21]" type="output" from="comb"/>
+      <pack_pattern name="DFF-DSP" type="pack">
+        <port name="Q" type="input" from="dffs_gen_q_b_ff_21"/>
+        <port name="b[21]" type="output" from="comb"/>
+      </pack_pattern>
+    </direct>
+    <direct>
+      <port name="Q" type="input" from="dffs_gen_q_b_ff_22"/>
+      <port name="b[22]" type="output" from="comb"/>
+      <pack_pattern name="DFF-DSP" type="pack">
+        <port name="Q" type="input" from="dffs_gen_q_b_ff_22"/>
+        <port name="b[22]" type="output" from="comb"/>
+      </pack_pattern>
+    </direct>
+    <direct>
+      <port name="Q" type="input" from="dffs_gen_q_b_ff_23"/>
+      <port name="b[23]" type="output" from="comb"/>
+      <pack_pattern name="DFF-DSP" type="pack">
+        <port name="Q" type="input" from="dffs_gen_q_b_ff_23"/>
+        <port name="b[23]" type="output" from="comb"/>
+      </pack_pattern>
+    </direct>
+    <direct>
+      <port name="Q" type="input" from="dffs_gen_q_b_ff_24"/>
+      <port name="b[24]" type="output" from="comb"/>
+      <pack_pattern name="DFF-DSP" type="pack">
+        <port name="Q" type="input" from="dffs_gen_q_b_ff_24"/>
+        <port name="b[24]" type="output" from="comb"/>
+      </pack_pattern>
+    </direct>
+    <direct>
+      <port name="Q" type="input" from="dffs_gen_q_b_ff_25"/>
+      <port name="b[25]" type="output" from="comb"/>
+      <pack_pattern name="DFF-DSP" type="pack">
+        <port name="Q" type="input" from="dffs_gen_q_b_ff_25"/>
+        <port name="b[25]" type="output" from="comb"/>
+      </pack_pattern>
+    </direct>
+    <direct>
+      <port name="Q" type="input" from="dffs_gen_q_b_ff_26"/>
+      <port name="b[26]" type="output" from="comb"/>
+      <pack_pattern name="DFF-DSP" type="pack">
+        <port name="Q" type="input" from="dffs_gen_q_b_ff_26"/>
+        <port name="b[26]" type="output" from="comb"/>
+      </pack_pattern>
+    </direct>
+    <direct>
+      <port name="Q" type="input" from="dffs_gen_q_b_ff_27"/>
+      <port name="b[27]" type="output" from="comb"/>
+      <pack_pattern name="DFF-DSP" type="pack">
+        <port name="Q" type="input" from="dffs_gen_q_b_ff_27"/>
+        <port name="b[27]" type="output" from="comb"/>
+      </pack_pattern>
+    </direct>
+    <direct>
+      <port name="Q" type="input" from="dffs_gen_q_b_ff_28"/>
+      <port name="b[28]" type="output" from="comb"/>
+      <pack_pattern name="DFF-DSP" type="pack">
+        <port name="Q" type="input" from="dffs_gen_q_b_ff_28"/>
+        <port name="b[28]" type="output" from="comb"/>
+      </pack_pattern>
+    </direct>
+    <direct>
+      <port name="Q" type="input" from="dffs_gen_q_b_ff_29"/>
+      <port name="b[29]" type="output" from="comb"/>
+      <pack_pattern name="DFF-DSP" type="pack">
+        <port name="Q" type="input" from="dffs_gen_q_b_ff_29"/>
+        <port name="b[29]" type="output" from="comb"/>
+      </pack_pattern>
+    </direct>
+    <direct>
+      <port name="Q" type="input" from="dffs_gen_q_b_ff_30"/>
+      <port name="b[30]" type="output" from="comb"/>
+      <pack_pattern name="DFF-DSP" type="pack">
+        <port name="Q" type="input" from="dffs_gen_q_b_ff_30"/>
+        <port name="b[30]" type="output" from="comb"/>
+      </pack_pattern>
+    </direct>
+    <direct>
+      <port name="Q" type="input" from="dffs_gen_q_b_ff_31"/>
+      <port name="b[31]" type="output" from="comb"/>
+      <pack_pattern name="DFF-DSP" type="pack">
+        <port name="Q" type="input" from="dffs_gen_q_b_ff_31"/>
+        <port name="b[31]" type="output" from="comb"/>
+      </pack_pattern>
+    </direct>
+    <direct>
       <port name="m" type="input"/>
-      <port from="dsp_combinational" name="m" type="output"/>
+      <port name="m" type="output" from="comb"/>
+    </direct>
+    <direct>
+      <port name="out[0]" type="input" from="comb"/>
+      <port name="out[0]" type="output"/>
+    </direct>
+    <direct>
+      <port name="out[1]" type="input" from="comb"/>
+      <port name="out[1]" type="output"/>
+    </direct>
+    <direct>
+      <port name="out[2]" type="input" from="comb"/>
+      <port name="out[2]" type="output"/>
+    </direct>
+    <direct>
+      <port name="out[3]" type="input" from="comb"/>
+      <port name="out[3]" type="output"/>
+    </direct>
+    <direct>
+      <port name="out[4]" type="input" from="comb"/>
+      <port name="out[4]" type="output"/>
+    </direct>
+    <direct>
+      <port name="out[5]" type="input" from="comb"/>
+      <port name="out[5]" type="output"/>
+    </direct>
+    <direct>
+      <port name="out[6]" type="input" from="comb"/>
+      <port name="out[6]" type="output"/>
+    </direct>
+    <direct>
+      <port name="out[7]" type="input" from="comb"/>
+      <port name="out[7]" type="output"/>
+    </direct>
+    <direct>
+      <port name="out[8]" type="input" from="comb"/>
+      <port name="out[8]" type="output"/>
+    </direct>
+    <direct>
+      <port name="out[9]" type="input" from="comb"/>
+      <port name="out[9]" type="output"/>
+    </direct>
+    <direct>
+      <port name="out[10]" type="input" from="comb"/>
+      <port name="out[10]" type="output"/>
+    </direct>
+    <direct>
+      <port name="out[11]" type="input" from="comb"/>
+      <port name="out[11]" type="output"/>
+    </direct>
+    <direct>
+      <port name="out[12]" type="input" from="comb"/>
+      <port name="out[12]" type="output"/>
+    </direct>
+    <direct>
+      <port name="out[13]" type="input" from="comb"/>
+      <port name="out[13]" type="output"/>
+    </direct>
+    <direct>
+      <port name="out[14]" type="input" from="comb"/>
+      <port name="out[14]" type="output"/>
+    </direct>
+    <direct>
+      <port name="out[15]" type="input" from="comb"/>
+      <port name="out[15]" type="output"/>
+    </direct>
+    <direct>
+      <port name="out[16]" type="input" from="comb"/>
+      <port name="out[16]" type="output"/>
+    </direct>
+    <direct>
+      <port name="out[17]" type="input" from="comb"/>
+      <port name="out[17]" type="output"/>
+    </direct>
+    <direct>
+      <port name="out[18]" type="input" from="comb"/>
+      <port name="out[18]" type="output"/>
+    </direct>
+    <direct>
+      <port name="out[19]" type="input" from="comb"/>
+      <port name="out[19]" type="output"/>
+    </direct>
+    <direct>
+      <port name="out[20]" type="input" from="comb"/>
+      <port name="out[20]" type="output"/>
+    </direct>
+    <direct>
+      <port name="out[21]" type="input" from="comb"/>
+      <port name="out[21]" type="output"/>
+    </direct>
+    <direct>
+      <port name="out[22]" type="input" from="comb"/>
+      <port name="out[22]" type="output"/>
+    </direct>
+    <direct>
+      <port name="out[23]" type="input" from="comb"/>
+      <port name="out[23]" type="output"/>
+    </direct>
+    <direct>
+      <port name="out[24]" type="input" from="comb"/>
+      <port name="out[24]" type="output"/>
+    </direct>
+    <direct>
+      <port name="out[25]" type="input" from="comb"/>
+      <port name="out[25]" type="output"/>
+    </direct>
+    <direct>
+      <port name="out[26]" type="input" from="comb"/>
+      <port name="out[26]" type="output"/>
+    </direct>
+    <direct>
+      <port name="out[27]" type="input" from="comb"/>
+      <port name="out[27]" type="output"/>
+    </direct>
+    <direct>
+      <port name="out[28]" type="input" from="comb"/>
+      <port name="out[28]" type="output"/>
+    </direct>
+    <direct>
+      <port name="out[29]" type="input" from="comb"/>
+      <port name="out[29]" type="output"/>
+    </direct>
+    <direct>
+      <port name="out[30]" type="input" from="comb"/>
+      <port name="out[30]" type="output"/>
+    </direct>
+    <direct>
+      <port name="out[31]" type="input" from="comb"/>
+      <port name="out[31]" type="output"/>
+    </direct>
+    <direct>
+      <port name="out[32]" type="input" from="comb"/>
+      <port name="out[32]" type="output"/>
+    </direct>
+    <direct>
+      <port name="out[33]" type="input" from="comb"/>
+      <port name="out[33]" type="output"/>
+    </direct>
+    <direct>
+      <port name="out[34]" type="input" from="comb"/>
+      <port name="out[34]" type="output"/>
+    </direct>
+    <direct>
+      <port name="out[35]" type="input" from="comb"/>
+      <port name="out[35]" type="output"/>
+    </direct>
+    <direct>
+      <port name="out[36]" type="input" from="comb"/>
+      <port name="out[36]" type="output"/>
+    </direct>
+    <direct>
+      <port name="out[37]" type="input" from="comb"/>
+      <port name="out[37]" type="output"/>
+    </direct>
+    <direct>
+      <port name="out[38]" type="input" from="comb"/>
+      <port name="out[38]" type="output"/>
+    </direct>
+    <direct>
+      <port name="out[39]" type="input" from="comb"/>
+      <port name="out[39]" type="output"/>
+    </direct>
+    <direct>
+      <port name="out[40]" type="input" from="comb"/>
+      <port name="out[40]" type="output"/>
+    </direct>
+    <direct>
+      <port name="out[41]" type="input" from="comb"/>
+      <port name="out[41]" type="output"/>
+    </direct>
+    <direct>
+      <port name="out[42]" type="input" from="comb"/>
+      <port name="out[42]" type="output"/>
+    </direct>
+    <direct>
+      <port name="out[43]" type="input" from="comb"/>
+      <port name="out[43]" type="output"/>
+    </direct>
+    <direct>
+      <port name="out[44]" type="input" from="comb"/>
+      <port name="out[44]" type="output"/>
+    </direct>
+    <direct>
+      <port name="out[45]" type="input" from="comb"/>
+      <port name="out[45]" type="output"/>
+    </direct>
+    <direct>
+      <port name="out[46]" type="input" from="comb"/>
+      <port name="out[46]" type="output"/>
+    </direct>
+    <direct>
+      <port name="out[47]" type="input" from="comb"/>
+      <port name="out[47]" type="output"/>
+    </direct>
+    <direct>
+      <port name="out[48]" type="input" from="comb"/>
+      <port name="out[48]" type="output"/>
+    </direct>
+    <direct>
+      <port name="out[49]" type="input" from="comb"/>
+      <port name="out[49]" type="output"/>
+    </direct>
+    <direct>
+      <port name="out[50]" type="input" from="comb"/>
+      <port name="out[50]" type="output"/>
+    </direct>
+    <direct>
+      <port name="out[51]" type="input" from="comb"/>
+      <port name="out[51]" type="output"/>
+    </direct>
+    <direct>
+      <port name="out[52]" type="input" from="comb"/>
+      <port name="out[52]" type="output"/>
+    </direct>
+    <direct>
+      <port name="out[53]" type="input" from="comb"/>
+      <port name="out[53]" type="output"/>
+    </direct>
+    <direct>
+      <port name="out[54]" type="input" from="comb"/>
+      <port name="out[54]" type="output"/>
+    </direct>
+    <direct>
+      <port name="out[55]" type="input" from="comb"/>
+      <port name="out[55]" type="output"/>
+    </direct>
+    <direct>
+      <port name="out[56]" type="input" from="comb"/>
+      <port name="out[56]" type="output"/>
+    </direct>
+    <direct>
+      <port name="out[57]" type="input" from="comb"/>
+      <port name="out[57]" type="output"/>
+    </direct>
+    <direct>
+      <port name="out[58]" type="input" from="comb"/>
+      <port name="out[58]" type="output"/>
+    </direct>
+    <direct>
+      <port name="out[59]" type="input" from="comb"/>
+      <port name="out[59]" type="output"/>
+    </direct>
+    <direct>
+      <port name="out[60]" type="input" from="comb"/>
+      <port name="out[60]" type="output"/>
+    </direct>
+    <direct>
+      <port name="out[61]" type="input" from="comb"/>
+      <port name="out[61]" type="output"/>
+    </direct>
+    <direct>
+      <port name="out[62]" type="input" from="comb"/>
+      <port name="out[62]" type="output"/>
+    </direct>
+    <direct>
+      <port name="out[63]" type="input" from="comb"/>
+      <port name="out[63]" type="output"/>
+    </direct>
+    <direct>
+      <port name="clk" type="input"/>
+      <port name="CLK" type="output" from="dffs_gen_q_a_ff_0"/>
+    </direct>
+    <direct>
+      <port name="clk" type="input"/>
+      <port name="CLK" type="output" from="dffs_gen_q_b_ff_0"/>
+    </direct>
+    <direct>
+      <port name="clk" type="input"/>
+      <port name="CLK" type="output" from="dffs_gen_q_a_ff_10"/>
+    </direct>
+    <direct>
+      <port name="clk" type="input"/>
+      <port name="CLK" type="output" from="dffs_gen_q_b_ff_10"/>
+    </direct>
+    <direct>
+      <port name="clk" type="input"/>
+      <port name="CLK" type="output" from="dffs_gen_q_a_ff_11"/>
+    </direct>
+    <direct>
+      <port name="clk" type="input"/>
+      <port name="CLK" type="output" from="dffs_gen_q_b_ff_11"/>
+    </direct>
+    <direct>
+      <port name="clk" type="input"/>
+      <port name="CLK" type="output" from="dffs_gen_q_a_ff_12"/>
+    </direct>
+    <direct>
+      <port name="clk" type="input"/>
+      <port name="CLK" type="output" from="dffs_gen_q_b_ff_12"/>
+    </direct>
+    <direct>
+      <port name="clk" type="input"/>
+      <port name="CLK" type="output" from="dffs_gen_q_a_ff_13"/>
+    </direct>
+    <direct>
+      <port name="clk" type="input"/>
+      <port name="CLK" type="output" from="dffs_gen_q_b_ff_13"/>
+    </direct>
+    <direct>
+      <port name="clk" type="input"/>
+      <port name="CLK" type="output" from="dffs_gen_q_a_ff_14"/>
+    </direct>
+    <direct>
+      <port name="clk" type="input"/>
+      <port name="CLK" type="output" from="dffs_gen_q_b_ff_14"/>
+    </direct>
+    <direct>
+      <port name="clk" type="input"/>
+      <port name="CLK" type="output" from="dffs_gen_q_a_ff_15"/>
+    </direct>
+    <direct>
+      <port name="clk" type="input"/>
+      <port name="CLK" type="output" from="dffs_gen_q_b_ff_15"/>
+    </direct>
+    <direct>
+      <port name="clk" type="input"/>
+      <port name="CLK" type="output" from="dffs_gen_q_a_ff_16"/>
+    </direct>
+    <direct>
+      <port name="clk" type="input"/>
+      <port name="CLK" type="output" from="dffs_gen_q_b_ff_16"/>
+    </direct>
+    <direct>
+      <port name="clk" type="input"/>
+      <port name="CLK" type="output" from="dffs_gen_q_a_ff_17"/>
+    </direct>
+    <direct>
+      <port name="clk" type="input"/>
+      <port name="CLK" type="output" from="dffs_gen_q_b_ff_17"/>
+    </direct>
+    <direct>
+      <port name="clk" type="input"/>
+      <port name="CLK" type="output" from="dffs_gen_q_a_ff_18"/>
+    </direct>
+    <direct>
+      <port name="clk" type="input"/>
+      <port name="CLK" type="output" from="dffs_gen_q_b_ff_18"/>
+    </direct>
+    <direct>
+      <port name="clk" type="input"/>
+      <port name="CLK" type="output" from="dffs_gen_q_a_ff_19"/>
+    </direct>
+    <direct>
+      <port name="clk" type="input"/>
+      <port name="CLK" type="output" from="dffs_gen_q_b_ff_19"/>
+    </direct>
+    <direct>
+      <port name="clk" type="input"/>
+      <port name="CLK" type="output" from="dffs_gen_q_a_ff_1"/>
+    </direct>
+    <direct>
+      <port name="clk" type="input"/>
+      <port name="CLK" type="output" from="dffs_gen_q_b_ff_1"/>
+    </direct>
+    <direct>
+      <port name="clk" type="input"/>
+      <port name="CLK" type="output" from="dffs_gen_q_a_ff_20"/>
+    </direct>
+    <direct>
+      <port name="clk" type="input"/>
+      <port name="CLK" type="output" from="dffs_gen_q_b_ff_20"/>
+    </direct>
+    <direct>
+      <port name="clk" type="input"/>
+      <port name="CLK" type="output" from="dffs_gen_q_a_ff_21"/>
+    </direct>
+    <direct>
+      <port name="clk" type="input"/>
+      <port name="CLK" type="output" from="dffs_gen_q_b_ff_21"/>
+    </direct>
+    <direct>
+      <port name="clk" type="input"/>
+      <port name="CLK" type="output" from="dffs_gen_q_a_ff_22"/>
+    </direct>
+    <direct>
+      <port name="clk" type="input"/>
+      <port name="CLK" type="output" from="dffs_gen_q_b_ff_22"/>
+    </direct>
+    <direct>
+      <port name="clk" type="input"/>
+      <port name="CLK" type="output" from="dffs_gen_q_a_ff_23"/>
+    </direct>
+    <direct>
+      <port name="clk" type="input"/>
+      <port name="CLK" type="output" from="dffs_gen_q_b_ff_23"/>
+    </direct>
+    <direct>
+      <port name="clk" type="input"/>
+      <port name="CLK" type="output" from="dffs_gen_q_a_ff_24"/>
+    </direct>
+    <direct>
+      <port name="clk" type="input"/>
+      <port name="CLK" type="output" from="dffs_gen_q_b_ff_24"/>
+    </direct>
+    <direct>
+      <port name="clk" type="input"/>
+      <port name="CLK" type="output" from="dffs_gen_q_a_ff_25"/>
+    </direct>
+    <direct>
+      <port name="clk" type="input"/>
+      <port name="CLK" type="output" from="dffs_gen_q_b_ff_25"/>
+    </direct>
+    <direct>
+      <port name="clk" type="input"/>
+      <port name="CLK" type="output" from="dffs_gen_q_a_ff_26"/>
+    </direct>
+    <direct>
+      <port name="clk" type="input"/>
+      <port name="CLK" type="output" from="dffs_gen_q_b_ff_26"/>
+    </direct>
+    <direct>
+      <port name="clk" type="input"/>
+      <port name="CLK" type="output" from="dffs_gen_q_a_ff_27"/>
+    </direct>
+    <direct>
+      <port name="clk" type="input"/>
+      <port name="CLK" type="output" from="dffs_gen_q_b_ff_27"/>
+    </direct>
+    <direct>
+      <port name="clk" type="input"/>
+      <port name="CLK" type="output" from="dffs_gen_q_a_ff_28"/>
+    </direct>
+    <direct>
+      <port name="clk" type="input"/>
+      <port name="CLK" type="output" from="dffs_gen_q_b_ff_28"/>
+    </direct>
+    <direct>
+      <port name="clk" type="input"/>
+      <port name="CLK" type="output" from="dffs_gen_q_a_ff_29"/>
+    </direct>
+    <direct>
+      <port name="clk" type="input"/>
+      <port name="CLK" type="output" from="dffs_gen_q_b_ff_29"/>
+    </direct>
+    <direct>
+      <port name="clk" type="input"/>
+      <port name="CLK" type="output" from="dffs_gen_q_a_ff_2"/>
+    </direct>
+    <direct>
+      <port name="clk" type="input"/>
+      <port name="CLK" type="output" from="dffs_gen_q_b_ff_2"/>
+    </direct>
+    <direct>
+      <port name="clk" type="input"/>
+      <port name="CLK" type="output" from="dffs_gen_q_a_ff_30"/>
+    </direct>
+    <direct>
+      <port name="clk" type="input"/>
+      <port name="CLK" type="output" from="dffs_gen_q_b_ff_30"/>
+    </direct>
+    <direct>
+      <port name="clk" type="input"/>
+      <port name="CLK" type="output" from="dffs_gen_q_a_ff_31"/>
+    </direct>
+    <direct>
+      <port name="clk" type="input"/>
+      <port name="CLK" type="output" from="dffs_gen_q_b_ff_31"/>
+    </direct>
+    <direct>
+      <port name="clk" type="input"/>
+      <port name="CLK" type="output" from="dffs_gen_q_a_ff_3"/>
+    </direct>
+    <direct>
+      <port name="clk" type="input"/>
+      <port name="CLK" type="output" from="dffs_gen_q_b_ff_3"/>
+    </direct>
+    <direct>
+      <port name="clk" type="input"/>
+      <port name="CLK" type="output" from="dffs_gen_q_a_ff_4"/>
+    </direct>
+    <direct>
+      <port name="clk" type="input"/>
+      <port name="CLK" type="output" from="dffs_gen_q_b_ff_4"/>
+    </direct>
+    <direct>
+      <port name="clk" type="input"/>
+      <port name="CLK" type="output" from="dffs_gen_q_a_ff_5"/>
+    </direct>
+    <direct>
+      <port name="clk" type="input"/>
+      <port name="CLK" type="output" from="dffs_gen_q_b_ff_5"/>
+    </direct>
+    <direct>
+      <port name="clk" type="input"/>
+      <port name="CLK" type="output" from="dffs_gen_q_a_ff_6"/>
+    </direct>
+    <direct>
+      <port name="clk" type="input"/>
+      <port name="CLK" type="output" from="dffs_gen_q_b_ff_6"/>
+    </direct>
+    <direct>
+      <port name="clk" type="input"/>
+      <port name="CLK" type="output" from="dffs_gen_q_a_ff_7"/>
+    </direct>
+    <direct>
+      <port name="clk" type="input"/>
+      <port name="CLK" type="output" from="dffs_gen_q_b_ff_7"/>
+    </direct>
+    <direct>
+      <port name="clk" type="input"/>
+      <port name="CLK" type="output" from="dffs_gen_q_a_ff_8"/>
+    </direct>
+    <direct>
+      <port name="clk" type="input"/>
+      <port name="CLK" type="output" from="dffs_gen_q_b_ff_8"/>
+    </direct>
+    <direct>
+      <port name="clk" type="input"/>
+      <port name="CLK" type="output" from="dffs_gen_q_a_ff_9"/>
+    </direct>
+    <direct>
+      <port name="clk" type="input"/>
+      <port name="CLK" type="output" from="dffs_gen_q_b_ff_9"/>
+    </direct>
+    <direct>
+      <port name="a[0]" type="input"/>
+      <port name="D" type="output" from="dffs_gen_q_a_ff_0"/>
+    </direct>
+    <direct>
+      <port name="b[0]" type="input"/>
+      <port name="D" type="output" from="dffs_gen_q_b_ff_0"/>
+    </direct>
+    <direct>
+      <port name="a[10]" type="input"/>
+      <port name="D" type="output" from="dffs_gen_q_a_ff_10"/>
+    </direct>
+    <direct>
+      <port name="b[10]" type="input"/>
+      <port name="D" type="output" from="dffs_gen_q_b_ff_10"/>
+    </direct>
+    <direct>
+      <port name="a[11]" type="input"/>
+      <port name="D" type="output" from="dffs_gen_q_a_ff_11"/>
+    </direct>
+    <direct>
+      <port name="b[11]" type="input"/>
+      <port name="D" type="output" from="dffs_gen_q_b_ff_11"/>
+    </direct>
+    <direct>
+      <port name="a[12]" type="input"/>
+      <port name="D" type="output" from="dffs_gen_q_a_ff_12"/>
+    </direct>
+    <direct>
+      <port name="b[12]" type="input"/>
+      <port name="D" type="output" from="dffs_gen_q_b_ff_12"/>
+    </direct>
+    <direct>
+      <port name="a[13]" type="input"/>
+      <port name="D" type="output" from="dffs_gen_q_a_ff_13"/>
+    </direct>
+    <direct>
+      <port name="b[13]" type="input"/>
+      <port name="D" type="output" from="dffs_gen_q_b_ff_13"/>
+    </direct>
+    <direct>
+      <port name="a[14]" type="input"/>
+      <port name="D" type="output" from="dffs_gen_q_a_ff_14"/>
+    </direct>
+    <direct>
+      <port name="b[14]" type="input"/>
+      <port name="D" type="output" from="dffs_gen_q_b_ff_14"/>
+    </direct>
+    <direct>
+      <port name="a[15]" type="input"/>
+      <port name="D" type="output" from="dffs_gen_q_a_ff_15"/>
+    </direct>
+    <direct>
+      <port name="b[15]" type="input"/>
+      <port name="D" type="output" from="dffs_gen_q_b_ff_15"/>
+    </direct>
+    <direct>
+      <port name="a[16]" type="input"/>
+      <port name="D" type="output" from="dffs_gen_q_a_ff_16"/>
+    </direct>
+    <direct>
+      <port name="b[16]" type="input"/>
+      <port name="D" type="output" from="dffs_gen_q_b_ff_16"/>
+    </direct>
+    <direct>
+      <port name="a[17]" type="input"/>
+      <port name="D" type="output" from="dffs_gen_q_a_ff_17"/>
+    </direct>
+    <direct>
+      <port name="b[17]" type="input"/>
+      <port name="D" type="output" from="dffs_gen_q_b_ff_17"/>
+    </direct>
+    <direct>
+      <port name="a[18]" type="input"/>
+      <port name="D" type="output" from="dffs_gen_q_a_ff_18"/>
+    </direct>
+    <direct>
+      <port name="b[18]" type="input"/>
+      <port name="D" type="output" from="dffs_gen_q_b_ff_18"/>
+    </direct>
+    <direct>
+      <port name="a[19]" type="input"/>
+      <port name="D" type="output" from="dffs_gen_q_a_ff_19"/>
+    </direct>
+    <direct>
+      <port name="b[19]" type="input"/>
+      <port name="D" type="output" from="dffs_gen_q_b_ff_19"/>
+    </direct>
+    <direct>
+      <port name="a[1]" type="input"/>
+      <port name="D" type="output" from="dffs_gen_q_a_ff_1"/>
+    </direct>
+    <direct>
+      <port name="b[1]" type="input"/>
+      <port name="D" type="output" from="dffs_gen_q_b_ff_1"/>
+    </direct>
+    <direct>
+      <port name="a[20]" type="input"/>
+      <port name="D" type="output" from="dffs_gen_q_a_ff_20"/>
+    </direct>
+    <direct>
+      <port name="b[20]" type="input"/>
+      <port name="D" type="output" from="dffs_gen_q_b_ff_20"/>
+    </direct>
+    <direct>
+      <port name="a[21]" type="input"/>
+      <port name="D" type="output" from="dffs_gen_q_a_ff_21"/>
+    </direct>
+    <direct>
+      <port name="b[21]" type="input"/>
+      <port name="D" type="output" from="dffs_gen_q_b_ff_21"/>
+    </direct>
+    <direct>
+      <port name="a[22]" type="input"/>
+      <port name="D" type="output" from="dffs_gen_q_a_ff_22"/>
+    </direct>
+    <direct>
+      <port name="b[22]" type="input"/>
+      <port name="D" type="output" from="dffs_gen_q_b_ff_22"/>
+    </direct>
+    <direct>
+      <port name="a[23]" type="input"/>
+      <port name="D" type="output" from="dffs_gen_q_a_ff_23"/>
+    </direct>
+    <direct>
+      <port name="b[23]" type="input"/>
+      <port name="D" type="output" from="dffs_gen_q_b_ff_23"/>
+    </direct>
+    <direct>
+      <port name="a[24]" type="input"/>
+      <port name="D" type="output" from="dffs_gen_q_a_ff_24"/>
+    </direct>
+    <direct>
+      <port name="b[24]" type="input"/>
+      <port name="D" type="output" from="dffs_gen_q_b_ff_24"/>
+    </direct>
+    <direct>
+      <port name="a[25]" type="input"/>
+      <port name="D" type="output" from="dffs_gen_q_a_ff_25"/>
+    </direct>
+    <direct>
+      <port name="b[25]" type="input"/>
+      <port name="D" type="output" from="dffs_gen_q_b_ff_25"/>
+    </direct>
+    <direct>
+      <port name="a[26]" type="input"/>
+      <port name="D" type="output" from="dffs_gen_q_a_ff_26"/>
+    </direct>
+    <direct>
+      <port name="b[26]" type="input"/>
+      <port name="D" type="output" from="dffs_gen_q_b_ff_26"/>
+    </direct>
+    <direct>
+      <port name="a[27]" type="input"/>
+      <port name="D" type="output" from="dffs_gen_q_a_ff_27"/>
+    </direct>
+    <direct>
+      <port name="b[27]" type="input"/>
+      <port name="D" type="output" from="dffs_gen_q_b_ff_27"/>
+    </direct>
+    <direct>
+      <port name="a[28]" type="input"/>
+      <port name="D" type="output" from="dffs_gen_q_a_ff_28"/>
+    </direct>
+    <direct>
+      <port name="b[28]" type="input"/>
+      <port name="D" type="output" from="dffs_gen_q_b_ff_28"/>
+    </direct>
+    <direct>
+      <port name="a[29]" type="input"/>
+      <port name="D" type="output" from="dffs_gen_q_a_ff_29"/>
+    </direct>
+    <direct>
+      <port name="b[29]" type="input"/>
+      <port name="D" type="output" from="dffs_gen_q_b_ff_29"/>
+    </direct>
+    <direct>
+      <port name="a[2]" type="input"/>
+      <port name="D" type="output" from="dffs_gen_q_a_ff_2"/>
+    </direct>
+    <direct>
+      <port name="b[2]" type="input"/>
+      <port name="D" type="output" from="dffs_gen_q_b_ff_2"/>
+    </direct>
+    <direct>
+      <port name="a[30]" type="input"/>
+      <port name="D" type="output" from="dffs_gen_q_a_ff_30"/>
+    </direct>
+    <direct>
+      <port name="b[30]" type="input"/>
+      <port name="D" type="output" from="dffs_gen_q_b_ff_30"/>
+    </direct>
+    <direct>
+      <port name="a[31]" type="input"/>
+      <port name="D" type="output" from="dffs_gen_q_a_ff_31"/>
+    </direct>
+    <direct>
+      <port name="b[31]" type="input"/>
+      <port name="D" type="output" from="dffs_gen_q_b_ff_31"/>
+    </direct>
+    <direct>
+      <port name="a[3]" type="input"/>
+      <port name="D" type="output" from="dffs_gen_q_a_ff_3"/>
+    </direct>
+    <direct>
+      <port name="b[3]" type="input"/>
+      <port name="D" type="output" from="dffs_gen_q_b_ff_3"/>
+    </direct>
+    <direct>
+      <port name="a[4]" type="input"/>
+      <port name="D" type="output" from="dffs_gen_q_a_ff_4"/>
+    </direct>
+    <direct>
+      <port name="b[4]" type="input"/>
+      <port name="D" type="output" from="dffs_gen_q_b_ff_4"/>
+    </direct>
+    <direct>
+      <port name="a[5]" type="input"/>
+      <port name="D" type="output" from="dffs_gen_q_a_ff_5"/>
+    </direct>
+    <direct>
+      <port name="b[5]" type="input"/>
+      <port name="D" type="output" from="dffs_gen_q_b_ff_5"/>
+    </direct>
+    <direct>
+      <port name="a[6]" type="input"/>
+      <port name="D" type="output" from="dffs_gen_q_a_ff_6"/>
+    </direct>
+    <direct>
+      <port name="b[6]" type="input"/>
+      <port name="D" type="output" from="dffs_gen_q_b_ff_6"/>
+    </direct>
+    <direct>
+      <port name="a[7]" type="input"/>
+      <port name="D" type="output" from="dffs_gen_q_a_ff_7"/>
+    </direct>
+    <direct>
+      <port name="b[7]" type="input"/>
+      <port name="D" type="output" from="dffs_gen_q_b_ff_7"/>
+    </direct>
+    <direct>
+      <port name="a[8]" type="input"/>
+      <port name="D" type="output" from="dffs_gen_q_a_ff_8"/>
+    </direct>
+    <direct>
+      <port name="b[8]" type="input"/>
+      <port name="D" type="output" from="dffs_gen_q_b_ff_8"/>
+    </direct>
+    <direct>
+      <port name="a[9]" type="input"/>
+      <port name="D" type="output" from="dffs_gen_q_a_ff_9"/>
+    </direct>
+    <direct>
+      <port name="b[9]" type="input"/>
+      <port name="D" type="output" from="dffs_gen_q_b_ff_9"/>
     </direct>
   </interconnect>
 </pb_type>
