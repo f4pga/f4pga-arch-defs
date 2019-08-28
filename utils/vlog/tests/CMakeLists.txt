@@ -13,8 +13,7 @@ add_subdirectory(dsp_combinational)
 add_subdirectory(dsp_in_registered)
 add_subdirectory(dsp_inout_registered)
 add_subdirectory(dsp_inout_registered_dualclk)
-# FIXME: Input is incorrectly marked as being clocked.
-#add_subdirectory(dsp_out_registered)
+add_subdirectory(dsp_out_registered)
 # FIXME: Input `m` and output is incorrectly marked as being clocked.
 #add_subdirectory(dsp_partial_registered)
 #add_subdirectory(dsp_modes)
