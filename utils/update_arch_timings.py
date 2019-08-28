@@ -32,37 +32,74 @@ def remove_site_number(site):
     return site
 
 
-def get_cell_types_and_instance(bel, location, site, bels):
+def gen_all_possibilities(pattern):
+    """
+    Generates all possible combinations of a pattern if it contains a
+    wildcard string in braces eg. "LUT[ABCD]" will yield in "LUTA", "LUTB"
+    and so on.
+
+    >>> list(gen_all_possibilities("LUT"))
+    ['LUT']
+
+    >>> list(gen_all_possibilities("LUT[ABCD]"))
+    ['LUTA', 'LUTB', 'LUTC', 'LUTD']
+    """
+
+    # Match the regex
+    match = re.match("(.*)\[([A-Za-z0-9]+)\](.*)", pattern)
+
+    # Generate combinations
+    if match is not None:
+        for c in match.group(2):
+            yield match.group(1) + c + match.group(3)
+
+    # Not a regex
+    else:
+        yield pattern
+
+
+def get_cell_types_and_instances(bel, location, site, bels):
     """This function searches for a bel type and instance
        translation between VPR and Vivado. The translation
        is defined in the `bels` dictionary. If translation
-       is found celltypes list and bel instance is returned,
-       `None` otherwise"""
+       is found a list of celltypes and bel instances is returned,
+       None otherwise"""
     if site not in bels:
-        return None, None
+        return None
     if bel not in bels[site]:
-        return None, None
+        return None
     if location not in bels[site][bel]:
-        return None, None
+        return None
 
-    celltypes = (bels[site][bel][location]['celltype']).split()
-    instance = bels[site][bel][location]['instance']
+    # Generate a list of tuples (celltype, instance)
+    cells = []
+    for pattern in bels[site][bel][location]:
+        for names in gen_all_possibilities(pattern):
+            cells.append(tuple(names.split(".")))
 
-    return celltypes, instance
+    return cells
 
 
 def find_timings(timings, bel, location, site, bels, corner, speed_type):
     """This function returns all the timings associated with
        the selected `bel` in `location` and `site`. If timings
-       are not found, `None` is returned"""
-    celltype, instance = get_cell_types_and_instance(bel, location, site, bels)
-    if (celltype is None) or (instance is None):
+       are not found, empty dict is returned"""
+
+    # Get cells, reverse the list so former timings will be overwritten by
+    # latter onex
+    cells = get_cell_types_and_instances(bel, location, site, bels)
+    if cells is None:
         return None
-    bel_timings = dict()
+
+    cells.reverse()
+
+    # Gather CELLs
     cell = dict()
-    for ct in celltype:
-        for inst in instance.split():
-            cell = mergedicts(timings['cells'][ct][inst], cell)
+    for ct, inst in cells:
+        cell = mergedicts(timings['cells'][ct][inst], cell)
+
+    # Gather timings
+    bel_timings = dict()
     for delay in cell:
         if cell[delay]['is_absolute']:
             entry = cell[delay]['delay_paths'][corner.lower()][speed_type]
@@ -172,7 +209,7 @@ def main():
         bel_timings = get_bel_timings(th, timings, bels, 'FAST', 'min')
         if bel_timings is None:
             continue
-        th.attrib['value'] = ts.attrib['value'].format(**bel_timings)
+        th.attrib['value'] = th.attrib['value'].format(**bel_timings)
 
     with open(args.out_arch, 'wb') as fp:
         fp.write(ET.tostring(arch_xml))
