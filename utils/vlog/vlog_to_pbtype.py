@@ -59,6 +59,26 @@ sys.path.insert(0, "..")
 from lib import xmlinc
 
 
+def normalize_pb_name(pb_name):
+    """ Some pb_type names generatedby the tool
+        are illegal in VPR. This function converts them to
+        legal ones e.g:
+
+        output_dffs_gen[0].q_out_ff -> output_dffs_gen_q_out_ff_0
+    """
+    if pb_name is None:
+        return None
+
+    index = re.search(r'\[[0-9]+\]', pb_name)
+    normalized_name = pb_name.replace('.', '_')
+    if index is not None:
+        normalized_name = normalized_name.replace(
+            index.group(0), ""
+        ) + index.group(0).replace('[', '_').replace(']', '')
+
+    return normalized_name
+
+
 def is_mod_blackbox(mod):
     """ Returns true if module is annotated with blackbox (or equivalent).
 
@@ -518,7 +538,7 @@ def make_container_pb(
         with open(pb_type_path, 'r') as inc_xml:
             xml_inc = ET.fromstring(inc_xml.read().encode('utf-8'))
             inc_attrib = xml_inc.attrib
-            inc_attrib['name'] = child_prefix
+            inc_attrib['name'] = normalize_pb_name(child_prefix)
             inc_attrib['num_pb'] = str(len(children_names))
 
         inc_pb_type = ET.SubElement(pb_type_xml, 'pb_type', inc_attrib)
@@ -562,8 +582,8 @@ def make_container_pb(
             if sink_cell in routing_cells:
                 continue
             make_direct_conn(
-                ic_xml, (driver_cell, driver_pin), (sink_cell, sink_pin),
-                path_attr
+                ic_xml, (normalize_pb_name(driver_cell), driver_pin),
+                (normalize_pb_name(sink_cell), sink_pin), path_attr
             )
 
     # Generate the mux interconnects
