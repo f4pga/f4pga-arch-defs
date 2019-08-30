@@ -187,7 +187,7 @@ function(V2X_TEST_BOTH)
     append_file_dependency(TECHMAP_DEPS ${MAP})
   endforeach()
 
-  if(NOT ${TECHMAP_INPUT} STREQUAL "")
+  if(TECHMAP_INPUT)
     add_custom_command(
       OUTPUT "${MERGED_TECHMAP}"
       DEPENDS ${TECHMAP_DEPS}
