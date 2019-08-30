@@ -86,7 +86,7 @@ def find_timings(timings, bel, location, site, bels, corner, speed_type):
        are not found, empty dict is returned"""
 
     # Get cells, reverse the list so former timings will be overwritten by
-    # latter onex
+    # latter ones.
     cells = get_cell_types_and_instances(bel, location, site, bels)
     if cells is None:
         return None
