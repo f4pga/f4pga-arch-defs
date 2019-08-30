@@ -454,7 +454,6 @@ Generated with %s
                 f.write('\t\tend\n')
             f.write('\t\telse\n')
             f.write('\t\tbegin\n')
-            #f.write('\t\t\tassign %s = INVALID;\n' % (outputs[0],));
             f.write(
                 '\t\t\t//$error("%s: Invalid routing value %%s (options are: %s)", MODE);\n'
                 % (args.name_mux, ", ".join(modes))

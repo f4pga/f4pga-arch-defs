@@ -28,7 +28,8 @@ The following are allowed on nets within modules (TODO: use proper Verilog timin
 
     - `(* CLK_TO_Q="clk 10e-12" *)` : specify clock-to-output time for a given clock
 
-    - `(* DELAY_CONST_{input}="30e-12" *)` : specify a constant max delay from an input (applied to the output)
+    - `(* DELAY_CONST_{input}="30e-12" *)` : specify a constant max delay from an input
+                                            (applied to the output)
 
     - `(* DELAY_MATRIX_{input}="30e-12 35e-12; 20e-12 25e-12; ..." *)` : specify a VPR
         delay matrix (semicolons indicate rows). In this format columns specify
@@ -44,8 +45,10 @@ The following are allowed on ports:
 The Verilog define "PB_TYPE" is set during generation.
 """
 
-import os, sys
-import argparse, re
+import os
+import sys
+import argparse
+import re
 
 from typing import List, Dict, Tuple
 from collections import defaultdict
@@ -56,7 +59,7 @@ import yosys.run
 from yosys.json import YosysJSON
 
 sys.path.insert(0, "..")
-from lib import xmlinc
+from lib import xmlinc  # noqa: E402
 
 
 def normalize_pb_name(pb_name):
@@ -105,7 +108,7 @@ GENBLOCK_REGEX = re.compile(
 def strip_name(name: str, include_index=True) -> str:
     """Convert generate block into normal array form.
 
-    >>> n = r"$genblock$/vlog/tests/multiple_instance/multiple_instance.sim.v:12$64[57].\comb"
+    >>> n = r"$genblock$/vlog/tests/multiple_instance/multiple_instance.sim.v:12$64[57].\\comb"
     >>> strip_name(n)
     'comb[57]'
     >>> strip_name(n, False)
@@ -189,14 +192,13 @@ def net_and_pin_attrs(yj, mod, driver: CellPin, sink: CellPin, netid: int):
 
     driver_cell, driver_pin = driver
     driver_type = mod.cell_type(driver_cell)
-    if driver_type != None:
+    if driver_type is not None:
         dmod = yj.module(driver_type)
         potential_attrs.append(filter_src(dmod.port_attrs(driver_pin)))
 
     sink_cell, sink_pin = sink
-    sink_attrs = {}
     sink_type = mod.cell_type(sink_cell)
-    if sink_type != None:
+    if sink_type is not None:
         smod = yj.module(sink_type)
         potential_attrs.append(filter_src(smod.port_attrs(sink_pin)))
 
@@ -242,43 +244,9 @@ def make_mux_conn(
         mux_outputs: Dict[CellPin, List[CellPin]]
 ) -> ET.Element:
 
-    ## <mux input="use_mux.a use_mux.b use_mux.cin" name="AMUX" output="use_mux.cout">
-    #mux_xml = ET.SubElement(
-    #    ic_xml,
-    #    "mux",
-    #    {
-    #        "input": " ".join("{}.{}".format(cell_name, cell_pin) for cell_name, cell_pin in mux_inputs.values()),
-    #        "name": mux_name,
-    #        "output": " ".join("{}.{}".format(cell_name, cell_pin) for cell_name, cell_pin in mux_outputs),
-    #    }
-    #)
-    ##  <metadata>
-    #meta_root = ET.SubElement(mux_xml, 'metadata')
-    ##    <meta name="type">bel</meta>
-    #meta_type = ET.SubElement(meta_root, 'meta', {'name': 'type'})
-    #meta_type.text = "bel"
-    ##    <meta name="subtype">routing</meta>
-    #meta_subtype = ET.SubElement(meta_root, 'meta', {'name': 'subtype'})
-    #meta_subtype.text = "routing"
-    ##    <meta name="fasm_mux">
-    ## use_mux.a = AMUX.A1
-    ## use_mux.b = AMUX.B2
-    ## use_mux.cin = AMUX.C3
-    ##    </meta>
-    #meta_fasm = ET.SubElement(meta_root, 'meta', {'name': 'fasm_mux'})
-    #meta_fasm.text = "\n" + "\n".join(
-    #        "{}.{} = {}.{}".format(cell_name, cell_pin, mux_name, mux_pin)
-    #        for mux_pin, (cell_name, cell_pin) in mux_inputs.items()) + "\n"
-
-    # <mux name="AMUX">
-    #   <port name
-    # </mux>
     mux_xml = ET.SubElement(ic_xml, "mux", {"name": mux_name})
     for mux_input, driver in mux_inputs.items():
-        mux_port = create_port(
-            mux_xml, driver, "input", metadata={'fasm_mux': mux_input}
-        )
-
+        create_port(mux_xml, driver, "input", metadata={'fasm_mux': mux_input})
     assert len(mux_outputs) == 1, mux_outputs
     for mux_pin, sinks in mux_outputs.items():
         assert len(sinks) == 1, sinks
@@ -393,8 +361,9 @@ def get_children(yj, mod) -> Tuple[ChildrenDict, ChildrenDict]:
             d[cname_prefix] = (ctype, [])
         assert d[cname_prefix][
             0
-        ] == ctype, "Type of {} with prefix {} doesn't match existing. Type: {}, existing: {}".format(
-            cname, cname_prefix, ctype, children[cname_prefix]
+        ] == ctype, \
+            "Type of {} with prefix {} doesn't match existing. Type: {}, existing: {}".format(
+                cname, cname_prefix, ctype, children[cname_prefix]
         )
         d[cname_prefix][-1].append(strip_name(cname))
 
@@ -613,9 +582,10 @@ Mux {}.{} is trying to drive mux input pin {}.{}""".format(
             for (sink_cell, mux_pin), path_attr in sinks:
                 if sink_cell != mux_cell:
                     continue
-                assert driver_cell not in routing_names, "Mux {}.{} is trying to drive mux {}.{}".format(
-                    driver_cell, driver_pin, mux_cell, sink_pin
-                )
+                assert driver_cell not in routing_names, \
+                    "Mux {}.{} is trying to drive mux {}.{}".format(
+                        driver_cell, driver_pin, mux_cell, sink_pin
+                    )
                 assert sink_pin not in mux_inputs, """\
 Pin {}.{} is trying to drive mux pin {}.{} (already driving by {}.{})""".format(
                     driver_cell, driver_pin, mux_cell, mux_pin,
@@ -853,8 +823,9 @@ def main(args):
             top = wm.group(1).upper()
         else:
             print(
-                "ERROR file name not of format %.sim.v ({}), cannot detect top level. Manually specify the top level module using --top"
-                .format(iname)
+                "ERROR file name not of format %.sim.v ({}), cannot detect top level."
+                " Manually specify the top level module using --top".
+                format(iname)
             )
             sys.exit(1)
 

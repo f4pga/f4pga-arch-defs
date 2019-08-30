@@ -1,0 +1,24 @@
+VPR FPGA Placement and Routing.
+Version: 8.0.0-rc1+12b32ee86
+Revision: vpr-7.0.5-8235-g12b32ee86
+Compiled: 2019-08-20T12:13:35
+Compiler: GNU 9.1.0 on Linux-5.1.15-arch1-1-ARCH x86_64
+Build Info: Debug IPO VTR_ASSERT_LEVEL=2
+
+University of Toronto
+verilogtorouting.org
+vtr-users@googlegroups.com
+This is free open source code under MIT license.
+
+VPR was run with the following command-line:
+/home/karol/antmicro/prjxray/v2x/pr-703/vtr-verilog-to-routing/build/vpr/vpr multiple_instance.arch.merged.xml multiple_instance.test.eblif --echo_file on --pack --place --route --device device --target_ext_pin_util 1.0,1.0 --pack_verbosity 4 --allow_unrelated_clustering on
+
+Using up to 1 parallel worker(s)
+
+Architecture file: multiple_instance.arch.merged.xml
+Circuit name: multiple_instance.test
+
+# Loading Architecture Description
+# Loading Architecture Description took 0.00 seconds (max_rss 1617.0 MiB, delta_rss +0.0 MiB)
+Error 1: multiple_instance.arch.merged.xml:-1 Failed to open file
+The entire flow of VPR took 0.00 seconds (max_rss 1617.0 MiB)

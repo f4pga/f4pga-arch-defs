@@ -1,0 +1,396 @@
+!_TAG_FILE_FORMAT	2	/extended format; --format=1 will not append ;" to lines/
+!_TAG_FILE_SORTED	1	/0=unsorted, 1=sorted, 2=foldcase/
+!_TAG_OUTPUT_MODE	u-ctags	/u-ctags or e-ctags/
+!_TAG_PROGRAM_AUTHOR	Universal Ctags Team	//
+!_TAG_PROGRAM_NAME	Universal Ctags	/Derived from Exuberant Ctags/
+!_TAG_PROGRAM_URL	https://ctags.io/	/official site/
+!_TAG_PROGRAM_VERSION	0.0.0	/3fdf28bc/
+ACTUAL_XML	tests/v2x_tests.cmake	/^  set(ACTUAL_XML ${NAME}.${TYPE}.xml)$/;"	v	function:V2X_TEST_GENERIC
+ADDER	tests/fig41-full-adder/adder.sim.v	/^module ADDER ($/;"	m
+BLOCK	tests/clocks/dff_comb_one_clock/dff_comb_one_clock.sim.v	/^module BLOCK(a, b, c, d);$/;"	m
+BLOCK	tests/clocks/dff_one_clock/dff_one_clock.sim.v	/^module BLOCK(a, b, c);$/;"	m
+BLOCK	tests/clocks/dff_two_clocks/dff_two_clocks.sim.v	/^module BLOCK(c1, c2, a, b, c, o1, o2);$/;"	m
+BLOCK	tests/clocks/input_attr_clock/input_attr_clock.sim.v	/^module BLOCK(a, b, o);$/;"	m
+BLOCK	tests/clocks/input_named_clk/input_named_clk.sim.v	/^module BLOCK(clk, a, o);$/;"	m
+BLOCK	tests/clocks/input_named_rdclk/input_named_rdclk.sim.v	/^module BLOCK(rdclk, a, o);$/;"	m
+BLOCK	tests/clocks/multiple_inputs_named_clk/multiple_inputs_named_clk.sim.v	/^module BLOCK(a, rdclk, b, wrclk, c, o);$/;"	m
+BLOCK	tests/clocks/multiple_outputs_named_clk/multiple_outputs_named_clk.sim.v	/^module BLOCK(a, b, rdclk, o, wrclk);$/;"	m
+BLOCK	tests/clocks/output_attr_clock/output_attr_clock.sim.v	/^module BLOCK(a, b, o);$/;"	m
+BLOCK	tests/clocks/output_named_clk/output_named_clk.sim.v	/^module BLOCK(a, b, clk);$/;"	m
+BLOCK	tests/clocks/output_named_rdclk/output_named_rdclk.sim.v	/^module BLOCK(a, b, rdclk);$/;"	m
+CARRY	tests/carry/carry.sim.v	/^module CARRY ($/;"	m
+CBLOCK	tests/carry/cblock/cblock.sim.v	/^module CBLOCK ($/;"	m
+CIN	tests/carry/carry.sim.v	/^	input wire CIN;$/;"	p	module:CARRY
+CIN	tests/carry/cblock/cblock.sim.v	/^	input wire CIN;$/;"	p	module:CBLOCK
+CLK	tests/fig28-lutff-pair/ff/ff.sim.v	/^	input wire CLK;$/;"	p	module:DFF
+CLK	tests/fig28-lutff-pair/pair.sim.v	/^	input wire CLK;$/;"	p	module:PAIR
+COUT	tests/carry/carry.sim.v	/^	output wire COUT;$/;"	p	module:CARRY
+COUT	tests/carry/cblock/cblock.sim.v	/^	output wire COUT;$/;"	p	module:CBLOCK
+CellName	vlog_to_pbtype.py	/^CellName = str$/;"	v
+CellPin	vlog_to_pbtype.py	/^CellPin = Tuple[CellName, PinName]$/;"	v
+CellPrefix	vlog_to_pbtype.py	/^CellPrefix = str$/;"	v
+CellType	vlog_to_pbtype.py	/^CellType = str$/;"	v
+ChildrenDict	vlog_to_pbtype.py	/^ChildrenDict = Dict[CellPrefix, Tuple[CellType, List[CellName]]]$/;"	v
+Clock detection tests	tests/clocks/README.md	/^## Clock detection tests$/;"	s
+D	tests/fig28-lutff-pair/ff/ff.sim.v	/^	input wire D;$/;"	p	module:DFF
+DATA_WIDTH	tests/dsp_combinational/dsp_combinational.sim.v	/^	localparam DATA_WIDTH = 64;$/;"	c	module:DSP_COMBINATIONAL
+DATA_WIDTH	tests/dsp_in_registered/dsp_in_registered.sim.v	/^	localparam DATA_WIDTH = 64;$/;"	c	module:DSP_IN_REGISTERED
+DATA_WIDTH	tests/dsp_inout_registered/dsp_inout_registered.sim.v	/^	localparam DATA_WIDTH = 64;$/;"	c	module:DSP_INOUT_REGISTERED
+DATA_WIDTH	tests/dsp_inout_registered_dualclk/dsp_inout_registered_dualclk.sim.v	/^	localparam DATA_WIDTH = 64;$/;"	c	module:DSP_INOUT_REGISTERED_DUALCLK
+DATA_WIDTH	tests/dsp_modes/dsp_modes.sim.v	/^	localparam DATA_WIDTH = 64;$/;"	c	module:DSP_MODES
+DATA_WIDTH	tests/dsp_out_registered/dsp_out_registered.sim.v	/^	localparam DATA_WIDTH = 64;$/;"	c	module:DSP_OUT_REGISTERED
+DATA_WIDTH	tests/dsp_partial_registered/dsp_partial_registered.sim.v	/^	localparam DATA_WIDTH = 64;$/;"	c	module:DSP_PARTIAL_REGISTERED
+DATA_WIDTH	tests/multiple_instance/multiple_instance.sim.v	/^	localparam DATA_WIDTH = 4;$/;"	c	module:MULTIPLE_INSTANCE
+DFF	tests/fig28-lutff-pair/ff/ff.sim.v	/^module DFF (CLK, D, Q);$/;"	m
+DFF	tests/fig42-dff/dff.sim.v	/^module DFF (d, clk, q);$/;"	m
+DSP_COMB	tests/dsp_combinational/dsp_combinational.sim.v	/^`define DSP_COMB$/;"	c
+DSP_COMBINATIONAL	tests/dsp_combinational/dsp_combinational.sim.v	/^module DSP_COMBINATIONAL ($/;"	m
+DSP_INOUT_REGISTERED	tests/dsp_inout_registered/dsp_inout_registered.sim.v	/^module DSP_INOUT_REGISTERED (clk, a, b, m, out);$/;"	m
+DSP_INOUT_REGISTERED_DUALCLK	tests/dsp_inout_registered_dualclk/dsp_inout_registered_dualclk.sim.v	/^module DSP_INOUT_REGISTERED_DUALCLK (iclk, oclk, a, b, m, out);$/;"	m
+DSP_IN_REGISTERED	tests/dsp_in_registered/dsp_in_registered.sim.v	/^module DSP_IN_REGISTERED (clk, a, b, m, out);$/;"	m
+DSP_MODES	tests/dsp_modes/dsp_modes.sim.v	/^module DSP_MODES (clk, a, b, m, out);$/;"	m
+DSP_OUT_REGISTERED	tests/dsp_out_registered/dsp_out_registered.sim.v	/^module DSP_OUT_REGISTERED (clk, a, b, m, out);$/;"	m
+DSP_PARTIAL_REGISTERED	tests/dsp_partial_registered/dsp_partial_registered.sim.v	/^module DSP_PARTIAL_REGISTERED (clk, a, b, m, out);$/;"	m
+Detection of clock association	tests/clocks/README.md	/^## Detection of clock association$/;"	s
+Detection of clock signals	tests/clocks/README.md	/^## Detection of clock signals$/;"	s
+ET	vlog_to_model.py	/^import lxml.etree as ET$/;"	I
+ET	vlog_to_pbtype.py	/^import lxml.etree as ET$/;"	I
+FASM_MUX1	tests/muxes/use_mux.sim.v	/^	parameter FASM_MUX1 = "I0";$/;"	c	module:USE_MUX
+FASM_MUX2	tests/muxes/use_mux.sim.v	/^	parameter FASM_MUX2 = "I0";$/;"	c	module:USE_MUX
+FF_BYPASS	tests/fig28-lutff-pair/pair.sim.v	/^	parameter [0:0] FF_BYPASS = "";$/;"	c	module:PAIR
+FILE_DEPS	tests/v2x_tests.cmake	/^  set(FILE_DEPS "")$/;"	v	function:V2X_TEST_GENERIC
+GENBLOCK_REGEX	vlog_to_pbtype.py	/^GENBLOCK_REGEX = re.compile($/;"	v
+GOLDEN_XML	tests/v2x_tests.cmake	/^  set(GOLDEN_XML golden.${TYPE}.xml)$/;"	v	function:V2X_TEST_GENERIC
+I	tests/carry/cblock/cblock.sim.v	/^	input wire [3:0] I;$/;"	p	module:CBLOCK
+I	tests/fig28-lutff-pair/lut/lut.sim.v	/^	input wire [3:0] I;$/;"	p	module:LUT4
+I	tests/fig28-lutff-pair/pair.sim.v	/^	input wire [3:0] I;$/;"	p	module:PAIR
+I	tests/logicbox/logicbox.sim.v	/^	input wire I;$/;"	p	module:LOGICBOX
+I0	tests/carry/carry.sim.v	/^	input wire [3:0] I0;$/;"	p	module:CARRY
+I1	tests/carry/carry.sim.v	/^	input wire [3:0] I1;$/;"	p	module:CARRY
+LOGICBOX	tests/logicbox/logicbox.sim.v	/^module LOGICBOX (I, O);$/;"	m
+LUT4	tests/fig28-lutff-pair/lut/lut.sim.v	/^module LUT4 (I, O);$/;"	m
+MODE	tests/dsp_modes/dsp_modes.sim.v	/^	parameter MODE = "REGISTERED_INOUT";$/;"	c	module:DSP_MODES
+MULTIPLE_INSTANCE	tests/multiple_instance/multiple_instance.sim.v	/^module MULTIPLE_INSTANCE (a, b, c, d, cin, cout, sum, a2b);$/;"	m
+NAME	tests/v2x_tests.cmake	/^  set(NAME ${V2X_TEST_BOTH_NAME})$/;"	v	function:V2X_TEST_BOTH
+NAME	tests/v2x_tests.cmake	/^  set(NAME ${V2X_TEST_GENERIC_NAME})$/;"	v	function:V2X_TEST_GENERIC
+NAME	tests/v2x_tests.cmake	/^  set(NAME ${V2X_TEST_MODEL_NAME})$/;"	v	function:V2X_TEST_MODEL
+NAME	tests/v2x_tests.cmake	/^  set(NAME ${V2X_TEST_MODEL_NAME})$/;"	v	function:V2X_TEST_PB_TYPE
+O	tests/carry/cblock/cblock.sim.v	/^	output wire O;$/;"	p	module:CBLOCK
+O	tests/fig28-lutff-pair/lut/lut.sim.v	/^	output wire O;$/;"	p	module:LUT4
+O	tests/fig28-lutff-pair/pair.sim.v	/^	output wire O;$/;"	p	module:PAIR
+O	tests/logicbox/logicbox.sim.v	/^	output wire O;$/;"	p	module:LOGICBOX
+O0	tests/carry/carry.sim.v	/^	output wire O0;$/;"	p	module:CARRY
+O1	tests/carry/carry.sim.v	/^	output wire O1;$/;"	p	module:CARRY
+PAIR	tests/fig28-lutff-pair/pair.sim.v	/^module PAIR ($/;"	m
+PORT_REGEX	yosys/json.py	/^    PORT_REGEX = re.compile('(.*)(\\\\[([0-9]+)\\\\])')$/;"	v	class:YosysModule
+PinName	vlog_to_pbtype.py	/^PinName = str$/;"	v
+Q	tests/fig28-lutff-pair/ff/ff.sim.v	/^	output reg Q;$/;"	p	module:DFF
+SIMPLE_PLL	tests/simple_pll/simple_pll.sim.v	/^module SIMPLE_PLL (in_clock, out_clock);$/;"	m
+SRC	tests/v2x_tests.cmake	/^  set(SRC ${NAME}.sim.v)$/;"	v	function:V2X_TEST_BOTH
+SRC	tests/v2x_tests.cmake	/^  set(SRC ${NAME}.sim.v)$/;"	v	function:V2X_TEST_MODEL
+SRC	tests/v2x_tests.cmake	/^  set(SRC ${NAME}.sim.v)$/;"	v	function:V2X_TEST_PB_TYPE
+T1	tests/fig41-full-adder/adder.sim.v	/^		specparam T1 300;$/;"	c	module:ADDER
+T2	tests/fig41-full-adder/adder.sim.v	/^		specparam T2 10;$/;"	c	module:ADDER
+TOP_MODULE	tests/v2x_tests.cmake	/^  set(TOP_MODULE ${V2X_TEST_BOTH_TOP_MODULE})$/;"	v	function:V2X_TEST_BOTH
+TOP_MODULE	tests/v2x_tests.cmake	/^  set(TOP_MODULE ${V2X_TEST_MODEL_TOP_MODULE})$/;"	v	function:V2X_TEST_MODEL
+TOP_MODULE	tests/v2x_tests.cmake	/^  set(TOP_MODULE ${V2X_TEST_MODEL_TOP_MODULE})$/;"	v	function:V2X_TEST_PB_TYPE
+TYPE	tests/v2x_tests.cmake	/^  set(TYPE ${V2X_TEST_GENERIC_TYPE})$/;"	v	function:V2X_TEST_GENERIC
+USE_MUX	tests/muxes/use_mux.sim.v	/^module USE_MUX (a, b, c, o1, o2);$/;"	m
+V2X_TEST_BOTH	tests/v2x_tests.cmake	/^function(V2X_TEST_BOTH)$/;"	f
+V2X_TEST_GENERIC	tests/v2x_tests.cmake	/^function(V2X_TEST_GENERIC)$/;"	f
+V2X_TEST_MODEL	tests/v2x_tests.cmake	/^function(V2X_TEST_MODEL)$/;"	f
+V2X_TEST_PB_TYPE	tests/v2x_tests.cmake	/^function(V2X_TEST_PB_TYPE)$/;"	f
+YosysJSON	yosys/json.py	/^class YosysJSON:$/;"	c
+YosysModule	yosys/json.py	/^class YosysModule:$/;"	c
+__getattr__	yosys/json.py	/^    def __getattr__(self, attr):$/;"	m	class:YosysModule
+__init__	yosys/json.py	/^    def __init__(self, j, top=None):$/;"	m	class:YosysJSON
+__init__	yosys/json.py	/^    def __init__(self, name, module_data):$/;"	m	class:YosysModule
+__str__	yosys/json.py	/^    def __str__(self):$/;"	m	class:YosysModule
+a	tests/clocks/dff_comb_one_clock/dff_comb_one_clock.sim.v	/^	input wire a;$/;"	p	module:BLOCK
+a	tests/clocks/dff_one_clock/dff_one_clock.sim.v	/^	input wire a;$/;"	p	module:BLOCK
+a	tests/clocks/dff_two_clocks/dff_two_clocks.sim.v	/^	input wire a;$/;"	p	module:BLOCK
+a	tests/clocks/input_attr_clock/input_attr_clock.sim.v	/^	input wire a;$/;"	p	module:BLOCK
+a	tests/clocks/input_named_clk/input_named_clk.sim.v	/^	input wire a;$/;"	p	module:BLOCK
+a	tests/clocks/input_named_rdclk/input_named_rdclk.sim.v	/^	input wire a;$/;"	p	module:BLOCK
+a	tests/clocks/multiple_inputs_named_clk/multiple_inputs_named_clk.sim.v	/^	input wire a;$/;"	p	module:BLOCK
+a	tests/clocks/multiple_outputs_named_clk/multiple_outputs_named_clk.sim.v	/^	input wire a;$/;"	p	module:BLOCK
+a	tests/clocks/output_attr_clock/output_attr_clock.sim.v	/^	input wire a;$/;"	p	module:BLOCK
+a	tests/clocks/output_named_clk/output_named_clk.sim.v	/^	input wire a;$/;"	p	module:BLOCK
+a	tests/clocks/output_named_rdclk/output_named_rdclk.sim.v	/^	input wire a;$/;"	p	module:BLOCK
+a	tests/dsp_combinational/dsp_combinational.sim.v	/^	input wire [DATA_WIDTH\/2-1:0] a;$/;"	p	module:DSP_COMBINATIONAL
+a	tests/dsp_in_registered/dsp_in_registered.sim.v	/^	input wire [DATA_WIDTH\/2-1:0] a;$/;"	p	module:DSP_IN_REGISTERED
+a	tests/dsp_inout_registered/dsp_inout_registered.sim.v	/^	input wire [DATA_WIDTH\/2-1:0] a;$/;"	p	module:DSP_INOUT_REGISTERED
+a	tests/dsp_inout_registered_dualclk/dsp_inout_registered_dualclk.sim.v	/^	input wire [DATA_WIDTH\/2-1:0] a;$/;"	p	module:DSP_INOUT_REGISTERED_DUALCLK
+a	tests/dsp_modes/dsp_modes.sim.v	/^	input wire [DATA_WIDTH\/2-1:0] a;$/;"	p	module:DSP_MODES
+a	tests/dsp_out_registered/dsp_out_registered.sim.v	/^	input wire [DATA_WIDTH\/2-1:0] a;$/;"	p	module:DSP_OUT_REGISTERED
+a	tests/dsp_partial_registered/dsp_partial_registered.sim.v	/^	input wire [DATA_WIDTH\/2-1:0] a;$/;"	p	module:DSP_PARTIAL_REGISTERED
+a	tests/fig41-full-adder/adder.sim.v	/^	input wire a;$/;"	p	module:ADDER
+a	tests/multiple_instance/multiple_instance.sim.v	/^	input  wire [DATA_WIDTH-1:0] a;$/;"	p	module:MULTIPLE_INSTANCE
+a	tests/muxes/use_mux.sim.v	/^	input wire a;$/;"	p	module:USE_MUX
+a2b	tests/multiple_instance/multiple_instance.sim.v	/^	output wire [DATA_WIDTH-1:0] a2b;$/;"	p	module:MULTIPLE_INSTANCE
+abs_base	vlog_to_model.py	/^        abs_base = os.path.dirname(os.path.abspath(args.infiles[0]))$/;"	v
+abs_dep	vlog_to_model.py	/^        abs_dep = os.path.normpath(os.path.join(abs_base, df))$/;"	v
+add_define	yosys/run.py	/^def add_define(defname):$/;"	f
+add_include	yosys/run.py	/^def add_include(path):$/;"	f
+aig_json	vlog_to_model.py	/^aig_json = yosys.run.vlog_to_json(args.infiles, flatten=True, aig=True)$/;"	v
+all_cells	yosys/json.py	/^    def all_cells(self):$/;"	m	class:YosysModule
+all_modules	yosys/json.py	/^    def all_modules(self):$/;"	m	class:YosysJSON
+all_v2x_tests	tests/v2x_tests.cmake	/^add_custom_target(all_v2x_tests ALL)$/;"	t
+args	vlog_to_model.py	/^args = parser.parse_args()$/;"	v
+args	vlog_to_pbtype.py	/^    args = parser.parse_args()$/;"	v
+attr	yosys/json.py	/^    def attr(self, attr, defval=None):$/;"	m	class:YosysModule
+attrs	vlog_to_model.py	/^            attrs = dict(name=name)$/;"	v
+b	tests/clocks/dff_comb_one_clock/dff_comb_one_clock.sim.v	/^	input wire b;$/;"	p	module:BLOCK
+b	tests/clocks/dff_one_clock/dff_one_clock.sim.v	/^	input wire b;$/;"	p	module:BLOCK
+b	tests/clocks/dff_two_clocks/dff_two_clocks.sim.v	/^	input wire b;$/;"	p	module:BLOCK
+b	tests/clocks/input_attr_clock/input_attr_clock.sim.v	/^	input wire b;$/;"	p	module:BLOCK
+b	tests/clocks/multiple_inputs_named_clk/multiple_inputs_named_clk.sim.v	/^	input wire b;$/;"	p	module:BLOCK
+b	tests/clocks/multiple_outputs_named_clk/multiple_outputs_named_clk.sim.v	/^	input wire b;$/;"	p	module:BLOCK
+b	tests/clocks/output_attr_clock/output_attr_clock.sim.v	/^	input wire b;$/;"	p	module:BLOCK
+b	tests/clocks/output_named_clk/output_named_clk.sim.v	/^	input wire b;$/;"	p	module:BLOCK
+b	tests/clocks/output_named_rdclk/output_named_rdclk.sim.v	/^	input wire b;$/;"	p	module:BLOCK
+b	tests/dsp_combinational/dsp_combinational.sim.v	/^	input wire [DATA_WIDTH\/2-1:0] b;$/;"	p	module:DSP_COMBINATIONAL
+b	tests/dsp_in_registered/dsp_in_registered.sim.v	/^	input wire [DATA_WIDTH\/2-1:0] b;$/;"	p	module:DSP_IN_REGISTERED
+b	tests/dsp_inout_registered/dsp_inout_registered.sim.v	/^	input wire [DATA_WIDTH\/2-1:0] b;$/;"	p	module:DSP_INOUT_REGISTERED
+b	tests/dsp_inout_registered_dualclk/dsp_inout_registered_dualclk.sim.v	/^	input wire [DATA_WIDTH\/2-1:0] b;$/;"	p	module:DSP_INOUT_REGISTERED_DUALCLK
+b	tests/dsp_modes/dsp_modes.sim.v	/^	input wire [DATA_WIDTH\/2-1:0] b;$/;"	p	module:DSP_MODES
+b	tests/dsp_out_registered/dsp_out_registered.sim.v	/^	input wire [DATA_WIDTH\/2-1:0] b;$/;"	p	module:DSP_OUT_REGISTERED
+b	tests/dsp_partial_registered/dsp_partial_registered.sim.v	/^	input wire [DATA_WIDTH\/2-1:0] b;$/;"	p	module:DSP_PARTIAL_REGISTERED
+b	tests/fig41-full-adder/adder.sim.v	/^	input wire b;$/;"	p	module:ADDER
+b	tests/multiple_instance/multiple_instance.sim.v	/^	input  wire [DATA_WIDTH-1:0] b;$/;"	p	module:MULTIPLE_INSTANCE
+b	tests/muxes/use_mux.sim.v	/^	input wire b;$/;"	p	module:USE_MUX
+c	tests/carry/carry.sim.v	/^	wire c;$/;"	n	module:CARRY
+c	tests/clocks/dff_comb_one_clock/dff_comb_one_clock.sim.v	/^	input wire c;$/;"	p	module:BLOCK
+c	tests/clocks/dff_one_clock/dff_one_clock.sim.v	/^	output wire c;$/;"	p	module:BLOCK
+c	tests/clocks/dff_two_clocks/dff_two_clocks.sim.v	/^	input wire c;$/;"	p	module:BLOCK
+c	tests/clocks/multiple_inputs_named_clk/multiple_inputs_named_clk.sim.v	/^	input wire c;$/;"	p	module:BLOCK
+c	tests/multiple_instance/multiple_instance.sim.v	/^	input  wire [DATA_WIDTH-1:0] c;$/;"	p	module:MULTIPLE_INSTANCE
+c	tests/muxes/use_mux.sim.v	/^	input wire c;$/;"	p	module:USE_MUX
+c1	tests/clocks/dff_two_clocks/dff_two_clocks.sim.v	/^	input wire c1;$/;"	p	module:BLOCK
+c2	tests/clocks/dff_two_clocks/dff_two_clocks.sim.v	/^	input wire c2;$/;"	p	module:BLOCK
+c_out	tests/dsp_inout_registered/dsp_inout_registered.sim.v	/^	wire [DATA_WIDTH-1:0] c_out;$/;"	n	module:DSP_INOUT_REGISTERED
+c_out	tests/dsp_inout_registered_dualclk/dsp_inout_registered_dualclk.sim.v	/^	wire [DATA_WIDTH-1:0] c_out;$/;"	n	module:DSP_INOUT_REGISTERED_DUALCLK
+c_out	tests/dsp_out_registered/dsp_out_registered.sim.v	/^	wire [DATA_WIDTH-1:0] c_out;$/;"	n	module:DSP_OUT_REGISTERED
+cell_attr	yosys/json.py	/^    def cell_attr(self, cell, attr, defval=None):$/;"	m	class:YosysModule
+cell_attrs	yosys/json.py	/^    def cell_attrs(self, cell):$/;"	m	class:YosysModule
+cell_clk_conn	yosys/json.py	/^    def cell_clk_conn(self, cell):$/;"	m	class:YosysModule
+cell_conn_list	yosys/json.py	/^    def cell_conn_list(self, cell, port):$/;"	m	class:YosysModule
+cell_conns	yosys/json.py	/^    def cell_conns(self, cell, direction="input"):$/;"	m	class:YosysModule
+cell_type	yosys/json.py	/^    def cell_type(self, cell):$/;"	m	class:YosysModule
+cells	yosys/json.py	/^    def cells(self):$/;"	m	class:YosysModule
+cin	tests/fig41-full-adder/adder.sim.v	/^	input wire cin;$/;"	p	module:ADDER
+cin	tests/multiple_instance/multiple_instance.sim.v	/^	input  wire [DATA_WIDTH-1:0] cin;$/;"	p	module:MULTIPLE_INSTANCE
+clk	tests/clocks/input_named_clk/input_named_clk.sim.v	/^	input wire clk;$/;"	p	module:BLOCK
+clk	tests/clocks/output_named_clk/output_named_clk.sim.v	/^	output wire clk;$/;"	p	module:BLOCK
+clk	tests/dsp_in_registered/dsp_in_registered.sim.v	/^	input wire clk;$/;"	p	module:DSP_IN_REGISTERED
+clk	tests/dsp_inout_registered/dsp_inout_registered.sim.v	/^	input wire clk;$/;"	p	module:DSP_INOUT_REGISTERED
+clk	tests/dsp_modes/dsp_modes.sim.v	/^	input wire clk;$/;"	p	module:DSP_MODES
+clk	tests/dsp_out_registered/dsp_out_registered.sim.v	/^	input wire clk;$/;"	p	module:DSP_OUT_REGISTERED
+clk	tests/dsp_partial_registered/dsp_partial_registered.sim.v	/^	input wire clk;$/;"	p	module:DSP_PARTIAL_REGISTERED
+clk	tests/fig42-dff/dff.sim.v	/^	input wire clk;$/;"	p	module:DFF
+clocks	vlog_to_model.py	/^        clocks = yosys.run.list_clocks(args.infiles, top)$/;"	v
+commands	yosys/run.py	/^def commands(commands, infiles=[]):$/;"	f
+conn_io	yosys/json.py	/^    def conn_io(self, net, iodir):$/;"	m	class:YosysModule
+conn_ports	yosys/json.py	/^    def conn_ports(self, net, pdir):$/;"	m	class:YosysModule
+copy_attrs	vlog_to_pbtype.py	/^def copy_attrs(dst, srcs):$/;"	f
+counter	tests/simple_pll/simple_pll.sim.v	/^	reg [63:0] counter;$/;"	r	module:SIMPLE_PLL
+cout	tests/fig41-full-adder/adder.sim.v	/^	output wire cout;$/;"	p	module:ADDER
+cout	tests/multiple_instance/multiple_instance.sim.v	/^	output wire [DATA_WIDTH-1:0] cout;$/;"	p	module:MULTIPLE_INSTANCE
+create_port	vlog_to_pbtype.py	/^def create_port($/;"	f
+d	tests/clocks/dff_comb_one_clock/dff_comb_one_clock.sim.v	/^	output wire d;$/;"	p	module:BLOCK
+d	tests/fig42-dff/dff.sim.v	/^	input wire d;$/;"	p	module:DFF
+d	tests/multiple_instance/multiple_instance.sim.v	/^	input  wire [DATA_WIDTH-1:0] d;$/;"	p	module:MULTIPLE_INSTANCE
+defines	yosys/run.py	/^defines = []$/;"	v
+deps_files	vlog_to_model.py	/^deps_files = set()$/;"	v
+dffs_gen	tests/dsp_in_registered/dsp_in_registered.sim.v	/^	for (i=0; i<DATA_WIDTH\/2; i=i+1) begin: dffs_gen$/;"	b	module:DSP_IN_REGISTERED
+dffs_gen	tests/dsp_partial_registered/dsp_partial_registered.sim.v	/^	for (i=0; i<DATA_WIDTH\/2; i=i+1) begin: dffs_gen$/;"	b	module:DSP_PARTIAL_REGISTERED
+do_select	yosys/run.py	/^def do_select(infiles, module, expr, prep=False, flatten=False):$/;"	f
+extract_pin	yosys/run.py	/^def extract_pin(module, pstr, _regex=re.compile(r"([^\/]+)\/([^\/]+)")):$/;"	f
+f	vlog_to_model.py	/^f = open(outfile, 'w')$/;"	v
+ff_out	tests/fig28-lutff-pair/pair.sim.v	/^	wire ff_out;$/;"	n	module:PAIR
+filter_src	vlog_to_pbtype.py	/^    def filter_src(x):$/;"	f	function:net_and_pin_attrs	file:
+get_cellname_from_shortname	vlog_to_pbtype.py	/^def get_cellname_from_shortname(shortname, mod):$/;"	f
+get_children	vlog_to_pbtype.py	/^def get_children(yj, mod) -> Tuple[ChildrenDict, ChildrenDict]:$/;"	f
+get_clock_assoc_signals	yosys/run.py	/^def get_clock_assoc_signals(infiles, module, clk):$/;"	f
+get_combinational_sinks	yosys/run.py	/^def get_combinational_sinks(infiles, module, innet):$/;"	f
+get_defines	yosys/run.py	/^def get_defines():$/;"	f
+get_includes	yosys/run.py	/^def get_includes():$/;"	f
+get_interconnects	vlog_to_pbtype.py	/^def get_interconnects(yj, mod, mod_pname: str,$/;"	f
+get_list_name_and_length	vlog_to_pbtype.py	/^def get_list_name_and_length(l: List[str]) -> Tuple[str, int]:$/;"	f
+get_module_file	yosys/json.py	/^    def get_module_file(self, module):$/;"	m	class:YosysJSON
+get_output	yosys/run.py	/^def get_output(params):$/;"	f
+get_related_inputs_for_input	yosys/run.py	/^def get_related_inputs_for_input(infiles, module, signal):$/;"	f
+get_related_output_for_input	yosys/run.py	/^def get_related_output_for_input(infiles, module, signal):$/;"	f
+get_verbose	yosys/run.py	/^def get_verbose():$/;"	f
+get_yosys	yosys/run.py	/^def get_yosys():$/;"	f
+get_yosys_common_args	yosys/run.py	/^def get_yosys_common_args():$/;"	f
+has_attr	yosys/json.py	/^    def has_attr(self, attr):$/;"	m	class:YosysModule
+has_module	yosys/json.py	/^    def has_module(self, module):$/;"	m	class:YosysJSON
+i	tests/dsp_in_registered/dsp_in_registered.sim.v	/^	genvar i;$/;"	r	module:DSP_IN_REGISTERED
+i	tests/dsp_inout_registered/dsp_inout_registered.sim.v	/^	genvar i;$/;"	r	module:DSP_INOUT_REGISTERED
+i	tests/dsp_inout_registered_dualclk/dsp_inout_registered_dualclk.sim.v	/^	genvar i;$/;"	r	module:DSP_INOUT_REGISTERED_DUALCLK
+i	tests/dsp_partial_registered/dsp_partial_registered.sim.v	/^	genvar i;$/;"	r	module:DSP_PARTIAL_REGISTERED
+i	tests/multiple_instance/multiple_instance.sim.v	/^	genvar i;$/;"	r	module:MULTIPLE_INSTANCE
+iclk	tests/dsp_inout_registered_dualclk/dsp_inout_registered_dualclk.sim.v	/^	input wire iclk;$/;"	p	module:DSP_INOUT_REGISTERED_DUALCLK
+im	vlog_to_model.py	/^        im = inc_re.match(line)$/;"	v
+in_clock	tests/simple_pll/simple_pll.sim.v	/^	input wire in_clock;$/;"	p	module:SIMPLE_PLL
+iname	vlog_to_model.py	/^iname = os.path.basename(args.infiles[0])$/;"	v
+inc_re	vlog_to_model.py	/^inc_re = re.compile(r'^\\s*`include\\s+"([^"]+)"')$/;"	v
+includes	yosys/run.py	/^includes = []$/;"	v
+inports_xml	vlog_to_model.py	/^        inports_xml = ET.SubElement(model_xml, "input_ports")$/;"	v
+input_dffs_gen	tests/dsp_inout_registered/dsp_inout_registered.sim.v	/^	for (i=0; i<DATA_WIDTH\/2; i=i+1) begin: input_dffs_gen$/;"	b	module:DSP_INOUT_REGISTERED
+input_dffs_gen	tests/dsp_inout_registered_dualclk/dsp_inout_registered_dualclk.sim.v	/^	for (i=0; i<DATA_WIDTH\/2; i=i+1) begin: input_dffs_gen$/;"	b	module:DSP_INOUT_REGISTERED_DUALCLK
+is_clock_assoc	vlog_to_model.py	/^def is_clock_assoc(infiles, module, clk, port, direction):$/;"	f
+is_mod_blackbox	vlog_to_pbtype.py	/^def is_mod_blackbox(mod):$/;"	f
+is_registered_path	vlog_to_model.py	/^def is_registered_path(tmod, pin, pout):$/;"	f
+j	tests/dsp_inout_registered/dsp_inout_registered.sim.v	/^	genvar j;$/;"	r	module:DSP_INOUT_REGISTERED
+j	tests/dsp_inout_registered_dualclk/dsp_inout_registered_dualclk.sim.v	/^	genvar j;$/;"	r	module:DSP_INOUT_REGISTERED_DUALCLK
+j	tests/dsp_out_registered/dsp_out_registered.sim.v	/^	genvar j;$/;"	r	module:DSP_OUT_REGISTERED
+list_clocks	yosys/run.py	/^def list_clocks(infiles, module):$/;"	f
+logic_a	tests/muxes/use_mux.sim.v	/^	wire logic_a;$/;"	n	module:USE_MUX
+logic_b	tests/muxes/use_mux.sim.v	/^	wire logic_b;$/;"	n	module:USE_MUX
+logic_c	tests/muxes/use_mux.sim.v	/^	wire logic_c;$/;"	n	module:USE_MUX
+lut_out	tests/fig28-lutff-pair/pair.sim.v	/^	wire lut_out;$/;"	n	module:PAIR
+m	tests/dsp_combinational/dsp_combinational.sim.v	/^	input wire m;$/;"	p	module:DSP_COMBINATIONAL
+m	tests/dsp_in_registered/dsp_in_registered.sim.v	/^	input wire m;$/;"	p	module:DSP_IN_REGISTERED
+m	tests/dsp_inout_registered/dsp_inout_registered.sim.v	/^	input wire m;$/;"	p	module:DSP_INOUT_REGISTERED
+m	tests/dsp_inout_registered_dualclk/dsp_inout_registered_dualclk.sim.v	/^	input wire m;$/;"	p	module:DSP_INOUT_REGISTERED_DUALCLK
+m	tests/dsp_modes/dsp_modes.sim.v	/^	input wire m;$/;"	p	module:DSP_MODES
+m	tests/dsp_out_registered/dsp_out_registered.sim.v	/^	input wire m;$/;"	p	module:DSP_OUT_REGISTERED
+m	tests/dsp_partial_registered/dsp_partial_registered.sim.v	/^	input wire m;$/;"	p	module:DSP_PARTIAL_REGISTERED
+main	vlog_to_pbtype.py	/^def main(args):$/;"	f
+make_container_pb	vlog_to_pbtype.py	/^def make_container_pb($/;"	f
+make_direct_conn	vlog_to_pbtype.py	/^def make_direct_conn($/;"	f
+make_leaf_pb	vlog_to_pbtype.py	/^def make_leaf_pb(outfile, yj, mod, mod_pname, pb_type_xml):$/;"	f
+make_mux_conn	vlog_to_pbtype.py	/^def make_mux_conn($/;"	f
+make_pb_type	vlog_to_pbtype.py	/^def make_pb_type(outfile, yj, mod):$/;"	f
+make_ports	vlog_to_pbtype.py	/^def make_ports(clocks, mod, pb_type_xml, only_type=None):$/;"	f
+modclass	vlog_to_model.py	/^    modclass = tmod.attr("CLASS", "")$/;"	v
+mode_interconnects	vlog_to_pbtype.py	/^def mode_interconnects(mod, mode_name) -> Dict[CellPin, List[CellPin]]:$/;"	f
+model_path	vlog_to_model.py	/^            model_path = "{}\/{}.model.xml".format($/;"	v
+model_xml	vlog_to_model.py	/^        model_xml = ET.SubElement($/;"	v
+models_xml	vlog_to_model.py	/^models_xml = ET.Element("models", nsmap={'xi': xmlinc.xi_url})$/;"	v
+module	yosys/json.py	/^    def module(self, module):$/;"	m	class:YosysJSON
+module_attrs	yosys/json.py	/^    def module_attrs(self):$/;"	m	class:YosysModule
+module_basename	vlog_to_model.py	/^        module_basename = os.path.basename(abs_dep)$/;"	v
+module_path	vlog_to_model.py	/^        module_path = os.path.dirname(abs_dep)$/;"	v
+modules_with_attr	yosys/json.py	/^    def modules_with_attr(self, attr_name, attr_value):$/;"	m	class:YosysJSON
+net_and_pin_attrs	vlog_to_pbtype.py	/^def net_and_pin_attrs(yj, mod, driver: CellPin, sink: CellPin, netid: int):$/;"	f
+net_attr	yosys/json.py	/^    def net_attr(self, netname, attr, defval=None):$/;"	m	class:YosysModule
+net_attrs	yosys/json.py	/^    def net_attrs(self, netname):$/;"	m	class:YosysModule
+net_drivers	yosys/json.py	/^    def net_drivers(self, net):$/;"	m	class:YosysModule
+net_name	yosys/json.py	/^    def net_name(self, netid):$/;"	m	class:YosysModule
+net_names	yosys/json.py	/^    def net_names(self):$/;"	m	class:YosysModule
+net_sinks	yosys/json.py	/^    def net_sinks(self, net):$/;"	m	class:YosysModule
+nets	yosys/json.py	/^    def nets(self):$/;"	m	class:YosysModule
+o	tests/clocks/input_attr_clock/input_attr_clock.sim.v	/^	output wire o;$/;"	p	module:BLOCK
+o	tests/clocks/input_named_clk/input_named_clk.sim.v	/^	output wire o;$/;"	p	module:BLOCK
+o	tests/clocks/input_named_rdclk/input_named_rdclk.sim.v	/^	output wire o;$/;"	p	module:BLOCK
+o	tests/clocks/multiple_inputs_named_clk/multiple_inputs_named_clk.sim.v	/^	output wire o;$/;"	p	module:BLOCK
+o	tests/clocks/multiple_outputs_named_clk/multiple_outputs_named_clk.sim.v	/^	output wire o;$/;"	p	module:BLOCK
+o	tests/clocks/output_attr_clock/output_attr_clock.sim.v	/^	output wire o;$/;"	p	module:BLOCK
+o1	tests/clocks/dff_two_clocks/dff_two_clocks.sim.v	/^	output wire o1;$/;"	p	module:BLOCK
+o1	tests/muxes/use_mux.sim.v	/^	output wire o1;$/;"	p	module:USE_MUX
+o2	tests/clocks/dff_two_clocks/dff_two_clocks.sim.v	/^	output wire o2;$/;"	p	module:BLOCK
+o2	tests/muxes/use_mux.sim.v	/^	output wire o2;$/;"	p	module:USE_MUX
+oclk	tests/dsp_inout_registered_dualclk/dsp_inout_registered_dualclk.sim.v	/^	input wire oclk;$/;"	p	module:DSP_INOUT_REGISTERED_DUALCLK
+oneValueArgs	tests/v2x_tests.cmake	/^  set(oneValueArgs NAME TOP_MODULE)$/;"	v	function:V2X_TEST_BOTH
+oneValueArgs	tests/v2x_tests.cmake	/^  set(oneValueArgs NAME TOP_MODULE)$/;"	v	function:V2X_TEST_MODEL
+oneValueArgs	tests/v2x_tests.cmake	/^  set(oneValueArgs NAME TOP_MODULE)$/;"	v	function:V2X_TEST_PB_TYPE
+oneValueArgs	tests/v2x_tests.cmake	/^  set(oneValueArgs NAME TYPE)$/;"	v	function:V2X_TEST_GENERIC
+out	tests/dsp_combinational/dsp_combinational.sim.v	/^	output wire [DATA_WIDTH-1:0] out;$/;"	p	module:DSP_COMBINATIONAL
+out	tests/dsp_in_registered/dsp_in_registered.sim.v	/^	output wire [DATA_WIDTH-1:0] out;$/;"	p	module:DSP_IN_REGISTERED
+out	tests/dsp_inout_registered/dsp_inout_registered.sim.v	/^	output wire [DATA_WIDTH-1:0] out;$/;"	p	module:DSP_INOUT_REGISTERED
+out	tests/dsp_inout_registered_dualclk/dsp_inout_registered_dualclk.sim.v	/^	output wire [DATA_WIDTH-1:0] out;$/;"	p	module:DSP_INOUT_REGISTERED_DUALCLK
+out	tests/dsp_modes/dsp_modes.sim.v	/^	output wire [DATA_WIDTH-1:0] out;$/;"	p	module:DSP_MODES
+out	tests/dsp_out_registered/dsp_out_registered.sim.v	/^	output wire [DATA_WIDTH-1:0] out;$/;"	p	module:DSP_OUT_REGISTERED
+out	tests/dsp_partial_registered/dsp_partial_registered.sim.v	/^	output wire [DATA_WIDTH-1:0] out;$/;"	p	module:DSP_PARTIAL_REGISTERED
+out_clock	tests/simple_pll/simple_pll.sim.v	/^	output wire out_clock;$/;"	p	module:SIMPLE_PLL
+outfile	vlog_to_model.py	/^    outfile = args.o$/;"	v
+outfile	vlog_to_model.py	/^outfile = "model.xml"$/;"	v
+outports_xml	vlog_to_model.py	/^        outports_xml = ET.SubElement(model_xml, "output_ports")$/;"	v
+output_dffs_gen	tests/dsp_inout_registered/dsp_inout_registered.sim.v	/^	for (j=0; j<DATA_WIDTH; j=j+1) begin: output_dffs_gen$/;"	b	module:DSP_INOUT_REGISTERED
+output_dffs_gen	tests/dsp_inout_registered_dualclk/dsp_inout_registered_dualclk.sim.v	/^	for (j=0; j<DATA_WIDTH; j=j+1) begin: output_dffs_gen$/;"	b	module:DSP_INOUT_REGISTERED_DUALCLK
+output_dffs_gen	tests/dsp_out_registered/dsp_out_registered.sim.v	/^	for (j=0; j<DATA_WIDTH; j=j+1) begin: output_dffs_gen$/;"	b	module:DSP_OUT_REGISTERED
+parser	vlog_to_model.py	/^parser = argparse.ArgumentParser(description=__doc__.strip())$/;"	v
+parser	vlog_to_pbtype.py	/^parser = argparse.ArgumentParser($/;"	v
+pin_sort	vlog_to_pbtype.py	/^    def pin_sort(p):$/;"	f	function:get_interconnects	file:
+port_attrs	yosys/json.py	/^    def port_attrs(self, port_pin):$/;"	m	class:YosysModule
+port_conns	yosys/json.py	/^    def port_conns(self, port):$/;"	m	class:YosysModule
+ports	vlog_to_model.py	/^        ports = tmod.ports$/;"	v
+ports	yosys/json.py	/^    def ports(self):$/;"	m	class:YosysModule
+process_clocked_tmg	vlog_to_pbtype.py	/^    def process_clocked_tmg(tmgspec, port, xmltype, xml_parent):$/;"	f	function:make_leaf_pb	file:
+q	tests/fig42-dff/dff.sim.v	/^	output reg q;$/;"	p	module:DFF
+q_a	tests/dsp_in_registered/dsp_in_registered.sim.v	/^	wire [DATA_WIDTH\/2-1:0] q_a;$/;"	n	module:DSP_IN_REGISTERED
+q_a	tests/dsp_inout_registered/dsp_inout_registered.sim.v	/^	wire [DATA_WIDTH\/2-1:0] q_a;$/;"	n	module:DSP_INOUT_REGISTERED
+q_a	tests/dsp_inout_registered_dualclk/dsp_inout_registered_dualclk.sim.v	/^	wire [DATA_WIDTH\/2-1:0] q_a;$/;"	n	module:DSP_INOUT_REGISTERED_DUALCLK
+q_a	tests/dsp_partial_registered/dsp_partial_registered.sim.v	/^	wire [DATA_WIDTH\/2-1:0] q_a;$/;"	n	module:DSP_PARTIAL_REGISTERED
+q_b	tests/dsp_in_registered/dsp_in_registered.sim.v	/^	wire [DATA_WIDTH\/2-1:0] q_b;$/;"	n	module:DSP_IN_REGISTERED
+q_b	tests/dsp_inout_registered/dsp_inout_registered.sim.v	/^	wire [DATA_WIDTH\/2-1:0] q_b;$/;"	n	module:DSP_INOUT_REGISTERED
+q_b	tests/dsp_inout_registered_dualclk/dsp_inout_registered_dualclk.sim.v	/^	wire [DATA_WIDTH\/2-1:0] q_b;$/;"	n	module:DSP_INOUT_REGISTERED_DUALCLK
+q_b	tests/dsp_partial_registered/dsp_partial_registered.sim.v	/^	wire [DATA_WIDTH\/2-1:0] q_b;$/;"	n	module:DSP_PARTIAL_REGISTERED
+q_m	tests/dsp_in_registered/dsp_in_registered.sim.v	/^	wire q_m;$/;"	n	module:DSP_IN_REGISTERED
+q_m	tests/dsp_inout_registered/dsp_inout_registered.sim.v	/^	wire q_m;$/;"	n	module:DSP_INOUT_REGISTERED
+q_m	tests/dsp_inout_registered_dualclk/dsp_inout_registered_dualclk.sim.v	/^	wire q_m;$/;"	n	module:DSP_INOUT_REGISTERED_DUALCLK
+q_out	tests/dsp_inout_registered/dsp_inout_registered.sim.v	/^	wire [DATA_WIDTH-1:0] q_out;$/;"	n	module:DSP_INOUT_REGISTERED
+q_out	tests/dsp_inout_registered_dualclk/dsp_inout_registered_dualclk.sim.v	/^	wire [DATA_WIDTH-1:0] q_out;$/;"	n	module:DSP_INOUT_REGISTERED_DUALCLK
+q_out	tests/dsp_out_registered/dsp_out_registered.sim.v	/^	wire [DATA_WIDTH-1:0] q_out;$/;"	n	module:DSP_OUT_REGISTERED
+r	tests/clocks/dff_comb_one_clock/dff_comb_one_clock.sim.v	/^	reg r;$/;"	r	module:BLOCK
+r	tests/clocks/dff_one_clock/dff_one_clock.sim.v	/^	reg r;$/;"	r	module:BLOCK
+r1	tests/clocks/dff_two_clocks/dff_two_clocks.sim.v	/^	reg r1;$/;"	r	module:BLOCK
+r2	tests/clocks/dff_two_clocks/dff_two_clocks.sim.v	/^	reg r2;$/;"	r	module:BLOCK
+rdclk	tests/clocks/input_named_rdclk/input_named_rdclk.sim.v	/^	input wire rdclk;$/;"	p	module:BLOCK
+rdclk	tests/clocks/multiple_inputs_named_clk/multiple_inputs_named_clk.sim.v	/^	input wire rdclk;$/;"	p	module:BLOCK
+rdclk	tests/clocks/multiple_outputs_named_clk/multiple_outputs_named_clk.sim.v	/^	output wire rdclk;$/;"	p	module:BLOCK
+rdclk	tests/clocks/output_named_rdclk/output_named_rdclk.sim.v	/^	output wire rdclk;$/;"	p	module:BLOCK
+script	yosys/run.py	/^def script(script, infiles=[]):$/;"	f
+sinks	vlog_to_model.py	/^            sinks = yosys.run.get_combinational_sinks(args.infiles, top, name)$/;"	v
+strip_name	vlog_to_pbtype.py	/^def strip_name(name: str, include_index=True) -> str:$/;"	f
+strip_yosys_json	yosys/utils.py	/^def strip_yosys_json(text):$/;"	f
+sum	tests/fig41-full-adder/adder.sim.v	/^	output wire sum;$/;"	p	module:ADDER
+sum	tests/multiple_instance/multiple_instance.sim.v	/^	output wire [DATA_WIDTH*2-1:0] sum;$/;"	p	module:MULTIPLE_INSTANCE
+tmod	vlog_to_model.py	/^tmod = yj.top_module$/;"	v
+top	vlog_to_model.py	/^            top = wm.group(1).upper()$/;"	v
+top	vlog_to_model.py	/^        top = yj.top$/;"	v
+top	vlog_to_model.py	/^    top = args.top.upper()$/;"	v
+top	vlog_to_model.py	/^top = None$/;"	v
+top_module	yosys/json.py	/^    def top_module(self):$/;"	m	class:YosysJSON
+tplh	tests/fig42-dff/dff.sim.v	/^			tplh$CLK$QP = 1.0,$/;"	c	module:DFF
+vlog_to_json	yosys/run.py	/^def vlog_to_json($/;"	f
+wm	vlog_to_model.py	/^        wm = re.match(r"([A-Za-z0-9_]+)\\.sim\\.v", module_basename)$/;"	v
+wrclk	tests/clocks/multiple_inputs_named_clk/multiple_inputs_named_clk.sim.v	/^	input wire wrclk;$/;"	p	module:BLOCK
+wrclk	tests/clocks/multiple_outputs_named_clk/multiple_outputs_named_clk.sim.v	/^	output wire wrclk;$/;"	p	module:BLOCK
+xi	tests/carry/cblock/golden.model.xml	/^<models xmlns:xi="http:\/\/www.w3.org\/2001\/XInclude">$/;"	n	uri:http://www.w3.org/2001/XInclude
+xi	tests/carry/cblock/golden.pb_type.xml	/^<pb_type xmlns:xi="http:\/\/www.w3.org\/2001\/XInclude" blif_model=".subckt cblock" name="CBLOCK/;"	n	uri:http://www.w3.org/2001/XInclude
+xi	tests/carry/golden.model.xml	/^<models xmlns:xi="http:\/\/www.w3.org\/2001\/XInclude">$/;"	n	uri:http://www.w3.org/2001/XInclude
+xi	tests/carry/golden.pb_type.xml	/^<pb_type xmlns:xi="http:\/\/www.w3.org\/2001\/XInclude" name="CARRY" num_pb="1">$/;"	n	uri:http://www.w3.org/2001/XInclude
+xi	tests/dsp_combinational/golden.model.xml	/^<models xmlns:xi="http:\/\/www.w3.org\/2001\/XInclude">$/;"	n	uri:http://www.w3.org/2001/XInclude
+xi	tests/dsp_combinational/golden.pb_type.xml	/^<pb_type xmlns:xi="http:\/\/www.w3.org\/2001\/XInclude" name="DSP_COMBINATIONAL" blif_model=".su/;"	n	uri:http://www.w3.org/2001/XInclude
+xi	tests/dsp_in_registered/golden.model.xml	/^<models xmlns:xi="http:\/\/www.w3.org\/2001\/XInclude">$/;"	n	uri:http://www.w3.org/2001/XInclude
+xi	tests/dsp_in_registered/golden.pb_type.xml	/^<pb_type xmlns:xi="http:\/\/www.w3.org\/2001\/XInclude" name="dsp_in_registered" num_pb="1">$/;"	n	uri:http://www.w3.org/2001/XInclude
+xi	tests/dsp_inout_registered/golden.model.xml	/^<models xmlns:xi="http:\/\/www.w3.org\/2001\/XInclude">$/;"	n	uri:http://www.w3.org/2001/XInclude
+xi	tests/dsp_inout_registered/golden.pb_type.xml	/^<pb_type xmlns:xi="http:\/\/www.w3.org\/2001\/XInclude" name="dsp_inout_registered" num_pb="1">$/;"	n	uri:http://www.w3.org/2001/XInclude
+xi	tests/dsp_inout_registered_dualclk/golden.model.xml	/^<models xmlns:xi="http:\/\/www.w3.org\/2001\/XInclude">$/;"	n	uri:http://www.w3.org/2001/XInclude
+xi	tests/dsp_inout_registered_dualclk/golden.pb_type.xml	/^<pb_type xmlns:xi="http:\/\/www.w3.org\/2001\/XInclude" name="dsp_inout_registered_dualclk" num_/;"	n	uri:http://www.w3.org/2001/XInclude
+xi	tests/dsp_modes/golden.model.xml	/^<models xmlns:xi="http:\/\/www.w3.org\/2001\/XInclude">$/;"	n	uri:http://www.w3.org/2001/XInclude
+xi	tests/dsp_out_registered/golden.model.xml	/^<models xmlns:xi="http:\/\/www.w3.org\/2001\/XInclude">$/;"	n	uri:http://www.w3.org/2001/XInclude
+xi	tests/dsp_out_registered/golden.pb_type.xml	/^<pb_type xmlns:xi="http:\/\/www.w3.org\/2001\/XInclude" name="dsp_out_registered" num_pb="1">$/;"	n	uri:http://www.w3.org/2001/XInclude
+xi	tests/dsp_partial_registered/golden.model.xml	/^<models xmlns:xi="http:\/\/www.w3.org\/2001\/XInclude">$/;"	n	uri:http://www.w3.org/2001/XInclude
+xi	tests/dsp_partial_registered/golden.pb_type.xml	/^<pb_type xmlns:xi="http:\/\/www.w3.org\/2001\/XInclude" name="dsp_partial_registered" num_pb="1"/;"	n	uri:http://www.w3.org/2001/XInclude
+xi	tests/fig28-lutff-pair/ff/golden.model.xml	/^<models xmlns:xi="http:\/\/www.w3.org\/2001\/XInclude">$/;"	n	uri:http://www.w3.org/2001/XInclude
+xi	tests/fig28-lutff-pair/golden.model.xml	/^<models xmlns:xi="http:\/\/www.w3.org\/2001\/XInclude">$/;"	n	uri:http://www.w3.org/2001/XInclude
+xi	tests/fig28-lutff-pair/golden.pb_type.xml	/^<pb_type xmlns:xi="http:\/\/www.w3.org\/2001\/XInclude" name="PAIR" num_pb="1">$/;"	n	uri:http://www.w3.org/2001/XInclude
+xi	tests/fig28-lutff-pair/lut/golden.model.xml	/^<models xmlns:xi="http:\/\/www.w3.org\/2001\/XInclude">$/;"	n	uri:http://www.w3.org/2001/XInclude
+xi	tests/fig28-lutff-pair/lut/golden.pb_type.xml	/^<pb_type xmlns:xi="http:\/\/www.w3.org\/2001\/XInclude" blif_model=".subckt LUT4" name="LUT4" nu/;"	n	uri:http://www.w3.org/2001/XInclude
+xi	tests/fig41-full-adder/golden.model.xml	/^<models xmlns:xi="http:\/\/www.w3.org\/2001\/XInclude">$/;"	n	uri:http://www.w3.org/2001/XInclude
+xi	tests/fig41-full-adder/golden.pb_type.xml	/^<pb_type xmlns:xi="http:\/\/www.w3.org\/2001\/XInclude" name="ADDER" blif_model=".subckt ADDER" /;"	n	uri:http://www.w3.org/2001/XInclude
+xi	tests/fig42-dff/golden.model.xml	/^<models xmlns:xi="http:\/\/www.w3.org\/2001\/XInclude">$/;"	n	uri:http://www.w3.org/2001/XInclude
+xi	tests/logicbox/golden.model.xml	/^<models xmlns:xi="http:\/\/www.w3.org\/2001\/XInclude">$/;"	n	uri:http://www.w3.org/2001/XInclude
+xi	tests/logicbox/golden.pb_type.xml	/^<pb_type xmlns:xi="http:\/\/www.w3.org\/2001\/XInclude" blif_model=".subckt LOGICBOX" name="LOGI/;"	n	uri:http://www.w3.org/2001/XInclude
+xi	tests/multiple_instance/golden.model.xml	/^<models xmlns:xi="http:\/\/www.w3.org\/2001\/XInclude">$/;"	n	uri:http://www.w3.org/2001/XInclude
+xi	tests/multiple_instance/golden.pb_type.xml	/^<pb_type xmlns:xi="http:\/\/www.w3.org\/2001\/XInclude" name="MULTIPLE_INSTANCE" num_pb="1">$/;"	n	uri:http://www.w3.org/2001/XInclude
+xi	tests/muxes/golden.model.xml	/^<models xmlns:xi="http:\/\/www.w3.org\/2001\/XInclude">$/;"	n	uri:http://www.w3.org/2001/XInclude
+xi	tests/muxes/golden.pb_type.xml	/^<pb_type xmlns:xi="http:\/\/www.w3.org\/2001\/XInclude" name="USE_MUX" num_pb="1">$/;"	n	uri:http://www.w3.org/2001/XInclude
+xi	tests/muxes/proper.golden.pb_type.xml	/^<pb_type xmlns:xi="http:\/\/www.w3.org\/2001\/XInclude" name="use_mux" num_pb="1">$/;"	n	uri:http://www.w3.org/2001/XInclude
+xi	tests/simple_pll/golden.model.xml	/^<models xmlns:xi="http:\/\/www.w3.org\/2001\/XInclude">$/;"	n	uri:http://www.w3.org/2001/XInclude
+yj	vlog_to_model.py	/^yj = YosysJSON(aig_json, top)$/;"	v
