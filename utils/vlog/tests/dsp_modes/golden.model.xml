@@ -1,15 +1,7 @@
 <models xmlns:xi="http://www.w3.org/2001/XInclude">
   <xi:include href="../dsp_combinational/dsp_combinational.model.xml" xpointer="xpointer(models/child::node())"/>
+  <xi:include href="../dsp_in_registered/dsp_in_registered.model.xml" xpointer="xpointer(models/child::node())"/>
   <xi:include href="../dsp_inout_registered/dsp_inout_registered.model.xml" xpointer="xpointer(models/child::node())"/>
-  <model name="DSP_MODES">
-    <input_ports>
-      <port clock="clk" combinational_sink_ports="out" name="a"/>
-      <port clock="clk" combinational_sink_ports="out" name="b"/>
-      <port is_clock="1" name="clk"/>
-      <port clock="clk" combinational_sink_ports="out" name="m"/>
-    </input_ports>
-    <output_ports>
-      <port clock="clk" name="out"/>
-    </output_ports>
-  </model>
+  <xi:include href="../dsp_out_registered/dsp_out_registered.model.xml" xpointer="xpointer(models/child::node())"/>
+  <xi:include href="../dsp_partial_registered/dsp_partial_registered.model.xml" xpointer="xpointer(models/child::node())"/>
 </models>
