@@ -684,7 +684,9 @@ def make_leaf_pb(outfile, yj, mod, mod_pname, pb_type_xml):
                 xml_mat.text = mat
 
 
-def make_pb_type(outfile, yj, mod, mode_processing=False, mode_xml=None, mode_name=None):
+def make_pb_type(
+        outfile, yj, mod, mode_processing=False, mode_xml=None, mode_name=None
+):
     """Build the pb_type for a given module. mod is the YosysModule object to
     generate."""
 
@@ -736,12 +738,14 @@ def make_pb_type(outfile, yj, mod, mode_processing=False, mode_xml=None, mode_na
             nsmap={'xi': xmlinc.xi_url}
         )
     else:
-        pb_type_xml = ET.SubElement(mode_xml,
+        pb_type_xml = ET.SubElement(
+            mode_xml,
             "pb_type", {
                 "num_pb": "1",
                 "name": mode_name
             },
-            nsmap={'xi': xmlinc.xi_url})
+            nsmap={'xi': xmlinc.xi_url}
+        )
 
     if 'blif_model' in pb_attrs:
         ET.SubElement(pb_type_xml, "blif_model",
