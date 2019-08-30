@@ -364,17 +364,13 @@ def get_interconnects(yj, mod, mod_pname: str,
     return interconn
 
 
-def mode_interconnects(mod, mode_name) -> Dict[CellPin, List[CellPin]]:
-    interconn = {}
+def mode_interconnects(mod, mode_name) -> List[(CellPin)]:
+    interconn = []
     for name, width, bits, iodir in mod.ports:
         if iodir == "input":
-            interconn[(None, name)] = [
-                (mode_name, name),
-            ]
+            interconn.append(((None, name), (mode_name, name)))
         else:
-            interconn[(mode_name, name)] = [
-                (None, name),
-            ]
+            interconn.append(((mode_name, name), (None, name)))
     return interconn
 
 
@@ -688,7 +684,7 @@ def make_leaf_pb(outfile, yj, mod, mod_pname, pb_type_xml):
                 xml_mat.text = mat
 
 
-def make_pb_type(outfile, yj, mod):
+def make_pb_type(outfile, yj, mod, mode_processing=False, mode_xml=None, mode_name=None):
     """Build the pb_type for a given module. mod is the YosysModule object to
     generate."""
 
@@ -731,13 +727,21 @@ def make_pb_type(outfile, yj, mod):
 
     # set num_pb to 1, it will be updated if this pb_type
     # will be included by another one
-    pb_type_xml = ET.Element(
-        "pb_type", {
-            "num_pb": "1",
-            "name": mod_pname
-        },
-        nsmap={'xi': xmlinc.xi_url}
-    )
+    if mode_xml is None:
+        pb_type_xml = ET.Element(
+            "pb_type", {
+                "num_pb": "1",
+                "name": mod_pname
+            },
+            nsmap={'xi': xmlinc.xi_url}
+        )
+    else:
+        pb_type_xml = ET.SubElement(mode_xml,
+            "pb_type", {
+                "num_pb": "1",
+                "name": mode_name
+            },
+            nsmap={'xi': xmlinc.xi_url})
 
     if 'blif_model' in pb_attrs:
         ET.SubElement(pb_type_xml, "blif_model",
@@ -752,7 +756,7 @@ def make_pb_type(outfile, yj, mod):
     make_ports(clocks, mod, pb_type_xml, "inputs")
     make_ports(clocks, mod, pb_type_xml, "outputs")
 
-    if modes:
+    if modes and not mode_processing:
         for mode in modes:
             smode = mode.strip()
             mode_xml = ET.SubElement(pb_type_xml, "mode", {"name": smode})
@@ -767,9 +771,14 @@ def make_pb_type(outfile, yj, mod):
                 )
             )
             mode_mod = mode_yj.module(mod.name)
-            make_pb_type(outfile, mode_yj, mode_mod)
+            make_pb_type(outfile, mode_yj, mode_mod, True, mode_xml, smode)
 
-            ic_xml = ET.SubElement(pb_type_xml, "interconnect")
+            # if mode pb_type contains interconnect tag, add new connctions there
+            ic_xml = mode_xml.find("interconnect")
+            print("ic_xml is", ic_xml, file=sys.stderr)
+            if ic_xml is None:
+                ic_xml = ET.SubElement(mode_xml, "interconnect")
+
             for (driver_cell,
                  driver_pin), (sink_cell,
                                sink_pin) in mode_interconnects(mod, smode):
@@ -778,16 +787,17 @@ def make_pb_type(outfile, yj, mod):
                     {}
                 )
 
-    routing = children = []
-    if not is_blackbox:
-        routing, children = get_children(yj, mod)
+    if not modes or mode_processing:
+        routing = children = []
+        if not is_blackbox:
+            routing, children = get_children(yj, mod)
 
-    if routing or children:
-        make_container_pb(
-            outfile, yj, mod, mod_pname, pb_type_xml, routing, children
-        )
-    else:
-        make_leaf_pb(outfile, yj, mod, mod_pname, pb_type_xml)
+        if routing or children:
+            make_container_pb(
+                outfile, yj, mod, mod_pname, pb_type_xml, routing, children
+            )
+        else:
+            make_leaf_pb(outfile, yj, mod, mod_pname, pb_type_xml)
 
     return pb_type_xml
 
