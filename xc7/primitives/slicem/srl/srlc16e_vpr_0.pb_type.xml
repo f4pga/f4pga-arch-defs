@@ -9,14 +9,22 @@
   <output name="Q" num_pins="1"/>
   <output name="Q15" num_pins="1"/>
 
-  <T_setup port="CE" clock="CLK" value="1e-11"/>
-  <T_setup port="A0" clock="CLK" value="1e-11"/>
-  <T_setup port="A1" clock="CLK" value="1e-11"/>
-  <T_setup port="A2" clock="CLK" value="1e-11"/>
-  <T_setup port="A3" clock="CLK" value="1e-11"/>
-  <T_setup port="D" clock="CLK" value="1e-11"/>
+  <T_setup port="CE" clock="CLK" value="{setup_CLK_WE}"/>
+  <T_hold port="CE" clock="CLK" value="{hold_CLK_WE}"/>
+  <T_setup port="D" clock="CLK" value="{setup_CLK_DI1}"/>
+  <T_hold port="D" clock="CLK" value="{hold_CLK_DI1}"/>
 
-  <T_clock_to_Q port="Q" clock="CLK" max="1e-11"/>
+  <delay_constant in_port="A0" out_port="Q" max="{iopath_A2_O5}"/>
+  <delay_constant in_port="A1" out_port="Q" max="{iopath_A3_O5}"/>
+  <delay_constant in_port="A2" out_port="Q" max="{iopath_A4_O5}"/>
+  <delay_constant in_port="A3" out_port="Q" max="{iopath_A5_O5}"/>
+
+  <!-- <T_clock_to_Q port="Q" clock="CLK" max="{iopath_CLK_O5}"/> -->
+  
+  <!-- For the SRL16 for LUT5 the Q15 output is not connected in the parent
+  pb_type. But for the sake of simplicity it is added here so both 
+  SRLC16E_VPR_0 and SRLC16E_VPR_1 can have the same blif model. In order to
+  make the VPR happy a dummy timing is needed. -->
   <T_clock_to_Q port="Q15" clock="CLK" max="1e-11"/>
 
   <metadata>
