@@ -9,15 +9,18 @@
   <output name="Q" num_pins="1"/>
   <output name="Q15" num_pins="1"/>
 
-  <T_setup port="CE" clock="CLK" value="1e-11"/>
-  <T_setup port="A0" clock="CLK" value="1e-11"/>
-  <T_setup port="A1" clock="CLK" value="1e-11"/>
-  <T_setup port="A2" clock="CLK" value="1e-11"/>
-  <T_setup port="A3" clock="CLK" value="1e-11"/>
-  <T_setup port="D" clock="CLK" value="1e-11"/>
+  <T_setup port="CE" clock="CLK" value="{setup_CLK_WE}"/>
+  <T_hold port="CE" clock="CLK" value="{hold_CLK_WE}"/>
+  <T_setup port="D" clock="CLK" value="{setup_CLK_DI2}"/>
+  <T_hold port="D" clock="CLK" value="{hold_CLK_DI2}"/>
 
-  <T_clock_to_Q port="Q" clock="CLK" max="1e-11"/>
-  <T_clock_to_Q port="Q15" clock="CLK" max="1e-11"/>
+  <delay_constant in_port="A0" out_port="Q" max="{iopath_A2_O6}"/>
+  <delay_constant in_port="A1" out_port="Q" max="{iopath_A3_O6}"/>
+  <delay_constant in_port="A2" out_port="Q" max="{iopath_A4_O6}"/>
+  <delay_constant in_port="A3" out_port="Q" max="{iopath_A5_O6}"/>
+
+  <!-- <T_clock_to_Q port="Q" clock="CLK" max="{iopath_CLK_O6}"/> -->
+  <T_clock_to_Q port="Q15" clock="CLK" max="{iopath_CLK_MC31}"/>
 
   <metadata>
     <meta name="fasm_params">
