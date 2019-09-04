@@ -134,6 +134,13 @@ class YosysModule:
     PORT_REGEX = re.compile('(.*)(\\[([0-9]+)\\])')
 
     def port_attrs(self, port_pin):
+        """Gets all the attributes for for given pin
+
+        Returns attributes dictionary:
+        -------
+
+        port_pin: str
+        """
         m = self.PORT_REGEX.match(port_pin)
         if not m:
             return self.net_attrs(port_pin)
@@ -252,7 +259,15 @@ class YosysModule:
         return conn_ports
 
     def net_name(self, netid):
-        """Get a net name from a netid."""
+        """Get a net name from a given netid. "netid" is a design net unique id
+        number.
+
+        Returns string:
+        -------
+        netid : int
+        """
+        import sys
+        print("Netid", netid, file=sys.stderr)
         names = []
         for n, props in self.data["netnames"].items():
             if netid in props['bits']:

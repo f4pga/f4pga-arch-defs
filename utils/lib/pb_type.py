@@ -94,6 +94,8 @@ def ports(
     carry = {}
 
     def set_carry(name, in_port=None, out_port=None):
+        """Add given in_port and/or out_port to carry dict
+        """
         if name not in carry:
             carry[name] = [None, None]
         if in_port is not None:
