@@ -240,15 +240,15 @@ def ff_bel(site, lut, ff5):
     }[(ffsync, latch, zrst)]
 
 
-def cleanup_slice(top, site):
-    """ Perform post-routing cleanups required for SLICE.
+def cleanup_carry4(top, site):
+    """ Performs post-routing cleanups of CARRY4 bel required for SLICE.
 
     Cleanups:
      - Detect if CARRY4 is required.  If not, remove from site.
      - Remove connections to CARRY4 that are not in used (e.g. if C[3] and
        CO[3] are not used, disconnect S[3] and DI[2]).
-
     """
+
     carry4 = site.maybe_get_bel('CARRY4')
     if carry4 is not None:
 
@@ -300,6 +300,15 @@ def cleanup_slice(top, site):
                     if sink_wire_pkey is not None:
                         top.remove_sink(sink_wire_pkey)
 
+
+def cleanup_srl(top, site):
+    """Performs post-routing cleanups of SRLs required for SLICE.
+
+    Cleanups:
+     - For each LUT if in 2xSRL16 mode detect whether both SRL16 are used.
+       removes unused ones.
+    """
+
     # Remove unused SRL16
     for i, row in enumerate("ABCD"):
 
@@ -345,6 +354,16 @@ def cleanup_slice(top, site):
 
             if not anything_used:
                 top.remove_bel(site, srl)
+
+
+def cleanup_slice(top, site):
+    """Performs post-routing cleanups required for SLICE."""
+
+    # Cleanup CARRY4 stuff
+    cleanup_carry4(top, site)
+
+    # Cleanup SRL stuff
+    cleanup_srl(top, site)
 
 
 def process_slice(top, s):
