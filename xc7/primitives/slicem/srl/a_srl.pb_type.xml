@@ -1,3 +1,7 @@
+<!-- The ASRL is special in a way that it is last in the SRL chain in the slice.
+     therefore some pack patterns need to be different than for the other 3.
+     Hence the ASRL is not a part of the N template -->
+
 <pb_type name="ASRL" num_pb="1" xmlns:xi="http://www.w3.org/2001/XInclude">
   <clock  name="CLK" num_pins="1"/>
   <input  name="WE" num_pins="1"/>

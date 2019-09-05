@@ -1715,6 +1715,19 @@ endmodule
 // ============================================================================
 // SRLs
 
+// The following three techmaps map SRLC32E, SRLC16E and SRL16E to their VPR
+// counterparts.
+//
+// The initialization data for VPR SRLs need to have each bit duplicated and
+// this is what these techmaps do. For now there is no support for CLK inversion
+// as it is slice wide so the parameters is only there for compatibility.
+//
+// SRLC32E and SRLC16E are mapped directly to SRLC32E_VPR and SRLC16E_VPR
+// respectively. Both of those primitives have Q31 (or Q15) outputs which
+// correspond to the MC31 output of the physical bel. SRL16E does not
+// provide that output hence it is mapped to SRLC16E with Q15 disconnected.
+// It is then mapped to SRLC16E_VPR later on.
+
 module SRLC32E (
   output Q,
   output Q31,
@@ -1807,7 +1820,7 @@ module SRL16E (
   parameter [15:0] INIT = 16'h0000;
   parameter [ 0:0] IS_CLK_INVERTED = 1'b0;
 
-  // Substitute
+  // Substitute with Q15 disconnected.
   SRLC16E #
   (
   .INIT(INIT),
