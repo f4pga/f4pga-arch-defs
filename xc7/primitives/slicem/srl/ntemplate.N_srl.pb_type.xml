@@ -1,3 +1,6 @@
+<!-- This is template for B,C and D SRLs. The ASRL requires different pack
+     patterns hence it is defined separately. -->
+
 <pb_type name="{N}SRL" num_pb="1" xmlns:xi="http://www.w3.org/2001/XInclude">
   <clock  name="CLK" num_pins="1"/>
   <input  name="WE" num_pins="1"/>
