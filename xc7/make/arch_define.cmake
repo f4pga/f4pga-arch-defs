@@ -19,7 +19,7 @@ function(ADD_XC7_ARCH_DEFINE)
     DEVICE_FULL_TEMPLATE \${DEVICE}-\${PACKAGE}
     CELLS_SIM ${YOSYS_DATADIR}/xilinx/cells_sim.v ${symbiflow-arch-defs_SOURCE_DIR}/xc7/techmap/cells_sim.v
     VPR_ARCH_ARGS "\
-      --max_criticality 0.75 \
+      --max_criticality 0.9 \
       --clock_modeling route \
       --place_delay_model delta_override \
       --router_lookahead connection_box_map \
@@ -29,7 +29,7 @@ function(ADD_XC7_ARCH_DEFINE)
       --allow_dangling_combinational_nodes on \
       --disable_errors check_unbuffered_edges:check_route \
       --congested_routing_iteration_threshold 0.8 \
-      --astar_fac 1.2 \
+      --astar_fac 1.04 \
       --bb_factor 10 \
       --suppress_warnings \${OUT_NOISY_WARNINGS},sum_pin_class:check_unbuffered_edges:load_rr_indexed_data_T_values:check_rr_node:trans_per_R"
     RR_PATCH_TOOL
