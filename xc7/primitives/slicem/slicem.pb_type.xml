@@ -256,10 +256,9 @@
         <direct name="D_SRL.O5_to_SLICEM_MODES.DO5" input="DSRL.O5" output="SLICEM_MODES.DO5"/>
         <direct name="D_SRL.O6_to_SLICEM_MODES.DO6" input="DSRL.O6" output="SLICEM_MODES.DO6"/>
 
-        <!-- CE input. Don't connect WE to force routing through WE in order
-             to maintain compatibility with Vivado which forces routing
-             through CE to SRLs -->
+        <!-- CE and WE -->
         <direct name="SLICEM_MODES.CE_to_WE_MUX.CE" input="SLICEM_MODES.CE" output="WE_MUX.CE"/>
+        <direct name="SLICEM_MODES.WE_to_WE_MUX.WE" input="SLICEM_MODES.WE" output="WE_MUX.WE"/>
 
         <!-- ADI1MUX -->
         <mux name="ADI1MUX" input="BSRL.MC31 SLICEM_MODES.AI" output="ASRL.DI1">
