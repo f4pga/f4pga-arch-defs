@@ -12,10 +12,6 @@
     <xs:simpleContent>
       <xs:extension base="xs:string">
         <xs:attribute name="name" type="xs:string" use="required"/>
-        <xs:attribute name="xoffset" type="xs:int"/>
-        <xs:attribute name="x_offset" type="xs:int"/>
-        <xs:attribute name="yoffset" type="xs:int"/>
-        <xs:attribute name="y_offset" type="xs:int"/>
       </xs:extension>
     </xs:simpleContent>
   </xs:complexType>
@@ -34,14 +30,15 @@
     <xs:list itemType="xs:int"/>
   </xs:simpleType>
 
-  <xs:simpleType name="doublelist">
-    <xs:list itemType="xs:double"/>
+  <xs:simpleType name="floatlist">
+    <xs:list itemType="xs:float"/>
   </xs:simpleType>
 
   <!-- Actual definitions -->
   <xs:complexType name="port">
     <xs:attribute name="name" type="xs:string" use="required" />
     <xs:attribute name="is_clock" type="xs:boolean" />
+    <xs:attribute name="is_non_clock_global" type="xs:boolean" />
     <xs:attribute name="clock" type="xs:string" />
     <xs:attribute name="combinational_sink_ports" type="stringlist" />
   </xs:complexType>
@@ -207,10 +204,10 @@
 
   <xs:complexType name="chan_dist">
     <xs:attribute name="distr" type="chan_distribution" use="required"/>
-    <xs:attribute name="peak" type="xs:double" use="required"/>
-    <xs:attribute name="width" type="xs:double"/>
-    <xs:attribute name="xpeak" type="xs:double"/>
-    <xs:attribute name="dc" type="xs:double"/>
+    <xs:attribute name="peak" type="xs:float" use="required"/>
+    <xs:attribute name="width" type="xs:float"/>
+    <xs:attribute name="xpeak" type="xs:float"/>
+    <xs:attribute name="dc" type="xs:float"/>
   </xs:complexType>
 
   <xs:complexType name="chan_width_distr">
@@ -248,9 +245,9 @@
       <xs:element name="default_fc" minOccurs="0">
         <xs:complexType>
           <xs:attribute name="in_type" type="fc_type_enum" use="required"/>
-          <xs:attribute name="in_val" type="xs:double" use="required"/>
+          <xs:attribute name="in_val" type="xs:float" use="required"/>
           <xs:attribute name="out_type" type="fc_type_enum" use="required"/>
-          <xs:attribute name="out_val" type="xs:double" use="required"/>
+          <xs:attribute name="out_val" type="xs:float" use="required"/>
         </xs:complexType>
       </xs:element>
     </xs:all>
@@ -365,7 +362,7 @@
 
   <xs:complexType name="delay_matrix">
     <xs:simpleContent>
-      <xs:extension base="doublelist">
+      <xs:extension base="floatlist">
         <xs:attribute name="type" type="delay_matrix_type" use="required"/>
         <xs:attribute name="in_port" type="xs:string" use="required"/>
         <xs:attribute name="out_port" type="xs:string" use="required"/>
@@ -374,21 +371,21 @@
   </xs:complexType>
 
   <xs:complexType name="T_timing_minmax">
-    <xs:attribute name="max" type="xs:double"/>
-    <xs:attribute name="min" type="xs:double"/>
+    <xs:attribute name="max" type="xs:float"/>
+    <xs:attribute name="min" type="xs:float"/>
     <xs:attribute name="in_port" type="xs:string" use="required"/>
     <xs:attribute name="out_port" type="xs:string" use="required"/>
   </xs:complexType>
 
   <xs:complexType name="T_timing">
-    <xs:attribute name="value" type="xs:double" use="required"/>
+    <xs:attribute name="value" type="xs:float" use="required"/>
     <xs:attribute name="port" type="xs:string" use="required"/>
     <xs:attribute name="clock" type="xs:string" use="required"/>
   </xs:complexType>
 
   <xs:complexType name="T_clock_timing">
-    <xs:attribute name="max" type="xs:double"/>
-    <xs:attribute name="min" type="xs:double"/>
+    <xs:attribute name="max" type="xs:float"/>
+    <xs:attribute name="min" type="xs:float"/>
     <xs:attribute name="port" type="xs:string" use="required"/>
     <xs:attribute name="clock" type="xs:string" use="required"/>
   </xs:complexType>
@@ -447,17 +444,17 @@
   </xs:simpleType>
 
   <xs:complexType name="power_dynamic_power">
-    <xs:attribute name="power_per_instance" type="xs:double"/>
-    <xs:attribute name="C_internal" type="xs:double"/>
+    <xs:attribute name="power_per_instance" type="xs:float"/>
+    <xs:attribute name="C_internal" type="xs:float"/>
   </xs:complexType>
 
   <xs:complexType name="power_static_power">
-    <xs:attribute name="power_per_instance" type="xs:double"/>
+    <xs:attribute name="power_per_instance" type="xs:float"/>
   </xs:complexType>
 
   <xs:complexType name="power_port">
     <xs:attribute name="name" type="xs:string" use="required"/>
-    <xs:attribute name="energy_per_toggle" type="xs:double" use="required"/>
+    <xs:attribute name="energy_per_toggle" type="xs:float" use="required"/>
     <xs:attribute name="scaled_by_static_prob" type="xs:string"/>
     <xs:attribute name="scaled_by_static_prob_n" type="xs:string"/>
   </xs:complexType>
@@ -586,16 +583,16 @@
       <xs:element name="fc_override" minOccurs="0" maxOccurs="unbounded">
         <xs:complexType>
           <xs:attribute name="fc_type" type="fc_type_enum" use="required"/>
-          <xs:attribute name="fc_val" type="xs:double" use="required"/>
+          <xs:attribute name="fc_val" type="xs:float" use="required"/>
           <xs:attribute name="port_name" type="xs:string"/>
           <xs:attribute name="segment_name" type="xs:string"/>
         </xs:complexType>
       </xs:element>
     </xs:sequence>
     <xs:attribute name="in_type" type="fc_type_enum" use="required"/>
-    <xs:attribute name="in_val" type="xs:double" use="required"/>
+    <xs:attribute name="in_val" type="xs:float" use="required"/>
     <xs:attribute name="out_type" type="fc_type_enum" use="required"/>
-    <xs:attribute name="out_val" type="xs:double" use="required"/>
+    <xs:attribute name="out_val" type="xs:float" use="required"/>
   </xs:complexType>
 
   <xs:complexType name="mode">
@@ -668,7 +665,7 @@
     <xs:attribute name="capacity" type="xs:int"/>
     <xs:attribute name="width" type="xs:int"/>
     <xs:attribute name="height" type="xs:int"/>
-    <xs:attribute name="area" type="xs:double"/>
+    <xs:attribute name="area" type="xs:float"/>
     <xs:attribute name="class" type="pb_type_class"/>
   </xs:complexType>
 
