@@ -51,8 +51,8 @@
 
   <xs:complexType name="model">
     <xs:all>
-      <xs:element name="input_ports" type="port_list"/>
-      <xs:element name="output_ports" type="port_list"/>
+      <xs:element name="input_ports" type="port_list" minOccurs="0"/>
+      <xs:element name="output_ports" type="port_list" minOccurs="0"/>
     </xs:all>
     <xs:attribute name="name" type="xs:string" use="required" />
   </xs:complexType>
@@ -317,6 +317,9 @@
   </xs:simpleType>
 
   <xs:complexType name="pb_type_input">
+    <xs:sequence>
+      <xs:element name="metadata" type="metadata" minOccurs="0" maxOccurs="unbounded"/>
+    </xs:sequence>
     <xs:attribute name="name" type="xs:string" use="required"/>
     <xs:attribute name="equivalent" type="pb_input_equivalent" default="none"/>
     <xs:attribute name="num_pins" type="xs:int" use="required"/>
@@ -332,6 +335,9 @@
   </xs:simpleType>
 
   <xs:complexType name="pb_type_output">
+    <xs:sequence>
+      <xs:element name="metadata" type="metadata" minOccurs="0" maxOccurs="unbounded"/>
+    </xs:sequence>
     <xs:attribute name="name" type="xs:string" use="required"/>
     <xs:attribute name="equivalent" type="pb_output_equivalent" default="none"/>
     <xs:attribute name="num_pins" type="xs:int" use="required"/>
@@ -641,9 +647,6 @@
     </xs:sequence>
   </xs:complexType>
 
-<!-- XSD 1.1 <alternative> tag can be used to differentiate between
-	toplevel, intermediate and leaf blocks.
-	It can also be used to assert input/output ports in memory blocks. -->
   <xs:complexType name="pb_type">
     <xs:choice maxOccurs="unbounded" minOccurs="0">
       <xs:element name="pb_type" type="pb_type"/>
@@ -711,14 +714,14 @@
 <!-- Segment type relies on the "type" attr to determine the required children.
 	XSD 1.1 provides an <alternative> tag to check some attribute and choose a sub-type.
 	Segment wire_switches and opin_switches correspond to switch names.
-	XSD >1.0 also provides a <keyref> tag which asserts a correspondence to some value
+	XSD 1.1 also provides a <keyref> tag which asserts a correspondence to some value
 	at an XPath.
 	Being able to use these tags requires some work in the parser generator.
 	Therefore, for now, further validation about segments should be implemented in the postprocessor. -->
   <xs:complexType name="segment">
-      <xs:choice>
-        <xs:element name="sb" type="segment_block" maxOccurs="unbounded"/>
-        <xs:element name="cb" type="segment_block" maxOccurs="unbounded"/>
+      <xs:choice maxOccurs="unbounded">
+        <xs:element name="sb" type="segment_block"/>
+        <xs:element name="cb" type="segment_block"/>
         <xs:element name="mux" type="segment_mux"/>
         <xs:element name="wire_switch" type="segment_wire_switch"/>
         <xs:element name="opin_switch" type="segment_wire_switch"/>
@@ -823,11 +826,11 @@
   </xs:complexType>
 
   <xs:complexType name="switchblock">
-    <xs:all>
+    <xs:sequence>
       <xs:element name="switchblock_location" type="switchblock_location"/>
       <xs:element name="switchfuncs" type="switchblock_func"/>
       <xs:element name="wireconn" type="wireconn" maxOccurs="unbounded"/>
-    </xs:all>
+    </xs:sequence>
     <xs:attribute name="name" type="xs:string" use="required"/>
     <xs:attribute name="type" type="switchblock_type" use="required"/>
   </xs:complexType>
@@ -858,11 +861,12 @@
         <xs:element name="device" type="device"/>
         <xs:element name="switchlist" type="switchlist"/>
         <xs:element name="segmentlist" type="segmentlist"/>
-        <xs:element name="switchblocklist" type="switchblocklist"/>
+        <xs:element name="switchblocklist" type="switchblocklist" minOccurs="0"/>
         <xs:element name="complexblocklist" type="complexblocklist"/>
         <xs:element name="directlist" type="directlist" minOccurs="0"/>
-        <xs:element name="power" type="global_power"/>
-        <xs:element name="clocks" type="clocks"/>
+        <xs:element name="power" type="global_power" minOccurs="0"/>
+        <xs:element name="clocks" type="clocks" minOccurs="0"/>
+        <xs:element name="tiles" type="tiles" minOccurs="0"/>
       </xs:all>
     </xs:complexType>
   </xs:element>
