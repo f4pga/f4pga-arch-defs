@@ -1,5 +1,6 @@
 # Temporary repositories to perform master+wip update
 SHELL:=/bin/bash
+NPROC ?= 4
 
 VTR=vtr
 YOSYS=yosys
@@ -15,7 +16,7 @@ update-vtr:
 	export VTR=`pwd`/build/vpr/vpr;                 \
 	export GENFASM=`pwd`/build/utils/fasm/genfasm;  \
 	popd                                            \
-	make all_xc7 && make all_ice40 && make all_v2x
+	make all_xc7 -j${NPROC} && make all_ice40 -j${NPROC} && make all_v2x -j${NPROC}
 	# If tests are successful push force tool master+wip-next
 	cd ${VTR}; git push --force origin master+wip-next
 	rm -rf ${VTR}

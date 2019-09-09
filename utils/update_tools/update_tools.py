@@ -8,6 +8,7 @@ from git.exc import GitCommandError
 
 EDITOR = os.getenv('EDITOR', 'vim')
 
+
 def solve_conflicts(g, branch=None):
     need_fix = set(g.diff("--name-only").split("\n"))
 
@@ -54,14 +55,10 @@ def rebase_branch(g, branch):
 def main():
     parser = argparse.ArgumentParser()
 
-    parser.add_argument(
-        'repo_url',
-        help="Url of the repository to update."
-    )
+    parser.add_argument('repo_url', help="Url of the repository to update.")
 
     parser.add_argument(
-        'repo_name',
-        help="Name given to the repository directory."
+        'repo_name', help="Name given to the repository directory."
     )
 
     args = parser.parse_args()
@@ -98,19 +95,24 @@ def main():
         print("Branch master+wip-next already exists!")
     g.reset(['--hard', 'origin/master'])
 
-    os.system("cd {} && git merge {} && cd -".format(repo_name, ' '.join(branches)))
+    os.system(
+        "cd {} && git merge {} && cd -".format(repo_name, ' '.join(branches))
+    )
 
     if g.diff():
         solve_conflicts(g)
 
-    repo.index.commit("""Octopus merge
+    repo.index.commit(
+        """Octopus merge
 
 This is an Octopus Merge commit of the following branches:
 {}
-            """.format('\n'.join(branches)))
+            """.format('\n'.join(branches))
+    )
 
     g.push(['--force', 'origin', 'master+wip-next'])
     print("Octopus merge ready to be tested!")
+
 
 if __name__ == "__main__":
     main()
