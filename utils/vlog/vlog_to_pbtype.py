@@ -598,7 +598,7 @@ Pin {}.{} is trying to drive mux pin {}.{} (already driving by {}.{})""".format(
 
 def make_leaf_pb(outfile, yj, mod, mod_pname, pb_type_xml):
     # As leaf node, need to generate timing information
-    def process_clocked_tmg(tmgspec, port, xmltype, xml_parent):
+    def process_clocked_tmg(tmgspec, port, iodir, xmltype, xml_parent):
         """Add a suitable timing spec if necessary to the pb_type"""
         if tmgspec is not None:
             splitspec = tmgspec.split(" ")
@@ -609,8 +609,14 @@ def make_leaf_pb(outfile, yj, mod, mod_pname, pb_type_xml):
             )
             attrs = {"port": port, "clock": splitspec[0]}
             if xmltype == "T_clock_to_Q":
+                assert iodir == "output", \
+                    "Only output ports can have T_clock_to_Q timing definition."
+                "Port {}, direction {}.".format(port, iodir)
                 attrs["max"] = splitspec[1]
             else:
+                assert iodir == "input", \
+                    "Only input ports can have {} timing definition."
+                "Port {}, direction {}.".format(xmltype, port, iodir)
                 attrs["value"] = splitspec[1]
             ET.SubElement(xml_parent, xmltype, attrs)
 
@@ -620,9 +626,9 @@ def make_leaf_pb(outfile, yj, mod, mod_pname, pb_type_xml):
         Tsetup = mod.net_attr(name, "SETUP")
         Thold = mod.net_attr(name, "HOLD")
         Tctoq = mod.net_attr(name, "CLK_TO_Q")
-        process_clocked_tmg(Tsetup, port, "T_setup", pb_type_xml)
-        process_clocked_tmg(Thold, port, "T_hold", pb_type_xml)
-        process_clocked_tmg(Tctoq, port, "T_clock_to_Q", pb_type_xml)
+        process_clocked_tmg(Tsetup, port, iodir, "T_setup", pb_type_xml)
+        process_clocked_tmg(Thold, port, iodir, "T_hold", pb_type_xml)
+        process_clocked_tmg(Tctoq, port, iodir, "T_clock_to_Q", pb_type_xml)
 
         # Combinational delays
         dly_prefix = "DELAY_CONST_"
