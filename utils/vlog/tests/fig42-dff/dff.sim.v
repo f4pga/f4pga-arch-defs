@@ -5,7 +5,6 @@ module DFF (D, CLK, Q);
 
 	(* SETUP="CLK 10e-12" *)
 	(* HOLD="CLK 10e-12" *)
-	(* CLK_TO_Q="CLK 10e-12" *)
 	input wire D;
 
 	(* CLK_TO_Q="CLK 10e-12" *)
