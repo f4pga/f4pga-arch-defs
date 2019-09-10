@@ -1,5 +1,6 @@
 <?xml version='1.0' encoding='utf-8'?>
-<pb_type xmlns:xi="http://www.w3.org/2001/XInclude" blif_model=".subckt LOGICBOX" name="LOGICBOX" num_pb="1">
+<pb_type xmlns:xi="http://www.w3.org/2001/XInclude" name="LOGICBOX" num_pb="1">
+  <blif_model>.subckt LOGICBOX</blif_model>
   <input name="I" num_pins="1"/>
   <output name="O" num_pins="1"/>
   <delay_constant in_port="LOGICBOX.I" max="30e-12" out_port="LOGICBOX.O"/>
