@@ -12,10 +12,6 @@
     <xs:simpleContent>
       <xs:extension base="xs:string">
         <xs:attribute name="name" type="xs:string" use="required"/>
-        <xs:attribute name="xoffset" type="xs:int"/>
-        <xs:attribute name="x_offset" type="xs:int"/>
-        <xs:attribute name="yoffset" type="xs:int"/>
-        <xs:attribute name="y_offset" type="xs:int"/>
       </xs:extension>
     </xs:simpleContent>
   </xs:complexType>
@@ -34,14 +30,15 @@
     <xs:list itemType="xs:int"/>
   </xs:simpleType>
 
-  <xs:simpleType name="doublelist">
-    <xs:list itemType="xs:double"/>
+  <xs:simpleType name="floatlist">
+    <xs:list itemType="xs:float"/>
   </xs:simpleType>
 
   <!-- Actual definitions -->
   <xs:complexType name="port">
     <xs:attribute name="name" type="xs:string" use="required" />
     <xs:attribute name="is_clock" type="xs:boolean" />
+    <xs:attribute name="is_non_clock_global" type="xs:boolean" />
     <xs:attribute name="clock" type="xs:string" />
     <xs:attribute name="combinational_sink_ports" type="stringlist" />
   </xs:complexType>
@@ -52,31 +49,40 @@
     </xs:sequence>
   </xs:complexType>
 
-  <xs:complexType name="model_type">
-    <xs:choice maxOccurs="unbounded">
-      <xs:element name="input_ports" type="port_list"/>
-      <xs:element name="output_ports" type="port_list"/>
-    </xs:choice>
+  <xs:complexType name="model">
+    <xs:all>
+      <xs:element name="input_ports" type="port_list" minOccurs="0"/>
+      <xs:element name="output_ports" type="port_list" minOccurs="0"/>
+    </xs:all>
     <xs:attribute name="name" type="xs:string" use="required" />
   </xs:complexType>
 
   <xs:complexType name="models">
     <xs:sequence>
-      <xs:element name="model" type="model_type" minOccurs="0" maxOccurs="unbounded"/>
+      <xs:element name="model" type="model" minOccurs="0" maxOccurs="unbounded"/>
     </xs:sequence>
   </xs:complexType>
 
   <xs:complexType name="fill">
+    <xs:sequence>
+      <xs:element name="metadata" type="metadata" minOccurs="0" maxOccurs="unbounded"/>
+    </xs:sequence>
     <xs:attribute name="type" type="xs:string" use="required"/>
     <xs:attribute name="priority" type="xs:int" use="required"/>
   </xs:complexType>
 
   <xs:complexType name="perimeter">
+    <xs:sequence>
+      <xs:element name="metadata" type="metadata" minOccurs="0" maxOccurs="unbounded"/>
+    </xs:sequence>
     <xs:attribute name="type" type="xs:string" use="required"/>
     <xs:attribute name="priority" type="xs:int" use="required"/>
   </xs:complexType>
 
   <xs:complexType name="corners">
+    <xs:sequence>
+      <xs:element name="metadata" type="metadata" minOccurs="0" maxOccurs="unbounded"/>
+    </xs:sequence>
     <xs:attribute name="type" type="xs:string" use="required"/>
     <xs:attribute name="priority" type="xs:int" use="required"/>
   </xs:complexType>
@@ -92,6 +98,9 @@
   </xs:complexType>
 
   <xs:complexType name="col">
+    <xs:sequence>
+      <xs:element name="metadata" type="metadata" minOccurs="0" maxOccurs="unbounded"/>
+    </xs:sequence>
     <xs:attribute name="type" type="xs:string" use="required"/>
     <xs:attribute name="priority" type="xs:int" use="required"/>
     <xs:attribute name="startx" type="xs:string" use="required"/>
@@ -101,6 +110,9 @@
   </xs:complexType>
 
   <xs:complexType name="row">
+    <xs:sequence>
+      <xs:element name="metadata" type="metadata" minOccurs="0" maxOccurs="unbounded"/>
+    </xs:sequence>
     <xs:attribute name="type" type="xs:string" use="required"/>
     <xs:attribute name="priority" type="xs:int" use="required"/>
     <xs:attribute name="starty" type="xs:string" use="required"/>
@@ -111,6 +123,9 @@
   </xs:complexType>
 
   <xs:complexType name="region">
+    <xs:sequence>
+      <xs:element name="metadata" type="metadata" minOccurs="0" maxOccurs="unbounded"/>
+    </xs:sequence>
     <xs:attribute name="type" type="xs:string" use="required"/>
     <xs:attribute name="priority" type="xs:int" use="required"/>
 
@@ -140,7 +155,7 @@
   <xs:complexType name="auto_layout">
     <xs:complexContent>
       <xs:extension base="layout_info">
-        <xs:attribute name="aspect_ratio" type="xs:double" default="1.0" />
+        <xs:attribute name="aspect_ratio" type="xs:float" default="1.0" />
       </xs:extension>
     </xs:complexContent>
   </xs:complexType>
@@ -159,7 +174,6 @@
     <xs:choice minOccurs="1">
       <xs:element name="auto_layout" type="auto_layout" maxOccurs="1"/>
       <xs:element name="fixed_layout" type="fixed_layout" maxOccurs="unbounded"/>
-      <xs:element name="device_layout" type="fixed_layout" maxOccurs="unbounded"/> <!-- Apparently a legacy name -->
     </xs:choice>
   </xs:complexType>
 
@@ -190,25 +204,25 @@
 
   <xs:complexType name="chan_dist">
     <xs:attribute name="distr" type="chan_distribution" use="required"/>
-    <xs:attribute name="peak" type="xs:double" use="required"/>
-    <xs:attribute name="width" type="xs:double"/>
-    <xs:attribute name="xpeak" type="xs:double"/>
-    <xs:attribute name="dc" type="xs:double"/>
+    <xs:attribute name="peak" type="xs:float" use="required"/>
+    <xs:attribute name="width" type="xs:float"/>
+    <xs:attribute name="xpeak" type="xs:float"/>
+    <xs:attribute name="dc" type="xs:float"/>
   </xs:complexType>
 
   <xs:complexType name="chan_width_distr">
-    <xs:choice maxOccurs="unbounded">
+    <xs:all>
       <xs:element name="x" type="chan_dist"/>
       <xs:element name="y" type="chan_dist"/>
-    </xs:choice>
+    </xs:all>
   </xs:complexType>
 
   <xs:complexType name="device">
     <xs:all>
       <xs:element name="sizing">
         <xs:complexType>
-          <xs:attribute name="R_minW_nmos" type="xs:double" use="required"/>
-          <xs:attribute name="R_minW_pmos" type="xs:double" use="required"/>
+          <xs:attribute name="R_minW_nmos" type="xs:float" use="required"/>
+          <xs:attribute name="R_minW_pmos" type="xs:float" use="required"/>
         </xs:complexType>
       </xs:element>
       <xs:element name="connection_block">
@@ -218,22 +232,22 @@
       </xs:element>
       <xs:element name="area">
         <xs:complexType>
-          <xs:attribute name="grid_logic_tile_area" type="xs:double" use="required"/>
+          <xs:attribute name="grid_logic_tile_area" type="xs:float" use="required"/>
         </xs:complexType>
       </xs:element>
       <xs:element name="switch_block">
         <xs:complexType>
           <xs:attribute name="type" type="switch_block_type" use="required"/>
-          <xs:attribute name="fs" type="xs:int"/>
+          <xs:attribute name="fs" type="xs:int" default="3"/>
         </xs:complexType>
       </xs:element>
       <xs:element name="chan_width_distr" minOccurs="0" type="chan_width_distr"/>
       <xs:element name="default_fc" minOccurs="0">
         <xs:complexType>
-          <xs:attribute name="in_type" type="fc_type_enum"/>
-          <xs:attribute name="in_val" type="xs:double"/>
-          <xs:attribute name="out_type" type="fc_type_enum"/>
-          <xs:attribute name="out_val" type="xs:double"/>
+          <xs:attribute name="in_type" type="fc_type_enum" use="required"/>
+          <xs:attribute name="in_val" type="xs:float" use="required"/>
+          <xs:attribute name="out_type" type="fc_type_enum" use="required"/>
+          <xs:attribute name="out_val" type="xs:float" use="required"/>
         </xs:complexType>
       </xs:element>
     </xs:all>
@@ -250,7 +264,7 @@
   </xs:simpleType>
 
   <xs:simpleType name="buf_size">
-    <xs:union memberTypes="xs:double">
+    <xs:union memberTypes="xs:float">
       <xs:simpleType>
         <xs:restriction base="xs:NMTOKEN">
           <xs:enumeration value="auto"/>
@@ -264,25 +278,25 @@
       <xs:element name="Tdel" minOccurs="0" maxOccurs="unbounded">
         <xs:complexType>
           <xs:attribute name="num_inputs" type="xs:int" use="required"/>
-          <xs:attribute name="delay" type="xs:double" use="required"/>
+          <xs:attribute name="delay" type="xs:float" use="required"/>
         </xs:complexType>
       </xs:element>
     </xs:sequence>
     <xs:attribute name="type" type="switch_type" use="required"/>
     <xs:attribute name="name" type="xs:string" use="required"/>
-    <xs:attribute name="R" type="xs:double" use="required"/>
-    <xs:attribute name="Cin" type="xs:double" use="required"/>
-    <xs:attribute name="Cinternal" type="xs:double"/>
-    <xs:attribute name="Cout" type="xs:double"/>
-    <xs:attribute name="Tdel" type="xs:double"/>
+    <xs:attribute name="R" type="xs:float" use="required"/>
+    <xs:attribute name="Cin" type="xs:float" use="required"/>
+    <xs:attribute name="Cinternal" type="xs:float"/>
+    <xs:attribute name="Cout" type="xs:float"/>
+    <xs:attribute name="Tdel" type="xs:float"/>
     <xs:attribute name="buf_size" type="buf_size" default="auto"/>
-    <xs:attribute name="mux_trans_size" type="xs:double"/>
-    <xs:attribute name="power_buf_size" type="xs:double"/>
+    <xs:attribute name="mux_trans_size" type="xs:float"/>
+    <xs:attribute name="power_buf_size" type="xs:int"/>
   </xs:complexType>
 
   <xs:complexType name="switchlist">
     <xs:sequence>
-      <xs:element name="switch" type="switch" maxOccurs="unbounded"/>
+      <xs:element name="switch" type="switch" minOccurs="0" maxOccurs="unbounded"/>
     </xs:sequence>
   </xs:complexType>
 
@@ -303,6 +317,9 @@
   </xs:simpleType>
 
   <xs:complexType name="pb_type_input">
+    <xs:sequence>
+      <xs:element name="metadata" type="metadata" minOccurs="0" maxOccurs="unbounded"/>
+    </xs:sequence>
     <xs:attribute name="name" type="xs:string" use="required"/>
     <xs:attribute name="equivalent" type="pb_input_equivalent" default="none"/>
     <xs:attribute name="num_pins" type="xs:int" use="required"/>
@@ -318,6 +335,9 @@
   </xs:simpleType>
 
   <xs:complexType name="pb_type_output">
+    <xs:sequence>
+      <xs:element name="metadata" type="metadata" minOccurs="0" maxOccurs="unbounded"/>
+    </xs:sequence>
     <xs:attribute name="name" type="xs:string" use="required"/>
     <xs:attribute name="equivalent" type="pb_output_equivalent" default="none"/>
     <xs:attribute name="num_pins" type="xs:int" use="required"/>
@@ -348,7 +368,7 @@
 
   <xs:complexType name="delay_matrix">
     <xs:simpleContent>
-      <xs:extension base="doublelist">
+      <xs:extension base="floatlist">
         <xs:attribute name="type" type="delay_matrix_type" use="required"/>
         <xs:attribute name="in_port" type="xs:string" use="required"/>
         <xs:attribute name="out_port" type="xs:string" use="required"/>
@@ -357,21 +377,21 @@
   </xs:complexType>
 
   <xs:complexType name="T_timing_minmax">
-    <xs:attribute name="max" type="xs:double"/>
-    <xs:attribute name="min" type="xs:double"/>
+    <xs:attribute name="max" type="xs:float"/>
+    <xs:attribute name="min" type="xs:float"/>
     <xs:attribute name="in_port" type="xs:string" use="required"/>
     <xs:attribute name="out_port" type="xs:string" use="required"/>
   </xs:complexType>
 
   <xs:complexType name="T_timing">
-    <xs:attribute name="value" type="xs:double" use="required"/>
+    <xs:attribute name="value" type="xs:float" use="required"/>
     <xs:attribute name="port" type="xs:string" use="required"/>
     <xs:attribute name="clock" type="xs:string" use="required"/>
   </xs:complexType>
 
   <xs:complexType name="T_clock_timing">
-    <xs:attribute name="max" type="xs:double"/>
-    <xs:attribute name="min" type="xs:double"/>
+    <xs:attribute name="max" type="xs:float"/>
+    <xs:attribute name="min" type="xs:float"/>
     <xs:attribute name="port" type="xs:string" use="required"/>
     <xs:attribute name="clock" type="xs:string" use="required"/>
   </xs:complexType>
@@ -402,7 +422,7 @@
     <xs:attribute name="input" type="stringlist" use="required"/>
     <xs:attribute name="output" type="stringlist" use="required"/>
   </xs:complexType>
-  
+
   <xs:complexType name="pack_pattern">
     <xs:attribute name="name" type="xs:string" use="required"/>
     <xs:attribute name="in_port" type="stringlist" use="required"/>
@@ -430,40 +450,44 @@
   </xs:simpleType>
 
   <xs:complexType name="power_dynamic_power">
-    <xs:attribute name="power_per_instance" type="xs:double"/>
-    <xs:attribute name="C_internal" type="xs:double"/>
+    <xs:attribute name="power_per_instance" type="xs:float"/>
+    <xs:attribute name="C_internal" type="xs:float"/>
   </xs:complexType>
-  
+
   <xs:complexType name="power_static_power">
-    <xs:attribute name="power_per_instance" type="xs:double"/>
+    <xs:attribute name="power_per_instance" type="xs:float"/>
   </xs:complexType>
-  
+
   <xs:complexType name="power_port">
     <xs:attribute name="name" type="xs:string" use="required"/>
-    <xs:attribute name="energy_per_toggle" type="xs:double" use="required"/>
+    <xs:attribute name="energy_per_toggle" type="xs:float" use="required"/>
     <xs:attribute name="scaled_by_static_prob" type="xs:string"/>
     <xs:attribute name="scaled_by_static_prob_n" type="xs:string"/>
   </xs:complexType>
-  
-  <xs:complexType name="power_local_interconnect">
-    <xs:attribute name="C_wire" type="xs:double" use="required"/>
-    <xs:attribute name="factor" type="xs:double" default="0.5"/>
+
+  <xs:complexType name="gpower_local_interconnect">
+    <xs:attribute name="C_wire" type="xs:float" default="0"/>
+    <xs:attribute name="factor" type="xs:float" default="0.5"/>
   </xs:complexType>
-  
-  <xs:complexType name="power_buffers">
-    <xs:attribute name="logical_effort_factor" type="xs:double" default="4"/>
+
+  <xs:complexType name="gpower_buffers">
+    <xs:attribute name="logical_effort_factor" type="xs:float" default="4"/>
   </xs:complexType>
-  
-  <xs:complexType name="power_ff_size">
-    <xs:attribute name="FF_size" type="xs:double" use="required"/>
+
+  <xs:complexType name="gpower_ff_size">
+    <xs:attribute name="FF_size" type="xs:float" use="required"/>
   </xs:complexType>
-  
-  <xs:complexType name="power_LUT_transistor_size">
-    <xs:attribute name="LUT_transistor_size" type="xs:double" use="required"/>
+
+  <xs:complexType name="gpower_LUT_transistor_size">
+    <xs:attribute name="LUT_transistor_size" type="xs:float" use="required"/>
   </xs:complexType>
-  
-  <xs:complexType name="power_mux_transistor_size">
-    <xs:attribute name="mux_transistor_size" type="xs:double" use="required"/>
+
+  <xs:complexType name="gpower_mux_transistor_size">
+    <xs:attribute name="mux_transistor_size" type="xs:float" use="required"/>
+  </xs:complexType>
+
+  <xs:complexType name="gpower_sram">
+    <xs:attribute name="transistors_per_bit" type="xs:float" use="required"/>
   </xs:complexType>
 
   <xs:complexType name="power">
@@ -475,13 +499,17 @@
     <xs:attribute name="method" type="power_estimation_method" default="auto-size"/>
   </xs:complexType>
 
+<!-- Global power is very schema-unfriendly. Default values are assigned if the elements
+	holding the attributes aren't present. There is no way for XSD to know that.
+	It could be much better if the <power> tag had all these settings as its own attributes. -->
   <xs:complexType name="global_power">
     <xs:choice maxOccurs="unbounded">
-      <xs:element name="local_interconnect" type="power_local_interconnect"/>
-      <xs:element name="buffers" type="power_buffers"/>
-      <xs:element name="mux_transistor_size" type="power_mux_transistor_size"/>
-      <xs:element name="FF_size" type="power_ff_size"/>
-      <xs:element name="LUT_transistor_size" type="power_LUT_transistor_size"/>
+      <xs:element name="local_interconnect" type="gpower_local_interconnect"/>
+      <xs:element name="buffers" type="gpower_buffers"/>
+      <xs:element name="sram" type="gpower_sram"/>
+      <xs:element name="mux_transistor_size" type="gpower_mux_transistor_size"/>
+      <xs:element name="FF_size" type="gpower_ff_size"/>
+      <xs:element name="LUT_transistor_size" type="gpower_LUT_transistor_size"/>
     </xs:choice>
     <xs:attribute name="method" type="power_estimation_method" default="auto-size"/>
   </xs:complexType>
@@ -561,16 +589,16 @@
       <xs:element name="fc_override" minOccurs="0" maxOccurs="unbounded">
         <xs:complexType>
           <xs:attribute name="fc_type" type="fc_type_enum" use="required"/>
-          <xs:attribute name="fc_val" type="xs:double" use="required"/>
+          <xs:attribute name="fc_val" type="xs:float" use="required"/>
           <xs:attribute name="port_name" type="xs:string"/>
           <xs:attribute name="segment_name" type="xs:string"/>
         </xs:complexType>
       </xs:element>
     </xs:sequence>
     <xs:attribute name="in_type" type="fc_type_enum" use="required"/>
-    <xs:attribute name="in_val" type="xs:double" use="required"/>
+    <xs:attribute name="in_val" type="xs:float" use="required"/>
     <xs:attribute name="out_type" type="fc_type_enum" use="required"/>
-    <xs:attribute name="out_val" type="xs:double" use="required"/>
+    <xs:attribute name="out_val" type="xs:float" use="required"/>
   </xs:complexType>
 
   <xs:complexType name="mode">
@@ -640,7 +668,7 @@
     <xs:attribute name="capacity" type="xs:int"/>
     <xs:attribute name="width" type="xs:int"/>
     <xs:attribute name="height" type="xs:int"/>
-    <xs:attribute name="area" type="xs:double"/>
+    <xs:attribute name="area" type="xs:float"/>
     <xs:attribute name="class" type="pb_type_class"/>
   </xs:complexType>
 
@@ -683,25 +711,32 @@
     <xs:attribute name="name" type="xs:string" use="required"/>
   </xs:complexType>
 
+<!-- Segment type relies on the "type" attr to determine the required children.
+	XSD 1.1 provides an <alternative> tag to check some attribute and choose a sub-type.
+	Segment wire_switches and opin_switches correspond to switch names.
+	XSD 1.1 also provides a <keyref> tag which asserts a correspondence to some value
+	at an XPath.
+	Being able to use these tags requires some work in the parser generator.
+	Therefore, for now, further validation about segments should be implemented in the postprocessor. -->
   <xs:complexType name="segment">
-    <xs:choice maxOccurs="unbounded">
-      <xs:element name="sb" type="segment_block"/>
-      <xs:element name="cb" type="segment_block"/>
-      <xs:element name="mux" type="segment_mux"/>
-      <xs:element name="wire_switch" type="segment_wire_switch"/>
-      <xs:element name="opin_switch" type="segment_wire_switch"/>
+      <xs:choice maxOccurs="unbounded">
+        <xs:element name="sb" type="segment_block"/>
+        <xs:element name="cb" type="segment_block"/>
+        <xs:element name="mux" type="segment_mux"/>
+        <xs:element name="wire_switch" type="segment_wire_switch"/>
+        <xs:element name="opin_switch" type="segment_wire_switch"/>
     </xs:choice>
-    <xs:attribute name="name" type="xs:string"/>
+    <xs:attribute name="name" type="xs:string" use="required"/>
     <xs:attribute name="length" type="segment_length" use="required"/>
     <xs:attribute name="type" type="segment_type" use="required"/>
-    <xs:attribute name="freq" type="xs:double" use="required"/>
-    <xs:attribute name="Rmetal" type="xs:double" use="required"/>
-    <xs:attribute name="Cmetal" type="xs:double" use="required"/>
+    <xs:attribute name="freq" type="xs:float" use="required"/>
+    <xs:attribute name="Rmetal" type="xs:float" use="required"/>
+    <xs:attribute name="Cmetal" type="xs:float" use="required"/>
   </xs:complexType>
 
   <xs:complexType name="segmentlist">
     <xs:sequence>
-      <xs:element name="segment" type="segment" maxOccurs="unbounded"/>
+      <xs:element name="segment" type="segment" minOccurs="0" maxOccurs="unbounded"/>
     </xs:sequence>
   </xs:complexType>
 
@@ -758,7 +793,7 @@
       <xs:enumeration value="br"/>
     </xs:restriction>
   </xs:simpleType>
-  
+
   <xs:complexType name="switchblock_func">
     <xs:sequence>
       <xs:element name="func" maxOccurs="unbounded">
@@ -769,12 +804,15 @@
       </xs:element>
     </xs:sequence>
   </xs:complexType>
-  
+
   <xs:complexType name="wireconn_connection">
     <xs:attribute name="type" type="xs:string" use="required"/>
     <xs:attribute name="switchpoint" type="xs:string" use="required"/>
   </xs:complexType>
-  
+
+<!-- It would be better to change the string or int lists here to use whitespace as a
+	delimiter instead of commas, so they can be expressed as <xs:list>s instead of
+	just strings. -->
   <xs:complexType name="wireconn">
     <xs:choice minOccurs="0" maxOccurs="unbounded">
       <xs:element name="from" type="wireconn_connection" maxOccurs="unbounded"/>
@@ -789,8 +827,8 @@
 
   <xs:complexType name="switchblock">
     <xs:sequence>
-      <xs:element name="switchblock_location" type="switchblock_location" maxOccurs="unbounded"/>
-      <xs:element name="switchfuncs" type="switchblock_func" maxOccurs="unbounded"/>
+      <xs:element name="switchblock_location" type="switchblock_location"/>
+      <xs:element name="switchfuncs" type="switchblock_func"/>
       <xs:element name="wireconn" type="wireconn" maxOccurs="unbounded"/>
     </xs:sequence>
     <xs:attribute name="name" type="xs:string" use="required"/>
@@ -804,8 +842,8 @@
   </xs:complexType>
 
   <xs:complexType name="clock">
-    <xs:attribute name="C_wire" type="xs:double"/>
-    <xs:attribute name="C_wire_per_m" type="xs:double"/>
+    <xs:attribute name="C_wire" type="xs:float"/>
+    <xs:attribute name="C_wire_per_m" type="xs:float"/>
     <xs:attribute name="buffer_size" type="buf_size"/>
   </xs:complexType>
 
@@ -817,19 +855,19 @@
 
   <xs:element name="architecture">
     <xs:complexType>
-      <xs:choice minOccurs="0" maxOccurs="unbounded">
+      <xs:all>
         <xs:element name="models" type="models"/>
         <xs:element name="layout" type="layout"/>
         <xs:element name="device" type="device"/>
         <xs:element name="switchlist" type="switchlist"/>
-        <xs:element name="switchblocklist" type="switchblocklist"/>
         <xs:element name="segmentlist" type="segmentlist"/>
-        <xs:element name="power" type="global_power"/>
-        <xs:element name="clocks" type="clocks"/>
-        <xs:element name="directlist" type="directlist"/>
-        <xs:element name="tiles" type="tiles"/>
+        <xs:element name="switchblocklist" type="switchblocklist" minOccurs="0"/>
         <xs:element name="complexblocklist" type="complexblocklist"/>
-      </xs:choice>
+        <xs:element name="directlist" type="directlist" minOccurs="0"/>
+        <xs:element name="power" type="global_power" minOccurs="0"/>
+        <xs:element name="clocks" type="clocks" minOccurs="0"/>
+        <xs:element name="tiles" type="tiles" minOccurs="0"/>
+      </xs:all>
     </xs:complexType>
   </xs:element>
 
