@@ -114,8 +114,9 @@ function(ADD_XC7_DEVICE_DEFINE)
       PACKAGES test
       RR_PATCH_EXTRA_ARGS --synth_tiles ${SYNTH_TILES_LOCATION} --connection_database ${CHANNELS_LOCATIONS}
       RR_PATCH_DEPS ${DEVICE_RR_PATCH_DEPS}
+      CACHE_PLACE_DELAY
       CACHE_LOOKAHEAD
-      CACHE_LOOKAHEAD_ARGS
+      CACHE_ARGS
         --constant_net_method route
         --clock_modeling route
         --place_delay_model delta_override

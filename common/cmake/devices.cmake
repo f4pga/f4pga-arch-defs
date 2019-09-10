@@ -382,8 +382,9 @@ function(DEFINE_DEVICE)
   #   ARCH <arch>
   #   DEVICE_TYPE <device_type>
   #   PACKAGES <list of packages>
+  #   [CACHE_PLACE_DELAY]
   #   [CACHE_LOOKAHEAD]
-  #   [CACHE_LOOKAHEAD_ARGS <args>]
+  #   [CACHE_ARGS <args>]
   #   )
   # ~~~
   #
@@ -395,9 +396,9 @@ function(DEFINE_DEVICE)
   #
   # In order to use a device with ADD_FPGA_TARGET, the property
   # ${PACKAGE}_PINMAP on target <device> must be set.
-  set(options CACHE_LOOKAHEAD)
+  set(options CACHE_LOOKAHEAD CACHE_PLACE_DELAY)
   set(oneValueArgs DEVICE ARCH DEVICE_TYPE PACKAGES)
-  set(multiValueArgs RR_PATCH_DEPS RR_PATCH_EXTRA_ARGS CACHE_LOOKAHEAD_ARGS)
+  set(multiValueArgs RR_PATCH_DEPS RR_PATCH_EXTRA_ARGS CACHE_ARGS)
   cmake_parse_arguments(
     DEFINE_DEVICE
     "${options}"
@@ -540,13 +541,25 @@ function(DEFINE_DEVICE)
         )
     endif()
 
-    if(${DEFINE_DEVICE_CACHE_LOOKAHEAD})
+    if(${DEFINE_DEVICE_CACHE_LOOKAHEAD} OR ${DEFINE_DEVICE_CACHE_PLACE_DELAY})
       # Generate lookahead and place delay lookup caches
       set(DEPS)
       append_file_dependency(DEPS ${OUT_RRXML_REAL_FILENAME})
       append_file_dependency(DEPS ${VIRT_DEVICE_MERGED_FILE})
+
+      set(OUTPUTS)
+      set(ARGS)
+      if(${DEFINE_DEVICE_CACHE_LOOKAHEAD})
+          list(APPEND OUTPUTS ${LOOKAHEAD_FILENAME})
+          list(APPEND ARGS --write_router_lookahead ${LOOKAHEAD_FILENAME})
+      endif()
+      if(${DEFINE_DEVICE_CACHE_PLACE_DELAY})
+          list(APPEND OUTPUTS ${PLACE_DELAY_FILENAME})
+          list(APPEND ARGS --write_placement_delay_lookup ${PLACE_DELAY_FILENAME})
+      endif()
+
       add_custom_command(
-        OUTPUT ${LOOKAHEAD_FILENAME} ${PLACE_DELAY_FILENAME}
+        OUTPUT ${OUTPUTS}
         DEPENDS
             ${symbiflow-arch-defs_SOURCE_DIR}/common/wire.eblif
             ${VPR} ${VPR_TARGET}
@@ -561,27 +574,34 @@ function(DEFINE_DEVICE)
             --outfile_prefix ${DEVICE}_${PACKAGE}_cache
             --pack
             --place
-            --write_router_lookahead ${LOOKAHEAD_FILENAME}
-            --write_placement_delay_lookup ${PLACE_DELAY_FILENAME}
-            ${DEFINE_DEVICE_CACHE_LOOKAHEAD_ARGS}
+            ${ARGS}
+            ${DEFINE_DEVICE_CACHE_ARGS}
         COMMAND
             ${CMAKE_COMMAND} -E copy vpr_stdout.log
               rr_graph_${DEVICE}_${PACKAGE}.cache.out
         WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
       )
 
-      add_file_target(FILE ${LOOKAHEAD_FILENAME} GENERATED)
-      add_file_target(FILE ${PLACE_DELAY_FILENAME} GENERATED)
-      get_file_target(LOOKAHEAD_TARGET ${LOOKAHEAD_FILENAME})
-      get_file_target(PLACE_DELAY_TARGET ${PLACE_DELAY_FILENAME})
+      if(${DEFINE_DEVICE_CACHE_LOOKAHEAD})
+        add_file_target(FILE ${LOOKAHEAD_FILENAME} GENERATED)
+      endif()
+      if(${DEFINE_DEVICE_CACHE_PLACE_DELAY})
+        add_file_target(FILE ${PLACE_DELAY_FILENAME} GENERATED)
 
-      # Linearize target dependency.
-      add_dependencies(${PLACE_DELAY_TARGET} ${LOOKAHEAD_TARGET})
+        if(${DEFINE_DEVICE_CACHE_LOOKAHEAD})
+            get_file_target(LOOKAHEAD_TARGET ${LOOKAHEAD_FILENAME})
+            get_file_target(PLACE_DELAY_TARGET ${PLACE_DELAY_FILENAME})
+
+            # Linearize target dependency.
+            add_dependencies(${PLACE_DELAY_TARGET} ${LOOKAHEAD_TARGET})
+        endif()
+      endif()
 
       set_target_properties(
         ${DEFINE_DEVICE_DEVICE}
         PROPERTIES
-          ${PACKAGE}_HAS_LOOKAHEAD_CACHE TRUE
+          ${PACKAGE}_HAS_PLACE_DELAY_CACHE ${DEFINE_DEVICE_CACHE_PLACE_DELAY}
+          ${PACKAGE}_HAS_LOOKAHEAD_CACHE ${DEFINE_DEVICE_CACHE_LOOKAHEAD}
           ${PACKAGE}_LOOKAHEAD_FILE ${CMAKE_CURRENT_SOURCE_DIR}/${LOOKAHEAD_FILENAME}
           ${PACKAGE}_PLACE_DELAY_FILE ${CMAKE_CURRENT_SOURCE_DIR}/${PLACE_DELAY_FILENAME}
       )
@@ -589,6 +609,7 @@ function(DEFINE_DEVICE)
       set_target_properties(
         ${DEFINE_DEVICE_DEVICE}
         PROPERTIES
+          ${PACKAGE}_HAS_PLACE_DELAY_CACHE FALSE
           ${PACKAGE}_HAS_LOOKAHEAD_CACHE FALSE
       )
     endif()
@@ -1016,10 +1037,10 @@ function(ADD_FPGA_TARGET)
     ${VPR_EXTRA_ARGS_LIST}
     ${SDC_ARG}
   )
+
   get_target_property_required(
     USE_LOOKAHEAD_CACHE ${DEVICE} ${PACKAGE}_HAS_LOOKAHEAD_CACHE
   )
-
   if(${USE_LOOKAHEAD_CACHE})
     # If lookahead is cached, use the cache instead of recomputing lookaheads.
     get_target_property_required(
@@ -1028,7 +1049,12 @@ function(ADD_FPGA_TARGET)
     append_file_dependency(VPR_DEPS ${LOOKAHEAD_FILE})
     get_file_location(LOOKAHEAD_LOCATION ${LOOKAHEAD_FILE})
     list(APPEND VPR_CMD --read_router_lookahead ${LOOKAHEAD_LOCATION})
+  endif()
 
+  get_target_property_required(
+    USE_PLACE_DELAY_CACHE ${DEVICE} ${PACKAGE}_HAS_PLACE_DELAY_CACHE
+  )
+  if(${USE_PLACE_DELAY_CACHE})
     get_target_property_required(
       PLACE_DELAY_FILE ${DEVICE} ${PACKAGE}_PLACE_DELAY_FILE
       )
