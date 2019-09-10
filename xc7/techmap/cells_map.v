@@ -1715,6 +1715,19 @@ endmodule
 // ============================================================================
 // SRLs
 
+// The following three techmaps map SRLC32E, SRLC16E and SRL16E to their VPR
+// counterparts.
+//
+// The initialization data for VPR SRLs need to have each bit duplicated and
+// this is what these techmaps do. For now there is no support for CLK inversion
+// as it is slice wide so the parameters is only there for compatibility.
+//
+// SRLC32E and SRLC16E are mapped directly to SRLC32E_VPR and SRLC16E_VPR
+// respectively. Both of those primitives have Q31 (or Q15) outputs which
+// correspond to the MC31 output of the physical bel. SRL16E does not
+// provide that output hence it is mapped to SRLC16E with Q15 disconnected.
+// It is then mapped to SRLC16E_VPR later on.
+
 module SRLC32E (
   output Q,
   output Q31,
@@ -1752,6 +1765,78 @@ module SRLC32E (
   .D(D),
   .Q(Q),
   .Q31(Q31)
+  );
+
+endmodule
+
+module SRLC16E (
+  output Q, Q15,
+  input A0, A1, A2, A3,
+  input CE, CLK, D
+);
+  parameter [15:0] INIT = 16'h0000;
+  parameter [ 0:0] IS_CLK_INVERTED = 1'b0;
+
+  // Duplicate bits of the init parameter to match the actual INIT data
+  // representation.
+  function [31:0] duplicate_bits;
+    input [15:0] bits;
+    integer i;
+    begin
+      for (i=0; i<15; i=i+1) begin
+        duplicate_bits[2*i+0] = bits[i];
+        duplicate_bits[2*i+1] = bits[i];
+      end
+    end
+  endfunction
+
+  localparam [31:0] INIT_VPR = duplicate_bits(INIT);
+
+  // Substitute
+  SRLC16E_VPR #
+  (
+  .INIT(INIT_VPR)
+  )
+  _TECHMAP_REPLACE_
+  (
+  .CLK(CLK),
+  .CE(CE),
+  .A0(A0),
+  .A1(A1),
+  .A2(A2),
+  .A3(A3),
+  .D(D),
+  .Q(Q),
+  .Q15(Q15)
+  );
+
+endmodule
+
+module SRL16E (
+  output Q,
+  input A0, A1, A2, A3,
+  input CE, CLK, D
+);
+  parameter [15:0] INIT = 16'h0000;
+  parameter [ 0:0] IS_CLK_INVERTED = 1'b0;
+
+  // Substitute with Q15 disconnected.
+  SRLC16E #
+  (
+  .INIT(INIT),
+  .IS_CLK_INVERTED(IS_CLK_INVERTED)
+  )
+  _TECHMAP_REPLACE_
+  (
+  .CLK(CLK),
+  .CE(CE),
+  .A0(A0),
+  .A1(A1),
+  .A2(A2),
+  .A3(A3),
+  .D(D),
+  .Q(Q),
+  .Q15()
   );
 
 endmodule
