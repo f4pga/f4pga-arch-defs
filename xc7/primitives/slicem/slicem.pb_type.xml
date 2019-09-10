@@ -256,7 +256,7 @@
         <direct name="D_SRL.O5_to_SLICEM_MODES.DO5" input="DSRL.O5" output="SLICEM_MODES.DO5"/>
         <direct name="D_SRL.O6_to_SLICEM_MODES.DO6" input="DSRL.O6" output="SLICEM_MODES.DO6"/>
 
-        <!-- WE/CE inputs -->
+        <!-- CE and WE -->
         <direct name="SLICEM_MODES.CE_to_WE_MUX.CE" input="SLICEM_MODES.CE" output="WE_MUX.CE"/>
         <direct name="SLICEM_MODES.WE_to_WE_MUX.WE" input="SLICEM_MODES.WE" output="WE_MUX.WE"/>
 
@@ -297,7 +297,7 @@
         <direct name="F7AMUX_I0" input="BSRL.O6"   output="F7AMUX.I0">
           <pack_pattern in_port="BSRL.O6" name="SRL_x2" out_port="F7AMUX.I0"/>
           <pack_pattern in_port="BSRL.O6" name="SRL_x3" out_port="F7AMUX.I0"/>
-          <pack_pattern in_port="BSRL.O6" name="SRL_x4" out_port="F7AMUX.I0"/>
+          <pack_pattern in_port="BSRL.O6" name="SRL_x4" out_port="F7AMUX.I0"/> 
         </direct>
         <direct name="F7AMUX_I1" input="ASRL.O6"   output="F7AMUX.I1">
           <pack_pattern in_port="ASRL.O6" name="SRL_x2" out_port="F7AMUX.I1"/>
