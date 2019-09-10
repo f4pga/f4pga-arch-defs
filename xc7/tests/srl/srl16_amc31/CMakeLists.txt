@@ -12,6 +12,13 @@ add_fpga_target(
   EXPLICIT_ADD_FILE_TARGET
   )
 
+
+# The DFFMUX.MC31 test is disabled as VPR refuses to pack both SRL and FF in
+# the same slice. That could be solved via a pack pattern but that would
+# require redefining COMMON_SLICE and SLICE_FF i.e. splitting them into
+# SLICEM and SLICEL.
+
+
 #add_fpga_target(
 #  NAME srl16_dffmux_mc31
 #  BOARD basys3
