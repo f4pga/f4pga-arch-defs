@@ -4,8 +4,6 @@ import os
 import argparse
 import git
 
-from git.exc import GitCommandError
-
 EDITOR = os.getenv('EDITOR', 'vim')
 
 
@@ -38,8 +36,8 @@ $ exit
 def rebase_continue_rec(g):
     try:
         g.rebase("--continue")
-    except Exception as e:
-        solve_conflict(g)
+    except Exception:
+        solve_conflicts(g)
         rebase_continue_rec(g)
 
 
@@ -47,7 +45,7 @@ def rebase_branch(g, branch):
     g.checkout(branch)
     try:
         g.rebase('origin/master')
-    except Exception as e:
+    except Exception:
         solve_conflicts(g, branch)
         rebase_continue_rec(g)
 
@@ -67,7 +65,7 @@ def main():
 
     try:
         git.repo.base.Repo.clone_from(repo_url, repo_name)
-    except Exception as e:
+    except Exception:
         print("Warning: Repo already cloned.")
 
     repo = git.Repo("{}/.git".format(repo_name))
@@ -91,7 +89,7 @@ def main():
 
     try:
         g.checkout(['-b', 'master+wip-next'])
-    except:
+    except Exception:
         print("Branch master+wip-next already exists!")
     g.reset(['--hard', 'origin/master'])
 
