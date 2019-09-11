@@ -203,7 +203,12 @@ WHERE
                 """
 SELECT grid_x, grid_y FROM tile WHERE pkey = ?;""", (tile_pkey, )
             )
-            (grid_x, grid_y) = c3.fetchone()
+
+            # If tile not in grid, then skip it
+            data = c3.fetchone()
+            if data is None:
+                continue
+            (grid_x, grid_y) = data
 
             c3.execute(
                 """
@@ -289,12 +294,15 @@ WHERE
                     #        node_pkey, pip_pkey, pip, other_node_class)
                     continue
 
-                tracks_model = channel_wires_to_tracks[track_pkey]
-                available_pins = set(
-                    pin_dir for _, pin_dir in tracks_model.
-                    get_tracks_for_wire_at_coord((grid_x, grid_y))
-                )
-                edge_assignments[(tile_type, wire)].append(available_pins)
+                # Only if such pair exists
+                if (tile_type, wire) in edge_assignments:
+
+                    tracks_model = channel_wires_to_tracks[track_pkey]
+                    available_pins = set(
+                        pin_dir for _, pin_dir in tracks_model.
+                        get_tracks_for_wire_at_coord((grid_x, grid_y))
+                    )
+                    edge_assignments[(tile_type, wire)].append(available_pins)
 
                 for constant in yield_ties_to_wire(wire):
                     tracks_model = channel_wires_to_tracks[

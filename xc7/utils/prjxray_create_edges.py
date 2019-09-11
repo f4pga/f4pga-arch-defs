@@ -96,7 +96,12 @@ def add_graph_nodes_for_pins(conn, tile_type, wire, pin_directions):
                     (tile_pkey, )
                 )
 
-                grid_x, grid_y = c3.fetchone()
+                # If a tile does not exist then skip.
+                loc = c3.fetchone()
+                if loc is None:
+                    continue
+
+                grid_x, grid_y = loc
 
                 updates = []
                 values = []
@@ -930,7 +935,13 @@ def make_connection(
 
     c = conn.cursor()
     c.execute("SELECT grid_x, grid_y FROM tile WHERE pkey = ?", (tile_pkey, ))
-    loc = grid_types.GridLoc(*c.fetchone())
+
+    # Skip if the tile is not there.
+    data = c.fetchone()
+    if data is None:
+        return
+
+    loc = grid_types.GridLoc(*data)
 
     # Skip nodes that are reserved because of ROI
     if src_node_pkey in input_only_nodes:

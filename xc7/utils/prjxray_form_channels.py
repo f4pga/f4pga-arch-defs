@@ -1299,9 +1299,11 @@ def create_vpr_grid(conn):
     write_cur.execute('INSERT INTO tile_type(name) VALUES ("SLICEM");')
     slicem_tile_type_pkey = write_cur.lastrowid
 
-    # Create IOPAD tile type.
+    # Create IOPAD and IOPAD_SING tile type.
     write_cur.execute('INSERT INTO tile_type(name) VALUES ("IOPAD");')
     iopad_tile_type_pkey = write_cur.lastrowid
+    write_cur.execute('INSERT INTO tile_type(name) VALUES ("IOPAD_SING");')
+    iopad_sing_tile_type_pkey = write_cur.lastrowid
 
     slice_types = {
         'SLICEL': slicel_tile_type_pkey,
@@ -1319,7 +1321,11 @@ def create_vpr_grid(conn):
         'RIOI3': iopad_tile_type_pkey,
         'RIOI3_TBYTESRC': iopad_tile_type_pkey,
         'RIOI3_TBYTETERM': iopad_tile_type_pkey,
-        'RIOB33': iopad_tile_type_pkey,
+        'RIOI3_SING': iopad_sing_tile_type_pkey,
+        'LIOI3': iopad_tile_type_pkey,
+        'LIOI3_TBYTESRC': iopad_tile_type_pkey,
+        'LIOI3_TBYTETERM': iopad_tile_type_pkey,
+        'LIOI3_SING': iopad_sing_tile_type_pkey,
     }
 
     tiles_to_ignore = (
