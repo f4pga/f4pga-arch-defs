@@ -210,11 +210,11 @@ def main(argv):
     generated_with = """
 Generated with %s
 """ % mypath
-    if args.comment:
-        generated_with = "\n".join([args.comment, generated_with])
 
     # XML Files can't have "--" in them, so instead we use ~~
-    xml_comment = generated_with.replace("--", "~~")
+    xml_comment = """
+Generated with %s
+""" % "\n".join(argv).replace('--', '~~')
 
     if not args.outfilename:
         args.outfilename = args.name_mux.lower()
