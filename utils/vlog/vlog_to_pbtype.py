@@ -499,19 +499,32 @@ def make_container_pb(
 
         pb_type_path = "{}/{}.pb_type.xml".format(module_path, module_prefix)
 
+        include_as_is = True
+        comment_str = ""
         # Read the top level properties of the pb_type
         with open(pb_type_path, 'r') as inc_xml:
             xml_inc = ET.fromstring(inc_xml.read().encode('utf-8'))
             inc_attrib = xml_inc.attrib
-            inc_attrib['name'] = normalize_pb_name(child_prefix)
-            inc_attrib['num_pb'] = str(len(children_names))
+            normalized_name = normalize_pb_name(child_prefix)
+            num_pb = str(len(children_names))
+            if normalized_name != inc_attrib['name']:
+                comment_str += "old_name {}".format(inc_attrib['name'])
+                inc_attrib['name'] = normalize_pb_name(child_prefix)
+                include_as_is = False
+            if num_pb != inc_attrib['num_pb']:
+                comment_str += " old_num_pb {}".format(inc_attrib['num_pb'])
+                inc_attrib['num_pb'] = str(len(children_names))
+                include_as_is = False
 
-        inc_pb_type = ET.SubElement(pb_type_xml, 'pb_type', inc_attrib)
+        xptr = None
+        parent_xml = pb_type_xml
+        if include_as_is is not True:
+            xptr = "xpointer(pb_type/child::node())"
+            parent_xml = ET.SubElement(pb_type_xml, 'pb_type', inc_attrib)
+            parent_xml.append(ET.Comment(comment_str))
+
         xmlinc.include_xml(
-            parent=inc_pb_type,
-            href=pb_type_path,
-            outfile=outfile,
-            xptr="xpointer(pb_type/child::node())"
+            parent=parent_xml, href=pb_type_path, outfile=outfile, xptr=xptr
         )
 
     # Contains need interconnect to their children
