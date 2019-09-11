@@ -30,7 +30,7 @@ Additional targets are best explored via tab completion.
 Full example for buttons:
 
 ```
-git checkout https://github.com/SymbiFlow/symbiflow-arch-defs.git
+git clone https://github.com/SymbiFlow/symbiflow-arch-defs.git
 cd symbiflow-arch-defs
 make env
 cd build

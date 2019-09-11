@@ -1,16 +1,18 @@
 <!-- vim: set ai sw=1 ts=1 sta et: -->
 <models xmlns:xi="http://www.w3.org/2001/XInclude">
- <model name="SRLC32E_VPR">
+ <model name="SRLC16E_VPR">
   <input_ports>
    <port name="CLK" is_clock="1"/>
    <port name="CE" clock="CLK"/>
-   <port name="A" combinational_sink_ports="Q"/>
+   <port name="A0" combinational_sink_ports="Q"/>
+   <port name="A1" combinational_sink_ports="Q"/>
+   <port name="A2" combinational_sink_ports="Q"/>
+   <port name="A3" combinational_sink_ports="Q"/>
    <port name="D" clock="CLK"/>
   </input_ports>
   <output_ports>
-   <!-- <port name="Q" clock="CLK"/> -->
    <port name="Q"/>
-   <port name="Q31" clock="CLK"/>
+   <port name="Q15" clock="CLK"/>
   </output_ports>
  </model>
 </models>

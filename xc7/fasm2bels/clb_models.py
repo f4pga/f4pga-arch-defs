@@ -68,6 +68,47 @@ def create_srl32(site, srl):
     return bel
 
 
+def get_srl16_init(features, tile_name, slice_name, srl):
+    """
+    Decodes SRL16 INIT parameter. Returns two initialization strings, each one
+    for one of two SRL16s.
+    """
+
+    lut_init = get_lut_init(features, tile_name, slice_name, srl)
+    bits = lut_init.replace("64'b", "")
+
+    assert bits[1::2] == bits[::2]
+
+    srl_init = bits[::2]
+    return "16'b{}".format(srl_init[:16]), "16'b{}".format(srl_init[16:])
+
+
+def create_srl16(site, srl, srl_type, part):
+    """
+    Create an instance of SRL16 bel. Either for "x6LUT" or for "x5LUT"
+    depending on the part parameter.
+    """
+
+    assert part == '5' or part == '6'
+
+    bel = Bel(srl_type, srl + part + 'SRL', priority=3)
+    bel.set_bel(srl + part + 'LUT')
+
+    site.add_sink(bel, 'CLK', 'CLK')
+
+    if part == '5':
+        site.add_sink(bel, 'D', '{}I'.format(srl))
+    if part == '6':
+        site.add_sink(bel, 'D', '{}X'.format(srl))
+
+    for idx in range(4):
+        site.add_sink(bel, 'A{}'.format(idx), '{}{}'.format(srl, idx + 2))
+
+    site.add_internal_source(bel, 'Q', srl + 'O' + part)
+
+    return bel
+
+
 def decode_dram(site):
     """ Decode the modes of each LUT in the slice based on set features.
 
@@ -199,67 +240,130 @@ def ff_bel(site, lut, ff5):
     }[(ffsync, latch, zrst)]
 
 
-def cleanup_slice(top, site):
-    """ Perform post-routing cleanups required for SLICE.
+def cleanup_carry4(top, site):
+    """ Performs post-routing cleanups of CARRY4 bel required for SLICE.
 
     Cleanups:
      - Detect if CARRY4 is required.  If not, remove from site.
      - Remove connections to CARRY4 that are not in used (e.g. if C[3] and
        CO[3] are not used, disconnect S[3] and DI[2]).
-
     """
+
     carry4 = site.maybe_get_bel('CARRY4')
+    if carry4 is not None:
 
-    if carry4 is None:
-        return
+        # Simplest check is if the CARRY4 has output in used by either the OUTMUX
+        # or the FFMUX, if any of these muxes are enable, CARRY4 must remain.
+        co_in_use = [False for _ in range(4)]
+        o_in_use = [False for _ in range(4)]
+        for idx, lut in enumerate('ABCD'):
+            if site.has_feature('{}FFMUX.XOR'.format(lut)):
+                o_in_use[idx] = True
 
-    # Simplest check is if the CARRY4 has output in used by either the OUTMUX
-    # or the FFMUX, if any of these muxes are enable, CARRY4 must remain.
-    co_in_use = [False for _ in range(4)]
-    o_in_use = [False for _ in range(4)]
-    for idx, lut in enumerate('ABCD'):
-        if site.has_feature('{}FFMUX.XOR'.format(lut)):
-            o_in_use[idx] = True
+            if site.has_feature('{}FFMUX.CY'.format(lut)):
+                co_in_use[idx] = True
 
-        if site.has_feature('{}FFMUX.CY'.format(lut)):
+            if site.has_feature('{}OUTMUX.XOR'.format(lut)):
+                o_in_use[idx] = True
+
+            if site.has_feature('{}OUTMUX.CY'.format(lut)):
+                co_in_use[idx] = True
+
+        # No outputs in the SLICE use CARRY4, check if the COUT line is in use.
+        for sink in top.find_sinks_from_source(site, 'COUT'):
             co_in_use[idx] = True
-
-        if site.has_feature('{}OUTMUX.XOR'.format(lut)):
-            o_in_use[idx] = True
-
-        if site.has_feature('{}OUTMUX.CY'.format(lut)):
-            co_in_use[idx] = True
-
-    # No outputs in the SLICE use CARRY4, check if the COUT line is in use.
-    for sink in top.find_sinks_from_source(site, 'COUT'):
-        co_in_use[idx] = True
-        break
-
-    for idx in [3, 2, 1, 0]:
-        if co_in_use[idx] or o_in_use[idx]:
-            for odx in range(idx):
-                co_in_use[odx] = True
-                o_in_use[odx] = True
-
             break
 
-    if not any(co_in_use) and not any(o_in_use):
-        # No outputs in use, remove entire BEL
-        top.remove_bel(site, carry4)
-    else:
-        for idx in range(4):
-            if not o_in_use[idx] and not co_in_use[idx]:
-                sink_wire_pkey = site.remove_internal_sink(
-                    carry4, 'S[{}]'.format(idx)
-                )
-                if sink_wire_pkey is not None:
-                    top.remove_sink(sink_wire_pkey)
+        for idx in [3, 2, 1, 0]:
+            if co_in_use[idx] or o_in_use[idx]:
+                for odx in range(idx):
+                    co_in_use[odx] = True
+                    o_in_use[odx] = True
 
-                sink_wire_pkey = site.remove_internal_sink(
-                    carry4, 'DI[{}]'.format(idx)
-                )
-                if sink_wire_pkey is not None:
-                    top.remove_sink(sink_wire_pkey)
+                break
+
+        if not any(co_in_use) and not any(o_in_use):
+            # No outputs in use, remove entire BEL
+            top.remove_bel(site, carry4)
+        else:
+            for idx in range(4):
+                if not o_in_use[idx] and not co_in_use[idx]:
+                    sink_wire_pkey = site.remove_internal_sink(
+                        carry4, 'S[{}]'.format(idx)
+                    )
+                    if sink_wire_pkey is not None:
+                        top.remove_sink(sink_wire_pkey)
+
+                    sink_wire_pkey = site.remove_internal_sink(
+                        carry4, 'DI[{}]'.format(idx)
+                    )
+                    if sink_wire_pkey is not None:
+                        top.remove_sink(sink_wire_pkey)
+
+
+def cleanup_srl(top, site):
+    """Performs post-routing cleanups of SRLs required for SLICE.
+
+    Cleanups:
+     - For each LUT if in 2xSRL16 mode detect whether both SRL16 are used.
+       removes unused ones.
+    """
+
+    # Remove unused SRL16
+    for i, row in enumerate("ABCD"):
+
+        # n5SRL, check O5
+        srl = site.maybe_get_bel("{}5SRL".format(row))
+        if srl is not None:
+
+            if not site.has_feature("{}OUTMUX.O5".format(row)) and \
+               not site.has_feature("{}FFMUX.O5".format(row)):
+                top.remove_bel(site, srl)
+
+        # n6SRL, check O6 and MC31
+        srl = site.maybe_get_bel("{}6SRL".format(row))
+        if srl is not None:
+
+            # nOUTMUX, nFFMUX
+            noutmux_o6_used = site.has_feature("{}OUTMUX.O6".format(row))
+            nffmux_o6_used = site.has_feature("{}FFMUX.O6".format(row))
+
+            # nUSED
+            nused_used = True
+            sinks = list(top.find_sinks_from_source(site, row))
+            if len(sinks) == 0:
+                nused_used = False
+
+            # n7MUX
+            f7nmux_used = True
+            if row in "AB" and site.maybe_get_bel("F7AMUX") is None:
+                f7nmux_used = False
+            if row in "CD" and site.maybe_get_bel("F7BMUX") is None:
+                f7nmux_used = False
+
+            # A6SRL MC31 output
+            if row == "A":
+                mc31_used = site.has_feature("DOUTMUX.MC31") or \
+                    site.has_feature("DFFMUX.MC31")
+            else:
+                mc31_used = False
+
+            # Remove if necessary
+            anything_used = nused_used or noutmux_o6_used or nffmux_o6_used or\
+                f7nmux_used or mc31_used
+
+            if not anything_used:
+                top.remove_bel(site, srl)
+
+
+def cleanup_slice(top, site):
+    """Performs post-routing cleanups required for SLICE."""
+
+    # Cleanup CARRY4 stuff
+    cleanup_carry4(top, site)
+
+    # Cleanup SRL stuff
+    cleanup_srl(top, site)
 
 
 def process_slice(top, s):
@@ -349,23 +453,65 @@ def process_slice(top, s):
 
                 # SRL32
                 if not site.has_feature('{}LUT.SMALL'.format(row)):
-                    srls[row] = create_srl32(site, row)
-                    srls[row].parameters['INIT'] = get_srl32_init(
+                    srl = create_srl32(site, row)
+                    srl.parameters['INIT'] = get_srl32_init(
                         s, aparts[0], aparts[1], row
                     )
 
-                    site.add_sink(srls[row], 'CE', WE)
+                    site.add_sink(srl, 'CE', WE)
 
                     if row == 'A' and site.has_feature('DOUTMUX.MC31'):
-                        site.add_internal_source(srls[row], 'Q31', 'AMC31')
+                        site.add_internal_source(srl, 'Q31', 'AMC31')
                     if row == 'A' and site.has_feature('DFFMUX.MC31'):
-                        site.add_internal_source(srls[row], 'Q31', 'AMC31')
+                        site.add_internal_source(srl, 'Q31', 'AMC31')
 
-                    site.add_bel(srls[row])
+                    site.add_bel(srl)
+                    srls[row] = (srl, )
 
                 # 2x SRL16
                 else:
-                    assert False, "SRL16 not supported yet!"
+
+                    srls[row] = []
+                    init = get_srl16_init(s, aparts[0], aparts[1], row)
+
+                    for i, part in enumerate(['5', '6']):
+
+                        # Determine whether to use SRL16E or SRLC16E
+                        srl_type = 'SRL16E'
+                        use_mc31 = False
+
+                        if part == '6':
+
+                            if row == 'A' and site.has_feature('DOUTMUX.MC31'):
+                                srl_type = 'SRLC16E'
+                                use_mc31 = True
+                            if row == 'A' and site.has_feature('DFFMUX.MC31'):
+                                srl_type = 'SRLC16E'
+                                use_mc31 = True
+
+                            if row == 'D' and site.has_feature(
+                                    'CLUT.DI1MUX.DI_DMC31'):
+                                srl_type = 'SRLC16E'
+                            if row == 'C' and site.has_feature(
+                                    'BLUT.DI1MUX.DI_CMC31'):
+                                srl_type = 'SRLC16E'
+                            if row == 'B' and site.has_feature(
+                                    'ALUT.DI1MUX.DI_BMC31'):
+                                srl_type = 'SRLC16E'
+
+                        # Create the SRL
+                        srl = create_srl16(site, row, srl_type, part)
+                        srl.parameters['INIT'] = init[i]
+
+                        site.add_sink(srl, 'CE', WE)
+
+                        if use_mc31 and srl_type == 'SRLC16E':
+                            site.add_internal_source(srl, 'Q15', 'AMC31')
+
+                        site.add_bel(srl, name="{}{}SRL".format(row, part))
+                        srls[row].append(srl)
+
+                    srls[row] = tuple(srls[row])
 
             # LUT
             else:
@@ -645,17 +791,17 @@ def process_slice(top, s):
         srl_chains.add("BA")
 
     # SRL chain connections
-    if "DC" in srl_chains:
-        site.add_internal_source(srls['D'], 'Q31', 'DMC31')
-        srls['C'].connections['D'] = 'DMC31'
+    for chain in srl_chains:
+        src = chain[0]
+        dst = chain[1]
 
-    if "CB" in srl_chains:
-        site.add_internal_source(srls['C'], 'Q31', 'CMC31')
-        srls['B'].connections['D'] = 'CMC31'
+        if site.has_feature("{}LUT.SMALL".format(src)):
+            q = "Q15"
+        else:
+            q = "Q31"
 
-    if "BA" in srl_chains:
-        site.add_internal_source(srls['B'], 'Q31', 'BMC31')
-        srls['A'].connections['D'] = 'BMC31'
+        site.add_internal_source(srls[src][-1], q, '{}MC31'.format(src))
+        srls[dst][0].connections['D'] = '{}MC31'.format(src)
 
     need_f8 = site.has_feature('BFFMUX.F8') or site.has_feature('BOUTMUX.F8')
     need_f7a = site.has_feature('AFFMUX.F7') or site.has_feature('AOUTMUX.F7')

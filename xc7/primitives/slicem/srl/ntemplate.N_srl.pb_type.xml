@@ -1,3 +1,6 @@
+<!-- This is template for B,C and D SRLs. The ASRL requires different pack
+     patterns hence it is defined separately. -->
+
 <pb_type name="{N}SRL" num_pb="1" xmlns:xi="http://www.w3.org/2001/XInclude">
   <clock  name="CLK" num_pins="1"/>
   <input  name="WE" num_pins="1"/>
@@ -24,12 +27,39 @@
       <direct name="A4" input="{N}SRL.A4" output="SRLC32E_VPR.A[2]"/>
       <direct name="A5" input="{N}SRL.A5" output="SRLC32E_VPR.A[3]"/>
       <direct name="A6" input="{N}SRL.A6" output="SRLC32E_VPR.A[4]"/>
-      <direct name="O6" input="SRLC32E_VPR.Q" output="{N}SRL.O6"/>
+      <direct name="O6" input="SRLC32E_VPR.Q" output="{N}SRL.O6">
+        <pack_pattern out_port="{N}SRL.O6" name="SRL_x2" in_port="SRLC32E_VPR.Q"/>
+        <pack_pattern out_port="{N}SRL.O6" name="SRL_x3" in_port="SRLC32E_VPR.Q"/>
+        <pack_pattern out_port="{N}SRL.O6" name="SRL_x4" in_port="SRLC32E_VPR.Q"/>
+      </direct>
       <direct name="MC31" input="SRLC32E_VPR.Q31" output="{N}SRL.MC31"/>
     </interconnect>
   </mode>
 
-  <!-- TODO: Mode for 2x SRL16 -->
+  <mode name="2xSRL16">
+    <xi:include href="srlc16e_vpr_0.pb_type.xml"/>
+    <xi:include href="srlc16e_vpr_1.pb_type.xml"/>
+    <interconnect>
+      <direct name="CLK_0" input="{N}SRL.CLK" output="SRLC16E_VPR_0.CLK"/>
+      <direct name="WE_0" input="{N}SRL.WE" output="SRLC16E_VPR_0.CE"/>
+      <direct name="DI1" input="{N}SRL.DI1" output="SRLC16E_VPR_0.D"/>
+      <direct name="A2_0" input="{N}SRL.A2" output="SRLC16E_VPR_0.A0"/>
+      <direct name="A3_0" input="{N}SRL.A3" output="SRLC16E_VPR_0.A1"/>
+      <direct name="A4_0" input="{N}SRL.A4" output="SRLC16E_VPR_0.A2"/>
+      <direct name="A5_0" input="{N}SRL.A5" output="SRLC16E_VPR_0.A3"/>
+      <direct name="O5" input="SRLC16E_VPR_0.Q" output="{N}SRL.O5"/>
+
+      <direct name="CLK_1" input="{N}SRL.CLK" output="SRLC16E_VPR_1.CLK"/>
+      <direct name="WE_1" input="{N}SRL.WE" output="SRLC16E_VPR_1.CE"/>
+      <direct name="DI2" input="{N}SRL.DI2" output="SRLC16E_VPR_1.D"/>
+      <direct name="A2_1" input="{N}SRL.A2" output="SRLC16E_VPR_1.A0"/>
+      <direct name="A3_1" input="{N}SRL.A3" output="SRLC16E_VPR_1.A1"/>
+      <direct name="A4_1" input="{N}SRL.A4" output="SRLC16E_VPR_1.A2"/>
+      <direct name="A5_1" input="{N}SRL.A5" output="SRLC16E_VPR_1.A3"/>
+      <direct name="O6" input="SRLC16E_VPR_1.Q" output="{N}SRL.O6"/>
+      <direct name="MC31" input="SRLC16E_VPR_1.Q15" output="{N}SRL.MC31"/>
+    </interconnect>
+  </mode>
 
   <metadata>
     <meta name="fasm_prefix">

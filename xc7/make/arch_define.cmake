@@ -61,8 +61,8 @@ function(ADD_XC7_ARCH_DEFINE)
         --sparse \
         \${FASM_TO_BIT_EXTRA_ARGS} \
     \${OUT_FASM} \${OUT_BITSTREAM}"
-    BIT_TO_BIN xc7patch
-    BIT_TO_BIN_CMD "xc7patch \
+    BIT_TO_BIN xc7frames2bit
+    BIT_TO_BIN_CMD "xc7frames2bit \
         --frm_file \${OUT_BITSTREAM} \
         --output_file \${OUT_BIN} \
         \${BIT_TO_BIN_EXTRA_ARGS}"

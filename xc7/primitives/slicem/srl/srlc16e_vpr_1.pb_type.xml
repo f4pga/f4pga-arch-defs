@@ -1,0 +1,34 @@
+<pb_type name="SRLC16E_VPR_1" num_pb="1" blif_model=".subckt SRLC16E_VPR" xmlns:xi="http://www.w3.org/2001/XInclude">
+  <clock name="CLK" num_pins="1"/>
+  <input name="CE" num_pins="1"/>  
+  <input name="A0" num_pins="1"/>  
+  <input name="A1" num_pins="1"/>  
+  <input name="A2" num_pins="1"/>  
+  <input name="A3" num_pins="1"/>  
+  <input name="D" num_pins="1"/>  
+  <output name="Q" num_pins="1"/>
+  <output name="Q15" num_pins="1"/>
+
+  <T_setup port="CE" clock="CLK" value="{setup_CLK_WE}"/>
+  <T_hold port="CE" clock="CLK" value="{hold_CLK_WE}"/>
+  <T_setup port="D" clock="CLK" value="{setup_CLK_DI2}"/>
+  <T_hold port="D" clock="CLK" value="{hold_CLK_DI2}"/>
+
+  <delay_constant in_port="A0" out_port="Q" max="{iopath_A2_O6}"/>
+  <delay_constant in_port="A1" out_port="Q" max="{iopath_A3_O6}"/>
+  <delay_constant in_port="A2" out_port="Q" max="{iopath_A4_O6}"/>
+  <delay_constant in_port="A3" out_port="Q" max="{iopath_A5_O6}"/>
+
+  <!-- <T_clock_to_Q port="Q" clock="CLK" max="{iopath_CLK_O6}"/> -->
+  <T_clock_to_Q port="Q15" clock="CLK" max="{iopath_CLK_MC31}"/>
+
+  <metadata>
+    <meta name="fasm_params">
+      INIT[31:0] = INIT
+    </meta>
+    <meta name="fasm_features">
+      SRL
+      SMALL
+    </meta>
+  </metadata>
+</pb_type>
