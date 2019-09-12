@@ -80,6 +80,10 @@ add_conda_pip(
   NO_EXE
 )
 add_conda_pip(
+  NAME pycapnp
+  NO_EXE
+)
+add_conda_pip(
   NAME simplejson
   NO_EXE
 )
