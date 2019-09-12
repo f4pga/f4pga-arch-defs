@@ -22,8 +22,8 @@ cat /proc/meminfo
 echo "----------------------------------------"
 export MEM_GB=$(($(awk '/MemTotal/ {print $2}' /proc/meminfo)/(1024*1024)))
 echo "Memory (GB): $CORES"
-export MEM_CORES=$(($MEM_GB/10))
-echo "Cores (10 GB per): $MEM_CORES"
+export MEM_CORES=$(($MEM_GB/4))
+echo "Cores (4 GB per): $MEM_CORES"
 export MAX_CORES_NO_MIN=$(($MEM_CORES>$CORES?$CORES:$MEM_CORES))
 export MAX_CORES=$(($MAX_CORES_NO_MIN<1?1:$MAX_CORES_NO_MIN))
 echo "Max cores: $MAX_CORES"
