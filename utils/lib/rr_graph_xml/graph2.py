@@ -73,6 +73,27 @@ def serialize_nodes(xf, nodes):
                         )
                     )
 
+                if node.connection_box is not None:
+                    write(
+                        Element(
+                            'connection_box', {
+                                'x': str(node.connection_box.x),
+                                'y': str(node.connection_box.y),
+                                'id': str(node.connection_box.id),
+                            }
+                        )
+                    )
+
+                if node.canonical_loc is not None:
+                    write(
+                        Element(
+                            'canonical_loc', {
+                                'x': str(node.canonical_loc.x),
+                                'y': str(node.canonical_loc.y),
+                            }
+                        )
+                    )
+
 
 def serialize_edges(xf, edges):
     """ Serialize list of edge tuples objects to XML.
@@ -262,6 +283,8 @@ def graph_from_xml(input_xml, progressbar=None):
                     timing=timing,
                     metadata=metadata,
                     segment=None,
+                    canonical_loc=None,
+                    connection_box=None,
                 )
             )
 
@@ -321,7 +344,13 @@ class Graph(object):
         self.xf = None
         return ret
 
-    def start_serialize_to_xml(self, tool_version, tool_comment, channels_obj):
+    def start_serialize_to_xml(
+            self,
+            tool_version,
+            tool_comment,
+            channels_obj,
+            connection_box_obj=None
+    ):
         assert self.exit_stack is not None
         assert self.xf is not None
 
@@ -366,6 +395,21 @@ class Graph(object):
                     }
                 )
                 self.xf.write(el)
+
+        if connection_box_obj is not None:
+            with self.xf.element('connection_boxes', {
+                    'x_dim': str(connection_box_obj.x_dim),
+                    'y_dim': str(connection_box_obj.y_dim),
+                    'num_boxes': str(len(connection_box_obj.boxes)),
+            }):
+                for idx, box in enumerate(connection_box_obj.boxes):
+                    el = ET.Element(
+                        'connection_box', {
+                            'id': str(idx),
+                            'name': box,
+                        }
+                    )
+                    self.xf.write(el)
 
         self.xf.write(self.input_xml.find('switches'))
         self.xf.write(self.input_xml.find('segments'))
