@@ -18,6 +18,14 @@ function(DEFINE_ICE40_DEVICE)
     ARCH ice40
     DEVICE_TYPE ${DEFINE_ICE40_DEVICE_DEVICE_TYPE}
     PACKAGES ${DEFINE_ICE40_DEVICE_PACKAGES}
+    CACHE_PLACE_DELAY
+    CACHE_ARGS
+      --route_chan_width 100
+      --clock_modeling route
+      --allow_unrelated_clustering off
+      --target_ext_pin_util 0.7
+      --router_init_wirelength_abort_threshold 2
+      --congested_routing_iteration_threshold 0.8
   )
 
   add_icebox_layouts(
