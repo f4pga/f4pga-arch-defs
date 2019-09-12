@@ -2337,7 +2337,7 @@ class RoutingGraph:
             if ntype.track:
                 # Seems to confuse VPR when 0
                 # XXX: consider requiring the user to give instead of defaulting
-                timing = RoutingNodeTiming(R=1, C=1)
+                timing = RoutingNodeTiming(R=1e-9, C=1e-9)
             else:
                 timing = RoutingNodeTiming(R=0, C=0)
         assert len(timing) == 2
@@ -2391,7 +2391,7 @@ class RoutingGraph:
         TypeError: RoutingNodeType.SOURCE -> RoutingNodeType.CHANX not valid, Only SOURCE -> OPIN is valid
         0 X000Y000[00].SRC--> b'<node id="0" type="SOURCE" capacity="1"><loc xlow="0" ylow="0" xhigh="0" yhigh="0" ptc="0"/><timing R="0" C="0"/></node>'
           ->
-        2 X000Y000<-00->X000Y010 b'<node id="2" type="CHANX" capacity="1" direction="BI_DIR"><loc xlow="0" ylow="0" xhigh="0" yhigh="10" ptc="0"/><timing R="1" C="1"/><segment segment_id="0"/></node>'
+        2 X000Y000<-00->X000Y010 b'<node id="2" type="CHANX" capacity="1" direction="BI_DIR"><loc xlow="0" ylow="0" xhigh="0" yhigh="10" ptc="0"/><timing R="1e-09" C="1e-09"/><segment segment_id="0"/></node>'
         >>> r.create_edge_with_ids(1, 4, sw)
         Traceback (most recent call last):
           ...
