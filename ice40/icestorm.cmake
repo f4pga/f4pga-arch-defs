@@ -81,6 +81,7 @@ function(icestorm_setup)
       --clock_modeling route \
       --allow_unrelated_clustering off \
       --target_ext_pin_util 0.7 \
+      --astar_fac 1.0 \
       --router_init_wirelength_abort_threshold 2 \
       --congested_routing_iteration_threshold 0.8"
     RR_PATCH_TOOL

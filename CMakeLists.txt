@@ -43,7 +43,7 @@ add_conda_package(
 add_conda_package(
   NAME vtr
   PROVIDES vpr genfasm
-  PACKAGE_SPEC "vtr 7.0.5_8283_g0a9cb2774 20190904_084642"
+  PACKAGE_SPEC "vtr 7.0.5_8292_gc478c2b00 20190910_174119"
   )
 add_conda_package(
   NAME libxslt
@@ -229,9 +229,9 @@ endif()
 
 add_custom_target(all_xc7)
 add_dependencies(all_xc7
+    all_xc7_demos
     all_xc7_route_tests
     all_xc7_tests
-    all_xc7_demos
     )
 if (NOT DEFINED ENV{CI} OR NOT $ENV{CI})
 add_dependencies(all_xc7
