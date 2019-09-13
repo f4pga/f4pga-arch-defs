@@ -36,6 +36,11 @@ sudo apt-get install -y \
         python3-virtualenv \
         python3-yaml \
         virtualenv \
+        ninja-build \
+
+if [ -z "${BUILD_TOOL}" ]; then
+    export BUILD_TOOL=make
+fi
 
 echo "----------------------------------------"
 
@@ -54,7 +59,7 @@ echo "----------------------------------------"
 	echo
 	echo " Setting up basic conda environment"
 	echo "----------------------------------------"
-	make all_conda
+	${BUILD_TOOL} all_conda
 
 	echo
 	echo " Output information about conda environment"
