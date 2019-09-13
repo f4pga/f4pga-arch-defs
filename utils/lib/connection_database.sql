@@ -269,6 +269,7 @@ CREATE TABLE graph_node(
   pkey INTEGER PRIMARY KEY,
   graph_node_type INT,
   track_pkey INT,
+  connection_box_wire_pkey INT,
   node_pkey INT,
   x_low INT,
   x_high INT,
@@ -278,6 +279,7 @@ CREATE TABLE graph_node(
   capacity INT,
   capacitance REAL,
   resistance REAL,
+  FOREIGN KEY(connection_box_wire_pkey) REFERENCES wire(pkey),
   FOREIGN KEY(track_pkey) REFERENCES track(pkey),
   FOREIGN KEY(node_pkey) REFERENCES node(pkey)
 );
