@@ -276,19 +276,13 @@ def site_id(site):
     return site.type + "." + site.name
 
 
-def gen_site_suffix_map(sites, args):
+def assign_site_prefixes_and_indices(sites):
     """
-    Generates a map of site suffix format basing on existence of varying 
-    X and Y coordinates of site types.
-
-    If there is only one site of a given type then the suffix is _X{x}.
-    Will always be _X0.
-
-    When there is difference in Y coordinates then the suffix is _Y{y}.
-
-    When there are differencies in both X and Y then the suffix is _X{x}Y{y}
+    Assigns each site name (as returned by site_id) with fasm prefix and index.
+    Indexes are used to identify multiple instances of sites of the same type.
     """
 
+    # Count imported sites in X and Y per type
     xs = {}
     ys = {}
 
@@ -302,23 +296,37 @@ def gen_site_suffix_map(sites, args):
         xs[site.type].add(site.x)
         ys[site.type].add(site.y)
 
-    suffix_map = {}
+    # Assign prefixes and indices
+    type_indices = {}
+    site_prefixes = {}
+    site_indices = {}
 
-    for site in sites:
+    for site in sorted(sites, key=lambda s: (s.x, s.y)):
+        nx = len(xs[site.type])
+        ny = len(ys[site.type])
 
-        assert len(xs[site.type]) >= 1
-        assert len(ys[site.type]) >= 1
+        assert nx >= 1 and ny >= 1, (site.type, site.name,)
 
-        if len(xs[site.type]) >= 1 and len(ys[site.type]) == 1:
-            suffix_map[site.type] = "_X{x}"
-        elif len(xs[site.type]) == 1 and len(ys[site.type]) > 1:
-            suffix_map[site.type] = "_Y{y}"
-        elif len(xs[site.type]) > 1 and len(ys[site.type]) > 1:
-            suffix_map[site.type] = "_X{x}Y{y}"
-        else:
-            assert False, (len(xs[site.type]), len(ys[site.type]),)
+        site_name = site_id(site)
 
-    return suffix_map
+        if nx == 1 and ny == 1:
+            site_prefix = '{}_X0'.format(site.type)
+        elif nx > 1 and ny == 1:
+            site_prefix = '{}_X{}'.format(site.type, site.x)
+        elif nx == 1 and ny > 1:
+            site_prefix = '{}_Y{}'.format(site.type, site.y)
+        elif nx > 1 and ny > 1:
+            site_prefix = '{}_X{}Y{}'.format(site.type, site.x, site.y)
+
+        if site.type not in type_indices:
+            type_indices[site.type] = 0
+
+        site_prefixes[site_name] = site_prefix
+        site_indices[site_name] = type_indices[site.type]
+
+        type_indices[site.type] += 1
+
+    return site_prefixes, site_indices
 
 
 def import_tile(db, args):
@@ -335,10 +343,6 @@ def import_tile(db, args):
         import_tiles = {args.tile}
 
     sites = reduce(lambda acc, tile: acc + list(db.get_tile_type(tile).get_sites()), import_tiles, [])
-
-    # Generate site name suffix map
-    site_suffix_map = gen_site_suffix_map(sites, args)
-    print(site_suffix_map)
 
     # Wires sink to a site within the tile are input wires.
     input_wires = set()
@@ -404,6 +408,20 @@ def import_tile(db, args):
                 ),
                 file=sys.stderr
             )
+
+        # Filter out sites which are not imported
+        sites = list(filter(lambda s: s.type not in ignored_site_types, sites))
+        if args.select_y is not None:
+            sites = list(filter(lambda s: s.y == args.select_y, sites))
+
+        # Associate imported site names with prefixes and indices
+        site_prefixes, site_indices = assign_site_prefixes_and_indices(sites)
+
+        # Count site types
+        site_type_count = {s.type: 0 for s in sites}
+        for site in sites:
+            site_type_count[site.type] += 1
+
     else:
         for site in sites:
             site_type = db.get_site_type(site.type)
@@ -431,8 +449,6 @@ def import_tile(db, args):
     if not args.fused_sites:
         site_types = set(site.type for site in sites)
         for site_type in site_types:
-            if site_type in ignored_site_types:
-                continue
 
             for instance in site_type_instances[site_type]:
                 model.add_model_include(site_type, instance)
@@ -457,90 +473,96 @@ def import_tile(db, args):
     interconnect_xml = ET.Element('interconnect')
 
     if not args.fused_sites:
-        site_type_count = {}
-        site_prefixes = {}
-        cells_idx = dict()
 
-        site_type_ports = {}
+        # Gather XMLs to include
+        root_elements = {}
         for site in sites:
-            if site.type in ignored_site_types:
-                continue
-
-            if args.select_y is not None and args.select_y != site.y:
-                continue
-
-            if site.type not in site_type_count:
-                site_type_count[site.type] = 0
-                site_prefixes[site.type] = []
-
-            cell_idx = site_type_count[site.type]
-            cells_idx[site_id(site)] = cell_idx
-            site_type_count[site.type] += 1
-
-            site_prefix = ('{type}' + site_suffix_map[site.type]).format(
-                type=site.type, x=site.x, y=site.y)
+            cell_idx = site_indices[site_id(site)]
 
             site_instance = site_type_instances[site.type][cell_idx]
-
             site_type_path = site_pbtype.format(
                 site.type.lower(), site_instance.lower()
             )
+
             cell_pb_type = ET.ElementTree()
             root_element = cell_pb_type.parse(site_type_path)
-            cell_names[site_instance] = root_element.attrib['name']
 
-            ports = {}
-            for inputs in root_element.iter('input'):
-                ports[inputs.attrib['name']] = int(inputs.attrib['num_pins'])
+            root_name = root_element.attrib['name']
+            if root_name not in root_elements:
+                root_elements[root_name] = (
+                    root_element,
+                    site_type_path,
+                    []
+                )
 
-            for clocks in root_element.iter('clock'):
-                ports[clocks.attrib['name']] = int(clocks.attrib['num_pins'])
+            root_elements[root_name][2].append(site)
 
-            for outputs in root_element.iter('output'):
-                ports[outputs.attrib['name']] = int(outputs.attrib['num_pins'])
+        # Make imported pb_types
+        site_type_ports = {}
+        for pb_name, (root_element, include_file, pb_sites, ) in root_elements.items():
 
-            # assert site_instance not in site_type_ports, (
-            #     site_instance, site_type_ports.keys()
-            # )
-            site_type_ports[site_instance] = ports
+            attrib = root_element.attrib
+            attrib["name"] = pb_name
+            attrib["num_pb"] = str(len(pb_sites))
 
-            attrib = dict(root_element.attrib)
+            # pb_type
             include_xml = ET.SubElement(pb_type_xml, 'pb_type', attrib)
             ET.SubElement(
                 include_xml, XI_INCLUDE, {
                     'href':
-                        site_type_path,
+                        include_file,
                     'xpointer':
                         "xpointer(pb_type/child::node()[local-name()!='metadata'])",
                 }
             )
 
+            # Ports, names and prefixes
+            fasm_prefixes = []
+
+            for site in pb_sites:
+                cell_idx = site_indices[site_id(site)]
+                site_instance = site_type_instances[site.type][cell_idx]
+
+                ports = {}
+                for inputs in root_element.iter('input'):
+                    ports[inputs.attrib['name']] = int(inputs.attrib['num_pins'])
+
+                for clocks in root_element.iter('clock'):
+                    ports[clocks.attrib['name']] = int(clocks.attrib['num_pins'])
+
+                for outputs in root_element.iter('output'):
+                    ports[outputs.attrib['name']] = int(outputs.attrib['num_pins'])
+
+                site_type_ports[site_instance] = ports
+
+                cell_names[site_id(site)] = pb_name
+                if len(pb_sites) > 1:
+                    cell_names[site_id(site)] += '[{}]'.format(cell_idx)
+
+                fasm_prefixes.append(site_prefixes[site_id(site)])
+
+            # FASM prefix(es)
             metadata_xml = ET.SubElement(include_xml, 'metadata')
             ET.SubElement(
                 metadata_xml, 'meta', {
                     'name': 'fasm_prefix',
                 }
-            ).text = site_prefix
+            ).text = ' '.join(fasm_prefixes)
 
             # Import pb_type metadata if it exists.
             if any(child.tag == 'metadata' for child in root_element):
                 ET.SubElement(
                     metadata_xml, XI_INCLUDE, {
-                        'href': site_type_path,
+                        'href': include_file,
                         'xpointer': "xpointer(pb_type/metadata/child::node())",
                     }
                 )
 
         for idx, site in enumerate(sites):
-            if site.type in ignored_site_types:
-                continue
 
-            if args.select_y is not None and args.select_y != site.y:
-                continue
-
-            site_idx = cells_idx[site_id(site)]
+            site_idx = site_indices[site_id(site)]
             site_instance = site_type_instances[site.type][site_idx]
-            site_name = cell_names[site_instance]
+            site_name = cell_names[site_id(site)]
 
             site_type = db.get_site_type(site.type)
 

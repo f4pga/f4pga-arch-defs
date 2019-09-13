@@ -17,5 +17,7 @@
   <input name="T" num_pins="1"/>
   <input name="T_IN" num_pins="1"/>
   <output name="T_OUT" num_pins="1"/>
+  <interconnect>
   <!-- TODO -->
+  </interconnect>
 </pb_type>
