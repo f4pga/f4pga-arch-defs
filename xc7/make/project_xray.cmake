@@ -260,37 +260,12 @@ function(PROJECT_XRAY_ARCH)
     append_file_dependency(CHANNELS_DEPS synth_tiles.json)
   endif()
 
-  append_file_dependency(DEPS ${symbiflow-arch-defs_SOURCE_DIR}/xc7/archs/${PART}/pin_assignments.json)
-  append_file_dependency(DEPS ${GENERIC_CHANNELS})
-  get_file_location(PIN_ASSIGNMENTS ${symbiflow-arch-defs_SOURCE_DIR}/xc7/archs/${PART}/pin_assignments.json)
-
-  string(REPLACE ";" "," TILE_TYPES_COMMA "${PROJECT_XRAY_ARCH_TILE_TYPES}")
-
-  add_custom_command(
-    OUTPUT arch.xml
-    COMMAND ${CMAKE_COMMAND} -E env PYTHONPATH=${PRJXRAY_DIR}:${symbiflow-arch-defs_SOURCE_DIR}/utils
-    ${PYTHON3} ${ARCH_IMPORT}
-      --part ${PROJECT_XRAY_ARCH_PART}
-      --connection_database ${GENERIC_CHANNELS_LOCATION}
-      --output-arch ${CMAKE_CURRENT_BINARY_DIR}/arch.xml
-      --tile-types "${TILE_TYPES_COMMA}"
-      --pin_assignments ${PIN_ASSIGNMENTS}
-      --device ${DEVICE}
-      ${ROI_ARG}
-    DEPENDS
-    ${ARCH_IMPORT}
-    ${DEPS}
-    ${PYTHON3} ${PYTHON3_TARGET} simplejson
-    )
-
-  add_file_target(FILE arch.xml GENERATED)
-  get_file_target(ARCH_TARGET arch.xml)
-  set_target_properties(${ARCH_TARGET} PROPERTIES INCLUDE_FILES "${ARCH_INCLUDE_FILES}")
 
   set(GENERIC_CHANNELS
       ${symbiflow-arch-defs_SOURCE_DIR}/xc7/archs/${PART}/channels.db)
   append_file_dependency(CHANNELS_DEPS ${GENERIC_CHANNELS})
   append_file_dependency(CHANNELS_DEPS ${symbiflow-arch-defs_SOURCE_DIR}/xc7/archs/${PART}/pin_assignments.json)
+  get_file_location(PIN_ASSIGNMENTS ${symbiflow-arch-defs_SOURCE_DIR}/xc7/archs/${PART}/pin_assignments.json)
   list(APPEND CHANNELS_DEPS ${PRJXRAY_DB_DIR}/${PART}/tilegrid.json)
   list(APPEND CHANNELS_DEPS ${PRJXRAY_DB_DIR}/${PART}/tileconn.json)
 
@@ -309,6 +284,32 @@ function(PROJECT_XRAY_ARCH)
     )
 
   add_file_target(FILE channels.db GENERATED)
+
+  append_file_dependency(DEPS ${symbiflow-arch-defs_SOURCE_DIR}/xc7/archs/${PART}/pin_assignments.json)
+  append_file_dependency(DEPS channels.db)
+
+  string(REPLACE ";" "," TILE_TYPES_COMMA "${PROJECT_XRAY_ARCH_TILE_TYPES}")
+
+  add_custom_command(
+    OUTPUT arch.xml
+    COMMAND ${CMAKE_COMMAND} -E env PYTHONPATH=${PRJXRAY_DIR}:${symbiflow-arch-defs_SOURCE_DIR}/utils
+    ${PYTHON3} ${ARCH_IMPORT}
+      --part ${PROJECT_XRAY_ARCH_PART}
+      --connection_database ${CMAKE_CURRENT_BINARY_DIR}/channels.db
+      --output-arch ${CMAKE_CURRENT_BINARY_DIR}/arch.xml
+      --tile-types "${TILE_TYPES_COMMA}"
+      --pin_assignments ${PIN_ASSIGNMENTS}
+      --device ${DEVICE}
+      ${ROI_ARG}
+    DEPENDS
+    ${ARCH_IMPORT}
+    ${DEPS}
+    ${PYTHON3} ${PYTHON3_TARGET} simplejson
+    )
+
+  add_file_target(FILE arch.xml GENERATED)
+  get_file_target(ARCH_TARGET arch.xml)
+  set_target_properties(${ARCH_TARGET} PROPERTIES INCLUDE_FILES "${ARCH_INCLUDE_FILES}")
 endfunction()
 
 function(PROJECT_XRAY_PREPARE_DATABASE)
