@@ -44,6 +44,40 @@ now = datetime.datetime.now
 
 HCLK_CK_BUFHCLK_REGEX = re.compile('HCLK_CK_BUFHCLK[0-9]+')
 CASCOUT_REGEX = re.compile('BRAM_CASCOUT_ADDR((?:BWR)|(?:ARD))ADDRU([0-9]+)')
+CONNECTION_BOX_FILTER = re.compile('([^0-9]+)[0-9]*')
+
+
+def reduce_connection_box(box):
+    """ Reduce the number of connection boxes by merging some.
+
+    Examples:
+
+    >>> reduce_connection_box('IMUX0')
+    'IMUX'
+    >>> reduce_connection_box('IMUX1')
+    'IMUX'
+    >>> reduce_connection_box('IMUX10')
+    'IMUX'
+    >>> reduce_connection_box('BRAM_ADDR')
+    'IMUX'
+    >>> reduce_connection_box('A_L10')
+    'A'
+    >>> reduce_connection_box('B')
+    'B'
+    >>> reduce_connection_box('B_L')
+    'B'
+
+    """
+
+    box = CONNECTION_BOX_FILTER.match(box).group(1)
+
+    if 'BRAM_ADDR' in box:
+        box = 'IMUX'
+
+    if box.endswith('_L'):
+        box = box.replace('_L', '')
+
+    return box
 
 
 def check_feature(feature):
@@ -86,11 +120,53 @@ def check_feature(feature):
 PIN_NAME_TO_PARTS = re.compile(r'^([^\.]+)\.([^\]]+)\[0\]$')
 
 
-def import_graph_nodes(conn, graph, node_mapping):
+def set_connection_box(graph, node_idx, grid_x, grid_y, box_id):
+    """ Assign a connection box to an IPIN node. """
+    node_dict = graph.nodes[node_idx]._asdict()
+    node_dict['connection_box'] = graph2.ConnectionBox(
+        x=grid_x,
+        y=grid_y,
+        id=box_id,
+    )
+    graph.nodes[node_idx] = graph2.Node(**node_dict)
+
+
+def update_connection_box(
+        conn, graph, graph_node_pkey, node_idx, connection_box_map
+):
+    """ Update connection box of IPIN node if needed. """
+    cur = conn.cursor()
+
+    cur.execute(
+        """
+SELECT connection_box_wire_pkey
+FROM graph_node WHERE pkey = ?""", (graph_node_pkey, )
+    )
+
+    connection_box_wire_pkey = cur.fetchone()[0]
+    if connection_box_wire_pkey is not None:
+        cur.execute(
+            """
+SELECT grid_x, grid_y FROM phy_tile WHERE pkey = (
+    SELECT phy_tile_pkey FROM wire WHERE pkey = ?
+    )""", (connection_box_wire_pkey, )
+        )
+        grid_x, grid_y = cur.fetchone()
+
+        cur.execute(
+            "SELECT wire_in_tile_pkey FROM wire WHERE pkey = ?",
+            (connection_box_wire_pkey, )
+        )
+        wire_in_tile_pkey = cur.fetchone()[0]
+        box_id = connection_box_map[wire_in_tile_pkey]
+        set_connection_box(graph, node_idx, grid_x, grid_y, box_id)
+
+
+def import_graph_nodes(conn, graph, node_mapping, connection_box_map):
     cur = conn.cursor()
     tile_loc_to_pkey = {}
 
-    for node in graph.nodes:
+    for node_idx, node in enumerate(graph.nodes):
         if node.type not in (graph2.NodeType.IPIN, graph2.NodeType.OPIN):
             continue
 
@@ -100,6 +176,13 @@ def import_graph_nodes(conn, graph, node_mapping):
 
         # Synthetic blocks are handled below.
         if pin_name.startswith('SYN-'):
+            set_connection_box(
+                graph,
+                node_idx,
+                node.loc.x_low,
+                node.loc.y_low,
+                box_id=graph.maybe_add_connection_box('IMUX')
+            )
             continue
 
         m = PIN_NAME_TO_PARTS.match(pin_name)
@@ -168,15 +251,33 @@ SELECT site_pkey FROM site_as_tile WHERE pkey = ?;
         if side == tracks.Direction.LEFT:
             assert left_graph_node_pkey is not None, (tile_type, pin_name)
             node_mapping[left_graph_node_pkey] = node.id
+
+            update_connection_box(
+                conn, graph, left_graph_node_pkey, node_idx, connection_box_map
+            )
         elif side == tracks.Direction.RIGHT:
             assert right_graph_node_pkey is not None, (tile_type, pin_name)
             node_mapping[right_graph_node_pkey] = node.id
+
+            update_connection_box(
+                conn, graph, right_graph_node_pkey, node_idx,
+                connection_box_map
+            )
         elif side == tracks.Direction.TOP:
             assert top_graph_node_pkey is not None, (tile_type, pin_name)
             node_mapping[top_graph_node_pkey] = node.id
+
+            update_connection_box(
+                conn, graph, top_graph_node_pkey, node_idx, connection_box_map
+            )
         elif side == tracks.Direction.BOTTOM:
             assert bottom_graph_node_pkey is not None, (tile_type, pin_name)
             node_mapping[bottom_graph_node_pkey] = node.id
+
+            update_connection_box(
+                conn, graph, bottom_graph_node_pkey, node_idx,
+                connection_box_map
+            )
         else:
             assert False, side
 
@@ -193,8 +294,9 @@ def is_track_alive(conn, tile_pkey, roi, synth_tiles):
                            ) or tile in synth_tiles['tiles']
 
 
-def import_tracks(conn, alive_tracks, node_mapping, graph, segment_id):
+def import_tracks(conn, alive_tracks, node_mapping, graph, default_segment_id):
     cur = conn.cursor()
+    cur2 = conn.cursor()
     for (graph_node_pkey, track_pkey, graph_node_type, x_low, x_high, y_low,
          y_high, ptc, capacitance, resistance) in cur.execute("""
 SELECT
@@ -213,6 +315,19 @@ FROM
         if track_pkey not in alive_tracks:
             continue
 
+        cur2.execute(
+            """
+SELECT name FROM segment WHERE pkey = (
+    SELECT segment_pkey FROM track WHERE pkey = ?
+)""", (track_pkey, )
+        )
+        result = cur2.fetchone()
+        if result is not None:
+            segment_name = result[0]
+            segment_id = graph.get_segment_id_from_name(segment_name)
+        else:
+            segment_id = default_segment_id
+
         node_type = graph2.NodeType(graph_node_type)
 
         if node_type == graph2.NodeType.CHANX:
@@ -223,6 +338,17 @@ FROM
             y_low = max(y_low, 1)
         else:
             assert False, node_type
+
+        canonical_loc = None
+        cur2.execute(
+            """
+SELECT grid_x, grid_y FROM phy_tile WHERE pkey = (
+    SELECT canon_phy_tile_pkey FROM track WHERE pkey = ?
+    )""", (track_pkey, )
+        )
+        result = cur2.fetchone()
+        if result:
+            canonical_loc = graph2.CanonicalLoc(x=result[0], y=result[1])
 
         track = tracks.Track(
             direction=direction,
@@ -239,7 +365,8 @@ FROM
             timing=graph2.NodeTiming(
                 r=resistance,
                 c=capacitance,
-            )
+            ),
+            canonical_loc=canonical_loc
         )
 
 
@@ -506,6 +633,28 @@ def create_channels(conn):
     )
 
 
+def create_connection_boxes(conn, graph):
+    """ Assign connection box ids for all connection box types. """
+    cur = conn.cursor()
+    cur.execute(
+        """
+SELECT pkey, tile_type_pkey, name FROM wire_in_tile WHERE pkey IN (
+    SELECT DISTINCT wire_in_tile_pkey FROM wire WHERE pkey IN (
+        SELECT connection_box_wire_pkey FROM graph_node
+        WHERE connection_box_wire_pkey IS NOT NULL
+    )
+);"""
+    )
+
+    connection_box_map = {}
+    for wire_in_tile_pkey, tile_type_pkey, wire_name in cur:
+        connection_box_map[wire_in_tile_pkey] = graph.maybe_add_connection_box(
+            reduce_connection_box(wire_name)
+        )
+
+    return connection_box_map
+
+
 def yield_nodes(nodes):
     with progressbar_utils.ProgressBar(max_value=len(nodes)) as bar:
         for idx, node in enumerate(nodes):
@@ -513,6 +662,17 @@ def yield_nodes(nodes):
 
             if idx % 1024 == 0:
                 bar.update(idx)
+
+
+def phy_grid_dims(conn):
+    """ Returns physical grid dimensions. """
+    cur = conn.cursor()
+    cur.execute("SELECT grid_x FROM phy_tile ORDER BY grid_x DESC LIMIT 1;")
+    x_max = cur.fetchone()[0]
+    cur.execute("SELECT grid_y FROM phy_tile ORDER BY grid_y DESC LIMIT 1;")
+    y_max = cur.fetchone()[0]
+
+    return x_max + 1, y_max + 1
 
 
 def main():
@@ -622,9 +782,12 @@ FROM
         # Mapping of graph_node.pkey to rr node id.
         node_mapping = {}
 
+        print('{} Creating connection box list'.format(now()))
+        connection_box_map = create_connection_boxes(conn, graph)
+
         # Match site pins rr nodes with graph_node's in the connection_database.
         print('{} Importing graph nodes'.format(now()))
-        import_graph_nodes(conn, graph, node_mapping)
+        import_graph_nodes(conn, graph, node_mapping, connection_box_map)
 
         # Walk all track graph nodes and add them.
         print('{} Creating tracks'.format(now()))
@@ -642,12 +805,18 @@ FROM
         print('{} Creating channels.'.format(now()))
         channels_obj = create_channels(conn)
 
+        x_dim, y_dim = phy_grid_dims(conn)
+        connection_box_obj = graph.create_connection_box_object(
+            x_dim=x_dim, y_dim=y_dim
+        )
+
         print('{} Serializing to disk.'.format(now()))
         with xml_graph:
             xml_graph.start_serialize_to_xml(
                 tool_version=tool_version,
                 tool_comment=tool_comment,
                 channels_obj=channels_obj,
+                connection_box_obj=connection_box_obj,
             )
 
             xml_graph.serialize_nodes(yield_nodes(xml_graph.graph.nodes))

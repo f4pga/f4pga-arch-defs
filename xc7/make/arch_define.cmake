@@ -19,15 +19,19 @@ function(ADD_XC7_ARCH_DEFINE)
     DEVICE_FULL_TEMPLATE \${DEVICE}-\${PACKAGE}
     CELLS_SIM ${YOSYS_DATADIR}/xilinx/cells_sim.v ${symbiflow-arch-defs_SOURCE_DIR}/xc7/techmap/cells_sim.v
     VPR_ARCH_ARGS "\
+      --max_criticality 0.9 \
       --clock_modeling route \
-      --place_algorithm bounding_box \
-      --enable_timing_computations off \
-      --allow_unrelated_clustering on \
+      --place_delay_model delta_override \
+      --router_lookahead connection_box_map \
       --clustering_pin_feasibility_filter off \
       --disable_check_route on \
       --strict_checks off \
       --allow_dangling_combinational_nodes on \
       --disable_errors check_unbuffered_edges:check_route \
+      --congested_routing_iteration_threshold 0.8 \
+      --timing_tradeoff 0.6 \
+      --astar_fac 1.0 \
+      --bb_factor 10 \
       --suppress_warnings \${OUT_NOISY_WARNINGS},sum_pin_class:check_unbuffered_edges:load_rr_indexed_data_T_values:check_rr_node:trans_per_R"
     RR_PATCH_TOOL
       ${symbiflow-arch-defs_SOURCE_DIR}/xc7/utils/prjxray_routing_import.py
