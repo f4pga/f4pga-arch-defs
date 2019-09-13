@@ -19,6 +19,11 @@ action {
     # File types
     regex: "**/*result*.xml"
     regex: "**/*sponge_log.xml"
+    regex: "**/.ninja_log"
+    regex: "**/pack.log"
+    regex: "**/place.log"
+    regex: "**/route.log"
+    regex: "**/*_qor.csv"
     strip_prefix: "github/symbiflow-arch-defs-%(kokoro_type)s-%(arch)s/"
   }
 }

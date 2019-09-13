@@ -9,7 +9,7 @@ clean:
 env:
 	git submodule init
 	git submodule update --init --recursive
-	mkdir -p build && cd build && cmake ..
+	mkdir -p build && cd build && cmake ${CMAKE_FLAGS} ..
 
 build/Makefile:
 	make env
