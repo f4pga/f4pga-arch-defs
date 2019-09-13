@@ -18,3 +18,5 @@ echo "----------------------------------------"
 	make print_qor > ice40_qor.csv
 )
 echo "----------------------------------------"
+
+source ${SCRIPT_DIR}/package_results.sh
