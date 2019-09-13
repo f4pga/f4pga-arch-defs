@@ -137,14 +137,18 @@ class ModelXml(object):
             nsmap={'xi': XI_URL},
         )
         self.site_model = site_directory + "/{0}/{1}.model.xml"
+        self.includes = set()
 
     def add_model_include(self, site_type, instance_name):
+        href = self.site_model.format(site_type.lower(), instance_name.lower())
+
+        if href in self.includes:
+            return
+        self.includes.add(href)
+
         ET.SubElement(
             self.model_xml, XI_INCLUDE, {
-                'href':
-                    self.site_model.format(
-                        site_type.lower(), instance_name.lower()
-                    ),
+                'href': href,
                 'xpointer':
                     "xpointer(models/child::node())"
             }
@@ -271,6 +275,52 @@ def start_pb_type(tile_name, import_tiles, f_pin_assignments, input_wires, outpu
 def site_id(site):
     return site.type + "." + site.name
 
+
+def gen_site_suffix_map(sites, args):
+    """
+    Generates a map of site suffix format basing on existence of varying 
+    X and Y coordinates of site types.
+
+    If there is only one site of a given type then the suffix is _X{x}.
+    Will always be _X0.
+
+    When there is difference in Y coordinates then the suffix is _Y{y}.
+
+    When there are differencies in both X and Y then the suffix is _X{x}Y{y}
+    """
+
+    xs = {}
+    ys = {}
+
+    for site in sites:
+
+        if site.type not in xs:
+            xs[site.type] = set()
+        if site.type not in ys:
+            ys[site.type] = set()
+
+        xs[site.type].add(site.x)
+        ys[site.type].add(site.y)
+
+    suffix_map = {}
+
+    for site in sites:
+
+        assert len(xs[site.type]) >= 1
+        assert len(ys[site.type]) >= 1
+
+        if len(xs[site.type]) >= 1 and len(ys[site.type]) == 1:
+            suffix_map[site.type] = "_X{x}"
+        elif len(xs[site.type]) == 1 and len(ys[site.type]) > 1:
+            suffix_map[site.type] = "_Y{y}"
+        elif len(xs[site.type]) > 1 and len(ys[site.type]) > 1:
+            suffix_map[site.type] = "_X{x}Y{y}"
+        else:
+            assert False, (len(xs[site.type]), len(ys[site.type]),)
+
+    return suffix_map
+
+
 def import_tile(db, args):
     """ Create a root-level pb_type with the pin names that match tile wires.
 
@@ -285,6 +335,10 @@ def import_tile(db, args):
         import_tiles = {args.tile}
 
     sites = reduce(lambda acc, tile: acc + list(db.get_tile_type(tile).get_sites()), import_tiles, [])
+
+    # Generate site name suffix map
+    site_suffix_map = gen_site_suffix_map(sites, args)
+    print(site_suffix_map)
 
     # Wires sink to a site within the tile are input wires.
     input_wires = set()
@@ -422,7 +476,9 @@ def import_tile(db, args):
             cell_idx = site_type_count[site.type]
             cells_idx[site_id(site)] = cell_idx
             site_type_count[site.type] += 1
-            site_prefix = '{}_X{}'.format(site.type, site.x)
+
+            site_prefix = ('{type}' + site_suffix_map[site.type]).format(
+                type=site.type, x=site.x, y=site.y)
 
             site_instance = site_type_instances[site.type][cell_idx]
 
