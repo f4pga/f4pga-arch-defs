@@ -18,3 +18,5 @@ echo "----------------------------------------"
 	ninja print_qor > xc7_qor.csv
 )
 echo "----------------------------------------"
+
+source ${SCRIPT_DIR}/package_results.sh

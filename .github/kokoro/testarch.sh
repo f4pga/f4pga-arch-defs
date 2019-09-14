@@ -17,3 +17,5 @@ echo "----------------------------------------"
 	make -k ${MAKE_ARGS} all_testarch || make all_testarch
 )
 echo "----------------------------------------"
+
+source ${SCRIPT_DIR}/package_results.sh
