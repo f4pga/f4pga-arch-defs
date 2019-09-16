@@ -15,3 +15,9 @@ CARRY4 _TECHMAP_REPLACE_ (
 );
 
 endmodule
+
+module CARRY_COUT_PLUG(input CIN, output COUT);
+
+assign COUT = CIN;
+
+endmodule
