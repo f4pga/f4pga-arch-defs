@@ -3,10 +3,10 @@
   <clock name="CLK" num_pins="1"/>
   <input name="I" num_pins="4"/>
   <output name="O" num_pins="1"/>
-  <pb_type blif_model=".subckt DFF" name="ff" num_pb="1">
+  <pb_type name="ff" num_pb="1">
     <xi:include href="ff/ff.pb_type.xml" xpointer="xpointer(pb_type/child::node())"/>
   </pb_type>
-  <pb_type blif_model=".subckt LUT4" name="lut" num_pb="1">
+  <pb_type name="lut" num_pb="1">
     <xi:include href="lut/lut4.pb_type.xml" xpointer="xpointer(pb_type/child::node())"/>
   </pb_type>
   <interconnect>
