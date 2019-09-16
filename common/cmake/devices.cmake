@@ -573,14 +573,15 @@ function(DEFINE_DEVICE)
       endif()
 
       add_custom_command(
-        OUTPUT ${OUTPUTS}
+        OUTPUT ${OUT_RRXML_REAL}.cache ${OUTPUTS}
         DEPENDS
             ${symbiflow-arch-defs_SOURCE_DIR}/common/wire.eblif
             ${VPR} ${VPR_TARGET}
             ${QUIET_CMD} ${QUIET_CMD_TARGET}
             ${DEFINE_DEVICE_DEVICE_TYPE}
-            ${DEPS}
+            ${DEPS} ${PYTHON3} ${PYTHON3_TARGET}
         COMMAND
+            ${PYTHON3} ${symbiflow-arch-defs_SOURCE_DIR}/utils/check_cache.py ${OUT_RRXML_REAL} ${OUT_RRXML_REAL}.cache ${OUTPUTS} || (
             ${QUIET_CMD} ${VPR} ${DEVICE_MERGED_FILE}
             --device ${DEVICE_FULL}
             ${symbiflow-arch-defs_SOURCE_DIR}/common/wire.eblif
@@ -589,7 +590,8 @@ function(DEFINE_DEVICE)
             --pack
             --place
             ${ARGS}
-            ${DEFINE_DEVICE_CACHE_ARGS}
+            ${DEFINE_DEVICE_CACHE_ARGS} &&
+            ${PYTHON3} ${symbiflow-arch-defs_SOURCE_DIR}/utils/update_cache.py ${OUT_RRXML_REAL} ${OUT_RRXML_REAL}.cache)
         COMMAND
             ${CMAKE_COMMAND} -E copy vpr_stdout.log
               rr_graph_${DEVICE}_${PACKAGE}.cache.out
