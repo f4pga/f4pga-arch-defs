@@ -66,4 +66,12 @@ add_vivado_target(
     CLOCK_PERIODS 20.0
     )
 
+add_vivado_pnr_target(
+    NAME picosoc_basys3_vivado_pnr
+    PARENT_NAME picosoc_basys3
+    CLOCK_PINS clk
+    CLOCK_PERIODS 20.0
+    IOSTANDARD LVCMOS33
+    )
+
 endif (NOT DEFINED ENV{CI} OR NOT $ENV{CI})

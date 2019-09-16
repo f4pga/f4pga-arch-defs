@@ -32,4 +32,12 @@ foreach(type 64x1d 32m 64m)
       CLOCK_PINS clk
       CLOCK_PERIODS 10.0
       )
+
+  add_vivado_pnr_target(
+      NAME dram_test_${type}_vivado_pnr
+      PARENT_NAME dram_test_${type}
+      CLOCK_PINS clk
+      CLOCK_PERIODS 10.0
+      IOSTANDARD LVCMOS33
+      )
 endforeach()

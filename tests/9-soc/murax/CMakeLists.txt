@@ -39,5 +39,13 @@ add_vivado_target(
     CLOCK_PINS io_mainClk
     CLOCK_PERIODS 10.0
     )
+
+add_vivado_pnr_target(
+    NAME murax_basys_vivado_pnr
+    PARENT_NAME murax_basys
+    CLOCK_PINS io_mainClk
+    CLOCK_PERIODS 10.0
+    IOSTANDARD LVCMOS33
+    )
 endif (NOT DEFINED ENV{CI} OR NOT $ENV{CI})
 
