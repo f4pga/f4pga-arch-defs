@@ -1100,6 +1100,8 @@ function(ADD_FPGA_TARGET)
     append_file_dependency(IO_DEPS ${ADD_FPGA_TARGET_INPUT_IO_FILE})
     append_file_dependency(IO_DEPS ${PINMAP_FILE})
 
+    set_target_properties(${NAME} PROPERTIES
+        INPUT_IO_FILE ${ADD_FPGA_TARGET_INPUT_IO_FILE})
 
     # Set variables for the string(CONFIGURE) below.
     set(OUT_IO ${OUT_LOCAL}/${TOP}_io.place)
