@@ -1001,7 +1001,6 @@ function(ADD_FPGA_TARGET)
     )
 
     add_output_to_fpga_target(${NAME} IO_PLACE ${OUT_IO_REL})
-    append_file_dependency(VPR_DEPS ${OUT_IO_REL})
 
     set(FIX_PINS_ARG --fix_pins ${OUT_IO})
   endif()
@@ -1044,7 +1043,7 @@ function(ADD_FPGA_TARGET)
   set(OUT_PLACE ${OUT_LOCAL}/${TOP}.place)
   add_custom_command(
     OUTPUT ${OUT_PLACE}
-    DEPENDS ${OUT_NET} ${VPR_DEPS}
+    DEPENDS ${OUT_NET} ${VPR_DEPS} ${OUT_IO_REL}
     COMMAND ${VPR_CMD} ${FIX_PINS_ARG} --place
     COMMAND
       ${CMAKE_COMMAND} -E copy ${OUT_LOCAL}/vpr_stdout.log
@@ -1055,7 +1054,7 @@ function(ADD_FPGA_TARGET)
   set(ECHO_OUT_PLACE ${OUT_LOCAL}/echo/${TOP}.place)
   add_custom_command(
     OUTPUT ${ECHO_OUT_PLACE}
-    DEPENDS ${ECHO_OUT_NET} ${VPR_DEPS}
+    DEPENDS ${ECHO_OUT_NET} ${VPR_DEPS} ${OUT_IO_REL}
     COMMAND ${VPR_CMD} ${FIX_PINS_ARG} --echo_file on --place
     COMMAND
       ${CMAKE_COMMAND} -E copy ${OUT_LOCAL}/echo/vpr_stdout.log
@@ -1067,7 +1066,7 @@ function(ADD_FPGA_TARGET)
   # -------------------------------------------------------------------------
   add_custom_command(
     OUTPUT ${OUT_ROUTE}
-    DEPENDS ${OUT_PLACE} ${VPR_DEPS}
+    DEPENDS ${OUT_PLACE} ${VPR_DEPS} ${OUT_IO_REL}
     COMMAND ${VPR_CMD} --route
     COMMAND
       ${CMAKE_COMMAND} -E copy ${OUT_LOCAL}/vpr_stdout.log
@@ -1081,7 +1080,7 @@ function(ADD_FPGA_TARGET)
   set(ECHO_ATOM_NETLIST_CLEANED ${OUT_LOCAL}/echo/atom_netlist.cleaned.echo.blif)
   add_custom_command(
     OUTPUT ${ECHO_ATOM_NETLIST_ORIG} ${ECHO_ATOM_NETLIST_CLEANED}
-    DEPENDS ${ECHO_OUT_PLACE} ${VPR_DEPS} ${ECHO_DIRECTORY_TARGET}
+    DEPENDS ${ECHO_OUT_PLACE} ${VPR_DEPS} ${OUT_IO_REL} ${ECHO_DIRECTORY_TARGET}
     COMMAND ${VPR_CMD} --echo_file on --route
     COMMAND
       ${CMAKE_COMMAND} -E copy ${OUT_LOCAL}/echo/vpr_stdout.log
@@ -1132,7 +1131,7 @@ function(ADD_FPGA_TARGET)
     set(OUT_FASM ${OUT_LOCAL}/${TOP}.fasm)
     add_custom_command(
       OUTPUT ${OUT_FASM}
-      DEPENDS ${OUT_ROUTE} ${OUT_PLACE} ${VPR_DEPS} ${GENFASM_TARGET}
+      DEPENDS ${OUT_ROUTE} ${OUT_PLACE} ${VPR_DEPS} ${OUT_IO_REL} ${GENFASM_TARGET}
       COMMAND ${GENFASM_CMD}
       COMMAND
         ${CMAKE_COMMAND} -E copy ${OUT_LOCAL}/vpr_stdout.log
@@ -1146,7 +1145,7 @@ function(ADD_FPGA_TARGET)
     set(OUT_HLC ${OUT_LOCAL}/${TOP}.hlc)
     add_custom_command(
       OUTPUT ${OUT_HLC}
-      DEPENDS ${OUT_ROUTE} ${OUT_PLACE} ${VPR_DEPS} ${GENHLC_TARGET}
+      DEPENDS ${OUT_ROUTE} ${OUT_PLACE} ${VPR_DEPS} ${OUT_IO_REL} ${GENHLC_TARGET}
       COMMAND ${GENHLC_CMD}
       COMMAND
         ${CMAKE_COMMAND} -E copy ${OUT_LOCAL}/vpr_stdout.log
@@ -1163,7 +1162,7 @@ function(ADD_FPGA_TARGET)
   set(OUT_POST_SYNTHESIS_BLIF ${OUT_LOCAL}/top_post_synthesis.blif)
   add_custom_command(
     OUTPUT ${OUT_ANALYSIS} ${OUT_POST_SYNTHESIS_V} ${OUT_POST_SYNTHESIS_BLIF}
-    DEPENDS ${OUT_ROUTE} ${VPR_DEPS}
+    DEPENDS ${OUT_ROUTE} ${VPR_DEPS} ${OUT_IO_REL}
     COMMAND ${VPR_CMD} --analysis --gen_post_synthesis_netlist on
     COMMAND ${CMAKE_COMMAND} -E copy ${OUT_LOCAL}/vpr_stdout.log
         ${OUT_LOCAL}/analysis.log
