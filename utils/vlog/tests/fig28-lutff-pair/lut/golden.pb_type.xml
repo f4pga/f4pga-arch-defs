@@ -4,6 +4,6 @@
   <input name="I" num_pins="4"/>
   <output name="O" num_pins="1"/>
   <delay_matrix in_port="LUT4.I" out_port="LUT4.O" type="max">
-30e-12 30e-12 30e-12 30e-12
+30e-12 20e-12 11e-12 3e-12
 </delay_matrix>
 </pb_type>
