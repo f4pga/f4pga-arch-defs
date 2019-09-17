@@ -7,7 +7,7 @@
 /* DSP Block with register on both the inputs and the output */
 (* MODES="REGISTERED_NONE; REGISTERED_IN; REGISTERED_OUT; REGISTERED_INOUT; REGISTERED_PARTIAL" *)
 module DSP_MODES (clk, a, b, m, out);
-	localparam DATA_WIDTH = 64;
+	localparam DATA_WIDTH = 4;
 
 	parameter MODE = "REGISTERED_INOUT";
 

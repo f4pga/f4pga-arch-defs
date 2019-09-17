@@ -3,7 +3,7 @@
 
 /* DSP Block with register on both the inputs and the output, which use different clocks */
 module DSP_INOUT_REGISTERED_DUALCLK (iclk, oclk, a, b, m, out);
-	localparam DATA_WIDTH = 64;
+	localparam DATA_WIDTH = 4;
 
 	input wire iclk;
 	input wire oclk;

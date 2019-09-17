@@ -3,7 +3,7 @@
 
 /* DSP Block with register on all inputs */
 module DSP_IN_REGISTERED (clk, a, b, m, out);
-	localparam DATA_WIDTH = 64;
+	localparam DATA_WIDTH = 4;
 
 	input wire clk;
 	input wire [DATA_WIDTH/2-1:0] a;
