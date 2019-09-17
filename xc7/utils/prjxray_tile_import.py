@@ -394,7 +394,9 @@ def import_tile(db, args):
             if not args.both_site_coords:
                 site_prefix = '{}_X{}'.format(site.type, site.x)
             else:
-                site_prefix = '{}.{}_X{}Y{}'.format(site.type, site.type, site.x, site.y)
+                site_prefix = '{}.{}_X{}Y{}'.format(
+                    site.type, site.type, site.x, site.y
+                )
 
             site_instance = site_type_instances[site.type][cells_idx[idx]]
 
