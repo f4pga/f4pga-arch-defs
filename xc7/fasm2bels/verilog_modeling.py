@@ -291,7 +291,9 @@ def flatten_wires(wire, wire_assigns, wire_name_net_map):
         if wire not in wire_assigns:
             break
 
-        wire = wire_assigns[wire]
+        wires = wire_assigns[wire]
+        assert len(wires) == 1, wires
+        wire = wires[0]
 
     if wire in wire_name_net_map:
         return wire_name_net_map[wire]
@@ -581,9 +583,16 @@ class Site(object):
     to at least one BEL.  If this is not done, antenna nets may be emitted
     during routing formation, which will result in a DRC violation.
 
+    Parameters
+    ----------
+    merged_site : bool
+        Set to true if this site spans multiple sites (e.g. BRAM36 spans
+        BRAM18_Y0 and BRAM18_Y1), versus a SLICEL, which stays within its
+        SLICE_X0.
+
     """
 
-    def __init__(self, features, site, tile=None):
+    def __init__(self, features, site, tile=None, merged_site=False):
         self.bels = []
         self.sinks = {}
         self.sources = {}
@@ -602,10 +611,15 @@ class Site(object):
             if f.value == 0:
                 continue
 
-            parts = f.feature.split('.')
-            assert parts[0] == aparts[0]
-            assert parts[1] == aparts[1]
-            self.set_features.add('.'.join(parts[2:]))
+            if merged_site:
+                parts = f.feature.split('.')
+                assert parts[0] == aparts[0]
+                self.set_features.add('.'.join(parts[1:]))
+            else:
+                parts = f.feature.split('.')
+                assert parts[0] == aparts[0]
+                assert parts[1] == aparts[1]
+                self.set_features.add('.'.join(parts[2:]))
 
         if tile is None:
             self.tile = aparts[0]
@@ -641,6 +655,56 @@ class Site(object):
         bel.connections[bel_pin] = sink
         self.sinks[sink].append((bel, bel_pin))
 
+    def mask_sink(self, bel, bel_pin):
+        """ Mark a BEL pin as not visible in the Verilog.
+
+        This bel_pin is effectively removed from the Verilog output, but
+        may still be routed too during FIXED_ROUTE emission.
+        """
+        assert bel_pin in bel.connections
+
+        sink = bel.connections[bel_pin]
+
+        sink_idx = None
+        for idx, (a_bel, a_bel_pin) in enumerate(self.sinks[sink]):
+            if a_bel is bel and bel_pin == a_bel_pin:
+                assert sink_idx is None
+                sink_idx = idx
+
+        assert sink_idx is not None, (bel, bel_pin, sink)
+        self.sinks[sink][sink_idx] = None
+        del bel.connections[bel_pin]
+
+    def rename_sink(self, bel, old_bel_pin, new_bel_pin):
+        """ Rename a BEL sink from one pin name to another.
+
+        new_bel_pin may be a mask'd sink BEL pin.
+
+        """
+        self.move_sink(bel, old_bel_pin, bel, new_bel_pin)
+
+    def move_sink(self, old_bel, old_bel_pin, new_bel, new_bel_pin):
+        """ Moves sink from one BEL in site to another BEL in site.
+
+        new_bel_pin may be a mask'd sink BEL pin.
+
+        """
+        assert old_bel_pin in old_bel.connections
+        assert new_bel_pin not in new_bel.connections
+
+        new_bel.connections[new_bel_pin] = old_bel.connections[old_bel_pin]
+        sink = old_bel.connections[old_bel_pin]
+        del old_bel.connections[old_bel_pin]
+
+        sink_idx = None
+        for idx, (a_bel, a_bel_pin) in enumerate(self.sinks[sink]):
+            if a_bel is old_bel and a_bel_pin == old_bel_pin:
+                assert sink_idx is None
+                sink_idx = idx
+
+        assert sink_idx is not None, (old_bel, old_bel_pin, sink)
+        self.sinks[sink][sink_idx] = (new_bel, new_bel_pin)
+
     def add_source(self, bel, bel_pin, source):
         """ Adds a source.
 
@@ -661,6 +725,30 @@ class Site(object):
         bel.connections[bel_pin] = source
         bel.outputs.add(bel_pin)
         self.sources[source] = (bel, bel_pin)
+
+    def rename_source(self, bel, old_bel_pin, new_bel_pin):
+        """ Rename a BEL source from one pin name to another.
+
+        new_bel_pin may be a mask'd source BEL pin.
+
+        """
+        self.move_source(bel, old_bel_pin, bel, new_bel_pin)
+
+    def move_source(self, old_bel, old_bel_pin, new_bel, new_bel_pin):
+        """ Moves source from one BEL in site to another BEL in site.
+
+        new_bel_pin may be a mask'd source BEL pin.
+
+        """
+        assert old_bel_pin in old_bel.connections
+        assert new_bel_pin not in new_bel.connections
+
+        source = old_bel.connections[old_bel_pin]
+        a_bel, a_bel_pin = self.sources[source]
+        assert a_bel is old_bel
+        assert a_bel_pin == old_bel_pin
+
+        self.sources[source] = (new_bel, new_bel_pin)
 
     def add_output_from_internal(self, source, internal_source):
         """ Adds a source from a site internal source.
@@ -842,7 +930,7 @@ class Site(object):
             wire_source = prefix + '_' + sink_wire
             wire = prefix + '_' + source_wire
             wires.add(wire)
-            wire_assigns[wire] = wire_source
+            wire_assigns[wire] = [wire_source]
 
             # If this is a passthrough wire, then indicate that allow the net
             # is be merged.
@@ -1229,7 +1317,10 @@ class Module(object):
                 nets=self.nets,
                 net_map=self.net_map,
         ):
-            self.wire_assigns[sink_wire] = src_wire
+            if sink_wire not in self.wire_assigns:
+                self.wire_assigns[sink_wire] = []
+
+            self.wire_assigns[sink_wire].append(src_wire)
 
         self.handle_post_route_cleanup()
 
@@ -1283,8 +1374,9 @@ class Module(object):
                 bel.make_net_map(top=self, net_map=self.wire_name_net_map)
 
         for lhs, rhs in self.wire_assigns.items():
+            assert len(rhs) == 1
             self.wire_name_net_map[lhs] = flatten_wires(
-                rhs, self.wire_assigns, self.wire_name_net_map
+                rhs[0], self.wire_assigns, self.wire_name_net_map
             )
 
         for site in self.sites:
@@ -1389,9 +1481,39 @@ set_property FIXED_ROUTE $route $net"""
 
         source_wire = self.wire_pkey_to_wire[wire_pkey]
 
-        for sink_wire, other_source_wire in self.wire_assigns.items():
-            if source_wire == other_source_wire:
-                yield sink_wire
+        for sink_wire, other_source_wires in self.wire_assigns.items():
+            for other_source_wire in other_source_wires:
+                if source_wire == other_source_wire:
+                    yield sink_wire
+
+    def find_sources_from_sink(self, site, site_wire):
+        """ Return all source wire names from a site wire sink. """
+        wire_pkey = site.site_wire_to_wire_pkey[site_wire]
+        sink_wire = self.wire_pkey_to_wire[wire_pkey]
+        return self.wire_assigns[sink_wire]
+
+    def find_source_from_sink(self, site, site_wire):
+        """ Return source wire name from a site wire sink.
+
+        Raises
+        ------
+            AssertionError : If multiple sources are currently defined for
+            this sink. """
+        sources = self.find_sources_from_sink(site, site_wire)
+        assert len(sources) == 1, sources
+        return sources[0]
+
+    def remove_site(self, site):
+        site_idx = None
+        for idx, a_site in enumerate(self.sites):
+            if site is a_site:
+                assert site_idx is None
+                site_idx = idx
+
+        assert site_idx is not None
+
+        for bel in site.bels:
+            self.remove_bel(site, bel)
 
     def remove_bel(self, site, bel):
         """ Remove a BEL from the module.
@@ -1402,12 +1524,16 @@ set_property FIXED_ROUTE $route $net"""
 
         removed_sinks, removed_sources = site.remove_bel(bel)
 
-        # Make sure none of the sources are in use.
+        # Make sure none of the sources are the only source for a net.
         for wire_pkey in removed_sources:
             source_wire = self.wire_pkey_to_wire[wire_pkey]
 
-            for _, other_source_wire in self.wire_assigns.items():
-                assert source_wire != other_source_wire, source_wire
+            for _, other_source_wires in self.wire_assigns.items():
+                if source_wire in other_source_wires:
+                    if len(other_source_wires) == 1:
+                        assert source_wire != other_source_wires[0], source_wire
+                    else:
+                        other_source_wires.remove(source_wire)
 
         # Remove the sources and sinks from the wires, wire assigns, and net
         for wire_pkey in removed_sources:
@@ -1419,7 +1545,6 @@ set_property FIXED_ROUTE $route $net"""
         self.unrouted_sources.remove(wire_pkey)
         del self.source_bels[wire_pkey]
         self.wires.remove(self.wire_pkey_to_wire[wire_pkey])
-        source_wire = self.wire_pkey_to_wire[wire_pkey]
 
     def remove_sink(self, wire_pkey):
         self.unrouted_sinks.remove(wire_pkey)
@@ -1446,9 +1571,10 @@ set_property FIXED_ROUTE $route $net"""
         def is_used(port):
             if port in self.wire_assigns:
                 return True
-            for other_wire in self.wire_assigns.values():
-                if other_wire == port:
-                    return True
+            for other_wires in self.wire_assigns.values():
+                for other_wire in other_wires:
+                    if other_wire == port:
+                        return True
             return False
 
         # Remove
