@@ -10,6 +10,7 @@ date
 cd build
 find -name "*result*.xml" \
     -o -name "*sponge_log.xml" \
+    -o -name ".ninja_log" \
     -o -name "pack.log" \
     -o -name "place.log" \
     -o -name "route.log" \
