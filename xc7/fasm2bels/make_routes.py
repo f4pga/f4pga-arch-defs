@@ -154,7 +154,10 @@ class Net(object):
         self.parent_nodes[node_pkey] = parent_node_pkey
 
         for wire_pkey in get_wires_in_node(conn, node_pkey):
-            net_map[wire_pkey] = self.source_wire_pkey
+            if wire_pkey not in net_map:
+                net_map[wire_pkey] = set()
+
+            net_map[wire_pkey].add(self.source_wire_pkey)
             self.route_wire_pkeys.add(wire_pkey)
 
     def expand_source(self, conn, check_downstream_default, net_map):
@@ -453,15 +456,16 @@ def expand_sink(
                         )
                     )
 
-                nets[net_map[upstream_sink_wire_pkey]].add_node(
-                    conn=conn,
-                    net_map=net_map,
-                    node_pkey=sink_node_pkey,
-                    parent_node_pkey=get_node_pkey(
-                        conn, upstream_sink_wire_pkey
-                    ),
-                    incoming_wire_pkey=node_wire_pkey
-                )
+                for net in net_map[upstream_sink_wire_pkey]:
+                    nets[net].add_node(
+                        conn=conn,
+                        net_map=net_map,
+                        node_pkey=sink_node_pkey,
+                        parent_node_pkey=get_node_pkey(
+                            conn, upstream_sink_wire_pkey
+                        ),
+                        incoming_wire_pkey=node_wire_pkey
+                    )
                 return
 
     # There are no active pips upstream from this node, check if this is a
@@ -479,15 +483,16 @@ def expand_sink(
             )
 
             if upstream_sink_wire_pkey in net_map:
-                nets[net_map[upstream_sink_wire_pkey]].add_node(
-                    conn=conn,
-                    net_map=net_map,
-                    node_pkey=sink_node_pkey,
-                    parent_node_pkey=get_node_pkey(
-                        conn, upstream_sink_wire_pkey
-                    ),
-                    incoming_wire_pkey=sink_wire_pkey,
-                )
+                for net in net_map[upstream_sink_wire_pkey]:
+                    nets[net].add_node(
+                        conn=conn,
+                        net_map=net_map,
+                        node_pkey=sink_node_pkey,
+                        parent_node_pkey=get_node_pkey(
+                            conn, upstream_sink_wire_pkey
+                        ),
+                        incoming_wire_pkey=sink_wire_pkey,
+                    )
                 return
 
         c.execute(
@@ -565,15 +570,16 @@ SELECT site_pin_pkey FROM wire_in_tile WHERE pkey = (
                         )
                     )
 
-                nets[net_map[upstream_sink_wire_pkey]].add_node(
-                    conn=conn,
-                    net_map=net_map,
-                    node_pkey=sink_node_pkey,
-                    parent_node_pkey=get_node_pkey(
-                        conn, upstream_sink_wire_pkey
-                    ),
-                    incoming_wire_pkey=node_wire_pkey
-                )
+                for net in net_map[upstream_sink_wire_pkey]:
+                    nets[net].add_node(
+                        conn=conn,
+                        net_map=net_map,
+                        node_pkey=sink_node_pkey,
+                        parent_node_pkey=get_node_pkey(
+                            conn, upstream_sink_wire_pkey
+                        ),
+                        incoming_wire_pkey=node_wire_pkey
+                    )
                 return
 
     # There does not appear to be an upstream connection, handle it.
@@ -677,15 +683,14 @@ def make_routes(
         )
 
         if wire_pkey in net_map:
-            source_wire_pkey = net_map[wire_pkey]
-
-            if source_wire_pkey == ZERO_NET:
-                yield wire_pkey_to_wire[wire_pkey], 0
-            elif source_wire_pkey == ONE_NET:
-                yield wire_pkey_to_wire[wire_pkey], 1
-            else:
-                yield wire_pkey_to_wire[wire_pkey
-                                        ], wire_pkey_to_wire[source_wire_pkey]
+            for source_wire_pkey in net_map[wire_pkey]:
+                if source_wire_pkey == ZERO_NET:
+                    yield wire_pkey_to_wire[wire_pkey], 0
+                elif source_wire_pkey == ONE_NET:
+                    yield wire_pkey_to_wire[wire_pkey], 1
+                else:
+                    yield wire_pkey_to_wire[wire_pkey], wire_pkey_to_wire[
+                        source_wire_pkey]
         else:
             if allow_orphan_sinks:
                 print(
