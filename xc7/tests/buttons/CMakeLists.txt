@@ -1,4 +1,11 @@
 add_fpga_target(
+  NAME buttons_arty
+  BOARD arty-swbut
+  SOURCES buttons_arty.v
+  INPUT_IO_FILE arty.pcf
+  )
+
+ add_fpga_target(
   NAME buttons_basys3
   BOARD basys3
   SOURCES buttons_basys3.v
