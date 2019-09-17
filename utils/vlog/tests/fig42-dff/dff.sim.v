@@ -9,7 +9,6 @@ module DFF (D, CLK, Q);
 
 	(* CLK_TO_Q="CLK 10e-12" *)
 	output reg Q;
-	(* ASSOC_CLOCK="CLK" *)
 
 	always @ ( posedge CLK ) begin
 		Q <= D;
