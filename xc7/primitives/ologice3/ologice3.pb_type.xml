@@ -1,0 +1,44 @@
+<!-- set: ai sw=1 ts=1 sta et -->
+<pb_type name="OLOGICE3" num_pb="1">
+  <input name="CLK" num_pins="1"/>
+  <input name="CLKB" num_pins="1"/>
+  <input name="CLKDIV" num_pins="1"/>
+  <input name="CLKDIVB" num_pins="1"/>
+  <input name="CLKDIVF" num_pins="1"/>
+  <input name="CLKDIVFB" num_pins="1"/>
+  <input name="D1" num_pins="1"/>
+  <input name="D2" num_pins="1"/>
+  <input name="D3" num_pins="1"/>
+  <input name="D4" num_pins="1"/>
+  <input name="D5" num_pins="1"/>
+  <input name="D6" num_pins="1"/>
+  <input name="D7" num_pins="1"/>
+  <input name="D8" num_pins="1"/>
+  <output name="IOCLKGLITCH" num_pins="1"/>
+  <input name="OCE" num_pins="1"/>
+  <output name="OFB" num_pins="1"/>
+  <output name="OQ" num_pins="1"/>
+  <output name="SHIFTOUT1" num_pins="1"/>
+  <output name="SHIFTOUT2" num_pins="1"/>
+  <input name="SR" num_pins="1"/>
+  <input name="T1" num_pins="1"/>
+  <input name="T2" num_pins="1"/>
+  <input name="T3" num_pins="1"/>
+  <input name="T4" num_pins="1"/>
+  <input name="TBYTEIN" num_pins="1"/>
+  <output name="TBYTEOUT" num_pins="1"/>
+  <input name="TCE" num_pins="1"/>
+  <output name="TFB" num_pins="1"/>
+  <output name="TQ" num_pins="1"/>
+  <input name="SHIFTIN1" num_pins="1"/>
+  <input name="SHIFTIN2" num_pins="1"/>
+  <mode name="PASS_THROUGH">
+    <interconnect>
+      <direct name="D1_OQ" input="OLOGICE3.D1" output="OLOGICE3.OQ"/>
+    </interconnect>
+  </mode>
+  <!-- TODO
+       - other modes
+       - BELs
+  -->
+</pb_type>

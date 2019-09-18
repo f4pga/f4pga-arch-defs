@@ -1,0 +1,7 @@
+<pb_type name="inpad" blif_model=".input" num_pb="1">
+  <output name="inpad" num_pins="1"/>
+  <metadata>
+    <meta name="type">bel</meta>
+    <meta name="subtype">input</meta>
+  </metadata>
+</pb_type>
