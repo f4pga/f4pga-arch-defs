@@ -1082,55 +1082,11 @@ function(ADD_FPGA_TARGET)
   list(APPEND VPR_DEPS ${VPR} ${VPR_TARGET} ${QUIET_CMD} ${QUIET_CMD_TARGET})
   append_file_dependency(VPR_DEPS ${OUT_EBLIF_REL})
 
-  # Generate IO constraints file.
-  # -------------------------------------------------------------------------
-  set(FIX_PINS_ARG "")
-
-  if(NOT ${ADD_FPGA_TARGET_INPUT_IO_FILE} STREQUAL "")
-    get_target_property_required(NO_PINS ${ARCH} NO_PINS)
-    if(${NO_PINS})
-      message(FATAL_ERROR "Arch ${ARCH} does not currently support pin constraints.")
-    endif()
-    get_target_property_required(PLACE_TOOL ${ARCH} PLACE_TOOL)
-    get_target_property_required(PYTHON3 env PYTHON3)
-    get_target_property_required(PLACE_TOOL_CMD ${ARCH} PLACE_TOOL_CMD)
-    get_target_property_required(PINMAP_FILE ${DEVICE} ${PACKAGE}_PINMAP)
-
-
-    # Add complete dependency chain
-    set(IO_DEPS ${VPR_DEPS})
-    append_file_dependency(IO_DEPS ${ADD_FPGA_TARGET_INPUT_IO_FILE})
-    append_file_dependency(IO_DEPS ${PINMAP_FILE})
-
-    set_target_properties(${NAME} PROPERTIES
-        INPUT_IO_FILE ${ADD_FPGA_TARGET_INPUT_IO_FILE})
-
-    # Set variables for the string(CONFIGURE) below.
-    set(OUT_IO ${OUT_LOCAL}/${TOP}_io.place)
-    set(OUT_IO_REL ${OUT_LOCAL_REL}/${TOP}_io.place)
-    get_file_location(INPUT_IO_FILE ${ADD_FPGA_TARGET_INPUT_IO_FILE})
-    get_file_location(PINMAP ${PINMAP_FILE})
-    string(CONFIGURE ${PLACE_TOOL_CMD} PLACE_TOOL_CMD_FOR_TARGET)
-    separate_arguments(
-      PLACE_TOOL_CMD_FOR_TARGET_LIST UNIX_COMMAND ${PLACE_TOOL_CMD_FOR_TARGET}
-    )
-
-    add_custom_command(
-      OUTPUT ${OUT_IO}
-      DEPENDS ${IO_DEPS}
-      COMMAND ${PLACE_TOOL_CMD_FOR_TARGET_LIST} --out ${OUT_IO}
-      WORKING_DIRECTORY ${OUT_LOCAL}
-    )
-
-    add_output_to_fpga_target(${NAME} IO_PLACE ${OUT_IO_REL})
-    append_file_dependency(VPR_DEPS ${OUT_IO_REL})
-
-    set(FIX_PINS_ARG --fix_pins ${OUT_IO})
-  endif()
-
   # Generate packing.
   # -------------------------------------------------------------------------
   set(OUT_NET ${OUT_LOCAL}/${TOP}.net)
+  set(OUT_NET_REL ${OUT_LOCAL_REL}/${TOP}.net)
+
   add_custom_command(
     OUTPUT ${OUT_NET} ${OUT_LOCAL}/pack.log
     DEPENDS ${VPR_DEPS}
@@ -1139,6 +1095,8 @@ function(ADD_FPGA_TARGET)
       ${CMAKE_COMMAND} -E copy ${OUT_LOCAL}/vpr_stdout.log ${OUT_LOCAL}/pack.log
     WORKING_DIRECTORY ${OUT_LOCAL}
   )
+
+  add_output_to_fpga_target(${NAME} NET ${OUT_NET_REL})
 
   if(NOT "${ADD_FPGA_TARGET_ASSERT_USAGE}" STREQUAL "")
       set(USAGE_UTIL ${symbiflow-arch-defs_SOURCE_DIR}/utils/report_block_usage.py)
@@ -1160,6 +1118,54 @@ function(ADD_FPGA_TARGET)
     COMMAND
       ${CMAKE_COMMAND} -E copy ${OUT_LOCAL}/echo/vpr_stdout.log ${OUT_LOCAL}/echo/pack.log
     )
+
+  # Generate IO constraints file.
+  # -------------------------------------------------------------------------
+  set(FIX_PINS_ARG "")
+
+  if(NOT ${ADD_FPGA_TARGET_INPUT_IO_FILE} STREQUAL "")
+    get_target_property_required(NO_PINS ${ARCH} NO_PINS)
+    if(${NO_PINS})
+      message(FATAL_ERROR "Arch ${ARCH} does not currently support pin constraints.")
+    endif()
+    get_target_property_required(PLACE_TOOL ${ARCH} PLACE_TOOL)
+    get_target_property_required(PYTHON3 env PYTHON3)
+    get_target_property_required(PLACE_TOOL_CMD ${ARCH} PLACE_TOOL_CMD)
+    get_target_property_required(PINMAP_FILE ${DEVICE} ${PACKAGE}_PINMAP)
+
+
+    # Add complete dependency chain
+    set(IO_DEPS ${VPR_DEPS})
+    append_file_dependency(IO_DEPS ${ADD_FPGA_TARGET_INPUT_IO_FILE})
+    append_file_dependency(IO_DEPS ${PINMAP_FILE})
+    append_file_dependency(IO_DEPS ${OUT_NET_REL})
+
+    set_target_properties(${NAME} PROPERTIES
+        INPUT_IO_FILE ${ADD_FPGA_TARGET_INPUT_IO_FILE})
+
+    # Set variables for the string(CONFIGURE) below.
+    set(OUT_IO ${OUT_LOCAL}/${TOP}_io.place)
+    set(OUT_IO_REL ${OUT_LOCAL_REL}/${TOP}_io.place)
+    set(OUT_NET ${OUT_LOCAL}/${TOP}.net)
+    get_file_location(INPUT_IO_FILE ${ADD_FPGA_TARGET_INPUT_IO_FILE})
+    get_file_location(PINMAP ${PINMAP_FILE})
+    string(CONFIGURE ${PLACE_TOOL_CMD} PLACE_TOOL_CMD_FOR_TARGET)
+    separate_arguments(
+      PLACE_TOOL_CMD_FOR_TARGET_LIST UNIX_COMMAND ${PLACE_TOOL_CMD_FOR_TARGET}
+    )
+
+    add_custom_command(
+      OUTPUT ${OUT_IO}
+      DEPENDS ${IO_DEPS}
+      COMMAND ${PLACE_TOOL_CMD_FOR_TARGET_LIST} --out ${OUT_IO}
+      WORKING_DIRECTORY ${OUT_LOCAL}
+    )
+
+    add_output_to_fpga_target(${NAME} IO_PLACE ${OUT_IO_REL})
+    append_file_dependency(VPR_DEPS ${OUT_IO_REL})
+
+    set(FIX_PINS_ARG --fix_pins ${OUT_IO})
+  endif()
 
   # Generate placement.
   # -------------------------------------------------------------------------
