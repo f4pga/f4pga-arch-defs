@@ -183,6 +183,47 @@ def main():
                 ],
         }
 
+        if 'pads' in j:
+            pad_map = {}
+            for pad in j['pads']:
+                # TODO only z==0 for now
+                if pad['z'] == 0:
+                    pad_map['X' + str(pad['x']) + 'Y' + str(pad['y'])] = pad['name']
+
+            for tile in g.tiles():
+                if not tile.startswith('RIOI3_'):
+                    continue
+
+                loc = g.loc_of_tilename(tile)
+                if not roi.tile_in_roi(loc):
+                    continue
+
+                coord = tile.split('_')[-1]
+                if coord not in pad_map:
+                    continue
+
+                pad = pad_map[coord]
+                loc = map_tile_to_vpr_coord(conn, tile)
+                synth_tiles['tiles'][tile] = {
+                    'loc':
+                    loc,
+                    'pins':
+                    [
+                        {
+                            'wire': 'IOI_ILOGIC0_O',
+                            'pad': pad,
+                            'port_type': 'input',
+                            'is_clock': False,
+                        },
+                        {
+                            'wire': 'IOI_OLOGIC0_D1',
+                            'pad': pad,
+                            'port_type': 'output',
+                            'is_clock': False,
+                        },
+                    ],
+                }
+
     with open(args.synth_tiles, 'w') as f:
         json.dump(synth_tiles, f, indent=2)
 

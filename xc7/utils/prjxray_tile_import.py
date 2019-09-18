@@ -19,6 +19,7 @@ import prjxray.site_type
 import os.path
 import simplejson as json
 import re
+from functools import reduce
 
 import lxml.etree as ET
 
@@ -215,7 +216,7 @@ def add_switchblock_locations(xml):
     })
 
 
-def start_pb_type(tile_name, f_pin_assignments, input_wires, output_wires):
+def start_pb_type(tile_name, import_tiles, f_pin_assignments, input_wires, output_wires):
     """ Starts a pb_type by adding input, clock and output tags. """
     pb_type_xml = ET.Element(
         'pb_type',
@@ -267,6 +268,8 @@ def start_pb_type(tile_name, f_pin_assignments, input_wires, output_wires):
 
     return pb_type_xml
 
+def site_id(site):
+    return site.type + "." + site.name
 
 def import_tile(db, args):
     """ Create a root-level pb_type with the pin names that match tile wires.
@@ -275,7 +278,13 @@ def import_tile(db, args):
     for the entire tile if args.fused_sites is set to true.
     """
 
-    tile = db.get_tile_type(args.tile)
+    import_tiles = []
+    if args.import_tiles:
+        import_tiles = set(args.import_tiles.split(','))
+    else:
+        import_tiles = {args.tile}
+
+    sites = reduce(lambda acc, tile: acc + list(db.get_tile_type(tile).get_sites()), import_tiles, [])
 
     # Wires sink to a site within the tile are input wires.
     input_wires = set()
@@ -283,14 +292,30 @@ def import_tile(db, args):
     # Wires source from a site within the tile are output wires.
     output_wires = set()
 
+    inner_pins = {
+        'ILOGICE3': {
+            'D': ('IOB33M', 'I')
+        },
+        'OLOGICE3': {
+            'OQ': ('IOB33M', 'O'),
+            'TQ': ('IOB33M', 'T')
+        },
+        'IOB33M': {
+            'I': ('ILOGICE3', 'D'),
+            'O': ('OLOGICE3', 'OQ'),
+            'T': ('OLOGICE3', 'TQ')
+        },
+    }
+
     if not args.fused_sites:
         site_type_instances = parse_site_type_instance(args.site_types)
 
         imported_site_types = set()
         ignored_site_types = set()
 
-        for site in tile.get_sites():
+        for site in sites:
             site_type = db.get_site_type(site.type)
+            site_inner_pins = inner_pins[site.type] if site.type in inner_pins else set()
 
             if site.type not in site_type_instances:
                 ignored_site_types.add(site.type)
@@ -300,6 +325,10 @@ def import_tile(db, args):
 
             for site_pin in site.site_pins:
                 site_type_pin = site_type.get_site_pin(site_pin.name)
+
+                # omit site->site (IOI<->IOB) pins
+                if site_pin.name in site_inner_pins:
+                    continue
 
                 if site_type_pin.direction == prjxray.site_type.SitePinDirection.IN:
                     if site_pin.wire is not None:
@@ -322,7 +351,7 @@ def import_tile(db, args):
                 file=sys.stderr
             )
     else:
-        for site in tile.get_sites():
+        for site in sites:
             site_type = db.get_site_type(site.type)
 
             for site_pin in site.site_pins:
@@ -346,7 +375,7 @@ def import_tile(db, args):
     model = ModelXml(f=args.output_model, site_directory=args.site_directory)
 
     if not args.fused_sites:
-        site_types = set(site.type for site in tile.get_sites())
+        site_types = set(site.type for site in sites)
         for site_type in site_types:
             if site_type in ignored_site_types:
                 continue
@@ -366,7 +395,7 @@ def import_tile(db, args):
     tile_name = args.tile
 
     pb_type_xml = start_pb_type(
-        tile_name, args.pin_assignments, input_wires, output_wires
+        tile_name, import_tiles, args.pin_assignments, input_wires, output_wires
     )
 
     cell_names = {}
@@ -376,22 +405,26 @@ def import_tile(db, args):
     if not args.fused_sites:
         site_type_count = {}
         site_prefixes = {}
-        cells_idx = []
+        cells_idx = dict()
 
         site_type_ports = {}
-        for idx, site in enumerate(tile.get_sites()):
+        for site in sites:
             if site.type in ignored_site_types:
+                continue
+
+            if args.select_y is not None and args.select_y != site.y:
                 continue
 
             if site.type not in site_type_count:
                 site_type_count[site.type] = 0
                 site_prefixes[site.type] = []
 
-            cells_idx.append(site_type_count[site.type])
+            cell_idx = site_type_count[site.type]
+            cells_idx[site_id(site)] = cell_idx
             site_type_count[site.type] += 1
             site_prefix = '{}_X{}'.format(site.type, site.x)
 
-            site_instance = site_type_instances[site.type][cells_idx[idx]]
+            site_instance = site_type_instances[site.type][cell_idx]
 
             site_type_path = site_pbtype.format(
                 site.type.lower(), site_instance.lower()
@@ -410,9 +443,9 @@ def import_tile(db, args):
             for outputs in root_element.iter('output'):
                 ports[outputs.attrib['name']] = int(outputs.attrib['num_pins'])
 
-            assert site_instance not in site_type_ports, (
-                site_instance, site_type_ports.keys()
-            )
+            # assert site_instance not in site_type_ports, (
+            #     site_instance, site_type_ports.keys()
+            # )
             site_type_ports[site_instance] = ports
 
             attrib = dict(root_element.attrib)
@@ -442,15 +475,23 @@ def import_tile(db, args):
                     }
                 )
 
-        for idx, site in enumerate(tile.get_sites()):
+        for idx, site in enumerate(sites):
             if site.type in ignored_site_types:
                 continue
 
-            site_idx = cells_idx[idx]
+            if args.select_y is not None and args.select_y != site.y:
+                continue
+
+            site_idx = cells_idx[site_id(site)]
             site_instance = site_type_instances[site.type][site_idx]
             site_name = cell_names[site_instance]
 
             site_type = db.get_site_type(site.type)
+
+            site_inner_pins = inner_pins[site.type] if site.type in inner_pins else set()
+
+            if args.generate_missing_pins:
+                print("\nsite.type: {}".format(site.type))
 
             interconnect_xml.append(ET.Comment(" Tile->Site "))
             for site_pin in sorted(site.site_pins,
@@ -458,16 +499,24 @@ def import_tile(db, args):
                 if site_pin.wire is None:
                     continue
 
-                port = find_port(site_pin.name, site_type_ports[site_instance])
-                if port is None:
-                    print(
-                        "*** WARNING *** Didn't find port for name {} for site type {}"
-                        .format(site_pin.name, site.type),
-                        file=sys.stderr
-                    )
+                # omit site->site pins
+                if site_pin.name in site_inner_pins:
                     continue
 
+                port = find_port(site_pin.name, site_type_ports[site_instance])
                 site_type_pin = site_type.get_site_pin(site_pin.name)
+
+                if port is None:
+                    if args.generate_missing_pins:
+                        direction = "input" if site_type_pin.direction == prjxray.site_type.SitePinDirection.IN else "output"
+                        print("<{} name=\"{}\" num_pins=\"1\"/>".format(direction, site_pin.name))
+                    else:
+                        print(
+                            "*** WARNING *** Didn't find port for name {} for site type {}"
+                            .format(site_pin.name, site.type),
+                            file=sys.stderr
+                        )
+                    continue
 
                 if site_type_pin.direction == prjxray.site_type.SitePinDirection.IN:
                     add_direct(
@@ -488,6 +537,10 @@ def import_tile(db, args):
                 if site_pin.wire is None:
                     continue
 
+                # omit site->site pins
+                if site_pin.name in site_inner_pins:
+                    continue
+
                 port = find_port(site_pin.name, site_type_ports[site_instance])
                 if port is None:
                     continue
@@ -506,6 +559,27 @@ def import_tile(db, args):
                     )
                 else:
                     assert False, site_type_pin.direction
+
+        # connect site->site pins
+        interconnect_xml.append(ET.Comment(" Site->Site "))
+        for (site, pins) in inner_pins.items():
+            site_type = db.get_site_type(site)
+            for (pin, (other_site, other_pin)) in pins.items():
+                site_type_pin = site_type.get_site_pin(pin)
+                other_site_type = db.get_site_type(other_site)
+                other_site_type_pin = other_site_type.get_site_pin(other_pin)
+
+                if site_type_pin.direction == prjxray.site_type.SitePinDirection.IN:
+                    add_direct(
+                        interconnect_xml,
+                        input=object_ref(other_site, other_pin),
+                        output=object_ref(site, pin),
+                    )
+                elif site_type_pin.direction == prjxray.site_type.SitePinDirection.OUT:
+                    pass
+                else:
+                    assert False, site_type_pin.direction
+
     else:
         site_type_ports = {}
 
@@ -537,7 +611,7 @@ def import_tile(db, args):
         def fused_port_name(site, site_pin):
             return '{}_{}_{}'.format(site.prefix, site.name, site_pin.name)
 
-        for idx, site in enumerate(tile.get_sites()):
+        for idx, site in enumerate(sites):
             site_type = db.get_site_type(site.type)
 
             interconnect_xml.append(ET.Comment(" Tile->Site "))
@@ -643,7 +717,7 @@ def import_site_as_tile(db, args):
 
     tile_name = args.tile
     pb_type_xml = start_pb_type(
-        tile_name, args.pin_assignments, input_wires, output_wires
+        tile_name, {tile_name}, args.pin_assignments, input_wires, output_wires
     )
 
     site = args.tile
@@ -716,6 +790,10 @@ def main():
 
     parser.add_argument('--tile', help="""Tile to generate for""")
 
+    parser.add_argument('--import_tiles', help="""Comma seperated list of tiles to import, defaults to --tile if not set""")
+
+    parser.add_argument('--select_y', type=int, help="""Select tiles with matching Y coordinate""")
+
     parser.add_argument(
         '--site_directory', help="""Diretory where sites are defined"""
     )
@@ -755,6 +833,12 @@ def main():
         action='store_true',
         help=
         "Typically a tile can treat the sites within the tile as independent.  For tiles where this is not true, fused sites only imports 1 primatative for the entire tile, which should be named the same as the tile type."
+    )
+
+    parser.add_argument(
+        '--generate_missing_pins',
+        action='store_true',
+        help="Print missing pin warnings as XML."
     )
 
     args = parser.parse_args()

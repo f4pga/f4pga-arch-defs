@@ -450,6 +450,6 @@ WHERE
         else:
             the_site_pin_pkey = site_pin_pkey
 
-    assert the_site_pin_pkey is not None, (tile_type_str, wire_str)
+    #assert the_site_pin_pkey is not None, (tile_type_str, wire_str)
 
     return wire_in_tile_pkeys, the_site_pin_pkey

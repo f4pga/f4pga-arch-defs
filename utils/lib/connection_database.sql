@@ -48,7 +48,7 @@
 --  graph_edge - A VPR type representing a connection between an IPIN, OPIN,
 --               CHANX, or CHANY.  All graph_edge's require a switch.
 --
---  switch - See VPR documentation :http://docs.verilogtorouting.org/en/latest/arch/reference/--tag-fpga-device-information-switch_block
+--  switch - See VPR documentation :http://docs.verilogtorouting.org/en/latest/arch/reference/#tag-%3Cswitch_blocktype=
 --
 --  This database provides a relational description between the terms above.
 
