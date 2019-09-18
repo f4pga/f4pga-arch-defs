@@ -24,7 +24,7 @@ add_vivado_target(
 
 add_fpga_target_boards(
   NAME counter
-  BOARDS arty
+  BOARDS arty-uart
   SOURCES counter_arty.v
   IMPLICIT_INPUT_IO_FILES
   )
