@@ -1,0 +1,21 @@
+<!-- set: ai sw=1 ts=1 sta et -->
+<pb_type name="IOB33S" num_pb="1">
+  <input name="DIFFI_IN" num_pins="1"/>
+  <input name="DIFFO_IN" num_pins="1"/>
+  <output name="DIFFO_OUT" num_pins="1"/>
+  <input name="DIFF_TERM_INT_EN" num_pins="1"/>
+  <output name="I" num_pins="1"/>
+  <input name="IBUFDISABLE" num_pins="1"/>
+  <input name="INTERMDISABLE" num_pins="1"/>
+  <input name="KEEPER_INT_EN" num_pins="1"/>
+  <input name="O" num_pins="1"/>
+  <input name="O_IN" num_pins="1"/>
+  <output name="O_OUT" num_pins="1"/>
+  <output name="PADOUT" num_pins="1"/>
+  <input name="PD_INT_EN" num_pins="1"/>
+  <input name="PU_INT_EN" num_pins="1"/>
+  <input name="T" num_pins="1"/>
+  <input name="T_IN" num_pins="1"/>
+  <output name="T_OUT" num_pins="1"/>
+  <!-- TODO -->
+</pb_type>

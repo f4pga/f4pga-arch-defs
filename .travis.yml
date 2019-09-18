@@ -32,3 +32,8 @@ after_success:
 
 after_failure:
  - stdbuf -i0 -o0 -e0 ./.github/travis/after_failure.sh
+
+# don't run CI on these branches
+branches:
+  except:
+  - x1y0

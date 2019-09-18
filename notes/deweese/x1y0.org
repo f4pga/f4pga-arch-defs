@@ -1,0 +1,36 @@
+* prjxray scripts - What I changed
+** DONE form_channels : prjxray-db -> channels.db
+- create synthetic IOPAD tile type
+- replace RIOI3*/RIOB33 with IOPAD
+** DONE create_synth_tiles : prjxray-db * design.json -> synth_tiles.json
+- add a map for real pads
+- manually written JSON input for now
+** DONE synth_tiles_to_pinmap_csv : synth_tiles.json -> synth_tiles_pinmap.csv
+- remove single pin and no duplicate pad assertions
+** DONE assign_tile_pin_direction : prjxray-db * channels.db -> pin_assignments.json
+- handle merged IOPAD tile
+** DONE tile_import : prjxray-db * tile -> tile.xml
+- add import_tiles argument to merge tiles
+- add select_y argument to select a row in the tiles
+- add generate_missing_pins argument
+** DONE physical_tile_import : tile * tile_dir * pin_assignments.json -> tile.xml
+- add import_tiles argument
+** DONE arch_import : prjxray-db -> arch.xml
+- added tile_map support (RIOI3* --> IOPAD)
+  - hardcoded for now
+- get_tiles: ignore multi-pin synth_tiles, tile_map
+- add_synthetic_tiles: split into io/constant functions
+** DONE create_edges : prjxray-db * channels.db * pin_assignments.json * synth_tiles.json -> channels_and_edges.db
+- find_wire_node: return None on failure
+- connect_at: remove pin & connector loc assertions, ignore failures
+- ignore multi-pin synth tiles
+- 'IOPAD' -> phy_tile_types
+** STARTED routing_import : prjxray-db * channels_and_edges.db * synth_tiles.json * rr_graph.virt.xml -> rr_graph.real.xml
+*** import_graph_nodes
+- map IOPAD wires to RIOI3*/RIOB33 wires
+- ignore when the side graph node is missing
+*** add_synthetic_edges
+- ignore multi-pin synth_tiles
+* remaining problems
+** route through IBUF/OBUF pbtypes
+** IOPAD tiles still aren't being joined right
