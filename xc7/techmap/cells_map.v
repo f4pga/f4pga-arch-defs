@@ -1491,53 +1491,29 @@ end
   wire [3:0] WEA_WIDE;
 
   if(WRITE_WIDTH_A < 18) begin
-      assign WEA_WIDE[3] = WEA[0];
-      assign WEA_WIDE[2] = WEA[0];
-      assign WEA_WIDE[1] = WEA[0];
-      assign WEA_WIDE[0] = WEA[0];
+      assign WEA_WIDE = {4{WEA[0]}};
   end else if(WRITE_WIDTH_A == 18) begin
-      assign WEA_WIDE[3] = WEA[1];
-      assign WEA_WIDE[2] = WEA[1];
-      assign WEA_WIDE[1] = WEA[0];
-      assign WEA_WIDE[0] = WEA[0];
+      assign WEA_WIDE[3:2] = {2{WEA[1]}};
+      assign WEA_WIDE[1:0] = {2{WEA[0]}};
   end else if(WRITE_WIDTH_A == 36) begin
-      assign WEA_WIDE[3] = WEA[3];
-      assign WEA_WIDE[2] = WEA[2];
-      assign WEA_WIDE[1] = WEA[1];
-      assign WEA_WIDE[0] = WEA[0];
+      assign WEA_WIDE = WEA;
   end
 
   if(WRITE_WIDTH_B < 18) begin
       assign WEBWE_WIDE[7:4] = 4'b0;
-      assign WEBWE_WIDE[3] = WEBWE[0];
-      assign WEBWE_WIDE[2] = WEBWE[0];
-      assign WEBWE_WIDE[1] = WEBWE[0];
-      assign WEBWE_WIDE[0] = WEBWE[0];
+      assign WEBWE_WIDE[3:0] = {4{WEBWE[0]}};
   end else if(WRITE_WIDTH_B == 18) begin
       assign WEBWE_WIDE[7:4] = 4'b0;
-      assign WEBWE_WIDE[3] = WEBWE[1];
-      assign WEBWE_WIDE[2] = WEBWE[1];
-      assign WEBWE_WIDE[1] = WEBWE[0];
-      assign WEBWE_WIDE[0] = WEBWE[0];
+      assign WEBWE_WIDE[3:2] = {2{WEBWE[1]}};
+      assign WEBWE_WIDE[1:0] = {2{WEBWE[0]}};
   end else if(WRITE_WIDTH_B == 36) begin
-      assign WEBWE_WIDE[7] = WEBWE[3];
-      assign WEBWE_WIDE[6] = WEBWE[3];
-      assign WEBWE_WIDE[5] = WEBWE[2];
-      assign WEBWE_WIDE[4] = WEBWE[2];
-      assign WEBWE_WIDE[3] = WEBWE[1];
-      assign WEBWE_WIDE[2] = WEBWE[1];
-      assign WEBWE_WIDE[1] = WEBWE[0];
-      assign WEBWE_WIDE[0] = WEBWE[0];
+      assign WEBWE_WIDE[7:6] = {2{WEBWE[3]}};
+      assign WEBWE_WIDE[5:4] = {2{WEBWE[2]}};
+      assign WEBWE_WIDE[3:2] = {2{WEBWE[1]}};
+      assign WEBWE_WIDE[1:0] = {2{WEBWE[0]}};
   end else if(WRITE_WIDTH_B == 72) begin
-      assign WEA_WIDE[3:0] = 4'b0;
-      assign WEBWE_WIDE[7] = WEBWE[7];
-      assign WEBWE_WIDE[6] = WEBWE[6];
-      assign WEBWE_WIDE[5] = WEBWE[5];
-      assign WEBWE_WIDE[4] = WEBWE[4];
-      assign WEBWE_WIDE[3] = WEBWE[3];
-      assign WEBWE_WIDE[2] = WEBWE[2];
-      assign WEBWE_WIDE[1] = WEBWE[1];
-      assign WEBWE_WIDE[0] = WEBWE[0];
+      assign WEA_WIDE = 4'b0;
+      assign WEBWE_WIDE = WEBWE;
   end
 
   RAMB36E1_PRIM #(
