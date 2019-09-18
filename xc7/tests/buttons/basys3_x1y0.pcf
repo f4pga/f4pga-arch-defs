@@ -1,0 +1,5 @@
+# in[0:15] correspond with SW0-SW15 on the basys3
+set_io in V2
+
+# out[0:15] correspond with LD0-LD15 on the basys3
+set_io out V3

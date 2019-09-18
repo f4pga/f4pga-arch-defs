@@ -985,6 +985,7 @@ function(ADD_FPGA_TARGET)
     # Set variables for the string(CONFIGURE) below.
     set(OUT_IO ${OUT_LOCAL}/${TOP}_io.place)
     set(OUT_IO_REL ${OUT_LOCAL_REL}/${TOP}_io.place)
+    set(OUT_NET ${OUT_LOCAL}/${TOP}.net)
     get_file_location(INPUT_IO_FILE ${ADD_FPGA_TARGET_INPUT_IO_FILE})
     get_file_location(PINMAP ${PINMAP_FILE})
     string(CONFIGURE ${PLACE_TOOL_CMD} PLACE_TOOL_CMD_FOR_TARGET)
@@ -994,7 +995,7 @@ function(ADD_FPGA_TARGET)
 
     add_custom_command(
       OUTPUT ${OUT_IO}
-      DEPENDS ${IO_DEPS}
+      DEPENDS ${IO_DEPS} ${OUT_NET}
       COMMAND ${PLACE_TOOL_CMD_FOR_TARGET_LIST} --out ${OUT_IO}
       WORKING_DIRECTORY ${OUT_LOCAL}
     )

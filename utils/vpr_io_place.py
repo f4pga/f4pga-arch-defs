@@ -41,7 +41,7 @@ class IoPlace(object):
             comment=comment,
         )
 
-    def output_io_place(self, f):
+    def output_io_place(self, f, net_to_block=None):
         max_name_length = max(len(c.name) for c in self.constraints.values())
         print(
             HEADER_TEMPLATE.format(
@@ -51,9 +51,10 @@ class IoPlace(object):
         )
 
         for constraint in self.constraints.values():
+            name = net_to_block[constraint.name] if net_to_block else constraint.name
             print(
                 CONSTRAINT_TEMPLATE.format(
-                    name=constraint.name,
+                    name=name,
                     nl=max_name_length,
                     x=constraint.x,
                     y=constraint.y,

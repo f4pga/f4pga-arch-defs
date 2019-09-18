@@ -6,6 +6,7 @@ import json
 import sys
 import vpr_io_place
 from lib.parse_pcf import parse_simple_pcf
+import lxml.etree as ET
 
 
 def main():
@@ -57,11 +58,28 @@ def main():
         default=12,
         help='Drive to use for pins',
     )
+    parser.add_argument(
+        "--net",
+        '-n',
+        type=argparse.FileType('r'),
+        required=True,
+        help='top.net file'
+    )
 
     args = parser.parse_args()
 
     io_place = vpr_io_place.IoPlace()
     io_place.read_io_list_from_eblif(args.blif)
+
+    net_xml = ET.parse(args.net)
+    net_root = net_xml.getroot()
+    net_to_block = {}
+
+    for block in net_root.xpath("//block[@instance='inpad[0]']"):
+        net_to_block[block.get("name")] = block.getparent().get("name")
+
+    for block in net_root.xpath("//block[@instance='outpad[0]']"):
+        net_to_block[block.get("name")] = block.getparent().get("name")
 
     # Map of pad names to VPR locations.
     pad_map = {}
@@ -119,7 +137,7 @@ def main():
                 'IOSTANDARD': args.iostandard,
             }
 
-    io_place.output_io_place(args.output)
+    io_place.output_io_place(args.output, net_to_block=net_to_block)
 
     if args.iostandard_defs:
         with open(args.iostandard_defs, 'w') as f:

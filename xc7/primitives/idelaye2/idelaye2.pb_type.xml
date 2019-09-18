@@ -1,0 +1,85 @@
+<!-- set: ai sw=1 ts=1 sta et -->
+<pb_type name="IDELAYE2" num_pb="1">
+  <input name="C" num_pins="1"/>
+  <input name="CE" num_pins="1"/>
+  <input name="CINVCTRL" num_pins="1"/>
+  <input name="CNTVALUEIN0" num_pins="1"/>
+  <input name="CNTVALUEIN1" num_pins="1"/>
+  <input name="CNTVALUEIN2" num_pins="1"/>
+  <input name="CNTVALUEIN3" num_pins="1"/>
+  <input name="CNTVALUEIN4" num_pins="1"/>
+  <input name="DATAIN" num_pins="1"/>
+  <input name="IDATAIN" num_pins="1"/>
+  <input name="IFDLY0" num_pins="1"/>
+  <input name="IFDLY1" num_pins="1"/>
+  <input name="IFDLY2" num_pins="1"/>
+  <input name="INC" num_pins="1"/>
+  <input name="LD" num_pins="1"/>
+  <input name="LDPIPEEN" num_pins="1"/>
+  <input name="REGRST" num_pins="1"/>
+  <output name="CNTVALUEOUT0" num_pins="1"/>
+  <output name="CNTVALUEOUT1" num_pins="1"/>
+  <output name="CNTVALUEOUT2" num_pins="1"/>
+  <output name="CNTVALUEOUT3" num_pins="1"/>
+  <output name="CNTVALUEOUT4" num_pins="1"/>
+  <output name="DATAOUT" num_pins="1"/>
+  <pb_type name="IDELAYE2_BEL" blif_model=".subckt IDELAYE2_BEL" num_pb="1">
+    <clock name="C" num_pins="1"/>
+    <input name="CE" num_pins="1"/>
+    <input name="CINVCTRL" num_pins="1"/>
+    <input name="CNTVALUEIN0" num_pins="1"/>
+    <input name="CNTVALUEIN1" num_pins="1"/>
+    <input name="CNTVALUEIN2" num_pins="1"/>
+    <input name="CNTVALUEIN3" num_pins="1"/>
+    <input name="CNTVALUEIN4" num_pins="1"/>
+    <input name="DATAIN" num_pins="1"/>
+    <input name="IDATAIN" num_pins="1"/>
+    <input name="INC" num_pins="1"/>
+    <input name="LD" num_pins="1"/>
+    <input name="LDPIPEEN" num_pins="1"/>
+    <input name="REGRST" num_pins="1"/>
+    <output name="CNTVALUEOUT0" num_pins="1"/>
+    <output name="CNTVALUEOUT1" num_pins="1"/>
+    <output name="CNTVALUEOUT2" num_pins="1"/>
+    <output name="CNTVALUEOUT3" num_pins="1"/>
+    <output name="CNTVALUEOUT4" num_pins="1"/>
+    <output name="DATAOUT" num_pins="1"/>
+
+    <!-- fake timing values -->
+    <T_setup value="10e-12" port="CE" clock="C" />
+    <T_hold value="10e-12" port="CE" clock="C" />
+    <T_setup value="10e-12" port="INC" clock="C" />
+    <T_hold value="10e-12" port="INC" clock="C" />
+    <T_setup value="10e-12" port="LD" clock="C" />
+    <T_hold value="10e-12" port="LD" clock="C" />
+    <T_setup value="10e-12" port="REGRST" clock="C" />
+    <T_hold value="10e-12" port="REGRST" clock="C" />
+
+  </pb_type>
+  <interconnect>
+    <!-- inputs -->
+    <direct name="C" input="IDELAYE2.C" output="IDELAYE2_BEL.C"/>
+    <direct name="CE" input="IDELAYE2.CE" output="IDELAYE2_BEL.CE"/>
+    <direct name="CINVCTRL" input="IDELAYE2.CINVCTRL" output="IDELAYE2_BEL.CINVCTRL"/>
+    <direct name="CNTVALUEIN0" input="IDELAYE2.CNTVALUEIN0" output="IDELAYE2_BEL.CNTVALUEIN0"/>
+    <direct name="CNTVALUEIN1" input="IDELAYE2.CNTVALUEIN1" output="IDELAYE2_BEL.CNTVALUEIN1"/>
+    <direct name="CNTVALUEIN2" input="IDELAYE2.CNTVALUEIN2" output="IDELAYE2_BEL.CNTVALUEIN2"/>
+    <direct name="CNTVALUEIN3" input="IDELAYE2.CNTVALUEIN3" output="IDELAYE2_BEL.CNTVALUEIN3"/>
+    <direct name="CNTVALUEIN4" input="IDELAYE2.CNTVALUEIN4" output="IDELAYE2_BEL.CNTVALUEIN4"/>
+    <direct name="DATAIN" input="IDELAYE2.DATAIN" output="IDELAYE2_BEL.DATAIN"/>
+    <direct name="IDATAIN" input="IDELAYE2.IDATAIN" output="IDELAYE2_BEL.IDATAIN"/>
+    <direct name="INC" input="IDELAYE2.INC" output="IDELAYE2_BEL.INC"/>
+    <direct name="LD" input="IDELAYE2.LD" output="IDELAYE2_BEL.LD"/>
+    <direct name="LDPIPEEN" input="IDELAYE2.LDPIPEEN" output="IDELAYE2_BEL.LDPIPEEN"/>
+    <direct name="REGRST" input="IDELAYE2.REGRST" output="IDELAYE2_BEL.REGRST"/>
+
+    <!-- outputs -->
+    <direct name="CNTVALUEOUT0" input="IDELAYE2_BEL.CNTVALUEOUT0" output="IDELAYE2.CNTVALUEOUT0"/>
+    <direct name="CNTVALUEOUT1" input="IDELAYE2_BEL.CNTVALUEOUT1" output="IDELAYE2.CNTVALUEOUT1"/>
+    <direct name="CNTVALUEOUT2" input="IDELAYE2_BEL.CNTVALUEOUT2" output="IDELAYE2.CNTVALUEOUT2"/>
+    <direct name="CNTVALUEOUT3" input="IDELAYE2_BEL.CNTVALUEOUT3" output="IDELAYE2.CNTVALUEOUT3"/>
+    <direct name="CNTVALUEOUT4" input="IDELAYE2_BEL.CNTVALUEOUT4" output="IDELAYE2.CNTVALUEOUT4"/>
+    <direct name="DATAOUT" input="IDELAYE2_BEL.DATAOUT" output="IDELAYE2.DATAOUT"/>
+  </interconnect>
+  <!-- TODO -->
+</pb_type>

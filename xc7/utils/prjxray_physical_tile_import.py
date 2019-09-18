@@ -85,6 +85,11 @@ def import_physical_tile(args):
     ##########################################################################
 
     tile_name = args.tile
+    import_tiles = []
+    if args.import_tiles:
+        import_tiles = set(args.import_tiles.split(','))
+    else:
+        import_tiles = {args.tile}
 
     pb_type_xml = ET.parse(
         "{}/{tile}/{tile}.pb_type.xml".format(
@@ -139,6 +144,8 @@ def main():
     )
 
     parser.add_argument('--tile', help="""Tile to generate for""")
+
+    parser.add_argument('--import_tiles', help="""Comma seperated list of tiles to import, defaults to --tile if not set""")
 
     parser.add_argument(
         '--tiles-directory', help="""Diretory where tiles are defined"""

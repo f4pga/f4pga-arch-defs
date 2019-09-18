@@ -52,6 +52,7 @@ function(PROJECT_XRAY_TILE)
   #
   # PART name of the part that is considered (e.g. artix7, zynq7, etc.)
   # TILE name of the tile that has to be generated (e.g. CLBLM_R, BRAM_L, etc.)
+  # IMPORT_TILES name of tiles to import from
   # SITE_TYPES list of sites contained in the considered tile (e.g. CLBLM_R contains a SLICEM and SLICEL sites)
   # EQUIVALENT_TILES list of tiles equivalent to the considered one (e.g. CLBLL_R is equivalent to CLBLM_R and CLBLM_L)
   # SITE_AS_TILE option to state if the tile physically is a site, but it needs to be treated as a site
@@ -61,6 +62,7 @@ function(PROJECT_XRAY_TILE)
   # project_xray_tile(
   #   PART <part_name>
   #   TILE <tile_name>
+  #   IMPORT_TILES <tile_name_1> <tile_name_2> ...
   #   SITE_TYPES <site_name_1> <site_name_2> ...
   #   EQUIVALENT_TILES <equivalent_tile_name_1> <equivalent_tile_name_2> ...
   #   SITE_AS_TILE (option)
@@ -69,8 +71,8 @@ function(PROJECT_XRAY_TILE)
   # ~~~
 
   set(options FUSED_SITES SITE_AS_TILE)
-  set(oneValueArgs PART TILE)
-  set(multiValueArgs SITE_TYPES EQUIVALENT_TILES)
+  set(oneValueArgs PART TILE SELECT_Y)
+  set(multiValueArgs SITE_TYPES EQUIVALENT_TILES IMPORT_TILES)
   cmake_parse_arguments(
     PROJECT_XRAY_TILE
     "${options}"
@@ -109,6 +111,13 @@ function(PROJECT_XRAY_TILE)
   if(PROJECT_XRAY_TILE_SITE_AS_TILE)
       set(FUSED_SITES_ARGS "--site_as_tile")
   endif()
+  if(PROJECT_XRAY_TILE_IMPORT_TILES)
+      string(REPLACE ";" "," IMPORT_TILES_COMMA "${PROJECT_XRAY_TILE_IMPORT_TILES}")
+      set(IMPORT_TILES_ARGS "--import_tiles" ${IMPORT_TILES_COMMA})
+  endif()
+  if(PROJECT_XRAY_TILE_SELECT_Y)
+      set(SELECT_Y_ARG "--select_y" ${PROJECT_XRAY_TILE_SELECT_Y})
+  endif()
 
   add_custom_command(
     OUTPUT ${TILE}.pb_type.xml ${TILE}.model.xml
@@ -116,6 +125,8 @@ function(PROJECT_XRAY_TILE)
     ${PYTHON3} ${TILE_IMPORT}
     --part ${PROJECT_XRAY_TILE_PART}
     --tile ${PROJECT_XRAY_TILE_TILE}
+    ${IMPORT_TILES_ARGS}
+    ${SELECT_Y_ARG}
     --site_directory ${symbiflow-arch-defs_BINARY_DIR}/xc7/primitives
     --site_types ${SITE_TYPES_COMMA}
     --pin_assignments ${PIN_ASSIGNMENTS}
@@ -165,6 +176,7 @@ function(PROJECT_XRAY_TILE)
     ${PYTHON3} ${PHYSICAL_TILE_IMPORT}
     --part ${PROJECT_XRAY_TILE_PART}
     --tile ${PROJECT_XRAY_TILE_TILE}
+    ${IMPORT_TILES_ARGS}
     --tiles-directory ${symbiflow-arch-defs_BINARY_DIR}/xc7/archs/${PART}/tiles
     --equivalent-tiles=${EQUIVALENT_TILES_COMMA}
     --pin-prefix=${PIN_PREFIX_COMMA}

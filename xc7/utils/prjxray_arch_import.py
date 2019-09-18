@@ -289,7 +289,7 @@ def get_fasm_tile_prefix(conn, g, tile_pkey, site_as_tile_pkey):
     return tile_prefix
 
 
-def get_tiles(conn, g, roi, synth_loc_map, synth_tile_map, tile_types):
+def get_tiles(conn, g, roi, synth_loc_map, synth_tile_map, tile_types, tile_map):
     """ Yields tiles in grid.
 
     Yields
@@ -306,6 +306,7 @@ def get_tiles(conn, g, roi, synth_loc_map, synth_tile_map, tile_types):
     c2 = conn.cursor()
 
     only_emit_roi = roi is not None
+    tile_types += tile_map.keys()
 
     for tile_pkey, grid_x, grid_y, phy_tile_pkey, tile_type_pkey, site_as_tile_pkey in c.execute(
             """
@@ -316,19 +317,19 @@ def get_tiles(conn, g, roi, synth_loc_map, synth_tile_map, tile_types):
         if (grid_x, grid_y) in synth_loc_map:
             synth_tile = synth_loc_map[(grid_x, grid_y)]
 
-            assert len(synth_tile['pins']) == 1
+            # HACK
+            if len(synth_tile['pins']) == 1:
+                vpr_tile_type = synth_tile_map[synth_tile['pins'][0]['port_type']]
 
-            vpr_tile_type = synth_tile_map[synth_tile['pins'][0]['port_type']]
+                # Synth tiles have no bits, but there needs to be a prefix, so
+                # use the original tile name.
+                c2.execute(
+                    "SELECT name FROM phy_tile WHERE pkey = ?", (phy_tile_pkey, )
+                )
+                fasm_tile_prefix = c2.fetchone()[0]
 
-            # Synth tiles have no bits, but there needs to be a prefix, so
-            # use the original tile name.
-            c2.execute(
-                "SELECT name FROM phy_tile WHERE pkey = ?", (phy_tile_pkey, )
-            )
-            fasm_tile_prefix = c2.fetchone()[0]
-
-            yield vpr_tile_type, grid_x, grid_y, fasm_tile_prefix
-            continue
+                yield vpr_tile_type, grid_x, grid_y, fasm_tile_prefix
+                continue
 
         c2.execute(
             "SELECT name FROM tile_type WHERE pkey = ?", (tile_type_pkey, )
@@ -342,7 +343,9 @@ def get_tiles(conn, g, roi, synth_loc_map, synth_tile_map, tile_types):
             # Tile is outside ROI, skip it
             continue
 
-        vpr_tile_type = add_vpr_tile_prefix(tile_type)
+        mapped_tile_type = tile_map[tile_type] if tile_type in tile_map else tile_type
+
+        vpr_tile_type = add_vpr_tile_prefix(mapped_tile_type)
 
         fasm_tile_prefix = get_fasm_tile_prefix(
             conn, g, tile_pkey, site_as_tile_pkey
@@ -351,13 +354,20 @@ def get_tiles(conn, g, roi, synth_loc_map, synth_tile_map, tile_types):
         yield vpr_tile_type, grid_x, grid_y, fasm_tile_prefix
 
 
-def add_synthetic_tiles(model_xml, complexblocklist_xml, tiles_xml):
+def add_synthetic_io_tiles(complexblocklist_xml, tiles_xml):
     create_synth_io_tiles(
         complexblocklist_xml, tiles_xml, 'SYN-INPAD', is_input=True
     )
     create_synth_io_tiles(
         complexblocklist_xml, tiles_xml, 'SYN-OUTPAD', is_input=False
     )
+
+    return {
+        'output': 'SYN-INPAD',
+        'input': 'SYN-OUTPAD',
+    }
+
+def add_synthetic_constant_tiles(model_xml, complexblocklist_xml, tiles_xml):
     create_synth_constant_tiles(
         model_xml, complexblocklist_xml, tiles_xml, 'SYN-VCC', 'VCC'
     )
@@ -366,8 +376,6 @@ def add_synthetic_tiles(model_xml, complexblocklist_xml, tiles_xml):
     )
 
     return {
-        'output': 'SYN-INPAD',
-        'input': 'SYN-OUTPAD',
         'VCC': 'SYN-VCC',
         'GND': 'SYN-GND',
     }
@@ -454,6 +462,7 @@ def main():
     synth_tiles = {}
     synth_tiles['tiles'] = {}
     synth_loc_map = {}
+    synth_tile_map = {}
     roi = None
     if args.use_roi:
         with open(args.use_roi) as f:
@@ -470,9 +479,14 @@ def main():
             y2=j['info']['GRID_Y_MAX'],
         )
 
-        synth_tile_map = add_synthetic_tiles(
+        synth_tile_map = add_synthetic_constant_tiles(
             model_xml, complexblocklist_xml, tiles_xml
         )
+
+        if j['ports']:
+            synth_tile_map.update(
+                add_synthetic_io_tiles(complexblocklist_xml,
+                                       tiles_xml))
 
         for _, tile_info in synth_tiles['tiles'].items():
             assert tuple(tile_info['loc']) not in synth_loc_map
@@ -504,6 +518,12 @@ def main():
                 synth_loc_map=synth_loc_map,
                 synth_tile_map=synth_tile_map,
                 tile_types=tile_types,
+                tile_map={
+                    'RIOI3' : 'IOPAD',
+                    'RIOI3_TBYTESRC' : 'IOPAD',
+                    'RIOI3_TBYTETERM' : 'IOPAD',
+                    'RIOB33' : 'IOPAD',
+                } # TODO read from argument
         ):
             single_xml = ET.SubElement(
                 fixed_layout_xml, 'single', {

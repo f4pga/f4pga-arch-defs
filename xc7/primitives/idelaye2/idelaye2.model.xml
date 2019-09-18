@@ -1,0 +1,30 @@
+<models>
+  <model name="IDELAYE2_BEL">
+    <input_ports>
+      <!-- synchronous control inputs -->
+      <port is_clock="1" name="C"/>
+      <port clock="C" name="CE"/>
+      <port clock="C" name="INC"/>
+      <port clock="C" name="LD"/>
+      <port clock="C" name="REGRST"/>
+
+      <port name="CINVCTRL"/>
+      <port name="CNTVALUEIN0"/>
+      <port name="CNTVALUEIN1"/>
+      <port name="CNTVALUEIN2"/>
+      <port name="CNTVALUEIN3"/>
+      <port name="CNTVALUEIN4"/>
+      <port name="DATAIN"/>
+      <port name="IDATAIN"/>
+      <port name="LDPIPEEN"/>
+    </input_ports>
+    <output_ports>
+      <port name="CNTVALUEOUT0"/>
+      <port name="CNTVALUEOUT1"/>
+      <port name="CNTVALUEOUT2"/>
+      <port name="CNTVALUEOUT3"/>
+      <port name="CNTVALUEOUT4"/>
+      <port name="DATAOUT"/>
+    </output_ports>
+  </model>
+</models>

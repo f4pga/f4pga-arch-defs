@@ -44,7 +44,7 @@ def main():
     ]
     writer = csv.DictWriter(args.output, fieldnames=fieldnames)
 
-    pads = set()
+    # pads = set()
     writer.writeheader()
     for synth_tile in synth_tiles['tiles'].values():
         if len(synth_tile['pins']) == 0:
@@ -52,14 +52,14 @@ def main():
 
         # TODO: Handle what happens when multiple IO's are at the same x,
         # y location?
-        assert len(synth_tile['pins']) == 1
+        # assert len(synth_tile['pins']) == 1
         for pin in synth_tile['pins']:
-            assert pin['pad'] not in pads
+            # assert pin['pad'] not in pads
 
             if pin['pad'] not in pin_to_iob:
                 continue
 
-            pads.add(pin['pad'])
+            # pads.add(pin['pad'])
             x = synth_tile['loc'][0]
             y = synth_tile['loc'][1]
             writer.writerow(

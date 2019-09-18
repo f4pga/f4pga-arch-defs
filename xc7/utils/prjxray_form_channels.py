@@ -1142,7 +1142,8 @@ FROM
   """, (node, )):
                 unique_pos.add((grid_x, grid_y))
 
-            tracks_to_insert.append(create_track(node, unique_pos))
+            if unique_pos:
+                tracks_to_insert.append(create_track(node, unique_pos))
 
     # Create constant tracks
     vcc_track_to_insert, gnd_track_to_insert = create_constant_tracks(conn)
@@ -1298,6 +1299,10 @@ def create_vpr_grid(conn):
     write_cur.execute('INSERT INTO tile_type(name) VALUES ("SLICEM");')
     slicem_tile_type_pkey = write_cur.lastrowid
 
+    # Create IOPAD tile type.
+    write_cur.execute('INSERT INTO tile_type(name) VALUES ("IOPAD");')
+    iopad_tile_type_pkey = write_cur.lastrowid
+
     slice_types = {
         'SLICEL': slicel_tile_type_pkey,
         'SLICEM': slicem_tile_type_pkey,
@@ -1310,11 +1315,35 @@ def create_vpr_grid(conn):
         'CLBLM_R': tile_splitter.grid.EAST,
     }
 
+    tiles_to_replace = {
+        'RIOI3': iopad_tile_type_pkey,
+        'RIOI3_TBYTESRC': iopad_tile_type_pkey,
+        'RIOI3_TBYTETERM': iopad_tile_type_pkey,
+        'RIOB33': iopad_tile_type_pkey,
+    }
+
+    tiles_to_ignore = (
+        'RIOB33',
+        'RIOB33_SING',
+        'LIOB33',
+        'LIOB33_SING',
+        'HCLK_IOB', # Those are empty
+        # TODO remove these from this list
+        'LIOI3',
+        'LIOI3_TBYTESRC',
+        'LIOI3_TBYTETERM',
+        'LIOI3_SING',
+        'RIOI3_SING',
+    )
+
     # Create initial grid using sites and locations from phy_tile's
     # Also build up tile_to_tile_type_pkeys, which is a map from original
     # tile_type_pkey, to array of split tile type pkeys, (e.g. SLICEL/SLICEM).
     tile_to_tile_type_pkeys = {}
     grid_loc_map = {}
+    cur.execute('SELECT pkey FROM tile_type WHERE name = "NULL";')
+    empty_tile_type_pkey = cur.fetchone()[0]
+
     for phy_tile_pkey, tile_type_pkey, grid_x, grid_y in progressbar_utils.progressbar(
             cur.execute("""
         SELECT pkey, tile_type_pkey, grid_x, grid_y FROM phy_tile;
@@ -1325,10 +1354,26 @@ def create_vpr_grid(conn):
         )
         tile_type_name = cur2.fetchone()[0]
 
+        # Ignore the tile
+        if tile_type_name in tiles_to_ignore:
+            print("Ignoring '{}' at X{}Y{}".format(tile_type_name, grid_x, grid_y))
+            grid_loc_map[(grid_x, grid_y)] = tile_splitter.grid.Tile(
+                root_phy_tile_pkeys=[],
+                phy_tile_pkeys=[phy_tile_pkey],
+                tile_type_pkey=empty_tile_type_pkey,
+                sites=[]
+            )
+            continue
+
+        # FIXME this is broken
+        # replace tile type with virtual tile type e.g. RIOI3 -> IOPAD
+        if tile_type_name in tiles_to_replace:
+            tile_type_pkey = tiles_to_replace[tile_type_name]
+
         sites = []
         site_pkeys = set()
         for (site_pkey, ) in cur2.execute("""
-            SELECT site_pkey FROM wire_in_tile WHERE tile_type_pkey = ? AND site_pkey IS NOT NULL;""",
+            SELECT DISTINCT site_pkey FROM wire_in_tile WHERE tile_type_pkey = ? AND site_pkey IS NOT NULL;""",
                                           (tile_type_pkey, )):
             site_pkeys.add(site_pkey)
 
@@ -1362,6 +1407,7 @@ def create_vpr_grid(conn):
 
         sites = sorted(sites, key=lambda s: (s.x, s.y))
 
+        # Build tile_to_tile_type_pkeys
         if tile_type_name in tiles_to_split:
             tile_type_pkeys = []
             for site in sites:
@@ -1379,9 +1425,6 @@ def create_vpr_grid(conn):
             tile_type_pkey=tile_type_pkey,
             sites=sites
         )
-
-    cur.execute('SELECT pkey FROM tile_type WHERE name = "NULL";')
-    empty_tile_type_pkey = cur.fetchone()[0]
 
     tile_types = {}
     for tile_type, split_direction in tiles_to_split.items():
@@ -1450,6 +1493,7 @@ INSERT INTO tile(phy_tile_pkey, tile_type_pkey, site_as_tile_pkey, grid_x, grid_
                 )
             )
         else:
+            # modify tile_type_pkey for IOPAD
             write_cur.execute(
                 """
 INSERT INTO tile(phy_tile_pkey, tile_type_pkey, grid_x, grid_y) VALUES (

@@ -1,0 +1,37 @@
+<!-- set: ai sw=1 ts=1 sta et -->
+<pb_type name="ILOGICE3" num_pb="1">
+  <input name="BITSLIP" num_pins="1"/>
+  <input name="CE1" num_pins="1"/>
+  <input name="CE2" num_pins="1"/>
+  <input name="CLK" num_pins="1"/>
+  <input name="CLKB" num_pins="1"/>
+  <input name="CLKDIV" num_pins="1"/>
+  <input name="CLKDIVP" num_pins="1"/>
+  <input name="D" num_pins="1"/>
+  <input name="DDLY" num_pins="1"/>
+  <input name="DYNCLKDIVPSEL" num_pins="1"/>
+  <input name="DYNCLKDIVSEL" num_pins="1"/>
+  <input name="DYNCLKSEL" num_pins="1"/>
+  <input name="OCLK" num_pins="1"/>
+  <input name="OCLKB" num_pins="1"/>
+  <input name="OFB" num_pins="1"/>
+  <input name="SHIFTIN1" num_pins="1"/>
+  <input name="SHIFTIN2" num_pins="1"/>
+  <input name="SR" num_pins="1"/>
+  <input name="TFB" num_pins="1"/>
+  <output name="O" num_pins="1"/>
+  <output name="Q1" num_pins="1"/>
+  <output name="Q2" num_pins="1"/>
+  <output name="Q3" num_pins="1"/>
+  <output name="Q4" num_pins="1"/>
+  <output name="Q5" num_pins="1"/>
+  <output name="Q6" num_pins="1"/>
+  <output name="Q7" num_pins="1"/>
+  <output name="Q8" num_pins="1"/>
+  <output name="SHIFTOUT1" num_pins="1"/>
+  <output name="SHIFTOUT2" num_pins="1"/>
+  <interconnect>
+    <direct name="D_O" input="ILOGICE3.D" output="ILOGICE3.O"/>
+  </interconnect>
+  <!-- TODO -->
+</pb_type>

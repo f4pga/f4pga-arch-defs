@@ -10,6 +10,14 @@ define_board(
 )
 
 define_board(
+  BOARD basys3-x1y0
+  DEVICE xc7a50t-basys3-x1y0
+  PACKAGE test
+  PROG_TOOL ${OPENOCD_TARGET}
+  PROG_CMD "${OPENOCD} -f ${PRJXRAY_DIR}/utils/openocd/board-digilent-basys3.cfg -c \\\"init $<SEMICOLON> pld load 0 \${OUT_BIN} $<SEMICOLON> exit\\\""
+)
+
+define_board(
   BOARD arty
   DEVICE xc7a50t-arty
   PACKAGE test
