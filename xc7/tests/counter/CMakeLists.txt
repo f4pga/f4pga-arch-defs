@@ -26,5 +26,5 @@ add_fpga_target_boards(
   NAME counter
   BOARDS arty-uart
   SOURCES counter_arty.v
-  IMPLICIT_INPUT_IO_FILES
+  INPUT_IO_FILE arty.pcf
   )
