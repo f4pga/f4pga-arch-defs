@@ -1,5 +1,4 @@
 mux_gen(
-  NAME omux
   INPUTS L,F
   MUX_NAME omux
   OUTPUT O
