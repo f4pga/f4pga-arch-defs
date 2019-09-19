@@ -8,14 +8,22 @@ get_target_property(PYTHON3_TARGET env PYTHON3_TARGET)
 
 # Generate ROM veilog modules with different styles of implementation
 set(ROM_FILE_BRAM rom_bram.v)
+set(ROM_FILE_BRAM36 rom_bram36.v)
 set(ROM_FILE_DRAM rom_dram.v)
 
 add_file_target(FILE ${ROM_FILE_BRAM} GENERATED)
+add_file_target(FILE ${ROM_FILE_BRAM36} GENERATED)
 add_file_target(FILE ${ROM_FILE_DRAM} GENERATED)
 
 add_custom_command(
     OUTPUT ${ROM_FILE_BRAM}
     COMMAND ${PYTHON3} ${CMAKE_CURRENT_SOURCE_DIR}/utils/rom_generator.py --rom-style bram >${ROM_FILE_BRAM}
+    DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/utils/rom_generator.py ${PYTHON3} ${PYTHON3_TARGET}
+)
+
+add_custom_command(
+    OUTPUT ${ROM_FILE_BRAM36}
+    COMMAND ${PYTHON3} ${CMAKE_CURRENT_SOURCE_DIR}/utils/rom_generator.py --rom-style bram36 >${ROM_FILE_BRAM36}
     DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/utils/rom_generator.py ${PYTHON3} ${PYTHON3_TARGET}
 )
 
@@ -97,6 +105,14 @@ scalable_proc(
   TOP_FILE basys3_top.v
   BOARD basys3
   INPUT_IO_FILE basys3.pcf
+  ROM_STYLE bram36
+  MAX_PROC 8
+)
+
+scalable_proc(
+  TOP_FILE basys3_top.v
+  BOARD basys3
+  INPUT_IO_FILE basys3.pcf
   ROM_STYLE dram
   MAX_PROC 3
 )
@@ -104,6 +120,13 @@ scalable_proc(
 add_vivado_target(
     NAME top_bram_n3_vivado
     PARENT_NAME top_bram_n3
+    CLOCK_PINS clk
+    CLOCK_PERIODS 10.0
+    )
+
+add_vivado_target(
+    NAME top_bram36_n3_vivado
+    PARENT_NAME top_bram36_n3
     CLOCK_PINS clk
     CLOCK_PERIODS 10.0
     )

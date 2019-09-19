@@ -279,6 +279,9 @@ def main():
     if args.rom_style == "bram":
         rom_data = generate_rom_data(512)
         print(generate_inferred_bram(rom_data))
+    elif args.rom_style == "bram36":
+        rom_data = generate_rom_data(1024)
+        print(generate_inferred_bram(rom_data))
     # Generate DRAM64
     elif args.rom_style == "dram64":
         rom_data = generate_rom_data(64)
