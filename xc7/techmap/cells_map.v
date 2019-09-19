@@ -1487,6 +1487,35 @@ end
       localparam ZINV_REGCLKB = 1'b0;
   end
 
+  wire [7:0] WEBWE_WIDE;
+  wire [3:0] WEA_WIDE;
+
+  if(WRITE_WIDTH_A < 18) begin
+      assign WEA_WIDE = {4{WEA[0]}};
+  end else if(WRITE_WIDTH_A == 18) begin
+      assign WEA_WIDE[3:2] = {2{WEA[1]}};
+      assign WEA_WIDE[1:0] = {2{WEA[0]}};
+  end else if(WRITE_WIDTH_A == 36) begin
+      assign WEA_WIDE = WEA;
+  end
+
+  if(WRITE_WIDTH_B < 18) begin
+      assign WEBWE_WIDE[7:4] = 4'b0;
+      assign WEBWE_WIDE[3:0] = {4{WEBWE[0]}};
+  end else if(WRITE_WIDTH_B == 18) begin
+      assign WEBWE_WIDE[7:4] = 4'b0;
+      assign WEBWE_WIDE[3:2] = {2{WEBWE[1]}};
+      assign WEBWE_WIDE[1:0] = {2{WEBWE[0]}};
+  end else if(WRITE_WIDTH_B == 36) begin
+      assign WEBWE_WIDE[7:6] = {2{WEBWE[3]}};
+      assign WEBWE_WIDE[5:4] = {2{WEBWE[2]}};
+      assign WEBWE_WIDE[3:2] = {2{WEBWE[1]}};
+      assign WEBWE_WIDE[1:0] = {2{WEBWE[0]}};
+  end else if(WRITE_WIDTH_B == 72) begin
+      assign WEA_WIDE = 4'b0;
+      assign WEBWE_WIDE = WEBWE;
+  end
+
   RAMB36E1_PRIM #(
       .IN_USE(READ_WIDTH_A != 0 || READ_WIDTH_B != 0 || WRITE_WIDTH_A != 0 || WRITE_WIDTH_B != 0),
 
@@ -1598,8 +1627,8 @@ end
     .DIBDI(DIBDI),
     .DIPADIP(DIPADIP),
     .DIPBDIP(DIPBDIP),
-    `DUP(WEA, WEA),
-    `DUP(WEBWE, WEBWE),
+    `DUP(WEA, WEA_WIDE),
+    `DUP(WEBWE, WEBWE_WIDE),
 
     .DOADO(DOADO),
     .DOBDO(DOBDO),
