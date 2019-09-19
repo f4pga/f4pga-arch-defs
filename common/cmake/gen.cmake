@@ -28,7 +28,6 @@ function(MUX_GEN)
   set(options SPLIT_INPUTS SPLIT_SELECTS)
   set(
     oneValueArgs
-    NAME
     MUX_NAME
     TYPE
     WIDTH
@@ -47,6 +46,30 @@ function(MUX_GEN)
     "${multiValueArgs}"
     ${ARGN}
   )
+
+  if(NOT "${MUX_GEN_NTEMPLATE_PREFIXES}" STREQUAL "")
+    string(
+      REPLACE
+      "{N}"
+      ""
+      MUX_GEN_TEMP0
+      ${MUX_GEN_MUX_NAME}
+    )
+
+    string(
+      TOLOWER
+      ${MUX_GEN_TEMP0}
+      MUX_GEN_TEMP1
+    )
+
+    set(MUX_GEN_NAME "ntemplate.N${MUX_GEN_TEMP1}")
+  else()
+    string(
+      TOLOWER
+      ${MUX_GEN_MUX_NAME}
+      MUX_GEN_NAME
+    )
+  endif()
 
   if("${MUX_GEN_TYPE}" STREQUAL "routing")
     if(NOT "${MUX_GEN_SUBCKT}" STREQUAL "")
