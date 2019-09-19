@@ -25,4 +25,11 @@ foreach(type 18 36)
       SOURCES ${SYNTH_V}
       CYCLES 3000
       )
+
+  add_vivado_target(
+      NAME bram_test_${type}_vivado
+      PARENT_NAME bram_test_${type}
+      CLOCK_PINS clk
+      CLOCK_PERIODS 10.0
+      )
 endforeach()
