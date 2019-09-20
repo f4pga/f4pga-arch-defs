@@ -85,7 +85,7 @@ def main():
     repo = git.Repo("{}/.git".format(location))
     g = git.cmd.Git(location)
 
-    g.fetch()
+    g.fetch("-p")
     all_branches = g.branch("-r")
 
     # Remove spaces and special characters from branches
@@ -111,6 +111,8 @@ def main():
         g.checkout(['-b', 'master+wip-next'])
     except Exception:
         print("Branch master+wip-next already exists!")
+        g.checkout('master+wip-next')
+
     g.reset(['--hard', 'origin/master'])
 
     os.system(
