@@ -31,8 +31,9 @@ define_device_type(
   DEVICE_TYPE top-routing-virt
   ARCH ice40
   ARCH_XML arch.xml
-  SCRIPT_OUTPUT_NAME timing
+  SCRIPT_OUTPUT_NAME timing tiles
   SCRIPTS ${TIMING_IMPORT_CMD}
+  UPDATE_TILES
   )
 
 add_dependencies(ice40_top-routing-virt_arch ice40_import_timing_deps ice40_sdf_target)
