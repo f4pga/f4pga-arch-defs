@@ -244,6 +244,7 @@ function(DEFINE_DEVICE_TYPE)
   #   ARCH_XML <arch.xml>
   #   [SCRIPT_OUTPUT_NAME]
   #   [SCRIPTS]
+  #   UPDATE_TILES
   #   )
   # ~~~
   #
@@ -259,7 +260,7 @@ function(DEFINE_DEVICE_TYPE)
   #
   # If UPDATE_TIMINGS is set merged arch.xml file will be processed to inject
   # timing values using data from prjxray-db/$ARCH/timigs/*sdf files
-  set(options UPDATE_TIMINGS)
+  set(options UPDATE_TIMINGS UPDATE_TILES)
   set(oneValueArgs DEVICE_TYPE ARCH ARCH_XML)
   set(multiValueArgs SCRIPT_OUTPUT_NAME SCRIPTS)
   cmake_parse_arguments(
@@ -333,6 +334,19 @@ function(DEFINE_DEVICE_TYPE)
     endforeach(SCRIPT_IND RANGE ${SCRIPT_LEN})
   endif (DEFINE_DEVICE_TYPE_SCRIPTS)
 
+  if (${DEFINE_DEVICE_TYPE_UPDATE_TILES})
+    set(TEMP_TARGET arch.tiles.xml)
+    add_custom_command(
+      OUTPUT ${TEMP_TARGET}
+      COMMAND ${PYTHON3} ${symbiflow-arch-defs_SOURCE_DIR}/utils/update_arch_tiles.py --in_xml ${FINAL_FILE} --out_xml ${TEMP_TARGET}
+      DEPENDS ${PYTHON3} ${PYTHON3_TARGET} ${FINAL_TARGET}
+      )
+
+    add_file_target(FILE ${TEMP_TARGET} GENERATED)
+    get_file_target(FINAL_TARGET ${TEMP_TARGET})
+    get_file_location(FINAL_FILE ${TEMP_TARGET})
+    set(FINAL_OUTPUT ${TEMP_TARGET})
+  endif ()
   add_custom_target(
     ${DEFINE_DEVICE_TYPE_ARCH}_${DEFINE_DEVICE_TYPE_DEVICE_TYPE}_arch
     DEPENDS ${FINAL_TARGET}
