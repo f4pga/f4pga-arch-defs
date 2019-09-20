@@ -1,6 +1,6 @@
-add_fpga_target_boards(
-  NAME uart_loopback
-  BOARDS arty-uart
+add_fpga_target(
+  NAME uart_loopback_arty
+  BOARD arty-uart
   SOURCES uart_loopback.v
   INPUT_IO_FILE arty.pcf
   )
