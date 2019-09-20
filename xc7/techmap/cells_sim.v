@@ -625,3 +625,19 @@ module SRLC16E (
   endgenerate
 endmodule
 
+// ============================================================================
+// IO
+
+module INBUF_VPR (
+	input PAD,
+	output OUT
+);
+	assign OUT = PAD;
+endmodule
+
+module OUTBUF_VPR (
+	input IN,
+	output OUT
+);
+	assign OUT = IN;
+endmodule
