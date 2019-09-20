@@ -31,7 +31,7 @@ define_device_type(
   DEVICE_TYPE top-routing-virt
   ARCH ice40
   ARCH_XML arch.xml
-  SCRIPT_OUTPUT_NAME timing tiles
+  SCRIPT_OUTPUT_NAME timing
   SCRIPTS ${TIMING_IMPORT_CMD}
   UPDATE_TILES
   )
