@@ -51,7 +51,8 @@ function(ADD_XC7_ARCH_DEFINE)
         --map \${PINMAP} \
         --iostandard_defs \${OUT_EBLIF}.iostandard.json \
         --blif \${OUT_EBLIF} \
-        --pcf \${INPUT_IO_FILE}"
+        --pcf \${INPUT_IO_FILE} \
+        --net \${OUT_NET}"
     BITSTREAM_EXTENSION frames
     BIN_EXTENSION bit
     FASM_TO_BIT ${PRJXRAY_DIR}/utils/fasm2frames.py

@@ -57,11 +57,19 @@ def main():
         default=12,
         help='Drive to use for pins',
     )
+    parser.add_argument(
+        "--net",
+        '-n',
+        type=argparse.FileType('r'),
+        required=True,
+        help='top.net file'
+    )
 
     args = parser.parse_args()
 
     io_place = vpr_io_place.IoPlace()
     io_place.read_io_list_from_eblif(args.blif)
+    io_place.load_block_names_from_net_file(args.net)
 
     # Map of pad names to VPR locations.
     pad_map = {}
