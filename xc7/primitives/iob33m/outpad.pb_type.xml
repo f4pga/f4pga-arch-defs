@@ -1,0 +1,7 @@
+<pb_type name="outpad" blif_model=".output" num_pb="1">
+  <input name="outpad" num_pins="1"/>
+  <metadata>
+    <meta name="type">bel</meta>
+    <meta name="subtype">output</meta>
+  </metadata>
+</pb_type>

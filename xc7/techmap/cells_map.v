@@ -1870,3 +1870,29 @@ module SRL16E (
 
 endmodule
 
+// ============================================================================
+// IO
+
+module IBUF (
+  input I,
+  output O
+);
+
+   INBUF_VPR _TECHMAP_REPLACE_ (
+     .PAD(I),
+     .OUT(O)
+   );
+
+endmodule
+
+module OBUF (
+  input I,
+  output O
+);
+
+   OUTBUF_VPR _TECHMAP_REPLACE_ (
+     .IN(I),
+     .OUT(O)
+   );
+
+endmodule
