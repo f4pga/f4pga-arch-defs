@@ -6,6 +6,7 @@ import copy
 
 from lxml import etree as ET
 
+
 def add_tile_tags(arch):
     """
     This script is intended to modify the architecture description file to be compliant with
@@ -61,7 +62,6 @@ def add_tile_tags(arch):
             if child.tag in TAGS_TO_COPY:
                 child_copy = copy.deepcopy(child)
                 tile.append(child_copy)
-
 
     if arch.findall('./tiles'):
         return False
@@ -126,6 +126,7 @@ def main():
     if modified:
         with open(args.out_xml, "wb") as f:
             root.write(f, pretty_print=True)
+
 
 if __name__ == "__main__":
     main()
