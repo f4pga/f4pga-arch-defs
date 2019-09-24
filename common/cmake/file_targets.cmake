@@ -8,6 +8,8 @@
 #   generated or not should call this function.
 # * GET_FILE_TARGET - Given a absolute or local source path, what is the target
 #   that will build this file.
+# * GET_REL_TARGET - Given a absolute or local source path and prefix
+#   generates target name in a form $prefix_$file.
 # * GET_FILE_LOCATION - Given a absolute or local source path, what is the
 #   actual location of the file.
 #
