@@ -1280,12 +1280,12 @@ end
   );
 endmodule
 
-function [255:0] every_other_bit;
+function [255:0] every_other_bit_256;
    input [511:0] in;
    input         odd;
    integer       i;
    for (i = 0; i < 256; i = i + 1) begin
-      every_other_bit[i] = in[i * 2 + odd];
+      every_other_bit_256[i] = in[i * 2 + odd];
    end
 endfunction
 
@@ -1507,10 +1507,7 @@ end
       assign WEBWE_WIDE[3:2] = {2{WEBWE[1]}};
       assign WEBWE_WIDE[1:0] = {2{WEBWE[0]}};
   end else if(WRITE_WIDTH_B == 36) begin
-      assign WEBWE_WIDE[7:6] = {2{WEBWE[3]}};
-      assign WEBWE_WIDE[5:4] = {2{WEBWE[2]}};
-      assign WEBWE_WIDE[3:2] = {2{WEBWE[1]}};
-      assign WEBWE_WIDE[1:0] = {2{WEBWE[0]}};
+      assign WEBWE_WIDE = WEBWE;
   end else if(WRITE_WIDTH_B == 72) begin
       assign WEA_WIDE = 4'b0;
       assign WEBWE_WIDE = WEBWE;
@@ -1526,24 +1523,24 @@ end
       .ZSRVAL_B(SRVAL_B ^ {36{1'b1}}),
 
       `define INIT_PARAM_BLOCK_L(pre, n, d, upper) \
-      .``pre``_``n``0(every_other_bit({``pre``_``d``1, ``pre``_``d``0}, upper)), \
-      .``pre``_``n``1(every_other_bit({``pre``_``d``3, ``pre``_``d``2}, upper)), \
-      .``pre``_``n``2(every_other_bit({``pre``_``d``5, ``pre``_``d``4}, upper)), \
-      .``pre``_``n``3(every_other_bit({``pre``_``d``7, ``pre``_``d``6}, upper)), \
-      .``pre``_``n``4(every_other_bit({``pre``_``d``9, ``pre``_``d``8}, upper)), \
-      .``pre``_``n``5(every_other_bit({``pre``_``d``B, ``pre``_``d``A}, upper)), \
-      .``pre``_``n``6(every_other_bit({``pre``_``d``D, ``pre``_``d``C}, upper)), \
-      .``pre``_``n``7(every_other_bit({``pre``_``d``F, ``pre``_``d``E}, upper))
+      .``pre``_``n``0(every_other_bit_256({``pre``_``d``1, ``pre``_``d``0}, upper)), \
+      .``pre``_``n``1(every_other_bit_256({``pre``_``d``3, ``pre``_``d``2}, upper)), \
+      .``pre``_``n``2(every_other_bit_256({``pre``_``d``5, ``pre``_``d``4}, upper)), \
+      .``pre``_``n``3(every_other_bit_256({``pre``_``d``7, ``pre``_``d``6}, upper)), \
+      .``pre``_``n``4(every_other_bit_256({``pre``_``d``9, ``pre``_``d``8}, upper)), \
+      .``pre``_``n``5(every_other_bit_256({``pre``_``d``B, ``pre``_``d``A}, upper)), \
+      .``pre``_``n``6(every_other_bit_256({``pre``_``d``D, ``pre``_``d``C}, upper)), \
+      .``pre``_``n``7(every_other_bit_256({``pre``_``d``F, ``pre``_``d``E}, upper))
 
       `define INIT_PARAM_BLOCK_H(pre, n, d, upper) \
-      .``pre``_``n``8(every_other_bit({``pre``_``d``1, ``pre``_``d``0}, upper)), \
-      .``pre``_``n``9(every_other_bit({``pre``_``d``3, ``pre``_``d``2}, upper)), \
-      .``pre``_``n``A(every_other_bit({``pre``_``d``5, ``pre``_``d``4}, upper)), \
-      .``pre``_``n``B(every_other_bit({``pre``_``d``7, ``pre``_``d``6}, upper)), \
-      .``pre``_``n``C(every_other_bit({``pre``_``d``9, ``pre``_``d``8}, upper)), \
-      .``pre``_``n``D(every_other_bit({``pre``_``d``B, ``pre``_``d``A}, upper)), \
-      .``pre``_``n``E(every_other_bit({``pre``_``d``D, ``pre``_``d``C}, upper)), \
-      .``pre``_``n``F(every_other_bit({``pre``_``d``F, ``pre``_``d``E}, upper))
+      .``pre``_``n``8(every_other_bit_256({``pre``_``d``1, ``pre``_``d``0}, upper)), \
+      .``pre``_``n``9(every_other_bit_256({``pre``_``d``3, ``pre``_``d``2}, upper)), \
+      .``pre``_``n``A(every_other_bit_256({``pre``_``d``5, ``pre``_``d``4}, upper)), \
+      .``pre``_``n``B(every_other_bit_256({``pre``_``d``7, ``pre``_``d``6}, upper)), \
+      .``pre``_``n``C(every_other_bit_256({``pre``_``d``9, ``pre``_``d``8}, upper)), \
+      .``pre``_``n``D(every_other_bit_256({``pre``_``d``B, ``pre``_``d``A}, upper)), \
+      .``pre``_``n``E(every_other_bit_256({``pre``_``d``D, ``pre``_``d``C}, upper)), \
+      .``pre``_``n``F(every_other_bit_256({``pre``_``d``F, ``pre``_``d``E}, upper))
 
       `define INIT_PARAM_BLOCK(pre, n, lo, hi, upper) \
       `INIT_PARAM_BLOCK_L(pre, n, lo, upper), \
