@@ -8,6 +8,6 @@ This directory contains tests for the `v2x_to_model.py` and `v2x_to_pb_type` too
  - [ ] leaf pb\_type xml is generated
  - [ ] automatic inclusion of sub modules in model and pb\_type files
 
-## Pack pattern inferrence
+## Pack pattern inference
 
- - [ ] automatic pack patern inferrence for all the direct internal module connetions
+ - [ ] automatic pack pattern inference for all the direct internal module connections

@@ -8,8 +8,8 @@ Those tests should check the following features:
 
  - [ ] model of the leaf pb\_type is generated
  - [ ] leaf pb\_type xml is generated
- - [ ] all dependecy models and pb\_types are included in the output files
+ - [ ] all dependency models and pb\_types are included in the output files
 
-## Carry chain interence
+## Carry chain inference
 
- - [ ] pack\_pattern inferrence - pack\_patterns defined on wires with `pack` attributes should be propagated to pb\_type xmls
+ - [ ] pack\_pattern inference - pack\_patterns defined on wires with `pack` attributes should be propagated to pb\_type xmls

@@ -1,10 +1,10 @@
-## Dff tests
+## DFF tests
 
 This directory contains tests for the `v2x_to_model.py` and `v2x_to_pb_type` tools.
 
-## Combinational connection inferrence
+## Combinational connection inference
 
- - [ ] automatic inferrence of combinational connection between input and output signals
+ - [ ] automatic inference of combinational connection between input and output signals
 
 ## Blackbox detection
 

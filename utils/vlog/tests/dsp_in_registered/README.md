@@ -14,5 +14,5 @@ Those tests should check the following features:
 
  - [ ] model of the leaf pb\_type is generated
  - [ ] leaf pb\_type xml is generated
- - [ ] all dependecy models and pb\_types are included in the output files
+ - [ ] all dependency models and pb\_types are included in the output files
 
