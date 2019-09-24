@@ -35,12 +35,16 @@ The following are allowed on nets within modules (TODO: use proper Verilog timin
         delay matrix (semicolons indicate rows). In this format columns specify
         inputs bits and rows specify output bits. This should be applied to the output.
 
+    - `(* carry = ADDER *)` : specify carry chain pack_pattern associated with this wire
+
 The following are allowed on ports:
     - `(* CLOCK *)` : force a given port to be a clock
 
     - `(* ASSOC_CLOCK="RDCLK" *)` : force a port's associated clock to a given value
 
     - `(* PORT_CLASS="clock" *)` : specify the VPR "port_class"
+
+    - `(* carry = ADDER *)` : specify carry chain pack_pattern associated with this port
 
 The Verilog define "PB_TYPE" is set during generation.
 """
