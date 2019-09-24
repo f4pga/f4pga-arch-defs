@@ -27,4 +27,4 @@ add_fpga_target(
   BOARD arty-uart
   SOURCES counter_arty.v
   INPUT_IO_FILE arty.pcf
-  )
+)
