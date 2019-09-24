@@ -25,6 +25,7 @@ add_custom_target(clean_locks)
 
 # Add dummy targets for attaching test targets too.
 add_custom_target(all_xc7_tests)
+add_custom_target(all_xc7_diff_fasm)
 add_custom_target(all_ice40_tests)
 
 setup_env(
