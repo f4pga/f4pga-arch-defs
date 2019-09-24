@@ -216,7 +216,8 @@ add_custom_target(all_xc7_route_tests)
 
 if (NOT DEFINED ENV{CI} OR NOT $ENV{CI})
 add_dependencies(all_xc7_route_tests
-    all_dummy_artix7_xc7a50t-arty_test_route
+    all_dummy_artix7_xc7a50t-arty-swbut_test_route
+    all_dummy_artix7_xc7a50t-arty-uart_test_route
     all_dummy_artix7_xc7a50t-basys3_test_route
     )
 endif()
@@ -224,7 +225,8 @@ endif()
 add_custom_target(all_xc7_demos)
 if (NOT DEFINED ENV{CI} OR NOT $ENV{CI})
 add_dependencies(all_xc7_demos
-    all_arty_bin
+    all_arty-swbut_bin
+    all_arty-uart_bin
     all_basys3_bin
     # TODO(#548) Zybo targets not currently working, so removed from all target.
     #all_zybo_bin
