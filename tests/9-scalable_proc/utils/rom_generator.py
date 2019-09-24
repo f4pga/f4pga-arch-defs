@@ -115,7 +115,7 @@ RAM64X1D #
 )
 dram_{row}_{col}
 (
-.WCLK   (1'b0),
+.WCLK   (CLK),
 .WE     (1'b0), .D(1'b0),
 .DPRA0  (1'b0), .DPRA1(1'b0), .DPRA2(1'b0),
 .DPRA3  (1'b0), .DPRA4(1'b0), .DPRA5(1'b0),
