@@ -338,8 +338,14 @@ function(DEFINE_DEVICE_TYPE)
     set(TEMP_TARGET arch.tiles.xml)
     add_custom_command(
       OUTPUT ${TEMP_TARGET}
-      COMMAND ${PYTHON3} ${symbiflow-arch-defs_SOURCE_DIR}/utils/update_arch_tiles.py --in_xml ${FINAL_FILE} --out_xml ${TEMP_TARGET}
-      DEPENDS ${PYTHON3} ${PYTHON3_TARGET} ${FINAL_TARGET}
+      DEPENDS
+        ${PYTHON3} ${PYTHON3_TARGET}
+        ${FINAL_TARGET}
+        ${symbiflow-arch-defs_SOURCE_DIR}/utils/update_arch_tiles.py
+      COMMAND
+        ${PYTHON3} ${symbiflow-arch-defs_SOURCE_DIR}/utils/update_arch_tiles.py
+          --in_xml ${FINAL_FILE}
+          --out_xml ${TEMP_TARGET}
       )
 
     add_file_target(FILE ${TEMP_TARGET} GENERATED)
