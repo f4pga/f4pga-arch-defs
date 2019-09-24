@@ -32,6 +32,7 @@ define_device_type(
   ARCH ice40
   ARCH_XML arch.xml
   SCRIPT_OUTPUT_NAME timing
+  SCRIPT_DEPS ${SDF_FILE}
   SCRIPTS ${TIMING_IMPORT_CMD}
   UPDATE_TILES
   )
