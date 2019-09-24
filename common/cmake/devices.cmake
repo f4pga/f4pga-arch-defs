@@ -243,6 +243,7 @@ function(DEFINE_DEVICE_TYPE)
   #   ARCH <arch>
   #   ARCH_XML <arch.xml>
   #   [SCRIPT_OUTPUT_NAME]
+  #   [SCRIPT_DEPS]
   #   [SCRIPTS]
   #   UPDATE_TILES
   #   )
@@ -262,7 +263,7 @@ function(DEFINE_DEVICE_TYPE)
   # timing values using data from prjxray-db/$ARCH/timigs/*sdf files
   set(options UPDATE_TIMINGS UPDATE_TILES)
   set(oneValueArgs DEVICE_TYPE ARCH ARCH_XML)
-  set(multiValueArgs SCRIPT_OUTPUT_NAME SCRIPTS)
+  set(multiValueArgs SCRIPT_OUTPUT_NAME SCRIPTS SCRIPT_DEPS)
   cmake_parse_arguments(
     DEFINE_DEVICE_TYPE
     "${options}"
@@ -315,10 +316,11 @@ function(DEFINE_DEVICE_TYPE)
     foreach(SCRIPT_IND RANGE ${SCRIPT_LEN})
       list(GET DEFINE_DEVICE_TYPE_SCRIPT_OUTPUT_NAME ${SCRIPT_IND} OUTPUT_NAME)
       list(GET DEFINE_DEVICE_TYPE_SCRIPTS ${SCRIPT_IND} SCRIPT)
+      list(GET DEFINE_DEVICE_TYPE_SCRIPT_DEPS ${SCRIPT_IND} SCRIPT_DEPS)
       separate_arguments(CMD_W_ARGS UNIX_COMMAND ${SCRIPT})
       list(GET CMD_W_ARGS 0 CMD)
       set(TEMP_TARGET arch.${OUTPUT_NAME}.xml)
-      set(DEPS ${PYTHON3} ${PYTHON3_TARGET} ${CMD})
+      set(DEPS ${PYTHON3} ${PYTHON3_TARGET} ${CMD} ${SCRIPT_DEPS})
       append_file_dependency(DEPS ${FINAL_OUTPUT})
 
       add_custom_command(
