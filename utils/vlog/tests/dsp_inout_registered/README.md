@@ -8,11 +8,11 @@ Those tests should check the following features:
 ## Detection of combinational connections
 
  - [ ] output has combinational connection with input
- - [ ] pack\_pattern defined on wire connetions with `pack` attribute
+ - [ ] pack\_pattern defined on wire connections with `pack` attribute
 
 ## Blackbox detection
 
  - [ ] model of the leaf pb\_type is generated
  - [ ] leaf pb\_type xml is generated
- - [ ] all dependecy models and pb\_types are included in the output files
+ - [ ] all dependency models and pb\_types are included in the output files
 
