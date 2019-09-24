@@ -55,7 +55,7 @@ generate for(i=0; i<4; i=i+1) begin
                     (i==1) ?   "SLICE_X2Y101" :
                     (i==2) ?   "SLICE_X2Y102" : "SLICE_X2Y103";
 
-  srl_shift_tester #(.SRL_LENGTH(32 * (i+1))) tester
+  srl_shift_tester #(.FIXED_DELAY(32*(i+1)-1), .SRL_LENGTH(32 * (i+1))) tester
   (
   .clk      (clk),
   .rst      (rst),
