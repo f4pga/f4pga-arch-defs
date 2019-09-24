@@ -275,78 +275,160 @@ reason, BRAM tiles use a "fused sites" mode to accomidate the cross site logic.
   </interconnect>
  </mode>
  <mode name="2xBRAM18">
-  <pb_type name="RAMB18E1" num_pb="2" blif_model=".subckt RAMB18E1_VPR">
+  <pb_type name="RAMB18E1_Y0" num_pb="1">
+   <clock  name="CLKARDCLK"     num_pins="1"  />
+    <input  name="REGCEAREGCE"   num_pins="1"  />
+    <input  name="REGCLKARDRCLK" num_pins="1"  />
+    <input  name="ENARDEN"       num_pins="1"  />
+    <input  name="RSTRAMARSTRAM" num_pins="1"  />
+    <input  name="RSTREGARSTREG" num_pins="1"  />
+    <input  name="ADDRATIEHIGH"  num_pins="2"  />
+    <input  name="ADDRARDADDR"   num_pins="14" />
+    <input  name="DIADI"         num_pins="16" />
+    <input  name="DIPADIP"       num_pins="2"  />
+    <input  name="WEA"           num_pins="4"  />
+    <output name="DOADO"         num_pins="16" />
+    <output name="DOPADOP"       num_pins="2"  />
+
+    <clock  name="CLKBWRCLK"     num_pins="1"  />
+    <input  name="ENBWREN"       num_pins="1"  />
+    <input  name="REGCEB"        num_pins="1"  />
+    <input  name="REGCLKB"       num_pins="1"  />
+    <input  name="RSTRAMB"       num_pins="1"  />
+    <input  name="RSTREGB"       num_pins="1"  />
+    <input  name="ADDRBTIEHIGH"  num_pins="2"  />
+    <input  name="ADDRBWRADDR"   num_pins="14" />
+    <input  name="DIBDI"         num_pins="16" />
+    <input  name="DIPBDIP"       num_pins="2"  />
+    <input  name="WEBWE"         num_pins="8"  />
+    <output name="DOBDO"         num_pins="16" />
+    <output name="DOPBDOP"       num_pins="2"  />
+
+    <mode name="Unused BRAM">
+     <interconnect />
+    </mode>
+    <mode name="RAMB18_Y0">
+     <pb_type name="RAMB18E1_Y0_IN" num_pb="1" blif_model=".subckt RAMB18E1_VPR">
+      <xi:include href="ramb18e1.pb_type.xml" xpointer="xpointer(pb_type/child::node()[local-name()!='metadata'])" />
+      <metadata>
+       <xi:include href="ramb18e1.pb_type.xml" xpointer="xpointer(pb_type/metadata/child::node())" />
+       <meta name="fasm_prefix">RAMB18_Y0</meta>
+      </metadata>
+     </pb_type>
+     <interconnect>
+      <direct name="WREN"             input="RAMB18E1_Y0.ENBWREN"       output="RAMB18E1_Y0_IN.ENBWREN" />
+      <direct name="WRCLK"            input="RAMB18E1_Y0.CLKBWRCLK"     output="RAMB18E1_Y0_IN.CLKBWRCLK" />
+      <direct name="WEBWE"            input="RAMB18E1_Y0.WEBWE"         output="RAMB18E1_Y0_IN.WEBWE" />
+      <direct name="WEA"              input="RAMB18E1_Y0.WEA"           output="RAMB18E1_Y0_IN.WEA" />
+
+      <direct name="RSTREGB"          input="RAMB18E1_Y0.RSTREGB"       output="RAMB18E1_Y0_IN.RSTREGB" />
+      <direct name="RSTREG"           input="RAMB18E1_Y0.RSTREGARSTREG" output="RAMB18E1_Y0_IN.RSTREGARSTREG" />
+      <direct name="RSTRAMB"          input="RAMB18E1_Y0.RSTRAMB"       output="RAMB18E1_Y0_IN.RSTRAMB" />
+      <direct name="RST"              input="RAMB18E1_Y0.RSTRAMARSTRAM" output="RAMB18E1_Y0_IN.RSTRAMARSTRAM" />
+
+      <direct name="REGCLKB"          input="RAMB18E1_Y0.REGCLKB"       output="RAMB18E1_Y0_IN.REGCLKB" />
+      <direct name="REGCEB"           input="RAMB18E1_Y0.REGCEB"        output="RAMB18E1_Y0_IN.REGCEB" />
+      <direct name="REGCE"            input="RAMB18E1_Y0.REGCEAREGCE"   output="RAMB18E1_Y0_IN.REGCEAREGCE" />
+      <direct name="RDRCLK"           input="RAMB18E1_Y0.REGCLKARDRCLK" output="RAMB18E1_Y0_IN.REGCLKARDRCLK" />
+      <direct name="RDEN"             input="RAMB18E1_Y0.ENARDEN"       output="RAMB18E1_Y0_IN.ENARDEN" />
+      <direct name="RDCLK"            input="RAMB18E1_Y0.CLKARDCLK"     output="RAMB18E1_Y0_IN.CLKARDCLK" />
+
+      <direct name="DIPBDIP"          input="RAMB18E1_Y0.DIPBDIP"       output="RAMB18E1_Y0_IN.DIPBDIP" />
+      <direct name="DIPADIP"          input="RAMB18E1_Y0.DIPADIP"       output="RAMB18E1_Y0_IN.DIPADIP" />
+      <direct name="DIBDI"            input="RAMB18E1_Y0.DIBDI"         output="RAMB18E1_Y0_IN.DIBDI" />
+      <direct name="DIADI"            input="RAMB18E1_Y0.DIADI"         output="RAMB18E1_Y0_IN.DIADI" />
+
+      <direct name="ADDRATIEHIGH"     input="RAMB18E1_Y0.ADDRATIEHIGH"  output="RAMB18E1_Y0_IN.ADDRATIEHIGH" />
+      <direct name="ADDRARDADDR"      input="RAMB18E1_Y0.ADDRARDADDR"   output="RAMB18E1_Y0_IN.ADDRARDADDR" />
+      <direct name="ADDRBTIEHIGH"     input="RAMB18E1_Y0.ADDRBTIEHIGH"  output="RAMB18E1_Y0_IN.ADDRBTIEHIGH" />
+      <direct name="ADDRBWRADDR"      input="RAMB18E1_Y0.ADDRBWRADDR"   output="RAMB18E1_Y0_IN.ADDRBWRADDR" />
+
+      <direct name="DOBDOP"           input="RAMB18E1_Y0_IN.DOPBDOP"    output="RAMB18E1_Y0.DOPBDOP" />
+      <direct name="DOADOP"           input="RAMB18E1_Y0_IN.DOPADOP"    output="RAMB18E1_Y0.DOPADOP" />
+      <direct name="DOBDO"            input="RAMB18E1_Y0_IN.DOBDO"      output="RAMB18E1_Y0.DOBDO" />
+      <direct name="DOADO"            input="RAMB18E1_Y0_IN.DOADO"      output="RAMB18E1_Y0.DOADO" />
+     </interconnect>
+     <metadata>
+      <!-- These features are emitted when RAMB18_Y0 is used in RAM mode. -->
+      <meta name="fasm_features">
+       ZALMOST_EMPTY_OFFSET[12:0]=13'b1111111111111
+       ZALMOST_FULL_OFFSET[12:0]=13'b1111111111111
+      </meta>
+     </metadata>
+    </mode>
+  </pb_type>
+  <pb_type name="RAMB18E1_Y1" num_pb="1" blif_model=".subckt RAMB18E1_VPR">
    <xi:include href="ramb18e1.pb_type.xml" xpointer="xpointer(pb_type/child::node()[local-name()!='metadata'])" />
    <metadata>
      <xi:include href="ramb18e1.pb_type.xml" xpointer="xpointer(pb_type/metadata/child::node())" />
-     <meta name="fasm_prefix">RAMB18_Y0 RAMB18_Y1</meta>
+     <meta name="fasm_prefix">RAMB18_Y1</meta>
    </metadata>
   </pb_type>
   <interconnect>
    <!-- Y0 should point to a rambfifo18e1 model, not ramb18e1 model. -->
-   <direct name="RAMB18_X0Y0_WREN"             input="BRAM.RAMB18_Y0_WREN"              output="RAMB18E1[0].ENBWREN" />
-   <direct name="RAMB18_X0Y0_WRCLK"            input="BRAM.RAMB18_Y0_WRCLK"             output="RAMB18E1[0].CLKBWRCLK" />
-   <direct name="RAMB18_X0Y0_WEBWE"            input="BRAM.RAMB18_Y0_WEBWE"             output="RAMB18E1[0].WEBWE" />
-   <direct name="RAMB18_X0Y0_WEA"              input="BRAM.RAMB18_Y0_WEA"               output="RAMB18E1[0].WEA" />
+   <direct name="RAMB18_X0Y0_WREN"             input="BRAM.RAMB18_Y0_WREN"              output="RAMB18E1_Y0.ENBWREN" />
+   <direct name="RAMB18_X0Y0_WRCLK"            input="BRAM.RAMB18_Y0_WRCLK"             output="RAMB18E1_Y0.CLKBWRCLK" />
+   <direct name="RAMB18_X0Y0_WEBWE"            input="BRAM.RAMB18_Y0_WEBWE"             output="RAMB18E1_Y0.WEBWE" />
+   <direct name="RAMB18_X0Y0_WEA"              input="BRAM.RAMB18_Y0_WEA"               output="RAMB18E1_Y0.WEA" />
 
-   <direct name="RAMB18_X0Y0_RSTREGB"          input="BRAM.RAMB18_Y0_RSTREGB"           output="RAMB18E1[0].RSTREGB" />
-   <direct name="RAMB18_X0Y0_RSTREG"           input="BRAM.RAMB18_Y0_RSTREG"            output="RAMB18E1[0].RSTREGARSTREG" />
-   <direct name="RAMB18_X0Y0_RSTRAMB"          input="BRAM.RAMB18_Y0_RSTRAMB"           output="RAMB18E1[0].RSTRAMB" />
-   <direct name="RAMB18_X0Y0_RST"              input="BRAM.RAMB18_Y0_RST"               output="RAMB18E1[0].RSTRAMARSTRAM" />
+   <direct name="RAMB18_X0Y0_RSTREGB"          input="BRAM.RAMB18_Y0_RSTREGB"           output="RAMB18E1_Y0.RSTREGB" />
+   <direct name="RAMB18_X0Y0_RSTREG"           input="BRAM.RAMB18_Y0_RSTREG"            output="RAMB18E1_Y0.RSTREGARSTREG" />
+   <direct name="RAMB18_X0Y0_RSTRAMB"          input="BRAM.RAMB18_Y0_RSTRAMB"           output="RAMB18E1_Y0.RSTRAMB" />
+   <direct name="RAMB18_X0Y0_RST"              input="BRAM.RAMB18_Y0_RST"               output="RAMB18E1_Y0.RSTRAMARSTRAM" />
 
-   <direct name="RAMB18_X0Y0_REGCLKB"          input="BRAM.RAMB18_Y0_REGCLKB"           output="RAMB18E1[0].REGCLKB" />
-   <direct name="RAMB18_X0Y0_REGCEB"           input="BRAM.RAMB18_Y0_REGCEB"            output="RAMB18E1[0].REGCEB" />
-   <direct name="RAMB18_X0Y0_REGCE"            input="BRAM.RAMB18_Y0_REGCE"             output="RAMB18E1[0].REGCEAREGCE" />
-   <direct name="RAMB18_X0Y0_RDRCLK"           input="BRAM.RAMB18_Y0_RDRCLK"            output="RAMB18E1[0].REGCLKARDRCLK" />
-   <direct name="RAMB18_X0Y0_RDEN"             input="BRAM.RAMB18_Y0_RDEN"              output="RAMB18E1[0].ENARDEN" />
-   <direct name="RAMB18_X0Y0_RDCLK"            input="BRAM.RAMB18_Y0_RDCLK"             output="RAMB18E1[0].CLKARDCLK" />
+   <direct name="RAMB18_X0Y0_REGCLKB"          input="BRAM.RAMB18_Y0_REGCLKB"           output="RAMB18E1_Y0.REGCLKB" />
+   <direct name="RAMB18_X0Y0_REGCEB"           input="BRAM.RAMB18_Y0_REGCEB"            output="RAMB18E1_Y0.REGCEB" />
+   <direct name="RAMB18_X0Y0_REGCE"            input="BRAM.RAMB18_Y0_REGCE"             output="RAMB18E1_Y0.REGCEAREGCE" />
+   <direct name="RAMB18_X0Y0_RDRCLK"           input="BRAM.RAMB18_Y0_RDRCLK"            output="RAMB18E1_Y0.REGCLKARDRCLK" />
+   <direct name="RAMB18_X0Y0_RDEN"             input="BRAM.RAMB18_Y0_RDEN"              output="RAMB18E1_Y0.ENARDEN" />
+   <direct name="RAMB18_X0Y0_RDCLK"            input="BRAM.RAMB18_Y0_RDCLK"             output="RAMB18E1_Y0.CLKARDCLK" />
 
-   <direct name="RAMB18_X0Y0_DIPBDIP"          input="BRAM.RAMB18_Y0_DIPBDIP"           output="RAMB18E1[0].DIPBDIP" />
-   <direct name="RAMB18_X0Y0_DIPADIP"          input="BRAM.RAMB18_Y0_DIPADIP"           output="RAMB18E1[0].DIPADIP" />
-   <direct name="RAMB18_X0Y0_DIBDI"            input="BRAM.RAMB18_Y0_DIBDI"             output="RAMB18E1[0].DIBDI" />
-   <direct name="RAMB18_X0Y0_DIADI"            input="BRAM.RAMB18_Y0_DIADI"             output="RAMB18E1[0].DIADI" />
+   <direct name="RAMB18_X0Y0_DIPBDIP"          input="BRAM.RAMB18_Y0_DIPBDIP"           output="RAMB18E1_Y0.DIPBDIP" />
+   <direct name="RAMB18_X0Y0_DIPADIP"          input="BRAM.RAMB18_Y0_DIPADIP"           output="RAMB18E1_Y0.DIPADIP" />
+   <direct name="RAMB18_X0Y0_DIBDI"            input="BRAM.RAMB18_Y0_DIBDI"             output="RAMB18E1_Y0.DIBDI" />
+   <direct name="RAMB18_X0Y0_DIADI"            input="BRAM.RAMB18_Y0_DIADI"             output="RAMB18E1_Y0.DIADI" />
 
-   <direct name="RAMB18_X0Y0_ADDRATIEHIGH"     input="BRAM.RAMB18_Y0_ADDRATIEHIGH"      output="RAMB18E1[0].ADDRATIEHIGH" />
-   <direct name="RAMB18_X0Y0_ADDRARDADDR"      input="BRAM.RAMB18_Y0_ADDRARDADDR"       output="RAMB18E1[0].ADDRARDADDR" />
-   <direct name="RAMB18_X0Y0_ADDRBTIEHIGH"     input="BRAM.RAMB18_Y0_ADDRBTIEHIGH"      output="RAMB18E1[0].ADDRBTIEHIGH" />
-   <direct name="RAMB18_X0Y0_ADDRBWRADDR"      input="BRAM.RAMB18_Y0_ADDRBWRADDR"       output="RAMB18E1[0].ADDRBWRADDR" />
+   <direct name="RAMB18_X0Y0_ADDRATIEHIGH"     input="BRAM.RAMB18_Y0_ADDRATIEHIGH"      output="RAMB18E1_Y0.ADDRATIEHIGH" />
+   <direct name="RAMB18_X0Y0_ADDRARDADDR"      input="BRAM.RAMB18_Y0_ADDRARDADDR"       output="RAMB18E1_Y0.ADDRARDADDR" />
+   <direct name="RAMB18_X0Y0_ADDRBTIEHIGH"     input="BRAM.RAMB18_Y0_ADDRBTIEHIGH"      output="RAMB18E1_Y0.ADDRBTIEHIGH" />
+   <direct name="RAMB18_X0Y0_ADDRBWRADDR"      input="BRAM.RAMB18_Y0_ADDRBWRADDR"       output="RAMB18E1_Y0.ADDRBWRADDR" />
 
-   <direct name="RAMB18_X0Y0_DOBDOP"           input="RAMB18E1[0].DOPBDOP"              output="BRAM.RAMB18_Y0_DOP[3:2]" />
-   <direct name="RAMB18_X0Y0_DOADOP"           input="RAMB18E1[0].DOPADOP"              output="BRAM.RAMB18_Y0_DOP[1:0]" />
-   <direct name="RAMB18_X0Y0_DOBDO"            input="RAMB18E1[0].DOBDO"                output="BRAM.RAMB18_Y0_DO[31:16]" />
-   <direct name="RAMB18_X0Y0_DOADO"            input="RAMB18E1[0].DOADO"                output="BRAM.RAMB18_Y0_DO[15:0]" />
+   <direct name="RAMB18_X0Y0_DOBDOP"           input="RAMB18E1_Y0.DOPBDOP"              output="BRAM.RAMB18_Y0_DOP[3:2]" />
+   <direct name="RAMB18_X0Y0_DOADOP"           input="RAMB18E1_Y0.DOPADOP"              output="BRAM.RAMB18_Y0_DOP[1:0]" />
+   <direct name="RAMB18_X0Y0_DOBDO"            input="RAMB18E1_Y0.DOBDO"                output="BRAM.RAMB18_Y0_DO[31:16]" />
+   <direct name="RAMB18_X0Y0_DOADO"            input="RAMB18E1_Y0.DOADO"                output="BRAM.RAMB18_Y0_DO[15:0]" />
 
-   <direct name="RAMB18_X0Y1_ENBWREN"          input="BRAM.RAMB18_Y1_ENBWREN"           output="RAMB18E1[1].ENBWREN" />
-   <direct name="RAMB18_X0Y1_CLKBWRCLK"        input="BRAM.RAMB18_Y1_CLKBWRCLK"         output="RAMB18E1[1].CLKBWRCLK" />
-   <direct name="RAMB18_X0Y1_WEBWE"            input="BRAM.RAMB18_Y1_WEBWE"             output="RAMB18E1[1].WEBWE" />
-   <direct name="RAMB18_X0Y1_WEA"              input="BRAM.RAMB18_Y1_WEA"               output="RAMB18E1[1].WEA" />
+   <direct name="RAMB18_X0Y1_ENBWREN"          input="BRAM.RAMB18_Y1_ENBWREN"           output="RAMB18E1_Y1.ENBWREN" />
+   <direct name="RAMB18_X0Y1_CLKBWRCLK"        input="BRAM.RAMB18_Y1_CLKBWRCLK"         output="RAMB18E1_Y1.CLKBWRCLK" />
+   <direct name="RAMB18_X0Y1_WEBWE"            input="BRAM.RAMB18_Y1_WEBWE"             output="RAMB18E1_Y1.WEBWE" />
+   <direct name="RAMB18_X0Y1_WEA"              input="BRAM.RAMB18_Y1_WEA"               output="RAMB18E1_Y1.WEA" />
 
-   <direct name="RAMB18_X0Y1_RSTREGB"          input="BRAM.RAMB18_Y1_RSTREGB"           output="RAMB18E1[1].RSTREGB" />
-   <direct name="RAMB18_X0Y1_RSTREGARSTREG"    input="BRAM.RAMB18_Y1_RSTREGARSTREG"     output="RAMB18E1[1].RSTREGARSTREG" />
-   <direct name="RAMB18_X0Y1_RSTRAMB"          input="BRAM.RAMB18_Y1_RSTRAMB"           output="RAMB18E1[1].RSTRAMB" />
-   <direct name="RAMB18_X0Y1_RSTRAMARSTRAM"    input="BRAM.RAMB18_Y1_RSTRAMARSTRAM"     output="RAMB18E1[1].RSTRAMARSTRAM" />
+   <direct name="RAMB18_X0Y1_RSTREGB"          input="BRAM.RAMB18_Y1_RSTREGB"           output="RAMB18E1_Y1.RSTREGB" />
+   <direct name="RAMB18_X0Y1_RSTREGARSTREG"    input="BRAM.RAMB18_Y1_RSTREGARSTREG"     output="RAMB18E1_Y1.RSTREGARSTREG" />
+   <direct name="RAMB18_X0Y1_RSTRAMB"          input="BRAM.RAMB18_Y1_RSTRAMB"           output="RAMB18E1_Y1.RSTRAMB" />
+   <direct name="RAMB18_X0Y1_RSTRAMARSTRAM"    input="BRAM.RAMB18_Y1_RSTRAMARSTRAM"     output="RAMB18E1_Y1.RSTRAMARSTRAM" />
 
-   <direct name="RAMB18_X0Y1_REGCLKB"          input="BRAM.RAMB18_Y1_REGCLKB"           output="RAMB18E1[1].REGCLKB" />
-   <direct name="RAMB18_X0Y1_REGCEB"           input="BRAM.RAMB18_Y1_REGCEB"            output="RAMB18E1[1].REGCEB" />
-   <direct name="RAMB18_X0Y1_REGCEAREGCE"      input="BRAM.RAMB18_Y1_REGCEAREGCE"       output="RAMB18E1[1].REGCEAREGCE" />
-   <direct name="RAMB18_X0Y1_REGCLKARDRCLK"    input="BRAM.RAMB18_Y1_REGCLKARDRCLK"     output="RAMB18E1[1].REGCLKARDRCLK" />
-   <direct name="RAMB18_X0Y1_ENARDEN"          input="BRAM.RAMB18_Y1_ENARDEN"           output="RAMB18E1[1].ENARDEN" />
-   <direct name="RAMB18_X0Y1_CLKARDCLK"        input="BRAM.RAMB18_Y1_CLKARDCLK"         output="RAMB18E1[1].CLKARDCLK" />
+   <direct name="RAMB18_X0Y1_REGCLKB"          input="BRAM.RAMB18_Y1_REGCLKB"           output="RAMB18E1_Y1.REGCLKB" />
+   <direct name="RAMB18_X0Y1_REGCEB"           input="BRAM.RAMB18_Y1_REGCEB"            output="RAMB18E1_Y1.REGCEB" />
+   <direct name="RAMB18_X0Y1_REGCEAREGCE"      input="BRAM.RAMB18_Y1_REGCEAREGCE"       output="RAMB18E1_Y1.REGCEAREGCE" />
+   <direct name="RAMB18_X0Y1_REGCLKARDRCLK"    input="BRAM.RAMB18_Y1_REGCLKARDRCLK"     output="RAMB18E1_Y1.REGCLKARDRCLK" />
+   <direct name="RAMB18_X0Y1_ENARDEN"          input="BRAM.RAMB18_Y1_ENARDEN"           output="RAMB18E1_Y1.ENARDEN" />
+   <direct name="RAMB18_X0Y1_CLKARDCLK"        input="BRAM.RAMB18_Y1_CLKARDCLK"         output="RAMB18E1_Y1.CLKARDCLK" />
 
-   <direct name="RAMB18_X0Y1_DIPBDIP"          input="BRAM.RAMB18_Y1_DIPBDIP"           output="RAMB18E1[1].DIPBDIP" />
-   <direct name="RAMB18_X0Y1_DIPADIP"          input="BRAM.RAMB18_Y1_DIPADIP"           output="RAMB18E1[1].DIPADIP" />
-   <direct name="RAMB18_X0Y1_DIBDI"            input="BRAM.RAMB18_Y1_DIBDI"             output="RAMB18E1[1].DIBDI" />
-   <direct name="RAMB18_X0Y1_DIADI"            input="BRAM.RAMB18_Y1_DIADI"             output="RAMB18E1[1].DIADI" />
+   <direct name="RAMB18_X0Y1_DIPBDIP"          input="BRAM.RAMB18_Y1_DIPBDIP"           output="RAMB18E1_Y1.DIPBDIP" />
+   <direct name="RAMB18_X0Y1_DIPADIP"          input="BRAM.RAMB18_Y1_DIPADIP"           output="RAMB18E1_Y1.DIPADIP" />
+   <direct name="RAMB18_X0Y1_DIBDI"            input="BRAM.RAMB18_Y1_DIBDI"             output="RAMB18E1_Y1.DIBDI" />
+   <direct name="RAMB18_X0Y1_DIADI"            input="BRAM.RAMB18_Y1_DIADI"             output="RAMB18E1_Y1.DIADI" />
 
-   <direct name="RAMB18_X0Y1_ADDRATIEHIGH"     input="BRAM.RAMB18_Y1_ADDRATIEHIGH"      output="RAMB18E1[1].ADDRATIEHIGH" />
-   <direct name="RAMB18_X0Y1_ADDRARDADDR"      input="BRAM.RAMB18_Y1_ADDRARDADDR"       output="RAMB18E1[1].ADDRARDADDR" />
-   <direct name="RAMB18_X0Y1_ADDRBTIEHIGH"     input="BRAM.RAMB18_Y1_ADDRBTIEHIGH"      output="RAMB18E1[1].ADDRBTIEHIGH" />
-   <direct name="RAMB18_X0Y1_ADDRBWRADDR"      input="BRAM.RAMB18_Y1_ADDRBWRADDR"       output="RAMB18E1[1].ADDRBWRADDR" />
+   <direct name="RAMB18_X0Y1_ADDRATIEHIGH"     input="BRAM.RAMB18_Y1_ADDRATIEHIGH"      output="RAMB18E1_Y1.ADDRATIEHIGH" />
+   <direct name="RAMB18_X0Y1_ADDRARDADDR"      input="BRAM.RAMB18_Y1_ADDRARDADDR"       output="RAMB18E1_Y1.ADDRARDADDR" />
+   <direct name="RAMB18_X0Y1_ADDRBTIEHIGH"     input="BRAM.RAMB18_Y1_ADDRBTIEHIGH"      output="RAMB18E1_Y1.ADDRBTIEHIGH" />
+   <direct name="RAMB18_X0Y1_ADDRBWRADDR"      input="BRAM.RAMB18_Y1_ADDRBWRADDR"       output="RAMB18E1_Y1.ADDRBWRADDR" />
 
-   <direct name="RAMB18_X0Y1_DOPADOP"          input="RAMB18E1[1].DOPADOP"              output="BRAM.RAMB18_Y1_DOPADOP" />
-   <direct name="RAMB18_X0Y1_DOPBDOP"          input="RAMB18E1[1].DOPBDOP"              output="BRAM.RAMB18_Y1_DOPBDOP" />
-   <direct name="RAMB18_X0Y1_DOADO"            input="RAMB18E1[1].DOADO"                output="BRAM.RAMB18_Y1_DOADO" />
-   <direct name="RAMB18_X0Y1_DOBDO"            input="RAMB18E1[1].DOBDO"                output="BRAM.RAMB18_Y1_DOBDO" />
+   <direct name="RAMB18_X0Y1_DOPADOP"          input="RAMB18E1_Y1.DOPADOP"              output="BRAM.RAMB18_Y1_DOPADOP" />
+   <direct name="RAMB18_X0Y1_DOPBDOP"          input="RAMB18E1_Y1.DOPBDOP"              output="BRAM.RAMB18_Y1_DOPBDOP" />
+   <direct name="RAMB18_X0Y1_DOADO"            input="RAMB18E1_Y1.DOADO"                output="BRAM.RAMB18_Y1_DOADO" />
+   <direct name="RAMB18_X0Y1_DOBDO"            input="RAMB18E1_Y1.DOBDO"                output="BRAM.RAMB18_Y1_DOBDO" />
   </interconnect>
  </mode>
  <metadata>
