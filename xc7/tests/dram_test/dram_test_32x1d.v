@@ -38,29 +38,28 @@ module top (
 
     wire [4:0] write_address;
     wire [4:0] read_address;
-    wire [5:0] read_data_unreg;
-    reg [5:0] read_data = 6'b0;
-    wire [5:0] write_data;
+    wire [0:0] read_data;
+    wire [0:0] write_data;
     wire write_enable;
 
-    wire [5:0] rom_read_data;
+    wire [0:0] rom_read_data;
     wire [4:0] rom_read_address;
-    assign rom_read_data = {~rom_read_address[0], rom_read_address[4:0]};
+    assign rom_read_data[0] = ^rom_read_address;
 
     wire loop_complete;
     wire error_detected;
     wire [7:0] error_state;
     wire [4:0] error_address;
-    wire [5:0] expected_data;
-    wire [5:0] actual_data;
+    wire [0:0] expected_data;
+    wire [0:0] actual_data;
 
     RAM_TEST #(
         .ADDR_WIDTH(5),
-        .DATA_WIDTH(6),
+        .DATA_WIDTH(1),
         .IS_DUAL_PORT(1),
         .ADDRESS_STEP(1),
         // 32-bit LUT memories are 0-31
-        .MAX_ADDRESS(31),
+        .MAX_ADDRESS(31)
     ) dram_test (
         .rst(!nrst),
         .clk(clk),
@@ -82,35 +81,37 @@ module top (
         .actual_data(actual_data)
     );
 
-    RAM32M #(
-        .INIT_C(64'b0101_0101_0101_0101_0101_0101_0101_0101_1111_1111_1111_1111_0000_0000_0000_0000),
-        .INIT_B(64'b1111_1111_0000_0000_1111_1111_0000_0000_1111_0000_1111_0000_1111_0000_1111_0000),
-        .INIT_A(64'b1100_1100_1100_1100_1100_1100_1100_1100_1010_1010_1010_1010_1010_1010_1010_1010)
+    wire [0:0] read_data_pre_ff;
+
+    RAM32X1D #(
+        .INIT(32'b10010110_01101001_01101001_10010110)
     ) dram(
         .WCLK(clk),
-
-        .ADDRD(write_address),
-        .ADDRC(read_address),
-        .ADDRB(read_address),
-        .ADDRA(read_address),
-
-        .DOC(read_data_unreg[5:4]),
-        .DOB(read_data_unreg[3:2]),
-        .DOA(read_data_unreg[1:0]),
-
-        .DIC(write_data[5:4]),
-        .DIB(write_data[3:2]),
-        .DIA(write_data[1:0]),
-
+        .A4(write_address[4]),
+        .A3(write_address[3]),
+        .A2(write_address[2]),
+        .A1(write_address[1]),
+        .A0(write_address[0]),
+        .DPRA4(read_address[4]),
+        .DPRA3(read_address[3]),
+        .DPRA2(read_address[2]),
+        .DPRA1(read_address[1]),
+        .DPRA0(read_address[0]),
+        .DPO(read_data_pre_ff[0]),
+        .D(write_data[0]),
         .WE(write_enable)
     );
 
-    always @(posedge clk) begin
-        read_data <= read_data_unreg;
-    end
+    FDRE ram_reg(
+        .D(read_data_pre_ff),
+        .Q(read_data[0]),
+        .C(clk),
+        .CE(1),
+        .R(0)
+    );
 
     ERROR_OUTPUT_LOGIC #(
-        .DATA_WIDTH(6),
+        .DATA_WIDTH(1),
         .ADDR_WIDTH(5)
     ) output_logic(
         .clk(clk),
