@@ -90,7 +90,17 @@
             "D_DRAM":
                 ["LUT_OR_MEM5LRAM.SLICEM/D5LUT"]
         },
-        "DPRAM32": {
+        "DPRAM32_O6": {
+            "A_DRAM":
+                ["LUT_OR_MEM5LRAM.SLICEM/A5LUT"],
+            "B_DRAM":
+                ["LUT_OR_MEM5LRAM.SLICEM/B5LUT"],
+            "C_DRAM":
+                ["LUT_OR_MEM5LRAM.SLICEM/C5LUT"],
+            "D_DRAM":
+                ["LUT_OR_MEM5LRAM.SLICEM/D5LUT"]
+        },
+        "DPRAM32_O5": {
             "A_DRAM":
                 ["LUT_OR_MEM5LRAM.SLICEM/A5LUT"],
             "B_DRAM":

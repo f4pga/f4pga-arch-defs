@@ -1,4 +1,4 @@
-<pb_type name="DPRAM32" num_pb="2" blif_model=".subckt DPRAM32">
+<pb_type name="DPRAM32" num_pb="1" blif_model=".subckt DPRAM32">
   <clock  name="CLK" num_pins="1" />
 
   <!-- A1 - Read port -->
@@ -30,9 +30,6 @@
   <T_clock_to_Q   max="10e-12" port="DI"    clock="CLK"  />
   <delay_constant max="10e-12" in_port="DI" out_port="O" />
   <metadata>
-    <meta name="fasm_params">
-      INIT[31:0] = INIT_00
-    </meta>
     <meta name="fasm_features">
       RAM
       SMALL
