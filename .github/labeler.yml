@@ -1,0 +1,51 @@
+# Architecture tags
+arch-artix7:
+- artix7/**
+
+arch-ice40:
+- ice40/**
+
+arch-test:
+- testarch/**
+
+arch-base:
+- vpr/**
+
+# Language tags
+lang-verilog:
+- "*.v"
+
+lang-xml:
+- "*.xml"
+
+lang-makefile:
+- Makefile
+- "*.mk"
+
+lang-python:
+- "*.py"
+
+# Type tags
+type-sim:
+- "*.sim.v"
+
+type-vpr:
+- "*.pb_type.xml"
+- "*.model.xml"
+- "*arch.xml"
+
+type-docs:
+- docs/**
+- "*.md"
+- COPYING
+
+type-infra:
+- .travis/**
+- .github/**
+
+type-utils:
+- utils/**
+- common/**
+
+third-party:
+- third_party/**
