@@ -7,3 +7,4 @@ simplejson
 pyjson5
 svgwrite
 cairosvg
+gitpython
