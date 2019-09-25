@@ -1069,7 +1069,9 @@ def process_slice(top, s):
 
     ff5_bels = {}
     for lut in 'ABCD':
-        if site.has_feature('{}OUTMUX.{}5Q'.format(lut, lut)):
+        if site.has_feature('{}OUTMUX.{}5Q'.format(lut, lut)) or \
+                site.has_feature('{}5FFMUX.IN_A'.format(lut)) or \
+                site.has_feature('{}5FFMUX.IN_B'.format(lut)):
             # 5FF in use, emit
             name, clk, ce, sr, init = ff_bel(site, lut, ff5=True)
             ff5 = Bel(name, "{}5_{}".format(lut, name))
