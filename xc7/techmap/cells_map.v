@@ -957,6 +957,8 @@ module RAMB18E1 (
     parameter IS_RSTREGARSTREG_INVERTED = 1'b0;
     parameter IS_RSTREGB_INVERTED = 1'b0;
 
+    parameter _TECHMAP_CONSTMSK_CLKARDCLK_ = 0;
+    parameter _TECHMAP_CONSTVAL_CLKARDCLK_ = 0;
     parameter _TECHMAP_CONSTMSK_CLKBWRCLK_ = 0;
     parameter _TECHMAP_CONSTVAL_CLKBWRCLK_ = 0;
     parameter _TECHMAP_CONSTMSK_REGCLKARDRCLK_ = 0;
@@ -986,6 +988,10 @@ module RAMB18E1 (
   reg _TECHMAP_FAIL_;
   wire [1023:0] _TECHMAP_DO_ = "proc; clean";
 
+  localparam INV_CLKARDCLK = (
+      _TECHMAP_CONSTMSK_CLKARDCLK_ == 1 &&
+      _TECHMAP_CONSTVAL_CLKARDCLK_ == 0 &&
+      IS_CLKARDCLK_INVERTED == 0);
   localparam INV_CLKBWRCLK = (
       _TECHMAP_CONSTMSK_CLKBWRCLK_ == 1 &&
       _TECHMAP_CONSTVAL_CLKBWRCLK_ == 0 &&
@@ -1052,7 +1058,7 @@ module RAMB18E1 (
   end
 
 if(RAM_MODE == "SDP" && READ_WIDTH_A == 36) begin
-    localparam EFF_READ_WIDTH_A = 18;
+    localparam EFF_READ_WIDTH_A = 1;
     localparam EFF_READ_WIDTH_B = 18;
 end else begin
     localparam EFF_READ_WIDTH_A = READ_WIDTH_A;
@@ -1208,7 +1214,7 @@ end
       .INIT_3E(INIT_3E),
       .INIT_3F(INIT_3F),
 
-      .ZINV_CLKARDCLK(!IS_CLKARDCLK_INVERTED),
+      .ZINV_CLKARDCLK(!IS_CLKARDCLK_INVERTED ^ INV_CLKARDCLK),
       .ZINV_CLKBWRCLK(!IS_CLKBWRCLK_INVERTED ^ INV_CLKBWRCLK),
       .ZINV_ENARDEN(!IS_ENARDEN_INVERTED),
       .ZINV_ENBWREN(!IS_ENBWREN_INVERTED),
@@ -1249,7 +1255,7 @@ end
       .WRITE_MODE_B_NO_CHANGE(WRITE_MODE_B == "NO_CHANGE" || (WRITE_MODE_B == "WRITE_FIRST" && RAM_MODE == "SDP")),
       .WRITE_MODE_B_READ_FIRST(WRITE_MODE_B == "READ_FIRST")
   ) _TECHMAP_REPLACE_ (
-    .CLKARDCLK(CLKARDCLK),
+    .CLKARDCLK(CLKARDCLK ^ INV_CLKARDCLK),
     .REGCLKARDRCLK(REGCLKA),
     .CLKBWRCLK(CLKBWRCLK ^ INV_CLKBWRCLK),
     .REGCLKB(REGCLKB),
@@ -1360,6 +1366,8 @@ module RAMB36E1 (
     parameter IS_RSTREGARSTREG_INVERTED = 1'b0;
     parameter IS_RSTREGB_INVERTED = 1'b0;
 
+    parameter _TECHMAP_CONSTMSK_CLKARDCLK_ = 0;
+    parameter _TECHMAP_CONSTVAL_CLKARDCLK_ = 0;
     parameter _TECHMAP_CONSTMSK_CLKBWRCLK_ = 0;
     parameter _TECHMAP_CONSTVAL_CLKBWRCLK_ = 0;
     parameter _TECHMAP_CONSTMSK_REGCLKARDRCLK_ = 0;
@@ -1389,6 +1397,10 @@ module RAMB36E1 (
   reg _TECHMAP_FAIL_;
   wire [1023:0] _TECHMAP_DO_ = "proc; clean";
 
+  localparam INV_CLKARDCLK = (
+      _TECHMAP_CONSTMSK_CLKARDCLK_ == 1 &&
+      _TECHMAP_CONSTVAL_CLKARDCLK_ == 0 &&
+      IS_CLKARDCLK_INVERTED == 0);
   localparam INV_CLKBWRCLK = (
       _TECHMAP_CONSTMSK_CLKBWRCLK_ == 1 &&
       _TECHMAP_CONSTVAL_CLKBWRCLK_ == 0 &&
@@ -1453,7 +1465,7 @@ module RAMB36E1 (
   end
 
 if(RAM_MODE == "SDP" && READ_WIDTH_A > 36) begin
-    localparam EFF_READ_WIDTH_A = 36;
+    localparam EFF_READ_WIDTH_A = 1;
     localparam EFF_READ_WIDTH_B = 36;
 end else begin
     localparam EFF_READ_WIDTH_A = READ_WIDTH_A;
@@ -1475,7 +1487,7 @@ end
       assign REGCLKA = CLKARDCLK;
       localparam ZINV_REGCLKARDRCLK = !IS_CLKARDCLK_INVERTED;
   end else begin
-      assign REGCLKA = 1'b0;
+      assign REGCLKA = 1'b1;
       localparam ZINV_REGCLKARDRCLK = 1'b0;
   end
 
@@ -1483,7 +1495,7 @@ end
       assign REGCLKB = CLKBWRCLK;
       localparam ZINV_REGCLKB = !IS_CLKBWRCLK_INVERTED;
   end else begin
-      assign REGCLKB = 1'b0;
+      assign REGCLKB = 1'b1;
       localparam ZINV_REGCLKB = 1'b0;
   end
 
@@ -1561,7 +1573,7 @@ end
       `undef INIT_PARAM_BLOCK_H
       `undef INIT_PARAM_BLOCK
 
-      .ZINV_CLKARDCLK(!IS_CLKARDCLK_INVERTED),
+      .ZINV_CLKARDCLK(!IS_CLKARDCLK_INVERTED ^ INV_CLKARDCLK),
       .ZINV_CLKBWRCLK(!IS_CLKBWRCLK_INVERTED ^ INV_CLKBWRCLK),
       .ZINV_ENARDEN(!IS_ENARDEN_INVERTED),
       .ZINV_ENBWREN(!IS_ENBWREN_INVERTED),
@@ -1603,7 +1615,7 @@ end
       .ZALMOST_FULL_OFFSET(13'b1111111111111)
   ) _TECHMAP_REPLACE_ (
     `define DUP(pre, in) .``pre``U(in), .``pre``L(in)
-    `DUP(CLKARDCLK, CLKARDCLK),
+    `DUP(CLKARDCLK, CLKARDCLK ^ INV_CLKARDCLK),
     `DUP(REGCLKARDRCLK, REGCLKA),
     `DUP(CLKBWRCLK, CLKBWRCLK ^ INV_CLKBWRCLK),
     `DUP(REGCLKB, REGCLKB),
