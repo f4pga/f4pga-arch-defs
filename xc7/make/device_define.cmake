@@ -60,7 +60,6 @@ function(ADD_XC7_DEVICE_DEFINE_TYPE)
     ARCH ${ARCH}
     ARCH_XML arch.xml
     SCRIPT_OUTPUT_NAME timing
-    SCRIPT_DEPS ${SDF_TIMING_DIRECTORY}
     SCRIPTS ${TIMING_IMPORT}
     )
   add_dependencies(${ARCH}_${DEVICE}-roi-virt_arch arch_import_timing_deps)

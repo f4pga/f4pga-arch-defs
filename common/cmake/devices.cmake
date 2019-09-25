@@ -254,7 +254,12 @@ function(DEFINE_DEVICE_TYPE)
   #
   # optional SCRIPTs can be run after the standard flow to augment the
   # final arch xml. The name and script must be provided and each
-  # script will be run as `cmd < input > output`
+  # script will be run as `cmd < input > output`.
+  # If the SCRIPT has dependencies, SCRIPT_DEPS can be used to be passed to the
+  # SCRIPT command.
+  #
+  # If the UPDATE_TILES option is active, the architecture XML file will go through
+  # an additional step and is updated to have include the `tiles` tags.
   #
   # DEFINE_DEVICE_TYPE defines a dummy target <arch>_<device_type>_arch that
   # will build the merged architecture file for the device type.
@@ -315,8 +320,8 @@ function(DEFINE_DEVICE_TYPE)
     list(LENGTH ${DEFINE_DEVICE_TYPE_SCRIPTS} SCRIPT_LEN)
     foreach(SCRIPT_IND RANGE ${SCRIPT_LEN})
       list(GET DEFINE_DEVICE_TYPE_SCRIPT_OUTPUT_NAME ${SCRIPT_IND} OUTPUT_NAME)
-      list(GET DEFINE_DEVICE_TYPE_SCRIPTS ${SCRIPT_IND} SCRIPT)
       list(GET DEFINE_DEVICE_TYPE_SCRIPT_DEPS ${SCRIPT_IND} SCRIPT_DEPS)
+      list(GET DEFINE_DEVICE_TYPE_SCRIPTS ${SCRIPT_IND} SCRIPT)
       separate_arguments(CMD_W_ARGS UNIX_COMMAND ${SCRIPT})
       list(GET CMD_W_ARGS 0 CMD)
       set(TEMP_TARGET arch.${OUTPUT_NAME}.xml)
@@ -338,11 +343,12 @@ function(DEFINE_DEVICE_TYPE)
 
   if (${DEFINE_DEVICE_TYPE_UPDATE_TILES})
     set(TEMP_TARGET arch.tiles.xml)
+    append_file_dependency(DEPS ${FINAL_OUTPUT})
     add_custom_command(
       OUTPUT ${TEMP_TARGET}
       DEPENDS
         ${PYTHON3} ${PYTHON3_TARGET}
-        ${FINAL_TARGET}
+        ${DEPS}
         ${symbiflow-arch-defs_SOURCE_DIR}/utils/update_arch_tiles.py
       COMMAND
         ${PYTHON3} ${symbiflow-arch-defs_SOURCE_DIR}/utils/update_arch_tiles.py
