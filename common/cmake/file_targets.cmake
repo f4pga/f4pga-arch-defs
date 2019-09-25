@@ -8,6 +8,8 @@
 #   generated or not should call this function.
 # * GET_FILE_TARGET - Given a absolute or local source path, what is the target
 #   that will build this file.
+# * GET_REL_TARGET - Given a absolute or local source path and prefix
+#   generates target name in a form $prefix_$file.
 # * GET_FILE_LOCATION - Given a absolute or local source path, what is the
 #   actual location of the file.
 #
@@ -28,9 +30,7 @@
 #   file.
 # * APPEND_FILE_DEPENDENCY - Appends to a list both the file location and file
 #   target of specified file.
-
-function(GET_FILE_TARGET var src_file)
-  # Sets var in PARENT_SCOPE to file target for given src_file.
+function(GET_REL_TARGET var prefix src_file)
   if(${src_file} MATCHES "^/")
     set(SOURCE_LOCATION ${src_file})
   else()
@@ -56,7 +56,12 @@ function(GET_FILE_TARGET var src_file)
       TARGET_PATH
       ${REL_CANON_LOCATION}
   )
-  set(${var} file${TARGET_PATH} PARENT_SCOPE)
+  set(${var} ${prefix}${TARGET_PATH} PARENT_SCOPE)
+endfunction()
+
+function(GET_FILE_TARGET var src_file)
+  get_rel_target(TARGET_PATH file ${src_file})
+  set(${var} ${TARGET_PATH} PARENT_SCOPE)
 endfunction()
 
 function(GET_FILE_LOCATION var src_file)

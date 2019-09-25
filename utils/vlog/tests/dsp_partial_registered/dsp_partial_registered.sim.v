@@ -3,7 +3,7 @@
 
 /* DSP Block with register on only some inputs */
 module DSP_PARTIAL_REGISTERED (clk, a, b, m, out);
-	localparam DATA_WIDTH = 64;
+	localparam DATA_WIDTH = 4;
 
 	input wire clk;
 	input wire [DATA_WIDTH/2-1:0] a;
@@ -12,13 +12,15 @@ module DSP_PARTIAL_REGISTERED (clk, a, b, m, out);
 	output wire [DATA_WIDTH-1:0] out;
 
 	/* Input registers */
+	(* pack="DFF-DSP" *)
 	wire [DATA_WIDTH/2-1:0] q_a;
+	(* pack="DFF-DSP" *)
 	wire [DATA_WIDTH/2-1:0] q_b;
 
 	genvar i;
 	for (i=0; i<DATA_WIDTH/2; i=i+1) begin: dffs_gen
-		DFF q_a_ff(.d(a[i]), .q(q_a[i]), .clk(clk));
-		DFF q_b_ff(.d(b[i]), .q(q_b[i]), .clk(clk));
+		DFF q_a_ff(.D(a[i]), .Q(q_a[i]), .CLK(clk));
+		DFF q_b_ff(.D(b[i]), .Q(q_b[i]), .CLK(clk));
 	end
 
 	/* Combinational Logic */

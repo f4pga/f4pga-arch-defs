@@ -1,0 +1,9 @@
+<?xml version='1.0' encoding='utf-8'?>
+<pb_type xmlns:xi="http://www.w3.org/2001/XInclude" name="LUT4" num_pb="1">
+  <blif_model>.subckt LUT4</blif_model>
+  <input name="I" num_pins="4"/>
+  <output name="O" num_pins="1"/>
+  <delay_matrix in_port="LUT4.I" out_port="LUT4.O" type="max">
+30e-12 20e-12 11e-12 3e-12
+</delay_matrix>
+</pb_type>
