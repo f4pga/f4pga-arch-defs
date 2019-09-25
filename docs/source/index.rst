@@ -24,7 +24,7 @@ Contents
 .. toctree::
    :maxdepth: 2
 
-   gettingstarted
+   getting-started
    development/development
 
 
