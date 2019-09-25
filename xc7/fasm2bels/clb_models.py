@@ -54,7 +54,7 @@ def get_srl32_init(features, tile_name, slice_name, srl):
 
 
 def create_srl32(site, srl):
-    bel = Bel('SRLC32E', srl + 'SRL', priority=3)
+    bel = Bel('SRLC32E', srl + 'SRL', priority=2)
     bel.set_bel(srl + '6LUT')
 
     site.add_sink(bel, 'CLK', 'CLK')
@@ -91,7 +91,7 @@ def create_srl16(site, srl, srl_type, part):
 
     assert part == '5' or part == '6'
 
-    bel = Bel(srl_type, srl + part + 'SRL', priority=3)
+    bel = Bel(srl_type, srl + part + 'SRL', priority=2)
     bel.set_bel(srl + part + 'LUT')
 
     site.add_sink(bel, 'CLK', 'CLK')
@@ -115,8 +115,10 @@ def decode_dram(site):
     Returns dictionary of lut position (e.g. 'A') to lut mode.
     """
     lut_ram = {}
+    lut_small = {}
     for lut in 'ABCD':
         lut_ram[lut] = site.has_feature('{}LUT.RAM'.format(lut))
+        lut_small[lut] = site.has_feature('{}LUT.SMALL'.format(lut))
 
     di = {}
     for lut in 'ABC':
@@ -167,47 +169,54 @@ def decode_dram(site):
 
         return lut_modes
 
-    # Remaining modes:
-    # RAM32X1S, RAM32X1D, RAM64X1S, RAM64X1D
+    all_ram = all(lut_ram[lut] for lut in 'ABCD')
+    all_small = all(lut_small[lut] for lut in 'ABCD')
 
-    remaining = set('ABCD')
+    if all_ram and not all_small:
+        return {'D': 'RAM64M'}
+    elif all_ram and all_small:
+        return {'D': 'RAM32M'}
+    else:
+        # Remaining modes:
+        # RAM32X1S, RAM32X1D, RAM64X1S, RAM64X1D
+        remaining = set('ABCD')
 
-    for lut in 'AC':
-        if lut_ram[lut] and di[lut]:
-            remaining.remove(lut)
-
-            if site.has_feature('{}LUT.SMALL'.format(lut)):
-                lut_modes[lut] = 'RAM32X2S'
-            else:
-                lut_modes[lut] = 'RAM64X1S'
-
-    for lut in 'BD':
-        if not lut_ram[lut]:
-            continue
-
-        minus_one = chr(ord(lut) - 1)
-        if minus_one in remaining:
-            if lut_ram[minus_one]:
+        for lut in 'AC':
+            if lut_ram[lut] and di[lut]:
                 remaining.remove(lut)
-                remaining.remove(minus_one)
-                if site.has_feature('{}LUT.SMALL'.format(lut)):
-                    lut_modes[lut] = 'RAM32X1D'
-                    lut_modes[minus_one] = 'RAM32X1D'
+
+                if lut_small[lut]:
+                    lut_modes[lut] = 'RAM32X1S'
                 else:
-                    lut_modes[lut] = 'RAM64X1D'
-                    lut_modes[minus_one] = 'RAM64X1D'
+                    lut_modes[lut] = 'RAM64X1S'
 
-        if lut in remaining:
-            remaining.remove(lut)
-            if site.has_feature('{}LUT.SMALL'.format(lut)):
-                lut_modes[lut] = 'RAM32X2S'
-            else:
-                lut_modes[lut] = 'RAM64X1S'
+        for lut in 'BD':
+            if not lut_ram[lut]:
+                continue
 
-    for lut in remaining:
-        lut_modes[lut] = 'LUT'
+            minus_one = chr(ord(lut) - 1)
+            if minus_one in remaining:
+                if lut_ram[minus_one]:
+                    remaining.remove(lut)
+                    remaining.remove(minus_one)
+                    if lut_small[lut]:
+                        lut_modes[lut] = 'RAM32X1D'
+                        lut_modes[minus_one] = 'RAM32X1D'
+                    else:
+                        lut_modes[lut] = 'RAM64X1D'
+                        lut_modes[minus_one] = 'RAM64X1D'
 
-    return lut_modes
+            if lut in remaining:
+                remaining.remove(lut)
+                if lut_small[lut]:
+                    lut_modes[lut] = 'RAM32X1S'
+                else:
+                    lut_modes[lut] = 'RAM64X1S'
+
+        for lut in remaining:
+            lut_modes[lut] = 'LUT'
+
+        return lut_modes
 
 
 def ff_bel(site, lut, ff5):
@@ -286,6 +295,8 @@ def cleanup_carry4(top, site):
             # No outputs in use, remove entire BEL
             top.remove_bel(site, carry4)
         else:
+            pass
+            """
             for idx in range(4):
                 if not o_in_use[idx] and not co_in_use[idx]:
                     sink_wire_pkey = site.remove_internal_sink(
@@ -299,6 +310,7 @@ def cleanup_carry4(top, site):
                     )
                     if sink_wire_pkey is not None:
                         top.remove_sink(sink_wire_pkey)
+            """
 
 
 def cleanup_srl(top, site):
@@ -364,6 +376,50 @@ def cleanup_slice(top, site):
 
     # Cleanup SRL stuff
     cleanup_srl(top, site)
+
+
+def munge_ram32m_init(init):
+    """ RAM32M INIT is interleaved, while the underlying data is not.
+
+    INIT[::2] = INIT[:32]
+    INIT[1::2] = INIT[32:]
+
+    """
+
+    bits = init.replace("64'b", "")[::-1]
+    assert len(bits) == 64
+
+    out_init = ['0' for _ in range(64)]
+    out_init[::2] = bits[:32]
+    out_init[1::2] = bits[32:]
+
+    return "64'b{}".format(''.join(out_init[::-1]))
+
+
+def di_mux(site, bel, di_port, lut):
+    """ Implements DI1 mux. """
+    if lut == 'A':
+        if site.has_feature('ALUT.DI1MUX.AI'):
+            site.add_sink(bel, di_port, "AI")
+        else:
+            if site.has_feature('BLUT.DI1MUX.BI'):
+                site.add_sink(bel, di_port, "BI")
+            else:
+                site.add_sink(bel, di_port, "DI")
+    elif lut == 'B':
+        if site.has_feature('BLUT.DI1MUX.BI'):
+            site.add_sink(bel, di_port, "BI")
+        else:
+            site.add_sink(bel, di_port, "DI")
+    elif lut == 'C':
+        if site.has_feature('CLUT.DI1MUX.CI'):
+            site.add_sink(bel, di_port, "CI")
+        else:
+            site.add_sink(bel, di_port, "DI")
+    elif lut == 'D':
+        site.add_sink(bel, di_port, "DI")
+    else:
+        assert False, lut
 
 
 def process_slice(top, s):
@@ -441,6 +497,7 @@ def process_slice(top, s):
 
     luts = {}
     srls = {}
+
     # Add BELs for LUTs/RAMs
     if not site.has_feature('DLUT.RAM'):
         for row in 'ABCD':
@@ -646,8 +703,72 @@ def process_slice(top, s):
             del lut_modes['B']
             del lut_modes['C']
             del lut_modes['D']
+        elif lut_modes['D'] == 'RAM64M':
+            del lut_modes['D']
+
+            ram64m = Bel('RAM64M', name='RAM64M', priority=3)
+
+            site.add_sink(ram64m, 'WE', WE)
+            site.add_sink(ram64m, 'WCLK', "CLK")
+
+            di_mux(site, ram64m, 'DIA', 'A')
+            di_mux(site, ram64m, 'DIB', 'B')
+            di_mux(site, ram64m, 'DIC', 'C')
+            di_mux(site, ram64m, 'DID', 'D')
+
+            for lut in 'ABCD':
+                for idx in range(6):
+                    site.add_sink(
+                        ram64m, 'ADDR{}[{}]'.format(lut, idx),
+                        "{}{}".format(lut, idx + 1)
+                    )
+
+                site.add_internal_source(ram64m, 'DO' + lut, lut + "O6")
+
+                ram64m.parameters['INIT_' + lut] = get_lut_init(
+                    s, aparts[0], aparts[1], lut
+                )
+
+            site.add_bel(ram64m)
+        elif lut_modes['D'] == 'RAM32M':
+            del lut_modes['D']
+
+            ram32m = Bel('RAM32M', name='RAM32M', priority=3)
+
+            site.add_sink(ram32m, 'WE', WE)
+            site.add_sink(ram32m, 'WCLK', "CLK")
+
+            di_mux(site, ram32m, 'DIA[0]', 'A')
+            di_mux(site, ram32m, 'DIB[0]', 'B')
+            di_mux(site, ram32m, 'DIC[0]', 'C')
+            di_mux(site, ram32m, 'DID[0]', 'D')
+
+            for lut in 'ABCD':
+                site.add_sink(ram32m, 'DI{}[1]'.format(lut), lut + "X")
+                site.add_internal_source(
+                    ram32m, 'DO{}[1]'.format(lut), lut + "O6"
+                )
+
+                site.add_internal_source(
+                    ram32m, 'DO{}[0]'.format(lut), lut + "O5"
+                )
+
+                for idx in range(5):
+                    site.add_sink(
+                        ram32m, 'ADDR{}[{}]'.format(lut, idx),
+                        "{}{}".format(lut, idx + 1)
+                    )
+
+                ram32m.parameters['INIT_' + lut] = munge_ram32m_init(
+                    get_lut_init(s, aparts[0], aparts[1], lut)
+                )
+
+            site.add_bel(ram32m)
 
         for priority, lut in zip([4, 3], 'BD'):
+            if lut not in lut_modes:
+                continue
+
             minus_one = chr(ord(lut) - 1)
 
             if lut_modes[lut] == 'RAM64X1D':
@@ -662,7 +783,7 @@ def process_slice(top, s):
 
                 site.add_sink(ram64, 'WE', WE)
                 site.add_sink(ram64, 'WCLK', "CLK")
-                site.add_sink(ram64, 'D', lut + "I")
+                di_mux(site, ram64, 'D', lut)
 
                 for idx in range(6):
                     site.add_sink(
@@ -688,34 +809,48 @@ def process_slice(top, s):
                 del lut_modes[lut]
                 del lut_modes[minus_one]
             elif lut_modes[lut] == 'RAM32X1D':
-                ram32 = Bel(
-                    'RAM32X1D',
-                    name='RAM32X1D_' + minus_one + lut,
-                    priority=priority
-                )
+                ram32 = [
+                    Bel(
+                        'RAM32X1D',
+                        name='RAM32X1D_{}_{}'.format(lut, idx),
+                        priority=priority
+                    ) for idx in range(2)
+                ]
 
-                site.add_sink(ram32, 'WE', WE)
-                site.add_sink(ram32, 'WCLK', "CLK")
-                site.add_sink(ram32, 'D', lut + "I")
+                for idx in range(2):
+                    site.add_sink(ram32[idx], 'WE', WE)
+                    site.add_sink(ram32[idx], 'WCLK', "CLK")
+                    for aidx in range(5):
+                        site.add_sink(
+                            ram32[idx], 'A{}'.format(aidx),
+                            "{}{}".format(lut, aidx + 1)
+                        )
+                        site.add_sink(
+                            ram32[idx], 'DPRA{}'.format(aidx),
+                            "{}{}".format(minus_one, aidx + 1)
+                        )
 
-                for idx in range(5):
-                    site.add_sink(
-                        ram32, 'A{}'.format(idx), "{}{}".format(lut, idx + 1)
-                    )
-                    site.add_sink(
-                        ram32, 'DPRA{}'.format(idx),
-                        "{}{}".format(minus_one, idx + 1)
-                    )
+                site.add_sink(ram32[0], 'D', lut + "X")
+                site.add_internal_source(ram32[0], 'SPO', lut + "O6")
+                site.add_internal_source(ram32[0], 'DPO', minus_one + "O6")
+                ram32[0].set_bel('{}6LUT'.format(lut))
 
-                site.add_internal_source(ram32, 'SPO', lut + "O6")
-                site.add_internal_source(ram32, 'DPO', minus_one + "O6")
+                di_mux(site, ram32[1], 'D', lut)
+                site.add_internal_source(ram32[1], 'SPO', lut + "O5")
+                site.add_internal_source(ram32[1], 'DPO', minus_one + "O5")
+                ram32[1].set_bel('{}5LUT'.format(lut))
 
-                ram32.parameters['INIT'] = get_lut_init(
-                    s, aparts[0], aparts[1], lut
-                )
+                lut_init = get_lut_init(s, aparts[0], aparts[1], lut)
                 other_init = get_lut_init(s, aparts[0], aparts[1], minus_one)
+                assert lut_init == other_init
 
-                site.add_bel(ram32)
+                bits = lut_init.replace("64'b", "")
+                assert len(bits) == 64
+                ram32[0].parameters['INIT'] = "32'b{}".format(bits[:32])
+                ram32[1].parameters['INIT'] = "32'b{}".format(bits[32:])
+
+                site.add_bel(ram32[0])
+                site.add_bel(ram32[1])
 
                 del lut_modes[lut]
                 del lut_modes[minus_one]
@@ -737,7 +872,7 @@ def process_slice(top, s):
 
                 site.add_sink(ram64, 'WE', WE)
                 site.add_sink(ram64, 'WCLK', "CLK")
-                site.add_sink(ram64, 'D', lut + "I")
+                di_mux(site, ram64, 'D', lut)
 
                 for idx in range(6):
                     site.add_sink(
@@ -751,27 +886,41 @@ def process_slice(top, s):
                 )
 
                 site.add_bel(ram64)
-            elif lut_modes[lut] == 'RAM32X2S':
-                ram32 = Bel(
-                    'RAM32X1S', name='RAM32X1S_' + lut, priority=priority
-                )
+            elif lut_modes[lut] == 'RAM32X1S':
+                ram32 = [
+                    Bel(
+                        'RAM32X1S',
+                        name='RAM32X1S_{}_{}'.format(lut, idx),
+                        priority=priority
+                    ) for idx in range(2)
+                ]
 
-                site.add_sink(ram32, 'WE', WE)
-                site.add_sink(ram32, 'WCLK', "CLK")
-                site.add_sink(ram32, 'D', lut + "I")
+                for idx in range(2):
+                    site.add_sink(ram32[idx], 'WE', WE)
+                    site.add_sink(ram32[idx], 'WCLK', "CLK")
+                    for aidx in range(5):
+                        site.add_sink(
+                            ram32[idx], 'A{}'.format(aidx),
+                            "{}{}".format(lut, aidx + 1)
+                        )
 
-                for idx in range(5):
-                    site.add_sink(
-                        ram32, 'A{}'.format(idx), "{}{}".format(lut, idx + 1)
-                    )
-
+                site.add_sink(ram32[0], 'D', lut + "X")
                 site.add_internal_source(ram32, 'O', lut + "O6")
+                ram32[0].set_bel('{}6LUT'.format(lut))
 
-                ram32.parameters['INIT'] = get_lut_init(
-                    s, aparts[0], aparts[1], lut
-                )
+                di_mux(site, ram32[1], 'D', lut)
+                site.add_internal_source(ram32, 'O', lut + "O5")
+                ram32[1].set_bel('{}5LUT'.format(lut))
 
-                site.add_bel(ram32)
+                lut_init = get_lut_init(s, aparts[0], aparts[1], lut)
+
+                bits = lut_init.replace("64'b", "")
+                assert len(bits) == 64
+                ram32[0].parameters['INIT'] = "32'b{}".format(bits[:32])
+                ram32[1].parameters['INIT'] = "32'b{}".format(bits[32:])
+
+                site.add_bel(ram32[0])
+                site.add_bel(ram32[1])
             else:
                 assert False, lut_modes[lut]
 
@@ -920,7 +1069,9 @@ def process_slice(top, s):
 
     ff5_bels = {}
     for lut in 'ABCD':
-        if site.has_feature('{}OUTMUX.{}5Q'.format(lut, lut)):
+        if site.has_feature('{}OUTMUX.{}5Q'.format(lut, lut)) or \
+                site.has_feature('{}5FFMUX.IN_A'.format(lut)) or \
+                site.has_feature('{}5FFMUX.IN_B'.format(lut)):
             # 5FF in use, emit
             name, clk, ce, sr, init = ff_bel(site, lut, ff5=True)
             ff5 = Bel(name, "{}5_{}".format(lut, name))

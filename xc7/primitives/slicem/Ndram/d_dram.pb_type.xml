@@ -38,27 +38,44 @@
    </interconnect>
  </mode>
  <mode name="32_SINGLE_PORT">
-   <xi:include href="dpram32.pb_type.xml" />
+   <pb_type name="DPRAM32_O6" num_pb="1" blif_model=".subckt DPRAM32">
+    <xi:include href="dpram32.pb_type.xml" xpointer="xpointer(pb_type/child::node()[local-name()!='metadata'])" />
+    <metadata>
+     <xi:include href="dpram32.pb_type.xml" xpointer="xpointer(pb_type/metadata/child::node())" />
+     <meta name="fasm_params">
+      INIT[63:32] = INIT_00
+     </meta>
+    </metadata>
+   </pb_type>
+   <pb_type name="DPRAM32_O5" num_pb="1" blif_model=".subckt DPRAM32">
+    <xi:include href="dpram32.pb_type.xml" xpointer="xpointer(pb_type/child::node()[local-name()!='metadata'])" />
+    <metadata>
+     <xi:include href="dpram32.pb_type.xml" xpointer="xpointer(pb_type/metadata/child::node())" />
+     <meta name="fasm_params">
+      INIT[31:0] = INIT_00
+     </meta>
+    </metadata>
+   </pb_type>
    <interconnect>
      <!-- upper -->
-     <direct name="CLK_U" input="D_DRAM.CLK" output="DPRAM32[1].CLK" />
-     <direct name="A_U" input="D_DRAM.A[4:0]" output="DPRAM32[1].A[4:0]" />
-     <direct name="WA_U" input="D_DRAM.A[4:0]" output="DPRAM32[1].WA[4:0]" />
-     <direct name="DI2" input="D_DRAM.DI2" output="DPRAM32[1].DI" />
-     <direct name="WE_U" input="D_DRAM.WE" output="DPRAM32[1].WE" />
+     <direct name="CLK_U" input="D_DRAM.CLK" output="DPRAM32_O6.CLK" />
+     <direct name="A_U" input="D_DRAM.A[4:0]" output="DPRAM32_O6.A[4:0]" />
+     <direct name="WA_U" input="D_DRAM.A[4:0]" output="DPRAM32_O6.WA[4:0]" />
+     <direct name="DI2" input="D_DRAM.DI2" output="DPRAM32_O6.DI" />
+     <direct name="WE_U" input="D_DRAM.WE" output="DPRAM32_O6.WE" />
 
-     <direct name="O6" input="DPRAM32[1].O" output="D_DRAM.O6" />
-     <direct name="SO6" input="DPRAM32[1].O" output="D_DRAM.SO6_32" />
+     <direct name="O6" input="DPRAM32_O6.O" output="D_DRAM.O6" />
+     <direct name="SO6" input="DPRAM32_O6.O" output="D_DRAM.SO6_32" />
 
      <!-- lower -->
-     <direct name="CLK_L" input="D_DRAM.CLK" output="DPRAM32[0].CLK" />
-     <direct name="A_L" input="D_DRAM.A[4:0]" output="DPRAM32[0].A[4:0]" />
-     <direct name="WA_L" input="D_DRAM.A[4:0]" output="DPRAM32[0].WA[4:0]" />
-     <direct name="DI" input="D_DRAM.DI1" output="DPRAM32[0].DI" />
-     <direct name="WE_L" input="D_DRAM.WE" output="DPRAM32[0].WE" />
+     <direct name="CLK_L" input="D_DRAM.CLK" output="DPRAM32_O5.CLK" />
+     <direct name="A_L" input="D_DRAM.A[4:0]" output="DPRAM32_O5.A[4:0]" />
+     <direct name="WA_L" input="D_DRAM.A[4:0]" output="DPRAM32_O5.WA[4:0]" />
+     <direct name="DI" input="D_DRAM.DI1" output="DPRAM32_O5.DI" />
+     <direct name="WE_L" input="D_DRAM.WE" output="DPRAM32_O5.WE" />
 
-     <direct name="O5" input="DPRAM32[0].O" output="D_DRAM.O5" />
-     <direct name="SO5" input="DPRAM32[0].O" output="D_DRAM.SO5_32" />
+     <direct name="O5" input="DPRAM32_O5.O" output="D_DRAM.O5" />
+     <direct name="SO5" input="DPRAM32_O5.O" output="D_DRAM.SO5_32" />
    </interconnect>
  </mode>
 

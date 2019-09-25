@@ -595,8 +595,18 @@ module RAM32M (
     wire [1:0] DOB_TO_STUB;
     wire [1:0] DOA_TO_STUB;
 
+function [31:0] every_other_bit_32;
+   input [63:0] in;
+   input         odd;
+   integer       i;
+   for (i = 0; i < 32; i = i + 1) begin
+      every_other_bit_32[i] = in[i * 2 + odd];
+   end
+endfunction
+
+
     DPRAM32 #(
-        .INIT_00(INIT_A[63:32]),
+        .INIT_00(every_other_bit_32(INIT_A, 1'b1)),
         .IS_WCLK_INVERTED(IS_WCLK_INVERTED)
     ) ram_a1 (
          .DI(DIA[1]),
@@ -608,7 +618,7 @@ module RAM32M (
     );
 
     DPRAM32 #(
-        .INIT_00(INIT_A[31:0]),
+        .INIT_00(every_other_bit_32(INIT_A, 1'b0)),
         .IS_WCLK_INVERTED(IS_WCLK_INVERTED)
     ) ram_a0 (
          .DI(DIA[0]),
@@ -620,7 +630,7 @@ module RAM32M (
     );
 
     DPRAM32 #(
-        .INIT_00(INIT_B[63:32]),
+        .INIT_00(every_other_bit_32(INIT_B, 1'b1)),
         .IS_WCLK_INVERTED(IS_WCLK_INVERTED)
     ) ram_b1 (
          .DI(DIB[1]),
@@ -632,7 +642,7 @@ module RAM32M (
     );
 
     DPRAM32 #(
-        .INIT_00(INIT_B[31:0]),
+        .INIT_00(every_other_bit_32(INIT_B, 1'b0)),
         .IS_WCLK_INVERTED(IS_WCLK_INVERTED)
     ) ram_b0 (
          .DI(DIB[0]),
@@ -644,7 +654,7 @@ module RAM32M (
     );
 
     DPRAM32 #(
-        .INIT_00(INIT_C[63:32]),
+        .INIT_00(every_other_bit_32(INIT_C, 1'b1)),
         .IS_WCLK_INVERTED(IS_WCLK_INVERTED)
     ) ram_c1 (
          .DI(DIC[1]),
@@ -656,7 +666,7 @@ module RAM32M (
     );
 
     DPRAM32 #(
-        .INIT_00(INIT_C[31:0]),
+        .INIT_00(every_other_bit_32(INIT_C, 1'b0)),
         .IS_WCLK_INVERTED(IS_WCLK_INVERTED)
     ) ram_c0 (
          .DI(DIC[0]),
@@ -668,7 +678,7 @@ module RAM32M (
     );
 
     DPRAM32 #(
-        .INIT_00(INIT_D[63:32]),
+        .INIT_00(every_other_bit_32(INIT_D, 1'b1)),
         .IS_WCLK_INVERTED(IS_WCLK_INVERTED)
     ) ram_d1 (
          .DI(DID[1]),
@@ -680,7 +690,7 @@ module RAM32M (
     );
 
     DPRAM32 #(
-        .INIT_00(INIT_D[31:0]),
+        .INIT_00(every_other_bit_32(INIT_D, 0)),
         .IS_WCLK_INVERTED(IS_WCLK_INVERTED)
     ) ram_d0 (
          .DI(DID[0]),
