@@ -1605,6 +1605,16 @@ SELECT DISTINCT canon_phy_tile_pkey FROM track WHERE pkey IN (
     write_cur.execute("""COMMIT TRANSACTION;""")
 
 
+def pip_sort_key(pip):
+    """ Sort pips to match canonical order.
+
+    Sort pip keys by name length, then the pip name itself.  This causes
+    "simpler" pips to be connected first.  In cases where there are two pips
+    that connect the same nodes with the same switch, the shorter varient is
+    the one to use to match vendor behavior. """
+    return (len(pip.name), pip.name)
+
+
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument(
@@ -1719,7 +1729,7 @@ def main():
 
             tile_type = db.get_tile_type(gridinfo.tile_type)
 
-            for pip in tile_type.get_pips():
+            for pip in sorted(tile_type.get_pips(), key=pip_sort_key):
                 if pip.is_pseudo:
                     continue
 
