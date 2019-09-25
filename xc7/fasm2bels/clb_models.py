@@ -396,6 +396,32 @@ def munge_ram32m_init(init):
     return "64'b{}".format(''.join(out_init[::-1]))
 
 
+def di_mux(site, bel, di_port, lut):
+    """ Implements DI1 mux. """
+    if lut == 'A':
+        if site.has_feature('ALUT.DI1MUX.AI'):
+            site.add_sink(bel, di_port, "AI")
+        else:
+            if site.has_feature('BLUT.DI1MUX.BI'):
+                site.add_sink(bel, di_port, "BI")
+            else:
+                site.add_sink(bel, di_port, "DI")
+    elif lut == 'B':
+        if site.has_feature('BLUT.DI1MUX.BI'):
+            site.add_sink(bel, di_port, "BI")
+        else:
+            site.add_sink(bel, di_port, "DI")
+    elif lut == 'C':
+        if site.has_feature('CLUT.DI1MUX.CI'):
+            site.add_sink(bel, di_port, "CI")
+        else:
+            site.add_sink(bel, di_port, "DI")
+    elif lut == 'D':
+        site.add_sink(bel, di_port, "DI")
+    else:
+        assert False, lut
+
+
 def process_slice(top, s):
     """ Convert SLICE features in Bel and Site objects.
 
@@ -685,8 +711,12 @@ def process_slice(top, s):
             site.add_sink(ram64m, 'WE', WE)
             site.add_sink(ram64m, 'WCLK', "CLK")
 
+            di_mux(site, ram64m, 'DIA', 'A')
+            di_mux(site, ram64m, 'DIB', 'B')
+            di_mux(site, ram64m, 'DIC', 'C')
+            di_mux(site, ram64m, 'DID', 'D')
+
             for lut in 'ABCD':
-                site.add_sink(ram64m, 'DI' + lut, lut + "I")
                 for idx in range(6):
                     site.add_sink(
                         ram64m, 'ADDR{}[{}]'.format(lut, idx),
@@ -708,13 +738,17 @@ def process_slice(top, s):
             site.add_sink(ram32m, 'WE', WE)
             site.add_sink(ram32m, 'WCLK', "CLK")
 
+            di_mux(site, ram32m, 'DIA[0]', 'A')
+            di_mux(site, ram32m, 'DIB[0]', 'B')
+            di_mux(site, ram32m, 'DIC[0]', 'C')
+            di_mux(site, ram32m, 'DID[0]', 'D')
+
             for lut in 'ABCD':
                 site.add_sink(ram32m, 'DI{}[1]'.format(lut), lut + "X")
                 site.add_internal_source(
                     ram32m, 'DO{}[1]'.format(lut), lut + "O6"
                 )
 
-                site.add_sink(ram32m, 'DI{}[0]'.format(lut), lut + "I")
                 site.add_internal_source(
                     ram32m, 'DO{}[0]'.format(lut), lut + "O5"
                 )
@@ -749,7 +783,7 @@ def process_slice(top, s):
 
                 site.add_sink(ram64, 'WE', WE)
                 site.add_sink(ram64, 'WCLK', "CLK")
-                site.add_sink(ram64, 'D', lut + "I")
+                di_mux(site, ram64, 'D', lut)
 
                 for idx in range(6):
                     site.add_sink(
@@ -801,7 +835,7 @@ def process_slice(top, s):
                 site.add_internal_source(ram32[0], 'DPO', minus_one + "O6")
                 ram32[0].set_bel('{}6LUT'.format(lut))
 
-                site.add_sink(ram32[1], 'D', lut + "I")
+                di_mux(site, ram32[1], 'D', lut)
                 site.add_internal_source(ram32[1], 'SPO', lut + "O5")
                 site.add_internal_source(ram32[1], 'DPO', minus_one + "O5")
                 ram32[1].set_bel('{}5LUT'.format(lut))
@@ -838,7 +872,7 @@ def process_slice(top, s):
 
                 site.add_sink(ram64, 'WE', WE)
                 site.add_sink(ram64, 'WCLK', "CLK")
-                site.add_sink(ram64, 'D', lut + "I")
+                di_mux(site, ram64, 'D', lut)
 
                 for idx in range(6):
                     site.add_sink(
@@ -874,7 +908,7 @@ def process_slice(top, s):
                 site.add_internal_source(ram32, 'O', lut + "O6")
                 ram32[0].set_bel('{}6LUT'.format(lut))
 
-                site.add_sink(ram32[1], 'D', lut + "I")
+                di_mux(site, ram32[1], 'D', lut)
                 site.add_internal_source(ram32, 'O', lut + "O5")
                 ram32[1].set_bel('{}5LUT'.format(lut))
 
