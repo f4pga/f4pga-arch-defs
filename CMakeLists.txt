@@ -112,6 +112,10 @@ add_conda_pip(
   NAME cairosvg
   NO_EXE
 )
+add_conda_pip(
+  NAME gitpython
+  NO_EXE
+)
 
 get_target_property_required(PYTHON3 env PYTHON3)
 get_target_property(PYTHON3_TARGET env PYTHON3_TARGET)
