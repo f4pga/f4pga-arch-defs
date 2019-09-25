@@ -36,7 +36,7 @@ function(V2X_TEST_GENERIC)
   set(GOLDEN_XML golden.${TYPE}.xml)
   add_file_target(FILE ${GOLDEN_XML} SCANNER_TYPE xml)
   xml_canonicalize_merge(
-    NAME ${NAME}_${TYPE}_golden_sort
+    NAME ${NAME}_${TYPE}
     FILE ${GOLDEN_XML}
     OUTPUT ${NAME}.${TYPE}.golden.xml
     EXTRA_ARGUMENTS "-param" "strip_comments" "1"
@@ -44,20 +44,26 @@ function(V2X_TEST_GENERIC)
 
   set(ACTUAL_XML ${NAME}.${TYPE}.xml)
   xml_canonicalize_merge(
-    NAME ${NAME}_${TYPE}_actual_sort
+    NAME ${NAME}_${TYPE}
     FILE ${ACTUAL_XML}
     OUTPUT ${NAME}.${TYPE}.actual.xml
     EXTRA_ARGUMENTS "-param" "strip_comments" "1"
     )
 
-  diff(NAME ${NAME}_${TYPE}_diff GOLDEN ${NAME}.${TYPE}.golden.xml ACTUAL ${NAME}.${TYPE}.actual.xml)
+  get_rel_target(REL_DIFF_NAME diff ${NAME}.${TYPE}.xml)
+  diff(NAME ${REL_DIFF_NAME} GOLDEN ${NAME}.${TYPE}.golden.xml ACTUAL ${NAME}.${TYPE}.actual.xml)
 
-  add_dependencies(all_v2x_tests ${NAME}_${TYPE}_diff)
+  add_dependencies(all_v2x_tests ${REL_DIFF_NAME})
+
+  set(FILE_DEPS "")
+  append_file_dependency(FILE_DEPS ${ACTUAL_XML})
 
   # update golden model/pb_type target
-  add_custom_target(${NAME}_update_golden_${TYPE})
+  get_rel_target(REL_GOLDEN_XML update ${GOLDEN_XML})
+  add_custom_target(${REL_GOLDEN_XML})
   add_custom_command(
-    TARGET ${NAME}_update_golden_${TYPE}
+    TARGET ${REL_GOLDEN_XML}
+    DEPENDS ${FILE_DEPS}
     POST_BUILD
     COMMAND cp ${ACTUAL_XML} ${CMAKE_CURRENT_SOURCE_DIR}/golden.${TYPE}.xml
     )
@@ -93,9 +99,10 @@ function(V2X_TEST_MODEL)
   set(SRC ${NAME}.sim.v)
   v2x(NAME ${NAME} SRCS ${SRC} TOP_MODULE ${TOP_MODULE})
 
-  v2x_test_generic(NAME ${NAME} TOP_MODULE ${TOP_MODULE} TYPE model)
+  v2x_test_generic(NAME ${NAME} TYPE model)
 
-  add_custom_target(${NAME}_diff ALL DEPENDS ${NAME}_model_diff)
+  get_rel_target(REL_DIFF_NAME diff ${NAME})
+  add_custom_target(${REL_DIFF_NAME} ALL DEPENDS ${REL_DIFF_NAME}.model.xml)
 endfunction(V2X_TEST_MODEL)
 
 function(V2X_TEST_PB_TYPE)
@@ -128,9 +135,10 @@ function(V2X_TEST_PB_TYPE)
   set(SRC ${NAME}.sim.v)
   v2x(NAME ${NAME} SRCS ${SRC} TOP_MODULE ${TOP_MODULE})
 
-  v2x_test_generic(NAME ${NAME} TOP_MODULE ${TOP_MODULE} TYPE pb_type)
+  v2x_test_generic(NAME ${NAME} TYPE pb_type)
 
-  add_custom_target(${NAME}_diff ALL DEPENDS ${NAME}_pb_type_diff)
+  get_rel_target(REL_DIFF_NAME diff ${NAME})
+  add_custom_target(${REL_DIFF_NAME} ALL DEPENDS ${REL_DIFF_NAME}.pb_type.xml)
 endfunction(V2X_TEST_PB_TYPE)
 
 function(V2X_TEST_BOTH)
@@ -146,10 +154,12 @@ function(V2X_TEST_BOTH)
   #
   # NAME name of the test.
   # TOP_MODULE name of the top verilog module that has to be tested.
+  # TECHMAPS [optional] list of techmaps files to be used when synthesizing the design
   #
   # Usage: v2x_test_model(NAME <test_name> TOP_MODULE <top_module.v>) (All fields are required)
 
   set(oneValueArgs NAME TOP_MODULE)
+  set(multiValueArgs TECHMAPS)
   cmake_parse_arguments(
     V2X_TEST_BOTH
     "${options}"
@@ -164,10 +174,47 @@ function(V2X_TEST_BOTH)
   set(SRC ${NAME}.sim.v)
   v2x(NAME ${NAME} SRCS ${SRC} TOP_MODULE ${TOP_MODULE})
 
-  v2x_test_generic(NAME ${NAME} TOP_MODULE ${MODULE} TYPE pb_type)
-  v2x_test_generic(NAME ${NAME} TOP_MODULE ${TOP_MODULE} TYPE model)
-  vpr_test_pb_type(NAME ${NAME} TOP_MODULE ${TOP_MODULE})
-  add_dependencies(all_v2x_tests test_${NAME})
+  set(MERGED_TECHMAP_FILE "${NAME}.techmap.merged.v")
+  set(MERGED_TECHMAP "${MERGED_TECHMAP_FILE}")
+  set(TECHMAP_INPUT "")
+  set(TECHMAP_DEPS "")
+  foreach(MAP ${V2X_TEST_BOTH_TECHMAPS})
+    list(
+      APPEND
+      TECHMAP_INPUT
+      ${MAP}
+    )
+    append_file_dependency(TECHMAP_DEPS ${MAP})
+  endforeach()
 
-  add_custom_target(${NAME}_diff ALL DEPENDS ${NAME}_pb_type_diff ${NAME}_model_diff)
+  if(TECHMAP_INPUT)
+    add_custom_command(
+      OUTPUT "${MERGED_TECHMAP}"
+      DEPENDS ${TECHMAP_DEPS}
+      COMMAND
+      cat ${TECHMAP_INPUT} > ${MERGED_TECHMAP}
+      WORKING_DIRECTORY
+        ${CMAKE_CURRENT_BINARY_DIR}
+    )
+  else()
+    # if there are no techmaps to merge, create an empty .v file so Yosys is happy
+    add_custom_command(
+      OUTPUT "${MERGED_TECHMAP}"
+      COMMAND
+        touch ${MERGED_TECHMAP}
+      WORKING_DIRECTORY
+        ${CMAKE_CURRENT_BINARY_DIR}
+    )
+  endif()
+
+  add_file_target(FILE "${MERGED_TECHMAP}" GENERATED)
+
+  v2x_test_generic(NAME ${NAME} TYPE pb_type)
+  v2x_test_generic(NAME ${NAME} TYPE model)
+  vpr_test_pb_type(NAME ${NAME} TOP_MODULE ${TOP_MODULE})
+  get_rel_target(TEST_REL_NAME test ${NAME})
+  add_dependencies(all_v2x_tests ${TEST_REL_NAME})
+
+  get_rel_target(REL_DIFF_NAME diff ${NAME})
+  add_custom_target(${REL_DIFF_NAME} ALL DEPENDS ${REL_DIFF_NAME}.pb_type.xml ${REL_DIFF_NAME}.model.xml)
 endfunction(V2X_TEST_BOTH)

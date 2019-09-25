@@ -49,6 +49,7 @@ function(DIFF)
     WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
   )
   add_file_target(FILE ${DIFF_OUTPUT} GENERATED)
+
   add_custom_target(
     ${DIFF_NAME}
     DEPENDS ${DIFF_OUTPUT}

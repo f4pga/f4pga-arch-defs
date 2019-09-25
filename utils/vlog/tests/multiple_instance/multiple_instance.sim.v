@@ -1,5 +1,5 @@
 `include "../fig41-full-adder/adder.sim.v"
-module MULTIPLE_INSTANCE (a, b, c, d, cin, cout, sum, a2b);
+module MULTIPLE_INSTANCE (a, b, c, d, cin, cout, sum);
 	localparam DATA_WIDTH = 4;
 
 	input  wire [DATA_WIDTH-1:0] a;
@@ -11,8 +11,7 @@ module MULTIPLE_INSTANCE (a, b, c, d, cin, cout, sum, a2b);
 	input  wire [DATA_WIDTH-1:0] cin;
 	output wire [DATA_WIDTH-1:0] cout;
 
-	/* FIXME: Once carry works make this an internal only wire */
-	output wire [DATA_WIDTH-1:0] a2b;
+	wire [DATA_WIDTH-1:0] a2b;
 
 	genvar i;
 	/* n = 0..DATA_WIDTH

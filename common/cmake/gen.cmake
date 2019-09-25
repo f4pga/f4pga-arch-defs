@@ -28,7 +28,6 @@ function(MUX_GEN)
   set(options SPLIT_INPUTS SPLIT_SELECTS)
   set(
     oneValueArgs
-    NAME
     MUX_NAME
     TYPE
     WIDTH
@@ -47,6 +46,30 @@ function(MUX_GEN)
     "${multiValueArgs}"
     ${ARGN}
   )
+
+  if(NOT "${MUX_GEN_NTEMPLATE_PREFIXES}" STREQUAL "")
+    string(
+      REPLACE
+      "{N}"
+      ""
+      MUX_GEN_TEMP0
+      ${MUX_GEN_MUX_NAME}
+    )
+
+    string(
+      TOLOWER
+      ${MUX_GEN_TEMP0}
+      MUX_GEN_TEMP1
+    )
+
+    set(MUX_GEN_NAME "ntemplate.N${MUX_GEN_TEMP1}")
+  else()
+    string(
+      TOLOWER
+      ${MUX_GEN_MUX_NAME}
+      MUX_GEN_NAME
+    )
+  endif()
 
   if("${MUX_GEN_TYPE}" STREQUAL "routing")
     if(NOT "${MUX_GEN_SUBCKT}" STREQUAL "")
@@ -108,6 +131,14 @@ function(MUX_GEN)
       "${MUX_GEN_NAME}.model.xml"
   )
 
+  if("${MUX_GEN_TYPE}" STREQUAL "routing")
+    list(
+      APPEND
+        OUTPUTS
+        "${MUX_GEN_NAME}.techmap.v"
+    )
+  endif()
+
   get_target_property_required(PYTHON3 env PYTHON3)
   get_target_property(PYTHON3_TARGET env PYTHON3_TARGET)
 
@@ -116,15 +147,19 @@ function(MUX_GEN)
     DEPENDS
       ${PYTHON3} ${PYTHON3_TARGET}
       ${symbiflow-arch-defs_SOURCE_DIR}/utils/mux_gen.py
-      ${symbiflow-arch-defs_SOURCE_DIR}/vpr/muxes/logic/mux${MUX_GEN_WIDTH}/mux${MUX_GEN_WIDTH}.sim.v
+      #${symbiflow-arch-defs_SOURCE_DIR}/vpr/muxes/logic/mux${MUX_GEN_WIDTH}/mux${MUX_GEN_WIDTH}.sim.v
     COMMAND ${PYTHON3} ${symbiflow-arch-defs_SOURCE_DIR}/utils/mux_gen.py ${MUX_GEN_ARGS}
   )
 
   add_file_target(FILE "${MUX_GEN_NAME}.sim.v" GENERATED)
+  if("${MUX_GEN_TYPE}" STREQUAL "routing")
+    add_file_target(FILE "${MUX_GEN_NAME}.techmap.v" GENERATED)
+  endif()
   add_file_target(FILE "${MUX_GEN_NAME}.pb_type.xml" GENERATED)
   add_file_target(FILE "${MUX_GEN_NAME}.model.xml" GENERATED)
 
-  add_custom_target(${MUX_GEN_NAME} DEPENDS ${OUTPUTS})
+  get_rel_target(REL_MUX_GEN_NAME muxgen ${MUX_GEN_NAME})
+  add_custom_target(${REL_MUX_GEN_NAME} DEPENDS ${OUTPUTS})
 
   if(NOT "${MUX_GEN_NTEMPLATE_PREFIXES}" STREQUAL "")
     foreach(OUTPUT ${OUTPUTS})
