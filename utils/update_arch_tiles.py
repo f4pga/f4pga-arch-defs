@@ -1,4 +1,48 @@
 #!/usr/bin/env python
+"""
+This script is intended to modify the XML architecture description file
+in order to add the tile tags, necessary after the addition of the `tiles`
+parsing capabilities of Verilog-to-Routing.
+
+This script needs to be used only if the architecture import scripts do not
+take into account the physical tiles tags. In fact, it is used as last step
+of the architecture description generation.
+
+It moves the top level pb_types attributes and tags to the tiles high-level tag.
+
+BEFORE:
+<complexblocklist>
+    <pb_type name="BRAM" area="2" height="4" width="1" capacity="1">
+        <inputs ... />
+        <outputs ... />
+        <interconnect ... />
+        <fc ... />
+        <pinlocations ... />
+        <switchblock_locations ... />
+    </pb_type>
+</complexblocklist>
+
+AFTER:
+<tiles>
+    <tile name="BRAM" area="2" height="4" width="1" capacity="1">
+        <inputs ... />
+        <outputs ... />
+        <fc ... />
+        <pinlocations ... />
+        <switchblock_locations ... />
+        <equivalent_sites>
+            <site pb_type="BRAM"/>
+        </equivalent_sites>
+    </tile>
+</tiles>
+<complexblocklist
+    <pb_type name="BRAM">
+        <inputs ... />
+        <outputs ... />
+        <interconnect ... />
+    </pb_type>
+</complexblocklist>
+"""
 
 import argparse
 import sys
@@ -8,47 +52,6 @@ from lxml import etree as ET
 
 
 def add_tile_tags(arch):
-    """
-    This script is intended to modify the architecture description file to be compliant with
-    the new format.
-
-    It moves the top level pb_types attributes and tags to the tiles high-level tag.
-
-    BEFORE:
-    <complexblocklist>
-        <pb_type name="BRAM" area="2" height="4" width="1" capacity="1">
-            <inputs ... />
-            <outputs ... />
-            <interconnect ... />
-            <fc ... />
-            <pinlocations ... />
-            <switchblock_locations ... />
-        </pb_type>
-    </complexblocklist>
-
-    AFTER:
-    <tiles>
-        <tile name="BRAM" area="2" height="4" width="1" capacity="1">
-            <inputs ... />
-            <outputs ... />
-            <fc ... />
-            <pinlocations ... />
-            <switchblock_locations ... />
-            <equivalent_sites>
-                <site pb_type="BRAM"/>
-            </equivalent_sites>
-        </tile>
-    </tiles>
-    <complexblocklist
-        <pb_type name="BRAM">
-            <inputs ... />
-            <outputs ... />
-            <interconnect ... />
-        </pb_type>
-    </complexblocklist>
-
-    """
-
     TAGS_TO_SWAP = ['fc', 'pinlocations', 'switchblock_locations']
     TAGS_TO_COPY = ['input', 'output', 'clock']
     ATTR_TO_SWAP = ['area', 'height', 'width', 'capacity']
