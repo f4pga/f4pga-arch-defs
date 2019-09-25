@@ -5,7 +5,7 @@ list(APPEND SOURCES ../common/error_output_logic.v ../common/ram_test.v)
 get_target_property_required(DEVICE basys3 DEVICE)
 get_target_property_required(ARCH ${DEVICE} ARCH)
 
-foreach(type 64x1d 32m 64m)
+foreach(type 32x1d 64x1d 32m 64m)
   add_file_target(FILE dram_test_${type}.v SCANNER_TYPE verilog)
   add_fpga_target(
     NAME dram_test_${type}

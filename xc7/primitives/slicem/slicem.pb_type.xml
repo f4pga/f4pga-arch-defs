@@ -251,7 +251,8 @@
         <direct name="SLICEM_MODES.D4_to_D_SRL.A4" input="SLICEM_MODES.D4" output="DSRL.A4"/>
         <direct name="SLICEM_MODES.D5_to_D_SRL.A5" input="SLICEM_MODES.D5" output="DSRL.A5"/>
         <direct name="SLICEM_MODES.D6_to_D_SRL.A6" input="SLICEM_MODES.D6" output="DSRL.A6"/>
-        <direct name="SLICEM_MODES.DI_to_D_SRL.DI1" input="SLICEM_MODES.DI" output="DSRL.DI1"/>
+        <direct name="SLICEM_MODES.DI_to_D_SRL.DI1_SRL32" input="SLICEM_MODES.DI" output="DSRL.DI1_SRL32"/>
+        <direct name="SLICEM_MODES.DI_to_D_SRL.DI1_SRL16" input="SLICEM_MODES.DI" output="DSRL.DI1_SRL16"/>
         <direct name="SLICEM_MODES.DX_to_D_SRL.DI2" input="SLICEM_MODES.DX" output="DSRL.DI2"/>
         <direct name="D_SRL.O5_to_SLICEM_MODES.DO5" input="DSRL.O5" output="SLICEM_MODES.DO5"/>
         <direct name="D_SRL.O6_to_SLICEM_MODES.DO6" input="DSRL.O6" output="SLICEM_MODES.DO6"/>
@@ -261,73 +262,89 @@
         <direct name="SLICEM_MODES.WE_to_WE_MUX.WE" input="SLICEM_MODES.WE" output="WE_MUX.WE"/>
 
         <!-- ADI1MUX -->
-        <mux name="ADI1MUX" input="BSRL.MC31 SLICEM_MODES.AI" output="ASRL.DI1">
+        <mux name="ADI1MUX32" input="BSRL.MC31_SRL32 SLICEM_MODES.AI" output="ASRL.DI1_SRL32">
           <metadata>
             <meta name="fasm_mux">
-              BSRL.MC31 = DI1MUX.BDI1_BMC31
+              BSRL.MC31_SRL32 = DI1MUX.BDI1_BMC31
               SLICEM_MODES.AI = DI1MUX.AI
             </meta>
           </metadata>
-        </mux>       
- 
+          <pack_pattern name="SRL32_x2" in_port="BSRL.MC31_SRL32" out_port="ASRL.DI1_SRL32" />
+          <pack_pattern name="SRL32_x3" in_port="BSRL.MC31_SRL32" out_port="ASRL.DI1_SRL32" />
+          <pack_pattern name="SRL32_x4" in_port="BSRL.MC31_SRL32" out_port="ASRL.DI1_SRL32" />
+        </mux>
+
         <!-- BDI1MUX -->
-        <mux name="BDI1MUX" input="CSRL.MC31 SLICEM_MODES.BI" output="BSRL.DI1">
+        <mux name="BDI1MUX32" input="CSRL.MC31_SRL32 SLICEM_MODES.BI" output="BSRL.DI1_SRL32">
           <metadata>
             <meta name="fasm_mux">
-              CSRL.MC31 = DI1MUX.DI_CMC31
+              CSRL.MC31_SRL32 = DI1MUX.DI_CMC31
               SLICEM_MODES.BI = DI1MUX.BI
             </meta>
           </metadata>
-        </mux>       
-        
+          <pack_pattern name="SRL32_x3" in_port="CSRL.MC31_SRL32" out_port="BSRL.DI1_SRL32" />
+          <pack_pattern name="SRL32_x4" in_port="CSRL.MC31_SRL32" out_port="BSRL.DI1_SRL32" />
+        </mux>
+
         <!-- CDI1MUX -->
-        <mux name="CDI1MUX" input="DSRL.MC31 SLICEM_MODES.CI" output="CSRL.DI1">
+        <mux name="CDI1MUX32" input="DSRL.MC31_SRL32 SLICEM_MODES.CI" output="CSRL.DI1_SRL32">
           <metadata>
             <meta name="fasm_mux">
-              DSRL.MC31 = DI1MUX.DI_DMC31
+              DSRL.MC31_SRL32 = DI1MUX.DI_DMC31
               SLICEM_MODES.CI = DI1MUX.CI
             </meta>
           </metadata>
-        </mux>       
+          <pack_pattern name="SRL32_x4" in_port="DSRL.MC31_SRL32" out_port="CSRL.DI1_SRL32" />
+        </mux>
+
+        <mux name="ADI1MUX16" input="BSRL.MC31_SRL16 SLICEM_MODES.AI" output="ASRL.DI1_SRL16">
+          <metadata>
+            <meta name="fasm_mux">
+              BSRL.MC31_SRL16 = DI1MUX.BDI1_BMC31
+              SLICEM_MODES.AI = DI1MUX.AI
+            </meta>
+          </metadata>
+        </mux>
+
+        <!-- BDI1MUX -->
+        <mux name="BDI1MUX16" input="CSRL.MC31_SRL16 SLICEM_MODES.BI" output="BSRL.DI1_SRL16">
+          <metadata>
+            <meta name="fasm_mux">
+              CSRL.MC31_SRL16 = DI1MUX.DI_CMC31
+              SLICEM_MODES.BI = DI1MUX.BI
+            </meta>
+          </metadata>
+        </mux>
+
+        <!-- CDI1MUX -->
+        <mux name="CDI1MUX16" input="DSRL.MC31_SRL16 SLICEM_MODES.CI" output="CSRL.DI1_SRL16">
+          <metadata>
+            <meta name="fasm_mux">
+              DSRL.MC31_SRL16 = DI1MUX.DI_DMC31
+              SLICEM_MODES.CI = DI1MUX.CI
+            </meta>
+          </metadata>
+        </mux>
 
         <!-- AMC31 -->
         <direct name="ASRL.MC31_to_SLICEM_MODES.AMC31" input="ASRL.MC31" output="SLICEM_MODES.AMC31"/>
 
         <!-- F7AMUX inputs -->
-        <direct name="F7AMUX_I0" input="BSRL.O6"   output="F7AMUX.I0">
-          <pack_pattern in_port="BSRL.O6" name="SRL_x2" out_port="F7AMUX.I0"/>
-          <pack_pattern in_port="BSRL.O6" name="SRL_x3" out_port="F7AMUX.I0"/>
-          <pack_pattern in_port="BSRL.O6" name="SRL_x4" out_port="F7AMUX.I0"/> 
-        </direct>
-        <direct name="F7AMUX_I1" input="ASRL.O6"   output="F7AMUX.I1">
-          <pack_pattern in_port="ASRL.O6" name="SRL_x2" out_port="F7AMUX.I1"/>
-          <pack_pattern in_port="ASRL.O6" name="SRL_x4" out_port="F7AMUX.I1"/>
-        </direct>
+        <direct name="F7AMUX_I0" input="BSRL.O6"   output="F7AMUX.I0"/>
+        <direct name="F7AMUX_I1" input="ASRL.O6"   output="F7AMUX.I1"/>
 
         <direct name="F7AMUX_S"  input="SLICEM_MODES.AX" output="F7AMUX.S" />
 
         <!-- F7BMUX inputs -->
-        <direct name="F7BMUX_I0" input="DSRL.O6"   output="F7BMUX.I0">
-          <pack_pattern in_port="DSRL.O6" name="SRL_x2" out_port="F7BMUX.I0"/>
-          <pack_pattern in_port="DSRL.O6" name="SRL_x3" out_port="F7BMUX.I0"/>
-          <pack_pattern in_port="DSRL.O6" name="SRL_x4" out_port="F7BMUX.I0"/>
-        </direct>
-        <direct name="F7BMUX_I1" input="CSRL.O6"   output="F7BMUX.I1">
-          <pack_pattern in_port="CSRL.O6" name="SRL_x2" out_port="F7BMUX.I1"/>
-          <pack_pattern in_port="CSRL.O6" name="SRL_x3" out_port="F7BMUX.I1"/>
-          <pack_pattern in_port="CSRL.O6" name="SRL_x4" out_port="F7BMUX.I1"/>
-        </direct>
+        <direct name="F7BMUX_I0" input="DSRL.O6"   output="F7BMUX.I0"/>
+        <direct name="F7BMUX_I1" input="CSRL.O6"   output="F7BMUX.I1"/>
 
         <direct name="F7BMUX_S"  input="SLICEM_MODES.CX" output="F7BMUX.S" />
 
         <!-- F8MUX inputs -->
         <direct name="F8MUX_I0"  input="F7BMUX.O"  output="F8MUX.I0">
-          <pack_pattern in_port="F7BMUX.O" name="SRL_x3" out_port="F8MUX.I0"/>
-          <pack_pattern in_port="F7BMUX.O" name="SRL_x4" out_port="F8MUX.I0"/>
         </direct>
         <direct name="F8MUX_I1"  input="F7AMUX.O"  output="F8MUX.I1">
-          <pack_pattern in_port="F7AMUX.O" name="SRL_x3" out_port="F8MUX.I1"/>
-          <pack_pattern in_port="F7AMUX.O" name="SRL_x4" out_port="F8MUX.I1"/>
         </direct>
 
         <direct name="F8MUX_S"   input="SLICEM_MODES.BX" output="F8MUX.S" />
@@ -779,7 +796,7 @@
         <mux name="F7BMUX_O"   input="F7BMUX.O DRAM_2_OUTPUT_STUB.SPO_OUT" output="SLICEM_MODES.F7BMUX_O" />
       </interconnect>
 
-      
+
       <!-- The DLUT must be in RAM-mode for any of the RAM's to work.
            As a corollary, a DRAM requires the clock, so only turn on the
            DRAM if the clock is also connected.
@@ -855,7 +872,7 @@
     <direct name="F7AMUX_O" input="SLICEM_MODES.F7AMUX_O"   output="COMMON_SLICE.F7AMUX_O" />
     <direct name="F7BMUX_O" input="SLICEM_MODES.F7BMUX_O"   output="COMMON_SLICE.F7BMUX_O" />
     <direct name="F8MUX_O"  input="SLICEM_MODES.F8MUX_O"    output="COMMON_SLICE.F8MUX_O" />
-    
+
     <direct name="SLICEM_MODES.AMC31_to_SLICEM.AMC31" input="SLICEM_MODES.AMC31" output="COMMON_SLICE.AMC31"/>
 
     <!-- A-DX inputs -->

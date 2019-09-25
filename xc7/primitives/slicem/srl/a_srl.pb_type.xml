@@ -11,7 +11,8 @@
   <input  name="A4" num_pins="1"/>
   <input  name="A5" num_pins="1"/>
   <input  name="A6" num_pins="1"/>
-  <input  name="DI1" num_pins="1"/>
+  <input  name="DI1_SRL16" num_pins="1"/>
+  <input  name="DI1_SRL32" num_pins="1"/>
   <input  name="DI2" num_pins="1"/>
   <output name="O5" num_pins="1"/>
   <output name="O6" num_pins="1"/>
@@ -22,16 +23,13 @@
     <interconnect>
       <direct name="CLK" input="ASRL.CLK" output="SRLC32E_VPR.CLK"/>
       <direct name="WE" input="ASRL.WE" output="SRLC32E_VPR.CE"/>
-      <direct name="DI1" input="ASRL.DI1" output="SRLC32E_VPR.D"/>
+      <direct name="DI1" input="ASRL.DI1_SRL32" output="SRLC32E_VPR.D"/>
       <direct name="A2" input="ASRL.A2" output="SRLC32E_VPR.A[0]"/>
       <direct name="A3" input="ASRL.A3" output="SRLC32E_VPR.A[1]"/>
       <direct name="A4" input="ASRL.A4" output="SRLC32E_VPR.A[2]"/>
       <direct name="A5" input="ASRL.A5" output="SRLC32E_VPR.A[3]"/>
       <direct name="A6" input="ASRL.A6" output="SRLC32E_VPR.A[4]"/>
-      <direct name="O6" input="SRLC32E_VPR.Q" output="ASRL.O6">
-        <pack_pattern out_port="ASRL.O6" name="SRL_x2" in_port="SRLC32E_VPR.Q"/>
-        <pack_pattern out_port="ASRL.O6" name="SRL_x4" in_port="SRLC32E_VPR.Q"/>
-      </direct>
+      <direct name="O6" input="SRLC32E_VPR.Q" output="ASRL.O6"/>
       <direct name="MC31" input="SRLC32E_VPR.Q31" output="ASRL.MC31"/>
     </interconnect>
   </mode>
@@ -42,7 +40,7 @@
     <interconnect>
       <direct name="CLK_0" input="ASRL.CLK" output="SRLC16E_VPR_0.CLK"/>
       <direct name="WE_0" input="ASRL.WE" output="SRLC16E_VPR_0.CE"/>
-      <direct name="DI1" input="ASRL.DI1" output="SRLC16E_VPR_0.D"/>
+      <direct name="DI1" input="ASRL.DI1_SRL16" output="SRLC16E_VPR_0.D"/>
       <direct name="A2_0" input="ASRL.A2" output="SRLC16E_VPR_0.A0"/>
       <direct name="A3_0" input="ASRL.A3" output="SRLC16E_VPR_0.A1"/>
       <direct name="A4_0" input="ASRL.A4" output="SRLC16E_VPR_0.A2"/>
