@@ -1,4 +1,24 @@
 #!/usr/bin/env python3
+"""
+Semi-automated python script to maintain WIP master branches forked
+from third-party tools.
+
+The user needs to provide a location of the git project that needs to be
+updated. In case the directory does not exist, the user needs to provide
+the URL of the git repository.
+
+This script takes into account all the branches marked under the `wip/`
+namespace, rebases them on top of the master branch, and performs an
+Octopus Merge on the master+wip-next branch.
+
+In case of conflicts between different branches, the user is given access
+to the shell, from which he can solve all the issues.
+Once all the conflicting files are fixed, the script automatically performs
+the last steps of the conflict solving.
+
+The user can also choose to let the script to push force on the master+wip-next
+branch.
+"""
 
 import os
 import argparse
