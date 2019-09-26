@@ -408,6 +408,11 @@ function(ADD_VIVADO_PNR_TARGET)
   # Run vivado in another directory.
   set(WORK_DIR ${BASE_WORK_DIR}/vivado_pnr)
   string(REPLACE "${CMAKE_CURRENT_BINARY_DIR}/" ""  WORK_DIR ${WORK_DIR})
+  add_custom_command(
+      OUTPUT ${WORK_DIR}
+      COMMAND ${CMAKE_COMMAND} -E make_directory ${WORK_DIR}
+      )
+  list(APPEND DEPS ${WORK_DIR})
 
   COMMON_VIVADO_TARGETS(
       NAME ${NAME}
