@@ -1262,7 +1262,9 @@ def set_pin_connection(
         if has_pip:
             source_wires.append(wire_pkey)
 
-    assert len(source_wires) <= 1
+    if len(source_wires) > 1:
+        assert graph_node_is_blacklisted(conn, pin_graph_node_pkey), pin_graph_node_pkey
+        return
 
     if len(source_wires) == 1:
         cur.execute(
@@ -1293,7 +1295,7 @@ UPDATE graph_node SET connection_box_wire_pkey = ? WHERE pkey = ?
 
 def walk_and_mark_segment(
         conn, write_cur, graph_node_pkey, forward, segment_pkey, unknown_pkey,
-        pin_graph_node_pkey, tracks
+        pin_graph_node_pkey, tracks, visited_switches
 ):
     """ Recursive function to walk along a node and mark segments.
 
@@ -1341,27 +1343,28 @@ def walk_and_mark_segment(
     if forward:
         cur.execute(
             """
-SELECT dest_graph_node_pkey FROM graph_edge WHERE src_graph_node_pkey = ?
+SELECT dest_graph_node_pkey, switch_pkey FROM graph_edge WHERE src_graph_node_pkey = ?
 """, (graph_node_pkey, )
         )
         next_nodes = cur.fetchall()
     else:
         cur.execute(
             """
-SELECT src_graph_node_pkey FROM graph_edge WHERE dest_graph_node_pkey = ?
+SELECT src_graph_node_pkey, switch_pkey FROM graph_edge WHERE dest_graph_node_pkey = ?
 """, (graph_node_pkey, )
         )
         next_nodes = cur.fetchall()
 
     next_node = None
+    next_switch_pkey = None
     if len(next_nodes) == 1:
         # This is a simple edge, keep walking.
-        next_node = next_nodes[0][0]
+        (next_node, next_switch_pkey) = next_nodes[0]
     elif not forward:
         # Some nodes simply lead to GND/VCC tieoff pins, these should not
         # stop the walk, as they are not relevant to connection box.
         next_non_tieoff_nodes = []
-        for (next_graph_node_pkey, ) in next_nodes:
+        for (next_graph_node_pkey, edge_switch_pkey) in next_nodes:
             cur.execute(
                 """
 SELECT count() FROM constant_sources WHERE
@@ -1374,16 +1377,17 @@ OR
                 )
             )
             if cur.fetchone()[0] == 0:
-                next_non_tieoff_nodes.append(next_graph_node_pkey)
+                next_non_tieoff_nodes.append((next_graph_node_pkey, edge_switch_pkey))
 
         if len(next_non_tieoff_nodes) == 1:
-            next_node = next_non_tieoff_nodes[0]
+            (next_node, next_switch_pkey) = next_non_tieoff_nodes[0]
 
-    if next_node is not None:
+    if next_node is not None and next_switch_pkey not in visited_switches:
         # If there is a next node, keep walking
+        visited_switches.add(next_switch_pkey)
         walk_and_mark_segment(
             conn, write_cur, next_node, forward, segment_pkey, unknown_pkey,
-            pin_graph_node_pkey, tracks
+            pin_graph_node_pkey, tracks, visited_switches
         )
     else:
         # There is not a next node, update the connection box of the IPIN/OPIN
@@ -1417,6 +1421,27 @@ SELECT count(*) FROM graph_edge WHERE dest_graph_node_pkey = ? LIMIT 1
 
     return cur.fetchone()[0] > 0
 
+def graph_node_is_blacklisted(conn, graph_node_pkey):
+    """ Identify pin graph nodes that are expected to cause failures, so they can be ignored. """
+
+    cur = conn.cursor()
+
+    cur.execute(
+        """
+SELECT count(*) FROM wire
+  JOIN wire_in_tile ON (wire.wire_in_tile_pkey = wire_in_tile.pkey)
+  JOIN graph_node ON (wire.node_pkey = graph_node.node_pkey)
+  WHERE graph_node.pkey = ? AND
+        (wire_in_tile.name = 'IOI_OLOGIC1_TBYTEOUT' OR
+         wire_in_tile.name LIKE 'CLK_HROW_CK_HCLK_OUT_%' OR
+         wire_in_tile.name LIKE 'HCLK_CMT_BUFMRCE_%' OR
+         wire_in_tile.name LIKE 'CMT_PHY_CONTROL_%' OR
+         wire_in_tile.name LIKE 'CMT_PHASER_%')
+  LIMIT 1;
+        """, (graph_node_pkey, )
+    )
+
+    return cur.fetchone()[0] > 0
 
 def annotate_pin_feeds(conn):
     """ Identifies and annotates pin feed channels.
@@ -1458,6 +1483,7 @@ WHERE graph_node.graph_node_type = ?
             unknown_pkey=unknown_pkey,
             pin_graph_node_pkey=graph_node_pkey,
             tracks=list(),
+            visited_switches=set()
         )
 
     # Walk from IPIN's next.
@@ -1479,6 +1505,7 @@ WHERE graph_node.graph_node_type = ?
             unknown_pkey=unknown_pkey,
             pin_graph_node_pkey=graph_node_pkey,
             tracks=list(),
+            visited_switches=set()
         )
 
     write_cur.execute("""COMMIT TRANSACTION;""")
