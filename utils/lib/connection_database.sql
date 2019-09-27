@@ -219,6 +219,18 @@ CREATE TABLE pip_in_tile(
   FOREIGN KEY(backward_switch_pkey) REFERENCES switch(pkey)
 );
 
+-- Table for find pips associated with a wire_in_tile_pkey, without considering
+-- the direction of the pip.
+CREATE TABLE undirected_pips(
+    wire_in_tile_pkey INT,
+    pip_in_tile_pkey INT,
+    other_wire_in_tile_pkey INT,
+    FOREIGN KEY(wire_in_tile_pkey) REFERENCES wire_in_tile(pkey),
+    FOREIGN KEY(pip_in_tile_pkey) REFERENCES pip_in_tile(pkey),
+    FOREIGN KEY(other_wire_in_tile_pkey) REFERENCES wire_in_tile(pkey)
+);
+
+
 -- Table of tracks. alive is a flag used during routing import to indicate
 -- whether this a particular track is connected and should be imported.
 CREATE TABLE track(
