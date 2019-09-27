@@ -38,7 +38,8 @@ module top (
 
     wire [4:0] write_address;
     wire [4:0] read_address;
-    wire [5:0] read_data;
+    wire [5:0] read_data_unreg;
+    reg [5:0] read_data = 6'b0;
     wire [5:0] write_data;
     wire write_enable;
 
@@ -93,9 +94,9 @@ module top (
         .ADDRB(read_address),
         .ADDRA(read_address),
 
-        .DOC(read_data[5:4]),
-        .DOB(read_data[3:2]),
-        .DOA(read_data[1:0]),
+        .DOC(read_data_unreg[5:4]),
+        .DOB(read_data_unreg[3:2]),
+        .DOA(read_data_unreg[1:0]),
 
         .DIC(write_data[5:4]),
         .DIB(write_data[3:2]),
@@ -103,6 +104,10 @@ module top (
 
         .WE(write_enable)
     );
+
+    always @(posedge clk) begin
+        read_data <= read_data_unreg;
+    end
 
     ERROR_OUTPUT_LOGIC #(
         .DATA_WIDTH(6),

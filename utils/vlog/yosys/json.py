@@ -8,6 +8,7 @@ be used before outputting the JSON.
 
 import json
 import pprint
+import re
 
 
 class YosysModule:
@@ -130,6 +131,22 @@ class YosysModule:
         else:
             return defval
 
+    PORT_REGEX = re.compile('(.*)(\\[([0-9]+)\\])')
+
+    def port_attrs(self, port_pin):
+        """Gets all the attributes for for given pin
+
+        Returns attributes dictionary:
+        -------
+
+        port_pin: str
+        """
+        m = self.PORT_REGEX.match(port_pin)
+        if not m:
+            return self.net_attrs(port_pin)
+        port_name, _, port_idx = m.groups()
+        return self.net_attrs(port_name)
+
     # TODO: the below code is kind of ugly, but because module and cell IO
     # specifications are inconsistent in how they are represented in the JSON,
     # it's hard to make any nicer...
@@ -240,6 +257,24 @@ class YosysModule:
                                 )
                             )
         return conn_ports
+
+    def net_name(self, netid):
+        """Get a net name from a given netid. "netid" is a design net unique id
+        number.
+
+        Returns string:
+        -------
+        netid : int
+        """
+        import sys
+        print("Netid", netid, file=sys.stderr)
+        names = []
+        for n, props in self.data["netnames"].items():
+            if netid in props['bits']:
+                names.append(n)
+        if len(names) != 1:
+            raise KeyError("Net id {} not found".format(netid))
+        return names[0]
 
     def net_drivers(self, net):
         """Returns a list of drivers of a given net, both top level inputs.

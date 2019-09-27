@@ -1,6 +1,45 @@
-function(COMMON_VIVADO_TARGETS NAME WORK_DIR DEPS BITSTREAM)
+function(COMMON_VIVADO_TARGETS)
+  # ~~~
+  # COMMON_VIVADO_TARGETS(
+  #   NAME <name>
+  #   WORK_DIR <working directory>
+  #   BITSTREAM <bitstream>
+  #   DEPS <dependency list>
+  #   [MAKE_DIFF_FASM]
+  #   )
+  # ~~~
+  #
+  # Generates common Vivado targets for running Vivado tcl scripts to generate
+  # the Vivado checkpoint and project, and creates the following dummy targets:
+  #
+  # - ${NAME}_load_dcp - Load generated checkpoint.  This contains routing and
+  #                      placement details.
+  # - ${NAME}_load_xpr - Load generated project.  This can be used for
+  #                      behavioral simulation.
+  # - ${NAME}_sim - Load project and launches simulation.
+  #
+  # The MAKE_DIFF_FASM option generates a diff between the input BITSTREAM
+  # and the output from Vivado, and attaches that diff generation to
+  # "all_xc7_diff_fasm" which can used to verify FASM.
+  #
+  set(options MAKE_DIFF_FASM)
+  set(oneValueArgs NAME WORK_DIR BITSTREAM)
+  set(multiValueArgs DEPS)
+  cmake_parse_arguments(
+      COMMON_VIVADO_TARGETS
+    "${options}"
+    "${oneValueArgs}"
+    "${multiValueArgs}"
+    ${ARGN}
+  )
+
   get_target_property_required(PYTHON3 env PYTHON3)
   get_target_property(PYTHON3_TARGET env PYTHON3_TARGET)
+
+  set(NAME ${COMMON_VIVADO_TARGETS_NAME})
+  set(WORK_DIR ${COMMON_VIVADO_TARGETS_WORK_DIR})
+  set(DEPS ${COMMON_VIVADO_TARGETS_DEPS})
+  set(BITSTREAM ${COMMON_VIVADO_TARGETS_BITSTREAM})
 
   add_custom_command(
     OUTPUT
@@ -82,15 +121,18 @@ function(COMMON_VIVADO_TARGETS NAME WORK_DIR DEPS BITSTREAM)
   add_custom_target(${NAME} DEPENDS ${WORK_DIR}/design_${NAME}.dcp)
   add_custom_target(${NAME}_timing DEPENDS ${WORK_DIR}/timing_${NAME}.json)
   add_custom_target(${NAME}_fasm DEPENDS ${WORK_DIR}/design_${NAME}.bit.fasm)
-  add_custom_target(${NAME}_diff_fasm
-      COMMAND diff -u
-        ${BITSTREAM_LOCATION}.fasm
-        ${CMAKE_CURRENT_BINARY_DIR}/${WORK_DIR}/design_${NAME}.bit.fasm
-      DEPENDS
-        ${DEPS}
-        ${BITSTREAM_LOCATION}.fasm
-        ${CMAKE_CURRENT_BINARY_DIR}/${WORK_DIR}/design_${NAME}.bit.fasm
-      )
+
+  if(${COMMON_VIVADO_TARGETS_MAKE_DIFF_FASM})
+    add_custom_target(${NAME}_diff_fasm
+        COMMAND diff -u
+            ${BITSTREAM_LOCATION}.fasm
+            ${CMAKE_CURRENT_BINARY_DIR}/${WORK_DIR}/design_${NAME}.bit.fasm
+        DEPENDS
+            ${DEPS}
+            ${CMAKE_CURRENT_BINARY_DIR}/${WORK_DIR}/design_${NAME}.bit.fasm
+        )
+    add_dependencies(all_xc7_diff_fasm ${NAME}_diff_fasm)
+  endif()
 endfunction()
 
 function(ADD_VIVADO_TARGET)
@@ -194,7 +236,13 @@ function(ADD_VIVADO_TARGET)
   # directory, and presents Vivado filename collisions.
   get_filename_component(WORK_DIR ${BIT_VERILOG} DIRECTORY)
 
-  COMMON_VIVADO_TARGETS(${NAME} ${WORK_DIR} "${DEPS}" ${BITSTREAM})
+  COMMON_VIVADO_TARGETS(
+      NAME ${NAME}
+      WORK_DIR ${WORK_DIR}
+      DEPS ${DEPS}
+      BITSTREAM ${BITSTREAM}
+      MAKE_DIFF_FASM)
+
 endfunction()
 
 function(ADD_VIVADO_PNR_TARGET)
@@ -360,6 +408,15 @@ function(ADD_VIVADO_PNR_TARGET)
   # Run vivado in another directory.
   set(WORK_DIR ${BASE_WORK_DIR}/vivado_pnr)
   string(REPLACE "${CMAKE_CURRENT_BINARY_DIR}/" ""  WORK_DIR ${WORK_DIR})
+  add_custom_command(
+      OUTPUT ${WORK_DIR}
+      COMMAND ${CMAKE_COMMAND} -E make_directory ${WORK_DIR}
+      )
+  list(APPEND DEPS ${WORK_DIR})
 
-  COMMON_VIVADO_TARGETS(${NAME} ${WORK_DIR} "${DEPS}" ${BITSTREAM})
+  COMMON_VIVADO_TARGETS(
+      NAME ${NAME}
+      WORK_DIR ${WORK_DIR}
+      DEPS ${DEPS}
+      BITSTREAM ${BITSTREAM})
 endfunction()

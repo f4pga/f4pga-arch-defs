@@ -212,7 +212,7 @@ else:
 
             # FIXME: Check if ignoring clock for "combination_sink_ports" is a
             # valid thing to do.
-            if name in clocks or "clk" in name:
+            if name in clocks or "clk" in name.lower():
                 attrs["is_clock"] = "1"
             else:
                 clks = list()
