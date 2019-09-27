@@ -1,0 +1,10 @@
+<models xmlns:xi="http://www.w3.org/2001/XInclude">
+  <model name="LUT4">
+    <input_ports>
+      <port combinational_sink_ports="O" name="I"/>
+    </input_ports>
+    <output_ports>
+      <port name="O"/>
+    </output_ports>
+  </model>
+</models>

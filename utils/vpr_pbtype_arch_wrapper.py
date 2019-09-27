@@ -261,7 +261,6 @@ def tile_xml(
                 },
             )
         )
-        ilocs[i].text = ""
         olocs.append(
             ET.SubElement(
                 ploc,
@@ -273,7 +272,6 @@ def tile_xml(
                 },
             )
         )
-        olocs[i].text = ""
 
     # Interconnect
     connect = ET.SubElement(
@@ -303,7 +301,7 @@ def tile_xml(
         )
 
         for i in range(0, tile_height):
-            ilocs[i].text += "TILE.{} ".format(s)
+            ET.SubElement(ilocs[i], 'port', {'name': s})
 
     # Input Pins
     for d, s in flatten(inputs):
@@ -327,7 +325,7 @@ def tile_xml(
         )
 
         for i in range(0, tile_height):
-            ilocs[i].text += "TILE.{} ".format(s)
+            ET.SubElement(ilocs[i], 'port', {'name': s})
 
     # Output Pins
     for s, d in flatten(outputs):
@@ -350,7 +348,7 @@ def tile_xml(
             },
         )
         for i in range(0, tile_height):
-            olocs[i].text += "TILE.{} ".format(d)
+            ET.SubElement(olocs[i], 'port', {'name': d})
 
     return name
 
@@ -422,7 +420,7 @@ def main(args):
         args.pb_type
     )
 
-    tile_height = layout_xml(arch_root, pbtype_leaf)
+    tile_height = layout_xml(arch_root, pbtype_root)
     tname = tile_xml(arch_root, pbtype_root, outfile, tile_height)
 
     dirpath = os.path.dirname(outfile)

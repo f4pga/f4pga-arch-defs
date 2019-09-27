@@ -762,8 +762,8 @@ class Site(object):
             source name provided to Site.add_internal_source earlier.
 
         """
-        assert source not in self.sources
-        assert internal_source in self.internal_sources
+        assert source not in self.sources, source
+        assert internal_source in self.internal_sources, internal_source
 
         self.outputs[source] = internal_source
         self.sources[source] = self.internal_sources[internal_source]

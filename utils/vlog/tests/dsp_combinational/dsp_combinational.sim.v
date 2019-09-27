@@ -5,7 +5,7 @@ module DSP_COMBINATIONAL (
 	a, b, m,
 	out
 );
-	localparam DATA_WIDTH = 64;
+	localparam DATA_WIDTH = 4;
 
 	input wire [DATA_WIDTH/2-1:0] a;
 	input wire [DATA_WIDTH/2-1:0] b;

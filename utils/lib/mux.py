@@ -33,6 +33,7 @@ def add_metadata(tag, mtype, msubtype):
     meta_type.text = mtype
     meta_subtype = ET.SubElement(meta_root, 'meta', {'name': 'subtype'})
     meta_subtype.text = msubtype
+    return meta_root
 
 
 class MuxType(Enum):
@@ -76,12 +77,6 @@ class ModulePort(object):
         self.width = width
         self.index = index
         self.data_width = data_width
-
-    def getParameterString(self):
-        if self.width == 1:
-            return '\tparameter [0:0] %s = 0;\n' % (self.name)
-        else:
-            return '\tparameter %s %s = 0;\n' % (self.index, self.name)
 
     def getDefinition(self):
         if self.width == 1:
@@ -182,7 +177,6 @@ def pb_type_xml(mux_type, mux_name, pins, subckt=None, num_pb=1, comment=""):
                 'num_pins': str(num_pins)
             },
         )
-        add_metadata(mux, 'bel', 'mux')
 
     if mux_type == MuxType.LOGIC:
         for inport in pins:
@@ -236,7 +230,12 @@ def pb_type_xml(mux_type, mux_name, pins, subckt=None, num_pb=1, comment=""):
                 'output': outputs[0],
             },
         )
-        add_metadata(mux, 'bel', 'routing')
+        meta_root = add_metadata(mux, 'bel', 'routing')
+
+        meta_fasm_mux = ET.SubElement(meta_root, 'meta', {'key': 'fasm_mux'})
+        meta_fasm_mux.text = "\n".join(
+            [""] + ["{0} = {0}".format(i) for i in inputs] + [""]
+        )
 
     return pb_type_xml
 

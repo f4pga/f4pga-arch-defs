@@ -595,8 +595,18 @@ module RAM32M (
     wire [1:0] DOB_TO_STUB;
     wire [1:0] DOA_TO_STUB;
 
+function [31:0] every_other_bit_32;
+   input [63:0] in;
+   input         odd;
+   integer       i;
+   for (i = 0; i < 32; i = i + 1) begin
+      every_other_bit_32[i] = in[i * 2 + odd];
+   end
+endfunction
+
+
     DPRAM32 #(
-        .INIT_00(INIT_A[63:32]),
+        .INIT_00(every_other_bit_32(INIT_A, 1'b1)),
         .IS_WCLK_INVERTED(IS_WCLK_INVERTED)
     ) ram_a1 (
          .DI(DIA[1]),
@@ -608,7 +618,7 @@ module RAM32M (
     );
 
     DPRAM32 #(
-        .INIT_00(INIT_A[31:0]),
+        .INIT_00(every_other_bit_32(INIT_A, 1'b0)),
         .IS_WCLK_INVERTED(IS_WCLK_INVERTED)
     ) ram_a0 (
          .DI(DIA[0]),
@@ -620,7 +630,7 @@ module RAM32M (
     );
 
     DPRAM32 #(
-        .INIT_00(INIT_B[63:32]),
+        .INIT_00(every_other_bit_32(INIT_B, 1'b1)),
         .IS_WCLK_INVERTED(IS_WCLK_INVERTED)
     ) ram_b1 (
          .DI(DIB[1]),
@@ -632,7 +642,7 @@ module RAM32M (
     );
 
     DPRAM32 #(
-        .INIT_00(INIT_B[31:0]),
+        .INIT_00(every_other_bit_32(INIT_B, 1'b0)),
         .IS_WCLK_INVERTED(IS_WCLK_INVERTED)
     ) ram_b0 (
          .DI(DIB[0]),
@@ -644,7 +654,7 @@ module RAM32M (
     );
 
     DPRAM32 #(
-        .INIT_00(INIT_C[63:32]),
+        .INIT_00(every_other_bit_32(INIT_C, 1'b1)),
         .IS_WCLK_INVERTED(IS_WCLK_INVERTED)
     ) ram_c1 (
          .DI(DIC[1]),
@@ -656,7 +666,7 @@ module RAM32M (
     );
 
     DPRAM32 #(
-        .INIT_00(INIT_C[31:0]),
+        .INIT_00(every_other_bit_32(INIT_C, 1'b0)),
         .IS_WCLK_INVERTED(IS_WCLK_INVERTED)
     ) ram_c0 (
          .DI(DIC[0]),
@@ -668,7 +678,7 @@ module RAM32M (
     );
 
     DPRAM32 #(
-        .INIT_00(INIT_D[63:32]),
+        .INIT_00(every_other_bit_32(INIT_D, 1'b1)),
         .IS_WCLK_INVERTED(IS_WCLK_INVERTED)
     ) ram_d1 (
          .DI(DID[1]),
@@ -680,7 +690,7 @@ module RAM32M (
     );
 
     DPRAM32 #(
-        .INIT_00(INIT_D[31:0]),
+        .INIT_00(every_other_bit_32(INIT_D, 0)),
         .IS_WCLK_INVERTED(IS_WCLK_INVERTED)
     ) ram_d0 (
          .DI(DID[0]),
@@ -957,6 +967,8 @@ module RAMB18E1 (
     parameter IS_RSTREGARSTREG_INVERTED = 1'b0;
     parameter IS_RSTREGB_INVERTED = 1'b0;
 
+    parameter _TECHMAP_CONSTMSK_CLKARDCLK_ = 0;
+    parameter _TECHMAP_CONSTVAL_CLKARDCLK_ = 0;
     parameter _TECHMAP_CONSTMSK_CLKBWRCLK_ = 0;
     parameter _TECHMAP_CONSTVAL_CLKBWRCLK_ = 0;
     parameter _TECHMAP_CONSTMSK_REGCLKARDRCLK_ = 0;
@@ -986,6 +998,10 @@ module RAMB18E1 (
   reg _TECHMAP_FAIL_;
   wire [1023:0] _TECHMAP_DO_ = "proc; clean";
 
+  localparam INV_CLKARDCLK = (
+      _TECHMAP_CONSTMSK_CLKARDCLK_ == 1 &&
+      _TECHMAP_CONSTVAL_CLKARDCLK_ == 0 &&
+      IS_CLKARDCLK_INVERTED == 0);
   localparam INV_CLKBWRCLK = (
       _TECHMAP_CONSTMSK_CLKBWRCLK_ == 1 &&
       _TECHMAP_CONSTVAL_CLKBWRCLK_ == 0 &&
@@ -1052,7 +1068,7 @@ module RAMB18E1 (
   end
 
 if(RAM_MODE == "SDP" && READ_WIDTH_A == 36) begin
-    localparam EFF_READ_WIDTH_A = 18;
+    localparam EFF_READ_WIDTH_A = 1;
     localparam EFF_READ_WIDTH_B = 18;
 end else begin
     localparam EFF_READ_WIDTH_A = READ_WIDTH_A;
@@ -1208,7 +1224,7 @@ end
       .INIT_3E(INIT_3E),
       .INIT_3F(INIT_3F),
 
-      .ZINV_CLKARDCLK(!IS_CLKARDCLK_INVERTED),
+      .ZINV_CLKARDCLK(!IS_CLKARDCLK_INVERTED ^ INV_CLKARDCLK),
       .ZINV_CLKBWRCLK(!IS_CLKBWRCLK_INVERTED ^ INV_CLKBWRCLK),
       .ZINV_ENARDEN(!IS_ENARDEN_INVERTED),
       .ZINV_ENBWREN(!IS_ENBWREN_INVERTED),
@@ -1249,7 +1265,7 @@ end
       .WRITE_MODE_B_NO_CHANGE(WRITE_MODE_B == "NO_CHANGE" || (WRITE_MODE_B == "WRITE_FIRST" && RAM_MODE == "SDP")),
       .WRITE_MODE_B_READ_FIRST(WRITE_MODE_B == "READ_FIRST")
   ) _TECHMAP_REPLACE_ (
-    .CLKARDCLK(CLKARDCLK),
+    .CLKARDCLK(CLKARDCLK ^ INV_CLKARDCLK),
     .REGCLKARDRCLK(REGCLKA),
     .CLKBWRCLK(CLKBWRCLK ^ INV_CLKBWRCLK),
     .REGCLKB(REGCLKB),
@@ -1280,12 +1296,12 @@ end
   );
 endmodule
 
-function [255:0] every_other_bit;
+function [255:0] every_other_bit_256;
    input [511:0] in;
    input         odd;
    integer       i;
    for (i = 0; i < 256; i = i + 1) begin
-      every_other_bit[i] = in[i * 2 + odd];
+      every_other_bit_256[i] = in[i * 2 + odd];
    end
 endfunction
 
@@ -1360,6 +1376,8 @@ module RAMB36E1 (
     parameter IS_RSTREGARSTREG_INVERTED = 1'b0;
     parameter IS_RSTREGB_INVERTED = 1'b0;
 
+    parameter _TECHMAP_CONSTMSK_CLKARDCLK_ = 0;
+    parameter _TECHMAP_CONSTVAL_CLKARDCLK_ = 0;
     parameter _TECHMAP_CONSTMSK_CLKBWRCLK_ = 0;
     parameter _TECHMAP_CONSTVAL_CLKBWRCLK_ = 0;
     parameter _TECHMAP_CONSTMSK_REGCLKARDRCLK_ = 0;
@@ -1389,6 +1407,10 @@ module RAMB36E1 (
   reg _TECHMAP_FAIL_;
   wire [1023:0] _TECHMAP_DO_ = "proc; clean";
 
+  localparam INV_CLKARDCLK = (
+      _TECHMAP_CONSTMSK_CLKARDCLK_ == 1 &&
+      _TECHMAP_CONSTVAL_CLKARDCLK_ == 0 &&
+      IS_CLKARDCLK_INVERTED == 0);
   localparam INV_CLKBWRCLK = (
       _TECHMAP_CONSTMSK_CLKBWRCLK_ == 1 &&
       _TECHMAP_CONSTVAL_CLKBWRCLK_ == 0 &&
@@ -1453,7 +1475,7 @@ module RAMB36E1 (
   end
 
 if(RAM_MODE == "SDP" && READ_WIDTH_A > 36) begin
-    localparam EFF_READ_WIDTH_A = 36;
+    localparam EFF_READ_WIDTH_A = 1;
     localparam EFF_READ_WIDTH_B = 36;
 end else begin
     localparam EFF_READ_WIDTH_A = READ_WIDTH_A;
@@ -1475,7 +1497,7 @@ end
       assign REGCLKA = CLKARDCLK;
       localparam ZINV_REGCLKARDRCLK = !IS_CLKARDCLK_INVERTED;
   end else begin
-      assign REGCLKA = 1'b0;
+      assign REGCLKA = 1'b1;
       localparam ZINV_REGCLKARDRCLK = 1'b0;
   end
 
@@ -1483,7 +1505,7 @@ end
       assign REGCLKB = CLKBWRCLK;
       localparam ZINV_REGCLKB = !IS_CLKBWRCLK_INVERTED;
   end else begin
-      assign REGCLKB = 1'b0;
+      assign REGCLKB = 1'b1;
       localparam ZINV_REGCLKB = 1'b0;
   end
 
@@ -1507,10 +1529,7 @@ end
       assign WEBWE_WIDE[3:2] = {2{WEBWE[1]}};
       assign WEBWE_WIDE[1:0] = {2{WEBWE[0]}};
   end else if(WRITE_WIDTH_B == 36) begin
-      assign WEBWE_WIDE[7:6] = {2{WEBWE[3]}};
-      assign WEBWE_WIDE[5:4] = {2{WEBWE[2]}};
-      assign WEBWE_WIDE[3:2] = {2{WEBWE[1]}};
-      assign WEBWE_WIDE[1:0] = {2{WEBWE[0]}};
+      assign WEBWE_WIDE = WEBWE;
   end else if(WRITE_WIDTH_B == 72) begin
       assign WEA_WIDE = 4'b0;
       assign WEBWE_WIDE = WEBWE;
@@ -1526,24 +1545,24 @@ end
       .ZSRVAL_B(SRVAL_B ^ {36{1'b1}}),
 
       `define INIT_PARAM_BLOCK_L(pre, n, d, upper) \
-      .``pre``_``n``0(every_other_bit({``pre``_``d``1, ``pre``_``d``0}, upper)), \
-      .``pre``_``n``1(every_other_bit({``pre``_``d``3, ``pre``_``d``2}, upper)), \
-      .``pre``_``n``2(every_other_bit({``pre``_``d``5, ``pre``_``d``4}, upper)), \
-      .``pre``_``n``3(every_other_bit({``pre``_``d``7, ``pre``_``d``6}, upper)), \
-      .``pre``_``n``4(every_other_bit({``pre``_``d``9, ``pre``_``d``8}, upper)), \
-      .``pre``_``n``5(every_other_bit({``pre``_``d``B, ``pre``_``d``A}, upper)), \
-      .``pre``_``n``6(every_other_bit({``pre``_``d``D, ``pre``_``d``C}, upper)), \
-      .``pre``_``n``7(every_other_bit({``pre``_``d``F, ``pre``_``d``E}, upper))
+      .``pre``_``n``0(every_other_bit_256({``pre``_``d``1, ``pre``_``d``0}, upper)), \
+      .``pre``_``n``1(every_other_bit_256({``pre``_``d``3, ``pre``_``d``2}, upper)), \
+      .``pre``_``n``2(every_other_bit_256({``pre``_``d``5, ``pre``_``d``4}, upper)), \
+      .``pre``_``n``3(every_other_bit_256({``pre``_``d``7, ``pre``_``d``6}, upper)), \
+      .``pre``_``n``4(every_other_bit_256({``pre``_``d``9, ``pre``_``d``8}, upper)), \
+      .``pre``_``n``5(every_other_bit_256({``pre``_``d``B, ``pre``_``d``A}, upper)), \
+      .``pre``_``n``6(every_other_bit_256({``pre``_``d``D, ``pre``_``d``C}, upper)), \
+      .``pre``_``n``7(every_other_bit_256({``pre``_``d``F, ``pre``_``d``E}, upper))
 
       `define INIT_PARAM_BLOCK_H(pre, n, d, upper) \
-      .``pre``_``n``8(every_other_bit({``pre``_``d``1, ``pre``_``d``0}, upper)), \
-      .``pre``_``n``9(every_other_bit({``pre``_``d``3, ``pre``_``d``2}, upper)), \
-      .``pre``_``n``A(every_other_bit({``pre``_``d``5, ``pre``_``d``4}, upper)), \
-      .``pre``_``n``B(every_other_bit({``pre``_``d``7, ``pre``_``d``6}, upper)), \
-      .``pre``_``n``C(every_other_bit({``pre``_``d``9, ``pre``_``d``8}, upper)), \
-      .``pre``_``n``D(every_other_bit({``pre``_``d``B, ``pre``_``d``A}, upper)), \
-      .``pre``_``n``E(every_other_bit({``pre``_``d``D, ``pre``_``d``C}, upper)), \
-      .``pre``_``n``F(every_other_bit({``pre``_``d``F, ``pre``_``d``E}, upper))
+      .``pre``_``n``8(every_other_bit_256({``pre``_``d``1, ``pre``_``d``0}, upper)), \
+      .``pre``_``n``9(every_other_bit_256({``pre``_``d``3, ``pre``_``d``2}, upper)), \
+      .``pre``_``n``A(every_other_bit_256({``pre``_``d``5, ``pre``_``d``4}, upper)), \
+      .``pre``_``n``B(every_other_bit_256({``pre``_``d``7, ``pre``_``d``6}, upper)), \
+      .``pre``_``n``C(every_other_bit_256({``pre``_``d``9, ``pre``_``d``8}, upper)), \
+      .``pre``_``n``D(every_other_bit_256({``pre``_``d``B, ``pre``_``d``A}, upper)), \
+      .``pre``_``n``E(every_other_bit_256({``pre``_``d``D, ``pre``_``d``C}, upper)), \
+      .``pre``_``n``F(every_other_bit_256({``pre``_``d``F, ``pre``_``d``E}, upper))
 
       `define INIT_PARAM_BLOCK(pre, n, lo, hi, upper) \
       `INIT_PARAM_BLOCK_L(pre, n, lo, upper), \
@@ -1564,7 +1583,7 @@ end
       `undef INIT_PARAM_BLOCK_H
       `undef INIT_PARAM_BLOCK
 
-      .ZINV_CLKARDCLK(!IS_CLKARDCLK_INVERTED),
+      .ZINV_CLKARDCLK(!IS_CLKARDCLK_INVERTED ^ INV_CLKARDCLK),
       .ZINV_CLKBWRCLK(!IS_CLKBWRCLK_INVERTED ^ INV_CLKBWRCLK),
       .ZINV_ENARDEN(!IS_ENARDEN_INVERTED),
       .ZINV_ENBWREN(!IS_ENBWREN_INVERTED),
@@ -1606,7 +1625,7 @@ end
       .ZALMOST_FULL_OFFSET(13'b1111111111111)
   ) _TECHMAP_REPLACE_ (
     `define DUP(pre, in) .``pre``U(in), .``pre``L(in)
-    `DUP(CLKARDCLK, CLKARDCLK),
+    `DUP(CLKARDCLK, CLKARDCLK ^ INV_CLKARDCLK),
     `DUP(REGCLKARDRCLK, REGCLKA),
     `DUP(CLKBWRCLK, CLKBWRCLK ^ INV_CLKBWRCLK),
     `DUP(REGCLKB, REGCLKB),
