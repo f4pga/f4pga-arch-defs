@@ -207,6 +207,19 @@ function(VPR_TEST_PB_TYPE)
     OUTPUT ${VPR_TEST_PB_TYPE_NAME}.arch.merged.xml
   )
 
+  add_file_target(FILE "${VPR_TEST_PB_TYPE_NAME}.arch.tiles.xml" GENERATED)
+  add_custom_command(
+    OUTPUT "${VPR_TEST_PB_TYPE_NAME}.arch.tiles.xml"
+    DEPENDS
+      ${PYTHON3} ${PYTHON3_TARGET}
+      ${VPR_TEST_PB_TYPE_NAME}.arch.merged.xml
+      ${symbiflow-arch-defs_SOURCE_DIR}/utils/update_arch_tiles.py
+    COMMAND
+      ${PYTHON3} ${symbiflow-arch-defs_SOURCE_DIR}/utils/update_arch_tiles.py
+        --in_xml ${CMAKE_CURRENT_BINARY_DIR}/${VPR_TEST_PB_TYPE_NAME}.arch.merged.xml
+        --out_xml ${CMAKE_CURRENT_BINARY_DIR}/${VPR_TEST_PB_TYPE_NAME}.arch.tiles.xml
+    )
+
   get_target_property_required(VPR env VPR)
   get_target_property(VPR_TARGET env VPR_TARGET)
   get_target_property_required(QUIET_CMD env QUIET_CMD)
@@ -215,7 +228,7 @@ function(VPR_TEST_PB_TYPE)
   set(OUT_LOCAL ${CMAKE_CURRENT_BINARY_DIR}/${OUT_LOCAL_REL})
 
   set(DEPENDS_TEST "")
-  append_file_dependency(DEPENDS_TEST ${VPR_TEST_PB_TYPE_NAME}.arch.merged.xml)
+  append_file_dependency(DEPENDS_TEST ${VPR_TEST_PB_TYPE_NAME}.arch.tiles.xml)
   append_file_dependency(DEPENDS_TEST ${VPR_TEST_PB_TYPE_NAME}.test.eblif)
   add_custom_command(
     OUTPUT
@@ -229,7 +242,7 @@ function(VPR_TEST_PB_TYPE)
     COMMAND
       ${CMAKE_COMMAND} -E chdir ${OUT_LOCAL}
       ${QUIET_CMD} ${VPR}
-      ${CMAKE_CURRENT_BINARY_DIR}/${VPR_TEST_PB_TYPE_NAME}.arch.merged.xml
+      ${CMAKE_CURRENT_BINARY_DIR}/${VPR_TEST_PB_TYPE_NAME}.arch.tiles.xml
       ${CMAKE_CURRENT_BINARY_DIR}/${VPR_TEST_PB_TYPE_NAME}.test.eblif
       --echo_file on
       --pack

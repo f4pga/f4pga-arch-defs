@@ -26,13 +26,17 @@ add_custom_target(
   )
 get_target_property_required(ICE40_IMPORT_TIMING ice40_import_timing_deps ICE40_IMPORT_TIMING)
 set(TIMING_IMPORT_CMD "${PYTHON3} ${ICE40_IMPORT_TIMING} --read_sdf ${SDF_FILE} --write_arch_xml /dev/stdout --read_arch_xml /dev/stdin")
+add_file_target(FILE ${SDF_FILE} GENERATED)
+append_file_dependency(DEPS ${SDF_FILE})
 
 define_device_type(
   DEVICE_TYPE top-routing-virt
   ARCH ice40
   ARCH_XML arch.xml
   SCRIPT_OUTPUT_NAME timing
+  SCRIPT_DEPS DEPS
   SCRIPTS ${TIMING_IMPORT_CMD}
+  UPDATE_TILES
   )
 
 add_dependencies(ice40_top-routing-virt_arch ice40_import_timing_deps ice40_sdf_target)

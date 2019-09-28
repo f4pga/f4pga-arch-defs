@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Import the top level tile information from Project X-Ray database
+Import the physical tile information from Project X-Ray database
 files.
 
 Project X-Ray specifies the connections between tiles and the connect
@@ -17,6 +17,7 @@ from __future__ import print_function
 import argparse
 import os
 import sys
+import copy
 import prjxray.db
 import os.path
 import simplejson as json
@@ -51,34 +52,38 @@ def import_physical_tile(args):
 
         return ports
 
-    def add_equivalent_tiles(xml, equivalent_tiles):
+    def add_ports(tile_xml, pb_type_xml):
+        """ Used to copy the ports from a given XML root of a pb_type."""
+
+        for child in pb_type_xml:
+            if child.tag in PORT_TAGS:
+                child_copy = copy.deepcopy(child)
+                tile_xml.append(child_copy)
+
+    def add_equivalent_sites(tile_xml, equivalent_sites):
         """ Used to add to the <tile> tag the equivalent tiles associated with it."""
 
-        if not equivalent_tiles:
-            return
+        pb_types = equivalent_sites.split(',')
 
-        equivalent_tiles_xml = ET.SubElement(xml, 'equivalent_tiles')
+        # XXX Until equivalent placement is implemented there can be only one corresponding pb_type
+        assert len(
+            pb_types
+        ) == 1, "For now there must be exactly one corresponding pb_type."
 
-        for eq_tile in equivalent_tiles.split(','):
+        equivalent_sites_xml = ET.SubElement(tile_xml, 'equivalent_sites')
+
+        for eq_site in pb_types:
             eq_pb_type_xml = ET.parse(
                 "{}/{tile}/{tile}.pb_type.xml".format(
-                    args.tiles_directory, tile=eq_tile.lower()
+                    args.tiles_directory, tile=eq_site.lower()
                 )
             )
-            root = eq_pb_type_xml.getroot()
+            pb_type_root = eq_pb_type_xml.getroot()
 
-            mode_xml = ET.SubElement(
-                equivalent_tiles_xml, 'mode',
-                {'name': tile_import.add_vpr_tile_prefix(eq_tile)}
+            site_xml = ET.SubElement(
+                equivalent_sites_xml, 'site',
+                {'pb_type': tile_import.add_vpr_tile_prefix(eq_site)}
             )
-
-            for port in ports:
-                port_xml = ET.SubElement(
-                    mode_xml, 'map', {
-                        'from': port,
-                        'to': port
-                    }
-                )
 
     ##########################################################################
     # Generate the tile.xml file                                             #
@@ -103,8 +108,10 @@ def import_physical_tile(args):
         nsmap={'xi': XI_URL},
     )
 
-    equivalent_tiles = args.equivalent_tiles
-    add_equivalent_tiles(tile_xml, equivalent_tiles)
+    add_ports(tile_xml, pb_type_root)
+
+    equivalent_sites = args.equivalent_sites
+    add_equivalent_sites(tile_xml, equivalent_sites)
 
     fc_xml = tile_import.add_fc(tile_xml)
 
@@ -145,8 +152,9 @@ def main():
     )
 
     parser.add_argument(
-        '--equivalent-tiles',
-        help="""Comma separated list of equivalent tiles.""",
+        '--equivalent-sites',
+        help=
+        """Comma separated list of equivalent sites that can be placed in this tile.""",
     )
 
     parser.add_argument(
