@@ -54,6 +54,7 @@ function(ADD_XC7_DEVICE_DEFINE_TYPE)
   set(BELS_MAP ${symbiflow-arch-defs_SOURCE_DIR}/xc7/bels.json)
 
   set(TIMING_IMPORT "${PYTHON3} ${UPDATE_ARCH_TIMINGS} --sdf_dir ${SDF_TIMING_DIRECTORY} --bels_map ${BELS_MAP} --out_arch /dev/stdout --input_arch /dev/stdin")
+  set(TIMING_DEPS "")
 
   define_device_type(
     DEVICE_TYPE ${DEVICE}-roi-virt
@@ -61,6 +62,7 @@ function(ADD_XC7_DEVICE_DEFINE_TYPE)
     ARCH_XML arch.xml
     SCRIPT_OUTPUT_NAME timing
     SCRIPTS ${TIMING_IMPORT}
+    SCRIPT_DEPS TIMING_DEPS
     )
   add_dependencies(${ARCH}_${DEVICE}-roi-virt_arch arch_import_timing_deps)
   get_target_property_required(VIRT_DEVICE_MERGED_FILE ${DEVICE}-roi-virt DEVICE_MERGED_FILE)

@@ -33,18 +33,12 @@ def create_synth_io_tiles(complexblocklist_xml, tiles_xml, pb_name, is_input):
         }
     )
 
-    ET.SubElement(
-        pb_xml, 'fc', {
-            'in_type': 'abs',
-            'in_val': '2',
-            'out_type': 'abs',
-            'out_val': '2',
-        }
-    )
-
     tile_xml = ET.SubElement(tiles_xml, 'tile', {
         'name': pb_name,
     })
+
+    equivalent_sites = ET.SubElement(tile_xml, 'equivalent_sites')
+    ET.SubElement(equivalent_sites, 'site', {'pb_type': pb_name})
 
     ET.SubElement(
         tile_xml, 'fc', {
@@ -67,6 +61,11 @@ def create_synth_io_tiles(complexblocklist_xml, tiles_xml, pb_name, is_input):
         port_type = 'input'
 
     ET.SubElement(pb_xml, port_type, {
+        'name': pad_name,
+        'num_pins': '1',
+    })
+
+    ET.SubElement(tile_xml, port_type, {
         'name': pad_name,
         'num_pins': '1',
     })
@@ -126,18 +125,12 @@ def create_synth_constant_tiles(
         }
     )
 
-    ET.SubElement(
-        pb_xml, 'fc', {
-            'in_type': 'abs',
-            'in_val': '2',
-            'out_type': 'abs',
-            'out_val': '2',
-        }
-    )
-
     tile_xml = ET.SubElement(tiles_xml, 'tile', {
         'name': pb_name,
     })
+
+    equivalent_sites = ET.SubElement(tile_xml, 'equivalent_sites')
+    ET.SubElement(equivalent_sites, 'site', {'pb_type': pb_name})
 
     ET.SubElement(
         tile_xml, 'fc', {
@@ -155,6 +148,11 @@ def create_synth_constant_tiles(
     pin_name = signal
 
     ET.SubElement(pb_xml, port_type, {
+        'name': pin_name,
+        'num_pins': '1',
+    })
+
+    ET.SubElement(tile_xml, port_type, {
         'name': pin_name,
         'num_pins': '1',
     })

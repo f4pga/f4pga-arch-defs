@@ -53,7 +53,7 @@ function(PROJECT_XRAY_TILE)
   # PART name of the part that is considered (e.g. artix7, zynq7, etc.)
   # TILE name of the tile that has to be generated (e.g. CLBLM_R, BRAM_L, etc.)
   # SITE_TYPES list of sites contained in the considered tile (e.g. CLBLM_R contains a SLICEM and SLICEL sites)
-  # EQUIVALENT_TILES list of tiles equivalent to the considered one (e.g. CLBLL_R is equivalent to CLBLM_R and CLBLM_L)
+  # EQUIVALENT_TILES list of pb_types that can be placed at the tile's location (e.g. SLICEM tile can have both SLICEM and SLICEL pb_types)
   # SITE_AS_TILE option to state if the tile physically is a site, but it needs to be treated as a site
   #
   # Usage:
@@ -62,7 +62,7 @@ function(PROJECT_XRAY_TILE)
   #   PART <part_name>
   #   TILE <tile_name>
   #   SITE_TYPES <site_name_1> <site_name_2> ...
-  #   EQUIVALENT_TILES <equivalent_tile_name_1> <equivalent_tile_name_2> ...
+  #   EQUIVALENT_SITES <equivalent_site_name_1> <equivalent_site_name_2> ...
   #   SITE_AS_TILE (option)
   #   FUSED_SITES (option)
   #   )
@@ -70,7 +70,7 @@ function(PROJECT_XRAY_TILE)
 
   set(options FUSED_SITES SITE_AS_TILE)
   set(oneValueArgs PART TILE)
-  set(multiValueArgs SITE_TYPES EQUIVALENT_TILES)
+  set(multiValueArgs SITE_TYPES EQUIVALENT_SITES)
   cmake_parse_arguments(
     PROJECT_XRAY_TILE
     "${options}"
@@ -146,18 +146,18 @@ function(PROJECT_XRAY_TILE)
   set(PHYSICAL_TILE_IMPORT ${symbiflow-arch-defs_SOURCE_DIR}/xc7/utils/prjxray_physical_tile_import.py)
   get_project_xray_dependencies(DEPS ${PROJECT_XRAY_TILE_PART} ${TILE})
 
-  foreach(EQUIVALENT_TILE ${PROJECT_XRAY_TILE_EQUIVALENT_TILES})
-    string(TOLOWER ${EQUIVALENT_TILE} EQUIVALENT_TILE_LOWER)
-    append_file_dependency(TILES_DEPS ${symbiflow-arch-defs_SOURCE_DIR}/xc7/archs/${PART}/tiles/${EQUIVALENT_TILE_LOWER}/${EQUIVALENT_TILE_LOWER}.pb_type.xml)
-    list(APPEND EQUIVALENT_TILES_INCLUDE_FILES ${symbiflow-arch-defs_SOURCE_DIR}/xc7/archs/${PART}/tiles/${EQUIVALENT_TILE_LOWER}/${EQUIVALENT_TILE_LOWER}.pb_type.xml)
+  foreach(EQUIVALENT_SITE ${PROJECT_XRAY_TILE_EQUIVALENT_SITE})
+    string(TOLOWER ${EQUIVALENT_SITE} EQUIVALENT_SITE_LOWER)
+    append_file_dependency(TILES_DEPS ${symbiflow-arch-defs_SOURCE_DIR}/xc7/archs/${PART}/tiles/${EQUIVALENT_SITE_LOWER}/${EQUIVALENT_SITE_LOWER}.pb_type.xml)
+    list(APPEND EQUIVALENT_SITES_INCLUDE_FILES ${symbiflow-arch-defs_SOURCE_DIR}/xc7/archs/${PART}/tiles/${EQUIVALENT_SITE_LOWER}/${EQUIVALENT_SITE_LOWER}.pb_type.xml)
   endforeach()
   append_file_dependency(TILES_DEPS ${symbiflow-arch-defs_SOURCE_DIR}/xc7/archs/${PART}/tiles/${TILE}/${TILE}.pb_type.xml)
-  list(APPEND EQUIVALENT_TILES_INCLUDE_FILES ${symbiflow-arch-defs_SOURCE_DIR}/xc7/archs/${PART}/tiles/${TILE}/${TILE}.pb_type.xml)
+  list(APPEND EQUIVALENT_SITES_INCLUDE_FILES ${symbiflow-arch-defs_SOURCE_DIR}/xc7/archs/${PART}/tiles/${TILE}/${TILE}.pb_type.xml)
 
-  string(REPLACE ";" "," EQUIVALENT_TILES_COMMA "${PROJECT_XRAY_TILE_EQUIVALENT_TILES}")
+  string(REPLACE ";" "," EQUIVALENT_SITES_COMMA "${PROJECT_XRAY_TILE_EQUIVALENT_SITES}")
   add_file_target(FILE ${TILE}.tile.xml GENERATED)
   get_file_target(TILE_TARGET ${TILE}.tile.xml)
-  set_target_properties(${TILE_TARGET} PROPERTIES INCLUDE_FILES "${EQUIVALENT_TILES_INCLUDE_FILES}")
+  set_target_properties(${TILE_TARGET} PROPERTIES INCLUDE_FILES "${EQUIVALENT_SITES_INCLUDE_FILES}")
 
   add_custom_command(
     OUTPUT ${TILE}.tile.xml
@@ -166,7 +166,7 @@ function(PROJECT_XRAY_TILE)
     --part ${PROJECT_XRAY_TILE_PART}
     --tile ${PROJECT_XRAY_TILE_TILE}
     --tiles-directory ${symbiflow-arch-defs_BINARY_DIR}/xc7/archs/${PART}/tiles
-    --equivalent-tiles=${EQUIVALENT_TILES_COMMA}
+    --equivalent-sites=${EQUIVALENT_SITES_COMMA}
     --pin-prefix=${PIN_PREFIX_COMMA}
     --output-tile ${CMAKE_CURRENT_BINARY_DIR}/${TILE}.tile.xml
     --pin_assignments ${PIN_ASSIGNMENTS}
