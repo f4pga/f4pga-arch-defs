@@ -2,8 +2,6 @@ import unittest
 
 from ..channel2 import Channel
 
-from intervaltree import Interval
-
 
 class ChannelTests(unittest.TestCase):
     def setUp(self):
@@ -20,9 +18,6 @@ class ChannelTests(unittest.TestCase):
         self.assertEqual(len(self.channel.trees), 2)
 
         self.assertEqual(
-            [xx for xx in self.channel.trees[0]],
-            [Interval(1, 3, 0), Interval(3, 6, 2)]
+            [xx for xx in self.channel.trees[1]], [(1, 2, 0), (3, 5, 2)]
         )
-        self.assertEqual(
-            [xx for xx in self.channel.trees[1]], [Interval(1, 4, 1)]
-        )
+        self.assertEqual([xx for xx in self.channel.trees[0]], [(1, 3, 1)])
