@@ -283,8 +283,9 @@ WHERE
 
                 tracks_model = channel_wires_to_tracks[track_pkey]
                 available_pins = set(
-                    pin_dir for _, pin_dir in tracks_model.
-                    get_tracks_for_wire_at_coord((grid_x, grid_y))
+                    tracks_model.get_tracks_for_wire_at_coord(
+                        (grid_x, grid_y)
+                    ).keys()
                 )
 
                 edge_assignments[(tile_type, wire)].append(available_pins)
@@ -293,8 +294,9 @@ WHERE
                     tracks_model = channel_wires_to_tracks[
                         const_tracks[constant]]
                     available_pins = set(
-                        pin_dir for _, pin_dir in tracks_model.
-                        get_tracks_for_wire_at_coord((grid_x, grid_y))
+                        tracks_model.get_tracks_for_wire_at_coord(
+                            (grid_x, grid_y)
+                        ).keys()
                     )
                     edge_assignments[(tile_type, wire)].append(available_pins)
 

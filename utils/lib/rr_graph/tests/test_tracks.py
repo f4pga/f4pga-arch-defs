@@ -67,7 +67,5 @@ class TracksTests(unittest.TestCase):
 
     def test_get_tracks(self):
 
-        dirs = [d for d in self.trks.get_tracks_for_wire_at_coord((1, 1))]
-        self.assertEqual(
-            sorted(dirs), [(0, Direction.RIGHT), (1, Direction.TOP)]
-        )
+        dirs = self.trks.get_tracks_for_wire_at_coord((1, 1))
+        self.assertEqual(dirs, {Direction.RIGHT: 0, Direction.TOP: 1})

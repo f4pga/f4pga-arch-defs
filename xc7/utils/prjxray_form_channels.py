@@ -1125,12 +1125,13 @@ FROM
 
         for wire_pkey, grid_x, grid_y in wires:
             connections = list(
-                tracks_model.get_tracks_for_wire_at_coord((grid_x, grid_y))
+                tracks_model.get_tracks_for_wire_at_coord((grid_x,
+                                                           grid_y)).values()
             )
             assert len(connections) > 0, (
                 connections, wire_pkey, track_pkey, grid_x, grid_y, node
             )
-            graph_node_pkey = track_graph_node_pkey[connections[0][0]]
+            graph_node_pkey = track_graph_node_pkey[connections[0]]
 
             wire_to_graph[wire_pkey] = graph_node_pkey
 
