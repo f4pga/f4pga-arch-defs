@@ -425,6 +425,15 @@ WHERE
 
         cur.execute(
             """
+    SELECT site_wire_pkey FROM node WHERE pkey = (
+        SELECT node_pkey FROM wire WHERE pkey = ?
+        )
+        """, (wire_pkey, )
+        )
+        site_wire_pkey = cur.fetchone()[0]
+
+        cur.execute(
+            """
 SELECT
     node_pkey,
     top_graph_node_pkey,
@@ -432,7 +441,7 @@ SELECT
     right_graph_node_pkey,
     left_graph_node_pkey,
     site_pin_graph_node_pkey
-FROM wire WHERE pkey = ?""", (wire_pkey, )
+FROM wire WHERE pkey = ?""", (site_wire_pkey, )
         )
         values = cur.fetchone()
         node_pkey = values[0]
@@ -457,7 +466,9 @@ WHERE
         )
         site_pin_switch_pkey = cur.fetchone()[0]
 
-        assert graph_node_pkey in edge_nodes
+        assert graph_node_pkey in edge_nodes, (
+            wire_pkey, graph_node_pkey, track_graph_node_pkey, edge_nodes
+        )
 
         if site_pin_graph_node_pkey is None:
             capacitance = 0
@@ -629,11 +640,10 @@ AND
             return
         elif self.pins and other_connector.tracks:
             assert self.pins.site_pin_direction == SitePinDirection.OUT
-            assert self.pins.x == loc.grid_x
-            assert self.pins.y == loc.grid_y
 
             tracks_model, graph_nodes = other_connector.tracks
-            for idx, pin_dir in tracks_model.get_tracks_for_wire_at_coord(loc):
+            for idx, pin_dir in tracks_model.get_tracks_for_wire_at_coord(
+                    grid_types.GridLoc(self.pins.x, self.pins.y)):
                 if pin_dir in self.pins.edge_map:
                     # Site pin -> Interconnect is modelled as:
                     #
@@ -653,11 +663,11 @@ AND
                     return
         elif self.tracks and other_connector.pins:
             assert other_connector.pins.site_pin_direction == SitePinDirection.IN
-            assert other_connector.pins.x == loc.grid_x
-            assert other_connector.pins.y == loc.grid_y
 
             tracks_model, graph_nodes = self.tracks
-            for idx, pin_dir in tracks_model.get_tracks_for_wire_at_coord(loc):
+            for idx, pin_dir in tracks_model.get_tracks_for_wire_at_coord(
+                    grid_types.GridLoc(other_connector.pins.x,
+                                       other_connector.pins.y)):
                 if pin_dir in other_connector.pins.edge_map:
                     # Interconnect -> Site pin is modelled as:
                     #
@@ -704,7 +714,7 @@ AND
 
         assert False, (
             self.tracks, self.pins, other_connector.tracks,
-            other_connector.pins
+            other_connector.pins, loc
         )
 
 
@@ -779,7 +789,9 @@ WHERE
         # graph_nodes share a type and verify that it is in fact a site pin.
         node_type = graph2.NodeType(graph_nodes[0][2])
         for node in graph_nodes:
-            assert node_type == graph2.NodeType(node[2])
+            assert node_type == graph2.NodeType(
+                node[2]
+            ), (node_pkey, node_type, graph2.NodeType(node[2]))
 
         assert node_type in [graph2.NodeType.IPIN, graph2.NodeType.OPIN]
         if node_type == graph2.NodeType.IPIN:
@@ -1262,7 +1274,11 @@ def set_pin_connection(
         if has_pip:
             source_wires.append(wire_pkey)
 
-    assert len(source_wires) <= 1
+    if len(source_wires) > 1:
+        assert graph_node_is_blacklisted(
+            conn, pin_graph_node_pkey
+        ), pin_graph_node_pkey
+        return
 
     if len(source_wires) == 1:
         cur.execute(
@@ -1293,7 +1309,7 @@ UPDATE graph_node SET connection_box_wire_pkey = ? WHERE pkey = ?
 
 def walk_and_mark_segment(
         conn, write_cur, graph_node_pkey, forward, segment_pkey, unknown_pkey,
-        pin_graph_node_pkey, tracks
+        pin_graph_node_pkey, tracks, visited_switches
 ):
     """ Recursive function to walk along a node and mark segments.
 
@@ -1341,27 +1357,28 @@ def walk_and_mark_segment(
     if forward:
         cur.execute(
             """
-SELECT dest_graph_node_pkey FROM graph_edge WHERE src_graph_node_pkey = ?
+SELECT dest_graph_node_pkey, switch_pkey FROM graph_edge WHERE src_graph_node_pkey = ?
 """, (graph_node_pkey, )
         )
         next_nodes = cur.fetchall()
     else:
         cur.execute(
             """
-SELECT src_graph_node_pkey FROM graph_edge WHERE dest_graph_node_pkey = ?
+SELECT src_graph_node_pkey, switch_pkey FROM graph_edge WHERE dest_graph_node_pkey = ?
 """, (graph_node_pkey, )
         )
         next_nodes = cur.fetchall()
 
     next_node = None
+    next_switch_pkey = None
     if len(next_nodes) == 1:
         # This is a simple edge, keep walking.
-        next_node = next_nodes[0][0]
+        (next_node, next_switch_pkey) = next_nodes[0]
     elif not forward:
         # Some nodes simply lead to GND/VCC tieoff pins, these should not
         # stop the walk, as they are not relevant to connection box.
         next_non_tieoff_nodes = []
-        for (next_graph_node_pkey, ) in next_nodes:
+        for (next_graph_node_pkey, edge_switch_pkey) in next_nodes:
             cur.execute(
                 """
 SELECT count() FROM constant_sources WHERE
@@ -1374,16 +1391,19 @@ OR
                 )
             )
             if cur.fetchone()[0] == 0:
-                next_non_tieoff_nodes.append(next_graph_node_pkey)
+                next_non_tieoff_nodes.append(
+                    (next_graph_node_pkey, edge_switch_pkey)
+                )
 
         if len(next_non_tieoff_nodes) == 1:
-            next_node = next_non_tieoff_nodes[0]
+            (next_node, next_switch_pkey) = next_non_tieoff_nodes[0]
 
-    if next_node is not None:
+    if next_node is not None and next_switch_pkey not in visited_switches:
         # If there is a next node, keep walking
+        visited_switches.add(next_switch_pkey)
         walk_and_mark_segment(
             conn, write_cur, next_node, forward, segment_pkey, unknown_pkey,
-            pin_graph_node_pkey, tracks
+            pin_graph_node_pkey, tracks, visited_switches
         )
     else:
         # There is not a next node, update the connection box of the IPIN/OPIN
@@ -1414,6 +1434,30 @@ SELECT count(*) FROM graph_edge WHERE src_graph_node_pkey = ? LIMIT 1
 SELECT count(*) FROM graph_edge WHERE dest_graph_node_pkey = ? LIMIT 1
             """, (graph_node_pkey, )
         )
+
+    return cur.fetchone()[0] > 0
+
+
+def graph_node_is_blacklisted(conn, graph_node_pkey):
+    """ Identify pin graph nodes that are expected to cause failures, so they can be ignored. """
+
+    cur = conn.cursor()
+
+    cur.execute(
+        """
+SELECT count(*) FROM wire
+  JOIN wire_in_tile ON (wire.wire_in_tile_pkey = wire_in_tile.pkey)
+  JOIN graph_node ON (wire.node_pkey = graph_node.node_pkey)
+  WHERE graph_node.pkey = ? AND
+        (wire_in_tile.name = 'IOI_OLOGIC1_TBYTEOUT' OR
+         wire_in_tile.name LIKE 'CLK_HROW_CK_HCLK_OUT_%' OR
+         wire_in_tile.name LIKE 'HCLK_CMT_BUFMRCE_%' OR
+         wire_in_tile.name LIKE 'CMT_PHY_CONTROL_%' OR
+         wire_in_tile.name LIKE 'CMT_PHASER_%' OR
+         wire_in_tile.name LIKE 'GTPE2_COMMON_%')
+  LIMIT 1;
+        """, (graph_node_pkey, )
+    )
 
     return cur.fetchone()[0] > 0
 
@@ -1458,6 +1502,7 @@ WHERE graph_node.graph_node_type = ?
             unknown_pkey=unknown_pkey,
             pin_graph_node_pkey=graph_node_pkey,
             tracks=list(),
+            visited_switches=set()
         )
 
     # Walk from IPIN's next.
@@ -1479,6 +1524,7 @@ WHERE graph_node.graph_node_type = ?
             unknown_pkey=unknown_pkey,
             pin_graph_node_pkey=graph_node_pkey,
             tracks=list(),
+            visited_switches=set()
         )
 
     write_cur.execute("""COMMIT TRANSACTION;""")
@@ -1730,6 +1776,17 @@ def main():
             tile_type = db.get_tile_type(gridinfo.tile_type)
 
             for pip in sorted(tile_type.get_pips(), key=pip_sort_key):
+                # FIXME: The PADOUT0/1 connections do not work.
+                #
+                # These connections are used for:
+                #  - XADC
+                #  - Differential signal signal connection between pads.
+                #
+                # Issue tracking fix:
+                # https://github.com/SymbiFlow/symbiflow-arch-defs/issues/1033
+                if 'PADOUT0' in pip.name or 'PADOUT1' in pip.name:
+                    continue
+
                 if pip.is_pseudo:
                     continue
 
