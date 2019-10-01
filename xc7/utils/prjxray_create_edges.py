@@ -36,7 +36,7 @@ from prjxray.site_type import SitePinDirection
 from prjxray_constant_site_pins import yield_ties_to_wire
 from lib.connection_database import get_track_model, get_wire_in_tile_from_pin_name
 from lib.rr_graph.graph2 import NodeType
-import multiprocessing
+import sqlite3
 
 from prjxray_db_cache import DatabaseCache
 
@@ -993,9 +993,7 @@ def make_connection(
             )
 
 
-def mark_track_liveness(
-        conn, pool, input_only_nodes, output_only_nodes, alive_tracks
-):
+def mark_track_liveness(conn, input_only_nodes, output_only_nodes):
     """ Checks tracks for liveness.
 
     Iterates over all graph nodes that are routing tracks and determines if
@@ -1006,6 +1004,7 @@ def mark_track_liveness(
 
     """
 
+    alive_tracks = set()
     c = conn.cursor()
     write_cur = conn.cursor()
     for graph_node_pkey, node_pkey, track_pkey in c.execute("""
@@ -1057,9 +1056,15 @@ WHERE
 
     print('{} Track aliveness committed'.format(now()))
 
-    print("{}: Build channels".format(datetime.datetime.now()))
-    build_channels(conn, pool, alive_tracks)
-    print("{}: Channels built".format(datetime.datetime.now()))
+    write_cur.execute("""BEGIN EXCLUSIVE TRANSACTION;""")
+    write_cur.execute("""CREATE INDEX alive_tracks ON track(alive);""")
+    write_cur.execute(
+        """CREATE INDEX graph_node_x_index ON graph_node(x_low);"""
+    )
+    write_cur.execute(
+        """CREATE INDEX graph_node_y_index ON graph_node(y_low);"""
+    )
+    write_cur.execute("""COMMIT TRANSACTION;""")
 
 
 def direction_to_enum(pin):
@@ -1071,7 +1076,7 @@ def direction_to_enum(pin):
     assert False
 
 
-def build_channels(conn, pool, active_tracks):
+def build_channels(conn):
     write_cur = conn.cursor()
 
     xs = []
@@ -1079,23 +1084,23 @@ def build_channels(conn, pool, active_tracks):
 
     x_tracks = {}
     y_tracks = {}
-    for pkey, track_pkey, graph_node_type, x_low, x_high, y_low, y_high in write_cur.execute(
+    for pkey, graph_node_type, x_low, x_high, y_low, y_high in write_cur.execute(
             """
 SELECT
-  pkey,
-  track_pkey,
+  graph_node.pkey,
   graph_node_type,
-  x_low,
-  x_high,
-  y_low,
-  y_high
+  graph_node.x_low,
+  graph_node.x_high,
+  graph_node.y_low,
+  graph_node.y_high
 FROM
   graph_node
+INNER JOIN track
+ON graph_node.track_pkey = track.pkey
 WHERE
+  track.alive
+AND
   track_pkey IS NOT NULL;"""):
-        if track_pkey not in active_tracks:
-            continue
-
         xs.append(x_low)
         xs.append(x_high)
         ys.append(y_low)
@@ -1103,14 +1108,14 @@ WHERE
 
         node_type = graph2.NodeType(graph_node_type)
         if node_type == graph2.NodeType.CHANX:
-            assert y_low == y_high, (pkey, track_pkey)
+            assert y_low == y_high, pkey
 
             if y_low not in x_tracks:
                 x_tracks[y_low] = []
 
             x_tracks[y_low].append((x_low, x_high, pkey))
         elif node_type == graph2.NodeType.CHANY:
-            assert x_low == x_high, (pkey, track_pkey)
+            assert x_low == x_high, pkey
 
             if x_low not in y_tracks:
                 y_tracks[x_low] = []
@@ -1126,21 +1131,15 @@ WHERE
     y_channel_models = {}
 
     for y in x_tracks:
-        x_channel_models[y] = pool.apply_async(
-            graph2.process_track, (x_tracks[y], )
-        )
+        x_channel_models[y] = graph2.process_track(x_tracks[y])
 
     for x in y_tracks:
-        y_channel_models[x] = pool.apply_async(
-            graph2.process_track, (y_tracks[x], )
-        )
+        y_channel_models[x] = graph2.process_track(y_tracks[x])
 
     write_cur.execute("""BEGIN EXCLUSIVE TRANSACTION;""")
 
     for y in progressbar_utils.progressbar(range(max(x_tracks) + 1)):
         if y in x_tracks:
-            x_channel_models[y] = x_channel_models[y].get()
-
             x_list.append(len(x_channel_models[y].trees))
 
             for idx, tree in enumerate(x_channel_models[y].trees):
@@ -1154,8 +1153,6 @@ WHERE
 
     for x in progressbar_utils.progressbar(range(max(y_tracks) + 1)):
         if x in y_tracks:
-            y_channel_models[x] = y_channel_models[x].get()
-
             y_list.append(len(y_channel_models[x].trees))
 
             for idx, tree in enumerate(y_channel_models[x].trees):
@@ -1194,7 +1191,7 @@ WHERE
     write_cur.execute("""COMMIT TRANSACTION;""")
 
 
-def verify_channels(conn, alive_tracks):
+def verify_channels(conn):
     """ Verify PTC numbers in channels.
     No duplicate PTC's.
 
@@ -1207,14 +1204,26 @@ def verify_channels(conn, alive_tracks):
 
     chan_ptcs = {}
 
-    for (graph_node_pkey, track_pkey, graph_node_type, x_low, x_high, y_low,
-         y_high, ptc, capacity) in c.execute(
+    for (graph_node_pkey, alive, graph_node_type, x_low, x_high, y_low, y_high,
+         ptc, capacity) in c.execute(
              """
-    SELECT pkey, track_pkey, graph_node_type, x_low, x_high, y_low, y_high, ptc, capacity FROM
-        graph_node WHERE (graph_node_type = ? or graph_node_type = ?);""",
+SELECT
+    graph_node.pkey,
+    track.alive,
+    graph_node.graph_node_type,
+    graph_node.x_low,
+    graph_node.x_high,
+    graph_node.y_low,
+    graph_node.y_high,
+    graph_node.ptc,
+    graph_node.capacity
+FROM graph_node
+INNER JOIN track
+ON graph_node.track_pkey = track.pkey
+WHERE (graph_node_type = ? or graph_node_type = ?);""",
              (graph2.NodeType.CHANX.value, graph2.NodeType.CHANY.value)):
 
-        if track_pkey not in alive_tracks and capacity != 0:
+        if not alive and capacity != 0:
             assert ptc is None, graph_node_pkey
             continue
 
@@ -1662,31 +1671,9 @@ def pip_sort_key(pip):
     return (len(pip.name), pip.name)
 
 
-def main():
-    parser = argparse.ArgumentParser()
-    parser.add_argument(
-        '--db_root', required=True, help='Project X-Ray Database'
-    )
-    parser.add_argument(
-        '--connection_database',
-        help='Database of fabric connectivity',
-        required=True
-    )
-    parser.add_argument(
-        '--pin_assignments', help='Pin assignments JSON', required=True
-    )
-    parser.add_argument(
-        '--synth_tiles',
-        help='If using an ROI, synthetic tile defintion from prjxray-arch-import'
-    )
-
-    args = parser.parse_args()
-
-    pool = multiprocessing.Pool(20)
-
+def create_edges(args):
     db = prjxray.db.Database(args.db_root)
     grid = db.grid()
-
     with DatabaseCache(args.connection_database) as conn:
 
         with open(args.pin_assignments) as f:
@@ -1844,11 +1831,39 @@ def main():
 
         print('{} Indices created, marking track liveness'.format(now()))
 
-        alive_tracks = set()
-        mark_track_liveness(
-            conn, pool, input_only_nodes, output_only_nodes, alive_tracks
-        )
+        mark_track_liveness(conn, input_only_nodes, output_only_nodes)
 
+
+def main():
+    parser = argparse.ArgumentParser()
+    parser.add_argument(
+        '--db_root', required=True, help='Project X-Ray Database'
+    )
+    parser.add_argument(
+        '--connection_database',
+        help='Database of fabric connectivity',
+        required=True
+    )
+    parser.add_argument(
+        '--pin_assignments', help='Pin assignments JSON', required=True
+    )
+    parser.add_argument(
+        '--synth_tiles',
+        help='If using an ROI, synthetic tile defintion from prjxray-arch-import'
+    )
+
+    args = parser.parse_args()
+
+    print("{}: Creating edges".format(datetime.datetime.now()))
+    create_edges(args)
+    print("{}: Done with edges".format(datetime.datetime.now()))
+
+    with sqlite3.connect(args.connection_database) as conn:
+        print("{}: Build channels".format(datetime.datetime.now()))
+        build_channels(conn)
+        print("{}: Channels built".format(datetime.datetime.now()))
+
+    with sqlite3.connect(args.connection_database) as conn:
         print('{} Set track canonical loc'.format(now()))
         set_track_canonical_loc(conn)
 
@@ -1864,8 +1879,9 @@ def main():
             )
         )
 
-    with DatabaseCache(args.connection_database, read_only=True) as conn:
-        verify_channels(conn, alive_tracks)
+    with sqlite3.connect('file:{}?mode=ro'.format(args.connection_database),
+                         uri=True) as conn:
+        verify_channels(conn)
         print("{}: Channels verified".format(datetime.datetime.now()))
 
 
