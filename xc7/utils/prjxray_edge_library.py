@@ -319,8 +319,10 @@ FROM
 WHERE
   pkey = ?""", (pip_pkey, )
         )
-        pip_src_wire_in_tile_pkey, pip_dest_wire_in_tile_pkey, switch_pkey, backward_switch_pkey = cur.fetchone(
-        )
+        (
+            pip_src_wire_in_tile_pkey, pip_dest_wire_in_tile_pkey, switch_pkey,
+            backward_switch_pkey
+        ) = cur.fetchone()
 
         cur.execute(
             "SELECT wire_in_tile_pkey FROM wire WHERE pkey = ?",
@@ -1807,4 +1809,3 @@ def create_edges(args):
         print('{} Indices created, marking track liveness'.format(now()))
 
         mark_track_liveness(conn, input_only_nodes, output_only_nodes)
-
