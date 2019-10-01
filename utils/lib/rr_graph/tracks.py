@@ -158,6 +158,8 @@ class Tracks(object):
         self.tracks = tracks
         self.track_connections = track_connections
 
+        self.track_cache = {}
+
     def verify_tracks(self):
         """ Verify that all tracks are connected to all other tracks. """
         track_connections = {}
@@ -225,16 +227,37 @@ class Tracks(object):
             assert False, track
 
     def get_tracks_for_wire_at_coord(self, coord):
-        """Returns which track indicies and direction a wire at a coord can
-        be connected too.
+        """Returns map of direction to track indicies for valid connections.
+
+        There may be multiple connections to tracks at a particular coordinate,
+        this method only returns a possible connection in each direction to
+        this track.
+
+        Parameters
+        ----------
+        coord : (int, int)
+            Coordinate to attach to track
+
+        Returns
+        -------
+        dict(Direction -> int)
+            Dictionary of pin direction to track index.
+
         """
 
-        wire_x, wire_y = coord
+        if coord in self.track_cache:
+            return self.track_cache[coord]
+        else:
+            wire_x, wire_y = coord
 
-        for idx, track in enumerate(self.tracks):
-            pin_dir = self.is_wire_adjacent_to_track(idx, coord)
-            if pin_dir != Direction.NO_SIDE:
-                yield (idx, pin_dir)
+            conns = {}
+            for idx, track in enumerate(self.tracks):
+                pin_dir = self.is_wire_adjacent_to_track(idx, coord)
+                if pin_dir != Direction.NO_SIDE:
+                    conns[pin_dir] = idx
+
+            self.track_cache[coord] = conns
+            return conns
 
 
 def main():
