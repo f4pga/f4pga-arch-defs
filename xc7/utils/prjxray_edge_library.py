@@ -1648,6 +1648,18 @@ def pip_sort_key(pip):
     return (len(pip.name), pip.name)
 
 
+def commit_edges(write_cur, edges):
+    write_cur.execute("""BEGIN EXCLUSIVE TRANSACTION;""")
+    write_cur.executemany(
+        """
+        INSERT INTO graph_edge(
+            src_graph_node_pkey, dest_graph_node_pkey, switch_pkey,
+            phy_tile_pkey, pip_in_tile_pkey, backward) VALUES (?, ?, ?, ?, ?, ?)""",
+        edges
+    )
+    write_cur.execute("""COMMIT TRANSACTION;""")
+
+
 def create_edge_indices(conn):
     write_cur = conn.cursor()
 
@@ -1681,11 +1693,11 @@ def create_and_insert_edges(
 
     const_connectors = create_const_connectors(conn)
 
-    edges = []
-
-    edge_set = set()
-
+    num_edges = 0
     for loc in progressbar_utils.progressbar(grid.tile_locations()):
+        edges = []
+        edge_set = set()
+
         gridinfo = grid.gridinfo_at_loc(loc)
         tile_name = grid.tilename_at_loc(loc)
 
@@ -1734,21 +1746,11 @@ def create_and_insert_edges(
 
                     edges.append(connection)
 
-    print('{} Created {} edges, inserting'.format(now(), len(edges)))
+        commit_edges(write_cur, edges)
 
-    write_cur.execute("""BEGIN EXCLUSIVE TRANSACTION;""")
-    for edge in progressbar_utils.progressbar(edges):
-        write_cur.execute(
-            """
-            INSERT INTO graph_edge(
-                src_graph_node_pkey, dest_graph_node_pkey, switch_pkey,
-                phy_tile_pkey, pip_in_tile_pkey, backward) VALUES (?, ?, ?, ?, ?, ?)""",
-            edge
-        )
+        num_edges += len(edges)
 
-    write_cur.execute("""COMMIT TRANSACTION;""")
-
-    print('{} Inserted edges'.format(now()))
+    print('{} Created {} edges, inserted'.format(now(), num_edges))
 
 
 def create_edges(args):
