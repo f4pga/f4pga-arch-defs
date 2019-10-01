@@ -869,6 +869,42 @@ SELECT vcc_track_pkey, gnd_track_pkey FROM constant_sources;
     return const_connectors
 
 
+def yield_edges(
+        const_connectors, delayless_switch_pkey, phy_tile_pkey, src_connector,
+        sink_connector, pip, pip_pkey, pip_is_directional, src_wire_pkey,
+        sink_wire_pkey, loc
+):
+    for src_graph_node_pkey, switch_pkey, dest_graph_node_pkey in src_connector.connect_at(
+            pip_pkey=pip_pkey, src_wire_pkey=src_wire_pkey,
+            dest_wire_pkey=sink_wire_pkey, loc=loc,
+            other_connector=sink_connector):
+        yield (
+            src_graph_node_pkey, dest_graph_node_pkey, switch_pkey,
+            phy_tile_pkey, pip_pkey, False
+        )
+
+    if not pip_is_directional:
+        for src_graph_node_pkey, switch_pkey, dest_graph_node_pkey in sink_connector.connect_at(
+                pip_pkey=pip_pkey, src_wire_pkey=sink_wire_pkey,
+                dest_wire_pkey=src_wire_pkey, loc=loc,
+                other_connector=src_connector):
+            yield (
+                src_graph_node_pkey, dest_graph_node_pkey, switch_pkey,
+                phy_tile_pkey, pip_pkey, True
+            )
+
+    # Make additional connections to constant network if the sink needs it.
+    for constant_src in yield_ties_to_wire(pip.net_to):
+        for src_graph_node_pkey, switch_pkey, dest_graph_node_pkey in const_connectors[
+                constant_src].connect_at(switch_pkey=delayless_switch_pkey,
+                                         loc=loc,
+                                         other_connector=sink_connector):
+            yield (
+                src_graph_node_pkey, dest_graph_node_pkey, switch_pkey,
+                phy_tile_pkey, None, False
+            )
+
+
 def make_connection(
         conn, input_only_nodes, output_only_nodes, find_wire, find_pip,
         find_connector, tile_name, tile_type, pip, delayless_switch_pkey,
@@ -939,35 +975,14 @@ def make_connection(
 
     assert not pip_is_pseudo
 
-    for src_graph_node_pkey, switch_pkey, dest_graph_node_pkey in src_connector.connect_at(
-            pip_pkey=pip_pkey, src_wire_pkey=src_wire_pkey,
-            dest_wire_pkey=sink_wire_pkey, loc=loc,
-            other_connector=sink_connector):
-        yield (
-            src_graph_node_pkey, dest_graph_node_pkey, switch_pkey,
-            phy_tile_pkey, pip_pkey, False
-        )
-
-    if not pip_is_directional:
-        for src_graph_node_pkey, switch_pkey, dest_graph_node_pkey in sink_connector.connect_at(
-                pip_pkey=pip_pkey, src_wire_pkey=sink_wire_pkey,
-                dest_wire_pkey=src_wire_pkey, loc=loc,
-                other_connector=src_connector):
-            yield (
-                src_graph_node_pkey, dest_graph_node_pkey, switch_pkey,
-                phy_tile_pkey, pip_pkey, True
-            )
-
-    # Make additional connections to constant network if the sink needs it.
-    for constant_src in yield_ties_to_wire(pip.net_to):
-        for src_graph_node_pkey, switch_pkey, dest_graph_node_pkey in const_connectors[
-                constant_src].connect_at(switch_pkey=delayless_switch_pkey,
-                                         loc=loc,
-                                         other_connector=sink_connector):
-            yield (
-                src_graph_node_pkey, dest_graph_node_pkey, switch_pkey,
-                phy_tile_pkey, None, False
-            )
+    for edge in yield_edges(
+            const_connectors=const_connectors,
+            delayless_switch_pkey=delayless_switch_pkey,
+            phy_tile_pkey=phy_tile_pkey, src_connector=src_connector,
+            sink_connector=sink_connector, pip=pip, pip_pkey=pip_pkey,
+            pip_is_directional=pip_is_directional, src_wire_pkey=src_wire_pkey,
+            sink_wire_pkey=sink_wire_pkey, loc=loc):
+        yield edge
 
 
 def mark_track_liveness(conn, input_only_nodes, output_only_nodes):
