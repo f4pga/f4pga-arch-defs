@@ -1054,69 +1054,74 @@ def direction_to_enum(pin):
 
 
 def build_channels(conn):
-    write_cur = conn.cursor()
+    x_channel_models = {}
+    y_channel_models = {}
 
-    xs = []
-    ys = []
+    cur = conn.cursor()
 
-    x_tracks = {}
-    y_tracks = {}
-    for pkey, graph_node_type, x_low, x_high, y_low, y_high in write_cur.execute(
+    cur.execute(
             """
-SELECT
-  graph_node.pkey,
-  graph_node_type,
-  graph_node.x_low,
-  graph_node.x_high,
-  graph_node.y_low,
-  graph_node.y_high
-FROM
-  graph_node
+SELECT MIN(x_low), MAX(x_high), MIN(y_low), MAX(y_high) FROM graph_node
 INNER JOIN track
-ON graph_node.track_pkey = track.pkey
+ON track.pkey = graph_node.track_pkey
+WHERE track.alive;"""
+    )
+    x_min, x_max, y_min, y_max = cur.fetchone()
+
+    for x in progressbar_utils.progressbar(range(x_min, x_max + 1)):
+        cur.execute(
+                """
+SELECT
+    graph_node.y_low,
+    graph_node.y_high,
+    graph_node.pkey
+FROM graph_node
+INNER JOIN track
+ON track.pkey = graph_node.track_pkey
 WHERE
-  track.alive
+    track_pkey IS NOT NULL
 AND
-  track_pkey IS NOT NULL;"""):
-        xs.append(x_low)
-        xs.append(x_high)
-        ys.append(y_low)
-        ys.append(y_high)
+    track.alive
+AND
+    graph_node_type = ?
+AND
+    x_low = ?;""", (graph2.NodeType.CHANY.value, x)
+        )
 
-        node_type = graph2.NodeType(graph_node_type)
-        if node_type == graph2.NodeType.CHANX:
-            assert y_low == y_high, pkey
+        data = list(cur)
+        y_channel_models[x] = graph2.process_track(data)
 
-            if y_low not in x_tracks:
-                x_tracks[y_low] = []
+    for y in progressbar_utils.progressbar(range(y_min, y_max + 1)):
+        cur.execute(
+                """
+SELECT
+    graph_node.x_low,
+    graph_node.x_high,
+    graph_node.pkey
+FROM graph_node
+INNER JOIN track
+ON track.pkey = graph_node.track_pkey
+WHERE
+    track_pkey IS NOT NULL
+AND
+    track.alive
+AND
+    graph_node_type = ?
+AND
+    y_low = ?;""", (graph2.NodeType.CHANX.value, y)
+            )
 
-            x_tracks[y_low].append((x_low, x_high, pkey))
-        elif node_type == graph2.NodeType.CHANY:
-            assert x_low == x_high, pkey
-
-            if x_low not in y_tracks:
-                y_tracks[x_low] = []
-
-            y_tracks[x_low].append((y_low, y_high, pkey))
-        else:
-            assert False, node_type
+        data = list(cur)
+        x_channel_models[y] = graph2.process_track(data)
 
     x_list = []
     y_list = []
 
-    x_channel_models = {}
-    y_channel_models = {}
-
-    for y in x_tracks:
-        x_channel_models[y] = graph2.process_track(x_tracks[y])
-
-    for x in y_tracks:
-        y_channel_models[x] = graph2.process_track(y_tracks[x])
-
+    write_cur = conn.cursor()
     write_cur.execute("""BEGIN EXCLUSIVE TRANSACTION;""")
 
-    for y in progressbar_utils.progressbar(range(max(x_tracks) + 1)):
-        if y in x_tracks:
+    for y in progressbar_utils.progressbar(range(y_max + 1)):
+        if y in x_channel_models:
             x_list.append(len(x_channel_models[y].trees))
 
             for idx, tree in enumerate(x_channel_models[y].trees):
@@ -1128,8 +1133,8 @@ AND
         else:
             x_list.append(0)
 
-    for x in progressbar_utils.progressbar(range(max(y_tracks) + 1)):
-        if x in y_tracks:
+    for x in progressbar_utils.progressbar(range(x_max + 1)):
+        if x in y_channel_models:
             y_list.append(len(y_channel_models[x].trees))
 
             for idx, tree in enumerate(y_channel_models[x].trees):
@@ -1140,11 +1145,6 @@ AND
                     )
         else:
             y_list.append(0)
-
-    x_min = min(xs)
-    y_min = min(ys)
-    x_max = max(xs)
-    y_max = max(ys)
 
     write_cur.execute(
         """
