@@ -107,17 +107,30 @@ def add_graph_nodes_for_pins(conn, tile_type, wire, pin_directions):
     write_cur.connection.commit()
 
 
-def create_find_pip(conn):
-    """Returns a function that takes (tile_type, pip) and returns a tuple
-     containing: pip_in_tile_pkey, is_directional, is_pseudo, can_invert"""
-    c = conn.cursor()
+class KnownSwitch(object):
+    def __init__(self, switch_pkey):
+        self.switch_pkey = switch_pkey
 
-    @functools.lru_cache(maxsize=None)
-    def find_pip(tile_type, pip):
+    def get_pip_switch(self, src_wire_pkey, dest_wire_pkey):
+        assert src_wire_pkey is None
+        assert dest_wire_pkey is None
+        return self.switch_pkey
+
+
+class Pip(object):
+    def __init__(self, c, tile_type, pip):
+        self.c = c
         c.execute(
             """
 SELECT
-  pkey, is_directional, is_pseudo, can_invert
+  pkey,
+  src_wire_in_tile_pkey,
+  dest_wire_in_tile_pkey,
+  switch_pkey,
+  backward_switch_pkey,
+  is_directional,
+  is_pseudo,
+  can_invert
 FROM
   pip_in_tile
 WHERE
@@ -134,7 +147,71 @@ WHERE
 
         result = c.fetchone()
         assert result is not None, (tile_type, pip)
-        return result
+        (
+            self.pip_pkey, self.src_wire_in_tile_pkey,
+            self.dest_wire_in_tile_pkey, self.switch_pkey,
+            self.backward_switch_pkey, self.is_directional, self.is_pseudo,
+            self.can_invert
+        ) = result
+
+        if self.is_directional:
+            assert self.switch_pkey == self.backward_switch_pkey
+
+    def get_pip_switch(self, src_wire_pkey, dest_wire_pkey):
+        """ Return the switch_pkey for the given connection.
+
+        Selects either normal or backward switch from pip, or if switch is
+        already known, returns known switch.
+
+        It is not valid to provide a switch and provide src/dest/pip arguments.
+
+        Arguments
+        ---------
+        src_wire_pkey : int
+            Source wire row primary key.
+        dest_wire_pkey : int
+            Destination wire row primary key.
+        Returns
+        -------
+        Switch row primary key to connect through specified pip.
+
+        """
+
+        assert src_wire_pkey is not None
+        assert dest_wire_pkey is not None
+
+        if self.switch_pkey == self.backward_switch_pkey:
+            return self.switch_pkey
+
+        self.c.execute(
+            "SELECT wire_in_tile_pkey FROM wire WHERE pkey = ?",
+            (src_wire_pkey, )
+        )
+        src_wire_in_tile_pkey = self.c.fetchone()[0]
+
+        self.c.execute(
+            "SELECT wire_in_tile_pkey FROM wire WHERE pkey = ?",
+            (dest_wire_pkey, )
+        )
+        dest_wire_in_tile_pkey = self.c.fetchone()[0]
+
+        if src_wire_in_tile_pkey == self.src_wire_in_tile_pkey:
+            assert dest_wire_in_tile_pkey == self.dest_wire_in_tile_pkey
+            return self.switch_pkey
+        else:
+            assert src_wire_in_tile_pkey == self.dest_wire_in_tile_pkey
+            assert dest_wire_in_tile_pkey == self.src_wire_in_tile_pkey
+            return self.backward_switch_pkey
+
+
+def create_find_pip(conn):
+    """Returns a function that takes (tile_type, pip) and returns a tuple
+     containing: pip_in_tile_pkey, is_directional, is_pseudo, can_invert"""
+    c = conn.cursor()
+
+    @functools.lru_cache(maxsize=None)
+    def find_pip(tile_type, pip):
+        return Pip(c, tile_type, pip)
 
     return find_pip
 
@@ -264,85 +341,6 @@ class Connector(object):
         self.pins = pins
         self.tracks = tracks
         assert (self.pins is not None) ^ (self.tracks is not None)
-
-    def get_pip_switch(
-            self, src_wire_pkey, pip_pkey, dest_wire_pkey, switch_pkey
-    ):
-        """ Return the switch_pkey for the given connection.
-
-        Selects either normal or backward switch from pip, or if switch is
-        already known, returns known switch.
-
-        It is not valid to provide a switch and provide src/dest/pip arguments.
-
-        Arguments
-        ---------
-        src_wire_pkey : int
-            Source wire row primary key.  May be None if switch_pkey is not
-            None.
-        pip_pkey : int
-            Pip connecting source to destination wire.  May be None if
-            switch_pkey is not None.
-        dest_wire_pkey : int
-            Destination wire row primary key.  May be None if switch_pkey
-            is not None.
-        switch_pkey : int
-            Switch row primary key, can be used if switch_pkey is already
-            known (e.g. synthetic edge).  If switch_pkey is not None, other
-            arguments should be None to avoid ambiguity.
-
-        Returns
-        -------
-        Switch row primary key to connect through specified pip.
-
-        """
-        if switch_pkey is not None:
-            # Handle cases where the switch is supplied, rather than looked up.
-            assert src_wire_pkey is None
-            assert dest_wire_pkey is None
-            assert pip_pkey is None
-            return switch_pkey
-        else:
-            assert switch_pkey is None
-
-        cur = self.conn.cursor()
-
-        cur.execute(
-            """
-SELECT
-  src_wire_in_tile_pkey,
-  dest_wire_in_tile_pkey,
-  switch_pkey,
-  backward_switch_pkey
-FROM
-  pip_in_tile
-WHERE
-  pkey = ?""", (pip_pkey, )
-        )
-        (
-            pip_src_wire_in_tile_pkey, pip_dest_wire_in_tile_pkey, switch_pkey,
-            backward_switch_pkey
-        ) = cur.fetchone()
-
-        cur.execute(
-            "SELECT wire_in_tile_pkey FROM wire WHERE pkey = ?",
-            (src_wire_pkey, )
-        )
-        src_wire_in_tile_pkey = cur.fetchone()[0]
-
-        cur.execute(
-            "SELECT wire_in_tile_pkey FROM wire WHERE pkey = ?",
-            (dest_wire_pkey, )
-        )
-        dest_wire_in_tile_pkey = cur.fetchone()[0]
-
-        if src_wire_in_tile_pkey == pip_src_wire_in_tile_pkey:
-            assert dest_wire_in_tile_pkey == pip_dest_wire_in_tile_pkey
-            return switch_pkey
-        else:
-            assert src_wire_in_tile_pkey == pip_dest_wire_in_tile_pkey
-            assert dest_wire_in_tile_pkey == pip_src_wire_in_tile_pkey
-            return backward_switch_pkey
 
     def find_wire_node(
             self, wire_pkey, graph_node_pkey, track_graph_node_pkey
@@ -560,10 +558,9 @@ AND
             self,
             loc,
             other_connector,
+            pip,
             src_wire_pkey=None,
             dest_wire_pkey=None,
-            pip_pkey=None,
-            switch_pkey=None
     ):
         """ Connect two Connector objects at a location within the grid.
 
@@ -574,19 +571,11 @@ AND
         other_connector : Connector
             Destination connection.
         src_wire_pkey : int
-            Source wire pkey of pip being connected.  Must be None if
-            switch_pkey is not None. Used for switch_pkey lookup if needed.
+            Source wire pkey of pip being connected.
         dest_wire_pkey : int
-            Destination wire pkey of pip being connected.  Must be None if
-            switch_pkey is not None. Used for switch_pkey lookup if needed.
-        pip_pkey : int
-            Pip pkey of pip being connected.  Must be None if switch_pkey is
-            not None. Used for switch_pkey lookup if needed.
-        switch_pkey : int
-            Switch pkey for edge being added.  If None, src_wire_pkey,
-            dest_wire_pkey, pip_pkey are used to lookup switch_pkey. If not
-            None, switch_pkey is used as the switch along the edge.
-            Must be None if src_wire_pkey/dest_wire_pkey/pip_pkey is not None.
+            Destination wire pkey of pip being connected.
+        pip : Pip
+            Pip object of pip being connected.
 
         Returns:
             Tuple of (src_graph_node_pkey, dest_graph_node_pkey)
@@ -610,9 +599,7 @@ AND
 
             assert idx2 is not None
 
-            switch_pkey = self.get_pip_switch(
-                src_wire_pkey, pip_pkey, dest_wire_pkey, switch_pkey
-            )
+            switch_pkey = pip.get_pip_switch(src_wire_pkey, dest_wire_pkey)
 
             yield graph_nodes[idx1], switch_pkey, other_graph_nodes[idx2]
             return
@@ -633,8 +620,8 @@ AND
                         src_wire_pkey, src_node, dest_track_node
                     )
 
-                    switch_pkey = self.get_pip_switch(
-                        src_wire_pkey, pip_pkey, dest_wire_pkey, switch_pkey
+                    switch_pkey = pip.get_pip_switch(
+                        src_wire_pkey, dest_wire_pkey
                     )
                     yield (src_node, site_pin_switch_pkey, src_wire_node)
                     yield (src_wire_node, switch_pkey, dest_track_node)
@@ -657,8 +644,8 @@ AND
                         dest_wire_pkey, dest_node, src_track_node
                     )
 
-                    switch_pkey = self.get_pip_switch(
-                        src_wire_pkey, pip_pkey, dest_wire_pkey, switch_pkey
+                    switch_pkey = pip.get_pip_switch(
+                        src_wire_pkey, dest_wire_pkey
                     )
                     yield (src_track_node, switch_pkey, dest_wire_node)
                     yield (dest_wire_node, site_pin_switch_pkey, dest_node)
@@ -669,7 +656,7 @@ AND
             assert other_connector.pins.site_pin_direction == SitePinDirection.IN
 
             switch_pkey = self.get_edge_with_mux_switch(
-                src_wire_pkey, pip_pkey, dest_wire_pkey
+                src_wire_pkey, pip.pip_pkey, dest_wire_pkey
             )
 
             if len(self.pins.edge_map) == 1 and len(
@@ -869,35 +856,46 @@ SELECT vcc_track_pkey, gnd_track_pkey FROM constant_sources;
     return const_connectors
 
 
+def create_get_tile_loc(conn):
+    c = conn.cursor()
+
+    @functools.lru_cache(maxsize=None)
+    def get_tile_loc(tile_pkey):
+        c.execute(
+            "SELECT grid_x, grid_y FROM tile WHERE pkey = ?", (tile_pkey, )
+        )
+        return grid_types.GridLoc(*c.fetchone())
+
+    return get_tile_loc
+
+
 def yield_edges(
-        const_connectors, delayless_switch_pkey, phy_tile_pkey, src_connector,
-        sink_connector, pip, pip_pkey, pip_is_directional, src_wire_pkey,
-        sink_wire_pkey, loc
+        const_connectors, delayless_switch, phy_tile_pkey, src_connector,
+        sink_connector, pip, pip_obj, src_wire_pkey, sink_wire_pkey, loc
 ):
     for src_graph_node_pkey, switch_pkey, dest_graph_node_pkey in src_connector.connect_at(
-            pip_pkey=pip_pkey, src_wire_pkey=src_wire_pkey,
+            pip=pip_obj, src_wire_pkey=src_wire_pkey,
             dest_wire_pkey=sink_wire_pkey, loc=loc,
             other_connector=sink_connector):
         yield (
             src_graph_node_pkey, dest_graph_node_pkey, switch_pkey,
-            phy_tile_pkey, pip_pkey, False
+            phy_tile_pkey, pip_obj.pip_pkey, False
         )
 
-    if not pip_is_directional:
+    if not pip.is_directional:
         for src_graph_node_pkey, switch_pkey, dest_graph_node_pkey in sink_connector.connect_at(
-                pip_pkey=pip_pkey, src_wire_pkey=sink_wire_pkey,
+                pip=pip_obj, src_wire_pkey=sink_wire_pkey,
                 dest_wire_pkey=src_wire_pkey, loc=loc,
                 other_connector=src_connector):
             yield (
                 src_graph_node_pkey, dest_graph_node_pkey, switch_pkey,
-                phy_tile_pkey, pip_pkey, True
+                phy_tile_pkey, pip_obj.pip_pkey, True
             )
 
     # Make additional connections to constant network if the sink needs it.
     for constant_src in yield_ties_to_wire(pip.net_to):
         for src_graph_node_pkey, switch_pkey, dest_graph_node_pkey in const_connectors[
-                constant_src].connect_at(switch_pkey=delayless_switch_pkey,
-                                         loc=loc,
+                constant_src].connect_at(pip=delayless_switch, loc=loc,
                                          other_connector=sink_connector):
             yield (
                 src_graph_node_pkey, dest_graph_node_pkey, switch_pkey,
@@ -907,8 +905,8 @@ def yield_edges(
 
 def make_connection(
         conn, input_only_nodes, output_only_nodes, find_wire, find_pip,
-        find_connector, tile_name, tile_type, pip, delayless_switch_pkey,
-        const_connectors
+        find_connector, get_tile_loc, tile_name, tile_type, pip,
+        delayless_switch, const_connectors
 ):
     """ Attempt to connect graph nodes on either side of a pip.
 
@@ -951,10 +949,6 @@ def make_connection(
     assert phy_tile_pkey == phy_tile_pkey2
     assert tile_pkey == tile_pkey2
 
-    c = conn.cursor()
-    c.execute("SELECT grid_x, grid_y FROM tile WHERE pkey = ?", (tile_pkey, ))
-    loc = grid_types.GridLoc(*c.fetchone())
-
     # Skip nodes that are reserved because of ROI
     if src_node_pkey in input_only_nodes:
         return
@@ -970,17 +964,17 @@ def make_connection(
     if sink_connector is None:
         return
 
-    pip_pkey, pip_is_directional, pip_is_pseudo, pip_can_invert = \
-        find_pip(tile_type, pip.name)
+    pip_obj = find_pip(tile_type, pip.name)
 
-    assert not pip_is_pseudo
+    assert not pip_obj.is_pseudo
+
+    loc = get_tile_loc(tile_pkey)
 
     for edge in yield_edges(
             const_connectors=const_connectors,
-            delayless_switch_pkey=delayless_switch_pkey,
-            phy_tile_pkey=phy_tile_pkey, src_connector=src_connector,
-            sink_connector=sink_connector, pip=pip, pip_pkey=pip_pkey,
-            pip_is_directional=pip_is_directional, src_wire_pkey=src_wire_pkey,
+            delayless_switch=delayless_switch, phy_tile_pkey=phy_tile_pkey,
+            src_connector=src_connector, sink_connector=sink_connector,
+            pip=pip, pip_obj=pip_obj, src_wire_pkey=src_wire_pkey,
             sink_wire_pkey=sink_wire_pkey, loc=loc):
         yield edge
 
@@ -1701,10 +1695,12 @@ def create_and_insert_edges(
         ('__vpr_delayless_switch__', )
     )
     delayless_switch_pkey = write_cur.fetchone()[0]
+    delayless_switch = KnownSwitch(delayless_switch_pkey)
 
     find_pip = create_find_pip(conn)
     find_wire = create_find_wire(conn)
     find_connector = create_find_connector(conn)
+    get_tile_loc = create_get_tile_loc(conn)
 
     const_connectors = create_const_connectors(conn)
 
@@ -1744,10 +1740,11 @@ def create_and_insert_edges(
                 find_pip=find_pip,
                 find_wire=find_wire,
                 find_connector=find_connector,
+                get_tile_loc=get_tile_loc,
                 tile_name=tile_name,
                 tile_type=gridinfo.tile_type,
                 pip=pip,
-                delayless_switch_pkey=delayless_switch_pkey,
+                delayless_switch=delayless_switch,
                 const_connectors=const_connectors
             )
 
