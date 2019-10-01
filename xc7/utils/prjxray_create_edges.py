@@ -619,15 +619,16 @@ AND
         if self.tracks and other_connector.tracks:
             tracks_model, graph_nodes = self.tracks
             idx1 = None
-            for idx1, _ in tracks_model.get_tracks_for_wire_at_coord(loc):
+            for idx1 in tracks_model.get_tracks_for_wire_at_coord(loc
+                                                                  ).values():
                 break
 
             assert idx1 is not None
 
             other_tracks_model, other_graph_nodes = other_connector.tracks
             idx2 = None
-            for idx2, _ in other_tracks_model.get_tracks_for_wire_at_coord(loc
-                                                                           ):
+            for idx2 in other_tracks_model.get_tracks_for_wire_at_coord(
+                    loc).values():
                 break
 
             assert idx2 is not None
@@ -642,8 +643,8 @@ AND
             assert self.pins.site_pin_direction == SitePinDirection.OUT
 
             tracks_model, graph_nodes = other_connector.tracks
-            for idx, pin_dir in tracks_model.get_tracks_for_wire_at_coord(
-                    grid_types.GridLoc(self.pins.x, self.pins.y)):
+            for pin_dir, idx in tracks_model.get_tracks_for_wire_at_coord(
+                    grid_types.GridLoc(self.pins.x, self.pins.y)).items():
                 if pin_dir in self.pins.edge_map:
                     # Site pin -> Interconnect is modelled as:
                     #
@@ -665,9 +666,9 @@ AND
             assert other_connector.pins.site_pin_direction == SitePinDirection.IN
 
             tracks_model, graph_nodes = self.tracks
-            for idx, pin_dir in tracks_model.get_tracks_for_wire_at_coord(
+            for pin_dir, idx in tracks_model.get_tracks_for_wire_at_coord(
                     grid_types.GridLoc(other_connector.pins.x,
-                                       other_connector.pins.y)):
+                                       other_connector.pins.y)).items():
                 if pin_dir in other_connector.pins.edge_map:
                     # Interconnect -> Site pin is modelled as:
                     #

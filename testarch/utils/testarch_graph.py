@@ -157,8 +157,8 @@ def create_global_constant_tracks(graph, mux, short, grid_width, grid_height):
                     pin_map[pin_side] = pin_node
 
                 made_connection = False
-                for idx, pin_dir in tracks.get_tracks_for_wire_at_coord(
-                    (loc.x, loc.y)):
+                for pin_dir, idx in tracks.get_tracks_for_wire_at_coord(
+                    (loc.x, loc.y)).items():
                     if pin_dir in pin_map:
                         made_connection = True
                         graph.add_edge(
