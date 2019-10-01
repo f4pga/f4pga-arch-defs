@@ -95,7 +95,7 @@ class TestGrid(unittest.TestCase):
                         site_type_pkey=x,
                         site_pkey=2 * x + 1,
                         x=0,
-                        y=0,
+                        y=1,
                     ),
                 ]
 
@@ -117,6 +117,10 @@ class TestGrid(unittest.TestCase):
                 NUM_X + 1,
             ],
             split_direction=EAST,
+            split_map={
+                (0, 0): 0,
+                (0, 1): 1,
+            },
         )
 
         output_grid_loc_map = grid.output_grid()
@@ -178,7 +182,7 @@ class TestGrid(unittest.TestCase):
                         site_type_pkey=x,
                         site_pkey=2 * x + 1,
                         x=0,
-                        y=0,
+                        y=1,
                     ),
                 ]
 
@@ -201,6 +205,10 @@ class TestGrid(unittest.TestCase):
                     NUM_X * NUM_Y + 2,
                 ],
                 split_direction=EAST,
+                split_map={
+                    (0, 0): 0,
+                    (0, 1): 1,
+                },
             )
 
         output_grid_loc_map = grid.output_grid()
