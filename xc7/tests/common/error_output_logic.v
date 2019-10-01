@@ -51,6 +51,13 @@ module ERROR_OUTPUT_LOGIC #(
         ERROR_ACTUAL_DATA = (1 << 9),
         LOOP_COUNT = (1 << 10);
 
+    initial begin
+        tx_data_ready <= 1'b0;
+        tx_data <= 8'b0;
+        state <= START;
+        reg_error_detected <= 1'b0;
+    end
+
     always @(posedge clk) begin
         if(rst) begin
             state <= START;
