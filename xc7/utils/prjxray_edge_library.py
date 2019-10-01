@@ -251,7 +251,7 @@ WHERE
         assert result is not None, (tile_type, wire)
         return result[0]
 
-    @functools.lru_cache(maxsize=None)
+    @functools.lru_cache(maxsize=100000)
     def find_wire(phy_tile, tile_type, wire):
         """ Finds a wire in the database.
 
@@ -694,7 +694,7 @@ def create_find_connector(conn):
     """
     c = conn.cursor()
 
-    @functools.lru_cache(maxsize=None)
+    @functools.lru_cache(maxsize=100000)
     def find_connector(wire_pkey, node_pkey):
         """ Finds Connector for a wire and node in the database.
 
