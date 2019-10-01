@@ -222,9 +222,12 @@ def import_tile_type(
 
         write_cur.execute(
             """
-INSERT INTO wire_in_tile(name, tile_type_pkey, capacitance, resistance)
+INSERT INTO wire_in_tile(name, phy_tile_type_pkey, tile_type_pkey, capacitance, resistance)
 VALUES
-  (?, ?, ?, ?)""", (wire, tile_types[tile_type_name], capacitance, resistance)
+  (?, ?, ?, ?, ?)""", (
+                wire, tile_types[tile_type_name], tile_types[tile_type_name],
+                capacitance, resistance
+            )
         )
         wires[wire] = write_cur.lastrowid
 
@@ -1429,37 +1432,126 @@ SELECT dest_wire_in_tile_pkey FROM pip_in_tile WHERE
     return None
 
 
+def update_wire_in_tile_types(
+        cur, write_cur, empty_tile_type_pkey, wire_in_tile_pkey_to_update
+):
+    # Check if each wire in tile pkey can point to one logical tile type.
+    wire_in_tile_pkey_to_tile_type_pkey = {}
+
+    for tile_type_pkey, wire_in_tile_pkeys in wire_in_tile_pkey_to_update.items(
+    ):
+        for wire_in_tile_pkey in wire_in_tile_pkeys:
+            if wire_in_tile_pkey not in wire_in_tile_pkey_to_tile_type_pkey:
+                wire_in_tile_pkey_to_tile_type_pkey[wire_in_tile_pkey] = set()
+
+            wire_in_tile_pkey_to_tile_type_pkey[wire_in_tile_pkey].add(
+                tile_type_pkey
+            )
+
+    wire_in_tile_pkey_to_updates = list(
+        wire_in_tile_pkey_to_tile_type_pkey.keys()
+    )
+    wire_in_tile_pkey_updates = []
+    for wire_in_tile_pkey in wire_in_tile_pkey_to_updates:
+        cur.execute(
+            "SELECT phy_tile_type_pkey FROM wire_in_tile WHERE pkey = ?",
+            (wire_in_tile_pkey, )
+        )
+        phy_tile_type_pkey = cur.fetchone()[0]
+        if phy_tile_type_pkey == empty_tile_type_pkey:
+            del wire_in_tile_pkey_to_tile_type_pkey[wire_in_tile_pkey]
+            continue
+
+        tile_type_pkeys = wire_in_tile_pkey_to_tile_type_pkey[wire_in_tile_pkey
+                                                              ]
+        assert len(tile_type_pkeys) == 1, (wire_in_tile_pkey, tile_type_pkeys)
+
+        wire_in_tile_pkey_updates.append(
+            (list(tile_type_pkeys)[0], wire_in_tile_pkey)
+        )
+
+    write_cur.executemany(
+        """
+    UPDATE wire_in_tile
+    SET tile_type_pkey = ?
+    WHERE pkey = ?;""", wire_in_tile_pkey_updates
+    )
+
+
 def create_vpr_grid(conn):
     """ Create VPR grid from prjxray grid. """
     cur = conn.cursor()
     cur2 = conn.cursor()
 
+    slice_types = {}
+
     write_cur = conn.cursor()
     write_cur.execute("""BEGIN EXCLUSIVE TRANSACTION;""")
 
-    # Insert synthetic tile types for CLB sites.
-    write_cur.execute('INSERT INTO tile_type(name) VALUES ("SLICEL");')
-    slicel_tile_type_pkey = write_cur.lastrowid
+    # Insert synthetic tile types for CLB sites and iopad sites.
+    for name in [
+            'SLICEL',
+            'SLICEM',
+            'LIOPAD_M',
+            'LIOPAD_S',
+            'LIOPAD_SING',
+            'RIOPAD_M',
+            'RIOPAD_S',
+            'RIOPAD_SING',
+    ]:
+        write_cur.execute('INSERT INTO tile_type(name) VALUES (?);', (name, ))
+        slice_types[name] = write_cur.lastrowid
 
-    write_cur.execute('INSERT INTO tile_type(name) VALUES ("SLICEM");')
-    slicem_tile_type_pkey = write_cur.lastrowid
-
-    slice_types = {
-        'SLICEL': slicel_tile_type_pkey,
-        'SLICEM': slicem_tile_type_pkey,
-    }
+    write_cur.execute("""COMMIT TRANSACTION;""")
 
     tiles_to_split = {
+        'LIOI3': tile_splitter.grid.NORTH,
+        'LIOI3_TBYTESRC': tile_splitter.grid.NORTH,
+        'LIOI3_TBYTETERM': tile_splitter.grid.NORTH,
+        'LIOI3_SING': tile_splitter.grid.NORTH,
+        'RIOI3': tile_splitter.grid.NORTH,
+        'RIOI3_TBYTESRC': tile_splitter.grid.NORTH,
+        'RIOI3_TBYTETERM': tile_splitter.grid.NORTH,
+        'RIOI3_SING': tile_splitter.grid.NORTH,
         'CLBLL_L': tile_splitter.grid.WEST,
         'CLBLL_R': tile_splitter.grid.EAST,
         'CLBLM_L': tile_splitter.grid.WEST,
         'CLBLM_R': tile_splitter.grid.EAST,
     }
 
+    liopad_ms_split = {
+        0: slice_types['LIOPAD_M'],
+        1: slice_types['LIOPAD_S'],
+    }
+    riopad_ms_split = {
+        0: slice_types['RIOPAD_M'],
+        1: slice_types['RIOPAD_S'],
+    }
+
+    split_styles = {
+        'LIOI3': ('y_split', liopad_ms_split),
+        'LIOI3_TBYTESRC': ('y_split', liopad_ms_split),
+        'LIOI3_TBYTETERM': ('y_split', liopad_ms_split),
+        'RIOI3': ('y_split', riopad_ms_split),
+        'RIOI3_TBYTESRC': ('y_split', riopad_ms_split),
+        'RIOI3_TBYTETERM': ('y_split', riopad_ms_split),
+        'LIOI3_SING': ('y_split', {
+            0: slice_types['LIOPAD_SING']
+        }),
+        'RIOI3_SING': ('y_split', {
+            0: slice_types['RIOPAD_SING']
+        }),
+        'CLBLL_L': ('site_as_tile', ),
+        'CLBLL_R': ('site_as_tile', ),
+        'CLBLM_L': ('site_as_tile', ),
+        'CLBLM_R': ('site_as_tile', ),
+    }
     # Create initial grid using sites and locations from phy_tile's
     # Also build up tile_to_tile_type_pkeys, which is a map from original
     # tile_type_pkey, to array of split tile type pkeys, (e.g. SLICEL/SLICEM).
     tile_to_tile_type_pkeys = {}
+    split_map = {}
+
     grid_loc_map = {}
     for phy_tile_pkey, tile_type_pkey, grid_x, grid_y in progressbar_utils.progressbar(
             cur.execute("""
@@ -1510,14 +1602,36 @@ def create_vpr_grid(conn):
 
         if tile_type_name in tiles_to_split:
             tile_type_pkeys = []
-            for site in sites:
-                tile_type_pkeys.append(slice_types[site.name])
+            tile_split_map = {}
+
+            if split_styles[tile_type_name][0] == 'site_as_tile':
+                for idx, site in enumerate(sites):
+                    tile_type_pkeys.append(slice_types[site.name])
+                    tile_split_map[site.x, site.y] = idx
+            elif split_styles[tile_type_name][0] == 'y_split':
+                ys = set()
+
+                for site in sites:
+                    ys.add(site.y)
+
+                ys = sorted(ys)
+
+                tile_type_pkeys = [
+                    split_styles[tile_type_name][1][y] for y in ys
+                ]
+                for site in sites:
+                    tile_split_map[site.x, site.y] = ys.index(site.y)
+            else:
+                assert False, split_styles[tile_type_name]
 
             if tile_type_name in tile_to_tile_type_pkeys:
                 assert tile_to_tile_type_pkeys[tile_type_name] == \
                         tile_type_pkeys, (tile_type_name,)
+                assert split_map[tile_type_name] == \
+                        tile_split_map, (tile_type_name,)
             else:
                 tile_to_tile_type_pkeys[tile_type_name] = tile_type_pkeys
+                split_map[tile_type_name] = tile_split_map
 
         grid_loc_map[(grid_x, grid_y)] = tile_splitter.grid.Tile(
             root_phy_tile_pkeys=[phy_tile_pkey],
@@ -1530,22 +1644,26 @@ def create_vpr_grid(conn):
     empty_tile_type_pkey = cur.fetchone()[0]
 
     tile_types = {}
+    tile_type_names = {}
     for tile_type, split_direction in tiles_to_split.items():
         cur.execute(
             'SELECT pkey FROM tile_type WHERE name = ?;', (tile_type, )
         )
         tile_type_pkey = cur.fetchone()[0]
         tile_types[tile_type] = tile_type_pkey
+        tile_type_names[tile_type_pkey] = tile_type
 
     vpr_grid = tile_splitter.grid.Grid(
         grid_loc_map=grid_loc_map, empty_tile_type_pkey=empty_tile_type_pkey
     )
 
-    for tile_type, split_direction in tiles_to_split.items():
+    for tile_type, split_direction in progressbar_utils.progressbar(
+            tiles_to_split.items()):
         vpr_grid.split_tile_type(
             tile_type_pkey=tile_types[tile_type],
             tile_type_pkeys=tile_to_tile_type_pkeys[tile_type],
-            split_direction=split_direction
+            split_direction=split_direction,
+            split_map=split_map[tile_type],
         )
 
     new_grid = vpr_grid.output_grid()
@@ -1560,6 +1678,8 @@ def create_vpr_grid(conn):
 
     new_grid = shifted_grid
 
+    write_cur.execute("""BEGIN EXCLUSIVE TRANSACTION;""")
+
     # Create tile rows for each tile in the VPR grid.  As provide map entries
     # to physical grid and alias map from split tile type to original tile
     # type.
@@ -1567,13 +1687,12 @@ def create_vpr_grid(conn):
         # TODO: Merging of tiles isn't supported yet, so don't handle multiple
         # phy_tile_pkeys yet. The phy_tile_pkey to add to the new VPR tile
         # should be the tile to use on the FASM prefix.
-        assert len(tile.phy_tile_pkeys) == 1
+        assert len(tile.phy_tile_pkeys) == 1, tile.phy_tile_pkeys
         assert len(tile.root_phy_tile_pkeys) in [0, 1], len(
             tile.root_phy_tile_pkeys
         )
 
-        if tile.split_sites:
-            assert len(tile.sites) == 1
+        if tile.split_sites and len(tile.sites) == 1:
             write_cur.execute(
                 """
 SELECT pkey, parent_tile_type_pkey FROM site_as_tile WHERE tile_type_pkey = ? AND site_pkey = ?""",
@@ -1626,7 +1745,9 @@ INSERT INTO tile_map(tile_pkey, phy_tile_pkey) VALUES (?, ?)
 
         # First assign all wires at the root_phy_tile_pkeys to this tile_pkey.
         # This ensures all wires, (including wires without sites) have a home.
+
         for root_phy_tile_pkey in tile.root_phy_tile_pkeys:
+
             write_cur.execute(
                 """
 UPDATE
@@ -1649,23 +1770,20 @@ WHERE
 
     write_cur.execute("""BEGIN EXCLUSIVE TRANSACTION;""")
 
+    # Track wire_in_tile_pkey's to update to new tile types.
+    wire_in_tile_pkey_to_update = {}
+
     # At this point all wires have a tile_pkey that corrisponds to the old root
     # tile.  Wires belonging to sites need to be reassigned to their respective
     # tiles.
     for (grid_x, grid_y), tile in new_grid.items():
         cur2.execute(
-            "SELECT pkey FROM tile WHERE grid_x = ? AND grid_y = ?;",
+            "SELECT pkey, tile_type_pkey FROM tile WHERE grid_x = ? AND grid_y = ?;",
             (grid_x, grid_y)
         )
-        tile_pkey = cur2.fetchone()[0]
+        tile_pkey, tile_type_pkey = cur2.fetchone()
 
         for site in tile.sites:
-            cur2.execute(
-                "SELECT tile_type_pkey FROM phy_tile WHERE pkey = ?;",
-                (site.phy_tile_pkey, )
-            )
-            tile_type_pkey = cur2.fetchone()[0]
-
             # Find all wires that belong to the new tile location.
             for wire_pkey, wire_in_tile_pkey in cur2.execute("""
 WITH wires(wire_pkey, wire_in_tile_pkey) AS (
@@ -1701,10 +1819,36 @@ WHERE
                     )
                 )
 
+                if tile_type_pkey not in wire_in_tile_pkey_to_update:
+                    wire_in_tile_pkey_to_update[tile_type_pkey] = set()
+
+                wire_in_tile_pkey_to_update[tile_type_pkey].add(
+                    wire_in_tile_pkey
+                )
+
                 # Wires connected to the site via a pip require traversing the
                 # pip.
                 other_wire_in_tile_pkey = traverse_pip(conn, wire_in_tile_pkey)
                 if other_wire_in_tile_pkey is not None:
+                    cur.execute(
+                        """
+SELECT classification
+FROM node
+WHERE pkey = (
+    SELECT node_pkey
+    FROM wire
+    WHERE
+        phy_tile_pkey = ?
+    AND
+        wire_in_tile_pkey = ?
+)
+                        ;""", (site.phy_tile_pkey, other_wire_in_tile_pkey)
+                    )
+                    classification = NodeClassification(cur.fetchone()[0])
+
+                    if classification != NodeClassification.CHANNEL:
+                        continue
+
                     # A wire was found connected to the site via pip, reassign
                     # tile_pkey.
                     write_cur.execute(
@@ -1727,6 +1871,12 @@ AND
     write_cur.execute(
         "CREATE INDEX node_tile_wire_index ON wire(node_pkey, tile_pkey, wire_in_tile_pkey);"
     )
+
+    # Update tile_type_pkey in wire_in_tile table.
+    update_wire_in_tile_types(
+        cur, write_cur, empty_tile_type_pkey, wire_in_tile_pkey_to_update
+    )
+
     write_cur.execute("""COMMIT TRANSACTION;""")
 
     write_cur.execute("""BEGIN EXCLUSIVE TRANSACTION;""")
@@ -1831,7 +1981,6 @@ def main():
         os.remove(args.connection_database)
 
     with DatabaseCache(args.connection_database) as conn:
-
         create_tables(conn)
 
         print("{}: About to load database".format(datetime.datetime.now()))
