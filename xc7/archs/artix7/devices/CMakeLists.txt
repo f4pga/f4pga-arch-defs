@@ -8,4 +8,5 @@ add_xc7_device_define(
   ARCH artix7
   DEVICES xc7a50t
   PARTS xc7a35tcpg236-1
+  GRAPH_LIMIT 61,105,114,155
 )
