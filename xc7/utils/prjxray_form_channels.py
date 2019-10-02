@@ -1211,18 +1211,18 @@ SELECT DISTINCT grid_x, grid_y FROM tile WHERE pkey IN (
             #      use location of site in VPR grid.
             for grid_x, grid_y in cur2.execute("""
 -- Get wires from this node
-WITH wires_from_node(wire_in_tile_pkey, tile_pkey) AS (
+WITH wires_from_node(wire_in_tile_pkey, phy_tile_pkey) AS (
   SELECT
     wire_in_tile_pkey,
-    tile_pkey
+    phy_tile_pkey
   FROM
     wire
   WHERE
     node_pkey = ? AND tile_pkey IS NOT NULL
 ),
-  other_wires(tile_pkey, wire_in_tile_pkey) AS (
+  other_wires(phy_tile_pkey, wire_in_tile_pkey) AS (
     SELECT
-        wires_from_node.tile_pkey,
+        wires_from_node.phy_tile_pkey,
         undirected_pips.other_wire_in_tile_pkey
     FROM undirected_pips
     INNER JOIN wires_from_node ON
@@ -1232,7 +1232,7 @@ WITH wires_from_node(wire_in_tile_pkey, tile_pkey) AS (
     INNER JOIN other_wires ON
         wire.wire_in_tile_pkey = other_wires.wire_in_tile_pkey
     AND
-        wire.tile_pkey = other_wires.tile_pkey),
+        wire.phy_tile_pkey = other_wires.phy_tile_pkey),
   other_tiles(site_wire_pkey) AS (
     SELECT node.site_wire_pkey FROM node
     WHERE

@@ -128,7 +128,7 @@ WHERE
       wire_in_tile
     WHERE
       wire_in_tile.name = ?
-      AND wire_in_tile.tile_type_pkey = (
+      AND wire_in_tile.phy_tile_type_pkey = (
         SELECT
           tile_type_pkey
         FROM
