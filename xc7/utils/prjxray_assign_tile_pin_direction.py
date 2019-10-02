@@ -213,29 +213,37 @@ WHERE
                 # This node has no site pin, don't need to assign pin direction.
                 continue
 
-            for pip_pkey, pip, src_wire_in_tile_pkey, dest_wire_in_tile_pkey in c3.execute(
+            for other_tile_pkey, other_wire_in_tile_pkey, pip_pkey, pip in c3.execute(
                     """
+WITH wires_from_node(wire_in_tile_pkey, tile_pkey) AS (
+  SELECT
+    wire_in_tile_pkey,
+    tile_pkey
+  FROM
+    wire
+  WHERE
+    node_pkey = ? AND tile_pkey IS NOT NULL
+),
+  other_wires(other_tile_pkey, pip_pkey, other_wire_in_tile_pkey) AS (
+    SELECT
+        wires_from_node.tile_pkey,
+        undirected_pips.pip_in_tile_pkey,
+        undirected_pips.other_wire_in_tile_pkey
+    FROM undirected_pips
+    INNER JOIN wires_from_node ON
+        undirected_pips.wire_in_tile_pkey = wires_from_node.wire_in_tile_pkey)
 SELECT
-  pkey,
-  name,
-  src_wire_in_tile_pkey,
-  dest_wire_in_tile_pkey
+  other_wires.other_tile_pkey,
+  other_wires.other_wire_in_tile_pkey,
+  pip_in_tile.pkey,
+  pip_in_tile.name
 FROM
-  pip_in_tile
+  other_wires
+INNER JOIN pip_in_tile
+ON pip_in_tile.pkey == other_wires.pip_pkey
 WHERE
-  is_directional = 1 AND is_pseudo = 0 AND (
-  src_wire_in_tile_pkey = ?
-  OR dest_wire_in_tile_pkey = ?);""", (wire_in_tile_pkey, wire_in_tile_pkey)):
-                assert (
-                    src_wire_in_tile_pkey == wire_in_tile_pkey
-                    or dest_wire_in_tile_pkey == wire_in_tile_pkey
-                ), pip
-
-                if src_wire_in_tile_pkey == wire_in_tile_pkey:
-                    other_wire_in_tile_pkey = dest_wire_in_tile_pkey
-                else:
-                    other_wire_in_tile_pkey = src_wire_in_tile_pkey
-
+  pip_in_tile.is_directional = 1 AND pip_in_tile.is_pseudo = 0;
+  """, (node_pkey, )):
                 # Need to walk from the wire_in_tile table, to the wire table,
                 # to the node table and get track_pkey.
                 # other_wire_in_tile_pkey -> wire pkey -> node_pkey -> track_pkey
@@ -256,7 +264,7 @@ WHERE
     WHERE
       tile_pkey = ?
       AND wire_in_tile_pkey = ?
-  );""", (tile_pkey, other_wire_in_tile_pkey)
+  );""", (other_tile_pkey, other_wire_in_tile_pkey)
                 )
                 result = c4.fetchone()
                 assert result is not None, (
@@ -275,17 +283,20 @@ WHERE
 
                 tracks_model = channel_wires_to_tracks[track_pkey]
                 available_pins = set(
-                    pin_dir for _, pin_dir in tracks_model.
-                    get_tracks_for_wire_at_coord((grid_x, grid_y))
+                    tracks_model.get_tracks_for_wire_at_coord(
+                        (grid_x, grid_y)
+                    ).keys()
                 )
+
                 edge_assignments[(tile_type, wire)].append(available_pins)
 
                 for constant in yield_ties_to_wire(wire):
                     tracks_model = channel_wires_to_tracks[
                         const_tracks[constant]]
                     available_pins = set(
-                        pin_dir for _, pin_dir in tracks_model.
-                        get_tracks_for_wire_at_coord((grid_x, grid_y))
+                        tracks_model.get_tracks_for_wire_at_coord(
+                            (grid_x, grid_y)
+                        ).keys()
                     )
                     edge_assignments[(tile_type, wire)].append(available_pins)
 

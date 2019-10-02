@@ -429,7 +429,9 @@ WHERE
             tracks_model, track_nodes = get_track_model(conn, track_pkey)
 
             option = list(
-                tracks_model.get_tracks_for_wire_at_coord(synth_tile['loc'])
+                tracks_model.get_tracks_for_wire_at_coord(
+                    tuple(synth_tile['loc'])
+                ).values()
             )
             assert len(option) > 0, (pin, len(option))
 
@@ -448,7 +450,7 @@ WHERE
             else:
                 assert False, pin
 
-            track_node = track_nodes[option[0][0]]
+            track_node = track_nodes[option[0]]
             assert track_node in node_mapping, (track_node, track_pkey)
             pin_name = graph.create_pin_name_from_tile_type_and_pin(
                 tile_type, wire

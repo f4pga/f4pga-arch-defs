@@ -247,6 +247,22 @@ VALUES
                 pip.is_pass_transistor, switch_pkey, backward_switch_pkey
             )
         )
+        pip_pkey = write_cur.lastrowid
+
+        write_cur.execute(
+            """
+INSERT INTO undirected_pips(
+    wire_in_tile_pkey, pip_in_tile_pkey, other_wire_in_tile_pkey)
+VALUES
+    (?, ?, ?), (?, ?, ?);""", (
+                wires[pip.net_from],
+                pip_pkey,
+                wires[pip.net_to],
+                wires[pip.net_to],
+                pip_pkey,
+                wires[pip.net_from],
+            )
+        )
 
     for site in tile_type.get_sites():
         if site.type not in site_types:
@@ -355,6 +371,9 @@ def build_tile_type_indicies(write_cur):
     )
     write_cur.execute(
         "CREATE INDEX dest_pip_index ON pip_in_tile(dest_wire_in_tile_pkey);"
+    )
+    write_cur.execute(
+        "CREATE INDEX undirected_pip_index ON undirected_pips(wire_in_tile_pkey, other_wire_in_tile_pkey);"
     )
 
 
@@ -962,7 +981,7 @@ SELECT capacitance, resistance FROM wire_in_tile WHERE pkey IN (
     return capacitance, resistance
 
 
-def get_segment_for_node(conn, segments, node_pkey):
+def get_segment_for_node(cur, segments, node_pkey):
     """ Attempt to determine the segment for the given node.
 
     Parameters
@@ -980,8 +999,6 @@ def get_segment_for_node(conn, segments, node_pkey):
         Primary key to segment table of segment for this node.
 
     """
-
-    cur = conn.cursor()
 
     cur.execute(
         """
@@ -1108,12 +1125,13 @@ FROM
 
         for wire_pkey, grid_x, grid_y in wires:
             connections = list(
-                tracks_model.get_tracks_for_wire_at_coord((grid_x, grid_y))
+                tracks_model.get_tracks_for_wire_at_coord((grid_x,
+                                                           grid_y)).values()
             )
             assert len(connections) > 0, (
-                wire_pkey, track_pkey, grid_x, grid_y
+                connections, wire_pkey, track_pkey, grid_x, grid_y, node
             )
-            graph_node_pkey = track_graph_node_pkey[connections[0][0]]
+            graph_node_pkey = track_graph_node_pkey[connections[0]]
 
             wire_to_graph[wire_pkey] = graph_node_pkey
 
@@ -1151,6 +1169,7 @@ def create_track(node, unique_pos):
 
 def form_tracks(conn, segments):
     cur = conn.cursor()
+    cur2 = conn.cursor()
 
     cur.execute(
         'SELECT count(pkey) FROM node WHERE classification == ?;',
@@ -1161,38 +1180,80 @@ def form_tracks(conn, segments):
     tracks_to_insert = []
     with progressbar_utils.ProgressBar(max_value=num_nodes) as bar:
         bar.update(0)
-        cur2 = conn.cursor()
-        for idx, (node, ) in enumerate(cur.execute("""
+        for idx, (node_pkey, ) in enumerate(cur.execute("""
 SELECT pkey FROM node WHERE classification == ?;
 """, (NodeClassification.CHANNEL.value, ))):
             bar.update(idx)
 
             unique_pos = set()
-            for wire_pkey, grid_x, grid_y in cur2.execute("""
-WITH wires_from_node(wire_pkey, tile_pkey) AS (
+
+            # Get coordinates for all wires in this node.
+            for grid_x, grid_y in cur2.execute("""
+SELECT DISTINCT grid_x, grid_y FROM tile WHERE pkey IN (
+    SELECT tile_pkey FROM wire WHERE node_pkey = ? AND tile_pkey IS NOT NULL
+    )""", (node_pkey, )):
+                unique_pos.add((grid_x, grid_y))
+
+            # Find the VPR grid locations that this channel connects to.
+            #
+            # Algorithm:
+            #  1. Identify all pips that connect to or from this node
+            #  2. Traverse each pip, and determine if the connected node is a
+            #     EDGES_TO_CHANNEL.  NULL nodes are uninteresting, and CHANNEL
+            #     nodes are already covered in the earlier loop getting
+            #     locations of the
+            #     discarded.
+            #  3a. For CHANNEL to CHANNEL connections, use the pip location.
+            #  3b. For CHANNEL to EDGES_TO_CHANNEL (e.g. site pin connections)
+            #      use location of site in VPR grid.
+            for grid_x, grid_y in cur2.execute("""
+-- Get wires from this node
+WITH wires_from_node(wire_in_tile_pkey, tile_pkey) AS (
   SELECT
-    pkey,
+    wire_in_tile_pkey,
     tile_pkey
   FROM
     wire
   WHERE
     node_pkey = ? AND tile_pkey IS NOT NULL
-)
-SELECT
-  wires_from_node.wire_pkey,
-  tile.grid_x,
-  tile.grid_y
-FROM
-  tile
-  INNER JOIN wires_from_node ON tile.pkey = wires_from_node.tile_pkey;
-  """, (node, )):
+),
+  other_wires(tile_pkey, wire_in_tile_pkey) AS (
+    SELECT
+        wires_from_node.tile_pkey,
+        undirected_pips.other_wire_in_tile_pkey
+    FROM undirected_pips
+    INNER JOIN wires_from_node ON
+        undirected_pips.wire_in_tile_pkey = wires_from_node.wire_in_tile_pkey),
+  other_nodes(other_node_pkey) AS (
+    SELECT wire.node_pkey FROM wire
+    INNER JOIN other_wires ON
+        wire.wire_in_tile_pkey = other_wires.wire_in_tile_pkey
+    AND
+        wire.tile_pkey = other_wires.tile_pkey),
+  other_tiles(site_wire_pkey) AS (
+    SELECT node.site_wire_pkey FROM node
+    WHERE
+        pkey IN (SELECT other_node_pkey FROM other_nodes)
+    AND
+        classification = ?
+  )
+SELECT tile.grid_x, tile.grid_y
+FROM tile
+WHERE pkey IN (
+    SELECT DISTINCT tile_pkey
+    FROM wire
+    WHERE pkey IN (
+        SELECT other_tiles.site_wire_pkey FROM other_tiles
+        )
+    );
+  """, (node_pkey, NodeClassification.EDGES_TO_CHANNEL.value)):
                 unique_pos.add((grid_x, grid_y))
 
             # Determine segment for each routing resource.
-            segment_pkey = get_segment_for_node(conn, segments, node)
+            segment_pkey = get_segment_for_node(cur2, segments, node_pkey)
 
             tracks_to_insert.append(
-                create_track(node, unique_pos) + [segment_pkey]
+                create_track(node_pkey, unique_pos) + [segment_pkey]
             )
 
     # Create constant tracks
@@ -1233,7 +1294,7 @@ INSERT INTO constant_sources(vcc_track_pkey, gnd_track_pkey) VALUES (?, ?)
     write_cur.execute(
         """
 INSERT INTO phy_tile(name, grid_x, grid_y) VALUES (?, ?, ?)
-        """, ("CONSTANT_SOURCE", 0, 0)
+        """, ("CONSTANT_SOURCE", 1, 1)
     )
     zero_phy_tile_pkey = write_cur.lastrowid
 
@@ -1488,6 +1549,17 @@ def create_vpr_grid(conn):
         )
 
     new_grid = vpr_grid.output_grid()
+
+    shifted_grid = {}
+    for (grid_x, grid_y), tile in new_grid.items():
+        # Shift grid away from 0 edges, which have limitations in VPR that
+        # complicate the rrgraph import process.
+        grid_x += 1
+        grid_y += 1
+        shifted_grid[(grid_x, grid_y)] = tile
+
+    new_grid = shifted_grid
+
     # Create tile rows for each tile in the VPR grid.  As provide map entries
     # to physical grid and alias map from split tile type to original tile
     # type.
@@ -1650,8 +1722,15 @@ AND
 
     # Now that final wire <-> tile assignments are made, create the index.
     write_cur.execute(
-        "CREATE INDEX tile_wire_index ON wire(wire_in_tile_pkey, tile_pkey);"
+        "CREATE INDEX tile_wire_index ON wire(wire_in_tile_pkey, tile_pkey, node_pkey);"
     )
+    write_cur.execute(
+        "CREATE INDEX node_tile_wire_index ON wire(node_pkey, tile_pkey, wire_in_tile_pkey);"
+    )
+    write_cur.execute("""COMMIT TRANSACTION;""")
+
+    write_cur.execute("""BEGIN EXCLUSIVE TRANSACTION;""")
+    write_cur.execute("ANALYZE")
     write_cur.execute("""COMMIT TRANSACTION;""")
 
 
