@@ -94,6 +94,8 @@ def add_graph_nodes_for_pins(conn, tile_type, wire, pin_directions):
                 )
                 values.append(write_cur.lastrowid)
 
+            assert len(updates) > 0, (updates, wire_in_tile_pkey, wire_pkey)
+
             # Update the wire with the graph_nodes in each direction, if
             # applicable.
             write_cur.execute(
@@ -237,7 +239,7 @@ FROM
   wire_in_tile
 WHERE
   name = ?
-  AND tile_type_pkey = (
+  AND phy_tile_type_pkey = (
     SELECT
       pkey
     FROM
@@ -947,7 +949,6 @@ def make_connection(
     )
 
     assert phy_tile_pkey == phy_tile_pkey2
-    assert tile_pkey == tile_pkey2
 
     # Skip nodes that are reserved because of ROI
     if src_node_pkey in input_only_nodes:

@@ -23,13 +23,13 @@ def create_check_downstream_default(conn, db):
 
         """
         c.execute(
-            "SELECT name, tile_type_pkey FROM wire_in_tile WHERE pkey = ?",
+            "SELECT name, phy_tile_type_pkey FROM wire_in_tile WHERE pkey = ?",
             (wire_in_tile_pkey, )
         )
-        name, tile_type_pkey = c.fetchone()
+        name, phy_tile_type_pkey = c.fetchone()
 
         c.execute(
-            "SELECT name FROM tile_type WHERE pkey = ?", (tile_type_pkey, )
+            "SELECT name FROM tile_type WHERE pkey = ?", (phy_tile_type_pkey, )
         )
         tile_type = c.fetchone()[0]
 
@@ -43,8 +43,8 @@ def create_check_downstream_default(conn, db):
             if parts[2] == name and tile.ppips[k] == PsuedoPipType.ALWAYS:
                 downstream_wire = parts[1]
                 c.execute(
-                    "SELECT pkey FROM wire_in_tile WHERE name = ? AND tile_type_pkey = ?;",
-                    (downstream_wire, tile_type_pkey)
+                    "SELECT pkey FROM wire_in_tile WHERE name = ? AND phy_tile_type_pkey = ?;",
+                    (downstream_wire, phy_tile_type_pkey)
                 )
                 downstream_wire_in_tile_pkey = c.fetchone()[0]
 
@@ -335,13 +335,13 @@ def create_check_for_default(db, conn):
 
         """
         c.execute(
-            "SELECT name, tile_type_pkey FROM wire_in_tile WHERE pkey = ?",
+            "SELECT name, phy_tile_type_pkey FROM wire_in_tile WHERE pkey = ?",
             (wire_in_tile_pkey, )
         )
-        name, tile_type_pkey = c.fetchone()
+        name, phy_tile_type_pkey = c.fetchone()
 
         c.execute(
-            "SELECT name FROM tile_type WHERE pkey = ?", (tile_type_pkey, )
+            "SELECT name FROM tile_type WHERE pkey = ?", (phy_tile_type_pkey, )
         )
         tile_type = c.fetchone()[0]
 
@@ -369,8 +369,8 @@ def create_check_for_default(db, conn):
         ]:
             upstream_wire = name.replace('MUX', '')
             c.execute(
-                "SELECT pkey FROM wire_in_tile WHERE name = ? AND tile_type_pkey = ?;",
-                (upstream_wire, tile_type_pkey)
+                "SELECT pkey FROM wire_in_tile WHERE name = ? AND phy_tile_type_pkey = ?;",
+                (upstream_wire, phy_tile_type_pkey)
             )
 
             upstream_wire_in_tile_pkey = c.fetchone()[0]
@@ -388,8 +388,8 @@ def create_check_for_default(db, conn):
                 upstream_wire = parts[2]
 
                 c.execute(
-                    "SELECT pkey FROM wire_in_tile WHERE name = ? AND tile_type_pkey = ?;",
-                    (upstream_wire, tile_type_pkey)
+                    "SELECT pkey FROM wire_in_tile WHERE name = ? AND phy_tile_type_pkey = ?;",
+                    (upstream_wire, phy_tile_type_pkey)
                 )
 
                 upstream_wire_in_tile_pkey = c.fetchone()[0]
@@ -640,10 +640,10 @@ def make_routes(
             phy_tile_pkey, wire_in_tile_pkey = c.fetchone()
 
             c.execute(
-                "SELECT name, tile_type_pkey FROM wire_in_tile WHERE pkey = ?",
+                "SELECT name FROM wire_in_tile WHERE pkey = ?",
                 (wire_in_tile_pkey, )
             )
-            name, tile_type_pkey = c.fetchone()
+            (name,) = c.fetchone()
 
             c.execute(
                 "SELECT name FROM phy_tile WHERE pkey = ?", (phy_tile_pkey, )
