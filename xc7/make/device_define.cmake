@@ -23,29 +23,35 @@ function(ADD_XC7_DEVICE_DEFINE_TYPE)
   set(NAME ${ADD_XC7_DEVICE_DEFINE_TYPE_NAME})
 
   add_custom_target(${ARCH}_${DEVICE}_${NAME})
-  set_target_properties(${ARCH}_${DEVICE}_${NAME}
+
+  if(NOT "${ROI_PART}" STREQUAL "")
+    set_target_properties(${ARCH}_${DEVICE}_${NAME}
       PROPERTIES PART ${ROI_PART}
       )
-  set_target_properties(${ARCH}_${DEVICE}_${NAME}
+    set_target_properties(${ARCH}_${DEVICE}_${NAME}
       PROPERTIES FASM_TO_BIT_EXTRA_ARGS " \
-    --roi ${ROI_DIR}/design.json \
-  ")
-  set_target_properties(${ARCH}_${DEVICE}_${NAME}
+      --roi ${ROI_DIR}/design.json \
+    ")
+    set_target_properties(${ARCH}_${DEVICE}_${NAME}
       PROPERTIES BIT_TO_BIN_EXTRA_ARGS " \
-    --part_name ${ROI_PART} \
-    --part_file ${PRJXRAY_DB_DIR}/${ARCH}/${ROI_PART}.yaml \
-  ")
-  set_target_properties(${ARCH}_${DEVICE}_${NAME}
+      --part_name ${ROI_PART} \
+      --part_file ${PRJXRAY_DB_DIR}/${ARCH}/${ROI_PART}.yaml \
+    ")
+    set_target_properties(${ARCH}_${DEVICE}_${NAME}
       PROPERTIES BIT_TO_V_EXTRA_ARGS " \
-    --part ${ROI_PART}
-    --connection_database ${CMAKE_CURRENT_BINARY_DIR}/channels.db
-  ")
+      --part ${ROI_PART}
+      --connection_database ${CMAKE_CURRENT_BINARY_DIR}/channels.db
+    ")
+    set(ROI_ARGS USE_ROI ${ROI_DIR}/design.json)
+  else()
+    set(ROI_ARGS "")
+  endif()
 
   project_xray_arch(
     PART ${ARCH}
     DEVICE ${DEVICE}
     TILE_TYPES ${TILE_TYPES}
-    USE_ROI ${ROI_DIR}/design.json
+    ${ROI_ARGS}
     )
 
   set(SDF_TIMING_DIRECTORY ${PRJXRAY_DB_DIR}/${ARCH}/timings)
@@ -71,7 +77,7 @@ function(ADD_XC7_DEVICE_DEFINE_TYPE)
 endfunction()
 
 function(ADD_XC7_DEVICE_DEFINE)
-  set(options)
+  set(options USE_ROI)
   set(oneValueArgs ARCH)
   set(multiValueArgs DEVICES PARTS)
   cmake_parse_arguments(
@@ -82,6 +88,7 @@ function(ADD_XC7_DEVICE_DEFINE)
      ${ARGN}
    )
 
+  set(USE_ROI ${ADD_XC7_DEVICE_DEFINE_USE_ROI})
   set(ARCH ${ADD_XC7_DEVICE_DEFINE_ARCH})
   set(DEVICES ${ADD_XC7_DEVICE_DEFINE_DEVICES})
   set(PARTS ${ADD_XC7_DEVICE_DEFINE_PARTS})
@@ -92,28 +99,36 @@ function(ADD_XC7_DEVICE_DEFINE)
     list(GET DEVICES ${INDEX} DEVICE)
     list(GET PARTS ${INDEX} PART)
 
-    add_subdirectory(${DEVICE}-roi-virt)
+    if(${USE_ROI})
+        add_subdirectory(${DEVICE}-roi-virt)
+        set(CHANNELS ${CMAKE_CURRENT_SOURCE_DIR}/${DEVICE}-roi-virt/channels.db)
+    else()
+        add_subdirectory(${DEVICE}-virt)
+        set(CHANNELS ${CMAKE_CURRENT_SOURCE_DIR}/${DEVICE}-virt/channels.db)
+    endif()
 
-    # SYNTH_TILES used in ROI.
-    set(CHANNELS ${CMAKE_CURRENT_SOURCE_DIR}/${DEVICE}-roi-virt/channels.db)
-    set(SYNTH_TILES ${CMAKE_CURRENT_SOURCE_DIR}/${DEVICE}-roi-virt/synth_tiles.json)
-    get_file_location(SYNTH_TILES_LOCATION ${SYNTH_TILES})
     get_file_location(CHANNELS_LOCATIONS ${CHANNELS})
+    set(RR_PATCH_EXTRA_ARGS  --connection_database ${CHANNELS_LOCATIONS})
 
     # Clear variable before adding deps for next device
     set(DEVICE_RR_PATCH_DEPS "")
-
-    append_file_dependency(DEVICE_RR_PATCH_DEPS ${CHANNELS})
-    append_file_dependency(DEVICE_RR_PATCH_DEPS ${SYNTH_TILES})
-
     list(APPEND DEVICE_RR_PATCH_DEPS intervaltree textx)
+    append_file_dependency(DEVICE_RR_PATCH_DEPS ${CHANNELS})
+
+    if(${USE_ROI})
+        # SYNTH_TILES used in ROI.
+        set(SYNTH_TILES ${CMAKE_CURRENT_SOURCE_DIR}/${DEVICE}-roi-virt/synth_tiles.json)
+        get_file_location(SYNTH_TILES_LOCATION ${SYNTH_TILES})
+        append_file_dependency(DEVICE_RR_PATCH_DEPS ${SYNTH_TILES})
+        set(RR_PATCH_EXTRA_ARGS --synth_tiles ${SYNTH_TILES_LOCATION} ${RR_PATCH_EXTRA_ARGS})
+    endif()
 
     define_device(
       DEVICE ${DEVICE}
       ARCH ${ARCH}
       DEVICE_TYPE ${DEVICE}-roi-virt
       PACKAGES test
-      RR_PATCH_EXTRA_ARGS --synth_tiles ${SYNTH_TILES_LOCATION} --connection_database ${CHANNELS_LOCATIONS}
+      RR_PATCH_EXTRA_ARGS ${RR_PATCH_EXTRA_ARGS}
       RR_PATCH_DEPS ${DEVICE_RR_PATCH_DEPS}
       CACHE_PLACE_DELAY
       CACHE_LOOKAHEAD
@@ -132,27 +147,42 @@ function(ADD_XC7_DEVICE_DEFINE)
     get_target_property_required(PYTHON3 env PYTHON3)
     get_target_property_required(PYTHON3_TARGET env PYTHON3_TARGET)
 
-    set(SYNTH_TILES_TO_PINMAP_CSV ${symbiflow-arch-defs_SOURCE_DIR}/xc7/utils/prjxray_synth_tiles_to_pinmap_csv.py)
-    set(PINMAP_CSV ${DEVICE}-roi-virt/synth_tiles_pinmap.csv)
+    if(${USE_ROI})
+        set(SYNTH_TILES_TO_PINMAP_CSV ${symbiflow-arch-defs_SOURCE_DIR}/xc7/utils/prjxray_synth_tiles_to_pinmap_csv.py)
+        set(PINMAP_CSV ${DEVICE}-roi-virt/synth_tiles_pinmap.csv)
 
-    set(PINMAP_CSV_DEPS ${PYTHON3} ${PYTHON3_TARGET} ${SYNTH_TILES_TO_PINMAP_CSV})
-    append_file_dependency(PINMAP_CSV_DEPS ${SYNTH_TILES})
-    add_custom_command(
-      OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/${PINMAP_CSV}
-      COMMAND ${PYTHON3} ${SYNTH_TILES_TO_PINMAP_CSV}
-        --synth_tiles ${SYNTH_TILES_LOCATION}
-        --package_pins ${PRJXRAY_DB_DIR}/${ARCH}/${PART}_package_pins.csv
-        --output ${CMAKE_CURRENT_BINARY_DIR}/${PINMAP_CSV}
-        DEPENDS ${PINMAP_CSV_DEPS}
+        set(PINMAP_CSV_DEPS ${PYTHON3} ${PYTHON3_TARGET} ${SYNTH_TILES_TO_PINMAP_CSV})
+        append_file_dependency(PINMAP_CSV_DEPS ${SYNTH_TILES})
+        add_custom_command(
+        OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/${PINMAP_CSV}
+        COMMAND ${PYTHON3} ${SYNTH_TILES_TO_PINMAP_CSV}
+            --synth_tiles ${SYNTH_TILES_LOCATION}
+            --package_pins ${PRJXRAY_DB_DIR}/${ARCH}/${PART}_package_pins.csv
+            --output ${CMAKE_CURRENT_BINARY_DIR}/${PINMAP_CSV}
+            DEPENDS ${PINMAP_CSV_DEPS}
+            )
+
+        add_file_target(FILE ${PINMAP_CSV} GENERATED)
+
+        set_target_properties(
+          ${DEVICE}
+          PROPERTIES
+            test_PINMAP
+            ${CMAKE_CURRENT_SOURCE_DIR}/${PINMAP_CSV}
         )
-
-    add_file_target(FILE ${PINMAP_CSV} GENERATED)
-
-    set_target_properties(
-      ${DEVICE}
-      PROPERTIES
-        test_PINMAP
-        ${CMAKE_CURRENT_SOURCE_DIR}/${PINMAP_CSV}
-    )
+    else()
+        # TODO: Insert pinmap tool from HackerFoo here!
+        # TODO: Support multiple packaging with same rrgraph
+        add_custom_command(
+          OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/${PINMAP_CSV}
+          COMMAND ${CMAKE_COMMAND} -E touch ${CMAKE_CURRENT_BINARY_DIR}/${PINMAP_CSV}
+          )
+        set_target_properties(
+          ${DEVICE}
+          PROPERTIES
+            test_PINMAP
+            ${CMAKE_CURRENT_SOURCE_DIR}/${PINMAP_CSV}
+        )
+    endif()
   endforeach()
 endfunction()
