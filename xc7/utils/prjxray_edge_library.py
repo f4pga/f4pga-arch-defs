@@ -1054,69 +1054,74 @@ def direction_to_enum(pin):
 
 
 def build_channels(conn):
-    write_cur = conn.cursor()
+    x_channel_models = {}
+    y_channel_models = {}
 
-    xs = []
-    ys = []
+    cur = conn.cursor()
 
-    x_tracks = {}
-    y_tracks = {}
-    for pkey, graph_node_type, x_low, x_high, y_low, y_high in write_cur.execute(
+    cur.execute(
+        """
+SELECT MIN(x_low), MAX(x_high), MIN(y_low), MAX(y_high) FROM graph_node
+INNER JOIN track
+ON track.pkey = graph_node.track_pkey
+WHERE track.alive;"""
+    )
+    x_min, x_max, y_min, y_max = cur.fetchone()
+
+    for x in progressbar_utils.progressbar(range(x_min, x_max + 1)):
+        cur.execute(
             """
 SELECT
-  graph_node.pkey,
-  graph_node_type,
-  graph_node.x_low,
-  graph_node.x_high,
-  graph_node.y_low,
-  graph_node.y_high
-FROM
-  graph_node
+    graph_node.y_low,
+    graph_node.y_high,
+    graph_node.pkey
+FROM graph_node
 INNER JOIN track
-ON graph_node.track_pkey = track.pkey
+ON track.pkey = graph_node.track_pkey
 WHERE
-  track.alive
+    track_pkey IS NOT NULL
 AND
-  track_pkey IS NOT NULL;"""):
-        xs.append(x_low)
-        xs.append(x_high)
-        ys.append(y_low)
-        ys.append(y_high)
+    track.alive
+AND
+    graph_node_type = ?
+AND
+    x_low = ?;""", (graph2.NodeType.CHANY.value, x)
+        )
 
-        node_type = graph2.NodeType(graph_node_type)
-        if node_type == graph2.NodeType.CHANX:
-            assert y_low == y_high, pkey
+        data = list(cur)
+        y_channel_models[x] = graph2.process_track(data)
 
-            if y_low not in x_tracks:
-                x_tracks[y_low] = []
+    for y in progressbar_utils.progressbar(range(y_min, y_max + 1)):
+        cur.execute(
+            """
+SELECT
+    graph_node.x_low,
+    graph_node.x_high,
+    graph_node.pkey
+FROM graph_node
+INNER JOIN track
+ON track.pkey = graph_node.track_pkey
+WHERE
+    track_pkey IS NOT NULL
+AND
+    track.alive
+AND
+    graph_node_type = ?
+AND
+    y_low = ?;""", (graph2.NodeType.CHANX.value, y)
+        )
 
-            x_tracks[y_low].append((x_low, x_high, pkey))
-        elif node_type == graph2.NodeType.CHANY:
-            assert x_low == x_high, pkey
-
-            if x_low not in y_tracks:
-                y_tracks[x_low] = []
-
-            y_tracks[x_low].append((y_low, y_high, pkey))
-        else:
-            assert False, node_type
+        data = list(cur)
+        x_channel_models[y] = graph2.process_track(data)
 
     x_list = []
     y_list = []
 
-    x_channel_models = {}
-    y_channel_models = {}
-
-    for y in x_tracks:
-        x_channel_models[y] = graph2.process_track(x_tracks[y])
-
-    for x in y_tracks:
-        y_channel_models[x] = graph2.process_track(y_tracks[x])
-
+    write_cur = conn.cursor()
     write_cur.execute("""BEGIN EXCLUSIVE TRANSACTION;""")
 
-    for y in progressbar_utils.progressbar(range(max(x_tracks) + 1)):
-        if y in x_tracks:
+    for y in progressbar_utils.progressbar(range(y_max + 1)):
+        if y in x_channel_models:
             x_list.append(len(x_channel_models[y].trees))
 
             for idx, tree in enumerate(x_channel_models[y].trees):
@@ -1128,8 +1133,8 @@ AND
         else:
             x_list.append(0)
 
-    for x in progressbar_utils.progressbar(range(max(y_tracks) + 1)):
-        if x in y_tracks:
+    for x in progressbar_utils.progressbar(range(x_max + 1)):
+        if x in y_channel_models:
             y_list.append(len(y_channel_models[x].trees))
 
             for idx, tree in enumerate(y_channel_models[x].trees):
@@ -1140,11 +1145,6 @@ AND
                     )
         else:
             y_list.append(0)
-
-    x_min = min(xs)
-    y_min = min(ys)
-    x_max = max(xs)
-    y_max = max(ys)
 
     write_cur.execute(
         """
@@ -1648,6 +1648,111 @@ def pip_sort_key(pip):
     return (len(pip.name), pip.name)
 
 
+def commit_edges(write_cur, edges):
+    write_cur.execute("""BEGIN EXCLUSIVE TRANSACTION;""")
+    write_cur.executemany(
+        """
+        INSERT INTO graph_edge(
+            src_graph_node_pkey, dest_graph_node_pkey, switch_pkey,
+            phy_tile_pkey, pip_in_tile_pkey, backward) VALUES (?, ?, ?, ?, ?, ?)""",
+        edges
+    )
+    write_cur.execute("""COMMIT TRANSACTION;""")
+
+
+def create_edge_indices(conn):
+    write_cur = conn.cursor()
+
+    write_cur.execute("""BEGIN EXCLUSIVE TRANSACTION;""")
+    write_cur.execute(
+        """CREATE INDEX src_node_index ON graph_edge(src_graph_node_pkey);"""
+    )
+    write_cur.execute(
+        """CREATE INDEX dest_node_index ON graph_edge(dest_graph_node_pkey);"""
+    )
+    write_cur.execute("""CREATE INDEX node_track_index ON node(track_pkey);""")
+    write_cur.execute("""COMMIT TRANSACTION;""")
+    write_cur.connection.commit()
+
+    print('{} Indices created, marking track liveness'.format(now()))
+
+
+def create_and_insert_edges(
+        db, grid, conn, use_roi, roi, input_only_nodes, output_only_nodes
+):
+    write_cur = conn.cursor()
+    write_cur.execute(
+        'SELECT pkey FROM switch WHERE name = ?;',
+        ('__vpr_delayless_switch__', )
+    )
+    delayless_switch_pkey = write_cur.fetchone()[0]
+
+    find_pip = create_find_pip(conn)
+    find_wire = create_find_wire(conn)
+    find_connector = create_find_connector(conn)
+
+    const_connectors = create_const_connectors(conn)
+
+    num_edges = 0
+    for loc in progressbar_utils.progressbar(grid.tile_locations()):
+        edges = []
+        edge_set = set()
+
+        gridinfo = grid.gridinfo_at_loc(loc)
+        tile_name = grid.tilename_at_loc(loc)
+
+        # Not a synth node, check if in ROI.
+        if use_roi and not roi.tile_in_roi(loc):
+            continue
+
+        tile_type = db.get_tile_type(gridinfo.tile_type)
+
+        for pip in sorted(tile_type.get_pips(), key=pip_sort_key):
+            # FIXME: The PADOUT0/1 connections do not work.
+            #
+            # These connections are used for:
+            #  - XADC
+            #  - Differential signal signal connection between pads.
+            #
+            # Issue tracking fix:
+            # https://github.com/SymbiFlow/symbiflow-arch-defs/issues/1033
+            if 'PADOUT0' in pip.name or 'PADOUT1' in pip.name:
+                continue
+
+            if pip.is_pseudo:
+                continue
+
+            connections = make_connection(
+                conn=conn,
+                input_only_nodes=input_only_nodes,
+                output_only_nodes=output_only_nodes,
+                find_pip=find_pip,
+                find_wire=find_wire,
+                find_connector=find_connector,
+                tile_name=tile_name,
+                tile_type=gridinfo.tile_type,
+                pip=pip,
+                delayless_switch_pkey=delayless_switch_pkey,
+                const_connectors=const_connectors
+            )
+
+            if connections:
+                for connection in connections:
+                    key = tuple(connection[0:3])
+                    if key in edge_set:
+                        continue
+
+                    edge_set.add(key)
+
+                    edges.append(connection)
+
+        commit_edges(write_cur, edges)
+
+        num_edges += len(edges)
+
+    print('{} Created {} edges, inserted'.format(now(), num_edges))
+
+
 def create_edges(args):
     db = prjxray.db.Database(args.db_root)
     grid = db.grid()
@@ -1688,14 +1793,9 @@ def create_edges(args):
         output_only_nodes = set()
         input_only_nodes = set()
 
-        find_pip = create_find_pip(conn)
-        find_wire = create_find_wire(conn)
-        find_connector = create_find_connector(conn)
-
-        const_connectors = create_const_connectors(conn)
-
         print('{} Finding nodes belonging to ROI'.format(now()))
         if use_roi:
+            find_wire = create_find_wire(conn)
             for loc in progressbar_utils.progressbar(grid.tile_locations()):
                 gridinfo = grid.gridinfo_at_loc(loc)
                 tile_name = grid.tilename_at_loc(loc)
@@ -1719,93 +1819,16 @@ def create_edges(args):
                         else:
                             assert False, pin
 
-        write_cur = conn.cursor()
-        write_cur.execute(
-            'SELECT pkey FROM switch WHERE name = ?;',
-            ('__vpr_delayless_switch__', )
+        create_and_insert_edges(
+            db=db,
+            grid=grid,
+            conn=conn,
+            use_roi=use_roi,
+            roi=roi if use_roi else None,
+            input_only_nodes=input_only_nodes,
+            output_only_nodes=output_only_nodes
         )
-        delayless_switch_pkey = write_cur.fetchone()[0]
 
-        edges = []
-
-        edge_set = set()
-
-        for loc in progressbar_utils.progressbar(grid.tile_locations()):
-            gridinfo = grid.gridinfo_at_loc(loc)
-            tile_name = grid.tilename_at_loc(loc)
-
-            # Not a synth node, check if in ROI.
-            if use_roi and not roi.tile_in_roi(loc):
-                continue
-
-            tile_type = db.get_tile_type(gridinfo.tile_type)
-
-            for pip in sorted(tile_type.get_pips(), key=pip_sort_key):
-                # FIXME: The PADOUT0/1 connections do not work.
-                #
-                # These connections are used for:
-                #  - XADC
-                #  - Differential signal signal connection between pads.
-                #
-                # Issue tracking fix:
-                # https://github.com/SymbiFlow/symbiflow-arch-defs/issues/1033
-                if 'PADOUT0' in pip.name or 'PADOUT1' in pip.name:
-                    continue
-
-                if pip.is_pseudo:
-                    continue
-
-                connections = make_connection(
-                    conn=conn,
-                    input_only_nodes=input_only_nodes,
-                    output_only_nodes=output_only_nodes,
-                    find_pip=find_pip,
-                    find_wire=find_wire,
-                    find_connector=find_connector,
-                    tile_name=tile_name,
-                    tile_type=gridinfo.tile_type,
-                    pip=pip,
-                    delayless_switch_pkey=delayless_switch_pkey,
-                    const_connectors=const_connectors
-                )
-
-                if connections:
-                    for connection in connections:
-                        key = tuple(connection[0:3])
-                        if key in edge_set:
-                            continue
-
-                        edge_set.add(key)
-
-                        edges.append(connection)
-
-        print('{} Created {} edges, inserting'.format(now(), len(edges)))
-
-        write_cur.execute("""BEGIN EXCLUSIVE TRANSACTION;""")
-        for edge in progressbar_utils.progressbar(edges):
-            write_cur.execute(
-                """
-                INSERT INTO graph_edge(
-                    src_graph_node_pkey, dest_graph_node_pkey, switch_pkey,
-                    phy_tile_pkey, pip_in_tile_pkey, backward) VALUES (?, ?, ?, ?, ?, ?)""",
-                edge
-            )
-
-        write_cur.execute("""COMMIT TRANSACTION;""")
-
-        print('{} Inserted edges'.format(now()))
-
-        write_cur.execute(
-            """CREATE INDEX src_node_index ON graph_edge(src_graph_node_pkey);"""
-        )
-        write_cur.execute(
-            """CREATE INDEX dest_node_index ON graph_edge(dest_graph_node_pkey);"""
-        )
-        write_cur.execute(
-            """CREATE INDEX node_track_index ON node(track_pkey);"""
-        )
-        write_cur.connection.commit()
-
-        print('{} Indices created, marking track liveness'.format(now()))
+        create_edge_indices(conn)
 
         mark_track_liveness(conn, input_only_nodes, output_only_nodes)
