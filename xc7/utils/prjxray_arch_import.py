@@ -452,6 +452,7 @@ def main():
     synth_tiles = {}
     synth_tiles['tiles'] = {}
     synth_loc_map = {}
+    synth_tile_map = {}
     roi = None
     if args.use_roi:
         with open(args.use_roi) as f:
