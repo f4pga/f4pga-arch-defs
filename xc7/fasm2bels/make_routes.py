@@ -29,7 +29,8 @@ def create_check_downstream_default(conn, db):
         name, phy_tile_type_pkey = c.fetchone()
 
         c.execute(
-            "SELECT name FROM tile_type WHERE pkey = ?", (phy_tile_type_pkey, )
+            "SELECT name FROM tile_type WHERE pkey = ?",
+            (phy_tile_type_pkey, )
         )
         tile_type = c.fetchone()[0]
 
@@ -341,7 +342,8 @@ def create_check_for_default(db, conn):
         name, phy_tile_type_pkey = c.fetchone()
 
         c.execute(
-            "SELECT name FROM tile_type WHERE pkey = ?", (phy_tile_type_pkey, )
+            "SELECT name FROM tile_type WHERE pkey = ?",
+            (phy_tile_type_pkey, )
         )
         tile_type = c.fetchone()[0]
 
@@ -643,7 +645,7 @@ def make_routes(
                 "SELECT name FROM wire_in_tile WHERE pkey = ?",
                 (wire_in_tile_pkey, )
             )
-            (name,) = c.fetchone()
+            (name, ) = c.fetchone()
 
             c.execute(
                 "SELECT name FROM phy_tile WHERE pkey = ?", (phy_tile_pkey, )
