@@ -423,11 +423,15 @@ class Grid(object):
             List of new tile_type_pkeys to be used after the tile split.
             The tile being split will become tile_type_pkeys[0], the next tile
             in split_direction will become tile_type_pkeys[1], etc.
-
-            len(tile_type_pkeys) must equal len(tile.sites) to ensure that each
-            tile output from the split has a new tile type.
         split_direction : Direction
             Which direction from tile should the split occur.
+        split_map : Dict of (int, int) to int
+            Mapping of site location (x, y) to tile_type_pkey indicies.
+            This enables control over which sites go to which tiles based on
+            their coordinate.
+
+            min(split_map.values()) >= 0
+            max(split_map.values()) < len(tile_type_pkeys)
 
         """
         sites = tile.sites
@@ -527,6 +531,10 @@ class Grid(object):
         split_direction : Direction
             Direction to insert perform split.  New row/column will be inserted
             in that direction to accomidate the tile split.
+        split_map : Dict of (int, int) to int
+            Mapping of site location (x, y) to tile_type_pkey indicies.
+            This enables control over which sites go to which tiles based on
+            their coordinate.
 
         """
         next_dir = SPLIT_NEXT_DIRECTIONS[split_direction]
@@ -571,6 +579,10 @@ class Grid(object):
         tile_type_pkeys : Refer to split_tile documentation.
         split_direction : Direction
             Direction to insert perform split.
+        split_map : Dict of (int, int) to int
+            Mapping of site location (x, y) to tile_type_pkey indicies.
+            This enables control over which sites go to which tiles based on
+            their coordinate.
 
         """
         tiles_seen = set()
