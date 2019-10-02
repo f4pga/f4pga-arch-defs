@@ -189,7 +189,7 @@ endfunction()
 
 function(PROJECT_XRAY_ARCH)
   set(options)
-  set(oneValueArgs PART USE_ROI DEVICE)
+  set(oneValueArgs PART USE_ROI DEVICE GRAPH_LIMIT)
   set(multiValueArgs TILE_TYPES)
   cmake_parse_arguments(
     PROJECT_XRAY_ARCH
@@ -268,6 +268,10 @@ function(PROJECT_XRAY_ARCH)
 
     set(ROI_ARG_FOR_CREATE_EDGES --synth_tiles ${CMAKE_CURRENT_BINARY_DIR}/synth_tiles.json)
     append_file_dependency(CHANNELS_DEPS synth_tiles.json)
+  endif()
+
+  if(NOT "${PROJECT_XRAY_ARCH_GRAPH_LIMIT}" STREQUAL "")
+    set(ROI_ARG_FOR_CREATE_EDGES --graph_limit ${PROJECT_XRAY_ARCH_GRAPH_LIMIT})
   endif()
 
 

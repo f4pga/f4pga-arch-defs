@@ -5,7 +5,7 @@ add_conda_pip(
 
 function(ADD_XC7_DEVICE_DEFINE_TYPE)
   set(options)
-  set(oneValueArgs ARCH DEVICE ROI_DIR ROI_PART NAME)
+  set(oneValueArgs ARCH DEVICE ROI_DIR ROI_PART NAME GRAPH_LIMIT)
   set(multiValueArgs TILE_TYPES)
   cmake_parse_arguments(
     ADD_XC7_DEVICE_DEFINE_TYPE
@@ -43,6 +43,8 @@ function(ADD_XC7_DEVICE_DEFINE_TYPE)
       --connection_database ${CMAKE_CURRENT_BINARY_DIR}/channels.db
     ")
     set(ROI_ARGS USE_ROI ${ROI_DIR}/design.json)
+  elseif(NOT "${ADD_XC7_DEVICE_DEFINE_TYPE_GRAPH_LIMIT}" STREQUAL "")
+    set(ROI_ARGS GRAPH_LIMIT ${ADD_XC7_DEVICE_DEFINE_TYPE_GRAPH_LIMIT})
   else()
     set(ROI_ARGS "")
   endif()
@@ -78,7 +80,7 @@ endfunction()
 
 function(ADD_XC7_DEVICE_DEFINE)
   set(options USE_ROI)
-  set(oneValueArgs ARCH)
+  set(oneValueArgs ARCH GRAPH_LIMIT)
   set(multiValueArgs DEVICES PARTS)
   cmake_parse_arguments(
     ADD_XC7_DEVICE_DEFINE
@@ -121,6 +123,10 @@ function(ADD_XC7_DEVICE_DEFINE)
         get_file_location(SYNTH_TILES_LOCATION ${SYNTH_TILES})
         append_file_dependency(DEVICE_RR_PATCH_DEPS ${SYNTH_TILES})
         set(RR_PATCH_EXTRA_ARGS --synth_tiles ${SYNTH_TILES_LOCATION} ${RR_PATCH_EXTRA_ARGS})
+    endif()
+
+    if(NOT "${ADD_XC7_DEVICE_DEFINE_GRAPH_LIMIT}" STREQUAL "")
+        set(RR_PATCH_EXTRA_ARGS --graph_limit ${ADD_XC7_DEVICE_DEFINE_GRAPH_LIMIT} ${RR_PATCH_EXTRA_ARGS})
     endif()
 
     define_device(

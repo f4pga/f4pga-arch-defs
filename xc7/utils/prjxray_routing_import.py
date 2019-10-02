@@ -702,11 +702,15 @@ def main():
         '--synth_tiles',
         help='If using an ROI, synthetic tile defintion from prjxray-arch-import'
     )
+    parser.add_argument(
+        '--graph_limit',
+        help=
+        'Limit grid to specified dimensions in semicolor x_min,y_min,x_max,y_max',
+    )
 
     args = parser.parse_args()
 
     db = prjxray.db.Database(args.db_root)
-    grid = db.grid()
 
     if args.synth_tiles:
         use_roi = True
@@ -722,8 +726,21 @@ def main():
         )
 
         print('{} generating routing graph for ROI.'.format(now()))
+    elif args.graph_limit:
+        use_roi = True
+        x_min, y_min, x_max, y_max = map(int, args.graph_limit.split(','))
+        roi = Roi(
+            db=db,
+            x1=x_min,
+            y1=y_min,
+            x2=x_max,
+            y2=y_max,
+        )
+        synth_tiles = {'tiles': {}}
     else:
         use_roi = False
+        roi = None
+        synth_tiles = None
 
     # Convert input rr graph into graph2.Graph object.
     input_rr_graph = read_xml_file(args.read_rr_graph)
