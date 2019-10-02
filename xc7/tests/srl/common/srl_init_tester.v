@@ -48,10 +48,12 @@ assign rom_adr = bit_cnt;
 assign srl_a  = SRL_LENGTH - 1;
 assign srl_d  = srl_q;
 
+initial srl_sh <= 1'b0;
 always @(posedge clk)
     srl_sh <= ce & !rst;
 
 // Error check
+initial error <= 1'b0;
 always @(posedge clk)
     if (rst)
         error <= 1'b0;
