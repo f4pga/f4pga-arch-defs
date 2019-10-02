@@ -19,6 +19,7 @@ import prjxray.site_type
 import os.path
 import simplejson as json
 import re
+import sqlite3
 
 import lxml.etree as ET
 
@@ -696,6 +697,278 @@ def import_site_as_tile(db, args):
     write_xml(args.output_pb_type, pb_type_xml)
 
 
+def import_tile_from_database(conn, args):
+    """ Create a root-level pb_type using the site pins and sites from the database.
+    """
+
+    # Wires sink to a site within the tile are input wires.
+    input_wires = set()
+
+    # Wires source from a site within the tile are output wires.
+    output_wires = set()
+
+    cur = conn.cursor()
+    cur2 = conn.cursor()
+
+    cur.execute("SELECT pkey FROM tile_type WHERE name = ?", (args.tile, ))
+    tile_type_pkey = cur.fetchone()[0]
+
+    # Retrieve top-level port names, and their associated data.
+    for wire_in_tile_pkey, wire_name, site_pin_name, direction in cur.execute(
+            """
+SELECT
+    wire_in_tile.pkey, wire_in_tile.name, site_pin.name, site_pin.direction
+FROM wire_in_tile
+INNER JOIN site_pin
+ON wire_in_tile.site_pin_pkey = site_pin.pkey
+WHERE
+    tile_type_pkey = ?""", (tile_type_pkey, )):
+        direction = prjxray.site_type.SitePinDirection(direction)
+
+        if direction == prjxray.site_type.SitePinDirection.IN:
+            input_wires.add(wire_name)
+        elif direction == prjxray.site_type.SitePinDirection.OUT:
+            output_wires.add(wire_name)
+        else:
+            assert False, wire_name
+
+    ##########################################################################
+    # Generate the model.xml file                                            #
+    ##########################################################################
+    model = ModelXml(f=args.output_model, site_directory=args.site_directory)
+    site_type_instances = parse_site_type_instance(args.site_types)
+
+    # Get list of site types in used in this tile.
+    cur.execute(
+        """
+SELECT
+    name
+FROM
+    site_type
+WHERE
+    pkey IN (
+        SELECT DISTINCT
+            site_type_pkey
+        FROM
+            site
+        WHERE
+            pkey IN (
+                SELECT
+                    site_pkey
+                FROM
+                    wire_in_tile
+                WHERE
+                    tile_type_pkey = ?
+                    )
+                )""", (tile_type_pkey, )
+    )
+    for (site_type, ) in cur:
+        for instance in site_type_instances[site_type]:
+            model.add_model_include(site_type, instance)
+    model.write_model()
+
+    ##########################################################################
+    # Generate the pb_type.xml file                                          #
+    ##########################################################################
+
+    tile_name = args.tile
+    pb_type_xml = start_pb_type(
+        tile_name, args.pin_assignments, input_wires, output_wires
+    )
+
+    cell_names = {}
+
+    interconnect_xml = ET.Element('interconnect')
+
+    site_pbtype = args.site_directory + "/{0}/{1}.pb_type.xml"
+
+    site_type_count = {}
+    site_prefixes = {}
+    cells_idx = []
+
+    ignored_site_types = set()
+
+    site_type_ports = {}
+    cur.execute(
+        """
+SELECT DISTINCT site_type.name, site.x_coord, site.y_coord
+FROM site
+INNER JOIN site_type
+ON site.site_type_pkey = site_type.pkey
+WHERE site.pkey IN (
+    SELECT DISTINCT site_pkey
+    FROM wire_in_tile
+    WHERE
+        tile_type_pkey = ?
+    AND
+        site_pin_pkey IS NOT NULL
+    )""", (tile_type_pkey, )
+    )
+    for idx, (site_type, site_x, site_y) in enumerate(cur):
+        if site_type in ignored_site_types:
+            continue
+
+        if site_type not in site_type_count:
+            site_type_count[site_type] = 0
+            site_prefixes[site_type] = []
+
+        cells_idx.append(site_type_count[site_type])
+        site_type_count[site_type] += 1
+        site_prefix = '{}_Y{}'.format(site_type, site_y)
+
+        site_instance = site_type_instances[site_type][cells_idx[idx]]
+
+        site_type_path = site_pbtype.format(
+            site_type.lower(), site_instance.lower()
+        )
+        cell_pb_type = ET.ElementTree()
+        root_element = cell_pb_type.parse(site_type_path)
+        cell_names[site_instance] = root_element.attrib['name']
+
+        ports = {}
+        for inputs in root_element.iter('input'):
+            ports[inputs.attrib['name']] = int(inputs.attrib['num_pins'])
+
+        for clocks in root_element.iter('clock'):
+            ports[clocks.attrib['name']] = int(clocks.attrib['num_pins'])
+
+        for outputs in root_element.iter('output'):
+            ports[outputs.attrib['name']] = int(outputs.attrib['num_pins'])
+
+        assert site_instance not in site_type_ports, (
+            site_instance, site_type_ports.keys()
+        )
+        site_type_ports[site_instance] = ports
+
+        attrib = dict(root_element.attrib)
+        include_xml = ET.SubElement(pb_type_xml, 'pb_type', attrib)
+        ET.SubElement(
+            include_xml, XI_INCLUDE, {
+                'href':
+                    site_type_path,
+                'xpointer':
+                    "xpointer(pb_type/child::node()[local-name()!='metadata'])",
+            }
+        )
+
+        metadata_xml = ET.SubElement(include_xml, 'metadata')
+        ET.SubElement(
+            metadata_xml, 'meta', {
+                'name': 'fasm_prefix',
+            }
+        ).text = site_prefix
+
+        # Import pb_type metadata if it exists.
+        if any(child.tag == 'metadata' for child in root_element):
+            ET.SubElement(
+                metadata_xml, XI_INCLUDE, {
+                    'href': site_type_path,
+                    'xpointer': "xpointer(pb_type/metadata/child::node())",
+                }
+            )
+
+    # Iterate over sites in tile
+    cur.execute(
+        """
+SELECT site_type.name, site.pkey
+FROM site
+INNER JOIN site_type
+ON site.site_type_pkey = site_type.pkey
+WHERE site.pkey IN (
+    SELECT DISTINCT site_pkey
+    FROM wire_in_tile
+    WHERE
+        tile_type_pkey = ?
+    AND
+        site_pin_pkey IS NOT NULL
+    )
+GROUP BY site.site_type_pkey, site.x_coord, site.y_coord
+    """, (tile_type_pkey, )
+    )
+    for idx, (site_type, site_pkey) in enumerate(cur):
+        if site_type in ignored_site_types:
+            continue
+
+        site_idx = cells_idx[idx]
+        site_instance = site_type_instances[site_type][site_idx]
+        site_name = cell_names[site_instance]
+
+        interconnect_xml.append(ET.Comment(" Tile->Site "))
+
+        # Iterate over pins in site
+        cur2.execute(
+            """
+SELECT site_pin.name, site_pin.direction, wire_in_tile.name
+FROM wire_in_tile
+INNER JOIN site_pin
+ON wire_in_tile.site_pin_pkey = site_pin.pkey
+WHERE
+    wire_in_tile.tile_type_pkey = ?
+AND
+    wire_in_tile.site_pkey = ?
+AND
+    wire_in_tile.site_pin_pkey IS NOT NULL;
+        """, (tile_type_pkey, site_pkey)
+        )
+        site_pins = list(cur2)
+        for site_pin_name, site_pin_direction, site_pin_wire in site_pins:
+            site_pin_direction = prjxray.site_type.SitePinDirection(
+                site_pin_direction
+            )
+            port = find_port(site_pin_name, site_type_ports[site_instance])
+            if port is None:
+                print(
+                    "*** WARNING *** Didn't find port for name {} for site type {}"
+                    .format(site_pin_name, site_type),
+                    file=sys.stderr
+                )
+                continue
+
+            if site_pin_direction == prjxray.site_type.SitePinDirection.IN:
+                add_direct(
+                    interconnect_xml,
+                    input=object_ref(
+                        add_vpr_tile_prefix(tile_name), site_pin_wire
+                    ),
+                    output=object_ref(site_name, **port)
+                )
+            elif site_pin_direction == prjxray.site_type.SitePinDirection.OUT:
+                pass
+            else:
+                assert False, site_pin_direction
+
+        interconnect_xml.append(ET.Comment(" Site->Tile "))
+
+        # Iterate over pins in site
+        cur2.execute("")
+        for site_pin_name, site_pin_direction, site_pin_wire in site_pins:
+            site_pin_direction = prjxray.site_type.SitePinDirection(
+                site_pin_direction
+            )
+            port = find_port(site_pin_name, site_type_ports[site_instance])
+            if port is None:
+                continue
+
+            if site_pin_direction == prjxray.site_type.SitePinDirection.IN:
+                pass
+            elif site_pin_direction == prjxray.site_type.SitePinDirection.OUT:
+                add_direct(
+                    interconnect_xml,
+                    input=object_ref(site_name, **port),
+                    output=object_ref(
+                        add_vpr_tile_prefix(tile_name), site_pin_wire
+                    ),
+                )
+            else:
+                assert False, site_pin_direction
+
+    pb_type_xml.append(interconnect_xml)
+
+    add_switchblock_locations(pb_type_xml)
+
+    write_xml(args.output_pb_type, pb_type_xml)
+
+
 def main():
     mydir = os.path.dirname(__file__)
     prjxray_db = os.path.abspath(
@@ -757,6 +1030,11 @@ def main():
         "Typically a tile can treat the sites within the tile as independent.  For tiles where this is not true, fused sites only imports 1 primatative for the entire tile, which should be named the same as the tile type."
     )
 
+    parser.add_argument(
+        '--connection_database',
+        help="Location of connection database to use in lue of Project X-Ray",
+    )
+
     args = parser.parse_args()
 
     db = prjxray.db.Database(os.path.join(prjxray_db, args.part))
@@ -765,6 +1043,10 @@ def main():
     if args.site_as_tile:
         assert not args.fused_sites
         import_site_as_tile(db, args)
+    elif args.connection_database:
+        with sqlite3.connect("file:{}?mode=ro".format(
+                args.connection_database), uri=True) as conn:
+            import_tile_from_database(conn, args)
     else:
         import_tile(db, args)
 
