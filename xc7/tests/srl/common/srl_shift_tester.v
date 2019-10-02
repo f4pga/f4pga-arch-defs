@@ -45,8 +45,8 @@ always @(posedge clk)
         phase <= phase + 1;
 
 // Data fetch
-reg rom_dat_1;
-reg rom_dat_2;
+reg rom_dat_1 = 1'b0;
+reg rom_dat_2 = 1'b0;
 
 assign rom_adr = (phase == 2'd0) ? rom_adr_1 : rom_adr_2;
 
@@ -72,6 +72,7 @@ always @(posedge clk)
     rom_adr_2 <= rom_adr_1 + delay;
 
 // SRL control
+initial srl_sh <= 1'b0;
 always @(posedge clk)
     if (!srl_sh) srl_sh <= (phase == 2'd0);
     else         srl_sh <= 0;
@@ -107,6 +108,7 @@ always @(posedge clk)
     end
 
 // Error check
+initial error <= 1'b0;
 always @(posedge clk)
     error <= !check_inh && (srl_q ^ rom_dat_2);
 
