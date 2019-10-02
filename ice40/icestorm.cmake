@@ -80,7 +80,7 @@ function(icestorm_setup)
     VPR_ARCH_ARGS "\
       --clock_modeling route \
       --allow_unrelated_clustering off \
-      --target_ext_pin_util 0.7 \
+      --target_ext_pin_util 0.5 \
       --astar_fac 1.0 \
       --router_init_wirelength_abort_threshold 2 \
       --congested_routing_iteration_threshold 0.8"
