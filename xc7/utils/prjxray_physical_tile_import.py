@@ -60,17 +60,31 @@ def import_physical_tile(args):
                 child_copy = copy.deepcopy(child)
                 tile_xml.append(child_copy)
 
-    def add_equivalent_sites(tile_xml, equivalent_sites):
+    def add_direct_mappings(tile_xml, site_xml, eq_pb_type_xml):
+        """ Used to add the direct pin mappings between a pb_type and the corresponding tile """
+
+        tile_ports = sorted(get_ports_from_xml(tile_xml))
+        site_ports = sorted(get_ports_from_xml(eq_pb_type_xml))
+
+        tile_name = tile_xml.attrib['name']
+        site_name = site_xml.attrib['pb_type']
+
+        for site_port in site_ports:
+            for tile_port in tile_ports:
+                if site_port == tile_port:
+                    direct_map = ET.SubElement(
+                        site_xml, 'direct',
+                        {'from': "{}.{}".format(tile_name, tile_port),
+                         'to': "{}.{}".format(site_name, site_port)})
+
+    def add_equivalent_sites(tile_xml, equivalent_sites, inc_priority=False):
         """ Used to add to the <tile> tag the equivalent tiles associated with it."""
 
         pb_types = equivalent_sites.split(',')
 
-        # XXX Until equivalent placement is implemented there can be only one corresponding pb_type
-        assert len(
-            pb_types
-        ) == 1, "For now there must be exactly one corresponding pb_type."
-
         equivalent_sites_xml = ET.SubElement(tile_xml, 'equivalent_sites')
+
+        priority = 0
 
         for eq_site in pb_types:
             eq_pb_type_xml = ET.parse(
@@ -82,8 +96,14 @@ def import_physical_tile(args):
 
             site_xml = ET.SubElement(
                 equivalent_sites_xml, 'site',
-                {'pb_type': tile_import.add_vpr_tile_prefix(eq_site)}
+                {'pb_type': tile_import.add_vpr_tile_prefix(eq_site),
+                 'priority': str(priority)}
             )
+
+            if inc_priority:
+                priority += 1
+
+            add_direct_mappings(tile_xml, site_xml, pb_type_root)
 
     ##########################################################################
     # Generate the tile.xml file                                             #
@@ -111,7 +131,7 @@ def import_physical_tile(args):
     add_ports(tile_xml, pb_type_root)
 
     equivalent_sites = args.equivalent_sites
-    add_equivalent_sites(tile_xml, equivalent_sites)
+    add_equivalent_sites(tile_xml, equivalent_sites, args.priority)
 
     fc_xml = tile_import.add_fc(tile_xml)
 
@@ -174,6 +194,8 @@ def main():
     parser.add_argument(
         '--pin_assignments', required=True, type=argparse.FileType('r')
     )
+
+    parser.add_argument('--priority', action='store_true')
 
     args = parser.parse_args()
 

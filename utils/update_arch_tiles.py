@@ -102,6 +102,42 @@ def add_tile_tags(arch):
     return True
 
 
+def add_site_directs(arch):
+    TAGS_TO_COPY = ['input', 'output', 'clock']
+
+    def add_directs(equivalent_site, pb_type):
+        for child in pb_type:
+            if child.tag in TAGS_TO_COPY:
+                tile_name = equivalent_site.attrib['pb_type']
+                port = child.attrib['name']
+
+                from_to = "%s.%s" % (tile_name, port)
+
+                direct = ET.Element("direct")
+                direct.set("from", from_to)
+                direct.set("to", from_to)
+                equivalent_site.append(direct)
+
+    if arch.findall('./tiles/tile/equivalent_sites/site/direct'):
+        return False
+
+    top_pb_types = []
+    for pb_type in arch.iter('pb_type'):
+        if pb_type.getparent().tag == 'complexblocklist':
+            top_pb_types.append(pb_type)
+
+    sites = []
+    for pb_type in arch.iter('site'):
+        sites.append(pb_type)
+
+    for pb_type in top_pb_types:
+        for site in sites:
+            if pb_type.attrib['name'] == site.attrib['pb_type']:
+                add_directs(site, pb_type)
+
+    return True
+
+
 def main():
     parser = argparse.ArgumentParser()
 
@@ -123,6 +159,8 @@ def main():
 
     modified = False
     result = add_tile_tags(arch)
+    result = add_site_directs(arch)
+
     if result:
         modified = True
 
