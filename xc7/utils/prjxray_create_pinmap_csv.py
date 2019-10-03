@@ -7,17 +7,27 @@ import csv
 import sqlite3
 
 
-def get_vpr_coords_from_tile_name(conn, tile_name):
+def get_vpr_coords_from_site_name(conn, site_name):
     cur = conn.cursor()
-    loc = tile_name.split('_')[-1]
-    cur.execute(
-        """
-        SELECT grid_x, grid_y FROM tile
-          WHERE phy_tile_pkey =
-            (SELECT pkey FROM phy_tile WHERE name like "%IOI%_" || ?);
-        """, (loc, )
+    cur.execute("""
+SELECT DISTINCT tile.grid_x, tile.grid_y
+FROM site_instance
+INNER JOIN wire_in_tile
+ON
+  site_instance.site_pkey = wire_in_tile.site_pkey
+INNER JOIN wire
+ON
+  wire.phy_tile_pkey = site_instance.phy_tile_pkey
+AND
+  wire_in_tile.pkey = wire.wire_in_tile_pkey
+INNER JOIN tile
+ON tile.pkey = wire.tile_pkey
+WHERE
+ site_instance.name = ?;""", (site_name, )
     )
-    return cur.fetchone()
+    results = cur.fetchall()
+    assert len(results) == 1
+    return results[0]
 
 
 def main():
@@ -50,7 +60,7 @@ def main():
     writer.writeheader()
     with sqlite3.connect(args.connection_database) as conn:
         for l in csv.DictReader(args.package_pins):
-            loc = get_vpr_coords_from_tile_name(conn, l['tile'])
+            loc = get_vpr_coords_from_site_name(conn, l['site'])
             if loc is not None:
                 writer.writerow(
                     dict(

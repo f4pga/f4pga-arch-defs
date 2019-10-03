@@ -109,8 +109,8 @@ function(ADD_XC7_DEVICE_DEFINE)
         set(CHANNELS ${CMAKE_CURRENT_SOURCE_DIR}/${DEVICE}-virt/channels.db)
     endif()
 
-    get_file_location(CHANNELS_LOCATIONS ${CHANNELS})
-    set(RR_PATCH_EXTRA_ARGS  --connection_database ${CHANNELS_LOCATIONS})
+    get_file_location(CHANNELS_LOCATION ${CHANNELS})
+    set(RR_PATCH_EXTRA_ARGS  --connection_database ${CHANNELS_LOCATION})
 
     # Clear variable before adding deps for next device
     set(DEVICE_RR_PATCH_DEPS "")
@@ -177,12 +177,23 @@ function(ADD_XC7_DEVICE_DEFINE)
             ${CMAKE_CURRENT_SOURCE_DIR}/${PINMAP_CSV}
         )
     else()
-        # TODO: Insert pinmap tool from HackerFoo here!
         # TODO: Support multiple packaging with same rrgraph
+        set(CREATE_PINMAP_CSV ${symbiflow-arch-defs_SOURCE_DIR}/xc7/utils/prjxray_create_pinmap_csv.py)
+        set(PINMAP_CSV ${DEVICE}-virt/${PART}_pinmap.csv)
+        set(PINMAP_CSV_DEPS ${PYTHON3} ${PYTHON3_TARGET} ${SYNTH_TILES_TO_PINMAP_CSV})
+        append_file_dependency(PINMAP_CSV_DEPS ${CHANNELS})
+
         add_custom_command(
           OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/${PINMAP_CSV}
-          COMMAND ${CMAKE_COMMAND} -E touch ${CMAKE_CURRENT_BINARY_DIR}/${PINMAP_CSV}
+          COMMAND ${PYTHON3} ${CREATE_PINMAP_CSV}
+            --connection_database ${CHANNELS_LOCATION}
+            --package_pins ${PRJXRAY_DB_DIR}/${ARCH}/${PART}_package_pins.csv
+            --output ${CMAKE_CURRENT_BINARY_DIR}/${PINMAP_CSV}
+            DEPENDS ${PINMAP_CSV_DEPS}
           )
+
+        add_file_target(FILE ${PINMAP_CSV} GENERATED)
+
         set_target_properties(
           ${DEVICE}
           PROPERTIES
