@@ -697,6 +697,215 @@ def import_site_as_tile(db, args):
     write_xml(args.output_pb_type, pb_type_xml)
 
 
+def expand_nodes_in_tile_type(conn, tile_type_pkey):
+    cur = conn.cursor()
+    cur.execute(
+        """
+CREATE TEMP TABLE phy_tiles AS
+SELECT tile_map.phy_tile_pkey
+FROM tile_map
+INNER JOIN phy_tile
+ON phy_tile.pkey = tile_map.phy_tile_pkey
+WHERE tile_map.tile_pkey IN (
+    SELECT pkey FROM tile WHERE tile_type_pkey = ?
+)
+GROUP BY phy_tile.tile_type_pkey;""", (tile_type_pkey, )
+    )
+
+    # Set of node pkeys to expand
+    cur.execute(
+        """
+SELECT DISTINCT node_pkey
+FROM wire
+WHERE phy_tile_pkey IN (SELECT phy_tile_pkey FROM phy_tiles);"""
+    )
+    nodes_to_expand = set(node_pkey for (node_pkey, ) in cur)
+
+    nodes_to_set = {}
+
+    while len(nodes_to_expand) > 0:
+        node_pkey = nodes_to_expand.pop()
+
+        node_set = nodes_to_set.get(node_pkey, set((node_pkey, )))
+        nodes_to_set[node_pkey] = node_set
+
+        cur.execute(
+            """
+WITH
+other_wires(phy_tile_pkey, pip_in_tile_pkey, other_wire_in_tile_pkey) AS (
+    SELECT wire.phy_tile_pkey, undirected_pips.pip_in_tile_pkey, undirected_pips.other_wire_in_tile_pkey
+    FROM undirected_pips
+    INNER JOIN wire
+    ON wire.wire_in_tile_pkey = undirected_pips.wire_in_tile_pkey
+    INNER JOIN pip_in_tile
+    ON pip_in_tile.pkey = undirected_pips.pip_in_tile_pkey
+    WHERE
+        wire.node_pkey = ?
+    AND
+        NOT pip_in_tile.is_pseudo
+)
+SELECT wire.node_pkey
+FROM wire
+INNER JOIN other_wires
+ON
+    wire.wire_in_tile_pkey = other_wires.other_wire_in_tile_pkey
+AND
+    wire.phy_tile_pkey = other_wires.phy_tile_pkey
+WHERE
+    wire.phy_tile_pkey IN (SELECT phy_tile_pkey FROM phy_tiles);""",
+            (node_pkey, )
+        )
+
+        # Update node sets
+        for (other_node_pkey, ) in cur:
+            node_set |= nodes_to_set.get(
+                other_node_pkey, set((other_node_pkey, ))
+            )
+
+        # Merge node sets
+        for node_pkey in node_set:
+            nodes_to_set[node_pkey] = node_set
+
+    unique_node_sets = {}
+    for node_set in nodes_to_set.values():
+        if id(node_set) not in unique_node_sets:
+            unique_node_sets[id(node_set)] = node_set
+
+    if False:
+        # Print node sets for debugging and inspection.
+        for node_set in unique_node_sets.values():
+            print()
+            print(id(node_set), len(node_set))
+            for node_pkey in node_set:
+                cur.execute(
+                    """
+SELECT name
+FROM wire_in_tile
+WHERE pkey IN (
+    SELECT wire.wire_in_tile_pkey
+    FROM wire
+    WHERE node_pkey = ?
+    )""", (node_pkey, )
+                )
+                print(node_pkey, ' '.join(name for (name, ) in cur))
+
+    cur.execute("""DROP TABLE phy_tiles""")
+
+    return unique_node_sets.values()
+
+
+def find_connections(conn, input_wires, output_wires, tile_type_pkey):
+    """ Remove top-level ports only connected to internal sources and generates
+    tile internal connections."""
+
+    # Create connected node sets
+    node_sets = list(expand_nodes_in_tile_type(conn, tile_type_pkey))
+
+    # Number of site external connections for ports
+    is_top_level_pin_external = {}
+    for wire in input_wires:
+        is_top_level_pin_external[wire] = False
+
+    for wire in output_wires:
+        is_top_level_pin_external[wire] = False
+
+    internal_connections = {}
+    top_level_connections = {}
+
+    wire_to_site_pin = {}
+
+    cur = conn.cursor()
+    for node_set in node_sets:
+        ipin_count = 0
+        opin_count = 0
+        node_set_has_external = False
+
+        pins_used_in_node_sets = set()
+        input_pins = set()
+        output_pins = set()
+
+        for node_pkey in node_set:
+            cur.execute(
+                """
+SELECT tile.tile_type_pkey, wire_in_tile.name, site_type.name, site_pin.name, site_pin.direction, count()
+FROM wire
+INNER JOIN wire_in_tile
+ON wire.wire_in_tile_pkey = wire_in_tile.pkey
+INNER JOIN site_pin
+ON site_pin.pkey = wire_in_tile.site_pin_pkey
+INNER JOIN tile
+ON wire.tile_pkey = tile.pkey
+INNER JOIN site_type
+ON site_type.pkey = site_pin.site_type_pkey
+WHERE
+    wire.node_pkey = ?
+AND
+    wire_in_tile.site_pin_pkey IS NOT NULL
+GROUP BY site_pin.direction;
+        """, (node_pkey, )
+            )
+            for wire_tile_type_pkey, wire_name, site_type_name, site_pin_name, direction, count in cur:
+                if wire_tile_type_pkey == tile_type_pkey:
+                    value = (site_type_name, site_pin_name)
+                    if wire_name in wire_to_site_pin:
+                        assert value == wire_to_site_pin[wire_name], (
+                            wire_name, value, wire_to_site_pin[wire_name]
+                        )
+                    else:
+                        wire_to_site_pin[wire_name] = value
+
+                    pins_used_in_node_sets.add(wire_name)
+                    direction = prjxray.site_type.SitePinDirection(direction)
+
+                    if direction == prjxray.site_type.SitePinDirection.IN:
+                        output_pins.add(wire_name)
+                        opin_count += count
+                    elif direction == prjxray.site_type.SitePinDirection.OUT:
+                        input_pins.add(wire_name)
+                        ipin_count += count
+                    else:
+                        assert False, (node_pkey, direction)
+                else:
+                    node_set_has_external = True
+
+        assert len(input_pins) in [0, 1], input_pins
+
+        if ipin_count == 0 or opin_count == 0 or node_set_has_external:
+            # This node set is connected externally, mark as such
+            for wire_name in pins_used_in_node_sets:
+                is_top_level_pin_external[wire_name] = True
+
+        if ipin_count > 0 and opin_count > 0:
+            # TODO: Add check that pips and site pins on these internal
+            # connections are 0 delay.
+            assert len(input_pins) == 1
+            input_wire = input_pins.pop()
+
+            for wire_name in output_pins:
+                if wire_name in internal_connections:
+                    assert input_wire == internal_connections[wire_name]
+                else:
+                    internal_connections[wire_name] = input_wire
+
+    for wire in sorted(is_top_level_pin_external):
+        if not is_top_level_pin_external[wire]:
+            if wire in input_wires:
+                input_wires.remove(wire)
+            elif wire in output_wires:
+                output_wires.remove(wire)
+            else:
+                assert False, wire
+        else:
+            top_level_connections[wire] = wire_to_site_pin[wire]
+
+    output_internal_connections = {}
+    for output_wire in internal_connections:
+        output_internal_connections[wire_to_site_pin[output_wire]] = \
+                wire_to_site_pin[internal_connections[output_wire]]
+
+    return top_level_connections, output_internal_connections
+
+
 def import_tile_from_database(conn, args):
     """ Create a root-level pb_type using the site pins and sites from the database.
     """
@@ -713,24 +922,61 @@ def import_tile_from_database(conn, args):
     cur.execute("SELECT pkey FROM tile_type WHERE name = ?", (args.tile, ))
     tile_type_pkey = cur.fetchone()[0]
 
-    # Retrieve top-level port names, and their associated data.
-    for wire_in_tile_pkey, wire_name, site_pin_name, direction in cur.execute(
-            """
+    # Find instances of sites, sorted by their original tile type.
+    # Then choice the first of each site type as the wire set.
+    # This ensures a unique and internally consistent site set for analyzing
+    # connectivity.
+    #
+    # Note:  This does assume that only one instance of each site is present
+    # in each tile, which is checked.
+    sites = {}
+    sites_in_tiles = set()
+    cur.execute(
+        """
 SELECT
-    wire_in_tile.pkey, wire_in_tile.name, site_pin.name, site_pin.direction
+    site.site_type_pkey, wire_in_tile.site_pkey, wire_in_tile.phy_tile_type_pkey
+FROM wire_in_tile
+INNER JOIN site
+ON site.pkey = wire_in_tile.site_pkey
+WHERE
+    tile_type_pkey = ?
+GROUP BY site.site_type_pkey, wire_in_tile.phy_tile_type_pkey
+ORDER BY wire_in_tile.phy_tile_type_pkey;""", (tile_type_pkey, )
+    )
+    for site_type_pkey, site_pkey, phy_tile_type_pkey in cur:
+        if site_type_pkey not in sites:
+            sites[site_type_pkey] = site_pkey
+
+        # Verify that assumption that each site type is only used once per tile
+        # is true.
+        key = (site_type_pkey, phy_tile_type_pkey)
+        assert key not in sites_in_tiles, key
+        sites_in_tiles.add(key)
+
+    # Retrieve initial top-level port names
+    top_level_pins = {}
+    for site_pkey in sites.values():
+        for wire_in_tile_pkey, wire_name, direction in cur.execute("""
+SELECT
+    wire_in_tile.pkey, wire_in_tile.name, site_pin.direction
 FROM wire_in_tile
 INNER JOIN site_pin
 ON wire_in_tile.site_pin_pkey = site_pin.pkey
 WHERE
-    tile_type_pkey = ?""", (tile_type_pkey, )):
-        direction = prjxray.site_type.SitePinDirection(direction)
+    site_pkey = ?""", (site_pkey, )):
+            direction = prjxray.site_type.SitePinDirection(direction)
 
-        if direction == prjxray.site_type.SitePinDirection.IN:
-            input_wires.add(wire_name)
-        elif direction == prjxray.site_type.SitePinDirection.OUT:
-            output_wires.add(wire_name)
-        else:
-            assert False, wire_name
+            assert wire_name not in top_level_pins
+            top_level_pins[wire_name] = (site_pkey, wire_in_tile_pkey)
+
+            if direction == prjxray.site_type.SitePinDirection.IN:
+                assert wire_name not in input_wires
+                input_wires.add(wire_name)
+            elif direction == prjxray.site_type.SitePinDirection.OUT:
+                assert wire_name not in output_wires
+                output_wires.add(wire_name)
+            else:
+                assert False, wire_name
 
     ##########################################################################
     # Generate the model.xml file                                            #
@@ -738,34 +984,19 @@ WHERE
     model = ModelXml(f=args.output_model, site_directory=args.site_directory)
     site_type_instances = parse_site_type_instance(args.site_types)
 
-    # Get list of site types in used in this tile.
-    cur.execute(
-        """
-SELECT
-    name
-FROM
-    site_type
-WHERE
-    pkey IN (
-        SELECT DISTINCT
-            site_type_pkey
-        FROM
-            site
-        WHERE
-            pkey IN (
-                SELECT
-                    site_pkey
-                FROM
-                    wire_in_tile
-                WHERE
-                    tile_type_pkey = ?
-                    )
-                )""", (tile_type_pkey, )
-    )
-    for (site_type, ) in cur:
+    for site_type_pkey in sites:
+        cur.execute(
+            "SELECT name FROM site_type WHERE pkey = ?", (site_type_pkey, )
+        )
+        site_type = cur.fetchone()[0]
         for instance in site_type_instances[site_type]:
             model.add_model_include(site_type, instance)
     model.write_model()
+
+    # Determine which input/output wires connection to other site pins, and no
+    # others.
+    top_level_connections, internal_connections = \
+            find_connections(conn, input_wires, output_wires, tile_type_pkey)
 
     ##########################################################################
     # Generate the pb_type.xml file                                          #
@@ -940,6 +1171,14 @@ WHERE
                 )
                 continue
 
+            # Sanity check top_level_connections
+            if site_pin_wire not in top_level_connections:
+                continue
+
+            assert top_level_connections[site_pin_wire] == (
+                site_type, site_pin_name
+            )
+
             if site_pin_direction == prjxray.site_type.SitePinDirection.IN:
                 add_direct(
                     interconnect_xml,
@@ -965,6 +1204,14 @@ WHERE
             if port is None:
                 continue
 
+            # Sanity check top_level_connections
+            if site_pin_wire not in top_level_connections:
+                continue
+
+            assert top_level_connections[site_pin_wire] == (
+                site_type, site_pin_name
+            )
+
             if site_pin_direction == prjxray.site_type.SitePinDirection.IN:
                 pass
             elif site_pin_direction == prjxray.site_type.SitePinDirection.OUT:
@@ -977,6 +1224,46 @@ WHERE
                 )
             else:
                 assert False, site_pin_direction
+
+    interconnect_xml.append(ET.Comment(" Site->Site "))
+
+    for (dest_site_type, dest_site_pin_name), (src_site_type, src_site_pin_name) in \
+            sorted(internal_connections.items(), key=lambda x: (x[1], x[0])):
+        # Only handling single instance per site type right now
+        assert len(site_type_instances[src_site_type]) == 1
+        assert len(site_type_instances[dest_site_type]) == 1
+
+        src_site_instance = site_type_instances[src_site_type][0]
+        src_port = find_port(
+            src_site_pin_name, site_type_ports[src_site_instance]
+        )
+        src_site_name = cell_names[src_site_instance]
+        if src_port is None:
+            print(
+                "*** WARNING *** Didn't find port for name {} for site type {}"
+                .format(src_site_pin_name, src_site_type),
+                file=sys.stderr
+            )
+            continue
+
+        dest_site_instance = site_type_instances[dest_site_type][0]
+        dest_port = find_port(
+            dest_site_pin_name, site_type_ports[dest_site_instance]
+        )
+        dest_site_name = cell_names[dest_site_instance]
+        if dest_port is None:
+            print(
+                "*** WARNING *** Didn't find port for name {} for site type {}"
+                .format(dest_site_pin_name, dest_site_type),
+                file=sys.stderr
+            )
+            continue
+
+        add_direct(
+            interconnect_xml,
+            input=object_ref(src_site_name, **src_port),
+            output=object_ref(dest_site_name, **dest_port),
+        )
 
     pb_type_xml.append(interconnect_xml)
 
