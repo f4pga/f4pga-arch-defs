@@ -123,7 +123,7 @@ def import_physical_tile(args):
 
     pin_assignments = json.load(args.pin_assignments)
     tile_import.add_pinlocations(
-        tile_name, tile_xml, fc_xml, pin_assignments, ports
+        tile_name, import_tiles, tile_xml, fc_xml, pin_assignments, ports
     )
 
     tile_import.add_switchblock_locations(tile_xml)

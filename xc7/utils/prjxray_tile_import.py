@@ -154,7 +154,7 @@ class ModelXml(object):
         write_xml(self.f, self.model_xml)
 
 
-def add_pinlocations(tile_name, xml, fc_xml, pin_assignments, wires):
+def add_pinlocations(tile_name, import_tiles, xml, fc_xml, pin_assignments, wires):
     """ Adds the pin locations.
 
     It requires the ports of the physical tile which are retrieved
@@ -167,12 +167,13 @@ def add_pinlocations(tile_name, xml, fc_xml, pin_assignments, wires):
     )
 
     sides = {}
-    for pin in wires:
-        for side in pin_assignments['pin_directions'][tile_name][pin]:
-            if side not in sides:
-                sides[side] = []
+    for phy_tile in import_tiles:
+        for pin in wires:
+            for side in pin_assignments['pin_directions'][phy_tile][pin]:
+                if side not in sides:
+                    sides[side] = []
 
-            sides[side].append(object_ref(add_vpr_tile_prefix(tile_name), pin))
+                sides[side].append(object_ref(add_vpr_tile_prefix(tile_name), pin))
 
     for side, pins in sides.items():
         ET.SubElement(pinlocations_xml, 'loc', {
@@ -260,7 +261,7 @@ def start_pb_type(tile_name, import_tiles, f_pin_assignments, input_wires, outpu
 
     pin_assignments = json.load(f_pin_assignments)
     add_pinlocations(
-        tile_name, pb_type_xml, fc_xml, pin_assignments,
+        tile_name, import_tiles, pb_type_xml, fc_xml, pin_assignments,
         input_wires | output_wires
     )
 

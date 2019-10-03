@@ -189,69 +189,71 @@ def import_graph_nodes(conn, graph, node_mapping, connection_box_map):
         m = PIN_NAME_TO_PARTS.match(pin_name)
         assert m is not None, pin_name
 
-        pin_tile_type = remove_vpr_tile_prefix(m.group(1))
+        tile_type = m.group(1)
+        tile_type = remove_vpr_tile_prefix(tile_type)
+
+        # look up the physical tile type for IOPADs
+        if tile_type == 'IOPAD':
+            cur.execute(
+                """
+SELECT tile_type.name FROM tile
+  JOIN phy_tile ON (tile.phy_tile_pkey = phy_tile.pkey)
+  JOIN tile_type ON (phy_tile.tile_type_pkey = tile_type.pkey)
+  WHERE tile.grid_x = ? AND tile.grid_y = ?;
+                """, (node.loc.x_low, node.loc.y_low)
+            )
+            tile_type = cur.fetchone()[0]
+
         pin = m.group(2)
 
-        tile_types = {pin_tile_type}
-        if pin_tile_type == 'IOPAD':
-            tile_types = {'RIOI3', 'RIOI3_TBYTESRC', 'RIOI3_TBYTETERM', 'RIOB33'}
+        (wire_in_tile_pkeys, _) = get_wire_in_tile_from_pin_name(
+            conn=conn, tile_type_str=tile_type, wire_str=pin
+        )
 
-        result = None
-        for tile_type in tile_types:
-            (wire_in_tile_pkeys, the_site_pin_pkey) = get_wire_in_tile_from_pin_name(
-                conn=conn, tile_type_str=tile_type, wire_str=pin
-            )
-
-            if the_site_pin_pkey is None:
-                #print("{} no site pin".format(node.id))
-                continue
-
-            cur.execute(
-                """
+        cur.execute(
+            """
 SELECT site_as_tile_pkey FROM tile WHERE grid_x = ? AND grid_y = ?;
-            """, (node.loc.x_low, node.loc.y_low)
-            )
-            site_as_tile_pkey = cur.fetchone()[0]
+        """, (node.loc.x_low, node.loc.y_low)
+        )
+        site_as_tile_pkey = cur.fetchone()[0]
 
-            if site_as_tile_pkey is not None:
-                cur.execute(
-                    """
-SELECT site_pkey FROM site_as_tile WHERE pkey = ?;
-                    """, (site_as_tile_pkey, )
-                )
-                site_pkey = cur.fetchone()[0]
-                wire_in_tile_pkey = wire_in_tile_pkeys[site_pkey]
-            else:
-                assert len(wire_in_tile_pkeys) == 1
-                _, wire_in_tile_pkey = wire_in_tile_pkeys.popitem()
-
-            if gridloc not in tile_loc_to_pkey:
-                cur.execute(
-                    """
-                SELECT pkey FROM tile WHERE grid_x = ? AND grid_y = ?;""",
-                    (gridloc[0], gridloc[1])
-                )
-
-                result = cur.fetchone()
-                assert result is not None, (tile_type, gridloc)
-                (tile_pkey, ) = result
-                tile_loc_to_pkey[gridloc] = tile_pkey
-            else:
-                tile_pkey = tile_loc_to_pkey[gridloc]
-
+        if site_as_tile_pkey is not None:
             cur.execute(
                 """
-            SELECT
-                top_graph_node_pkey, bottom_graph_node_pkey,
-                left_graph_node_pkey, right_graph_node_pkey FROM wire
-                WHERE
-                  wire_in_tile_pkey = ? AND tile_pkey = ?;""",
-                (wire_in_tile_pkey, tile_pkey)
+SELECT site_pkey FROM site_as_tile WHERE pkey = ?;
+                """, (site_as_tile_pkey, )
+            )
+            site_pkey = cur.fetchone()[0]
+            wire_in_tile_pkey = wire_in_tile_pkeys[site_pkey]
+        else:
+            assert len(wire_in_tile_pkeys) == 1
+            _, wire_in_tile_pkey = wire_in_tile_pkeys.popitem()
+
+        if gridloc not in tile_loc_to_pkey:
+            cur.execute(
+                """
+            SELECT pkey FROM tile WHERE grid_x = ? AND grid_y = ?;""",
+                (gridloc[0], gridloc[1])
             )
 
             result = cur.fetchone()
-            if result is not None:
-                break
+            assert result is not None, (tile_type, gridloc)
+            (tile_pkey, ) = result
+            tile_loc_to_pkey[gridloc] = tile_pkey
+        else:
+            tile_pkey = tile_loc_to_pkey[gridloc]
+
+        cur.execute(
+            """
+        SELECT
+            top_graph_node_pkey, bottom_graph_node_pkey,
+            left_graph_node_pkey, right_graph_node_pkey FROM wire
+            WHERE
+              wire_in_tile_pkey = ? AND tile_pkey = ?;""",
+            (wire_in_tile_pkey, tile_pkey)
+        )
+
+        result = cur.fetchone()
 
         if result is None:
             continue
@@ -394,9 +396,8 @@ def add_synthetic_edges(conn, graph, node_mapping, grid, synth_tiles):
     delayless_switch = graph.get_switch_id('__vpr_delayless_switch__')
 
     for tile_name, synth_tile in synth_tiles['tiles'].items():
-        # HACK
-        if len(synth_tile['pins']) == 1:
-            pin = synth_tile['pins'][0]
+        assert len(synth_tile['pins']) == 1
+        for pin in synth_tile['pins']:
             if pin['port_type'] in ['input', 'output']:
                 wire_pkey = get_wire_pkey(conn, tile_name, pin['wire'])
                 cur.execute(
