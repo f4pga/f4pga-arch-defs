@@ -115,8 +115,9 @@ def import_physical_tile(args):
 
     add_ports(tile_xml, pb_type_root)
 
-    equivalent_sites = args.equivalent_sites
-    add_equivalent_sites(tile_xml, equivalent_sites)
+    equivalent_sites = args.equivalent_sites.strip()
+    if equivalent_sites:
+        add_equivalent_sites(tile_xml, equivalent_sites)
 
     fc_xml = tile_import.add_fc(tile_xml)
 
