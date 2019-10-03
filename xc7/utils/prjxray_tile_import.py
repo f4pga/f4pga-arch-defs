@@ -939,7 +939,7 @@ FROM wire_in_tile
 INNER JOIN site
 ON site.pkey = wire_in_tile.site_pkey
 WHERE
-    tile_type_pkey = ?
+    wire_in_tile.tile_type_pkey = ?
 GROUP BY site.site_type_pkey, wire_in_tile.phy_tile_type_pkey
 ORDER BY wire_in_tile.phy_tile_type_pkey;""", (tile_type_pkey, )
     )
