@@ -186,6 +186,68 @@ FROM
         yield tile_type, wire
 
 
+def yield_logical_wire_info_from_node(conn, node_pkey):
+    """ Yield tile types and wires attached to specified node.
+
+    Parameters
+    ----------
+    conn : sqlite3.Connection
+        Connection database object.
+    node_pkey : int
+        Primary key into node table
+
+    Yields
+    -------
+    tile_type : str
+        Name of tile type for wire being yielded.
+    wire : str
+        Name of wire for wire being yielded.
+
+    Note: This function yields the prjxray tile_type and wire name.  This
+    function does NOT tile_type's and wire names coorsponding to the VPR tiles.
+
+    """
+    c2 = conn.cursor()
+    for tile_type, wire in c2.execute("""
+WITH wires_in_node(tile_pkey, wire_in_tile_pkey) AS (
+  SELECT
+    tile_pkey,
+    wire_in_tile_pkey
+  FROM
+    wire
+  WHERE
+    node_pkey = ?
+),
+tile_for_wire(
+  wire_in_tile_pkey, tile_type_pkey
+) AS (
+  SELECT
+    wires_in_node.wire_in_tile_pkey,
+    tile.tile_type_pkey
+  FROM
+    tile
+    INNER JOIN wires_in_node ON tile.pkey = wires_in_node.tile_pkey
+),
+tile_type_for_wire(
+  wire_in_tile_pkey, tile_type_name
+) AS (
+  SELECT
+    tile_for_wire.wire_in_tile_pkey,
+    tile_type.name
+  FROM
+    tile_type
+    INNER JOIN tile_for_wire ON tile_type.pkey = tile_for_wire.tile_type_pkey
+)
+SELECT
+  tile_type_for_wire.tile_type_name,
+  wire_in_tile.name
+FROM
+  wire_in_tile
+  INNER JOIN tile_type_for_wire ON tile_type_for_wire.wire_in_tile_pkey = wire_in_tile.pkey;
+    """, (node_pkey, )):
+        yield tile_type, wire
+
+
 def node_to_site_pins(conn, node_pkey):
     FIND_WIRE_WITH_SITE_PIN = """
 WITH wires_in_node(

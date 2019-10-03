@@ -33,6 +33,14 @@ OPPOSITE_DIRECTIONS = {
     WEST: EAST,
 }
 
+# Zipper direction when splitting in a direction
+SPLIT_NEXT_DIRECTIONS = {
+    NORTH: EAST,
+    SOUTH: EAST,
+    EAST: SOUTH,
+    WEST: SOUTH,
+}
+
 
 def opposite_direction(direction):
     """ Return opposite direction of given direction.
@@ -397,7 +405,7 @@ class Grid(object):
         for _ in range(y):
             right_of_row = right_of_row.neighboors[SOUTH]
 
-    def split_tile(self, tile, tile_type_pkeys, split_direction):
+    def split_tile(self, tile, tile_type_pkeys, split_direction, split_map):
         """ Split tile in specified direction.
 
         This method requires that the tiles required to perform the split (e.g.
@@ -415,55 +423,76 @@ class Grid(object):
             List of new tile_type_pkeys to be used after the tile split.
             The tile being split will become tile_type_pkeys[0], the next tile
             in split_direction will become tile_type_pkeys[1], etc.
-
-            len(tile_type_pkeys) must equal len(tile.sites) to ensure that each
-            tile output from the split has a new tile type.
         split_direction : Direction
             Which direction from tile should the split occur.
+        split_map : Dict of (int, int) to int
+            Mapping of site location (x, y) to tile_type_pkey indicies.
+            This enables control over which sites go to which tiles based on
+            their coordinate.
+
+            min(split_map.values()) >= 0
+            max(split_map.values()) < len(tile_type_pkeys)
 
         """
-        assert len(tile.sites) == len(tile_type_pkeys)
-
         sites = tile.sites
         tile.tile_type_pkey = self.empty_tile_type_pkey
+        phy_tile_pkeys = set(tile.phy_tile_pkeys)
         new_tiles = []
 
         for idx, tile in enumerate(tile.walk_in_direction(split_direction)):
+            assert tile.tile_type_pkey == self.empty_tile_type_pkey, (
+                tile.tile_type_pkey
+            )
+            tile.phy_tile_pkeys = []
+
             new_tiles.append(tile)
 
-            if idx + 1 > len(tile_type_pkeys):
+            if idx + 1 >= len(tile_type_pkeys):
                 break
 
-        for tile, site, new_tile_type_pkey in zip(new_tiles, sites,
-                                                  tile_type_pkeys):
+        for tile, new_tile_type_pkey in zip(new_tiles, tile_type_pkeys):
             assert tile.tile_type_pkey == self.empty_tile_type_pkey
+
             tile.tile_type_pkey = new_tile_type_pkey
-            tile.sites = [site]
+            tile.phy_tile_pkeys = list(
+                set(tile.phy_tile_pkeys) | phy_tile_pkeys
+            )
+            tile.sites = []
             tile.split_sites = True
 
-    def insert_empty_column(self, top_of_column, insert_in_direction):
-        """ Insert empty column.
+        for site in sites:
+            site_idx = split_map[site.x, site.y]
+            assert site_idx < len(tile_type_pkeys), (
+                site, site_idx, tile_type_pkeys
+            )
+            new_tiles[site_idx].sites.append(site)
 
-        Insert a column of empty tiles from the tiles in the column specified
-        by top_of_column tile.  The new empty tiles will have tile_type_pkey
+    def insert_empty(self, top, insert_in_direction):
+        """ Insert empty row/colum.
+
+        Insert a row/column of empty tiles from the tiles in the row/column specified
+        by top_of_row/column tile.  The new empty tiles will have tile_type_pkey
         set to empty_tile_type_pkey, and have phy_tile_pkeys of the tile they
         were inserted from.
 
         Parameters
         ----------
-        top_of_column : Tile object
-            Tile at top of column adjcent to where new column should be
+        top_of_row/column : Tile object
+            Tile at top of row/column adjcent to where new row/column should be
             inserted.
         insert_in_direction : Direction
-            Direction to insert empty tiles, from perspective of the column
-            specified by top_of_column.
+            Direction to insert empty tiles, from perspective of the row/column
+            specified by top_of_row/column.
 
         """
-        assert insert_in_direction in [EAST, WEST], insert_in_direction
-        assert NORTH not in top_of_column.neighboors
+        # Verify that insert direction is not the same as zipper direction.
+        next_dir = SPLIT_NEXT_DIRECTIONS[insert_in_direction]
+
+        # Verify that top is in fact the top of the zipper
+        assert OPPOSITE_DIRECTIONS[next_dir] not in top.neighboors
 
         empty_tiles = []
-        for tile in top_of_column.walk_in_direction(SOUTH):
+        for tile in top.walk_in_direction(next_dir):
             empty_tile = Tile(
                 root_phy_tile_pkeys=[],
                 phy_tile_pkeys=list(tile.phy_tile_pkeys),
@@ -475,36 +504,44 @@ class Grid(object):
             tile.insert_in_direction(empty_tile, insert_in_direction)
 
         for a, b in zip(empty_tiles, empty_tiles[1:]):
-            a.link_neighboor_in_direction(b, SOUTH)
+            a.link_neighboor_in_direction(b, next_dir)
 
         self.check_grid()
 
-    def split_column(
-            self, top_of_column, tile_type_pkey, tile_type_pkeys,
-            split_direction
+    def split_in_dir(
+            self,
+            top,
+            tile_type_pkey,
+            tile_type_pkeys,
+            split_direction,
+            split_map,
     ):
-        """ Split column of tiles.
+        """ Split row/column of tiles.
 
-        Splits specified tile types into new columns by first inserting any
-        required empty columns in the split direction, and then performing
+        Splits specified tile types into new row/column by first inserting any
+        required empty row/column in the split direction, and then performing
         the split.
 
         Parameters
         ----------
-        top_of_column : Tile object
-            Tile at top of column where split should be performed.
+        top_of_row/column : Tile object
+            Tile at top of row/column where split should be performed.
         tile_type_pkey : Tile type to split.
         tile_type_pkeys : Refer to split_tile documentation.
         split_direction : Direction
-            Direction to insert perform split.  New columns will be inserted
+            Direction to insert perform split.  New row/column will be inserted
             in that direction to accomidate the tile split.
+        split_map : Dict of (int, int) to int
+            Mapping of site location (x, y) to tile_type_pkey indicies.
+            This enables control over which sites go to which tiles based on
+            their coordinate.
 
         """
-        assert split_direction in [EAST, WEST], split_direction
+        next_dir = SPLIT_NEXT_DIRECTIONS[split_direction]
 
         # Find how many empty tiles are required to support the split
-        num_cols_to_insert = 0
-        for tile in top_of_column.walk_in_direction(SOUTH):
+        num_to_insert = 0
+        for tile in top.walk_in_direction(next_dir):
             if tile.tile_type_pkey != tile_type_pkey:
                 continue
 
@@ -514,22 +551,22 @@ class Grid(object):
                     continue
                 else:
                     if tile_in_split.tile_type_pkey != self.empty_tile_type_pkey:
-                        num_cols_to_insert = max(num_cols_to_insert, idx)
+                        num_to_insert = max(num_to_insert, idx)
 
                     if idx + 1 >= len(tile_type_pkeys):
                         break
 
-        for _ in range(num_cols_to_insert):
-            self.insert_empty_column(top_of_column, split_direction)
+        for _ in range(num_to_insert):
+            self.insert_empty(top, split_direction)
 
-        for tile in top_of_column.walk_in_direction(SOUTH):
+        for tile in top.walk_in_direction(next_dir):
             if tile.tile_type_pkey != tile_type_pkey:
                 continue
 
-            self.split_tile(tile, tile_type_pkeys, split_direction)
+            self.split_tile(tile, tile_type_pkeys, split_direction, split_map)
 
     def split_tile_type(
-            self, tile_type_pkey, tile_type_pkeys, split_direction
+            self, tile_type_pkey, tile_type_pkeys, split_direction, split_map
     ):
         """ Split a specified tile type within grid.
 
@@ -541,44 +578,42 @@ class Grid(object):
         tile_type_pkey : Tile type to split.
         tile_type_pkeys : Refer to split_tile documentation.
         split_direction : Direction
-            Direction to insert perform split.  Only column splits are
-            currently supported, so direction must be EAST or WEST.
+            Direction to insert perform split.
+        split_map : Dict of (int, int) to int
+            Mapping of site location (x, y) to tile_type_pkey indicies.
+            This enables control over which sites go to which tiles based on
+            their coordinate.
 
         """
-        # FIXME: Add row split support, might be useful on RIOB or LIOB tiles.
-        assert split_direction in [EAST, WEST], split_direction
-
         tiles_seen = set()
         tiles = []
-        top_of_columns_to_split = []
+        tops_to_split = []
+
+        next_dir = SPLIT_NEXT_DIRECTIONS[split_direction]
 
         for tile in self.items:
             if id(tile) in tiles_seen:
                 continue
 
             if tile.tile_type_pkey == tile_type_pkey:
-                # Found a column that needs to be split, walk to the bottom of
-                # the column, then back to the top.
-                for tile in tile.walk_in_direction(SOUTH):
+                # Found a row/column that needs to be split, walk to the bottom of
+                # the row/column, then back to the top.
+                for tile in tile.walk_in_direction(next_dir):
                     pass
 
-                for tile in tile.walk_in_direction(NORTH):
+                for tile in tile.walk_in_direction(
+                        OPPOSITE_DIRECTIONS[next_dir]):
                     if id(tile) not in tiles_seen:
                         tiles_seen.add(id(tile))
                         if tile.tile_type_pkey == tile_type_pkey:
                             tiles.append(tile)
 
-                top_of_columns_to_split.append(tile)
+                tops_to_split.append(tile)
 
-        num_sites_arr = [len(tile.sites) for tile in tiles]
-        num_sites_to_split = max(num_sites_arr)
-        assert num_sites_to_split > 1
-        assert min(num_sites_arr) == num_sites_to_split
-        assert len(tile_type_pkeys) == num_sites_to_split
-
-        for top_of_column in top_of_columns_to_split:
-            self.split_column(
-                top_of_column, tile_type_pkey, tile_type_pkeys, split_direction
+        for top in tops_to_split:
+            self.split_in_dir(
+                top, tile_type_pkey, tile_type_pkeys, split_direction,
+                split_map
             )
 
     def output_grid(self):
