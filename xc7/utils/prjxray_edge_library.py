@@ -52,21 +52,15 @@ def add_graph_nodes_for_pins(conn, tile_type, wire, pin_directions):
         # Find all instances of this specific wire.
         c.execute(
             """
-            SELECT pkey, node_pkey, tile_pkey
-                FROM wire WHERE wire_in_tile_pkey = ?;""",
+            SELECT wire.pkey, wire.node_pkey, tile.grid_x, tile.grid_y FROM wire
+                JOIN tile ON (wire.tile_pkey = tile.pkey)
+                WHERE wire.wire_in_tile_pkey = ?;""",
             (wire_in_tile_pkey, )
         )
 
         c3 = conn.cursor()
 
-        for wire_pkey, node_pkey, tile_pkey in c:
-            c3.execute(
-                """
-                SELECT grid_x, grid_y FROM tile WHERE pkey = ?;""",
-                (tile_pkey, )
-            )
-
-            grid_x, grid_y = c3.fetchone()
+        for wire_pkey, node_pkey, grid_x, grid_y in c:
 
             updates = []
             values = []
