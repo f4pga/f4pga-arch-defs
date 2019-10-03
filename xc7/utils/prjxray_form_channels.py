@@ -280,9 +280,12 @@ def add_wire_to_site_relation(
     for site in tile_type.get_sites():
         write_cur.execute(
             """
-INSERT INTO site(name, x_coord, y_coord, site_type_pkey)
+INSERT INTO site(name, x_coord, y_coord, site_type_pkey, tile_type_pkey)
 VALUES
-  (?, ?, ?, ?)""", (site.name, site.x, site.y, site_types[site.type])
+  (?, ?, ?, ?, ?)""", (
+                site.name, site.x, site.y, site_types[site.type],
+                tile_types[tile_type_name]
+            )
         )
 
         site_pkey = write_cur.lastrowid
@@ -385,6 +388,9 @@ def build_other_indicies(write_cur):
     write_cur.execute(
         "CREATE INDEX phy_tile_location_index ON phy_tile(grid_x, grid_y);"
     )
+    write_cur.execute(
+        "CREATE INDEX site_instance_index on site_instance(name);"
+    )
 
 
 def import_phy_grid(db, grid, conn, get_switch, get_switch_timing):
@@ -426,6 +432,38 @@ VALUES
   (?, ?, ?, ?)""",
             (tile, tile_types[gridinfo.tile_type], loc.grid_x, loc.grid_y)
         )
+        phy_tile_pkey = write_cur.lastrowid
+
+        tile_type = db.get_tile_type(gridinfo.tile_type)
+        for site, instance_site in zip(tile_type.sites,
+                                       tile_type.get_instance_sites(gridinfo)):
+            write_cur.execute(
+                """
+INSERT INTO site_instance(name, x_coord, y_coord, site_pkey, phy_tile_pkey)
+SELECT ?, ?, ?, site.pkey, ?
+FROM site
+WHERE
+    site.name = ?
+AND
+    site.x_coord = ?
+AND
+    site.y_coord = ?
+AND
+    site.site_type_pkey = (SELECT pkey FROM site_type WHERE name = ?)
+AND
+    tile_type_pkey = ?;
+                """, (
+                    instance_site.name,
+                    instance_site.x,
+                    instance_site.y,
+                    phy_tile_pkey,
+                    site.name,
+                    site.x,
+                    site.y,
+                    site.type,
+                    tile_types[gridinfo.tile_type],
+                )
+            )
 
     build_other_indicies(write_cur)
     write_cur.connection.commit()
