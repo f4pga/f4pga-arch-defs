@@ -1448,12 +1448,18 @@ if {{ $net == {{}} }} {{
                     pin=pin,
                 )
 
+            # If the ZERO_NET or ONE_NET is not used, do not emit it.
+            fixed_route = list(
+                net.make_fixed_route(self.conn, self.wire_pkey_to_wire)
+            )
+            if ' '.join(fixed_route).replace(' ', '').replace('{}',
+                                                              '') == '[list]':
+                assert net_wire_pkey in [ZERO_NET, ONE_NET]
+                continue
+
             yield """
 set route_with_dummy {fixed_route}
-""".format(
-                fixed_route=' '.
-                join(net.make_fixed_route(self.conn, self.wire_pkey_to_wire))
-            )
+""".format(fixed_route=' '.join(fixed_route))
 
             # Remove extra {} elements required to construct 1-length lists.
             yield """\
