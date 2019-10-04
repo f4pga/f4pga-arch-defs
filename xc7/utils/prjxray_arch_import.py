@@ -312,11 +312,7 @@ def get_tiles(conn, g, roi, synth_loc_map, synth_tile_map, tile_types):
 
         # Just output synth tiles, no additional processing is required here.
         if (grid_x, grid_y) in synth_loc_map:
-            synth_tile = synth_loc_map[(grid_x, grid_y)]
-
-            assert len(synth_tile['pins']) == 1
-
-            vpr_tile_type = synth_tile_map[synth_tile['pins'][0]['port_type']]
+            vpr_tile_type = synth_loc_map[(grid_x, grid_y)]
 
             # Synth tiles have no bits, but there needs to be a prefix, so
             # use the original tile name.
@@ -349,13 +345,18 @@ def get_tiles(conn, g, roi, synth_loc_map, synth_tile_map, tile_types):
         yield vpr_tile_type, grid_x, grid_y, fasm_tile_prefix
 
 
-def add_synthetic_tiles(model_xml, complexblocklist_xml, tiles_xml):
-    create_synth_io_tiles(
-        complexblocklist_xml, tiles_xml, 'SYN-INPAD', is_input=True
-    )
-    create_synth_io_tiles(
-        complexblocklist_xml, tiles_xml, 'SYN-OUTPAD', is_input=False
-    )
+def add_synthetic_tiles(model_xml, complexblocklist_xml, tiles_xml, need_io):
+    synth_tile_types = {}
+    if need_io:
+        create_synth_io_tiles(
+            complexblocklist_xml, tiles_xml, 'SYN-INPAD', is_input=True
+        )
+        create_synth_io_tiles(
+            complexblocklist_xml, tiles_xml, 'SYN-OUTPAD', is_input=False
+        )
+        synth_tile_types['output'] = 'SYN-INPAD'
+        synth_tile_types['input'] = 'SYN-OUTPAD'
+
     create_synth_constant_tiles(
         model_xml, complexblocklist_xml, tiles_xml, 'SYN-VCC', 'VCC'
     )
@@ -363,12 +364,61 @@ def add_synthetic_tiles(model_xml, complexblocklist_xml, tiles_xml):
         model_xml, complexblocklist_xml, tiles_xml, 'SYN-GND', 'GND'
     )
 
-    return {
-        'output': 'SYN-INPAD',
-        'input': 'SYN-OUTPAD',
-        'VCC': 'SYN-VCC',
-        'GND': 'SYN-GND',
-    }
+    synth_tile_types['VCC'] = 'SYN-VCC'
+    synth_tile_types['GND'] = 'SYN-GND'
+
+    return synth_tile_types
+
+
+def insert_constant_tiles(conn, model_xml, complexblocklist_xml, tiles_xml):
+    c = conn.cursor()
+
+    # Always add 'GND' and 'VCC' synth tiles
+    synth_tile_map = add_synthetic_tiles(
+        model_xml, complexblocklist_xml, tiles_xml, need_io=False
+    )
+    synth_loc_map = {}
+
+    c.execute('SELECT pkey FROM tile_type WHERE name = "NULL";')
+    null_tile_type_pkey = c.fetchone()[0]
+
+    c.execute(
+        """
+    SELECT pkey, tile_type_pkey FROM phy_tile
+    WHERE grid_x = 1 AND grid_y = 0"""
+    )
+    vcc_phy_tile_pkey, vcc_tile_type_pkey = c.fetchone()
+    assert vcc_tile_type_pkey == null_tile_type_pkey, vcc_tile_type_pkey
+
+    c.execute(
+        """
+    SELECT pkey, grid_x, grid_y FROM tile WHERE phy_tile_pkey = ?
+    """, (vcc_phy_tile_pkey, )
+    )
+    results = c.fetchall()
+    assert len(results) == 1, results
+    _, vcc_grid_x, vcc_grid_y = results[0]
+    synth_loc_map[(vcc_grid_x, vcc_grid_y)] = synth_tile_map['VCC']
+
+    c.execute(
+        """
+    SELECT pkey, tile_type_pkey FROM phy_tile
+    WHERE grid_x = 2 AND grid_y = 0"""
+    )
+    gnd_phy_tile_pkey, gnd_tile_type_pkey = c.fetchone()
+    assert gnd_tile_type_pkey == null_tile_type_pkey
+
+    c.execute(
+        """
+    SELECT pkey, grid_x, grid_y FROM tile WHERE phy_tile_pkey = ?
+    """, (gnd_phy_tile_pkey, )
+    )
+    results = c.fetchall()
+    assert len(results) == 1, results
+    _, gnd_grid_x, gnd_grid_y = results[0]
+    synth_loc_map[(gnd_grid_x, gnd_grid_y)] = synth_tile_map['GND']
+
+    return synth_tile_map, synth_loc_map
 
 
 def main():
@@ -475,12 +525,18 @@ def main():
         )
 
         synth_tile_map = add_synthetic_tiles(
-            model_xml, complexblocklist_xml, tiles_xml
+            model_xml, complexblocklist_xml, tiles_xml, need_io=True
         )
 
         for _, tile_info in synth_tiles['tiles'].items():
             assert tuple(tile_info['loc']) not in synth_loc_map
-            synth_loc_map[tuple(tile_info['loc'])] = tile_info
+
+            assert len(tile_info['pins']) == 1
+
+            vpr_tile_type = synth_tile_map[tile_info['pins'][0]['port_type']]
+
+            synth_loc_map[tuple(tile_info['loc'])] = vpr_tile_type
+
     elif args.graph_limit:
         x_min, y_min, x_max, y_max = map(int, args.graph_limit.split(','))
         roi = Roi(
@@ -493,6 +549,11 @@ def main():
 
     with DatabaseCache(args.connection_database, read_only=True) as conn:
         c = conn.cursor()
+
+        if 'GND' not in synth_tile_map:
+            synth_tile_map, synth_loc_map = insert_constant_tiles(
+                conn, model_xml, complexblocklist_xml, tiles_xml
+            )
 
         # Find the grid extent.
         y_max = 0

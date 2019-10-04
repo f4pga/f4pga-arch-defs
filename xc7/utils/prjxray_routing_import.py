@@ -322,18 +322,6 @@ AND
             assert False, side
 
 
-def is_track_alive(conn, tile_pkey, roi, synth_tiles):
-    cur = conn.cursor()
-    cur.execute(
-        """SELECT name, grid_x, grid_y FROM tile WHERE pkey = ?;""",
-        (tile_pkey, )
-    )
-    tile, grid_x, grid_y = cur.fetchone()
-
-    return roi.tile_in_roi(grid.GridLoc(grid_x=grid_x, grid_y=grid_y)
-                           ) or tile in synth_tiles['tiles']
-
-
 def import_tracks(conn, alive_tracks, node_mapping, graph, default_segment_id):
     cur = conn.cursor()
     cur2 = conn.cursor()
@@ -717,6 +705,76 @@ def phy_grid_dims(conn):
     return x_max + 1, y_max + 1
 
 
+def find_constant_network(input_rr_graph):
+    """ Find VCC and GND tiles and create synth_tiles input.
+
+    All arches should have these synthetic tiles, search the input rr graph
+    for the SYN-GND and SYN-VCC tiles.
+
+    """
+    block_types = {}
+
+    for elem in input_rr_graph.iter('block_type'):
+        block_types[elem.attrib['name']] = elem.attrib['id']
+
+    assert 'SYN-GND' in block_types
+    assert 'SYN-VCC' in block_types
+
+    gnd_block_id = block_types['SYN-GND']
+    vcc_block_id = block_types['SYN-VCC']
+
+    gnd_loc = None
+    vcc_loc = None
+
+    for elem in input_rr_graph.iter('grid_loc'):
+        if gnd_block_id == elem.attrib['block_type_id']:
+            assert gnd_loc is None
+            gnd_loc = (int(elem.attrib['x']), int(elem.attrib['y']))
+
+        if vcc_block_id == elem.attrib['block_type_id']:
+            assert vcc_loc is None
+            vcc_loc = (int(elem.attrib['x']), int(elem.attrib['y']))
+
+    assert gnd_loc is not None
+    assert vcc_loc is not None
+
+    synth_tiles = {
+        'tiles':
+            {
+                "VCC":
+                    {
+                        'loc':
+                            vcc_loc,
+                        'pins':
+                            [
+                                {
+                                    'wire': 'VCC',
+                                    'pad': 'VCC',
+                                    'port_type': 'VCC',
+                                    'is_clock': False,
+                                },
+                            ],
+                    },
+                "GND":
+                    {
+                        'loc':
+                            gnd_loc,
+                        'pins':
+                            [
+                                {
+                                    'wire': 'GND',
+                                    'pad': 'GND',
+                                    'port_type': 'GND',
+                                    'is_clock': False,
+                                },
+                            ],
+                    },
+            }
+    }
+
+    return synth_tiles
+
+
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument(
@@ -752,6 +810,7 @@ def main():
 
     db = prjxray.db.Database(args.db_root)
 
+    synth_tiles = None
     if args.synth_tiles:
         use_roi = True
         with open(args.synth_tiles) as f:
@@ -776,7 +835,6 @@ def main():
             x2=x_max,
             y2=y_max,
         )
-        synth_tiles = {'tiles': {}}
     else:
         use_roi = False
         roi = None
@@ -784,6 +842,9 @@ def main():
 
     # Convert input rr graph into graph2.Graph object.
     input_rr_graph = read_xml_file(args.read_rr_graph)
+
+    if synth_tiles is None:
+        synth_tiles = find_constant_network(input_rr_graph)
 
     xml_graph = xml_graph2.Graph(
         input_rr_graph,
