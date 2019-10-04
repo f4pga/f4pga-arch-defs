@@ -54,8 +54,7 @@ def main():
     )
     parser.add_argument(
         '--graph_limit',
-        help=
-        'Limit grid to specified dimensions in semicolor x_min,y_min,x_max,y_max',
+        help='Limit grid to specified dimensions in x_min,y_min,x_max,y_max',
     )
 
     args = parser.parse_args()

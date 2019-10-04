@@ -342,8 +342,10 @@ def get_tiles(conn, g, roi, synth_loc_map, synth_tile_map, tile_types):
         VPR tile type at this grid location.
     grid_x, grid_y : int
         Grid coordinate of tile
-    fasm_tile_prefix : str
-        FASM prefix for this tile.
+    metadata_function : function that takes lxml.Element
+        Function for attaching metadata tags to <single> elements.
+        Function must be supplied, but doesn't need to add metadata if not
+        required.
 
     """
     c = conn.cursor()
@@ -490,8 +492,7 @@ def main():
     parser.add_argument('--connection_database', required=True)
     parser.add_argument(
         '--graph_limit',
-        help=
-        'Limit grid to specified dimensions in semicolor x_min,y_min,x_max,y_max',
+        help='Limit grid to specified dimensions in x_min,y_min,x_max,y_max',
     )
 
     args = parser.parse_args()
@@ -608,7 +609,7 @@ def main():
             }
         )
 
-        for vpr_tile_type, grid_x, grid_y, meta_fun in get_tiles(
+        for vpr_tile_type, grid_x, grid_y, metadata_function in get_tiles(
                 conn=conn,
                 g=g,
                 roi=roi,
@@ -624,7 +625,7 @@ def main():
                     'y': str(grid_y),
                 }
             )
-            meta_fun(single_xml)
+            metadata_function(single_xml)
 
         switchlist_xml = ET.SubElement(arch_xml, 'switchlist')
 
