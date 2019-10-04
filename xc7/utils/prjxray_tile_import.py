@@ -791,18 +791,26 @@ WHERE
     site_type_ports = {}
     cur.execute(
         """
-SELECT DISTINCT site_type.name, site.x_coord, site.y_coord
-FROM site
-INNER JOIN site_type
+SELECT DISTINCT
+  site_type.name,
+  site.x_coord,
+  site.y_coord
+FROM
+  site
+INNER JOIN
+  site_type
 ON site.site_type_pkey = site_type.pkey
-WHERE site.pkey IN (
-    SELECT DISTINCT site_pkey
-    FROM wire_in_tile
+WHERE
+  site.pkey IN (
+    SELECT
+      DISTINCT site_pkey
+    FROM
+      wire_in_tile
     WHERE
-        tile_type_pkey = ?
-    AND
-        site_pin_pkey IS NOT NULL
-    )""", (tile_type_pkey, )
+      tile_type_pkey = ?
+      AND site_pin_pkey IS NOT NULL
+  )
+    """, (tile_type_pkey, )
     )
     for idx, (site_type, site_x, site_y) in enumerate(cur):
         if site_type in ignored_site_types:
@@ -870,19 +878,26 @@ WHERE site.pkey IN (
     # Iterate over sites in tile
     cur.execute(
         """
-SELECT site_type.name, site.pkey
-FROM site
-INNER JOIN site_type
-ON site.site_type_pkey = site_type.pkey
-WHERE site.pkey IN (
-    SELECT DISTINCT site_pkey
-    FROM wire_in_tile
+SELECT
+  site_type.name,
+  site.pkey
+FROM
+  site
+  INNER JOIN site_type ON site.site_type_pkey = site_type.pkey
+WHERE
+  site.pkey IN (
+    SELECT
+      DISTINCT site_pkey
+    FROM
+      wire_in_tile
     WHERE
-        tile_type_pkey = ?
-    AND
-        site_pin_pkey IS NOT NULL
-    )
-GROUP BY site.site_type_pkey, site.x_coord, site.y_coord
+      tile_type_pkey = ?
+      AND site_pin_pkey IS NOT NULL
+  )
+GROUP BY
+  site.site_type_pkey,
+  site.x_coord,
+  site.y_coord
     """, (tile_type_pkey, )
     )
     for idx, (site_type, site_pkey) in enumerate(cur):
@@ -898,16 +913,17 @@ GROUP BY site.site_type_pkey, site.x_coord, site.y_coord
         # Iterate over pins in site
         cur2.execute(
             """
-SELECT site_pin.name, site_pin.direction, wire_in_tile.name
-FROM wire_in_tile
-INNER JOIN site_pin
-ON wire_in_tile.site_pin_pkey = site_pin.pkey
+SELECT
+  site_pin.name,
+  site_pin.direction,
+  wire_in_tile.name
+FROM
+  wire_in_tile
+  INNER JOIN site_pin ON wire_in_tile.site_pin_pkey = site_pin.pkey
 WHERE
-    wire_in_tile.tile_type_pkey = ?
-AND
-    wire_in_tile.site_pkey = ?
-AND
-    wire_in_tile.site_pin_pkey IS NOT NULL;
+  wire_in_tile.tile_type_pkey = ?
+  AND wire_in_tile.site_pkey = ?
+  AND wire_in_tile.site_pin_pkey IS NOT NULL;
         """, (tile_type_pkey, site_pkey)
         )
         site_pins = list(cur2)
@@ -1032,7 +1048,8 @@ def main():
 
     parser.add_argument(
         '--connection_database',
-        help="Location of connection database to use in lue of Project X-Ray",
+        help=
+        "Location of connection database to define this tile type.  The tile will be defined by the sites and wires from the connection database in lue of Project X-Ray."
     )
 
     args = parser.parse_args()
