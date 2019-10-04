@@ -1542,6 +1542,13 @@ def create_vpr_grid(conn):
 
     write_cur.execute("""COMMIT TRANSACTION;""")
 
+    tiles_to_merge = {
+        'LIOB33_SING': tile_splitter.grid.EAST,
+        'LIOB33': tile_splitter.grid.EAST,
+        'RIOB33_SING': tile_splitter.grid.WEST,
+        'RIOB33': tile_splitter.grid.WEST,
+    }
+
     tiles_to_split = {
         'LIOI3': tile_splitter.grid.NORTH,
         'LIOI3_TBYTESRC': tile_splitter.grid.NORTH,
@@ -1558,12 +1565,12 @@ def create_vpr_grid(conn):
     }
 
     liopad_ms_split = {
-        0: slice_types['LIOPAD_M'],
-        1: slice_types['LIOPAD_S'],
+        1: slice_types['LIOPAD_M'],
+        0: slice_types['LIOPAD_S'],
     }
     riopad_ms_split = {
-        0: slice_types['RIOPAD_M'],
-        1: slice_types['RIOPAD_S'],
+        1: slice_types['RIOPAD_M'],
+        0: slice_types['RIOPAD_S'],
     }
 
     split_styles = {
@@ -1683,7 +1690,15 @@ def create_vpr_grid(conn):
 
     tile_types = {}
     tile_type_names = {}
-    for tile_type, split_direction in tiles_to_split.items():
+    for tile_type, _ in tiles_to_merge.items():
+        cur.execute(
+            'SELECT pkey FROM tile_type WHERE name = ?;', (tile_type, )
+        )
+        tile_type_pkey = cur.fetchone()[0]
+        tile_types[tile_type] = tile_type_pkey
+        tile_type_names[tile_type_pkey] = tile_type
+
+    for tile_type, _ in tiles_to_split.items():
         cur.execute(
             'SELECT pkey FROM tile_type WHERE name = ?;', (tile_type, )
         )
@@ -1694,6 +1709,15 @@ def create_vpr_grid(conn):
     vpr_grid = tile_splitter.grid.Grid(
         grid_loc_map=grid_loc_map, empty_tile_type_pkey=empty_tile_type_pkey
     )
+
+    # Merge tiles first, so any splits account for sites the show up after a
+    # merge.
+    for tile_type, merge_direction in progressbar_utils.progressbar(
+            tiles_to_merge.items()):
+        vpr_grid.merge_tile_type(
+            tile_type_pkey=tile_types[tile_type],
+            merge_direction=merge_direction,
+        )
 
     for tile_type, split_direction in progressbar_utils.progressbar(
             tiles_to_split.items()):
@@ -1722,14 +1746,6 @@ def create_vpr_grid(conn):
     # to physical grid and alias map from split tile type to original tile
     # type.
     for (grid_x, grid_y), tile in new_grid.items():
-        # TODO: Merging of tiles isn't supported yet, so don't handle multiple
-        # phy_tile_pkeys yet. The phy_tile_pkey to add to the new VPR tile
-        # should be the tile to use on the FASM prefix.
-        assert len(tile.phy_tile_pkeys) == 1, tile.phy_tile_pkeys
-        assert len(tile.root_phy_tile_pkeys) in [0, 1], len(
-            tile.root_phy_tile_pkeys
-        )
-
         if tile.split_sites and len(tile.sites) == 1:
             write_cur.execute(
                 """
@@ -1764,11 +1780,14 @@ INSERT INTO tile(phy_tile_pkey, tile_type_pkey, site_as_tile_pkey, grid_x, grid_
                 )
             )
         else:
+            phy_tile_pkey = None
+            if len(tile.phy_tile_pkeys) > 0:
+                phy_tile_pkey = tile.phy_tile_pkeys[0]
+
             write_cur.execute(
                 """
 INSERT INTO tile(phy_tile_pkey, tile_type_pkey, grid_x, grid_y) VALUES (
-        ?, ?, ?, ?)""",
-                (tile.phy_tile_pkeys[0], tile.tile_type_pkey, grid_x, grid_y)
+        ?, ?, ?, ?)""", (phy_tile_pkey, tile.tile_type_pkey, grid_x, grid_y)
             )
 
         tile_pkey = write_cur.lastrowid

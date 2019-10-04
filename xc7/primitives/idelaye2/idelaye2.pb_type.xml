@@ -1,6 +1,6 @@
 <!-- set: ai sw=1 ts=1 sta et -->
 <pb_type name="IDELAYE2" blif_model=".subckt IDELAYE2" num_pb="1">
-  <input name="C" num_pins="1"/>
+  <clock name="C" num_pins="1"/>
   <input name="CE" num_pins="1"/>
   <input name="CINVCTRL" num_pins="1"/>
   <input name="CNTVALUEIN0" num_pins="1"/>
@@ -10,9 +10,6 @@
   <input name="CNTVALUEIN4" num_pins="1"/>
   <input name="DATAIN" num_pins="1"/>
   <input name="IDATAIN" num_pins="1"/>
-  <input name="IFDLY0" num_pins="1"/>
-  <input name="IFDLY1" num_pins="1"/>
-  <input name="IFDLY2" num_pins="1"/>
   <input name="INC" num_pins="1"/>
   <input name="LD" num_pins="1"/>
   <input name="LDPIPEEN" num_pins="1"/>
