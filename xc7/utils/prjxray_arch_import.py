@@ -401,6 +401,11 @@ def main():
     parser.add_argument('--device', required=True)
     parser.add_argument('--synth_tiles', required=False)
     parser.add_argument('--connection_database', required=True)
+    parser.add_argument(
+        '--graph_limit',
+        help=
+        'Limit grid to specified dimensions in semicolor x_min,y_min,x_max,y_max',
+    )
 
     args = parser.parse_args()
 
@@ -476,6 +481,15 @@ def main():
         for _, tile_info in synth_tiles['tiles'].items():
             assert tuple(tile_info['loc']) not in synth_loc_map
             synth_loc_map[tuple(tile_info['loc'])] = tile_info
+    elif args.graph_limit:
+        x_min, y_min, x_max, y_max = map(int, args.graph_limit.split(','))
+        roi = Roi(
+            db=db,
+            x1=x_min,
+            y1=y_min,
+            x2=x_max,
+            y2=y_max,
+        )
 
     with DatabaseCache(args.connection_database, read_only=True) as conn:
         c = conn.cursor()
