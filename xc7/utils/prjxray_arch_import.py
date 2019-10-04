@@ -231,60 +231,106 @@ def is_in_roi(conn, roi, tile_pkey):
 
 def get_fasm_tile_prefix(conn, g, tile_pkey, site_as_tile_pkey):
     """ Returns FASM prefix of specified tile. """
-    phy_locs = get_phy_tiles(conn, tile_pkey)
+    c = conn.cursor()
 
-    tile_prefix = None
+    c.execute(
+        """
+SELECT
+    phy_tile.name,
+    tile_type.name
+FROM phy_tile
+INNER JOIN tile_type
+ON phy_tile.tile_type_pkey = tile_type.pkey
+WHERE
+    phy_tile.pkey IN (SELECT phy_tile_pkey FROM tile_map WHERE tile_pkey = ?);
+        """, (tile_pkey, )
+    )
 
     # If this tile has multiples phy_tile's, make sure only one has bitstream
     # data, otherwise the tile split was invalid.
-    for loc in phy_locs:
-        gridinfo = g.gridinfo_at_loc(loc)
-        tile = g.tilename_at_loc(loc)
+    tile_type_map = {}
+    for tilename, tile_type in c:
+        gridinfo = g.gridinfo_at_tilename(tilename)
         is_vbrk = gridinfo.tile_type.find('VBRK') != -1
 
         # VBRK tiles are known to have no bitstream data.
         if not is_vbrk and not gridinfo.bits:
             print(
                 '*** WARNING *** Tile {} appears to be missing bitstream data.'
-                .format(tile),
+                .format(tilename),
                 file=sys.stderr
             )
 
-        if not gridinfo.bits:
+        if gridinfo.bits:
             # Each VPR tile can only have one prefix.
             # If this assumption is violated, a more dramatic
             # restructing is required.
-            assert tile_prefix is None, (tile, gridinfo, tile_prefix)
-            tile_prefix = tile
+            tile_type_map[tile_type] = tilename
 
-    if len(phy_locs) == 1 and tile_prefix is None:
-        tile_prefix = g.tilename_at_loc(phy_locs[0])
-
-    # If this tile is site_as_tile, add an additional prefix of the site that
-    # is embedded in the tile.
-    c = conn.cursor()
-    if site_as_tile_pkey is not None:
-        c.execute(
-            "SELECT site_pkey FROM site_as_tile WHERE pkey = ?",
-            (site_as_tile_pkey, )
+    if len(tile_type_map) > 1:
+        return lambda single_xml: attach_multiple_prefixes_to_tile(
+            single_xml, tile_type_map
         )
-        site_pkey = c.fetchone()[0]
+    else:
+        assert len(tile_type_map) == 1, tile_pkey
 
-        c.execute(
-            """
-            SELECT site_type_pkey, x_coord FROM site WHERE pkey = ?
-            """, (site_pkey, )
+        tile_prefix = list(tile_type_map.values())[0]
+
+        # If this tile is site_as_tile, add an additional prefix of the site
+        # that is embedded in the tile.
+        if site_as_tile_pkey is not None:
+            c.execute(
+                "SELECT site_pkey FROM site_as_tile WHERE pkey = ?",
+                (site_as_tile_pkey, )
+            )
+            site_pkey = c.fetchone()[0]
+
+            c.execute(
+                """
+                SELECT site_type_pkey, x_coord FROM site WHERE pkey = ?
+                """, (site_pkey, )
+            )
+            site_type_pkey, x = c.fetchone()
+
+            c.execute(
+                "SELECT name FROM site_type WHERE pkey = ?",
+                (site_type_pkey, )
+            )
+            site_type_name = c.fetchone()[0]
+
+            tile_prefix = '{}.{}_X{}'.format(tile_prefix, site_type_name, x)
+
+        return lambda single_xml: attach_prefix_to_tile(
+            single_xml, tile_prefix
         )
-        site_type_pkey, x = c.fetchone()
 
-        c.execute(
-            "SELECT name FROM site_type WHERE pkey = ?", (site_type_pkey, )
-        )
-        site_type_name = c.fetchone()[0]
 
-        tile_prefix = '{}.{}_X{}'.format(tile_prefix, site_type_name, x)
+def attach_prefix_to_tile(single_xml, fasm_tile_prefix):
+    meta = ET.SubElement(single_xml, 'metadata')
+    ET.SubElement(
+        meta, 'meta', {
+            'name': 'fasm_prefix',
+        }
+    ).text = fasm_tile_prefix
 
-    return tile_prefix
+
+# Map the following tile types to a more general name
+TYPE_REMAP = {
+    "LIOI3_TBYTESRC": "LIOI3",
+    "LIOI3_TBYTETERM": "LIOI3",
+    "RIOI3_TBYTESRC": "RIOI3",
+    "RIOI3_TBYTETERM": "RIOI3",
+}
+
+
+def attach_multiple_prefixes_to_tile(single_xml, tile_type_map):
+    meta = ET.SubElement(single_xml, 'metadata')
+    ET.SubElement(meta, 'meta', {
+        'name': 'fasm_placeholders',
+    }).text = '\n' + '\n'.join(
+        '{} : {}'.format(TYPE_REMAP.get(k, k), v)
+        for k, v in tile_type_map.items()
+    ) + '\n'
 
 
 def get_tiles(conn, g, roi, synth_loc_map, synth_tile_map, tile_types):
@@ -314,14 +360,7 @@ def get_tiles(conn, g, roi, synth_loc_map, synth_tile_map, tile_types):
         if (grid_x, grid_y) in synth_loc_map:
             vpr_tile_type = synth_loc_map[(grid_x, grid_y)]
 
-            # Synth tiles have no bits, but there needs to be a prefix, so
-            # use the original tile name.
-            c2.execute(
-                "SELECT name FROM phy_tile WHERE pkey = ?", (phy_tile_pkey, )
-            )
-            fasm_tile_prefix = c2.fetchone()[0]
-
-            yield vpr_tile_type, grid_x, grid_y, fasm_tile_prefix
+            yield vpr_tile_type, grid_x, grid_y, lambda x: None
             continue
 
         c2.execute(
@@ -338,11 +377,9 @@ def get_tiles(conn, g, roi, synth_loc_map, synth_tile_map, tile_types):
 
         vpr_tile_type = add_vpr_tile_prefix(tile_type)
 
-        fasm_tile_prefix = get_fasm_tile_prefix(
-            conn, g, tile_pkey, site_as_tile_pkey
-        )
+        meta_fun = get_fasm_tile_prefix(conn, g, tile_pkey, site_as_tile_pkey)
 
-        yield vpr_tile_type, grid_x, grid_y, fasm_tile_prefix
+        yield vpr_tile_type, grid_x, grid_y, meta_fun
 
 
 def add_synthetic_tiles(model_xml, complexblocklist_xml, tiles_xml, need_io):
@@ -571,7 +608,7 @@ def main():
             }
         )
 
-        for vpr_tile_type, grid_x, grid_y, fasm_tile_prefix in get_tiles(
+        for vpr_tile_type, grid_x, grid_y, meta_fun in get_tiles(
                 conn=conn,
                 g=g,
                 roi=roi,
@@ -587,12 +624,7 @@ def main():
                     'y': str(grid_y),
                 }
             )
-            meta = ET.SubElement(single_xml, 'metadata')
-            ET.SubElement(
-                meta, 'meta', {
-                    'name': 'fasm_prefix',
-                }
-            ).text = fasm_tile_prefix
+            meta_fun(single_xml)
 
         switchlist_xml = ET.SubElement(arch_xml, 'switchlist')
 

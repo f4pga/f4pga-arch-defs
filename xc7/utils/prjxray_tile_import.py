@@ -906,6 +906,66 @@ GROUP BY site_pin.direction;
     return top_level_connections, output_internal_connections
 
 
+def get_tile_prefix(conn, tile_type_pkey, site_type):
+    cur = conn.cursor()
+
+    cur.execute(
+        """
+SELECT tile_type.name
+FROM tile_type
+WHERE pkey IN (
+  SELECT tile_type.pkey
+  FROM tile_type
+  INNER JOIN site
+  ON site.tile_type_pkey = tile_type.pkey
+  INNER JOIN site_type
+  ON site_type.pkey = site.site_type_pkey
+  WHERE
+    site_type.name = ?
+  AND
+    tile_type.pkey IN (
+      SELECT DISTINCT phy_tile.tile_type_pkey
+      FROM phy_tile
+      INNER JOIN tile_map
+      ON phy_tile.pkey = tile_map.phy_tile_pkey
+      WHERE tile_map.tile_pkey IN (
+        SELECT tile.pkey
+        FROM tile
+        WHERE tile.tile_type_pkey = ?
+      )
+  )
+);""", (site_type, tile_type_pkey)
+    )
+    results = list(cur.fetchall())
+
+    assert len(results) > 0, (tile_type_pkey, site_type)
+
+    # Use shortest variant of tile type, under the assumption that this is
+    # the most common.
+    #
+    # Example:
+    #
+    # Between RIOI3, RIOI3_TBYTESRC, and RIOI3_TBYTETERM, use RIOI3.
+    min_tile_type = min(tile_type for (tile_type, ) in results)
+
+    return '{' + min_tile_type + '}'
+
+
+# prjxray segbits use site names without the version suffix.
+NORMALIZED_SITE_TYPES = {
+    "IOB33M": "IOB",
+    "IOB33S": "IOB",
+    "IOB33": "IOB",
+    "ILOGICE3": "ILOGIC",
+    "OLOGICE3": "OLOGIC",
+    "IDELAYE2": "IDELAY",
+}
+
+
+def normalize_site_type(site_type):
+    return NORMALIZED_SITE_TYPES.get(site_type, site_type)
+
+
 def import_tile_from_database(conn, args):
     """ Create a root-level pb_type using the site pins and sites from the database.
     """
@@ -1019,6 +1079,22 @@ WHERE
 
     ignored_site_types = set()
 
+    cur.execute(
+        """
+WITH tiles_per_tile(num_tiles) AS (
+  SELECT count()
+  FROM tile_map
+  INNER JOIN tile
+  ON tile_map.tile_pkey = tile.pkey
+  WHERE tile.tile_type_pkey = ?
+  GROUP BY tile_map.tile_pkey
+)
+SELECT max(num_tiles) FROM tiles_per_tile;
+        """, (tile_type_pkey, )
+    )
+    max_tile_count = cur.fetchone()[0]
+    need_tile_prefixs = max_tile_count > 1
+
     site_type_ports = {}
     cur.execute(
         """
@@ -1053,7 +1129,13 @@ WHERE
 
         cells_idx.append(site_type_count[site_type])
         site_type_count[site_type] += 1
-        site_prefix = '{}_Y{}'.format(site_type, site_y)
+        site_prefix = '{}_Y{}'.format(normalize_site_type(site_type), site_y)
+
+        # When tiles are merged, additional tile prefixes are required here
+        # to disambiguate which physical tile this site belongs too
+        if need_tile_prefixs:
+            tile_prefix = get_tile_prefix(conn, tile_type_pkey, site_type)
+            site_prefix = '{}.{}'.format(tile_prefix, site_prefix)
 
         site_instance = site_type_instances[site_type][cells_idx[idx]]
 
