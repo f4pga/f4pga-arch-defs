@@ -95,7 +95,21 @@ CREATE TABLE site(
   x_coord INT,
   y_coord INT,
   site_type_pkey INT,
-  FOREIGN KEY(site_type_pkey) REFERENCES site_type(pkey)
+  tile_type_pkey INT,
+  FOREIGN KEY(site_type_pkey) REFERENCES site_type(pkey),
+  FOREIGN KEY(tile_type_pkey) REFERENCES tile_type(pkey)
+);
+
+-- Table recording each site instance in the grid, useful for lookups.
+CREATE TABLE site_instance(
+    pkey INTEGER PRIMARY KEY,
+    name TEXT,
+    x_coord INT,
+    y_coord INT,
+    site_pkey INT,
+    phy_tile_pkey INT,
+    FOREIGN KEY(site_pkey) REFERENCES site(pkey),
+    FOREIGN KEY(phy_tile_pkey) REFERENCES phy_tile(pkey)
 );
 
 -- This table provides a reference of synthetic tile types generated to
