@@ -616,6 +616,50 @@ class Grid(object):
                 split_map
             )
 
+    def merge_in_dir(self, tile, merge_direction):
+        """ Merge tile in specified direction.
+
+        Merging a tile causes the connects of that tile to be merged into
+        the tile in the merge direction.  The tile that was merged will become
+        empty.
+
+        The original tile root_phy_tile_pkeys and phy_tile_pkeys will appear
+        first.
+
+        Parameters
+        ----------
+        tile : Tile
+            Tile to merge
+        merge_direction : Direction
+            Direction to merge tiles.
+        """
+        assert merge_direction in tile.neighboors, (tile, merge_direction)
+
+        merge_into = tile.neighboors[merge_direction]
+
+        merge_into.root_phy_tile_pkeys.extend(tile.root_phy_tile_pkeys)
+        merge_into.phy_tile_pkeys.extend(tile.phy_tile_pkeys)
+        merge_into.sites.extend(tile.sites)
+
+        tile.sites = list()
+        tile.tile_type_pkey = self.empty_tile_type_pkey
+        tile.root_phy_tile_pkeys = list()
+        tile.phy_tile_pkeys = list()
+
+    def merge_tile_type(self, tile_type_pkey, merge_direction):
+        """ Merge tile types in specified direction.
+
+        Parameters
+        ----------
+        tile_type_pkey : Tile type to split.
+        merge_direction : Direction
+            Direction to merge tiles.
+
+        """
+        for tile in self.items:
+            if tile.tile_type_pkey == tile_type_pkey:
+                self.merge_in_dir(tile, merge_direction)
+
     def output_grid(self):
         """ Convert grid back to coordinate lookup form.
 

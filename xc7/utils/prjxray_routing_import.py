@@ -25,8 +25,7 @@ from prjxray.roi import Roi
 import prjxray.grid as grid
 from lib.rr_graph import graph2
 from lib.rr_graph import tracks
-from lib.connection_database import get_wire_pkey, get_track_model, \
-        get_wire_in_tile_from_pin_name
+from lib.connection_database import get_wire_pkey, get_track_model
 import lib.rr_graph_xml.graph2 as xml_graph2
 from lib.rr_graph_xml.utils import read_xml_file
 from prjxray_constant_site_pins import feature_when_routed
@@ -37,6 +36,7 @@ import datetime
 import re
 import functools
 import pickle
+import lxml.etree
 
 from prjxray_db_cache import DatabaseCache
 
@@ -193,28 +193,68 @@ def import_graph_nodes(conn, graph, node_mapping, connection_box_map):
 
         pin = m.group(2)
 
-        (wire_in_tile_pkeys, _) = get_wire_in_tile_from_pin_name(
-            conn=conn, tile_type_str=tile_type, wire_str=pin
-        )
-
         cur.execute(
             """
-SELECT site_as_tile_pkey FROM tile WHERE grid_x = ? AND grid_y = ?;
+SELECT pkey, site_as_tile_pkey FROM tile WHERE grid_x = ? AND grid_y = ?;
         """, (node.loc.x_low, node.loc.y_low)
         )
-        site_as_tile_pkey = cur.fetchone()[0]
+        result = cur.fetchone()
+        assert result is not None, (tile_type, pin, node.loc)
+        tile_pkey, site_as_tile_pkey = result
 
         if site_as_tile_pkey is not None:
             cur.execute(
                 """
-SELECT site_pkey FROM site_as_tile WHERE pkey = ?;
-                """, (site_as_tile_pkey, )
+WITH site_for_tile(site_pkey) AS (
+  SELECT site_pkey FROM site_as_tile WHERE pkey = ?
+)
+SELECT
+  pkey
+FROM
+  wire_in_tile
+WHERE
+  site_pin_pkey = (
+    SELECT
+      pkey
+    FROM
+      site_pin
+    WHERE
+      site_type_pkey = (
+        SELECT
+          site_type_pkey
+        FROM
+          site
+        WHERE
+          pkey = (SELECT site_pkey FROM site_for_tile)
+      )
+      AND name = ?
+  )
+AND
+  site_pkey = (SELECT site_pkey FROM site_for_tile)
+  ;""", (site_as_tile_pkey, pin)
             )
-            site_pkey = cur.fetchone()[0]
-            wire_in_tile_pkey = wire_in_tile_pkeys[site_pkey]
+            results = cur.fetchall()
+            assert len(results) == 1
+            wire_in_tile_pkey = results[0][0]
         else:
-            assert len(wire_in_tile_pkeys) == 1
-            _, wire_in_tile_pkey = wire_in_tile_pkeys.popitem()
+            cur.execute(
+                """
+SELECT
+  pkey
+FROM
+  wire_in_tile
+WHERE
+  name = ?
+AND
+  phy_tile_type_pkey IN (
+    SELECT tile_type_pkey FROM phy_tile WHERE pkey IN (
+        SELECT phy_tile_pkey FROM tile_map WHERE tile_pkey = ?
+        )
+    );""", (pin, tile_pkey)
+            )
+            results = cur.fetchall()
+            assert len(results) == 1
+            wire_in_tile_pkey = results[0][0]
 
         if gridloc not in tile_loc_to_pkey:
             cur.execute(
@@ -702,11 +742,15 @@ def main():
         '--synth_tiles',
         help='If using an ROI, synthetic tile defintion from prjxray-arch-import'
     )
+    parser.add_argument(
+        '--graph_limit',
+        help=
+        'Limit grid to specified dimensions in semicolor x_min,y_min,x_max,y_max',
+    )
 
     args = parser.parse_args()
 
     db = prjxray.db.Database(args.db_root)
-    grid = db.grid()
 
     if args.synth_tiles:
         use_roi = True
@@ -722,8 +766,21 @@ def main():
         )
 
         print('{} generating routing graph for ROI.'.format(now()))
+    elif args.graph_limit:
+        use_roi = True
+        x_min, y_min, x_max, y_max = map(int, args.graph_limit.split(','))
+        roi = Roi(
+            db=db,
+            x1=x_min,
+            y1=y_min,
+            x2=x_max,
+            y2=y_max,
+        )
+        synth_tiles = {'tiles': {}}
     else:
         use_roi = False
+        roi = None
+        synth_tiles = None
 
     # Convert input rr graph into graph2.Graph object.
     input_rr_graph = read_xml_file(args.read_rr_graph)

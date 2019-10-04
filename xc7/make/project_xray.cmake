@@ -55,6 +55,8 @@ function(PROJECT_XRAY_TILE)
   # SITE_TYPES list of sites contained in the considered tile (e.g. CLBLM_R contains a SLICEM and SLICEL sites)
   # EQUIVALENT_TILES list of pb_types that can be placed at the tile's location (e.g. SLICEM tile can have both SLICEM and SLICEL pb_types)
   # SITE_AS_TILE option to state if the tile physically is a site, but it needs to be treated as a site
+  # USE_DATABASE option enables usage of connection database for tile
+  #     definition, instead of using the project X-Ray database.
   #
   # Usage:
   # ~~~
@@ -65,10 +67,11 @@ function(PROJECT_XRAY_TILE)
   #   EQUIVALENT_SITES <equivalent_site_name_1> <equivalent_site_name_2> ...
   #   SITE_AS_TILE (option)
   #   FUSED_SITES (option)
+  #   USE_DATABASE (option)
   #   )
   # ~~~
 
-  set(options FUSED_SITES SITE_AS_TILE)
+  set(options FUSED_SITES SITE_AS_TILE USE_DATABASE)
   set(oneValueArgs PART TILE)
   set(multiValueArgs SITE_TYPES EQUIVALENT_SITES)
   cmake_parse_arguments(
@@ -108,6 +111,13 @@ function(PROJECT_XRAY_TILE)
   endif()
   if(PROJECT_XRAY_TILE_SITE_AS_TILE)
       set(FUSED_SITES_ARGS "--site_as_tile")
+  endif()
+  if(PROJECT_XRAY_TILE_USE_DATABASE)
+      set(GENERIC_CHANNELS
+        ${symbiflow-arch-defs_SOURCE_DIR}/xc7/archs/${PART}/channels.db)
+      get_file_location(GENERIC_CHANNELS_LOCATION ${GENERIC_CHANNELS})
+      append_file_dependency(DEPS ${GENERIC_CHANNELS})
+      set(FUSED_SITES_ARGS --connection_database ${GENERIC_CHANNELS_LOCATION})
   endif()
 
   add_custom_command(
@@ -179,7 +189,7 @@ endfunction()
 
 function(PROJECT_XRAY_ARCH)
   set(options)
-  set(oneValueArgs PART USE_ROI DEVICE)
+  set(oneValueArgs PART USE_ROI DEVICE GRAPH_LIMIT)
   set(multiValueArgs TILE_TYPES)
   cmake_parse_arguments(
     PROJECT_XRAY_ARCH
@@ -258,6 +268,10 @@ function(PROJECT_XRAY_ARCH)
 
     set(ROI_ARG_FOR_CREATE_EDGES --synth_tiles ${CMAKE_CURRENT_BINARY_DIR}/synth_tiles.json)
     append_file_dependency(CHANNELS_DEPS synth_tiles.json)
+  endif()
+
+  if(NOT "${PROJECT_XRAY_ARCH_GRAPH_LIMIT}" STREQUAL "")
+    set(ROI_ARG_FOR_CREATE_EDGES --graph_limit ${PROJECT_XRAY_ARCH_GRAPH_LIMIT})
   endif()
 
 
