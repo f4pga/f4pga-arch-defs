@@ -26,3 +26,7 @@ add_fpga_target(
   INPUT_IO_FILE basys3_x1y0.pcf
   )
 
+add_vivado_target(
+    NAME buttons_basys3_x1y0_vivado
+    PARENT_NAME buttons_basys3_x1y0
+    )
