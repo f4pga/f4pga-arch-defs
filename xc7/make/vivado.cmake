@@ -192,11 +192,16 @@ function(ADD_VIVADO_TARGET)
   get_file_location(BIT_VERILOG_LOCATION ${BIT_VERILOG})
   set(BIT_TCL_LOCATION ${BIT_VERILOG_LOCATION}.tcl)
 
-  list(LENGTH ${ADD_VIVADO_TARGET_CLOCK_PINS} NUM_CLOCKS)
-  list(LENGTH ${ADD_VIVADO_TARGET_CLOCK_PERIODS} NUM_CLOCK_PERIODS)
+  if(NOT "${ADD_VIVADO_TARGET_CLOCK_PINS}" STREQUAL "")
+    list(LENGTH ${ADD_VIVADO_TARGET_CLOCK_PINS} NUM_CLOCKS)
+    list(LENGTH ${ADD_VIVADO_TARGET_CLOCK_PERIODS} NUM_CLOCK_PERIODS)
 
-  if(NOT ${NUM_CLOCKS} EQUAL ${NUM_CLOCK_PERIODS})
-    message( FATAL_ERROR "Number of clock pins (${NUM_CLOCKS}) must match number of periods (${NUM_CLOCK_PERIODS})")
+    if(NOT ${NUM_CLOCKS} EQUAL ${NUM_CLOCK_PERIODS})
+        message( FATAL_ERROR "Number of clock pins (${NUM_CLOCKS}) must match number of periods (${NUM_CLOCK_PERIODS})")
+    endif()
+    set(CLOCK_ARGS --clock_pins "${ADD_VIVADO_TARGET_CLOCK_PINS}" --clock_periods "${ADD_VIVADO_TARGET_CLOCK_PERIODS}")
+  elseif()
+    set(CLOCK_ARGS "")
   endif()
 
   get_target_property_required(PYTHON3 env PYTHON3)
@@ -211,9 +216,8 @@ function(ADD_VIVADO_TARGET)
         --routing_tcl ${BIT_TCL_LOCATION}
         --top ${TOP}
         --part ${PART}
-        --clock_pins "${ADD_VIVADO_TARGET_CLOCK_PINS}"
-        --clock_periods "${ADD_VIVADO_TARGET_CLOCK_PERIODS}"
         --output_tcl ${CMAKE_CURRENT_BINARY_DIR}/${NAME}_runme.tcl
+        ${CLOCK_ARGS}
       DEPENDS
         ${PYTHON3_TARGET} ${PYTHON3}
         ${CREATE_RUNME}
@@ -224,9 +228,8 @@ function(ADD_VIVADO_TARGET)
       OUTPUT ${NAME}_sim.tcl
       COMMAND ${PYTHON3} ${CREATE_SIM}
         --top ${TOP}
-        --clock_pins "${ADD_VIVADO_TARGET_CLOCK_PINS}"
-        --clock_periods "${ADD_VIVADO_TARGET_CLOCK_PERIODS}"
         --output_tcl ${CMAKE_CURRENT_BINARY_DIR}/${NAME}_sim.tcl
+        ${CLOCK_ARGS}
       DEPENDS
         ${PYTHON3_TARGET} ${PYTHON3}
         ${CREATE_SIM}
