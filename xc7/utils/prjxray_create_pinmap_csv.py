@@ -9,7 +9,8 @@ import sqlite3
 
 def get_vpr_coords_from_site_name(conn, site_name):
     cur = conn.cursor()
-    cur.execute("""
+    cur.execute(
+        """
 SELECT DISTINCT tile.grid_x, tile.grid_y
 FROM site_instance
 INNER JOIN wire_in_tile
