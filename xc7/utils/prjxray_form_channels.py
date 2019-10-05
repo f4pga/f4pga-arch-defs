@@ -1247,6 +1247,38 @@ SELECT DISTINCT grid_x, grid_y FROM tile WHERE pkey IN (
             #  3a. For CHANNEL to CHANNEL connections, use the pip location.
             #  3b. For CHANNEL to EDGES_TO_CHANNEL (e.g. site pin connections)
             #      use location of site in VPR grid.
+
+            # 3a loop
+            for grid_x, grid_y in cur2.execute("""
+-- Get wires from this node
+WITH wires_from_node(wire_in_tile_pkey, phy_tile_pkey) AS (
+  SELECT
+    wire_in_tile_pkey,
+    phy_tile_pkey
+  FROM
+    wire
+  WHERE
+    node_pkey = ? AND tile_pkey IS NOT NULL
+),
+  other_wires(phy_tile_pkey, wire_in_tile_pkey) AS (
+    SELECT
+        wires_from_node.phy_tile_pkey,
+        undirected_pips.other_wire_in_tile_pkey
+    FROM undirected_pips
+    INNER JOIN wires_from_node ON
+        undirected_pips.wire_in_tile_pkey = wires_from_node.wire_in_tile_pkey)
+SELECT tile.grid_x, tile.grid_y
+FROM tile
+WHERE pkey IN (
+    SELECT wire.tile_pkey FROM wire
+    INNER JOIN other_wires ON
+        wire.wire_in_tile_pkey = other_wires.wire_in_tile_pkey
+    AND
+        wire.phy_tile_pkey = other_wires.phy_tile_pkey
+        );""", (node_pkey, )):
+                unique_pos.add((grid_x, grid_y))
+
+            # 3b loop
             for grid_x, grid_y in cur2.execute("""
 -- Get wires from this node
 WITH wires_from_node(wire_in_tile_pkey, phy_tile_pkey) AS (

@@ -272,6 +272,7 @@ function(PROJECT_XRAY_ARCH)
 
   if(NOT "${PROJECT_XRAY_ARCH_GRAPH_LIMIT}" STREQUAL "")
     set(ROI_ARG_FOR_CREATE_EDGES --graph_limit ${PROJECT_XRAY_ARCH_GRAPH_LIMIT})
+    set(ROI_ARG --graph_limit ${PROJECT_XRAY_ARCH_GRAPH_LIMIT})
   endif()
 
 
