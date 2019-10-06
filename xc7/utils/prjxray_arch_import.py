@@ -73,10 +73,7 @@ def create_synth_io_tiles(complexblocklist_xml, tiles_xml, pb_name, is_input):
     port_pin = '{}.{}'.format(pb_name, pad_name)
     pad_pin = '{}.{}'.format(pad_name, pad_name)
 
-    ET.SubElement(site, 'direct', {
-        'from': port_pin,
-        'to': port_pin
-    })
+    ET.SubElement(site, 'direct', {'from': port_pin, 'to': port_pin})
 
     if not is_input:
         input_name = port_pin
@@ -165,10 +162,7 @@ def create_synth_constant_tiles(
     port_pin = '{}.{}'.format(pb_name, pin_name)
     pad_pin = '{}.{}'.format(pin_name, pin_name)
 
-    ET.SubElement(site, 'direct', {
-        'from': port_pin,
-        'to': port_pin
-    })
+    ET.SubElement(site, 'direct', {'from': port_pin, 'to': port_pin})
 
     input_name = pad_pin
     output_name = port_pin

@@ -73,9 +73,11 @@ def import_physical_tile(args):
             for tile_port in tile_ports:
                 if site_port == tile_port:
                     direct_map = ET.SubElement(
-                        site_xml, 'direct',
-                        {'from': "{}.{}".format(tile_name, tile_port),
-                         'to': "{}.{}".format(site_name, site_port)})
+                        site_xml, 'direct', {
+                            'from': "{}.{}".format(tile_name, tile_port),
+                            'to': "{}.{}".format(site_name, site_port)
+                        }
+                    )
 
     def add_equivalent_sites(tile_xml, equivalent_sites, inc_priority=False):
         """ Used to add to the <tile> tag the equivalent tiles associated with it."""
@@ -95,9 +97,10 @@ def import_physical_tile(args):
             pb_type_root = eq_pb_type_xml.getroot()
 
             site_xml = ET.SubElement(
-                equivalent_sites_xml, 'site',
-                {'pb_type': tile_import.add_vpr_tile_prefix(eq_site),
-                 'priority': str(priority)}
+                equivalent_sites_xml, 'site', {
+                    'pb_type': tile_import.add_vpr_tile_prefix(eq_site),
+                    'priority': str(priority)
+                }
             )
 
             if inc_priority:
