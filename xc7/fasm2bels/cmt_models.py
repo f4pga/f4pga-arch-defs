@@ -4,6 +4,7 @@ from .verilog_modeling import Bel, Site
 
 # =============================================================================
 
+
 def get_pll_site(db, grid, tile, site):
     """ Return the prjxray.tile.Site object for the given PLL site. """
     gridinfo = grid.gridinfo_at_tilename(tile)
@@ -44,7 +45,10 @@ def process_pll(conn, top, tile_name, features):
         return
 
     # Create the site
-    site = Site(pll_features, get_pll_site(top.db, top.grid, tile=tile_name, site='PLLE2_ADV'))
+    site = Site(
+        pll_features,
+        get_pll_site(top.db, top.grid, tile=tile_name, site='PLLE2_ADV')
+    )
 
     # If the PLL is not used then skip the rest
     if not site.has_feature("IN_USE"):
@@ -82,11 +86,15 @@ def process_pll(conn, top, tile_name, features):
         if site.has_feature('CLK{}_CLKOUT1_OUTPUT_ENABLE'.format(clkout)):
 
             # Add output source
-            site.add_source(pll, 'CLK'+clkout, 'CLK'+clkout)
+            site.add_source(pll, 'CLK' + clkout, 'CLK' + clkout)
 
             # Calculate the divider and duty cycle
-            high_time = decode_multi_bit_feature(features, 'CLK{}_CLKOUT1_HIGH_TIME'.format(clkout))
-            low_time  = decode_multi_bit_feature(features, 'CLK{}_CLKOUT1_LOW_TIME'.format(clkout))
+            high_time = decode_multi_bit_feature(
+                features, 'CLK{}_CLKOUT1_HIGH_TIME'.format(clkout)
+            )
+            low_time = decode_multi_bit_feature(
+                features, 'CLK{}_CLKOUT1_LOW_TIME'.format(clkout)
+            )
 
             divider = high_time + low_time
             duty = high_time / (low_time + high_time)
@@ -99,33 +107,41 @@ def process_pll(conn, top, tile_name, features):
                 pll.parameters['CLKFBOUT_MULT'] = divider
             else:
                 pll.parameters['CLK{}_DIVIDE'.format(clkout)] = divider
-                pll.parameters['CLK{}_DUTY_CYCLE'.format(clkout)] = "{0:.3f}".format(duty)
+                pll.parameters['CLK{}_DUTY_CYCLE'.format(clkout)
+                               ] = "{0:.3f}".format(duty)
 
             # Phase shift
-            delay = decode_multi_bit_feature(features, 'CLK{}_CLKOUT2_DELAY_TIME'.format(clkout))
-            phase = decode_multi_bit_feature(features, 'CLK{}_CLKOUT1_PHASE_MUX'.format(clkout))
-            
+            delay = decode_multi_bit_feature(
+                features, 'CLK{}_CLKOUT2_DELAY_TIME'.format(clkout)
+            )
+            phase = decode_multi_bit_feature(
+                features, 'CLK{}_CLKOUT1_PHASE_MUX'.format(clkout)
+            )
+
             phase = float(delay) + phase / 8.0  # Delay in VCO cycles
             phase = 360.0 * phase / divider  # Phase of CLK in degrees
 
             if clkout == 'FBOUT':
                 pll.parameters['CLKFBOUT_PHASE'] = "{0:.3f}".format(phase)
             else:
-                pll.parameters['CLK{}_PHASE'.format(clkout)] = "{0:.3f}".format(phase)
- 
+                pll.parameters['CLK{}_PHASE'.format(clkout)
+                               ] = "{0:.3f}".format(phase)
+
     # Input clock divider
     high_time = decode_multi_bit_feature(features, 'DIVCLK_DIVCLK_HIGH_TIME')
-    low_time  = decode_multi_bit_feature(features, 'DIVCLK_DIVCLK_LOW_TIME')
+    low_time = decode_multi_bit_feature(features, 'DIVCLK_DIVCLK_LOW_TIME')
 
     divider = high_time + low_time
-    
+
     if site.has_feature('DIVCLK_DIVCLK_NO_COUNT'):
         divider = 1
 
     pll.parameters['DIVCLK_DIVIDE'] = divider
 
     # Startup wait
-    pll.parameters['STARTUP_WAIT'] = '"TRUE"' if site.has_feature('STARTUP_WAIT') else '"FALSE"'
+    pll.parameters['STARTUP_WAIT'] = '"TRUE"' if site.has_feature(
+        'STARTUP_WAIT'
+    ) else '"FALSE"'
 
     # Compensation  TODO: Other modes
     if site.has_feature('COMPENSATION.INTERNAL'):
@@ -142,4 +158,3 @@ def process_pll(conn, top, tile_name, features):
     # Add the bel and site
     site.add_bel(pll)
     top.add_site(site)
-
