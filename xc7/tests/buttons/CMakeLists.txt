@@ -27,6 +27,6 @@ add_fpga_target(
   )
 
 add_vivado_target(
-    NAME buttons_basys3_x1y0_vivado
-    PARENT_NAME buttons_basys3_x1y0
-    )
+  NAME buttons_basys3_x1y0_vivado
+  PARENT_NAME buttons_basys3_x1y0
+  )
