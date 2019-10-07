@@ -1,5 +1,4 @@
 import fasm
-from .connection_db_utils import create_maybe_get_wire
 from .verilog_modeling import Bel, Site
 
 # =============================================================================
