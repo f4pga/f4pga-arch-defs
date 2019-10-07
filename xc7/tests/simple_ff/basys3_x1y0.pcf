@@ -1,0 +1,12 @@
+# basys3 100 MHz CLK
+set_io clk W5
+
+# SW8
+set_io in[0] V2
+# SW11
+set_io in[1] R3
+# SW15
+set_io in[2] R2
+
+# LED9
+set_io out V2
