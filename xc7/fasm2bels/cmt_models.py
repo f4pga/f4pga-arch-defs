@@ -96,7 +96,12 @@ def process_pll(conn, top, tile_name, features):
                 features, 'CLK{}_CLKOUT1_LOW_TIME'.format(clkout)
             )
 
-            divider = high_time + low_time
+            if decode_multi_bit_feature(features,
+                                        'CLK{}_CLKOUT2_EDGE'.format(clkout)):
+                high_time += 0.5
+                low_time = max(0, low_time - 0.5)
+
+            divider = int(high_time + low_time)
             duty = high_time / (low_time + high_time)
 
             if site.has_feature('CLK{}_CLKOUT2_NO_COUNT'.format(clkout)):
