@@ -21,7 +21,9 @@
     <metadata>
       <meta name="fasm_features">
         IN_USE
-        ZINV_CE
+      </meta>
+      <meta name="fasm_params">
+        ZINV_CE = ZINV_CE
       </meta>
     </metadata>
   </mode>

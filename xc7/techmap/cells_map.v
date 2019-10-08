@@ -1925,8 +1925,8 @@ module BUFG (
   );
 
   parameter [0:0] INIT_OUT = 1'b0;
-  parameter [0:0] PRESELECT_I0 = 1'b0;
-  parameter [0:0] PRESELECT_I1 = 1'b1;
+  parameter [0:0] PRESELECT_I0 = 1'b1;
+  parameter [0:0] PRESELECT_I1 = 1'b0;
   parameter [0:0] IS_IGNORE0_INVERTED = 1'b1;
   parameter [0:0] IS_IGNORE1_INVERTED = 1'b0;
   parameter [0:0] IS_CE0_INVERTED = 1'b0;
@@ -2001,7 +2001,18 @@ module BUFHCE (
   output O
   );
 
-  BUFHCE_VPR _TECHMAP_REPLACE_ (
+  parameter [0:0] INIT_OUT = 1'b0;
+  parameter [0:0] IS_CE_INVERTED = 1'b0;
+
+  localparam [0:0] INV_CE = (
+      _TECHMAP_CONSTMSK_CE_ == 1 &&
+      _TECHMAP_CONSTVAL_CE_ == 0 &&
+      IS_CE_INVERTED == 0);
+
+  BUFHCE_VPR #(
+      .INIT_OUT(INIT_OUT),
+      .ZINV_CE(!IS_CE_INVERTED ^ INV_CE)
+  ) _TECHMAP_REPLACE_ (
   .O(O),
   .I(I),
   .CE(1)
