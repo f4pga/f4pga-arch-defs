@@ -1925,14 +1925,14 @@ module BUFG (
   );
 
   parameter [0:0] INIT_OUT = 1'b0;
-  parameter [0:0] PRESELECT_I0 = 1'b1;
-  parameter [0:0] PRESELECT_I1 = 1'b0;
-  parameter [0:0] IS_IGNORE0_INVERTED = 1'b0;
-  parameter [0:0] IS_IGNORE1_INVERTED = 1'b1;
-  parameter [0:0] IS_CE0_INVERTED = 1'b1;
-  parameter [0:0] IS_CE1_INVERTED = 1'b0;
-  parameter [0:0] IS_S0_INVERTED = 1'b1;
-  parameter [0:0] IS_S1_INVERTED = 1'b0;
+  parameter [0:0] PRESELECT_I0 = 1'b0;
+  parameter [0:0] PRESELECT_I1 = 1'b1;
+  parameter [0:0] IS_IGNORE0_INVERTED = 1'b1;
+  parameter [0:0] IS_IGNORE1_INVERTED = 1'b0;
+  parameter [0:0] IS_CE0_INVERTED = 1'b0;
+  parameter [0:0] IS_CE1_INVERTED = 1'b1;
+  parameter [0:0] IS_S0_INVERTED = 1'b0;
+  parameter [0:0] IS_S1_INVERTED = 1'b1;
 
   parameter _TECHMAP_CONSTMSK_IGNORE0_ = 0;
   parameter _TECHMAP_CONSTVAL_IGNORE0_ = 0;
@@ -1943,8 +1943,8 @@ module BUFG (
   parameter _TECHMAP_CONSTMSK_CE1_ = 0;
   parameter _TECHMAP_CONSTVAL_CE1_ = 0;
   parameter _TECHMAP_CONSTMSK_S0_ = 0;
-  parameter _TECHMAP_CONSTMSK_S0_ = 0;
-  parameter _TECHMAP_CONSTVAL_S1_ = 0;
+  parameter _TECHMAP_CONSTVAL_S0_ = 0;
+  parameter _TECHMAP_CONSTMSK_S1_ = 0;
   parameter _TECHMAP_CONSTVAL_S1_ = 0;
 
   localparam [0:0] INV_IGNORE0 = (
