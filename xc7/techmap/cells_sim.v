@@ -633,20 +633,20 @@ input CE0, input CE1,
 input IGNORE0, input IGNORE1
 );
 
-  parameter [0:0] INIT_OUT = 1'b0;
-  parameter PRESELECT_I0 = "FALSE";
-  parameter PRESELECT_I1 = "FALSE";
-  parameter [0:0] IS_CE0_INVERTED = 1'b0;
-  parameter [0:0] IS_CE1_INVERTED = 1'b0;
-  parameter [0:0] IS_S0_INVERTED = 1'b0;
-  parameter [0:0] IS_S1_INVERTED = 1'b0;
-  parameter [0:0] IS_IGNORE0_INVERTED = 1'b0;
-  parameter [0:0] IS_IGNORE1_INVERTED = 1'b0;
+  parameter INIT_OUT = 1'b0;
+  parameter ZPRESELECT_I0 = "FALSE";
+  parameter ZPRESELECT_I1 = "FALSE";
+  parameter ZINV_CE0 = 1'b0;
+  parameter ZINV_CE1 = 1'b0;
+  parameter ZINV_S0 = 1'b0;
+  parameter ZINV_S1 = 1'b0;
+  parameter IS_IGNORE0_INVERTED = 1'b0;
+  parameter IS_IGNORE1_INVERTED = 1'b0;
 
-  wire I0_internal = ((CE0 ^ IS_CE0_INVERTED) ? I0 : INIT_OUT);
-  wire I1_internal = ((CE1 ^ IS_CE1_INVERTED) ? I1 : INIT_OUT);
-  wire S0_true = (S0 ^ IS_S0_INVERTED);
-  wire S1_true = (S1 ^ IS_S1_INVERTED);
+  wire I0_internal = ((CE0 ^ ZINV_CE0) ? I0 : INIT_OUT);
+  wire I1_internal = ((CE1 ^ ZINV_CE1) ? I1 : INIT_OUT);
+  wire S0_true = (S0 ^ ZINV_S0);
+  wire S1_true = (S1 ^ ZINV_S1);
 
   assign O = S0_true ? I0_internal : (S1_true ? I1_internal : INIT_OUT);
 

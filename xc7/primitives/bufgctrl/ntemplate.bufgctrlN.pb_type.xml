@@ -40,10 +40,16 @@
     <metadata>
       <meta name="fasm_features">
         IN_USE
-        IS_IGNORE1_INVERTED
-        ZINV_CE0
-        ZINV_S0
-        ZPRESELECT_I0
+      </meta>
+      <meta name="fasm_params">
+        ZPRESELECT_I0 = ZPRESELECT_I0
+        ZPRESELECT_I1 = ZPRESELECT_I1
+        IS_IGNORE0_INVERTED = IS_IGNORE0_INVERTED
+        IS_IGNORE1_INVERTED = IS_IGNORE1_INVERTED
+        ZINV_CE0 = ZINV_CE0
+        ZINV_CE1 = ZINV_CE1
+        ZINV_S0 = ZINV_S0
+        ZINV_S1 = ZINV_S1
       </meta>
     </metadata>
   </mode>
