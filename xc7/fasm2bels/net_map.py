@@ -75,10 +75,10 @@ WHERE
             wire_in_tile_pkey, phy_tile_pkey, tile_name = results[0]
         else:
             c.execute(
-                "SELECT tile_type_pkey FROM phy_tile WHERE pkey = ?",
+                "SELECT tile_type_pkey, name FROM phy_tile WHERE pkey = ?",
                 (phy_tile_pkey, )
             )
-            phy_tile_type_pkey = c.fetchone()[0]
+            phy_tile_type_pkey, tile_name = c.fetchone()
 
             c.execute(
                 "SELECT site_pkey FROM site_as_tile WHERE pkey = ?",
