@@ -199,9 +199,11 @@ def process_pll(conn, top, tile_name, features):
         pll.parameters['BANDWIDTH'] =\
             '"{}"'.format(PLL_BANDWIDTH_LOOKUP[table])
 
-    # Compensation  TODO: Other modes
+    # Compensation  TODO: Probably need to rework database tags for those.
     if site.has_feature('COMPENSATION.INTERNAL'):
         pll.parameters['COMPENSATION'] = '"INTERNAL"'
+    elif site.has_feature('COMPENSATION.BUF_IN_OR_EXTERNAL_OR_ZHOLD_CLKIN_BUF'):
+        pll.parameters['COMPENSATION'] = '"BUF_IN"'
 
     # Built-in inverters
     pll.parameters['IS_CLKINSEL_INVERTED'] =\
