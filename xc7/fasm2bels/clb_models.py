@@ -12,20 +12,9 @@ def get_clb_site(db, grid, tile, site):
     return sites[int(site[-1])]
 
 
-def get_lut_init(features, tile_name, slice_name, lut):
+def get_lut_init(site, lut):
     """ Return the INIT value for the specified LUT. """
-    target_feature = '{}.{}.{}LUT.INIT'.format(tile_name, slice_name, lut)
-
-    init = 0
-
-    for f in features:
-        if f.feature.startswith(target_feature):
-            for canon_f in fasm.canonical_features(f):
-                if canon_f.start is None:
-                    init |= 1
-                else:
-                    init |= (1 << canon_f.start)
-
+    init = site.decode_multi_bit_feature('{}LUT.INIT'.format(lut))
     return "64'b{:064b}".format(init)
 
 
@@ -43,9 +32,9 @@ def create_lut(site, lut):
     return bel
 
 
-def get_srl32_init(features, tile_name, slice_name, srl):
+def get_srl32_init(site, srl):
 
-    lut_init = get_lut_init(features, tile_name, slice_name, srl)
+    lut_init = get_lut_init(site, srl)
     bits = lut_init.replace("64'b", "")
 
     assert bits[1::2] == bits[::2]
@@ -68,13 +57,13 @@ def create_srl32(site, srl):
     return bel
 
 
-def get_srl16_init(features, tile_name, slice_name, srl):
+def get_srl16_init(site, srl):
     """
     Decodes SRL16 INIT parameter. Returns two initialization strings, each one
     for one of two SRL16s.
     """
 
-    lut_init = get_lut_init(features, tile_name, slice_name, srl)
+    lut_init = get_lut_init(site, srl)
     bits = lut_init.replace("64'b", "")
 
     assert bits[1::2] == bits[::2]
@@ -511,9 +500,7 @@ def process_slice(top, s):
                 # SRL32
                 if not site.has_feature('{}LUT.SMALL'.format(row)):
                     srl = create_srl32(site, row)
-                    srl.parameters['INIT'] = get_srl32_init(
-                        s, aparts[0], aparts[1], row
-                    )
+                    srl.parameters['INIT'] = get_srl32_init(site, row)
 
                     site.add_sink(srl, 'CE', WE)
 
@@ -529,7 +516,7 @@ def process_slice(top, s):
                 else:
 
                     srls[row] = []
-                    init = get_srl16_init(s, aparts[0], aparts[1], row)
+                    init = get_srl16_init(site, row)
 
                     for i, part in enumerate(['5', '6']):
 
@@ -573,9 +560,7 @@ def process_slice(top, s):
             # LUT
             else:
                 luts[row] = create_lut(site, row)
-                luts[row].parameters['INIT'] = get_lut_init(
-                    s, aparts[0], aparts[1], row
-                )
+                luts[row].parameters['INIT'] = get_lut_init(site, row)
                 site.add_bel(luts[row])
     else:
         # DRAM is active.  Determine what BELs are in use.
@@ -597,10 +582,9 @@ def process_slice(top, s):
             site.add_internal_source(ram256, 'O', 'F8MUX_O')
 
             ram256.parameters['INIT'] = (
-                get_lut_init(s, aparts[0], aparts[1], 'D') |
-                (get_lut_init(s, aparts[0], aparts[1], 'C') << 64) |
-                (get_lut_init(s, aparts[0], aparts[1], 'B') << 128) |
-                (get_lut_init(s, aparts[0], aparts[1], 'A') << 192)
+                get_lut_init(site, 'D') | (get_lut_init(site, 'C') << 64) |
+                (get_lut_init(site, 'B') << 128) |
+                (get_lut_init(site, 'A') << 192)
             )
 
             site.add_bel(ram256)
@@ -624,8 +608,7 @@ def process_slice(top, s):
             site.add_internal_source(ram128, 'O', 'F7BMUX_O')
 
             ram128.parameters['INIT'] = (
-                get_lut_init(s, aparts[0], aparts[1], 'D') |
-                (get_lut_init(s, aparts[0], aparts[1], 'C') << 64)
+                get_lut_init(site, 'D') | (get_lut_init(site, 'C') << 64)
             )
 
             site.add_bel(ram128)
@@ -650,8 +633,7 @@ def process_slice(top, s):
                 site.add_internal_source(ram128, 'O', 'F7AMUX_O')
 
                 ram128.parameters['INIT'] = (
-                    get_lut_init(s, aparts[0], aparts[1], 'B') |
-                    (get_lut_init(s, aparts[0], aparts[1], 'A') << 64)
+                    get_lut_init(site, 'B') | (get_lut_init(site, 'A') << 64)
                 )
 
                 site.add_bel(ram128)
@@ -683,13 +665,11 @@ def process_slice(top, s):
             site.add_internal_source(ram128, 'DPO', 'F7BMUX_O')
 
             ram128.parameters['INIT'] = (
-                get_lut_init(s, aparts[0], aparts[1], 'D') |
-                (get_lut_init(s, aparts[0], aparts[1], 'C') << 64)
+                get_lut_init(site, 'D') | (get_lut_init(site, 'C') << 64)
             )
 
             other_init = (
-                get_lut_init(s, aparts[0], aparts[1], 'B') |
-                (get_lut_init(s, aparts[0], aparts[1], 'A') << 64)
+                get_lut_init(site, 'B') | (get_lut_init(site, 'A') << 64)
             )
 
             assert ram128.parameters['INIT'] == other_init
@@ -725,9 +705,7 @@ def process_slice(top, s):
 
                 site.add_internal_source(ram64m, 'DO' + lut, lut + "O6")
 
-                ram64m.parameters['INIT_' + lut] = get_lut_init(
-                    s, aparts[0], aparts[1], lut
-                )
+                ram64m.parameters['INIT_' + lut] = get_lut_init(site, lut)
 
             site.add_bel(ram64m)
         elif lut_modes['D'] == 'RAM32M':
@@ -760,7 +738,7 @@ def process_slice(top, s):
                     )
 
                 ram32m.parameters['INIT_' + lut] = munge_ram32m_init(
-                    get_lut_init(s, aparts[0], aparts[1], lut)
+                    get_lut_init(site, lut)
                 )
 
             site.add_bel(ram32m)
@@ -797,10 +775,8 @@ def process_slice(top, s):
                 site.add_internal_source(ram64, 'SPO', lut + "O6")
                 site.add_internal_source(ram64, 'DPO', minus_one + "O6")
 
-                ram64.parameters['INIT'] = get_lut_init(
-                    s, aparts[0], aparts[1], lut
-                )
-                other_init = get_lut_init(s, aparts[0], aparts[1], minus_one)
+                ram64.parameters['INIT'] = get_lut_init(site, lut)
+                other_init = get_lut_init(site, minus_one)
 
                 assert ram64.parameters['INIT'] == other_init
 
@@ -840,8 +816,8 @@ def process_slice(top, s):
                 site.add_internal_source(ram32[1], 'DPO', minus_one + "O5")
                 ram32[1].set_bel('{}5LUT'.format(lut))
 
-                lut_init = get_lut_init(s, aparts[0], aparts[1], lut)
-                other_init = get_lut_init(s, aparts[0], aparts[1], minus_one)
+                lut_init = get_lut_init(site, lut)
+                other_init = get_lut_init(site, minus_one)
                 assert lut_init == other_init
 
                 bits = lut_init.replace("64'b", "")
@@ -861,9 +837,7 @@ def process_slice(top, s):
 
             if lut_modes[lut] == 'LUT':
                 luts[lut] = create_lut(site, lut)
-                luts[lut].parameters['INIT'] = get_lut_init(
-                    s, aparts[0], aparts[1], lut
-                )
+                luts[lut].parameters['INIT'] = get_lut_init(site, lut)
                 site.add_bel(luts[lut])
             elif lut_modes[lut] == 'RAM64X1S':
                 ram64 = Bel(
@@ -881,9 +855,7 @@ def process_slice(top, s):
 
                 site.add_internal_source(ram64, 'O', lut + "O6")
 
-                ram64.parameters['INIT'] = get_lut_init(
-                    s, aparts[0], aparts[1], lut
-                )
+                ram64.parameters['INIT'] = get_lut_init(site, lut)
 
                 site.add_bel(ram64)
             elif lut_modes[lut] == 'RAM32X1S':
@@ -912,7 +884,7 @@ def process_slice(top, s):
                 site.add_internal_source(ram32, 'O', lut + "O5")
                 ram32[1].set_bel('{}5LUT'.format(lut))
 
-                lut_init = get_lut_init(s, aparts[0], aparts[1], lut)
+                lut_init = get_lut_init(site, lut)
 
                 bits = lut_init.replace("64'b", "")
                 assert len(bits) == 64

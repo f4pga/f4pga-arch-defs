@@ -61,30 +61,6 @@ def get_iob_site(db, grid, tile, site):
     return iob_site, iologic_tile, ilogic_site, ologic_site
 
 
-def has_feature_with_part(site, part):
-    """
-    Returns True when a given site has a feature which contains a particular
-    part.
-    """
-    for feature in site.set_features:
-        parts = feature.split(".")
-        if part in parts:
-            return True
-
-    return False
-
-
-def has_feature_containing(site, substr):
-    """
-    Returns True when a given site has a feature which contains a given substring.
-    """
-    for feature in site.set_features:
-        if substr in feature:
-            return True
-
-    return False
-
-
 def append_obuf_iostandard_params(
         top, site, bel, possible_iostandards, slew="SLOW"
 ):
@@ -172,7 +148,7 @@ def process_iob(top, iob):
     iostd_slew = {}
     iostd_in = set()
 
-    for feature in site.set_features:
+    for feature in site.features:
         parts = feature.split(".")
 
         if "DRIVE" in parts:
@@ -212,14 +188,14 @@ def process_iob(top, iob):
                 ))
 
     # Buffer direction
-    is_input = has_feature_with_part(site, "IN") or has_feature_with_part(
-        site, "IN_ONLY"
+    is_input = site.has_feature_with_part("IN") or site.has_feature_with_part(
+        "IN_ONLY"
     )
-    is_inout = has_feature_with_part(site, "IN") and has_feature_with_part(
-        site, "DRIVE"
+    is_inout = site.has_feature_with_part("IN") and site.has_feature_with_part(
+        "DRIVE"
     )
-    is_output = not has_feature_with_part(site, "IN") and \
-        has_feature_with_part(site, "DRIVE")
+    is_output = not site.has_feature_with_part("IN") and \
+        site.has_feature_with_part("DRIVE")
 
     # Sanity check. Can be only one or neither of them
     assert (is_input + is_inout + is_output) <= 1
@@ -291,7 +267,7 @@ def process_iob(top, iob):
         # called O, so it is in fact correct.
         site.add_sink(bel, bel_pin='I', sink='O')
 
-        slew = "FAST" if has_feature_containing(site, "SLEW.FAST") else "SLOW"
+        slew = "FAST" if site.has_feature_containing("SLEW.FAST") else "SLOW"
         append_obuf_iostandard_params(top, site, bel, iostd_out, slew)
 
         site.add_site(bel)
@@ -308,7 +284,7 @@ def process_iob(top, iob):
         # is called O, so it is in fact correct.
         site.add_sink(bel, bel_pin='I', sink='O')
 
-        slew = "FAST" if has_feature_containing(site, "SLEW.FAST") else "SLOW"
+        slew = "FAST" if site.has_feature_containing("SLEW.FAST") else "SLOW"
         append_obuf_iostandard_params(top, site, bel, iostd_out, slew)
 
         site.add_bel(bel)
