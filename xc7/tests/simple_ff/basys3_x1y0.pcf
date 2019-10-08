@@ -9,4 +9,4 @@ set_io in[1] R3
 set_io in[2] R2
 
 # LED9
-set_io out V2
+set_io out V3
