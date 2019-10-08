@@ -50,6 +50,7 @@ PLL_BANDWIDTH_LOOKUP = {
 
 # =============================================================================
 
+
 def get_pll_site(db, grid, tile, site):
     """ Return the prjxray.tile.Site object for the given PLL site. """
     gridinfo = grid.gridinfo_at_tilename(tile)
@@ -59,24 +60,6 @@ def get_pll_site(db, grid, tile, site):
     assert len(sites) == 1, sites
 
     return sites[0]
-
-
-def decode_multi_bit_feature(features, target_feature):
-    """
-    Decodes a "multi-bit" fasm feature. If not present returns 0.
-    """
-    value = 0
-
-    for f in features:
-        last_part = f.feature.split('.')[-1]
-        if last_part.startswith(target_feature):
-            for canon_f in fasm.canonical_features(f):
-                if canon_f.start is None:
-                    value |= 1
-                else:
-                    value |= (1 << canon_f.start)
-
-    return value
 
 
 def process_pll(conn, top, tile_name, features):
@@ -134,15 +117,15 @@ def process_pll(conn, top, tile_name, features):
             site.add_source(pll, 'CLK' + clkout, 'CLK' + clkout)
 
             # Calculate the divider and duty cycle
-            high_time = decode_multi_bit_feature(
-                features, 'CLK{}_CLKOUT1_HIGH_TIME'.format(clkout)
+            high_time = site.decode_multi_bit_feature(
+                'CLK{}_CLKOUT1_HIGH_TIME'.format(clkout)
             )
-            low_time = decode_multi_bit_feature(
-                features, 'CLK{}_CLKOUT1_LOW_TIME'.format(clkout)
+            low_time = site.decode_multi_bit_feature(
+                'CLK{}_CLKOUT1_LOW_TIME'.format(clkout)
             )
 
-            if decode_multi_bit_feature(features,
-                                        'CLK{}_CLKOUT2_EDGE'.format(clkout)):
+            if site.decode_multi_bit_feature(
+                    'CLK{}_CLKOUT2_EDGE'.format(clkout)):
                 high_time += 0.5
                 low_time = max(0, low_time - 0.5)
 
@@ -161,11 +144,11 @@ def process_pll(conn, top, tile_name, features):
                                ] = "{0:.3f}".format(duty)
 
             # Phase shift
-            delay = decode_multi_bit_feature(
-                features, 'CLK{}_CLKOUT2_DELAY_TIME'.format(clkout)
+            delay = site.decode_multi_bit_feature(
+                'CLK{}_CLKOUT2_DELAY_TIME'.format(clkout)
             )
-            phase = decode_multi_bit_feature(
-                features, 'CLK{}_CLKOUT1_PHASE_MUX'.format(clkout)
+            phase = site.decode_multi_bit_feature(
+                'CLK{}_CLKOUT1_PHASE_MUX'.format(clkout)
             )
 
             phase = float(delay) + phase / 8.0  # Delay in VCO cycles
@@ -178,8 +161,8 @@ def process_pll(conn, top, tile_name, features):
                                ] = "{0:.3f}".format(phase)
 
     # Input clock divider
-    high_time = decode_multi_bit_feature(features, 'DIVCLK_DIVCLK_HIGH_TIME')
-    low_time = decode_multi_bit_feature(features, 'DIVCLK_DIVCLK_LOW_TIME')
+    high_time = site.decode_multi_bit_feature('DIVCLK_DIVCLK_HIGH_TIME')
+    low_time = site.decode_multi_bit_feature('DIVCLK_DIVCLK_LOW_TIME')
 
     divider = high_time + low_time
 
@@ -194,7 +177,7 @@ def process_pll(conn, top, tile_name, features):
     ) else '"FALSE"'
 
     # Bandwidth
-    table = decode_multi_bit_feature(features, 'TABLE')
+    table = site.decode_multi_bit_feature('TABLE')
     if table in PLL_BANDWIDTH_LOOKUP:
         pll.parameters['BANDWIDTH'] =\
             '"{}"'.format(PLL_BANDWIDTH_LOOKUP[table])
@@ -202,7 +185,8 @@ def process_pll(conn, top, tile_name, features):
     # Compensation  TODO: Probably need to rework database tags for those.
     if site.has_feature('COMPENSATION.INTERNAL'):
         pll.parameters['COMPENSATION'] = '"INTERNAL"'
-    elif site.has_feature('COMPENSATION.BUF_IN_OR_EXTERNAL_OR_ZHOLD_CLKIN_BUF'):
+    elif site.has_feature('COMPENSATION.BUF_IN_OR_EXTERNAL_OR_ZHOLD_CLKIN_BUF'
+                          ):
         pll.parameters['COMPENSATION'] = '"BUF_IN"'
 
     # Built-in inverters

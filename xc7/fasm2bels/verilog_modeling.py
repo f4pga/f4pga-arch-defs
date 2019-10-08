@@ -27,6 +27,7 @@ location.
 """
 
 import functools
+import fasm
 from .make_routes import make_routes, ONE_NET, ZERO_NET, prune_antennas
 from .connection_db_utils import get_wire_pkey
 
@@ -600,6 +601,7 @@ class Site(object):
         self.internal_sources = {}
 
         self.set_features = set()
+        self.features = set()
         self.post_route_cleanup = None
         self.bel_map = {}
 
@@ -614,12 +616,33 @@ class Site(object):
             if merged_site:
                 parts = f.feature.split('.')
                 assert parts[0] == aparts[0]
-                self.set_features.add('.'.join(parts[1:]))
+                #self.set_features.add('.'.join(parts[1:]))
+                self.set_features.add(
+                    fasm.SetFasmFeature(
+                        feature='.'.join(parts[1:]),
+                        start=f.start,
+                        end=f.end,
+                        value=f.value,
+                        value_format=f.value_format,
+                    )
+                )
             else:
                 parts = f.feature.split('.')
                 assert parts[0] == aparts[0]
                 assert parts[1] == aparts[1]
-                self.set_features.add('.'.join(parts[2:]))
+                #self.set_features.add('.'.join(parts[2:]))
+                self.set_features.add(
+                    fasm.SetFasmFeature(
+                        feature='.'.join(parts[2:]),
+                        start=f.start,
+                        end=f.end,
+                        value=f.value,
+                        value_format=f.value_format,
+                    )
+                )
+
+        # Features as strings
+        self.features = set([f.feature for f in self.set_features])
 
         if tile is None:
             self.tile = aparts[0]
@@ -630,7 +653,46 @@ class Site(object):
 
     def has_feature(self, feature):
         """ Does this set have the specified feature set? """
-        return feature in self.set_features
+        return feature in self.features
+
+    def has_feature_with_part(self, part):
+        """
+        Returns True when a given site has a feature which contains a
+        particular part.
+        """
+        for feature in self.features:
+            parts = feature.split(".")
+            if part in parts:
+                return True
+
+        return False
+
+    def has_feature_containing(self, substr):
+        """
+        Returns True when a given site has a feature which contains a given
+        substring.
+        """
+        for feature in self.features:
+            if substr in feature:
+                return True
+
+        return False
+
+    def decode_multi_bit_feature(self, feature):
+        """
+        Decodes a "multi-bit" fasm feature. If not present returns 0.
+        """
+        value = 0
+
+        for f in self.set_features:
+            if f.feature.startswith(feature):
+                for canon_f in fasm.canonical_features(f):
+                    if canon_f.start is None:
+                        value |= 1
+                    else:
+                        value |= (1 << canon_f.start)
+
+        return value
 
     def add_sink(self, bel, bel_pin, sink):
         """ Adds a sink.
