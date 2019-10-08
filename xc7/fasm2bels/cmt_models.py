@@ -3,6 +3,52 @@ from .verilog_modeling import Bel, Site
 
 # =============================================================================
 
+# A lookup table for content of the TABLE register to get the BANDWIDTH
+# setting. Values taken from XAPP888 reference design.
+PLL_BANDWIDTH_LOOKUP = {
+
+    # LOW
+    0b0010111100: "LOW",
+    0b0010011100: "LOW",
+    0b0010110100: "LOW",
+    0b0010010100: "LOW",
+    0b0010100100: "LOW",
+    0b0010111000: "LOW",
+    0b0010000100: "LOW",
+    0b0010011000: "LOW",
+    0b0010101000: "LOW",
+    0b0010110000: "LOW",
+    0b0010001000: "LOW",
+    0b0011110000: "LOW",
+    0b0010010000: "LOW",
+
+    # OPTIMIZED and HIGH are the same
+    0b0011011100: "OPTIMIZED",
+    0b0101111100: "OPTIMIZED",
+    0b0111111100: "OPTIMIZED",
+    0b0111101100: "OPTIMIZED",
+    0b1101011100: "OPTIMIZED",
+    0b1110101100: "OPTIMIZED",
+    0b1110110100: "OPTIMIZED",
+    0b1111110100: "OPTIMIZED",
+    0b1111011100: "OPTIMIZED",
+    0b1111101100: "OPTIMIZED",
+    0b1111110100: "OPTIMIZED",
+    0b1111001100: "OPTIMIZED",
+    0b1110010100: "OPTIMIZED",
+    0b1111010100: "OPTIMIZED",
+    0b0111011000: "OPTIMIZED",
+    0b0101110000: "OPTIMIZED",
+    0b1100000100: "OPTIMIZED",
+    0b0100001000: "OPTIMIZED",
+    0b0010100000: "OPTIMIZED",
+    0b0011010000: "OPTIMIZED",
+    0b0010100000: "OPTIMIZED",
+    0b0100110000: "OPTIMIZED",
+    0b0010010000: "OPTIMIZED",
+}
+
+# =============================================================================
 
 def get_pll_site(db, grid, tile, site):
     """ Return the prjxray.tile.Site object for the given PLL site. """
@@ -146,6 +192,12 @@ def process_pll(conn, top, tile_name, features):
     pll.parameters['STARTUP_WAIT'] = '"TRUE"' if site.has_feature(
         'STARTUP_WAIT'
     ) else '"FALSE"'
+
+    # Bandwidth
+    table = decode_multi_bit_feature(features, 'TABLE')
+    if table in PLL_BANDWIDTH_LOOKUP:
+        pll.parameters['BANDWIDTH'] =\
+            '"{}"'.format(PLL_BANDWIDTH_LOOKUP[table])
 
     # Compensation  TODO: Other modes
     if site.has_feature('COMPENSATION.INTERNAL'):
