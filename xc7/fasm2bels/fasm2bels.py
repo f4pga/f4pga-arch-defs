@@ -83,7 +83,7 @@ PROCESS_TILE = {
     'BRAM_L': process_bram,
     'BRAM_R': process_bram,
     'CMT_TOP_R_UPPER_T': process_pll,
-    'CMT_TOP_R_LOWER_B': process_pll,
+    'CMT_TOP_L_UPPER_T': process_pll,
 }
 
 
