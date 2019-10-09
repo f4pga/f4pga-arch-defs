@@ -5,7 +5,7 @@ add_conda_pip(
 
 function(ADD_XC7_DEVICE_DEFINE_TYPE)
   set(options)
-  set(oneValueArgs ARCH DEVICE ROI_DIR ROI_PART NAME GRAPH_LIMIT)
+  set(oneValueArgs ARCH DEVICE ROI_DIR ROI_PART NAME GRAPH_LIMIT PART)
   set(multiValueArgs TILE_TYPES)
   cmake_parse_arguments(
     ADD_XC7_DEVICE_DEFINE_TYPE
@@ -19,6 +19,7 @@ function(ADD_XC7_DEVICE_DEFINE_TYPE)
   set(DEVICE ${ADD_XC7_DEVICE_DEFINE_TYPE_DEVICE})
   set(ROI_DIR ${ADD_XC7_DEVICE_DEFINE_TYPE_ROI_DIR})
   set(ROI_PART ${ADD_XC7_DEVICE_DEFINE_TYPE_ROI_PART})
+  set(PART ${ADD_XC7_DEVICE_DEFINE_TYPE_PART})
   set(TILE_TYPES ${ADD_XC7_DEVICE_DEFINE_TYPE_TILE_TYPES})
   set(NAME ${ADD_XC7_DEVICE_DEFINE_TYPE_NAME})
 
@@ -47,6 +48,22 @@ function(ADD_XC7_DEVICE_DEFINE_TYPE)
     set(ROI_ARGS GRAPH_LIMIT ${ADD_XC7_DEVICE_DEFINE_TYPE_GRAPH_LIMIT})
   else()
     set(ROI_ARGS "")
+  endif()
+
+  if(NOT "${PART}" STREQUAL "")
+    set_target_properties(${ARCH}_${DEVICE}_${NAME}
+        PROPERTIES PART ${PART}
+      )
+    set_target_properties(${ARCH}_${DEVICE}_${NAME}
+      PROPERTIES BIT_TO_BIN_EXTRA_ARGS " \
+      --part_name ${PART} \
+      --part_file ${PRJXRAY_DB_DIR}/${ARCH}/${PART}.yaml \
+    ")
+    set_target_properties(${ARCH}_${DEVICE}_${NAME}
+      PROPERTIES BIT_TO_V_EXTRA_ARGS " \
+      --part ${PART}
+      --connection_database ${CMAKE_CURRENT_BINARY_DIR}/channels.db
+    ")
   endif()
 
   project_xray_arch(
