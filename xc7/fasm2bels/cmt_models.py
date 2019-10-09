@@ -1,4 +1,3 @@
-import fasm
 from .verilog_modeling import Bel, Site
 
 # =============================================================================
@@ -20,7 +19,7 @@ PLL_BANDWIDTH_LOOKUP = {
     0b0010110000: "LOW",
     0b0010001000: "LOW",
     0b0011110000: "LOW",
-    0b0010010000: "LOW",
+    # 0b0010010000: "LOW",  # Overlaps with one of "OPTIMIZED"
 
     # OPTIMIZED and HIGH are the same
     0b0011011100: "OPTIMIZED",
