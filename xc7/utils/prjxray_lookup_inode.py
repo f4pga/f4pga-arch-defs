@@ -66,6 +66,7 @@ SELECT name FROM phy_tile WHERE pkey = ?
         wires.append((tile, wire))
 
     print('rr inode: {}'.format(args.inode))
+    print('graph_node_pkey inode: {}'.format(graph_node_pkey))
     print('NodeType: {}'.format(graph_node_type))
     print('Wires ({}):'.format(len(wires)))
     for tile, wire in wires:

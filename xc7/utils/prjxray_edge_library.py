@@ -1280,13 +1280,13 @@ def set_pin_connection(
             cur2.execute(
                 """SELECT count() FROM pip_in_tile WHERE src_wire_in_tile_pkey = (
                 SELECT wire_in_tile_pkey FROM wire WHERE pkey = ?
-                )""", (wire_pkey, )
+                ) AND pip_in_tile.is_pseudo = 0""", (wire_pkey, )
             )
         else:
             cur2.execute(
                 """SELECT count() FROM pip_in_tile WHERE dest_wire_in_tile_pkey = (
                 SELECT wire_in_tile_pkey FROM wire WHERE pkey = ?
-                )""", (wire_pkey, )
+                ) AND pip_in_tile.is_pseudo = 0""", (wire_pkey, )
             )
 
         has_pip = cur2.fetchone()[0]
@@ -1455,8 +1455,15 @@ OR
         # If there is a next node, keep walking
         visited_switches.add(next_switch_pkey)
         walk_and_mark_segment(
-            conn, write_cur, next_node, forward, segment_pkey, unknown_pkey,
-            pin_graph_node_pkey, tracks, visited_switches
+            conn=conn,
+            write_cur=write_cur,
+            graph_node_pkey=next_node,
+            forward=forward,
+            segment_pkey=segment_pkey,
+            unknown_pkey=unknown_pkey,
+            pin_graph_node_pkey=pin_graph_node_pkey,
+            tracks=tracks,
+            visited_switches=visited_switches
         )
     else:
         # There is not a next node, update the connection box of the IPIN/OPIN
@@ -1511,6 +1518,28 @@ def annotate_pin_feeds(conn):
     cur.execute("SELECT pkey FROM segment WHERE name = ?", ("OUTPINFEED", ))
     outpinfeed_pkey = cur.fetchone()[0]
 
+    cur.execute("SELECT pkey FROM segment WHERE name = ?", ("HCLK_ROWS", ))
+    hclk_rows_pkey = cur.fetchone()[0]
+
+    # Find BUFHCE OPIN's, so that walk_and_mark_segment uses correct segment
+    # type.
+    cur.execute("""
+WITH bufhce_opins(wire_in_tile_pkey) AS (
+  SELECT wire_in_tile.pkey FROM wire_in_tile
+  INNER JOIN site_pin ON site_pin.pkey = wire_in_tile.site_pin_pkey
+  INNER JOIN site_type ON site_pin.site_type_pkey = site_type.pkey
+  WHERE
+    site_type.name == "BUFHCE"
+  AND
+    site_pin.name == "O"
+)
+SELECT graph_node.pkey FROM graph_node
+INNER JOIN wire ON graph_node.node_pkey = wire.node_pkey
+WHERE
+  wire.wire_in_tile_pkey IN (SELECT wire_in_tile_pkey FROM bufhce_opins);
+    """);
+    bufhce_opins = set(graph_node_pkey for (graph_node_pkey,) in cur.fetchall())
+
     write_cur.execute("""BEGIN EXCLUSIVE TRANSACTION;""")
 
     # Walk from OPIN's first.
@@ -1522,12 +1551,17 @@ WHERE graph_node.graph_node_type = ?
         if not active_graph_node(conn, graph_node_pkey, forward=True):
             continue
 
+        if graph_node_pkey in bufhce_opins:
+            segment_pkey = hclk_rows_pkey
+        else:
+            segment_pkey = outpinfeed_pkey
+
         walk_and_mark_segment(
             conn,
             write_cur,
             graph_node_pkey,
             forward=True,
-            segment_pkey=outpinfeed_pkey,
+            segment_pkey=segment_pkey,
             unknown_pkey=unknown_pkey,
             pin_graph_node_pkey=graph_node_pkey,
             tracks=list(),

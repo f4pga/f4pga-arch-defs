@@ -6,7 +6,7 @@ module top(
 
   wire gclk, hclk;
   BUFG bufg(.I(clk), .O(gclk));
-  BUFHCE bufh(.I(gclk), .O(hclk));
+  BUFH bufh(.I(gclk), .O(hclk));
 
   FDCE #(
       .INIT(0),
