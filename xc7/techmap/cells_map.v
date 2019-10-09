@@ -1924,15 +1924,36 @@ module BUFG (
   output O
   );
 
+  BUFGCTRL _TECHMAP_REPLACE_ (
+    .O(O),
+    .CE0(1),
+    .CE1(0),
+    .I0(I),
+    .I1(1),
+    .IGNORE0(0),
+    .IGNORE1(1),
+    .S0(1),
+    .S1(0)
+  );
+endmodule
+
+module BUFGCTRL (
+output O,
+input I0, input I1,
+input S0, input S1,
+input CE0, input CE1,
+input IGNORE0, input IGNORE1
+);
+
   parameter [0:0] INIT_OUT = 1'b0;
-  parameter [0:0] PRESELECT_I0 = 1'b1;
+  parameter [0:0] PRESELECT_I0 = 1'b0;
   parameter [0:0] PRESELECT_I1 = 1'b0;
-  parameter [0:0] IS_IGNORE0_INVERTED = 1'b1;
+  parameter [0:0] IS_IGNORE0_INVERTED = 1'b0;
   parameter [0:0] IS_IGNORE1_INVERTED = 1'b0;
   parameter [0:0] IS_CE0_INVERTED = 1'b0;
-  parameter [0:0] IS_CE1_INVERTED = 1'b1;
+  parameter [0:0] IS_CE1_INVERTED = 1'b0;
   parameter [0:0] IS_S0_INVERTED = 1'b0;
-  parameter [0:0] IS_S1_INVERTED = 1'b1;
+  parameter [0:0] IS_S1_INVERTED = 1'b0;
 
   parameter _TECHMAP_CONSTMSK_IGNORE0_ = 0;
   parameter _TECHMAP_CONSTVAL_IGNORE0_ = 0;
@@ -1984,25 +2005,41 @@ module BUFG (
       .ZINV_S1(!IS_S1_INVERTED ^ INV_S1)
   ) _TECHMAP_REPLACE_ (
     .O(O),
-    .CE0(1),
-    .CE1(0),
-    .I0(I),
-    .I1(1),
-    .IGNORE0(0),
-    .IGNORE1(1),
-    .S0(1),
-    .S1(0)
+    .CE0(CE0),
+    .CE1(CE1),
+    .I0(I0),
+    .I1(I1),
+    .IGNORE0(IGNORE0),
+    .IGNORE1(IGNORE1),
+    .S0(S0),
+    .S1(S1)
   );
 
 endmodule
 
+module BUFH (
+  input I,
+  output O
+  );
+
+  BUFHCE _TECHMAP_REPLACE_ (
+    .O(O),
+    .I(I),
+    .CE(1)
+  );
+endmodule
+
 module BUFHCE (
   input I,
+  input CE,
   output O
   );
 
   parameter [0:0] INIT_OUT = 1'b0;
   parameter [0:0] IS_CE_INVERTED = 1'b0;
+
+  parameter [0:0] _TECHMAP_CONSTMSK_CE_ = 0;
+  parameter [0:0] _TECHMAP_CONSTVAL_CE_ = 0;
 
   localparam [0:0] INV_CE = (
       _TECHMAP_CONSTMSK_CE_ == 1 &&
@@ -2015,7 +2052,7 @@ module BUFHCE (
   ) _TECHMAP_REPLACE_ (
   .O(O),
   .I(I),
-  .CE(1)
+  .CE(CE)
   );
 
 endmodule

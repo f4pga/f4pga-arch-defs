@@ -71,10 +71,14 @@ def get_segments(db):
         'CLKFEED': set(),
         'OUTPINFEED': set(),
         'BRAM_CASCADE': set(),
+        'BUFG_CASCADE': set(),
+        'GCLK': set(),
+        'HCLK_CK_IN': set(),
         'BRAM_IMUX': set(),
         'HCLK_COLUMNS': set(),
         'HCLK_ROWS': set(),
         'HCLK_ROW_TO_COLUMN': set(),
+        'CCIO_CLK_IN': set(),
     }
 
     for tile in ['INT_L', 'INT_R']:
@@ -89,6 +93,8 @@ GCLK_MATCH = re.compile('GCLK_(L_)?B[0-9]+')
 LOGIC_OUT_MATCH = re.compile('LOGIC_OUTS')
 BRAM_CASCADE = re.compile('BRAM_CASC(OUT|IN|INBOT)_')
 HCLK_R2C_MATCH = re.compile('HCLK_CK_(OUTIN|INOUT)')
+HCLK_CK_IN = re.compile('HCLK_CK_IN[0-9]+')
+CCIO_CLK_IN = re.compile('HCLK_CCIO[0-3]')
 
 
 class SegmentWireMap(object):
@@ -136,6 +142,26 @@ class SegmentWireMap(object):
             m = BRAM_CASCADE.search(wire)
             if m is not None:
                 segments.add('BRAM_CASCADE')
+
+            if 'CK_BUFG_CASC' in wire:
+                segments.add('BUFG_CASCADE')
+
+            m = HCLK_CK_IN.match(wire)
+            if m is not None:
+                segments.add('HCLK_CK_IN')
+
+            if 'R_CK_GCLK' in wire:
+                segments.add('GCLK')
+
+            if 'INT_INTERFACE_LOGIC_OUTS' in wire:
+                segments.add('OUTPINFEED')
+
+            m = CCIO_CLK_IN.match(wire)
+            if m is not None:
+                segments.add('CCIO_CLK_IN')
+
+            if wire.startswith('CLK_BUFG_CK_GCLK'):
+                segments.add('GCLK')
 
             if 'CK_BUFHCLK' in wire:
                 segments.add('HCLK_ROWS')
