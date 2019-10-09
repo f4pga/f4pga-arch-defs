@@ -1294,36 +1294,70 @@ def set_pin_connection(
             source_wires.append(wire_pkey)
 
     if len(source_wires) > 1:
-        assert graph_node_is_blacklisted(
-            conn, pin_graph_node_pkey
-        ), pin_graph_node_pkey
-        return
-
-    if len(source_wires) == 1:
+        if forward:
+            # Ambiguous output location, just use input pips, which should
+            # have only 1 phy_tile location.
+            cur2.execute(
+                """
+WITH wires_in_graph_node(phy_tile_pkey, phy_tile_type_pkey, wire_in_tile_pkey) AS (
+    SELECT wire.phy_tile_pkey, phy_tile.tile_type_pkey, wire.wire_in_tile_pkey
+    FROM graph_node
+    INNER JOIN wire ON wire.node_pkey = graph_node.node_pkey
+    INNER JOIN phy_tile ON wire.phy_tile_pkey = phy_tile.pkey
+    WHERE graph_node.pkey = ?
+)
+SELECT DISTINCT wire.phy_tile_pkey
+FROM wires_in_graph_node
+INNER JOIN pip_in_tile
+ON
+    pip_in_tile.dest_wire_in_tile_pkey = wires_in_graph_node.wire_in_tile_pkey
+AND
+    pip_in_tile.tile_type_pkey = wires_in_graph_node.phy_tile_type_pkey
+INNER JOIN wire
+ON
+    wire.wire_in_tile_pkey = pip_in_tile.src_wire_in_tile_pkey
+AND
+    wire.phy_tile_pkey = wires_in_graph_node.phy_tile_pkey;
+                """, (graph_node_pkey, )
+            )
+            src_phy_tiles = cur2.fetchall()
+            assert len(src_phy_tiles) == 1, (
+                pin_graph_node_pkey, graph_node_pkey, source_wires, tracks
+            )
+            phy_tile_pkey = src_phy_tiles[0][0]
+        else:
+            assert False, (
+                pin_graph_node_pkey, graph_node_pkey, source_wires, tracks
+            )
+            return
+    elif len(source_wires) == 1:
         cur.execute(
             "SELECT phy_tile_pkey FROM wire WHERE pkey = ?",
             (source_wires[0], )
         )
         phy_tile_pkey = cur.fetchone()[0]
-        for track_pkey in tracks:
-            write_cur.execute(
-                "UPDATE track SET canon_phy_tile_pkey = ? WHERE pkey = ?", (
-                    phy_tile_pkey,
-                    track_pkey,
-                )
-            )
+    else:
+        return
 
-        if not forward:
-            assert NodeType(graph_node_type) == NodeType.IPIN
-            source_wire_pkey = source_wires[0]
-            write_cur.execute(
-                """
+    for track_pkey in tracks:
+        write_cur.execute(
+            "UPDATE track SET canon_phy_tile_pkey = ? WHERE pkey = ?", (
+                phy_tile_pkey,
+                track_pkey,
+            )
+        )
+
+    if not forward:
+        assert NodeType(graph_node_type) == NodeType.IPIN
+        source_wire_pkey = source_wires[0]
+        write_cur.execute(
+            """
 UPDATE graph_node SET connection_box_wire_pkey = ? WHERE pkey = ?
             """, (
-                    source_wire_pkey,
-                    pin_graph_node_pkey,
-                )
+                source_wire_pkey,
+                pin_graph_node_pkey,
             )
+        )
 
 
 def walk_and_mark_segment(
@@ -1453,30 +1487,6 @@ SELECT count(*) FROM graph_edge WHERE src_graph_node_pkey = ? LIMIT 1
 SELECT count(*) FROM graph_edge WHERE dest_graph_node_pkey = ? LIMIT 1
             """, (graph_node_pkey, )
         )
-
-    return cur.fetchone()[0] > 0
-
-
-def graph_node_is_blacklisted(conn, graph_node_pkey):
-    """ Identify pin graph nodes that are expected to cause failures, so they can be ignored. """
-
-    cur = conn.cursor()
-
-    cur.execute(
-        """
-SELECT count(*) FROM wire
-  JOIN wire_in_tile ON (wire.wire_in_tile_pkey = wire_in_tile.pkey)
-  JOIN graph_node ON (wire.node_pkey = graph_node.node_pkey)
-  WHERE graph_node.pkey = ? AND
-        (wire_in_tile.name = 'IOI_OLOGIC1_TBYTEOUT' OR
-         wire_in_tile.name LIKE 'CLK_HROW_CK_HCLK_OUT_%' OR
-         wire_in_tile.name LIKE 'HCLK_CMT_BUFMRCE_%' OR
-         wire_in_tile.name LIKE 'CMT_PHY_CONTROL_%' OR
-         wire_in_tile.name LIKE 'CMT_PHASER_%' OR
-         wire_in_tile.name LIKE 'GTPE2_COMMON_%')
-  LIMIT 1;
-        """, (graph_node_pkey, )
-    )
 
     return cur.fetchone()[0] > 0
 
