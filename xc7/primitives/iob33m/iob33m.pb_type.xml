@@ -16,13 +16,25 @@
   <mode name="NO_IBUF">
     <xi:include href="inpad.pb_type.xml"/>
     <interconnect>
-      <direct name="I" input="inpad.inpad" output="IOB33M.I"/>
+      <direct name="I" input="inpad.inpad" output="IOB33M.I">
+        <metadata>
+          <meta name="fasm_mux">
+            inpad.inpad : LVCMOS12_LVCMOS15_LVCMOS18_LVCMOS25_LVCMOS33_LVTTL_SSTL135.IN_ONLY,LVCMOS25_LVCMOS33_LVTTL.IN,PULLTYPE.NONE
+          </meta>
+        </metadata>
+      </direct>
     </interconnect>
   </mode>
   <mode name="NO_OBUF">
     <xi:include href="outpad.pb_type.xml"/>
     <interconnect>
-      <direct name="O" input="IOB33M.O" output="outpad.outpad"/>
+      <direct name="O" input="IOB33M.O" output="outpad.outpad">
+        <metadata>
+          <meta name="fasm_mux">
+            IOB33M.O : PULLTYPE.NONE,LVCMOS33_LVTTL.DRIVE.I12_I16,LVCMOS12_LVCMOS15_LVCMOS18_LVCMOS25_LVCMOS33_LVTTL_SSTL135.SLEW.SLOW
+          </meta>
+        </metadata>
+      </direct>
     </interconnect>
   </mode>
   <mode name="IBUF">

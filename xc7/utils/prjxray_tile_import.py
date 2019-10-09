@@ -1099,14 +1099,15 @@ SELECT max(num_tiles) FROM tiles_per_tile;
     cur.execute(
         """
 SELECT DISTINCT
-  site_type.name,
-  site.x_coord,
-  site.y_coord
+  site_type.name, site_instance.y_coord % 2
 FROM
   site
 INNER JOIN
   site_type
 ON site.site_type_pkey = site_type.pkey
+INNER JOIN
+  site_instance
+ON site.pkey = site_instance.site_pkey
 WHERE
   site.pkey IN (
     SELECT
@@ -1119,7 +1120,7 @@ WHERE
   )
     """, (tile_type_pkey, )
     )
-    for idx, (site_type, site_x, site_y) in enumerate(cur):
+    for idx, (site_type, site_y) in enumerate(cur):
         if site_type in ignored_site_types:
             continue
 

@@ -34,7 +34,13 @@
   <input name="SHIFTIN2" num_pins="1"/>
   <mode name="PASS_THROUGH">
     <interconnect>
-      <direct name="D1_OQ" input="OLOGICE3.D1" output="OLOGICE3.OQ"/>
+      <direct name="D1_OQ" input="OLOGICE3.D1" output="OLOGICE3.OQ">
+        <metadata>
+          <meta name="fasm_mux">
+            OLOGICE3.D1 : OMUX.D1,OQUSED,OSERDESE.DATA_RATE_TQ.BUF
+          </meta>
+        </metadata>
+      </direct>
     </interconnect>
   </mode>
   <!-- TODO

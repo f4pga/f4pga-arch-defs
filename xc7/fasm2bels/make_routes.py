@@ -499,11 +499,11 @@ def expand_sink(
 
         c.execute(
             """
-SELECT site_pin_pkey FROM wire_in_tile WHERE pkey = (
+SELECT name, site_pin_pkey FROM wire_in_tile WHERE pkey = (
         SELECT wire_in_tile_pkey FROM wire WHERE pkey = ?);""",
             (site_wire_pkey, )
         )
-        site_pin_pkey = c.fetchone()[0]
+        wire_name, site_pin_pkey = c.fetchone()
 
         assert site_pin_pkey is not None
 
@@ -528,8 +528,9 @@ SELECT site_pin_pkey FROM wire_in_tile WHERE pkey = (
                     (site_wire_pkey, )
                 )
                 tile = c.fetchone()[0]
-                assert site_pin in ['HARD1',
-                                    'HARD0'], (sink_node_pkey, tile, site_pin)
+                assert site_pin in [
+                    'HARD1', 'HARD0'
+                ], (sink_node_pkey, tile, wire_name, site_pin)
 
             return
 

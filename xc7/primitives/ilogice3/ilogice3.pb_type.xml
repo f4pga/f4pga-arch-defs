@@ -32,7 +32,13 @@
   <output name="SHIFTOUT2" num_pins="1"/>
   <mode name="PASS_THROUGH">
     <interconnect>
-      <direct name="D_O" input="ILOGICE3.D" output="ILOGICE3.O"/>
+      <direct name="D_O" input="ILOGICE3.D" output="ILOGICE3.O">
+        <metadata>
+          <meta name="fasm_mux">
+            ILOGICE3.D : ZINV_D
+          </meta>
+        </metadata>
+      </direct>
     </interconnect>
   </mode>
   <!-- TODO
