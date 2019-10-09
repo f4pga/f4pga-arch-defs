@@ -1,4 +1,3 @@
-import fasm
 from .verilog_modeling import Bel, Site
 
 
