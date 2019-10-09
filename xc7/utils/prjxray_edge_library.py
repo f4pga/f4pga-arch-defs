@@ -603,7 +603,8 @@ AND
 
             switch_pkey = pip.get_pip_switch(src_wire_pkey, dest_wire_pkey)
 
-            yield graph_nodes[idx1], switch_pkey, other_graph_nodes[idx2]
+            yield graph_nodes[idx1], switch_pkey, other_graph_nodes[
+                idx2], pip.pip_pkey
             return
         elif self.pins and other_connector.tracks:
             assert self.pins.site_pin_direction == SitePinDirection.OUT
@@ -625,8 +626,11 @@ AND
                     switch_pkey = pip.get_pip_switch(
                         src_wire_pkey, dest_wire_pkey
                     )
-                    yield (src_node, site_pin_switch_pkey, src_wire_node)
-                    yield (src_wire_node, switch_pkey, dest_track_node)
+                    yield (src_node, site_pin_switch_pkey, src_wire_node, None)
+                    yield (
+                        src_wire_node, switch_pkey, dest_track_node,
+                        pip.pip_pkey
+                    )
                     return
         elif self.tracks and other_connector.pins:
             assert other_connector.pins.site_pin_direction == SitePinDirection.IN
@@ -649,8 +653,13 @@ AND
                     switch_pkey = pip.get_pip_switch(
                         src_wire_pkey, dest_wire_pkey
                     )
-                    yield (src_track_node, switch_pkey, dest_wire_node)
-                    yield (dest_wire_node, site_pin_switch_pkey, dest_node)
+                    yield (
+                        src_track_node, switch_pkey, dest_wire_node,
+                        pip.pip_pkey
+                    )
+                    yield (
+                        dest_wire_node, site_pin_switch_pkey, dest_node, None
+                    )
                     return
 
         elif self.pins and other_connector.pins:
@@ -667,7 +676,7 @@ AND
                 src_node = list(self.pins.edge_map.values())[0]
                 dest_node = list(other_connector.pins.edge_map.values())[0]
 
-                yield (src_node, switch_pkey, dest_node)
+                yield (src_node, switch_pkey, dest_node, pip.pip_pkey)
                 return
 
             for pin_dir in self.pins.edge_map:
@@ -676,7 +685,7 @@ AND
                     src_node = self.pins.edge_map[pin_dir]
                     dest_node = other_connector.pins.edge_map[
                         OPPOSITE_DIRECTIONS[pin_dir]]
-                    yield (src_node, switch_pkey, dest_node)
+                    yield (src_node, switch_pkey, dest_node, pip.pip_pkey)
                     return
 
         assert False, (
@@ -875,30 +884,33 @@ def yield_edges(
         const_connectors, delayless_switch, phy_tile_pkey, src_connector,
         sink_connector, pip, pip_obj, src_wire_pkey, sink_wire_pkey, loc
 ):
-    for src_graph_node_pkey, switch_pkey, dest_graph_node_pkey in src_connector.connect_at(
-            pip=pip_obj, src_wire_pkey=src_wire_pkey,
-            dest_wire_pkey=sink_wire_pkey, loc=loc,
-            other_connector=sink_connector):
+    for (src_graph_node_pkey, switch_pkey, dest_graph_node_pkey,
+         pip_pkey) in src_connector.connect_at(
+             pip=pip_obj, src_wire_pkey=src_wire_pkey,
+             dest_wire_pkey=sink_wire_pkey, loc=loc,
+             other_connector=sink_connector):
         yield (
             src_graph_node_pkey, dest_graph_node_pkey, switch_pkey,
-            phy_tile_pkey, pip_obj.pip_pkey, False
+            phy_tile_pkey, pip_pkey, False
         )
 
     if not pip.is_directional:
-        for src_graph_node_pkey, switch_pkey, dest_graph_node_pkey in sink_connector.connect_at(
-                pip=pip_obj, src_wire_pkey=sink_wire_pkey,
-                dest_wire_pkey=src_wire_pkey, loc=loc,
-                other_connector=src_connector):
+        for (src_graph_node_pkey, switch_pkey, dest_graph_node_pkey,
+             pip_pkey) in sink_connector.connect_at(
+                 pip=pip_obj, src_wire_pkey=sink_wire_pkey,
+                 dest_wire_pkey=src_wire_pkey, loc=loc,
+                 other_connector=src_connector):
             yield (
                 src_graph_node_pkey, dest_graph_node_pkey, switch_pkey,
-                phy_tile_pkey, pip_obj.pip_pkey, True
+                phy_tile_pkey, pip_pkey, True
             )
 
     # Make additional connections to constant network if the sink needs it.
     for constant_src in yield_ties_to_wire(pip.net_to):
-        for src_graph_node_pkey, switch_pkey, dest_graph_node_pkey in const_connectors[
-                constant_src].connect_at(pip=delayless_switch, loc=loc,
-                                         other_connector=sink_connector):
+        for (src_graph_node_pkey, switch_pkey, dest_graph_node_pkey
+             ) in const_connectors[constant_src].connect_at(
+                 pip=delayless_switch, loc=loc,
+                 other_connector=sink_connector):
             yield (
                 src_graph_node_pkey, dest_graph_node_pkey, switch_pkey,
                 phy_tile_pkey, None, False
