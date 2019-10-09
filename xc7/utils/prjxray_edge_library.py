@@ -1034,7 +1034,17 @@ WHERE
         )
         sink_count = write_cur.fetchone()[0]
 
-        if src_count > 0 and sink_count > 0:
+        write_cur.execute(
+            """
+SELECT count() FROM (
+  SELECT dest_graph_node_pkey FROM graph_edge WHERE src_graph_node_pkey = ?
+  UNION
+  SELECT src_graph_node_pkey FROM graph_edge WHERE dest_graph_node_pkey = ?
+  );""", (graph_node_pkey, graph_node_pkey)
+        )
+        active_other_nodes = write_cur.fetchone()[0]
+
+        if src_count > 0 and sink_count > 0 and active_other_nodes > 1:
             alive_tracks.add(track_pkey)
 
     c.execute("SELECT count(pkey) FROM track;")
