@@ -24,6 +24,18 @@
       <input name="IGNORE1" num_pins="1"/>
       <input name="S0" num_pins="1"/>
       <input name="S1" num_pins="1"/>
+      <metadata>
+        <meta name="fasm_params">
+          ZPRESELECT_I0 = ZPRESELECT_I0
+          ZPRESELECT_I1 = ZPRESELECT_I1
+          IS_IGNORE0_INVERTED = IS_IGNORE0_INVERTED
+          IS_IGNORE1_INVERTED = IS_IGNORE1_INVERTED
+          ZINV_CE0 = ZINV_CE0
+          ZINV_CE1 = ZINV_CE1
+          ZINV_S0 = ZINV_S0
+          ZINV_S1 = ZINV_S1
+        </meta>
+      </metadata>
     </pb_type>
     <interconnect>
       <direct name="O" input="BUFGCTRL_VPR.O" output="BUFGCTRL{N}.O"/>
@@ -40,16 +52,6 @@
     <metadata>
       <meta name="fasm_features">
         IN_USE
-      </meta>
-      <meta name="fasm_params">
-        ZPRESELECT_I0 = ZPRESELECT_I0
-        ZPRESELECT_I1 = ZPRESELECT_I1
-        IS_IGNORE0_INVERTED = IS_IGNORE0_INVERTED
-        IS_IGNORE1_INVERTED = IS_IGNORE1_INVERTED
-        ZINV_CE0 = ZINV_CE0
-        ZINV_CE1 = ZINV_CE1
-        ZINV_S0 = ZINV_S0
-        ZINV_S1 = ZINV_S1
       </meta>
     </metadata>
   </mode>
