@@ -12,6 +12,11 @@
       <output name="O" num_pins="1"/>
       <input name="CE" num_pins="1"/>
       <clock name="I" num_pins="1"/>
+      <metadata>
+        <meta name="fasm_params">
+          ZINV_CE = ZINV_CE
+        </meta>
+      </metadata>
     </pb_type>
     <interconnect>
       <direct name="O" input="BUFHCE_VPR.O" output="BUFHCE{N}.O"/>
@@ -21,9 +26,6 @@
     <metadata>
       <meta name="fasm_features">
         IN_USE
-      </meta>
-      <meta name="fasm_params">
-        ZINV_CE = ZINV_CE
       </meta>
     </metadata>
   </mode>
