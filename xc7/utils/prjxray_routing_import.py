@@ -44,6 +44,10 @@ now = datetime.datetime.now
 HCLK_CK_BUFHCLK_REGEX = re.compile('HCLK_CK_BUFHCLK[0-9]+')
 CASCOUT_REGEX = re.compile('BRAM_CASCOUT_ADDR((?:BWR)|(?:ARD))ADDRU([0-9]+)')
 CONNECTION_BOX_FILTER = re.compile('([^0-9]+)[0-9]*')
+BUFG_CLK_IN_REGEX = re.compile('CLK_HROW_CK_IN_R[0-9]+')
+BUFG_CLK_OUT_REGEX = re.compile('CLK_HROW_R_CK_GCLK[0-9]+')
+CCIO_ACTIVE_REGEX = re.compile('HCLK_CMT_CCIO[0-9]+')
+HCLK_OUT = re.compile('CLK_HROW_CK_HCLK_OUT_([LR])([0-9]+)')
 
 
 def reduce_connection_box(box):
@@ -79,6 +83,115 @@ def reduce_connection_box(box):
     return box
 
 
+REBUF_NODES = {}
+REBUF_SOURCES = {}
+
+def populate_bufg_rebuf_map(conn):
+    global REBUF_NODES
+    REBUF_NODES = {}
+
+    global REBUF_SOURCES
+    REBUF_SOURCES = {}
+
+    rebuf_wire_regexp = re.compile('CLK_BUFG_REBUF_R_CK_GCLK([0-9]+)_(BOT|TOP)')
+
+    cur = conn.cursor()
+
+    # Find nodes touching rebuf wires.
+    cur.execute("""
+WITH
+  rebuf_wires(wire_in_tile_pkey) AS (
+    SELECT pkey
+      FROM wire_in_tile
+      WHERE
+        name LIKE "CLK_BUFG_REBUF_R_CK_GCLK%_BOT"
+      OR
+        name LIKE "CLK_BUFG_REBUF_R_CK_GCLK%_TOP"
+),
+  rebuf_nodes(node_pkey) AS (
+    SELECT DISTINCT node_pkey
+    FROM wire
+    WHERE wire_in_tile_pkey IN (SELECT wire_in_tile_pkey FROM rebuf_wires)
+)
+SELECT rebuf_nodes.node_pkey, phy_tile.name, wire_in_tile.name
+FROM rebuf_nodes
+INNER JOIN wire ON wire.node_pkey = rebuf_nodes.node_pkey
+INNER JOIN wire_in_tile ON wire_in_tile.pkey = wire.wire_in_tile_pkey
+INNER JOIN phy_tile ON phy_tile.pkey = wire.phy_tile_pkey
+WHERE wire.wire_in_tile_pkey IN (SELECT wire_in_tile_pkey FROM rebuf_wires)
+ORDER BY rebuf_nodes.node_pkey;""")
+    for node_pkey, rebuf_tile, rebuf_wire_name in cur:
+        if node_pkey not in REBUF_NODES:
+             REBUF_NODES[node_pkey] = []
+
+        m = rebuf_wire_regexp.fullmatch(rebuf_wire_name)
+
+        if m.group(2) == 'TOP':
+            REBUF_NODES[node_pkey].append('{}.GCLK{}_ENABLE_BELOW'.format(rebuf_tile, m.group(1)))
+        elif m.group(2) == 'BOT':
+            REBUF_NODES[node_pkey].append('{}.GCLK{}_ENABLE_ABOVE'.format(rebuf_tile, m.group(1)))
+        else:
+            assert False, (rebuf_tile, rebuf_wire_name)
+
+    for node_pkey in REBUF_NODES:
+        cur.execute("""
+SELECT phy_tile.name, wire_in_tile.name
+FROM wire
+INNER JOIN phy_tile ON phy_tile.pkey = wire.phy_tile_pkey
+INNER JOIN wire_in_tile ON wire_in_tile.pkey = wire.wire_in_tile_pkey
+WHERE wire.node_pkey = ?;""", (node_pkey,))
+
+        for tile, wire_name in cur:
+            REBUF_SOURCES[(tile, wire_name)] = node_pkey
+
+
+HCLK_CMT_TILES = {}
+
+
+def populate_hclk_cmt_tiles(db):
+    global HCLK_CMT_TILES
+    HCLK_CMT_TILES = {}
+
+    grid = db.grid()
+    _, x_max, _, _ = grid.dims()
+
+    for tile in grid.tiles():
+        gridinfo = grid.gridinfo_at_tilename(tile)
+
+        if gridinfo.tile_type not in ['CLK_HROW_BOT_R', 'CLK_HROW_TOP_R']:
+            continue
+
+        hclk_x, hclk_y = grid.loc_of_tilename(tile)
+
+        hclk_cmt_x = hclk_x
+        hclk_cmt_y = hclk_y
+
+        while hclk_cmt_x > 0:
+            hclk_cmt_x -= 1
+            gridinfo = grid.gridinfo_at_loc((hclk_cmt_x, hclk_cmt_y))
+
+            if gridinfo.tile_type == 'HCLK_CMT':
+                HCLK_CMT_TILES[tile, 'L'] = grid.tilename_at_loc((hclk_cmt_x, hclk_cmt_y))
+                break
+
+        hclk_cmt_x = hclk_x
+
+        while hclk_cmt_x < x_max:
+            hclk_cmt_x += 1
+
+            gridinfo = grid.gridinfo_at_loc((hclk_cmt_x, hclk_cmt_y))
+
+            if gridinfo.tile_type == 'HCLK_CMT_L':
+                HCLK_CMT_TILES[tile, 'R'] = grid.tilename_at_loc((hclk_cmt_x, hclk_cmt_y))
+                break
+
+
+def find_hclk_cmt_hclk_feature(hclk_tile, lr, hclk_number):
+    hclk_cmt_tile = HCLK_CMT_TILES[(hclk_tile, lr)]
+
+    return '{}.HCLK_CMT_CK_BUFHCLK{}_USED'.format(hclk_cmt_tile, hclk_number)
+
+
 def check_feature(feature):
     """ Check if enabling this feature requires other features to be enabled.
 
@@ -91,12 +204,39 @@ def check_feature(feature):
 
     feature_path = feature.split('.')
 
+    rebuf_key = (feature_path[0], feature_path[1])
+    if rebuf_key in REBUF_SOURCES:
+        return ' '.join([feature] + REBUF_NODES[REBUF_SOURCES[rebuf_key]])
+
     if HCLK_CK_BUFHCLK_REGEX.fullmatch(feature_path[-1]):
         enable_buffer_feature = '{}.ENABLE_BUFFER.{}'.format(
             feature_path[0], feature_path[-1]
         )
 
         return ' '.join((feature, enable_buffer_feature))
+
+    if BUFG_CLK_IN_REGEX.fullmatch(feature_path[-1]):
+        enable_feature = '{}.{}_ACTIVE'.format(
+                feature_path[0], feature_path[-1])
+
+        return ' '.join((feature, enable_feature))
+
+    if BUFG_CLK_OUT_REGEX.fullmatch(feature_path[-1]):
+        enable_feature = '{}.{}_ACTIVE'.format(
+                feature_path[0], feature_path[-1])
+
+        return ' '.join((feature, enable_feature))
+
+    if CCIO_ACTIVE_REGEX.fullmatch(feature_path[-1]):
+        features = [feature]
+        features.append('{}.{}_ACTIVE'.format(feature_path[0], feature_path[-1]))
+        features.append('{}.{}_USED'.format(feature_path[0], feature_path[-1]))
+
+        return ' '.join(features)
+
+    m = HCLK_OUT.fullmatch(feature_path[-1])
+    if m:
+        return ' '.join((feature, find_hclk_cmt_hclk_feature(feature_path[0], m.group(1), m.group(2))))
 
     m = CASCOUT_REGEX.fullmatch(feature_path[-2])
     if m:
@@ -807,6 +947,7 @@ def main():
     args = parser.parse_args()
 
     db = prjxray.db.Database(args.db_root)
+    populate_hclk_cmt_tiles(db)
 
     synth_tiles = None
     if args.synth_tiles:
@@ -856,6 +997,8 @@ def main():
     tool_comment = input_rr_graph.getroot().attrib['tool_comment']
 
     with DatabaseCache(args.connection_database, True) as conn:
+        populate_bufg_rebuf_map(conn)
+
         cur = conn.cursor()
         for name, internal_capacitance, drive_resistance, intrinsic_delay, \
                 switch_type in cur.execute("""
