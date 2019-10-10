@@ -603,7 +603,8 @@ AND
 
             switch_pkey = pip.get_pip_switch(src_wire_pkey, dest_wire_pkey)
 
-            yield graph_nodes[idx1], switch_pkey, other_graph_nodes[idx2]
+            yield graph_nodes[idx1], switch_pkey, other_graph_nodes[
+                idx2], pip.pip_pkey
             return
         elif self.pins and other_connector.tracks:
             assert self.pins.site_pin_direction == SitePinDirection.OUT
@@ -625,8 +626,11 @@ AND
                     switch_pkey = pip.get_pip_switch(
                         src_wire_pkey, dest_wire_pkey
                     )
-                    yield (src_node, site_pin_switch_pkey, src_wire_node)
-                    yield (src_wire_node, switch_pkey, dest_track_node)
+                    yield (src_node, site_pin_switch_pkey, src_wire_node, None)
+                    yield (
+                        src_wire_node, switch_pkey, dest_track_node,
+                        pip.pip_pkey
+                    )
                     return
         elif self.tracks and other_connector.pins:
             assert other_connector.pins.site_pin_direction == SitePinDirection.IN
@@ -649,8 +653,13 @@ AND
                     switch_pkey = pip.get_pip_switch(
                         src_wire_pkey, dest_wire_pkey
                     )
-                    yield (src_track_node, switch_pkey, dest_wire_node)
-                    yield (dest_wire_node, site_pin_switch_pkey, dest_node)
+                    yield (
+                        src_track_node, switch_pkey, dest_wire_node,
+                        pip.pip_pkey
+                    )
+                    yield (
+                        dest_wire_node, site_pin_switch_pkey, dest_node, None
+                    )
                     return
 
         elif self.pins and other_connector.pins:
@@ -667,7 +676,7 @@ AND
                 src_node = list(self.pins.edge_map.values())[0]
                 dest_node = list(other_connector.pins.edge_map.values())[0]
 
-                yield (src_node, switch_pkey, dest_node)
+                yield (src_node, switch_pkey, dest_node, pip.pip_pkey)
                 return
 
             for pin_dir in self.pins.edge_map:
@@ -676,7 +685,7 @@ AND
                     src_node = self.pins.edge_map[pin_dir]
                     dest_node = other_connector.pins.edge_map[
                         OPPOSITE_DIRECTIONS[pin_dir]]
-                    yield (src_node, switch_pkey, dest_node)
+                    yield (src_node, switch_pkey, dest_node, pip.pip_pkey)
                     return
 
         assert False, (
@@ -875,30 +884,33 @@ def yield_edges(
         const_connectors, delayless_switch, phy_tile_pkey, src_connector,
         sink_connector, pip, pip_obj, src_wire_pkey, sink_wire_pkey, loc
 ):
-    for src_graph_node_pkey, switch_pkey, dest_graph_node_pkey in src_connector.connect_at(
-            pip=pip_obj, src_wire_pkey=src_wire_pkey,
-            dest_wire_pkey=sink_wire_pkey, loc=loc,
-            other_connector=sink_connector):
+    for (src_graph_node_pkey, switch_pkey, dest_graph_node_pkey,
+         pip_pkey) in src_connector.connect_at(
+             pip=pip_obj, src_wire_pkey=src_wire_pkey,
+             dest_wire_pkey=sink_wire_pkey, loc=loc,
+             other_connector=sink_connector):
         yield (
             src_graph_node_pkey, dest_graph_node_pkey, switch_pkey,
-            phy_tile_pkey, pip_obj.pip_pkey, False
+            phy_tile_pkey, pip_pkey, False
         )
 
     if not pip.is_directional:
-        for src_graph_node_pkey, switch_pkey, dest_graph_node_pkey in sink_connector.connect_at(
-                pip=pip_obj, src_wire_pkey=sink_wire_pkey,
-                dest_wire_pkey=src_wire_pkey, loc=loc,
-                other_connector=src_connector):
+        for (src_graph_node_pkey, switch_pkey, dest_graph_node_pkey,
+             pip_pkey) in sink_connector.connect_at(
+                 pip=pip_obj, src_wire_pkey=sink_wire_pkey,
+                 dest_wire_pkey=src_wire_pkey, loc=loc,
+                 other_connector=src_connector):
             yield (
                 src_graph_node_pkey, dest_graph_node_pkey, switch_pkey,
-                phy_tile_pkey, pip_obj.pip_pkey, True
+                phy_tile_pkey, pip_pkey, True
             )
 
     # Make additional connections to constant network if the sink needs it.
     for constant_src in yield_ties_to_wire(pip.net_to):
-        for src_graph_node_pkey, switch_pkey, dest_graph_node_pkey in const_connectors[
-                constant_src].connect_at(pip=delayless_switch, loc=loc,
-                                         other_connector=sink_connector):
+        for (src_graph_node_pkey, switch_pkey, dest_graph_node_pkey
+             ) in const_connectors[constant_src].connect_at(
+                 pip=delayless_switch, loc=loc,
+                 other_connector=sink_connector):
             yield (
                 src_graph_node_pkey, dest_graph_node_pkey, switch_pkey,
                 phy_tile_pkey, None, False
@@ -1022,7 +1034,17 @@ WHERE
         )
         sink_count = write_cur.fetchone()[0]
 
-        if src_count > 0 and sink_count > 0:
+        write_cur.execute(
+            """
+SELECT count() FROM (
+  SELECT dest_graph_node_pkey FROM graph_edge WHERE src_graph_node_pkey = ?
+  UNION
+  SELECT src_graph_node_pkey FROM graph_edge WHERE dest_graph_node_pkey = ?
+  );""", (graph_node_pkey, graph_node_pkey)
+        )
+        active_other_nodes = write_cur.fetchone()[0]
+
+        if src_count > 0 and sink_count > 0 and active_other_nodes > 1:
             alive_tracks.add(track_pkey)
 
     c.execute("SELECT count(pkey) FROM track;")
@@ -1272,36 +1294,70 @@ def set_pin_connection(
             source_wires.append(wire_pkey)
 
     if len(source_wires) > 1:
-        assert graph_node_is_blacklisted(
-            conn, pin_graph_node_pkey
-        ), pin_graph_node_pkey
-        return
-
-    if len(source_wires) == 1:
+        if forward:
+            # Ambiguous output location, just use input pips, which should
+            # have only 1 phy_tile location.
+            cur2.execute(
+                """
+WITH wires_in_graph_node(phy_tile_pkey, phy_tile_type_pkey, wire_in_tile_pkey) AS (
+    SELECT wire.phy_tile_pkey, phy_tile.tile_type_pkey, wire.wire_in_tile_pkey
+    FROM graph_node
+    INNER JOIN wire ON wire.node_pkey = graph_node.node_pkey
+    INNER JOIN phy_tile ON wire.phy_tile_pkey = phy_tile.pkey
+    WHERE graph_node.pkey = ?
+)
+SELECT DISTINCT wire.phy_tile_pkey
+FROM wires_in_graph_node
+INNER JOIN pip_in_tile
+ON
+    pip_in_tile.dest_wire_in_tile_pkey = wires_in_graph_node.wire_in_tile_pkey
+AND
+    pip_in_tile.tile_type_pkey = wires_in_graph_node.phy_tile_type_pkey
+INNER JOIN wire
+ON
+    wire.wire_in_tile_pkey = pip_in_tile.src_wire_in_tile_pkey
+AND
+    wire.phy_tile_pkey = wires_in_graph_node.phy_tile_pkey;
+                """, (graph_node_pkey, )
+            )
+            src_phy_tiles = cur2.fetchall()
+            assert len(src_phy_tiles) == 1, (
+                pin_graph_node_pkey, graph_node_pkey, source_wires, tracks
+            )
+            phy_tile_pkey = src_phy_tiles[0][0]
+        else:
+            assert False, (
+                pin_graph_node_pkey, graph_node_pkey, source_wires, tracks
+            )
+            return
+    elif len(source_wires) == 1:
         cur.execute(
             "SELECT phy_tile_pkey FROM wire WHERE pkey = ?",
             (source_wires[0], )
         )
         phy_tile_pkey = cur.fetchone()[0]
-        for track_pkey in tracks:
-            write_cur.execute(
-                "UPDATE track SET canon_phy_tile_pkey = ? WHERE pkey = ?", (
-                    phy_tile_pkey,
-                    track_pkey,
-                )
-            )
+    else:
+        return
 
-        if not forward:
-            assert NodeType(graph_node_type) == NodeType.IPIN
-            source_wire_pkey = source_wires[0]
-            write_cur.execute(
-                """
+    for track_pkey in tracks:
+        write_cur.execute(
+            "UPDATE track SET canon_phy_tile_pkey = ? WHERE pkey = ?", (
+                phy_tile_pkey,
+                track_pkey,
+            )
+        )
+
+    if not forward:
+        assert NodeType(graph_node_type) == NodeType.IPIN
+        source_wire_pkey = source_wires[0]
+        write_cur.execute(
+            """
 UPDATE graph_node SET connection_box_wire_pkey = ? WHERE pkey = ?
             """, (
-                    source_wire_pkey,
-                    pin_graph_node_pkey,
-                )
+                source_wire_pkey,
+                pin_graph_node_pkey,
             )
+        )
 
 
 def walk_and_mark_segment(
@@ -1431,30 +1487,6 @@ SELECT count(*) FROM graph_edge WHERE src_graph_node_pkey = ? LIMIT 1
 SELECT count(*) FROM graph_edge WHERE dest_graph_node_pkey = ? LIMIT 1
             """, (graph_node_pkey, )
         )
-
-    return cur.fetchone()[0] > 0
-
-
-def graph_node_is_blacklisted(conn, graph_node_pkey):
-    """ Identify pin graph nodes that are expected to cause failures, so they can be ignored. """
-
-    cur = conn.cursor()
-
-    cur.execute(
-        """
-SELECT count(*) FROM wire
-  JOIN wire_in_tile ON (wire.wire_in_tile_pkey = wire_in_tile.pkey)
-  JOIN graph_node ON (wire.node_pkey = graph_node.node_pkey)
-  WHERE graph_node.pkey = ? AND
-        (wire_in_tile.name = 'IOI_OLOGIC1_TBYTEOUT' OR
-         wire_in_tile.name LIKE 'CLK_HROW_CK_HCLK_OUT_%' OR
-         wire_in_tile.name LIKE 'HCLK_CMT_BUFMRCE_%' OR
-         wire_in_tile.name LIKE 'CMT_PHY_CONTROL_%' OR
-         wire_in_tile.name LIKE 'CMT_PHASER_%' OR
-         wire_in_tile.name LIKE 'GTPE2_COMMON_%')
-  LIMIT 1;
-        """, (graph_node_pkey, )
-    )
 
     return cur.fetchone()[0] > 0
 
