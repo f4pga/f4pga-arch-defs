@@ -165,6 +165,7 @@ function(ADD_XC7_DEVICE_DEFINE)
         --route_chan_width 500
         --astar_fac 0.75
         --bb_factor 100
+        --allowed_tiles_for_delay_model BLK-TL-SLICEL,BLK-TL-SLICEM
       )
 
     get_target_property_required(PYTHON3 env PYTHON3)
