@@ -1523,7 +1523,8 @@ def annotate_pin_feeds(conn):
 
     # Find BUFHCE OPIN's, so that walk_and_mark_segment uses correct segment
     # type.
-    cur.execute("""
+    cur.execute(
+        """
 WITH bufhce_opins(wire_in_tile_pkey) AS (
   SELECT wire_in_tile.pkey FROM wire_in_tile
   INNER JOIN site_pin ON site_pin.pkey = wire_in_tile.site_pin_pkey
@@ -1537,8 +1538,11 @@ SELECT graph_node.pkey FROM graph_node
 INNER JOIN wire ON graph_node.node_pkey = wire.node_pkey
 WHERE
   wire.wire_in_tile_pkey IN (SELECT wire_in_tile_pkey FROM bufhce_opins);
-    """);
-    bufhce_opins = set(graph_node_pkey for (graph_node_pkey,) in cur.fetchall())
+    """
+    )
+    bufhce_opins = set(
+        graph_node_pkey for (graph_node_pkey, ) in cur.fetchall()
+    )
 
     write_cur.execute("""BEGIN EXCLUSIVE TRANSACTION;""")
 

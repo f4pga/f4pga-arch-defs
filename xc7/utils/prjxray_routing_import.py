@@ -86,6 +86,7 @@ def reduce_connection_box(box):
 REBUF_NODES = {}
 REBUF_SOURCES = {}
 
+
 def populate_bufg_rebuf_map(conn):
     global REBUF_NODES
     REBUF_NODES = {}
@@ -93,12 +94,15 @@ def populate_bufg_rebuf_map(conn):
     global REBUF_SOURCES
     REBUF_SOURCES = {}
 
-    rebuf_wire_regexp = re.compile('CLK_BUFG_REBUF_R_CK_GCLK([0-9]+)_(BOT|TOP)')
+    rebuf_wire_regexp = re.compile(
+        'CLK_BUFG_REBUF_R_CK_GCLK([0-9]+)_(BOT|TOP)'
+    )
 
     cur = conn.cursor()
 
     # Find nodes touching rebuf wires.
-    cur.execute("""
+    cur.execute(
+        """
 WITH
   rebuf_wires(wire_in_tile_pkey) AS (
     SELECT pkey
@@ -119,27 +123,34 @@ INNER JOIN wire ON wire.node_pkey = rebuf_nodes.node_pkey
 INNER JOIN wire_in_tile ON wire_in_tile.pkey = wire.wire_in_tile_pkey
 INNER JOIN phy_tile ON phy_tile.pkey = wire.phy_tile_pkey
 WHERE wire.wire_in_tile_pkey IN (SELECT wire_in_tile_pkey FROM rebuf_wires)
-ORDER BY rebuf_nodes.node_pkey;""")
+ORDER BY rebuf_nodes.node_pkey;"""
+    )
     for node_pkey, rebuf_tile, rebuf_wire_name in cur:
         if node_pkey not in REBUF_NODES:
-             REBUF_NODES[node_pkey] = []
+            REBUF_NODES[node_pkey] = []
 
         m = rebuf_wire_regexp.fullmatch(rebuf_wire_name)
 
         if m.group(2) == 'TOP':
-            REBUF_NODES[node_pkey].append('{}.GCLK{}_ENABLE_BELOW'.format(rebuf_tile, m.group(1)))
+            REBUF_NODES[node_pkey].append(
+                '{}.GCLK{}_ENABLE_BELOW'.format(rebuf_tile, m.group(1))
+            )
         elif m.group(2) == 'BOT':
-            REBUF_NODES[node_pkey].append('{}.GCLK{}_ENABLE_ABOVE'.format(rebuf_tile, m.group(1)))
+            REBUF_NODES[node_pkey].append(
+                '{}.GCLK{}_ENABLE_ABOVE'.format(rebuf_tile, m.group(1))
+            )
         else:
             assert False, (rebuf_tile, rebuf_wire_name)
 
     for node_pkey in REBUF_NODES:
-        cur.execute("""
+        cur.execute(
+            """
 SELECT phy_tile.name, wire_in_tile.name
 FROM wire
 INNER JOIN phy_tile ON phy_tile.pkey = wire.phy_tile_pkey
 INNER JOIN wire_in_tile ON wire_in_tile.pkey = wire.wire_in_tile_pkey
-WHERE wire.node_pkey = ?;""", (node_pkey,))
+WHERE wire.node_pkey = ?;""", (node_pkey, )
+        )
 
         for tile, wire_name in cur:
             REBUF_SOURCES[(tile, wire_name)] = node_pkey
@@ -171,7 +182,9 @@ def populate_hclk_cmt_tiles(db):
             gridinfo = grid.gridinfo_at_loc((hclk_cmt_x, hclk_cmt_y))
 
             if gridinfo.tile_type == 'HCLK_CMT':
-                HCLK_CMT_TILES[tile, 'L'] = grid.tilename_at_loc((hclk_cmt_x, hclk_cmt_y))
+                HCLK_CMT_TILES[tile, 'L'] = grid.tilename_at_loc(
+                    (hclk_cmt_x, hclk_cmt_y)
+                )
                 break
 
         hclk_cmt_x = hclk_x
@@ -182,7 +195,9 @@ def populate_hclk_cmt_tiles(db):
             gridinfo = grid.gridinfo_at_loc((hclk_cmt_x, hclk_cmt_y))
 
             if gridinfo.tile_type == 'HCLK_CMT_L':
-                HCLK_CMT_TILES[tile, 'R'] = grid.tilename_at_loc((hclk_cmt_x, hclk_cmt_y))
+                HCLK_CMT_TILES[tile, 'R'] = grid.tilename_at_loc(
+                    (hclk_cmt_x, hclk_cmt_y)
+                )
                 break
 
 
@@ -217,26 +232,37 @@ def check_feature(feature):
 
     if BUFG_CLK_IN_REGEX.fullmatch(feature_path[-1]):
         enable_feature = '{}.{}_ACTIVE'.format(
-                feature_path[0], feature_path[-1])
+            feature_path[0], feature_path[-1]
+        )
 
         return ' '.join((feature, enable_feature))
 
     if BUFG_CLK_OUT_REGEX.fullmatch(feature_path[-1]):
         enable_feature = '{}.{}_ACTIVE'.format(
-                feature_path[0], feature_path[-1])
+            feature_path[0], feature_path[-1]
+        )
 
         return ' '.join((feature, enable_feature))
 
     if CCIO_ACTIVE_REGEX.fullmatch(feature_path[-1]):
         features = [feature]
-        features.append('{}.{}_ACTIVE'.format(feature_path[0], feature_path[-1]))
+        features.append(
+            '{}.{}_ACTIVE'.format(feature_path[0], feature_path[-1])
+        )
         features.append('{}.{}_USED'.format(feature_path[0], feature_path[-1]))
 
         return ' '.join(features)
 
     m = HCLK_OUT.fullmatch(feature_path[-1])
     if m:
-        return ' '.join((feature, find_hclk_cmt_hclk_feature(feature_path[0], m.group(1), m.group(2))))
+        return ' '.join(
+            (
+                feature,
+                find_hclk_cmt_hclk_feature(
+                    feature_path[0], m.group(1), m.group(2)
+                )
+            )
+        )
 
     m = CASCOUT_REGEX.fullmatch(feature_path[-2])
     if m:

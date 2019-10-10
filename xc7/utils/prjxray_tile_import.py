@@ -352,7 +352,6 @@ def import_tile(db, args):
 
     model = ModelXml(f=args.output_model, site_directory=args.site_directory)
 
-
     if args.fused_sites:
         fused_site_name = args.tile.lower()
 
@@ -1445,8 +1444,8 @@ def main():
     )
 
     parser.add_argument(
-        '--filter_x',
-        help="Filter imported sites by their x coordinate.")
+        '--filter_x', help="Filter imported sites by their x coordinate."
+    )
 
     args = parser.parse_args()
 
