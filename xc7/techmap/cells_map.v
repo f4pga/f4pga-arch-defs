@@ -1926,14 +1926,14 @@ module BUFG (
 
   BUFGCTRL _TECHMAP_REPLACE_ (
     .O(O),
-    .CE0(1),
-    .CE1(0),
+    .CE0(1'b1),
+    .CE1(1'b0),
     .I0(I),
-    .I1(1),
-    .IGNORE0(0),
-    .IGNORE1(1),
-    .S0(1),
-    .S1(0)
+    .I1(1'b1),
+    .IGNORE0(1'b0),
+    .IGNORE1(1'b1),
+    .S0(1'b1),
+    .S1(1'b0)
   );
 endmodule
 
@@ -2005,14 +2005,14 @@ input IGNORE0, input IGNORE1
       .ZINV_S1(!IS_S1_INVERTED ^ INV_S1)
   ) _TECHMAP_REPLACE_ (
     .O(O),
-    .CE0(CE0),
-    .CE1(CE1),
+    .CE0(CE0 ^ INV_CE0),
+    .CE1(CE1 ^ INV_CE1),
     .I0(I0),
     .I1(I1),
-    .IGNORE0(IGNORE0),
-    .IGNORE1(IGNORE1),
-    .S0(S0),
-    .S1(S1)
+    .IGNORE0(IGNORE0 ^ INV_IGNORE0),
+    .IGNORE1(IGNORE1 ^ INV_IGNORE1),
+    .S0(S0 ^ INV_S0),
+    .S1(S1 ^ INV_S1)
   );
 
 endmodule
