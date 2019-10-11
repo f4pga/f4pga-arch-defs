@@ -233,6 +233,53 @@ def is_in_roi(conn, roi, tile_pkey):
     return any(roi.tile_in_roi(loc) for loc in phy_locs)
 
 
+PREFIX_REQUIRED = {
+    "IOB": ("Y", 2),
+    "IDELAY": ("Y", 2),
+    "ILOGIC": ("Y", 2),
+    "OLOGIC": ("Y", 2),
+}
+
+
+def get_site_prefixes(conn, tile_pkey):
+    cur = conn.cursor()
+
+    site_prefixes = {}
+    cur.execute(
+        """
+WITH
+  sites_in_tile(site_pkey) AS (
+    SELECT
+      DISTINCT wire_in_tile.site_pkey
+    FROM
+      wire_in_tile
+    INNER JOIN site ON site.pkey = wire_in_tile.site_pkey
+    WHERE
+      wire_in_tile.tile_type_pkey = (SELECT tile_type_pkey FROM tile WHERE pkey = ?)
+    AND
+      wire_in_tile.phy_tile_type_pkey IN (SELECT tile_type_pkey FROM phy_tile WHERE pkey IN (SELECT phy_tile_pkey FROM tile_map WHERE tile_pkey = ?))
+    AND
+      site_pin_pkey IS NOT NULL)
+SELECT site_instance.name, site_instance.x_coord, site_instance.y_coord
+FROM site_instance
+WHERE
+  site_instance.site_pkey IN (SELECT site_pkey FROM sites_in_tile)
+AND
+  site_instance.phy_tile_pkey IN (SELECT phy_tile_pkey FROM tile_map WHERE tile_pkey = ?);
+  """, (tile_pkey, tile_pkey, tile_pkey)
+    )
+    for site_name, x, y in cur:
+        k, _ = site_name.split('_')
+
+        prefix_required = PREFIX_REQUIRED[k]
+        if prefix_required[0] == 'Y':
+            site_prefixes[k] = '{}_Y{}'.format(k, y % prefix_required[1])
+        else:
+            assert False, k
+
+    return site_prefixes
+
+
 def get_fasm_tile_prefix(conn, g, tile_pkey, site_as_tile_pkey):
     """ Returns FASM prefix of specified tile. """
     c = conn.cursor()
@@ -272,6 +319,7 @@ WHERE
             tile_type_map[tile_type] = tilename
 
     if len(tile_type_map) > 1:
+        tile_type_map.update(get_site_prefixes(conn, tile_pkey))
         return lambda single_xml: attach_multiple_prefixes_to_tile(
             single_xml, tile_type_map
         )
@@ -320,10 +368,18 @@ def attach_prefix_to_tile(single_xml, fasm_tile_prefix):
 
 # Map the following tile types to a more general name
 TYPE_REMAP = {
-    "LIOI3_TBYTESRC": "LIOI3",
-    "LIOI3_TBYTETERM": "LIOI3",
-    "RIOI3_TBYTESRC": "RIOI3",
-    "RIOI3_TBYTETERM": "RIOI3",
+    "LIOI3_SING": "IOI3_TILE",
+    "LIOI3": "IOI3_TILE",
+    "LIOI3_TBYTESRC": "IOI3_TILE",
+    "LIOI3_TBYTETERM": "IOI3_TILE",
+    "RIOI3_SING": "IOI3_TILE",
+    "RIOI3": "IOI3_TILE",
+    "RIOI3_TBYTESRC": "IOI3_TILE",
+    "RIOI3_TBYTETERM": "IOI3_TILE",
+    "LIOB33": "IOB_TILE",
+    "LIOB33_SING": "IOB_TILE",
+    "RIOB33": "IOB_TILE",
+    "RIOB33_SING": "IOB_TILE",
 }
 
 
@@ -485,7 +541,12 @@ def main():
         help="""File to output arch."""
     )
     parser.add_argument(
-        '--tile-types', help="Semi-colon seperated tile types."
+        '--tile-types', required=True, help="Semi-colon seperated tile types."
+    )
+    parser.add_argument(
+        '--pb_types',
+        required=True,
+        help="Semi-colon seperated pb_types types."
     )
     parser.add_argument(
         '--pin_assignments', required=True, type=argparse.FileType('r')
@@ -502,10 +563,11 @@ def main():
     args = parser.parse_args()
 
     tile_types = args.tile_types.split(',')
+    pb_types = args.pb_types.split(',')
 
-    tile_model = "../../tiles/{0}/{0}.model.xml"
-    tile_pbtype = "../../tiles/{0}/{0}.pb_type.xml"
-    tile_tile = "../../tiles/{0}/{0}.tile.xml"
+    model_xml_spec = "../../tiles/{0}/{0}.model.xml"
+    pbtype_xml_spec = "../../tiles/{0}/{0}.pb_type.xml"
+    tile_xml_spec = "../../tiles/{0}/{0}.tile.xml"
 
     xi_url = "http://www.w3.org/2001/XInclude"
     ET.register_namespace('xi', xi_url)
@@ -518,10 +580,10 @@ def main():
     )
 
     model_xml = ET.SubElement(arch_xml, 'models')
-    for tile_type in tile_types:
+    for pb_type in pb_types:
         ET.SubElement(
             model_xml, xi_include, {
-                'href': tile_model.format(tile_type.lower()),
+                'href': model_xml_spec.format(pb_type.lower()),
                 'xpointer': "xpointer(models/child::node())",
             }
         )
@@ -530,15 +592,15 @@ def main():
     for tile_type in tile_types:
         ET.SubElement(
             tiles_xml, xi_include, {
-                'href': tile_tile.format(tile_type.lower()),
+                'href': tile_xml_spec.format(tile_type.lower()),
             }
         )
 
     complexblocklist_xml = ET.SubElement(arch_xml, 'complexblocklist')
-    for tile_type in tile_types:
+    for pb_type in pb_types:
         ET.SubElement(
             complexblocklist_xml, xi_include, {
-                'href': tile_pbtype.format(tile_type.lower()),
+                'href': pbtype_xml_spec.format(pb_type.lower()),
             }
         )
 
