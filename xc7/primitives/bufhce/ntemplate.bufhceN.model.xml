@@ -1,0 +1,12 @@
+<!-- vim: set ai sw=1 ts=1 sta et: -->
+<models xmlns:xi="http://www.w3.org/2001/XInclude">
+ <model name="BUFHCE_VPR">
+  <input_ports>
+   <port name="CE" />
+   <port name="I" is_clock="1"/>
+  </input_ports>
+  <output_ports>
+   <port name="O" is_clock="1" />
+  </output_ports>
+ </model>
+</models>

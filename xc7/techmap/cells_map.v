@@ -1895,7 +1895,7 @@ endmodule
 module IBUF (
   input I,
   output O
-);
+  );
 
    INBUF_VPR _TECHMAP_REPLACE_ (
      .PAD(I),
@@ -1907,11 +1907,152 @@ endmodule
 module OBUF (
   input I,
   output O
-);
+  );
 
    OUTBUF_VPR _TECHMAP_REPLACE_ (
      .IN(I),
      .OUT(O)
    );
+
+endmodule
+
+// ============================================================================
+// Clock Buffers
+
+module BUFG (
+  input I,
+  output O
+  );
+
+  BUFGCTRL _TECHMAP_REPLACE_ (
+    .O(O),
+    .CE0(1'b1),
+    .CE1(1'b0),
+    .I0(I),
+    .I1(1'b1),
+    .IGNORE0(1'b0),
+    .IGNORE1(1'b1),
+    .S0(1'b1),
+    .S1(1'b0)
+  );
+endmodule
+
+module BUFGCTRL (
+output O,
+input I0, input I1,
+input S0, input S1,
+input CE0, input CE1,
+input IGNORE0, input IGNORE1
+);
+
+  parameter [0:0] INIT_OUT = 1'b0;
+  parameter [0:0] PRESELECT_I0 = 1'b0;
+  parameter [0:0] PRESELECT_I1 = 1'b0;
+  parameter [0:0] IS_IGNORE0_INVERTED = 1'b0;
+  parameter [0:0] IS_IGNORE1_INVERTED = 1'b0;
+  parameter [0:0] IS_CE0_INVERTED = 1'b0;
+  parameter [0:0] IS_CE1_INVERTED = 1'b0;
+  parameter [0:0] IS_S0_INVERTED = 1'b0;
+  parameter [0:0] IS_S1_INVERTED = 1'b0;
+
+  parameter _TECHMAP_CONSTMSK_IGNORE0_ = 0;
+  parameter _TECHMAP_CONSTVAL_IGNORE0_ = 0;
+  parameter _TECHMAP_CONSTMSK_IGNORE1_ = 0;
+  parameter _TECHMAP_CONSTVAL_IGNORE1_ = 0;
+  parameter _TECHMAP_CONSTMSK_CE0_ = 0;
+  parameter _TECHMAP_CONSTVAL_CE0_ = 0;
+  parameter _TECHMAP_CONSTMSK_CE1_ = 0;
+  parameter _TECHMAP_CONSTVAL_CE1_ = 0;
+  parameter _TECHMAP_CONSTMSK_S0_ = 0;
+  parameter _TECHMAP_CONSTVAL_S0_ = 0;
+  parameter _TECHMAP_CONSTMSK_S1_ = 0;
+  parameter _TECHMAP_CONSTVAL_S1_ = 0;
+
+  localparam [0:0] INV_IGNORE0 = (
+      _TECHMAP_CONSTMSK_IGNORE0_ == 1 &&
+      _TECHMAP_CONSTVAL_IGNORE0_ == 0 &&
+      IS_IGNORE0_INVERTED == 0);
+  localparam [0:0] INV_IGNORE1 = (
+      _TECHMAP_CONSTMSK_IGNORE1_ == 1 &&
+      _TECHMAP_CONSTVAL_IGNORE1_ == 0 &&
+      IS_IGNORE1_INVERTED == 0);
+  localparam [0:0] INV_CE0 = (
+      _TECHMAP_CONSTMSK_CE0_ == 1 &&
+      _TECHMAP_CONSTVAL_CE0_ == 0 &&
+      IS_CE0_INVERTED == 0);
+  localparam [0:0] INV_CE1 = (
+      _TECHMAP_CONSTMSK_CE1_ == 1 &&
+      _TECHMAP_CONSTVAL_CE1_ == 0 &&
+      IS_CE1_INVERTED == 0);
+  localparam [0:0] INV_S0 = (
+      _TECHMAP_CONSTMSK_S0_ == 1 &&
+      _TECHMAP_CONSTVAL_S0_ == 0 &&
+      IS_S0_INVERTED == 0);
+  localparam [0:0] INV_S1 = (
+      _TECHMAP_CONSTMSK_S1_ == 1 &&
+      _TECHMAP_CONSTVAL_S1_ == 0 &&
+      IS_S1_INVERTED == 0);
+
+  BUFGCTRL_VPR #(
+      .INIT_OUT(INIT_OUT),
+      .ZPRESELECT_I0(PRESELECT_I0),
+      .ZPRESELECT_I1(PRESELECT_I1),
+      .IS_IGNORE0_INVERTED(!IS_IGNORE0_INVERTED ^ INV_IGNORE0),
+      .IS_IGNORE1_INVERTED(!IS_IGNORE1_INVERTED ^ INV_IGNORE1),
+      .ZINV_CE0(!IS_CE0_INVERTED ^ INV_CE0),
+      .ZINV_CE1(!IS_CE1_INVERTED ^ INV_CE1),
+      .ZINV_S0(!IS_S0_INVERTED ^ INV_S0),
+      .ZINV_S1(!IS_S1_INVERTED ^ INV_S1)
+  ) _TECHMAP_REPLACE_ (
+    .O(O),
+    .CE0(CE0 ^ INV_CE0),
+    .CE1(CE1 ^ INV_CE1),
+    .I0(I0),
+    .I1(I1),
+    .IGNORE0(IGNORE0 ^ INV_IGNORE0),
+    .IGNORE1(IGNORE1 ^ INV_IGNORE1),
+    .S0(S0 ^ INV_S0),
+    .S1(S1 ^ INV_S1)
+  );
+
+endmodule
+
+module BUFH (
+  input I,
+  output O
+  );
+
+  BUFHCE _TECHMAP_REPLACE_ (
+    .O(O),
+    .I(I),
+    .CE(1)
+  );
+endmodule
+
+module BUFHCE (
+  input I,
+  input CE,
+  output O
+  );
+
+  parameter [0:0] INIT_OUT = 1'b0;
+  parameter [0:0] IS_CE_INVERTED = 1'b0;
+
+  parameter [0:0] _TECHMAP_CONSTMSK_CE_ = 0;
+  parameter [0:0] _TECHMAP_CONSTVAL_CE_ = 0;
+
+  localparam [0:0] INV_CE = (
+      _TECHMAP_CONSTMSK_CE_ == 1 &&
+      _TECHMAP_CONSTVAL_CE_ == 0 &&
+      IS_CE_INVERTED == 0);
+
+  BUFHCE_VPR #(
+      .INIT_OUT(INIT_OUT),
+      .ZINV_CE(!IS_CE_INVERTED ^ INV_CE)
+  ) _TECHMAP_REPLACE_ (
+  .O(O),
+  .I(I),
+  .CE(CE)
+  );
 
 endmodule

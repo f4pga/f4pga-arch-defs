@@ -284,6 +284,12 @@ def import_tile(db, args):
     # Wires source from a site within the tile are output wires.
     output_wires = set()
 
+    if args.filter_x:
+        xs = list(map(int, args.filter_x.split(',')))
+        x_filter = lambda site: site.x in xs
+    else:
+        x_filter = lambda site: True
+
     if not args.fused_sites:
         site_type_instances = parse_site_type_instance(args.site_types)
 
@@ -346,20 +352,10 @@ def import_tile(db, args):
 
     model = ModelXml(f=args.output_model, site_directory=args.site_directory)
 
-    if not args.fused_sites:
-        site_types = set(site.type for site in tile.get_sites())
-        for site_type in site_types:
-            if site_type in ignored_site_types:
-                continue
-
-            for instance in site_type_instances[site_type]:
-                model.add_model_include(site_type, instance)
-    else:
+    if args.fused_sites:
         fused_site_name = args.tile.lower()
 
         model.add_model_include(fused_site_name, fused_site_name)
-
-    model.write_model()
 
     ##########################################################################
     # Utility functions for pb_type                                          #
@@ -378,6 +374,7 @@ def import_tile(db, args):
         site_type_count = {}
         site_prefixes = {}
         cells_idx = []
+        models_added = set()
 
         site_type_ports = {}
         for idx, site in enumerate(tile.get_sites()):
@@ -390,9 +387,22 @@ def import_tile(db, args):
 
             cells_idx.append(site_type_count[site.type])
             site_type_count[site.type] += 1
-            site_prefix = '{}_X{}'.format(site.type, site.x)
+
+            if not args.both_site_coords:
+                site_prefix = '{}_X{}'.format(site.type, site.x)
+            else:
+                site_prefix = '{}.{}_X{}Y{}'.format(
+                    site.type, site.type, site.x, site.y
+                )
 
             site_instance = site_type_instances[site.type][cells_idx[idx]]
+
+            if not x_filter(site):
+                continue
+
+            if (site.type, site_instance) not in models_added:
+                models_added.add((site.type, site_instance))
+                model.add_model_include(site.type, site_instance)
 
             site_type_path = site_pbtype.format(
                 site.type.lower(), site_instance.lower()
@@ -445,6 +455,9 @@ def import_tile(db, args):
 
         for idx, site in enumerate(tile.get_sites()):
             if site.type in ignored_site_types:
+                continue
+
+            if not x_filter(site):
                 continue
 
             site_idx = cells_idx[idx]
@@ -602,6 +615,7 @@ def import_tile(db, args):
 
     add_switchblock_locations(pb_type_xml)
 
+    model.write_model()
     write_xml(args.output_pb_type, pb_type_xml)
 
 
@@ -1380,6 +1394,13 @@ def main():
     )
 
     parser.add_argument(
+        '--both_site_coords',
+        action="store_true",
+        default=False,
+        help="""Use both site coordinates for the fasm prefix."""
+    )
+
+    parser.add_argument(
         '--output-pb-type',
         nargs='?',
         type=argparse.FileType('w'),
@@ -1420,6 +1441,10 @@ def main():
         '--connection_database',
         help=
         "Location of connection database to define this tile type.  The tile will be defined by the sites and wires from the connection database in lue of Project X-Ray."
+    )
+
+    parser.add_argument(
+        '--filter_x', help="Filter imported sites by their x coordinate."
     )
 
     args = parser.parse_args()
