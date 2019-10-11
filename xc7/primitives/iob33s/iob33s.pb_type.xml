@@ -1,5 +1,5 @@
 <!-- set: ai sw=1 ts=1 sta et -->
-<pb_type name="IOB33" num_pb="1" xmlns:xi="http://www.w3.org/2001/XInclude">
+<pb_type name="IOB33S" num_pb="1" xmlns:xi="http://www.w3.org/2001/XInclude">
   <input name="DIFFI_IN" num_pins="1"/>
   <output name="DIFFO_OUT" num_pins="1"/>
   <output name="I" num_pins="1"/>
@@ -16,7 +16,7 @@
   <mode name="NO_IBUF">
     <xi:include href="../iob33m/inpad.pb_type.xml"/>
     <interconnect>
-      <direct name="I" input="inpad.inpad" output="IOB33.I">
+      <direct name="I" input="inpad.inpad" output="IOB33S.I">
         <metadata>
           <meta name="fasm_mux">
             inpad.inpad : LVCMOS12_LVCMOS15_LVCMOS18_LVCMOS25_LVCMOS33_LVTTL_SSTL135.IN_ONLY,LVCMOS25_LVCMOS33_LVTTL.IN,PULLTYPE.NONE
@@ -28,10 +28,10 @@
   <mode name="NO_OBUF">
     <xi:include href="../iob33m/outpad.pb_type.xml"/>
     <interconnect>
-      <direct name="O" input="IOB33.O" output="outpad.outpad">
+      <direct name="O" input="IOB33S.O" output="outpad.outpad">
         <metadata>
           <meta name="fasm_mux">
-            IOB33.O : PULLTYPE.NONE,LVCMOS33_LVTTL.DRIVE.I12_I16,LVCMOS12_LVCMOS15_LVCMOS18_LVCMOS25_LVCMOS33_LVTTL_SSTL135.SLEW.SLOW
+            IOB33S.O : PULLTYPE.NONE,LVCMOS33_LVTTL.DRIVE.I12_I16,LVCMOS12_LVCMOS15_LVCMOS18_LVCMOS25_LVCMOS33_LVTTL_SSTL135.SLEW.SLOW
           </meta>
         </metadata>
       </direct>
@@ -48,7 +48,7 @@
     </pb_type>
     <xi:include href="../iob33m/inpad.pb_type.xml"/>
     <interconnect>
-      <direct name="I" input="INBUF_VPR.OUT" output="IOB33.I"/>
+      <direct name="I" input="INBUF_VPR.OUT" output="IOB33S.I"/>
       <direct name="to_inpad" input="inpad.inpad" output="INBUF_VPR.PAD"/>
     </interconnect>
   </mode>
@@ -61,8 +61,8 @@
     </pb_type>
     <xi:include href="../iob33m/outpad.pb_type.xml"/>
     <interconnect>
-      <direct name="T" input="IOB33.T" output="OUTBUF_VPR.TRI"/>
-      <direct name="O" input="IOB33.O" output="OUTBUF_VPR.IN"/>
+      <direct name="T" input="IOB33S.T" output="OUTBUF_VPR.TRI"/>
+      <direct name="O" input="IOB33S.O" output="OUTBUF_VPR.IN"/>
       <direct name="to_outpad" input="OUTBUF_VPR.OUT" output="outpad.outpad">
         <pack_pattern name="OUTBUF_to_outpad"/>
       </direct>
@@ -85,9 +85,9 @@
       <delay_constant max="10e-12" in_port="OUTBUF_IN"  out_port="OUTBUF_OUT"/>
     </pb_type>
     <interconnect>
-      <direct name="I" input="IOBUF_VPR.INBUF_OUT" output="IOB33.I"/>
-      <direct name="T" input="IOB33.T" output="IOBUF_VPR.OUTBUF_TRI"/>
-      <direct name="O" input="IOB33.O" output="IOBUF_VPR.OUTBUF_IN"/>
+      <direct name="I" input="IOBUF_VPR.INBUF_OUT" output="IOB33S.I"/>
+      <direct name="T" input="IOB33S.T" output="IOBUF_VPR.OUTBUF_TRI"/>
+      <direct name="O" input="IOB33S.O" output="IOBUF_VPR.OUTBUF_IN"/>
       <direct name="to_outpad" input="IOBUF_VPR.OUTBUF_OUT" output="outpad.outpad"/>
       <direct name="to_inpad" input="inpad.inpad" output="IOBUF_VPR.INBUF_PAD"/>
     </interconnect>
