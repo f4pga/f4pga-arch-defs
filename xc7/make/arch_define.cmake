@@ -83,7 +83,6 @@ function(ADD_XC7_ARCH_DEFINE)
         --pcf \${INPUT_IO_FILE} \
         --eblif \${OUT_EBLIF} \
         --top \${TOP} \
-        --allow_orphan_sinks \
         \${OUT_BIT_VERILOG} \${OUT_BIT_VERILOG}.tcl"
     NO_BIT_TIME
     USE_FASM
