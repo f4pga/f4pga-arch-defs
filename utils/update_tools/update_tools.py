@@ -64,7 +64,10 @@ $ exit
 
 
 def merge_branches(location, branches):
-    """Merge one or more branches into the current branch. The branches have to be in string format"""
+    """
+    Merge one or more branches into the current branch.
+    The branches have to be in string format
+    """
 
     os.system("cd {} && git merge {} && cd -".format(location, branches))
 
