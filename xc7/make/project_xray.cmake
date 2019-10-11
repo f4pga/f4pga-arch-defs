@@ -58,6 +58,9 @@ function(PROJECT_XRAY_TILE)
   # USE_DATABASE option enables usage of connection database for tile
   #     definition, instead of using the project X-Ray database.
   # PRIORITY option that enables the priority assignments to the equivalent sites
+  # BOTH_SIDE_COORD option that enables the assignment of both coordinates to the fasm prefixes
+  # FILTER_X can be supplied to filter to sites that have the given X 
+  #     coordinate.
   #
   # Usage:
   # ~~~
@@ -70,11 +73,13 @@ function(PROJECT_XRAY_TILE)
   #   SITE_AS_TILE (option)
   #   FUSED_SITES (option)
   #   USE_DATABASE (option)
+  #   BOTH_SITE_COORDS (option)
+  #   [FILTER_X <x_coord>]
   #   )
   # ~~~
 
-  set(options PRIORITY FUSED_SITES SITE_AS_TILE USE_DATABASE)
-  set(oneValueArgs PART TILE)
+  set(options PRIORITY FUSED_SITES SITE_AS_TILE USE_DATABASE BOTH_SITE_COORDS)
+  set(oneValueArgs PART TILE FILTER_X)
   set(multiValueArgs SITE_TYPES EQUIVALENT_SITES)
   cmake_parse_arguments(
     PROJECT_XRAY_TILE
@@ -127,6 +132,15 @@ function(PROJECT_XRAY_TILE)
     set(PHYSICAL_TILE_ARGS "--priority")
   endif()
 
+  set(BOTH_SITE_COORDS_ARGS "")
+  if(PROJECT_XRAY_TILE_BOTH_SITE_COORDS)
+    set(BOTH_SITE_COORDS_ARGS "--both_site_coords")
+  endif()
+  set(FILTER_X_ARGS "")
+  if(NOT "${PROJECT_XRAY_TILE_FILTER_X}" STREQUAL "")
+      set(FILTER_X_ARGS --filter_x ${PROJECT_XRAY_TILE_FILTER_X})
+  endif()
+
   add_custom_command(
     OUTPUT ${TILE}.pb_type.xml ${TILE}.model.xml
     COMMAND ${CMAKE_COMMAND} -E env PYTHONPATH=${PRJXRAY_DIR}:${symbiflow-arch-defs_SOURCE_DIR}/utils
@@ -139,6 +153,8 @@ function(PROJECT_XRAY_TILE)
     --output-pb-type ${CMAKE_CURRENT_BINARY_DIR}/${TILE}.pb_type.xml
     --output-model ${CMAKE_CURRENT_BINARY_DIR}/${TILE}.model.xml
     ${FUSED_SITES_ARGS}
+    ${BOTH_SITE_COORDS_ARGS}
+    ${FILTER_X_ARGS}
     DEPENDS
     ${TILE_IMPORT}
       ${DEPS}

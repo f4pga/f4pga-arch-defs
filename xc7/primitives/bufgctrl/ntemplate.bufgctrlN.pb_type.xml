@@ -1,0 +1,58 @@
+<!-- Model of BUFG group in BUFG_CLK_TOP/BOT -->
+<pb_type name="BUFGCTRL{N}" num_pb="1" xmlns:xi="http://www.w3.org/2001/XInclude">
+  <output name="O" num_pins="1"/>
+  <input name="CE0" num_pins="1"/>
+  <input name="CE1" num_pins="1"/>
+  <clock name="I0" num_pins="1"/>
+  <clock name="I1" num_pins="1"/>
+  <input name="IGNORE0" num_pins="1"/>
+  <input name="IGNORE1" num_pins="1"/>
+  <input name="S0" num_pins="1"/>
+  <input name="S1" num_pins="1"/>
+  <mode name="EMPTY">
+    <pb_type name="empty" blif_model=".latch" num_pb="1" />
+    <interconnect />
+  </mode>
+  <mode name="BUFGCTRL">
+    <pb_type name="BUFGCTRL_VPR" blif_model=".subckt BUFGCTRL_VPR" num_pb="1">
+      <output name="O" num_pins="1"/>
+      <input name="CE0" num_pins="1"/>
+      <input name="CE1" num_pins="1"/>
+      <clock name="I0" num_pins="1"/>
+      <clock name="I1" num_pins="1"/>
+      <input name="IGNORE0" num_pins="1"/>
+      <input name="IGNORE1" num_pins="1"/>
+      <input name="S0" num_pins="1"/>
+      <input name="S1" num_pins="1"/>
+      <metadata>
+        <meta name="fasm_params">
+          ZPRESELECT_I0 = ZPRESELECT_I0
+          ZPRESELECT_I1 = ZPRESELECT_I1
+          IS_IGNORE0_INVERTED = IS_IGNORE0_INVERTED
+          IS_IGNORE1_INVERTED = IS_IGNORE1_INVERTED
+          ZINV_CE0 = ZINV_CE0
+          ZINV_CE1 = ZINV_CE1
+          ZINV_S0 = ZINV_S0
+          ZINV_S1 = ZINV_S1
+        </meta>
+      </metadata>
+    </pb_type>
+    <interconnect>
+      <direct name="O" input="BUFGCTRL_VPR.O" output="BUFGCTRL{N}.O"/>
+      <direct name="CE0" input="BUFGCTRL{N}.CE0" output="BUFGCTRL_VPR.CE0"/>
+      <direct name="CE1" input="BUFGCTRL{N}.CE1" output="BUFGCTRL_VPR.CE1"/>
+      <direct name="I0" input="BUFGCTRL{N}.I0" output="BUFGCTRL_VPR.I0"/>
+      <direct name="I1" input="BUFGCTRL{N}.I1" output="BUFGCTRL_VPR.I1"/>
+      <direct name="IGNORE0" input="BUFGCTRL{N}.IGNORE0" output="BUFGCTRL_VPR.IGNORE0"/>
+      <direct name="IGNORE1" input="BUFGCTRL{N}.IGNORE1" output="BUFGCTRL_VPR.IGNORE1"/>
+      <direct name="S0" input="BUFGCTRL{N}.S0" output="BUFGCTRL_VPR.S0"/>
+      <direct name="S1" input="BUFGCTRL{N}.S1" output="BUFGCTRL_VPR.S1"/>
+
+    </interconnect>
+    <metadata>
+      <meta name="fasm_features">
+        IN_USE
+      </meta>
+    </metadata>
+  </mode>
+</pb_type>
