@@ -179,7 +179,7 @@ function(PROJECT_XRAY_TILE)
   set(PHYSICAL_TILE_IMPORT ${symbiflow-arch-defs_SOURCE_DIR}/xc7/utils/prjxray_physical_tile_import.py)
   get_project_xray_dependencies(DEPS ${PROJECT_XRAY_TILE_PART} ${TILE})
 
-  foreach(EQUIVALENT_SITE ${PROJECT_XRAY_TILE_EQUIVALENT_SITE})
+  foreach(EQUIVALENT_SITE ${PROJECT_XRAY_TILE_EQUIVALENT_SITES})
     string(TOLOWER ${EQUIVALENT_SITE} EQUIVALENT_SITE_LOWER)
     append_file_dependency(TILES_DEPS ${symbiflow-arch-defs_SOURCE_DIR}/xc7/archs/${PART}/tiles/${EQUIVALENT_SITE_LOWER}/${EQUIVALENT_SITE_LOWER}.pb_type.xml)
     list(APPEND EQUIVALENT_SITES_INCLUDE_FILES ${symbiflow-arch-defs_SOURCE_DIR}/xc7/archs/${PART}/tiles/${EQUIVALENT_SITE_LOWER}/${EQUIVALENT_SITE_LOWER}.pb_type.xml)
