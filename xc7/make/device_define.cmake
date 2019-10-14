@@ -98,7 +98,7 @@ endfunction()
 function(ADD_XC7_DEVICE_DEFINE)
   set(options USE_ROI)
   set(oneValueArgs ARCH GRAPH_LIMIT)
-  set(multiValueArgs DEVICES PARTS)
+  set(multiValueArgs DEVICES PARTS SEARCH_LOCATIONS)
   cmake_parse_arguments(
     ADD_XC7_DEVICE_DEFINE
      "${options}"
@@ -146,6 +146,8 @@ function(ADD_XC7_DEVICE_DEFINE)
         set(RR_PATCH_EXTRA_ARGS --graph_limit ${ADD_XC7_DEVICE_DEFINE_GRAPH_LIMIT} ${RR_PATCH_EXTRA_ARGS})
     endif()
 
+    string(REPLACE ";" "\\$<SEMICOLON>" LOC_STR "${ADD_XC7_DEVICE_DEFINE_SEARCH_LOCATIONS}")
+
     define_device(
       DEVICE ${DEVICE}
       ARCH ${ARCH}
@@ -165,6 +167,8 @@ function(ADD_XC7_DEVICE_DEFINE)
         --route_chan_width 500
         --astar_fac 0.75
         --bb_factor 100
+        --allowed_tiles_for_delay_model BLK-TL-SLICEL,BLK-TL-SLICEM
+        --lookahead_search_locations "${LOC_STR}"
       )
 
     get_target_property_required(PYTHON3 env PYTHON3)
