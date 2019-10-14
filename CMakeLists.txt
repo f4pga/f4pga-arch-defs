@@ -44,7 +44,7 @@ add_conda_package(
 add_conda_package(
   NAME vtr
   PROVIDES vpr genfasm
-  PACKAGE_SPEC "vtr v8.0.0_rc1_1082_g2b412e99b_0000_g2b412e99b 20191010_183210"
+  PACKAGE_SPEC "vtr v8.0.0_rc1_1087_g4a54806e4_0000_g4a54806e4 20191012_002712"
   )
 add_conda_package(
   NAME libxslt
@@ -233,6 +233,7 @@ add_dependencies(all_xc7_demos
     all_arty-swbut_bin
     all_arty-uart_bin
     all_basys3_bin
+    all_basys3-x1y0_bin
     # TODO(#548) Zybo targets not currently working, so removed from all target.
     #all_zybo_bin
     )
