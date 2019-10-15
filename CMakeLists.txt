@@ -53,6 +53,7 @@ add_conda_package(
 add_conda_package(
   NAME libxml2
   PROVIDES xmllint
+  PACKAGE_SPEC "libxml2 2.9.9 h14c3975_5"
   )
 add_conda_package(
   NAME pytest
