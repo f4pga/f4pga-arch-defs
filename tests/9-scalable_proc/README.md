@@ -19,11 +19,11 @@ The design outputs data as ASCII text line-by-line. Each line contain N 32-bit w
 - Run the _receiver.py_ script from _utils_ subfolder, provide correct serial port device and baudrate
 - Observe the output
 
-Curently the baudate is set to **9600** and clock division to **7 (1/128)**. The input clock frequency is assumed to be **100MHz**
+Curently the baudate is set to **500000**. The input clock frequency is assumed to be **100MHz**
 
 Example script call:
 ```
-receiver.py --port /dev/ttyUSB1 --baud 9600 --verbose 2
+receiver.py --port /dev/ttyUSB1 --baud 500000 --verbose 2
 ```
 
 The script first simulates behavior of a processing unit and generates expected output. Then it receives data from UART and waits for synchronization. If at least 5 consecutive received words match first 5 words of the generated expected output then the stream considers to be in sync with the data pattern being received. Once synchronized the script continues comparing received vs. expected data and in case of a mismatch prints an error.
