@@ -21,6 +21,7 @@ branch.
 """
 
 import os
+import subprocess
 import argparse
 import git
 
@@ -63,6 +64,17 @@ $ exit
     g.add(".")
 
 
+def merge_branches(location, branches):
+    """
+    Merge one or more branches into the current branch.
+    The branches have to be in string format
+    """
+
+    subprocess.check_call(
+        "cd {} && git merge {} && cd -".format(location, branches), shell=True
+    )
+
+
 def rebase_continue_rec(g):
     try:
         g.rebase("--continue")
@@ -84,16 +96,21 @@ def main():
     parser = argparse.ArgumentParser()
 
     parser.add_argument(
-        '--location', required=True, help="Location of the repository."
+        '--location',
+        required=True,
+        help="Absolute path to the git repository."
     )
 
+    parser.add_argument('--url', help="Optional url of the repository.")
+
     parser.add_argument(
-        '--url', required=False, help="Optional url of the repository."
+        '--remote', help="Optional remote repository to use instead of origin"
     )
 
     args = parser.parse_args()
     location = args.location
     url = args.url
+    remote = args.remote
 
     assert os.path.exists(
         location
@@ -101,6 +118,9 @@ def main():
 
     if not os.path.exists(location):
         git.repo.base.Repo.clone_from(url, location)
+
+    if not remote:
+        remote = 'origin'
 
     repo = git.Repo("{}/.git".format(location))
     g = git.cmd.Git(location)
@@ -117,8 +137,8 @@ def main():
     # Consider only branches in `origin`
     origin_branches = []
     for branch in all_branches:
-        if "HEAD" not in branch and "origin/" in branch:
-            origin_branches.append(branch.replace('origin/', ''))
+        if "HEAD" not in branch and "{}/".format(remote) in branch:
+            origin_branches.append(branch.replace('{}/'.format(remote), ''))
 
     branches = []
     for branch in origin_branches:
@@ -133,29 +153,38 @@ def main():
         print("Branch master+wip-next already exists!")
         g.checkout('master+wip-next')
 
-    g.reset(['--hard', 'origin/master'])
+    g.reset(['--hard', '{}/master'.format(remote)])
 
-    os.system(
-        "cd {} && git merge {} && cd -".format(location, ' '.join(branches))
-    )
+    branches_string = ' '.join(branches)
+    merge_branches(location, branches_string)
 
     if g.diff():
-        solve_conflicts(g)
+        g.reset(['--hard', '{}/master'.format(remote)])
+        for branch in branches:
+            merge_branches(location, branch)
 
-    repo.index.commit(
-        """Octopus merge
+            if g.diff():
+                solve_conflicts(g, branch)
 
-This is an Octopus Merge commit of the following branches:
-{}
-            """.format('\n'.join(branches))
-    )
+                g.commit(
+                    "-m \"Sequential merge of conflicting branch {}\"".
+                    format(branch)
+                )
+    else:
+        repo.index.commit(
+            """Octopus merge
+
+    This is an Octopus Merge commit of the following branches:
+    {}
+                """.format('\n'.join(branches))
+        )
 
     # Pushing to remote
     print("Push force on remote master+wip-next branch? [Y/n]")
     if yes_or_no_input():
-        g.push(['--force', 'origin', 'master+wip-next'])
+        g.push(['--force', '{}'.format(remote), 'master+wip-next'])
     else:
-        print("Warning: did not push to remote")
+        print("Warning: did not push to {}".format(remote))
 
     print("Octopus merge ready to be tested!")
 
