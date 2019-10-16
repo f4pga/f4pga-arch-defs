@@ -21,6 +21,7 @@ branch.
 """
 
 import os
+import subprocess
 import argparse
 import git
 
@@ -69,7 +70,7 @@ def merge_branches(location, branches):
     The branches have to be in string format
     """
 
-    os.system("cd {} && git merge {} && cd -".format(location, branches))
+    subprocess.check_call("cd {} && git merge {} && cd -".format(location, branches), shell=True)
 
 
 def rebase_continue_rec(g):
