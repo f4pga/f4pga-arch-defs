@@ -709,7 +709,7 @@ def create_get_pip_wire_names(conn):
     def get_pip_wire_names(pip_pkey):
         cur.execute(
             """SELECT src_wire_in_tile_pkey, dest_wire_in_tile_pkey
-            FROM pip_in_tile WHERE pkey = ? AND is_pseudo = 0;""",
+            FROM pip_in_tile WHERE pkey = ? AND (is_pseudo = 0 OR name LIKE '%CLK_HROW_CK%');""",
             (pip_pkey, )
         )
         src_wire_in_tile_pkey, dest_wire_in_tile_pkey = cur.fetchone()
