@@ -70,7 +70,9 @@ def merge_branches(location, branches):
     The branches have to be in string format
     """
 
-    subprocess.check_call("cd {} && git merge {} && cd -".format(location, branches), shell=True)
+    subprocess.check_call(
+        "cd {} && git merge {} && cd -".format(location, branches), shell=True
+    )
 
 
 def rebase_continue_rec(g):
