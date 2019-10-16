@@ -563,6 +563,7 @@ AND
             pip,
             src_wire_pkey=None,
             dest_wire_pkey=None,
+            dless=None,
     ):
         """ Connect two Connector objects at a location within the grid.
 
@@ -662,7 +663,7 @@ AND
                     )
                     return
 
-        elif self.pins and other_connector.pins:
+        elif self.pins and other_connector.pins and not pip.is_pseudo:
             assert self.pins.site_pin_direction == SitePinDirection.OUT
             assert other_connector.pins.site_pin_direction == SitePinDirection.IN
 
@@ -686,6 +687,17 @@ AND
                     dest_node = other_connector.pins.edge_map[
                         OPPOSITE_DIRECTIONS[pin_dir]]
                     yield (src_node, switch_pkey, dest_node, pip.pip_pkey)
+                    return
+
+        elif self.pins and other_connector.pins and pip.is_pseudo:
+
+            switch_pkey = dless
+
+            for pin_dir in self.pins.edge_map:
+                if pin_dir in other_connector.pins.edge_map:
+                    src_node = self.pins.edge_map[pin_dir]
+                    dest_node = other_connector.pins.edge_map[pin_dir]
+                    yield (dest_node, switch_pkey, src_node, pip.pip_pkey)
                     return
 
         assert False, (
@@ -882,13 +894,13 @@ def create_get_tile_loc(conn):
 
 def yield_edges(
         const_connectors, delayless_switch, phy_tile_pkey, src_connector,
-        sink_connector, pip, pip_obj, src_wire_pkey, sink_wire_pkey, loc
+        sink_connector, pip, pip_obj, src_wire_pkey, sink_wire_pkey, loc, dless=None
 ):
     for (src_graph_node_pkey, switch_pkey, dest_graph_node_pkey,
          pip_pkey) in src_connector.connect_at(
              pip=pip_obj, src_wire_pkey=src_wire_pkey,
              dest_wire_pkey=sink_wire_pkey, loc=loc,
-             other_connector=sink_connector):
+             other_connector=sink_connector, dless=dless):
         yield (
             src_graph_node_pkey, dest_graph_node_pkey, switch_pkey,
             phy_tile_pkey, pip_pkey, False
@@ -899,7 +911,8 @@ def yield_edges(
              pip_pkey) in sink_connector.connect_at(
                  pip=pip_obj, src_wire_pkey=sink_wire_pkey,
                  dest_wire_pkey=src_wire_pkey, loc=loc,
-                 other_connector=src_connector):
+                 other_connector=src_connector, dless=dless):
+
             yield (
                 src_graph_node_pkey, dest_graph_node_pkey, switch_pkey,
                 phy_tile_pkey, pip_pkey, True
@@ -910,7 +923,7 @@ def yield_edges(
         for (src_graph_node_pkey, switch_pkey, dest_graph_node_pkey
              ) in const_connectors[constant_src].connect_at(
                  pip=delayless_switch, loc=loc,
-                 other_connector=sink_connector):
+                 other_connector=sink_connector, dless=dless):
             yield (
                 src_graph_node_pkey, dest_graph_node_pkey, switch_pkey,
                 phy_tile_pkey, None, False
@@ -920,7 +933,7 @@ def yield_edges(
 def make_connection(
         conn, input_only_nodes, output_only_nodes, find_wire, find_pip,
         find_connector, get_tile_loc, tile_name, tile_type, pip,
-        delayless_switch, const_connectors
+        delayless_switch, const_connectors, dless=None
 ):
     """ Attempt to connect graph nodes on either side of a pip.
 
@@ -979,7 +992,7 @@ def make_connection(
 
     pip_obj = find_pip(tile_type, pip.name)
 
-    assert not pip_obj.is_pseudo
+    assert not pip_obj.is_pseudo or "CLK_HROW_CK" in pip.name
 
     loc = get_tile_loc(tile_pkey)
 
@@ -988,7 +1001,7 @@ def make_connection(
             delayless_switch=delayless_switch, phy_tile_pkey=phy_tile_pkey,
             src_connector=src_connector, sink_connector=sink_connector,
             pip=pip, pip_obj=pip_obj, src_wire_pkey=src_wire_pkey,
-            sink_wire_pkey=sink_wire_pkey, loc=loc):
+            sink_wire_pkey=sink_wire_pkey, loc=loc, dless=dless):
         yield edge
 
 
@@ -1801,8 +1814,12 @@ def create_and_insert_edges(
             if 'PADOUT0' in pip.name or 'PADOUT1' in pip.name:
                 continue
 
-            if pip.is_pseudo:
+            if pip.is_pseudo and "CLK_HROW_CK" not in pip.name:
                 continue
+
+            dless = None
+            if "CLK_HROW_CK" in pip.name:
+                dless = delayless_switch_pkey
 
             connections = make_connection(
                 conn=conn,
@@ -1816,7 +1833,8 @@ def create_and_insert_edges(
                 tile_type=gridinfo.tile_type,
                 pip=pip,
                 delayless_switch=delayless_switch,
-                const_connectors=const_connectors
+                const_connectors=const_connectors,
+                dless=dless
             )
 
             if connections:
@@ -1827,6 +1845,8 @@ def create_and_insert_edges(
 
                     edge_set.add(key)
 
+                    if "CLK_HROW_CK" in pip.name and pip.is_pseudo:
+                        print(connection)
                     edges.append(connection)
 
         commit_edges(write_cur, edges)
