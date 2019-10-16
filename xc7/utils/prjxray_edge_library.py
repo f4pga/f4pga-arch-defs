@@ -448,6 +448,10 @@ WHERE
         )
 
         if site_pin_graph_node_pkey is None:
+            assert track_graph_node_pkey is not None, (
+                wire_pkey, graph_node_pkey, track_graph_node_pkey, edge_nodes
+            )
+
             capacitance = 0
             resistance = 0
             for wire_cap, wire_res in cur.execute("""
@@ -689,6 +693,8 @@ AND
                     return
 
         elif self.pins and other_connector.pins and pip.is_pseudo:
+            switch_pkey = pip.get_pip_switch(src_wire_pkey, dest_wire_pkey)
+
             for pin_dir in self.pins.edge_map:
                 if pin_dir in other_connector.pins.edge_map:
                     src_node = self.pins.edge_map[pin_dir]
@@ -703,7 +709,7 @@ AND
                     )
 
                     yield (
-                        src_wire_node, src_wire_switch_pkey, dest_wire_node,
+                        src_wire_node, switch_pkey, dest_wire_node,
                         pip.pip_pkey
                     )
                     return
