@@ -59,7 +59,7 @@ function(PROJECT_XRAY_TILE)
   #     definition, instead of using the project X-Ray database.
   # PRIORITY option that enables the priority assignments to the equivalent sites
   # BOTH_SIDE_COORD option that enables the assignment of both coordinates to the fasm prefixes
-  # FILTER_X can be supplied to filter to sites that have the given X 
+  # FILTER_X can be supplied to filter to sites that have the given X
   #     coordinate.
   #
   # Usage:
@@ -426,8 +426,9 @@ function(PROJECT_XRAY_EQUIV_TILE)
   # PART name of the part that is considered (e.g. artix7, zynq7, etc.)
   # TILES name of the tile that has to be generated (e.g. RIOPAD_M, etc.)
   # PB_TYPES list of pb_types to be generated that map into tiles.
-  # PB_TYPE_SITES list of variables contains list of site types in each PB_TYPE.
-  # SITE_EQUIV list of sites that have an equivilant relationship.
+  # PB_TYPE_SITES list of variables containing a list of site types in each
+  #     PB_TYPE.
+  # SITE_EQUIV list of sites that have an equivalent relationship.
   #
   #     Examples:
   #         SITE_EQUIV IOB33M=IOB33 IOB33S=IOB33
