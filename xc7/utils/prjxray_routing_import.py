@@ -42,6 +42,7 @@ from prjxray_db_cache import DatabaseCache
 now = datetime.datetime.now
 
 HCLK_CK_BUFHCLK_REGEX = re.compile('HCLK_CK_BUFHCLK[0-9]+')
+CLK_HROW_CK_MUX_REGEX = re.compile('CLK_HROW_CK_MUX_OUT_[LR][0-9]+')
 CASCOUT_REGEX = re.compile('BRAM_CASCOUT_ADDR((?:BWR)|(?:ARD))ADDRU([0-9]+)')
 CONNECTION_BOX_FILTER = re.compile('([^0-9]+)[0-9]*')
 BUFG_CLK_IN_REGEX = re.compile('CLK_HROW_CK_IN_R[0-9]+')
@@ -229,6 +230,28 @@ def check_feature(feature):
         )
 
         return ' '.join((feature, enable_buffer_feature))
+
+    if CLK_HROW_CK_MUX_REGEX.fullmatch(feature_path[-1]):
+        bufhce_loc_string = feature_path[-1].split('_')[-1]
+        x_loc_str = bufhce_loc_string[0]
+        if 'L' in x_loc_str:
+            x_loc = 0
+        elif 'R' in x_loc_str:
+            x_loc = 1
+        else:
+            assert False, "Impossible to determine X location of BUFHCE"
+
+        y_loc = bufhce_loc_string[1:]
+        bufhce_loc = 'BUFHCE_X{}Y{}'.format(x_loc, y_loc)
+
+        enable_bufhce_in_use = '{}.BUFHCE.{}.IN_USE'.format(
+            feature_path[0], bufhce_loc
+        )
+        enable_bufhce_zinv_ce = '{}.BUFHCE.{}.ZINV_CE=1\'b1'.format(
+            feature_path[0], bufhce_loc
+        )
+
+        return ' '.join((feature, enable_bufhce_in_use, enable_bufhce_zinv_ce))
 
     if BUFG_CLK_IN_REGEX.fullmatch(feature_path[-1]):
         enable_feature = '{}.{}_ACTIVE'.format(
