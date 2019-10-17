@@ -70,9 +70,14 @@ def merge_branches(location, branches):
     The branches have to be in string format
     """
 
-    subprocess.check_call(
-        "cd {} && git merge {} && cd -".format(location, branches), shell=True
-    )
+    try:
+        subprocess.check_call(
+            "cd {} && git merge {} && cd -".format(location, branches),
+            shell=True
+        )
+    except subprocess.CalledProcessError:
+        print("Something went wrong with the Octopus Merge!")
+        pass
 
 
 def rebase_continue_rec(g):
