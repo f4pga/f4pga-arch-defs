@@ -7,7 +7,7 @@ add_fpga_target(
 
  add_fpga_target(
   NAME buttons_basys3
-  BOARD basys3-x1y0
+  BOARD basys3
   SOURCES buttons_basys3.v
   INPUT_IO_FILE basys3.pcf
   )
