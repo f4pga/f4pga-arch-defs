@@ -45,7 +45,7 @@ add_fpga_target(
 
 add_fpga_target(
   NAME picosoc_basys3
-  BOARD basys3
+  BOARD basys3-x1y0
   TOP basys3_demo
   SOURCES
     basys3_demo.v

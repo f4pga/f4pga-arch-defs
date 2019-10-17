@@ -23,7 +23,7 @@ add_fpga_target(
 )
 add_fpga_target(
   NAME murax_basys
-  BOARD basys3
+  BOARD basys3-x1y0
   TOP toplevel
   SOURCES
     basys3_toplevel.v
