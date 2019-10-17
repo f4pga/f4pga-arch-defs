@@ -233,6 +233,12 @@ def is_in_roi(conn, roi, tile_pkey):
     return any(roi.tile_in_roi(loc) for loc in phy_locs)
 
 
+# Map instance type (e.g. IOB_X1Y10) to:
+# - Which coordinates are required (e.g. X, Y or X and Y)
+# - Modulus on the coordinates
+#
+# For example, IO sites only need the Y coordinate, use a modulus of 2.
+# So IOB_X1Y10 becomes IOB_Y0, IOB_X1Y11 becomes IOB_Y1, etc.
 PREFIX_REQUIRED = {
     "IOB": ("Y", 2),
     "IDELAY": ("Y", 2),
