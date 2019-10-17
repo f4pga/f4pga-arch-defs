@@ -179,9 +179,9 @@ def main():
         repo.index.commit(
             """Octopus merge
 
-    This is an Octopus Merge commit of the following branches:
-    {}
-                """.format('\n'.join(branches))
+This is an Octopus Merge commit of the following branches:
+
+{}""".format('\n'.join(branches))
         )
 
     # Pushing to remote
