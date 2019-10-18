@@ -231,6 +231,12 @@ def check_feature(feature):
 
         return ' '.join((feature, enable_buffer_feature))
 
+    #BUFHCE sites are now routed through, without the need of placing them, therefore,
+    #when the relative pip is traversed, the correct fasm feature needs to be added.
+    #The relevant features are:
+    #    - IN_USE: to enable the BUFHCE site
+    #    - ZINV_CE: to disable the inverter on CE input which is connected to VCC.
+    #               This sets the CE signal to constant 1
     m = CLK_HROW_CK_MUX_REGEX.fullmatch(feature_path[-1])
     if m:
         x_loc_str = m.group(1)
