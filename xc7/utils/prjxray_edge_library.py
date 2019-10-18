@@ -1328,28 +1328,37 @@ def set_pin_connection(
     pin_node_pkey, graph_node_type = cur.fetchone()
 
     source_wires = []
+    sink_wires = []
     cur.execute(
         """SELECT pkey FROM wire WHERE node_pkey = (
         SELECT node_pkey FROM graph_node WHERE pkey = ?
         )""", (graph_node_pkey, )
     )
     for (wire_pkey, ) in cur:
-        if forward:
-            cur2.execute(
-                """SELECT count() FROM pip_in_tile WHERE src_wire_in_tile_pkey = (
-                SELECT wire_in_tile_pkey FROM wire WHERE pkey = ?
-                ) AND pip_in_tile.is_pseudo = 0""", (wire_pkey, )
-            )
-        else:
-            cur2.execute(
-                """SELECT count() FROM pip_in_tile WHERE dest_wire_in_tile_pkey = (
-                SELECT wire_in_tile_pkey FROM wire WHERE pkey = ?
-                ) AND pip_in_tile.is_pseudo = 0""", (wire_pkey, )
-            )
+        cur2.execute(
+            """SELECT count() FROM pip_in_tile WHERE src_wire_in_tile_pkey = (
+            SELECT wire_in_tile_pkey FROM wire WHERE pkey = ?
+            ) AND pip_in_tile.is_pseudo = 0""", (wire_pkey, )
+        )
+        has_forward_pip = cur2.fetchone()[0]
 
-        has_pip = cur2.fetchone()[0]
-        if has_pip:
-            source_wires.append(wire_pkey)
+        cur2.execute(
+            """SELECT count() FROM pip_in_tile WHERE dest_wire_in_tile_pkey = (
+            SELECT wire_in_tile_pkey FROM wire WHERE pkey = ?
+            ) AND pip_in_tile.is_pseudo = 0""", (wire_pkey, )
+        )
+        has_backward_pip = cur2.fetchone()[0]
+
+        if forward:
+            if has_forward_pip:
+                source_wires.append(wire_pkey)
+            if has_backward_pip:
+                sink_wires.append(wire_pkey)
+        else:
+            if has_forward_pip:
+                sink_wires.append(wire_pkey)
+            if has_backward_pip:
+                source_wires.append(wire_pkey)
 
     if len(source_wires) > 1:
         if forward:
@@ -1364,7 +1373,7 @@ WITH wires_in_graph_node(phy_tile_pkey, phy_tile_type_pkey, wire_in_tile_pkey) A
     INNER JOIN phy_tile ON wire.phy_tile_pkey = phy_tile.pkey
     WHERE graph_node.pkey = ?
 )
-SELECT DISTINCT wire.phy_tile_pkey
+SELECT DISTINCT wire.phy_tile_pkey, pip_in_tile.is_directional
 FROM wires_in_graph_node
 INNER JOIN pip_in_tile
 ON
@@ -1379,20 +1388,50 @@ AND
                 """, (graph_node_pkey, )
             )
             src_phy_tiles = cur2.fetchall()
+
+            if len(src_phy_tiles) > 1:
+                # Try pruning bi-directional pips
+                src_phy_tiles = [
+                    (phy_tile_pkey, is_directional)
+                    for (phy_tile_pkey, is_directional) in src_phy_tiles
+                    if is_directional
+                ]
+
             assert len(src_phy_tiles) == 1, (
-                pin_graph_node_pkey, graph_node_pkey, source_wires, tracks
+                pin_graph_node_pkey, graph_node_pkey, source_wires, tracks,
+                src_phy_tiles
             )
             phy_tile_pkey = src_phy_tiles[0][0]
         else:
-            assert False, (
-                pin_graph_node_pkey, graph_node_pkey, source_wires, tracks
-            )
-            return
+            # Have an ambiguous source, see if there is an unambigous sink.
+            #
+            # Remove sinks that are also sources (e.g. bidirectional wires)
+            sink_wires = list(set(sink_wires) - set(source_wires))
+
+            if len(sink_wires) == 1:
+                cur.execute(
+                    "SELECT phy_tile_pkey FROM wire WHERE pkey = ?",
+                    (sink_wires[0], )
+                )
+                source_wires = sink_wires
+                phy_tile_pkey = cur.fetchone()[0]
+            else:
+                assert False, (
+                    pin_graph_node_pkey, graph_node_pkey, source_wires,
+                    sink_wires, tracks
+                )
+                return
     elif len(source_wires) == 1:
         cur.execute(
             "SELECT phy_tile_pkey FROM wire WHERE pkey = ?",
             (source_wires[0], )
         )
+        phy_tile_pkey = cur.fetchone()[0]
+    elif len(sink_wires) == 1:
+        cur.execute(
+            "SELECT phy_tile_pkey FROM wire WHERE pkey = ?", (sink_wires[0], )
+        )
+        source_wires = sink_wires
         phy_tile_pkey = cur.fetchone()[0]
     else:
         return
