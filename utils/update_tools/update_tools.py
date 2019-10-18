@@ -68,6 +68,10 @@ def merge_branches(location, branches):
     """
     Merge one or more branches into the current branch.
     The branches have to be in string format
+
+    Returns:
+        - True: if merge was successful
+        - False: if merge was unsuccessful
     """
 
     try:
@@ -76,8 +80,11 @@ def merge_branches(location, branches):
             shell=True
         )
     except subprocess.CalledProcessError:
-        print("Something went wrong with the Octopus Merge!")
+        print("Something went wrong during the merge!")
+        return False
         pass
+
+    return True
 
 
 def rebase_continue_rec(g):
@@ -161,14 +168,14 @@ def main():
     g.reset(['--hard', '{}/master'.format(remote)])
 
     branches_string = ' '.join(branches)
-    merge_branches(location, branches_string)
+    result = merge_branches(location, branches_string)
 
-    if g.diff():
+    if not result:
         g.reset(['--hard', '{}/master'.format(remote)])
         for branch in branches:
-            merge_branches(location, branch)
+            result = merge_branches(location, branch)
 
-            if g.diff():
+            if not result:
                 solve_conflicts(g, branch)
 
                 g.commit(
