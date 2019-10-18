@@ -1420,7 +1420,7 @@ UPDATE graph_node SET connection_box_wire_pkey = ? WHERE pkey = ?
 
 def walk_and_mark_segment(
         conn, write_cur, graph_node_pkey, forward, segment_pkey, unknown_pkey,
-        pin_graph_node_pkey, tracks, visited_switches
+        pin_graph_node_pkey, tracks, visited_nodes
 ):
     """ Recursive function to walk along a node and mark segments.
 
@@ -1463,33 +1463,44 @@ def walk_and_mark_segment(
                     track_pkey,
                 )
             )
+    else:
+        track_pkey = None
 
     # Traverse to the next graph node.
     if forward:
         cur.execute(
             """
-SELECT dest_graph_node_pkey, switch_pkey FROM graph_edge WHERE src_graph_node_pkey = ?
+SELECT
+    graph_edge.dest_graph_node_pkey,
+    graph_node.track_pkey
+FROM
+    graph_edge
+INNER JOIN graph_node ON graph_node.pkey = graph_edge.dest_graph_node_pkey
+WHERE
+    src_graph_node_pkey = ?
 """, (graph_node_pkey, )
         )
         next_nodes = cur.fetchall()
     else:
         cur.execute(
             """
-SELECT src_graph_node_pkey, switch_pkey FROM graph_edge WHERE dest_graph_node_pkey = ?
+SELECT
+    graph_edge.src_graph_node_pkey,
+    graph_node.track_pkey
+FROM
+    graph_edge
+INNER JOIN graph_node ON graph_node.pkey = graph_edge.src_graph_node_pkey
+WHERE
+    dest_graph_node_pkey = ?
 """, (graph_node_pkey, )
         )
         next_nodes = cur.fetchall()
 
-    next_node = None
-    next_switch_pkey = None
-    if len(next_nodes) == 1:
-        # This is a simple edge, keep walking.
-        (next_node, next_switch_pkey) = next_nodes[0]
-    elif not forward:
+    if not forward:
         # Some nodes simply lead to GND/VCC tieoff pins, these should not
         # stop the walk, as they are not relevant to connection box.
         next_non_tieoff_nodes = []
-        for (next_graph_node_pkey, edge_switch_pkey) in next_nodes:
+        for (next_graph_node_pkey, next_track) in next_nodes:
             cur.execute(
                 """
 SELECT count() FROM constant_sources WHERE
@@ -1503,15 +1514,36 @@ OR
             )
             if cur.fetchone()[0] == 0:
                 next_non_tieoff_nodes.append(
-                    (next_graph_node_pkey, edge_switch_pkey)
+                    (next_graph_node_pkey, next_track)
                 )
 
         if len(next_non_tieoff_nodes) == 1:
-            (next_node, next_switch_pkey) = next_non_tieoff_nodes[0]
+            (next_node, next_track) = next_non_tieoff_nodes[0]
 
-    if next_node is not None and next_switch_pkey not in visited_switches:
+        next_nodes = next_non_tieoff_nodes
+
+    if len(next_nodes) == 1:
+        # This is a simple edge, keep walking.
+        (next_node, next_track) = next_nodes[0]
+    else:
+        next_other_nodes = []
+        for next_node, next_track in next_nodes:
+            # Shorted groups will have edges back to previous nodes, but they
+            # will be in the same track, so ignore these.
+            if next_node in visited_nodes and track_pkey == next_track:
+                continue
+            else:
+                next_other_nodes.append((next_node, next_track))
+
+        if len(next_other_nodes) == 1:
+            # This is a simple edge, keep walking.
+            (next_node, next_track) = next_other_nodes[0]
+        else:
+            next_node = None
+
+    if next_node is not None and next_node not in visited_nodes:
         # If there is a next node, keep walking
-        visited_switches.add(next_switch_pkey)
+        visited_nodes.add(next_node)
         walk_and_mark_segment(
             conn=conn,
             write_cur=write_cur,
@@ -1521,7 +1553,7 @@ OR
             unknown_pkey=unknown_pkey,
             pin_graph_node_pkey=pin_graph_node_pkey,
             tracks=tracks,
-            visited_switches=visited_switches
+            visited_nodes=visited_nodes
         )
     else:
         # There is not a next node, update the connection box of the IPIN/OPIN
@@ -1627,7 +1659,7 @@ WHERE graph_node.graph_node_type = ?
             unknown_pkey=unknown_pkey,
             pin_graph_node_pkey=graph_node_pkey,
             tracks=list(),
-            visited_switches=set()
+            visited_nodes=set()
         )
 
     # Walk from IPIN's next.
@@ -1649,7 +1681,7 @@ WHERE graph_node.graph_node_type = ?
             unknown_pkey=unknown_pkey,
             pin_graph_node_pkey=graph_node_pkey,
             tracks=list(),
-            visited_switches=set()
+            visited_nodes=set()
         )
 
     write_cur.execute("""COMMIT TRANSACTION;""")
