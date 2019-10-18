@@ -717,7 +717,7 @@ AND
                     src_node_type = get_node_type(self.conn, src_node)
                     assert NodeType(
                         src_node_type
-                    ) == NodeType.IPIN, "Source graph node for pseudo-pip is not an IPIN ({}, {})".format(
+                    ) == NodeType.IPIN, "src node for ppip is not an IPIN ({}, {})".format(
                         src_node, src_node_type
                     )
 
@@ -725,7 +725,7 @@ AND
                     dest_node_type = get_node_type(self.conn, dest_node)
                     assert NodeType(
                         dest_node_type
-                    ) == NodeType.OPIN, "Destination graph node for pseudo-pip is not an OPIN ({}, {})".format(
+                    ) == NodeType.OPIN, "dest node for ppip is not an OPIN ({}, {})".format(
                         src_node, dest_node_type
                     )
 
