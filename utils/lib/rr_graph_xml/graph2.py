@@ -365,96 +365,225 @@ class Graph(object):
 
         self.graph = graph2.Graph(**graph_input)
 
-        self.exit_stack = None
         self.xf = None
+        self.xf_indent = 0
+        self.xf_tag = []
 
-    def __enter__(self):
-        assert self.output_file_name is not None
-        assert self.exit_stack is None
-        self.exit_stack = contextlib.ExitStack().__enter__()
 
-        f = self.exit_stack.enter_context(open(self.output_file_name, 'wb'))
-        self.xf = self.exit_stack.enter_context(ET.xmlfile(f))
+    def _write_xml(self, text):
+        self.xf.write(" " * self.xf_indent + text + "\n")
 
-        return self
 
-    def __exit__(self, exc_type, exc_value, traceback):
-        ret = self.exit_stack.__exit__(exc_type, exc_value, traceback)
-        self.exit_stack = None
-        self.xf = None
-        return ret
+    def _begin_xml_tag(self, tag, attrib={}, value=None, term=False):
+        s  = "<{}".format(tag)
+        s += "".join([' {}="{}"'.format(k, str(v)) for k, v in attrib.items()])
+        if value and term:
+            s += ">{}</{}>".format(value, tag)
+        else:
+            s += "/>" if term is True else ">"
+        self._write_xml(s)
 
-    def start_serialize_to_xml(
-            self,
-            tool_version,
-            tool_comment,
-            channels_obj,
-            connection_box_obj=None
-    ):
-        assert self.exit_stack is not None
-        assert self.xf is not None
+        if not term:
+            self.xf_tag.append(tag)
+            self.xf_indent += 1
 
-        self.exit_stack.enter_context(
-            self.xf.element(
-                'rr_graph', {
-                    'tool_name': 'vpr',
-                    'tool_version': tool_version,
-                    'tool_comment': tool_comment,
+    def _end_xml_tag(self):
+        assert len(self.xf_tag) and self.xf_indent > 0, \
+            (self.xf_tag, self.xf_indent)
+
+        self.xf_indent -= 1
+        self._write_xml("</{}>".format(self.xf_tag[-1]))
+        self.xf_tag = self.xf_tag[:-1]
+
+    def _write_xml_tag(self, tag, attrib={}, value=None):
+        self._begin_xml_tag(tag, attrib, value, True)
+
+
+    def _write_xml_header(self, tool_version=None, tool_comment=None):
+        attrib = {"tool_name": "vpr"}
+
+        if tool_version is not None:
+            attrib["tool_version"] = tool_version
+        if tool_comment is not None:
+            attrib["tool_comment"] = tool_comment
+
+        self._begin_xml_tag("rr_graph", attrib)
+
+
+    def _write_channels(self, channels):
+        self._begin_xml_tag("channels")
+
+        attrib = {
+            "chan_width_max": channels.chan_width_max,
+            "x_min": channels.x_min,
+            "y_min": channels.y_min,
+            "x_max": channels.x_max,
+            "y_max": channels.y_max,
+        }
+        self._write_xml_tag("channel", attrib)
+
+        for l in channels.x_list:
+            self._write_xml_tag("x_list", {"index": l.index, "info": l.info})
+        for l in channels.y_list:
+            self._write_xml_tag("y_list", {"index": l.index, "info": l.info})
+
+        self._end_xml_tag()
+
+    def _write_connection_box(self, connection_box):
+        attrib = {
+            "x_dim": connection_box.x_dim,
+            "y_dim": connection_box.y_dim,
+            "num_boxes": len(connection_box.boxes)
+        }
+
+        self._begin_xml_tag("connection_boxes", attrib)
+
+        for idx, box in enumerate(connection_box.boxes):
+            self._write_xml_tag("connection_box", {"id": idx, "name": box})
+
+        self._end_xml_tag()
+
+
+    def _write_nodes(self):
+        self._begin_xml_tag("nodes")
+        self._end_xml_tag()
+
+    def _write_edges(self):
+        self._begin_xml_tag("edges")
+        self._end_xml_tag()
+
+
+    def _write_switches(self):
+        self._begin_xml_tag("switches")
+
+        for switch in self.graph.switches:
+            attrib = {
+                "id": switch.id,
+                "type": switch.type.name.lower(),
+                "name": switch.name,
+            }
+            self._begin_xml_tag("switch", attrib)
+
+            if switch.timing:
+                attrib = {
+                    "R": switch.timing.r,
+                    "Cin": switch.timing.c_in,
+                    "Cout": switch.timing.c_out,
+                    "Cinternal": switch.timing.c_internal,
+                    "Tdel": switch.timing.t_del,
                 }
-            )
-        )
+                self._write_xml_tag("timing", attrib)
+
+            if switch.sizing:
+                attrib = {
+                    "mux_trans_size": switch.sizing.mux_trans_size,
+                    "buf_size": switch.sizing.buf_size
+                }
+                self._write_xml_tag("sizing", attrib)
+
+            self._end_xml_tag()
+        self._end_xml_tag()
+
+
+    def _write_segments(self):
+        self._begin_xml_tag("segments")
+
+        for segment in self.graph.segments:
+            attrib = {
+                "id": segment.id,
+                "name": segment.name,
+            }
+            self._begin_xml_tag("segment", attrib)
+
+            if segment.timing:
+                attrib = {
+                    "R_per_meter": segment.timing.r_per_meter,
+                    "C_per_meter": segment.timing.c_per_meter,
+                }
+                self._write_xml_tag("segment", attrib)
+
+            self._end_xml_tag()
+        self._end_xml_tag()
+
+
+    def _write_block_types(self):
+        self._begin_xml_tag("block_types")
+
+        for blk in self.graph.block_types:
+            attrib = {
+                "id": blk.id,
+                "name": blk.name,
+                "width": blk.width,
+                "height": blk.height,
+            }
+            self._begin_xml_tag("block_type", attrib)
+
+            for pin_class in blk.pin_class:
+                self._begin_xml_tag("pin_class",
+                    {"type": pin_class.type.name.upper()})
+
+                for pin in pin_class.pin:
+                    self._write_xml_tag("pin", {"ptc": pin.ptc}, pin.name)
+
+                self._end_xml_tag()
+            self._end_xml_tag()
+
+        self._end_xml_tag()
+
+    
+    def _write_grid(self):
+        self._begin_xml_tag("grid")
+
+        for loc in self.graph.grid:
+            attrib = {
+                "x": loc.x,
+                "y": loc.y,
+                "block_type_id": loc.block_type_id,
+                "width_offset": loc.width_offset,
+                "height_offset": loc.height_offset,
+            }
+            self._write_xml_tag("grid_loc", attrib)
+
+        self._end_xml_tag()
+
+
+    def serialize_to_xml(
+        self,
+        channels_obj,
+        connection_box_obj,
+        tool_version=None,
+        tool_comment=None
+        ):
+        """
+        Writes the routing graph to the XML file.
+        """
 
         self.graph.check_ptc()
 
-        with self.xf.element('channels'):
-            el = ET.Element(
-                'channel', {
-                    'chan_width_max': str(channels_obj.chan_width_max),
-                    'x_min': str(channels_obj.x_min),
-                    'y_min': str(channels_obj.y_min),
-                    'x_max': str(channels_obj.x_max),
-                    'y_max': str(channels_obj.y_max),
-                }
-            )
-            self.xf.write(el)
+        # Open the file
+        self.output_file_name = "TEST.xml"
+        with open(self.output_file_name, "w") as xf:
+            self.xf = xf
+            self.xf_indent = 0
+            self.xf_tag = []
 
-            for x_list in channels_obj.x_list:
-                el = ET.Element(
-                    'x_list', {
-                        'index': str(x_list.index),
-                        'info': str(x_list.info),
-                    }
-                )
-                self.xf.write(el)
+            # Write header
+            self._write_xml_header(tool_version, tool_comment)
 
-            for y_list in channels_obj.y_list:
-                el = ET.Element(
-                    'y_list', {
-                        'index': str(y_list.index),
-                        'info': str(y_list.info),
-                    }
-                )
-                self.xf.write(el)
+            self._write_channels(channels_obj)
+            self._write_connection_box(connection_box_obj)
 
-        if connection_box_obj is not None:
-            with self.xf.element('connection_boxes', {
-                    'x_dim': str(connection_box_obj.x_dim),
-                    'y_dim': str(connection_box_obj.y_dim),
-                    'num_boxes': str(len(connection_box_obj.boxes)),
-            }):
-                for idx, box in enumerate(connection_box_obj.boxes):
-                    el = ET.Element(
-                        'connection_box', {
-                            'id': str(idx),
-                            'name': box,
-                        }
-                    )
-                    self.xf.write(el)
+            self._write_nodes()
+            self._write_edges()
 
-        self.xf.write(self.input_xml.find('switches'))
-        self.xf.write(self.input_xml.find('segments'))
-        self.xf.write(self.input_xml.find('block_types'))
-        self.xf.write(self.input_xml.find('grid'))
+            self._write_switches()
+            self._write_segments()
+            self._write_block_types()
+            self._write_grid()
+
+            # Write footer
+            self._end_xml_tag()
+
 
     def add_switch(self, switch):
         """ Add switch into graph model.
@@ -471,62 +600,62 @@ class Graph(object):
         # Add to Graph2 data structure
         switch_id = self.graph.add_switch(switch)
 
-        # Add to XML
-        switch_xml = ET.SubElement(
-            self.input_xml.find('switches'), 'switch', {
-                'id': str(switch_id),
-                'type': switch.type.name.lower(),
-                'name': switch.name,
-            }
-        )
-
-        if switch.timing:
-            attrib = {
-                'R': str(switch.timing.r),
-                'Cin': str(switch.timing.c_in),
-                'Cout': str(switch.timing.c_out),
-                'Tdel': str(switch.timing.t_del),
-            }
-
-            if VPR_HAS_C_INTERNAL_SUPPORT:
-                attrib['Cinternal'] = str(switch.timing.c_internal)
-
-            ET.SubElement(switch_xml, 'timing', attrib)
-
-        ET.SubElement(
-            switch_xml, 'sizing', {
-                'mux_trans_size': str(switch.sizing.mux_trans_size),
-                'buf_size': str(switch.sizing.buf_size),
-            }
-        )
+#        # Add to XML
+#        switch_xml = ET.SubElement(
+#            self.input_xml.find('switches'), 'switch', {
+#                'id': str(switch_id),
+#                'type': switch.type.name.lower(),
+#                'name': switch.name,
+#            }
+#        )
+#
+#        if switch.timing:
+#            attrib = {
+#                'R': str(switch.timing.r),
+#                'Cin': str(switch.timing.c_in),
+#                'Cout': str(switch.timing.c_out),
+#                'Tdel': str(switch.timing.t_del),
+#            }
+#
+#            if VPR_HAS_C_INTERNAL_SUPPORT:
+#                attrib['Cinternal'] = str(switch.timing.c_internal)
+#
+#            ET.SubElement(switch_xml, 'timing', attrib)
+#
+#        ET.SubElement(
+#            switch_xml, 'sizing', {
+#                'mux_trans_size': str(switch.sizing.mux_trans_size),
+#                'buf_size': str(switch.sizing.buf_size),
+#            }
+#        )
 
         return switch_id
 
-    def serialize_nodes(self, nodes):
-        serialize_nodes(self.xf, nodes)
-
-    def serialize_edges(self, edges):
-        serialize_edges(self.xf, edges)
-
-    def serialize_to_xml(
-            self,
-            tool_version,
-            tool_comment,
-            pad_segment,
-            channels_obj=None,
-            pool=None
-    ):
-        if channels_obj is None:
-            channels_obj = self.graph.create_channels(
-                pad_segment=pad_segment,
-                pool=pool,
-            )
-
-        with self:
-            self.start_serialize_to_xml(
-                tool_version=tool_version,
-                tool_comment=tool_comment,
-                channels_obj=channels_obj,
-            )
-            self.serialize_nodes(self.progressbar(self.graph.nodes))
-            self.serialize_edges(self.progressbar(self.graph.edges))
+#    def serialize_nodes(self, nodes):
+#        serialize_nodes(self.xf, nodes)
+#
+#    def serialize_edges(self, edges):
+#        serialize_edges(self.xf, edges)
+#
+#    def serialize_to_xml(
+#            self,
+#            tool_version,
+#            tool_comment,
+#            pad_segment,
+#            channels_obj=None,
+#            pool=None
+#    ):
+#        if channels_obj is None:
+#            channels_obj = self.graph.create_channels(
+#                pad_segment=pad_segment,
+#                pool=pool,
+#            )
+#
+#        with self:
+#            self.start_serialize_to_xml(
+#                tool_version=tool_version,
+#                tool_comment=tool_comment,
+#                channels_obj=channels_obj,
+#            )
+#            self.serialize_nodes(self.progressbar(self.graph.nodes))
+#            self.serialize_edges(self.progressbar(self.graph.edges))
