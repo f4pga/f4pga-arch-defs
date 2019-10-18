@@ -1328,28 +1328,37 @@ def set_pin_connection(
     pin_node_pkey, graph_node_type = cur.fetchone()
 
     source_wires = []
+    sink_wires = []
     cur.execute(
         """SELECT pkey FROM wire WHERE node_pkey = (
         SELECT node_pkey FROM graph_node WHERE pkey = ?
         )""", (graph_node_pkey, )
     )
     for (wire_pkey, ) in cur:
-        if forward:
-            cur2.execute(
-                """SELECT count() FROM pip_in_tile WHERE src_wire_in_tile_pkey = (
-                SELECT wire_in_tile_pkey FROM wire WHERE pkey = ?
-                ) AND pip_in_tile.is_pseudo = 0""", (wire_pkey, )
-            )
-        else:
-            cur2.execute(
-                """SELECT count() FROM pip_in_tile WHERE dest_wire_in_tile_pkey = (
-                SELECT wire_in_tile_pkey FROM wire WHERE pkey = ?
-                ) AND pip_in_tile.is_pseudo = 0""", (wire_pkey, )
-            )
+        cur2.execute(
+            """SELECT count() FROM pip_in_tile WHERE src_wire_in_tile_pkey = (
+            SELECT wire_in_tile_pkey FROM wire WHERE pkey = ?
+            ) AND pip_in_tile.is_pseudo = 0""", (wire_pkey, )
+        )
+        has_forward_pip = cur2.fetchone()[0]
 
-        has_pip = cur2.fetchone()[0]
-        if has_pip:
-            source_wires.append(wire_pkey)
+        cur2.execute(
+            """SELECT count() FROM pip_in_tile WHERE dest_wire_in_tile_pkey = (
+            SELECT wire_in_tile_pkey FROM wire WHERE pkey = ?
+            ) AND pip_in_tile.is_pseudo = 0""", (wire_pkey, )
+        )
+        has_backward_pip = cur2.fetchone()[0]
+
+        if forward:
+            if has_forward_pip:
+                source_wires.append(wire_pkey)
+            if has_backward_pip:
+                sink_wires.append(wire_pkey)
+        else:
+            if has_forward_pip:
+                sink_wires.append(wire_pkey)
+            if has_backward_pip:
+                source_wires.append(wire_pkey)
 
     if len(source_wires) > 1:
         if forward:
@@ -1364,7 +1373,7 @@ WITH wires_in_graph_node(phy_tile_pkey, phy_tile_type_pkey, wire_in_tile_pkey) A
     INNER JOIN phy_tile ON wire.phy_tile_pkey = phy_tile.pkey
     WHERE graph_node.pkey = ?
 )
-SELECT DISTINCT wire.phy_tile_pkey
+SELECT DISTINCT wire.phy_tile_pkey, pip_in_tile.is_directional
 FROM wires_in_graph_node
 INNER JOIN pip_in_tile
 ON
@@ -1379,20 +1388,50 @@ AND
                 """, (graph_node_pkey, )
             )
             src_phy_tiles = cur2.fetchall()
+
+            if len(src_phy_tiles) > 1:
+                # Try pruning bi-directional pips
+                src_phy_tiles = [
+                    (phy_tile_pkey, is_directional)
+                    for (phy_tile_pkey, is_directional) in src_phy_tiles
+                    if is_directional
+                ]
+
             assert len(src_phy_tiles) == 1, (
-                pin_graph_node_pkey, graph_node_pkey, source_wires, tracks
+                pin_graph_node_pkey, graph_node_pkey, source_wires, tracks,
+                src_phy_tiles
             )
             phy_tile_pkey = src_phy_tiles[0][0]
         else:
-            assert False, (
-                pin_graph_node_pkey, graph_node_pkey, source_wires, tracks
-            )
-            return
+            # Have an ambiguous source, see if there is an unambigous sink.
+            #
+            # Remove sinks that are also sources (e.g. bidirectional wires)
+            sink_wires = list(set(sink_wires) - set(source_wires))
+
+            if len(sink_wires) == 1:
+                cur.execute(
+                    "SELECT phy_tile_pkey FROM wire WHERE pkey = ?",
+                    (sink_wires[0], )
+                )
+                source_wires = sink_wires
+                phy_tile_pkey = cur.fetchone()[0]
+            else:
+                assert False, (
+                    pin_graph_node_pkey, graph_node_pkey, source_wires,
+                    sink_wires, tracks
+                )
+                return
     elif len(source_wires) == 1:
         cur.execute(
             "SELECT phy_tile_pkey FROM wire WHERE pkey = ?",
             (source_wires[0], )
         )
+        phy_tile_pkey = cur.fetchone()[0]
+    elif len(sink_wires) == 1:
+        cur.execute(
+            "SELECT phy_tile_pkey FROM wire WHERE pkey = ?", (sink_wires[0], )
+        )
+        source_wires = sink_wires
         phy_tile_pkey = cur.fetchone()[0]
     else:
         return
@@ -1420,7 +1459,7 @@ UPDATE graph_node SET connection_box_wire_pkey = ? WHERE pkey = ?
 
 def walk_and_mark_segment(
         conn, write_cur, graph_node_pkey, forward, segment_pkey, unknown_pkey,
-        pin_graph_node_pkey, tracks, visited_switches
+        pin_graph_node_pkey, tracks, visited_nodes
 ):
     """ Recursive function to walk along a node and mark segments.
 
@@ -1463,33 +1502,44 @@ def walk_and_mark_segment(
                     track_pkey,
                 )
             )
+    else:
+        track_pkey = None
 
     # Traverse to the next graph node.
     if forward:
         cur.execute(
             """
-SELECT dest_graph_node_pkey, switch_pkey FROM graph_edge WHERE src_graph_node_pkey = ?
+SELECT
+    graph_edge.dest_graph_node_pkey,
+    graph_node.track_pkey
+FROM
+    graph_edge
+INNER JOIN graph_node ON graph_node.pkey = graph_edge.dest_graph_node_pkey
+WHERE
+    src_graph_node_pkey = ?
 """, (graph_node_pkey, )
         )
         next_nodes = cur.fetchall()
     else:
         cur.execute(
             """
-SELECT src_graph_node_pkey, switch_pkey FROM graph_edge WHERE dest_graph_node_pkey = ?
+SELECT
+    graph_edge.src_graph_node_pkey,
+    graph_node.track_pkey
+FROM
+    graph_edge
+INNER JOIN graph_node ON graph_node.pkey = graph_edge.src_graph_node_pkey
+WHERE
+    dest_graph_node_pkey = ?
 """, (graph_node_pkey, )
         )
         next_nodes = cur.fetchall()
 
-    next_node = None
-    next_switch_pkey = None
-    if len(next_nodes) == 1:
-        # This is a simple edge, keep walking.
-        (next_node, next_switch_pkey) = next_nodes[0]
-    elif not forward:
+    if not forward:
         # Some nodes simply lead to GND/VCC tieoff pins, these should not
         # stop the walk, as they are not relevant to connection box.
         next_non_tieoff_nodes = []
-        for (next_graph_node_pkey, edge_switch_pkey) in next_nodes:
+        for (next_graph_node_pkey, next_track) in next_nodes:
             cur.execute(
                 """
 SELECT count() FROM constant_sources WHERE
@@ -1503,15 +1553,36 @@ OR
             )
             if cur.fetchone()[0] == 0:
                 next_non_tieoff_nodes.append(
-                    (next_graph_node_pkey, edge_switch_pkey)
+                    (next_graph_node_pkey, next_track)
                 )
 
         if len(next_non_tieoff_nodes) == 1:
-            (next_node, next_switch_pkey) = next_non_tieoff_nodes[0]
+            (next_node, next_track) = next_non_tieoff_nodes[0]
 
-    if next_node is not None and next_switch_pkey not in visited_switches:
+        next_nodes = next_non_tieoff_nodes
+
+    if len(next_nodes) == 1:
+        # This is a simple edge, keep walking.
+        (next_node, next_track) = next_nodes[0]
+    else:
+        next_other_nodes = []
+        for next_node, next_track in next_nodes:
+            # Shorted groups will have edges back to previous nodes, but they
+            # will be in the same track, so ignore these.
+            if next_node in visited_nodes and track_pkey == next_track:
+                continue
+            else:
+                next_other_nodes.append((next_node, next_track))
+
+        if len(next_other_nodes) == 1:
+            # This is a simple edge, keep walking.
+            (next_node, next_track) = next_other_nodes[0]
+        else:
+            next_node = None
+
+    if next_node is not None and next_node not in visited_nodes:
         # If there is a next node, keep walking
-        visited_switches.add(next_switch_pkey)
+        visited_nodes.add(next_node)
         walk_and_mark_segment(
             conn=conn,
             write_cur=write_cur,
@@ -1521,7 +1592,7 @@ OR
             unknown_pkey=unknown_pkey,
             pin_graph_node_pkey=pin_graph_node_pkey,
             tracks=tracks,
-            visited_switches=visited_switches
+            visited_nodes=visited_nodes
         )
     else:
         # There is not a next node, update the connection box of the IPIN/OPIN
@@ -1627,7 +1698,7 @@ WHERE graph_node.graph_node_type = ?
             unknown_pkey=unknown_pkey,
             pin_graph_node_pkey=graph_node_pkey,
             tracks=list(),
-            visited_switches=set()
+            visited_nodes=set()
         )
 
     # Walk from IPIN's next.
@@ -1649,7 +1720,7 @@ WHERE graph_node.graph_node_type = ?
             unknown_pkey=unknown_pkey,
             pin_graph_node_pkey=graph_node_pkey,
             tracks=list(),
-            visited_switches=set()
+            visited_nodes=set()
         )
 
     write_cur.execute("""COMMIT TRANSACTION;""")
