@@ -4,15 +4,14 @@ module top(
 	output out
 );
 
-  wire gclk, hclk;
+  wire gclk;
   BUFG bufg(.I(clk), .O(gclk));
-  BUFH bufh(.I(gclk), .O(hclk));
 
   FDCE #(
       .INIT(0),
   ) fdse (
       .Q(out[0]),
-      .C(hclk),
+      .C(gclk),
       .CE(in[0]),
       .D(in[1]),
       .CLR(in[2])

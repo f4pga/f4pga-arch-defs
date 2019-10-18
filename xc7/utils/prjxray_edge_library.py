@@ -18,6 +18,19 @@ from prjxray_db_cache import DatabaseCache
 now = datetime.datetime.now
 
 
+def get_node_type(conn, graph_node_pkey):
+    """ Returns the node type of a given graph node"""
+
+    c = conn.cursor()
+    c.execute(
+        """
+        SELECT graph_node_type FROM graph_node WHERE pkey = ?""",
+        (graph_node_pkey, )
+    )
+
+    return c.fetchone()[0]
+
+
 def add_graph_nodes_for_pins(conn, tile_type, wire, pin_directions):
     """ Adds graph_node rows for each pin on a wire in a tile. """
 
@@ -448,6 +461,10 @@ WHERE
         )
 
         if site_pin_graph_node_pkey is None:
+            assert track_graph_node_pkey is not None, (
+                wire_pkey, graph_node_pkey, track_graph_node_pkey, edge_nodes
+            )
+
             capacitance = 0
             resistance = 0
             for wire_cap, wire_res in cur.execute("""
@@ -662,7 +679,7 @@ AND
                     )
                     return
 
-        elif self.pins and other_connector.pins:
+        elif self.pins and other_connector.pins and not pip.is_pseudo:
             assert self.pins.site_pin_direction == SitePinDirection.OUT
             assert other_connector.pins.site_pin_direction == SitePinDirection.IN
 
@@ -686,6 +703,44 @@ AND
                     dest_node = other_connector.pins.edge_map[
                         OPPOSITE_DIRECTIONS[pin_dir]]
                     yield (src_node, switch_pkey, dest_node, pip.pip_pkey)
+                    return
+
+        # If there is a pseudo pip that needs to be explicitly routed through,
+        # two CHAN nodes are first created before and after IPIN and OPIN and
+        # connected with an edge accordingly
+        elif self.pins and other_connector.pins and pip.is_pseudo:
+            switch_pkey = pip.get_pip_switch(src_wire_pkey, dest_wire_pkey)
+
+            for pin_dir in self.pins.edge_map:
+                if pin_dir in other_connector.pins.edge_map:
+                    src_node = self.pins.edge_map[pin_dir]
+                    src_node_type = get_node_type(self.conn, src_node)
+                    assert NodeType(
+                        src_node_type
+                    ) == NodeType.IPIN, "src node for ppip is not an IPIN ({}, {})".format(
+                        src_node, src_node_type
+                    )
+
+                    dest_node = other_connector.pins.edge_map[pin_dir]
+                    dest_node_type = get_node_type(self.conn, dest_node)
+                    assert NodeType(
+                        dest_node_type
+                    ) == NodeType.OPIN, "dest node for ppip is not an OPIN ({}, {})".format(
+                        src_node, dest_node_type
+                    )
+
+                    src_wire_switch_pkey, src_wire_node = self.find_wire_node(
+                        src_wire_pkey, src_node, None
+                    )
+
+                    dest_wire_switch_pkey, dest_wire_node = self.find_wire_node(
+                        dest_wire_pkey, dest_node, None
+                    )
+
+                    yield (
+                        src_wire_node, switch_pkey, dest_wire_node,
+                        pip.pip_pkey
+                    )
                     return
 
         assert False, (
@@ -900,6 +955,7 @@ def yield_edges(
                  pip=pip_obj, src_wire_pkey=sink_wire_pkey,
                  dest_wire_pkey=src_wire_pkey, loc=loc,
                  other_connector=src_connector):
+
             yield (
                 src_graph_node_pkey, dest_graph_node_pkey, switch_pkey,
                 phy_tile_pkey, pip_pkey, True
@@ -979,7 +1035,9 @@ def make_connection(
 
     pip_obj = find_pip(tile_type, pip.name)
 
-    assert not pip_obj.is_pseudo
+    # Generally pseudo-pips are skipped, with the exception for BUFHCE related pips,
+    # for which we want to create a routing path to have VPR route thorugh these pips.
+    assert not pip_obj.is_pseudo or "CLK_HROW_CK" in pip.name
 
     loc = get_tile_loc(tile_pkey)
 
@@ -1761,6 +1819,7 @@ def create_and_insert_edges(
         db, grid, conn, use_roi, roi, input_only_nodes, output_only_nodes
 ):
     write_cur = conn.cursor()
+
     write_cur.execute(
         'SELECT pkey FROM switch WHERE name = ?;',
         ('__vpr_delayless_switch__', )
@@ -1801,7 +1860,9 @@ def create_and_insert_edges(
             if 'PADOUT0' in pip.name or 'PADOUT1' in pip.name:
                 continue
 
-            if pip.is_pseudo:
+            # Generally pseudo-pips are skipped, with the exception for BUFHCE related pips,
+            # for which we want to create a routing path to have VPR route thorugh these pips.
+            if pip.is_pseudo and "CLK_HROW_CK" not in pip.name:
                 continue
 
             connections = make_connection(
@@ -1816,7 +1877,7 @@ def create_and_insert_edges(
                 tile_type=gridinfo.tile_type,
                 pip=pip,
                 delayless_switch=delayless_switch,
-                const_connectors=const_connectors
+                const_connectors=const_connectors,
             )
 
             if connections:
@@ -1826,7 +1887,6 @@ def create_and_insert_edges(
                         continue
 
                     edge_set.add(key)
-
                     edges.append(connection)
 
         commit_edges(write_cur, edges)
