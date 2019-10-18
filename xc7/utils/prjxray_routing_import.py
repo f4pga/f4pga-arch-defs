@@ -1078,8 +1078,8 @@ def main():
     mem_log.write("04: {}\n".format(str(memory_usage())))
     mem_log.flush()
 
-    tool_version = input_rr_graph.getroot().attrib['tool_version']
-    tool_comment = input_rr_graph.getroot().attrib['tool_comment']
+    tool_version = "version" #input_rr_graph.getroot().attrib['tool_version']
+    tool_comment = "comment" #input_rr_graph.getroot().attrib['tool_comment']
 
     sql_log = open("sql_trace.log", "w")
     sql_t0  = time.time()
@@ -1188,18 +1188,25 @@ FROM
         )
 
         print('{} Serializing to disk.'.format(now()))
-        with xml_graph:
-            xml_graph.start_serialize_to_xml(
-                tool_version=tool_version,
-                tool_comment=tool_comment,
+        xml_graph.serialize_to_xml(
                 channels_obj=channels_obj,
                 connection_box_obj=connection_box_obj,
-            )
+                tool_version=tool_version,
+                tool_comment=tool_comment,
+        )
 
-            xml_graph.serialize_nodes(yield_nodes(xml_graph.graph.nodes))
-            xml_graph.serialize_edges(
-                import_graph_edges(conn, graph, node_mapping)
-            )
+#        with xml_graph:
+#            xml_graph.start_serialize_to_xml(
+#                tool_version=tool_version,
+#                tool_comment=tool_comment,
+#                channels_obj=channels_obj,
+#                connection_box_obj=connection_box_obj,
+#            )
+#
+#            xml_graph.serialize_nodes(yield_nodes(xml_graph.graph.nodes))
+#            xml_graph.serialize_edges(
+#                import_graph_edges(conn, graph, node_mapping)
+#            )
 
         mem_log.write("11: {}\n".format(str(memory_usage())))
         mem_log.flush()
