@@ -36,6 +36,7 @@ import datetime
 import re
 import functools
 import pickle
+import time
 
 from prjxray_db_cache import DatabaseCache
 
@@ -898,7 +899,7 @@ def phy_grid_dims(conn):
     return x_max + 1, y_max + 1
 
 
-def find_constant_network(input_rr_graph):
+def find_constant_network(graph):
     """ Find VCC and GND tiles and create synth_tiles input.
 
     All arches should have these synthetic tiles, search the input rr graph
@@ -907,8 +908,8 @@ def find_constant_network(input_rr_graph):
     """
     block_types = {}
 
-    for elem in input_rr_graph.iter('block_type'):
-        block_types[elem.attrib['name']] = elem.attrib['id']
+    for block_type in graph.block_types:
+        block_types[block_type.name] = block_type.id
 
     assert 'SYN-GND' in block_types
     assert 'SYN-VCC' in block_types
@@ -919,14 +920,14 @@ def find_constant_network(input_rr_graph):
     gnd_loc = None
     vcc_loc = None
 
-    for elem in input_rr_graph.iter('grid_loc'):
-        if gnd_block_id == elem.attrib['block_type_id']:
+    for grid_loc in graph.grid:
+        if gnd_block_id == grid_loc.block_type_id:
             assert gnd_loc is None
-            gnd_loc = (int(elem.attrib['x']), int(elem.attrib['y']))
+            gnd_loc = (grid_loc.x, grid_loc.y)
 
-        if vcc_block_id == elem.attrib['block_type_id']:
+        if vcc_block_id == grid_loc.block_type_id:
             assert vcc_loc is None
-            vcc_loc = (int(elem.attrib['x']), int(elem.attrib['y']))
+            vcc_loc = (grid_loc.x, grid_loc.y)
 
     assert gnd_loc is not None
     assert vcc_loc is not None
@@ -968,6 +969,25 @@ def find_constant_network(input_rr_graph):
     return synth_tiles
 
 
+def memory_usage():
+    """Memory usage of the current process in GB."""
+    status = None
+    result = {'peak': 0, 'rss': 0}
+    try:
+        # This will only work on systems with a /proc file system
+        # (like Linux).
+        status = open('/proc/self/status')
+        for line in status:
+            parts = line.split()
+            key = parts[0][2:-1].lower()
+            if key in result:
+                result[key] = int(parts[1]) / (1024*1024)
+    finally:
+        if status is not None:
+            status.close()
+    return result
+
+
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument(
@@ -1000,8 +1020,16 @@ def main():
 
     args = parser.parse_args()
 
+    mem_log = open("mem_trace.log", "w")
+
+    mem_log.write("01: {}\n".format(str(memory_usage())))
+    mem_log.flush()
+
     db = prjxray.db.Database(args.db_root)
     populate_hclk_cmt_tiles(db)
+
+    mem_log.write("02: {}\n".format(str(memory_usage())))
+    mem_log.flush()
 
     synth_tiles = None
     if args.synth_tiles:
@@ -1032,26 +1060,45 @@ def main():
         use_roi = False
         roi = None
         synth_tiles = None
-
-    # Convert input rr graph into graph2.Graph object.
-    input_rr_graph = read_xml_file(args.read_rr_graph)
-
-    if synth_tiles is None:
-        synth_tiles = find_constant_network(input_rr_graph)
-
+    
     xml_graph = xml_graph2.Graph(
-        input_rr_graph,
+        input_file_name=args.read_rr_graph,
         progressbar=progressbar_utils.progressbar,
         output_file_name=args.write_rr_graph,
     )
 
+    mem_log.write("03: {}\n".format(str(memory_usage())))
+    mem_log.flush()
+
     graph = xml_graph.graph
+
+    if synth_tiles is None:
+        synth_tiles = find_constant_network(graph)
+
+    mem_log.write("04: {}\n".format(str(memory_usage())))
+    mem_log.flush()
 
     tool_version = input_rr_graph.getroot().attrib['tool_version']
     tool_comment = input_rr_graph.getroot().attrib['tool_comment']
 
+    sql_log = open("sql_trace.log", "w")
+    sql_t0  = time.time()
+
+    def sql_trace(query):
+        line = "[{}] {}\n".format(time.time() - sql_t0, query)
+        sql_log.write(line)
+        sql_log.flush()
+
     with DatabaseCache(args.connection_database, True) as conn:
+        conn.set_trace_callback(sql_trace)
+
+        mem_log.write("05: {}\n".format(str(memory_usage())))
+        mem_log.flush()
+
         populate_bufg_rebuf_map(conn)
+
+        mem_log.write("06: {}\n".format(str(memory_usage())))
+        mem_log.flush()
 
         cur = conn.cursor()
         for name, internal_capacitance, drive_resistance, intrinsic_delay, \
@@ -1097,12 +1144,21 @@ FROM
         # Mapping of graph_node.pkey to rr node id.
         node_mapping = {}
 
+        mem_log.write("06: {}\n".format(str(memory_usage())))
+        mem_log.flush()
+
         print('{} Creating connection box list'.format(now()))
         connection_box_map = create_connection_boxes(conn, graph)
+
+        mem_log.write("07: {}\n".format(str(memory_usage())))
+        mem_log.flush()
 
         # Match site pins rr nodes with graph_node's in the connection_database.
         print('{} Importing graph nodes'.format(now()))
         import_graph_nodes(conn, graph, node_mapping, connection_box_map)
+
+        mem_log.write("08: {}\n".format(str(memory_usage())))
+        mem_log.flush()
 
         # Walk all track graph nodes and add them.
         print('{} Creating tracks'.format(now()))
@@ -1110,6 +1166,9 @@ FROM
         create_track_rr_graph(
             conn, graph, node_mapping, use_roi, roi, synth_tiles, segment_id
         )
+
+        mem_log.write("09: {}\n".format(str(memory_usage())))
+        mem_log.flush()
 
         # Set of (src, sink, switch_id) tuples that pip edges have been sent to
         # VPR.  VPR cannot handle duplicate paths with the same switch id.
@@ -1119,6 +1178,9 @@ FROM
 
         print('{} Creating channels.'.format(now()))
         channels_obj = create_channels(conn)
+
+        mem_log.write("10: {}\n".format(str(memory_usage())))
+        mem_log.flush()
 
         x_dim, y_dim = phy_grid_dims(conn)
         connection_box_obj = graph.create_connection_box_object(
@@ -1139,11 +1201,16 @@ FROM
                 import_graph_edges(conn, graph, node_mapping)
             )
 
+        mem_log.write("11: {}\n".format(str(memory_usage())))
+        mem_log.flush()
+
         print('{} Writing node map.'.format(now()))
         with open(args.write_rr_node_map, 'wb') as f:
             pickle.dump(node_mapping, f)
         print('{} Done writing node map.'.format(now()))
 
+    # To make it stop
+    exit(-1)
 
 if __name__ == '__main__':
     main()

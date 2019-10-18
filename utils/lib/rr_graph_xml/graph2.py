@@ -129,164 +129,204 @@ def enum_from_string(enum_type, s):
     return enum_type[s.upper()]
 
 
-def graph_from_xml(input_xml, progressbar=None):
+def iterate_xml(xml_file):
+    """
+    A generator function that allows to incrementally walk over an XML tree
+    while reading it from a file thus allowing to greatly reduce memory
+    usage.
+    """
+    doc = ET.iterparse(xml_file, events=('start', 'end'))
+    _, root = next(doc)
+    path = root.tag
+    for event, element in doc:
+        if event == 'start':
+            path += "/" + element.tag
+        if event == 'end':
+            path = path.rsplit('/', maxsplit=1)[0]
+            yield path, element
+            element.clear()
+    root.clear()
+
+
+def graph_from_xml(input_file_name, progressbar=None):
+    """
+    Loads relevant information about the routing resource graph from an XML
+    file.
+    """
+
     if progressbar is None:
         progressbar = lambda x: x  # noqa: E731
 
     switches = []
-    for switch in input_xml.find('switches').iter('switch'):
-        timing_xml = switch.find('timing')
-
-        if timing_xml is not None:
-            timing = graph2.SwitchTiming(
-                r=float(timing_xml.attrib['R']),
-                c_in=float(timing_xml.attrib['Cin']),
-                c_out=float(timing_xml.attrib['Cout']),
-                c_internal=float(timing_xml.attrib.get('Cinternal', 0)),
-                t_del=float(timing_xml.attrib['Tdel']),
-            )
-        else:
-            timing = None
-
-        sizing_xml = switch.find('sizing')
-
-        if sizing_xml is not None:
-            sizing = graph2.SwitchSizing(
-                mux_trans_size=float(sizing_xml.attrib['mux_trans_size']),
-                buf_size=float(sizing_xml.attrib['buf_size']),
-            )
-        else:
-            sizing = None
-
-        switches.append(
-            graph2.Switch(
-                id=int(switch.attrib['id']),
-                type=enum_from_string(
-                    graph2.SwitchType, switch.attrib['type']
-                ),
-                name=switch.attrib['name'],
-                timing=timing,
-                sizing=sizing,
-            )
-        )
-
     segments = []
-    for segment in input_xml.find('segments').iter('segment'):
-        timing_xml = segment.find('timing')
-
-        if timing_xml is not None:
-            timing = graph2.SegmentTiming(
-                r_per_meter=float(timing_xml.attrib['R_per_meter']),
-                c_per_meter=float(timing_xml.attrib['C_per_meter']),
-            )
-        else:
-            timing = None
-
-        segments.append(
-            graph2.Segment(
-                id=int(segment.attrib['id']),
-                name=segment.attrib['name'],
-                timing=timing,
-            )
-        )
-
     block_types = []
-    for block_type in input_xml.find('block_types').iter('block_type'):
-        pin_classes = []
+    grid = []
+    nodes = []
 
-        for pin_class in block_type.iter('pin_class'):
-            pins = []
-            for pin in pin_class.iter('pin'):
-                pins.append(
-                    graph2.Pin(
-                        ptc=int(pin.attrib['ptc']),
-                        name=pin.text,
-                    )
+    # Itertate over XML elements
+    switch_timing = None
+    switch_sizing = None
+    segment_timing = None
+    pins = []
+    pin_classes = []
+    node_loc = None
+    node_timing = None
+
+    for path, element in progressbar(iterate_xml(input_file_name)):
+
+        # Switch timing
+        if path == "rr_graph/switches/switch" and element.tag == "timing":
+            switch_timing = graph2.SwitchTiming(
+                r=float(element.attrib['R']),
+                c_in=float(element.attrib['Cin']),
+                c_out=float(element.attrib['Cout']),
+                c_internal=float(element.attrib.get('Cinternal', 0)),
+                t_del=float(element.attrib['Tdel']),
+            )
+
+        # Switch sizing
+        if path == "rr_graph/switches/switch" and element.tag == "sizing":
+            switch_sizing = graph2.SwitchSizing(
+                mux_trans_size=float(element.attrib['mux_trans_size']),
+                buf_size=float(element.attrib['buf_size']),
+            )
+
+        # Switch
+        if path == "rr_graph/switches" and element.tag == "switch":
+            switches.append(
+                graph2.Switch(
+                    id=int(element.attrib['id']),
+                    type=enum_from_string(
+                        graph2.SwitchType, element.attrib['type']
+                    ),
+                    name=element.attrib['name'],
+                    timing=switch_timing,
+                    sizing=switch_sizing,
                 )
+            )
 
+            switch_timing = None
+            switch_sizing = None
+
+        # Segment timing
+        if path == "rr_graph/segments/segment" and element.tag == "timing":
+            segment_timing = graph2.SegmentTiming(
+                r_per_meter=float(element.attrib['R_per_meter']),
+                c_per_meter=float(element.attrib['C_per_meter']),
+            )
+
+        # Segment
+        if path == "rr_graph/segments" and element.tag == "segment":
+            segments.append(
+                graph2.Segment(
+                    id=int(element.attrib['id']),
+                    name=element.attrib['name'],
+                    timing=segment_timing,
+                )
+            )
+
+            segment_timing = None
+
+        # Block type - pin
+        if path == "rr_graph/block_types/block_type/pin_class" and element.tag == "pin":
+            pins.append(
+                graph2.Pin(
+                    ptc=int(element.attrib['ptc']),
+                    name=element.text,
+                )
+            )
+
+        # Block type - pin_class
+        if path == "rr_graph/block_types/block_type" and element.tag == "pin_class":
             pin_classes.append(
                 graph2.PinClass(
                     type=enum_from_string(
-                        graph2.PinType, pin_class.attrib['type']
+                        graph2.PinType, element.attrib['type']
                     ),
                     pin=pins,
                 )
             )
 
-        block_types.append(
-            graph2.BlockType(
-                id=int(block_type.attrib['id']),
-                name=block_type.attrib['name'],
-                width=int(block_type.attrib['width']),
-                height=int(block_type.attrib['height']),
-                pin_class=pin_classes,
+            pins = []
+           
+        # Block type
+        if path == "rr_graph/block_types" and element.tag == "block_type":
+            block_types.append(
+                graph2.BlockType(
+                    id=int(element.attrib['id']),
+                    name=element.attrib['name'],
+                    width=int(element.attrib['width']),
+                    height=int(element.attrib['height']),
+                    pin_class=pin_classes,
+                )
             )
-        )
 
-    grid = []
-    for grid_loc in input_xml.find('grid').iter('grid_loc'):
-        grid.append(
-            graph2.GridLoc(
-                x=int(grid_loc.attrib['x']),
-                y=int(grid_loc.attrib['y']),
-                block_type_id=int(grid_loc.attrib['block_type_id']),
-                width_offset=int(grid_loc.attrib['width_offset']),
-                height_offset=int(grid_loc.attrib['height_offset']),
+            pin_classes = []
+
+        # Grid
+        if path == "rr_graph/grid" and element.tag == "grid_loc":
+            grid.append(graph2.GridLoc(
+                    x=int(element.attrib['x']),
+                    y=int(element.attrib['y']),
+                    block_type_id=int(element.attrib['block_type_id']),
+                    width_offset=int(element.attrib['width_offset']),
+                    height_offset=int(element.attrib['height_offset']),
+                )
             )
-        )
 
-    nodes = []
-    for node in input_xml.find('rr_nodes').iter('node'):
-        node_type = enum_from_string(graph2.NodeType, node.attrib['type'])
-        if node_type in [graph2.NodeType.SOURCE, graph2.NodeType.SINK,
-                         graph2.NodeType.OPIN, graph2.NodeType.IPIN]:
+        # Node - loc
+        if path == "rr_graph/rr_nodes/node" and element.tag == "loc":
+            if 'side' in element.attrib:
+                side = enum_from_string(
+                    tracks.Direction, element.attrib['side']
+                )
+            else:
+                side = None
 
-            loc_xml = node.find('loc')
-            if loc_xml is not None:
-                if 'side' in loc_xml.attrib:
-                    side = enum_from_string(
-                        tracks.Direction, loc_xml.attrib['side']
+            node_loc = graph2.NodeLoc(
+                x_low=int(element.attrib['xlow']),
+                y_low=int(element.attrib['ylow']),
+                x_high=int(element.attrib['xhigh']),
+                y_high=int(element.attrib['yhigh']),
+                ptc=int(element.attrib['ptc']),
+                side=side
+            )
+
+        # Node - timing
+        if path == "rr_graph/rr_nodes/node" and element.tag == "timing":
+            node_timing = graph2.NodeTiming(
+                r=float(element.attrib['R']),
+                c=float(element.attrib['C']),
+            )
+
+        # Node
+        if path == "rr_graph/rr_nodes" and element.tag == "node":
+            node_type = enum_from_string(graph2.NodeType, element.attrib['type'])
+
+            if node_type in [graph2.NodeType.SOURCE, graph2.NodeType.SINK,
+                             graph2.NodeType.OPIN, graph2.NodeType.IPIN]:
+
+                # Not expecting any metadata on the input.
+                assert element.find('metadata') is None
+                metadata = None
+
+                nodes.append(
+                    graph2.Node(
+                        id=int(element.attrib['id']),
+                        type=node_type,
+                        direction=graph2.NodeDirection.NO_DIR,
+                        capacity=int(element.attrib['capacity']),
+                        loc=node_loc,
+                        timing=node_timing,
+                        metadata=metadata,
+                        segment=None,
+                        canonical_loc=None,
+                        connection_box=None,
                     )
-                else:
-                    side = None
-
-                loc = graph2.NodeLoc(
-                    x_low=int(loc_xml.attrib['xlow']),
-                    y_low=int(loc_xml.attrib['ylow']),
-                    x_high=int(loc_xml.attrib['xhigh']),
-                    y_high=int(loc_xml.attrib['yhigh']),
-                    ptc=int(loc_xml.attrib['ptc']),
-                    side=side
                 )
-            else:
-                loc = None
 
-            timing_xml = node.find('timing')
-            if timing_xml is not None:
-                timing = graph2.NodeTiming(
-                    r=float(timing_xml.attrib['R']),
-                    c=float(timing_xml.attrib['C']),
-                )
-            else:
-                timing = None
-
-            # Not expecting any metadata on the input.
-            assert node.find('metadata') is None
-            metadata = None
-            nodes.append(
-                graph2.Node(
-                    id=int(node.attrib['id']),
-                    type=node_type,
-                    direction=graph2.NodeDirection.NO_DIR,
-                    capacity=int(node.attrib['capacity']),
-                    loc=loc,
-                    timing=timing,
-                    metadata=metadata,
-                    segment=None,
-                    canonical_loc=None,
-                    connection_box=None,
-                )
-            )
+            node_loc = None
+            node_timing = None
 
     return dict(
         switches=switches,
@@ -300,7 +340,7 @@ def graph_from_xml(input_xml, progressbar=None):
 class Graph(object):
     def __init__(
             self,
-            input_xml,
+            input_file_name,
             output_file_name=None,
             progressbar=None,
             build_pin_edges=True
@@ -308,11 +348,11 @@ class Graph(object):
         if progressbar is None:
             progressbar = lambda x: x  # noqa: E731
 
-        self.input_xml = input_xml
+        self.input_file_name = input_file_name
         self.progressbar = progressbar
         self.output_file_name = output_file_name
 
-        graph_input = graph_from_xml(input_xml, progressbar)
+        graph_input = graph_from_xml(input_file_name, progressbar)
         graph_input['build_pin_edges'] = build_pin_edges
 
         rebase_nodes = []
