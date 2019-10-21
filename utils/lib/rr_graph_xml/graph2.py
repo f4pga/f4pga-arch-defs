@@ -619,7 +619,9 @@ class Graph(object):
             self._write_xml_header()
 
             self._write_channels(channels_obj)
-            self._write_connection_box(connection_box_obj)
+
+            if connection_box_obj is not None:
+                self._write_connection_box(connection_box_obj)
 
             self._write_switches()
             self._write_segments()
