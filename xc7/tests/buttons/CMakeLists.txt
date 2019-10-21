@@ -12,6 +12,11 @@ add_fpga_target(
   INPUT_IO_FILE basys3.pcf
   )
 
+add_vivado_target(
+  NAME buttons_basys3_vivado
+  PARENT_NAME buttons_basys3
+  )
+
 add_fpga_target(
   NAME buttons_zybo
   BOARD zybo

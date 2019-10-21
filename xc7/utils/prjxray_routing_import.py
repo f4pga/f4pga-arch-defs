@@ -203,9 +203,12 @@ def populate_hclk_cmt_tiles(db):
 
 
 def find_hclk_cmt_hclk_feature(hclk_tile, lr, hclk_number):
+    if (hclk_tile, lr) not in HCLK_CMT_TILES:
+        return []
+
     hclk_cmt_tile = HCLK_CMT_TILES[(hclk_tile, lr)]
 
-    return '{}.HCLK_CMT_CK_BUFHCLK{}_USED'.format(hclk_cmt_tile, hclk_number)
+    return ['{}.HCLK_CMT_CK_BUFHCLK{}_USED'.format(hclk_cmt_tile, hclk_number)]
 
 
 def check_feature(feature):
@@ -285,11 +288,8 @@ def check_feature(feature):
     m = HCLK_OUT.fullmatch(feature_path[-1])
     if m:
         return ' '.join(
-            (
-                feature,
-                find_hclk_cmt_hclk_feature(
-                    feature_path[0], m.group(1), m.group(2)
-                )
+            [feature] + find_hclk_cmt_hclk_feature(
+                feature_path[0], m.group(1), m.group(2)
             )
         )
 
@@ -1113,9 +1113,8 @@ FROM
 
         # Set of (src, sink, switch_id) tuples that pip edges have been sent to
         # VPR.  VPR cannot handle duplicate paths with the same switch id.
-        if use_roi:
-            print('{} Adding synthetic edges'.format(now()))
-            add_synthetic_edges(conn, graph, node_mapping, grid, synth_tiles)
+        print('{} Adding synthetic edges'.format(now()))
+        add_synthetic_edges(conn, graph, node_mapping, grid, synth_tiles)
 
         print('{} Creating channels.'.format(now()))
         channels_obj = create_channels(conn)

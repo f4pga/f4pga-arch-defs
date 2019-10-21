@@ -2,5 +2,7 @@
 set_io clk W5
 
 # LED1-LED4 correspond with LD0-LD3 on the basys3
-set_io led[0] V3
-set_io led[1] U3
+set_io led[0] U16
+set_io led[1] E19
+set_io led[2] U19
+set_io led[3] V19
