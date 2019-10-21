@@ -39,7 +39,6 @@ import pickle
 import time
 
 from lib.perf_utils import MemoryLog
-#from prjxray_db_cache import DatabaseCache
 import sqlite3
 
 now = datetime.datetime.now
@@ -972,25 +971,6 @@ def find_constant_network(graph):
     return synth_tiles
 
 
-def memory_usage():
-    """Memory usage of the current process in GB."""
-    status = None
-    result = {'peak': 0, 'rss': 0}
-    try:
-        # This will only work on systems with a /proc file system
-        # (like Linux).
-        status = open('/proc/self/status')
-        for line in status:
-            parts = line.split()
-            key = parts[0][2:-1].lower()
-            if key in result:
-                result[key] = int(parts[1]) / (1024 * 1024)
-    finally:
-        if status is not None:
-            status.close()
-    return result
-
-
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument(
@@ -1076,7 +1056,6 @@ def main():
         synth_tiles = find_constant_network(graph)
 
 
-#    with DatabaseCache(args.connection_database, True) as conn:
     with sqlite3.connect("file:{}?mode=ro".format(args.connection_database),
                          uri=True) as conn:
 
