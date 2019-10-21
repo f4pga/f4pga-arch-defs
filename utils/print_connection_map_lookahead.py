@@ -22,7 +22,9 @@ def main():
     )
 
     with open(args.lookahead_map, 'rb') as f:
-        cost_map = connection_map.VprCostMap.read(f)
+        cost_map = connection_map.VprCostMap.read(
+            f, traversal_limit_in_words=1024 * 1024 * 1024
+        )
 
     assert cost_map.costMap.dims[0] == cost_map.offset.dims[0]
     assert cost_map.costMap.dims[1] == cost_map.offset.dims[1]
