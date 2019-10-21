@@ -6,7 +6,7 @@ add_conda_pip(
 function(ADD_XC7_DEVICE_DEFINE_TYPE)
   set(options)
   set(oneValueArgs ARCH DEVICE ROI_DIR ROI_PART NAME GRAPH_LIMIT PART)
-  set(multiValueArgs TILE_TYPES)
+  set(multiValueArgs TILE_TYPES PB_TYPES)
   cmake_parse_arguments(
     ADD_XC7_DEVICE_DEFINE_TYPE
      "${options}"
@@ -66,11 +66,17 @@ function(ADD_XC7_DEVICE_DEFINE_TYPE)
     ")
   endif()
 
+  set(PB_TYPE_ARGS "")
+  if(NOT "${ADD_XC7_DEVICE_DEFINE_TYPE_PB_TYPES}" STREQUAL "")
+      set(PB_TYPE_ARGS PB_TYPES ${ADD_XC7_DEVICE_DEFINE_TYPE_PB_TYPES})
+  endif()
+
   project_xray_arch(
     PART ${ARCH}
     DEVICE ${DEVICE}
     TILE_TYPES ${TILE_TYPES}
     ${ROI_ARGS}
+    ${PB_TYPE_ARGS}
     )
 
   set(SDF_TIMING_DIRECTORY ${PRJXRAY_DB_DIR}/${ARCH}/timings)

@@ -61,6 +61,7 @@ function(ADD_XC7_ARCH_DEFINE)
     \${PYTHON3} \${FASM_TO_BIT} \
         --db-root ${PRJXRAY_DB_DIR}/${ARCH} \
         --sparse \
+        --emit_pudc_b_pullup \
         \${FASM_TO_BIT_EXTRA_ARGS} \
     \${OUT_FASM} \${OUT_BITSTREAM}"
     BIT_TO_BIN xc7frames2bit
