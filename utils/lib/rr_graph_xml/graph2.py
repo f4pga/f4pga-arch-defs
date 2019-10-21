@@ -145,7 +145,7 @@ def graph_from_xml(input_file_name, progressbar=None):
             )
 
             pins = []
-           
+
         # Block type
         if path == "rr_graph/block_types" and element.tag == "block_type":
             block_types.append(
@@ -162,7 +162,8 @@ def graph_from_xml(input_file_name, progressbar=None):
 
         # Grid
         if path == "rr_graph/grid" and element.tag == "grid_loc":
-            grid.append(graph2.GridLoc(
+            grid.append(
+                graph2.GridLoc(
                     x=int(element.attrib['x']),
                     y=int(element.attrib['y']),
                     block_type_id=int(element.attrib['block_type_id']),
@@ -198,7 +199,9 @@ def graph_from_xml(input_file_name, progressbar=None):
 
         # Node
         if path == "rr_graph/rr_nodes" and element.tag == "node":
-            node_type = enum_from_string(graph2.NodeType, element.attrib['type'])
+            node_type = enum_from_string(
+                graph2.NodeType, element.attrib['type']
+            )
 
             if node_type in [graph2.NodeType.SOURCE, graph2.NodeType.SINK,
                              graph2.NodeType.OPIN, graph2.NodeType.IPIN]:
@@ -288,7 +291,7 @@ class Graph(object):
         Writes beginning of an XML tag. If term=True then terminates it
         immediately.
         """
-        s  = "<{}".format(tag)
+        s = "<{}".format(tag)
         s += "".join([' {}="{}"'.format(k, str(v)) for k, v in attrib.items()])
         if value and term:
             s += ">{}</{}>".format(value, tag)
@@ -315,13 +318,11 @@ class Graph(object):
         """
         self._begin_xml_tag(tag, attrib, value, True)
 
-
     def _write_xml_header(self):
         """
         Writes the RR graph XML header.
         """
         self._begin_xml_tag("rr_graph", self.root_attrib)
-
 
     def _write_channels(self, channels):
         """
@@ -340,10 +341,12 @@ class Graph(object):
 
         for l in channels.x_list:
             self._write_xml_tag("x_list", {"index": l.index, "info": l.info})
-            if DEBUG >= 2: break
+            if DEBUG >= 2:
+                break
         for l in channels.y_list:
             self._write_xml_tag("y_list", {"index": l.index, "info": l.info})
-            if DEBUG >= 2: break
+            if DEBUG >= 2:
+                break
 
         self._end_xml_tag()
 
@@ -361,10 +364,10 @@ class Graph(object):
 
         for idx, box in enumerate(connection_box.boxes):
             self._write_xml_tag("connection_box", {"id": idx, "name": box})
-            if DEBUG >= 2: break
+            if DEBUG >= 2:
+                break
 
         self._end_xml_tag()
-
 
     def _write_nodes(self, nodes):
         """ Serialize list of Node objects to XML.
@@ -390,7 +393,6 @@ class Graph(object):
 
             self._begin_xml_tag("node", attrib)
 
-
             attrib = {
                 "xlow": node.loc.x_low,
                 "xhigh": node.loc.x_high,
@@ -400,10 +402,9 @@ class Graph(object):
             }
 
             if node.loc.side is not None:
-               attrib["side"] = node.loc.side.name
+                attrib["side"] = node.loc.side.name
 
             self._write_xml_tag("loc", attrib)
-
 
             if node.timing is not None:
                 attrib = {
@@ -415,16 +416,13 @@ class Graph(object):
             if node.metadata is not None and len(node.metadata) > 0:
                 self._begin_xml_tag("metadata")
                 for m in node.metadata:
-                    self._write_xml_tag("meta", {"name": m.name}, m.value)                    
+                    self._write_xml_tag("meta", {"name": m.name}, m.value)
 
                 self._end_xml_tag()
-          
-            if node.segment is not None:
-                attrib = {
-                    "segment_id": node.segment.segment_id
-                }
-                self._write_xml_tag("segment", attrib)
 
+            if node.segment is not None:
+                attrib = {"segment_id": node.segment.segment_id}
+                self._write_xml_tag("segment", attrib)
 
             if node.connection_box is not None:
                 attrib = {
@@ -434,7 +432,6 @@ class Graph(object):
                 }
                 self._write_xml_tag("connection_box", attrib)
 
-
             if node.canonical_loc is not None:
                 attrib = {
                     "x": node.canonical_loc.x,
@@ -443,10 +440,10 @@ class Graph(object):
                 self._write_xml_tag("canonical_loc", attrib)
 
             self._end_xml_tag()
-            if DEBUG >= 2: break
+            if DEBUG >= 2:
+                break
 
         self._end_xml_tag()
-
 
     def _write_edges(self, edges):
         """ Serialize list of edge tuples objects to XML.
@@ -483,7 +480,6 @@ class Graph(object):
 
         self._end_xml_tag()
 
-
     def _write_switches(self):
         """
         Writes the RR graph switches.
@@ -505,9 +501,9 @@ class Graph(object):
                     "Cout": switch.timing.c_out,
                     "Tdel": switch.timing.t_del,
                 }
-                
+
                 if VPR_HAS_C_INTERNAL_SUPPORT:
-                    attrib["Cinternal"] = switch.timing.c_internal 
+                    attrib["Cinternal"] = switch.timing.c_internal
 
                 self._write_xml_tag("timing", attrib)
 
@@ -519,10 +515,10 @@ class Graph(object):
                 self._write_xml_tag("sizing", attrib)
 
             self._end_xml_tag()
-            if DEBUG >= 2: break
+            if DEBUG >= 2:
+                break
 
         self._end_xml_tag()
-
 
     def _write_segments(self):
         """
@@ -545,10 +541,10 @@ class Graph(object):
                 self._write_xml_tag("segment", attrib)
 
             self._end_xml_tag()
-            if DEBUG >= 2: break
+            if DEBUG >= 2:
+                break
 
         self._end_xml_tag()
-
 
     def _write_block_types(self):
         """
@@ -566,22 +562,25 @@ class Graph(object):
             self._begin_xml_tag("block_type", attrib)
 
             for pin_class in blk.pin_class:
-                self._begin_xml_tag("pin_class",
-                    {"type": pin_class.type.name.upper()})
+                self._begin_xml_tag(
+                    "pin_class", {"type": pin_class.type.name.upper()}
+                )
 
                 for pin in pin_class.pin:
                     self._write_xml_tag("pin", {"ptc": pin.ptc}, pin.name)
-                    if DEBUG >= 2: break
+                    if DEBUG >= 2:
+                        break
 
                 self._end_xml_tag()
-                if DEBUG >= 2: break
+                if DEBUG >= 2:
+                    break
 
             self._end_xml_tag()
-            if DEBUG >= 2: break
+            if DEBUG >= 2:
+                break
 
         self._end_xml_tag()
 
-    
     def _write_grid(self):
         """
         Writes the RR graph grid.
@@ -597,18 +596,14 @@ class Graph(object):
                 "height_offset": loc.height_offset,
             }
             self._write_xml_tag("grid_loc", attrib)
-            if DEBUG >= 2: break
+            if DEBUG >= 2:
+                break
 
         self._end_xml_tag()
 
-
     def serialize_to_xml(
-        self,
-        channels_obj,
-        connection_box_obj,
-        nodes_obj,
-        edges_obj
-        ):
+            self, channels_obj, connection_box_obj, nodes_obj, edges_obj
+    ):
         """
         Writes the routing graph to the XML file.
         """
@@ -636,7 +631,6 @@ class Graph(object):
 
             # Write footer
             self._end_xml_tag()
-
 
     def add_switch(self, switch):
         """ Add switch into graph model.
