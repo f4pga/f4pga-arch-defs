@@ -3,126 +3,17 @@ from lib.rr_graph import graph2
 from lib.rr_graph.graph2 import NodeDirection
 from lib.rr_graph import tracks
 import lxml.etree as ET
-import contextlib
 
 # Set to True once
 # https://github.com/verilog-to-routing/vtr-verilog-to-routing/compare/c_internal
 # is merged and included in VTR conda.
 VPR_HAS_C_INTERNAL_SUPPORT = True
 
-
-def serialize_nodes(xf, nodes):
-    """ Serialize list of Node objects to XML.
-
-    Note that this method is extremely hot, len(nodes) is order 1-10 million.
-    Almost any modification of this function has a significant effect on
-    performance, so any modification to this function should be tested for
-    performance and correctness before commiting.
-
-    """
-    element = xf.element
-    write = xf.write
-    Element = ET.Element
-    with element('rr_nodes'):
-        for node in nodes:
-            attrib = {
-                'id': str(node.id),
-                'type': node.type.name,
-                'capacity': str(node.capacity),
-            }
-
-            if node.direction != NodeDirection.NO_DIR:
-                attrib['direction'] = node.direction.name
-
-            with element('node', attrib):
-                loc = {
-                    'xlow': str(node.loc.x_low),
-                    'ylow': str(node.loc.y_low),
-                    'xhigh': str(node.loc.x_high),
-                    'yhigh': str(node.loc.y_high),
-                    'ptc': str(node.loc.ptc),
-                }
-
-                if node.loc.side is not None:
-                    loc['side'] = node.loc.side.name
-
-                write(Element('loc', loc))
-
-                if node.timing is not None:
-                    write(
-                        Element(
-                            'timing', {
-                                'R': str(node.timing.r),
-                                'C': str(node.timing.c),
-                            }
-                        )
-                    )
-
-                if node.metadata is not None and len(node.metadata) > 0:
-                    with element('metadata'):
-                        for m in node.metadata:
-                            with element('meta', name=m.name):
-                                write(m.value)
-
-                if node.segment is not None:
-                    write(
-                        Element(
-                            'segment', {
-                                'segment_id': str(node.segment.segment_id),
-                            }
-                        )
-                    )
-
-                if node.connection_box is not None:
-                    write(
-                        Element(
-                            'connection_box', {
-                                'x': str(node.connection_box.x),
-                                'y': str(node.connection_box.y),
-                                'id': str(node.connection_box.id),
-                            }
-                        )
-                    )
-
-                if node.canonical_loc is not None:
-                    write(
-                        Element(
-                            'canonical_loc', {
-                                'x': str(node.canonical_loc.x),
-                                'y': str(node.canonical_loc.y),
-                            }
-                        )
-                    )
-
-
-def serialize_edges(xf, edges):
-    """ Serialize list of edge tuples objects to XML.
-
-    edge tuples are (src_node(int), sink_node(int), switch_id(int), metadata(NodeMetadata)).
-
-    metadata may be None.
-
-    Note that this method is extremely hot, len(edges) is order 5-50 million.
-    Almost any modification of this function has a significant effect on
-    performance, so any modification to this function should be tested for
-    performance and correctness before commiting.
-
-    """
-    element = xf.element
-    write = xf.write
-
-    with element('rr_edges'):
-        for src_node, sink_node, switch_id, metadata in edges:
-            with element('edge', {
-                    'src_node': str(src_node),
-                    'sink_node': str(sink_node),
-                    'switch_id': str(switch_id),
-            }):
-                if metadata is not None and len(metadata) > 0:
-                    with element('metadata'):
-                        for name, value in metadata:
-                            with element('meta', name=name):
-                                write(value)
+# For debugging purposes:
+# 0 - debugging off,
+# 1 - indent output XML,
+# 2 - write only one element of each kind.
+DEBUG = 0
 
 
 def enum_from_string(enum_type, s):
@@ -137,6 +28,7 @@ def iterate_xml(xml_file):
     """
     doc = ET.iterparse(xml_file, events=('start', 'end'))
     _, root = next(doc)
+    yield "", root
     path = root.tag
     for event, element in doc:
         if event == 'start':
@@ -157,6 +49,7 @@ def graph_from_xml(input_file_name, progressbar=None):
     if progressbar is None:
         progressbar = lambda x: x  # noqa: E731
 
+    root_attrib = {}
     switches = []
     segments = []
     block_types = []
@@ -173,6 +66,10 @@ def graph_from_xml(input_file_name, progressbar=None):
     node_timing = None
 
     for path, element in progressbar(iterate_xml(input_file_name)):
+
+        # Root tag
+        if path == "" and element.tag == "rr_graph":
+            root_attrib = dict(element.attrib)
 
         # Switch timing
         if path == "rr_graph/switches/switch" and element.tag == "timing":
@@ -329,6 +226,7 @@ def graph_from_xml(input_file_name, progressbar=None):
             node_timing = None
 
     return dict(
+        root_attrib=root_attrib,
         switches=switches,
         segments=segments,
         block_types=block_types,
@@ -355,6 +253,9 @@ class Graph(object):
         graph_input = graph_from_xml(input_file_name, progressbar)
         graph_input['build_pin_edges'] = build_pin_edges
 
+        self.root_attrib = graph_input["root_attrib"]
+        del graph_input["root_attrib"]
+
         rebase_nodes = []
         for node in graph_input['nodes']:
             node_d = node._asdict()
@@ -366,15 +267,27 @@ class Graph(object):
         self.graph = graph2.Graph(**graph_input)
 
         self.xf = None
-        self.xf_indent = 0
         self.xf_tag = []
 
+        if DEBUG > 0:
+            self._write_xml = self._write_xml_debug
+        else:
+            self._write_xml = self._write_xml_no_debug
 
-    def _write_xml(self, text):
-        self.xf.write(" " * self.xf_indent + text + "\n")
+    def _write_xml_debug(self, text):
+        """
+        Writes to the XML file
+        """
+        self.xf.write(" " * len(self.xf_tag) + text + "\n")
 
+    def _write_xml_no_debug(self, text):
+        self.xf.write(text)
 
     def _begin_xml_tag(self, tag, attrib={}, value=None, term=False):
+        """
+        Writes beginning of an XML tag. If term=True then terminates it
+        immediately.
+        """
         s  = "<{}".format(tag)
         s += "".join([' {}="{}"'.format(k, str(v)) for k, v in attrib.items()])
         if value and term:
@@ -385,32 +298,35 @@ class Graph(object):
 
         if not term:
             self.xf_tag.append(tag)
-            self.xf_indent += 1
 
     def _end_xml_tag(self):
-        assert len(self.xf_tag) and self.xf_indent > 0, \
-            (self.xf_tag, self.xf_indent)
+        """
+        Finishes the current XML tag.
+        """
+        assert len(self.xf_tag)
 
-        self.xf_indent -= 1
-        self._write_xml("</{}>".format(self.xf_tag[-1]))
+        tag = self.xf_tag[-1]
         self.xf_tag = self.xf_tag[:-1]
+        self._write_xml("</{}>".format(tag))
 
     def _write_xml_tag(self, tag, attrib={}, value=None):
+        """
+        A wrapper func. to write a tag and immediately close it
+        """
         self._begin_xml_tag(tag, attrib, value, True)
 
 
-    def _write_xml_header(self, tool_version=None, tool_comment=None):
-        attrib = {"tool_name": "vpr"}
-
-        if tool_version is not None:
-            attrib["tool_version"] = tool_version
-        if tool_comment is not None:
-            attrib["tool_comment"] = tool_comment
-
-        self._begin_xml_tag("rr_graph", attrib)
+    def _write_xml_header(self):
+        """
+        Writes the RR graph XML header.
+        """
+        self._begin_xml_tag("rr_graph", self.root_attrib)
 
 
     def _write_channels(self, channels):
+        """
+        Writes the RR graph channels.
+        """
         self._begin_xml_tag("channels")
 
         attrib = {
@@ -424,12 +340,17 @@ class Graph(object):
 
         for l in channels.x_list:
             self._write_xml_tag("x_list", {"index": l.index, "info": l.info})
+            if DEBUG >= 2: break
         for l in channels.y_list:
             self._write_xml_tag("y_list", {"index": l.index, "info": l.info})
+            if DEBUG >= 2: break
 
         self._end_xml_tag()
 
     def _write_connection_box(self, connection_box):
+        """
+        Writes the RR graph connection box.
+        """
         attrib = {
             "x_dim": connection_box.x_dim,
             "y_dim": connection_box.y_dim,
@@ -440,20 +361,133 @@ class Graph(object):
 
         for idx, box in enumerate(connection_box.boxes):
             self._write_xml_tag("connection_box", {"id": idx, "name": box})
+            if DEBUG >= 2: break
 
         self._end_xml_tag()
 
 
-    def _write_nodes(self):
-        self._begin_xml_tag("nodes")
+    def _write_nodes(self, nodes):
+        """ Serialize list of Node objects to XML.
+
+        Note that this method is extremely hot, len(nodes) is order 1-10 million.
+        Almost any modification of this function has a significant effect on
+        performance, so any modification to this function should be tested for
+        performance and correctness before commiting.
+
+        """
+
+        self._begin_xml_tag("rr_nodes")
+
+        for node in nodes:
+            attrib = {
+                "id": node.id,
+                "type": node.type.name,
+                "capacity": node.capacity
+            }
+
+            if node.direction != NodeDirection.NO_DIR:
+                attrib["direction"] = node.direction.name
+
+            self._begin_xml_tag("node", attrib)
+
+
+            attrib = {
+                "xlow": node.loc.x_low,
+                "xhigh": node.loc.x_high,
+                "ylow": node.loc.y_low,
+                "yhigh": node.loc.y_high,
+                "ptc": node.loc.ptc,
+            }
+
+            if node.loc.side is not None:
+               attrib["side"] = node.loc.side.name
+
+            self._write_xml_tag("loc", attrib)
+
+
+            if node.timing is not None:
+                attrib = {
+                    "R": node.timing.r,
+                    "C": node.timing.c,
+                }
+                self._write_xml_tag("timing", attrib)
+
+            if node.metadata is not None and len(node.metadata) > 0:
+                self._begin_xml_tag("metadata")
+                for m in node.metadata:
+                    self._write_xml_tag("meta", {"name": m.name}, m.value)                    
+
+                self._end_xml_tag()
+          
+            if node.segment is not None:
+                attrib = {
+                    "segment_id": node.segment.segment_id
+                }
+                self._write_xml_tag("segment", attrib)
+
+
+            if node.connection_box is not None:
+                attrib = {
+                    "x": node.connection_box.x,
+                    "y": node.connection_box.y,
+                    "id": node.connection_box.id,
+                }
+                self._write_xml_tag("connection_box", attrib)
+
+
+            if node.canonical_loc is not None:
+                attrib = {
+                    "x": node.canonical_loc.x,
+                    "y": node.canonical_loc.y,
+                }
+                self._write_xml_tag("canonical_loc", attrib)
+
+            self._end_xml_tag()
+            if DEBUG >= 2: break
+
         self._end_xml_tag()
 
-    def _write_edges(self):
-        self._begin_xml_tag("edges")
+
+    def _write_edges(self, edges):
+        """ Serialize list of edge tuples objects to XML.
+
+        edge tuples are (src_node(int), sink_node(int), switch_id(int), metadata(NodeMetadata)).
+
+        metadata may be None.
+
+        Note that this method is extremely hot, len(edges) is order 5-50 million.
+        Almost any modification of this function has a significant effect on
+        performance, so any modification to this function should be tested for
+        performance and correctness before commiting.
+
+        """
+        self._begin_xml_tag("rr_edges")
+
+        for src_node, sink_node, switch_id, metadata in edges:
+            attrib = {
+                "src_node": src_node,
+                "sink_node": sink_node,
+                "switch_id": switch_id,
+            }
+
+            if metadata is not None and len(metadata) > 0:
+                self._begin_xml_tag("edge", attrib)
+                self._begin_xml_tag("metadata")
+                for name, value in metadata:
+                    self._write_xml_tag("meta", {"name": name}, value)
+                self._end_xml_tag()
+                self._end_xml_tag()
+
+            else:
+                self._write_xml_tag("edge", attrib)
+
         self._end_xml_tag()
 
 
     def _write_switches(self):
+        """
+        Writes the RR graph switches.
+        """
         self._begin_xml_tag("switches")
 
         for switch in self.graph.switches:
@@ -469,9 +503,12 @@ class Graph(object):
                     "R": switch.timing.r,
                     "Cin": switch.timing.c_in,
                     "Cout": switch.timing.c_out,
-                    "Cinternal": switch.timing.c_internal,
                     "Tdel": switch.timing.t_del,
                 }
+                
+                if VPR_HAS_C_INTERNAL_SUPPORT:
+                    attrib["Cinternal"] = switch.timing.c_internal 
+
                 self._write_xml_tag("timing", attrib)
 
             if switch.sizing:
@@ -482,10 +519,15 @@ class Graph(object):
                 self._write_xml_tag("sizing", attrib)
 
             self._end_xml_tag()
+            if DEBUG >= 2: break
+
         self._end_xml_tag()
 
 
     def _write_segments(self):
+        """
+        Writes the RR graph segments.
+        """
         self._begin_xml_tag("segments")
 
         for segment in self.graph.segments:
@@ -503,10 +545,15 @@ class Graph(object):
                 self._write_xml_tag("segment", attrib)
 
             self._end_xml_tag()
+            if DEBUG >= 2: break
+
         self._end_xml_tag()
 
 
     def _write_block_types(self):
+        """
+        Writes the RR graph block types.
+        """
         self._begin_xml_tag("block_types")
 
         for blk in self.graph.block_types:
@@ -524,14 +571,21 @@ class Graph(object):
 
                 for pin in pin_class.pin:
                     self._write_xml_tag("pin", {"ptc": pin.ptc}, pin.name)
+                    if DEBUG >= 2: break
 
                 self._end_xml_tag()
+                if DEBUG >= 2: break
+
             self._end_xml_tag()
+            if DEBUG >= 2: break
 
         self._end_xml_tag()
 
     
     def _write_grid(self):
+        """
+        Writes the RR graph grid.
+        """
         self._begin_xml_tag("grid")
 
         for loc in self.graph.grid:
@@ -543,6 +597,7 @@ class Graph(object):
                 "height_offset": loc.height_offset,
             }
             self._write_xml_tag("grid_loc", attrib)
+            if DEBUG >= 2: break
 
         self._end_xml_tag()
 
@@ -551,8 +606,8 @@ class Graph(object):
         self,
         channels_obj,
         connection_box_obj,
-        tool_version=None,
-        tool_comment=None
+        nodes_obj,
+        edges_obj
         ):
         """
         Writes the routing graph to the XML file.
@@ -561,25 +616,23 @@ class Graph(object):
         self.graph.check_ptc()
 
         # Open the file
-        self.output_file_name = "TEST.xml"
         with open(self.output_file_name, "w") as xf:
             self.xf = xf
-            self.xf_indent = 0
             self.xf_tag = []
 
             # Write header
-            self._write_xml_header(tool_version, tool_comment)
+            self._write_xml_header()
 
             self._write_channels(channels_obj)
             self._write_connection_box(connection_box_obj)
-
-            self._write_nodes()
-            self._write_edges()
 
             self._write_switches()
             self._write_segments()
             self._write_block_types()
             self._write_grid()
+
+            self._write_nodes(nodes_obj)
+            self._write_edges(edges_obj)
 
             # Write footer
             self._end_xml_tag()
@@ -600,62 +653,4 @@ class Graph(object):
         # Add to Graph2 data structure
         switch_id = self.graph.add_switch(switch)
 
-#        # Add to XML
-#        switch_xml = ET.SubElement(
-#            self.input_xml.find('switches'), 'switch', {
-#                'id': str(switch_id),
-#                'type': switch.type.name.lower(),
-#                'name': switch.name,
-#            }
-#        )
-#
-#        if switch.timing:
-#            attrib = {
-#                'R': str(switch.timing.r),
-#                'Cin': str(switch.timing.c_in),
-#                'Cout': str(switch.timing.c_out),
-#                'Tdel': str(switch.timing.t_del),
-#            }
-#
-#            if VPR_HAS_C_INTERNAL_SUPPORT:
-#                attrib['Cinternal'] = str(switch.timing.c_internal)
-#
-#            ET.SubElement(switch_xml, 'timing', attrib)
-#
-#        ET.SubElement(
-#            switch_xml, 'sizing', {
-#                'mux_trans_size': str(switch.sizing.mux_trans_size),
-#                'buf_size': str(switch.sizing.buf_size),
-#            }
-#        )
-
         return switch_id
-
-#    def serialize_nodes(self, nodes):
-#        serialize_nodes(self.xf, nodes)
-#
-#    def serialize_edges(self, edges):
-#        serialize_edges(self.xf, edges)
-#
-#    def serialize_to_xml(
-#            self,
-#            tool_version,
-#            tool_comment,
-#            pad_segment,
-#            channels_obj=None,
-#            pool=None
-#    ):
-#        if channels_obj is None:
-#            channels_obj = self.graph.create_channels(
-#                pad_segment=pad_segment,
-#                pool=pool,
-#            )
-#
-#        with self:
-#            self.start_serialize_to_xml(
-#                tool_version=tool_version,
-#                tool_comment=tool_comment,
-#                channels_obj=channels_obj,
-#            )
-#            self.serialize_nodes(self.progressbar(self.graph.nodes))
-#            self.serialize_edges(self.progressbar(self.graph.edges))
