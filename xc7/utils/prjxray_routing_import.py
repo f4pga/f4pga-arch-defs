@@ -283,16 +283,16 @@ def check_feature(feature):
 
         return ' '.join(features)
 
-    m = HCLK_OUT.fullmatch(feature_path[-1])
-    if m:
-        return ' '.join(
-            (
-                feature,
-                find_hclk_cmt_hclk_feature(
-                    feature_path[0], m.group(1), m.group(2)
-                )
-            )
-        )
+#    m = HCLK_OUT.fullmatch(feature_path[-1])
+#    if m:
+#        return ' '.join(
+#            (
+#                feature,
+#                find_hclk_cmt_hclk_feature(
+#                    feature_path[0], m.group(1), m.group(2)
+#                )
+#            )
+#        )
 
     m = CASCOUT_REGEX.fullmatch(feature_path[-2])
     if m:
@@ -521,7 +521,7 @@ def import_tracks(conn, alive_tracks, node_mapping, graph, default_segment_id):
     cur = conn.cursor()
     cur2 = conn.cursor()
     for (graph_node_pkey, track_pkey, graph_node_type, x_low, x_high, y_low,
-         y_high, ptc, capacitance, resistance) in cur.execute("""
+         y_high, ptc, capacitance, resistance) in progressbar_utils.progressbar(cur.execute("""
 SELECT
     pkey,
     track_pkey,
@@ -534,7 +534,7 @@ SELECT
     capacitance,
     resistance
 FROM
-    graph_node WHERE track_pkey IS NOT NULL;"""):
+    graph_node WHERE track_pkey IS NOT NULL;""")):
         if track_pkey not in alive_tracks:
             continue
 
@@ -1020,16 +1020,8 @@ def main():
 
     args = parser.parse_args()
 
-    mem_log = open("mem_trace.log", "w")
-
-    mem_log.write("01: {}\n".format(str(memory_usage())))
-    mem_log.flush()
-
     db = prjxray.db.Database(args.db_root)
     populate_hclk_cmt_tiles(db)
-
-    mem_log.write("02: {}\n".format(str(memory_usage())))
-    mem_log.flush()
 
     synth_tiles = None
     if args.synth_tiles:
@@ -1067,38 +1059,14 @@ def main():
         output_file_name=args.write_rr_graph,
     )
 
-    mem_log.write("03: {}\n".format(str(memory_usage())))
-    mem_log.flush()
-
     graph = xml_graph.graph
 
     if synth_tiles is None:
         synth_tiles = find_constant_network(graph)
 
-    mem_log.write("04: {}\n".format(str(memory_usage())))
-    mem_log.flush()
-
-    tool_version = "version" #input_rr_graph.getroot().attrib['tool_version']
-    tool_comment = "comment" #input_rr_graph.getroot().attrib['tool_comment']
-
-    sql_log = open("sql_trace.log", "w")
-    sql_t0  = time.time()
-
-    def sql_trace(query):
-        line = "[{}] {}\n".format(time.time() - sql_t0, query)
-        sql_log.write(line)
-        sql_log.flush()
-
     with DatabaseCache(args.connection_database, True) as conn:
-        conn.set_trace_callback(sql_trace)
-
-        mem_log.write("05: {}\n".format(str(memory_usage())))
-        mem_log.flush()
 
         populate_bufg_rebuf_map(conn)
-
-        mem_log.write("06: {}\n".format(str(memory_usage())))
-        mem_log.flush()
 
         cur = conn.cursor()
         for name, internal_capacitance, drive_resistance, intrinsic_delay, \
@@ -1144,21 +1112,12 @@ FROM
         # Mapping of graph_node.pkey to rr node id.
         node_mapping = {}
 
-        mem_log.write("06: {}\n".format(str(memory_usage())))
-        mem_log.flush()
-
         print('{} Creating connection box list'.format(now()))
         connection_box_map = create_connection_boxes(conn, graph)
-
-        mem_log.write("07: {}\n".format(str(memory_usage())))
-        mem_log.flush()
 
         # Match site pins rr nodes with graph_node's in the connection_database.
         print('{} Importing graph nodes'.format(now()))
         import_graph_nodes(conn, graph, node_mapping, connection_box_map)
-
-        mem_log.write("08: {}\n".format(str(memory_usage())))
-        mem_log.flush()
 
         # Walk all track graph nodes and add them.
         print('{} Creating tracks'.format(now()))
@@ -1166,9 +1125,6 @@ FROM
         create_track_rr_graph(
             conn, graph, node_mapping, use_roi, roi, synth_tiles, segment_id
         )
-
-        mem_log.write("09: {}\n".format(str(memory_usage())))
-        mem_log.flush()
 
         # Set of (src, sink, switch_id) tuples that pip edges have been sent to
         # VPR.  VPR cannot handle duplicate paths with the same switch id.
@@ -1179,9 +1135,6 @@ FROM
         print('{} Creating channels.'.format(now()))
         channels_obj = create_channels(conn)
 
-        mem_log.write("10: {}\n".format(str(memory_usage())))
-        mem_log.flush()
-
         x_dim, y_dim = phy_grid_dims(conn)
         connection_box_obj = graph.create_connection_box_object(
             x_dim=x_dim, y_dim=y_dim
@@ -1191,33 +1144,14 @@ FROM
         xml_graph.serialize_to_xml(
                 channels_obj=channels_obj,
                 connection_box_obj=connection_box_obj,
-                tool_version=tool_version,
-                tool_comment=tool_comment,
+                nodes_obj=yield_nodes(xml_graph.graph.nodes),
+                edges_obj=import_graph_edges(conn, graph, node_mapping),
         )
-
-#        with xml_graph:
-#            xml_graph.start_serialize_to_xml(
-#                tool_version=tool_version,
-#                tool_comment=tool_comment,
-#                channels_obj=channels_obj,
-#                connection_box_obj=connection_box_obj,
-#            )
-#
-#            xml_graph.serialize_nodes(yield_nodes(xml_graph.graph.nodes))
-#            xml_graph.serialize_edges(
-#                import_graph_edges(conn, graph, node_mapping)
-#            )
-
-        mem_log.write("11: {}\n".format(str(memory_usage())))
-        mem_log.flush()
 
         print('{} Writing node map.'.format(now()))
         with open(args.write_rr_node_map, 'wb') as f:
             pickle.dump(node_mapping, f)
         print('{} Done writing node map.'.format(now()))
-
-    # To make it stop
-    exit(-1)
 
 if __name__ == '__main__':
     main()
