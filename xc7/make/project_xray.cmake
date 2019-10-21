@@ -188,9 +188,6 @@ function(PROJECT_XRAY_TILE)
   list(APPEND EQUIVALENT_SITES_INCLUDE_FILES ${symbiflow-arch-defs_SOURCE_DIR}/xc7/archs/${PART}/tiles/${TILE}/${TILE}.pb_type.xml)
 
   string(REPLACE ";" "," EQUIVALENT_SITES_COMMA "${PROJECT_XRAY_TILE_EQUIVALENT_SITES}")
-  add_file_target(FILE ${TILE}.tile.xml GENERATED)
-  get_file_target(TILE_TARGET ${TILE}.tile.xml)
-  set_target_properties(${TILE_TARGET} PROPERTIES INCLUDE_FILES "${EQUIVALENT_SITES_INCLUDE_FILES}")
 
   add_custom_command(
     OUTPUT ${TILE}.tile.xml
@@ -209,6 +206,10 @@ function(PROJECT_XRAY_TILE)
       ${TILES_DEPS}
       ${PYTHON3} ${PYTHON3_TARGET} simplejson
     )
+
+  add_file_target(FILE ${TILE}.tile.xml GENERATED)
+  get_file_target(TILE_TARGET ${TILE}.tile.xml)
+  set_target_properties(${TILE_TARGET} PROPERTIES INCLUDE_FILES "${EQUIVALENT_SITES_INCLUDE_FILES}")
 endfunction()
 
 function(PROJECT_XRAY_ARCH)
