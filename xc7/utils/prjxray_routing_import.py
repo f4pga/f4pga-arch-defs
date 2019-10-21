@@ -285,16 +285,16 @@ def check_feature(feature):
 
         return ' '.join(features)
 
-#    m = HCLK_OUT.fullmatch(feature_path[-1])
-#    if m:
-#        return ' '.join(
-#            (
-#                feature,
-#                find_hclk_cmt_hclk_feature(
-#                    feature_path[0], m.group(1), m.group(2)
-#                )
-#            )
-#        )
+    m = HCLK_OUT.fullmatch(feature_path[-1])
+    if m:
+        return ' '.join(
+            (
+                feature,
+                find_hclk_cmt_hclk_feature(
+                    feature_path[0], m.group(1), m.group(2)
+                )
+            )
+        )
 
     m = CASCOUT_REGEX.fullmatch(feature_path[-2])
     if m:
