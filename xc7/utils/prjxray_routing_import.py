@@ -523,7 +523,8 @@ def import_tracks(conn, alive_tracks, node_mapping, graph, default_segment_id):
     cur = conn.cursor()
     cur2 = conn.cursor()
     for (graph_node_pkey, track_pkey, graph_node_type, x_low, x_high, y_low,
-         y_high, ptc, capacitance, resistance) in progressbar_utils.progressbar(cur.execute("""
+         y_high, ptc, capacitance,
+         resistance) in progressbar_utils.progressbar(cur.execute("""
 SELECT
     pkey,
     track_pkey,
@@ -983,7 +984,7 @@ def memory_usage():
             parts = line.split()
             key = parts[0][2:-1].lower()
             if key in result:
-                result[key] = int(parts[1]) / (1024*1024)
+                result[key] = int(parts[1]) / (1024 * 1024)
     finally:
         if status is not None:
             status.close()
@@ -1060,7 +1061,7 @@ def main():
         synth_tiles = None
 
     memlog.checkpoint("Synth tiles read")
-    
+
     xml_graph = xml_graph2.Graph(
         input_file_name=args.read_rr_graph,
         progressbar=progressbar_utils.progressbar,
@@ -1074,8 +1075,10 @@ def main():
     if synth_tiles is None:
         synth_tiles = find_constant_network(graph)
 
+
 #    with DatabaseCache(args.connection_database, True) as conn:
-    with sqlite3.connect("file:{}?mode=ro".format(args.connection_database), uri=True) as conn:
+    with sqlite3.connect("file:{}?mode=ro".format(args.connection_database),
+                         uri=True) as conn:
 
         memlog.checkpoint("Connected to the SQL db")
 
@@ -1161,10 +1164,10 @@ FROM
 
         print('{} Serializing to disk.'.format(now()))
         xml_graph.serialize_to_xml(
-                channels_obj=channels_obj,
-                connection_box_obj=connection_box_obj,
-                nodes_obj=yield_nodes(xml_graph.graph.nodes),
-                edges_obj=import_graph_edges(conn, graph, node_mapping),
+            channels_obj=channels_obj,
+            connection_box_obj=connection_box_obj,
+            nodes_obj=yield_nodes(xml_graph.graph.nodes),
+            edges_obj=import_graph_edges(conn, graph, node_mapping),
         )
         memlog.checkpoint("Graph written to disk")
 

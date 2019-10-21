@@ -24,7 +24,7 @@ def get_memory_usage():
             parts = line.split()
             key = parts[0][2:-1].lower()
             if key in result:
-                result[key] = int(parts[1]) / (1024*1024)
+                result[key] = int(parts[1]) / (1024 * 1024)
 
     finally:
 
@@ -56,5 +56,8 @@ class MemoryLog(object):
 
     def checkpoint(self, label):
         mem = get_memory_usage()
-        self._write("{:.1f}, {}, {:.2f}, {:.2f}\n".format(time.time() - self.t0, label, mem["peak"], mem["rss"]))
-
+        self._write(
+            "{:.1f}, {}, {:.2f}, {:.2f}\n".format(
+                time.time() - self.t0, label, mem["peak"], mem["rss"]
+            )
+        )
