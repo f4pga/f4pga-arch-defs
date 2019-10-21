@@ -38,7 +38,9 @@ import functools
 import pickle
 import time
 
-from prjxray_db_cache import DatabaseCache
+from lib.perf_utils import MemoryLog
+#from prjxray_db_cache import DatabaseCache
+import sqlite3
 
 now = datetime.datetime.now
 
@@ -1020,6 +1022,10 @@ def main():
 
     args = parser.parse_args()
 
+    # Initialize the memory log
+    memlog = MemoryLog(args.write_rr_graph + ".memory.log")
+    memlog.checkpoint("Initial")
+
     db = prjxray.db.Database(args.db_root)
     populate_hclk_cmt_tiles(db)
 
@@ -1052,6 +1058,8 @@ def main():
         use_roi = False
         roi = None
         synth_tiles = None
+
+    memlog.checkpoint("Synth tiles read")
     
     xml_graph = xml_graph2.Graph(
         input_file_name=args.read_rr_graph,
@@ -1059,12 +1067,17 @@ def main():
         output_file_name=args.write_rr_graph,
     )
 
+    memlog.checkpoint("Graph loaded")
+
     graph = xml_graph.graph
 
     if synth_tiles is None:
         synth_tiles = find_constant_network(graph)
 
-    with DatabaseCache(args.connection_database, True) as conn:
+#    with DatabaseCache(args.connection_database, True) as conn:
+    with sqlite3.connect("file:{}?mode=ro".format(args.connection_database), uri=True) as conn:
+
+        memlog.checkpoint("Connected to the SQL db")
 
         populate_bufg_rebuf_map(conn)
 
@@ -1114,10 +1127,12 @@ FROM
 
         print('{} Creating connection box list'.format(now()))
         connection_box_map = create_connection_boxes(conn, graph)
+        memlog.checkpoint("Connection box list created")
 
         # Match site pins rr nodes with graph_node's in the connection_database.
         print('{} Importing graph nodes'.format(now()))
         import_graph_nodes(conn, graph, node_mapping, connection_box_map)
+        memlog.checkpoint("Graph nodes imported")
 
         # Walk all track graph nodes and add them.
         print('{} Creating tracks'.format(now()))
@@ -1125,20 +1140,24 @@ FROM
         create_track_rr_graph(
             conn, graph, node_mapping, use_roi, roi, synth_tiles, segment_id
         )
+        memlog.checkpoint("Tracks created")
 
         # Set of (src, sink, switch_id) tuples that pip edges have been sent to
         # VPR.  VPR cannot handle duplicate paths with the same switch id.
         if use_roi:
             print('{} Adding synthetic edges'.format(now()))
             add_synthetic_edges(conn, graph, node_mapping, grid, synth_tiles)
+            memlog.checkpoint("Synthetic edges added")
 
         print('{} Creating channels.'.format(now()))
         channels_obj = create_channels(conn)
+        memlog.checkpoint("Channels created")
 
         x_dim, y_dim = phy_grid_dims(conn)
         connection_box_obj = graph.create_connection_box_object(
             x_dim=x_dim, y_dim=y_dim
         )
+        memlog.checkpoint("Connection box obj. created")
 
         print('{} Serializing to disk.'.format(now()))
         xml_graph.serialize_to_xml(
@@ -1147,11 +1166,13 @@ FROM
                 nodes_obj=yield_nodes(xml_graph.graph.nodes),
                 edges_obj=import_graph_edges(conn, graph, node_mapping),
         )
+        memlog.checkpoint("Graph written to disk")
 
         print('{} Writing node map.'.format(now()))
         with open(args.write_rr_node_map, 'wb') as f:
             pickle.dump(node_mapping, f)
         print('{} Done writing node map.'.format(now()))
+        memlog.checkpoint("Node map written to disk")
 
 if __name__ == '__main__':
     main()
