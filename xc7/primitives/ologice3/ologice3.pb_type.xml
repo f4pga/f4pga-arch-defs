@@ -50,6 +50,107 @@
       </direct>
     </interconnect>
   </mode>
+  <mode name="OSERDES">
+    <pb_type name="OSERDESE2" blif_model=".subckt OSERDESE2_VPR" num_pb="1">
+      <input name="CLK" num_pins="1"/>
+      <input name="CLKDIV" num_pins="1"/>
+      <input name="D1" num_pins="1"/>
+      <input name="D2" num_pins="1"/>
+      <input name="D3" num_pins="1"/>
+      <input name="D4" num_pins="1"/>
+      <input name="D5" num_pins="1"/>
+      <input name="D6" num_pins="1"/>
+      <input name="D7" num_pins="1"/>
+      <input name="D8" num_pins="1"/>
+      <output name="IOCLKGLITCH" num_pins="1"/>
+      <input name="OCE" num_pins="1"/>
+      <output name="OFB" num_pins="1"/>
+      <output name="OQ" num_pins="1"/>
+      <output name="SHIFTOUT1" num_pins="1"/>
+      <output name="SHIFTOUT2" num_pins="1"/>
+      <input name="SR" num_pins="1"/>
+      <input name="T1" num_pins="1"/>
+      <input name="T2" num_pins="1"/>
+      <input name="T3" num_pins="1"/>
+      <input name="T4" num_pins="1"/>
+      <input name="TBYTEIN" num_pins="1"/>
+      <output name="TBYTEOUT" num_pins="1"/>
+      <input name="TCE" num_pins="1"/>
+      <output name="TFB" num_pins="1"/>
+      <output name="TQ" num_pins="1"/>
+      <input name="SHIFTIN1" num_pins="1"/>
+      <input name="SHIFTIN2" num_pins="1"/>
+      <metadata>
+        <meta name="fasm_features">
+          IN_USE
+        </meta>
+        <meta name="fasm_params">
+          SERDES_MODE.SLAVE = SERDES_MODE_SLAVE
+
+          TRISTATE_WIDTH.W4 = TRISTATE_WIDTH_W4
+
+          DATA_RATE_OQ.DDR = DATA_RATE_OQ_DDR
+          DATA_RATE_OQ.SDR = DATA_RATE_OQ_SDR
+          DATA_RATE_TQ.BUF = DATA_RATE_TQ_BUF
+          DATA_RATE_TQ.DDR = DATA_RATE_TQ_DDR
+          DATA_RATE_TQ.SDR = DATA_RATE_TQ_SDR
+
+          DATA_WIDTH.DDR.W6_8 = DATA_WIDTH_DDR_W6_8
+          DATA_WIDTH.SDR.W2_4_5_6 = DATA_WIDTH_SDR_W2_4_5_6
+
+          DATA_WIDTH.W2 = DATA_WIDTH_W2
+          DATA_WIDTH.W3 = DATA_WIDTH_W3
+          DATA_WIDTH.W4 = DATA_WIDTH_W4
+          DATA_WIDTH.W5 = DATA_WIDTH_W5
+          DATA_WIDTH.W6 = DATA_WIDTH_W6
+          DATA_WIDTH.W7 = DATA_WIDTH_W7
+          DATA_WIDTH.W8 = DATA_WIDTH_W8
+        </meta>
+      </metadata>
+    </pb_type>
+    <interconnect>
+      <direct name="CLK" input="OLOGICE3.CLK" output="OSERDESE2.CLK" />
+      <direct name="CLKDIV" input="OLOGICE3.CLKDIV" output="OSERDESE2.CLKDIV" />
+      <direct name="D1" input="OLOGICE3.D1" output="OSERDESE2.D1" />
+      <direct name="D2" input="OLOGICE3.D2" output="OSERDESE2.D2" />
+      <direct name="D3" input="OLOGICE3.D3" output="OSERDESE2.D3" />
+      <direct name="D4" input="OLOGICE3.D4" output="OSERDESE2.D4" />
+      <direct name="D5" input="OLOGICE3.D5" output="OSERDESE2.D5" />
+      <direct name="D6" input="OLOGICE3.D6" output="OSERDESE2.D6" />
+      <direct name="D7" input="OLOGICE3.D7" output="OSERDESE2.D7" />
+      <direct name="D8" input="OLOGICE3.D8" output="OSERDESE2.D8" />
+      <direct name="IOCLKGLITCH" input="OSERDESE2.IOCLKGLITCH" output="OLOGICE3.IOCLKGLITCH" />
+      <direct name="OCE" input="OLOGICE3.OCE" output="OSERDESE2.OCE" />
+      <direct name="OFB" input="OSERDESE2.OFB" output="OLOGICE3.OFB" />
+      <direct name="OQ" input="OSERDESE2.OQ" output="OLOGICE3.OQ" />
+      <direct name="SHIFTOUT1" input="OSERDESE2.SHIFTOUT1" output="OLOGICE3.SHIFTOUT1" />
+      <direct name="SHIFTOUT2" input="OSERDESE2.SHIFTOUT2" output="OLOGICE3.SHIFTOUT2" />
+      <direct name="SR" input="OLOGICE3.SR" output="OSERDESE2.SR" />
+      <direct name="T1" input="OLOGICE3.T1" output="OSERDESE2.T1" />
+      <direct name="T2" input="OLOGICE3.T2" output="OSERDESE2.T2" />
+      <direct name="T3" input="OLOGICE3.T3" output="OSERDESE2.T3" />
+      <direct name="T4" input="OLOGICE3.T4" output="OSERDESE2.T4" />
+      <direct name="TBYTEIN" input="OLOGICE3.TBYTEIN" output="OSERDESE2.TBYTEIN" />
+      <direct name="TBYTEOUT" input="OSERDESE2.TBYTEOUT" output="OLOGICE3.TBYTEOUT" />
+      <direct name="TCE" input="OLOGICE3.TCE" output="OSERDESE2.TCE" />
+      <direct name="TFB" input="OSERDESE2.TFB" output="OLOGICE3.TFB" />
+      <direct name="TQ" input="OSERDESE2.TQ" output="OLOGICE3.TQ" />
+      <direct name="SHIFTIN1" input="OLOGICE3.SHIFTIN1" output="OSERDESE2.SHIFTIN1" />
+      <direct name="SHIFTIN2" input="OLOGICE3.SHIFTIN2" output="OSERDESE2.SHIFTIN2" />
+    </interconnect>
+  </mode>
+  <!--
+  <mode name="ODDR">
+    <pb_type name="ODDR" blif_model=".subckt ODDR" num_pb="1">
+      <output name="Q" num_pins="1"/>
+      <input name="C" num_pins="1"/>
+      <input name="CE" num_pins="1"/>
+      <input name="D1" num_pins="1"/>
+      <input name="D2" num_pins="1"/>
+      <input name="SR" num_pins="1"/>
+    </pb_type>
+  </mode>
+  -->
   <!-- TODO
        - other modes
        - BELs

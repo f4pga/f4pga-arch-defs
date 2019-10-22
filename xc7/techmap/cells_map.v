@@ -1934,6 +1934,178 @@ module IOBUF (
 endmodule
 
 // ============================================================================
+// I/OSERDES
+
+module OSERDESE2 (
+  input CLK,
+  input CLKDIV,
+  input D1,
+  input D2,
+  input D3,
+  input D4,
+  input D5,
+  input D6,
+  input D7,
+  input D8,
+  input OCE,
+  input RST,
+  input SHIFTIN1,
+  input SHIFTIN2,
+  input T1,
+  input T2,
+  input T3,
+  input T4,
+  input TBYTEIN,
+  input TCE,
+  output OFB,
+  output OQ,
+  output SHIFTOUT1,
+  output SHIFTOUT2,
+  output TBYTEOUT,
+  output TFB,
+  output TQ
+  );
+
+  parameter DATA_RATE_OQ = "DDR";
+  parameter DATA_RATE_TQ = "DDR";
+  parameter DATA_WIDTH = 4;
+  parameter SERDES_MODE = "MASTER";
+  parameter TRISTATE_WIDTH = 4;
+
+  parameter [0:0] IS_D1_INVERTED = 1'b0;
+  parameter [0:0] IS_D2_INVERTED = 1'b0;
+  parameter [0:0] IS_D3_INVERTED = 1'b0;
+  parameter [0:0] IS_D4_INVERTED = 1'b0;
+  parameter [0:0] IS_D5_INVERTED = 1'b0;
+  parameter [0:0] IS_D6_INVERTED = 1'b0;
+  parameter [0:0] IS_D7_INVERTED = 1'b0;
+  parameter [0:0] IS_D8_INVERTED = 1'b0;
+  parameter [0:0] IS_CLKDIV_INVERTED = 1'b0;
+
+  parameter [0:0] IS_CLK_INVERTED = 1'b0;
+  parameter [0:0] IS_T1_INVERTED = 1'b0;
+  parameter [0:0] IS_T2_INVERTED = 1'b0;
+  parameter [0:0] IS_T3_INVERTED = 1'b0;
+  parameter [0:0] IS_T4_INVERTED = 1'b0;
+
+  if (DATA_RATE_OQ == "DDR" &&
+      !(DATA_WIDTH == 2 || DATA_WIDTH == 4 ||
+        DATA_WIDTH == 6 || DATA_WIDTH == 8)) begin
+    wire TECHMAP_FAIL = 1'b1;
+  end
+
+  if (DATA_RATE_OQ == "SDR" &&
+      !(DATA_WIDTH >= 2 || DATA_WIDTH <= 8)) begin
+    wire TECHMAP_FAIL = 1'b1;
+  end
+
+  if ((DATA_RATE_TQ == "SDR" || DATA_RATE_TQ == "BUF") &&
+      TRISTATE_WIDTH != 1) begin
+    wire TECHMAP_FAIL = 1'b1;
+  end
+
+  if (DATA_RATE_OQ == "SDR" && DATA_RATE_TQ == "DDR") begin
+    wire TECHMAP_FAIL = 1'b1;
+  end
+
+  if (TRISTATE_WIDTH != 1 && TRISTATE_WIDTH != 4) begin
+    wire TECHMAP_FAIL = 1'b1;
+  end
+
+  localparam [0:0] SERDES_MODE_SLAVE = SERDES_MODE == "SLAVE" ? 1'b1 : 1'b0;
+
+  localparam [0:0] TRISTATE_WIDTH_W4 = TRISTATE_WIDTH != 4 ? 1'b1 : 1'b0;
+
+  localparam [0:0] DATA_RATE_OQ_DDR = DATA_RATE_OQ == "DDR" ? 1'b1 : 1'b0;
+  localparam [0:0] DATA_RATE_OQ_SDR = DATA_RATE_OQ == "SDR" ? 1'b1 : 1'b0;
+  localparam [0:0] DATA_RATE_TQ_BUF = DATA_RATE_TQ == "BUF" ? 1'b1 : 1'b0;
+  localparam [0:0] DATA_RATE_TQ_DDR = DATA_RATE_TQ == "DDR" ? 1'b1 : 1'b0;
+  localparam [0:0] DATA_RATE_TQ_SDR = DATA_RATE_TQ == "SDR" ? 1'b1 : 1'b0;
+
+  localparam [0:0] DATA_WIDTH_DDR_W6_8 = DATA_RATE_OQ == "DDR" && (DATA_WIDTH == 6 || DATA_WIDTH == 8) ? 1'b1 : 1'b0;
+  localparam [0:0] DATA_WIDTH_SDR_W2_4_5_6 = DATA_RATE_OQ == "SDR" &&
+                                             (DATA_WIDTH == 2 || DATA_WIDTH == 4 ||
+                                              DATA_WIDTH == 5 || DATA_WIDTH == 6) ? 1'b1 : 1'b0;
+
+  localparam [0:0] DATA_WIDTH_W2 = DATA_WIDTH == 2 ? 1'b1 : 1'b0;
+  localparam [0:0] DATA_WIDTH_W3 = DATA_WIDTH == 3 ? 1'b1 : 1'b0;
+  localparam [0:0] DATA_WIDTH_W4 = DATA_WIDTH == 4 ? 1'b1 : 1'b0;
+  localparam [0:0] DATA_WIDTH_W5 = DATA_WIDTH == 5 ? 1'b1 : 1'b0;
+  localparam [0:0] DATA_WIDTH_W6 = DATA_WIDTH == 6 ? 1'b1 : 1'b0;
+  localparam [0:0] DATA_WIDTH_W7 = DATA_WIDTH == 7 ? 1'b1 : 1'b0;
+  localparam [0:0] DATA_WIDTH_W8 = DATA_WIDTH == 8 ? 1'b1 : 1'b0;
+
+  // Inverter parameters
+  localparam [0:0] ZINV_CLK = 1'b0;
+  localparam [0:0] ZINV_T1 = 1'b0;
+  localparam [0:0] ZINV_T2 = 1'b0;
+  localparam [0:0] ZINV_T3 = 1'b0;
+  localparam [0:0] ZINV_T4 = 1'b0;
+
+  OSERDESE2_VPR #(
+      .SERDES_MODE_SLAVE(SERDES_MODE_SLAVE),
+      .TRISTATE_WIDTH_W4(TRISTATE_WIDTH_W4),
+      .DATA_RATE_OQ_DDR(DATA_RATE_OQ_DDR),
+      .DATA_RATE_OQ_SDR(DATA_RATE_OQ_SDR),
+      .DATA_RATE_TQ_BUF(DATA_RATE_TQ_BUF),
+      .DATA_RATE_TQ_DDR(DATA_RATE_TQ_DDR),
+      .DATA_RATE_TQ_SDR(DATA_RATE_TQ_SDR),
+      .DATA_WIDTH_DDR_W6_8(DATA_WIDTH_DDR_W6_8),
+      .DATA_WIDTH_SDR_W2_4_5_6(DATA_WIDTH_SDR_W2_4_5_6),
+      .DATA_WIDTH_W2(DATA_WIDTH_W2),
+      .DATA_WIDTH_W3(DATA_WIDTH_W3),
+      .DATA_WIDTH_W4(DATA_WIDTH_W4),
+      .DATA_WIDTH_W5(DATA_WIDTH_W5),
+      .DATA_WIDTH_W6(DATA_WIDTH_W6),
+      .DATA_WIDTH_W7(DATA_WIDTH_W7),
+      .DATA_WIDTH_W8(DATA_WIDTH_W8),
+      .IS_CLKDIV_INVERTED(IS_CLKDIV_INVERTED),
+      .IS_D1_INVERTED(IS_D1_INVERTED),
+      .IS_D2_INVERTED(IS_D2_INVERTED),
+      .IS_D3_INVERTED(IS_D3_INVERTED),
+      .IS_D4_INVERTED(IS_D4_INVERTED),
+      .IS_D5_INVERTED(IS_D5_INVERTED),
+      .IS_D6_INVERTED(IS_D6_INVERTED),
+      .IS_D7_INVERTED(IS_D7_INVERTED),
+      .IS_D8_INVERTED(IS_D8_INVERTED),
+      .ZINV_CLK(ZINV_CLK),
+      .ZINV_T1(ZINV_T1),
+      .ZINV_T2(ZINV_T2),
+      .ZINV_T3(ZINV_T3),
+      .ZINV_T4(ZINV_T4)
+  ) _TECHMAP_REPLACE_ (
+    .CLK(CLK),
+    .CLKDIV(CLKDIV),
+    .D1(D1),
+    .D2(D2),
+    .D3(D3),
+    .D4(D4),
+    .D5(D5),
+    .D6(D6),
+    .D7(D7),
+    .D8(D8),
+    .OCE(OCE),
+    .RST(RST),
+    .SHIFTIN1(SHIFTIN1),
+    .SHIFTIN2(SHIFTIN2),
+    .T1(T1),
+    .T2(T2),
+    .T3(T3),
+    .T4(T4),
+    .TBYTEIN(TBYTEIN),
+    .TCE(TCE),
+    .OFB(OFB),
+    .OQ(OQ),
+    .SHIFTOUT1(SHIFTOUT1),
+    .SHIFTOUT2(SHIFTOUT2),
+    .TBYTEOUT(TBYTEOUT),
+    .TFB(TFB),
+    .TQ(TQ)
+  );
+
+endmodule
+
+// ============================================================================
 // Clock Buffers
 
 module BUFG (
