@@ -1,0 +1,40 @@
+<!-- Model of BUFR group in HCLK_IOI3 -->
+<pb_type name="BUFR{N}" num_pb="1" xmlns:xi="http://www.w3.org/2001/XInclude">
+  <clock name="I" num_pins="1"/>
+  <input name="CLR" num_pins="1"/>
+  <input name="CE" num_pins="1"/>
+  <output name="O" num_pins="1"/>
+
+  <pb_type name="BUFR_VPR" blif_model=".subckt BUFR_VPR" num_pb="1">
+    <clock name="I" num_pins="1"/>
+    <input name="CLR" num_pins="1"/>
+    <input name="CE" num_pins="1"/>
+    <output name="O" num_pins="1"/>
+
+    <interconnect>
+      <direct name="I" input="BUFR{N}.I" output="BUFR_VPR.I"/>
+      <direct name="CLR" input="BUFR{N}.CLR" output="BUFR_VPR.CLR"/>
+      <direct name="CE" input="BUFR{N}.CE" output="BUFR_VPR.CE"/>
+      <direct name="O" input="BUFR_VPR.O" output="BUFR{N}.O"/>
+    </interconnect>
+
+    <metadata>
+      <meta name="fasm_features">
+        IN_USE
+      </meta>
+      <meta name="fasm_params">
+        BUFR_DIVIDE.BYPASS = DIVIDE_BYPASS
+        BUFR_DIVIDE.D1 = DIVIDE_D1
+        BUFR_DIVIDE.D2 = DIVIDE_D2
+        BUFR_DIVIDE.D3 = DIVIDE_D3
+        BUFR_DIVIDE.D4 = DIVIDE_D4
+        BUFR_DIVIDE.D5 = DIVIDE_D5
+        BUFR_DIVIDE.D6 = DIVIDE_D6
+        BUFR_DIVIDE.D7 = DIVIDE_D7
+        BUFR_DIVIDE.D8 = DIVIDE_D8
+      </meta>
+    </metadata>
+
+  </pb_type>
+
+</pb_type>
