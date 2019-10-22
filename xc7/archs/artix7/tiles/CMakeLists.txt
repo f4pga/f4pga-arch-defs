@@ -4,6 +4,7 @@ add_subdirectory(slicel)
 add_subdirectory(slicem)
 add_subdirectory(clk_bufg_top_r)
 add_subdirectory(clk_bufg_bot_r)
+add_subdirectory(hclk_ioi3)
 
 # TODO: Those two should be made equivalent I think.
 add_subdirectory(cmt_top_r_upper_t)

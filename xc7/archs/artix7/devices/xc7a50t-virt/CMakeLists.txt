@@ -15,6 +15,7 @@ add_xc7_device_define_type(
     CMT_TOP_L_UPPER_T
     CMT_TOP_R_UPPER_T
     CLK_BUFG_TOP_R
+    HCLK_IOI3
   PB_TYPES
     SLICEL
     SLICEM
@@ -26,4 +27,7 @@ add_xc7_device_define_type(
     CMT_TOP_L_UPPER_T
     CMT_TOP_R_UPPER_T
     CLK_BUFG_TOP_R
+    HCLK_IOI3
+  NAME basys3-x1y0
+  PART xc7a35tcpg236-1
 )
