@@ -37,7 +37,7 @@ import re
 import functools
 import pickle
 
-from prjxray_db_cache import DatabaseCache
+import sqlite3
 
 now = datetime.datetime.now
 
@@ -520,7 +520,8 @@ def import_tracks(conn, alive_tracks, node_mapping, graph, default_segment_id):
     cur = conn.cursor()
     cur2 = conn.cursor()
     for (graph_node_pkey, track_pkey, graph_node_type, x_low, x_high, y_low,
-         y_high, ptc, capacitance, resistance) in cur.execute("""
+         y_high, ptc, capacitance,
+         resistance) in progressbar_utils.progressbar(cur.execute("""
 SELECT
     pkey,
     track_pkey,
@@ -533,7 +534,7 @@ SELECT
     capacitance,
     resistance
 FROM
-    graph_node WHERE track_pkey IS NOT NULL;"""):
+    graph_node WHERE track_pkey IS NOT NULL;""")):
         if track_pkey not in alive_tracks:
             continue
 
@@ -898,7 +899,7 @@ def phy_grid_dims(conn):
     return x_max + 1, y_max + 1
 
 
-def find_constant_network(input_rr_graph):
+def find_constant_network(graph):
     """ Find VCC and GND tiles and create synth_tiles input.
 
     All arches should have these synthetic tiles, search the input rr graph
@@ -907,8 +908,8 @@ def find_constant_network(input_rr_graph):
     """
     block_types = {}
 
-    for elem in input_rr_graph.iter('block_type'):
-        block_types[elem.attrib['name']] = elem.attrib['id']
+    for block_type in graph.block_types:
+        block_types[block_type.name] = block_type.id
 
     assert 'SYN-GND' in block_types
     assert 'SYN-VCC' in block_types
@@ -919,14 +920,14 @@ def find_constant_network(input_rr_graph):
     gnd_loc = None
     vcc_loc = None
 
-    for elem in input_rr_graph.iter('grid_loc'):
-        if gnd_block_id == elem.attrib['block_type_id']:
+    for grid_loc in graph.grid:
+        if gnd_block_id == grid_loc.block_type_id:
             assert gnd_loc is None
-            gnd_loc = (int(elem.attrib['x']), int(elem.attrib['y']))
+            gnd_loc = (grid_loc.x, grid_loc.y)
 
-        if vcc_block_id == elem.attrib['block_type_id']:
+        if vcc_block_id == grid_loc.block_type_id:
             assert vcc_loc is None
-            vcc_loc = (int(elem.attrib['x']), int(elem.attrib['y']))
+            vcc_loc = (grid_loc.x, grid_loc.y)
 
     assert gnd_loc is not None
     assert vcc_loc is not None
@@ -1033,24 +1034,20 @@ def main():
         roi = None
         synth_tiles = None
 
-    # Convert input rr graph into graph2.Graph object.
-    input_rr_graph = read_xml_file(args.read_rr_graph)
-
-    if synth_tiles is None:
-        synth_tiles = find_constant_network(input_rr_graph)
-
     xml_graph = xml_graph2.Graph(
-        input_rr_graph,
+        input_file_name=args.read_rr_graph,
         progressbar=progressbar_utils.progressbar,
         output_file_name=args.write_rr_graph,
     )
 
     graph = xml_graph.graph
 
-    tool_version = input_rr_graph.getroot().attrib['tool_version']
-    tool_comment = input_rr_graph.getroot().attrib['tool_comment']
+    if synth_tiles is None:
+        synth_tiles = find_constant_network(graph)
 
-    with DatabaseCache(args.connection_database, True) as conn:
+    with sqlite3.connect("file:{}?mode=ro".format(args.connection_database),
+                         uri=True) as conn:
+
         populate_bufg_rebuf_map(conn)
 
         cur = conn.cursor()
@@ -1125,18 +1122,12 @@ FROM
         )
 
         print('{} Serializing to disk.'.format(now()))
-        with xml_graph:
-            xml_graph.start_serialize_to_xml(
-                tool_version=tool_version,
-                tool_comment=tool_comment,
-                channels_obj=channels_obj,
-                connection_box_obj=connection_box_obj,
-            )
-
-            xml_graph.serialize_nodes(yield_nodes(xml_graph.graph.nodes))
-            xml_graph.serialize_edges(
-                import_graph_edges(conn, graph, node_mapping)
-            )
+        xml_graph.serialize_to_xml(
+            channels_obj=channels_obj,
+            connection_box_obj=connection_box_obj,
+            nodes_obj=yield_nodes(xml_graph.graph.nodes),
+            edges_obj=import_graph_edges(conn, graph, node_mapping),
+        )
 
         print('{} Writing node map.'.format(now()))
         with open(args.write_rr_node_map, 'wb') as f:
