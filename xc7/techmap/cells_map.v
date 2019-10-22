@@ -2012,28 +2012,10 @@ module OSERDESE2 (
     wire TECHMAP_FAIL = 1'b1;
   end
 
-  localparam [0:0] SERDES_MODE_SLAVE = SERDES_MODE == "SLAVE" ? 1'b1 : 1'b0;
-
-  localparam [0:0] TRISTATE_WIDTH_W4 = TRISTATE_WIDTH != 4 ? 1'b1 : 1'b0;
-
-  localparam [0:0] DATA_RATE_OQ_DDR = DATA_RATE_OQ == "DDR" ? 1'b1 : 1'b0;
-  localparam [0:0] DATA_RATE_OQ_SDR = DATA_RATE_OQ == "SDR" ? 1'b1 : 1'b0;
-  localparam [0:0] DATA_RATE_TQ_BUF = DATA_RATE_TQ == "BUF" ? 1'b1 : 1'b0;
-  localparam [0:0] DATA_RATE_TQ_DDR = DATA_RATE_TQ == "DDR" ? 1'b1 : 1'b0;
-  localparam [0:0] DATA_RATE_TQ_SDR = DATA_RATE_TQ == "SDR" ? 1'b1 : 1'b0;
-
   localparam [0:0] DATA_WIDTH_DDR_W6_8 = DATA_RATE_OQ == "DDR" && (DATA_WIDTH == 6 || DATA_WIDTH == 8) ? 1'b1 : 1'b0;
   localparam [0:0] DATA_WIDTH_SDR_W2_4_5_6 = DATA_RATE_OQ == "SDR" &&
                                              (DATA_WIDTH == 2 || DATA_WIDTH == 4 ||
                                               DATA_WIDTH == 5 || DATA_WIDTH == 6) ? 1'b1 : 1'b0;
-
-  localparam [0:0] DATA_WIDTH_W2 = DATA_WIDTH == 2 ? 1'b1 : 1'b0;
-  localparam [0:0] DATA_WIDTH_W3 = DATA_WIDTH == 3 ? 1'b1 : 1'b0;
-  localparam [0:0] DATA_WIDTH_W4 = DATA_WIDTH == 4 ? 1'b1 : 1'b0;
-  localparam [0:0] DATA_WIDTH_W5 = DATA_WIDTH == 5 ? 1'b1 : 1'b0;
-  localparam [0:0] DATA_WIDTH_W6 = DATA_WIDTH == 6 ? 1'b1 : 1'b0;
-  localparam [0:0] DATA_WIDTH_W7 = DATA_WIDTH == 7 ? 1'b1 : 1'b0;
-  localparam [0:0] DATA_WIDTH_W8 = DATA_WIDTH == 8 ? 1'b1 : 1'b0;
 
   // Inverter parameters
   localparam [0:0] ZINV_CLK = 1'b0;
@@ -2043,22 +2025,22 @@ module OSERDESE2 (
   localparam [0:0] ZINV_T4 = 1'b0;
 
   OSERDESE2_VPR #(
-      .SERDES_MODE_SLAVE(SERDES_MODE_SLAVE),
-      .TRISTATE_WIDTH_W4(TRISTATE_WIDTH_W4),
-      .DATA_RATE_OQ_DDR(DATA_RATE_OQ_DDR),
-      .DATA_RATE_OQ_SDR(DATA_RATE_OQ_SDR),
-      .DATA_RATE_TQ_BUF(DATA_RATE_TQ_BUF),
-      .DATA_RATE_TQ_DDR(DATA_RATE_TQ_DDR),
-      .DATA_RATE_TQ_SDR(DATA_RATE_TQ_SDR),
+      .SERDES_MODE_SLAVE(SERDES_MODE == "SLAVE"),
+      .TRISTATE_WIDTH_W4(TRISTATE_WIDTH == 4),
+      .DATA_RATE_OQ_DDR(DATA_RATE_OQ == "DDR"),
+      .DATA_RATE_OQ_SDR(DATA_RATE_OQ == "SDR"),
+      .DATA_RATE_TQ_BUF(DATA_RATE_TQ == "BUF"),
+      .DATA_RATE_TQ_DDR(DATA_RATE_TQ == "DDR"),
+      .DATA_RATE_TQ_SDR(DATA_RATE_TQ == "SDR"),
       .DATA_WIDTH_DDR_W6_8(DATA_WIDTH_DDR_W6_8),
       .DATA_WIDTH_SDR_W2_4_5_6(DATA_WIDTH_SDR_W2_4_5_6),
-      .DATA_WIDTH_W2(DATA_WIDTH_W2),
-      .DATA_WIDTH_W3(DATA_WIDTH_W3),
-      .DATA_WIDTH_W4(DATA_WIDTH_W4),
-      .DATA_WIDTH_W5(DATA_WIDTH_W5),
-      .DATA_WIDTH_W6(DATA_WIDTH_W6),
-      .DATA_WIDTH_W7(DATA_WIDTH_W7),
-      .DATA_WIDTH_W8(DATA_WIDTH_W8),
+      .DATA_WIDTH_W2(DATA_WIDTH == 2),
+      .DATA_WIDTH_W3(DATA_WIDTH == 3),
+      .DATA_WIDTH_W4(DATA_WIDTH == 4),
+      .DATA_WIDTH_W5(DATA_WIDTH == 5),
+      .DATA_WIDTH_W6(DATA_WIDTH == 6),
+      .DATA_WIDTH_W7(DATA_WIDTH == 7),
+      .DATA_WIDTH_W8(DATA_WIDTH == 8),
       .IS_CLKDIV_INVERTED(IS_CLKDIV_INVERTED),
       .IS_D1_INVERTED(IS_D1_INVERTED),
       .IS_D2_INVERTED(IS_D2_INVERTED),
