@@ -8,6 +8,9 @@ module toplevel(
     output [15:0] io_led
   );
 
+  wire io_mainClk_bufg;
+  BUFG bufg(.I(io_mainClk), .O(io_mainClk_bufg));
+
   wire [31:0] io_gpioA_read;
   wire [31:0] io_gpioA_write;
   wire [31:0] io_gpioA_writeEnable;
@@ -24,7 +27,7 @@ module toplevel(
 
   Murax murax (
     .io_asyncReset(0),
-    .io_mainClk (io_mainClk ),
+    .io_mainClk (io_mainClk_bufg ),
     .io_jtag_tck(1'b0),
     .io_jtag_tdi(1'b0),
     .io_jtag_tms(1'b0),
