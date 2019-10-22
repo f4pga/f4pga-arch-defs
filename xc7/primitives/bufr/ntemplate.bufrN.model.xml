@@ -10,4 +10,12 @@
    <port name="O" is_clock="1"/>
   </output_ports>
  </model>
+ <model name="BUFR_BYPASS_VPR">
+  <input_ports>
+   <port name="I" is_clock="1"/>
+  </input_ports>
+  <output_ports>
+   <port name="O" is_clock="1"/>
+  </output_ports>
+ </model>
 </models>

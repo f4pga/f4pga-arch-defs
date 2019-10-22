@@ -5,11 +5,52 @@
   <input name="CE" num_pins="1"/>
   <output name="O" num_pins="1"/>
 
-  <pb_type name="BUFR_VPR" blif_model=".subckt BUFR_VPR" num_pb="1">
-    <clock name="I" num_pins="1"/>
-    <input name="CLR" num_pins="1"/>
-    <input name="CE" num_pins="1"/>
-    <output name="O" num_pins="1"/>
+  <mode name="BYPASS">
+    <pb_type name="BUFR_BYPASS_VPR" blif_model=".subckt BUFR_BYPASS_VPR" num_pb="1">
+      <clock name="I" num_pins="1"/>
+      <output name="O" num_pins="1"/>
+ 
+      <!-- TODO: Timings for the BYPASS mode -->
+
+      <metadata>
+        <meta name="fasm_features">
+          IN_USE
+          BUFR_DIVIDE.BYPASS
+        </meta>
+      </metadata>
+    </pb_type>
+
+    <interconnect>
+      <direct name="I" input="BUFR{N}.I" output="BUFR_BYPASS_VPR.I"/>
+      <direct name="O" input="BUFR_BYPASS_VPR.O" output="BUFR{N}.O"/>
+    </interconnect>
+  </mode>
+
+  <mode name="DIVIDE">
+    <pb_type name="BUFR_VPR" blif_model=".subckt BUFR_VPR" num_pb="1">
+      <clock name="I" num_pins="1"/>
+      <input name="CLR" num_pins="1"/>
+      <input name="CE" num_pins="1"/>
+      <output name="O" num_pins="1"/>
+
+      <!-- TODO: Timings for the "regular" mode -->
+
+      <metadata>
+        <meta name="fasm_features">
+          IN_USE
+        </meta>
+        <meta name="fasm_params">
+          BUFR_DIVIDE.D1 = DIVIDE_D1
+          BUFR_DIVIDE.D2 = DIVIDE_D2
+          BUFR_DIVIDE.D3 = DIVIDE_D3
+          BUFR_DIVIDE.D4 = DIVIDE_D4
+          BUFR_DIVIDE.D5 = DIVIDE_D5
+          BUFR_DIVIDE.D6 = DIVIDE_D6
+          BUFR_DIVIDE.D7 = DIVIDE_D7
+          BUFR_DIVIDE.D8 = DIVIDE_D8
+        </meta>
+      </metadata>
+    </pb_type>
 
     <interconnect>
       <direct name="I" input="BUFR{N}.I" output="BUFR_VPR.I"/>
@@ -17,24 +58,6 @@
       <direct name="CE" input="BUFR{N}.CE" output="BUFR_VPR.CE"/>
       <direct name="O" input="BUFR_VPR.O" output="BUFR{N}.O"/>
     </interconnect>
-
-    <metadata>
-      <meta name="fasm_features">
-        IN_USE
-      </meta>
-      <meta name="fasm_params">
-        BUFR_DIVIDE.BYPASS = DIVIDE_BYPASS
-        BUFR_DIVIDE.D1 = DIVIDE_D1
-        BUFR_DIVIDE.D2 = DIVIDE_D2
-        BUFR_DIVIDE.D3 = DIVIDE_D3
-        BUFR_DIVIDE.D4 = DIVIDE_D4
-        BUFR_DIVIDE.D5 = DIVIDE_D5
-        BUFR_DIVIDE.D6 = DIVIDE_D6
-        BUFR_DIVIDE.D7 = DIVIDE_D7
-        BUFR_DIVIDE.D8 = DIVIDE_D8
-      </meta>
-    </metadata>
-
-  </pb_type>
+  </mode>
 
 </pb_type>
