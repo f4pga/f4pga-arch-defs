@@ -41,7 +41,6 @@ from .verilog_modeling import Module
 from .net_map import create_net_list
 
 import lib.rr_graph_xml.graph2 as xml_graph2
-from lib.rr_graph_xml.utils import read_xml_file
 from lib.parse_pcf import parse_simple_pcf
 import eblif
 
@@ -162,9 +161,13 @@ def load_io_sites(db_root, part, pcf):
 
 
 def load_net_list(conn, rr_graph_file, route_file):
-    xml_graph = xml_graph2.Graph(rr_graph_file, build_pin_edges=False)
+    xml_graph = xml_graph2.Graph(
+        rr_graph_file,
+        build_pin_edges=False,
+        rebase_nodes=False,
+        filter_nodes=False,
+    )
     graph = xml_graph.graph
-    graph.sort_nodes()
 
     net_map = {}
     with open(route_file) as f:
