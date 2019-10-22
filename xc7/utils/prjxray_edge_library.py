@@ -1707,7 +1707,7 @@ AND
   wire.phy_tile_pkey = (SELECT phy_tile_pkey FROM site_instance WHERE name = ?);
         """, (ccio_ilogic, ccio_ilogic)
         )
-        for graph_node_pkey in cur:
+        for (graph_node_pkey, ) in cur:
             ccio_opins.add(graph_node_pkey)
 
     write_cur.execute("""BEGIN EXCLUSIVE TRANSACTION;""")
