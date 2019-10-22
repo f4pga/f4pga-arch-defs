@@ -1627,7 +1627,7 @@ SELECT count(*) FROM graph_edge WHERE dest_graph_node_pkey = ? LIMIT 1
     return cur.fetchone()[0] > 0
 
 
-def annotate_pin_feeds(conn):
+def annotate_pin_feeds(conn, ccio_sites):
     """ Identifies and annotates pin feed channels.
 
     Some channels are simply paths from IPIN's or OPIN's.  Set
@@ -1646,6 +1646,11 @@ def annotate_pin_feeds(conn):
 
     cur.execute("SELECT pkey FROM segment WHERE name = ?", ("OUTPINFEED", ))
     outpinfeed_pkey = cur.fetchone()[0]
+
+    cur.execute(
+        "SELECT pkey FROM segment WHERE name = ?", ("CCIO_OUTPINFEED", )
+    )
+    ccio_outpinfeed_pkey = cur.fetchone()[0]
 
     cur.execute("SELECT pkey FROM segment WHERE name = ?", ("HCLK_ROWS", ))
     hclk_rows_pkey = cur.fetchone()[0]
@@ -1673,6 +1678,38 @@ WHERE
         graph_node_pkey for (graph_node_pkey, ) in cur.fetchall()
     )
 
+    ccio_opins = set()
+
+    # Find graph nodes for IOI_ILOGIC0_O for IOPAD_M's that are CCIO tiles (
+    # e.g. have dedicate clock paths).
+    for ccio_site in ccio_sites:
+        ccio_ilogic = ccio_site.replace('IOB', 'ILOGIC')
+        cur.execute(
+            """
+WITH ilogic_o_wires(wire_in_tile_pkey) AS (
+  SELECT wire_in_tile.pkey FROM wire_in_tile
+  INNER JOIN site_pin ON site_pin.pkey = wire_in_tile.site_pin_pkey
+  INNER JOIN site_type ON site_pin.site_type_pkey = site_type.pkey
+  WHERE
+    site_type.name == "ILOGICE3"
+  AND
+    site_pin.name == "O"
+  AND
+    wire_in_tile.site_pkey IN (
+        SELECT site_pkey FROM site_instance WHERE name = ?
+    )
+)
+SELECT graph_node.pkey FROM graph_node
+INNER JOIN wire ON graph_node.node_pkey = wire.node_pkey
+WHERE
+  wire.wire_in_tile_pkey IN (SELECT wire_in_tile_pkey FROM ilogic_o_wires)
+AND
+  wire.phy_tile_pkey = (SELECT phy_tile_pkey FROM site_instance WHERE name = ?);
+        """, (ccio_ilogic, ccio_ilogic)
+        )
+        for graph_node_pkey in cur:
+            ccio_opins.add(graph_node_pkey)
+
     write_cur.execute("""BEGIN EXCLUSIVE TRANSACTION;""")
 
     # Walk from OPIN's first.
@@ -1686,6 +1723,8 @@ WHERE graph_node.graph_node_type = ?
 
         if graph_node_pkey in bufhce_opins:
             segment_pkey = hclk_rows_pkey
+        elif graph_node_pkey in ccio_opins:
+            segment_pkey = ccio_outpinfeed_pkey
         else:
             segment_pkey = outpinfeed_pkey
 
@@ -1967,9 +2006,24 @@ def create_and_insert_edges(
     print('{} Created {} edges, inserted'.format(now(), num_edges))
 
 
+def get_ccio_sites(grid):
+    ccio_sites = set()
+
+    for tile in grid.tiles():
+        gridinfo = grid.gridinfo_at_tilename(tile)
+
+        for site, pin_function in gridinfo.pin_functions.items():
+            if 'SRCC' in pin_function or 'MRCC' in pin_function:
+                if gridinfo.sites[site][-1] == 'M':
+                    ccio_sites.add(site)
+
+    return ccio_sites
+
+
 def create_edges(args):
     db = prjxray.db.Database(args.db_root)
     grid = db.grid()
+
     with DatabaseCache(args.connection_database) as conn:
 
         with open(args.pin_assignments) as f:
@@ -2057,3 +2111,5 @@ def create_edges(args):
         create_edge_indices(conn)
 
         mark_track_liveness(conn, input_only_nodes, output_only_nodes)
+
+    return get_ccio_sites(grid)
