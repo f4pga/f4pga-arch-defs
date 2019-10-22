@@ -714,3 +714,6 @@ class Graph(object):
 
     def get_switch_id(self, switch_name):
         return self.switch_name_map[switch_name]
+
+    def sort_nodes(self):
+        self.nodes.sort(key=lambda node: node.id)
