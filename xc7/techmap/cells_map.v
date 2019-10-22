@@ -2634,6 +2634,52 @@ module BUFHCE (
 
 endmodule
 
+module BUFR (
+  input I,
+  input CE,
+  input CLR,
+  output O
+  );
+
+  parameter BUFR_DIVIDE = "BYPASS";
+  parameter SIM_DEVICE = "7SERIES";
+
+  wire _TECHMAP_FAIL_ = (BUFR_DIVIDE != "BYPASS" &&
+                         BUFR_DIVIDE != "1" &&
+                         BUFR_DIVIDE != "2" &&
+                         BUFR_DIVIDE != "3" &&
+                         BUFR_DIVIDE != "4" &&
+                         BUFR_DIVIDE != "5" &&
+                         BUFR_DIVIDE != "6" &&
+                         BUFR_DIVIDE != "7" &&
+                         BUFR_DIVIDE != "8");
+
+  generate if (BUFR_DIVIDE == "BYPASS") begin
+
+    BUFR_VPR_BYPASS _TECHMAP_REPLACE_ (.I(I), .O(O));
+
+  end else begin
+
+    BUFR_VPR #(
+        .DIVIDE_D1(BUFR_DIVIDE == "1"),
+        .DIVIDE_D2(BUFR_DIVIDE == "2"),
+        .DIVIDE_D3(BUFR_DIVIDE == "3"),
+        .DIVIDE_D4(BUFR_DIVIDE == "4"),
+        .DIVIDE_D5(BUFR_DIVIDE == "5"),
+        .DIVIDE_D6(BUFR_DIVIDE == "6"),
+        .DIVIDE_D7(BUFR_DIVIDE == "7"),
+        .DIVIDE_D8(BUFR_DIVIDE == "8")
+    ) _TECHMAP_REPLACE_ (
+    .I(I),
+    .CE(CE),
+    .CLR(CLR),
+    .O(O)
+    );
+
+  end endgenerate
+
+endmodule
+
 // ============================================================================
 // CMT
 

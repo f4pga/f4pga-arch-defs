@@ -921,6 +921,40 @@ input CE
 
 endmodule
 
+// BUFR_VPR
+(* blackbox *)
+module BUFR_VPR
+(
+input I,
+input CE,
+input CLR,
+output O
+);
+
+  parameter [0:0] DIVIDE_D1 = 1'b0;
+  parameter [0:0] DIVIDE_D2 = 1'b0;
+  parameter [0:0] DIVIDE_D3 = 1'b0;
+  parameter [0:0] DIVIDE_D4 = 1'b0;
+  parameter [0:0] DIVIDE_D5 = 1'b0;
+  parameter [0:0] DIVIDE_D6 = 1'b0;
+  parameter [0:0] DIVIDE_D7 = 1'b0;
+  parameter [0:0] DIVIDE_D8 = 1'b0;
+
+  // TODO: Simulation model!
+
+endmodule
+
+// BUFR_BYPASS_VPR
+module BUFR_BYPASS_VPR
+(
+input  I,
+output O
+);
+
+  assign O = I;
+
+endmodule
+
 // ============================================================================
 // CMT
 
@@ -1066,4 +1100,3 @@ output [15:0] DO
   // TODO: How to simulate a PLL in verilog (i.e. the VCO) ???
 
 endmodule
-
