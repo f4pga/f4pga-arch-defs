@@ -369,7 +369,7 @@ class Graph(object):
 
         self._end_xml_tag()
 
-    def _write_nodes(self, nodes):
+    def _write_nodes(self, nodes, node_remap):
         """ Serialize list of Node objects to XML.
 
         Note that this method is extremely hot, len(nodes) is order 1-10 million.
@@ -383,7 +383,7 @@ class Graph(object):
 
         for node in nodes:
             attrib = {
-                "id": node.id,
+                "id": node_remap(node.id),
                 "type": node.type.name,
                 "capacity": node.capacity
             }
@@ -445,7 +445,7 @@ class Graph(object):
 
         self._end_xml_tag()
 
-    def _write_edges(self, edges):
+    def _write_edges(self, edges, node_remap):
         """ Serialize list of edge tuples objects to XML.
 
         edge tuples are (src_node(int), sink_node(int), switch_id(int), metadata(NodeMetadata)).
@@ -462,8 +462,8 @@ class Graph(object):
 
         for src_node, sink_node, switch_id, metadata in edges:
             attrib = {
-                "src_node": src_node,
-                "sink_node": sink_node,
+                "src_node": node_remap(src_node),
+                "sink_node": node_remap(sink_node),
                 "switch_id": switch_id,
             }
 
@@ -602,7 +602,12 @@ class Graph(object):
         self._end_xml_tag()
 
     def serialize_to_xml(
-            self, channels_obj, connection_box_obj, nodes_obj, edges_obj
+            self,
+            channels_obj,
+            connection_box_obj,
+            nodes_obj,
+            edges_obj,
+            node_remap=lambda x: x
     ):
         """
         Writes the routing graph to the XML file.
@@ -628,8 +633,8 @@ class Graph(object):
             self._write_block_types()
             self._write_grid()
 
-            self._write_nodes(nodes_obj)
-            self._write_edges(edges_obj)
+            self._write_nodes(nodes_obj, node_remap)
+            self._write_edges(edges_obj, node_remap)
 
             # Write footer
             self._end_xml_tag()
