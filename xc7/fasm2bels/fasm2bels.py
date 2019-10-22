@@ -162,9 +162,7 @@ def load_io_sites(db_root, part, pcf):
 
 
 def load_net_list(conn, rr_graph_file, route_file):
-    xml_graph = xml_graph2.Graph(
-        read_xml_file(rr_graph_file), build_pin_edges=False
-    )
+    xml_graph = xml_graph2.Graph(rr_graph_file, build_pin_edges=False)
     graph = xml_graph.graph
 
     net_map = {}
