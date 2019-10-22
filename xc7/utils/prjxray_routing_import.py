@@ -20,6 +20,8 @@ rr_graph XML.
 """
 
 import argparse
+from hilbertcurve.hilbertcurve import HilbertCurve
+import math
 import prjxray.db
 from prjxray.roi import Roi
 import prjxray.grid as grid
@@ -27,7 +29,6 @@ from lib.rr_graph import graph2
 from lib.rr_graph import tracks
 from lib.connection_database import get_wire_pkey, get_track_model
 import lib.rr_graph_xml.graph2 as xml_graph2
-from lib.rr_graph_xml.utils import read_xml_file
 from prjxray_constant_site_pins import feature_when_routed
 from prjxray_tile_import import remove_vpr_tile_prefix
 import simplejson as json
@@ -969,6 +970,40 @@ def find_constant_network(graph):
     return synth_tiles
 
 
+def create_node_remap(nodes, channels_obj):
+    N = 2
+    p = math.ceil(math.log2(max(channels_obj.x_max, channels_obj.y_max)))
+
+    point_map = {}
+
+    for node in nodes:
+        x = node.loc.x_low
+        y = node.loc.y_low
+
+        if (x, y) not in point_map:
+            point_map[(x, y)] = []
+
+        point_map[(x, y)].append(node.id)
+
+    hilbert_curve = HilbertCurve(p, N)
+
+    idx = 0
+    id_map = {}
+    for h in range(hilbert_curve.max_h + 1):
+        coord = tuple(hilbert_curve.coordinates_from_distance(h))
+
+        if coord not in point_map:
+            continue
+
+        for old_id in point_map[coord]:
+            id_map[old_id] = idx
+            idx += 1
+
+        del point_map[coord]
+
+    return lambda x: id_map[x]
+
+
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument(
@@ -1116,6 +1151,8 @@ FROM
         print('{} Creating channels.'.format(now()))
         channels_obj = create_channels(conn)
 
+        node_remap = create_node_remap(xml_graph.graph.nodes, channels_obj)
+
         x_dim, y_dim = phy_grid_dims(conn)
         connection_box_obj = graph.create_connection_box_object(
             x_dim=x_dim, y_dim=y_dim
@@ -1127,7 +1164,11 @@ FROM
             connection_box_obj=connection_box_obj,
             nodes_obj=yield_nodes(xml_graph.graph.nodes),
             edges_obj=import_graph_edges(conn, graph, node_mapping),
+            node_remap=node_remap,
         )
+
+        for k in node_mapping:
+            node_mapping[k] = node_remap(node_mapping[k])
 
         print('{} Writing node map.'.format(now()))
         with open(args.write_rr_node_map, 'wb') as f:
