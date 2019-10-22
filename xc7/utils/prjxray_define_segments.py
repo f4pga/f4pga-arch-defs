@@ -4,6 +4,7 @@
 import argparse
 from prjxray.db import Database
 import re
+from collections import OrderedDict
 
 
 def add_segment_wires(db, tile, wires, segments):
@@ -66,20 +67,24 @@ def get_segments(db):
     """
     wires = set()
 
-    segments = {
-        'INPINFEED': set(),
-        'CLKFEED': set(),
-        'OUTPINFEED': set(),
-        'BRAM_CASCADE': set(),
-        'BUFG_CASCADE': set(),
-        'GCLK': set(),
-        'HCLK_CK_IN': set(),
-        'BRAM_IMUX': set(),
-        'HCLK_COLUMNS': set(),
-        'HCLK_ROWS': set(),
-        'HCLK_ROW_TO_COLUMN': set(),
-        'CCIO_CLK_IN': set(),
-    }
+    segments = OrderedDict()
+
+    for segment in [
+            'INPINFEED',
+            'CLKFEED',
+            'OUTPINFEED',
+            'BRAM_CASCADE',
+            'BUFG_CASCADE',
+            'GCLK',
+            'HCLK_CK_IN',
+            'BRAM_IMUX',
+            'HCLK_COLUMNS',
+            'HCLK_ROWS',
+            'HCLK_ROW_TO_COLUMN',
+            'CCIO_OUTPINFEED',
+            'CCIO_CLK_IN',
+    ]:
+        segments[segment] = set()
 
     for tile in ['INT_L', 'INT_R']:
         add_segment_wires(db, tile, wires, segments)

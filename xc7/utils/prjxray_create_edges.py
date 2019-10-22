@@ -61,7 +61,7 @@ def main():
 
     now = datetime.datetime.now
     print("{}: Creating edges".format(now()))
-    create_edges(args)
+    ccio_sites = create_edges(args)
     print("{}: Done with edges".format(now()))
 
     with sqlite3.connect(args.connection_database) as conn:
@@ -74,7 +74,7 @@ def main():
         set_track_canonical_loc(conn)
 
         print('{} Annotate pin feeds'.format(now()))
-        annotate_pin_feeds(conn)
+        annotate_pin_feeds(conn, ccio_sites)
 
         print('{} Compute segment lengths'.format(now()))
         compute_segment_lengths(conn)
