@@ -4,7 +4,6 @@ from lib.rr_graph import graph2
 from lib.rr_graph import tracks
 from lib.rr_graph import points
 import lib.rr_graph_xml.graph2 as xml_graph2
-from lib.rr_graph_xml.utils import read_xml_file
 
 
 # bi-directional channels
@@ -336,9 +335,8 @@ def rebuild_graph(fn, fn_out, rcw=6, verbose=False):
     """
 
     print('Importing input g')
-    input_rr_graph = read_xml_file(fn)
     xml_graph = xml_graph2.Graph(
-        input_rr_graph,
+        fn,
         output_file_name=fn_out,
     )
 
@@ -371,10 +369,16 @@ def rebuild_graph(fn, fn_out, rcw=6, verbose=False):
     connect_tracks_to_tracks(graph, switch=mux, verbose=verbose)
     print("Completed rebuild")
 
+    xml_graph.root_attrib["tool_version"] = "dev"
+    xml_graph.root_attrib["tool_comment"] = "Generated from black magic"
+
+    channels_obj = graph.create_channels(pad_segment=graph.segments[0].id)
+
     xml_graph.serialize_to_xml(
-        tool_version="dev",
-        tool_comment="Generated from black magic",
-        pad_segment=graph.segments[0].id,
+        channels_obj=channels_obj,
+        connection_box_obj=None,
+        nodes_obj=graph.nodes,
+        edges_obj=graph.edges
     )
 
 
