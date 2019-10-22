@@ -538,7 +538,7 @@ class Graph(object):
                     "R_per_meter": segment.timing.r_per_meter,
                     "C_per_meter": segment.timing.c_per_meter,
                 }
-                self._write_xml_tag("segment", attrib)
+                self._write_xml_tag("timing", attrib)
 
             self._end_xml_tag()
             if DEBUG >= 2:
