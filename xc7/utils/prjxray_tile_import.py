@@ -373,7 +373,7 @@ def import_tile(db, args):
     if not args.fused_sites:
         site_type_count = {}
         site_prefixes = {}
-        cells_idx = []
+        cells_idx = {}
         models_added = set()
 
         site_type_ports = {}
@@ -381,11 +381,14 @@ def import_tile(db, args):
             if site.type in ignored_site_types:
                 continue
 
+            if not x_filter(site):
+                continue
+
             if site.type not in site_type_count:
                 site_type_count[site.type] = 0
                 site_prefixes[site.type] = []
 
-            cells_idx.append(site_type_count[site.type])
+            cells_idx[idx] = site_type_count[site.type]
             site_type_count[site.type] += 1
 
             if not args.both_site_coords:
@@ -396,9 +399,6 @@ def import_tile(db, args):
                 )
 
             site_instance = site_type_instances[site.type][cells_idx[idx]]
-
-            if not x_filter(site):
-                continue
 
             if (site.type, site_instance) not in models_added:
                 models_added.add((site.type, site_instance))
