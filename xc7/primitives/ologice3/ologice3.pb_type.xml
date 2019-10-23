@@ -52,8 +52,8 @@
   </mode>
   <mode name="OSERDES">
     <pb_type name="OSERDESE2" blif_model=".subckt OSERDESE2_VPR" num_pb="1">
-      <input name="CLK" num_pins="1"/>
-      <input name="CLKDIV" num_pins="1"/>
+      <clock name="CLK" num_pins="1"/>
+      <clock name="CLKDIV" num_pins="1"/>
       <input name="D1" num_pins="1"/>
       <input name="D2" num_pins="1"/>
       <input name="D3" num_pins="1"/>
