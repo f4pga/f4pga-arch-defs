@@ -29,7 +29,6 @@ add_fpga_target(
     basys3_toplevel.v
     Murax.v
   INPUT_IO_FILE basys3.pcf
-  SDC_FILE basys3.sdc
   EXPLICIT_ADD_FILE_TARGET
 )
 
