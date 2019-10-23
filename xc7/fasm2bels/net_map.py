@@ -28,6 +28,7 @@ def create_net_list(conn, graph, route_file):
 
     for net, node in find_net_sources(route_file):
         graph_node = graph.nodes[node.inode]
+        assert graph_node.id == node.inode
         assert graph_node.loc.x_low == node.x_low
         assert graph_node.loc.x_high == node.x_high
         assert graph_node.loc.y_low == node.y_low

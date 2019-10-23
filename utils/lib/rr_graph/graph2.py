@@ -257,6 +257,7 @@ class Graph(object):
 
         self.tracks = []
         self.nodes = nodes
+        self.nodes.sort(key=lambda node: node.id)
         self.edges = []
 
         self.connection_boxes = []
@@ -293,12 +294,6 @@ class Graph(object):
         # Create mapping from grid locations and pins to nodes.
         for idx, node in enumerate(self.nodes):
             assert node.id == idx, (idx, node)
-            assert node.type in (
-                NodeType.IPIN,
-                NodeType.OPIN,
-                NodeType.SOURCE,
-                NodeType.SINK,
-            ), node
 
             if node.type in (
                     NodeType.IPIN,
@@ -714,3 +709,6 @@ class Graph(object):
 
     def get_switch_id(self, switch_name):
         return self.switch_name_map[switch_name]
+
+    def sort_nodes(self):
+        self.nodes.sort(key=lambda node: node.id)
