@@ -393,7 +393,7 @@ function(PROJECT_XRAY_PREPARE_DATABASE)
     --connection_database ${CMAKE_CURRENT_BINARY_DIR}/${CHANNELS}
     DEPENDS
     ${FORM_CHANNELS}
-    ${DEPS} ${DEPS2} simplejson progressbar2 intervaltree
+    ${DEPS} ${DEPS2} simplejson progressbar2 intervaltree hilbertcurve
     ${PYTHON3} ${PYTHON3_TARGET}
     )
 

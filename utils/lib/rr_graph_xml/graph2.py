@@ -40,7 +40,7 @@ def iterate_xml(xml_file):
     root.clear()
 
 
-def graph_from_xml(input_file_name, progressbar=None):
+def graph_from_xml(input_file_name, progressbar=None, filter_nodes=True):
     """
     Loads relevant information about the routing resource graph from an XML
     file.
@@ -203,27 +203,29 @@ def graph_from_xml(input_file_name, progressbar=None):
                 graph2.NodeType, element.attrib['type']
             )
 
-            if node_type in [graph2.NodeType.SOURCE, graph2.NodeType.SINK,
-                             graph2.NodeType.OPIN, graph2.NodeType.IPIN]:
+            if filter_nodes and node_type not in [
+                    graph2.NodeType.SOURCE, graph2.NodeType.SINK,
+                    graph2.NodeType.OPIN, graph2.NodeType.IPIN
+            ]:
+                continue
 
-                # Not expecting any metadata on the input.
-                assert element.find('metadata') is None
-                metadata = None
+            # Dropping metadata for now
+            metadata = None
 
-                nodes.append(
-                    graph2.Node(
-                        id=int(element.attrib['id']),
-                        type=node_type,
-                        direction=graph2.NodeDirection.NO_DIR,
-                        capacity=int(element.attrib['capacity']),
-                        loc=node_loc,
-                        timing=node_timing,
-                        metadata=metadata,
-                        segment=None,
-                        canonical_loc=None,
-                        connection_box=None,
-                    )
+            nodes.append(
+                graph2.Node(
+                    id=int(element.attrib['id']),
+                    type=node_type,
+                    direction=graph2.NodeDirection.NO_DIR,
+                    capacity=int(element.attrib['capacity']),
+                    loc=node_loc,
+                    timing=node_timing,
+                    metadata=metadata,
+                    segment=None,
+                    canonical_loc=None,
+                    connection_box=None,
                 )
+            )
 
             node_loc = None
             node_timing = None
@@ -244,7 +246,9 @@ class Graph(object):
             input_file_name,
             output_file_name=None,
             progressbar=None,
-            build_pin_edges=True
+            build_pin_edges=True,
+            rebase_nodes=True,
+            filter_nodes=True,
     ):
         if progressbar is None:
             progressbar = lambda x: x  # noqa: E731
@@ -253,19 +257,22 @@ class Graph(object):
         self.progressbar = progressbar
         self.output_file_name = output_file_name
 
-        graph_input = graph_from_xml(input_file_name, progressbar)
+        graph_input = graph_from_xml(
+            input_file_name, progressbar, filter_nodes=filter_nodes
+        )
         graph_input['build_pin_edges'] = build_pin_edges
 
         self.root_attrib = graph_input["root_attrib"]
         del graph_input["root_attrib"]
 
-        rebase_nodes = []
-        for node in graph_input['nodes']:
-            node_d = node._asdict()
-            node_d['id'] = len(rebase_nodes)
-            rebase_nodes.append(graph2.Node(**node_d))
+        if rebase_nodes:
+            rebase_nodes = []
+            for node in graph_input['nodes']:
+                node_d = node._asdict()
+                node_d['id'] = len(rebase_nodes)
+                rebase_nodes.append(graph2.Node(**node_d))
 
-        graph_input['nodes'] = rebase_nodes
+            graph_input['nodes'] = rebase_nodes
 
         self.graph = graph2.Graph(**graph_input)
 
@@ -369,7 +376,7 @@ class Graph(object):
 
         self._end_xml_tag()
 
-    def _write_nodes(self, nodes):
+    def _write_nodes(self, nodes, node_remap):
         """ Serialize list of Node objects to XML.
 
         Note that this method is extremely hot, len(nodes) is order 1-10 million.
@@ -383,7 +390,7 @@ class Graph(object):
 
         for node in nodes:
             attrib = {
-                "id": node.id,
+                "id": node_remap(node.id),
                 "type": node.type.name,
                 "capacity": node.capacity
             }
@@ -445,7 +452,7 @@ class Graph(object):
 
         self._end_xml_tag()
 
-    def _write_edges(self, edges):
+    def _write_edges(self, edges, node_remap):
         """ Serialize list of edge tuples objects to XML.
 
         edge tuples are (src_node(int), sink_node(int), switch_id(int), metadata(NodeMetadata)).
@@ -462,8 +469,8 @@ class Graph(object):
 
         for src_node, sink_node, switch_id, metadata in edges:
             attrib = {
-                "src_node": src_node,
-                "sink_node": sink_node,
+                "src_node": node_remap(src_node),
+                "sink_node": node_remap(sink_node),
                 "switch_id": switch_id,
             }
 
@@ -602,7 +609,12 @@ class Graph(object):
         self._end_xml_tag()
 
     def serialize_to_xml(
-            self, channels_obj, connection_box_obj, nodes_obj, edges_obj
+            self,
+            channels_obj,
+            connection_box_obj,
+            nodes_obj,
+            edges_obj,
+            node_remap=lambda x: x
     ):
         """
         Writes the routing graph to the XML file.
@@ -628,8 +640,8 @@ class Graph(object):
             self._write_block_types()
             self._write_grid()
 
-            self._write_nodes(nodes_obj)
-            self._write_edges(edges_obj)
+            self._write_nodes(nodes_obj, node_remap)
+            self._write_edges(edges_obj, node_remap)
 
             # Write footer
             self._end_xml_tag()
