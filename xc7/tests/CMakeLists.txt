@@ -21,4 +21,4 @@ add_subdirectory(srl)
 #add_subdirectory(pll)
 add_subdirectory(iobuf)
 add_subdirectory(iobuf_i2c)
-
+add_subdirectory(serdes)
