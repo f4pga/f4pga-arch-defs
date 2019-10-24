@@ -689,6 +689,11 @@ def main():
                 synth_tile_map=synth_tile_map,
                 tile_types=tile_types,
         ):
+
+            # HACK
+            if grid_x == 2 and grid_y == 133:
+                continue
+
             single_xml = ET.SubElement(
                 fixed_layout_xml, 'single', {
                     'priority': '1',
