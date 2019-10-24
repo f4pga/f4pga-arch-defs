@@ -649,28 +649,22 @@ module OSERDESE2_VPR (
   input D7,
   input D8,
   input OCE,
-  input RST,
-  input SHIFTIN1,
-  input SHIFTIN2,
+  input SR,
   input T1,
   input T2,
   input T3,
   input T4,
-  input TBYTEIN,
   input TCE,
   output OFB,
   output OQ,
-  output SHIFTOUT1,
-  output SHIFTOUT2,
-  output TBYTEOUT,
   output TFB,
   output TQ
 );
 
   parameter [0:0] SERDES_MODE_SLAVE = 1'b0;
-  
+
   parameter [0:0] TRISTATE_WIDTH_W4 = 1'b0;
-  
+
   parameter [0:0] DATA_RATE_OQ_DDR = 1'b0;
   parameter [0:0] DATA_RATE_OQ_SDR = 1'b0;
   parameter [0:0] DATA_RATE_TQ_BUF = 1'b0;

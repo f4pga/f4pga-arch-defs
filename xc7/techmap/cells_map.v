@@ -1949,19 +1949,13 @@ module OSERDESE2 (
   input D8,
   input OCE,
   input RST,
-  input SHIFTIN1,
-  input SHIFTIN2,
   input T1,
   input T2,
   input T3,
   input T4,
-  input TBYTEIN,
   input TCE,
   output OFB,
   output OQ,
-  output SHIFTOUT1,
-  output SHIFTOUT2,
-  output TBYTEOUT,
   output TFB,
   output TQ
   );
@@ -1991,25 +1985,25 @@ module OSERDESE2 (
   if (DATA_RATE_OQ == "DDR" &&
       !(DATA_WIDTH == 2 || DATA_WIDTH == 4 ||
         DATA_WIDTH == 6 || DATA_WIDTH == 8)) begin
-    wire TECHMAP_FAIL = 1'b1;
+    wire _TECHMAP_FAIL_ = 1'b1;
   end
 
   if (DATA_RATE_OQ == "SDR" &&
       !(DATA_WIDTH >= 2 || DATA_WIDTH <= 8)) begin
-    wire TECHMAP_FAIL = 1'b1;
+    wire _TECHMAP_FAIL_ = 1'b1;
   end
 
   if ((DATA_RATE_TQ == "SDR" || DATA_RATE_TQ == "BUF") &&
       TRISTATE_WIDTH != 1) begin
-    wire TECHMAP_FAIL = 1'b1;
+    wire _TECHMAP_FAIL_ = 1'b1;
   end
 
   if (DATA_RATE_OQ == "SDR" && DATA_RATE_TQ == "DDR") begin
-    wire TECHMAP_FAIL = 1'b1;
+    wire _TECHMAP_FAIL_ = 1'b1;
   end
 
   if (TRISTATE_WIDTH != 1 && TRISTATE_WIDTH != 4) begin
-    wire TECHMAP_FAIL = 1'b1;
+    wire _TECHMAP_FAIL_ = 1'b1;
   end
 
   localparam [0:0] DATA_WIDTH_DDR_W6_8 = DATA_RATE_OQ == "DDR" && (DATA_WIDTH == 6 || DATA_WIDTH == 8) ? 1'b1 : 1'b0;
@@ -2067,20 +2061,14 @@ module OSERDESE2 (
     .D7(D7),
     .D8(D8),
     .OCE(OCE),
-    .RST(RST),
-    .SHIFTIN1(SHIFTIN1),
-    .SHIFTIN2(SHIFTIN2),
+    .SR(RST),
     .T1(T1),
     .T2(T2),
     .T3(T3),
     .T4(T4),
-    .TBYTEIN(TBYTEIN),
     .TCE(TCE),
     .OFB(OFB),
     .OQ(OQ),
-    .SHIFTOUT1(SHIFTOUT1),
-    .SHIFTOUT2(SHIFTOUT2),
-    .TBYTEOUT(TBYTEOUT),
     .TFB(TFB),
     .TQ(TQ)
   );
