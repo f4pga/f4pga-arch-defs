@@ -81,6 +81,9 @@
       <input name="SHIFTIN1" num_pins="1"/>
       <input name="SHIFTIN2" num_pins="1"/>
       <metadata>
+        <meta name="fasm_prefix">
+          OSERDESE
+        </meta>
         <meta name="fasm_features">
           IN_USE
         </meta>
