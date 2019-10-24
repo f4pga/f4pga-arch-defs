@@ -70,6 +70,8 @@ PROCESS_TILE = {
     'RIOI3_TBYTETERM': process_ioi,
     'HCLK_L': null_process,
     'HCLK_R': null_process,
+    'HCLK_L_BOT_UTURN': null_process,
+    'HCLK_R_BOT_UTURN': null_process,
     'CLK_BUFG_REBUF': null_process,
     'CLK_BUFG_BOT_R': process_bufg,
     'CLK_BUFG_TOP_R': process_bufg,
