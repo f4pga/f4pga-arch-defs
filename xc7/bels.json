@@ -92,43 +92,43 @@
         },
         "DPRAM32_O6": {
             "A_DRAM":
-                ["LUT_OR_MEM5LRAM.SLICEM/A5LUT"],
+                ["LUT_OR_MEM5LRAM.SLICEM", "LUT_OR_MEM5LRAM.SLICEM/A5LUT"],
             "B_DRAM":
-                ["LUT_OR_MEM5LRAM.SLICEM/B5LUT"],
+                ["LUT_OR_MEM5LRAM.SLICEM", "LUT_OR_MEM5LRAM.SLICEM/B5LUT"],
             "C_DRAM":
-                ["LUT_OR_MEM5LRAM.SLICEM/C5LUT"],
+                ["LUT_OR_MEM5LRAM.SLICEM", "LUT_OR_MEM5LRAM.SLICEM/C5LUT"],
             "D_DRAM":
-                ["LUT_OR_MEM5LRAM.SLICEM/D5LUT"]
+                ["LUT_OR_MEM5LRAM.SLICEM", "LUT_OR_MEM5LRAM.SLICEM/D5LUT"]
         },
         "DPRAM32_O5": {
             "A_DRAM":
-                ["LUT_OR_MEM5LRAM.SLICEM/A5LUT"],
+                ["LUT_OR_MEM5LRAM.SLICEM", "LUT_OR_MEM5LRAM.SLICEM/A5LUT"],
             "B_DRAM":
-                ["LUT_OR_MEM5LRAM.SLICEM/B5LUT"],
+                ["LUT_OR_MEM5LRAM.SLICEM", "LUT_OR_MEM5LRAM.SLICEM/B5LUT"],
             "C_DRAM":
-                ["LUT_OR_MEM5LRAM.SLICEM/C5LUT"],
+                ["LUT_OR_MEM5LRAM.SLICEM", "LUT_OR_MEM5LRAM.SLICEM/C5LUT"],
             "D_DRAM":
-                ["LUT_OR_MEM5LRAM.SLICEM/D5LUT"]
+                ["LUT_OR_MEM5LRAM.SLICEM", "LUT_OR_MEM5LRAM.SLICEM/D5LUT"]
         },
         "DPRAM64": {
             "A_DRAM":
-                ["LUT_OR_MEM6LRAM.SLICEM/A6LUT"],
+                ["LUT_OR_MEM6LRAM.SLICEM", "LUT_OR_MEM6LRAM.SLICEM/A6LUT"],
             "B_DRAM":
-                ["LUT_OR_MEM6LRAM.SLICEM/B6LUT"],
+                ["LUT_OR_MEM6LRAM.SLICEM", "LUT_OR_MEM6LRAM.SLICEM/B6LUT"],
             "C_DRAM":
-                ["LUT_OR_MEM6LRAM.SLICEM/C6LUT"],
+                ["LUT_OR_MEM6LRAM.SLICEM", "LUT_OR_MEM6LRAM.SLICEM/C6LUT"],
             "D_DRAM":
-                ["LUT_OR_MEM6LRAM.SLICEM/D6LUT"]
+                ["LUT_OR_MEM6LRAM.SLICEM", "LUT_OR_MEM6LRAM.SLICEM/D6LUT"]
         },
         "DPRAM64_for_RAM128X1D": {
             "A_DRAM128":
-                ["LUT_OR_MEM6LRAM.SLICEM/A6LUT"],
+                ["LUT_OR_MEM6LRAM.SLICEM", "LUT_OR_MEM6LRAM.SLICEM/A6LUT"],
             "B_DRAM128":
-                ["LUT_OR_MEM6LRAM.SLICEM/B6LUT"],
+                ["LUT_OR_MEM6LRAM.SLICEM", "LUT_OR_MEM6LRAM.SLICEM/B6LUT"],
             "C_DRAM128":
-                ["LUT_OR_MEM6LRAM.SLICEM/C6LUT"],
+                ["LUT_OR_MEM6LRAM.SLICEM", "LUT_OR_MEM6LRAM.SLICEM/C6LUT"],
             "D_DRAM128":
-                ["LUT_OR_MEM6LRAM.SLICEM/D6LUT"]
+                ["LUT_OR_MEM6LRAM.SLICEM", "LUT_OR_MEM6LRAM.SLICEM/D6LUT"]
         },
         "SRLC32E_VPR":{
             "ASRL":
