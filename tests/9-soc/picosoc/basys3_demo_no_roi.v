@@ -27,10 +27,13 @@ module basys3_demo (
 	output [15:0] led
 );
 
+	wire clk_bufg;
+	BUFG bufg (.I(clk), .O(clk_bufg));
+
 	reg [5:0] reset_cnt = 0;
 	wire resetn = &reset_cnt;
 
-	always @(posedge clk) begin
+	always @(posedge clk_bufg) begin
 		reset_cnt <= reset_cnt + !resetn;
 	end
 
@@ -45,7 +48,7 @@ module basys3_demo (
 
 	assign led = gpio[15:0];
 
-	always @(posedge clk) begin
+	always @(posedge clk_bufg) begin
 		if (!resetn) begin
 			gpio <= 0;
 		end else begin
@@ -62,7 +65,7 @@ module basys3_demo (
 	end
 
 	picosoc_noflash soc (
-		.clk          (clk),
+		.clk          (clk_bufg),
 		.resetn       (resetn      ),
 
 		.ser_tx       (tx),
