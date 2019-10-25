@@ -2,7 +2,7 @@
 """ Plot a connection box delay matrix using matplotlib. """
 import argparse
 from lib.connection_box_tools import load_connection_box, \
-        iterate_connection_box, connection_box_to_numpy
+    iterate_connection_box, connection_box_to_numpy
 
 import matplotlib.pyplot as plt
 from matplotlib.colors import BoundaryNorm
