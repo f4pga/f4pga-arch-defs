@@ -4,7 +4,7 @@
 import argparse
 import capnp
 from lib.connection_box_tools import load_connection_box, \
-        iterate_connection_box, connection_box_to_numpy
+    iterate_connection_box, connection_box_to_numpy
 import scipy.io as sio
 import lib.rr_graph_xml.graph2
 
