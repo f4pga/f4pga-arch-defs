@@ -1,56 +1,25 @@
+#!/usr/bin/env python3
+""" Plot a connection box delay matrix using matplotlib. """
 import argparse
-import capnp
-import os.path
+from lib.connection_box_tools import load_connection_box, \
+        iterate_connection_box, connection_box_to_numpy
 
 import matplotlib.pyplot as plt
 from matplotlib.colors import BoundaryNorm
 from matplotlib.ticker import MaxNLocator
-import numpy as np
 
 
 def get_connection_box(cost_map, segment, connection_box):
-    assert cost_map.costMap.dims[0] == cost_map.offset.dims[0]
-    assert cost_map.costMap.dims[1] == cost_map.offset.dims[1]
-    nsegment = cost_map.costMap.dims[0]
-    nconnection_box = cost_map.costMap.dims[1]
-
-    m_itr = iter(cost_map.costMap.data)
-    offset_itr = iter(cost_map.offset.data)
-    for segment_idx in range(nsegment):
-        for connection_box_idx in range(nconnection_box):
-            m = next(m_itr).value
-            offset = next(offset_itr).value
-
-            x_off = offset.x
-            y_off = offset.y
-
-            if segment == segment_idx and connection_box_idx == connection_box:
-                return m, (x_off, y_off)
+    for segment_idx, connection_box_idx, offset, m in iterate_connection_box(
+            cost_map):
+        if segment == segment_idx and connection_box_idx == connection_box:
+            return offset, m
 
 
 def plot_connection_box(cost_map, segment, connection_box):
-    m, (x_off, y_off) = get_connection_box(cost_map, segment, connection_box)
+    offset, m = get_connection_box(cost_map, segment, connection_box)
 
-    assert len(m.dims) == 2
-    x_dim = m.dims[0]
-    y_dim = m.dims[1]
-
-    # generate 2 2d grids for the x & y bounds
-    y, x = np.mgrid[slice(y_off, y_off + y_dim), slice(x_off, x_off + x_dim)]
-
-    delay = np.zeros((y_dim, x_dim))
-    congestion = np.zeros((y_dim, x_dim))
-
-    itr = iter(m.data)
-
-    for x_idx in range(x_dim):
-        for y_idx in range(y_dim):
-            value = next(itr)
-
-            x_val = x_idx + x_off
-            y_val = y_idx + y_off
-            delay[(x == x_val) & (y == y_val)] = value.value.delay
-            congestion[(x == x_val) & (y == y_val)] = value.value.congestion
+    x, y, delay, congestion = connection_box_to_numpy(offset, m)
 
     print(delay)
 
@@ -98,14 +67,8 @@ def main():
 
     args = parser.parse_args()
 
-    connection_map = capnp.load(
-        os.path.join(args.schema_path, 'connection_map.capnp')
-    )
-
     with open(args.lookahead_map, 'rb') as f:
-        cost_map = connection_map.VprCostMap.read(
-            f, traversal_limit_in_words=1024 * 1024 * 1024
-        )
+        cost_map = load_connection_box(args.schema_path, f)
 
     plot_connection_box(cost_map, args.segment, args.connection_box)
 
