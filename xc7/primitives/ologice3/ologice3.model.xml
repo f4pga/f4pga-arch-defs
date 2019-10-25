@@ -12,7 +12,7 @@
       <port name="D7"/>
       <port name="D8"/>
       <port name="OCE"/>
-      <port name="SR"/>
+      <port name="RST"/>
       <port name="T1"/>
       <port name="T2"/>
       <port name="T3"/>

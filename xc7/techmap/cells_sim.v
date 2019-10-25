@@ -649,7 +649,7 @@ module OSERDESE2_VPR (
   input D7,
   input D8,
   input OCE,
-  input SR,
+  input RST,
   input T1,
   input T2,
   input T3,
