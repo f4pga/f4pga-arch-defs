@@ -2061,7 +2061,7 @@ module OSERDESE2 (
     .D7(D7),
     .D8(D8),
     .OCE(OCE),
-    .SR(RST),
+    .RST(RST),
     .T1(T1),
     .T2(T2),
     .T3(T3),

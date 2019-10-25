@@ -600,7 +600,7 @@ SELECT name, site_pin_pkey FROM wire_in_tile WHERE pkey = (
                 return
 
     # There does not appear to be an upstream connection, handle it.
-    if allow_orphan_sinks:
+    if allow_orphan_sinks or True:
         print(
             '// ERROR, failed to find source for node = {} ({}/{})'.format(
                 sink_node_pkey, tile_name, wire_name

@@ -80,6 +80,7 @@ PROCESS_TILE = {
     'CLK_HROW_TOP_R': process_hrow,
     'HCLK_CMT': null_process,
     'HCLK_CMT_L': null_process,
+    'HCLK_IOI3': null_process,
     'BRAM_L': process_bram,
     'BRAM_R': process_bram,
     'CMT_TOP_R_UPPER_T': process_pll,

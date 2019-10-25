@@ -19,7 +19,7 @@ reg [3:0] rst_sr;
 
 initial rst_sr <= 4'hF;
 
-always @(posedge clk)
+always @(posedge CLK)
     if (sw)
         rst_sr <= 4'hF;
     else
@@ -30,11 +30,9 @@ wire RST = rst_sr[0];
 wire CLK, CLKDIV;
 BUFG bufg(.I(clk), .O(CLK));
 
-wire clk_div_tmp, clk_div_tmp_1;
+wire clk_div_tmp;
 clk_div clk_div_1(.clk_in(clk), .clk_out(clk_div_tmp));
-clk_div clk_div_2(.clk_in(clk_div_tmp), .clk_out(clk_div_tmp_1));
-
-BUFG bufg_div(.I(clk_div_tmp_1), .O(CLKDIV));
+clk_div clk_div_2(.clk_in(clk_div_tmp), .clk_out(CLKDIV));
 
 // ============================================================================
 // Clocks for OSERDES
@@ -78,13 +76,16 @@ module clk_div (
     output clk_out
 );
 
+    reg clk_out_tmp;
     initial begin
-        clk_out <= 0;
+        clk_out_tmp <= 0;
     end
 
     always @(posedge clk_in) begin
-        clk_out <= ~clk_out;
+        clk_out_tmp <= ~clk_out;
     end
+
+    assign clk_out = clk_out_tmp;
 
 endmodule
 
@@ -280,8 +281,9 @@ reg  [7:0] ser_dat;
 always @(posedge CLKDIV)
     ser_dat <= lfsr_dat;
 
+
 // ============================================================================
-// OSERDES 
+// OSERDES
 
 // OSERDES reset generator (required for it to work properly!)
 reg [3:0]  ser_rst_sr;

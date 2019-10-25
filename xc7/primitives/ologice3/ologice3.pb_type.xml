@@ -68,7 +68,7 @@
       <output name="OQ" num_pins="1"/>
       <output name="SHIFTOUT1" num_pins="1"/>
       <output name="SHIFTOUT2" num_pins="1"/>
-      <input name="SR" num_pins="1"/>
+      <input name="RST" num_pins="1"/>
       <input name="T1" num_pins="1"/>
       <input name="T2" num_pins="1"/>
       <input name="T3" num_pins="1"/>
@@ -82,7 +82,7 @@
       <input name="SHIFTIN2" num_pins="1"/>
       <metadata>
         <meta name="fasm_prefix">
-          OSERDESE
+          OSERDES
         </meta>
         <meta name="fasm_features">
           IN_USE
@@ -128,7 +128,7 @@
       <direct name="OQ" input="OSERDESE2.OQ" output="OLOGICE3.OQ" />
       <direct name="SHIFTOUT1" input="OSERDESE2.SHIFTOUT1" output="OLOGICE3.SHIFTOUT1" />
       <direct name="SHIFTOUT2" input="OSERDESE2.SHIFTOUT2" output="OLOGICE3.SHIFTOUT2" />
-      <direct name="SR" input="OLOGICE3.SR" output="OSERDESE2.SR" />
+      <direct name="SR" input="OLOGICE3.SR" output="OSERDESE2.RST" />
       <direct name="T1" input="OLOGICE3.T1" output="OSERDESE2.T1" />
       <direct name="T2" input="OLOGICE3.T2" output="OSERDESE2.T2" />
       <direct name="T3" input="OLOGICE3.T3" output="OSERDESE2.T3" />
