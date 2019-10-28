@@ -1,0 +1,31 @@
+<models>
+  <model name="PLLE2_ADV_VPR">
+    <input_ports>
+      <port is_clock="1" name="DCLK"/>
+      <port clock="DCLK" name="DEN"/>
+      <port clock="DCLK" name="DWE"/>
+      <port clock="DCLK" name="DADDR"/>
+      <port clock="DCLK" name="DI"/>
+
+      <port is_clock="1" name="CLKFBIN"/>
+      <port is_clock="1" name="CLKIN1"/>
+      <port is_clock="1" name="CLKIN2"/>
+      <port name="CLKINSEL"/>
+      <port name="PWRDWN"/>
+      <port name="RST"/>
+    </input_ports>
+    <output_ports>
+      <port clock="DCLK" name="DO"/>
+      <port clock="DCLK" name="DRDY"/>
+
+      <port is_clock="1" name="CLKFBOUT"/>
+      <port is_clock="1" name="CLKOUT0"/>
+      <port is_clock="1" name="CLKOUT1"/>
+      <port is_clock="1" name="CLKOUT2"/>
+      <port is_clock="1" name="CLKOUT3"/>
+      <port is_clock="1" name="CLKOUT4"/>
+      <port is_clock="1" name="CLKOUT5"/>
+      <port name="LOCKED"/>
+    </output_ports>
+  </model>
+</models>
