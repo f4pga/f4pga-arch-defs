@@ -12,6 +12,8 @@ add_xc7_device_define_type(
     RIOPAD_S
     RIOPAD_SING
     CLK_BUFG_BOT_R
+    CMT_TOP_L_UPPER_T
+    CMT_TOP_R_UPPER_T
   PB_TYPES
     SLICEL
     SLICEM
@@ -20,6 +22,8 @@ add_xc7_device_define_type(
     IOPAD_M
     IOPAD_S
     CLK_BUFG_BOT_R
+    CMT_TOP_L_UPPER_T
+    CMT_TOP_R_UPPER_T
   NAME basys3-x1y0
   GRAPH_LIMIT 0,103,114,155
   PART xc7a35tcpg236-1

@@ -15,3 +15,5 @@ add_subdirectory(ologice3)
 add_subdirectory(idelaye2)
 add_subdirectory(bufgctrl)
 add_subdirectory(bufhce)
+add_subdirectory(plle2_adv)
+
