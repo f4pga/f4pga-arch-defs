@@ -1,0 +1,31 @@
+# basys3 100 MHz CLK
+set_io clk W5
+
+# These are the buttons/LEDs on CMT X0Y0 and X1Y0.
+# in[0:11] correspond with SW0-SW11 on the basys3
+set_io in[0] V17
+set_io in[1] V16
+set_io in[2] W16
+set_io in[3] W17
+set_io in[4] W15
+set_io in[5] V15
+set_io in[6] W14
+set_io in[7] W13
+set_io in[8] V2
+set_io in[9] T3
+set_io in[10] T2
+set_io in[11] R3
+
+# out[0:11] correspond with LD0-LD11 on the basys3
+set_io out[0] U16
+set_io out[1] E19
+set_io out[2] U19
+set_io out[3] V19
+set_io out[4] W18
+set_io out[5] U15
+set_io out[6] U14
+set_io out[7] V14
+set_io out[8] V13
+set_io out[9] V3
+set_io out[10] W3
+set_io out[11] U3
