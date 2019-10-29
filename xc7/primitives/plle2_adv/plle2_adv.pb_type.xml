@@ -25,19 +25,40 @@
   <output name="CLKOUT5" num_pins="1"/>
   <output name="LOCKED" num_pins="1"/>
 
-  <!-- fake timing values -->
-  <T_setup value="10e-12" port="DEN" clock="DCLK"/>
-  <T_hold value="10e-12" port="DEN" clock="DCLK"/>
-  <T_setup value="10e-12" port="DWE" clock="DCLK"/>
-  <T_hold value="10e-12" port="DWE" clock="DCLK"/>
-  <T_setup value="10e-12" port="DADDR" clock="DCLK"/>
-  <T_hold value="10e-12" port="DADDR" clock="DCLK"/>
-  <T_setup value="10e-12" port="DI" clock="DCLK"/>
-  <T_hold value="10e-12" port="DI" clock="DCLK"/>
+  <T_setup value="{setup_DCLK_DEN}" port="DEN" clock="DCLK"/>
+  <T_hold  value="{hold_DCLK_DEN}" port="DEN" clock="DCLK"/>
+  <T_setup value="{setup_DCLK_DWE}" port="DWE" clock="DCLK"/>
+  <T_hold  value="{hold_DCLK_DWE}" port="DWE" clock="DCLK"/>
+  <T_setup value="{setup_DCLK_DADDR}" port="DADDR" clock="DCLK"/>
+  <T_hold  value="{hold_DCLK_DADDR}" port="DADDR" clock="DCLK"/>
+  <T_setup value="{setup_DCLK_DI}" port="DI" clock="DCLK"/>
+  <T_hold  value="{hold_DCLK_DI}" port="DI" clock="DCLK"/>
 
-  <T_clock_to_Q min="10e-12" max="10e-12" port="DO" clock="DCLK"/>
-  <T_clock_to_Q min="10e-12" max="10e-12" port="DRDY" clock="DCLK"/>
+  <T_clock_to_Q max="{iopath_DCLK_DO}" port="DO" clock="DCLK"/>
+  <T_clock_to_Q max="{iopath_DCLK_DRDY}" port="DRDY" clock="DCLK"/>
 
+  <delay_constant max="{iopath_RST_LOCKED}" in_port="RST" out_port="LOCKED"/>
+
+  <!-- The following timings depend on the PLL COMPENSATION setting.
+       For now the worst ones were chosen (for the "BUF_IN" mode). This may
+       be changed in the bels.json file -->
+  <delay_constant max="{iopath_CLKIN1_CLKFBOUT}" in_port="CLKIN1" out_port="CLKFBOUT"/>
+  <delay_constant max="{iopath_CLKIN1_CLKOUT0}" in_port="CLKIN1" out_port="CLKOUT0"/>
+  <delay_constant max="{iopath_CLKIN1_CLKOUT1}" in_port="CLKIN1" out_port="CLKOUT1"/>
+  <delay_constant max="{iopath_CLKIN1_CLKOUT2}" in_port="CLKIN1" out_port="CLKOUT2"/>
+  <delay_constant max="{iopath_CLKIN1_CLKOUT3}" in_port="CLKIN1" out_port="CLKOUT3"/>
+  <delay_constant max="{iopath_CLKIN1_CLKOUT4}" in_port="CLKIN1" out_port="CLKOUT4"/>
+  <delay_constant max="{iopath_CLKIN1_CLKOUT5}" in_port="CLKIN1" out_port="CLKOUT5"/>
+
+  <delay_constant max="{iopath_CLKIN2_CLKFBOUT}" in_port="CLKIN2" out_port="CLKFBOUT"/>
+  <delay_constant max="{iopath_CLKIN2_CLKOUT0}" in_port="CLKIN2" out_port="CLKOUT0"/>
+  <delay_constant max="{iopath_CLKIN2_CLKOUT1}" in_port="CLKIN2" out_port="CLKOUT1"/>
+  <delay_constant max="{iopath_CLKIN2_CLKOUT2}" in_port="CLKIN2" out_port="CLKOUT2"/>
+  <delay_constant max="{iopath_CLKIN2_CLKOUT3}" in_port="CLKIN2" out_port="CLKOUT3"/>
+  <delay_constant max="{iopath_CLKIN2_CLKOUT4}" in_port="CLKIN2" out_port="CLKOUT4"/>
+  <delay_constant max="{iopath_CLKIN2_CLKOUT5}" in_port="CLKIN2" out_port="CLKOUT5"/>
+
+  <!-- Metadata -->
   <metadata>
     <meta name="fasm_prefix">
       PLLE2
