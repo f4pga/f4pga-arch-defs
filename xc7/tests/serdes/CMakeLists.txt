@@ -1,3 +1,7 @@
+add_file_target(FILE comparator.v SCANNER_TYPE verilog)
+add_file_target(FILE lfsr.v SCANNER_TYPE verilog)
+add_file_target(FILE oserdes_test.v SCANNER_TYPE verilog)
+
 add_fpga_target(
   NAME oserdes_basys3_x1y0
   BOARD basys3-x1y0
