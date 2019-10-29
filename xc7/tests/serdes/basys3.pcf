@@ -4,8 +4,44 @@ set_io clk W5
 set_io sw V17
 
 # out[0:7] correspond with LD0-LD15 on the basys3
-set_io led[0] U16
-set_io led[1] E19
+set_io led[0]  U16
+set_io led[1]  E19
+set_io led[2]  U19
+set_io led[3]  V19
+set_io led[4]  W18
+set_io led[5]  U15
+set_io led[6]  U14
+set_io led[7]  V14
+set_io led[8]  V13
+set_io led[9]  V3
+set_io led[10] W3
 
-set_io i_dat P17
-set_io o_dat N17
+set_io  in[0] J1
+set_io out[0] H1
+
+set_io  in[1] L2
+set_io out[1] K2
+
+set_io  in[2] J2
+set_io out[2] H2
+
+set_io  in[3] G2
+set_io out[3] G3
+
+set_io  in[4] A14
+set_io out[4] A15
+
+set_io  in[5] A16
+set_io out[5] A17
+
+set_io  in[6] B15
+set_io out[6] C15
+
+set_io  in[7] B16
+set_io out[7] C16
+
+set_io  in[8] K17
+set_io out[8] L17
+
+set_io  in[9] M18
+set_io out[9] M19
