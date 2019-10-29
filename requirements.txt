@@ -8,3 +8,5 @@ pyjson5
 svgwrite
 cairosvg
 gitpython
+matplotlib
+scipy
