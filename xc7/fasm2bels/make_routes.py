@@ -485,6 +485,13 @@ def expand_sink(
             )
 
             if upstream_sink_wire_pkey in net_map:
+                if DEBUG:
+                    print(
+                        '// {}/{} is connected to net via wire_pkey {}'.format(
+                            tile_name, wire_name, upstream_sink_wire_pkey
+                        )
+                    )
+
                 for net in net_map[upstream_sink_wire_pkey]:
                     nets[net].add_node(
                         conn=conn,
@@ -514,6 +521,13 @@ SELECT name, site_pin_pkey FROM wire_in_tile WHERE pkey = (
         site_pin, direction = c.fetchone()
 
         if direction == 'OUT':
+            if DEBUG:
+                print(
+                    '// {}/{} is connected to const'.format(
+                        tile_name, wire_name
+                    )
+                )
+
             if site_pin == 'HARD1':
                 nets[ONE_NET].add_node(
                     conn, net_map, sink_node_pkey, parent_node_pkey=ONE_NET
@@ -588,8 +602,9 @@ SELECT name, site_pin_pkey FROM wire_in_tile WHERE pkey = (
     # There does not appear to be an upstream connection, handle it.
     if allow_orphan_sinks:
         print(
-            '// ERROR, failed to find source for node = {}'.
-            format(sink_node_pkey)
+            '// ERROR, failed to find source for node = {} ({}/{})'.format(
+                sink_node_pkey, tile_name, wire_name
+            )
         )
     else:
         assert False, (sink_node_pkey, tile_name, wire_name, sink_wire_pkey)

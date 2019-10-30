@@ -30,6 +30,7 @@ from prjxray import fasm_disassembler
 from prjxray import bitstream
 import prjxray.db
 
+from .cmt_models import process_pll
 from .bram_models import process_bram
 from .clb_models import process_clb
 from .clk_models import process_hrow, process_bufg
@@ -81,6 +82,8 @@ PROCESS_TILE = {
     'HCLK_CMT_L': null_process,
     'BRAM_L': process_bram,
     'BRAM_R': process_bram,
+    'CMT_TOP_R_UPPER_T': process_pll,
+    'CMT_TOP_L_UPPER_T': process_pll,
 }
 
 
