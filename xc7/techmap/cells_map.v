@@ -2501,6 +2501,10 @@ input [8*9:0] BANDWIDTH
 endfunction
 
 // ............................................................................
+// IMPORTANT NOTE: Due to lack of support for real type parameters in Yosys
+// the PLL parameters that define duty cycles and phase shifts have to be
+// provided as integers! The DUTY_CYCLE is expressed as % of high time times
+// 1000 whereas the PHASE is expressed in degrees times 1000.
 
 // PLLE2_ADV
 module PLLE2_ADV
