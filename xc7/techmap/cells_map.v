@@ -2531,6 +2531,32 @@ input  [15:0] DI,
 output [15:0] DO
 );
 
+  parameter _TECHMAP_CONSTMSK_PWRDWN_   = 1'b1;
+  parameter _TECHMAP_CONSTVAL_PWRDWN_   = 1'bx;
+
+  parameter _TECHMAP_CONSTMSK_DCLK_     = 1'b1;
+  parameter _TECHMAP_CONSTVAL_DCLK_     = 1'bx;
+  parameter _TECHMAP_CONSTMSK_DEN_      = 1'b1;
+  parameter _TECHMAP_CONSTVAL_DEN_      = 1'bx;
+  parameter _TECHMAP_CONSTMSK_DWE_      = 1'b1;
+  parameter _TECHMAP_CONSTVAL_DWE_      = 1'bx;
+
+  parameter _TECHMAP_CONSTMSK_CLKFBOUT_ = 1'b1;
+  parameter _TECHMAP_CONSTVAL_CLKFBOUT_ = 1'bx;
+  parameter _TECHMAP_CONSTMSK_CLKOUT0_  = 1'b1;
+  parameter _TECHMAP_CONSTVAL_CLKOUT0_  = 1'bx;
+  parameter _TECHMAP_CONSTMSK_CLKOUT1_  = 1'b1;
+  parameter _TECHMAP_CONSTVAL_CLKOUT1_  = 1'bx;
+  parameter _TECHMAP_CONSTMSK_CLKOUT2_  = 1'b1;
+  parameter _TECHMAP_CONSTVAL_CLKOUT2_  = 1'bx;
+  parameter _TECHMAP_CONSTMSK_CLKOUT3_  = 1'b1;
+  parameter _TECHMAP_CONSTVAL_CLKOUT3_  = 1'bx;
+  parameter _TECHMAP_CONSTMSK_CLKOUT4_  = 1'b1;
+  parameter _TECHMAP_CONSTVAL_CLKOUT4_  = 1'bx;
+  parameter _TECHMAP_CONSTMSK_CLKOUT5_  = 1'b1;
+  parameter _TECHMAP_CONSTVAL_CLKOUT5_  = 1'bx;
+
+
   parameter IS_CLKINSEL_INVERTED = 1'b0;
   parameter IS_RST_INVERTED = 1'b0;
   parameter IS_PWRDWN_INVERTED = 1'b0;
@@ -2583,28 +2609,27 @@ output [15:0] DO
   localparam CLKOUT3_REGS  = pll_clkregs(CLKOUT3_DIVIDE, CLKOUT3_DUTY_CYCLE, CLKOUT3_PHASE);
   localparam CLKOUT4_REGS  = pll_clkregs(CLKOUT4_DIVIDE, CLKOUT4_DUTY_CYCLE, CLKOUT4_PHASE);
   localparam CLKOUT5_REGS  = pll_clkregs(CLKOUT5_DIVIDE, CLKOUT5_DUTY_CYCLE, CLKOUT5_PHASE);
-  
+
   // The substituted cell
   PLLE2_ADV_VPR #
   (
   // Inverters
   .INV_CLKINSEL(IS_CLKINSEL_INVERTED),
-  .ZINV_PWRDWN(IS_PWRDWN_INVERTED), // FIXME: Those two ZINVs do not behave as they are activated by 0
+  .ZINV_PWRDWN(IS_PWRDWN_INVERTED),
   .ZINV_RST(IS_RST_INVERTED),
 
   // Straight mapped parameters
   .STARTUP_WAIT(STARTUP_WAIT == "TRUE"),
 
-  // Register lookup tables
+  // Lookup tables
   .LKTABLE(pll_lktable_lookup(CLKFBOUT_MULT)),
   .TABLE(pll_table_lookup(CLKFBOUT_MULT, BANDWIDTH)),
 
-  // FIXME: How to get values the two below ?
+  // FIXME: How to compute values the two below ?
   .FILTREG1_RESERVED(12'b0000_00001000),
   .LOCKREG3_RESERVED(1'b1),
 
   // Clock feedback settings
-  .CLKFBOUT_CLKOUT1_OUTPUT_ENABLE(1'b1), // FIXME: Always on? Map to edge ?
   .CLKFBOUT_CLKOUT1_HIGH_TIME   (CLKFBOUT_REGS[11:6]),
   .CLKFBOUT_CLKOUT1_LOW_TIME    (CLKFBOUT_REGS[5:0]),
   .CLKFBOUT_CLKOUT1_PHASE_MUX   (CLKFBOUT_REGS[15:13]),
@@ -2666,13 +2691,15 @@ output [15:0] DO
   .CLKOUT5_CLKOUT2_EDGE         (CLKOUT5_REGS[23]),
   .CLKOUT5_CLKOUT2_NO_COUNT     (CLKOUT5_REGS[22]),
 
-  // FIXME: Its impossible to infer whether a clock output is used from within a techmap. Should features be mapped to edges?
-  .CLKOUT0_CLKOUT1_OUTPUT_ENABLE(1'b1),
-  .CLKOUT1_CLKOUT1_OUTPUT_ENABLE(1'b1),
-  .CLKOUT2_CLKOUT1_OUTPUT_ENABLE(1'b1),
-  .CLKOUT3_CLKOUT1_OUTPUT_ENABLE(1'b1),
-  .CLKOUT4_CLKOUT1_OUTPUT_ENABLE(1'b1),
-  .CLKOUT5_CLKOUT1_OUTPUT_ENABLE(1'b1)
+  // Clock output enable controls
+  .CLKFBOUT_CLKOUT1_OUTPUT_ENABLE(_TECHMAP_CONSTMSK_CLKFBOUT_ == 1'b0),
+
+  .CLKOUT0_CLKOUT1_OUTPUT_ENABLE(_TECHMAP_CONSTMSK_CLKOUT0_ == 1'b0),
+  .CLKOUT1_CLKOUT1_OUTPUT_ENABLE(_TECHMAP_CONSTMSK_CLKOUT1_ == 1'b0),
+  .CLKOUT2_CLKOUT1_OUTPUT_ENABLE(_TECHMAP_CONSTMSK_CLKOUT2_ == 1'b0),
+  .CLKOUT3_CLKOUT1_OUTPUT_ENABLE(_TECHMAP_CONSTMSK_CLKOUT3_ == 1'b0),
+  .CLKOUT4_CLKOUT1_OUTPUT_ENABLE(_TECHMAP_CONSTMSK_CLKOUT4_ == 1'b0),
+  .CLKOUT5_CLKOUT1_OUTPUT_ENABLE(_TECHMAP_CONSTMSK_CLKOUT5_ == 1'b0)
 
   )
   _TECHMAP_REPLACE_
@@ -2690,17 +2717,17 @@ output [15:0] DO
   .CLKOUT4(CLKOUT4),
   .CLKOUT5(CLKOUT5),
 
-  .PWRDWN(PWRDWN), // TODO: When const connect to 0
-  .RST(RST), // TODO: When const then what ?
+  .PWRDWN(_TECHMAP_CONSTVAL_PWRDWN_ != 1'bx ? PWRDWN : 1'b0),
+  .RST(RST),
   .LOCKED(LOCKED),
 
-  .DCLK(DCLK),
-  .DEN(DEN),
-  .DWE(DWE),
-  .DRDY(DRDY),
+  .DCLK (_TECHMAP_CONSTVAL_DCLK_ != 1'bx ? DCLK : 1'b0),
+  .DEN  (_TECHMAP_CONSTVAL_DCLK_ != 1'bx ? DEN  : 1'b0),
+  .DWE  (_TECHMAP_CONSTVAL_DCLK_ != 1'bx ? DWE  : 1'b0),
+  .DRDY (DRDY),
   .DADDR(DADDR),
-  .DI(DI),
-  .DO(DO)
+  .DI   (DI),
+  .DO   (DO)
   );
 
 endmodule
