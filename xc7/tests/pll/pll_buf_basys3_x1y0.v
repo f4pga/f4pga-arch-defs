@@ -9,7 +9,10 @@ module top
 input  wire clk,
 
 input  wire [11:0] in,
-output wire [11:0] out
+output wire [11:0] out,
+
+input  wire jc1,
+output wire jc2
 );
 
 // ============================================================================
@@ -31,10 +34,17 @@ wire RST = rst_sr[0];
 // ============================================================================
 // The tester
 
-plle2_test plle2_test
+plle2_test #
+(
+.FEEDBACK   ("BUFG")
+)
+plle2_test
 (
 .CLK        (CLK),
 .RST        (RST),
+
+.CLKFBOUT   (),
+.CLKFBIN    (),
 
 .I_PWRDWN   (in[1]),
 .I_CLKINSEL (in[2]),
@@ -44,6 +54,7 @@ plle2_test plle2_test
 );
 
 assign out [10:7] = 1'd0;
+assign jc2 = jc1;
 
 endmodule
 
