@@ -9,11 +9,11 @@
  </model>
  <model name="DPRAM64_for_RAM128X1D">
   <input_ports>
-   <port is_clock="1"   name="CLK"  />
-   <port clock="CLK"    name="WE"  combinational_sink_ports="O" />
-   <port clock="CLK"    name="DI"  combinational_sink_ports="O" />
-   <port clock="CLK"    name="WA"  combinational_sink_ports="O" />
-   <port clock="CLK"    name="WA7" combinational_sink_ports="O" />
+   <port is_clock="1"   name="CLK" />
+   <port clock="CLK"    name="WE"  />
+   <port clock="CLK"    name="DI"  />
+   <port clock="CLK"    name="WA"  />
+   <port clock="CLK"    name="WA7" />
 
    <port                name="A"   combinational_sink_ports="O" />
   </input_ports>
@@ -23,12 +23,12 @@
  </model>
  <model name="DPRAM64">
   <input_ports>
-   <port is_clock="1"   name="CLK"  />
-   <port clock="CLK"    name="WE"  combinational_sink_ports="O" />
-   <port clock="CLK"    name="DI"  combinational_sink_ports="O" />
-   <port clock="CLK"    name="WA"  combinational_sink_ports="O" />
-   <port clock="CLK"    name="WA7" combinational_sink_ports="O" />
-   <port clock="CLK"    name="WA8" combinational_sink_ports="O" />
+   <port is_clock="1"   name="CLK" />
+   <port clock="CLK"    name="WE"  />
+   <port clock="CLK"    name="DI"  />
+   <port clock="CLK"    name="WA"  />
+   <port clock="CLK"    name="WA7" />
+   <port clock="CLK"    name="WA8" />
 
    <port                name="A"   combinational_sink_ports="O" />
   </input_ports>
@@ -38,10 +38,10 @@
  </model>
  <model name="DPRAM32">
   <input_ports>
-   <port is_clock="1"   name="CLK"  />
-   <port clock="CLK"    name="WE"  combinational_sink_ports="O" />
-   <port clock="CLK"    name="DI"  combinational_sink_ports="O" />
-   <port clock="CLK"    name="WA"  combinational_sink_ports="O" />
+   <port is_clock="1"   name="CLK" />
+   <port clock="CLK"    name="WE"  />
+   <port clock="CLK"    name="DI"  />
+   <port clock="CLK"    name="WA"  />
 
    <port                name="A"   combinational_sink_ports="O" />
   </input_ports>
