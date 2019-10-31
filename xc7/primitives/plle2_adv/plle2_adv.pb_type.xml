@@ -65,7 +65,6 @@
     </meta>
     <meta name="fasm_features">
       IN_USE
-      COMPENSATION.BUF_IN_OR_EXTERNAL_OR_ZHOLD_CLKIN_BUF
       COMPENSATION.Z_ZHOLD_OR_CLKIN_BUF
     </meta>
     <meta name="fasm_params">
