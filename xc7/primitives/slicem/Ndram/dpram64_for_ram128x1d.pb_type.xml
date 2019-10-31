@@ -27,21 +27,30 @@
   <input  name="DI"  num_pins="1" />
   <input  name="WE"  num_pins="1" />
 
-  <T_setup      value="10e-12"    port="WA"  clock="CLK"  />
-  <T_clock_to_Q   max="10e-12"    port="WA"  clock="CLK"  />
-  <delay_constant max="10e-12" in_port="WA"  out_port="O" />
+  <T_setup      value="{setup_CLK_WA1}" port="WA[0]"    clock="CLK"  />
+  <T_setup      value="{setup_CLK_WA2}" port="WA[1]"    clock="CLK"  />
+  <T_setup      value="{setup_CLK_WA3}" port="WA[2]"    clock="CLK"  />
+  <T_setup      value="{setup_CLK_WA4}" port="WA[3]"    clock="CLK"  />
+  <T_setup      value="{setup_CLK_WA5}" port="WA[4]"    clock="CLK"  />
+  <T_setup      value="{setup_CLK_WA6}" port="WA[5]"    clock="CLK"  />
+  <T_setup      value="{setup_CLK_WA7}" port="WA7"      clock="CLK"  />
+  <T_hold       value="{hold_CLK_WA1}"  port="WA[0]"    clock="CLK"  />
+  <T_hold       value="{hold_CLK_WA2}"  port="WA[1]"    clock="CLK"  />
+  <T_hold       value="{hold_CLK_WA3}"  port="WA[2]"    clock="CLK"  />
+  <T_hold       value="{hold_CLK_WA4}"  port="WA[3]"    clock="CLK"  />
+  <T_hold       value="{hold_CLK_WA5}"  port="WA[4]"    clock="CLK"  />
+  <T_hold       value="{hold_CLK_WA6}"  port="WA[5]"    clock="CLK"  />
+  <T_hold       value="{hold_CLK_WA6}"  port="WA7"      clock="CLK"  />
+  <T_clock_to_Q   max="{iopath_CLK_O6}" port="WA"       clock="CLK"  />
+  <T_clock_to_Q   max="{iopath_CLK_O6}" port="WA7"      clock="CLK"  />
 
-  <T_setup      value="10e-12"    port="WA7" clock="CLK"  />
-  <T_clock_to_Q   max="10e-12"    port="WA7" clock="CLK"  />
-  <delay_constant max="10e-12" in_port="WA7" out_port="O" />
+  <T_setup      value="{setup_CLK_WE}" port="WE"     clock="CLK"  />
+  <T_hold       value="{hold_CLK_WE}" port="WE"      clock="CLK"  />
+  <T_clock_to_Q   max="{iopath_CLK_O6}" port="WE"    clock="CLK"  />
 
-  <T_setup      value="10e-12"    port="WE"  clock="CLK"  />
-  <T_clock_to_Q   max="10e-12"    port="WE"  clock="CLK"  />
-  <delay_constant max="10e-12" in_port="WE"  out_port="O" />
-
-  <T_setup      value="10e-12"    port="DI"  clock="CLK"  />
-  <T_clock_to_Q   max="10e-12"    port="DI"  clock="CLK"  />
-  <delay_constant max="10e-12" in_port="DI"  out_port="O" />
+  <T_setup      value="{setup_CLK_DI1}" port="DI"    clock="CLK"  />
+  <T_hold       value="{hold_CLK_DI1}" port="DI"     clock="CLK"  />
+  <T_clock_to_Q   max="{iopath_CLK_O6}" port="DI"    clock="CLK"  />
 
   <metadata>
     <meta name="fasm_params">
