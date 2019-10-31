@@ -33,21 +33,21 @@ add_fpga_target(
 add_vivado_target(
   NAME pll_int_basys3_x1y0_vivado
   PARENT_NAME pll_int_basys3_x1y0
-  CLOCK_PINS in_clk
+  CLOCK_PINS clk
   CLOCK_PERIODS 10.0
   )
 
 add_vivado_target(
   NAME pll_buf_basys3_x1y0_vivado
   PARENT_NAME pll_buf_basys3_x1y0
-  CLOCK_PINS in_clk
+  CLOCK_PINS clk
   CLOCK_PERIODS 10.0
   )
 
 add_vivado_target(
   NAME pll_ext_basys3_x1y0_vivado
   PARENT_NAME pll_ext_basys3_x1y0
-  CLOCK_PINS in_clk
+  CLOCK_PINS clk
   CLOCK_PERIODS 10.0
   )
 
