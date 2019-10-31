@@ -5,11 +5,20 @@ module plle2_test
 input  wire         CLK,
 input  wire         RST,
 
+output wire         CLKFBOUT,
+input  wire         CLKFBIN,
+
 input  wire         I_PWRDWN,
 input  wire         I_CLKINSEL,
 output wire         O_LOCKED,
+
 output wire [5:0]   O_CNT
 );
+
+// "INTERNAL" - PLL's internal feedback
+// "BUF"      - Feedback through a BUFG
+// "EXTERNAL" - Feedback external to the FPGA chip (use CLKFB* ports)
+parameter FEEDBACK = "INTERNAL";
 
 // ============================================================================
 // Input clock divider (to get different clkins)
@@ -34,7 +43,7 @@ wire [5:0] clk;
 PLLE2_ADV #
 (
 .BANDWIDTH          ("HIGH"),
-.COMPENSATION       ("BUF_IN"),
+.COMPENSATION       ("ZHOLD"),
 
 .CLKIN1_PERIOD      (20.0),  // 50MHz
 .CLKIN2_PERIOD      (10.0),  // 100MHz
@@ -118,7 +127,17 @@ pll
 .CLKOUT5    (clk[5])
 );
 
-BUFG clk_fb_buf (.I(clk_fb_o), .O(clk_fb_i));
+generate if (FEEDBACK == "INTERNAL") begin
+    assign clk_fb_i = clk_fb_o;
+
+end else if (FEEDBACK == "BUFG") begin
+    BUFG clk_fb_buf (.I(clk_fb_o), .O(clk_fb_i));
+
+end else if (FEEDBACK == "EXTERNAL") begin
+    assign CLKFBOUT = clk_fb_o;
+    assign clk_fb_i = CLKFBIN;
+
+end endgenerate
 
 // ============================================================================
 // Counters
