@@ -1452,7 +1452,6 @@ def main():
     parser.add_argument(
         '--no_fasm_prefix',
         action="store_true",
-        default=False,
         help="""Do not insert fasm prefix to the metadata."""
     )
 
