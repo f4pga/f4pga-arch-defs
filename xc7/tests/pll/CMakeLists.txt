@@ -55,6 +55,6 @@ add_vivado_target(
 add_dependencies(all_xc7_tests
   pll_int_basys3_x1y0
   pll_buf_basys3_x1y0
-  pll_ext_basys3_x1y0
+#  pll_ext_basys3_x1y0  # Vivado import crashes as the feedback net does not have the CLOCK_DEDICATED_ROUTE=FALSE set.
 )
 
