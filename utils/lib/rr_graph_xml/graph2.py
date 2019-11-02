@@ -436,6 +436,7 @@ class Graph(object):
                     "x": node.connection_box.x,
                     "y": node.connection_box.y,
                     "id": node.connection_box.id,
+                    "site_pin_delay": node.connection_box.site_pin_delay,
                 }
                 self._write_xml_tag("connection_box", attrib)
 

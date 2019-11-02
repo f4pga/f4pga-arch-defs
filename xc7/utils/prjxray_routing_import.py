@@ -315,13 +315,16 @@ def check_feature(feature):
 PIN_NAME_TO_PARTS = re.compile(r'^([^\.]+)\.([^\]]+)\[0\]$')
 
 
-def set_connection_box(graph, node_idx, grid_x, grid_y, box_id):
+def set_connection_box(
+        graph, node_idx, grid_x, grid_y, box_id, site_pin_delay
+):
     """ Assign a connection box to an IPIN node. """
     node_dict = graph.nodes[node_idx]._asdict()
     node_dict['connection_box'] = graph2.ConnectionBox(
         x=grid_x,
         y=grid_y,
         id=box_id,
+        site_pin_delay=site_pin_delay,
     )
     graph.nodes[node_idx] = graph2.Node(**node_dict)
 
@@ -354,7 +357,34 @@ SELECT grid_x, grid_y FROM phy_tile WHERE pkey = (
         )
         wire_in_tile_pkey = cur.fetchone()[0]
         box_id = connection_box_map[wire_in_tile_pkey]
-        set_connection_box(graph, node_idx, grid_x, grid_y, box_id)
+
+        cur.execute(
+            """
+SELECT switch.intrinsic_delay
+FROM switch
+WHERE pkey = (
+    SELECT site_pin_switch_pkey
+    FROM wire_in_tile
+    WHERE pkey = (
+        SELECT wire_in_tile_pkey
+        FROM wire
+        WHERE pkey = (
+            SELECT site_wire_pkey
+            FROM node
+            WHERE pkey = (
+                SELECT node_pkey
+                FROM graph_node
+                WHERE pkey = ?
+            )
+        )
+    )
+)""", (graph_node_pkey, )
+        )
+        site_pin_delay = cur.fetchone()[0]
+
+        set_connection_box(
+            graph, node_idx, grid_x, grid_y, box_id, site_pin_delay
+        )
 
 
 def import_graph_nodes(conn, graph, node_mapping, connection_box_map):
@@ -376,7 +406,8 @@ def import_graph_nodes(conn, graph, node_mapping, connection_box_map):
                 node_idx,
                 node.loc.x_low,
                 node.loc.y_low,
-                box_id=graph.maybe_add_connection_box('IMUX')
+                box_id=graph.maybe_add_connection_box('IMUX'),
+                site_pin_delay=0.,
             )
             continue
 
