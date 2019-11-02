@@ -154,7 +154,7 @@ class CanonicalLoc(namedtuple('CanonicalLoc', 'x y')):
     pass
 
 
-class ConnectionBox(namedtuple('ConnectionBox', 'x y id')):
+class ConnectionBox(namedtuple('ConnectionBox', 'x y id site_pin_delay')):
     """ Connection box location and definition.
 
     The connection box location is the place in the "canonical grid" where
@@ -167,6 +167,7 @@ class ConnectionBox(namedtuple('ConnectionBox', 'x y id')):
         Canonical location of connection box for IPIN.
     id : int
         0-based index into ConnectionBoxes.boxes vector of connection box names.
+    site_pin_delay : float
 
     """
     pass
