@@ -1,5 +1,5 @@
-`include "lfsr.v"
 `include "comparator.v"
+`include "lfsr.v"
 
 `default_nettype none
 
@@ -16,7 +16,7 @@ parameter ERROR_HOLD    = 2500000
 input  wire CLK,
 input  wire RST,
 
-// Divided clock for parallel data
+// OSERDES div clocks
 input  wire CLKDIV,
 
 // Data pin
@@ -26,15 +26,6 @@ output wire O_DAT,
 // Error indicator
 output wire O_ERROR
 );
-
-// The clock enable signal for the "hi speed" clock domain.
-reg  clkdiv_r;
-wire ce;
-
-always @(posedge CLK)
-    clkdiv_r <= CLKDIV;
-
-assign ce = clkdiv_r && !CLKDIV;
 
 // ============================================================================
 // Data source
@@ -111,12 +102,25 @@ oserdes
 .TQ     (ser_tq)
 );
 
-// ============================================================================
-// IO
-wire iob_i;
+// The clock enable signal for the "hi speed" clock domain.
+reg  clkdiv_r;
+wire ce;
 
-assign O_DAT = ser_oq;
-assign iob_i = I_DAT;
+always @(posedge CLK)
+    clkdiv_r <= CLKDIV;
+
+assign ce = clkdiv_r && !CLKDIV;
+
+// ============================================================================
+// IOB
+OBUF obuf
+(
+.I      (ser_oq),
+.O      (O_DAT)
+);
+
+wire iob_i;
+IBUF ibuf (.I(I_DAT), .O(iob_i));
 
 // ============================================================================
 // Reference data serializer

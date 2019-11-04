@@ -1,96 +1,115 @@
 `include "oserdes_test.v"
 
+`default_nettype none
+
 // ============================================================================
 
 module top
 (
 input  wire clk,
 
-input  wire sw,
-output wire [10:0] led,
+input  wire rx,
+output wire tx,
 
-input  wire [9:0] in,
-output wire [9:0] out
+input  wire [15:0] sw,
+output wire [15:0] led,
+
+input  wire [11:0]  in,
+output wire [11:0]  out
 );
 
 // ============================================================================
 // Clock & reset
-reg [3:0] rst_sr;
+reg [11:0] rst_sr;
 
-initial rst_sr <= 4'hF;
+initial rst_sr <= 12'hF;
 
 always @(posedge clk)
     if (sw[0])
-        rst_sr <= 4'hF;
+        rst_sr <= 12'hF;
     else
         rst_sr <= rst_sr >> 1;
 
-wire CLK;
-BUFG bufg_clk(.I(clk), .O(CLK));
+wire CLK1;
 wire RST = rst_sr[0];
+
+BUFG clk1(.I(clk), .O(CLK1));
 
 // ============================================================================
 // Clocks for OSERDES
 
-wire CLKDIV_2;
-wire CLKDIV_3;
-wire CLKDIV_4;
-wire CLKDIV_5;
-wire CLKDIV_6;
-wire CLKDIV_7;
-wire CLKDIV_8;
+// SDR
+wire PRE_BUFG_CLKDIV2_1;
+wire PRE_BUFG_CLKDIV3_1;
+wire PRE_BUFG_CLKDIV4_1;
+wire PRE_BUFG_CLKDIV6_1;
+wire PRE_BUFG_CLKDIV7_1;
+wire PRE_BUFG_CLKDIV8_1;
 
-wire pll_1_clk_fb_i;
-wire pll_1_clk_fb_o;
-wire pll_2_clk_fb_i;
-wire pll_2_clk_fb_o;
+// DDR
+wire PRE_BUFG_CLKDIV4_2;
+wire PRE_BUFG_CLKDIV6_2;
+wire PRE_BUFG_CLKDIV8_2;
 
-wire locked_1;
-wire locked_2;
+wire CLKDIV2_1;
+wire CLKDIV3_1;
+wire CLKDIV4_1;
+wire CLKDIV6_1;
+wire CLKDIV7_1;
+wire CLKDIV8_1;
+
+wire CLKDIV4_2;
+wire CLKDIV6_2;
+wire CLKDIV8_2;
+
+wire O_LOCKED_1;
+wire O_LOCKED_2;
+
+wire clk_fb_i1;
+wire clk_fb_o1;
+
+wire clk_fb_i2;
+wire clk_fb_o2;
 
 PLLE2_ADV #
 (
 .BANDWIDTH          ("HIGH"),
 .COMPENSATION       ("ZHOLD"),
 
-.CLKOUT0_DIVIDE     (2),
-.CLKOUT0_DUTY_CYCLE (50000),
+.CLKIN1_PERIOD      (10.0),  // 100MHz
 
-.CLKOUT1_DIVIDE     (3),
-.CLKOUT1_DUTY_CYCLE (50000),
+.CLKFBOUT_MULT      (16),
+.CLKFBOUT_PHASE     (0),
 
-.CLKOUT2_DIVIDE     (4),
-.CLKOUT2_DUTY_CYCLE (50000),
+.CLKOUT0_DIVIDE     (48),
 
-.CLKOUT3_DIVIDE     (5),
-.CLKOUT3_DUTY_CYCLE (50000),
+.CLKOUT1_DIVIDE     (64),
 
-.CLKOUT4_DIVIDE     (6),
-.CLKOUT4_DUTY_CYCLE (50000),
+.CLKOUT2_DIVIDE     (96),
 
-.CLKOUT5_DIVIDE     (7),
-.CLKOUT5_DUTY_CYCLE (50000),
+.CLKOUT3_DIVIDE     (112),
+
+.CLKOUT4_DIVIDE     (128),
 
 .STARTUP_WAIT       ("FALSE")
 )
-pll_1
+pll1
 (
-.CLKIN1     (CLK),
+.CLKIN1     (CLK1),
 .CLKINSEL   (1),
 
 .RST        (RST),
 .PWRDWN     (0),
-.LOCKED     (locked_1),
+.LOCKED     (O_LOCKED_1),
 
-.CLKFBIN    (pll_1_clk_fb_i),
-.CLKFBOUT   (pll_1_clk_fb_o),
+.CLKFBIN    (clk_fb_i1),
+.CLKFBOUT   (clk_fb_o1),
 
-.CLKOUT0    (CLKDIV_2),
-.CLKOUT1    (CLKDIV_3),
-.CLKOUT2    (CLKDIV_4),
-.CLKOUT3    (CLKDIV_5),
-.CLKOUT4    (CLKDIV_6),
-.CLKOUT5    (CLKDIV_7)
+.CLKOUT0    (PRE_BUFG_CLKDIV3_1),
+.CLKOUT1    (PRE_BUFG_CLKDIV4_1),
+.CLKOUT2    (PRE_BUFG_CLKDIV6_1),
+.CLKOUT3    (PRE_BUFG_CLKDIV7_1),
+.CLKOUT4    (PRE_BUFG_CLKDIV8_1)
 );
 
 PLLE2_ADV #
@@ -98,58 +117,74 @@ PLLE2_ADV #
 .BANDWIDTH          ("HIGH"),
 .COMPENSATION       ("ZHOLD"),
 
-.CLKOUT0_DIVIDE     (8),
-.CLKOUT0_DUTY_CYCLE (50000),
+.CLKIN1_PERIOD      (10.0),  // 100MHz
+
+.CLKFBOUT_MULT      (16),
+.CLKFBOUT_PHASE     (0),
+
+.CLKOUT0_DIVIDE     (64),
+
+.CLKOUT1_DIVIDE     (96),
+
+.CLKOUT2_DIVIDE     (128),
 
 .STARTUP_WAIT       ("FALSE")
 )
-pll_2
+pll2
 (
-.CLKIN1     (CLK),
+.CLKIN1     (CLK1),
 .CLKINSEL   (1),
 
 .RST        (RST),
 .PWRDWN     (0),
-.LOCKED     (locked_2),
+.LOCKED     (O_LOCKED_2),
 
-.CLKFBIN    (pll_2_clk_fb_i),
-.CLKFBOUT   (pll_2_clk_fb_o),
+.CLKFBIN    (clk_fb_i2),
+.CLKFBOUT   (clk_fb_o2),
 
-.CLKOUT0    (CLKDIV_8)
+.CLKOUT0    (PRE_BUFG_CLKDIV4_2),
+.CLKOUT1    (PRE_BUFG_CLKDIV6_2),
+.CLKOUT2    (PRE_BUFG_CLKDIV8_2)
 );
+
+BUFG bufg_clkdiv3_1(.I(PRE_BUFG_CLKDIV3_1), .O(CLKDIV3_1));
+BUFG bufg_clkdiv4_1(.I(PRE_BUFG_CLKDIV4_1), .O(CLKDIV4_1));
+BUFG bufg_clkdiv6_1(.I(PRE_BUFG_CLKDIV6_1), .O(CLKDIV6_1));
+BUFG bufg_clkdiv7_1(.I(PRE_BUFG_CLKDIV7_1), .O(CLKDIV7_1));
+BUFG bufg_clkdiv8_1(.I(PRE_BUFG_CLKDIV8_1), .O(CLKDIV8_1));
+
+BUFG bufg_clkdiv4_2(.I(PRE_BUFG_CLKDIV4_2), .O(CLKDIV4_2));
+BUFG bufg_clkdiv6_2(.I(PRE_BUFG_CLKDIV6_2), .O(CLKDIV6_2));
+BUFG bufg_clkdiv8_2(.I(PRE_BUFG_CLKDIV8_2), .O(CLKDIV8_2));
 
 // ============================================================================
 // Test uints
 wire [9:0] error;
 
 genvar i;
-generate for (i=9; i<10; i=i+1) begin
+generate for (i=0; i<8; i=i+1) begin
 
-  localparam DATA_WIDTH = (i == 0) ?   2 :
-                          (i == 1) ?   3 :
-                          (i == 2) ?   4 :
-                          (i == 3) ?   5 :
-                          (i == 4) ?   6 :
-                          (i == 5) ?   7 :
-                          (i == 6) ?   8 :
-                          (i == 7) ?   4 :
-                          (i == 8) ?   6 :
-                        /*(i == 9) ?*/ 8;
+  localparam DATA_WIDTH = (i == 0) ?   3 :
+                          (i == 1) ?   4 :
+                          (i == 2) ?   6 :
+                          (i == 3) ?   7 :
+                          (i == 4) ?   8 :
+                          (i == 5) ?   4 :
+                          (i == 6) ?   6 :
+                        /*(i == 7) ?*/ 8;
 
-  wire CLKDIV = (i == 0) ?   CLKDIV_2 :
-                (i == 1) ?   CLKDIV_3 :
-                (i == 2) ?   CLKDIV_4 :
-                (i == 3) ?   CLKDIV_5 :
-                (i == 4) ?   CLKDIV_6 :
-                (i == 5) ?   CLKDIV_7 :
-                (i == 6) ?   CLKDIV_8 :
-                (i == 7) ?   CLKDIV_4 :
-                (i == 8) ?   CLKDIV_6 :
-              /*(i == 9) ?*/ CLKDIV_8;
+  localparam DATA_RATE =  (i < 5) ? "SDR" : "DDR";
 
-  localparam DATA_RATE =  (i <  7) ? "SDR" : "DDR";
+  wire CLKDIV = (i == 0) ? CLKDIV3_1 :
+                (i == 1) ? CLKDIV4_1 :
+                (i == 2) ? CLKDIV6_1 :
+                (i == 3) ? CLKDIV7_1 :
+                (i == 4) ? CLKDIV8_1 :
+                (i == 5) ? CLKDIV4_2 :
+                (i == 6) ? CLKDIV6_2 :
+              /*(i == 7)*/ CLKDIV8_2;
 
-  wire out_data;
+
   oserdes_test #
   (
   .DATA_WIDTH   (DATA_WIDTH),
@@ -157,16 +192,14 @@ generate for (i=9; i<10; i=i+1) begin
   )
   oserdes_test
   (
-  .CLK      (CLK),
+  .CLK      (CLK1),
   .CLKDIV   (CLKDIV),
   .RST      (RST),
 
   .I_DAT   (in[i]),
-  .O_DAT   (out_data),
+  .O_DAT   (out[i]),
   .O_ERROR  (error[i])
   );
-
-  OBUF obuf (.I(out_data), .O(out[i]));
 
 end endgenerate
 
@@ -174,7 +207,7 @@ end endgenerate
 // IOs
 reg [24:0] heartbeat_cnt;
 
-always @(posedge CLK)
+always @(posedge CLK1)
     heartbeat_cnt <= heartbeat_cnt + 1;
 
 assign led[ 0] = !error[0];
@@ -185,9 +218,14 @@ assign led[ 4] = !error[4];
 assign led[ 5] = !error[5];
 assign led[ 6] = !error[6];
 assign led[ 7] = !error[7];
-assign led[ 8] = !error[8];
-assign led[ 9] = !error[9];
-assign led[10] = heartbeat_cnt[23];
+assign led[ 8] = heartbeat_cnt[24];
+assign led[ 9] = 1'b0;
+assign led[10] = 1'b0;
+assign led[11] = 1'b0;
+assign led[12] = 1'b0;
+assign led[13] = 1'b0;
+assign led[14] = 1'b0;
+assign led[15] = 1'b0;
 
 endmodule
 
