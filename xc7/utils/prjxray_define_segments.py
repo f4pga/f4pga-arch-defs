@@ -76,6 +76,7 @@ def get_segments(db):
             'BRAM_CASCADE',
             'BUFG_CASCADE',
             'GCLK',
+            'GCLK_OUTPINFEED',
             'HCLK_CK_IN',
             'BRAM_IMUX',
             'HCLK_COLUMNS',
@@ -83,6 +84,7 @@ def get_segments(db):
             'HCLK_ROW_TO_COLUMN',
             'CCIO_OUTPINFEED',
             'CCIO_CLK_IN',
+            'PLL_OUTPINFEED',
     ]:
         segments[segment] = set()
 

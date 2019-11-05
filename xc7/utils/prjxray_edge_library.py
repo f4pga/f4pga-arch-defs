@@ -31,6 +31,34 @@ def get_node_type(conn, graph_node_pkey):
     return c.fetchone()[0]
 
 
+def get_pins(conn, site_type, site_pin):
+    """ Returns a set of the pin graph_nodes related to the input site type and pin names."""
+
+    c = conn.cursor()
+    c.execute(
+        """
+WITH pll_opins(wire_in_tile_pkey) AS (
+  SELECT wire_in_tile.pkey FROM wire_in_tile
+  INNER JOIN site_pin ON site_pin.pkey = wire_in_tile.site_pin_pkey
+  INNER JOIN site_type ON site_pin.site_type_pkey = site_type.pkey
+  WHERE
+    site_type.name == ?
+  AND
+    site_pin.name == ?
+)
+SELECT graph_node.pkey FROM graph_node
+INNER JOIN wire ON graph_node.node_pkey = wire.node_pkey
+WHERE
+  wire.wire_in_tile_pkey IN (SELECT wire_in_tile_pkey FROM pll_opins);
+    """, (
+            site_type,
+            site_pin,
+        )
+    )
+
+    return set(graph_node_pkey for (graph_node_pkey, ) in c.fetchall())
+
+
 def add_graph_nodes_for_pins(conn, tile_type, wire, pin_directions):
     """ Adds graph_node rows for each pin on a wire in a tile. """
 
@@ -1648,6 +1676,16 @@ def annotate_pin_feeds(conn, ccio_sites):
     outpinfeed_pkey = cur.fetchone()[0]
 
     cur.execute(
+        "SELECT pkey FROM segment WHERE name = ?", ("GCLK_OUTPINFEED", )
+    )
+    gclk_outpinfeed_pkey = cur.fetchone()[0]
+
+    cur.execute(
+        "SELECT pkey FROM segment WHERE name = ?", ("PLL_OUTPINFEED", )
+    )
+    pll_outpinfeed_pkey = cur.fetchone()[0]
+
+    cur.execute(
         "SELECT pkey FROM segment WHERE name = ?", ("CCIO_OUTPINFEED", )
     )
     ccio_outpinfeed_pkey = cur.fetchone()[0]
@@ -1657,26 +1695,23 @@ def annotate_pin_feeds(conn, ccio_sites):
 
     # Find BUFHCE OPIN's, so that walk_and_mark_segment uses correct segment
     # type.
-    cur.execute(
-        """
-WITH bufhce_opins(wire_in_tile_pkey) AS (
-  SELECT wire_in_tile.pkey FROM wire_in_tile
-  INNER JOIN site_pin ON site_pin.pkey = wire_in_tile.site_pin_pkey
-  INNER JOIN site_type ON site_pin.site_type_pkey = site_type.pkey
-  WHERE
-    site_type.name == "BUFHCE"
-  AND
-    site_pin.name == "O"
-)
-SELECT graph_node.pkey FROM graph_node
-INNER JOIN wire ON graph_node.node_pkey = wire.node_pkey
-WHERE
-  wire.wire_in_tile_pkey IN (SELECT wire_in_tile_pkey FROM bufhce_opins);
-    """
-    )
-    bufhce_opins = set(
-        graph_node_pkey for (graph_node_pkey, ) in cur.fetchall()
-    )
+    bufhce_opins = get_pins(conn, "BUFHCE", "O")
+
+    # Find BUFGCTRL OPIN's, so that walk_and_mark_segment uses correct segment
+    # type.
+    bufg_opins = get_pins(conn, "BUFGCTRL", "O")
+
+    # Find PLL OPIN's, so that walk_and_mark_segment uses correct segment
+    # type.
+    pll_opins = set()
+    for nclk in range(6):
+        pll_opins = pll_opins | get_pins(
+            conn, "PLLE2_ADV", "CLKOUT{}".format(nclk)
+        )
+
+    print("BUFHCE OPINS: ", bufhce_opins)
+    print("BUFG OPINS: ", bufg_opins)
+    print("CMT OPINS: ", pll_opins)
 
     ccio_opins = set()
 
@@ -1723,6 +1758,10 @@ WHERE graph_node.graph_node_type = ?
 
         if graph_node_pkey in bufhce_opins:
             segment_pkey = hclk_rows_pkey
+        elif graph_node_pkey in bufg_opins:
+            segment_pkey = gclk_outpinfeed_pkey
+        elif graph_node_pkey in pll_opins:
+            segment_pkey = pll_outpinfeed_pkey
         elif graph_node_pkey in ccio_opins:
             segment_pkey = ccio_outpinfeed_pkey
         else:
