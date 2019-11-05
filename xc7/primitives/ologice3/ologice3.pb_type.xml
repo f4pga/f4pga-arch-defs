@@ -37,7 +37,7 @@
       <direct name="D1_OQ" input="OLOGICE3.D1" output="OLOGICE3.OQ">
         <metadata>
           <meta name="fasm_mux">
-            OLOGICE3.D1 : OMUX.D1,OQUSED,OSERDESE.DATA_RATE_TQ.BUF
+            OLOGICE3.D1 : OMUX.D1,OQUSED,OSERDES.DATA_RATE_TQ.BUF
           </meta>
         </metadata>
       </direct>
