@@ -92,7 +92,7 @@ oserdes
 .D6     (ser_dat[5]),
 .D7     (ser_dat[6]),
 .D8     (ser_dat[7]),
-.OQ     (ser_oq),
+.OQ     (O_DAT),
 
 .TCE    (1'b1),
 .T1     (1'b0), // All 0 to keep OBUFT always on.
@@ -110,17 +110,6 @@ always @(posedge CLK)
     clkdiv_r <= CLKDIV;
 
 assign ce = clkdiv_r && !CLKDIV;
-
-// ============================================================================
-// IOB
-OBUF obuf
-(
-.I      (ser_oq),
-.O      (O_DAT)
-);
-
-wire iob_i;
-IBUF ibuf (.I(I_DAT), .O(iob_i));
 
 // ============================================================================
 // Reference data serializer
@@ -151,7 +140,7 @@ comparator
 .RST    (RST),
 
 .I_DAT_REF  (ref_o),
-.I_DAT_IOB  (iob_i),
+.I_DAT_IOB  (I_DAT),
 
 .O_ERROR    (O_ERROR)
 );
