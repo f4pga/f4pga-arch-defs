@@ -438,11 +438,13 @@ def import_tile(db, args):
             )
 
             metadata_xml = ET.SubElement(include_xml, 'metadata')
-            ET.SubElement(
-                metadata_xml, 'meta', {
-                    'name': 'fasm_prefix',
-                }
-            ).text = site_prefix
+
+            if not args.no_fasm_prefix:
+                ET.SubElement(
+                    metadata_xml, 'meta', {
+                        'name': 'fasm_prefix',
+                    }
+                ).text = site_prefix
 
             # Import pb_type metadata if it exists.
             if any(child.tag == 'metadata' for child in root_element):
@@ -1445,6 +1447,12 @@ def main():
 
     parser.add_argument(
         '--filter_x', help="Filter imported sites by their x coordinate."
+    )
+
+    parser.add_argument(
+        '--no_fasm_prefix',
+        action="store_true",
+        help="""Do not insert fasm prefix to the metadata."""
     )
 
     args = parser.parse_args()

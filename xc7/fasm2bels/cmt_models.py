@@ -66,6 +66,11 @@ def process_pll(conn, top, tile_name, features):
     Processes the PLL site
     """
 
+    # VCO operating ranges [MHz] (for speed grade -1)
+    vco_range = (800.0, 1600.0)
+    # Max. CLKIN period [ns]
+    max_clkin_period = 52.631
+
     # Filter only PLL related features
     pll_features = [f for f in features if 'PLLE2.' in f.feature]
     if len(pll_features) == 0:
@@ -136,6 +141,7 @@ def process_pll(conn, top, tile_name, features):
                 duty = 0.5
 
             if clkout == 'FBOUT':
+                vco_m = float(divider)
                 pll.parameters['CLKFBOUT_MULT'] = divider
             else:
                 pll.parameters['CLK{}_DIVIDE'.format(clkout)] = divider
@@ -168,7 +174,18 @@ def process_pll(conn, top, tile_name, features):
     if site.has_feature('DIVCLK_DIVCLK_NO_COUNT'):
         divider = 1
 
+    vco_d = float(divider)
     pll.parameters['DIVCLK_DIVIDE'] = divider
+
+    # Compute CLKIN1 and CLKIN2 periods so the VCO frequency derived from
+    # it falls within its operation range. This is needed to pass Vivado
+    # DRC checks. Those calculations are NOT based on any design constraints!
+    clkin_period = (vco_m /
+                    vco_d) * (2.0 / (vco_range[0] + vco_range[1])) * 1e3
+    clkin_period = min(clkin_period, max_clkin_period)
+
+    pll.parameters['CLKIN1_PERIOD'] = "{:.3f}".format(clkin_period)
+    pll.parameters['CLKIN2_PERIOD'] = "{:.3f}".format(clkin_period)
 
     # Startup wait
     pll.parameters['STARTUP_WAIT'] = '"TRUE"' if site.has_feature(
