@@ -1966,22 +1966,6 @@ module OSERDESE2 (
   parameter SERDES_MODE = "MASTER";
   parameter TRISTATE_WIDTH = 4;
 
-  parameter [0:0] IS_D1_INVERTED = 1'b0;
-  parameter [0:0] IS_D2_INVERTED = 1'b0;
-  parameter [0:0] IS_D3_INVERTED = 1'b0;
-  parameter [0:0] IS_D4_INVERTED = 1'b0;
-  parameter [0:0] IS_D5_INVERTED = 1'b0;
-  parameter [0:0] IS_D6_INVERTED = 1'b0;
-  parameter [0:0] IS_D7_INVERTED = 1'b0;
-  parameter [0:0] IS_D8_INVERTED = 1'b0;
-  parameter [0:0] IS_CLKDIV_INVERTED = 1'b0;
-
-  parameter [0:0] IS_CLK_INVERTED = 1'b0;
-  parameter [0:0] IS_T1_INVERTED = 1'b0;
-  parameter [0:0] IS_T2_INVERTED = 1'b0;
-  parameter [0:0] IS_T3_INVERTED = 1'b0;
-  parameter [0:0] IS_T4_INVERTED = 1'b0;
-
   if (DATA_RATE_OQ == "DDR" &&
       !(DATA_WIDTH == 2 || DATA_WIDTH == 4 ||
         DATA_WIDTH == 6 || DATA_WIDTH == 8)) begin
@@ -2012,12 +1996,28 @@ module OSERDESE2 (
                                               DATA_WIDTH == 5 || DATA_WIDTH == 6) ? 1'b1 : 1'b0;
 
   // Inverter parameters
-  localparam [0:0] ZINV_CLK = 1'b0;
-  localparam [0:0] ZINV_T1 = 1'b0;
-  localparam [0:0] ZINV_T2 = 1'b0;
-  localparam [0:0] ZINV_T3 = 1'b0;
-  localparam [0:0] ZINV_T4 = 1'b0;
+  parameter [0:0] IS_D1_INVERTED = 1'b0;
+  parameter [0:0] IS_D2_INVERTED = 1'b0;
+  parameter [0:0] IS_D3_INVERTED = 1'b0;
+  parameter [0:0] IS_D4_INVERTED = 1'b0;
+  parameter [0:0] IS_D5_INVERTED = 1'b0;
+  parameter [0:0] IS_D6_INVERTED = 1'b0;
+  parameter [0:0] IS_D7_INVERTED = 1'b0;
+  parameter [0:0] IS_D8_INVERTED = 1'b0;
+  parameter [0:0] IS_CLKDIV_INVERTED = 1'b0;
 
+  parameter [0:0] IS_CLK_INVERTED = 1'b0;
+  parameter [0:0] IS_T1_INVERTED = 1'b0;
+  parameter [0:0] IS_T2_INVERTED = 1'b0;
+  parameter [0:0] IS_T3_INVERTED = 1'b0;
+  parameter [0:0] IS_T4_INVERTED = 1'b0;
+
+  parameter [0:0] INIT_OQ = 1'b0;
+  parameter [0:0] INIT_TQ = 1'b0;
+  parameter [0:0] SRVAL_OQ = 1'b0;
+  parameter [0:0] SRVAL_TQ = 1'b0;
+  
+  localparam [0:0] ZINV_CLK = 1'b0;
   OSERDESE2_VPR #(
       .SERDES_MODE_SLAVE(SERDES_MODE == "SLAVE"),
       .TRISTATE_WIDTH_W4(TRISTATE_WIDTH == 4),
@@ -2035,6 +2035,10 @@ module OSERDESE2 (
       .DATA_WIDTH_W6(DATA_WIDTH == 6),
       .DATA_WIDTH_W7(DATA_WIDTH == 7),
       .DATA_WIDTH_W8(DATA_WIDTH == 8),
+      .ZINIT_OQ(!INIT_OQ),
+      .ZINIT_TQ(!INIT_TQ),
+      .ZSRVAL_OQ(!SRVAL_OQ),
+      .ZSRVAL_TQ(!SRVAL_TQ),
       .IS_CLKDIV_INVERTED(IS_CLKDIV_INVERTED),
       .IS_D1_INVERTED(IS_D1_INVERTED),
       .IS_D2_INVERTED(IS_D2_INVERTED),
@@ -2044,11 +2048,11 @@ module OSERDESE2 (
       .IS_D6_INVERTED(IS_D6_INVERTED),
       .IS_D7_INVERTED(IS_D7_INVERTED),
       .IS_D8_INVERTED(IS_D8_INVERTED),
-      .ZINV_CLK(ZINV_CLK),
-      .ZINV_T1(ZINV_T1),
-      .ZINV_T2(ZINV_T2),
-      .ZINV_T3(ZINV_T3),
-      .ZINV_T4(ZINV_T4)
+      .ZINV_CLK(!IS_CLK_INVERTED),
+      .ZINV_T1(!IS_T1_INVERTED),
+      .ZINV_T2(!IS_T2_INVERTED),
+      .ZINV_T3(!IS_T3_INVERTED),
+      .ZINV_T4(!IS_T4_INVERTED)
   ) _TECHMAP_REPLACE_ (
     .CLK(CLK),
     .CLKDIV(CLKDIV),

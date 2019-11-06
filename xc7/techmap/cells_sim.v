@@ -698,6 +698,11 @@ module OSERDESE2_VPR (
   parameter [0:0] ZINV_T2 = 1'b0;
   parameter [0:0] ZINV_T3 = 1'b0;
   parameter [0:0] ZINV_T4 = 1'b0;
+  
+  parameter [0:0] ZINIT_OQ = 1'b0;
+  parameter [0:0] ZINIT_TQ = 1'b0;
+  parameter [0:0] ZSRVAL_OQ = 1'b0;
+  parameter [0:0] ZSRVAL_TQ = 1'b0;
 endmodule
 
 // ============================================================================
