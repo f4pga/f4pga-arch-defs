@@ -5,6 +5,10 @@ add_subdirectory(slicem)
 add_subdirectory(clk_bufg_top_r)
 add_subdirectory(clk_bufg_bot_r)
 
+# TODO: Those two should be made equivalent I think.
+add_subdirectory(cmt_top_r_upper_t)
+add_subdirectory(cmt_top_l_upper_t)
+
 set(IOPAD_SITES IOB33 IDELAYE2 ILOGICE3 OLOGICE3)
 set(IOPAD_S_SITES IOB33S IDELAYE2 ILOGICE3 OLOGICE3)
 set(IOPAD_M_SITES IOB33M IDELAYE2 ILOGICE3 OLOGICE3)

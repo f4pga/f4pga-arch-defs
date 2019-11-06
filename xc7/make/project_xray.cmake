@@ -74,11 +74,12 @@ function(PROJECT_XRAY_TILE)
   #   FUSED_SITES (option)
   #   USE_DATABASE (option)
   #   BOTH_SITE_COORDS (option)
+  #   NO_FASM_PREFIX (option)
   #   [FILTER_X <x_coord>]
   #   )
   # ~~~
 
-  set(options PRIORITY FUSED_SITES SITE_AS_TILE USE_DATABASE BOTH_SITE_COORDS)
+  set(options PRIORITY FUSED_SITES SITE_AS_TILE USE_DATABASE BOTH_SITE_COORDS NO_FASM_PREFIX)
   set(oneValueArgs PART TILE FILTER_X)
   set(multiValueArgs SITE_TYPES EQUIVALENT_SITES)
   cmake_parse_arguments(
@@ -141,6 +142,11 @@ function(PROJECT_XRAY_TILE)
       set(FILTER_X_ARGS --filter_x ${PROJECT_XRAY_TILE_FILTER_X})
   endif()
 
+  set(FASM_ARGS "")
+  if(PROJECT_XRAY_TILE_NO_FASM_PREFIX)
+    set(FASM_ARGS "--no_fasm_prefix")
+  endif()
+
   add_custom_command(
     OUTPUT ${TILE}.pb_type.xml ${TILE}.model.xml
     COMMAND ${CMAKE_COMMAND} -E env PYTHONPATH=${PRJXRAY_DIR}:${symbiflow-arch-defs_SOURCE_DIR}/utils
@@ -154,6 +160,7 @@ function(PROJECT_XRAY_TILE)
     --output-model ${CMAKE_CURRENT_BINARY_DIR}/${TILE}.model.xml
     ${FUSED_SITES_ARGS}
     ${BOTH_SITE_COORDS_ARGS}
+    ${FASM_ARGS}
     ${FILTER_X_ARGS}
     DEPENDS
     ${TILE_IMPORT}
