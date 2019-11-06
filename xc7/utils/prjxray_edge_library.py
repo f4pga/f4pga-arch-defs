@@ -1681,9 +1681,17 @@ def annotate_pin_feeds(conn, ccio_sites):
     gclk_outpinfeed_pkey = cur.fetchone()[0]
 
     cur.execute(
+        "SELECT pkey FROM segment WHERE name = ?", ("GCLK_INPINFEED", )
+    )
+    gclk_inpinfeed_pkey = cur.fetchone()[0]
+
+    cur.execute(
         "SELECT pkey FROM segment WHERE name = ?", ("PLL_OUTPINFEED", )
     )
     pll_outpinfeed_pkey = cur.fetchone()[0]
+
+    cur.execute("SELECT pkey FROM segment WHERE name = ?", ("PLL_INPINFEED", ))
+    pll_inpinfeed_pkey = cur.fetchone()[0]
 
     cur.execute(
         "SELECT pkey FROM segment WHERE name = ?", ("CCIO_OUTPINFEED", )
@@ -1701,6 +1709,14 @@ def annotate_pin_feeds(conn, ccio_sites):
     # type.
     bufg_opins = get_pins(conn, "BUFGCTRL", "O")
 
+    # Find BUFGCTRL IPIN's, so that walk_and_mark_segment uses correct segment
+    # type.
+    bufg_ipins = set()
+    for nipins in range(2):
+        bufg_ipins = bufg_ipins | get_pins(
+            conn, "BUFGCTRL", "I{}".format(nipins)
+        )
+
     # Find PLL OPIN's, so that walk_and_mark_segment uses correct segment
     # type.
     pll_opins = set()
@@ -1709,9 +1725,13 @@ def annotate_pin_feeds(conn, ccio_sites):
             conn, "PLLE2_ADV", "CLKOUT{}".format(nclk)
         )
 
-    print("BUFHCE OPINS: ", bufhce_opins)
-    print("BUFG OPINS: ", bufg_opins)
-    print("CMT OPINS: ", pll_opins)
+    # Find PLL IPIN's, so that walk_and_mark_segment uses correct segment
+    # type.
+    pll_ipins = set()
+    for nclk in range(2):
+        pll_ipins = pll_ipins | get_pins(
+            conn, "PLLE2_ADV", "CLKIN{}".format(nclk + 1)
+        )
 
     ccio_opins = set()
 
@@ -1789,12 +1809,19 @@ WHERE graph_node.graph_node_type = ?
         if not active_graph_node(conn, graph_node_pkey, forward=False):
             continue
 
+        if graph_node_pkey in bufg_ipins:
+            segment_pkey = gclk_inpinfeed_pkey
+        elif graph_node_pkey in pll_ipins:
+            segment_pkey = pll_inpinfeed_pkey
+        else:
+            segment_pkey = inpinfeed_pkey
+
         walk_and_mark_segment(
             conn,
             write_cur,
             graph_node_pkey,
             forward=False,
-            segment_pkey=inpinfeed_pkey,
+            segment_pkey=segment_pkey,
             unknown_pkey=unknown_pkey,
             pin_graph_node_pkey=graph_node_pkey,
             tracks=list(),
