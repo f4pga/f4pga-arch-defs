@@ -104,6 +104,20 @@ def rebase_branch(g, branch):
         rebase_continue_rec(g)
 
 
+def revert_to_master(g, repo, remote):
+    """ Preserving history, revert {remote}/master+wip to {remote}/master
+    """
+    g.reset(['--hard', '{}/master'.format(remote)])
+    g.reset(['{}/master+wip'.format(remote)])
+    g.add(['.'])
+    g.commit(
+        "-sm \"Revert master+wip to master ({})\"".format(
+            repo.commit('{}/master'.format(remote)).hexsha
+        )
+    )
+    g.merge(['{}/master'.format(remote)])
+
+
 def main():
     parser = argparse.ArgumentParser()
 
@@ -117,6 +131,12 @@ def main():
 
     parser.add_argument(
         '--remote', help="Optional remote repository to use instead of origin"
+    )
+
+    parser.add_argument(
+        '--branch_name',
+        required=True,
+        help="Name of branch to push to github with new master+wip"
     )
 
     args = parser.parse_args()
@@ -159,19 +179,22 @@ def main():
             rebase_branch(g, branch)
             branches.append(branch)
 
-    try:
-        g.checkout(['-b', 'master+wip-next'])
-    except Exception:
-        print("Branch master+wip-next already exists!")
-        g.checkout('master+wip-next')
+    assert args.branch_name not in ['master+wip', 'master'], \
+        ('Branch name "{}" should not be "master+wip" nor "master"')
 
-    g.reset(['--hard', '{}/master'.format(remote)])
+    try:
+        g.checkout(['-b', args.branch_name])
+    except Exception:
+        print("Branch {} already exists!".format(args.branch_name))
+        g.checkout(args.branch_name)
+
+    revert_to_master(g, repo, remote)
 
     branches_string = ' '.join(branches)
     result = merge_branches(location, branches_string)
 
     if not result:
-        g.reset(['--hard', '{}/master'.format(remote)])
+        revert_to_master(g, repo, remote)
         for branch in branches:
             result = merge_branches(location, branch)
 
@@ -179,7 +202,7 @@ def main():
                 solve_conflicts(g, branch)
 
                 g.commit(
-                    "-m \"Sequential merge of conflicting branch {}\"".
+                    "-sm \"Sequential merge of conflicting branch {}\"".
                     format(branch)
                 )
     else:
@@ -188,13 +211,22 @@ def main():
 
 This is an Octopus Merge commit of the following branches:
 
-{}""".format('\n'.join(branches))
+{branches}
+
+Signed-off-by: {user} <{email}>
+""".format(
+                branches='\n'.join(branches),
+                user=repo.config_reader().get_value('user', 'name'),
+                email=repo.config_reader().get_value('user', 'email')
+            ),
         )
 
     # Pushing to remote
-    print("Push force on remote master+wip-next branch? [Y/n]")
+    print(
+        "Push on remote {} {} branch? [Y/n]".format(remote, args.branch_name)
+    )
     if yes_or_no_input():
-        g.push(['--force', '{}'.format(remote), 'master+wip-next'])
+        g.push(['{}'.format(remote), args.branch_name])
     else:
         print("Warning: did not push to {}".format(remote))
 
