@@ -1667,7 +1667,8 @@ def annotate_pin_feeds(conn, ccio_sites):
     cur = conn.cursor()
 
     segments = {}
-    for segment_pkey, segment_name in cur.execute("SELECT pkey, name FROM segment"):
+    for segment_pkey, segment_name in cur.execute(
+            "SELECT pkey, name FROM segment"):
         segments[segment_name] = segment_pkey
 
     # Find BUFHCE OPIN's, so that walk_and_mark_segment uses correct segment
@@ -1682,25 +1683,19 @@ def annotate_pin_feeds(conn, ccio_sites):
     # type.
     bufg_ipins = set()
     for nipins in range(2):
-        bufg_ipins |= get_pins(
-            conn, "BUFGCTRL", "I{}".format(nipins)
-        )
+        bufg_ipins |= get_pins(conn, "BUFGCTRL", "I{}".format(nipins))
 
     # Find PLL OPIN's, so that walk_and_mark_segment uses correct segment
     # type.
     pll_opins = set()
     for nclk in range(6):
-        pll_opins |= get_pins(
-            conn, "PLLE2_ADV", "CLKOUT{}".format(nclk)
-        )
+        pll_opins |= get_pins(conn, "PLLE2_ADV", "CLKOUT{}".format(nclk))
 
     # Find PLL IPIN's, so that walk_and_mark_segment uses correct segment
     # type.
     pll_ipins = set()
     for nclk in range(2):
-        pll_ipins |= get_pins(
-            conn, "PLLE2_ADV", "CLKIN{}".format(nclk + 1)
-        )
+        pll_ipins |= get_pins(conn, "PLLE2_ADV", "CLKIN{}".format(nclk + 1))
 
     ccio_opins = set()
 
