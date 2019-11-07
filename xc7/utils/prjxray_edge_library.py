@@ -1666,40 +1666,9 @@ def annotate_pin_feeds(conn, ccio_sites):
     write_cur = conn.cursor()
     cur = conn.cursor()
 
-    cur.execute("SELECT pkey FROM segment WHERE name = ?", ("unknown", ))
-    unknown_pkey = cur.fetchone()[0]
-
-    cur.execute("SELECT pkey FROM segment WHERE name = ?", ("INPINFEED", ))
-    inpinfeed_pkey = cur.fetchone()[0]
-
-    cur.execute("SELECT pkey FROM segment WHERE name = ?", ("OUTPINFEED", ))
-    outpinfeed_pkey = cur.fetchone()[0]
-
-    cur.execute(
-        "SELECT pkey FROM segment WHERE name = ?", ("GCLK_OUTPINFEED", )
-    )
-    gclk_outpinfeed_pkey = cur.fetchone()[0]
-
-    cur.execute(
-        "SELECT pkey FROM segment WHERE name = ?", ("GCLK_INPINFEED", )
-    )
-    gclk_inpinfeed_pkey = cur.fetchone()[0]
-
-    cur.execute(
-        "SELECT pkey FROM segment WHERE name = ?", ("PLL_OUTPINFEED", )
-    )
-    pll_outpinfeed_pkey = cur.fetchone()[0]
-
-    cur.execute("SELECT pkey FROM segment WHERE name = ?", ("PLL_INPINFEED", ))
-    pll_inpinfeed_pkey = cur.fetchone()[0]
-
-    cur.execute(
-        "SELECT pkey FROM segment WHERE name = ?", ("CCIO_OUTPINFEED", )
-    )
-    ccio_outpinfeed_pkey = cur.fetchone()[0]
-
-    cur.execute("SELECT pkey FROM segment WHERE name = ?", ("HCLK_ROWS", ))
-    hclk_rows_pkey = cur.fetchone()[0]
+    segments = {}
+    for segment_pkey, segment_name in cur.execute("SELECT pkey, name FROM segment"):
+        segments[segment_name] = segment_pkey
 
     # Find BUFHCE OPIN's, so that walk_and_mark_segment uses correct segment
     # type.
@@ -1713,7 +1682,7 @@ def annotate_pin_feeds(conn, ccio_sites):
     # type.
     bufg_ipins = set()
     for nipins in range(2):
-        bufg_ipins = bufg_ipins | get_pins(
+        bufg_ipins |= get_pins(
             conn, "BUFGCTRL", "I{}".format(nipins)
         )
 
@@ -1721,7 +1690,7 @@ def annotate_pin_feeds(conn, ccio_sites):
     # type.
     pll_opins = set()
     for nclk in range(6):
-        pll_opins = pll_opins | get_pins(
+        pll_opins |= get_pins(
             conn, "PLLE2_ADV", "CLKOUT{}".format(nclk)
         )
 
@@ -1729,7 +1698,7 @@ def annotate_pin_feeds(conn, ccio_sites):
     # type.
     pll_ipins = set()
     for nclk in range(2):
-        pll_ipins = pll_ipins | get_pins(
+        pll_ipins |= get_pins(
             conn, "PLLE2_ADV", "CLKIN{}".format(nclk + 1)
         )
 
@@ -1777,15 +1746,15 @@ WHERE graph_node.graph_node_type = ?
             continue
 
         if graph_node_pkey in bufhce_opins:
-            segment_pkey = hclk_rows_pkey
+            segment_pkey = segments["HCLK_ROWS"]
         elif graph_node_pkey in bufg_opins:
-            segment_pkey = gclk_outpinfeed_pkey
+            segment_pkey = segments["GCLK_OUTPINFEED"]
         elif graph_node_pkey in pll_opins:
-            segment_pkey = pll_outpinfeed_pkey
+            segment_pkey = segments["PLL_OUTPINFEED"]
         elif graph_node_pkey in ccio_opins:
-            segment_pkey = ccio_outpinfeed_pkey
+            segment_pkey = segments["CCIO_OUTPINFEED"]
         else:
-            segment_pkey = outpinfeed_pkey
+            segment_pkey = segments["OUTPINFEED"]
 
         walk_and_mark_segment(
             conn,
@@ -1793,7 +1762,7 @@ WHERE graph_node.graph_node_type = ?
             graph_node_pkey,
             forward=True,
             segment_pkey=segment_pkey,
-            unknown_pkey=unknown_pkey,
+            unknown_pkey=segments["unknown"],
             pin_graph_node_pkey=graph_node_pkey,
             tracks=list(),
             visited_nodes=set()
@@ -1810,11 +1779,11 @@ WHERE graph_node.graph_node_type = ?
             continue
 
         if graph_node_pkey in bufg_ipins:
-            segment_pkey = gclk_inpinfeed_pkey
+            segment_pkey = segments["GCLK_INPINFEED"]
         elif graph_node_pkey in pll_ipins:
-            segment_pkey = pll_inpinfeed_pkey
+            segment_pkey = segments["PLL_INPINFEED"]
         else:
-            segment_pkey = inpinfeed_pkey
+            segment_pkey = segments["INPINFEED"]
 
         walk_and_mark_segment(
             conn,
@@ -1822,7 +1791,7 @@ WHERE graph_node.graph_node_type = ?
             graph_node_pkey,
             forward=False,
             segment_pkey=segment_pkey,
-            unknown_pkey=unknown_pkey,
+            unknown_pkey=segments["unknown"],
             pin_graph_node_pkey=graph_node_pkey,
             tracks=list(),
             visited_nodes=set()
