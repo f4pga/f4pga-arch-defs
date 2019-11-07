@@ -14,8 +14,8 @@ output wire tx,
 input  wire [15:0] sw,
 output wire [15:0] led,
 
-input  wire [11:0]  in,
-output wire [11:0]  out
+input  wire in,
+output wire out
 );
 
 // ============================================================================
@@ -65,7 +65,7 @@ PLLE2_ADV #
 
 .STARTUP_WAIT       ("FALSE")
 )
-pll2
+pll
 (
 .CLKIN1     (CLK),
 .CLKINSEL   (1),
@@ -116,7 +116,7 @@ reg [24:0] heartbeat_cnt;
 always @(posedge CLK)
     heartbeat_cnt <= heartbeat_cnt + 1;
 
-assign led[0] = ~error;
+assign led[0] = !error;
 assign led[1] = heartbeat_cnt[24];
 assign led[15:2] = 0;
 
