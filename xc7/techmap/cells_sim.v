@@ -620,6 +620,19 @@ module OUTBUF_VPR (
 	assign OUT = IN;
 endmodule
 
+module IOBUF_VPR (
+    input  I,
+    input  T,
+    output O,
+    input  IPAD,
+    output OPAD,
+);
+
+  assign O = IPAD;
+  assign OPAD = (T == 1'b0) ? I : 1'bz;
+
+endmodule
+
 // ============================================================================
 // Clock Buffers
 
