@@ -339,6 +339,7 @@ function(ADD_THIRDPARTY_PACKAGE)
   #   NAME <name>
   #   [NO_EXE]
   #   [PROVIDES <exe list>]
+  #   [FILES <file list>]
   #   [BUILD_INSTALL_COMMAND <build_install command>]
   #   [DEPENDS <dependencies>]
   #   )
@@ -350,9 +351,11 @@ function(ADD_THIRDPARTY_PACKAGE)
   # in PROVIDES list. <name> is set to the path the executable.  <name>_TARGET
   # is set to the target that will invoke conda.
   #
+  # The FILES argument is for non-binary outputs of the add_thirdparty_package.
+  #
   set(options NO_EXE)
   set(oneValueArgs NAME BUILD_INSTALL_COMMAND)
-  set(multiValueArgs PROVIDES DEPENDS)
+  set(multiValueArgs PROVIDES FILES DEPENDS)
   cmake_parse_arguments(
     ADD_THIRDPARTY_PACKAGE
     "${options}"
@@ -384,6 +387,9 @@ function(ADD_THIRDPARTY_PACKAGE)
       foreach(OUTPUT ${ADD_THIRDPARTY_PACKAGE_PROVIDES})
         list(APPEND OUTPUTS ${PREFIX}/bin/${OUTPUT})
         list(APPEND TOUCH_COMMANDS COMMAND ${CMAKE_COMMAND} -E touch_nocreate ${PREFIX}/bin/${OUTPUT})
+      endforeach()
+      foreach(OUTPUT ${ADD_THIRDPARTY_PACKAGE_FILES})
+        list(APPEND OUTPUTS ${PREFIX}/${OUTPUT})
       endforeach()
     endif()
 
