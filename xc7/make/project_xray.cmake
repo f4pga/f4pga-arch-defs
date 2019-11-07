@@ -57,7 +57,6 @@ function(PROJECT_XRAY_TILE)
   # SITE_AS_TILE option to state if the tile physically is a site, but it needs to be treated as a site
   # USE_DATABASE option enables usage of connection database for tile
   #     definition, instead of using the project X-Ray database.
-  # BOTH_SIDE_COORD option that enables the assignment of both coordinates to the fasm prefixes
   # FILTER_X can be supplied to filter to sites that have the given X
   #     coordinate.
   #
@@ -71,14 +70,14 @@ function(PROJECT_XRAY_TILE)
   #   SITE_AS_TILE (option)
   #   FUSED_SITES (option)
   #   USE_DATABASE (option)
-  #   BOTH_SITE_COORDS (option)
+  #   SITE_COORDS (option)
   #   NO_FASM_PREFIX (option)
   #   [FILTER_X <x_coord>]
   #   )
   # ~~~
 
-  set(options FUSED_SITES SITE_AS_TILE USE_DATABASE BOTH_SITE_COORDS NO_FASM_PREFIX)
-  set(oneValueArgs PART TILE FILTER_X)
+  set(options FUSED_SITES SITE_AS_TILE USE_DATABASE NO_FASM_PREFIX)
+  set(oneValueArgs PART TILE FILTER_X SITE_COORDS)
   set(multiValueArgs SITE_TYPES EQUIVALENT_SITES)
   cmake_parse_arguments(
     PROJECT_XRAY_TILE
@@ -126,10 +125,11 @@ function(PROJECT_XRAY_TILE)
       set(FUSED_SITES_ARGS --connection_database ${GENERIC_CHANNELS_LOCATION})
   endif()
 
-  set(BOTH_SITE_COORDS_ARGS "")
-  if(PROJECT_XRAY_TILE_BOTH_SITE_COORDS)
-    set(BOTH_SITE_COORDS_ARGS "--both_site_coords")
+  set(SITE_COORDS_ARGS "")
+  if(NOT "${PROJECT_XRAY_TILE_SITE_COORDS}" STREQUAL "")
+    set(SITE_COORDS_ARGS "--site_coords" ${PROJECT_XRAY_TILE_SITE_COORDS})
   endif()
+
   set(FILTER_X_ARGS "")
   if(NOT "${PROJECT_XRAY_TILE_FILTER_X}" STREQUAL "")
       set(FILTER_X_ARGS --filter_x ${PROJECT_XRAY_TILE_FILTER_X})
@@ -152,7 +152,7 @@ function(PROJECT_XRAY_TILE)
     --output-pb-type ${CMAKE_CURRENT_BINARY_DIR}/${TILE}.pb_type.xml
     --output-model ${CMAKE_CURRENT_BINARY_DIR}/${TILE}.model.xml
     ${FUSED_SITES_ARGS}
-    ${BOTH_SITE_COORDS_ARGS}
+    ${SITE_COORDS_ARGS}
     ${FASM_ARGS}
     ${FILTER_X_ARGS}
     DEPENDS
