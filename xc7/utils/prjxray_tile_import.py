@@ -391,12 +391,17 @@ def import_tile(db, args):
             cells_idx[idx] = site_type_count[site.type]
             site_type_count[site.type] += 1
 
-            if not args.both_site_coords:
+            site_coords = args.site_coords.upper()
+            if site_coords == 'X':
                 site_prefix = '{}_X{}'.format(site.type, site.x)
-            else:
+            elif site_coords == 'Y':
+                site_prefix = '{}_Y{}'.format(site.type, site.y)
+            elif site_coords == 'XY':
                 site_prefix = '{}.{}_X{}Y{}'.format(
                     site.type, site.type, site.x, site.y
                 )
+            else:
+                assert False, "Invalid --site-coords value '{}'".format(site_coords)
 
             site_instance = site_type_instances[site.type][cells_idx[idx]]
 
@@ -1396,10 +1401,10 @@ def main():
     )
 
     parser.add_argument(
-        '--both_site_coords',
-        action="store_true",
-        default=False,
-        help="""Use both site coordinates for the fasm prefix."""
+        '--site_coords',
+        type=str,
+        default='X',
+        help="""Specify which site coords to use ('X', 'Y' or 'XY')"""
     )
 
     parser.add_argument(
