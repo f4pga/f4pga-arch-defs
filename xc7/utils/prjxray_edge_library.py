@@ -37,7 +37,7 @@ def get_pins(conn, site_type, site_pin):
     c = conn.cursor()
     c.execute(
         """
-WITH pll_opins(wire_in_tile_pkey) AS (
+WITH pins(wire_in_tile_pkey) AS (
   SELECT wire_in_tile.pkey FROM wire_in_tile
   INNER JOIN site_pin ON site_pin.pkey = wire_in_tile.site_pin_pkey
   INNER JOIN site_type ON site_pin.site_type_pkey = site_type.pkey
@@ -49,7 +49,7 @@ WITH pll_opins(wire_in_tile_pkey) AS (
 SELECT graph_node.pkey FROM graph_node
 INNER JOIN wire ON graph_node.node_pkey = wire.node_pkey
 WHERE
-  wire.wire_in_tile_pkey IN (SELECT wire_in_tile_pkey FROM pll_opins);
+  wire.wire_in_tile_pkey IN (SELECT wire_in_tile_pkey FROM pins);
     """, (
             site_type,
             site_pin,
