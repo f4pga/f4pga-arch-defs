@@ -73,14 +73,14 @@ function(PROJECT_XRAY_TILE)
   #   SITE_AS_TILE (option)
   #   FUSED_SITES (option)
   #   USE_DATABASE (option)
-  #   BOTH_SITE_COORDS (option)
+  #   SITE_COORDS (option)
   #   NO_FASM_PREFIX (option)
   #   [FILTER_X <x_coord>]
   #   )
   # ~~~
 
-  set(options PRIORITY FUSED_SITES SITE_AS_TILE USE_DATABASE BOTH_SITE_COORDS NO_FASM_PREFIX)
-  set(oneValueArgs PART TILE FILTER_X)
+  set(options PRIORITY FUSED_SITES SITE_AS_TILE USE_DATABASE NO_FASM_PREFIX)
+  set(oneValueArgs PART TILE FILTER_X SITE_COORDS)
   set(multiValueArgs SITE_TYPES EQUIVALENT_SITES)
   cmake_parse_arguments(
     PROJECT_XRAY_TILE
@@ -133,9 +133,9 @@ function(PROJECT_XRAY_TILE)
     set(PHYSICAL_TILE_ARGS "--priority")
   endif()
 
-  set(BOTH_SITE_COORDS_ARGS "")
-  if(PROJECT_XRAY_TILE_BOTH_SITE_COORDS)
-    set(BOTH_SITE_COORDS_ARGS "--both_site_coords")
+  set(SITE_COORDS_ARGS "")
+  if(NOT "${PROJECT_XRAY_TILE_SITE_COORDS}" STREQUAL "")
+    set(SITE_COORDS_ARGS "--site_coords" ${PROJECT_XRAY_TILE_SITE_COORDS})
   endif()
   set(FILTER_X_ARGS "")
   if(NOT "${PROJECT_XRAY_TILE_FILTER_X}" STREQUAL "")
@@ -159,7 +159,7 @@ function(PROJECT_XRAY_TILE)
     --output-pb-type ${CMAKE_CURRENT_BINARY_DIR}/${TILE}.pb_type.xml
     --output-model ${CMAKE_CURRENT_BINARY_DIR}/${TILE}.model.xml
     ${FUSED_SITES_ARGS}
-    ${BOTH_SITE_COORDS_ARGS}
+    ${SITE_COORDS_ARGS}
     ${FASM_ARGS}
     ${FILTER_X_ARGS}
     DEPENDS
