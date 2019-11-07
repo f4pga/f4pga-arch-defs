@@ -65,7 +65,7 @@ def main():
         box_str = connection_boxes[connection_box]
         print('Processing {} to {}'.format(segment_str, box_str))
 
-        x, y, delay, congestion = connection_box_to_numpy(offset, m)
+        x, y, delay, congestion, fill = connection_box_to_numpy(offset, m)
 
         if segment_str not in mat_data:
             mat_data[segment_str] = {}
@@ -77,6 +77,7 @@ def main():
         mat_data[segment_str][box_str]['y'] = y
         mat_data[segment_str][box_str]['delay'] = delay
         mat_data[segment_str][box_str]['congestion'] = congestion
+        mat_data[segment_str][box_str]['fill'] = fill
 
     sio.savemat(args.outmat, mat_data)
 
