@@ -87,6 +87,7 @@ def connection_box_to_numpy(offset, m):
 
     delay = np.zeros((y_dim, x_dim))
     congestion = np.zeros((y_dim, x_dim))
+    fill = np.zeros((y_dim, x_dim))
 
     itr = iter(m.data)
 
@@ -98,7 +99,8 @@ def connection_box_to_numpy(offset, m):
             y_val = y_idx + y_off
             delay[y_idx][x_idx] = value.value.delay
             congestion[y_idx][x_idx] = value.value.congestion
+            fill[y_idx][x_idx] = value.value.fill
             assert x[y_idx][x_idx] == x_val
             assert y[y_idx][x_idx] == y_val
 
-    return x, y, delay, congestion
+    return x, y, delay, congestion, fill
