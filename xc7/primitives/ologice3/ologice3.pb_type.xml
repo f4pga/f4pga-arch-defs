@@ -86,6 +86,7 @@
           OSERDES.SRTYPE.SYNC
           OSERDES.TSRTYPE.SYNC
           ODDR.DDR_CLK_EDGE.SAME_EDGE
+          OQUSED
         </meta>
         <meta name="fasm_params">
           OSERDES.SERDES_MODE.SLAVE = SERDES_MODE_SLAVE
@@ -111,7 +112,7 @@
 
           ZINIT_OQ = ZINIT_OQ
           ZINIT_TQ = ZINIT_TQ
-          ZINV_CLK = ZINIT_CLK
+          ZINV_CLK = ZINV_CLK
           ZSRVAL_OQ = ZSRVAL_OQ
           ZSRVAL_TQ = ZSRVAL_TQ
         </meta>

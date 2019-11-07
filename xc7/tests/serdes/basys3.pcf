@@ -41,34 +41,5 @@ set_io led[14] P1
 set_io led[15] L1
 
 # PMOD-A
-set_io  in[0] J1
-set_io  in[1] L2
-set_io  in[2] J2
-set_io  in[3] G2
-
-set_io out[0] H1
-set_io out[1] K2
-set_io out[2] H2
-set_io out[3] G3
-
-# PMOD-B
-set_io  in[4] A14
-set_io  in[5] A16
-set_io  in[6] B15
-set_io  in[7] B16
-
-set_io out[4] A15
-set_io out[5] A17
-set_io out[6] C15
-set_io out[7] C16
-
-# PMOD-C
-set_io  in[8] K17
-set_io  in[9] M18
-set_io  in[10] N17
-set_io  in[11] P18
-
-set_io out[8] L17
-set_io out[9] M19
-set_io out[10] P17
-set_io out[11] R18
+set_io in K17
+set_io out L17
