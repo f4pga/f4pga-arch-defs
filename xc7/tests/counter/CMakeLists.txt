@@ -9,7 +9,7 @@ add_file_target(FILE counter_basys3.v SCANNER_TYPE verilog)
 
 add_fpga_target(
   NAME counter_basys3
-  BOARD basys3
+  BOARD basys3-x1y0
   SOURCES counter_basys3.v
   INPUT_IO_FILE ../common/basys3.pcf
   EXPLICIT_ADD_FILE_TARGET

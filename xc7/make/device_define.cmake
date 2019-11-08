@@ -171,8 +171,6 @@ function(ADD_XC7_DEVICE_DEFINE)
         --disable_errors check_unbuffered_edges:check_route:check_place
         --suppress_warnings sum_pin_class:check_unbuffered_edges:load_rr_indexed_data_T_values:check_rr_node:trans_per_R
         --route_chan_width 500
-        --astar_fac 1.0
-        --bb_factor 10
         --allowed_tiles_for_delay_model BLK-TL-SLICEL,BLK-TL-SLICEM
         --lookahead_search_locations "${LOC_STR}"
       )

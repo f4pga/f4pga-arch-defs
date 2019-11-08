@@ -12,6 +12,7 @@ add_file_target(FILE hx8kdemo_tb.v SCANNER_TYPE verilog)
 add_file_target(FILE hx8k-b-evn.pcf)
 
 add_file_target(FILE basys3_demo.v SCANNER_TYPE verilog)
+add_file_target(FILE basys3_demo_no_roi.v SCANNER_TYPE verilog)
 add_file_target(FILE basys3_demo_tb.v SCANNER_TYPE verilog)
 add_file_target(FILE basys3.pcf)
 
@@ -56,6 +57,20 @@ add_fpga_target(
   SDC_FILE ${symbiflow-arch-defs_SOURCE_DIR}/xc7/tests/common/basys3.sdc
   INPUT_IO_FILE ${symbiflow-arch-defs_SOURCE_DIR}/xc7/tests/common/basys3.pcf
   TESTBENCH_SOURCES basys3_demo_tb.v
+  EXPLICIT_ADD_FILE_TARGET
+)
+
+add_fpga_target(
+  NAME picosoc_basys3_x1y0
+  BOARD basys3-x1y0
+  TOP basys3_demo
+  SOURCES
+    basys3_demo_no_roi.v
+    picosoc_noflash.v
+    picorv32.v
+    simpleuart.v
+    progmem.v
+  INPUT_IO_FILE ${symbiflow-arch-defs_SOURCE_DIR}/xc7/tests/common/basys3.pcf
   EXPLICIT_ADD_FILE_TARGET
 )
 

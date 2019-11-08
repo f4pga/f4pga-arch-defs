@@ -6,6 +6,7 @@ add_file_target(FILE Murax.v_toplevel_system_ram_ram_symbol3.bin)
 add_file_target(FILE hx8k_b_evn_toplevel.v SCANNER_TYPE verilog)
 add_file_target(FILE Murax.v SCANNER_TYPE verilog)
 add_file_target(FILE basys3_toplevel.v SCANNER_TYPE verilog)
+add_file_target(FILE basys3_toplevel_no_roi.v SCANNER_TYPE verilog)
 add_file_target(FILE hx8k-b-evn.pcf)
 add_file_target(FILE basys3.pcf)
 add_file_target(FILE basys3.sdc)
@@ -30,6 +31,17 @@ add_fpga_target(
     Murax.v
   INPUT_IO_FILE basys3.pcf
   SDC_FILE basys3.sdc
+  EXPLICIT_ADD_FILE_TARGET
+)
+
+add_fpga_target(
+  NAME murax_basys_x1y0
+  BOARD basys3-x1y0
+  TOP toplevel
+  SOURCES
+    basys3_toplevel_no_roi.v
+    Murax.v
+  INPUT_IO_FILE basys3.pcf
   EXPLICIT_ADD_FILE_TARGET
 )
 

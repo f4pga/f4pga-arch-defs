@@ -12,6 +12,7 @@ from prjxray.site_type import SitePinDirection
 from prjxray_constant_site_pins import yield_ties_to_wire
 from lib.connection_database import get_track_model, get_wire_in_tile_from_pin_name
 from lib.rr_graph.graph2 import NodeType
+import math
 
 from prjxray_db_cache import DatabaseCache
 
@@ -1854,6 +1855,17 @@ WHERE pkey = ?
     write_cur.execute("""COMMIT TRANSACTION;""")
 
 
+def get_segment_length(segment_lengths):
+    if len(segment_lengths) == 0:
+        return 1
+
+    mean_length = int(
+        math.ceil(float(sum(segment_lengths)) / len(segment_lengths))
+    )
+
+    return max(1, mean_length)
+
+
 def compute_segment_lengths(conn):
     """ Determine segment lengths used for cost normalization. """
     cur = conn.cursor()
@@ -1866,7 +1878,8 @@ def compute_segment_lengths(conn):
     write_cur.execute("""BEGIN EXCLUSIVE TRANSACTION;""")
 
     for (segment_pkey, ) in cur.execute("SELECT pkey FROM segment"):
-        segment_length = 1
+
+        segment_lengths = []
 
         # Get all tracks with this segment
         for (track_pkey, src_phy_tile_pkey) in cur2.execute("""
@@ -1876,6 +1889,7 @@ WHERE
 AND
     segment_pkey = ?
         """, (segment_pkey, )):
+            segment_length = 1
             cur4.execute(
                 "SELECT grid_x, grid_y FROM phy_tile WHERE pkey = ?",
                 (src_phy_tile_pkey, )
@@ -1886,7 +1900,7 @@ AND
             for (dest_phy_tile_pkey, ) in cur3.execute("""
 SELECT DISTINCT canon_phy_tile_pkey FROM track WHERE pkey IN (
     SELECT track_pkey FROM graph_node WHERE pkey IN (
-        SELECT dest_graph_node_pkey FROM graph_edge WHERE src_graph_node_pkey = (
+        SELECT dest_graph_node_pkey FROM graph_edge WHERE src_graph_node_pkey IN (
             SELECT pkey FROM graph_node WHERE track_pkey = ?
         )
     )
@@ -1906,9 +1920,11 @@ SELECT DISTINCT canon_phy_tile_pkey FROM track WHERE pkey IN (
                     abs(dest_x - src_x) + abs(dest_y - src_y)
                 )
 
+            segment_lengths.append(segment_length)
+
         write_cur.execute(
             "UPDATE segment SET length = ? WHERE pkey = ?", (
-                segment_length,
+                get_segment_length(segment_lengths),
                 segment_pkey,
             )
         )
