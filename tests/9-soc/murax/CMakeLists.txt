@@ -35,8 +35,8 @@ add_fpga_target(
 )
 
 add_fpga_target(
-  NAME murax_basys_x1y0
-  BOARD basys3-x1y0
+  NAME murax_basys_full
+  BOARD basys3-full
   TOP toplevel
   SOURCES
     basys3_toplevel_no_roi.v

@@ -65,7 +65,7 @@ function(DEFINE_ARCH)
   #
   # * PLACE_TOOL - Value of PLACE_TOOL property of <arch>.
   # * PINMAP - Path to pinmap file.  This file will be retrieved from the
-  #   ${PACKAGE}_PINMAP property of the ${DEVICE}.  ${DEVICE} and ${PACKAGE}
+  #   PINMAP property of the ${BOARD}.  ${DEVICE} and ${PACKAGE}
   #   will be defined by the BOARD being used. See DEFINE_BOARD.
   # * OUT_EBLIF - Input path to EBLIF file.
   # * INPUT_IO_FILE - Path to input io file, as specified by ADD_FPGA_TARGET.
@@ -421,9 +421,6 @@ function(DEFINE_DEVICE)
   # Creates dummy targets <arch>_<device>_<package>_rrxml_virt and
   # <arch>_<device>_<package>_rrxml_virt  that generates the the virtual and
   # real rr_graph for a specific device and package.
-  #
-  # In order to use a device with ADD_FPGA_TARGET, the property
-  # ${PACKAGE}_PINMAP on target <device> must be set.
   #
   # To prevent VPR from recomputing the place delay matrix and/or lookahead,
   # CACHE_PLACE_DELAY and CACHE_LOOKAHEAD options may be specified.
@@ -1159,7 +1156,7 @@ function(ADD_FPGA_TARGET)
     get_target_property_required(PLACE_TOOL ${ARCH} PLACE_TOOL)
     get_target_property_required(PYTHON3 env PYTHON3)
     get_target_property_required(PLACE_TOOL_CMD ${ARCH} PLACE_TOOL_CMD)
-    get_target_property_required(PINMAP_FILE ${DEVICE} ${PACKAGE}_PINMAP)
+    get_target_property_required(PINMAP_FILE ${BOARD} PINMAP)
 
 
     # Add complete dependency chain
@@ -1337,11 +1334,9 @@ function(ADD_FPGA_TARGET)
     if(${USE_FASM})
       get_target_property_required(FASM_TO_BIT ${ARCH} FASM_TO_BIT)
       get_target_property_required(FASM_TO_BIT_CMD ${ARCH} FASM_TO_BIT_CMD)
-      if (TARGET ${ARCH}_${DEVICE}_${BOARD})
-        get_target_property(FASM_TO_BIT_EXTRA_ARGS ${ARCH}_${DEVICE}_${BOARD} FASM_TO_BIT_EXTRA_ARGS)
-        if ("${FASM_TO_BIT_EXTRA_ARGS}" STREQUAL "FASM_TO_BIT_EXTRA_ARGS-NOTFOUND")
-          set(FASM_TO_BIT_EXTRA_ARGS "")
-        endif()
+      get_target_property(FASM_TO_BIT_EXTRA_ARGS ${BOARD} FASM_TO_BIT_EXTRA_ARGS)
+      if ("${FASM_TO_BIT_EXTRA_ARGS}" STREQUAL "FASM_TO_BIT_EXTRA_ARGS-NOTFOUND")
+        set(FASM_TO_BIT_EXTRA_ARGS "")
       endif()
       get_target_property_required(PYTHON3 env PYTHON3)
       string(CONFIGURE ${FASM_TO_BIT_CMD} FASM_TO_BIT_CMD_FOR_TARGET)
@@ -1373,11 +1368,9 @@ function(ADD_FPGA_TARGET)
     set(OUT_BIN ${OUT_LOCAL}/${TOP}.${BIN_EXTENSION})
     get_target_property_required(BIT_TO_BIN ${ARCH} BIT_TO_BIN)
     get_target_property_required(BIT_TO_BIN_CMD ${ARCH} BIT_TO_BIN_CMD)
-    if (TARGET ${ARCH}_${DEVICE}_${BOARD})
-      get_target_property(BIT_TO_BIN_EXTRA_ARGS ${ARCH}_${DEVICE}_${BOARD} BIT_TO_BIN_EXTRA_ARGS)
-        if (${BIT_TO_BIN_EXTRA_ARGS} STREQUAL NOTFOUND)
-          set(BIT_TO_BIN_EXTRA_ARGS "")
-        endif()
+    get_target_property(BIT_TO_BIN_EXTRA_ARGS ${BOARD} BIT_TO_BIN_EXTRA_ARGS)
+    if (${BIT_TO_BIN_EXTRA_ARGS} STREQUAL NOTFOUND)
+      set(BIT_TO_BIN_EXTRA_ARGS "")
     endif()
     string(CONFIGURE ${BIT_TO_BIN_CMD} BIT_TO_BIN_CMD_FOR_TARGET)
     separate_arguments(
@@ -1415,11 +1408,9 @@ function(ADD_FPGA_TARGET)
     if(NOT ${NO_BIT_TO_V})
         # Generate verilog from bitstream
         # -------------------------------------------------------------------------
-        if (TARGET ${ARCH}_${DEVICE}_${BOARD})
-          get_target_property(BIT_TO_V_EXTRA_ARGS ${ARCH}_${DEVICE}_${BOARD} BIT_TO_V_EXTRA_ARGS)
-          if (${BIT_TO_V_EXTRA_ARGS} STREQUAL NOTFOUND)
-            set(BIT_TO_V_EXTRA_ARGS "")
-          endif()
+        get_target_property(BIT_TO_V_EXTRA_ARGS ${BOARD} BIT_TO_V_EXTRA_ARGS)
+        if (${BIT_TO_V_EXTRA_ARGS} STREQUAL NOTFOUND)
+          set(BIT_TO_V_EXTRA_ARGS "")
         endif()
 
         set(OUT_BIT_VERILOG ${OUT_LOCAL}/${TOP}_bit.v)
@@ -1791,7 +1782,7 @@ function(generate_pinmap)
   set(BOARD ${GENERATE_PINMAP_BOARD})
   get_target_property_required(DEVICE ${BOARD} DEVICE)
   get_target_property_required(PACKAGE ${BOARD} PACKAGE)
-  get_target_property_required(PINMAP_FILE ${DEVICE} ${PACKAGE}_PINMAP)
+  get_target_property_required(PINMAP_FILE ${BOARD} PINMAP)
   get_file_location(PINMAP ${PINMAP_FILE})
   get_file_target(PINMAP_TARGET ${PINMAP_FILE})
 
