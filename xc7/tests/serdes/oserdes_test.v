@@ -1,7 +1,5 @@
 `default_nettype none
 
-`define CLKFBOUT_MULT 16
-
 // ============================================================================
 
 module oserdes_test #
@@ -13,6 +11,7 @@ parameter ERROR_HOLD    = 2500000
 (
 // "Hi speed" clock and reset
 input  wire CLK,
+input  wire CLKDIV,
 input  wire RST,
 
 // Data pin
@@ -22,54 +21,6 @@ output wire O_DAT,
 // Error indicator
 output wire O_ERROR
 );
-
-// ============================================================================
-// Clocks for OSERDES
-
-wire PRE_BUFG_CLKX;
-wire PRE_BUFG_CLKDIV;
-
-wire CLKX;
-wire CLKDIV;
-
-wire O_LOCKED;
-
-wire clk_fb_i;
-wire clk_fb_o;
-
-PLLE2_ADV #(
-.BANDWIDTH          ("HIGH"),
-.COMPENSATION       ("ZHOLD"),
-
-.CLKIN1_PERIOD      (10.0),  // 100MHz
-
-.CLKFBOUT_MULT      (`CLKFBOUT_MULT),
-.CLKFBOUT_PHASE     (0),
-
-.CLKOUT0_DIVIDE     (`CLKFBOUT_MULT * DATA_WIDTH),
-
-.CLKOUT1_DIVIDE     (`CLKFBOUT_MULT),
-
-.STARTUP_WAIT       ("FALSE")
-)
-pll
-(
-.CLKIN1     (CLK),
-.CLKINSEL   (1),
-
-.RST        (RST),
-.PWRDWN     (0),
-.LOCKED     (O_LOCKED),
-
-.CLKFBIN    (clk_fb_i),
-.CLKFBOUT   (clk_fb_o),
-
-.CLKOUT0    (PRE_BUFG_CLKDIV),
-.CLKOUT1    (PRE_BUFG_CLKX)
-);
-
-BUFG bufg_clk(.I(PRE_BUFG_CLKX), .O(CLKX));
-BUFG bufg_clkdiv(.I(PRE_BUFG_CLKDIV), .O(CLKDIV));
 
 // The clock enable signal for the "hi speed" clock domain.
 reg  clkdiv_r;
@@ -133,7 +84,7 @@ OSERDESE2 #(
 )
 oserdes
 (
-.CLK    (CLKX),
+.CLK    (CLK),
 .CLKDIV (CLKDIV),
 .RST    (ser_rst),
 
