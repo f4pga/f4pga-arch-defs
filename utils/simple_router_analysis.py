@@ -2,7 +2,6 @@ import argparse
 import sys
 import re
 import scipy.io as sio
-import numpy as np
 
 # Popping node CLBLL_L_X28Y15/CLBLL_LL_C (2993186) (cost: 4.59618e-13)
 POP_RE = re.compile(
