@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-
 """
 Creates the header file for the OSERDES test with the correct configuration
 of the DATA_WIDTH and DATA_RATE
@@ -12,10 +11,18 @@ import argparse
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
 
-    parser.add_argument('--input', required=True, help="Input top file to be generated")
-    parser.add_argument('--output', required=True, help="Output top file to be generated")
-    parser.add_argument('--data_width', required=True, help="Data width of the OSERDES")
-    parser.add_argument('--data_rate', required=True, help="Data rate of the OSERDES")
+    parser.add_argument(
+        '--input', required=True, help="Input top file to be generated"
+    )
+    parser.add_argument(
+        '--output', required=True, help="Output top file to be generated"
+    )
+    parser.add_argument(
+        '--data_width', required=True, help="Data width of the OSERDES"
+    )
+    parser.add_argument(
+        '--data_rate', required=True, help="Data rate of the OSERDES"
+    )
 
     args = parser.parse_args()
 
