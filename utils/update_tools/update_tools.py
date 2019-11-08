@@ -98,7 +98,7 @@ def rebase_continue_rec(g):
 def rebase_branch(g, branch):
     g.checkout(branch)
     try:
-        g.rebase('origin/master')
+        g.rebase('master')
     except Exception:
         solve_conflicts(g, branch)
         rebase_continue_rec(g)
@@ -111,11 +111,13 @@ def revert_to_master(g, repo, remote):
     g.reset(['{}/master+wip'.format(remote)])
     g.add(['.'])
     g.commit(
-        "-sm \"Revert master+wip to master ({})\"".format(
-            repo.commit('{}/master'.format(remote)).hexsha
-        )
+        [
+            '-sm', 'Revert master+wip to master ({})'.format(
+                repo.commit('{}/master'.format(remote)).hexsha
+            )
+        ]
     )
-    g.merge(['{}/master'.format(remote)])
+    g.merge(['master'])
 
 
 def main():
@@ -171,6 +173,10 @@ def main():
     for branch in all_branches:
         if "HEAD" not in branch and "{}/".format(remote) in branch:
             origin_branches.append(branch.replace('{}/'.format(remote), ''))
+
+    # Create new integration point on master.
+    g.checkout(['master'])
+    g.commit(['--allow-empty', '-sm', 'New integration point for master+wip.'])
 
     branches = []
     for branch in origin_branches:
