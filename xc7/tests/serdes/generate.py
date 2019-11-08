@@ -4,7 +4,6 @@ Creates the header file for the OSERDES test with the correct configuration
 of the DATA_WIDTH and DATA_RATE
 """
 
-import os
 import argparse
 
 
