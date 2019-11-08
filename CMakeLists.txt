@@ -199,12 +199,8 @@ add_custom_target(
 
 add_custom_target(all_ice40_demos)
 add_dependencies(all_ice40_demos
-    all_icevision_bin
     all_icestick_bin
-    all_hx8k-b-evn_bin
     all_iceblink40-lp1k_bin
-    all_tinyfpga-bx_bin
-    all_tinyfpga-b2_bin
     )
 
 add_custom_target(all_ice40_route_tests)
@@ -215,6 +211,12 @@ add_dependencies(all_ice40_route_tests
     )
 
 if (NOT DEFINED ENV{CI} OR NOT $ENV{CI})
+add_dependencies(all_ice40_demos
+    all_icevision_bin
+    all_hx8k-b-evn_bin
+    all_tinyfpga-bx_bin
+    all_tinyfpga-b2_bin
+    )
 add_dependencies(all_ice40_route_tests
     all_dummy_ice40_up5k_sg48_route
     all_dummy_ice40_lp8k_cm81_route
@@ -246,7 +248,7 @@ add_dependencies(all_xc7_demos
     all_arty-swbut_bin
     all_arty-uart_bin
     all_basys3_bin
-    all_basys3-x1y0_bin
+    all_basys3-full_bin
     # TODO(#548) Zybo targets not currently working, so removed from all target.
     #all_zybo_bin
     )
