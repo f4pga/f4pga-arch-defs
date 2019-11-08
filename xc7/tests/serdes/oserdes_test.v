@@ -1,7 +1,6 @@
-`include "comparator.v"
-`include "lfsr.v"
-
 `default_nettype none
+
+`define CLKFBOUT_MULT 16
 
 // ============================================================================
 
@@ -16,9 +15,6 @@ parameter ERROR_HOLD    = 2500000
 input  wire CLK,
 input  wire RST,
 
-// OSERDES div clocks
-input  wire CLKDIV,
-
 // Data pin
 input  wire I_DAT,
 output wire O_DAT,
@@ -28,7 +24,66 @@ output wire O_ERROR
 );
 
 // ============================================================================
+// Clocks for OSERDES
+
+wire PRE_BUFG_CLKX;
+wire PRE_BUFG_CLKDIV;
+
+wire CLKX;
+wire CLKDIV;
+
+wire O_LOCKED;
+
+wire clk_fb_i;
+wire clk_fb_o;
+
+PLLE2_ADV #(
+.BANDWIDTH          ("HIGH"),
+.COMPENSATION       ("ZHOLD"),
+
+.CLKIN1_PERIOD      (10.0),  // 100MHz
+
+.CLKFBOUT_MULT      (`CLKFBOUT_MULT),
+.CLKFBOUT_PHASE     (0),
+
+.CLKOUT0_DIVIDE     (`CLKFBOUT_MULT * DATA_WIDTH),
+
+.CLKOUT1_DIVIDE     (`CLKFBOUT_MULT),
+
+.STARTUP_WAIT       ("FALSE")
+)
+pll
+(
+.CLKIN1     (CLK),
+.CLKINSEL   (1),
+
+.RST        (RST),
+.PWRDWN     (0),
+.LOCKED     (O_LOCKED),
+
+.CLKFBIN    (clk_fb_i),
+.CLKFBOUT   (clk_fb_o),
+
+.CLKOUT0    (PRE_BUFG_CLKDIV),
+.CLKOUT1    (PRE_BUFG_CLKX)
+);
+
+BUFG bufg_clk(.I(PRE_BUFG_CLKX), .O(CLKX));
+BUFG bufg_clkdiv(.I(PRE_BUFG_CLKDIV), .O(CLKDIV));
+
+// The clock enable signal for the "hi speed" clock domain.
+reg  clkdiv_r;
+wire ce;
+
+always @(posedge CLK)
+    clkdiv_r <= CLKDIV;
+
+assign ce = clkdiv_r && !CLKDIV;
+
+
+// ============================================================================
 // Data source
+
 reg         lfsr_stb;
 wire [7:0]  lfsr_dat;
 
@@ -70,8 +125,7 @@ wire ser_rst = ser_rst_sr[0];
 wire ser_oq;
 wire ser_tq;
 
-OSERDESE2 #
-(
+OSERDESE2 #(
 .DATA_RATE_OQ   (DATA_RATE),
 .DATA_WIDTH     (DATA_WIDTH),
 .DATA_RATE_TQ   ((DATA_RATE == "DDR" && DATA_WIDTH == 4) ? "DDR" : "SDR"),
@@ -79,7 +133,7 @@ OSERDESE2 #
 )
 oserdes
 (
-.CLK    (CLK),
+.CLK    (CLKX),
 .CLKDIV (CLKDIV),
 .RST    (ser_rst),
 
@@ -92,7 +146,7 @@ oserdes
 .D6     (ser_dat[5]),
 .D7     (ser_dat[6]),
 .D8     (ser_dat[7]),
-.OQ     (O_DAT),
+.OQ     (ser_oq),
 
 .TCE    (1'b1),
 .T1     (1'b0), // All 0 to keep OBUFT always on.
@@ -102,14 +156,20 @@ oserdes
 .TQ     (ser_tq)
 );
 
-// The clock enable signal for the "hi speed" clock domain.
-reg  clkdiv_r;
-wire ce;
+// ============================================================================
+// IOB
 
-always @(posedge CLK)
-    clkdiv_r <= CLKDIV;
+wire iob_i;
 
-assign ce = clkdiv_r && !CLKDIV;
+OBUF obuf (
+    .I(ser_oq),
+    .O(O_DAT)
+);
+
+IBUF ibuf (
+    .I(I_DAT),
+    .O(iob_i)
+);
 
 // ============================================================================
 // Reference data serializer
