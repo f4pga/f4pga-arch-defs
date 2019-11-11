@@ -61,7 +61,7 @@ function(ADD_XC7_BOARD)
     --part_name ${PART} \
     --part_file ${PRJXRAY_DB_DIR}/${ARCH}/${PART}.yaml \
   ")
-  get_target_property_required(CHANNELS_DB ${DEVICE} CHANNELS_DB)
+  get_target_property_required(CHANNELS_DB ${DEVICE_TYPE} CHANNELS_DB)
   get_file_location(CHANNELS_LOCATION ${CHANNELS_DB})
   set_target_properties(${BOARD}
     PROPERTIES BIT_TO_V_EXTRA_ARGS " \
@@ -80,7 +80,7 @@ function(ADD_XC7_BOARD)
       --roi ${ROI_DIR}/design.json \
     ")
 
-    get_target_property_required(SYNTH_TILES ${DEVICE} SYNTH_TILES)
+    get_target_property_required(SYNTH_TILES ${DEVICE_TYPE} SYNTH_TILES)
     get_file_location(SYNTH_TILES_LOCATION ${SYNTH_TILES})
     set(SYNTH_TILES_TO_PINMAP_CSV ${symbiflow-arch-defs_SOURCE_DIR}/xc7/utils/prjxray_synth_tiles_to_pinmap_csv.py)
     set(PINMAP_CSV ${BOARD}_synth_tiles_pinmap.csv)
@@ -145,9 +145,12 @@ function(ADD_XC7_DEVICE_DEFINE_TYPE)
 
   if(NOT "${ROI_DIR}" STREQUAL "")
     set(ROI_ARGS USE_ROI ${ROI_DIR}/design.json)
+    set(DEVICE_TYPE ${DEVICE}-roi-virt)
   elseif(NOT "${ADD_XC7_DEVICE_DEFINE_TYPE_GRAPH_LIMIT}" STREQUAL "")
+    set(DEVICE_TYPE ${DEVICE}-virt)
     set(ROI_ARGS GRAPH_LIMIT ${ADD_XC7_DEVICE_DEFINE_TYPE_GRAPH_LIMIT})
   else()
+    set(DEVICE_TYPE ${DEVICE}-virt)
     set(ROI_ARGS "")
   endif()
 
@@ -173,36 +176,54 @@ function(ADD_XC7_DEVICE_DEFINE_TYPE)
   set(TIMING_DEPS "")
 
   define_device_type(
-    DEVICE_TYPE ${DEVICE}-roi-virt
+    DEVICE_TYPE ${DEVICE_TYPE}
     ARCH ${ARCH}
     ARCH_XML arch.xml
     SCRIPT_OUTPUT_NAME timing
     SCRIPTS ${TIMING_IMPORT}
     SCRIPT_DEPS TIMING_DEPS
     )
-  add_dependencies(${ARCH}_${DEVICE}-roi-virt_arch arch_import_timing_deps)
-  get_target_property_required(VIRT_DEVICE_MERGED_FILE ${DEVICE}-roi-virt DEVICE_MERGED_FILE)
+  add_dependencies(${ARCH}_${DEVICE_TYPE}_arch arch_import_timing_deps)
+  get_target_property_required(VIRT_DEVICE_MERGED_FILE ${DEVICE_TYPE} DEVICE_MERGED_FILE)
   get_file_target(DEVICE_MERGED_FILE_TARGET ${VIRT_DEVICE_MERGED_FILE})
   add_dependencies(${DEVICE_MERGED_FILE_TARGET} arch_import_timing_deps)
   if(NOT "${ROI_DIR}" STREQUAL "")
     set_target_properties(
-      ${DEVICE}-roi-virt
+      ${DEVICE_TYPE}
       PROPERTIES
       USE_ROI TRUE
       ROI_DIR ${ROI_DIR}
+      CHANNELS_DB ${CMAKE_CURRENT_SOURCE_DIR}/channels.db
+      SYNTH_TILES ${CMAKE_CURRENT_SOURCE_DIR}/synth_tiles.json
       )
   else()
     set_target_properties(
-      ${DEVICE}-roi-virt
+      ${DEVICE_TYPE}
       PROPERTIES
       USE_ROI FALSE
+      CHANNELS_DB ${CMAKE_CURRENT_SOURCE_DIR}/channels.db
+      )
+  endif()
+
+  if(NOT "${ADD_XC7_DEVICE_DEFINE_TYPE_GRAPH_LIMIT}" STREQUAL "")
+    set_target_properties(
+      ${DEVICE_TYPE}
+      PROPERTIES
+      USE_GRAPH_LIMIT TRUE
+      GRAPH_LIMIT "${ADD_XC7_DEVICE_DEFINE_TYPE_GRAPH_LIMIT}"
+      )
+  else()
+    set_target_properties(
+      ${DEVICE_TYPE}
+      PROPERTIES
+      USE_GRAPH_LIMIT FALSE
       )
   endif()
 endfunction()
 
 function(ADD_XC7_DEVICE_DEFINE)
   set(options USE_ROI)
-  set(oneValueArgs ARCH GRAPH_LIMIT)
+  set(oneValueArgs ARCH)
   set(multiValueArgs DEVICES)
   cmake_parse_arguments(
     ADD_XC7_DEVICE_DEFINE
@@ -222,37 +243,41 @@ function(ADD_XC7_DEVICE_DEFINE)
     list(GET DEVICES ${INDEX} DEVICE)
 
     if(${USE_ROI})
-        add_subdirectory(${DEVICE}-roi-virt)
-        set(CHANNELS ${CMAKE_CURRENT_SOURCE_DIR}/${DEVICE}-roi-virt/channels.db)
+        set(DEVICE_TYPE ${DEVICE}-roi-virt)
     else()
-        add_subdirectory(${DEVICE}-virt)
-        set(CHANNELS ${CMAKE_CURRENT_SOURCE_DIR}/${DEVICE}-virt/channels.db)
+        set(DEVICE_TYPE ${DEVICE}-virt)
     endif()
 
-    get_file_location(CHANNELS_LOCATION ${CHANNELS})
+    add_subdirectory(${DEVICE_TYPE})
+
+    get_target_property_required(CHANNELS_DB ${DEVICE_TYPE} CHANNELS_DB)
+    get_file_location(CHANNELS_LOCATION ${CHANNELS_DB})
     set(RR_PATCH_EXTRA_ARGS  --connection_database ${CHANNELS_LOCATION})
 
     # Clear variable before adding deps for next device
     set(DEVICE_RR_PATCH_DEPS "")
     list(APPEND DEVICE_RR_PATCH_DEPS intervaltree textx)
-    append_file_dependency(DEVICE_RR_PATCH_DEPS ${CHANNELS})
+    append_file_dependency(DEVICE_RR_PATCH_DEPS ${CHANNELS_DB})
 
     if(${USE_ROI})
         # SYNTH_TILES used in ROI.
-        set(SYNTH_TILES ${CMAKE_CURRENT_SOURCE_DIR}/${DEVICE}-roi-virt/synth_tiles.json)
+        get_target_property_required(SYNTH_TILES ${DEVICE_TYPE} SYNTH_TILES)
         get_file_location(SYNTH_TILES_LOCATION ${SYNTH_TILES})
         append_file_dependency(DEVICE_RR_PATCH_DEPS ${SYNTH_TILES})
         set(RR_PATCH_EXTRA_ARGS --synth_tiles ${SYNTH_TILES_LOCATION} ${RR_PATCH_EXTRA_ARGS})
     endif()
 
-    if(NOT "${ADD_XC7_DEVICE_DEFINE_GRAPH_LIMIT}" STREQUAL "")
-        set(RR_PATCH_EXTRA_ARGS --graph_limit ${ADD_XC7_DEVICE_DEFINE_GRAPH_LIMIT} ${RR_PATCH_EXTRA_ARGS})
+    get_target_property_required(USE_GRAPH_LIMIT ${DEVICE_TYPE} USE_GRAPH_LIMIT)
+
+    if(${USE_GRAPH_LIMIT})
+        get_target_property_required(GRAPH_LIMIT ${DEVICE_TYPE} GRAPH_LIMIT)
+        set(RR_PATCH_EXTRA_ARGS --graph_limit ${GRAPH_LIMIT} ${RR_PATCH_EXTRA_ARGS})
     endif()
 
     define_device(
       DEVICE ${DEVICE}
       ARCH ${ARCH}
-      DEVICE_TYPE ${DEVICE}-roi-virt
+      DEVICE_TYPE ${DEVICE_TYPE}
       PACKAGES test
       RR_PATCH_EXTRA_ARGS ${RR_PATCH_EXTRA_ARGS}
       RR_PATCH_DEPS ${DEVICE_RR_PATCH_DEPS}
@@ -268,15 +293,5 @@ function(ADD_XC7_DEVICE_DEFINE)
         --route_chan_width 500
         --allowed_tiles_for_delay_model BLK-TL-SLICEL,BLK-TL-SLICEM
       )
-    set_target_properties(
-      ${DEVICE}
-      PROPERTIES
-      CHANNELS_DB ${CHANNELS})
-    if(${USE_ROI})
-      set_target_properties(
-        ${DEVICE}
-        PROPERTIES
-        SYNTH_TILES ${CMAKE_CURRENT_SOURCE_DIR}/${DEVICE}-roi-virt/synth_tiles.json)
-    endif()
   endforeach()
 endfunction()
