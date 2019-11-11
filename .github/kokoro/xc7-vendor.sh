@@ -5,7 +5,18 @@ SCRIPT_DIR="$(dirname "${SCRIPT_SRC}")"
 
 export CMAKE_FLAGS=-GNinja
 export BUILD_TOOL=ninja
+export XRAY_VIVADO_SETTINGS=/opt/Xilinx/Vivado/2017.2/settings64.sh
 source ${SCRIPT_DIR}/common.sh
+source third_party/prjxray/.github/kokoro/steps/xilinx.sh
+echo
+echo "========================================"
+echo "Vivado version"
+echo "----------------------------------------"
+(
+    source third_party/prjxray/utils/environment.sh
+    $XRAY_VIVADO -version
+)
+echo "----------------------------------------"
 
 echo
 echo "========================================"
@@ -14,8 +25,8 @@ echo "----------------------------------------"
 (
 	cd build
 	export VPR_NUM_WORKERS=${CORES}
-	# Disabled until tested
-	#ninja -j${MAX_CORES} all_xc7_diff_fasm
+	# Running with -k0 to attempt all tests, and show which ones failed.
+	ninja -k0 -j${MAX_CORES} all_xc7_diff_fasm
 )
 echo "----------------------------------------"
 
