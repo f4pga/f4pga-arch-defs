@@ -4,6 +4,29 @@ add_conda_pip(
 )
 
 function(ADD_XC7_BOARD)
+  # ~~~
+  # ADD_XC7_BOARD(
+  #   BOARD <board>
+  #   DEVICE <device>
+  #   PACKAGE <package>
+  #   PART <part>
+  #   PROG_TOOL <prog_tool>
+  #   [PROG_CMD <command to use PROG_TOOL>
+  #   )
+  # ~~~
+  #
+  # Defines a target board for a xc7 project.  The listed DEVICE must
+  # have been defined using ADD_XC7_DEVICE_DEFINE.  Currently PACKAGE should
+  # always be set to test.
+  #
+  # PART must be defined as the packaging of device.  This is used to defined
+  # the package pin names and bitstream .yaml file to use.  To see available
+  # parts, browse to third_party/prjxray-db/<arch>/*.yaml.
+  #
+  # PROG_TOOL should be an executable that will program a bitstream to the
+  # specified board. PROG_CMD is an optional command string.  If PROG_CMD is not
+  # provided, PROG_CMD will simply be ${PROG_TOOL}.
+  #
   set(options)
   set(oneValueArgs BOARD DEVICE PACKAGE PROG_TOOL PROG_CMD PART)
   set(multiValueArgs)
