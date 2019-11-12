@@ -20,6 +20,8 @@ add_vivado_target(
     PARENT_NAME counter_basys3
     CLOCK_PINS clk
     CLOCK_PERIODS 10.0
+    # TODO: https://github.com/SymbiFlow/symbiflow-arch-defs/issues/1018
+    DISABLE_DIFF_TEST
     )
 
 add_fpga_target(
