@@ -24,6 +24,7 @@ function(ADD_XC7_ARCH_DEFINE)
       --router_lookahead connection_box_map \
       --disable_check_route on \
       --strict_checks off \
+      --clustering_pin_feasibility_filter off \
       --allow_dangling_combinational_nodes on \
       --disable_errors check_unbuffered_edges:check_route \
       --congested_routing_iteration_threshold 0.8 \
