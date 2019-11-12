@@ -15,6 +15,8 @@ add_fpga_target(
 add_vivado_target(
   NAME buttons_basys3_vivado
   PARENT_NAME buttons_basys3
+  # TODO: https://github.com/SymbiFlow/symbiflow-arch-defs/issues/1018
+  DISABLE_DIFF_TEST
   )
 
 add_fpga_target(
