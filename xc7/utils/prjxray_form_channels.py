@@ -40,6 +40,7 @@ import tile_splitter.grid
 from lib.rr_graph import points
 from lib.rr_graph import tracks
 from lib.rr_graph import graph2
+from prjxray.grid import BlockType
 import datetime
 import os
 import os.path
@@ -79,7 +80,7 @@ VALUES
         )
 
 
-def create_get_switch(conn):
+def create_get_switch(conn, is_buffer):
     """ Returns functions to get or create switches with various timing.
 
     Every switch that requires different timing is given it's own switch
@@ -98,7 +99,8 @@ def create_get_switch(conn):
     pip_cache[(False, 0.0, 0.0, 0.0)] = write_cur.fetchone()[0]
 
     def get_switch_timing(
-            is_pass_transistor, delay, internal_capacitance, drive_resistance
+            is_buffer, is_pass_transistor, delay, internal_capacitance,
+            drive_resistance
     ):
         """ Return a switch that matches provided timing.
 
@@ -123,16 +125,21 @@ def create_get_switch(conn):
 
         """
         key = (
+            bool(is_buffer and not is_pass_transistor),
             bool(is_pass_transistor), float(delay), float(drive_resistance),
             float(internal_capacitance)
         )
 
         if key not in pip_cache:
-            name = 'routing'
-            switch_type = 'mux'
             if is_pass_transistor:
                 name = 'pass_transistor'
                 switch_type = 'pass_gate'
+            elif is_buffer:
+                name = 'buffer'
+                switch_type = 'buffer'
+            else:
+                name = 'routing'
+                switch_type = 'mux'
 
             name = '{}_R{}_C{}_Tdel{}'.format(
                 name, drive_resistance, internal_capacitance, delay
@@ -190,8 +197,8 @@ VALUES
                 drive_resistance = pip_timing.drive_resistance / 1e3
 
         return get_switch_timing(
-            pip.is_pass_transistor, delay, internal_capacitance,
-            drive_resistance
+            is_buffer(pip), pip.is_pass_transistor, delay,
+            internal_capacitance, drive_resistance
         )
 
     return get_switch, get_switch_timing
@@ -333,6 +340,7 @@ WHERE
                 intrinsic_delay = SINGLE_PRECISION_FLOAT_MIN
 
             site_pin_switch_pkey = get_switch_timing(
+                is_buffer=True,
                 is_pass_transistor=False,
                 delay=intrinsic_delay,
                 internal_capacitance=capacitance,
@@ -755,7 +763,8 @@ SELECT name, intrinsic_delay, internal_capacitance, drive_resistance, switch_typ
         switch_drive_resistance, switch_type
     ) = cur.fetchone()
 
-    assert switch_type in ["mux", "pass_gate"], (switch_pkey, switch_type)
+    assert switch_type in ["mux", "buffer",
+                           "pass_gate"], (switch_pkey, switch_type)
 
     zero_delay_to_switch = src_site_pin_drive_resistance == 0 or (
         switch_internal_capacitance == 0 and src_wire_capacitance == 0
@@ -768,13 +777,14 @@ SELECT name, intrinsic_delay, internal_capacitance, drive_resistance, switch_typ
             src_site_pin_intrinsic_delay == 0 and \
             dest_site_pin_intrinsic_delay == 0:
         return get_switch_timing(
+            is_buffer=False,
             is_pass_transistor=False,
             delay=switch_intrinsic_delay,
             internal_capacitance=0,
             drive_resistance=0,
         )
 
-    if switch_type == "mux":
+    if switch_type in ["mux", "buffer"]:
         switch_delay = src_site_pin_intrinsic_delay
         switch_delay += src_site_pin_drive_resistance * (
             switch_internal_capacitance + src_wire_capacitance
@@ -797,6 +807,7 @@ SELECT name, intrinsic_delay, internal_capacitance, drive_resistance, switch_typ
         switch_delay += dest_site_pin_intrinsic_delay
 
     return get_switch_timing(
+        is_buffer=False,
         is_pass_transistor=False,
         delay=switch_delay,
         internal_capacitance=0,
@@ -2075,7 +2086,33 @@ def main():
         print("{}: About to load database".format(datetime.datetime.now()))
         db = prjxray.db.Database(args.db_root)
         grid = db.grid()
-        get_switch, get_switch_timing = create_get_switch(conn)
+
+        def is_buffer(pip):
+            tile, _ = pip.name.split('.')
+            segbits = db.get_tile_segbits(tile)
+
+            feature = '{}.{}.{}'.format(tile, pip.net_to, pip.net_from)
+
+            is_ppip = feature in segbits.ppips
+            if BlockType.CLB_IO_CLK not in segbits.segbits:
+                return False
+
+            is_configurable = feature in segbits.segbits[BlockType.CLB_IO_CLK]
+
+            # This is pretty weird to be listed as both a ppip and a
+            # configurable pip.
+            if is_ppip and is_configurable:
+                print(
+                    '*** WARNING: {} is both a ppips and has a feature? ***'.
+                    format(feature)
+                )
+
+            if is_configurable:
+                return False
+
+            return is_ppip
+
+        get_switch, get_switch_timing = create_get_switch(conn, is_buffer)
         import_phy_grid(db, grid, conn, get_switch, get_switch_timing)
 
         segments = import_segments(conn, db)
