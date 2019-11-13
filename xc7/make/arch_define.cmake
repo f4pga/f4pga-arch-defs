@@ -27,7 +27,8 @@ function(ADD_XC7_ARCH_DEFINE)
       --allow_dangling_combinational_nodes on \
       --disable_errors check_unbuffered_edges:check_route \
       --congested_routing_iteration_threshold 0.8 \
-      --astar_fac 1.0 \
+      --astar_fac 1.2 \
+      --bb_factor 10 \
       --suppress_warnings \${OUT_NOISY_WARNINGS},sum_pin_class:check_unbuffered_edges:load_rr_indexed_data_T_values:check_rr_node:trans_per_R"
     RR_PATCH_TOOL
       ${symbiflow-arch-defs_SOURCE_DIR}/xc7/utils/prjxray_routing_import.py
