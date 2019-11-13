@@ -44,7 +44,7 @@ env_vars {
 }
 """
 
-for type in ['tests', 'docs', 'ice40', 'testarch', 'xc7']:
+for type in ['tests', 'docs', 'ice40', 'testarch', 'xc7', 'xc7-vendor']:
     with open("continuous-%s.cfg" % type, "w") as f:
         f.write(db_full % {
             'arch': type,

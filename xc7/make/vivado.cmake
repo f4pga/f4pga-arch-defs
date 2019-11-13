@@ -6,6 +6,7 @@ function(COMMON_VIVADO_TARGETS)
   #   BITSTREAM <bitstream>
   #   DEPS <dependency list>
   #   [MAKE_DIFF_FASM]
+  #   [ALL_DIFF_FASM]
   #   )
   # ~~~
   #
@@ -22,7 +23,7 @@ function(COMMON_VIVADO_TARGETS)
   # and the output from Vivado, and attaches that diff generation to
   # "all_xc7_diff_fasm" which can used to verify FASM.
   #
-  set(options MAKE_DIFF_FASM)
+  set(options MAKE_DIFF_FASM ALL_DIFF_FASM)
   set(oneValueArgs NAME WORK_DIR BITSTREAM)
   set(multiValueArgs DEPS)
   cmake_parse_arguments(
@@ -131,7 +132,9 @@ function(COMMON_VIVADO_TARGETS)
             ${DEPS}
             ${CMAKE_CURRENT_BINARY_DIR}/${WORK_DIR}/design_${NAME}.bit.fasm
         )
-    add_dependencies(all_xc7_diff_fasm ${NAME}_diff_fasm)
+    if(${COMMON_VIVADO_TARGETS_ALL_DIFF_FASM})
+      add_dependencies(all_xc7_diff_fasm ${NAME}_diff_fasm)
+    endif()
   endif()
 endfunction()
 
@@ -142,6 +145,7 @@ function(ADD_VIVADO_TARGET)
   #   PARENT_NAME <name>
   #   CLOCK_PINS list of clock pins
   #   CLOCK_PERIODS list of clock periods
+  #   [DISABLE_DIFF_TEST]
   #   )
   # ~~~
   #
@@ -156,11 +160,13 @@ function(ADD_VIVADO_TARGET)
   # CLOCK_PINS and CLOCK_PERIODS should be lists of the same length.
   # CLOCK_PERIODS should be in nanoseconds.
   #
+  # DISABLE_DIFF_TEST can be added to not add this target to all_xc7_diff_fasm.
+  #
   # New targets:
   #  <NAME>_load_dcp - Launch vivado loading post-routing design checkpoint.
   #  <NAME>_load_xpr - Launch vivado loading project.
   #  <NAME>_sim - Launch vivado and setup simulation and clock forces.
-  set(options)
+  set(options DISABLE_DIFF_TEST)
   set(oneValueArgs NAME PARENT_NAME)
   set(multiValueArgs CLOCK_PINS CLOCK_PERIODS)
   cmake_parse_arguments(
@@ -239,12 +245,18 @@ function(ADD_VIVADO_TARGET)
   # directory, and presents Vivado filename collisions.
   get_filename_component(WORK_DIR ${BIT_VERILOG} DIRECTORY)
 
+  if(${ADD_VIVADO_TARGET_DISABLE_DIFF_TEST})
+    set(DIFF_ARG MAKE_DIFF_FASM)
+  else()
+    set(DIFF_ARG MAKE_DIFF_FASM ALL_DIFF_FASM)
+  endif()
+
   COMMON_VIVADO_TARGETS(
       NAME ${NAME}
       WORK_DIR ${WORK_DIR}
       DEPS ${DEPS}
       BITSTREAM ${BITSTREAM}
-      MAKE_DIFF_FASM)
+      ${DIFF_ARG})
 
 endfunction()
 
