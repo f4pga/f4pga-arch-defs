@@ -2016,6 +2016,12 @@ def create_and_insert_edges(
             if 'PADOUT0' in pip.name or 'PADOUT1' in pip.name:
                 continue
 
+            # These edges are used for bringing general interconnect to the
+            # horizontal clock buffers.  This should only be used when routing
+            # clocks.
+            if 'CLK_HROW_CK_INT_' in pip.name:
+                continue
+
             # Generally pseudo-pips are skipped, with the exception for BUFHCE related pips,
             # for which we want to create a routing path to have VPR route thorugh these pips.
             if pip.is_pseudo and "CLK_HROW_CK" not in pip.name:
