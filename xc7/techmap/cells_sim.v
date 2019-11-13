@@ -620,16 +620,29 @@ module OUTBUF_VPR (
 	assign OUT = IN;
 endmodule
 
+
 module IOBUF_VPR (
     input  I,
     input  T,
     output O,
-    input  IPAD,
-    output OPAD,
+    inout  IOPAD
 );
 
-  assign O = IPAD;
-  assign OPAD = (T == 1'b0) ? I : 1'bz;
+  assign O = IOPAD;
+  assign IOPAD = (T == 1'b0) ? I : 1'bz;
+
+endmodule
+
+module IOBUF_VPR (
+    input  I,
+    input  T,
+    output O,
+    input  IOPAD_$inp,
+    output IOPAD_$out
+);
+
+  assign O = IOPAD_$inp;
+  assign IOPAD_$out = (T == 1'b0) ? I : 1'bz;
 
 endmodule
 

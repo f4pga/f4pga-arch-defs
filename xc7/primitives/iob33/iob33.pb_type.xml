@@ -68,31 +68,31 @@
       </direct>
     </interconnect>
   </mode>
-  <!--
   <mode name="IOBUF">
-    <xi:include href="inpad.pb_type.xml"/>
-    <xi:include href="outpad.pb_type.xml"/>
-    <pb_type name="IOBUF_VPR" blif_model=".subckt INBUF_VPR" num_pb="1">
-      <input name="INBUF_DIFFI_IN" num_pins="1"/>
-      <input name="INBUF_IBUFDISABLE" num_pins="1"/>
-      <input name="INBUF_INTERMDISABLE" num_pins="1"/>
-      <input name="INBUF_PAD" num_pins="1"/>
-      <output name="INBUF_OUT" num_pins="1"/>
-      <input name="OUTBUF_IN" num_pins="1"/>
-      <input name="OUTBUF_TRI" num_pins="1"/>
-      <output name="OUTBUF_OUT" num_pins="1"/>
-      <delay_constant max="10e-12" in_port="INBUF_PAD"  out_port="INBUF_OUT"/>
-      <delay_constant max="10e-12" in_port="OUTBUF_IN"  out_port="OUTBUF_OUT"/>
+    <xi:include href="../iob33m/inpad.pb_type.xml"/>
+    <xi:include href="../iob33m/outpad.pb_type.xml"/>
+    <pb_type name="IOBUF_VPR" blif_model=".subckt IOBUF_VPR" num_pb="1">
+      <input name="I" num_pins="1"/>
+      <input name="T" num_pins="1"/>
+      <input name="IOPAD_$inp" num_pins="1"/>
+      <output name="O" num_pins="1"/>
+      <output name="IOPAD_$out" num_pins="1"/>
+      <delay_constant max="10e-12" in_port="I" out_port="IOPAD_$out"/>
+      <delay_constant max="10e-12" in_port="T" out_port="IOPAD_$out"/>
+      <delay_constant max="10e-12" in_port="IOPAD_$inp" out_port="O"/>
     </pb_type>
     <interconnect>
-      <direct name="I" input="IOBUF_VPR.INBUF_OUT" output="IOB33.I"/>
-      <direct name="T" input="IOB33.T" output="IOBUF_VPR.OUTBUF_TRI"/>
-      <direct name="O" input="IOB33.O" output="IOBUF_VPR.OUTBUF_IN"/>
-      <direct name="to_outpad" input="IOBUF_VPR.OUTBUF_OUT" output="outpad.outpad"/>
-      <direct name="to_inpad" input="inpad.inpad" output="IOBUF_VPR.INBUF_PAD"/>
+      <direct name="1" input="inpad.inpad" output="IOBUF_VPR.IOPAD_$inp">
+        <pack_pattern name="IOBUF_VPR_to_PAD"/>
+      </direct>
+      <direct name="2" input="IOBUF_VPR.IOPAD_$out" output="outpad.outpad">
+        <pack_pattern name="IOBUF_VPR_to_PAD"/>
+      </direct>
+      <direct name="3" input="IOB33.O" output="IOBUF_VPR.I"/>
+      <direct name="4" input="IOB33.T" output="IOBUF_VPR.T"/>
+      <direct name="5" input="IOBUF_VPR.O" output="IOB33.I"/>
     </interconnect>
   </mode>
-  -->
   <!-- TODO
        - IOBUF
        - correct timing values

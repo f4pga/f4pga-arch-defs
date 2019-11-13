@@ -1927,8 +1927,7 @@ module IOBUF (
     .I(I),
     .T(T),
     .O(O),
-    .IPAD(IO),
-    .OPAD(IO)
+    .IOPAD(IO)
   );
 
 endmodule
