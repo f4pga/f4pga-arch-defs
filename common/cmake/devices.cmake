@@ -1010,11 +1010,13 @@ function(ADD_FPGA_TARGET)
       VERBATIM
     )
 
+    set(SPLIT_INOUTS ${symbiflow-arch-defs_SOURCE_DIR}/utils/split_inouts.py)
+
     add_custom_command(
       OUTPUT ${OUT_JSON}
-      DEPENDS ${OUT_JSON_SYNTH} ${YOSYS} ${YOSYS_TARGET} ${QUIET_CMD} ${QUIET_CMD_TARGET} ${YOSYS_SYNTH_SCRIPT}
+      DEPENDS ${OUT_JSON_SYNTH} ${QUIET_CMD} ${QUIET_CMD_TARGET} ${SPLIT_INOUTS} ${PYTHON3} ${PYTHON3_TARGET} simplejson
       COMMAND
-        ${CMAKE_COMMAND} -E env cp ${OUT_JSON_SYNTH} ${OUT_JSON}
+        ${CMAKE_COMMAND} -E env PYTHONPATH=${PRJXRAY_DIR}:${symbiflow-arch-defs_SOURCE_DIR}/utils ${PYTHON3} ${SPLIT_INOUTS} -i ${OUT_JSON_SYNTH} -o ${OUT_JSON}
       WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
       VERBATIM
     )

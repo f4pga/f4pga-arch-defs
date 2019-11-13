@@ -45,7 +45,7 @@ the resulting design would be:
 """
 import argparse
 import os
-import json
+import simplejson as json
 
 # =============================================================================
 
