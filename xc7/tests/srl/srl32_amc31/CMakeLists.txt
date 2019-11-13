@@ -33,6 +33,8 @@ add_vivado_target(
   PARENT_NAME srl32_doutmux_mc31
   CLOCK_PINS clk
   CLOCK_PERIODS 10.0
+  # TODO: https://github.com/SymbiFlow/symbiflow-arch-defs/issues/1019
+  DISABLE_DIFF_TEST
   )
 
 #add_vivado_target(

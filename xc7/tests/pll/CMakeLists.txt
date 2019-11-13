@@ -35,6 +35,8 @@ add_vivado_target(
   PARENT_NAME pll_int_basys3_full
   CLOCK_PINS clk
   CLOCK_PERIODS 10.0
+  # TODO: https://github.com/SymbiFlow/symbiflow-arch-defs/issues/1018
+  DISABLE_DIFF_TEST
   )
 
 add_vivado_target(
@@ -42,6 +44,8 @@ add_vivado_target(
   PARENT_NAME pll_buf_basys3_full
   CLOCK_PINS clk
   CLOCK_PERIODS 10.0
+  # TODO: https://github.com/SymbiFlow/symbiflow-arch-defs/issues/1018
+  DISABLE_DIFF_TEST
   )
 
 add_vivado_target(
@@ -49,6 +53,8 @@ add_vivado_target(
   PARENT_NAME pll_ext_basys3_full
   CLOCK_PINS clk
   CLOCK_PERIODS 10.0
+  # TODO: https://github.com/SymbiFlow/symbiflow-arch-defs/issues/1018
+  DISABLE_DIFF_TEST
   )
 
 
