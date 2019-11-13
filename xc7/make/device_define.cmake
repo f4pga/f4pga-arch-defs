@@ -3,9 +3,132 @@ add_conda_pip(
   NO_EXE
 )
 
+function(ADD_XC7_BOARD)
+  # ~~~
+  # ADD_XC7_BOARD(
+  #   BOARD <board>
+  #   DEVICE <device>
+  #   PACKAGE <package>
+  #   PART <part>
+  #   PROG_TOOL <prog_tool>
+  #   [PROG_CMD <command to use PROG_TOOL>
+  #   )
+  # ~~~
+  #
+  # Defines a target board for a xc7 project.  The listed DEVICE must
+  # have been defined using ADD_XC7_DEVICE_DEFINE.  Currently PACKAGE should
+  # always be set to test.
+  #
+  # PART must be defined as the packaging of device.  This is used to defined
+  # the package pin names and bitstream .yaml file to use.  To see available
+  # parts, browse to third_party/prjxray-db/<arch>/*.yaml.
+  #
+  # PROG_TOOL should be an executable that will program a bitstream to the
+  # specified board. PROG_CMD is an optional command string.  If PROG_CMD is not
+  # provided, PROG_CMD will simply be ${PROG_TOOL}.
+  #
+  set(options)
+  set(oneValueArgs BOARD DEVICE PACKAGE PROG_TOOL PROG_CMD PART)
+  set(multiValueArgs)
+  cmake_parse_arguments(
+     ADD_XC7_BOARD
+     "${options}"
+     "${oneValueArgs}"
+     "${multiValueArgs}"
+     ${ARGN}
+    )
+
+  define_board(
+    BOARD ${ADD_XC7_BOARD_BOARD}
+    DEVICE ${ADD_XC7_BOARD_DEVICE}
+    PACKAGE ${ADD_XC7_BOARD_PACKAGE}
+    PROG_TOOL ${ADD_XC7_BOARD_PROG_TOOL}
+    PROG_CMD ${ADD_XC7_BOARD_PROG_PROG_CMD}
+    )
+
+  set(DEVICE ${ADD_XC7_BOARD_DEVICE})
+  get_target_property_required(ARCH ${DEVICE} ARCH)
+  get_target_property_required(DEVICE_TYPE ${DEVICE} DEVICE_TYPE)
+  get_target_property_required(USE_ROI ${DEVICE_TYPE} USE_ROI)
+  set(BOARD ${ADD_XC7_BOARD_BOARD})
+  set(PART ${ADD_XC7_BOARD_PART})
+
+  set_target_properties(${BOARD}
+    PROPERTIES PART ${PART}
+    )
+  set_target_properties(${BOARD}
+    PROPERTIES BIT_TO_BIN_EXTRA_ARGS " \
+    --part_name ${PART} \
+    --part_file ${PRJXRAY_DB_DIR}/${ARCH}/${PART}.yaml \
+  ")
+  get_target_property_required(CHANNELS_DB ${DEVICE_TYPE} CHANNELS_DB)
+  get_file_location(CHANNELS_LOCATION ${CHANNELS_DB})
+  set_target_properties(${BOARD}
+    PROPERTIES BIT_TO_V_EXTRA_ARGS " \
+    --part ${PART}
+    --connection_database ${CHANNELS_LOCATION}
+  ")
+
+  get_target_property_required(PYTHON3 env PYTHON3)
+  get_target_property_required(PYTHON3_TARGET env PYTHON3_TARGET)
+
+  if(${USE_ROI})
+    get_target_property_required(ROI_DIR ${DEVICE_TYPE} ROI_DIR)
+
+    set_target_properties(${BOARD}
+      PROPERTIES FASM_TO_BIT_EXTRA_ARGS " \
+      --roi ${ROI_DIR}/design.json \
+    ")
+
+    get_target_property_required(SYNTH_TILES ${DEVICE_TYPE} SYNTH_TILES)
+    get_file_location(SYNTH_TILES_LOCATION ${SYNTH_TILES})
+    set(SYNTH_TILES_TO_PINMAP_CSV ${symbiflow-arch-defs_SOURCE_DIR}/xc7/utils/prjxray_synth_tiles_to_pinmap_csv.py)
+    set(PINMAP_CSV ${BOARD}_synth_tiles_pinmap.csv)
+
+    set(PINMAP_CSV_DEPS ${PYTHON3} ${PYTHON3_TARGET} ${SYNTH_TILES_TO_PINMAP_CSV})
+    append_file_dependency(PINMAP_CSV_DEPS ${SYNTH_TILES})
+    add_custom_command(
+    OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/${PINMAP_CSV}
+    COMMAND ${PYTHON3} ${SYNTH_TILES_TO_PINMAP_CSV}
+        --synth_tiles ${SYNTH_TILES_LOCATION}
+        --package_pins ${PRJXRAY_DB_DIR}/${ARCH}/${PART}_package_pins.csv
+        --output ${CMAKE_CURRENT_BINARY_DIR}/${PINMAP_CSV}
+        DEPENDS ${PINMAP_CSV_DEPS}
+        )
+  else()
+    set(CREATE_PINMAP_CSV ${symbiflow-arch-defs_SOURCE_DIR}/xc7/utils/prjxray_create_pinmap_csv.py)
+    set(PINMAP_CSV ${BOARD}_pinmap.csv)
+    set(PINMAP_CSV_DEPS ${PYTHON3} ${PYTHON3_TARGET} ${CREATE_PINMAP_CSV})
+    append_file_dependency(PINMAP_CSV_DEPS ${CHANNELS_DB})
+
+    add_custom_command(
+      OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/${PINMAP_CSV}
+      COMMAND ${PYTHON3} ${CREATE_PINMAP_CSV}
+        --connection_database ${CHANNELS_LOCATION}
+        --package_pins ${PRJXRAY_DB_DIR}/${ARCH}/${PART}_package_pins.csv
+        --output ${CMAKE_CURRENT_BINARY_DIR}/${PINMAP_CSV}
+        DEPENDS ${PINMAP_CSV_DEPS}
+      )
+  endif()
+
+  add_file_target(FILE ${PINMAP_CSV} GENERATED)
+
+  set_target_properties(
+    ${BOARD}
+    PROPERTIES
+      PINMAP
+      ${CMAKE_CURRENT_SOURCE_DIR}/${PINMAP_CSV}
+  )
+  set_target_properties(
+    dummy_${ARCH}_${DEVICE}_${ADD_XC7_BOARD_PACKAGE}
+    PROPERTIES
+    PINMAP
+    ${CMAKE_CURRENT_SOURCE_DIR}/${PINMAP_CSV})
+endfunction()
+
 function(ADD_XC7_DEVICE_DEFINE_TYPE)
   set(options)
-  set(oneValueArgs ARCH DEVICE ROI_DIR ROI_PART NAME GRAPH_LIMIT PART)
+  set(oneValueArgs ARCH DEVICE ROI_DIR GRAPH_LIMIT)
   set(multiValueArgs TILE_TYPES PB_TYPES)
   cmake_parse_arguments(
     ADD_XC7_DEVICE_DEFINE_TYPE
@@ -18,52 +141,17 @@ function(ADD_XC7_DEVICE_DEFINE_TYPE)
   set(ARCH ${ADD_XC7_DEVICE_DEFINE_TYPE_ARCH})
   set(DEVICE ${ADD_XC7_DEVICE_DEFINE_TYPE_DEVICE})
   set(ROI_DIR ${ADD_XC7_DEVICE_DEFINE_TYPE_ROI_DIR})
-  set(ROI_PART ${ADD_XC7_DEVICE_DEFINE_TYPE_ROI_PART})
-  set(PART ${ADD_XC7_DEVICE_DEFINE_TYPE_PART})
   set(TILE_TYPES ${ADD_XC7_DEVICE_DEFINE_TYPE_TILE_TYPES})
-  set(NAME ${ADD_XC7_DEVICE_DEFINE_TYPE_NAME})
 
-  add_custom_target(${ARCH}_${DEVICE}_${NAME})
-
-  if(NOT "${ROI_PART}" STREQUAL "")
-    set_target_properties(${ARCH}_${DEVICE}_${NAME}
-      PROPERTIES PART ${ROI_PART}
-      )
-    set_target_properties(${ARCH}_${DEVICE}_${NAME}
-      PROPERTIES FASM_TO_BIT_EXTRA_ARGS " \
-      --roi ${ROI_DIR}/design.json \
-    ")
-    set_target_properties(${ARCH}_${DEVICE}_${NAME}
-      PROPERTIES BIT_TO_BIN_EXTRA_ARGS " \
-      --part_name ${ROI_PART} \
-      --part_file ${PRJXRAY_DB_DIR}/${ARCH}/${ROI_PART}.yaml \
-    ")
-    set_target_properties(${ARCH}_${DEVICE}_${NAME}
-      PROPERTIES BIT_TO_V_EXTRA_ARGS " \
-      --part ${ROI_PART}
-      --connection_database ${CMAKE_CURRENT_BINARY_DIR}/channels.db
-    ")
+  if(NOT "${ROI_DIR}" STREQUAL "")
     set(ROI_ARGS USE_ROI ${ROI_DIR}/design.json)
+    set(DEVICE_TYPE ${DEVICE}-roi-virt)
   elseif(NOT "${ADD_XC7_DEVICE_DEFINE_TYPE_GRAPH_LIMIT}" STREQUAL "")
+    set(DEVICE_TYPE ${DEVICE}-virt)
     set(ROI_ARGS GRAPH_LIMIT ${ADD_XC7_DEVICE_DEFINE_TYPE_GRAPH_LIMIT})
   else()
+    set(DEVICE_TYPE ${DEVICE}-virt)
     set(ROI_ARGS "")
-  endif()
-
-  if(NOT "${PART}" STREQUAL "")
-    set_target_properties(${ARCH}_${DEVICE}_${NAME}
-        PROPERTIES PART ${PART}
-      )
-    set_target_properties(${ARCH}_${DEVICE}_${NAME}
-      PROPERTIES BIT_TO_BIN_EXTRA_ARGS " \
-      --part_name ${PART} \
-      --part_file ${PRJXRAY_DB_DIR}/${ARCH}/${PART}.yaml \
-    ")
-    set_target_properties(${ARCH}_${DEVICE}_${NAME}
-      PROPERTIES BIT_TO_V_EXTRA_ARGS " \
-      --part ${PART}
-      --connection_database ${CMAKE_CURRENT_BINARY_DIR}/channels.db
-    ")
   endif()
 
   set(PB_TYPE_ARGS "")
@@ -88,23 +176,55 @@ function(ADD_XC7_DEVICE_DEFINE_TYPE)
   set(TIMING_DEPS "")
 
   define_device_type(
-    DEVICE_TYPE ${DEVICE}-roi-virt
+    DEVICE_TYPE ${DEVICE_TYPE}
     ARCH ${ARCH}
     ARCH_XML arch.xml
     SCRIPT_OUTPUT_NAME timing
     SCRIPTS ${TIMING_IMPORT}
     SCRIPT_DEPS TIMING_DEPS
     )
-  add_dependencies(${ARCH}_${DEVICE}-roi-virt_arch arch_import_timing_deps)
-  get_target_property_required(VIRT_DEVICE_MERGED_FILE ${DEVICE}-roi-virt DEVICE_MERGED_FILE)
+  add_dependencies(${ARCH}_${DEVICE_TYPE}_arch arch_import_timing_deps)
+  get_target_property_required(VIRT_DEVICE_MERGED_FILE ${DEVICE_TYPE} DEVICE_MERGED_FILE)
   get_file_target(DEVICE_MERGED_FILE_TARGET ${VIRT_DEVICE_MERGED_FILE})
   add_dependencies(${DEVICE_MERGED_FILE_TARGET} arch_import_timing_deps)
+  if(NOT "${ROI_DIR}" STREQUAL "")
+    set_target_properties(
+      ${DEVICE_TYPE}
+      PROPERTIES
+      USE_ROI TRUE
+      ROI_DIR ${ROI_DIR}
+      CHANNELS_DB ${CMAKE_CURRENT_SOURCE_DIR}/channels.db
+      SYNTH_TILES ${CMAKE_CURRENT_SOURCE_DIR}/synth_tiles.json
+      )
+  else()
+    set_target_properties(
+      ${DEVICE_TYPE}
+      PROPERTIES
+      USE_ROI FALSE
+      CHANNELS_DB ${CMAKE_CURRENT_SOURCE_DIR}/channels.db
+      )
+  endif()
+
+  if(NOT "${ADD_XC7_DEVICE_DEFINE_TYPE_GRAPH_LIMIT}" STREQUAL "")
+    set_target_properties(
+      ${DEVICE_TYPE}
+      PROPERTIES
+      USE_GRAPH_LIMIT TRUE
+      GRAPH_LIMIT "${ADD_XC7_DEVICE_DEFINE_TYPE_GRAPH_LIMIT}"
+      )
+  else()
+    set_target_properties(
+      ${DEVICE_TYPE}
+      PROPERTIES
+      USE_GRAPH_LIMIT FALSE
+      )
+  endif()
 endfunction()
 
 function(ADD_XC7_DEVICE_DEFINE)
   set(options USE_ROI)
-  set(oneValueArgs ARCH GRAPH_LIMIT)
-  set(multiValueArgs DEVICES PARTS SEARCH_LOCATIONS)
+  set(oneValueArgs ARCH)
+  set(multiValueArgs DEVICES)
   cmake_parse_arguments(
     ADD_XC7_DEVICE_DEFINE
      "${options}"
@@ -116,48 +236,48 @@ function(ADD_XC7_DEVICE_DEFINE)
   set(USE_ROI ${ADD_XC7_DEVICE_DEFINE_USE_ROI})
   set(ARCH ${ADD_XC7_DEVICE_DEFINE_ARCH})
   set(DEVICES ${ADD_XC7_DEVICE_DEFINE_DEVICES})
-  set(PARTS ${ADD_XC7_DEVICE_DEFINE_PARTS})
 
   list(LENGTH DEVICES DEVICE_COUNT)
   math(EXPR DEVICE_COUNT_N_1 "${DEVICE_COUNT} - 1")
   foreach(INDEX RANGE ${DEVICE_COUNT_N_1})
     list(GET DEVICES ${INDEX} DEVICE)
-    list(GET PARTS ${INDEX} PART)
 
     if(${USE_ROI})
-        add_subdirectory(${DEVICE}-roi-virt)
-        set(CHANNELS ${CMAKE_CURRENT_SOURCE_DIR}/${DEVICE}-roi-virt/channels.db)
+        set(DEVICE_TYPE ${DEVICE}-roi-virt)
     else()
-        add_subdirectory(${DEVICE}-virt)
-        set(CHANNELS ${CMAKE_CURRENT_SOURCE_DIR}/${DEVICE}-virt/channels.db)
+        set(DEVICE_TYPE ${DEVICE}-virt)
     endif()
 
-    get_file_location(CHANNELS_LOCATION ${CHANNELS})
+    add_subdirectory(${DEVICE_TYPE})
+
+    get_target_property_required(CHANNELS_DB ${DEVICE_TYPE} CHANNELS_DB)
+    get_file_location(CHANNELS_LOCATION ${CHANNELS_DB})
     set(RR_PATCH_EXTRA_ARGS  --connection_database ${CHANNELS_LOCATION})
 
     # Clear variable before adding deps for next device
     set(DEVICE_RR_PATCH_DEPS "")
     list(APPEND DEVICE_RR_PATCH_DEPS intervaltree textx)
-    append_file_dependency(DEVICE_RR_PATCH_DEPS ${CHANNELS})
+    append_file_dependency(DEVICE_RR_PATCH_DEPS ${CHANNELS_DB})
 
     if(${USE_ROI})
         # SYNTH_TILES used in ROI.
-        set(SYNTH_TILES ${CMAKE_CURRENT_SOURCE_DIR}/${DEVICE}-roi-virt/synth_tiles.json)
+        get_target_property_required(SYNTH_TILES ${DEVICE_TYPE} SYNTH_TILES)
         get_file_location(SYNTH_TILES_LOCATION ${SYNTH_TILES})
         append_file_dependency(DEVICE_RR_PATCH_DEPS ${SYNTH_TILES})
         set(RR_PATCH_EXTRA_ARGS --synth_tiles ${SYNTH_TILES_LOCATION} ${RR_PATCH_EXTRA_ARGS})
     endif()
 
-    if(NOT "${ADD_XC7_DEVICE_DEFINE_GRAPH_LIMIT}" STREQUAL "")
-        set(RR_PATCH_EXTRA_ARGS --graph_limit ${ADD_XC7_DEVICE_DEFINE_GRAPH_LIMIT} ${RR_PATCH_EXTRA_ARGS})
-    endif()
+    get_target_property_required(USE_GRAPH_LIMIT ${DEVICE_TYPE} USE_GRAPH_LIMIT)
 
-    string(REPLACE ";" "\\$<SEMICOLON>" LOC_STR "${ADD_XC7_DEVICE_DEFINE_SEARCH_LOCATIONS}")
+    if(${USE_GRAPH_LIMIT})
+        get_target_property_required(GRAPH_LIMIT ${DEVICE_TYPE} GRAPH_LIMIT)
+        set(RR_PATCH_EXTRA_ARGS --graph_limit ${GRAPH_LIMIT} ${RR_PATCH_EXTRA_ARGS})
+    endif()
 
     define_device(
       DEVICE ${DEVICE}
       ARCH ${ARCH}
-      DEVICE_TYPE ${DEVICE}-roi-virt
+      DEVICE_TYPE ${DEVICE_TYPE}
       PACKAGES test
       RR_PATCH_EXTRA_ARGS ${RR_PATCH_EXTRA_ARGS}
       RR_PATCH_DEPS ${DEVICE_RR_PATCH_DEPS}
@@ -172,59 +292,6 @@ function(ADD_XC7_DEVICE_DEFINE)
         --suppress_warnings sum_pin_class:check_unbuffered_edges:load_rr_indexed_data_T_values:check_rr_node:trans_per_R
         --route_chan_width 500
         --allowed_tiles_for_delay_model BLK-TL-SLICEL,BLK-TL-SLICEM
-        --lookahead_search_locations "${LOC_STR}"
       )
-
-    get_target_property_required(PYTHON3 env PYTHON3)
-    get_target_property_required(PYTHON3_TARGET env PYTHON3_TARGET)
-
-    if(${USE_ROI})
-        set(SYNTH_TILES_TO_PINMAP_CSV ${symbiflow-arch-defs_SOURCE_DIR}/xc7/utils/prjxray_synth_tiles_to_pinmap_csv.py)
-        set(PINMAP_CSV ${DEVICE}-roi-virt/synth_tiles_pinmap.csv)
-
-        set(PINMAP_CSV_DEPS ${PYTHON3} ${PYTHON3_TARGET} ${SYNTH_TILES_TO_PINMAP_CSV})
-        append_file_dependency(PINMAP_CSV_DEPS ${SYNTH_TILES})
-        add_custom_command(
-        OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/${PINMAP_CSV}
-        COMMAND ${PYTHON3} ${SYNTH_TILES_TO_PINMAP_CSV}
-            --synth_tiles ${SYNTH_TILES_LOCATION}
-            --package_pins ${PRJXRAY_DB_DIR}/${ARCH}/${PART}_package_pins.csv
-            --output ${CMAKE_CURRENT_BINARY_DIR}/${PINMAP_CSV}
-            DEPENDS ${PINMAP_CSV_DEPS}
-            )
-
-        add_file_target(FILE ${PINMAP_CSV} GENERATED)
-
-        set_target_properties(
-          ${DEVICE}
-          PROPERTIES
-            test_PINMAP
-            ${CMAKE_CURRENT_SOURCE_DIR}/${PINMAP_CSV}
-        )
-    else()
-        # TODO: Support multiple packaging with same rrgraph
-        set(CREATE_PINMAP_CSV ${symbiflow-arch-defs_SOURCE_DIR}/xc7/utils/prjxray_create_pinmap_csv.py)
-        set(PINMAP_CSV ${DEVICE}-virt/${PART}_pinmap.csv)
-        set(PINMAP_CSV_DEPS ${PYTHON3} ${PYTHON3_TARGET} ${SYNTH_TILES_TO_PINMAP_CSV})
-        append_file_dependency(PINMAP_CSV_DEPS ${CHANNELS})
-
-        add_custom_command(
-          OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/${PINMAP_CSV}
-          COMMAND ${PYTHON3} ${CREATE_PINMAP_CSV}
-            --connection_database ${CHANNELS_LOCATION}
-            --package_pins ${PRJXRAY_DB_DIR}/${ARCH}/${PART}_package_pins.csv
-            --output ${CMAKE_CURRENT_BINARY_DIR}/${PINMAP_CSV}
-            DEPENDS ${PINMAP_CSV_DEPS}
-          )
-
-        add_file_target(FILE ${PINMAP_CSV} GENERATED)
-
-        set_target_properties(
-          ${DEVICE}
-          PROPERTIES
-            test_PINMAP
-            ${CMAKE_CURRENT_SOURCE_DIR}/${PINMAP_CSV}
-        )
-    endif()
   endforeach()
 endfunction()

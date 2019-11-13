@@ -27,13 +27,13 @@ add_fpga_target(
   )
 
 add_fpga_target(
-  NAME buttons_basys3_x1y0
-  BOARD basys3-x1y0
+  NAME buttons_basys3_full
+  BOARD basys3-full
   SOURCES buttons_basys3_x1y0.v
   INPUT_IO_FILE basys3_x1y0.pcf
   )
 
 add_vivado_target(
-  NAME buttons_basys3_x1y0_vivado
-  PARENT_NAME buttons_basys3_x1y0
+  NAME buttons_basys3_full_vivado
+  PARENT_NAME buttons_basys3_full
   )

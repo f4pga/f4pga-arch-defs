@@ -75,13 +75,21 @@ function(ADD_ICEBOX_LAYOUTS)
   )
 
   set(DEVICE ${SET_ICEBOX_LAYOUT_DEVICE})
+  get_target_property_required(ARCH ${DEVICE} ARCH)
   foreach(PACKAGE ${SET_ICEBOX_LAYOUT_PACKAGES})
+    set(PINMAP ${symbiflow-arch-defs_SOURCE_DIR}/ice40/devices/layouts/icebox/${DEVICE}.${PACKAGE}.pinmap.csv)
     set_target_properties(
       ${DEVICE}
       PROPERTIES
         ${PACKAGE}_PINMAP
-        ${symbiflow-arch-defs_SOURCE_DIR}/ice40/devices/layouts/icebox/${DEVICE}.${PACKAGE}.pinmap.csv
+        ${PINMAP}
     )
+
+    # Set pinmap for dummy board
+    set_target_properties(
+      dummy_${ARCH}_${DEVICE}_${PACKAGE}
+      PROPERTIES
+      PINMAP ${PINMAP})
   endforeach()
 endfunction()
 

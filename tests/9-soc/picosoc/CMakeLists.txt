@@ -61,8 +61,8 @@ add_fpga_target(
 )
 
 add_fpga_target(
-  NAME picosoc_basys3_x1y0
-  BOARD basys3-x1y0
+  NAME picosoc_basys3_full
+  BOARD basys3-full
   TOP basys3_demo
   SOURCES
     basys3_demo_no_roi.v
