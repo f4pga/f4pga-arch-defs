@@ -23,14 +23,7 @@ output wire O_ERROR
 );
 
 // The clock enable signal for the "hi speed" clock domain.
-reg  clkdiv_r;
-wire ce;
-
-always @(posedge CLK)
-    clkdiv_r <= CLKDIV;
-
-assign ce = clkdiv_r && !CLKDIV;
-
+wire ce = 1'b1;
 
 // ============================================================================
 // Data source
@@ -97,7 +90,7 @@ oserdes
 .D6     (ser_dat[5]),
 .D7     (ser_dat[6]),
 .D8     (ser_dat[7]),
-.OQ     (ser_oq),
+.OQ     (O_DAT),
 
 .TCE    (1'b1),
 .T1     (1'b0), // All 0 to keep OBUFT always on.
@@ -105,21 +98,6 @@ oserdes
 .T3     (1'b0),
 .T4     (1'b0),
 .TQ     (ser_tq)
-);
-
-// ============================================================================
-// IOB
-
-wire iob_i;
-
-OBUF obuf (
-    .I(ser_oq),
-    .O(O_DAT)
-);
-
-IBUF ibuf (
-    .I(I_DAT),
-    .O(iob_i)
 );
 
 // ============================================================================

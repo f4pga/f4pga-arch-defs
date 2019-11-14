@@ -1,6 +1,8 @@
+`define DATA_WIDTH_DEFINE 8
+`define DATA_RATE_DEFINE "DDR"
 `default_nettype none
 
-`define CLKFBOUT_MULT 16
+`define CLKFBOUT_MULT 8
 
 // ============================================================================
 
@@ -25,7 +27,6 @@ reg [3:0] rst_sr;
 initial rst_sr <= 4'hF;
 
 wire CLK;
-
 BUFG bufg(.I(clk), .O(CLK));
 
 always @(posedge CLK)
@@ -39,10 +40,10 @@ wire RST = rst_sr[0];
 // ============================================================================
 // Clocks for OSERDES
 
-wire PRE_BUFG_CLKX;
+wire PRE_BUFG_SYSCLK;
 wire PRE_BUFG_CLKDIV;
 
-wire CLKX;
+wire SYSCLK;
 wire CLKDIV;
 
 wire O_LOCKED;
@@ -57,13 +58,14 @@ PLLE2_ADV #(
 .CLKIN1_PERIOD      (10.0),  // 100MHz
 
 .CLKFBOUT_MULT      (`CLKFBOUT_MULT),
-.CLKFBOUT_PHASE     (0),
 
-.CLKOUT0_DIVIDE     (`CLKFBOUT_MULT * DATA_WIDTH),
+.CLKOUT0_DIVIDE     (`CLKFBOUT_MULT / 4),
 
 .CLKOUT1_DIVIDE     (`CLKFBOUT_MULT),
 
-.STARTUP_WAIT       ("FALSE")
+.STARTUP_WAIT       ("FALSE"),
+
+.DIVCLK_DIVIDE      (1'd1)
 )
 pll
 (
@@ -77,11 +79,11 @@ pll
 .CLKFBIN    (clk_fb_i),
 .CLKFBOUT   (clk_fb_o),
 
-.CLKOUT0    (PRE_BUFG_CLKDIV),
-.CLKOUT1    (PRE_BUFG_CLKX)
+.CLKOUT0    (PRE_BUFG_SYSCLK),
+.CLKOUT1    (PRE_BUFG_CLKDIV)
 );
 
-BUFG bufg_clk(.I(PRE_BUFG_CLKX), .O(CLKX));
+BUFG bufg_clk(.I(PRE_BUFG_SYSCLK), .O(SYSCLK));
 BUFG bufg_clkdiv(.I(PRE_BUFG_CLKDIV), .O(CLKDIV));
 
 // ============================================================================
@@ -95,20 +97,20 @@ oserdes_test #
 )
 oserdes_test
 (
-.CLK      (CLKX),
-.CLKDIV   (CLKDIV),
-.RST      (RST),
+.CLK        (SYSCLK),
+.CLKDIV     (CLKDIV),
+.RST        (RST),
 
-.I_DAT   (in),
-.O_DAT   (out),
-.O_ERROR  (error)
+.I_DAT      (in),
+.O_DAT      (out),
+.O_ERROR    (error)
 );
 
 // ============================================================================
 // IOs
 reg [24:0] heartbeat_cnt;
 
-always @(posedge CLK)
+always @(posedge SYSCLK)
     heartbeat_cnt <= heartbeat_cnt + 1;
 
 assign led[0] = !error;
