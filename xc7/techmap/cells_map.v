@@ -1927,7 +1927,8 @@ module IOBUF (
     .I(I),
     .T(T),
     .O(O),
-    .IOPAD(IO)
+    .IOPAD_$inp(IO),
+    .IOPAD_$out(IO)
   );
 
 endmodule
