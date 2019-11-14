@@ -42,10 +42,11 @@
         </metadata>
       </direct>
       <direct name="D1_TQ" input="OLOGICE3.T1" output="OLOGICE3.TQ">
-<!--        <metadata>
+        <metadata>
           <meta name="fasm_mux">
+            OLOGICE3.T1 : ZINV_T1
           </meta>
-        </metadata> -->
+        </metadata>
       </direct>
     </interconnect>
   </mode>
