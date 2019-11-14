@@ -517,6 +517,8 @@ NORMALIZED_TILE_TYPES = {
     "LIOB33_SING": "IOB_TILE",
     "RIOB33": "IOB_TILE",
     "RIOB33_SING": "IOB_TILE",
+    "CMT_TOP_R_UPPER_T": "CMT_TOP_UPPER_T",
+    "CMT_TOP_L_UPPER_T": "CMT_TOP_UPPER_T",
 }
 
 NORMALIZED_SITE_TYPES = {
@@ -752,11 +754,14 @@ GROUP BY site_pin.direction;
 
             assert len(input_pins) in [0, 1], input_pins
 
-            if ipin_count == 0 or opin_count == 0 or node_set_has_external:
+            if ipin_count == 0 or opin_count == 0 or node_set_has_external or len(site_type_pkeys) == 1:
                 # This node set is connected externally, mark as such
                 for wire_name, site_type_name, site_pin_name in pins_used_in_node_sets:
                     top_level_wire_external.add(wire_name)
                     top_level_pin_external.add((site_type_name, site_pin_name))
+
+            if len(site_type_pkeys) == 1:
+                continue
 
             if ipin_count > 0 and opin_count > 0:
                 # TODO: Add check that pips and site pins on these internal
@@ -871,11 +876,12 @@ GROUP BY site_pin.direction;
         )
 
         metadata_xml = ET.SubElement(include_xml, 'metadata')
-        ET.SubElement(
-            metadata_xml, 'meta', {
-                'name': 'fasm_prefix',
-            }
-        ).text = site_prefix
+        if len(site_type_pkeys) > 1:
+            ET.SubElement(
+                metadata_xml, 'meta', {
+                    'name': 'fasm_prefix',
+                }
+            ).text = site_prefix
 
         # Import pb_type metadata if it exists.
         if any(child.tag == 'metadata' for child in root_element):
@@ -1110,7 +1116,6 @@ def main():
 
     parser.add_argument(
         '--site_equivilances',
-        required=True,
         help="Comma seperated list of site equivilances to apply."
     )
 
@@ -1134,26 +1139,27 @@ def main():
         site_remaps = {}
         site_name_remaps = {}
 
-        for site_remap in args.site_equivilances.split(','):
-            general_site, specific_site = site_remap.split('=')
-            assert general_site not in site_name_remaps, general_site
-            site_name_remaps[general_site] = specific_site
+        if args.site_equivilances is not None:
+            for site_remap in args.site_equivilances.split(','):
+                general_site, specific_site = site_remap.split('=')
+                assert general_site not in site_name_remaps, general_site
+                site_name_remaps[general_site] = specific_site
 
-            cur.execute(
-                "SELECT pkey FROM site_type WHERE name = ?", (general_site, )
-            )
-            general_site_type_pkey = cur.fetchone()[0]
+                cur.execute(
+                    "SELECT pkey FROM site_type WHERE name = ?", (general_site, )
+                )
+                general_site_type_pkey = cur.fetchone()[0]
 
-            cur.execute(
-                "SELECT pkey FROM site_type WHERE name = ?", (specific_site, )
-            )
-            specific_site_type_pkey = cur.fetchone()[0]
+                cur.execute(
+                    "SELECT pkey FROM site_type WHERE name = ?", (specific_site, )
+                )
+                specific_site_type_pkey = cur.fetchone()[0]
 
-            site_remaps[general_site_type_pkey] = specific_site_type_pkey
+                site_remaps[general_site_type_pkey] = specific_site_type_pkey
 
-            check_site_equiv(
-                conn, general_site_type_pkey, specific_site_type_pkey
-            )
+                check_site_equiv(
+                    conn, general_site_type_pkey, specific_site_type_pkey
+                )
 
         site_collections_to_pb_type = {}
 
