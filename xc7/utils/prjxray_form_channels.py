@@ -41,6 +41,7 @@ from lib.rr_graph import points
 from lib.rr_graph import tracks
 from lib.rr_graph import graph2
 from prjxray.grid import BlockType
+from prjxray.tile_segbits import PsuedoPipType
 import datetime
 import os
 import os.path
@@ -2093,8 +2094,15 @@ def main():
 
             feature = '{}.{}.{}'.format(tile, pip.net_to, pip.net_from)
 
-            is_ppip = feature in segbits.ppips
+            is_ppip = feature in segbits.ppips and segbits.ppips[
+                feature] == PsuedoPipType.ALWAYS
             if BlockType.CLB_IO_CLK not in segbits.segbits:
+                return False
+
+            # These wires are pretty weird, just leave as switches.
+            if 'CLK_FREQ_BB' in pip.name:
+                return False
+            if 'SYNC_BB' in pip.name:
                 return False
 
             is_configurable = feature in segbits.segbits[BlockType.CLB_IO_CLK]
