@@ -458,14 +458,20 @@ SELECT
     top_graph_node_pkey,
     bottom_graph_node_pkey,
     right_graph_node_pkey,
-    left_graph_node_pkey,
-    site_pin_graph_node_pkey
+    left_graph_node_pkey
 FROM wire WHERE pkey = ?""", (site_wire_pkey, )
         )
         values = cur.fetchone()
         node_pkey = values[0]
         edge_nodes = values[1:5]
-        site_pin_graph_node_pkey = values[5]
+
+        cur.execute(
+            """
+SELECT
+    site_pin_graph_node_pkey
+FROM graph_node WHERE pkey = ?""", (graph_node_pkey, )
+        )
+        site_pin_graph_node_pkey = cur.fetchone()[0]
 
         cur.execute(
             """
@@ -548,10 +554,10 @@ FROM graph_node WHERE pkey = ?""", (
 
             write_cur.execute(
                 """
-UPDATE wire SET site_pin_graph_node_pkey = ?
+UPDATE graph_node SET site_pin_graph_node_pkey = ?
 WHERE pkey = ?""", (
                     site_pin_graph_node_pkey,
-                    wire_pkey,
+                    graph_node_pkey,
                 )
             )
 

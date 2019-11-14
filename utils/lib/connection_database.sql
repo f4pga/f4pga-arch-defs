@@ -307,9 +307,11 @@ CREATE TABLE graph_node(
   capacity INT,
   capacitance REAL,
   resistance REAL,
+  site_pin_graph_node_pkey INT,
   FOREIGN KEY(connection_box_wire_pkey) REFERENCES wire(pkey),
   FOREIGN KEY(track_pkey) REFERENCES track(pkey),
   FOREIGN KEY(node_pkey) REFERENCES node(pkey)
+  FOREIGN KEY(site_pin_graph_node_pkey) REFERENCES graph_node(pkey)
 );
 
 -- Table of wires.  This table is the complete list of all wires in the
@@ -343,7 +345,6 @@ CREATE TABLE wire(
   bottom_graph_node_pkey INT,
   left_graph_node_pkey INT,
   right_graph_node_pkey INT,
-  site_pin_graph_node_pkey INT,
   FOREIGN KEY(node_pkey) REFERENCES node(pkey),
   FOREIGN KEY(phy_tile_pkey) REFERENCES phy_tile(pkey),
   FOREIGN KEY(tile_pkey) REFERENCES tile(pkey),
@@ -352,8 +353,7 @@ CREATE TABLE wire(
   FOREIGN KEY(top_graph_node_pkey) REFERENCES graph_node(pkey),
   FOREIGN KEY(bottom_graph_node_pkey) REFERENCES graph_node(pkey),
   FOREIGN KEY(left_graph_node_pkey) REFERENCES graph_node(pkey),
-  FOREIGN KEY(right_graph_node_pkey) REFERENCES graph_node(pkey),
-  FOREIGN KEY(site_pin_graph_node_pkey) REFERENCES graph_node(pkey)
+  FOREIGN KEY(right_graph_node_pkey) REFERENCES graph_node(pkey)
 );
 
 -- Table of graph edges.
