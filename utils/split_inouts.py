@@ -78,14 +78,15 @@ def get_free_net(nets):
     sorted_nets = sorted(list(nets))
 
     # Find a gap in sequence
-    for i in range(len(nets)-1):
+    for i in range(len(nets) - 1):
         n0 = sorted_nets[i]
-        n1 = sorted_nets[i+1]
+        n1 = sorted_nets[i + 1]
         if n1 != (n0 + 1):
             return n0 + 1
-    
+
     # No gap was found, return max + 1.
     return sorted_nets[-1] + 1
+
 
 # =============================================================================
 
@@ -101,7 +102,11 @@ def find_and_split_inout_ports(design, module_name):
         nets |= get_port_nets(port)
 
     # Get all inout ports
-    inouts = {k: v for k, v in module["ports"].items() if v["direction"] == "inout"}
+    inouts = {
+        k: v
+        for k, v in module["ports"].items()
+        if v["direction"] == "inout"
+    }
 
     # Split ports
     new_ports = {}
@@ -134,7 +139,10 @@ def find_and_split_inout_ports(design, module_name):
                 else:
                     new_port["bits"].append(n)
 
-            port_map.append((name, new_name,))
+            port_map.append((
+                name,
+                new_name,
+            ))
             new_ports[new_name] = new_port
 
     # Add inputs and outputs
@@ -183,19 +191,25 @@ def remap_connections(design, module_name, net_map):
 
         # Process cell connections
         for port_name, port_nets in list(connections.items()):
-            
+
             # Skip if no net of this connection were remapped
             if len(set(net_map.keys()) & set(port_nets)) == 0:
                 continue
 
-            print("Processing cell '{}' of type '{}'".format(name, cell["type"]))
+            print(
+                "Processing cell '{}' of type '{}'".format(name, cell["type"])
+            )
 
             # Split the port into two
             for dir in ["input", "output"]:
                 new_port_name = port_name + "_$" + dir[:3]
                 new_port_nets = []
 
-                print("Mapping port '{}' to '{}'".format(port_name, new_port_name))
+                print(
+                    "Mapping port '{}' to '{}'".format(
+                        port_name, new_port_name
+                    )
+                )
 
                 for n in port_nets:
                     if n in net_map:
@@ -213,13 +227,17 @@ def remap_connections(design, module_name, net_map):
             del connections[port_name]
             del port_directions[port_name]
 
+
 # =============================================================================
 
 
 def main():
-    
+
     # Parse args
-    parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
+    parser = argparse.ArgumentParser(
+        description=__doc__,
+        formatter_class=argparse.RawDescriptionHelpFormatter
+    )
     parser.add_argument("-i", required=True, type=str, help="Input JSON")
     parser.add_argument("-o", default=None, type=str, help="Output JSON")
 
