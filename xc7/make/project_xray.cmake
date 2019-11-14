@@ -524,8 +524,13 @@ function(PROJECT_XRAY_EQUIV_TILE)
   set(TILES_ARGS "${PROJECT_XRAY_EQUIV_TILE_TILES}")
   string(REPLACE ";" "," TILES_ARGS "${TILES_ARGS}")
 
-  set(EQUIV_ARGS "${PROJECT_XRAY_EQUIV_TILE_SITE_EQUIV}")
-  string(REPLACE ";" "," EQUIV_ARGS "${EQUIV_ARGS}")
+  set(EQUIV_ARGS "")
+  if(NOT "${PROJECT_XRAY_EQUIV_TILE_SITE_EQUIV}" STREQUAL "")
+    set(EQUIV_ARGS "${PROJECT_XRAY_EQUIV_TILE_SITE_EQUIV}")
+    string(REPLACE ";" "," EQUIV_ARGS "${EQUIV_ARGS}")
+    set(EQUIV_ARGS --site_equivilances ${EQUIV_ARGS})
+  endif()
+
 
   append_file_dependency(DEPS ${symbiflow-arch-defs_SOURCE_DIR}/xc7/archs/${PART}/pin_assignments.json)
   get_file_location(PIN_ASSIGNMENTS ${symbiflow-arch-defs_SOURCE_DIR}/xc7/archs/${PART}/pin_assignments.json)
@@ -557,7 +562,7 @@ function(PROJECT_XRAY_EQUIV_TILE)
     --connection_database ${GENERIC_CHANNELS_LOCATION}
     --tile_types ${TILES_ARGS}
     --pb_types ${PROJECT_XRAY_EQUIV_TILE_PB_TYPES_ARGS}
-    --site_equivilances ${EQUIV_ARGS}
+    ${EQUIV_ARGS}
     --pin_assignments ${PIN_ASSIGNMENTS}
     DEPENDS
       ${TILE_IMPORT}
