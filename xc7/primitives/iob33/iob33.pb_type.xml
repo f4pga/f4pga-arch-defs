@@ -82,19 +82,26 @@
       <delay_constant max="10e-12" in_port="IOPAD_$inp" out_port="O"/>
     </pb_type>
     <interconnect>
-      <direct name="1" input="inpad.inpad" output="IOBUF_VPR.IOPAD_$inp">
+      <direct name="inpad.inpad_to_IOBUF_VPR.IOPAD_$inp" input="inpad.inpad" output="IOBUF_VPR.IOPAD_$inp">
         <pack_pattern name="IOBUF_VPR_to_PAD"/>
       </direct>
-      <direct name="2" input="IOBUF_VPR.IOPAD_$out" output="outpad.outpad">
+      <direct name="IOBUF_VPR.IOPAD_$out_to_outpad.outpad" input="IOBUF_VPR.IOPAD_$out" output="outpad.outpad">
         <pack_pattern name="IOBUF_VPR_to_PAD"/>
       </direct>
-      <direct name="3" input="IOB33.O" output="IOBUF_VPR.I"/>
-      <direct name="4" input="IOB33.T" output="IOBUF_VPR.T"/>
-      <direct name="5" input="IOBUF_VPR.O" output="IOB33.I"/>
+      <direct name="IOB33.O_to_IOBUF_VPR.I" input="IOB33.O" output="IOBUF_VPR.I"/>
+      <direct name="IOB33.T_to_IOBUF_VPR.T" input="IOB33.T" output="IOBUF_VPR.T"/>
+      <direct name="IOB33.I_to_IOBUF_VPR.O" input="IOBUF_VPR.O" output="IOB33.I"/>
     </interconnect>
+    <metadata>
+      <meta name="fasm_features">
+        LVCMOS12_LVCMOS15_LVCMOS18_LVCMOS25_LVCMOS33_LVTTL.SLEW.FAST
+        LVCMOS25_LVCMOS33_LVTTL.IN
+        LVCMOS33_LVTTL.DRIVE.I12_I16
+        PULLTYPE.NONE
+      </meta>
+    </metadata>
   </mode>
   <!-- TODO
-       - IOBUF
        - correct timing values
   -->
 </pb_type>
