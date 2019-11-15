@@ -188,9 +188,7 @@ def process_iob(top, iob):
                 ))
 
     # Buffer direction
-    is_input = site.has_feature_with_part("IN") or site.has_feature_with_part(
-        "IN_ONLY"
-    )
+    is_input = (site.has_feature_with_part("IN") or site.has_feature_with_part("IN_ONLY")) and not site.has_feature_with_part("DRIVE")
     is_inout = site.has_feature_with_part("IN") and site.has_feature_with_part(
         "DRIVE"
     )
@@ -198,7 +196,7 @@ def process_iob(top, iob):
         site.has_feature_with_part("DRIVE")
 
     # Sanity check. Can be only one or neither of them
-    assert (is_input + is_inout + is_output) <= 1
+    assert (is_input + is_inout + is_output) <= 1, (is_input, is_output, is_inout,)
 
     top_wire = None
 
@@ -270,7 +268,7 @@ def process_iob(top, iob):
         slew = "FAST" if site.has_feature_containing("SLEW.FAST") else "SLOW"
         append_obuf_iostandard_params(top, site, bel, iostd_out, slew)
 
-        site.add_site(bel)
+        site.add_bel(bel)
 
     # Output
     elif is_output:
