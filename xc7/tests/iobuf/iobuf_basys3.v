@@ -1,7 +1,15 @@
 /*
+In this test a single IOBUF is controlled by switches. There is also one
+input (connected to a LED) and one oputput (controlled by a switch) that.
+can be used for verification of 3-state I/O.
+
+This test requires a physical jumper to be installed on the Basys3 board.
+Depending on which pins are connected we have different truth tables of
+LED output w.r.t. switch input.
+
 Truth table. When JC.1 is connected to JC.2:
 
-SW2 SW1 SW0 | LED1 LED1
+SW2 SW1 SW0 | LED1 LED0
  0   0   0  |  0    0
  0   0   1  |  1    1
  0   1   0  |  x    x
@@ -14,7 +22,7 @@ SW2 SW1 SW0 | LED1 LED1
 
 Truth table. When JC.3 is connected to JC.2:
 
-SW2 SW1 SW0 | LED1 LED1
+SW2 SW1 SW0 | LED1 LED0
  0   0   0  |  x    0
  0   0   1  |  x    1
  0   1   0  |  x    0
