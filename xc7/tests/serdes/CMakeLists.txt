@@ -23,7 +23,7 @@ function(oserdes_test data_width data_rate)
 
   add_fpga_target(
     NAME oserdes_basys3_${data_width}_${data_rate_lower}
-    BOARD basys3-full
+    BOARD basys3-bottom
     SOURCES
       oserdes_basys3_${data_width}_${data_rate_lower}.v
       oserdes_test.v
