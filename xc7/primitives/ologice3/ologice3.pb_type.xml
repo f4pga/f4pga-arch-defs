@@ -115,6 +115,20 @@
           ZINV_CLK = ZINV_CLK
           ZSRVAL_OQ = ZSRVAL_OQ
           ZSRVAL_TQ = ZSRVAL_TQ
+
+          ZINV_T1 = ZINV_T1
+          ZINV_T2 = ZINV_T2
+          ZINV_T3 = ZINV_T3
+          ZINV_T4 = ZINV_T4
+
+          IS_D1_INVERTED = IS_D1_INVERTED
+          IS_D2_INVERTED = IS_D2_INVERTED
+          IS_D3_INVERTED = IS_D3_INVERTED
+          IS_D4_INVERTED = IS_D4_INVERTED
+          IS_D5_INVERTED = IS_D5_INVERTED
+          IS_D6_INVERTED = IS_D6_INVERTED
+          IS_D7_INVERTED = IS_D7_INVERTED
+          IS_D8_INVERTED = IS_D8_INVERTED
         </meta>
       </metadata>
     </pb_type>
