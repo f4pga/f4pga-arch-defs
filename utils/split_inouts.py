@@ -19,7 +19,8 @@ For example in the given design (in verilog):
   IOBUF iobuf (
    .I(A),
    .O(B),
-   .IO(C)
+   .IO_$inp(C),
+   .IO_$out(C)
   );
 
  endmodule
@@ -63,12 +64,11 @@ def find_top_module(design):
     return None
 
 
-def get_port_nets(port):
+def get_nets(bits):
     """
-    Returns a set of numbers corresponding to net indices used by the given
-    port.
+    Returns a set of numbers corresponding to net indices.
     """
-    return set([n for n in port["bits"] if isinstance(n, int)])
+    return set([n for n in bits if isinstance(n, int)])
 
 
 def get_free_net(nets):
@@ -77,7 +77,7 @@ def get_free_net(nets):
     """
     sorted_nets = sorted(list(nets))
 
-    # Find a gap in sequence
+    # Find a gap in the sequence
     for i in range(len(nets) - 1):
         n0 = sorted_nets[i]
         n1 = sorted_nets[i + 1]
@@ -96,10 +96,17 @@ def find_and_split_inout_ports(design, module_name):
     # Get the module
     module = design["modules"][module_name]
 
-    # Find all used net indices
+    # Find indices of all used nets
     nets = set()
     for port in module["ports"].values():
-        nets |= get_port_nets(port)
+        nets |= get_nets(port["bits"])
+
+    for netname in module["netnames"].values():
+        nets |= get_nets(netname["bits"])
+
+    for cell in module["cells"].values():
+        for connection in cell["connections"].values():
+            nets |= get_nets(connection)
 
     # Get all inout ports
     inouts = {
@@ -116,7 +123,7 @@ def find_and_split_inout_ports(design, module_name):
 
         # Remove the inout port from the module
         del module["ports"][name]
-        nets -= get_port_nets(port)
+        nets -= get_nets(port["bits"])
 
         # Make an input and output port
         for dir in ["input", "output"]:
@@ -161,7 +168,7 @@ def find_and_split_inout_ports(design, module_name):
     for name, net in list(netnames.items()):
 
         # Remove "bits" used by the net that were re-mapped.
-        net["bits"] = ["\"x\"" if b in net_map else b for b in net["bits"]]
+        net["bits"] = ["x" if b in net_map else b for b in net["bits"]]
 
         # If there is nothing left, remove the whole net.
         if all([not isinstance(b, int) for b in net["bits"]]):
