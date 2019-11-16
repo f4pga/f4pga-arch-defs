@@ -122,8 +122,15 @@ def process_ologic(top, features):
         for i in range(1, 9):
             site.add_sink(bel, 'D{}'.format(i), 'D{}'.format(i))
 
+            inverted = ("IS_D{}_INVERTED".format(i))
+            if site.has_feature(inverted):
+                bel.parameters[inverted] = 1
+
         for i in range(1, 5):
             site.add_sink(bel, 'T{}'.format(i), 'T{}'.format(i))
+
+            if not site.has_feature("ZINV_T{}".format(i)):
+                bel.parameters["IS_T{}_INVERTED".format(i)] = 1
 
         site.add_sink(bel, 'OCE', 'OCE')
         site.add_sink(bel, 'TCE', 'TCE')
