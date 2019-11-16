@@ -789,7 +789,7 @@ output [15:0] DO
 );
 
   parameter [0:0] INV_CLKINSEL = 1'd0;
-  parameter [0:0] ZINV_PWRDWN = 1'd1;
+  parameter [0:0] ZINV_PWRDWN = 1'd0;
   parameter [0:0] ZINV_RST = 1'd1;
 
   parameter [0:0] STARTUP_WAIT = 1'd0;
