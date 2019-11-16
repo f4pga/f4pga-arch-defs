@@ -2067,6 +2067,32 @@ module OSERDESE2 (
       _TECHMAP_CONSTVAL_D8_ == 0 &&
       IS_D8_INVERTED == 0);
 
+  parameter _TECHMAP_CONSTMSK_T1_ = 0;
+  parameter _TECHMAP_CONSTVAL_T1_ = 0;
+  parameter _TECHMAP_CONSTMSK_T2_ = 0;
+  parameter _TECHMAP_CONSTVAL_T2_ = 0;
+  parameter _TECHMAP_CONSTMSK_T3_ = 0;
+  parameter _TECHMAP_CONSTVAL_T3_ = 0;
+  parameter _TECHMAP_CONSTMSK_T4_ = 0;
+  parameter _TECHMAP_CONSTVAL_T4_ = 0;
+
+  localparam [0:0] INV_T1 = (
+      _TECHMAP_CONSTMSK_T1_ == 1 &&
+      _TECHMAP_CONSTVAL_T1_ == 0 &&
+      IS_T1_INVERTED == 0);
+  localparam [0:0] INV_T2 = (
+      _TECHMAP_CONSTMSK_T2_ == 1 &&
+      _TECHMAP_CONSTVAL_T2_ == 0 &&
+      IS_T2_INVERTED == 0);
+  localparam [0:0] INV_T3 = (
+      _TECHMAP_CONSTMSK_T3_ == 1 &&
+      _TECHMAP_CONSTVAL_T3_ == 0 &&
+      IS_T3_INVERTED == 0);
+  localparam [0:0] INV_T4 = (
+      _TECHMAP_CONSTMSK_T4_ == 1 &&
+      _TECHMAP_CONSTVAL_T4_ == 0 &&
+      IS_T4_INVERTED == 0);
+
   OSERDESE2_VPR #(
       .SERDES_MODE_SLAVE            (SERDES_MODE == "SLAVE"),
       .TRISTATE_WIDTH_W4            (TRISTATE_WIDTH == 4),
@@ -2098,27 +2124,27 @@ module OSERDESE2 (
       .IS_D7_INVERTED               (IS_D7_INVERTED ^ INV_D7),
       .IS_D8_INVERTED               (IS_D8_INVERTED ^ INV_D8),
       .ZINV_CLK                     (!IS_CLK_INVERTED),
-      .ZINV_T1                      (IS_T1_INVERTED),
-      .ZINV_T2                      (IS_T2_INVERTED),
-      .ZINV_T3                      (IS_T3_INVERTED),
-      .ZINV_T4                      (IS_T4_INVERTED)
+      .ZINV_T1                      (!IS_T1_INVERTED ^ INV_T1),
+      .ZINV_T2                      (!IS_T2_INVERTED ^ INV_T2),
+      .ZINV_T3                      (!IS_T3_INVERTED ^ INV_T3),
+      .ZINV_T4                      (!IS_T4_INVERTED ^ INV_T4)
   ) _TECHMAP_REPLACE_ (
     .CLK    (CLK),
     .CLKDIV (CLKDIV),
-    .D1     (D1),
-    .D2     (D2),
-    .D3     (D3),
-    .D4     (D4),
-    .D5     (D5),
-    .D6     (D6),
-    .D7     (D7),
-    .D8     (D8),
+    .D1     (D1 ^ INV_D1),
+    .D2     (D2 ^ INV_D2),
+    .D3     (D3 ^ INV_D3),
+    .D4     (D4 ^ INV_D4),
+    .D5     (D5 ^ INV_D5),
+    .D6     (D6 ^ INV_D6),
+    .D7     (D7 ^ INV_D7),
+    .D8     (D8 ^ INV_D8),
     .OCE    (OCE),
     .RST    (RST),
-    .T1     (T1),
-    .T2     (T2),
-    .T3     (T3),
-    .T4     (T4),
+    .T1     (T1 ^ INV_T1),
+    .T2     (T2 ^ INV_T2),
+    .T3     (T3 ^ INV_T3),
+    .T4     (T4 ^ INV_T4),
     .TCE    (TCE),
     .OFB    (OFB),
     .OQ     (OQ),
@@ -2747,8 +2773,8 @@ input  [15:0] DI,
 output [15:0] DO
 );
 
-  parameter _TECHMAP_CONSTMSK_PWRDWN_   = 1'b1;
-  parameter _TECHMAP_CONSTVAL_PWRDWN_   = 1'bx;
+  parameter _TECHMAP_CONSTMSK_PWRDWN_   = 1'b0;
+  parameter _TECHMAP_CONSTVAL_PWRDWN_   = 1'b0;
 
   parameter _TECHMAP_CONSTMSK_DCLK_     = 1'b1;
   parameter _TECHMAP_CONSTVAL_DCLK_     = 1'bx;
@@ -2825,6 +2851,12 @@ output [15:0] DO
   localparam CLKOUT3_REGS  = pll_clkregs(CLKOUT3_DIVIDE, CLKOUT3_DUTY_CYCLE, CLKOUT3_PHASE);
   localparam CLKOUT4_REGS  = pll_clkregs(CLKOUT4_DIVIDE, CLKOUT4_DUTY_CYCLE, CLKOUT4_PHASE);
   localparam CLKOUT5_REGS  = pll_clkregs(CLKOUT5_DIVIDE, CLKOUT5_DUTY_CYCLE, CLKOUT5_PHASE);
+
+  localparam [0:0] INV_PWRDWN = (
+      _TECHMAP_CONSTMSK_PWRDWN_ == 1 &&
+      _TECHMAP_CONSTVAL_PWRDWN_ == 0 &&
+      IS_PWRDWN_INVERTED == 0);
+
 
   // The substituted cell
   PLLE2_ADV_VPR #
@@ -2915,8 +2947,9 @@ output [15:0] DO
   .CLKOUT2_CLKOUT1_OUTPUT_ENABLE(_TECHMAP_CONSTMSK_CLKOUT2_ == 1'b0),
   .CLKOUT3_CLKOUT1_OUTPUT_ENABLE(_TECHMAP_CONSTMSK_CLKOUT3_ == 1'b0),
   .CLKOUT4_CLKOUT1_OUTPUT_ENABLE(_TECHMAP_CONSTMSK_CLKOUT4_ == 1'b0),
-  .CLKOUT5_CLKOUT1_OUTPUT_ENABLE(_TECHMAP_CONSTMSK_CLKOUT5_ == 1'b0)
+  .CLKOUT5_CLKOUT1_OUTPUT_ENABLE(_TECHMAP_CONSTMSK_CLKOUT5_ == 1'b0),
 
+  .ZINV_PWRDWN                  (!IS_PWRDWN_INVERTED ^ INV_PWRDWN)
   )
   _TECHMAP_REPLACE_
   (
@@ -2933,7 +2966,7 @@ output [15:0] DO
   .CLKOUT4(CLKOUT4),
   .CLKOUT5(CLKOUT5),
 
-  .PWRDWN((_TECHMAP_CONSTMSK_PWRDWN_ == 1'b0 && _TECHMAP_CONSTVAL_PWRDWN_ == 1'bx) ? 1'b0 : PWRDWN),
+  .PWRDWN(PWRDWN ^ INV_PWRDWN),
   .RST(RST),
   .LOCKED(LOCKED),
 
