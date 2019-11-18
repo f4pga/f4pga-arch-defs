@@ -1,5 +1,3 @@
-`define DATA_WIDTH_DEFINE 8
-`define DATA_RATE_DEFINE "DDR"
 `default_nettype none
 
 `define CLKFBOUT_MULT 8
@@ -11,7 +9,7 @@ module top
 input  wire clk,
 
 input  wire sw,
-output wire [1:0] led,
+output wire [4:0] led,
 
 input  wire in,
 output wire out
@@ -61,7 +59,7 @@ PLLE2_ADV #(
 
 .CLKOUT0_DIVIDE     (`CLKFBOUT_MULT / 4),
 
-.CLKOUT1_DIVIDE     (`CLKFBOUT_MULT),
+.CLKOUT1_DIVIDE     ((`CLKFBOUT_MULT /4) * DATA_WIDTH),
 
 .STARTUP_WAIT       ("FALSE"),
 
@@ -88,7 +86,7 @@ BUFG bufg_clkdiv(.I(PRE_BUFG_CLKDIV), .O(CLKDIV));
 
 // ============================================================================
 // Test uints
-wire error;
+wire [3:0] COUNT;
 
 oserdes_test #
 (
@@ -101,9 +99,10 @@ oserdes_test
 .CLKDIV     (CLKDIV),
 .RST        (RST),
 
+.COUNT      (COUNT),
+
 .I_DAT      (in),
-.O_DAT      (out),
-.O_ERROR    (error)
+.O_DAT      (out)
 );
 
 // ============================================================================
@@ -113,8 +112,8 @@ reg [24:0] heartbeat_cnt;
 always @(posedge SYSCLK)
     heartbeat_cnt <= heartbeat_cnt + 1;
 
-assign led[0] = !error;
-assign led[1] = heartbeat_cnt[24];
+assign led[0] = heartbeat_cnt[23];
+assign led[4:1] = COUNT;
 
 endmodule
 
