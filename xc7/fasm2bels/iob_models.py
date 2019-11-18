@@ -188,7 +188,10 @@ def process_iob(top, iob):
                 ))
 
     # Buffer direction
-    is_input = (site.has_feature_with_part("IN") or site.has_feature_with_part("IN_ONLY")) and not site.has_feature_with_part("DRIVE")
+    is_input = (
+        site.has_feature_with_part("IN")
+        or site.has_feature_with_part("IN_ONLY")
+    ) and not site.has_feature_with_part("DRIVE")
     is_inout = site.has_feature_with_part("IN") and site.has_feature_with_part(
         "DRIVE"
     )
@@ -196,7 +199,11 @@ def process_iob(top, iob):
         site.has_feature_with_part("DRIVE")
 
     # Sanity check. Can be only one or neither of them
-    assert (is_input + is_inout + is_output) <= 1, (is_input, is_output, is_inout,)
+    assert (is_input + is_inout + is_output) <= 1, (
+        is_input,
+        is_output,
+        is_inout,
+    )
 
     top_wire = None
 

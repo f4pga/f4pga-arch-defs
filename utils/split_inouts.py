@@ -203,18 +203,20 @@ def remap_connections(design, module_name, net_map):
             if len(set(net_map.keys()) & set(port_nets)) == 0:
                 continue
 
-            # Remove connections to the output net from input port and vice 
+            # Remove connections to the output net from input port and vice
             # versa.
             for dir in ["input", "output"]:
                 if port_directions[port_name] == dir and \
-                   port_name.endswith("$"+dir[:3]):
+                   port_name.endswith("$" + dir[:3]):
 
                     for i, n in enumerate(port_nets):
                         if n in net_map:
                             mapped_n = net_map[n][dir[0]]
                             port_nets[i] = mapped_n
-                            print("Mapping connection {}.{}[{}] from {} to {}".format(name, port_name, i, n, mapped_n))
-        
+                            print(
+                                "Mapping connection {}.{}[{}] from {} to {}".
+                                format(name, port_name, i, n, mapped_n)
+                            )
 
 
 # =============================================================================
