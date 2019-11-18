@@ -50,6 +50,7 @@ BUFG_CLK_IN_REGEX = re.compile('CLK_HROW_CK_IN_R[0-9]+')
 BUFG_CLK_OUT_REGEX = re.compile('CLK_HROW_R_CK_GCLK[0-9]+')
 CCIO_ACTIVE_REGEX = re.compile('HCLK_CMT_CCIO[0-9]+')
 HCLK_OUT = re.compile('CLK_HROW_CK_HCLK_OUT_([LR])([0-9]+)')
+IOI_OCLK = re.compile('IOI_OCLK_([01])')
 
 
 def reduce_connection_box(box):
@@ -227,6 +228,14 @@ def check_feature(feature):
     rebuf_key = (feature_path[0], feature_path[1])
     if rebuf_key in REBUF_SOURCES:
         return ' '.join([feature] + REBUF_NODES[REBUF_SOURCES[rebuf_key]])
+
+    m = IOI_OCLK.fullmatch(feature_path[1])
+    if m:
+        enable_oclkm_feature = '{}.IOI_OCLKM_{}.{}'.format(
+            feature_path[0], m.group(1), feature_path[-1]
+        )
+
+        return ' '.join((feature, enable_oclkm_feature))
 
     if HCLK_CK_BUFHCLK_REGEX.fullmatch(feature_path[-1]):
         enable_buffer_feature = '{}.ENABLE_BUFFER.{}'.format(
