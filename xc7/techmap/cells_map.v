@@ -1993,7 +1993,8 @@ module OSERDESE2 (
   localparam [0:0] DATA_WIDTH_DDR_W6_8 = DATA_RATE_OQ == "DDR" && (DATA_WIDTH == 6 || DATA_WIDTH == 8) ? 1'b1 : 1'b0;
   localparam [0:0] DATA_WIDTH_SDR_W2_4_5_6 = DATA_RATE_OQ == "SDR" &&
                                              (DATA_WIDTH == 2 || DATA_WIDTH == 4 ||
-                                              DATA_WIDTH == 5 || DATA_WIDTH == 6) ? 1'b1 : 1'b0;
+                                              DATA_WIDTH == 5 || DATA_WIDTH == 6) ? 1'b1 :
+                                             DATA_RATE_OQ == "DDR"                ? 1'b1 : 1'b0;
 
   // Inverter parameters
   parameter [0:0] IS_D1_INVERTED = 1'b0;
@@ -2863,7 +2864,7 @@ output [15:0] DO
   (
   // Inverters
   .INV_CLKINSEL(IS_CLKINSEL_INVERTED),
-  .ZINV_PWRDWN(IS_PWRDWN_INVERTED),
+  .ZINV_PWRDWN(IS_PWRDWN_INVERTED ^ INV_PWRDWN),
   .ZINV_RST(IS_RST_INVERTED),
 
   // Straight mapped parameters
@@ -2948,8 +2949,6 @@ output [15:0] DO
   .CLKOUT3_CLKOUT1_OUTPUT_ENABLE(_TECHMAP_CONSTMSK_CLKOUT3_ == 1'b0),
   .CLKOUT4_CLKOUT1_OUTPUT_ENABLE(_TECHMAP_CONSTMSK_CLKOUT4_ == 1'b0),
   .CLKOUT5_CLKOUT1_OUTPUT_ENABLE(_TECHMAP_CONSTMSK_CLKOUT5_ == 1'b0),
-
-  .ZINV_PWRDWN                  (!IS_PWRDWN_INVERTED ^ INV_PWRDWN)
   )
   _TECHMAP_REPLACE_
   (
