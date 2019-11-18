@@ -14,43 +14,12 @@ input  wire CLK,
 input  wire CLKDIV,
 input  wire RST,
 
+output wire [3:0] COUNT,
+
 // Data pin
 input  wire I_DAT,
-output wire O_DAT,
-
-// Error indicator
-output wire O_ERROR
+output wire O_DAT
 );
-
-// The clock enable signal for the "hi speed" clock domain.
-wire ce = 1'b1;
-
-// ============================================================================
-// Data source
-
-reg         lfsr_stb;
-wire [7:0]  lfsr_dat;
-
-lfsr lfsr
-(
-.CLK    (CLK),
-.RST    (RST),
-.CE     (ce),
-
-.O      (lfsr_dat)
-);
-
-always @(posedge CLK)
-    if (RST)
-        lfsr_stb <= 1'b0;
-    else
-        lfsr_stb <= ce;
-
-// Synchronize generated data wordst to the CLKDIV
-reg  [7:0] ser_dat;
-
-always @(posedge CLKDIV)
-    ser_dat <= lfsr_dat;
 
 // ============================================================================
 // OSERDES
@@ -72,7 +41,7 @@ wire ser_tq;
 OSERDESE2 #(
 .DATA_RATE_OQ   (DATA_RATE),
 .DATA_WIDTH     (DATA_WIDTH),
-.DATA_RATE_TQ   ((DATA_RATE == "DDR" && DATA_WIDTH == 4) ? "DDR" : "SDR"),
+.DATA_RATE_TQ   ((DATA_RATE == "DDR" && DATA_WIDTH == 4) ? "DDR" : "BUF"),
 .TRISTATE_WIDTH ((DATA_RATE == "DDR" && DATA_WIDTH == 4) ? 4 : 1)
 )
 oserdes
@@ -82,14 +51,14 @@ oserdes
 .RST    (ser_rst),
 
 .OCE    (1'b1),
-.D1     (ser_dat[0]),
-.D2     (ser_dat[1]),
-.D3     (ser_dat[2]),
-.D4     (ser_dat[3]),
-.D5     (ser_dat[4]),
-.D6     (ser_dat[5]),
-.D7     (ser_dat[6]),
-.D8     (ser_dat[7]),
+.D1     (0),
+.D2     (0),
+.D3     (1),
+.D4     (1),
+.D5     (1),
+.D6     (1),
+.D7     (0),
+.D8     (0),
 .OQ     (O_DAT),
 
 .TCE    (1'b1),
@@ -101,38 +70,16 @@ oserdes
 );
 
 // ============================================================================
-// Reference data serializer
-reg  [7:0]  ref_sr;
-wire        ref_o;
+// OUTPUT led driven by OSERDES serial output
 
-always @(posedge CLK)
-    if (RST)
-        ref_sr <= 0;
-    else if (ce)
-        ref_sr <= lfsr_dat;
-    else
-        ref_sr <= ref_sr >> 1;
+reg [25:0] counter;
 
-assign ref_o = ref_sr[0];
+always @(posedge CLKDIV) begin
+    if (RST) counter <= 1'b0;
+    else if (I_DAT) counter <= counter + 1;
+    else counter <= counter;
+end
 
-// ============================================================================
-// Data comparator
-
-comparator #
-(
-.ERROR_COUNT    (16),
-.ERROR_HOLD     (ERROR_HOLD)
-)
-comparator
-(
-.CLK    (CLK),
-.RST    (RST),
-
-.I_DAT_REF  (ref_o),
-.I_DAT_IOB  (I_DAT),
-
-.O_ERROR    (O_ERROR)
-);
+assign COUNT = counter[25:21];
 
 endmodule
-
