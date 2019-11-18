@@ -754,7 +754,8 @@ GROUP BY site_pin.direction;
 
             assert len(input_pins) in [0, 1], input_pins
 
-            if ipin_count == 0 or opin_count == 0 or node_set_has_external or len(site_type_pkeys) == 1:
+            if ipin_count == 0 or opin_count == 0 or node_set_has_external or len(
+                    site_type_pkeys) == 1:
                 # This node set is connected externally, mark as such
                 for wire_name, site_type_name, site_pin_name in pins_used_in_node_sets:
                     top_level_wire_external.add(wire_name)
@@ -1146,12 +1147,14 @@ def main():
                 site_name_remaps[general_site] = specific_site
 
                 cur.execute(
-                    "SELECT pkey FROM site_type WHERE name = ?", (general_site, )
+                    "SELECT pkey FROM site_type WHERE name = ?",
+                    (general_site, )
                 )
                 general_site_type_pkey = cur.fetchone()[0]
 
                 cur.execute(
-                    "SELECT pkey FROM site_type WHERE name = ?", (specific_site, )
+                    "SELECT pkey FROM site_type WHERE name = ?",
+                    (specific_site, )
                 )
                 specific_site_type_pkey = cur.fetchone()[0]
 
