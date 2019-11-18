@@ -168,12 +168,15 @@ def find_and_split_inout_ports(design, module_name):
     for name, net in list(netnames.items()):
 
         # Remove "bits" used by the net that were re-mapped.
-        net["bits"] = ["x" if b in net_map else b for b in net["bits"]]
+        if len(set(net["bits"]) & set(net_map.keys())):
 
-        # If there is nothing left, remove the whole net.
-        if all([not isinstance(b, int) for b in net["bits"]]):
-            print("Removing netname '{}'".format(name))
-            del netnames[name]
+            # Remove
+            net["bits"] = ["x" if b in net_map else b for b in net["bits"]]
+
+            # If there is nothing left, remove the whole net.
+            if all([not isinstance(b, int) for b in net["bits"]]):
+                print("Removing netname '{}'".format(name))
+                del netnames[name]
 
     # Add netnames related to new input and output ports
     for name, port in new_ports.items():
