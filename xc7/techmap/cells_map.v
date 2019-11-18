@@ -1990,11 +1990,15 @@ module OSERDESE2 (
     wire _TECHMAP_FAIL_ = 1'b1;
   end
 
-  localparam [0:0] DATA_WIDTH_DDR_W6_8 = DATA_RATE_OQ == "DDR" && (DATA_WIDTH == 6 || DATA_WIDTH == 8) ? 1'b1 : 1'b0;
+  // TODO: the following params behave in a weird way.
+  // Prjxray should be fixed to better assign a better meaning to these features.
+  localparam [0:0] DATA_WIDTH_DDR_W6_8 = DATA_RATE_OQ == "DDR" && (DATA_WIDTH == 6 || DATA_WIDTH == 8) ? 1'b1 :
+                                         DATA_RATE_OQ == "SDR" && (DATA_WIDTH == 3 || DATA_WIDTH == 4) ? 1'b1 : 1'b0;
+
   localparam [0:0] DATA_WIDTH_SDR_W2_4_5_6 = DATA_RATE_OQ == "SDR" &&
                                              (DATA_WIDTH == 2 || DATA_WIDTH == 4 ||
-                                              DATA_WIDTH == 5 || DATA_WIDTH == 6) ? 1'b1 :
-                                             DATA_RATE_OQ == "DDR"                ? 1'b1 : 1'b0;
+                                              DATA_WIDTH == 5 || DATA_WIDTH == 6)     ? 1'b1 :
+                                             DATA_RATE_OQ == "DDR" && DATA_WIDTH != 6 ? 1'b1 : 1'b0;
 
   // Inverter parameters
   parameter [0:0] IS_D1_INVERTED = 1'b0;
