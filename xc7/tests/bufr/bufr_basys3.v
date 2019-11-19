@@ -33,7 +33,7 @@ generate for(i=0; i<N; i=i+1) begin
                       /*(i == 6) ?*/ "8";
 
     bufr_unit #(.BUFR_DIVIDE(DIVIDE)) unit (
-    .CLK    (in_clk),
+    .CLK    (clk),
     .CE     (in[0]),
     .CLR    (in[1]),
     .O      (out[i+1])
