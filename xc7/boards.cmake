@@ -20,6 +20,15 @@ add_xc7_board(
 )
 
 add_xc7_board(
+  BOARD basys3-bottom
+  DEVICE xc7a50t-bottom
+  PACKAGE test
+  PROG_TOOL ${OPENOCD_TARGET}
+  PROG_CMD "${OPENOCD} -f ${PRJXRAY_DIR}/utils/openocd/board-digilent-basys3.cfg -c \\\"init $<SEMICOLON> pld load 0 \${OUT_BIN} $<SEMICOLON> exit\\\""
+  PART xc7a35tcpg236-1
+)
+
+add_xc7_board(
   BOARD arty-swbut
   DEVICE xc7a50t-arty-swbut
   PACKAGE test

@@ -17,7 +17,7 @@ def create_maybe_get_wire(conn):
         phy_tile_pkey, tile_type_pkey = get_tile_type_pkey(tile)
 
         c.execute(
-            'SELECT pkey FROM wire_in_tile WHERE tile_type_pkey = ? and name = ?',
+            'SELECT pkey FROM wire_in_tile WHERE phy_tile_type_pkey = ? and name = ?',
             (tile_type_pkey, wire)
         )
 

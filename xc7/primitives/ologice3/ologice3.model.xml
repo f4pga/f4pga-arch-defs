@@ -1,2 +1,36 @@
 <models xmlns:xi="http://www.w3.org/2001/XInclude">
+  <model name="OSERDESE2_VPR">
+    <input_ports>
+      <port is_clock="1" name="CLK"/>
+      <port is_clock="1" name="CLKDIV"/>
+      <port name="D1"/>
+      <port name="D2"/>
+      <port name="D3"/>
+      <port name="D4"/>
+      <port name="D5"/>
+      <port name="D6"/>
+      <port name="D7"/>
+      <port name="D8"/>
+      <port name="OCE"/>
+      <port name="RST"/>
+      <port name="T1"/>
+      <port name="T2"/>
+      <port name="T3"/>
+      <port name="T4"/>
+      <port name="TBYTEIN"/>
+      <port name="TCE"/>
+      <port name="SHIFTIN1"/>
+      <port name="SHIFTIN2"/>
+    </input_ports>
+    <output_ports>
+      <port name="IOCLKGLITCH"/>
+      <port name="OFB"/>
+      <port name="OQ"/>
+      <port name="SHIFTOUT1"/>
+      <port name="SHIFTOUT2"/>
+      <port name="TBYTEOUT"/>
+      <port name="TFB"/>
+      <port name="TQ"/>
+    </output_ports>
+  </model>
 </models>

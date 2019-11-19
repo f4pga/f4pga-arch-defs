@@ -1,0 +1,16 @@
+# basys3 100 MHz CLK
+set_io clk W5
+
+# in[0:15] correspond with SW0-SW15 on the basys3
+set_io sw V17
+
+# out[0:15] correspond with LD0-LD15 on the basys3
+set_io led[0] U16
+set_io led[1] E19
+set_io led[2] U19
+set_io led[3] V19
+set_io led[4] W18
+
+# PMOD-A
+set_io in K17
+set_io out L17
