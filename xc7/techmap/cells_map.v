@@ -1916,6 +1916,23 @@ module OBUF (
 
 endmodule
 
+module IOBUF (
+  input  I,
+  input  T,
+  output O,
+  inout  IO
+);
+
+  IOBUF_VPR _TECHMAP_REPLACE_ (
+    .I(I),
+    .T(T),
+    .O(O),
+    .IOPAD_$inp(IO),
+    .IOPAD_$out(IO)
+  );
+
+endmodule
+
 // ============================================================================
 // Clock Buffers
 

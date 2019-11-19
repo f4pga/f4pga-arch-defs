@@ -1,2 +1,13 @@
 <models xmlns:xi="http://www.w3.org/2001/XInclude">
+  <model name="IOBUF_VPR">
+    <input_ports>
+      <port name="I" combinational_sink_ports="IOPAD_$out"/>
+      <port name="T" combinational_sink_ports="IOPAD_$out"/>
+      <port name="IOPAD_$inp" combinational_sink_ports="O"/>
+    </input_ports>
+    <output_ports>
+      <port name="O"/>
+      <port name="IOPAD_$out"/>
+    </output_ports>
+  </model>
 </models>

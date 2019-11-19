@@ -19,4 +19,6 @@ add_subdirectory(srl)
 # TODO: Disabling until https://github.com/SymbiFlow/prjxray/issues/1141 is
 # resolved
 #add_subdirectory(pll)
+add_subdirectory(iobuf)
+add_subdirectory(iobuf_i2c)
 

@@ -12,7 +12,8 @@ function(DEFINE_ARCH)
   # ~~~
   # DEFINE_ARCH(
   #    ARCH <arch>
-  #    YOSYS_SCRIPT <yosys_script>
+  #    YOSYS_SYNTH_SCRIPT <yosys_script>
+  #    YOSYS_CONV_SCRIPT <yosys_script>
   #    BITSTREAM_EXTENSION <ext>
   #    [VPR_ARCH_ARGS <arg list>]
   #    RR_PATCH_TOOL <path to rr_patch tool>
@@ -45,6 +46,14 @@ function(DEFINE_ARCH)
   # If NO_PINS is set, PLACE_TOOL and PLACE_TOOL_CMD cannot be specified.
   # If NO_BITSTREAM is set, HLC_TO_BIT, HLC_TO_BIT_CMD BIT_TO_V,
   # BIT_TO_V_CMD, BIT_TO_BIN and BIT_TO_BIN_CMD cannot be specified.
+  #
+  # YOSYS_SYNTH_SCRIPT - The main design synthesis script. It needs to write
+  #  the synthesized design in JSON format to a file name pointed by the
+  #  OUT_JSON env. variable.
+  #
+  # YOSYS_CONV_SCRIPT - This is the name of the script that makes Yosys convert
+  #  the processed JSON design to the EBLIF format accepted by the VPR. The
+  #  EBLIF file name is given in the OUT_EBLIF env. variable.
   #
   # DEVICE_FULL_TEMPLATE, RR_PATCH_CMD, PLACE_TOOL_CMD and HLC_TO_BIT_CMD will
   # all be called with string(CONFIGURE) to substitute variables.
@@ -88,7 +97,8 @@ function(DEFINE_ARCH)
   set(
     oneValueArgs
     ARCH
-    YOSYS_SCRIPT
+    YOSYS_SYNTH_SCRIPT
+    YOSYS_CONV_SCRIPT
     DEVICE_FULL_TEMPLATE
     BITSTREAM_EXTENSION
     BIN_EXTENSION
@@ -121,7 +131,8 @@ function(DEFINE_ARCH)
   add_custom_target(${DEFINE_ARCH_ARCH})
 
   set(REQUIRED_ARGS
-    YOSYS_SCRIPT
+    YOSYS_SYNTH_SCRIPT
+    YOSYS_CONV_SCRIPT
     DEVICE_FULL_TEMPLATE
     RR_PATCH_TOOL
     RR_PATCH_CMD
@@ -908,7 +919,8 @@ function(ADD_FPGA_TARGET)
   get_target_property(YOSYS_TARGET env YOSYS_TARGET)
   get_target_property_required(QUIET_CMD env QUIET_CMD)
   get_target_property(QUIET_CMD_TARGET env QUIET_CMD_TARGET)
-  get_target_property_required(YOSYS_SCRIPT ${ARCH} YOSYS_SCRIPT)
+  get_target_property_required(YOSYS_SYNTH_SCRIPT ${ARCH} YOSYS_SYNTH_SCRIPT)
+  get_target_property_required(YOSYS_CONV_SCRIPT ${ARCH} YOSYS_CONV_SCRIPT)
 
   get_target_property_required(
     DEVICE_MERGED_FILE ${DEVICE_TYPE} DEVICE_MERGED_FILE
@@ -971,6 +983,7 @@ function(ADD_FPGA_TARGET)
   set(OUT_EBLIF ${OUT_LOCAL}/${TOP}.eblif)
   set(OUT_EBLIF_REL ${OUT_LOCAL_REL}/${TOP}.eblif)
   set(OUT_SYNTH_V ${OUT_LOCAL}/${TOP}_synth.v)
+  set(OUT_SYNTH_V_REL ${OUT_LOCAL_REL}/${TOP}_synth.v)
 
   set(SOURCE_FILES_DEPS "")
   set(SOURCE_FILES "")
@@ -980,31 +993,62 @@ function(ADD_FPGA_TARGET)
   endforeach()
 
   if(NOT ${ADD_FPGA_TARGET_NO_SYNTHESIS})
-    set(
-      COMPLETE_YOSYS_SCRIPT
-      "tcl ${YOSYS_SCRIPT}"
-    )
+    set(COMPLETE_YOSYS_SYNTH_SCRIPT "tcl ${YOSYS_SYNTH_SCRIPT}")
+
+    set(OUT_JSON_SYNTH ${OUT_LOCAL}/${TOP}_synth.json)
+    set(OUT_JSON_SYNTH_REL ${OUT_LOCAL_REL}/${TOP}_synth.json)
+    set(OUT_JSON ${OUT_LOCAL}/${TOP}.json)
+    set(OUT_JSON_REL ${OUT_LOCAL_REL}/${TOP}.json)
 
     add_custom_command(
-      OUTPUT ${OUT_EBLIF} ${OUT_SYNTH_V}
+      OUTPUT ${OUT_JSON_SYNTH} ${OUT_SYNTH_V}
       DEPENDS ${SOURCE_FILES} ${SOURCE_FILES_DEPS}
               ${YOSYS} ${YOSYS_TARGET} ${QUIET_CMD} ${QUIET_CMD_TARGET}
-              ${YOSYS_SCRIPT}
+              ${YOSYS_SYNTH_SCRIPT}
       COMMAND
         ${CMAKE_COMMAND} -E make_directory ${OUT_LOCAL}
       COMMAND
         ${CMAKE_COMMAND} -E env
           symbiflow-arch-defs_SOURCE_DIR=${symbiflow-arch-defs_SOURCE_DIR}
-          OUT_EBLIF=${OUT_EBLIF}
+          OUT_JSON=${OUT_JSON_SYNTH}
           OUT_SYNTH_V=${OUT_SYNTH_V}
           ${ADD_FPGA_TARGET_DEFINES}
-          ${QUIET_CMD} ${YOSYS} -p "${COMPLETE_YOSYS_SCRIPT}" -l ${OUT_EBLIF}.log ${SOURCE_FILES}
+          ${QUIET_CMD} ${YOSYS} -p "${COMPLETE_YOSYS_SYNTH_SCRIPT}" -l ${OUT_JSON_SYNTH}.log ${SOURCE_FILES}
       WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
       VERBATIM
     )
+
+    set(SPLIT_INOUTS ${symbiflow-arch-defs_SOURCE_DIR}/utils/split_inouts.py)
+
+    add_custom_command(
+      OUTPUT ${OUT_JSON}
+      DEPENDS ${OUT_JSON_SYNTH} ${QUIET_CMD} ${QUIET_CMD_TARGET} ${SPLIT_INOUTS} ${PYTHON3} ${PYTHON3_TARGET} simplejson
+      COMMAND
+        ${PYTHON3} ${SPLIT_INOUTS} -i ${OUT_JSON_SYNTH} -o ${OUT_JSON}
+      WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
+      VERBATIM
+    )
+
+    add_custom_command(
+      OUTPUT ${OUT_EBLIF}
+      DEPENDS ${OUT_JSON}
+              ${YOSYS} ${YOSYS_TARGET} ${QUIET_CMD} ${QUIET_CMD_TARGET}
+              ${YOSYS_CONV_SCRIPT}
+      COMMAND
+        ${CMAKE_COMMAND} -E env
+          symbiflow-arch-defs_SOURCE_DIR=${symbiflow-arch-defs_SOURCE_DIR}
+          OUT_EBLIF=${OUT_EBLIF}
+          ${ADD_FPGA_TARGET_DEFINES}
+          ${QUIET_CMD} ${YOSYS} -p "read_json ${OUT_JSON}; tcl ${YOSYS_CONV_SCRIPT}" -l ${OUT_EBLIF}.log
+      WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
+      VERBATIM
+    )
+
     add_output_to_fpga_target(${NAME} EBLIF ${OUT_EBLIF_REL})
-    add_output_to_fpga_target(${NAME} SYNTH_V
-        ${OUT_LOCAL_REL}/${TOP}_synth.v)
+    add_output_to_fpga_target(${NAME} SYNTH_V ${OUT_SYNTH_V_REL})
+    add_output_to_fpga_target(${NAME} JSON_SYNTH ${OUT_JSON_SYNTH_REL})
+    add_output_to_fpga_target(${NAME} JSON ${OUT_JSON_REL})
+
   else()
     add_custom_command(
       OUTPUT ${OUT_EBLIF}
