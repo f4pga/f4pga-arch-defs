@@ -28,6 +28,4 @@ add_xc7_device_define_type(
     CMT_TOP_R_UPPER_T
     CLK_BUFG_TOP_R
     HCLK_IOI3
-  NAME basys3-x1y0
-  PART xc7a35tcpg236-1
 )
