@@ -4,7 +4,8 @@ add_subdirectory(tiles)
 get_target_property_required(PYTHON3 env PYTHON3)
 define_arch(
   ARCH testarch
-  YOSYS_SCRIPT ${symbiflow-arch-defs_SOURCE_DIR}/testarch/yosys/synth.tcl
+  YOSYS_SYNTH_SCRIPT ${symbiflow-arch-defs_SOURCE_DIR}/testarch/yosys/synth.tcl
+  YOSYS_CONV_SCRIPT ${symbiflow-arch-defs_SOURCE_DIR}/testarch/yosys/conv.tcl
   DEVICE_FULL_TEMPLATE \${DEVICE}
   VPR_ARCH_ARGS " \
     --router_init_wirelength_abort_threshold 20 \

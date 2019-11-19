@@ -68,6 +68,11 @@ def process_ologic(top, features):
     site.sources['OQ'] = None
     site.sinks['D1'] = []
     site.outputs['OQ'] = 'D1'
+
+    site.sources['TQ'] = None
+    site.sinks['T1'] = []
+    site.outputs['TQ'] = 'T1'
+
     top.add_site(site)
 
 

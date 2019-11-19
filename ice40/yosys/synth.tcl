@@ -8,5 +8,5 @@ opt_expr -undriven
 opt_clean
 
 setundef -zero -params
-write_blif -attr -cname -param $::env(OUT_EBLIF)
+write_json $::env(OUT_JSON)
 write_verilog $::env(OUT_SYNTH_V)
