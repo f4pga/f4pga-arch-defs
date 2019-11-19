@@ -47,6 +47,14 @@ function(DEFINE_ARCH)
   # If NO_BITSTREAM is set, HLC_TO_BIT, HLC_TO_BIT_CMD BIT_TO_V,
   # BIT_TO_V_CMD, BIT_TO_BIN and BIT_TO_BIN_CMD cannot be specified.
   #
+  # YOSYS_SYNTH_SCRIPT - The main design synthesis script. It needs to write
+  #  the synthesized design in JSON format to a file name pointed by the
+  #  OUT_JSON env. variable.
+  #
+  # YOSYS_CONV_SCRIPT - This is the name of the script that makes Yosys convert
+  #  the processed JSON design to the EBLIF format accepted by the VPR. The
+  #  EBLIF file name is given in the OUT_EBLIF env. variable.
+  #
   # DEVICE_FULL_TEMPLATE, RR_PATCH_CMD, PLACE_TOOL_CMD and HLC_TO_BIT_CMD will
   # all be called with string(CONFIGURE) to substitute variables.
   #
@@ -1016,7 +1024,7 @@ function(ADD_FPGA_TARGET)
       OUTPUT ${OUT_JSON}
       DEPENDS ${OUT_JSON_SYNTH} ${QUIET_CMD} ${QUIET_CMD_TARGET} ${SPLIT_INOUTS} ${PYTHON3} ${PYTHON3_TARGET} simplejson
       COMMAND
-        ${CMAKE_COMMAND} -E env PYTHONPATH=${PRJXRAY_DIR}:${symbiflow-arch-defs_SOURCE_DIR}/utils ${PYTHON3} ${SPLIT_INOUTS} -i ${OUT_JSON_SYNTH} -o ${OUT_JSON}
+        ${PYTHON3} ${SPLIT_INOUTS} -i ${OUT_JSON_SYNTH} -o ${OUT_JSON}
       WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
       VERBATIM
     )

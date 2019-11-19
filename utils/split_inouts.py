@@ -8,6 +8,10 @@ all inout ports along with their nets and connections to cell ports into two.
 Suffixes are automatically added to distinguish between the input and the
 output part.
 
+The JSON design format used by Yosys is documented there:
+- http://www.clifford.at/yosys/cmd_write_json.html
+- http://www.clifford.at/yosys/cmd_read_json.html
+
 For example in the given design (in verilog):
 
  module top(
@@ -53,7 +57,8 @@ import simplejson as json
 
 def find_top_module(design):
     """
-    Looks for the top-level module in the design. Returns its name.
+    Looks for the top-level module in the design. Returns its name. Throws
+    an exception if none was found.
     """
 
     for name, module in design["modules"].items():
@@ -61,12 +66,16 @@ def find_top_module(design):
         if "top" in attrs and attrs["top"] == 1:
             return name
 
-    return None
+    raise RuntimeError("No top-level module found in the design!")
 
 
 def get_nets(bits):
     """
-    Returns a set of numbers corresponding to net indices.
+    Returns a set of numbers corresponding to net indices effectively skipping
+    connections to consts ("0", "1", "x").
+
+    >>> get_nets([0, 1, 2, "0", "1", "x", 3, 4, 5])
+    {0, 1, 2, 3, 4, 5}
     """
     return set([n for n in bits if isinstance(n, int)])
 
@@ -74,6 +83,11 @@ def get_nets(bits):
 def get_free_net(nets):
     """
     Given a set of used net indices, returns a new, free index.
+
+    >>> get_free_net({0, 1, 2,    4, 5, 6})
+    3
+    >>> get_free_net({0, 1, 2, 3, 4, 5, 6})
+    7
     """
     sorted_nets = sorted(list(nets))
 
@@ -91,7 +105,27 @@ def get_free_net(nets):
 # =============================================================================
 
 
-def find_and_split_inout_ports(design, module_name):
+def find_and_split_inout_ports_and_nets(design, module_name):
+    """
+    This function takes a given module from the design and splits all of its
+    inout ports into pairs of inputs and outputs. Newly created ports are
+    given suffixed. For example an inout port named "A" is going to be replaced
+    by a pair consisting of "A_$inp" and "A_$out" ports.
+
+    The function also looks for "netnames" that correspond to inout ports being
+    split. These ones are removed and replaced with new ones related to newly
+    added input and output ports.
+
+    If any other "netname" mentions a net index connected to a former inout
+    port, then the index is removed from the "netname" (replaced by "x"). If
+    there are only "x" left in the "netname", then it is removed.
+
+    The function returns port name map and net index map. The port map is a
+    list of pairs (input name, input/output name). There are two entries per
+    an inout. The net map is a dict indexed by indices of nets associated with
+    inout ports. Each item contains a dict like {"i": int, "o": int} with
+    indices of the inout net split products.
+    """
 
     # Get the module
     module = design["modules"][module_name]
@@ -174,7 +208,7 @@ def find_and_split_inout_ports(design, module_name):
             net["bits"] = ["x" if b in net_map else b for b in net["bits"]]
 
             # If there is nothing left, remove the whole net.
-            if all([not isinstance(b, int) for b in net["bits"]]):
+            if all([b == "x" for b in net["bits"]]):
                 print("Removing netname '{}'".format(name))
                 del netnames[name]
 
@@ -190,6 +224,14 @@ def find_and_split_inout_ports(design, module_name):
 
 
 def remap_connections(design, module_name, net_map):
+    """
+    This function remaps cell connections that mention inout ports being split.
+
+    The function loops over all cells and their ports. If a port contains
+    a connection to an inout net then the connection is remapped according to
+    the given net_map. Only ports which names ends on "_$inp" and "_$out" are
+    affected.
+    """
 
     module = design["modules"][module_name]
     cells = module["cells"]
@@ -226,6 +268,9 @@ def remap_connections(design, module_name, net_map):
 
 
 def main():
+    """
+    The main.
+    """
 
     # Parse args
     parser = argparse.ArgumentParser(
@@ -249,7 +294,7 @@ def main():
     top_name = find_top_module(design)
 
     # Find and split inouot ports
-    port_map, net_map = find_and_split_inout_ports(design, top_name)
+    port_map, net_map = find_and_split_inout_ports_and_nets(design, top_name)
     # Remap cell connections
     remap_connections(design, top_name, net_map)
 
