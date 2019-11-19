@@ -1008,7 +1008,7 @@ function(ADD_FPGA_TARGET)
 
     add_custom_command(
       OUTPUT ${OUT_JSON_SYNTH} ${OUT_SYNTH_V} ${OUT_FASM_EXTRA}
-      DEPENDS ${SOURCE_FILES} ${SOURCE_FILES_DEPS}
+      DEPENDS ${SOURCE_FILES} ${SOURCE_FILES_DEPS} ${INPUT_XDC_FILE}
               ${YOSYS} ${YOSYS_TARGET} ${QUIET_CMD} ${QUIET_CMD_TARGET}
               ${YOSYS_SYNTH_SCRIPT}
       COMMAND
@@ -1338,6 +1338,7 @@ function(ADD_FPGA_TARGET)
     # Generate FASM
     # -------------------------------------------------------------------------
     set(OUT_FASM ${OUT_LOCAL}/${TOP}.fasm)
+    set(OUT_FASM_CONCATENATED ${OUT_LOCAL}/${TOP}.concat.fasm)
     add_custom_command(
       OUTPUT ${OUT_FASM}
       DEPENDS ${OUT_ROUTE} ${OUT_PLACE} ${VPR_DEPS} ${GENFASM_TARGET}
@@ -1345,6 +1346,9 @@ function(ADD_FPGA_TARGET)
       COMMAND
         ${CMAKE_COMMAND} -E copy ${OUT_LOCAL}/vpr_stdout.log
           ${OUT_LOCAL}/genhlc.log
+      COMMAND cat ${OUT_FASM} ${OUT_FASM_EXTRA} > ${OUT_FASM_CONCATENATED}
+      COMMAND
+        ${CMAKE_COMMAND} -E copy ${OUT_FASM_CONCATENATED} ${OUT_FASM}
       WORKING_DIRECTORY ${OUT_LOCAL}
     )
     add_custom_target(${NAME}_fasm DEPENDS ${OUT_FASM})
