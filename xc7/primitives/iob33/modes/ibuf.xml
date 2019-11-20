@@ -1,0 +1,17 @@
+<mode name="IBUF" xmlns:xi="http://www.w3.org/2001/XInclude">
+  <pb_type name="INBUF_VPR" blif_model=".subckt INBUF_VPR" num_pb="1">
+    <input name="DIFFI_IN" num_pins="1"/>
+    <input name="IBUFDISABLE" num_pins="1"/>
+    <input name="INTERMDISABLE" num_pins="1"/>
+    <input name="PAD" num_pins="1"/>
+    <output name="OUT" num_pins="1"/>
+    <delay_constant max="10e-12" in_port="PAD"  out_port="OUT"/>
+  </pb_type>
+
+  <xi:include href="../inpad.pb_type.xml"/>
+
+  <interconnect>
+    <direct name="I" input="INBUF_VPR.OUT" output="IOB33_MODES.I"/>
+    <direct name="to_inpad" input="inpad.inpad" output="INBUF_VPR.PAD"/>
+  </interconnect>
+</mode>
