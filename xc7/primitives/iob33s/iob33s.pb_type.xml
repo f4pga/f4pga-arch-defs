@@ -40,11 +40,20 @@
     <mode name="OBUFTDS_S">
       <xi:include href="../iob33/outpad.pb_type.xml"/>
 
+      <pb_type name="OBUFTDS_S_VPR" blif_model=".subckt OBUFTDS_S_VPR" num_pb="1">
+        <input name="IB" num_pins="1"/>
+        <output name="OB" num_pins="1"/>
+        <delay_constant max="10e-12" in_port="IB" out_port="OB"/>
+      </pb_type>
+
       <interconnect>
-        <direct name="DIFFO_IN" input="IOB33_MODES.DIFFO_IN" output="outpad.outpad">
-          <pack_pattern name="DIFFO" in_port="IOB33_MODES.DIFFO_IN" out_port="outpad.outpad"/>
+        <direct name="DIFFO_IN" input="IOB33_MODES.DIFFO_IN" output="OBUFTDS_S_VPR.IB">
+          <pack_pattern name="DIFFO" in_port="IOB33_MODES.DIFFO_IN" out_port="OBUFTDS_S_VPR.IB"/>
         </direct>
-      </interconnect>
+        <direct name="O" input="OBUFTDS_S_VPR.OB"  output="outpad.outpad">
+          <pack_pattern name="OBUFTDS_S_to_outpad"/>
+        </direct>
+       </interconnect>
     </mode>
 
   </pb_type>
