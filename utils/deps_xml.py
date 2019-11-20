@@ -27,14 +27,20 @@ parser.add_argument(
 def read_dependencies(inputfile):
     inputpath = os.path.abspath(inputfile.name)
     inputdir = os.path.dirname(inputpath)
-    tree = ET.parse(inputfile)
+
+    try:
+        tree = ET.parse(inputfile)
+    except ET.ParseError:
+        sys.stderr.write("XML parse error '{}'\n".format(inputfile))
+        raise
+
     for el in tree.iter():
         if str(el.tag).endswith('XInclude}include'):
             yield os.path.abspath(os.path.join(inputdir, el.get('href')))
 
 
 def main(argv):
-    args = parser.parse_args(argv[1:])
+    args = parser.parse_args(argv[1:])   
 
     if args.file_per_line:
         for dep in read_dependencies(args.inputfile):
