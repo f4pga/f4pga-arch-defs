@@ -1,2 +1,12 @@
 <models xmlns:xi="http://www.w3.org/2001/XInclude">
+  <model name="OBUFTDS_VPR">
+    <input_ports>
+      <port name="I" combinational_sink_ports="O OB"/>
+      <port name="T" combinational_sink_ports="O OB"/>
+    </input_ports>
+    <output_ports>
+      <port name="O"/>
+      <port name="OB"/>
+    </output_ports>
+  </model>
 </models>

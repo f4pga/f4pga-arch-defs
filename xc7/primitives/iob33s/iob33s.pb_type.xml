@@ -35,6 +35,14 @@
     <xi:include href="../iob33/modes/obuf.xml"/>
     <xi:include href="../iob33/modes/iobuf.xml"/>
 
+    <mode name="OBUFTDS_S">
+      <xi:include href="../iob33/outpad.pb_type.xml"/>
+
+      <interconnect>
+        <direct name="OB" input="IOB33_MODES.DIFFI_IN" output="outpad.outpad"/>
+      </interconnect>
+    </mode>
+
   </pb_type>
 
   <interconnect>
