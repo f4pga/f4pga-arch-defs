@@ -55,7 +55,9 @@
         <direct name="O"  input="OBUFTDS_VPR.O"  output="outpad.outpad">
           <pack_pattern name="OBUFTDS_M_to_outpad"/>
         </direct>
-        <direct name="OB" input="OBUFTDS_VPR.OB" output="IOB33_MODES.DIFFO_OUT"/>
+        <direct name="OB" input="OBUFTDS_VPR.OB" output="IOB33_MODES.DIFFO_OUT">
+          <pack_pattern name="DIFFO" in_port="OBUFTDS_VPR.OB" out_port="IOB33_MODES.DIFFO_OUT"/>
+        </direct>
       </interconnect>
     </mode>
 
@@ -63,7 +65,9 @@
 
   <interconnect>
     <direct name="DIFFI_IN"      input ="IOB33M.DIFFI_IN"      output="IOB33_MODES.DIFFI_IN"/>
-    <direct name="DIFFO_OUT"     output="IOB33M.DIFFO_OUT"     input ="IOB33_MODES.DIFFO_OUT"/>
+    <direct name="DIFFO_OUT"     output="IOB33M.DIFFO_OUT"     input ="IOB33_MODES.DIFFO_OUT">
+      <pack_pattern name="DIFFO" in_port="IOB33_MODES.DIFFO_OUT" out_port="IOB33M.DIFFO_OUT"/>
+    </direct>
     <direct name="I"             output="IOB33M.I"             input ="IOB33_MODES.I"/>
     <direct name="IBUFDISABLE"   input ="IOB33M.IBUFDISABLE"   output="IOB33_MODES.IBUFDISABLE"/>
     <direct name="INTERMDISABLE" input ="IOB33M.INTERMDISABLE" output="IOB33_MODES.INTERMDISABLE"/>

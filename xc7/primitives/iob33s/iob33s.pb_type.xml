@@ -2,6 +2,7 @@
 <pb_type name="IOB33S" num_pb="1" xmlns:xi="http://www.w3.org/2001/XInclude">
   <input name="DIFFI_IN" num_pins="1"/>
   <output name="DIFFO_OUT" num_pins="1"/>
+  <input name="DIFFO_IN" num_pins="1"/>
   <output name="I" num_pins="1"/>
   <input name="IBUFDISABLE" num_pins="1"/>
   <input name="INTERMDISABLE" num_pins="1"/>
@@ -17,6 +18,7 @@
   <pb_type name="IOB33_MODES" num_pb="1">
     <input name="DIFFI_IN" num_pins="1"/>
     <output name="DIFFO_OUT" num_pins="1"/>
+    <input name="DIFFO_IN" num_pins="1"/>
     <output name="I" num_pins="1"/>
     <input name="IBUFDISABLE" num_pins="1"/>
     <input name="INTERMDISABLE" num_pins="1"/>
@@ -39,7 +41,9 @@
       <xi:include href="../iob33/outpad.pb_type.xml"/>
 
       <interconnect>
-        <direct name="OB" input="IOB33_MODES.DIFFI_IN" output="outpad.outpad"/>
+        <direct name="DIFFO_IN" input="IOB33_MODES.DIFFO_IN" output="outpad.outpad">
+          <pack_pattern name="DIFFO" in_port="IOB33_MODES.DIFFO_IN" out_port="outpad.outpad"/>
+        </direct>
       </interconnect>
     </mode>
 
@@ -48,6 +52,9 @@
   <interconnect>
     <direct name="DIFFI_IN"      input ="IOB33S.DIFFI_IN"      output="IOB33_MODES.DIFFI_IN"/>
     <direct name="DIFFO_OUT"     output="IOB33S.DIFFO_OUT"     input ="IOB33_MODES.DIFFO_OUT"/>
+    <direct name="DIFFO_IN"      input ="IOB33S.DIFFO_IN"      output="IOB33_MODES.DIFFO_IN">
+      <pack_pattern name="DIFFO" in_port="IOB33S.DIFFO_IN" out_port="IOB33_MODES.DIFFO_IN"/>
+    </direct>
     <direct name="I"             output="IOB33S.I"             input ="IOB33_MODES.I"/>
     <direct name="IBUFDISABLE"   input ="IOB33S.IBUFDISABLE"   output="IOB33_MODES.IBUFDISABLE"/>
     <direct name="INTERMDISABLE" input ="IOB33S.INTERMDISABLE" output="IOB33_MODES.INTERMDISABLE"/>
