@@ -31,5 +31,5 @@ set_io out[10] W3
 set_io out[11] U3
 
 # JC connector on the Basys3 board
-set_io jc1 K17
+set_io jc1 L17
 set_io jc2 M18

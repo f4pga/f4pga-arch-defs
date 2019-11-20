@@ -5,10 +5,6 @@ add_subdirectory(slicem)
 add_subdirectory(clk_bufg_top_r)
 add_subdirectory(clk_bufg_bot_r)
 
-# TODO: Those two should be made equivalent I think.
-add_subdirectory(cmt_top_r_upper_t)
-add_subdirectory(cmt_top_l_upper_t)
-
 set(IOPAD_SITES IOB33 IDELAYE2 ILOGICE3 OLOGICE3)
 set(IOPAD_S_SITES IOB33S IDELAYE2 ILOGICE3 OLOGICE3)
 set(IOPAD_M_SITES IOB33M IDELAYE2 ILOGICE3 OLOGICE3)
@@ -18,4 +14,13 @@ project_xray_equiv_tile(
   PB_TYPES IOPAD IOPAD_S IOPAD_M
   PB_TYPE_SITES IOPAD_SITES IOPAD_S_SITES IOPAD_M_SITES
   SITE_EQUIV IOB33M=IOB33 IOB33S=IOB33
+  )
+
+set(PLLE2_ADV_SITES PLLE2_ADV)
+
+project_xray_equiv_tile(
+  PART artix7
+  TILES CMT_TOP_L_UPPER_T CMT_TOP_R_UPPER_T
+  PB_TYPES PLLE2_ADV
+  PB_TYPE_SITES PLLE2_ADV_SITES
   )
