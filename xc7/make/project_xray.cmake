@@ -57,7 +57,6 @@ function(PROJECT_XRAY_TILE)
   # SITE_AS_TILE option to state if the tile physically is a site, but it needs to be treated as a site
   # USE_DATABASE option enables usage of connection database for tile
   #     definition, instead of using the project X-Ray database.
-  # PRIORITY option that enables the priority assignments to the equivalent sites
   # BOTH_SIDE_COORD option that enables the assignment of both coordinates to the fasm prefixes
   # FILTER_X can be supplied to filter to sites that have the given X
   #     coordinate.
@@ -69,7 +68,6 @@ function(PROJECT_XRAY_TILE)
   #   TILE <tile_name>
   #   SITE_TYPES <site_name_1> <site_name_2> ...
   #   EQUIVALENT_SITES <equivalent_site_name_1> <equivalent_site_name_2> ...
-  #   PRIORITY (option)
   #   SITE_AS_TILE (option)
   #   FUSED_SITES (option)
   #   USE_DATABASE (option)
@@ -79,7 +77,7 @@ function(PROJECT_XRAY_TILE)
   #   )
   # ~~~
 
-  set(options PRIORITY FUSED_SITES SITE_AS_TILE USE_DATABASE BOTH_SITE_COORDS NO_FASM_PREFIX)
+  set(options FUSED_SITES SITE_AS_TILE USE_DATABASE BOTH_SITE_COORDS NO_FASM_PREFIX)
   set(oneValueArgs PART TILE FILTER_X)
   set(multiValueArgs SITE_TYPES EQUIVALENT_SITES)
   cmake_parse_arguments(
@@ -126,11 +124,6 @@ function(PROJECT_XRAY_TILE)
       get_file_location(GENERIC_CHANNELS_LOCATION ${GENERIC_CHANNELS})
       append_file_dependency(DEPS ${GENERIC_CHANNELS})
       set(FUSED_SITES_ARGS --connection_database ${GENERIC_CHANNELS_LOCATION})
-  endif()
-
-  set(PHYSICAL_TILE_ARGS "")
-  if(PROJECT_XRAY_TILE_PRIORITY)
-    set(PHYSICAL_TILE_ARGS "--priority")
   endif()
 
   set(BOTH_SITE_COORDS_ARGS "")
@@ -207,7 +200,6 @@ function(PROJECT_XRAY_TILE)
     --pin-prefix=${PIN_PREFIX_COMMA}
     --output-tile ${CMAKE_CURRENT_BINARY_DIR}/${TILE}.tile.xml
     --pin_assignments ${PIN_ASSIGNMENTS}
-    ${PHYSICAL_TILE_ARGS}
     DEPENDS
     ${PHYSICAL_TILE_IMPORT}
       ${TILES_DEPS}
