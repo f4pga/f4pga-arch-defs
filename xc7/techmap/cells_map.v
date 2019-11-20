@@ -1933,6 +1933,23 @@ module IOBUF (
 
 endmodule
 
+
+module OBUFTDS (
+    input  I,
+    input  T,
+    output O,
+    output OB
+);
+
+  OBUFTDS_VPR _TECHMAP_REPLACE_ (
+    .I(I),
+    .T(T),
+    .O(O),
+    .OB(OB)
+  );
+
+endmodule
+
 // ============================================================================
 // I/OSERDES
 
