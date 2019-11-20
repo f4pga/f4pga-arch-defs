@@ -1941,11 +1941,27 @@ module OBUFTDS (
     output OB
 );
 
+/*
   OBUFTDS_VPR _TECHMAP_REPLACE_ (
     .I(I),
     .T(T),
     .O(O),
     .OB(OB)
+  );
+*/
+
+  wire complementary;
+
+  OBUFTDS_M_VPR obuftds_m (
+  .I(I),
+  .T(T),
+  .O(O),
+  .OB(complementary)
+  );
+
+  OBUFTDS_S_VPR obuftds_s (
+  .IB(complementary),
+  .OB(OB)
   );
 
 endmodule

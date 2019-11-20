@@ -2,6 +2,7 @@
 <pb_type name="IOB33" num_pb="1" xmlns:xi="http://www.w3.org/2001/XInclude">
   <input name="DIFFI_IN" num_pins="1"/>
   <output name="DIFFO_OUT" num_pins="1"/>
+  <input name="DIFFO_IN" num_pins="1"/>
   <output name="I" num_pins="1"/>
   <input name="IBUFDISABLE" num_pins="1"/>
   <input name="INTERMDISABLE" num_pins="1"/>
@@ -15,19 +16,14 @@
   <output name="T_OUT" num_pins="1"/>
 
   <pb_type name="IOB33_MODES" num_pb="1">
-    <input name="DIFFI_IN" num_pins="1"/>
-    <output name="DIFFO_OUT" num_pins="1"/>
+    <input name="O" num_pins="1"/>
+    <input name="T" num_pins="1"/>
     <output name="I" num_pins="1"/>
     <input name="IBUFDISABLE" num_pins="1"/>
     <input name="INTERMDISABLE" num_pins="1"/>
     <input name="KEEPER_INT_EN" num_pins="1"/>
-    <input name="O" num_pins="1"/>
-    <output name="O_OUT" num_pins="1"/>
-    <output name="PADOUT" num_pins="1"/>
     <input name="PD_INT_EN" num_pins="1"/>
     <input name="PU_INT_EN" num_pins="1"/>
-    <input name="T" num_pins="1"/>
-    <output name="T_OUT" num_pins="1"/>
 
     <xi:include href="modes/no_ibuf.xml"/>
     <xi:include href="modes/no_obuf.xml"/>
@@ -38,18 +34,13 @@
   </pb_type>
 
   <interconnect>
-    <direct name="DIFFI_IN"      input ="IOB33.DIFFI_IN"      output="IOB33_MODES.DIFFI_IN"/>
-    <direct name="DIFFO_OUT"     output="IOB33.DIFFO_OUT"     input ="IOB33_MODES.DIFFO_OUT"/>
+    <direct name="O"             input ="IOB33.O"             output="IOB33_MODES.O"/>
+    <direct name="T"             input ="IOB33.T"             output="IOB33_MODES.T"/>
     <direct name="I"             output="IOB33.I"             input ="IOB33_MODES.I"/>
     <direct name="IBUFDISABLE"   input ="IOB33.IBUFDISABLE"   output="IOB33_MODES.IBUFDISABLE"/>
     <direct name="INTERMDISABLE" input ="IOB33.INTERMDISABLE" output="IOB33_MODES.INTERMDISABLE"/>
     <direct name="KEEPER_INT_EN" input ="IOB33.KEEPER_INT_EN" output="IOB33_MODES.KEEPER_INT_EN"/>
-    <direct name="O"             input ="IOB33.O"             output="IOB33_MODES.O"/>
-    <direct name="O_OUT"         output="IOB33.O_OUT"         input ="IOB33_MODES.O_OUT"/>
-    <direct name="PADOUT"        output="IOB33.PADOUT"        input ="IOB33_MODES.PADOUT"/>
     <direct name="PD_INT_EN"     input ="IOB33.PD_INT_EN"     output="IOB33_MODES.PD_INT_EN"/>
     <direct name="PU_INT_EN"     input ="IOB33.PU_INT_EN"     output="IOB33_MODES.PU_INT_EN"/>
-    <direct name="T"             input ="IOB33.T"             output="IOB33_MODES.T"/>
-    <direct name="T_OUT"         output="IOB33.T_OUT"         input ="IOB33_MODES.T_OUT"/>
   </interconnect>
 </pb_type>

@@ -1,5 +1,5 @@
 <models xmlns:xi="http://www.w3.org/2001/XInclude">
-  <model name="OBUFTDS_VPR">
+  <model name="OBUFTDS_M_VPR">
     <input_ports>
       <port name="I" combinational_sink_ports="O OB"/>
       <port name="T" combinational_sink_ports="O OB"/>
