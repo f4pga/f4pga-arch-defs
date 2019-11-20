@@ -1040,10 +1040,7 @@ AND
 
     for pb_type in pb_types:
         site_xml = ET.Element(
-            'site', {
-                'pb_type': add_vpr_tile_prefix(pb_type),
-                'priority': '0',
-            }
+            'site', {'pb_type': add_vpr_tile_prefix(pb_type)}
         )
         equivalent_sites_xml.append(site_xml)
 
