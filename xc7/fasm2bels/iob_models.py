@@ -62,7 +62,7 @@ def get_iob_site(db, grid, tile, site):
 
 
 def append_obuf_iostandard_params(
-        top, site, bel, possible_iostandards, slew="SLOW"
+        top, site, bel, possible_iostandards, slew="SLOW", in_term=None
 ):
     """
     Appends IOSTANDARD, DRIVE and SLEW parameters to the bel. The IOSTANDARD
@@ -93,11 +93,17 @@ def append_obuf_iostandard_params(
         bel.parameters["IOSTANDARD"] = '"{}"'.format(iostandard)
         bel.parameters["DRIVE"] = '"{}"'.format(drive)
 
+    # Input termination (here for inouts)
+    if in_term is not None:
+        bel.parameters["IN_TERM"] = '"{}"'.format(in_term)
+
     # Slew rate
     bel.parameters["SLEW"] = '"{}"'.format(slew)
 
 
-def append_ibuf_iostandard_params(top, site, bel, possible_iostandards):
+def append_ibuf_iostandard_params(
+        top, site, bel, possible_iostandards, in_term=None
+):
     """
     Appends IOSTANDARD parameter to the bel. The parameter has to be explicitly
     provided in the top.iostandard_defs dict. If the parameter from the dict
@@ -119,6 +125,10 @@ def append_ibuf_iostandard_params(top, site, bel, possible_iostandards):
             return
 
         bel.parameters["IOSTANDARD"] = '"{}"'.format(iostandard)
+
+    # Input termination
+    if in_term is not None:
+        bel.parameters["IN_TERM"] = '"{}"'.format(in_term)
 
 
 def decode_iostandard_params(site, diff=False):
@@ -177,6 +187,17 @@ def decode_iostandard_params(site, diff=False):
     return iostd_in, iostd_out
 
 
+def decode_in_term(site):
+    """
+    Decodes input termination setting.
+    """
+    for term in ["40", "50", "60"]:
+        if site.has_feature("IN_TERM.UNTUNED_SPLIT_" + term):
+            return "UNTUNED_SPLIT_" + term
+
+    return None
+
+
 def add_pull_bel(site, wire):
     """
     Adds an appropriate PULL bel to the given site based on decoded fasm
@@ -220,6 +241,7 @@ def process_single_ended_iob(top, iob):
 
     # Decode IOSTANDARD parameters
     iostd_in, iostd_out = decode_iostandard_params(site)
+    in_term = decode_in_term(site)
 
     # Buffer direction
     is_input = (
@@ -269,7 +291,7 @@ def process_single_ended_iob(top, iob):
         # called I, so it is in fact correct.
         site.add_source(bel, bel_pin='O', source='I')
 
-        append_ibuf_iostandard_params(top, site, bel, iostd_in)
+        append_ibuf_iostandard_params(top, site, bel, iostd_in, in_term)
 
         site.add_bel(bel)
 
@@ -307,7 +329,7 @@ def process_single_ended_iob(top, iob):
         site.add_sink(bel, bel_pin='I', sink='O')
 
         slew = "FAST" if site.has_feature_containing("SLEW.FAST") else "SLOW"
-        append_obuf_iostandard_params(top, site, bel, iostd_out, slew)
+        append_obuf_iostandard_params(top, site, bel, iostd_out, slew, in_term)
 
         site.add_bel(bel)
 
@@ -324,7 +346,7 @@ def process_single_ended_iob(top, iob):
         site.add_sink(bel, bel_pin='I', sink='O')
 
         slew = "FAST" if site.has_feature_containing("SLEW.FAST") else "SLOW"
-        append_obuf_iostandard_params(top, site, bel, iostd_out, slew)
+        append_obuf_iostandard_params(top, site, bel, iostd_out, slew, in_term)
 
         site.add_bel(bel)
 
@@ -368,6 +390,7 @@ def process_differential_iob(top, iob, in_diff, out_diff):
 
     # Decode IOSTANDARD parameters
     iostd_in, iostd_out = decode_iostandard_params(site, diff=True)
+    in_term = decode_in_term(site)
 
     # Differential input
     if in_diff:
@@ -390,7 +413,9 @@ def process_differential_iob(top, iob, in_diff, out_diff):
         site_m.add_sink(bel, bel_pin='T', sink='T')
 
         slew = "FAST" if site.has_feature_containing("SLEW.FAST") else "SLOW"
-        append_obuf_iostandard_params(top, site_m, bel, iostd_out, slew)
+        append_obuf_iostandard_params(
+            top, site_m, bel, iostd_out, slew, in_term
+        )
 
         site_m.add_bel(bel)
 
