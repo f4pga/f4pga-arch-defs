@@ -89,6 +89,7 @@ if (NOT DEFINED ENV{CI} OR NOT $ENV{CI})
 add_subdirectory(xc)
 endif (NOT DEFINED ENV{CI} OR NOT $ENV{CI})
 add_subdirectory(ice40)
+add_subdirectory(quicklogic)
 add_subdirectory(testarch)
 add_subdirectory(tests)
 

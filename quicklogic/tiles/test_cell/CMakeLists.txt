@@ -1,0 +1,5 @@
+add_file_target(FILE logicbox.sim.v SCANNER_TYPE verilog)
+add_file_target(FILE test_cell.sim.v SCANNER_TYPE verilog)
+v2x(NAME logicbox SRCS logicbox.sim.v)
+v2x(NAME test_cell SRCS test_cell.sim.v)
+vpr_test(NAME test_cell TOP_MODULE TEST_CELL)
