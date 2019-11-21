@@ -54,6 +54,14 @@
           <pack_pattern name="OBUFTDS_S_to_outpad"/>
         </direct>
        </interconnect>
+
+      <metadata>
+        <meta name="fasm_features">
+          LVCMOS12_LVCMOS15_LVCMOS18_SSTL135.STEPDOWN
+          SSTL135.DRIVE.I_FIXED
+          SSTL135.SLEW.FAST
+        </meta>
+      </metadata>
     </mode>
 
   </pb_type>
