@@ -46,6 +46,15 @@ add_xc7_board(
   PART xc7a35tcsg324-1
 )
 
+add_xc7_board(
+  BOARD arty-full
+  DEVICE xc7a50t
+  PACKAGE test
+  PROG_TOOL ${OPENOCD_TARGET}
+  PROG_CMD "${OPENOCD} -f ${PRJXRAY_DIR}/utils/openocd/board-digilent-basys3.cfg -c \\\"init $<SEMICOLON> pld load 0 \${OUT_BIN} $<SEMICOLON> exit\\\""
+  PART xc7a35tcsg324-1
+)
+
 # TODO: https://github.com/SymbiFlow/symbiflow-arch-defs/issues/344
 add_xc7_board(
   BOARD zybo
