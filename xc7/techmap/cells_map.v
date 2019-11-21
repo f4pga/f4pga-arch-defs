@@ -1941,15 +1941,6 @@ module OBUFTDS (
     output OB
 );
 
-/*
-  OBUFTDS_VPR _TECHMAP_REPLACE_ (
-    .I(I),
-    .T(T),
-    .O(O),
-    .OB(OB)
-  );
-*/
-
   wire complementary;
 
   OBUFTDS_M_VPR obuftds_m (
@@ -1961,6 +1952,22 @@ module OBUFTDS (
 
   OBUFTDS_S_VPR obuftds_s (
   .IB(complementary),
+  .OB(OB)
+  );
+
+endmodule
+
+
+module OBUFDS (
+    input  I,
+    output O,
+    output OB
+);
+
+  OBUFTDS _TECHMAP_REPLACE_ (
+  .I(I),
+  .T(1'b0),
+  .O(O),
   .OB(OB)
   );
 
