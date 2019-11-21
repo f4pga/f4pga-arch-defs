@@ -321,7 +321,7 @@ def check_feature(feature):
 
 
 # CLBLL_L.CLBLL_LL_A1[0] -> (CLBLL_L, CLBLL_LL_A1)
-PIN_NAME_TO_PARTS = re.compile(r'^([^\.]+)\.([^\]]+)\[0\]$')
+PIN_NAME_TO_PARTS = re.compile(r'^([^\.]+)\.([^\]]+)\[([0-9]+)\]$')
 
 
 def set_connection_box(
@@ -427,6 +427,10 @@ def import_graph_nodes(conn, graph, node_mapping, connection_box_map):
         tile_type = remove_vpr_tile_prefix(tile_type)
 
         pin = m.group(2)
+        pin_index = int(m.group(3))
+
+        if pin in ['ALUT', 'BLUT', 'CLUT', 'DLUT']:
+            pin = '{}{}'.format(pin[0], pin_index + 1)
 
         cur.execute(
             """
@@ -469,7 +473,7 @@ AND
   ;""", (site_as_tile_pkey, pin)
             )
             results = cur.fetchall()
-            assert len(results) == 1
+            assert len(results) == 1, (len(results), pin)
             wire_in_tile_pkey = results[0][0]
         else:
             cur.execute(

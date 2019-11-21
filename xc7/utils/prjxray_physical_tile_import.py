@@ -52,15 +52,60 @@ def import_physical_tile(args):
 
         return ports
 
-    def add_ports(tile_xml, pb_type_xml):
+    def gather_input_ports(pb_type_xml):
+        for child in pb_type_xml.findall('input'):
+            yield child
+
+    def add_ports(tile_xml, pb_type_xml, pin_equivalences):
         """ Used to copy the ports from a given XML root of a pb_type."""
+
+        ports_with_equivalance = {}
 
         for child in pb_type_xml:
             if child.tag in PORT_TAGS:
-                child_copy = copy.deepcopy(child)
-                tile_xml.append(child_copy)
+                if child.attrib['name'] not in pin_equivalences:
+                    child_copy = copy.deepcopy(child)
+                    tile_xml.append(child_copy)
+                else:
+                    equiv_port = pin_equivalences[child.attrib['name']]
 
-    def add_direct_mappings(tile_xml, site_xml, eq_pb_type_xml):
+                    if equiv_port not in ports_with_equivalance:
+                        ports_with_equivalance[equiv_port] = {
+                            'tag': child.tag,
+                            'attrib':
+                                {
+                                    'name': equiv_port,
+                                    'num_pins': 0,
+                                    'equivalent': 'full',
+                                },
+                            'child_ports': [],
+                        }
+
+                    assert ports_with_equivalance[equiv_port]['tag'
+                                                              ] == child.tag
+                    ports_with_equivalance[equiv_port]['attrib']['num_pins'
+                                                                 ] += 1
+                    assert int(child.attrib['num_pins']) == 1
+                    ports_with_equivalance[equiv_port]['child_ports'].append(
+                        child.attrib['name']
+                    )
+
+        for name, properties in ports_with_equivalance.items():
+            properties['attrib']['num_pins'] = str(
+                properties['attrib']['num_pins']
+            )
+            ET.SubElement(
+                tile_xml, properties['tag'], attrib=properties['attrib']
+            )
+
+        port_mapping = {}
+        for name, properties in ports_with_equivalance.items():
+            for idx, child_port in enumerate(properties['child_ports']):
+                port_mapping[child_port] = (idx, name, properties)
+
+        return port_mapping
+
+    def add_direct_mappings(tile_xml, site_xml, eq_pb_type_xml, port_mapping):
         """ Used to add the direct pin mappings between a pb_type and the corresponding tile """
 
         tile_ports = sorted(get_ports_from_xml(tile_xml))
@@ -70,16 +115,26 @@ def import_physical_tile(args):
         site_name = site_xml.attrib['pb_type']
 
         for site_port in site_ports:
+            if site_port in port_mapping:
+                target_idx, target_port, _ = port_mapping[site_port]
+            else:
+                target_port = site_port
+                target_idx = 0
+
             for tile_port in tile_ports:
-                if site_port == tile_port:
-                    direct_map = ET.SubElement(
+                if target_port == tile_port:
+                    ET.SubElement(
                         site_xml, 'direct', {
-                            'from': "{}.{}".format(tile_name, tile_port),
-                            'to': "{}.{}".format(site_name, site_port)
+                            'from':
+                                "{}.{}[{}]".format(
+                                    tile_name, tile_port, target_idx
+                                ),
+                            'to':
+                                "{}.{}".format(site_name, site_port)
                         }
                     )
 
-    def add_equivalent_sites(tile_xml, equivalent_sites):
+    def add_equivalent_sites(tile_xml, equivalent_sites, port_mapping):
         """ Used to add to the <tile> tag the equivalent tiles associated with it."""
 
         pb_types = equivalent_sites.split(',')
@@ -99,7 +154,7 @@ def import_physical_tile(args):
                 {'pb_type': tile_import.add_vpr_tile_prefix(eq_site)}
             )
 
-            add_direct_mappings(tile_xml, site_xml, pb_type_root)
+            add_direct_mappings(tile_xml, site_xml, pb_type_root, port_mapping)
 
     ##########################################################################
     # Generate the tile.xml file                                             #
@@ -124,16 +179,47 @@ def import_physical_tile(args):
         nsmap={'xi': XI_URL},
     )
 
-    add_ports(tile_xml, pb_type_root)
+    pin_equivalences = {}
+    if args.pin_equivalences is not None:
+        for e in args.pin_equivalences.split(','):
+            pin, joint_pin = e.split(':')
+
+            assert pin not in pin_equivalences
+            pin_equivalences[pin] = joint_pin
+
+    port_mapping = add_ports(tile_xml, pb_type_root, pin_equivalences)
 
     equivalent_sites = args.equivalent_sites
-    add_equivalent_sites(tile_xml, equivalent_sites)
+    add_equivalent_sites(tile_xml, equivalent_sites, port_mapping)
 
     fc_xml = tile_import.add_fc(tile_xml)
 
     pin_assignments = json.load(args.pin_assignments)
+
+    tile_pins = {}
+
+    for port in pin_assignments['pin_directions'][tile_name]:
+        if port in port_mapping:
+            _, new_port, properties = port_mapping[port]
+
+            if new_port not in tile_pins:
+                tile_pins[new_port] = pin_assignments['pin_directions'
+                                                      ][tile_name][port]
+            else:
+                assert tile_pins[new_port] == pin_assignments[
+                    'pin_directions'][tile_name][port]
+        else:
+            assert port not in tile_pins
+            tile_pins[port] = pin_assignments['pin_directions'][tile_name][port
+                                                                           ]
+
+    pin_assignments['pin_directions'][tile_name] = tile_pins
     tile_import.add_pinlocations(
-        tile_name, tile_xml, fc_xml, pin_assignments, ports
+        tile_name,
+        tile_xml,
+        fc_xml,
+        pin_assignments,
+        get_ports_from_xml(tile_xml),
     )
 
     tile_import.add_switchblock_locations(tile_xml)
@@ -190,6 +276,8 @@ def main():
     parser.add_argument(
         '--pin_assignments', required=True, type=argparse.FileType('r')
     )
+
+    parser.add_argument('--pin_equivalences')
 
     args = parser.parse_args()
 

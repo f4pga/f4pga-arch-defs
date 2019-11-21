@@ -73,13 +73,14 @@ function(PROJECT_XRAY_TILE)
   #   USE_DATABASE (option)
   #   BOTH_SITE_COORDS (option)
   #   NO_FASM_PREFIX (option)
+  #   [PIN_EQUIVALENCES <pins>]
   #   [FILTER_X <x_coord>]
   #   )
   # ~~~
 
   set(options FUSED_SITES SITE_AS_TILE USE_DATABASE BOTH_SITE_COORDS NO_FASM_PREFIX)
   set(oneValueArgs PART TILE FILTER_X)
-  set(multiValueArgs SITE_TYPES EQUIVALENT_SITES)
+  set(multiValueArgs SITE_TYPES EQUIVALENT_SITES PIN_EQUIVALENCES)
   cmake_parse_arguments(
     PROJECT_XRAY_TILE
     "${options}"
@@ -138,6 +139,13 @@ function(PROJECT_XRAY_TILE)
   set(FASM_ARGS "")
   if(PROJECT_XRAY_TILE_NO_FASM_PREFIX)
     set(FASM_ARGS "--no_fasm_prefix")
+  endif()
+
+  set(PIN_EQUIVALENCES "")
+  if(NOT "${PROJECT_XRAY_TILE_PIN_EQUIVALENCES}" STREQUAL "")
+    set(PIN_EQUIVALENCES "${PROJECT_XRAY_TILE_PIN_EQUIVALENCES}")
+    string(REPLACE ";" "," PIN_EQUIVALENCES "${PIN_EQUIVALENCES}")
+    set(PIN_EQUIVALENCES --pin_equivalences "${PIN_EQUIVALENCES}")
   endif()
 
   add_custom_command(
@@ -200,6 +208,7 @@ function(PROJECT_XRAY_TILE)
     --pin-prefix=${PIN_PREFIX_COMMA}
     --output-tile ${CMAKE_CURRENT_BINARY_DIR}/${TILE}.tile.xml
     --pin_assignments ${PIN_ASSIGNMENTS}
+    ${PIN_EQUIVALENCES}
     DEPENDS
     ${PHYSICAL_TILE_IMPORT}
       ${TILES_DEPS}

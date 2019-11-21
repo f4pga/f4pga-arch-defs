@@ -4,4 +4,25 @@ project_xray_tile(
   SITE_AS_TILE
   SITE_TYPES SLICEL/SLICEL0
   EQUIVALENT_SITES SLICEL
+  PIN_EQUIVALENCES
+    A1:ALUT
+    A2:ALUT
+    A3:ALUT
+    A4:ALUT
+    A5:ALUT
+    B1:BLUT
+    B2:BLUT
+    B3:BLUT
+    B4:BLUT
+    B5:BLUT
+    C1:CLUT
+    C2:CLUT
+    C3:CLUT
+    C4:CLUT
+    C5:CLUT
+    D1:DLUT
+    D2:DLUT
+    D3:DLUT
+    D4:DLUT
+    D5:DLUT
   )
