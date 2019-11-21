@@ -4,8 +4,11 @@
 
 module top
 (
-input  wire [11:0] in,
-output wire [11:0] out
+input  wire [11:8] sw,
+output wire [11:9] led,
+
+output wire [1:0]  diff_p,
+output wire [1:0]  diff_n
 );
 
 // ============================================================================
@@ -16,27 +19,25 @@ wire [1:0] buf_t;
 OBUFTDS obuftds_0 (
   .I(buf_i[0]),
   .T(buf_t[0]),
-  .O(out[2]), // LED2
-  .OB(out[3]) // LED3
+  .O(diff_p[0]), // LED2
+  .OB(diff_n[0]) // LED3
 );
 
 OBUFTDS obuftds_1 (
   .I(buf_i[1]),
   .T(buf_t[1]),
-  .O(out[8]), // LED8
-  .OB(out[7]) // LED7
+  .O(diff_p[1]), // LED8
+  .OB(diff_n[1]) // LED7
 );
 
 // ============================================================================
 
-assign buf_i[0] = in[0];
-assign buf_t[0] = in[1];
-assign buf_i[1] = in[2];
-assign buf_t[1] = in[3];
+assign buf_i[0] = sw[ 8];
+assign buf_t[0] = sw[ 9];
+assign buf_i[1] = sw[10];
+assign buf_t[1] = sw[11];
 
-assign out[11: 9] = in[11: 9];
-assign out[ 6: 4] = in[ 8: 6];
-assign out[ 1: 0] = in[ 5: 4];
+assign led[11:9] = 3'd0;
 
 endmodule
 
