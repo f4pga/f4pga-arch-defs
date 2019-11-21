@@ -40,7 +40,7 @@ def read_dependencies(inputfile):
 
 
 def main(argv):
-    args = parser.parse_args(argv[1:])   
+    args = parser.parse_args(argv[1:])
 
     if args.file_per_line:
         for dep in read_dependencies(args.inputfile):
