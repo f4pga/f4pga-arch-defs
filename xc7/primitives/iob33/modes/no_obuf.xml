@@ -4,7 +4,7 @@
     <direct name="O" input="IOB33_MODES.O" output="outpad.outpad">
       <metadata>
         <meta name="fasm_mux">
-          O : PULLTYPE.NONE,LVCMOS33_LVTTL.DRIVE.I12_I16,LVCMOS12_LVCMOS15_LVCMOS18_LVCMOS25_LVCMOS33_LVTTL_SSTL135.SLEW.SLOW
+          IOB33_MODES.O : PULLTYPE.NONE,LVCMOS33_LVTTL.DRIVE.I12_I16,LVCMOS12_LVCMOS15_LVCMOS18_LVCMOS25_LVCMOS33_LVTTL_SSTL135.SLEW.SLOW
         </meta>
       </metadata>
     </direct>
