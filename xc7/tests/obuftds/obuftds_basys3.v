@@ -1,3 +1,26 @@
+/*
+A simplistic test for OBUFTDS. Two of them are instanciated and their outpus
+are connected to LEDs. Data and tri-state inputs are controlled by switches.
+
+Truth tables:
+
+SW9  SW8  | LED3 LED2
+ 0    0   |  1    0
+ 0    1   |  0    1
+ 1    0   |  0    0
+ 1    1   |  0    0
+
+SW10 SW11 | LED8 LED7
+ 0    0   |  0    1
+ 0    1   |  1    0
+ 1    0   |  0    0
+ 1    1   |  0    0
+
+Couldn't use all switches and buttons at the same time as the differential
+IOs use different IOSTANDARD than the single ended ones and have to be in
+a separate bank.
+
+*/
 `default_nettype none
 
 // ============================================================================
