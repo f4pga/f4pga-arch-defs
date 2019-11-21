@@ -57,6 +57,9 @@ function(ADD_XC7_BOARD)
     PROPERTIES PART ${PART}
     )
   set_target_properties(${BOARD}
+    PROPERTIES PART_JSON ${PRJXRAY_DB_DIR}/${ARCH}/${PART}.json
+    )
+  set_target_properties(${BOARD}
     PROPERTIES BIT_TO_BIN_EXTRA_ARGS " \
     --part_name ${PART} \
     --part_file ${PRJXRAY_DB_DIR}/${ARCH}/${PART}.yaml \
