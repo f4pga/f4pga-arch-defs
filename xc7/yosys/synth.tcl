@@ -1,8 +1,15 @@
 yosys -import
+
 plugin -i xdc
 plugin -i fasm
 #Import the commands from the plugins to the tcl interpreter
 yosys -import
+
+# Infer 3-state IOBUFs
+techmap
+tribuf
+iopadmap -bits -tinoutpad IOBUF T:O:I:IO
+
 # -flatten is used to ensure that the output eblif has only one module.
 # Some of symbiflow expects eblifs with only one module.
 synth_xilinx -vpr -flatten -abc9 -nosrl -noclkbuf -nodsp
