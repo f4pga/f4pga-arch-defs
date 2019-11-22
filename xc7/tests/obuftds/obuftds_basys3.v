@@ -28,7 +28,6 @@ a separate bank.
 module top
 (
 input  wire [11:8] sw,
-output wire [11:9] led,
 
 output wire [1:0]  diff_p,
 output wire [1:0]  diff_n
@@ -59,8 +58,6 @@ assign buf_i[0] = sw[ 8];
 assign buf_t[0] = sw[ 9];
 assign buf_i[1] = sw[10];
 assign buf_t[1] = sw[11];
-
-assign led[11:9] = 3'd0;
 
 endmodule
 
