@@ -1200,6 +1200,7 @@ class Module(object):
         self.conn = conn
         self.sites = []
         self.source_bels = {}
+        self.disabled_drcs = set()
 
         # Map of source to sink.
         self.shorted_nets = {}
@@ -1239,6 +1240,9 @@ class Module(object):
 
     def set_iostandard_defs(self, defs):
         self.iostandard_defs = defs
+
+    def disable_drc(self, drc):
+        self.disabled_drcs.add(drc)
 
     def set_net_map(self, net_map):
         self.wire_pkey_net_map = net_map
@@ -1527,6 +1531,12 @@ set route_with_dummy {fixed_route}
             yield """\
 regsub -all {{}} $route_with_dummy "" route
 set_property FIXED_ROUTE $route $net"""
+
+    def output_disabled_drcs(self):
+        for drc in self.disabled_drcs:
+            yield "set_property SEVERITY {{Warning}} [get_drc_checks {}]".format(
+                drc
+            )
 
     def get_bels(self):
         """ Yield a list of Bel objects in the module. """
