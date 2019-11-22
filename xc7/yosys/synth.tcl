@@ -5,9 +5,19 @@ plugin -i fasm
 #Import the commands from the plugins to the tcl interpreter
 yosys -import
 
-# Infer 3-state IOBUFs
-techmap
+# Infer 3-state IOBUFs.
+#
+# First infer 3-state muxes. This converts $mux cells with "z" inputs to
+# $tribuf cells. Since iopadmap requires $_TBUF_ cells to properly infer
+# 3-state IOBUFs we need to map it first. Next the iopadmaps infers intermediate
+# $IOBUF cells.
+#
+# Yosys assumes that when T=1'b1 the output is active. In Xilinx architecture
+# it is the opposite. Therefore another techmap is needed that inserts an
+# inverter to $IOBUF cells thus making them Xilinx's IOBUFs driven by correct
+# T signals.
 tribuf
+techmap -map $::env(symbiflow-arch-defs_SOURCE_DIR)/xc7/techmap/tribuf.v 
 iopadmap -bits -tinoutpad \$IOBUF T:O:I:IO
 techmap -map $::env(symbiflow-arch-defs_SOURCE_DIR)/xc7/techmap/io_map.v
 
