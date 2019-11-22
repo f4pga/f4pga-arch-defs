@@ -52,6 +52,13 @@ add_vivado_target(
     CLOCK_PERIODS 10.0
     )
 
+add_vivado_target(
+    NAME murax_basys_full_vivado
+    PARENT_NAME murax_basys_full
+    CLOCK_PINS io_mainClk
+    CLOCK_PERIODS 10.0
+    )
+
 add_vivado_pnr_target(
     NAME murax_basys_vivado_pnr
     PARENT_NAME murax_basys
