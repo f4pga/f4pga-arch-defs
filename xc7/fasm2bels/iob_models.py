@@ -93,16 +93,18 @@ def append_obuf_iostandard_params(
             print(" IOSTANDARD={}, DRIVE={}".format(iostandard, drive))
 
             print("Candidates are:")
-            print(" IOSTANDARD        | DRIVE  | SLEW   |")
-            print("-------------------|--------|--------|")
+            print(" IOSTANDARD        | DRIVE  | SLEW |")
+            print("-------------------|--------|------|")
             for i, d, s in possible_iostandards:
                 print(
                     " {}| {}| {}|".format(
                         i.ljust(18),
-                        str(d).ljust(7), s.ljust(8)
+                        str(d).ljust(7), s.ljust(5)
                     )
                 )
 
+            # Demote NSTD-1 to warning
+            top.disable_drc("NSTD-1")
             return
 
         bel.parameters["IOSTANDARD"] = '"{}"'.format(iostandard)
@@ -147,6 +149,8 @@ def append_ibuf_iostandard_params(
             for i in possible_iostandards:
                 print(" {}".format(i.ljust(15)))
 
+            # Demote NSTD-1 to warning
+            top.disable_drc("NSTD-1")
             return
 
         bel.parameters["IOSTANDARD"] = '"{}"'.format(iostandard)
@@ -420,11 +424,6 @@ def process_differential_iob(top, iob, in_diff, out_diff):
     # Decode IOSTANDARD parameters
     iostd_in, iostd_out = decode_iostandard_params(site, diff=True)
     in_term = decode_in_term(site)
-
-    for f in site.set_features:
-        print(f)
-    print(iostd_in)
-    print(iostd_out)
 
     # Differential input
     if in_diff:
