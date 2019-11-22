@@ -77,7 +77,7 @@ def append_obuf_iostandard_params(
         iostd_def = top.iostandard_defs[site.site.name]
 
         iostandard = iostd_def["IOSTANDARD"]
-        drive = iostd_def["DRIVE"]
+        drive = iostd_def["DRIVE"] if "DRIVE" in iostd_def else None
 
         # Check if this is possible according to decoded fasm
         is_valid = (iostandard, drive, slew) in possible_iostandards
