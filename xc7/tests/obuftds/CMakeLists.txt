@@ -9,10 +9,11 @@ add_fpga_target(
   EXPLICIT_ADD_FILE_TARGET
   )
 
-add_vivado_target(
-  NAME obuftds_basys3_vivado
-  PARENT_NAME obuftds_basys3
-  )
+# Disabling Vivado target due to #1169
+#add_vivado_target(
+#  NAME obuftds_basys3_vivado
+#  PARENT_NAME obuftds_basys3
+#  )
 
 add_dependencies(all_xc7_tests
   obuftds_basys3
