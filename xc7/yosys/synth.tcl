@@ -8,7 +8,8 @@ yosys -import
 # Infer 3-state IOBUFs
 techmap
 tribuf
-iopadmap -bits -tinoutpad IOBUF T:O:I:IO
+iopadmap -bits -tinoutpad \$IOBUF T:O:I:IO
+techmap -map $::env(symbiflow-arch-defs_SOURCE_DIR)/xc7/techmap/io_map.v
 
 # -flatten is used to ensure that the output eblif has only one module.
 # Some of symbiflow expects eblifs with only one module.
