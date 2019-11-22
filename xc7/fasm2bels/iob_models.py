@@ -83,15 +83,32 @@ def append_obuf_iostandard_params(
         is_valid = (iostandard, drive, slew) in possible_iostandards
         if not is_valid:
             print(
-                "IOSTANDARD+DRIVE+SLEW settings provided for {} do not match"
+                "IOSTANDARD+DRIVE+SLEW settings provided for {} do not match "
                 "their counterparts decoded from the fasm".format(
                     site.site.name
                 )
             )
+
+            print("Requested:")
+            print(" IOSTANDARD={}, DRIVE={}".format(iostandard, drive))
+
+            print("Candidates are:")
+            print(" IOSTANDARD        | DRIVE  | SLEW   |")
+            print("-------------------|--------|--------|")
+            for i, d, s in possible_iostandards:
+                print(
+                    " {}| {}| {}|".format(
+                        i.ljust(18),
+                        str(d).ljust(7), s.ljust(8)
+                    )
+                )
+
             return
 
         bel.parameters["IOSTANDARD"] = '"{}"'.format(iostandard)
-        bel.parameters["DRIVE"] = '"{}"'.format(drive)
+
+        if drive is not None:
+            bel.parameters["DRIVE"] = '"{}"'.format(drive)
 
     # Input termination (here for inouts)
     if in_term is not None:
@@ -122,6 +139,14 @@ def append_ibuf_iostandard_params(
                 "IOSTANDARD setting provided for {} do not match"
                 "its counterpart decoded from the fasm".format(site.site.name)
             )
+
+            print("Requested:")
+            print(" {}".format(iostandard))
+
+            print("Candidates are:")
+            for i in possible_iostandards:
+                print(" {}".format(i.ljust(15)))
+
             return
 
         bel.parameters["IOSTANDARD"] = '"{}"'.format(iostandard)
@@ -147,10 +172,14 @@ def decode_iostandard_params(site, diff=False):
     for feature in site.features:
         parts = feature.split(".")
 
-        if "DRIVE" in parts and "I_FIXED" not in parts:
+        if "DRIVE" in parts:
             idx = parts.index("DRIVE")
 
-            drives = [int(s[1:]) for s in parts[idx + 1].split("_")]
+            if parts[idx + 1] == "I_FIXED":
+                drives = [None]
+            else:
+                drives = [int(s[1:]) for s in parts[idx + 1].split("_")]
+
             iostds = [s for s in parts[idx - 1].split("_")]
 
             for ios in iostds:
@@ -391,6 +420,11 @@ def process_differential_iob(top, iob, in_diff, out_diff):
     # Decode IOSTANDARD parameters
     iostd_in, iostd_out = decode_iostandard_params(site, diff=True)
     in_term = decode_in_term(site)
+
+    for f in site.set_features:
+        print(f)
+    print(iostd_in)
+    print(iostd_out)
 
     # Differential input
     if in_diff:
