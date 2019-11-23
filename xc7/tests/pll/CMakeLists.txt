@@ -7,7 +7,7 @@ add_file_target(FILE basys3_x1y0.pcf)
 
 add_fpga_target(
   NAME pll_int_basys3_full
-  BOARD basys3-bottom
+  BOARD basys3-full
   SOURCES pll_int_basys3_x1y0.v
   INPUT_IO_FILE basys3_x1y0.pcf
   EXPLICIT_ADD_FILE_TARGET
@@ -15,7 +15,7 @@ add_fpga_target(
 
 add_fpga_target(
   NAME pll_buf_basys3_full
-  BOARD basys3-bottom
+  BOARD basys3-full
   SOURCES pll_buf_basys3_x1y0.v
   INPUT_IO_FILE basys3_x1y0.pcf
   EXPLICIT_ADD_FILE_TARGET
@@ -23,7 +23,7 @@ add_fpga_target(
 
 add_fpga_target(
   NAME pll_ext_basys3_full
-  BOARD basys3-bottom
+  BOARD basys3-full
   SOURCES pll_ext_basys3_x1y0.v
   INPUT_IO_FILE basys3_x1y0.pcf
   EXPLICIT_ADD_FILE_TARGET

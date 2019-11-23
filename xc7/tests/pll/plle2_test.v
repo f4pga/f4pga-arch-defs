@@ -39,7 +39,6 @@ wire clk_fb_o;
 wire clk_fb_i;
 
 wire [5:0] clk;
-wire [5:0] gclk;
 
 PLLE2_ADV #
 (
@@ -147,11 +146,10 @@ wire rst = RST || !O_LOCKED;
 
 genvar i;
 generate for (i=0; i<6; i=i+1) begin
-  BUFG bufg(.I(clk[i]), .O(gclk[i]));
-
+  
   reg [23:0] counter;
 
-  always @(posedge gclk[i] or posedge rst)
+  always @(posedge clk[i] or posedge rst)
       if (rst) counter <= 0;
       else     counter <= counter + 1;
 

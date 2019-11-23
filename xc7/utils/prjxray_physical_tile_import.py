@@ -79,12 +79,14 @@ def import_physical_tile(args):
                         }
                     )
 
-    def add_equivalent_sites(tile_xml, equivalent_sites):
+    def add_equivalent_sites(tile_xml, equivalent_sites, inc_priority=False):
         """ Used to add to the <tile> tag the equivalent tiles associated with it."""
 
         pb_types = equivalent_sites.split(',')
 
         equivalent_sites_xml = ET.SubElement(tile_xml, 'equivalent_sites')
+
+        priority = 0
 
         for eq_site in pb_types:
             eq_pb_type_xml = ET.parse(
@@ -95,9 +97,14 @@ def import_physical_tile(args):
             pb_type_root = eq_pb_type_xml.getroot()
 
             site_xml = ET.SubElement(
-                equivalent_sites_xml, 'site',
-                {'pb_type': tile_import.add_vpr_tile_prefix(eq_site)}
+                equivalent_sites_xml, 'site', {
+                    'pb_type': tile_import.add_vpr_tile_prefix(eq_site),
+                    'priority': str(priority)
+                }
             )
+
+            if inc_priority:
+                priority += 1
 
             add_direct_mappings(tile_xml, site_xml, pb_type_root)
 
@@ -127,7 +134,7 @@ def import_physical_tile(args):
     add_ports(tile_xml, pb_type_root)
 
     equivalent_sites = args.equivalent_sites
-    add_equivalent_sites(tile_xml, equivalent_sites)
+    add_equivalent_sites(tile_xml, equivalent_sites, args.priority)
 
     fc_xml = tile_import.add_fc(tile_xml)
 
@@ -190,6 +197,8 @@ def main():
     parser.add_argument(
         '--pin_assignments', required=True, type=argparse.FileType('r')
     )
+
+    parser.add_argument('--priority', action='store_true')
 
     args = parser.parse_args()
 
