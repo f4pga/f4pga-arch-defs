@@ -737,6 +737,38 @@ module OSERDESE2_VPR (
   parameter [0:0] ZSRVAL_TQ = 1'b0;
 endmodule
 
+module ISERDESE2_VPR (
+  input  BITSLIP,
+  input  CE1,
+  input  CE2,
+  input  CLK,
+  input  CLKB,
+  input  CLKDIV,
+  input  RST,
+  input  D,
+  output Q1,
+  output Q2,
+  output Q3,
+  output Q4,
+  output Q5,
+  output Q6,
+  output Q7,
+  output Q8
+  );
+
+  parameter [0:0] DATA_RATE_SDR = 1'b0;
+  parameter [0:0] DATA_WIDTH_W3 = 1'b0;
+  parameter [0:0] DATA_WIDTH_W4_6 = 1'b0;
+  parameter [0:0] DATA_WIDTH_W5_7 = 1'b0;
+  parameter [0:0] DATA_WIDTH_W8 = 1'b0;
+  parameter [0:0] INTERFACE_TYPE_MEMORY_DDR3 = 1'b0;
+  parameter [0:0] INTERFACE_TYPE_NOT_MEMORY  = 1'b0;
+  parameter [0:0] INTERFACE_TYPE_OVERSAMPLE  = 1'b0;
+  parameter [0:0] INTERFACE_TYPE_Z_MEMORY    = 1'b0;
+  parameter [0:0] NUM_CE_N2 = 1'b0;
+
+endmodule
+
 // ============================================================================
 // Clock Buffers
 

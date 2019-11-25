@@ -2228,6 +2228,100 @@ module OSERDESE2 (
 
 endmodule
 
+module ISERDESE2 (
+  input  BITSLIP,
+  input  CE1,
+  input  CE2,
+  input  CLK,
+  input  CLKB,
+  input  CLKDIV,
+  input  RST,
+  input  D,
+  output Q1,
+  output Q2,
+  output Q3,
+  output Q4,
+  output Q5,
+  output Q6,
+  output Q7,
+  output Q8
+  );
+
+  parameter DATA_RATE = "DDR";
+  parameter DATA_WIDTH = 4;
+
+  parameter NUM_CE = 1;
+
+  parameter DYN_CLKDIV_INV_EN = "FALSE";
+  parameter DYN_CLK_INV_EN = "FALSE";
+
+  parameter INTERFACE_TYPE = "MEMORY";
+
+  if (INTERFACE_TYPE == "NETWORKING") begin
+    if (DATA_RATE == "DDR" &&
+          (DATA_WIDTH != 4 &&
+           DATA_WIDTH != 6 &&
+           DATA_WIDTH != 8)) begin
+      wire _TECHMAP_FAIL_ = 1'b1;
+    end
+
+    if (DATA_RATE == "SDR" &&
+        (DATA_WIDTH < 2 ||
+         DATA_WIDTH > 8)) begin
+      wire _TECHMAP_FAIL_ = 1'b1;
+    end
+  end
+
+  if (INTERFACE_TYPE == "MEMORY"      ||
+      INTERFACE_TYPE == "MEMORY_DDR3" ||
+      INTERFACE_TYPE == "MEMORY_QDR") begin
+
+    if (DATA_RATE == "SDR") begin
+      wire _TECHMAP_FAIL_ = 1'b1;
+    end
+
+    if (DATA_RATE == "DDR" &&
+        (DATA_WIDTH != 4 &&
+         DATA_WIDTH != 6 &&
+         DATA_WIDTH != 8)) begin
+      wire _TECHMAP_FAIL_ = 1'b1;
+    end
+  end
+
+  ISERDESE2_VPR #(
+      .DATA_RATE_SDR                (DATA_RATE == "SDR"),
+      .INTERFACE_TYPE_MEMORY_DDR3   (INTERFACE_TYPE == "MEMORY_DDR3"),
+      .INTERFACE_TYPE_NOT_MEMORY    (INTERFACE_TYPE != "MEMORY"         ||
+                                     INTERFACE_TYPE != "MEMORY_DDR3"    ||
+                                     INTERFACE_TYPE != "MEMORY_QDR"),
+      .INTERFACE_TYPE_OVERSAMPLE    (INTERFACE_TYPE == "OVERSAMPLE"),
+      .INTERFACE_TYPE_Z_MEMORY      (INTERFACE_TYPE != "OVERSAMPLE" || INTERFACE_TYPE != "NETWORKING"),
+      .DATA_WIDTH_W3                (DATA_WIDTH == 3),
+      .DATA_WIDTH_W4_6              (DATA_WIDTH == 4 || DATA_WIDTH == 6),
+      .DATA_WIDTH_W5_7              (DATA_WIDTH == 5 || DATA_WIDTH == 7),
+      .DATA_WIDTH_W8                (DATA_WIDTH == 8),
+      .NUM_CE_N2                    (NUM_CE == 2)
+  ) _TECHMAP_REPLACE_ (
+   .BITSLIP     (BITSLIP),
+   .CE1         (CE1),
+   .CE2         (CE2),
+   .CLK         (CLK),
+   .CLKB        (CLKB),
+   .CLKDIV      (CLKDIV),
+   .RST         (RST),
+   .D           (D),
+   .Q1          (Q1),
+   .Q2          (Q2),
+   .Q3          (Q3),
+   .Q4          (Q4),
+   .Q5          (Q5),
+   .Q6          (Q6),
+   .Q7          (Q7),
+   .Q8          (Q8)
+  );
+
+endmodule
+
 // ============================================================================
 // Clock Buffers
 
