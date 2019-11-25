@@ -34,6 +34,7 @@ function(ADD_XC7_ARCH_DEFINE)
       --base_cost_type delay_normalized_length_bounded \
       --astar_fac 1.2 \
       --bb_factor 10 \
+      --pres_fac_mult 2 \
       --suppress_warnings \${OUT_NOISY_WARNINGS},sum_pin_class:check_unbuffered_edges:load_rr_indexed_data_T_values:check_rr_node:trans_per_R"
     RR_PATCH_TOOL
       ${symbiflow-arch-defs_SOURCE_DIR}/xc7/utils/prjxray_routing_import.py
