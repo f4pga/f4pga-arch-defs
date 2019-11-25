@@ -95,8 +95,10 @@ def import_physical_tile(args):
             pb_type_root = eq_pb_type_xml.getroot()
 
             site_xml = ET.SubElement(
-                equivalent_sites_xml, 'site',
-                {'pb_type': tile_import.add_vpr_tile_prefix(eq_site)}
+                equivalent_sites_xml, 'site', {
+                    'pb_type': tile_import.add_vpr_tile_prefix(eq_site),
+                    'pin_mapping': 'custom'
+                }
             )
 
             add_direct_mappings(tile_xml, site_xml, pb_type_root)
