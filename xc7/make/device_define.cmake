@@ -291,7 +291,6 @@ function(ADD_XC7_DEVICE_DEFINE)
         --disable_errors check_unbuffered_edges:check_route:check_place
         --suppress_warnings sum_pin_class:check_unbuffered_edges:load_rr_indexed_data_T_values:check_rr_node:trans_per_R
         --route_chan_width 500
-        --base_cost_type delay_normalized_length_bounded
         --allowed_tiles_for_delay_model BLK-TL-SLICEL,BLK-TL-SLICEM
       )
   endforeach()
