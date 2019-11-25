@@ -42,6 +42,10 @@ def scan_critical(fname):
                         critical_path = float(parts[3])
                         fmax = float(parts[6])
                         return str(critical_path), str(fmax)
+                    elif len(parts) == 5 and parts[4].strip() == 'ns':
+                        critical_path = float(parts[3])
+                        fmax = 1000. / critical_path
+                        return str(critical_path), str(fmax)
     except FileNotFoundError:
         pass
 
