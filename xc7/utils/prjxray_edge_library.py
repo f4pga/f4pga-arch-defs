@@ -13,6 +13,7 @@ from prjxray_constant_site_pins import yield_ties_to_wire
 from lib.connection_database import get_track_model, get_wire_in_tile_from_pin_name
 from lib.rr_graph.graph2 import NodeType
 import math
+import numpy
 
 from prjxray_db_cache import DatabaseCache
 
@@ -1859,11 +1860,9 @@ def get_segment_length(segment_lengths):
     if len(segment_lengths) == 0:
         return 1
 
-    mean_length = int(
-        math.ceil(float(sum(segment_lengths)) / len(segment_lengths))
-    )
+    median_length = int(math.ceil(numpy.median(segment_lengths)))
 
-    return max(1, mean_length)
+    return max(1, median_length)
 
 
 def compute_segment_lengths(conn):

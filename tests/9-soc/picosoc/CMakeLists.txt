@@ -81,6 +81,13 @@ add_vivado_target(
     CLOCK_PERIODS 20.0
     )
 
+add_vivado_target(
+    NAME picosoc_basys3_full_vivado
+    PARENT_NAME picosoc_basys3_full
+    CLOCK_PINS clk
+    CLOCK_PERIODS 20.0
+    )
+
 add_vivado_pnr_target(
     NAME picosoc_basys3_vivado_pnr
     PARENT_NAME picosoc_basys3
