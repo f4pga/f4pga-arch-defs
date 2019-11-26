@@ -73,26 +73,40 @@
       <output name="SHIFTOUT1" num_pins="1"/>
       <output name="SHIFTOUT2" num_pins="1"/>
       <metadata>
-        <meta name="fasm_prefix">
-          ISERDES
-        </meta>
-        <meta name="fasm_feature">
-          IN_USE
+        <meta name="fasm_features">
+          ISERDES.IN_USE
+          IDDR_OR_ISERDES.IN_USE
+          IFF.DDR_CLK_EDGE.OPPOSITE_EDGE
+          IFF.SRTYPE.SYNC
         </meta>
         <meta name="fasm_params">
-          DATA_RATE.SDR = DATA_RATE_SDR
+          ISERDES.DATA_RATE.SDR = DATA_RATE_SDR
 
-          DATA_WIDTH.W3 = DATA_WIDTH_W3
-          DATA_WIDTH.W4_6 = DATA_WIDTH_W4_6
-          DATA_WIDTH.W5_7 = DATA_WIDTH_W5_7
-          DATA_WIDTH.W8 = DATA_WIDTH_W8
+          ISERDES.DATA_WIDTH.W3 = DATA_WIDTH_W3
+          ISERDES.DATA_WIDTH.W4_6 = DATA_WIDTH_W4_6
+          ISERDES.DATA_WIDTH.W5_7 = DATA_WIDTH_W5_7
+          ISERDES.DATA_WIDTH.W8 = DATA_WIDTH_W8
 
-          INTERFACE_TYPE.MEMORY_DDR3 = INTERFACE_TYPE_MEMORY_DDR3
-          INTERFACE_TYPE.NOT_MEMORY = INTERFACE_TYPE_NOT_MEMORY
-          INTERFACE_TYPE.OVERSAMPLE = INTERFACE_TYPE_OVERSAMPLE
-          INTERFACE_TYPE.Z_MEMORY = INTERFACE_TYPE_Z_MEMORY
+          ISERDES.INTERFACE_TYPE.MEMORY_DDR3 = INTERFACE_TYPE_MEMORY_DDR3
+          ISERDES.INTERFACE_TYPE.NOT_MEMORY = INTERFACE_TYPE_NOT_MEMORY
+          ISERDES.INTERFACE_TYPE.OVERSAMPLE = INTERFACE_TYPE_OVERSAMPLE
+          ISERDES.INTERFACE_TYPE.Z_MEMORY = INTERFACE_TYPE_Z_MEMORY
 
-          NUM_CE.N2 = NUM_CE_N2
+          ISERDES.NUM_CE.N2 = NUM_CE_N2
+
+          IFF.ZINIT_Q1 = ZINIT_Q1
+          IFF.ZINIT_Q2 = ZINIT_Q2
+          IFF.ZINIT_Q3 = ZINIT_Q3
+          IFF.ZINIT_Q4 = ZINIT_Q4
+
+          IFF.ZSRVAL_Q1 = ZSRVAL_Q1
+          IFF.ZSRVAL_Q2 = ZSRVAL_Q2
+          IFF.ZSRVAL_Q3 = ZSRVAL_Q3
+          IFF.ZSRVAL_Q4 = ZSRVAL_Q4
+
+          IFF.ZINV_C = ZINV_C
+
+          ZINV_D = ZINV_D
         </meta>
       </metadata>
     </pb_type>

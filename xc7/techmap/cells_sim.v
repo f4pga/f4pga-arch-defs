@@ -767,6 +767,19 @@ module ISERDESE2_VPR (
   parameter [0:0] INTERFACE_TYPE_Z_MEMORY    = 1'b0;
   parameter [0:0] NUM_CE_N2 = 1'b0;
 
+  parameter [0:0] ZINIT_Q1 = 1'b0;
+  parameter [0:0] ZINIT_Q2 = 1'b0;
+  parameter [0:0] ZINIT_Q3 = 1'b0;
+  parameter [0:0] ZINIT_Q4 = 1'b0;
+
+  parameter [0:0] ZSRVAL_Q1 = 1'b0;
+  parameter [0:0] ZSRVAL_Q2 = 1'b0;
+  parameter [0:0] ZSRVAL_Q3 = 1'b0;
+  parameter [0:0] ZSRVAL_Q4 = 1'b0;
+
+  parameter [0:0] ZINV_D = 1'b0;
+  parameter [0:0] ZINV_C = 1'b0;
+
 endmodule
 
 // ============================================================================

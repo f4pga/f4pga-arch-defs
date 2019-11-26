@@ -50,7 +50,8 @@ ISERDESE2 #
 (
 .DATA_RATE          (DATA_RATE),
 .DATA_WIDTH         (DATA_WIDTH),
-.INTERFACE_TYPE     ("NETWORKING")
+.INTERFACE_TYPE     ("NETWORKING"),
+.NUM_CE             (2)
 )
 iserdes
 (
