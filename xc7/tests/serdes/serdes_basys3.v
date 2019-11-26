@@ -8,15 +8,17 @@ module top
 (
 input  wire clk,
 
-input  wire sw,
-output wire [4:0] led,
+input  wire rst,
+
+input  wire [7:0] sw,
+output wire [8:0] led,
 
 input  wire in,
 output wire out
 );
 
 localparam DATA_WIDTH = `DATA_WIDTH_DEFINE;
-localparam DATA_RATE = `DATA_RATE_DEFINE;
+localparam DATA_RATE =  `DATA_RATE_DEFINE;
 
 // ============================================================================
 // Clock & reset
@@ -25,10 +27,11 @@ reg [3:0] rst_sr;
 initial rst_sr <= 4'hF;
 
 wire CLK;
+
 BUFG bufg(.I(clk), .O(CLK));
 
 always @(posedge CLK)
-    if (sw)
+    if (rst)
         rst_sr <= 4'hF;
     else
         rst_sr <= rst_sr >> 1;
@@ -36,7 +39,7 @@ always @(posedge CLK)
 wire RST = rst_sr[0];
 
 // ============================================================================
-// Clocks for OSERDES
+// Clocks for ISERDES
 
 wire PRE_BUFG_SYSCLK;
 wire PRE_BUFG_CLKDIV;
@@ -49,6 +52,8 @@ wire O_LOCKED;
 wire clk_fb_i;
 wire clk_fb_o;
 
+localparam DIVIDE_RATE = DATA_RATE == "SDR" ? DATA_WIDTH : DATA_WIDTH / 2;
+
 PLLE2_ADV #(
 .BANDWIDTH          ("HIGH"),
 .COMPENSATION       ("ZHOLD"),
@@ -57,9 +62,9 @@ PLLE2_ADV #(
 
 .CLKFBOUT_MULT      (`CLKFBOUT_MULT),
 
-.CLKOUT0_DIVIDE     (`CLKFBOUT_MULT / 4),
+.CLKOUT0_DIVIDE     (`CLKFBOUT_MULT * 2),
 
-.CLKOUT1_DIVIDE     ((`CLKFBOUT_MULT /4) * DATA_WIDTH),
+.CLKOUT1_DIVIDE     ((`CLKFBOUT_MULT * 2) * DIVIDE_RATE),
 
 .STARTUP_WAIT       ("FALSE"),
 
@@ -86,34 +91,52 @@ BUFG bufg_clkdiv(.I(PRE_BUFG_CLKDIV), .O(CLKDIV));
 
 // ============================================================================
 // Test uints
-wire [3:0] COUNT;
+wire [7:0] OUTPUTS;
 
-oserdes_test #
+// TODO: as soon as pack_patterns are available for I/OSERDES to I/OBUF this assignment
+//       can be done manually with buttons
+wire [7:0] INPUTS = 8'b10101010;
+
+localparam MASK = DATA_WIDTH == 2 ? 8'b00000011 :
+                  DATA_WIDTH == 3 ? 8'b00000111 :
+                  DATA_WIDTH == 4 ? 8'b00001111 :
+                  DATA_WIDTH == 5 ? 8'b00011111 :
+                  DATA_WIDTH == 6 ? 8'b00111111 :
+                  DATA_WIDTH == 7 ? 8'b01111111 :
+                /*DATA_WIDTH == 8*/ 8'b11111111;
+
+wire [7:0] MASKED_INPUTS = INPUTS & MASK;
+
+iserdes_test #
 (
 .DATA_WIDTH   (DATA_WIDTH),
 .DATA_RATE    (DATA_RATE)
 )
-oserdes_test
+iserdes_test
 (
-.CLK        (SYSCLK),
+.SYSCLK     (SYSCLK),
 .CLKDIV     (CLKDIV),
 .RST        (RST),
 
-.COUNT      (COUNT),
+.OUTPUTS    (OUTPUTS),
+.INPUTS     (MASKED_INPUTS),
 
 .I_DAT      (in),
 .O_DAT      (out)
 );
 
+wire [7:0] MASKED_OUTPUTS = OUTPUTS & MASK;
+
 // ============================================================================
-// IOs
-reg [24:0] heartbeat_cnt;
+// I/O connections
+
+reg [27:0] heartbeat_cnt;
 
 always @(posedge SYSCLK)
     heartbeat_cnt <= heartbeat_cnt + 1;
 
-assign led[0] = heartbeat_cnt[23];
-assign led[4:1] = COUNT;
+
+assign led[0] = heartbeat_cnt[24];
+assign led[8:1] = MASKED_OUTPUTS;
 
 endmodule
-
