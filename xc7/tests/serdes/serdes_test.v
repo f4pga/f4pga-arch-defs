@@ -33,15 +33,39 @@ always @(posedge CLKDIV)
 
 assign i_rstdiv = rst_sr[0];
 
-serializer #(
-    .DATA_WIDTH (DATA_WIDTH),
-    .DATA_RATE  (DATA_RATE)
-) serializer
+// OSERDES
+wire ser_oq;
+wire ser_tq;
+
+OSERDESE2 #(
+.DATA_RATE_OQ   (DATA_RATE),
+.DATA_WIDTH     (DATA_WIDTH),
+.DATA_RATE_TQ   ((DATA_RATE == "DDR" && DATA_WIDTH == 4) ? "DDR" : "BUF"),
+.TRISTATE_WIDTH ((DATA_RATE == "DDR" && DATA_WIDTH == 4) ? 4 : 1)
+)
+oserdes
 (
-    .CLK    (CLKDIV),
-    .RST    (RST),
-    .I      (INPUTS[DATA_WIDTH-1:0]),
-    .O_DAT  (O_DAT)
+.CLK    (SYSCLK),
+.CLKDIV (CLKDIV),
+.RST    (i_rstdiv),
+
+.OCE    (1'b1),
+.D1     (INPUTS[0]),
+.D2     (INPUTS[1]),
+.D3     (INPUTS[2]),
+.D4     (INPUTS[3]),
+.D5     (INPUTS[4]),
+.D6     (INPUTS[5]),
+.D7     (INPUTS[6]),
+.D8     (INPUTS[7]),
+.OQ     (O_DAT),
+
+.TCE    (1'b1),
+.T1     (1'b0), // All 0 to keep OBUFT always on.
+.T2     (1'b0),
+.T3     (1'b0),
+.T4     (1'b0),
+.TQ     (ser_tq)
 );
 
 // ============================================================================
@@ -62,14 +86,14 @@ iserdes
 .CE2        (1'b1),
 .RST        (i_rstdiv),
 .D          (I_DAT),
-.Q1         (OUTPUTS[0]),
-.Q2         (OUTPUTS[1]),
-.Q3         (OUTPUTS[2]),
-.Q4         (OUTPUTS[3]),
-.Q5         (OUTPUTS[4]),
-.Q6         (OUTPUTS[5]),
-.Q7         (OUTPUTS[6]),
-.Q8         (OUTPUTS[7])
+.Q1         (OUTPUTS[7]),
+.Q2         (OUTPUTS[6]),
+.Q3         (OUTPUTS[5]),
+.Q4         (OUTPUTS[4]),
+.Q5         (OUTPUTS[3]),
+.Q6         (OUTPUTS[2]),
+.Q7         (OUTPUTS[1]),
+.Q8         (OUTPUTS[0])
 );
 
 endmodule

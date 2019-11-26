@@ -58,23 +58,21 @@ def process_ilogic(top, features):
             data_rate = '"DDR"'
         bel.parameters['DATA_RATE'] = data_rate
 
+        # TODO: There shouldn't be mixed width in FASM features.
+        #       Probably it is worth revisiting the fuzzer, as it
+        #       is not possible to determine the width in case there
+        #       is a multiple choice in the fasm features.
         data_width = None
-        if site.has_feature("ISERDES.DATA_WIDTH.W2"):
-            data_width = 2
-        elif site.has_feature("ISERDES.DATA_WIDTH.W3"):
+        if site.has_feature("ISERDES.DATA_WIDTH.W3"):
             data_width = 3
-        elif site.has_feature("ISERDES.DATA_WIDTH.W4"):
-            data_width = 4
-        elif site.has_feature("ISERDES.DATA_WIDTH.W5"):
-            data_width = 5
-        elif site.has_feature("ISERDES.DATA_WIDTH.W6"):
+        elif site.has_feature("ISERDES.DATA_WIDTH.W4_6"):
             data_width = 6
-        elif site.has_feature("ISERDES.DATA_WIDTH.W7"):
+        elif site.has_feature("ISERDES.DATA_WIDTH.W5_7"):
             data_width = 7
         elif site.has_feature("ISERDES.DATA_WIDTH.W8"):
             data_width = 8
         else:
-            assert False
+            data_width = 2
 
         bel.parameters['DATA_WIDTH'] = data_width
 
@@ -105,7 +103,7 @@ def process_ilogic(top, features):
         else:
             bel.parameters['IS_D_INVERTED'] = 1
 
-        if site.has_feature('ZINV_C'):
+        if site.has_feature('IFF.ZINV_C'):
             bel.parameters['IS_CLK_INVERTED'] = 0
             bel.parameters['IS_CLKB_INVERTED'] = 1
         else:
