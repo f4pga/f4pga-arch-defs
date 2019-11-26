@@ -15,3 +15,7 @@ add_fpga_target(
   INPUT_XDC_FILE minilitex.xdc
 )
 
+add_vivado_target(
+    NAME minilitex_arty_vivado
+    PARENT_NAME minilitex_arty
+)
