@@ -35,11 +35,6 @@ SW2 SW1 SW0 | LED1 LED0
 */
 `default_nettype none
 
-// ============================================================================
-
-module passthrough (input wire X, output wire Y);
-  assign Y = X;
-endmodule
 
 // ============================================================================
 
@@ -72,10 +67,7 @@ assign io_t = in[1];
 assign jc3  = in[2];
 
 // LED0 indicates IOBUF.O
-//assign out[0] = io_o;
-passthrough pt3 (io_o, out[0]);  // This is necessary in order for Yosys not
-                                 // to optimize too much and disconnect jc2
-                                 // from the inferred IOBUF.
+assign out[0] = io_o;
 
 // LED1 is connected to JC.1
 assign out[1] = jc1;
