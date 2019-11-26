@@ -967,19 +967,21 @@ def create_get_tile_loc(conn):
 
 def yield_edges(
         const_connectors, delayless_switch, phy_tile_pkey, src_connector,
-        sink_connector, pip, pip_obj, src_wire_pkey, sink_wire_pkey, loc
+        sink_connector, pip, pip_obj, src_wire_pkey, sink_wire_pkey, loc,
+        forward
 ):
-    for (src_graph_node_pkey, switch_pkey, dest_graph_node_pkey,
-         pip_pkey) in src_connector.connect_at(
-             pip=pip_obj, src_wire_pkey=src_wire_pkey,
-             dest_wire_pkey=sink_wire_pkey, loc=loc,
-             other_connector=sink_connector):
-        yield (
-            src_graph_node_pkey, dest_graph_node_pkey, switch_pkey,
-            phy_tile_pkey, pip_pkey, False
-        )
+    if forward:
+        for (src_graph_node_pkey, switch_pkey, dest_graph_node_pkey,
+             pip_pkey) in src_connector.connect_at(
+                 pip=pip_obj, src_wire_pkey=src_wire_pkey,
+                 dest_wire_pkey=sink_wire_pkey, loc=loc,
+                 other_connector=sink_connector):
+            yield (
+                src_graph_node_pkey, dest_graph_node_pkey, switch_pkey,
+                phy_tile_pkey, pip_pkey, False
+            )
 
-    if not pip.is_directional:
+    if not forward and not pip.is_directional:
         for (src_graph_node_pkey, switch_pkey, dest_graph_node_pkey,
              pip_pkey) in sink_connector.connect_at(
                  pip=pip_obj, src_wire_pkey=sink_wire_pkey,
@@ -991,22 +993,23 @@ def yield_edges(
                 phy_tile_pkey, pip_pkey, True
             )
 
-    # Make additional connections to constant network if the sink needs it.
-    for constant_src in yield_ties_to_wire(pip.net_to):
-        for (src_graph_node_pkey, switch_pkey, dest_graph_node_pkey
-             ) in const_connectors[constant_src].connect_at(
-                 pip=delayless_switch, loc=loc,
-                 other_connector=sink_connector):
-            yield (
-                src_graph_node_pkey, dest_graph_node_pkey, switch_pkey,
-                phy_tile_pkey, None, False
-            )
+    if forward:
+        # Make additional connections to constant network if the sink needs it.
+        for constant_src in yield_ties_to_wire(pip.net_to):
+            for (src_graph_node_pkey, switch_pkey, dest_graph_node_pkey
+                 ) in const_connectors[constant_src].connect_at(
+                     pip=delayless_switch, loc=loc,
+                     other_connector=sink_connector):
+                yield (
+                    src_graph_node_pkey, dest_graph_node_pkey, switch_pkey,
+                    phy_tile_pkey, None, False
+                )
 
 
 def make_connection(
         conn, input_only_nodes, output_only_nodes, find_wire, find_pip,
         find_connector, get_tile_loc, tile_name, tile_type, pip,
-        delayless_switch, const_connectors
+        delayless_switch, const_connectors, forward
 ):
     """ Attempt to connect graph nodes on either side of a pip.
 
@@ -1076,7 +1079,7 @@ def make_connection(
             delayless_switch=delayless_switch, phy_tile_pkey=phy_tile_pkey,
             src_connector=src_connector, sink_connector=sink_connector,
             pip=pip, pip_obj=pip_obj, src_wire_pkey=src_wire_pkey,
-            sink_wire_pkey=sink_wire_pkey, loc=loc):
+            sink_wire_pkey=sink_wire_pkey, loc=loc, forward=forward):
         yield edge
 
 
@@ -1931,16 +1934,6 @@ SELECT DISTINCT canon_phy_tile_pkey FROM track WHERE pkey IN (
     write_cur.execute("""COMMIT TRANSACTION;""")
 
 
-def pip_sort_key(pip):
-    """ Sort pips to match canonical order.
-
-    Sort pip keys by name length, then the pip name itself.  This causes
-    "simpler" pips to be connected first.  In cases where there are two pips
-    that connect the same nodes with the same switch, the shorter varient is
-    the one to use to match vendor behavior. """
-    return (len(pip.name), pip.name)
-
-
 def commit_edges(write_cur, edges):
     write_cur.execute("""BEGIN EXCLUSIVE TRANSACTION;""")
     write_cur.executemany(
@@ -1951,6 +1944,36 @@ def commit_edges(write_cur, edges):
         edges
     )
     write_cur.execute("""COMMIT TRANSACTION;""")
+
+
+def pip_sort_key(forward_pip):
+    """ Sort pips to match canonical order. """
+    forward, pip = forward_pip
+    if forward:
+        return (
+            pip.is_pseudo, len(pip.net_to) + len(pip.net_from), pip.net_to,
+            pip.net_from
+        )
+    else:
+        return (
+            pip.is_pseudo, len(pip.net_to) + len(pip.net_from), pip.net_from,
+            pip.net_to
+        )
+
+
+def make_sorted_pips(pips):
+    out_pips = []
+
+    for pip in pips:
+        # Add forward copy of pip
+        out_pips.append((True, pip))
+
+        # Add backward copy of pip if not directional.
+        if not pip.is_directional:
+            out_pips.append((False, pip))
+
+    out_pips.sort(key=pip_sort_key)
+    return out_pips
 
 
 def create_edge_indices(conn):
@@ -2003,7 +2026,7 @@ def create_and_insert_edges(
 
         tile_type = db.get_tile_type(gridinfo.tile_type)
 
-        for pip in sorted(tile_type.get_pips(), key=pip_sort_key):
+        for forward, pip in make_sorted_pips(tile_type.get_pips()):
             # FIXME: The PADOUT0/1 connections do not work.
             #
             # These connections are used for:
@@ -2039,6 +2062,7 @@ def create_and_insert_edges(
                 pip=pip,
                 delayless_switch=delayless_switch,
                 const_connectors=const_connectors,
+                forward=forward,
             )
 
             if connections:
