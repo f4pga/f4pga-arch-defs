@@ -39,8 +39,14 @@ def scan_critical(fname):
                 if l.startswith('Final critical path:'):
                     parts = l.split()
                     if len(parts) >= 7:
+                        # Final critical path: 16.8182 ns, Fmax: 59.4592 MHz
                         critical_path = float(parts[3])
                         fmax = float(parts[6])
+                        return str(critical_path), str(fmax)
+                    elif len(parts) == 5 and parts[4].strip() == 'ns':
+                        # Final critical path: 17.9735 ns
+                        critical_path = float(parts[3])
+                        fmax = 1000. / critical_path
                         return str(critical_path), str(fmax)
     except FileNotFoundError:
         pass
