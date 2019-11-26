@@ -1,8 +1,4 @@
-add_file_target(FILE rom.v SCANNER_TYPE verilog)
-add_file_target(FILE receiver.v SCANNER_TYPE verilog)
 add_file_target(FILE serializer.v SCANNER_TYPE verilog)
-add_file_target(FILE comparator.v SCANNER_TYPE verilog)
-add_file_target(FILE transmitter.v SCANNER_TYPE verilog)
 add_file_target(FILE iserdes_test.v SCANNER_TYPE verilog)
 add_file_target(FILE basys3.pcf)
 

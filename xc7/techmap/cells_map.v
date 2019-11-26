@@ -2250,12 +2250,25 @@ module ISERDESE2 (
   parameter DATA_RATE = "DDR";
   parameter DATA_WIDTH = 4;
 
-  parameter NUM_CE = 1;
+  parameter NUM_CE = 2;
 
   parameter DYN_CLKDIV_INV_EN = "FALSE";
   parameter DYN_CLK_INV_EN = "FALSE";
 
   parameter INTERFACE_TYPE = "MEMORY";
+
+  parameter [0:0] INIT_Q1 = 1'b0;
+  parameter [0:0] INIT_Q2 = 1'b0;
+  parameter [0:0] INIT_Q3 = 1'b0;
+  parameter [0:0] INIT_Q4 = 1'b0;
+
+  parameter [0:0] SRVAL_Q1 = 1'b0;
+  parameter [0:0] SRVAL_Q2 = 1'b0;
+  parameter [0:0] SRVAL_Q3 = 1'b0;
+  parameter [0:0] SRVAL_Q4 = 1'b0;
+
+  parameter [0:0] IS_D_INVERTED = 1'b0;
+  parameter [0:0] IS_CLK_INVERTED = 1'b0;
 
   if (INTERFACE_TYPE == "NETWORKING") begin
     if (DATA_RATE == "DDR" &&
@@ -2300,7 +2313,21 @@ module ISERDESE2 (
       .DATA_WIDTH_W4_6              (DATA_WIDTH == 4 || DATA_WIDTH == 6),
       .DATA_WIDTH_W5_7              (DATA_WIDTH == 5 || DATA_WIDTH == 7),
       .DATA_WIDTH_W8                (DATA_WIDTH == 8),
-      .NUM_CE_N2                    (NUM_CE == 2)
+      .NUM_CE_N2                    (NUM_CE == 2),
+
+      // Inverters
+      .ZINIT_Q1                     (!INIT_Q1),
+      .ZINIT_Q2                     (!INIT_Q2),
+      .ZINIT_Q3                     (!INIT_Q3),
+      .ZINIT_Q4                     (!INIT_Q4),
+      .ZSRVAL_Q1                    (!SRVAL_Q1),
+      .ZSRVAL_Q2                    (!SRVAL_Q2),
+      .ZSRVAL_Q3                    (!SRVAL_Q3),
+      .ZSRVAL_Q4                    (!SRVAL_Q4),
+
+      .ZINV_D                       (!IS_D_INVERTED),
+
+      .ZINV_C                       (!IS_CLK_INVERTED)
   ) _TECHMAP_REPLACE_ (
    .BITSLIP     (BITSLIP),
    .CE1         (CE1),

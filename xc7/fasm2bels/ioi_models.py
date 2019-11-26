@@ -43,14 +43,98 @@ def process_ilogic(top, features):
 
     site = Site(features, ioi_site)
 
-    # TODO: Support IDDR, ISERDES etc
-    assert not site.has_feature("IDDR_OR_ISERDES.IN_USE")
-    assert not site.has_feature("ISERDES.IN_USE")
+    # TODO: support IDELAY
     assert not site.has_feature("IDELAY.IN_USE")
 
-    site.sources['O'] = None
-    site.sinks['D'] = []
-    site.outputs['O'] = 'D'
+    if site.has_feature("ISERDES.IN_USE") and site.has_feature(
+            "IDDR_OR_ISERDES.IN_USE"):
+        # ISERDES
+        bel = Bel('ISERDESE2')
+
+        data_rate = None
+        if site.has_feature("ISERDES.DATA_RATE.SDR"):
+            data_rate = '"SDR"'
+        else:
+            data_rate = '"DDR"'
+        bel.parameters['DATA_RATE'] = data_rate
+
+        data_width = None
+        if site.has_feature("ISERDES.DATA_WIDTH.W2"):
+            data_width = 2
+        elif site.has_feature("ISERDES.DATA_WIDTH.W3"):
+            data_width = 3
+        elif site.has_feature("ISERDES.DATA_WIDTH.W4"):
+            data_width = 4
+        elif site.has_feature("ISERDES.DATA_WIDTH.W5"):
+            data_width = 5
+        elif site.has_feature("ISERDES.DATA_WIDTH.W6"):
+            data_width = 6
+        elif site.has_feature("ISERDES.DATA_WIDTH.W7"):
+            data_width = 7
+        elif site.has_feature("ISERDES.DATA_WIDTH.W8"):
+            data_width = 8
+        else:
+            assert False
+
+        bel.parameters['DATA_WIDTH'] = data_width
+
+        interface = None
+        if site.has_feature("ISERDES.INTERFACE_TYPE.MEMORY_DDR3"):
+            interface = '"MEMORY_DDR3"'
+        elif site.has_feature("ISERDES.INTERFACE_TYPE.NOT_MEMORY"
+                              ) and site.has_feature(
+                                  "ISERDES.INTERFACE_TYPE.Z_MEMORY"):
+            interface = '"NETWORKING"'
+        elif site.has_feature("ISERDES.INTERFACE_TYPE.OVERSAMPLE"):
+            interface = '"OVERSAMPLE"'
+        else:
+            assert False
+
+        bel.parameters['INTERFACE_TYPE'] = interface
+
+        site.add_source(bel, 'O', 'O')
+
+        site.add_sink(bel, 'CLK', 'CLK')
+        site.add_sink(bel, 'CLKB', 'CLKB')
+        site.add_sink(bel, 'CLKDIV', 'CLKDIV')
+
+        site.add_sink(bel, 'RST', 'SR')
+
+        if site.has_feature('ZINV_D'):
+            bel.parameters['IS_D_INVERTED'] = 0
+        else:
+            bel.parameters['IS_D_INVERTED'] = 1
+
+        if site.has_feature('ZINV_C'):
+            bel.parameters['IS_CLK_INVERTED'] = 0
+            bel.parameters['IS_CLKB_INVERTED'] = 1
+        else:
+            bel.parameters['IS_CLK_INVERTED'] = 1
+            bel.parameters['IS_CLKB_INVERTED'] = 0
+
+        num_ce = None
+        if site.has_feature('ISERDES.NUM_CE.N2'):
+            num_ce = 2
+        else:
+            num_ce = 1
+
+        bel.parameters['NUM_CE'] = num_ce
+
+        site.add_sink(bel, 'CE1', 'CE1')
+        site.add_sink(bel, 'CE2', 'CE2')
+
+        site.add_sink(bel, 'D', 'D')
+
+        for i in range(1, 9):
+            port_q = 'Q{}'.format(i)
+            site.add_source(bel, port_q, port_q)
+
+        site.add_bel(bel)
+    else:
+        site.sources['O'] = None
+        site.sinks['D'] = []
+        site.outputs['O'] = 'D'
+
     top.add_site(site)
 
 
