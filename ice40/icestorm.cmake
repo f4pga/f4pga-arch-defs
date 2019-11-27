@@ -114,6 +114,7 @@ function(icestorm_setup)
     \${PYTHON3} ${FASM2ASC} --device \${DEVICE} \${OUT_FASM} \${OUT_BITSTREAM}"
     USE_FASM
     ROUTE_CHAN_WIDTH 100
+    NO_PLACE_CONSTR
   )
 
 endfunction()
