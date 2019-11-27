@@ -15,7 +15,7 @@ CONSTRAINT_TEMPLATE = '{name:<{nl}} {x: 3} {y: 3} {z: 2}  # {comment}'
 class PlaceConstraints(object):
     def __init__(self):
         self.constraints = OrderedDict()
-        self.block_to_loc = None
+        self.block_to_loc = dict()
 
     def load_loc_sites_from_net_file(self, net_file):
         """
@@ -26,12 +26,10 @@ class PlaceConstraints(object):
         net_root = net_xml.getroot()
         self.net_to_block = {}
 
-        for attr in net_root.xpath(
-                "//attribute[@name='LOC']"
-        ):
+        for attr in net_root.xpath("//attribute[@name='LOC']"):
             # Get block name
             top_block = attr.getparent()
-            assert block is not None
+            assert top_block is not None
             while top_block.getparent() is not net_root:
                 assert top_block is not None
                 top_block = top_block.getparent()
@@ -40,9 +38,11 @@ class PlaceConstraints(object):
 
     def constrain_block(self, block_name, loc, comment=""):
         assert len(loc) == 3
-        assert net_name not in self.constraints
+        assert block_name not in self.constraints
 
-        assert block_name not in self.block_to_loc, "block {} not in net".format(block_name)
+        assert block_name in self.block_to_loc, "block {} not in net".format(
+            block_name
+        )
 
         self.constraints[block_name] = PlaceConstraint(
             name=block_name,
@@ -52,14 +52,8 @@ class PlaceConstraints(object):
             comment=comment,
         )
 
-    def output_io_place(self, f):
+    def output_place_constraints(self, f):
         max_name_length = max(len(c.name) for c in self.constraints.values())
-        print(
-            HEADER_TEMPLATE.format(
-                name="Block Name", nl=max_name_length, s=""
-            ),
-            file=f
-        )
 
         constrained_blocks = {}
 
@@ -104,5 +98,8 @@ class PlaceConstraints(object):
                 constrained_blocks[name] = constraint
 
     def get_loc_sites(self):
+        if self.block_to_loc is None:
+            return
+
         for loc in self.block_to_loc:
-            yield loc
+            yield (loc, self.block_to_loc[loc])

@@ -8,7 +8,10 @@ import vpr_place_constraints
 import sqlite3
 from lib.parse_pcf import parse_simple_pcf
 
+
 def get_vpr_coords_from_site_name(conn, site_name):
+    site_name = site_name.replace('"', '')
+
     cur = conn.cursor()
     cur.execute(
         """
@@ -32,15 +35,24 @@ WHERE
     assert len(results) == 1
     return results[0]
 
+
 def main():
     parser = argparse.ArgumentParser(
         description='Convert a PCF file into a VPR io.place file.'
     )
     parser.add_argument(
+        "--input",
+        '-i',
+        "-I",
+        type=argparse.FileType('r'),
+        default=sys.stdout,
+        help='The output constraints place file'
+    )
+    parser.add_argument(
         "--output",
         '-o',
         "-O",
-        type=argparse.FileType('a'),
+        type=argparse.FileType('w'),
         default=sys.stdout,
         help='The output constraints place file'
     )
@@ -59,13 +71,24 @@ def main():
 
     args = parser.parse_args()
 
-    place_constraints = vpr_io_place.PlaceConstraints()
+    for line in args.input:
+        args.output.write(line)
+
+    place_constraints = vpr_place_constraints.PlaceConstraints()
     place_constraints.load_loc_sites_from_net_file(args.net)
 
-    for loc in place_constraints.get_loc_sites():
-        print(get_vpr_coords_from_site_name(conn, loc)
+    with sqlite3.connect(args.connection_database) as conn:
+        for block, loc in place_constraints.get_loc_sites():
+            vpr_loc = get_vpr_coords_from_site_name(conn, loc)
 
-    io_place.output_io_place(args.output)
+            vpr_loc = (vpr_loc[0], vpr_loc[1], 0)
+
+            place_constraints.constrain_block(
+                block, vpr_loc, "Constraining block {}".format(block)
+            )
+
+    place_constraints.output_place_constraints(args.output)
+
 
 if __name__ == '__main__':
     main()
