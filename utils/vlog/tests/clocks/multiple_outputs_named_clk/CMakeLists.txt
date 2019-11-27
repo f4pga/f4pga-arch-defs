@@ -1,2 +1,0 @@
-add_file_target(FILE multiple_outputs_named_clk.sim.v SCANNER_TYPE verilog)
-v2x_test_model(NAME multiple_outputs_named_clk TOP_MODULE BLOCK)

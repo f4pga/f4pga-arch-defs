@@ -9,7 +9,7 @@ function(V2X)
   # ~~~
   #
   # V2X converts SRCS from verilog to .pb_type.xml and .model.xml via the
-  # utilities in <root>/util/vlog/vlog_to_<x>.
+  # utilities in <root>/ ./third_party/../python-symbiflow-v2x/v2x/vlog_to_<x>.
   #
   # V2X requires all files in SRCS to have a file target via ADD_FILE_TARGET.
   #
@@ -41,7 +41,7 @@ function(V2X)
   get_target_property(YOSYS_TARGET env YOSYS_TARGET)
   list(APPEND DEPENDS_LIST ${YOSYS} ${YOSYS_TARGET})
 
-  set(PYUTILS_PATH ${symbiflow-arch-defs_SOURCE_DIR}/utils)
+  set(V2X_DIR ${symbiflow-arch-defs_SOURCE_DIR}/third_party/python-symbiflow-v2x)
 
   set(REAL_SOURCE_LIST "")
   foreach(SRC ${V2X_SRCS})
@@ -94,13 +94,13 @@ function(V2X)
     OUTPUT "${V2X_NAME}.pb_type.xml"
     DEPENDS
       ${DEPENDS_LIST}
-      ${symbiflow-arch-defs_SOURCE_DIR}/utils/vlog/vlog_to_pbtype.py
+      ${V2X_DIR}/v2x/vlog_to_pbtype.py
     COMMAND
-    ${CMAKE_COMMAND} -E env YOSYS=${YOSYS} PYTHONPATH=${PYUTILS_PATH}
-      ${PYTHON3} ${symbiflow-arch-defs_SOURCE_DIR}/utils/vlog/vlog_to_pbtype.py ${TOP_ARG}
+    ${CMAKE_COMMAND} -E env YOSYS=${YOSYS} PYTHONPATH=${V2X_DIR}:${symbiflow-arch-defs_BINARY_DIR}/env/conda/lib/python3.7/site-packages
+      ${PYTHON3} -m v2x --mode=pb_type ${TOP_ARG}
       -o ${CMAKE_CURRENT_BINARY_DIR}/${V2X_NAME}.pb_type.xml ${FIRST_SOURCE}
       ${INCLUDE_ARG}
-    WORKING_DIRECTORY ${symbiflow-arch-defs_SOURCE_DIR}/utils/vlog/
+    WORKING_DIRECTORY ${V2X_DIR}/v2x/
   )
   add_file_target(FILE "${V2X_NAME}.pb_type.xml" GENERATED)
   get_file_target(SRC_TARGET_NAME "${V2X_NAME}.pb_type.xml")
@@ -110,13 +110,13 @@ function(V2X)
     OUTPUT "${V2X_NAME}.model.xml"
     DEPENDS
       ${DEPENDS_LIST}
-      ${symbiflow-arch-defs_SOURCE_DIR}/utils/vlog/vlog_to_model.py
+      ${V2X_DIR}/v2x/vlog_to_model.py
     COMMAND
-    ${CMAKE_COMMAND} -E env YOSYS=${YOSYS} PYTHONPATH=${PYUTILS_PATH}
-      ${PYTHON3} ${symbiflow-arch-defs_SOURCE_DIR}/utils/vlog/vlog_to_model.py ${TOP_ARG}
+    ${CMAKE_COMMAND} -E env YOSYS=${YOSYS} PYTHONPATH=${V2X_DIR}:${symbiflow-arch-defs_BINARY_DIR}/env/conda/lib/python3.7/site-packages
+      ${PYTHON3} -m v2x --mode=model ${TOP_ARG}
       -o ${CMAKE_CURRENT_BINARY_DIR}/${V2X_NAME}.model.xml ${FIRST_SOURCE}
       ${INCLUDE_ARG}
-    WORKING_DIRECTORY ${symbiflow-arch-defs_SOURCE_DIR}/utils/vlog/
+    WORKING_DIRECTORY ${V2X_DIR}/v2x/
   )
   add_file_target(FILE "${V2X_NAME}.model.xml" GENERATED)
   get_file_target(SRC_TARGET_NAME "${V2X_NAME}.model.xml")
