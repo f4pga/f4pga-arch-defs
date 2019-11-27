@@ -1,0 +1,7 @@
+<pb_type blif_model=".subckt GND" name="SRC_GND" num_pb="1">
+  <output name="GND" num_pins="1"/>
+  <metadata>
+    <meta name="type">bel</meta>
+    <meta name="subtype">blackbox</meta>
+  </metadata>
+</pb_type>

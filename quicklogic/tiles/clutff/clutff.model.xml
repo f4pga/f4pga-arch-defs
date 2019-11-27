@@ -1,0 +1,12 @@
+<models xmlns:xi="http://www.w3.org/2001/XInclude">
+  <xi:include href="../../primitives/lutff/lutff.model.xml" xpointer="xpointer(models/child::node())"/>
+  <model name="CARRY">
+    <input_ports>
+      <port name="CIN" combinational_sink_ports="COUT"/>
+      <port name="LIN" combinational_sink_ports="COUT"/>
+    </input_ports>
+    <output_ports>
+      <port name="COUT"/>
+    </output_ports>
+  </model>
+</models>

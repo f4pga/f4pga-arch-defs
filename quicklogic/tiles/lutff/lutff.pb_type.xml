@@ -1,0 +1,54 @@
+<pb_type xmlns:xi="http://www.w3.org/2001/XInclude" name="TILE">
+ <!-- Tile Inputs -->
+ <clock  name="CLK  " num_pins="2" />
+ <input  name="IN   " num_pins="6" />
+ <!-- Tile Outputs -->
+ <output name="OUT " num_pins="2"  />
+
+ <!-- Internal LUTFF -->
+ <pb_type name="SLICE" num_pb="1">
+  <input  name="I"  num_pins="4" equivalent="false"/>
+  <clock  name="C"  num_pins="1" equivalent="false"/>
+  <output name="O"  num_pins="1" equivalent="false"/>
+  <xi:include href="../../primitives/lutff/lutff.pb_type.xml"/>
+  <interconnect>
+   <direct name="LUTFF.I[0]" input="SLICE.I[0]" output="LUTFF.I[0]" />
+   <direct name="LUTFF.I[1]" input="SLICE.I[1]" output="LUTFF.I[1]" />
+   <direct name="LUTFF.I[2]" input="SLICE.I[2]" output="LUTFF.I[2]" />
+   <direct name="LUTFF.I[3]" input="SLICE.I[3]" output="LUTFF.I[3]" />
+   <direct name="LUTFF.C"    input="SLICE.C"    output="LUTFF.C"    />
+   <direct name="LUTFF.O"    input="LUTFF.O"    output="SLICE.O"    />
+  </interconnect>
+  <metadata>
+   <meta name="type">block</meta>
+   <meta name="subtype">slice</meta>
+  </metadata>
+ </pb_type>
+
+ <interconnect>
+  <!-- Clock input mux -->
+  <mux name="CLK0.I[0]" input="TILE.CLK[0] TILE.CLK[1]" output="SLICE.C" />
+
+  <!-- Logic input muxes -->
+  <mux name="IN0.I[0]" input="TILE.IN[0] TILE.IN[1] TILE.IN[2]" output="SLICE.I[0]" />
+  <mux name="IN1.I[1]" input="TILE.IN[1] TILE.IN[2] TILE.IN[3]" output="SLICE.I[1]" />
+  <mux name="IN2.I[2]" input="TILE.IN[2] TILE.IN[3] TILE.IN[4]" output="SLICE.I[2]" />
+  <mux name="IN3.I[3]" input="TILE.IN[3] TILE.IN[4] TILE.IN[5]" output="SLICE.I[3]" />
+
+  <!-- Output -->
+  <direct name="TILE.OUT[0]" input="SLICE.O"    output="TILE.OUT[0]" />
+  <direct name="TILE.OUT[1]" input="SLICE.O"    output="TILE.OUT[1]" />
+
+ </interconnect>
+ <pinlocations pattern="custom">
+  <loc side="right">TILE.CLK[0] TILE.CLK[1] TILE.IN[0] TILE.IN[1] TILE.IN[2] TILE.IN[3] TILE.IN[4] TILE.IN[5] TILE.OUT[0] TILE.OUT[1]</loc>
+ </pinlocations>
+ <fc in_type="abs" in_val="0" out_type="abs" out_val="0">
+  <fc_override fc_type="abs" fc_val="2" segment_name="span"  />
+  <fc_override fc_type="abs" fc_val="2" segment_name="local" />
+ </fc>
+ <metadata>
+  <meta name="type">block</meta>
+  <meta name="subtype">tile</meta>
+ </metadata>
+</pb_type>

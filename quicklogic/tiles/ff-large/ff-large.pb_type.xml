@@ -1,0 +1,77 @@
+<pb_type xmlns:xi="http://www.w3.org/2001/XInclude" name="TILE">
+ <!-- Pins -->
+ <input name="IN   " num_pins="2" />
+ <clock name="CLK  " num_pins="2" />
+ <output name="OUT " num_pins="1"  />
+
+ <!-- Internal Slices -->
+ <pb_type name="FF_LARGE" num_pb="1">
+  <input  name="I" num_pins="1" equivalent="false"/>
+  <clock  name="C" num_pins="1" equivalent="false"/>
+  <output name="O" num_pins="1" equivalent="false"/>
+  <xi:include href="../../primitives/ff/ff.pb_type.xml"/>
+  <interconnect>
+   <direct name="FF.D"   input="FF_LARGE.I" output="FF.D"   />
+   <direct name="FF.clk" input="FF_LARGE.C" output="FF.clk" />
+   <direct name="FF_LARGE.O"  input="FF.Q"  output="FF_LARGE.O"  />
+  </interconnect>
+  <metadata>
+   <meta name="type">block</meta>
+   <meta name="subtype">slice</meta>
+  </metadata>
+ </pb_type>
+
+ <!-- Buffers -->
+ <pb_type name="IN0" num_pb="1">
+  <input  name="I" num_pins="2"/>
+  <output name="O" num_pins="1"/>
+  <interconnect>
+   <mux input="IN0.I[0] IN0.I[1]" name="IN0.O" output="IN0.O" />
+  </interconnect>
+  <metadata>
+   <meta name="type">bel</meta>
+   <meta name="subtype">routing</meta>
+  </metadata>
+ </pb_type>
+ <pb_type name="CLK0" num_pb="1">
+  <input  name="I" num_pins="2"/>
+  <output name="O" num_pins="1"/>
+  <interconnect>
+   <mux input="CLK0.I[0] CLK0.I[1]" name="CLK0.O" output="CLK0.O" />
+  </interconnect>
+  <metadata>
+   <meta name="type">bel</meta>
+   <meta name="subtype">routing</meta>
+  </metadata>
+ </pb_type>
+
+ <interconnect>
+  <!-- Clock input muxes -->
+  <direct input="FF_LARGE.CLK[0]" name="CLK0.I[0]"     output="CLK0.I[0]"     />
+  <direct input="FF_LARGE.CLK[1]" name="CLK0.I[1]"     output="CLK0.I[1]"     />
+  <direct input="CLK0.O"          name="FF_LARGE.C"    output="FF_LARGE.C"    />
+
+  <!-- Logic input muxes -->
+  <direct input="FF_LARGE.IN[0]"  name="IN0.I[0]"      output="IN0.I[0]"      />
+  <direct input="FF_LARGE.IN[1]"  name="IN0.I[1]"      output="IN0.I[1]"      />
+  <direct input="IN0.O"           name="FF_LARGE.I[0]" output="FF_LARGE.I[0]" />
+
+  <!-- Output muxes -->
+  <direct input="FF_LARGE.O"      name="FF_LARGE.OUT[0]" output="FF_LARGE.OUT[0]" />
+ </interconnect>
+
+ <pinlocations pattern="custom">
+  <loc side="top">FF_LARGE.IN[0] FF_LARGE.CLK[0] FF_LARGE.OUT[0]</loc>
+  <loc side="top" xoffset="1">FF_LARGE.IN[1] FF_LARGE.CLK[1]</loc>
+  <loc side="right"></loc>
+  <loc side="left"></loc>
+  <loc side="bottom"></loc>
+ </pinlocations>
+ <fc in_type="abs" in_val="1" out_type="abs" out_val="1">
+  <fc_override fc_type="frac" fc_val="0.25" port_name="CLK"   />
+ </fc>
+ <metadata>
+  <meta name="type">block</meta>
+  <meta name="subtype">tile</meta>
+ </metadata>
+</pb_type>

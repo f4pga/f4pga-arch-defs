@@ -1,0 +1,370 @@
+<pb_type xmlns:xi="http://www.w3.org/2001/XInclude" name="TILE">
+ <input  name="DUMMYI" num_pins="1" />
+ <output name="DUMMYO" num_pins="1" />
+ <!-- Tile Inputs -->
+ <input name="IN   " num_pins="12" />
+ <clock name="CLK  " num_pins="4"  />
+ <!-- Tile Outputs -->
+ <output name="OUT " num_pins="4"  />
+ <!-- Internal Slices -->
+ <pb_type name="SLICE_A" num_pb="1">
+  <input  name="I" num_pins="4" equivalent="false"/>
+  <clock  name="C" num_pins="1" equivalent="false"/>
+  <output name="O" num_pins="1" equivalent="false"/>
+  <xi:include href="../../primitives/lutff/lutff.pb_type.xml"/>
+  <interconnect>
+   <direct name="LUTFF.I"   input="SLICE_A.I" output="LUTFF.I"   />
+   <direct name="LUTFF.C"   input="SLICE_A.C" output="LUTFF.C"   />
+   <direct name="SLICE_A.O" input="LUTFF.O"   output="SLICE_A.O" />
+  </interconnect>
+  <metadata>
+   <meta name="type">block</meta>
+   <meta name="subtype">slice</meta>
+  </metadata>
+ </pb_type>
+ <pb_type name="SLICE_B" num_pb="1">
+  <input  name="I" num_pins="4" equivalent="false"/>
+  <clock  name="C" num_pins="1" equivalent="false"/>
+  <output name="O" num_pins="1" equivalent="false"/>
+  <xi:include href="../../primitives/lutff/lutff.pb_type.xml"/>
+  <interconnect>
+   <direct name="LUTFF.I"   input="SLICE_B.I" output="LUTFF.I"   />
+   <direct name="LUTFF.C"   input="SLICE_B.C" output="LUTFF.C"   />
+   <direct name="SLICE_B.O" input="LUTFF.O"   output="SLICE_B.O" />
+  </interconnect>
+  <metadata>
+   <meta name="type">block</meta>
+   <meta name="subtype">slice</meta>
+  </metadata>
+ </pb_type>
+ <pb_type name="SLICE_C" num_pb="1">
+  <input  name="I" num_pins="4" equivalent="false"/>
+  <clock  name="C" num_pins="1" equivalent="false"/>
+  <output name="O" num_pins="1" equivalent="false"/>
+  <xi:include href="../../primitives/lutff/lutff.pb_type.xml"/>
+  <interconnect>
+   <direct name="LUTFF.I"   input="SLICE_C.I" output="LUTFF.I"   />
+   <direct name="LUTFF.C"   input="SLICE_C.C" output="LUTFF.C"   />
+   <direct name="SLICE_C.O" input="LUTFF.O"   output="SLICE_C.O" />
+  </interconnect>
+  <metadata>
+   <meta name="type">block</meta>
+   <meta name="subtype">slice</meta>
+  </metadata>
+ </pb_type>
+ <!-- Buffers -->
+ <pb_type name="IN0" num_pb="1">
+  <input  name="I" num_pins="3"/>
+  <output name="O" num_pins="1"/>
+  <interconnect>
+   <mux input="IN0.I[0] IN0.I[1] IN0.I[2]" name="IN0.O" output="IN0.O" />
+  </interconnect>
+  <metadata>
+   <meta name="type">bel</meta>
+   <meta name="subtype">routing</meta>
+  </metadata>
+ </pb_type>
+ <pb_type name="IN1" num_pb="1">
+  <input  name="I" num_pins="3"/>
+  <output name="O" num_pins="1"/>
+  <interconnect>
+   <mux input="IN1.I[0] IN1.I[1] IN1.I[2]" name="IN1.O" output="IN1.O" />
+  </interconnect>
+  <metadata>
+   <meta name="type">bel</meta>
+   <meta name="subtype">routing</meta>
+  </metadata>
+ </pb_type>
+ <pb_type name="IN2" num_pb="1">
+  <input  name="I" num_pins="3"/>
+  <output name="O" num_pins="1"/>
+  <interconnect>
+   <mux input="IN2.I[0] IN2.I[1] IN2.I[2]" name="IN2.O" output="IN2.O" />
+  </interconnect>
+  <metadata>
+   <meta name="type">bel</meta>
+   <meta name="subtype">routing</meta>
+  </metadata>
+ </pb_type>
+ <pb_type name="IN3" num_pb="1">
+  <input  name="I" num_pins="3"/>
+  <output name="O" num_pins="1"/>
+  <interconnect>
+   <mux input="IN3.I[0] IN3.I[1] IN3.I[2]" name="IN3.O" output="IN3.O" />
+  </interconnect>
+  <metadata>
+   <meta name="type">bel</meta>
+   <meta name="subtype">routing</meta>
+  </metadata>
+ </pb_type>
+ <pb_type name="IN4" num_pb="1">
+  <input  name="I" num_pins="3"/>
+  <output name="O" num_pins="1"/>
+  <interconnect>
+   <mux input="IN4.I[0] IN4.I[1] IN4.I[2]" name="IN4.O" output="IN4.O" />
+  </interconnect>
+  <metadata>
+   <meta name="type">bel</meta>
+   <meta name="subtype">routing</meta>
+  </metadata>
+ </pb_type>
+ <pb_type name="IN5" num_pb="1">
+  <input  name="I" num_pins="3"/>
+  <output name="O" num_pins="1"/>
+  <interconnect>
+   <mux input="IN5.I[0] IN5.I[1] IN5.I[2]" name="IN5.O" output="IN5.O" />
+  </interconnect>
+  <metadata>
+   <meta name="type">bel</meta>
+   <meta name="subtype">routing</meta>
+  </metadata>
+ </pb_type>
+ <pb_type name="IN6" num_pb="1">
+  <input  name="I" num_pins="3"/>
+  <output name="O" num_pins="1"/>
+  <interconnect>
+   <mux input="IN6.I[0] IN6.I[1] IN6.I[2]" name="IN6.O" output="IN6.O" />
+  </interconnect>
+  <metadata>
+   <meta name="type">bel</meta>
+   <meta name="subtype">routing</meta>
+  </metadata>
+ </pb_type>
+ <pb_type name="IN7" num_pb="1">
+  <input  name="I" num_pins="3"/>
+  <output name="O" num_pins="1"/>
+  <interconnect>
+   <mux input="IN7.I[0] IN7.I[1] IN7.I[2]" name="IN7.O" output="IN7.O" />
+  </interconnect>
+  <metadata>
+   <meta name="type">bel</meta>
+   <meta name="subtype">routing</meta>
+  </metadata>
+ </pb_type>
+ <pb_type name="IN8" num_pb="1">
+  <input  name="I" num_pins="3"/>
+  <output name="O" num_pins="1"/>
+  <interconnect>
+   <mux input="IN8.I[0] IN8.I[1] IN8.I[2]" name="IN8.O" output="IN8.O" />
+  </interconnect>
+  <metadata>
+   <meta name="type">bel</meta>
+   <meta name="subtype">routing</meta>
+  </metadata>
+ </pb_type>
+ <pb_type name="IN9" num_pb="1">
+  <input  name="I" num_pins="3"/>
+  <output name="O" num_pins="1"/>
+  <interconnect>
+   <mux input="IN9.I[0] IN9.I[1] IN9.I[2]" name="IN9.O" output="IN9.O" />
+  </interconnect>
+  <metadata>
+   <meta name="type">bel</meta>
+   <meta name="subtype">routing</meta>
+  </metadata>
+ </pb_type>
+
+ <pb_type name="CLK0" num_pb="1">
+  <input  name="I" num_pins="2"/>
+  <output name="O" num_pins="1"/>
+  <interconnect>
+   <mux input="CLK0.I[0] CLK0.I[1]" name="CLK0.O" output="CLK0.O" />
+  </interconnect>
+  <metadata>
+   <meta name="type">bel</meta>
+   <meta name="subtype">routing</meta>
+  </metadata>
+ </pb_type>
+ <pb_type name="CLK1" num_pb="1">
+  <input  name="I" num_pins="2"/>
+  <output name="O" num_pins="1"/>
+  <interconnect>
+   <mux input="CLK1.I[0] CLK1.I[1]" name="CLK1.O" output="CLK1.O" />
+  </interconnect>
+  <metadata>
+   <meta name="type">bel</meta>
+   <meta name="subtype">routing</meta>
+  </metadata>
+ </pb_type>
+ <pb_type name="CLK2" num_pb="1">
+  <input  name="I" num_pins="2"/>
+  <output name="O" num_pins="1"/>
+  <interconnect>
+   <mux input="CLK2.I[0] CLK2.I[1]" name="CLK2.O" output="CLK2.O" />
+  </interconnect>
+  <metadata>
+   <meta name="type">bel</meta>
+   <meta name="subtype">routing</meta>
+  </metadata>
+ </pb_type>
+
+ <pb_type name="OUT0" num_pb="1">
+  <input  name="I" num_pins="7"/>
+  <output name="O" num_pins="1"/>
+  <interconnect>
+   <mux input="OUT0.I[0] OUT0.I[1] OUT0.I[2] OUT0.I[3] OUT0.I[4] OUT0.I[5] OUT0.I[6]" name="OUT0.O" output="OUT0.O" />
+  </interconnect>
+  <metadata>
+   <meta name="type">bel</meta>
+   <meta name="subtype">routing</meta>
+  </metadata>
+ </pb_type>
+ <pb_type name="OUT1" num_pb="1">
+  <input  name="I" num_pins="7"/>
+  <output name="O" num_pins="1"/>
+  <interconnect>
+   <mux input="OUT1.I[0] OUT1.I[1] OUT1.I[2] OUT1.I[3] OUT1.I[4] OUT1.I[5] OUT1.I[6]" name="OUT1.O" output="OUT1.O" />
+  </interconnect>
+  <metadata>
+   <meta name="type">bel</meta>
+   <meta name="subtype">routing</meta>
+  </metadata>
+ </pb_type>
+ <pb_type name="OUT2" num_pb="1">
+  <input  name="I" num_pins="7"/>
+  <output name="O" num_pins="1"/>
+  <interconnect>
+   <mux input="OUT2.I[0] OUT2.I[1] OUT2.I[2] OUT2.I[3] OUT2.I[4] OUT2.I[5] OUT2.I[6]" name="OUT2.O" output="OUT2.O" />
+  </interconnect>
+  <metadata>
+   <meta name="type">bel</meta>
+   <meta name="subtype">routing</meta>
+  </metadata>
+ </pb_type>
+ <pb_type name="OUT3" num_pb="1">
+  <input  name="I" num_pins="12"/>
+  <output name="O" num_pins="1"/>
+  <interconnect>
+   <mux input="OUT3.I[0] OUT3.I[1] OUT3.I[2] OUT3.I[3] OUT3.I[4] OUT3.I[5] OUT3.I[6] OUT3.I[7] OUT3.I[8] OUT3.I[9] OUT3.I[10] OUT3.I[11]" name="OUT3.O" output="OUT3.O" />
+  </interconnect>
+  <metadata>
+   <meta name="type">bel</meta>
+   <meta name="subtype">routing</meta>
+  </metadata>
+ </pb_type>
+
+ <interconnect>
+  <!-- Clock input muxes -->
+  <direct input="TILE.CLK[0]" name="CLK0.I[0]"    output="CLK0.I[0]" />
+  <direct input="TILE.CLK[1]" name="CLK0.I[1]"    output="CLK0.I[1]" />
+  <direct input="CLK0.O"      name="SLICE_A.C"    output="SLICE_A.C" />
+
+  <direct input="TILE.CLK[1]" name="CLK1.I[0]"    output="CLK1.I[0]" />
+  <direct input="TILE.CLK[2]" name="CLK1.I[1]"    output="CLK1.I[1]" />
+  <direct input="CLK1.O"      name="SLICE_B.C"    output="SLICE_B.C" />
+
+  <direct input="TILE.CLK[2]" name="CLK2.I[0]"    output="CLK2.I[0]" />
+  <direct input="TILE.CLK[3]" name="CLK2.I[1]"    output="CLK2.I[1]" />
+  <direct input="CLK2.O"      name="SLICE_C.C"    output="SLICE_C.C" />
+
+  <!-- Logic input muxes -->
+  <direct input="TILE.IN[0]"  name="IN0.I[0]"     output="IN0.I[0]"     />
+  <direct input="TILE.IN[1]"  name="IN0.I[1]"     output="IN0.I[1]"     />
+  <direct input="TILE.IN[2]"  name="IN0.I[2]"     output="IN0.I[2]"     />
+  <direct input="IN0.O"       name="SLICE_A.I[0]" output="SLICE_A.I[0]" />
+
+  <direct input="TILE.IN[1]"  name="IN1.I[0]"     output="IN1.I[0]"     />
+  <direct input="TILE.IN[2]"  name="IN1.I[1]"     output="IN1.I[1]"     />
+  <direct input="TILE.IN[3]"  name="IN1.I[2]"     output="IN1.I[2]"     />
+  <direct input="IN1.O"       name="SLICE_A.I[1]" output="SLICE_A.I[1]" />
+
+  <direct input="TILE.IN[2]"  name="IN2.I[0]"     output="IN2.I[0]"     />
+  <direct input="TILE.IN[3]"  name="IN2.I[1]"     output="IN2.I[1]"     />
+  <direct input="TILE.IN[4]"  name="IN2.I[2]"     output="IN2.I[2]"     />
+  <direct input="IN2.O"       name="SLICE_A.I[2]" output="SLICE_A.I[2]" />
+
+  <direct input="TILE.IN[3]"  name="IN3.I[0]"     output="IN3.I[0]"     />
+  <direct input="TILE.IN[4]"  name="IN3.I[1]"     output="IN3.I[1]"     />
+  <direct input="TILE.IN[5]"  name="IN3.I[2]"     output="IN3.I[2]"     />
+  <direct input="IN3.O"       name="SLICE_A.I[3]" output="SLICE_A.I[3]" />
+  <direct input="IN3.O"       name="SLICE_B.I[0]" output="SLICE_B.I[0]" />
+
+  <direct input="TILE.IN[4]"  name="IN4.I[0]"     output="IN4.I[0]"     />
+  <direct input="TILE.IN[5]"  name="IN4.I[1]"     output="IN4.I[1]"     />
+  <direct input="TILE.IN[6]"  name="IN4.I[2]"     output="IN4.I[2]"     />
+  <direct input="IN4.O"       name="SLICE_B.I[1]" output="SLICE_B.I[1]" />
+
+  <direct input="TILE.IN[5]"  name="IN5.I[0]"     output="IN5.I[0]"     />
+  <direct input="TILE.IN[6]"  name="IN5.I[1]"     output="IN5.I[1]"     />
+  <direct input="TILE.IN[7]"  name="IN5.I[2]"     output="IN5.I[2]"     />
+  <direct input="IN5.O"       name="SLICE_B.I[2]" output="SLICE_B.I[2]" />
+
+  <direct input="TILE.IN[6]"  name="IN6.I[0]"     output="IN6.I[0]"     />
+  <direct input="TILE.IN[7]"  name="IN6.I[1]"     output="IN6.I[1]"     />
+  <direct input="TILE.IN[8]"  name="IN6.I[2]"     output="IN6.I[2]"     />
+  <direct input="IN6.O"       name="SLICE_B.I[3]" output="SLICE_B.I[3]" />
+  <direct input="IN6.O"       name="SLICE_C.I[0]" output="SLICE_C.I[0]" />
+
+  <direct input="TILE.IN[7]"  name="IN7.I[0]"     output="IN7.I[0]"     />
+  <direct input="TILE.IN[8]"  name="IN7.I[1]"     output="IN7.I[1]"     />
+  <direct input="TILE.IN[9]"  name="IN7.I[2]"     output="IN7.I[2]"     />
+  <direct input="IN7.O"       name="SLICE_C.I[1]" output="SLICE_C.I[1]" />
+
+  <direct input="TILE.IN[8]"  name="IN8.I[0]"     output="IN8.I[0]"     />
+  <direct input="TILE.IN[9]"  name="IN8.I[1]"     output="IN8.I[1]"     />
+  <direct input="TILE.IN[10]" name="IN8.I[2]"     output="IN8.I[2]"     />
+  <direct input="IN8.O"       name="SLICE_C.I[2]" output="SLICE_C.I[2]" />
+
+  <direct input="TILE.IN[9]"  name="IN9.I[0]"     output="IN9.I[0]"     />
+  <direct input="TILE.IN[10]" name="IN9.I[1]"     output="IN9.I[1]"     />
+  <direct input="TILE.IN[11]" name="IN9.I[2]"     output="IN9.I[2]"     />
+  <direct input="IN9.O"       name="SLICE_C.I[3]" output="SLICE_C.I[3]" />
+
+  <!-- Output muxes -->
+  <direct input="SLICE_A.O"   name="OUT0.I[0]" output="OUT0.I[0]"   />
+  <direct input="SLICE_B.O"   name="OUT0.I[1]" output="OUT0.I[1]"   />
+  <direct input="SLICE_C.O"   name="OUT0.I[2]" output="OUT0.I[2]"   />
+  <direct input="TILE.IN[0]"  name="OUT0.I[3]" output="OUT0.I[3]"   />
+  <direct input="TILE.IN[1]"  name="OUT0.I[4]" output="OUT0.I[4]"   />
+  <direct input="TILE.IN[2]"  name="OUT0.I[5]" output="OUT0.I[5]"   />
+  <direct input="TILE.IN[3]"  name="OUT0.I[6]" output="OUT0.I[6]"   />
+  <direct input="OUT0.O"      name="TILE.OUT0" output="TILE.OUT[0]" />
+
+  <direct input="SLICE_A.O"   name="OUT1.I[0]" output="OUT1.I[0]"   />
+  <direct input="SLICE_B.O"   name="OUT1.I[1]" output="OUT1.I[1]"   />
+  <direct input="SLICE_C.O"   name="OUT1.I[2]" output="OUT1.I[2]"   />
+  <direct input="TILE.IN[4]"  name="OUT1.I[3]" output="OUT1.I[3]"   />
+  <direct input="TILE.IN[5]"  name="OUT1.I[4]" output="OUT1.I[4]"   />
+  <direct input="TILE.IN[6]"  name="OUT1.I[5]" output="OUT1.I[5]"   />
+  <direct input="TILE.IN[7]"  name="OUT1.I[6]" output="OUT1.I[6]"   />
+  <direct input="OUT1.O"      name="TILE.OUT1" output="TILE.OUT[1]" />
+
+  <direct input="SLICE_A.O"   name="OUT2.I[0]" output="OUT2.I[0]"   />
+  <direct input="SLICE_B.O"   name="OUT2.I[1]" output="OUT2.I[1]"   />
+  <direct input="SLICE_C.O"   name="OUT2.I[2]" output="OUT2.I[2]"   />
+  <direct input="TILE.IN[8]"  name="OUT2.I[3]" output="OUT2.I[3]"   />
+  <direct input="TILE.IN[9]"  name="OUT2.I[4]" output="OUT2.I[4]"   />
+  <direct input="TILE.IN[10]" name="OUT2.I[5]" output="OUT2.I[5]"   />
+  <direct input="TILE.IN[11]" name="OUT2.I[6]" output="OUT2.I[6]"   />
+  <direct input="OUT2.O"      name="TILE.OUT2" output="TILE.OUT[2]" />
+
+  <direct input="TILE.IN[0]"  name="OUT3.I[0]"  output="OUT3.I[0]"  />
+  <direct input="TILE.IN[1]"  name="OUT3.I[1]"  output="OUT3.I[1]"  />
+  <direct input="TILE.IN[2]"  name="OUT3.I[2]"  output="OUT3.I[2]"  />
+  <direct input="TILE.IN[3]"  name="OUT3.I[3]"  output="OUT3.I[3]"  />
+  <direct input="TILE.IN[4]"  name="OUT3.I[4]"  output="OUT3.I[4]"  />
+  <direct input="TILE.IN[5]"  name="OUT3.I[5]"  output="OUT3.I[5]"  />
+  <direct input="TILE.IN[6]"  name="OUT3.I[6]"  output="OUT3.I[6]"  />
+  <direct input="TILE.IN[7]"  name="OUT3.I[7]"  output="OUT3.I[7]"  />
+  <direct input="TILE.IN[8]"  name="OUT3.I[8]"  output="OUT3.I[8]"  />
+  <direct input="TILE.IN[9]"  name="OUT3.I[9]"  output="OUT3.I[9]"  />
+  <direct input="TILE.IN[10]" name="OUT3.I[10]" output="OUT3.I[10]" />
+  <direct input="TILE.IN[11]" name="OUT3.I[11]" output="OUT3.I[11]" />
+  <direct input="OUT3.O"        name="TILE.OUT3" output="TILE.OUT[3]" />
+ </interconnect>
+ <pinlocations pattern="custom">
+  <loc side="top">   TILE.IN[0] TILE.IN[1]  TILE.IN[2]   TILE.OUT[0] TILE.CLK[0]</loc>
+  <loc side="right"> TILE.IN[3] TILE.IN[4]  TILE.IN[5]   TILE.OUT[1] TILE.CLK[1]</loc>
+  <loc side="left">  TILE.IN[6] TILE.IN[7]  TILE.IN[8]   TILE.OUT[2] TILE.CLK[2] TILE.DUMMYI[0]</loc>
+  <loc side="bottom">TILE.IN[9] TILE.IN[10] TILE.IN[11]  TILE.OUT[3] TILE.CLK[3] TILE.DUMMYO[0]</loc>
+ </pinlocations>
+ <fc in_type="frac" in_val="0.0" out_type="frac" out_val="0.0">
+  <fc_override fc_type="frac" fc_val="1.0" port_name="DUMMYI" />
+  <fc_override fc_type="frac" fc_val="1.0" port_name="DUMMYO" />
+  <fc_override fc_type="frac" fc_val="1.0" port_name="CLK"   />
+ </fc>
+ <metadata>
+  <meta name="type">block</meta>
+  <meta name="subtype">tile</meta>
+ </metadata>
+</pb_type>

@@ -1,0 +1,4 @@
+<models xmlns:xi="http://www.w3.org/2001/XInclude">
+  <xi:include href="../ff/ff.model.xml" xpointer="xpointer(models/child::node())"/>
+  <xi:include href="../lut/lut.model.xml" xpointer="xpointer(models/child::node())"/>
+</models>

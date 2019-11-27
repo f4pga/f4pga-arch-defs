@@ -1,0 +1,23 @@
+<pb_type xmlns:xi="http://www.w3.org/2001/XInclude" name="TILE">
+ <!-- Tile Inputs -->
+ <input  name="IN"  num_pins="1" />
+ <!-- Tile Outputs -->
+ <output name="OUT" num_pins="1"  />
+
+ <xi:include href="../../../vpr/wire/wire.pb_type.xml"/>
+
+ <interconnect>
+  <direct name="TILE.IN"  input="TILE.IN"  output="WIRE.in"  />
+  <direct name="TILE.OUT" input="WIRE.out" output="TILE.OUT" />
+ </interconnect>
+
+ <pinlocations pattern="custom">
+  <loc side="right">TILE.IN[0] TILE.OUT[0]</loc>
+ </pinlocations>
+
+ <fc in_type="frac" in_val="1.0" out_type="frac" out_val="1.0"/>
+ <metadata>
+  <meta name="type">block</meta>
+  <meta name="subtype">tile</meta>
+ </metadata>
+</pb_type>

@@ -1,0 +1,8 @@
+<models xmlns:xi="http://www.w3.org/2001/XInclude">
+  <model name="GND">
+    <input_ports/>
+    <output_ports>
+      <port name="GND"/>
+    </output_ports>
+  </model>
+</models>

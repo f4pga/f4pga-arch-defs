@@ -1,0 +1,8 @@
+<models xmlns:xi="http://www.w3.org/2001/XInclude">
+  <model name="VCC">
+    <input_ports/>
+    <output_ports>
+      <port name="VCC"/>
+    </output_ports>
+  </model>
+</models>
