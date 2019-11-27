@@ -17,6 +17,7 @@ define_arch(
   --read_rr_graph \${OUT_RRXML_VIRT} \
   --write_rr_graph \${OUT_RRXML_REAL}"
   NO_PINS
+  NO_PLACE_CONSTR
   NO_BITSTREAM
   NO_BIT_TO_V
   NO_BIT_TIME

@@ -28,7 +28,7 @@ function(ADD_XC7_ARCH_DEFINE)
       --strict_checks off \
       --clustering_pin_feasibility_filter off \
       --allow_dangling_combinational_nodes on \
-      --disable_errors check_unbuffered_edges:check_route \
+      --disable_errors check_unbuffered_edges:check_route:read_user_pad_loc \
       --congested_routing_iteration_threshold 0.8 \
       --incremental_reroute_delay_ripup off \
       --base_cost_type delay_normalized_length_bounded \
@@ -61,9 +61,9 @@ function(ADD_XC7_ARCH_DEFINE)
       ${symbiflow-arch-defs_SOURCE_DIR}/xc7/utils/prjxray_create_place_constraints.py
     PLACE_CONSTR_TOOL_CMD "${CMAKE_COMMAND} -E env \
     PYTHONPATH=${symbiflow-arch-defs_SOURCE_DIR}/utils \
-    \${PYTHON3} \${PLACE_TOOL} \
+    \${PYTHON3} \${PLACE_CONSTR_TOOL} \
         --net \${OUT_NET} \
-        --connection_database ${CMAKE_CURRENT_SOURCE_DIR}/channels.db"
+        --connection_database ${CMAKE_CURRENT_BINARY_DIR}/channels.db"
     BITSTREAM_EXTENSION frames
     BIN_EXTENSION bit
     FASM_TO_BIT ${PRJXRAY_DIR}/utils/fasm2frames.py
