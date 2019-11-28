@@ -1,3 +1,4 @@
+from .utils import eprint
 from .verilog_modeling import Bel, Site
 
 
@@ -82,26 +83,27 @@ def append_obuf_iostandard_params(
         # Check if this is possible according to decoded fasm
         is_valid = (iostandard, drive, slew) in possible_iostandards
         if not is_valid:
-            print(
+            eprint(
                 "IOSTANDARD+DRIVE+SLEW settings provided for {} do not match "
                 "their counterparts decoded from the fasm".format(
                     site.site.name
                 )
             )
 
-            print("Requested:")
-            print(" IOSTANDARD={}, DRIVE={}".format(iostandard, drive))
+            eprint("Requested:")
+            eprint(" IOSTANDARD={}, DRIVE={}".format(iostandard, drive))
 
-            print("Candidates are:")
-            print(" IOSTANDARD        | DRIVE  | SLEW |")
-            print("-------------------|--------|------|")
+            eprint("Candidates are:")
+            eprint(" IOSTANDARD        | DRIVE  | SLEW |")
+            eprint("-------------------|--------|------|")
             for i, d, s in possible_iostandards:
-                print(
+                eprint(
                     " {}| {}| {}|".format(
                         i.ljust(18),
                         str(d).ljust(7), s.ljust(5)
                     )
                 )
+            eprint("")
 
             # Demote NSTD-1 to warning
             top.disable_drc("NSTD-1")
@@ -137,17 +139,18 @@ def append_ibuf_iostandard_params(
         # Check if this is possible according to decoded fasm
         is_valid = iostandard in possible_iostandards
         if not is_valid:
-            print(
+            eprint(
                 "IOSTANDARD setting provided for {} do not match"
                 "its counterpart decoded from the fasm".format(site.site.name)
             )
 
-            print("Requested:")
-            print(" {}".format(iostandard))
+            eprint("Requested:")
+            eprint(" {}".format(iostandard))
 
-            print("Candidates are:")
+            eprint("Candidates are:")
             for i in possible_iostandards:
-                print(" {}".format(i.ljust(15)))
+                eprint(" {}".format(i.ljust(15)))
+            eprint("")
 
             # Demote NSTD-1 to warning
             top.disable_drc("NSTD-1")
