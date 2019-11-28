@@ -53,6 +53,9 @@ class PlaceConstraints(object):
         )
 
     def output_place_constraints(self, f):
+        if not self.constraints:
+            return
+
         max_name_length = max(len(c.name) for c in self.constraints.values())
 
         constrained_blocks = {}
