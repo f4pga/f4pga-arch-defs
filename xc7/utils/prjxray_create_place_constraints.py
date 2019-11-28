@@ -1,12 +1,9 @@
 """ Convert a PCF file into a VPR io.place file. """
 from __future__ import print_function
 import argparse
-import csv
-import json
 import sys
 import vpr_place_constraints
 import sqlite3
-from lib.parse_pcf import parse_simple_pcf
 
 
 def get_vpr_coords_from_site_name(conn, site_name):
@@ -81,7 +78,8 @@ def main():
         for block, loc in place_constraints.get_loc_sites():
             vpr_loc = get_vpr_coords_from_site_name(conn, loc)
 
-            # TODO: handle also the Z coordinate: https://github.com/SymbiFlow/symbiflow-arch-defs/issues/1183
+            # TODO: handle also the Z coordinate:
+            #       https://github.com/SymbiFlow/symbiflow-arch-defs/issues/1183
             vpr_loc = (vpr_loc[0], vpr_loc[1], 0)
 
             place_constraints.constrain_block(

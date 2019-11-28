@@ -1,6 +1,5 @@
 from __future__ import print_function
 from collections import OrderedDict, namedtuple
-import itertools
 import lxml.etree as ET
 
 PlaceConstraint = namedtuple('PlaceConstraint', 'name x y z comment')
