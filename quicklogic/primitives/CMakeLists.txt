@@ -1,5 +1,5 @@
 add_subdirectory(ff)
 add_subdirectory(lut)
 add_subdirectory(lutff)
-add_subdirectory(omux)
+add_subdirectory(mux)
 add_subdirectory(const)
