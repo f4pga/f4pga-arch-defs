@@ -2,7 +2,7 @@
 
 // ============================================================================
 
-module iserdes_test #
+module serdes_test #
 (
 parameter DATA_WIDTH = 8,
 parameter DATA_RATE = "DDR"
@@ -14,6 +14,7 @@ input  wire RST,
 
 input  wire I_DAT,
 output wire O_DAT,
+output wire T_DAT,
 
 input  wire [7:0] INPUTS,
 output wire [7:0] OUTPUTS
@@ -34,9 +35,6 @@ always @(posedge CLKDIV)
 assign i_rstdiv = rst_sr[0];
 
 // OSERDES
-wire ser_oq;
-wire ser_tq;
-
 OSERDESE2 #(
 .DATA_RATE_OQ   (DATA_RATE),
 .DATA_WIDTH     (DATA_WIDTH),
@@ -65,7 +63,7 @@ oserdes
 .T2     (1'b0),
 .T3     (1'b0),
 .T4     (1'b0),
-.TQ     (ser_tq)
+.TQ     (T_DAT)
 );
 
 // ============================================================================
