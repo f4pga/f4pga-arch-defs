@@ -26,5 +26,4 @@ set_io led[7] V14
 set_io led[8] V13
 
 # PMOD-A
-set_io in K17
-set_io out L17
+set_io io K17

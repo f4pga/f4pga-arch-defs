@@ -13,8 +13,7 @@ input  wire rst,
 input  wire [7:0] sw,
 output wire [8:0] led,
 
-input  wire in,
-output wire out
+inout wire io
 );
 
 localparam DATA_WIDTH = `DATA_WIDTH_DEFINE;
@@ -107,12 +106,18 @@ localparam MASK = DATA_WIDTH == 2 ? 8'b00000011 :
 
 wire [7:0] MASKED_INPUTS = INPUTS & MASK;
 
-iserdes_test #
+wire I_DAT;
+wire O_DAT;
+wire T_DAT;
+
+IOBUF iobuf(.I(O_DAT), .O(I_DAT), .T(T_DAT), .IO(io));
+
+serdes_test #
 (
 .DATA_WIDTH   (DATA_WIDTH),
 .DATA_RATE    (DATA_RATE)
 )
-iserdes_test
+serdes_test
 (
 .SYSCLK     (SYSCLK),
 .CLKDIV     (CLKDIV),
@@ -121,8 +126,9 @@ iserdes_test
 .OUTPUTS    (OUTPUTS),
 .INPUTS     (MASKED_INPUTS),
 
-.I_DAT      (in),
-.O_DAT      (out)
+.I_DAT      (I_DAT),
+.O_DAT      (O_DAT),
+.T_DAT      (T_DAT),
 );
 
 wire [7:0] MASKED_OUTPUTS = OUTPUTS & MASK;
