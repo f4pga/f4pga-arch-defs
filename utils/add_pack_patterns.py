@@ -2,8 +2,8 @@ import lxml.etree as ET
 import argparse
 import re
 
-IOPAD_OLOGIC_REGEX = re.compile("OLOGICE3\.OQ_to_IOB33[MS]?\.O")
-IOPAD_ILOGIC_REGEX = re.compile("IOB33[MS]?\.I_to_ILOGICE3\.D")
+IOPAD_OLOGIC_REGEX = re.compile("OLOGICE3.OQ_to_IOB33[MS]?.O")
+IOPAD_ILOGIC_REGEX = re.compile("IOB33[MS]?.I_to_ILOGICE3.D")
 
 
 def get_top_pb_type(element):
