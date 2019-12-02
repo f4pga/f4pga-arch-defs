@@ -92,9 +92,7 @@ BUFG bufg_clkdiv(.I(PRE_BUFG_CLKDIV), .O(CLKDIV));
 // Test uints
 wire [7:0] OUTPUTS;
 
-// TODO: as soon as pack_patterns are available for I/OSERDES to I/OBUF this assignment
-//       can be done manually with buttons
-wire [7:0] INPUTS = 8'b10101010;
+wire [7:0] INPUTS = sw[7:0];
 
 localparam MASK = DATA_WIDTH == 2 ? 8'b00000011 :
                   DATA_WIDTH == 3 ? 8'b00000111 :
