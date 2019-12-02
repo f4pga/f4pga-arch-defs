@@ -1,8 +1,1 @@
-add_subdirectory(clutff)
-add_subdirectory(ff-large)
-add_subdirectory(ff1)
-add_subdirectory(lutff)
-add_subdirectory(lutff3)
-add_subdirectory(wire)
-add_subdirectory(const)
 add_subdirectory(cell)

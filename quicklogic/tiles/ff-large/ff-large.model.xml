@@ -1,3 +1,0 @@
-<models xmlns:xi="http://www.w3.org/2001/XInclude">
- <xi:include href="../../primitives/ff/ff.model.xml" xpointer="xpointer(models/child::node())"/>
-</models>
