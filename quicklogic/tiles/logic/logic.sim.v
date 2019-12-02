@@ -30,10 +30,22 @@ module LOGIC (QST, QDS, TBS, TAB, TSL, TA1, TA2, TB1, TB2, BAB, BSL, BA1, BA2, B
     output wire QZ;
     output wire FZ;
 
+    // routable="false"
+    localparam TAS1 = 1'b0;
+    localparam TAS2 = 1'b0;
+    localparam TBS1 = 1'b0;
+    localparam TBS2 = 1'b0;
+    localparam BAS1 = 1'b0;
+    localparam BAS2 = 1'b0;
+    localparam BBS1 = 1'b0;
+    localparam BBS2 = 1'b0;
+    // unet="vcc"
+    localparam QCSK = 1'b1;
+
     wire ta;
     wire tb;
-    MUX ta_mux(TA1, TA2, TSL, ta);
-    MUX tb_mux(TB1, TB2, TSL, tb);
+    MUX ta_mux(TAS1 ? ~TA1 : TA1, TAS2 ? ~TA2 : TA2, TSL, ta);
+    MUX tb_mux(TBS1 ? ~TB1 : TB1, TBS2 ? ~TB2 : TB2, TSL, tb);
     wire tab;
     MUX tab_mux(ta, tb, TAB, tab);
 
@@ -41,8 +53,8 @@ module LOGIC (QST, QDS, TBS, TAB, TSL, TA1, TA2, TB1, TB2, BAB, BSL, BA1, BA2, B
 
     wire ba;
     wire bb;
-    MUX ba_mux(BA1, BA2, BSL, ba);
-    MUX bb_mux(BB1, BB2, BSL, bb);
+    MUX ba_mux(BAS1 ? ~BA1 : BA1, BAS2 ? ~BA2 : BA2, BSL, ba);
+    MUX bb_mux(BBS1 ? ~BB1 : BB1, BBS2 ? ~BB2 : BB2, BSL, bb);
     wire bab;
     MUX bab_mux(ba, bb, BAB, bab);
 
@@ -53,7 +65,7 @@ module LOGIC (QST, QDS, TBS, TAB, TSL, TA1, TA2, TB1, TB2, BAB, BSL, BA1, BA2, B
     wire d;
     MUX d_mux(tabbab, QDI, QDS, d);
 
-    FF ff(QCK, d, QST, QRT, QEN, QZ);
+    FF ff(QCSK ? QCK : ~QCK, d, QST, QRT, QEN, QZ);
 
     MUX f_mux(F1, F2, FS, FZ);
 endmodule
