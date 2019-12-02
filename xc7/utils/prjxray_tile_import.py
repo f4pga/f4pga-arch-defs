@@ -401,7 +401,9 @@ def import_tile(db, args):
                     site.type, site.type, site.x, site.y
                 )
             else:
-                assert False, "Invalid --site-coords value '{}'".format(site_coords)
+                assert False, "Invalid --site-coords value '{}'".format(
+                    site_coords
+                )
 
             site_instance = site_type_instances[site.type][cells_idx[idx]]
 
