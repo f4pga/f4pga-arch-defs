@@ -44,6 +44,15 @@
         <input name="IB" num_pins="1"/>
         <output name="OB" num_pins="1"/>
         <delay_constant max="10e-12" in_port="IB" out_port="OB"/>
+
+        <metadata>
+          <meta name="fasm_params">
+            LVCMOS12_LVCMOS15_LVCMOS18_LVCMOS25_LVCMOS33_LVTTL_SSTL135.SLEW.SLOW = LVCMOS12_LVCMOS15_LVCMOS18_LVCMOS25_LVCMOS33_LVTTL_SSTL135_SLEW_SLOW
+            LVCMOS12_LVCMOS15_LVCMOS18_SSTL135.STEPDOWN = LVCMOS12_LVCMOS15_LVCMOS18_SSTL135_STEPDOWN
+            SSTL135.DRIVE.I_FIXED = SSTL135_DRIVE_I_FIXED
+            SSTL135.SLEW.FAST = SSTL135_SLEW_FAST
+          </meta>
+        </metadata>
       </pb_type>
 
       <interconnect>
@@ -53,13 +62,6 @@
         </direct>
        </interconnect>
 
-      <metadata>
-        <meta name="fasm_features">
-          LVCMOS12_LVCMOS15_LVCMOS18_SSTL135.STEPDOWN
-          SSTL135.DRIVE.I_FIXED
-          SSTL135.SLEW.FAST
-        </meta>
-      </metadata>
     </mode>
 
   </pb_type>

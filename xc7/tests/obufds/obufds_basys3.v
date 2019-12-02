@@ -33,13 +33,19 @@ output wire [1:0]  diff_n
 // OBUFTDS
 wire [1:0] buf_i;
 
-OBUFDS obuftds_0 (
+OBUFDS # (
+  .IOSTANDARD("DIFF_SSTL135"),
+  .SLEW("FAST")
+) obuftds_0 (
   .I(buf_i[0]),
   .O(diff_p[0]), // LED2
   .OB(diff_n[0]) // LED3
 );
 
-OBUFDS obuftds_1 (
+OBUFDS # (
+  .IOSTANDARD("DIFF_SSTL135"),
+  .SLEW("FAST")
+) obuftds_1 (
   .I(buf_i[1]),
   .O(diff_p[1]), // LED8
   .OB(diff_n[1]) // LED7
