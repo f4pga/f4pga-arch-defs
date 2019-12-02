@@ -257,6 +257,7 @@ function(DEFINE_DEVICE_TYPE)
   #   [SCRIPT_DEPS]
   #   [SCRIPTS]
   #   UPDATE_TILES
+  #   ADD_PACK_PATTERNS
   #   )
   # ~~~
   #
@@ -272,12 +273,16 @@ function(DEFINE_DEVICE_TYPE)
   # If the UPDATE_TILES option is active, the architecture XML file will go through
   # an additional step and is updated to have include the `tiles` tags.
   #
+  # If ADD_PACK_PATTERNS option is active, the architecture XML file will go through
+  # an additional step to update some special `directs` with the correct pack pattern
+  # that is needed to successfully run the packing step.
+  #
   # DEFINE_DEVICE_TYPE defines a dummy target <arch>_<device_type>_arch that
   # will build the merged architecture file for the device type.
   #
   # If UPDATE_TIMINGS is set merged arch.xml file will be processed to inject
   # timing values using data from prjxray-db/$ARCH/timigs/*sdf files
-  set(options UPDATE_TIMINGS UPDATE_TILES)
+  set(options UPDATE_TIMINGS UPDATE_TILES ADD_PACK_PATTERNS)
   set(oneValueArgs DEVICE_TYPE ARCH ARCH_XML)
   set(multiValueArgs SCRIPT_OUTPUT_NAME SCRIPTS SCRIPT_DEPS)
   cmake_parse_arguments(
@@ -326,6 +331,27 @@ function(DEFINE_DEVICE_TYPE)
   get_file_location(FINAL_FILE ${DEVICE_UNIQUE_PACK_FILE})
   set(FINAL_OUTPUT ${DEVICE_UNIQUE_PACK_FILE})
 
+  if (${DEFINE_DEVICE_TYPE_ADD_PACK_PATTERNS})
+    set(TEMP_TARGET arch.pack_patterns.xml)
+    set(TEMP_OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/arch.pack_patterns.xml)
+    append_file_dependency(DEFINE_DEVICE_DEPS ${FINAL_OUTPUT})
+    add_custom_command(
+      OUTPUT ${TEMP_OUTPUT}
+      DEPENDS
+        ${PYTHON3} ${PYTHON3_TARGET}
+        ${DEFINE_DEVICE_DEPS}
+        ${symbiflow-arch-defs_SOURCE_DIR}/utils/add_pack_patterns.py
+      COMMAND
+        ${PYTHON3} ${symbiflow-arch-defs_SOURCE_DIR}/utils/add_pack_patterns.py
+          --in_arch ${FINAL_FILE} > ${TEMP_TARGET}
+      )
+
+    add_file_target(FILE ${TEMP_TARGET} GENERATED)
+    get_file_target(FINAL_TARGET ${TEMP_TARGET})
+    get_file_location(FINAL_FILE ${TEMP_TARGET})
+    set(FINAL_OUTPUT ${TEMP_TARGET})
+  endif ()
+
   # for each script generate next chain of deps
   if (DEFINE_DEVICE_TYPE_SCRIPTS)
     list(LENGTH ${DEFINE_DEVICE_TYPE_SCRIPTS} SCRIPT_LEN)
@@ -372,6 +398,7 @@ function(DEFINE_DEVICE_TYPE)
     get_file_location(FINAL_FILE ${TEMP_TARGET})
     set(FINAL_OUTPUT ${TEMP_TARGET})
   endif ()
+
   add_custom_target(
     ${DEFINE_DEVICE_TYPE_ARCH}_${DEFINE_DEVICE_TYPE_DEVICE_TYPE}_arch
     DEPENDS ${FINAL_TARGET}

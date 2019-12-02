@@ -185,6 +185,7 @@ function(ADD_XC7_DEVICE_DEFINE_TYPE)
     SCRIPT_OUTPUT_NAME timing
     SCRIPTS ${TIMING_IMPORT}
     SCRIPT_DEPS TIMING_DEPS
+    ADD_PACK_PATTERNS
     )
   add_dependencies(${ARCH}_${DEVICE_TYPE}_arch arch_import_timing_deps)
   get_target_property_required(VIRT_DEVICE_MERGED_FILE ${DEVICE_TYPE} DEVICE_MERGED_FILE)
