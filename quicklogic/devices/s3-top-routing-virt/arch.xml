@@ -4,9 +4,45 @@
   <xi:include href="../../tiles/logic/logic.model.xml" xpointer="xpointer(models/child::node())" />
  </models>
 
- <!-- Layout of the FPGA, we are using 4x4 -->
  <layout>
-  <fixed_layout name="2x4" width="9" height="6">
+  <fixed_layout name="34x22" width="34" height="32">
+
+   <!--     abcdefghijklmnopqrstuvwxyzabcdefgh  -->
+   <!--     0123456789012345678901234567890123  -->
+   <!--    ┌──────────────────────────────────┐ -->
+   <!--  0 │..................................│ -->
+   <!--    │..................................│ -->
+   <!--    │.LLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLL.│ -->
+   <!--    │.LLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLL.│ -->
+   <!--  4 │.LLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLL.│ -->
+   <!--    │.LLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLL.│ -->
+   <!--    │.LLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLL.│ -->
+   <!--    │.LLLLLL.LLLLLLLLLLLLLLL.LLLLLLLLL.│ -->
+   <!--  8 │.LLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLL.│ -->
+   <!--    │.LLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLL.│ -->
+   <!--    │.LLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLL.│ -->
+   <!--    │.LLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLL.│ -->
+   <!-- 12 │.LLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLL.│ -->
+   <!--    │.LLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLL.│ -->
+   <!--    │.LLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLL.│ -->
+   <!--    │.LLLLLLLLLLLLLL.LLLLLLLLLLLLLLLLL.│ -->
+   <!-- 16 │.LLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLL.│ -->
+   <!--    │.LLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLL.│ -->
+   <!--    │.LLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLL.│ -->
+   <!--    │.LLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLL.│ -->
+   <!-- 20 │.LLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLL.│ -->
+   <!--    │.LLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLL.│ -->
+   <!--    │.LLLLLL.LLLLLLLLLLLLLLL.LLLLLLLLL.│ -->
+   <!--    │.LLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLL.│ -->
+   <!-- 24 │.LLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLL.│ -->
+   <!--    │.LLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLL.│ -->
+   <!--    │.LLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLL.│ -->
+   <!--    │.LLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLL.│ -->
+   <!-- 28 │.LLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLL.│ -->
+   <!--    │.LLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLL.│ -->
+   <!--    │..................................│ -->
+   <!-- 31 │..................................│ -->
+   <!--    └──────────────────────────────────┘ -->
 
    <col type="EMPTY"   startx="0" priority="10" />
    <col type="VPR_PAD" startx="1" priority="10" />
