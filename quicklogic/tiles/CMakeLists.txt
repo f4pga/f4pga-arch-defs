@@ -1,1 +1,1 @@
-add_subdirectory(cell)
+add_subdirectory(logic)

@@ -1,7 +1,7 @@
 `include "../../primitives/ff/ff.sim.v"
 `include "../../primitives/mux/mux.sim.v"
 (* whitebox *)
-module CELL (QST, QDS, TBS, TAB, TSL, TA1, TA2, TB1, TB2, BAB, BSL, BA1, BA2, BB1, BB2, QDI, QEN, QCK, QRT, F1, F2, FS, TZ, CZ, QZ, FZ);
+module LOGIC (QST, QDS, TBS, TAB, TSL, TA1, TA2, TB1, TB2, BAB, BSL, BA1, BA2, BB1, BB2, QDI, QEN, QCK, QRT, F1, F2, FS, TZ, CZ, QZ, FZ);
     input wire QST;
     input wire QDS;
     input wire TBS;
