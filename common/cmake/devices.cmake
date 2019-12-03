@@ -271,7 +271,6 @@ function(DEFINE_DEVICE_TYPE)
   # DEFINE_DEVICE_TYPE defines a dummy target <arch>_<device_type>_arch that
   # will build the merged architecture file for the device type.
 
-  set(options UPDATE_TIMINGS UPDATE_TILES ADD_PACK_PATTERNS)
   set(oneValueArgs DEVICE_TYPE ARCH ARCH_XML)
   set(multiValueArgs SCRIPT_OUTPUT_NAME SCRIPTS SCRIPT_DEPS)
   cmake_parse_arguments(
