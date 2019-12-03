@@ -1726,17 +1726,21 @@ def create_vpr_grid(conn):
         cur.execute(
             'SELECT pkey FROM tile_type WHERE name = ?;', (tile_type, )
         )
-        tile_type_pkey = cur.fetchone()[0]
-        tile_types[tile_type] = tile_type_pkey
-        tile_type_names[tile_type_pkey] = tile_type
+        tile_type_pkey = cur.fetchone()
+        if tile_type_pkey is not None:
+            tile_type_pkey = tile_type_pkey[0]
+            tile_types[tile_type] = tile_type_pkey
+            tile_type_names[tile_type_pkey] = tile_type
 
     for tile_type, _ in tiles_to_split.items():
         cur.execute(
             'SELECT pkey FROM tile_type WHERE name = ?;', (tile_type, )
         )
-        tile_type_pkey = cur.fetchone()[0]
-        tile_types[tile_type] = tile_type_pkey
-        tile_type_names[tile_type_pkey] = tile_type
+        tile_type_pkey = cur.fetchone()
+        if tile_type_pkey is not None:
+            tile_type_pkey = tile_type_pkey[0]
+            tile_types[tile_type] = tile_type_pkey
+            tile_type_names[tile_type_pkey] = tile_type
 
     vpr_grid = tile_splitter.grid.Grid(
         grid_loc_map=grid_loc_map, empty_tile_type_pkey=empty_tile_type_pkey
@@ -1746,19 +1750,21 @@ def create_vpr_grid(conn):
     # merge.
     for tile_type, merge_direction in progressbar_utils.progressbar(
             tiles_to_merge.items()):
-        vpr_grid.merge_tile_type(
-            tile_type_pkey=tile_types[tile_type],
-            merge_direction=merge_direction,
-        )
+        if tile_type in tile_types:
+            vpr_grid.merge_tile_type(
+                tile_type_pkey=tile_types[tile_type],
+                merge_direction=merge_direction,
+            )
 
     for tile_type, split_direction in progressbar_utils.progressbar(
             tiles_to_split.items()):
-        vpr_grid.split_tile_type(
-            tile_type_pkey=tile_types[tile_type],
-            tile_type_pkeys=tile_to_tile_type_pkeys[tile_type],
-            split_direction=split_direction,
-            split_map=split_map[tile_type],
-        )
+        if tile_type in tile_types:
+            vpr_grid.split_tile_type(
+                tile_type_pkey=tile_types[tile_type],
+                tile_type_pkeys=tile_to_tile_type_pkeys[tile_type],
+                split_direction=split_direction,
+                split_map=split_map[tile_type],
+            )
 
     new_grid = vpr_grid.output_grid()
 
