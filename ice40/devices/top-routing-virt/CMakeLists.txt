@@ -29,14 +29,17 @@ set(TIMING_IMPORT_CMD "${PYTHON3} ${ICE40_IMPORT_TIMING} --read_sdf ${SDF_FILE} 
 add_file_target(FILE ${SDF_FILE} GENERATED)
 append_file_dependency(DEPS ${SDF_FILE})
 
+set(UPDATE_TILES "${symbiflow-arch-defs_SOURCE_DIR}/utils/update_arch_tiles.py")
+set(UPDATE_TILES_CMD "${PYTHON3} ${UPDATE_TILES} --in_xml /dev/stdin --out_xml /dev/stdout")
+set(UPDATE_TILES_DEPS "")
+
 define_device_type(
   DEVICE_TYPE top-routing-virt
   ARCH ice40
   ARCH_XML arch.xml
-  SCRIPT_OUTPUT_NAME timing
-  SCRIPT_DEPS DEPS
-  SCRIPTS ${TIMING_IMPORT_CMD}
-  UPDATE_TILES
+  SCRIPT_OUTPUT_NAME tiles timing
+  SCRIPT_DEPS UPDATE_TILES_DEPS DEPS
+  SCRIPTS UPDATE_TILES_CMD TIMING_IMPORT_CMD
   )
 
 add_dependencies(ice40_top-routing-virt_arch ice40_import_timing_deps ice40_sdf_target)
