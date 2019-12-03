@@ -3180,3 +3180,9 @@ output        LOCKED
 
 endmodule
 
+module INV(
+    output O,
+    input I
+);
+  LUT1 #(.INIT(2'b01)) _TECHMAP_REPLACE_ (.O(O), .I0(I));
+endmodule
