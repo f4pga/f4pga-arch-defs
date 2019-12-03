@@ -27,7 +27,7 @@ WHERE
  site_instance.name = ?;""", (site_name, )
     )
     results = cur.fetchall()
-    assert len(results) == 1
+    assert len(results) == 1, site_name
     return results[0]
 
 
