@@ -116,7 +116,7 @@ def main():
         # Adding ISERDES pack patterns
         if IOPAD_ILOGIC_REGEX.match(dir_name) or check_direct(direct, [
             ('NO_IBUF', 'I'),
-            ('ISERDES', 'D'),
+            ('ISERDES_NO_IDELAY', 'D'),
             ('IOB33S', 'I'),
             ('IOB33S', 'O'),
             ('IOB33M', 'I'),
@@ -126,6 +126,19 @@ def main():
         ]):
             add_pack_pattern(direct, 'ISERDES')
 
+        # Adding ISERDES with IDELAY pack patterns
+        if 'DATAOUT_to_ILOGICE3' in dir_name or 'I_to_IDELAYE2' in dir_name or check_direct(
+                direct, [
+                    ('NO_IBUF', 'I'),
+                    ('ISERDES_IDELAY', 'DDLY'),
+                    ('IOB33S', 'I'),
+                    ('IOB33S', 'O'),
+                    ('IOB33M', 'I'),
+                    ('IOB33M', 'O'),
+                    ('IOB33', 'I'),
+                    ('IOB33', 'O'),
+                ]):
+            add_pack_pattern(direct, 'ISERDES_IDELAY')
         # Adding IOSERDES pack patterns (using IOBUF)
         if IOPAD_OLOGIC_REGEX.match(dir_name) or IOPAD_ILOGIC_REGEX.match(
                 dir_name) or check_direct(direct, [
@@ -135,11 +148,11 @@ def main():
                     ('IOBUF', 'IOBUF_VPR.IOPAD_$out_to_outpad.outpad'),
                     ('IOB33S', 'I'), ('IOB33S', 'O'), ('IOB33M', 'I'),
                     ('IOB33M', 'O'), ('IOB33', 'I'), ('IOB33', 'O'),
-                    ('ISERDES', 'D'), ('OSERDES', 'OQ')
+                    ('ISERDES_NO_IDELAY', 'D'), ('OSERDES', 'OQ')
                 ]):
             add_pack_pattern(direct, 'IOSERDES')
 
-        # Adding IOSERDES with IDELAY
+        # Adding IOSERDES with IDELAY pack patterns (using IOBUF)
         if IOPAD_OLOGIC_REGEX.match(
                 dir_name
         ) or 'DATAOUT_to_ILOGICE3' in dir_name or 'I_to_IDELAYE2' in dir_name or check_direct(
@@ -149,7 +162,7 @@ def main():
                          ('IOBUF', 'IOBUF_VPR.IOPAD_$out_to_outpad.outpad'),
                          ('IOB33S', 'I'), ('IOB33S', 'O'), ('IOB33M', 'I'),
                          ('IOB33M', 'O'), ('IOB33', 'I'), ('IOB33', 'O'),
-                         ('ISERDES', 'DDLY'), ('OSERDES', 'OQ')]):
+                         ('ISERDES_IDELAY', 'DDLY'), ('OSERDES', 'OQ')]):
             add_pack_pattern(direct, 'IOSERDES_IDELAY')
 
     print(ET.tostring(arch_xml, pretty_print=True).decode('utf-8'))
