@@ -5,7 +5,6 @@ import re
 IOPAD_OLOGIC_REGEX = re.compile("OLOGICE3.OQ_to_IOB33[MS]?.O")
 IOPAD_ILOGIC_REGEX = re.compile("IOB33[MS]?.I_to_ILOGICE3.D")
 
-
 def get_top_pb_type(element):
     top_pb_type = element.getparent()
 
@@ -90,6 +89,16 @@ def main():
                     ('ISERDES', 'D'), ('OSERDES', 'OQ')
                 ]):
             add_pack_pattern(direct, 'IOSERDES')
+
+        # Adding IOSERDES with IDELAY
+        if IOPAD_OLOGIC_REGEX.match(direct_name) or 'DATAOUT_to_ILOGICE3' in direct_name or 'I_to_IDELAYE2' in direct_name or check_correct_direct(direct, [
+                    ('IOBUF', 'I'),
+                    ('IOBUF', 'inpad.inpad_to_IOBUF_VPR.IOPAD_$inp'),
+                    ('IOBUF', 'O'),
+                    ('IOBUF', 'IOBUF_VPR.IOPAD_$out_to_outpad.outpad'),
+                    ('ISERDES', 'DDLY'), ('OSERDES', 'OQ')
+                ]):
+            add_pack_pattern(direct, 'IOSERDES_IDELAY')
 
     print(ET.tostring(arch_xml, pretty_print=True).decode('utf-8'))
 
