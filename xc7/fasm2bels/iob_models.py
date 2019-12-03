@@ -1,3 +1,4 @@
+from .utils import eprint
 from .verilog_modeling import Bel, Site
 
 
@@ -62,7 +63,7 @@ def get_iob_site(db, grid, tile, site):
 
 
 def append_obuf_iostandard_params(
-        top, site, bel, possible_iostandards, slew="SLOW"
+        top, site, bel, possible_iostandards, slew="SLOW", in_term=None
 ):
     """
     Appends IOSTANDARD, DRIVE and SLEW parameters to the bel. The IOSTANDARD
@@ -77,27 +78,53 @@ def append_obuf_iostandard_params(
         iostd_def = top.iostandard_defs[site.site.name]
 
         iostandard = iostd_def["IOSTANDARD"]
-        drive = iostd_def["DRIVE"]
+        drive = iostd_def["DRIVE"] if "DRIVE" in iostd_def else None
 
         # Check if this is possible according to decoded fasm
         is_valid = (iostandard, drive, slew) in possible_iostandards
         if not is_valid:
-            print(
-                "IOSTANDARD+DRIVE+SLEW settings provided for {} do not match"
+            eprint(
+                "IOSTANDARD+DRIVE+SLEW settings provided for {} do not match "
                 "their counterparts decoded from the fasm".format(
                     site.site.name
                 )
             )
+
+            eprint("Requested:")
+            eprint(" IOSTANDARD={}, DRIVE={}".format(iostandard, drive))
+
+            eprint("Candidates are:")
+            eprint(" IOSTANDARD        | DRIVE  | SLEW |")
+            eprint("-------------------|--------|------|")
+            for i, d, s in possible_iostandards:
+                eprint(
+                    " {}| {}| {}|".format(
+                        i.ljust(18),
+                        str(d).ljust(7), s.ljust(5)
+                    )
+                )
+            eprint("")
+
+            # Demote NSTD-1 to warning
+            top.disable_drc("NSTD-1")
             return
 
         bel.parameters["IOSTANDARD"] = '"{}"'.format(iostandard)
-        bel.parameters["DRIVE"] = '"{}"'.format(drive)
+
+        if drive is not None:
+            bel.parameters["DRIVE"] = '"{}"'.format(drive)
+
+    # Input termination (here for inouts)
+    if in_term is not None:
+        bel.parameters["IN_TERM"] = '"{}"'.format(in_term)
 
     # Slew rate
     bel.parameters["SLEW"] = '"{}"'.format(slew)
 
 
-def append_ibuf_iostandard_params(top, site, bel, possible_iostandards):
+def append_ibuf_iostandard_params(
+        top, site, bel, possible_iostandards, in_term=None
+):
     """
     Appends IOSTANDARD parameter to the bel. The parameter has to be explicitly
     provided in the top.iostandard_defs dict. If the parameter from the dict
@@ -112,41 +139,42 @@ def append_ibuf_iostandard_params(top, site, bel, possible_iostandards):
         # Check if this is possible according to decoded fasm
         is_valid = iostandard in possible_iostandards
         if not is_valid:
-            print(
+            eprint(
                 "IOSTANDARD setting provided for {} do not match"
                 "its counterpart decoded from the fasm".format(site.site.name)
             )
+
+            eprint("Requested:")
+            eprint(" {}".format(iostandard))
+
+            eprint("Candidates are:")
+            for i in possible_iostandards:
+                eprint(" {}".format(i.ljust(15)))
+            eprint("")
+
+            # Demote NSTD-1 to warning
+            top.disable_drc("NSTD-1")
             return
 
         bel.parameters["IOSTANDARD"] = '"{}"'.format(iostandard)
 
+    # Input termination
+    if in_term is not None:
+        bel.parameters["IN_TERM"] = '"{}"'.format(in_term)
 
-def process_iob(top, iob):
+
+def decode_iostandard_params(site, diff=False):
     """
-    Processes an IOB
+    Collects all IOSTANDARD+DRIVE and IOSTANDARD+SLEW. Collect also possible
+    input IOSTANDARDS.
     """
 
-    aparts = iob[0].feature.split('.')
-    tile_name = aparts[0]
-    iob_site, iologic_tile, ilogic_site, ologic_site = get_iob_site(
-        top.db, top.grid, aparts[0], aparts[1]
-    )
-
-    # It seems that this IOB is always configured as an input at least in
-    # Artix7. So skip it here.
-    if iob_site.name == "IOB_X0Y44":
-        return
-
-    site = Site(iob, iob_site)
-
-    INTERMDISABLE_USED = site.has_feature('INTERMDISABLE.I')
-    IBUFDISABLE_USED = site.has_feature('IBUFDISABLE.I')
-
-    # Collect all IOSTANDARD+DRIVE and IOSTANDARD+SLEW. Collect also possible
-    # input IOSTANDARDS.
     iostd_drive = {}
     iostd_slew = {}
     iostd_in = set()
+    iostd_out = []
+
+    iostd_prefix = "DIFF_" if diff else ""
 
     for feature in site.features:
         parts = feature.split(".")
@@ -154,7 +182,11 @@ def process_iob(top, iob):
         if "DRIVE" in parts:
             idx = parts.index("DRIVE")
 
-            drives = [int(s[1:]) for s in parts[idx + 1].split("_")]
+            if parts[idx + 1] == "I_FIXED":
+                drives = [None]
+            else:
+                drives = [int(s[1:]) for s in parts[idx + 1].split("_")]
+
             iostds = [s for s in parts[idx - 1].split("_")]
 
             for ios in iostds:
@@ -174,18 +206,78 @@ def process_iob(top, iob):
                     iostd_slew[ios] = slew
 
         if "IN" in parts or "IN_ONLY" in parts:
-            iostd_in |= set([s for s in parts[-2].split("_")])
+            iostd_in |= set([iostd_prefix + s for s in parts[-2].split("_")])
 
     # Possible output configurations
-    iostd_out = []
     for iostd in set(list(iostd_drive.keys())) | set(list(iostd_slew.keys())):
         if iostd in iostd_drive and iostd in iostd_slew:
             for drive in iostd_drive[iostd]:
-                iostd_out.append((
-                    iostd,
-                    drive,
-                    iostd_slew[iostd],
-                ))
+                iostd_out.append(
+                    (
+                        iostd_prefix + iostd,
+                        drive,
+                        iostd_slew[iostd],
+                    )
+                )
+
+    return iostd_in, iostd_out
+
+
+def decode_in_term(site):
+    """
+    Decodes input termination setting.
+    """
+    for term in ["40", "50", "60"]:
+        if site.has_feature("IN_TERM.UNTUNED_SPLIT_" + term):
+            return "UNTUNED_SPLIT_" + term
+
+    return None
+
+
+def add_pull_bel(site, wire):
+    """
+    Adds an appropriate PULL bel to the given site based on decoded fasm
+    features.
+    """
+
+    if site.has_feature('PULLTYPE.PULLDOWN'):
+        bel = Bel('PULLDOWN')
+        bel.connections['O'] = wire
+        site.add_bel(bel)
+    elif site.has_feature('PULLTYPE.KEEPER'):
+        bel = Bel('KEEPER')
+        bel.connections['O'] = wire
+        site.add_bel(bel)
+    elif site.has_feature('PULLTYPE.PULLUP'):
+        bel = Bel('PULLUP')
+        bel.connections['O'] = wire
+        site.add_bel(bel)
+
+
+def process_single_ended_iob(top, iob):
+    """
+    Processes a single-ended IOB.
+    """
+
+    aparts = iob[0].feature.split('.')
+    tile_name = aparts[0]
+    iob_site, iologic_tile, ilogic_site, ologic_site = get_iob_site(
+        top.db, top.grid, aparts[0], aparts[1]
+    )
+
+    # It seems that this IOB is always configured as an input at least in
+    # Artix7. So skip it here.
+    if iob_site.name == "IOB_X0Y44":
+        return
+
+    site = Site(iob, iob_site)
+
+    INTERMDISABLE_USED = site.has_feature('INTERMDISABLE.I')
+    IBUFDISABLE_USED = site.has_feature('IBUFDISABLE.I')
+
+    # Decode IOSTANDARD parameters
+    iostd_in, iostd_out = decode_iostandard_params(site)
+    in_term = decode_in_term(site)
 
     # Buffer direction
     is_input = (
@@ -235,7 +327,7 @@ def process_iob(top, iob):
         # called I, so it is in fact correct.
         site.add_source(bel, bel_pin='O', source='I')
 
-        append_ibuf_iostandard_params(top, site, bel, iostd_in)
+        append_ibuf_iostandard_params(top, site, bel, iostd_in, in_term)
 
         site.add_bel(bel)
 
@@ -273,7 +365,7 @@ def process_iob(top, iob):
         site.add_sink(bel, bel_pin='I', sink='O')
 
         slew = "FAST" if site.has_feature_containing("SLEW.FAST") else "SLOW"
-        append_obuf_iostandard_params(top, site, bel, iostd_out, slew)
+        append_obuf_iostandard_params(top, site, bel, iostd_out, slew, in_term)
 
         site.add_bel(bel)
 
@@ -290,7 +382,7 @@ def process_iob(top, iob):
         site.add_sink(bel, bel_pin='I', sink='O')
 
         slew = "FAST" if site.has_feature_containing("SLEW.FAST") else "SLOW"
-        append_obuf_iostandard_params(top, site, bel, iostd_out, slew)
+        append_obuf_iostandard_params(top, site, bel, iostd_out, slew, in_term)
 
         site.add_bel(bel)
 
@@ -301,36 +393,116 @@ def process_iob(top, iob):
 
     # Pull
     if top_wire is not None:
-        if site.has_feature('PULLTYPE.PULLDOWN'):
-            bel = Bel('PULLDOWN')
-            bel.connections['O'] = top_wire
-            site.add_bel(bel)
-        elif site.has_feature('PULLTYPE.KEEPER'):
-            bel = Bel('KEEPER')
-            bel.connections['O'] = top_wire
-            site.add_bel(bel)
-        elif site.has_feature('PULLTYPE.PULLUP'):
-            bel = Bel('PULLUP')
-            bel.connections['O'] = top_wire
-            site.add_bel(bel)
+        add_pull_bel(site, top_wire)
 
     top.add_site(site)
 
 
+def process_differential_iob(top, iob, in_diff, out_diff):
+    """
+    Processes a differential-ended IOB.
+    """
+
+    assert in_diff or out_diff
+
+    aparts = iob['S'][0].feature.split('.')
+    tile_name = aparts[0]
+    iob_site_s, iologic_tile, ilogic_site_s, ologic_site_s = get_iob_site(
+        top.db, top.grid, aparts[0], aparts[1]
+    )
+
+    aparts = iob['M'][0].feature.split('.')
+    tile_name = aparts[0]
+    iob_site_m, iologic_tile, ilogic_site_m, ologic_site_m = get_iob_site(
+        top.db, top.grid, aparts[0], aparts[1]
+    )
+
+    site_s = Site(iob['S'], iob_site_s)
+    site_m = Site(iob['M'], iob_site_m)
+    site = Site(iob['S'] + iob['M'], tile_name, merged_site=True)
+
+    top_wire_n = None
+    top_wire_p = None
+
+    # Decode IOSTANDARD parameters
+    iostd_in, iostd_out = decode_iostandard_params(site, diff=True)
+    in_term = decode_in_term(site)
+
+    # Differential input
+    if in_diff:
+        assert False, "Differential inputs/inouts not supported yet!"
+
+    # Differential output
+    elif out_diff:
+
+        # Since we cannot distinguish between OBUFDS and OBUFTDS we add the
+        # "T" one. If it is the OBUFDS then the T input will be forced to 0.
+        bel = Bel('OBUFTDS')
+        top_wire_n = top.add_top_out_port(tile_name, iob_site_s.name, 'OPAD_N')
+        top_wire_p = top.add_top_out_port(tile_name, iob_site_m.name, 'OPAD_P')
+        bel.connections['OB'] = top_wire_n
+        bel.connections['O'] = top_wire_p
+
+        # Note this looks weird, but the BEL pin is I, and the site wire
+        # is called O, so it is in fact correct.
+        site_m.add_sink(bel, bel_pin='I', sink='O')
+        site_m.add_sink(bel, bel_pin='T', sink='T')
+
+        slew = "FAST" if site.has_feature_containing("SLEW.FAST") else "SLOW"
+        append_obuf_iostandard_params(
+            top, site_m, bel, iostd_out, slew, in_term
+        )
+
+        site_m.add_bel(bel)
+
+    # Pulls
+    if top_wire_n is not None:
+        add_pull_bel(site_s, top_wire_n)
+    if top_wire_p is not None:
+        add_pull_bel(site_m, top_wire_p)
+
+    top.add_site(site_m)
+    top.add_site(site_s)
+
+
 def process_iobs(conn, top, tile, features):
-    iobs = {
-        '0': [],
-        '1': [],
+
+    site_map = {
+        'IOB_Y1': 'S',
+        'IOB_Y0': 'M',
     }
+
+    iobs = {
+        'S': [],
+        'M': [],
+    }
+
+    out_diff = False
+    in_diff = False
 
     for f in features:
         parts = f.feature.split('.')
 
+        # Detect differential IO
+        if parts[1] == "OUT_DIFF":
+            out_diff = True
+        if len(parts) == 3 and parts[2] == "IN_DIFF":
+            in_diff = True
+
         if not parts[1].startswith('IOB_Y'):
             continue
 
-        iobs[parts[1][-1]].append(f)
+        # Map site name to 'M' or 'S'
+        ms = site_map[parts[1]]
+        assert ms in iobs, ms
+        iobs[ms].append(f)
 
-    for iob in iobs:
-        if len(iobs[iob]) > 0:
-            process_iob(top, iobs[iob])
+    # Differential
+    if in_diff or out_diff:
+        process_differential_iob(top, iobs, in_diff, out_diff)
+
+    # Single ended
+    else:
+        for iob, features in iobs.items():
+            if len(features) > 0:
+                process_single_ended_iob(top, features)

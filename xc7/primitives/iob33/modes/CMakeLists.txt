@@ -1,0 +1,5 @@
+add_file_target(FILE no_ibuf.xml SCANNER_TYPE xml)
+add_file_target(FILE no_obuf.xml SCANNER_TYPE xml)
+add_file_target(FILE ibuf.xml SCANNER_TYPE xml)
+add_file_target(FILE obuf.xml SCANNER_TYPE xml)
+add_file_target(FILE iobuf.xml SCANNER_TYPE xml)

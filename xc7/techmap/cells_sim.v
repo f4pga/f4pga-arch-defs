@@ -634,6 +634,38 @@ module IOBUF_VPR (
 
 endmodule
 
+
+module OBUFTDS_M_VPR (
+    input  I,
+    input  T,
+    output O,
+    output OB
+);
+
+  parameter [0:0] LVCMOS12_LVCMOS15_LVCMOS18_LVCMOS25_LVCMOS33_LVTTL_SSTL135_SLEW_SLOW = 1'b0;
+  parameter [0:0] LVCMOS12_LVCMOS15_LVCMOS18_SSTL135_STEPDOWN = 1'b0;
+  parameter [0:0] SSTL135_DRIVE_I_FIXED = 1'b0;
+  parameter [0:0] SSTL135_SLEW_FAST = 1'b0;
+
+  assign O  = (T == 1'b0) ?  I : 1'bz;
+  assign OB = (T == 1'b0) ? !I : 1'bz;
+
+endmodule
+
+module OBUFTDS_S_VPR (
+    input  IB,
+    output OB
+);
+
+  parameter [0:0] LVCMOS12_LVCMOS15_LVCMOS18_LVCMOS25_LVCMOS33_LVTTL_SSTL135_SLEW_SLOW = 1'b0;
+  parameter [0:0] LVCMOS12_LVCMOS15_LVCMOS18_SSTL135_STEPDOWN = 1'b0;
+  parameter [0:0] SSTL135_DRIVE_I_FIXED = 1'b0;
+  parameter [0:0] SSTL135_SLEW_FAST = 1'b0;
+
+  assign OB = IB;
+
+endmodule
+
 // ============================================================================
 // I/OSERDES
 

@@ -1,0 +1,13 @@
+<mode name="NO_OBUF" xmlns:xi="http://www.w3.org/2001/XInclude">
+  <xi:include href="../outpad.pb_type.xml"/>
+  <interconnect>
+    <direct name="O" input="IOB33_MODES.O" output="outpad.outpad">
+      <metadata>
+        <meta name="fasm_mux">
+          IOB33_MODES.O : PULLTYPE.NONE,LVCMOS33_LVTTL.DRIVE.I12_I16,LVCMOS12_LVCMOS15_LVCMOS18_LVCMOS25_LVCMOS33_LVTTL_SSTL135.SLEW.SLOW
+        </meta>
+      </metadata>
+    </direct>
+  </interconnect>
+</mode>
+

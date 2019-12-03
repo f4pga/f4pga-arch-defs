@@ -225,6 +225,19 @@ def check_feature(feature):
 
     feature_path = feature.split('.')
 
+    # IOB_DIFFO_OUT0->IOB_DIFFO_IN1
+    #
+    # When this PIP is active the IOB operates in the differential output mode.
+    # There is no feature assosciated with that PIP in the prjxray db but there
+    # is a tile-wide feature named "DIFF_OUT".
+    #
+    # The "DIFF_OUT" cannot be set in the architecture as it is defined one
+    # level up in the hierarchy (its tile-wide, not site-wide). So here we
+    # map the PIP's feature to "DIFF_OUT"
+    if feature_path[2] == "IOB_DIFFO_OUT0" and \
+       feature_path[1] == "IOB_DIFFO_IN1":
+        return '{}.OUT_DIFF'.format(feature_path[0])
+
     rebuf_key = (feature_path[0], feature_path[1])
     if rebuf_key in REBUF_SOURCES:
         return ' '.join([feature] + REBUF_NODES[REBUF_SOURCES[rebuf_key]])

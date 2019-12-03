@@ -1,0 +1,18 @@
+<mode name="OBUF" xmlns:xi="http://www.w3.org/2001/XInclude">
+  <pb_type name="OUTBUF_VPR" blif_model=".subckt OUTBUF_VPR" num_pb="1">
+    <input name="IN" num_pins="1"/>
+    <input name="TRI" num_pins="1"/>
+    <output name="OUT" num_pins="1"/>
+    <delay_constant max="10e-12" in_port="IN"  out_port="OUT"/>
+  </pb_type>
+
+  <xi:include href="../outpad.pb_type.xml"/>
+
+  <interconnect>
+    <direct name="T" input="IOB33_MODES.T" output="OUTBUF_VPR.TRI"/>
+    <direct name="O" input="IOB33_MODES.O" output="OUTBUF_VPR.IN"/>
+    <direct name="to_outpad" input="OUTBUF_VPR.OUT" output="outpad.outpad">
+      <pack_pattern name="OUTBUF_to_outpad"/>
+    </direct>
+  </interconnect>
+</mode>

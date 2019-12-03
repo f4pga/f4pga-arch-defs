@@ -309,6 +309,9 @@ def main():
         for l in top.output_nets():
             print(l, file=f)
 
+        for l in top.output_disabled_drcs():
+            print(l, file=f)
+
 
 if __name__ == "__main__":
     main()
