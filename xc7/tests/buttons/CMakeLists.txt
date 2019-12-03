@@ -28,6 +28,13 @@ add_fpga_target(
 
 add_file_target(FILE buttons_basys3_full.v SCANNER_TYPE verilog)
 add_fpga_target(
+  NAME buttons_zybo_full
+  BOARD zybo-full
+  SOURCES buttons_zybo_full.v
+  INPUT_IO_FILE zybo_full.pcf
+  )
+
+add_fpga_target(
   NAME buttons_basys3_full
   BOARD basys3-full
   SOURCES buttons_basys3_full.v
