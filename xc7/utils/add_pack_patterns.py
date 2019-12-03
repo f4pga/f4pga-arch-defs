@@ -5,6 +5,7 @@ import re
 IOPAD_OLOGIC_REGEX = re.compile("OLOGICE3.OQ_to_IOB33[MS]?.O")
 IOPAD_ILOGIC_REGEX = re.compile("IOB33[MS]?.I_to_ILOGICE3.D")
 
+
 def get_top_pb_type(element):
     top_pb_type = element.getparent()
 
@@ -17,7 +18,7 @@ def get_top_pb_type(element):
         top_pb_type = next_parent
 
 
-def check_correct_direct(element, list_to_check):
+def check_direct(element, list_to_check):
     interconnect = element.getparent()
     mode = interconnect.getparent()
 
@@ -67,21 +68,21 @@ def main():
         if 'name' not in direct.attrib:
             continue
 
-        direct_name = direct.attrib['name']
+        dir_name = direct.attrib['name']
 
         # Adding OSERDES pack patterns
-        if IOPAD_OLOGIC_REGEX.match(direct_name) or check_correct_direct(
+        if IOPAD_OLOGIC_REGEX.match(dir_name) or check_direct(
                 direct, [('NO_OBUF', 'O'), ('OSERDES', 'OQ')]):
             add_pack_pattern(direct, 'OSERDES')
 
         # Adding ISERDES pack patterns
-        if IOPAD_ILOGIC_REGEX.match(direct_name) or check_correct_direct(
+        if IOPAD_ILOGIC_REGEX.match(dir_name) or check_direct(
                 direct, [('NO_IBUF', 'I'), ('ISERDES', 'D')]):
             add_pack_pattern(direct, 'ISERDES')
 
         # Adding IOSERDES pack patterns (using IOBUF)
-        if IOPAD_OLOGIC_REGEX.match(direct_name) or IOPAD_ILOGIC_REGEX.match(
-                direct_name) or check_correct_direct(direct, [
+        if IOPAD_OLOGIC_REGEX.match(dir_name) or IOPAD_ILOGIC_REGEX.match(
+                dir_name) or check_direct(direct, [
                     ('IOBUF', 'I'),
                     ('IOBUF', 'inpad.inpad_to_IOBUF_VPR.IOPAD_$inp'),
                     ('IOBUF', 'O'),
@@ -91,13 +92,14 @@ def main():
             add_pack_pattern(direct, 'IOSERDES')
 
         # Adding IOSERDES with IDELAY
-        if IOPAD_OLOGIC_REGEX.match(direct_name) or 'DATAOUT_to_ILOGICE3' in direct_name or 'I_to_IDELAYE2' in direct_name or check_correct_direct(direct, [
-                    ('IOBUF', 'I'),
-                    ('IOBUF', 'inpad.inpad_to_IOBUF_VPR.IOPAD_$inp'),
-                    ('IOBUF', 'O'),
-                    ('IOBUF', 'IOBUF_VPR.IOPAD_$out_to_outpad.outpad'),
-                    ('ISERDES', 'DDLY'), ('OSERDES', 'OQ')
-                ]):
+        if IOPAD_OLOGIC_REGEX.match(
+                dir_name
+        ) or 'DATAOUT_to_ILOGICE3' in dir_name or 'I_to_IDELAYE2' in dir_name or check_direct(
+                direct, [('IOBUF', 'I'),
+                         ('IOBUF', 'inpad.inpad_to_IOBUF_VPR.IOPAD_$inp'),
+                         ('IOBUF', 'O'),
+                         ('IOBUF', 'IOBUF_VPR.IOPAD_$out_to_outpad.outpad'),
+                         ('ISERDES', 'DDLY'), ('OSERDES', 'OQ')]):
             add_pack_pattern(direct, 'IOSERDES_IDELAY')
 
     print(ET.tostring(arch_xml, pretty_print=True).decode('utf-8'))
