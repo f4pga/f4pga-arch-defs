@@ -1,5 +1,5 @@
 <models xmlns:xi="http://www.w3.org/2001/XInclude">
-  <model name="ISERDESE2_VPR">
+  <model name="ISERDESE2_NO_IDELAY_VPR">
     <input_ports>
       <port is_clock="1" name="CLK"/>
       <port is_clock="1" name="CLKB"/>
@@ -8,6 +8,39 @@
       <port name="CE1"/>
       <port name="CE2"/>
       <port name="D"/>
+      <port name="DYNCLKDIVPSEL"/>
+      <port name="DYNCLKDIVSEL"/>
+      <port name="DYNCLKSEL"/>
+      <port name="OCLK"/>
+      <port name="OCLKB"/>
+      <port name="OFB"/>
+      <port name="SHIFTIN1"/>
+      <port name="SHIFTIN2"/>
+      <port name="RST"/>
+      <port name="TFB"/>
+    </input_ports>
+    <output_ports>
+      <port name="O"/>
+      <port name="Q1"/>
+      <port name="Q2"/>
+      <port name="Q3"/>
+      <port name="Q4"/>
+      <port name="Q5"/>
+      <port name="Q6"/>
+      <port name="Q7"/>
+      <port name="Q8"/>
+      <port name="SHIFTOUT1"/>
+      <port name="SHIFTOUT2"/>
+    </output_ports>
+  </model>
+  <model name="ISERDESE2_IDELAY_VPR">
+    <input_ports>
+      <port is_clock="1" name="CLK"/>
+      <port is_clock="1" name="CLKB"/>
+      <port is_clock="1" name="CLKDIV"/>
+      <port name="BITSLIP"/>
+      <port name="CE1"/>
+      <port name="CE2"/>
       <port name="DDLY"/>
       <port name="DYNCLKDIVPSEL"/>
       <port name="DYNCLKDIVSEL"/>

@@ -1,5 +1,5 @@
 <!-- set: ai sw=1 ts=1 sta et -->
-<pb_type name="IDELAYE2" blif_model=".subckt IDELAYE2" num_pb="1">
+<pb_type name="IDELAYE2" blif_model=".subckt IDELAYE2_VPR" num_pb="1">
   <clock name="C" num_pins="1"/>
   <input name="CE" num_pins="1"/>
   <input name="CINVCTRL" num_pins="1"/>
@@ -34,4 +34,37 @@
   <!-- TODO
        - correct timing values
   -->
+  <metadata>
+    <meta name="fasm_feature">
+      IN_USE
+    </meta>
+    <meta name="fasm_params">
+      IDELAY_VALUE[0] = IDELAY_VALUE_0
+      IDELAY_VALUE[1] = IDELAY_VALUE_1
+      IDELAY_VALUE[2] = IDELAY_VALUE_2
+      IDELAY_VALUE[3] = IDELAY_VALUE_3
+      IDELAY_VALUE[4] = IDELAY_VALUE_4
+
+      ZIDELAY_VALUE[0] = ZIDELAY_VALUE_0
+      ZIDELAY_VALUE[1] = ZIDELAY_VALUE_1
+      ZIDELAY_VALUE[2] = ZIDELAY_VALUE_2
+      ZIDELAY_VALUE[3] = ZIDELAY_VALUE_3
+      ZIDELAY_VALUE[4] = ZIDELAY_VALUE_4
+
+      IS_DATAIN_INVERTED = IS_DATAIN_INVERTED
+      IS_IDATAIN_INVERTED = IS_IDATAIN_INVERTED
+
+      PIPE_SEL = PIPE_SEL
+      CINVCTRL_SEL = CINVCTRL_SEL
+
+      HIGH_PERFORMANCE_MODE = HIGH_PERFORMANCE_MODE
+
+      IDELAY_TYPE_FIXED = IDELAY_TYPE_FIXED
+      IDELAY_TYPE_VAR_LOAD = IDELAY_TYPE_VAR_LOAD
+      IDELAY_TYPE_VARIABLE = IDELAY_TYPE_VARIABLE
+
+      DELAY_SRC_DATAIN = DELAY_SRC_DATAIN
+      DELAY_SRC_IDATAIN = DELAY_SRC_IDATAIN
+    </meta>
+  </metadata>
 </pb_type>
