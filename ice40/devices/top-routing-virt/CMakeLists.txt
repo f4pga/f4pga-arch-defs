@@ -11,6 +11,8 @@ set(ICEBOX_TIMING ${symbiflow-arch-defs_SOURCE_DIR}/third_party/icestorm/icefuzz
 set(CLEAN_ICEBOX_TIMING cleaned_timing.txt)
 set(TIMING_TXT_FILE ${ICEBOX_SHARE}/timings_hx1k.txt)
 set(SDF_FILE timings_hx1k.sdf)
+add_file_target(FILE ${SDF_FILE} GENERATED)
+get_file_target(SDF_FILE_TARGET ${SDF_FILE})
 
 add_custom_command(
   OUTPUT ${SDF_FILE}
@@ -26,8 +28,7 @@ add_custom_target(
   )
 get_target_property_required(ICE40_IMPORT_TIMING ice40_import_timing_deps ICE40_IMPORT_TIMING)
 set(TIMING_IMPORT_CMD "${PYTHON3} ${ICE40_IMPORT_TIMING} --read_sdf ${SDF_FILE} --write_arch_xml /dev/stdout --read_arch_xml /dev/stdin")
-add_file_target(FILE ${SDF_FILE} GENERATED)
-append_file_dependency(DEPS ${SDF_FILE})
+set(TIMING_IMPORT_DEPS SDF_FILE_TARGET)
 
 set(UPDATE_TILES "${symbiflow-arch-defs_SOURCE_DIR}/utils/update_arch_tiles.py")
 set(UPDATE_TILES_CMD "${PYTHON3} ${UPDATE_TILES} --in_xml /dev/stdin --out_xml /dev/stdout")
@@ -40,7 +41,7 @@ define_device_type(
   ARCH ice40
   ARCH_XML arch.xml
   SCRIPT_OUTPUT_NAME tiles timing
-  SCRIPT_DEPS UPDATE_TILES_DEPS DEPS
+  SCRIPT_DEPS UPDATE_TILES_DEPS TIMING_IMPORT_DEPS
   SCRIPTS UPDATE_TILES_CMD TIMING_IMPORT_CMD
   )
 
