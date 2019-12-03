@@ -76,6 +76,10 @@ add_conda_package(
   NAME iverilog
   PROVIDES iverilog vvp
   )
+add_conda_package(
+  NAME yosys-plugins
+  NO_EXE
+  )
 
 add_conda_pip(
   NAME progressbar2
