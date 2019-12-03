@@ -177,10 +177,10 @@ function(ADD_XC7_DEVICE_DEFINE_TYPE)
   set(BELS_MAP ${symbiflow-arch-defs_SOURCE_DIR}/xc7/bels.json)
 
   set(ADD_PACK_PATTERN "${PYTHON3} ${UPDATE_PACK_PATTERNS} --in_arch /dev/stdin")
-  set(PACK_PATTERN_DEPS "")
+  set(PACK_PATTERN_DEPS UPDATE_PACK_PATTERNS)
 
   set(TIMING_IMPORT "${PYTHON3} ${UPDATE_ARCH_TIMINGS} --sdf_dir ${SDF_TIMING_DIRECTORY} --bels_map ${BELS_MAP} --out_arch /dev/stdout --input_arch /dev/stdin")
-  set(TIMING_DEPS "")
+  set(TIMING_DEPS BELS_MAP UPDATE_ARCH_TIMINGS)
 
   define_device_type(
     DEVICE_TYPE ${DEVICE_TYPE}

@@ -31,7 +31,7 @@ append_file_dependency(DEPS ${SDF_FILE})
 
 set(UPDATE_TILES "${symbiflow-arch-defs_SOURCE_DIR}/utils/update_arch_tiles.py")
 set(UPDATE_TILES_CMD "${PYTHON3} ${UPDATE_TILES} --in_xml /dev/stdin --out_xml /dev/stdout")
-set(UPDATE_TILES_DEPS "")
+set(UPDATE_TILES_DEPS UPDATE_TILES)
 
 define_device_type(
   DEVICE_TYPE top-routing-virt

@@ -270,7 +270,7 @@ function(DEFINE_DEVICE_TYPE)
   #
   # DEFINE_DEVICE_TYPE defines a dummy target <arch>_<device_type>_arch that
   # will build the merged architecture file for the device type.
-
+  set(options "")
   set(oneValueArgs DEVICE_TYPE ARCH ARCH_XML)
   set(multiValueArgs SCRIPT_OUTPUT_NAME SCRIPTS SCRIPT_DEPS)
   cmake_parse_arguments(
@@ -328,6 +328,7 @@ function(DEFINE_DEVICE_TYPE)
       list(GET DEFINE_DEVICE_TYPE_SCRIPTS ${SCRIPT_IND} SCRIPT)
 
       set(SCRIPT ${${SCRIPT}})
+      set(DEFINE_DEVICE_TYPE_SCRIPT_DEP_VAR ${${DEFINE_DEVICE_TYPE_SCRIPT_DEP_VAR}})
 
       separate_arguments(CMD_W_ARGS UNIX_COMMAND ${SCRIPT})
       list(GET CMD_W_ARGS 0 CMD)
