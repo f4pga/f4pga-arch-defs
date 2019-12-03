@@ -52,7 +52,6 @@ SINGLE_PRECISION_FLOAT_MIN = 2**-126
 VCC_NET = 'VCC_NET'
 GND_NET = 'GND_NET'
 
-
 def import_site_type(db, write_cur, site_types, site_type_name):
     assert site_type_name not in site_types
     site_type = db.get_site_type(site_type_name)
@@ -197,11 +196,59 @@ VALUES
     return get_switch, get_switch_timing
 
 
+def build_pss_object_mask(db, tile_type_name):
+    """
+    Looks for objects present in PSS* tiles of Zynq7 and masks out those
+    that are purely PS related and not configued by the PL.
+    """
+
+    tile_type = db.get_tile_type(tile_type_name)
+    sites = tile_type.get_sites()
+
+    masked_wires = []
+    masked_pips = []
+
+    # Get all IOPADS for MIO and DDR signals
+    iopad_sites = [s for s in sites if s.type == "IOPAD"]
+    for site in iopad_sites:
+
+        # Get pins/wires
+        site_pins = [p for p in site.site_pins if p.name == "IO"]
+        for site_pin in site_pins:
+
+            # Mask the wire
+            masked_wires.append(site_pin.wire)
+
+            # Find a PIP(s) for this wire, mask them as well as wires on
+            # their other sides.
+            for p in tile_type.get_pips():
+                if p.net_from == site_pin.wire:
+                    masked_pips.append(p.name)
+                    masked_wires.append(p.net_to)
+                if p.net_to == site_pin.wire:
+                    masked_pips.append(p.name)
+                    masked_wires.append(p.net_from)
+
+    # Masked sites names
+    masked_sites = ["{}_{}".format(s.prefix, s.name) for s in iopad_sites]
+
+    return masked_sites, masked_wires, masked_pips
+
+
 def import_tile_type(
         db, write_cur, tile_types, site_types, tile_type_name, get_switch
 ):
     assert tile_type_name not in tile_types
     tile_type = db.get_tile_type(tile_type_name)
+
+    # For Zynq7 PSS* tiles build a list of sites, wires and PIPs to ignore
+    if tile_type_name.startswith("PSS"):
+        masked_sites, masked_wires, masked_pips = build_pss_object_mask(db, tile_type_name)
+
+    else:
+        masked_sites = []
+        masked_wires = []
+        masked_pips = []
 
     write_cur.execute(
         "INSERT INTO tile_type(name) VALUES (?)", (tile_type_name, )
@@ -210,6 +257,9 @@ def import_tile_type(
 
     wires = {}
     for wire, wire_rc_element in tile_type.get_wires().items():
+        if wire in masked_wires:
+            continue
+
         capacitance = 0.0
         resistance = 0.0
 
@@ -232,6 +282,9 @@ VALUES
         wires[wire] = write_cur.lastrowid
 
     for pip in tile_type.get_pips():
+        if pip.name in masked_pips:
+            continue
+
         switch_pkey = get_switch(pip, pip.timing)
         backward_switch_pkey = get_switch(pip, pip.backward_timing)
 
@@ -268,6 +321,9 @@ VALUES
         )
 
     for site in tile_type.get_sites():
+        if "{}_{}".format(site.prefix, site.name) in masked_sites:
+            continue
+
         if site.type not in site_types:
             import_site_type(db, write_cur, site_types, site.type)
 
@@ -278,6 +334,10 @@ def add_wire_to_site_relation(
 ):
     tile_type = db.get_tile_type(tile_type_name)
     for site in tile_type.get_sites():
+
+        if site.type not in site_types:
+            continue
+
         write_cur.execute(
             """
 INSERT INTO site(name, x_coord, y_coord, site_type_pkey, tile_type_pkey)
@@ -495,7 +555,11 @@ def import_nodes(db, grid, conn):
 SELECT pkey FROM wire_in_tile WHERE name = ? and tile_type_pkey = ?;""",
                 (wire, tile_type_pkey)
             )
-            (wire_in_tile_pkey, ) = cur.fetchone()
+
+            wire_in_tile_pkey = cur.fetchone()
+            if wire_in_tile_pkey is None:
+                continue
+            wire_in_tile_pkey = wire_in_tile_pkey[0]
 
             write_cur.execute(
                 """

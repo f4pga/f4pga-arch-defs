@@ -204,6 +204,16 @@ WHERE
         if self.is_directional:
             assert self.switch_pkey == self.backward_switch_pkey
 
+    def __iter__(self):
+        yield "pip_pkey", self.pip_pkey
+        yield "src_wire_in_tile_pkey", self.src_wire_in_tile_pkey
+        yield "dest_wire_in_tile_pkey", self.dest_wire_in_tile_pkey
+        yield "switch_pkey", self.switch_pkey
+        yield "backward_switch_pkey", self.backward_switch_pkey
+        yield "is_directional", self.is_directional
+        yield "is_pseudo", self.is_pseudo
+        yield "can_invert", self.can_invert
+
     def get_pip_switch(self, src_wire_pkey, dest_wire_pkey):
         """ Return the switch_pkey for the given connection.
 
@@ -724,8 +734,8 @@ AND
                     return
 
         elif self.pins and other_connector.pins and not pip.is_pseudo:
-            assert self.pins.site_pin_direction == SitePinDirection.OUT
-            assert other_connector.pins.site_pin_direction == SitePinDirection.IN
+            assert self.pins.site_pin_direction == SitePinDirection.OUT, dict(pip)
+            assert other_connector.pins.site_pin_direction == SitePinDirection.IN, dict(pip)
 
             switch_pkey = self.get_edge_with_mux_switch(
                 src_wire_pkey, pip.pip_pkey, dest_wire_pkey
@@ -2075,6 +2085,11 @@ def create_and_insert_edges(
             # Generally pseudo-pips are skipped, with the exception for BUFHCE related pips,
             # for which we want to create a routing path to have VPR route thorugh these pips.
             if pip.is_pseudo and "CLK_HROW_CK" not in pip.name:
+                continue
+
+            # Filter out PIPs related to MIO and DDR pins of the Zynq7 PS.
+            # These PIPs are actually not there, they are just informative.
+            if "PS72_" in pip.net_to or "PS72_" in pip.net_from:
                 continue
 
             connections = make_connection(
