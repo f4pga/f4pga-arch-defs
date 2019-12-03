@@ -23,7 +23,7 @@ parser.add_argument(
     help="Output dependencies file per line, rather than Make .d format."
 )
 
-v_include = re.compile(r'`include[ ]*"([^"]*)"|\$readmemb\("(.*)",(.*)\)')
+v_include = re.compile(r'`include[ ]*"([^"]*)"|\$readmem[bh]\("(.*)",(.*)\)')
 
 
 def read_dependencies(inputfile):
