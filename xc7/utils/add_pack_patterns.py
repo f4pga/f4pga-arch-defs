@@ -1,12 +1,34 @@
+""" Adds specialized pack patterns to avoid unroutable situations during packing
+
+Given an input architecture, this utility will find all the directs that need
+to have a specialized pack pattern and adds it to them.
+
+To find the correct direct that needs to be updated there are two different ways:
+    1. If the direct belongs to the top level pb_type, the direct can be
+       checked against a regular expression specified at the beginning of
+       this file or with a string contained in the direct name.
+    2. If the direct belongs to an intermediate/leaf pb_type, the port name
+       and belonging operational `mode` are checked to select the correct
+       direct that needs update.
+
+Currently IOPADs need specialized pack patterns to enable VTR to create molecules
+between the various sites of the tile (e.g. ISERDES, IDELAY, IOB33 and OSERDES).
+
+"""
+
 import lxml.etree as ET
 import argparse
 import re
 
+# Regular Expressions to select the directs that need additional pack patterns.
+# Being multiple IOB and IOPAD types, the name of the direct changes according
+# to different types, hence a regex is needed.
 IOPAD_OLOGIC_REGEX = re.compile("OLOGICE3.OQ_to_IOB33[MS]?.O")
 IOPAD_ILOGIC_REGEX = re.compile("IOB33[MS]?.I_to_ILOGICE3.D")
 
 
 def get_top_pb_type(element):
+    """ Returns the top level pb_type given a subelement of the XML tree."""
     top_pb_type = element.getparent()
 
     while True:
@@ -19,6 +41,12 @@ def get_top_pb_type(element):
 
 
 def check_direct(element, list_to_check):
+    """ Returns a boolean indicating whether the direct should be update.
+
+        Inputs:
+            - element: direct that needs to be checked;
+            - list_to_check: operational mode and port of the direct to select.
+    """
     interconnect = element.getparent()
     mode = interconnect.getparent()
 
@@ -34,6 +62,7 @@ def check_direct(element, list_to_check):
 
 
 def add_pack_pattern(direct, pack_pattern_prefix):
+    """ Adds the pack pattern to the given direct with a specified prefix. """
     top_pb_type = get_top_pb_type(direct)
 
     pack_pattern_name = "{}_{}".format(
