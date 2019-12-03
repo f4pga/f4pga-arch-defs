@@ -1,5 +1,5 @@
 <models>
-  <model name="IDELAYE2">
+  <model name="IDELAYE2_VPR">
     <input_ports>
       <!-- synchronous control inputs -->
       <port is_clock="1" name="C"/>

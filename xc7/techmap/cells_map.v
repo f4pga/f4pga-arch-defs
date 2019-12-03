@@ -2237,6 +2237,7 @@ module ISERDESE2 (
   input  CLKDIV,
   input  RST,
   input  D,
+  input  DDLY,
   output Q1,
   output Q2,
   output Q3,
@@ -2301,50 +2302,192 @@ module ISERDESE2 (
     end
   end
 
-  ISERDESE2_VPR #(
-      .DATA_RATE_SDR                (DATA_RATE == "SDR"),
-      .INTERFACE_TYPE_MEMORY_DDR3   (INTERFACE_TYPE == "MEMORY_DDR3"),
-      .INTERFACE_TYPE_NOT_MEMORY    (INTERFACE_TYPE != "MEMORY"         ||
-                                     INTERFACE_TYPE != "MEMORY_DDR3"    ||
-                                     INTERFACE_TYPE != "MEMORY_QDR"),
-      .INTERFACE_TYPE_OVERSAMPLE    (INTERFACE_TYPE == "OVERSAMPLE"),
-      .INTERFACE_TYPE_Z_MEMORY      (INTERFACE_TYPE != "OVERSAMPLE" || INTERFACE_TYPE != "NETWORKING"),
-      .DATA_WIDTH_W3                (DATA_WIDTH == 3),
-      .DATA_WIDTH_W4_6              (DATA_WIDTH == 4 || DATA_WIDTH == 6),
-      .DATA_WIDTH_W5_7              (DATA_WIDTH == 5 || DATA_WIDTH == 7),
-      .DATA_WIDTH_W8                (DATA_WIDTH == 8),
-      .NUM_CE_N2                    (NUM_CE == 2),
+  parameter _TECHMAP_CONSTMSK_D_ = 1'b1;
+  parameter _TECHMAP_CONSTVAL_D_ = 1'bx;
+  parameter _TECHMAP_CONSTMSK_DDLY_ = 1'b1;
+  parameter _TECHMAP_CONSTVAL_DDLY_ = 1'bx;
 
-      // Inverters
-      .ZINIT_Q1                     (!INIT_Q1),
-      .ZINIT_Q2                     (!INIT_Q2),
-      .ZINIT_Q3                     (!INIT_Q3),
-      .ZINIT_Q4                     (!INIT_Q4),
-      .ZSRVAL_Q1                    (!SRVAL_Q1),
-      .ZSRVAL_Q2                    (!SRVAL_Q2),
-      .ZSRVAL_Q3                    (!SRVAL_Q3),
-      .ZSRVAL_Q4                    (!SRVAL_Q4),
+  if (_TECHMAP_CONSTMSK_D_ == 1'b1) begin
+      ISERDESE2_IDELAY_VPR #(
+          .DATA_RATE_SDR                (DATA_RATE == "SDR"),
+          .INTERFACE_TYPE_MEMORY_DDR3   (INTERFACE_TYPE == "MEMORY_DDR3"),
+          .INTERFACE_TYPE_NOT_MEMORY    (INTERFACE_TYPE != "MEMORY"         ||
+                                         INTERFACE_TYPE != "MEMORY_DDR3"    ||
+                                         INTERFACE_TYPE != "MEMORY_QDR"),
+          .INTERFACE_TYPE_OVERSAMPLE    (INTERFACE_TYPE == "OVERSAMPLE"),
+          .INTERFACE_TYPE_Z_MEMORY      (INTERFACE_TYPE != "OVERSAMPLE" || INTERFACE_TYPE != "NETWORKING"),
+          .DATA_WIDTH_W3                (DATA_WIDTH == 3),
+          .DATA_WIDTH_W4_6              (DATA_WIDTH == 4 || DATA_WIDTH == 6),
+          .DATA_WIDTH_W5_7              (DATA_WIDTH == 5 || DATA_WIDTH == 7),
+          .DATA_WIDTH_W8                (DATA_WIDTH == 8),
+          .NUM_CE_N2                    (NUM_CE == 2),
 
-      .ZINV_D                       (!IS_D_INVERTED),
+          // Inverters
+          .ZINIT_Q1                     (!INIT_Q1),
+          .ZINIT_Q2                     (!INIT_Q2),
+          .ZINIT_Q3                     (!INIT_Q3),
+          .ZINIT_Q4                     (!INIT_Q4),
+          .ZSRVAL_Q1                    (!SRVAL_Q1),
+          .ZSRVAL_Q2                    (!SRVAL_Q2),
+          .ZSRVAL_Q3                    (!SRVAL_Q3),
+          .ZSRVAL_Q4                    (!SRVAL_Q4),
 
-      .ZINV_C                       (!IS_CLK_INVERTED)
+          .ZINV_D                       (!IS_D_INVERTED),
+
+          .ZINV_C                       (!IS_CLK_INVERTED)
+      ) _TECHMAP_REPLACE_ (
+       .BITSLIP     (BITSLIP),
+       .CE1         (CE1),
+       .CE2         (CE2),
+       .CLK         (CLK),
+       .CLKB        (CLKB),
+       .CLKDIV      (CLKDIV),
+       .RST         (RST),
+       .DDLY        (DDLY),
+       .Q1          (Q1),
+       .Q2          (Q2),
+       .Q3          (Q3),
+       .Q4          (Q4),
+       .Q5          (Q5),
+       .Q6          (Q6),
+       .Q7          (Q7),
+       .Q8          (Q8)
+      );
+    end else if (_TECHMAP_CONSTMSK_DDLY_ == 1'b1) begin
+      ISERDESE2_NO_IDELAY_VPR #(
+          .DATA_RATE_SDR                (DATA_RATE == "SDR"),
+          .INTERFACE_TYPE_MEMORY_DDR3   (INTERFACE_TYPE == "MEMORY_DDR3"),
+          .INTERFACE_TYPE_NOT_MEMORY    (INTERFACE_TYPE != "MEMORY"         ||
+                                         INTERFACE_TYPE != "MEMORY_DDR3"    ||
+                                         INTERFACE_TYPE != "MEMORY_QDR"),
+          .INTERFACE_TYPE_OVERSAMPLE    (INTERFACE_TYPE == "OVERSAMPLE"),
+          .INTERFACE_TYPE_Z_MEMORY      (INTERFACE_TYPE != "OVERSAMPLE" || INTERFACE_TYPE != "NETWORKING"),
+          .DATA_WIDTH_W3                (DATA_WIDTH == 3),
+          .DATA_WIDTH_W4_6              (DATA_WIDTH == 4 || DATA_WIDTH == 6),
+          .DATA_WIDTH_W5_7              (DATA_WIDTH == 5 || DATA_WIDTH == 7),
+          .DATA_WIDTH_W8                (DATA_WIDTH == 8),
+          .NUM_CE_N2                    (NUM_CE == 2),
+
+          // Inverters
+          .ZINIT_Q1                     (!INIT_Q1),
+          .ZINIT_Q2                     (!INIT_Q2),
+          .ZINIT_Q3                     (!INIT_Q3),
+          .ZINIT_Q4                     (!INIT_Q4),
+          .ZSRVAL_Q1                    (!SRVAL_Q1),
+          .ZSRVAL_Q2                    (!SRVAL_Q2),
+          .ZSRVAL_Q3                    (!SRVAL_Q3),
+          .ZSRVAL_Q4                    (!SRVAL_Q4),
+
+          .ZINV_D                       (!IS_D_INVERTED),
+
+          .ZINV_C                       (!IS_CLK_INVERTED)
+      ) _TECHMAP_REPLACE_ (
+       .BITSLIP     (BITSLIP),
+       .CE1         (CE1),
+       .CE2         (CE2),
+       .CLK         (CLK),
+       .CLKB        (CLKB),
+       .CLKDIV      (CLKDIV),
+       .RST         (RST),
+       .D           (D),
+       .Q1          (Q1),
+       .Q2          (Q2),
+       .Q3          (Q3),
+       .Q4          (Q4),
+       .Q5          (Q5),
+       .Q6          (Q6),
+       .Q7          (Q7),
+       .Q8          (Q8)
+      );
+    end else begin
+        wire _TECHMAP_FAIL_ = 1'b1;
+    end
+
+
+endmodule
+
+module IDELAYE2 (
+  input C,
+  input CE,
+  input CINVCTRL,
+  input CNTVALUEIN0,
+  input CNTVALUEIN1,
+  input CNTVALUEIN2,
+  input CNTVALUEIN3,
+  input CNTVALUEIN4,
+  input DATAIN,
+  input IDATAIN,
+  input INC,
+  input LD,
+  input LDPIPEEN,
+  input REGRST,
+
+  output CNTVALUEOUT0,
+  output CNTVALUEOUT1,
+  output CNTVALUEOUT2,
+  output CNTVALUEOUT3,
+  output CNTVALUEOUT4,
+  output DATAOUT
+  );
+
+  parameter CINVCTRL_SEL = "FALSE";
+  parameter DELAY_SRC = "IDATAIN";
+  parameter HIGH_PERFORMANCE_MODE = "FALSE";
+  parameter IDELAY_TYPE = "FIXED";
+  parameter PIPE_SEL = "FALSE";
+
+  parameter [5:0] IDELAY_VALUE = 5'b0;
+
+  parameter [0:0] IS_DATAIN_INVERTED = 1'b0;
+  parameter [0:0] IS_IDATAIN_INVERTED = 1'b0;
+
+  IDELAYE2_VPR #(
+    .IDELAY_VALUE_0         (IDELAY_VALUE[0]),
+    .IDELAY_VALUE_1         (IDELAY_VALUE[1]),
+    .IDELAY_VALUE_2         (IDELAY_VALUE[2]),
+    .IDELAY_VALUE_3         (IDELAY_VALUE[3]),
+    .IDELAY_VALUE_4         (IDELAY_VALUE[4]),
+    .ZIDELAY_VALUE_0        (!IDELAY_VALUE[0]),
+    .ZIDELAY_VALUE_1        (!IDELAY_VALUE[1]),
+    .ZIDELAY_VALUE_2        (!IDELAY_VALUE[2]),
+    .ZIDELAY_VALUE_3        (!IDELAY_VALUE[3]),
+    .ZIDELAY_VALUE_4        (!IDELAY_VALUE[4]),
+
+    .PIPE_SEL               (PIPE_SEL == "TRUE"),
+    .CINVCTRL_SEL           (CINVCTRL_SEL == "TRUE"),
+    .DELAY_SRC_DATAIN       (DELAY_SRC == "DATAIN"),
+    .DELAY_SRC_IDATAIN      (DELAY_SRC == "IDATAIN"),
+    .HIGH_PERFORMANCE_MODE  (HIGH_PERFORMANCE_MODE == "TRUE"),
+
+    .IDELAY_TYPE_FIXED      (IDELAY_TYPE == "FIXED"),
+    .IDELAY_TYPE_VAR_LOAD   (IDELAY_TYPE == "VAR_LOAD"),
+    .IDELAY_TYPE_VARIABLE   (IDELAY_TYPE == "VARIABLE"),
+
+    // Inverters
+    .IS_DATAIN_INVERTED     (IS_DATAIN_INVERTED),
+    .IS_IDATAIN_INVERTED    (IS_IDATAIN_INVERTED)
   ) _TECHMAP_REPLACE_ (
-   .BITSLIP     (BITSLIP),
-   .CE1         (CE1),
-   .CE2         (CE2),
-   .CLK         (CLK),
-   .CLKB        (CLKB),
-   .CLKDIV      (CLKDIV),
-   .RST         (RST),
-   .D           (D),
-   .Q1          (Q1),
-   .Q2          (Q2),
-   .Q3          (Q3),
-   .Q4          (Q4),
-   .Q5          (Q5),
-   .Q6          (Q6),
-   .Q7          (Q7),
-   .Q8          (Q8)
+      .C                (C),
+      .CE               (CE),
+      .CINVCTRL         (CINVCTRL),
+      .CNTVALUEIN0      (CNTVALUEIN0),
+      .CNTVALUEIN1      (CNTVALUEIN1),
+      .CNTVALUEIN2      (CNTVALUEIN2),
+      .CNTVALUEIN3      (CNTVALUEIN3),
+      .CNTVALUEIN4      (CNTVALUEIN4),
+      .DATAIN           (DATAIN),
+      .IDATAIN          (IDATAIN),
+      .INC              (INC),
+      .LD               (LD),
+      .LDPIPEEN         (LDPIPEEN),
+      .REGRST           (REGRST),
+
+      .CNTVALUEOUT0     (CNTVALUEOUT0),
+      .CNTVALUEOUT1     (CNTVALUEOUT1),
+      .CNTVALUEOUT2     (CNTVALUEOUT2),
+      .CNTVALUEOUT3     (CNTVALUEOUT3),
+      .CNTVALUEOUT4     (CNTVALUEOUT4),
+      .DATAOUT          (DATAOUT)
   );
 
 endmodule
@@ -3244,7 +3387,7 @@ output        LOCKED
   .REF_JITTER1(REF_JITTER1),
 
   .DIVCLK_DIVIDE(DIVCLK_DIVIDE),
-  
+
   .CLKFBOUT_MULT(CLKFBOUT_MULT),
   .CLKFBOUT_PHASE(CLKFBOUT_PHASE),
 

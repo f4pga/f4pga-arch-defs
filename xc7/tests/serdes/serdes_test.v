@@ -66,6 +66,21 @@ oserdes
 .TQ     (T_DAT)
 );
 
+wire DDLY;
+
+// IDELAY
+IDELAYE2 #
+(
+.IDELAY_TYPE    ("FIXED"),
+.DELAY_SRC      ("IDATAIN"),
+.IDELAY_VALUE   (5'd5)
+)
+idelay
+(
+.IDATAIN        (I_DAT),
+.DATAOUT        (DDLY),
+);
+
 // ============================================================================
 // ISERDES
 ISERDESE2 #
@@ -83,7 +98,7 @@ iserdes
 .CE1        (1'b1),
 .CE2        (1'b1),
 .RST        (i_rstdiv),
-.D          (I_DAT),
+.DDLY       (DDLY),
 .Q1         (OUTPUTS[7]),
 .Q2         (OUTPUTS[6]),
 .Q3         (OUTPUTS[5]),
