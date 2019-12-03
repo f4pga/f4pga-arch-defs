@@ -1,0 +1,9 @@
+set_io sw[8] V2
+set_io sw[9] T3
+set_io sw[10] T2
+set_io sw[11] R3
+
+set_io diff_p[0] U19
+set_io diff_n[0] V19
+set_io diff_p[1] V13
+set_io diff_n[1] V14

@@ -2,6 +2,7 @@
 <pb_type name="IOB33S" num_pb="1" xmlns:xi="http://www.w3.org/2001/XInclude">
   <input name="DIFFI_IN" num_pins="1"/>
   <output name="DIFFO_OUT" num_pins="1"/>
+  <input name="DIFFO_IN" num_pins="1"/>
   <output name="I" num_pins="1"/>
   <input name="IBUFDISABLE" num_pins="1"/>
   <input name="INTERMDISABLE" num_pins="1"/>
@@ -13,88 +14,72 @@
   <input name="PU_INT_EN" num_pins="1"/>
   <input name="T" num_pins="1"/>
   <output name="T_OUT" num_pins="1"/>
-  <mode name="NO_IBUF">
-    <xi:include href="../iob33m/inpad.pb_type.xml"/>
-    <interconnect>
-      <direct name="I" input="inpad.inpad" output="IOB33S.I">
+
+  <pb_type name="IOB33_MODES" num_pb="1">
+    <input name="DIFFI_IN" num_pins="1"/>
+    <output name="DIFFO_OUT" num_pins="1"/>
+    <input name="DIFFO_IN" num_pins="1"/>
+    <output name="I" num_pins="1"/>
+    <input name="IBUFDISABLE" num_pins="1"/>
+    <input name="INTERMDISABLE" num_pins="1"/>
+    <input name="KEEPER_INT_EN" num_pins="1"/>
+    <input name="O" num_pins="1"/>
+    <output name="O_OUT" num_pins="1"/>
+    <output name="PADOUT" num_pins="1"/>
+    <input name="PD_INT_EN" num_pins="1"/>
+    <input name="PU_INT_EN" num_pins="1"/>
+    <input name="T" num_pins="1"/>
+    <output name="T_OUT" num_pins="1"/>
+
+    <xi:include href="../iob33/modes/no_ibuf.xml"/>
+    <xi:include href="../iob33/modes/no_obuf.xml"/>
+    <xi:include href="../iob33/modes/ibuf.xml"/>
+    <xi:include href="../iob33/modes/obuf.xml"/>
+    <xi:include href="../iob33/modes/iobuf.xml"/>
+
+    <mode name="OBUFTDS_S">
+      <xi:include href="../iob33/outpad.pb_type.xml"/>
+
+      <pb_type name="OBUFTDS_S_VPR" blif_model=".subckt OBUFTDS_S_VPR" num_pb="1">
+        <input name="IB" num_pins="1"/>
+        <output name="OB" num_pins="1"/>
+        <delay_constant max="10e-12" in_port="IB" out_port="OB"/>
+
         <metadata>
-          <meta name="fasm_mux">
-            inpad.inpad : LVCMOS12_LVCMOS15_LVCMOS18_LVCMOS25_LVCMOS33_LVTTL_SSTL135.IN_ONLY,LVCMOS25_LVCMOS33_LVTTL.IN,PULLTYPE.NONE
+          <meta name="fasm_params">
+            LVCMOS12_LVCMOS15_LVCMOS18_LVCMOS25_LVCMOS33_LVTTL_SSTL135.SLEW.SLOW = LVCMOS12_LVCMOS15_LVCMOS18_LVCMOS25_LVCMOS33_LVTTL_SSTL135_SLEW_SLOW
+            LVCMOS12_LVCMOS15_LVCMOS18_SSTL135.STEPDOWN = LVCMOS12_LVCMOS15_LVCMOS18_SSTL135_STEPDOWN
+            SSTL135.DRIVE.I_FIXED = SSTL135_DRIVE_I_FIXED
+            SSTL135.SLEW.FAST = SSTL135_SLEW_FAST
           </meta>
         </metadata>
-      </direct>
-    </interconnect>
-  </mode>
-  <mode name="NO_OBUF">
-    <xi:include href="../iob33m/outpad.pb_type.xml"/>
-    <interconnect>
-      <direct name="O" input="IOB33S.O" output="outpad.outpad">
-        <metadata>
-          <meta name="fasm_mux">
-            IOB33S.O : PULLTYPE.NONE,LVCMOS33_LVTTL.DRIVE.I12_I16,LVCMOS12_LVCMOS15_LVCMOS18_LVCMOS25_LVCMOS33_LVTTL_SSTL135.SLEW.SLOW
-          </meta>
-        </metadata>
-      </direct>
-    </interconnect>
-  </mode>
-  <mode name="IBUF">
-    <pb_type name="INBUF_VPR" blif_model=".subckt INBUF_VPR" num_pb="1">
-      <input name="DIFFI_IN" num_pins="1"/>
-      <input name="IBUFDISABLE" num_pins="1"/>
-      <input name="INTERMDISABLE" num_pins="1"/>
-      <input name="PAD" num_pins="1"/>
-      <output name="OUT" num_pins="1"/>
-      <delay_constant max="10e-12" in_port="PAD"  out_port="OUT"/>
-    </pb_type>
-    <xi:include href="../iob33m/inpad.pb_type.xml"/>
-    <interconnect>
-      <direct name="I" input="INBUF_VPR.OUT" output="IOB33S.I"/>
-      <direct name="to_inpad" input="inpad.inpad" output="INBUF_VPR.PAD"/>
-    </interconnect>
-  </mode>
-  <mode name="OBUF">
-    <pb_type name="OUTBUF_VPR" blif_model=".subckt OUTBUF_VPR" num_pb="1">
-      <input name="IN" num_pins="1"/>
-      <input name="TRI" num_pins="1"/>
-      <output name="OUT" num_pins="1"/>
-      <delay_constant max="10e-12" in_port="IN"  out_port="OUT"/>
-    </pb_type>
-    <xi:include href="../iob33m/outpad.pb_type.xml"/>
-    <interconnect>
-      <direct name="T" input="IOB33S.T" output="OUTBUF_VPR.TRI"/>
-      <direct name="O" input="IOB33S.O" output="OUTBUF_VPR.IN"/>
-      <direct name="to_outpad" input="OUTBUF_VPR.OUT" output="outpad.outpad">
-        <pack_pattern name="OUTBUF_to_outpad"/>
-      </direct>
-    </interconnect>
-  </mode>
-  <!--
-  <mode name="IOBUF">
-    <xi:include href="inpad.pb_type.xml"/>
-    <xi:include href="outpad.pb_type.xml"/>
-    <pb_type name="IOBUF_VPR" blif_model=".subckt INBUF_VPR" num_pb="1">
-      <input name="INBUF_DIFFI_IN" num_pins="1"/>
-      <input name="INBUF_IBUFDISABLE" num_pins="1"/>
-      <input name="INBUF_INTERMDISABLE" num_pins="1"/>
-      <input name="INBUF_PAD" num_pins="1"/>
-      <output name="INBUF_OUT" num_pins="1"/>
-      <input name="OUTBUF_IN" num_pins="1"/>
-      <input name="OUTBUF_TRI" num_pins="1"/>
-      <output name="OUTBUF_OUT" num_pins="1"/>
-      <delay_constant max="10e-12" in_port="INBUF_PAD"  out_port="INBUF_OUT"/>
-      <delay_constant max="10e-12" in_port="OUTBUF_IN"  out_port="OUTBUF_OUT"/>
-    </pb_type>
-    <interconnect>
-      <direct name="I" input="IOBUF_VPR.INBUF_OUT" output="IOB33S.I"/>
-      <direct name="T" input="IOB33S.T" output="IOBUF_VPR.OUTBUF_TRI"/>
-      <direct name="O" input="IOB33S.O" output="IOBUF_VPR.OUTBUF_IN"/>
-      <direct name="to_outpad" input="IOBUF_VPR.OUTBUF_OUT" output="outpad.outpad"/>
-      <direct name="to_inpad" input="inpad.inpad" output="IOBUF_VPR.INBUF_PAD"/>
-    </interconnect>
-  </mode>
-  -->
-  <!-- TODO
-       - IOBUF
-       - correct timing values
-  -->
+      </pb_type>
+
+      <interconnect>
+        <direct name="DIFFO_IN" input="IOB33_MODES.DIFFO_IN" output="OBUFTDS_S_VPR.IB"/>
+        <direct name="O" input="OBUFTDS_S_VPR.OB"  output="outpad.outpad">
+          <pack_pattern name="OBUFTDS_S_to_outpad"/>
+        </direct>
+       </interconnect>
+
+    </mode>
+
+  </pb_type>
+
+  <interconnect>
+    <direct name="DIFFI_IN"      input ="IOB33S.DIFFI_IN"      output="IOB33_MODES.DIFFI_IN"/>
+    <direct name="DIFFO_OUT"     output="IOB33S.DIFFO_OUT"     input ="IOB33_MODES.DIFFO_OUT"/>
+    <direct name="DIFFO_IN"      input ="IOB33S.DIFFO_IN"      output="IOB33_MODES.DIFFO_IN"/>
+    <direct name="I"             output="IOB33S.I"             input ="IOB33_MODES.I"/>
+    <direct name="IBUFDISABLE"   input ="IOB33S.IBUFDISABLE"   output="IOB33_MODES.IBUFDISABLE"/>
+    <direct name="INTERMDISABLE" input ="IOB33S.INTERMDISABLE" output="IOB33_MODES.INTERMDISABLE"/>
+    <direct name="KEEPER_INT_EN" input ="IOB33S.KEEPER_INT_EN" output="IOB33_MODES.KEEPER_INT_EN"/>
+    <direct name="O"             input ="IOB33S.O"             output="IOB33_MODES.O"/>
+    <direct name="O_OUT"         output="IOB33S.O_OUT"         input ="IOB33_MODES.O_OUT"/>
+    <direct name="PADOUT"        output="IOB33S.PADOUT"        input ="IOB33_MODES.PADOUT"/>
+    <direct name="PD_INT_EN"     input ="IOB33S.PD_INT_EN"     output="IOB33_MODES.PD_INT_EN"/>
+    <direct name="PU_INT_EN"     input ="IOB33S.PU_INT_EN"     output="IOB33_MODES.PU_INT_EN"/>
+    <direct name="T"             input ="IOB33S.T"             output="IOB33_MODES.T"/>
+    <direct name="T_OUT"         output="IOB33S.T_OUT"         input ="IOB33_MODES.T_OUT"/>
+  </interconnect>
 </pb_type>

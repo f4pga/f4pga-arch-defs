@@ -1933,6 +1933,75 @@ module IOBUF (
 
 endmodule
 
+
+module OBUFTDS (
+    input  I,
+    input  T,
+    output O,
+    output OB
+);
+
+  parameter IOSTANDARD = "";
+  parameter SLEW = "FAST";
+
+  wire complementary;
+
+  OBUFTDS_M_VPR # (
+    .LVCMOS12_LVCMOS15_LVCMOS18_LVCMOS25_LVCMOS33_LVTTL_SSTL135_SLEW_SLOW(
+      (IOSTANDARD == "DIFF_SSTL135" && SLEW == "SLOW")
+    ),
+    .LVCMOS12_LVCMOS15_LVCMOS18_SSTL135_STEPDOWN(
+      (IOSTANDARD == "DIFF_SSTL135")
+    ),
+    .SSTL135_DRIVE_I_FIXED(
+      (IOSTANDARD == "DIFF_SSTL135")
+    ),
+    .SSTL135_SLEW_FAST(
+      (IOSTANDARD == "DIFF_SSTL135" && SLEW == "FAST")
+    )
+  ) obuftds_m (
+  .I(I),
+  .T(T),
+  .O(O),
+  .OB(complementary)
+  );
+
+  OBUFTDS_S_VPR # (
+    .LVCMOS12_LVCMOS15_LVCMOS18_LVCMOS25_LVCMOS33_LVTTL_SSTL135_SLEW_SLOW(
+      (IOSTANDARD == "DIFF_SSTL135" && SLEW == "SLOW")
+    ),
+    .LVCMOS12_LVCMOS15_LVCMOS18_SSTL135_STEPDOWN(
+      (IOSTANDARD == "DIFF_SSTL135")
+    ),
+    .SSTL135_DRIVE_I_FIXED(
+      (IOSTANDARD == "DIFF_SSTL135")
+    ),
+    .SSTL135_SLEW_FAST(
+      (IOSTANDARD == "DIFF_SSTL135" && SLEW == "FAST")
+    )
+  ) obuftds_s (
+  .IB(complementary),
+  .OB(OB)
+  );
+
+endmodule
+
+
+module OBUFDS (
+    input  I,
+    output O,
+    output OB
+);
+
+  OBUFTDS _TECHMAP_REPLACE_ (
+  .I(I),
+  .T(1'b0),
+  .O(O),
+  .OB(OB)
+  );
+
+endmodule
+
 // ============================================================================
 // I/OSERDES
 
