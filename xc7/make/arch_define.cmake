@@ -28,7 +28,7 @@ function(ADD_XC7_ARCH_DEFINE)
       --strict_checks off \
       --clustering_pin_feasibility_filter off \
       --allow_dangling_combinational_nodes on \
-      --disable_errors check_unbuffered_edges:check_route:read_user_pad_loc \
+      --disable_errors check_unbuffered_edges:check_route \
       --congested_routing_iteration_threshold 0.8 \
       --incremental_reroute_delay_ripup off \
       --base_cost_type delay_normalized_length_bounded \
