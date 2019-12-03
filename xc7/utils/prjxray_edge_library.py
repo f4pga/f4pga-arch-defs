@@ -12,6 +12,7 @@ from prjxray.site_type import SitePinDirection
 from prjxray_constant_site_pins import yield_ties_to_wire
 from lib.connection_database import get_track_model, get_wire_in_tile_from_pin_name
 from lib.rr_graph.graph2 import NodeType
+import re
 import math
 import numpy
 
@@ -1946,19 +1947,22 @@ def commit_edges(write_cur, edges):
     write_cur.execute("""COMMIT TRANSACTION;""")
 
 
+REMOVE_TRAILING_NUM = re.compile(r'[0-9]+$')
+
+
 def pip_sort_key(forward_pip):
     """ Sort pips to match canonical order. """
     forward, pip = forward_pip
+
+    count = (
+        len(REMOVE_TRAILING_NUM.sub('', pip.net_to)) +
+        len(REMOVE_TRAILING_NUM.sub('', pip.net_from))
+    )
+
     if forward:
-        return (
-            pip.is_pseudo, len(pip.net_to) + len(pip.net_from), pip.net_to,
-            pip.net_from
-        )
+        return (pip.is_pseudo, count, pip.net_to, pip.net_from)
     else:
-        return (
-            pip.is_pseudo, len(pip.net_to) + len(pip.net_from), pip.net_from,
-            pip.net_to
-        )
+        return (pip.is_pseudo, count, pip.net_from, pip.net_to)
 
 
 def make_sorted_pips(pips):
