@@ -1339,6 +1339,7 @@ function(ADD_FPGA_TARGET)
     # -------------------------------------------------------------------------
     set(OUT_FASM ${OUT_LOCAL}/${TOP}.fasm)
     set(OUT_FASM_CONCATENATED ${OUT_LOCAL}/${TOP}.concat.fasm)
+    set(OUT_FASM_GENFASM ${OUT_LOCAL}/${TOP}.genfasm.fasm)
     add_custom_command(
       OUTPUT ${OUT_FASM}
       DEPENDS ${OUT_ROUTE} ${OUT_PLACE} ${VPR_DEPS} ${GENFASM_TARGET}
@@ -1346,9 +1347,11 @@ function(ADD_FPGA_TARGET)
       COMMAND
         ${CMAKE_COMMAND} -E copy ${OUT_LOCAL}/vpr_stdout.log
           ${OUT_LOCAL}/genhlc.log
+      COMMAND
+        ${CMAKE_COMMAND} -E copy ${OUT_FASM} ${OUT_FASM_GENFASM}
       COMMAND cat ${OUT_FASM} ${OUT_FASM_EXTRA} > ${OUT_FASM_CONCATENATED}
       COMMAND
-        ${CMAKE_COMMAND} -E copy ${OUT_FASM_CONCATENATED} ${OUT_FASM}
+        ${CMAKE_COMMAND} -E rename ${OUT_FASM_CONCATENATED} ${OUT_FASM}
       WORKING_DIRECTORY ${OUT_LOCAL}
     )
     add_custom_target(${NAME}_fasm DEPENDS ${OUT_FASM})
