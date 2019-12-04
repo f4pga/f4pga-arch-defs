@@ -92,7 +92,8 @@ def main():
     args = parser.parse_args()
 
     arch_xml = ET.ElementTree()
-    root_element = arch_xml.parse(args.in_arch)
+    xml_parser = ET.XMLParser(remove_blank_text=True)
+    root_element = arch_xml.parse(args.in_arch, xml_parser)
 
     for direct in root_element.iter('direct'):
         if 'name' not in direct.attrib:

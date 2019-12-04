@@ -851,17 +851,8 @@ module IDELAYE2_VPR (
   output DATAOUT
   );
 
-  parameter [0:0] IDELAY_VALUE_0 = 1'b0;
-  parameter [0:0] IDELAY_VALUE_1 = 1'b0;
-  parameter [0:0] IDELAY_VALUE_2 = 1'b0;
-  parameter [0:0] IDELAY_VALUE_3 = 1'b0;
-  parameter [0:0] IDELAY_VALUE_4 = 1'b0;
-
-  parameter [0:0] ZIDELAY_VALUE_0 = 1'b0;
-  parameter [0:0] ZIDELAY_VALUE_1 = 1'b0;
-  parameter [0:0] ZIDELAY_VALUE_2 = 1'b0;
-  parameter [0:0] ZIDELAY_VALUE_3 = 1'b0;
-  parameter [0:0] ZIDELAY_VALUE_4 = 1'b0;
+  parameter [4:0] IDELAY_VALUE = 5'b00000;
+  parameter [4:0] ZIDELAY_VALUE = 5'b11111;
 
   parameter [0:0] PIPE_SEL = 1'b0;
   parameter [0:0] CINVCTRL_SEL = 1'b0;

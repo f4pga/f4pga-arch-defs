@@ -2436,22 +2436,16 @@ module IDELAYE2 (
   parameter IDELAY_TYPE = "FIXED";
   parameter PIPE_SEL = "FALSE";
 
-  parameter [5:0] IDELAY_VALUE = 5'b0;
+  parameter [4:0] IDELAY_VALUE = 5'b00000;
 
   parameter [0:0] IS_DATAIN_INVERTED = 1'b0;
   parameter [0:0] IS_IDATAIN_INVERTED = 1'b0;
 
+  localparam [4:0] ZIDELAY_VALUE = ~IDELAY_VALUE;
+
   IDELAYE2_VPR #(
-    .IDELAY_VALUE_0         (IDELAY_VALUE[0]),
-    .IDELAY_VALUE_1         (IDELAY_VALUE[1]),
-    .IDELAY_VALUE_2         (IDELAY_VALUE[2]),
-    .IDELAY_VALUE_3         (IDELAY_VALUE[3]),
-    .IDELAY_VALUE_4         (IDELAY_VALUE[4]),
-    .ZIDELAY_VALUE_0        (!IDELAY_VALUE[0]),
-    .ZIDELAY_VALUE_1        (!IDELAY_VALUE[1]),
-    .ZIDELAY_VALUE_2        (!IDELAY_VALUE[2]),
-    .ZIDELAY_VALUE_3        (!IDELAY_VALUE[3]),
-    .ZIDELAY_VALUE_4        (!IDELAY_VALUE[4]),
+    .IDELAY_VALUE           (IDELAY_VALUE),
+    .ZIDELAY_VALUE          (ZIDELAY_VALUE),
 
     .PIPE_SEL               (PIPE_SEL == "TRUE"),
     .CINVCTRL_SEL           (CINVCTRL_SEL == "TRUE"),

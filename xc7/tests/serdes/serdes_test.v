@@ -77,6 +77,10 @@ IDELAYE2 #
 )
 idelay
 (
+.C              (SYSCLK),
+.CE             (1'b1),
+.LD             (1'b1),
+.INC            (1'b1),
 .IDATAIN        (I_DAT),
 .DATAOUT        (DDLY),
 );
