@@ -889,7 +889,7 @@ function(ADD_FPGA_TARGET)
   # * ${TOP}.${BITSTREAM_EXTENSION} - Bitstream for target.
   #
   set(options EXPLICIT_ADD_FILE_TARGET EMIT_CHECK_TESTS NO_SYNTHESIS ROUTE_ONLY)
-  set(oneValueArgs NAME TOP BOARD INPUT_IO_FILE EQUIV_CHECK_SCRIPT AUTOSIM_CYCLES ASSERT_USAGE SDC_FILE)
+  set(oneValueArgs NAME TOP BOARD INPUT_IO_FILE EQUIV_CHECK_SCRIPT AUTOSIM_CYCLES ASSERT_USAGE SDC_FILE INPUT_XDC_FILE)
   set(multiValueArgs SOURCES TESTBENCH_SOURCES DEFINES)
   cmake_parse_arguments(
     ADD_FPGA_TARGET
@@ -931,6 +931,10 @@ function(ADD_FPGA_TARGET)
   get_target_property_required(
     OUT_RRXML_VIRT ${DEVICE} OUT_RRXML_VIRT
   )
+
+  if(NOT "${ADD_FPGA_TARGET_INPUT_XDC_FILE}" STREQUAL "")
+      get_target_property_required(PART_JSON ${BOARD} PART_JSON)
+  endif()
 
   set(NAME ${ADD_FPGA_TARGET_NAME})
   get_target_property_required(DEVICE_FULL_TEMPLATE ${ARCH} DEVICE_FULL_TEMPLATE)
@@ -975,6 +979,10 @@ function(ADD_FPGA_TARGET)
     if(NOT "${ADD_FPGA_TARGET_INPUT_IO_FILE}" STREQUAL "")
       add_file_target(FILE ${ADD_FPGA_TARGET_INPUT_IO_FILE})
     endif()
+    if(NOT "${ADD_FPGA_TARGET_INPUT_XDC_FILE}" STREQUAL "")
+      add_file_target(FILE ${ADD_FPGA_TARGET_INPUT_XDC_FILE})
+      get_file_location(INPUT_XDC_FILE ${ADD_FPGA_TARGET_INPUT_XDC_FILE})
+    endif()
   endif()
 
   #
@@ -984,6 +992,7 @@ function(ADD_FPGA_TARGET)
   set(OUT_EBLIF_REL ${OUT_LOCAL_REL}/${TOP}.eblif)
   set(OUT_SYNTH_V ${OUT_LOCAL}/${TOP}_synth.v)
   set(OUT_SYNTH_V_REL ${OUT_LOCAL_REL}/${TOP}_synth.v)
+  set(OUT_FASM_EXTRA ${OUT_LOCAL}/${TOP}_fasm_extra.fasm)
 
   set(SOURCE_FILES_DEPS "")
   set(SOURCE_FILES "")
@@ -1001,8 +1010,8 @@ function(ADD_FPGA_TARGET)
     set(OUT_JSON_REL ${OUT_LOCAL_REL}/${TOP}.json)
 
     add_custom_command(
-      OUTPUT ${OUT_JSON_SYNTH} ${OUT_SYNTH_V}
-      DEPENDS ${SOURCE_FILES} ${SOURCE_FILES_DEPS}
+      OUTPUT ${OUT_JSON_SYNTH} ${OUT_SYNTH_V} ${OUT_FASM_EXTRA}
+      DEPENDS ${SOURCE_FILES} ${SOURCE_FILES_DEPS} ${INPUT_XDC_FILE}
               ${YOSYS} ${YOSYS_TARGET} ${QUIET_CMD} ${QUIET_CMD_TARGET}
               ${YOSYS_SYNTH_SCRIPT}
       COMMAND
@@ -1012,8 +1021,13 @@ function(ADD_FPGA_TARGET)
           symbiflow-arch-defs_SOURCE_DIR=${symbiflow-arch-defs_SOURCE_DIR}
           OUT_JSON=${OUT_JSON_SYNTH}
           OUT_SYNTH_V=${OUT_SYNTH_V}
+          OUT_FASM_EXTRA=${OUT_FASM_EXTRA}
+          PART_JSON=${PART_JSON}
+          INPUT_XDC_FILE=${INPUT_XDC_FILE}
           ${ADD_FPGA_TARGET_DEFINES}
           ${QUIET_CMD} ${YOSYS} -p "${COMPLETE_YOSYS_SYNTH_SCRIPT}" -l ${OUT_JSON_SYNTH}.log ${SOURCE_FILES}
+      COMMAND
+        ${CMAKE_COMMAND} -E touch ${OUT_FASM_EXTRA}
       WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
       VERBATIM
     )
@@ -1327,6 +1341,8 @@ function(ADD_FPGA_TARGET)
     # Generate FASM
     # -------------------------------------------------------------------------
     set(OUT_FASM ${OUT_LOCAL}/${TOP}.fasm)
+    set(OUT_FASM_CONCATENATED ${OUT_LOCAL}/${TOP}.concat.fasm)
+    set(OUT_FASM_GENFASM ${OUT_LOCAL}/${TOP}.genfasm.fasm)
     add_custom_command(
       OUTPUT ${OUT_FASM}
       DEPENDS ${OUT_ROUTE} ${OUT_PLACE} ${VPR_DEPS} ${GENFASM_TARGET}
@@ -1334,6 +1350,11 @@ function(ADD_FPGA_TARGET)
       COMMAND
         ${CMAKE_COMMAND} -E copy ${OUT_LOCAL}/vpr_stdout.log
           ${OUT_LOCAL}/genhlc.log
+      COMMAND
+        ${CMAKE_COMMAND} -E copy ${OUT_FASM} ${OUT_FASM_GENFASM}
+      COMMAND cat ${OUT_FASM} ${OUT_FASM_EXTRA} > ${OUT_FASM_CONCATENATED}
+      COMMAND
+        ${CMAKE_COMMAND} -E rename ${OUT_FASM_CONCATENATED} ${OUT_FASM}
       WORKING_DIRECTORY ${OUT_LOCAL}
     )
     add_custom_target(${NAME}_fasm DEPENDS ${OUT_FASM})
