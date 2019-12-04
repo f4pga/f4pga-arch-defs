@@ -1879,7 +1879,7 @@ class RoutingGraph:
         ':-('
         >>> e1.set_metadata("test", "123")
         >>> print(ET.tostring(e1, pretty_print=True).decode().strip())
-        <edge src_node="0" sink_node="1" switch_id="0" id="4">
+        <edge src_node="0" sink_node="1" switch_id="0">
           <metadata>
             <meta name="test">123</meta>
           </metadata>
@@ -1895,7 +1895,7 @@ class RoutingGraph:
         Traceback (most recent call last):
             ...
         ValueError: No metadata not_found on
-        <edge src_node="0" sink_node="1" switch_id="0" id="4">
+        <edge src_node="0" sink_node="1" switch_id="0">
           <metadata>
             <meta name="test">234</meta>
           </metadata>
@@ -1957,7 +1957,7 @@ class RoutingGraph:
             for node in self._xml_parent(RoutingNode):
                 self._add_xml_element(node, existing=True)
             for edge in self._xml_parent(RoutingEdge):
-                self._add_xml_element(edge, existing=True)
+                self._add_xml_element(edge, existing=True, add_id_attrib=False)
             self._build_cache_node2edge()
 
     def clear(self):
@@ -2006,7 +2006,7 @@ class RoutingGraph:
         """Get the next ID available for a give type."""
         return len(self._ids_map(xml_type))
 
-    def _add_xml_element(self, xml_node, existing=False):
+    def _add_xml_element(self, xml_node, existing=False, add_id_attrib=True):
         """Add an existing ET._Element object to the map.
 
         Parameters
@@ -2019,7 +2019,8 @@ class RoutingGraph:
         node_id = self._get_xml_id(xml_node)
         if node_id is None:
             new_node_id = self._next_id(xml_type)
-            xml_node.attrib['id'] = str(new_node_id)
+            if add_id_attrib:
+                xml_node.attrib['id'] = str(new_node_id)
         else:
             new_node_id = node_id
 
@@ -2041,11 +2042,10 @@ class RoutingGraph:
         if not existing:
             parent = self._xml_parent(xml_type)
             parent.append(xml_node)
-            self._add_cache_node2edge(xml_node)
+            self._add_cache_node2edge(xml_node, new_node_id)
 
-    def _add_cache_node2edge(self, xml_node):
+    def _add_cache_node2edge(self, xml_node, node_id):
         xml_type = self._xml_type(xml_node)
-        node_id = self._get_xml_id(xml_node)
         if xml_type == RoutingNode:
             assert node_id not in self._cache_nodes2edges
             self._cache_nodes2edges[node_id] = set()
@@ -2058,11 +2058,11 @@ class RoutingGraph:
 
     def _build_cache_node2edge(self):
         assert len(self._cache_nodes2edges) == 0
-        for node in self._ids_map(RoutingNode).values():
-            self._add_cache_node2edge(node)
+        for node_id, node in self._ids_map(RoutingNode).items():
+            self._add_cache_node2edge(node, node_id)
 
-        for edge in self._ids_map(RoutingEdge).values():
-            self._add_cache_node2edge(edge)
+        for edge_id, edge in self._ids_map(RoutingEdge).items():
+            self._add_cache_node2edge(edge, edge_id)
 
     def get_by_name(self, name, pos=None, default=_DEFAULT_MARKER):
         """Get the RoutingNode using name (and pos).
@@ -2488,7 +2488,7 @@ class RoutingGraph:
             for k, v in values.items():
                 edge.set_metadata(k, v, offset=offset)
 
-        self._add_xml_element(edge)
+        self._add_xml_element(edge, add_id_attrib=False)
 
     def create_edge_with_nodes(
             self, src_node, sink_node, switch, metadata={}, bidir=None
