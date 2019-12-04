@@ -35,21 +35,13 @@
        - correct timing values
   -->
   <metadata>
-    <meta name="fasm_feature">
+    <meta name="fasm_features">
       IN_USE
     </meta>
     <meta name="fasm_params">
-      IDELAY_VALUE[0] = IDELAY_VALUE_0
-      IDELAY_VALUE[1] = IDELAY_VALUE_1
-      IDELAY_VALUE[2] = IDELAY_VALUE_2
-      IDELAY_VALUE[3] = IDELAY_VALUE_3
-      IDELAY_VALUE[4] = IDELAY_VALUE_4
+      IDELAY_VALUE[4:0] = IDELAY_VALUE
 
-      ZIDELAY_VALUE[0] = ZIDELAY_VALUE_0
-      ZIDELAY_VALUE[1] = ZIDELAY_VALUE_1
-      ZIDELAY_VALUE[2] = ZIDELAY_VALUE_2
-      ZIDELAY_VALUE[3] = ZIDELAY_VALUE_3
-      ZIDELAY_VALUE[4] = ZIDELAY_VALUE_4
+      ZIDELAY_VALUE[4:0] = ZIDELAY_VALUE
 
       IS_DATAIN_INVERTED = IS_DATAIN_INVERTED
       IS_IDATAIN_INVERTED = IS_IDATAIN_INVERTED

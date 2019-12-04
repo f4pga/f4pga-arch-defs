@@ -31,20 +31,73 @@ def process_idelay(top, features):
 
     site = Site(features, ioi_site)
 
-    # TODO: Support IDELAY
-    assert not site.has_feature("IN_USE")
+    if site.has_feature("IN_USE") and site.has_feature(
+            "IDELAY_VALUE") and site.has_feature("ZIDELAY_VALUE"):
+        bel = Bel('IDELAYE2')
+
+        if site.has_feature("CINVCTRL_SEL"):
+            bel.parameters["CINVCTRL_SEL"] = '"TRUE"'
+
+        if site.has_feature("PIPE_SEL"):
+            bel.parameters['PIPE_SEL'] = '"TRUE"'
+
+        if site.has_feature("HIGH_PERFORMANCE_MODE"):
+            bel.parameters['HIGH_PERFORMANCE_MODE'] = '"TRUE"'
+
+        if site.has_feature("DELAY_SRC_DATAIN"):
+            bel.parameters['DELAY_SRC'] = '"DATAIN"'
+        elif site.has_feature("DELAY_SRC_IDATAIN"):
+            bel.parameters['DELAY_SRC'] = '"IDATAIN"'
+
+        if site.has_feature("IDELAY_VALUE"):
+            idelay_value = site.decode_multi_bit_feature('IDELAY_VALUE')
+            bel.parameters['IDELAY_VALUE'] = idelay_value
+
+        if site.has_feature("IS_DATAIN_INVERTED"):
+            bel.parameters['IS_DATAIN_INVERTED'] = 1
+
+        if site.has_feature("IS_IDATAIN_INVERTED"):
+            bel.parameters['IS_IDATAIN_INVERTED'] = 1
+
+        # Adding sinks
+        site.add_sink(bel, 'C', 'C')
+        site.add_sink(bel, 'CE', 'CE')
+        site.add_sink(bel, 'CINVCTRL', 'CINVCTRL')
+        site.add_sink(bel, 'DATAIN', 'DATAIN')
+        site.add_sink(bel, 'IDATAIN', 'IDATAIN')
+        site.add_sink(bel, 'INC', 'INC')
+        site.add_sink(bel, 'LD', 'LD')
+        site.add_sink(bel, 'LDPIPEEN', 'LDPIPEEN')
+        site.add_sink(bel, 'REGRST', 'REGRST')
+
+        # Adding sources
+        site.add_source(bel, 'DATAOUT', 'DATAOUT')
+
+        site.add_bel(bel)
+
+        # TODO: handle CNTVALUEIN and CNTVALUEOUT
+
+    top.add_site(site)
 
 
-def process_ilogic(top, features):
+def process_ilogic_idelay(top, features):
 
-    aparts = features[0].feature.split('.')
+    ilogic_features = features['ILOGIC']
+    idelay_features = features['IDELAY']
+
+    ilogic_aparts = ilogic_features[0].feature.split('.')
+    idelay_aparts = idelay_features[0].feature.split('.')
+
     # tile_name = aparts[0]
-    ioi_site = get_ioi_site(top.db, top.grid, aparts[0], aparts[1])
+    ioi_ilogic_site = get_ioi_site(top.db, top.grid, ilogic_aparts[0], ilogic_aparts[1])
+    ioi_idelay_site = get_ioi_site(top.db, top.grid, idelay_aparts[0], idelay_aparts[1])
 
-    site = Site(features, ioi_site)
+    site = Site(ilogic_features, ioi_ilogic_site)
 
-    # TODO: support IDELAY
-    assert not site.has_feature("IDELAY.IN_USE")
+    # Get idelay site corresponding to this tile and check if it is used
+    idelay_site = None
+    if len(idelay_features):
+        idelay_site = Site(idelay_features, ioi_idelay_site)
 
     if site.has_feature("ISERDES.IN_USE") and site.has_feature(
             "IDDR_OR_ISERDES.IN_USE"):
@@ -121,7 +174,11 @@ def process_ilogic(top, features):
         site.add_sink(bel, 'CE1', 'CE1')
         site.add_sink(bel, 'CE2', 'CE2')
 
-        site.add_sink(bel, 'D', 'D')
+        if idelay_site and idelay_site.has_feature("IN_USE") and idelay_site.has_feature(
+                "IDELAY_VALUE") and idelay_site.has_feature("ZIDELAY_VALUE"):
+            site.add_sink(bel, 'DDLY', 'DDLY')
+        else:
+            site.add_sink(bel, 'D', 'D')
 
         for i in range(1, 9):
             port_q = 'Q{}'.format(i)
@@ -236,11 +293,11 @@ def process_ologic(top, features):
 
 def process_ioi(conn, top, tile, features):
 
-    idelay = {
-        "0": [],
-        "1": [],
+    ilogic_idelay = {
+        "0": {'ILOGIC' : [], 'IDELAY' : []},
+        "1": {'ILOGIC' : [], 'IDELAY' : []},
     }
-    ilogic = {
+    idelay = {
         "0": [],
         "1": [],
     }
@@ -253,9 +310,10 @@ def process_ioi(conn, top, tile, features):
         site = f.feature.split('.')[1]
 
         if site.startswith('IDELAY_Y'):
+            ilogic_idelay[site[-1]]['IDELAY'].append(f)
             idelay[site[-1]].append(f)
         if site.startswith('ILOGIC_Y'):
-            ilogic[site[-1]].append(f)
+            ilogic_idelay[site[-1]]['ILOGIC'].append(f)
         if site.startswith('OLOGIC_Y'):
             ologic[site[-1]].append(f)
 
@@ -263,9 +321,9 @@ def process_ioi(conn, top, tile, features):
         if len(features):
             process_idelay(top, features)
 
-    for features in ilogic.values():
-        if len(features):
-            process_ilogic(top, features)
+    for features in ilogic_idelay.values():
+        if len(features['ILOGIC']):
+            process_ilogic_idelay(top, features)
 
     for features in ologic.values():
         if len(features):
