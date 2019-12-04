@@ -82,6 +82,14 @@ function(DEFINE_ARCH)
   # * OUT_EBLIF - Input path to EBLIF file.
   # * INPUT_IO_FILE - Path to input io file, as specified by ADD_FPGA_TARGET.
   #
+  # PLACE_TOOL_CONSTR_CMD variables:
+  #
+  # * PLACE_TOOL_CONSTR - Value of PLACE_TOOL_CONSTR property of <arch>.
+  #
+  # This command enables the possibility to add an additional step consisting
+  # on the addition of extra placement constraints through the usage of the chosen
+  # script.
+  #
   # HLC_TO_BIT_CMD variables:
   #
   # * HLC_TO_BIT - Value of HLC_TO_BIT property of <arch>.
