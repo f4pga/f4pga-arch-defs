@@ -89,8 +89,12 @@ def process_ilogic_idelay(top, features):
     idelay_aparts = idelay_features[0].feature.split('.')
 
     # tile_name = aparts[0]
-    ioi_ilogic_site = get_ioi_site(top.db, top.grid, ilogic_aparts[0], ilogic_aparts[1])
-    ioi_idelay_site = get_ioi_site(top.db, top.grid, idelay_aparts[0], idelay_aparts[1])
+    ioi_ilogic_site = get_ioi_site(
+        top.db, top.grid, ilogic_aparts[0], ilogic_aparts[1]
+    )
+    ioi_idelay_site = get_ioi_site(
+        top.db, top.grid, idelay_aparts[0], idelay_aparts[1]
+    )
 
     site = Site(ilogic_features, ioi_ilogic_site)
 
@@ -174,8 +178,10 @@ def process_ilogic_idelay(top, features):
         site.add_sink(bel, 'CE1', 'CE1')
         site.add_sink(bel, 'CE2', 'CE2')
 
-        if idelay_site and idelay_site.has_feature("IN_USE") and idelay_site.has_feature(
-                "IDELAY_VALUE") and idelay_site.has_feature("ZIDELAY_VALUE"):
+        if idelay_site and idelay_site.has_feature(
+                "IN_USE") and idelay_site.has_feature(
+                    "IDELAY_VALUE") and idelay_site.has_feature("ZIDELAY_VALUE"
+                                                                ):
             site.add_sink(bel, 'DDLY', 'DDLY')
         else:
             site.add_sink(bel, 'D', 'D')
@@ -294,8 +300,14 @@ def process_ologic(top, features):
 def process_ioi(conn, top, tile, features):
 
     ilogic_idelay = {
-        "0": {'ILOGIC' : [], 'IDELAY' : []},
-        "1": {'ILOGIC' : [], 'IDELAY' : []},
+        "0": {
+            'ILOGIC': [],
+            'IDELAY': []
+        },
+        "1": {
+            'ILOGIC': [],
+            'IDELAY': []
+        },
     }
     idelay = {
         "0": [],
