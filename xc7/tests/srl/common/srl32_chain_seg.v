@@ -27,7 +27,7 @@ assign srl_d[0] = D;
 genvar i;
 generate for(i=0; i<N; i=i+1) begin
 
-    (* LOC=SITE, KEEP, DONT_TOUCH *)
+    (* KEEP, DONT_TOUCH *)
     SRLC32E srl
     (
     .CLK    (CLK),
@@ -55,7 +55,7 @@ generate
   if (N == 2) begin
 
     // F7AMUX
-    (* LOC=SITE, BEL="F7AMUX", KEEP, DONT_TOUCH *)
+    (* BEL="F7AMUX", KEEP, DONT_TOUCH *)
     MUXF7 muxf7a
     (
     .I0     (srl_q[0]),
@@ -67,7 +67,7 @@ generate
   end else if (N >= 3) begin
 
     // F7BMUX
-    (* LOC=SITE, BEL="F7BMUX", KEEP, DONT_TOUCH *)
+    (* BEL="F7BMUX", KEEP, DONT_TOUCH *)
     MUXF7 muxf7b
     (
     .I0     (srl_q[0]),
@@ -79,7 +79,7 @@ generate
     if (N == 3) begin
 
       // F7AMUX
-      (* LOC=SITE, BEL="F7AMUX", KEEP, DONT_TOUCH *)
+      (* BEL="F7AMUX", KEEP, DONT_TOUCH *)
       MUXF7 muxf7a
       (
       .I0     (srl_q[2]),
@@ -91,7 +91,7 @@ generate
     end else if (N == 4) begin
 
       // F7AMUX
-      (* LOC=SITE, BEL="F7AMUX", KEEP, DONT_TOUCH *)
+      (* BEL="F7AMUX", KEEP, DONT_TOUCH *)
       MUXF7 muxf7a
       (
       .I0     (srl_q[2]),
@@ -103,7 +103,7 @@ generate
     end
 
     // F8MUX
-    (* LOC=SITE, BEL="F8MUX", KEEP, DONT_TOUCH *)
+    (* BEL="F8MUX", KEEP, DONT_TOUCH *)
     MUXF8 muxf8
     (
     .I0     (f7bmux_o),
@@ -119,7 +119,7 @@ endgenerate
 // ============================================================================
 // Output assignment
 
-assign Q =  (N == 1) ? srl_q[0] : 
+assign Q =  (N == 1) ? srl_q[0] :
             (N == 2) ? f7amux_o : f8mux_o;
 
 assign Q31 = srl_q31[N-1];

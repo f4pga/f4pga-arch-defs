@@ -25,7 +25,7 @@ wire d;
 generate if (BEGIN_WITH_SRL16) begin
 
   // Use SRL16
-  (* LOC=SITE, KEEP, DONT_TOUCH *)
+  (* KEEP, DONT_TOUCH *)
   SRLC16E beg_srl16
   (
   .CLK  (CLK),
@@ -59,7 +59,7 @@ generate if (NUM_SRL32 > 0) begin
 
     for(i=0; i<NUM_SRL32; i=i+1) begin
 
-        (* LOC=SITE, KEEP, DONT_TOUCH *)
+        (* KEEP, DONT_TOUCH *)
         SRLC32E srl
         (
         .CLK    (CLK),
@@ -90,7 +90,7 @@ end endgenerate
 generate if (END_WITH_SRL16) begin
 
   // Use SRL16
-  (* LOC=SITE, KEEP, DONT_TOUCH *)
+  (* KEEP, DONT_TOUCH *)
   SRLC16E end_srl16
   (
   .CLK  (CLK),
