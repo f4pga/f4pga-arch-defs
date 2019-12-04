@@ -1,17 +1,23 @@
 <mode name="IBUF" xmlns:xi="http://www.w3.org/2001/XInclude">
-  <pb_type name="INBUF_VPR" blif_model=".subckt INBUF_VPR" num_pb="1">
-    <input name="DIFFI_IN" num_pins="1"/>
-    <input name="IBUFDISABLE" num_pins="1"/>
-    <input name="INTERMDISABLE" num_pins="1"/>
-    <input name="PAD" num_pins="1"/>
-    <output name="OUT" num_pins="1"/>
-    <delay_constant max="10e-12" in_port="PAD"  out_port="OUT"/>
+  <pb_type name="IBUF_VPR" blif_model=".subckt IBUF_VPR" num_pb="1">
+    <input name="I" num_pins="1"/>
+    <output name="O" num_pins="1"/>
+
+    <delay_constant max="10e-12" in_port="I" out_port="O"/>
+
+    <metadata>
+      <meta name="fasm_features">
+        PULLTYPE.NONE
+        LVCMOS12_LVCMOS15_LVCMOS18_LVCMOS25_LVCMOS33_LVTTL_SSTL135.IN_ONLY
+        LVCMOS25_LVCMOS33_LVTTL.IN
+      </meta>
+    </metadata>
   </pb_type>
 
   <xi:include href="../inpad.pb_type.xml"/>
 
   <interconnect>
-    <direct name="I" input="INBUF_VPR.OUT" output="IOB33_MODES.I"/>
-    <direct name="to_inpad" input="inpad.inpad" output="INBUF_VPR.PAD"/>
+    <direct name="IBUF_VPR.O_to_IOB33_MODES.I" input="IBUF_VPR.O" output="IOB33_MODES.I"/>
+    <direct name="inpat.inpad_to_IBUF_VPR.I" input="inpad.inpad" output="IBUF_VPR.I"/>
   </interconnect>
 </mode>
