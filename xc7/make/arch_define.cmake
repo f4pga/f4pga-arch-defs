@@ -63,6 +63,8 @@ function(ADD_XC7_ARCH_DEFINE)
     PYTHONPATH=${symbiflow-arch-defs_SOURCE_DIR}/utils \
     \${PYTHON3} \${PLACE_CONSTR_TOOL} \
         --net \${OUT_NET} \
+        --input /dev/stdin \
+        --output /dev/stdout \
         --connection_database ${CMAKE_CURRENT_BINARY_DIR}/channels.db"
     BITSTREAM_EXTENSION frames
     BIN_EXTENSION bit

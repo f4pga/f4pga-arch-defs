@@ -1252,6 +1252,7 @@ function(ADD_FPGA_TARGET)
     add_output_to_fpga_target(${NAME} IO_PLACE ${OUT_IO_REL})
     append_file_dependency(VPR_DEPS ${OUT_IO_REL})
 
+    set(CONSTR_DEPS "")
     if(NOT ${NO_PLACE_CONSTR})
       append_file_dependency(CONSTR_DEPS ${OUT_IO_REL})
 
@@ -1264,7 +1265,7 @@ function(ADD_FPGA_TARGET)
       add_custom_command(
         OUTPUT ${OUT_CONSTR}
         DEPENDS ${CONSTR_DEPS}
-        COMMAND ${PLACE_CONSTR_TOOL_CMD_FOR_TARGET_LIST} --input ${OUT_IO} --output ${OUT_CONSTR}
+        COMMAND ${PLACE_CONSTR_TOOL_CMD_FOR_TARGET_LIST} < ${OUT_IO} > ${OUT_CONSTR}
         WORKING_DIRECTORY ${OUT_LOCAL}
       )
 
