@@ -33,6 +33,13 @@ make env
 At this point a new directory `build` will have been created, which is where
 you can invoke make to build various targets.
 
+To initialize the conda environment that contains all the tools and libraries,
+from the root of the `symbiflow-arch-defs` directory run:
+
+```
+make all_conda
+```
+
 To build all demo bitstreams there are 3 useful targets
 
 ```
