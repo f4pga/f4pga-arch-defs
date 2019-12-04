@@ -20,21 +20,6 @@ add_vivado_target(
   )
 
 add_fpga_target(
-  NAME buttons_zybo
-  BOARD zybo
-  SOURCES buttons_zybo.v
-  INPUT_IO_FILE zybo.pcf
-  )
-
-add_file_target(FILE buttons_basys3_full.v SCANNER_TYPE verilog)
-add_fpga_target(
-  NAME buttons_zybo_full
-  BOARD zybo-full
-  SOURCES buttons_zybo_full.v
-  INPUT_IO_FILE zybo_full.pcf
-  )
-
-add_fpga_target(
   NAME buttons_basys3_full
   BOARD basys3-full
   SOURCES buttons_basys3_full.v
@@ -46,3 +31,25 @@ add_vivado_target(
   NAME buttons_basys3_full_vivado
   PARENT_NAME buttons_basys3_full
   )
+
+add_file_target(FILE buttons_zybo.v SCANNER_TYPE verilog)
+add_file_target(FILE zybo.pcf)
+add_file_target(FILE zyboz7.pcf)
+
+add_fpga_target(
+  NAME buttons_zybo_full
+  BOARD zybo-full
+  SOURCES buttons_zybo.v
+  INPUT_IO_FILE zybo.pcf
+  EXPLICIT_ADD_FILE_TARGET
+  )
+
+add_fpga_target(
+  NAME buttons_zyboz7_full
+  BOARD zyboz7-full
+  SOURCES buttons_zybo.v
+  INPUT_IO_FILE zyboz7.pcf
+  EXPLICIT_ADD_FILE_TARGET
+  )
+
+
