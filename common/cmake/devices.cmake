@@ -932,6 +932,10 @@ function(ADD_FPGA_TARGET)
     OUT_RRXML_VIRT ${DEVICE} OUT_RRXML_VIRT
   )
 
+  if(NOT "${ADD_FPGA_TARGET_INPUT_XDC_FILE}" STREQUAL "")
+      get_target_property_required(PART_JSON ${BOARD} PART_JSON)
+  endif()
+
   set(NAME ${ADD_FPGA_TARGET_NAME})
   get_target_property_required(DEVICE_FULL_TEMPLATE ${ARCH} DEVICE_FULL_TEMPLATE)
   string(CONFIGURE ${DEVICE_FULL_TEMPLATE} DEVICE_FULL)
@@ -978,7 +982,6 @@ function(ADD_FPGA_TARGET)
     if(NOT "${ADD_FPGA_TARGET_INPUT_XDC_FILE}" STREQUAL "")
       add_file_target(FILE ${ADD_FPGA_TARGET_INPUT_XDC_FILE})
       get_file_location(INPUT_XDC_FILE ${ADD_FPGA_TARGET_INPUT_XDC_FILE})
-      get_target_property_required(PART_JSON ${BOARD} PART_JSON)
     endif()
   endif()
 
