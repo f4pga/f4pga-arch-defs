@@ -9,6 +9,7 @@ parameter DATA_RATE = "DDR"
 )
 (
 input  wire SYSCLK,
+input  wire REFCLK,
 input  wire CLKDIV,
 input  wire RST,
 
@@ -17,7 +18,9 @@ output wire O_DAT,
 output wire T_DAT,
 
 input  wire [7:0] INPUTS,
-output wire [7:0] OUTPUTS
+output wire [7:0] OUTPUTS,
+
+output wire RDY
 );
 
 // ============================================================================
@@ -67,6 +70,9 @@ oserdes
 );
 
 wire DDLY;
+
+(* keep *)
+IDELAYCTRL idelayctrl (.REFCLK(REFCLK));
 
 // IDELAY
 IDELAYE2 #
