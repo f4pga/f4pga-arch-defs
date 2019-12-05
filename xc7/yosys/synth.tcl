@@ -5,25 +5,18 @@ plugin -i fasm
 #Import the commands from the plugins to the tcl interpreter
 yosys -import
 
-# Infer 3-state IOBUFs.
-#
-# First infer 3-state muxes. This converts $mux cells with "z" inputs to
-# $tribuf cells. Since iopadmap requires $_TBUF_ cells to properly infer
-# 3-state IOBUFs we need to map it first. Next the iopadmaps infers intermediate
-# $IOBUF cells.
-#
-# Yosys assumes that when T=1'b1 the output is active. In Xilinx architecture
-# it is the opposite. Therefore another techmap is needed that inserts an
-# inverter to $IOBUF cells thus making them Xilinx's IOBUFs driven by correct
-# T signals.
-tribuf
-techmap -map $::env(symbiflow-arch-defs_SOURCE_DIR)/xc7/techmap/tribuf.v 
-iopadmap -bits -tinoutpad \$IOBUF T:O:I:IO
-techmap -map $::env(symbiflow-arch-defs_SOURCE_DIR)/xc7/techmap/io_map.v
+# Map (actually rename) explicitly instantiated IBUFs/OBUFs in order to
+# distinguish them from the inferred ones.
+techmap -map $::env(symbiflow-arch-defs_SOURCE_DIR)/xc7/techmap/iob_map.v
 
 # -flatten is used to ensure that the output eblif has only one module.
 # Some of symbiflow expects eblifs with only one module.
 synth_xilinx -vpr -flatten -abc9 -nosrl -noclkbuf -nodsp -iopad
+
+# Map inferred IBUFs/OBUFs to wires. This way ROI targets will work.
+techmap -map $::env(symbiflow-arch-defs_SOURCE_DIR)/xc7/techmap/iob_make_wires.v
+# Map previously renamed IBUFs/OBUFs back to their former names.
+techmap -map $::env(symbiflow-arch-defs_SOURCE_DIR)/xc7/techmap/iob_unmap.v
 
 if { [info exists ::env(INPUT_XDC_FILE)] && $::env(INPUT_XDC_FILE) != "" } {
   read_xdc -part_json $::env(PART_JSON) $::env(INPUT_XDC_FILE)
