@@ -1,22 +1,18 @@
 <models xmlns:xi="http://www.w3.org/2001/XInclude">
-  <model name="INBUF_VPR">
+  <model name="IBUF_VPR">
     <input_ports>
-      <port name="DIFFI_IN"/>
-      <port name="IBUFDISABLE"/>
-      <port name="INTERMDISABLE"/>
-      <port name="PAD" combinational_sink_ports="OUT"/>
+      <port name="I" combinational_sink_ports="O"/>
     </input_ports>
     <output_ports>
-      <port name="OUT"/>
+      <port name="O"/>
     </output_ports>
   </model>
-  <model name="OUTBUF_VPR">
+  <model name="OBUF_VPR">
     <input_ports>
-      <port name="IN" combinational_sink_ports="OUT"/>
-      <port name="TRI"/>
+      <port name="I" combinational_sink_ports="O"/>
     </input_ports>
     <output_ports>
-      <port name="OUT"/>
+      <port name="O"/>
     </output_ports>
   </model>
   <model name="IOBUF_VPR">

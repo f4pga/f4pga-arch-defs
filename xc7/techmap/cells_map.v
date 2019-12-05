@@ -1897,9 +1897,9 @@ module IBUF (
   output O
   );
 
-   INBUF_VPR _TECHMAP_REPLACE_ (
-     .PAD(I),
-     .OUT(O)
+   IBUF_VPR _TECHMAP_REPLACE_ (
+     .I(I),
+     .O(O)
    );
 
 endmodule
@@ -1909,9 +1909,9 @@ module OBUF (
   output O
   );
 
-   OUTBUF_VPR _TECHMAP_REPLACE_ (
-     .IN(I),
-     .OUT(O)
+   OBUF_VPR _TECHMAP_REPLACE_ (
+     .I(I),
+     .O(O)
    );
 
 endmodule
