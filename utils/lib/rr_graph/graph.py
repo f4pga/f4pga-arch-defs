@@ -1163,8 +1163,8 @@ class Segment(MostlyReadOnly):
         timings = list(segment_xml.iterfind('timing'))
         if len(timings) == 1:
             timing = timings[0]
-            timing_r = float(timing.get('R_per_meter'))
-            timing_c = float(timing.get('C_per_meter'))
+            timing_r = float(timing.get('R_per_meter', 0))
+            timing_c = float(timing.get('C_per_meter', 0))
             timing = SegmentTiming(R_per_meter=timing_r, C_per_meter=timing_c)
         else:
             assert len(timings) == 0
@@ -1290,10 +1290,10 @@ class Switch(MostlyReadOnly):
         ... '''
         >>> sw = Switch.from_xml(ET.fromstring(xml_string))
         >>> sw
-        Switch(id=0, name='buffer', type=<SwitchType.MUX: 'mux'>, timing=SwitchTiming(R=551.0, Cin=7.70000012e-16, Cout=4.00000001e-15, Tdel=4.00000001e-15), sizing=SwitchSizing(mux_trans_size=2.63073993, buf_size=27.6459007))
+        Switch(id=0, name='buffer', type=<SwitchType.MUX: 'mux'>, timing=SwitchTiming(R=551.0, Cin=7.70000012e-16, Cout=4.00000001e-15, Tdel=5.80000006e-11), sizing=SwitchSizing(mux_trans_size=2.63073993, buf_size=27.6459007))
         >>> print(ET.tostring(sw.to_xml(None), pretty_print=True).decode('utf-8').strip())
         <switch id="0" name="buffer" type="mux">
-          <timing R="551.0" Cin="7.70000012e-16" Cout="4.00000001e-15" Cinternal="0" Tdel="4.00000001e-15"/>
+          <timing R="551.0" Cin="7.70000012e-16" Cout="4.00000001e-15" Cinternal="0" Tdel="5.80000006e-11"/>
           <sizing mux_trans_size="2.63073993" buf_size="27.6459007"/>
         </switch>
         """  # noqa: E501
@@ -1306,10 +1306,10 @@ class Switch(MostlyReadOnly):
         timings = list(switch_xml.iterfind('timing'))
         if len(timings) == 1:
             timing = timings[0]
-            timing_r = float(timing.get('R'))
-            timing_cin = float(timing.get('Cin'))
-            timing_cout = float(timing.get('Cout'))
-            timing_tdel = float(timing.get('Cout'))
+            timing_r = float(timing.get('R', 0))
+            timing_cin = float(timing.get('Cin', 0))
+            timing_cout = float(timing.get('Cout', 0))
+            timing_tdel = float(timing.get('Tdel', 0))
             timing = SwitchTiming(
                 timing_r, timing_cin, timing_cout, timing_tdel
             )
@@ -1320,8 +1320,8 @@ class Switch(MostlyReadOnly):
         sizings = list(switch_xml.iterfind('sizing'))
         if len(sizings) == 1:
             sizing = sizings[0]
-            sizing_mux_trans_size = float(sizing.get('mux_trans_size'))
-            sizing_buf_size = float(sizing.get('buf_size'))
+            sizing_mux_trans_size = float(sizing.get('mux_trans_size', 0))
+            sizing_buf_size = float(sizing.get('buf_size', 0))
             sizing = SwitchSizing(sizing_mux_trans_size, sizing_buf_size)
         else:
             assert len(sizings) == 0
@@ -2180,8 +2180,8 @@ class RoutingGraph:
         (0, 1)
         """
         assert xml_node.tag == 'edge'
-        src_node_id = int(xml_node.attrib.get("src_node"))
-        snk_node_id = int(xml_node.attrib.get("sink_node"))
+        src_node_id = int(xml_node.attrib.get("src_node", 0))
+        snk_node_id = int(xml_node.attrib.get("sink_node", 0))
         return src_node_id, snk_node_id
 
     def nodes_for_edge(self, xml_node):
