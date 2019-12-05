@@ -1,13 +1,15 @@
-(* whitebox *) (* CLASS="flipflop" *)
+(* whitebox *)
 module FF(clk, D, S, R, E, Q);
-	(* PORT_CLASS = "clock" *)
-	input clk;
-	(* PORT_CLASS = "D" *)
-	input D;
-	input S;
-	input R;
-	input E;
-	(* PORT_CLASS = "Q" *)
+	input wire clk;
+	(* SETUP="clk 10e-12" *) (* NO_COMB *)
+	input wire D;
+	(* SETUP="clk 10e-12" *) (* NO_COMB *)
+	input wire E;
+	(* SETUP="clk 10e-12" *) (* NO_COMB *)
+	input wire S;
+	(* SETUP="clk 10e-12" *) (* NO_COMB *)
+	input wire R;
+	(* CLK_TO_Q = "clk 10e-12" *)
 	output reg Q;
 	always @(posedge clk or posedge S or posedge R) begin
 		if (S)
