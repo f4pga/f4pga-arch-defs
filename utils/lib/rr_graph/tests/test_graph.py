@@ -218,7 +218,7 @@ class TestGraph(unittest.TestCase):
         self.assertEqual(551, sw.timing.R)
         self.assertEqual(7.70000012e-16, sw.timing.Cin)
         self.assertEqual(4.00000001e-15, sw.timing.Cout)
-        self.assertEqual(4.00000001e-15, sw.timing.Tdel)
+        self.assertEqual(5.80000006e-11, sw.timing.Tdel)
         self.assertEqual(2.63073993, sw.sizing.mux_trans_size)
         self.assertEqual(27.6459007, sw.sizing.buf_size)
 
