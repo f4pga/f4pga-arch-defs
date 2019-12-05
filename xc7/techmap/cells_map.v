@@ -2847,31 +2847,35 @@ input  [15:0] DI,
 output [15:0] DO
 );
 
-  parameter _TECHMAP_CONSTMSK_PWRDWN_   = 1'b0;
-  parameter _TECHMAP_CONSTVAL_PWRDWN_   = 1'b0;
+  parameter _TECHMAP_CONSTMSK_CLKINSEL_ = 0;
+  parameter _TECHMAP_CONSTVAL_CLKINSEL_ = 0;
 
-  parameter _TECHMAP_CONSTMSK_DCLK_     = 1'b1;
-  parameter _TECHMAP_CONSTVAL_DCLK_     = 1'bx;
-  parameter _TECHMAP_CONSTMSK_DEN_      = 1'b1;
-  parameter _TECHMAP_CONSTVAL_DEN_      = 1'bx;
-  parameter _TECHMAP_CONSTMSK_DWE_      = 1'b1;
-  parameter _TECHMAP_CONSTVAL_DWE_      = 1'bx;
+  parameter _TECHMAP_CONSTMSK_RST_      = 0;
+  parameter _TECHMAP_CONSTVAL_RST_      = 0;
+  parameter _TECHMAP_CONSTMSK_PWRDWN_   = 0;
+  parameter _TECHMAP_CONSTVAL_PWRDWN_   = 0;
 
-  parameter _TECHMAP_CONSTMSK_CLKFBOUT_ = 1'b1;
-  parameter _TECHMAP_CONSTVAL_CLKFBOUT_ = 1'bx;
-  parameter _TECHMAP_CONSTMSK_CLKOUT0_  = 1'b1;
-  parameter _TECHMAP_CONSTVAL_CLKOUT0_  = 1'bx;
-  parameter _TECHMAP_CONSTMSK_CLKOUT1_  = 1'b1;
-  parameter _TECHMAP_CONSTVAL_CLKOUT1_  = 1'bx;
-  parameter _TECHMAP_CONSTMSK_CLKOUT2_  = 1'b1;
-  parameter _TECHMAP_CONSTVAL_CLKOUT2_  = 1'bx;
-  parameter _TECHMAP_CONSTMSK_CLKOUT3_  = 1'b1;
-  parameter _TECHMAP_CONSTVAL_CLKOUT3_  = 1'bx;
-  parameter _TECHMAP_CONSTMSK_CLKOUT4_  = 1'b1;
-  parameter _TECHMAP_CONSTVAL_CLKOUT4_  = 1'bx;
-  parameter _TECHMAP_CONSTMSK_CLKOUT5_  = 1'b1;
-  parameter _TECHMAP_CONSTVAL_CLKOUT5_  = 1'bx;
+  parameter _TECHMAP_CONSTMSK_CLKFBOUT_ = 0;
+  parameter _TECHMAP_CONSTVAL_CLKFBOUT_ = 0;
+  parameter _TECHMAP_CONSTMSK_CLKOUT0_  = 0;
+  parameter _TECHMAP_CONSTVAL_CLKOUT0_  = 0;
+  parameter _TECHMAP_CONSTMSK_CLKOUT1_  = 0;
+  parameter _TECHMAP_CONSTVAL_CLKOUT1_  = 0;
+  parameter _TECHMAP_CONSTMSK_CLKOUT2_  = 0;
+  parameter _TECHMAP_CONSTVAL_CLKOUT2_  = 0;
+  parameter _TECHMAP_CONSTMSK_CLKOUT3_  = 0;
+  parameter _TECHMAP_CONSTVAL_CLKOUT3_  = 0;
+  parameter _TECHMAP_CONSTMSK_CLKOUT4_  = 0;
+  parameter _TECHMAP_CONSTVAL_CLKOUT4_  = 0;
+  parameter _TECHMAP_CONSTMSK_CLKOUT5_  = 0;
+  parameter _TECHMAP_CONSTVAL_CLKOUT5_  = 0;
 
+  parameter _TECHMAP_CONSTMSK_DCLK_     = 0;
+  parameter _TECHMAP_CONSTVAL_DCLK_     = 0;
+  parameter _TECHMAP_CONSTMSK_DEN_      = 0;
+  parameter _TECHMAP_CONSTVAL_DEN_      = 0;
+  parameter _TECHMAP_CONSTMSK_DWE_      = 0;
+  parameter _TECHMAP_CONSTVAL_DWE_      = 0;
 
   parameter IS_CLKINSEL_INVERTED = 1'b0;
   parameter IS_RST_INVERTED = 1'b0;
@@ -2926,19 +2930,62 @@ output [15:0] DO
   localparam CLKOUT4_REGS  = pll_clkregs(CLKOUT4_DIVIDE, CLKOUT4_DUTY_CYCLE, CLKOUT4_PHASE);
   localparam CLKOUT5_REGS  = pll_clkregs(CLKOUT5_DIVIDE, CLKOUT5_DUTY_CYCLE, CLKOUT5_PHASE);
 
-  localparam [0:0] INV_PWRDWN = (
-      _TECHMAP_CONSTMSK_PWRDWN_ == 1 &&
-      _TECHMAP_CONSTVAL_PWRDWN_ == 0 &&
-      IS_PWRDWN_INVERTED == 0);
+  // Handle inputs that should have certain logic levels when left unconnected
+  generate if (_TECHMAP_CONSTMSK_CLKINSEL_ == 1)
+    wire clkinsel = _TECHMAP_CONSTVAL_CLKINSEL_;
+  else if (_TECHMAP_CONSTVAL_CLKINSEL_ == 0)
+    wire clkinsel = 1'b1;
+  else
+    wire clkinsel = CLKINSEL;
+  endgenerate
 
+  generate if (_TECHMAP_CONSTMSK_PWRDWN_ == 1)
+    wire pwrdwn = _TECHMAP_CONSTVAL_PWRDWN_;
+  else if (_TECHMAP_CONSTVAL_PWRDWN_ == 0)
+    wire pwrdwn = 1'b0;
+  else
+    wire pwrdwn = PWRDWN;
+  endgenerate
+
+  generate if (_TECHMAP_CONSTMSK_RST_ == 1)
+    wire rst = _TECHMAP_CONSTVAL_RST_;
+  else if (_TECHMAP_CONSTVAL_RST_ == 0)
+    wire rst = 1'b0;
+  else
+    wire rst = RST;
+  endgenerate
+
+  generate if (_TECHMAP_CONSTMSK_DCLK_ == 1)
+    wire dclk = _TECHMAP_CONSTVAL_DCLK_;
+  else if (_TECHMAP_CONSTVAL_DCLK_ == 0)
+    wire dclk = 1'b0;
+  else
+    wire dclk = DCLK;
+  endgenerate
+  
+  generate if (_TECHMAP_CONSTMSK_DEN_ == 1)
+    wire den = _TECHMAP_CONSTVAL_DEN_;
+  else if (_TECHMAP_CONSTVAL_DEN_ == 0)
+    wire den = 1'b0;
+  else
+    wire den = DEN;
+  endgenerate
+
+  generate if (_TECHMAP_CONSTMSK_DWE_ == 1)
+    wire dwe = _TECHMAP_CONSTVAL_DWE_;
+  else if (_TECHMAP_CONSTVAL_DWE_ == 0)
+    wire dwe = 1'b0;
+  else
+    wire dwe = DWE;
+  endgenerate
 
   // The substituted cell
   PLLE2_ADV_VPR #
   (
   // Inverters
   .INV_CLKINSEL(IS_CLKINSEL_INVERTED),
-  .ZINV_PWRDWN(IS_PWRDWN_INVERTED ^ INV_PWRDWN),
-  .ZINV_RST(IS_RST_INVERTED),
+  .ZINV_PWRDWN (IS_PWRDWN_INVERTED),
+  .ZINV_RST    (IS_RST_INVERTED),
 
   // Straight mapped parameters
   .STARTUP_WAIT(STARTUP_WAIT == "TRUE"),
@@ -3014,22 +3061,20 @@ output [15:0] DO
   .CLKOUT5_CLKOUT2_NO_COUNT     (CLKOUT5_REGS[22]),
 
   // Clock output enable controls
-  .CLKFBOUT_CLKOUT1_OUTPUT_ENABLE(_TECHMAP_CONSTMSK_CLKFBOUT_ == 1'b0),
+  .CLKFBOUT_CLKOUT1_OUTPUT_ENABLE(_TECHMAP_CONSTMSK_CLKFBOUT_ == 0),
 
-  .CLKOUT0_CLKOUT1_OUTPUT_ENABLE(_TECHMAP_CONSTMSK_CLKOUT0_ == 1'b0),
-  .CLKOUT1_CLKOUT1_OUTPUT_ENABLE(_TECHMAP_CONSTMSK_CLKOUT1_ == 1'b0),
-  .CLKOUT2_CLKOUT1_OUTPUT_ENABLE(_TECHMAP_CONSTMSK_CLKOUT2_ == 1'b0),
-  .CLKOUT3_CLKOUT1_OUTPUT_ENABLE(_TECHMAP_CONSTMSK_CLKOUT3_ == 1'b0),
-  .CLKOUT4_CLKOUT1_OUTPUT_ENABLE(_TECHMAP_CONSTMSK_CLKOUT4_ == 1'b0),
-  .CLKOUT5_CLKOUT1_OUTPUT_ENABLE(_TECHMAP_CONSTMSK_CLKOUT5_ == 1'b0)
+  .CLKOUT0_CLKOUT1_OUTPUT_ENABLE(_TECHMAP_CONSTMSK_CLKOUT0_ == 0),
+  .CLKOUT1_CLKOUT1_OUTPUT_ENABLE(_TECHMAP_CONSTMSK_CLKOUT1_ == 0),
+  .CLKOUT2_CLKOUT1_OUTPUT_ENABLE(_TECHMAP_CONSTMSK_CLKOUT2_ == 0),
+  .CLKOUT3_CLKOUT1_OUTPUT_ENABLE(_TECHMAP_CONSTMSK_CLKOUT3_ == 0),
+  .CLKOUT4_CLKOUT1_OUTPUT_ENABLE(_TECHMAP_CONSTMSK_CLKOUT4_ == 0),
+  .CLKOUT5_CLKOUT1_OUTPUT_ENABLE(_TECHMAP_CONSTMSK_CLKOUT5_ == 0)
   )
   _TECHMAP_REPLACE_
   (
   .CLKFBIN(CLKFBIN),
   .CLKIN1(CLKIN1),
   .CLKIN2(CLKIN2),
-  .CLKINSEL(CLKINSEL),
-
   .CLKFBOUT(CLKFBOUT),
   .CLKOUT0(CLKOUT0),
   .CLKOUT1(CLKOUT1),
@@ -3038,13 +3083,15 @@ output [15:0] DO
   .CLKOUT4(CLKOUT4),
   .CLKOUT5(CLKOUT5),
 
-  .PWRDWN(PWRDWN ^ INV_PWRDWN),
-  .RST(RST),
-  .LOCKED(LOCKED),
+  .CLKINSEL (clkinsel),
 
-  .DCLK ((_TECHMAP_CONSTMSK_DCLK_ == 1'b0 && _TECHMAP_CONSTVAL_DCLK_ == 1'bx) ? 1'b0 : DCLK),
-  .DEN  ((_TECHMAP_CONSTMSK_DEN_  == 1'b0 && _TECHMAP_CONSTVAL_DEN_  == 1'bx) ? 1'b0 : DEN),
-  .DWE  ((_TECHMAP_CONSTMSK_DWE_  == 1'b0 && _TECHMAP_CONSTVAL_DWE_  == 1'bx) ? 1'b0 : DWE),
+  .PWRDWN   (pwrdwn),
+  .RST      (rst),
+  .LOCKED   (LOCKED),
+
+  .DCLK (dclk),
+  .DEN  (den),
+  .DWE  (dwe),
   .DRDY (DRDY),
   .DADDR(DADDR),
   .DI   (DI),
