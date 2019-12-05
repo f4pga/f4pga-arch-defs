@@ -84,11 +84,17 @@ function(DEFINE_ARCH)
   #
   # PLACE_TOOL_CONSTR_CMD variables:
   #
-  # * PLACE_TOOL_CONSTR - Value of PLACE_TOOL_CONSTR property of <arch>.
+  # * PLACE_CONSTR_TOOL - Value of PLACE_CONSTR_TOOL property of <arch>.
+  # * NO_PLACE_CONSTR - If this option is set, the PLACE_CONSTR_TOOL is disabled
   #
   # This command enables the possibility to add an additional step consisting
   # on the addition of extra placement constraints through the usage of the chosen
   # script.
+  # The IO placement file is passed to the script through standard input and, when
+  # the new placement constraints for non-IO tiles have been added, a new placement
+  # constraint file is generated and fed to standard output.
+  #
+  #
   #
   # HLC_TO_BIT_CMD variables:
   #
@@ -1264,6 +1270,11 @@ function(ADD_FPGA_TARGET)
     if(NOT ${NO_PLACE_CONSTR})
       append_file_dependency(CONSTR_DEPS ${OUT_IO_REL})
 
+      get_target_property(PLACE_CONSTR_TOOL_EXTRA_ARGS ${BOARD} PLACE_CONSTR_TOOL_EXTRA_ARGS)
+      if ("${PLACE_CONSTR_TOOL_EXTRA_ARGS}" STREQUAL NOTFOUND)
+        set(PLACE_CONSTR_TOOL_EXTRA_ARGS "")
+      endif()
+
       # Generate LOC constrains
       string(CONFIGURE ${PLACE_CONSTR_TOOL_CMD} PLACE_CONSTR_TOOL_CMD_FOR_TARGET)
       separate_arguments(
@@ -1273,7 +1284,8 @@ function(ADD_FPGA_TARGET)
       add_custom_command(
         OUTPUT ${OUT_CONSTR}
         DEPENDS ${CONSTR_DEPS}
-        COMMAND ${PLACE_CONSTR_TOOL_CMD_FOR_TARGET_LIST} < ${OUT_IO} > ${OUT_CONSTR}
+        COMMAND
+          ${PLACE_CONSTR_TOOL_CMD_FOR_TARGET_LIST} < ${OUT_IO} > ${OUT_CONSTR}
         WORKING_DIRECTORY ${OUT_LOCAL}
       )
 
