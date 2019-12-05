@@ -606,18 +606,18 @@ endmodule
 // ============================================================================
 // IO
 
-module INBUF_VPR (
-	input PAD,
-	output OUT
+module IBUF_VPR (
+	input I,
+	output O
 );
-	assign OUT = PAD;
+	assign O = I;
 endmodule
 
-module OUTBUF_VPR (
-	input IN,
-	output OUT
+module OBUF_VPR (
+	input I,
+	output O
 );
-	assign OUT = IN;
+	assign O = I;
 endmodule
 
 
