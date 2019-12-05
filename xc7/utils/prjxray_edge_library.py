@@ -734,8 +734,12 @@ AND
                     return
 
         elif self.pins and other_connector.pins and not pip.is_pseudo:
-            assert self.pins.site_pin_direction == SitePinDirection.OUT, dict(pip)
-            assert other_connector.pins.site_pin_direction == SitePinDirection.IN, dict(pip)
+            assert self.pins.site_pin_direction == SitePinDirection.OUT, dict(
+                pip
+            )
+            assert other_connector.pins.site_pin_direction == SitePinDirection.IN, dict(
+                pip
+            )
 
             switch_pkey = self.get_edge_with_mux_switch(
                 src_wire_pkey, pip.pip_pkey, dest_wire_pkey

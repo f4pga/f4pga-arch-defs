@@ -361,16 +361,18 @@ SELECT name FROM site_type WHERE pkey = (
         if tile_type in split_tile_types:
             continue
 
-        (tile_type_pkey,) = c.execute("""
+        (tile_type_pkey, ) = c.execute(
+            """
     SELECT pkey
     FROM tile_type
     WHERE name = ?
-        """, (tile_type, )).fetchone()
+        """, (tile_type, )
+        ).fetchone()
 
         for (wire, ) in c.execute("""
     SELECT name
     FROM wire_in_tile
-    WHERE tile_type_pkey = ?""", (tile_type_pkey,)):
+    WHERE tile_type_pkey = ?""", (tile_type_pkey, )):
             wires_in_tile_types.add((tile_type, wire))
 
         type_obj = db.get_tile_type(tile_type)
@@ -380,11 +382,13 @@ SELECT name FROM site_type WHERE pkey = (
                     continue
 
                 # Skip if this wire is not in the database
-                c.execute("""
+                c.execute(
+                    """
     SELECT pkey
     FROM wire_in_tile
     WHERE name = ?
-""", (site_pin.wire,))
+""", (site_pin.wire, )
+                )
                 if not c.fetchone():
                     continue
 

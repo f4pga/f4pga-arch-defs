@@ -52,6 +52,7 @@ SINGLE_PRECISION_FLOAT_MIN = 2**-126
 VCC_NET = 'VCC_NET'
 GND_NET = 'GND_NET'
 
+
 def import_site_type(db, write_cur, site_types, site_type_name):
     assert site_type_name not in site_types
     site_type = db.get_site_type(site_type_name)
@@ -243,7 +244,9 @@ def import_tile_type(
 
     # For Zynq7 PSS* tiles build a list of sites, wires and PIPs to ignore
     if tile_type_name.startswith("PSS"):
-        masked_sites, masked_wires, masked_pips = build_pss_object_mask(db, tile_type_name)
+        masked_sites, masked_wires, masked_pips = build_pss_object_mask(
+            db, tile_type_name
+        )
 
     else:
         masked_sites = []
