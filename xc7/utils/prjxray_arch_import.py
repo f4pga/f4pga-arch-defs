@@ -546,13 +546,13 @@ def insert_constant_tiles(conn, model_xml, complexblocklist_xml, tiles_xml):
     null_tile_type_pkey = c.fetchone()[0]
 
     # Get all 'NULL' tile locations
-    c.execute('SELECT grid_x, grid_y FROM phy_tile WHERE tile_type_pkey = ?', (null_tile_type_pkey,))
+    c.execute(
+        'SELECT grid_x, grid_y FROM phy_tile WHERE tile_type_pkey = ?',
+        (null_tile_type_pkey, )
+    )
     locs = sorted(list(c.fetchall()))
 
-    loc = {
-        'VCC': locs[0],
-        'GND': locs[1]
-    }
+    loc = {'VCC': locs[0], 'GND': locs[1]}
     print(loc)
 
     c.execute(
