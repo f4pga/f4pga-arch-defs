@@ -46,8 +46,10 @@ def process_idelay(top, features):
 
         if site.has_feature("DELAY_SRC_DATAIN"):
             bel.parameters['DELAY_SRC'] = '"DATAIN"'
+            site.add_sink(bel, 'DATAIN', 'DATAIN')
         elif site.has_feature("DELAY_SRC_IDATAIN"):
             bel.parameters['DELAY_SRC'] = '"IDATAIN"'
+            site.add_sink(bel, 'IDATAIN', 'IDATAIN')
 
         if site.has_feature("IDELAY_VALUE"):
             idelay_value = site.decode_multi_bit_feature('IDELAY_VALUE')
@@ -63,8 +65,6 @@ def process_idelay(top, features):
         site.add_sink(bel, 'C', 'C')
         site.add_sink(bel, 'CE', 'CE')
         site.add_sink(bel, 'CINVCTRL', 'CINVCTRL')
-        site.add_sink(bel, 'DATAIN', 'DATAIN')
-        site.add_sink(bel, 'IDATAIN', 'IDATAIN')
         site.add_sink(bel, 'INC', 'INC')
         site.add_sink(bel, 'LD', 'LD')
         site.add_sink(bel, 'LDPIPEEN', 'LDPIPEEN')

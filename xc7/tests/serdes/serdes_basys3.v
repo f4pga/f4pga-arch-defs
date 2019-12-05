@@ -133,9 +133,7 @@ serdes_test
 
 .I_DAT      (I_DAT),
 .O_DAT      (O_DAT),
-.T_DAT      (T_DAT),
-
-.RDY        (led[0])
+.T_DAT      (T_DAT)
 );
 
 wire [7:0] MASKED_OUTPUTS = OUTPUTS & MASK;
@@ -149,7 +147,7 @@ always @(posedge SYSCLK)
     heartbeat_cnt <= heartbeat_cnt + 1;
 
 
-//assign led[0] = heartbeat_cnt[24];
+assign led[0] = heartbeat_cnt[24];
 assign led[8:1] = MASKED_OUTPUTS;
 
 endmodule

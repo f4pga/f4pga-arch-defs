@@ -18,9 +18,7 @@ output wire O_DAT,
 output wire T_DAT,
 
 input  wire [7:0] INPUTS,
-output wire [7:0] OUTPUTS,
-
-output wire RDY
+output wire [7:0] OUTPUTS
 );
 
 // ============================================================================
@@ -79,7 +77,7 @@ IDELAYE2 #
 (
 .IDELAY_TYPE    ("FIXED"),
 .DELAY_SRC      ("IDATAIN"),
-.IDELAY_VALUE   (5'd5)
+.IDELAY_VALUE   (5'd16)
 )
 idelay
 (
