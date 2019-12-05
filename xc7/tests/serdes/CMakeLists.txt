@@ -9,12 +9,12 @@ function(serdes_test data_width data_rate)
 
   add_custom_command(
       OUTPUT serdes_basys3_${data_width}_${data_rate_lower}.v
-      COMMAND ${PYTHON3} ${CMAKE_CURRENT_SOURCE_DIR}/generate.py
+      COMMAND ${PYTHON3} ${CMAKE_CURRENT_SOURCE_DIR}/generate_tests.py
         --input ${CMAKE_CURRENT_SOURCE_DIR}/serdes_basys3.v
         --output ${CMAKE_CURRENT_BINARY_DIR}/serdes_basys3_${data_width}_${data_rate_lower}.v
         --data_width ${data_width}
         --data_rate ${data_rate}
-      DEPENDS ${PYTHON3} ${PYTHON3_TARGET} generate.py
+      DEPENDS ${PYTHON3} ${PYTHON3_TARGET} generate_tests.py
     )
 
   add_file_target(FILE serdes_basys3_${data_width}_${data_rate_lower}.v GENERATED)
