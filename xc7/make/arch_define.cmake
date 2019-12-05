@@ -65,7 +65,7 @@ function(ADD_XC7_ARCH_DEFINE)
         --net \${OUT_NET} \
         --input /dev/stdin \
         --output /dev/stdout \
-        --connection_database ${CMAKE_CURRENT_BINARY_DIR}/channels.db"
+        \${PLACE_CONSTR_TOOL_EXTRA_ARGS}"
     BITSTREAM_EXTENSION frames
     BIN_EXTENSION bit
     FASM_TO_BIT ${PRJXRAY_DIR}/utils/fasm2frames.py
