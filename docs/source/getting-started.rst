@@ -25,6 +25,13 @@ into the separated environment
     cd symbiflow-arch-defs
     make env
 
+To initialize the conda environment that contains all the tools and libraries,
+from the root of the ``symbiflow-arch-defs`` directory run:
+
+.. code-block:: bash
+
+    make all_conda
+
 Build example
 -------------
 
