@@ -44,12 +44,12 @@ add_fpga_target(
   EXPLICIT_ADD_FILE_TARGET
   )
 
-add_fpga_target(
-  NAME buttons_zyboz7_full
-  BOARD zyboz7-full
-  SOURCES buttons_zybo.v
-  INPUT_IO_FILE zyboz7.pcf
-  EXPLICIT_ADD_FILE_TARGET
-  )
+#add_fpga_target(
+#  NAME buttons_zyboz7_full
+#  BOARD zyboz7-full
+#  SOURCES buttons_zybo.v
+#  INPUT_IO_FILE zyboz7.pcf
+#  EXPLICIT_ADD_FILE_TARGET
+#  )
 
 
