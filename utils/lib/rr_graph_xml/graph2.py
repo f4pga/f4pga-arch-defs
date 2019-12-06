@@ -74,11 +74,11 @@ def graph_from_xml(input_file_name, progressbar=None, filter_nodes=True):
         # Switch timing
         if path == "rr_graph/switches/switch" and element.tag == "timing":
             switch_timing = graph2.SwitchTiming(
-                r=float(element.attrib['R']),
-                c_in=float(element.attrib['Cin']),
-                c_out=float(element.attrib['Cout']),
+                r=float(element.attrib.get('R', 0)),
+                c_in=float(element.attrib.get('Cin', 0)),
+                c_out=float(element.attrib.get('Cout', 0)),
                 c_internal=float(element.attrib.get('Cinternal', 0)),
-                t_del=float(element.attrib['Tdel']),
+                t_del=float(element.attrib.get('Tdel', 0)),
             )
 
         # Switch sizing
@@ -108,8 +108,8 @@ def graph_from_xml(input_file_name, progressbar=None, filter_nodes=True):
         # Segment timing
         if path == "rr_graph/segments/segment" and element.tag == "timing":
             segment_timing = graph2.SegmentTiming(
-                r_per_meter=float(element.attrib['R_per_meter']),
-                c_per_meter=float(element.attrib['C_per_meter']),
+                r_per_meter=float(element.attrib.get('R_per_meter', 0)),
+                c_per_meter=float(element.attrib.get('C_per_meter', 0)),
             )
 
         # Segment
