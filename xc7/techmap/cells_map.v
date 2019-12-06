@@ -2443,7 +2443,16 @@ module IDELAYE2 (
 
   localparam [4:0] ZIDELAY_VALUE = ~IDELAY_VALUE;
 
+  parameter _TECHMAP_CONSTMSK_IDATAIN_ = 1'b1;
+  parameter _TECHMAP_CONSTVAL_IDATAIN_ = 1'bx;
+  parameter _TECHMAP_CONSTMSK_DATAIN_ = 1'b1;
+  parameter _TECHMAP_CONSTVAL_DATAIN_ = 1'bx;
+
+  localparam [0:0] IDATAIN_USED = _TECHMAP_CONSTMSK_IDATAIN_ == 1'b0;
+  localparam [0:0] DATAIN_USED = _TECHMAP_CONSTMSK_DATAIN_ == 1'b0;
+
   IDELAYE2_VPR #(
+    .IN_USE                 (IDATAIN_USED | DATAIN_USED),
     .IDELAY_VALUE           (IDELAY_VALUE),
     .ZIDELAY_VALUE          (ZIDELAY_VALUE),
 
