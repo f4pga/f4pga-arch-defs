@@ -2931,29 +2931,38 @@ output [15:0] DO
   localparam CLKOUT5_REGS  = pll_clkregs(CLKOUT5_DIVIDE, CLKOUT5_DUTY_CYCLE, CLKOUT5_PHASE);
 
   // Handle inputs that should have certain logic levels when left unconnected
-  generate if (_TECHMAP_CONSTMSK_CLKINSEL_ == 1)
-    wire clkinsel = _TECHMAP_CONSTVAL_CLKINSEL_;
-  else if (_TECHMAP_CONSTVAL_CLKINSEL_ == 0)
+  generate if (_TECHMAP_CONSTMSK_CLKINSEL_ == 1) begin
+    localparam INV_CLKINSEL = !_TECHMAP_CONSTVAL_CLKINSEL_;
     wire clkinsel = 1'b1;
-  else
+  end else if (_TECHMAP_CONSTVAL_CLKINSEL_ == 0) begin
+    localparam INV_CLKINSEL = IS_CLKINSEL_INVERTED;
+    wire clkinsel = 1'b1;
+  end else begin
+    localparam INV_CLKINSEL = IS_CLKINSEL_INVERTED;
     wire clkinsel = CLKINSEL;
-  endgenerate
+  end endgenerate
 
-  generate if (_TECHMAP_CONSTMSK_PWRDWN_ == 1)
-    wire pwrdwn = _TECHMAP_CONSTVAL_PWRDWN_;
-  else if (_TECHMAP_CONSTVAL_PWRDWN_ == 0)
-    wire pwrdwn = 1'b0;
-  else
+  generate if (_TECHMAP_CONSTMSK_PWRDWN_ == 1) begin
+    localparam INV_PWRDWN =  !_TECHMAP_CONSTVAL_PWRDWN_;
+    wire pwrdwn = 1'b1;
+  end else if (_TECHMAP_CONSTVAL_PWRDWN_ == 0) begin
+    localparam INV_PWRDWN = ~IS_PWRDWN_INVERTED;
+    wire pwrdwn = 1'b1;
+  end else begin
+    localparam INV_PWRDWN =  IS_PWRDWN_INVERTED;
     wire pwrdwn = PWRDWN;
-  endgenerate
+  end endgenerate
 
-  generate if (_TECHMAP_CONSTMSK_RST_ == 1)
-    wire rst = _TECHMAP_CONSTVAL_RST_;
-  else if (_TECHMAP_CONSTVAL_RST_ == 0)
-    wire rst = 1'b0;
-  else
+  generate if (_TECHMAP_CONSTMSK_RST_ == 1) begin
+    localparam INV_RST =  !_TECHMAP_CONSTVAL_PWRDWN_;
+    wire rst = 1'b1;
+  end else if (_TECHMAP_CONSTVAL_RST_ == 0) begin
+    localparam INV_RST = ~IS_RST_INVERTED;
+    wire rst = 1'b1;
+  end else begin
+    localparam INV_RST =  IS_RST_INVERTED;
     wire rst = RST;
-  endgenerate
+  end endgenerate
 
   generate if (_TECHMAP_CONSTMSK_DCLK_ == 1)
     wire dclk = _TECHMAP_CONSTVAL_DCLK_;
@@ -2983,9 +2992,9 @@ output [15:0] DO
   PLLE2_ADV_VPR #
   (
   // Inverters
-  .INV_CLKINSEL(IS_CLKINSEL_INVERTED),
-  .ZINV_PWRDWN (IS_PWRDWN_INVERTED),
-  .ZINV_RST    (IS_RST_INVERTED),
+  .INV_CLKINSEL(INV_CLKINSEL),
+  .ZINV_PWRDWN (INV_PWRDWN),
+  .ZINV_RST    (INV_RST),
 
   // Straight mapped parameters
   .STARTUP_WAIT(STARTUP_WAIT == "TRUE"),
