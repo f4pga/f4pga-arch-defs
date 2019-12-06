@@ -1,0 +1,12 @@
+<models>
+  <model name="IDELAYCTRL">
+    <input_ports>
+      <!-- synchronous control inputs -->
+      <port is_clock="1" name="REFCLK"/>
+      <port name="RST"/>
+    </input_ports>
+    <output_ports>
+      <port name="RDY"/>
+    </output_ports>
+  </model>
+</models>

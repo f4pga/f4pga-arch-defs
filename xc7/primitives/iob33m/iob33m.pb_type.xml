@@ -37,7 +37,7 @@
 
     <mode name="OBUFTDS_M">
       <xi:include href="../iob33/outpad.pb_type.xml"/>
-    
+
       <pb_type name="OBUFTDS_M_VPR" blif_model=".subckt OBUFTDS_M_VPR" num_pb="1">
         <input name="I" num_pins="1"/>
         <input name="T" num_pins="1"/>

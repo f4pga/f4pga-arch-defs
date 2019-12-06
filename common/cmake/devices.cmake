@@ -256,7 +256,6 @@ function(DEFINE_DEVICE_TYPE)
   #   [SCRIPT_OUTPUT_NAME]
   #   [SCRIPT_DEPS]
   #   [SCRIPTS]
-  #   UPDATE_TILES
   #   )
   # ~~~
   #
@@ -269,15 +268,9 @@ function(DEFINE_DEVICE_TYPE)
   # If the SCRIPT has dependencies, SCRIPT_DEPS can be used to be passed to the
   # SCRIPT command.
   #
-  # If the UPDATE_TILES option is active, the architecture XML file will go through
-  # an additional step and is updated to have include the `tiles` tags.
-  #
   # DEFINE_DEVICE_TYPE defines a dummy target <arch>_<device_type>_arch that
   # will build the merged architecture file for the device type.
-  #
-  # If UPDATE_TIMINGS is set merged arch.xml file will be processed to inject
-  # timing values using data from prjxray-db/$ARCH/timigs/*sdf files
-  set(options UPDATE_TIMINGS UPDATE_TILES)
+  set(options "")
   set(oneValueArgs DEVICE_TYPE ARCH ARCH_XML)
   set(multiValueArgs SCRIPT_OUTPUT_NAME SCRIPTS SCRIPT_DEPS)
   cmake_parse_arguments(
@@ -304,7 +297,6 @@ function(DEFINE_DEVICE_TYPE)
     FILE ${DEFINE_DEVICE_TYPE_ARCH_XML}
     OUTPUT ${DEVICE_MERGED_FILE}
   )
-
   get_target_property_required(PYTHON3 env PYTHON3)
   get_target_property(PYTHON3_TARGET env PYTHON3_TARGET)
 
@@ -328,11 +320,16 @@ function(DEFINE_DEVICE_TYPE)
 
   # for each script generate next chain of deps
   if (DEFINE_DEVICE_TYPE_SCRIPTS)
-    list(LENGTH ${DEFINE_DEVICE_TYPE_SCRIPTS} SCRIPT_LEN)
+    list(LENGTH DEFINE_DEVICE_TYPE_SCRIPT_OUTPUT_NAME SCRIPT_LEN)
+    math(EXPR SCRIPT_LEN ${SCRIPT_LEN}-1)
     foreach(SCRIPT_IND RANGE ${SCRIPT_LEN})
       list(GET DEFINE_DEVICE_TYPE_SCRIPT_OUTPUT_NAME ${SCRIPT_IND} OUTPUT_NAME)
       list(GET DEFINE_DEVICE_TYPE_SCRIPT_DEPS ${SCRIPT_IND} DEFINE_DEVICE_TYPE_SCRIPT_DEP_VAR)
       list(GET DEFINE_DEVICE_TYPE_SCRIPTS ${SCRIPT_IND} SCRIPT)
+
+      set(SCRIPT ${${SCRIPT}})
+      set(DEFINE_DEVICE_TYPE_SCRIPT_DEP_VAR ${${DEFINE_DEVICE_TYPE_SCRIPT_DEP_VAR}})
+
       separate_arguments(CMD_W_ARGS UNIX_COMMAND ${SCRIPT})
       list(GET CMD_W_ARGS 0 CMD)
       set(TEMP_TARGET arch.${OUTPUT_NAME}.xml)
@@ -352,26 +349,6 @@ function(DEFINE_DEVICE_TYPE)
     endforeach(SCRIPT_IND RANGE ${SCRIPT_LEN})
   endif (DEFINE_DEVICE_TYPE_SCRIPTS)
 
-  if (${DEFINE_DEVICE_TYPE_UPDATE_TILES})
-    set(TEMP_TARGET arch.tiles.xml)
-    append_file_dependency(DEFINE_DEVICE_DEPS ${FINAL_OUTPUT})
-    add_custom_command(
-      OUTPUT ${TEMP_TARGET}
-      DEPENDS
-        ${PYTHON3} ${PYTHON3_TARGET}
-        ${DEFINE_DEVICE_DEPS}
-        ${symbiflow-arch-defs_SOURCE_DIR}/utils/update_arch_tiles.py
-      COMMAND
-        ${PYTHON3} ${symbiflow-arch-defs_SOURCE_DIR}/utils/update_arch_tiles.py
-          --in_xml ${FINAL_FILE}
-          --out_xml ${TEMP_TARGET}
-      )
-
-    add_file_target(FILE ${TEMP_TARGET} GENERATED)
-    get_file_target(FINAL_TARGET ${TEMP_TARGET})
-    get_file_location(FINAL_FILE ${TEMP_TARGET})
-    set(FINAL_OUTPUT ${TEMP_TARGET})
-  endif ()
   add_custom_target(
     ${DEFINE_DEVICE_TYPE_ARCH}_${DEFINE_DEVICE_TYPE_DEVICE_TYPE}_arch
     DEPENDS ${FINAL_TARGET}

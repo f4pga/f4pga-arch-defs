@@ -172,19 +172,28 @@ function(ADD_XC7_DEVICE_DEFINE_TYPE)
 
   set(SDF_TIMING_DIRECTORY ${PRJXRAY_DB_DIR}/${ARCH}/timings)
   set(UPDATE_ARCH_TIMINGS ${symbiflow-arch-defs_SOURCE_DIR}/utils/update_arch_timings.py)
+  set(UPDATE_PACK_PATTERNS ${symbiflow-arch-defs_SOURCE_DIR}/xc7/utils/add_pack_patterns.py)
   set(PYTHON_SDF_TIMING_DIR ${symbiflow-arch-defs_SOURCE_DIR}/third_party/python-sdf-timing)
   set(BELS_MAP ${symbiflow-arch-defs_SOURCE_DIR}/xc7/bels.json)
 
+  set(ADD_PACK_PATTERN "${PYTHON3} ${UPDATE_PACK_PATTERNS} --in_arch /dev/stdin")
+
+  get_file_target(UPDATE_PACK_PATTERNS_TARGET ${UPDATE_PACK_PATTERNS})
+  set(PACK_PATTERN_DEPS ${UPDATE_PACK_PATTERNS_TARGET})
+
   set(TIMING_IMPORT "${PYTHON3} ${UPDATE_ARCH_TIMINGS} --sdf_dir ${SDF_TIMING_DIRECTORY} --bels_map ${BELS_MAP} --out_arch /dev/stdout --input_arch /dev/stdin")
-  set(TIMING_DEPS "")
+
+  get_file_target(BELS_MAP_TARGET ${BELS_MAP})
+  get_file_target(UPDATE_ARCH_TIMINGS_TARGET ${UPDATE_ARCH_TIMINGS})
+  set(TIMING_DEPS ${BELS_MAP_TARGET} ${UPDATE_ARCH_TIMINGS_TARGET})
 
   define_device_type(
     DEVICE_TYPE ${DEVICE_TYPE}
     ARCH ${ARCH}
     ARCH_XML arch.xml
-    SCRIPT_OUTPUT_NAME timing
-    SCRIPTS ${TIMING_IMPORT}
-    SCRIPT_DEPS TIMING_DEPS
+    SCRIPT_OUTPUT_NAME pack_patterns timing
+    SCRIPTS ADD_PACK_PATTERN TIMING_IMPORT
+    SCRIPT_DEPS PACK_PATTERN_DEPS TIMING_DEPS
     )
   add_dependencies(${ARCH}_${DEVICE_TYPE}_arch arch_import_timing_deps)
   get_target_property_required(VIRT_DEVICE_MERGED_FILE ${DEVICE_TYPE} DEVICE_MERGED_FILE)
