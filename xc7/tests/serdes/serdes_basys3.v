@@ -1,6 +1,6 @@
 `default_nettype none
 
-`define CLKFBOUT_MULT 8
+`define CLKFBOUT_MULT 2
 
 // ============================================================================
 
@@ -61,8 +61,8 @@ PLLE2_ADV #(
 
 .CLKFBOUT_MULT      (`CLKFBOUT_MULT),
 
-.CLKOUT0_DIVIDE     (`CLKFBOUT_MULT * 2),
-.CLKOUT1_DIVIDE     ((`CLKFBOUT_MULT * 2) * DIVIDE_RATE),
+.CLKOUT0_DIVIDE     (`CLKFBOUT_MULT * 4),
+.CLKOUT1_DIVIDE     ((`CLKFBOUT_MULT * 4) * DIVIDE_RATE),
 
 .STARTUP_WAIT       ("FALSE"),
 
@@ -133,13 +133,13 @@ wire [7:0] MASKED_OUTPUTS = OUTPUTS & MASK;
 // ============================================================================
 // I/O connections
 
-reg [27:0] heartbeat_cnt;
+reg [23:0] heartbeat_cnt;
 
 always @(posedge SYSCLK)
     heartbeat_cnt <= heartbeat_cnt + 1;
 
 
-assign led[0] = heartbeat_cnt[24];
+assign led[0] = heartbeat_cnt[22];
 assign led[8:1] = MASKED_OUTPUTS;
 
 endmodule
