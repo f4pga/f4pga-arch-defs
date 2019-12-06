@@ -35,10 +35,8 @@
        - correct timing values
   -->
   <metadata>
-    <meta name="fasm_features">
-      IN_USE
-    </meta>
     <meta name="fasm_params">
+      IN_USE = IN_USE
       IDELAY_VALUE[4:0] = IDELAY_VALUE
 
       ZIDELAY_VALUE[4:0] = ZIDELAY_VALUE

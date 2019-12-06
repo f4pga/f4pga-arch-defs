@@ -851,6 +851,8 @@ module IDELAYE2_VPR (
   output DATAOUT
   );
 
+  parameter [0:0] IN_USE = 1'b0;
+
   parameter [4:0] IDELAY_VALUE = 5'b00000;
   parameter [4:0] ZIDELAY_VALUE = 5'b11111;
 
