@@ -37,15 +37,22 @@ add_file_target(FILE zybo.pcf)
 add_file_target(FILE zyboz7.pcf)
 
 add_fpga_target(
-  NAME buttons_zybo_full
+  NAME buttons_zybo
   BOARD zybo-full
   SOURCES buttons_zybo.v
   INPUT_IO_FILE zybo.pcf
   EXPLICIT_ADD_FILE_TARGET
   )
 
+add_vivado_target(
+  NAME buttons_zybo_vivado
+  PARENT_NAME buttons_zybo
+  # TODO: https://github.com/SymbiFlow/symbiflow-arch-defs/issues/1018
+  DISABLE_DIFF_TEST
+  )
+
 #add_fpga_target(
-#  NAME buttons_zyboz7_full
+#  NAME buttons_zyboz7
 #  BOARD zyboz7-full
 #  SOURCES buttons_zybo.v
 #  INPUT_IO_FILE zyboz7.pcf
