@@ -547,13 +547,19 @@ def insert_constant_tiles(conn, model_xml, complexblocklist_xml, tiles_xml):
 
     # Get all 'NULL' tile locations
     c.execute(
-        'SELECT grid_x, grid_y FROM phy_tile WHERE tile_type_pkey = ?',
-        (null_tile_type_pkey, )
+        """
+    SELECT grid_x, grid_y
+    FROM phy_tile
+    WHERE tile_type_pkey = ?
+    ORDER BY grid_y, grid_x ASC
+    LIMIT 2
+""", (null_tile_type_pkey, )
     )
-    locs = sorted(list(c.fetchall()))
+
+    locs = list(c.fetchall())
+    assert len(locs) >= 2
 
     loc = {'VCC': locs[0], 'GND': locs[1]}
-    print(loc)
 
     c.execute(
         """
@@ -590,8 +596,6 @@ def insert_constant_tiles(conn, model_xml, complexblocklist_xml, tiles_xml):
     assert len(results) == 1, results
     _, gnd_grid_x, gnd_grid_y = results[0]
     synth_loc_map[(gnd_grid_x, gnd_grid_y)] = synth_tile_map['GND']
-
-    print(synth_loc_map)
 
     return synth_tile_map, synth_loc_map
 

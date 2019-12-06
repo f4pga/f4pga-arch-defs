@@ -231,7 +231,7 @@ def build_pss_object_mask(db, tile_type_name):
                     masked_wires.append(p.net_from)
 
     # Masked sites names
-    masked_sites = ["{}_{}".format(s.prefix, s.name) for s in iopad_sites]
+    masked_sites = [(s.prefix, s.name) for s in iopad_sites]
 
     return masked_sites, masked_wires, masked_pips
 
@@ -324,7 +324,7 @@ VALUES
         )
 
     for site in tile_type.get_sites():
-        if "{}_{}".format(site.prefix, site.name) in masked_sites:
+        if (site.prefix, site.name) in masked_sites:
             continue
 
         if site.type not in site_types:
