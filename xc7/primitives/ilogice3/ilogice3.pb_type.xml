@@ -41,6 +41,204 @@
       </direct>
     </interconnect>
   </mode>
+  <mode name="ISERDES_NO_IDELAY">
+    <pb_type name="ISERDESE2" blif_model=".subckt ISERDESE2_NO_IDELAY_VPR" num_pb="1">
+      <clock name="CLK" num_pins="1"/>
+      <clock name="CLKB" num_pins="1"/>
+      <clock name="CLKDIV" num_pins="1"/>
+      <input name="BITSLIP" num_pins="1"/>
+      <input name="CE1" num_pins="1"/>
+      <input name="CE2" num_pins="1"/>
+      <input name="D" num_pins="1"/>
+      <input name="DYNCLKDIVPSEL" num_pins="1"/>
+      <input name="DYNCLKDIVSEL" num_pins="1"/>
+      <input name="DYNCLKSEL" num_pins="1"/>
+      <input name="OCLK" num_pins="1"/>
+      <input name="OCLKB" num_pins="1"/>
+      <input name="OFB" num_pins="1"/>
+      <input name="SHIFTIN1" num_pins="1"/>
+      <input name="SHIFTIN2" num_pins="1"/>
+      <input name="RST" num_pins="1"/>
+      <input name="TFB" num_pins="1"/>
+      <output name="O" num_pins="1"/>
+      <output name="Q1" num_pins="1"/>
+      <output name="Q2" num_pins="1"/>
+      <output name="Q3" num_pins="1"/>
+      <output name="Q4" num_pins="1"/>
+      <output name="Q5" num_pins="1"/>
+      <output name="Q6" num_pins="1"/>
+      <output name="Q7" num_pins="1"/>
+      <output name="Q8" num_pins="1"/>
+      <output name="SHIFTOUT1" num_pins="1"/>
+      <output name="SHIFTOUT2" num_pins="1"/>
+      <metadata>
+        <meta name="fasm_features">
+          ISERDES.IN_USE
+          IDDR_OR_ISERDES.IN_USE
+          IFF.DDR_CLK_EDGE.OPPOSITE_EDGE
+          IFF.SRTYPE.SYNC
+        </meta>
+        <meta name="fasm_params">
+          ISERDES.DATA_RATE.SDR = DATA_RATE_SDR
+
+          ISERDES.DATA_WIDTH.W3 = DATA_WIDTH_W3
+          ISERDES.DATA_WIDTH.W4_6 = DATA_WIDTH_W4_6
+          ISERDES.DATA_WIDTH.W5_7 = DATA_WIDTH_W5_7
+          ISERDES.DATA_WIDTH.W8 = DATA_WIDTH_W8
+
+          ISERDES.INTERFACE_TYPE.MEMORY_DDR3 = INTERFACE_TYPE_MEMORY_DDR3
+          ISERDES.INTERFACE_TYPE.NOT_MEMORY = INTERFACE_TYPE_NOT_MEMORY
+          ISERDES.INTERFACE_TYPE.OVERSAMPLE = INTERFACE_TYPE_OVERSAMPLE
+          ISERDES.INTERFACE_TYPE.Z_MEMORY = INTERFACE_TYPE_Z_MEMORY
+
+          ISERDES.NUM_CE.N2 = NUM_CE_N2
+
+          IFF.ZINIT_Q1 = ZINIT_Q1
+          IFF.ZINIT_Q2 = ZINIT_Q2
+          IFF.ZINIT_Q3 = ZINIT_Q3
+          IFF.ZINIT_Q4 = ZINIT_Q4
+
+          IFF.ZSRVAL_Q1 = ZSRVAL_Q1
+          IFF.ZSRVAL_Q2 = ZSRVAL_Q2
+          IFF.ZSRVAL_Q3 = ZSRVAL_Q3
+          IFF.ZSRVAL_Q4 = ZSRVAL_Q4
+
+          IFF.ZINV_C = ZINV_C
+
+          ZINV_D = ZINV_D
+        </meta>
+      </metadata>
+    </pb_type>
+    <interconnect>
+      <direct name="BITSLIP" input="ILOGICE3.BITSLIP" output="ISERDESE2.BITSLIP"/>
+      <direct name="CE1" input="ILOGICE3.CE1" output="ISERDESE2.CE1"/>
+      <direct name="CE2" input="ILOGICE3.CE2" output="ISERDESE2.CE2"/>
+      <direct name="CLK" input="ILOGICE3.CLK" output="ISERDESE2.CLK"/>
+      <direct name="CLKB" input="ILOGICE3.CLKB" output="ISERDESE2.CLKB"/>
+      <direct name="CLKDIV" input="ILOGICE3.CLKDIV" output="ISERDESE2.CLKDIV"/>
+      <direct name="D" input="ILOGICE3.D" output="ISERDESE2.D"/>
+      <direct name="DYNCLKDIVPSEL" input="ILOGICE3.DYNCLKDIVPSEL" output="ISERDESE2.DYNCLKDIVPSEL"/>
+      <direct name="DYNCLKDIVSEL" input="ILOGICE3.DYNCLKDIVSEL" output="ISERDESE2.DYNCLKDIVSEL"/>
+      <direct name="DYNCLKSEL" input="ILOGICE3.DYNCLKSEL" output="ISERDESE2.DYNCLKSEL"/>
+      <direct name="OCLK" input="ILOGICE3.OCLK" output="ISERDESE2.OCLK"/>
+      <direct name="OCLKB" input="ILOGICE3.OCLKB" output="ISERDESE2.OCLKB"/>
+      <direct name="OFB" input="ILOGICE3.OFB" output="ISERDESE2.OFB"/>
+      <direct name="SHIFTIN1" input="ILOGICE3.SHIFTIN1" output="ISERDESE2.SHIFTIN1"/>
+      <direct name="SHIFTIN2" input="ILOGICE3.SHIFTIN2" output="ISERDESE2.SHIFTIN2"/>
+      <direct name="SR" input="ILOGICE3.SR" output="ISERDESE2.RST"/>
+      <direct name="TFB" input="ILOGICE3.TFB" output="ISERDESE2.TFB"/>
+      <direct name="O" input="ISERDESE2.O" output="ILOGICE3.O"/>
+      <direct name="Q1" input="ISERDESE2.Q1" output="ILOGICE3.Q1"/>
+      <direct name="Q2" input="ISERDESE2.Q2" output="ILOGICE3.Q2"/>
+      <direct name="Q3" input="ISERDESE2.Q3" output="ILOGICE3.Q3"/>
+      <direct name="Q4" input="ISERDESE2.Q4" output="ILOGICE3.Q4"/>
+      <direct name="Q5" input="ISERDESE2.Q5" output="ILOGICE3.Q5"/>
+      <direct name="Q6" input="ISERDESE2.Q6" output="ILOGICE3.Q6"/>
+      <direct name="Q7" input="ISERDESE2.Q7" output="ILOGICE3.Q7"/>
+      <direct name="Q8" input="ISERDESE2.Q8" output="ILOGICE3.Q8"/>
+      <direct name="SHIFTOUT1" input="ISERDESE2.SHIFTOUT1" output="ILOGICE3.SHIFTOUT1"/>
+      <direct name="SHIFTOUT2" input="ISERDESE2.SHIFTOUT2" output="ILOGICE3.SHIFTOUT2"/>
+    </interconnect>
+  </mode>
+  <mode name="ISERDES_IDELAY">
+    <pb_type name="ISERDESE2" blif_model=".subckt ISERDESE2_IDELAY_VPR" num_pb="1">
+      <clock name="CLK" num_pins="1"/>
+      <clock name="CLKB" num_pins="1"/>
+      <clock name="CLKDIV" num_pins="1"/>
+      <input name="BITSLIP" num_pins="1"/>
+      <input name="CE1" num_pins="1"/>
+      <input name="CE2" num_pins="1"/>
+      <input name="DDLY" num_pins="1"/>
+      <input name="DYNCLKDIVPSEL" num_pins="1"/>
+      <input name="DYNCLKDIVSEL" num_pins="1"/>
+      <input name="DYNCLKSEL" num_pins="1"/>
+      <input name="OCLK" num_pins="1"/>
+      <input name="OCLKB" num_pins="1"/>
+      <input name="OFB" num_pins="1"/>
+      <input name="SHIFTIN1" num_pins="1"/>
+      <input name="SHIFTIN2" num_pins="1"/>
+      <input name="RST" num_pins="1"/>
+      <input name="TFB" num_pins="1"/>
+      <output name="O" num_pins="1"/>
+      <output name="Q1" num_pins="1"/>
+      <output name="Q2" num_pins="1"/>
+      <output name="Q3" num_pins="1"/>
+      <output name="Q4" num_pins="1"/>
+      <output name="Q5" num_pins="1"/>
+      <output name="Q6" num_pins="1"/>
+      <output name="Q7" num_pins="1"/>
+      <output name="Q8" num_pins="1"/>
+      <output name="SHIFTOUT1" num_pins="1"/>
+      <output name="SHIFTOUT2" num_pins="1"/>
+      <metadata>
+        <meta name="fasm_features">
+          ISERDES.IN_USE
+          IDDR_OR_ISERDES.IN_USE
+          IFF.DDR_CLK_EDGE.OPPOSITE_EDGE
+          IFF.SRTYPE.SYNC
+        </meta>
+        <meta name="fasm_params">
+          ISERDES.DATA_RATE.SDR = DATA_RATE_SDR
+
+          ISERDES.DATA_WIDTH.W3 = DATA_WIDTH_W3
+          ISERDES.DATA_WIDTH.W4_6 = DATA_WIDTH_W4_6
+          ISERDES.DATA_WIDTH.W5_7 = DATA_WIDTH_W5_7
+          ISERDES.DATA_WIDTH.W8 = DATA_WIDTH_W8
+
+          ISERDES.INTERFACE_TYPE.MEMORY_DDR3 = INTERFACE_TYPE_MEMORY_DDR3
+          ISERDES.INTERFACE_TYPE.NOT_MEMORY = INTERFACE_TYPE_NOT_MEMORY
+          ISERDES.INTERFACE_TYPE.OVERSAMPLE = INTERFACE_TYPE_OVERSAMPLE
+          ISERDES.INTERFACE_TYPE.Z_MEMORY = INTERFACE_TYPE_Z_MEMORY
+
+          ISERDES.NUM_CE.N2 = NUM_CE_N2
+
+          IFF.ZINIT_Q1 = ZINIT_Q1
+          IFF.ZINIT_Q2 = ZINIT_Q2
+          IFF.ZINIT_Q3 = ZINIT_Q3
+          IFF.ZINIT_Q4 = ZINIT_Q4
+
+          IFF.ZSRVAL_Q1 = ZSRVAL_Q1
+          IFF.ZSRVAL_Q2 = ZSRVAL_Q2
+          IFF.ZSRVAL_Q3 = ZSRVAL_Q3
+          IFF.ZSRVAL_Q4 = ZSRVAL_Q4
+
+          IFF.ZINV_C = ZINV_C
+
+          ZINV_D = ZINV_D
+        </meta>
+      </metadata>
+    </pb_type>
+    <interconnect>
+      <direct name="BITSLIP" input="ILOGICE3.BITSLIP" output="ISERDESE2.BITSLIP"/>
+      <direct name="CE1" input="ILOGICE3.CE1" output="ISERDESE2.CE1"/>
+      <direct name="CE2" input="ILOGICE3.CE2" output="ISERDESE2.CE2"/>
+      <direct name="CLK" input="ILOGICE3.CLK" output="ISERDESE2.CLK"/>
+      <direct name="CLKB" input="ILOGICE3.CLKB" output="ISERDESE2.CLKB"/>
+      <direct name="CLKDIV" input="ILOGICE3.CLKDIV" output="ISERDESE2.CLKDIV"/>
+      <direct name="DDLY" input="ILOGICE3.DDLY" output="ISERDESE2.DDLY"/>
+      <direct name="DYNCLKDIVPSEL" input="ILOGICE3.DYNCLKDIVPSEL" output="ISERDESE2.DYNCLKDIVPSEL"/>
+      <direct name="DYNCLKDIVSEL" input="ILOGICE3.DYNCLKDIVSEL" output="ISERDESE2.DYNCLKDIVSEL"/>
+      <direct name="DYNCLKSEL" input="ILOGICE3.DYNCLKSEL" output="ISERDESE2.DYNCLKSEL"/>
+      <direct name="OCLK" input="ILOGICE3.OCLK" output="ISERDESE2.OCLK"/>
+      <direct name="OCLKB" input="ILOGICE3.OCLKB" output="ISERDESE2.OCLKB"/>
+      <direct name="OFB" input="ILOGICE3.OFB" output="ISERDESE2.OFB"/>
+      <direct name="SHIFTIN1" input="ILOGICE3.SHIFTIN1" output="ISERDESE2.SHIFTIN1"/>
+      <direct name="SHIFTIN2" input="ILOGICE3.SHIFTIN2" output="ISERDESE2.SHIFTIN2"/>
+      <direct name="SR" input="ILOGICE3.SR" output="ISERDESE2.RST"/>
+      <direct name="TFB" input="ILOGICE3.TFB" output="ISERDESE2.TFB"/>
+      <direct name="O" input="ISERDESE2.O" output="ILOGICE3.O"/>
+      <direct name="Q1" input="ISERDESE2.Q1" output="ILOGICE3.Q1"/>
+      <direct name="Q2" input="ISERDESE2.Q2" output="ILOGICE3.Q2"/>
+      <direct name="Q3" input="ISERDESE2.Q3" output="ILOGICE3.Q3"/>
+      <direct name="Q4" input="ISERDESE2.Q4" output="ILOGICE3.Q4"/>
+      <direct name="Q5" input="ISERDESE2.Q5" output="ILOGICE3.Q5"/>
+      <direct name="Q6" input="ISERDESE2.Q6" output="ILOGICE3.Q6"/>
+      <direct name="Q7" input="ISERDESE2.Q7" output="ILOGICE3.Q7"/>
+      <direct name="Q8" input="ISERDESE2.Q8" output="ILOGICE3.Q8"/>
+      <direct name="SHIFTOUT1" input="ISERDESE2.SHIFTOUT1" output="ILOGICE3.SHIFTOUT1"/>
+      <direct name="SHIFTOUT2" input="ISERDESE2.SHIFTOUT2" output="ILOGICE3.SHIFTOUT2"/>
+    </interconnect>
+  </mode>
   <!-- TODO
        - other modes
        - BELs

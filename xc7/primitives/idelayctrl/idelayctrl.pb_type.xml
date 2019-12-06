@@ -1,0 +1,7 @@
+<!-- set: ai sw=1 ts=1 sta et -->
+<pb_type name="IDELAYCTRL" blif_model=".subckt IDELAYCTRL" num_pb="1">
+  <clock name="REFCLK" num_pins="1"/>
+  <input name="RST" num_pins="1"/>
+  <output name="RDY" num_pins="1"/>
+
+</pb_type>

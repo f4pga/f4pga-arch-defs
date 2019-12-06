@@ -15,6 +15,7 @@ add_xc7_device_define_type(
     CMT_TOP_L_UPPER_T
     CMT_TOP_R_UPPER_T
     CLK_BUFG_TOP_R
+    HCLK_IOI3
   PB_TYPES
     SLICEL
     SLICEM
@@ -25,5 +26,6 @@ add_xc7_device_define_type(
     CLK_BUFG_BOT_R
     CLK_BUFG_TOP_R
     PLLE2_ADV
+    HCLK_IOI3
   GRAPH_LIMIT 0,103,114,155
 )

@@ -737,6 +737,140 @@ module OSERDESE2_VPR (
   parameter [0:0] ZSRVAL_TQ = 1'b0;
 endmodule
 
+module ISERDESE2_IDELAY_VPR (
+  input  BITSLIP,
+  input  CE1,
+  input  CE2,
+  input  CLK,
+  input  CLKB,
+  input  CLKDIV,
+  input  RST,
+  input  DDLY,
+  output Q1,
+  output Q2,
+  output Q3,
+  output Q4,
+  output Q5,
+  output Q6,
+  output Q7,
+  output Q8
+  );
+
+  parameter [0:0] DATA_RATE_SDR = 1'b0;
+  parameter [0:0] DATA_WIDTH_W3 = 1'b0;
+  parameter [0:0] DATA_WIDTH_W4_6 = 1'b0;
+  parameter [0:0] DATA_WIDTH_W5_7 = 1'b0;
+  parameter [0:0] DATA_WIDTH_W8 = 1'b0;
+  parameter [0:0] INTERFACE_TYPE_MEMORY_DDR3 = 1'b0;
+  parameter [0:0] INTERFACE_TYPE_NOT_MEMORY  = 1'b0;
+  parameter [0:0] INTERFACE_TYPE_OVERSAMPLE  = 1'b0;
+  parameter [0:0] INTERFACE_TYPE_Z_MEMORY    = 1'b0;
+  parameter [0:0] NUM_CE_N2 = 1'b0;
+
+  parameter [0:0] ZINIT_Q1 = 1'b0;
+  parameter [0:0] ZINIT_Q2 = 1'b0;
+  parameter [0:0] ZINIT_Q3 = 1'b0;
+  parameter [0:0] ZINIT_Q4 = 1'b0;
+
+  parameter [0:0] ZSRVAL_Q1 = 1'b0;
+  parameter [0:0] ZSRVAL_Q2 = 1'b0;
+  parameter [0:0] ZSRVAL_Q3 = 1'b0;
+  parameter [0:0] ZSRVAL_Q4 = 1'b0;
+
+  parameter [0:0] ZINV_D = 1'b0;
+  parameter [0:0] ZINV_C = 1'b0;
+
+endmodule
+
+module ISERDESE2_NO_IDELAY_VPR (
+  input  BITSLIP,
+  input  CE1,
+  input  CE2,
+  input  CLK,
+  input  CLKB,
+  input  CLKDIV,
+  input  RST,
+  input  D,
+  output Q1,
+  output Q2,
+  output Q3,
+  output Q4,
+  output Q5,
+  output Q6,
+  output Q7,
+  output Q8
+  );
+
+  parameter [0:0] DATA_RATE_SDR = 1'b0;
+  parameter [0:0] DATA_WIDTH_W3 = 1'b0;
+  parameter [0:0] DATA_WIDTH_W4_6 = 1'b0;
+  parameter [0:0] DATA_WIDTH_W5_7 = 1'b0;
+  parameter [0:0] DATA_WIDTH_W8 = 1'b0;
+  parameter [0:0] INTERFACE_TYPE_MEMORY_DDR3 = 1'b0;
+  parameter [0:0] INTERFACE_TYPE_NOT_MEMORY  = 1'b0;
+  parameter [0:0] INTERFACE_TYPE_OVERSAMPLE  = 1'b0;
+  parameter [0:0] INTERFACE_TYPE_Z_MEMORY    = 1'b0;
+  parameter [0:0] NUM_CE_N2 = 1'b0;
+
+  parameter [0:0] ZINIT_Q1 = 1'b0;
+  parameter [0:0] ZINIT_Q2 = 1'b0;
+  parameter [0:0] ZINIT_Q3 = 1'b0;
+  parameter [0:0] ZINIT_Q4 = 1'b0;
+
+  parameter [0:0] ZSRVAL_Q1 = 1'b0;
+  parameter [0:0] ZSRVAL_Q2 = 1'b0;
+  parameter [0:0] ZSRVAL_Q3 = 1'b0;
+  parameter [0:0] ZSRVAL_Q4 = 1'b0;
+
+  parameter [0:0] ZINV_D = 1'b0;
+  parameter [0:0] ZINV_C = 1'b0;
+
+endmodule
+
+module IDELAYE2_VPR (
+  input C,
+  input CE,
+  input CINVCTRL,
+  input CNTVALUEIN0,
+  input CNTVALUEIN1,
+  input CNTVALUEIN2,
+  input CNTVALUEIN3,
+  input CNTVALUEIN4,
+  input DATAIN,
+  input IDATAIN,
+  input INC,
+  input LD,
+  input LDPIPEEN,
+  input REGRST,
+
+  output CNTVALUEOUT0,
+  output CNTVALUEOUT1,
+  output CNTVALUEOUT2,
+  output CNTVALUEOUT3,
+  output CNTVALUEOUT4,
+  output DATAOUT
+  );
+
+  parameter [0:0] IN_USE = 1'b0;
+
+  parameter [4:0] IDELAY_VALUE = 5'b00000;
+  parameter [4:0] ZIDELAY_VALUE = 5'b11111;
+
+  parameter [0:0] PIPE_SEL = 1'b0;
+  parameter [0:0] CINVCTRL_SEL = 1'b0;
+  parameter [0:0] DELAY_SRC_DATAIN = 1'b0;
+  parameter [0:0] DELAY_SRC_IDATAIN = 1'b0;
+  parameter [0:0] HIGH_PERFORMANCE_MODE = 1'b0;
+
+  parameter [0:0] DELAY_TYPE_FIXED = 1'b0;
+  parameter [0:0] DELAY_TYPE_VAR_LOAD = 1'b0;
+  parameter [0:0] DELAY_TYPE_VARIABLE = 1'b0;
+
+  parameter [0:0] IS_DATAIN_INVERTED = 1'b0;
+  parameter [0:0] IS_IDATAIN_INVERTED = 1'b0;
+
+endmodule
+
 // ============================================================================
 // Clock Buffers
 
