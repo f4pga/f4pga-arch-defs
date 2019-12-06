@@ -2332,8 +2332,6 @@ module ISERDESE2 (
           .ZSRVAL_Q3                    (!SRVAL_Q3),
           .ZSRVAL_Q4                    (!SRVAL_Q4),
 
-          .ZINV_D                       (!IS_D_INVERTED),
-
           .ZINV_C                       (!IS_CLK_INVERTED)
       ) _TECHMAP_REPLACE_ (
        .BITSLIP     (BITSLIP),
