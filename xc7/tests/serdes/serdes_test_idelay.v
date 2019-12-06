@@ -9,6 +9,7 @@ parameter DATA_RATE = "DDR"
 )
 (
 input  wire SYSCLK,
+input  wire REFCLK,
 input  wire CLKDIV,
 input  wire RST,
 
@@ -66,6 +67,28 @@ oserdes
 .TQ     (T_DAT)
 );
 
+wire DDLY;
+
+(* keep *)
+IDELAYCTRL idelayctrl (.REFCLK(REFCLK));
+
+// IDELAY
+IDELAYE2 #
+(
+.IDELAY_TYPE    ("FIXED"),
+.DELAY_SRC      ("IDATAIN"),
+.IDELAY_VALUE   (5'd16)
+)
+idelay
+(
+.C              (SYSCLK),
+.CE             (1'b1),
+.LD             (1'b1),
+.INC            (1'b1),
+.IDATAIN        (I_DAT),
+.DATAOUT        (DDLY)
+);
+
 // ============================================================================
 // ISERDES
 ISERDESE2 #
@@ -83,7 +106,7 @@ iserdes
 .CE1        (1'b1),
 .CE2        (1'b1),
 .RST        (i_rstdiv),
-.D          (I_DAT),
+.DDLY       (DDLY),
 .Q1         (OUTPUTS[7]),
 .Q2         (OUTPUTS[6]),
 .Q3         (OUTPUTS[5]),

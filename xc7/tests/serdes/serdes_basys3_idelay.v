@@ -42,9 +42,11 @@ wire RST = rst_sr[0];
 
 wire PRE_BUFG_SYSCLK;
 wire PRE_BUFG_CLKDIV;
+wire PRE_BUFG_REFCLK;
 
 wire SYSCLK;
 wire CLKDIV;
+wire REFCLK;
 
 wire O_LOCKED;
 
@@ -62,7 +64,10 @@ PLLE2_ADV #(
 .CLKFBOUT_MULT      (`CLKFBOUT_MULT),
 
 .CLKOUT0_DIVIDE     (`CLKFBOUT_MULT * 2),
+
 .CLKOUT1_DIVIDE     ((`CLKFBOUT_MULT * 2) * DIVIDE_RATE),
+
+.CLKOUT2_DIVIDE     (`CLKFBOUT_MULT / 2),
 
 .STARTUP_WAIT       ("FALSE"),
 
@@ -81,11 +86,13 @@ pll
 .CLKFBOUT   (clk_fb_o),
 
 .CLKOUT0    (PRE_BUFG_SYSCLK),
-.CLKOUT1    (PRE_BUFG_CLKDIV)
+.CLKOUT1    (PRE_BUFG_CLKDIV),
+.CLKOUT2    (PRE_BUFG_REFCLK)
 );
 
 BUFG bufg_clk(.I(PRE_BUFG_SYSCLK), .O(SYSCLK));
 BUFG bufg_clkdiv(.I(PRE_BUFG_CLKDIV), .O(CLKDIV));
+BUFG bufg_refclk(.I(PRE_BUFG_REFCLK), .O(REFCLK));
 
 // ============================================================================
 // Test uints
@@ -117,6 +124,7 @@ serdes_test #
 serdes_test
 (
 .SYSCLK     (SYSCLK),
+.REFCLK     (REFCLK),
 .CLKDIV     (CLKDIV),
 .RST        (RST),
 
