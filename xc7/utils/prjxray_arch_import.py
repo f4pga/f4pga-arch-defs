@@ -356,9 +356,10 @@ WHERE
     for tilename, tile_type in c:
         gridinfo = g.gridinfo_at_tilename(tilename)
         is_vbrk = gridinfo.tile_type.find('VBRK') != -1
+        is_pss = gridinfo.tile_type.startswith('PSS')
 
-        # VBRK tiles are known to have no bitstream data.
-        if not is_vbrk and not gridinfo.bits:
+        # VBRK and PSS* tiles are known to have no bitstream data.
+        if not is_vbrk and not is_pss and not gridinfo.bits:
             print(
                 '*** WARNING *** Tile {} appears to be missing bitstream data.'
                 .format(tilename),
@@ -501,9 +502,13 @@ def get_tiles(
 
         vpr_tile_type = add_vpr_tile_prefix(tile_type)
 
-        meta_fun = get_fasm_tile_prefix(
-            conn, g, tile_pkey, site_as_tile_pkey, tile_capacity[tile_type]
-        )
+        # For Zynq PSS* tiles do not emit fasm prefixes
+        if tile_type.startswith('PSS'):
+            meta_fun = lambda single_xml: None
+        else:
+            meta_fun = get_fasm_tile_prefix(
+                conn, g, tile_pkey, site_as_tile_pkey, tile_capacity[tile_type]
+            )
 
         yield vpr_tile_type, grid_x, grid_y, meta_fun
 
