@@ -57,6 +57,15 @@ function(ADD_XC7_ARCH_DEFINE)
         --blif \${OUT_EBLIF} \
         --pcf \${INPUT_IO_FILE} \
         --net \${OUT_NET}"
+    PLACE_CONSTR_TOOL
+      ${symbiflow-arch-defs_SOURCE_DIR}/xc7/utils/prjxray_create_place_constraints.py
+    PLACE_CONSTR_TOOL_CMD "${CMAKE_COMMAND} -E env \
+    PYTHONPATH=${symbiflow-arch-defs_SOURCE_DIR}/utils \
+    \${PYTHON3} \${PLACE_CONSTR_TOOL} \
+        --net \${OUT_NET} \
+        --input /dev/stdin \
+        --output /dev/stdout \
+        \${PLACE_CONSTR_TOOL_EXTRA_ARGS}"
     BITSTREAM_EXTENSION frames
     BIN_EXTENSION bit
     FASM_TO_BIT ${PRJXRAY_DIR}/utils/fasm2frames.py

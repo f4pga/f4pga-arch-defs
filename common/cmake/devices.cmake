@@ -21,9 +21,12 @@ function(DEFINE_ARCH)
   #    DEVICE_FULL_TEMPLATE <template for constructing DEVICE_FULL strings.
   #    [NO_PINS]
   #    [NO_PLACE]
+  #    [NO_PLACE_CONSTR]
   #    [USE_FASM]
   #    PLACE_TOOL <path to place tool>
   #    PLACE_TOOL_CMD <command to run PLACE_TOOL>
+  #    PLACE_CONSTR_TOOL <path to place constraints tool>
+  #    PLACE_CONSTR_TOOL_CMD <command to run PLACE_CONSTR_TOOL>
   #    [NO_BITSTREAM]
   #    [NO_BIT_TO_V]
   #    CELLS_SIM <path to verilog file used for simulation>
@@ -79,6 +82,20 @@ function(DEFINE_ARCH)
   # * OUT_EBLIF - Input path to EBLIF file.
   # * INPUT_IO_FILE - Path to input io file, as specified by ADD_FPGA_TARGET.
   #
+  # PLACE_TOOL_CONSTR_CMD variables:
+  #
+  # * PLACE_CONSTR_TOOL - Value of PLACE_CONSTR_TOOL property of <arch>.
+  # * NO_PLACE_CONSTR - If this option is set, the PLACE_CONSTR_TOOL is disabled
+  #
+  # This command enables the possibility to add an additional step consisting
+  # on the addition of extra placement constraints through the usage of the chosen
+  # script.
+  # The IO placement file is passed to the script through standard input and, when
+  # the new placement constraints for non-IO tiles have been added, a new placement
+  # constraint file is generated and fed to standard output.
+  #
+  #
+  #
   # HLC_TO_BIT_CMD variables:
   #
   # * HLC_TO_BIT - Value of HLC_TO_BIT property of <arch>.
@@ -93,7 +110,7 @@ function(DEFINE_ARCH)
   # * PACKAGE - Package of bitstream.
   # * OUT_BITSTREAM - Input path to bitstream.
   # * OUT_BIT_VERILOG - Output path to verilog version of bitstream.
-  set(options NO_PINS NO_BITSTREAM NO_BIT_TO_V NO_BIT_TIME USE_FASM)
+  set(options NO_PLACE_CONSTR NO_PINS NO_BITSTREAM NO_BIT_TO_V NO_BIT_TIME USE_FASM)
   set(
     oneValueArgs
     ARCH
@@ -106,6 +123,8 @@ function(DEFINE_ARCH)
     RR_PATCH_CMD
     PLACE_TOOL
     PLACE_TOOL_CMD
+    PLACE_CONSTR_TOOL
+    PLACE_CONSTR_TOOL_CMD
     HLC_TO_BIT
     HLC_TO_BIT_CMD
     FASM_TO_BIT
@@ -136,6 +155,7 @@ function(DEFINE_ARCH)
     DEVICE_FULL_TEMPLATE
     RR_PATCH_TOOL
     RR_PATCH_CMD
+    NO_PLACE_CONSTR
     NO_PINS
     NO_BITSTREAM
     NO_BIT_TO_V
@@ -152,6 +172,11 @@ function(DEFINE_ARCH)
   set(PLACE_ARGS
     PLACE_TOOL
     PLACE_TOOL_CMD
+    )
+
+  set(PLACE_CONSTR_ARGS
+    PLACE_CONSTR_TOOL
+    PLACE_CONSTR_TOOL_CMD
     )
 
   set(FASM_BIT_ARGS
@@ -196,6 +221,12 @@ function(DEFINE_ARCH)
     list(APPEND DISALLOWED_ARGS ${PLACE_ARGS})
   else()
     list(APPEND REQUIRED_ARGS ${PLACE_ARGS})
+  endif()
+
+  if(${DEFINE_ARCH_NO_PLACE_CONSTR})
+    list(APPEND DISALLOWED_ARGS ${PLACE_CONSTR_ARGS})
+  else()
+    list(APPEND REQUIRED_ARGS ${PLACE_CONSTR_ARGS})
   endif()
 
   set(RR_GRAPH_EXT ".xml")
@@ -1179,7 +1210,7 @@ function(ADD_FPGA_TARGET)
       ${CMAKE_COMMAND} -E copy ${OUT_LOCAL}/echo/vpr_stdout.log ${OUT_LOCAL}/echo/pack.log
     )
 
-  # Generate IO constraints file.
+  # Generate placement constraints.
   # -------------------------------------------------------------------------
   set(FIX_PINS_ARG "")
 
@@ -1189,8 +1220,15 @@ function(ADD_FPGA_TARGET)
       message(FATAL_ERROR "Arch ${ARCH} does not currently support pin constraints.")
     endif()
     get_target_property_required(PLACE_TOOL ${ARCH} PLACE_TOOL)
-    get_target_property_required(PYTHON3 env PYTHON3)
     get_target_property_required(PLACE_TOOL_CMD ${ARCH} PLACE_TOOL_CMD)
+
+    get_target_property_required(NO_PLACE_CONSTR ${ARCH} NO_PLACE_CONSTR)
+    if(NOT ${NO_PLACE_CONSTR})
+      get_target_property_required(PLACE_CONSTR_TOOL ${ARCH} PLACE_CONSTR_TOOL)
+      get_target_property_required(PLACE_CONSTR_TOOL_CMD ${ARCH} PLACE_CONSTR_TOOL_CMD)
+    endif()
+
+    get_target_property_required(PYTHON3 env PYTHON3)
     get_target_property_required(PINMAP_FILE ${BOARD} PINMAP)
 
 
@@ -1206,9 +1244,13 @@ function(ADD_FPGA_TARGET)
     # Set variables for the string(CONFIGURE) below.
     set(OUT_IO ${OUT_LOCAL}/${TOP}_io.place)
     set(OUT_IO_REL ${OUT_LOCAL_REL}/${TOP}_io.place)
+    set(OUT_CONSTR ${OUT_LOCAL}/${TOP}_constraints.place)
+    set(OUT_CONSTR_REL ${OUT_LOCAL_REL}/${TOP}_constraints.place)
     set(OUT_NET ${OUT_LOCAL}/${TOP}.net)
     get_file_location(INPUT_IO_FILE ${ADD_FPGA_TARGET_INPUT_IO_FILE})
     get_file_location(PINMAP ${PINMAP_FILE})
+
+    # Generate IO constraints
     string(CONFIGURE ${PLACE_TOOL_CMD} PLACE_TOOL_CMD_FOR_TARGET)
     separate_arguments(
       PLACE_TOOL_CMD_FOR_TARGET_LIST UNIX_COMMAND ${PLACE_TOOL_CMD_FOR_TARGET}
@@ -1224,7 +1266,37 @@ function(ADD_FPGA_TARGET)
     add_output_to_fpga_target(${NAME} IO_PLACE ${OUT_IO_REL})
     append_file_dependency(VPR_DEPS ${OUT_IO_REL})
 
-    set(FIX_PINS_ARG --fix_pins ${OUT_IO})
+    set(CONSTR_DEPS "")
+    if(NOT ${NO_PLACE_CONSTR})
+      append_file_dependency(CONSTR_DEPS ${OUT_IO_REL})
+
+      get_target_property(PLACE_CONSTR_TOOL_EXTRA_ARGS ${BOARD} PLACE_CONSTR_TOOL_EXTRA_ARGS)
+      if ("${PLACE_CONSTR_TOOL_EXTRA_ARGS}" STREQUAL "PLACE_CONSTR_TOOL_EXTRA_ARGS-NOTFOUND")
+        set(PLACE_CONSTR_TOOL_EXTRA_ARGS "")
+      endif()
+
+      # Generate LOC constrains
+      string(CONFIGURE ${PLACE_CONSTR_TOOL_CMD} PLACE_CONSTR_TOOL_CMD_FOR_TARGET)
+      separate_arguments(
+        PLACE_CONSTR_TOOL_CMD_FOR_TARGET_LIST UNIX_COMMAND ${PLACE_CONSTR_TOOL_CMD_FOR_TARGET}
+      )
+
+      add_custom_command(
+        OUTPUT ${OUT_CONSTR}
+        DEPENDS ${CONSTR_DEPS}
+        COMMAND
+          ${PLACE_CONSTR_TOOL_CMD_FOR_TARGET_LIST} < ${OUT_IO} > ${OUT_CONSTR}
+        WORKING_DIRECTORY ${OUT_LOCAL}
+      )
+
+      add_output_to_fpga_target(${NAME} IO_PLACE ${OUT_CONSTR_REL})
+      append_file_dependency(VPR_DEPS ${OUT_CONSTR_REL})
+
+      set(FIX_PINS_ARG --fix_pins ${OUT_CONSTR})
+    else()
+      set(FIX_PINS_ARG --fix_pins ${OUT_IO})
+    endif()
+
   endif()
 
   # Generate placement.
@@ -1335,6 +1407,8 @@ function(ADD_FPGA_TARGET)
       WORKING_DIRECTORY ${OUT_LOCAL}
     )
     add_custom_target(${NAME}_fasm DEPENDS ${OUT_FASM})
+
+    set_target_properties(${NAME} PROPERTIES OUT_FASM ${OUT_FASM})
   else()
     # Generate HLC
     # -------------------------------------------------------------------------
