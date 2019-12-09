@@ -1407,6 +1407,8 @@ function(ADD_FPGA_TARGET)
       WORKING_DIRECTORY ${OUT_LOCAL}
     )
     add_custom_target(${NAME}_fasm DEPENDS ${OUT_FASM})
+
+    set_target_properties(${NAME} PROPERTIES OUT_FASM ${OUT_FASM})
   else()
     # Generate HLC
     # -------------------------------------------------------------------------
