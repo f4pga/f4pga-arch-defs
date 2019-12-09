@@ -39,3 +39,14 @@ add_vivado_target(
   NAME simple_ff_full_loc_vivado
   PARENT_NAME simple_ff_full_loc
   )
+
+get_target_property(OUT_FASM simple_ff_full_loc OUT_FASM)
+add_custom_target(
+  simple_ff_full_loc_check
+  COMMENT "Check placement constraints"
+  COMMAND
+    grep "CLBLL_R_X19Y45.SLICEL_X1" ${OUT_FASM} | grep "FF"
+  DEPENDS ${OUT_FASM}
+  )
+
+add_dependencies(all_xc7_tests simple_ff_full_loc_check)
