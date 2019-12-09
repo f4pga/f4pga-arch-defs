@@ -315,7 +315,8 @@ def import_tile(db, args):
                     if site_pin.wire is not None:
                         output_wires.add(site_pin.wire)
                 else:
-                    assert False, site_type_pin.direction
+                    if site.type != "PS7":
+                        assert False, site_type_pin.direction
 
         # Make sure all requested site types actually get imported.
         assert len(set(site_type_instances.keys()) - imported_site_types
@@ -377,7 +378,8 @@ def import_tile(db, args):
         models_added = set()
 
         site_type_ports = {}
-        for idx, site in enumerate(tile.get_sites()):
+        idx = 0
+        for site in tile.get_sites():
             if site.type in ignored_site_types:
                 continue
 
@@ -406,6 +408,7 @@ def import_tile(db, args):
                 )
 
             site_instance = site_type_instances[site.type][cells_idx[idx]]
+            idx += 1
 
             if (site.type, site_instance) not in models_added:
                 models_added.add((site.type, site_instance))
@@ -462,14 +465,21 @@ def import_tile(db, args):
                     }
                 )
 
-        for idx, site in enumerate(tile.get_sites()):
+            # Prevent emitting empty metadata
+            if not any(child.tag == 'meta' for child in metadata_xml):
+                include_xml.remove(metadata_xml)
+
+        idx = 0
+        for site in tile.get_sites():
             if site.type in ignored_site_types:
                 continue
+
+            site_idx = cells_idx[idx]
+            idx += 1
 
             if not x_filter(site):
                 continue
 
-            site_idx = cells_idx[idx]
             site_instance = site_type_instances[site.type][site_idx]
             site_name = cell_names[site_instance]
 
@@ -503,7 +513,8 @@ def import_tile(db, args):
                 elif site_type_pin.direction == prjxray.site_type.SitePinDirection.OUT:
                     pass
                 else:
-                    assert False, site_type_pin.direction
+                    if site.type != "PS7":
+                        assert False, site_type_pin.direction
 
             interconnect_xml.append(ET.Comment(" Site->Tile "))
             for site_pin in sorted(site.site_pins,
@@ -528,7 +539,8 @@ def import_tile(db, args):
                         ),
                     )
                 else:
-                    assert False, site_type_pin.direction
+                    if site.type != "PS7":
+                        assert False, site_type_pin.direction
     else:
         site_type_ports = {}
 
@@ -560,7 +572,7 @@ def import_tile(db, args):
         def fused_port_name(site, site_pin):
             return '{}_{}_{}'.format(site.prefix, site.name, site_pin.name)
 
-        for idx, site in enumerate(tile.get_sites()):
+        for site in tile.get_sites():
             site_type = db.get_site_type(site.type)
 
             interconnect_xml.append(ET.Comment(" Tile->Site "))
@@ -592,7 +604,8 @@ def import_tile(db, args):
                 elif site_type_pin.direction == prjxray.site_type.SitePinDirection.OUT:
                     pass
                 else:
-                    assert False, site_type_pin.direction
+                    if site.type != "PS7":
+                        assert False, site_type_pin.direction
 
             interconnect_xml.append(ET.Comment(" Site->Tile "))
             for site_pin in sorted(site.site_pins,
@@ -618,7 +631,8 @@ def import_tile(db, args):
                         ),
                     )
                 else:
-                    assert False, site_type_pin.direction
+                    if site.type != "PS7":
+                        assert False, site_type_pin.direction
 
     pb_type_xml.append(interconnect_xml)
 
@@ -1197,11 +1211,13 @@ WHERE
         )
 
         metadata_xml = ET.SubElement(include_xml, 'metadata')
-        ET.SubElement(
-            metadata_xml, 'meta', {
-                'name': 'fasm_prefix',
-            }
-        ).text = site_prefix
+
+        if not args.no_fasm_prefix:
+            ET.SubElement(
+                metadata_xml, 'meta', {
+                    'name': 'fasm_prefix',
+                }
+            ).text = site_prefix
 
         # Import pb_type metadata if it exists.
         if any(child.tag == 'metadata' for child in root_element):
@@ -1211,6 +1227,10 @@ WHERE
                     'xpointer': "xpointer(pb_type/metadata/child::node())",
                 }
             )
+
+        # Prevent emitting empty metadata
+        if not any(child.tag == 'meta' for child in metadata_xml):
+            include_xml.remove(metadata_xml)
 
     # Iterate over sites in tile
     cur.execute(
