@@ -6,6 +6,7 @@ add_subdirectory(clk_bufg_top_r)
 add_subdirectory(clk_bufg_bot_r)
 add_subdirectory(bufgctrl)
 add_subdirectory(hclk_ioi3)
+add_subdirectory(pss2)
 
 set(IOPAD_SITES IOB33 IDELAYE2 ILOGICE3 OLOGICE3)
 set(IOPAD_S_SITES IOB33S IDELAYE2 ILOGICE3 OLOGICE3)
