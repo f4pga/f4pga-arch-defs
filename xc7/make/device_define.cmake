@@ -72,6 +72,11 @@ function(ADD_XC7_BOARD)
     --connection_database ${CHANNELS_LOCATION}
   ")
 
+  set_target_properties(${BOARD}
+    PROPERTIES PLACE_CONSTR_TOOL_EXTRA_ARGS " \
+    --connection_database ${CHANNELS_LOCATION}
+  ")
+
   get_target_property_required(PYTHON3 env PYTHON3)
   get_target_property_required(PYTHON3_TARGET env PYTHON3_TARGET)
 
@@ -125,6 +130,7 @@ function(ADD_XC7_BOARD)
   set_target_properties(
     dummy_${ARCH}_${DEVICE}_${ADD_XC7_BOARD_PACKAGE}
     PROPERTIES
+    PLACE_CONSTR_TOOL_EXTRA_ARGS "--connection_database ${CHANNELS_LOCATION}"
     PINMAP
     ${CMAKE_CURRENT_SOURCE_DIR}/${PINMAP_CSV})
 endfunction()
