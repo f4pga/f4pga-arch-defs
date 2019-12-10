@@ -5,13 +5,11 @@
 
 import argparse
 
-from migen import *
-
+from migen import Module, ClockDomain, Signal, Instance
 from litex.boards.platforms import arty
-from litex.soc.integration.soc_core import *
-from litex.soc.integration.builder import *
-
-from litex.soc.cores.clock import *
+from litex.soc.integration.soc_core import SoCCore, soc_core_args, soc_core_argdict
+from litex.soc.integration.builder import Builder, builder_args, builder_argdict
+from litex.soc.cores.clock import S7PLL
 
 # CRG ----------------------------------------------------------------------------------------------
 
