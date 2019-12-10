@@ -1,0 +1,5 @@
+set_io led[0] M14
+set_io led[1] M15
+set_io led[2] G14
+set_io led[3] D18
+
