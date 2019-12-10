@@ -199,6 +199,7 @@ WHERE
             self.backward_switch_pkey, self.is_directional, self.is_pseudo,
             self.can_invert
         ) = result
+        assert self.switch_pkey is not None, (pip, tile_type)
 
         if self.is_directional:
             assert self.switch_pkey == self.backward_switch_pkey
@@ -476,16 +477,28 @@ SELECT
 FROM
   wire_in_tile
 WHERE
-  pkey = (
+  site_pin_switch_pkey IS NOT NULL
+AND
+  pkey IN (
     SELECT
       wire_in_tile_pkey
     FROM
       wire
     WHERE
-      pkey = ?
+      node_pkey IN (
+        SELECT
+          node_pkey
+        FROM
+          wire
+        WHERE
+          pkey = ?
+    )
   )""", (wire_pkey, )
         )
-        site_pin_switch_pkey = cur.fetchone()[0]
+        results = cur.fetchall()
+        assert len(results) == 1, (wire_pkey, results)
+        site_pin_switch_pkey = results[0][0]
+        assert site_pin_switch_pkey is not None, wire_pkey
 
         assert graph_node_pkey in edge_nodes, (
             wire_pkey, graph_node_pkey, track_graph_node_pkey, edge_nodes
@@ -977,6 +990,10 @@ def yield_edges(
                  pip=pip_obj, src_wire_pkey=src_wire_pkey,
                  dest_wire_pkey=sink_wire_pkey, loc=loc,
                  other_connector=sink_connector):
+            assert switch_pkey is not None, (
+                pip, src_graph_node_pkey, dest_graph_node_pkey, phy_tile_pkey,
+                pip_pkey
+            )
             yield (
                 src_graph_node_pkey, dest_graph_node_pkey, switch_pkey,
                 phy_tile_pkey, pip_pkey, False
@@ -988,7 +1005,10 @@ def yield_edges(
                  pip=pip_obj, src_wire_pkey=sink_wire_pkey,
                  dest_wire_pkey=src_wire_pkey, loc=loc,
                  other_connector=src_connector):
-
+            assert switch_pkey is not None, (
+                pip, src_graph_node_pkey, dest_graph_node_pkey, phy_tile_pkey,
+                pip_pkey
+            )
             yield (
                 src_graph_node_pkey, dest_graph_node_pkey, switch_pkey,
                 phy_tile_pkey, pip_pkey, True
@@ -1001,6 +1021,10 @@ def yield_edges(
                  ) in const_connectors[constant_src].connect_at(
                      pip=delayless_switch, loc=loc,
                      other_connector=sink_connector):
+                assert switch_pkey is not None, (
+                    pip, src_graph_node_pkey, dest_graph_node_pkey,
+                    phy_tile_pkey, pip_pkey
+                )
                 yield (
                     src_graph_node_pkey, dest_graph_node_pkey, switch_pkey,
                     phy_tile_pkey, None, False
