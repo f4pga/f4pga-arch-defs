@@ -1,0 +1,8 @@
+# Zedboard 125 MHz CLK
+set_io clk Y9
+
+# Outputs: led[7:0]
+set_io led U19
+
+# Inputs: sw[7:0]
+set_io sw H18

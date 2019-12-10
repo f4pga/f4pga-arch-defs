@@ -1,8 +1,7 @@
-project_ray_tile(
-  ARCH artix7
+project_xray_tile(
+  PART zynq7
   TILE SLICEM
   SITE_AS_TILE
   SITE_TYPES SLICEM/SLICEM
-  # TODO When equivalent tiles are supported, also SLICEL will be added to EQUIVALENT_SITES
-  EQUIVALENT_SITES SLICEM
+  EQUIVALENT_SITES SLICEM SLICEL
   )
