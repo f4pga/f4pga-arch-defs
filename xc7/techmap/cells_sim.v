@@ -767,6 +767,9 @@ module ISERDESE2_IDELAY_VPR (
   parameter [0:0] INTERFACE_TYPE_Z_MEMORY    = 1'b0;
   parameter [0:0] NUM_CE_N2 = 1'b0;
 
+  parameter [0:0] IOBDELAY_IFD = 1'b0;
+  parameter [0:0] IOBDELAY_IBUF = 1'b0;
+
   parameter [0:0] ZINIT_Q1 = 1'b0;
   parameter [0:0] ZINIT_Q2 = 1'b0;
   parameter [0:0] ZINIT_Q3 = 1'b0;
@@ -811,6 +814,9 @@ module ISERDESE2_NO_IDELAY_VPR (
   parameter [0:0] INTERFACE_TYPE_OVERSAMPLE  = 1'b0;
   parameter [0:0] INTERFACE_TYPE_Z_MEMORY    = 1'b0;
   parameter [0:0] NUM_CE_N2 = 1'b0;
+
+  parameter [0:0] IOBDELAY_IFD = 1'b0;
+  parameter [0:0] IOBDELAY_IBUF = 1'b0;
 
   parameter [0:0] ZINIT_Q1 = 1'b0;
   parameter [0:0] ZINIT_Q2 = 1'b0;
