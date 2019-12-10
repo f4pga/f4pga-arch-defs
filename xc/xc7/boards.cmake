@@ -70,12 +70,12 @@ add_xc_board(
   PART xc7z010clg400-1
 )
 
-#add_xc_board(
-#  BOARD zyboz7-full
-#  DEVICE xc7z020
-#  PACKAGE test
-#  PART xc7z020clg400-1
-#)
+add_xc7_board(
+  BOARD zedboard-full
+  DEVICE xc7z020
+  PACKAGE test
+  PART xc7z020clg400-1
+)
 
 add_xc_board(
   BOARD nexys_video
