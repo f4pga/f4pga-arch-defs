@@ -72,6 +72,7 @@
       <output name="SHIFTOUT1" num_pins="1"/>
       <output name="SHIFTOUT2" num_pins="1"/>
       <metadata>
+        <!-- TODO: Some features are named after the IFF site, but do enable functionalities for the ISERDES -->
         <meta name="fasm_features">
           ISERDES.IN_USE
           IDDR_OR_ISERDES.IN_USE
@@ -92,6 +93,9 @@
           ISERDES.INTERFACE_TYPE.Z_MEMORY = INTERFACE_TYPE_Z_MEMORY
 
           ISERDES.NUM_CE.N2 = NUM_CE_N2
+
+          IFFDELMUXE3.P0 = IOBDELAY_IFD
+          IDELMUXE3.P0 = IOBDELAY_IBUF
 
           IFF.ZINIT_Q1 = ZINIT_Q1
           IFF.ZINIT_Q2 = ZINIT_Q2
