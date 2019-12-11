@@ -38,6 +38,7 @@ from .connection_db_utils import create_maybe_get_wire, maybe_add_pip, \
         get_tile_type
 from .iob_models import process_iobs
 from .ioi_models import process_ioi
+from .hclk_ioi3_models import process_hclk_ioi3
 from .verilog_modeling import Module
 from .net_map import create_net_list
 
@@ -80,7 +81,7 @@ PROCESS_TILE = {
     'CLK_HROW_TOP_R': process_hrow,
     'HCLK_CMT': null_process,
     'HCLK_CMT_L': null_process,
-    'HCLK_IOI3': null_process,
+    'HCLK_IOI3': process_hclk_ioi3,
     'BRAM_L': process_bram,
     'BRAM_R': process_bram,
     'CMT_TOP_R_UPPER_T': process_pll,
