@@ -16,6 +16,7 @@ input  wire RST,
 input  wire I_DAT,
 output wire O_DAT,
 output wire T_DAT,
+output wire RDY,
 
 input  wire [7:0] INPUTS,
 output wire [7:0] OUTPUTS
@@ -69,8 +70,11 @@ oserdes
 
 wire DDLY;
 
-(* keep *)
-IDELAYCTRL idelayctrl (.REFCLK(REFCLK));
+(* keep, LOC="IDELAYCTRL_X0Y0" *)
+IDELAYCTRL idelayctrl (
+    .REFCLK(REFCLK),
+    .RDY(RDY)
+);
 
 // IDELAY
 IDELAYE2 #

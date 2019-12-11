@@ -15,7 +15,7 @@ function(serdes_test data_width data_rate)
         --output ${CMAKE_CURRENT_BINARY_DIR}/serdes_basys3_${data_width}_${data_rate_lower}.v
         --data_width ${data_width}
         --data_rate ${data_rate}
-      DEPENDS ${PYTHON3} ${PYTHON3_TARGET} generate_tests.py
+      DEPENDS ${PYTHON3} ${PYTHON3_TARGET} generate_tests.py ${CMAKE_CURRENT_SOURCE_DIR}/serdes_basys3.v
     )
 
   add_custom_command(
@@ -25,7 +25,7 @@ function(serdes_test data_width data_rate)
         --output ${CMAKE_CURRENT_BINARY_DIR}/serdes_basys3_idelay_${data_width}_${data_rate_lower}.v
         --data_width ${data_width}
         --data_rate ${data_rate}
-      DEPENDS ${PYTHON3} ${PYTHON3_TARGET} generate_tests.py
+      DEPENDS ${PYTHON3} ${PYTHON3_TARGET} generate_tests.py ${CMAKE_CURRENT_SOURCE_DIR}/serdes_basys3_idelay.v
     )
 
   add_file_target(FILE serdes_basys3_${data_width}_${data_rate_lower}.v GENERATED)
@@ -54,6 +54,11 @@ function(serdes_test data_width data_rate)
   add_vivado_target(
     NAME serdes_basys3_${data_width}_${data_rate_lower}_vivado
     PARENT_NAME serdes_basys3_${data_width}_${data_rate_lower}
+    )
+
+  add_vivado_target(
+    NAME serdes_basys3_idelay_${data_width}_${data_rate_lower}_vivado
+    PARENT_NAME serdes_basys3_idelay_${data_width}_${data_rate_lower}
     )
 
   add_dependencies(all_serdes_test

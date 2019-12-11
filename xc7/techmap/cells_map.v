@@ -2450,6 +2450,7 @@ module IDELAYE2 (
   parameter [0:0] IS_IDATAIN_INVERTED = 1'b0;
 
   localparam [4:0] ZIDELAY_VALUE = ~IDELAY_VALUE;
+  localparam [0:0] NOT_USING_CNTVALUEIN = (IDELAY_TYPE == "FIXED" || IDELAY_TYPE == "VARIABLE");
 
   parameter _TECHMAP_CONSTMSK_IDATAIN_ = 1'b1;
   parameter _TECHMAP_CONSTVAL_IDATAIN_ = 1'bx;
@@ -2481,13 +2482,14 @@ module IDELAYE2 (
       .C                (C),
       .CE               (CE),
       .CINVCTRL         (CINVCTRL),
-      .CNTVALUEIN0      (CNTVALUEIN0),
-      .CNTVALUEIN1      (CNTVALUEIN1),
-      .CNTVALUEIN2      (CNTVALUEIN2),
-      .CNTVALUEIN3      (CNTVALUEIN3),
-      .CNTVALUEIN4      (CNTVALUEIN4),
-      .DATAIN           (DATAIN),
-      .IDATAIN          (IDATAIN),
+      // CNTVALUEIN0-4 should be 1 if unused
+      .CNTVALUEIN0      (CNTVALUEIN0 | NOT_USING_CNTVALUEIN),
+      .CNTVALUEIN1      (CNTVALUEIN1 | NOT_USING_CNTVALUEIN),
+      .CNTVALUEIN2      (CNTVALUEIN2 | NOT_USING_CNTVALUEIN),
+      .CNTVALUEIN3      (CNTVALUEIN3 | NOT_USING_CNTVALUEIN),
+      .CNTVALUEIN4      (CNTVALUEIN4 | NOT_USING_CNTVALUEIN),
+      .DATAIN           (DATAIN | ~DATAIN_USED),
+      .IDATAIN          (IDATAIN | ~IDATAIN_USED),
       .INC              (INC),
       .LD               (LD),
       .LDPIPEEN         (LDPIPEEN),
