@@ -11,7 +11,7 @@ input  wire clk,
 input  wire rst,
 
 input  wire [7:0] sw,
-output wire [8:0] led,
+output wire [9:0] led,
 
 inout wire io
 );
@@ -62,9 +62,9 @@ PLLE2_ADV #(
 .CLKIN1_PERIOD      (10.0),  // 100MHz
 
 .CLKFBOUT_MULT      (`CLKFBOUT_MULT),
-.CLKOUT0_DIVIDE     (`CLKFBOUT_MULT * 4),
-.CLKOUT1_DIVIDE     ((`CLKFBOUT_MULT * 4) * DIVIDE_RATE),
-.CLKOUT2_DIVIDE     (`CLKFBOUT_MULT / 2),
+.CLKOUT0_DIVIDE     (`CLKFBOUT_MULT * 4), // SYSCLK, 25MHz
+.CLKOUT1_DIVIDE     ((`CLKFBOUT_MULT * 4) * DIVIDE_RATE), // CLKDIV, 25MHz / DIVIDE RATE
+.CLKOUT2_DIVIDE     (`CLKFBOUT_MULT / 2), // REFCLK (IDELAYCTRL), 200 MHz
 
 .STARTUP_WAIT       ("FALSE"),
 
@@ -110,6 +110,7 @@ wire [7:0] MASKED_INPUTS = INPUTS & MASK;
 wire I_DAT;
 wire O_DAT;
 wire T_DAT;
+wire RDY;
 
 IOBUF iobuf(.I(O_DAT), .O(I_DAT), .T(T_DAT), .IO(io));
 
@@ -130,7 +131,8 @@ serdes_test
 
 .I_DAT      (I_DAT),
 .O_DAT      (O_DAT),
-.T_DAT      (T_DAT)
+.T_DAT      (T_DAT),
+.RDY        (RDY)
 );
 
 wire [7:0] MASKED_OUTPUTS = OUTPUTS & MASK;
@@ -146,5 +148,6 @@ always @(posedge SYSCLK)
 
 assign led[0] = heartbeat_cnt[22];
 assign led[8:1] = MASKED_OUTPUTS;
+assign led[9] = RDY;
 
 endmodule

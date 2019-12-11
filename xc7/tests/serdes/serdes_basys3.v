@@ -11,7 +11,7 @@ input  wire clk,
 input  wire rst,
 
 input  wire [7:0] sw,
-output wire [8:0] led,
+output wire [9:0] led,
 
 inout wire io
 );
@@ -60,9 +60,8 @@ PLLE2_ADV #(
 .CLKIN1_PERIOD      (10.0),  // 100MHz
 
 .CLKFBOUT_MULT      (`CLKFBOUT_MULT),
-
-.CLKOUT0_DIVIDE     (`CLKFBOUT_MULT * 4),
-.CLKOUT1_DIVIDE     ((`CLKFBOUT_MULT * 4) * DIVIDE_RATE),
+.CLKOUT0_DIVIDE     (`CLKFBOUT_MULT * 4), // SYSCLK, 25MHz
+.CLKOUT1_DIVIDE     ((`CLKFBOUT_MULT * 4) * DIVIDE_RATE), // CLKDIV, 25MHz / DIVIDE RATE
 
 .STARTUP_WAIT       ("FALSE"),
 
