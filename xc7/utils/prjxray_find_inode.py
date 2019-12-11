@@ -45,8 +45,9 @@ AND
 SELECT pkey, graph_node_type FROM graph_node WHERE node_pkey = ?
         """, (node_pkey, )):
         print(
-            '  Node {} {}'.format(
-                node_map.get(graph_node_pkey), NodeType(graph_node_type)
+            '  Node inode={} pkey={} {}'.format(
+                node_map.get(graph_node_pkey), graph_node_pkey,
+                NodeType(graph_node_type)
             )
         )
 
