@@ -607,7 +607,8 @@ class Site(object):
 
         self.site_wire_to_wire_pkey = {}
 
-        aparts = features[0].feature.split('.')
+        if features:
+            aparts = features[0].feature.split('.')
 
         for f in features:
             if f.value == 0:
