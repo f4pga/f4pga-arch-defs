@@ -1897,10 +1897,50 @@ module IBUF (
   output O
   );
 
-   IBUF_VPR _TECHMAP_REPLACE_ (
-     .I(I),
-     .O(O)
-   );
+  parameter IOSTANDARD = "LVCMOS33";
+
+  IBUF_VPR # (
+    .LVCMOS12_LVCMOS15_LVCMOS18_IN(
+      (IOSTANDARD == "LVCMOS12") || 
+      (IOSTANDARD == "LVCMOS15") || 
+      (IOSTANDARD == "LVCMOS18")
+    ),
+    .LVCMOS12_LVCMOS15_LVCMOS18_LVCMOS25_LVCMOS33_LVTTL_SLEW_FAST(
+      (IOSTANDARD == "LVCMOS12") || 
+      (IOSTANDARD == "LVCMOS15") || 
+      (IOSTANDARD == "LVCMOS18") || 
+      (IOSTANDARD == "LVCMOS25") || 
+      (IOSTANDARD == "LVCMOS33") || 
+      (IOSTANDARD == "LVTTL") || 
+      (IOSTANDARD == "SSTL135")
+    ),
+    .LVCMOS12_LVCMOS15_LVCMOS18_LVCMOS25_LVCMOS33_LVTTL_SSTL135_IN_ONLY(
+      (IOSTANDARD == "LVCMOS12") || 
+      (IOSTANDARD == "LVCMOS15") || 
+      (IOSTANDARD == "LVCMOS18") || 
+      (IOSTANDARD == "LVCMOS25") || 
+      (IOSTANDARD == "LVCMOS33") || 
+      (IOSTANDARD == "LVTTL") || 
+      (IOSTANDARD == "SSTL135")
+    ),
+    .LVCMOS12_LVCMOS15_LVCMOS18_SSTL135_STEPDOWN(
+      (IOSTANDARD == "LVCMOS12") || 
+      (IOSTANDARD == "LVCMOS15") || 
+      (IOSTANDARD == "LVCMOS18") || 
+      (IOSTANDARD == "SSTL135")
+    ),
+    .LVCMOS25_LVCMOS33_LVTTL_IN(
+      (IOSTANDARD == "LVCMOS25") || 
+      (IOSTANDARD == "LVCMOS33") || 
+      (IOSTANDARD == "LVTTL")
+    ),
+    .SSTL135_IN(
+      (IOSTANDARD == "SSTL135")
+    )
+  ) _TECHMAP_REPLACE_ (
+    .I(I),
+    .O(O)
+  );
 
 endmodule
 
@@ -1909,10 +1949,103 @@ module OBUF (
   output O
   );
 
-   OBUF_VPR _TECHMAP_REPLACE_ (
-     .I(I),
-     .O(O)
-   );
+  parameter IOSTANDARD = "LVCMOS33";
+  parameter DRIVE = 8;
+  parameter SLEW = "FAST";
+
+  OBUF_VPR # (
+    .LVCMOS12_DRIVE_I12(
+      (IOSTANDARD == "LVCMOS12" && DRIVE == 12)
+    ),
+    .LVCMOS12_DRIVE_I4(
+      (IOSTANDARD == "LVCMOS12" && DRIVE == 4)
+    ),
+    .LVCMOS12_LVCMOS15_LVCMOS18_LVCMOS25_LVCMOS33_LVTTL_SLEW_FAST(
+      (IOSTANDARD == "LVCMOS12" && SLEW == "FAST") || 
+      (IOSTANDARD == "LVCMOS15" && SLEW == "FAST") || 
+      (IOSTANDARD == "LVCMOS18" && SLEW == "FAST") || 
+      (IOSTANDARD == "LVCMOS25" && SLEW == "FAST") || 
+      (IOSTANDARD == "LVCMOS33" && SLEW == "FAST") || 
+      (IOSTANDARD == "LVTTL" && SLEW == "FAST")
+    ),
+    .LVCMOS12_LVCMOS15_LVCMOS18_LVCMOS25_LVCMOS33_LVTTL_SSTL135_SLEW_SLOW(
+      (IOSTANDARD == "LVCMOS12" && SLEW == "SLOW") || 
+      (IOSTANDARD == "LVCMOS15" && SLEW == "SLOW") || 
+      (IOSTANDARD == "LVCMOS18" && SLEW == "SLOW") || 
+      (IOSTANDARD == "LVCMOS25" && SLEW == "SLOW") || 
+      (IOSTANDARD == "LVCMOS33" && SLEW == "SLOW") || 
+      (IOSTANDARD == "LVTTL" && SLEW == "SLOW") || 
+      (IOSTANDARD == "SSTL135" && SLEW == "SLOW")
+    ),
+    .LVCMOS12_LVCMOS15_LVCMOS18_SSTL135_STEPDOWN(
+      (IOSTANDARD == "LVCMOS12") || 
+      (IOSTANDARD == "LVCMOS15") || 
+      (IOSTANDARD == "LVCMOS18") || 
+      (IOSTANDARD == "SSTL135")
+    ),
+    .LVCMOS12_LVCMOS25_DRIVE_I8(
+      (IOSTANDARD == "LVCMOS12" && DRIVE == 8) || 
+      (IOSTANDARD == "LVCMOS25" && DRIVE == 8)
+    ),
+    .LVCMOS15_DRIVE_I12(
+      (IOSTANDARD == "LVCMOS15" && DRIVE == 12)
+    ),
+    .LVCMOS15_DRIVE_I16(
+      (IOSTANDARD == "LVCMOS15" && DRIVE == 16)
+    ),
+    .LVCMOS15_DRIVE_I8(
+      (IOSTANDARD == "LVCMOS15" && DRIVE == 8)
+    ),
+    .LVCMOS15_LVCMOS18_LVCMOS25_DRIVE_I4(
+      (IOSTANDARD == "LVCMOS15" && DRIVE == 4) || 
+      (IOSTANDARD == "LVCMOS18" && DRIVE == 4) || 
+      (IOSTANDARD == "LVCMOS25" && DRIVE == 4)
+    ),
+    .LVCMOS18_DRIVE_I12_I8(
+      (IOSTANDARD == "LVCMOS18" && DRIVE == 12) || 
+      (IOSTANDARD == "LVCMOS18" && DRIVE == 8)
+    ),
+    .LVCMOS18_DRIVE_I16(
+      (IOSTANDARD == "LVCMOS18" && DRIVE == 16)
+    ),
+    .LVCMOS18_DRIVE_I24(
+      (IOSTANDARD == "LVCMOS18" && DRIVE == 24)
+    ),
+    .LVCMOS25_DRIVE_I12(
+      (IOSTANDARD == "LVCMOS25" && DRIVE == 12)
+    ),
+    .LVCMOS25_DRIVE_I16(
+      (IOSTANDARD == "LVCMOS25" && DRIVE == 16)
+    ),
+    .LVCMOS33_DRIVE_I16(
+      (IOSTANDARD == "LVCMOS33" && DRIVE == 16)
+    ),
+    .LVCMOS33_LVTTL_DRIVE_I12_I16(
+      (IOSTANDARD == "LVCMOS33" && DRIVE == 12) || 
+      (IOSTANDARD == "LVTTL" && DRIVE == 16)
+    ),
+    .LVCMOS33_LVTTL_DRIVE_I12_I8(
+      (IOSTANDARD == "LVCMOS33" && DRIVE == 8) || 
+      (IOSTANDARD == "LVTTL" && DRIVE == 12) || 
+      (IOSTANDARD == "LVTTL" && DRIVE == 8)
+    ),
+    .LVCMOS33_LVTTL_DRIVE_I4(
+      (IOSTANDARD == "LVCMOS33" && DRIVE == 4) || 
+      (IOSTANDARD == "LVTTL" && DRIVE == 4)
+    ),
+    .LVTTL_DRIVE_I24(
+      (IOSTANDARD == "LVTTL" && DRIVE == 24)
+    ),
+    .SSTL135_DRIVE_I_FIXED(
+      (IOSTANDARD == "SSTL135")
+    ),
+    .SSTL135_SLEW_FAST(
+      (IOSTANDARD == "SSTL135" && SLEW == "FAST")
+    )
+  ) _TECHMAP_REPLACE_ (
+    .I(I),
+    .O(O)
+  );
 
 endmodule
 
@@ -1923,7 +2056,113 @@ module IOBUF (
   inout  IO
 );
 
-  IOBUF_VPR _TECHMAP_REPLACE_ (
+  parameter IOSTANDARD = "LVCMOS33";
+  parameter DRIVE = 8;
+  parameter SLEW = "FAST";
+
+  IOBUF_VPR #
+    .LVCMOS12_DRIVE_I12(
+      (IOSTANDARD == "LVCMOS12" && DRIVE == 12)
+    ),
+    .LVCMOS12_DRIVE_I4(
+      (IOSTANDARD == "LVCMOS12" && DRIVE == 4)
+    ),
+    .LVCMOS12_LVCMOS15_LVCMOS18_IN(
+      (IOSTANDARD == "LVCMOS12") || 
+      (IOSTANDARD == "LVCMOS15") || 
+      (IOSTANDARD == "LVCMOS18")
+    ),
+    .LVCMOS12_LVCMOS15_LVCMOS18_LVCMOS25_LVCMOS33_LVTTL_SLEW_FAST(
+      (IOSTANDARD == "LVCMOS12" && SLEW == "FAST") || 
+      (IOSTANDARD == "LVCMOS15" && SLEW == "FAST") || 
+      (IOSTANDARD == "LVCMOS18" && SLEW == "FAST") || 
+      (IOSTANDARD == "LVCMOS25" && SLEW == "FAST") || 
+      (IOSTANDARD == "LVCMOS33" && SLEW == "FAST") || 
+      (IOSTANDARD == "LVTTL" && SLEW == "FAST")
+    ),
+    .LVCMOS12_LVCMOS15_LVCMOS18_LVCMOS25_LVCMOS33_LVTTL_SSTL135_SLEW_SLOW(
+      (IOSTANDARD == "LVCMOS12" && SLEW == "SLOW") || 
+      (IOSTANDARD == "LVCMOS15" && SLEW == "SLOW") || 
+      (IOSTANDARD == "LVCMOS18" && SLEW == "SLOW") || 
+      (IOSTANDARD == "LVCMOS25" && SLEW == "SLOW") || 
+      (IOSTANDARD == "LVCMOS33" && SLEW == "SLOW") || 
+      (IOSTANDARD == "LVTTL" && SLEW == "SLOW") || 
+      (IOSTANDARD == "SSTL135" && SLEW == "SLOW")
+    ),
+    .LVCMOS12_LVCMOS15_LVCMOS18_SSTL135_STEPDOWN(
+      (IOSTANDARD == "LVCMOS12") || 
+      (IOSTANDARD == "LVCMOS15") || 
+      (IOSTANDARD == "LVCMOS18") || 
+      (IOSTANDARD == "SSTL135")
+    ),
+    .LVCMOS12_LVCMOS25_DRIVE_I8(
+      (IOSTANDARD == "LVCMOS12" && DRIVE == 8) || 
+      (IOSTANDARD == "LVCMOS25" && DRIVE == 8)
+    ),
+    .LVCMOS15_DRIVE_I12(
+      (IOSTANDARD == "LVCMOS15" && DRIVE == 12)
+    ),
+    .LVCMOS15_DRIVE_I16(
+      (IOSTANDARD == "LVCMOS15" && DRIVE == 16)
+    ),
+    .LVCMOS15_DRIVE_I8(
+      (IOSTANDARD == "LVCMOS15" && DRIVE == 8)
+    ),
+    .LVCMOS15_LVCMOS18_LVCMOS25_DRIVE_I4(
+      (IOSTANDARD == "LVCMOS15" && DRIVE == 4) || 
+      (IOSTANDARD == "LVCMOS18" && DRIVE == 4) || 
+      (IOSTANDARD == "LVCMOS25" && DRIVE == 4)
+    ),
+    .LVCMOS18_DRIVE_I12_I8(
+      (IOSTANDARD == "LVCMOS18" && DRIVE == 12) || 
+      (IOSTANDARD == "LVCMOS18" && DRIVE == 8)
+    ),
+    .LVCMOS18_DRIVE_I16(
+      (IOSTANDARD == "LVCMOS18" && DRIVE == 16)
+    ),
+    .LVCMOS18_DRIVE_I24(
+      (IOSTANDARD == "LVCMOS18" && DRIVE == 24)
+    ),
+    .LVCMOS25_DRIVE_I12(
+      (IOSTANDARD == "LVCMOS25" && DRIVE == 12)
+    ),
+    .LVCMOS25_DRIVE_I16(
+      (IOSTANDARD == "LVCMOS25" && DRIVE == 16)
+    ),
+    .LVCMOS25_LVCMOS33_LVTTL_IN(
+      (IOSTANDARD == "LVCMOS25") || 
+      (IOSTANDARD == "LVCMOS33") || 
+      (IOSTANDARD == "LVTTL")
+    ),
+    .LVCMOS33_DRIVE_I16(
+      (IOSTANDARD == "LVCMOS33" && DRIVE == 16)
+    ),
+    .LVCMOS33_LVTTL_DRIVE_I12_I16(
+      (IOSTANDARD == "LVCMOS33" && DRIVE == 12) || 
+      (IOSTANDARD == "LVTTL" && DRIVE == 16)
+    ),
+    .LVCMOS33_LVTTL_DRIVE_I12_I8(
+      (IOSTANDARD == "LVCMOS33" && DRIVE == 8) || 
+      (IOSTANDARD == "LVTTL" && DRIVE == 12) || 
+      (IOSTANDARD == "LVTTL" && DRIVE == 8)
+    ),
+    .LVCMOS33_LVTTL_DRIVE_I4(
+      (IOSTANDARD == "LVCMOS33" && DRIVE == 4) || 
+      (IOSTANDARD == "LVTTL" && DRIVE == 4)
+    ),
+    .LVTTL_DRIVE_I24(
+      (IOSTANDARD == "LVTTL" && DRIVE == 24)
+    ),
+    .SSTL135_DRIVE_I_FIXED(
+      (IOSTANDARD == "SSTL135")
+    ),
+    .SSTL135_IN(
+      (IOSTANDARD == "SSTL135")
+    ),
+    .SSTL135_SLEW_FAST(
+      (IOSTANDARD == "SSTL135" && SLEW == "FAST")
+    )
+  ) _TECHMAP_REPLACE_ (
     .I(I),
     .T(T),
     .O(O),
@@ -1941,7 +2180,7 @@ module OBUFTDS (
     output OB
 );
 
-  parameter IOSTANDARD = "";
+  parameter IOSTANDARD = "DIFF_SSTL135";  // TODO: Is this the default ?
   parameter SLEW = "FAST";
 
   wire complementary;
