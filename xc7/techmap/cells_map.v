@@ -2258,6 +2258,9 @@ module ISERDESE2 (
 
   parameter INTERFACE_TYPE = "MEMORY";
 
+  parameter IOBDELAY = "NONE";
+  parameter SERDES_MODE = "MASTER";
+
   parameter [0:0] INIT_Q1 = 1'b0;
   parameter [0:0] INIT_Q2 = 1'b0;
   parameter [0:0] INIT_Q3 = 1'b0;
@@ -2321,6 +2324,8 @@ module ISERDESE2 (
           .DATA_WIDTH_W5_7              (DATA_WIDTH == 5 || DATA_WIDTH == 7),
           .DATA_WIDTH_W8                (DATA_WIDTH == 8),
           .NUM_CE_N2                    (NUM_CE == 2),
+          .IOBDELAY_IFD                 (IOBDELAY == "IFD" || IOBDELAY == "BOTH"),
+          .IOBDELAY_IBUF                (IOBDELAY == "IBUF" || IOBDELAY == "BOTH"),
 
           // Inverters
           .ZINIT_Q1                     (!INIT_Q1),
@@ -2365,6 +2370,8 @@ module ISERDESE2 (
           .DATA_WIDTH_W5_7              (DATA_WIDTH == 5 || DATA_WIDTH == 7),
           .DATA_WIDTH_W8                (DATA_WIDTH == 8),
           .NUM_CE_N2                    (NUM_CE == 2),
+          .IOBDELAY_IFD                 (IOBDELAY == "IFD" || IOBDELAY == "BOTH"),
+          .IOBDELAY_IBUF                (IOBDELAY == "IBUF" || IOBDELAY == "BOTH"),
 
           // Inverters
           .ZINIT_Q1                     (!INIT_Q1),
@@ -2433,6 +2440,9 @@ module IDELAYE2 (
   parameter HIGH_PERFORMANCE_MODE = "FALSE";
   parameter IDELAY_TYPE = "FIXED";
   parameter PIPE_SEL = "FALSE";
+
+  parameter REFCLK_FREQUENCY = 200.0;
+  parameter SIGNAL_PATTERN = "DATA";
 
   parameter [4:0] IDELAY_VALUE = 5'b00000;
 

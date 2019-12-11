@@ -175,6 +175,14 @@ def process_ilogic_idelay(top, features):
 
         bel.parameters['NUM_CE'] = num_ce
 
+        if site.has_feature('IDELMUXE3.P0') and site.has_feature(
+                'IFFDELMUXE3.P0'):
+            bel.parameters['IOBDELAY'] = '"BOTH"'
+        elif site.has_feature('IFFDELMUXE3.P0'):
+            bel.parameters['IOBDELAY'] = '"IFD"'
+        elif site.has_feature('IDELMUXE3.P0'):
+            bel.parameters['IOBDELAY'] = '"IBUF"'
+
         site.add_sink(bel, 'CE1', 'CE1')
         site.add_sink(bel, 'CE2', 'CE2')
 
