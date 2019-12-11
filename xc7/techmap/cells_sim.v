@@ -618,6 +618,10 @@ module IBUF_VPR (
   parameter [0:0] LVCMOS25_LVCMOS33_LVTTL_IN = 1'b0;
   parameter [0:0] SSTL135_IN = 1'b0;
 
+  parameter [0:0] IN_TERM_UNTUNED_SPLIT_40 = 1'b0;
+  parameter [0:0] IN_TERM_UNTUNED_SPLIT_50 = 1'b0;
+  parameter [0:0] IN_TERM_UNTUNED_SPLIT_60 = 1'b0;
+
   assign O = I;
 
 endmodule
@@ -689,6 +693,10 @@ module IOBUF_VPR (
   parameter [0:0] SSTL135_IN = 1'b0;
   parameter [0:0] SSTL135_SLEW_FAST = 1'b0;
 
+  parameter [0:0] IN_TERM_UNTUNED_SPLIT_40 = 1'b0;
+  parameter [0:0] IN_TERM_UNTUNED_SPLIT_50 = 1'b0;
+  parameter [0:0] IN_TERM_UNTUNED_SPLIT_60 = 1'b0;
+
   assign O = IOPAD_$inp;
   assign IOPAD_$out = (T == 1'b0) ? I : 1'bz;
 
@@ -707,6 +715,10 @@ module OBUFTDS_M_VPR (
   parameter [0:0] SSTL135_DRIVE_I_FIXED = 1'b0;
   parameter [0:0] SSTL135_SLEW_FAST = 1'b0;
 
+  parameter [0:0] IN_TERM_UNTUNED_SPLIT_40 = 1'b0;
+  parameter [0:0] IN_TERM_UNTUNED_SPLIT_50 = 1'b0;
+  parameter [0:0] IN_TERM_UNTUNED_SPLIT_60 = 1'b0;
+
   assign O  = (T == 1'b0) ?  I : 1'bz;
   assign OB = (T == 1'b0) ? !I : 1'bz;
 
@@ -721,6 +733,10 @@ module OBUFTDS_S_VPR (
   parameter [0:0] LVCMOS12_LVCMOS15_LVCMOS18_SSTL135_STEPDOWN = 1'b0;
   parameter [0:0] SSTL135_DRIVE_I_FIXED = 1'b0;
   parameter [0:0] SSTL135_SLEW_FAST = 1'b0;
+
+  parameter [0:0] IN_TERM_UNTUNED_SPLIT_40 = 1'b0;
+  parameter [0:0] IN_TERM_UNTUNED_SPLIT_50 = 1'b0;
+  parameter [0:0] IN_TERM_UNTUNED_SPLIT_60 = 1'b0;
 
   assign OB = IB;
 

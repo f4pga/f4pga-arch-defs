@@ -1898,6 +1898,7 @@ module IBUF (
   );
 
   parameter IOSTANDARD = "LVCMOS33";
+  parameter IN_TERM = "NONE";
 
   IBUF_VPR # (
     .LVCMOS12_LVCMOS15_LVCMOS18_IN(
@@ -1936,7 +1937,11 @@ module IBUF (
     ),
     .SSTL135_IN(
       (IOSTANDARD == "SSTL135")
-    )
+    ),
+
+    .IN_TERM_UNTUNED_SPLIT_40 (IN_TERM == "UNTUNED_SPLIT_40"),
+    .IN_TERM_UNTUNED_SPLIT_50 (IN_TERM == "UNTUNED_SPLIT_50"),
+    .IN_TERM_UNTUNED_SPLIT_60 (IN_TERM == "UNTUNED_SPLIT_60")
   ) _TECHMAP_REPLACE_ (
     .I(I),
     .O(O)
@@ -2059,6 +2064,7 @@ module IOBUF (
   parameter IOSTANDARD = "LVCMOS33";
   parameter DRIVE = 8;
   parameter SLEW = "FAST";
+  parameter IN_TERM = "NONE";
 
   IOBUF_VPR #
     .LVCMOS12_DRIVE_I12(
@@ -2161,7 +2167,11 @@ module IOBUF (
     ),
     .SSTL135_SLEW_FAST(
       (IOSTANDARD == "SSTL135" && SLEW == "FAST")
-    )
+    ),
+
+    .IN_TERM_UNTUNED_SPLIT_40 (IN_TERM == "UNTUNED_SPLIT_40"),
+    .IN_TERM_UNTUNED_SPLIT_50 (IN_TERM == "UNTUNED_SPLIT_50"),
+    .IN_TERM_UNTUNED_SPLIT_60 (IN_TERM == "UNTUNED_SPLIT_60")
   ) _TECHMAP_REPLACE_ (
     .I(I),
     .T(T),
@@ -2182,6 +2192,7 @@ module OBUFTDS (
 
   parameter IOSTANDARD = "DIFF_SSTL135";  // TODO: Is this the default ?
   parameter SLEW = "FAST";
+  parameter IN_TERM = "NONE";
 
   wire complementary;
 
@@ -2197,7 +2208,11 @@ module OBUFTDS (
     ),
     .SSTL135_SLEW_FAST(
       (IOSTANDARD == "DIFF_SSTL135" && SLEW == "FAST")
-    )
+    ),
+
+    .IN_TERM_UNTUNED_SPLIT_40 (IN_TERM == "UNTUNED_SPLIT_40"),
+    .IN_TERM_UNTUNED_SPLIT_50 (IN_TERM == "UNTUNED_SPLIT_50"),
+    .IN_TERM_UNTUNED_SPLIT_60 (IN_TERM == "UNTUNED_SPLIT_60")
   ) obuftds_m (
   .I(I),
   .T(T),
@@ -2217,7 +2232,11 @@ module OBUFTDS (
     ),
     .SSTL135_SLEW_FAST(
       (IOSTANDARD == "DIFF_SSTL135" && SLEW == "FAST")
-    )
+    ),
+
+    .IN_TERM_UNTUNED_SPLIT_40 (IN_TERM == "UNTUNED_SPLIT_40"),
+    .IN_TERM_UNTUNED_SPLIT_50 (IN_TERM == "UNTUNED_SPLIT_50"),
+    .IN_TERM_UNTUNED_SPLIT_60 (IN_TERM == "UNTUNED_SPLIT_60")
   ) obuftds_s (
   .IB(complementary),
   .OB(OB)
