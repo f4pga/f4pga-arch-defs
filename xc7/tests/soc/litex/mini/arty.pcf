@@ -1,0 +1,6 @@
+# arty 100 MHz CLK
+set_io clk100 E3
+set_io cpu_reset C2
+# arty UART
+set_io serial_rx A9
+set_io serial_tx D10

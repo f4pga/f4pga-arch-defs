@@ -251,6 +251,7 @@ if (NOT DEFINED ENV{CI} OR NOT $ENV{CI})
 add_dependencies(all_xc7_demos
     all_arty-swbut_bin
     all_arty-uart_bin
+    all_arty-full_bin
     all_basys3_bin
     all_basys3-full_bin
     # TODO(#548) Zybo targets not currently working, so removed from all target.
