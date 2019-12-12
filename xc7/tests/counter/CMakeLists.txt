@@ -10,7 +10,8 @@ add_vivado_target(
     PARENT_NAME counter_zybo
     CLOCK_PINS clk
     CLOCK_PERIODS 10.0
-    #DISABLE_DIFF_TEST
+    # TODO: https://github.com/SymbiFlow/symbiflow-arch-defs/issues/1183
+    DISABLE_DIFF_TEST
     )
 
 add_file_target(FILE counter_basys3.v SCANNER_TYPE verilog)
