@@ -19,6 +19,8 @@ add_vivado_target(
   DISABLE_DIFF_TEST
   )
 
+add_file_target(FILE buttons_basys3_full.v SCANNER_TYPE verilog)
+
 add_fpga_target(
   NAME buttons_basys3_full
   BOARD basys3-full
