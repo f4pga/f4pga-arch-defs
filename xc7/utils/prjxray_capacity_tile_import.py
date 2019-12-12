@@ -8,13 +8,10 @@ a capacity > 1.
 from __future__ import print_function
 import argparse
 import os
-import sys
 import prjxray.db
 import prjxray.site_type
 import os.path
 import simplejson as json
-import re
-import sqlite3
 
 import lxml.etree as ET
 
@@ -232,7 +229,7 @@ def start_tile(
     equivalent_sites_xml = ET.SubElement(tile_xml, 'equivalent_sites')
 
     for eq_site in eq_sites:
-        site_xml = ET.SubElement(
+        ET.SubElement(
             equivalent_sites_xml, 'site', {
                 'pb_type': add_vpr_tile_prefix(eq_site),
             }
