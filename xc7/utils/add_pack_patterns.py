@@ -134,6 +134,16 @@ def main():
         ]):
             add_pack_pattern(direct, 'OSERDES_IOBUF')
 
+        # Adding OSERDES to differential OBUF pack patterns
+        if "OQ_to_IOB33M" in dir_name or check_direct(direct, [
+            ('OBUFTDS_M', 'I'),
+            ('OBUFTDS_M', 'O'),
+            ('OSERDES', 'OQ'),
+            ('IOB33M', 'I'),
+            ('IOB33M', 'O'),
+        ]):
+            add_pack_pattern(direct, 'OSERDES_OBUFTDS_M')
+
         # Adding ISERDES pack patterns
         if IOPAD_ILOGIC_REGEX.match(dir_name) or check_direct(direct, [
             ('NO_IBUF', 'I'),
