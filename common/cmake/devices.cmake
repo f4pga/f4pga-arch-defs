@@ -919,6 +919,7 @@ function(ADD_FPGA_TARGET)
 
   get_target_property_required(DEVICE ${BOARD} DEVICE)
   get_target_property_required(PACKAGE ${BOARD} PACKAGE)
+  get_target_property_required(PART ${BOARD} PART)
 
   get_target_property_required(ARCH ${DEVICE} ARCH)
   get_target_property_required(DEVICE_TYPE ${DEVICE} DEVICE_TYPE)
@@ -1462,7 +1463,7 @@ function(ADD_FPGA_TARGET)
       add_custom_command(
         OUTPUT ${OUT_BITSTREAM}
         DEPENDS ${OUT_FASM} ${FASM_TO_BIT}
-        COMMAND ${FASM_TO_BIT_CMD_FOR_TARGET_LIST}
+        COMMAND ${FASM_TO_BIT_CMD_FOR_TARGET_LIST} --part ${PART}
       )
     else()
       get_target_property_required(HLC_TO_BIT ${ARCH} HLC_TO_BIT)
