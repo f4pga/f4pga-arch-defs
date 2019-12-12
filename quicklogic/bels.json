@@ -1,0 +1,8 @@
+{
+    "TEST_CELL": {
+        "mux0": {
+            "TEST_CELL":
+                ["SELMUX2_1.TEST_CELL/mux0"]
+        }
+    }
+}

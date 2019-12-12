@@ -1,3 +1,6 @@
+set(SDF_TIMING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/timings)
+set(BELS_MAP ${CMAKE_CURRENT_SOURCE_DIR}/bels.json)
+
 add_subdirectory(primitives)
 add_subdirectory(tiles)
 
