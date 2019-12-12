@@ -2066,7 +2066,7 @@ module IOBUF (
   parameter SLEW = "FAST";
   parameter IN_TERM = "NONE";
 
-  IOBUF_VPR #
+  IOBUF_VPR # (
     .LVCMOS12_DRIVE_I12(
       (IOSTANDARD == "LVCMOS12" && DRIVE == 12)
     ),
