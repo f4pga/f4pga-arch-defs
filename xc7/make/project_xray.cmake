@@ -523,7 +523,6 @@ function(PROJECT_XRAY_EQUIV_TILE)
     set(EQUIV_ARGS --site_equivilances ${EQUIV_ARGS})
   endif()
 
-
   append_file_dependency(DEPS ${symbiflow-arch-defs_SOURCE_DIR}/xc7/archs/${PART}/pin_assignments.json)
   get_file_location(PIN_ASSIGNMENTS ${symbiflow-arch-defs_SOURCE_DIR}/xc7/archs/${PART}/pin_assignments.json)
 
@@ -597,4 +596,119 @@ function(PROJECT_XRAY_EQUIV_TILE)
     list(GET TARGETS ${IDX} TARGET)
     add_dependencies(${TARGET} ${TARGET0})
   endforeach()
+endfunction()
+
+function(PROJECT_XRAY_CAPACITY_TILE)
+  #
+  # This function is used to create targets to generate pb_type, model and
+  # tile XML definitions for tiles with capacity.
+  #
+  # Capacity enables the pb_type to be located in different locations of the same
+  # physical tiles.
+  #
+  # PART name of the part that is considered (e.g. artix7, zynq7, etc.)
+  # TILES name of the tile that has to be generated (e.g. RIOPAD_M, etc.)
+  # PB_TYPES list of pb_types to be generated that map into tiles.
+  # PB_TYPE_SITES list of variables containing a list of site types in each
+  #     PB_TYPE.
+  # SITE_EQUIV list of sites that have an equivalent relationship.
+  #
+  #     Examples:
+  #         SITE_EQUIV IOB33M=IOB33 IOB33S=IOB33
+  #
+  #         IOB33M can be used as a IOB33
+  #         IOB33S can be used as a IOB33.
+  #
+  #  The length of PB_TYPES and PB_TYPE_SITES should be the same
+  #
+  # Usage:
+  # ~~~
+  # project_xray_equiv_tile(
+  #   PART <part_name>
+  #   TILE <tile_name>
+  #   SITE <site_name>
+  #   CAPACITY
+  #   EQUIV_SITES <site_name_1> <site_name_2> ...
+  #   )
+  # ~~~
+
+  set(options)
+  set(oneValueArgs PART TILE PB_TYPE SITE CAPACITY)
+  set(multiValueArgs EQUIV_SITES)
+  cmake_parse_arguments(
+    PROJECT_XRAY_CAPACITY_TILE
+    "${options}"
+    "${oneValueArgs}"
+    "${multiValueArgs}"
+    ${ARGN}
+  )
+
+  get_target_property_required(PYTHON3 env PYTHON3)
+  get_target_property(PYTHON3_TARGET env PYTHON3_TARGET)
+
+  set(PART ${PROJECT_XRAY_CAPACITY_TILE_PART})
+  set(TILE ${PROJECT_XRAY_CAPACITY_TILE_TILE})
+  set(SITE ${PROJECT_XRAY_CAPACITY_TILE_SITE})
+  set(PB_TYPE ${PROJECT_XRAY_CAPACITY_TILE_PB_TYPE})
+  set(CAPACITY ${PROJECT_XRAY_CAPACITY_TILE_CAPACITY})
+  string(REPLACE ";" "," EQUIV_SITES_COMMA "${PROJECT_XRAY_CAPACITY_TILE_EQUIV_SITES}")
+
+  set(PB_TYPE_INCLUDE_FILES "")
+  set(MODEL_INCLUDE_FILES "")
+  string(TOLOWER ${SITE} SITE_LOWER)
+  append_file_dependency(DEPS ${symbiflow-arch-defs_SOURCE_DIR}/xc7/primitives/${SITE_LOWER}/${SITE_LOWER}.pb_type.xml)
+  append_file_dependency(DEPS ${symbiflow-arch-defs_SOURCE_DIR}/xc7/primitives/${SITE_LOWER}/${SITE_LOWER}.model.xml)
+  list(APPEND PB_TYPE_INCLUDE_FILES ${symbiflow-arch-defs_SOURCE_DIR}/xc7/primitives/${SITE_LOWER}/${SITE_LOWER}.pb_type.xml)
+  list(APPEND MODEL_INCLUDE_FILES ${symbiflow-arch-defs_SOURCE_DIR}/xc7/primitives/${SITE_LOWER}/${SITE_LOWER}.model.xml)
+
+  append_file_dependency(DEPS ${symbiflow-arch-defs_SOURCE_DIR}/xc7/archs/${PART}/pin_assignments.json)
+  get_file_location(PIN_ASSIGNMENTS ${symbiflow-arch-defs_SOURCE_DIR}/xc7/archs/${PART}/pin_assignments.json)
+
+  set(OUTPUTS "")
+
+  string(TOLOWER ${TILE} TILE_LOWER)
+  list(APPEND OUTPUTS ${TILE_LOWER}.tile.xml)
+  list(APPEND OUTPUTS ${TILE_LOWER}.pb_type.xml)
+  list(APPEND OUTPUTS ${TILE_LOWER}.model.xml)
+
+  set(TILE_IMPORT ${symbiflow-arch-defs_SOURCE_DIR}/xc7/utils/prjxray_capacity_tile_import.py)
+  add_custom_command(
+    OUTPUT ${OUTPUTS}
+    COMMAND ${CMAKE_COMMAND} -E env PYTHONPATH=${PRJXRAY_DIR}:${symbiflow-arch-defs_SOURCE_DIR}/utils
+    ${PYTHON3} ${TILE_IMPORT}
+    --part ${PART}
+    --output_directory ${symbiflow-arch-defs_BINARY_DIR}/xc7/archs/${PART}/tiles
+    --site_directory ${symbiflow-arch-defs_BINARY_DIR}/xc7/primitives
+    --tile ${TILE}
+    --site_type ${SITE}
+    --pb_type ${PB_TYPE}
+    --pin_assignments ${PIN_ASSIGNMENTS}
+    --equivalent_sites ${EQUIV_SITES_COMMA}
+    --capacity ${CAPACITY}
+    DEPENDS
+      ${TILE_IMPORT}
+      ${DEPS}
+      ${PYTHON3} ${PYTHON3_TARGET} simplejson
+    )
+
+  set(TARGETS "")
+  add_file_target(FILE ${TILE_LOWER}.tile.xml GENERATED)
+  get_file_target(TILE_TARGET ${TILE_LOWER}.tile.xml)
+  list(APPEND TARGETS ${TILE_TARGET})
+
+  add_file_target(FILE ${TILE_LOWER}.pb_type.xml GENERATED)
+  get_file_target(PB_TYPE_TARGET ${TILE_LOWER}.pb_type.xml)
+  set_target_properties(${PB_TYPE_TARGET} PROPERTIES
+      INCLUDE_FILES ${PB_TYPE_INCLUDE_FILES})
+  list(APPEND TARGETS ${TILE_TARGET})
+
+  add_file_target(FILE ${TILE_LOWER}.model.xml GENERATED)
+  get_file_target(MODEL_TARGET ${TILE_LOWER}.model.xml)
+  set_target_properties(${MODEL_TARGET} PROPERTIES
+      INCLUDE_FILES "${MODEL_INCLUDE_FILES}")
+  list(APPEND TARGETS ${MODEL_TARGET})
+
+  # Linearize the dependency to prevent double builds.
+  add_dependencies(${MODEL_TARGET} ${PB_TYPE_TARGET})
+
 endfunction()
