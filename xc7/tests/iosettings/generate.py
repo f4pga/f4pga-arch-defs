@@ -72,7 +72,7 @@ set_io clk W5
                 "IOSTANDARD": "\"{}\"".format(iostandard)
             }
 
-            if drive is not None:
+            if drive is not None and drive != "0":
                 params["DRIVE"] = str(drive)
 
             if slew is not None:
@@ -110,8 +110,9 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--mode", required=True, help="Generation mode")
     parser.add_argument("--iostandard", required=True, help="IOSTANDARD")
-    parser.add_argument("--drive", required=False, nargs="*", help="DRIVE(s)")
-    parser.add_argument("--slew", required=False, nargs="*", help="SLEW(s)")
+    parser.add_argument("--drive", required=False, nargs="+", help="DRIVE(s)")
+    parser.add_argument("--slew", required=False, nargs="+", help="SLEW(s)")
+    parser.add_argument("-o", required=True, help="Design name")
 
     args = parser.parse_args()
 
@@ -121,8 +122,13 @@ def main():
     else:
         raise RuntimeError("Unknown generation mode '{}'".format(args.mode))
 
-    print(verilog)
-    print(pcf)
+    # Write verilog
+    with open(args.o + ".v", "w") as fp:
+        fp.write(verilog)
+
+    # Write PCF
+    with open(args.o + ".pcf", "w") as fp:
+        fp.write(pcf)
 
 if __name__ == "__main__":
     main()
