@@ -11,6 +11,7 @@ add_xc7_device_define_type(
     CLK_BUFG_TOP_R
     CLK_BUFG_BOT_R
     CMT_TOP_L_UPPER_T
+    HCLK_IOI3
   PB_TYPES
     SLICEL
     SLICEM
@@ -21,4 +22,5 @@ add_xc7_device_define_type(
     CLK_BUFG_BOT_R
     CLK_BUFG_TOP_R
     PLLE2_ADV
+    HCLK_IOI3
 )
