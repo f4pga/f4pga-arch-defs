@@ -23,6 +23,7 @@ module top(
 	output ddram_reset_n
 );
 
+wire ddram_clk_tq;
 wire main_ctrl_reset_reset_re;
 wire main_ctrl_reset_reset_r;
 wire main_ctrl_reset_reset_we;
@@ -10083,11 +10084,13 @@ OSERDESE2 #(
 	.D8(1'd1),
 	.OCE(1'd1),
 	.RST(sys_rst),
-	.OQ(main_a7ddrphy_sd_clk_se_nodelay)
+	.OQ(main_a7ddrphy_sd_clk_se_nodelay),
+	.TQ(ddram_clk_tq)
 );
 
-OBUFDS OBUFDS(
+OBUFTDS OBUFTDS_2(
 	.I(main_a7ddrphy_sd_clk_se_nodelay),
+	.T(ddram_clk_tq),
 	.O(ddram_clk_p),
 	.OB(ddram_clk_n)
 );
