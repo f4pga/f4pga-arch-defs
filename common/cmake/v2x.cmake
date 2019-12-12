@@ -201,24 +201,32 @@ function(VPR_TEST_PB_TYPE)
   )
   add_file_target(FILE "${VPR_TEST_PB_TYPE_NAME}.test.eblif" GENERATED)
 
+  set(ARCH_MERGED_XML "${VPR_TEST_PB_TYPE_NAME}.arch.merged.xml")
+  set(ARCH_TILES_XML "${VPR_TEST_PB_TYPE_NAME}.arch.tiles.xml")
+  set(ARCH_TIMINGS_XML "${VPR_TEST_PB_TYPE_NAME}.arch.timings.xml")
+
+  set(update_arch_tiles_py "${symbiflow-arch-defs_SOURCE_DIR}/utils/update_arch_tiles.py")
+
   xml_canonicalize_merge(
     NAME ${VPR_TEST_PB_TYPE_NAME}_arch_merged
     FILE ${VPR_TEST_PB_TYPE_NAME}.arch.xml
-    OUTPUT ${VPR_TEST_PB_TYPE_NAME}.arch.merged.xml
+    OUTPUT ${ARCH_MERGED_XML}
   )
 
-  add_file_target(FILE "${VPR_TEST_PB_TYPE_NAME}.arch.tiles.xml" GENERATED)
+  add_file_target(FILE ${ARCH_TILES_XML} GENERATED)
   add_custom_command(
-    OUTPUT "${VPR_TEST_PB_TYPE_NAME}.arch.tiles.xml"
+    OUTPUT "${ARCH_TILES_XML}"
     DEPENDS
       ${PYTHON3} ${PYTHON3_TARGET}
-      ${VPR_TEST_PB_TYPE_NAME}.arch.merged.xml
-      ${symbiflow-arch-defs_SOURCE_DIR}/utils/update_arch_tiles.py
+      ${ARCH_MERGED_XML}
+      ${update_arch_tiles_py}
     COMMAND
-      ${PYTHON3} ${symbiflow-arch-defs_SOURCE_DIR}/utils/update_arch_tiles.py
-        --in_xml ${CMAKE_CURRENT_BINARY_DIR}/${VPR_TEST_PB_TYPE_NAME}.arch.merged.xml
-        --out_xml ${CMAKE_CURRENT_BINARY_DIR}/${VPR_TEST_PB_TYPE_NAME}.arch.tiles.xml
-    )
+      ${PYTHON3} ${update_arch_tiles_py}
+        --in_xml ${ARCH_MERGED_XML}
+        --out_xml ${ARCH_TILES_XML}
+  )
+
+  update_arch_timings(INPUT ${ARCH_TILES_XML} OUTPUT ${ARCH_TIMINGS_XML})
 
   get_target_property_required(VPR env VPR)
   get_target_property(VPR_TARGET env VPR_TARGET)
@@ -228,7 +236,7 @@ function(VPR_TEST_PB_TYPE)
   set(OUT_LOCAL ${CMAKE_CURRENT_BINARY_DIR}/${OUT_LOCAL_REL})
 
   set(DEPENDS_TEST "")
-  append_file_dependency(DEPENDS_TEST ${VPR_TEST_PB_TYPE_NAME}.arch.tiles.xml)
+  append_file_dependency(DEPENDS_TEST ${ARCH_TIMINGS_XML})
   append_file_dependency(DEPENDS_TEST ${VPR_TEST_PB_TYPE_NAME}.test.eblif)
   add_custom_command(
     OUTPUT
@@ -242,7 +250,7 @@ function(VPR_TEST_PB_TYPE)
     COMMAND
       ${CMAKE_COMMAND} -E chdir ${OUT_LOCAL}
       ${QUIET_CMD} ${VPR}
-      ${CMAKE_CURRENT_BINARY_DIR}/${VPR_TEST_PB_TYPE_NAME}.arch.tiles.xml
+      ${CMAKE_CURRENT_BINARY_DIR}/${ARCH_TIMINGS_XML}
       ${CMAKE_CURRENT_BINARY_DIR}/${VPR_TEST_PB_TYPE_NAME}.test.eblif
       --echo_file on
       --pack
