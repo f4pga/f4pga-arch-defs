@@ -124,7 +124,9 @@ def add_pinlocations(tile_name, xml, fc_xml, pin_assignments, wires):
 
     tile_name = remove_vpr_tile_prefix(tile_name)
 
-    reduced_pin_directions = reduce_pin_directions(pin_assignments['pin_directions'][tile_name])
+    reduced_pin_directions = reduce_pin_directions(
+        pin_assignments['pin_directions'][tile_name]
+    )
 
     sides = {}
     for pin in wires:
@@ -176,18 +178,18 @@ def add_switchblock_locations(xml):
     })
 
 
-def start_tile(tile_name, f_pin_assignments, input_wires, output_wires, capacity, eq_sites):
+def start_tile(
+        tile_name, f_pin_assignments, input_wires, output_wires, capacity,
+        eq_sites
+):
     """ Starts a tile by adding input, clock and output tags. """
 
     tile_name = add_vpr_tile_prefix(tile_name)
 
-    tile_xml = ET.Element(
-        'tile',
-        {
-            'name': tile_name,
-            'capacity': capacity,
-        }
-    )
+    tile_xml = ET.Element('tile', {
+        'name': tile_name,
+        'capacity': capacity,
+    })
 
     tile_xml.append(ET.Comment(" Tile Inputs "))
 
@@ -245,7 +247,10 @@ def start_pb_type(pb_type_name, input_wires, output_wires):
     """ Starts a pb_type by adding input, clock and output tags. """
 
     pb_type_xml = ET.Element(
-        'pb_type', { 'name': add_vpr_tile_prefix(pb_type_name), },
+        'pb_type',
+        {
+            'name': add_vpr_tile_prefix(pb_type_name),
+        },
         nsmap={'xi': XI_URL},
     )
 
@@ -312,7 +317,13 @@ def import_capacity_tile(db, args):
     # Generate the model.xml file                                            #
     ##########################################################################
 
-    model = ModelXml(f=os.path.join(args.output_directory, args.tile.lower(), '{}.model.xml'.format(args.tile.lower())), site_directory=args.site_directory)
+    model = ModelXml(
+        f=os.path.join(
+            args.output_directory, args.tile.lower(),
+            '{}.model.xml'.format(args.tile.lower())
+        ),
+        site_directory=args.site_directory
+    )
     model.add_model_include(site, site)
     model.write_model()
 
@@ -323,18 +334,22 @@ def import_capacity_tile(db, args):
     tile_name = args.tile
     equivalent_sites = args.equivalent_sites.split(',')
     tile_xml = start_tile(
-        tile_name, args.pin_assignments, input_wires, output_wires, args.capacity, equivalent_sites
+        tile_name, args.pin_assignments, input_wires, output_wires,
+        args.capacity, equivalent_sites
     )
-    write_xml(os.path.join(args.output_directory, args.tile.lower(), '{}.tile.xml'.format(args.tile.lower())), tile_xml)
+    write_xml(
+        os.path.join(
+            args.output_directory, args.tile.lower(),
+            '{}.tile.xml'.format(args.tile.lower())
+        ), tile_xml
+    )
 
     ##########################################################################
     # Generate the pb_type.xml file                                          #
     ##########################################################################
 
     pb_type_name = args.pb_type
-    pb_type_xml = start_pb_type(
-        pb_type_name, input_wires, output_wires
-    )
+    pb_type_xml = start_pb_type(pb_type_name, input_wires, output_wires)
 
     site_pbtype = args.site_directory + "/{0}/{1}.pb_type.xml"
     site_type_path = site_pbtype.format(site.lower(), site.lower())
@@ -378,7 +393,12 @@ def import_capacity_tile(db, args):
 
     pb_type_xml.append(interconnect_xml)
 
-    write_xml(os.path.join(args.output_directory, args.tile.lower(), '{}.pb_type.xml'.format(args.tile.lower())), pb_type_xml)
+    write_xml(
+        os.path.join(
+            args.output_directory, args.tile.lower(),
+            '{}.pb_type.xml'.format(args.tile.lower())
+        ), pb_type_xml
+    )
 
 
 def main():
@@ -400,12 +420,18 @@ def main():
         help="""Project X-Ray database to use."""
     )
 
-    parser.add_argument('--tile', required=True, help="""Tile to generate for""")
-
-    parser.add_argument('--pb_type', required=True, help="""pb_type to generate for""")
+    parser.add_argument(
+        '--tile', required=True, help="""Tile to generate for"""
+    )
 
     parser.add_argument(
-        '--site_directory', required=True, help="""Diretory where sites are defined"""
+        '--pb_type', required=True, help="""pb_type to generate for"""
+    )
+
+    parser.add_argument(
+        '--site_directory',
+        required=True,
+        help="""Diretory where sites are defined"""
     )
 
     parser.add_argument(
@@ -429,7 +455,8 @@ def main():
     )
 
     parser.add_argument(
-        '--equivalent_sites', help="Equivalent sites that can be placed within this tile."
+        '--equivalent_sites',
+        help="Equivalent sites that can be placed within this tile."
     )
 
     args = parser.parse_args()
