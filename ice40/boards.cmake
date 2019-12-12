@@ -29,12 +29,6 @@ function(define_ice40_board)
       PINMAP ${PACKAGE_PINMAP}
       )
 
-  set_target_properties(
-    ${DEFINE_ICE40_BOARD_BOARD}
-    PROPERTIES
-      PART ${DEFINE_ICE40_BOARD_DEVICE}-${DEFINE_ICE40_BOARD_PACKAGE}
-      )
-
 endfunction()
 
 # Lattice iCEstick
