@@ -65,6 +65,8 @@ function(add_simple_test)
     get_target_property_required(ARCH ${DEVICE} ARCH)
     get_target_property_required(NO_PINS ${ARCH} NO_PINS)
 
+    set_target_properties(${BOARD} PROPERTIES PART "dummy")
+
     set(INPUT_IO_FILE_ARG "")
     if(NOT ${NO_PINS})
       generate_pinmap(
