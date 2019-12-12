@@ -28,7 +28,6 @@ function(define_ice40_board)
     PROPERTIES
       PINMAP ${PACKAGE_PINMAP}
       )
-
 endfunction()
 
 # Lattice iCEstick
