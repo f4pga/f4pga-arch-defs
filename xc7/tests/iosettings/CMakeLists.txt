@@ -1,9 +1,9 @@
 add_custom_target(all_xc7_iosettings)
 add_dependencies(all_xc7_tests all_xc7_iosettings)
 
-function(xc7_iosettings_design IOSTANDARD DRIVES SLEWS)
+function(xc7_iosettings_design MODE BOARD IOSTANDARD DRIVES SLEWS TERMS)
 
-    set(DESIGN output_${IOSTANDARD})
+    set(DESIGN ${MODE}_${BOARD}_${IOSTANDARD})
 
     set(VERILOG_FILE ${DESIGN}.v)
     set(PCF_FILE ${DESIGN}.pcf)
@@ -11,41 +11,60 @@ function(xc7_iosettings_design IOSTANDARD DRIVES SLEWS)
     add_file_target(FILE ${VERILOG_FILE} GENERATED)
     add_file_target(FILE ${PCF_FILE} GENERATED)
 
+    separate_arguments(DRIVE_LIST UNIX_COMMAND ${DRIVES})
+    separate_arguments(SLEW_LIST UNIX_COMMAND ${SLEWS})
+    separate_arguments(TERM_LIST UNIX_COMMAND ${TERMS})
+
     add_custom_command(
         OUTPUT ${VERILOG_FILE} ${PCF_FILE}
         COMMAND ${PYTHON3} ${CMAKE_CURRENT_SOURCE_DIR}/generate.py
-            --mode output
+            --board ${BOARD}
+            --mode ${MODE}
             -o ${DESIGN}
             --iostandard ${IOSTANDARD}
-            --drive ${DRIVES}
-            --slew ${SLEWS}
+            --drive ${DRIVE_LIST}
+            --slew ${SLEW_LIST}
+            --in_term ${TERM_LIST}
         DEPENDS ${PYTHON3} ${PYTHON3_TARGET} generate.py
         )
 
     add_fpga_target(
-        NAME ${DESIGN}_basys3
-        BOARD basys3-full
+        NAME ${DESIGN}
+        BOARD ${BOARD}-full
         INPUT_IO_FILE ${PCF_FILE}
         SOURCES ${VERILOG_FILE}
         EXPLICIT_ADD_FILE_TARGET
         )
 
     add_vivado_target(
-        NAME ${DESIGN}_basys3_vivado
-        PARENT_NAME ${DESIGN}_basys3
+        NAME ${DESIGN}_vivado
+        PARENT_NAME ${DESIGN}
         CLOCK_PINS clk
         CLOCK_PERIODS 10.0
         )
 
+    add_dependencies(all_xc7_iosettings ${DESIGN})
+
 endfunction()
 
-foreach(IOSTANDARD LVCMOS15 LVCMOS25 LVCMOS33)
-    xc7_iosettings_design(${IOSTANDARD} "4 8 12 16" "SLOW FAST")
-endforeach()
 
-foreach(IOSTANDARD LVCMOS18 LVTTL)
-    xc7_iosettings_design(${IOSTANDARD} "4 8 12 16 24" "SLOW FAST")
-endforeach()
+foreach(MODE input output inout)
 
-xc7_iosettings_design(LVCMOS12 "4 8 12" "SLOW FAST")
-xc7_iosettings_design(SSTL135 "0" "SLOW FAST")
+    if(MODE STREQUAL "input")
+        set(TERMS "NONE UNTUNED_SPLIT_40 UNTUNED_SPLIT_50 UNTUNED_SPLIT_60")
+    else()
+        set(TERMS "NONE")
+    endif()
+
+    foreach(IOSTANDARD LVCMOS15 LVCMOS25 LVCMOS33)
+        xc7_iosettings_design(${MODE} "arty" ${IOSTANDARD} "4 8 12 16" "SLOW FAST" ${TERMS})
+    endforeach()
+
+    foreach(IOSTANDARD LVCMOS18 LVTTL)
+        xc7_iosettings_design(${MODE} "arty" ${IOSTANDARD} "4 8 12 16 24" "SLOW FAST" ${TERMS})
+    endforeach()
+
+    xc7_iosettings_design(${MODE} "arty" LVCMOS12 "4 8 12" "SLOW FAST" ${TERMS})
+    xc7_iosettings_design(${MODE} "arty" SSTL135 "0" "SLOW FAST" ${TERMS})
+
+endforeach()
