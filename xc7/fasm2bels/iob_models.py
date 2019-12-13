@@ -114,9 +114,10 @@ def append_obuf_iostandard_params(
         if drive is not None:
             bel.parameters["DRIVE"] = '"{}"'.format(drive)
 
-    # Input termination (here for inouts)
-    if in_term is not None:
-        bel.parameters["IN_TERM"] = '"{}"'.format(in_term)
+# IN_TERM is not a parameter recognized by Vivado.
+#    # Input termination (here for inouts)
+#    if in_term is not None:
+#        bel.parameters["IN_TERM"] = '"{}"'.format(in_term)
 
     # Slew rate
     bel.parameters["SLEW"] = '"{}"'.format(slew)
@@ -158,9 +159,10 @@ def append_ibuf_iostandard_params(
 
         bel.parameters["IOSTANDARD"] = '"{}"'.format(iostandard)
 
-    # Input termination
-    if in_term is not None:
-        bel.parameters["IN_TERM"] = '"{}"'.format(in_term)
+# IN_TERM is not a parameter recognized by Vivado.
+#    # Input termination
+#    if in_term is not None:
+#        bel.parameters["IN_TERM"] = '"{}"'.format(in_term)
 
 
 def decode_iostandard_params(site, diff=False):
