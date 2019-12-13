@@ -3,6 +3,7 @@
 The generator
 """
 import argparse
+import simplejson as json
 
 # =============================================================================
 
@@ -91,6 +92,11 @@ PINOUT = {
     },
 }
 
+def unquote(s):
+    if isinstance(s, str):
+        return s.replace("\"", "")
+    return s
+
 def generate_output(board, iostandard, drives, slews):
     """
     Generates a design which outputs 100Hz square wave to a number of pins
@@ -99,6 +105,7 @@ def generate_output(board, iostandard, drives, slews):
     """
 
     num_outputs = len(drives) * len(slews)
+    iosettings = {}
 
     # Header
     verilog = """
@@ -143,10 +150,12 @@ set_io clk {}
             }
 
             if drive is not None and drive != "0":
-                params["DRIVE"] = str(drive)
+                params["DRIVE"] = int(drive)
 
             if slew is not None:
                 params["SLEW"] = "\"{}\"".format(slew)
+
+            pin = PINOUT[board]["external"][index] 
 
             verilog += """
     OBUF # ({params}) obuf_{index} (
@@ -160,9 +169,10 @@ set_io clk {}
 
             pcf += "set_io out[{}] {}\n".format(
                 index,
-                PINOUT[board]["external"][index]
+                pin
             )
 
+            iosettings[pin] = {k:unquote(v) for k, v in params.items()}
             index += 1
 
     # Footer
@@ -170,7 +180,7 @@ set_io clk {}
 endmodule
 """
 
-    return verilog, pcf
+    return verilog, pcf, iosettings
 
 
 def generate_input(board, iostandard, in_terms):
@@ -180,6 +190,7 @@ def generate_input(board, iostandard, in_terms):
     """
 
     num_pins = len(in_terms)
+    iosettings = {}
 
     # Header
     verilog = """
@@ -211,6 +222,8 @@ set_io clk {}
             "IN_TERM": "\"{}\"".format(in_term)
         }
 
+        pin = PINOUT[board]["external"][index] 
+
         verilog += """
     wire inp_b[{index}];
 
@@ -228,13 +241,14 @@ set_io clk {}
 
         pcf += "set_io inp[{}] {}\n".format(
             index,
-            PINOUT[board]["external"][index]
+            pin
         )
         pcf += "set_io led[{}] {}\n".format(
             index,
             PINOUT[board]["led"][index]
         )
 
+        iosettings[pin] = {k:unquote(v) for k, v in params.items()}
         index += 1
 
     # Footer
@@ -242,7 +256,7 @@ set_io clk {}
 endmodule
 """
 
-    return verilog, pcf
+    return verilog, pcf, iosettings
 
 
 def generate_inout(board, iostandard, drives, slews):
@@ -253,6 +267,7 @@ def generate_inout(board, iostandard, drives, slews):
     """
 
     num_pins = len(drives) * len(slews)
+    iosettings = {}
 
     # Header
     verilog = """
@@ -314,10 +329,12 @@ set_io clk {}
             }
 
             if drive is not None and drive != "0":
-                params["DRIVE"] = str(drive)
+                params["DRIVE"] = int(drive)
 
             if slew is not None:
                 params["SLEW"] = "\"{}\"".format(slew)
+
+            pin = PINOUT[board]["external"][index] 
 
             verilog += """
     IOBUF # ({params}) iobuf_{index} (
@@ -333,13 +350,14 @@ set_io clk {}
 
             pcf += "set_io ino[{}] {}\n".format(
                 index,
-                PINOUT[board]["external"][index]
+                pin
             )
             pcf += "set_io led[{}] {}\n".format(
                 index,
                 PINOUT[board]["led"][index]
             )
 
+            iosettings[pin] = {k:unquote(v) for k, v in params.items()}
             index += 1
 
     # Footer
@@ -347,7 +365,7 @@ set_io clk {}
 endmodule
 """
 
-    return verilog, pcf
+    return verilog, pcf, iosettings
 
 # =============================================================================
 
@@ -367,11 +385,11 @@ def main():
 
     # Generate design for output IO settings
     if args.mode == "output":
-        verilog, pcf = generate_output(args.board, args.iostandard, args.drive, args.slew)
+        verilog, pcf, iosettings = generate_output(args.board, args.iostandard, args.drive, args.slew)
     elif args.mode == "input":
-        verilog, pcf = generate_input(args.board, args.iostandard, args.in_term)
+        verilog, pcf, iosettings = generate_input(args.board, args.iostandard, args.in_term)
     elif args.mode == "inout":
-        verilog, pcf = generate_inout(args.board, args.iostandard, args.drive, args.slew)
+        verilog, pcf, iosettings = generate_inout(args.board, args.iostandard, args.drive, args.slew)
     else:
         raise RuntimeError("Unknown generation mode '{}'".format(args.mode))
 
@@ -382,6 +400,11 @@ def main():
     # Write PCF
     with open(args.o + ".pcf", "w") as fp:
         fp.write(pcf)
+
+    # Write iosettings
+    if iosettings is not None:
+        with open(args.o + ".json", "w") as fp:
+            json.dump(iosettings, fp, indent=2)
 
 if __name__ == "__main__":
     main()
