@@ -52,6 +52,29 @@ CCIO_ACTIVE_REGEX = re.compile('HCLK_CMT_CCIO[0-9]+')
 HCLK_OUT = re.compile('CLK_HROW_CK_HCLK_OUT_([LR])([0-9]+)')
 IOI_OCLK = re.compile('IOI_OCLK_([01])')
 
+# Workaround for CLK_BUFG TILES
+SKIP_SIDE_FOR_CAPACITY_TILES = {
+    'CLK_BUFG_BOT_R':
+        {
+            tracks.Direction.TOP: ['0', '1', '2', '3'],
+            tracks.Direction.BOTTOM: ['4', '5', '6', '7'],
+            tracks.Direction.LEFT:
+                ['8', '9', '10', '11', '12', '13', '14', '15'],
+            tracks.Direction.RIGHT: []
+        },
+    'CLK_BUFG_TOP_R':
+        {
+            tracks.Direction.TOP: ['0', '1', '2', '3'],
+            tracks.Direction.BOTTOM: [],
+            tracks.Direction.LEFT:
+                [
+                    '4', '5', '6', '7', '8', '9', '10', '11', '12', '13', '14',
+                    '15'
+                ],
+            tracks.Direction.RIGHT: []
+        },
+}
+
 
 def reduce_connection_box(box):
     """ Reduce the number of connection boxes by merging some.
@@ -336,6 +359,9 @@ def check_feature(feature):
 # CLBLL_L.CLBLL_LL_A1[0] -> (CLBLL_L, CLBLL_LL_A1)
 PIN_NAME_TO_PARTS = re.compile(r'^([^\.]+)\.([^\]]+)\[0\]$')
 
+# CLK_BUFG_BOT_R[11] -> (11)
+CAPACITY_TILE_TYPE = re.compile('(.*)\[([0-9]+)\]')
+
 
 def set_connection_box(
         graph, node_idx, grid_x, grid_y, box_id, site_pin_delay
@@ -441,6 +467,14 @@ def import_graph_nodes(conn, graph, node_mapping, connection_box_map):
 
         pin = m.group(2)
 
+        m = CAPACITY_TILE_TYPE.match(tile_type)
+        capacity = None
+        if m is not None:
+            tile_type = m.group(1)
+            capacity = m.group(2)
+            pin_split = pin.rsplit('_', 1)
+            pin = '{}{}_{}'.format(pin_split[0], capacity, pin_split[1])
+
         cur.execute(
             """
 SELECT pkey, site_as_tile_pkey FROM tile WHERE grid_x = ? AND grid_y = ?;
@@ -536,6 +570,11 @@ AND
         ) = result
 
         side = node.loc.side
+
+        if capacity is not None and capacity not in SKIP_SIDE_FOR_CAPACITY_TILES[
+                tile_type][side]:
+            side = None
+
         if side == tracks.Direction.LEFT:
             assert left_graph_node_pkey is not None, (tile_type, pin_name)
             node_mapping[left_graph_node_pkey] = node.id
@@ -566,8 +605,6 @@ AND
                 conn, graph, bottom_graph_node_pkey, node_idx,
                 connection_box_map
             )
-        else:
-            assert False, side
 
 
 def import_tracks(conn, alive_tracks, node_mapping, graph, default_segment_id):

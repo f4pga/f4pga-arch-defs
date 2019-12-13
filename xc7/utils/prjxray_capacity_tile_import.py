@@ -8,6 +8,7 @@ a capacity > 1.
 from __future__ import print_function
 import argparse
 import os
+import string
 import prjxray.db
 import prjxray.site_type
 import os.path
@@ -100,11 +101,45 @@ def reduce_pin_directions(pin_directions):
     reduced_pin_directions = dict()
     pins = pin_directions.keys()
     for pin in pins:
-        reduced_pin = pin.split('_')[-1]
+        split_pin = pin.rsplit('_', 1)
+        reduced_pin = split_pin[0].rstrip(string.digits)
+        reduced_pin = '_'.join((reduced_pin, split_pin[1]))
+
         if reduced_pin not in reduced_pin_directions.keys():
             reduced_pin_directions[reduced_pin] = pin_directions[pin]
 
     return reduced_pin_directions
+
+
+def reduce_wires(input_wires, output_wires):
+
+    reduced_input_wires = set()
+    reduced_output_wires = set()
+
+    for input_wire in input_wires:
+        split_wire = input_wire.rsplit('_', 1)
+        tile_wire_name = split_wire[0].rstrip(string.digits)
+        reduced_input_wires.add('_'.join((tile_wire_name, split_wire[1])))
+
+    for output_wire in output_wires:
+        split_wire = output_wire.rsplit('_', 1)
+        tile_wire_name = split_wire[0].rstrip(string.digits)
+        reduced_output_wires.add('_'.join((tile_wire_name, split_wire[1])))
+
+    return reduced_input_wires, reduced_output_wires
+
+
+def get_site_tile_pin_map(site_type, wires):
+    site_tile_pin_map = dict()
+
+    for wire in wires:
+        split_wire = wire.rsplit('_', 1)
+        site_tile_pin_map[split_wire[1]] = wire
+
+    for site_pin in site_type.get_site_pins():
+        assert site_pin in site_tile_pin_map.keys()
+
+    return site_tile_pin_map
 
 
 def add_pinlocations(tile_name, xml, fc_xml, pin_assignments, wires):
@@ -127,7 +162,15 @@ def add_pinlocations(tile_name, xml, fc_xml, pin_assignments, wires):
 
     sides = {}
     for pin in wires:
-        for side in reduced_pin_directions[pin]:
+        site_pin = pin.rsplit('_', 1)[1]
+
+        for side in ['TOP', 'LEFT', 'RIGHT', 'BOTTOM']:
+            if side != 'RIGHT' and site_pin == 'O':
+                continue
+
+            if side == 'RIGHT' and site_pin not in ['O', 'I0', 'I1']:
+                continue
+
             if side not in sides:
                 sides[side] = []
 
@@ -194,7 +237,9 @@ def start_tile(
     for name in sorted(input_wires):
         input_type = 'input'
 
-        if 'CLK' in name:
+        # TODO: find a way to set correct clock ports. This is specialized for BUFGCTRL
+        pin_name = name.rsplit('_', 1)[1]
+        if pin_name in ['I0', 'I1']:
             input_type = 'clock'
 
         ET.SubElement(
@@ -257,7 +302,9 @@ def start_pb_type(pb_type_name, input_wires, output_wires):
     for name in sorted(input_wires):
         input_type = 'input'
 
-        if 'CLK' in name:
+        # TODO: find a way to set correct clock ports. This is specialized for BUFGCTRL
+        pin_name = name.rsplit('_', 1)[1]
+        if pin_name in ['I0', 'I1']:
             input_type = 'clock'
 
         ET.SubElement(
@@ -290,9 +337,11 @@ def import_capacity_tile(db, args):
     """ Create a root-level pb_type with the reduced set of pins.
     """
 
-    site = args.site_type
+    site_name = args.site_type
+    tile_name = args.tile
 
-    site_type = db.get_site_type(site)
+    tile_type = db.get_tile_type(tile_name)
+    site_type = db.get_site_type(site_name)
 
     # Wires sink to a site within the tile are input wires.
     input_wires = set()
@@ -300,15 +349,22 @@ def import_capacity_tile(db, args):
     # Wires source from a site within the tile are output wires.
     output_wires = set()
 
-    for site_pin in site_type.get_site_pins():
-        site_type_pin = site_type.get_site_pin(site_pin)
+    for site in tile_type.get_sites():
+        site_type = db.get_site_type(site.type)
 
-        if site_type_pin.direction == prjxray.site_type.SitePinDirection.IN:
-            input_wires.add(site_type_pin.name)
-        elif site_type_pin.direction == prjxray.site_type.SitePinDirection.OUT:
-            output_wires.add(site_type_pin.name)
-        else:
-            assert False, site_type_pin.direction
+        for site_pin in site.site_pins:
+            site_type_pin = site_type.get_site_pin(site_pin.name)
+
+            if site_type_pin.direction == prjxray.site_type.SitePinDirection.IN:
+                if site_pin.wire is not None:
+                    input_wires.add(site_pin.wire)
+            elif site_type_pin.direction == prjxray.site_type.SitePinDirection.OUT:
+                if site_pin.wire is not None:
+                    output_wires.add(site_pin.wire)
+            else:
+                assert False, site_type_pin.direction
+
+    input_wires, output_wires = reduce_wires(input_wires, output_wires)
 
     ##########################################################################
     # Generate the model.xml file                                            #
@@ -321,14 +377,13 @@ def import_capacity_tile(db, args):
         ),
         site_directory=args.site_directory
     )
-    model.add_model_include(site, site)
+    model.add_model_include(site_name, site_name)
     model.write_model()
 
     ##########################################################################
     # Generate the tile.xml file                                             #
     ##########################################################################
 
-    tile_name = args.tile
     equivalent_sites = args.equivalent_sites.split(',')
     tile_xml = start_tile(
         tile_name, args.pin_assignments, input_wires, output_wires,
@@ -349,7 +404,7 @@ def import_capacity_tile(db, args):
     pb_type_xml = start_pb_type(pb_type_name, input_wires, output_wires)
 
     site_pbtype = args.site_directory + "/{0}/{1}.pb_type.xml"
-    site_type_path = site_pbtype.format(site.lower(), site.lower())
+    site_type_path = site_pbtype.format(site_name.lower(), site_name.lower())
     ET.SubElement(pb_type_xml, XI_INCLUDE, {
         'href': site_type_path,
     })
@@ -357,6 +412,10 @@ def import_capacity_tile(db, args):
     cell_pb_type = ET.ElementTree()
     root_element = cell_pb_type.parse(site_type_path)
     site_name = root_element.attrib['name']
+
+    site_tile_pin_map = get_site_tile_pin_map(
+        site_type, input_wires | output_wires
+    )
 
     interconnect_xml = ET.Element('interconnect')
 
@@ -366,7 +425,10 @@ def import_capacity_tile(db, args):
         if site_type_pin.direction == prjxray.site_type.SitePinDirection.IN:
             add_direct(
                 interconnect_xml,
-                input=object_ref(add_vpr_tile_prefix(pb_type_name), site_pin),
+                input=object_ref(
+                    add_vpr_tile_prefix(pb_type_name),
+                    site_tile_pin_map[site_pin]
+                ),
                 output=object_ref(site_name, site_pin)
             )
         elif site_type_pin.direction == prjxray.site_type.SitePinDirection.OUT:
@@ -383,7 +445,10 @@ def import_capacity_tile(db, args):
             add_direct(
                 interconnect_xml,
                 input=object_ref(site_name, site_pin),
-                output=object_ref(add_vpr_tile_prefix(pb_type_name), site_pin),
+                output=object_ref(
+                    add_vpr_tile_prefix(pb_type_name),
+                    site_tile_pin_map[site_pin]
+                ),
             )
         else:
             assert False, site_type_pin.direction
@@ -392,8 +457,8 @@ def import_capacity_tile(db, args):
 
     write_xml(
         os.path.join(
-            args.output_directory, args.tile.lower(),
-            '{}.pb_type.xml'.format(args.tile.lower())
+            args.output_directory, tile_name.lower(),
+            '{}.pb_type.xml'.format(tile_name.lower())
         ), pb_type_xml
     )
 
