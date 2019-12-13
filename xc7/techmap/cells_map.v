@@ -1897,8 +1897,9 @@ module IBUF (
   output O
   );
 
-  parameter IOSTANDARD = "LVCMOS33";
-  parameter IN_TERM = "NONE";
+  parameter IOSTANDARD = "default";
+  parameter IBUF_LOW_PWR = 0;  // TODO: Map this to fasm
+  parameter IN_TERM = "NONE";  // Not supported by Vivado ?
 
   IBUF_VPR # (
     .LVCMOS12_LVCMOS15_LVCMOS18_IN(
@@ -1954,9 +1955,9 @@ module OBUF (
   output O
   );
 
-  parameter IOSTANDARD = "LVCMOS33";
-  parameter DRIVE = 8;
-  parameter SLEW = "FAST";
+  parameter IOSTANDARD = "default";
+  parameter DRIVE = 12;
+  parameter SLEW = "SLEW";
 
   OBUF_VPR # (
     .LVCMOS12_DRIVE_I12(
@@ -2061,10 +2062,11 @@ module IOBUF (
   inout  IO
 );
 
-  parameter IOSTANDARD = "LVCMOS33";
-  parameter DRIVE = 8;
-  parameter SLEW = "FAST";
-  parameter IN_TERM = "NONE";
+  parameter IOSTANDARD = "default";
+  parameter DRIVE = 12;
+  parameter SLEW = "SLOW";
+  parameter IBUF_LOW_PWR = 0;  // TODO: Map this to fasm
+  parameter IN_TERM = "NONE";  // Not supported by Vivado ?
 
   IOBUF_VPR # (
     .LVCMOS12_DRIVE_I12(
