@@ -12,9 +12,9 @@ add_xc7_device_define_type(
     RIOPAD_S
     RIOPAD_SING
     CLK_BUFG_BOT_R
+    CLK_BUFG_TOP_R
     CMT_TOP_L_UPPER_T
     CMT_TOP_R_UPPER_T
-    CLK_BUFG_TOP_R
     HCLK_IOI3
   PB_TYPES
     SLICEL
@@ -23,8 +23,7 @@ add_xc7_device_define_type(
     IOPAD
     IOPAD_M
     IOPAD_S
-    CLK_BUFG_BOT_R
-    CLK_BUFG_TOP_R
+    BUFGCTRL
     PLLE2_ADV
     HCLK_IOI3
   GRAPH_LIMIT 0,103,114,155
