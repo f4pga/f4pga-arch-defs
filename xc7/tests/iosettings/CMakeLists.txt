@@ -41,9 +41,11 @@ function(xc7_iosettings_design MODE BOARD IOSTANDARD DRIVES SLEWS TERMS)
         PARENT_NAME ${DESIGN}
         CLOCK_PINS clk
         CLOCK_PERIODS 10.0
+        # TODO: Vivado target fails due to incorrect BUFG placement
+        DISABLE_DIFF_TEST
         )
 
-    add_dependencies(all_xc7_iosettings ${DESIGN})
+    add_dependencies(all_xc7_iosettings ${DESIGN}_bin)
 
 endfunction()
 
