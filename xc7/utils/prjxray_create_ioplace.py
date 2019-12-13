@@ -4,6 +4,7 @@ import argparse
 import csv
 import json
 import sys
+import os
 import vpr_io_place
 from lib.parse_pcf import parse_simple_pcf
 
@@ -49,13 +50,13 @@ def main():
     parser.add_argument(
         "--iostandard",
         default="LVCMOS33",
-        help='IOSTANDARD to use for pins',
+        help='Default IOSTANDARD to use for pins',
     )
     parser.add_argument(
         "--drive",
         type=int,
         default=12,
-        help='Drive to use for pins',
+        help='Default drive to use for pins',
     )
     parser.add_argument(
         "--net",
@@ -87,6 +88,20 @@ def main():
 
     iostandard_defs = {}
 
+    # Load iostandard constraints. This is a temporary workaround that allows
+    # to pass them into fasm2bels. As soon as there is support for XDC this
+    # will not be needed anymore.
+    # If there is a JSON file with the same name as the PCF file then it is
+    # loaded and used as iostandard constraint source NOT for the design but
+    # to be used in fasm2bels.
+    iostandard_constraints = {}
+
+    fname = args.pcf.name.replace(".pcf", ".json")
+    if os.path.isfile(fname):
+        with open(fname, "r") as fp:
+            iostandard_constraints = json.load(fp)    
+    
+    # Constrain nets
     for pcf_constraint in parse_simple_pcf(args.pcf):
         if not io_place.is_net(pcf_constraint.net):
             print(
@@ -117,22 +132,25 @@ def main():
             comment=pcf_constraint.line_str
         )
 
-        if is_output:
-            iostandard_defs[iob] = {
-                'DRIVE': args.drive,
-                'IOSTANDARD': args.iostandard,
-            }
+        if pcf_constraint.pad in iostandard_constraints:
+            iostandard_defs[iob] = iostandard_constraints[pcf_constraint.pad]
         else:
-            iostandard_defs[iob] = {
-                'IOSTANDARD': args.iostandard,
-            }
+            if is_output:
+                iostandard_defs[iob] = {
+                    'DRIVE': args.drive,
+                    'IOSTANDARD': args.iostandard,
+                }
+            else:
+                iostandard_defs[iob] = {
+                    'IOSTANDARD': args.iostandard,
+                }
 
     io_place.output_io_place(args.output)
 
+    # Write iostandard definitions
     if args.iostandard_defs:
         with open(args.iostandard_defs, 'w') as f:
             json.dump(iostandard_defs, f, indent=2)
-
 
 if __name__ == '__main__':
     main()
