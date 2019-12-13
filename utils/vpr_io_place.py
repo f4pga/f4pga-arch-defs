@@ -1,6 +1,7 @@
 from __future__ import print_function
 from collections import OrderedDict, namedtuple
 import itertools
+import re
 import eblif
 import lxml.etree as ET
 
@@ -11,7 +12,8 @@ HEADER_TEMPLATE = """\
 #{s:-^{nl}} --  --  -    ----"""
 
 CONSTRAINT_TEMPLATE = '{name:<{nl}} {x: 3} {y: 3} {z: 2}  # {comment}'
-
+INOUT_REGEX = re.compile("^(.+)(_\$inp|_\$out)(.*)$")
+NETNAME_REGEX = re.compile("(.+?)(\[[0-9]+\]$|$)")
 
 class IoPlace(object):
     def __init__(self):
@@ -31,12 +33,14 @@ class IoPlace(object):
         # Build a net name map that maps products of an inout port split into
         # their formet name.
         #
-        # For example, an inout port 'A' is split into 'A_$inp' and 'A_$outp'
+        # For example, an inout port 'A' is split into 'A_$inp' and 'A_$out',
+        # port B[2] into 'B_$inp[2]' and 'B_$out[2]'.
         self.net_map = {}
         self.inout_nets = set()
         for net in itertools.chain(self.inputs, self.outputs):
-            if net.endswith("_$inp") or net.endswith("_$out"):
-                alias = net.rsplit("_", 1)[0]
+            match = INOUT_REGEX.match(net)
+            if match:
+                alias = match.group(1) + match.group(3)
                 self.inout_nets.add(alias)
                 self.net_map[net] = alias
             else:
@@ -74,7 +78,10 @@ class IoPlace(object):
         # This is an inout net
         if net_name in self.inout_nets:
             for prefix, suffix in zip(["", "out:"], ["_$inp", "_$out"]):
-                name = prefix + net_name + suffix
+
+                match = NETNAME_REGEX.match(net_name)
+                name = prefix + match.group(1) + suffix + match.group(2)
+
                 self.constraints[name] = IoConstraint(
                     name=name,
                     x=loc[0],
