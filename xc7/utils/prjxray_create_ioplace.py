@@ -99,8 +99,8 @@ def main():
     fname = args.pcf.name.replace(".pcf", ".json")
     if os.path.isfile(fname):
         with open(fname, "r") as fp:
-            iostandard_constraints = json.load(fp)    
-    
+            iostandard_constraints = json.load(fp)
+
     # Constrain nets
     for pcf_constraint in parse_simple_pcf(args.pcf):
         if not io_place.is_net(pcf_constraint.net):
@@ -151,6 +151,7 @@ def main():
     if args.iostandard_defs:
         with open(args.iostandard_defs, 'w') as f:
             json.dump(iostandard_defs, f, indent=2)
+
 
 if __name__ == '__main__':
     main()
