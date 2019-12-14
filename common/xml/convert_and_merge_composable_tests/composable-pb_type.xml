@@ -1,9 +1,13 @@
 <?xml version="1.0" ?>
 <pb_type name="top" num_pb="1" xmlns:xi="http://www.w3.org/2001/XInclude">
-  <pb_type name="top_inner" num_pb="1" >
-    <xi:include href="composable-pb_type-inner.xml" xpointer="xpointer(pb_type/child::node())"/>
-  </pb_type>
-  <pb_type name="middle" num_pb="1">
-    <xi:include href="composable-pb_type-middle.xml" xpointer="xpointer(pb_type/child::node())"/>
-  </pb_type>
+  <pb_array num_pb="1">
+    <pb_type name="top_inner">
+      <xi:include href="composable-pb_type-inner.xml" xpointer="xpointer(pb_type/child::node())"/>
+    </pb_type>
+    <pb_type name="middle">
+      <pb_array num_pb="1">
+        <xi:include href="composable-pb_type-middle.xml" xpointer="xpointer(pb_type/child::node())"/>
+      </pb_array>
+    </pb_type>
+  </pb_array>
 </pb_type>

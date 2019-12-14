@@ -14,6 +14,10 @@
       <xsl:if test="blif_model">
         <xsl:attribute name="blif_model"><xsl:value-of select="blif_model/text()"/></xsl:attribute>
       </xsl:if>
+      <!-- Inherit 'num_pb' attribute from pb_array elements -->
+      <xsl:if test="parent::pb_array/@num_pb">
+        <xsl:attribute name="num_pb"><xsl:value-of select="parent::pb_array/@num_pb"/></xsl:attribute>
+      </xsl:if>
       <!--
         Convert
           <pb_type><pb_class>XXX</pb_class></pb_type>
@@ -30,5 +34,10 @@
 
   <xsl:template match="pb_type/blif_model"/>
   <xsl:template match="pb_type/pb_class"/>
+
+  <!-- Copy pb_type elements out of pb_array elements -->
+  <xsl:template match="pb_array">
+    <xsl:apply-templates/>
+  </xsl:template>
 
 </xsl:stylesheet>
