@@ -1420,6 +1420,7 @@ VexRiscv VexRiscv(
 	.iBusWishbone_WE(vexriscv_ibus_we)
 );
 
+(* LOC="PLLE2_ADV_X1Y1" *)
 PLLE2_ADV #(
 	.CLKFBOUT_MULT(4'd8),
 	.CLKIN1_PERIOD(10.0),
