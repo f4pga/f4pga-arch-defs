@@ -9,6 +9,21 @@ def process_hclk_ioi3(conn, top, tile, features):
             have_idelayctrl = True
             break
 
+        if 'VREF' in f.feature:
+            # HCLK_IOI3_X113Y26.VREF.V_675_MV
+            tile, vref_str, vref_value = f.feature.split('.')
+            assert vref_str == 'VREF', f
+            v_str, value, mv_str = vref_value.split('_')
+            assert v_str == 'V', f
+            assert mv_str == 'MV', f
+
+            iobank = top.find_iobank(tile.split('_')[-1])
+
+            top.add_extra_tcl_line(
+                'set_property INTERNAL_VREF 0.{VREF} [get_iobanks {iobank}]'.
+                format(VREF=value, iobank=iobank)
+            )
+
     if not have_idelayctrl:
         return
 

@@ -1239,6 +1239,15 @@ class Module(object):
         # .cname value.
         self.cname_map = {}
 
+        # Extra TCL lines (e.g. VREF)
+        self.extra_tcl = []
+
+        # IO bank lookup (if part was provided).
+        self.iobank_lookup = {}
+
+    def add_extra_tcl_line(self, tcl_line):
+        self.extra_tcl.append(tcl_line)
+
     def set_iostandard_defs(self, defs):
         self.iostandard_defs = defs
 
@@ -1703,3 +1712,12 @@ set_property FIXED_ROUTE $route $net"""
 
     def lookup_cname(self, pin, idx, net):
         return self.cname_map.get((pin, idx, net))
+
+    def output_extra_tcl(self):
+        return self.extra_tcl
+
+    def set_io_banks(self, iobanks):
+        self.iobank_lookup = dict((v, int(k)) for k, v in iobanks.items())
+
+    def find_iobank(self, hclk_ioi3_tile):
+        return self.iobank_lookup[hclk_ioi3_tile]
