@@ -193,7 +193,7 @@ function(VPR_TEST_PB_TYPE)
     OUTPUT "${YOSYS_OUTPUT_BLIF}"
     DEPENDS
       ${YOSYS} ${YOSYS_TARGET}
-      ${DEPENS_EBLIF} ${TECHMAP_DEP}
+      ${DEPENDS_EBLIF} ${TECHMAP_DEP}
     COMMAND
     ${YOSYS} -p "read_verilog ${PB_TYPE_VERILOG}\; hierarchy -top ${VPR_TEST_PB_TYPE_TOP_MODULE}\; techmap -map ${PB_TYPE_TECHMAP}\; flatten\; proc\; opt\; write_blif ${YOSYS_OUTPUT_BLIF}"
     WORKING_DIRECTORY
