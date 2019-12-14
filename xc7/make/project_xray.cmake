@@ -600,6 +600,20 @@ function(PROJECT_XRAY_EQUIV_TILE)
 endfunction()
 
 function(PROJECT_XRAY_TILE_CAPACITY)
+  # ~~~
+  # PROJECT_XRAY_TILE_CAPACITY(
+  #   PART <part>
+  #   TILE <tile>
+  #   SITE_TYPE <site type>
+  #   SITE_COORDS [X|Y|XY]
+  #   )
+  # ~~~
+  #
+  # Import a tile from project xray that contains exactly 1 site type, and emit
+  # a tile with capacity for each instance of that site type.
+  #
+  # Future support: Emit tiles with capacity that contain more than 1 site type
+  # once VPR supports it.
   set(options)
   set(oneValueArgs PART TILE SITE_TYPE SITE_COORDS)
   set(multiValueArgs)
