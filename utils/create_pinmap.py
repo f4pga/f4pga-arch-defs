@@ -27,7 +27,7 @@ Pin = namedtuple('Pin', 'name is_clock is_input is_output')
 def get_free_pin(available_pins, direction):
     possible_pins = []
     for pin in available_pins:
-        if pin.is_input and direction == 'input':
+        if pin.is_input and not pin.is_clock and direction == 'input':
             possible_pins.append(pin)
         if pin.is_output and direction == 'output':
             possible_pins.append(pin)
