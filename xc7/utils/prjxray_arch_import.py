@@ -244,7 +244,22 @@ PREFIX_REQUIRED = {
     "IDELAY": ("Y", 2),
     "ILOGIC": ("Y", 2),
     "OLOGIC": ("Y", 2),
+    "BUFGCTRL": ("XY", (2, 16)),
 }
+
+
+def make_prefix(site_name, x, y):
+    """ Make tile FASM prefix for a given site. """
+    site_type, _ = site_name.split('_')
+
+    prefix_required = PREFIX_REQUIRED[site_type]
+    if prefix_required[0] == 'Y':
+        return site_type, '{}_Y{}'.format(site_type, y % prefix_required[1])
+    elif prefix_required[0] == 'XY':
+        mod_x, mod_y = prefix_required[1]
+        return site_type, '{}_X{}Y{}'.format(site_type, x % mod_x, y % mod_y)
+    else:
+        assert False, (site_type, prefix_required)
 
 
 def get_site_prefixes(conn, tile_pkey):
@@ -275,18 +290,50 @@ AND
   """, (tile_pkey, tile_pkey, tile_pkey)
     )
     for site_name, x, y in cur:
-        k, _ = site_name.split('_')
-
-        prefix_required = PREFIX_REQUIRED[k]
-        if prefix_required[0] == 'Y':
-            site_prefixes[k] = '{}_Y{}'.format(k, y % prefix_required[1])
-        else:
-            assert False, k
+        site_type, prefix = make_prefix(site_name, x, y)
+        assert site_type not in site_prefixes
+        site_prefixes[site_type] = prefix
 
     return site_prefixes
 
 
-def get_fasm_tile_prefix(conn, g, tile_pkey, site_as_tile_pkey):
+def create_capacity_prefix(c, tile_prefix, tile_pkey, tile_capacity):
+    """ Create FASM prefixes for all sites located within specified tile.
+
+    This function should be invoke when the relevant tile has capacity > 1
+    and therefore there should be prefixes for each instance.
+
+    """
+    c.execute(
+        """
+SELECT site_instance.name, site_instance.x_coord, site_instance.y_coord
+FROM site_instance
+INNER JOIN site ON site_instance.site_pkey = site.pkey
+INNER JOIN site_type ON site.site_type_pkey = site_type.pkey
+WHERE site_instance.phy_tile_pkey IN (
+  SELECT
+    phy_tile_pkey
+  FROM
+    tile
+  WHERE
+    pkey = ?
+)
+ORDER BY site_type.name, site_instance.x_coord, site_instance.y_coord;""",
+        (tile_pkey, )
+    )
+
+    prefixes = []
+    for site_name, x, y in c:
+        site_type, prefix = make_prefix(site_name, x, y)
+        prefixes.append('{}.{}.{}'.format(tile_prefix, site_type, prefix))
+
+    assert len(prefixes
+               ) == tile_capacity, (tile_pkey, tile_capacity, len(prefixes))
+
+    return " ".join(prefixes)
+
+
+def get_fasm_tile_prefix(conn, g, tile_pkey, site_as_tile_pkey, tile_capacity):
     """ Returns FASM prefix of specified tile. """
     c = conn.cursor()
 
@@ -325,6 +372,7 @@ WHERE
             tile_type_map[tile_type] = tilename
 
     if len(tile_type_map) > 1:
+        assert tile_capacity == 1
         tile_type_map.update(get_site_prefixes(conn, tile_pkey))
         return lambda single_xml: attach_multiple_prefixes_to_tile(
             single_xml, tile_type_map
@@ -337,6 +385,7 @@ WHERE
         # If this tile is site_as_tile, add an additional prefix of the site
         # that is embedded in the tile.
         if site_as_tile_pkey is not None:
+            assert tile_capacity == 1
             c.execute(
                 "SELECT site_pkey FROM site_as_tile WHERE pkey = ?",
                 (site_as_tile_pkey, )
@@ -357,6 +406,11 @@ WHERE
             site_type_name = c.fetchone()[0]
 
             tile_prefix = '{}.{}_X{}'.format(tile_prefix, site_type_name, x)
+
+        if tile_capacity > 1:
+            tile_prefix = create_capacity_prefix(
+                c, tile_prefix, tile_pkey, tile_capacity
+            )
 
         return lambda single_xml: attach_prefix_to_tile(
             single_xml, tile_prefix
@@ -399,7 +453,9 @@ def attach_multiple_prefixes_to_tile(single_xml, tile_type_map):
     ) + '\n'
 
 
-def get_tiles(conn, g, roi, synth_loc_map, synth_tile_map, tile_types):
+def get_tiles(
+        conn, g, roi, synth_loc_map, synth_tile_map, tile_types, tile_capacity
+):
     """ Yields tiles in grid.
 
     Yields
@@ -445,7 +501,9 @@ def get_tiles(conn, g, roi, synth_loc_map, synth_tile_map, tile_types):
 
         vpr_tile_type = add_vpr_tile_prefix(tile_type)
 
-        meta_fun = get_fasm_tile_prefix(conn, g, tile_pkey, site_as_tile_pkey)
+        meta_fun = get_fasm_tile_prefix(
+            conn, g, tile_pkey, site_as_tile_pkey, tile_capacity[tile_type]
+        )
 
         yield vpr_tile_type, grid_x, grid_y, meta_fun
 
@@ -595,12 +653,21 @@ def main():
         )
 
     tiles_xml = ET.SubElement(arch_xml, 'tiles')
+    tile_capacity = {}
     for tile_type in tile_types:
-        ET.SubElement(
-            tiles_xml, xi_include, {
-                'href': tile_xml_spec.format(tile_type.lower()),
-            }
-        )
+        uri = tile_xml_spec.format(tile_type.lower())
+        ET.SubElement(tiles_xml, xi_include, {
+            'href': uri,
+        })
+
+        with open(uri) as f:
+            tile_xml = ET.parse(f, ET.XMLParser())
+
+            tile_root = tile_xml.getroot()
+            assert tile_root.tag == 'tile'
+            tile_capacity[tile_type] = 1
+            if 'capacity' in tile_root.attrib:
+                tile_capacity[tile_type] = int(tile_root.attrib['capacity'])
 
     complexblocklist_xml = ET.SubElement(arch_xml, 'complexblocklist')
     for pb_type in pb_types:
@@ -688,6 +755,7 @@ def main():
                 synth_loc_map=synth_loc_map,
                 synth_tile_map=synth_tile_map,
                 tile_types=tile_types,
+                tile_capacity=tile_capacity,
         ):
             single_xml = ET.SubElement(
                 fixed_layout_xml, 'single', {

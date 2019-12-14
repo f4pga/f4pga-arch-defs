@@ -598,3 +598,61 @@ function(PROJECT_XRAY_EQUIV_TILE)
     add_dependencies(${TARGET} ${TARGET0})
   endforeach()
 endfunction()
+
+function(PROJECT_XRAY_TILE_CAPACITY)
+  # ~~~
+  # PROJECT_XRAY_TILE_CAPACITY(
+  #   PART <part>
+  #   TILE <tile>
+  #   SITE_TYPE <site type>
+  #   SITE_COORDS [X|Y|XY]
+  #   )
+  # ~~~
+  #
+  # Import a tile from project xray that contains exactly 1 site type, and emit
+  # a tile with capacity for each instance of that site type.
+  #
+  # Future support: Emit tiles with capacity that contain more than 1 site type
+  # once VPR supports it.
+  set(options)
+  set(oneValueArgs PART TILE SITE_TYPE SITE_COORDS)
+  set(multiValueArgs)
+  cmake_parse_arguments(
+    PROJECT_XRAY_TILE_CAPACITY
+    "${options}"
+    "${oneValueArgs}"
+    "${multiValueArgs}"
+    ${ARGN}
+  )
+
+  set(DEPS "")
+  set(TILE ${PROJECT_XRAY_TILE_CAPACITY_TILE})
+  set(PART ${PROJECT_XRAY_TILE_CAPACITY_PART})
+
+  append_file_dependency(DEPS ${symbiflow-arch-defs_SOURCE_DIR}/xc7/archs/${PART}/pin_assignments.json)
+  get_file_location(PIN_ASSIGNMENTS ${symbiflow-arch-defs_SOURCE_DIR}/xc7/archs/${PART}/pin_assignments.json)
+  get_target_property_required(PYTHON3 env PYTHON3)
+  get_target_property(PYTHON3_TARGET env PYTHON3_TARGET)
+
+  set(TILE_CAPACITY_IMPORT ${symbiflow-arch-defs_SOURCE_DIR}/xc7/utils/prjxray_import_tile_capacity.py)
+
+  string(TOLOWER ${TILE} TILE_LOWER)
+
+  add_custom_command(
+    OUTPUT ${TILE_LOWER}.tile.xml
+    COMMAND ${CMAKE_COMMAND} -E env PYTHONPATH=${PRJXRAY_DIR}:${symbiflow-arch-defs_SOURCE_DIR}/utils
+    ${PYTHON3} ${TILE_CAPACITY_IMPORT}
+      --db_root ${PRJXRAY_DB_DIR}/${PART}/
+      --output_directory ${CMAKE_CURRENT_BINARY_DIR}
+      --site_directory ${symbiflow-arch-defs_BINARY_DIR}/xc7/primitives
+      --tile_type ${TILE}
+      --pb_type ${PROJECT_XRAY_TILE_CAPACITY_SITE_TYPE}
+      --pin_assignments ${PIN_ASSIGNMENTS}
+      --site_coords ${PROJECT_XRAY_TILE_CAPACITY_SITE_COORDS}
+    DEPENDS
+      ${TILE_CAPACITY_IMPORT}
+      ${DEPS}
+      ${PYTHON3} ${PYTHON3_TARGET} simplejson
+    )
+  add_file_target(FILE ${TILE_LOWER}.tile.xml GENERATED)
+endfunction()
