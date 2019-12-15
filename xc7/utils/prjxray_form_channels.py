@@ -484,16 +484,38 @@ def import_phy_grid(db, grid, conn, get_switch, get_switch_timing):
             db, write_cur, tile_types, site_types, tile_type, get_switch_timing
         )
 
+    clock_regions = {}
+
     for tile in grid.tiles():
         gridinfo = grid.gridinfo_at_tilename(tile)
+
+        clock_region_pkey = None
+        if gridinfo.clock_region is not None:
+            if gridinfo.clock_region.name not in clock_regions:
+                write_cur.execute("""
+INSERT INTO clock_region(name, x_coord, y_coord)
+VALUES (?, ?, ?)""", (
+                    gridinfo.clock_region.name,
+                    gridinfo.clock_region.x,
+                    gridinfo.clock_region.y,
+                ))
+                clock_regions[gridinfo.clock_region.name] = write_cur.lastrowid
+
+            clock_region_pkey = clock_regions[gridinfo.clock_region.name]
+
         loc = grid.loc_of_tilename(tile)
         # tile: pkey name tile_type_pkey grid_x grid_y
         write_cur.execute(
             """
-INSERT INTO phy_tile(name, tile_type_pkey, grid_x, grid_y)
+INSERT INTO phy_tile(name, tile_type_pkey, grid_x, grid_y, clock_region_pkey)
 VALUES
-  (?, ?, ?, ?)""",
-            (tile, tile_types[gridinfo.tile_type], loc.grid_x, loc.grid_y)
+  (?, ?, ?, ?, ?)""",
+            (
+                tile,
+                tile_types[gridinfo.tile_type],
+                loc.grid_x,
+                loc.grid_y,
+                clock_region_pkey)
         )
         phy_tile_pkey = write_cur.lastrowid
 
