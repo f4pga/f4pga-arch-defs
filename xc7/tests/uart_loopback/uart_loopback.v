@@ -1,8 +1,13 @@
 module top (
-	output UART_TX,
-	input  UART_RX
+	input  wire clk,
+
+	input  wire rx,
+	output wire tx,
+
+	input  wire [7:0] sw,
+	output wire [7:0] led
 );
 
-	assign UART_TX = UART_RX;
+	assign tx = rx;
 
 endmodule

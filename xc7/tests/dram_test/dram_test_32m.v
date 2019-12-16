@@ -1,9 +1,11 @@
 module top (
-    input  clk,
-    input rx,
-    output tx,
-    input [15:0] sw,
-    output [15:0] led
+    input  wire clk,
+
+    input  wire rx,
+    output wire tx,
+
+    input  wire [15:0] sw,
+    output wire [15:0] led
 );
     reg nrst = 0;
     wire tx_baud_edge;
