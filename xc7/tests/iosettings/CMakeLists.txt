@@ -1,5 +1,4 @@
-add_custom_target(all_xc7_iosettings)
-add_dependencies(all_xc7_tests all_xc7_iosettings)
+add_custom_target(all_xc7_iosettings_diff_fasm)
 
 function(xc7_iosettings_design MODE BOARD IOSTANDARD DRIVES SLEWS TERMS)
 
@@ -34,6 +33,7 @@ function(xc7_iosettings_design MODE BOARD IOSTANDARD DRIVES SLEWS TERMS)
         INPUT_IO_FILE ${PCF_FILE}
         SOURCES ${VERILOG_FILE}
         EXPLICIT_ADD_FILE_TARGET
+        BIT_TO_V_EXTRA_ARGS --allow-non-dedicated-clk-routes
         )
 
     add_vivado_target(
@@ -41,15 +41,13 @@ function(xc7_iosettings_design MODE BOARD IOSTANDARD DRIVES SLEWS TERMS)
         PARENT_NAME ${DESIGN}
         CLOCK_PINS clk
         CLOCK_PERIODS 10.0
-        # TODO: Vivado target fails due to incorrect BUFG placement
-        DISABLE_DIFF_TEST
         )
 
-    add_dependencies(all_xc7_iosettings ${DESIGN}_bin)
+    add_dependencies(all_xc7_iosettings_diff_fasm ${DESIGN}_vivado_diff_fasm)
 
 endfunction()
 
-
+set(BOARD "arty")
 foreach(MODE input output inout)
 
     if(MODE STREQUAL "input")
@@ -59,14 +57,14 @@ foreach(MODE input output inout)
     endif()
 
     foreach(IOSTANDARD LVCMOS15 LVCMOS25 LVCMOS33)
-        xc7_iosettings_design(${MODE} "arty" ${IOSTANDARD} "4 8 12 16" "SLOW FAST" ${TERMS})
+        xc7_iosettings_design(${MODE} ${BOARD} ${IOSTANDARD} "4 8 12 16" "SLOW FAST" "NONE")
     endforeach()
 
     foreach(IOSTANDARD LVCMOS18 LVTTL)
-        xc7_iosettings_design(${MODE} "arty" ${IOSTANDARD} "4 8 12 16 24" "SLOW FAST" ${TERMS})
+        xc7_iosettings_design(${MODE} ${BOARD} ${IOSTANDARD} "4 8 12 16" "SLOW FAST" "NONE")
     endforeach()
 
-    xc7_iosettings_design(${MODE} "arty" LVCMOS12 "4 8 12" "SLOW FAST" ${TERMS})
-    xc7_iosettings_design(${MODE} "arty" SSTL135 "0" "SLOW FAST" ${TERMS})
+    xc7_iosettings_design(${MODE} ${BOARD} LVCMOS12 "4 8 12" "SLOW FAST" "NONE")
+    xc7_iosettings_design(${MODE} ${BOARD} SSTL135 "0" "SLOW FAST" ${TERMS})
 
 endforeach()
