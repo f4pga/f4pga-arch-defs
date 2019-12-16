@@ -265,6 +265,11 @@ def main():
         net_map = load_net_list(conn, args.rr_graph, args.route_file)
         top.set_net_map(net_map)
 
+    if args.part:
+        with open(os.path.join(args.db_root, args.part + '.json')) as f:
+            part_data = json.load(f)
+            top.set_io_banks(part_data['iobanks'])
+
     if args.eblif:
         with open(args.eblif) as f:
             parsed_eblif = eblif.parse_blif(f)
@@ -311,6 +316,9 @@ def main():
             print(l, file=f)
 
         for l in top.output_disabled_drcs():
+            print(l, file=f)
+
+        for l in top.output_extra_tcl():
             print(l, file=f)
 
 

@@ -63,6 +63,7 @@ function(ADD_XC7_ARCH_DEFINE)
     PYTHONPATH=${symbiflow-arch-defs_SOURCE_DIR}/utils \
     \${PYTHON3} \${PLACE_CONSTR_TOOL} \
         --net \${OUT_NET} \
+        --arch \${DEVICE_MERGED_FILE_LOCATION} \
         --input /dev/stdin \
         --output /dev/stdout \
         \${PLACE_CONSTR_TOOL_EXTRA_ARGS}"

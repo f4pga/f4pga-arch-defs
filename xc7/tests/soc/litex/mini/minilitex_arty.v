@@ -1377,11 +1377,13 @@ initial begin
 	$readmemh("mem_2.init", mem_2);
 end
 
+(* LOC="BUFGCTRL_X0Y16" *)
 BUFG BUFG(
 	.I(clkout),
 	.O(clkout_buf)
 );
 
+(* LOC="BUFGCTRL_X0Y17" *)
 BUFG BUFG_1(
 	.I(clk100),
 	.O(pll_clkin)
@@ -1418,6 +1420,7 @@ VexRiscv VexRiscv(
 	.iBusWishbone_WE(vexriscv_ibus_we)
 );
 
+(* LOC="PLLE2_ADV_X1Y1" *)
 PLLE2_ADV #(
 	.CLKFBOUT_MULT(4'd8),
 	.CLKIN1_PERIOD(10.0),
