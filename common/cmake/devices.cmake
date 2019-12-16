@@ -856,6 +856,7 @@ function(ADD_FPGA_TARGET)
   #   [ASSERT_USAGE <usage_spec>]
   #   [DEFINES <definitions>]
   #   [SDC_FILE <sdc file>]
+  #   [BIT_TO_V_EXTRA_ARGS]
   #   )
   # ~~~
   #
@@ -898,7 +899,7 @@ function(ADD_FPGA_TARGET)
   #
   set(options EXPLICIT_ADD_FILE_TARGET EMIT_CHECK_TESTS NO_SYNTHESIS ROUTE_ONLY)
   set(oneValueArgs NAME TOP BOARD INPUT_IO_FILE EQUIV_CHECK_SCRIPT AUTOSIM_CYCLES ASSERT_USAGE SDC_FILE INPUT_XDC_FILE)
-  set(multiValueArgs SOURCES TESTBENCH_SOURCES DEFINES)
+  set(multiValueArgs SOURCES TESTBENCH_SOURCES DEFINES BIT_TO_V_EXTRA_ARGS)
   cmake_parse_arguments(
     ADD_FPGA_TARGET
     "${options}"
@@ -1530,10 +1531,6 @@ function(ADD_FPGA_TARGET)
     if(NOT ${NO_BIT_TO_V})
         # Generate verilog from bitstream
         # -------------------------------------------------------------------------
-        get_target_property(BIT_TO_V_EXTRA_ARGS ${BOARD} BIT_TO_V_EXTRA_ARGS)
-        if (${BIT_TO_V_EXTRA_ARGS} STREQUAL NOTFOUND)
-          set(BIT_TO_V_EXTRA_ARGS "")
-        endif()
 
         set(OUT_BIT_VERILOG ${OUT_LOCAL}/${TOP}_bit.v)
         get_target_property_required(BIT_TO_V ${ARCH} BIT_TO_V)
@@ -1543,12 +1540,26 @@ function(ADD_FPGA_TARGET)
           BIT_TO_V_CMD_FOR_TARGET_LIST UNIX_COMMAND ${BIT_TO_V_CMD_FOR_TARGET}
         )
 
+        get_target_property(BIT_TO_V_EXTRA_ARGS ${BOARD} BIT_TO_V_EXTRA_ARGS)
+        if (${BIT_TO_V_EXTRA_ARGS} STREQUAL NOTFOUND)
+          set(BIT_TO_V_EXTRA_ARGS "")
+        endif()
+
+        separate_arguments(
+          BIT_TO_V_EXTRA_ARGS_LIST UNIX_COMMAND ${BIT_TO_V_EXTRA_ARGS}
+        )
+        set(BIT_TO_V_CMD_FOR_TARGET_LIST ${BIT_TO_V_CMD_FOR_TARGET_LIST} ${BIT_TO_V_EXTRA_ARGS_LIST})
+
+        separate_arguments(
+          BIT_TO_V_EXTRA_ARGS_LIST UNIX_COMMAND ${ADD_FPGA_TARGET_BIT_TO_V_EXTRA_ARGS}
+        )
+        set(BIT_TO_V_CMD_FOR_TARGET_LIST ${BIT_TO_V_CMD_FOR_TARGET_LIST} ${BIT_TO_V_EXTRA_ARGS_LIST})
+
         add_custom_command(
         OUTPUT ${OUT_BIT_VERILOG}
         COMMAND ${BIT_TO_V_CMD_FOR_TARGET_LIST}
         DEPENDS ${BIT_TO_V} ${OUT_BITSTREAM} ${OUT_BIN}
         )
-
 
         add_output_to_fpga_target(${NAME} BIT_V ${OUT_LOCAL_REL}/${TOP}_bit.v)
         get_file_target(BIT_V_TARGET ${OUT_LOCAL_REL}/${TOP}_bit.v)
