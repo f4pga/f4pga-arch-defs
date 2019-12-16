@@ -604,6 +604,7 @@
   <xs:complexType name="mode">
     <xs:choice maxOccurs="unbounded" minOccurs="0">
       <xs:element name="pb_type" type="pb_type"/>
+      <xs:element name="pb_array" type="pb_array"/>
       <xs:element name="interconnect" type="interconnect"/>
       <xs:element name="pinlocations" type="pinlocations"/>
       <xs:element name="switchblock_locations" type="switchblock_locations"/>
@@ -657,6 +658,7 @@
   <xs:complexType name="pb_type">
     <xs:choice maxOccurs="unbounded" minOccurs="0">
       <xs:element name="pb_type" type="pb_type"/>
+      <xs:element name="pb_array" type="pb_array"/>
       <xs:element name="input" type="input_port"/>
       <xs:element name="output" type="output_port"/>
       <xs:element name="clock" type="clock_port"/>
@@ -670,6 +672,12 @@
     <xs:attribute name="num_pb" type="xs:int"/>
     <xs:attribute name="blif_model" type="xs:string"/>
     <xs:attribute name="class" type="pb_type_class"/>
+  </xs:complexType>
+
+  <xs:complexType name="pb_array">
+    <xs:sequence>
+      <xs:element name="pb_type" type="pb_type" maxOccurs="unbounded"/>
+    </xs:sequence>
   </xs:complexType>
 
   <xs:simpleType name="segment_type">
