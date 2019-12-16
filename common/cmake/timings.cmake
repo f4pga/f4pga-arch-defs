@@ -28,6 +28,7 @@ function(UPDATE_ARCH_TIMINGS)
         ${update_arch_timings}
         ${input}
       COMMAND
+      PYTHONPATH=${symbiflow-arch-defs_SOURCE_DIR}/third_party/python-sdf-timing:${symbiflow-arch-defs_BINARY_DIR}/env/conda/lib/python3.7/site-packages
         ${PYTHON3} ${update_arch_timings}
           --sdf_dir ${SDF_TIMING_DIRECTORY}
           --bels_map ${BELS_MAP}
