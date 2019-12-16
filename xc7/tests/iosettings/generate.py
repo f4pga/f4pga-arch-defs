@@ -177,7 +177,10 @@ set_io clk {}
                 index=index
             )
 
-            pcf += "set_io out[{}] {}\n".format(index, pin)
+            if num_outputs > 1:
+                pcf += "set_io out[{}] {}\n".format(index, pin)
+            else:
+                pcf += "set_io out {}\n".format(pin)
 
             iosettings[pin] = {k: unquote(v) for k, v in params.items()}
             index += 1
@@ -248,8 +251,12 @@ set_io clk {}
             index=index
         )
 
-        pcf += "set_io inp[{}] {}\n".format(index, pin)
-        pcf += "set_io led[{}] {}\n".format(index, PINOUT[board]["led"][index])
+        if num_pins > 1:
+            pcf += "set_io inp[{}] {}\n".format(index, pin)
+            pcf += "set_io led[{}] {}\n".format(index, PINOUT[board]["led"][index])
+        else:
+            pcf += "set_io inp {}\n".format(pin)
+            pcf += "set_io led {}\n".format(PINOUT[board]["led"][index])
 
         iosettings[pin] = {k: unquote(v) for k, v in params.items()}
         index += 1
@@ -351,10 +358,14 @@ set_io clk {}
                 index=index
             )
 
-            pcf += "set_io ino[{}] {}\n".format(index, pin)
-            pcf += "set_io led[{}] {}\n".format(
-                index, PINOUT[board]["led"][index]
-            )
+            if num_pins > 1:
+                pcf += "set_io ino[{}] {}\n".format(index, pin)
+                pcf += "set_io led[{}] {}\n".format(
+                    index, PINOUT[board]["led"][index]
+                )
+            else:
+                pcf += "set_io ino {}\n".format(pin)
+                pcf += "set_io led {}\n".format(PINOUT[board]["led"][index])
 
             iosettings[pin] = {k: unquote(v) for k, v in params.items()}
             index += 1
