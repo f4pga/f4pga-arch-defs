@@ -4,8 +4,8 @@ add_file_target(FILE srl32_chain_tb.v SCANNER_TYPE verilog)
 add_fpga_target(
   NAME srl32_chain
   BOARD basys3
-  INPUT_IO_FILE ../../common/basys3.pcf
-  SOURCES basys3_top.v ../common/srl32_chain_seg.v ../common/srl_shift_tester.v ../common/rom.v
+  INPUT_IO_FILE ${COMMON}/basys3.pcf
+  SOURCES basys3_top.v ${SRL_COMMON}/srl32_chain_seg.v ${SRL_COMMON}/srl_shift_tester.v ${SRL_COMMON}/rom.v
   TESTBENCH_SOURCES srl32_chain_tb.v
   EXPLICIT_ADD_FILE_TARGET
   )

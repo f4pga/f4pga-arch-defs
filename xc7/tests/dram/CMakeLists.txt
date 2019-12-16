@@ -1,102 +1,35 @@
-add_fpga_target(
-  NAME dram_4_32x1s
-  BOARD basys3
-  INPUT_IO_FILE dram_4_32x1s.pcf
-  SOURCES dram_4_32x1s.v
-  ASSERT_USAGE SYN-OUTPAD=4,SYN-INPAD=11,BLK-TL-SLICEM=1
-  )
-
-add_fpga_target(
-  NAME dram_8_32x1s
-  BOARD basys3
-  INPUT_IO_FILE dram_8_32x1s.pcf
-  SOURCES dram_8_32x1s.v
-  ASSERT_USAGE SYN-OUTPAD=8,SYN-INPAD=11,BLK-TL-SLICEM=1
-  )
-
-add_fpga_target(
-  NAME dram_4_32x2s
-  BOARD basys3
-  INPUT_IO_FILE dram_4_32x2s.pcf
-  SOURCES dram_4_32x2s.v
-  ASSERT_USAGE SYN-OUTPAD=8,SYN-INPAD=15,BLK-TL-SLICEM=1
-  )
-
-add_fpga_target(
-  NAME dram_2_32x1d
-  BOARD basys3
-  INPUT_IO_FILE dram_2_32x1d.pcf
-  SOURCES dram_2_32x1d.v
-  ASSERT_USAGE SYN-OUTPAD=4,SYN-INPAD=14,BLK-TL-SLICEM=1
-  )
-
-add_fpga_target(
-  NAME dram_4_64x1s
-  BOARD basys3
-  INPUT_IO_FILE dram_4_64x1s.pcf
-  SOURCES dram_4_64x1s.v
-  ASSERT_USAGE SYN-OUTPAD=4,SYN-INPAD=12,BLK-TL-SLICEM=1
-  )
-
-add_fpga_target(
-  NAME dram_2_64x1d
-  BOARD basys3
-  INPUT_IO_FILE dram_2_64x1d.pcf
-  SOURCES dram_2_64x1d.v
-  ASSERT_USAGE SYN-OUTPAD=4,SYN-INPAD=16,BLK-TL-SLICEM=1
-  )
-
-add_fpga_target(
-  NAME dram_2_128x1s
-  BOARD basys3
-  INPUT_IO_FILE dram_2_128x1s.pcf
-  SOURCES dram_2_128x1s.v
-  ASSERT_USAGE SYN-OUTPAD=2,SYN-INPAD=11,BLK-TL-SLICEM=1
-  )
-
-add_fpga_target(
-  NAME dram_1_128x1d
-  BOARD basys3
-  INPUT_IO_FILE dram_1_128x1d.pcf
-  SOURCES dram_1_128x1d.v
-  ASSERT_USAGE SYN-OUTPAD=2,SYN-INPAD=17,BLK-TL-SLICEM=1
-  )
-
-add_fpga_target(
-  NAME dram_1_256x1s
-  BOARD basys3
-  INPUT_IO_FILE dram_1_256x1s.pcf
-  SOURCES dram_1_256x1s.v
-  ASSERT_USAGE SYN-OUTPAD=1,SYN-INPAD=11,BLK-TL-SLICEM=1
-  )
-
-add_fpga_target(
-  NAME dram_1_32m
-  BOARD basys3
-  INPUT_IO_FILE dram_1_32m.pcf
-  SOURCES dram_1_32m.v
-  ASSERT_USAGE SYN-OUTPAD=8,SYN-INPAD=17,BLK-TL-SLICEM=1
-  )
-
-add_fpga_target(
-  NAME dram_1_64m
-  BOARD basys3
-  INPUT_IO_FILE dram_1_64m.pcf
-  SOURCES dram_1_64m.v
-  ASSERT_USAGE SYN-OUTPAD=4,SYN-INPAD=17,BLK-TL-SLICEM=1
-  )
-
 add_custom_target(test_dram_packing)
-add_dependencies(test_dram_packing
-    dram_4_32x1s_bin  dram_4_32x1s_assert_usage
-    dram_8_32x1s_bin  dram_8_32x1s_assert_usage
-    dram_2_32x1d_bin  dram_2_32x1d_assert_usage
-    dram_4_32x2s_bin  dram_4_32x2s_assert_usage
-    dram_2_64x1d_bin  dram_2_64x1d_assert_usage
-    dram_4_64x1s_bin  dram_4_64x1s_assert_usage
-    dram_2_128x1s_bin dram_2_128x1s_assert_usage
-    dram_1_128x1d_bin dram_1_128x1d_assert_usage
-    dram_1_256x1s_bin dram_1_256x1s_assert_usage
-    dram_1_32m_bin    dram_1_32m_assert_usage
-    dram_1_64m_bin    dram_1_64m_assert_usage
+
+function(dram_tests dram_num_instances dram_mode outpad inpad)
+  add_fpga_target(
+    NAME dram_${dram_num_instances}_${dram_mode}
+    BOARD basys3
+    SOURCES dram_${dram_num_instances}_${dram_mode}.v
+    INPUT_IO_FILE dram_${dram_num_instances}_${dram_mode}.pcf
+    ASSERT_USAGE SYN-OUTPAD=${outpad},SYN-INPAD=${inpad},BLK-TL-SLICEM=1
     )
+
+  add_vivado_target(
+    NAME dram_${dram_num_instances}_${dram_mode}_vivado
+    PARENT_NAME dram_${dram_num_instances}_${dram_mode}
+    )
+
+  add_dependencies(test_dram_packing
+    dram_${dram_num_instances}_${dram_mode}_bin
+    dram_${dram_num_instances}_${dram_mode}_assert_usage
+  )
+
+endfunction()
+
+# dram_tests(<dram_num_instances> <dram_mode> <syn_outpad_assert_usage> <syn_inpad_assert_usage>)
+dram_tests(4 32x1s 4 11)
+dram_tests(8 32x1s 8 11)
+dram_tests(2 32x1d 8 15)
+dram_tests(4 32x2s 4 14)
+dram_tests(2 64x1d 4 12)
+dram_tests(4 64x1s 4 16)
+dram_tests(2 128x1s 2 11)
+dram_tests(1 128x1d 2 17)
+dram_tests(1 256x1s 1 11)
+dram_tests(1 32m 8 17)
+dram_tests(1 64m 4 17)

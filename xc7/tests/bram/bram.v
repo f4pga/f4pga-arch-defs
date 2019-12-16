@@ -40,9 +40,13 @@ module ram0(
 endmodule
 
 module top (
-	input  clk,
-	input [15:0] in,
-	output [15:0] out
+	input  wire clk,
+
+    input  wire rx,
+    output wire tx,
+
+    input  wire [15:0] sw,
+	output wire [15:0] led
 );
   wire rden;
   reg wren;
@@ -83,14 +87,14 @@ module top (
   // WE == 1 -> address_reg or data_reg is updated because on input_mode.
   wire we;
 
-  assign display_mode[0] = in[14];
-  assign display_mode[1] = in[15];
+  assign display_mode[0] = sw[14];
+  assign display_mode[1] = sw[15];
 
-  assign input_mode[0] = in[12];
-  assign input_mode[1] = in[13];
+  assign input_mode[0] = sw[12];
+  assign input_mode[1] = sw[13];
 
-  assign we = in[11];
-  assign out = out_reg;
+  assign we = sw[11];
+  assign led = out_reg;
   assign di = data_reg;
   assign rden = 1;
 
@@ -111,13 +115,13 @@ module top (
 
       if(we == 1) begin
           if(input_mode == 0) begin
-              address_reg <= in[9:0];
+              address_reg <= sw[9:0];
               wren <= 0;
           end else if(input_mode == 1) begin
-              data_reg[7:0] <= in[7:0];
+              data_reg[7:0] <= sw[7:0];
               wren <= 0;
           end else if(input_mode == 2) begin
-              data_reg[15:8] <= in[7:0];
+              data_reg[15:8] <= sw[7:0];
               wren <= 0;
           end else if(input_mode == 3) begin
               wren <= 1;

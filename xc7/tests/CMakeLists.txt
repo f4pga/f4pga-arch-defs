@@ -1,3 +1,5 @@
+set(COMMON ${symbiflow-arch-defs_SOURCE_DIR}/xc7/tests/common)
+
 add_subdirectory(common)
 add_subdirectory(buttons)
 add_subdirectory(counter)

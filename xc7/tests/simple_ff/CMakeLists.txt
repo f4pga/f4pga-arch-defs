@@ -1,8 +1,10 @@
+add_file_target(FILE simple_ff.v SCANNER_TYPE verilog)
 add_fpga_target(
   NAME simple_ff
   BOARD basys3
-  INPUT_IO_FILE basys3.pcf
+  INPUT_IO_FILE ${COMMON}/basys3.pcf
   SOURCES simple_ff.v
+  EXPLICIT_ADD_FILE_TARGET
   )
 
 add_vivado_target(
@@ -16,7 +18,7 @@ add_file_target(FILE simple_ff_full.v SCANNER_TYPE verilog)
 add_fpga_target(
   NAME simple_ff_full
   BOARD basys3-full
-  INPUT_IO_FILE ../common/basys3.pcf
+  INPUT_IO_FILE ${COMMON}/basys3.pcf
   SOURCES simple_ff_full.v
   EXPLICIT_ADD_FILE_TARGET
   )
@@ -30,7 +32,7 @@ add_file_target(FILE simple_ff_full_loc.v SCANNER_TYPE verilog)
 add_fpga_target(
   NAME simple_ff_full_loc
   BOARD basys3-full
-  INPUT_IO_FILE ../common/basys3.pcf
+  INPUT_IO_FILE ${COMMON}/basys3.pcf
   SOURCES simple_ff_full_loc.v
   EXPLICIT_ADD_FILE_TARGET
   )
