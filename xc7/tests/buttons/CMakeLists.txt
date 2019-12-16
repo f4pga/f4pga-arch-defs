@@ -3,7 +3,7 @@ add_fpga_target(
   NAME buttons_arty
   BOARD arty-swbut
   SOURCES buttons_arty.v
-  INPUT_IO_FILE ${COMMON}/arty.pcf
+  INPUT_IO_FILE ${COMMON}/arty_swbut.pcf
   EXPLICIT_ADD_FILE_TARGET
   )
 

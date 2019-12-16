@@ -21,7 +21,3 @@ set_io led[4] H5
 set_io led[5] J5
 set_io led[6] T9
 set_io led[7] T10
-
-# tx and rx are serial transmitter and receiver
-set_io rx A9
-set_io tx D10

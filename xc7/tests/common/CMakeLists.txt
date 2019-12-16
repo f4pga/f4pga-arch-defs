@@ -3,7 +3,8 @@ add_file_target(FILE basys3.pcf)
 add_file_target(FILE basys3.sdc)
 
 # ARTY constraint files
-add_file_target(FILE arty.pcf)
+add_file_target(FILE arty_uart.pcf)
+add_file_target(FILE arty_swbut.pcf)
 
 # ZYBO constraint files
 add_file_target(FILE zybo.pcf)
