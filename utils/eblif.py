@@ -1,16 +1,3 @@
-class BLIF:
-    def __init__(self, model=None, inputs=tuple(), outputs=tuple()):
-        self.model = model
-        self.inputs = inputs
-        self.outputs = outputs
-
-    def inputs(self):
-        pass
-
-    def outputs(self):
-        pass
-
-
 top_level = [
     "model",
     "inputs",
