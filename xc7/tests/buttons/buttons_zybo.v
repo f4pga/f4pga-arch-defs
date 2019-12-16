@@ -1,6 +1,8 @@
 module top(
-	input [2:0] in,
-	output [3:0] out
+    input  wire clk,
+
+    input  wire [2:0] sw,
+    output wire [3:0] led
 );
-  assign out = { in[2], in };
+    assign led[2:0] = sw;
 endmodule
