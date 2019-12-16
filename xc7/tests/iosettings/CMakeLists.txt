@@ -33,6 +33,9 @@ function(xc7_iosettings_design MODE BOARD IOSTANDARD DRIVES SLEWS TERMS)
         INPUT_IO_FILE ${PCF_FILE}
         SOURCES ${VERILOG_FILE}
         EXPLICIT_ADD_FILE_TARGET
+        # Enable non-dedicated routes for clocks in fasm2bels until the problem
+        # of BUFG placement is solved. Those routes are not of concern for this
+        # test.
         BIT_TO_V_EXTRA_ARGS --allow-non-dedicated-clk-routes
         )
 
