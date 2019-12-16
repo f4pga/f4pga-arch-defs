@@ -783,7 +783,7 @@ def process_bram36_site(top, features, set_features):
         elif 'RAMB18_Y0.READ_WIDTH_A_2' in set_features:
             READ_WIDTH_A = 4
         elif 'RAMB18_Y0.READ_WIDTH_A_4' in set_features:
-            READ_WIDTH_A = 8
+            READ_WIDTH_A = 9
         elif 'RAMB18_Y0.READ_WIDTH_A_9' in set_features:
             READ_WIDTH_A = 18
         elif 'RAMB18_Y0.READ_WIDTH_A_18' in set_features:
@@ -796,7 +796,7 @@ def process_bram36_site(top, features, set_features):
         elif 'RAMB18_Y0.READ_WIDTH_B_2' in set_features:
             READ_WIDTH_B = 4
         elif 'RAMB18_Y0.READ_WIDTH_B_4' in set_features:
-            READ_WIDTH_B = 8
+            READ_WIDTH_B = 9
         elif 'RAMB18_Y0.READ_WIDTH_B_9' in set_features:
             READ_WIDTH_B = 18
         elif 'RAMB18_Y0.READ_WIDTH_B_18' in set_features:
@@ -829,7 +829,7 @@ def process_bram36_site(top, features, set_features):
         elif 'RAMB18_Y0.WRITE_WIDTH_A_2' in set_features:
             WRITE_WIDTH_A = 4
         elif 'RAMB18_Y0.WRITE_WIDTH_A_4' in set_features:
-            WRITE_WIDTH_A = 8
+            WRITE_WIDTH_A = 9
         elif 'RAMB18_Y0.WRITE_WIDTH_A_9' in set_features:
             WRITE_WIDTH_A = 18
         elif 'RAMB18_Y0.WRITE_WIDTH_A_18' in set_features:
@@ -842,7 +842,7 @@ def process_bram36_site(top, features, set_features):
         elif 'RAMB18_Y0.WRITE_WIDTH_B_2' in set_features:
             WRITE_WIDTH_B = 4
         elif 'RAMB18_Y0.WRITE_WIDTH_B_4' in set_features:
-            WRITE_WIDTH_B = 8
+            WRITE_WIDTH_B = 9
         elif 'RAMB18_Y0.WRITE_WIDTH_B_9' in set_features:
             WRITE_WIDTH_B = 18
         elif 'RAMB18_Y0.WRITE_WIDTH_B_18' in set_features:
