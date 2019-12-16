@@ -1,15 +1,12 @@
 module top (
     input  wire clk,
 
-    input  wire rx,
-    output wire tx,
-
     input  wire [7:0] sw,
     output wire [7:0] led
 );
 
-    localparam BITS = 1;
-    localparam LOG2DELAY = 25;
+    localparam BITS = 8;
+    localparam LOG2DELAY = 28;
 
     reg [BITS+LOG2DELAY-1:0] counter = 0;
 
@@ -17,5 +14,5 @@ module top (
     	counter <= counter + 1;
     end
 
-    assign led[7] = counter >> LOG2DELAY;
+    assign led = counter >> LOG2DELAY;
 endmodule

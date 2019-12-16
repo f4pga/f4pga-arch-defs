@@ -37,8 +37,8 @@ add_vivado_target(
 add_file_target(FILE counter_arty.v SCANNER_TYPE verilog)
 add_fpga_target(
   NAME counter_arty
-  BOARD arty-uart
+  BOARD arty-swbut
   SOURCES counter_arty.v
-  INPUT_IO_FILE ${COMMON}/arty.pcf
+  INPUT_IO_FILE ${COMMON}/arty_swbut.pcf
   EXPLICIT_ADD_FILE_TARGET
 )
