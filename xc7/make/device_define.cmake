@@ -80,13 +80,14 @@ function(ADD_XC7_BOARD)
   get_target_property_required(PYTHON3 env PYTHON3)
   get_target_property_required(PYTHON3_TARGET env PYTHON3_TARGET)
 
+  set(FASM_TO_BIT_EXTRA_ARGS "--part ${PART}")
   if(${USE_ROI})
     get_target_property_required(ROI_DIR ${DEVICE_TYPE} ROI_DIR)
 
-    set_target_properties(${BOARD}
-      PROPERTIES FASM_TO_BIT_EXTRA_ARGS " \
-      --roi ${ROI_DIR}/design.json \
-    ")
+    set(FASM_TO_BIT_EXTRA_ARGS "\
+      ${FASM_TO_BIT_EXTRA_ARGS} \
+      --roi ${ROI_DIR}/design.json"
+    )
 
     get_target_property_required(SYNTH_TILES ${DEVICE_TYPE} SYNTH_TILES)
     get_file_location(SYNTH_TILES_LOCATION ${SYNTH_TILES})
@@ -118,6 +119,11 @@ function(ADD_XC7_BOARD)
         DEPENDS ${PINMAP_CSV_DEPS}
       )
   endif()
+
+  set_target_properties(${BOARD}
+    PROPERTIES
+      FASM_TO_BIT_EXTRA_ARGS "${FASM_TO_BIT_EXTRA_ARGS}"
+  )
 
   add_file_target(FILE ${PINMAP_CSV} GENERATED)
 
