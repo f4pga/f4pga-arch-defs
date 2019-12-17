@@ -1,6 +1,14 @@
 module top(
-	input [6:0] in,
-	output [7:0] out
+    input  wire clk,
+
+    input  wire rx,
+    output wire tx,
+
+	input [15:0] sw,
+	output [15:0] led
 );
-  assign out = in + 1;
+  assign led = sw;
+
+  // Uart loopback
+  assign tx = rx;
 endmodule

@@ -5,7 +5,7 @@ module top (
 	output wire tx,
 
 	input  wire rst,
-	output wire led
+	input  wire led  // unused
 );
 
 	assign tx = rx;

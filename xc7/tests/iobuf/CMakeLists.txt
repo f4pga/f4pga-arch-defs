@@ -4,7 +4,7 @@ add_fpga_target(
   NAME iobuf_basys3
   BOARD basys3-full
   SOURCES iobuf_basys3.v
-  INPUT_IO_FILE ${COMMON}/basys3.pcf
+  INPUT_IO_FILE ${COMMON}/basys3_pmod.pcf
   EXPLICIT_ADD_FILE_TARGET
   )
 

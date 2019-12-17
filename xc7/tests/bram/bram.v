@@ -128,4 +128,7 @@ module top (
             end
         end
     end
+
+    // Uart loopback
+    assign tx = rx;
 endmodule
