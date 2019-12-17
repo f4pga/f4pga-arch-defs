@@ -1,31 +1,29 @@
 add_file_target(FILE plle2_test.v SCANNER_TYPE verilog)
-add_file_target(FILE pll_int_basys3_x1y0.v SCANNER_TYPE verilog)
-add_file_target(FILE pll_buf_basys3_x1y0.v SCANNER_TYPE verilog)
-add_file_target(FILE pll_ext_basys3_x1y0.v SCANNER_TYPE verilog)
-
-add_file_target(FILE basys3_x1y0.pcf)
+add_file_target(FILE pll_int_basys3_bottom.v SCANNER_TYPE verilog)
+add_file_target(FILE pll_buf_basys3_bottom.v SCANNER_TYPE verilog)
+add_file_target(FILE pll_ext_basys3_bottom.v SCANNER_TYPE verilog)
 
 add_fpga_target(
   NAME pll_int_basys3_full
   BOARD basys3-bottom
-  SOURCES pll_int_basys3_x1y0.v
-  INPUT_IO_FILE basys3_x1y0.pcf
+  SOURCES pll_int_basys3_bottom.v
+  INPUT_IO_FILE ${COMMON}/basys3_pmod.pcf
   EXPLICIT_ADD_FILE_TARGET
   )
 
 add_fpga_target(
   NAME pll_buf_basys3_full
   BOARD basys3-bottom
-  SOURCES pll_buf_basys3_x1y0.v
-  INPUT_IO_FILE basys3_x1y0.pcf
+  SOURCES pll_buf_basys3_bottom.v
+  INPUT_IO_FILE ${COMMON}/basys3_pmod.pcf
   EXPLICIT_ADD_FILE_TARGET
   )
 
 add_fpga_target(
   NAME pll_ext_basys3_full
   BOARD basys3-bottom
-  SOURCES pll_ext_basys3_x1y0.v
-  INPUT_IO_FILE basys3_x1y0.pcf
+  SOURCES pll_ext_basys3_bottom.v
+  INPUT_IO_FILE ${COMMON}/basys3_pmod.pcf
   EXPLICIT_ADD_FILE_TARGET
   )
 

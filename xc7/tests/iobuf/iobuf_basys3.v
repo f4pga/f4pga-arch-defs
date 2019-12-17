@@ -39,12 +39,18 @@ SW2 SW1 SW0 | LED1 LED0
 
 module top
 (
-input  wire [11:0] in,
-output wire [11:0] out,
+input  wire clk,
+
+input  wire rx,
+output wire tx,
+
+input  wire [15:0] sw,
+output wire [15:0] led,
 
 input  wire jc1,
 inout  wire jc2,
-output wire jc3
+output wire jc3,
+input  wire jc4 // unused
 );
 
 // ============================================================================
@@ -63,25 +69,25 @@ iobuf
 .I  (io_i),
 .T  (io_t),
 .O  (io_o),
-.IO (jc2) // Directly to the module output
+.IO (jc2) // Directly to the module ledput
 );
 
 // ============================================================================
 
 // SW0 controls IOBUF.I
-assign io_i = in[0];
+assign io_i = sw[0];
 // SW1 controls IOBUF.T
-assign io_t = in[1];
+assign io_t = sw[1];
 // SW2 controls OBUF.I (JC.3)
-assign jc3  = in[2];
+assign jc3  = sw[2];
 
-// LED0 indicates IOBUF.O
-assign out[0] = io_o;
+// LED0 swdicates IOBUF.O
+assign led[0] = io_o;
 // LED1 is connected to JC.1
-assign out[1] = jc1;
+assign led[1] = jc1;
 
 // Unused IOs - SW->LED passthrough.
-assign out[11:2] = {in[11:3], 1'd0};
+assign led[15:2] = {sw[15:3], 1'd0};
 
 endmodule
 
