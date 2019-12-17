@@ -1,4 +1,4 @@
-add_custom_target(all_xc7_iosettings_diff_fasm)
+#add_custom_target(all_xc7_iosettings_diff_fasm)
 
 function(xc7_iosettings_design MODE BOARD IOSTANDARD DRIVES SLEWS TERMS)
 
@@ -61,7 +61,7 @@ function(xc7_iosettings_design MODE BOARD IOSTANDARD DRIVES SLEWS TERMS)
         ${VIVADO_ARGS}
         )
 
-    add_dependencies(all_xc7_iosettings_diff_fasm ${DESIGN}_vivado_diff_fasm)
+    #add_dependencies(all_xc7_iosettings_diff_fasm ${DESIGN}_vivado_diff_fasm)
 
 endfunction()
 
