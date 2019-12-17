@@ -311,7 +311,9 @@ def main():
         top.prune_unconnected_ports()
 
     if args.allow_non_dedicated_clk_routes:
-        top.add_extra_tcl_line("set_property CLOCK_DEDICATED_ROUTE FALSE [get_nets]")
+        top.add_extra_tcl_line(
+            "set_property CLOCK_DEDICATED_ROUTE FALSE [get_nets]"
+        )
 
     with open(args.verilog_file, 'w') as f:
         for l in top.output_verilog():

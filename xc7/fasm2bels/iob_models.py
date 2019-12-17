@@ -114,12 +114,13 @@ def append_obuf_iostandard_params(
         if drive is not None:
             bel.parameters["DRIVE"] = '"{}"'.format(drive)
 
-
     # Input termination (here for inouts)
     if in_term is not None:
-        top.add_extra_tcl_line("set_property IN_TERM {} [get_ports {}]".format(
-            in_term, bel.connections["I"]
-        ))
+        top.add_extra_tcl_line(
+            "set_property IN_TERM {} [get_ports {}]".format(
+                in_term, bel.connections["I"]
+            )
+        )
 
     # Slew rate
     bel.parameters["SLEW"] = '"{}"'.format(slew)
@@ -161,12 +162,13 @@ def append_ibuf_iostandard_params(
 
         bel.parameters["IOSTANDARD"] = '"{}"'.format(iostandard)
 
-
     # Input termination
     if in_term is not None:
-        top.add_extra_tcl_line("set_property IN_TERM {} [get_ports {}]".format(
-            in_term, bel.connections["I"]
-        ))
+        top.add_extra_tcl_line(
+            "set_property IN_TERM {} [get_ports {}]".format(
+                in_term, bel.connections["I"]
+            )
+        )
 
 
 def decode_iostandard_params(site, diff=False):
