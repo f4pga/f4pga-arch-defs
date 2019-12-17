@@ -68,6 +68,12 @@ foreach(MODE input output inout)
     endforeach()
 
     xc7_iosettings_design(${MODE} ${BOARD} LVCMOS12 "4 8 12" "SLOW FAST" "NONE")
-    xc7_iosettings_design(${MODE} ${BOARD} SSTL135 "0" "SLOW FAST" ${TERMS})
+
+    # Disabled due to https://github.com/SymbiFlow/prjxray/issues/1182
+    #xc7_iosettings_design(${MODE} ${BOARD} SSTL135 "0" "SLOW FAST" ${TERMS})
 
 endforeach()
+
+# Currently only one differential setting is supported
+xc7_iosettings_design("diff_output" ${BOARD} DIFF_SSTL135 "0" "SLOW FAST" "NONE")
+

@@ -31,7 +31,7 @@ PINOUT = {
                     "P1",
                     "L1",
                 ],
-            "external":
+            "single-ended":
                 [
                     # Basys3 JB 1-4, 7-10
                     "A14",
@@ -76,7 +76,7 @@ PINOUT = {
                     "T9",  # LED6
                     "T10",  # LED7
                 ],
-            "external":
+            "single-ended":
                 [
                     # Pmod JB
                     "E15",
@@ -97,6 +97,19 @@ PINOUT = {
                     "T13",
                     "U13",
                 ],
+            "differential":
+                [
+                    # Pmod JB
+                    ("E15", "E16"),
+                    ("D15", "C15"),
+                    ("J17", "J18"),
+                    ("K15", "J15"),
+                    # Pmod JC
+                    ("U12", "V12"),
+                    ("V10", "V11"),
+                    ("U14", "V14"),
+                    ("T13", "U13"),
+                ]
         },
 }
 
@@ -107,6 +120,9 @@ def unquote(s):
     return s
 
 
+# =============================================================================
+
+
 def generate_output(board, iostandard, drives, slews):
     """
     Generates a design which outputs 100Hz square wave to a number of pins
@@ -114,7 +130,7 @@ def generate_output(board, iostandard, drives, slews):
     common for all of them.
     """
 
-    num_outputs = len(drives) * len(slews)
+    num_ports = len(drives) * len(slews)
     iosettings = {}
 
     # Header
@@ -123,7 +139,7 @@ module top(
     input  wire clk,
     output wire [{}:0] out
 );
-""".format(num_outputs - 1)
+""".format(num_ports - 1)
 
     pcf = """
 set_io clk {}
@@ -163,7 +179,7 @@ set_io clk {}
             if slew is not None:
                 params["SLEW"] = "\"{}\"".format(slew)
 
-            pin = PINOUT[board]["external"][index]
+            pin = PINOUT[board]["single-ended"][index]
 
             verilog += """
     OBUF # ({params}) obuf_{index} (
@@ -177,7 +193,7 @@ set_io clk {}
                 index=index
             )
 
-            if num_outputs > 1:
+            if num_ports > 1:
                 pcf += "set_io out[{}] {}\n".format(index, pin)
             else:
                 pcf += "set_io out {}\n".format(pin)
@@ -199,7 +215,7 @@ def generate_input(board, iostandard, in_terms):
     registers to LEDs. Each IBUF has differen IN_TERM setting.
     """
 
-    num_pins = len(in_terms)
+    num_ports = len(in_terms)
     iosettings = {}
 
     # Header
@@ -211,7 +227,7 @@ module top(
 );
 
     initial led <= 0;
-""".format(N=num_pins - 1)
+""".format(N=num_ports - 1)
 
     pcf = """
 set_io clk {}
@@ -232,7 +248,7 @@ set_io clk {}
             "IN_TERM": "\"{}\"".format(in_term)
         }
 
-        pin = PINOUT[board]["external"][index]
+        pin = PINOUT[board]["single-ended"][index]
 
         verilog += """
     wire inp_b[{index}];
@@ -251,9 +267,11 @@ set_io clk {}
             index=index
         )
 
-        if num_pins > 1:
+        if num_ports > 1:
             pcf += "set_io inp[{}] {}\n".format(index, pin)
-            pcf += "set_io led[{}] {}\n".format(index, PINOUT[board]["led"][index])
+            pcf += "set_io led[{}] {}\n".format(
+                index, PINOUT[board]["led"][index]
+            )
         else:
             pcf += "set_io inp {}\n".format(pin)
             pcf += "set_io led {}\n".format(PINOUT[board]["led"][index])
@@ -276,7 +294,7 @@ def generate_inout(board, iostandard, drives, slews):
     and their state is presented on LEDs.
     """
 
-    num_pins = len(drives) * len(slews)
+    num_ports = len(drives) * len(slews)
     iosettings = {}
 
     # Header
@@ -293,7 +311,7 @@ module top(
     reg ino_o;
     reg ino_t;
 
-""".format(N=num_pins - 1)
+""".format(N=num_ports - 1)
 
     pcf = """
 set_io clk {}
@@ -342,7 +360,7 @@ set_io clk {}
             if slew is not None:
                 params["SLEW"] = "\"{}\"".format(slew)
 
-            pin = PINOUT[board]["external"][index]
+            pin = PINOUT[board]["single-ended"][index]
 
             verilog += """
     IOBUF # ({params}) iobuf_{index} (
@@ -358,7 +376,7 @@ set_io clk {}
                 index=index
             )
 
-            if num_pins > 1:
+            if num_ports > 1:
                 pcf += "set_io ino[{}] {}\n".format(index, pin)
                 pcf += "set_io led[{}] {}\n".format(
                     index, PINOUT[board]["led"][index]
@@ -368,6 +386,297 @@ set_io clk {}
                 pcf += "set_io led {}\n".format(PINOUT[board]["led"][index])
 
             iosettings[pin] = {k: unquote(v) for k, v in params.items()}
+            index += 1
+
+    # Footer
+    verilog += """
+endmodule
+"""
+
+    return verilog, pcf, iosettings
+
+
+# =============================================================================
+
+
+def generate_diff_output(board, iostandard, drives, slews):
+    """
+    Generates a design which outputs 100Hz square wave to a number of pins
+    in which each one has different DRIVE+SLEW setting. The IOSTANDARD is
+    common for all of them.
+    """
+
+    num_ports = len(drives) * len(slews)
+    iosettings = {}
+
+    # Header
+    verilog = """
+module top(
+    input  wire clk,
+    output wire [{N}:0] out_p,
+    output wire [{N}:0] out_n
+);
+""".format(N=num_ports - 1)
+
+    pcf = """
+set_io clk {}
+""".format(PINOUT[board]["clock"])
+
+    # 100Hz square wave generator
+    verilog += """
+    wire        clk_bufg;
+    reg  [31:0] cnt_ps;
+    reg         tick;
+
+    BUFG bufg (.I(clk), .O(clk_bufg));
+
+    initial cnt_ps <= 0;
+    initial tick   <= 0;
+
+    always @(posedge clk_bufg)
+        if (cnt_ps >= (100000000 / (2*100)) - 1) begin
+            cnt_ps <= 0;
+            tick   <= !tick;
+        end else begin
+            cnt_ps <= cnt_ps + 1;
+            tick   <= tick;
+        end
+"""
+
+    # Output buffers
+    index = 0
+    for slew in slews:
+        for drive in drives:
+
+            params = {"IOSTANDARD": "\"{}\"".format(iostandard)}
+
+            if drive is not None and drive != "0":
+                params["DRIVE"] = int(drive)
+
+            if slew is not None:
+                params["SLEW"] = "\"{}\"".format(slew)
+
+            pins = PINOUT[board]["differential"][index]
+
+            verilog += """
+    OBUFDS # ({params}) obuf_{index} (
+    .I(tick),
+    .O(out_p[{index}]),
+    .OB(out_n[{index}])
+    );
+            """.format(
+                params=",".join(
+                    [".{}({})".format(k, v) for k, v in params.items()]
+                ),
+                index=index
+            )
+
+            if num_ports > 1:
+                pcf += "set_io out_p[{}] {}\n".format(index, pins[0])
+                pcf += "set_io out_n[{}] {}\n".format(index, pins[1])
+            else:
+                pcf += "set_io out_p {}\n".format(pins[0])
+                pcf += "set_io out_n {}\n".format(pins[1])
+
+            iosettings[pins[0]] = {k: unquote(v) for k, v in params.items()}
+            iosettings[pins[1]] = {k: unquote(v) for k, v in params.items()}
+            index += 1
+
+    # Footer
+    verilog += """
+endmodule
+"""
+
+    return verilog, pcf, iosettings
+
+
+def generate_diff_input(board, iostandard, in_terms):
+    """
+    Generates a design with singnals from external pins go through IBUFs and
+    registers to LEDs. Each IBUF has differen IN_TERM setting.
+    """
+
+    num_ports = len(in_terms)
+    iosettings = {}
+
+    # Header
+    verilog = """
+module top(
+    input  wire clk,
+    input  wire [{N}:0] inp_p,
+    input  wire [{N}:0] inp_n,
+    output reg  [{N}:0] led
+);
+
+    initial led <= 0;
+""".format(N=num_ports - 1)
+
+    pcf = """
+set_io clk {}
+""".format(PINOUT[board]["clock"])
+
+    # BUFG
+    verilog += """
+    wire  clk_bufg;
+    BUFG bufg (.I(clk), .O(clk_bufg));
+"""
+
+    # Input buffers + registers
+    index = 0
+    for in_term in in_terms:
+
+        params = {
+            "IOSTANDARD": "\"{}\"".format(iostandard),
+            "IN_TERM": "\"{}\"".format(in_term)
+        }
+
+        pins = PINOUT[board]["differential"][index]
+
+        verilog += """
+    wire inp_b[{index}];
+
+    IBUFDS # ({params}) ibuf_{index} (
+    .I(inp_p[{index}]),
+    .IB(inp_n[{index}]),
+    .O(inp_b[{index}])
+    );
+
+    always @(posedge clk_bufg)
+        led[{index}] <= inp_b[{index}];
+        """.format(
+            params=",".join(
+                [".{}({})".format(k, v) for k, v in params.items()]
+            ),
+            index=index
+        )
+
+        if num_ports > 1:
+            pcf += "set_io inp_p[{}] {}\n".format(index, pins[0])
+            pcf += "set_io inp_n[{}] {}\n".format(index, pins[1])
+            pcf += "set_io led[{}] {}\n".format(
+                index, PINOUT[board]["led"][index]
+            )
+        else:
+            pcf += "set_io inp_p {}\n".format(pins[0])
+            pcf += "set_io inp_n {}\n".format(pins[1])
+            pcf += "set_io led {}\n".format(PINOUT[board]["led"][index])
+
+        iosettings[pins[0]] = {k: unquote(v) for k, v in params.items()}
+        iosettings[pins[1]] = {k: unquote(v) for k, v in params.items()}
+        index += 1
+
+    # Footer
+    verilog += """
+endmodule
+"""
+
+    return verilog, pcf, iosettings
+
+
+def generate_diff_inout(board, iostandard, drives, slews):
+    """
+    Generates a design with INOUT buffers. Buffers cycle through states:
+    L,Z,H,Z with 100Hz frequency. During the Z state, IO pins are latched
+    and their state is presented on LEDs.
+    """
+
+    num_ports = len(drives) * len(slews)
+    iosettings = {}
+
+    # Header
+    verilog = """
+module top(
+    input  wire clk,
+    inout  wire [{N}:0] ino_p,
+    inout  wire [{N}:0] ino_n,
+    output reg  [{N}:0] led
+);
+
+    initial led <= 0;
+
+    wire [{N}:0] ino_i;
+    reg ino_o;
+    reg ino_t;
+
+""".format(N=num_ports - 1)
+
+    pcf = """
+set_io clk {}
+""".format(PINOUT[board]["clock"])
+
+    # Control signal generator, data sampler
+    verilog += """
+    wire        clk_bufg;
+    reg  [31:0] cnt_ps;
+
+    BUFG bufg (.I(clk), .O(clk_bufg));
+
+    initial cnt_ps <= 32'd0;
+    initial ino_o  <= 1'b0;
+    initial ino_t  <= 1'b1;
+
+    always @(posedge clk_bufg)
+        if (cnt_ps >= (100000000 / (2*100)) - 1) begin
+            cnt_ps <= 0;
+            ino_t  <= !ino_t;
+            if (ino_t == 1'b1)
+                ino_o <= !ino_o;
+        end else begin
+            cnt_ps <= cnt_ps + 1;
+            ino_t  <= ino_t;
+            ino_o  <= ino_o;
+        end
+
+    always @(posedge clk_bufg)
+        if (ino_t == 1'b1)
+            led <= ino_i;
+        else
+            led <= led;
+"""
+
+    # INOUT buffers
+    index = 0
+    for slew in slews:
+        for drive in drives:
+
+            params = {"IOSTANDARD": "\"{}\"".format(iostandard)}
+
+            if drive is not None and drive != "0":
+                params["DRIVE"] = int(drive)
+
+            if slew is not None:
+                params["SLEW"] = "\"{}\"".format(slew)
+
+            pins = PINOUT[board]["differential"][index]
+
+            verilog += """
+    IOBUFDS # ({params}) iobuf_{index} (
+    .I(ino_o),
+    .O(ino_i[{index}]),
+    .T(ino_t),
+    .IO(ino_p[{index}]),
+    .IOB(ino_n[{index}])
+    );
+            """.format(
+                params=",".join(
+                    [".{}({})".format(k, v) for k, v in params.items()]
+                ),
+                index=index
+            )
+
+            if num_ports > 1:
+                pcf += "set_io ino_p[{}] {}\n".format(index, pins[0])
+                pcf += "set_io ino_n[{}] {}\n".format(index, pins[1])
+                pcf += "set_io led[{}] {}\n".format(
+                    index, PINOUT[board]["led"][index]
+                )
+            else:
+                pcf += "set_io ino_p {}\n".format(pins[0])
+                pcf += "set_io ino_n {}\n".format(pins[1])
+                pcf += "set_io led {}\n".format(PINOUT[board]["led"][index])
+
+            iosettings[pins[0]] = {k: unquote(v) for k, v in params.items()}
+            iosettings[pins[1]] = {k: unquote(v) for k, v in params.items()}
             index += 1
 
     # Footer
@@ -408,6 +717,18 @@ def main():
         )
     elif args.mode == "inout":
         verilog, pcf, iosettings = generate_inout(
+            args.board, args.iostandard, args.drive, args.slew
+        )
+    elif args.mode == "diff_output":
+        verilog, pcf, iosettings = generate_diff_output(
+            args.board, args.iostandard, args.drive, args.slew
+        )
+    elif args.mode == "diff_input":
+        verilog, pcf, iosettings = generate_diff_input(
+            args.board, args.iostandard, args.in_term
+        )
+    elif args.mode == "diff_inout":
+        verilog, pcf, iosettings = generate_diff_inout(
             args.board, args.iostandard, args.drive, args.slew
         )
     else:
