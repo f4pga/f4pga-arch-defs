@@ -2,6 +2,20 @@ add_custom_target(all_xc7_iosettings_diff_fasm)
 
 function(xc7_iosettings_design MODE BOARD IOSTANDARD DRIVES SLEWS TERMS)
 
+    cmake_parse_arguments(
+        XC7_IOSETTINGS_DESIGN
+        "DISABLE_DIFF_TEST"
+        ""
+        ""
+        ${ARGN}
+    )
+
+    if(${XC7_IOSETTINGS_DESIGN_DISABLE_DIFF_TEST})
+        set(VIVADO_ARGS DISABLE_DIFF_TEST)
+    else()
+        set(VIVADO_ARGS "")
+    endif()
+
     set(DESIGN ${MODE}_${BOARD}_${IOSTANDARD})
 
     set(VERILOG_FILE ${DESIGN}.v)
@@ -44,6 +58,7 @@ function(xc7_iosettings_design MODE BOARD IOSTANDARD DRIVES SLEWS TERMS)
         PARENT_NAME ${DESIGN}
         CLOCK_PINS clk
         CLOCK_PERIODS 10.0
+        ${VIVADO_ARGS}
         )
 
     add_dependencies(all_xc7_iosettings_diff_fasm ${DESIGN}_vivado_diff_fasm)
@@ -75,5 +90,6 @@ foreach(MODE input output inout)
 endforeach()
 
 # Currently only one differential setting is supported
-xc7_iosettings_design("diff_output" ${BOARD} DIFF_SSTL135 "0" "SLOW FAST" "NONE")
+# Diff fasm disabled due to https://github.com/SymbiFlow/symbiflow-arch-defs/issues/1239
+xc7_iosettings_design("diff_output" ${BOARD} DIFF_SSTL135 "0" "SLOW FAST" "NONE" DISABLE_DIFF_TEST)
 
