@@ -2253,7 +2253,13 @@ module OBUFDS (
     output OB
 );
 
-  OBUFTDS _TECHMAP_REPLACE_ (
+  parameter IOSTANDARD = "DIFF_SSTL135";  // TODO: Is this the default ?
+  parameter SLEW = "FAST";
+
+  OBUFTDS # (
+  .IOSTANDARD(IOSTANDARD),
+  .SLEW(SLEW)
+  ) _TECHMAP_REPLACE_ (
   .I(I),
   .T(1'b0),
   .O(O),
