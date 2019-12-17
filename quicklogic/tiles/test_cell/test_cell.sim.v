@@ -11,6 +11,7 @@ module TEST_CELL (clk, D1, D2, DS, S, R, E, Q);
 	input wire E;
 	output wire Q;
 
+	(* pack = "DFF" *)
 	wire d;
 	MUX mux0(D1, D2, DS, d);
 	FF ff0(clk, d, S, R, E, Q);
