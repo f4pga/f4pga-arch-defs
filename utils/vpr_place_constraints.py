@@ -59,14 +59,17 @@ class PlaceConstraints(object):
         assert len(loc) == 3
         assert block_name not in self.constraints, block_name
 
-        self.constraints[self.block_to_root_block[block_name]
-                         ] = PlaceConstraint(
-                             name=block_name,
-                             x=loc[0],
-                             y=loc[1],
-                             z=loc[2],
-                             comment=comment,
-                         )
+        place_constraint = PlaceConstraint(
+            name=block_name,
+            x=loc[0],
+            y=loc[1],
+            z=loc[2],
+            comment=comment,
+        )
+
+        root_block = self.block_to_root_block[block_name]
+
+        self.constraints[root_block] = place_constraint
 
     def output_place_constraints(self, f):
         if not self.constraints:
