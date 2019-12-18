@@ -545,10 +545,26 @@ def insert_constant_tiles(conn, model_xml, complexblocklist_xml, tiles_xml):
     c.execute('SELECT pkey FROM tile_type WHERE name = "NULL";')
     null_tile_type_pkey = c.fetchone()[0]
 
+    # Get all 'NULL' tile locations
+    c.execute(
+        """
+    SELECT grid_x, grid_y
+    FROM phy_tile
+    WHERE tile_type_pkey = ?
+    ORDER BY grid_y, grid_x ASC
+    LIMIT 2
+""", (null_tile_type_pkey, )
+    )
+
+    locs = list(c.fetchall())
+    assert len(locs) >= 2
+
+    loc = {'VCC': locs[0], 'GND': locs[1]}
+
     c.execute(
         """
     SELECT pkey, tile_type_pkey FROM phy_tile
-    WHERE grid_x = 1 AND grid_y = 0"""
+    WHERE grid_x = ? AND grid_y = ?""", loc['VCC']
     )
     vcc_phy_tile_pkey, vcc_tile_type_pkey = c.fetchone()
     assert vcc_tile_type_pkey == null_tile_type_pkey, vcc_tile_type_pkey
@@ -566,7 +582,7 @@ def insert_constant_tiles(conn, model_xml, complexblocklist_xml, tiles_xml):
     c.execute(
         """
     SELECT pkey, tile_type_pkey FROM phy_tile
-    WHERE grid_x = 2 AND grid_y = 0"""
+    WHERE grid_x = ? AND grid_y = ?""", loc['GND']
     )
     gnd_phy_tile_pkey, gnd_tile_type_pkey = c.fetchone()
     assert gnd_tile_type_pkey == null_tile_type_pkey

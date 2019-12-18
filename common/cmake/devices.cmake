@@ -1459,6 +1459,12 @@ function(ADD_FPGA_TARGET)
       separate_arguments(
         FASM_TO_BIT_CMD_FOR_TARGET_LIST UNIX_COMMAND ${FASM_TO_BIT_CMD_FOR_TARGET}
       )
+
+      separate_arguments(
+        FASM_TO_BIT_EXTRA_ARGS_LIST UNIX_COMMAND ${FASM_TO_BIT_EXTRA_ARGS}
+      )
+      set(FASM_TO_BIT_CMD_FOR_TARGET_LIST ${FASM_TO_BIT_CMD_FOR_TARGET_LIST} ${FASM_TO_BIT_EXTRA_ARGS_LIST})
+
       add_custom_command(
         OUTPUT ${OUT_BITSTREAM}
         DEPENDS ${OUT_FASM} ${FASM_TO_BIT}

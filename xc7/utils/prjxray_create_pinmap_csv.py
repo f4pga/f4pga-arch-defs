@@ -27,7 +27,7 @@ WHERE
  site_instance.name = ?;""", (site_name, )
     )
     results = cur.fetchall()
-    assert len(results) == 1
+    assert len(results) == 1, site_name
     return results[0]
 
 
@@ -61,6 +61,11 @@ def main():
     writer.writeheader()
     with sqlite3.connect(args.connection_database) as conn:
         for l in csv.DictReader(args.package_pins):
+
+            # Skip PS7 MIO and DDR pads as they are not routable
+            if l['tile'].startswith('PSS'):
+                continue
+
             loc = get_vpr_coords_from_site_name(conn, l['site'])
             if loc is not None:
                 writer.writerow(

@@ -86,6 +86,7 @@ function(ADD_XC7_BOARD)
     set_target_properties(${BOARD}
       PROPERTIES FASM_TO_BIT_EXTRA_ARGS " \
       --roi ${ROI_DIR}/design.json \
+      --part ${PART} \
     ")
 
     get_target_property_required(SYNTH_TILES ${DEVICE_TYPE} SYNTH_TILES)
@@ -104,6 +105,12 @@ function(ADD_XC7_BOARD)
         DEPENDS ${PINMAP_CSV_DEPS}
         )
   else()
+
+    set_target_properties(${BOARD}
+      PROPERTIES FASM_TO_BIT_EXTRA_ARGS " \
+      --part ${PART} \
+    ")
+
     set(CREATE_PINMAP_CSV ${symbiflow-arch-defs_SOURCE_DIR}/xc7/utils/prjxray_create_pinmap_csv.py)
     set(PINMAP_CSV ${BOARD}_pinmap.csv)
     set(PINMAP_CSV_DEPS ${PYTHON3} ${PYTHON3_TARGET} ${CREATE_PINMAP_CSV})
