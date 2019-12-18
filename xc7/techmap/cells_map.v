@@ -1897,7 +1897,7 @@ module IBUF (
   output O
   );
 
-  parameter IOSTANDARD = "default";
+  parameter IOSTANDARD = "LVCMOS33";
   parameter IBUF_LOW_PWR = 0;  // TODO: Map this to fasm
   parameter IN_TERM = "NONE";  // Not supported by Vivado ?
 
@@ -1955,7 +1955,7 @@ module OBUF (
   output O
   );
 
-  parameter IOSTANDARD = "default";
+  parameter IOSTANDARD = "LVCMOS33";
   parameter DRIVE = 12;
   parameter SLEW = "SLEW";
 
@@ -2062,7 +2062,7 @@ module IOBUF (
   inout  IO
 );
 
-  parameter IOSTANDARD = "default";
+  parameter IOSTANDARD = "LVCMOS33";
   parameter DRIVE = 12;
   parameter SLEW = "SLOW";
   parameter IBUF_LOW_PWR = 0;  // TODO: Map this to fasm
