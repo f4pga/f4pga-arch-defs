@@ -53,10 +53,10 @@ HCLK_OUT = re.compile('CLK_HROW_CK_HCLK_OUT_([LR])([0-9]+)')
 IOI_OCLK = re.compile('IOI_OCLK_([01])')
 
 # Regex for [LR]IOI_SING tiles
-IOI_SITES = ['OLOGIC', 'ILOGIC', 'IDELAY', 'OCLK_', 'OCLKM_']
-IOI_SING = re.compile(
+IOI_SITE_PIPS = ['OLOGIC', 'ILOGIC', 'IDELAY', 'OCLK_', 'OCLKM_']
+IOI_SING_REGEX = re.compile(
     '([RL]IOI3_SING_X[0-9]+Y)([0-9]+)(\.IOI_)({})([01])(.*)'.format(
-        "|".join(IOI_SITES)
+        "|".join(IOI_SITE_PIPS)
     )
 )
 
@@ -240,11 +240,25 @@ def check_feature(feature):
     # The following, is to change the edge feature to accomodate this
     # need, as the IOI_SING tiles have the same wire, and pip names
     # despite they are found on the TOP or BOTTOM of an IOI column
-    m = IOI_SING.fullmatch(feature)
+    m = IOI_SING_REGEX.fullmatch(feature)
     if m:
+        # Each clock region spans a total of 50 IOBs.
+        # The IOI_SING are found on top or bottom of the whole
+        # IOI/IOB column. The Y coordinate identified with the
+        # second capture group is dived by 50 to get the relative
+        # position of the IOI_SING within the clock region column
         is_bottom_sing = int(m.group(2)) % 50 == 0
 
+        # This is the value to attach to the source pip name that
+        # changes based on which IOI_SING is selected (top or bottom)
+        #
+        # Example: IOI_OLOGIC0_D1.IOI_IMUX34_0 -> IOI_OLOGIC0_D1.IOI_IMUX34_1
         src_value = '1' if is_bottom_sing else '0'
+
+        # This is the value to attach to the IOI_SITE_PIPS names
+        # in the destination wire of the pip
+        #
+        # Example: IOI_OLOGIC0 -> IOI_OLOGIC1
         dst_value = '0' if is_bottom_sing else '1'
 
         unchanged_feature = "{}{}{}{}".format(
@@ -256,6 +270,9 @@ def check_feature(feature):
         for pip in ['IMUX', 'LOGIC_OUTS', 'CTRL', 'FAN', 'BYP']:
             if pip in src_wire:
                 src_wire = src_wire.replace('_0', '_{}'.format(src_value))
+
+        if 'IOI_OCLK' in src_wire:
+            src_wire = src_wire.replace('_0', '_{}'.format(dst_value))
 
         changed_feature = "{}{}".format(dst_value, src_wire)
         feature = "{}{}".format(unchanged_feature, changed_feature)
