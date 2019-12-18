@@ -1077,25 +1077,8 @@ endmodule
 // The Zynq PS7
 
 (* blackbox *)
-module PS7 (
-  input  [14: 0] DDRA,
+module PS7_VPR (
   input  [ 3: 0] DDRARB,
-  input  [ 2: 0] DDRBA,
-  input          DDRCASB,
-  input          DDRCKE,
-  input          DDRCKN,
-  input          DDRCKP,
-  input          DDRCSB,
-  input  [ 3: 0] DDRDM,
-  input  [31: 0] DDRDQ,
-  input  [ 3: 0] DDRDQSN,
-  input  [ 3: 0] DDRDQSP,
-  input          DDRDRSTB,
-  input          DDRODT,
-  input          DDRRASB,
-  input          DDRVRN,
-  input          DDRVRP,
-  input          DDRWEB,
   input          DMA0ACLK,
   input          DMA0DAREADY,
   output [ 1: 0] DMA0DATYPE,
@@ -1388,10 +1371,6 @@ module PS7 (
   input          MAXIGP1WREADY,
   output [ 3: 0] MAXIGP1WSTRB,
   output         MAXIGP1WVALID,
-  input  [53: 0] MIO,
-  input          PSCLK,
-  input          PSPORB,
-  input          PSSRSTB,
   input          SAXIACPACLK,
   input  [31: 0] SAXIACPARADDR,
   input  [ 1: 0] SAXIACPARBURST,
@@ -1701,3 +1680,4 @@ module PS7 (
 );
 
 endmodule
+
