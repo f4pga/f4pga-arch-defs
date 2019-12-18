@@ -72,6 +72,10 @@ AND
 
         self.input_pins = {}
         for input_pin in blif_data['inputs']['args']:
+            # TODO: fix inout pins
+            if input_pin.endswith('_$inp'):
+                continue
+
             loc = io_locs[input_pin]
             c.execute(
                 """
@@ -324,6 +328,9 @@ WHERE site_type.name = ?;""", (clock_type['type'], )
             # No free LOC!!!
             assert loc is not None, (clock_name, available_placements[key])
 
+    def has_clock_nets(self):
+        return self.clock_sources
+
 
 def get_tile_capacities(arch_xml_filename):
     arch = ET.parse(arch_xml_filename, ET.XMLParser(remove_blank_text=True))
@@ -509,12 +516,16 @@ def main():
             )
 
         clock_placer = ClockPlacer(conn, io_blocks, eblif_data)
-        for block, loc in clock_placer.place_clocks(
-                conn, loc_in_use, block_locs, blocks, grid_capacities):
-            vpr_loc = get_vpr_coords_from_site_name(conn, loc, grid_capacities)
-            place_constraints.constrain_block(
-                block, vpr_loc, "Constraining clock block {}".format(block)
-            )
+        if clock_placer.has_clock_nets():
+            for block, loc in clock_placer.place_clocks(
+                    conn, loc_in_use, block_locs, blocks, grid_capacities):
+                vpr_loc = get_vpr_coords_from_site_name(
+                    conn, loc, grid_capacities
+                )
+                place_constraints.constrain_block(
+                    block, vpr_loc,
+                    "Constraining clock block {}".format(block)
+                )
 
     place_constraints.output_place_constraints(args.output)
 
