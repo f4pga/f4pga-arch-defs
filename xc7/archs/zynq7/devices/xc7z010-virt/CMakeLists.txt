@@ -19,8 +19,7 @@ add_xc7_device_define_type(
     IOPAD
     IOPAD_M
     IOPAD_S
-    CLK_BUFG_BOT_R
-    CLK_BUFG_TOP_R
+    BUFGCTRL
     PLLE2_ADV
     HCLK_IOI3
 )
