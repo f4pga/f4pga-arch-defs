@@ -1,24 +1,7 @@
 <models>
-  <model name="PS7">
+  <model name="PS7_VPR">
     <input_ports>
-      <port name="DDRA"/>
       <port name="DDRARB"/>
-      <port name="DDRBA"/>
-      <port name="DDRCASB"/>
-      <port name="DDRCKE"/>
-      <port name="DDRCKN"/>
-      <port name="DDRCKP"/>
-      <port name="DDRCSB"/>
-      <port name="DDRDM"/>
-      <port name="DDRDQ"/>
-      <port name="DDRDQSN"/>
-      <port name="DDRDQSP"/>
-      <port name="DDRDRSTB"/>
-      <port name="DDRODT"/>
-      <port name="DDRRASB"/>
-      <port name="DDRVRN"/>
-      <port name="DDRVRP"/>
-      <port name="DDRWEB"/>
       <port name="DMA0ACLK"/>
       <port name="DMA0DAREADY"/>
       <port name="DMA0DRLAST"/>
@@ -137,10 +120,6 @@
       <port name="MAXIGP1RRESP"/>
       <port name="MAXIGP1RVALID"/>
       <port name="MAXIGP1WREADY"/>
-      <port name="MIO"/>
-      <port name="PSCLK"/>
-      <port name="PSPORB"/>
-      <port name="PSSRSTB"/>
       <port name="SAXIACPACLK"/>
       <port name="SAXIACPARADDR"/>
       <port name="SAXIACPARBURST"/>

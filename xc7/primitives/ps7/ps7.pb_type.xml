@@ -1,22 +1,5 @@
-<pb_type name="PS7" blif_model=".subckt PS7" num_pb="1">
-  <input  name="DDRA" num_pins="15"/>
+<pb_type name="PS7" blif_model=".subckt PS7_VPR" num_pb="1">
   <input  name="DDRARB" num_pins="4"/>
-  <input  name="DDRBA" num_pins="3"/>
-  <input  name="DDRCASB" num_pins="1"/>
-  <input  name="DDRCKE" num_pins="1"/>
-  <input  name="DDRCKN" num_pins="1"/>
-  <input  name="DDRCKP" num_pins="1"/>
-  <input  name="DDRCSB" num_pins="1"/>
-  <input  name="DDRDM" num_pins="4"/>
-  <input  name="DDRDQ" num_pins="32"/>
-  <input  name="DDRDQSN" num_pins="4"/>
-  <input  name="DDRDQSP" num_pins="4"/>
-  <input  name="DDRDRSTB" num_pins="1"/>
-  <input  name="DDRODT" num_pins="1"/>
-  <input  name="DDRRASB" num_pins="1"/>
-  <input  name="DDRVRN" num_pins="1"/>
-  <input  name="DDRVRP" num_pins="1"/>
-  <input  name="DDRWEB" num_pins="1"/>
   <input  name="DMA0ACLK" num_pins="1"/>
   <input  name="DMA0DAREADY" num_pins="1"/>
   <output name="DMA0DATYPE" num_pins="2"/>
@@ -309,10 +292,6 @@
   <input  name="MAXIGP1WREADY" num_pins="1"/>
   <output name="MAXIGP1WSTRB" num_pins="4"/>
   <output name="MAXIGP1WVALID" num_pins="1"/>
-  <input  name="MIO" num_pins="54"/>
-  <input  name="PSCLK" num_pins="1"/>
-  <input  name="PSPORB" num_pins="1"/>
-  <input  name="PSSRSTB" num_pins="1"/>
   <input  name="SAXIACPACLK" num_pins="1"/>
   <input  name="SAXIACPARADDR" num_pins="32"/>
   <input  name="SAXIACPARBURST" num_pins="2"/>
