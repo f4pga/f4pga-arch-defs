@@ -97,76 +97,77 @@ WHERE pkey IN (
 
         self.clock_cmts = {}
 
-        for subckt in blif_data["subckt"]:
-            if 'cname' not in subckt:
-                continue
-            bel = subckt['args'][0]
+        if "subckt" in blif_data.keys():
+            for subckt in blif_data["subckt"]:
+                if 'cname' not in subckt:
+                    continue
+                bel = subckt['args'][0]
 
-            assert 'cname' in subckt and len(subckt['cname']) == 1, subckt
+                assert 'cname' in subckt and len(subckt['cname']) == 1, subckt
 
-            if bel not in CLOCKS:
-                continue
-
-            cname = subckt['cname'][0]
-
-            clock = {
-                'name': cname,
-                'subckt': subckt['args'][0],
-                'sink_nets': [],
-                'source_nets': [],
-            }
-
-            sources = CLOCKS[bel]['sources']
-
-            ports = dict(
-                arg.split('=', maxsplit=1) for arg in subckt['args'][1:]
-            )
-
-            for source in sources:
-                source_net = ports[source]
-                if source_net == '$true' or source_net == '$false':
+                if bel not in CLOCKS:
                     continue
 
-                self.clock_sources[source_net] = []
-                self.clock_sources_cname[source_net] = cname
-                clock['source_nets'].append(source_net)
+                cname = subckt['cname'][0]
 
-            self.clock_blocks[cname] = clock
+                clock = {
+                    'name': cname,
+                    'subckt': subckt['args'][0],
+                    'sink_nets': [],
+                    'source_nets': [],
+                }
 
-        for subckt in blif_data["subckt"]:
-            if 'cname' not in subckt:
-                continue
+                sources = CLOCKS[bel]['sources']
 
-            bel = subckt['args'][0]
-            if bel not in CLOCKS:
-                continue
-
-            sinks = CLOCKS[bel]['sinks']
-            ports = dict(
-                arg.split('=', maxsplit=1) for arg in subckt['args'][1:]
-            )
-
-            assert 'cname' in subckt and len(subckt['cname']) == 1, subckt
-            cname = subckt['cname'][0]
-            clock = self.clock_blocks[cname]
-
-            for sink in sinks:
-                assert sink in ports, cname
-                sink_net = ports[sink]
-                if sink_net == '$true' or sink_net == '$false':
-                    continue
-
-                clock['sink_nets'].append(sink_net)
-
-                assert sink_net in self.input_pins or sink_net in self.clock_sources, (
-                    sink_net, self.input_pins, self.clock_sources.keys()
+                ports = dict(
+                    arg.split('=', maxsplit=1) for arg in subckt['args'][1:]
                 )
 
-                if sink_net in self.input_pins:
-                    if sink_net not in self.clock_sources:
-                        self.clock_sources[sink_net] = []
+                for source in sources:
+                    source_net = ports[source]
+                    if source_net == '$true' or source_net == '$false':
+                        continue
 
-                self.clock_sources[sink_net].append(cname)
+                    self.clock_sources[source_net] = []
+                    self.clock_sources_cname[source_net] = cname
+                    clock['source_nets'].append(source_net)
+
+                self.clock_blocks[cname] = clock
+
+            for subckt in blif_data["subckt"]:
+                if 'cname' not in subckt:
+                    continue
+
+                bel = subckt['args'][0]
+                if bel not in CLOCKS:
+                    continue
+
+                sinks = CLOCKS[bel]['sinks']
+                ports = dict(
+                    arg.split('=', maxsplit=1) for arg in subckt['args'][1:]
+                )
+
+                assert 'cname' in subckt and len(subckt['cname']) == 1, subckt
+                cname = subckt['cname'][0]
+                clock = self.clock_blocks[cname]
+
+                for sink in sinks:
+                    assert sink in ports, cname
+                    sink_net = ports[sink]
+                    if sink_net == '$true' or sink_net == '$false':
+                        continue
+
+                    clock['sink_nets'].append(sink_net)
+
+                    assert sink_net in self.input_pins or sink_net in self.clock_sources, (
+                        sink_net, self.input_pins, self.clock_sources.keys()
+                    )
+
+                    if sink_net in self.input_pins:
+                        if sink_net not in self.clock_sources:
+                            self.clock_sources[sink_net] = []
+
+                    self.clock_sources[sink_net].append(cname)
 
     def assign_cmts(self, conn, blocks):
         """ Assign CMTs to subckt's that require it (e.g. BURF/PLL/MMCM). """
