@@ -40,6 +40,7 @@ from .connection_db_utils import create_maybe_get_wire, maybe_add_pip, \
 from .iob_models import process_iobs
 from .ioi_models import process_ioi
 from .hclk_ioi3_models import process_hclk_ioi3
+from .pss_models import *
 from .verilog_modeling import Module
 from .net_map import create_net_list
 
@@ -379,6 +380,10 @@ def main():
 
     for tile, tile_features in tiles.items():
         process_tile(top, tile, tile_features)
+
+    pss_tile, ps7_site = get_ps7_site(db)
+    if pss_tile is not None and ps7_site is not None:
+        insert_ps7(top, pss_tile, ps7_site)
 
     top.make_routes(allow_orphan_sinks=args.allow_orphan_sinks)
 

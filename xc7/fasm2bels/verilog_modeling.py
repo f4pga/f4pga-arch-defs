@@ -611,37 +611,37 @@ class Site(object):
         if features:
             aparts = features[0].feature.split('.')
 
-        for f in features:
-            if f.value == 0:
-                continue
+            for f in features:
+                if f.value == 0:
+                    continue
 
-            if merged_site:
-                parts = f.feature.split('.')
-                assert parts[0] == aparts[0]
-                #self.set_features.add('.'.join(parts[1:]))
-                self.set_features.add(
-                    fasm.SetFasmFeature(
-                        feature='.'.join(parts[1:]),
-                        start=f.start,
-                        end=f.end,
-                        value=f.value,
-                        value_format=f.value_format,
+                if merged_site:
+                    parts = f.feature.split('.')
+                    assert parts[0] == aparts[0]
+                    #self.set_features.add('.'.join(parts[1:]))
+                    self.set_features.add(
+                        fasm.SetFasmFeature(
+                            feature='.'.join(parts[1:]),
+                            start=f.start,
+                            end=f.end,
+                            value=f.value,
+                            value_format=f.value_format,
+                        )
                     )
-                )
-            else:
-                parts = f.feature.split('.')
-                assert parts[0] == aparts[0]
-                assert parts[1] == aparts[1]
-                #self.set_features.add('.'.join(parts[2:]))
-                self.set_features.add(
-                    fasm.SetFasmFeature(
-                        feature='.'.join(parts[2:]),
-                        start=f.start,
-                        end=f.end,
-                        value=f.value,
-                        value_format=f.value_format,
+                else:
+                    parts = f.feature.split('.')
+                    assert parts[0] == aparts[0]
+                    assert parts[1] == aparts[1]
+                    #self.set_features.add('.'.join(parts[2:]))
+                    self.set_features.add(
+                        fasm.SetFasmFeature(
+                            feature='.'.join(parts[2:]),
+                            start=f.start,
+                            end=f.end,
+                            value=f.value,
+                            value_format=f.value_format,
+                        )
                     )
-                )
 
         # Features as strings
         self.features = set([f.feature for f in self.set_features])
