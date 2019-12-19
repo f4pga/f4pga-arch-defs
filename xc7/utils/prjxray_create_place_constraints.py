@@ -72,8 +72,7 @@ AND
 
         self.input_pins = {}
         for input_pin in blif_data['inputs']['args']:
-            # TODO: fix inout pins
-            if input_pin.endswith('_$inp'):
+            if input_pin not in io_locs.keys():
                 continue
 
             loc = io_locs[input_pin]
