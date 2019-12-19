@@ -66,28 +66,43 @@ function(xc7_iosettings_design MODE BOARD IOSTANDARD DRIVES SLEWS TERMS)
 endfunction()
 
 set(BOARD "arty")
-foreach(MODE input output inout)
 
-    if(MODE STREQUAL "input")
-        set(TERMS "NONE UNTUNED_SPLIT_40 UNTUNED_SPLIT_50 UNTUNED_SPLIT_60")
-    else()
-        set(TERMS "NONE")
-    endif()
+# Disabled tests for all IO settings due to excessive memory usage. Once the
+# memory usage is reduced or number of parallel builds on the CI system limited
+# those can be reenabled. https://github.com/SymbiFlow/symbiflow-arch-defs/issues/1244
 
-    foreach(IOSTANDARD LVCMOS15 LVCMOS25 LVCMOS33)
-        xc7_iosettings_design(${MODE} ${BOARD} ${IOSTANDARD} "4 8 12 16" "SLOW FAST" "NONE")
-    endforeach()
+#foreach(MODE input output inout)
+#
+#    if(MODE STREQUAL "output")
+#        set(TERMS "NONE")
+#    else()
+#        set(TERMS "NONE UNTUNED_SPLIT_40 UNTUNED_SPLIT_50 UNTUNED_SPLIT_60")
+#    endif()
+#
+#    foreach(IOSTANDARD LVCMOS15 LVCMOS25 LVCMOS33)
+#        xc7_iosettings_design(${MODE} ${BOARD} ${IOSTANDARD} "4 8 12 16" "SLOW FAST" "NONE")
+#    endforeach()
+#
+#    foreach(IOSTANDARD LVCMOS18 LVTTL)
+#        xc7_iosettings_design(${MODE} ${BOARD} ${IOSTANDARD} "4 8 12 16" "SLOW FAST" "NONE")
+#    endforeach()
+#
+#    xc7_iosettings_design(${MODE} ${BOARD} LVCMOS12 "4 8 12" "SLOW FAST" "NONE")
+#
+#    # Disabled due to https://github.com/SymbiFlow/prjxray/issues/1182 (unknown bits)
+#    #xc7_iosettings_design(${MODE} ${BOARD} SSTL135 "0" "SLOW FAST" ${TERMS})
+#
+#endforeach()
 
-    foreach(IOSTANDARD LVCMOS18 LVTTL)
-        xc7_iosettings_design(${MODE} ${BOARD} ${IOSTANDARD} "4 8 12 16" "SLOW FAST" "NONE")
-    endforeach()
+# These tests are relevant for LiteX DDR support
+xc7_iosettings_design("input"  ${BOARD} LVCMOS33 "4 8 12 16" "SLOW FAST" "NONE")
+xc7_iosettings_design("inout"  ${BOARD} LVCMOS33 "4 8 12 16" "SLOW FAST" "NONE")
+xc7_iosettings_design("output" ${BOARD} LVCMOS33 "4 8 12 16" "SLOW FAST" "NONE")
 
-    xc7_iosettings_design(${MODE} ${BOARD} LVCMOS12 "4 8 12" "SLOW FAST" "NONE")
-
-    # Disabled due to https://github.com/SymbiFlow/prjxray/issues/1182
-    #xc7_iosettings_design(${MODE} ${BOARD} SSTL135 "0" "SLOW FAST" ${TERMS})
-
-endforeach()
+# Disabled due to https://github.com/SymbiFlow/prjxray/issues/1182 (unknown bits)
+#xc7_iosettings_design("input"  ${BOARD} SSTL135 "0" "SLOW FAST" "NONE UNTUNED_SPLIT_40 UNTUNED_SPLIT_50 UNTUNED_SPLIT_60")
+#xc7_iosettings_design("inout"  ${BOARD} SSTL135 "0" "SLOW FAST" "NONE UNTUNED_SPLIT_40 UNTUNED_SPLIT_50 UNTUNED_SPLIT_60")
+xc7_iosettings_design("output" ${BOARD} SSTL135 "0" "SLOW FAST" "NONE")
 
 # Currently only one differential setting is supported
 # Diff fasm disabled due to https://github.com/SymbiFlow/symbiflow-arch-defs/issues/1239
