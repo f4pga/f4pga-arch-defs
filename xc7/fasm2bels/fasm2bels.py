@@ -383,7 +383,8 @@ def main():
 
     pss_tile, ps7_site = get_ps7_site(db)
     if pss_tile is not None and ps7_site is not None:
-        insert_ps7(top, pss_tile, ps7_site)
+        if check_ps7_connection(conn, db, top.active_pips, pss_tile, ps7_site):
+            insert_ps7(top, pss_tile, ps7_site)
 
     top.make_routes(allow_orphan_sinks=args.allow_orphan_sinks)
 
