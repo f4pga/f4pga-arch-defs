@@ -1,0 +1,9 @@
+set_io led[0] M14
+set_io led[1] M15
+set_io led[2] G14
+set_io led[3] D18
+
+set_io btn[0] K18
+set_io btn[1] P16
+set_io btn[2] K19
+set_io btn[3] Y16
