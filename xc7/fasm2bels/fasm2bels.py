@@ -86,6 +86,7 @@ PROCESS_TILE = {
     'BRAM_R': process_bram,
     'CMT_TOP_R_UPPER_T': process_pll,
     'CMT_TOP_L_UPPER_T': process_pll,
+    'CFG_CENTER_MID': null_process,
 }
 
 
