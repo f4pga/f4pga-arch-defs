@@ -129,9 +129,9 @@ PINOUT = {
                 ]
         },
 
-# Pinout for "bottom" routing graph of 50t, only for Basys3. These pins may
-# not correspond to actual LEDs so the design may not be suitable for testing
-# on hardware but it will pass all the checks on CI.
+    # Pinout for "bottom" routing graph of 50t, only for Basys3. These pins may
+    # not correspond to actual LEDs so the design may not be suitable for testing
+    # on hardware but it will pass all the checks on CI.
     "basys3-bottom":
         {
             "BUFG":
@@ -140,16 +140,16 @@ PINOUT = {
                 "W5",  # Bank 34
             "led":
                 [
-                    "V3", # LED9
-                    "W3", # LED10
-                    "U3", # LED11
-                    "W7", # CA
-                    "W6", # CB
-                    "U8", # CC
-                    "V8", # CD
-                    "U5", # CE
-                    "V5", # CF
-                    "U7", # CG
+                    "V3",  # LED9
+                    "W3",  # LED10
+                    "U3",  # LED11
+                    "W7",  # CA
+                    "W6",  # CB
+                    "U8",  # CC
+                    "V8",  # CD
+                    "U5",  # CE
+                    "V5",  # CF
+                    "U7",  # CG
                 ],
             "single-ended":
                 [
@@ -162,8 +162,7 @@ PINOUT = {
                     "M19",
                     "P17",
                     "R18",
-
-                    "U15", # LEDs
+                    "U15",  # LEDs
                     "U16",
                     "V13",
                     "V14",
@@ -178,6 +177,7 @@ PINOUT = {
                 ]
         },
 }
+
 
 def unquote(s):
     if isinstance(s, str):
