@@ -294,6 +294,10 @@ WHERE site_type.name = ?;""", (clock_type['type'], )
                 vpr_loc = get_vpr_coords_from_site_name(
                     conn, loc, grid_capacities
                 )
+
+                if vpr_loc is None:
+                    continue
+
                 available_locs[key].append(vpr_loc)
                 vpr_locs[loc] = vpr_loc
 
@@ -380,11 +384,20 @@ WHERE
     results = cur.fetchall()
     assert len(results) == 1
 
-    tile_pkey, x, y = results[0]
+    capacity = 0
+    for result in results:
+        tile_pkey, x, y = result
+        if (x, y) not in grid_capacities.keys():
+            continue
 
-    capacity = grid_capacities[(x, y)]
+        capacity = grid_capacities[(x, y)]
+        break
 
-    if capacity == 1:
+    if not capacity:
+        # If capacity is zero it means that the site is out of
+        # the ROI, hence the site needs to be skipped.
+        return None
+    elif capacity == 1:
         return (x, y, 0)
     else:
         cur.execute(
