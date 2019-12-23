@@ -20,10 +20,11 @@ module top(
 	output ddram_clk_n,
 	output ddram_cke,
 	output ddram_odt,
-	output ddram_reset_n
+	output ddram_reset_n,
+	output rdy
 );
 
-wire ddram_clk_tq;
+wire rdy;
 wire main_ctrl_reset_reset_re;
 wire main_ctrl_reset_reset_r;
 wire main_ctrl_reset_reset_we;
@@ -293,6 +294,7 @@ reg main_interface0_wb_sdram_err = 1'd0;
 wire sys_clk;
 wire sys_rst;
 wire sys4x_clk;
+wire sys4x_clkb;
 wire sys4x_dqs_clk;
 wire clk200_clk;
 wire clk200_rst;
@@ -308,6 +310,8 @@ wire main_clkout2;
 wire main_clkout_buf2;
 wire main_clkout3;
 wire main_clkout_buf3;
+wire main_clkout4;
+wire main_clkout_buf4;
 reg [3:0] main_reset_counter = 4'd15;
 reg main_ic_reset = 1'd1;
 reg [4:0] main_a7ddrphy_half_sys8x_taps_storage = 5'd16;
@@ -2544,6 +2548,7 @@ assign sys_clk = main_clkout_buf0;
 assign sys4x_clk = main_clkout_buf1;
 assign sys4x_dqs_clk = main_clkout_buf2;
 assign clk200_clk = main_clkout_buf3;
+assign sys4x_clkb = main_clkout_buf4;
 always @(*) begin
 	main_a7ddrphy_dqs_serdes_pattern <= 8'd85;
 	if ((main_a7ddrphy_dqs_preamble | main_a7ddrphy_dqs_postamble)) begin
@@ -10035,35 +10040,50 @@ end
 assign main_uart_rx_fifo_wrport_dat_r = memdat_3;
 assign main_uart_rx_fifo_rdport_dat_r = memdat_4;
 
+(* LOC="BUFGCTRL_X0Y0" *)
 BUFG BUFG(
 	.I(clk100),
 	.O(main_pll_clkin)
 );
 
+(* LOC="BUFGCTRL_X0Y1" *)
 BUFG BUFG_1(
 	.I(main_clkout0),
 	.O(main_clkout_buf0)
 );
 
+(* LOC="BUFGCTRL_X0Y2" *)
 BUFG BUFG_2(
 	.I(main_clkout1),
 	.O(main_clkout_buf1)
 );
 
+(* LOC="BUFGCTRL_X0Y3" *)
 BUFG BUFG_3(
 	.I(main_clkout2),
 	.O(main_clkout_buf2)
 );
 
+(* LOC="BUFGCTRL_X0Y4" *)
 BUFG BUFG_4(
 	.I(main_clkout3),
 	.O(main_clkout_buf3)
 );
 
-IDELAYCTRL IDELAYCTRL(
-	.REFCLK(clk200_clk),
-	.RST(main_ic_reset)
+(* LOC="BUFGCTRL_X0Y5" *)
+BUFG BUFG_5(
+	.I((~main_clkout_buf1)),
+	.O(main_clkout_buf4)
 );
+
+(* LOC="IDELAYCTRL_X1Y0" *)
+IDELAYCTRL IDELAYCTRL(
+	.REFCLK(sys4x_clk),
+	.RST(main_ic_reset),
+	.RDY(rdy)
+);
+
+wire tq;
 
 OSERDESE2 #(
 	.DATA_RATE_OQ("DDR"),
@@ -10085,14 +10105,16 @@ OSERDESE2 #(
 	.OCE(1'd1),
 	.RST(sys_rst),
 	.OQ(main_a7ddrphy_sd_clk_se_nodelay),
-	.TQ(ddram_clk_tq)
+	.TQ(tq),
+	.TCE(1'b1),
+	.T1(1'b0)
 );
 
 OBUFTDS OBUFTDS_2(
 	.I(main_a7ddrphy_sd_clk_se_nodelay),
-	.T(ddram_clk_tq),
 	.O(ddram_clk_p),
-	.OB(ddram_clk_n)
+	.OB(ddram_clk_n),
+	.T(tq)
 );
 
 OSERDESE2 #(
@@ -10769,7 +10791,7 @@ ISERDESE2 #(
 	.BITSLIP(1'd0),
 	.CE1(1'd1),
 	.CLK(sys4x_clk),
-	.CLKB((~sys4x_clk)),
+	.CLKB(sys4x_clkb),
 	.CLKDIV(sys_clk),
 	.DDLY(main_a7ddrphy_dq_i_delayed0),
 	.RST(sys_rst),
@@ -10845,7 +10867,7 @@ ISERDESE2 #(
 	.BITSLIP(1'd0),
 	.CE1(1'd1),
 	.CLK(sys4x_clk),
-	.CLKB((~sys4x_clk)),
+	.CLKB(sys4x_clkb),
 	.CLKDIV(sys_clk),
 	.DDLY(main_a7ddrphy_dq_i_delayed1),
 	.RST(sys_rst),
@@ -10921,7 +10943,7 @@ ISERDESE2 #(
 	.BITSLIP(1'd0),
 	.CE1(1'd1),
 	.CLK(sys4x_clk),
-	.CLKB((~sys4x_clk)),
+	.CLKB(sys4x_clkb),
 	.CLKDIV(sys_clk),
 	.DDLY(main_a7ddrphy_dq_i_delayed2),
 	.RST(sys_rst),
@@ -10997,7 +11019,7 @@ ISERDESE2 #(
 	.BITSLIP(1'd0),
 	.CE1(1'd1),
 	.CLK(sys4x_clk),
-	.CLKB((~sys4x_clk)),
+	.CLKB(sys4x_clkb),
 	.CLKDIV(sys_clk),
 	.DDLY(main_a7ddrphy_dq_i_delayed3),
 	.RST(sys_rst),
@@ -11073,7 +11095,7 @@ ISERDESE2 #(
 	.BITSLIP(1'd0),
 	.CE1(1'd1),
 	.CLK(sys4x_clk),
-	.CLKB((~sys4x_clk)),
+	.CLKB(sys4x_clkb),
 	.CLKDIV(sys_clk),
 	.DDLY(main_a7ddrphy_dq_i_delayed4),
 	.RST(sys_rst),
@@ -11149,7 +11171,7 @@ ISERDESE2 #(
 	.BITSLIP(1'd0),
 	.CE1(1'd1),
 	.CLK(sys4x_clk),
-	.CLKB((~sys4x_clk)),
+	.CLKB(sys4x_clkb),
 	.CLKDIV(sys_clk),
 	.DDLY(main_a7ddrphy_dq_i_delayed5),
 	.RST(sys_rst),
@@ -11225,7 +11247,7 @@ ISERDESE2 #(
 	.BITSLIP(1'd0),
 	.CE1(1'd1),
 	.CLK(sys4x_clk),
-	.CLKB((~sys4x_clk)),
+	.CLKB(sys4x_clkb),
 	.CLKDIV(sys_clk),
 	.DDLY(main_a7ddrphy_dq_i_delayed6),
 	.RST(sys_rst),
@@ -11301,7 +11323,7 @@ ISERDESE2 #(
 	.BITSLIP(1'd0),
 	.CE1(1'd1),
 	.CLK(sys4x_clk),
-	.CLKB((~sys4x_clk)),
+	.CLKB(sys4x_clkb),
 	.CLKDIV(sys_clk),
 	.DDLY(main_a7ddrphy_dq_i_delayed7),
 	.RST(sys_rst),
@@ -11377,7 +11399,7 @@ ISERDESE2 #(
 	.BITSLIP(1'd0),
 	.CE1(1'd1),
 	.CLK(sys4x_clk),
-	.CLKB((~sys4x_clk)),
+	.CLKB(sys4x_clkb),
 	.CLKDIV(sys_clk),
 	.DDLY(main_a7ddrphy_dq_i_delayed8),
 	.RST(sys_rst),
@@ -11453,7 +11475,7 @@ ISERDESE2 #(
 	.BITSLIP(1'd0),
 	.CE1(1'd1),
 	.CLK(sys4x_clk),
-	.CLKB((~sys4x_clk)),
+	.CLKB(sys4x_clkb),
 	.CLKDIV(sys_clk),
 	.DDLY(main_a7ddrphy_dq_i_delayed9),
 	.RST(sys_rst),
@@ -11529,7 +11551,7 @@ ISERDESE2 #(
 	.BITSLIP(1'd0),
 	.CE1(1'd1),
 	.CLK(sys4x_clk),
-	.CLKB((~sys4x_clk)),
+	.CLKB(sys4x_clkb),
 	.CLKDIV(sys_clk),
 	.DDLY(main_a7ddrphy_dq_i_delayed10),
 	.RST(sys_rst),
@@ -11605,7 +11627,7 @@ ISERDESE2 #(
 	.BITSLIP(1'd0),
 	.CE1(1'd1),
 	.CLK(sys4x_clk),
-	.CLKB((~sys4x_clk)),
+	.CLKB(sys4x_clkb),
 	.CLKDIV(sys_clk),
 	.DDLY(main_a7ddrphy_dq_i_delayed11),
 	.RST(sys_rst),
@@ -11681,7 +11703,7 @@ ISERDESE2 #(
 	.BITSLIP(1'd0),
 	.CE1(1'd1),
 	.CLK(sys4x_clk),
-	.CLKB((~sys4x_clk)),
+	.CLKB(sys4x_clkb),
 	.CLKDIV(sys_clk),
 	.DDLY(main_a7ddrphy_dq_i_delayed12),
 	.RST(sys_rst),
@@ -11757,7 +11779,7 @@ ISERDESE2 #(
 	.BITSLIP(1'd0),
 	.CE1(1'd1),
 	.CLK(sys4x_clk),
-	.CLKB((~sys4x_clk)),
+	.CLKB(sys4x_clkb),
 	.CLKDIV(sys_clk),
 	.DDLY(main_a7ddrphy_dq_i_delayed13),
 	.RST(sys_rst),
@@ -11833,7 +11855,7 @@ ISERDESE2 #(
 	.BITSLIP(1'd0),
 	.CE1(1'd1),
 	.CLK(sys4x_clk),
-	.CLKB((~sys4x_clk)),
+	.CLKB(sys4x_clkb),
 	.CLKDIV(sys_clk),
 	.DDLY(main_a7ddrphy_dq_i_delayed14),
 	.RST(sys_rst),
@@ -11909,7 +11931,7 @@ ISERDESE2 #(
 	.BITSLIP(1'd0),
 	.CE1(1'd1),
 	.CLK(sys4x_clk),
-	.CLKB((~sys4x_clk)),
+	.CLKB(sys4x_clkb),
 	.CLKDIV(sys_clk),
 	.DDLY(main_a7ddrphy_dq_i_delayed15),
 	.RST(sys_rst),
@@ -12102,6 +12124,7 @@ VexRiscv VexRiscv(
 	.iBusWishbone_WE(main_cpu_ibus_we)
 );
 
+(* LOC="PLLE2_ADV_X1Y0" *)
 PLLE2_ADV #(
 	.CLKFBOUT_MULT(5'd16),
 	.CLKIN1_PERIOD(10.0),
@@ -12367,5 +12390,4 @@ assign main_data_port_dat_r[127:120] = data_mem_grain15[memadr_17];
 	.PRE(builder_xilinxasyncresetsynchronizerimpl3),
 	.Q(clk200_rst)
 );
-
 endmodule
