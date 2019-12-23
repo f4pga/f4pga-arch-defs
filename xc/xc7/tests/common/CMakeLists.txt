@@ -11,6 +11,7 @@ add_file_target(FILE arty_swbut.pcf)
 add_file_target(FILE zybo.pcf)
 add_file_target(FILE zyboz7.pcf)
 add_file_target(FILE zedboard.pcf)
+add_file_target(FILE pynqz1.pcf)
 
 # Nexys-video constraint files
 add_file_target(FILE nexys_video.pcf)
