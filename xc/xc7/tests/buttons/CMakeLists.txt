@@ -53,6 +53,7 @@ add_vivado_target(
 
 add_file_target(FILE buttons_zybo.v SCANNER_TYPE verilog)
 add_file_target(FILE buttons_zedboard.v SCANNER_TYPE verilog)
+add_file_target(FILE buttons_pynqz1.v SCANNER_TYPE verilog)
 
 add_fpga_target(
   NAME buttons_zybo
@@ -106,4 +107,17 @@ add_fpga_target(
 add_vivado_target(
   NAME buttons_zedboard_vivado
   PARENT_NAME buttons_zedboard
+  )
+
+add_fpga_target(
+  NAME buttons_pynqz1
+  BOARD pynqz1-full
+  SOURCES buttons_pynqz1.v
+  INPUT_IO_FILE ../common/pynqz1.pcf
+  EXPLICIT_ADD_FILE_TARGET
+  )
+
+add_vivado_target(
+  NAME buttons_pynqz1_vivado
+  PARENT_NAME buttons_pynqz1
   )

@@ -1,0 +1,28 @@
+# Pynq-Z1 125 MHz CLK
+set_io clk H16
+
+# Outputs: led[3:0]
+set_io led[0] R14
+set_io led[1] P14
+set_io led[2] N16
+set_io led[3] M14
+
+# Outputs: rgs led4
+#set_io led4_b L15
+#set_io led4_g G17
+#set_io led4_r N15
+
+# Outputs: rgs led5
+#set_io led4_b G14
+#set_io led4_g L14
+#set_io led4_r M15
+
+# Inputs: sw[1:0]
+set_io sw[0] M20
+set_io sw[1] M19
+
+# InputsL buttons[3:0]
+#set_io btn[0] D19
+#set_io btn[1] D20
+#set_io btn[2] L20
+#set_io btn[3] L19
