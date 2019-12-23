@@ -33,7 +33,7 @@ function(serdes_test data_width data_rate)
 
   add_fpga_target(
     NAME serdes_basys3_${data_width}_${data_rate_lower}
-    BOARD basys3-full
+    BOARD basys3-bottom
     SOURCES
       serdes_basys3_${data_width}_${data_rate_lower}.v
       serdes_test.v
@@ -43,7 +43,7 @@ function(serdes_test data_width data_rate)
 
   add_fpga_target(
     NAME serdes_basys3_idelay_${data_width}_${data_rate_lower}
-    BOARD basys3-full
+    BOARD basys3-bottom
     SOURCES
       serdes_basys3_idelay_${data_width}_${data_rate_lower}.v
       serdes_test_idelay.v
