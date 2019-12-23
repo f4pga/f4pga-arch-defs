@@ -93,5 +93,11 @@ add_xc_board(
   PART xc7a200tsbg484-1
   PROG_TOOL ${OPENOCD_TARGET}
   PROG_CMD "${OPENOCD} -f board/digilent_nexys_video.cfg -c \\\"init $<SEMICOLON> pld load 0 \${OUT_BIN} $<SEMICOLON> exit\\\""
+
+add_xc7_board(
+  BOARD microzed-full
+  DEVICE xc7z020
+  PACKAGE test
+  PART xc7z020clg484-1
 )
 
