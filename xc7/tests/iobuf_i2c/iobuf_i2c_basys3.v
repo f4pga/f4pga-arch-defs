@@ -31,7 +31,12 @@ wire scl_i;
 wire scl_o;
 wire scl_t;
 
-IOBUF iobuf_sda
+IOBUF # (
+.IOSTANDARD("LVCMOS33"),
+.DRIVE(12),
+.SLEW("SLOW")
+)
+iobuf_sda
 (
 .I  (sda_i),
 .O  (sda_o),
@@ -39,7 +44,12 @@ IOBUF iobuf_sda
 .IO (sda)
 );
 
-IOBUF iobuf_scl
+IOBUF # (
+.IOSTANDARD("LVCMOS33"),
+.DRIVE(12),
+.SLEW("SLOW")
+)
+iobuf_scl
 (
 .I  (scl_i),
 .O  (scl_o),

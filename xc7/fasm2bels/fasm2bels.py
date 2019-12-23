@@ -228,6 +228,11 @@ def main():
         '--part',
         help="Name of part being targeted, required if --bit_file is provided."
     )
+    parser.add_argument(
+        '--allow-non-dedicated-clk-routes',
+        action='store_true',
+        help="Effectively sets CLOCK_DEDICATED_ROUTE to FALSE on all nets."
+    )
     parser.add_argument('--top', default="top", help="Root level module name.")
     parser.add_argument('--pcf', help="Mapping of top-level pins to pads.")
     parser.add_argument('--route_file', help="VPR route output file.")
@@ -304,6 +309,11 @@ def main():
 
     if args.prune_unconnected_ports:
         top.prune_unconnected_ports()
+
+    if args.allow_non_dedicated_clk_routes:
+        top.add_extra_tcl_line(
+            "set_property CLOCK_DEDICATED_ROUTE FALSE [get_nets]"
+        )
 
     with open(args.verilog_file, 'w') as f:
         for l in top.output_verilog():

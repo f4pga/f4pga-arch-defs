@@ -610,14 +610,52 @@ module IBUF_VPR (
 	input I,
 	output O
 );
-	assign O = I;
+
+  parameter [0:0] LVCMOS12_LVCMOS15_LVCMOS18_IN = 1'b0;
+  parameter [0:0] LVCMOS12_LVCMOS15_LVCMOS18_LVCMOS25_LVCMOS33_LVTTL_SLEW_FAST = 1'b0;
+  parameter [0:0] LVCMOS12_LVCMOS15_LVCMOS18_LVCMOS25_LVCMOS33_LVTTL_SSTL135_IN_ONLY = 1'b0;
+  parameter [0:0] LVCMOS12_LVCMOS15_LVCMOS18_SSTL135_STEPDOWN = 1'b0;
+  parameter [0:0] LVCMOS25_LVCMOS33_LVTTL_IN = 1'b0;
+  parameter [0:0] SSTL135_IN = 1'b0;
+
+  parameter [0:0] IN_TERM_UNTUNED_SPLIT_40 = 1'b0;
+  parameter [0:0] IN_TERM_UNTUNED_SPLIT_50 = 1'b0;
+  parameter [0:0] IN_TERM_UNTUNED_SPLIT_60 = 1'b0;
+
+  assign O = I;
+
 endmodule
 
 module OBUF_VPR (
 	input I,
 	output O
 );
-	assign O = I;
+
+  parameter [0:0] LVCMOS12_DRIVE_I12 = 1'b0;
+  parameter [0:0] LVCMOS12_DRIVE_I4 = 1'b0;
+  parameter [0:0] LVCMOS12_LVCMOS15_LVCMOS18_LVCMOS25_LVCMOS33_LVTTL_SLEW_FAST = 1'b0;
+  parameter [0:0] LVCMOS12_LVCMOS15_LVCMOS18_LVCMOS25_LVCMOS33_LVTTL_SSTL135_SLEW_SLOW = 1'b0;
+  parameter [0:0] LVCMOS12_LVCMOS15_LVCMOS18_SSTL135_STEPDOWN = 1'b0;
+  parameter [0:0] LVCMOS12_LVCMOS25_DRIVE_I8 = 1'b0;
+  parameter [0:0] LVCMOS15_DRIVE_I12 = 1'b0;
+  parameter [0:0] LVCMOS15_DRIVE_I16 = 1'b0;
+  parameter [0:0] LVCMOS15_DRIVE_I8 = 1'b0;
+  parameter [0:0] LVCMOS15_LVCMOS18_LVCMOS25_DRIVE_I4 = 1'b0;
+  parameter [0:0] LVCMOS18_DRIVE_I12_I8 = 1'b0;
+  parameter [0:0] LVCMOS18_DRIVE_I16 = 1'b0;
+  parameter [0:0] LVCMOS18_DRIVE_I24 = 1'b0;
+  parameter [0:0] LVCMOS25_DRIVE_I12 = 1'b0;
+  parameter [0:0] LVCMOS25_DRIVE_I16 = 1'b0;
+  parameter [0:0] LVCMOS33_DRIVE_I16 = 1'b0;
+  parameter [0:0] LVCMOS33_LVTTL_DRIVE_I12_I16 = 1'b0;
+  parameter [0:0] LVCMOS33_LVTTL_DRIVE_I12_I8 = 1'b0;
+  parameter [0:0] LVCMOS33_LVTTL_DRIVE_I4 = 1'b0;
+  parameter [0:0] LVTTL_DRIVE_I24 = 1'b0;
+  parameter [0:0] SSTL135_DRIVE_I_FIXED = 1'b0;
+  parameter [0:0] SSTL135_SLEW_FAST = 1'b0;
+
+  assign O = I;
+
 endmodule
 
 
@@ -628,6 +666,36 @@ module IOBUF_VPR (
     input  IOPAD_$inp,
     output IOPAD_$out
 );
+
+  parameter [0:0] LVCMOS12_DRIVE_I12 = 1'b0;
+  parameter [0:0] LVCMOS12_DRIVE_I4 = 1'b0;
+  parameter [0:0] LVCMOS12_LVCMOS15_LVCMOS18_IN = 1'b0;
+  parameter [0:0] LVCMOS12_LVCMOS15_LVCMOS18_LVCMOS25_LVCMOS33_LVTTL_SLEW_FAST = 1'b0;
+  parameter [0:0] LVCMOS12_LVCMOS15_LVCMOS18_LVCMOS25_LVCMOS33_LVTTL_SSTL135_SLEW_SLOW = 1'b0;
+  parameter [0:0] LVCMOS12_LVCMOS15_LVCMOS18_SSTL135_STEPDOWN = 1'b0;
+  parameter [0:0] LVCMOS12_LVCMOS25_DRIVE_I8 = 1'b0;
+  parameter [0:0] LVCMOS15_DRIVE_I12 = 1'b0;
+  parameter [0:0] LVCMOS15_DRIVE_I16 = 1'b0;
+  parameter [0:0] LVCMOS15_DRIVE_I8 = 1'b0;
+  parameter [0:0] LVCMOS15_LVCMOS18_LVCMOS25_DRIVE_I4 = 1'b0;
+  parameter [0:0] LVCMOS18_DRIVE_I12_I8 = 1'b0;
+  parameter [0:0] LVCMOS18_DRIVE_I16 = 1'b0;
+  parameter [0:0] LVCMOS18_DRIVE_I24 = 1'b0;
+  parameter [0:0] LVCMOS25_DRIVE_I12 = 1'b0;
+  parameter [0:0] LVCMOS25_DRIVE_I16 = 1'b0;
+  parameter [0:0] LVCMOS25_LVCMOS33_LVTTL_IN = 1'b0;
+  parameter [0:0] LVCMOS33_DRIVE_I16 = 1'b0;
+  parameter [0:0] LVCMOS33_LVTTL_DRIVE_I12_I16 = 1'b0;
+  parameter [0:0] LVCMOS33_LVTTL_DRIVE_I12_I8 = 1'b0;
+  parameter [0:0] LVCMOS33_LVTTL_DRIVE_I4 = 1'b0;
+  parameter [0:0] LVTTL_DRIVE_I24 = 1'b0;
+  parameter [0:0] SSTL135_DRIVE_I_FIXED = 1'b0;
+  parameter [0:0] SSTL135_IN = 1'b0;
+  parameter [0:0] SSTL135_SLEW_FAST = 1'b0;
+
+  parameter [0:0] IN_TERM_UNTUNED_SPLIT_40 = 1'b0;
+  parameter [0:0] IN_TERM_UNTUNED_SPLIT_50 = 1'b0;
+  parameter [0:0] IN_TERM_UNTUNED_SPLIT_60 = 1'b0;
 
   assign O = IOPAD_$inp;
   assign IOPAD_$out = (T == 1'b0) ? I : 1'bz;
@@ -647,6 +715,10 @@ module OBUFTDS_M_VPR (
   parameter [0:0] SSTL135_DRIVE_I_FIXED = 1'b0;
   parameter [0:0] SSTL135_SLEW_FAST = 1'b0;
 
+  parameter [0:0] IN_TERM_UNTUNED_SPLIT_40 = 1'b0;
+  parameter [0:0] IN_TERM_UNTUNED_SPLIT_50 = 1'b0;
+  parameter [0:0] IN_TERM_UNTUNED_SPLIT_60 = 1'b0;
+
   assign O  = (T == 1'b0) ?  I : 1'bz;
   assign OB = (T == 1'b0) ? !I : 1'bz;
 
@@ -661,6 +733,10 @@ module OBUFTDS_S_VPR (
   parameter [0:0] LVCMOS12_LVCMOS15_LVCMOS18_SSTL135_STEPDOWN = 1'b0;
   parameter [0:0] SSTL135_DRIVE_I_FIXED = 1'b0;
   parameter [0:0] SSTL135_SLEW_FAST = 1'b0;
+
+  parameter [0:0] IN_TERM_UNTUNED_SPLIT_40 = 1'b0;
+  parameter [0:0] IN_TERM_UNTUNED_SPLIT_50 = 1'b0;
+  parameter [0:0] IN_TERM_UNTUNED_SPLIT_60 = 1'b0;
 
   assign OB = IB;
 

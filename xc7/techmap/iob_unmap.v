@@ -3,7 +3,16 @@ module \$__XILINX_IBUF (
   output O
 );
 
-  IBUF _TECHMAP_REPLACE_ (
+  parameter IOSTANDARD   = "default";
+  parameter IBUF_LOW_PWR = 0;
+  parameter IN_TERM = "NONE";  // Not supported by Vivado ?
+
+  IBUF # (
+  .IOSTANDARD(IOSTANDARD),
+  .IBUF_LOW_PWR(IBUF_LOW_PWR),
+  .IN_TERM(IN_TERM)
+  )
+  _TECHMAP_REPLACE_ (
   .I(I),
   .O(O)
   );
@@ -16,7 +25,16 @@ module \$__XILINX_OBUF (
   output O
 );
 
-  OBUF _TECHMAP_REPLACE_ (
+  parameter IOSTANDARD   = "default";
+  parameter DRIVE        = 12;
+  parameter SLEW         = "SLOW";
+
+  OBUF # (
+  .IOSTANDARD(IOSTANDARD),
+  .DRIVE(DRIVE),
+  .SLEW(SLEW)
+  )
+  _TECHMAP_REPLACE_ (
   .I(I),
   .O(O)
   );

@@ -53,7 +53,12 @@ wire io_i;
 wire io_o;
 wire io_t;
 
-IOBUF iobuf
+IOBUF # (
+.IOSTANDARD("LVCMOS33"),
+.DRIVE(12),
+.SLEW("SLOW")
+)
+iobuf
 (
 .I  (io_i),
 .T  (io_t),
