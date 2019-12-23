@@ -83,7 +83,7 @@ add_xc7_board(
   BOARD zedboard-full
   DEVICE xc7z020
   PACKAGE test
-  PART xc7z020clg400-1
+  PART xc7z020clg484-1
 )
 
 add_xc_board(
