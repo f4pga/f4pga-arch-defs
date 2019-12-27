@@ -1,0 +1,15 @@
+#!/bin/bash
+
+MYPATH=`realpath $0`
+MYPATH=`dirname ${MYPATH}`
+
+DEVICE=xc7a50t_test
+
+CHANNELS=`realpath ${MYPATH}/../share/arch/${DEVICE}/channels.db`
+PINMAP=`realpath ${MYPATH}/../share/arch/${DEVICE}/pinmap.csv`
+IOGEN=`realpath ${MYPATH}/python/prjxray_create_ioplace.py`
+CONSTR_GEN=`realpath ${MYPATH}/python/prjxray_create_place_constraints.py`
+
+python3 ${IOGEN} --pcf $1 --blif $2 --map $PINMAP --net $3 | \
+python3 ${CONSTR_GEN} --net $3 --connection_database ${CHANNELS} --input /dev/stdin > constraints.place
+
