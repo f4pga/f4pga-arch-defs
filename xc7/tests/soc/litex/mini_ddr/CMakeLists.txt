@@ -12,7 +12,7 @@ add_fpga_target(
     VexRiscv_Lite.v
   INPUT_IO_FILE arty.pcf
   INPUT_XDC_FILE minilitex_ddr_arty.xdc
-  INPUT_SDC_FILE arty.sdc
+  SDC_FILE arty.sdc
 )
 
 # TODO: Re-enable the diff_fasm test once the following issue is done
