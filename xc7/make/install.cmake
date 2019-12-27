@@ -38,6 +38,7 @@ function(DEFINE_XC7_TOOLCHAIN_TARGET)
   install(FILES ${TOOLCHAIN_WRAPPERS} ${VPR_COMMON}
           DESTINATION bin
           PERMISSIONS WORLD_EXECUTE WORLD_READ OWNER_WRITE OWNER_READ OWNER_EXECUTE GROUP_READ GROUP_EXECUTE)
+
   # install binaries
   install(FILES ${YOSYS_BINS} ${VPR} ${GENFASM}
           DESTINATION bin
@@ -52,6 +53,18 @@ function(DEFINE_XC7_TOOLCHAIN_TARGET)
   install(FILES ${FASM_TO_BIT}
           DESTINATION bin/python
           PERMISSIONS WORLD_EXECUTE WORLD_READ OWNER_WRITE OWNER_READ OWNER_EXECUTE GROUP_READ GROUP_EXECUTE)
+
+  install(DIRECTORY ${symbiflow-arch-defs_SOURCE_DIR}/third_party/fasm
+          DESTINATION bin/python)
+
+  install(DIRECTORY ${symbiflow-arch-defs_SOURCE_DIR}/third_party/prjxray/prjxray
+          DESTINATION bin/python/prjxray)
+
+  install(DIRECTORY ${symbiflow-arch-defs_SOURCE_DIR}/third_party/prjxray/utils
+          DESTINATION bin/python/prjxray)
+
+  install(FILES ${symbiflow-arch-defs_SOURCE_DIR}/utils/lib/parse_pcf.py
+          DESTINATION bin/python/lib)
 
   # install yosys data
   install(DIRECTORY ${YOSYS_DATADIR}
