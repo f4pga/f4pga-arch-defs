@@ -1,0 +1,65 @@
+#!/bin/bash
+
+MYPATH=`realpath $0`
+MYPATH=`dirname ${MYPATH}`
+
+export TECHMAP_PATH=`realpath ${MYPATH}/../share/prjxray/techmap`
+
+SYNTH_TCL_PATH=`realpath ${MYPATH}/../share/prjxray/synth.tcl`
+CONV_TCL_PATH=`realpath ${MYPATH}/../share/prjxray/conv.tcl`
+
+VERILOG_FILES=()
+XDC_FILES=()
+TOP=top
+
+VERILOGLIST=0
+XDCLIST=0
+TOPNAME=0
+
+for arg in $@; do
+	echo $arg
+	case "$arg" in
+		-t|--top)
+			echo "adding top"
+			VERILOGLIST=0
+			XDCLIST=0
+			TOPNAME=1
+			;;
+		-x|--xdc)
+			VERILOGLIST=0
+			XDCLIST=1
+			TOPNAME=0
+			;;
+		-v|--verilog)
+			VERILOGLIST=1
+			XDCLIST=0
+			TOPNAME=0
+			;;
+		*)
+			if [ $VERILOGLIST -eq 1 ]; then
+				VERILOG_FILES+=($arg)
+			elif [ $XDCLIST -eq 1 ]; then
+				XDC_FILES+=($arg)
+			elif [ $TOPNAME -eq 1 ]; then
+				TOP=$arg
+			else
+				echo "Usage: synth [-t|--top <top module name> -v|--verilog <Verilog files list> [-x|--xdc <XDC files list>]"
+				exit 1
+			fi
+			;;
+	esac
+done
+
+if [ ${#VERILOG_FILES[@]} -eq 0 ]; then
+	echo "Please at least one Verilog file"
+	exit 1
+fi
+
+export INPUT_XDC_FILE=${XDC_FILES[*]}
+export OUT_JSON=$TOP.json
+export OUT_SYNTH_V=${TOP}_synth.v
+export OUT_EBLIF=${TOP}.eblif
+LOG=${TOP}_synth.log
+
+yosys -p "tcl ${SYNTH_TCL_PATH}" -l $LOG ${VERILOG_FILES[*]}
+yosys -p "read_json $OUT_JSON; tcl ${CONV_TCL_PATH}"

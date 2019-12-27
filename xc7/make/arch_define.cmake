@@ -25,15 +25,7 @@ function(ADD_XC7_ARCH_DEFINE)
   set(PROTOTYPE_PART ${ADD_XC7_ARCH_DEFINE_PROTOTYPE_PART})
   set(YOSYS_SYNTH_SCRIPT ${ADD_XC7_ARCH_DEFINE_YOSYS_SYNTH_SCRIPT})
   set(YOSYS_CONV_SCRIPT ${ADD_XC7_ARCH_DEFINE_YOSYS_CONV_SCRIPT})
-
-  define_arch(
-    ARCH ${ARCH}
-    PROTOTYPE_PART ${PROTOTYPE_PART}
-    YOSYS_SYNTH_SCRIPT ${YOSYS_SYNTH_SCRIPT}
-    YOSYS_CONV_SCRIPT ${YOSYS_CONV_SCRIPT}
-    DEVICE_FULL_TEMPLATE \${DEVICE}-\${PACKAGE}
-    CELLS_SIM ${YOSYS_DATADIR}/xilinx/cells_sim.v ${symbiflow-arch-defs_SOURCE_DIR}/xc7/techmap/cells_sim.v
-    VPR_ARCH_ARGS "\
+  set(VPR_ARCH_ARGS "\
       --clock_modeling route \
       --place_delay_model delta_override \
       --router_lookahead connection_box_map \
@@ -48,6 +40,16 @@ function(ADD_XC7_ARCH_DEFINE)
       --initial_pres_fac 4.0 \
       --check_rr_graph off \
       --suppress_warnings \${OUT_NOISY_WARNINGS},sum_pin_class:check_unbuffered_edges:load_rr_indexed_data_T_values:check_rr_node:trans_per_R:check_route"
+      )
+
+  define_arch(
+    ARCH ${ARCH}
+    PROTOTYPE_PART ${PROTOTYPE_PART}
+    YOSYS_SYNTH_SCRIPT ${YOSYS_SYNTH_SCRIPT}
+    YOSYS_CONV_SCRIPT ${YOSYS_CONV_SCRIPT}
+    DEVICE_FULL_TEMPLATE \${DEVICE}-\${PACKAGE}
+    CELLS_SIM ${YOSYS_DATADIR}/xilinx/cells_sim.v ${symbiflow-arch-defs_SOURCE_DIR}/xc7/techmap/cells_sim.v
+    VPR_ARCH_ARGS ${VPR_ARCH_ARGS}
     RR_PATCH_TOOL
       ${symbiflow-arch-defs_SOURCE_DIR}/xc7/utils/prjxray_routing_import.py
     RR_PATCH_CMD "${CMAKE_COMMAND} -E env \
@@ -125,6 +127,7 @@ function(ADD_XC7_ARCH_DEFINE)
   add_custom_target(all_${ARCH}_diff_fasm)
   define_xc7_toolchain_target(
       ARCH ${ARCH}
+      VPR_ARCH_ARGS ${VPR_ARCH_ARGS}
       BIT_TO_BIN xc7frames2bit
       CONV_SCRIPT ${YOSYS_CONV_SCRIPT}
       SYNTH_SCRIPT ${YOSYS_SYNTH_SCRIPT})
