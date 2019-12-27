@@ -1,3 +1,5 @@
+include(install.cmake)
+
 function(ADD_XC7_ARCH_DEFINE)
   set(options)
   set(oneValueArgs ARCH PRJXRAY_ARCH PROTOTYPE_PART YOSYS_SYNTH_SCRIPT YOSYS_CONV_SCRIPT)
@@ -121,4 +123,10 @@ function(ADD_XC7_ARCH_DEFINE)
 
   set_target_properties(${ARCH} PROPERTIES PRJXRAY_ARCH ${PRJXRAY_ARCH})
   add_custom_target(all_${ARCH}_diff_fasm)
+  define_xc7_toolchain_target(
+      ARCH ${ARCH}
+      BIT_TO_BIN xc7frames2bit
+      CONV_SCRIPT ${YOSYS_CONV_SCRIPT}
+      SYNTH_SCRIPT ${YOSYS_SYNTH_SCRIPT})
+
 endfunction()
