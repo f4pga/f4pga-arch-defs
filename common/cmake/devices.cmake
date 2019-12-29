@@ -702,6 +702,11 @@ function(DEFINE_DEVICE)
       PACKAGE ${PACKAGE}
       PROG_TOOL false
       )
+
+    install_device_files(
+      DEVICE ${DEFINE_DEVICE_DEVICE}
+      PACKAGE ${PACKAGE}
+      RR_GRAPH_XML ${OUT_RRXML_REAL})
   endforeach()
 endfunction()
 
