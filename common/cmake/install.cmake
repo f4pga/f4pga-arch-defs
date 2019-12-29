@@ -21,7 +21,8 @@ function(INSTALL_DEVICE_FILES)
   set(PACKAGE ${INSTALL_DEVICE_FILES_PACKAGE})
   set(INSTALL_DEST "${CMAKE_INSTALL_PREFIX}/share/arch/${DEVICE}_${PACKAGE}")
 
-  file(MAKE_DIRECTORY ${INSTALL_DEST})
+  add_custom_target(${DEVICE}_${PACKAGE}_ARCH_INSTALL_DIR
+                    COMMAND ${CMAKE_COMMAND} -E make_directory ${INSTALL_DEST})
 
   set(INSTALL_FILES)
 
@@ -49,7 +50,7 @@ function(INSTALL_DEVICE_FILES)
       COMMAND ${CMAKE_COMMAND} -E copy
       ${SRC_FILE}
       ${DST_FILE}
-      DEPENDS ${SRC_FILE}
+      DEPENDS ${SRC_FILE} ${DEVICE}_${PACKAGE}_ARCH_INSTALL_DIR
     )
     add_custom_target(
       "INSTALL_${DEVICE}_${PACKAGE}_${FILE_NAME}"
