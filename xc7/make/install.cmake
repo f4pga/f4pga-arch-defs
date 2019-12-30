@@ -1,6 +1,6 @@
 function(DEFINE_XC7_TOOLCHAIN_TARGET)
   set(options)
-  set(oneValueArgs ARCH CONV_SCRIPT SYNTH_SCRIPT BIT_TO_BIN)
+  set(oneValueArgs ARCH CONV_SCRIPT SYNTH_SCRIPT BIT_TO_BIN ROUTE_CHAN_WIDTH)
   set(multiValueArgs VPR_ARCH_ARGS)
 
   cmake_parse_arguments(
@@ -20,6 +20,9 @@ function(DEFINE_XC7_TOOLCHAIN_TARGET)
 
   set(ARCH ${DEFINE_XC7_TOOLCHAIN_TARGET_ARCH})
   set(VPR_ARCH_ARGS ${DEFINE_XC7_TOOLCHAIN_TARGET_VPR_ARCH_ARGS})
+  set(ROUTE_CHAN_WIDTH ${DEFINE_XC7_TOOLCHAIN_TARGET_ROUTE_CHAN_WIDTH})
+  list(JOIN VPR_BASE_ARGS " " VPR_BASE_ARGS)
+  string(JOIN " " VPR_ARGS ${VPR_BASE_ARGS} "--route_chan_width ${ROUTE_CHAN_WIDTH}" ${VPR_ARCH_ARGS})
   get_target_property_required(FASM_TO_BIT ${ARCH} FASM_TO_BIT)
 
   set(YOSYS_BINS "${YOSYS}" "${YOSYS}-abc" "${YOSYS}-smtbmc" "${YOSYS}-filterlib" "${YOSYS}-config")
