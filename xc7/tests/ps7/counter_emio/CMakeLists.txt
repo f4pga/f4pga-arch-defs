@@ -12,6 +12,5 @@ add_fpga_target(
 add_vivado_target(
     NAME counter_emio_zybo_vivado
     PARENT_NAME counter_emio_zybo
-    # Disabled until PS7 is supported in fasm2bels
-    DISABLE_DIFF_TEST
+    BIT_TO_V_EXTRA_ARGS --allow-non-dedicated-clk-routes
     )
