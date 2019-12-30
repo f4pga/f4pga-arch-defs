@@ -62,6 +62,6 @@ fi
 FRAMES="${BIT%.*}.frames"
 DBROOT=`realpath ${VPRPATH}/../share/prjxray/prjxray-db/${DEVICE}`
 
-python3 ${FASM2FRAMES} --db-root ${DBROOT} --sparse --emit_pudc_b_pullup ${FASM} ${FRAMES}
+python3 ${FASM2FRAMES} --db-root ${DBROOT} --part ${PART} --sparse --emit_pudc_b_pullup ${FASM} ${FRAMES}
 
 $FRAMES2BIT --frm_file ${FRAMES} --output_file ${BIT} --part_name ${PART} --part_file ${DBROOT}/${PART}.yaml
