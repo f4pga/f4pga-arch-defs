@@ -111,6 +111,11 @@ function(DEFINE_XC7_PINMAP_CSV_INSTALL_TARGET)
   set(DEVICE ${DEFINE_XC7_PINMAP_CSV_INSTALL_TARGET_DEVICE})
   set(PACKAGE ${DEFINE_XC7_PINMAP_CSV_INSTALL_TARGET_PACKAGE})
 
+  get_target_property(USE_ROI ${DEVICE} USE_ROI)
+  if(USE_ROI OR USE_ROI STREQUAL "USE_ROI-NOTFOUND")
+    return()
+  endif()
+
   get_target_property_required(PINMAP ${BOARD} PINMAP)
   get_file_location(PINMAP_FILE ${PINMAP})
   get_filename_component(PINMAP_FILE_NAME ${PINMAP_FILE} NAME)
