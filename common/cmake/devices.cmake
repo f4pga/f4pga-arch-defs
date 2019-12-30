@@ -705,8 +705,8 @@ function(DEFINE_DEVICE)
 
     install_device_files(
       DEVICE ${DEFINE_DEVICE_DEVICE}
-      PACKAGE ${PACKAGE}
-      RR_GRAPH_XML ${OUT_RRXML_REAL})
+      DEVICE_TYPE ${DEFINE_DEVICE_DEVICE_TYPE}
+      PACKAGE ${PACKAGE})
   endforeach()
 endfunction()
 
