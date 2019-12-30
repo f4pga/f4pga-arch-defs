@@ -13,7 +13,6 @@ include(common/cmake/tools.cmake)
 
 find_package(PythonInterp 3 REQUIRED)
 
-add_custom_target(install_architectures)
 add_custom_target(
    test_python
    DEPENDS
