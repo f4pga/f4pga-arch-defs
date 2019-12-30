@@ -7,7 +7,7 @@ function(INSTALL_DEVICE_FILES)
   # ~~~
   #
   set(options)
-  set(oneValueArgs DEVICE PACKAGE)
+  set(oneValueArgs DEVICE PACKAGE DEVICE_TYPE)
   set(multiValueArgs)
   cmake_parse_arguments(
     INSTALL_DEVICE_FILES
@@ -18,6 +18,7 @@ function(INSTALL_DEVICE_FILES)
   )
 
   set(DEVICE ${INSTALL_DEVICE_FILES_DEVICE})
+  set(DEVICE_TYPE ${INSTALL_DEVICE_FILES_DEVICE_TYPE})
   set(PACKAGE ${INSTALL_DEVICE_FILES_PACKAGE})
   set(INSTALL_DEST "${CMAKE_INSTALL_PREFIX}/share/arch/${DEVICE}_${PACKAGE}")
 
@@ -39,6 +40,15 @@ function(INSTALL_DEVICE_FILES)
   endif()
   get_target_property_required(RR_GRAPH_FILE ${DEVICE} ${PACKAGE}_OUT_RRXML_REAL)
   list(APPEND INSTALL_FILES ${RR_GRAPH_FILE})
+
+  get_target_property_required(ARCH_FILE ${DEVICE_TYPE} DEVICE_MERGED_FILE)
+  list(APPEND INSTALL_FILES ${ARCH_FILE})
+
+  get_target_property(CHANNELS_DB_FILE ${DEVICE_TYPE} CHANNELS_DB)
+  if(NOT ${CHANNELS_DB_FILE} STREQUAL "CHANNELS_DB_FILE-NOTFOUND")
+    message(WARNING "channels DB: ${CHANNELS_DB_FILE}")
+    list(APPEND INSTALL_FILES ${CHANNELS_DB_FILE})
+  endif()
 
   # Generate installation target for the files
   foreach(FILE ${INSTALL_FILES})
