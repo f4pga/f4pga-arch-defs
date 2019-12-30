@@ -85,4 +85,33 @@ function(DEFINE_XC7_TOOLCHAIN_TARGET)
   install(FILES ${DEFINE_XC7_TOOLCHAIN_TARGET_SYNTH_SCRIPT} ${DEFINE_XC7_TOOLCHAIN_TARGET_CONV_SCRIPT}
           DESTINATION share/prjxray)
 
+function(DEFINE_XC7_PINMAP_CSV_INSTALL_TARGET)
+  set(options)
+  set(oneValueArgs BOARD DEVICE PACKAGE)
+  set(multiValueArgs)
+
+  cmake_parse_arguments(
+    DEFINE_XC7_PINMAP_CSV_INSTALL_TARGET
+    "${options}"
+    "${oneValueArgs}"
+    "${multiValueArgs}"
+    "${ARGN}"
+  )
+
+  set(BOARD ${DEFINE_XC7_PINMAP_CSV_INSTALL_TARGET_BOARD})
+  set(DEVICE ${DEFINE_XC7_PINMAP_CSV_INSTALL_TARGET_DEVICE})
+  set(PACKAGE ${DEFINE_XC7_PINMAP_CSV_INSTALL_TARGET_PACKAGE})
+
+  get_target_property_required(PINMAP ${BOARD} PINMAP)
+  get_file_location(PINMAP_FILE ${PINMAP})
+  get_filename_component(PINMAP_FILE_NAME ${PINMAP_FILE} NAME)
+  append_file_dependency(DEPS ${PINMAP})
+  add_custom_target(
+    "PINMAP_INSTALL_${BOARD}_${DEVICE}_${PACKAGE}_${PINMAP_FILE_NAME}"
+    ALL
+    DEPENDS ${DEPS}
+    )
+  install(FILES ${PINMAP_FILE}
+      DESTINATION "share/arch/${DEVICE}_${PACKAGE}"
+      RENAME "pinmap.csv")
 endfunction()
