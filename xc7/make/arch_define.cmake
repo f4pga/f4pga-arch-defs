@@ -127,6 +127,7 @@ function(ADD_XC7_ARCH_DEFINE)
   add_custom_target(all_${ARCH}_diff_fasm)
   define_xc7_toolchain_target(
       ARCH ${ARCH}
+      ROUTE_CHAN_WIDTH 500
       VPR_ARCH_ARGS ${VPR_ARCH_ARGS}
       BIT_TO_BIN xc7frames2bit
       CONV_SCRIPT ${YOSYS_CONV_SCRIPT}

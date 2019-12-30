@@ -1,6 +1,6 @@
 #!/bin/bash
 
-VPR_OPTIONS="@VPR_ARCH_ARGS@"
+VPR_OPTIONS="@VPR_ARGS@"
 
 function parse_args {
 
@@ -70,7 +70,6 @@ function run_vpr {
          --device ${DEVICE_NAME} \
          ${VPR_OPTIONS} \
          --read_rr_graph ${RR_GRAPH} \
-         --suppress_warnings ${NOISY_LOG},sum_pin_class:check_unbuffered_edges:load_rr_indexed_data_T_values:check_rr_node:trans_per_R \
          --read_router_lookahead ${LOOKAHEAD} \
          --read_placement_delay_lookup ${PLACE_DELAY} \
          $@
@@ -84,7 +83,6 @@ function run_genfasm {
          --device ${DEVICE_NAME} \
          ${VPR_OPTIONS} \
          --read_rr_graph ${RR_GRAPH} \
-         --suppress_warnings ${NOISY_LOG},sum_pin_class:check_unbuffered_edges:load_rr_indexed_data_T_values:check_rr_node:trans_per_R \
          $@
 
 }
