@@ -8,8 +8,11 @@ set_io cpu_reset C2
 set_io serial_rx A9
 set_io serial_tx D10
 
-# IDELAYCTRL RDY
-set_io rdy J5
+# LEDs
+set_io led[0] H5
+set_io led[1] J5
+set_io led[2] T9
+set_io led[3] T10
 
 # DDRAM
 set_io ddram_a[0] R2
