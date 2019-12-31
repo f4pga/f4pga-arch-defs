@@ -104,17 +104,17 @@ set_property SLEW FAST [get_ports {ddram_dm[1]} ]
 set_property IOSTANDARD SSTL135 [get_ports {ddram_dm[1]} ]
 # ## ddram:0.dq
 #set_property LOC K5 [get_ports {ddram_dq[0]} ]
-#set_property SLEW FAST [get_ports {ddram_dq[0]} ]
+set_property SLEW FAST [get_ports {ddram_dq[0]} ]
 set_property IOSTANDARD SSTL135 [get_ports {ddram_dq[0]} ]
 set_property IN_TERM UNTUNED_SPLIT_40 [get_ports {ddram_dq[0]} ]
 # ## ddram:0.dq
 #set_property LOC L3 [get_ports {ddram_dq[1]} ]
-#set_property SLEW FAST [get_ports {ddram_dq[1]} ]
+set_property SLEW FAST [get_ports {ddram_dq[1]} ]
 set_property IOSTANDARD SSTL135 [get_ports {ddram_dq[1]} ]
 set_property IN_TERM UNTUNED_SPLIT_40 [get_ports {ddram_dq[1]} ]
 # ## ddram:0.dq
 #set_property LOC K3 [get_ports {ddram_dq[2]} ]
-#set_property SLEW FAST [get_ports {ddram_dq[2]} ]
+set_property SLEW FAST [get_ports {ddram_dq[2]} ]
 set_property IOSTANDARD SSTL135 [get_ports {ddram_dq[2]} ]
 set_property IN_TERM UNTUNED_SPLIT_40 [get_ports {ddram_dq[2]} ]
 # ## ddram:0.dq
