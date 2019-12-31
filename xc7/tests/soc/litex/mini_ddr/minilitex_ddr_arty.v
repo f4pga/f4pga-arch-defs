@@ -21,10 +21,16 @@ module top(
 	output ddram_cke,
 	output ddram_odt,
 	output ddram_reset_n,
-	output rdy
+	output [3:0] led
 );
 
-wire rdy;
+assign led[0] = main_locked;
+assign led[1] = idelayctl_rdy;
+assign led[2] = 0;
+assign led[3] = 0;
+
+wire [3:0] led;
+wire idelayctl_rdy;
 wire main_ctrl_reset_reset_re;
 wire main_ctrl_reset_reset_r;
 wire main_ctrl_reset_reset_we;
@@ -10080,7 +10086,7 @@ BUFG BUFG_5(
 IDELAYCTRL IDELAYCTRL(
 	.REFCLK(sys4x_clk),
 	.RST(main_ic_reset),
-	.RDY(rdy)
+	.RDY(idelayctl_rdy)
 );
 
 wire tq;
