@@ -1,4 +1,3 @@
-import re
 import functools
 
 # A map of wires that require "SING" in their name for [LR]IOI3_SING tiles.
