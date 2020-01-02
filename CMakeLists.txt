@@ -160,7 +160,7 @@ add_dependencies(all_xc7_demos
     all_pynqz1-full_bin
     #all_basys3-bottom_bin
     # TODO(#548) Zybo targets not currently working, so removed from all target.
-    #all_zybo_bin
+    all_zybo_bin
     #all_zybo-full_bin
     )
 endif()
