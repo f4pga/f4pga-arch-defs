@@ -1,4 +1,24 @@
+import re
 import functools
+
+# A map of wires that require "SING" in their name for [LR]IOI3_SING tiles.
+IOI_SING_WIRES = {
+    "IOI_IOCLK0": "IOI_SING_IOCLK0",
+    "IOI_IOCLK1": "IOI_SING_IOCLK1",
+    "IOI_IOCLK2": "IOI_SING_IOCLK2",
+    "IOI_IOCLK3": "IOI_SING_IOCLK3",
+    "IOI_LEAF_GCLK0": "IOI_SING_LEAF_GCLK0",
+    "IOI_LEAF_GCLK1": "IOI_SING_LEAF_GCLK1",
+    "IOI_LEAF_GCLK2": "IOI_SING_LEAF_GCLK2",
+    "IOI_LEAF_GCLK3": "IOI_SING_LEAF_GCLK3",
+    "IOI_LEAF_GCLK4": "IOI_SING_LEAF_GCLK4",
+    "IOI_LEAF_GCLK5": "IOI_SING_LEAF_GCLK5",
+    "IOI_RCLK_FORIO0": "IOI_SING_RCLK_FORIO0",
+    "IOI_RCLK_FORIO1": "IOI_SING_RCLK_FORIO1",
+    "IOI_RCLK_FORIO2": "IOI_SING_RCLK_FORIO2",
+    "IOI_RCLK_FORIO3": "IOI_SING_RCLK_FORIO3",
+    "IOI_TBYTEIN": "IOI_SING_TBYTEIN",
+}
 
 
 def create_maybe_get_wire(conn):
@@ -14,6 +34,22 @@ def create_maybe_get_wire(conn):
 
     @functools.lru_cache(maxsize=None)
     def maybe_get_wire(tile, wire):
+
+        # Some wires in [LR]IOI3_SING tiles have different names than in regular
+        # IOI3 tiles. Rename them.
+        if "IOI3_SING" in tile:
+
+            # The connection database contains only wires with suffix "0" for
+            # SING tiles. Change the wire name accordingly.
+            wire = wire.replace("_1", "_0")
+            wire = wire.replace("ILOGIC1", "ILOGIC0")
+            wire = wire.replace("IDELAY1", "IDELAY0")
+            wire = wire.replace("OLOGIC1", "OLOGIC0")
+
+            # Add the "SING" part to wire name if applicable.
+            if wire in IOI_SING_WIRES:
+                wire = IOI_SING_WIRES[wire]
+
         phy_tile_pkey, tile_type_pkey = get_tile_type_pkey(tile)
 
         c.execute(

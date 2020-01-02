@@ -118,7 +118,7 @@ def append_obuf_iostandard_params(
     if in_term is not None:
         top.add_extra_tcl_line(
             "set_property IN_TERM {} [get_ports {}]".format(
-                in_term, bel.connections["I"]
+                in_term, bel.connections["O"]
             )
         )
 
