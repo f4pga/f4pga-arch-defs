@@ -1063,7 +1063,7 @@ function(ADD_FPGA_TARGET)
         ${CMAKE_COMMAND} -E make_directory ${OUT_LOCAL}
       COMMAND
         ${CMAKE_COMMAND} -E env
-          symbiflow-arch-defs_SOURCE_DIR=${symbiflow-arch-defs_SOURCE_DIR}
+          TECHMAP_PATH=${symbiflow-arch-defs_SOURCE_DIR}/xc7/techmap
           OUT_JSON=${OUT_JSON_SYNTH}
           OUT_SYNTH_V=${OUT_SYNTH_V}
           OUT_FASM_EXTRA=${OUT_FASM_EXTRA}
