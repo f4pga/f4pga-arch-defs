@@ -66,6 +66,13 @@ CREATE TABLE site_type(
   name TEXT
 );
 
+CREATE TABLE clock_region(
+  pkey INTEGER PRIMARY KEY,
+  name TEXT,
+  x_coord INT,
+  y_coord INT
+);
+
 -- Physical tile table, contains type and name of tile and location in the prjxray grid.
 CREATE TABLE phy_tile(
   pkey INTEGER PRIMARY KEY,
@@ -73,7 +80,9 @@ CREATE TABLE phy_tile(
   tile_type_pkey INT,
   grid_x INT,
   grid_y INT,
-  FOREIGN KEY(tile_type_pkey) REFERENCES tile_type(pkey)
+  clock_region_pkey INT,
+  FOREIGN KEY(tile_type_pkey) REFERENCES tile_type(pkey),
+  FOREIGN KEY(clock_region_pkey) REFERENCES clock_region(pkey)
 );
 
 -- Site pin table, contains names of pins and their direction, along

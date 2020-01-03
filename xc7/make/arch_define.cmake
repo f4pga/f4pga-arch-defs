@@ -64,6 +64,7 @@ function(ADD_XC7_ARCH_DEFINE)
     \${PYTHON3} \${PLACE_CONSTR_TOOL} \
         --net \${OUT_NET} \
         --arch \${DEVICE_MERGED_FILE_LOCATION} \
+        --blif \${OUT_EBLIF} \
         --input /dev/stdin \
         --output /dev/stdout \
         \${PLACE_CONSTR_TOOL_EXTRA_ARGS}"
