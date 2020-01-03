@@ -4,7 +4,7 @@ mux_gen(
   OUTPUT O
   MUX_NAME MUX
   SPLIT_INPUTS 1
-  TYPE routing
+  TYPE logic
   WIDTH 2
 )
 
