@@ -1,0 +1,4 @@
+add_file_target(FILE not.sim.v SCANNER_TYPE verilog)
+add_file_target(FILE inv.sim.v SCANNER_TYPE verilog)
+v2x(NAME not SRCS not.sim.v)
+v2x(NAME inv SRCS inv.sim.v)

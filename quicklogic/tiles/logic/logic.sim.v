@@ -1,5 +1,6 @@
 `include "../../primitives/ff/ff.sim.v"
 `include "../../primitives/mux/mux.sim.v"
+`include "../../primitives/inv/inv.sim.v"
 
 module LOGIC (QST, QDS, TBS, TAB, TSL, TA1, TA2, TB1, TB2, BAB, BSL, BA1, BA2, BB1, BB2, QDI, QEN, QCK, QRT, F1, F2, FS, TZ, CZ, QZ, FZ);
     input wire QST;
@@ -30,31 +31,37 @@ module LOGIC (QST, QDS, TBS, TAB, TSL, TA1, TA2, TB1, TB2, BAB, BSL, BA1, BA2, B
     output wire QZ;
     output wire FZ;
 
-    // routable="false"
-    localparam TAS1 = 1'b0;
-    localparam TAS2 = 1'b0;
-    localparam TBS1 = 1'b0;
-    localparam TBS2 = 1'b0;
-    localparam BAS1 = 1'b0;
-    localparam BAS2 = 1'b0;
-    localparam BBS1 = 1'b0;
-    localparam BBS2 = 1'b0;
-    // unet="vcc"
     localparam QCSK = 1'b1;
 
-    wire ta;
-    wire tb;
-    MUX ta_mux(TAS1 ? ~TA1 : TA1, TAS2 ? ~TA2 : TA2, TSL, ta);
-    MUX tb_mux(TBS1 ? ~TB1 : TB1, TBS2 ? ~TB2 : TB2, TSL, tb);
+    wire ta, ta_i0, ta_i1;
+    wire tb, tb_i0, tb_i1;
+
+    INV ta_i0_inv(TA1, ta_i0);
+    INV ta_i1_inv(TA2, ta_i1);
+
+    INV tb_i0_inv(TA1, tb_i0);
+    INV tb_i1_inv(TA2, tb_i1);
+
+    MUX ta_mux(ta_i0, ta_i1, TSL, ta);
+    MUX tb_mux(tb_i0, tb_i1, TSL, tb);
+
     wire tab;
     MUX tab_mux(ta, tb, TAB, tab);
 
     assign TZ = tab;
 
-    wire ba;
-    wire bb;
-    MUX ba_mux(BAS1 ? ~BA1 : BA1, BAS2 ? ~BA2 : BA2, BSL, ba);
-    MUX bb_mux(BBS1 ? ~BB1 : BB1, BBS2 ? ~BB2 : BB2, BSL, bb);
+    wire ba, ba_i0, ba_i1;
+    wire bb, bb_i0, bb_i1;
+
+    INV ba_i0_inv(BA1, ba_i0);
+    INV ba_i1_inv(BA2, ba_i1);
+
+    INV bb_i0_inv(BA1, bb_i0);
+    INV bb_i1_inv(BA2, bb_i1);
+
+    MUX ba_mux(ba_i0, ba_i1, BSL, ba);
+    MUX bb_mux(bb_i0, bb_i1, BSL, bb);
+
     wire bab;
     MUX bab_mux(ba, bb, BAB, bab);
 
