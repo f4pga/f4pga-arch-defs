@@ -18,10 +18,7 @@ add_fpga_target(
   SDC_FILE arty.sdc
 )
 
-# TODO: Re-enable the diff_fasm test once the following issue is done
-# https://github.com/SymbiFlow/symbiflow-arch-defs/issues/1183
 add_vivado_target(
     NAME minilitex_ddr_arty_vivado
     PARENT_NAME minilitex_ddr_arty
-    DISABLE_DIFF_TEST
 )
