@@ -11,6 +11,19 @@ HEADER_TEMPLATE = """\
 CONSTRAINT_TEMPLATE = '{name:<{nl}} {x: 3} {y: 3} {z: 2}  # {comment}'
 
 
+def get_root_cluster(curr):
+    while True:
+        parent = curr.getparent()
+        if parent is None:
+            return None
+
+        parent_parent = parent.getparent()
+        if parent_parent is None:
+            return curr
+
+        curr = parent
+
+
 class PlaceConstraints(object):
     def __init__(self):
         self.constraints = OrderedDict()
@@ -24,6 +37,13 @@ class PlaceConstraints(object):
         net_xml = ET.parse(net_file)
         net_root = net_xml.getroot()
         self.net_to_block = {}
+        self.block_to_root_block = {}
+
+        for el in net_root.iter('block'):
+            root_block = get_root_cluster(el)
+            if root_block is not None:
+                self.block_to_root_block[el.attrib['name']
+                                         ] = root_block.attrib['name']
 
         for attr in net_root.xpath("//attribute[@name='LOC']"):
             # Get block name
@@ -37,19 +57,19 @@ class PlaceConstraints(object):
 
     def constrain_block(self, block_name, loc, comment=""):
         assert len(loc) == 3
-        assert block_name not in self.constraints
+        assert block_name not in self.constraints, block_name
 
-        assert block_name in self.block_to_loc, "block {} not in net".format(
-            block_name
-        )
-
-        self.constraints[block_name] = PlaceConstraint(
+        place_constraint = PlaceConstraint(
             name=block_name,
             x=loc[0],
             y=loc[1],
             z=loc[2],
             comment=comment,
         )
+
+        root_block = self.block_to_root_block[block_name]
+
+        self.constraints[root_block] = place_constraint
 
     def output_place_constraints(self, f):
         if not self.constraints:
