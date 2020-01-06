@@ -26,6 +26,7 @@ import json
 
 import fasm
 import fasm.output
+from fasm import SetFasmFeature
 from prjxray import fasm_disassembler
 from prjxray import bitstream
 import prjxray.db
@@ -95,6 +96,72 @@ def process_tile(top, tile, tile_features):
     tile_type = get_tile_type(top.conn, tile)
 
     PROCESS_TILE[tile_type](top.conn, top, tile, tile_features)
+
+
+# A map of wires that require "SING" in their name for [LR]IOI3_SING tiles.
+IOI_SING_WIRES = {
+    "IOI_IOCLK0": "IOI_SING_IOCLK0",
+    "IOI_IOCLK1": "IOI_SING_IOCLK1",
+    "IOI_IOCLK2": "IOI_SING_IOCLK2",
+    "IOI_IOCLK3": "IOI_SING_IOCLK3",
+    "IOI_LEAF_GCLK0": "IOI_SING_LEAF_GCLK0",
+    "IOI_LEAF_GCLK1": "IOI_SING_LEAF_GCLK1",
+    "IOI_LEAF_GCLK2": "IOI_SING_LEAF_GCLK2",
+    "IOI_LEAF_GCLK3": "IOI_SING_LEAF_GCLK3",
+    "IOI_LEAF_GCLK4": "IOI_SING_LEAF_GCLK4",
+    "IOI_LEAF_GCLK5": "IOI_SING_LEAF_GCLK5",
+    "IOI_RCLK_FORIO0": "IOI_SING_RCLK_FORIO0",
+    "IOI_RCLK_FORIO1": "IOI_SING_RCLK_FORIO1",
+    "IOI_RCLK_FORIO2": "IOI_SING_RCLK_FORIO2",
+    "IOI_RCLK_FORIO3": "IOI_SING_RCLK_FORIO3",
+    "IOI_TBYTEIN": "IOI_SING_TBYTEIN",
+}
+
+
+def process_set_feature(set_feature):
+    """
+    Processes fasm features as they are read from the file and modifies them
+    if it is required.
+    """
+
+    # Get tile name
+    parts = set_feature.feature.split(".")
+    tile = parts[0]
+
+    # Some wires in [LR]IOI3_SING tiles have different names than in regular
+    # IOI3 tiles. Rename them in PIP features.
+    if "IOI3_SING" in tile and len(parts) == 3:
+
+        # Rename wires
+        wires = [parts[1], parts[2]]
+        for i, wire in enumerate(wires):
+
+            # The connection database contains only wires with suffix "0" for
+            # SING tiles. Change the wire name accordingly.
+            wire = wire.replace("_1", "_0")
+            wire = wire.replace("ILOGIC1", "ILOGIC0")
+            wire = wire.replace("IDELAY1", "IDELAY0")
+            wire = wire.replace("OLOGIC1", "OLOGIC0")
+
+            # Add the "SING" part to wire name if applicable.
+            if wire in IOI_SING_WIRES:
+                wire = IOI_SING_WIRES[wire]
+
+            wires[i] = wire
+
+        # Return the modified PIP feature
+        feature = "{}.{}.{}".format(tile, wires[0], wires[1])
+
+        return SetFasmFeature(
+            feature=feature,
+            start=set_feature.start,
+            end=set_feature.end,
+            value=set_feature.value,
+            value_format=set_feature.value_format
+        )
+
+    # Return unchanged feature
+    return set_feature
 
 
 def find_io_standards(feature):
@@ -286,16 +353,18 @@ def main():
         if not fasm_line.set_feature:
             continue
 
-        parts = fasm_line.set_feature.feature.split('.')
+        set_feature = process_set_feature(fasm_line.set_feature)
+
+        parts = set_feature.feature.split('.')
         tile = parts[0]
 
         if tile not in tiles:
             tiles[tile] = []
 
-        tiles[tile].append(fasm_line.set_feature)
+        tiles[tile].append(set_feature)
 
         if len(parts) == 3:
-            maybe_add_pip(top, maybe_get_wire, fasm_line.set_feature)
+            maybe_add_pip(top, maybe_get_wire, set_feature)
 
     if args.iostandard_defs:
         with open(args.iostandard_defs) as fp:
