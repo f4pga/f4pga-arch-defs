@@ -5,9 +5,12 @@ def process_hclk_ioi3(conn, top, tile, features):
     have_idelayctrl = False
 
     for f in features:
+        if f.value == 0:
+            continue
+
         if 'HCLK_IOI_IDELAYCTRL_REFCLK' in f.feature:
             have_idelayctrl = True
-            break
+            continue
 
         if 'VREF' in f.feature:
             # HCLK_IOI3_X113Y26.VREF.V_675_MV

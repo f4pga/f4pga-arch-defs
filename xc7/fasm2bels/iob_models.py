@@ -1,6 +1,33 @@
 from .utils import eprint
 from .verilog_modeling import Bel, Site
 
+# Mapping of IOB type to its IO ports
+IOB_PORTS = {
+    "IBUF": ("I", ),
+    "IBUF_INTERMDISABLE": ("I", ),
+    "IBUF_IBUFDISABLE": ("I", ),
+    "OBUF": ("O", ),
+    "OBUFT": ("O", ),
+    "IOBUF": ("IO", ),
+    "IOBUF_INTERMDISABLE": ("IO", ),
+    "IBUFDS": (
+        "I",
+        "IB",
+    ),
+    "OBUFDS": (
+        "O",
+        "OB",
+    ),
+    "OBUFTDS": (
+        "O",
+        "OB",
+    ),
+    "IOBUFDS": (
+        "IO",
+        "IOB",
+    ),
+}
+
 
 def get_iob_site(db, grid, tile, site):
     """ Return the prjxray.tile.Site objects and tiles for the given IOB site.
@@ -107,20 +134,22 @@ def append_obuf_iostandard_params(
 
             # Demote NSTD-1 to warning
             top.disable_drc("NSTD-1")
-            return
 
-        bel.parameters["IOSTANDARD"] = '"{}"'.format(iostandard)
+        # Valid
+        else:
+            bel.parameters["IOSTANDARD"] = '"{}"'.format(iostandard)
 
-        if drive is not None:
-            bel.parameters["DRIVE"] = '"{}"'.format(drive)
+            if drive is not None:
+                bel.parameters["DRIVE"] = '"{}"'.format(drive)
 
     # Input termination (here for inouts)
     if in_term is not None:
-        top.add_extra_tcl_line(
-            "set_property IN_TERM {} [get_ports {}]".format(
-                in_term, bel.connections["I"]
+        for port in IOB_PORTS[bel.module]:
+            top.add_extra_tcl_line(
+                "set_property IN_TERM {} [get_ports {}]".format(
+                    in_term, bel.connections[port]
+                )
             )
-        )
 
     # Slew rate
     bel.parameters["SLEW"] = '"{}"'.format(slew)
@@ -158,17 +187,19 @@ def append_ibuf_iostandard_params(
 
             # Demote NSTD-1 to warning
             top.disable_drc("NSTD-1")
-            return
 
-        bel.parameters["IOSTANDARD"] = '"{}"'.format(iostandard)
+        # Valid
+        else:
+            bel.parameters["IOSTANDARD"] = '"{}"'.format(iostandard)
 
     # Input termination
     if in_term is not None:
-        top.add_extra_tcl_line(
-            "set_property IN_TERM {} [get_ports {}]".format(
-                in_term, bel.connections["I"]
+        for port in IOB_PORTS[bel.module]:
+            top.add_extra_tcl_line(
+                "set_property IN_TERM {} [get_ports {}]".format(
+                    in_term, bel.connections[port]
+                )
             )
-        )
 
 
 def decode_iostandard_params(site, diff=False):
