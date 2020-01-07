@@ -77,7 +77,6 @@ add_conda_package(
   NAME iverilog
   PROVIDES iverilog vvp
   )
-
 add_conda_package(
   NAME yosys-plugins
   PACKAGE_SPEC "yosys-plugins 1.0.0.7_0025_ge04ea5b 20200308_024213"
@@ -86,7 +85,7 @@ add_conda_package(
 # For python-symbiflow-v2x
 add_conda_package(
   NAME libiconv
-  PROVIDES libiconv
+  NO_EXE
   )
 
 add_conda_pip(
@@ -167,7 +166,7 @@ add_thirdparty_package(
   NAME v2x
   BUILD_INSTALL_COMMAND "cd ${symbiflow-arch-defs_SOURCE_DIR}/third_party/python-symbiflow-v2x && ${PYTHON3} setup.py develop"
   NO_EXE
-  DEPENDS ${PYTHON3_TARGET}
+  DEPENDS ${PYTHON3_TARGET} libiconv
 )
 
 include(common/cmake/image_gen.cmake)
