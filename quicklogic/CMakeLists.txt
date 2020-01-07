@@ -32,3 +32,4 @@ define_arch(
 unset(PYTHON3)
 
 add_subdirectory(devices)
+add_subdirectory(tests)
