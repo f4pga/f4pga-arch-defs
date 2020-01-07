@@ -1,3 +1,6 @@
+include(cmake/quicklogic_fasm.cmake)
+add_quicklogic_fasm_package()
+
 set(SDF_TIMING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/timings)
 set(BELS_MAP ${CMAKE_CURRENT_SOURCE_DIR}/bels.json)
 
