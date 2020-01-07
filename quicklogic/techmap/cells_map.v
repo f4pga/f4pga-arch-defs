@@ -7,8 +7,8 @@ module LUT1 (
   // The F-frag mux
   MUX mux_f (
   .S (I0),      // FS
-  .I0(INIT[1]), // F1
-  .I1(INIT[0]), // F2
+  .I0(INIT[0]), // F1
+  .I1(INIT[1]), // F2
   .O (O),       // FZ
   );
 
@@ -25,10 +25,10 @@ module LUT2 (
   wire TSL = I0;
   wire TAB = I1;
 
-  wire TA1 = INIT[3];
-  wire TA2 = INIT[2];
-  wire TB1 = INIT[1];
-  wire TB2 = INIT[0];
+  wire TA1 = INIT[0];
+  wire TA2 = INIT[1];
+  wire TB1 = INIT[2];
+  wire TB2 = INIT[3];
 
   wire ta, tb, tab;
 
@@ -62,34 +62,34 @@ module LUT3 (
   wire _TB1;
   wire _TB2;
 
-  generate case(INIT[7:6])
+  generate case(INIT[1:0])
     2'b00:   assign _TA1 = 1'b0;
-    2'b11:   assign _TA1 = 1'b1;
+    2'b11:   assign _TA1 = 1'b0;
     default: assign _TA1 = I0;
   endcase endgenerate
 
-  generate case(INIT[5:4])
+  generate case(INIT[3:2])
     2'b00:   assign _TA2 = 1'b0;
-    2'b11:   assign _TA2 = 1'b1;
+    2'b11:   assign _TA2 = 1'b0;
     default: assign _TA2 = I0;
   endcase endgenerate
 
-  generate case(INIT[3:2])
+  generate case(INIT[5:4])
     2'b00:   assign _TB1 = 1'b0;
-    2'b11:   assign _TB1 = 1'b1;
+    2'b11:   assign _TB1 = 1'b0;
     default: assign _TB1 = I0;
   endcase endgenerate
 
-  generate case(INIT[1:0])
+  generate case(INIT[7:6])
     2'b00:   assign _TB2 = 1'b0;
-    2'b11:   assign _TB2 = 1'b1;
+    2'b11:   assign _TB2 = 1'b0;
     default: assign _TB2 = I0;
   endcase endgenerate
 
-  localparam TAS1 = INIT[7];
-  localparam TAS2 = INIT[5];
-  localparam TBS1 = INIT[3];
-  localparam TBS2 = INIT[1];
+  localparam TAS1 = INIT[0];
+  localparam TAS2 = INIT[2];
+  localparam TBS1 = INIT[4];
+  localparam TBS2 = INIT[6];
 
   // Insert inverters or not
   wire TA1, TA2;
@@ -159,62 +159,62 @@ module LUT4 (
   wire _BB1;
   wire _BB2;
 
-  generate case(INIT[15:14])
+  generate case(INIT[ 1: 0])
     2'b00:   assign _TA1 = 1'b0;
-    2'b11:   assign _TA1 = 1'b1;
+    2'b11:   assign _TA1 = 1'b0;
     default: assign _TA1 = I0;
   endcase endgenerate
 
-  generate case(INIT[13:12])
+  generate case(INIT[ 3: 2])
     2'b00:   assign _TA2 = 1'b0;
-    2'b11:   assign _TA2 = 1'b1;
+    2'b11:   assign _TA2 = 1'b0;
     default: assign _TA2 = I0;
   endcase endgenerate
 
-  generate case(INIT[11:10])
+  generate case(INIT[ 5: 4])
     2'b00:   assign _TB1 = 1'b0;
-    2'b11:   assign _TB1 = 1'b1;
+    2'b11:   assign _TB1 = 1'b0;
     default: assign _TB1 = I0;
   endcase endgenerate
 
-  generate case(INIT[ 9: 8])
+  generate case(INIT[ 7: 6])
     2'b00:   assign _TB2 = 1'b0;
-    2'b11:   assign _TB2 = 1'b1;
+    2'b11:   assign _TB2 = 1'b0;
     default: assign _TB2 = I0;
   endcase endgenerate
 
-  generate case(INIT[ 7: 6])
+  generate case(INIT[ 9: 8])
     2'b00:   assign _BA1 = 1'b0;
-    2'b11:   assign _BA1 = 1'b1;
+    2'b11:   assign _BA1 = 1'b0;
     default: assign _BA1 = I0;
   endcase endgenerate
 
-  generate case(INIT[ 5: 4])
+  generate case(INIT[11:10])
     2'b00:   assign _BA2 = 1'b0;
-    2'b11:   assign _BA2 = 1'b1;
+    2'b11:   assign _BA2 = 1'b0;
     default: assign _BA2 = I0;
   endcase endgenerate
 
-  generate case(INIT[ 3: 2])
+  generate case(INIT[13:12])
     2'b00:   assign _BB1 = 1'b0;
-    2'b11:   assign _BB1 = 1'b1;
+    2'b11:   assign _BB1 = 1'b0;
     default: assign _BB1 = I0;
   endcase endgenerate
 
-  generate case(INIT[ 1: 0])
+  generate case(INIT[15:14])
     2'b00:   assign _BB2 = 1'b0;
-    2'b11:   assign _BB2 = 1'b1;
+    2'b11:   assign _BB2 = 1'b0;
     default: assign _BB2 = I0;
   endcase endgenerate
 
-  localparam TAS1 = INIT[15];
-  localparam TAS2 = INIT[13];
-  localparam TBS1 = INIT[11];
-  localparam TBS2 = INIT[ 9];
-  localparam BAS1 = INIT[ 7];
-  localparam BAS2 = INIT[ 5];
-  localparam BBS1 = INIT[ 3];
-  localparam BBS2 = INIT[ 1];
+  localparam TAS1 = INIT[ 0];
+  localparam TAS2 = INIT[ 2];
+  localparam TBS1 = INIT[ 4];
+  localparam TBS2 = INIT[ 6];
+  localparam BAS1 = INIT[ 8];
+  localparam BAS2 = INIT[10];
+  localparam BBS1 = INIT[12];
+  localparam BBS2 = INIT[14];
 
   // Insert inverters or not
   wire TA1, TA2;
