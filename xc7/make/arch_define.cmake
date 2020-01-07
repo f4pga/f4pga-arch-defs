@@ -25,6 +25,7 @@ function(ADD_XC7_ARCH_DEFINE)
   set(PROTOTYPE_PART ${ADD_XC7_ARCH_DEFINE_PROTOTYPE_PART})
   set(YOSYS_SYNTH_SCRIPT ${ADD_XC7_ARCH_DEFINE_YOSYS_SYNTH_SCRIPT})
   set(YOSYS_CONV_SCRIPT ${ADD_XC7_ARCH_DEFINE_YOSYS_CONV_SCRIPT})
+  set(YOSYS_TECHMAP ${symbiflow-arch-defs_SOURCE_DIR}/xc7/techmap)
   set(VPR_ARCH_ARGS "\
       --clock_modeling route \
       --place_delay_model delta_override \
@@ -46,6 +47,7 @@ function(ADD_XC7_ARCH_DEFINE)
     ARCH ${ARCH}
     PROTOTYPE_PART ${PROTOTYPE_PART}
     YOSYS_SYNTH_SCRIPT ${YOSYS_SYNTH_SCRIPT}
+    YOSYS_TECHMAP ${YOSYS_TECHMAP}
     YOSYS_CONV_SCRIPT ${YOSYS_CONV_SCRIPT}
     DEVICE_FULL_TEMPLATE \${DEVICE}-\${PACKAGE}
     CELLS_SIM ${YOSYS_DATADIR}/xilinx/cells_sim.v ${symbiflow-arch-defs_SOURCE_DIR}/xc7/techmap/cells_sim.v
