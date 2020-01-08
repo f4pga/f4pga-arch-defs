@@ -9,6 +9,7 @@ add_file_target(FILE arty_swbut.pcf)
 
 # ZYBO constraint files
 add_file_target(FILE zybo.pcf)
+add_file_target(FILE zyboz7.pcf)
 
 add_file_target(FILE error_output_logic.v SCANNER_TYPE verilog)
 add_file_target(FILE error_output_logic_unt.v SCANNER_TYPE verilog)
