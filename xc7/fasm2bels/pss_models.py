@@ -1,13 +1,4 @@
-from collections import defaultdict
-
 from .verilog_modeling import Site, Bel
-
-from .connection_db_utils import get_wire_pkey, get_node_pkey, get_wires_in_node
-from .make_routes import create_check_for_default
-from .make_routes import create_check_downstream_default
-
-# Set to True to verbose PS7 connectivity check
-DEBUG = False
 
 # =============================================================================
 
@@ -624,259 +615,6 @@ PS7_PINS = {
 # =============================================================================
 
 
-def expand_ps_sink(
-        conn, c, sink_wire_pkey, source_to_sink_pip_map, check_for_default
-):
-    """
-    Expand a PS7 site sink. Returns pkey of the upstream wire of the first
-    encountered active PIP. Returns None if no active PIP is found.
-    """
-
-    # Get node pkey
-    sink_node_pkey = get_node_pkey(conn, sink_wire_pkey)
-
-    # Check for an acitve PIP
-    for node_wire_pkey in get_wires_in_node(conn, sink_node_pkey):
-
-        # Got an active PIP, the sink is connected.
-        if node_wire_pkey in source_to_sink_pip_map:
-            upstream_sink_wire_pkey = source_to_sink_pip_map[node_wire_pkey]
-            return upstream_sink_wire_pkey
-
-    # No active PIPs to move upstream, find a PPIP upstream.
-    for node_wire_pkey in get_wires_in_node(conn, sink_node_pkey):
-        c.execute(
-            "SELECT phy_tile_pkey, wire_in_tile_pkey FROM wire WHERE pkey = ?;",
-            (node_wire_pkey, )
-        )
-        phy_tile_pkey, wire_in_tile_pkey = c.fetchone()
-        upstream_sink_wire_in_tile_pkey = check_for_default(wire_in_tile_pkey)
-
-        # Got a PPIP, move upstream.
-        if upstream_sink_wire_in_tile_pkey is not None:
-            c.execute(
-                "SELECT pkey FROM wire WHERE wire_in_tile_pkey = ? AND phy_tile_pkey = ?;",
-                (
-                    upstream_sink_wire_in_tile_pkey,
-                    phy_tile_pkey,
-                )
-            )
-            upstream_sink_wire_pkey = c.fetchone()[0]
-
-            if DEBUG:
-                print(upstream_sink_wire_pkey, "", end='')
-
-            # Recurse
-            return expand_ps_sink(
-                conn=conn,
-                c=c,
-                sink_wire_pkey=upstream_sink_wire_pkey,
-                source_to_sink_pip_map=source_to_sink_pip_map,
-                check_for_default=check_for_default
-            )
-
-    # No active PIP and PPIP, the sink is unconnected.
-    return None
-
-
-def check_for_active_ps_sinks(conn, db, active_pips, tile, site):
-    """
-    Loops over all PS7 inpus pins and checks if any of them is connected to
-    the PL through an active PIP. Returns True when at least one is, False
-    otherwise.
-    """
-
-    if DEBUG:
-        print("Checking PS7 active sinks...")
-
-    # Build source to sink map
-    source_to_sink_pip_map = {}
-
-    for sink_wire_pkey, source_wire_pkey in active_pips:
-        assert source_wire_pkey not in source_to_sink_pip_map
-        source_to_sink_pip_map[source_wire_pkey] = sink_wire_pkey
-
-    # Create PPIP checker.
-    check_for_default = create_check_for_default(db, conn)
-
-    # Identify sinks
-    sinks = []
-    for signal, width in PS7_PINS["input"]:
-        if width == 1:
-            sinks.append(signal)
-        else:
-            for i in range(width):
-                sinks.append("{}{}".format(signal, i))
-
-    prefix = site.type
-    wires = [prefix + "_" + s for s in sinks]
-
-    # Expand each wire sink upstream until an active PIP is found.
-    cur = conn.cursor()
-    wire_pkeys = [get_wire_pkey(conn, tile, w) for w in wires]
-    for wire, wire_pkey in zip(wires, wire_pkeys):
-
-        if DEBUG:
-            print("//", wire, "", end='')
-
-        # Check if it is connected to anything. If it is so then return True,
-        # there is no need to check further.
-        pkey = expand_ps_sink(
-            conn=conn,
-            c=cur,
-            sink_wire_pkey=wire_pkey,
-            source_to_sink_pip_map=source_to_sink_pip_map,
-            check_for_default=check_for_default
-        )
-
-        if DEBUG:
-            print(pkey)
-
-        if pkey is not None:
-            return True
-
-    # None of PS sinks is connected.
-    return False
-
-
-# =============================================================================
-
-
-def expand_ps_source(
-        conn, c, source_wire_pkey, sink_to_source_pip_map, check_for_default
-):
-    """
-    Expands a PS source. Returns a set of pkeys of sink wires of found active
-    PIPs. Returns None if no active PIP is found.
-    """
-    source_node_pkey = get_node_pkey(conn, source_wire_pkey)
-
-    # Check for an acitve PIP
-    for node_wire_pkey in get_wires_in_node(conn, source_node_pkey):
-
-        # Got an active PIP, the sink is connected.
-        if node_wire_pkey in sink_to_source_pip_map:
-            upstream_sink_wire_pkeys = sink_to_source_pip_map[node_wire_pkey]
-            return upstream_sink_wire_pkeys
-
-    # No active PIPs to move downstream, find a PPIP downstream.
-    for wire_pkey in get_wires_in_node(conn, source_node_pkey):
-        c.execute(
-            "SELECT phy_tile_pkey, wire_in_tile_pkey FROM wire WHERE pkey = ?",
-            (wire_pkey, )
-        )
-        phy_tile_pkey, wire_in_tile_pkey = c.fetchone()
-        downstream_wire_in_tile_pkey = check_for_default(wire_in_tile_pkey)
-
-        # Got a PPIP, move downstream
-        if downstream_wire_in_tile_pkey is not None:
-            c.execute(
-                "SELECT pkey FROM wire WHERE phy_tile_pkey = ? AND wire_in_tile_pkey = ?",
-                (
-                    phy_tile_pkey,
-                    downstream_wire_in_tile_pkey,
-                )
-            )
-            downstream_wire_pkey = c.fetchone()[0]
-
-            if DEBUG:
-                print(downstream_wire_pkey, "", end='')
-
-            # Recurse
-            return expand_ps_source(
-                conn=conn,
-                c=c,
-                source_wire_pkey=downstream_wire_pkey,
-                sink_to_source_pip_map=sink_to_source_pip_map,
-                check_for_default=check_for_default
-            )
-
-    # No active PIP and PPIP, the source is unconnected.
-    return None
-
-
-def check_for_active_ps_sources(conn, db, active_pips, tile, site):
-    """
-    Loops over all PS7 output pins and checks if any of them is connected to
-    the PL through an active PIP. Returns True when at least one is, False
-    otherwise.
-    """
-
-    if DEBUG:
-        print("Checking for active PS7 sources...")
-
-    # Build sink to source PIP map
-    sink_to_source_pip_map = defaultdict(lambda: set())
-
-    for sink_wire_pkey, source_wire_pkey in active_pips:
-        sink_to_source_pip_map[sink_wire_pkey].add(source_wire_pkey)
-
-    # Create PPIP checker.
-    check_for_default = create_check_downstream_default(conn, db)
-
-    # Identify sources
-    sources = []
-    for signal, width in PS7_PINS["output"]:
-        if width == 1:
-            sources.append(signal)
-        else:
-            for i in range(width):
-                sources.append("{}{}".format(signal, i))
-
-    prefix = site.type
-    wires = [prefix + "_" + s for s in sources]
-
-    # Expand each wire source upstream until an active PIP is found.
-    cur = conn.cursor()
-    wire_pkeys = [get_wire_pkey(conn, tile, w) for w in wires]
-    for wire, wire_pkey in zip(wires, wire_pkeys):
-
-        if DEBUG:
-            print("//", wire, "", end='')
-
-        # Check if it is connected to anything. If it is so then return True,
-        # there is no need to check further.
-        pkeys = expand_ps_source(
-            conn=conn,
-            c=cur,
-            source_wire_pkey=wire_pkey,
-            sink_to_source_pip_map=sink_to_source_pip_map,
-            check_for_default=check_for_default
-        )
-
-        if DEBUG:
-            print(pkeys)
-
-        if pkeys is not None:
-            return True
-
-    # None of PS sources is connected.
-    return False
-
-
-# =============================================================================
-
-
-def check_ps7_connection(conn, db, active_pips, tile, site):
-    """
-    Checks whether the PS7 is connected to the PL through any active PIP.
-    """
-
-    # Check for active sinks and sources on the PS7
-    got_active_sinks = check_for_active_ps_sinks(
-        conn, db, active_pips, tile, site
-    )
-
-    got_active_sources = check_for_active_ps_sources(
-        conn, db, active_pips, tile, site
-    )
-
-    return got_active_sinks or got_active_sources
-
-
-# =============================================================================
-
-
 def get_ps7_site(db):
     """
     Looks for tile and site that contains the PS7 in the tilegrid.
@@ -934,5 +672,40 @@ def insert_ps7(top, pss_tile, ps7_site):
                 )
 
     # Add everything
-    site.add_bel(bel)
+    site.add_bel(bel, bel.name)
+
+    site.set_post_route_cleanup_function(cleanup_ps7)
     top.add_site(site)
+
+
+def cleanup_ps7(top, site):
+    """
+    Removes the PS7 site if not connected to the PL fabric through any
+    active PIP.
+    """
+
+    # Get the PS7 (if any)
+    ps7 = site.maybe_get_bel("PS7")
+    if ps7 is None:
+        return
+
+    # Filters out 0 and 1 from a sink/source list
+    def filter_consts(items):
+        return [s for s in items if s not in [0, 1]]
+
+    # Check if there is at least one active source on the PS7 site. If so then
+    # return (no cleanup).
+    for source in site.sources:
+        sinks = filter_consts(top.find_sinks_from_source(site, source))
+        if len(sinks):
+            return
+
+    # Check if there is at least one active sink on the PS7 site. If so then
+    # return (no cleanup).
+    for sink in site.sinks:
+        sources = filter_consts(top.find_sources_from_sink(site, sink))
+        if len(sources):
+            return
+
+    # Remove the PS7 as it is not connected
+    top.remove_bel(site, ps7)
