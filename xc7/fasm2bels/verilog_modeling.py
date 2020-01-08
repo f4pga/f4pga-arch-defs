@@ -1689,6 +1689,10 @@ set_property FIXED_ROUTE $route $net"""
         """ Return all source wire names from a site wire sink. """
         wire_pkey = site.site_wire_to_wire_pkey[site_wire]
         sink_wire = self.wire_pkey_to_wire[wire_pkey]
+
+        if sink_wire not in self.wire_assigns:
+            return []
+
         return self.wire_assigns[sink_wire]
 
     def find_source_from_sink(self, site, site_wire):

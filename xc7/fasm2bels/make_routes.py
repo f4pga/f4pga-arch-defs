@@ -427,6 +427,9 @@ def expand_sink(
     )
     (wire_name, ) = c.fetchone()
 
+    # Check if the sink is in the PSS tile of Zynq
+    is_pss = tile_name.startswith("PSS")
+
     if DEBUG:
         print('//', tile_name, wire_name, sink_wire_pkey)
 
@@ -599,6 +602,11 @@ SELECT name, site_pin_pkey FROM wire_in_tile WHERE pkey = (
                     )
                 return
 
+    # For Zynq PSS tiles ignore unconnected sinks. The fact that a sink is
+    # connected or not is used to determine whether the PS7 is in use.
+    if is_pss:
+        return
+
     # There does not appear to be an upstream connection, handle it.
     if allow_orphan_sinks:
         print(
@@ -710,7 +718,17 @@ def make_routes(
                     yield wire_pkey_to_wire[wire_pkey], wire_pkey_to_wire[
                         source_wire_pkey]
         else:
-            if allow_orphan_sinks:
+
+            c = conn.cursor()
+            c.execute(
+                "SELECT name FROM phy_tile WHERE pkey = (SELECT phy_tile_pkey FROM wire WHERE pkey = ?)",
+                (wire_pkey, )
+            )
+            (tile_name, ) = c.fetchone()
+
+            is_pss = tile_name.startswith("PSS")
+
+            if not is_pss and allow_orphan_sinks:
                 print(
                     '// ERROR, source for sink wire {} not found'.format(
                         wire_pkey_to_wire[wire_pkey]
