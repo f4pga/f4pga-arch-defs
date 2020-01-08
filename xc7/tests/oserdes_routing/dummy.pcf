@@ -1,0 +1,12 @@
+set_io clk1 M18
+set_io clk2 L17
+
+set_io i_d[0] L18
+set_io i_d[1] K18
+
+set_io i_t P19
+
+set_io out[0] U15
+set_io out[1] V13
+
+set_io o_d V19 
