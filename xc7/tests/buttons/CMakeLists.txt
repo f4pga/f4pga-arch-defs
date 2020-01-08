@@ -39,7 +39,6 @@ add_vivado_target(
   )
 
 add_file_target(FILE buttons_zybo.v SCANNER_TYPE verilog)
-add_file_target(FILE zyboz7.pcf)
 
 add_fpga_target(
   NAME buttons_zybo
@@ -60,7 +59,7 @@ add_vivado_target(
 #  NAME buttons_zyboz7
 #  BOARD zyboz7-full
 #  SOURCES buttons_zybo.v
-#  INPUT_IO_FILE zyboz7.pcf
+#  INPUT_IO_FILE ${COMMON}/zyboz7.pcf
 #  EXPLICIT_ADD_FILE_TARGET
 #  )
 

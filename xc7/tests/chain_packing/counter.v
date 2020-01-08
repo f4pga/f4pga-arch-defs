@@ -1,11 +1,11 @@
 module top(
     input  wire clk,
 
-    input  wire [15:0] sw,
-    output wire [15:0] led,
-
     input  wire rx,
-    output wire tx
+    output wire tx,
+
+    input  wire [15:0] sw,
+    output wire [15:0] led
 );
     localparam LOG2DELAY = 22;
 
