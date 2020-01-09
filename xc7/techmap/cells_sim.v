@@ -641,6 +641,10 @@ module IBUF_VPR (
   parameter [0:0] IN_TERM_UNTUNED_SPLIT_50 = 1'b0;
   parameter [0:0] IN_TERM_UNTUNED_SPLIT_60 = 1'b0;
 
+  parameter [0:0] IBUF_LOW_PWR = 1'b0;
+
+  parameter IOSTANDARD = "";
+
   assign O = I;
 
 endmodule
@@ -672,6 +676,10 @@ module OBUF_VPR (
   parameter [0:0] LVTTL_DRIVE_I24 = 1'b0;
   parameter [0:0] SSTL135_DRIVE_I_FIXED = 1'b0;
   parameter [0:0] SSTL135_SLEW_FAST = 1'b0;
+
+  parameter IOSTANDARD = "";
+  parameter DRIVE = 0;
+  parameter SLEW = "";
 
   assign O = I;
 
@@ -716,6 +724,12 @@ module IOBUF_VPR (
   parameter [0:0] IN_TERM_UNTUNED_SPLIT_50 = 1'b0;
   parameter [0:0] IN_TERM_UNTUNED_SPLIT_60 = 1'b0;
 
+  parameter [0:0] IBUF_LOW_PWR = 1'b0;
+
+  parameter IOSTANDARD = "";
+  parameter DRIVE = 0;
+  parameter SLEW = "";
+
   assign O = IOPAD_$inp;
   assign IOPAD_$out = (T == 1'b0) ? I : 1'bz;
 
@@ -738,6 +752,9 @@ module OBUFTDS_M_VPR (
   parameter [0:0] IN_TERM_UNTUNED_SPLIT_50 = 1'b0;
   parameter [0:0] IN_TERM_UNTUNED_SPLIT_60 = 1'b0;
 
+  parameter IOSTANDARD = "";
+  parameter SLEW = "";
+
   assign O  = (T == 1'b0) ?  I : 1'bz;
   assign OB = (T == 1'b0) ? !I : 1'bz;
 
@@ -756,6 +773,9 @@ module OBUFTDS_S_VPR (
   parameter [0:0] IN_TERM_UNTUNED_SPLIT_40 = 1'b0;
   parameter [0:0] IN_TERM_UNTUNED_SPLIT_50 = 1'b0;
   parameter [0:0] IN_TERM_UNTUNED_SPLIT_60 = 1'b0;
+
+  parameter IOSTANDARD = "";
+  parameter SLEW = "";
 
   assign OB = IB;
 
