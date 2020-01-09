@@ -12,5 +12,4 @@ add_fpga_target(
 add_vivado_target(
     NAME counter_emio_zybo_vivado
     PARENT_NAME counter_emio_zybo
-    BIT_TO_V_EXTRA_ARGS --allow-non-dedicated-clk-routes
     )

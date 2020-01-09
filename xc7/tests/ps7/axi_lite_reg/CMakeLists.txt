@@ -13,5 +13,4 @@ add_fpga_target(
 add_vivado_target(
   NAME axi_regs_zybo_vivado
   PARENT_NAME axi_regs_zybo
-  BIT_TO_V_EXTRA_ARGS --allow-non-dedicated-clk-routes
   )
