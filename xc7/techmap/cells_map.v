@@ -2374,38 +2374,93 @@ module OSERDESE2 (
   parameter _TECHMAP_CONSTMSK_D8_ = 0;
   parameter _TECHMAP_CONSTVAL_D8_ = 0;
 
-  localparam [0:0] INV_D1 = (
-      _TECHMAP_CONSTMSK_D1_ == 1 &&
-      _TECHMAP_CONSTVAL_D1_ == 0 &&
-      IS_D1_INVERTED == 0);
-  localparam [0:0] INV_D2 = (
-      _TECHMAP_CONSTMSK_D2_ == 1 &&
-      _TECHMAP_CONSTVAL_D2_ == 0 &&
-      IS_D2_INVERTED == 0);
-  localparam [0:0] INV_D3 = (
-      _TECHMAP_CONSTMSK_D3_ == 1 &&
-      _TECHMAP_CONSTVAL_D3_ == 0 &&
-      IS_D3_INVERTED == 0);
-  localparam [0:0] INV_D4 = (
-      _TECHMAP_CONSTMSK_D4_ == 1 &&
-      _TECHMAP_CONSTVAL_D4_ == 0 &&
-      IS_D4_INVERTED == 0);
-  localparam [0:0] INV_D5 = (
-      _TECHMAP_CONSTMSK_D5_ == 1 &&
-      _TECHMAP_CONSTVAL_D5_ == 0 &&
-      IS_D5_INVERTED == 0);
-  localparam [0:0] INV_D6 = (
-      _TECHMAP_CONSTMSK_D6_ == 1 &&
-      _TECHMAP_CONSTVAL_D6_ == 0 &&
-      IS_D6_INVERTED == 0);
-  localparam [0:0] INV_D7 = (
-      _TECHMAP_CONSTMSK_D7_ == 1 &&
-      _TECHMAP_CONSTVAL_D7_ == 0 &&
-      IS_D7_INVERTED == 0);
-  localparam [0:0] INV_D8 = (
-      _TECHMAP_CONSTMSK_D8_ == 1 &&
-      _TECHMAP_CONSTVAL_D8_ == 0 &&
-      IS_D8_INVERTED == 0);
+  generate if (_TECHMAP_CONSTMSK_D1_ == 1) begin
+    localparam INV_D1 = !_TECHMAP_CONSTVAL_D1_ ^ IS_D1_INVERTED;
+    wire d1 = 1'b1;
+  end else if (_TECHMAP_CONSTVAL_D1_ == 0) begin
+    localparam INV_D1 = ~IS_D1_INVERTED;
+    wire d1 = 1'b1;
+  end else begin
+    localparam INV_D1 = IS_D1_INVERTED;
+    wire d1 = D1;
+  end endgenerate
+
+  generate if (_TECHMAP_CONSTMSK_D2_ == 1) begin
+    localparam INV_D2 = !_TECHMAP_CONSTVAL_D2_ ^ IS_D2_INVERTED;
+    wire d2 = 1'b1;
+  end else if (_TECHMAP_CONSTVAL_D2_ == 0) begin
+    localparam INV_D2 = ~IS_D2_INVERTED;
+    wire d2 = 1'b1;
+  end else begin
+    localparam INV_D2 = IS_D2_INVERTED;
+    wire d2 = D2;
+  end endgenerate
+
+  generate if (_TECHMAP_CONSTMSK_D3_ == 1) begin
+    localparam INV_D3 = !_TECHMAP_CONSTVAL_D3_ ^ IS_D3_INVERTED;
+    wire d3 = 1'b1;
+  end else if (_TECHMAP_CONSTVAL_D3_ == 0) begin
+    localparam INV_D3 = ~IS_D3_INVERTED;
+    wire d3 = 1'b1;
+  end else begin
+    localparam INV_D3 = IS_D3_INVERTED;
+    wire d3 = D3;
+  end endgenerate
+
+  generate if (_TECHMAP_CONSTMSK_D4_ == 1) begin
+    localparam INV_D4 = !_TECHMAP_CONSTVAL_D4_ ^ IS_D4_INVERTED;
+    wire d4 = 1'b1;
+  end else if (_TECHMAP_CONSTVAL_D4_ == 0) begin
+    localparam INV_D4 = ~IS_D4_INVERTED;
+    wire d4 = 1'b1;
+  end else begin
+    localparam INV_D4 = IS_D4_INVERTED;
+    wire d4 = D4;
+  end endgenerate
+
+  generate if (_TECHMAP_CONSTMSK_D5_ == 1) begin
+    localparam INV_D5 = !_TECHMAP_CONSTVAL_D5_ ^ IS_D5_INVERTED;
+    wire d5 = 1'b1;
+  end else if (_TECHMAP_CONSTVAL_D5_ == 0) begin
+    localparam INV_D5 = ~IS_D5_INVERTED;
+    wire d5 = 1'b1;
+  end else begin
+    localparam INV_D5 = IS_D5_INVERTED;
+    wire d5 = D5;
+  end endgenerate
+
+  generate if (_TECHMAP_CONSTMSK_D6_ == 1) begin
+    localparam INV_D6 = !_TECHMAP_CONSTVAL_D6_ ^ IS_D6_INVERTED;
+    wire d6 = 1'b1;
+  end else if (_TECHMAP_CONSTVAL_D6_ == 0) begin
+    localparam INV_D6 = ~IS_D6_INVERTED;
+    wire d6 = 1'b1;
+  end else begin
+    localparam INV_D6 = IS_D6_INVERTED;
+    wire d6 = D6;
+  end endgenerate
+
+  generate if (_TECHMAP_CONSTMSK_D7_ == 1) begin
+    localparam INV_D7 = !_TECHMAP_CONSTVAL_D7_ ^ IS_D7_INVERTED;
+    wire d7 = 1'b1;
+  end else if (_TECHMAP_CONSTVAL_D7_ == 0) begin
+    localparam INV_D7 = ~IS_D7_INVERTED;
+    wire d7 = 1'b1;
+  end else begin
+    localparam INV_D7 = IS_D7_INVERTED;
+    wire d7 = D7;
+  end endgenerate
+
+  generate if (_TECHMAP_CONSTMSK_D8_ == 1) begin
+    localparam INV_D8 = !_TECHMAP_CONSTVAL_D8_ ^ IS_D8_INVERTED;
+    wire d8 = 1'b1;
+  end else if (_TECHMAP_CONSTVAL_D8_ == 0) begin
+    localparam INV_D8 = ~IS_D8_INVERTED;
+    wire d8 = 1'b1;
+  end else begin
+    localparam INV_D8 = IS_D8_INVERTED;
+    wire d8 = D8;
+  end endgenerate
 
   parameter _TECHMAP_CONSTMSK_T1_ = 0;
   parameter _TECHMAP_CONSTVAL_T1_ = 0;
@@ -2416,22 +2471,49 @@ module OSERDESE2 (
   parameter _TECHMAP_CONSTMSK_T4_ = 0;
   parameter _TECHMAP_CONSTVAL_T4_ = 0;
 
-  localparam [0:0] INV_T1 = (
-      _TECHMAP_CONSTMSK_T1_ == 1 &&
-      _TECHMAP_CONSTVAL_T1_ == 0 &&
-      IS_T1_INVERTED == 0);
-  localparam [0:0] INV_T2 = (
-      _TECHMAP_CONSTMSK_T2_ == 1 &&
-      _TECHMAP_CONSTVAL_T2_ == 0 &&
-      IS_T2_INVERTED == 0);
-  localparam [0:0] INV_T3 = (
-      _TECHMAP_CONSTMSK_T3_ == 1 &&
-      _TECHMAP_CONSTVAL_T3_ == 0 &&
-      IS_T3_INVERTED == 0);
-  localparam [0:0] INV_T4 = (
-      _TECHMAP_CONSTMSK_T4_ == 1 &&
-      _TECHMAP_CONSTVAL_T4_ == 0 &&
-      IS_T4_INVERTED == 0);
+  generate if (_TECHMAP_CONSTMSK_T1_ == 1) begin
+    localparam INV_T1 = !_TECHMAP_CONSTVAL_T1_ ^ IS_T1_INVERTED;
+    wire t1 = 1'b1;
+  end else if (_TECHMAP_CONSTVAL_T1_ == 0) begin
+    localparam INV_T1 = ~IS_T1_INVERTED;
+    wire t1 = 1'b1;
+  end else begin
+    localparam INV_T1 = IS_T1_INVERTED;
+    wire t1 = T1;
+  end endgenerate
+
+  generate if (_TECHMAP_CONSTMSK_T2_ == 1) begin
+    localparam INV_T2 =  !_TECHMAP_CONSTVAL_T2_ ^ IS_T2_INVERTED;
+    wire t2 = 1'b1;
+  end else if (_TECHMAP_CONSTVAL_T2_ == 0) begin
+    localparam INV_T2 = ~IS_T2_INVERTED;
+    wire t2 = 1'b1;
+  end else begin
+    localparam INV_T2 = IS_T2_INVERTED;
+    wire t2 = T2;
+  end endgenerate
+
+  generate if (_TECHMAP_CONSTMSK_T3_ == 1) begin
+    localparam INV_T3 = !_TECHMAP_CONSTVAL_T3_ ^ IS_T3_INVERTED;
+    wire t3 = 1'b1;
+  end else if (_TECHMAP_CONSTVAL_T3_ == 0) begin
+    localparam INV_T3 = ~IS_T3_INVERTED;
+    wire t3 = 1'b1;
+  end else begin
+    localparam INV_T3 = IS_T3_INVERTED;
+    wire t3 = T3;
+  end endgenerate
+
+  generate if (_TECHMAP_CONSTMSK_T4_ == 1) begin
+    localparam INV_T4 = !_TECHMAP_CONSTVAL_T4_ ^ IS_T4_INVERTED;
+    wire t4 = 1'b1;
+  end else if (_TECHMAP_CONSTVAL_T4_ == 0) begin
+    localparam INV_T4 = ~IS_T4_INVERTED;
+    wire t4 = 1'b1;
+  end else begin
+    localparam INV_T4 = IS_T4_INVERTED;
+    wire t4 = T4;
+  end endgenerate
 
   OSERDESE2_VPR #(
       .SERDES_MODE_SLAVE            (SERDES_MODE == "SLAVE"),
@@ -2455,36 +2537,36 @@ module OSERDESE2 (
       .ZSRVAL_OQ                    (!SRVAL_OQ),
       .ZSRVAL_TQ                    (!SRVAL_TQ),
       .IS_CLKDIV_INVERTED           (IS_CLKDIV_INVERTED),
-      .IS_D1_INVERTED               (IS_D1_INVERTED ^ INV_D1),
-      .IS_D2_INVERTED               (IS_D2_INVERTED ^ INV_D2),
-      .IS_D3_INVERTED               (IS_D3_INVERTED ^ INV_D3),
-      .IS_D4_INVERTED               (IS_D4_INVERTED ^ INV_D4),
-      .IS_D5_INVERTED               (IS_D5_INVERTED ^ INV_D5),
-      .IS_D6_INVERTED               (IS_D6_INVERTED ^ INV_D6),
-      .IS_D7_INVERTED               (IS_D7_INVERTED ^ INV_D7),
-      .IS_D8_INVERTED               (IS_D8_INVERTED ^ INV_D8),
+      .IS_D1_INVERTED               (INV_D1),
+      .IS_D2_INVERTED               (INV_D2),
+      .IS_D3_INVERTED               (INV_D3),
+      .IS_D4_INVERTED               (INV_D4),
+      .IS_D5_INVERTED               (INV_D5),
+      .IS_D6_INVERTED               (INV_D6),
+      .IS_D7_INVERTED               (INV_D7),
+      .IS_D8_INVERTED               (INV_D8),
       .ZINV_CLK                     (!IS_CLK_INVERTED),
-      .ZINV_T1                      (!IS_T1_INVERTED ^ INV_T1),
-      .ZINV_T2                      (!IS_T2_INVERTED ^ INV_T2),
-      .ZINV_T3                      (!IS_T3_INVERTED ^ INV_T3),
-      .ZINV_T4                      (!IS_T4_INVERTED ^ INV_T4)
+      .ZINV_T1                      (!INV_T1),
+      .ZINV_T2                      (!INV_T2),
+      .ZINV_T3                      (!INV_T3),
+      .ZINV_T4                      (!INV_T4)
   ) _TECHMAP_REPLACE_ (
     .CLK    (CLK),
     .CLKDIV (CLKDIV),
-    .D1     (D1 ^ INV_D1),
-    .D2     (D2 ^ INV_D2),
-    .D3     (D3 ^ INV_D3),
-    .D4     (D4 ^ INV_D4),
-    .D5     (D5 ^ INV_D5),
-    .D6     (D6 ^ INV_D6),
-    .D7     (D7 ^ INV_D7),
-    .D8     (D8 ^ INV_D8),
+    .D1     (d1),
+    .D2     (d2),
+    .D3     (d3),
+    .D4     (d4),
+    .D5     (d5),
+    .D6     (d6),
+    .D7     (d7),
+    .D8     (d8),
     .OCE    (OCE),
     .RST    (RST),
-    .T1     (T1 ^ INV_T1),
-    .T2     (T2 ^ INV_T2),
-    .T3     (T3 ^ INV_T3),
-    .T4     (T4 ^ INV_T4),
+    .T1     (t1),
+    .T2     (t2),
+    .T3     (t3),
+    .T4     (t4),
     .TCE    (TCE),
     .OFB    (OFB),
     .OQ     (OQ),
