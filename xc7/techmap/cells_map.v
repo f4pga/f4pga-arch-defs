@@ -2478,7 +2478,7 @@ module OSERDESE2 (
     localparam INV_T1 = ~IS_T1_INVERTED;
     wire t1 = 1'b1;
   end else begin
-    localparam INV_T1 = IS_T1_INVERTED;
+    localparam INV_T1 = ~IS_T1_INVERTED;
     wire t1 = T1;
   end endgenerate
 
@@ -2489,7 +2489,7 @@ module OSERDESE2 (
     localparam INV_T2 = ~IS_T2_INVERTED;
     wire t2 = 1'b1;
   end else begin
-    localparam INV_T2 = IS_T2_INVERTED;
+    localparam INV_T2 = ~IS_T2_INVERTED;
     wire t2 = T2;
   end endgenerate
 
@@ -2500,7 +2500,7 @@ module OSERDESE2 (
     localparam INV_T3 = ~IS_T3_INVERTED;
     wire t3 = 1'b1;
   end else begin
-    localparam INV_T3 = IS_T3_INVERTED;
+    localparam INV_T3 = ~IS_T3_INVERTED;
     wire t3 = T3;
   end endgenerate
 
@@ -2511,7 +2511,7 @@ module OSERDESE2 (
     localparam INV_T4 = ~IS_T4_INVERTED;
     wire t4 = 1'b1;
   end else begin
-    localparam INV_T4 = IS_T4_INVERTED;
+    localparam INV_T4 = ~IS_T4_INVERTED;
     wire t4 = T4;
   end endgenerate
 
