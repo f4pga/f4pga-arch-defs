@@ -8,7 +8,7 @@ import simplejson as json
 # =============================================================================
 
 PINOUT = {
-    "basys3":
+    "basys3-full":
         {
             "BUFG":
                 "BUFGCTRL_X0Y0",
@@ -68,10 +68,10 @@ PINOUT = {
                     ("P18", "R18"),
                 ]
         },
-    "arty":
+    "arty-full":
         {
             "BUFG":
-                "BUFGCTRL_X0Y0",
+                "BUFGCTRL_X0Y16",
             "clock":
                 "E3",
             "led":
