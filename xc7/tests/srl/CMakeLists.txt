@@ -1,3 +1,5 @@
+set(SRL_COMMON ${symbiflow-arch-defs_SOURCE_DIR}/xc7/tests/srl/common)
+
 add_subdirectory(common)
 add_subdirectory(srl32_shift)
 add_subdirectory(srl32_init)

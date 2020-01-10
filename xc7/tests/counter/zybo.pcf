@@ -1,8 +1,0 @@
-# zybo 125 MHz CLK
-set_io clk K17
-
-# LED1-LED4 correspond with LD0-LD3 on the zybo
-set_io LED1 M14
-set_io LED2 M15
-set_io LED3 G14
-set_io LED4 D18

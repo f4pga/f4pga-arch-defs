@@ -1,16 +1,18 @@
 module top (
-	input  clk,
-	output LD7,
+    input  wire clk,
+
+    input  wire [7:0] sw,
+    output wire [7:0] led
 );
 
-	localparam BITS = 1;
-	localparam LOG2DELAY = 25;
+    localparam BITS = 8;
+    localparam LOG2DELAY = 28;
 
-	reg [BITS+LOG2DELAY-1:0] counter = 0;
+    reg [BITS+LOG2DELAY-1:0] counter = 0;
 
-	always @(posedge clk) begin
-		counter <= counter + 1;
-	end
+    always @(posedge clk) begin
+    	counter <= counter + 1;
+    end
 
-	assign {LD7} = counter >> LOG2DELAY;
+    assign led = counter >> LOG2DELAY;
 endmodule

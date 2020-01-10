@@ -11,14 +11,18 @@ module top
 (
 input  wire         clk,
 
-input  wire [15:0]  in,
-output wire [15:0]  out,
+input  wire [15:0]  sw,
+output wire [15:0]  led,
 
 input  wire         rx,
 output wire         tx,
 
-inout  wire         sda,
-inout  wire         scl
+inout  wire         jc1, // sda
+inout  wire         jc2, // scl
+
+output wire         jc3, // unused
+input  wire         jc4  // unused
+
 );
 
 // ============================================================================
@@ -41,7 +45,7 @@ iobuf_sda
 .I  (sda_i),
 .O  (sda_o),
 .T  (sda_t),
-.IO (sda)
+.IO (jc1)
 );
 
 IOBUF # (
@@ -54,7 +58,7 @@ iobuf_scl
 .I  (scl_i),
 .O  (scl_o),
 .T  (scl_t),
-.IO (scl)
+.IO (jc2)
 );
 
 // ============================================================================
@@ -66,7 +70,7 @@ wire        clk_g;
 initial rst_sr <= 4'hF;
 
 always @(posedge clk_g)
-    if (in[0]) rst_sr <= 4'hF;
+    if (sw[0]) rst_sr <= 4'hF;
     else       rst_sr = {1'b0, rst_sr[3:1]};
 
 assign rst = rst_sr[0];
@@ -83,7 +87,7 @@ wire i2c_scan_bsy;
 reg [3:0] i2c_scan_trg_en_sr;
 initial i2c_scan_trg_en_sr <= 4'h0;
 always @(posedge clk_g)
-    i2c_scan_trg_en_sr <= {in[1], i2c_scan_trg_en_sr[3:1]};
+    i2c_scan_trg_en_sr <= {sw[1], i2c_scan_trg_en_sr[3:1]};
 
 // The scanner
 i2c_scan #
@@ -123,9 +127,9 @@ assign i2c_scan_trg = trg_cnt[32];
 // ============================================================================
 // I/O
 
-assign out[0] = rst;
-assign out[1] = i2c_scan_bsy;
-assign out[15:2] = in[15:2];
+assign led[0] = rst;
+assign led[1] = i2c_scan_bsy;
+assign led[15:2] = sw[15:2];
 
 endmodule
 

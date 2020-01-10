@@ -1,0 +1,12 @@
+# clk
+set_io clk E3
+
+# reset button
+set_io rst C2
+
+# led corresponds to LD7 in arty.
+set_io led T10
+
+# tx and rx are serial transmitter and receiver
+set_io rx A9
+set_io tx D10

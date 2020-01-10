@@ -1,6 +1,6 @@
 get_target_property_required(UART_SOURCES uart_library SOURCES)
 
-list(APPEND SOURCES ../common/error_output_logic.v ../common/ram_test.v)
+list(APPEND SOURCES ${COMMON}/error_output_logic.v ${COMMON}/ram_test.v)
 
 get_target_property_required(DEVICE basys3 DEVICE)
 get_target_property_required(ARCH ${DEVICE} ARCH)
@@ -10,8 +10,8 @@ foreach(type 32x1d 64x1d 32m 64m)
   add_fpga_target(
     NAME dram_test_${type}
     BOARD basys3
-    INPUT_IO_FILE ../common/basys3.pcf
-    SDC_FILE ../common/basys3.sdc
+    INPUT_IO_FILE ${COMMON}/basys3.pcf
+    SDC_FILE ${COMMON}/basys3.sdc
     SOURCES ${UART_SOURCES} ${symbiflow-arch-defs_SOURCE_DIR}/library/lfsr.v ${SOURCES} dram_test_${type}.v
     EXPLICIT_ADD_FILE_TARGET
     )

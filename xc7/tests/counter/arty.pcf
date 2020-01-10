@@ -1,4 +1,0 @@
-# arty 100 MHz CLK
-set_io clk E3
-
-set_io LD7 T10
