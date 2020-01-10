@@ -27,6 +27,7 @@ location.
 """
 
 import functools
+import re
 import fasm
 from .make_routes import make_routes, ONE_NET, ZERO_NET, prune_antennas
 from .connection_db_utils import get_wire_pkey
@@ -1195,13 +1196,15 @@ class Module(object):
 
     def __init__(self, db, grid, conn, name="top"):
         self.name = name
-        self.iostandard_defs = {}
         self.db = db
         self.grid = grid
         self.conn = conn
         self.sites = []
         self.source_bels = {}
         self.disabled_drcs = set()
+        self.default_iostandard = None
+        self.top_level_port_to_cname = {}
+        self.cname_to_iosettings = {}
 
         # Map of source to sink.
         self.shorted_nets = {}
@@ -1245,11 +1248,109 @@ class Module(object):
         # IO bank lookup (if part was provided).
         self.iobank_lookup = {}
 
+    def set_default_iostandard(self, iostandard):
+        self.default_iostandard = iostandard
+
+    def make_iosettings_map(self, parsed_eblif):
+        """
+        Builds map of top-level port names to cell names and cell names to IO
+        # settings map using data from a parsed EBLIF file.
+        """
+
+        # Map of EBLIF cell types of IO buffers to their ports connecting them
+        # with IO pads.
+        IOBUF_PORTS = {
+            "IBUF_VPR": ["I"],
+            "OBUF_VPR": ["O"],
+            "IOBUF_VPR": ["IOPAD_$inp", "IOPAD_$out"],
+            "OBUFTDS_M_VPR": ["O"],
+            "OBUFTDS_S_VPR": ["OB"],
+        }
+
+        # Tuple of EBLIF cell parameters.
+        IOBUF_PARAMS = (
+            "IOSTANDARD",
+            "DRIVE",
+        )
+
+        BIN_RE = re.compile(r"^([01]+)$")
+        STR_RE = re.compile(r"^\"(.*)\"$")
+
+        # No subcircuits
+        if "subckt" not in parsed_eblif:
+            return
+
+        # Look for IO cells
+        for subckt in parsed_eblif["subckt"]:
+
+            # No name
+            if "cname" not in subckt:
+                continue
+            # No parameters
+            if "param" not in subckt:
+                continue
+
+            # Get the cell type and name
+            cell_name = subckt["cname"][0]
+            cell_type = subckt["args"][0]
+            if cell_type not in IOBUF_PORTS:
+                continue
+
+            # Get name of the IO pad that the cell is connected to
+            for conn_str in subckt["args"][1:]:
+                port, net = conn_str.split("=")
+
+                if port in IOBUF_PORTS[cell_type]:
+                    self.top_level_port_to_cname[net] = cell_name
+
+            # Get interesting params
+            self.cname_to_iosettings[cell_name] = {}
+            for param, _value in subckt["param"].items():
+
+                if param not in IOBUF_PARAMS:
+                    continue
+
+                # Parse the value
+                value = _value
+
+                match = BIN_RE.match(_value)
+                if match:
+                    value = int(match.group(1), 2)
+
+                match = STR_RE.match(_value)
+                if match:
+                    value = str(match.group(1))
+
+                # Store the parameter
+                self.cname_to_iosettings[cell_name][param] = value
+
+    def get_site_iosettings(self, site):
+        """
+        Returns a dict with IO settings for the given site name. The
+        information is taken from EBLIF cell parameters, connection between
+        top-level ports and EBLIF cells is read from the PCF file.
+        """
+
+        # Site not in site to signal list
+        if site not in self.site_to_signal:
+            return None
+
+        signal = self.site_to_signal[site]
+
+        # Signal not in IO settings map
+        if signal not in self.top_level_port_to_cname:
+            return None
+
+        cname = self.top_level_port_to_cname[signal]
+
+        # cname not in cname to IO settings map
+        if cname not in self.cname_to_iosettings:
+            return None
+
+        return self.cname_to_iosettings[cname]
+
     def add_extra_tcl_line(self, tcl_line):
         self.extra_tcl.append(tcl_line)
-
-    def set_iostandard_defs(self, defs):
-        self.iostandard_defs = defs
 
     def disable_drc(self, drc):
         self.disabled_drcs.add(drc)

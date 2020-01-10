@@ -3,7 +3,6 @@
 The generator
 """
 import argparse
-import simplejson as json
 
 # =============================================================================
 
