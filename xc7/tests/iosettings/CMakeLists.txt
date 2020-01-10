@@ -65,7 +65,7 @@ function(xc7_iosettings_design MODE BOARD IOSTANDARD DRIVES SLEWS TERMS)
 
 endfunction()
 
-set(BOARD "arty")
+set(BOARD "arty-full")
 
 foreach(MODE input output inout)
 
