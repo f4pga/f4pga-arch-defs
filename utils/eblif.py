@@ -8,8 +8,8 @@ top_level = [
 ]
 
 sub_level = [
-    "cname",
     "attr",
+    "param",
 ]
 
 
@@ -49,6 +49,11 @@ def parse_blif(f):
                     'args': args[-1].split(),
                     'data': [],
                 }
+            elif ctype in sub_level:
+                if ctype not in current:
+                    current[ctype] = {}
+                key, value = args[-1].split(maxsplit=1)
+                current[ctype][key] = value
             else:
                 current[ctype] = args[-1].split()
             continue
