@@ -8,11 +8,16 @@ module top
 (
 input  wire clk,
 
-input  wire [11:0] in,
-output wire [11:0] out,
+input  wire rx,
+output wire tx,
 
-input  wire jc1,
-output wire jc2
+input  wire [15:0] sw,
+output wire [15:0] led,
+
+input  wire jc1, // unused
+output wire jc2,
+input  wire jc3, // unused
+input  wire jc4
 );
 
 // ============================================================================
@@ -24,7 +29,7 @@ reg [3:0] rst_sr;
 initial rst_sr <= 4'hF;
 
 always @(posedge CLK)
-    if (in[0])
+    if (sw[0])
         rst_sr <= 4'hF;
     else
         rst_sr <= rst_sr >> 1;
@@ -44,16 +49,16 @@ plle2_test
 .RST        (RST),
 
 .CLKFBOUT   (jc2),
-.CLKFBIN    (jc1),
+.CLKFBIN    (jc4),
 
-.I_PWRDWN   (in[1]),
-.I_CLKINSEL (in[2]),
+.I_PWRDWN   (sw[1]),
+.I_CLKINSEL (sw[2]),
 
-.O_LOCKED   (out[6]),
-.O_CNT      (out[5:0])
+.O_LOCKED   (led[6]),
+.O_CNT      (led[5:0])
 );
 
-assign out [10:7] = 1'd0;
+assign led[15:7] = sw[15:7];
 
 endmodule
 

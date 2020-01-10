@@ -53,7 +53,7 @@ function(ff_ce_sr_test num_ff)
         add_fpga_target(
             NAME ff_ce_sr_${num_ff}_${ff_type_lower}
             BOARD basys3
-            INPUT_IO_FILE ../common/basys3.pcf
+            INPUT_IO_FILE ${COMMON}/basys3.pcf
             SOURCES
                 ${symbiflow-arch-defs_SOURCE_DIR}/library/lfsr.v
                 ff_type.v

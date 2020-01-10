@@ -1,11 +1,11 @@
 module top (
-        input         clk,
-        input [15:0]  sw,
-        output [15:0] led,
+    input  wire clk,
 
-        // not used
-        input         rx,
-        output        tx
+    input  wire rx,
+    output wire tx,
+
+    input  wire [15:0] sw,
+    output wire [15:0] led
 );
 
     assign tx = rx;  // TODO(#658): Remove this work-around

@@ -1,0 +1,13 @@
+# 125MHz clk
+set_io clk K17
+
+# in[] correspond with SW0-SW3 on the zybo
+set_io sw[0] G15
+set_io sw[1] K18
+set_io sw[2] K19
+
+# out[] correspond with LD0-LD3 on the zybo
+set_io led[0] M14
+set_io led[1] M15
+set_io led[2] G14
+set_io led[3] D18

@@ -1,9 +1,11 @@
 module top(
-    input clk,
-    input rx,
-    output tx,
-    input [15:0] sw,
-    output [15:0] led
+    input  wire clk,
+
+    input  wire rx,
+    output wire tx,
+
+    input  wire [15:0] sw,
+    output wire [15:0] led
 );
 
 localparam NUM_FF = 4;
