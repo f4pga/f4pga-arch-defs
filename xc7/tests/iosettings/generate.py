@@ -815,11 +815,6 @@ def main():
     with open(args.o + ".pcf", "w") as fp:
         fp.write(pcf)
 
-    # Write iosettings
-    if iosettings is not None:
-        with open(args.o + ".json", "w") as fp:
-            json.dump(iosettings, fp, indent=2)
-
 
 if __name__ == "__main__":
     main()
