@@ -27,6 +27,8 @@ function(lut_techmap_test N LUT_COUNT)
 
     set(VPR_CELLS_MAP_FILE ${symbiflow-arch-defs_SOURCE_DIR}/quicklogic/techmap/cells_map.v)
     set(VPR_CELLS_SIM_FILE ${symbiflow-arch-defs_SOURCE_DIR}/quicklogic/techmap/cells_sim.v)
+    append_file_dependency(VPR_CELLS_SIM_FILE_DEP ${VPR_CELLS_SIM_FILE})
+    get_file_location(VPR_CELLS_SIM_FILE ${VPR_CELLS_SIM_FILE})
 
     get_filename_component(YOSYS_PATH ${YOSYS} DIRECTORY)
     set(YOSYS_CELLS_SIM_FILE ${YOSYS_PATH}/share/quicklogic/cells_sim.v)
@@ -37,6 +39,7 @@ function(lut_techmap_test N LUT_COUNT)
     set(DUT_MITER_FILE "${BASENAME}_miter.v")
     set(TESTBENCH_FILE "tb.v")
     set(VPP_FILE "${BASENAME}.vpp")
+    append_file_dependency(TESTBENCH_FILE_DEP ${TESTBENCH_FILE})
 
     # Generate the design that uses LUTs
     add_custom_command(
@@ -78,7 +81,7 @@ function(lut_techmap_test N LUT_COUNT)
     add_custom_command(
         OUTPUT ${DUT_MITER_FILE}
         COMMAND ${QUIET_CMD} ${YOSYS} -p "${YOSYS_MITER_CMDS}"
-        DEPENDS ${YOSYS} ${YOSYS_TARGET} ${LUT_DUT_FILE} ${MUX_DUT_FILE}
+        DEPENDS ${YOSYS} ${YOSYS_TARGET} ${LUT_DUT_FILE} ${MUX_DUT_FILE} ${VPR_CELLS_SIM_FILE_DEP}
         VERBATIM
         )
     add_file_target(FILE ${DUT_MITER_FILE} GENERATED)
@@ -95,7 +98,7 @@ function(lut_techmap_test N LUT_COUNT)
             ${CMAKE_CURRENT_BINARY_DIR}/${MUX_DUT_FILE}
             ${CMAKE_CURRENT_BINARY_DIR}/${DUT_MITER_FILE}
             ${CMAKE_CURRENT_SOURCE_DIR}/${TESTBENCH_FILE}
-        DEPENDS ${IVERILOG} ${IVERILOG_TARGET} ${DUT_MITER_FILE} ${TESTBENCH_FILE}
+        DEPENDS ${IVERILOG} ${IVERILOG_TARGET} ${DUT_MITER_FILE} ${TESTBENCH_FILE_DEP} ${VPR_CELLS_SIM_FILE_DEP} ${VPR_CELLS_SIM_FILE}
         WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
         VERBATIM
         )
