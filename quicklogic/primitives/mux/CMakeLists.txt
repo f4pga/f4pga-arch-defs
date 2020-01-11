@@ -8,3 +8,4 @@ mux_gen(
   WIDTH 2
 )
 
+add_to_cells_sim(mux.sim.v)
