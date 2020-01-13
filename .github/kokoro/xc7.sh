@@ -30,4 +30,17 @@ echo "----------------------------------------"
 	popd
 )
 echo "----------------------------------------"
+
+echo
+echo "========================================"
+echo "Running installed toolchain tests"
+echo "----------------------------------------"
+(
+	sudo pip install git+https://github.com/SymbiFlow/fasm.git
+	pushd xc7/tests/install_tests
+	make
+	popd
+)
+echo "----------------------------------------"
+
 source ${SCRIPT_DIR}/package_results.sh
