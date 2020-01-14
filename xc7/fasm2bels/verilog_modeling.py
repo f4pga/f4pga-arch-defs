@@ -1204,8 +1204,7 @@ class Module(object):
         self.disabled_drcs = set()
         self.default_iostandard = None
         self.default_drive = None
-        self.top_level_port_to_cname = {}
-        self.cname_to_iosettings = {}
+        self.net_to_iosettings = {}
 
         # Map of source to sink.
         self.shorted_nets = {}
@@ -1255,19 +1254,9 @@ class Module(object):
 
     def make_iosettings_map(self, parsed_eblif):
         """
-        Builds map of top-level port names to cell names and cell names to IO
-        # settings map using data from a parsed EBLIF file.
+        Fills in the net_to_iosettings dict with IO settings information read
+        from the eblif file.
         """
-
-        # Map of EBLIF cell types of IO buffers to their ports connecting them
-        # with IO pads.
-        IOBUF_PORTS = {
-            "IBUF_VPR": ["I"],
-            "OBUF_VPR": ["O"],
-            "IOBUF_VPR": ["IOPAD_$inp", "IOPAD_$out"],
-            "OBUFTDS_M_VPR": ["O"],
-            "OBUFTDS_S_VPR": ["OB"],
-        }
 
         # Tuple of EBLIF cell parameters.
         IOBUF_PARAMS = (
@@ -1285,28 +1274,23 @@ class Module(object):
         # Look for IO cells
         for subckt in parsed_eblif["subckt"]:
 
-            # No name
-            if "cname" not in subckt:
-                continue
             # No parameters
             if "param" not in subckt:
                 continue
 
-            # Get the cell type and name
-            cell_name = subckt["cname"][0]
-            cell_type = subckt["args"][0]
-            if cell_type not in IOBUF_PORTS:
-                continue
-
-            # Get name of the IO pad that the cell is connected to
+            # Check if the cell is connected to a top-level port. If not then
+            # skip this cell.
+            nets = set()
             for conn_str in subckt["args"][1:]:
                 port, net = conn_str.split("=")
+                nets.add(net)
 
-                if port in IOBUF_PORTS[cell_type]:
-                    self.top_level_port_to_cname[net] = cell_name
+            nets &= self.top_level_signal_nets
+            if len(nets) == 0:
+                continue
 
             # Get interesting params
-            self.cname_to_iosettings[cell_name] = {}
+            params = {}
             for param, _value in subckt["param"].items():
 
                 if param not in IOBUF_PARAMS:
@@ -1324,7 +1308,15 @@ class Module(object):
                     value = str(match.group(1))
 
                 # Store the parameter
-                self.cname_to_iosettings[cell_name][param] = value
+                params[param] = value
+
+            # No interestin params
+            if len(params) == 0:
+                continue
+
+            # Assign cell parameters to all top-level nets it is connected to.
+            for net in nets:
+                self.net_to_iosettings[net] = params
 
     def get_site_iosettings(self, site):
         """
@@ -1340,16 +1332,10 @@ class Module(object):
         signal = self.site_to_signal[site]
 
         # Signal not in IO settings map
-        if signal not in self.top_level_port_to_cname:
+        if signal not in self.net_to_iosettings:
             return None
 
-        cname = self.top_level_port_to_cname[signal]
-
-        # cname not in cname to IO settings map
-        if cname not in self.cname_to_iosettings:
-            return None
-
-        return self.cname_to_iosettings[cname]
+        return self.net_to_iosettings[signal]
 
     def add_extra_tcl_line(self, tcl_line):
         self.extra_tcl.append(tcl_line)
