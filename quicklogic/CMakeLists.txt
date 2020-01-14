@@ -4,29 +4,81 @@ add_quicklogic_fasm_package()
 include(cmake/cells_sim_gen.cmake)
 add_cells_sim_target(techmap/cells_sim.v)
 
+include(cmake/quicklogic_device.cmake)
+include(cmake/quicklogic_board.cmake)
+
+include(cmake/quicklogic_jlink.cmake)
+
 set(SDF_TIMING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/timings)
 set(BELS_MAP ${CMAKE_CURRENT_SOURCE_DIR}/bels.json)
 
 add_subdirectory(primitives)
-add_subdirectory(tiles)
 
 get_target_property_required(PYTHON3 env PYTHON3)
+get_target_property_required(QLFASM env QLFASM)
+
+get_target_property_required(QLFASM_TARGET env QLFASM_TARGET)
+
+set(CELLS_SIM_FILE ${symbiflow-arch-defs_SOURCE_DIR}/quicklogic/techmap/cells_sim.v)
+get_file_location(CELLS_SIM_LOCATION ${CELLS_SIM_FILE})
+
 define_arch(
   ARCH ql-s3
   YOSYS_SYNTH_SCRIPT ${symbiflow-arch-defs_SOURCE_DIR}/quicklogic/yosys/synth.tcl
   YOSYS_CONV_SCRIPT ${symbiflow-arch-defs_SOURCE_DIR}/quicklogic/yosys/conv.tcl
   DEVICE_FULL_TEMPLATE \${DEVICE}
-  VPR_ARCH_ARGS " \
-    --router_init_wirelength_abort_threshold 20 \
-    --place_algorithm bounding_box"
+  VPR_ARCH_ARGS "\
+    --clock_modeling route \
+    --place_delay_model delta_override \
+    --router_lookahead map \
+    --quick_check_route on \
+    --strict_checks off \
+    --allow_dangling_combinational_nodes on \
+    --disable_errors check_unbuffered_edges:check_route \
+    --congested_routing_iteration_threshold 0.8 \
+    --incremental_reroute_delay_ripup off \
+    --base_cost_type delay_normalized_length_bounded \
+    --bb_factor 10 \
+    --initial_pres_fac 4.0 \
+    --check_rr_graph off \
+    --suppress_warnings \${OUT_NOISY_WARNINGS},sum_pin_class:check_unbuffered_edges:load_rr_indexed_data_T_values:check_rr_node:trans_per_R:check_route"
+
+  # FIXME: Once the timing model works check why --router_lookahead connection_box_map does not.
+
   RR_PATCH_TOOL
-    ${CMAKE_CURRENT_SOURCE_DIR}/utils/testarch_graph.py
-  RR_PATCH_CMD "\${CMAKE_COMMAND} -E env PYTHONPATH=${symbiflow-arch-defs_SOURCE_DIR}/utils
-   \${PYTHON3} \${RR_PATCH_TOOL} \
-  --read_rr_graph \${OUT_RRXML_VIRT} \
-  --write_rr_graph \${OUT_RRXML_REAL}"
-  NO_PINS
-  NO_BITSTREAM
+    ${symbiflow-arch-defs_SOURCE_DIR}/quicklogic/utils/routing_import.py
+  RR_PATCH_CMD "\${CMAKE_COMMAND} -E env \
+    PYTHONPATH=${symbiflow-arch-defs_SOURCE_DIR}/utils:$PYTHONPATH \
+    \${PYTHON3} \${RR_PATCH_TOOL} \
+        --vpr-db ${CMAKE_CURRENT_BINARY_DIR}/devices/\${DEVICE_TYPE}/db_vpr.pickle \
+        --rr-graph-in \${OUT_RRXML_VIRT} \
+        --rr-graph-out \${OUT_RRXML_REAL}"
+
+  PLACE_TOOL
+    ${symbiflow-arch-defs_SOURCE_DIR}/quicklogic/utils/create_ioplace.py
+  PLACE_TOOL_CMD "${CMAKE_COMMAND} -E env \
+    PYTHONPATH=${symbiflow-arch-defs_SOURCE_DIR}/utils:$PYTHONPATH \
+    \${PYTHON3} \${PLACE_TOOL} \
+        --map \${PINMAP} \
+        --blif \${OUT_EBLIF} \
+        --pcf \${INPUT_IO_FILE} \
+        --net \${OUT_NET}"
+
+  FASM_TO_BIT   
+    ${QLFASM}
+  FASM_TO_BIT_CMD "\${PYTHON3} \
+    \${QLFASM} \
+        \${OUT_FASM}
+        \${OUT_BITSTREAM}
+        \${FASM_TO_BIT_EXTRA_ARGS}"
+  FASM_TO_BIT_DEPS
+    ${QLFASM_TARGET}
+  BITSTREAM_EXTENSION bit
+
+  CELLS_SIM
+    ${CELLS_SIM_LOCATION}
+
+  NO_BIT_TO_BIN
   NO_BIT_TO_V
   NO_BIT_TIME
   ROUTE_CHAN_WIDTH 100
@@ -35,4 +87,5 @@ define_arch(
 unset(PYTHON3)
 
 add_subdirectory(devices)
+include(boards.cmake)
 add_subdirectory(tests)

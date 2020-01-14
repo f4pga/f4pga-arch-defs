@@ -13,7 +13,7 @@ VPR_HAS_C_INTERNAL_SUPPORT = True
 # 0 - debugging off,
 # 1 - indent output XML,
 # 2 - write only one element of each kind.
-DEBUG = 0
+DEBUG = 1
 
 
 def enum_from_string(enum_type, s):
@@ -127,8 +127,8 @@ def graph_from_xml(
         # Segment timing
         if path == "rr_graph/segments/segment" and element.tag == "timing":
             segment_timing = graph2.SegmentTiming(
-                r_per_meter=float(element.attrib.get('R_per_meter', 0)),
-                c_per_meter=float(element.attrib.get('C_per_meter', 0)),
+                r_per_meter=float(element.get('R_per_meter', 0.0)),
+                c_per_meter=float(element.get('C_per_meter', 0.0)),
             )
 
         # Segment

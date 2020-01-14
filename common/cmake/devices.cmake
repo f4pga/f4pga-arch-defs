@@ -1210,6 +1210,8 @@ function(ADD_FPGA_TARGET)
 
   get_target_property_required(PYTHON3 env PYTHON3)
 
+  get_target_property_required(PYTHON3 env PYTHON3)
+
   set(TOP "top")
   if(NOT "${ADD_FPGA_TARGET_TOP}" STREQUAL "")
     set(TOP ${ADD_FPGA_TARGET_TOP})

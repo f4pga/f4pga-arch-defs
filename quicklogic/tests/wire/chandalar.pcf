@@ -1,0 +1,3 @@
+set_io inp FBIO_0
+set_io out FBIO_1
+

@@ -62,7 +62,7 @@ function(lut_techmap_test N LUT_COUNT)
     add_custom_command(
         OUTPUT ${MUX_DUT_FILE}
         COMMAND ${QUIET_CMD} ${YOSYS} -p "${YOSYS_LUT2MUX_CMDS}"
-        DEPENDS ${YOSYS} ${YOSYS_TARGET} ${LUT_DUT_FILE}
+        DEPENDS ${YOSYS} ${YOSYS_TARGET} ${LUT_DUT_FILE} ${VPR_CELLS_MAP_FILE}
         VERBATIM
         )
     add_file_target(FILE ${MUX_DUT_FILE} GENERATED)
@@ -123,3 +123,5 @@ lut_techmap_test(1 10)
 lut_techmap_test(2 25)
 lut_techmap_test(3 50)
 lut_techmap_test(4 100)
+
+add_dependencies(all_ql_tests all_quicklogic_lut_techmap_tests)

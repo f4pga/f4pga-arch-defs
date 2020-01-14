@@ -59,6 +59,11 @@ def add_tile_tags(arch):
     TAGS_TO_COPY = ['input', 'output', 'clock']
     ATTR_TO_SWAP = ['area', 'height', 'width', 'capacity']
 
+    # A map of attribute names which have to be renamed.
+    ATTR_MAP = {
+        'num_pb': 'capacity'
+    }
+
     def swap_tags(tile, pb_type):
         # Moving tags from top level pb_type to tile
         for child in pb_type:
@@ -87,10 +92,15 @@ def add_tile_tags(arch):
         attrs = pb_type.attrib
 
         for attr in attrs:
-            tile.set(attr, pb_type.get(attr))
+            if attr in ATTR_MAP:
+                tile.set(ATTR_MAP[attr], pb_type.get(attr))
+            else:
+                tile.set(attr, pb_type.get(attr))
 
         # Remove attributes of top level pb_types only
         for attr in ATTR_TO_SWAP:
+            pb_type.attrib.pop(attr, None)
+        for attr in ATTR_MAP.keys():
             pb_type.attrib.pop(attr, None)
 
         equivalent_sites = ET.Element("equivalent_sites")

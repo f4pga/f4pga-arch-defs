@@ -4,5 +4,107 @@
             "TEST_CELL":
                 ["SELMUX2_1.TEST_CELL/mux0"]
         }
+    },
+    "LOGIC": {
+        "ta_mux": {
+            "LOGIC":
+                ["DUMMY.DUMMY/mux"]
+        },
+        "tb_mux": {
+            "LOGIC":
+                ["DUMMY.DUMMY/mux"]
+        },
+        "tab_mux": {
+            "LOGIC":
+                ["DUMMY.DUMMY/mux"]
+        },
+        "ba_mux": {
+            "LOGIC":
+                ["DUMMY.DUMMY/mux"]
+        },
+        "bb_mux": {
+            "LOGIC":
+                ["DUMMY.DUMMY/mux"]
+        },
+        "bab_mux": {
+            "LOGIC":
+                ["DUMMY.DUMMY/mux"]
+        },
+        "tabbab_mux": {
+            "LOGIC":
+                ["DUMMY.DUMMY/mux"]
+        },
+        "bab_mux": {
+            "LOGIC":
+                ["DUMMY.DUMMY/mux"]
+        },
+        "d_mux": {
+            "LOGIC":
+                ["DUMMY.DUMMY/mux"]
+        },
+        "f_mux": {
+            "LOGIC":
+                ["DUMMY.DUMMY/mux"]
+        }
+    },
+    "ta_mux": {
+        "ta_mux": {
+            "LOGIC":
+                ["DUMMY.DUMMY/mux"]
+        }
+    },
+    "tb_mux": {
+        "tb_mux": {
+            "LOGIC":
+                ["DUMMY.DUMMY/mux"]
+        }
+    },
+    "tab_mux": {
+        "tab_mux": {
+            "LOGIC":
+                ["DUMMY.DUMMY/mux"]
+        }
+    },
+    "ba_mux": {
+        "ba_mux": {
+            "LOGIC":
+                ["DUMMY.DUMMY/mux"]
+        }
+    },
+    "bb_mux": {
+        "bb_mux": {
+            "LOGIC":
+                ["DUMMY.DUMMY/mux"]
+        }
+    },
+    "bab_mux": {
+        "bab_mux": {
+            "LOGIC":
+                ["DUMMY.DUMMY/mux"]
+        }
+    },
+    "tabbab_mux": {
+        "tabbab_mux": {
+            "LOGIC":
+                ["DUMMY.DUMMY/mux"]
+        }
+    },
+    "bab_mux": {
+        "bab_mux": {
+            "LOGIC":
+                ["DUMMY.DUMMY/mux"]
+        }
+    },
+    "d_mux": {
+        "d_mux": {
+            "LOGIC":
+                ["DUMMY.DUMMY/mux"]
+        }
+    },
+    "f_mux": {
+        "f_mux": {
+            "LOGIC":
+                ["DUMMY.DUMMY/mux"]
+        }
     }
 }
