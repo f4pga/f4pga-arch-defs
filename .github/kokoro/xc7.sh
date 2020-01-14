@@ -37,6 +37,7 @@ echo "Running installed toolchain tests"
 echo "----------------------------------------"
 (
 	pip install git+https://github.com/SymbiFlow/fasm.git --user
+	export PATH=`pwd`/install/bin:$PATH
 	pushd xc7/tests/install_test
 	make
 	popd
