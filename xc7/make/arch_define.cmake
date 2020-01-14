@@ -10,8 +10,9 @@ function(ADD_XC7_ARCH_DEFINE)
     ${ARGN}
   )
 
-  # The default IOSTANDARD to use in fasm2bels
+  # The default IOSTANDARD and DRIVE to use in fasm2bels
   set(DEFAULT_IOSTANDARD "LVCMOS33")
+  set(DEFAULT_DRIVE 12)
 
   set(ARCH ${ADD_XC7_ARCH_DEFINE_ARCH})
   set(YOSYS_SYNTH_SCRIPT ${ADD_XC7_ARCH_DEFINE_YOSYS_SYNTH_SCRIPT})
@@ -98,6 +99,7 @@ function(ADD_XC7_ARCH_DEFINE)
         --bit_file \${OUT_BIN} \
         --fasm_file \${OUT_BIN}.fasm \
         --iostandard ${DEFAULT_IOSTANDARD} \
+        --drive ${DEFAULT_DRIVE} \
         --pcf \${INPUT_IO_FILE} \
         --eblif \${OUT_EBLIF} \
         --top \${TOP} \

@@ -1203,6 +1203,7 @@ class Module(object):
         self.source_bels = {}
         self.disabled_drcs = set()
         self.default_iostandard = None
+        self.default_drive = None
         self.top_level_port_to_cname = {}
         self.cname_to_iosettings = {}
 
@@ -1248,8 +1249,9 @@ class Module(object):
         # IO bank lookup (if part was provided).
         self.iobank_lookup = {}
 
-    def set_default_iostandard(self, iostandard):
+    def set_default_iostandard(self, iostandard, drive):
         self.default_iostandard = iostandard
+        self.default_drive = drive
 
     def make_iosettings_map(self, parsed_eblif):
         """
