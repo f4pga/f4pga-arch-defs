@@ -54,7 +54,7 @@ from lxml import etree as ET
 def add_tile_tags(arch):
     TAGS_TO_SWAP = ['fc', 'pinlocations', 'switchblock_locations']
     TAGS_TO_COPY = ['input', 'output', 'clock']
-    ATTR_TO_SWAP = ['area', 'height', 'width', 'capacity']
+    ATTR_TO_SWAP = ['area', 'height', 'width', 'capacity', 'num_pb']
 
     def swap_tags(tile, pb_type):
         # Moving tags from top level pb_type to tile
