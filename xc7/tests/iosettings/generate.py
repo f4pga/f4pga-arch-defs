@@ -9,8 +9,6 @@ import argparse
 PINOUT = {
     "basys3-full":
         {
-            "BUFG":
-                "BUFGCTRL_X0Y0",
             "clock":
                 "W5",
             "led":
@@ -69,8 +67,6 @@ PINOUT = {
         },
     "arty-full":
         {
-            "BUFG":
-                "BUFGCTRL_X0Y16",
             "clock":
                 "E3",
             "led":
@@ -133,8 +129,6 @@ PINOUT = {
     # on hardware but it will pass all the checks on CI.
     "basys3-bottom":
         {
-            "BUFG":
-                "BUFGCTRL_X0Y0",
             "clock":
                 "W5",  # Bank 34
             "led":
@@ -215,7 +209,6 @@ set_io clk {}
     reg  [31:0] cnt_ps;
     reg         tick;
 
-    (* LOC = "{}" *)
     BUFG bufg (.I(clk), .O(clk_bufg));
 
     initial cnt_ps <= 0;
@@ -229,7 +222,7 @@ set_io clk {}
             cnt_ps <= cnt_ps + 1;
             tick   <= tick;
         end
-""".format(PINOUT[board]["BUFG"])
+"""
 
     # Output buffers
     index = 0
@@ -302,9 +295,8 @@ set_io clk {}
     verilog += """
     wire  clk_bufg;
 
-    (* LOC = "{}" *)
     BUFG bufg (.I(clk), .O(clk_bufg));
-""".format(PINOUT[board]["BUFG"])
+"""
 
     # Input buffers + registers
     index = 0
@@ -389,7 +381,6 @@ set_io clk {}
     wire        clk_bufg;
     reg  [31:0] cnt_ps;
 
-    (* LOC = "{}" *)
     BUFG bufg (.I(clk), .O(clk_bufg));
 
     initial cnt_ps <= 32'd0;
@@ -413,7 +404,7 @@ set_io clk {}
             led <= ino_i;
         else
             led <= led;
-""".format(PINOUT[board]["BUFG"])
+"""
 
     # INOUT buffers
     index = 0
@@ -496,7 +487,6 @@ set_io clk {}
     reg  [31:0] cnt_ps;
     reg         tick;
 
-    (* LOC = "{}" *)
     BUFG bufg (.I(clk), .O(clk_bufg));
 
     initial cnt_ps <= 0;
@@ -510,7 +500,7 @@ set_io clk {}
             cnt_ps <= cnt_ps + 1;
             tick   <= tick;
         end
-""".format(PINOUT[board]["BUFG"])
+"""
 
     # Output buffers
     index = 0
@@ -588,9 +578,8 @@ set_io clk {}
     verilog += """
     wire  clk_bufg;
 
-    (* LOC = "{}" *)
     BUFG bufg (.I(clk), .O(clk_bufg));
-""".format(PINOUT[board]["BUFG"])
+"""
 
     # Input buffers + registers
     index = 0
@@ -680,7 +669,6 @@ set_io clk {}
     wire        clk_bufg;
     reg  [31:0] cnt_ps;
 
-    (* LOC = "{}" *)
     BUFG bufg (.I(clk), .O(clk_bufg));
 
     initial cnt_ps <= 32'd0;
@@ -704,7 +692,7 @@ set_io clk {}
             led <= ino_i;
         else
             led <= led;
-""".format(PINOUT[board]["BUFG"])
+"""
 
     # INOUT buffers
     index = 0
