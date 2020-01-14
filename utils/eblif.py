@@ -1,3 +1,4 @@
+# Top level keywords defining the begin of a cell definition.
 top_level = [
     "model",
     "inputs",
@@ -7,6 +8,13 @@ top_level = [
     "subckt",
 ]
 
+# Keywords defining cell attributes / parameters. Those can be specified for
+# each cell multiple times. Parameter names and values are stored in a dict
+# under the parsed blif data.
+#
+# For example: the construct ".param MODE SYNC" will add to the dict under
+# the key "param" entry "MODE":"SYNC".
+#
 sub_level = [
     "attr",
     "param",
