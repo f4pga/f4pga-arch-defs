@@ -301,6 +301,13 @@ def main():
         help=
         "Default IOSTANDARD to use for IO buffers if it cannot be determined from fasm and eblif."
     )
+    parser.add_argument(
+        '--drive',
+        type=int,
+        default=None,
+        help=
+        "Default DRIVE to use for IO buffers if it cannot be determined from fasm and eblif."
+    )
     parser.add_argument('--top', default="top", help="Root level module name.")
     parser.add_argument('--pcf', help="Mapping of top-level pins to pads.")
     parser.add_argument('--route_file', help="VPR route output file.")
@@ -351,7 +358,7 @@ def main():
         top.add_to_cname_map(parsed_eblif)
         top.make_iosettings_map(parsed_eblif)
 
-    top.set_default_iostandard(args.iostandard)
+    top.set_default_iostandard(args.iostandard, args.drive)
 
     for fasm_line in fasm.parse_fasm_filename(args.fasm_file):
         if not fasm_line.set_feature:

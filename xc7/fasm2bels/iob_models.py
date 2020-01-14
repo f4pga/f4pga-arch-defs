@@ -103,7 +103,10 @@ def append_obuf_iostandard_params(
 
     # We don't. Use the default IOSTANDARD
     if iosettings is None:
-        iosettings = {"IOSTANDARD": top.default_iostandard}
+        iosettings = {
+            "IOSTANDARD": top.default_iostandard,
+            "DRIVE": top.default_drive
+        }
 
     iostandard = iosettings.get("IOSTANDARD", None)
     drive = iosettings.get("DRIVE", None)
@@ -168,7 +171,10 @@ def append_ibuf_iostandard_params(
 
     # We don't. Use the default IOSTANDARD
     if iosettings is None:
-        iosettings = {"IOSTANDARD": top.default_iostandard}
+        iosettings = {
+            "IOSTANDARD": top.default_iostandard,
+            "DRIVE": top.default_drive
+        }
 
     iostandard = iosettings.get("IOSTANDARD", None)
 
