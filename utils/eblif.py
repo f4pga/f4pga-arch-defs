@@ -66,6 +66,10 @@ def parse_blif(f):
                 current[ctype] = args[-1].split()
             continue
         current['data'].append(line.strip().split())
+
+    if current:
+        add(current)
+
     assert len(data['inputs']) == 1
     data['inputs'] = data['inputs'][0]
     assert len(data['outputs']) == 1
