@@ -954,6 +954,8 @@ function(ADD_FPGA_TARGET)
     "${multiValueArgs}"
     ${ARGN}
   )
+ 
+  get_target_property_required(PYTHON3 env PYTHON3)
 
   set(TOP "top")
   if(NOT "${ADD_FPGA_TARGET_TOP}" STREQUAL "")
