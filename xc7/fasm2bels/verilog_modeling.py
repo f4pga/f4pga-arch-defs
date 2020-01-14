@@ -1264,6 +1264,12 @@ class Module(object):
             "DRIVE",
         )
 
+        # Regex for matching ports belonging to a single inout port
+        INOUT_RE = re.compile(
+            r"(.*)(_\$inp$|_\$inp(\[[0-9]+\])$|_\$out$|_\$out(\[[0-9]+\])$)(.*)"
+        )
+
+        # Eblif parameter decoding
         BIN_RE = re.compile(r"^([01]+)$")
         STR_RE = re.compile(r"^\"(.*)\"$")
 
@@ -1278,13 +1284,29 @@ class Module(object):
             if "param" not in subckt:
                 continue
 
-            # Check if the cell is connected to a top-level port. If not then
-            # skip this cell.
+            # Gather nets that the cell is connected to.
+            # Collapse input and output nets that correspond to an inout port
+            # to a single net name
+            #
+            # "net_$inp" -> "net"
+            # "net_$out" -> "net"
+            # "net_$inp[0]" -> "net[0]"
+            # "net_$out[0]" -> "net[0]"
             nets = set()
             for conn_str in subckt["args"][1:]:
                 port, net = conn_str.split("=")
+
+                match = INOUT_RE.match(net)
+                if match:
+                    groups = match.groups()
+                    net = groups[0] + "".join(
+                        [g for g in groups[2:] if g is not None]
+                    )
+
                 nets.add(net)
 
+            # Check if the cell is connected to a top-level port. If not then
+            # skip this cell.
             nets &= self.top_level_signal_nets
             if len(nets) == 0:
                 continue
@@ -1327,6 +1349,7 @@ class Module(object):
 
         # Site not in site to signal list
         if site not in self.site_to_signal:
+            print(site, self.site_to_signal)
             return None
 
         signal = self.site_to_signal[site]
