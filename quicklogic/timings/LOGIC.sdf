@@ -1,0 +1,16 @@
+(DELAYFILE
+    (SDFVERSION "3.0")
+    (TIMESCALE 1ns)
+
+    (CELL
+        (CELLTYPE "DUMMY")
+        (INSTANCE DUMMY/mux)
+        (DELAY
+            (ABSOLUTE
+                (IOPATH 0 OUT (0.053::0.067)(0.153::0.19))
+                (IOPATH 1 OUT (0.055::0.069)(0.156::0.193))
+                (IOPATH S0 OUT (0.085::0.106)(0.222::0.276))
+            )
+        )
+    )
+)

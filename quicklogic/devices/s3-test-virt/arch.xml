@@ -5,7 +5,7 @@
  </models>
 
  <layout>
-  <fixed_layout name="s3-test" width="7" height="7">
+  <fixed_layout name="ql-eos-s3-test" width="7" height="7">
    <!-- Empty corners -->
    <corners type="EMPTY" priority="100"/> 
    <!-- VPR_PAD at perimeter -->
@@ -24,6 +24,7 @@
       <x distr="uniform" peak="1.000000"/>
       <y distr="uniform" peak="1.000000"/>
     </chan_width_distr>
+    <default_fc in_type="frac" in_val="1.00" out_type="frac" out_val="1.00"/>
  </device>
 
  <switchlist>
@@ -42,8 +43,5 @@
   <xi:include href="../../../vpr/pad/pad.pb_type.xml"/>
   <xi:include href="../../tiles/logic/logic.pb_type.xml"/>
  </complexblocklist>
-
- <directlist>
- </directlist>
 
 </architecture>
