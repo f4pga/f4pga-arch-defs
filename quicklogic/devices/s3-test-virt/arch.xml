@@ -18,7 +18,7 @@
  <device>
     <sizing R_minW_nmos="6065.520020" R_minW_pmos="18138.500000" />
     <area grid_logic_tile_area="14813.392"/>
-    <connection_block input_switch_name="1"/>
+    <connection_block input_switch_name="mux"/>
     <switch_block type="wilton" fs="3"/>
     <chan_width_distr>
       <x distr="uniform" peak="1.000000"/>
@@ -28,14 +28,25 @@
  </device>
 
  <switchlist>
-  <switch type="mux" name="1" R="551" Cin=".77e-15" Cout="4e-15" Tdel="58e-12" mux_trans_size="2.630740" buf_size="27.645901"/>
+  <switch type="mux" name="mux" R="551" Cin=".77e-15" Cout="4e-15" Tdel="58e-12" mux_trans_size="2.630740" buf_size="27.645901"/>
+  <switch type="short" name="short" R="0" Cin="0" Cout="0" Tdel="0" />
  </switchlist>
 
  <segmentlist>
-  <segment name="segment" length="4" freq="0.750000" type="unidir" Rmetal="101" Cmetal="22.5e-15">
+  <segment name="seg1" length="1" freq="0.750000" type="unidir" Rmetal="101" Cmetal="22.5e-15">
+   <sb type="pattern">1 1</sb>
+   <cb type="pattern">1</cb>
+   <mux name="mux"/>
+  </segment>
+  <segment name="seg2" length="2" freq="0.750000" type="unidir" Rmetal="101" Cmetal="22.5e-15">
+   <sb type="pattern">1 1 1</sb>
+   <cb type="pattern">1 1</cb>
+   <mux name="mux"/>
+  </segment>
+  <segment name="seg4" length="4" freq="0.750000" type="unidir" Rmetal="101" Cmetal="22.5e-15">
    <sb type="pattern">1 1 1 1 1</sb>
    <cb type="pattern">1 1 1 1</cb>
-   <mux name="1"/>
+   <mux name="mux"/>
   </segment>
  </segmentlist>
 
