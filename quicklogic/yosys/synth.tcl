@@ -4,6 +4,7 @@ yosys -import
 read_verilog -lib $::env(symbiflow-arch-defs_BINARY_DIR)/quicklogic/techmap/cells_sim.v
 
 # Synthesize (TODO: Use synth_quicklogic here!)
+read_verilog -lib +/quicklogic/cells_sim.v
 synth -top top -flatten
 abc -lut 4
 opt_clean
