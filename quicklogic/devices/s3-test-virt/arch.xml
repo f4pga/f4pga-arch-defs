@@ -9,7 +9,8 @@
    <!-- Empty corners -->
    <corners type="EMPTY" priority="100"/> 
    <!-- VPR_PAD at perimeter -->
-   <perimeter type="VPR_PAD" priority="10"/>
+   <!-- <perimeter type="VPR_PAD" priority="10"/> -->
+   <col type="VPR_PAD" priority="10" startx="0" starty="0" incry="1"/>
    <!-- Fill the rest with LOGIC -->
    <fill type="LOGIC" priority="1"/>
   </fixed_layout>
