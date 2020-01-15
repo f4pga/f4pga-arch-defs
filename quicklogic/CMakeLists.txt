@@ -21,12 +21,18 @@ define_arch(
   VPR_ARCH_ARGS " \
     --router_init_wirelength_abort_threshold 20 \
     --place_algorithm bounding_box"
+#  RR_PATCH_TOOL
+#    ${CMAKE_CURRENT_SOURCE_DIR}/utils/testarch_graph.py
+#  RR_PATCH_CMD "\${CMAKE_COMMAND} -E env PYTHONPATH=${symbiflow-arch-defs_SOURCE_DIR}/utils
+#   \${PYTHON3} \${RR_PATCH_TOOL} \
+#  --read_rr_graph \${OUT_RRXML_VIRT} \
+#  --write_rr_graph \${OUT_RRXML_REAL}"
+
+  # FIXME: Skip patching the graph for now
   RR_PATCH_TOOL
-    ${CMAKE_CURRENT_SOURCE_DIR}/utils/testarch_graph.py
-  RR_PATCH_CMD "\${CMAKE_COMMAND} -E env PYTHONPATH=${symbiflow-arch-defs_SOURCE_DIR}/utils
-   \${PYTHON3} \${RR_PATCH_TOOL} \
-  --read_rr_graph \${OUT_RRXML_VIRT} \
-  --write_rr_graph \${OUT_RRXML_REAL}"
+    /bin/true
+  RR_PATCH_CMD "cp \${OUT_RRXML_VIRT} \${OUT_RRXML_REAL}"
+
   NO_PINS
   NO_BITSTREAM
   NO_BIT_TO_V
