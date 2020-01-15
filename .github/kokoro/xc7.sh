@@ -2,8 +2,9 @@
 
 SCRIPT_SRC="$(realpath ${BASH_SOURCE[0]})"
 SCRIPT_DIR="$(dirname "${SCRIPT_SRC}")"
+INSTALL_DIR="`pwd`/install"
 
-export CMAKE_FLAGS="-GNinja -DCMAKE_INSTALL_PREFIX=`pwd`/install"
+export CMAKE_FLAGS="-GNinja -DCMAKE_INSTALL_PREFIX=${INSTALL_DIR}"
 export BUILD_TOOL=ninja
 source ${SCRIPT_DIR}/common.sh
 
@@ -37,7 +38,7 @@ echo "Running installed toolchain tests"
 echo "----------------------------------------"
 (
 	pip install git+https://github.com/SymbiFlow/fasm.git --user
-	export PATH=`pwd`/install/bin:$PATH
+	export PATH=${INSTALL_DIR}/bin:$PATH
 	pushd xc7/tests/install_test
 	make
 	popd
