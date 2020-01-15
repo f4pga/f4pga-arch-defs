@@ -6,6 +6,7 @@ define_device(
   ARCH ql-s3
   DEVICE_TYPE ql-s3-top-routing-virt
   PACKAGES wlcsp
+  WIRE_EBLIF ${symbiflow-arch-defs_SOURCE_DIR}/quicklogic/dummy.eblif
   CACHE_PLACE_DELAY
   CACHE_ARGS
     --route_chan_width 100
@@ -21,6 +22,7 @@ define_device(
   ARCH ql-s3
   DEVICE_TYPE ql-s3-test-virt
   PACKAGES wlcsp
+  WIRE_EBLIF ${symbiflow-arch-defs_SOURCE_DIR}/quicklogic/dummy.eblif
   CACHE_PLACE_DELAY
   CACHE_ARGS
     --route_chan_width 100
