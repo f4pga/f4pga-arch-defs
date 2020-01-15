@@ -39,8 +39,8 @@ module LOGIC (QST, QDS, TBS, TAB, TSL, TA1, TA2, TB1, TB2, BAB, BSL, BA1, BA2, B
     INV ta_i0_inv(TA1, ta_i0);
     INV ta_i1_inv(TA2, ta_i1);
 
-    INV tb_i0_inv(TA1, tb_i0);
-    INV tb_i1_inv(TA2, tb_i1);
+    INV tb_i0_inv(TB1, tb_i0);
+    INV tb_i1_inv(TB2, tb_i1);
 
     MUX ta_mux(ta_i0, ta_i1, TSL, ta);
     MUX tb_mux(tb_i0, tb_i1, TSL, tb);
@@ -56,8 +56,8 @@ module LOGIC (QST, QDS, TBS, TAB, TSL, TA1, TA2, TB1, TB2, BAB, BSL, BA1, BA2, B
     INV ba_i0_inv(BA1, ba_i0);
     INV ba_i1_inv(BA2, ba_i1);
 
-    INV bb_i0_inv(BA1, bb_i0);
-    INV bb_i1_inv(BA2, bb_i1);
+    INV bb_i0_inv(BB1, bb_i0);
+    INV bb_i1_inv(BB2, bb_i1);
 
     MUX ba_mux(ba_i0, ba_i1, BSL, ba);
     MUX bb_mux(bb_i0, bb_i1, BSL, bb);
