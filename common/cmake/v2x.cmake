@@ -41,6 +41,9 @@ function(V2X)
   get_target_property(YOSYS_TARGET env YOSYS_TARGET)
   list(APPEND DEPENDS_LIST ${YOSYS} ${YOSYS_TARGET})
 
+  get_target_property(V2X_TARGET env V2X_TARGET)
+  list(APPEND DEPENDS_LIST ${V2X_TARGET})
+
   set(V2X_DIR ${symbiflow-arch-defs_SOURCE_DIR}/third_party/python-symbiflow-v2x)
 
   set(REAL_SOURCE_LIST "")
