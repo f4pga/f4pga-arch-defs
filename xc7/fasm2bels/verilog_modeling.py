@@ -1349,7 +1349,6 @@ class Module(object):
 
         # Site not in site to signal list
         if site not in self.site_to_signal:
-            print(site, self.site_to_signal)
             return None
 
         signal = self.site_to_signal[site]
