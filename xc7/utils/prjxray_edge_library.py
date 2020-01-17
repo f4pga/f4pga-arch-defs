@@ -2047,6 +2047,15 @@ def create_and_insert_edges(
     delayless_switch_pkey = write_cur.fetchone()[0]
     delayless_switch = KnownSwitch(delayless_switch_pkey)
 
+    write_cur.execute(
+        'SELECT pkey FROM switch WHERE name = ?;',
+        ('__vpr_delayfull_switch__', )
+    )
+    delayfull_switch_pkey = write_cur.fetchone()[0]
+    delayfull_switch = KnownSwitch(delayfull_switch_pkey)
+
+    switch = delayless_switch
+
     find_pip = create_find_pip(conn)
     find_wire = create_find_wire(conn)
     find_connector = create_find_connector(conn)
@@ -2096,6 +2105,12 @@ def create_and_insert_edges(
             if "PS72_" in pip.net_to or "PS72_" in pip.net_from:
                 continue
 
+            if ("GCLK" in pip.net_from and "GFAN" in pip.net_to) or (
+                    "BYP_ALT" in pip.net_from
+                    and "BYP" in pip.net_to) or ("FAN_ALT" in pip.net_from
+                                                 and "FAN" in pip.net_to):
+                switch = delayfull_switch
+
             connections = make_connection(
                 conn=conn,
                 input_only_nodes=input_only_nodes,
@@ -2107,7 +2122,7 @@ def create_and_insert_edges(
                 tile_name=tile_name,
                 tile_type=gridinfo.tile_type,
                 pip=pip,
-                delayless_switch=delayless_switch,
+                delayless_switch=switch,
                 const_connectors=const_connectors,
                 forward=forward,
             )
