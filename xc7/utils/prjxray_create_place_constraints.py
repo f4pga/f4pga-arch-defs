@@ -28,6 +28,63 @@ CLOCKS = {
             "sinks": frozenset(("I0", "I1")),
             "sources": frozenset(("O")),
             "type": "BUFGCTRL",
+        },
+    "PS7_VPR":
+        {
+            "sinks":
+                frozenset(
+                    (
+                        "DMA0ACLK",
+                        "DMA1ACLK",
+                        "DMA2ACLK",
+                        "DMA3ACLK",
+                        "EMIOENET0GMIIRXCLK",
+                        "EMIOENET0GMIITXCLK",
+                        "EMIOENET1GMIIRXCLK",
+                        "EMIOENET1GMIITXCLK",
+                        "EMIOSDIO0CLKFB",
+                        "EMIOSDIO1CLKFB",
+                        "EMIOSPI0SCLKI",
+                        "EMIOSPI1SCLKI",
+                        "EMIOTRACECLK",
+                        "EMIOTTC0CLKI[0]",
+                        "EMIOTTC0CLKI[1]",
+                        "EMIOTTC0CLKI[2]",
+                        "EMIOTTC1CLKI[0]",
+                        "EMIOTTC1CLKI[1]",
+                        "EMIOTTC1CLKI[2]",
+                        "EMIOWDTCLKI",
+                        "FCLKCLKTRIGN[0]",
+                        "FCLKCLKTRIGN[1]",
+                        "FCLKCLKTRIGN[2]",
+                        "FCLKCLKTRIGN[3]",
+                        "MAXIGP0ACLK",
+                        "MAXIGP1ACLK",
+                        "SAXIACPACLK",
+                        "SAXIGP0ACLK",
+                        "SAXIGP1ACLK",
+                        "SAXIHP0ACLK",
+                        "SAXIHP1ACLK",
+                        "SAXIHP2ACLK",
+                        "SAXIHP3ACLK",
+                    )
+                ),
+            "sources":
+                frozenset(
+                    (
+                        "FCLKCLK[0]",
+                        "FCLKCLK[1]",
+                        "FCLKCLK[2]",
+                        "FCLKCLK[3]",
+                        "EMIOSDIO0CLK",
+                        "EMIOSDIO1CLK",
+                        # There are also EMIOSPI[01]CLKO and EMIOSPI[01]CLKTN but seem
+                        # to be more of a GPIO outputs than clock sources for the FPGA
+                        # fabric.
+                    )
+                ),
+            "type":
+                "PS7",
         }
 }
 
@@ -152,7 +209,10 @@ WHERE pkey IN (
                 clock = self.clock_blocks[cname]
 
                 for sink in sinks:
-                    assert sink in ports, cname
+                    assert sink in ports, (
+                        cname,
+                        sink,
+                    )
                     sink_net = ports[sink]
                     if sink_net == '$true' or sink_net == '$false':
                         continue
@@ -306,6 +366,10 @@ WHERE site_type.name = ?;""", (clock_type['type'], )
             assert clock_name in self.clock_cmts, clock_name
 
             bel_type = CLOCKS[clock['subckt']]['type']
+
+            # Skip LOCing the PS7. There is only one
+            if bel_type == "PS7":
+                continue
 
             key = (bel_type, self.clock_cmts[clock_name])
 
