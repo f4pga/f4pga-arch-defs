@@ -28,6 +28,7 @@ INSERT INTO
     switch(name, internal_capacitance, drive_resistance, intrinsic_delay, switch_type)
 VALUES
     ("__vpr_delayless_switch__", 0.0, 0.0, 0.0, "mux"),
+    ("__vpr_delayfull_switch__", 0.0, 0.0, 1.0e-9, "mux"),
     ("short", 0.0, 0.0, 0.0, "short")
 """
     )
