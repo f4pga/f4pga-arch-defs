@@ -994,9 +994,8 @@ def create_get_tile_loc(conn):
 
 
 def yield_edges(
-        const_connectors, switch, phy_tile_pkey, src_connector,
-        sink_connector, pip, pip_obj, src_wire_pkey, sink_wire_pkey, loc,
-        forward
+        const_connectors, switch, phy_tile_pkey, src_connector, sink_connector,
+        pip, pip_obj, src_wire_pkey, sink_wire_pkey, loc, forward
 ):
     if forward:
         for (src_graph_node_pkey, switch_pkey, dest_graph_node_pkey,
@@ -1033,8 +1032,7 @@ def yield_edges(
         for constant_src in yield_ties_to_wire(pip.net_to):
             for (src_graph_node_pkey, switch_pkey, dest_graph_node_pkey
                  ) in const_connectors[constant_src].connect_at(
-                     pip=switch, loc=loc,
-                     other_connector=sink_connector):
+                     pip=switch, loc=loc, other_connector=sink_connector):
                 assert switch_pkey is not None, (
                     pip, src_graph_node_pkey, dest_graph_node_pkey,
                     phy_tile_pkey, pip_pkey
@@ -1047,8 +1045,8 @@ def yield_edges(
 
 def make_connection(
         conn, input_only_nodes, output_only_nodes, find_wire, find_pip,
-        find_connector, get_tile_loc, tile_name, tile_type, pip,
-        switch, const_connectors, forward
+        find_connector, get_tile_loc, tile_name, tile_type, pip, switch,
+        const_connectors, forward
 ):
     """ Attempt to connect graph nodes on either side of a pip.
 
@@ -1114,11 +1112,11 @@ def make_connection(
     loc = get_tile_loc(tile_pkey)
 
     for edge in yield_edges(
-            const_connectors=const_connectors,
-            switch=switch, phy_tile_pkey=phy_tile_pkey,
-            src_connector=src_connector, sink_connector=sink_connector,
-            pip=pip, pip_obj=pip_obj, src_wire_pkey=src_wire_pkey,
-            sink_wire_pkey=sink_wire_pkey, loc=loc, forward=forward):
+            const_connectors=const_connectors, switch=switch,
+            phy_tile_pkey=phy_tile_pkey, src_connector=src_connector,
+            sink_connector=sink_connector, pip=pip, pip_obj=pip_obj,
+            src_wire_pkey=src_wire_pkey, sink_wire_pkey=sink_wire_pkey,
+            loc=loc, forward=forward):
         yield edge
 
 
