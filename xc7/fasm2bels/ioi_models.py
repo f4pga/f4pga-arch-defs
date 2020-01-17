@@ -31,8 +31,8 @@ def process_idelay(top, features):
 
     site = Site(features, ioi_site)
 
-    if site.has_feature("IN_USE") and site.has_feature(
-            "IDELAY_VALUE") and site.has_feature("ZIDELAY_VALUE"):
+    if site.has_feature("IN_USE") and (site.has_feature("IDELAY_VALUE")
+                                       or site.has_feature("ZIDELAY_VALUE")):
         bel = Bel('IDELAYE2')
 
         if site.has_feature("CINVCTRL_SEL"):
@@ -60,6 +60,13 @@ def process_idelay(top, features):
 
         if site.has_feature("IS_IDATAIN_INVERTED"):
             bel.parameters['IS_IDATAIN_INVERTED'] = 1
+
+        if site.has_feature("IDELAY_TYPE_VARIABLE"):
+            bel.parameters['IDELAY_TYPE'] = '"VARIABLE"'
+        elif site.has_feature("IDELAY_TYPE_VAR_LOAD"):
+            bel.parameters['IDELAY_TYPE'] = '"VAR_LOAD"'
+        else:
+            bel.parameters['IDELAY_TYPE'] = '"FIXED"'
 
         # Adding sinks
         site.add_sink(bel, 'C', 'C')
@@ -186,10 +193,9 @@ def process_ilogic_idelay(top, features):
         site.add_sink(bel, 'CE1', 'CE1')
         site.add_sink(bel, 'CE2', 'CE2')
 
-        if idelay_site and idelay_site.has_feature(
-                "IN_USE") and idelay_site.has_feature(
-                    "IDELAY_VALUE") and idelay_site.has_feature("ZIDELAY_VALUE"
-                                                                ):
+        if idelay_site and idelay_site.has_feature("IN_USE") and (
+                idelay_site.has_feature("IDELAY_VALUE")
+                or idelay_site.has_feature("ZIDELAY_VALUE")):
             site.add_sink(bel, 'DDLY', 'DDLY')
         else:
             site.add_sink(bel, 'D', 'D')
