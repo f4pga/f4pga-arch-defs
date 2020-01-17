@@ -81,7 +81,7 @@ IDELAYE2 #
 (
 .IDELAY_TYPE    ("FIXED"),
 .DELAY_SRC      ("IDATAIN"),
-.IDELAY_VALUE   (5'd32)
+.IDELAY_VALUE   (5'd31)
 )
 idelay
 (

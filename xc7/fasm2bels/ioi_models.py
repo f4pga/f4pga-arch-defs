@@ -61,6 +61,13 @@ def process_idelay(top, features):
         if site.has_feature("IS_IDATAIN_INVERTED"):
             bel.parameters['IS_IDATAIN_INVERTED'] = 1
 
+        if site.has_feature("IDELAY_TYPE_VARIABLE"):
+            bel.parameters['IDELAY_TYPE'] = '"VARIABLE"'
+        elif site.has_feature("IDELAY_TYPE_VAR_LOAD"):
+            bel.parameters['IDELAY_TYPE'] = '"VAR_LOAD"'
+        else:
+            bel.parameters['IDELAY_TYPE'] = '"FIXED"'
+
         # Adding sinks
         site.add_sink(bel, 'C', 'C')
         site.add_sink(bel, 'CE', 'CE')
