@@ -1,7 +1,11 @@
 module top (
-	input  clk,
-	input [15:0] in,
-	output [3:0] out
+    input  wire clk,
+
+    input  wire rx,
+    output wire tx,
+
+    input  wire [15:0] sw,
+    output wire [15:0] led
 );
     RAM64M #(
         .INIT_A(64'b10),
@@ -9,19 +13,23 @@ module top (
         .INIT_C(64'b1000),
         .INIT_D(64'b10000)
     ) ram0 (
-        .WCLK(clk),
-        .ADDRA(in[5:0]),
-        .ADDRB(in[5:0]),
-        .ADDRC(in[5:0]),
-        .ADDRD(in[11:6]),
-        .DIA(in[12]),
-        .DIB(in[13]),
-        .DIC(in[14]),
-        .DID(in[14]),
-        .DOA(out[0]),
-        .DOB(out[1]),
-        .DOC(out[2]),
-        .DOD(out[3]),
-        .WE(in[15])
+        .WCLK   (clk),
+        .ADDRA  (sw[5:0]),
+        .ADDRB  (sw[5:0]),
+        .ADDRC  (sw[5:0]),
+        .ADDRD  (sw[11:6]),
+        .DIA    (sw[12]),
+        .DIB    (sw[13]),
+        .DIC    (sw[14]),
+        .DID    (sw[14]),
+        .DOA    (led[0]),
+        .DOB    (led[1]),
+        .DOC    (led[2]),
+        .DOD    (led[3]),
+        .WE     (sw[15])
     );
+
+    assign led[15:4] = sw[15:4];
+    assign tx = rx;
+
 endmodule
