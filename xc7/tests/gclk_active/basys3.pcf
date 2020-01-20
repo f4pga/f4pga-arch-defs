@@ -1,0 +1,3 @@
+set_io clk W5
+set_io out A14
+
