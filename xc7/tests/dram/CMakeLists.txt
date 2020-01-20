@@ -1,21 +1,20 @@
 add_custom_target(test_dram_packing)
 
 function(dram_tests dram_num_instances dram_mode outpad inpad)
+  add_file_target(FILE dram_${dram_num_instances}_${dram_mode}.v SCANNER_TYPE verilog)
   add_fpga_target(
     NAME dram_${dram_num_instances}_${dram_mode}
     BOARD basys3
     SOURCES dram_${dram_num_instances}_${dram_mode}.v
-    INPUT_IO_FILE dram_${dram_num_instances}_${dram_mode}.pcf
+    INPUT_IO_FILE ${COMMON}/basys3.pcf
     ASSERT_USAGE SYN-OUTPAD=${outpad},SYN-INPAD=${inpad},BLK-TL-SLICEM=1
+    EXPLICIT_ADD_FILE_TARGET
     )
 
-  # TODO: Vivado target for drams was added with https://github.com/SymbiFlow/symbiflow-arch-defs/pull/1234
-  # but it was not active before, therefore its failure was never caught.
-  # For now the vivado target is disabled.
-  #add_vivado_target(
-  #  NAME dram_${dram_num_instances}_${dram_mode}_vivado
-  #  PARENT_NAME dram_${dram_num_instances}_${dram_mode}
-  #  )
+  add_vivado_target(
+    NAME dram_${dram_num_instances}_${dram_mode}_vivado
+    PARENT_NAME dram_${dram_num_instances}_${dram_mode}
+    )
 
   add_dependencies(test_dram_packing
     dram_${dram_num_instances}_${dram_mode}_bin

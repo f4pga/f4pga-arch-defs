@@ -1,50 +1,58 @@
 module top (
-	input  clk,
-	input [15:0] in,
-	output [3:0] out
+    input  wire clk,
+
+    input  wire rx,
+    output wire tx,
+
+    input  wire [15:0] sw,
+    output wire [15:0] led
 );
     RAM64X1D #(
         .INIT(64'b00000000_00000000_00000000_00000000_00000000_00000000_00000000_00000010)
     ) ram3 (
-        .WCLK(clk),
-        .A5(in[5]),
-        .A4(in[4]),
-        .A3(in[3]),
-        .A2(in[2]),
-        .A1(in[1]),
-        .A0(in[0]),
-        .DPRA5(in[11]),
-        .DPRA4(in[10]),
-        .DPRA3(in[9]),
-        .DPRA2(in[8]),
-        .DPRA1(in[7]),
-        .DPRA0(in[6]),
-        .SPO(out[0]),
-        .DPO(out[1]),
-        .D(in[13]),
-        .WE(in[15])
+        .WCLK   (clk),
+        .A5     (sw[5]),
+        .A4     (sw[4]),
+        .A3     (sw[3]),
+        .A2     (sw[2]),
+        .A1     (sw[1]),
+        .A0     (sw[0]),
+        .DPRA5  (sw[11]),
+        .DPRA4  (sw[10]),
+        .DPRA3  (sw[9]),
+        .DPRA2  (sw[8]),
+        .DPRA1  (sw[7]),
+        .DPRA0  (sw[6]),
+        .SPO    (led[0]),
+        .DPO    (led[1]),
+        .D      (sw[13]),
+        .WE     (sw[15])
     );
 
     RAM64X1D #(
         .INIT(64'b00000000_00000000_00000000_00000000_00000000_00000000_00000000_00000010)
     ) ram4 (
-        .WCLK(clk),
-        .A5(in[5]),
-        .A4(in[4]),
-        .A3(in[3]),
-        .A2(in[2]),
-        .A1(in[1]),
-        .A0(in[0]),
-        .DPRA5(in[11]),
-        .DPRA4(in[10]),
-        .DPRA3(in[9]),
-        .DPRA2(in[8]),
-        .DPRA1(in[7]),
-        .DPRA0(in[6]),
-        .SPO(out[2]),
-        .DPO(out[3]),
-        .D(in[12]),
-        .WE(in[15])
+        .WCLK   (clk),
+        .A5     (sw[5]),
+        .A4     (sw[4]),
+        .A3     (sw[3]),
+        .A2     (sw[2]),
+        .A1     (sw[1]),
+        .A0     (sw[0]),
+        .DPRA5  (sw[11]),
+        .DPRA4  (sw[10]),
+        .DPRA3  (sw[9]),
+        .DPRA2  (sw[8]),
+        .DPRA1  (sw[7]),
+        .DPRA0  (sw[6]),
+        .SPO    (led[2]),
+        .DPO    (led[3]),
+        .D      (sw[12]),
+        .WE     (sw[15])
     );
+
+    assign led[15:4] = sw[15:4];
+    assign tx = rx;
+
 endmodule
 

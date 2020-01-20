@@ -1,37 +1,45 @@
 module top (
-	input  clk,
-	input [15:0] in,
-	output [1:0] out
+    input  wire clk,
+
+    input  wire rx,
+    output wire tx,
+
+    input  wire [15:0] sw,
+    output wire [15:0] led
 );
     RAM128X1S #(
         .INIT(128'b10)
     ) ram0 (
-        .WCLK(clk),
-        .A6(in[6]),
-        .A5(in[5]),
-        .A4(in[4]),
-        .A3(in[3]),
-        .A2(in[2]),
-        .A1(in[1]),
-        .A0(in[0]),
-        .O(out[0]),
-        .D(in[13]),
-        .WE(in[15])
+        .WCLK   (clk),
+        .A6     (sw[6]),
+        .A5     (sw[5]),
+        .A4     (sw[4]),
+        .A3     (sw[3]),
+        .A2     (sw[2]),
+        .A1     (sw[1]),
+        .A0     (sw[0]),
+        .O      (led[0]),
+        .D      (sw[13]),
+        .WE     (sw[15])
     );
 
     RAM128X1S #(
         .INIT(128'b100)
     ) ram1 (
-        .WCLK(clk),
-        .A6(in[6]),
-        .A5(in[5]),
-        .A4(in[4]),
-        .A3(in[3]),
-        .A2(in[2]),
-        .A1(in[1]),
-        .A0(in[0]),
-        .O(out[1]),
-        .D(in[14]),
-        .WE(in[15])
+        .WCLK   (clk),
+        .A6     (sw[6]),
+        .A5     (sw[5]),
+        .A4     (sw[4]),
+        .A3     (sw[3]),
+        .A2     (sw[2]),
+        .A1     (sw[1]),
+        .A0     (sw[0]),
+        .O      (led[1]),
+        .D      (sw[14]),
+        .WE     (sw[15])
     );
+
+    assign led[15:2] = sw[15:2];
+    assign tx = rx;
+
 endmodule
