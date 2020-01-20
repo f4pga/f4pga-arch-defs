@@ -1,9 +1,0 @@
-<?xml version="1.0"?>
-<xml>
-  <pb_type>
-    <input name="in1"/>
-    <input name="in2"/>
-    <output name="o1"/>
-    <output name="o2"/>
-  </pb_type>
-</xml>

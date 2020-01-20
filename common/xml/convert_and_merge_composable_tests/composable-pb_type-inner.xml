@@ -1,6 +1,0 @@
-<?xml version="1.0"?>
-<pb_type name="INNER" other_attribute="r">
-  <blif_model>.subckt random</blif_model>
-  <pb_class>lut</pb_class>
-  <other_tag/>
-</pb_type>
