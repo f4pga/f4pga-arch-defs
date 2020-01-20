@@ -1,6 +1,0 @@
-<?xml version="1.0"?>
-<xml>
-  <port-value-test o="port-name"/>
-  <port-value-test o="port-name[8]"/>
-  <port-value-test o="port-name[8:4]"/>
-</xml>
