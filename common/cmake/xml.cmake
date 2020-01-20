@@ -41,27 +41,6 @@ function(XML_LINT)
 
 endfunction(XML_LINT)
 
-set(XML_CANONICALIZE_MERGE_SH
-  common/xml/convert_and_merge_composable_fpga_architecture.sh
-  )
-set(XML_CANONICALIZE_MERGE_FILES
-  ${XML_CANONICALIZE_MERGE_SH}
-  common/xml/identity.xsl
-  common/xml/convert-port-tag.xsl
-  common/xml/convert-prefix-port.xsl
-  common/xml/convert-pb_type-attributes.xsl
-  common/xml/pack-patterns.xsl
-  common/xml/remove-duplicate-models.xsl
-  common/xml/attribute-fixes.xsl
-  common/xml/sort-tags.xsl
-  )
-
-set(XML_CANONICALIZE_DEPS "")
-foreach(SRC ${XML_CANONICALIZE_MERGE_FILES})
-  add_file_target(FILE ${SRC})
-  append_file_dependency(XML_CANONICALIZE_DEPS ${SRC})
-endforeach()
-
 function(XML_CANONICALIZE_MERGE)
   # ~~~
   # XML_CANONICALIZE_MERGE(
@@ -90,8 +69,7 @@ function(XML_CANONICALIZE_MERGE)
     ${ARGN}
     )
 
-  get_target_property_required(XSLTPROC env XSLTPROC)
-  get_target_property(XSLTPROC_TARGET env XSLTPROC_TARGET)
+  get_target_property_required(VTR_XML_UTILS_TARGET env VTR_XML_UTILS_TARGET)
 
   set(DEPS "")
   append_file_dependency(DEPS ${XML_CANONICALIZE_MERGE_FILE})
@@ -99,14 +77,15 @@ function(XML_CANONICALIZE_MERGE)
   add_custom_command(
     OUTPUT ${XML_CANONICALIZE_MERGE_OUTPUT}
     DEPENDS
-      ${XML_CANONICALIZE_DEPS} ${DEPS}
-      ${XSLTPROC} ${XSLTPROC_TARGET}
+      ${DEPS}
+      ${PYTHON3} ${VTR_XML_UTILS_TARGET} ${PYTHON3_TARGET}
     COMMAND
-      ${CMAKE_COMMAND} -E env XSLTPROC="${XSLTPROC}" XSLTPROC_PARAMS="${XML_CANONICALIZE_MERGE_EXTRA_ARGUMENTS}"
-      ${symbiflow-arch-defs_SOURCE_DIR}/${XML_CANONICALIZE_MERGE_SH}
-      ${XML_CANONICALIZE_MERGE_FILE}
-      > ${CMAKE_CURRENT_BINARY_DIR}/${XML_CANONICALIZE_MERGE_OUTPUT}
+      PYTHONPATH=${symbiflow-arch-defs_SOURCE_DIR}/third_party/vtr-xml-utils/:${PYTHONPATH}
+      ${PYTHON3} -m vtr_xml_utils
+        ${XML_CANONICALIZE_MERGE_FILE}
+        -o ${CMAKE_CURRENT_BINARY_DIR}/${XML_CANONICALIZE_MERGE_OUTPUT}
   )
+
   add_file_target(FILE ${XML_CANONICALIZE_MERGE_OUTPUT} GENERATED)
 
   get_rel_target(REL_XML_CANONICALIZE_MERGE_FILE merge ${XML_CANONICALIZE_MERGE_FILE})
