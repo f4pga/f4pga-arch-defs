@@ -111,7 +111,49 @@ def populate_bufg_rebuf_map(conn):
 
     cur = conn.cursor()
 
-    # Find nodes touching rebuf wires.
+    # Find CLK_HROW_TOP_R, CLK_HROW_TOP_R and REBUF tiles.
+    # Get their Y coordinates, sorted.
+    cur.execute(
+        """
+SELECT name
+FROM phy_tile
+WHERE
+  name LIKE "CLK_HROW_BOT_R_%"
+OR
+  name LIKE "CLK_HROW_TOP_R_%"
+OR
+  name LIKE "CLK_BUFG_REBUF_%"
+ORDER BY grid_y DESC;
+    """
+    )
+    rebuf_and_hrow_tiles = cur.fetchall()
+
+    # Append None on both ends of the list to simplify the code below.
+    rebuf_and_hrow_tiles = [None] + [t[0] for t in rebuf_and_hrow_tiles
+                                     ] + [None]
+
+    def maybe_get_clk_hrow(i):
+        """
+        Returns a name of CLK_HROW tile only if its there on the list.
+        """
+        tile = rebuf_and_hrow_tiles[i]
+        if tile is not None and tile.startswith("CLK_HROW"):
+            return tile
+        return None
+
+    # Assign each REBUF tile its above and below CLK_HROW tile. Note that in
+    # VPR coords terms. "above" and "below" mean the opposite...
+    rebuf_to_hrow_map = {}
+    for i, tile_name in enumerate(rebuf_and_hrow_tiles):
+        if tile_name is not None and tile_name.startswith("CLK_BUFG_REBUF"):
+
+            rebuf_to_hrow_map[tile_name] = {
+                "above": maybe_get_clk_hrow(i - 1),
+                "below": maybe_get_clk_hrow(i + 1),
+            }
+
+
+# Find nodes touching rebuf wires.
     cur.execute(
         """
 WITH
@@ -136,6 +178,7 @@ INNER JOIN phy_tile ON phy_tile.pkey = wire.phy_tile_pkey
 WHERE wire.wire_in_tile_pkey IN (SELECT wire_in_tile_pkey FROM rebuf_wires)
 ORDER BY rebuf_nodes.node_pkey;"""
     )
+
     for node_pkey, rebuf_tile, rebuf_wire_name in cur:
         if node_pkey not in REBUF_NODES:
             REBUF_NODES[node_pkey] = []
@@ -146,10 +189,28 @@ ORDER BY rebuf_nodes.node_pkey;"""
             REBUF_NODES[node_pkey].append(
                 '{}.GCLK{}_ENABLE_BELOW'.format(rebuf_tile, m.group(1))
             )
+
+            hrow_tile = rebuf_to_hrow_map[rebuf_tile]["below"]
+            if hrow_tile is not None:
+                REBUF_NODES[node_pkey].append(
+                    "{}.CLK_HROW_R_CK_GCLK{}_ACTIVE".format(
+                        hrow_tile, m.group(1)
+                    )
+                )
+
         elif m.group(2) == 'BOT':
             REBUF_NODES[node_pkey].append(
                 '{}.GCLK{}_ENABLE_ABOVE'.format(rebuf_tile, m.group(1))
             )
+
+            hrow_tile = rebuf_to_hrow_map[rebuf_tile]["above"]
+            if hrow_tile is not None:
+                REBUF_NODES[node_pkey].append(
+                    "{}.CLK_HROW_R_CK_GCLK{}_ACTIVE".format(
+                        hrow_tile, m.group(1)
+                    )
+                )
+
         else:
             assert False, (rebuf_tile, rebuf_wire_name)
 
@@ -165,7 +226,6 @@ WHERE wire.node_pkey = ?;""", (node_pkey, )
 
         for tile, wire_name in cur:
             REBUF_SOURCES[(tile, wire_name)] = node_pkey
-
 
 HCLK_CMT_TILES = {}
 
