@@ -5,5 +5,5 @@ MYPATH=`dirname ${MYPATH}`
 
 if [ -z $VPRPATH ]; then
 	export VPRPATH=$MYPATH
-	export PYTHONPATH=${VPRPATH}/python:${VPRPATH}/python/prjxray
+	export PYTHONPATH=${VPRPATH}/python:${VPRPATH}/python/prjxray:${PYTHONPATH}
 fi
