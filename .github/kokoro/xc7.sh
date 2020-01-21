@@ -37,10 +37,10 @@ echo "========================================"
 echo "Running installed toolchain tests"
 echo "----------------------------------------"
 (
-	pip install git+https://github.com/SymbiFlow/fasm.git --user
-	export PATH=${INSTALL_DIR}/bin:$PATH
-	pushd xc7/tests/install_test
-	make
+
+	pushd build
+	export CTEST_OUTPUT_ON_FAILURE=1
+	ninja -j${MAX_CORES} test
 	popd
 )
 echo "----------------------------------------"
