@@ -17,6 +17,14 @@ def get_lut_init(site, lut):
     return "64'b{:064b}".format(init)
 
 
+def get_shifted_lut_init(site, lut, shift=0):
+    """ Return the shifted INIT value as integer. The init input is a string."""
+    init = get_lut_init(site, lut)
+    int_init = int(init.split('b')[-1], 2)
+
+    return int_init << shift
+
+
 def create_lut(site, lut):
     """ Create the BEL for the specified LUT. """
     bel = Bel('LUT6_2', lut + 'LUT', priority=3)
@@ -581,9 +589,10 @@ def process_slice(top, s):
             site.add_internal_source(ram256, 'O', 'F8MUX_O')
 
             ram256.parameters['INIT'] = (
-                get_lut_init(site, 'D') | (get_lut_init(site, 'C') << 64) |
-                (get_lut_init(site, 'B') << 128) |
-                (get_lut_init(site, 'A') << 192)
+                get_shifted_lut_init(site, 'D')
+                | get_shifted_lut_init(site, 'C', 64)
+                | get_shifted_lut_init(site, 'B', 128)
+                | get_shifted_lut_init(site, 'A', 192)
             )
 
             site.add_bel(ram256)
@@ -607,7 +616,8 @@ def process_slice(top, s):
             site.add_internal_source(ram128, 'O', 'F7BMUX_O')
 
             ram128.parameters['INIT'] = (
-                get_lut_init(site, 'D') | (get_lut_init(site, 'C') << 64)
+                get_shifted_lut_init(site, 'D')
+                | get_shifted_lut_init(site, 'C', 64)
             )
 
             site.add_bel(ram128)
@@ -632,7 +642,8 @@ def process_slice(top, s):
                 site.add_internal_source(ram128, 'O', 'F7AMUX_O')
 
                 ram128.parameters['INIT'] = (
-                    get_lut_init(site, 'B') | (get_lut_init(site, 'A') << 64)
+                    get_shifted_lut_init(site, 'B')
+                    | get_shifted_lut_init(site, 'A', 64)
                 )
 
                 site.add_bel(ram128)
@@ -664,11 +675,13 @@ def process_slice(top, s):
             site.add_internal_source(ram128, 'DPO', 'F7BMUX_O')
 
             ram128.parameters['INIT'] = (
-                get_lut_init(site, 'D') | (get_lut_init(site, 'C') << 64)
+                get_shifted_lut_init(site, 'D')
+                | get_shifted_lut_init(site, 'C', 64)
             )
 
             other_init = (
-                get_lut_init(site, 'B') | (get_lut_init(site, 'A') << 64)
+                get_shifted_lut_init(site, 'B')
+                | get_shifted_lut_init(site, 'A', 64)
             )
 
             assert ram128.parameters['INIT'] == other_init
@@ -876,11 +889,11 @@ def process_slice(top, s):
                         )
 
                 site.add_sink(ram32[0], 'D', lut + "X")
-                site.add_internal_source(ram32, 'O', lut + "O6")
+                site.add_internal_source(ram32[0], 'O', lut + "O6")
                 ram32[0].set_bel('{}6LUT'.format(lut))
 
                 di_mux(site, ram32[1], 'D', lut)
-                site.add_internal_source(ram32, 'O', lut + "O5")
+                site.add_internal_source(ram32[1], 'O', lut + "O5")
                 ram32[1].set_bel('{}5LUT'.format(lut))
 
                 lut_init = get_lut_init(site, lut)
@@ -987,7 +1000,7 @@ def process_slice(top, s):
 
     can_have_carry4 = True
     for lut in 'ABCD':
-        if site.has_feature(lut + 'O6'):
+        if site.has_feature(lut + 'O6') or site.has_feature(lut + 'LUT.RAM'):
             can_have_carry4 = False
             break
 
