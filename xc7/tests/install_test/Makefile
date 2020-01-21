@@ -1,5 +1,7 @@
+mkfile_path := $(abspath $(lastword $(MAKEFILE_LIST)))
+current_dir := $(patsubst %/,%,$(dir $(mkfile_path)))
 TOP:=top
-VERILOG:=${PWD}/counter_basys3.v
+VERILOG:=${current_dir}/counter_basys3.v
 DEVICE:=xc7a50t_test
 BITSTREAM_DEVICE:=artix7
 PCF=basys.pcf
