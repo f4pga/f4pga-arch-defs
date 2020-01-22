@@ -49,4 +49,17 @@
    <port                name="O" />
   </output_ports>
  </model>
+ <model name="SPRAM32">
+  <input_ports>
+   <port is_clock="1"   name="CLK" />
+   <port clock="CLK"    name="WE"  />
+   <port clock="CLK"    name="DI"  />
+   <port clock="CLK"    name="WA"  />
+
+   <port                name="A"   combinational_sink_ports="O" />
+  </input_ports>
+  <output_ports>
+   <port                name="O" />
+  </output_ports>
+ </model>
 </models>

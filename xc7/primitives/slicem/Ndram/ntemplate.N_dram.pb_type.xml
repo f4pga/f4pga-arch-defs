@@ -89,6 +89,32 @@
       <meta name="fasm_prefix">{N}LUT</meta>
     </metadata>
   </mode>
+  <mode name="32_SINGLE_PORT">
+    <pb_type name="SPRAM32_O6" num_pb="1" blif_model=".subckt SPRAM32">
+     <xi:include href="spram32.pb_type.xml" xpointer="xpointer(pb_type/child::node()[local-name()!='metadata'])" />
+     <metadata>
+      <xi:include href="spram32.pb_type.xml" xpointer="xpointer(pb_type/metadata/child::node())" />
+      <meta name="fasm_params">
+       INIT[31:0] = INIT_00
+      </meta>
+     </metadata>
+    </pb_type>
+    <interconnect>
+      <direct name="CLK_U" input="{N}_DRAM.CLK"     output="SPRAM32_O6.CLK"     />
+      <direct name="A_U"   input="{N}_DRAM.A[4:0]"  output="SPRAM32_O6.A[4:0]"  />
+      <direct name="WA_U"  input="{N}_DRAM.WA[4:0]" output="SPRAM32_O6.WA[4:0]" />
+      <direct name="DI2"   input="{N}_DRAM.DI2"     output="SPRAM32_O6.DI"      />
+      <direct name="WE_U"  input="{N}_DRAM.WE"      output="SPRAM32_O6.WE"      />
+
+      <direct name="O6"    input="SPRAM32_O6.O"     output="{N}_DRAM.O6"        />
+      <direct name="DO6"   input="SPRAM32_O6.O"     output="{N}_DRAM.DO6_32"    >
+        <pack_pattern out_port="{N}_DRAM.DO6_32" name="DRAM_QP_32" in_port="SPRAM32_O6.O"/>
+      </direct>
+    </interconnect>
+    <metadata>
+      <meta name="fasm_prefix">{N}LUT</meta>
+    </metadata>
+  </mode>
   <metadata>
     <meta name="type">block</meta>
     <meta name="subtype">ignore</meta>

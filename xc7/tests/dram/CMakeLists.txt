@@ -28,8 +28,8 @@ function(dram_tests dram_num_instances dram_mode outpad inpad enable_vivado_targ
 endfunction()
 
 # dram_tests(<dram_num_instances> <dram_mode> <syn_outpad_assert_usage> <syn_inpad_assert_usage> <enable_vivado_target>)
-dram_tests(4 32x1s 4 11 N)
-dram_tests(8 32x1s 8 11 N)
+dram_tests(4 32x1s 4 11 Y)
+dram_tests(8 32x1s 8 11 Y)
 dram_tests(2 32x1d 8 15 Y)
 dram_tests(4 32x2s 4 14 Y)
 dram_tests(2 64x1d 4 12 Y)
