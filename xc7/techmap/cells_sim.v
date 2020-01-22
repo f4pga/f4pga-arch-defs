@@ -245,6 +245,7 @@ module SPRAM32 (
   input  DI, CLK, WE,
   input [4:0] A, WA
 );
+  parameter [31:0] INIT_ZERO = 32'h0;
   parameter [31:0] INIT_00 = 32'h0;
   parameter IS_WCLK_INVERTED = 1'b0;
   wire [4:0] A;

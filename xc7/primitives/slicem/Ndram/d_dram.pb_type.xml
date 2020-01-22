@@ -84,7 +84,8 @@
     <metadata>
      <xi:include href="spram32.pb_type.xml" xpointer="xpointer(pb_type/metadata/child::node())" />
      <meta name="fasm_params">
-      INIT[31:0] = INIT_00
+      INIT[63:32] = INIT_00
+      INIT[31:0] = INIT_ZERO
      </meta>
     </metadata>
    </pb_type>
