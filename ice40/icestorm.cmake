@@ -85,7 +85,8 @@ function(icestorm_setup)
       --target_ext_pin_util 0.5 \
       --astar_fac 1.0 \
       --router_init_wirelength_abort_threshold 2 \
-      --congested_routing_iteration_threshold 0.8"
+      --congested_routing_iteration_threshold 0.8 \
+      --router_high_fanout_threshold -1"
     RR_PATCH_TOOL
       ${symbiflow-arch-defs_SOURCE_DIR}/ice40/utils/ice40_import_routing_from_icebox.py
     RR_PATCH_CMD "\${QUIET_CMD} \${CMAKE_COMMAND} -E env ${PYPATH_ARG} \
