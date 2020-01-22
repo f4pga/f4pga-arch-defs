@@ -17,7 +17,7 @@ module top (
         .A1     (sw[1]),
         .A0     (sw[0]),
         .O      (led[7]),
-        .D      (sw[14]),
+        .D      (sw[7]),
         .WE     (sw[15])
     );
 
@@ -31,7 +31,7 @@ module top (
         .A1     (sw[1]),
         .A0     (sw[0]),
         .O      (led[6]),
-        .D      (sw[13]),
+        .D      (sw[8]),
         .WE     (sw[15])
     );
 
@@ -45,7 +45,7 @@ module top (
         .A1     (sw[1]),
         .A0     (sw[0]),
         .O      (led[5]),
-        .D      (sw[12]),
+        .D      (sw[9]),
         .WE     (sw[15])
     );
 
@@ -59,7 +59,7 @@ module top (
         .A1     (sw[1]),
         .A0     (sw[0]),
         .O      (led[4]),
-        .D      (sw[11]),
+        .D      (sw[10]),
         .WE     (sw[15])
     );
     RAM32X1S #(
@@ -119,7 +119,7 @@ module top (
     );
 
 
-    assign led[15:8] = sw[15:8];
+    assign led[15:8] = { 8{&sw[15:5]} };
     assign tx = rx;
 
 endmodule
