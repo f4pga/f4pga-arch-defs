@@ -2,9 +2,248 @@
 Functions related to parsing and processing of data stored in a QuickLogic
 TechFile.
 """
+import itertools
+from copy import deepcopy
 import xml.etree.ElementTree as ET
 
 from data_structs import *
+
+# =============================================================================
+
+
+def parse_library(xml_library):
+    """
+    Loads cell definitions from the XML
+    """
+
+    cells = []
+
+    for xml_node in xml_library:
+        
+        # Skip those
+        if xml_node.tag in ["PortProperties"]:
+            continue
+
+        cell_type = xml_node.tag
+        cell_name = xml_node.get("name", xml_node.tag)
+        cell_pins = []
+
+        # Load pins
+        for xml_pins in itertools.chain(xml_node.findall("INPUT"), 
+                                        xml_node.findall("OUTPUT")):
+
+            # Pin direction
+            if xml_pins.tag == "INPUT":
+                direction = PinDirection.INPUT
+            elif xml_pins.tag == "OUTPUT":
+                direction = PinDirection.OUTPUT
+            else:
+                assert False, xml_pins.tag
+            
+            # "mport"
+            for xml_mport in xml_pins:
+                xml_bus = xml_mport.find("bus")
+
+                # A bus
+                if xml_bus:
+                    lsb = int(xml_bus.attrib["lsb"])
+                    msb = int(xml_bus.attrib["msb"])
+                    stp = int(xml_bus.attrib["step"])
+                
+                    for i in range(lsb, msb+1, stp):
+                        cell_pins.append(Cell.Pin(
+                            name = "{}[{}]".format(xml_bus.attrib["name"], i),
+                            direction = direction
+                        ))
+
+                # A single pin
+                else:
+                    cell_pins.append(Cell.Pin(
+                        name = xml_mport.attrib["name"],
+                        direction = direction
+                    ))
+
+        # Add the cell
+        cells.append(Cell(
+            type = cell_type,
+            name = cell_name,
+            pins = cell_pins
+        ))
+
+    return cells
+
+# =============================================================================
+
+
+def get_quadrant_for_loc(loc, quadrants):
+    """
+    Assigns a quadrant to the given location. Returns None if no one matches.
+    """
+
+    for quadrant in quadrants.values():
+        if loc.x >= quadrant.x0 and loc.x <= quadrant.x1:
+            if loc.y >= quadrant.y0 and loc.y <= quadrant.y1:
+                return quadrant
+
+    return None
+
+
+def load_logic_tiles(xml_placement, tilegrid, cell_library):
+
+    # Load "LOGIC" tiles
+    xml_logic = xml_placement.find("LOGIC")
+    assert xml_logic is not None
+
+    exceptions = set()
+    xml_exceptions = xml_logic.find("EXCEPTIONS")
+    if xml_exceptions is not None:
+        for xml in xml_exceptions:
+            tag = xml.tag.upper()
+
+            x = ord(tag[0]) - ord("A")
+            y = int(tag[1:])
+
+            exceptions.add(Loc(x=x, y=y))
+
+    xml_logicmatrix = xml_logic.find("LOGICMATRIX")
+    assert xml_logicmatrix is not None
+
+    x0 = int(xml_logicmatrix.get("START_COLUMN"))
+    nx = int(xml_logicmatrix.get("COLUMNS"))
+    y0 = int(xml_logicmatrix.get("START_ROW"))
+    ny = int(xml_logicmatrix.get("ROWS"))
+
+    for j in range(ny):
+        for i in range(nx):
+            loc = Loc(x0+i, y0+j)
+
+            if loc in exceptions:
+                continue
+
+            cell_type = "LOGIC"
+            assert cell_type in cell_library, cell_type
+
+            tilegrid[loc].cells.append(
+                deepcopy(cell_library[cell_type])        
+            )
+
+
+def load_cells_to_tilegrid(xml_placement, tilegrid, cell_library):
+
+    def get_cell(type, new_name):
+        assert type in cell_library, (type, new_name)
+        cell = deepcopy(cell_library[type])
+        cell.name = new_name
+        return cell
+
+    # Loop over XML entries
+    for xml in xml_placement:
+
+        # Got a "Cell" tag
+        if xml.tag == "Cell":
+            cell_name = xml.get("name")
+            cell_type = xml.get("type")        
+
+            # Cell matrix
+            xml_matrices = [x for x in xml if x.tag.startswith("Matrix")] 
+            for xml_matrix in xml_matrices:
+                x0 = int(xml_matrix.get("START_COLUMN"))
+                nx = int(xml_matrix.get("COLUMNS"))
+                y0 = int(xml_matrix.get("START_ROW"))
+                ny = int(xml_matrix.get("ROWS"))
+
+                for j in range(ny):
+                    for i in range(nx):
+                        loc  = Loc(x0+i, y0+j)
+                        tile = tilegrid[loc]
+
+                        tile.cells.append(get_cell(
+                            cell_type,
+                            cell_name
+                        ))
+
+            # A single cell
+            if len(xml_matrices) == 0:
+                x = int(xml.get("column"))
+                y = int(xml.get("row"))
+
+                loc  = Loc(x, y)
+                tile = tilegrid[loc]
+
+                tile.cells.append(get_cell(
+                    cell_type,
+                    cell_name
+                ))
+
+        # Got something else, parse recursively
+        else:
+            load_cells_to_tilegrid(xml, tilegrid, cell_library)
+
+
+def parse_placement(xml_placement, cell_library):
+
+    # Load tilegrid quadrants
+    quadrants = {}
+
+    xml_quadrants = xml_placement.find("Quadrants")
+    assert xml_quadrants is not None
+
+    xmin = None
+    xmax = None
+    ymin = None
+    ymax = None
+
+    for xml_quadrant in xml_quadrants:
+        name = xml_quadrant.get("name")
+        x0 = int(xml_quadrant.get("ColStartNum"))
+        x1 = int(xml_quadrant.get("ColEndNum"))
+        y0 = int(xml_quadrant.get("RowStartNum"))
+        y1 = int(xml_quadrant.get("RowEndNum"))        
+
+        quadrants[name] = Quadrant(
+            name=name,
+            x0=x0,
+            x1=x1,
+            y0=y0,
+            y1=y1,
+            )
+
+        xmin = min(xmin, x0) if xmin is not None else x0
+        xmax = max(xmax, x1) if xmax is not None else x1
+        ymin = min(ymin, y0) if ymin is not None else y0
+        ymax = max(ymax, y1) if ymax is not None else y1
+
+
+    # Define the initial grid
+    tilegrid = {}
+    for y in range(ymin, ymax+1):
+        for x in range(xmin, xmax+1):
+            loc  = Loc(x, y)
+
+            tile = Tile(
+                loc=loc,
+                name="TILE_X{}Y{}".format(x, y),
+                quadrant=get_quadrant_for_loc(loc, quadrants),
+                )
+            tilegrid[loc] = tile
+
+    # Load LOGIC tiles into it
+    load_logic_tiles(xml_placement, tilegrid, cell_library)
+
+    # Load other cells
+    load_cells_to_tilegrid(xml_placement, tilegrid, cell_library)
+
+    # Update tiles
+    for tile in tilegrid.values():
+        tile.make_type()
+        tile.make_pins()
+
+    # DBEUG DEBUG
+#    tile = tilegrid[Loc(0, 9)]
+#    print([(cell.type, cell.name) for cell in tile.cells])
+#    print([p.name for p in tile.pins])
+
+    return tilegrid
 
 # =============================================================================
 
@@ -120,6 +359,20 @@ def import_data(xml_root):
     Imports the Quicklogic FPGA tilegrid and routing data from the given
     XML tree
     """
+
+    # Get the "Library" section
+    xml_library = xml_root.find("Library")
+    assert xml_library is not None
+
+    # Import cells from the library
+    cells = parse_library(xml_library)
+
+    # Get the "Placement" section
+    xml_placement = xml_root.find("Placement")
+    assert xml_placement is not None
+
+    cell_library = {cell.type: cell for cell in cells}
+    parse_placement(xml_placement, cell_library)
 
     # Get the "Routing" section
     xml_routing = xml_root.find("Routing")

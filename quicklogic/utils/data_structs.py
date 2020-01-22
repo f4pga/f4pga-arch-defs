@@ -30,6 +30,11 @@ class PinSide(Enum):
     EAST   = 3
     WEST   = 4
 
+"""
+FPGA grid quadrant.
+"""
+Quadrant = namedtuple("Quadrant", "name x0 y0 x1 y1")
+
 # =============================================================================
 
 
@@ -70,12 +75,13 @@ class Tile(object):
             self.direction = direction
             self.side      = side
 
-    def __init__(self, loc, type="", name="", cells=()):
-        self.loc    = loc
-        self.type   = type
-        self.name   = name
-        self.cells  = list(cells)
-        self.pins   = []
+    def __init__(self, loc, type="", name="", cells=(), quadrant=None):
+        self.loc      = loc
+        self.type     = type
+        self.name     = name
+        self.cells    = list(cells)
+        self.pins     = []
+        self.quadrant = quadrant
 
     def make_type(self):
         """
@@ -113,7 +119,6 @@ class Tile(object):
                 ))
 
 # =============================================================================
-
 
 
 class Switchbox(object):
