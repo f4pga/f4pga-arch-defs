@@ -531,7 +531,7 @@ module RAM32X1S (
     parameter [31:0] INIT = 32'bx;
     parameter IS_WCLK_INVERTED = 0;
 
-    DPRAM32 #(
+    SPRAM32 #(
         .INIT_00(INIT),
         .IS_WCLK_INVERTED(IS_WCLK_INVERTED)
     ) dram_S (

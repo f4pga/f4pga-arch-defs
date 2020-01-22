@@ -1,0 +1,49 @@
+<pb_type name="SPRAM32" num_pb="1" blif_model=".subckt SPRAM32">
+  <clock  name="CLK" num_pins="1" />
+
+  <!-- A1 - Read port -->
+  <input  name="A"  num_pins="5" />
+  <output name="O"  num_pins="1" />
+
+  <delay_matrix type="max" in_port="A" out_port="O">
+    {iopath_A1_O5}
+    {iopath_A2_O5}
+    {iopath_A3_O5}
+    {iopath_A4_O5}
+    {iopath_A5_O5}
+  </delay_matrix>
+
+  <!-- B1 - Write Port -->
+  <input  name="WA" num_pins="5" />
+  <input  name="DI" num_pins="1" />
+  <input  name="WE" num_pins="1" />
+
+  <T_setup      value="{setup_CLK_WA1}" port="WA[0]"    clock="CLK"  />
+  <T_setup      value="{setup_CLK_WA2}" port="WA[1]"    clock="CLK"  />
+  <T_setup      value="{setup_CLK_WA3}" port="WA[2]"    clock="CLK"  />
+  <T_setup      value="{setup_CLK_WA4}" port="WA[3]"    clock="CLK"  />
+  <T_setup      value="{setup_CLK_WA5}" port="WA[4]"    clock="CLK"  />
+  <T_hold       value="{hold_CLK_WA1}" port="WA[0]"     clock="CLK"  />
+  <T_hold       value="{hold_CLK_WA2}" port="WA[1]"     clock="CLK"  />
+  <T_hold       value="{hold_CLK_WA3}" port="WA[2]"     clock="CLK"  />
+  <T_hold       value="{hold_CLK_WA4}" port="WA[3]"     clock="CLK"  />
+  <T_hold       value="{hold_CLK_WA5}" port="WA[4]"     clock="CLK"  />
+  <T_clock_to_Q   max="{iopath_CLK_O5}" port="WA"       clock="CLK"  />
+
+  <T_setup      value="{setup_CLK_WE}" port="WE"     clock="CLK"  />
+  <T_hold       value="{hold_CLK_WE}" port="WE"      clock="CLK"  />
+  <T_clock_to_Q   max="{iopath_CLK_O5}" port="WE"    clock="CLK"  />
+
+  <T_setup      value="{setup_CLK_DI1}" port="DI"    clock="CLK"  />
+  <T_hold       value="{hold_CLK_DI1}" port="DI"     clock="CLK"  />
+  <T_clock_to_Q   max="{iopath_CLK_O5}" port="DI"    clock="CLK"  />
+
+  <metadata>
+    <meta name="fasm_features">
+      RAM
+      SMALL
+    </meta>
+    <meta name="type">bel</meta>
+    <meta name="subtype">memory</meta>
+  </metadata>
+</pb_type>
