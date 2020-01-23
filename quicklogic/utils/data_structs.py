@@ -40,7 +40,8 @@ Quadrant = namedtuple("Quadrant", "name x0 y0 x1 y1")
 
 class Cell(object):
     """
-    A cell within a tile representation.
+    A cell within a tile representation (should be named "site" ?). Holds
+    cell type, cell instance name and list of its pins.
     """
 
     class Pin(object):
@@ -51,10 +52,14 @@ class Cell(object):
             self.name      = name
             self.direction = direction
 
-    def __init__(self, type, name, pins = ()):
+    def __init__(self, type, pins = ()):
         self.type = type
-        self.name = name
         self.pins = list(pins)
+
+"""
+A cell instance within a tile
+"""
+CellInstance = namedtuple("CellInstance", "type name")
 
 # =============================================================================
 
@@ -86,7 +91,7 @@ class Tile(object):
 
     def make_type(self):
         """
-        Generate the type name from cell types
+        Generate the type name from cell types that the tile contains.
         """
         cell_types  = sorted([c.type for c in self.cells])
         cell_counts = {t: 0 for t in cell_types}
@@ -103,7 +108,7 @@ class Tile(object):
 
         self.type = "_".join(parts)
 
-    def make_pins(self):
+    def make_pins(self, cells_library):
         """
         Basing on the cell list and their pins generates the tile pins.
         """
@@ -111,7 +116,7 @@ class Tile(object):
 
         # Copy pins from all cells. Prefix their names with a cell name.
         for cell in self.cells:
-            for pin in cell.pins:
+            for pin in cells_library[cell.type].pins:
                 name = "{}.{}".format(cell.name, pin.name)
 
                 self.pins.append(Tile.Pin(
@@ -160,4 +165,3 @@ class Switchbox(object):
         self.type   = type
         self.stages = {}
         self.connections = set()
-      

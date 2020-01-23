@@ -66,7 +66,7 @@ def parse_library(xml_library):
         # Add the cell
         cells.append(Cell(
             type = cell_type,
-            name = cell_name,
+#            name = cell_name,
             pins = cell_pins
         ))
 
@@ -88,7 +88,7 @@ def get_quadrant_for_loc(loc, quadrants):
     return None
 
 
-def load_logic_tiles(xml_placement, tilegrid, cell_library):
+def load_logic_tiles(xml_placement, tilegrid, cells_library):
 
     # Load "LOGIC" tiles
     xml_logic = xml_placement.find("LOGIC")
@@ -100,6 +100,7 @@ def load_logic_tiles(xml_placement, tilegrid, cell_library):
         for xml in xml_exceptions:
             tag = xml.tag.upper()
 
+            # FIXME: Is this connect decoding of those werid loc specs?
             x = ord(tag[0]) - ord("A")
             y = int(tag[1:])
 
@@ -121,20 +122,15 @@ def load_logic_tiles(xml_placement, tilegrid, cell_library):
                 continue
 
             cell_type = "LOGIC"
-            assert cell_type in cell_library, cell_type
+            assert cell_type in cells_library, cell_type
 
-            tilegrid[loc].cells.append(
-                deepcopy(cell_library[cell_type])        
-            )
+            tilegrid[loc].cells.append(CellInstance(
+                type = cell_type,
+                name = cell_type,
+            ))
 
 
-def load_cells_to_tilegrid(xml_placement, tilegrid, cell_library):
-
-    def get_cell(type, new_name):
-        assert type in cell_library, (type, new_name)
-        cell = deepcopy(cell_library[type])
-        cell.name = new_name
-        return cell
+def load_cells_to_tilegrid(xml_placement, tilegrid, cells_library):
 
     # Loop over XML entries
     for xml in xml_placement:
@@ -143,6 +139,8 @@ def load_cells_to_tilegrid(xml_placement, tilegrid, cell_library):
         if xml.tag == "Cell":
             cell_name = xml.get("name")
             cell_type = xml.get("type")        
+
+            assert cell_type in cells_library, (cell_type, cell_name,)
 
             # Cell matrix
             xml_matrices = [x for x in xml if x.tag.startswith("Matrix")] 
@@ -157,9 +155,9 @@ def load_cells_to_tilegrid(xml_placement, tilegrid, cell_library):
                         loc  = Loc(x0+i, y0+j)
                         tile = tilegrid[loc]
 
-                        tile.cells.append(get_cell(
-                            cell_type,
-                            cell_name
+                        tile.cells.append(CellInstance(
+                            type = cell_type,
+                            name = cell_name,
                         ))
 
             # A single cell
@@ -170,17 +168,17 @@ def load_cells_to_tilegrid(xml_placement, tilegrid, cell_library):
                 loc  = Loc(x, y)
                 tile = tilegrid[loc]
 
-                tile.cells.append(get_cell(
-                    cell_type,
-                    cell_name
+                tile.cells.append(CellInstance(
+                    type = cell_type,
+                    name = cell_name,
                 ))
 
         # Got something else, parse recursively
         else:
-            load_cells_to_tilegrid(xml, tilegrid, cell_library)
+            load_cells_to_tilegrid(xml, tilegrid, cells_library)
 
 
-def parse_placement(xml_placement, cell_library):
+def parse_placement(xml_placement, cells_library):
 
     # Load tilegrid quadrants
     quadrants = {}
@@ -228,15 +226,15 @@ def parse_placement(xml_placement, cell_library):
             tilegrid[loc] = tile
 
     # Load LOGIC tiles into it
-    load_logic_tiles(xml_placement, tilegrid, cell_library)
+    load_logic_tiles(xml_placement, tilegrid, cells_library)
 
     # Load other cells
-    load_cells_to_tilegrid(xml_placement, tilegrid, cell_library)
+    load_cells_to_tilegrid(xml_placement, tilegrid, cells_library)
 
     # Update tiles
     for tile in tilegrid.values():
         tile.make_type()
-        tile.make_pins()
+        tile.make_pins(cells_library)
 
     # DBEUG DEBUG
 #    tile = tilegrid[Loc(0, 9)]
