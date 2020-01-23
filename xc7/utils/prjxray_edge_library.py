@@ -2047,10 +2047,10 @@ def create_and_insert_edges(
 
     write_cur.execute(
         'SELECT pkey FROM switch WHERE name = ?;',
-        ('__vpr_delayfull_switch__', )
+        ('__vpr_penalty_switch__', )
     )
-    delayfull_switch_pkey = write_cur.fetchone()[0]
-    delayfull_switch = KnownSwitch(delayfull_switch_pkey)
+    penalty_switch_pkey = write_cur.fetchone()[0]
+    penalty_switch = KnownSwitch(penalty_switch_pkey)
 
     switch = delayless_switch
 
@@ -2107,7 +2107,7 @@ def create_and_insert_edges(
                     "BYP_ALT" in pip.net_from
                     and "BYP" in pip.net_to) or ("FAN_ALT" in pip.net_from
                                                  and "FAN" in pip.net_to):
-                switch = delayfull_switch
+                switch = penalty_switch
 
             connections = make_connection(
                 conn=conn,
