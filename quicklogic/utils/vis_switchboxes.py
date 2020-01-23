@@ -76,6 +76,12 @@ def main():
         type=str,
         help="Quicklogic 'TechFile' file"
     )
+    parser.add_argument(
+        "--stages",
+        type=str,
+        default="STREET",
+        help="Stage types to view (def. STREET)"
+    )
 
     args = parser.parse_args()
 
@@ -85,13 +91,13 @@ def main():
 
     # Load data
     data = import_data(xml_root)
-    switchboxes, = data
+    tilegrid, cells_library, switchboxes, = data
 
     # Generate DOT files with switchbox visualizations
     for switchbox in switchboxes:
         fname = "sbox_{}.dot".format(switchbox.type)
         with open(fname, "w") as fp:
-            fp.write(switchbox_to_dot(switchbox, ("STREET",)))
+            fp.write(switchbox_to_dot(switchbox, args.stages.split(",")))
 
 # =============================================================================
 
