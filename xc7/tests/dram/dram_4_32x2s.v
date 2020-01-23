@@ -1,7 +1,11 @@
 module top (
-    input  clk,
-    input [15:0] in,
-    output [7:0] out
+    input  wire clk,
+
+    input  wire rx,
+    output wire tx,
+
+    input  wire [15:0] sw,
+    output wire [15:0] led
 );
     genvar i;
     generate for (i = 0; i < 4; i = i + 1) begin:slice
@@ -9,19 +13,23 @@ module top (
             .INIT_00(32'b10),
             .INIT_01(32'b100)
         ) ram (
-            .WCLK(clk),
-            .A4(in[4]),
-            .A3(in[3]),
-            .A2(in[2]),
-            .A1(in[1]),
-            .A0(in[0]),
-            .O0(out[2*i]),
-            .O1(out[2*i+1]),
-            .D0(in[5+2*i]),
-            .D1(in[5+2*i+1]),
-            .WE(in[15])
+            .WCLK   (clk),
+            .A4     (sw[4]),
+            .A3     (sw[3]),
+            .A2     (sw[2]),
+            .A1     (sw[1]),
+            .A0     (sw[0]),
+            .O0     (led[2*i]),
+            .O1     (led[2*i+1]),
+            .D0     (sw[5+2*i]),
+            .D1     (sw[5+2*i+1]),
+            .WE     (sw[15])
         );
     end endgenerate
+
+    assign led[15:8] = sw[15:8];
+    assign tx = rx;
+
 endmodule
 
 
