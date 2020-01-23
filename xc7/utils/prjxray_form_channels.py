@@ -98,7 +98,11 @@ def create_get_switch(conn):
     pip_cache[(False, 0.0, 0.0, 0.0)] = write_cur.fetchone()[0]
 
     def get_switch_timing(
-            is_pass_transistor, delay, internal_capacitance, drive_resistance, penalty_cost=0.0
+            is_pass_transistor,
+            delay,
+            internal_capacitance,
+            drive_resistance,
+            penalty_cost=0.0
     ):
         """ Return a switch that matches provided timing.
 
@@ -143,8 +147,8 @@ def create_get_switch(conn):
 INSERT INTO switch(name, internal_capacitance, drive_resistance, intrinsic_delay, penalty_cost, switch_type)
 VALUES
     (?, ?, ?, ?, ?, ?)""", (
-                    name, internal_capacitance, drive_resistance, delay, penalty_cost,
-                    switch_type
+                    name, internal_capacitance, drive_resistance, delay,
+                    penalty_cost, switch_type
                 )
             )
             pip_cache[key] = write_cur.lastrowid
