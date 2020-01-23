@@ -4,7 +4,7 @@ TechFile.
 """
 import itertools
 from copy import deepcopy
-import xml.etree.ElementTree as ET
+import lxml.etree as ET
 
 from data_structs import *
 
@@ -45,7 +45,7 @@ def parse_library(xml_library):
                 xml_bus = xml_mport.find("bus")
 
                 # A bus
-                if xml_bus:
+                if xml_bus is not None:
                     lsb = int(xml_bus.attrib["lsb"])
                     msb = int(xml_bus.attrib["msb"])
                     stp = int(xml_bus.attrib["step"])
@@ -248,6 +248,27 @@ def parse_placement(xml_placement, cell_library):
 # =============================================================================
 
 
+def populate_switchboxes(xml_sbox, tilegrid):
+    """
+    Assings each tile in the grid its switchbox type.
+    """
+    xmin = int(xml_sbox.attrib["ColStartNum"])
+    xmax = int(xml_sbox.attrib["ColEndNum"])
+    ymin = int(xml_sbox.attrib["RowStartNum"])
+    ymax = int(xml_sbox.attrib["RowEndNum"])
+
+    for y, x in itertools.product(range(ymin, ymax+1), range(xmin, xmax+1)):
+        loc = Loc(x, y)
+
+        assert loc in tilegrid
+        tile = tilegrid[loc]
+
+        assert tile.switchbox is None, (loc, tile.switchbox, xml_sbox.tag,)
+        tile.switchbox = xml_sbox.tag
+
+# =============================================================================
+
+
 def parse_switchbox(xml_sbox, xml_common = None):
     """
     Parses the switchbox definition from XML. Returns a Switchbox object
@@ -371,8 +392,8 @@ def import_data(xml_root):
     xml_placement = xml_root.find("Placement")
     assert xml_placement is not None
 
-    cell_library = {cell.type: cell for cell in cells}
-    parse_placement(xml_placement, cell_library)
+    cells_library = {cell.type: cell for cell in cells}
+    tilegrid = parse_placement(xml_placement, cells_library)
 
     # Get the "Routing" section
     xml_routing = xml_root.find("Routing")
@@ -390,7 +411,26 @@ def import_data(xml_root):
         xml_common = xml_node.find("COMMON_STAGES")
         for xml_sbox in xml_node:
             if xml_sbox != xml_common:
+
+                # Parse the switchbox definition
                 switchboxes.append(parse_switchbox(xml_sbox, xml_common))
 
-    return switchboxes ,
+                # Populate switchboxes onto the tilegrid
+                populate_switchboxes(xml_sbox, tilegrid)
+
+
+    # Remove empty tiles (with no cells) from the tilegrid
+    for loc in list(tilegrid.keys()):
+        tile = tilegrid[loc]
+        if len(tile.cells) == 0:
+            print("INFO: Empty tile at ({},{})".format(loc.x, loc.y))
+            del tilegrid[loc]
+
+    # Check that all tiles have switchboxes assigned
+    for loc, tile in tilegrid.items():
+        if tile.switchbox is None:
+            print("WARNING: Tile {} of type {} without a switchbox".format(
+                tile.name, tile.type))
+
+    return tilegrid, cells_library, switchboxes,
 

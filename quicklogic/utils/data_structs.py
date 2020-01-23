@@ -76,12 +76,13 @@ class Tile(object):
             self.side      = side
 
     def __init__(self, loc, type="", name="", cells=(), quadrant=None):
-        self.loc      = loc
-        self.type     = type
-        self.name     = name
-        self.cells    = list(cells)
-        self.pins     = []
-        self.quadrant = quadrant
+        self.loc       = loc
+        self.type      = type
+        self.name      = name
+        self.cells     = list(cells)
+        self.pins      = []
+        self.switchbox = None
+        self.quadrant  = quadrant
 
     def make_type(self):
         """
