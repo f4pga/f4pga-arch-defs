@@ -1116,9 +1116,7 @@ def main():
     parser.add_argument(
         '--db_root', required=True, help='Project X-Ray Database'
     )
-    parser.add_argument(
-        '--part', required=True, help='FPGA part'
-    )
+    parser.add_argument('--part', required=True, help='FPGA part')
     parser.add_argument(
         '--read_rr_graph', required=True, help='Input rr_graph file'
     )

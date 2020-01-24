@@ -609,7 +609,8 @@ def main():
     mydir = os.path.dirname(__file__)
     parser = argparse.ArgumentParser(description="Generate arch.xml")
     parser.add_argument(
-        '--db_root', required=True,  help="Project X-Ray database to use.")
+        '--db_root', required=True, help="Project X-Ray database to use."
+    )
     parser.add_argument('--part', required=True, help="FPGA part")
     parser.add_argument(
         '--output-arch',
@@ -691,7 +692,7 @@ def main():
         )
 
     layout_xml = ET.SubElement(arch_xml, 'layout')
-    db = prjxray.db.Database(args.db_root args.part)
+    db = prjxray.db.Database(args.db_root, args.part)
     g = db.grid()
 
     synth_tiles = {}
