@@ -9,20 +9,48 @@ from data_import import import_data
 
 # =============================================================================
 
+def add_synthetic_cell_and_tile_types(tile_types, cells_library):
+
+    # The synthetic IO PAD cell.
+    cell_type = CellType(
+        type = "SYN_PAD",
+        pins = (
+            Pin(name="I", is_clock=False, direction=PinDirection.OUTPUT),
+            Pin(name="O", is_clock=False, direction=PinDirection.INPUT),
+        )
+    )
+    cells_library[cell_type.type] = cell_type
+
+    # The synthetic IO tile.
+    tile_type = TileType("SYN_IO", {"SYN_PAD": 1})
+    tile_type.make_pins(cells_library)
+    tile_types[tile_type.type] = tile_type
+
+
 def process_tilegrid(tile_types, tile_grid):
     """
     Processes the tilegrid. May add/remove tiles. Returns a new one.
     """
 
+    # Generate the VPR tile grid
     new_tile_grid = {}
     for loc, tile in tile_grid.items():
 
         # FIXME: Import only the top-left corner
         if loc.x > 7 or loc.y > 8:
             continue       
+
+        tile_type = tile_types[tile.type]
+
+        # Insert synthetic tiles in place of tiles that contain a BIDIR cell.
+        if "BIDIR" in tile_type.type:
+            new_tile_grid[loc] = Tile(
+                type = "SYN_IO",
+                name = tile.name
+            )
+            continue
  
         # FIXME: For now keep only tile that contains only one LOGIC cell inside
-        tile_type = tile_types[tile.type]
         if len(tile_type.cells) == 1 and list(tile_type.cells.keys())[0] == "LOGIC":
             new_tile_grid[loc] = tile
 
@@ -275,6 +303,8 @@ def main():
     for t in tile_types.keys():
         print("", t)
 
+    # Add synthetic stuff
+    add_synthetic_cell_and_tile_types(tile_types, cells_library)
     # Process the tilegrid
     vpr_tile_grid = process_tilegrid(tile_types, tile_grid)
 

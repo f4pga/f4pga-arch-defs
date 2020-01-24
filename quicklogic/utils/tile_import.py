@@ -87,7 +87,7 @@ def make_top_level_pb_type(tile_type, nsmap):
 
 
     def tile_pin_to_cell_pin(name):
-        match = re.match(r"^([A-Za-z]+)([0-9]+)_(.*)$", name)
+        match = re.match(r"^([A-Za-z_]+)([0-9]+)_(.*)$", name)
         assert match is not None, name
 
         return "{}[{}].{}".format(match.group(1), match.group(2), match.group(3))

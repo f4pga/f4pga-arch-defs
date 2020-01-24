@@ -92,6 +92,18 @@ Tile = namedtuple("Tile", "type name")
 # =============================================================================
 
 
+#class PhyTile(object):
+#    """
+#    A physical tile. Has a list of equivalent "logical" tiles and pin directions
+#    assignments.
+#    """
+#
+#    def __init__(self):
+#        self.
+
+# =============================================================================
+
+
 class Switchbox(object):
     """
     This class holds information about a routing switchbox of a particular type.
