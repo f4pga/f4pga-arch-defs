@@ -994,8 +994,9 @@ def create_get_tile_loc(conn):
 
 
 def yield_edges(
-        const_connectors, switch, phy_tile_pkey, src_connector, sink_connector,
-        pip, pip_obj, src_wire_pkey, sink_wire_pkey, loc, forward
+        const_connectors, delayless_switch, phy_tile_pkey, src_connector,
+        sink_connector, pip, pip_obj, src_wire_pkey, sink_wire_pkey, loc,
+        forward
 ):
     if forward:
         for (src_graph_node_pkey, switch_pkey, dest_graph_node_pkey,
@@ -1032,7 +1033,8 @@ def yield_edges(
         for constant_src in yield_ties_to_wire(pip.net_to):
             for (src_graph_node_pkey, switch_pkey, dest_graph_node_pkey
                  ) in const_connectors[constant_src].connect_at(
-                     pip=switch, loc=loc, other_connector=sink_connector):
+                     pip=delayless_switch, loc=loc,
+                     other_connector=sink_connector):
                 assert switch_pkey is not None, (
                     pip, src_graph_node_pkey, dest_graph_node_pkey,
                     phy_tile_pkey, pip_pkey
@@ -1045,8 +1047,8 @@ def yield_edges(
 
 def make_connection(
         conn, input_only_nodes, output_only_nodes, find_wire, find_pip,
-        find_connector, get_tile_loc, tile_name, tile_type, pip, switch,
-        const_connectors, forward
+        find_connector, get_tile_loc, tile_name, tile_type, pip,
+        delayless_switch, const_connectors, forward
 ):
     """ Attempt to connect graph nodes on either side of a pip.
 
@@ -1112,11 +1114,11 @@ def make_connection(
     loc = get_tile_loc(tile_pkey)
 
     for edge in yield_edges(
-            const_connectors=const_connectors, switch=switch,
-            phy_tile_pkey=phy_tile_pkey, src_connector=src_connector,
-            sink_connector=sink_connector, pip=pip, pip_obj=pip_obj,
-            src_wire_pkey=src_wire_pkey, sink_wire_pkey=sink_wire_pkey,
-            loc=loc, forward=forward):
+            const_connectors=const_connectors,
+            delayless_switch=delayless_switch, phy_tile_pkey=phy_tile_pkey,
+            src_connector=src_connector, sink_connector=sink_connector,
+            pip=pip, pip_obj=pip_obj, src_wire_pkey=src_wire_pkey,
+            sink_wire_pkey=sink_wire_pkey, loc=loc, forward=forward):
         yield edge
 
 
@@ -2045,15 +2047,6 @@ def create_and_insert_edges(
     delayless_switch_pkey = write_cur.fetchone()[0]
     delayless_switch = KnownSwitch(delayless_switch_pkey)
 
-    write_cur.execute(
-        'SELECT pkey FROM switch WHERE name = ?;',
-        ('__vpr_penalty_switch__', )
-    )
-    penalty_switch_pkey = write_cur.fetchone()[0]
-    penalty_switch = KnownSwitch(penalty_switch_pkey)
-
-    switch = delayless_switch
-
     find_pip = create_find_pip(conn)
     find_wire = create_find_wire(conn)
     find_connector = create_find_connector(conn)
@@ -2103,12 +2096,6 @@ def create_and_insert_edges(
             if "PS72_" in pip.net_to or "PS72_" in pip.net_from:
                 continue
 
-            if ("GCLK" in pip.net_from and "GFAN" in pip.net_to) or (
-                    "BYP_ALT" in pip.net_from
-                    and "BYP" in pip.net_to) or ("FAN_ALT" in pip.net_from
-                                                 and "FAN" in pip.net_to):
-                switch = penalty_switch
-
             connections = make_connection(
                 conn=conn,
                 input_only_nodes=input_only_nodes,
@@ -2120,7 +2107,7 @@ def create_and_insert_edges(
                 tile_name=tile_name,
                 tile_type=gridinfo.tile_type,
                 pip=pip,
-                switch=switch,
+                delayless_switch=delayless_switch,
                 const_connectors=const_connectors,
                 forward=forward,
             )
