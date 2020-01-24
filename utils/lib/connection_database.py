@@ -28,7 +28,6 @@ INSERT INTO
     switch(name, internal_capacitance, drive_resistance, intrinsic_delay, penalty_cost, switch_type)
 VALUES
     ("__vpr_delayless_switch__", 0.0, 0.0, 0.0, 0.0, "mux"),
-    ("__vpr_penalty_switch__", 0.0, 0.0, 0.0, 1.0, "mux"),
     ("short", 0.0, 0.0, 0.0, 0.0, "short")
 """
     )
