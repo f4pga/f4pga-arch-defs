@@ -98,6 +98,29 @@ REBUF_NODES = {}
 REBUF_SOURCES = {}
 
 
+def get_clk_hrow_and_rebuf_tiles_sorted(cur):
+    """
+    Finds all CLK_HROW_TOP_R, CLK_HROW_BOT_T and REBUF tiles.
+    returns them in a list sorted according to their Y coordinates.
+    """
+
+    cur.execute(
+        """
+SELECT name
+FROM phy_tile
+WHERE
+  name LIKE "CLK_HROW_BOT_R_%"
+OR
+  name LIKE "CLK_HROW_TOP_R_%"
+OR
+  name LIKE "CLK_BUFG_REBUF_%"
+ORDER BY grid_y DESC;
+    """
+    )
+
+    return [t[0] for t in cur.fetchall()]
+
+
 def populate_bufg_rebuf_map(conn):
     global REBUF_NODES
     REBUF_NODES = {}
@@ -112,25 +135,9 @@ def populate_bufg_rebuf_map(conn):
     cur = conn.cursor()
 
     # Find CLK_HROW_TOP_R, CLK_HROW_TOP_R and REBUF tiles.
-    # Get their Y coordinates, sorted.
-    cur.execute(
-        """
-SELECT name
-FROM phy_tile
-WHERE
-  name LIKE "CLK_HROW_BOT_R_%"
-OR
-  name LIKE "CLK_HROW_TOP_R_%"
-OR
-  name LIKE "CLK_BUFG_REBUF_%"
-ORDER BY grid_y DESC;
-    """
-    )
-    rebuf_and_hrow_tiles = cur.fetchall()
-
+    rebuf_and_hrow_tiles = get_clk_hrow_and_rebuf_tiles_sorted(cur)
     # Append None on both ends of the list to simplify the code below.
-    rebuf_and_hrow_tiles = [None] + [t[0] for t in rebuf_and_hrow_tiles
-                                     ] + [None]
+    rebuf_and_hrow_tiles = [None] + rebuf_and_hrow_tiles + [None]
 
     def maybe_get_clk_hrow(i):
         """
@@ -152,8 +159,7 @@ ORDER BY grid_y DESC;
                 "below": maybe_get_clk_hrow(i + 1),
             }
 
-
-# Find nodes touching rebuf wires.
+    # Find nodes touching rebuf wires.
     cur.execute(
         """
 WITH
@@ -226,6 +232,7 @@ WHERE wire.node_pkey = ?;""", (node_pkey, )
 
         for tile, wire_name in cur:
             REBUF_SOURCES[(tile, wire_name)] = node_pkey
+
 
 HCLK_CMT_TILES = {}
 
