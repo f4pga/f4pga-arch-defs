@@ -79,7 +79,7 @@ foreach(MODE input output inout)
         xc7_iosettings_design(${MODE} ${BOARD} ${IOSTANDARD} "4 8 12 16" "SLOW FAST" "NONE")
     endforeach()
 
-    foreach(IOSTANDARD LVCMOS18 LVTTL)
+    foreach(IOSTANDARD LVTTL) # Disabled LVCMOS18 due to #1263 (PUDC_B pin issues)
         xc7_iosettings_design(${MODE} ${BOARD} ${IOSTANDARD} "4 8 12 16 24" "SLOW FAST" "NONE")
     endforeach()
 
