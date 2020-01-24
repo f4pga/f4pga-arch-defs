@@ -3,6 +3,7 @@ Functions related to parsing and processing of data stored in a QuickLogic
 TechFile.
 """
 import itertools
+from collections import defaultdict
 from copy import deepcopy
 import lxml.etree as ET
 
@@ -51,22 +52,21 @@ def parse_library(xml_library):
                     stp = int(xml_bus.attrib["step"])
                 
                     for i in range(lsb, msb+1, stp):
-                        cell_pins.append(Cell.Pin(
+                        cell_pins.append(Pin(
                             name = "{}[{}]".format(xml_bus.attrib["name"], i),
                             direction = direction
                         ))
 
                 # A single pin
                 else:
-                    cell_pins.append(Cell.Pin(
+                    cell_pins.append(Pin(
                         name = xml_mport.attrib["name"],
                         direction = direction
                     ))
 
         # Add the cell
-        cells.append(Cell(
+        cells.append(CellType(
             type = cell_type,
-#            name = cell_name,
             pins = cell_pins
         ))
 
@@ -88,7 +88,7 @@ def get_quadrant_for_loc(loc, quadrants):
     return None
 
 
-def load_logic_tiles(xml_placement, tilegrid, cells_library):
+def load_logic_cells(xml_placement, cellgrid, cells_library):
 
     # Load "LOGIC" tiles
     xml_logic = xml_placement.find("LOGIC")
@@ -124,13 +124,13 @@ def load_logic_tiles(xml_placement, tilegrid, cells_library):
             cell_type = "LOGIC"
             assert cell_type in cells_library, cell_type
 
-            tilegrid[loc].cells.append(CellInstance(
+            cellgrid[loc].append(Cell(
                 type = cell_type,
                 name = cell_type,
             ))
 
 
-def load_cells_to_tilegrid(xml_placement, tilegrid, cells_library):
+def load_other_cells(xml_placement, cellgrid, cells_library):
 
     # Loop over XML entries
     for xml in xml_placement:
@@ -153,9 +153,8 @@ def load_cells_to_tilegrid(xml_placement, tilegrid, cells_library):
                 for j in range(ny):
                     for i in range(nx):
                         loc  = Loc(x0+i, y0+j)
-                        tile = tilegrid[loc]
 
-                        tile.cells.append(CellInstance(
+                        cellgrid[loc].append(Cell(
                             type = cell_type,
                             name = cell_name,
                         ))
@@ -166,16 +165,35 @@ def load_cells_to_tilegrid(xml_placement, tilegrid, cells_library):
                 y = int(xml.get("row"))
 
                 loc  = Loc(x, y)
-                tile = tilegrid[loc]
 
-                tile.cells.append(CellInstance(
+                cellgrid[loc].append(Cell(
                     type = cell_type,
                     name = cell_name,
                 ))
 
         # Got something else, parse recursively
         else:
-            load_cells_to_tilegrid(xml, tilegrid, cells_library)
+            load_other_cells(xml, cellgrid, cells_library)
+
+
+def make_tile_type_name(cells):
+    """
+    Generate the tile type name from cell types
+    """
+    cell_types  = sorted([c.type for c in cells])
+    cell_counts = {t: 0 for t in cell_types}
+
+    for cell in cells:
+        cell_counts[cell.type] += 1
+
+    parts = []
+    for t, c in cell_counts.items():
+        if c == 1:
+            parts.append(t)
+        else:
+            parts.append("{}x{}".format(c, t))
+
+    return "_".join(parts)
 
 
 def parse_placement(xml_placement, cells_library):
@@ -212,41 +230,44 @@ def parse_placement(xml_placement, cells_library):
         ymax = max(ymax, y1) if ymax is not None else y1
 
 
-    # Define the initial grid
-    tilegrid = {}
-    for y in range(ymin, ymax+1):
-        for x in range(xmin, xmax+1):
-            loc  = Loc(x, y)
+    # Define the initial tile grid. Group cells with the same location
+    # together.
+    cellgrid = defaultdict(lambda: [])
 
-            tile = Tile(
-                loc=loc,
-                name="TILE_X{}Y{}".format(x, y),
-                quadrant=get_quadrant_for_loc(loc, quadrants),
-                )
-            tilegrid[loc] = tile
-
-    # Load LOGIC tiles into it
-    load_logic_tiles(xml_placement, tilegrid, cells_library)
-
+    # Load LOGIC cells into it
+    load_logic_cells(xml_placement, cellgrid, cells_library)
     # Load other cells
-    load_cells_to_tilegrid(xml_placement, tilegrid, cells_library)
+    load_other_cells(xml_placement, cellgrid, cells_library)
 
-    # Update tiles
-    for tile in tilegrid.values():
-        tile.make_type()
-        tile.make_pins(cells_library)
+    # Assign each location with a tile type name generated basing on cells
+    # present there.
+    tile_types = {}
+    tile_types_at_loc = {}
+    for loc, cells in cellgrid.items():
 
-    # DBEUG DEBUG
-#    tile = tilegrid[Loc(0, 9)]
-#    print([(cell.type, cell.name) for cell in tile.cells])
-#    print([p.name for p in tile.pins])
+        # Generate type and assign
+        type = make_tile_type_name(cells)
+        tile_types_at_loc[loc] = type
 
-    return tilegrid
+        # A new type? complete its definition
+        if type not in tile_types:
+            tile_type = TileType(type, cells)
+            tile_type.make_pins(cells_library)
+            tile_types[type] = tile_type
 
-# =============================================================================
+
+    # Make the final tilegrid
+    tilegrid = {}
+    for loc, type in tile_types_at_loc.items():
+        tilegrid[loc] = Tile(
+            type = type,
+            name = "TILE_X{}Y{}".format(loc.x, loc.y),
+        )
+
+    return tile_types, tilegrid
 
 
-def populate_switchboxes(xml_sbox, tilegrid):
+def populate_switchboxes(xml_sbox, switchbox_grid):
     """
     Assings each tile in the grid its switchbox type.
     """
@@ -258,11 +279,8 @@ def populate_switchboxes(xml_sbox, tilegrid):
     for y, x in itertools.product(range(ymin, ymax+1), range(xmin, xmax+1)):
         loc = Loc(x, y)
 
-        assert loc in tilegrid
-        tile = tilegrid[loc]
-
-        assert tile.switchbox is None, (loc, tile.switchbox, xml_sbox.tag,)
-        tile.switchbox = xml_sbox.tag
+        assert loc not in switchbox_grid, loc
+        switchbox_grid[loc] = xml_sbox.tag
 
 # =============================================================================
 
@@ -391,13 +409,14 @@ def import_data(xml_root):
     assert xml_placement is not None
 
     cells_library = {cell.type: cell for cell in cells}
-    tilegrid = parse_placement(xml_placement, cells_library)
+    tile_types, tile_grid = parse_placement(xml_placement, cells_library)
 
     # Get the "Routing" section
     xml_routing = xml_root.find("Routing")
     assert xml_routing is not None
 
     # Import switchboxes
+    switchbox_grid = {}
     switchboxes = []
     for xml_node in xml_routing:
 
@@ -414,21 +433,8 @@ def import_data(xml_root):
                 switchboxes.append(parse_switchbox(xml_sbox, xml_common))
 
                 # Populate switchboxes onto the tilegrid
-                populate_switchboxes(xml_sbox, tilegrid)
+                populate_switchboxes(xml_sbox, switchbox_grid)
 
 
-    # Remove empty tiles (with no cells) from the tilegrid
-    for loc in list(tilegrid.keys()):
-        tile = tilegrid[loc]
-        if len(tile.cells) == 0:
-            print("INFO: Empty tile at ({},{})".format(loc.x, loc.y))
-            del tilegrid[loc]
-
-    # Check that all tiles have switchboxes assigned
-    for loc, tile in tilegrid.items():
-        if tile.switchbox is None:
-            print("WARNING: Tile {} of type {} without a switchbox".format(
-                tile.name, tile.type))
-
-    return tilegrid, cells_library, switchboxes,
+    return cells_library, tile_types, tile_grid, switchboxes, switchbox_grid,
 

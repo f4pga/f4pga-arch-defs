@@ -8,17 +8,17 @@ from enum import Enum
 # =============================================================================
 
 """
-This is a generic location in the tilegrid
-"""
-Loc = namedtuple("Loc", "x y")
-
-"""
 Pin direction in terms of its function.
 """
 class PinDirection(Enum):
     UNSPEC = 0
     INPUT  = 1
     OUTPUT = 2
+
+"""
+A generic pin
+"""
+Pin = namedtuple("Pin", "name direction")
 
 """
 Pin direction in therms where is it "standing out" of a tile.
@@ -31,82 +31,40 @@ class PinSide(Enum):
     WEST   = 4
 
 """
+This is a generic location in the tilegrid
+"""
+Loc = namedtuple("Loc", "x y")
+
+"""
 FPGA grid quadrant.
 """
 Quadrant = namedtuple("Quadrant", "name x0 y0 x1 y1")
 
 # =============================================================================
 
-
-class Cell(object):
-    """
-    A cell within a tile representation (should be named "site" ?). Holds
-    cell type, cell instance name and list of its pins.
-    """
-
-    class Pin(object):
-        """
-        A cell pin representation
-        """
-        def __init__(self, name, direction = PinDirection.UNSPEC):
-            self.name      = name
-            self.direction = direction
-
-    def __init__(self, type, pins = ()):
-        self.type = type
-        self.pins = list(pins)
+"""
+A cell type within a tile type representation (should be named "site" ?).
+Holds the cell type name and the list of its pins.
+"""
+CellType = namedtuple("CellType", "type pins")
 
 """
-A cell instance within a tile
+A cell instance within a tile. Binds a cell name with its type.
 """
-CellInstance = namedtuple("CellInstance", "type name")
+Cell = namedtuple("Cell", "type name")
 
 # =============================================================================
 
-
-class Tile(object):
+class TileType(object):
     """
-    A tile representation. The Quicklogic FPGA fabric does not define tiles.
+    A tile type representation. The Quicklogic FPGA fabric does not define tiles.
     It has rather a group of cells bound to a common geographical location.
     """
 
-    class Pin(object):
-        """
-        A tile pin. Bound directly to one pin of one cell. In the end should
-        have a side assign.
-        """
-        def __init__(self, name, direction, side = PinSide.UNSPEC):
-            self.name      = name
-            self.direction = direction
-            self.side      = side
-
-    def __init__(self, loc, type="", name="", cells=(), quadrant=None):
-        self.loc       = loc
+    def __init__(self,  type="", cells=()):
         self.type      = type
-        self.name      = name
         self.cells     = list(cells)
         self.pins      = []
-        self.switchbox = None
-        self.quadrant  = quadrant
-
-    def make_type(self):
-        """
-        Generate the type name from cell types that the tile contains.
-        """
-        cell_types  = sorted([c.type for c in self.cells])
-        cell_counts = {t: 0 for t in cell_types}
-
-        for cell in self.cells:
-            cell_counts[cell.type] += 1
-
-        parts = []
-        for t, c in cell_counts.items():
-            if c == 1:
-                parts.append(t)
-            else:
-                parts.append("{}x{}".format(c, t))
-
-        self.type = "_".join(parts)
 
     def make_pins(self, cells_library):
         """
@@ -119,10 +77,15 @@ class Tile(object):
             for pin in cells_library[cell.type].pins:
                 name = "{}.{}".format(cell.name, pin.name)
 
-                self.pins.append(Tile.Pin(
+                self.pins.append(Pin(
                     name = name,
                     direction = pin.direction
                 ))
+
+"""
+A tile instance within a tilegrid
+"""
+Tile = namedtuple("Tile", "type name")
 
 # =============================================================================
 

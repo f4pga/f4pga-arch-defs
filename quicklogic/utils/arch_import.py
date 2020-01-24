@@ -9,19 +9,20 @@ from data_import import import_data
 
 # =============================================================================
 
-def process_tilegrid(tilegrid):
+def process_tilegrid(tile_types, tile_grid):
     """
     Processes the tilegrid. May add/remove tiles. Returns a new one.
     """
 
-    new_tilegrid = {}
-    for loc, tile in tilegrid.items():
+    new_tile_grid = {}
+    for loc, tile in tile_grid.items():
         
         # FIXME: For now keep only tile that contains only one LOGIC cell inside
-        if len(tile.cells) == 1 and tile.cells[0].type == "LOGIC":
-            new_tilegrid[loc] = tile
+        tile_type = tile_types[tile.type]
+        if len(tile_type.cells) == 1 and tile_type.cells[0].type == "LOGIC":
+            new_tile_grid[loc] = tile
 
-    return new_tilegrid
+    return new_tile_grid
 
 # =============================================================================
 
@@ -84,28 +85,20 @@ def initialize_arch(xml_arch):
     xml_seglist = ET.SubElement(xml_arch, "segmentlist")    
 
 
-def write_tiles(xml_arch, tilegrid, nsmap):
+def write_tiles(xml_arch, tile_types, nsmap):
     """
     Generates "models" and "complexblocklist" sections.
     """
 
     xi_include = "{{{}}}include".format(nsmap["xi"])
 
-#    # Get list of used cell types
-#    cell_types = set()
-#    for tile in tilegrid.values():
-#        cell_types |= set([c.type for c in tile.cells])
-
-    # Get list of used tile types
-    tile_types = set([tile.type for tile in tilegrid.values()])
-
     # Models
     xml_models = xml_arch.find("models")
     if xml_models is None:
         xml_models = ET.SubElement(xml_arch, "models")
 
-    for type in tile_types:
-        model_file = "{}.model.xml".format(type.lower())
+    for tile_type in tile_types.values():
+        model_file = "{}.model.xml".format(tile_type.type.lower())
 
         ET.SubElement(xml_models, xi_include, {
             "href": model_file,
@@ -117,15 +110,15 @@ def write_tiles(xml_arch, tilegrid, nsmap):
     if xml_cplx is None:
         xml_cplx = ET.SubElement(xml_arch, "complexblocklist")
 
-    for type in tile_types:
-        pb_type_file = "{}.pb_type.xml".format(type.lower())
+    for tile_type in tile_types.values():
+        pb_type_file = "{}.pb_type.xml".format(tile_type.type.lower())
 
         ET.SubElement(xml_cplx, xi_include, {
             "href": pb_type_file,
         })
 
 
-def write_tilegrid(xml_arch, tilegrid, layout_name):
+def write_tilegrid(xml_arch, tile_grid, layout_name):
     """
     Generates the "layout" section of the arch XML and appends it to the
     root given.
@@ -138,8 +131,8 @@ def write_tilegrid(xml_arch, tilegrid, layout_name):
 
     # Grid size
     # FIXME: Shouldn't the "size" be just max(xs), max(ys) in VPR ????
-    xs = [loc.x for loc in tilegrid]
-    ys = [loc.y for loc in tilegrid]
+    xs = [loc.x for loc in tile_grid]
+    ys = [loc.y for loc in tile_grid]
     w  = max(xs) - min(xs) + 1
     h  = max(ys) - min(ys) + 1
 
@@ -152,7 +145,7 @@ def write_tilegrid(xml_arch, tilegrid, layout_name):
     })
 
     # Individual tiles
-    for loc, tile in tilegrid.items():
+    for loc, tile in tile_grid.items():
 
         # FIXME: Assign correct fasm prefixes
         fasm_prefix = "TILE_X{}Y{}".format(loc.x, loc.y)
@@ -225,15 +218,19 @@ def main():
     xml_techfile = xml_tree.getroot()
 
     # Load data from the techfile
-    tilegrid, cells_library, _ = import_data(xml_techfile)
+    cells_library, tile_types, tile_grid, switchboxes, switchbox_grid, = import_data(xml_techfile)
 
     # Process the tilegrid
-    tilegrid = process_tilegrid(tilegrid)
+    vpr_tile_grid = process_tilegrid(tile_types, tile_grid)
+
+    # Get tile types present in the grid
+    vpr_tile_types = set([t.type for t in vpr_tile_grid.values()])
+    vpr_tile_types = {k: v for k, v in tile_types.items() if k in vpr_tile_types}
 
     # Write tiles
-    write_tiles(xml_arch, tilegrid, nsmap)
+    write_tiles(xml_arch, vpr_tile_types, nsmap)
     # Write the tilegrid to arch
-    write_tilegrid(xml_arch, tilegrid, args.device)
+    write_tilegrid(xml_arch, vpr_tile_grid, args.device)
 
     # Save the arch
     ET.ElementTree(xml_arch).write(args.arch_out, pretty_print=True, xml_declaration=True, encoding="utf-8")
