@@ -2155,9 +2155,7 @@ def main():
     parser.add_argument(
         '--db_root', help='Project X-Ray Database', required=True
     )
-    parser.add_argument(
-        '--part', help='FPGA part', required=True
-    )
+    parser.add_argument('--part', help='FPGA part', required=True)
     parser.add_argument(
         '--connection_database', help='Connection database', required=True
     )
