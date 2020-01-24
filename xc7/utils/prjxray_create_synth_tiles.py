@@ -35,6 +35,7 @@ def map_tile_to_vpr_coord(conn, tile):
 def main():
     parser = argparse.ArgumentParser(description="Generate synth_tiles.json")
     parser.add_argument('--db_root', required=True)
+    parser.add_argument('--part', required=True)
     parser.add_argument('--roi', required=True)
     parser.add_argument(
         '--connection_database', help='Connection database', required=True
@@ -43,7 +44,7 @@ def main():
 
     args = parser.parse_args()
 
-    db = prjxray.db.Database(args.db_root)
+    db = prjxray.db.Database(args.db_root, args.part)
     g = db.grid()
 
     synth_tiles = {}

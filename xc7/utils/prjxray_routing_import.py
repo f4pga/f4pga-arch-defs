@@ -1117,6 +1117,9 @@ def main():
         '--db_root', required=True, help='Project X-Ray Database'
     )
     parser.add_argument(
+        '--part', required=True, help='FPGA part'
+    )
+    parser.add_argument(
         '--read_rr_graph', required=True, help='Input rr_graph file'
     )
     parser.add_argument(
@@ -1143,7 +1146,7 @@ def main():
 
     args = parser.parse_args()
 
-    db = prjxray.db.Database(args.db_root)
+    db = prjxray.db.Database(args.db_root, args.part)
     populate_hclk_cmt_tiles(db)
 
     synth_tiles = None

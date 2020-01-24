@@ -194,10 +194,11 @@ class SegmentWireMap(object):
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--db_root', required=True)
+    parser.add_argument('--part', required=True)
 
     args = parser.parse_args()
 
-    db = Database(args.db_root)
+    db = Database(args.db_root, args.part)
 
     segments = get_segments(db)
 
