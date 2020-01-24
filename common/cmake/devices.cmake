@@ -12,6 +12,7 @@ function(DEFINE_ARCH)
   # ~~~
   # DEFINE_ARCH(
   #    ARCH <arch>
+  #    PART <part>
   #    YOSYS_SYNTH_SCRIPT <yosys_script>
   #    YOSYS_CONV_SCRIPT <yosys_script>
   #    BITSTREAM_EXTENSION <ext>
@@ -114,6 +115,7 @@ function(DEFINE_ARCH)
   set(
     oneValueArgs
     ARCH
+    PART
     YOSYS_SYNTH_SCRIPT
     YOSYS_CONV_SCRIPT
     DEVICE_FULL_TEMPLATE
@@ -251,6 +253,11 @@ function(DEFINE_ARCH)
   else()
     list(APPEND REQUIRED_ARGS ${BIT_TIME_ARGS})
   endif()
+
+  set_target_properties(
+    ${DEFINE_ARCH_ARCH}
+    PROPERTIES PART "${DEFINE_ARCH_PART}"
+    )
 
   foreach(ARG ${REQUIRED_ARGS})
     if("${DEFINE_ARCH_${ARG}}" STREQUAL "")
@@ -427,6 +434,7 @@ function(DEFINE_DEVICE)
   # DEFINE_DEVICE(
   #   DEVICE <device>
   #   ARCH <arch>
+  #   PART <part>
   #   DEVICE_TYPE <device_type>
   #   PACKAGES <list of packages>
   #   [CACHE_PLACE_DELAY]
@@ -455,7 +463,7 @@ function(DEFINE_DEVICE)
   # WARNING: Using a different place delay or lookahead algorithm will result
   # in an invalid cache.
   set(options CACHE_LOOKAHEAD CACHE_PLACE_DELAY)
-  set(oneValueArgs DEVICE ARCH DEVICE_TYPE PACKAGES)
+  set(oneValueArgs DEVICE ARCH PART DEVICE_TYPE PACKAGES)
   set(multiValueArgs RR_PATCH_DEPS RR_PATCH_EXTRA_ARGS CACHE_ARGS)
   cmake_parse_arguments(
     DEFINE_DEVICE

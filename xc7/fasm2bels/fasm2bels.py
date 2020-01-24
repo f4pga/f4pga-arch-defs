@@ -177,7 +177,7 @@ def find_io_standards(feature):
 
 def bit2fasm(db_root, db, grid, bit_file, fasm_file, bitread, part):
     """ Convert bitstream to FASM file. """
-    part_yaml = os.path.join(db_root, '{}.yaml'.format(part))
+    part_yaml = os.path.join(db_root, part, 'part.yaml')
     with tempfile.NamedTemporaryFile() as f:
         bits_file = f.name
         subprocess.check_output(
@@ -224,7 +224,7 @@ def load_io_sites(db_root, part, pcf):
 
     site_to_signal = {}
 
-    with open(os.path.join(db_root, '{}_package_pins.csv'.format(part))) as f:
+    with open(os.path.join(db_root, part, 'package_pins.csv')) as f:
         for d in csv.DictReader(f):
             if d['pin'] in pin_to_signal:
                 site_to_signal[d['site']] = pin_to_signal[d['pin']]
@@ -314,7 +314,7 @@ def main():
         'file:{}?mode=ro'.format(args.connection_database), uri=True
     )
 
-    db = prjxray.db.Database(args.db_root)
+    db = prjxray.db.Database(args.db_root, args.part)
     grid = db.grid()
 
     if args.bit_file:
@@ -339,7 +339,7 @@ def main():
         top.set_net_map(net_map)
 
     if args.part:
-        with open(os.path.join(args.db_root, args.part + '.json')) as f:
+        with open(os.path.join(args.db_root, args.part, 'part.json')) as f:
             part_data = json.load(f)
             top.set_io_banks(part_data['iobanks'])
 
