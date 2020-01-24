@@ -16,7 +16,11 @@ def process_tilegrid(tile_types, tile_grid):
 
     new_tile_grid = {}
     for loc, tile in tile_grid.items():
-        
+
+        # FIXME: Import only the top-left corner
+        if loc.x > 7 or loc.y > 8:
+            continue       
+ 
         # FIXME: For now keep only tile that contains only one LOGIC cell inside
         tile_type = tile_types[tile.type]
         if len(tile_type.cells) == 1 and tile_type.cells[0].type == "LOGIC":
@@ -31,8 +35,6 @@ def initialize_arch(xml_arch):
     """
     Initializes the architecture definition from scratch.
     """
-
-    switch_name = "sw"
 
     # .................................
     # Device
@@ -52,7 +54,7 @@ def initialize_arch(xml_arch):
     ET.SubElement(xml, "y", {"distr": "uniform", "peak": "1.0"})
 
     ET.SubElement(xml_device, "connection_block", {
-        "input_switch_name": switch_name
+        "input_switch_name": "mux"
     })
 
     ET.SubElement(xml_device, "switch_block", {
@@ -73,7 +75,16 @@ def initialize_arch(xml_arch):
 
     ET.SubElement(xml_switchlist, "switch", {
         "type": "short",
-        "name": switch_name,
+        "name": "short",
+        "R": "0",
+        "Cin": "0",
+        "Cout": "0",
+        "Tdel": "0"
+    })
+
+    ET.SubElement(xml_switchlist, "switch", {
+        "type": "mux",
+        "name": "mux",
         "R": "0",
         "Cin": "0",
         "Cout": "0",
@@ -83,6 +94,29 @@ def initialize_arch(xml_arch):
     # .................................
     # Segmentlist
     xml_seglist = ET.SubElement(xml_arch, "segmentlist")    
+
+    def add_segment(name, length):
+        """
+        Adds a segment
+        """
+
+        xml_seg = ET.SubElement(xml_seglist, "segment", {
+            "name": name,
+            "length": str(length),
+            "freq": "1.0",
+            "type": "unidir",
+            "Rmetal": "100",
+            "Cmetal": "22e-15",
+        })
+
+        ET.SubElement(xml_seg, "mux", {"name": "mux"})
+
+        e = ET.SubElement(xml_seg, "sb", {"type": "pattern"})
+        e.text = " ".join(["1" for i in range(length+1)])
+        e = ET.SubElement(xml_seg, "cb", {"type": "pattern"})
+        e.text = " ".join(["1" for i in range(length)])
+
+    add_segment("dummy", 2)
 
 
 def write_tiles(xml_arch, tile_types, nsmap):
@@ -219,6 +253,15 @@ def main():
 
     # Load data from the techfile
     cells_library, tile_types, tile_grid, switchboxes, switchbox_grid, = import_data(xml_techfile)
+
+    # DEBUG
+    print("PHY cell types:")
+    for t in cells_library.keys():
+        print("", t)
+
+    print("PHY Tile types:")
+    for t in tile_types.keys():
+        print("", t)
 
     # Process the tilegrid
     vpr_tile_grid = process_tilegrid(tile_types, tile_grid)

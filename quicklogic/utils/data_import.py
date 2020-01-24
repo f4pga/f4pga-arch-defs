@@ -11,6 +11,15 @@ from data_structs import *
 
 # =============================================================================
 
+GCLK_CELLS = (
+    "CLOCK",
+    "GMUX",
+    "QMUX",
+    "CAND"
+)
+
+# =============================================================================
+
 
 def parse_library(xml_library):
     """
@@ -244,6 +253,9 @@ def parse_placement(xml_placement, cells_library):
     tile_types = {}
     tile_types_at_loc = {}
     for loc, cells in cellgrid.items():
+
+        # Filter out global clock routing cells
+        cells = [c for c in cells if c.type not in GCLK_CELLS]
 
         # Generate type and assign
         type = make_tile_type_name(cells)
