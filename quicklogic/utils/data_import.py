@@ -11,12 +11,19 @@ from data_structs import *
 
 # =============================================================================
 
+# A list of cells in the globla clock network
 GCLK_CELLS = (
     "CLOCK",
     "GMUX",
     "QMUX",
     "CAND"
 )
+
+# A List of cells and their pins which are clocks
+CLOCK_PINS = {
+    "LOGIC": ("QCK",),
+}
+
 
 # =============================================================================
 
@@ -63,14 +70,17 @@ def parse_library(xml_library):
                     for i in range(lsb, msb+1, stp):
                         cell_pins.append(Pin(
                             name = "{}[{}]".format(xml_bus.attrib["name"], i),
-                            direction = direction
+                            direction = direction,
+                            is_clock = False,
                         ))
 
                 # A single pin
                 else:
+                    name = xml_mport.attrib["name"]
                     cell_pins.append(Pin(
-                        name = xml_mport.attrib["name"],
-                        direction = direction
+                        name = name,
+                        direction = direction,
+                        is_clock = cell_type in CLOCK_PINS and name in CLOCK_PINS[cell_type],
                     ))
 
         # Add the cell
@@ -263,7 +273,11 @@ def parse_placement(xml_placement, cells_library):
 
         # A new type? complete its definition
         if type not in tile_types:
-            tile_type = TileType(type, cells)
+            
+            cell_types = [c.type for c in cells]
+            cell_count = {t: len([c for c in cells if c.type == t]) for t in cell_types}
+
+            tile_type = TileType(type, cell_count)
             tile_type.make_pins(cells_library)
             tile_types[type] = tile_type
 

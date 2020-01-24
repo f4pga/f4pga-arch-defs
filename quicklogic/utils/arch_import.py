@@ -23,7 +23,7 @@ def process_tilegrid(tile_types, tile_grid):
  
         # FIXME: For now keep only tile that contains only one LOGIC cell inside
         tile_type = tile_types[tile.type]
-        if len(tile_type.cells) == 1 and tile_type.cells[0].type == "LOGIC":
+        if len(tile_type.cells) == 1 and list(tile_type.cells.keys())[0] == "LOGIC":
             new_tile_grid[loc] = tile
 
     return new_tile_grid
@@ -139,6 +139,18 @@ def write_tiles(xml_arch, tile_types, nsmap):
             "xpointer": "xpointer(models/child::node())",
         })
 
+    # Tiles
+    xml_cplx = xml_arch.find("tiles")
+    if xml_cplx is None:
+        xml_cplx = ET.SubElement(xml_arch, "tiles")
+
+    for tile_type in tile_types.values():
+        pb_type_file = "{}.tile.xml".format(tile_type.type.lower())
+
+        ET.SubElement(xml_cplx, xi_include, {
+            "href": pb_type_file,
+        })
+
     # Complexblocklist
     xml_cplx = xml_arch.find("complexblocklist")
     if xml_cplx is None:
@@ -185,7 +197,7 @@ def write_tilegrid(xml_arch, tile_grid, layout_name):
         fasm_prefix = "TILE_X{}Y{}".format(loc.x, loc.y)
 
         xml_sing = ET.SubElement(xml_fixed, "single", {
-            "type": tile.type,
+            "type": "TL-{}".format(tile.type),
             "x": str(loc.x),
             "y": str(loc.y),
             "priority": str(10), # Not sure if we need this
@@ -277,6 +289,22 @@ def main():
 
     # Save the arch
     ET.ElementTree(xml_arch).write(args.arch_out, pretty_print=True, xml_declaration=True, encoding="utf-8")
+
+    # === MOVE ELSEWHERE ====
+    from tile_import import make_top_level_pb_type
+    from tile_import import make_top_level_tile
+
+    for tile_type in vpr_tile_types.values():
+
+        # The top-level tile tag
+        fname = "{}.tile.xml".format(tile_type.type.lower())
+        xml = make_top_level_tile(tile_type)
+        ET.ElementTree(xml).write(fname, pretty_print=True)
+
+        # The top-level pb_type wrapper tag
+        fname = "{}.pb_type.xml".format(tile_type.type.lower())
+        xml = make_top_level_pb_type(tile_type, nsmap)
+        ET.ElementTree(xml).write(fname, pretty_print=True)
 
 # =============================================================================
 

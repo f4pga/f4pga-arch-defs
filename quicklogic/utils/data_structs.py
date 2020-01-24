@@ -18,7 +18,7 @@ class PinDirection(Enum):
 """
 A generic pin
 """
-Pin = namedtuple("Pin", "name direction")
+Pin = namedtuple("Pin", "name direction is_clock")
 
 """
 Pin direction in therms where is it "standing out" of a tile.
@@ -61,9 +61,9 @@ class TileType(object):
     It has rather a group of cells bound to a common geographical location.
     """
 
-    def __init__(self,  type="", cells=()):
+    def __init__(self,  type, cells):
         self.type      = type
-        self.cells     = list(cells)
+        self.cells     = cells
         self.pins      = []
 
     def make_pins(self, cells_library):
@@ -73,14 +73,16 @@ class TileType(object):
         self.pins = []
 
         # Copy pins from all cells. Prefix their names with a cell name.
-        for cell in self.cells:
-            for pin in cells_library[cell.type].pins:
-                name = "{}.{}".format(cell.name, pin.name)
+        for cell_type, cell_count in self.cells.items():
+            for i in range(cell_count):
+                for pin in cells_library[cell_type].pins:
+                    name = "{}{}_{}".format(cell_type, i, pin.name)
 
-                self.pins.append(Pin(
-                    name = name,
-                    direction = pin.direction
-                ))
+                    self.pins.append(Pin(
+                        name = name,
+                        direction = pin.direction,
+                        is_clock = pin.is_clock
+                    ))
 
 """
 A tile instance within a tilegrid
