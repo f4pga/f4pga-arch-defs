@@ -200,7 +200,7 @@ VALUES
 
         if ("GCLK" in pip.net_from and "GFAN" in pip.net_to
             ) or "BYP_ALT" in pip.net_to or "FAN_ALT" in pip.net_to:
-            penalty_cost = 1.0
+            penalty_cost = 1 / 1e7
 
         return get_switch_timing(
             pip.is_pass_transistor, delay, internal_capacitance,
