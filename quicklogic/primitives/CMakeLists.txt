@@ -1,3 +1,6 @@
+add_subdirectory(vpr_pad)
 add_subdirectory(ff)
 add_subdirectory(inv)
 add_subdirectory(mux)
+add_subdirectory(logic)
+add_subdirectory(syn_pad)

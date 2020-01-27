@@ -7,7 +7,7 @@ module INV(I, O);
     input  wire I;
     output wire O;
 
-    parameter MODE="";
+    parameter MODE="PASSTHROUGH";
 
     // Passthrough (no inversion) mode
     generate if (MODE == "PASSTHROUGH") begin
