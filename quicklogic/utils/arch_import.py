@@ -1,11 +1,10 @@
 #!/usr/bin/env python3
 import argparse
+import pickle
 
-#import xml.etree.ElementTree as ET
 import lxml.etree as ET
 
 from data_structs import *
-from data_import import import_data
 
 # =============================================================================
 
@@ -247,10 +246,10 @@ def main():
         formatter_class=argparse.RawDescriptionHelpFormatter)
 
     parser.add_argument(
-        "--techfile",
+        "--db",
         type=str,
         required=True,
-        help="Quicklogic 'TechFile' XML file"
+        help="Database file"
     )
     parser.add_argument(
         "--arch-in",
@@ -287,12 +286,13 @@ def main():
         xml_arch = ET.Element("architecture", nsmap=nsmap)
         initialize_arch(xml_arch)
 
-    # Read and parse the XML techfile
-    xml_tree = ET.parse(args.techfile)
-    xml_techfile = xml_tree.getroot()
+    # Load data from the database
+    with open(args.db, "rb") as fp:
+        db = pickle.load(fp)
 
-    # Load data from the techfile
-    cells_library, tile_types, tile_grid, switchboxes, switchbox_grid, = import_data(xml_techfile)
+        cells_library = db["cells_library"]
+        tile_types    = db["tile_types"]
+        phy_tile_grid = db["phy_tile_grid"]
 
     # DEBUG
     print("PHY cell types:")
@@ -306,7 +306,7 @@ def main():
     # Add synthetic stuff
     add_synthetic_cell_and_tile_types(tile_types, cells_library)
     # Process the tilegrid
-    vpr_tile_grid = process_tilegrid(tile_types, tile_grid)
+    vpr_tile_grid = process_tilegrid(tile_types, phy_tile_grid)
 
     # Get tile types present in the grid
     vpr_tile_types = set([t.type for t in vpr_tile_grid.values()])

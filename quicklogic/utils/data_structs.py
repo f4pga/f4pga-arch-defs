@@ -92,14 +92,12 @@ Tile = namedtuple("Tile", "type name")
 # =============================================================================
 
 
-#class PhyTile(object):
-#    """
-#    A physical tile. Has a list of equivalent "logical" tiles and pin directions
-#    assignments.
-#    """
-#
-#    def __init__(self):
-#        self.
+# A switchbox pin
+SwitchboxPin = namedtuple("SwitchboxPin", "id name direction")
+
+# A connection within the switchbox
+SwitchboxConnection = namedtuple("SwitchboxConnection", 
+    "src_stage src_switch src_pin dst_stage dst_switch dst_pin")
 
 # =============================================================================
 
@@ -112,12 +110,6 @@ class Switchbox(object):
     "stages". Outputs of previous stage go to the next one. A stage contains
     multiple switches. Each switch is a small M-to-N routing box.
     """
-
-    # A switchbox pin
-    Pin = namedtuple("Pin", "id name direction")
-
-    # A connection within the switchbox
-    Connection = namedtuple("Connection", "src_stage src_switch src_pin dst_stage dst_switch dst_pin")
 
     class Switch(object):
         """

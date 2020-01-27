@@ -1,10 +1,13 @@
+#!/usr/bin/env python3
 """
 Functions related to parsing and processing of data stored in a QuickLogic
 TechFile.
 """
 import itertools
+import argparse
 from collections import defaultdict
-from copy import deepcopy
+import pickle
+
 import lxml.etree as ET
 
 from data_structs import *
@@ -23,7 +26,6 @@ GCLK_CELLS = (
 CLOCK_PINS = {
     "LOGIC": ("QCK",),
 }
-
 
 # =============================================================================
 
@@ -355,7 +357,7 @@ def parse_switchbox(xml_sbox, xml_common = None):
             switch = switches[out_switch_id]
 
             # Add the output
-            switch.pins.append(Switchbox.Pin(
+            switch.pins.append(SwitchboxPin(
                 id=out_pin_id,
                 name=out_pin_name,
                 direction=PinDirection.OUTPUT
@@ -378,7 +380,7 @@ def parse_switchbox(xml_sbox, xml_common = None):
 
 
                 # Add the input
-                switch.pins.append(Switchbox.Pin(
+                switch.pins.append(SwitchboxPin(
                     id=inp_pin_id,
                     name=inp_pin_name,
                     direction=PinDirection.INPUT
@@ -397,7 +399,7 @@ def parse_switchbox(xml_sbox, xml_common = None):
                     conn_switch_id = int(xml_input.attrib["SwitchNum"])
                     conn_pin_id    = int(xml_input.attrib["SwitchOutputNum"])
 
-                    conn = Switchbox.Connection(
+                    conn = SwitchboxConnection(
                         src_stage=conn_stage,
                         src_switch=conn_switch_id,
                         src_pin=conn_pin_id,
@@ -463,4 +465,63 @@ def import_data(xml_root):
 
 
     return cells_library, tile_types, tile_grid, switchboxes, switchbox_grid,
+
+
+# =============================================================================
+
+
+def main():
+    
+    # Parse arguments
+    parser = argparse.ArgumentParser(description=__doc__,
+        formatter_class=argparse.RawDescriptionHelpFormatter)
+
+    parser.add_argument(
+        "--techfile",
+        type=str,
+        required=True,
+        help="Quicklogic 'TechFile' XML file"
+    )
+    parser.add_argument(
+        "--db",
+        type=str,
+        default="database.pickle",
+        help="Device name for the parsed 'database' file"
+    )
+
+    args = parser.parse_args()
+
+    # Read and parse the XML techfile
+    xml_tree = ET.parse(args.techfile)
+    xml_techfile = xml_tree.getroot()
+
+    # Load data from the techfile
+    cells_library, tile_types, phy_tile_grid, switchbox_types, switchbox_grid, = import_data(xml_techfile)
+
+#    # DEBUG
+#    print("PHY cell types:")
+#    for t in cells_library.keys():
+#        print("", t)
+#
+#    print("PHY Tile types:")
+#    for t in tile_types.keys():
+#        print("", t)
+
+    # Prepare the database
+    db_root = {
+        "cells_library": cells_library,
+        "tile_types": tile_types,
+        "phy_tile_grid": phy_tile_grid,
+        "switchbox_types": switchbox_types,
+        "switchbox_grid": switchbox_grid,
+    }
+
+    with open(args.db, "wb") as fp:
+        pickle.dump(db_root, fp, protocol=3)
+
+# =============================================================================
+
+
+if __name__ == "__main__":
+    main()
 
