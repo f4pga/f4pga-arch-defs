@@ -6,3 +6,11 @@ add_fpga_target(
   SOURCES mux2to1.v
   EXPLICIT_ADD_FILE_TARGET
   )
+
+add_fpga_target(
+  NAME mux2to1-ql-chandalar
+  BOARD chandalar
+  SOURCES mux2to1.v
+  EXPLICIT_ADD_FILE_TARGET
+  )
+
