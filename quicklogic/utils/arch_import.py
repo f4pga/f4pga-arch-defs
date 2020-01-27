@@ -211,7 +211,7 @@ def write_tilegrid(xml_arch, tile_grid, layout_name):
 
     # Fixed layout
     xml_layout = ET.SubElement(xml_arch, "layout")
-    xml_fixed  = ET.SubElement(xml_arch, "fixed", {
+    xml_fixed  = ET.SubElement(xml_layout, "fixed_layout", {
         "name": layout_name,
         "width": str(w),
         "height": str(h),
