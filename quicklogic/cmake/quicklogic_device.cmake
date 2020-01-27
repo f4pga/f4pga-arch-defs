@@ -20,6 +20,9 @@ function(DEFINE_QUICKLOGIC_DEVICE)
   get_target_property_required(PYTHON3 env PYTHON3)
   get_target_property_required(PYTHON3_TARGET env PYTHON3_TARGET)
 
+  set(SDF_TIMING_DIRECTORY ${symbiflow-arch-defs_SOURCE_DIR}/quicklogic/timings)
+  set(BELS_MAP ${symbiflow-arch-defs_SOURCE_DIR}/quicklogic/bels.json)
+
   set(TECHFILE "${symbiflow-arch-defs_SOURCE_DIR}/quicklogic/QLAL4S3B.xml")
   set(PHY_DB_FILE "db_phy.pickle")
   set(VPR_DB_FILE "db_vpr.pickle")
@@ -66,13 +69,23 @@ function(DEFINE_QUICKLOGIC_DEVICE)
     DEPENDS ${VPR_DB_FILE} ${ARCH_IMPORT} ${PYTHON3_TARGET}
   )
   add_file_target(FILE ${ARCH_XML} GENERATED)
+
+  # Timing import stuff
+  set(UPDATE_ARCH_TIMINGS ${symbiflow-arch-defs_SOURCE_DIR}/utils/update_arch_timings.py)
+  set(PYTHON_SDF_TIMING_DIR ${symbiflow-arch-defs_SOURCE_DIR}/third_party/python-sdf-timing)
+  get_target_property(SDF_TIMING_TARGET env SDF_TIMING_TARGET)
+
+  set(TIMING_IMPORT "${PYTHON3} ${UPDATE_ARCH_TIMINGS} --sdf_dir ${SDF_TIMING_DIRECTORY} --bels_map ${BELS_MAP} --out_arch /dev/stdout --input_arch /dev/stdin")
+  set(TIMING_DEPS ${SDF_TIMING_TARGET})
  
   # Define the device type
   define_device_type(
     DEVICE_TYPE ${DEVICE_TYPE}
     ARCH ${ARCH}
     ARCH_XML ${ARCH_XML}
-    UPDATE_TILES
+    SCRIPT_OUTPUT_NAME timing
+    SCRIPTS ${TIMING_IMPORT}
+    SCRIPT_DEPS TIMING_DEPS
   )
 
   # Define the device
