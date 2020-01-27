@@ -162,7 +162,7 @@ def write_tiles(xml_arch, tile_types, nsmap):
         model_file = "{}.model.xml".format(tile_type.type.lower())
 
         ET.SubElement(xml_models, xi_include, {
-            "href": model_file,
+            "href": "tl-{}".format(model_file),
             "xpointer": "xpointer(models/child::node())",
         })
 
@@ -175,7 +175,7 @@ def write_tiles(xml_arch, tile_types, nsmap):
         pb_type_file = "{}.tile.xml".format(tile_type.type.lower())
 
         ET.SubElement(xml_cplx, xi_include, {
-            "href": pb_type_file,
+            "href": "tl-{}".format(pb_type_file),
         })
 
     # Complexblocklist
@@ -187,7 +187,7 @@ def write_tiles(xml_arch, tile_types, nsmap):
         pb_type_file = "{}.pb_type.xml".format(tile_type.type.lower())
 
         ET.SubElement(xml_cplx, xi_include, {
-            "href": pb_type_file,
+            "href": "tl-{}".format(pb_type_file),
         })
 
 
@@ -246,10 +246,10 @@ def main():
         formatter_class=argparse.RawDescriptionHelpFormatter)
 
     parser.add_argument(
-        "--db",
+        "--vpr-db",
         type=str,
         required=True,
-        help="Database file"
+        help="VPR database file"
     )
     parser.add_argument(
         "--arch-in",
@@ -287,30 +287,12 @@ def main():
         initialize_arch(xml_arch)
 
     # Load data from the database
-    with open(args.db, "rb") as fp:
+    with open(args.vpr_db, "rb") as fp:
         db = pickle.load(fp)
 
-        cells_library = db["cells_library"]
-        tile_types    = db["tile_types"]
-        phy_tile_grid = db["phy_tile_grid"]
-
-    # DEBUG
-    print("PHY cell types:")
-    for t in cells_library.keys():
-        print("", t)
-
-    print("PHY Tile types:")
-    for t in tile_types.keys():
-        print("", t)
-
-    # Add synthetic stuff
-    add_synthetic_cell_and_tile_types(tile_types, cells_library)
-    # Process the tilegrid
-    vpr_tile_grid = process_tilegrid(tile_types, phy_tile_grid)
-
-    # Get tile types present in the grid
-    vpr_tile_types = set([t.type for t in vpr_tile_grid.values()])
-    vpr_tile_types = {k: v for k, v in tile_types.items() if k in vpr_tile_types}
+        cells_library  = db["cells_library"]
+        vpr_tile_types = db["vpr_tile_types"]
+        vpr_tile_grid  = db["vpr_tile_grid"]
 
     # Write tiles
     write_tiles(xml_arch, vpr_tile_types, nsmap)
@@ -321,19 +303,25 @@ def main():
     ET.ElementTree(xml_arch).write(args.arch_out, pretty_print=True, xml_declaration=True, encoding="utf-8")
 
     # === MOVE ELSEWHERE ====
+    from tile_import import make_top_level_model
     from tile_import import make_top_level_pb_type
     from tile_import import make_top_level_tile
 
     for tile_type in vpr_tile_types.values():
 
         # The top-level tile tag
-        fname = "{}.tile.xml".format(tile_type.type.lower())
+        fname = "tl-{}.tile.xml".format(tile_type.type.lower())
         xml = make_top_level_tile(tile_type)
         ET.ElementTree(xml).write(fname, pretty_print=True)
 
         # The top-level pb_type wrapper tag
-        fname = "{}.pb_type.xml".format(tile_type.type.lower())
+        fname = "tl-{}.pb_type.xml".format(tile_type.type.lower())
         xml = make_top_level_pb_type(tile_type, nsmap)
+        ET.ElementTree(xml).write(fname, pretty_print=True)
+
+        # The top-level models wrapper tag
+        fname = "tl-{}.model.xml".format(tile_type.type.lower())
+        xml = make_top_level_model(tile_type, nsmap)
         ET.ElementTree(xml).write(fname, pretty_print=True)
 
 # =============================================================================

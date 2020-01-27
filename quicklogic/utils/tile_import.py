@@ -62,11 +62,33 @@ def add_ports(xml_parent, pins):
     return pinlists
 
 
+# =============================================================================
+
+
+def make_top_level_model(tile_type, nsmap):
+    xml_models = ET.Element("models", nsmap=nsmap)
+
+    # Include cells
+    xi_include = "{{{}}}include".format(nsmap["xi"])
+    for cell_type, cell_count in tile_type.cells.items():
+        name = cell_type.lower()
+        pb_type_file = "../../primitives/{}/{}.model.xml".format(name, name)
+        ET.SubElement(xml_models, xi_include, {
+            "href": pb_type_file,
+            "xpointer": "xpointer(models/child::node())",
+        })
+
+    return xml_models
+
+
 def make_top_level_pb_type(tile_type, nsmap):
     """
     Generates top-level pb_type wrapper for cells of a given tile type.
     """
-    xml_pb = ET.Element("pb_type", nsmap=nsmap)
+    pb_name = "PB-{}".format(tile_type.type.upper())
+    xml_pb = ET.Element("pb_type", {
+        "name": pb_name
+    }, nsmap=nsmap)
 
     # Ports
     pinlists = add_ports(xml_pb, tile_type.pins)
@@ -79,7 +101,8 @@ def make_top_level_pb_type(tile_type, nsmap):
             "num_pb": str(cell_count)
         })
 
-        pb_type_file = "{}.pb_type.xml".format(cell_type)
+        name = cell_type.lower()
+        pb_type_file = "../../primitives/{}/{}.pb_type.xml".format(name, name)
         ET.SubElement(xml_sub, xi_include, {
             "href": pb_type_file,
             "xpointer": "xpointer(pb_type/child::node())",
@@ -126,9 +149,9 @@ def make_top_level_tile(tile_type):
     """
     Makes a tile definition for the given tile
     """
-    pb_name = "TL-{}".format(tile_type.type.upper())
+    pb_name = tile_type.type.upper()
     xml_tile = ET.Element("tile", {
-        "name": pb_name,
+        "name": "TL-{}".format(pb_name),
     })
 
     # Top-level ports
@@ -139,7 +162,7 @@ def make_top_level_tile(tile_type):
     xml_equiv = ET.SubElement(xml_tile, "equivalent_sites")
 
     xml_site = ET.SubElement(xml_equiv, "site", {
-        "pb_type": pb_name,
+        "pb_type": "PB-{}".format(pb_name),
         "pin_mapping": "custom"
     })
 
