@@ -4,6 +4,7 @@ add_quicklogic_fasm_package()
 include(cmake/cells_sim_gen.cmake)
 add_cells_sim_target(techmap/cells_sim.v)
 
+include(cmake/quicklogic_device.cmake)
 include(cmake/quicklogic_board.cmake)
 
 set(SDF_TIMING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/timings)
