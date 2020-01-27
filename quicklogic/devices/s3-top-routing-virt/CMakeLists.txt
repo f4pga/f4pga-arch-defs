@@ -3,6 +3,7 @@ define_quicklogic_device(
   ARCH ql-s3
   PACKAGES wlcsp
   GRID_LIMIT 0,0,7,2
+  PB_TYPES LOGIC SYN_PAD
 )
 
 

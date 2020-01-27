@@ -2,7 +2,7 @@ function(DEFINE_QUICKLOGIC_DEVICE)
 
 #  set(options )
   set(oneValueArgs DEVICE ARCH GRID_LIMIT)
-  set(multiValueArgs PACKAGES)
+  set(multiValueArgs PACKAGES PB_TYPES)
   cmake_parse_arguments(
     DEFINE_QUICKLOGIC_DEVICE
     "${options}"
@@ -58,6 +58,17 @@ function(DEFINE_QUICKLOGIC_DEVICE)
   )
   add_file_target(FILE ${VPR_DB_FILE} GENERATED)
 
+  # Get dependencies for arch.xml
+  # FIXME: Not sure, this probably should be a part of ARCH instrad of DEVICE.
+  set(XML_DEPS "")
+  foreach(PB_TYPE ${DEFINE_QUICKLOGIC_DEVICE_PB_TYPES})
+    string(TOLOWER ${PB_TYPE} PB_TYPE_LOWER)
+    set(PB_TYPE_XML ${symbiflow-arch-defs_SOURCE_DIR}/quicklogic/primitives/${PB_TYPE_LOWER}/${PB_TYPE_LOWER}.pb_type.xml)
+    set(MODEL_XML   ${symbiflow-arch-defs_SOURCE_DIR}/quicklogic/primitives/${PB_TYPE_LOWER}/${PB_TYPE_LOWER}.model.xml)
+    append_file_dependency(XML_DEPS ${PB_TYPE_XML})
+    append_file_dependency(XML_DEPS ${MODEL_XML})
+  endforeach()
+
   # Generate the arch.xml
   set(ARCH_IMPORT ${symbiflow-arch-defs_SOURCE_DIR}/quicklogic/utils/arch_import.py)
   add_custom_command(
@@ -66,7 +77,7 @@ function(DEFINE_QUICKLOGIC_DEVICE)
       --vpr-db ${VPR_DB_FILE}
       --arch-out ${ARCH_XML}
       --device ${DEVICE}
-    DEPENDS ${VPR_DB_FILE} ${ARCH_IMPORT} ${PYTHON3_TARGET}
+    DEPENDS ${VPR_DB_FILE} ${XML_DEPS} ${ARCH_IMPORT} ${PYTHON3_TARGET}
   )
   add_file_target(FILE ${ARCH_XML} GENERATED)
 
