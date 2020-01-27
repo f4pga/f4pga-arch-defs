@@ -57,12 +57,12 @@ function(ADD_XC7_BOARD)
     PROPERTIES PART ${PART}
     )
   set_target_properties(${BOARD}
-    PROPERTIES PART_JSON ${PRJXRAY_DB_DIR}/${ARCH}/${PART}.json
+    PROPERTIES PART_JSON ${PRJXRAY_DB_DIR}/${ARCH}/${PART}/part.json
     )
   set_target_properties(${BOARD}
     PROPERTIES BIT_TO_BIN_EXTRA_ARGS " \
     --part_name ${PART} \
-    --part_file ${PRJXRAY_DB_DIR}/${ARCH}/${PART}.yaml \
+    --part_file ${PRJXRAY_DB_DIR}/${ARCH}/${PART}/part.yaml \
   ")
   get_target_property_required(CHANNELS_DB ${DEVICE_TYPE} CHANNELS_DB)
   get_file_location(CHANNELS_LOCATION ${CHANNELS_DB})
@@ -144,7 +144,7 @@ endfunction()
 
 function(ADD_XC7_DEVICE_DEFINE_TYPE)
   set(options)
-  set(oneValueArgs ARCH DEVICE ROI_DIR GRAPH_LIMIT)
+  set(oneValueArgs ARCH PART DEVICE ROI_DIR GRAPH_LIMIT)
   set(multiValueArgs TILE_TYPES PB_TYPES)
   cmake_parse_arguments(
     ADD_XC7_DEVICE_DEFINE_TYPE
@@ -177,6 +177,7 @@ function(ADD_XC7_DEVICE_DEFINE_TYPE)
 
   project_xray_arch(
     ARCH ${ARCH}
+    PART ${PART}
     DEVICE ${DEVICE}
     TILE_TYPES ${TILE_TYPES}
     ${ROI_ARGS}
