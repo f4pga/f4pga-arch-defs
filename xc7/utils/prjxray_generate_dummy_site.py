@@ -4,18 +4,14 @@ Generates a dummy pb_type model for a site type.
 """
 
 import argparse
-import os
 import prjxray.db
 import prjxray.site_type
-import os.path
 import sys
 
 import lxml.etree as ET
 
 
 def main():
-    mydir = os.path.dirname(__file__)
-
     parser = argparse.ArgumentParser(
         description=__doc__, fromfile_prefix_chars='@', prefix_chars='-~'
     )
