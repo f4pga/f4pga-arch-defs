@@ -12,7 +12,7 @@ function(DEFINE_ARCH)
   # ~~~
   # DEFINE_ARCH(
   #    ARCH <arch>
-  #    PART <part>
+  #    PROTOTYPE_PART <rpototype_part>
   #    YOSYS_SYNTH_SCRIPT <yosys_script>
   #    YOSYS_CONV_SCRIPT <yosys_script>
   #    BITSTREAM_EXTENSION <ext>
@@ -115,7 +115,7 @@ function(DEFINE_ARCH)
   set(
     oneValueArgs
     ARCH
-    PART
+    PROTOTYPE_PART
     YOSYS_SYNTH_SCRIPT
     YOSYS_CONV_SCRIPT
     DEVICE_FULL_TEMPLATE
@@ -167,6 +167,7 @@ function(DEFINE_ARCH)
     )
   set(DISALLOWED_ARGS "")
   set(OPTIONAL_ARGS
+    PROTOTYPE_PART
     VPR_ARCH_ARGS
     CELLS_SIM
     )
@@ -253,11 +254,6 @@ function(DEFINE_ARCH)
   else()
     list(APPEND REQUIRED_ARGS ${BIT_TIME_ARGS})
   endif()
-
-  set_target_properties(
-    ${DEFINE_ARCH_ARCH}
-    PROPERTIES PART "${DEFINE_ARCH_PART}"
-    )
 
   foreach(ARG ${REQUIRED_ARGS})
     if("${DEFINE_ARCH_${ARG}}" STREQUAL "")
@@ -504,6 +500,7 @@ function(DEFINE_DEVICE)
 
   set(ROUTING_SCHEMA ${symbiflow-arch-defs_SOURCE_DIR}/common/xml/routing_resource.xsd)
 
+  set(PART ${DEFINE_DEVICE_PART})
   set(DEVICE ${DEFINE_DEVICE_DEVICE})
   foreach(PACKAGE ${DEFINE_DEVICE_PACKAGES})
     get_target_property_required(DEVICE_FULL_TEMPLATE ${DEFINE_DEVICE_ARCH} DEVICE_FULL_TEMPLATE)

@@ -1,6 +1,6 @@
 function(ADD_XC7_ARCH_DEFINE)
   set(options)
-  set(oneValueArgs ARCH PART YOSYS_SYNTH_SCRIPT YOSYS_CONV_SCRIPT)
+  set(oneValueArgs ARCH PROTOTYPE_PART YOSYS_SYNTH_SCRIPT YOSYS_CONV_SCRIPT)
   set(multiValueArgs)
   cmake_parse_arguments(
     ADD_XC7_ARCH_DEFINE
@@ -11,13 +11,13 @@ function(ADD_XC7_ARCH_DEFINE)
   )
 
   set(ARCH ${ADD_XC7_ARCH_DEFINE_ARCH})
-  set(PART ${ADD_XC7_ARCH_DEFINE_PART})
+  set(PROTOTYPE_PART ${ADD_XC7_ARCH_DEFINE_PROTOTYPE_PART})
   set(YOSYS_SYNTH_SCRIPT ${ADD_XC7_ARCH_DEFINE_YOSYS_SYNTH_SCRIPT})
   set(YOSYS_CONV_SCRIPT ${ADD_XC7_ARCH_DEFINE_YOSYS_CONV_SCRIPT})
 
   define_arch(
     ARCH ${ARCH}
-    PART ${PART}
+    PROTOTYPE_PART ${PROTOTYPE_PART}
     YOSYS_SYNTH_SCRIPT ${YOSYS_SYNTH_SCRIPT}
     YOSYS_CONV_SCRIPT ${YOSYS_CONV_SCRIPT}
     DEVICE_FULL_TEMPLATE \${DEVICE}-\${PACKAGE}
@@ -45,7 +45,7 @@ function(ADD_XC7_ARCH_DEFINE)
     PYTHONPATH=${PRJXRAY_DIR}:${symbiflow-arch-defs_SOURCE_DIR}/utils:${symbiflow-arch-defs_BINARY_DIR}/utils \
         \${PYTHON3} \${RR_PATCH_TOOL} \
         --db_root ${PRJXRAY_DB_DIR}/${ARCH} \
-        --part ${PART} \
+        --part \${PART} \
         --read_rr_graph \${OUT_RRXML_VIRT} \
         --write_rr_graph \${OUT_RRXML_REAL} \
         --write_rr_node_map \${OUT_RRXML_REAL}.node_map.pickle
@@ -78,7 +78,6 @@ function(ADD_XC7_ARCH_DEFINE)
     PYTHONPATH=${symbiflow-arch-defs_BINARY_DIR}/env/conda/lib/python3.7/site-packages:${PRJXRAY_DIR}:${PRJXRAY_DIR}/third_party/fasm \
     \${PYTHON3} \${FASM_TO_BIT} \
         --db-root ${PRJXRAY_DB_DIR}/${ARCH} \
-        --part ${PART} \
         --sparse \
         --emit_pudc_b_pullup \
         \${FASM_TO_BIT_EXTRA_ARGS} \
@@ -94,7 +93,6 @@ function(ADD_XC7_ARCH_DEFINE)
         \${PYTHON3} -mfasm2bels \
         \${BIT_TO_V_EXTRA_ARGS} \
         --db_root ${PRJXRAY_DB_DIR}/${ARCH} \
-        --part {PART} \
         --rr_graph \${OUT_RRXML_REAL_LOCATION} \
         --route \${OUT_ROUTE} \
         --iostandard_defs \${OUT_EBLIF}.iostandard.json \
@@ -105,6 +103,7 @@ function(ADD_XC7_ARCH_DEFINE)
         --eblif \${OUT_EBLIF} \
         --top \${TOP} \
         \${OUT_BIT_VERILOG} \${OUT_BIT_VERILOG}.tcl"
+
     NO_BIT_TIME
     USE_FASM
     RR_GRAPH_EXT ".xml"

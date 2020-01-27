@@ -1,6 +1,6 @@
 add_xc7_device_define_type(
   ARCH artix7
-  DEVICE xc7a50t-bottom
+ DEVICE xc7a50t-bottom
   TILE_TYPES
     SLICEL
     SLICEM
