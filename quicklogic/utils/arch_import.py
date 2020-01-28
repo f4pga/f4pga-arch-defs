@@ -203,11 +203,10 @@ def write_tilegrid(xml_arch, tile_grid, layout_name):
         xml_arch.remove(xml_layout)
 
     # Grid size
-    # FIXME: Shouldn't the "size" be just max(xs), max(ys) in VPR ????
     xs = [loc.x for loc in tile_grid]
     ys = [loc.y for loc in tile_grid]
-    w  = max(xs) - min(xs) + 1
-    h  = max(ys) - min(ys) + 1
+    w  = max(xs) + 1
+    h  = max(ys) + 1
 
     # Fixed layout
     xml_layout = ET.SubElement(xml_arch, "layout")
