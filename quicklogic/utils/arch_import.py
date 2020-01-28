@@ -219,6 +219,9 @@ def write_tilegrid(xml_arch, tile_grid, layout_name):
     # Individual tiles
     for loc, tile in tile_grid.items():
 
+        if tile is None:
+            continue
+
         # FIXME: Assign correct fasm prefixes
         fasm_prefix = "TILE_X{}Y{}".format(loc.x, loc.y)
 

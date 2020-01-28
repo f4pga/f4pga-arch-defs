@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 import argparse
 import pickle
+import itertools
 
 from data_structs import *
 
@@ -29,6 +30,8 @@ def process_tilegrid(tile_types, tile_grid, grid_limit=None):
     Processes the tilegrid. May add/remove tiles. Returns a new one.
     """
 
+    # TODO: This function is messy. Do something about it.
+
     # Generate the VPR tile grid
     new_tile_grid = {}
     for loc, tile in tile_grid.items():
@@ -54,7 +57,26 @@ def process_tilegrid(tile_types, tile_grid, grid_limit=None):
         if len(tile_type.cells) == 1 and list(tile_type.cells.keys())[0] == "LOGIC":
             new_tile_grid[loc] = tile
 
-    return new_tile_grid
+    # Extend the grid by 1 in every direction. Fill missing locs with empty
+    # tiles.
+    vpr_tile_grid = {}
+
+    xs = [loc.x for loc in new_tile_grid.keys()]
+    ys = [loc.y for loc in new_tile_grid.keys()]
+    
+    grid_min = Loc(min(xs), min(ys))
+    grid_max = Loc(max(xs), max(ys))
+    
+    for x, y in itertools.product(range(grid_min[0], grid_max[0]+3),
+                                  range(grid_min[1], grid_max[1]+3)):
+        vpr_tile_grid[Loc(x=x,y=y)] = None
+
+    # Populate tiles
+    for loc, tile in new_tile_grid.items():
+        new_loc = Loc(loc.x+1, loc.y+1)
+        vpr_tile_grid[new_loc] = tile
+
+    return vpr_tile_grid
 
 # =============================================================================
 
@@ -106,7 +128,7 @@ def main():
     vpr_tile_grid = process_tilegrid(tile_types, phy_tile_grid, grid_limit)
 
     # Get tile types present in the grid
-    vpr_tile_types = set([t.type for t in vpr_tile_grid.values()])
+    vpr_tile_types = set([t.type for t in vpr_tile_grid.values() if t is not None])
     vpr_tile_types = {k: v for k, v in tile_types.items() if k in vpr_tile_types}
 
     # Prepare the VPR database and write it
