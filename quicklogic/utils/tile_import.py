@@ -121,7 +121,7 @@ def make_top_level_pb_type(tile_type, nsmap):
     for pin, count in itertools.chain(pinlists["clock"].items(), pinlists["input"].items()):
         for i in range(count):
             pin_name = pin if count == 1 else "{}[{}]".format(pin, i)
-            inp = pin_name
+            inp = "{}.{}".format(pb_name, pin_name)
             out = tile_pin_to_cell_pin(pin_name)
 
             ET.SubElement(xml_ic, "direct", {
@@ -134,7 +134,7 @@ def make_top_level_pb_type(tile_type, nsmap):
         for i in range(count):
             pin_name = pin if count == 1 else "{}[{}]".format(pin, i)
             inp = tile_pin_to_cell_pin(pin_name)
-            out = pin_name
+            out = "{}.{}".format(pb_name, pin_name)
 
             ET.SubElement(xml_ic, "direct", {
                 "name": "{}_to_{}".format(inp, out),
@@ -149,9 +149,11 @@ def make_top_level_tile(tile_type):
     """
     Makes a tile definition for the given tile
     """
-    pb_name = tile_type.type.upper()
+    tl_name = "TL-{}".format(tile_type.type.upper())
+    pb_name = "PB-{}".format(tile_type.type.upper())
+
     xml_tile = ET.Element("tile", {
-        "name": "TL-{}".format(pb_name),
+        "name": tl_name,
     })
 
     # Top-level ports
@@ -162,16 +164,16 @@ def make_top_level_tile(tile_type):
     xml_equiv = ET.SubElement(xml_tile, "equivalent_sites")
 
     xml_site = ET.SubElement(xml_equiv, "site", {
-        "pb_type": "PB-{}".format(pb_name),
+        "pb_type": pb_name,
         "pin_mapping": "custom"
     })
 
     for pin, count in all_pins.items():
         for i in range(count):
-            pin_name = pin if count == 1 else "{}.{}[{}]".format(pb_name, pin, i)
+            pin_name = pin if count == 1 else "{}[{}]".format(pin, i)
             ET.SubElement(xml_site, "direct", {
-                "from": pin_name,
-                "to":   pin_name
+                "from": "{}.{}".format(tl_name, pin_name),
+                "to":   "{}.{}".format(pb_name, pin_name)
             })
 
     # TODO: Add "fc" override for direct tile-to-tile connections if any.
@@ -188,15 +190,15 @@ def make_top_level_tile(tile_type):
     # pin location (side) assignment per tile type.
     for pin, count in all_pins.items():
         for i in range(count):
-            pin_name = pin if count == 1 else "{}.{}[{}]".format(pb_name, pin, i)
+            pin_name = pin if count == 1 else "{}[{}]".format(pin, i)
             pins_by_loc["bottom"].append(pin_name)
 
     # Dump pin locations
     xml_pinloc = ET.SubElement(xml_tile, "pinlocations", {"pattern": "custom"})
     for loc, pins in pins_by_loc.items():
         if len(pins):
-            xml_loc = ET.SubElement(xml_pinloc, loc)
-            xml_loc.text = " ".join(["{}.{}".format(pb_name, pin) for pin in pins])
+            xml_loc = ET.SubElement(xml_pinloc, "loc", {"side": loc})
+            xml_loc.text = " ".join(["{}.{}".format(tl_name, pin) for pin in pins])
 
     # Switchbox locations
     # This is actually not needed in the end but has to be present to make

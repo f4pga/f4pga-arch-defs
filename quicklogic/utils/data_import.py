@@ -63,6 +63,11 @@ def parse_library(xml_library):
             for xml_mport in xml_pins:
                 xml_bus = xml_mport.find("bus")
 
+                # Check if the port is routable. Skip it if it is not.
+                is_routable = xml_mport.get("routable", "true") == "true"
+                if not is_routable:
+                    continue
+
                 # A bus
                 if xml_bus is not None:
                     lsb = int(xml_bus.attrib["lsb"])

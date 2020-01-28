@@ -12,8 +12,8 @@ def add_synthetic_cell_and_tile_types(tile_types, cells_library):
     cell_type = CellType(
         type = "SYN_PAD",
         pins = (
-            Pin(name="I", is_clock=False, direction=PinDirection.OUTPUT),
-            Pin(name="O", is_clock=False, direction=PinDirection.INPUT),
+            Pin(name="I", is_clock=False, direction=PinDirection.INPUT),
+            Pin(name="O", is_clock=False, direction=PinDirection.OUTPUT),
         )
     )
     cells_library[cell_type.type] = cell_type
