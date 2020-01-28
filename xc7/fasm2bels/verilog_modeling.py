@@ -27,6 +27,7 @@ location.
 """
 
 import functools
+import re
 import fasm
 from .make_routes import make_routes, ONE_NET, ZERO_NET, prune_antennas
 from .connection_db_utils import get_wire_pkey
@@ -1195,13 +1196,15 @@ class Module(object):
 
     def __init__(self, db, grid, conn, name="top"):
         self.name = name
-        self.iostandard_defs = {}
         self.db = db
         self.grid = grid
         self.conn = conn
         self.sites = []
         self.source_bels = {}
         self.disabled_drcs = set()
+        self.default_iostandard = None
+        self.default_drive = None
+        self.net_to_iosettings = {}
 
         # Map of source to sink.
         self.shorted_nets = {}
@@ -1245,11 +1248,119 @@ class Module(object):
         # IO bank lookup (if part was provided).
         self.iobank_lookup = {}
 
+    def set_default_iostandard(self, iostandard, drive):
+        self.default_iostandard = iostandard
+        self.default_drive = drive
+
+    def make_iosettings_map(self, parsed_eblif):
+        """
+        Fills in the net_to_iosettings dict with IO settings information read
+        from the eblif file.
+        """
+
+        # Tuple of EBLIF cell parameters.
+        IOBUF_PARAMS = (
+            "IOSTANDARD",
+            "DRIVE",
+        )
+
+        # Regex for matching ports belonging to a single inout port
+        INOUT_RE = re.compile(
+            r"(.*)(_\$inp$|_\$inp(\[[0-9]+\])$|_\$out$|_\$out(\[[0-9]+\])$)(.*)"
+        )
+
+        # Eblif parameter decoding
+        BIN_RE = re.compile(r"^([01]+)$")
+        STR_RE = re.compile(r"^\"(.*)\"$")
+
+        # No subcircuits
+        if "subckt" not in parsed_eblif:
+            return
+
+        # Look for IO cells
+        for subckt in parsed_eblif["subckt"]:
+
+            # No parameters
+            if "param" not in subckt:
+                continue
+
+            # Gather nets that the cell is connected to.
+            # Collapse input and output nets that correspond to an inout port
+            # to a single net name
+            #
+            # "net_$inp" -> "net"
+            # "net_$out" -> "net"
+            # "net_$inp[0]" -> "net[0]"
+            # "net_$out[0]" -> "net[0]"
+            nets = set()
+            for conn_str in subckt["args"][1:]:
+                port, net = conn_str.split("=")
+
+                match = INOUT_RE.match(net)
+                if match:
+                    groups = match.groups()
+                    net = groups[0] + "".join(
+                        [g for g in groups[2:] if g is not None]
+                    )
+
+                nets.add(net)
+
+            # Check if the cell is connected to a top-level port. If not then
+            # skip this cell.
+            nets &= self.top_level_signal_nets
+            if len(nets) == 0:
+                continue
+
+            # Get interesting params
+            params = {}
+            for param, _value in subckt["param"].items():
+
+                if param not in IOBUF_PARAMS:
+                    continue
+
+                # Parse the value
+                value = _value
+
+                match = BIN_RE.match(_value)
+                if match:
+                    value = int(match.group(1), 2)
+
+                match = STR_RE.match(_value)
+                if match:
+                    value = str(match.group(1))
+
+                # Store the parameter
+                params[param] = value
+
+            # No interestin params
+            if len(params) == 0:
+                continue
+
+            # Assign cell parameters to all top-level nets it is connected to.
+            for net in nets:
+                self.net_to_iosettings[net] = params
+
+    def get_site_iosettings(self, site):
+        """
+        Returns a dict with IO settings for the given site name. The
+        information is taken from EBLIF cell parameters, connection between
+        top-level ports and EBLIF cells is read from the PCF file.
+        """
+
+        # Site not in site to signal list
+        if site not in self.site_to_signal:
+            return None
+
+        signal = self.site_to_signal[site]
+
+        # Signal not in IO settings map
+        if signal not in self.net_to_iosettings:
+            return None
+
+        return self.net_to_iosettings[signal]
+
     def add_extra_tcl_line(self, tcl_line):
         self.extra_tcl.append(tcl_line)
-
-    def set_iostandard_defs(self, defs):
-        self.iostandard_defs = defs
 
     def disable_drc(self, drc):
         self.disabled_drcs.add(drc)

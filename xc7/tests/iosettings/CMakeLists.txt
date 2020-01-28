@@ -1,4 +1,4 @@
-add_custom_target(all_xc7_iosettings_diff_fasm)
+#add_custom_target(all_xc7_iosettings_diff_fasm)
 
 function(xc7_iosettings_design MODE BOARD IOSTANDARD DRIVES SLEWS TERMS)
 
@@ -61,11 +61,11 @@ function(xc7_iosettings_design MODE BOARD IOSTANDARD DRIVES SLEWS TERMS)
         ${VIVADO_ARGS}
         )
 
-    add_dependencies(all_xc7_iosettings_diff_fasm ${DESIGN}_vivado_diff_fasm)
+    #add_dependencies(all_xc7_iosettings_diff_fasm ${DESIGN}_vivado_diff_fasm)
 
 endfunction()
 
-set(BOARD "arty")
+set(BOARD "arty-full")
 
 foreach(MODE input output inout)
 
@@ -79,7 +79,7 @@ foreach(MODE input output inout)
         xc7_iosettings_design(${MODE} ${BOARD} ${IOSTANDARD} "4 8 12 16" "SLOW FAST" "NONE")
     endforeach()
 
-    foreach(IOSTANDARD LVCMOS18 LVTTL)
+    foreach(IOSTANDARD LVTTL) # Disabled LVCMOS18 due to #1263 (PUDC_B pin issues)
         xc7_iosettings_design(${MODE} ${BOARD} ${IOSTANDARD} "4 8 12 16 24" "SLOW FAST" "NONE")
     endforeach()
 
@@ -91,6 +91,5 @@ foreach(MODE input output inout)
 endforeach()
 
 # Currently only one differential setting is supported
-# Diff fasm disabled due to https://github.com/SymbiFlow/symbiflow-arch-defs/issues/1239
-xc7_iosettings_design("diff_output" ${BOARD} DIFF_SSTL135 "0" "SLOW FAST" "NONE" DISABLE_DIFF_TEST)
+xc7_iosettings_design("diff_output" ${BOARD} DIFF_SSTL135 "0" "SLOW FAST" "NONE")
 

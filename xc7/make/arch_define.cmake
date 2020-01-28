@@ -10,6 +10,10 @@ function(ADD_XC7_ARCH_DEFINE)
     ${ARGN}
   )
 
+  # The default IOSTANDARD and DRIVE to use in fasm2bels
+  set(DEFAULT_IOSTANDARD "LVCMOS33")
+  set(DEFAULT_DRIVE 12)
+
   set(ARCH ${ADD_XC7_ARCH_DEFINE_ARCH})
   set(YOSYS_SYNTH_SCRIPT ${ADD_XC7_ARCH_DEFINE_YOSYS_SYNTH_SCRIPT})
   set(YOSYS_CONV_SCRIPT ${ADD_XC7_ARCH_DEFINE_YOSYS_CONV_SCRIPT})
@@ -53,7 +57,6 @@ function(ADD_XC7_ARCH_DEFINE)
     PYTHONPATH=${symbiflow-arch-defs_SOURCE_DIR}/utils \
     \${PYTHON3} \${PLACE_TOOL} \
         --map \${PINMAP} \
-        --iostandard_defs \${OUT_EBLIF}.iostandard.json \
         --blif \${OUT_EBLIF} \
         --pcf \${INPUT_IO_FILE} \
         --net \${OUT_NET}"
@@ -92,10 +95,11 @@ function(ADD_XC7_ARCH_DEFINE)
         --db_root ${PRJXRAY_DB_DIR}/${ARCH} \
         --rr_graph \${OUT_RRXML_REAL_LOCATION} \
         --route \${OUT_ROUTE} \
-        --iostandard_defs \${OUT_EBLIF}.iostandard.json \
         --bitread $<TARGET_FILE:bitread> \
         --bit_file \${OUT_BIN} \
         --fasm_file \${OUT_BIN}.fasm \
+        --iostandard ${DEFAULT_IOSTANDARD} \
+        --drive ${DEFAULT_DRIVE} \
         --pcf \${INPUT_IO_FILE} \
         --eblif \${OUT_EBLIF} \
         --top \${TOP} \

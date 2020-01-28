@@ -94,53 +94,55 @@ def append_obuf_iostandard_params(
 ):
     """
     Appends IOSTANDARD, DRIVE and SLEW parameters to the bel. The IOSTANDARD
-    and DRIVE parameters have to be explicitly provided in the
-    top.iostandard_defs dict. If parameters from the dict contradicts those
-    decoded from fasm, an error is printed.
+    and DRIVE parameters have to be read from an EBLIF file. If parameters
+    from the EBLIF contradicts those decoded from fasm, an error is printed.
     """
 
-    # Check if we have external information about the IOSTANDARD and DRIVE of
-    # that site
-    if site.site.name in top.iostandard_defs:
-        iostd_def = top.iostandard_defs[site.site.name]
+    # Check if we have IO settings information for the site read from EBLIF
+    iosettings = top.get_site_iosettings(site.site.name)
 
-        iostandard = iostd_def["IOSTANDARD"]
-        drive = iostd_def["DRIVE"] if "DRIVE" in iostd_def else None
+    # We don't. Use the default IOSTANDARD
+    if iosettings is None:
+        iosettings = {
+            "IOSTANDARD": top.default_iostandard,
+            "DRIVE": top.default_drive
+        }
 
-        # Check if this is possible according to decoded fasm
-        is_valid = (iostandard, drive, slew) in possible_iostandards
-        if not is_valid:
+    iostandard = iosettings.get("IOSTANDARD", None)
+    drive = iosettings.get("DRIVE", None)
+
+    # Check if this is possible according to decoded fasm
+    is_valid = (iostandard, drive, slew) in possible_iostandards
+    if not is_valid:
+        eprint(
+            "IOSTANDARD+DRIVE+SLEW settings provided for {} do not match "
+            "their counterparts decoded from the fasm".format(site.site.name)
+        )
+
+        eprint("Requested:")
+        eprint(" IOSTANDARD={}, DRIVE={}".format(iostandard, drive))
+
+        eprint("Candidates are:")
+        eprint(" IOSTANDARD        | DRIVE  | SLEW |")
+        eprint("-------------------|--------|------|")
+        for i, d, s in possible_iostandards:
             eprint(
-                "IOSTANDARD+DRIVE+SLEW settings provided for {} do not match "
-                "their counterparts decoded from the fasm".format(
-                    site.site.name
+                " {}| {}| {}|".format(
+                    i.ljust(18),
+                    str(d).ljust(7), s.ljust(5)
                 )
             )
+        eprint("")
 
-            eprint("Requested:")
-            eprint(" IOSTANDARD={}, DRIVE={}".format(iostandard, drive))
+        # Demote NSTD-1 to warning
+        top.disable_drc("NSTD-1")
 
-            eprint("Candidates are:")
-            eprint(" IOSTANDARD        | DRIVE  | SLEW |")
-            eprint("-------------------|--------|------|")
-            for i, d, s in possible_iostandards:
-                eprint(
-                    " {}| {}| {}|".format(
-                        i.ljust(18),
-                        str(d).ljust(7), s.ljust(5)
-                    )
-                )
-            eprint("")
+    # Valid
+    else:
+        bel.parameters["IOSTANDARD"] = '"{}"'.format(iostandard)
 
-            # Demote NSTD-1 to warning
-            top.disable_drc("NSTD-1")
-
-        # Valid
-        else:
-            bel.parameters["IOSTANDARD"] = '"{}"'.format(iostandard)
-
-            if drive is not None:
-                bel.parameters["DRIVE"] = '"{}"'.format(drive)
+        if drive is not None:
+            bel.parameters["DRIVE"] = '"{}"'.format(drive)
 
     # Input termination (here for inouts)
     if in_term is not None:
@@ -159,38 +161,45 @@ def append_ibuf_iostandard_params(
         top, site, bel, possible_iostandards, in_term=None
 ):
     """
-    Appends IOSTANDARD parameter to the bel. The parameter has to be explicitly
-    provided in the top.iostandard_defs dict. If the parameter from the dict
-    contradicts the one decoded from fasm, an error is printed.
+    Appends IOSTANDARD parameter to the bel. The parameter has to be decoded
+    from the EBLIF file. If the parameter from the EBLIF contradicts the one
+    decoded from fasm, an error is printed.
     """
 
-    # Check if we have external information about the IOSTANDARD
-    if site.site.name in top.iostandard_defs:
-        iostd_def = top.iostandard_defs[site.site.name]
-        iostandard = iostd_def["IOSTANDARD"]
+    # Check if we have IO settings information for the site read from EBLIF
+    iosettings = top.get_site_iosettings(site.site.name)
 
-        # Check if this is possible according to decoded fasm
-        is_valid = iostandard in possible_iostandards
-        if not is_valid:
-            eprint(
-                "IOSTANDARD setting provided for {} do not match"
-                "its counterpart decoded from the fasm".format(site.site.name)
-            )
+    # We don't. Use the default IOSTANDARD
+    if iosettings is None:
+        iosettings = {
+            "IOSTANDARD": top.default_iostandard,
+            "DRIVE": top.default_drive
+        }
 
-            eprint("Requested:")
-            eprint(" {}".format(iostandard))
+    iostandard = iosettings.get("IOSTANDARD", None)
 
-            eprint("Candidates are:")
-            for i in possible_iostandards:
-                eprint(" {}".format(i.ljust(15)))
-            eprint("")
+    # Check if this is possible according to decoded fasm
+    is_valid = iostandard in possible_iostandards
+    if not is_valid:
+        eprint(
+            "IOSTANDARD setting provided for {} do not match "
+            "its counterpart decoded from the fasm".format(site.site.name)
+        )
 
-            # Demote NSTD-1 to warning
-            top.disable_drc("NSTD-1")
+        eprint("Requested:")
+        eprint(" {}".format(iostandard))
 
-        # Valid
-        else:
-            bel.parameters["IOSTANDARD"] = '"{}"'.format(iostandard)
+        eprint("Candidates are:")
+        for i in possible_iostandards:
+            eprint(" {}".format(i.ljust(15)))
+        eprint("")
+
+        # Demote NSTD-1 to warning
+        top.disable_drc("NSTD-1")
+
+    # Valid
+    else:
+        bel.parameters["IOSTANDARD"] = '"{}"'.format(iostandard)
 
     # Input termination
     if in_term is not None:

@@ -3,15 +3,12 @@
 The generator
 """
 import argparse
-import simplejson as json
 
 # =============================================================================
 
 PINOUT = {
-    "basys3":
+    "basys3-full":
         {
-            "BUFG":
-                "BUFGCTRL_X0Y0",
             "clock":
                 "W5",
             "led":
@@ -68,10 +65,8 @@ PINOUT = {
                     ("P18", "R18"),
                 ]
         },
-    "arty":
+    "arty-full":
         {
-            "BUFG":
-                "BUFGCTRL_X0Y0",
             "clock":
                 "E3",
             "led":
@@ -134,8 +129,6 @@ PINOUT = {
     # on hardware but it will pass all the checks on CI.
     "basys3-bottom":
         {
-            "BUFG":
-                "BUFGCTRL_X0Y0",
             "clock":
                 "W5",  # Bank 34
             "led":
@@ -216,7 +209,6 @@ set_io clk {}
     reg  [31:0] cnt_ps;
     reg         tick;
 
-    (* LOC = "{}" *)
     BUFG bufg (.I(clk), .O(clk_bufg));
 
     initial cnt_ps <= 0;
@@ -230,7 +222,7 @@ set_io clk {}
             cnt_ps <= cnt_ps + 1;
             tick   <= tick;
         end
-""".format(PINOUT[board]["BUFG"])
+"""
 
     # Output buffers
     index = 0
@@ -303,9 +295,8 @@ set_io clk {}
     verilog += """
     wire  clk_bufg;
 
-    (* LOC = "{}" *)
     BUFG bufg (.I(clk), .O(clk_bufg));
-""".format(PINOUT[board]["BUFG"])
+"""
 
     # Input buffers + registers
     index = 0
@@ -390,7 +381,6 @@ set_io clk {}
     wire        clk_bufg;
     reg  [31:0] cnt_ps;
 
-    (* LOC = "{}" *)
     BUFG bufg (.I(clk), .O(clk_bufg));
 
     initial cnt_ps <= 32'd0;
@@ -414,7 +404,7 @@ set_io clk {}
             led <= ino_i;
         else
             led <= led;
-""".format(PINOUT[board]["BUFG"])
+"""
 
     # INOUT buffers
     index = 0
@@ -497,7 +487,6 @@ set_io clk {}
     reg  [31:0] cnt_ps;
     reg         tick;
 
-    (* LOC = "{}" *)
     BUFG bufg (.I(clk), .O(clk_bufg));
 
     initial cnt_ps <= 0;
@@ -511,7 +500,7 @@ set_io clk {}
             cnt_ps <= cnt_ps + 1;
             tick   <= tick;
         end
-""".format(PINOUT[board]["BUFG"])
+"""
 
     # Output buffers
     index = 0
@@ -589,9 +578,8 @@ set_io clk {}
     verilog += """
     wire  clk_bufg;
 
-    (* LOC = "{}" *)
     BUFG bufg (.I(clk), .O(clk_bufg));
-""".format(PINOUT[board]["BUFG"])
+"""
 
     # Input buffers + registers
     index = 0
@@ -681,7 +669,6 @@ set_io clk {}
     wire        clk_bufg;
     reg  [31:0] cnt_ps;
 
-    (* LOC = "{}" *)
     BUFG bufg (.I(clk), .O(clk_bufg));
 
     initial cnt_ps <= 32'd0;
@@ -705,7 +692,7 @@ set_io clk {}
             led <= ino_i;
         else
             led <= led;
-""".format(PINOUT[board]["BUFG"])
+"""
 
     # INOUT buffers
     index = 0
@@ -814,11 +801,6 @@ def main():
     # Write PCF
     with open(args.o + ".pcf", "w") as fp:
         fp.write(pcf)
-
-    # Write iosettings
-    if iosettings is not None:
-        with open(args.o + ".json", "w") as fp:
-            json.dump(iosettings, fp, indent=2)
 
 
 if __name__ == "__main__":
