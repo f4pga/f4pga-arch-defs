@@ -275,11 +275,6 @@ def main():
         help="Prune top-level I/O ports that are not connected to any logic."
     )
     parser.add_argument(
-        '--iostandard_defs',
-        help=
-        "Specify a JSON file defining IOSTANDARD and DRIVE parameters for each IOB site"
-    )
-    parser.add_argument(
         '--fasm_file',
         help="FASM file to convert BELs and routes.",
         required=True
@@ -299,6 +294,19 @@ def main():
         '--allow-non-dedicated-clk-routes',
         action='store_true',
         help="Effectively sets CLOCK_DEDICATED_ROUTE to FALSE on all nets."
+    )
+    parser.add_argument(
+        '--iostandard',
+        default=None,
+        help=
+        "Default IOSTANDARD to use for IO buffers if it cannot be determined from fasm and eblif."
+    )
+    parser.add_argument(
+        '--drive',
+        type=int,
+        default=None,
+        help=
+        "Default DRIVE to use for IO buffers if it cannot be determined from fasm and eblif."
     )
     parser.add_argument('--top', default="top", help="Root level module name.")
     parser.add_argument('--pcf', help="Mapping of top-level pins to pads.")
@@ -348,6 +356,9 @@ def main():
             parsed_eblif = eblif.parse_blif(f)
 
         top.add_to_cname_map(parsed_eblif)
+        top.make_iosettings_map(parsed_eblif)
+
+    top.set_default_iostandard(args.iostandard, args.drive)
 
     for fasm_line in fasm.parse_fasm_filename(args.fasm_file):
         if not fasm_line.set_feature:
@@ -365,11 +376,6 @@ def main():
 
         if len(parts) == 3:
             maybe_add_pip(top, maybe_get_wire, set_feature)
-
-    if args.iostandard_defs:
-        with open(args.iostandard_defs) as fp:
-            defs = json.load(fp)
-            top.set_iostandard_defs(defs)
 
     for tile, tile_features in tiles.items():
         process_tile(top, tile, tile_features)
