@@ -198,9 +198,8 @@ VALUES
                 # milliOhms -> Ohms
                 drive_resistance = pip_timing.drive_resistance / 1e3
 
-        if ("GCLK" in pip.net_from and "GFAN" in pip.net_to
-            ) or "BYP_ALT" in pip.net_to or "FAN_ALT" in pip.net_to:
-            penalty_cost = 1 / 1e7
+        if "GCLK" in pip.net_from and "GFAN" in pip.net_to:
+            penalty_cost = 1e-7
 
         return get_switch_timing(
             pip.is_pass_transistor, delay, internal_capacitance,
