@@ -24,6 +24,8 @@
 
   <interconnect>
     <direct name="IBUF_VPR.O_to_IOB33_MODES.I" input="IBUF_VPR.O" output="IOB33_MODES.I"/>
-    <direct name="inpat.inpad_to_IBUF_VPR.I" input="inpad.inpad" output="IBUF_VPR.I"/>
+    <direct name="inpat.inpad_to_IBUF_VPR.I" input="inpad.inpad" output="IBUF_VPR.I">
+      <pack_pattern name="inpad_to_IBUF"/>
+    </direct>
   </interconnect>
 </mode>
