@@ -12,7 +12,7 @@ function(DEFINE_ARCH)
   # ~~~
   # DEFINE_ARCH(
   #    ARCH <arch>
-  #    PROTOTYPE_PART <rpototype_part>
+  #    PROTOTYPE_PART <prototype_part>
   #    YOSYS_SYNTH_SCRIPT <yosys_script>
   #    YOSYS_CONV_SCRIPT <yosys_script>
   #    BITSTREAM_EXTENSION <ext>
