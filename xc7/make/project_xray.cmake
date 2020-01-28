@@ -68,7 +68,7 @@ function(PROJECT_XRAY_ARCH)
   set(ARCH_IMPORT ${symbiflow-arch-defs_SOURCE_DIR}/xc7/utils/prjxray_arch_import.py)
   set(CREATE_SYNTH_TILES ${symbiflow-arch-defs_SOURCE_DIR}/xc7/utils/prjxray_create_synth_tiles.py)
   set(CREATE_EDGES ${symbiflow-arch-defs_SOURCE_DIR}/xc7/utils/prjxray_create_edges.py)
-  set(DEPS ${PRJXRAY_DB_DIR}/${ARCH}/tilegrid.json)
+  set(DEPS ${PRJXRAY_DB_DIR}/${ARCH}/${PART}/tilegrid.json)
 
   if("${PROJECT_XRAY_ARCH_PB_TYPES}" STREQUAL "")
     set(PROJECT_XRAY_ARCH_PB_TYPES ${PROJECT_XRAY_ARCH_TILE_TYPES})
@@ -148,8 +148,8 @@ function(PROJECT_XRAY_ARCH)
   append_file_dependency(CHANNELS_DEPS ${GENERIC_CHANNELS})
   append_file_dependency(CHANNELS_DEPS ${symbiflow-arch-defs_SOURCE_DIR}/xc7/archs/${ARCH}/pin_assignments.json)
   get_file_location(PIN_ASSIGNMENTS ${symbiflow-arch-defs_SOURCE_DIR}/xc7/archs/${ARCH}/pin_assignments.json)
-  list(APPEND CHANNELS_DEPS ${PRJXRAY_DB_DIR}/${ARCH}/tilegrid.json)
-  list(APPEND CHANNELS_DEPS ${PRJXRAY_DB_DIR}/${ARCH}/tileconn.json)
+  list(APPEND CHANNELS_DEPS ${PRJXRAY_DB_DIR}/${ARCH}/${PART}/tilegrid.json)
+  list(APPEND CHANNELS_DEPS ${PRJXRAY_DB_DIR}/${ARCH}/${PART}/tileconn.json)
 
   add_custom_command(
     OUTPUT channels.db
