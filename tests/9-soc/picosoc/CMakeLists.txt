@@ -15,6 +15,7 @@ add_file_target(FILE basys3_demo.v SCANNER_TYPE verilog)
 add_file_target(FILE basys3_demo_no_roi.v SCANNER_TYPE verilog)
 add_file_target(FILE basys3_demo_tb.v SCANNER_TYPE verilog)
 add_file_target(FILE basys3.pcf)
+add_file_target(FILE basys3.sdc)
 
 if (NOT DEFINED ENV{CI} OR NOT $ENV{CI})
 
@@ -71,7 +72,7 @@ add_fpga_target(
     simpleuart.v
     progmem.v
   # TODO: re-enable once https://github.com/SymbiFlow/vtr-verilog-to-routing/issues/367 is fixed
-  #SDC_FILE ${symbiflow-arch-defs_SOURCE_DIR}/xc7/tests/common/basys3.sdc
+  #SDC_FILE basys3.sdc
   INPUT_IO_FILE ${symbiflow-arch-defs_SOURCE_DIR}/xc7/tests/common/basys3.pcf
   EXPLICIT_ADD_FILE_TARGET
 )
