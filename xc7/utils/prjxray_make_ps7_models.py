@@ -15,33 +15,11 @@ import os
 # =============================================================================
 
 
-def main():
-
-    # Parse arguments
-    parser = argparse.ArgumentParser(
-        description=__doc__,
-        formatter_class=argparse.RawDescriptionHelpFormatter
-    )
-
-    parser.add_argument(
-        "json",
-        type=str,
-        help="Input JSON file with PS7 pins grouped into ports"
-    )
-    parser.add_argument(
-        "--path", type=str, default=".", help="Output folder. (def. '.')"
-    )
-
-    args = parser.parse_args()
-
-    # Load ports
-    with open(args.json, "r") as fp:
-        ports = json.load(fp)
-
-    # .....................................................
-    # Generate XML model
-    pb_name = "PS7"
-    blif_model = "PS7_VPR"
+def make_model_xml(file_name, ports, blif_model="VPR_PS7"):
+    """
+    Generates an XML file with model of the PS7 primitive given its ports
+    definitions.
+    """
 
     model_xml = """<models>
   <model name="{}">
@@ -84,11 +62,16 @@ def main():
     model_xml += """  </model>
 </models>"""
 
-    with open(os.path.join(args.path, "ps7.model.xml"), "w") as fp:
+    with open(file_name, "w") as fp:
         fp.write(model_xml)
 
-    # .....................................................
-    # Generate XML pb_type
+
+def make_pbtype_xml(file_name, ports, pb_name="PS7", blif_model="VPR_PS7"):
+    """
+    Generates a leaf pb_type XML for the PS7 cell given its input ports
+    definitions.
+    """
+
     pb_xml = """<pb_type name="{}" blif_model=".subckt {}" num_pb="1">
 """.format(pb_name, blif_model)
 
@@ -106,11 +89,18 @@ def main():
     pb_xml += """</pb_type>
 """
 
-    with open(os.path.join(args.path, "ps7.pb_type.xml"), "w") as fp:
+    with open(file_name, "w") as fp:
         fp.write(pb_xml)
 
-    # .....................................................
-    # Prepare Verilog module definition for the PS7_VPR
+
+# =============================================================================
+
+
+def make_verilog_blackbox(file_name, ports, blif_model="PS7_VPR"):
+    """
+    Generates a verilog blackbox instance for the PS7.
+    """
+
     port_defs = []
     for name in sorted(ports.keys()):
         port = ports[name]
@@ -132,19 +122,22 @@ def main():
         port_defs.append(port_str)
 
     verilog = """(* blackbox *)
-module PS7_VPR (
+module {} (
 {}
 );
 
 endmodule
-""".format(",\n".join(port_defs))
+""".format(blif_model, ",\n".join(port_defs))
 
-    with open(os.path.join(args.path, "ps7_sim.v"), "w") as fp:
+    with open(file_name, "w") as fp:
         fp.write(verilog)
 
-    # .....................................................
-    # Prepare techmap that maps PS7 to PS7_VPR and handles
-    # unconnected inputs (ties them to GND)
+
+def make_verilog_techmap(file_name, ports, blif_model="PS7_VPR"):
+    """
+    Generates a techmap which transforms the PS7 cell instance to a new one
+    with all unconnected inputs tied to GND.
+    """
     port_defs = []
     port_conns = []
     param_defs = []
@@ -187,14 +180,14 @@ endmodule
             # of unconnected ports.
             wire_defs.append(
                 """
-  generate if((_TECHMAP_CONSTMSK_{name_upr}_ == {N}'d0) && (_TECHMAP_CONSTVAL_{name_upr}_ == {N}'d0))
-    wire [{M}:0] {name_lwr} = {N}'d0;
+  generate if((_TECHMAP_CONSTMSK_{name_up}_ == {N}'d0) && (_TECHMAP_CONSTVAL_{name_up}_ == {N}'d0))
+    wire [{M}:0] {name_lw} = {N}'d0;
   else
-    wire [{M}:0] {name_lwr} = {name};
+    wire [{M}:0] {name_lw} = {name};
   endgenerate""".format(
                     name=name,
-                    name_upr=name.upper(),
-                    name_lwr=name.lower(),
+                    name_up=name.upper(),
+                    name_lw=name.lower(),
                     N=port["width"],
                     M=port["width"] - 1
                 )
@@ -225,7 +218,7 @@ endmodule
 {wire_defs}
 
   // Replacement cell.
-  PS7_VPR _TECHMAP_REPLACE_ (
+  {blif_model} _TECHMAP_REPLACE_ (
 {port_conns}
   );
 
@@ -234,11 +227,59 @@ endmodule
         port_defs=",\n".join(port_defs),
         param_defs="\n".join(param_defs),
         wire_defs="\n".join(wire_defs),
-        port_conns=",\n".join(port_conns)
+        port_conns=",\n".join(port_conns),
+        blif_model=blif_model
     )
 
-    with open(os.path.join(args.path, "ps7_map.v"), "w") as fp:
+    with open(file_name, "w") as fp:
         fp.write(verilog)
+
+
+# =============================================================================
+
+
+def main():
+
+    # Parse arguments
+    parser = argparse.ArgumentParser(
+        description=__doc__,
+        formatter_class=argparse.RawDescriptionHelpFormatter
+    )
+
+    parser.add_argument(
+        "json",
+        type=str,
+        help="Input JSON file with PS7 pins grouped into ports"
+    )
+    parser.add_argument(
+        "--path", type=str, default=".", help="Output folder. (def. '.')"
+    )
+
+    args = parser.parse_args()
+
+    # Load ports
+    with open(args.json, "r") as fp:
+        ports = json.load(fp)
+
+    model_name = "PS7_VPR"
+
+    # Generte XML model
+    make_model_xml(os.path.join(args.path, "ps7.model.xml"), ports, model_name)
+
+    # Generate XML pb_type
+    make_pbtype_xml(
+        os.path.join(args.path, "ps7.pb_type.xml"), ports, "PS7", model_name
+    )
+
+    # Generate verilog blackbox definition
+    make_verilog_blackbox(
+        os.path.join(args.path, "ps7_sim.v"), ports, model_name
+    )
+
+    # Generate the techmap for Yosys
+    make_verilog_techmap(
+        os.path.join(args.path, "ps7_map.v"), ports, model_name
+    )
 
 
 # =============================================================================
