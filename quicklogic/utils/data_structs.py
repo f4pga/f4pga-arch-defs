@@ -16,6 +16,15 @@ class PinDirection(Enum):
     OUTPUT = 2
 
 """
+An opposite direction map
+"""
+OPPOSITE_DIRECTION = {
+    PinDirection.UNSPEC: PinDirection.UNSPEC,
+    PinDirection.INPUT:  PinDirection.OUTPUT,
+    PinDirection.OUTPUT: PinDirection.INPUT,
+}
+
+"""
 A generic pin
 """
 Pin = namedtuple("Pin", "name direction is_clock")
@@ -93,10 +102,13 @@ Tile = namedtuple("Tile", "type name")
 
 
 # A switchbox pin
-SwitchboxPin = namedtuple("SwitchboxPin", "id name direction")
+SwitchboxPin = namedtuple("SwitchboxPin", "id name is_local direction")
 
-# A connection within the switchbox
-SwitchboxConnection = namedtuple("SwitchboxConnection", 
+# A switch pin within a switchbox
+SwitchPin = namedtuple("SwitchPin", "id name direction")
+
+# A connection within a switchbox
+SwitchConnection = namedtuple("SwitchConnection", 
     "src_stage src_switch src_pin dst_stage dst_switch dst_pin")
 
 # =============================================================================
@@ -132,5 +144,17 @@ class Switchbox(object):
 
     def __init__(self, type):
         self.type   = type
+        self.pins   = set()
         self.stages = {}
         self.connections = set()
+
+# =============================================================================
+
+# A connection endpoint location. Specifies location and pin name. If the
+# is_direct is true then the pin name refers to the tile, if not then to the
+# switchbox
+ConnectionLoc = namedtuple("ConnectionLoc", "loc pin is_direct")
+
+# A connection within the tilegrid
+Connection = namedtuple("Connection", "src dst")
+

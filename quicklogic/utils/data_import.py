@@ -7,6 +7,7 @@ import itertools
 import argparse
 from collections import defaultdict
 import pickle
+import re
 
 import lxml.etree as ET
 
@@ -26,6 +27,11 @@ GCLK_CELLS = (
 CLOCK_PINS = {
     "LOGIC": ("QCK",),
 }
+
+# =============================================================================
+
+
+RE_HOP_WIRE = re.compile(r"^([HV])([0-9])([TBLR])([0-9])$")
 
 # =============================================================================
 
@@ -351,7 +357,7 @@ def parse_switchbox(xml_sbox, xml_common = None):
         # Process outputs
         switches = {}
         for xml_output in xml_stage.findall("Output"):
-#            output_num  = int(xml_output.attrib["Number"])
+            out_num       = int(xml_output.attrib["Number"])
             out_switch_id = int(xml_output.attrib["SwitchNum"])
             out_pin_id    = int(xml_output.attrib["SwitchOutputNum"])
             out_pin_name  = xml_output.get("JointOutputName", None)
@@ -362,41 +368,45 @@ def parse_switchbox(xml_sbox, xml_common = None):
             switch = switches[out_switch_id]
 
             # Add the output
-            switch.pins.append(SwitchboxPin(
+            switch.pins.append(SwitchPin(
                 id=out_pin_id,
                 name=out_pin_name,
                 direction=PinDirection.OUTPUT
                 ))
 
-#            # Add as top level output
-#            if stage_id == (num_stages -1):
-#                switchbox.pins.append(Port(
-#                id=output_num,
-#                name=output_name
-#                ))
+            # Add as top level output
+            if out_pin_name is not None and out_pin_name not in ["-1"]:
+                switchbox.pins.add(SwitchboxPin(
+                    direction=PinDirection.OUTPUT,
+                    id=out_num,
+                    name=out_pin_name,
+                    is_local= (stage_type == "STREET"),
+                ))
 
             # Process inputs
             for xml_input in xml_output:
                 inp_pin_name = xml_input.get("WireName", None)
+                inp_pin_dir  = xml_input.get("Direction", None)
 
                 inp_pin_id  = int(xml_input.tag.replace("Input", ""))
                 assert inp_pin_id < 10, inp_pin_id
                 inp_pin_id += out_pin_id * 10
 
-
                 # Add the input
-                switch.pins.append(SwitchboxPin(
+                switch.pins.append(SwitchPin(
                     id=inp_pin_id,
                     name=inp_pin_name,
                     direction=PinDirection.INPUT
                     ))
 
-#                # Add as top level input
-#                if stage_id == 0:
-#                    switchbox_inputs.append(Port(
-#                        id=-1,
-#                        name=input_name
-#                        ))
+                # Add as top level input
+                if inp_pin_name is not None:
+                    switchbox.pins.add(SwitchboxPin(
+                        direction=PinDirection.INPUT,
+                        id=-1,
+                        name=inp_pin_name,
+                        is_local= (inp_pin_dir == "FEEDBACK"),
+                        ))
 
                 # Add internal connection
                 if stage_type == "STREET" and stage_id > 0:
@@ -404,7 +414,7 @@ def parse_switchbox(xml_sbox, xml_common = None):
                     conn_switch_id = int(xml_input.attrib["SwitchNum"])
                     conn_pin_id    = int(xml_input.attrib["SwitchOutputNum"])
 
-                    conn = SwitchboxConnection(
+                    conn = SwitchConnection(
                         src_stage=conn_stage,
                         src_switch=conn_switch_id,
                         src_pin=conn_pin_id,
@@ -420,6 +430,169 @@ def parse_switchbox(xml_sbox, xml_common = None):
         stage.switches = list(switches.values())
 
     return switchbox
+
+# =============================================================================
+
+
+def parse_hop_wire_name(name):
+    """
+    Extracts length, direction and index from a HOP wire name. Checks if the
+    name makes sense.
+    """
+    match = RE_HOP_WIRE.match(name)
+    assert match is not None, name
+
+    # Length
+    length = int(match.group(2))
+    assert length in [1, 2, 4], (name, length)
+
+    # Orientation
+    orientation = match.group(1)
+
+    # Hop
+    direction = match.group(3)
+    if direction == "T":
+        assert orientation == "V", name
+        hop = (0, -length)
+    elif direction == "B":
+        assert orientation == "V", name
+        hop = (+length, 0)
+    elif direction == "L":
+        assert orientation == "H", name
+        hop = (-length, 0)
+    elif direction == "R":
+        assert orientation == "H", name
+        hop = (0, +length)
+    else:
+        assert False, (name, direction)
+
+    # Index
+    index = int(match.group(4))
+
+    return length, hop, index,
+
+
+def build_connections(tile_types, tile_grid, switchbox_types, switchbox_grid):
+    """
+    Builds a connection map between switchboxes in the grid and between
+    switchboxes and underlying tiles.
+    """
+    connections = []
+
+    # Determine the switchbox grid limits
+    xs = set([loc.x for loc in switchbox_grid.keys()])
+    ys = set([loc.y for loc in switchbox_grid.keys()])
+    loc_min = Loc(min(xs), min(ys))
+    loc_max = Loc(max(xs), max(ys))
+
+    # Identify all connections that go out of switchboxes
+    for src_loc, src_switchbox_type in switchbox_grid.items():
+        src_switchbox = switchbox_types[src_switchbox_type]
+
+        # Process local connections
+        src_pins = [pin for pin in src_switchbox.pins if pin.is_local]
+        for src_pin in src_pins:
+
+            # TODO: Switchbox pin to tile pin map
+            tile_pin = src_pin
+
+            # Get the underlying tile
+            if src_loc not in tile_grid:
+                print("WARNING: No tile at loc '{}'".format(src_loc))
+                continue
+            tile = tile_types[tile_grid[src_loc].type]
+
+            # Find the pin in the underlying tile
+            dst_pin = None
+            for pin in tile.pins:
+                if pin.direction == OPPOSITE_DIRECTION[src_pin.direction]:
+                    cell, name = pin.name.split("_", maxsplit=1)
+                    if name == src_pin.name:
+                        dst_pin = pin
+                        break
+
+            # Pin not found
+            if dst_pin is None:
+                print("WARNING: No tile pin found for switchbox pin '{}' of '{}' at '{}'".format(
+                    src_pin.name,
+                    src_switchbox_type,
+                    src_loc
+                ))
+                continue            
+
+            # Add the connection
+            src = ConnectionLoc(
+                loc=src_loc,
+                pin=src_pin.name,
+                is_direct=False,
+            )
+            dst = ConnectionLoc(
+                loc=src_loc,
+                pin=dst_pin.name,
+                is_direct=True,
+            )
+
+            if src_pin.direction == PinDirection.OUTPUT:
+                connection = Connection(src=src, dst=dst)
+            if src_pin.direction == PinDirection.INPUT:
+                connection = Connection(src=dst, dst=src)
+
+            connections.append(connection)
+
+        # Process HOP outputs. No need for looping over inputs as each output
+        # should go into a HOP input.
+        src_pins = [pin for pin in src_switchbox.pins if pin.direction == PinDirection.OUTPUT and not pin.is_local]
+        for src_pin in src_pins:
+
+            # All non-local outputs should be HOP wires.
+            hop_len, hop_ofs, hop_idx = parse_hop_wire_name(src_pin.name)
+
+            # Check if we don't hop outside the FPGA grid.
+            dst_loc = Loc(src_loc.x + hop_ofs[0], src_loc.y + hop_ofs[1])
+            if dst_loc.x < loc_min.x or dst_loc.x > loc_max.x:
+                continue
+            if dst_loc.y < loc_min.y or dst_loc.y > loc_max.y:
+                continue
+
+            # Get the switchbox at the destination location
+            if dst_loc not in switchbox_grid:
+                print("WARNING: No switchbox at '{}' for output '{}' of switchbox '{}' at '{}'".format(
+                    dst_loc, src_pin.name, src_switchbox_type, src_loc
+                ))
+                continue
+
+            dst_switchbox_type = switchbox_grid[dst_loc]
+            dst_switchbox      = switchbox_types[dst_switchbox_type]
+
+            # Check if there is a matching input pin in that switchbox
+            dst_pins = [pin for pin in dst_switchbox.pins if pin.direction == PinDirection.INPUT and not pin.is_local]
+            dst_pins = [pin for pin in dst_pins if pin.name == src_pin.name]
+
+            if len(dst_pins) != 1:
+                print("WARNING: No input pin '{}' in switchbox '{}' at '{}' for output of switchbox '{}' at '{}'".format(
+                    src_pin.name, dst_switchbox_type, dst_loc, src_switchbox_type, src_loc
+                ))
+                continue
+
+            dst_pin = dst_pins[0]
+
+            # Add the connection
+            connection = Connection(
+                src=ConnectionLoc(
+                    loc=src_loc,
+                    pin=src_pin.name,
+                    is_direct=False,
+                ),
+                dst=ConnectionLoc(
+                    loc=dst_loc,
+                    pin=dst_pin.name,
+                    is_direct=False,
+                ),
+            )
+
+            connections.append(connection)
+
+    return connections
 
 # =============================================================================
 
@@ -449,8 +622,8 @@ def import_data(xml_root):
     assert xml_routing is not None
 
     # Import switchboxes
-    switchbox_grid = {}
-    switchboxes = []
+    switchbox_grid  = {}
+    switchbox_types = {}
     for xml_node in xml_routing:
 
         # Not a switchbox
@@ -463,13 +636,16 @@ def import_data(xml_root):
             if xml_sbox != xml_common:
 
                 # Parse the switchbox definition
-                switchboxes.append(parse_switchbox(xml_sbox, xml_common))
+                switchbox = parse_switchbox(xml_sbox, xml_common)
+
+                assert switchbox.type not in switchbox_types, switchbox.type
+                switchbox_types[switchbox.type] = switchbox
 
                 # Populate switchboxes onto the tilegrid
                 populate_switchboxes(xml_sbox, switchbox_grid)
 
 
-    return cells_library, tile_types, tile_grid, switchboxes, switchbox_grid,
+    return cells_library, tile_types, tile_grid, switchbox_types, switchbox_grid,
 
 
 # =============================================================================
@@ -512,6 +688,27 @@ def main():
 #    for t in tile_types.keys():
 #        print("", t)
 
+
+#    # DEBUG
+#    for sbox in switchbox_types:
+#        if sbox.type != "SB_LC":
+#            continue
+#
+#        print(sbox.type)
+#
+#        pins = [pin for pin in sbox.pins if pin.direction == PinDirection.INPUT]
+#        pins = sorted(pins, key=lambda p: p.name)
+#        for pin in pins:
+#            print("", pin)
+#
+#        pins = [pin for pin in sbox.pins if pin.direction == PinDirection.OUTPUT]
+#        pins = sorted(pins, key=lambda p: p.name)
+#        for pin in pins:
+#            print("", pin)
+
+    # Build the connection map
+    connections = build_connections(tile_types, phy_tile_grid, switchbox_types, switchbox_grid)
+
     # Prepare the database
     db_root = {
         "cells_library": cells_library,
@@ -519,6 +716,7 @@ def main():
         "phy_tile_grid": phy_tile_grid,
         "switchbox_types": switchbox_types,
         "switchbox_grid": switchbox_grid,
+        "connections": connections,
     }
 
     with open(args.db, "wb") as fp:
