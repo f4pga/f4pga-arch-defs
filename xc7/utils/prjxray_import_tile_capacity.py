@@ -14,6 +14,7 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
 
     parser.add_argument('--db_root', required=True)
+    parser.add_argument('--part', required=True)
     parser.add_argument('--output_directory', required=True)
     parser.add_argument('--site_directory', required=True)
     parser.add_argument('--tile_type', required=True)
@@ -26,7 +27,7 @@ def main():
     with open(args.pin_assignments) as f:
         pin_assignments = json.load(f)
 
-    db = prjxray.db.Database(args.db_root)
+    db = prjxray.db.Database(args.db_root, args.part)
     tile_type = db.get_tile_type(args.tile_type)
 
     input_wires = set()

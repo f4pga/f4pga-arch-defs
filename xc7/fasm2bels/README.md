@@ -21,6 +21,7 @@ Invoking
 Required arguments are:
  - `--connection_database` - Path to connection database for part
  - `--db_root` - Path to prjxray database for part
+ - `--part` - FPGA part
  - `--fasm_file` - Path to FASM file to process
  - verilog - Path to verilog file to write
  - tcl - Path to TCL file to write

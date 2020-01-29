@@ -57,12 +57,12 @@ function(ADD_XC7_BOARD)
     PROPERTIES PART ${PART}
     )
   set_target_properties(${BOARD}
-    PROPERTIES PART_JSON ${PRJXRAY_DB_DIR}/${ARCH}/${PART}.json
+    PROPERTIES PART_JSON ${PRJXRAY_DB_DIR}/${ARCH}/${PART}/part.json
     )
   set_target_properties(${BOARD}
     PROPERTIES BIT_TO_BIN_EXTRA_ARGS " \
     --part_name ${PART} \
-    --part_file ${PRJXRAY_DB_DIR}/${ARCH}/${PART}.yaml \
+    --part_file ${PRJXRAY_DB_DIR}/${ARCH}/${PART}/part.yaml \
   ")
   get_target_property_required(CHANNELS_DB ${DEVICE_TYPE} CHANNELS_DB)
   get_file_location(CHANNELS_LOCATION ${CHANNELS_DB})
@@ -100,7 +100,7 @@ function(ADD_XC7_BOARD)
     OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/${PINMAP_CSV}
     COMMAND ${PYTHON3} ${SYNTH_TILES_TO_PINMAP_CSV}
         --synth_tiles ${SYNTH_TILES_LOCATION}
-        --package_pins ${PRJXRAY_DB_DIR}/${ARCH}/${PART}_package_pins.csv
+        --package_pins ${PRJXRAY_DB_DIR}/${ARCH}/${PART}/package_pins.csv
         --output ${CMAKE_CURRENT_BINARY_DIR}/${PINMAP_CSV}
         DEPENDS ${PINMAP_CSV_DEPS}
         )
@@ -120,7 +120,7 @@ function(ADD_XC7_BOARD)
       OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/${PINMAP_CSV}
       COMMAND ${PYTHON3} ${CREATE_PINMAP_CSV}
         --connection_database ${CHANNELS_LOCATION}
-        --package_pins ${PRJXRAY_DB_DIR}/${ARCH}/${PART}_package_pins.csv
+        --package_pins ${PRJXRAY_DB_DIR}/${ARCH}/${PART}/package_pins.csv
         --output ${CMAKE_CURRENT_BINARY_DIR}/${PINMAP_CSV}
         DEPENDS ${PINMAP_CSV_DEPS}
       )
@@ -144,7 +144,7 @@ endfunction()
 
 function(ADD_XC7_DEVICE_DEFINE_TYPE)
   set(options)
-  set(oneValueArgs ARCH DEVICE ROI_DIR GRAPH_LIMIT)
+  set(oneValueArgs ARCH PART DEVICE ROI_DIR GRAPH_LIMIT)
   set(multiValueArgs TILE_TYPES PB_TYPES)
   cmake_parse_arguments(
     ADD_XC7_DEVICE_DEFINE_TYPE
@@ -176,7 +176,8 @@ function(ADD_XC7_DEVICE_DEFINE_TYPE)
   endif()
 
   project_xray_arch(
-    PART ${ARCH}
+    ARCH ${ARCH}
+    PART ${PART}
     DEVICE ${DEVICE}
     TILE_TYPES ${TILE_TYPES}
     ${ROI_ARGS}
@@ -248,7 +249,7 @@ endfunction()
 
 function(ADD_XC7_DEVICE_DEFINE)
   set(options USE_ROI)
-  set(oneValueArgs ARCH)
+  set(oneValueArgs ARCH PART)
   set(multiValueArgs DEVICES)
   cmake_parse_arguments(
     ADD_XC7_DEVICE_DEFINE
@@ -260,6 +261,7 @@ function(ADD_XC7_DEVICE_DEFINE)
 
   set(USE_ROI ${ADD_XC7_DEVICE_DEFINE_USE_ROI})
   set(ARCH ${ADD_XC7_DEVICE_DEFINE_ARCH})
+  set(PART ${ADD_XC7_DEVICE_DEFINE_PART})
   set(DEVICES ${ADD_XC7_DEVICE_DEFINE_DEVICES})
 
   list(LENGTH DEVICES DEVICE_COUNT)
@@ -302,6 +304,7 @@ function(ADD_XC7_DEVICE_DEFINE)
     define_device(
       DEVICE ${DEVICE}
       ARCH ${ARCH}
+      PART ${PART}
       DEVICE_TYPE ${DEVICE_TYPE}
       PACKAGES test
       RR_PATCH_EXTRA_ARGS ${RR_PATCH_EXTRA_ARGS}
