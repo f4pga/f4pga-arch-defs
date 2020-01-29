@@ -607,18 +607,11 @@ def insert_constant_tiles(conn, model_xml, complexblocklist_xml, tiles_xml):
 
 def main():
     mydir = os.path.dirname(__file__)
-    prjxray_db = os.path.abspath(
-        os.path.join(mydir, "..", "..", "third_party", "prjxray-db")
-    )
-
-    db_types = prjxray.db.get_available_databases(prjxray_db)
-
     parser = argparse.ArgumentParser(description="Generate arch.xml")
     parser.add_argument(
-        '--part',
-        choices=[os.path.basename(db_type) for db_type in db_types],
-        help="""Project X-Ray database to use."""
+        '--db_root', required=True, help="Project X-Ray database to use."
     )
+    parser.add_argument('--part', required=True, help="FPGA part")
     parser.add_argument(
         '--output-arch',
         nargs='?',
@@ -699,7 +692,7 @@ def main():
         )
 
     layout_xml = ET.SubElement(arch_xml, 'layout')
-    db = prjxray.db.Database(os.path.join(prjxray_db, args.part))
+    db = prjxray.db.Database(args.db_root, args.part)
     g = db.grid()
 
     synth_tiles = {}

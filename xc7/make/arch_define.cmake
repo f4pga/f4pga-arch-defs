@@ -1,6 +1,6 @@
 function(ADD_XC7_ARCH_DEFINE)
   set(options)
-  set(oneValueArgs ARCH YOSYS_SYNTH_SCRIPT YOSYS_CONV_SCRIPT)
+  set(oneValueArgs ARCH PROTOTYPE_PART YOSYS_SYNTH_SCRIPT YOSYS_CONV_SCRIPT)
   set(multiValueArgs)
   cmake_parse_arguments(
     ADD_XC7_ARCH_DEFINE
@@ -15,11 +15,13 @@ function(ADD_XC7_ARCH_DEFINE)
   set(DEFAULT_DRIVE 12)
 
   set(ARCH ${ADD_XC7_ARCH_DEFINE_ARCH})
+  set(PROTOTYPE_PART ${ADD_XC7_ARCH_DEFINE_PROTOTYPE_PART})
   set(YOSYS_SYNTH_SCRIPT ${ADD_XC7_ARCH_DEFINE_YOSYS_SYNTH_SCRIPT})
   set(YOSYS_CONV_SCRIPT ${ADD_XC7_ARCH_DEFINE_YOSYS_CONV_SCRIPT})
 
   define_arch(
     ARCH ${ARCH}
+    PROTOTYPE_PART ${PROTOTYPE_PART}
     YOSYS_SYNTH_SCRIPT ${YOSYS_SYNTH_SCRIPT}
     YOSYS_CONV_SCRIPT ${YOSYS_CONV_SCRIPT}
     DEVICE_FULL_TEMPLATE \${DEVICE}-\${PACKAGE}
@@ -47,6 +49,7 @@ function(ADD_XC7_ARCH_DEFINE)
     PYTHONPATH=${PRJXRAY_DIR}:${symbiflow-arch-defs_SOURCE_DIR}/utils:${symbiflow-arch-defs_BINARY_DIR}/utils \
         \${PYTHON3} \${RR_PATCH_TOOL} \
         --db_root ${PRJXRAY_DB_DIR}/${ARCH} \
+        --part \${PART} \
         --read_rr_graph \${OUT_RRXML_VIRT} \
         --write_rr_graph \${OUT_RRXML_REAL} \
         --write_rr_node_map \${OUT_RRXML_REAL}.node_map.pickle
@@ -104,6 +107,7 @@ function(ADD_XC7_ARCH_DEFINE)
         --eblif \${OUT_EBLIF} \
         --top \${TOP} \
         \${OUT_BIT_VERILOG} \${OUT_BIT_VERILOG}.tcl"
+
     NO_BIT_TIME
     USE_FASM
     RR_GRAPH_EXT ".xml"

@@ -2143,7 +2143,7 @@ def get_ccio_sites(grid):
 
 
 def create_edges(args):
-    db = prjxray.db.Database(args.db_root)
+    db = prjxray.db.Database(args.db_root, args.part)
     grid = db.grid()
 
     with DatabaseCache(args.connection_database) as conn:

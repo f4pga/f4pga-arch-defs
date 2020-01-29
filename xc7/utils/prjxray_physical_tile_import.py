@@ -18,7 +18,6 @@ import argparse
 import os
 import sys
 import copy
-import prjxray.db
 import os.path
 import simplejson as json
 import prjxray_tile_import as tile_import
@@ -147,20 +146,8 @@ def import_physical_tile(args):
 
 def main():
     mydir = os.path.dirname(__file__)
-    prjxray_db = os.path.abspath(
-        os.path.join(mydir, "..", "..", "third_party", "prjxray-db")
-    )
-
-    db_types = prjxray.db.get_available_databases(prjxray_db)
-
     parser = argparse.ArgumentParser(
         description=__doc__, fromfile_prefix_chars='@', prefix_chars='-~'
-    )
-
-    parser.add_argument(
-        '--part',
-        choices=[os.path.basename(db_type) for db_type in db_types],
-        help="""Project X-Ray database to use."""
     )
 
     parser.add_argument('--tile', help="""Tile to generate for""")

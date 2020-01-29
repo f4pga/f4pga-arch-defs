@@ -4,32 +4,21 @@ Generates a dummy pb_type model for a site type.
 """
 
 import argparse
-import os
 import prjxray.db
 import prjxray.site_type
-import os.path
 import sys
 
 import lxml.etree as ET
 
 
 def main():
-    mydir = os.path.dirname(__file__)
-    prjxray_db = os.path.abspath(
-        os.path.join(mydir, "..", "..", "third_party", "prjxray-db")
-    )
-
-    db_types = prjxray.db.get_available_databases(prjxray_db)
-
     parser = argparse.ArgumentParser(
         description=__doc__, fromfile_prefix_chars='@', prefix_chars='-~'
     )
 
-    parser.add_argument(
-        '--part',
-        choices=[os.path.basename(db_type) for db_type in db_types],
-        help="""Project X-Ray database to use."""
-    )
+    parser.add_argument('--db_root', help="""Project X-Ray database to use.""")
+
+    parser.add_argument('--part', help="""FPGA part to use.""")
 
     parser.add_argument('--site_type', help="""Site type to generate for""")
 
@@ -51,7 +40,7 @@ def main():
 
     args = parser.parse_args()
 
-    db = prjxray.db.Database(os.path.join(prjxray_db, args.part))
+    db = prjxray.db.Database(args.db_root, args.part)
 
     site_type = db.get_site_type(args.site_type.upper())
 

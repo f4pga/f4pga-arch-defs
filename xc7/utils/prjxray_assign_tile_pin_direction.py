@@ -437,6 +437,7 @@ def main():
     parser.add_argument(
         '--db_root', help='Project X-Ray Database', required=True
     )
+    parser.add_argument('--part', help='FPGA part', required=True)
     parser.add_argument(
         '--connection_database',
         help='Database of fabric connectivity',
@@ -451,7 +452,7 @@ def main():
 
     args = parser.parse_args()
 
-    db = prjxray.db.Database(args.db_root)
+    db = prjxray.db.Database(args.db_root, args.part)
 
     edge_assignments = {}
 
