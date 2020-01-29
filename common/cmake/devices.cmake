@@ -72,7 +72,8 @@ function(DEFINE_ARCH)
   # * RR_PATCH_TOOL - Value of RR_PATCH_TOOL property of <arch>.
   # * DEVICE - What device is being patch (see DEFINE_DEVICE).
   # * OUT_RRXML_VIRT - Input virtual rr_graph file for device.
-  # * OUT_RRXML_REAL - Out real rr_graph file for device.
+  # * OUT_RRXML_REAL - Output real XML rr_graph file for device.
+  # * OUT_RRBIN_REAL - Output real BIN rr_graph file for device.
   #
   # PLACE_TOOL_CMD variables:
   #
@@ -509,6 +510,8 @@ function(DEFINE_DEVICE)
       rr_graph_${DEVICE}_${PACKAGE}.rr_graph.virt${RR_GRAPH_EXT})
     set(OUT_RRXML_REAL_FILENAME
       rr_graph_${DEVICE}_${PACKAGE}.rr_graph.real${RR_GRAPH_EXT})
+    set(OUT_RRBIN_REAL_FILENAME
+      rr_graph_${DEVICE}_${PACKAGE}.rr_graph.real.bin)
     set(LOOKAHEAD_FILENAME
       rr_graph_${DEVICE}_${PACKAGE}.lookahead.bin)
     set(PLACE_DELAY_FILENAME
@@ -516,6 +519,7 @@ function(DEFINE_DEVICE)
     set(OUT_RRXML_REAL_LINT_FILENAME rr_graph_${DEVICE}_${PACKAGE}.rr_graph.real.lint.html)
     set(OUT_RRXML_VIRT ${CMAKE_CURRENT_BINARY_DIR}/${OUT_RRXML_VIRT_FILENAME})
     set(OUT_RRXML_REAL ${CMAKE_CURRENT_BINARY_DIR}/${OUT_RRXML_REAL_FILENAME})
+    set(OUT_RRBIN_REAL ${CMAKE_CURRENT_BINARY_DIR}/${OUT_RRBIN_REAL_FILENAME})
     set(OUT_RRXML_REAL_LINT ${CMAKE_CURRENT_BINARY_DIR}/${OUT_RRXML_REAL_LINT_FILENAME})
 
     #
@@ -604,64 +608,75 @@ function(DEFINE_DEVICE)
         )
     endif()
 
+    # Generate lookahead and place delay lookup caches
+    set(DEPS)
+    append_file_dependency(DEPS ${OUT_RRXML_REAL_FILENAME})
+    append_file_dependency(DEPS ${VIRT_DEVICE_MERGED_FILE})
+
+    set(OUTPUTS ${OUT_RRBIN_REAL_FILENAME})
+    set(ARGS)
+    list(APPEND OUTPUTS ${LOOKAHEAD_FILENAME})
+    if(${DEFINE_DEVICE_CACHE_LOOKAHEAD})
+        list(APPEND OUTPUTS ${LOOKAHEAD_FILENAME})
+        list(APPEND ARGS --write_router_lookahead ${LOOKAHEAD_FILENAME})
+    endif()
+    if(${DEFINE_DEVICE_CACHE_PLACE_DELAY})
+        list(APPEND OUTPUTS ${PLACE_DELAY_FILENAME})
+        list(APPEND ARGS --write_placement_delay_lookup ${PLACE_DELAY_FILENAME})
+    endif()
+
+    add_custom_command(
+      OUTPUT ${OUT_RRXML_REAL}.cache ${OUTPUTS}
+      DEPENDS
+          ${symbiflow-arch-defs_SOURCE_DIR}/common/wire.eblif
+          ${VPR} ${VPR_TARGET}
+          ${QUIET_CMD} ${QUIET_CMD_TARGET}
+          ${DEFINE_DEVICE_DEVICE_TYPE}
+          ${DEPS} ${PYTHON3} ${PYTHON3_TARGET}
+      COMMAND
+          ${PYTHON3} ${symbiflow-arch-defs_SOURCE_DIR}/utils/check_cache.py ${OUT_RRXML_REAL} ${OUT_RRXML_REAL}.cache ${OUTPUTS} || (
+          ${QUIET_CMD} ${VPR} ${DEVICE_MERGED_FILE}
+          --device ${DEVICE_FULL}
+          ${symbiflow-arch-defs_SOURCE_DIR}/common/wire.eblif
+          --read_rr_graph ${OUT_RRXML_REAL}
+          --write_rr_graph ${OUT_RRBIN_REAL}
+          --read_edge_metadata on
+          --outfile_prefix ${DEVICE}_${PACKAGE}_cache
+          --pack
+          --place
+          ${ARGS}
+          ${DEFINE_DEVICE_CACHE_ARGS} &&
+          ${PYTHON3} ${symbiflow-arch-defs_SOURCE_DIR}/utils/update_cache.py ${OUT_RRXML_REAL} ${OUT_RRXML_REAL}.cache)
+      COMMAND
+          ${CMAKE_COMMAND} -E copy vpr_stdout.log
+            rr_graph_${DEVICE}_${PACKAGE}.cache.out
+      WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
+    )
+
+    add_file_target(FILE ${OUT_RRBIN_REAL_FILENAME} GENERATED)
+
+    set_target_properties(
+      ${DEFINE_DEVICE_DEVICE}
+      PROPERTIES
+        ${PACKAGE}_OUT_RRBIN_REAL ${CMAKE_CURRENT_SOURCE_DIR}/${OUT_RRBIN_REAL_FILENAME}
+    )
+
+    if(${DEFINE_DEVICE_CACHE_LOOKAHEAD})
+      add_file_target(FILE ${LOOKAHEAD_FILENAME} GENERATED)
+    endif()
+    if(${DEFINE_DEVICE_CACHE_PLACE_DELAY})
+      add_file_target(FILE ${PLACE_DELAY_FILENAME} GENERATED)
+
+      if(${DEFINE_DEVICE_CACHE_LOOKAHEAD})
+          get_file_target(LOOKAHEAD_TARGET ${LOOKAHEAD_FILENAME})
+          get_file_target(PLACE_DELAY_TARGET ${PLACE_DELAY_FILENAME})
+
+          # Linearize target dependency.
+          add_dependencies(${PLACE_DELAY_TARGET} ${LOOKAHEAD_TARGET})
+      endif()
+    endif()
+
     if(${DEFINE_DEVICE_CACHE_LOOKAHEAD} OR ${DEFINE_DEVICE_CACHE_PLACE_DELAY})
-      # Generate lookahead and place delay lookup caches
-      set(DEPS)
-      append_file_dependency(DEPS ${OUT_RRXML_REAL_FILENAME})
-      append_file_dependency(DEPS ${VIRT_DEVICE_MERGED_FILE})
-
-      set(OUTPUTS)
-      set(ARGS)
-      if(${DEFINE_DEVICE_CACHE_LOOKAHEAD})
-          list(APPEND OUTPUTS ${LOOKAHEAD_FILENAME})
-          list(APPEND ARGS --write_router_lookahead ${LOOKAHEAD_FILENAME})
-      endif()
-      if(${DEFINE_DEVICE_CACHE_PLACE_DELAY})
-          list(APPEND OUTPUTS ${PLACE_DELAY_FILENAME})
-          list(APPEND ARGS --write_placement_delay_lookup ${PLACE_DELAY_FILENAME})
-      endif()
-
-      add_custom_command(
-        OUTPUT ${OUT_RRXML_REAL}.cache ${OUTPUTS}
-        DEPENDS
-            ${symbiflow-arch-defs_SOURCE_DIR}/common/wire.eblif
-            ${VPR} ${VPR_TARGET}
-            ${QUIET_CMD} ${QUIET_CMD_TARGET}
-            ${DEFINE_DEVICE_DEVICE_TYPE}
-            ${DEPS} ${PYTHON3} ${PYTHON3_TARGET}
-        COMMAND
-            ${PYTHON3} ${symbiflow-arch-defs_SOURCE_DIR}/utils/check_cache.py ${OUT_RRXML_REAL} ${OUT_RRXML_REAL}.cache ${OUTPUTS} || (
-            ${QUIET_CMD} ${VPR} ${DEVICE_MERGED_FILE}
-            --device ${DEVICE_FULL}
-            ${symbiflow-arch-defs_SOURCE_DIR}/common/wire.eblif
-            --read_rr_graph ${OUT_RRXML_REAL}
-            --outfile_prefix ${DEVICE}_${PACKAGE}_cache
-            --pack
-            --place
-            ${ARGS}
-            ${DEFINE_DEVICE_CACHE_ARGS} &&
-            ${PYTHON3} ${symbiflow-arch-defs_SOURCE_DIR}/utils/update_cache.py ${OUT_RRXML_REAL} ${OUT_RRXML_REAL}.cache)
-        COMMAND
-            ${CMAKE_COMMAND} -E copy vpr_stdout.log
-              rr_graph_${DEVICE}_${PACKAGE}.cache.out
-        WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
-      )
-
-      if(${DEFINE_DEVICE_CACHE_LOOKAHEAD})
-        add_file_target(FILE ${LOOKAHEAD_FILENAME} GENERATED)
-      endif()
-      if(${DEFINE_DEVICE_CACHE_PLACE_DELAY})
-        add_file_target(FILE ${PLACE_DELAY_FILENAME} GENERATED)
-
-        if(${DEFINE_DEVICE_CACHE_LOOKAHEAD})
-            get_file_target(LOOKAHEAD_TARGET ${LOOKAHEAD_FILENAME})
-            get_file_target(PLACE_DELAY_TARGET ${PLACE_DELAY_FILENAME})
-
-            # Linearize target dependency.
-            add_dependencies(${PLACE_DELAY_TARGET} ${LOOKAHEAD_TARGET})
-        endif()
-      endif()
-
       set_target_properties(
         ${DEFINE_DEVICE_DEVICE}
         PROPERTIES
@@ -943,6 +958,9 @@ function(ADD_FPGA_TARGET)
     OUT_RRXML_REAL ${DEVICE} ${PACKAGE}_OUT_RRXML_REAL
   )
   get_target_property_required(
+    OUT_RRBIN_REAL ${DEVICE} ${PACKAGE}_OUT_RRBIN_REAL
+  )
+  get_target_property_required(
     OUT_RRXML_VIRT ${DEVICE} OUT_RRXML_VIRT
   )
 
@@ -1099,9 +1117,10 @@ function(ADD_FPGA_TARGET)
 
   get_file_location(OUT_RRXML_VIRT_LOCATION ${OUT_RRXML_VIRT})
   get_file_location(OUT_RRXML_REAL_LOCATION ${OUT_RRXML_REAL})
+  get_file_location(OUT_RRBIN_REAL_LOCATION ${OUT_RRBIN_REAL})
   get_file_location(DEVICE_MERGED_FILE_LOCATION ${DEVICE_MERGED_FILE})
 
-  foreach(SRC ${DEVICE_MERGED_FILE} ${OUT_RRXML_REAL})
+  foreach(SRC ${DEVICE_MERGED_FILE} ${OUT_RRBIN_REAL})
     append_file_dependency(VPR_DEPS ${SRC})
   endforeach()
 
@@ -1144,7 +1163,7 @@ function(ADD_FPGA_TARGET)
     ${DEVICE_MERGED_FILE_LOCATION}
     ${OUT_EBLIF}
     --device ${DEVICE_FULL}
-    --read_rr_graph ${OUT_RRXML_REAL_LOCATION}
+    --read_rr_graph ${OUT_RRBIN_REAL_LOCATION}
     ${VPR_BASE_ARGS_LIST}
     ${VPR_ARCH_ARGS_LIST}
     ${VPR_EXTRA_ARGS_LIST}
@@ -1371,7 +1390,7 @@ function(ADD_FPGA_TARGET)
       ${DEVICE_MERGED_FILE_LOCATION}
       ${OUT_EBLIF}
       --device ${DEVICE_FULL}
-      --read_rr_graph ${OUT_RRXML_REAL_LOCATION}
+      --read_rr_graph ${OUT_RRBIN_REAL_LOCATION}
       ${VPR_BASE_ARGS_LIST}
       ${VPR_ARCH_ARGS_LIST}
       ${VPR_EXTRA_ARGS_LIST}
@@ -1385,7 +1404,7 @@ function(ADD_FPGA_TARGET)
       ${DEVICE_MERGED_FILE_LOCATION}
       ${OUT_EBLIF}
       --device ${DEVICE_FULL}
-      --read_rr_graph ${OUT_RRXML_REAL_LOCATION}
+      --read_rr_graph ${OUT_RRBIN_REAL_LOCATION}
       ${VPR_BASE_ARGS_LIST}
       ${VPR_ARCH_ARGS_LIST}
       ${VPR_EXTRA_ARGS_LIST}
