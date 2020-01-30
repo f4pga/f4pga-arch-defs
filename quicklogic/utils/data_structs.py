@@ -49,6 +49,11 @@ FPGA grid quadrant.
 """
 Quadrant = namedtuple("Quadrant", "name x0 y0 x1 y1")
 
+"""
+Forwads and backward location mapping
+"""
+LocMap = namedtuple("LocMap", "fwd bwd")
+
 # =============================================================================
 
 """

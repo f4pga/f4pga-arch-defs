@@ -230,6 +230,7 @@ def build_connections(tile_types, tile_grid, switchbox_types, switchbox_grid):
 
     # Local connections
     connections += build_local_connections(tile_types, tile_grid, switchbox_types, switchbox_grid)
+
     # HOP connections
     connections += build_hop_connections(tile_types, tile_grid, switchbox_types, switchbox_grid)
 
