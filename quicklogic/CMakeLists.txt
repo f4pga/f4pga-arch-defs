@@ -22,17 +22,21 @@ define_arch(
   VPR_ARCH_ARGS " \
     --router_init_wirelength_abort_threshold 20 \
     --place_algorithm bounding_box"
-#  RR_PATCH_TOOL
-#    ${CMAKE_CURRENT_SOURCE_DIR}/utils/testarch_graph.py
-#  RR_PATCH_CMD "\${CMAKE_COMMAND} -E env PYTHONPATH=${symbiflow-arch-defs_SOURCE_DIR}/utils
-#   \${PYTHON3} \${RR_PATCH_TOOL} \
-#  --read_rr_graph \${OUT_RRXML_VIRT} \
-#  --write_rr_graph \${OUT_RRXML_REAL}"
 
-  # FIXME: Skip patching the graph for now
+#  # FIXME: Skip patching the graph for now
+#  RR_PATCH_TOOL
+#    /bin/true
+#  RR_PATCH_CMD "cp \${OUT_RRXML_VIRT} \${OUT_RRXML_REAL}"
+  
   RR_PATCH_TOOL
-    /bin/true
-  RR_PATCH_CMD "cp \${OUT_RRXML_VIRT} \${OUT_RRXML_REAL}"
+    ${CMAKE_CURRENT_SOURCE_DIR}/utils/routing_import.py
+
+  # FIXME: How to make that depend on db_vpr.pickle ??
+  RR_PATCH_CMD "\${CMAKE_COMMAND} -E env PYTHONPATH=${symbiflow-arch-defs_SOURCE_DIR}/utils
+    \${PYTHON3} \${RR_PATCH_TOOL} \
+   --vpr-db ${CMAKE_CURRENT_BINARY_DIR}/\${DEVICE}/db_vpr.pickle \
+   --rr-graph-in \${OUT_RRXML_VIRT} \
+   --rr-graph-out \${OUT_RRXML_REAL}"
 
   NO_PINS
   NO_BITSTREAM
