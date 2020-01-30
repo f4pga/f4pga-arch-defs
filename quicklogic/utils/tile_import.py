@@ -186,12 +186,23 @@ def make_top_level_tile(tile_type):
         "top":    []
     }
 
-    # FIXME: Make all of them go bottom right now. In the end we should use
-    # pin location (side) assignment per tile type.
-    for pin, count in all_pins.items():
+#    # FIXME: Make all of them go bottom right now. In the end we should use
+#    # pin location (side) assignment per tile type.
+#    for pin, count in all_pins.items():
+#        for i in range(count):
+#            pin_name = pin if count == 1 else "{}[{}]".format(pin, i)
+#            pins_by_loc["bottom"].append(pin_name)
+
+    # Make input pins go towards top and output pins go towards right.
+    for pin, count in itertools.chain(pinlists["clock"].items(), pinlists["input"].items()):
         for i in range(count):
             pin_name = pin if count == 1 else "{}[{}]".format(pin, i)
-            pins_by_loc["bottom"].append(pin_name)
+            pins_by_loc["top"].append(pin_name)
+
+    for pin, count in pinlists["output"].items():
+        for i in range(count):
+            pin_name = pin if count == 1 else "{}[{}]".format(pin, i)
+            pins_by_loc["right"].append(pin_name)
 
     # Dump pin locations
     xml_pinloc = ET.SubElement(xml_tile, "pinlocations", {"pattern": "custom"})
