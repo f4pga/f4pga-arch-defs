@@ -13,7 +13,7 @@ VPR_HAS_C_INTERNAL_SUPPORT = True
 # 0 - debugging off,
 # 1 - indent output XML,
 # 2 - write only one element of each kind.
-DEBUG = 0
+DEBUG = 1
 
 
 def enum_from_string(enum_type, s):
