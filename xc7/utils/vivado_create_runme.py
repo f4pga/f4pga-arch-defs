@@ -1,4 +1,4 @@
-""" Utility for generating TCL script to generate bitstream, project and 
+""" Utility for generating TCL script to generate bitstream, project and
 checkpoint from fasm2v output.
 """
 import argparse
@@ -49,6 +49,12 @@ set_property IS_ENABLED 0 [get_drc_checks {{LUTLP-1}}]
 
 place_design
 route_design
+
+report_utilization -file design_{name}_utilization.rpt
+report_clock_utilization -file design_{name}_clock_utilization.rpt
+report_timing_summary -datasheet -max_paths 10 -file design_{name}_timing_summary.rpt
+report_power -file design_{name}_power.rpt
+report_route_status -file design_{name}_route_status.rpt
 
 write_checkpoint -force design_{name}.dcp
 write_bitstream -force design_{name}.bit
