@@ -81,7 +81,7 @@ def initialize_arch(xml_arch):
     ET.SubElement(xml, "y", {"distr": "uniform", "peak": "1.0"})
 
     ET.SubElement(xml_device, "connection_block", {
-        "input_switch_name": "mux"
+        "input_switch_name": "generic"
     })
 
     ET.SubElement(xml_device, "switch_block", {
@@ -111,7 +111,7 @@ def initialize_arch(xml_arch):
 
     ET.SubElement(xml_switchlist, "switch", {
         "type": "mux",
-        "name": "mux",
+        "name": "generic",
         "R": "0",
         "Cin": "0",
         "Cout": "0",
@@ -136,14 +136,19 @@ def initialize_arch(xml_arch):
             "Cmetal": "22e-15",
         })
 
-        ET.SubElement(xml_seg, "mux", {"name": "mux"})
+        ET.SubElement(xml_seg, "mux", {"name": "generic"})
 
         e = ET.SubElement(xml_seg, "sb", {"type": "pattern"})
         e.text = " ".join(["1" for i in range(length+1)])
         e = ET.SubElement(xml_seg, "cb", {"type": "pattern"})
         e.text = " ".join(["1" for i in range(length)])
 
-    add_segment("dummy", 2)
+    add_segment("generic", 1)
+    add_segment("sb_node", 1)
+    add_segment("sb_dummy", 1)
+    add_segment("hop1", 1)
+    add_segment("hop2", 2)
+    add_segment("hop4", 4)
 
 
 def write_tiles(xml_arch, tile_types, nsmap):
