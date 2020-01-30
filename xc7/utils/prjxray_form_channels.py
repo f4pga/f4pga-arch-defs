@@ -199,7 +199,7 @@ VALUES
                 drive_resistance = pip_timing.drive_resistance / 1e3
 
         if "GCLK" in pip.net_from and "GFAN" in pip.net_to:
-            penalty_cost = 1e-7
+            penalty_cost = 1e-6
 
         return get_switch_timing(
             pip.is_pass_transistor, delay, internal_capacitance,
