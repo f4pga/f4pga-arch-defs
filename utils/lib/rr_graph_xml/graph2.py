@@ -40,7 +40,9 @@ def iterate_xml(xml_file):
     root.clear()
 
 
-def graph_from_xml(input_file_name, progressbar=None, filter_nodes=True):
+def graph_from_xml(
+        input_file_name, progressbar=None, filter_nodes=True, load_edges=False
+):
     """
     Loads relevant information about the routing resource graph from an XML
     file.
@@ -55,6 +57,7 @@ def graph_from_xml(input_file_name, progressbar=None, filter_nodes=True):
     block_types = []
     grid = []
     nodes = []
+    edges = []
 
     # Itertate over XML elements
     switch_timing = None
@@ -64,6 +67,7 @@ def graph_from_xml(input_file_name, progressbar=None, filter_nodes=True):
     pin_classes = []
     node_loc = None
     node_timing = None
+    node_segment = None
 
     for path, element in progressbar(iterate_xml(input_file_name)):
 
@@ -198,6 +202,10 @@ def graph_from_xml(input_file_name, progressbar=None, filter_nodes=True):
                 c=float(element.attrib['C']),
             )
 
+        # Node - segment
+        if path == "rr_graph/rr_nodes/node" and element.tag == "segment":
+            node_segment = int(element.attrib['segment_id'])
+
         # Node
         if path == "rr_graph/rr_nodes" and element.tag == "node":
             node_type = enum_from_string(
@@ -222,7 +230,7 @@ def graph_from_xml(input_file_name, progressbar=None, filter_nodes=True):
                     loc=node_loc,
                     timing=node_timing,
                     metadata=metadata,
-                    segment=None,
+                    segment=node_segment,
                     canonical_loc=None,
                     connection_box=None,
                 )
@@ -230,6 +238,19 @@ def graph_from_xml(input_file_name, progressbar=None, filter_nodes=True):
 
             node_loc = None
             node_timing = None
+            node_segment = None
+
+        # Edge
+        if path == "rr_graph/rr_edges" and element.tag == "edge":
+            if load_edges:
+                edges.append(
+                    graph2.Edge(
+                        src_node=int(element.attrib['src_node']),
+                        sink_node=int(element.attrib['sink_node']),
+                        switch_id=int(element.attrib['switch_id']),
+                        metadata=None  # FIXME: Add reading edge metadata
+                    )
+                )
 
     return dict(
         root_attrib=root_attrib,
@@ -237,7 +258,8 @@ def graph_from_xml(input_file_name, progressbar=None, filter_nodes=True):
         segments=segments,
         block_types=block_types,
         grid=grid,
-        nodes=nodes
+        nodes=nodes,
+        edges=edges
     )
 
 
