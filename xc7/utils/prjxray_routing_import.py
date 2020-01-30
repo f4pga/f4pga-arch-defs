@@ -1261,13 +1261,14 @@ def main():
         populate_bufg_rebuf_map(conn)
 
         cur = conn.cursor()
-        for name, internal_capacitance, drive_resistance, intrinsic_delay, \
+        for name, internal_capacitance, drive_resistance, intrinsic_delay, penalty_cost, \
                 switch_type in cur.execute("""
 SELECT
     name,
     internal_capacitance,
     drive_resistance,
     intrinsic_delay,
+    penalty_cost,
     switch_type
 FROM
     switch;"""):
@@ -1293,6 +1294,7 @@ FROM
                             c_out=0.0,
                             c_internal=internal_capacitance,
                             t_del=intrinsic_delay,
+                            p_cost=penalty_cost,
                         ),
                         sizing=graph2.SwitchSizing(
                             mux_trans_size=0,
