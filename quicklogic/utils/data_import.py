@@ -370,6 +370,9 @@ def parse_switchbox(xml_sbox, xml_common = None):
                 direction=PinDirection.OUTPUT
                 ))
 
+            # Add the output to the mux
+            switch.mux[out_pin_id] = []
+
             # Add as top level output
             if out_pin_name is not None and out_pin_name not in ["-1"]:
                 switchbox.pins.add(SwitchboxPin(
@@ -385,6 +388,8 @@ def parse_switchbox(xml_sbox, xml_common = None):
                 inp_pin_dir  = xml_input.get("Direction", None)
 
                 inp_pin_id  = int(xml_input.tag.replace("Input", ""))
+
+                # TODO: Will fail if there is more than 10 inputs
                 assert inp_pin_id < 10, inp_pin_id
                 inp_pin_id += out_pin_id * 10
 
@@ -394,6 +399,9 @@ def parse_switchbox(xml_sbox, xml_common = None):
                     name=inp_pin_name,
                     direction=PinDirection.INPUT
                     ))
+
+                # Add to the mux
+                switch.mux[out_pin_id].append(inp_pin_id)
 
                 # Add as top level input
                 if inp_pin_name is not None:

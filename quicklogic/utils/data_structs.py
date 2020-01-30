@@ -136,6 +136,7 @@ class Switchbox(object):
             self.id    = id
             self.stage = stage
             self.pins  = []
+            self.mux   = {}
 
     class Stage(object):
         """
