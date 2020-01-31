@@ -379,7 +379,7 @@ def parse_switchbox(xml_sbox, xml_common = None):
                     direction=PinDirection.OUTPUT,
                     id=out_num,
                     name=out_pin_name,
-                    is_local= (stage_type == "STREET"),
+                    is_local=(stage_type == "STREET")
                 ))
 
             # Process inputs
@@ -409,7 +409,7 @@ def parse_switchbox(xml_sbox, xml_common = None):
                         direction=PinDirection.INPUT,
                         id=-1,
                         name=inp_pin_name,
-                        is_local= (inp_pin_dir == "FEEDBACK"),
+                        is_local=(inp_pin_dir == "FEEDBACK")
                         ))
 
                 # Add internal connection
@@ -431,7 +431,7 @@ def parse_switchbox(xml_sbox, xml_common = None):
                     switchbox.connections.add(conn)
 
         # Add switches to the stage
-        stage.switches = list(switches.values())
+        stage.switches = switches
 
     return switchbox
 

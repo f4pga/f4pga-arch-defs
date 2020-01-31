@@ -105,14 +105,32 @@ Tile = namedtuple("Tile", "type name")
 
 # =============================================================================
 
+"""
+A top-level switchbox pin.
 
-# A switchbox pin
+id          - Pin id.
+name        - Pin name.
+is_local    - True when the pin connects to/from the tile of the switchbox.
+direction   - Pin direction.
+"""
 SwitchboxPin = namedtuple("SwitchboxPin", "id name is_local direction")
 
-# A switch pin within a switchbox
+"""
+A switch pin within a switchbox
+
+id          - Pin id.
+name        - Pin name. Only for top-level pins. For others is None.
+direction   - Pin direction.
+"""
 SwitchPin = namedtuple("SwitchPin", "id name direction")
 
-# A connection within a switchbox
+"""
+A connection within a switchbox
+
+*_stage     - Endpoint stage id.
+*_switch    - Endpoint switch id within the stage.
+*_pin       - Endpoint switch pin id.
+"""
 SwitchConnection = namedtuple("SwitchConnection", 
     "src_stage src_switch src_pin dst_stage dst_switch dst_pin")
 
@@ -146,7 +164,7 @@ class Switchbox(object):
         def __init__(self, id, type=None):
             self.id       = id
             self.type     = type
-            self.switches = []
+            self.switches = {}
 
     def __init__(self, type):
         self.type   = type
