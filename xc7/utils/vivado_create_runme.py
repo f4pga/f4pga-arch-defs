@@ -11,7 +11,6 @@ create_project -force -part {part} design design
 
 read_verilog {bit_v}
 synth_design -top {top}
-write_checkpoint -force design_{name}_pre_route.dcp
 source {bit_tcl}
 """.format(
             name=args.name,
@@ -46,6 +45,8 @@ set_property CFGBVS VCCO [current_design]
 set_property CONFIG_VOLTAGE 3.3 [current_design]
 set_property BITSTREAM.GENERAL.PERFRAMECRC YES [current_design]
 set_property IS_ENABLED 0 [get_drc_checks {{LUTLP-1}}]
+
+write_checkpoint -force design_{name}_pre_route.dcp
 
 place_design
 route_design
