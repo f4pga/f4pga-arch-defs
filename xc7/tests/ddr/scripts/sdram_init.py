@@ -16,18 +16,23 @@ init_sequence = [
     ("Release reset", 0, 0, dfii_control_odt | dfii_control_reset_n, 50000),
     (
         "Bring CKE high", 0, 0,
-        dfii_control_cke | dfii_control_odt | dfii_control_reset_n, 10000),
+        dfii_control_cke | dfii_control_odt | dfii_control_reset_n, 10000
+    ),
     (
         "Load Mode Register 2, CWL=5", 512, 2, dfii_command_ras
-        | dfii_command_cas | dfii_command_we | dfii_command_cs, 0),
+        | dfii_command_cas | dfii_command_we | dfii_command_cs, 0
+    ),
     (
         "Load Mode Register 3", 0, 3, dfii_command_ras | dfii_command_cas
-        | dfii_command_we | dfii_command_cs, 0),
+        | dfii_command_we | dfii_command_cs, 0
+    ),
     (
         "Load Mode Register 1", 6, 1, dfii_command_ras | dfii_command_cas
-        | dfii_command_we | dfii_command_cs, 0),
+        | dfii_command_we | dfii_command_cs, 0
+    ),
     (
         "Load Mode Register 0, CL=6, BL=8", 2336, 0, dfii_command_ras
-        | dfii_command_cas | dfii_command_we | dfii_command_cs, 200),
+        | dfii_command_cas | dfii_command_we | dfii_command_cs, 200
+    ),
     ("ZQ Calibration", 1024, 0, dfii_command_we | dfii_command_cs, 200),
 ]
