@@ -59,7 +59,8 @@ class BaseSoC(SoCSDRAM):
             ident_version=True,
             cpu_type=None,
             l2_size=16,
-            uart_name="bridge")
+            uart_name="bridge"
+        )
 
         # CRG --------------------------------------------------------------------------------------
         self.submodules.crg = _CRG(platform, sys_clk_freq)
@@ -70,20 +71,24 @@ class BaseSoC(SoCSDRAM):
                 platform.request("ddram"),
                 memtype="DDR3",
                 nphases=4,
-                sys_clk_freq=sys_clk_freq)
+                sys_clk_freq=sys_clk_freq
+            )
             self.add_csr("ddrphy")
             sdram_module = MT41K128M16(sys_clk_freq, "1:4")
             self.register_sdram(
                 self.ddrphy,
                 geom_settings=sdram_module.geom_settings,
-                timing_settings=sdram_module.timing_settings)
+                timing_settings=sdram_module.timing_settings
+            )
 
     def generate_sdram_phy_py_header(self):
         f = open("sdram_init.py", "w")
         f.write(
             get_sdram_phy_py_header(
                 self.sdram.controller.settings.phy,
-                self.sdram.controller.settings.timing))
+                self.sdram.controller.settings.timing
+            )
+        )
         f.close()
 
 
@@ -100,7 +105,8 @@ def load():
 
 def main():
     parser = argparse.ArgumentParser(
-        description="Minimal Arty DDR3 Design for tests with Project X-Ray")
+        description="Minimal Arty DDR3 Design for tests with Project X-Ray"
+    )
     parser.add_argument("--build", action="store_true", help="Build bitstream")
     parser.add_argument("--load", action="store_true", help="Load bitstream")
     args = parser.parse_args()

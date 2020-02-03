@@ -61,13 +61,17 @@ def check_pattern(length, debug=False):
                 print(
                     "{}: 0x{:08x}, 0x{:08x} KO".format(
                         i, wb.read(wb.mems.main_ram.base + 4 * i),
-                        seed_to_data(i)))
+                        seed_to_data(i)
+                    )
+                )
         else:
             if debug:
                 print(
                     "{}: 0x{:08x}, 0x{:08x} OK".format(
                         i, wb.read(wb.mems.main_ram.base + 4 * i),
-                        seed_to_data(i)))
+                        seed_to_data(i)
+                    )
+                )
         errors += error
     return errors
 
