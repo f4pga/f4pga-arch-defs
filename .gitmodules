@@ -22,3 +22,15 @@
 [submodule "third_party/vtr-xml-utils"]
 	path = third_party/vtr-xml-utils
 	url = https://github.com/SymbiFlow/vtr-xml-utils.git
+[submodule "third_party/python-symbiflow-v2x"]
+	path = third_party/python-symbiflow-v2x
+	url = ../python-symbiflow-v2x.git
+[submodule "third_party/quicklogic-fasm-utils"]
+	path = quicklogic/utils/fasm-utils
+	url = ../quicklogic-fasm-utils.git
+[submodule "third_party/quicklogic-quicklogic-fasm"]
+	path = quicklogic/utils/quicklogic-fasm
+	url = ../quicklogic-quicklogic-fasm.git
+[submodule "third_party/ql-eos-s3"]
+	path = third_party/ql-eos-s3
+	url = https://github.com/QuickLogic-Corp/EOS-S3
