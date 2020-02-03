@@ -27,7 +27,7 @@ def switchbox_to_dot(switchbox, stage_types=("STREET", "HIGHWAY")):
         if stage.type not in stage_types:
             continue
 
-        for switch in stage.switches:
+        for switch in stage.switches.values():
             inputs  = [p for p in switch.pins if p.direction == PinDirection.INPUT]
             outputs = [p for p in switch.pins if p.direction == PinDirection.OUTPUT]
 
@@ -91,10 +91,10 @@ def main():
 
     # Load data
     data = import_data(xml_root)
-    tilegrid, cells_library, switchboxes, = data
+    switchbox_types = data[3]    
 
     # Generate DOT files with switchbox visualizations
-    for switchbox in switchboxes:
+    for switchbox in switchbox_types.values():
         fname = "sbox_{}.dot".format(switchbox.type)
         with open(fname, "w") as fp:
             fp.write(switchbox_to_dot(switchbox, args.stages.split(",")))
