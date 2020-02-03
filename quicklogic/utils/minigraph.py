@@ -12,7 +12,7 @@ A graph node
 
 id          - Node id.
 is_locked   - If True then the node cannot be pruned
-metadata    - List of arbitrary metadata items.
+metadata    - Arbitrary metadata object.
 """
 Node = namedtuple("Node", "id is_locked metadata")
 
@@ -46,20 +46,31 @@ class MiniGraph(object):
         self.next_edge_id = 0
 
 
-    def add_node(self, metadata=(), is_locked=True):
+    def add_node(self, metadata=None, is_locked=True):
         """
         Adds a node to the graph. Returns its id.
         """
         node = Node(
             id = self.next_node_id,
             is_locked = is_locked,
-            metadata  = list(metadata),
+            metadata  = metadata,
         )
 
         self.nodes[node.id] = node
         self.next_node_id += 1
         return node.id
 
+    def set_node_metadata(self, node_id, metadata):
+        """
+        Sets metadata for the given node.
+        """
+        old_node = self.nodes[node_id]
+        new_node = Node(
+            id = old_node.id,
+            is_locked = old_node.is_locked,
+            metadata = metadata,
+            )
+        self.nodes[node_id] = new_node
 
     def add_edge(self, src_node, dst_node, metadata=()):
         """
