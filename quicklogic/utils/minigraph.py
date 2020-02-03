@@ -60,6 +60,24 @@ class MiniGraph(object):
         self.next_node_id += 1
         return node.id
 
+    def remove_node(self, node_id):
+        """
+        Removes the node from the graph and all edges mentioning it.
+        """
+        assert node_id in self.nodes, node_id
+
+        # Build a list of edges to remove
+        edges_to_prune = set()
+        for edge in self.edges.values():
+            if edge.src_node == node_id or edge.dst_node == node_id:
+                edges_to_prune.add(edge.id)
+
+        # Remove node
+        del self.nodes[node_id]
+        # Remove edges
+        for edge_id in edges_to_prune:
+            del self.edges[edge_id]
+
     def set_node_metadata(self, node_id, metadata):
         """
         Sets metadata for the given node.
@@ -149,6 +167,29 @@ class MiniGraph(object):
             for edge in edges_to_prune:
                 del self.edges[edge]
 
+    def prune_leafs(self):
+        """
+        Removes leaf nodes that are not locked.
+        """
+
+        # Count inputs and outpus of each node
+        inp_count = defaultdict(lambda: 0)
+        out_count = defaultdict(lambda: 0)
+
+        for edge in self.edges.values():
+            inp_count[edge.dst_node] += 1
+            out_count[edge.src_node] += 1
+
+        # Identify candidates to prune
+        candidates = set()
+        for node in self.nodes.values():
+            if not node.is_locked:
+                if inp_count[node.id] == 0 or out_count[node.id] == 0:
+                    candidates.add(node.id)
+
+        # Remove nodes
+        for node_id in candidates:
+            self.remove_node(node_id)
 
     def dump_dot(self):
         """
@@ -160,7 +201,6 @@ class MiniGraph(object):
         # Add header
         dot.append("digraph g {")
         dot.append(" graph [ranksep=\"10\"];")
-        dot.append(" splines = \"false\";")
         dot.append(" rankdir=LR;")
         dot.append(" node [style=filled];")
 
