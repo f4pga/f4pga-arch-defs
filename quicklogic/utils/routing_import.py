@@ -7,9 +7,15 @@ import lxml.etree as ET
 from lib.rr_graph import tracks
 import lib.rr_graph.graph2 as rr
 import lib.rr_graph_xml.graph2 as rr_xml
+from lib import progressbar_utils
 
 from data_structs import *
 from minigraph import MiniGraph
+
+# =============================================================================
+
+# Set to True to dump minigraph for each switchbox
+DUMP_MINIGRAPHS = False
 
 # =============================================================================
 
@@ -24,6 +30,9 @@ class SwitchboxModel(object):
         # A map of top-level switchbox pins to minigraph node ids. Indexed by
         # (pin.name, pin.direction)
         self.switchbox_pin_to_mininode = {}
+
+        # A map of minigraph node ids to channel directions.
+        self.mininode_to_direction = {}
 
         # Initialize the minigraph
         self.minigraph = MiniGraph()
@@ -62,6 +71,10 @@ class SwitchboxModel(object):
                     # Add the pinspec to the map
                     pinspec = (stage.id, switch.id, pin.id, pin.direction) 
                     pin_to_mininode[pinspec] = mininode_id
+
+                    # Add to mininode direction map
+                    direction = "X" if stage.id % 2 else "Y"
+                    self.mininode_to_direction[mininode_id] = direction
 
         # Add connections between top-level switchbox pins and switches
         for stage in self.switchbox.stages.values():
@@ -127,55 +140,62 @@ class SwitchboxModel(object):
         rr graph.
         """
 
-        # TEST
-        fname = "minigraph_{}_X{}Y{}_pre_opt.dot".format(
-            self.switchbox.type,
-            self.loc.x,
-            self.loc.y,
-        )
-        with open(fname, "w") as fp:
-            fp.write(self.minigraph.dump_dot())
-
+        # Dump
+        if DUMP_MINIGRAPHS:
+            fname = "minigraph_{}_X{}Y{}_pre_opt.dot".format(
+                self.switchbox.type,
+                self.loc.x,
+                self.loc.y,
+            )
+            with open(fname, "w") as fp:
+                fp.write(self.minigraph.dump_dot())
 
         # Optimize the minigraph. This removes dummy nodes and merges edges
         # coming to and from them.
         self.minigraph.optimize()
+        self.minigraph.prune_leafs()
 
-
-        # TEST
-        fname = "minigraph_{}_X{}Y{}_post_opt.dot".format(
-            self.switchbox.type,
-            self.loc.x,
-            self.loc.y,
-        )
-        with open(fname, "w") as fp:
-            fp.write(self.minigraph.dump_dot())
-
+        # Dump
+        if DUMP_MINIGRAPHS:
+            fname = "minigraph_{}_X{}Y{}_post_opt.dot".format(
+                self.switchbox.type,
+                self.loc.x,
+                self.loc.y,
+            )
+            with open(fname, "w") as fp:
+                fp.write(self.minigraph.dump_dot())
 
         # Add nodes
-        for minigraph_node in self.minigraph.nodes.values():
+        for mininode in self.minigraph.nodes.values():
          
             # This node correspond to an existing VPR rr graph node. Skip
             # adding it
-            metadata = minigraph_node.metadata
+            metadata = mininode.metadata
             if metadata is not None:
                 continue
 
+            if mininode.id in self.mininode_to_direction:
+                direction  = self.mininode_to_direction[mininode.id]
+                segment_id = self.graph.get_segment_id_from_name("sb_node")
+            else:
+                direction  = "X"
+                segment_id = self.graph.get_segment_id_from_name("generic")
+
             # Add the track to the graph
             track = tracks.Track(
-                direction = "X",
+                direction = direction,
                 x_low  = self.loc.x,
                 x_high = self.loc.x,
                 y_low  = self.loc.y,
                 y_high = self.loc.y,
             )
 
-            node_id = self.graph.add_track(track, self.graph.get_segment_id_from_name("sb_node"))
+            node_id = self.graph.add_track(track, segment_id)
             node = self.graph.nodes[-1]
             assert node.id == node_id
 
             # Set the VPR node id as the metadata of the minigraph node
-            self.minigraph.set_node_metadata(minigraph_node.id, node_id)
+            self.minigraph.set_node_metadata(mininode.id, node_id)
 
 
     def populate_minigraph_edges(self):
@@ -183,11 +203,11 @@ class SwitchboxModel(object):
         Add the minigraph edges to the VPR rr graph.
         """
 
-        for minigraph_edge in self.minigraph.edges.values():
+        for miniedge in self.minigraph.edges.values():
 
             # Get source and destination minigraph nodes
-            src_minigraph_node = self.minigraph.nodes[minigraph_edge.src_node]
-            dst_minigraph_node = self.minigraph.nodes[minigraph_edge.dst_node]
+            src_minigraph_node = self.minigraph.nodes[miniedge.src_node]
+            dst_minigraph_node = self.minigraph.nodes[miniedge.dst_node]
 
             # Both must have VPR nodes associated.
             if src_minigraph_node.metadata is None or \
@@ -302,7 +322,8 @@ def add_tracks_for_hop_wires(graph, connections):
         
     # Add tracks for HOP wires between switchboxes
     hops = [c for c in connections if not c.src.is_direct and not c.dst.is_direct]
-    for connection in hops:
+    bar = progressbar_utils.progressbar
+    for connection in bar(hops):
 
         # Determine whether the wire goes horizontally or vertically. Make the
         # track shorter by 1 to avoid connections between neighboring channels.
@@ -356,7 +377,8 @@ def populate_connections(graph, connections, tile_grid, switchbox_models, connec
     """
 
     # Process connections
-    for connection in connections:
+    bar = progressbar_utils.progressbar
+    for connection in bar(connections):
     
         # Connection between switchboxes through HOP wires. A connection
         # represents the HOP wire node.
@@ -386,10 +408,10 @@ def populate_connections(graph, connections, tile_grid, switchbox_models, connec
 
                 # Get the input node of the minigraph
                 key = (connection.dst.pin, PinDirection.INPUT)
-                mininode_src = switchbox_model.switchbox_pin_to_mininode[key]
+                mininode_dst = switchbox_model.switchbox_pin_to_mininode[key]
         
                 # Connect to it a new mininode representing the VPR RR node.
-                mininode_dst = minigraph.add_node(is_locked = True, metadata = node.id)
+                mininode_src = minigraph.add_node(is_locked = True, metadata = node.id)
                 minigraph.add_edge(mininode_src, mininode_dst)
 
         # Connection between switchbox and its tile. The connection represents
@@ -464,6 +486,7 @@ def main():
     args = parser.parse_args()
 
     # Load data from the database
+    print("Loading database...")
     with open(args.vpr_db, "rb") as fp:
         db = pickle.load(fp)
 
@@ -475,6 +498,7 @@ def main():
         connections    = db["connections"]
 
     # Load the routing graph, build SOURCE -> OPIN and IPIN -> SINK edges.
+    print("Loading rr graph...")
     xml_graph = rr_xml.Graph(
         input_file_name  = args.rr_graph_in,
         output_file_name = args.rr_graph_out,
@@ -482,6 +506,7 @@ def main():
     )
 
     # Build tile pin names to rr node ids map
+    print("Building maps...")
     tile_pin_to_node = build_tile_pin_to_node_map(xml_graph.graph, vpr_tile_types, vpr_tile_grid)
 
     # Connection to node map. Map Connection objects to rr graph node ids
@@ -499,20 +524,10 @@ def main():
     node_map = build_tile_connection_map(xml_graph.graph, vpr_tile_grid, connections)
     connection_to_node.update(node_map)
 
-    """
-    - For each switchbox instance
-      - Build a minigraph for it. Add synthetic nodes
-        at its input and output pins.
-      - Attache metadata/timing to minigraph edges.
-    """
-
     # Add switchbox models.
+    print("Building switchbox models...")
     switchbox_models = {}
-    for loc, type in vpr_switchbox_grid.items():
-
-        # DEBUG
-#        if loc != Loc(x=2, y=3):
-#            continue
+    for loc, type in progressbar_utils.progressbar(vpr_switchbox_grid.items()):
 
         switchbox_models[loc] = SwitchboxModel(
             graph = xml_graph.graph,
@@ -520,31 +535,19 @@ def main():
             switchbox = vpr_switchbox_types[type],
         )    
 
-    """
-    - For each connection (that is not a hop wire)
-      - If endpoint is tile, find the tile node, add it along with an edge to
-        the minigraph. Add a dummy VPR node if needed to change CHAN type.
-      - If endpoint is a hop wire, the same :)
-    """
-
+    # Populate connections to the switchbox models
+    print("Populating connections...")
     populate_connections(xml_graph.graph, connections, vpr_tile_grid, switchbox_models, connection_to_node)
 
-    """
-    - For each switchbox instance
-      - Optimize minigraphs
-      - Convert minigraphs to VPR nodes+edges, convert metadata.
+    # Implement switchboxes in the VPR graph
+    print("Building final rr graph...")
+    bar = progressbar_utils.progressbar
 
-    Utilities:
-    - connection_to_node
-    - SwitchboxModel.switchbox_pin_to_node(pin_name, direction)
-    """
-
-    for loc, switchbox_model in switchbox_models.items():
+    for loc, switchbox_model in bar(switchbox_models.items()):
         switchbox_model.populate_minigraph_nodes()
 
-    for loc, switchbox_model in switchbox_models.items():
+    for loc, switchbox_model in bar(switchbox_models.items()):
         switchbox_model.populate_minigraph_edges()
-
 
     # Create channels from tracks
     pad_segment_id = xml_graph.graph.get_segment_id_from_name("generic")
@@ -555,6 +558,7 @@ def main():
     edges_obj = xml_graph.graph.edges
     node_remap = lambda x: x
 
+    print("Serializing the rr graph...")
     xml_graph.serialize_to_xml(
         channels_obj=channels_obj,
         connection_box_obj=None,
