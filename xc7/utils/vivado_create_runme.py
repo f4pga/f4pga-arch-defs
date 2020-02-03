@@ -11,6 +11,9 @@ create_project -force -part {part} design design
 
 read_verilog {bit_v}
 synth_design -top {top}
+
+write_checkpoint -force design_{name}_pre_source.dcp
+
 source {bit_tcl}
 """.format(
             name=args.name,
