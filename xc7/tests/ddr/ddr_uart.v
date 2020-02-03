@@ -20,7 +20,8 @@ module top(
 	output ddram_clk_n,
 	output ddram_cke,
 	output ddram_odt,
-	output ddram_reset_n
+	output ddram_reset_n,
+	output [3:0] led
 );
 
 wire [3:0] led;
@@ -213,7 +214,7 @@ wire clk200_clk;
 wire clk200_rst;
 wire main_reset;
 wire main_locked;
-wire main_clkin;
+wire main_pll_clkin;
 wire main_clkout0;
 wire main_clkout_buf0;
 wire main_clkout1;
@@ -2443,7 +2444,6 @@ always @(*) begin
 	endcase
 end
 assign main_reset = (~cpu_reset);
-assign main_clkin = clk100;
 assign sys_clk = main_clkout_buf0;
 assign sys4x_clk = main_clkout_buf1;
 assign sys4x_clkb = main_clkout_buf4;
@@ -9751,6 +9751,8 @@ IDELAYCTRL IDELAYCTRL(
 	.RDY(idelayctl_rdy)
 );
 
+wire tq;
+
 OSERDESE2 #(
 	.DATA_RATE_OQ("DDR"),
 	.DATA_RATE_TQ("BUF"),
@@ -9770,13 +9772,17 @@ OSERDESE2 #(
 	.D8(1'd1),
 	.OCE(1'd1),
 	.RST(sys_rst),
-	.OQ(main_a7ddrphy_sd_clk_se_nodelay)
+	.OQ(main_a7ddrphy_sd_clk_se_nodelay),
+	.TQ(tq),
+	.TCE(1'd1),
+	.T1(1'b0)
 );
 
-OBUFDS OBUFDS(
+OBUFTDS OBUFTDS_2(
 	.I(main_a7ddrphy_sd_clk_se_nodelay),
 	.O(ddram_clk_p),
-	.OB(ddram_clk_n)
+	.OB(ddram_clk_n),
+	.T(tq)
 );
 
 OSERDESE2 #(
@@ -11772,7 +11778,7 @@ PLLE2_ADV #(
 	.STARTUP_WAIT("FALSE")
 ) PLLE2_ADV (
 	.CLKFBIN(builder_pll_fb),
-	.CLKIN1(main_clkin),
+	.CLKIN1(main_pll_clkin),
 	.RST(main_reset),
 	.CLKFBOUT(builder_pll_fb),
 	.CLKOUT0(main_clkout0),
