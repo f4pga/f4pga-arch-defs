@@ -159,19 +159,26 @@ class MiniGraph(object):
 
         # Add header
         dot.append("digraph g {")
+        dot.append(" graph [ranksep=\"10\"];")
+        dot.append(" splines = \"false\";")
         dot.append(" rankdir=LR;")
         dot.append(" node [style=filled];")
 
         # Add nodes
         for node in self.nodes.values():
-            
+
+            label = str(node.id)
+            if node.metadata is not None:
+                label += "\n'{}'".format(str(node.metadata))
+
             if node.is_locked:
                 color = "#FFFFFF"
             else:
                 color = "#808080"
 
-            dot.append(" node_{id} [label=\"{id}\", fillcolor=\"{color}\"];".format(
+            dot.append(" node_{id} [label=\"{label}\", fillcolor=\"{color}\"];".format(
                 id=node.id,
+                label=label,
                 color=color
             ))
 
