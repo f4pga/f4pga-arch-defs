@@ -553,6 +553,16 @@ def main():
     pad_segment_id = xml_graph.graph.get_segment_id_from_name("generic")
     channels_obj = xml_graph.graph.create_channels(pad_segment=pad_segment_id)
 
+    # Remove padding channels
+    print("Removing padding nodes...")
+    padding_nodes = []
+    for node in xml_graph.graph.nodes:
+        if node.capacity == 0:
+            padding_nodes.append(node)
+
+    for node in padding_nodes:
+        xml_graph.graph.nodes.remove(node)
+
     # Write the routing graph
     nodes_obj = xml_graph.graph.nodes
     edges_obj = xml_graph.graph.edges
