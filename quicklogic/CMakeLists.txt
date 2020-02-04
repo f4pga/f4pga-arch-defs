@@ -34,7 +34,7 @@ define_arch(
   # FIXME: How to make that depend on db_vpr.pickle ??
   RR_PATCH_CMD "\${CMAKE_COMMAND} -E env PYTHONPATH=${symbiflow-arch-defs_SOURCE_DIR}/utils
     \${PYTHON3} \${RR_PATCH_TOOL} \
-   --vpr-db ${CMAKE_CURRENT_BINARY_DIR}/\${DEVICE}/db_vpr.pickle \
+   --vpr-db ${CMAKE_CURRENT_BINARY_DIR}/devices/\${DEVICE_TYPE}/db_vpr.pickle \
    --rr-graph-in \${OUT_RRXML_VIRT} \
    --rr-graph-out \${OUT_RRXML_REAL}"
 

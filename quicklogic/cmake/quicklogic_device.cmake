@@ -1,19 +1,28 @@
-function(DEFINE_QUICKLOGIC_DEVICE)
-
-#  set(options )
+function(QUICKLOGIC_DEFINE_DEVICE_TYPE)
+  # ~~~
+  # QUICKLOGIC_DEFINE_DEVICE_TYPE(
+  #   ARCH <arch>
+  #   DEVICE <device>
+  #   PACKAGES <package> <package> ...
+  #   [GRID_LIMIT <xmin>,<ymin>,<xmax>,<ymax>]
+  #   PB_TYPES <pb_type> <pb_type> ...
+  #   )
+  # ~~~
+  set(options)
   set(oneValueArgs DEVICE ARCH GRID_LIMIT)
   set(multiValueArgs PACKAGES PB_TYPES)
   cmake_parse_arguments(
-    DEFINE_QUICKLOGIC_DEVICE
+    QUICKLOGIC_DEFINE_DEVICE_TYPE
     "${options}"
     "${oneValueArgs}"
     "${multiValueArgs}"
     ${ARGN}
   )
 
-  set(DEVICE ${DEFINE_QUICKLOGIC_DEVICE_DEVICE})
-  set(ARCH ${DEFINE_QUICKLOGIC_DEVICE_ARCH})
-  set(PACKAGES ${DEFINE_QUICKLOGIC_DEVICE_PACKAGES})
+  set(DEVICE ${QUICKLOGIC_DEFINE_DEVICE_TYPE_DEVICE})
+  set(ARCH ${QUICKLOGIC_DEFINE_DEVICE_TYPE_ARCH})
+  set(GRID_LIMIT ${QUICKLOGIC_DEFINE_DEVICE_TYPE_GRID_LIMIT})
+  set(PB_TYPES ${QUICKLOGIC_DEFINE_DEVICE_TYPE_PB_TYPES})
 
   set(DEVICE_TYPE ${DEVICE}-virt)
 
@@ -42,8 +51,8 @@ function(DEFINE_QUICKLOGIC_DEVICE)
   # Process the database, create the VPR database
   set(PREPARE_VPR_DATABASE ${symbiflow-arch-defs_SOURCE_DIR}/quicklogic/utils/prepare_vpr_database.py)
 
-  if(NOT "${DEFINE_QUICKLOGIC_DEVICE_GRID_LIMIT}" STREQUAL "")
-    separate_arguments(GRID_LIMIT_ARGS UNIX_COMMAND "--grid-limit ${DEFINE_QUICKLOGIC_DEVICE_GRID_LIMIT}")
+  if(NOT "${GRID_LIMIT}" STREQUAL "")
+    separate_arguments(GRID_LIMIT_ARGS UNIX_COMMAND "--grid-limit ${GRID_LIMIT}")
   else()
     set(GRID_LIMIT_ARGS "")
   endif()
@@ -59,9 +68,8 @@ function(DEFINE_QUICKLOGIC_DEVICE)
   add_file_target(FILE ${VPR_DB_FILE} GENERATED)
 
   # Get dependencies for arch.xml
-  # FIXME: Not sure, this probably should be a part of ARCH instrad of DEVICE.
   set(XML_DEPS "")
-  foreach(PB_TYPE ${DEFINE_QUICKLOGIC_DEVICE_PB_TYPES})
+  foreach(PB_TYPE ${PB_TYPES})
     string(TOLOWER ${PB_TYPE} PB_TYPE_LOWER)
     set(PB_TYPE_XML ${symbiflow-arch-defs_SOURCE_DIR}/quicklogic/primitives/${PB_TYPE_LOWER}/${PB_TYPE_LOWER}.pb_type.xml)
     set(MODEL_XML   ${symbiflow-arch-defs_SOURCE_DIR}/quicklogic/primitives/${PB_TYPE_LOWER}/${PB_TYPE_LOWER}.model.xml)
@@ -88,7 +96,7 @@ function(DEFINE_QUICKLOGIC_DEVICE)
 
   set(TIMING_IMPORT "${PYTHON3} ${UPDATE_ARCH_TIMINGS} --sdf_dir ${SDF_TIMING_DIRECTORY} --bels_map ${BELS_MAP} --out_arch /dev/stdout --input_arch /dev/stdin")
   set(TIMING_DEPS ${SDF_TIMING_TARGET})
- 
+
   # Define the device type
   define_device_type(
     DEVICE_TYPE ${DEVICE_TYPE}
@@ -99,21 +107,73 @@ function(DEFINE_QUICKLOGIC_DEVICE)
     SCRIPT_DEPS TIMING_DEPS
   )
 
-  # Define the device
-  define_device(
-    DEVICE ${DEVICE}
-    ARCH ${ARCH}
-    DEVICE_TYPE ${DEVICE_TYPE}
-    PACKAGES ${PACKAGES}
-    WIRE_EBLIF ${symbiflow-arch-defs_SOURCE_DIR}/quicklogic/dummy.eblif
-    CACHE_PLACE_DELAY
-    CACHE_ARGS
-      --route_chan_width 100
-      --clock_modeling route
-      --allow_unrelated_clustering off
-      --target_ext_pin_util 0.7
-      --router_init_wirelength_abort_threshold 2
-      --congested_routing_iteration_threshold 0.8
+  # Set the device type properties
+  set_target_properties(
+    ${DEVICE_TYPE}
+    PROPERTIES
+    VPR_DB_FILE ${CMAKE_CURRENT_SOURCE_DIR}/${VPR_DB_FILE}
   )
 
+endfunction()
+
+
+function(QUICKLOGIC_DEFINE_DEVICE)
+  # ~~~
+  # QUICKLOGIC_DEFINE_DEVICE(
+  #   ARCH <arch>
+  #   DEVICES <device> <device> ...
+  #   PACKAGES <package> <package> ...
+  #   )
+  # ~~~
+  set(options)
+  set(oneValueArgs ARCH)
+  set(multiValueArgs DEVICES PACKAGES)
+  cmake_parse_arguments(
+    QUICKLOGIC_DEFINE_DEVICE
+     "${options}"
+     "${oneValueArgs}"
+     "${multiValueArgs}"
+     ${ARGN}
+   )
+
+  set(ARCH ${QUICKLOGIC_DEFINE_DEVICE_ARCH})
+  set(DEVICES ${QUICKLOGIC_DEFINE_DEVICE_DEVICES})
+  set(PACKAGES ${QUICKLOGIC_DEFINE_DEVICE_PACKAGES})
+
+  # For each device specified
+  list(LENGTH DEVICES DEVICE_COUNT)
+  math(EXPR DEVICE_COUNT_N_1 "${DEVICE_COUNT} - 1")
+  foreach(INDEX RANGE ${DEVICE_COUNT_N_1})
+    list(GET DEVICES ${INDEX} DEVICE)
+
+    # Include the device type subdirectory
+    set(DEVICE_TYPE ${DEVICE}-virt)
+    add_subdirectory(${DEVICE_TYPE})
+
+    # Get the VPR db file to add as dependency to RR graph patch
+    get_target_property_required(VPR_DB_FILE ${DEVICE_TYPE} VPR_DB_FILE)
+
+    # RR graph patch dependencies
+    set(DEVICE_RR_PATCH_DEPS "")
+    append_file_dependency(DEVICE_RR_PATCH_DEPS ${VPR_DB_FILE})
+
+    # Define the device
+    define_device(
+      DEVICE ${DEVICE}
+      ARCH ${ARCH}
+      DEVICE_TYPE ${DEVICE_TYPE}
+      PACKAGES ${PACKAGES}
+      WIRE_EBLIF ${symbiflow-arch-defs_SOURCE_DIR}/quicklogic/dummy.eblif
+      RR_PATCH_DEPS ${DEVICE_RR_PATCH_DEPS}
+      CACHE_PLACE_DELAY
+      CACHE_ARGS
+        --route_chan_width 100
+        --clock_modeling route
+        --allow_unrelated_clustering off
+        --target_ext_pin_util 0.7
+        --router_init_wirelength_abort_threshold 2
+        --congested_routing_iteration_threshold 0.8
+    )
+
+  endforeach()
 endfunction()
