@@ -381,9 +381,17 @@ def main():
     for tile, tile_features in tiles.items():
         process_tile(top, tile, tile_features)
 
+    # Check if the PS7 is present in the tilegrid. If so then insert it.
     pss_tile, ps7_site = get_ps7_site(db)
     if pss_tile is not None and ps7_site is not None:
-        insert_ps7(top, pss_tile, ps7_site)
+
+        # First load the PS7 ports
+        fname = os.path.join(args.db_root, "ps7_ports.json")
+        with open(fname, "r") as fp:
+            ps7_ports = json.load(fp)
+
+        # Insert the PS7
+        insert_ps7(top, pss_tile, ps7_site, ps7_ports)
 
     top.make_routes(allow_orphan_sinks=args.allow_orphan_sinks)
 
