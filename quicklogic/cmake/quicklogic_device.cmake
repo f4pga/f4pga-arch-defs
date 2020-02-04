@@ -32,10 +32,12 @@ function(QUICKLOGIC_DEFINE_DEVICE_TYPE)
   set(SDF_TIMING_DIRECTORY ${symbiflow-arch-defs_SOURCE_DIR}/quicklogic/timings)
   set(BELS_MAP ${symbiflow-arch-defs_SOURCE_DIR}/quicklogic/bels.json)
 
-  set(TECHFILE "${symbiflow-arch-defs_SOURCE_DIR}/quicklogic/QLAL4S3B.xml")
   set(PHY_DB_FILE "db_phy.pickle")
   set(VPR_DB_FILE "db_vpr.pickle")
   set(ARCH_XML "arch.xml")
+
+  # The techfile
+  set(TECHFILE "${symbiflow-arch-defs_SOURCE_DIR}/third_party/ql-eos-s3/Device Architecture Files/QLAL4S3B.xml")
 
   # Import data from the techfile
   set(DATA_IMPORT ${symbiflow-arch-defs_SOURCE_DIR}/quicklogic/utils/data_import.py)
