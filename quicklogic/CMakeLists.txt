@@ -23,11 +23,6 @@ define_arch(
     --router_init_wirelength_abort_threshold 20 \
     --place_algorithm bounding_box"
 
-#  # FIXME: Skip patching the graph for now
-#  RR_PATCH_TOOL
-#    /bin/true
-#  RR_PATCH_CMD "cp \${OUT_RRXML_VIRT} \${OUT_RRXML_REAL}"
-  
   RR_PATCH_TOOL
     ${CMAKE_CURRENT_SOURCE_DIR}/utils/routing_import.py
 
