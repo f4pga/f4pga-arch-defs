@@ -520,33 +520,6 @@ def main():
     # Load data from the techfile
     cells_library, tile_types, phy_tile_grid, switchbox_types, switchbox_grid, = import_data(xml_techfile)
 
-#    # DEBUG
-#    print("PHY cell types:")
-#    for t in cells_library.keys():
-#        print("", t)
-#
-#    print("PHY Tile types:")
-#    for t in tile_types.keys():
-#        print("", t)
-
-
-#    # DEBUG
-#    for sbox in switchbox_types:
-#        if sbox.type != "SB_LC":
-#            continue
-#
-#        print(sbox.type)
-#
-#        pins = [pin for pin in sbox.pins if pin.direction == PinDirection.INPUT]
-#        pins = sorted(pins, key=lambda p: p.name)
-#        for pin in pins:
-#            print("", pin)
-#
-#        pins = [pin for pin in sbox.pins if pin.direction == PinDirection.OUTPUT]
-#        pins = sorted(pins, key=lambda p: p.name)
-#        for pin in pins:
-#            print("", pin)
-
     # Build the connection map
     connections = build_connections(tile_types, phy_tile_grid, switchbox_types, switchbox_grid)
     check_connections(connections)

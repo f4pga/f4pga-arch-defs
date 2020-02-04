@@ -144,8 +144,6 @@ def process_connections(phy_connections, loc_map, grid_limit=None):
         src_loc = connection.src.loc
         dst_loc = connection.dst.loc
 
-#        assert src_loc in loc_map.fwd, src_loc
-#        assert dst_loc in loc_map.fwd, dst_loc
         if src_loc not in loc_map.fwd:
             continue
         if dst_loc not in loc_map.fwd:
@@ -165,8 +163,6 @@ def process_connections(phy_connections, loc_map, grid_limit=None):
             ),
         )
         vpr_connections.append(new_connection)
-
-        print(new_connection)
 
     return vpr_connections
 
