@@ -47,6 +47,11 @@ function(COMMON_VIVADO_TARGETS)
         ${WORK_DIR}/design_${NAME}.dcp
         ${WORK_DIR}/design_${NAME}.xpr
         ${WORK_DIR}/design_${NAME}.bit
+        ${WORK_DIR}/design_${NAME}_utilization.rpt
+        ${WORK_DIR}/design_${NAME}_clock_utilization.rpt
+        ${WORK_DIR}/design_${NAME}_power.rpt
+        ${WORK_DIR}/design_${NAME}_timing_summary.rpt
+        ${WORK_DIR}/design_${NAME}_route_status.rpt
     COMMAND ${CMAKE_COMMAND} -E remove -f ${WORK_DIR}/design_${NAME}.dcp
     COMMAND ${CMAKE_COMMAND} -E remove -f ${WORK_DIR}/design_${NAME}.xpr
     COMMAND ${PRJXRAY_DIR}/utils/vivado.sh -mode batch -source
