@@ -78,15 +78,15 @@ class MiniGraph(object):
         for edge_id in edges_to_prune:
             del self.edges[edge_id]
 
-    def set_node_metadata(self, node_id, metadata):
+    def update_node(self, node_id, metadata=None, is_locked=None):
         """
-        Sets metadata for the given node.
+        Updates a node with the given id.
         """
         old_node = self.nodes[node_id]
         new_node = Node(
             id = old_node.id,
-            is_locked = old_node.is_locked,
-            metadata = metadata,
+            is_locked = old_node.is_locked if is_locked is None else is_locked,
+            metadata = old_node.metadata if metadata is None else metadata,
             )
         self.nodes[node_id] = new_node
 

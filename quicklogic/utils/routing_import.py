@@ -195,7 +195,7 @@ class SwitchboxModel(object):
             assert node.id == node_id
 
             # Set the VPR node id as the metadata of the minigraph node
-            self.minigraph.set_node_metadata(mininode.id, node_id)
+            self.minigraph.update_node(mininode.id, metadata=node_id)
 
 
     def populate_minigraph_edges(self):
@@ -376,6 +376,14 @@ def populate_connections(graph, connections, tile_grid, switchbox_models, connec
     Populates connections to minigraphs of switchbox models.
     """
 
+    def assign_vpr_node(minigraph, mininode, vpr_node_id):
+        """
+        Assigns a minigraph node with a VPR node id. Checks whether the node
+        wa not previously assigned.
+        """
+        assert minigraph.nodes[mininode].metadata is None
+        minigraph.update_node(mininode, is_locked=True, metadata=vpr_node_id)
+
     # Process connections
     bar = progressbar_utils.progressbar
     for connection in bar(connections):
@@ -394,13 +402,11 @@ def populate_connections(graph, connections, tile_grid, switchbox_models, connec
 
                 # Get the output node of the minigraph
                 key = (connection.src.pin, PinDirection.OUTPUT)
-                mininode_src = switchbox_model.switchbox_pin_to_mininode[key]
-        
-                # Connect to it a new mininode representing the VPR RR node.
-                mininode_dst = minigraph.add_node(is_locked = True, metadata = node.id)
-                minigraph.add_edge(mininode_src, mininode_dst)
+                mininode = switchbox_model.switchbox_pin_to_mininode[key]
 
-            
+                # Assign it the VPR node id
+                assign_vpr_node(minigraph, mininode, node.id)
+                    
             # Get the input switchbox and its minigraph
             if connection.dst.loc in switchbox_models:
                 switchbox_model = switchbox_models[connection.dst.loc]
@@ -408,12 +414,11 @@ def populate_connections(graph, connections, tile_grid, switchbox_models, connec
 
                 # Get the input node of the minigraph
                 key = (connection.dst.pin, PinDirection.INPUT)
-                mininode_dst = switchbox_model.switchbox_pin_to_mininode[key]
-        
-                # Connect to it a new mininode representing the VPR RR node.
-                mininode_src = minigraph.add_node(is_locked = True, metadata = node.id)
-                minigraph.add_edge(mininode_src, mininode_dst)
+                mininode = switchbox_model.switchbox_pin_to_mininode[key]
 
+                # Assign it the VPR node id
+                assign_vpr_node(minigraph, mininode, node.id)
+        
         # Connection between switchbox and its tile. The connection represents
         # edge between IPIN/OPIN and CHANX/CHANY.
         else:
@@ -438,22 +443,20 @@ def populate_connections(graph, connections, tile_grid, switchbox_models, connec
 
                 # Get the output node of the minigraph
                 key = (connection.src.pin, PinDirection.OUTPUT)
-                mininode_src = switchbox_model.switchbox_pin_to_mininode[key]
-        
-                # Connect to it a new mininode representing the VPR RR node.
-                mininode_dst = minigraph.add_node(is_locked = True, metadata = node.id)
-                minigraph.add_edge(mininode_src, mininode_dst)
+                mininode = switchbox_model.switchbox_pin_to_mininode[key]
 
+                # Assign it the VPR node id
+                assign_vpr_node(minigraph, mininode, node.id)
+        
             # From tile
             if connection.src.is_direct:
 
                 # Get the input node of the minigraph
                 key = (connection.dst.pin, PinDirection.INPUT)
-                mininode_dst = switchbox_model.switchbox_pin_to_mininode[key]
+                mininode = switchbox_model.switchbox_pin_to_mininode[key]
 
-                # Connect to it a new mininode representing the VPR RR node.
-                mininode_src = minigraph.add_node(is_locked = True, metadata = node.id)
-                minigraph.add_edge(mininode_src, mininode_dst)
+                # Assign it the VPR node id
+                assign_vpr_node(minigraph, mininode, node.id)
 
 # =============================================================================
 
