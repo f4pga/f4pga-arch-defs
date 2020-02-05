@@ -333,22 +333,11 @@ def add_tracks_for_hop_wires(graph, connections):
     bar = progressbar_utils.progressbar
     for connection in bar(hops):
 
-        # Determine whether the wire goes horizontally or vertically. Make the
-        # track shorter by 1 to avoid connections between neighboring channels.
+        # Determine whether the wire goes horizontally or vertically.
         if connection.src.loc.y == connection.dst.loc.y:
             direction = "X"
-            if connection.dst.loc.x > connection.src.loc.x:
-                dst = Loc(x=connection.dst.loc.x - 1, y=connection.dst.loc.y)
-            else:
-                dst = Loc(x=connection.dst.loc.x + 1, y=connection.dst.loc.y)
-
         elif connection.src.loc.x == connection.dst.loc.x:
             direction = "Y"
-            if connection.dst.loc.y > connection.src.loc.y:
-                dst = Loc(x=connection.dst.loc.x, y=connection.dst.loc.y - 1)
-            else:
-                dst = Loc(x=connection.dst.loc.x, y=connection.dst.loc.y + 1)
-
         else:
             assert False, connection
 
@@ -364,9 +353,9 @@ def add_tracks_for_hop_wires(graph, connections):
         track = tracks.Track(
             direction = direction,
             x_low  = connection.src.loc.x,
-            x_high = dst.x,
+            x_high = connection.dst.loc.x,
             y_low  = connection.src.loc.y,
-            y_high = dst.y,
+            y_high = connection.dst.loc.y,
         )
 
         node_id = graph.add_track(track, graph.get_segment_id_from_name(segment_name))
