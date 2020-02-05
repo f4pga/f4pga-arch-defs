@@ -42,13 +42,13 @@ def parse_hop_wire_name(name):
         hop = (0, -length)
     elif direction == "B":
         assert orientation == "V", name
-        hop = (+length, 0)
+        hop = (0, +length)
     elif direction == "L":
         assert orientation == "H", name
         hop = (-length, 0)
     elif direction == "R":
         assert orientation == "H", name
-        hop = (0, +length)
+        hop = (+length, 0)
     else:
         assert False, (name, direction)
 
