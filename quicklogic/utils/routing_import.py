@@ -259,16 +259,21 @@ def build_tile_pin_to_node_map(graph, tile_types, tile_grid):
 
             # Get the VPR pin name and its node
             rr_pin_name = tile_pin_to_rr_pin(tile.type, pin.name)
-            nodes = graph.get_nodes_for_pin((loc.x, loc.y,), rr_pin_name)
-            assert len(nodes) == 1, (pin.name, rr_pin_name, nodes)
+
+            try:
+                nodes = graph.get_nodes_for_pin((loc.x, loc.y,), rr_pin_name)
+                assert len(nodes) == 1, (rr_pin_name, loc.x, loc.y)
+            except KeyError as ex:
+                print("ERROR: No node for pin '{}' at ({},{})".format(rr_pin_name, loc.x, loc.y))
+                continue 
 
             # Add to the map
-            node_map[loc][pin.name] = nodes[0]
+            node_map[loc][pin.name] = nodes[0][0]
 
     return node_map
 
 
-def build_tile_connection_map(graph, tile_grid, connections):
+def build_tile_connection_map(graph, nodes_by_id, tile_grid, connections):
     """
     Builds a map of connections to/from tiles and rr nodes.
     """
@@ -279,16 +284,19 @@ def build_tile_connection_map(graph, tile_grid, connections):
         tile = tile_grid[conn_loc.loc]
         rr_pin_name = tile_pin_to_rr_pin(tile.type, conn_loc.pin)
 
-        nodes = graph.get_nodes_for_pin((conn_loc.loc.x, conn_loc.loc.y,), rr_pin_name)
-        assert len(nodes) == 1, (pin.name, rr_pin_name, nodes)
+        # Get the VPR rr node for the pin
+        try:
+            nodes = graph.get_nodes_for_pin((conn_loc.loc.x, conn_loc.loc.y,), rr_pin_name)
+            assert len(nodes) == 1, (rr_pin_name, conn_loc.loc.x, conn_loc.loc.y)
+        except KeyError as ex:
+            print("ERROR: No node for pin '{}' at ({},{})".format(rr_pin_name, conn_loc.loc.x, conn_loc.loc.y))
+            return
 
         # Convert to Node objects
-        # FIXME: This may be super slow for huge graphs!
-        nodes = [n[0] for n in nodes]
-        nodes = [n for n in graph.nodes if n.id in nodes]
+        node = nodes_by_id[nodes[0][0]]
 
         # Add to the map
-        node_map[connection] = nodes[0]
+        node_map[connection] = node
 
     # Look for connections to/from tiles.
     for connection in connections:
@@ -436,6 +444,10 @@ def populate_connections(graph, connections, tile_grid, switchbox_models, connec
             minigraph = switchbox_model.minigraph
 
             # Get the tile IPIN/OPIN node
+            if connection not in connection_to_node:
+                print("ERROR: No IPIN/OPIN node for connection {}".format(connection))
+                continue
+
             node = connection_to_node[connection]
 
             # To tile
@@ -508,8 +520,12 @@ def main():
         progressbar      = None
     )
 
-    # Build tile pin names to rr node ids map
     print("Building maps...")
+
+    # Build node id to node map
+    nodes_by_id = {node.id: node for node in xml_graph.graph.nodes}
+
+    # Build tile pin names to rr node ids map
     tile_pin_to_node = build_tile_pin_to_node_map(xml_graph.graph, vpr_tile_types, vpr_tile_grid)
 
     # Connection to node map. Map Connection objects to rr graph node ids
@@ -524,7 +540,7 @@ def main():
     #
     # FIXME: This won't work for direct tile-tile connections! But there are
     # none.
-    node_map = build_tile_connection_map(xml_graph.graph, vpr_tile_grid, connections)
+    node_map = build_tile_connection_map(xml_graph.graph, nodes_by_id, vpr_tile_grid, connections)
     connection_to_node.update(node_map)
 
     # Add switchbox models.
