@@ -438,6 +438,92 @@ def parse_switchbox(xml_sbox, xml_common = None):
 # =============================================================================
 
 
+def parse_port_mapping_table(xml_root, switchbox_grid):
+    """
+    Parses switchbox port mapping tables. Returns a dict indexed by locations
+    containing a dict with switchbox port to tile port name correspondence.
+    """
+    port_maps = defaultdict(lambda: {})
+
+    # Sections are named "*_Table"
+    xml_tables = [e for e in xml_root if e.tag.endswith("_Table")]
+    for xml_table in xml_tables:
+
+        # Get the origin
+        origin = xml_table.tag.split("_")[0]
+        assert origin in ["Left", "Right", "Top", "Bottom"], origin
+
+        # Get switchbox types affected by the mapping
+        sbox_types_xml = xml_table.find("SBoxTypes")
+        assert sbox_types_xml is not None
+        switchbox_types = set([v for k, v in sbox_types_xml.attrib.items() if k.startswith("type")])
+
+        # Get their locations
+        locs = [loc for loc, type in switchbox_grid.items() if type in switchbox_types]
+
+        # Get the first occurrence of a switchbox with one of considered types
+        # that is closes to the (0, 0) according to manhattan distance.
+        base_loc = None
+        for loc in locs:
+            if not base_loc:
+                base_loc = loc
+            elif (loc.x + loc.y) < (base_loc.x + base_loc.y):
+                base_loc = loc
+
+        # Parse the port mapping table(s)
+        for port_mapping_xml in xml_table.findall("PortMappingTable"):
+
+            # Get the direction of the switchbox offset
+            orientation = port_mapping_xml.attrib["Orientation"]
+            if orientation == "Horizontal":
+                assert origin in ["Top", "Bottom"], (origin, orientation)
+                dx, dy = (+1,  0)
+            elif orientation == "Vertical":
+                assert origin in ["Left", "Right"], (origin, orientation)
+                dx, dy = ( 0, +1)
+
+            # Process the mapping of switchbox output ports
+            for index_xml in port_mapping_xml.findall("Index"):
+                pin_name = index_xml.attrib["Mapped_Interface_Name"]
+                output_num = index_xml.attrib["SwitchOutputNum"]
+
+                # Determine the mapped port direction
+                if output_num == "-1":
+                    pin_direction = PinDirection.INPUT
+                else:
+                    pin_direction = PinDirection.OUTPUT
+
+                sbox_xmls = [e for e in index_xml if e.tag.startswith("SBox")]
+                for sbox_xml in sbox_xmls:
+
+                    offset = int(sbox_xml.attrib["Offset"])
+                    mapped_name = sbox_xml.get("MTB_PortName", None)
+
+                    # "-1" means unconnected
+                    if mapped_name == "-1":
+                        mapped_name = None
+
+                    # Get the location for the map
+                    loc = Loc(
+                        x = base_loc.x + dx * offset,
+                        y = base_loc.y + dy * offset,
+                    )
+
+                    # Append mapping
+                    key = (pin_name, pin_direction)
+                    assert key not in port_maps[loc], (loc, key)
+
+                    port_maps[loc][key] = mapped_name
+
+    # Make a normal dict
+    port_maps = dict(port_maps)
+
+    return port_maps
+
+
+# =============================================================================
+
+
 def import_data(xml_root):
     """
     Imports the Quicklogic FPGA tilegrid and routing data from the given
@@ -485,8 +571,21 @@ def import_data(xml_root):
                 # Populate switchboxes onto the tilegrid
                 populate_switchboxes(xml_sbox, switchbox_grid)
 
+    # Get the "DevicePortMappingTable" section
+    xml_portmap = xml_routing.find("DevicePortMappingTable")
+    assert xml_portmap is not None
 
-    return cells_library, tile_types, tile_grid, switchbox_types, switchbox_grid,
+    # Import switchbox port mapping
+    port_maps = parse_port_mapping_table(xml_portmap, switchbox_grid)
+
+    return {
+        "cells_library": cells_library,
+        "tile_types": tile_types,
+        "tile_grid": tile_grid,
+        "switchbox_types": switchbox_types,
+        "switchbox_grid": switchbox_grid,
+        "port_maps": port_maps
+    }
 
 
 # =============================================================================
@@ -518,19 +617,26 @@ def main():
     xml_techfile = xml_tree.getroot()
 
     # Load data from the techfile
-    cells_library, tile_types, phy_tile_grid, switchbox_types, switchbox_grid, = import_data(xml_techfile)
+    data = import_data(xml_techfile)
 
     # Build the connection map
-    connections = build_connections(tile_types, phy_tile_grid, switchbox_types, switchbox_grid)
+    connections = build_connections(
+        data["tile_types"],
+        data["tile_grid"],
+        data["switchbox_types"],
+        data["switchbox_grid"],
+        data["port_maps"],
+        )
+
     check_connections(connections)
 
     # Prepare the database
     db_root = {
-        "cells_library": cells_library,
-        "tile_types": tile_types,
-        "phy_tile_grid": phy_tile_grid,
-        "switchbox_types": switchbox_types,
-        "switchbox_grid": switchbox_grid,
+        "cells_library": data["cells_library"],
+        "tile_types": data["tile_types"],
+        "phy_tile_grid": data["tile_grid"],
+        "switchbox_types": data["switchbox_types"],
+        "switchbox_grid": data["switchbox_grid"],
         "connections": connections,
     }
 

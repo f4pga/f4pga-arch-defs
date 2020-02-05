@@ -91,7 +91,7 @@ def main():
 
     # Load data
     data = import_data(xml_root)
-    switchbox_types = data[3]    
+    switchbox_types = data["switchbox_types"] 
 
     # Generate DOT files with switchbox visualizations
     for switchbox in switchbox_types.values():

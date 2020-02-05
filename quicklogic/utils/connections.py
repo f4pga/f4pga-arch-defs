@@ -14,7 +14,6 @@ RE_HOP_WIRE = re.compile(r"^([HV])([0-9])([TBLR])([0-9])$")
 IGNORED_SWITCHBOX_TYPES = [
     "SB_RIGHT_IFC",
     "SB_LEFT_IFC",
-    "SB_TOP_IFC",
     "SB_BOTTOM_IFC"
 ]
 
@@ -61,7 +60,7 @@ def parse_hop_wire_name(name):
 # =============================================================================
 
 
-def build_local_connections_at(loc, switchbox, tile):
+def build_local_connections_at(loc, switchbox, tile, port_map):
     """
     Build local connections between a switchbox and a tile at given location.
     """
@@ -70,24 +69,32 @@ def build_local_connections_at(loc, switchbox, tile):
     # Process local connections
     src_pins = [pin for pin in switchbox.pins if pin.is_local]
     for src_pin in src_pins:
+        tile_pin_name = src_pin.name
 
-        # TODO: Switchbox pin to tile pin map
-        tile_pin = src_pin
+        # Remap the pin name if the port map is provided        
+        if port_map is not None:
+            key = (src_pin.name, src_pin.direction)
+            if key in port_map:
+                tile_pin_name = port_map[key]
+
+        # The pin is unconnected
+        if tile_pin_name is None:
+            continue
 
         # Find the pin in the underlying tile
         dst_pin = None
         for pin in tile.pins:
             if pin.direction == OPPOSITE_DIRECTION[src_pin.direction]:
                 cell, name = pin.name.split("_", maxsplit=1)
-                if name == src_pin.name:
+                if name == tile_pin_name:
                     dst_pin = pin
                     break
 
         # Pin not found
         if dst_pin is None:
             print("WARNING: No tile pin found for switchbox pin '{}' of '{}' at '{}'".format(
-                src_pin.name,
-                switchbox_type,
+                tile_pin_name,
+                switchbox.type,
                 loc
             ))
             continue            
@@ -114,7 +121,7 @@ def build_local_connections_at(loc, switchbox, tile):
     return connections
 
 
-def build_local_connections(tile_types, tile_grid, switchbox_types, switchbox_grid):
+def build_local_connections(tile_types, tile_grid, switchbox_types, switchbox_grid, port_maps):
     """
     Build local connections between all switchboxes and their undelying tiles.
     """
@@ -133,8 +140,14 @@ def build_local_connections(tile_types, tile_grid, switchbox_types, switchbox_gr
             continue
         tile = tile_types[tile_grid[loc].type]
 
+        # Get the port map
+        if loc in port_maps:
+            port_map = port_maps[loc]
+        else:
+            port_map = None
+
         # Build connections
-        connections += build_local_connections_at(loc, switchbox, tile)
+        connections += build_local_connections_at(loc, switchbox, tile, port_map)
 
     return connections
 
@@ -142,7 +155,7 @@ def build_local_connections(tile_types, tile_grid, switchbox_types, switchbox_gr
 # =============================================================================
 
 
-def build_hop_connections(tile_types, tile_grid, switchbox_types, switchbox_grid):
+def build_hop_connections(tile_types, tile_grid, switchbox_types, switchbox_grid, port_maps):
     """
     Builds HOP connections between switchboxes.
     """
@@ -221,7 +234,7 @@ def build_hop_connections(tile_types, tile_grid, switchbox_types, switchbox_grid
 # =============================================================================
 
 
-def build_connections(tile_types, tile_grid, switchbox_types, switchbox_grid):
+def build_connections(tile_types, tile_grid, switchbox_types, switchbox_grid, port_maps):
     """
     Builds a connection map between switchboxes in the grid and between
     switchboxes and underlying tiles.
@@ -229,10 +242,10 @@ def build_connections(tile_types, tile_grid, switchbox_types, switchbox_grid):
     connections = []
 
     # Local connections
-    connections += build_local_connections(tile_types, tile_grid, switchbox_types, switchbox_grid)
+    connections += build_local_connections(tile_types, tile_grid, switchbox_types, switchbox_grid, port_maps)
 
     # HOP connections
-    connections += build_hop_connections(tile_types, tile_grid, switchbox_types, switchbox_grid)
+    connections += build_hop_connections(tile_types, tile_grid, switchbox_types, switchbox_grid, port_maps)
 
     return connections
 
@@ -250,9 +263,10 @@ def check_connections(connections):
             print("ERROR: Duplicate destination '{}'".format(connection.dst))
         dst_conn_locs.add(connection.dst)
 
-    # Check if there are no duplicated connections going from the same source
-    src_conn_locs = set()
-    for connection in connections:
-        if connection.src in src_conn_locs:
-            print("ERROR: Duplicate source '{}'".format(connection.src))
-        src_conn_locs.add(connection.src)
+# This is not an error
+#    # Check if there are no duplicated connections going from the same source
+#    src_conn_locs = set()
+#    for connection in connections:
+#        if connection.src in src_conn_locs:
+#            print("ERROR: Duplicate source '{}'".format(connection.src))
+#        src_conn_locs.add(connection.src)
