@@ -3,6 +3,6 @@ module top(
   output wire out
 );
 
-  NOT not (.I(inp), .O(out));
+  NOT not_inst (.I(inp), .O(out));
 
 endmodule

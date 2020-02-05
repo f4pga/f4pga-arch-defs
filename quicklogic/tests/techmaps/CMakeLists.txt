@@ -123,3 +123,5 @@ lut_techmap_test(1 10)
 lut_techmap_test(2 25)
 lut_techmap_test(3 50)
 lut_techmap_test(4 100)
+
+add_dependencies(all_ql_tests all_quicklogic_lut_techmap_tests)
