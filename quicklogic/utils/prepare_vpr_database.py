@@ -130,7 +130,13 @@ def process_connections(phy_connections, loc_map, grid_limit=None):
     Process the connection list.
     """
 
-    # Remap locations
+    # Pin map
+    pin_map = {
+        "BIDIR0_IZ":  "SYN_PAD0_O",
+        "BIDIR0_OQI": "SYN_PAD0_I",
+    }
+
+    # Remap locations, remap pins
     vpr_connections = []
     for connection in phy_connections:
 
@@ -149,16 +155,29 @@ def process_connections(phy_connections, loc_map, grid_limit=None):
         if dst_loc not in loc_map.fwd:
             continue
 
+        # Remap pins or discard the connection
+        src_pin = connection.src.pin
+        dst_pin = connection.dst.pin
+
+        if src_pin in pin_map:
+            src_pin = pin_map[src_pin]
+
+        if dst_pin in pin_map:
+            dst_pin = pin_map[dst_pin]
+
+        if src_pin is None or dst_pin is None:
+            continue
+
         # Add the new connection
         new_connection = Connection(
             src=ConnectionLoc(
                 loc=loc_map.fwd[src_loc],
-                pin=connection.src.pin,
+                pin=src_pin,
                 is_direct=connection.src.is_direct,
             ),
             dst=ConnectionLoc(
                 loc=loc_map.fwd[dst_loc],
-                pin=connection.dst.pin,
+                pin=dst_pin,
                 is_direct=connection.dst.is_direct,
             ),
         )
