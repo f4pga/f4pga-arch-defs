@@ -27,7 +27,6 @@ def is_loc_within_limit(loc, limit):
 
 # =============================================================================
 
-
 def add_synthetic_cell_and_tile_types(tile_types, cells_library):
 
     # The synthetic IO PAD cell.
@@ -45,6 +44,12 @@ def add_synthetic_cell_and_tile_types(tile_types, cells_library):
     tile_type.make_pins(cells_library)
     tile_types[tile_type.type] = tile_type
 
+    # Add a synthetic tile types for the VCC and GND const sources.
+    # Models of the VCC and GND cells are already there in the cells_library.
+    for const in ["VCC", "GND"]:
+        tile_type = TileType("SYN_{}".format(const), {const: 1})
+        tile_type.make_pins(cells_library)
+        tile_types[tile_type.type] = tile_type
 
 def process_tilegrid(tile_types, tile_grid, grid_limit=None):
     """
@@ -75,6 +80,20 @@ def process_tilegrid(tile_types, tile_grid, grid_limit=None):
         if len(tile_type.cells) == 1 and list(tile_type.cells.keys())[0] == "LOGIC":
             new_tile_grid[loc] = tile
 
+    # Insert synthetic VCC and GND source tiles.
+    # FIXME: This assumes that the locations specified are empty!
+    for const, loc in [("VCC", Loc(x=0, y=0)), ("GND", Loc(x=1, y=0))]:
+        
+        # Verify that the location is empty
+        if loc in new_tile_grid:
+            assert net_tile_grid[loc] is None, (const, loc)
+
+        # Add the tile instance
+        new_tile_grid[loc] = Tile(
+            type = "SYN_{}".format(const),
+            name = "SYN_{}".format(const)
+        )
+        
     # Extend the grid by 1 in every direction. Fill missing locs with empty
     # tiles.
     vpr_tile_grid = {}

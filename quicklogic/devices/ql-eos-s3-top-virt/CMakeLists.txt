@@ -4,6 +4,7 @@ quicklogic_define_device_type(
   PACKAGES wlcsp
   GRID_LIMIT 0,0,7,2
   PB_TYPES
+    GND VCC
     LOGIC
     SYN_PAD
 )
