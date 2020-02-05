@@ -320,6 +320,136 @@ def build_tile_connection_map(graph, nodes_by_id, tile_grid, connections):
 # =============================================================================
 
 
+def add_track_chain(graph, direction, u, v0, v1, segment_id, switch_id):
+    """
+    Adds a chain of tracks that span the grid in the given direction.
+    Returns the first and last node of the chain along with a map of
+    coordinates to nodes.
+    """
+    node_by_v = {}
+    prev_node = None
+
+    # Make range generator
+    if v0 > v1:
+        coords = range(v0, v1-1, -1)
+    else:
+        coords = range(v0, v1+1)
+
+    # Add track chain
+    for v in coords:
+
+        # Add track (node)
+        if direction == "X":
+            track = tracks.Track(
+                direction = direction,
+                x_low  = v,
+                x_high = v,
+                y_low  = u,
+                y_high = u,
+            )
+        elif direction == "Y":
+            track = tracks.Track(
+                direction = direction,
+                x_low  = u,
+                x_high = u,
+                y_low  = v,
+                y_high = v,
+            )
+        else:
+            assert False, direction
+
+        node_id = graph.add_track(track, segment_id)
+        curr_node = graph.nodes[-1]
+        assert curr_node.id == node_id
+
+        # Add edge from the previous one
+        if prev_node is not None:
+            graph.add_edge(
+                prev_node.id,
+                curr_node.id,
+                switch_id
+                )
+
+        # No previous one, this is the first one
+        else:
+            start_node = curr_node
+
+        node_by_v[v] = curr_node
+        prev_node    = curr_node
+
+    return start_node, curr_node, node_by_v
+
+
+def add_tracks_for_const_network(graph, const, tile_grid):
+    """
+    Builds a network of CHANX/CHANY and edges to propagate signal from a 
+    const source.
+    
+    The const network is purely artificial and does not correspond to any
+    physical routing resources.
+
+    Returns a map of const network nodes for each location.
+    """
+
+    # Get the tilegrid span
+    xs = set([loc.x for loc in tile_grid])
+    ys = set([loc.y for loc in tile_grid])
+    xmin, ymin = min(xs), min(ys)
+    xmax, ymax = max(xs), max(ys)
+
+    # Get segment id and switch id
+    segment_id = graph.get_segment_id_from_name("generic") 
+    switch_id  = 0
+
+    # Find the source tile
+    src_loc = [loc for loc, t in tile_grid.items() if t is not None and t.type == "SYN_{}".format(const)]
+    assert len(src_loc) == 1, const
+    src_loc = src_loc[0]
+
+    print(const, src_loc)
+
+    # Go down from the source to the edge of the tilegrid
+    entry_node, col_node, _ = add_track_chain(graph, "Y", src_loc.x, src_loc.y, 1, segment_id, switch_id)
+
+    # Connect the tile OPIN to the column
+    pin_name  = "TL-SYN_{const}.{const}0_{const}[0]".format(const=const)
+    opin_node = graph.get_nodes_for_pin((src_loc[0], src_loc[1]), pin_name)
+    assert len(opin_node) == 1, pin_name
+    
+    graph.add_edge(opin_node[0][0], entry_node.id, switch_id)
+
+    # Got left and right from the source column over the bottommost row
+    row_entry_node1, _, row_node_map1 = add_track_chain(graph, "X", 0, src_loc.x,   1,        segment_id, switch_id)
+    row_entry_node2, _, row_node_map2 = add_track_chain(graph, "X", 0, src_loc.x+1, xmax - 1, segment_id, switch_id)
+
+    # Connect rows to the column
+    graph.add_edge(col_node.id, row_entry_node1.id, switch_id)
+    graph.add_edge(col_node.id, row_entry_node2.id, switch_id)
+    row_node_map = {**row_node_map1, **row_node_map2}
+
+    # For each column add one that spand over the entire grid height
+    const_node_map = {}
+    for x in range(xmin + 1, xmax):
+
+        # Add the column
+        col_entry_node, _, col_node_map = add_track_chain(graph, "Y", x, ymin + 1, ymax - 1, segment_id, switch_id)
+
+        # Add edge fom the horizontal row
+        graph.add_edge(
+            row_node_map[x].id,
+            col_entry_node.id,
+            switch_id
+            )
+
+        # Populate the const node map
+        for y, node in col_node_map.items():
+            const_node_map[Loc(x=x, y=y)] = node
+
+    return const_node_map
+
+
+# =============================================================================
+
 def add_tracks_for_hop_wires(graph, connections):
     """
     Adds a track for each HOP connection wire. Returns a map of connections to
@@ -367,19 +497,21 @@ def add_tracks_for_hop_wires(graph, connections):
 
     return node_map
 
+# =============================================================================
 
-def populate_connections(graph, connections, tile_grid, switchbox_models, connection_to_node):
+def assign_vpr_node(minigraph, mininode, vpr_node_id):
+    """
+    Assigns a minigraph node with a VPR node id. Checks whether the node
+    wa not previously assigned.
+    """
+    assert minigraph.nodes[mininode].metadata is None
+    minigraph.update_node(mininode, is_locked=True, metadata=vpr_node_id)
+
+
+def populate_connections(connections, tile_grid, switchbox_models, connection_to_node):
     """
     Populates connections to minigraphs of switchbox models.
     """
-
-    def assign_vpr_node(minigraph, mininode, vpr_node_id):
-        """
-        Assigns a minigraph node with a VPR node id. Checks whether the node
-        wa not previously assigned.
-        """
-        assert minigraph.nodes[mininode].metadata is None
-        minigraph.update_node(mininode, is_locked=True, metadata=vpr_node_id)
 
     # Process connections
     bar = progressbar_utils.progressbar
@@ -459,6 +591,35 @@ def populate_connections(graph, connections, tile_grid, switchbox_models, connec
                 # Assign it the VPR node id
                 assign_vpr_node(minigraph, mininode, node.id)
 
+
+def populate_const_connections(switchbox_models, const_node_map):
+    """
+    Connects switchbox inputs that represent VCC and GND constants to
+    nodes of the global const network.
+    """
+
+    for loc, switchbox_model in switchbox_models.items():
+
+        # Look for input connected to a const
+        for pin in switchbox_model.switchbox.pins:
+
+            if pin.direction is not PinDirection.INPUT:
+                continue
+
+            # Got a const input
+            if pin.name in const_node_map:
+
+                # Get the node
+                node = const_node_map[pin.name][loc]
+
+                # Get the input node of the minigraph
+                key = (pin.name, PinDirection.INPUT)
+                mininode = switchbox_model.switchbox_pin_to_mininode[key]
+                minigraph = switchbox_model.minigraph
+
+                # Assign it the VPR node id
+                assign_vpr_node(minigraph, mininode, node.id)
+
 # =============================================================================
 
 
@@ -520,6 +681,12 @@ def main():
     # Connection to node map. Map Connection objects to rr graph node ids
     connection_to_node = {}
 
+    # Add const network
+    const_node_map = {}
+    for const in ["VCC", "GND"]:
+        m = add_tracks_for_const_network(xml_graph.graph, const, vpr_tile_grid)
+        const_node_map[const] = m
+
     # Add tracks for HOP wires. Build map of these to rr nodes.
     node_map = add_tracks_for_hop_wires(xml_graph.graph, connections)
     connection_to_node.update(node_map)
@@ -545,7 +712,8 @@ def main():
 
     # Populate connections to the switchbox models
     print("Populating connections...")
-    populate_connections(xml_graph.graph, connections, vpr_tile_grid, switchbox_models, connection_to_node)
+    populate_connections(connections, vpr_tile_grid, switchbox_models, connection_to_node)
+    populate_const_connections(switchbox_models, const_node_map)
 
     # Implement switchboxes in the VPR graph
     print("Building final rr graph...")
@@ -575,6 +743,12 @@ def main():
     nodes_obj = xml_graph.graph.nodes
     edges_obj = xml_graph.graph.edges
     node_remap = lambda x: x
+
+    # TODO: FIXME: Some switchboxes has switches with multiple inputs connected
+    # to eg. GND. This results in redundant edges in the VPR rr graph.
+    # Find them and remove them here but in the long term do it in the sitch
+    # model generation!
+    edges_obj = list(set(edges_obj))
 
     print("Serializing the rr graph...")
     xml_graph.serialize_to_xml(
