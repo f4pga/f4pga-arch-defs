@@ -524,6 +524,42 @@ def parse_port_mapping_table(xml_root, switchbox_grid):
 # =============================================================================
 
 
+def parse_bidir_pinmap(xml_root):
+    """
+    Parses the "Package" section that holds IO pin to BIDIR cell map.
+
+    Returns a dict indexed by package name. That dict holds another dicts
+    that are indexed by IO pin names. They contain lists of BIDIR cell names
+    that the IO pin is physically connected to.
+    """
+    pin_map = {}
+
+    # Parse "PACKAGE" sections.
+    for xml_package in xml_root.findall("PACKAGE"):
+
+        # Initialize map
+        pkg_name = xml_package.attrib["name"] 
+        pkg_pin_map = {}
+        pin_map[pkg_name] = pkg_pin_map
+
+        xml_pins = xml_package.find("Pins")
+        assert xml_pins is not None
+
+        # Parse pins        
+        for xml_pin in xml_pins.findall("Pin"):
+            pin_name = xml_pin.attrib["name"]
+            pkg_pin_map[pin_name] = []
+
+            # Parse cells
+            for xml_cell in xml_pin.findall("cell"):
+                cell_name = xml_cell.attrib["name"]
+                pkg_pin_map[pin_name].append(cell_name)
+
+    return pin_map
+
+# =============================================================================
+
+
 def import_data(xml_root):
     """
     Imports the Quicklogic FPGA tilegrid and routing data from the given
@@ -578,13 +614,21 @@ def import_data(xml_root):
     # Import switchbox port mapping
     port_maps = parse_port_mapping_table(xml_portmap, switchbox_grid)
 
+    # Get the "Packages" section
+    xml_packages = xml_root.find("Packages")
+    assert xml_packages is not None
+
+    # Import BIDIR cell names to package pin mapping
+    package_pinmap = parse_bidir_pinmap(xml_packages)
+
     return {
         "cells_library": cells_library,
         "tile_types": tile_types,
         "tile_grid": tile_grid,
         "switchbox_types": switchbox_types,
         "switchbox_grid": switchbox_grid,
-        "port_maps": port_maps
+        "port_maps": port_maps,
+        "package_pinmap": package_pinmap
     }
 
 
