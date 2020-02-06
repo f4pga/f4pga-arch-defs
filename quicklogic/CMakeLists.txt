@@ -42,7 +42,6 @@ define_arch(
 )
 unset(PYTHON3)
 
-include(boards.cmake)
-
 add_subdirectory(devices)
+include(boards.cmake)
 add_subdirectory(tests)
