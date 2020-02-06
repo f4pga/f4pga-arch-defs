@@ -10130,7 +10130,7 @@ BUFG BUFG_5(
 
 (* LOC="IDELAYCTRL_X1Y0" *)
 IDELAYCTRL IDELAYCTRL(
-	.REFCLK(sys4x_clk),
+	.REFCLK(clk200_clk),
 	.RST(main_ic_reset),
 	.RDY(idelayctl_rdy)
 );
