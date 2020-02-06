@@ -22,8 +22,9 @@ function(ADD_QUICKLOGIC_BOARD)
     )
 
   set(DEVICE ${ADD_QUICKLOGIC_BOARD_DEVICE})
-#  get_target_property_required(ARCH ${DEVICE} ARCH)
+  get_target_property_required(ARCH ${DEVICE} ARCH)
   get_target_property_required(DEVICE_TYPE ${DEVICE} DEVICE_TYPE)
+  set(PACKAGE ${ADD_QUICKLOGIC_BOARD_PACKAGE})
   set(BOARD ${ADD_QUICKLOGIC_BOARD_BOARD})
 
   # Get the database location
@@ -36,6 +37,7 @@ function(ADD_QUICKLOGIC_BOARD)
   set(PINMAP_CSV_DEPS ${PYTHON3} ${PYTHON3_TARGET} ${CREATE_PINMAP_CSV})
   append_file_dependency(PINMAP_CSV_DEPS ${VPR_DB_FILE})
 
+  # TODO: Use the PACKAGE in the pinmap CSV generation.
   add_custom_command(
     OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/${PINMAP_CSV}
     COMMAND ${PYTHON3} ${CREATE_PINMAP_CSV}
@@ -52,6 +54,12 @@ function(ADD_QUICKLOGIC_BOARD)
     PROPERTIES
       PINMAP
       ${CMAKE_CURRENT_SOURCE_DIR}/${PINMAP_CSV}
+  )
+
+  set_target_properties(
+    dummy_${ARCH}_${DEVICE}_${PACKAGE}
+    PROPERTIES
+    PINMAP ${CMAKE_CURRENT_SOURCE_DIR}/${PINMAP_CSV}
   )
 
 endfunction()

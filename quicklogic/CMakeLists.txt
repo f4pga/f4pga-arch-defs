@@ -25,15 +25,22 @@ define_arch(
 
   RR_PATCH_TOOL
     ${CMAKE_CURRENT_SOURCE_DIR}/utils/routing_import.py
-
-  # FIXME: How to make that depend on db_vpr.pickle ??
   RR_PATCH_CMD "\${CMAKE_COMMAND} -E env PYTHONPATH=${symbiflow-arch-defs_SOURCE_DIR}/utils
     \${PYTHON3} \${RR_PATCH_TOOL} \
    --vpr-db ${CMAKE_CURRENT_BINARY_DIR}/devices/\${DEVICE_TYPE}/db_vpr.pickle \
    --rr-graph-in \${OUT_RRXML_VIRT} \
    --rr-graph-out \${OUT_RRXML_REAL}"
 
-  NO_PINS
+  PLACE_TOOL
+    ${symbiflow-arch-defs_SOURCE_DIR}/quicklogic/utils/create_ioplace.py
+  PLACE_TOOL_CMD "${CMAKE_COMMAND} -E env \
+    PYTHONPATH=${symbiflow-arch-defs_SOURCE_DIR}/utils \
+    \${PYTHON3} \${PLACE_TOOL} \
+        --map \${PINMAP} \
+        --blif \${OUT_EBLIF} \
+        --pcf \${INPUT_IO_FILE} \
+        --net \${OUT_NET}"
+    
   NO_BITSTREAM
   NO_BIT_TO_V
   NO_BIT_TIME
