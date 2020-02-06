@@ -36,7 +36,6 @@ NOTE: if the system frequency is lower than 50 MHz, the DDR won't correctly func
 """
 
 import sys
-import time
 
 from litex import RemoteClient
 
