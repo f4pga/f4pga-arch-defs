@@ -210,6 +210,33 @@ def process_connections(phy_connections, loc_map, grid_limit=None):
 # =============================================================================
 
 
+def process_package_pinmap(package_pinmap, loc_map):
+    """
+    Processes the package pinmap. Reloacted pin mappings. Reject mappings
+    that lie outside the grid limit.
+    """
+
+    # Remap locations
+    new_package_pinmap = {}
+    for pin_name, pin in package_pinmap.items():
+
+        if pin.loc not in loc_map.fwd:
+            continue
+
+        new_loc = loc_map.fwd[pin.loc]
+
+        new_package_pinmap[pin_name] = PackagePin(
+            name = pin.name,
+            loc = new_loc,
+            cell_names = pin.cell_names # TODO: Should probably map cell names here
+        )
+
+    return new_package_pinmap
+
+
+# =============================================================================
+
+
 def main():
     
     # Parse arguments
@@ -253,6 +280,7 @@ def main():
         switchbox_types= db["switchbox_types"]
         phy_switchbox_grid = db["switchbox_grid"]
         connections    = db["connections"]
+        package_pinmaps = db["package_pinmaps"]
 
     # Add synthetic stuff
     add_synthetic_cell_and_tile_types(tile_types, cells_library)
@@ -265,6 +293,11 @@ def main():
 
     # Process connections
     connections = process_connections(connections, loc_map, grid_limit)
+
+    # Process package pinmaps
+    vpr_package_pinmaps = {}
+    for package, pkg_pin_map in package_pinmaps.items():
+        vpr_package_pinmaps[package] = process_package_pinmap(pkg_pin_map, loc_map)
 
     # Get tile types present in the grid
     vpr_tile_types = set([t.type for t in vpr_tile_grid.values() if t is not None])
@@ -282,6 +315,7 @@ def main():
         "vpr_switchbox_types": vpr_switchbox_types,
         "vpr_switchbox_grid":  vpr_switchbox_grid,
         "connections":    connections,
+        "vpr_package_pinmaps": vpr_package_pinmaps,
     }
 
     with open(args.vpr_db, "wb") as fp:

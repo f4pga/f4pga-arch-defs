@@ -182,3 +182,8 @@ ConnectionLoc = namedtuple("ConnectionLoc", "loc pin is_direct")
 # A connection within the tilegrid
 Connection = namedtuple("Connection", "src dst")
 
+# =============================================================================
+
+# A package pin. Holds information about what cells the pin cooresponds to and
+# where it is in the tilegrid.
+PackagePin = namedtuple("PackagePin", "name loc cell_names")

@@ -18,7 +18,7 @@ from connections import build_connections, check_connections
 
 # A list of cells in the globla clock network
 GCLK_CELLS = (
-    "CLOCK",
+#    "CLOCK",
     "GMUX",
     "QMUX",
     "CAND"
@@ -532,7 +532,25 @@ def parse_port_mapping_table(xml_root, switchbox_grid):
 # =============================================================================
 
 
-def parse_bidir_pinmap(xml_root):
+def get_loc_of_cell(cell_name, tile_grid):
+    """
+    Returns loc of a cell with the given name in the tilegrid.
+    """
+
+    # Look for a tile that has the cell
+    for loc, tile in tile_grid.items():
+        if tile is None:
+            continue
+
+        cell_names = [n for ns in tile.cell_names.values() for n in ns]
+        if cell_name in cell_names:
+            return loc
+
+    # Not found
+    return None
+
+
+def parse_bidir_pinmap(xml_root, tile_grid):
     """
     Parses the "Package" section that holds IO pin to BIDIR cell map.
 
@@ -556,12 +574,31 @@ def parse_bidir_pinmap(xml_root):
         # Parse pins        
         for xml_pin in xml_pins.findall("Pin"):
             pin_name = xml_pin.attrib["name"]
-            pkg_pin_map[pin_name] = []
+            cell_names = []
+            cell_locs = []
 
             # Parse cells
             for xml_cell in xml_pin.findall("cell"):
                 cell_name = xml_cell.attrib["name"]
-                pkg_pin_map[pin_name].append(cell_name)
+                cell_names.append(cell_name)
+                cell_locs.append(get_loc_of_cell(cell_name, tile_grid))
+
+            # Cannot be more than one loc
+            assert len(set(cell_locs)) == 1, (pkg_name, pin_name, cell_names, cell_locs)
+            loc = cell_locs[0]
+            
+            # Location not found
+            if loc is None:
+                print("ERROR: No loc for package pin '{}' of package '{}'".format(
+                    pin_name, pkg_name))
+                continue
+
+            # Add the pin mapping
+            pkg_pin_map[pin_name] = PackagePin(
+                name = pin_name,
+                loc = loc,
+                cell_names = cell_names
+            )
 
     return pin_map
 
@@ -627,7 +664,7 @@ def import_data(xml_root):
     assert xml_packages is not None
 
     # Import BIDIR cell names to package pin mapping
-    package_pinmap = parse_bidir_pinmap(xml_packages)
+    package_pinmaps = parse_bidir_pinmap(xml_packages, tile_grid)
 
     return {
         "cells_library": cells_library,
@@ -636,7 +673,7 @@ def import_data(xml_root):
         "switchbox_types": switchbox_types,
         "switchbox_grid": switchbox_grid,
         "port_maps": port_maps,
-        "package_pinmap": package_pinmap
+        "package_pinmaps": package_pinmaps
     }
 
 
@@ -690,6 +727,7 @@ def main():
         "switchbox_types": data["switchbox_types"],
         "switchbox_grid": data["switchbox_grid"],
         "connections": connections,
+        "package_pinmaps": data["package_pinmaps"],
     }
 
     with open(args.db, "wb") as fp:
