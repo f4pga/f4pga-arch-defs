@@ -1,11 +1,47 @@
 #!/usr/bin/env python3
+"""
+This script is used to test the minimal DDR litex design.
+
+It performs the calibration step by sending commands and data through an UART bridge
+to the DDR controller.
+
+It makes use of the litex RemoteClient.
+
+This script is able to calculate which are the correct bitslip and delay values of the
+IOSERDESes.
+
+If the DDR design is correctly working, depending on the system frequency, an output similar
+to the following is desplayed as output of this script:
+
+Minimal Arty DDR3 Design for tests with Project X-Ray 2020-02-03 11:30:24
+Release reset
+Bring CKE high
+Load Mode Register 2, CWL=5
+Load Mode Register 3
+Load Mode Register 1
+Load Mode Register 0, CL=6, BL=8
+ZQ Calibration
+bitslip 0: |..|..|..|..|..|..|..|..|..|.............|..|..|..|..|..|..|..|..|..|..|..|..|..|..|31|
+bitslip 1: |..|..|..|..|..|..|..|..|..|.............|..|..|..|..|..|..|..|..|..|..|..|..|..|..|..|
+bitslip 2: |..|..|..|..|..|..|..|..|..|.............|..|..|..|..|..|..|..|..|..|..|..|..|..|..|..|
+bitslip 3: |..|..|..|..|..|..|..|..|..|.............|..|..|..|..|..|..|..|..|..|..|..|..|..|..|..|
+bitslip 4: |..|..|..|..|..|..|..|..|..|.............|..|..|..|..|..|..|..|..|..|..|..|..|..|..|..|
+bitslip 5: |..|..|..|..|..|..|..|..|..|.............|..|..|..|..|..|..|..|..|..|..|..|..|..|..|..|
+bitslip 6: |..|..|..|..|..|..|..|..|..|.............|..|..|..|..|..|..|..|..|..|..|..|..|..|..|..|
+bitslip 7: |..|..|..|..|..|..|..|..|..|.............|..|..|..|..|..|..|..|..|..|..|..|..|..|..|..|
+
+
+NOTE: if the system frequency is lower than 50 MHz, the DDR won't correctly function
+
+"""
+
 
 import sys
 import time
 
 from litex import RemoteClient
 
-from sdram_init import *
+from sdram_init import dfii_control_sel, init_sequence
 
 wb = RemoteClient(debug=False)
 wb.open()
