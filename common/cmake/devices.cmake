@@ -752,7 +752,6 @@ function(ADD_OUTPUT_TO_FPGA_TARGET name property file)
 endfunction()
 
 set(VPR_BASE_ARGS
-    --min_route_chan_width_hint 100
     --max_router_iterations 500
     --routing_failure_predictor off
     --router_high_fanout_threshold -1
