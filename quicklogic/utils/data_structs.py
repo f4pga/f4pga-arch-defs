@@ -101,7 +101,7 @@ class TileType(object):
 """
 A tile instance within a tilegrid
 """
-Tile = namedtuple("Tile", "type name")
+Tile = namedtuple("Tile", "type name cell_names")
 
 # =============================================================================
 

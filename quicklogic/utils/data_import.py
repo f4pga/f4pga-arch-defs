@@ -271,10 +271,17 @@ def parse_placement(xml_placement, cells_library):
     # present there.
     tile_types = {}
     tile_types_at_loc = {}
+    cell_names_at_loc = {}
     for loc, cells in cellgrid.items():
 
         # Filter out global clock routing cells
         cells = [c for c in cells if c.type not in GCLK_CELLS]
+
+        # Collect cell names
+        cell_names = defaultdict(lambda: [])
+        for cell in cells:
+            cell_names[cell.type].append(cell.name)        
+        cell_names_at_loc[loc] = dict(cell_names)
 
         # Generate type and assign
         type = make_tile_type_name(cells)
@@ -282,7 +289,7 @@ def parse_placement(xml_placement, cells_library):
 
         # A new type? complete its definition
         if type not in tile_types:
-            
+
             cell_types = [c.type for c in cells]
             cell_count = {t: len([c for c in cells if c.type == t]) for t in cell_types}
 
@@ -297,6 +304,7 @@ def parse_placement(xml_placement, cells_library):
         tilegrid[loc] = Tile(
             type = type,
             name = "TILE_X{}Y{}".format(loc.x, loc.y),
+            cell_names = cell_names_at_loc[loc]
         )
 
     return tile_types, tilegrid

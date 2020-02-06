@@ -72,7 +72,8 @@ def process_tilegrid(tile_types, tile_grid, grid_limit=None):
         if "BIDIR" in tile_type.type:
             new_tile_grid[loc] = Tile(
                 type = "SYN_IO",
-                name = tile.name
+                name = tile.name,
+                cell_names = {"SYN_PAD": ["SYN_PAD0"]}
             )
             continue
  
@@ -89,9 +90,11 @@ def process_tilegrid(tile_types, tile_grid, grid_limit=None):
             assert net_tile_grid[loc] is None, (const, loc)
 
         # Add the tile instance
+        name = "SYN_{}".format(const)
         new_tile_grid[loc] = Tile(
-            type = "SYN_{}".format(const),
-            name = "SYN_{}".format(const)
+            type = name,
+            name = name,
+            cell_names = {name: ["{}0".format(name)]}
         )
         
     # Extend the grid by 1 in every direction. Fill missing locs with empty
