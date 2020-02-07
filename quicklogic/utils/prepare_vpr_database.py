@@ -37,18 +37,18 @@ def is_loc_within_limit(loc, limit):
 
 def add_synthetic_cell_and_tile_types(tile_types, cells_library):
 
-    # The synthetic IO PAD cell.
-    cell_type = CellType(
-        type = "SYN_PAD",
-        pins = (
-            Pin(name="I", is_clock=False, direction=PinDirection.INPUT),
-            Pin(name="O", is_clock=False, direction=PinDirection.OUTPUT),
-        )
-    )
-    cells_library[cell_type.type] = cell_type
+#    # The synthetic IO PAD cell.
+#    cell_type = CellType(
+#        type = "SYN_PAD",
+#        pins = (
+#            Pin(name="I", is_clock=False, direction=PinDirection.INPUT),
+#            Pin(name="O", is_clock=False, direction=PinDirection.OUTPUT),
+#        )
+#    )
+#    cells_library[cell_type.type] = cell_type
 
     # The synthetic IO tile.
-    tile_type = TileType("SYN_IO", {"SYN_PAD": 1})
+    tile_type = TileType("SYN_IO", {"BIDIR": 1})
     tile_type.make_pins(cells_library)
     tile_types[tile_type.type] = tile_type
 
@@ -76,12 +76,13 @@ def process_tilegrid(tile_types, tile_grid, grid_limit=None):
 
         tile_type = tile_types[tile.type]
 
-        # Insert synthetic tiles in place of tiles that contain a BIDIR cell.
+        # For a tile that contains at least one BIDIR cell make a new tile
+        # just for that cell.
         if "BIDIR" in tile_type.type:
             new_tile_grid[loc] = Tile(
                 type = "SYN_IO",
                 name = tile.name,
-                cell_names = {"SYN_PAD": ["SYN_PAD0"]}
+                cell_names = {"BIDIR": ["BIDIR0"]}
             )
             continue
  
@@ -162,8 +163,8 @@ def process_connections(phy_connections, loc_map, grid_limit=None):
 
     # Pin map
     pin_map = {
-        "BIDIR0_IZ":  "SYN_PAD0_O",
-        "BIDIR0_OQI": "SYN_PAD0_I",
+#        "BIDIR0_IZ":  "SYN_PAD0_O",
+#        "BIDIR0_OQI": "SYN_PAD0_I",
     }
 
     # Remap locations, remap pins

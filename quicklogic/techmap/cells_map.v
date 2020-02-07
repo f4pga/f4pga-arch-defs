@@ -15,18 +15,36 @@ endmodule
 // ============================================================================
 // IO and clock buffers
 
-// TODO: Those are not supported in the SymbiFlow yet. Map them to passthrough
-// wires.
 module inpad(output Q, input P);
-  assign Q = P;
+
+  BIDIR_IBUF _TECHMAP_REPLACE_ (
+  .P(P),
+  .O(Q),
+  .E(1'b1)
+  );
+
 endmodule
 
 module outpad(output P, input A);
-  assign P = A;
+
+  BIDIR_OBUF _TECHMAP_REPLACE_ (
+  .P(P),
+  .I(A),
+  .E(1'b1)
+  );
+
 endmodule
 
 module ckpad(output Q, input P);
-  assign Q = P;
+
+  // TODO: Map this to a cell that would have two modes: one for BIDIR and
+  // one for CLOCK. For now just make it a BIDIR input.
+  BIDIR_IBUF _TECHMAP_REPLACE_ (
+  .P(P),
+  .O(Q),
+  .E(1'b1)
+  );
+
 endmodule
 
 

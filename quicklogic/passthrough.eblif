@@ -1,0 +1,17 @@
+.model top
+.inputs I
+.outputs O
+.subckt GND GND=$false
+.subckt VCC VCC=$true
+.subckt VCC VCC=$undef
+.subckt BIDIR_IBUF E=$auto$hilomap.cc:39:hilomap_worker$86 O=x P=$auto$iopadmap.cc:386:execute$68
+.cname ibuf
+.subckt BIDIR_OBUF E=$auto$hilomap.cc:39:hilomap_worker$86 I=x P=$auto$iopadmap.cc:386:execute$70
+.cname obuf
+.names I $auto$iopadmap.cc:386:execute$68
+1 1
+.names $true $auto$hilomap.cc:39:hilomap_worker$86
+1 1
+.names $auto$iopadmap.cc:386:execute$70 O
+1 1
+.end
