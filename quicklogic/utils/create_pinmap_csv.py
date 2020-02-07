@@ -62,7 +62,7 @@ def main():
     # Write the pinmap CSV file
     with open(args.o, "w") as fp:
         fp.write("name,x,y,z\n")
-        fp.write("\n".join(csv_lines))
+        fp.write("\n".join(csv_lines) + "\n")
 
 # =============================================================================
 

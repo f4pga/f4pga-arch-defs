@@ -7,6 +7,14 @@ from data_structs import *
 
 # =============================================================================
 
+# IO cell types to ignore. They do not correspond to routable IO pads.
+IGNORED_IO_CELL_TYPES = (
+    "VCC",
+    "GND",
+)
+
+# =============================================================================
+
 
 def is_loc_within_limit(loc, limit):
     """
@@ -210,7 +218,28 @@ def process_connections(phy_connections, loc_map, grid_limit=None):
 # =============================================================================
 
 
-def process_package_pinmap(package_pinmap, loc_map):
+def get_cell_type_by_name_at_loc(loc, cell_name, tile_grid):
+    """
+    Returns type of a cell with the given name at the given loc. Returns None
+    if the cell cannot be found.
+    """
+
+    if loc not in tile_grid:
+        return None
+    
+    tile = tile_grid[loc]
+    if tile is None:
+        return None
+
+    # Find cell
+    for cell_type, cell_names in tile.cell_names.items():
+        if cell_name in cell_names:
+            return cell_type
+
+    return None
+
+
+def process_package_pinmap(package_pinmap, phy_tile_grid, loc_map):
     """
     Processes the package pinmap. Reloacted pin mappings. Reject mappings
     that lie outside the grid limit.
@@ -220,15 +249,31 @@ def process_package_pinmap(package_pinmap, loc_map):
     new_package_pinmap = {}
     for pin_name, pin in package_pinmap.items():
 
+        # The loc is outside the grid limit, skip it.
         if pin.loc not in loc_map.fwd:
             continue
 
+        # Process cells. Look for cells from the ignore list and remove them
+        cell_names = []
+        for cell_name in pin.cell_names:
+
+            cell_type = get_cell_type_by_name_at_loc(pin.loc, cell_name, phy_tile_grid)
+            assert cell_type is not None, (pin.name, cell_name, pin.loc)
+
+            if cell_type not in IGNORED_IO_CELL_TYPES:
+                cell_names.append(cell_name)
+
+        # No cells for that pin, skip it
+        if len(cell_names) == 0:
+            continue
+
+        # Remap location
         new_loc = loc_map.fwd[pin.loc]
 
         new_package_pinmap[pin_name] = PackagePin(
             name = pin.name,
             loc = new_loc,
-            cell_names = pin.cell_names # TODO: Should probably map cell names here
+            cell_names = cell_names # TODO: Should probably map cell names here
         )
 
     return new_package_pinmap
@@ -297,7 +342,7 @@ def main():
     # Process package pinmaps
     vpr_package_pinmaps = {}
     for package, pkg_pin_map in package_pinmaps.items():
-        vpr_package_pinmaps[package] = process_package_pinmap(pkg_pin_map, loc_map)
+        vpr_package_pinmaps[package] = process_package_pinmap(pkg_pin_map, phy_tile_grid, loc_map)
 
     # Get tile types present in the grid
     vpr_tile_types = set([t.type for t in vpr_tile_grid.values() if t is not None])
