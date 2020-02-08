@@ -653,6 +653,7 @@ function(DEFINE_DEVICE)
     )
 
     add_file_target(FILE ${OUT_RRBIN_REAL_FILENAME} GENERATED)
+    get_file_target(RRBIN_REAL_TARGET ${OUT_RRBIN_REAL_FILENAME})
 
     set_target_properties(
       ${DEFINE_DEVICE_DEVICE}
@@ -662,17 +663,18 @@ function(DEFINE_DEVICE)
 
     if(${DEFINE_DEVICE_CACHE_LOOKAHEAD})
       add_file_target(FILE ${LOOKAHEAD_FILENAME} GENERATED)
+
+      # Linearize target dependency.
+      get_file_target(LOOKAHEAD_TARGET ${LOOKAHEAD_FILENAME})
+      add_dependencies(${LOOKAHEAD_TARGET} ${RRBIN_REAL_TARGET})
     endif()
+
     if(${DEFINE_DEVICE_CACHE_PLACE_DELAY})
       add_file_target(FILE ${PLACE_DELAY_FILENAME} GENERATED)
 
-      if(${DEFINE_DEVICE_CACHE_LOOKAHEAD})
-          get_file_target(LOOKAHEAD_TARGET ${LOOKAHEAD_FILENAME})
-          get_file_target(PLACE_DELAY_TARGET ${PLACE_DELAY_FILENAME})
-
-          # Linearize target dependency.
-          add_dependencies(${PLACE_DELAY_TARGET} ${LOOKAHEAD_TARGET})
-      endif()
+      # Linearize target dependency.
+      get_file_target(PLACE_DELAY_TARGET ${PLACE_DELAY_FILENAME})
+      add_dependencies(${PLACE_DELAY_TARGET} ${RRBIN_REAL_TARGET})
     endif()
 
     if(${DEFINE_DEVICE_CACHE_LOOKAHEAD} OR ${DEFINE_DEVICE_CACHE_PLACE_DELAY})
