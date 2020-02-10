@@ -30,7 +30,7 @@ def main():
 
     parser.add_argument(
         "--db",
-        type=str,
+        type=argparse.FileType("rb"),
         required=True,
         help="Input VPR database file of the device"
     )
@@ -42,7 +42,7 @@ def main():
     )
     parser.add_argument(
         "-o",
-        type=str,
+        type=argparse.FileType("w"),
         default="pinmap.csv",
         help="Output pinmap CSV file"
     )
@@ -50,9 +50,8 @@ def main():
     args = parser.parse_args()
 
     # Load data from the database
-    with open(args.db, "rb") as fp:
-        db = pickle.load(fp)
-        package_pinmaps = db["vpr_package_pinmaps"]
+    db = pickle.load(args.db)
+    package_pinmaps = db["vpr_package_pinmaps"]
 
     # Generate the CSV data
     csv_lines = generate_pinmap_csv(
@@ -60,9 +59,8 @@ def main():
     )
 
     # Write the pinmap CSV file
-    with open(args.o, "w") as fp:
-        fp.write("name,x,y,z\n")
-        fp.write("\n".join(csv_lines) + "\n")
+    args.o.write("name,x,y,z\n")
+    args.o.write("\n".join(csv_lines) + "\n")
 
 # =============================================================================
 

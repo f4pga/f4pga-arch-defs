@@ -18,7 +18,6 @@ from connections import build_connections, check_connections
 
 # A list of cells in the globla clock network
 GCLK_CELLS = (
-#    "CLOCK",
     "GMUX",
     "QMUX",
     "CAND"

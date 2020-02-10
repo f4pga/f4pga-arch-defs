@@ -1,5 +1,5 @@
 module top(
-  input  wire [3:0] I,
+  input  wire [1:0] I,
   output wire O
 );
 
