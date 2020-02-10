@@ -11,7 +11,6 @@ set(SDF_TIMING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/timings)
 set(BELS_MAP ${CMAKE_CURRENT_SOURCE_DIR}/bels.json)
 
 add_subdirectory(primitives)
-add_subdirectory(tiles)
 
 get_target_property_required(PYTHON3 env PYTHON3)
 define_arch(
@@ -21,7 +20,8 @@ define_arch(
   DEVICE_FULL_TEMPLATE \${DEVICE}
   VPR_ARCH_ARGS " \
     --router_init_wirelength_abort_threshold 20 \
-    --place_algorithm bounding_box"
+    --place_algorithm bounding_box \
+    --allow_dangling_combinational_nodes on"
 
   RR_PATCH_TOOL
     ${CMAKE_CURRENT_SOURCE_DIR}/utils/routing_import.py

@@ -1,6 +1,6 @@
 `include "../vpr_pad/vpr_ipad.sim.v"
 `include "../vpr_pad/vpr_opad.sim.v"
-`include "../inv/inv.sim.v"
+//`include "../inv/inv.sim.v"
 `include "./bidir_ibuf.sim.v"
 `include "./bidir_obuf.sim.v"
 
@@ -20,9 +20,9 @@ module BIDIR(
 
     parameter MODE = "INPUT";
 
-    // Clock inverter
-    wire clk;
-    INV clk_inv(IQC, clk);
+    // TODO: Clock inverter
+    wire clk = IQC;
+//    INV clk_inv(IQC, clk);
 
     // Input or inout mode
     generate if (MODE == "INPUT" || MODE == "INOUT") begin

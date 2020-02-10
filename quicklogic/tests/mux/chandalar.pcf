@@ -1,4 +1,0 @@
-set_io i0  FBIO_0
-set_io i1  FBIO_1
-set_io s   FBIO_2
-set_io out FBIO_3
