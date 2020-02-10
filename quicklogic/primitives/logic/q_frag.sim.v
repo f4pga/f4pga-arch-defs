@@ -18,12 +18,16 @@ module Q_FRAG(QCK, QST, QRT, QEN, QDI, QDS, CZI, QZ);
 	(* CLK_TO_Q = "QCK 10e-12" *)
     output reg  QZ;
 
+    // FF init
+    parameter [0:0] INIT = 1'b0;
+
     // The "QDS" mux just before the flip-flop
     wire d = (QDS) ? QDI : CZI;
 
     // TODO: Clock inverter.
 
     // The flip-flop
+    initial QZ = INIT;
 	always @(posedge QCK or posedge QST or posedge QRT) begin
 		if (QST)
 			QZ <= 1'b1;

@@ -314,3 +314,31 @@ module LUT4 (
   );
 
 endmodule
+
+// ============================================================================
+// Flip-Flops
+
+module dff(
+  output Q,
+  input  D,
+  input  CLK
+);
+
+  parameter [0:0] INIT = 1'b0;
+
+  Q_FRAG # (
+  .INIT (INIT)
+  )
+  _TECHMAP_REPLACE_
+  (
+  .QCK(CLK),
+  .QST(1'b0),
+  .QRT(1'b0),
+  .QEN(1'b1),
+  .QDI(D),
+  .QDS(1'b1), // FIXME: Always select QDI as the FF's input
+  .CZI(),
+  .QZ (Q)
+  );
+
+endmodule

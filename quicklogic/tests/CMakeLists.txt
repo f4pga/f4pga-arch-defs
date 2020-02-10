@@ -5,3 +5,5 @@ add_subdirectory(techmaps)
 add_subdirectory(wire)
 add_subdirectory(lut)
 add_subdirectory(consts)
+add_subdirectory(counter)
+
