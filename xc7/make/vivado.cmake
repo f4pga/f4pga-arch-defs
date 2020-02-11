@@ -150,6 +150,7 @@ function(ADD_VIVADO_TARGET)
   #   PARENT_NAME <name>
   #   CLOCK_PINS list of clock pins
   #   CLOCK_PERIODS list of clock periods
+  #   [XDC <xdc file>]
   #   [DISABLE_DIFF_TEST]
   #   )
   # ~~~
@@ -165,6 +166,8 @@ function(ADD_VIVADO_TARGET)
   # CLOCK_PINS and CLOCK_PERIODS should be lists of the same length.
   # CLOCK_PERIODS should be in nanoseconds.
   #
+  # XDC should be a filename with XDC commands to run prior to analysis.
+  #
   # DISABLE_DIFF_TEST can be added to not add this target to all_xc7_diff_fasm.
   #
   # New targets:
@@ -172,7 +175,7 @@ function(ADD_VIVADO_TARGET)
   #  <NAME>_load_xpr - Launch vivado loading project.
   #  <NAME>_sim - Launch vivado and setup simulation and clock forces.
   set(options DISABLE_DIFF_TEST)
-  set(oneValueArgs NAME PARENT_NAME)
+  set(oneValueArgs NAME PARENT_NAME XDC)
   set(multiValueArgs CLOCK_PINS CLOCK_PERIODS)
   cmake_parse_arguments(
     ADD_VIVADO_TARGET
@@ -215,6 +218,14 @@ function(ADD_VIVADO_TARGET)
     set(CLOCK_ARGS "")
   endif()
 
+  if(NOT "${ADD_VIVADO_TARGET_XDC}" STREQUAL "")
+      append_file_dependency(DEPS ${ADD_VIVADO_TARGET_XDC})
+      get_file_location(XDC_LOCATION ${ADD_VIVADO_TARGET_XDC})
+      set(XDC_ARGS --additional_xdc "${XDC_LOCATION}")
+  elseif()
+      set(XDC_ARGS "")
+  endif()
+
   get_target_property_required(PYTHON3 env PYTHON3)
   get_target_property(PYTHON3_TARGET env PYTHON3_TARGET)
 
@@ -229,6 +240,7 @@ function(ADD_VIVADO_TARGET)
         --part ${PART}
         --output_tcl ${CMAKE_CURRENT_BINARY_DIR}/${NAME}_runme.tcl
         ${CLOCK_ARGS}
+        ${XDC_ARGS}
       DEPENDS
         ${PYTHON3_TARGET} ${PYTHON3}
         ${CREATE_RUNME}
