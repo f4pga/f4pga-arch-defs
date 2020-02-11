@@ -96,8 +96,16 @@ function(QUICKLOGIC_DEFINE_DEVICE_TYPE)
   set(PYTHON_SDF_TIMING_DIR ${symbiflow-arch-defs_SOURCE_DIR}/third_party/python-sdf-timing)
   get_target_property(SDF_TIMING_TARGET env SDF_TIMING_TARGET)
 
-  set(TIMING_IMPORT "${PYTHON3} ${UPDATE_ARCH_TIMINGS} --sdf_dir ${SDF_TIMING_DIRECTORY} --bels_map ${BELS_MAP} --out_arch /dev/stdout --input_arch /dev/stdin")
-  set(TIMING_DEPS ${SDF_TIMING_TARGET})
+  set(TIMING_IMPORT
+    "${CMAKE_COMMAND} -E env PYTHONPATH=${PYTHON_SDF_TIMING_DIR}:$PYTHONPATH \
+    ${PYTHON3} ${UPDATE_ARCH_TIMINGS} \
+        --sdf_dir ${SDF_TIMING_DIRECTORY} \
+        --bels_map ${BELS_MAP} \
+        --out_arch /dev/stdout \
+        --input_arch /dev/stdin \
+    ")
+
+  set(TIMING_DEPS ${SDF_TIMING_TARGET} sdf_timing)
 
   # Define the device type
   define_device_type(
