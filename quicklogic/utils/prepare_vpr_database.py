@@ -37,16 +37,6 @@ def is_loc_within_limit(loc, limit):
 
 def add_synthetic_cell_and_tile_types(tile_types, cells_library):
 
-#    # The synthetic IO PAD cell.
-#    cell_type = CellType(
-#        type = "SYN_PAD",
-#        pins = (
-#            Pin(name="I", is_clock=False, direction=PinDirection.INPUT),
-#            Pin(name="O", is_clock=False, direction=PinDirection.OUTPUT),
-#        )
-#    )
-#    cells_library[cell_type.type] = cell_type
-
     # The synthetic IO tile.
     tile_type = TileType("SYN_IO", {"BIDIR": 1})
     tile_type.make_pins(cells_library)
@@ -163,8 +153,6 @@ def process_connections(phy_connections, loc_map, grid_limit=None):
 
     # Pin map
     pin_map = {
-#        "BIDIR0_IZ":  "SYN_PAD0_O",
-#        "BIDIR0_OQI": "SYN_PAD0_I",
     }
 
     # Remap locations, remap pins
