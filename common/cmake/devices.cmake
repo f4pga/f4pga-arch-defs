@@ -1014,8 +1014,11 @@ function(ADD_FPGA_TARGET)
     endif()
     if(NOT "${ADD_FPGA_TARGET_INPUT_XDC_FILE}" STREQUAL "")
       add_file_target(FILE ${ADD_FPGA_TARGET_INPUT_XDC_FILE})
-      get_file_location(INPUT_XDC_FILE ${ADD_FPGA_TARGET_INPUT_XDC_FILE})
     endif()
+  endif()
+
+  if(NOT "${ADD_FPGA_TARGET_INPUT_XDC_FILE}" STREQUAL "")
+    get_file_location(INPUT_XDC_FILE ${ADD_FPGA_TARGET_INPUT_XDC_FILE})
   endif()
 
   #
