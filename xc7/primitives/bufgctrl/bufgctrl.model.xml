@@ -4,8 +4,8 @@
   <input_ports>
    <port name="CE0" />
    <port name="CE1" />
-   <port name="I0" is_clock="1"/>
-   <port name="I1" is_clock="1"/>
+   <port name="I0" is_clock="1" combinational_sink_ports="O"/>
+   <port name="I1" is_clock="1" combinational_sink_ports="O"/>
    <port name="IGNORE0" />
    <port name="IGNORE1" />
    <port name="S0" />
