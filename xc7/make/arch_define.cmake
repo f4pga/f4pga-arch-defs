@@ -30,15 +30,13 @@ function(ADD_XC7_ARCH_DEFINE)
       --clock_modeling route \
       --place_delay_model delta_override \
       --router_lookahead connection_box_map \
-      --disable_check_route on \
+      --quick_check_route on \
       --strict_checks off \
-      --clustering_pin_feasibility_filter on \
       --allow_dangling_combinational_nodes on \
       --disable_errors check_unbuffered_edges:check_route \
       --congested_routing_iteration_threshold 0.8 \
       --incremental_reroute_delay_ripup off \
       --base_cost_type delay_normalized_length_bounded \
-      --astar_fac 1.2 \
       --bb_factor 10 \
       --initial_pres_fac 4.0 \
       --disable_check_rr_graph on \
