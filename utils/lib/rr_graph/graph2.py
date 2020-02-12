@@ -227,6 +227,7 @@ class Graph(object):
             block_types,
             grid,
             nodes,
+            edges=None,
             build_pin_edges=True
     ):
         self.switches = switches
@@ -259,7 +260,7 @@ class Graph(object):
         self.tracks = []
         self.nodes = nodes
         self.nodes.sort(key=lambda node: node.id)
-        self.edges = []
+        self.edges = edges if edges is not None else []
 
         self.connection_boxes = []
         self.connection_box_map = {}
