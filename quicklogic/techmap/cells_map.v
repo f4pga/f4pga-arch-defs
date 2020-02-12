@@ -94,7 +94,7 @@ module LUT2 (
   .BBS1(1'b0),
   .BBS2(1'b0)
   )
-  c_frag 
+  c_frag
   (
   .TBS(1'b0),
   .TAB(TAB),
@@ -176,7 +176,7 @@ module LUT3 (
   .BBS1(1'b0),
   .BBS2(1'b0)
   )
-  c_frag 
+  c_frag
   (
   .TBS(1'b0),
   .TAB(TAB),
@@ -294,7 +294,7 @@ module LUT4 (
   .BBS1(BBS1),
   .BBS2(BBS2)
   )
-  c_frag 
+  c_frag
   (
   .TBS(TBS),
   .TAB(TAB),
