@@ -4,31 +4,31 @@
       <port is_clock="1" name="CLK"/>
       <port is_clock="1" name="CLKB"/>
       <port is_clock="1" name="CLKDIV"/>
-      <port name="BITSLIP"/>
-      <port name="CE1"/>
-      <port name="CE2"/>
-      <port name="D"/>
+      <port clock="CLKDIV" name="BITSLIP"/>
+      <port clock="CLKDIV" name="CE1"/>
+      <port clock="CLKDIV" name="CE2"/>
+      <port clock="CLK" combinational_sink_ports="O" name="D"/>
       <port name="DYNCLKDIVPSEL"/>
       <port name="DYNCLKDIVSEL"/>
       <port name="DYNCLKSEL"/>
       <port name="OCLK"/>
       <port name="OCLKB"/>
-      <port name="OFB"/>
+      <port clock="CLK" name="OFB" combinational_sink_ports="O"/>
       <port name="SHIFTIN1"/>
       <port name="SHIFTIN2"/>
-      <port name="RST"/>
-      <port name="TFB"/>
+      <port clock="CLKDIV" name="RST"/>
+      <port combinational_sink_ports="O" name="TFB"/>
     </input_ports>
     <output_ports>
       <port name="O"/>
-      <port name="Q1"/>
-      <port name="Q2"/>
-      <port name="Q3"/>
-      <port name="Q4"/>
-      <port name="Q5"/>
-      <port name="Q6"/>
-      <port name="Q7"/>
-      <port name="Q8"/>
+      <port clock="CLKDIV" name="Q1"/>
+      <port clock="CLKDIV" name="Q2"/>
+      <port clock="CLKDIV" name="Q3"/>
+      <port clock="CLKDIV" name="Q4"/>
+      <port clock="CLKDIV" name="Q5"/>
+      <port clock="CLKDIV" name="Q6"/>
+      <port clock="CLKDIV" name="Q7"/>
+      <port clock="CLKDIV" name="Q8"/>
       <port name="SHIFTOUT1"/>
       <port name="SHIFTOUT2"/>
     </output_ports>
@@ -38,31 +38,31 @@
       <port is_clock="1" name="CLK"/>
       <port is_clock="1" name="CLKB"/>
       <port is_clock="1" name="CLKDIV"/>
-      <port name="BITSLIP"/>
-      <port name="CE1"/>
-      <port name="CE2"/>
-      <port name="DDLY"/>
+      <port clock="CLKDIV" name="BITSLIP"/>
+      <port clock="CLKDIV" name="CE1"/>
+      <port clock="CLKDIV" name="CE2"/>
+      <port clock="CLK" combinational_sink_ports="O" name="DDLY"/>
       <port name="DYNCLKDIVPSEL"/>
       <port name="DYNCLKDIVSEL"/>
       <port name="DYNCLKSEL"/>
       <port name="OCLK"/>
       <port name="OCLKB"/>
-      <port name="OFB"/>
+      <port clock="CLK" name="OFB" combinational_sink_ports="O"/>
       <port name="SHIFTIN1"/>
       <port name="SHIFTIN2"/>
-      <port name="RST"/>
-      <port name="TFB"/>
+      <port clock="CLKDIV" name="RST"/>
+      <port combinational_sink_ports="O" name="TFB"/>
     </input_ports>
     <output_ports>
       <port name="O"/>
-      <port name="Q1"/>
-      <port name="Q2"/>
-      <port name="Q3"/>
-      <port name="Q4"/>
-      <port name="Q5"/>
-      <port name="Q6"/>
-      <port name="Q7"/>
-      <port name="Q8"/>
+      <port clock="CLKDIV" name="Q1"/>
+      <port clock="CLKDIV" name="Q2"/>
+      <port clock="CLKDIV" name="Q3"/>
+      <port clock="CLKDIV" name="Q4"/>
+      <port clock="CLKDIV" name="Q5"/>
+      <port clock="CLKDIV" name="Q6"/>
+      <port clock="CLKDIV" name="Q7"/>
+      <port clock="CLKDIV" name="Q8"/>
       <port name="SHIFTOUT1"/>
       <port name="SHIFTOUT2"/>
     </output_ports>
