@@ -42,6 +42,9 @@ create_clock -period {period} -name {pin} -waveform {{0.000 {half_period}}} [get
                 file=f_out
             )
 
+    if args.additional_xdc:
+        print("source {}".format(args.additional_xdc), file=f_out)
+
     print(
         """
 set_property CFGBVS VCCO [current_design]
@@ -99,6 +102,10 @@ def main():
     )
     parser.add_argument(
         '--output_tcl', help="Filename of output TCL file.", required=True
+    )
+    parser.add_argument(
+        '--additional_xdc',
+        help="Filename of additional XDC file.",
     )
 
     args = parser.parse_args()
