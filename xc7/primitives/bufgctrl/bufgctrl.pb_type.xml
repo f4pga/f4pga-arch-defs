@@ -24,6 +24,8 @@
       <input name="IGNORE1" num_pins="1"/>
       <input name="S0" num_pins="1"/>
       <input name="S1" num_pins="1"/>
+      <delay_constant max="{iopath_I_O}" in_port="I0" out_port="O"/>
+      <delay_constant max="{iopath_I_O}" in_port="I1" out_port="O"/>
       <metadata>
         <meta name="fasm_params">
           ZPRESELECT_I0 = ZPRESELECT_I0
