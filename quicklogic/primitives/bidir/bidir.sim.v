@@ -22,7 +22,6 @@ module BIDIR(
 
     // TODO: Clock inverter
     wire clk = IQC;
-//    INV clk_inv(IQC, clk);
 
     // Input or inout mode
     generate if (MODE == "INPUT" || MODE == "INOUT") begin
