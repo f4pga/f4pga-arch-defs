@@ -1,0 +1,19 @@
+## Clock signal
+#set_property -dict { PACKAGE_PIN E3    IOSTANDARD LVCMOS33 } [get_ports { IO_CLK }]; #IO_L12P_T1_MRCC_35 Sch=gclk[100]
+set_io IO_CLK E3
+
+
+## LEDs
+#set_property -dict { PACKAGE_PIN H5    IOSTANDARD LVCMOS33 } [get_ports { LED[0] }]; #IO_L24N_T3_35 Sch=led[4]
+#set_property -dict { PACKAGE_PIN J5    IOSTANDARD LVCMOS33 } [get_ports { LED[1] }]; #IO_25_35 Sch=led[5]
+#set_property -dict { PACKAGE_PIN T9    IOSTANDARD LVCMOS33 } [get_ports { LED[2] }]; #IO_L24P_T3_A01_D17_14 Sch=led[6]
+#set_property -dict { PACKAGE_PIN T10   IOSTANDARD LVCMOS33 } [get_ports { LED[3] }]; #IO_L24N_T3_A00_D16_14 Sch=led[7]
+set_io LED[0] H5
+set_io LED[1] J5
+set_io LED[2] T9
+set_io LED[3] T10
+
+
+## Misc. ChipKit Ports
+#set_property -dict { PACKAGE_PIN C2    IOSTANDARD LVCMOS33 } [get_ports { IO_RST_N }]; #IO_L16P_T2_35 Sch=ck_rst
+set_io IO_RST_N C2
