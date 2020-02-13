@@ -180,7 +180,7 @@ def write_tilegrid(xml_arch, tile_grid, layout_name):
             continue
 
         # FIXME: Assign correct fasm prefixes
-        fasm_prefix = "TILE_X{}Y{}".format(loc.x, loc.y)
+        fasm_prefix = "X{}Y{}".format(loc.x, loc.y)
 
         xml_sing = ET.SubElement(xml_fixed, "single", {
             "type": "TL-{}".format(tile.type),

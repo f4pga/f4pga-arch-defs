@@ -2,6 +2,7 @@
 `include "./f_frag.sim.v"
 `include "./q_frag.sim.v"
 
+(* FASM_FEATURES="LOGIC.LOGIC.Ipwr_gates.J_pwr_st" *)
 module LOGIC (QST, QDS, TBS, TAB, TSL, TA1, TA2, TB1, TB2, BAB, BSL, BA1, BA2, BB1, BB2, QDI, QEN, QCK, QRT, F1, F2, FS, TZ, CZ, QZ, FZ);
     input wire QST;
     input wire QDS;
@@ -32,6 +33,7 @@ module LOGIC (QST, QDS, TBS, TAB, TSL, TA1, TA2, TB1, TB2, BAB, BSL, BA1, BA2, B
     output wire FZ;
 
     // The C-Frag
+    (* FASM_PREFIX="LOGIC.LOGIC" *)
     C_FRAG c_frag (
     .TBS(TBS),
     .TAB(TAB),
@@ -51,6 +53,7 @@ module LOGIC (QST, QDS, TBS, TAB, TSL, TA1, TA2, TB1, TB2, BAB, BSL, BA1, BA2, B
     );
 
     // The Q-Frag
+    (* FASM_PREFIX="LOGIC.LOGIC" *)
     Q_FRAG q_frag (
     .QCK(QCK),
     .QST(QST),
