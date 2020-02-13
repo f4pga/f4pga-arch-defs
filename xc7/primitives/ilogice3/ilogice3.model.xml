@@ -5,14 +5,15 @@
       <port is_clock="1" name="CLKB"/>
       <port is_clock="1" name="CLKDIV"/>
       <port clock="CLKDIV" name="BITSLIP"/>
+      <!-- This is only correct for NUM_CE = 2 -->
       <port clock="CLKDIV" name="CE1"/>
       <port clock="CLKDIV" name="CE2"/>
       <port clock="CLK" combinational_sink_ports="O" name="D"/>
       <port name="DYNCLKDIVPSEL"/>
       <port name="DYNCLKDIVSEL"/>
       <port name="DYNCLKSEL"/>
-      <port name="OCLK"/>
-      <port name="OCLKB"/>
+      <port is_clock="1" name="OCLK"/>
+      <port is_clock="1" name="OCLKB"/>
       <port clock="CLK" name="OFB" combinational_sink_ports="O"/>
       <port name="SHIFTIN1"/>
       <port name="SHIFTIN2"/>
@@ -45,8 +46,8 @@
       <port name="DYNCLKDIVPSEL"/>
       <port name="DYNCLKDIVSEL"/>
       <port name="DYNCLKSEL"/>
-      <port name="OCLK"/>
-      <port name="OCLKB"/>
+      <port is_clock="1" name="OCLK"/>
+      <port is_clock="1" name="OCLKB"/>
       <port clock="CLK" name="OFB" combinational_sink_ports="O"/>
       <port name="SHIFTIN1"/>
       <port name="SHIFTIN2"/>

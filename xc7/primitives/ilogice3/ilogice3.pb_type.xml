@@ -3,17 +3,17 @@
   <input name="BITSLIP" num_pins="1"/>
   <input name="CE1" num_pins="1"/>
   <input name="CE2" num_pins="1"/>
-  <input name="CLK" num_pins="1"/>
-  <input name="CLKB" num_pins="1"/>
-  <input name="CLKDIV" num_pins="1"/>
-  <input name="CLKDIVP" num_pins="1"/>
+  <clock name="CLK" num_pins="1"/>
+  <clock name="CLKB" num_pins="1"/>
+  <clock name="CLKDIV" num_pins="1"/>
+  <clock name="CLKDIVP" num_pins="1"/>
   <input name="D" num_pins="1"/>
   <input name="DDLY" num_pins="1"/>
   <input name="DYNCLKDIVPSEL" num_pins="1"/>
   <input name="DYNCLKDIVSEL" num_pins="1"/>
   <input name="DYNCLKSEL" num_pins="1"/>
-  <input name="OCLK" num_pins="1"/>
-  <input name="OCLKB" num_pins="1"/>
+  <clock name="OCLK" num_pins="1"/>
+  <clock name="OCLKB" num_pins="1"/>
   <input name="OFB" num_pins="1"/>
   <input name="SHIFTIN1" num_pins="1"/>
   <input name="SHIFTIN2" num_pins="1"/>
@@ -53,8 +53,8 @@
       <input name="DYNCLKDIVPSEL" num_pins="1"/>
       <input name="DYNCLKDIVSEL" num_pins="1"/>
       <input name="DYNCLKSEL" num_pins="1"/>
-      <input name="OCLK" num_pins="1"/>
-      <input name="OCLKB" num_pins="1"/>
+      <clock name="OCLK" num_pins="1"/>
+      <clock name="OCLKB" num_pins="1"/>
       <input name="OFB" num_pins="1"/>
       <input name="SHIFTIN1" num_pins="1"/>
       <input name="SHIFTIN2" num_pins="1"/>
@@ -192,8 +192,8 @@
       <input name="DYNCLKDIVPSEL" num_pins="1"/>
       <input name="DYNCLKDIVSEL" num_pins="1"/>
       <input name="DYNCLKSEL" num_pins="1"/>
-      <input name="OCLK" num_pins="1"/>
-      <input name="OCLKB" num_pins="1"/>
+      <clock name="OCLK" num_pins="1"/>
+      <clock name="OCLKB" num_pins="1"/>
       <input name="OFB" num_pins="1"/>
       <input name="SHIFTIN1" num_pins="1"/>
       <input name="SHIFTIN2" num_pins="1"/>
