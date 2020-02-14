@@ -344,6 +344,7 @@ def main():
     # Prepare the VPR database and write it
     db_root = {
         "cells_library":  cells_library,
+        "loc_map": loc_map,
         "vpr_tile_types": vpr_tile_types,
         "vpr_tile_grid":  vpr_tile_grid,
         "vpr_switchbox_types": vpr_switchbox_types,

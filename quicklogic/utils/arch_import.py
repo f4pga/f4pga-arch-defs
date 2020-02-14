@@ -148,7 +148,7 @@ def write_tiles(xml_arch, tile_types, nsmap):
         })
 
 
-def write_tilegrid(xml_arch, tile_grid, layout_name):
+def write_tilegrid(xml_arch, tile_grid, loc_map, layout_name):
     """
     Generates the "layout" section of the arch XML and appends it to the
     root given.
@@ -179,8 +179,8 @@ def write_tilegrid(xml_arch, tile_grid, layout_name):
         if tile is None:
             continue
 
-        # FIXME: Assign correct fasm prefixes
-        fasm_prefix = "X{}Y{}".format(loc.x, loc.y)
+        phy_loc = loc_map.bwd[loc]
+        fasm_prefix = "X{}Y{}".format(phy_loc.x, phy_loc.y)
 
         xml_sing = ET.SubElement(xml_fixed, "single", {
             "type": "TL-{}".format(tile.type),
@@ -250,13 +250,14 @@ def main():
         db = pickle.load(fp)
 
         cells_library  = db["cells_library"]
+        loc_map        = db["loc_map"]
         vpr_tile_types = db["vpr_tile_types"]
         vpr_tile_grid  = db["vpr_tile_grid"]
 
     # Write tiles
     write_tiles(xml_arch, vpr_tile_types, nsmap)
     # Write the tilegrid to arch
-    write_tilegrid(xml_arch, vpr_tile_grid, args.device)
+    write_tilegrid(xml_arch, vpr_tile_grid, loc_map, args.device)
 
     # Save the arch
     ET.ElementTree(xml_arch).write(args.arch_out, pretty_print=True, xml_declaration=True, encoding="utf-8")

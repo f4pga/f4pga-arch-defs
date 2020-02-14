@@ -22,9 +22,10 @@ DUMP_MINIGRAPHS = False
 
 class SwitchboxModel(object):
 
-    def __init__(self, graph, loc, switchbox):
+    def __init__(self, graph, loc, phy_loc, switchbox):
         self.graph = graph
         self.loc = loc
+        self.phy_loc = phy_loc
         self.switchbox = switchbox
 
         # A map of top-level switchbox pins to minigraph node ids. Indexed by
@@ -132,7 +133,50 @@ class SwitchboxModel(object):
                         src_mininode_id = pin_to_mininode[src_pinspec]
                         dst_mininode_id = pin_to_mininode[dst_pinspec]
 
-                        self.minigraph.add_edge(src_mininode_id, dst_mininode_id)
+                        metadata = self._get_metadata_for_mux(
+                            stage,
+                            switch,
+                            src_pin_id,
+                            dst_pin_id
+                        )
+
+                        self.minigraph.add_edge(
+                            src_mininode_id,
+                            dst_mininode_id,
+                            metadata = metadata
+                        )
+
+    def _get_metadata_for_mux(self, stage, switch, src_pin_id, dst_pin_id):
+        """
+        Formats fasm features for the given edge representin a switchbox mux.
+        Returns a list of fasm features.
+        """
+        metadata = []
+
+        # Format prefix
+        prefix = "X{}Y{}.ROUTING".format(self.phy_loc.x, self.phy_loc.y)
+
+        # A mux in the HIGHWAY stage
+        if stage.type == "HIGHWAY":
+            feature = "I_highway.IM{}.I_pg{}".format(
+                switch.id,
+                int(src_pin_id % 10)
+            )
+
+        # A mux in the STREET stage
+        elif stage.type == "STREET":
+            feature = "I_street.Isb{}{}.I_M{}.I_pg{}".format(
+                stage.id + 1,
+                switch.id + 1,
+                dst_pin_id,
+                int(src_pin_id % 10)
+            )
+
+        else:
+            assert False, stage
+
+        metadata.append(".".join([prefix, feature]))
+        return metadata
 
     def populate_minigraph_nodes(self):
         """
@@ -214,16 +258,26 @@ class SwitchboxModel(object):
                dst_minigraph_node.metadata is None:
                 continue
 
+            # Get metadata
+            metadata = miniedge.metadata
+            if len(metadata):
+                meta_name  = "fasm_features"
+                meta_value = "\n".join(metadata)
+            else:
+                meta_name  = None
+                meta_value = ""
+
             # Add the edge
             src_node_id = src_minigraph_node.metadata
             dst_node_id = dst_minigraph_node.metadata
 
             # Add the edge to the graph
-            # TODO: VPR switch id, FASM metadata
             self.graph.add_edge(
                 src_node_id,
                 dst_node_id,
-                0
+                0, # TODO: switch id
+                name=meta_name,
+                value=meta_value                
                 )
 
 # =============================================================================
@@ -623,6 +677,36 @@ def populate_const_connections(switchbox_models, const_node_map):
 # =============================================================================
 
 
+def yield_edges(edges):
+    """
+    Yields edges in a format acceptable by the graph serializer.
+    """
+    conns = set()
+
+    # Process edges
+    for edge in edges:
+
+        # Reformat metadata
+        if edge.metadata:
+            metadata = [(meta.name, meta.value) for meta in edge.metadata]
+        else:
+            metadata = None
+
+        # Check for repetition
+        if (edge.src_node, edge.sink_node) in conns:
+            print("WARNING: Removing duplicated edge from {} to {}, metadata='{}'".format(
+                edge.src_node, edge.sink_node, metadata
+            ))
+            continue
+
+        conns.add((edge.src_node, edge.sink_node))
+
+        # Yield the edge
+        yield (edge.src_node, edge.sink_node, edge.switch_id, metadata)
+
+# =============================================================================
+
+
 def main():
     
     # Parse arguments
@@ -656,6 +740,7 @@ def main():
         db = pickle.load(fp)
 
         cells_library  = db["cells_library"]
+        loc_map        = db["loc_map"]
         vpr_tile_types = db["vpr_tile_types"]
         vpr_tile_grid  = db["vpr_tile_grid"]
         vpr_switchbox_types = db["vpr_switchbox_types"]
@@ -704,9 +789,15 @@ def main():
     switchbox_models = {}
     for loc, type in progressbar_utils.progressbar(vpr_switchbox_grid.items()):
 
+        phy_loc = loc_map.bwd[loc]
+
+        if loc.x <= 4 and loc.y <= 4:
+            print(type, loc, phy_loc)
+
         switchbox_models[loc] = SwitchboxModel(
             graph = xml_graph.graph,
             loc = loc,
+            phy_loc = phy_loc,
             switchbox = vpr_switchbox_types[type],
         )    
 
@@ -744,18 +835,12 @@ def main():
     edges_obj = xml_graph.graph.edges
     node_remap = lambda x: x
 
-    # TODO: FIXME: Some switchboxes has switches with multiple inputs connected
-    # to eg. GND. This results in redundant edges in the VPR rr graph.
-    # Find them and remove them here but in the long term do it in the sitch
-    # model generation!
-    edges_obj = list(set(edges_obj))
-
     print("Serializing the rr graph...")
     xml_graph.serialize_to_xml(
         channels_obj=channels_obj,
         connection_box_obj=None,
         nodes_obj=nodes_obj,
-        edges_obj=edges_obj,
+        edges_obj=yield_edges(edges_obj),
         node_remap=node_remap,
     )
 

@@ -14,7 +14,6 @@ RE_HOP_WIRE = re.compile(r"^([HV])([0-9])([TBLR])([0-9])$")
 IGNORED_SWITCHBOX_TYPES = [
     "SB_RIGHT_IFC",
     "SB_LEFT_IFC",
-    "SB_BOTTOM_IFC"
 ]
 
 # =============================================================================
