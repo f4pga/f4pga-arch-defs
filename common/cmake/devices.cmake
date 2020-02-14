@@ -578,6 +578,7 @@ function(DEFINE_DEVICE)
         --outfile_prefix ${DEVICE}_${PACKAGE}
         --pack
         --place
+        --allow_dangling_combinational_nodes on
       COMMAND
         ${CMAKE_COMMAND} -E copy vpr_stdout.log
         rr_graph_${DEVICE}_${PACKAGE}.virt.out

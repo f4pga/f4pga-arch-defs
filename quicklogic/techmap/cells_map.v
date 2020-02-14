@@ -17,20 +17,26 @@ endmodule
 
 module inpad(output Q, input P);
 
-  BIDIR_IBUF _TECHMAP_REPLACE_ (
-  .P(P),
-  .O(Q),
-  .E(1'b1)
+  BIDIR_IOBUF _TECHMAP_REPLACE_ (
+  .I_PAD(P),
+  .I_DAT(Q),
+  .I_EN (1'b1),
+  .O_PAD(),
+  .O_DAT(),
+  .O_EN (1'b0)
   );
 
 endmodule
 
 module outpad(output P, input A);
 
-  BIDIR_OBUF _TECHMAP_REPLACE_ (
-  .P(P),
-  .I(A),
-  .E(1'b1)
+  BIDIR_IOBUF _TECHMAP_REPLACE_ (
+  .I_PAD(),
+  .I_DAT(),
+  .I_EN (1'b0),
+  .O_PAD(P),
+  .O_DAT(A),
+  .O_EN (1'b1)
   );
 
 endmodule
@@ -39,10 +45,13 @@ module ckpad(output Q, input P);
 
   // TODO: Map this to a cell that would have two modes: one for BIDIR and
   // one for CLOCK. For now just make it a BIDIR input.
-  BIDIR_IBUF _TECHMAP_REPLACE_ (
-  .P(P),
-  .O(Q),
-  .E(1'b1)
+  BIDIR_IOBUF _TECHMAP_REPLACE_ (
+  .I_PAD(P),
+  .I_DAT(Q),
+  .I_EN (1'b1),
+  .O_PAD(),
+  .O_DAT(),
+  .O_EN (1'b0)
   );
 
 endmodule
