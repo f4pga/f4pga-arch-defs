@@ -333,6 +333,9 @@ def parse_switchbox(xml_sbox, xml_common = None):
     """
     switchbox = Switchbox(type=xml_sbox.tag)
 
+    # Top-level inputs and their locations. Indexed by (name, is_local)
+    input_locs = defaultdict(lambda: [])
+
     # Identify stages. Append stages from the "COMMON_STAGES" section if
     # given.
     stages = [n for n in xml_sbox if n.tag.startswith("STAGE")]
@@ -353,85 +356,116 @@ def parse_switchbox(xml_sbox, xml_common = None):
         # Add the new stage
         stage = Switchbox.Stage(
             id   = stage_id,
-            type = xml_stage.attrib["StageType"]
+            type = stage_type
         )
         switchbox.stages[stage_id] = stage
 
         # Process outputs
         switches = {}
         for xml_output in xml_stage.findall("Output"):
-            out_num       = int(xml_output.attrib["Number"])
+            out_id        = int(xml_output.attrib["Number"])
             out_switch_id = int(xml_output.attrib["SwitchNum"])
             out_pin_id    = int(xml_output.attrib["SwitchOutputNum"])
             out_pin_name  = xml_output.get("JointOutputName", None)
+
+            # These indicate unconnected top-level output.
+            if out_pin_name in ["-1"]:
+                out_pin_name = None
 
             # Add a new switch if needed
             if out_switch_id not in switches:
                 switches[out_switch_id] = Switchbox.Switch(out_switch_id, stage_id)
             switch = switches[out_switch_id]
 
-            # Add the output
-            switch.pins.append(SwitchPin(
-                id=out_pin_id,
-                name=out_pin_name,
-                direction=PinDirection.OUTPUT
-                ))
+            # Add a mux for the output
+            mux = Switchbox.Mux(out_pin_id, switch.id)
+            assert mux.id not in switch.muxes, mux
+            switch.muxes[mux.id] = mux
 
-            # Add the output to the mux
-            switch.mux[out_pin_id] = []
+            # Add output pin to the mux
+            mux.output = SwitchPin(
+                id        = 0,
+                name      = out_pin_name,
+                direction = PinDirection.OUTPUT
+                )
 
-            # Add as top level output
-            if out_pin_name is not None and out_pin_name not in ["-1"]:
-                switchbox.pins.add(SwitchboxPin(
-                    direction=PinDirection.OUTPUT,
-                    id=out_num,
-                    name=out_pin_name,
-                    is_local=(stage_type == "STREET")
-                ))
+            # Add the pin as top level output
+            if out_pin_name is not None:
+
+                loc = SwitchboxPinLoc(
+                    stage_id  = stage.id,
+                    switch_id = switch.id,
+                    mux_id    = mux.id,
+                    pin_id    = 0,
+                    pin_direction = PinDirection.OUTPUT
+                )
+
+                pin = SwitchboxPin(
+                    id        = out_id,
+                    name      = out_pin_name,
+                    direction = PinDirection.OUTPUT,
+                    locs      = [loc],
+                    is_local  = (stage_type == "STREET")
+                )
+
+                assert pin.name not in switchbox.outputs, pin
+                switchbox.outputs[pin.name] = pin
 
             # Process inputs
             for xml_input in xml_output:
+                inp_pin_id   = int(xml_input.tag.replace("Input", ""))
                 inp_pin_name = xml_input.get("WireName", None)
                 inp_pin_dir  = xml_input.get("Direction", None)
 
-                inp_pin_id  = int(xml_input.tag.replace("Input", ""))
+                # These indicate unconnected top-level input.
+                if inp_pin_name in ["-1"]:
+                    inp_pin_name = None
 
-                # TODO: Will fail if there is more than 10 inputs
-                assert inp_pin_id < 10, inp_pin_id
-                inp_pin_id += out_pin_id * 10
+                # Add the input to the mux
+                pin = SwitchPin(
+                    id        = inp_pin_id,
+                    name      = inp_pin_name,
+                    direction = PinDirection.INPUT
+                    )
 
-                # Add the input
-                switch.pins.append(SwitchPin(
-                    id=inp_pin_id,
-                    name=inp_pin_name,
-                    direction=PinDirection.INPUT
-                    ))
-
-                # Add to the mux
-                switch.mux[out_pin_id].append(inp_pin_id)
+                assert pin.id not in mux.inputs, pin
+                mux.inputs[pin.id] = pin
 
                 # Add as top level input
                 if inp_pin_name is not None:
-                    switchbox.pins.add(SwitchboxPin(
-                        direction=PinDirection.INPUT,
-                        id=-1,
-                        name=inp_pin_name,
-                        is_local=(inp_pin_dir == "FEEDBACK")
-                        ))
+
+                    loc = SwitchboxPinLoc(
+                        stage_id  = stage.id,
+                        switch_id = switch.id,
+                        mux_id    = mux.id,
+                        pin_id    = inp_pin_id,
+                        pin_direction = PinDirection.INPUT
+                    )
+                    
+                    is_local = (inp_pin_dir == "FEEDBACK")
+                    input_locs[(inp_pin_name, is_local)].append(loc)
 
                 # Add internal connection
                 if stage_type == "STREET" and stage_id > 0:
-                    conn_stage     = int(xml_input.attrib["Stage"])
+                    conn_stage_id  = int(xml_input.attrib["Stage"])
                     conn_switch_id = int(xml_input.attrib["SwitchNum"])
                     conn_pin_id    = int(xml_input.attrib["SwitchOutputNum"])
 
                     conn = SwitchConnection(
-                        src_stage=conn_stage,
-                        src_switch=conn_switch_id,
-                        src_pin=conn_pin_id,
-                        dst_stage=stage_id,
-                        dst_switch=switch.id,
-                        dst_pin=inp_pin_id
+                        src = SwitchboxPinLoc(
+                            stage_id  = conn_stage_id,
+                            switch_id = conn_switch_id,
+                            mux_id    = conn_pin_id,
+                            pin_id    = 0,
+                            pin_direction = PinDirection.OUTPUT
+                            ),
+                        dst = SwitchboxPinLoc(
+                            stage_id  = stage.id,
+                            switch_id = switch.id,
+                            mux_id    = mux.id,
+                            pin_id    = inp_pin_id,
+                            pin_direction = PinDirection.INPUT
+                            ),
                     )
 
                     assert conn not in switchbox.connections, conn
@@ -439,6 +473,20 @@ def parse_switchbox(xml_sbox, xml_common = None):
 
         # Add switches to the stage
         stage.switches = switches
+
+    # Add top-level input pins to the switchbox.
+    keys  = sorted(input_locs.keys(), key=lambda k: k[0])
+    for (name, is_local), locs in {k: input_locs[k] for k in keys}.items():
+
+        pin = SwitchboxPin(
+            id          = len(switchbox.inputs),
+            name        = name,
+            direction   = PinDirection.INPUT,
+            is_local    = is_local,
+            locs        = locs
+        )
+
+        switchbox.inputs[name] = pin
 
     return switchbox
 

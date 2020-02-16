@@ -261,11 +261,3 @@ def check_connections(connections):
         if connection.dst in dst_conn_locs:
             print("ERROR: Duplicate destination '{}'".format(connection.dst))
         dst_conn_locs.add(connection.dst)
-
-# This is not an error
-#    # Check if there are no duplicated connections going from the same source
-#    src_conn_locs = set()
-#    for connection in connections:
-#        if connection.src in src_conn_locs:
-#            print("ERROR: Duplicate source '{}'".format(connection.src))
-#        src_conn_locs.add(connection.src)

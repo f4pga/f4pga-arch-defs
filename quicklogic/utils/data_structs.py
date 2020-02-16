@@ -106,14 +106,22 @@ Tile = namedtuple("Tile", "type name cell_names")
 # =============================================================================
 
 """
+A location that identifies a pin inside a switchbox.
+
+stage_id      - Stage id
+switch_id     - Switch id within the stage
+mux_id        - Mux id within the switch
+pin_id        - Pin id of the mux
+pin_direction - Logical direction of the pin
+"""
+SwitchboxPinLoc = namedtuple("SwitchboxPinLoc", \
+    "stage_id switch_id mux_id pin_id pin_direction")
+
+"""
 A top-level switchbox pin.
 
-id          - Pin id.
-name        - Pin name.
-is_local    - True when the pin connects to/from the tile of the switchbox.
-direction   - Pin direction.
 """
-SwitchboxPin = namedtuple("SwitchboxPin", "id name is_local direction")
+SwitchboxPin = namedtuple("SwitchboxPin", "id name direction locs is_local")
 
 """
 A switch pin within a switchbox
@@ -127,12 +135,10 @@ SwitchPin = namedtuple("SwitchPin", "id name direction")
 """
 A connection within a switchbox
 
-*_stage     - Endpoint stage id.
-*_switch    - Endpoint switch id within the stage.
-*_pin       - Endpoint switch pin id.
+src         - Source location (always an output pin)
+dst         - Destination location (always an input pin)
 """
-SwitchConnection = namedtuple("SwitchConnection", 
-    "src_stage src_switch src_pin dst_stage dst_switch dst_pin")
+SwitchConnection = namedtuple("SwitchConnection", "src dst")
 
 # =============================================================================
 
@@ -146,15 +152,45 @@ class Switchbox(object):
     multiple switches. Each switch is a small M-to-N routing box.
     """
 
+
+    class Mux(object):
+        """
+        An individual multiplexer inside a switchbox
+        """
+        def __init__(self, id, switch):
+            self.id     = id        # The mux ID
+            self.switch = switch    # Parent switch od
+            self.inputs = {}        # Input pins by their IDs
+            self.output = None      # The output pin
+
+        @property
+        def pins(self):
+            """
+            Yields all pins of the mux
+            """
+            for pin in self.inputs.values():
+                yield pin
+
+            yield self.output
+
+
     class Switch(object):
         """
         This is a sub-switchbox of a switchbox stage.
         """
         def __init__(self, id, stage):
-            self.id    = id
-            self.stage = stage
-            self.pins  = []
-            self.mux   = {}
+            self.id    = id         # The switch ID
+            self.stage = stage      # Parent stage id
+            self.muxes = {}         # Muxes by their IDs
+
+        @property
+        def pins(self):
+            """
+            Yields all pins of the switch
+            """
+            for mux in self.muxes.values():
+                yield from mux.pins
+
 
     class Stage(object):
         """
@@ -162,15 +198,37 @@ class Switchbox(object):
         a column of Switch objects
         """
         def __init__(self, id, type=None):
-            self.id       = id
-            self.type     = type
-            self.switches = {}
+            self.id       = id      # The stage ID
+            self.type     = type    # The stage type ("HIGHWAY" or "STREET")
+            self.switches = {}      # Switches indexed by their IDs
+
+        @property
+        def pins(self):
+            """
+            Yields all pins of the stage
+            """            
+            for switch in self.switches.values():
+                yield from switch.pins
+
+    # ...............................................................
 
     def __init__(self, type):
-        self.type   = type
-        self.pins   = set()
-        self.stages = {}
-        self.connections = set()
+        self.type       = type  # Switchbox type
+        self.inputs     = {}    # Top-level inputs by their names
+        self.outputs    = {}    # Top-level outputs by their names
+        self.stages     = {}    # Stages by their IDs
+
+        self.connections = set()    # Connections between stages
+
+    @property
+    def pins(self):
+        """
+        Yields all pins of the switchbox
+        """
+        for pin in self.inputs.values():
+            yield pin
+        for pin in self.outputs.values():
+            yield pin
 
 # =============================================================================
 

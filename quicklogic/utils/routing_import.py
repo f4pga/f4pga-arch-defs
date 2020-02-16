@@ -15,7 +15,7 @@ from minigraph import MiniGraph
 # =============================================================================
 
 # Set to True to dump minigraph for each switchbox
-DUMP_MINIGRAPHS = False
+DUMP_MINIGRAPHS = True
 
 # =============================================================================
 
@@ -39,6 +39,17 @@ class SwitchboxModel(object):
         self.minigraph = MiniGraph()
         self._build_minigraph()
 
+
+    def _yield_muxes(self):
+        """
+        Yields all muxes of the switchbox as tuples (stage, switch, mux)
+        """
+        for stage in self.switchbox.stages.values():
+            for switch in stage.switches.values():
+                for mux in switch.muxes.values():
+                    yield stage, switch, mux
+
+
     def _build_minigraph(self):
         """
         Builds a minigraph for the switchbox model. The minigraph will contain
@@ -58,95 +69,95 @@ class SwitchboxModel(object):
 
         # Add nodes for switch pins
         pin_to_mininode = {}
-        for stage in self.switchbox.stages.values():
-            for switch in stage.switches.values():
-                for pin in switch.pins:
+        for stage, switch, mux in self._yield_muxes():
+            for pin in mux.pins:
 
-                    # Lock minigraph nodes that are inter-stage. Those will
-                    # become VPR rr nodes.
-                    is_locked = pin.direction == PinDirection.OUTPUT and pin.name is None
+                # Lock minigraph nodes that are inter-stage. Those will
+                # become VPR rr nodes.
+                is_locked = pin.direction == PinDirection.OUTPUT and pin.name is None
 
-                    # Add the node
-                    mininode_id = self.minigraph.add_node(is_locked = is_locked)
+                # Add the node
+                mininode_id = self.minigraph.add_node(is_locked = is_locked)
 
-                    # Add the pinspec to the map
-                    pinspec = (stage.id, switch.id, pin.id, pin.direction) 
-                    pin_to_mininode[pinspec] = mininode_id
+                # For locked nodes assign VPR channel direction
+                if is_locked:
+                    chan_type = "X" if stage.id % 2 else "Y"
+                    self.mininode_to_direction[mininode_id] = chan_type
 
-                    # Add to mininode direction map
-                    direction = "X" if stage.id % 2 else "Y"
-                    self.mininode_to_direction[mininode_id] = direction
+                # Add the pin location to the map
+                loc = SwitchboxPinLoc(
+                    stage_id  = stage.id,
+                    switch_id = switch.id,
+                    mux_id    = mux.id,
+                    pin_id    = pin.id,
+                    pin_direction = pin.direction
+                )
+
+                pin_to_mininode[loc] = mininode_id
 
         # Add connections between top-level switchbox pins and switches
-        for stage in self.switchbox.stages.values():
-            for switch in stage.switches.values():
-                for pin in switch.pins:
+        for pin in self.switchbox.inputs.values():
+            key = (pin.name, pin.direction)
+            src_mininode = self.switchbox_pin_to_mininode[key]
 
-                    # Only top-level
-                    if pin.name is None:
-                        continue
-                    # Skip unconnected pins
-                    if pin.name == "-1":
-                        continue
+            for loc in pin.locs:
+                dst_mininode = pin_to_mininode[loc]
+                self.minigraph.add_edge(src_mininode, dst_mininode)
 
-                    # Input to switch
-                    if pin.direction == PinDirection.INPUT:
-                        key = (pin.name, pin.direction)
-                        src_mininode = self.switchbox_pin_to_mininode[key]
+        for pin in self.switchbox.outputs.values():
+            key = (pin.name, pin.direction)
+            dst_mininode = self.switchbox_pin_to_mininode[key]
 
-                        pinspec = (stage.id, switch.id, pin.id, pin.direction) 
-                        dst_mininode = pin_to_mininode[pinspec]
+            assert len(pin.locs) == 1, pin
 
-                        self.minigraph.add_edge(src_mininode, dst_mininode)
-
-                    # Switch to output
-                    elif pin.direction == PinDirection.OUTPUT:
-                        key = (pin.name, pin.direction)
-                        dst_mininode = self.switchbox_pin_to_mininode[key]
-
-                        pinspec = (stage.id, switch.id, pin.id, pin.direction) 
-                        src_mininode = pin_to_mininode[pinspec]
-
-                        self.minigraph.add_edge(src_mininode, dst_mininode)
-
-                    else:
-                        assert False, pin
+            src_mininode = pin_to_mininode[pin.locs[0]]
+            self.minigraph.add_edge(src_mininode, dst_mininode)
 
         # Add connections between switches
         for connection in self.switchbox.connections:
-            src_pinspec = (connection.src_stage, connection.src_switch, connection.src_pin, PinDirection.OUTPUT)
-            dst_pinspec = (connection.dst_stage, connection.dst_switch, connection.dst_pin, PinDirection.INPUT)
-
-            src_mininode_id = pin_to_mininode[src_pinspec]
-            dst_mininode_id = pin_to_mininode[dst_pinspec]
+            src_mininode_id = pin_to_mininode[connection.src]
+            dst_mininode_id = pin_to_mininode[connection.dst]
 
             self.minigraph.add_edge(src_mininode_id, dst_mininode_id)
 
         # Add muxes inside switches
-        for stage in self.switchbox.stages.values():
-            for switch in stage.switches.values():
-                for dst_pin_id, src_pin_ids in switch.mux.items():
-                    dst_pinspec = (stage.id, switch.id, dst_pin_id, PinDirection.OUTPUT)
-                    for src_pin_id in src_pin_ids:
-                        src_pinspec = (stage.id, switch.id, src_pin_id, PinDirection.INPUT)
+        for stage, switch, mux in self._yield_muxes():
+            dst_pin = mux.output
+            dst_loc = SwitchboxPinLoc(
+                stage_id  = stage.id,
+                switch_id = switch.id,
+                mux_id    = mux.id,
+                pin_id    = dst_pin.id,
+                pin_direction = dst_pin.direction
+            )
 
-                        src_mininode_id = pin_to_mininode[src_pinspec]
-                        dst_mininode_id = pin_to_mininode[dst_pinspec]
+            for src_pin in mux.inputs.values():
+                src_loc = SwitchboxPinLoc(
+                    stage_id  = stage.id,
+                    switch_id = switch.id,
+                    mux_id    = mux.id,
+                    pin_id    = src_pin.id,
+                    pin_direction = src_pin.direction
+                )
 
-                        metadata = self._get_metadata_for_mux(
-                            stage,
-                            switch,
-                            src_pin_id,
-                            dst_pin_id
-                        )
+                src_mininode_id = pin_to_mininode[src_loc]
+                dst_mininode_id = pin_to_mininode[dst_loc]
 
-                        self.minigraph.add_edge(
-                            src_mininode_id,
-                            dst_mininode_id,
-                            metadata = metadata
-                        )
+                metadata = self._get_metadata_for_mux(
+                    stage,
+                    switch,
+                    mux,
+                    src_pin.id
+                )
 
-    def _get_metadata_for_mux(self, stage, switch, src_pin_id, dst_pin_id):
+                self.minigraph.add_edge(
+                    src_mininode_id,
+                    dst_mininode_id,
+                    metadata = metadata
+                )
+
+
+    def _get_metadata_for_mux(self, stage, switch, mux, src_pin_id):
         """
         Formats fasm features for the given edge representin a switchbox mux.
         Returns a list of fasm features.
@@ -160,7 +171,7 @@ class SwitchboxModel(object):
         if stage.type == "HIGHWAY":
             feature = "I_highway.IM{}.I_pg{}".format(
                 switch.id,
-                int(src_pin_id % 10)
+                src_pin_id
             )
 
         # A mux in the STREET stage
@@ -168,8 +179,8 @@ class SwitchboxModel(object):
             feature = "I_street.Isb{}{}.I_M{}.I_pg{}".format(
                 stage.id + 1,
                 switch.id + 1,
-                dst_pin_id,
-                int(src_pin_id % 10)
+                mux.id,
+                src_pin_id
             )
 
         else:
@@ -177,6 +188,7 @@ class SwitchboxModel(object):
 
         metadata.append(".".join([prefix, feature]))
         return metadata
+
 
     def populate_minigraph_nodes(self):
         """

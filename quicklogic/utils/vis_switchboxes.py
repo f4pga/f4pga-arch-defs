@@ -14,42 +14,92 @@ def switchbox_to_dot(switchbox, stage_types=("STREET", "HIGHWAY")):
 
     # Add header
     dot.append("digraph {} {{".format(switchbox.type))
-    dot.append("  graph [nodesep=\"1\", ranksep=\"10\"];")
+    dot.append("  graph [nodesep=\"1.0\", ranksep=\"20\"];")
     dot.append("  splines = \"false\";")
     dot.append("  rankdir = LR;")
-    dot.append("  node [shape=record];")
+    dot.append("  margin = 20;")
+    dot.append("  node [shape=record, style=filled, fillcolor=white];")
 
-    # Add nodes
-    stages = sorted(switchbox.stages.keys())
-    for stage_id in stages:
-        stage = switchbox.stages[stage_id]
+    stage_ids_to_show = set([s.id for s in switchbox.stages.values() if s.type in stage_types])
+
+    # Top-level inputs
+    dot.append("  subgraph cluster_inputs {")
+    dot.append("    node [shape=ellipse, style=filled, fillcolor=\"#C0FFC0\"];")
+    dot.append("    label=\"Inputs\";")
+
+    for pin in switchbox.inputs.values():
+        stage_ids = set([loc.stage_id for loc in pin.locs])
+        if not len(stage_ids & stage_ids_to_show):
+            continue
+
+        name = "input_{}".format(pin.name)
+        dot.append("    {} [rank=0, label=\"{}\"];".format(name, pin.name))
+        
+    dot.append("  }")      
+
+    # Top-level outputs
+    dot.append("  subgraph cluster_outputs {")
+    dot.append("    node [shape=ellipse, style=filled, fillcolor=\"#FFC0C0\"];")
+    dot.append("    label=\"Outputs\";")
+
+    rank = max(switchbox.stages.keys()) + 1
+
+    for pin in switchbox.outputs.values():
+        stage_ids = set([loc.stage_id for loc in pin.locs])
+        if not len(stage_ids & stage_ids_to_show):
+            continue
+
+        name = "output_{}".format(pin.name)
+        dot.append("    {} [rank={}, label=\"{}\"];".format(name, rank, pin.name))
+        
+    dot.append("  }")      
+
+    # Stages
+    for stage in switchbox.stages.values():
 
         if stage.type not in stage_types:
             continue
 
+        rank = stage.id + 1
+
+        dot.append("  subgraph cluster_st{} {{".format(stage.id))
+        dot.append("    label=\"Stage #{} '{}'\";".format(stage.id, stage.type))
+        dot.append("    bgcolor=\"#D0D0D0\"")
+
+        # Switch
         for switch in stage.switches.values():
-            inputs  = [p for p in switch.pins if p.direction == PinDirection.INPUT]
-            outputs = [p for p in switch.pins if p.direction == PinDirection.OUTPUT]
+            dot.append("    subgraph cluster_st{}_sw{} {{".format(stage.id, switch.id))
+            dot.append("      label=\"Switch #{}\";".format(switch.id))
+            dot.append("    bgcolor=\"#F0F0F0\"")
 
-            inp_l = "|".join(["<i{}> {}. {}".format(p.id, p.id, p.name) for p in inputs])
-            out_l = "|".join(["<o{}> {}. {}".format(p.id, p.id, p.name) for p in outputs])
-            label = "{{{{{}}}|{{{}}}}}".format(inp_l, out_l)
-            name  = "stage{}_switch{}".format(stage_id, switch.id)
+            # Mux
+            for mux in switch.muxes.values():
+                inputs = sorted(mux.inputs.values(), key=lambda p: p.id)
 
-            dot.append("  {} [rank=\"{}\", label=\"{}\"];".format(name, stage_id, label))
+                mux_l = "Mux #{}".format(mux.id)
+                inp_l = "|".join(["<i{}> {}. {}".format(p.id, p.id, p.name) for p in inputs])
+                out_l = "<o{}> {}. {}".format(mux.output.id, mux.output.id, mux.output.name)
+                label = "{}|{{{{{}}}|{{{}}}}}".format(mux_l, inp_l, out_l)
+                name  = "st{}_sw{}_mx{}".format(stage.id, switch.id, mux.id)
 
-    # Add edges
+                dot.append("      {} [rank=\"{}\", label=\"{}\"];".format(name, rank, label))
+
+            dot.append("    }")
+
+        dot.append("  }")
+
+    # Internal connections
     for conn in switchbox.connections:
 
-        if switchbox.stages[conn.src_stage].type not in stage_types:
+        if switchbox.stages[conn.src.stage_id].type not in stage_types:
             continue
-        if switchbox.stages[conn.dst_stage].type not in stage_types:
+        if switchbox.stages[conn.dst.stage_id].type not in stage_types:
             continue
 
-        src_node = "stage{}_switch{}".format(conn.src_stage, conn.src_switch)
-        src_port = "o{}".format(conn.src_pin)
-        dst_node = "stage{}_switch{}".format(conn.dst_stage, conn.dst_switch)
-        dst_port = "i{}".format(conn.dst_pin)
+        src_node = "st{}_sw{}_mx{}".format(conn.src.stage_id, conn.src.switch_id, conn.src.mux_id)
+        src_port = "o{}".format(conn.src.pin_id)
+        dst_node = "st{}_sw{}_mx{}".format(conn.dst.stage_id, conn.dst.switch_id, conn.dst.mux_id)
+        dst_port = "i{}".format(conn.dst.pin_id)
 
         dot.append("  {}:{} -> {}:{};".format(
             src_node,
@@ -57,6 +107,42 @@ def switchbox_to_dot(switchbox, stage_types=("STREET", "HIGHWAY")):
             dst_node,
             dst_port
         ))
+
+    # Input pin connections
+    for pin in switchbox.inputs.values():
+        src_node = "input_{}".format(pin.name)
+
+        for loc in pin.locs:
+
+            if switchbox.stages[loc.stage_id].type not in stage_types:
+                continue
+
+            dst_node = "st{}_sw{}_mx{}".format(loc.stage_id, loc.switch_id, loc.mux_id)
+            dst_port = "i{}".format(loc.pin_id)
+            
+            dot.append("  {} -> {}:{};".format(
+                src_node,
+                dst_node,
+                dst_port
+            ))
+
+    # Output pin connections
+    for pin in switchbox.outputs.values():
+        dst_node = "output_{}".format(pin.name)
+
+        for loc in pin.locs:
+
+            if switchbox.stages[loc.stage_id].type not in stage_types:
+                continue
+
+            src_node = "st{}_sw{}_mx{}".format(loc.stage_id, loc.switch_id, loc.mux_id)
+            src_port = "o{}".format(loc.pin_id)
+            
+            dot.append("  {}:{} -> {};".format(
+                src_node,
+                src_port,
+                dst_node
+            ))
 
     # Footer
     dot.append("}")
@@ -80,7 +166,7 @@ def main():
         "--stages",
         type=str,
         default="STREET",
-        help="Stage types to view (def. STREET)"
+        help="Comma-separated list of stage types to view (def. STREET)"
     )
 
     args = parser.parse_args()
