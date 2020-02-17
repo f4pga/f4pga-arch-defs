@@ -58,6 +58,7 @@ module BIDIR(
     generate if (MODE == "INPUT") begin
 
         (* keep *)
+        (* FASM_PREFIX="INTERFACE.BIDIR" *)
         BIDIR_IOBUF bidir_buf(
             .I_PAD(i_pad),
             .I_DAT(i_dat),
@@ -70,6 +71,7 @@ module BIDIR(
     end else if (MODE == "OUTPUT") begin
     
         (* keep *)
+        (* FASM_PREFIX="INTERFACE.BIDIR" *)
         BIDIR_IOBUF bidir_buf(
             .I_PAD(),
             .I_DAT(i_dat),
@@ -82,6 +84,7 @@ module BIDIR(
     end else if (MODE == "INOUT") begin
     
         (* keep *)
+        (* FASM_PREFIX="INTERFACE.BIDIR" *)
         BIDIR_IOBUF bidir_buf(
             .I_PAD(i_pad),
             .I_DAT(i_dat),
