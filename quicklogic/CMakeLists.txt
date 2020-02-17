@@ -21,7 +21,8 @@ define_arch(
   VPR_ARCH_ARGS " \
     --router_init_wirelength_abort_threshold 20 \
     --place_algorithm bounding_box \
-    --allow_dangling_combinational_nodes on"
+    --allow_dangling_combinational_nodes on \
+    --clock_modeling route"
 
   RR_PATCH_TOOL
     ${CMAKE_CURRENT_SOURCE_DIR}/utils/routing_import.py
