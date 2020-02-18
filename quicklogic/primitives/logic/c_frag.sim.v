@@ -72,7 +72,7 @@ module C_FRAG (TBS, TAB, TSL, TA1, TA2, TB1, TB2, BAB, BSL, BA1, BA2, BB1, BB2, 
     wire TZI = TAB ? TBI : TAI;
     wire BZI = BAB ? BBI : BAI;
 
-    // 3rs mux stage
+    // 3rd mux stage
     wire CZI = TBS ? BZI : TZI;
 
     // Outputs

@@ -354,7 +354,6 @@ module dff(
   parameter [0:0] INIT = 1'b0;
 
   Q_FRAG # (
-  .INIT   (INIT),
   .Z_QCKS (1'b1)
   )
   _TECHMAP_REPLACE_

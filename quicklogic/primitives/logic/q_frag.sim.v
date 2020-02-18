@@ -20,14 +20,13 @@ module Q_FRAG(QCK, QST, QRT, QEN, QDI, QDS, CZI, QZ);
     output reg  QZ;
 
     // Parameters
-    parameter [0:0] INIT   = 1'b0; // FIXME: There seem to be no bits that control initial value of the FF
     parameter [0:0] Z_QCKS = 1'b1; // FIXME: Make this parameter used by the FF behavioarl model below.
 
     // The "QDS" mux just before the flip-flop
     wire d = (QDS) ? QDI : CZI;
 
     // The flip-flop
-    initial QZ <= INIT;
+    initial QZ <= 1'b0;
 	always @(posedge QCK or posedge QST or posedge QRT) begin
 		if (QST)
 			QZ <= 1'b1;
