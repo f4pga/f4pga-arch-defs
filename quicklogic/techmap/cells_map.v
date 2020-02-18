@@ -102,8 +102,8 @@ module LUT2 (
 );
   parameter [3:0] INIT = 0;
 
-  wire TSL = I1;
-  wire TAB = I0;
+  wire TSL = I0;
+  wire TAB = I1;
 
   wire TA1 = INIT[0];
   wire TA2 = INIT[1];
@@ -152,7 +152,7 @@ module LUT3 (
   parameter [7:0] INIT = 0;
 
   wire TSL = I1;
-  wire TAB = I0;
+  wire TAB = I2;
 
   // Two bit group [H,L]
   // H =0:  T[AB]S[12] = GND, H=1:   VCC
@@ -166,25 +166,25 @@ module LUT3 (
   generate case(INIT[1:0])
     2'b00:   assign TA1 = 1'b0;
     2'b11:   assign TA1 = 1'b0;
-    default: assign TA1 = I2;
+    default: assign TA1 = I0;
   endcase endgenerate
 
   generate case(INIT[3:2])
     2'b00:   assign TA2 = 1'b0;
     2'b11:   assign TA2 = 1'b0;
-    default: assign TA2 = I2;
+    default: assign TA2 = I0;
   endcase endgenerate
 
   generate case(INIT[5:4])
     2'b00:   assign TB1 = 1'b0;
     2'b11:   assign TB1 = 1'b0;
-    default: assign TB1 = I2;
+    default: assign TB1 = I0;
   endcase endgenerate
 
   generate case(INIT[7:6])
     2'b00:   assign TB2 = 1'b0;
     2'b11:   assign TB2 = 1'b0;
-    default: assign TB2 = I2;
+    default: assign TB2 = I0;
   endcase endgenerate
 
   localparam TAS1 = INIT[0];
@@ -234,11 +234,11 @@ module LUT4 (
 );
   parameter [15:0] INIT = 0;
 
-  wire TSL = I2;
-  wire BSL = I2;
-  wire TAB = I1;
-  wire BAB = I1;
-  wire TBS = I0;
+  wire TSL = I1;
+  wire BSL = I1;
+  wire TAB = I2;
+  wire BAB = I2;
+  wire TBS = I3;
 
   // Two bit group [H,L]
   // H =0:  [TB][AB]S[12] = GND, H=1:   VCC
@@ -256,49 +256,49 @@ module LUT4 (
   generate case(INIT[ 1: 0])
     2'b00:   assign TA1 = 1'b0;
     2'b11:   assign TA1 = 1'b0;
-    default: assign TA1 = I3;
+    default: assign TA1 = I0;
   endcase endgenerate
 
   generate case(INIT[ 3: 2])
     2'b00:   assign TA2 = 1'b0;
     2'b11:   assign TA2 = 1'b0;
-    default: assign TA2 = I3;
+    default: assign TA2 = I0;
   endcase endgenerate
 
   generate case(INIT[ 5: 4])
     2'b00:   assign TB1 = 1'b0;
     2'b11:   assign TB1 = 1'b0;
-    default: assign TB1 = I3;
+    default: assign TB1 = I0;
   endcase endgenerate
 
   generate case(INIT[ 7: 6])
     2'b00:   assign TB2 = 1'b0;
     2'b11:   assign TB2 = 1'b0;
-    default: assign TB2 = I3;
+    default: assign TB2 = I0;
   endcase endgenerate
 
   generate case(INIT[ 9: 8])
     2'b00:   assign BA1 = 1'b0;
     2'b11:   assign BA1 = 1'b0;
-    default: assign BA1 = I3;
+    default: assign BA1 = I0;
   endcase endgenerate
 
   generate case(INIT[11:10])
     2'b00:   assign BA2 = 1'b0;
     2'b11:   assign BA2 = 1'b0;
-    default: assign BA2 = I3;
+    default: assign BA2 = I0;
   endcase endgenerate
 
   generate case(INIT[13:12])
     2'b00:   assign BB1 = 1'b0;
     2'b11:   assign BB1 = 1'b0;
-    default: assign BB1 = I3;
+    default: assign BB1 = I0;
   endcase endgenerate
 
   generate case(INIT[15:14])
     2'b00:   assign BB2 = 1'b0;
     2'b11:   assign BB2 = 1'b0;
-    default: assign BB2 = I3;
+    default: assign BB2 = I0;
   endcase endgenerate
 
   localparam TAS1 = INIT[ 0];
