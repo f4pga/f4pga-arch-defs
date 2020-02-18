@@ -32,6 +32,7 @@ function(DEFINE_ARCH)
   #    PLACE_CONSTR_TOOL <path to place constraints tool>
   #    PLACE_CONSTR_TOOL_CMD <command to run PLACE_CONSTR_TOOL>
   #    [NO_BITSTREAM]
+  #    [NO_BIT_TO_BIN]
   #    [NO_BIT_TO_V]
   #    CELLS_SIM <path to verilog file used for simulation>
   #    HLC_TO_BIT <path to HLC to bitstream converter>
@@ -63,6 +64,8 @@ function(DEFINE_ARCH)
   # If NO_PINS is set, PLACE_TOOL and PLACE_TOOL_CMD cannot be specified.
   # If NO_BITSTREAM is set, HLC_TO_BIT, HLC_TO_BIT_CMD BIT_TO_V,
   # BIT_TO_V_CMD, BIT_TO_BIN and BIT_TO_BIN_CMD cannot be specified.
+  #
+  # if NO_BIT_TO_BIN is given then there will be no BIT to BIN stage.
   #
   # YOSYS_SYNTH_SCRIPT - The main design synthesis script. It needs to write
   #  the synthesized design in JSON format to a file name pointed by the
@@ -125,7 +128,16 @@ function(DEFINE_ARCH)
   # * PACKAGE - Package of bitstream.
   # * OUT_BITSTREAM - Input path to bitstream.
   # * OUT_BIT_VERILOG - Output path to verilog version of bitstream.
-  set(options NO_PLACE_CONSTR NO_PINS NO_BITSTREAM NO_BIT_TO_V NO_BIT_TIME USE_FASM)
+  set(options
+    NO_PLACE_CONSTR
+    NO_PINS
+    NO_BITSTREAM
+    NO_BIT_TO_BIN
+    NO_BIT_TO_V
+    NO_BIT_TIME
+    USE_FASM
+  )
+
   set(
     oneValueArgs
     ARCH
@@ -178,6 +190,7 @@ function(DEFINE_ARCH)
     NO_PLACE_CONSTR
     NO_PINS
     NO_BITSTREAM
+    NO_BIT_TO_BIN
     NO_BIT_TO_V
     NO_BIT_TIME
     USE_FASM
@@ -216,6 +229,9 @@ function(DEFINE_ARCH)
 
   set(BIT_ARGS
     BITSTREAM_EXTENSION
+    )
+
+  set(BIN_ARGS
     BIN_EXTENSION
     BIT_TO_BIN
     BIT_TO_BIN_CMD
@@ -230,6 +246,12 @@ function(DEFINE_ARCH)
     BIT_TIME
     BIT_TIME_CMD
     )
+
+  if(NOT ${DEFINE_ARCH_NO_BIT_TO_BIN})
+    list(APPEND BIT_ARGS ${BIN_ARGS})
+  else()
+    list(APPEND DISALLOWED_ARGS ${BIN_ARGS})
+  endif()
 
   if(${DEFINE_ARCH_USE_FASM})
     list(APPEND DISALLOWED_ARGS ${HLC_BIT_ARGS})
@@ -1566,27 +1588,32 @@ function(ADD_FPGA_TARGET)
 
     add_custom_target(${NAME}_bit DEPENDS ${OUT_BITSTREAM})
 
-    get_target_property_required(BIN_EXTENSION ${ARCH} BIN_EXTENSION)
-    set(OUT_BIN ${OUT_LOCAL}/${TOP}.${BIN_EXTENSION})
-    get_target_property_required(BIT_TO_BIN ${ARCH} BIT_TO_BIN)
-    get_target_property_required(BIT_TO_BIN_CMD ${ARCH} BIT_TO_BIN_CMD)
-    get_target_property(BIT_TO_BIN_EXTRA_ARGS ${BOARD} BIT_TO_BIN_EXTRA_ARGS)
-    if (${BIT_TO_BIN_EXTRA_ARGS} STREQUAL NOTFOUND)
-      set(BIT_TO_BIN_EXTRA_ARGS "")
-    endif()
-    string(CONFIGURE ${BIT_TO_BIN_CMD} BIT_TO_BIN_CMD_FOR_TARGET)
-    separate_arguments(
-      BIT_TO_BIN_CMD_FOR_TARGET_LIST UNIX_COMMAND ${BIT_TO_BIN_CMD_FOR_TARGET}
-    )
-    add_custom_command(
-      OUTPUT ${OUT_BIN}
-      COMMAND ${BIT_TO_BIN_CMD_FOR_TARGET_LIST}
-      DEPENDS ${BIT_TO_BIN} ${OUT_BITSTREAM}
+    get_target_property_required(NO_BIT_TO_BIN ${ARCH} NO_BIT_TO_BIN)
+    if(NOT ${NO_BIT_TO_BIN})
+      get_target_property_required(BIN_EXTENSION ${ARCH} BIN_EXTENSION)
+      set(OUT_BIN ${OUT_LOCAL}/${TOP}.${BIN_EXTENSION})
+      get_target_property_required(BIT_TO_BIN ${ARCH} BIT_TO_BIN)
+      get_target_property_required(BIT_TO_BIN_CMD ${ARCH} BIT_TO_BIN_CMD)
+      get_target_property(BIT_TO_BIN_EXTRA_ARGS ${BOARD} BIT_TO_BIN_EXTRA_ARGS)
+      if (${BIT_TO_BIN_EXTRA_ARGS} STREQUAL NOTFOUND)
+        set(BIT_TO_BIN_EXTRA_ARGS "")
+      endif()
+      string(CONFIGURE ${BIT_TO_BIN_CMD} BIT_TO_BIN_CMD_FOR_TARGET)
+      separate_arguments(
+        BIT_TO_BIN_CMD_FOR_TARGET_LIST UNIX_COMMAND ${BIT_TO_BIN_CMD_FOR_TARGET}
       )
-
-    add_custom_target(${NAME}_bin DEPENDS ${OUT_BIN})
-    add_output_to_fpga_target(${NAME} BIN ${OUT_LOCAL_REL}/${TOP}.${BIN_EXTENSION})
-    add_dependencies(all_${BOARD}_bin ${NAME}_bin)
+      add_custom_command(
+        OUTPUT ${OUT_BIN}
+        COMMAND ${BIT_TO_BIN_CMD_FOR_TARGET_LIST}
+        DEPENDS ${BIT_TO_BIN} ${OUT_BITSTREAM}
+        )
+  
+      add_custom_target(${NAME}_bin DEPENDS ${OUT_BIN})
+      add_output_to_fpga_target(${NAME} BIN ${OUT_LOCAL_REL}/${TOP}.${BIN_EXTENSION})
+      add_dependencies(all_${BOARD}_bin ${NAME}_bin)
+    else()
+      add_dependencies(all_${BOARD}_bin ${NAME}_bit)
+    endif()
 
     get_target_property(PROG_TOOL ${BOARD} PROG_TOOL)
     get_target_property(PROG_CMD ${BOARD} PROG_CMD)
