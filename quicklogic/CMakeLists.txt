@@ -13,6 +13,8 @@ set(BELS_MAP ${CMAKE_CURRENT_SOURCE_DIR}/bels.json)
 add_subdirectory(primitives)
 
 get_target_property_required(PYTHON3 env PYTHON3)
+get_target_property_required(QLFASM env QLFASM)
+
 define_arch(
   ARCH ql-s3
   YOSYS_SYNTH_SCRIPT ${symbiflow-arch-defs_SOURCE_DIR}/quicklogic/yosys/synth.tcl
@@ -25,7 +27,7 @@ define_arch(
     --clock_modeling route"
 
   RR_PATCH_TOOL
-    ${CMAKE_CURRENT_SOURCE_DIR}/utils/routing_import.py
+    ${symbiflow-arch-defs_SOURCE_DIR}/quicklogic/utils/routing_import.py
   RR_PATCH_CMD "\${CMAKE_COMMAND} -E env \
     PYTHONPATH=${symbiflow-arch-defs_SOURCE_DIR}/utils:$PYTHONPATH \
     \${PYTHON3} \${RR_PATCH_TOOL} \
@@ -42,8 +44,14 @@ define_arch(
         --blif \${OUT_EBLIF} \
         --pcf \${INPUT_IO_FILE} \
         --net \${OUT_NET}"
-    
-  NO_BITSTREAM
+
+  FASM_TO_BIT   
+    ${QLFASM}
+  FASM_TO_BIT_CMD
+    "\${QLFASM} \${OUT_FASM} \${OUT_BITSTREAM} \${FASM_TO_BIT_EXTRA_ARGS}"
+  BITSTREAM_EXTENSION bit
+
+  NO_BIT_TO_BIN
   NO_BIT_TO_V
   NO_BIT_TIME
   ROUTE_CHAN_WIDTH 100
