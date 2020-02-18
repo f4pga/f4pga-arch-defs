@@ -11,8 +11,6 @@ function(DEFINE_XC7_TOOLCHAIN_TARGET)
     "${ARGN}"
   )
 
-  get_target_property_required(YOSYS env YOSYS)
-  get_target_property(YOSYS_TARGET env YOSYS_TARGET)
   get_target_property_required(VPR env VPR)
   get_target_property(VPR_TARGET env VPR_TARGET)
   get_target_property_required(GENFASM env GENFASM)
@@ -25,7 +23,6 @@ function(DEFINE_XC7_TOOLCHAIN_TARGET)
   string(JOIN " " VPR_ARGS ${VPR_BASE_ARGS} "--route_chan_width ${ROUTE_CHAN_WIDTH}" ${VPR_ARCH_ARGS})
   get_target_property_required(FASM_TO_BIT ${ARCH} FASM_TO_BIT)
 
-  set(YOSYS_BINS "${YOSYS}" "${YOSYS}-abc" "${YOSYS}-smtbmc" "${YOSYS}-filterlib" "${YOSYS}-config")
   set(WRAPPERS env generate_constrains pack place route synth write_bitstream write_fasm)
   set(TOOLCHAIN_WRAPPERS)
 
@@ -43,7 +40,7 @@ function(DEFINE_XC7_TOOLCHAIN_TARGET)
           PERMISSIONS WORLD_EXECUTE WORLD_READ OWNER_WRITE OWNER_READ OWNER_EXECUTE GROUP_READ GROUP_EXECUTE)
 
   # install binaries
-  install(FILES ${YOSYS_BINS} ${VPR} ${GENFASM}
+  install(FILES ${VPR} ${GENFASM}
           DESTINATION bin
           PERMISSIONS WORLD_EXECUTE WORLD_READ OWNER_WRITE OWNER_READ OWNER_EXECUTE GROUP_READ GROUP_EXECUTE)
 
@@ -69,9 +66,6 @@ function(DEFINE_XC7_TOOLCHAIN_TARGET)
   install(FILES ${symbiflow-arch-defs_SOURCE_DIR}/utils/lib/parse_pcf.py
           DESTINATION bin/python/lib)
 
-  # install yosys data
-  install(DIRECTORY ${YOSYS_DATADIR}
-          DESTINATION share)
 
   # install prjxray techmap
   install(DIRECTORY ${symbiflow-arch-defs_SOURCE_DIR}/xc7/techmap
