@@ -1,5 +1,4 @@
 create_clock -period 5 sys4x_clk__main_clkout_buf1 -waveform {0.000 2.500}
-create_clock -period 5 sys4x_clkb__main_clkout_buf4 -waveform {0.000 2.500}
 create_clock -period 5 sys4x_dqs_clk__main_clkout_buf2 -waveform {1.250 3.750}
 create_clock -period 5 main_clkout_buf3__clk200_clk -waveform {0.000 2.500}
 
