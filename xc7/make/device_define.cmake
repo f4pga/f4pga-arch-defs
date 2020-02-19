@@ -48,6 +48,7 @@ function(ADD_XC7_BOARD)
 
   set(DEVICE ${ADD_XC7_BOARD_DEVICE})
   get_target_property_required(ARCH ${DEVICE} ARCH)
+  get_target_property_required(PRJXRAY_ARCH ${ARCH} PRJXRAY_ARCH)
   get_target_property_required(DEVICE_TYPE ${DEVICE} DEVICE_TYPE)
   get_target_property_required(USE_ROI ${DEVICE_TYPE} USE_ROI)
   set(BOARD ${ADD_XC7_BOARD_BOARD})
@@ -57,12 +58,12 @@ function(ADD_XC7_BOARD)
     PROPERTIES PART ${PART}
     )
   set_target_properties(${BOARD}
-    PROPERTIES PART_JSON ${PRJXRAY_DB_DIR}/${ARCH}/${PART}/part.json
+    PROPERTIES PART_JSON ${PRJXRAY_DB_DIR}/${PRJXRAY_ARCH}/${PART}/part.json
     )
   set_target_properties(${BOARD}
     PROPERTIES BIT_TO_BIN_EXTRA_ARGS " \
     --part_name ${PART} \
-    --part_file ${PRJXRAY_DB_DIR}/${ARCH}/${PART}/part.yaml \
+    --part_file ${PRJXRAY_DB_DIR}/${PRJXRAY_ARCH}/${PART}/part.yaml \
   ")
   get_target_property_required(CHANNELS_DB ${DEVICE_TYPE} CHANNELS_DB)
   get_file_location(CHANNELS_LOCATION ${CHANNELS_DB})
@@ -100,7 +101,7 @@ function(ADD_XC7_BOARD)
     OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/${PINMAP_CSV}
     COMMAND ${PYTHON3} ${SYNTH_TILES_TO_PINMAP_CSV}
         --synth_tiles ${SYNTH_TILES_LOCATION}
-        --package_pins ${PRJXRAY_DB_DIR}/${ARCH}/${PART}/package_pins.csv
+        --package_pins ${PRJXRAY_DB_DIR}/${PRJXRAY_ARCH}/${PART}/package_pins.csv
         --output ${CMAKE_CURRENT_BINARY_DIR}/${PINMAP_CSV}
         DEPENDS ${PINMAP_CSV_DEPS}
         )
@@ -120,7 +121,7 @@ function(ADD_XC7_BOARD)
       OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/${PINMAP_CSV}
       COMMAND ${PYTHON3} ${CREATE_PINMAP_CSV}
         --connection_database ${CHANNELS_LOCATION}
-        --package_pins ${PRJXRAY_DB_DIR}/${ARCH}/${PART}/package_pins.csv
+        --package_pins ${PRJXRAY_DB_DIR}/${PRJXRAY_ARCH}/${PART}/package_pins.csv
         --output ${CMAKE_CURRENT_BINARY_DIR}/${PINMAP_CSV}
         DEPENDS ${PINMAP_CSV_DEPS}
       )
@@ -144,7 +145,7 @@ endfunction()
 
 function(ADD_XC7_DEVICE_DEFINE_TYPE)
   set(options)
-  set(oneValueArgs ARCH PART DEVICE ROI_DIR GRAPH_LIMIT)
+  set(oneValueArgs ARCH PRJXRAY_ARCH PART DEVICE ROI_DIR GRAPH_LIMIT)
   set(multiValueArgs TILE_TYPES PB_TYPES)
   cmake_parse_arguments(
     ADD_XC7_DEVICE_DEFINE_TYPE
@@ -158,6 +159,12 @@ function(ADD_XC7_DEVICE_DEFINE_TYPE)
   set(DEVICE ${ADD_XC7_DEVICE_DEFINE_TYPE_DEVICE})
   set(ROI_DIR ${ADD_XC7_DEVICE_DEFINE_TYPE_ROI_DIR})
   set(TILE_TYPES ${ADD_XC7_DEVICE_DEFINE_TYPE_TILE_TYPES})
+
+  if("${ADD_XC7_DEVICE_DEFINE_PRJXRAY_ARCH}" STREQUAL "")
+      set(PRJXRAY_ARCH "${ARCH}")
+  else()
+      set(PRJXRAY_ARCH "${ADD_XC7_DEVICE_DEFINE_PRJXRAY_ARCH}")
+  endif()
 
   if(NOT "${ROI_DIR}" STREQUAL "")
     set(ROI_ARGS USE_ROI ${ROI_DIR}/design.json)
@@ -177,6 +184,7 @@ function(ADD_XC7_DEVICE_DEFINE_TYPE)
 
   project_xray_arch(
     ARCH ${ARCH}
+    PRJXRAY_ARCH ${PRJXRAY_ARCH}
     PART ${PART}
     DEVICE ${DEVICE}
     TILE_TYPES ${TILE_TYPES}
@@ -184,7 +192,7 @@ function(ADD_XC7_DEVICE_DEFINE_TYPE)
     ${PB_TYPE_ARGS}
     )
 
-  set(SDF_TIMING_DIRECTORY ${PRJXRAY_DB_DIR}/${ARCH}/timings)
+  set(SDF_TIMING_DIRECTORY ${PRJXRAY_DB_DIR}/${PRJXRAY_ARCH}/timings)
   set(UPDATE_ARCH_TIMINGS ${symbiflow-arch-defs_SOURCE_DIR}/utils/update_arch_timings.py)
   set(UPDATE_PACK_PATTERNS ${symbiflow-arch-defs_SOURCE_DIR}/xc7/utils/add_pack_patterns.py)
   set(PYTHON_SDF_TIMING_DIR ${symbiflow-arch-defs_SOURCE_DIR}/third_party/python-sdf-timing)

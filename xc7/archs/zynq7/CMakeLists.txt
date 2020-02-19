@@ -1,5 +1,5 @@
 project_xray_prepare_database(
-  ARCH zynq7
+  PRJXRAY_ARCH zynq7
   PROTOTYPE_PART xc7z010clg400-1
   PARTS xc7z010clg400-1
 )
