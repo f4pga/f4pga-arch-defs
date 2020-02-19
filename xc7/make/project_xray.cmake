@@ -62,13 +62,15 @@ function(PROJECT_XRAY_ARCH)
   get_target_property(PYTHON3_TARGET env PYTHON3_TARGET)
 
   set(ARCH ${PROJECT_XRAY_ARCH_ARCH})
+  get_target_property_required(PRJXRAY_ARCH ${ARCH} PRJXRAY_ARCH)
+
   set(PART ${PROJECT_XRAY_ARCH_PART})
   set(DEVICE ${PROJECT_XRAY_ARCH_DEVICE})
 
   set(ARCH_IMPORT ${symbiflow-arch-defs_SOURCE_DIR}/xc7/utils/prjxray_arch_import.py)
   set(CREATE_SYNTH_TILES ${symbiflow-arch-defs_SOURCE_DIR}/xc7/utils/prjxray_create_synth_tiles.py)
   set(CREATE_EDGES ${symbiflow-arch-defs_SOURCE_DIR}/xc7/utils/prjxray_create_edges.py)
-  set(DEPS ${PRJXRAY_DB_DIR}/${ARCH}/${PART}/tilegrid.json)
+  set(DEPS ${PRJXRAY_DB_DIR}/${PRJXRAY_ARCH}/${PART}/tilegrid.json)
 
   if("${PROJECT_XRAY_ARCH_PB_TYPES}" STREQUAL "")
     set(PROJECT_XRAY_ARCH_PB_TYPES ${PROJECT_XRAY_ARCH_TILE_TYPES})
@@ -116,7 +118,7 @@ function(PROJECT_XRAY_ARCH)
       OUTPUT synth_tiles.json
       COMMAND ${CMAKE_COMMAND} -E env PYTHONPATH=${PRJXRAY_DIR}:${symbiflow-arch-defs_SOURCE_DIR}/utils
       ${PYTHON3} ${CREATE_SYNTH_TILES}
-        --db_root ${PRJXRAY_DB_DIR}/${ARCH}/
+        --db_root ${PRJXRAY_DB_DIR}/${PRJXRAY_ARCH}/
         --part ${PART}
         --connection_database ${GENERIC_CHANNELS_LOCATION}
         --roi ${PROJECT_XRAY_ARCH_USE_ROI}
@@ -148,15 +150,15 @@ function(PROJECT_XRAY_ARCH)
   append_file_dependency(CHANNELS_DEPS ${GENERIC_CHANNELS})
   append_file_dependency(CHANNELS_DEPS ${symbiflow-arch-defs_SOURCE_DIR}/xc7/archs/${ARCH}/pin_assignments.json)
   get_file_location(PIN_ASSIGNMENTS ${symbiflow-arch-defs_SOURCE_DIR}/xc7/archs/${ARCH}/pin_assignments.json)
-  list(APPEND CHANNELS_DEPS ${PRJXRAY_DB_DIR}/${ARCH}/${PART}/tilegrid.json)
-  list(APPEND CHANNELS_DEPS ${PRJXRAY_DB_DIR}/${ARCH}/${PART}/tileconn.json)
+  list(APPEND CHANNELS_DEPS ${PRJXRAY_DB_DIR}/${PRJXRAY_ARCH}/${PART}/tilegrid.json)
+  list(APPEND CHANNELS_DEPS ${PRJXRAY_DB_DIR}/${PRJXRAY_ARCH}/${PART}/tileconn.json)
 
   add_custom_command(
     OUTPUT channels.db
     COMMAND ${CMAKE_COMMAND} -E copy ${GENERIC_CHANNELS_LOCATION} ${CMAKE_CURRENT_BINARY_DIR}/channels.db
     COMMAND ${CMAKE_COMMAND} -E env PYTHONPATH=${PRJXRAY_DIR}:${symbiflow-arch-defs_SOURCE_DIR}/utils
     ${PYTHON3} ${CREATE_EDGES}
-      --db_root ${PRJXRAY_DB_DIR}/${ARCH}/
+      --db_root ${PRJXRAY_DB_DIR}/${PRJXRAY_ARCH}/
       --part ${PART}
       --pin_assignments ${PIN_ASSIGNMENTS}
       --connection_database ${CMAKE_CURRENT_BINARY_DIR}/channels.db
@@ -178,7 +180,7 @@ function(PROJECT_XRAY_ARCH)
     OUTPUT arch.xml
     COMMAND ${CMAKE_COMMAND} -E env PYTHONPATH=${PRJXRAY_DIR}:${symbiflow-arch-defs_SOURCE_DIR}/utils
     ${PYTHON3} ${ARCH_IMPORT}
-      --db_root ${PRJXRAY_DB_DIR}/${ARCH}/
+      --db_root ${PRJXRAY_DB_DIR}/${PRJXRAY_ARCH}/
       --part ${PART}
       --connection_database ${CMAKE_CURRENT_BINARY_DIR}/channels.db
       --output-arch ${CMAKE_CURRENT_BINARY_DIR}/arch.xml
@@ -200,7 +202,7 @@ endfunction()
 
 function(PROJECT_XRAY_PREPARE_DATABASE)
   set(options)
-  set(oneValueArgs ARCH PROTOTYPE_PART)
+  set(oneValueArgs PRJXRAY_ARCH PROTOTYPE_PART)
   set(multiValueArgs PARTS)
   cmake_parse_arguments(
     PROJECT_XRAY_PREPARE_DATABASE
@@ -213,13 +215,13 @@ function(PROJECT_XRAY_PREPARE_DATABASE)
   get_target_property_required(PYTHON3 env PYTHON3)
   get_target_property(PYTHON3_TARGET env PYTHON3_TARGET)
 
-  set(ARCH ${PROJECT_XRAY_PREPARE_DATABASE_ARCH})
+  set(PRJXRAY_ARCH ${PROJECT_XRAY_PREPARE_DATABASE_PRJXRAY_ARCH})
   set(PROTOTYPE_PART ${PROJECT_XRAY_PREPARE_DATABASE_PROTOTYPE_PART})
 
   set(FORM_CHANNELS ${symbiflow-arch-defs_SOURCE_DIR}/xc7/utils/prjxray_form_channels.py)
   set(ASSIGN_PINS ${symbiflow-arch-defs_SOURCE_DIR}/xc7/utils/prjxray_assign_tile_pin_direction.py)
-  file(GLOB DEPS ${PRJXRAY_DB_DIR}/${ARCH}/*.json)
-  file(GLOB DEPS2 ${PRJXRAY_DB_DIR}/${ARCH}/${PART}/*.json)
+  file(GLOB DEPS ${PRJXRAY_DB_DIR}/${PRJXRAY_ARCH}/*.json)
+  file(GLOB DEPS2 ${PRJXRAY_DB_DIR}/${PRJXRAY_ARCH}/${PART}/*.json)
   file(GLOB DEPS3 ${PRJXRAY_DIR}/prjxray/*.py)
 
   file(MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/channels)
@@ -230,7 +232,7 @@ function(PROJECT_XRAY_PREPARE_DATABASE)
       OUTPUT ${CHANNELS}
       COMMAND ${CMAKE_COMMAND} -E env PYTHONPATH=${PRJXRAY_DIR}:${symbiflow-arch-defs_SOURCE_DIR}/utils
       ${PYTHON3} ${FORM_CHANNELS}
-      --db_root ${PRJXRAY_DB_DIR}/${ARCH}/
+      --db_root ${PRJXRAY_DB_DIR}/${PRJXRAY_ARCH}/
       --part ${PROTOTYPE_PART}
       --connection_database ${CMAKE_CURRENT_BINARY_DIR}/${CHANNELS}
       DEPENDS
@@ -250,7 +252,7 @@ function(PROJECT_XRAY_PREPARE_DATABASE)
     OUTPUT ${PIN_ASSIGNMENTS}
     COMMAND ${CMAKE_COMMAND} -E env PYTHONPATH=${PRJXRAY_DIR}:${symbiflow-arch-defs_SOURCE_DIR}/utils
     ${PYTHON3} ${ASSIGN_PINS}
-    --db_root ${PRJXRAY_DB_DIR}/${ARCH}/
+    --db_root ${PRJXRAY_DB_DIR}/${PRJXRAY_ARCH}/
     --part ${PROTOTYPE_PART}
     --connection_database ${CMAKE_CURRENT_BINARY_DIR}/${PROTOTYPE_CHANNELS}
     --pin_assignments ${CMAKE_CURRENT_BINARY_DIR}/${PIN_ASSIGNMENTS}
@@ -310,10 +312,11 @@ function(PROJECT_XRAY_TILE)
   get_target_property(PYTHON3_TARGET env PYTHON3_TARGET)
 
   set(ARCH ${PROJECT_XRAY_TILE_ARCH})
-  get_target_property(PROTOTYPE_PART ${ARCH} PROTOTYPE_PART)
+  get_target_property_required(PRJXRAY_ARCH ${ARCH} PRJXRAY_ARCH)
+  get_target_property_required(PROTOTYPE_PART ${ARCH} PROTOTYPE_PART)
 
   set(TILE_IMPORT ${symbiflow-arch-defs_SOURCE_DIR}/xc7/utils/prjxray_tile_import.py)
-  get_project_xray_dependencies(DEPS ${ARCH} ${TILE})
+  get_project_xray_dependencies(DEPS ${PRJXRAY_ARCH} ${TILE})
 
   set(PB_TYPE_INCLUDE_FILES "")
   set(MODEL_INCLUDE_FILES "")
@@ -365,7 +368,7 @@ function(PROJECT_XRAY_TILE)
     OUTPUT ${TILE}.pb_type.xml ${TILE}.model.xml
     COMMAND ${CMAKE_COMMAND} -E env PYTHONPATH=${PRJXRAY_DIR}:${symbiflow-arch-defs_SOURCE_DIR}/utils
     ${PYTHON3} ${TILE_IMPORT}
-    --db_root ${PRJXRAY_DB_DIR}/${ARCH}/
+    --db_root ${PRJXRAY_DB_DIR}/${PRJXRAY_ARCH}/
     --part ${PROTOTYPE_PART}
     --tile ${TILE_UPPER}
     --site_directory ${symbiflow-arch-defs_BINARY_DIR}/xc7/primitives
@@ -399,7 +402,7 @@ function(PROJECT_XRAY_TILE)
 
   # tile tags
   set(PHYSICAL_TILE_IMPORT ${symbiflow-arch-defs_SOURCE_DIR}/xc7/utils/prjxray_physical_tile_import.py)
-  get_project_xray_dependencies(DEPS ${ARCH} ${TILE})
+  get_project_xray_dependencies(DEPS ${PRJXRAY_ARCH} ${TILE})
 
   foreach(EQUIVALENT_SITE ${PROJECT_XRAY_TILE_EQUIVALENT_SITES})
     string(TOLOWER ${EQUIVALENT_SITE} EQUIVALENT_SITE_LOWER)
@@ -649,7 +652,8 @@ function(PROJECT_XRAY_TILE_CAPACITY)
   get_file_location(PIN_ASSIGNMENTS ${symbiflow-arch-defs_SOURCE_DIR}/xc7/archs/${ARCH}/pin_assignments.json)
   get_target_property_required(PYTHON3 env PYTHON3)
   get_target_property(PYTHON3_TARGET env PYTHON3_TARGET)
-  get_target_property(PROTOTYPE_PART ${ARCH} PROTOTYPE_PART)
+  get_target_property_required(PRJXRAY_ARCH ${ARCH} PRJXRAY_ARCH)
+  get_target_property_required(PROTOTYPE_PART ${ARCH} PROTOTYPE_PART)
 
   set(TILE_CAPACITY_IMPORT ${symbiflow-arch-defs_SOURCE_DIR}/xc7/utils/prjxray_import_tile_capacity.py)
 
@@ -659,7 +663,7 @@ function(PROJECT_XRAY_TILE_CAPACITY)
     OUTPUT ${TILE_LOWER}.tile.xml
     COMMAND ${CMAKE_COMMAND} -E env PYTHONPATH=${PRJXRAY_DIR}:${symbiflow-arch-defs_SOURCE_DIR}/utils
     ${PYTHON3} ${TILE_CAPACITY_IMPORT}
-      --db_root ${PRJXRAY_DB_DIR}/${ARCH}/
+      --db_root ${PRJXRAY_DB_DIR}/${PRJXRAY_ARCH}/
       --part ${PROTOTYPE_PART}
       --output_directory ${CMAKE_CURRENT_BINARY_DIR}
       --site_directory ${symbiflow-arch-defs_BINARY_DIR}/xc7/primitives

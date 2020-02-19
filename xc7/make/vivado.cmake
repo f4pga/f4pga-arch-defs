@@ -111,7 +111,7 @@ function(COMMON_VIVADO_TARGETS)
       ${CMAKE_COMMAND} -E env PYTHONPATH=${PRJXRAY_DIR}:${PRJXRAY_DIR}/third_party/fasm
         ${PYTHON3} ${PRJXRAY_DIR}/utils/bit2fasm.py
           --part ${PART}
-          --db-root ${PRJXRAY_DB_DIR}/${ARCH}
+          --db-root ${PRJXRAY_DB_DIR}/${PRJXRAY_ARCH}
           --bitread $<TARGET_FILE:bitread>
           ${CMAKE_CURRENT_BINARY_DIR}/${WORK_DIR}/design_${NAME}.bit
           > ${CMAKE_CURRENT_BINARY_DIR}/${WORK_DIR}/design_${NAME}.bit.fasm
@@ -198,6 +198,7 @@ function(ADD_VIVADO_TARGET)
   get_target_property_required(BOARD ${ADD_VIVADO_TARGET_PARENT_NAME} BOARD)
   get_target_property_required(DEVICE ${BOARD} DEVICE)
   get_target_property_required(ARCH ${DEVICE} ARCH)
+  get_target_property_required(PRJXRAY_ARCH ${ARCH} PRJXRAY_ARCH)
   get_target_property_required(PART ${BOARD} PART)
 
   set(DEPS)
@@ -329,6 +330,7 @@ function(ADD_VIVADO_PNR_TARGET)
   get_target_property_required(BOARD ${ADD_VIVADO_PNR_TARGET_PARENT_NAME} BOARD)
   get_target_property_required(DEVICE ${BOARD} DEVICE)
   get_target_property_required(ARCH ${DEVICE} ARCH)
+  get_target_property_required(PRJXRAY_ARCH ${ARCH} PRJXRAY_ARCH)
   get_target_property_required(PART ${BOARD} PART)
 
   get_target_property_required(YOSYS env YOSYS)
