@@ -12,7 +12,6 @@ add_subdirectory(consts)
 add_subdirectory(btn_xor)
 add_subdirectory(btn_ff)
 add_subdirectory(btn_counter)
-add_subdirectory(test)
 
 # Test designs that use clock
 add_subdirectory(counter)
