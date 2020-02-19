@@ -3,3 +3,9 @@ add_quicklogic_board(
   DEVICE ql-eos-s3-top
   PACKAGE wlcsp
 )
+
+add_quicklogic_board(
+  BOARD chandalar
+  DEVICE ql-eos-s3
+  PACKAGE wlcsp
+)

@@ -10,12 +10,6 @@ from data_structs import *
 # A regex for HOP wires.
 RE_HOP_WIRE = re.compile(r"^([HV])([0-9])([TBLR])([0-9])$")
 
-# FIXME: A list of switchboxes to ignore for now
-IGNORED_SWITCHBOX_TYPES = [
-    "SB_RIGHT_IFC",
-    "SB_LEFT_IFC",
-]
-
 # =============================================================================
 
 
@@ -129,10 +123,6 @@ def build_local_connections(tile_types, tile_grid, switchbox_types, switchbox_gr
     for loc, switchbox_type in switchbox_grid.items():
         switchbox = switchbox_types[switchbox_type]
 
-        # TODO: Don't ignore
-        if switchbox_type in IGNORED_SWITCHBOX_TYPES:
-            continue
-
         # Get the underlying tile
         if loc not in tile_grid:
             print("WARNING: No tile at loc '{}'".format(loc))
@@ -169,10 +159,6 @@ def build_hop_connections(tile_types, tile_grid, switchbox_types, switchbox_grid
     # Identify all connections that go out of switchboxes
     for src_loc, src_switchbox_type in switchbox_grid.items():
         src_switchbox = switchbox_types[src_switchbox_type]
-
-        # TODO: Don't ignore
-        if src_switchbox_type in IGNORED_SWITCHBOX_TYPES:
-            continue
 
         # Process HOP outputs. No need for looping over inputs as each output
         # should go into a HOP input.
