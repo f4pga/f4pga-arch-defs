@@ -192,6 +192,7 @@ def process_ilogic_idelay(top, features):
 
         site.add_sink(bel, 'CE1', 'CE1')
         site.add_sink(bel, 'CE2', 'CE2')
+        site.add_sink(bel, 'BITSLIP', 'BITSLIP')
 
         if idelay_site and idelay_site.has_feature("IN_USE") and (
                 idelay_site.has_feature("IDELAY_VALUE")
