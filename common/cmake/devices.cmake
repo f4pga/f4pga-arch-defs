@@ -1587,6 +1587,7 @@ function(ADD_FPGA_TARGET)
     endif()
 
     add_custom_target(${NAME}_bit DEPENDS ${OUT_BITSTREAM})
+    add_output_to_fpga_target(${NAME} BIT ${OUT_LOCAL_REL}/${TOP}.${BITSTREAM_EXTENSION})
 
     get_target_property_required(NO_BIT_TO_BIN ${ARCH} NO_BIT_TO_BIN)
     if(NOT ${NO_BIT_TO_BIN})
