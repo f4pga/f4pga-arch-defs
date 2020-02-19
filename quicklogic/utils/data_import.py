@@ -415,11 +415,23 @@ def parse_switchbox(xml_sbox, xml_common = None):
             for xml_input in xml_output:
                 inp_pin_id   = int(xml_input.tag.replace("Input", ""))
                 inp_pin_name = xml_input.get("WireName", None)
-                inp_pin_dir  = xml_input.get("Direction", None)
+                inp_hop_dir  = xml_input.get("Direction", None)
+                inp_hop_len  = int(xml_input.get("Length", "-1"))
 
                 # These indicate unconnected top-level input.
                 if inp_pin_name in ["-1"]:
                     inp_pin_name = None
+
+                is_local = (inp_hop_dir == "FEEDBACK")
+                is_hop   = (inp_hop_dir in ["Left", "Right", "Top", "Bottom"])
+
+                # Append the actual wire length and hop diretion to names of
+                # pins that connect to HOP wires.
+                if is_hop:
+                    inp_pin_name = "{}_{}{}".format(
+                        inp_pin_name,
+                        inp_hop_dir[0],
+                        inp_hop_len)
 
                 # Add the input to the mux
                 pin = SwitchPin(
@@ -441,8 +453,7 @@ def parse_switchbox(xml_sbox, xml_common = None):
                         pin_id    = inp_pin_id,
                         pin_direction = PinDirection.INPUT
                     )
-                    
-                    is_local = (inp_pin_dir == "FEEDBACK")
+
                     input_locs[(inp_pin_name, is_local)].append(loc)
 
                 # Add internal connection

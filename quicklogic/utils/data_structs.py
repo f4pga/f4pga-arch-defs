@@ -120,6 +120,12 @@ SwitchboxPinLoc = namedtuple("SwitchboxPinLoc", \
 """
 A top-level switchbox pin.
 
+in          - Pin id.
+name        - Pin name
+direction   - Pin direction.
+locs        - A list of SwitchboxPinLoc objects representing connections to
+              switches within the switchbox.
+is_locsl    - True when the pin connects to the tile.
 """
 SwitchboxPin = namedtuple("SwitchboxPin", "id name direction locs is_local")
 

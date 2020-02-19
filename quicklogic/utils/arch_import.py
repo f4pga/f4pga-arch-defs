@@ -100,6 +100,7 @@ def initialize_arch(xml_arch):
     add_segment("sb_dummy", 1)
     add_segment("hop1", 1)
     add_segment("hop2", 2)
+    add_segment("hop3", 3)
     add_segment("hop4", 4)
 
 
