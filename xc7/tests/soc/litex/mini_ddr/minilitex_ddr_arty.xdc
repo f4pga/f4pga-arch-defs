@@ -71,9 +71,6 @@ set_property IOSTANDARD SSTL135 [get_ports {ddram_a[13]} ]
 set_property SLEW FAST [get_ports {ddram_ba[0]} ]
 set_property IOSTANDARD SSTL135 [get_ports {ddram_ba[0]} ]
 # ## ddram:0.ba
-#set_property LOC P4 [get_ports {ddram_ba[1]} ]
-set_property SLEW FAST [get_ports {ddram_ba[1]} ]
-set_property IOSTANDARD SSTL135 [get_ports {ddram_ba[1]} ]
 # ## ddram:0.ba
 #set_property LOC P2 [get_ports {ddram_ba[2]} ]
 set_property SLEW FAST [get_ports {ddram_ba[2]} ]
