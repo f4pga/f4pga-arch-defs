@@ -9,4 +9,9 @@ add_fpga_target(
   EXPLICIT_ADD_FILE_TARGET
   )
 
-add_dependencies(all_ql_tests btn_ff-ql-chandalar-top_route)
+add_jlink_output(
+  PARENT btn_ff-ql-chandalar-top
+)
+
+add_dependencies(all_ql_tests btn_ff-ql-chandalar-top_bit)
+add_dependencies(all_ql_tests btn_ff-ql-chandalar-top_jlink)
