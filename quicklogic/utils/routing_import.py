@@ -15,7 +15,7 @@ from minigraph import MiniGraph
 # =============================================================================
 
 # Set to True to dump minigraph for each switchbox
-DUMP_MINIGRAPHS = True
+DUMP_MINIGRAPHS = False
 
 # =============================================================================
 
