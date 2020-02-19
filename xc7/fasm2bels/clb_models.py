@@ -1073,7 +1073,11 @@ def process_slice(top, s):
 
             site.add_internal_source(ff5, 'Q', lut + '5Q')
             ff5.parameters['INIT'] = init
-            ff5.parameters['IS_C_INVERTED'] = IS_C_INVERTED
+
+            if name in ['LDCE', 'LDPE']:
+                ff5.parameters['IS_G_INVERTED'] = IS_C_INVERTED
+            else:
+                ff5.parameters['IS_C_INVERTED'] = IS_C_INVERTED
 
             site.add_bel(ff5)
 
@@ -1121,7 +1125,11 @@ def process_slice(top, s):
         connect_ce_sr(ff, ce, sr)
 
         ff.parameters['INIT'] = init
-        ff.parameters['IS_C_INVERTED'] = IS_C_INVERTED
+
+        if name in ['LDCE', 'LDPE']:
+            ff.parameters['IS_G_INVERTED'] = IS_C_INVERTED
+        else:
+            ff.parameters['IS_C_INVERTED'] = IS_C_INVERTED
 
         site.add_bel(ff)
 
