@@ -24,6 +24,12 @@ PAD_DEFAULT = {
     "schmitt":  0
 }
 
+# Base address of the FBIO_SEL registers
+FBIOSEL_BASE = 0x40004D80
+
+# Base address of the IOMUX registers
+IOMUX_BASE   = 0x40004C00
+
 # =============================================================================
 
 
@@ -104,7 +110,7 @@ def generate_iomux_register_content(config):
         reg |= (schmitt << 12)
 
         # Register address
-        adr = 0x40004C00 + pad * 4
+        adr = IOMUX_BASE + pad * 4
 
         # Store the value
         iomux_regs[adr] = reg
@@ -116,8 +122,8 @@ def generate_iomux_register_content(config):
         b = int(pad)  % 32
         fbio_sel[r] |= (1<<b)
     
-    iomux_regs[0x40004D80] = fbio_sel[0]
-    iomux_regs[0x40004D84] = fbio_sel[1]
+    iomux_regs[FBIOSEL_BASE + 0x0] = fbio_sel[0]
+    iomux_regs[FBIOSEL_BASE + 0x4] = fbio_sel[1]
 
     return iomux_regs
 
