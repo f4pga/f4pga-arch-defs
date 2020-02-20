@@ -20,7 +20,7 @@ def enum_from_string(enum_type, s):
     return enum_type[s.upper()]
 
 
-def iterate_xml(xml_file):
+def iterate_xml(xml_file, load_edges):
     """
     A generator function that allows to incrementally walk over an XML tree
     while reading it from a file thus allowing to greatly reduce memory
@@ -30,13 +30,27 @@ def iterate_xml(xml_file):
     _, root = next(doc)
     yield "", root
     path = root.tag
+    in_edge = False
     for event, element in doc:
         if event == 'start':
+            if in_edge == True:
+                continue
+
+            if not load_edges and element.tag == 'edge':
+                in_edge = True
+                continue
             path += "/" + element.tag
         if event == 'end':
+            if in_edge:
+                if element.tag == 'edge':
+                    in_edge = False
+                element.clear()
+                continue
+
             path = path.rsplit('/', maxsplit=1)[0]
             yield path, element
             element.clear()
+
     root.clear()
 
 
@@ -69,7 +83,7 @@ def graph_from_xml(
     node_timing = None
     node_segment = None
 
-    for path, element in progressbar(iterate_xml(input_file_name)):
+    for path, element in progressbar(iterate_xml(input_file_name, load_edges=load_edges)):
 
         # Root tag
         if path == "" and element.tag == "rr_graph":

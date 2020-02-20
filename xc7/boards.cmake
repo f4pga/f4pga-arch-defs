@@ -77,3 +77,12 @@ add_xc7_board(
 #  PART xc7z020clg400-1
 #)
 
+add_xc7_board(
+  BOARD nexys_video
+  DEVICE xc7a200t
+  PACKAGE test
+  PART xc7a200tsbg484-1
+  PROG_TOOL ${OPENOCD_TARGET}
+  PROG_CMD "${OPENOCD} -f ${PRJXRAY_DIR}/utils/openocd/board-digilent-basys3.cfg -c \\\"init $<SEMICOLON> pld load 0 \${OUT_BIN} $<SEMICOLON> exit\\\""
+)
+

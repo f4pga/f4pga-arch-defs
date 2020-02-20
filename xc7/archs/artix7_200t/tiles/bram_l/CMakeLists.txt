@@ -1,0 +1,7 @@
+project_xray_tile(
+  ARCH artix7_200t
+  TILE BRAM_L
+  SITE_TYPES BRAM_L/BRAM_L
+  FUSED_SITES
+  EQUIVALENT_SITES BRAM_L
+  )

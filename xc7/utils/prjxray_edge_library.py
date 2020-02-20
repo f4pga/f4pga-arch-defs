@@ -397,6 +397,7 @@ class Connector(object):
         self.conn = conn
         self.pins = pins
         self.tracks = tracks
+        self.track_connections = {}
         assert (self.pins is not None) ^ (self.tracks is not None)
 
     def find_wire_node(
@@ -647,6 +648,23 @@ AND
         )
         return result[0]
 
+    def find_connection_at_loc(self, loc):
+        assert self.tracks is not None
+        tracks_model, graph_nodes = self.tracks
+        if loc not in self.track_connections:
+            for idx in tracks_model.get_tracks_for_wire_at_coord(loc
+                                                                ).values():
+                break
+
+            self.track_connections[loc] = idx
+        else:
+            idx = self.track_connections[loc]
+
+        assert idx is not None
+
+        return idx
+
+
     def connect_at(
             self,
             loc,
@@ -677,20 +695,10 @@ AND
 
         if self.tracks and other_connector.tracks:
             tracks_model, graph_nodes = self.tracks
-            idx1 = None
-            for idx1 in tracks_model.get_tracks_for_wire_at_coord(loc
-                                                                  ).values():
-                break
-
-            assert idx1 is not None
+            idx1 = self.find_connection_at_loc(loc)
 
             other_tracks_model, other_graph_nodes = other_connector.tracks
-            idx2 = None
-            for idx2 in other_tracks_model.get_tracks_for_wire_at_coord(
-                    loc).values():
-                break
-
-            assert idx2 is not None
+            idx2 = other_connector.find_connection_at_loc(loc)
 
             switch_pkey = pip.get_pip_switch(src_wire_pkey, dest_wire_pkey)
 
@@ -2074,9 +2082,11 @@ def create_and_insert_edges(
 
     const_connectors = create_const_connectors(conn)
 
+    sorted_pips = {}
+
     num_edges = 0
+    edges = []
     for loc in progressbar_utils.progressbar(grid.tile_locations()):
-        edges = []
         edge_set = set()
 
         gridinfo = grid.gridinfo_at_loc(loc)
@@ -2088,7 +2098,10 @@ def create_and_insert_edges(
 
         tile_type = db.get_tile_type(gridinfo.tile_type)
 
-        for forward, pip in make_sorted_pips(tile_type.get_pips()):
+        if tile_type not in sorted_pips:
+            sorted_pips[tile_type] = make_sorted_pips(tile_type.get_pips())
+
+        for forward, pip in sorted_pips[tile_type]:
             # FIXME: The PADOUT0/1 connections do not work.
             #
             # These connections are used for:
@@ -2141,9 +2154,11 @@ def create_and_insert_edges(
                     edge_set.add(key)
                     edges.append(connection)
 
-        commit_edges(write_cur, edges)
+        if len(edges) > 1000:
+            commit_edges(write_cur, edges)
 
-        num_edges += len(edges)
+            num_edges += len(edges)
+            edges = []
 
     print('{} Created {} edges, inserted'.format(now(), num_edges))
 
