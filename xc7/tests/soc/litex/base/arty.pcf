@@ -9,10 +9,10 @@ set_io serial_rx A9
 set_io serial_tx D10
 
 # LEDs
-#set_io led[0] H5
-#set_io led[1] J5
-#set_io led[2] T9
-#set_io led[3] T10
+set_io led[0] H5
+set_io led[1] J5
+set_io led[2] T9
+set_io led[3] T10
 
 # DDRAM
 set_io ddram_a[0] R2
@@ -63,3 +63,24 @@ set_io ddram_clk_n V9
 set_io ddram_cke N5
 set_io ddram_odt R5
 set_io ddram_reset_n K6
+
+# ETHERNET
+set_io eth_ref_clk G18
+set_io eth_clocks_tx H16
+set_io eth_clocks_rx F15
+set_io eth_rst_n C16
+set_io eth_mdio K13
+set_io eth_mdc F16
+set_io eth_rx_dv G16
+set_io eth_rx_er C17
+set_io eth_rx_data[0] D18
+set_io eth_rx_data[1] E17
+set_io eth_rx_data[2] E18
+set_io eth_rx_data[3] G17
+set_io eth_tx_en H15
+set_io eth_tx_data[0] H14
+set_io eth_tx_data[1] J14
+set_io eth_tx_data[2] J13
+set_io eth_tx_data[3] H17
+set_io eth_col D17
+set_io eth_crs G14
