@@ -186,7 +186,7 @@ wire [12:0] soc_netsoc_sram_adr;
 wire [31:0] soc_netsoc_sram_dat_r;
 reg [3:0] soc_netsoc_sram_we = 4'd0;
 wire [31:0] soc_netsoc_sram_dat_w;
-reg [31:0] soc_netsoc_uart_phy_storage = 32'd6597069;
+reg [31:0] soc_netsoc_uart_phy_storage = 32'd8246337;
 reg soc_netsoc_uart_phy_re = 1'd0;
 wire soc_netsoc_uart_phy_sink_valid;
 reg soc_netsoc_uart_phy_sink_ready = 1'd0;
@@ -1043,9 +1043,9 @@ wire soc_netsoc_sdram_wants_refresh;
 wire soc_netsoc_sdram_wants_zqcs;
 wire soc_netsoc_sdram_timer_wait;
 wire soc_netsoc_sdram_timer_done0;
-wire [9:0] soc_netsoc_sdram_timer_count0;
+wire [8:0] soc_netsoc_sdram_timer_count0;
 wire soc_netsoc_sdram_timer_done1;
-reg [9:0] soc_netsoc_sdram_timer_count1 = 10'd585;
+reg [8:0] soc_netsoc_sdram_timer_count1 = 9'd468;
 wire soc_netsoc_sdram_postponer_req_i;
 reg soc_netsoc_sdram_postponer_req_o = 1'd0;
 reg soc_netsoc_sdram_postponer_count = 1'd0;
@@ -1057,9 +1057,9 @@ reg [5:0] soc_netsoc_sdram_sequencer_counter = 6'd0;
 reg soc_netsoc_sdram_sequencer_count = 1'd0;
 wire soc_netsoc_sdram_zqcs_timer_wait;
 wire soc_netsoc_sdram_zqcs_timer_done0;
-wire [26:0] soc_netsoc_sdram_zqcs_timer_count0;
+wire [25:0] soc_netsoc_sdram_zqcs_timer_count0;
 wire soc_netsoc_sdram_zqcs_timer_done1;
-reg [26:0] soc_netsoc_sdram_zqcs_timer_count1 = 27'd74999999;
+reg [25:0] soc_netsoc_sdram_zqcs_timer_count1 = 26'd59999999;
 reg soc_netsoc_sdram_zqcs_executer_start = 1'd0;
 reg soc_netsoc_sdram_zqcs_executer_done = 1'd0;
 reg [4:0] soc_netsoc_sdram_zqcs_executer_counter = 5'd0;
@@ -1148,7 +1148,7 @@ wire soc_netsoc_sdram_bankmachine0_twtpcon_valid;
 reg [2:0] soc_netsoc_sdram_bankmachine0_twtpcon_count = 3'd0;
 wire soc_netsoc_sdram_bankmachine0_trccon_valid;
 (* dont_touch = "true" *) reg soc_netsoc_sdram_bankmachine0_trccon_ready = 1'd1;
-reg [2:0] soc_netsoc_sdram_bankmachine0_trccon_count = 3'd0;
+reg [1:0] soc_netsoc_sdram_bankmachine0_trccon_count = 2'd0;
 wire soc_netsoc_sdram_bankmachine0_trascon_valid;
 (* dont_touch = "true" *) reg soc_netsoc_sdram_bankmachine0_trascon_ready = 1'd1;
 reg [1:0] soc_netsoc_sdram_bankmachine0_trascon_count = 2'd0;
@@ -1237,7 +1237,7 @@ wire soc_netsoc_sdram_bankmachine1_twtpcon_valid;
 reg [2:0] soc_netsoc_sdram_bankmachine1_twtpcon_count = 3'd0;
 wire soc_netsoc_sdram_bankmachine1_trccon_valid;
 (* dont_touch = "true" *) reg soc_netsoc_sdram_bankmachine1_trccon_ready = 1'd1;
-reg [2:0] soc_netsoc_sdram_bankmachine1_trccon_count = 3'd0;
+reg [1:0] soc_netsoc_sdram_bankmachine1_trccon_count = 2'd0;
 wire soc_netsoc_sdram_bankmachine1_trascon_valid;
 (* dont_touch = "true" *) reg soc_netsoc_sdram_bankmachine1_trascon_ready = 1'd1;
 reg [1:0] soc_netsoc_sdram_bankmachine1_trascon_count = 2'd0;
@@ -1326,7 +1326,7 @@ wire soc_netsoc_sdram_bankmachine2_twtpcon_valid;
 reg [2:0] soc_netsoc_sdram_bankmachine2_twtpcon_count = 3'd0;
 wire soc_netsoc_sdram_bankmachine2_trccon_valid;
 (* dont_touch = "true" *) reg soc_netsoc_sdram_bankmachine2_trccon_ready = 1'd1;
-reg [2:0] soc_netsoc_sdram_bankmachine2_trccon_count = 3'd0;
+reg [1:0] soc_netsoc_sdram_bankmachine2_trccon_count = 2'd0;
 wire soc_netsoc_sdram_bankmachine2_trascon_valid;
 (* dont_touch = "true" *) reg soc_netsoc_sdram_bankmachine2_trascon_ready = 1'd1;
 reg [1:0] soc_netsoc_sdram_bankmachine2_trascon_count = 2'd0;
@@ -1415,7 +1415,7 @@ wire soc_netsoc_sdram_bankmachine3_twtpcon_valid;
 reg [2:0] soc_netsoc_sdram_bankmachine3_twtpcon_count = 3'd0;
 wire soc_netsoc_sdram_bankmachine3_trccon_valid;
 (* dont_touch = "true" *) reg soc_netsoc_sdram_bankmachine3_trccon_ready = 1'd1;
-reg [2:0] soc_netsoc_sdram_bankmachine3_trccon_count = 3'd0;
+reg [1:0] soc_netsoc_sdram_bankmachine3_trccon_count = 2'd0;
 wire soc_netsoc_sdram_bankmachine3_trascon_valid;
 (* dont_touch = "true" *) reg soc_netsoc_sdram_bankmachine3_trascon_ready = 1'd1;
 reg [1:0] soc_netsoc_sdram_bankmachine3_trascon_count = 2'd0;
@@ -1504,7 +1504,7 @@ wire soc_netsoc_sdram_bankmachine4_twtpcon_valid;
 reg [2:0] soc_netsoc_sdram_bankmachine4_twtpcon_count = 3'd0;
 wire soc_netsoc_sdram_bankmachine4_trccon_valid;
 (* dont_touch = "true" *) reg soc_netsoc_sdram_bankmachine4_trccon_ready = 1'd1;
-reg [2:0] soc_netsoc_sdram_bankmachine4_trccon_count = 3'd0;
+reg [1:0] soc_netsoc_sdram_bankmachine4_trccon_count = 2'd0;
 wire soc_netsoc_sdram_bankmachine4_trascon_valid;
 (* dont_touch = "true" *) reg soc_netsoc_sdram_bankmachine4_trascon_ready = 1'd1;
 reg [1:0] soc_netsoc_sdram_bankmachine4_trascon_count = 2'd0;
@@ -1593,7 +1593,7 @@ wire soc_netsoc_sdram_bankmachine5_twtpcon_valid;
 reg [2:0] soc_netsoc_sdram_bankmachine5_twtpcon_count = 3'd0;
 wire soc_netsoc_sdram_bankmachine5_trccon_valid;
 (* dont_touch = "true" *) reg soc_netsoc_sdram_bankmachine5_trccon_ready = 1'd1;
-reg [2:0] soc_netsoc_sdram_bankmachine5_trccon_count = 3'd0;
+reg [1:0] soc_netsoc_sdram_bankmachine5_trccon_count = 2'd0;
 wire soc_netsoc_sdram_bankmachine5_trascon_valid;
 (* dont_touch = "true" *) reg soc_netsoc_sdram_bankmachine5_trascon_ready = 1'd1;
 reg [1:0] soc_netsoc_sdram_bankmachine5_trascon_count = 2'd0;
@@ -1682,7 +1682,7 @@ wire soc_netsoc_sdram_bankmachine6_twtpcon_valid;
 reg [2:0] soc_netsoc_sdram_bankmachine6_twtpcon_count = 3'd0;
 wire soc_netsoc_sdram_bankmachine6_trccon_valid;
 (* dont_touch = "true" *) reg soc_netsoc_sdram_bankmachine6_trccon_ready = 1'd1;
-reg [2:0] soc_netsoc_sdram_bankmachine6_trccon_count = 3'd0;
+reg [1:0] soc_netsoc_sdram_bankmachine6_trccon_count = 2'd0;
 wire soc_netsoc_sdram_bankmachine6_trascon_valid;
 (* dont_touch = "true" *) reg soc_netsoc_sdram_bankmachine6_trascon_ready = 1'd1;
 reg [1:0] soc_netsoc_sdram_bankmachine6_trascon_count = 2'd0;
@@ -1771,7 +1771,7 @@ wire soc_netsoc_sdram_bankmachine7_twtpcon_valid;
 reg [2:0] soc_netsoc_sdram_bankmachine7_twtpcon_count = 3'd0;
 wire soc_netsoc_sdram_bankmachine7_trccon_valid;
 (* dont_touch = "true" *) reg soc_netsoc_sdram_bankmachine7_trccon_ready = 1'd1;
-reg [2:0] soc_netsoc_sdram_bankmachine7_trccon_count = 3'd0;
+reg [1:0] soc_netsoc_sdram_bankmachine7_trccon_count = 2'd0;
 wire soc_netsoc_sdram_bankmachine7_trascon_valid;
 (* dont_touch = "true" *) reg soc_netsoc_sdram_bankmachine7_trascon_ready = 1'd1;
 reg [1:0] soc_netsoc_sdram_bankmachine7_trascon_count = 2'd0;
@@ -10585,7 +10585,7 @@ always @(posedge sys_clk) begin
 	if ((soc_netsoc_sdram_timer_wait & (~soc_netsoc_sdram_timer_done0))) begin
 		soc_netsoc_sdram_timer_count1 <= (soc_netsoc_sdram_timer_count1 - 1'd1);
 	end else begin
-		soc_netsoc_sdram_timer_count1 <= 10'd585;
+		soc_netsoc_sdram_timer_count1 <= 9'd468;
 	end
 	soc_netsoc_sdram_postponer_req_o <= 1'd0;
 	if (soc_netsoc_sdram_postponer_req_i) begin
@@ -10646,7 +10646,7 @@ always @(posedge sys_clk) begin
 	if ((soc_netsoc_sdram_zqcs_timer_wait & (~soc_netsoc_sdram_zqcs_timer_done0))) begin
 		soc_netsoc_sdram_zqcs_timer_count1 <= (soc_netsoc_sdram_zqcs_timer_count1 - 1'd1);
 	end else begin
-		soc_netsoc_sdram_zqcs_timer_count1 <= 27'd74999999;
+		soc_netsoc_sdram_zqcs_timer_count1 <= 26'd59999999;
 	end
 	soc_netsoc_sdram_zqcs_executer_done <= 1'd0;
 	if ((soc_netsoc_sdram_zqcs_executer_start & (soc_netsoc_sdram_zqcs_executer_counter == 1'd0))) begin
@@ -10733,7 +10733,7 @@ always @(posedge sys_clk) begin
 		end
 	end
 	if (soc_netsoc_sdram_bankmachine0_trccon_valid) begin
-		soc_netsoc_sdram_bankmachine0_trccon_count <= 3'd4;
+		soc_netsoc_sdram_bankmachine0_trccon_count <= 2'd3;
 		if (1'd0) begin
 			soc_netsoc_sdram_bankmachine0_trccon_ready <= 1'd1;
 		end else begin
@@ -10748,7 +10748,7 @@ always @(posedge sys_clk) begin
 		end
 	end
 	if (soc_netsoc_sdram_bankmachine0_trascon_valid) begin
-		soc_netsoc_sdram_bankmachine0_trascon_count <= 2'd3;
+		soc_netsoc_sdram_bankmachine0_trascon_count <= 2'd2;
 		if (1'd0) begin
 			soc_netsoc_sdram_bankmachine0_trascon_ready <= 1'd1;
 		end else begin
@@ -10813,7 +10813,7 @@ always @(posedge sys_clk) begin
 		end
 	end
 	if (soc_netsoc_sdram_bankmachine1_trccon_valid) begin
-		soc_netsoc_sdram_bankmachine1_trccon_count <= 3'd4;
+		soc_netsoc_sdram_bankmachine1_trccon_count <= 2'd3;
 		if (1'd0) begin
 			soc_netsoc_sdram_bankmachine1_trccon_ready <= 1'd1;
 		end else begin
@@ -10828,7 +10828,7 @@ always @(posedge sys_clk) begin
 		end
 	end
 	if (soc_netsoc_sdram_bankmachine1_trascon_valid) begin
-		soc_netsoc_sdram_bankmachine1_trascon_count <= 2'd3;
+		soc_netsoc_sdram_bankmachine1_trascon_count <= 2'd2;
 		if (1'd0) begin
 			soc_netsoc_sdram_bankmachine1_trascon_ready <= 1'd1;
 		end else begin
@@ -10893,7 +10893,7 @@ always @(posedge sys_clk) begin
 		end
 	end
 	if (soc_netsoc_sdram_bankmachine2_trccon_valid) begin
-		soc_netsoc_sdram_bankmachine2_trccon_count <= 3'd4;
+		soc_netsoc_sdram_bankmachine2_trccon_count <= 2'd3;
 		if (1'd0) begin
 			soc_netsoc_sdram_bankmachine2_trccon_ready <= 1'd1;
 		end else begin
@@ -10908,7 +10908,7 @@ always @(posedge sys_clk) begin
 		end
 	end
 	if (soc_netsoc_sdram_bankmachine2_trascon_valid) begin
-		soc_netsoc_sdram_bankmachine2_trascon_count <= 2'd3;
+		soc_netsoc_sdram_bankmachine2_trascon_count <= 2'd2;
 		if (1'd0) begin
 			soc_netsoc_sdram_bankmachine2_trascon_ready <= 1'd1;
 		end else begin
@@ -10973,7 +10973,7 @@ always @(posedge sys_clk) begin
 		end
 	end
 	if (soc_netsoc_sdram_bankmachine3_trccon_valid) begin
-		soc_netsoc_sdram_bankmachine3_trccon_count <= 3'd4;
+		soc_netsoc_sdram_bankmachine3_trccon_count <= 2'd3;
 		if (1'd0) begin
 			soc_netsoc_sdram_bankmachine3_trccon_ready <= 1'd1;
 		end else begin
@@ -10988,7 +10988,7 @@ always @(posedge sys_clk) begin
 		end
 	end
 	if (soc_netsoc_sdram_bankmachine3_trascon_valid) begin
-		soc_netsoc_sdram_bankmachine3_trascon_count <= 2'd3;
+		soc_netsoc_sdram_bankmachine3_trascon_count <= 2'd2;
 		if (1'd0) begin
 			soc_netsoc_sdram_bankmachine3_trascon_ready <= 1'd1;
 		end else begin
@@ -11053,7 +11053,7 @@ always @(posedge sys_clk) begin
 		end
 	end
 	if (soc_netsoc_sdram_bankmachine4_trccon_valid) begin
-		soc_netsoc_sdram_bankmachine4_trccon_count <= 3'd4;
+		soc_netsoc_sdram_bankmachine4_trccon_count <= 2'd3;
 		if (1'd0) begin
 			soc_netsoc_sdram_bankmachine4_trccon_ready <= 1'd1;
 		end else begin
@@ -11068,7 +11068,7 @@ always @(posedge sys_clk) begin
 		end
 	end
 	if (soc_netsoc_sdram_bankmachine4_trascon_valid) begin
-		soc_netsoc_sdram_bankmachine4_trascon_count <= 2'd3;
+		soc_netsoc_sdram_bankmachine4_trascon_count <= 2'd2;
 		if (1'd0) begin
 			soc_netsoc_sdram_bankmachine4_trascon_ready <= 1'd1;
 		end else begin
@@ -11133,7 +11133,7 @@ always @(posedge sys_clk) begin
 		end
 	end
 	if (soc_netsoc_sdram_bankmachine5_trccon_valid) begin
-		soc_netsoc_sdram_bankmachine5_trccon_count <= 3'd4;
+		soc_netsoc_sdram_bankmachine5_trccon_count <= 2'd3;
 		if (1'd0) begin
 			soc_netsoc_sdram_bankmachine5_trccon_ready <= 1'd1;
 		end else begin
@@ -11148,7 +11148,7 @@ always @(posedge sys_clk) begin
 		end
 	end
 	if (soc_netsoc_sdram_bankmachine5_trascon_valid) begin
-		soc_netsoc_sdram_bankmachine5_trascon_count <= 2'd3;
+		soc_netsoc_sdram_bankmachine5_trascon_count <= 2'd2;
 		if (1'd0) begin
 			soc_netsoc_sdram_bankmachine5_trascon_ready <= 1'd1;
 		end else begin
@@ -11213,7 +11213,7 @@ always @(posedge sys_clk) begin
 		end
 	end
 	if (soc_netsoc_sdram_bankmachine6_trccon_valid) begin
-		soc_netsoc_sdram_bankmachine6_trccon_count <= 3'd4;
+		soc_netsoc_sdram_bankmachine6_trccon_count <= 2'd3;
 		if (1'd0) begin
 			soc_netsoc_sdram_bankmachine6_trccon_ready <= 1'd1;
 		end else begin
@@ -11228,7 +11228,7 @@ always @(posedge sys_clk) begin
 		end
 	end
 	if (soc_netsoc_sdram_bankmachine6_trascon_valid) begin
-		soc_netsoc_sdram_bankmachine6_trascon_count <= 2'd3;
+		soc_netsoc_sdram_bankmachine6_trascon_count <= 2'd2;
 		if (1'd0) begin
 			soc_netsoc_sdram_bankmachine6_trascon_ready <= 1'd1;
 		end else begin
@@ -11293,7 +11293,7 @@ always @(posedge sys_clk) begin
 		end
 	end
 	if (soc_netsoc_sdram_bankmachine7_trccon_valid) begin
-		soc_netsoc_sdram_bankmachine7_trccon_count <= 3'd4;
+		soc_netsoc_sdram_bankmachine7_trccon_count <= 2'd3;
 		if (1'd0) begin
 			soc_netsoc_sdram_bankmachine7_trccon_ready <= 1'd1;
 		end else begin
@@ -11308,7 +11308,7 @@ always @(posedge sys_clk) begin
 		end
 	end
 	if (soc_netsoc_sdram_bankmachine7_trascon_valid) begin
-		soc_netsoc_sdram_bankmachine7_trascon_count <= 2'd3;
+		soc_netsoc_sdram_bankmachine7_trascon_count <= 2'd2;
 		if (1'd0) begin
 			soc_netsoc_sdram_bankmachine7_trascon_ready <= 1'd1;
 		end else begin
@@ -12868,7 +12868,7 @@ always @(posedge sys_clk) begin
 		soc_netsoc_rom_bus_ack <= 1'd0;
 		soc_netsoc_sram_bus_ack <= 1'd0;
 		serial_tx <= 1'd1;
-		soc_netsoc_uart_phy_storage <= 32'd6597069;
+		soc_netsoc_uart_phy_storage <= 32'd8246337;
 		soc_netsoc_uart_phy_re <= 1'd0;
 		soc_netsoc_uart_phy_sink_ready <= 1'd0;
 		soc_netsoc_uart_phy_uart_clk_txen <= 1'd0;
@@ -13055,13 +13055,13 @@ always @(posedge sys_clk) begin
 		soc_netsoc_sdram_cmd_payload_cas <= 1'd0;
 		soc_netsoc_sdram_cmd_payload_ras <= 1'd0;
 		soc_netsoc_sdram_cmd_payload_we <= 1'd0;
-		soc_netsoc_sdram_timer_count1 <= 10'd585;
+		soc_netsoc_sdram_timer_count1 <= 9'd468;
 		soc_netsoc_sdram_postponer_req_o <= 1'd0;
 		soc_netsoc_sdram_postponer_count <= 1'd0;
 		soc_netsoc_sdram_sequencer_done1 <= 1'd0;
 		soc_netsoc_sdram_sequencer_counter <= 6'd0;
 		soc_netsoc_sdram_sequencer_count <= 1'd0;
-		soc_netsoc_sdram_zqcs_timer_count1 <= 27'd74999999;
+		soc_netsoc_sdram_zqcs_timer_count1 <= 26'd59999999;
 		soc_netsoc_sdram_zqcs_executer_done <= 1'd0;
 		soc_netsoc_sdram_zqcs_executer_counter <= 5'd0;
 		soc_netsoc_sdram_bankmachine0_cmd_buffer_lookahead_level <= 4'd0;
@@ -13077,7 +13077,7 @@ always @(posedge sys_clk) begin
 		soc_netsoc_sdram_bankmachine0_twtpcon_ready <= 1'd1;
 		soc_netsoc_sdram_bankmachine0_twtpcon_count <= 3'd0;
 		soc_netsoc_sdram_bankmachine0_trccon_ready <= 1'd1;
-		soc_netsoc_sdram_bankmachine0_trccon_count <= 3'd0;
+		soc_netsoc_sdram_bankmachine0_trccon_count <= 2'd0;
 		soc_netsoc_sdram_bankmachine0_trascon_ready <= 1'd1;
 		soc_netsoc_sdram_bankmachine0_trascon_count <= 2'd0;
 		soc_netsoc_sdram_bankmachine1_cmd_buffer_lookahead_level <= 4'd0;
@@ -13093,7 +13093,7 @@ always @(posedge sys_clk) begin
 		soc_netsoc_sdram_bankmachine1_twtpcon_ready <= 1'd1;
 		soc_netsoc_sdram_bankmachine1_twtpcon_count <= 3'd0;
 		soc_netsoc_sdram_bankmachine1_trccon_ready <= 1'd1;
-		soc_netsoc_sdram_bankmachine1_trccon_count <= 3'd0;
+		soc_netsoc_sdram_bankmachine1_trccon_count <= 2'd0;
 		soc_netsoc_sdram_bankmachine1_trascon_ready <= 1'd1;
 		soc_netsoc_sdram_bankmachine1_trascon_count <= 2'd0;
 		soc_netsoc_sdram_bankmachine2_cmd_buffer_lookahead_level <= 4'd0;
@@ -13109,7 +13109,7 @@ always @(posedge sys_clk) begin
 		soc_netsoc_sdram_bankmachine2_twtpcon_ready <= 1'd1;
 		soc_netsoc_sdram_bankmachine2_twtpcon_count <= 3'd0;
 		soc_netsoc_sdram_bankmachine2_trccon_ready <= 1'd1;
-		soc_netsoc_sdram_bankmachine2_trccon_count <= 3'd0;
+		soc_netsoc_sdram_bankmachine2_trccon_count <= 2'd0;
 		soc_netsoc_sdram_bankmachine2_trascon_ready <= 1'd1;
 		soc_netsoc_sdram_bankmachine2_trascon_count <= 2'd0;
 		soc_netsoc_sdram_bankmachine3_cmd_buffer_lookahead_level <= 4'd0;
@@ -13125,7 +13125,7 @@ always @(posedge sys_clk) begin
 		soc_netsoc_sdram_bankmachine3_twtpcon_ready <= 1'd1;
 		soc_netsoc_sdram_bankmachine3_twtpcon_count <= 3'd0;
 		soc_netsoc_sdram_bankmachine3_trccon_ready <= 1'd1;
-		soc_netsoc_sdram_bankmachine3_trccon_count <= 3'd0;
+		soc_netsoc_sdram_bankmachine3_trccon_count <= 2'd0;
 		soc_netsoc_sdram_bankmachine3_trascon_ready <= 1'd1;
 		soc_netsoc_sdram_bankmachine3_trascon_count <= 2'd0;
 		soc_netsoc_sdram_bankmachine4_cmd_buffer_lookahead_level <= 4'd0;
@@ -13141,7 +13141,7 @@ always @(posedge sys_clk) begin
 		soc_netsoc_sdram_bankmachine4_twtpcon_ready <= 1'd1;
 		soc_netsoc_sdram_bankmachine4_twtpcon_count <= 3'd0;
 		soc_netsoc_sdram_bankmachine4_trccon_ready <= 1'd1;
-		soc_netsoc_sdram_bankmachine4_trccon_count <= 3'd0;
+		soc_netsoc_sdram_bankmachine4_trccon_count <= 2'd0;
 		soc_netsoc_sdram_bankmachine4_trascon_ready <= 1'd1;
 		soc_netsoc_sdram_bankmachine4_trascon_count <= 2'd0;
 		soc_netsoc_sdram_bankmachine5_cmd_buffer_lookahead_level <= 4'd0;
@@ -13157,7 +13157,7 @@ always @(posedge sys_clk) begin
 		soc_netsoc_sdram_bankmachine5_twtpcon_ready <= 1'd1;
 		soc_netsoc_sdram_bankmachine5_twtpcon_count <= 3'd0;
 		soc_netsoc_sdram_bankmachine5_trccon_ready <= 1'd1;
-		soc_netsoc_sdram_bankmachine5_trccon_count <= 3'd0;
+		soc_netsoc_sdram_bankmachine5_trccon_count <= 2'd0;
 		soc_netsoc_sdram_bankmachine5_trascon_ready <= 1'd1;
 		soc_netsoc_sdram_bankmachine5_trascon_count <= 2'd0;
 		soc_netsoc_sdram_bankmachine6_cmd_buffer_lookahead_level <= 4'd0;
@@ -13173,7 +13173,7 @@ always @(posedge sys_clk) begin
 		soc_netsoc_sdram_bankmachine6_twtpcon_ready <= 1'd1;
 		soc_netsoc_sdram_bankmachine6_twtpcon_count <= 3'd0;
 		soc_netsoc_sdram_bankmachine6_trccon_ready <= 1'd1;
-		soc_netsoc_sdram_bankmachine6_trccon_count <= 3'd0;
+		soc_netsoc_sdram_bankmachine6_trccon_count <= 2'd0;
 		soc_netsoc_sdram_bankmachine6_trascon_ready <= 1'd1;
 		soc_netsoc_sdram_bankmachine6_trascon_count <= 2'd0;
 		soc_netsoc_sdram_bankmachine7_cmd_buffer_lookahead_level <= 4'd0;
@@ -13189,7 +13189,7 @@ always @(posedge sys_clk) begin
 		soc_netsoc_sdram_bankmachine7_twtpcon_ready <= 1'd1;
 		soc_netsoc_sdram_bankmachine7_twtpcon_count <= 3'd0;
 		soc_netsoc_sdram_bankmachine7_trccon_ready <= 1'd1;
-		soc_netsoc_sdram_bankmachine7_trccon_count <= 3'd0;
+		soc_netsoc_sdram_bankmachine7_trccon_count <= 2'd0;
 		soc_netsoc_sdram_bankmachine7_trascon_ready <= 1'd1;
 		soc_netsoc_sdram_bankmachine7_trascon_count <= 2'd0;
 		soc_netsoc_sdram_choose_cmd_grant <= 3'd0;
@@ -13393,11 +13393,11 @@ end
 PLLE2_ADV #(
 	.CLKFBOUT_MULT(4'd12),
 	.CLKIN1_PERIOD(10.0),
-	.CLKOUT0_DIVIDE(5'd16),
+	.CLKOUT0_DIVIDE(5'd20),
 	.CLKOUT0_PHASE(1'd0),
-	.CLKOUT1_DIVIDE(3'd4),
+	.CLKOUT1_DIVIDE(3'd5),
 	.CLKOUT1_PHASE(1'd0),
-	.CLKOUT2_DIVIDE(3'd4),
+	.CLKOUT2_DIVIDE(3'd5),
 	.CLKOUT2_PHASE(90000),
 	.CLKOUT3_DIVIDE(3'd6),
 	.CLKOUT3_PHASE(1'd0),
