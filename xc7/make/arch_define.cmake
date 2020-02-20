@@ -1,6 +1,6 @@
 function(ADD_XC7_ARCH_DEFINE)
   set(options)
-  set(oneValueArgs ARCH PROTOTYPE_PART YOSYS_SYNTH_SCRIPT YOSYS_CONV_SCRIPT)
+  set(oneValueArgs ARCH PRJXRAY_ARCH PROTOTYPE_PART YOSYS_SYNTH_SCRIPT YOSYS_CONV_SCRIPT)
   set(multiValueArgs)
   cmake_parse_arguments(
     ADD_XC7_ARCH_DEFINE
@@ -15,6 +15,11 @@ function(ADD_XC7_ARCH_DEFINE)
   set(DEFAULT_DRIVE 12)
 
   set(ARCH ${ADD_XC7_ARCH_DEFINE_ARCH})
+  if("${ADD_XC7_ARCH_DEFINE_PRJXRAY_ARCH}" STREQUAL "")
+      set(PRJXRAY_ARCH "${ARCH}")
+  else()
+      set(PRJXRAY_ARCH "${ADD_XC7_ARCH_DEFINE_PRJXRAY_ARCH}")
+  endif()
   set(PROTOTYPE_PART ${ADD_XC7_ARCH_DEFINE_PROTOTYPE_PART})
   set(YOSYS_SYNTH_SCRIPT ${ADD_XC7_ARCH_DEFINE_YOSYS_SYNTH_SCRIPT})
   set(YOSYS_CONV_SCRIPT ${ADD_XC7_ARCH_DEFINE_YOSYS_CONV_SCRIPT})
@@ -46,7 +51,7 @@ function(ADD_XC7_ARCH_DEFINE)
     RR_PATCH_CMD "${CMAKE_COMMAND} -E env \
     PYTHONPATH=${PRJXRAY_DIR}:${symbiflow-arch-defs_SOURCE_DIR}/utils:${symbiflow-arch-defs_BINARY_DIR}/utils \
         \${PYTHON3} \${RR_PATCH_TOOL} \
-        --db_root ${PRJXRAY_DB_DIR}/${ARCH} \
+        --db_root ${PRJXRAY_DB_DIR}/${PRJXRAY_ARCH} \
         --part \${PART} \
         --read_rr_graph \${OUT_RRXML_VIRT} \
         --write_rr_graph \${OUT_RRXML_REAL} \
@@ -78,7 +83,7 @@ function(ADD_XC7_ARCH_DEFINE)
     FASM_TO_BIT_CMD "${CMAKE_COMMAND} -E env \
     PYTHONPATH=${symbiflow-arch-defs_BINARY_DIR}/env/conda/lib/python3.7/site-packages:${PRJXRAY_DIR}:${PRJXRAY_DIR}/third_party/fasm \
     \${PYTHON3} \${FASM_TO_BIT} \
-        --db-root ${PRJXRAY_DB_DIR}/${ARCH} \
+        --db-root ${PRJXRAY_DB_DIR}/${PRJXRAY_ARCH} \
         --sparse \
         --emit_pudc_b_pullup \
         \${FASM_TO_BIT_EXTRA_ARGS} \
@@ -93,7 +98,7 @@ function(ADD_XC7_ARCH_DEFINE)
     PYTHONPATH=${symbiflow-arch-defs_BINARY_DIR}/env/conda/lib/python3.7/site-packages:${PRJXRAY_DIR}:${PRJXRAY_DIR}/third_party/fasm:${symbiflow-arch-defs_SOURCE_DIR}/xc7:${symbiflow-arch-defs_SOURCE_DIR}/utils \
         \${PYTHON3} -mfasm2bels \
         \${BIT_TO_V_EXTRA_ARGS} \
-        --db_root ${PRJXRAY_DB_DIR}/${ARCH} \
+        --db_root ${PRJXRAY_DB_DIR}/${PRJXRAY_ARCH} \
         --rr_graph \${OUT_RRXML_REAL_LOCATION} \
         --route \${OUT_ROUTE} \
         --bitread $<TARGET_FILE:bitread> \
@@ -112,4 +117,5 @@ function(ADD_XC7_ARCH_DEFINE)
     ROUTE_CHAN_WIDTH 500
   )
 
+  set_target_properties(${ARCH} PROPERTIES PRJXRAY_ARCH ${PRJXRAY_ARCH})
 endfunction()

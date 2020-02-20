@@ -1,7 +1,7 @@
 project_xray_prepare_database(
-  ARCH artix7
+  PRJXRAY_ARCH artix7
   PROTOTYPE_PART xc7a50tfgg484-1
-  PARTS xc7a50tfgg484-1 xc7a200tffg1156-1
+  PARTS xc7a50tfgg484-1
 )
 
 add_xc7_arch_define(
