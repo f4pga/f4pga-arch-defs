@@ -14,11 +14,13 @@ function(ADD_QUICKLOGIC_FASM_PACKAGE)
     DEPENDS ${PYTHON3} ${PYTHON3_TARGET} ${FASM_TARGET}
     )
 
+  get_target_property_required(QUICKLOGIC_FASM_UTILS_TARGET env QUICKLOGIC_FASM_UTILS_TARGET)
+
   add_thirdparty_package(
     NAME quicklogic_fasm
     BUILD_INSTALL_COMMAND "cd ${CMAKE_CURRENT_SOURCE_DIR}/utils/quicklogic-fasm && ${PYTHON3} setup.py develop"
     PROVIDES qlfasm
-    DEPENDS ${PYTHON3} ${PYTHON3_TARGET} quicklogic_fasm_utils
+    DEPENDS ${PYTHON3} ${PYTHON3_TARGET} ${QUICKLOGIC_FASM_UTILS_TARGET}
     )
 endfunction(ADD_QUICKLOGIC_FASM_PACKAGE)
 

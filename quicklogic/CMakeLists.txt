@@ -17,6 +17,8 @@ add_subdirectory(primitives)
 get_target_property_required(PYTHON3 env PYTHON3)
 get_target_property_required(QLFASM env QLFASM)
 
+get_target_property_required(QLFASM_TARGET env QLFASM_TARGET)
+
 define_arch(
   ARCH ql-s3
   YOSYS_SYNTH_SCRIPT ${symbiflow-arch-defs_SOURCE_DIR}/quicklogic/yosys/synth.tcl
@@ -49,8 +51,13 @@ define_arch(
 
   FASM_TO_BIT   
     ${QLFASM}
-  FASM_TO_BIT_CMD
-    "\${QLFASM} \${OUT_FASM} \${OUT_BITSTREAM} \${FASM_TO_BIT_EXTRA_ARGS}"
+  FASM_TO_BIT_CMD "\${PYTHON3} \
+    \${QLFASM} \
+        \${OUT_FASM}
+        \${OUT_BITSTREAM}
+        \${FASM_TO_BIT_EXTRA_ARGS}"
+  FASM_TO_BIT_DEPS
+    ${QLFASM_TARGET}
   BITSTREAM_EXTENSION bit
 
   NO_BIT_TO_BIN
