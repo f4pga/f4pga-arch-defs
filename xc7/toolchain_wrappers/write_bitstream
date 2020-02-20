@@ -9,8 +9,8 @@ echo "Writing bitstream ..."
 FASM2FRAMES=`realpath ${VPRPATH}/python/prjxray/utils/fasm2frames.py`
 FRAMES2BIT=`realpath ${VPRPATH}/xc7frames2bit`
 
-OPTS=d:f:b:
-LONGOPTS=device:,fasm:,bit:
+OPTS=d:f:b:p:
+LONGOPTS=device:,fasm:,bit:,part:
 
 PARSED_OPTS=`getopt --options=${OPTS} --longoptions=${LONGOPTS} --name $0 -- $@`
 eval set -- ${PARSED_OPTS}
@@ -64,4 +64,4 @@ DBROOT=`realpath ${VPRPATH}/../share/prjxray/prjxray-db/${DEVICE}`
 
 python3 ${FASM2FRAMES} --db-root ${DBROOT} --part ${PART} --sparse --emit_pudc_b_pullup ${FASM} ${FRAMES}
 
-$FRAMES2BIT --frm_file ${FRAMES} --output_file ${BIT} --part_name ${PART} --part_file ${DBROOT}/${PART}.yaml
+$FRAMES2BIT --frm_file ${FRAMES} --output_file ${BIT} --part_name ${PART} --part_file ${DBROOT}/${PART}/part.yaml
