@@ -531,9 +531,27 @@ WHERE pkey = (
         )
 
 
+def create_get_tile_and_site_as_tile_pkey(cur):
+    @functools.lru_cache(maxsize=0)
+    def get_tile_and_site_as_tile_pkey(x, y):
+        cur.execute(
+            """
+SELECT pkey, site_as_tile_pkey FROM tile WHERE grid_x = ? AND grid_y = ?;
+        """, (x, y))
+        result = cur.fetchone()
+        assert result is not None, (x, y)
+        tile_pkey, site_as_tile_pkey = result
+
+        return tile_pkey, site_as_tile_pkey
+
+    return get_tile_and_site_as_tile_pkey
+
+
+
 def import_graph_nodes(conn, graph, node_mapping, connection_box_map):
     cur = conn.cursor()
-    tile_loc_to_pkey = {}
+
+    get_tile_and_site_as_tile_pkey = create_get_tile_and_site_as_tile_pkey(cur)
 
     for node_idx, node in enumerate(graph.nodes):
         if node.type not in (graph2.NodeType.IPIN, graph2.NodeType.OPIN):
@@ -563,14 +581,8 @@ def import_graph_nodes(conn, graph, node_mapping, connection_box_map):
 
         pin = m.group(2)
 
-        cur.execute(
-            """
-SELECT pkey, site_as_tile_pkey FROM tile WHERE grid_x = ? AND grid_y = ?;
-        """, (node.loc.x_low, node.loc.y_low)
-        )
-        result = cur.fetchone()
-        assert result is not None, (tile_type, pin, node.loc)
-        tile_pkey, site_as_tile_pkey = result
+        tile_pkey, site_as_tile_pkey = get_tile_and_site_as_tile_pkey(
+                node.loc.x_low, node.loc.y_low)
 
         if site_as_tile_pkey is not None:
             cur.execute(
@@ -626,19 +638,7 @@ AND
             assert len(results) == 1
             wire_in_tile_pkey = results[0][0]
 
-        if gridloc not in tile_loc_to_pkey:
-            cur.execute(
-                """
-            SELECT pkey FROM tile WHERE grid_x = ? AND grid_y = ?;""",
-                (gridloc[0], gridloc[1])
-            )
-
-            result = cur.fetchone()
-            assert result is not None, (tile_type, gridloc)
-            (tile_pkey, ) = result
-            tile_loc_to_pkey[gridloc] = tile_pkey
-        else:
-            tile_pkey = tile_loc_to_pkey[gridloc]
+        tile_pkey, _ = get_tile_and_site_as_tile_pkey(gridloc[0], gridloc[1])
 
         cur.execute(
             """
