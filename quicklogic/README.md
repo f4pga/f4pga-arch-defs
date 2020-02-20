@@ -78,6 +78,5 @@ The script will contain the bitstream as well as IOMUX configuration.
 
 ## Limitations
 
-1. **The routing is constrained to the first two rows of the FPGA grid**. There fore  the only IO ports that can be used are *FBIO_0* - *FBIO_15*
-2. No support for the global clock network yet. Clock signal is routed to *QCK* inputs of LOGIC cells via the ordinary routing network.
-3. No support for dedicated connections between the FPGA and the SoC yet.
+1. No support for the global clock network yet. Clock signal is routed to *QCK* inputs of LOGIC cells via the ordinary routing network.
+2. No support for dedicated connections between the FPGA and the SoC yet.
