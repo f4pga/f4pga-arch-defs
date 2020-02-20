@@ -25,4 +25,4 @@ generate_constrains $PCF $EBLIF $NET
 
 run_vpr --fix_pins constraints.place --place
 
-mv vpr_stdout.log pack.log
+mv vpr_stdout.log place.log
