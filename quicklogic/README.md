@@ -44,13 +44,6 @@ cd build && make all_conda
 
 Once the SymbiFlow environment is set you can perform the implementation (synthesis, placement and routing) of FPAG designs.
 
-Currently the file with VPR cell definitions (cells_sim.v) has to be built manually. This has to be done only once. Build it with the following commands:
-
-```
-cd quicklogic/tests
-make file_quicklogic_techmap_cells_sim.v
-```
-
 Go to the quicklogic/tests directory and choose a design you want to implement:
 
 ```
