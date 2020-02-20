@@ -519,16 +519,36 @@ AND
                 wire_pkey, graph_node_pkey, track_graph_node_pkey, edge_nodes
             )
 
-            capacitance = 0
-            resistance = 0
-            for wire_cap, wire_res in cur.execute("""
-SELECT wire_in_tile.capacitance, wire_in_tile.resistance
+            is_lv_node = False
+            for (name, ) in cur.execute("""
+SELECT wire_in_tile.name
 FROM wire_in_tile
 WHERE pkey IN (
     SELECT wire_in_tile_pkey FROM wire WHERE node_pkey = ?
 )""", (node_pkey, )):
+                if name.startswith('LV'):
+                    is_lv_node = True
+                    break
+
+            capacitance = 0
+            resistance = 0
+            for idx, (wire_cap, wire_res) in enumerate(cur.execute("""
+SELECT wire_in_tile.capacitance, wire_in_tile.resistance
+FROM wire_in_tile
+WHERE pkey IN (
+    SELECT wire_in_tile_pkey FROM wire WHERE node_pkey = ?
+)""", (node_pkey, ))):
                 capacitance += wire_cap
                 resistance + wire_res
+
+                if is_lv_node and idx == 1:
+                    # Only use first 2 wire RC's, ignore the rest.  It appears
+                    # that some of the RC constant was lumped into the switch
+                    # timing, so don't double count.
+                    #
+                    # FIXME: Note that this is a hack, and should be fixed if
+                    # possible.
+                    break
 
             # This node does not exist, create it now
             write_cur = self.conn.cursor()
