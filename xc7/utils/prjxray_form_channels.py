@@ -201,6 +201,12 @@ VALUES
         if "GCLK" in pip.net_from and "GFAN" in pip.net_to:
             penalty_cost = 1e-6
 
+        if 'HCLK_CMT_CK_BUFHCLK' in pip.net_from and 'HCLK_CMT_CK_IN' in pip.net_to:
+            penalty_cost = 1e-6
+
+        if 'HCLK_CMT_CK_BUFHCLK' in pip.net_from and 'HCLK_CMT_MUX_CLK_' in pip.net_to:
+            penalty_cost = 1e-6
+
         return get_switch_timing(
             pip.is_pass_transistor, delay, internal_capacitance,
             drive_resistance, penalty_cost
