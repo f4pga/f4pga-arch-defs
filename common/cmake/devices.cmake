@@ -1109,6 +1109,8 @@ function(ADD_FPGA_TARGET)
     append_file_dependency(SOURCE_FILES_DEPS ${SRC})
   endforeach()
 
+  get_cells_sim_path(PATH_TO_CELLS_SIM ${ARCH})
+
   if(NOT ${ADD_FPGA_TARGET_NO_SYNTHESIS})
     set(COMPLETE_YOSYS_SYNTH_SCRIPT "tcl ${YOSYS_SYNTH_SCRIPT}")
 
